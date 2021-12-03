@@ -124,12 +124,12 @@ limitations under the License.
    </struct>
    <struct name="D">
      <item name="x" type="UINT8U"/>
-     <item name="c" type="C"/>
+     <item name="c" type="C" isFabricSensitive="true"/>
    </struct>
 
   <struct name="Nest">
     <item name="simple1" type="UINT8U"/>
-    <item name="array" type="UINT8U" array="true"/>
+    <item name="array" type="UINT8U" array="true" isFabricSensitive="true"/>
   </struct>
   <struct name="DoubleNest">
     <item name="simple1" type="UINT8U"/>

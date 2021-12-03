@@ -28,11 +28,7 @@ limitations under the License.
     >
       <template v-slot:header="props">
         <q-tr :props="props">
-          <q-th
-            v-for="col in props.cols"
-            :key="col.name"
-            :props="props"
-          >
+          <q-th v-for="col in props.cols" :key="col.name" :props="props">
             {{ col.label }}
           </q-th>
         </q-tr>
@@ -53,18 +49,24 @@ limitations under the License.
               content-class="bg-white text-black"
               style="overflow-wrap: break-word; padding: 0px"
             >
-            <template v-slot="scope">
-              <div class="row items-center" items-center style="padding: 0px"  @click.stop="scope.cancel">
-                <q-icon
-                  name="warning"
-                  class="text-amber q-mr-sm"
-                  style="font-size: 1.5rem"
-                ></q-icon>
-                <div class="vertical-middle text-subtitle2">
-                The outgoing command is mandatory for the cluster and device type configuration you have enabled
+              <template v-slot="scope">
+                <div
+                  class="row items-center"
+                  items-center
+                  style="padding: 0px"
+                  @click.stop="scope.cancel"
+                >
+                  <q-icon
+                    name="warning"
+                    class="text-amber q-mr-sm"
+                    style="font-size: 1.5rem"
+                  ></q-icon>
+                  <div class="vertical-middle text-subtitle2">
+                    The outgoing command is mandatory for the cluster and device
+                    type configuration you have enabled
+                  </div>
                 </div>
-              </div>
-               </template>
+              </template>
             </q-popup-edit>
           </q-td>
           <q-td key="out" :props="props" auto-width>
@@ -76,8 +78,8 @@ limitations under the License.
                 (selectionClients.includes(selectedCluster.id) &&
                   props.row.source == 'client') ||
                 (selectionServers.includes(selectedCluster.id) &&
-                  props.row.source == 'server'  ||
-                  props.row.source == 'either')
+                  props.row.source == 'server') ||
+                props.row.source == 'either'
               "
               indeterminate-value="false"
               keep-color
@@ -102,8 +104,8 @@ limitations under the License.
                 (selectionServers.includes(selectedCluster.id) &&
                   props.row.source == 'client') ||
                 (selectionClients.includes(selectedCluster.id) &&
-                  props.row.source == 'server' ||
-                  props.row.source == 'either')
+                  props.row.source == 'server') ||
+                props.row.source == 'either'
               "
               @input="
                 handleCommandSelection(
@@ -118,8 +120,9 @@ limitations under the License.
           <q-td key="direction" :props="props" auto-width>{{
             props.row.source === 'client'
               ? 'Client ➞ Server'
-              : props.row.source === 'server' ? 'Server ➞ Client'
-                : "Client ↔ Server"
+              : props.row.source === 'server'
+              ? 'Server ➞ Client'
+              : 'Client ↔ Server'
           }}</q-td>
           <q-td key="commandId" :props="props" auto-width>{{
             asHex(props.row.code, 2)
@@ -182,18 +185,24 @@ export default {
   },
   methods: {
     displayCommandWarning(row) {
-      return this.isCommandRequired(row) &&
-      ((this.selectionClients.includes(this.selectedCluster.id) &&
-                  row.source == 'client') ||
-                (this.selectionServers.includes(this.selectedCluster.id) &&
-                  row.source == 'server'))
-      && !this.selectionOut.includes(this.hashCommandIdClusterId(row.id, this.selectedCluster.id)) ||
-        this.isCommandRequired(row) && (
-        (this.selectionClients.includes(this.selectedCluster.id) &&
-                  row.source == 'server') ||
-                (this.selectionServers.includes(this.selectedCluster.id) &&
-                  row.source == 'client'))
-      && !this.selectionIn.includes(this.hashCommandIdClusterId(row.id, this.selectedCluster.id))
+      return (
+        (this.isCommandRequired(row) &&
+          ((this.selectionClients.includes(this.selectedCluster.id) &&
+            row.source == 'client') ||
+            (this.selectionServers.includes(this.selectedCluster.id) &&
+              row.source == 'server')) &&
+          !this.selectionOut.includes(
+            this.hashCommandIdClusterId(row.id, this.selectedCluster.id)
+          )) ||
+        (this.isCommandRequired(row) &&
+          ((this.selectionClients.includes(this.selectedCluster.id) &&
+            row.source == 'server') ||
+            (this.selectionServers.includes(this.selectedCluster.id) &&
+              row.source == 'client')) &&
+          !this.selectionIn.includes(
+            this.hashCommandIdClusterId(row.id, this.selectedCluster.id)
+          ))
+      )
     },
     handleCommandSelection(list, listType, commandData, clusterId) {
       // We determine the ID that we need to toggle within the list.
@@ -210,7 +219,7 @@ export default {
       }
       let editContext = {
         action: 'boolean',
-        endpointTypeId: this.selectedEndpointTypeId,
+        endpointTypeIdList: this.endpointTypeIdList,
         id: commandData.id,
         value: addedValue,
         listType: listType,

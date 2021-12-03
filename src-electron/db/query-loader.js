@@ -90,12 +90,13 @@ INSERT INTO COMMAND (
   DESCRIPTION,
   SOURCE,
   IS_OPTIONAL,
+  MUST_USE_TIMED_INVOKE,
   RESPONSE_NAME,
   MANUFACTURER_CODE,
   INTRODUCED_IN_REF,
   REMOVED_IN_REF
 ) VALUES (
-  ?, ?, ?, ?, ?, ?, ?, ?, ?,
+  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
 )`
@@ -143,11 +144,12 @@ INSERT INTO ATTRIBUTE (
   IS_NULLABLE,
   IS_SCENE_REQUIRED,
   ARRAY_TYPE,
+  MUST_USE_TIMED_WRITE,
   MANUFACTURER_CODE,
   INTRODUCED_IN_REF,
   REMOVED_IN_REF
 ) VALUES (
-  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
 )`
@@ -176,6 +178,7 @@ function attributeMap(clusterId, packageId, attributes) {
     dbApi.toDbBool(attribute.isNullable),
     dbApi.toDbBool(attribute.isSceneRequired),
     attribute.entryType,
+    dbApi.toDbBool(attribute.mustUseTimedWrite),
     attribute.manufacturerCode,
     attribute.introducedIn,
     packageId,
@@ -211,6 +214,7 @@ function commandMap(clusterId, packageId, commands) {
     command.description,
     command.source,
     dbApi.toDbBool(command.isOptional),
+    dbApi.toDbBool(command.mustUseTimedInvoke),
     command.responseName,
     command.manufacturerCode,
     command.introducedIn,
@@ -782,6 +786,7 @@ async function insertStructs(db, packageId, data) {
           dbApi.toDbBool(item.isWritable),
           dbApi.toDbBool(item.isNullable),
           dbApi.toDbBool(item.isOptional),
+          dbApi.toDbBool(item.isFabricSensitive),
         ])
       )
     }
@@ -790,7 +795,21 @@ async function insertStructs(db, packageId, data) {
   if (itemsToLoad.length > 0)
     await dbApi.dbMultiInsert(
       db,
-      'INSERT INTO STRUCT_ITEM (STRUCT_REF, NAME, TYPE, FIELD_IDENTIFIER, IS_ARRAY, IS_ENUM, MIN_LENGTH, MAX_LENGTH, IS_WRITABLE, IS_NULLABLE, IS_OPTIONAL) VALUES (?,?,?,?,?,?,?,?,?,?,?)',
+      `
+INSERT INTO STRUCT_ITEM (
+  STRUCT_REF,
+  NAME,
+  TYPE,
+  FIELD_IDENTIFIER,
+  IS_ARRAY,
+  IS_ENUM,
+  MIN_LENGTH,
+  MAX_LENGTH,
+  IS_WRITABLE,
+  IS_NULLABLE,
+  IS_OPTIONAL,
+  IS_FABRIC_SENSITIVE
+) VALUES (?,?,?,?,?,?,?,?,?,?,?, ?)`,
       itemsToLoad
     )
 }
@@ -1147,9 +1166,14 @@ SET
     AND
       CLUSTER.PACKAGE_REF = ?
   )
+WHERE
+  ( SELECT PACKAGE_REF
+    FROM ENUM
+    WHERE ENUM.ENUM_ID = ENUM_CLUSTER.ENUM_REF
+  ) = ?
   
 `,
-    [packageId]
+    [packageId, packageId]
   )
 }
 
@@ -1171,9 +1195,14 @@ SET
     AND
       CLUSTER.PACKAGE_REF = ?
   )
-  
+WHERE
+  (
+    SELECT PACKAGE_REF
+    FROM STRUCT
+    WHERE STRUCT.STRUCT_ID = STRUCT_CLUSTER.STRUCT_REF
+  ) = ?
 `,
-    [packageId]
+    [packageId, packageId]
   )
 }
 
@@ -1195,10 +1224,27 @@ SET
     AND
       CLUSTER.PACKAGE_REF = ?
   )
-  
+WHERE
+  (
+    SELECT PACKAGE_REF
+    FROM BITMAP
+    WHERE BITMAP.BITMAP_ID = BITMAP_CLUSTER.BITMAP_REF
+  ) = ?
 `,
-    [packageId]
+    [packageId, packageId]
   )
+}
+
+/**
+ * Post loading actions.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ */
+async function updateStaticEntityReferences(db, packageId) {
+  await updateEnumClusterReferences(db, packageId)
+  await updateStructClusterReferences(db, packageId)
+  await updateBitmapClusterReferences(db, packageId)
 }
 
 exports.insertGlobals = insertGlobals
@@ -1213,10 +1259,8 @@ exports.insertEnums = insertEnums
 exports.insertBitmaps = insertBitmaps
 exports.insertDeviceTypes = insertDeviceTypes
 exports.insertTags = insertTags
-exports.updateEnumClusterReferences = updateEnumClusterReferences
-exports.updateStructClusterReferences = updateStructClusterReferences
-exports.updateBitmapClusterReferences = updateBitmapClusterReferences
 exports.insertAccessModifiers = insertAccessModifiers
 exports.insertAccessOperations = insertAccessOperations
 exports.insertAccessRoles = insertAccessRoles
 exports.insertDefaultAccess = insertDefaultAccess
+exports.updateStaticEntityReferences = updateStaticEntityReferences

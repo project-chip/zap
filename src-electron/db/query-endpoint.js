@@ -132,6 +132,7 @@ SELECT
   A.MANUFACTURER_CODE,
   A.IS_WRITABLE,
   A.IS_NULLABLE,
+  A.MUST_USE_TIMED_WRITE,
   A.DEFINE,
   EA.STORAGE_OPTION,
   EA.SINGLETON,
@@ -181,6 +182,7 @@ ORDER BY A.MANUFACTURER_CODE, A.CODE
       isBound: row.BOUNDED,
       isWritable: row.IS_WRITABLE,
       isNullable: row.IS_NULLABLE,
+      mustUseTimedWrite: row.MUST_USE_TIMED_WRITE,
       defaultValue: row.DEFAULT_VALUE,
       includedReportable: row.INCLUDED_REPORTABLE,
       minInterval: row.MIN_INTERVAL,
@@ -210,6 +212,7 @@ SELECT
   C.SOURCE,
   C.MANUFACTURER_CODE,
   C.IS_OPTIONAL,
+  C.MUST_USE_TIMED_INVOKE,
   EC.INCOMING,
   EC.OUTGOING
 FROM
@@ -233,6 +236,7 @@ ORDER BY C.CODE
       code: row['CODE'],
       manufacturerCode: row['MANUFACTURER_CODE'],
       isOptional: row['IS_OPTIONAL'],
+      mustUseTimedInvoke: row['MUST_USE_TIMED_INVOKE'],
       source: row['SOURCE'],
       isIncoming: row['INCOMING'],
       isOutgoing: row['OUTGOING'],

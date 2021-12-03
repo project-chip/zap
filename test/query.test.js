@@ -79,38 +79,38 @@ test(
 
 test(
   'Replace query',
-  () =>
-    dbApi
-      .dbInsert(
-        db,
-        'REPLACE INTO SETTING (CATEGORY, KEY, VALUE) VALUES (?,?,?)',
-        ['cat', 'key', 12]
-      )
-      .then((rowId) => expect(rowId).toBeGreaterThan(0))
-      .then(() =>
-        dbApi.dbGet(
-          db,
-          'SELECT VALUE FROM SETTING WHERE CATEGORY = ? AND KEY = ?',
-          ['cat', 'key']
-        )
-      )
-      .then((result) => expect(result.VALUE).toBe('12'))
-      .then(() =>
-        dbApi.dbInsert(
-          db,
-          'REPLACE INTO SETTING (CATEGORY, KEY, VALUE) VALUES (?,?,?)',
-          ['cat', 'key', 13]
-        )
-      )
-      .then((rowId) => expect(rowId).toBeGreaterThan(0))
-      .then(() =>
-        dbApi.dbGet(
-          db,
-          'SELECT VALUE FROM SETTING WHERE CATEGORY = ? AND KEY = ?',
-          ['cat', 'key']
-        )
-      )
-      .then((result) => expect(result.VALUE).toBe('13')),
+  async () => {
+    let rowId = await dbApi.dbInsert(
+      db,
+      'REPLACE INTO SETTING (CATEGORY, KEY, VALUE) VALUES (?,?,?)',
+      ['cat', 'key', 12]
+    )
+    expect(rowId).toBeGreaterThan(0)
+
+    let result = await dbApi.dbGet(
+      db,
+      'SELECT VALUE FROM SETTING WHERE CATEGORY = ? AND KEY = ?',
+      ['cat', 'key']
+    )
+
+    expect(result.VALUE).toBe('12')
+
+    rowId = await dbApi.dbInsert(
+      db,
+      'REPLACE INTO SETTING (CATEGORY, KEY, VALUE) VALUES (?,?,?)',
+      ['cat', 'key', 13]
+    )
+
+    expect(rowId).toBeGreaterThan(0)
+
+    result = await dbApi.dbGet(
+      db,
+      'SELECT VALUE FROM SETTING WHERE CATEGORY = ? AND KEY = ?',
+      ['cat', 'key']
+    )
+
+    expect(result.VALUE).toBe('13')
+  },
   testUtil.timeout.short()
 )
 
@@ -444,53 +444,50 @@ describe('Endpoint Type Config Queries', () => {
   )
   test(
     'Test Enpoint ID related query',
-    () => {
+    async () => {
       let clusterRef = 0
       let attributeRef = 0
       let attributeDefaultValue = 0
-      return queryZcl
-        .selectEndpointTypeClustersByEndpointTypeId(db, endpointTypeIdOnOff)
-        .then((x) => {
-          expect(x.length).toBe(7)
-          x.forEach((element) => {
-            if (element.side == 'server' && clusterRef == 0) {
-              clusterRef = element.clusterRef
-            }
-          })
-          expect(clusterRef == 0).toBeFalsy()
-        })
-        .then(() =>
-          queryZcl.selectEndpointTypeAttributesByEndpointId(
-            db,
-            endpointTypeIdOnOff
-          )
-        )
-        .then((x) => {
-          expect(x.length).toBe(10)
-          x.forEach((element) => {
-            if (element.clusterRef == clusterRef && attributeRef == 0) {
-              attributeRef = element.attributeRef
-              attributeDefaultValue = element.defaultValue
-            }
-          })
-          expect(attributeRef == 0).toBeFalsy()
-        })
-        .then(() =>
-          queryZcl.selectEndpointTypeAttribute(
-            db,
-            endpointTypeIdOnOff,
-            attributeRef,
-            clusterRef
-          )
-        )
-        .then((x) => expect(x.defaultValue).toBe(attributeDefaultValue))
-        .then(() =>
-          queryZcl.selectEndpointTypeCommandsByEndpointId(
-            db,
-            endpointTypeIdOnOff
-          )
-        )
-        .then((x) => expect(x.length).toBe(6))
+      let x = await queryZcl.selectEndpointTypeClustersByEndpointTypeId(
+        db,
+        endpointTypeIdOnOff
+      )
+      expect(x.length).toBe(7)
+      x.forEach((element) => {
+        if (element.side == 'server' && clusterRef == 0) {
+          clusterRef = element.clusterRef
+        }
+      })
+      expect(clusterRef == 0).toBeFalsy()
+
+      x = await queryZcl.selectEndpointTypeAttributesByEndpointId(
+        db,
+        endpointTypeIdOnOff
+      )
+
+      expect(x.length).toBe(10)
+      x.forEach((element) => {
+        if (element.clusterRef == clusterRef && attributeRef == 0) {
+          attributeRef = element.attributeRef
+          attributeDefaultValue = element.defaultValue
+        }
+      })
+      expect(attributeRef == 0).toBeFalsy()
+      x = await queryZcl.selectEndpointTypeAttribute(
+        db,
+        endpointTypeIdOnOff,
+        attributeRef,
+        clusterRef
+      )
+
+      expect(x.defaultValue).toBe(attributeDefaultValue)
+
+      x = await queryZcl.selectEndpointTypeCommandsByEndpointId(
+        db,
+        endpointTypeIdOnOff
+      )
+
+      expect(x.length).toBe(6)
     },
     testUtil.timeout.medium()
   )

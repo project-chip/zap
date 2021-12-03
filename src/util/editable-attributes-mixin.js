@@ -149,7 +149,7 @@ export default {
     setAttributeSelection(enable, listType, attributeData, clusterId) {
       let editContext = {
         action: 'boolean',
-        endpointTypeId: this.selectedEndpointTypeId,
+        endpointTypeIdList: this.endpointTypeIdList,
         id: attributeData.id,
         value: enable,
         listType: listType,
@@ -193,7 +193,6 @@ export default {
       }
     },
     handleAttributeDefaultChange(newValue, listType, attributeData, clusterId) {
-      // if (newValue) {
       let editContext = {
         action: 'text',
         endpointTypeId: this.selectedEndpointTypeId,
@@ -206,7 +205,6 @@ export default {
         reportMaxInterval: attributeData.reportMaxInterval,
       }
       this.$store.dispatch('zap/updateSelectedAttribute', editContext)
-      // }
     },
     toggleAttributeSelection(list, listType, attributeData, clusterId) {
       // We determine the ID that we need to toggle within the list.
@@ -223,7 +221,7 @@ export default {
 
       let editContext = {
         action: 'boolean',
-        endpointTypeId: this.selectedEndpointTypeId,
+        endpointTypeIdList: this.endpointTypeIdList,
         id: attributeData.id,
         value: addedValue,
         listType: listType,

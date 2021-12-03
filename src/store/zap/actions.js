@@ -21,6 +21,10 @@ import dbEnum from '../../../src-shared/db-enum.js'
 
 const http = require('http-status-codes')
 
+export function updateShowDevTools(context){
+  context.commit("updateShowDevTools")
+}
+
 export function updateInformationText(context, text) {
   Vue.prototype
     .$serverPost(restApi.uri.saveSessionKeyValue, {
@@ -716,7 +720,6 @@ export function unifyClustersAndAttributesAcrossEndpoints(context, data) {
       endpointTypeIdList,
     })
     .then((response) => {
-      // reload UI?
       console.log(restApi.uri.unifyClustersAcrossEndpoints)
     })
 

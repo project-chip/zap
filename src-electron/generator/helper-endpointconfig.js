@@ -15,6 +15,7 @@
  *    limitations under the License.
  */
 
+const cHelper = require('./helper-c.js')
 const templateUtil = require('./template-util')
 const queryEndpoint = require('../db/query-endpoint.js')
 const queryEndpointType = require('../db/query-endpoint-type.js')
@@ -317,6 +318,9 @@ function endpoint_attribute_min_max_list(options) {
 
   let ret = '{ \\\n'
   this.minMaxList.forEach((mm, index) => {
+    if (mm.typeSize > 2) {
+      throw new Error(`Can't have min/max for attributes larger than 2 bytes like '${mm.name}'`);
+    }
     if (mm.comment != comment) {
       ret += `\\\n  /* ${mm.comment} */ \\\n`
       comment = mm.comment
@@ -335,7 +339,7 @@ function endpoint_attribute_min_max_list(options) {
       (min >= 0 ? '' : '-') + '0x' + Math.abs(min).toString(16).toUpperCase()
     let maxS =
       (max >= 0 ? '' : '-') + '0x' + Math.abs(max).toString(16).toUpperCase()
-    ret += `  { (uint8_t*)${defS}, (uint8_t*)${minS}, (uint8_t*)${maxS} }${
+    ret += `  { (uint16_t)${defS}, (uint16_t)${minS}, (uint16_t)${maxS} }${
       index == this.minMaxList.length - 1 ? '' : ','
     } /* ${mm.name} */ \\\n`
   })
@@ -445,8 +449,8 @@ async function collectAttributes(endpointTypes) {
     }
 
     let device = {
-      deviceId: 0,
-      deviceVersion: 1,
+      deviceId: ept.deviceIdentifier,
+      deviceVersion: ept.endpointVersion,
     }
     endpointAttributeSize = 0
     deviceList.push(device)
@@ -477,12 +481,22 @@ async function collectAttributes(endpointTypes) {
 
       // Go over all the attributes in the endpoint and add them to the list.
       c.attributes.forEach((a) => {
-        let typeSize = a.typeSize
-        // Various types store the length of the actual content in bytes
+        // typeSize is the size of the attribute in the read/write attribute
+        // store.
+        let typeSize = a.typeSize;
+        // defaultSize is the size of the attribute in the readonly defaults
+        // store.
+        let defaultSize = typeSize;
+        let attributeDefaultValue = a.defaultValue;
+        // Various types store the length of the actual content in bytes.
+        // For those, we can size the default storage to be just big enough for
+        // the actual default value.
         if (types.isOneBytePrefixedString(a.type)) {
-          typeSize += 1
+          typeSize += 1;
+          defaultSize = attributeDefaultValue.length + 1;
         } else if (types.isTwoBytePrefixedString(a.type)) {
-          typeSize += 2
+          typeSize += 2;
+          defaultSize = attributeDefaultValue.length + 2;
         }
         // External attributes should be treated as having a typeSize of 0 for
         // most purposes (e.g. allocating space for them), but should still
@@ -491,18 +505,24 @@ async function collectAttributes(endpointTypes) {
         let contributionToLargestAttribute = typeSize;
         if (a.storage == dbEnum.storageOption.external) {
           typeSize = 0;
+          defaultSize = 0;
         }
 
-        let defaultValueIsMacro = false
-        let attributeDefaultValue = a.defaultValue
-        if (typeSize > 2) {
+        let defaultValueIsMacro = false;
+        // Zero-length strings can just use ZAP_EMPTY_DEFAULT() as the default
+        // and don't need long defaults.  Apart from that, there is one string
+        // case that _could_ fit into our 2-byte default value: a 1-char-long
+        // short string.  But figuring out how to produce a uint8_t* for it as a
+        // literal value is a pain, so just force all strings with nonzero
+        // length to use long defaults.
+        if (defaultSize > 2 || (types.isString(a.type) && a.defaultValue.length > 0)) {
           // We will need to generate the GENERATED_DEFAULTS
           longDefaults.push(a)
 
-          let def = types.longTypeDefaultValue(typeSize, a.type, a.defaultValue)
+          let def = types.longTypeDefaultValue(defaultSize, a.type, a.defaultValue)
           let longDef = {
             value: def,
-            size: typeSize,
+            size: defaultSize,
             index: longDefaultsIndex,
             name: a.name,
             comment: cluster.comment,
@@ -511,15 +531,18 @@ async function collectAttributes(endpointTypes) {
           attributeDefaultValue = `ZAP_LONG_DEFAULTS_INDEX(${longDefaultsIndex})`
           defaultValueIsMacro = true
           longDefaultsList.push(longDef)
-          longDefaultsIndex += typeSize
+          longDefaultsIndex += defaultSize;
         }
-        if (a.isBound) {
+        let mask = []
+        if ((a.min != null || a.max != null) && a.isWritable) {
+          mask.push("min_max");
           let minMax = {
             default: a.defaultValue,
             min: a.min,
             max: a.max,
             name: a.name,
             comment: cluster.comment,
+            typeSize: typeSize,
           }
           attributeDefaultValue = `ZAP_MIN_MAX_DEFAULTS_INDEX(${minMaxIndex})`
           defaultValueIsMacro = true
@@ -554,7 +577,6 @@ async function collectAttributes(endpointTypes) {
         }
         clusterAttributeSize += typeSize
         totalAttributeSize += typeSize
-        let mask = []
         if (a.side == dbEnum.side.client) {
           mask.push('client')
         }
@@ -567,9 +589,16 @@ async function collectAttributes(endpointTypes) {
         if (a.isSingleton) mask.push('singleton')
         if (a.isWritable) mask.push('writable')
         if (a.isNullable) mask.push('nullable')
+        if (a.mustUseTimedWrite) mask.push('must_use_timed_write')
+        let zap_type = "UNKNOWN ATTRIBUTE TYPE";
+        if (a.typeInfo.atomicType) {
+          zap_type = a.typeInfo.atomicType;
+        } else if (a.typeInfo.type == dbEnum.zclType.struct) {
+          zap_type = "STRUCT";
+        }
         let attr = {
           id: a.hexCode, // attribute code
-          type: `ZAP_TYPE(${a.type.toUpperCase()})`, // type
+          type: `ZAP_TYPE(${cHelper.asDelimitedMacro(zap_type)})`, // type
           size: typeSize, // size
           mask: mask, // array of special properties
           defaultValue: attributeDefaultValue, // default value, pointer to default value, or pointer to min/max/value triplet.
@@ -693,6 +722,31 @@ async function collectAttributeSizes(db, zclPackageId, endpointTypes) {
 }
 
 /**
+ * This function goes over all attributes and populates atomic types.
+ * @param {*} endpointTypes
+ * @returns promise that resolves with the passed endpointTypes, after populating the attribute atomic types.
+ *
+ */
+async function collectAttributeTypeInfo(db, zclPackageId, endpointTypes) {
+  let ps = []
+  endpointTypes.forEach((ept) => {
+    ept.clusters.forEach((cl) => {
+      cl.attributes.forEach((at) => {
+        ps.push(
+          zclUtil
+            .determineType(db, at.type, zclPackageId)
+            .then((typeInfo) => {
+              at.typeInfo = typeInfo
+            })
+        )
+      })
+    })
+  })
+  await Promise.all(ps)
+  return endpointTypes;
+}
+
+/**
  * Starts the endpoint configuration block.,
  * longDefaults: longDefaults
  *
@@ -714,6 +768,8 @@ function endpoint_config(options) {
       let endpointTypeIds = []
       endpoints.forEach((ep) => {
         endpointTypeIds.push({
+          deviceIdentifier: ep.deviceIdentifier,
+          endpointVersion: ep.endpointVersion,
           endpointTypeId: ep.endpointTypeRef,
           endpointIdentifier: ep.endpointId,
         })
@@ -727,7 +783,9 @@ function endpoint_config(options) {
           queryEndpointType
             .selectEndpointType(db, eptId.endpointTypeId)
             .then((ept) => {
-              ept.endpointId = eptId.endpointIdentifier
+              ept.endpointId = eptId.endpointIdentifier;
+              ept.endpointVersion = eptId.endpointVersion;
+              ept.deviceIdentifier = eptId.deviceIdentifier;
               return ept
             })
         )
@@ -770,6 +828,9 @@ function endpoint_config(options) {
       })
       return Promise.all(promises).then(() => endpointTypes)
     })
+    .then((endpointTypes) =>
+      collectAttributeTypeInfo(db, this.global.zclPackageId, endpointTypes)
+    )
     .then((endpointTypes) =>
       collectAttributeSizes(db, this.global.zclPackageId, endpointTypes)
     )

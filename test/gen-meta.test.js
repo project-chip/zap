@@ -216,6 +216,7 @@ test(
     epc = genResult.content['struct.h']
     expect(epc).toContain('Nest complex;// <- has nested array')
     expect(epc).toContain('// DoubleNest <- contains nested array')
+    expect(epc).toContain('array;  // FABRIC SENSITIVE')
 
     epc = genResult.content['access.out']
     expect(epc).not.toBeNull()

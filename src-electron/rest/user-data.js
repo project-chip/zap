@@ -23,6 +23,7 @@
 
 const env = require('../util/env')
 const queryZcl = require('../db/query-zcl.js')
+const queryAttribute = require('../db/query-attribute.js')
 const queryConfig = require('../db/query-config.js')
 const queryEndpointType = require('../db/query-endpoint-type.js')
 const queryEndpoint = require('../db/query-endpoint.js')
@@ -78,71 +79,60 @@ function httpPostSaveSessionKeyValue(db) {
  * @returns callback for the express uri registration
  */
 function httpPostCluster(db) {
-  return (request, response) => {
+  return async (request, response) => {
     let { id, side, flag, endpointTypeIdList } = request.body
     let sessionId = request.zapSessionId
-    let packageId
 
-    queryPackage
-      .getSessionPackagesByType(db, sessionId, dbEnum.packageType.zclProperties)
-      .then((pkgs) => {
-        packageId = pkgs[0].id
-      })
-      .then(() => {
-        if (endpointTypeIdList.length == 0) {
-          throw new Error('Invalid function parameter: endpointTypeIdList')
-        }
-        return Promise.all(
-          endpointTypeIdList.map((endpointTypeId) =>
-            queryConfig.selectClusterState(db, endpointTypeId, id, side)
-          )
+    try {
+      let pkgs = await queryPackage.getSessionPackagesByType(
+        db,
+        sessionId,
+        dbEnum.packageType.zclProperties
+      )
+
+      let packageId = pkgs[0].id
+
+      if (endpointTypeIdList.length == 0) {
+        throw new Error('Invalid function parameter: endpointTypeIdList')
+      }
+      let states = await Promise.all(
+        endpointTypeIdList.map((endpointTypeId) =>
+          queryConfig.selectClusterState(db, endpointTypeId, id, side)
         )
-      })
-      .then((states) => {
-        console.log('states: ' + JSON.stringify(states))
-        if (states.length == 0) {
-          return true
-        } else {
-          return false
-        }
-      })
-      .then((insertDefaults) => {
-        return Promise.all(
-          endpointTypeIdList.map((endpointTypeId) =>
-            queryConfig
-              .insertOrReplaceClusterState(db, endpointTypeId, id, side, flag)
-              .then(() => {
-                if (insertDefaults) {
-                  return queryConfig.insertClusterDefaults(
-                    db,
-                    endpointTypeId,
-                    packageId,
-                    {
-                      clusterRef: id,
-                      side: side,
-                    }
-                  )
-                } else {
-                  return Promise.resolve()
+      )
+
+      let insertDefaults = states.length == 0
+
+      let promises = endpointTypeIdList.map((endpointTypeId) =>
+        queryConfig
+          .insertOrReplaceClusterState(db, endpointTypeId, id, side, flag)
+          .then(() => {
+            if (insertDefaults) {
+              return queryConfig.insertClusterDefaults(
+                db,
+                endpointTypeId,
+                packageId,
+                {
+                  clusterRef: id,
+                  side: side,
                 }
-              })
-          )
-        ).then(() =>
-          response
-            .json({
-              endpointTypeIdList: endpointTypeIdList,
-              id: id,
-              side: side,
-              flag: flag,
-            })
-            .status(StatusCodes.OK)
-            .send()
-        )
-      })
-      .catch((err) => {
-        env.logError(err)
-        response.status(StatusCodes.BAD_REQUEST).send()
-      })
+              )
+            }
+          })
+      )
+      await Promise.all(promises)
+      response
+        .status(StatusCodes.OK)
+        .json({
+          endpointTypeIdList: endpointTypeIdList,
+          id: id,
+          side: side,
+          flag: flag,
+        })
+        .send()
+    } catch (err) {
+      response.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err)
+    }
   }
 }
 /**
@@ -154,7 +144,7 @@ function httpPostAttributeUpdate(db) {
   return async (request, response) => {
     let {
       action,
-      endpointTypeId,
+      endpointTypeIdList,
       id,
       value,
       listType,
@@ -164,6 +154,11 @@ function httpPostAttributeUpdate(db) {
       reportMaxInterval,
       reportableChange,
     } = request.body
+
+    if (!Array.isArray(endpointTypeIdList) || !endpointTypeIdList.length) {
+      response.status(StatusCodes.BAD_REQUEST).json()
+    }
+
     let paramType
     switch (listType) {
       case restApi.updateKey.attributeStorage:
@@ -179,35 +174,44 @@ function httpPostAttributeUpdate(db) {
         ? null
         : [{ key: listType, value: value, type: paramType }]
 
-    await queryConfig.insertOrUpdateAttributeState(
-      db,
-      endpointTypeId,
-      clusterRef,
-      attributeSide,
-      id,
-      paramArray,
-      reportMinInterval,
-      reportMaxInterval,
-      reportableChange
+    // all endpoints
+    await Promise.all(
+      endpointTypeIdList.map((endpointTypeId) =>
+        queryConfig.insertOrUpdateAttributeState(
+          db,
+          endpointTypeId,
+          clusterRef,
+          attributeSide,
+          id,
+          paramArray,
+          reportMinInterval,
+          reportMaxInterval,
+          reportableChange
+        )
+      )
     )
 
+    // send latest value to frontend to update UI
     let eptAttr = await queryZcl.selectEndpointTypeAttribute(
       db,
-      endpointTypeId,
+      endpointTypeIdList[0],
       id,
       clusterRef
     )
 
+    // only return 1 validation result.
+    // error isn't endpoint specific.
+    // endpointTypeId doesn't matter since all attributes are the seame.
     let validationData = await validation.validateAttribute(
       db,
-      endpointTypeId,
+      endpointTypeIdList[0],
       id,
       clusterRef
     )
 
     response.status(StatusCodes.OK).json({
       action: action,
-      endpointTypeId: endpointTypeId,
+      endpointTypeIdList: endpointTypeIdList,
       clusterRef: clusterRef,
       id: id,
       added: value,
@@ -229,6 +233,7 @@ function httpPostCommandUpdate(db) {
     let {
       action,
       endpointTypeId,
+      endpointTypeIdList,
       id,
       value,
       listType,
@@ -247,18 +252,24 @@ function httpPostCommandUpdate(db) {
       default:
         break
     }
-    await queryConfig.insertOrUpdateCommandState(
-      db,
-      endpointTypeId,
-      clusterRef,
-      commandSide,
-      id,
-      value,
-      isIncoming
+
+    await Promise.all(
+      endpointTypeIdList.map((endpointTypeId) =>
+        queryConfig.insertOrUpdateCommandState(
+          db,
+          endpointTypeId,
+          clusterRef,
+          commandSide,
+          id,
+          value,
+          isIncoming
+        )
+      )
     )
+
     response.status(StatusCodes.OK).json({
       action: action,
-      endpointTypeId: endpointTypeId,
+      endpointTypeIdList: endpointTypeIdList,
       id: id,
       added: value,
       listType: listType,
@@ -388,8 +399,7 @@ function httpPostAddNewPackage(db) {
       }
       res.status(StatusCodes.OK).json(status)
     } catch (err) {
-      env.logError(err)
-      res.status(StatusCodes.BAD_REQUEST).send()
+      response.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err)
     }
   }
 }
@@ -405,18 +415,133 @@ function httpPostAddNewPackage(db) {
  */
 function httpPostUnifyAttributesAcrossEndpoints(db) {
   return async (request, response) => {
-    //   let { endpointTypeIdList } = request.query
-    //   queryAttribute.selectAttributeDetailsFromAllEndpointTypesAndClustersUtil(db,
-    //     )
-    //   let clusters =
-    //     await queryEndpointType.selectAllClustersDetailsFromEndpointTypes(
-    //       db,
-    //       endpointTypeIdList
-    //     )
-    //   console.log(JSON.stringify(clusters))
-    //   response.status(StatusCodes.OK).json({
-    //     clusters,
-    //   })
+    let { endpointTypeIdList } = request.body
+    let resp = { oldState: {}, newState: {} }
+
+    // let respJson = {oldState: {
+    //                            endpointTypeId_1: [{cluster_state_1, cluster_state_2}],
+    //                            endpointTypeId_2: [{cluster_state_1, cluster_state_2}],
+    //                           },
+    //                 newState: {
+    //                            endpointTypeId_1: [{cluster_state_1, cluster_state_2}],
+    //                            endpointTypeId_2: [{cluster_state_1, cluster_state_2}],
+    //                           }}
+
+    if (!Array.isArray(endpointTypeIdList) || !endpointTypeIdList.length) {
+      response.status(StatusCodes.BAD_REQUEST).json()
+    } else {
+      if (endpointTypeIdList.length == 1) {
+        return response.status(StatusCodes.OK).json(resp)
+      }
+
+      let endpointsAndClusters =
+        await queryEndpointType.selectClustersAndEndpointDetailsFromEndpointTypes(
+          db,
+          endpointTypeIdList.map((x) => {
+            return { endpointTypeId: x }
+          })
+        )
+
+      let unifiedAttributesInfo =
+        await queryAttribute.selectAttributeDetailsFromEnabledClusters(
+          db,
+          endpointsAndClusters
+        )
+      unifiedAttributesInfo.forEach((entry) => {
+        // global attribute do not have cluserRefs field
+        // let's fix it up for the attribute update API.
+        if (entry.clusterRef == null) {
+          entry.clusterRef = entry.clusterId
+        }
+      })
+
+      let oldEndpointAttributesInfo = await Promise.all(
+        endpointsAndClusters.map((endpointsAndCluster) =>
+          queryAttribute
+            .selectAttributeDetailsFromEnabledClusters(db, [
+              endpointsAndCluster,
+            ])
+            .then((attrDetails) => {
+              // global attributes are not tied to specific Clusters
+              if (attrDetails.clusterRef == null) {
+                queryEndpoint.selectEndpointClusters(db)
+              }
+            })
+        )
+      )
+
+      // align all cluster states
+      if (endpointTypeIdList.length > 1) {
+        endpointTypeIdList.forEach((endpointTypeId) => {
+          unifiedAttributesInfo.forEach((attr) =>
+            queryConfig.insertOrUpdateAttributeState(
+              db,
+              endpointTypeId,
+              attr.clusterRef,
+              attr.side,
+              attr.id,
+              [
+                { key: restApi.updateKey.attributeSelected, value: 1 },
+                {
+                  key: restApi.updateKey.attributeStorage,
+                  value: `"${attr.storageOption}"`,
+                },
+                {
+                  key: restApi.updateKey.attributeSingleton,
+                  value: attr.isSingleton,
+                },
+                {
+                  key: restApi.updateKey.attributeBounded,
+                  value: attr.isAttributeBounded,
+                },
+                {
+                  key: restApi.updateKey.attributeDefault,
+                  value: attr.defaultValue,
+                },
+                {
+                  key: restApi.updateKey.attributeReporting,
+                  value: attr.isAttributeReportable,
+                },
+              ],
+              attr.attributeReportableMinValue,
+              attr.attributeReportableMaxValue,
+              attr.attributeReportableChange
+            )
+          )
+        })
+      }
+
+      resp.oldState = []
+      endpointTypeIdList.forEach((endpointTypeId, index) => {
+        resp.oldState.push({
+          endpointTypeId: endpointTypeId,
+          attributes: oldEndpointAttributesInfo[index],
+        })
+      })
+
+      let newEndpointClusterInfos = await Promise.all(
+        endpointTypeIdList.map((endpointTypeId) =>
+          queryEndpointType.selectAllClustersDetailsFromEndpointTypes(db, [
+            { endpointTypeId },
+          ])
+        )
+      ).then((endpointClusterInfos) =>
+        // sort by name
+        endpointClusterInfos.map((clus) =>
+          clus.sort((a, b) => a.name.localeCompare(b.name))
+        )
+      )
+
+      resp.newState = []
+      endpointTypeIdList.forEach((endpointTypeId, index) => {
+        resp.newState.push({
+          endpointTypeId: endpointTypeId,
+          attributes: newEndpointClusterInfos[index],
+        })
+      })
+
+      response.status(StatusCodes.OK).json(resp)
+    }
   }
 }
 
@@ -444,7 +569,7 @@ function httpPostUnifyClustersAcrossEndpoints(db) {
     //                           }}
 
     if (!Array.isArray(endpointTypeIdList) || !endpointTypeIdList.length) {
-      response.status(StatusCodes.BAD_REQUEST).json()
+      response.status(StatusCodes.BAD_REQUEST).send()
     } else {
       if (endpointTypeIdList.length == 1) {
         return response.status(StatusCodes.OK).json(resp)
@@ -458,7 +583,7 @@ function httpPostUnifyClustersAcrossEndpoints(db) {
           })
         )
 
-      let oldEndpointClusterInfos = await Promise.all(
+      let oldEndpointAttributesInfo = await Promise.all(
         endpointTypeIdList.map((endpointTypeId) =>
           queryEndpointType.selectAllClustersDetailsFromEndpointTypes(db, [
             { endpointTypeId },
@@ -490,7 +615,7 @@ function httpPostUnifyClustersAcrossEndpoints(db) {
       endpointTypeIdList.forEach((endpointTypeId, index) => {
         resp.oldState.push({
           endpointTypeId: endpointTypeId,
-          clusters: oldEndpointClusterInfos[index],
+          clusters: oldEndpointAttributesInfo[index],
         })
       })
 
@@ -515,23 +640,23 @@ function httpPostUnifyClustersAcrossEndpoints(db) {
         })
       })
 
-      env.logInfo(`Unifying cluster states across endpoint`)
-      env.logInfo(`Before:`)
-      resp.oldState.forEach((ep) => {
-        ep.clusters.forEach((clus) => {
-          env.logInfo(
-            `ep: ${ep}, clus_id:${clus.id}, name:${clus.name}, side:${clus.side}, enabled:${clus.enabled}`
-          )
-        })
-      })
-      env.logInfo(`After:`)
-      resp.newState.forEach((ep) => {
-        ep.clusters.forEach((clus) => {
-          env.logInfo(
-            `ep_id: ${ep.endpointTypeId}, clus_id:${clus.id}, name:${clus.name}, side:${clus.side}, enabled:${clus.enabled}`
-          )
-        })
-      })
+      // env.logInfo(`Unifying cluster states across endpoint`)
+      // env.logInfo(`Before:`)
+      // resp.oldState.forEach((ep) => {
+      //   ep.clusters.forEach((clus) => {
+      //     env.logInfo(
+      //       `ep_id: ${ep.endpointTypeId}, clus_id:${clus.id}, name:${clus.name}, side:${clus.side}, enabled:${clus.enabled}`
+      //     )
+      //   })
+      // })
+      // env.logInfo(`After:`)
+      // resp.newState.forEach((ep) => {
+      //   ep.clusters.forEach((clus) => {
+      //     env.logInfo(
+      //       `ep_id: ${ep.endpointTypeId}, clus_id:${clus.id}, name:${clus.name}, side:${clus.side}, enabled:${clus.enabled}`
+      //     )
+      //   })
+      // })
       response.status(StatusCodes.OK).json(resp)
     }
   }

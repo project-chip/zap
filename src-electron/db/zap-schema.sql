@@ -165,6 +165,7 @@ CREATE TABLE IF NOT EXISTS "COMMAND" (
   "DESCRIPTION" text,
   "SOURCE" text,
   "IS_OPTIONAL" integer,
+  "MUST_USE_TIMED_INVOKE" integer,
   "INTRODUCED_IN_REF" integer,
   "REMOVED_IN_REF" integer,
   "RESPONSE_NAME" integer,
@@ -264,6 +265,7 @@ CREATE TABLE IF NOT EXISTS "ATTRIBUTE" (
   "IS_REPORTABLE" integer,
   "IS_NULLABLE" integer,
   "ARRAY_TYPE" text,
+  "MUST_USE_TIMED_WRITE" integer,
   "INTRODUCED_IN_REF" integer,
   "REMOVED_IN_REF" integer,
   foreign key (INTRODUCED_IN_REF) references SPEC(SPEC_ID),
@@ -499,6 +501,7 @@ CREATE TABLE IF NOT EXISTS "STRUCT_ITEM" (
   "IS_WRITABLE" integer,
   "IS_NULLABLE" integer,
   "IS_OPTIONAL" integer,
+  "IS_FABRIC_SENSITIVE" integer,
   foreign key (STRUCT_REF) references STRUCT(STRUCT_ID)
 );
 /*
