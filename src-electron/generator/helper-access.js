@@ -78,6 +78,14 @@ async function access(options) {
     accessList.push(...defaultAccess)
   }
 
+  accessList.forEach((element) => {
+    element.hasRole = element.role != null && element.role.length > 0
+    element.hasOperation =
+      element.operation != null && element.operation.length > 0
+    element.hasAccessModifier =
+      element.accessModifier != null && element.accessModifier.length > 0
+  })
+
   let p = templateUtil.collectBlocks(accessList, options, this)
   return templateUtil.templatePromise(this.global, p)
 }
