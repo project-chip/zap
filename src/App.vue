@@ -27,6 +27,7 @@ const rendApi = require(`../src-shared/rend-api.js`)
 const observable = require('./util/observable.js')
 const dbEnum = require(`../src-shared/db-enum.js`)
 const storage = require('./util/storage.js')
+const _ = require('lodash')
 
 function initLoad(store) {
   store.dispatch('zap/loadInitialData')
@@ -57,8 +58,13 @@ export default {
   name: 'App',
   methods: {
     setThemeMode(theme) {
-      this.$q.dark.set(theme != null && theme.includes('dark'))
-      storage.setItem(rendApi.storageKey.theme, theme)
+      // DO NOT call observable.setObservableAttribute(rendApi.observable.themeData) inside this function.
+      // this function serves as the callback for handling 'themeData' event / changes.
+      let setDarkTheme = false
+      if (_.isString(theme)) {
+        setDarkTheme = theme.includes('dark')
+      }
+      this.$q.dark.set(setDarkTheme)
     },
     setGenerationInProgress(progressMessage) {
       if (progressMessage != null && progressMessage.length > 0) {
@@ -74,7 +80,7 @@ export default {
     },
   },
   mounted() {
-    let theme = storage.getItem(rendApi.storageKey.theme)
+    let theme = observable.getObservableAttribute(rendApi.observable.themeData)
     this.setThemeMode(theme)
 
     this.$q.loading.show({

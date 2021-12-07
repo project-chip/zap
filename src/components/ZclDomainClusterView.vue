@@ -53,10 +53,7 @@ limitations under the License.
               content-class="bg-white text-black"
               style="overflow-wrap: break-word; padding: 0px"
             >
-              <div
-                v-show="missingRequiredUcComponents(props.row).length"
-                class="row"
-              >
+              <div v-show="missingRequiredUcComponents(props.row).length">
                 <div class="row items-center" items-center style="padding: 0px">
                   <q-icon
                     name="warning"
@@ -67,29 +64,32 @@ limitations under the License.
                     Required SLC Component not installed
                   </div>
                 </div>
+
                 <div class="row no-wrap">
                   Install following components to continue endpoint
                   configuration.
                 </div>
 
                 <div class="row no-wrap">
-                  <ul style="list-style-type: none">
-                    <li
-                      v-for="id in missingRequiredUcComponents(props.row)"
-                      :key="id"
-                    >
-                      {{ ucLabel(id) }}
-                    </li>
-                  </ul>
-                </div>
+                  <div class="col justify-start">
+                    <ul style="list-style-type: none; padding-left: 0px">
+                      <li
+                        v-for="id in missingRequiredUcComponents(props.row)"
+                        :key="id"
+                      >
+                        {{ ucLabel(id) }}
+                      </li>
+                    </ul>
+                  </div>
 
-                <div class="row justify-end">
-                  <q-btn
-                    unelevated
-                    text-color="primary"
-                    @click="enableRequiredComponents(props.row.id)"
-                    >Install</q-btn
-                  >
+                  <div class="justify-end">
+                    <q-btn
+                      unelevated
+                      text-color="primary"
+                      @click="enableRequiredComponents(props.row.id)"
+                      >Install</q-btn
+                    >
+                  </div>
                 </div>
               </div>
 

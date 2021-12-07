@@ -16,7 +16,7 @@
  */
 import Vue from 'vue'
 
-export const updateShowDevTools=(state)=>{
+export const updateShowDevTools = (state) => {
   state.showDevTools = !state.showDevTools
 }
 export function updateInformationText(state, text) {
@@ -483,12 +483,15 @@ export function updateProjectPackages(state, packages) {
 }
 
 export function updateUcComponentState(state, data) {
-  Vue.set(state.studio, 'projectInfoJson', data.projectInfoJson)
-  Vue.set(state.studio, 'ucComponents', data.ucComponents)
-  Vue.set(state.studio, 'selectedUcComponents', data.selectedUcComponents)
-  Vue.set(state.studio, 'selectedUcComponentIds', data.selectedUcComponentIds)
+  if (data != null) {
+    Vue.set(state.studio, 'projectInfoJson', data.projectInfoJson)
+    Vue.set(state.studio, 'ucComponents', data.ucComponents)
+    Vue.set(state.studio, 'selectedUcComponents', data.selectedUcComponents)
+    Vue.set(state.studio, 'selectedUcComponentIds', data.selectedUcComponentIds)
+  }
 }
 
 export function loadZclClusterToUcComponentDependencyMap(state, map) {
-  Vue.set(state.studio, 'zclSdkExtClusterToUcComponentMap', map)
+  if (map != null)
+    Vue.set(state.studio, 'zclSdkExtClusterToUcComponentMap', map)
 }
