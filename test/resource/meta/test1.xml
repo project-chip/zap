@@ -24,7 +24,12 @@ limitations under the License.
     <define>TEST_1</define>
     <client tick="false" init="false">false</client>
     <server tick="false" init="false">true</server>
-    <attribute side="server" code="0x0000" define="AT1" type="INT64U" writable="false" optional="true">
+    <struct name="FabricScopedStruct">
+      <cluster code="0xABCD"/>
+      <item name="fab_idx" type="FABRIC_IDX"/>
+    </struct>
+    <attribute side="server" code="0x0000" define="AT1" type="LIST" entryType="FabricScopedStruct" writable="false" optional="true">
+      <!-- Fabric scoped attributes are lists with a struct which contains a fabric_idx field. -->
       <description>at1</description>
       <access op="write" role="manage" modifier="fabric-scoped"/>
     </attribute>
