@@ -84,6 +84,10 @@ async function access(options) {
       element.operation != null && element.operation.length > 0
     element.hasAccessModifier =
       element.accessModifier != null && element.accessModifier.length > 0
+    element.hasAllAccessElements =
+      element.hasRole && element.hasOperation && element.hasAccessModifier
+    element.hasAtLeastOneAccessElement =
+      element.hasRole || element.hasOperation || element.hasAccessModifier
   })
 
   let p = templateUtil.collectBlocks(accessList, options, this)
