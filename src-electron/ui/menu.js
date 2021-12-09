@@ -22,7 +22,7 @@ const about = require('../main-process/about')
 const commonUrl = require('../../src-shared/common-url.js')
 const browserApi = require('./browser-api.js')
 const rendApi = require('../../src-shared/rend-api.js')
-
+let menuIsShown = false;
 const newConfiguration = 'New Configuration'
 
 const template = (httpPort) => [
@@ -352,6 +352,8 @@ function fileOpen(filePaths, httpPort) {
  * @param {*} port
  */
 function initMenu(httpPort) {
+  menuIsShown = !menuIsShown
+  if(!menuIsShown) return Menu.setApplicationMenu(null)
   const menu = Menu.buildFromTemplate(template(httpPort))
   Menu.setApplicationMenu(menu)
 }

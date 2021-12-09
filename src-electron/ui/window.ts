@@ -43,6 +43,9 @@ let windowCounter = 0
 export function initializeElectronUi(port: number) {
   menu.initMenu(port)
   tray.initTray(port)
+  setTimeout(() => {
+    menu.initMenu(port)
+  }, 3000);
 }
 
 export function windowCreateIfNotThere(port: number) {
@@ -156,5 +159,11 @@ export function windowCreate(port: number, args?: WindowCreateArgs) {
       }
     }
   )
+  w.webContents.on('before-input-event',(e,input)=>{
+    if(input.type === "keyUp" && input.key.toLowerCase()==="alt"){
+      console.log('key pressed')
+      menu.initMenu(port)
+    }
+  })
   return w
 }
