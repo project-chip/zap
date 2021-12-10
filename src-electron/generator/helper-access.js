@@ -24,14 +24,14 @@ const templateUtil = require('./template-util')
  * @module Templating API: Access helpers
  */
 
-async function access(options) {
+async function collectAccesslist(ctx, options) {
   let entityType = null
   let includeDefault = true
 
   if ('entity' in options.hash) {
     entityType = options.hash.entity
   } else {
-    entityType = this.entityType
+    entityType = ctx.entityType
   }
 
   if ('includeDefault' in options.hash) {
@@ -49,18 +49,15 @@ async function access(options) {
   switch (entityType) {
     case 'attribute':
       accessList = await queryAccess.selectAttributeAccess(
-        this.global.db,
-        this.id
+        ctx.global.db,
+        ctx.id
       )
       break
     case 'command':
-      accessList = await queryAccess.selectCommandAccess(
-        this.global.db,
-        this.id
-      )
+      accessList = await queryAccess.selectCommandAccess(ctx.global.db, ctx.id)
       break
     case 'event':
-      accessList = await queryAccess.selectEventAccess(this.global.db, this.id)
+      accessList = await queryAccess.selectEventAccess(ctx.global.db, ctx.id)
       break
     default:
       throw new Error(
@@ -69,14 +66,87 @@ async function access(options) {
   }
 
   if (includeDefault) {
-    let packageId = await templateUtil.ensureZclPackageId(this)
+    let packageId = await templateUtil.ensureZclPackageId(ctx)
     let defaultAccess = await queryAccess.selectDefaultAccess(
-      this.global.db,
+      ctx.global.db,
       packageId,
       entityType
     )
     accessList.push(...defaultAccess)
   }
+
+  return accessList
+}
+
+/**
+ * This helper creates a context for the aggregates of access.
+ *
+ * @param {*} options
+ */
+async function access_aggregate(options) {
+  let packageId = await templateUtil.ensureZclPackageId(this)
+  let accessList = await collectAccesslist(this, options)
+  let allOps = await queryAccess.selectAccessOperations(
+    this.global.db,
+    packageId
+  )
+  let allMods = await queryAccess.selectAccessModifiers(
+    this.global.db,
+    packageId
+  )
+  let allRoles = await queryAccess.selectAccessRoles(this.global.db, packageId)
+  let roleLevels = {}
+  allRoles.forEach((r) => {
+    roleLevels[r.name] = r.level
+  })
+
+  let aggregate = {}
+
+  allOps.forEach((r) => {
+    aggregate[r.name + 'Highest'] = 'NONE'
+    aggregate[r.name + 'Lowest'] = 'NONE'
+  })
+  allMods.forEach((r) => {
+    aggregate[r.name] = false
+  })
+
+  accessList.forEach((a) => {
+    let role = a.role
+    let operation = a.operation
+    let accessModifier = a.accessModifier
+    if (accessModifier != null) {
+      aggregate[accessModifier] = true
+    }
+    if (role != null) {
+      if (aggregate[operation + 'Highest'] === 'NONE') {
+        aggregate[operation + 'Highest'] = role
+        aggregate[operation + 'Lowest'] = role
+      } else {
+        let highestRole = aggregate[operation + 'Highest']
+        let lowestRole = aggregate[operation + 'Lowest']
+        if (roleLevels[role] < roleLevels[lowestRole]) {
+          aggregate[operation + 'Lowest'] = role
+        }
+        if (roleLevels[role] > roleLevels[highestRole]) {
+          aggregate[operation + 'Highest'] = role
+        }
+      }
+    }
+  })
+
+  let p = templateUtil.collectBlocks([aggregate], options, this)
+  return templateUtil.templatePromise(this.global, p)
+}
+
+/**
+ * Access helper iterates across all the access triplets associated with the element.
+ * For each element, context contains role, operation, accessModifier.
+ * Additionally it creates booleans hasRole, hasOperation and hasAccessModifier
+ * and hasAtLeastOneAccessElement and hasAllAccessElements
+ * @param {*} options
+ */
+async function access(options) {
+  let accessList = await collectAccesslist(this, options)
 
   accessList.forEach((element) => {
     element.hasRole = element.role != null && element.role.length > 0
@@ -95,3 +165,4 @@ async function access(options) {
 }
 
 exports.access = access
+exports.access_aggregate = access_aggregate
