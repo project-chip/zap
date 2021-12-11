@@ -453,6 +453,7 @@ exports.map = {
     return {
       name: x.NAME,
       description: x.DESCRIPTION,
+      level: x.LEVEL,
     }
   },
   accessOperation: (x) => {

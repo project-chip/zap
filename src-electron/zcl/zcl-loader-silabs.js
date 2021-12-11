@@ -694,6 +694,7 @@ async function processAccessControl(
         roles.push({
           name: role.$.type,
           description: role.$.description,
+          level: roles.length,
         })
       }
     }
@@ -702,6 +703,7 @@ async function processAccessControl(
         roles.push({
           name: role.$.type,
           description: role.$.description,
+          level: roles.length,
         })
       }
     }

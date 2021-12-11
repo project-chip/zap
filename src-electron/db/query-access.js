@@ -40,7 +40,7 @@ async function selectAccessRoles(db, packageId) {
     .dbAll(
       db,
       `
-SELECT NAME, DESCRIPTION FROM ROLE WHERE PACKAGE_REF = ? ORDER BY NAME
+SELECT NAME, DESCRIPTION, LEVEL FROM ROLE WHERE PACKAGE_REF = ? ORDER BY NAME
     `,
       [packageId]
     )

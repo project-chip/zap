@@ -538,6 +538,7 @@ DROP TABLE IF EXISTS "ROLE";
 CREATE TABLE IF NOT EXISTS "ROLE" (
   "ROLE_ID" integer primary key autoincrement,
   "PACKAGE_REF" integer,
+  "LEVEL" integer,
   "NAME" text,
   "DESCRIPTION" text,
   foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID) on delete cascade
