@@ -18,16 +18,26 @@ limitations under the License.
     <div class="text-h4 q-mb-md">User settings</div>
     <q-separator spaced="md" />
     <p>UI preferences</p>
-    <q-btn flat @click="toggleTheme()" label="Dark/Light" />
+    <q-separator spaced="md" />
     <q-toggle
-          class="q-mr-sm"
-          label="Dev Tools"
-          dense
-          left-label
-          v-model="devtab"
-        >
-          <q-tooltip> Enable Dev Tools tab </q-tooltip>
-        </q-toggle>
+      class="q-mr-sm q-mt-lg q-mb-lg"
+      label="Dark Theme"
+      dense
+      left-label
+      v-model="localtheme"
+    >
+      <q-tooltip> Enable Dark theme </q-tooltip>
+    </q-toggle>
+    <br />
+    <q-toggle
+      class="q-mr-sm q-mt-lg q-mb-lg"
+      label="Dev Tools"
+      dense
+      left-label
+      v-model="devtab"
+    >
+      <q-tooltip> Enable Dev Tools tab </q-tooltip>
+    </q-toggle>
     <q-separator spaced="md" />
     <p>User preferences.</p>
     <q-input @input="setPath" v-model="localPath" label="Last file location" />
@@ -39,20 +49,36 @@ import rendApi from '../../src-shared/rend-api.js'
 const observable = require('../util/observable.js')
 export default {
   name: 'PreferenceUser',
+  data() {
+    return {
+      localtheme: false,
+    }
+  },
+  created() {
+    this.gettheme()
+  },
   methods: {
-    
     setPath(path) {
       storage.setItem(rendApi.storageKey.fileSave, path)
     },
-    toggleTheme() {
-      let theme = observable.getObservableAttribute(
-        rendApi.observable.themeData
+    gettheme() {
+      return new Promise((r) => {
+        setTimeout(async () => {
+          let theme = observable.getObservableAttribute(
+            rendApi.observable.themeData
+          )
+          if (!theme) await this.gettheme()
+          this.localtheme = theme === 'dark'
+        }, 1000)
+      })
+    },
+  },
+  watch: {
+    localtheme(val) {
+      observable.setObservableAttribute(
+        rendApi.observable.themeData,
+        val ? 'dark' : 'light'
       )
-      if (theme == 'dark') {
-        observable.setObservableAttribute(rendApi.observable.themeData, 'light')
-      } else {
-        observable.setObservableAttribute(rendApi.observable.themeData, 'dark')
-      }
     },
   },
   computed: {
@@ -61,14 +87,14 @@ export default {
         return storage.getItem(rendApi.storageKey.fileSave)
       },
     },
-    devtab:{
-      get(){
+    devtab: {
+      get() {
         return this.$store.state.zap.showDevTools
       },
-      set(){
-        return this.$store.dispatch("zap/updateShowDevTools")
-      }
-    }
+      set() {
+        return this.$store.dispatch('zap/updateShowDevTools')
+      },
+    },
   },
 }
 </script>
