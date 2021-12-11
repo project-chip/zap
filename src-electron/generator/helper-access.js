@@ -86,6 +86,13 @@ async function collectAccesslist(ctx, options) {
 async function access_aggregate(options) {
   let packageId = await templateUtil.ensureZclPackageId(this)
   let accessList = await collectAccesslist(this, options)
+  let ignoreEmpty
+  if ('ignoreEmpty' in options.hash) {
+    ignoreEmpty = options.hash.ignoreEmpty == 'true'
+  } else {
+    ignoreEmpty = false
+  }
+
   let allOps = await queryAccess.selectAccessOperations(
     this.global.db,
     packageId
@@ -100,7 +107,9 @@ async function access_aggregate(options) {
     roleLevels[r.name] = r.level
   })
 
-  let aggregate = {}
+  let aggregate = {
+    count: accessList.length,
+  }
 
   allOps.forEach((r) => {
     aggregate[r.name + 'Highest'] = 'NONE'
@@ -134,7 +143,13 @@ async function access_aggregate(options) {
     }
   })
 
-  let p = templateUtil.collectBlocks([aggregate], options, this)
+  let blocks
+  if (ignoreEmpty && aggregate.count == 0) {
+    blocks = []
+  } else {
+    blocks = [aggregate]
+  }
+  let p = templateUtil.collectBlocks(blocks, options, this)
   return templateUtil.templatePromise(this.global, p)
 }
 

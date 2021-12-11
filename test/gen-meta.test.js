@@ -228,7 +228,7 @@ test(
     )
     expect(epc).toContain('* Op:  / Role:  / Modifier: fabric-sensitive')
     expect(epc).toContain(
-      '* Aggregates: fScope=true/fSensitive=false/read=view/write=[operate - manage]/invoke=NONE'
+      '* Aggregates [3]: fScope=true/fSensitive=false/read=view/write=[operate - manage]/invoke=NONE'
     )
   },
   testUtil.timeout.medium()

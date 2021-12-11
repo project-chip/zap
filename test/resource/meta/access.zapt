@@ -6,7 +6,7 @@ Cluster: {{name}} [{{code}}]
     * Op: {{operation}} / Role: {{role}} / Modifier: {{accessModifier}}   ({{hasOperation}}/{{hasRole}}/{{hasAccessModifier}})
   {{/access}}
   {{#access_aggregate entity="attribute"}}
-    * Aggregates: fScope={{fabric-scoped}}/fSensitive={{fabric-sensitive}}/read={{readLowest}}/write=[{{writeLowest}} - {{writeHighest}}]/invoke={{invokeLowest}}
+    * Aggregates [{{count}}]: fScope={{fabric-scoped}}/fSensitive={{fabric-sensitive}}/read={{readLowest}}/write=[{{writeLowest}} - {{writeHighest}}]/invoke={{invokeLowest}}
   {{/access_aggregate}}
 {{/zcl_attributes}}
 {{#zcl_commands}}
@@ -15,7 +15,7 @@ Cluster: {{name}} [{{code}}]
     * Op: {{operation}} / Role: {{role}} / Modifier: {{accessModifier}}
   {{/access}}
   {{#access_aggregate entity="command"}}
-    * Aggregates: fScope={{fabric-scoped}}/fSensitive={{fabric-sensitive}}/read={{readLowest}}/write={{writeLowest}}/invoke={{invokeLowest}}
+    * Aggregates [{{count}}]: fScope={{fabric-scoped}}/fSensitive={{fabric-sensitive}}/read={{readLowest}}/write={{writeLowest}}/invoke={{invokeLowest}}
   {{/access_aggregate}}
 {{/zcl_commands}}
 {{#zcl_events}}
@@ -23,8 +23,8 @@ Cluster: {{name}} [{{code}}]
   {{#access entity="event"}}
     * Op: {{operation}} / Role: {{role}} / Modifier: {{accessModifier}}
   {{/access}}
-  {{#access_aggregate entity="event"}}
-    * Aggregates: fScope={{fabric-scoped}}/fSensitive={{fabric-sensitive}}/read={{readLowest}}/write={{writeLowest}}/invoke={{invokeLowest}}
+  {{#access_aggregate entity="event" ignoreEmpty="true"}}
+    * Aggregates [{{count}}]: fScope={{fabric-scoped}}/fSensitive={{fabric-sensitive}}/read={{readLowest}}/write={{writeLowest}}/invoke={{invokeLowest}}
   {{/access_aggregate}}
 {{/zcl_events}}
 
