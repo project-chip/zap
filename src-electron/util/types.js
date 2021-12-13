@@ -47,19 +47,19 @@ async function typeSize(db, zclPackageId, type) {
  * @returns Promise that resolves into the size of the attribute.
  */
 async function typeSizeAttribute(db, zclPackageId, at, defaultValue = null) {
-  let sizeType;
+  let sizeType
   if (at.typeInfo) {
     if (!at.typeInfo.atomicType) {
       if (at.storage != dbEnum.storageOption.external) {
         throw new Error(
           `ERROR: Unknown size for non-external attribute: ${at.label} / ${at.code}`
-        );
+        )
       }
-      return 0;
+      return 0
     }
-    sizeType = at.typeInfo.atomicType;
+    sizeType = at.typeInfo.atomicType
   } else {
-    sizeType = at.type;
+    sizeType = at.type
   }
   let size = await queryZcl.selectAtomicSizeFromType(db, zclPackageId, sizeType)
 
@@ -180,13 +180,34 @@ function isFloat(type) {
 }
 
 /**
+ * Returns true if a given ZCL type is a signed integer.
+ * @param {*} type
+ * @returns true if type is signed integer, false otherwise
+ */
+function isSignedInteger(type) {
+  switch (type) {
+    case 'int8s':
+    case 'int16s':
+    case 'int24s':
+    case 'int32s':
+    case 'int40s':
+    case 'int48s':
+    case 'int56s':
+    case 'int64s':
+      return true
+    default:
+      return false
+  }
+}
+
+/**
  * Checks if type is a one-byte lengh string.
  *
  * @param {*} type
  * @returns true if the said type is a string prefixed by one byte length
  */
 function isOneBytePrefixedString(type) {
-  type = type.toLowerCase();
+  type = type.toLowerCase()
   return type == 'char_string' || type == 'octet_string'
 }
 /**
@@ -196,7 +217,7 @@ function isOneBytePrefixedString(type) {
  * @returns true if the said type is a string prefixed by two byte length
  */
 function isTwoBytePrefixedString(type) {
-  type = type.toLowerCase();
+  type = type.toLowerCase()
   return type == 'long_char_string' || type == 'long_octet_string'
 }
 
@@ -208,3 +229,4 @@ exports.isTwoBytePrefixedString = isTwoBytePrefixedString
 exports.convertToCliType = convertToCliType
 exports.isString = isString
 exports.isFloat = isFloat
+exports.isSignedInteger = isSignedInteger
