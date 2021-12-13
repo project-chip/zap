@@ -147,6 +147,7 @@ export default {
         ) {
           let editContext = {
             action: 'text',
+            endpointTypeIdList: this.endpointTypeIdList,
             endpointTypeId: this.selectedEndpointTypeId,
             id: singleItem.id,
             value: defaultValue,
@@ -229,6 +230,7 @@ export default {
     handleAttributeDefaultChange(newValue, listType, attributeData, clusterId) {
       let editContext = {
         action: 'text',
+        endpointTypeIdList: this.endpointTypeIdList,
         endpointTypeId: this.selectedEndpointTypeId,
         id: attributeData.id,
         value: newValue,
@@ -265,6 +267,10 @@ export default {
         reportMaxInterval: attributeData.reportMaxInterval,
       }
       this.$store.dispatch('zap/updateSelectedAttribute', editContext)
+      if(addedValue && listType === "selectedAttributes" && attributeData.isReportable){
+        editContext.listType = 'selectedReporting';
+        this.$store.dispatch('zap/updateSelectedAttribute', editContext)
+      }
     },
 
     initializeTextEditableList(originatingList, editableList, attrClusterHash) {

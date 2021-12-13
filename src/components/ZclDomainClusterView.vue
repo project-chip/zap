@@ -126,6 +126,7 @@ limitations under the License.
           <q-td key="enable" :props="props">
             <q-select
               :v-model="getClusterEnabledStatus(props.row.id)"
+              :value="getClusterEnabledStatus(props.row.id)"
               :display-value="`${getClusterEnabledStatus(props.row.id)}`"
               :options="clusterSelectionOptions"
               dense
