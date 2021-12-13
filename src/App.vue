@@ -18,6 +18,14 @@ limitations under the License.
   <div id="q-app">
     <q-ajax-bar color="grey" />
     <router-view />
+    <q-btn
+      @click="viewExceptions"
+      class="fixed-bottom-right q-ma-lg"
+      flat
+      v-if="showExceptionIcon"
+    >
+      <q-icon name="warning" style="font-size: 2.5em; color: red" />
+    </q-btn>
   </div>
 </template>
 
@@ -55,6 +63,11 @@ function initLoad(store) {
 
 export default {
   name: 'App',
+  computed: {
+    showExceptionIcon() {
+      return this.$store.state.zap.showExceptionIcon
+    },
+  },
   methods: {
     setThemeMode(theme) {
       this.$q.dark.set(theme != null && theme.includes('dark'))
@@ -71,6 +84,15 @@ export default {
       } else {
         this.$q.loading.hide()
       }
+    },
+    viewExceptions() {
+      this.$router.push('/')
+      if (!this.$store.state.zap.showDevTools)
+        this.$store.dispatch('zap/updateShowDevTools')
+      if (!this.$store.state.zap.isExceptionsExpanded)
+        this.$store.commit('zap/expandedExceptionsToggle')
+      this.$store.dispatch('zap/setDefaultUiMode', 'general')
+      this.$store.commit('zap/toggleShowExceptionIcon', false)
     },
   },
   mounted() {

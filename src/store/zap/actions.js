@@ -21,8 +21,13 @@ import dbEnum from '../../../src-shared/db-enum.js'
 
 const http = require('http-status-codes')
 
-export function updateShowDevTools(context){
-  context.commit("updateShowDevTools")
+export function updateShowDevTools(context) {
+  context.commit('updateShowDevTools')
+}
+
+export function updateExceptions(context, data) {
+  context.commit('updateExceptions', data)
+  context.commit('toggleShowExceptionIcon', true)
 }
 
 export function updateInformationText(context, text) {

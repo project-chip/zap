@@ -20,6 +20,9 @@ import axios from 'axios'
 import { v4 as uuidv4 } from 'uuid'
 import restApi from '../../src-shared/rest-api.js'
 import * as Util from '../util/util.js'
+import store from '../store/index.js'
+
+const vuex = store()
 
 Vue.prototype.$axios = axios({ withCredentials: true })
 
@@ -133,7 +136,15 @@ function serverPost(url, data, config = null) {
   if (log) console.log(`POST → : ${url}, ${data}`)
   return axios['post'](fillUrl(url), data, fillConfig(config))
     .then((response) => processResponse('POST', url, response))
-    .catch((error) => console.log(error))
+    .catch((error) => {
+      vuex.dispatch('zap/updateExceptions', {
+        url,
+        method: 'post',
+        payload: data,
+        statusCode: error.response.status,
+        message: error.response.data.message,
+      })
+    })
 }
 
 /**

@@ -16,7 +16,7 @@
  */
 import Vue from 'vue'
 
-export const updateShowDevTools=(state)=>{
+export const updateShowDevTools = (state) => {
   state.showDevTools = !state.showDevTools
 }
 export function updateInformationText(state, text) {
@@ -476,6 +476,18 @@ export function resetFilters(state) {
       currentOpenDomains[domain],
   }
   state.clusterManager.openDomains = {}
+}
+
+export function expandedExceptionsToggle(state) {
+  state.isExceptionsExpanded = !state.isExceptionsExpanded
+}
+
+export function updateExceptions(state, value) {
+  state.exceptions.push(value)
+}
+
+export function toggleShowExceptionIcon(state, value) {
+  state.showExceptionIcon = value
 }
 
 export function updateProjectPackages(state, packages) {
