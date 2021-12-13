@@ -28,7 +28,6 @@ limitations under the License.
             Zigbee Cluster Configurator
           </q-toolbar-title>
           <q-space />
-
           <q-btn
             class="hidden"
             outline
@@ -37,7 +36,20 @@ limitations under the License.
             v-on:click="openDocumentation()"
           />
         </q-toolbar>
-        <ZclGeneralOptionsBar />
+        <div class="q-pa-md" >
+          <q-toggle  
+            left-label
+            v-model="isExpanded"
+            indeterminate-value="false"
+            label="Global options..."/>
+          <q-expansion-item
+            header-style="display: none;"
+            v-model="isExpanded"
+          >
+            <ZclGeneralOptionsBar />
+          </q-expansion-item>
+        </div>
+       
       </q-header>
       <!-- Not using mobile mode, so breakpoint is set at 0 -->
       <q-drawer
@@ -65,7 +77,6 @@ const commonUrl = require('../../src-shared/common-url.js')
 
 export default {
   name: 'ZclConfiguratorLayout',
-
   methods: {
     openDocumentation() {
       window.open(commonUrl.documentationUrl, '_blank')
@@ -101,7 +112,9 @@ export default {
     },
   },
   data() {
-    return {}
+    return {
+      isExpanded: false
+    }
   },
   components: {
     ZclGeneralOptionsBar,
