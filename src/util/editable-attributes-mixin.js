@@ -114,6 +114,7 @@ export default {
         disabledAttributes.forEach(singleAttribute => {
           let editContext = {
             action: 'boolean',
+            endpointTypeIdList: this.endpointTypeIdList,
             endpointTypeId: this.selectedEndpointTypeId,
             id: singleAttribute.id,
             value: false,
@@ -195,6 +196,7 @@ export default {
     handleAttributeDefaultChange(newValue, listType, attributeData, clusterId) {
       let editContext = {
         action: 'text',
+        endpointTypeIdList: this.endpointTypeIdList,
         endpointTypeId: this.selectedEndpointTypeId,
         id: attributeData.id,
         value: newValue,
