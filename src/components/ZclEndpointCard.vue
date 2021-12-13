@@ -28,34 +28,52 @@ limitations under the License.
       <q-list dense bordered>
         <br />
         <q-item class="row">
-          <div class="col-md-6">
+          <div class="col-6">
             <strong>Device</strong>
           </div>
-          <div class="col-md-6">
+          <div class="col-6">
             {{ getDeviceOptionLabel() }}
           </div>
         </q-item>
         <q-item class="row">
-          <div class="col-md-6">
+          <div class="col-6">
             <strong>Network</strong>
           </div>
-          <div class="col-md-6">
+          <div class="col-6">
             {{ networkId[endpointReference] }}
           </div>
         </q-item>
         <q-item class="row">
-          <div class="col-md-6">
+          <div class="col-6">
             <strong>Profile ID</strong>
           </div>
-          <div class="col-md-6">
+          <div class="col-6">
             {{ asHex(profileId[endpointReference], 4) }}
           </div>
         </q-item>
         <q-item class="row">
-          <div class="col-md-6">
+          <div class="col-6">
             <strong>Version</strong>
           </div>
-          <div class="col-md-6">{{ endpointVersion[endpointReference] }}</div>
+          <div class="col-6">{{ endpointVersion[endpointReference] }}</div>
+        </q-item>
+        <q-item class="row">
+          <div class="col-6">
+            <strong>Enabled Clusters</strong>
+          </div>
+          <div class="col-6 text-right">{{ selectedservers.length||"" }}</div>
+        </q-item>
+        <q-item class="row">
+          <div class="col-6">
+            <strong>Enabled Attributes</strong>
+          </div>
+          <div class="col-6 text-right">{{ selectedAttributes.length||"" }}</div>
+        </q-item>
+        <q-item class="row">
+          <div class="col-6">
+            <strong>Enabled Reporting</strong>
+          </div>
+          <div class="col-6 text-right">{{ selectedReporting.length||"" }}</div>
         </q-item>
       </q-list>
       <q-card-actions class="q-gutter-xs">
@@ -155,16 +173,17 @@ export default {
       )
       this.deleteEpt()
     },
-    getDeviceOptionLabel(){
-      if ( this.deviceType == null)
-        return ''
-      if ( this.deviceId[this.endpointReference] != this.deviceType.code ) {
+    getDeviceOptionLabel() {
+      if (this.deviceType == null) return ''
+      if (this.deviceId[this.endpointReference] != this.deviceType.code) {
         return this.asHex(this.deviceId[this.endpointReference], 4)
       } else {
-        return this.deviceType.description +
-                  ' (' +
-                  this.asHex(this.deviceType.code, 4) +
-                  ')'
+        return (
+          this.deviceType.description +
+          ' (' +
+          this.asHex(this.deviceType.code, 4) +
+          ')'
+        )
       }
     },
     handleDeletionDialog() {
@@ -205,7 +224,7 @@ export default {
     deviceId: {
       get() {
         return this.$store.state.zap.endpointView.deviceId
-      }
+      },
     },
     endpointVersion: {
       get() {
@@ -232,6 +251,15 @@ export default {
         return this.selectedEndpointId == this.endpointReference
       },
     },
+    selectedservers() {
+      return this.$store.state.zap.clustersView.selectedServers
+    },
+    selectedAttributes(){
+      return this.$store.state.zap.attributeView.selectedAttributes
+    },
+    selectedReporting(){
+      return this.$store.state.zap.attributeView.selectedReporting
+    }
   },
 }
 </script>
