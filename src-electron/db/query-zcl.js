@@ -162,6 +162,7 @@ ON
   C.CLUSTER_ID = SC.CLUSTER_REF
 WHERE
   SC.STRUCT_REF = ?
+ORDER BY C.CODE
     `,
       [structId]
     )
@@ -268,6 +269,7 @@ async function selectStructsWithItemsImpl(db, packageId, clusterId) {
     SELECT
       S.STRUCT_ID AS STRUCT_ID,
       S.NAME AS STRUCT_NAME,
+      (SELECT COUNT(1) FROM STRUCT_CLUSTER WHERE STRUCT_CLUSTER.STRUCT_REF = S.STRUCT_ID) AS STRUCT_CLUSTER_COUNT,
       SI.NAME AS ITEM_NAME,
       SI.FIELD_IDENTIFIER AS ITEM_IDENTIFIER,
       SI.TYPE AS ITEM_TYPE,
@@ -294,6 +296,7 @@ async function selectStructsWithItemsImpl(db, packageId, clusterId) {
     SELECT
       S.STRUCT_ID AS STRUCT_ID,
       S.NAME AS STRUCT_NAME,
+      (SELECT COUNT(1) FROM STRUCT_CLUSTER WHERE STRUCT_CLUSTER.STRUCT_REF = S.STRUCT_ID) AS STRUCT_CLUSTER_COUNT,
       SI.NAME AS ITEM_NAME,
       SI.FIELD_IDENTIFIER AS ITEM_IDENTIFIER,
       SI.TYPE AS ITEM_TYPE,
@@ -332,6 +335,7 @@ async function selectStructsWithItemsImpl(db, packageId, clusterId) {
         id: value.STRUCT_ID,
         name: value.STRUCT_NAME,
         label: value.STRUCT_NAME,
+        struct_cluster_count: value.STRUCT_CLUSTER_COUNT,
         items: [],
         itemCnt: 0,
       }
