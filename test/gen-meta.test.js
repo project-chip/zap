@@ -72,7 +72,7 @@ test(
       db,
       zclContext.packageId
     )
-    expect(attributes.length).toBe(2)
+    expect(attributes.length).toBe(4)
     expect(attributes[0].name).toBe('at1')
     expect(attributes[1].name).toBe('at2')
 
@@ -94,7 +94,11 @@ test(
     )
     for (const s of structs) {
       let clusters = await queryZcl.selectStructClusters(db, s.id)
-      if (s.name == 'SimpleStruct' || s.name == 'StructWithArray') {
+      if (s.name == 'SimpleStruct') {
+        expect(clusters.length).toBe(2)
+        expect(clusters[0].code).toBe(0xabcd)
+        expect(clusters[1].code).toBe(0xabce)
+      } else if (s.name == 'StructWithArray') {
         expect(clusters.length).toBe(1)
         expect(clusters[0].code).toBe(0xabcd)
       } else {

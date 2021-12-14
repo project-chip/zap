@@ -90,6 +90,7 @@ limitations under the License.
 
   <struct name="SimpleStruct">
     <cluster code="0xABCD"/>
+    <cluster code="0xABCE"/>
     <item name="a" type="UINT8U" isNullable="true"/>
     <item name="b" type="BOOLEAN"/>
     <item name="c" enum="true" type="ENUM8"/>
