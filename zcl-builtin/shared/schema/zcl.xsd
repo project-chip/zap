@@ -297,6 +297,7 @@ This schema describes the format of the XML files, that describe the ZCL specifi
         <xs:element minOccurs="0" ref="generateCmdHandlers"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" name="tag" type="tag"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="globalAttribute"/>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="struct"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="attribute"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="command"/>
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="event"/>
@@ -466,6 +467,7 @@ This schema describes the format of the XML files, that describe the ZCL specifi
       <xs:attribute name="optional" use="required" type="xs:boolean"/>
       <xs:attribute name="side" use="required" type="zclSide"/>
       <xs:attribute name="type" use="required" type="xs:string"/>
+      <xs:attribute name="entryType" type="xs:string"/>
       <xs:attribute name="readable" type="xs:boolean"/>
       <xs:attribute name="writable" type="xs:boolean"/>
       <xs:attribute name="reportable" type="xs:boolean"/>
