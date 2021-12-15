@@ -67,103 +67,101 @@ describe('Session specific tests', () => {
 
   test(
     'And load the templates.',
-    () => {
-      let packageId
-      return generationEngine
-        .loadTemplates(db, testUtil.testTemplate.zigbee)
-        .then((context) => {
-          packageId = context.packageId
-          expect(packageId).not.toBe(null)
-          expect(db).not.toBe(null)
-        })
-        .then(() =>
-          queryPackage.selectPackageExtension(
-            db,
-            packageId,
-            dbEnum.packageExtensionEntity.cluster
-          )
-        )
-        .then((extensions) => {
-          expect(extensions.length).toBe(2)
-          expect(extensions[0].entity).toBe(
-            dbEnum.packageExtensionEntity.cluster
-          )
-          expect(extensions[0].property).toBe('testClusterExtension')
-          expect(extensions[0].type).toBe('text')
-          expect(extensions[0].configurability).toBe('hidden')
-          expect(extensions[0].label).toBe('Test cluster extension')
-          expect(extensions[0].globalDefault).toBe(null)
-          expect(extensions[0].defaults.length).toBe(3)
-          expect(extensions[1].label).toBe(
-            'Test cluster extension with external defaults values'
-          )
-          expect(extensions[1].globalDefault).toBe(null)
-          expect(extensions[1].defaults.length).toBe(2)
-          expect(extensions[1].defaults[0].value).toBe(
-            'Extension value loaded via external default JSON file.'
-          )
-        })
-        .then(() =>
-          queryPackage.selectPackageExtension(
-            db,
-            packageId,
-            dbEnum.packageExtensionEntity.command
-          )
-        )
-        .then((extensions) => {
-          expect(extensions.length).toBe(2)
-          let tcIndex = 1
-          let icIndex = 0
-          expect(extensions[tcIndex].entity).toBe(
-            dbEnum.packageExtensionEntity.command
-          )
-          expect(extensions[tcIndex].property).toBe('testCommandExtension')
-          expect(extensions[tcIndex].type).toBe('boolean')
-          expect(extensions[tcIndex].configurability).toBe('hidden')
-          expect(extensions[tcIndex].label).toBe('Test command extension')
-          expect(extensions[tcIndex].globalDefault).toBe('0')
-          expect(extensions[tcIndex].defaults.length).toBe(1)
-        })
-        .then(() =>
-          queryPackage.selectPackageExtension(
-            db,
-            packageId,
-            dbEnum.packageExtensionEntity.attribute
-          )
-        )
-        .then((extensions) => {
-          expect(extensions.length).toBe(2)
-          expect(extensions[0].entity).toBe(
-            dbEnum.packageExtensionEntity.attribute
-          )
-          expect(extensions[0].property).toBe('testAttributeExtension1')
-          expect(extensions[1].property).toBe('testAttributeExtension2')
-          expect(extensions[0].type).toBe('integer')
-          expect(extensions[0].configurability).toBe('hidden')
-          expect(extensions[0].label).toBe('Test attribute extension 1')
-          expect(extensions[1].label).toBe('Test attribute extension 2')
-          expect(extensions[0].globalDefault).toBe('0')
-          expect(extensions[1].globalDefault).toBe('1')
-          expect(extensions[0].defaults.length).toBe(2)
-          expect(extensions[1].defaults.length).toBe(1)
-          expect(extensions[0].defaults[0].value).toBe('42')
-          expect(extensions[0].defaults[0].parentCode).toBe(0)
-          expect(extensions[0].defaults[0].entityCode).toBe(0)
-          expect(extensions[0].defaults[1].entityCode).toBe(1)
-        })
-        .then(() =>
-          queryPackage.selectPackageExtensionByPropertyAndEntity(
-            db,
-            packageId,
-            'implementedCommands',
-            dbEnum.packageExtensionEntity.command
-          )
-        )
-        .then((ext) => {
-          expect(ext.type).toBe('boolean')
-          expect(ext.globalDefault).toBe('0')
-          expect(ext.defaults.length).toBe(5)
-        })
+    async () => {
+      let context = await generationEngine.loadTemplates(
+        db,
+        testUtil.testTemplate.zigbee
+      )
+      let packageId = context.packageId
+      expect(packageId).not.toBe(null)
+      expect(db).not.toBe(null)
+
+      // Test for cluster package extensions
+      let extensions = await queryPackage.selectPackageExtension(
+        db,
+        packageId,
+        dbEnum.packageExtensionEntity.cluster
+      )
+
+      expect(extensions.length).toBe(2)
+      expect(extensions[0].entity).toBe(dbEnum.packageExtensionEntity.cluster)
+      expect(extensions[0].property).toBe('testClusterExtension')
+      expect(extensions[0].type).toBe('text')
+      expect(extensions[0].configurability).toBe('hidden')
+      expect(extensions[0].label).toBe('Test cluster extension')
+      expect(extensions[0].globalDefault).toBe(null)
+      expect(extensions[0].defaults.length).toBe(3)
+      expect(extensions[1].label).toBe(
+        'Test cluster extension with external defaults values'
+      )
+      expect(extensions[1].globalDefault).toBe(null)
+      expect(extensions[1].defaults.length).toBe(2)
+      expect(extensions[1].defaults[0].value).toBe(
+        'Extension value loaded via external default JSON file.'
+      )
+
+      // Test for command package extensions
+      extensions = await queryPackage.selectPackageExtension(
+        db,
+        packageId,
+        dbEnum.packageExtensionEntity.command
+      )
+
+      expect(extensions.length).toBe(2)
+      let tcIndex = 1
+      let icIndex = 0
+      expect(extensions[tcIndex].entity).toBe(
+        dbEnum.packageExtensionEntity.command
+      )
+      expect(extensions[tcIndex].property).toBe('testCommandExtension')
+      expect(extensions[tcIndex].type).toBe('boolean')
+      expect(extensions[tcIndex].configurability).toBe('hidden')
+      expect(extensions[tcIndex].label).toBe('Test command extension')
+      expect(extensions[tcIndex].globalDefault).toBe('0')
+      expect(extensions[tcIndex].defaults.length).toBe(1)
+
+      // Test for attribute package extensions
+      extensions = await queryPackage.selectPackageExtension(
+        db,
+        packageId,
+        dbEnum.packageExtensionEntity.attribute
+      )
+
+      expect(extensions.length).toBe(2)
+      expect(extensions[0].entity).toBe(dbEnum.packageExtensionEntity.attribute)
+      expect(extensions[0].property).toBe('testAttributeExtension1')
+      expect(extensions[1].property).toBe('testAttributeExtension2')
+      expect(extensions[0].type).toBe('integer')
+      expect(extensions[0].configurability).toBe('hidden')
+      expect(extensions[0].label).toBe('Test attribute extension 1')
+      expect(extensions[1].label).toBe('Test attribute extension 2')
+      expect(extensions[0].globalDefault).toBe('0')
+      expect(extensions[1].globalDefault).toBe('1')
+      expect(extensions[0].defaults.length).toBe(2)
+      expect(extensions[1].defaults.length).toBe(1)
+      expect(extensions[0].defaults[0].value).toBe('42')
+      expect(extensions[0].defaults[0].parentCode).toBe(0)
+      expect(extensions[0].defaults[0].entityCode).toBe(0)
+      expect(extensions[0].defaults[1].entityCode).toBe(1)
+
+      // Test for attribute type package extensions
+      extensions = await queryPackage.selectPackageExtension(
+        db,
+        packageId,
+        dbEnum.packageExtensionEntity.attributeType
+      )
+      expect(extensions.length).toBe(1)
+
+      // Test for command package extensions
+      extensions = await queryPackage.selectPackageExtensionByPropertyAndEntity(
+        db,
+        packageId,
+        'implementedCommands',
+        dbEnum.packageExtensionEntity.command
+      )
+      expect(extensions.type).toBe('boolean')
+      expect(extensions.globalDefault).toBe('0')
+      expect(extensions.defaults.length).toBe(5)
     },
     testUtil.timeout.medium()
   )

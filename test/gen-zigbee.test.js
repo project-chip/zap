@@ -221,6 +221,9 @@ test(
           "// attribute: 0x0000 / 0x0000 => ZCL version, extensions: '42', '99'"
         )
         expect(sdkExtension).toContain(
+          "attribute: 0x0015 / 0x0015 => network key sequence number, extensions: '0', '1', [int8u:666]"
+        )
+        expect(sdkExtension).toContain(
           "// cluster: 0x0003 Identify, text extension: ''"
         )
         expect(sdkExtension).toContain(
