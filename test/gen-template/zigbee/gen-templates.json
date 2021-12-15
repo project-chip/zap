@@ -105,6 +105,20 @@
         ]
       }
     },
+    "attributeType": {
+      "simpleTypeExtension": {
+        "type": "integer",
+        "configurability": "hidden",
+        "globalDefault": 22,
+        "label": "Extension for the attribute type",
+        "defaults": [
+          {
+            "type": "INT8U",
+            "value": 234
+          }
+        ]
+      }
+    },
     "deviceType": {
       "testDeviceTypeExtension": {
         "type": "path",

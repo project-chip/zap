@@ -39,7 +39,7 @@ exports.packageOptionCategory = {
   typeMap: 'typeMap',
   generator: 'generator',
   profileCodes: 'profileCodes',
-  validationTimersFlags: 'validationTimersFlags'
+  validationTimersFlags: 'validationTimersFlags',
 }
 
 exports.side = {
@@ -97,6 +97,7 @@ exports.packageExtensionEntity = {
   cluster: 'cluster',
   command: 'command',
   attribute: 'attribute',
+  attributeType: 'attributeType',
   deviceType: 'deviceType',
   event: 'event',
 }
@@ -112,7 +113,7 @@ exports.generatorOptions = {
 exports.sessionOption = {
   defaultResponsePolicy: 'defaultResponsePolicy',
   manufacturerCodes: 'manufacturerCodes',
-  profileCodes: 'profileCodes'
+  profileCodes: 'profileCodes',
 }
 
 // When SDK supports a custom device, these are the default values for it.

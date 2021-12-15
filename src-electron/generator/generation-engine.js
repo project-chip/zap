@@ -288,6 +288,14 @@ function decodePackageExtensionEntity(entityType, entity) {
         parentCode: null,
         value: entity.value,
       }
+    case dbEnum.packageExtensionEntity.attributeType:
+      return {
+        entityCode: null,
+        entityQualifier: entity.type,
+        manufacturerCode: null,
+        parentCode: null,
+        value: entity.value,
+      }
     default:
       // We don't know how to process defaults otherwise
       return null
