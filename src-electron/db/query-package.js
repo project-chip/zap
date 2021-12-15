@@ -786,9 +786,7 @@ ORDER BY
           prop = a[a.length - 1]
         }
 
-        if (x.ENTITY_CODE != null) {
-          prop.defaults.push(dbMapping.map.packageExtensionDefault(x))
-        }
+        prop.defaults.push(dbMapping.map.packageExtensionDefault(x))
         return a
       }, acc)
     )

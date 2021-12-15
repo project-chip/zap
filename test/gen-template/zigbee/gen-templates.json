@@ -113,8 +113,8 @@
         "label": "Extension for the attribute type",
         "defaults": [
           {
-            "type": "INT8U",
-            "value": 234
+            "type": "int8u",
+            "value": 666
           }
         ]
       }
