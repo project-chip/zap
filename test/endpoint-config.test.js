@@ -79,89 +79,83 @@ test(
 test(
   'Test file import',
   async () => {
-    let importResult = await importJs.importDataFromFile(db, testFile);
+    let importResult = await importJs.importDataFromFile(db, testFile)
     sessionId = importResult.sessionId
     expect(sessionId).not.toBeNull()
-    await queryPackage.insertSessionPackage(db, sessionId, zclContext.packageId);
+    await queryPackage.insertSessionPackage(db, sessionId, zclContext.packageId)
   },
   testUtil.timeout.medium()
 )
 
 test(
   'Test endpoint config queries',
-  () =>
-    queryEndpointType
-      .selectAllEndpointTypes(db, sessionId)
-      .then((epts) => {
-        expect(epts.length).toBe(3)
-        return epts
-      })
-      .then((epts) => {
-        let ps = []
-        epts.forEach((ept) => {
-          ps.push(queryEndpoint.selectEndpointClusters(db, ept.id))
-        })
-        return Promise.all(ps)
-      })
-      .then((clusterArray) => {
-        expect(clusterArray.length).toBe(3)
-        expect(clusterArray[0].length).toBe(28)
-        expect(clusterArray[1].length).toBe(5)
-        expect(clusterArray[2].length).toBe(7)
-        let promiseAttributes = []
-        let promiseCommands = []
-        clusterArray.forEach((clusters) => {
-          clusters.forEach((cluster) => {
-            promiseAttributes.push(
-              queryEndpoint.selectEndpointClusterAttributes(
-                db,
-                cluster.clusterId,
-                cluster.side,
-                cluster.endpointTypeId
-              )
-            )
-            promiseCommands.push(
-              queryEndpoint.selectEndpointClusterCommands(
-                db,
-                cluster.clusterId,
-                cluster.endpointTypeId
-              )
-            )
-          })
-        })
-        return Promise.all([
-          Promise.all(promiseAttributes),
-          Promise.all(promiseCommands),
-        ])
-      })
-      .then((twoLists) => {
-        let attributeLists = twoLists[0]
-        let commandLists = twoLists[1]
-        expect(attributeLists.length).toBe(40)
-        expect(commandLists.length).toBe(40)
+  async () => {
+    let epts = await queryEndpointType.selectAllEndpointTypes(db, sessionId)
 
-        let atSums = {}
-        attributeLists.forEach((al) => {
-          let l = al.length
-          if (atSums[l]) {
-            atSums[l]++
-          } else {
-            atSums[l] = 1
-          }
-        })
-        expect(atSums[0]).toBe(18)
+    expect(epts.length).toBe(3)
+    let ps = []
+    epts.forEach((ept) => {
+      ps.push(queryEndpoint.selectEndpointClusters(db, ept.id))
+    })
+    let clusterArray = await Promise.all(ps)
 
-        let cmdSums = {}
-        commandLists.forEach((cl) => {
-          let l = cl.length
-          if (cmdSums[l]) {
-            cmdSums[l]++
-          } else {
-            cmdSums[l] = 1
-          }
-        })
-        expect(cmdSums[0]).toBe(15)
-      }),
+    expect(clusterArray.length).toBe(3)
+    expect(clusterArray[0].length).toBe(28)
+    expect(clusterArray[1].length).toBe(5)
+    expect(clusterArray[2].length).toBe(7)
+    let promiseAttributes = []
+    let promiseCommands = []
+    clusterArray.forEach((clusters) => {
+      clusters.forEach((cluster) => {
+        promiseAttributes.push(
+          queryEndpoint.selectEndpointClusterAttributes(
+            db,
+            cluster.clusterId,
+            cluster.side,
+            cluster.endpointTypeId
+          )
+        )
+        promiseCommands.push(
+          queryEndpoint.selectEndpointClusterCommands(
+            db,
+            cluster.clusterId,
+            cluster.endpointTypeId
+          )
+        )
+      })
+    })
+    let twoLists = await Promise.all([
+      Promise.all(promiseAttributes),
+      Promise.all(promiseCommands),
+    ])
+
+    let attributeLists = twoLists[0]
+    let commandLists = twoLists[1]
+    expect(attributeLists.length).toBe(40)
+    expect(commandLists.length).toBe(40)
+
+    let atSums = {}
+    attributeLists.forEach((al) => {
+      let l = al.length
+      if (atSums[l]) {
+        atSums[l]++
+      } else {
+        atSums[l] = 1
+      }
+    })
+    expect(atSums[0]).toBe(18)
+
+    let cmdSums = {}
+    commandLists.forEach((cl) => {
+      let l = cl.length
+      if (cmdSums[l]) {
+        cmdSums[l]++
+      } else {
+        cmdSums[l] = 1
+      }
+    })
+    expect(cmdSums[0]).toBe(15)
+  },
   testUtil.timeout.medium()
 )
 
@@ -191,7 +185,7 @@ test(
     if (genResult.hasErrors) {
       console.log(genResult.errors)
     }
-    expect(genResult.hasErrors).toBeFalsy();
+    expect(genResult.hasErrors).toBeFalsy()
 
     let epc = genResult.content['zap-config.h']
     let epcLines = epc.split(/\r?\n/)

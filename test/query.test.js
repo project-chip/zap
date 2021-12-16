@@ -116,46 +116,36 @@ test(
 
 test(
   'Simple cluster addition.',
-  () => {
+  async () => {
     let pkgId = null
-    let rowid = null
-    return queryPackage
-      .insertPathCrc(db, 'test', 1)
-      .then((rowid) => {
-        pkgId = rowid
-        return queryLoader.insertClusters(db, rowid, [
-          {
-            code: 0x1234,
-            name: 'Test',
-            description: 'Test cluster',
-            define: 'TEST',
-          },
-        ])
-      })
-      .then((rowids) => queryZcl.selectAllClusters(db, pkgId))
-      .then((rows) => {
-        expect(rows.length).toBe(1)
-        rowid = rows[0].id
-        expect(rows[0].code).toBe(4660)
-        expect(rows[0].label).toBe('Test')
-        return rowid
-      })
-      .then((rowid) => queryZcl.selectClusterById(db, rowid))
-      .then((row) => {
-        expect(row.code).toBe(4660)
-        expect(row.label).toBe('Test')
-        return row.id
-      })
-      .then(() =>
-        queryZcl.selectAttributesByClusterIdIncludingGlobal(db, rowid, pkgId)
-      )
-      .then((rows) => {
-        expect(rows.length).toBe(0)
-      })
-      .then(() => queryCommand.selectCommandsByClusterId(db, rowid, pkgId))
-      .then((rows) => {
-        expect(rows.length).toBe(0)
-      })
+    let rowid = await queryPackage.insertPathCrc(db, 'test', 1)
+
+    pkgId = rowid
+    await queryLoader.insertClusters(db, rowid, [
+      {
+        code: 0x1234,
+        name: 'Test',
+        description: 'Test cluster',
+        define: 'TEST',
+      },
+    ])
+
+    let rows = await queryZcl.selectAllClusters(db, pkgId)
+    expect(rows.length).toBe(1)
+    rowid = rows[0].id
+    expect(rows[0].code).toBe(4660)
+    expect(rows[0].label).toBe('Test')
+    row = await queryZcl.selectClusterById(db, rowid)
+    expect(row.code).toBe(4660)
+    expect(row.label).toBe('Test')
+    rows = await queryZcl.selectAttributesByClusterIdIncludingGlobal(
+      db,
+      rowid,
+      pkgId
+    )
+    expect(rows.length).toBe(0)
+    rows = await queryCommand.selectCommandsByClusterId(db, rowid, pkgId)
+    expect(rows.length).toBe(0)
   },
   testUtil.timeout.short()
 )
@@ -173,19 +163,18 @@ test(
 )
 
 describe('Session specific queries', () => {
-  beforeAll(
-    () =>
-      querySession
-        .ensureZapUserAndSession(db, 'USER', 'SESSION')
-        .then((userSession) => {
-          sid = userSession.sessionId
-          return util.initializeSessionPackage(db, sid, {
-            zcl: env.builtinSilabsZclMetafile(),
-            template: env.builtinTemplateMetafile(),
-          })
-        }),
-    testUtil.timeout.medium()
-  )
+  beforeAll(async () => {
+    let userSession = await querySession.ensureZapUserAndSession(
+      db,
+      'USER',
+      'SESSION'
+    )
+    sid = userSession.sessionId
+    await util.initializeSessionPackage(db, sid, {
+      zcl: env.builtinSilabsZclMetafile(),
+      template: env.builtinTemplateMetafile(),
+    })
+  }, testUtil.timeout.medium())
 
   test(
     'Test that package id for session is present.',

@@ -50,29 +50,29 @@ afterAll(() => dbApi.closeDatabase(db), testUtil.timeout.short())
 
 test(
   'Basic gen template parsing and generation',
-  () =>
-    genEngine
-      .loadTemplates(db, testUtil.testTemplate.dotdot)
-      .then((context) => {
-        expect(context.crc).not.toBeNull()
-        expect(context.templateData).not.toBeNull()
-        expect(context.templateData.name).toEqual('Dotdot templates')
-        expect(context.templateData.version).toEqual('test-dotdot-v1')
-        expect(context.templateData.templates.length).toEqual(
-          testUtil.testTemplate.dotdotCount
-        )
-        expect(context.packageId).not.toBeNull()
-        templateContext = context
-      }),
+  async () => {
+    let context = await genEngine.loadTemplates(
+      db,
+      testUtil.testTemplate.dotdot
+    )
+    expect(context.crc).not.toBeNull()
+    expect(context.templateData).not.toBeNull()
+    expect(context.templateData.name).toEqual('Dotdot templates')
+    expect(context.templateData.version).toEqual('test-dotdot-v1')
+    expect(context.templateData.templates.length).toEqual(
+      testUtil.testTemplate.dotdotCount
+    )
+    expect(context.packageId).not.toBeNull()
+    templateContext = context
+  },
   testUtil.timeout.medium()
 )
 
 test(
   'Load DotDot ZCL stuff',
-  () =>
-    zclLoader.loadZcl(db, env.builtinDotdotZclMetafile()).then((context) => {
-      zclContext = context
-    }),
+  async () => {
+    zclContext = await zclLoader.loadZcl(db, env.builtinDotdotZclMetafile())
+  },
   testUtil.timeout.medium()
 )
 
@@ -89,45 +89,43 @@ test(
 
 test(
   'Test dotdot generation',
-  () =>
-    genEngine
-      .generate(
-        db,
-        sessionId,
-        templateContext.packageId,
-        {},
-        {
-          disableDeprecationWarnings: true,
-        }
-      )
-      .then((genResult) => {
-        expect(genResult).not.toBeNull()
-        expect(genResult.partial).toBeFalsy()
-        expect(genResult.content).not.toBeNull()
+  async () => {
+    let genResult = await genEngine.generate(
+      db,
+      sessionId,
+      templateContext.packageId,
+      {},
+      {
+        disableDeprecationWarnings: true,
+      }
+    )
+    expect(genResult).not.toBeNull()
+    expect(genResult.partial).toBeFalsy()
+    expect(genResult.content).not.toBeNull()
 
-        let epc = genResult.content['test1.h']
-        expect(epc).not.toBeNull()
-        expect(epc).toContain(
-          'EmberAfDrlkOperMode OperatingModeDuringHoliday // command type'
-        )
-        expect(epc).toContain(
-          'EmberAfDrlkOperMode OperatingMode; // attribute type'
-        )
+    let epc = genResult.content['test1.h']
+    expect(epc).not.toBeNull()
+    expect(epc).toContain(
+      'EmberAfDrlkOperMode OperatingModeDuringHoliday // command type'
+    )
+    expect(epc).toContain(
+      'EmberAfDrlkOperMode OperatingMode; // attribute type'
+    )
 
-        let mqtt = genResult.content['mqtt.cpp']
-        expect(mqtt).not.toBeNull()
-        expect(mqtt).toContain('Bitmap_DaysMask = "DrlkDaysMask"')
-        expect(mqtt).toContain('Bitmap_RelayStatus = "map8"')
-        expect(mqtt).toContain('Enum_StatusCode = "zclStatus"')
-        expect(mqtt).toContain('Enum_AlarmCode = "enum8"')
+    let mqtt = genResult.content['mqtt.cpp']
+    expect(mqtt).not.toBeNull()
+    expect(mqtt).toContain('Bitmap_DaysMask = "DrlkDaysMask"')
+    expect(mqtt).toContain('Bitmap_RelayStatus = "map8"')
+    expect(mqtt).toContain('Enum_StatusCode = "zclStatus"')
+    expect(mqtt).toContain('Enum_AlarmCode = "enum8"')
 
-        let types = genResult.content['dotdot-type.h']
-        expect(types).not.toBeNull()
-        expect(types).toContain('// Bitmap: LevelOptions, type: map8')
+    let types = genResult.content['dotdot-type.h']
+    expect(types).not.toBeNull()
+    expect(types).toContain('// Bitmap: LevelOptions, type: map8')
 
-        let clusters = genResult.content['dotdot-cluster.xml']
-        expect(clusters).not.toBeNull()
-        expect(clusters).toContain('<cluster code="0x0000" revision="2">')
-      }),
+    let clusters = genResult.content['dotdot-cluster.xml']
+    expect(clusters).not.toBeNull()
+    expect(clusters).toContain('<cluster code="0x0000" revision="2">')
+  },
   testUtil.timeout.long()
 )

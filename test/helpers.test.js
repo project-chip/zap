@@ -33,50 +33,52 @@ let zclContext
 
 let ctx
 
-beforeAll(() => {
+beforeAll(async () => {
   env.setDevelopmentEnv()
   let file = env.sqliteTestFile('helpers')
-  return dbApi
-    .initDatabaseAndLoadSchema(file, env.schemaFile(), env.zapVersion())
-    .then((d) => {
-      db = d
-    })
+  db = await dbApi.initDatabaseAndLoadSchema(
+    file,
+    env.schemaFile(),
+    env.zapVersion()
+  )
 }, testUtil.timeout.medium())
 
 afterAll(() => dbApi.closeDatabase(db), testUtil.timeout.short())
 
 test(
   'Basic gen template parsing and generation',
-  () =>
-    genEngine
-      .loadTemplates(db, testUtil.testTemplate.zigbee)
-      .then((context) => {
-        expect(context.crc).not.toBeNull()
-        expect(context.templateData).not.toBeNull()
-        expect(context.templateData.name).toEqual('Test templates')
-        expect(context.templateData.version).toEqual('test-v1')
-        expect(context.templateData.templates.length).toEqual(
-          testUtil.testTemplate.zigbeeCount
-        )
-        expect(context.packageId).not.toBeNull()
-      }),
+  async () => {
+    let context = await genEngine.loadTemplates(
+      db,
+      testUtil.testTemplate.zigbee
+    )
+
+    expect(context.crc).not.toBeNull()
+    expect(context.templateData).not.toBeNull()
+    expect(context.templateData.name).toEqual('Test templates')
+    expect(context.templateData.version).toEqual('test-v1')
+    expect(context.templateData.templates.length).toEqual(
+      testUtil.testTemplate.zigbeeCount
+    )
+    expect(context.packageId).not.toBeNull()
+  },
   testUtil.timeout.medium()
 )
 
 test(
   'Load ZCL stuff',
-  () =>
-    zclLoader.loadZcl(db, env.builtinSilabsZclMetafile()).then((context) => {
-      zclContext = context
+  async () => {
+    let context = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
+    zclContext = context
 
-      let globalCtx = {
-        db: zclContext.db,
-        zclPackageId: zclContext.packageId,
-      }
-      ctx = {
-        global: globalCtx,
-      }
-    }),
+    let globalCtx = {
+      db: zclContext.db,
+      zclPackageId: zclContext.packageId,
+    }
+    ctx = {
+      global: globalCtx,
+    }
+  },
   testUtil.timeout.medium()
 )
 
@@ -103,28 +105,41 @@ test(
 
 test(
   'dataTypeForEnum',
-  () => {
-    return cHelper
-      .data_type_for_enum(db, 'patate', zclContext.packageId)
-      .then((result) => expect(result).toBe('!!Invalid enum: patate'))
-      .then(() =>
-        cHelper.data_type_for_enum(db, 'Status', zclContext.packageId)
-      )
-      .then((result) => expect(result).toBe('SL_CLI_ARG_UINT8'))
+  async () => {
+    let result = await cHelper.data_type_for_enum(
+      db,
+      'patate',
+      zclContext.packageId
+    )
+    expect(result).toBe('!!Invalid enum: patate')
+
+    result = await cHelper.data_type_for_enum(
+      db,
+      'Status',
+      zclContext.packageId
+    )
+
+    expect(result).toBe('SL_CLI_ARG_UINT8')
   },
   testUtil.timeout.short()
 )
 
 test(
   'dataTypeForEnum',
-  () => {
-    return cHelper
-      .dataTypeForBitmap(db, 'patate', zclContext.packageId)
-      .then((result) => expect(result).toBe('!!Invalid bitmap: patate'))
-      .then(() =>
-        cHelper.dataTypeForBitmap(db, 'LocationType', zclContext.packageId)
-      )
-      .then((result) => expect(result).toBe('SL_CLI_ARG_UINT8'))
+  async () => {
+    let result = await cHelper.dataTypeForBitmap(
+      db,
+      'patate',
+      zclContext.packageId
+    )
+    expect(result).toBe('!!Invalid bitmap: patate')
+
+    result = await cHelper.dataTypeForBitmap(
+      db,
+      'LocationType',
+      zclContext.packageId
+    )
+    expect(result).toBe('SL_CLI_ARG_UINT8')
   },
   testUtil.timeout.short()
 )
