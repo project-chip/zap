@@ -61,14 +61,26 @@ test(
   'isValidNumberString Functions',
   () => {
     // Integer
+    expect(validation.isValidNumberString('5')).toBeTruthy()
+    expect(validation.isValidNumberString('-5')).toBeTruthy()
+    expect(validation.isValidNumberString('5.6')).toBeFalsy()
+    expect(validation.isValidNumberString('-5.6')).toBeFalsy()
+    expect(validation.isValidNumberString('.0001')).toBeFalsy()
+    expect(validation.isValidNumberString('-.0001')).toBeFalsy()
     expect(validation.isValidNumberString('0x0000')).toBeTruthy()
     expect(validation.isValidNumberString('0x0001')).toBeTruthy()
-    expect(!validation.isValidNumberString('0x00asdfajaklsf;01')).toBeTruthy()
+    expect(validation.isValidNumberString('0x000G')).toBeFalsy()
     // Float
-    expect(validation.isValidFloat('5.6')).toBeTruthy()
     expect(validation.isValidFloat('5')).toBeTruthy()
-    expect(!validation.isValidFloat('5.6....')).toBeTruthy()
+    expect(validation.isValidFloat('-5')).toBeTruthy()
+    expect(validation.isValidFloat('5.6')).toBeTruthy()
+    expect(validation.isValidFloat('-5.6')).toBeTruthy()
     expect(validation.isValidFloat('.0001')).toBeTruthy()
+    expect(validation.isValidFloat('-.0001')).toBeTruthy()
+    expect(validation.isValidFloat('0x0000')).toBeFalsy()
+    expect(validation.isValidFloat('0x0001')).toBeFalsy()
+    expect(validation.isValidFloat('0x000G')).toBeFalsy()
+    expect(validation.isValidFloat('5.6....')).toBeFalsy()
   },
   timeout.medium()
 )
