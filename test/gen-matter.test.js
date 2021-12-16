@@ -113,11 +113,10 @@ test(
 
 test(
   'Create session',
-  () =>
-    querySession.createBlankSession(db).then((sessionId) => {
-      expect(sessionId).not.toBeNull()
-      templateContext.sessionId = sessionId
-    }),
+  async () => {
+    templateContext.sessionId = await querySession.createBlankSession(db)
+    expect(templateContext.sessionId).not.toBeNull()
+  },
   testUtil.timeout.short()
 )
 
@@ -146,36 +145,35 @@ test('Load a file', async () => {
 
 test(
   'Validate basic generation',
-  () =>
-    genEngine
-      .generate(
-        templateContext.db,
-        templateContext.sessionId,
-        templateContext.packageId,
-        {},
-        { disableDeprecationWarnings: true }
+  async () => {
+    let genResult = await genEngine.generate(
+      templateContext.db,
+      templateContext.sessionId,
+      templateContext.packageId,
+      {},
+      { disableDeprecationWarnings: true }
+    )
+
+    expect(genResult).not.toBeNull()
+    expect(genResult.partial).toBeFalsy()
+    expect(genResult.content).not.toBeNull()
+    let sdkExt = genResult.content['sdk-ext.txt']
+    expect(sdkExt).not.toBeNull()
+    expect(
+      sdkExt.includes(
+        "// event: 0x9999 / 0x0001 => HelloEvent, extensions: 'defHello'"
       )
-      .then((genResult) => {
-        expect(genResult).not.toBeNull()
-        expect(genResult.partial).toBeFalsy()
-        expect(genResult.content).not.toBeNull()
-        let sdkExt = genResult.content['sdk-ext.txt']
-        expect(sdkExt).not.toBeNull()
-        expect(
-          sdkExt.includes(
-            "// event: 0x9999 / 0x0001 => HelloEvent, extensions: 'defHello'"
-          )
-        ).toBeTruthy()
+    ).toBeTruthy()
 
-        let simpleTest = genResult.content['simple-test.h']
-        expect(simpleTest).toContain(
-          'Cluster Name : Groups+Command Name : RemoveAllGroups'
-        )
+    let simpleTest = genResult.content['simple-test.h']
+    expect(simpleTest).toContain(
+      'Cluster Name : Groups+Command Name : RemoveAllGroups'
+    )
 
-        let featureMap = genResult.content['feature-map.h']
-        expect(featureMap).not.toBeNull()
-        expect(featureMap).toContain(
-          `Cluster: Network Provisioning
+    let featureMap = genResult.content['feature-map.h']
+    expect(featureMap).not.toBeNull()
+    expect(featureMap).toContain(
+      `Cluster: Network Provisioning
 - default value: 0x0055
 - feature bits for the feature map attribute:
     0: Bit 0 is assigned to tag F0 => value = 1
@@ -184,7 +182,7 @@ test(
     3: Bit 3 is assigned to tag C1 => value = 0
     4: Bit 4 is assigned to tag F2 => value = 1
     5: Bit 6 is assigned to tag F3 => value = 0`
-        )
-      }),
+    )
+  },
   testUtil.timeout.long()
 )

@@ -113,7 +113,6 @@ async function attribute_type_extension(options) {
     return ''
   } else {
     let val = null
-    console.log(f[0].defaults)
     f[0].defaults.forEach((d) => {
       if (d.entityQualifier == this.type) val = d.value
     })

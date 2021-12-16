@@ -168,49 +168,41 @@ describe('Session specific tests', () => {
 
   test(
     'http server initialization',
-    () => {
-      return httpServer.initHttpServer(db, port)
-    },
+    () => httpServer.initHttpServer(db, port),
     testUtil.timeout.medium()
   )
 
   let templateCount = 0
   test(
     'test retrieval of all preview template files',
-    () => {
-      return axios
-        .get(`${baseUrl}/preview/?sessionId=${uuid}`)
-        .then((response) => {
-          templateCount = response.data['length']
-          for (let i = 0; i < response.data['length']; i++) {
-            expect(response.data[i]['version']).toBeDefined()
-          }
-        })
+    async () => {
+      let response = await axios.get(`${baseUrl}/preview/?sessionId=${uuid}`)
+      templateCount = response.data['length']
+      for (let i = 0; i < response.data['length']; i++) {
+        expect(response.data[i]['version']).toBeDefined()
+      }
     },
     testUtil.timeout.short()
   )
 
   test(
     'test that zcl extension is loaded and exists',
-    () => {
-      return axios
-        .get(
-          `${baseUrl}/zclExtension/cluster/testClusterExtension1?sessionId=${uuid}`
-        )
-        .then((response) => {
-          expect(response.data.entity).toBe('cluster')
-          expect(response.data.property).toBe('testClusterExtension1')
-          expect(response.data.label).toBe(
-            'Test cluster extension with external defaults values'
-          )
-          expect(response.data.defaults[0].entityCode).toBe('0x0003')
-          expect(response.data.defaults[0].value).toBe(
-            'Extension value loaded via external default JSON file.'
-          )
-          expect(response.data.defaults[1].entityCode).toBe(
-            'clusterCode mixed with strings'
-          )
-        })
+    async () => {
+      let response = await axios.get(
+        `${baseUrl}/zclExtension/cluster/testClusterExtension1?sessionId=${uuid}`
+      )
+      expect(response.data.entity).toBe('cluster')
+      expect(response.data.property).toBe('testClusterExtension1')
+      expect(response.data.label).toBe(
+        'Test cluster extension with external defaults values'
+      )
+      expect(response.data.defaults[0].entityCode).toBe('0x0003')
+      expect(response.data.defaults[0].value).toBe(
+        'Extension value loaded via external default JSON file.'
+      )
+      expect(response.data.defaults[1].entityCode).toBe(
+        'clusterCode mixed with strings'
+      )
     },
     testUtil.timeout.medium()
   )
