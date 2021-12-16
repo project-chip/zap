@@ -37,13 +37,8 @@ limitations under the License.
           />
         </q-toolbar>
         <div class="q-pa-md" >
-          <q-toggle  
-            left-label
-            v-model="isExpanded"
-            indeterminate-value="false"
-            label="Global options..."/>
           <q-expansion-item
-            header-style="display: none;"
+            label="Global Options"
             v-model="isExpanded"
           >
             <ZclGeneralOptionsBar />

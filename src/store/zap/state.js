@@ -20,7 +20,7 @@ export default function () {
   return {
     isExceptionsExpanded: false,
     exceptions: [],
-    showExceptionIcon: true,
+    showExceptionIcon: false,
     leftDrawerOpenState: true,
     miniState: false,
     informationText: '',

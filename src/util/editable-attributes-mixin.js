@@ -120,6 +120,7 @@ export default {
         let editContext = {
           action: 'boolean',
           endpointTypeId: this.selectedEndpointTypeId,
+          endpointTypeIdList: this.endpointTypeIdList,
           id: singleAttribute.id,
           value: false,
           listType: 'selectedAttributes',
