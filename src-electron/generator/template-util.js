@@ -16,7 +16,6 @@
  */
 
 const queryPackage = require('../db/query-package.js')
-const queryEndpoint = require('../db/query-endpoint.js')
 const queryEndpointType = require('../db/query-endpoint-type.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const env = require('../util/env')
@@ -244,6 +243,28 @@ async function ensureZclAttributeSdkExtensions(context, templatePackageId) {
 }
 
 /**
+ * Resolves with cached attribute type extensions, but if they don't
+ * exist, it will populate them.
+ *
+ * @param {*} context
+ * @param {*} templatePackageId
+ * @returns promise that resolves with attribute type extensions.
+ */
+async function ensureZclAttributeTypeSdkExtensions(context, templatePackageId) {
+  if ('zclAttributeTypeSdkExtension' in context.global) {
+    return context.global.zclAttributeTypeSdkExtension
+  } else {
+    let extensions = await queryPackage.selectPackageExtension(
+      context.global.db,
+      templatePackageId,
+      dbEnum.packageExtensionEntity.attributeType
+    )
+    context.global.zclAttributeTypeSdkExtension = extensions
+    return extensions
+  }
+}
+
+/**
  * Resolves with cached command extensions, but if they don't
  * exist, it will populate them.
  *
@@ -353,6 +374,8 @@ exports.ensureZclPackageId = ensureZclPackageId
 exports.ensureTemplatePackageId = ensureTemplatePackageId
 exports.ensureZclClusterSdkExtensions = ensureZclClusterSdkExtensions
 exports.ensureZclAttributeSdkExtensions = ensureZclAttributeSdkExtensions
+exports.ensureZclAttributeTypeSdkExtensions =
+  ensureZclAttributeTypeSdkExtensions
 exports.ensureZclCommandSdkExtensions = ensureZclCommandSdkExtensions
 exports.ensureZclEventSdkExtensions = ensureZclEventSdkExtensions
 exports.ensureZclDeviceTypeSdkExtensions = ensureZclDeviceTypeSdkExtensions

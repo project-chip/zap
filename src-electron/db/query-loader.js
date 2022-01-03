@@ -1083,14 +1083,14 @@ VALUES
 }
 
 async function insertAccessRoles(db, packageId, roles) {
-  let data = roles.map((r) => [packageId, r.name, r.description])
+  let data = roles.map((r) => [packageId, r.name, r.description, r.level])
   return dbApi.dbMultiInsert(
     db,
     `
 INSERT INTO ROLE
-  (PACKAGE_REF, NAME, DESCRIPTION)
+  (PACKAGE_REF, NAME, DESCRIPTION, LEVEL)
 VALUES
-  (?, ?, ?)
+  (?, ?, ?, ?)
 `,
     data
   )

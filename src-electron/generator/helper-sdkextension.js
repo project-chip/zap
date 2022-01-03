@@ -91,6 +91,38 @@ async function device_type_extension(options) {
   }
 }
 
+/**
+ * When inside a context that contains 'type', this
+ * helper will output the value of the attribute type extension
+ * specified by property="propName" attribute.
+ *
+ * @param {*} options
+ * @returns Value of the attribute type extension property.
+ */
+async function attribute_type_extension(options) {
+  let prop = options.hash.property
+  if (prop == null) return ''
+
+  let packageId = await templateUtil.ensureTemplatePackageId(this)
+  let extensions = await templateUtil.ensureZclAttributeTypeSdkExtensions(
+    this,
+    packageId
+  )
+  let f = extensions.filter((x) => x.property == prop)
+  if (f.length == 0) {
+    return ''
+  } else {
+    let val = null
+    console.log(f[0].defaults)
+    f[0].defaults.forEach((d) => {
+      if (d.entityQualifier == this.type) val = d.value
+    })
+    if (val == null) val = f[0].globalDefault
+    if (val == null) val = ''
+    return val
+  }
+}
+
 async function subentityExtension(context, prop, entityType) {
   if (prop == null) return ''
 
@@ -268,6 +300,7 @@ exports.cluster_extension = cluster_extension
 exports.command_extension = command_extension
 exports.event_extension = event_extension
 exports.attribute_extension = attribute_extension
+exports.attribute_type_extension = attribute_type_extension
 exports.device_type_extension = device_type_extension
 exports.if_command_extension_true = if_command_extension_true
 exports.if_command_extension_false = if_command_extension_false

@@ -144,6 +144,7 @@ function httpPostAttributeUpdate(db) {
   return async (request, response) => {
     let {
       action,
+      endpointTypeId,
       endpointTypeIdList,
       id,
       value,
@@ -156,7 +157,11 @@ function httpPostAttributeUpdate(db) {
     } = request.body
 
     if (!Array.isArray(endpointTypeIdList) || !endpointTypeIdList.length) {
-      response.status(StatusCodes.BAD_REQUEST).json()
+      if (endpointTypeId == 'undefined') {
+          response.status(StatusCodes.BAD_REQUEST).json()
+      } else {
+          endpointTypeIdList = [endpointTypeId];
+      }
     }
 
     let paramType

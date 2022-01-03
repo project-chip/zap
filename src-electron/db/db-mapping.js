@@ -156,6 +156,7 @@ exports.map = {
       mustUseTimedInvoke: dbApi.fromDbBool(x.MUST_USE_TIMED_INVOKE),
       clusterCode: x.CLUSTER_CODE,
       clusterName: x.CLUSTER_NAME,
+      clusterDefineName: x.CLUSTER_DEFINE_NAME,
       argName: x.ARG_NAME,
       argType: x.ARG_TYPE,
       argIsArray: dbApi.fromDbBool(x.ARG_IS_ARRAY),
@@ -452,6 +453,7 @@ exports.map = {
     return {
       name: x.NAME,
       description: x.DESCRIPTION,
+      level: x.LEVEL,
     }
   },
   accessOperation: (x) => {
