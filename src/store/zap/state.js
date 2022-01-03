@@ -18,6 +18,9 @@ const restApi = require('../../../src-shared/rest-api.js')
 
 export default function () {
   return {
+    isExceptionsExpanded: false,
+    exceptions: [],
+    showExceptionIcon: false,
     leftDrawerOpenState: true,
     miniState: false,
     informationText: '',
@@ -120,7 +123,7 @@ export default function () {
     },
     debugNavBar: false, // default visibility mode for debug navigation bar
     standalone: false, // flag indicating if ZAP frontend is running outside of Studio.
-    showDevTools:false,
+    showDevTools: false,
     studio: {
       projectInfoJson: [], // HTTP response from Studio jetty server
       ucComponents: [],

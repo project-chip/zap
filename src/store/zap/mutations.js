@@ -478,6 +478,18 @@ export function resetFilters(state) {
   state.clusterManager.openDomains = {}
 }
 
+export function expandedExceptionsToggle(state) {
+  state.isExceptionsExpanded = !state.isExceptionsExpanded
+}
+
+export function updateExceptions(state, value) {
+  state.exceptions.push(value)
+}
+
+export function toggleShowExceptionIcon(state, value) {
+  state.showExceptionIcon = value
+}
+
 export function updateProjectPackages(state, packages) {
   Vue.set(state, 'packages', packages)
 }

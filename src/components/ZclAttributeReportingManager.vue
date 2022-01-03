@@ -333,12 +333,16 @@ export default {
       return !this.editableAttributesReporting[attributeId]
     },
     displayAttrWarning(row) {
-      // TODO display proper warnings
-    let reporableValue = this.selectionReportableChange[
-                  this.hashAttributeIdClusterId(row.id, this.selectedCluster.id)
-                ];
-      let typeMaxLimit = Number(row.type.match(/int(\d+)/i)?.[1]);
-      return typeMaxLimit && reporableValue && reporableValue>Math.pow(2,typeMaxLimit) ;
+      let indexOfValue = this.selectedReporting.indexOf(
+        this.hashAttributeIdClusterId(row.id, this.selectedCluster.id)
+      )
+      let isDisabled
+      if (indexOfValue === -1) {
+        isDisabled = true
+      } else {
+        isDisabled = false
+      }
+      return isDisabled && row.isReportable ;
     },
     isAttributeRequired(attribute) {
       // TODO set by reporting required

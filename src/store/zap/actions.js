@@ -25,6 +25,11 @@ export function updateShowDevTools(context) {
   context.commit('updateShowDevTools')
 }
 
+export function updateExceptions(context, data) {
+  context.commit('updateExceptions', data)
+  context.commit('toggleShowExceptionIcon', true)
+}
+
 export function updateInformationText(context, text) {
   Vue.prototype
     .$serverPost(restApi.uri.saveSessionKeyValue, {

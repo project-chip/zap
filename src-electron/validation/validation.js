@@ -57,11 +57,12 @@ async function validateNoDuplicateEndpoints(
   endpointIdentifier,
   sessionRef
 ) {
-  let count = await queryConfig.selectCountOfEndpointsWithGivenEndpointIdentifier(
-    db,
-    endpointIdentifier,
-    sessionRef
-  )
+  let count =
+    await queryConfig.selectCountOfEndpointsWithGivenEndpointIdentifier(
+      db,
+      endpointIdentifier,
+      sessionRef
+    )
   return count.length <= 1
 }
 
@@ -73,6 +74,11 @@ function validateSpecificAttribute(endpointAttribute, attribute) {
         defaultAttributeIssues.push('Invalid Float')
       //Interpreting float values
       if (!checkAttributeBoundsFloat(attribute, endpointAttribute))
+        defaultAttributeIssues.push('Out of range')
+    } else if (types.isSignedInteger(attribute.type)) {
+      if (!isValidSignedNumberString(endpointAttribute.defaultValue))
+        defaultAttributeIssues.push('Invalid Integer')
+      if (!checkAttributeBoundsInteger(attribute, endpointAttribute))
         defaultAttributeIssues.push('Out of range')
     } else {
       if (!isValidNumberString(endpointAttribute.defaultValue))

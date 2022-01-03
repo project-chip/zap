@@ -15,70 +15,72 @@ limitations under the License.
 -->
 
 <template>
-  <div>
+  <div class="q-mt-lg">
     <q-toolbar>
-      <div class="q-mr-sm vertical-align:middle">Product Manufacturer</div>
-      <div>
-        <q-select
-          class="q-mr-sm"
-          use-input
-          hide-selected
-          fill-input
-          input-debounce="0"
-          :options="mfgOptions"
-          :option-label="(item) => getMfgOptionLabel(item)"
-          @new-value="createValue"
-          @input="
-            handleOptionChange(DbEnum.sessionOption.manufacturerCodes, $event)
-          "
-          v-model="selectedManufacturerCode"
-          @filter="filterMfgCode"
-          outlined
-          dense
-          data-cy="manufacturer-name-or-code"
-        />
+      <div class="column">
+        <div class="col q-mb-md">
+          <div class="vertical-align:middle q-mb-xs">Product Manufacturer</div>
+          <q-select
+            use-input
+            hide-selected
+            fill-input
+            input-debounce="0"
+            :options="mfgOptions"
+            :option-label="(item) => getMfgOptionLabel(item)"
+            @new-value="createValue"
+            @input="
+              handleOptionChange(DbEnum.sessionOption.manufacturerCodes, $event)
+              "
+            v-model="selectedManufacturerCode"
+            @filter="filterMfgCode"
+            outlined
+            dense
+            data-cy="manufacturer-name-or-code"
+          />
+        </div>
+        <div class="col q-mb-md">
+          <div class="vertical-align:middle q-mb-xs">Default Response Policy</div>
+          <q-select
+            :options="defaultResponsePolicyOptions"
+            v-model="selectedDefaultResponsePolicy"
+            :option-label="(item) => (item === null ? 'NULL' : item.optionLabel)"
+            @input="
+              handleEnumeratedOptionChange(
+                DbEnum.sessionOption.defaultResponsePolicy,
+                $event
+              )
+            "
+            outlined
+            dense
+            data-cy="default-response-policy"
+          />
+        </div>
+        <div class="col q-mb-md">
+          <q-toggle
+            :value="commandDiscoverySetting == 1 ? true : false"
+            label="Enable Command Discovery"
+            dense
+            left-label
+            @input="handleOptionChange('commandDiscovery', $event)"
+          >
+            <q-tooltip> Enable Command Discovery for your project </q-tooltip>
+          </q-toggle>
+        </div>
+        <div class="col q-mb-md">
+          <q-btn
+            align="center"
+            text-color="primary"
+            flat
+            :ripple="false"
+            :unelevated="false"
+            :outline="none"
+            to="/customZcl"
+          >
+            <div class="text-align">ZCL Extensions...</div>
+          </q-btn>
+        </div>
+        <q-space />
       </div>
-      <div class="q-mr-sm vertical-align:middle">Default Response Policy</div>
-      <q-select
-        class="q-mr-sm"
-        :options="defaultResponsePolicyOptions"
-        v-model="selectedDefaultResponsePolicy"
-        :option-label="(item) => (item === null ? 'NULL' : item.optionLabel)"
-        @input="
-          handleEnumeratedOptionChange(
-            DbEnum.sessionOption.defaultResponsePolicy,
-            $event
-          )
-        "
-        outlined
-        dense
-        data-cy="default-response-policy"
-      />
-      <div>
-        <q-toggle
-          class="q-mr-sm"
-          :value="commandDiscoverySetting == 1 ? true : false"
-          label="Enable Command Discovery"
-          dense
-          left-label
-          @input="handleOptionChange('commandDiscovery', $event)"
-        >
-          <q-tooltip> Enable Command Discovery for your project </q-tooltip>
-        </q-toggle>
-      </div>
-      <q-btn
-        class="q-mr-sm"
-        align="center"
-        text-color="primary"
-        flat
-        :ripple="false"
-        :unelevated="false"
-        :outline="none"
-        to="/customZcl"
-      >
-        <div class="text-align">ZCL Extensions...</div>
-      </q-btn>
-      <q-space />
     </q-toolbar>
   </div>
 </template>

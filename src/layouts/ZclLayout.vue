@@ -29,12 +29,15 @@ limitations under the License.
     <div class="q-gutter-y-md height: 10vh">
       <q-toolbar class="shadow-2" v-if="this.$store.state.zap.debugNavBar">
         <q-tabs flat v-model="tab">
-          <q-tab v-if="this.$store.state.zap.showDevTools" name="general" label="Dev Tools" />
+          <q-tab
+            v-if="this.$store.state.zap.showDevTools"
+            name="general"
+            label="Dev Tools"
+          />
           <q-tab :name="restApi.uiMode.ZIGBEE" label="ZCL" />
         </q-tabs>
         <q-space />
-        
-        
+
         <q-btn
           flat
           @click="generateIntoDirectory(generationDirectory)"
@@ -68,7 +71,7 @@ limitations under the License.
         <q-page-container>
           <q-tab-panels v-model="tab" animated>
             <q-tab-panel name="general">
-              <q-scroll-area style="height:80vh ">
+              <q-scroll-area style="height: 80vh">
                 <q-expansion-item
                   expand-separator
                   label="Information Configuration"
@@ -76,13 +79,29 @@ limitations under the License.
                 >
                   <ZclInformationSetup />
                 </q-expansion-item>
-                <q-expansion-item expand-separator label="SQL Query Test" caption>
+                <q-expansion-item
+                  expand-separator
+                  label="SQL Query Test"
+                  caption
+                >
                   <sql-query />
                 </q-expansion-item>
-                <q-expansion-item expand-separator label="UC Components" caption>
+                <q-expansion-item
+                  expand-separator
+                  label="UC Components"
+                  caption
+                >
                   <UcComponentSetup />
                 </q-expansion-item>
-                </q-scroll-area>
+                <q-expansion-item
+                  expand-separator
+                  label="API Exceptions"
+                  caption
+                  v-model="isExceptionsExpanded"
+                >
+                  <Exceptions />
+                </q-expansion-item>
+              </q-scroll-area>
             </q-tab-panel>
             <q-tab-panel :name="restApi.uiMode.ZIGBEE">
               <zcl-configurator-layout />
@@ -91,9 +110,9 @@ limitations under the License.
           <q-drawer
             :width="$q.screen.width * 0.6"
             bordered
-            
             v-model="drawerRight"
             side="right"
+            class="zindex"
           >
             <div class="q-pa-md">
               <q-btn-dropdown
@@ -105,7 +124,7 @@ limitations under the License.
               >
                 <q-list>
                   <q-item
-                    v-for="(file,i) in generationFiles"
+                    v-for="(file, i) in generationFiles"
                     :key="i"
                     clickable
                     v-close-popup
@@ -146,6 +165,7 @@ limitations under the License.
 
 <script>
 import UcComponentSetup from '../components/UcComponentSetup.vue'
+import Exceptions from '../components/Exceptions.vue'
 import ZclInformationSetup from '../components/ZclInformationSetup.vue'
 import ZclConfiguratorLayout from './ZclConfiguratorLayout.vue'
 import SqlQuery from '../components/SqlQuery.vue'
@@ -170,7 +190,7 @@ export default {
     regenerateIntoDirectory(currentPath) {
       this.doGeneration(currentPath)
     },
-    
+
     generateIntoDirectory(currentPath) {
       window[rendApi.GLOBAL_SYMBOL_NOTIFY](rendApi.notifyKey.fileBrowse, {
         context: 'generateDir',
@@ -223,11 +243,11 @@ export default {
     ZclInformationSetup,
     ZclConfiguratorLayout,
     SqlQuery,
+    Exceptions,
   },
   data() {
     return {
       restApi: restApi,
-      tab: this.$store.state.zap.calledArgs['defaultUiMode'],
       zclDialogFlag: false,
       zclDialogTitle: '',
       zclDialogText: '',
@@ -244,6 +264,24 @@ export default {
       maxIndex: 0,
       generationDirectory: '',
     }
+  },
+  computed: {
+    tab: {
+      get() {
+        return this.$store.state.zap.calledArgs['defaultUiMode']
+      },
+      set(value) {
+        return this.$store.dispatch('zap/setDefaultUiMode', value)
+      },
+    },
+    isExceptionsExpanded: {
+      get() {
+        return this.$store.state.zap.isExceptionsExpanded
+      },
+      set() {
+        return this.$store.commit('zap/expandedExceptionsToggle')
+      },
+    },
   },
   mounted() {
     observable.observeAttribute(rendApi.observable.reported_files, (value) => {
