@@ -97,11 +97,7 @@ export default {
     },
     shareConfigsAcrossEndpoints: {
       get() {
-        return parseInt(
-          this.$store.state.zap.selectedGenericOptions[
-            'shareConfigsAcrossEndpoints'
-          ]
-        )
+        return false
       },
     },
     endpointTypeIdList: {

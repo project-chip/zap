@@ -227,16 +227,31 @@ function httpPostComponentUpdate(
     .then((res) => {
       // @ts-ignore
       res.componentId = componentId
-      return Promise.resolve(res)
+      return res
     })
     .catch((err) => {
-      return Promise.resolve({
-        status: http.StatusCodes.NOT_FOUND,
-        id: componentId,
-        data: `StudioUC(${projectName(
-          project
-        )}): Failed to ${operationText} component(${componentId})`,
-      })
+      let resp = err.response
+      // This is the weirdest API in the world:
+      //   if the component is added, but something else goes wrong, it actualy
+      //   returns error, but puts componentAdded flag into the error response.
+      //   Same with component removed.
+      if (
+        (add && resp?.data?.componentAdded) ||
+        (!add && resp?.data?.componentRemoved)
+      ) {
+        // Pretend it was all good.
+        resp.componentId = componentId
+        return resp
+      } else {
+        // Actual fail.
+        return {
+          status: http.StatusCodes.NOT_FOUND,
+          id: componentId,
+          data: `StudioUC(${projectName(
+            project
+          )}): Failed to ${operationText} component(${componentId})`,
+        }
+      }
     })
 }
 

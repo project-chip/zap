@@ -713,7 +713,7 @@ export function loadZclClusterToUcComponentDependencyMap(context) {
     .then((response) => {
       context.commit(
         'loadZclClusterToUcComponentDependencyMap',
-        response.data.defaults
+        response?.data?.defaults
       )
     })
 }

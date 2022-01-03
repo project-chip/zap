@@ -113,11 +113,11 @@ function validateSpecificEndpoint(endpoint) {
 //This applies to both actual numbers as well as octet strings.
 function isValidNumberString(value) {
   //We test to see if the number is valid in hex. Decimals numbers also pass this test
-  return /^(0x|0X)?[0-9a-fA-F]+$/.test(value)
+  return /^(0x)?[\dA-F]+$/i.test(value) || Number.isInteger(Number(value));
 }
 
 function isValidFloat(value) {
-  return /^[0-9]*(\.)?[0-9]*$/.test(value)
+  return !/^0x/i.test(value) && !isNaN(Number(value));
 }
 
 function extractFloatValue(value) {
@@ -125,9 +125,9 @@ function extractFloatValue(value) {
 }
 
 function extractIntegerValue(value) {
-  if (/^[0-9]+$/.test(value)) {
+  if (/^-?\d+$/.test(value)) {
     return parseInt(value)
-  } else if (/^[0-9ABCDEF]+$/.test(value)) {
+  } else if (/^[0-9A-F]+$/i.test(value)) {
     return parseInt(value, 16)
   } else {
     return parseInt(value, 16)

@@ -90,6 +90,7 @@ limitations under the License.
 
   <struct name="SimpleStruct">
     <cluster code="0xABCD"/>
+    <cluster code="0xABCE"/>
     <item name="a" type="UINT8U" isNullable="true"/>
     <item name="b" type="BOOLEAN"/>
     <item name="c" enum="true" type="ENUM8"/>
@@ -134,6 +135,9 @@ limitations under the License.
   <struct name="DoubleNest">
     <item name="simple1" type="UINT8U"/>
     <item name="complex" type="Nest" array="true"/>
+  </struct>
+  <struct name="FabricScoped">
+    <item name="fab_idx" type="FABRIC_IDX"/>
   </struct>
 
   <bitmap name="TestBitmap" type="UINT8U">

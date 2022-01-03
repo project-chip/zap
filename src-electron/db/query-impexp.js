@@ -70,14 +70,17 @@ INSERT INTO ENDPOINT (
  * @param {*} sessionId
  */
 async function exportEndpoints(db, sessionId, endpointTypes) {
-  let endpointTypeIndex = (epts, endpointTypeRef) => {
+  let endpointTypeIndexFunction = (epts, endpointTypeRef) => {
     return epts.findIndex((value) => value.endpointTypeId == endpointTypeRef)
   }
 
   let mapFunction = (x) => {
     return {
       endpointTypeName: x.NAME,
-      endpointTypeIndex: endpointTypeIndex(endpointTypes, x.ENDPOINT_TYPE_REF),
+      endpointTypeIndex: endpointTypeIndexFunction(
+        endpointTypes,
+        x.ENDPOINT_TYPE_REF
+      ),
       endpointTypeRef: x.ENDPOINT_TYPE_REF,
       profileId: x.PROFILE,
       endpointId: x.ENDPOINT_IDENTIFIER,
@@ -135,7 +138,7 @@ async function exportEndpointTypes(db, sessionId) {
     .dbAll(
       db,
       `
-SELECT
+SELECT DISTINCT
   ENDPOINT_TYPE.ENDPOINT_TYPE_ID,
   ENDPOINT_TYPE.NAME,
   ENDPOINT_TYPE.DEVICE_TYPE_REF,
@@ -145,15 +148,20 @@ SELECT
 FROM
   ENDPOINT_TYPE
 LEFT JOIN
+  ENDPOINT
+ON
+  ENDPOINT.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+LEFT JOIN
   DEVICE_TYPE
 ON
   ENDPOINT_TYPE.DEVICE_TYPE_REF = DEVICE_TYPE.DEVICE_TYPE_ID
-LEFT JOIN
-  ENDPOINT
-ON
-ENDPOINT.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
-WHERE ENDPOINT_TYPE.SESSION_REF = ? 
-ORDER BY ENDPOINT.ENDPOINT_IDENTIFIER, ENDPOINT_TYPE.NAME, DEVICE_TYPE_CODE, DEVICE_TYPE_PROFILE_ID`,
+WHERE
+  ENDPOINT_TYPE.SESSION_REF = ?
+ORDER BY
+  ENDPOINT.ENDPOINT_IDENTIFIER,
+  ENDPOINT_TYPE.NAME,
+  DEVICE_TYPE_CODE,
+  DEVICE_TYPE_PROFILE_ID`,
       [sessionId]
     )
     .then((rows) => rows.map(mapFunction))

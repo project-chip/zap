@@ -24,6 +24,7 @@ const helperC = require('./helper-c')
 const env = require('../util/env')
 const types = require('../util/types')
 const zclUtil = require('../util/zcl-util')
+const _ = require('lodash')
 
 /**
  * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
@@ -114,9 +115,17 @@ async function zcl_structs(options) {
   structs = await zclUtil.sortStructsByDependency(structs)
   structs.forEach((st) => {
     st.struct_contains_array = false
+    st.struct_is_fabric_scoped = false
+    st.has_no_clusters = st.struct_cluster_count < 1
+    st.has_one_cluster = st.struct_cluster_count == 1
+    st.has_more_than_one_cluster = st.struct_cluster_count > 1
     st.items.forEach((i) => {
       if (i.isArray) {
         st.struct_contains_array = true
+      }
+      if (i.type && i.type.toLowerCase() == 'fabric_idx') {
+        st.struct_is_fabric_scoped = true
+        st.struct_fabric_idx_field = i.label
       }
     })
   })
@@ -467,7 +476,7 @@ function zcl_command_tree(options) {
           if (el.clusterCode == null) {
             n = n.concat('Global')
           } else {
-            n = n.concat(el.clusterName + 'Cluster')
+            n = n.concat(_.upperFirst(_.camelCase(el.clusterDefineName)))
           }
           if (el.source == dbEnum.source.either) {
             // We will need to create two here.
