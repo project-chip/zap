@@ -20,7 +20,7 @@ limitations under the License.
   add action to edit button
 -->
 <template>
-  <div v-show="relevantAttributeData.length > 0" >
+  <div v-show="relevantAttributeData.length > 0">
     <q-table
       class="my-sticky-header-table"
       :data.sync="relevantAttributeData"
@@ -33,11 +33,11 @@ limitations under the License.
       :pagination.sync="pagination"
       :sort-method="customAttributeSort"
       data-cy="Attributes"
-      style="height:calc(100vh - 210px);overflow:hidden;"
+      style="height: calc(100vh - 210px); overflow: hidden"
     >
-      <template v-slot:body="props" >
+      <template v-slot:body="props">
         <q-tr :props="props">
-        <q-td key="status" :props="props" class="q-px-none">
+          <q-td key="status" :props="props" class="q-px-none">
             <q-icon
               v-show="displayAttrWarning(props.row)"
               name="warning"
@@ -51,18 +51,24 @@ limitations under the License.
               content-class="bg-white text-black"
               style="overflow-wrap: break-word; padding: 0px"
             >
-            <template v-slot="scope">
-              <div class="row items-center" items-center style="padding: 0px" @click.stop="scope.cancel">
-                <q-icon
-                  name="warning"
-                  class="text-amber q-mr-sm"
-                  style="font-size: 1.5rem"
-                ></q-icon>
-                <div class="vertical-middle text-subtitle2">
-                This attribute is mandatory for the cluster and device type configuration you have enabled
+              <template v-slot="scope">
+                <div
+                  class="row items-center"
+                  items-center
+                  style="padding: 0px"
+                  @click.stop="scope.cancel"
+                >
+                  <q-icon
+                    name="warning"
+                    class="text-amber q-mr-sm"
+                    style="font-size: 1.5rem"
+                  ></q-icon>
+                  <div class="vertical-middle text-subtitle2">
+                    This attribute is mandatory for the cluster and device type
+                    configuration you have enabled
+                  </div>
                 </div>
-              </div>
-            </template>
+              </template>
             </q-popup-edit>
           </q-td>
           <q-td key="included" :props="props" auto-width>
@@ -203,14 +209,18 @@ import EditableAttributeMixin from '../util/editable-attributes-mixin'
 export default {
   name: 'ZclAttributeManager',
   mixins: [EditableAttributeMixin],
-  destroyed() {
-  },
+  destroyed() {},
   methods: {
     isAttributeRequired(attribute) {
       return this.requiredAttributes.includes(attribute.id)
     },
     displayAttrWarning(row) {
-      return this.isAttributeRequired(row) && !this.selection.includes(this.hashAttributeIdClusterId(row.id, this.selectedCluster.id))
+      return (
+        this.isAttributeRequired(row) &&
+        !this.selection.includes(
+          this.hashAttributeIdClusterId(row.id, this.selectedCluster.id)
+        )
+      )
     },
     customAttributeSort(rows, sortBy, descending) {
       const data = [...rows]
@@ -299,19 +309,19 @@ export default {
 
   computed: {
     requiredDeviceTypeAttributes() {
-        return this.$store.state.zap.attributeView.requiredAttributes
+      return this.$store.state.zap.attributeView.requiredAttributes
     },
     requiredAttributes() {
-        return this.relevantAttributeData
-          .filter(
-            (attribute) =>
-              !attribute.isOptional ||
-              this.requiredDeviceTypeAttributes.includes(attribute.id)
-          )
-          .map((attribute) => attribute.id)
+      return this.relevantAttributeData
+        .filter(
+          (attribute) =>
+            !attribute.isOptional ||
+            this.requiredDeviceTypeAttributes.includes(attribute.id)
+        )
+        .map((attribute) => attribute.id)
     },
     storageOptions() {
-        return Object.values(DbEnum.storageOption)
+      return Object.values(DbEnum.storageOption)
     },
   },
   data() {
@@ -341,7 +351,7 @@ export default {
           field: 'attrID',
           sortable: true,
           style: 'max-width: 90px',
-          headerStyle: 'max-width: 90px'
+          headerStyle: 'max-width: 90px',
         },
         {
           name: 'attrName',
@@ -404,8 +414,8 @@ export default {
           align: 'left',
           label: 'Default',
           field: 'default',
-          style: 'min-width: 80px',
-          headerStyle: 'min-width: 80px'
+          style: 'min-width: 180px',
+          headerStyle: 'min-width: 180px',
         },
       ],
     }
