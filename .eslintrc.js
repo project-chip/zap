@@ -61,14 +61,4 @@ module.exports = {
     'no-undef': 'off',
     'no-unused-vars': 'off',
   },
-  overrides: [
-    {
-      files: ['**/*.spec.{js,ts}'],
-      extends: [
-        // Add Cypress-specific lint rules, globals and Cypress plugin
-        // See https://github.com/cypress-io/eslint-plugin-cypress#rules
-        'plugin:cypress/recommended',
-      ],
-    },
-  ],
 }
