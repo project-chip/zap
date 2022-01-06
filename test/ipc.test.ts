@@ -18,7 +18,7 @@
  * @jest-environment node
  */
 
-const ipcClient = require('../src-electron/client/ipc-client.js')
+const ipcClient = require('../src-electron/client/ipc-client.ts')
 const ipcServer = require('../src-electron/server/ipc-server.js')
 const util = require('../src-electron/util/util.js')
 const env = require('../src-electron/util/env.ts')
@@ -59,7 +59,7 @@ test(
 test(
   'no pong data',
   () => {
-    expect(ipcClient.lastPongData()).toBeNull()
+    expect(ipcClient.lastPongData()).toBeFalsy()
   },
   timeout.medium()
 )
