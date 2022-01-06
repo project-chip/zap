@@ -43,7 +43,7 @@ let dirtyFlagStatusId: NodeJS.Timeout
 let ucComponentStateReportId: NodeJS.Timeout
 let studioHttpPort: number
 
-function projectPath(db: env.dbType, sessionId: number) {
+function projectPath(db: env.DbType, sessionId: number) {
   return querySession.getSessionKeyValue(
     db,
     sessionId,
@@ -57,7 +57,7 @@ function projectPath(db: env.dbType, sessionId: number) {
  * @param {*} sessionId
  * @returns - Promise to studio project path
  */
-async function integrationEnabled(db: env.dbType, sessionId: number) {
+async function integrationEnabled(db: env.DbType, sessionId: number) {
   let path: string = await querySession.getSessionKeyValue(
     db,
     sessionId,
@@ -90,7 +90,7 @@ function projectName(studioProjectPath: string) {
  * @returns - HTTP RESP with project info in JSON form
  */
 async function getProjectInfo(
-  db: env.dbType,
+  db: env.DbType,
   sessionId: number
 ): Promise<{
   data: string[]
@@ -133,7 +133,7 @@ async function getProjectInfo(
  *                data - HTTP response data field
  */
 async function updateComponentByClusterIdAndComponentId(
-  db: env.dbType,
+  db: env.DbType,
   sessionId: number,
   componentIds: string[],
   clusterId: number,
@@ -183,7 +183,7 @@ async function updateComponentByClusterIdAndComponentId(
  *                data - HTTP response data field
  */
 async function updateComponentByComponentIds(
-  db: env.dbType,
+  db: env.DbType,
   sessionId: number,
   componentIds: string[],
   add: boolean
@@ -259,7 +259,7 @@ function httpPostComponentUpdate(
  * Start the dirty flag reporting interval.
  *
  */
-function initIdeIntegration(db: env.dbType, studioPort: number) {
+function initIdeIntegration(db: env.DbType, studioPort: number) {
   studioHttpPort = studioPort
   dirtyFlagStatusId = setInterval(() => {
     sendDirtyFlagStatus(db)
@@ -278,7 +278,7 @@ function deinit() {
   if (ucComponentStateReportId) clearInterval(ucComponentStateReportId)
 }
 
-async function sendUcComponentStateReport(db: env.dbType) {
+async function sendUcComponentStateReport(db: env.DbType) {
   let sessions = await querySession.getAllSessions(db)
   for (const session of sessions) {
     let socket = wsServer.clientSocket(session.sessionKey)
@@ -295,7 +295,7 @@ async function sendUcComponentStateReport(db: env.dbType) {
   }
 }
 
-function sendDirtyFlagStatus(db: env.dbType) {
+function sendDirtyFlagStatus(db: env.DbType) {
   // TODO: delegate type declaration to actual function
   querySession
     .getAllSessions(db)
@@ -323,7 +323,7 @@ function sendDirtyFlagStatus(db: env.dbType) {
  * Notify front-end that current session failed to load.
  * @param {} err
  */
-function sendSessionCreationErrorStatus(db: env.dbType, err: string) {
+function sendSessionCreationErrorStatus(db: env.DbType, err: string) {
   // TODO: delegate type declaration to actual function
   querySession
     .getAllSessions(db)
@@ -345,7 +345,7 @@ function sendSessionCreationErrorStatus(db: env.dbType, err: string) {
  * @param {*} err
  */
 function sendComponentUpdateStatus(
-  db: env.dbType,
+  db: env.DbType,
   sessionId: number,
   data: any
 ) {

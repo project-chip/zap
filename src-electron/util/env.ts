@@ -429,4 +429,4 @@ export function httpStaticContent() {
   return httpStaticContentPath
 }
 
-export type dbType = sqlite.Database
+export type DbType = sqlite.Database
