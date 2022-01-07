@@ -22,7 +22,6 @@ const pino = require('pino')
 const zapBaseUrl = 'http://localhost:'
 const zapUrlLog = 'zap.url'
 import { VersionType, ErrorType } from '../types/env-types'
-import * as sqlite from 'sqlite3'
 
 export function builtinSilabsZclMetafile() {
   return pathFromProjBaseDir('./zcl-builtin/silabs/zcl.json')
@@ -428,5 +427,3 @@ export function versionsCheck() {
 export function httpStaticContent() {
   return httpStaticContentPath
 }
-
-export type DbType = sqlite.Database

@@ -15,18 +15,13 @@
  *    limitations under the License.
  */
 
-import ipc from 'node-ipc'
+import * as ipcTypes from '../../src-shared/types/ipc-types'
 const env = require('../util/env')
-const ipcServer = require('../server/ipc-server.js')
+const ipcServer = require('../server/ipc-server')
 const util = require('../util/util.js')
+import ipc from 'node-ipc'
 
-interface Client {
-  ipc: InstanceType<typeof ipc.IPC>
-  uuid: string
-  connected: boolean
-}
-
-const client = {
+const client: ipcTypes.Client = {
   ipc: new ipc.IPC(),
   uuid: util.createUuid(),
   connected: false,
@@ -68,7 +63,7 @@ function initAndConnectClient() {
         lastPong = data
       })
 
-      resolve(client.uuid)
+      resolve('')
     })
   })
 }

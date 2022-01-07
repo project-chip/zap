@@ -59,6 +59,9 @@ async function regenDatabaseTypes() {
  *    limitations under the License.
  */
 
+import * as sqlite from 'sqlite3'
+export type DbType = sqlite.Database
+
 // This file is generated via ./src-script/regen-ts-type.js.  Do not hand edit this file!
 `,
   ]
