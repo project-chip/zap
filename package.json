@@ -103,7 +103,6 @@
     "pino": "^6.11.3",
     "promised-handlebars": "^2.0.1",
     "properties": "^1.2.1",
-    "request": "^2.88.2",
     "source-map-support": "^0.5.19",
     "sqlite3": "^5.0.2",
     "toposort": "^2.0.2",
