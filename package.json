@@ -1,7 +1,7 @@
 {
   "type": "commonjs",
   "name": "zap",
-  "version": "2022.1.7",
+  "version": "2022.1.10",
   "description": "Configuration tool for the Zigbee Cluster Library",
   "productName": "zap",
   "cordovaId": "",
@@ -71,7 +71,7 @@
     "dist-linux": "electron-builder -l",
     "publish-linux": "electron-builder -l -p always",
     "dist-win": "electron-builder -w",
-    "dist-mac": "electron-builder -m --dir",
+    "dist-mac": "electron-builder -m",
     "apack:win": "cp apack.json dist/win-unpacked/apack.json && cd dist/win-unpacked && zip -r ../zap_apack_win * && cd -",
     "apack:mac": "cp apack.json dist/mac/apack.json && cd dist/mac && zip -ry ../zap_apack_mac * && cd -",
     "apack:linux": "cp apack.json dist/linux-unpacked/apack.json && cd dist/linux-unpacked && zip -r ../zap_apack_linux *",
