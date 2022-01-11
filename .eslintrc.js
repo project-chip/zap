@@ -45,7 +45,6 @@ module.exports = {
     'guard-for-in': 'error',
 
     'import/first': 'off',
-    'import/named': 'error',
     'import/namespace': 'error',
     'import/default': 'error',
     'import/export': 'error',

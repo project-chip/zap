@@ -17,4 +17,6 @@ WTFPL
 (MIT OR Apache-2.0)
 (MIT AND BSD-3-Clause)
 (MIT AND Zlib)
+(AFL-2.1 OR BSD-3-Clause)
+
 

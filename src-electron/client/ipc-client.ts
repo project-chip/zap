@@ -15,18 +15,21 @@
  *    limitations under the License.
  */
 
-const ipc = require('node-ipc')
+import * as ipcTypes from '../../src-shared/types/ipc-types'
 const env = require('../util/env')
-const ipcServer = require('../server/ipc-server.js')
+const ipcServer = require('../server/ipc-server')
 const util = require('../util/util.js')
+import ipc from 'node-ipc'
 
-const clientIpc = new ipc.IPC()
-clientIpc.clientUuid = util.createUuid()
-clientIpc.clientConnected = false
+const client: ipcTypes.Client = {
+  ipc: new ipc.IPC(),
+  uuid: util.createUuid(),
+  connected: false,
+}
 
-let lastPong = null
+let lastPong: string = ''
 
-function log(msg) {
+function log(msg: string) {
   env.logIpc(`Ipc client: ${msg}`)
 }
 
@@ -36,17 +39,17 @@ function log(msg) {
  * @returns a promise which resolves when client connects
  */
 function initAndConnectClient() {
-  clientIpc.config.logger = log
-  clientIpc.config.id = 'main'
+  client.ipc.config.logger = log
+  client.ipc.config.id = 'main'
 
   return new Promise((resolve, reject) => {
-    clientIpc.connectTo(clientIpc.clientUuid, ipcServer.socketPath(), () => {
+    client.ipc.connectTo(client.uuid, ipcServer.socketPath(), () => {
       env.logIpc('Started the IPC client.')
-      clientIpc.clientConnected = true
-      let socket = clientIpc.of[clientIpc.clientUuid]
+      client.connected = true
+      let socket = client.ipc.of[client.uuid]
       socket.on('disconnect', () => {
         env.logIpc('Client disconnected.')
-        clientIpc.clientConnected = false
+        client.connected = false
       })
 
       // Serve pings
@@ -60,7 +63,7 @@ function initAndConnectClient() {
         lastPong = data
       })
 
-      resolve()
+      resolve('')
     })
   })
 }
@@ -71,8 +74,8 @@ function initAndConnectClient() {
  * @param {*} eventType
  * @param {*} handler
  */
-function on(eventType, handler) {
-  clientIpc.of[clientIpc.clientUuid].on(eventType, handler)
+function on(eventType: string, handler: any) {
+  client.ipc.of[client.uuid].on(eventType, handler)
 }
 
 /**
@@ -90,7 +93,7 @@ function lastPongData() {
  * @returns true if client is connected
  */
 function isClientConnected() {
-  return clientIpc.clientConnected === true
+  return client.connected === true
 }
 
 /**
@@ -98,7 +101,7 @@ function isClientConnected() {
  */
 function disconnectClient() {
   env.logIpc('Disconnecting the IPC client.')
-  clientIpc.disconnect(clientIpc.clientUuid)
+  client.ipc.disconnect(client.uuid)
 }
 
 /**
@@ -107,8 +110,8 @@ function disconnectClient() {
  * @param {*} key
  * @param {*} object
  */
-async function emit(key, object) {
-  clientIpc.of[clientIpc.clientUuid].emit(key, object)
+async function emit(key: string, object?: any) {
+  client.ipc.of[client.uuid].emit(key, object)
 }
 
 exports.initAndConnectClient = initAndConnectClient
