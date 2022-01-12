@@ -35,7 +35,7 @@
     {
       "pathRelativity": "relativeToZap",
       "path": "custom-cluster/custom-bead-cluster.xml",
-      "version": "/home/timotej/git/zap/test/resource/custom-cluster/custom-bead-cluster.xml",
+      "version": null,
       "type": "zcl-xml-standalone"
     }
   ],
@@ -73,7 +73,7 @@
     {
       "endpointTypeName": "Anonymous Endpoint Type",
       "endpointTypeIndex": 0,
-      "profileId": 65535,
+      "profileId": 263,
       "endpointId": 1,
       "networkId": 0,
       "endpointVersion": 1,
