@@ -28,7 +28,7 @@
     "test:e2e": "npm run zap-devserver | start-test \"quasar dev\" http-get://localhost:8080 \"cypress open\"",
     "test:e2e-ci": "npm run zap-devserver | start-test \"quasar dev\" http-get://localhost:8080 \"cypress run\"",
     "postinstall": "electron-builder install-app-deps && husky install && npm rebuild canvas --update-binary",
-    "wpzap": "npm run build-spa && npm run build-backend && npm run dist-mac",
+    "wpzap": "npm run build-spa && npm run build-backend && npm run dist-mac && npm run apack:mac",
     "zap": "node src-script/zap-start.js --logToStdout --gen ./test/gen-template/zigbee/gen-templates.json",
     "zap-dev": "npm run build-spa && quasar dev -m electron",
     "zap-devserver": "node src-script/zap-start.js server --allowCors --logToStdout --gen ./test/gen-template/zigbee/gen-templates.json --reuseZapInstance",
