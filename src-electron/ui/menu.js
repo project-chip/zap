@@ -94,7 +94,11 @@ const template = (httpPort) => [
       {
         label: 'Dark theme',
         click(menuItem, browserWindow, event) {
-          browserApi.execRendererApi(browserWindow, rendApi.id.setTheme, 'dark')
+          browserApi.execRendererApi(
+            browserWindow,
+            rendApi.id.setDarkTheme,
+            true
+          )
         },
       },
       {
@@ -102,8 +106,8 @@ const template = (httpPort) => [
         click(menuItem, browserWindow, event) {
           browserApi.execRendererApi(
             browserWindow,
-            rendApi.id.setTheme,
-            'light'
+            rendApi.id.setDarkTheme,
+            false
           )
         },
       },

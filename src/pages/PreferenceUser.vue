@@ -51,11 +51,8 @@ export default {
   name: 'PreferenceUser',
   data() {
     return {
-      localtheme: false,
+      localtheme: this.$q.dark.isActive,
     }
-  },
-  created() {
-    this.gettheme()
   },
   methods: {
     setPath(path) {
@@ -64,21 +61,14 @@ export default {
     gettheme() {
       return new Promise((r) => {
         setTimeout(async () => {
-          let theme = observable.getObservableAttribute(
-            rendApi.observable.themeData
-          )
-          if (!theme) await this.gettheme()
-          this.localtheme = theme === 'dark'
+          this.localtheme = this.$q.dark.isActive
         }, 1000)
       })
     },
   },
   watch: {
     localtheme(val) {
-      observable.setObservableAttribute(
-        rendApi.observable.themeData,
-        val ? 'dark' : 'light'
-      )
+      this.$q.dark.set(val)
     },
   },
   computed: {

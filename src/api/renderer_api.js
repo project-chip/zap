@@ -15,6 +15,7 @@
  *    limitations under the License.
  */
 
+import { Dark } from 'quasar'
 const observable = require('../util/observable.js')
 const restApi = require('../../src-shared/rest-api.js')
 const rendApi = require('../../src-shared/rend-api.js')
@@ -35,7 +36,7 @@ const rendApi = require('../../src-shared/rend-api.js')
  * e.g. The 'open' function is invoked by the container when opening a new configuration.
  * The front-end is informed and proceed to init UI elements.
  */
-function renderer_api_info() {
+export function renderer_api_info() {
   return {
     prefix: 'zap',
     description: 'Zap Renderer API',
@@ -62,7 +63,7 @@ function fnSave(zap_file) {
     .catch((err) => console.log(err))
 }
 
-function renderer_api_execute(id, ...args) {
+export function renderer_api_execute(id, ...args) {
   let ret = null
   switch (id) {
     case rendApi.id.open:
@@ -95,8 +96,8 @@ function renderer_api_execute(id, ...args) {
     case rendApi.id.debugNavBarOff:
       observable.setObservableAttribute(rendApi.observable.debugNavBar, false)
       break
-    case rendApi.id.setTheme:
-      observable.setObservableAttribute(rendApi.observable.themeData, args[0])
+    case rendApi.id.setDarkTheme:
+      Dark.set(args[0])
       break
   }
   return ret
@@ -111,12 +112,8 @@ function renderer_api_execute(id, ...args) {
  * @param {*} key
  * @param {*} value
  */
-function renderer_api_notify(key, value) {
+export function renderer_api_notify(key, value) {
   console.log(
     `${rendApi.jsonPrefix}${JSON.stringify({ key: key, value: value })}`
   )
 }
-
-exports.renderer_api_info = renderer_api_info
-exports.renderer_api_execute = renderer_api_execute
-exports.renderer_api_notify = renderer_api_notify
