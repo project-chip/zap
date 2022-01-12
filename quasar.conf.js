@@ -3,6 +3,7 @@
 
 module.exports = function (ctx) {
   return {
+    supportTS: true,
     // Source files of application
     sourceFiles: {
       rootComponent: 'src/App.vue',
