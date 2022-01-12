@@ -68,7 +68,7 @@ export default {
   },
   watch: {
     localtheme(val) {
-      this.$q.dark.set(val)
+      window[rendApi.GLOBAL_SYMBOL_EXECUTE](rendApi.id.setDarkTheme, val)
     },
   },
   computed: {

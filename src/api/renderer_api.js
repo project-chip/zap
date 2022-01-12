@@ -16,6 +16,8 @@
  */
 
 import { Dark } from 'quasar'
+const _ = require('lodash')
+
 const observable = require('../util/observable.js')
 const restApi = require('../../src-shared/rest-api.js')
 const rendApi = require('../../src-shared/rend-api.js')
@@ -97,7 +99,15 @@ export function renderer_api_execute(id, ...args) {
       observable.setObservableAttribute(rendApi.observable.debugNavBar, false)
       break
     case rendApi.id.setDarkTheme:
-      Dark.set(args[0])
+      if (_.isBoolean(args[0])) {
+        Dark.set(args[0])
+      }
+
+      if (_.isString(args[0])) {
+        Dark.set(args[0] === 'true')
+      }
+
+      renderer_api_notify(rendApi.id.setDarkTheme, args[0])
       break
   }
   return ret
