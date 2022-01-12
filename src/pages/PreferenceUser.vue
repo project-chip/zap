@@ -25,6 +25,7 @@ limitations under the License.
       dense
       left-label
       v-model="localtheme"
+      id="darkTheme"
     >
       <q-tooltip> Enable Dark theme </q-tooltip>
     </q-toggle>

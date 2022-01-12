@@ -59,6 +59,7 @@ limitations under the License.
           flat
           @click="drawerRight = !drawerRight"
           icon="settings"
+          id="preference"
           to="/preference"
         />
       </q-toolbar>
