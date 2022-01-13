@@ -131,6 +131,7 @@ exports.observable = {
 exports.storageKey = {
   fileSave: 'lastFileLocation_openFileSave',
   theme: 'ui_theme',
+  isDarkThemeActive: 'isDarkThemeActive',
 }
 
 /** Global symbol that carries the API info metadata */

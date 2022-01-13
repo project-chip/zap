@@ -21,6 +21,7 @@ const _ = require('lodash')
 const observable = require('../util/observable.js')
 const restApi = require('../../src-shared/rest-api.js')
 const rendApi = require('../../src-shared/rend-api.js')
+const storage = require('../util/storage.js')
 
 // This file provide glue logic to enable function calls & HTML attribute data change listener logic
 // between front-end containers (jxBrowser, Electron, etc) and the node.js
@@ -101,13 +102,19 @@ export function renderer_api_execute(id, ...args) {
     case rendApi.id.setDarkTheme:
       if (_.isBoolean(args[0])) {
         Dark.set(args[0])
+        storage.setItem(rendApi.storageKey.isDarkThemeActive, args[0])
+        renderer_api_notify(rendApi.id.setDarkTheme, args[0])
       }
 
       if (_.isString(args[0])) {
         Dark.set(args[0] === 'true')
+        storage.setItem(
+          rendApi.storageKey.isDarkThemeActive,
+          args[0] === 'true'
+        )
+        renderer_api_notify(rendApi.id.setDarkTheme, args[0] === 'true')
       }
 
-      renderer_api_notify(rendApi.id.setDarkTheme, args[0])
       break
   }
   return ret

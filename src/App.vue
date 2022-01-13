@@ -93,7 +93,10 @@ export default {
     },
   },
   mounted() {
-    // expecting rendererApi calls to set correct theme color for init
+    window[rendApi.GLOBAL_SYMBOL_EXECUTE](
+      rendApi.id.setDarkTheme,
+      storage.getItem(rendApi.storageKey.isDarkThemeActive)
+    )
 
     this.$q.loading.show({
       spinner: QSpinnerGears,
