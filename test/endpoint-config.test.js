@@ -196,10 +196,10 @@ test(
       "17, 'V', 'e', 'r', 'y', ' ', 'l', 'o', 'n', 'g', ' ', 'u', 's', 'e', 'r', ' ', 'i', 'd',"
     )
     expect(epc).toContain(
-      '{ ZAP_REPORT_DIRECTION(REPORTED), 0x0029, 0x0101, 0x0000, ZAP_CLUSTER_MASK(SERVER), 0x0000, {{ 0, 65534, 0 }} }, /* lock state */'
+      '{ ZAP_REPORT_DIRECTION(REPORTED), 0x0029, 0x00000101, 0x00000000, ZAP_CLUSTER_MASK(SERVER), 0x0000, {{ 0, 65534, 0 }} }, /* lock state */'
     )
     expect(epc).toContain(
-      '{ 0x0004, ZAP_TYPE(CHAR_STRING), 33, ZAP_ATTRIBUTE_MASK(TOKENIZE), ZAP_LONG_DEFAULTS_INDEX(0) }'
+      '{ 0x00000004, ZAP_TYPE(CHAR_STRING), 33, ZAP_ATTRIBUTE_MASK(TOKENIZE), ZAP_LONG_DEFAULTS_INDEX(0) }'
     )
     expect(epc.includes(bin.hexToCBytes(bin.stringToHex('Very long user id'))))
     expect(epc).toContain('#define FIXED_NETWORKS { 1, 1, 2 }')
@@ -209,10 +209,10 @@ test(
     expect(epc).toContain('#define FIXED_ENDPOINT_TYPES { 0, 1, 2 }')
     expect(epc).toContain('#define GENERATED_DEFAULTS_COUNT (12)')
     expect(epc).toContain(
-      '{ ZAP_REPORT_DIRECTION(REPORTED), 0x002A, 0x0701, 0x0002, ZAP_CLUSTER_MASK(CLIENT), 0x0000, {{ 2, 12, 4 }} }'
+      '{ ZAP_REPORT_DIRECTION(REPORTED), 0x002A, 0x00000701, 0x00000002, ZAP_CLUSTER_MASK(CLIENT), 0x0000, {{ 2, 12, 4 }} }'
     )
     expect(epc).toContain(
-      '{ ZAP_REPORT_DIRECTION(REPORTED), 0x002A, 0x0701, 0x0003, ZAP_CLUSTER_MASK(CLIENT), 0x0000, {{ 3, 13, 6 }} }'
+      '{ ZAP_REPORT_DIRECTION(REPORTED), 0x002A, 0x00000701, 0x00000003, ZAP_CLUSTER_MASK(CLIENT), 0x0000, {{ 3, 13, 6 }} }'
     )
     expect(epc).toContain(
       `17, 'T', 'e', 's', 't', ' ', 'm', 'a', 'n', 'u', 'f', 'a', 'c', 't', 'u', 'r', 'e', 'r',`

@@ -412,6 +412,10 @@ function endpoint_attribute_long_defaults(options) {
   return ret
 }
 
+function asMEI(manufacturerCode, code) {
+  return "0x" + bin.int32ToHex((manufacturerCode << 16) + code);
+}
+
 /**
  * Attribute collection works like this:
  *    1.) Go over all the clusters that exist.
@@ -461,7 +465,7 @@ async function collectAttributes(endpointTypes) {
 
     ept.clusters.forEach((c) => {
       let cluster = {
-        clusterId: c.hexCode,
+        clusterId: asMEI(c.manufacturerCode, c.code),
         clusterName: c.name,
         clusterSide: c.side,
         attributeIndex: attributeIndex,
@@ -554,8 +558,8 @@ async function collectAttributes(endpointTypes) {
           let rpt = {
             direction: 'REPORTED', // or 'RECEIVED'
             endpoint: '0x' + bin.int16ToHex(ept.endpointId),
-            clusterId: c.hexCode,
-            attributeId: a.hexCode,
+            clusterId: asMEI(c.manufacturerCode, c.code),
+            attributeId: asMEI(a.manufacturerCode, a.code),
             mask: rptMask,
             mfgCode:
               a.manufacturerCode == null
@@ -597,7 +601,7 @@ async function collectAttributes(endpointTypes) {
           zap_type = "STRUCT";
         }
         let attr = {
-          id: a.hexCode, // attribute code
+          id: asMEI(a.manufacturerCode, a.code), // attribute code
           type: `ZAP_TYPE(${cHelper.asDelimitedMacro(zap_type)})`, // type
           size: typeSize, // size
           mask: mask, // array of special properties
@@ -639,8 +643,8 @@ async function collectAttributes(endpointTypes) {
           }
         }
         let command = {
-          clusterId: c.hexCode,
-          commandId: cmd.hexCode,
+          clusterId: asMEI(c.manufacturerCode, c.code),
+          commandId: asMEI(cmd.manufacturerCode, cmd.code),
           mask: mask,
           name: cmd.name,
           comment: cluster.comment,

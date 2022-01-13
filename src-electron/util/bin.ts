@@ -45,7 +45,7 @@ function int16ToHex(value: number, littleEndian = false) {
 }
 
 /**
- * Takes an int8 value and turns it into a hex.
+ * Takes an int32 value and turns it into a hex.
  *
  * @param {*} value
  * @returns hex string, 8 characters long without '0x'
