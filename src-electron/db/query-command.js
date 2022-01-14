@@ -1020,6 +1020,7 @@ async function selectAllCommandArguments(db, packageId) {
       `
 SELECT
   COMMAND_ARG.COMMAND_REF,
+  COMMAND_ARG.FIELD_IDENTIFIER,
   COMMAND_ARG.NAME,
   COMMAND_ARG.TYPE,
   COMMAND_ARG.IS_ARRAY,
@@ -1074,6 +1075,7 @@ async function selectCommandArgumentsByCommandId(db, commandId) {
       `
 SELECT
   COMMAND_REF,
+  FIELD_IDENTIFIER,
   NAME,
   TYPE,
   IS_ARRAY,

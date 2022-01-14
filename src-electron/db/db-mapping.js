@@ -173,6 +173,7 @@ exports.map = {
     if (x == null) return undefined
     return {
       commandRef: x.COMMAND_REF,
+      fieldIdentifier: x.FIELD_IDENTIFIER,
       label: x.NAME,
       name: x.NAME,
       type: x.TYPE,
