@@ -25,27 +25,24 @@ const queryEndpointType = require('../db/query-endpoint-type.js')
 const queryCommand = require('../db/query-command.js')
 
 /**
-  * Helper for add_user_cluster_commands that does all the work except the
-  * collectBlocks.  This allows other iterators to further filter the list
-  * before doing collectBlocks.
-  */
-function all_user_cluster_commands_helper(options) {
-  let promise = templateUtil
-    .ensureEndpointTypeIds(this)
-    .then((endpointTypes) =>
-      queryEndpointType.selectClustersAndEndpointDetailsFromEndpointTypes(
-        this.global.db,
-        endpointTypes
-      )
+ * Helper for add_user_cluster_commands that does all the work except the
+ * collectBlocks.  This allows other iterators to further filter the list
+ * before doing collectBlocks.
+ */
+async function all_user_cluster_commands_helper(options) {
+  let endpointTypes = await templateUtil.ensureEndpointTypeIds(this)
+
+  let endpointsAndClusters =
+    await queryEndpointType.selectClustersAndEndpointDetailsFromEndpointTypes(
+      this.global.db,
+      endpointTypes
     )
-    .then((endpointsAndClusters) =>
-      queryCommand.selectCommandDetailsFromAllEndpointTypesAndClusters(
-        this.global.db,
-        endpointsAndClusters,
-        true
-      )
-    );
-  return promise;
+
+  return queryCommand.selectCommandDetailsFromAllEndpointTypesAndClusters(
+    this.global.db,
+    endpointsAndClusters,
+    true
+  )
 }
 
-exports.all_user_cluster_commands_helper = all_user_cluster_commands_helper;
+exports.all_user_cluster_commands_helper = all_user_cluster_commands_helper

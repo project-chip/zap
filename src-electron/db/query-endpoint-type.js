@@ -499,24 +499,23 @@ async function selectClustersAndEndpointDetailsFromEndpointTypes(
     }
   }
 
-  return dbApi
-    .dbAll(
-      db,
-      `
+  let rows = await dbApi.dbAll(
+    db,
+    `
 SELECT
-  ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF,
-  ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID,
-  ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
+  ETC.ENDPOINT_TYPE_REF,
+  ETC.ENDPOINT_TYPE_CLUSTER_ID,
+  ETC.CLUSTER_REF
 FROM 
   CLUSTER
 INNER JOIN 
-  ENDPOINT_TYPE_CLUSTER
+  ENDPOINT_TYPE_CLUSTER AS ETC
 ON 
-  CLUSTER.CLUSTER_ID = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
+  CLUSTER.CLUSTER_ID = ETC.CLUSTER_REF
 WHERE
-  ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF IN (${endpointTypeIds})`
-    )
-    .then((rows) => rows.map(mapFunction))
+  ETC.ENDPOINT_TYPE_REF IN (${endpointTypeIds})`
+  )
+  return rows.map(mapFunction)
 }
 
 exports.deleteEndpointType = deleteEndpointType
