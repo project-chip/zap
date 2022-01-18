@@ -6,11 +6,11 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 })
 
 describe('Testing Editing endpoints', () => {
-  beforeEach(() => {
-    cy.visit('http://localhost:8080/?restPort=9070#/')
-  })
+
   it('create a new endpoint', () => {
+    cy.visit('http://localhost:8080/?restPort=9070#/')
     cy.addEndpoint('Billing Unit (0x0203)')
+    cy.wait(1000);
   })
   it('edit endpoint', () => {
     cy.get('button').contains('Edit').click()
