@@ -252,7 +252,7 @@ export default {
       },
     },
     selectedservers() {
-      return this.$store.state.zap.clustersView.selectedServers
+      return [...this.$store.state.zap.clustersView.selectedServers , ...this.$store.state.zap.clustersView.selectedClients]
     },
     selectedAttributes(){
       return this.$store.state.zap.attributeView.selectedAttributes
