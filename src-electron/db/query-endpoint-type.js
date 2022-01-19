@@ -481,8 +481,13 @@ async function selectCommandDetailsFromAllEndpointTypeCluster(
 /**
  * Exports clusters and endpoint ids
  *
+ * This function outputs an array of objects. Each object contains:
+ *    endpointId - the id of the endpoint
+ *    endpointClusterId - the id of the endpoint_type_cluster table listing this.
+ *    endpointTypeClusterRef - clusterID of the given cluster.
+ *
  * @param {*} db
- * @param {*} endpointTypeId
+ * @param {*} endpointTypes
  * @returns Promise that resolves with the data that contains cluster
  * and endpoint id references
  */
