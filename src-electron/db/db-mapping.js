@@ -22,6 +22,7 @@
  */
 
 const dbApi = require('./db-api.js')
+const dbEnums = require('../../src-shared/db-enum.js')
 
 exports.map = {
   package: (x) => {
@@ -104,7 +105,10 @@ exports.map = {
       isNullable: dbApi.fromDbBool(x.IS_NULLABLE),
       defaultValue: x.DEFAULT_VALUE,
       isOptional: dbApi.fromDbBool(x.IS_OPTIONAL),
-      isReportable: dbApi.fromDbBool(x.IS_REPORTABLE),
+      isReportable:
+        x.REPORTING_POLICY == dbEnums.reportingPolicy.mandatory ||
+        x.REPORTING_POLICY == dbEnums.reportingPolicy.suggested,
+      reportingPolicy: x.REPORTING_POLICY,
       isSceneRequired: dbApi.fromDbBool(x.IS_SCENE_REQUIRED),
       entryType: x.ARRAY_TYPE,
       mustUseTimedWrite: dbApi.fromDbBool(x.MUST_USE_TIMED_WRITE),

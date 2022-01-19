@@ -685,7 +685,11 @@ async function resolveDefaultDeviceTypeAttributes(
           },
           {
             key: restApi.updateKey.attributeReporting,
-            value: deviceAttribute.isReportable == true,
+            value:
+              deviceAttribute.reportingPolicy ==
+                dbEnum.reportingPolicy.mandatory ||
+              deviceAttribute.reportingPolicy ==
+                dbEnum.reportingPolicy.suggested,
           },
         ],
         attribute.reportMinInterval,
@@ -832,7 +836,10 @@ async function resolveNonOptionalAndReportableAttributes(
 ) {
   let promises = attributes.map((attribute) => {
     let settings = []
-    if (attribute.isReportable)
+    if (
+      attribute.reportingPolicy == dbEnum.reportingPolicy.mandatory ||
+      attribute.reportingPolicy == dbEnum.reportingPolicy.suggested
+    )
       settings.push({
         key: restApi.updateKey.attributeReporting,
         value: true,

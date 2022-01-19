@@ -88,9 +88,20 @@ async function collectDataFromJsonFile(metadataFile, data) {
     returnObject.featureFlags = obj.featureFlags
   }
 
-  // Default reportability
+  // Default reportability.
+  // `defaultReportable` was old thing that could be true or false.
+  // We still honor it.
   if ('defaultReportable' in obj) {
-    returnObject.defaultReportable = obj.defaultReportable
+    returnObject.defaultReportingPolicy = obj.defaultReportable
+      ? dbEnum.reportingPolicy.suggested
+      : dbEnum.reportingPolicy.optional
+  }
+  // Default reporting policy is the new thing that can be mandatory/optional/suggested/prohibited.
+  // If it's missing, 'optional' is a default reporting policy.
+  if ('defaultReportingPolicy' in obj) {
+    returnObject.defaultReportingPolicy = dbEnum.reportingPolicy.resolve(
+      obj.defaultReportingPolicy
+    )
   }
 
   returnObject.version = obj.version
@@ -494,6 +505,16 @@ function prepareCluster(cluster, context, isExtension = false) {
       if ('description' in attribute && name == null) {
         name = attribute.description.join('')
       }
+      let reportingPolicy = context.defaultReportingPolicy
+      if (attribute.$.reportable == 'true') {
+        reportingPolicy = dbEnum.reportingPolicy.suggested
+      } else if (attribute.$.reportable == 'false') {
+        reportingPolicy = dbEnum.reportingPolicy.optional
+      } else if (attribute.$.reportingPolicy != null) {
+        reportingPolicy = dbEnum.reportingPolicy.resolve(
+          attribute.$.reportingPolicy
+        )
+      }
       let att = {
         code: parseInt(attribute.$.code),
         manufacturerCode: attribute.$.manufacturerCode,
@@ -517,9 +538,7 @@ function prepareCluster(cluster, context, isExtension = false) {
         isWritable: attribute.$.writable == 'true',
         defaultValue: attribute.$.default,
         isOptional: attribute.$.optional == 'true',
-        isReportable: context.defaultReportable
-          ? attribute.$.reportable != 'false'
-          : attribute.$.reportable == 'true',
+        reportingPolicy: reportingPolicy,
         isSceneRequired: attribute.$.sceneRequired == 'true',
         introducedIn: attribute.$.introducedIn,
         removedIn: attribute.$.removedIn,

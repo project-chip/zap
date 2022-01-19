@@ -262,7 +262,7 @@ CREATE TABLE IF NOT EXISTS "ATTRIBUTE" (
   "DEFAULT_VALUE" text,
   "IS_SCENE_REQUIRED" integer,
   "IS_OPTIONAL" integer,
-  "IS_REPORTABLE" integer,
+  "REPORTING_POLICY" text,
   "IS_NULLABLE" integer,
   "ARRAY_TYPE" text,
   "MUST_USE_TIMED_WRITE" integer,

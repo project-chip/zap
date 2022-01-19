@@ -215,10 +215,12 @@ function prepareAttributes(attributes, side, types, cluster = null) {
         isWritable: a.$.writable == 'true',
         defaultValue: normalizeHexValue(a.$.default),
         isOptional: a.$.required != 'true',
-        isReportable:
+        reportingPolicy:
           a.$.reportRequired === undefined
-            ? false
-            : a.$.reportRequired == 'true',
+            ? dbEnum.reportingPolicy.optional
+            : a.$.reportRequired == 'true'
+            ? dbEnum.reportingPolicy.mandatory
+            : dbEnum.reportingPolicy.prohibited,
         isSceneRequired:
           a.$.sceneRequired == undefined ? false : a.$.sceneRequired == 'true',
       }
@@ -236,10 +238,12 @@ function prepareAttributes(attributes, side, types, cluster = null) {
         isWritable: a.$.writable == 'true',
         defaultValue: normalizeHexValue(a.$.default),
         isOptional: a.$.required != 'true',
-        isReportable:
+        reportingPolicy:
           a.$.reportRequired === undefined
-            ? false
-            : a.$.reportRequired == 'true',
+            ? dbEnum.reportingPolicy.optional
+            : a.$.reportRequired == 'true'
+            ? dbEnum.reportingPolicy.mandatory
+            : dbEnum.reportingPolicy.prohibited,
         isSceneRequired:
           a.$.sceneRequired == undefined ? false : a.$.sceneRequired == 'true',
       }
@@ -268,10 +272,12 @@ function prepareAttributes(attributes, side, types, cluster = null) {
         isWritable: a.$.writable == 'true',
         defaultValue: normalizeHexValue(a.$.default),
         isOptional: a.$.required != 'true',
-        isReportable:
+        reportingPolicy:
           a.$.reportRequired === undefined
-            ? false
-            : a.$.reportRequired == 'true',
+            ? dbEnum.reportingPolicy.optional
+            : a.$.reportRequired == 'true'
+            ? dbEnum.reportingPolicy.mandatory
+            : dbEnum.reportingPolicy.prohibited,
         isSceneRequired:
           a.$.sceneRequired == undefined ? false : a.$.sceneRequired == 'true',
       }
