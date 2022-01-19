@@ -219,14 +219,15 @@ function prepareBitmap(bm) {
   }
   if ('field' in bm) {
     ret.fields = []
-    bm.field.forEach((field, index) => {
+    let lastFieldId = -1;
+    bm.field.forEach((field) => {
+      let defaultFieldId = lastFieldId + 1;
+      lastFieldId = field.$.fieldId ? parseInt(field.$.fieldId) : defaultFieldId;
       ret.fields.push({
         name: field.$.name,
         mask: parseInt(field.$.mask),
         type: maskToType(field.$.mask),
-        fieldIdentifier: field.$.fieldId
-          ? parseInt(field.$.fieldId)
-          : index + 1,
+        fieldIdentifier: lastFieldId,
       })
     })
   }
@@ -425,7 +426,10 @@ function prepareCluster(cluster, context, isExtension = false) {
       }
       if ('arg' in command) {
         cmd.args = []
-        command.arg.forEach((arg, index) => {
+        let lastFieldId = -1;
+        command.arg.forEach((arg) => {
+          let defaultFieldId = lastFieldId + 1;
+          lastFieldId = arg.$.fieldId ? parseInt(arg.$.fieldId) : defaultFieldId;
           // We are only including ones that are NOT removedIn
           if (arg.$.removedIn == null)
             cmd.args.push({
@@ -436,9 +440,7 @@ function prepareCluster(cluster, context, isExtension = false) {
               isNullable: arg.$.isNullable == 'true' ? true : false,
               isOptional: arg.$.optional == 'true' ? true : false,
               countArg: arg.$.countArg,
-              fieldIdentifier: arg.$.fieldId
-                ? parseInt(arg.$.fieldId)
-                : index + 1,
+              fieldIdentifier: lastFieldId,
               introducedIn: arg.$.introducedIn,
               removedIn: arg.$.removedIn,
             })
@@ -467,7 +469,10 @@ function prepareCluster(cluster, context, isExtension = false) {
       }
       if ('field' in event) {
         ev.fields = []
-        event.field.forEach((field, index) => {
+        let lastFieldId = -1;
+        event.field.forEach((field) => {
+          let defaultFieldId = lastFieldId + 1;
+          lastFieldId = field.$.id ? parseInt(field.$.id) : defaultFieldId;
           if (field.$.removedIn == null) {
             ev.fields.push({
               name: field.$.name,
@@ -475,7 +480,7 @@ function prepareCluster(cluster, context, isExtension = false) {
               isArray: field.$.array == 'true' ? 1 : 0,
               isNullable: field.$.isNullable == 'true' ? true : false,
               isOptional: field.$.optional == 'true' ? true : false,
-              fieldIdentifier: field.$.id ? parseInt(field.$.id) : index + 1,
+              fieldIdentifier: lastFieldId,
               introducedIn: field.$.introducedIn,
               removedIn: field.$.removedIn,
             })
@@ -804,11 +809,14 @@ function prepareStruct(struct) {
   }
   if ('item' in struct) {
     ret.items = []
-    struct.item.forEach((item, index) => {
+    let lastFieldId = -1;
+    struct.item.forEach((item) => {
+      let defaultFieldId = lastFieldId + 1;
+      lastFieldId = item.$.fieldId ? parseInt(item.$.fieldId) : defaultFieldId;
       ret.items.push({
         name: item.$.name,
         type: item.$.type,
-        fieldIdentifier: item.$.fieldId ? parseInt(item.$.fieldId) : index + 1,
+        fieldIdentifier: lastFieldId,
         minLength: 0,
         maxLength: item.$.length ? item.$.length : null,
         isWritable: item.$.writable == 'true',
@@ -861,11 +869,14 @@ function prepareEnum(en) {
 
   if ('item' in en) {
     ret.items = []
-    en.item.forEach((item, index) => {
+    let lastFieldId = -1;
+    en.item.forEach((item) => {
+      let defaultFieldId = lastFieldId + 1;
+      lastFieldId = item.$.fieldId ? parseInt(item.$.fieldId) : defaultFieldId;
       ret.items.push({
         name: item.$.name,
         value: parseInt(item.$.value),
-        fieldIdentifier: item.$.fieldId ? parseInt(item.$.fieldId) : index + 1,
+        fieldIdentifier: lastFieldId,
       })
     })
   }
