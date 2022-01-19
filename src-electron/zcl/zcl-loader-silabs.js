@@ -91,6 +91,9 @@ async function collectDataFromJsonFile(metadataFile, data) {
   // Default reportability.
   // `defaultReportable` was old thing that could be true or false.
   // We still honor it.
+  returnObject.defaultReportingPolicy =
+    dbEnum.reportingPolicy.defaultReportingPolicy
+
   if ('defaultReportable' in obj) {
     returnObject.defaultReportingPolicy = obj.defaultReportable
       ? dbEnum.reportingPolicy.suggested
@@ -103,7 +106,6 @@ async function collectDataFromJsonFile(metadataFile, data) {
       obj.defaultReportingPolicy
     )
   }
-
   returnObject.version = obj.version
   returnObject.supportCustomZclDevice = obj.supportCustomZclDevice
 

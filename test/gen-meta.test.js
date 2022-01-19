@@ -208,6 +208,7 @@ test(
     let epc = genResult.content['test1.out']
     expect(epc).not.toBeNull()
     expect(epc).toContain('Test1 template.')
+    expect(epc).toContain('- attribute: at2 => true => mandatory')
 
     epc = genResult.content['out/test1.out']
     expect(epc).not.toBeNull()
