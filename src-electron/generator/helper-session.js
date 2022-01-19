@@ -192,7 +192,7 @@ function all_user_cluster_commands(options) {
  * Returns: Promise of the resolved blocks iterating over manufacturing specific,
  * non-manufacturing specific or both of the cluster commands.
  */
-function all_user_cluster_command_util(
+async function all_user_cluster_command_util(
   name,
   side,
   options,
@@ -200,59 +200,52 @@ function all_user_cluster_command_util(
   isManufacturingSpecific,
   isIrrespectiveOfManufacturingSpecification = false
 ) {
-  let promise = templateUtil
-    .ensureEndpointTypeIds(currentContext)
-    .then((endpointTypes) =>
-      queryEndpointType.selectClustersAndEndpointDetailsFromEndpointTypes(
+  let endpointTypes = await templateUtil.ensureEndpointTypeIds(currentContext)
+
+  let endpointsAndClusters =
+    await queryEndpointType.selectClustersAndEndpointDetailsFromEndpointTypes(
+      currentContext.global.db,
+      endpointTypes
+    )
+  let endpointCommands
+  if (isIrrespectiveOfManufacturingSpecification) {
+    endpointCommands =
+      await queryCommand.selectCommandDetailsFromAllEndpointTypesAndClusters(
         currentContext.global.db,
-        endpointTypes
+        endpointsAndClusters,
+        true
       )
-    )
-    .then((endpointsAndClusters) => {
-      if (isIrrespectiveOfManufacturingSpecification) {
-        return queryCommand.selectCommandDetailsFromAllEndpointTypesAndClusters(
-          currentContext.global.db,
-          endpointsAndClusters,
-          true
+  } else if (isManufacturingSpecific) {
+    endpointCommands =
+      await queryCommand.selectManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters(
+        currentContext.global.db,
+        endpointsAndClusters
+      )
+  } else {
+    endpointCommands =
+      await queryCommand.selectNonManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters(
+        currentContext.global.db,
+        endpointsAndClusters
+      )
+  }
+
+  let availableCommands = []
+  for (let i = 0; i < endpointCommands.length; i++) {
+    if (helperZcl.isStrEqual(name, endpointCommands[i].clusterName)) {
+      if (
+        helperZcl.isCommandAvailable(
+          side,
+          endpointCommands[i].incoming,
+          endpointCommands[i].outgoing,
+          endpointCommands[i].commandSource,
+          endpointCommands[i].name
         )
-      } else if (isManufacturingSpecific) {
-        return queryCommand.selectManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters(
-          currentContext.global.db,
-          endpointsAndClusters
-        )
-      } else {
-        return queryCommand.selectNonManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters(
-          currentContext.global.db,
-          endpointsAndClusters
-        )
+      ) {
+        availableCommands.push(endpointCommands[i])
       }
-    })
-    .then(
-      (endpointCommands) =>
-        new Promise((resolve, reject) => {
-          let availableCommands = []
-          for (let i = 0; i < endpointCommands.length; i++) {
-            if (helperZcl.isStrEqual(name, endpointCommands[i].clusterName)) {
-              if (
-                helperZcl.isCommandAvailable(
-                  side,
-                  endpointCommands[i].incoming,
-                  endpointCommands[i].outgoing,
-                  endpointCommands[i].commandSource,
-                  endpointCommands[i].name
-                )
-              ) {
-                availableCommands.push(endpointCommands[i])
-              }
-            }
-          }
-          resolve(availableCommands)
-        })
-    )
-    .then((endpointCommands) =>
-      templateUtil.collectBlocks(endpointCommands, options, currentContext)
-    )
-  return promise
+    }
+  }
+  return templateUtil.collectBlocks(availableCommands, options, currentContext)
 }
 
 function all_user_cluster_attribute_util(
