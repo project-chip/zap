@@ -1,25 +1,17 @@
-// ***********************************************
-// This example commands.js shows you how to
-// create various custom commands and overwrite
-// existing commands.
-//
-// For more comprehensive examples of custom
-// commands please read more here:
-// https://on.cypress.io/custom-commands
-// ***********************************************
-//
-//
-// -- This is a parent command --
-// Cypress.Commands.add('login', (email, password) => { ... })
-//
-//
-// -- This is a child command --
-// Cypress.Commands.add('drag', { prevSubject: 'element'}, (subject, options) => { ... })
-//
-//
-// -- This is a dual command --
-// Cypress.Commands.add('dismiss', { prevSubject: 'optional'}, (subject, options) => { ... })
-//
-//
-// -- This will overwrite an existing command --
-// Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
+Cypress.Commands.add('addEndpoint', (name) => {
+  cy.get('button').contains('Add New Endpoint').click()
+  cy.get(
+    '.q-form > .q-select > .q-field__inner > .q-field__control > .q-field__control-container'
+  ).click()
+  cy.get('div').contains(name).click()
+  cy.get('button').contains('Create').click()
+})
+
+Cypress.Commands.add('gotoAttributePage', (endpoint, cluster) => {
+  if (endpoint) cy.addEndpoint(endpoint)
+  cy.get('.q-page-container > div').children().should('contain', cluster)
+  cy.get('div').contains(cluster).click()
+  cy.get(
+    `#${cluster} > .q-expansion-item__container > .q-expansion-item__content > :nth-child(1) > .q-table__container > .q-table__middle > .q-table > tbody > :nth-child(1) > :nth-child(7) > .q-btn > .q-btn__wrapper > .q-btn__content > .material-icons`
+  ).click()
+})
