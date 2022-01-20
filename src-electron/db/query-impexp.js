@@ -20,8 +20,8 @@
  *
  * @module DB API: package-based queries.
  */
-const dbApi = require('./db-api.js')
-
+const dbApi = require('./db-api')
+const dbEnums = require('../../src-shared/db-enum')
 /**
  * Imports a single endpoint
  * @param {} db
@@ -431,15 +431,48 @@ async function importAttributeForEndpointType(
   endpointClusterId,
   attribute
 ) {
+  let selectAttributeQuery = `
+SELECT 
+  A.ATTRIBUTE_ID,
+  A.REPORTING_POLICY
+FROM 
+  ATTRIBUTE AS A, ENDPOINT_TYPE_CLUSTER
+WHERE 
+  A.CODE = ?
+  AND A.PACKAGE_REF = ?
+  AND A.SIDE = ENDPOINT_TYPE_CLUSTER.SIDE
+  AND ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = ?
+  AND (ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = A.CLUSTER_REF OR A.CLUSTER_REF IS NULL)
+  AND ${
+    attribute.mfgCode == null
+      ? 'MANUFACTURER_CODE IS NULL'
+      : 'MANUFACTURER_CODE = ?'
+  }`
+  let selectArgs = [attribute.code, packageId, endpointClusterId]
+  if (attribute.mfgCode != null) selectArgs.push(attribute.mfgCode)
+  let atRow = await dbApi.dbGet(db, selectAttributeQuery, selectArgs)
+  let attributeId
+  let reportingPolicy
+  if (atRow == null) {
+    attributeId = null
+    reportingPolicy = null
+  } else {
+    attributeId = atRow.ATTRIBUTE_ID
+    reportingPolicy = atRow.REPORTING_POLICY
+  }
+
+  // If the spec has meanwhile changed the policies to mandatory or prohibited,
+  // we update the flags in the file to the requirements.
+  if (reportingPolicy == dbEnums.reportingPolicy.mandatory) {
+    attribute.reportable = true
+  } else if (reportingPolicy == dbEnums.reportingPolicy.prohibited) {
+    attribute.reportable = false
+  }
+
   let arg = [
     endpointTypeId,
     endpointClusterId,
-    attribute.code,
-    packageId,
-    endpointClusterId,
-  ]
-  if (attribute.mfgCode != null) arg.push(attribute.mfgCode)
-  arg.push(
+    attributeId,
     attribute.included,
     attribute.storageOption,
     attribute.singleton,
@@ -448,8 +481,9 @@ async function importAttributeForEndpointType(
     attribute.reportable,
     attribute.minInterval,
     attribute.maxInterval,
-    attribute.reportableChange
-  )
+    attribute.reportableChange,
+  ]
+
   return dbApi.dbInsert(
     db,
     `
@@ -467,21 +501,7 @@ INSERT INTO ENDPOINT_TYPE_ATTRIBUTE
   MAX_INTERVAL,
   REPORTABLE_CHANGE )
 VALUES
-( ?, ?,
-  ( SELECT ATTRIBUTE_ID FROM ATTRIBUTE, ENDPOINT_TYPE_CLUSTER
-    WHERE ATTRIBUTE.CODE = ?
-    AND ATTRIBUTE.PACKAGE_REF = ?
-    AND ATTRIBUTE.SIDE = ENDPOINT_TYPE_CLUSTER.SIDE
-    AND ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = ?
-    AND (ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = ATTRIBUTE.CLUSTER_REF
-      OR ATTRIBUTE.CLUSTER_REF IS NULL
-      )
-    AND ${
-      attribute.mfgCode == null
-        ? 'MANUFACTURER_CODE IS NULL'
-        : 'MANUFACTURER_CODE = ?'
-    }),
-    ?, ?, ?, ?, ?, ?, ?, ?, ?)
+( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `,
     arg
   )
