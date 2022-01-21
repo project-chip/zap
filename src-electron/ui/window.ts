@@ -158,7 +158,6 @@ export function windowCreate(port: number, args?: WindowCreateArgs) {
   )
   w.webContents.on('before-input-event', (e, input) => {
     if (input.type === 'keyUp' && input.key.toLowerCase() === 'alt') {
-      console.log('key pressed')
       menu.toggleMenu(port)
     }
   })
