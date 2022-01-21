@@ -26,6 +26,13 @@ Cluster: {{name}} [{{code}}]
   {{#access_aggregate entity="event" ignoreEmpty="true"}}
     * Aggregates [{{count}}]: fScope={{fabric-scoped}}/fSensitive={{fabric-sensitive}}/read={{readLowest}}/write={{writeLowest}}/invoke={{invokeLowest}}
   {{/access_aggregate}}
+  {{#if event_is_fabric_scoped}}
+    * {{name}} is a fabric scoped event, field: {{event_fabric_idx_field}}
+  {{/if}}
+    * Items
+  {{#zcl_event_fields}}
+      - {{name}}
+  {{/zcl_event_fields}}
 {{/zcl_events}}
 
 {{/zcl_clusters}}
