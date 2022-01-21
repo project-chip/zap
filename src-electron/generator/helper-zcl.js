@@ -391,22 +391,36 @@ function zcl_commands_source_server(options) {
  * @param {*} options
  * @returns Promise of content.
  */
-function zcl_events(options) {
-  let promise = templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) => {
-      if ('id' in this) {
-        // We're functioning inside a nested context with an id, so we will only query for this cluster.
-        return queryEvent.selectEventsByClusterId(
-          this.global.db,
-          this.id,
-          packageId
-        )
-      } else {
-        return queryEvent.selectAllEvents(this.global.db, packageId)
+async function zcl_events(options) {
+  let packageId = await templateUtil.ensureZclPackageId(this)
+  let events
+  if ('id' in this) {
+    // We're functioning inside a nested context with an id, so we will only query for this cluster.
+    events = await queryEvent.selectEventsByClusterId(
+      this.global.db,
+      this.id,
+      packageId
+    )
+  } else {
+    events = await queryEvent.selectAllEvents(this.global.db, packageId)
+  }
+
+  let ps = events.map(async (ev) => {
+    ev.event_is_fabric_scoped = false
+    ev.items = await queryEvent.selectEventFieldsByEventId(
+      this.global.db,
+      ev.id
+    )
+    ev.items.forEach((i) => {
+      if (i.type && i.type.toLowerCase() == 'fabric_idx') {
+        ev.event_is_fabric_scoped = true
+        ev.event_fabric_idx_field = i.name
       }
     })
-    .then((cmds) => templateUtil.collectBlocks(cmds, options, this))
+  })
+  await Promise.all(ps)
+
+  let promise = templateUtil.collectBlocks(events, options, this)
   return templateUtil.templatePromise(this.global, promise)
 }
 

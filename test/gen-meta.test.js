@@ -235,6 +235,7 @@ test(
     expect(epc).toContain(
       '* Aggregates [3]: fScope=true/fSensitive=false/read=view/write=[operate - manage]/invoke=NONE'
     )
+    expect(epc).toContain('HelloEvent is a fabric scoped event, field: fabric')
   },
   testUtil.timeout.medium()
 )
