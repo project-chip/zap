@@ -608,6 +608,14 @@ test(
     expect(pv5).toContain('case ZCL_GP_PROXY_TABLE_REQUEST_COMMAND_ID:')
     expect(pv5).not.toContain('uint64_t gpdIeee;')
     expect(pv5).toContain('uint8_t *  gpdIeee;')
+
+    //********* Test the helpers related to outgoing commands******************
+    // Test Cluster outgoing commands that should be generated
+    let zapOutgoingCommands = genResult.content['zap-outgoing-command.out']
+    expect(zapOutgoingCommands).not.toBeNull()
+    expect(zapOutgoingCommands).toContain(
+      'ZLL Commissioning Cluster Ougtoing commands\nOutgoing Command: DeviceInformationResponse\nOutgoing Command: EndpointInformation\nOutgoing Command: GetEndpointListResponse\nOutgoing Command: GetGroupIdentifiersResponse\nOutgoing Command: NetworkJoinEndDeviceResponse\nOutgoing Command: NetworkJoinRouterResponse\nOutgoing Command: NetworkStartResponse\nOutgoing Command: ScanResponse\nZLL Commissioning Cluster Ougtoing commands\nOutgoing Command: DeviceInformationRequest\nOutgoing Command: IdentifyRequest\nOutgoing Command: NetworkJoinEndDeviceRequest\nOutgoing Command: NetworkJoinRouterRequest\nOutgoing Command: NetworkStartRequest\nOutgoing Command: NetworkUpdateRequest\nOutgoing Command: ResetToFactoryNewRequest\nOutgoing Command: ScanRequest\n'
+    )
   },
   testUtil.timeout.long()
 )

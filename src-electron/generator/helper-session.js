@@ -782,31 +782,109 @@ async function all_user_cluster_generated_commands(options) {
 }
 
 /**
+ * Util function for all clusters with side that have available incoming or
+ * outgiong commands across all endpoints.
+ * @param options
+ * @param is_incoming boolean to check if commands are incoming or outgoing
+ * @returns All clusters with side that have available incoming or outgiong
+ * commands across all endpoints.
+ */
+async function all_user_clusters_with_incoming_or_outgoing_commands(
+  options,
+  currentContext,
+  isIncoming
+) {
+  let endpointTypes = await queryEndpointType.selectUsedEndpointTypeIds(
+    currentContext.global.db,
+    currentContext.global.sessionId
+  )
+  if (isIncoming) {
+    if (
+      'uniqueClusterCodes' in options.hash &&
+      options.hash.uniqueClusterCodes == 'true'
+    ) {
+      let clustersWithIncomingCommands =
+        await queryCommand.selectAllClustersWithIncomingCommands(
+          currentContext.global.db,
+          endpointTypes,
+          true
+        )
+      return templateUtil.collectBlocks(
+        clustersWithIncomingCommands,
+        options,
+        currentContext
+      )
+    } else {
+      let clustersWithIncomingCommands =
+        await queryCommand.selectAllClustersWithIncomingCommands(
+          currentContext.global.db,
+          endpointTypes,
+          false
+        )
+      return templateUtil.collectBlocks(
+        clustersWithIncomingCommands,
+        options,
+        currentContext
+      )
+    }
+  } else {
+    if (
+      'uniqueClusterCodes' in options.hash &&
+      options.hash.uniqueClusterCodes == 'true'
+    ) {
+      let clustersWithOutgoingCommands =
+        await queryCommand.selectAllClustersWithOutgoingCommands(
+          currentContext.global.db,
+          endpointTypes,
+          true
+        )
+      return templateUtil.collectBlocks(
+        clustersWithOutgoingCommands,
+        options,
+        currentContext
+      )
+    } else {
+      let clustersWithOutgoingCommands =
+        await queryCommand.selectAllClustersWithOutgoingCommands(
+          currentContext.global.db,
+          endpointTypes,
+          false
+        )
+      return templateUtil.collectBlocks(
+        clustersWithOutgoingCommands,
+        options,
+        currentContext
+      )
+    }
+  }
+}
+
+/**
  * All clusters with side that have available incoming commands
  * @param options
  * @returns All clusters with side that have available incoming commands across
  * all endpoints.
  */
 function all_user_clusters_with_incoming_commands(options) {
-  return queryEndpointType
-    .selectUsedEndpointTypeIds(this.global.db, this.global.sessionId)
-    .then((endpointTypes) =>
-      'uniqueClusterCodes' in options.hash &&
-      options.hash.uniqueClusterCodes == 'true'
-        ? queryCommand.selectAllClustersWithIncomingCommands(
-            this.global.db,
-            endpointTypes,
-            true
-          )
-        : queryCommand.selectAllClustersWithIncomingCommands(
-            this.global.db,
-            endpointTypes,
-            false
-          )
-    )
-    .then((clustersWithIncomingCommands) =>
-      templateUtil.collectBlocks(clustersWithIncomingCommands, options, this)
-    )
+  return all_user_clusters_with_incoming_or_outgoing_commands(
+    options,
+    this,
+    true
+  )
+}
+
+/**
+ * All clusters with side that have available outgoing commands
+ * @param options
+ * @returns All clusters with side that have available outgoing commands across
+ * all endpoints.
+ */
+async function all_user_clusters_with_outgoing_commands(options) {
+  return all_user_clusters_with_incoming_or_outgoing_commands(
+    options,
+    this,
+    false
+  )
 }
 
 /**
@@ -913,15 +991,21 @@ async function all_user_incoming_commands_for_all_clusters(options) {
 }
 
 /**
- * All commands that need to be parsed for a given cluster
- * @param clusterName
- * @param options
- * @returns all commands that need to be parsed for a given cluster
- */
-async function all_incoming_commands_for_cluster(
+  * A util function for all incoming or outgoing commands that need to be parsed
+  * for a given cluster
+  * @param clusterName
+  * @param clusterSide
+  * @param isIncoming
+  * @param options
+  * @returns All incoming or outgoing commands that need to be parsed for a given
+ cluster
+  */
+async function all_incoming_or_outgoing_commands_for_cluster(
   clusterName,
   clusterSide,
-  options
+  isIncoming,
+  options,
+  currentContext
 ) {
   let isMfgSpec =
     'isMfgSpecific' in options.hash
@@ -929,20 +1013,71 @@ async function all_incoming_commands_for_cluster(
       : undefined
 
   let endpointTypes = await queryEndpointType.selectUsedEndpointTypeIds(
-    this.global.db,
-    this.global.sessionId
+    currentContext.global.db,
+    currentContext.global.sessionId
   )
 
-  let clustersWithIncomingCommands =
-    await queryCommand.selectAllIncomingCommandsForCluster(
-      this.global.db,
-      endpointTypes,
-      clusterName,
-      clusterSide,
-      isMfgSpec
-    )
+  let clustersWithIncomingOrOutgoingCommands = isIncoming
+    ? await queryCommand.selectAllIncomingCommandsForCluster(
+        currentContext.global.db,
+        endpointTypes,
+        clusterName,
+        clusterSide,
+        isMfgSpec
+      )
+    : await queryCommand.selectAllOutgoingCommandsForCluster(
+        currentContext.global.db,
+        endpointTypes,
+        clusterName,
+        clusterSide,
+        isMfgSpec
+      )
 
-  return templateUtil.collectBlocks(clustersWithIncomingCommands, options, this)
+  return templateUtil.collectBlocks(
+    clustersWithIncomingOrOutgoingCommands,
+    options,
+    currentContext
+  )
+}
+
+/**
+ * All incoming commands that need to be parsed for a given cluster
+ * @param clusterName
+ * @param options
+ * @returns all incoming commands that need to be parsed for a given cluster
+ */
+async function all_incoming_commands_for_cluster(
+  clusterName,
+  clusterSide,
+  options
+) {
+  return all_incoming_or_outgoing_commands_for_cluster(
+    clusterName,
+    clusterSide,
+    true,
+    options,
+    this
+  )
+}
+
+/**
+ * All outgoing commands that need to be parsed for a given cluster
+ * @param clusterName
+ * @param options
+ * @returns all outgoing commands that need to be parsed for a given cluster
+ */
+async function all_outgoing_commands_for_cluster(
+  clusterName,
+  clusterSide,
+  options
+) {
+  return all_incoming_or_outgoing_commands_for_cluster(
+    clusterName,
+    clusterSide,
+    false,
+    options,
+    this
+  )
 }
 
 /**
@@ -1303,3 +1438,6 @@ exports.all_incoming_commands_for_cluster_combined = dep(
 exports.if_command_discovery_enabled = if_command_discovery_enabled
 exports.manufacturing_clusters_with_incoming_commands =
   manufacturing_clusters_with_incoming_commands
+exports.all_user_clusters_with_outgoing_commands =
+  all_user_clusters_with_outgoing_commands
+exports.all_outgoing_commands_for_cluster = all_outgoing_commands_for_cluster
