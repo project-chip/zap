@@ -109,6 +109,16 @@ async function collectDataFromJsonFile(metadataFile, data) {
   returnObject.version = obj.version
   returnObject.supportCustomZclDevice = obj.supportCustomZclDevice
 
+  if ('listsUseAttributeAccessInterface' in obj) {
+    returnObject.listsUseAttributeAccessInterface =
+      obj.listsUseAttributeAccessInterface
+  }
+
+  if ('attributeAccessInterfaceAttributes' in obj) {
+    returnObject.attributeAccessInterfaceAttributes =
+      obj.attributeAccessInterfaceAttributes
+  }
+
   env.logDebug(
     `Resolving: ${returnObject.zclFiles}, version: ${returnObject.version}`
   )
@@ -522,6 +532,16 @@ function prepareCluster(cluster, context, isExtension = false) {
           attribute.$.reportingPolicy
         )
       }
+      let storagePolicy = dbEnum.storagePolicy.any
+      if (context.listsUseAttributeAccessInterface && attribute.$.entryType) {
+        storagePolicy = dbEnum.storagePolicy.attributeAccessInterface
+      } else if (
+        context.attributeAccessInterfaceAttributes &&
+        context.attributeAccessInterfaceAttributes[cluster.name] &&
+        context.attributeAccessInterfaceAttributes[cluster.name].includes(name)
+      ) {
+        storagePolicy = dbEnum.storagePolicy.attributeAccessInterface
+      }
       let att = {
         code: parseInt(attribute.$.code),
         manufacturerCode: attribute.$.manufacturerCode,
@@ -546,6 +566,7 @@ function prepareCluster(cluster, context, isExtension = false) {
         defaultValue: attribute.$.default,
         isOptional: attribute.$.optional == 'true',
         reportingPolicy: reportingPolicy,
+        storagePolicy: storagePolicy,
         isSceneRequired: attribute.$.sceneRequired == 'true',
         introducedIn: attribute.$.introducedIn,
         removedIn: attribute.$.removedIn,

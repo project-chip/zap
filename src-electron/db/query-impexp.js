@@ -434,7 +434,8 @@ async function importAttributeForEndpointType(
   let selectAttributeQuery = `
 SELECT 
   A.ATTRIBUTE_ID,
-  A.REPORTING_POLICY
+  A.REPORTING_POLICY,
+  A.STORAGE_POLICY
 FROM 
   ATTRIBUTE AS A, ENDPOINT_TYPE_CLUSTER
 WHERE 
@@ -453,12 +454,15 @@ WHERE
   let atRow = await dbApi.dbGet(db, selectAttributeQuery, selectArgs)
   let attributeId
   let reportingPolicy
+  let storagePolicy
   if (atRow == null) {
     attributeId = null
     reportingPolicy = null
+    storagePolicy = null
   } else {
     attributeId = atRow.ATTRIBUTE_ID
     reportingPolicy = atRow.REPORTING_POLICY
+    storagePolicy = atRow.STORAGE_POLICY
   }
 
   // If the spec has meanwhile changed the policies to mandatory or prohibited,
@@ -467,6 +471,10 @@ WHERE
     attribute.reportable = true
   } else if (reportingPolicy == dbEnums.reportingPolicy.prohibited) {
     attribute.reportable = false
+  }
+
+  if (storagePolicy == dbEnums.storagePolicy.attributeAccessInterface) {
+    attribute.storageOption = dbEnums.storageOption.external
   }
 
   let arg = [

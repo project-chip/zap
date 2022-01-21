@@ -138,6 +138,24 @@ const reportingPolicy = {
 
 exports.reportingPolicy = reportingPolicy
 
+const storagePolicy = {
+  // Allow any storage policy to be used in the UI
+  any: 'any',
+  // Must use external storage and bypasses attribute store altogether.
+  attributeAccessInterface: 'attributeAccessInterface',
+  resolve: (txt) => {
+    switch (txt) {
+      case storagePolicy.any:
+      case storagePolicy.attributeAccess:
+        return txt
+      default:
+        return storagePolicy.any
+    }
+  },
+}
+
+exports.storagePolicy = storagePolicy
+
 // When SDK supports a custom device, these are the default values for it.
 exports.customDevice = {
   domain: 'Custom',

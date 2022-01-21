@@ -141,6 +141,7 @@ INSERT INTO ATTRIBUTE (
   DEFAULT_VALUE,
   IS_OPTIONAL,
   REPORTING_POLICY,
+  STORAGE_POLICY,
   IS_NULLABLE,
   IS_SCENE_REQUIRED,
   ARRAY_TYPE,
@@ -149,7 +150,7 @@ INSERT INTO ATTRIBUTE (
   INTRODUCED_IN_REF,
   REMOVED_IN_REF
 ) VALUES (
-  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
 )`
@@ -175,6 +176,7 @@ function attributeMap(clusterId, packageId, attributes) {
     attribute.defaultValue,
     dbApi.toDbBool(attribute.isOptional),
     attribute.reportingPolicy,
+    attribute.storagePolicy,
     dbApi.toDbBool(attribute.isNullable),
     dbApi.toDbBool(attribute.isSceneRequired),
     attribute.entryType,
