@@ -391,22 +391,21 @@ function zcl_commands_source_server(options) {
  * @param {*} options
  * @returns Promise of content.
  */
-function zcl_events(options) {
-  let promise = templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) => {
-      if ('id' in this) {
-        // We're functioning inside a nested context with an id, so we will only query for this cluster.
-        return queryEvent.selectEventsByClusterId(
-          this.global.db,
-          this.id,
-          packageId
-        )
-      } else {
-        return queryEvent.selectAllEvents(this.global.db, packageId)
-      }
-    })
-    .then((cmds) => templateUtil.collectBlocks(cmds, options, this))
+async function zcl_events(options) {
+  let packageId = await templateUtil.ensureZclPackageId(this)
+  let cmds
+  if ('id' in this) {
+    // We're functioning inside a nested context with an id, so we will only query for this cluster.
+    cmds = await queryEvent.selectEventsByClusterId(
+      this.global.db,
+      this.id,
+      packageId
+    )
+  } else {
+    cmds = await queryEvent.selectAllEvents(this.global.db, packageId)
+  }
+
+  let promise = templateUtil.collectBlocks(cmds, options, this)
   return templateUtil.templatePromise(this.global, promise)
 }
 
