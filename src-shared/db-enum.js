@@ -116,6 +116,28 @@ exports.sessionOption = {
   profileCodes: 'profileCodes',
 }
 
+const reportingPolicy = {
+  mandatory: 'mandatory',
+  suggested: 'suggested',
+  optional: 'optional',
+  prohibited: 'prohibited',
+  defaultReportingPolicy: 'optional',
+  resolve: (txt) => {
+    switch (txt) {
+      case reportingPolicy.mandatory:
+      case reportingPolicy.optional:
+      case reportingPolicy.suggested:
+      case reportingPolicy.prohibited:
+        return txt
+      default:
+        // Default
+        return reportingPolicy.defaultReportingPolicy
+    }
+  },
+}
+
+exports.reportingPolicy = reportingPolicy
+
 // When SDK supports a custom device, these are the default values for it.
 exports.customDevice = {
   domain: 'Custom',

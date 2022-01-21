@@ -26,7 +26,7 @@ const tray = require('./tray.js')
 const browserApi = require('./browser-api.js')
 const querystringUtil = require('querystring')
 const httpServer = require('../server/http-server.js')
-import {WindowCreateArgs} from '../types/window-types'
+import { WindowCreateArgs } from '../types/window-types'
 
 let windowCounter = 0
 
@@ -56,7 +56,7 @@ export function createQueryString(
   standalone?: boolean | undefined,
   restPort?: number
 ) {
-  var params = new Map();
+  var params = new Map()
 
   if (!arguments.length) {
     return ''
@@ -156,10 +156,9 @@ export function windowCreate(port: number, args?: WindowCreateArgs) {
       }
     }
   )
-  w.webContents.on('before-input-event',(e,input)=>{
-    if(input.type === "keyUp" && input.key.toLowerCase()==="alt"){
-      console.log('key pressed')
-      menu.initMenu(port)
+  w.webContents.on('before-input-event', (e, input) => {
+    if (input.type === 'keyUp' && input.key.toLowerCase() === 'alt') {
+      menu.toggleMenu(port)
     }
   })
   return w

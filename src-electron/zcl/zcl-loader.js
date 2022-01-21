@@ -203,8 +203,7 @@ async function qualifyZclFile(
       filePath,
       actualCrc,
       packageType,
-      parentPackageId,
-      filePath
+      parentPackageId
     )
     return {
       filePath: filePath,

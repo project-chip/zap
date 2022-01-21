@@ -42,4 +42,9 @@ Attributes [{{endpoint_attribute_count}}]:
 
 {{/endpoint_config}}
 
+Reporting policy:
+{{#zcl_attributes}}
+  - attribute: {{name}} => {{isReportable}} => {{reportingPolicy}}
+{{/zcl_attributes}}
+
 {{/zcl_clusters}}

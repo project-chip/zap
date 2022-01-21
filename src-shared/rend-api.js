@@ -73,9 +73,9 @@ exports.renderer_api = {
     setStorageItem: {
       description: 'Set storage item...',
     },
-    setTheme: {
-      description: 'Set theme...',
-      arg: 'theme',
+    setDarkTheme: {
+      description: 'Set dark theme...',
+      arg: 'darkTheme',
     },
   },
 }
@@ -96,7 +96,7 @@ exports.renderer_api_info = [
   { id: 'saveFileLocation' },
   { id: 'setItem', description: 'Set item...' },
   { id: 'setStorageItem' },
-  { id: 'setTheme', description: 'Set theme...', arg: 'theme' },
+  { id: 'setDarkTheme', description: 'Set dark theme...', arg: 'darkTheme' },
 ]
 
 exports.id = {
@@ -115,7 +115,7 @@ exports.id = {
   saveFileLocation: 'saveFileLocation',
   setItem: 'setItem',
   setStorageItem: 'setStorageItem',
-  setTheme: 'setTheme',
+  setDarkTheme: 'setDarkTheme',
 }
 
 exports.notifyKey = { dirtyFlag: 'dirtyFlag', fileBrowse: 'fileBrowse' }
@@ -126,12 +126,12 @@ exports.observable = {
   debugNavBar: 'debugNavBar',
   progress_attribute: 'progress-message',
   reported_files: 'reported-files',
-  themeData: 'data-theme',
 }
 
 exports.storageKey = {
   fileSave: 'lastFileLocation_openFileSave',
   theme: 'ui_theme',
+  isDarkThemeActive: 'isDarkThemeActive',
 }
 
 /** Global symbol that carries the API info metadata */

@@ -17,13 +17,13 @@
 
 const { dialog, Menu, shell } = require('electron')
 const uiJs = require('./ui-util')
-const preference = require('../main-process/preference')
 const about = require('../main-process/about')
 const commonUrl = require('../../src-shared/common-url.js')
 const browserApi = require('./browser-api.js')
 const rendApi = require('../../src-shared/rend-api.js')
-let menuIsShown = true;
+
 const newConfiguration = 'New Configuration'
+let menuIsShown = true
 
 const template = (httpPort) => [
   {
@@ -94,7 +94,11 @@ const template = (httpPort) => [
       {
         label: 'Dark theme',
         click(menuItem, browserWindow, event) {
-          browserApi.execRendererApi(browserWindow, rendApi.id.setTheme, 'dark')
+          browserApi.execRendererApi(
+            browserWindow,
+            rendApi.id.setDarkTheme,
+            true
+          )
         },
       },
       {
@@ -102,8 +106,8 @@ const template = (httpPort) => [
         click(menuItem, browserWindow, event) {
           browserApi.execRendererApi(
             browserWindow,
-            rendApi.id.setTheme,
-            'light'
+            rendApi.id.setDarkTheme,
+            false
           )
         },
       },
@@ -345,18 +349,38 @@ function fileOpen(filePaths, httpPort) {
   })
 }
 
-/**
- * Initialize a menu.
- *
- * @export
- * @param {*} port
- */
-function initMenu(httpPort) {
-  menuIsShown = !menuIsShown
-  if(!menuIsShown) return Menu.setApplicationMenu(null)
+function showMenu(httpPort) {
   const menu = Menu.buildFromTemplate(template(httpPort))
   Menu.setApplicationMenu(menu)
 }
 
+function hideMenu(httpPort) {
+  Menu.setApplicationMenu(null)
+}
+/**
+ * Toggling of menu
+ *
+ * @param {*} port
+ */
+function toggleMenu(httpPort) {
+  menuIsShown = !menuIsShown
+  if (!menuIsShown) {
+    hideMenu(httpPort)
+  } else {
+    showMenu(httpPort)
+  }
+}
+
+/**
+ * Initial menu show.
+ *
+ * @param {*} httpPort
+ */
+function initMenu(httpPort) {
+  menuIsShown = true
+  showMenu(httpPort)
+}
+
+exports.toggleMenu = toggleMenu
 exports.initMenu = initMenu
 exports.newConfiguration = newConfiguration

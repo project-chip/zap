@@ -25,6 +25,7 @@ limitations under the License.
       dense
       left-label
       v-model="localtheme"
+      id="darkTheme"
     >
       <q-tooltip> Enable Dark theme </q-tooltip>
     </q-toggle>
@@ -51,11 +52,8 @@ export default {
   name: 'PreferenceUser',
   data() {
     return {
-      localtheme: false,
+      localtheme: this.$q.dark.isActive,
     }
-  },
-  created() {
-    this.gettheme()
   },
   methods: {
     setPath(path) {
@@ -64,21 +62,14 @@ export default {
     gettheme() {
       return new Promise((r) => {
         setTimeout(async () => {
-          let theme = observable.getObservableAttribute(
-            rendApi.observable.themeData
-          )
-          if (!theme) await this.gettheme()
-          this.localtheme = theme === 'dark'
+          this.localtheme = this.$q.dark.isActive
         }, 1000)
       })
     },
   },
   watch: {
     localtheme(val) {
-      observable.setObservableAttribute(
-        rendApi.observable.themeData,
-        val ? 'dark' : 'light'
-      )
+      window[rendApi.GLOBAL_SYMBOL_EXECUTE](rendApi.id.setDarkTheme, val)
     },
   },
   computed: {

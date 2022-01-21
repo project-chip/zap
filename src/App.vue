@@ -70,15 +70,6 @@ export default {
     },
   },
   methods: {
-    setThemeMode(theme) {
-      // DO NOT call observable.setObservableAttribute(rendApi.observable.themeData) inside this function.
-      // this function serves as the callback for handling 'themeData' event / changes.
-      let setDarkTheme = false
-      if (_.isString(theme)) {
-        setDarkTheme = theme.includes('dark')
-      }
-      this.$q.dark.set(setDarkTheme)
-    },
     setGenerationInProgress(progressMessage) {
       if (progressMessage != null && progressMessage.length > 0) {
         this.$q.loading.show({
@@ -102,8 +93,10 @@ export default {
     },
   },
   mounted() {
-    let theme = observable.getObservableAttribute(rendApi.observable.themeData)
-    this.setThemeMode(theme)
+    window[rendApi.GLOBAL_SYMBOL_EXECUTE](
+      rendApi.id.setDarkTheme,
+      storage.getItem(rendApi.storageKey.isDarkThemeActive)
+    )
 
     this.$q.loading.show({
       spinner: QSpinnerGears,
@@ -139,10 +132,6 @@ export default {
     this.zclDialogTitle = 'ZCL tab!'
     this.zclDialogText = 'Welcome to ZCL tab. This is just a test of a dialog.'
     this.zclDialogFlag = false
-
-    observable.observeAttribute(rendApi.observable.themeData, (newTheme) => {
-      this.setThemeMode(newTheme)
-    })
 
     observable.observeAttribute(
       rendApi.observable.progress_attribute,

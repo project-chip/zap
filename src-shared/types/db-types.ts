@@ -155,7 +155,7 @@ export interface DbAttributeType {
   define: string
   introducedInRef: number
   isOptional: number
-  isReportable: number
+  reportingPolicy: string
   isSceneRequired: number
   isWritable: number
   manufacturerCode: number
