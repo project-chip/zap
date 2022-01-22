@@ -319,7 +319,9 @@ function endpoint_attribute_min_max_list(options) {
   let ret = '{ \\\n'
   this.minMaxList.forEach((mm, index) => {
     if (mm.typeSize > 2) {
-      throw new Error(`Can't have min/max for attributes larger than 2 bytes like '${mm.name}'`);
+      throw new Error(
+        `Can't have min/max for attributes larger than 2 bytes like '${mm.name}'`
+      )
     }
     if (mm.comment != comment) {
       ret += `\\\n  /* ${mm.comment} */ \\\n`
@@ -391,13 +393,13 @@ function endpoint_attribute_long_defaults(options) {
 
   let ret = '{ \\\n'
   this.longDefaultsList.forEach((ld) => {
-    let value = ld.value;
+    let value = ld.value
     if (littleEndian && !types.isString(ld.type)) {
       // ld.value is in big-endian order.  For types for which endianness
       // matters, we need to reverse it.
-      let valArr = value.split(/\s*,\s*/).filter(s => s.length != 0);
-      valArr.reverse();
-      value = valArr.join(", ") + ", ";
+      let valArr = value.split(/\s*,\s*/).filter((s) => s.length != 0)
+      valArr.reverse()
+      value = valArr.join(', ') + ', '
     }
     if (ld.comment != comment) {
       ret += `\\\n  /* ${ld.comment}, ${
@@ -413,7 +415,7 @@ function endpoint_attribute_long_defaults(options) {
 }
 
 function asMEI(manufacturerCode, code) {
-  return "0x" + bin.int32ToHex((manufacturerCode << 16) + code);
+  return '0x' + bin.int32ToHex((manufacturerCode << 16) + code)
 }
 
 /**
@@ -487,43 +489,54 @@ async function collectAttributes(endpointTypes) {
       c.attributes.forEach((a) => {
         // typeSize is the size of the attribute in the read/write attribute
         // store.
-        let typeSize = a.typeSize;
+        let typeSize = a.typeSize
         // defaultSize is the size of the attribute in the readonly defaults
         // store.
-        let defaultSize = typeSize;
-        let attributeDefaultValue = a.defaultValue;
+        let defaultSize = typeSize
+        let attributeDefaultValue = a.defaultValue
         // Various types store the length of the actual content in bytes.
         // For those, we can size the default storage to be just big enough for
         // the actual default value.
         if (types.isOneBytePrefixedString(a.type)) {
-          typeSize += 1;
-          defaultSize = attributeDefaultValue.length + 1;
+          typeSize += 1
+          defaultSize = attributeDefaultValue.length + 1
         } else if (types.isTwoBytePrefixedString(a.type)) {
-          typeSize += 2;
-          defaultSize = attributeDefaultValue.length + 2;
+          typeSize += 2
+          defaultSize = attributeDefaultValue.length + 2
         }
         // External attributes should be treated as having a typeSize of 0 for
         // most purposes (e.g. allocating space for them), but should still
         // affect the "largest attribute size" value, because buffers used to
         // read attributes, including external ones, may be sized based on that.
-        let contributionToLargestAttribute = typeSize;
+        let contributionToLargestAttribute = typeSize
         if (a.storage == dbEnum.storageOption.external) {
-          typeSize = 0;
-          defaultSize = 0;
+          typeSize = 0
+          defaultSize = 0
+          attributeDefaultValue = null
         }
 
-        let defaultValueIsMacro = false;
+        let defaultValueIsMacro = false
         // Zero-length strings can just use ZAP_EMPTY_DEFAULT() as the default
         // and don't need long defaults.  Apart from that, there is one string
         // case that _could_ fit into our 2-byte default value: a 1-char-long
         // short string.  But figuring out how to produce a uint8_t* for it as a
-        // literal value is a pain, so just force all strings with nonzero
-        // length to use long defaults.
-        if (defaultSize > 2 || (types.isString(a.type) && a.defaultValue.length > 0)) {
+        // literal value is a pain, so just force all strings with a nonempty
+        // default value to use long defaults.
+        //
+        // Checking whether attributeDefaultValue is falsy will catch both
+        // external strings and zero-length default values.
+        if (
+          defaultSize > 2 ||
+          (types.isString(a.type) && attributeDefaultValue)
+        ) {
           // We will need to generate the GENERATED_DEFAULTS
           longDefaults.push(a)
 
-          let def = types.longTypeDefaultValue(defaultSize, a.type, a.defaultValue)
+          let def = types.longTypeDefaultValue(
+            defaultSize,
+            a.type,
+            a.defaultValue
+          )
           let longDef = {
             value: def,
             size: defaultSize,
@@ -535,11 +548,11 @@ async function collectAttributes(endpointTypes) {
           attributeDefaultValue = `ZAP_LONG_DEFAULTS_INDEX(${longDefaultsIndex})`
           defaultValueIsMacro = true
           longDefaultsList.push(longDef)
-          longDefaultsIndex += defaultSize;
+          longDefaultsIndex += defaultSize
         }
         let mask = []
         if ((a.min != null || a.max != null) && a.isWritable) {
-          mask.push("min_max");
+          mask.push('min_max')
           let minMax = {
             default: a.defaultValue,
             min: a.min,
@@ -574,7 +587,7 @@ async function collectAttributes(endpointTypes) {
           reportList.push(rpt)
         }
         if (contributionToLargestAttribute > largestAttribute) {
-          largestAttribute = contributionToLargestAttribute;
+          largestAttribute = contributionToLargestAttribute
         }
         if (a.isSingleton) {
           singletonsSize += typeSize
@@ -594,11 +607,11 @@ async function collectAttributes(endpointTypes) {
         if (a.isWritable) mask.push('writable')
         if (a.isNullable) mask.push('nullable')
         if (a.mustUseTimedWrite) mask.push('must_use_timed_write')
-        let zap_type = "UNKNOWN ATTRIBUTE TYPE";
+        let zap_type = 'UNKNOWN ATTRIBUTE TYPE'
         if (a.typeInfo.atomicType) {
-          zap_type = a.typeInfo.atomicType;
+          zap_type = a.typeInfo.atomicType
         } else if (a.typeInfo.type == dbEnum.zclType.struct) {
-          zap_type = "STRUCT";
+          zap_type = 'STRUCT'
         }
         let attr = {
           id: asMEI(a.manufacturerCode, a.code), // attribute code
@@ -737,17 +750,15 @@ async function collectAttributeTypeInfo(db, zclPackageId, endpointTypes) {
     ept.clusters.forEach((cl) => {
       cl.attributes.forEach((at) => {
         ps.push(
-          zclUtil
-            .determineType(db, at.type, zclPackageId)
-            .then((typeInfo) => {
-              at.typeInfo = typeInfo
-            })
+          zclUtil.determineType(db, at.type, zclPackageId).then((typeInfo) => {
+            at.typeInfo = typeInfo
+          })
         )
       })
     })
   })
   await Promise.all(ps)
-  return endpointTypes;
+  return endpointTypes
 }
 
 /**
@@ -787,9 +798,9 @@ function endpoint_config(options) {
           queryEndpointType
             .selectEndpointType(db, eptId.endpointTypeId)
             .then((ept) => {
-              ept.endpointId = eptId.endpointIdentifier;
-              ept.endpointVersion = eptId.endpointVersion;
-              ept.deviceIdentifier = eptId.deviceIdentifier;
+              ept.endpointId = eptId.endpointIdentifier
+              ept.endpointVersion = eptId.endpointVersion
+              ept.deviceIdentifier = eptId.deviceIdentifier
               return ept
             })
         )
@@ -852,7 +863,8 @@ function endpoint_config(options) {
 // available in the wild might depend on these names.
 // If you rename the functions, you need to still maintain old exports list.
 
-exports.endpoint_attribute_long_defaults_count = endpoint_attribute_long_defaults_count
+exports.endpoint_attribute_long_defaults_count =
+  endpoint_attribute_long_defaults_count
 exports.endpoint_attribute_long_defaults = endpoint_attribute_long_defaults
 exports.endpoint_config = endpoint_config
 exports.endpoint_attribute_min_max_list = endpoint_attribute_min_max_list
@@ -863,24 +875,32 @@ exports.endpoint_cluster_list = endpoint_cluster_list
 exports.endpoint_cluster_count = endpoint_cluster_count
 exports.endpoint_types_list = endpoint_types_list
 exports.endpoint_type_count = endpoint_type_count
-exports.endpoint_cluster_manufacturer_codes = endpoint_cluster_manufacturer_codes
-exports.endpoint_cluster_manufacturer_code_count = endpoint_cluster_manufacturer_code_count
-exports.endpoint_command_manufacturer_codes = endpoint_command_manufacturer_codes
-exports.endpoint_command_manufacturer_code_count = endpoint_command_manufacturer_code_count
-exports.endpoint_attribute_manufacturer_codes = endpoint_attribute_manufacturer_codes
-exports.endpoint_attribute_manufacturer_code_count = endpoint_attribute_manufacturer_code_count
+exports.endpoint_cluster_manufacturer_codes =
+  endpoint_cluster_manufacturer_codes
+exports.endpoint_cluster_manufacturer_code_count =
+  endpoint_cluster_manufacturer_code_count
+exports.endpoint_command_manufacturer_codes =
+  endpoint_command_manufacturer_codes
+exports.endpoint_command_manufacturer_code_count =
+  endpoint_command_manufacturer_code_count
+exports.endpoint_attribute_manufacturer_codes =
+  endpoint_attribute_manufacturer_codes
+exports.endpoint_attribute_manufacturer_code_count =
+  endpoint_attribute_manufacturer_code_count
 exports.endpoint_largest_attribute_size = endpoint_largest_attribute_size
 exports.endpoint_total_storage_size = endpoint_total_storage_size
 exports.endpoint_singletons_size = endpoint_singletons_size
 exports.endpoint_fixed_endpoint_array = endpoint_fixed_endpoint_array
 exports.endpoint_fixed_endpoint_type_array = endpoint_fixed_endpoint_type_array
 exports.endpoint_fixed_device_id_array = endpoint_fixed_device_id_array
-exports.endpoint_fixed_device_version_array = endpoint_fixed_device_version_array
+exports.endpoint_fixed_device_version_array =
+  endpoint_fixed_device_version_array
 exports.endpoint_fixed_profile_id_array = endpoint_fixed_profile_id_array
 exports.endpoint_fixed_network_array = endpoint_fixed_network_array
 exports.endpoint_command_list = endpoint_command_list
 exports.endpoint_command_count = endpoint_command_count
 exports.endpoint_reporting_config_defaults = endpoint_reporting_config_defaults
-exports.endpoint_reporting_config_default_count = endpoint_reporting_config_default_count
+exports.endpoint_reporting_config_default_count =
+  endpoint_reporting_config_default_count
 exports.endpoint_count = endpoint_count
 exports.endpoint_config_macros = endpoint_config_macros
