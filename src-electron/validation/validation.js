@@ -116,6 +116,10 @@ function isValidNumberString(value) {
   return /^(0x)?[\dA-F]+$/i.test(value) || Number.isInteger(Number(value));
 }
 
+function isValidSignedNumberString(value) {
+  return /^(0x)?[\dA-F]+$/i.test(value) || Number.isInteger(Number(value));
+}
+
 function isValidFloat(value) {
   return !/^0x/i.test(value) && !isNaN(Number(value));
 }
