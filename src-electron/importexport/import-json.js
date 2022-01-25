@@ -22,6 +22,7 @@ const queryConfig = require('../db/query-config.js')
 const queryPackage = require('../db/query-package.js')
 const queryImpexp = require('../db/query-impexp.js')
 const querySession = require('../db/query-session.js')
+const zclLoader = require('../zcl/zcl-loader.js')
 
 /**
  * Resolves with a promise that imports session key values.
@@ -197,7 +198,8 @@ async function importEndpointTypes(
   sessionId,
   packageId,
   endpointTypes,
-  endpoints
+  endpoints,
+  newPackageIds
 ) {
   let allQueries = []
   let sortedEndpoints = {}
@@ -214,7 +216,7 @@ async function importEndpointTypes(
     endpointTypes.forEach((et, index) => {
       allQueries.push(
         queryImpexp
-          .importEndpointType(db, sessionId, packageId, et)
+          .importEndpointType(db, sessionId, [packageId, ...newPackageIds], et)
           .then((endpointId) => {
             // Now we need to import commands, attributes and clusters.
             let promises = []
@@ -237,7 +239,7 @@ async function importEndpointTypes(
                 queryImpexp
                   .importClusterForEndpointType(
                     db,
-                    packageId,
+                    [packageId, ...newPackageIds],
                     endpointId,
                     cluster
                   )
@@ -249,7 +251,7 @@ async function importEndpointTypes(
                         ps.push(
                           queryImpexp.importCommandForEndpointType(
                             db,
-                            packageId,
+                            [packageId, ...newPackageIds],
                             endpointId,
                             endpointClusterId,
                             command
@@ -262,7 +264,7 @@ async function importEndpointTypes(
                         ps.push(
                           queryImpexp.importAttributeForEndpointType(
                             db,
-                            packageId,
+                            [packageId, ...newPackageIds],
                             endpointId,
                             endpointClusterId,
                             attribute
@@ -294,6 +296,40 @@ async function importEndpointTypes(
  * @returns a promise that resolves into a sessionId that was created.
  */
 async function jsonDataLoader(db, state, sessionId) {
+  // import any packages new to the DB
+  let newPkgs = await Promise.all(
+    state.package.map((pkg) =>
+      queryPackage.getPackageIdByPathAndTypeAndVersion(
+        db,
+        getPkgPath(pkg, state.filePath),
+        pkg.type,
+        pkg.version
+      )
+    )
+  )
+    .then((pkgIds) =>
+      pkgIds.map((pkgId, index) => {
+        // packages that is new to DB will carry null value.
+        if (pkgId) {
+          return null
+        } else {
+          return state.package[index]
+        }
+      })
+    )
+    .then((newPkgs) => newPkgs.filter((x) => x))
+
+  let newPkgIds = (
+    await Promise.all(
+      newPkgs.map((pkg) => {
+        let filePath = getPkgPath(pkg, state.filePath)
+        return zclLoader.loadIndividualFile(db, filePath, sessionId)
+      })
+    )
+  )
+    .filter((p) => p.succeeded)
+    .map((p) => p.packageId)
+
   let data = await importPackages(db, sessionId, state.package, state.filePath)
 
   // data: { sessionId, packageId, otherIds, optionalIds}
@@ -321,7 +357,8 @@ async function jsonDataLoader(db, state, sessionId) {
         data.sessionId,
         data.packageId,
         state.endpointTypes,
-        state.endpoints
+        state.endpoints,
+        newPkgIds
       )
     )
   }

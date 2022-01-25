@@ -176,17 +176,29 @@ ORDER BY
  * @param {*} endpointType
  * @returns Promise of endpoint insertion.
  */
-async function importEndpointType(db, sessionId, packageId, endpointType) {
+async function importEndpointType(db, sessionId, packageIds, endpointType) {
   let multipleDeviceIds = await dbApi.dbAll(
     db,
     `SELECT DEVICE_TYPE_ID FROM DEVICE_TYPE WHERE CODE = "${parseInt(
       endpointType.deviceTypeCode
     )}" AND PROFILE_ID = "${parseInt(
       endpointType.deviceTypeProfileId
-    )}" AND PACKAGE_REF = "${packageId}"`
+    )}" AND PACKAGE_REF IN ("${packageIds}")`
   )
   if (multipleDeviceIds != null && multipleDeviceIds.length > 1) {
     // Each endpoint has: 'name', 'deviceTypeName', 'deviceTypeCode', `deviceTypeProfileId`, 'clusters', 'commands', 'attributes'
+    let deviceTypeId = await dbApi
+      .dbAll(
+        db,
+        `SELECT DEVICE_TYPE_ID,PACKAGE_REF FROM DEVICE_TYPE WHERE CODE = ? AND PROFILE_ID = ? AND NAME = ? AND PACKAGE_REF IN (${packageIds})`,
+        [
+          parseInt(endpointType.deviceTypeCode),
+          parseInt(endpointType.deviceTypeProfileId),
+          endpointType.deviceTypeName,
+        ]
+      )
+      .then((matchedPackageIds) => matchedPackageIds.shift()?.DEVICE_TYPE_ID)
+
     return dbApi.dbInsert(
       db,
       `
@@ -194,22 +206,22 @@ async function importEndpointType(db, sessionId, packageId, endpointType) {
     SESSION_REF,
     NAME,
     DEVICE_TYPE_REF
-  ) VALUES(
-    ?,
-    ?,
-    (SELECT DEVICE_TYPE_ID FROM DEVICE_TYPE WHERE CODE = ? AND PROFILE_ID = ? AND NAME = ? AND PACKAGE_REF = ?)
-  )`,
-      [
-        sessionId,
-        endpointType.name,
-        parseInt(endpointType.deviceTypeCode),
-        parseInt(endpointType.deviceTypeProfileId),
-        endpointType.deviceTypeName,
-        packageId,
-      ]
+  ) VALUES(?, ?, ?)`,
+      [sessionId, endpointType.name, deviceTypeId]
     )
   } else {
     // Each endpoint has: 'name', 'deviceTypeName', 'deviceTypeCode', `deviceTypeProfileId`, 'clusters', 'commands', 'attributes'
+    let deviceTypeId = await dbApi
+      .dbAll(
+        db,
+        `SELECT DEVICE_TYPE_ID,PACKAGE_REF FROM DEVICE_TYPE WHERE CODE = ? AND PROFILE_ID = ? AND PACKAGE_REF IN (${packageIds})`,
+        [
+          parseInt(endpointType.deviceTypeCode),
+          parseInt(endpointType.deviceTypeProfileId),
+        ]
+      )
+      .then((matchedPackageIds) => matchedPackageIds.shift()?.DEVICE_TYPE_ID)
+
     return dbApi.dbInsert(
       db,
       `
@@ -217,18 +229,8 @@ async function importEndpointType(db, sessionId, packageId, endpointType) {
     SESSION_REF,
     NAME,
     DEVICE_TYPE_REF
-  ) VALUES(
-    ?,
-    ?,
-    (SELECT DEVICE_TYPE_ID FROM DEVICE_TYPE WHERE CODE = ? AND PROFILE_ID = ? AND PACKAGE_REF = ?)
-  )`,
-      [
-        sessionId,
-        endpointType.name,
-        parseInt(endpointType.deviceTypeCode),
-        parseInt(endpointType.deviceTypeProfileId),
-        packageId,
-      ]
+  ) VALUES( ?, ?, ?)`,
+      [sessionId, endpointType.name, deviceTypeId]
     )
   }
 }
@@ -319,10 +321,22 @@ ORDER BY CLUSTER.CODE, CLUSTER.NAME`,
  */
 async function importClusterForEndpointType(
   db,
-  packageId,
+  packageIds,
   endpointTypeId,
   cluster
 ) {
+  let matchedPackageId = await dbApi
+    .dbAll(
+      db,
+      `SELECT CLUSTER_ID, PACKAGE_REF FROM CLUSTER WHERE PACKAGE_REF IN (${packageIds}) AND CODE = ? AND ${
+        cluster.mfgCode == null
+          ? 'MANUFACTURER_CODE IS NULL'
+          : 'MANUFACTURER_CODE = ?'
+      }`,
+      cluster.mfgCode == null ? [cluster.code] : [cluster.code, cluster.mfgCode]
+    )
+    .then((matchedPackageIds) => matchedPackageIds.shift()?.PACKAGE_REF)
+
   return dbApi.dbInsert(
     db,
     `
@@ -338,10 +352,16 @@ VALUES
    ?,
    ?)`,
     cluster.mfgCode == null
-      ? [endpointTypeId, packageId, cluster.code, cluster.side, cluster.enabled]
+      ? [
+          endpointTypeId,
+          matchedPackageId,
+          cluster.code,
+          cluster.side,
+          cluster.enabled,
+        ]
       : [
           endpointTypeId,
-          packageId,
+          matchedPackageId,
           cluster.code,
           cluster.mfgCode,
           cluster.side,
@@ -426,7 +446,7 @@ ORDER BY
  */
 async function importAttributeForEndpointType(
   db,
-  packageId,
+  packageIds,
   endpointTypeId,
   endpointClusterId,
   attribute
@@ -440,7 +460,7 @@ FROM
   ATTRIBUTE AS A, ENDPOINT_TYPE_CLUSTER
 WHERE 
   A.CODE = ?
-  AND A.PACKAGE_REF = ?
+  AND A.PACKAGE_REF IN (${packageIds})
   AND A.SIDE = ENDPOINT_TYPE_CLUSTER.SIDE
   AND ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = ?
   AND (ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = A.CLUSTER_REF OR A.CLUSTER_REF IS NULL)
@@ -449,20 +469,20 @@ WHERE
       ? 'MANUFACTURER_CODE IS NULL'
       : 'MANUFACTURER_CODE = ?'
   }`
-  let selectArgs = [attribute.code, packageId, endpointClusterId]
+  let selectArgs = [attribute.code, endpointClusterId]
   if (attribute.mfgCode != null) selectArgs.push(attribute.mfgCode)
-  let atRow = await dbApi.dbGet(db, selectAttributeQuery, selectArgs)
+  let atRow = await dbApi.dbAll(db, selectAttributeQuery, selectArgs)
   let attributeId
   let reportingPolicy
   let storagePolicy
-  if (atRow == null) {
+  if (atRow.length == 0) {
     attributeId = null
     reportingPolicy = null
     storagePolicy = null
   } else {
-    attributeId = atRow.ATTRIBUTE_ID
-    reportingPolicy = atRow.REPORTING_POLICY
-    storagePolicy = atRow.STORAGE_POLICY
+    attributeId = atRow[0].ATTRIBUTE_ID
+    reportingPolicy = atRow[0].REPORTING_POLICY
+    storagePolicy = atRow[0].STORAGE_POLICY
   }
 
   // If the spec has meanwhile changed the policies to mandatory or prohibited,
@@ -577,21 +597,39 @@ ORDER BY
  */
 async function importCommandForEndpointType(
   db,
-  packageId,
+  packageIds,
   endpointTypeId,
   endpointClusterId,
   command
 ) {
+  let matchedCmdId = await dbApi
+    .dbAll(
+      db,
+      `SELECT COMMAND_ID
+      FROM COMMAND, ENDPOINT_TYPE_CLUSTER WHERE
+        COMMAND.CODE = ?
+        AND COMMAND.SOURCE = ?
+        AND COMMAND.PACKAGE_REF IN (${packageIds})
+        AND ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = ?
+        AND COMMAND.CLUSTER_REF = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
+        AND ${
+          command.mfgCode == null
+            ? 'MANUFACTURER_CODE IS NULL'
+            : 'MANUFACTURER_CODE = ?'
+        }`,
+      command.mfgCode == null
+        ? [command.code, command.source, endpointClusterId]
+        : [command.code, command.source, endpointClusterId, command.mfgCode]
+    )
+    .then((matchedCmdIds) => matchedCmdIds.shift()?.COMMAND_ID)
+
   let arg = [
     endpointTypeId,
     endpointClusterId,
-    command.code,
-    command.source,
-    packageId,
-    endpointClusterId,
+    matchedCmdId,
+    command.incoming,
+    command.outgoing,
   ]
-  if (command.mfgCode != null) arg.push(command.mfgCode)
-  arg.push(command.incoming, command.outgoing)
   return dbApi.dbInsert(
     db,
     `
@@ -602,22 +640,7 @@ INSERT INTO ENDPOINT_TYPE_COMMAND
   INCOMING,
   OUTGOING )
 VALUES
-  ( ?, ?,
-    ( SELECT COMMAND_ID
-      FROM COMMAND, ENDPOINT_TYPE_CLUSTER WHERE
-        COMMAND.CODE = ?
-        AND COMMAND.SOURCE = ?
-        AND COMMAND.PACKAGE_REF = ?
-        AND ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = ?
-        AND COMMAND.CLUSTER_REF = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
-        AND ${
-          command.mfgCode == null
-            ? 'MANUFACTURER_CODE IS NULL'
-            : 'MANUFACTURER_CODE = ?'
-        }),
-    ?,
-    ?
-    )
+  (?, ?, ?, ?, ?)
   `,
     arg
   )
