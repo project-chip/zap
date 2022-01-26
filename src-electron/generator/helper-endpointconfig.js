@@ -467,6 +467,7 @@ async function collectAttributes(endpointTypes) {
 
     ept.clusters.forEach((c) => {
       let cluster = {
+        endpointId: ept.endpointId,
         clusterId: asMEI(c.manufacturerCode, c.code),
         clusterName: c.name,
         clusterSide: c.side,
@@ -474,6 +475,7 @@ async function collectAttributes(endpointTypes) {
         attributeCount: c.attributes.length,
         attributeSize: 0,
         mask: [],
+        commands: [],
         functions: 'NULL',
         comment: `Endpoint: ${ept.endpointId}, Cluster: ${c.name} (${c.side})`,
       }
@@ -656,6 +658,7 @@ async function collectAttributes(endpointTypes) {
           }
         }
         let command = {
+          endpointId: ept.endpointId,
           clusterId: asMEI(c.manufacturerCode, c.code),
           commandId: asMEI(cmd.manufacturerCode, cmd.code),
           mask: mask,
@@ -663,6 +666,7 @@ async function collectAttributes(endpointTypes) {
           comment: cluster.comment,
         }
         commandList.push(command)
+        cluster.commands.push(command)
 
         if (cmd.manufacturerCode) {
           let mfgCmd = {
