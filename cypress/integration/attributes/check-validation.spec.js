@@ -10,7 +10,7 @@ describe('Testing attribute validation', () => {
   it('create a new endpoint and click on configure to open attributes of endpoint', () => {
     cy.visit('http://localhost:8080/?restPort=9070#/')
     cy.gotoAttributePage('Billing Unit (0x0203)', 'General')
-    cy.wait(1000)
+    cy.wait(2000)
   })
   it('change default input to a wrong amount', () => {
     cy.get(
