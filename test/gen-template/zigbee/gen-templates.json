@@ -198,6 +198,11 @@
       "output": "zap-command.h"
     },
     {
+      "path": "zap-outgoing-command.zapt",
+      "name": "ZCL outgoing command",
+      "output": "zap-outgoing-command.out"
+    },
+    {
       "path": "zap-config.zapt",
       "name": "ZCL endpoint configuration",
       "output": "zap-config.h"

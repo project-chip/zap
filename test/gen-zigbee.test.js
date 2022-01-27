@@ -608,6 +608,14 @@ test(
     expect(pv5).toContain('case ZCL_GP_PROXY_TABLE_REQUEST_COMMAND_ID:')
     expect(pv5).not.toContain('uint64_t gpdIeee;')
     expect(pv5).toContain('uint8_t *  gpdIeee;')
+
+    //********* Test the helpers related to outgoing commands******************
+    // Test Cluster outgoing commands that should be generated
+    let zapOutgoingCommands = genResult.content['zap-outgoing-command.out']
+    expect(zapOutgoingCommands).not.toBeNull()
+    expect(zapOutgoingCommands).toContain(
+      'Groups client Cluster Ougtoing commands\nOutgoing Command: AddGroup\nOutgoing Command: AddGroupIfIdentifying\nOutgoing Command: GetGroupMembership\nOutgoing Command: RemoveAllGroups\nOutgoing Command: RemoveGroup\nOutgoing Command: ViewGroup\nGroups server Cluster Ougtoing commands\nOutgoing Command: AddGroupResponse\nOutgoing Command: GetGroupMembershipResponse\nOutgoing Command: RemoveGroupResponse\nOutgoing Command: ViewGroupResponse\nIdentify client Cluster Ougtoing commands\nOutgoing Command: Identify\nOutgoing Command: IdentifyQuery\nIdentify server Cluster Ougtoing commands\nOutgoing Command: IdentifyQueryResponse\nLevel Control client Cluster Ougtoing commands\nOutgoing Command: Move\nOutgoing Command: MoveToLevel\nOutgoing Command: MoveToLevelWithOnOff\nOutgoing Command: MoveWithOnOff\nOutgoing Command: Step\nOutgoing Command: StepWithOnOff\nOutgoing Command: Stop\nOutgoing Command: StopWithOnOff\nOn/off client Cluster Ougtoing commands\nOutgoing Command: Off\nOutgoing Command: On\nOutgoing Command: Toggle\nScenes server Cluster Ougtoing commands\nOutgoing Command: AddSceneResponse\nOutgoing Command: GetSceneMembershipResponse\nOutgoing Command: RemoveAllScenesResponse\nOutgoing Command: RemoveSceneResponse\nOutgoing Command: StoreSceneResponse\nOutgoing Command: ViewSceneResponse\nZLL Commissioning client Cluster Ougtoing commands\nOutgoing Command: DeviceInformationRequest\nOutgoing Command: IdentifyRequest\nOutgoing Command: NetworkJoinEndDeviceRequest\nOutgoing Command: NetworkJoinRouterRequest\nOutgoing Command: NetworkStartRequest\nOutgoing Command: NetworkUpdateRequest\nOutgoing Command: ResetToFactoryNewRequest\nOutgoing Command: ScanRequest\nZLL Commissioning server Cluster Ougtoing commands\nOutgoing Command: DeviceInformationResponse\nOutgoing Command: EndpointInformation\nOutgoing Command: GetEndpointListResponse\nOutgoing Command: GetGroupIdentifiersResponse\nOutgoing Command: NetworkJoinEndDeviceResponse\nOutgoing Command: NetworkJoinRouterResponse\nOutgoing Command: NetworkStartResponse\nOutgoing Command: ScanResponse'
+    )
   },
   testUtil.timeout.long()
 )

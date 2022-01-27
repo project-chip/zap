@@ -194,9 +194,86 @@ ORDER BY
 }
 
 /**
+ * All Clusters with available incoming or outgoing commands.
+ * @param db
+ * @param endpointTypes
+ * @param uniqueClusterCodes
+ * @param isIncoming
+ * @returns All Clusters with side that have available incoming or outgoing
+ * commands.
+ * uniqueClusterCodes can be used to get unique clusters based on a cluster code
+ * and this can eliminate duplicate cluster code entries when manufacturing
+ * specific clusters exist with the same cluster code.
+ * Note: The relationship between the endpoint_type_cluster being enabled and a
+ * endpoint_type_command is indirect. The reason for this being the endpoint
+ * type command is not precisely linked to the sides of the cluster as commands
+ * do not belong to a side of a cluster like an attribute.
+ */
+async function selectAllClustersWithIncomingOrOutgoingCommands(
+  db,
+  endpointTypes,
+  uniqueClusterCodes,
+  isIncoming
+) {
+  let endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
+  let sqlGroupBy = uniqueClusterCodes ? 'CLUSTER.CODE' : 'CLUSTER.NAME'
+  let isIncomingOrOutgoingSql = isIncoming
+    ? `ENDPOINT_TYPE_COMMAND.INCOMING = 1 AND COMMAND.SOURCE != ENDPOINT_TYPE_CLUSTER.SIDE`
+    : `ENDPOINT_TYPE_COMMAND.OUTGOING = 1 AND COMMAND.SOURCE == ENDPOINT_TYPE_CLUSTER.SIDE`
+  let mapFunction = (x) => {
+    return {
+      id: x.CLUSTER_ID,
+      clusterName: x.CLUSTER_NAME,
+      code: x.CLUSTER_CODE,
+      clusterDefine: x.CLUSTER_DEFINE,
+      clusterMfgCode: x.MANUFACTURER_CODE,
+      clusterSide: x.CLUSTER_SIDE,
+      clusterEnabled: x.CLUSTER_ENABLED,
+      endpointClusterId: x.ENDPOINT_TYPE_CLUSTER_ID,
+    }
+  }
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+CLUSTER.CLUSTER_ID,
+CLUSTER.NAME AS CLUSTER_NAME,
+CLUSTER.CODE AS CLUSTER_CODE,
+CLUSTER.DEFINE AS CLUSTER_DEFINE,
+CLUSTER.MANUFACTURER_CODE AS MANUFACTURER_CODE,
+ENDPOINT_TYPE_CLUSTER.SIDE AS CLUSTER_SIDE,
+ENDPOINT_TYPE_CLUSTER.ENABLED AS CLUSTER_ENABLED,
+ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
+FROM
+COMMAND
+INNER JOIN
+ENDPOINT_TYPE_COMMAND
+ON
+ENDPOINT_TYPE_COMMAND.COMMAND_REF = COMMAND.COMMAND_ID
+INNER JOIN
+CLUSTER
+ON
+CLUSTER.CLUSTER_ID = COMMAND.CLUSTER_REF
+INNER JOIN
+ENDPOINT_TYPE_CLUSTER
+ON
+ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = CLUSTER.CLUSTER_ID
+WHERE
+ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF IN (${endpointTypeIds})
+AND ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF
+AND ENDPOINT_TYPE_CLUSTER.SIDE IN ("client", "server")
+AND ENDPOINT_TYPE_CLUSTER.ENABLED = 1 AND ${isIncomingOrOutgoingSql}
+GROUP BY
+${sqlGroupBy}, ENDPOINT_TYPE_CLUSTER.SIDE ORDER BY CLUSTER.NAME, ENDPOINT_TYPE_CLUSTER.SIDE`
+    )
+    .then((rows) => rows.map(mapFunction))
+}
+/**
  * All Clusters with available incoming commands.
  * @param db
  * @param endpointTypes
+ * @param uniqueClusterCodes
  * @returns All Clusters with side that have available incoming commands.
  * uniqueClusterCodes can be used to get unique clusters based on a cluster code
  * and this can eliminate duplicate cluster code entries when manufacturing
@@ -211,59 +288,38 @@ async function selectAllClustersWithIncomingCommands(
   endpointTypes,
   uniqueClusterCodes = false
 ) {
-  let endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
-  let sqlGroupBy = uniqueClusterCodes ? 'CLUSTER.CODE' : 'CLUSTER.NAME'
-  let mapFunction = (x) => {
-    return {
-      id: x.CLUSTER_ID,
-      clusterName: x.CLUSTER_NAME,
-      code: x.CLUSTER_CODE,
-      clusterDefine: x.CLUSTER_DEFINE,
-      clusterMfgCode: x.MANUFACTURER_CODE,
-      clusterSide: x.CLUSTER_SIDE,
-      clusterEnabled: x.CLUSTER_ENABLED,
-      endpointClusterId: x.ENDPOINT_TYPE_CLUSTER_ID,
-    }
-  }
-
-  return dbApi
-    .dbAll(
-      db,
-      `
-SELECT
-  CLUSTER.CLUSTER_ID,
-  CLUSTER.NAME AS CLUSTER_NAME,
-  CLUSTER.CODE AS CLUSTER_CODE,
-  CLUSTER.DEFINE AS CLUSTER_DEFINE,
-  CLUSTER.MANUFACTURER_CODE AS MANUFACTURER_CODE,
-  ENDPOINT_TYPE_CLUSTER.SIDE AS CLUSTER_SIDE,
-  ENDPOINT_TYPE_CLUSTER.ENABLED AS CLUSTER_ENABLED,
-  ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
-FROM
-  COMMAND
-INNER JOIN
-  ENDPOINT_TYPE_COMMAND
-ON
-  ENDPOINT_TYPE_COMMAND.COMMAND_REF = COMMAND.COMMAND_ID
-INNER JOIN
-  CLUSTER
-ON
-  CLUSTER.CLUSTER_ID = COMMAND.CLUSTER_REF
-INNER JOIN
-  ENDPOINT_TYPE_CLUSTER
-ON
-  ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = CLUSTER.CLUSTER_ID
-WHERE
-  ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF IN (${endpointTypeIds})
-  AND ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF
-  AND ENDPOINT_TYPE_CLUSTER.SIDE IN ("client", "server")
-  AND ENDPOINT_TYPE_CLUSTER.ENABLED = 1
-  AND ENDPOINT_TYPE_COMMAND.INCOMING = 1
-  AND COMMAND.SOURCE != ENDPOINT_TYPE_CLUSTER.SIDE
-GROUP BY
-  ${sqlGroupBy}, ENDPOINT_TYPE_CLUSTER.SIDE ORDER BY CLUSTER.NAME, ENDPOINT_TYPE_CLUSTER.SIDE`
-    )
-    .then((rows) => rows.map(mapFunction))
+  return selectAllClustersWithIncomingOrOutgoingCommands(
+    db,
+    endpointTypes,
+    uniqueClusterCodes,
+    true
+  )
+}
+/**
+ * All Clusters with available outgoing commands.
+ * @param db
+ * @param endpointTypes
+ * @param uniqueClusterCodes
+ * @returns All Clusters with side that have available outgoing commands.
+ * uniqueClusterCodes can be used to get unique clusters based on a cluster code
+ * and this can eliminate duplicate cluster code entries when manufacturing
+ * specific clusters exist with the same cluster code.
+ * Note: The relationship between the endpoint_type_cluster being enabled and a
+ * endpoint_type_command is indirect. The reason for this being the endpoint
+ * type command is not precisely linked to the sides of the cluster as commands
+ * do not belong to a side of a cluster like an attribute.
+ */
+async function selectAllClustersWithOutgoingCommands(
+  db,
+  endpointTypes,
+  uniqueClusterCodes = false
+) {
+  return selectAllClustersWithIncomingOrOutgoingCommands(
+    db,
+    endpointTypes,
+    uniqueClusterCodes,
+    false
+  )
 }
 
 /**
@@ -441,21 +497,22 @@ async function selectAllIncomingCommandsForClusterCombined(
 }
 
 /**
- * Returns all incoming per cluster commands.
  *
- * @param {*} db
- * @param {*} endpointTypes
- * @param {*} clName
- * @param {*} clSide
- * @param {*} isMfgSpecific
- * @returns promise of incoming per-cluster commands.
+ * @param db
+ * @param endpointTypes
+ * @param clName
+ * @param clSide
+ * @param isMfgSpecific
+ * @param isIncoming
+ * @returns Incoming or Outgoing commands for a given cluster
  */
-async function selectAllIncomingCommandsForCluster(
+async function selectAllIncomingOrOutgoingCommandsForCluster(
   db,
   endpointTypes,
   clName,
   clSide,
-  isMfgSpecific
+  isMfgSpecific,
+  isIncoming
 ) {
   let endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
   let mfgSpecificString =
@@ -464,6 +521,9 @@ async function selectAllIncomingCommandsForCluster(
       : isMfgSpecific
       ? ` AND COMMAND.MANUFACTURER_CODE IS NOT NULL `
       : ` AND COMMAND.MANUFACTURER_CODE IS NULL `
+  let isIncomingOrOutgoingSql = isIncoming
+    ? `ENDPOINT_TYPE_COMMAND.INCOMING=1 AND COMMAND.SOURCE!=ENDPOINT_TYPE_CLUSTER.SIDE`
+    : `ENDPOINT_TYPE_COMMAND.OUTGOING=1 AND COMMAND.SOURCE==ENDPOINT_TYPE_CLUSTER.SIDE`
   let mapFunction = (x) => {
     return {
       clusterId: x.CLUSTER_ID,
@@ -485,7 +545,6 @@ async function selectAllIncomingCommandsForCluster(
       mfgCommandCount: x.MANUFACTURING_SPECIFIC_COMMAND_COUNT,
     }
   }
-
   return dbApi
     .dbAll(
       db,
@@ -508,30 +567,72 @@ SELECT
   ENDPOINT_TYPE_COMMAND.INCOMING AS INCOMING,
   ENDPOINT_TYPE_COMMAND.OUTGOING AS OUTGOING,
   COUNT(COMMAND.MANUFACTURER_CODE) OVER () AS MANUFACTURING_SPECIFIC_COMMAND_COUNT
-FROM 
-  COMMAND
-INNER JOIN 
-  ENDPOINT_TYPE_COMMAND
-ON 
-  ENDPOINT_TYPE_COMMAND.COMMAND_REF = COMMAND.COMMAND_ID
-INNER JOIN 
-  CLUSTER
-ON 
-  CLUSTER.CLUSTER_ID = COMMAND.CLUSTER_REF
-INNER JOIN 
-  ENDPOINT_TYPE_CLUSTER
-ON 
-  ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = CLUSTER.CLUSTER_ID
-WHERE
-  ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF IN (${endpointTypeIds})
-  AND ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF
-  AND ENDPOINT_TYPE_CLUSTER.SIDE IN ("client", "server") AND ENDPOINT_TYPE_CLUSTER.ENABLED=1
-  AND ENDPOINT_TYPE_COMMAND.INCOMING=1 AND COMMAND.SOURCE!=ENDPOINT_TYPE_CLUSTER.SIDE
-  AND CLUSTER.NAME = "${clName}" AND ENDPOINT_TYPE_CLUSTER.SIDE = "${clSide}" 
-  ${mfgSpecificString} 
-GROUP BY COMMAND.NAME`
+FROM COMMAND
+INNER JOIN ENDPOINT_TYPE_COMMAND
+ON ENDPOINT_TYPE_COMMAND.COMMAND_REF = COMMAND.COMMAND_ID
+INNER JOIN CLUSTER
+ON CLUSTER.CLUSTER_ID = COMMAND.CLUSTER_REF
+INNER JOIN ENDPOINT_TYPE_CLUSTER
+ON ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = CLUSTER.CLUSTER_ID
+WHERE ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF IN (${endpointTypeIds})
+AND ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF
+AND ENDPOINT_TYPE_CLUSTER.SIDE IN ("client", "server") AND ENDPOINT_TYPE_CLUSTER.ENABLED=1 AND ${isIncomingOrOutgoingSql}
+AND CLUSTER.NAME = "${clName}" AND ENDPOINT_TYPE_CLUSTER.SIDE = "${clSide}" 
+${mfgSpecificString} GROUP BY COMMAND.NAME`
     )
     .then((rows) => rows.map(mapFunction))
+}
+
+/**
+ *
+ * @param db
+ * @param endpointTypes
+ * @param clName
+ * @param clSide
+ * @param isMfgSpecific
+ * @returns Incoming Commands for a given cluster
+ */
+async function selectAllIncomingCommandsForCluster(
+  db,
+  endpointTypes,
+  clName,
+  clSide,
+  isMfgSpecific
+) {
+  return selectAllIncomingOrOutgoingCommandsForCluster(
+    db,
+    endpointTypes,
+    clName,
+    clSide,
+    isMfgSpecific,
+    true
+  )
+}
+
+/**
+ *
+ * @param db
+ * @param endpointTypes
+ * @param clName
+ * @param clSide
+ * @param isMfgSpecific
+ * @returns Outgoing Commands for a given cluster
+ */
+async function selectAllOutgoingCommandsForCluster(
+  db,
+  endpointTypes,
+  clName,
+  clSide,
+  isMfgSpecific
+) {
+  return selectAllIncomingOrOutgoingCommandsForCluster(
+    db,
+    endpointTypes,
+    clName,
+    clSide,
+    isMfgSpecific,
+    false
+  )
 }
 
 /**
@@ -1574,3 +1675,7 @@ exports.selectMfgClustersWithIncomingCommandsForClusterCode =
   selectMfgClustersWithIncomingCommandsForClusterCode
 exports.selectAllCommandsWithClusterInfo = selectAllCommandsWithClusterInfo
 exports.selectAllCommandsWithArguments = selectAllCommandsWithArguments
+exports.selectAllClustersWithOutgoingCommands =
+  selectAllClustersWithOutgoingCommands
+exports.selectAllOutgoingCommandsForCluster =
+  selectAllOutgoingCommandsForCluster
