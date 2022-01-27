@@ -64,8 +64,8 @@ describe('Testing endpoints, clusters and attributes', () => {
     cy.get('div').contains('General').click()
     //check if configure button works fine
     cy.get(
-      '#General > .q-expansion-item__container > .q-expansion-item__content > :nth-child(1) > .q-table__container > .q-table__middle > .q-table > tbody > :nth-child(1) > :nth-child(7) > .q-btn > .q-btn__wrapper > .q-btn__content > .material-icons'
-    ).click()
+      '#General > .q-expansion-item__container > .q-expansion-item__content > :nth-child(1) > .q-table__container > .q-table__middle > .q-table > tbody > .text-weight-bolder > :nth-child(7) > .q-btn > .q-btn__wrapper > .q-btn__content > .notranslate'
+    ).click({force:true})
     cy.wait(1000)
 
     //check if attributes are loaded

@@ -5,11 +5,9 @@ Cypress.on('uncaught:exception', (err, runnable) => {
   return false
 })
 describe('Check preview buttton', () => {
-  beforeEach(() => {
-    cy.visit('http://localhost:8080/?restPort=9070#/')
-  })
 
   it('adding a new endpoint', () => {
+    cy.visit('http://localhost:8080/?restPort=9070#/')
     cy.get('button').contains('Add New Endpoint').click()
     cy.wait(1000)
     cy.get(
