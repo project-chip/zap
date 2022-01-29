@@ -407,18 +407,14 @@ async function zcl_events(options) {
 
   let ps = events.map(async (ev) => {
     ev.event_is_fabric_scoped = false
-    ev.event_is_fabric_index_nullable = false
     ev.items = await queryEvent.selectEventFieldsByEventId(
       this.global.db,
       ev.id
     )
     ev.items.forEach((i) => {
-      if (i.type && i.type.toLowerCase() == 'fabric_idx') {
+      if (i.type && i.type.toLowerCase() == 'fabric_idx' && !i.isNullable) {
         ev.event_is_fabric_scoped = true
         ev.event_fabric_idx_field = i.name
-        if (i.isNullable) {
-          ev.event_is_fabric_index_nullable = true
-        }
       }
     })
   })
