@@ -318,6 +318,7 @@ pipeline
                     options { skipDefaultCheckout() }
                     steps
                     {
+                        cleanWs()
                         // WORKAROUND:
                         // Skip testing zap within .zap since zip/unzip within Jenkins is unable to
                         // maintain the framework symlinks, referenced by ZAP
@@ -353,6 +354,7 @@ pipeline
                         dir('test_apack_bin') {
                             script
                             {
+                                cleanWs()
                                 unstash 'zap_apack_linux'
                                 unzip zipFile: 'dist/zap_apack_linux.zip'
                                 sh 'chmod 755 zap'
@@ -441,7 +443,6 @@ pipeline
                 }
             }
             junit 'junit.xml'
-            cleanWs()
         }
     }
 }
