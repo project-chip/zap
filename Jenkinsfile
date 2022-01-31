@@ -419,17 +419,12 @@ pipeline
         stage('Workspace clean up')
         {
             parallel {
-              stage('Windows') {
-                agent { label 'windows10' }
-                steps{ cleanWs() }
-              }
-
               stage('Mac') {
                 agent { label 'bgbuild-mac' }
                 steps{ cleanWs() }
               }
 
-              stage('Linux') {
+              stage('Linux / Windows') {
                 agent { label 'Build-Farm' }
                 steps{ cleanWs() }
               }
