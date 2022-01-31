@@ -176,6 +176,11 @@ function checkBoundsFloat(defaultValue, min, max) {
   return defaultValue >= min && defaultValue <= max
 }
 
+function isValidSignedNumberString(value) {
+  return /^(0x)?[\dA-F]+$/i.test(value) || Number.isInteger(Number(value));
+}
+
+
 // exports
 exports.validateAttribute = validateAttribute
 exports.validateEndpoint = validateEndpoint
