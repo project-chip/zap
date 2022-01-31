@@ -421,11 +421,13 @@ pipeline
             parallel {
               stage('Mac') {
                 agent { label 'bgbuild-mac' }
+                options { skipDefaultCheckout() }
                 steps{ cleanWs() }
               }
 
               stage('Linux / Windows') {
                 agent { label 'Build-Farm' }
+                options { skipDefaultCheckout() }
                 steps{ cleanWs() }
               }
             }
