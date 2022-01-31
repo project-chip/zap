@@ -37,7 +37,7 @@ limitations under the License.
     >
       <template v-slot:body="props">
         <q-tr :props="props">
-          <q-td key="status" :props="props" class="q-px-none" style="max-width:30px;">
+          <q-td key="status" :props="props" class="q-px-none" style="width:30px;max-width:30px;">
             <q-icon
               v-show="displayAttrWarning(props.row)"
               name="warning"
