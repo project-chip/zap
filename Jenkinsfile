@@ -193,7 +193,6 @@ pipeline
                     agent { label 'bgbuild-mac' }
                     steps
                     {
-                        cleanWs()
                         script
                         {
                             withEnv(['PATH+LOCAL_BIN=/usr/local/bin',
@@ -416,6 +415,26 @@ pipeline
             }
         }
  */
+
+        stage('Workspace clean up')
+        {
+            parallel {
+              stage('Windows') {
+                agent { label 'windows10' }
+                steps{ cleanWs() }
+              }
+
+              stage('Mac') {
+                agent { label 'bgbuild-mac' }
+                steps{ cleanWs() }
+              }
+
+              stage('Linux') {
+                agent { label 'Build-Farm' }
+                steps{ cleanWs() }
+              }
+            }
+        }
     }
     post {
         always {
