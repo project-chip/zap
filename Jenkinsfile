@@ -193,6 +193,7 @@ pipeline
                     agent { label 'bgbuild-mac' }
                     steps
                     {
+                        cleanWs()
                         script
                         {
                             withEnv(['PATH+LOCAL_BIN=/usr/local/bin',
@@ -318,7 +319,6 @@ pipeline
                     options { skipDefaultCheckout() }
                     steps
                     {
-                        cleanWs()
                         // WORKAROUND:
                         // Skip testing zap within .zap since zip/unzip within Jenkins is unable to
                         // maintain the framework symlinks, referenced by ZAP
