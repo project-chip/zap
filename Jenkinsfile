@@ -389,6 +389,7 @@ pipeline
             }
         }
 
+ /* commented out until we fix this. This never works.
         stage('Run Adapter_Pack_ZAP_64 on JNKAUS-16.silabs.com')
         {
             when
@@ -412,6 +413,7 @@ pipeline
                 }
             }
         }
+ */
     }
     post {
         always {

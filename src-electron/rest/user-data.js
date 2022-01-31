@@ -158,9 +158,9 @@ function httpPostAttributeUpdate(db) {
 
     if (!Array.isArray(endpointTypeIdList) || !endpointTypeIdList.length) {
       if (endpointTypeId == 'undefined') {
-          response.status(StatusCodes.BAD_REQUEST).json()
+        response.status(StatusCodes.BAD_REQUEST).json()
       } else {
-          endpointTypeIdList = [endpointTypeId];
+        endpointTypeIdList = [endpointTypeId]
       }
     }
 
@@ -237,7 +237,6 @@ function httpPostCommandUpdate(db) {
   return async (request, response) => {
     let {
       action,
-      endpointTypeId,
       endpointTypeIdList,
       id,
       value,

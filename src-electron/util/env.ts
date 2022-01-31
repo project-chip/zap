@@ -272,9 +272,6 @@ export function printToStderr(msg: string): void {
 export function log(level: string, msg: string, err = null) {
   let objectToLog: ErrorType = {
     msg: msg,
-    err: {
-      alert: '',
-    },
   }
   if (err != null) {
     objectToLog.err = err

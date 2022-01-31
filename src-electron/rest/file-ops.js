@@ -45,9 +45,7 @@ function httpPostFileOpen(db) {
     if (zapFilePath) {
       name = path.posix.basename(zapFilePath)
       env.logDebug(`Loading project(${name})`)
-    }
 
-    if (zapFilePath) {
       try {
         let importResult = await importJs.importDataFromFile(db, zapFilePath, {
           sessionId: req.zapSessionId,

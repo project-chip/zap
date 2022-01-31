@@ -354,7 +354,7 @@ function isEnum(db, enum_name, packageId) {
 }
 
 /**
- * Local function that checks if an enum by the name exists
+ * Local function that checks if a struct by the name exists
  *
  * @param {*} db
  * @param {*} struct_name
