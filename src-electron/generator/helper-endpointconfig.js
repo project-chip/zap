@@ -820,6 +820,13 @@ function endpoint_config(options) {
             ept.clusters = clusters // Put 'clusters' into endpoint
             let ps = []
             clusters.forEach((cl) => {
+              // No client-side attributes or commands (at least for
+              // endpoint_config purposes) in Matter.
+              if (cl.side == dbEnum.side.client) {
+                cl.attributes = []
+                cl.commands = []
+                return
+              }
               ps.push(
                 queryEndpoint
                   .selectEndpointClusterAttributes(

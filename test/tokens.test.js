@@ -197,7 +197,6 @@ test(
 
     // Check token IDs
     expect(header).toContain('(NVM3KEY_DOMAIN_ZIGBEE | 0xB000)')
-    expect(header).toContain('(NVM3KEY_DOMAIN_ZIGBEE | 0xB008)')
     expect(header).not.toContain('(NVM3KEY_DOMAIN_ZIGBEE | 0xB009)')
 
     // DEFINETYPES
@@ -212,8 +211,6 @@ test(
     )
 
     expect(header).toContain('uint16_t tokType_color_control_remaining_time;')
-
-    expect(header).toContain('typedef uint8_t tokType_reporting_status_client;')
 
     // DEFINETOKENS
 
@@ -294,15 +291,7 @@ test(
     )
 
     expect(header).toContain(
-      'halCommonGetToken((tokType_reporting_status_client *)ptr, TOKEN_REPORTING_STATUS_CLIENT_7);'
-    )
-
-    expect(header).toContain(
       'emberAfWriteServerAttribute(1, ZCL_BASIC_CLUSTER_ID, ZCL_APPLICATION_VERSION_ATTRIBUTE_ID, (uint8_t*)ptr, ZCL_INT8U_ATTRIBUTE_TYPE);'
-    )
-
-    expect(header).toContain(
-      'emberAfWriteClientAttribute(1, ZCL_THERMOSTAT_CLUSTER_ID, ZCL_REPORTING_STATUS_CLIENT_ATTRIBUTE_ID, (uint8_t*)ptr, ZCL_ENUM8_ATTRIBUTE_TYPE);'
     )
 
     // GENERATED_TOKEN_SAVER
@@ -323,15 +312,6 @@ test(
 
     expect(header).toContain(
       'halCommonSetToken(TOKEN_HW_VERSION_SINGLETON, data); }'
-    )
-
-    expect(header).toContain('if ( 0x0201 == clusterId )')
-    expect(header).toContain(
-      'if ( 0xFFFE == metadata->attributeId && 0x0000 == emberAfGetMfgCode(metadata) && emberAfAttributeIsClient(metadata) )'
-    )
-
-    expect(header).toContain(
-      'halCommonSetToken(TOKEN_REPORTING_STATUS_CLIENT_7, data);'
     )
 
     expect(header).toContain('if ( 1 == endpoint )')
