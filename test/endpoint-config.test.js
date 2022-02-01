@@ -209,12 +209,6 @@ test(
     expect(epc).toContain('#define FIXED_ENDPOINT_TYPES { 0, 1, 2 }')
     expect(epc).toContain('#define GENERATED_DEFAULTS_COUNT (12)')
     expect(epc).toContain(
-      '{ ZAP_REPORT_DIRECTION(REPORTED), 0x002A, 0x00000701, 0x00000002, ZAP_CLUSTER_MASK(CLIENT), 0x0000, {{ 2, 12, 4 }} }'
-    )
-    expect(epc).toContain(
-      '{ ZAP_REPORT_DIRECTION(REPORTED), 0x002A, 0x00000701, 0x00000003, ZAP_CLUSTER_MASK(CLIENT), 0x0000, {{ 3, 13, 6 }} }'
-    )
-    expect(epc).toContain(
       `17, 'T', 'e', 's', 't', ' ', 'm', 'a', 'n', 'u', 'f', 'a', 'c', 't', 'u', 'r', 'e', 'r',`
     )
     expect(epcLines.length).toBeGreaterThan(100)
@@ -225,7 +219,7 @@ test(
         cnt++
       }
     })
-    expect(cnt).toBe(76)
+    expect(cnt).toBe(72)
     expect(epc).toContain('#define EMBER_AF_MANUFACTURER_CODE 0x1002')
     expect(epc).toContain('#define EMBER_AF_DEFAULT_RESPONSE_POLICY_ALWAYS')
   },
