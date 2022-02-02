@@ -407,6 +407,36 @@ async function if_command_fixed_length(commandId, options) {
   return options.fn(this)
 }
 
+/**
+ * If helper that checks if a reponse command is present for a given command
+ *
+ * example:
+ * {{#if_command_has_response command 'Request'}}
+ * command has reponse
+ * {{else}}
+ * command has no reponse
+ * {{/if_command_has_response}}
+ *
+ * @param commandName Name of the command
+ * @param replaceKeyWord Check for response command after removing the string
+ * from command name
+ * @returns content based on whether the command response was found or not
+ */
+async function if_command_has_response(commandName, replaceKeyWord, options) {
+  let commandResponse = commandName.replace(replaceKeyWord, '') + 'Response'
+  let packageId = await templateUtil.ensureZclPackageId(this)
+  let commands = await queryCommand.selectCommandByName(
+    this.global.db,
+    packageId,
+    commandResponse
+  )
+  if (commands) {
+    return options.fn(this)
+  } else {
+    return options.inverse(this)
+  }
+}
+
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
 //
 // Note: these exports are public API. Templates that might have been created in the past and are
@@ -446,3 +476,4 @@ exports.if_command_arg_not_always_present_with_presentif =
 exports.if_command_arg_always_present_with_presentif =
   if_command_arg_always_present_with_presentif
 exports.if_command_args_exist = if_command_args_exist
+exports.if_command_has_response = if_command_has_response

@@ -540,6 +540,7 @@ async function selectAllIncomingOrOutgoingCommandsForCluster(
       commandSource: x.COMMAND_SOURCE,
       code: x.COMMAND_CODE,
       mustUseTimedInvoke: dbApi.fromDbBool(x.MUST_USE_TIMED_INVOKE),
+      responseName: x.RESPONSE_NAME,
       incoming: x.INCOMING,
       outgoing: x.OUTGOING,
       mfgCommandCount: x.MANUFACTURING_SPECIFIC_COMMAND_COUNT,
@@ -564,6 +565,7 @@ SELECT
   COMMAND.SOURCE AS COMMAND_SOURCE,
   COMMAND.CODE AS COMMAND_CODE,
   COMMAND.MUST_USE_TIMED_INVOKE AS MUST_USE_TIMED_INVOKE,
+  COMMAND.RESPONSE_NAME AS RESPONSE_NAME,
   ENDPOINT_TYPE_COMMAND.INCOMING AS INCOMING,
   ENDPOINT_TYPE_COMMAND.OUTGOING AS OUTGOING,
   COUNT(COMMAND.MANUFACTURER_CODE) OVER () AS MANUFACTURING_SPECIFIC_COMMAND_COUNT
@@ -826,6 +828,31 @@ SELECT
 FROM COMMAND
   WHERE COMMAND_ID = ?`,
       [id]
+    )
+    .then(dbMapping.map.command)
+}
+
+async function selectCommandByName(db, packageId, name) {
+  return dbApi
+    .dbGet(
+      db,
+      `
+SELECT
+  COMMAND_ID,
+  CLUSTER_REF,
+  PACKAGE_REF,
+  CODE,
+  MANUFACTURER_CODE,
+  NAME,
+  DESCRIPTION,
+  SOURCE,
+  IS_OPTIONAL,
+  MUST_USE_TIMED_INVOKE,
+  RESPONSE_REF
+FROM COMMAND
+  WHERE NAME = ?
+  AND PACKAGE_REF = ?`,
+      [name, packageId]
     )
     .then(dbMapping.map.command)
 }
@@ -1679,3 +1706,4 @@ exports.selectAllClustersWithOutgoingCommands =
   selectAllClustersWithOutgoingCommands
 exports.selectAllOutgoingCommandsForCluster =
   selectAllOutgoingCommandsForCluster
+exports.selectCommandByName = selectCommandByName
