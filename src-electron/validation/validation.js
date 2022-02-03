@@ -176,6 +176,7 @@ function checkBoundsFloat(defaultValue, min, max) {
   return defaultValue >= min && defaultValue <= max
 }
 
+
 // exports
 exports.validateAttribute = validateAttribute
 exports.validateEndpoint = validateEndpoint

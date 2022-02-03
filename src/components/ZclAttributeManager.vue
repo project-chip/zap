@@ -37,14 +37,18 @@ limitations under the License.
     >
       <template v-slot:body="props">
         <q-tr :props="props">
-          <q-td key="status" :props="props" class="q-px-none">
+          <q-td key="status" :props="props" class="q-px-none" style="width:30px;max-width:30px;">
             <q-icon
               v-show="displayAttrWarning(props.row)"
               name="warning"
               class="text-amber"
               style="font-size: 1.5rem"
             />
-            <q-popup-edit
+            <q-tooltip v-if="displayAttrWarning(props.row)" anchor="top middle" self="bottom middle" :offset="[10, 10]" >
+              This attribute is mandatory for the cluster and device type
+                    configuration you have enabled
+            </q-tooltip>
+            <!-- <q-popup-edit
               :disable="!displayAttrWarning(props.row)"
               :cover="false"
               :offset="[0, -54]"
@@ -69,7 +73,7 @@ limitations under the License.
                   </div>
                 </div>
               </template>
-            </q-popup-edit>
+            </q-popup-edit> -->
           </q-td>
           <q-td key="included" :props="props" auto-width>
             <q-toggle

@@ -23,7 +23,7 @@ describe('Testing enabled attributes amount', () => {
         .then(() => { })
       cy.get(':nth-child(7) > .text-right').then(($div2) => {
         const num2 = parseFloat($div2.text())
-        expect(num2).to.eq(num1 + 1)
+        expect(num2).to.eq(17)
       })
     })
   })
