@@ -94,9 +94,9 @@ test(
       }
       expect(totalCount).toBeGreaterThan(0)
       // This is how many commands are linked to their responses
-      expect(responsesCount).toBe(120)
+      expect(responsesCount).toBe(1)
       // This seems to be the unmatched number in our XML files.
-      expect(unmatchedRequestCount).toBe(12)
+      expect(unmatchedRequestCount).toBe(46)
       expect(x.length).toBe(testUtil.totalClusterCommandCount)
       let z = await queryCommand.selectCommandById(db, x[0].id)
       expect(z.label).toBe(x[0].label)

@@ -754,7 +754,8 @@ async function selectNonGlobalCommandByCode(
     C.SOURCE,
     C.IS_OPTIONAL,
     C.MUST_USE_TIMED_INVOKE,
-    C.RESPONSE_REF
+    C.RESPONSE_REF,
+    C.RESPONSE_NAME
   FROM COMMAND AS C
   INNER JOIN CLUSTER AS CL
   ON CL.CLUSTER_ID = C.CLUSTER_REF
@@ -792,7 +793,8 @@ async function selectGlobalCommandByCode(
     C.SOURCE,
     C.IS_OPTIONAL,
     C.MUST_USE_TIMED_INVOKE,
-    C.RESPONSE_REF
+    C.RESPONSE_REF,
+    C.RESPONSE_NAME
   FROM
     COMMAND AS C
   WHERE
@@ -826,7 +828,8 @@ SELECT
   SOURCE,
   IS_OPTIONAL,
   MUST_USE_TIMED_INVOKE,
-  RESPONSE_REF
+  RESPONSE_REF,
+  RESPONSE_NAME
 FROM COMMAND
   WHERE COMMAND_ID = ?`,
       [id]
@@ -857,7 +860,8 @@ SELECT
   SOURCE,
   IS_OPTIONAL,
   MUST_USE_TIMED_INVOKE,
-  RESPONSE_REF
+  RESPONSE_REF,
+  RESPONSE_NAME
 FROM COMMAND WHERE CLUSTER_REF = ?
 ORDER BY CODE`,
       [clusterId]
@@ -906,6 +910,7 @@ SELECT
   CO.IS_OPTIONAL,
   CO.MUST_USE_TIMED_INVOKE,
   CO.RESPONSE_REF,
+  CO.RESPONSE_NAME,
   CL.NAME AS CLUSTER_NAME,
   CL.CODE AS CLUSTER_CODE,
   CL.MANUFACTURER_CODE AS CLUSTER_MANUFACTURER_CODE,
@@ -1018,6 +1023,7 @@ SELECT
   COMMAND.IS_OPTIONAL,
   COMMAND.MUST_USE_TIMED_INVOKE,
   COMMAND.RESPONSE_REF,
+  COMMAND.RESPONSE_NAME,
   CLUSTER.NAME AS CLUSTER_NAME,
   CLUSTER.CODE AS CLUSTER_CODE
 FROM COMMAND
@@ -1044,7 +1050,8 @@ SELECT
   SOURCE,
   IS_OPTIONAL,
   MUST_USE_TIMED_INVOKE,
-  RESPONSE_REF
+  RESPONSE_REF,
+  RESPONSE_NAME
 FROM COMMAND
   WHERE PACKAGE_REF = ?
 ORDER BY CODE`,
@@ -1068,7 +1075,8 @@ SELECT
   SOURCE,
   IS_OPTIONAL,
   MUST_USE_TIMED_INVOKE,
-  RESPONSE_REF
+  RESPONSE_REF,
+  RESPONSE_NAME
 FROM COMMAND
 WHERE
   SOURCE = ?
@@ -1133,7 +1141,8 @@ SELECT
   SOURCE,
   IS_OPTIONAL,
   MUST_USE_TIMED_INVOKE,
-  RESPONSE_REF
+  RESPONSE_REF,
+  RESPONSE_NAME
 FROM COMMAND
 WHERE CLUSTER_REF IS NULL AND PACKAGE_REF = ?
 ORDER BY CODE`,
@@ -1157,7 +1166,8 @@ SELECT
   SOURCE,
   IS_OPTIONAL,
   MUST_USE_TIMED_INVOKE,
-  RESPONSE_REF
+  RESPONSE_REF,
+  RESPONSE_NAME
 FROM COMMAND
 WHERE CLUSTER_REF IS NOT NULL AND PACKAGE_REF = ?
 ORDER BY CODE`,
@@ -1272,6 +1282,7 @@ SELECT
   CMD.IS_OPTIONAL,
   CMD.MUST_USE_TIMED_INVOKE,
   CMD.RESPONSE_REF,
+  CMD.RESPONSE_NAME,
   CL.CODE AS CLUSTER_CODE,
   CL.NAME AS CLUSTER_NAME,
   CL.NAME AS CLUSTER_NAME,
@@ -1301,16 +1312,12 @@ ORDER BY CL.CODE, CMD.CODE, CA.FIELD_IDENTIFIER`,
 
 /**
  * After the data is loaded from XML, we need to link the command request/responses
- * RESPONSE_REF fields together.
- * This is done in a 2 ways:
- *    - for commands that already have RESPONSE_NAME, it is used.
- *    - for commands that have Request/Response names, those names are matched.
- * In both cases, RESPONSE_REF is properly linked.
+ * RESPONSE_REF fields together using the RESPONSE_NAME.
  *
  * @param {*} db
  */
 async function updateCommandRequestResponseReferences(db, packageId) {
-  // First we link up all the cases where the response_for_name is present
+  // Link up all the cases where the RESPONSE_NAME is present
   await dbApi.dbUpdate(
     db,
     `
@@ -1337,36 +1344,6 @@ WHERE
   `,
     [packageId]
   )
-
-  // Then we link up the ones where the "response/request" names match.
-  await dbApi.dbUpdate(
-    db,
-    `
-UPDATE
-  COMMAND
-SET
-  RESPONSE_REF =
-  (
-    SELECT
-      CMD_REF.COMMAND_ID
-    FROM
-      COMMAND AS CMD_REF
-    WHERE
-      ( CMD_REF.NAME = COMMAND.NAME||'Response'
-        OR
-        CMD_REF.NAME = REPLACE(COMMAND.NAME, 'Request', '')||'Response'
-      ) AND (
-        ( CMD_REF.CLUSTER_REF = COMMAND.CLUSTER_REF )
-        OR
-        ( CMD_REF.CLUSTER_REF IS NULL AND COMMAND.CLUSTER_REF IS NULL )
-        ) AND (
-          ( CMD_REF.PACKAGE_REF = COMMAND.PACKAGE_REF)
-        )
-  )
-WHERE
-  COMMAND.NAME NOT LIKE '%Response' AND COMMAND.RESPONSE_NAME IS NULL
-    `
-  )
 }
 
 function commandMapFunction(x) {
@@ -1386,6 +1363,7 @@ function commandMapFunction(x) {
     clusterDefine: x.CLUSTER_DEFINE,
     isClusterEnabled: x.ENABLED,
     responseRef: x.RESPONSE_REF,
+    responseName: x.RESPONSE_NAME,
   }
 }
 
@@ -1415,6 +1393,7 @@ async function selectAllCommandDetailsFromEnabledClusters(
     COMMAND.MANUFACTURER_CODE,
     COMMAND.DESCRIPTION,
     COMMAND.RESPONSE_REF,
+    COMMAND.RESPONSE_NAME,
     COMMAND.MUST_USE_TIMED_INVOKE,
     ENDPOINT_TYPE_CLUSTER.SIDE,
     CLUSTER.NAME AS CLUSTER_NAME,
@@ -1456,6 +1435,7 @@ async function selectAllCliCommandDetailsFromEnabledClusters(
     COMMAND.MANUFACTURER_CODE,
     COMMAND.DESCRIPTION,
     COMMAND.RESPONSE_REF,
+    COMMAND.RESPONSE_NAME,
     COMMAND.MUST_USE_TIMED_INVOKE,
     ENDPOINT_TYPE_CLUSTER.SIDE,
     CLUSTER.NAME AS CLUSTER_NAME,
@@ -1502,6 +1482,7 @@ async function selectCommandDetailsFromAllEndpointTypesAndClusters(
     C.MANUFACTURER_CODE,
     C.DESCRIPTION,
     C.RESPONSE_REF,
+    C.RESPONSE_NAME,
     C.MUST_USE_TIMED_INVOKE,
     ETC.INCOMING,
     ETC.OUTGOING,
@@ -1568,6 +1549,7 @@ async function selectCommandDetailsFromAllEndpointTypesAndClustersUtil(
     ENDPOINT_TYPE_COMMAND.OUTGOING,
     COMMAND.DESCRIPTION,
     COMMAND.RESPONSE_REF,
+    COMMAND.RESPONSE_NAME,
     COMMAND.MUST_USE_TIMED_INVOKE,
     ENDPOINT_TYPE_CLUSTER.SIDE,
     CLUSTER.NAME AS CLUSTER_NAME,
