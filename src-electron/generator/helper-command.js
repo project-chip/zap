@@ -408,7 +408,10 @@ async function if_command_fixed_length(commandId, options) {
 }
 
 /**
- * If helper that checks if a reponse command is present for a given command
+ * If helper that checks if a response command is present for a given command
+ * Note: Deprecate helper once https://github.com/project-chip/zap/issues/402
+ * is resolved. Use {{#if responseName}} in templates once the issue is
+ * resolved.
  *
  * example:
  * {{#if_command_has_response command 'Request'}}
@@ -421,6 +424,7 @@ async function if_command_fixed_length(commandId, options) {
  * @param replaceKeyWord Check for response command after removing the string
  * from command name
  * @returns content based on whether the command response was found or not
+ *
  */
 async function if_command_has_response(commandName, replaceKeyWord, options) {
   let commandResponse = commandName.replace(replaceKeyWord, '') + 'Response'
