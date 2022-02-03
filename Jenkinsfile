@@ -175,6 +175,17 @@ pipeline
                 }
             }
         }
+        stage('Cypress UI tests')
+        {
+            steps
+            {
+                script
+                {
+                    sh 'rm -rf ~/.zap'
+                    sh 'xvfb-run -a npm run test:e2e-ci'
+                }
+            }
+        }
         stage('Run Sonar Scan')
         {
             steps
@@ -419,17 +430,17 @@ pipeline
         stage('Workspace clean up')
         {
             parallel {
-              stage('Mac') {
-                agent { label 'bgbuild-mac' }
-                options { skipDefaultCheckout() }
-                steps{ cleanWs() }
-              }
+                stage('Mac') {
+                    agent { label 'bgbuild-mac' }
+                    options { skipDefaultCheckout() }
+                    steps { cleanWs() }
+                }
 
-              stage('Linux / Windows') {
-                agent { label 'Build-Farm' }
-                options { skipDefaultCheckout() }
-                steps{ cleanWs() }
-              }
+                stage('Linux / Windows') {
+                    agent { label 'Build-Farm' }
+                    options { skipDefaultCheckout() }
+                    steps { cleanWs() }
+                }
             }
         }
     }
