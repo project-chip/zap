@@ -175,6 +175,17 @@ pipeline
                 }
             }
         }
+        stage('Cypress UI tests')
+        {
+            steps
+            {
+                script
+                {
+                    sh 'rm -rf ~/.zap'
+                    sh 'xvfb-run -a npm run test:e2e-ci'
+                }
+            }
+        }
         stage('Run Sonar Scan')
         {
             steps
@@ -353,6 +364,7 @@ pipeline
                         dir('test_apack_bin') {
                             script
                             {
+                                cleanWs()
                                 unstash 'zap_apack_linux'
                                 unzip zipFile: 'dist/zap_apack_linux.zip'
                                 sh 'chmod 755 zap'
@@ -414,6 +426,23 @@ pipeline
             }
         }
  */
+
+        stage('Workspace clean up')
+        {
+            parallel {
+                stage('Mac') {
+                    agent { label 'bgbuild-mac' }
+                    options { skipDefaultCheckout() }
+                    steps { cleanWs() }
+                }
+
+                stage('Linux / Windows') {
+                    agent { label 'Build-Farm' }
+                    options { skipDefaultCheckout() }
+                    steps { cleanWs() }
+                }
+            }
+        }
     }
     post {
         always {
@@ -441,7 +470,6 @@ pipeline
                 }
             }
             junit 'junit.xml'
-            cleanWs()
         }
     }
 }
