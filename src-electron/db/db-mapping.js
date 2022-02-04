@@ -168,6 +168,7 @@ exports.map = {
       argCountArg: x.ARG_COUNT_ARG,
       argIsNullable: x.ARG_IS_NULLABLE,
       responseRef: x.RESPONSE_REF,
+      responseName: x.RESPONSE_NAME,
       isIncoming: x.INCOMING,
       isOutgoing: x.OUTGOING,
     }
