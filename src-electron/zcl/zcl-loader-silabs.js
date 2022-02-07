@@ -88,6 +88,9 @@ async function collectDataFromJsonFile(metadataFile, data) {
     returnObject.featureFlags = obj.featureFlags
   }
 
+  if (obj.uiOptions) {
+    returnObject.uiOptions = obj.uiOptions
+  }
   // Default reportability.
   // `defaultReportable` was old thing that could be true or false.
   // We still honor it.
@@ -242,10 +245,10 @@ function prepareBitmap(bm) {
   }
   if ('field' in bm) {
     ret.fields = []
-    let lastFieldId = -1;
+    let lastFieldId = -1
     bm.field.forEach((field) => {
-      let defaultFieldId = lastFieldId + 1;
-      lastFieldId = field.$.fieldId ? parseInt(field.$.fieldId) : defaultFieldId;
+      let defaultFieldId = lastFieldId + 1
+      lastFieldId = field.$.fieldId ? parseInt(field.$.fieldId) : defaultFieldId
       ret.fields.push({
         name: field.$.name,
         mask: parseInt(field.$.mask),
@@ -449,10 +452,10 @@ function prepareCluster(cluster, context, isExtension = false) {
       }
       if ('arg' in command) {
         cmd.args = []
-        let lastFieldId = -1;
+        let lastFieldId = -1
         command.arg.forEach((arg) => {
-          let defaultFieldId = lastFieldId + 1;
-          lastFieldId = arg.$.fieldId ? parseInt(arg.$.fieldId) : defaultFieldId;
+          let defaultFieldId = lastFieldId + 1
+          lastFieldId = arg.$.fieldId ? parseInt(arg.$.fieldId) : defaultFieldId
           // We are only including ones that are NOT removedIn
           if (arg.$.removedIn == null)
             cmd.args.push({
@@ -492,10 +495,10 @@ function prepareCluster(cluster, context, isExtension = false) {
       }
       if ('field' in event) {
         ev.fields = []
-        let lastFieldId = -1;
+        let lastFieldId = -1
         event.field.forEach((field) => {
-          let defaultFieldId = lastFieldId + 1;
-          lastFieldId = field.$.id ? parseInt(field.$.id) : defaultFieldId;
+          let defaultFieldId = lastFieldId + 1
+          lastFieldId = field.$.id ? parseInt(field.$.id) : defaultFieldId
           if (field.$.removedIn == null) {
             ev.fields.push({
               name: field.$.name,
@@ -851,10 +854,10 @@ function prepareStruct(struct) {
   }
   if ('item' in struct) {
     ret.items = []
-    let lastFieldId = -1;
+    let lastFieldId = -1
     struct.item.forEach((item) => {
-      let defaultFieldId = lastFieldId + 1;
-      lastFieldId = item.$.fieldId ? parseInt(item.$.fieldId) : defaultFieldId;
+      let defaultFieldId = lastFieldId + 1
+      lastFieldId = item.$.fieldId ? parseInt(item.$.fieldId) : defaultFieldId
       ret.items.push({
         name: item.$.name,
         type: item.$.type,
@@ -911,10 +914,10 @@ function prepareEnum(en) {
 
   if ('item' in en) {
     ret.items = []
-    let lastFieldId = -1;
+    let lastFieldId = -1
     en.item.forEach((item) => {
-      let defaultFieldId = lastFieldId + 1;
-      lastFieldId = item.$.fieldId ? parseInt(item.$.fieldId) : defaultFieldId;
+      let defaultFieldId = lastFieldId + 1
+      lastFieldId = item.$.fieldId ? parseInt(item.$.fieldId) : defaultFieldId
       ret.items.push({
         name: item.$.name,
         value: parseInt(item.$.value),
@@ -1263,6 +1266,17 @@ async function parseZclSchema(db, packageId, zclSchema, zclValidation) {
   )
 }
 
+/**
+ * Inside the `zcl.json` can be a `featureFlags` key, which is
+ * a general purpose object. It contains keys, that map to objects.
+ * Each key is a "package option category".
+ * Key/velues of the object itself, end up in CODE/LABEL combinations.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} featureFlags
+ * @returns array of feature flags
+ */
 async function parseFeatureFlags(db, packageId, featureFlags) {
   return Promise.all(
     Object.keys(featureFlags).map((featureCategory) => {
@@ -1281,6 +1295,32 @@ async function parseFeatureFlags(db, packageId, featureFlags) {
   )
 }
 
+/**
+ * Inside the `zcl.json` can be a `featureFlags` key, which is
+ * a general purpose object. It contains keys, that map to objects.
+ * Each key is a "package option category".
+ * Key/velues of the object itself, end up in CODE/LABEL combinations.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} featureFlags
+ * @returns Promise that loads the uiOptions object into the database.
+ */
+async function parseUiOptions(db, packageId, uiOptions) {
+  let data = []
+  Object.keys(uiOptions).map((key) => {
+    data.push({
+      code: key,
+      label: uiOptions[key],
+    })
+  })
+  return queryPackage.insertOptionsKeyValues(
+    db,
+    packageId,
+    dbEnum.packageOptionCategory.ui,
+    data
+  )
+}
 /**
  * Parses and loads the text and boolean options.
  *
@@ -1580,6 +1620,9 @@ async function loadSilabsZcl(db, metafile, isJson = false) {
     }
     if (ctx.featureFlags) {
       await parseFeatureFlags(db, ctx.packageId, ctx.featureFlags)
+    }
+    if (ctx.uiOptions) {
+      await parseUiOptions(db, ctx.packageId, ctx.uiOptions)
     }
   } catch (err) {
     env.logError(err)

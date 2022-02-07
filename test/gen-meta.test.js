@@ -28,6 +28,8 @@ const testUtil = require('./test-util')
 const queryPackage = require('../src-electron/db/query-package')
 const queryZcl = require('../src-electron/db/query-zcl')
 const queryAccess = require('../src-electron/db/query-access')
+const dbEnum = require('../src-shared/db-enum')
+const { Exception } = require('handlebars')
 
 let db
 const testFile = path.join(__dirname, 'resource/test-meta.zap')
@@ -239,3 +241,9 @@ test(
   },
   testUtil.timeout.medium()
 )
+
+test('Package options test', async () => {
+  let uiOpts = await queryPackage.selectAllUiOptions(db, zclContext.packageId)
+  expect(uiOpts.events).toBe('1')
+  expect(uiOpts.header).toBe('Header text')
+})

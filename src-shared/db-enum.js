@@ -40,6 +40,7 @@ exports.packageOptionCategory = {
   generator: 'generator',
   profileCodes: 'profileCodes',
   validationTimersFlags: 'validationTimersFlags',
+  ui: 'ui',
 }
 
 exports.side = {
