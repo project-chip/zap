@@ -14,15 +14,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <template>
-  <div>
-    <q-img src="~assets/zap_splash.png">
-      <div class="absolute-bottom text-subtitle1 text-center">
-        Version {{ version }} (fl {{ featureLevel }}, {{ date }}, #{{ hash }})
-        <br />
-        &copy; 2020 by the authors. Released as open-source, under terms of
-        Apache 2.0 license. {{ version }}
-      </div>
-    </q-img>
+  <div style="width: 100%; height: auto">
+    <q-card>
+      <q-card-section
+        ><q-img src="~assets/zap_splash.png">
+          <div class="absolute-bottom text-subtitle1 text-center">
+            Version {{ version }} (fl {{ featureLevel }}, {{ date }}, #{{
+              hash
+            }})
+            <br />
+            &copy; 2020 by the authors. Released as open-source, under terms of
+            Apache 2.0 license. {{ version }}
+          </div>
+        </q-img>
+      </q-card-section>
+    </q-card>
   </div>
 </template>
 <script>

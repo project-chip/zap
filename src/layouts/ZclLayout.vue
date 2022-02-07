@@ -62,6 +62,9 @@ limitations under the License.
           id="preference"
           to="/preference"
         />
+        <q-btn flat @click="homeDialog = !homeDialog" icon="mdi-alert-circle">
+          <q-tooltip> About </q-tooltip>
+        </q-btn>
       </q-toolbar>
       <q-layout
         view="hHh Lpr lff"
@@ -161,6 +164,9 @@ limitations under the License.
         </q-page-container>
       </q-layout>
     </div>
+    <q-dialog v-model="homeDialog">
+      <About />
+    </q-dialog>
   </div>
 </template>
 
@@ -170,6 +176,7 @@ import Exceptions from '../components/Exceptions.vue'
 import ZclInformationSetup from '../components/ZclInformationSetup.vue'
 import ZclConfiguratorLayout from './ZclConfiguratorLayout.vue'
 import SqlQuery from '../components/SqlQuery.vue'
+import About from '../pages/About.vue'
 const restApi = require(`../../src-shared/rest-api.js`)
 const rendApi = require(`../../src-shared/rend-api.js`)
 const observable = require('../util/observable.js')
@@ -245,6 +252,7 @@ export default {
     ZclConfiguratorLayout,
     SqlQuery,
     Exceptions,
+    About,
   },
   data() {
     return {
@@ -264,6 +272,7 @@ export default {
       index: 0,
       maxIndex: 0,
       generationDirectory: '',
+      homeDialog: false,
     }
   },
   computed: {
