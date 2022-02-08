@@ -148,6 +148,8 @@ async function ensureZclPackageIds(context) {
       context.global.db,
       context.global.sessionId
     )
+    context.global.zclPackageIds = pkgs
+
     return pkgs
   }
 }
