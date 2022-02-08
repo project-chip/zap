@@ -173,6 +173,11 @@ limitations under the License.
               bottom-slots
               hide-bottom-space
               outlined
+              :disable="
+                !selection.includes(
+                  hashAttributeIdClusterId(props.row.id, selectedCluster.id)
+                )
+              "
               :value="
                 selectionDefault[
                   hashAttributeIdClusterId(props.row.id, selectedCluster.id)
