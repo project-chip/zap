@@ -197,8 +197,8 @@ limitations under the License.
                 )
               "
             >
-            <template v-slot:append v-if="props.row.isNullable">
-              <q-btn color="secondary" label="Null" size="sm" @click="
+            <template v-slot:append >
+              <q-btn v-if="props.row.isNullable" color="secondary" label="Null" size="sm" @click="
                 handleLocalChange(
                   null,
                   'defaultValue',
