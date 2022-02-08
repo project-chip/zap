@@ -135,6 +135,24 @@ async function ensureZclPackageId(context) {
 }
 
 /**
+ * Returns the promise that resolves with all ZCL package id specific to current session.
+ *
+ * @param {*} context
+ * @returns promise that resolves with a list of package id.
+ */
+async function ensureZclPackageIds(context) {
+  if ('zclPackageIds' in context.global) {
+    return context.global.zclPackageIds
+  } else {
+    let pkgs = await queryPackage.getSessionZclPackageIds(
+      context.global.db,
+      context.global.sessionId
+    )
+    return pkgs
+  }
+}
+
+/**
  * Returns the promise that resolves with the ZCL properties package id.
  *
  * @param {*} context
@@ -371,6 +389,7 @@ function deprecatedHelper(fn, explanation) {
 
 exports.collectBlocks = collectBlocks
 exports.ensureZclPackageId = ensureZclPackageId
+exports.ensureZclPackageIds = ensureZclPackageIds
 exports.ensureTemplatePackageId = ensureTemplatePackageId
 exports.ensureZclClusterSdkExtensions = ensureZclClusterSdkExtensions
 exports.ensureZclAttributeSdkExtensions = ensureZclAttributeSdkExtensions
