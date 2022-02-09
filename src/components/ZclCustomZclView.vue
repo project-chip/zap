@@ -108,7 +108,7 @@ export default {
       })
     },
     loadNewPackage() {
-      this.$store
+      return this.$store
         .dispatch('zap/addNewPackage', this.packageToLoad)
         .then((packageStatus) => {
           if (packageStatus.isValid) {
@@ -143,7 +143,9 @@ export default {
         (value) => {
           if (value.context == 'customXml') {
             this.packageToLoad = value.filePaths[0]
-            this.loadNewPackage()
+            this.loadNewPackage().then(() => {
+              this.$store.dispatch('zap/updateZclDeviceTypes')
+            })
           }
         }
       )
