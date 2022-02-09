@@ -20,6 +20,7 @@ describe('Check ZCL Extension functionalities', () => {
         )
       })
       .then(() => {
+        cy.wait(1000)
         cy.get(
           ':nth-child(3) > .q-card > .q-list > :nth-child(2) > :nth-child(2)'
         ).should('contain', 'Bead Device Type Name (0xDEAD)')
@@ -28,17 +29,15 @@ describe('Check ZCL Extension functionalities', () => {
           ':nth-child(3) > .q-card > .q-list > :nth-child(4) > :nth-child(2)'
         ).should('contain', '0xBEEF')
 
-        cy.wait(1000)
-
         cy.get(
           '.col-4 > .q-field__inner > .q-field__control > .q-field__control-container > input'
         )
           .clear({ force: true })
           .type('Bead', { force: true })
+
         cy.get('.q-table--col-auto-width').should('contain', 'Custom Bead')
         cy.get('.q-tr > :nth-child(4)').should('contain', '0xFCAA')
         cy.get('.q-tr > :nth-child(5)').should('contain', '0xBEAD')
-        cy.get('.q-tr > :nth-child(6)').should('contain', 'Client & Server')
       })
   })
 })
