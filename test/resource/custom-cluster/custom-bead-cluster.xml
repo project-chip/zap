@@ -15,7 +15,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <zap>
-  <domain name="Beads"/>
   <deviceType>
     <name>Bead-DeviceType-Name</name>
     <domain>Bead-DeviceType-Domain</domain>
@@ -29,6 +28,7 @@ limitations under the License.
     </clusters>
   </deviceType>
 
+  <domain name="Beads"/>
   <!-- Use manufacturerCode to indicate that this is a manufacturer specific
        cluster. -->
   <cluster manufacturerCode="0xBEAD">
