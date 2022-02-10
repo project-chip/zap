@@ -34,7 +34,7 @@ async function validateAttribute(db, endpointTypeId, attributeRef, clusterRef) {
     clusterRef
   )
   let attribute = await queryZcl.selectAttributeById(db, attributeRef)
-
+    console.log("mehtest",attribute)
   return validateSpecificAttribute(endpointAttribute, attribute)
 }
 
@@ -68,7 +68,10 @@ async function validateNoDuplicateEndpoints(
 
 function validateSpecificAttribute(endpointAttribute, attribute) {
   let defaultAttributeIssues = []
-  if (!types.isString(attribute.type)) {
+  if(attribute.isNullable && endpointAttribute.defaultValue == 'null'){
+    return { defaultValue: defaultAttributeIssues }
+  }
+  else if (!types.isString(attribute.type)) {
     if (types.isFloat(attribute.type)) {
       if (!isValidFloat(endpointAttribute.defaultValue))
         defaultAttributeIssues.push('Invalid Float')

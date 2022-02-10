@@ -2,6 +2,5 @@
   "viewportWidth": 1080,
   "viewportHeight": 920,
   "video": false,
-  "testFiles": "**/theme/theme.spec.js",
-  "ignoreTestFiles": ["**/*.test.js"]
+  "ignoreTestFiles": ["**/*.test.js","**/custom_xml/custom_xml_vendor.xml","**/custom_xml/custom_xml.spec.js"]
 }

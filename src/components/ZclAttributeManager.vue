@@ -173,6 +173,11 @@ limitations under the License.
               bottom-slots
               hide-bottom-space
               outlined
+              :disable="
+                !selection.includes(
+                  hashAttributeIdClusterId(props.row.id, selectedCluster.id)
+                )
+              "
               :value="
                 selectionDefault[
                   hashAttributeIdClusterId(props.row.id, selectedCluster.id)
@@ -196,7 +201,18 @@ limitations under the License.
                   selectedCluster.id
                 )
               "
-            />
+            >
+            <template v-slot:append >
+              <q-btn v-if="props.row.isNullable" color="secondary" label="Null" size="sm" @click="
+                handleLocalChange(
+                  null,
+                  'defaultValue',
+                  props.row,
+                  selectedCluster.id
+                )
+              " />
+            </template>
+          </q-input>
           </q-td>
         </q-tr>
       </template>
