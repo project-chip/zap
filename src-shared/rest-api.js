@@ -26,6 +26,7 @@ const uri = {
   endpointType: '/endpointType',
   initialState: '/initialState',
   option: '/option',
+  uiOptions: '/uiOptions',
   commandUpdate: '/command/update',
   eventUpdate: '/event/update',
   cluster: '/cluster',

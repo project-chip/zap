@@ -16,7 +16,9 @@ describe('Testing enabled attributes amount', () => {
       cy.get('.q-page-container > div').children().should('contain', 'General')
       cy.get('div').contains('General').click()
       cy.get('div').children().contains('Not Enabled').first().click()
-      cy.get('.q-virtual-scroll__content > :nth-child(3)').contains('Server').click()
+      cy.get('.q-virtual-scroll__content > :nth-child(3)')
+        .contains('Server')
+        .click()
       cy.wait(1000)
       cy.get(':nth-child(6) > .text-right').then(($div2) => {
         const num2 = parseFloat($div2.text())

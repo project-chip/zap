@@ -2,5 +2,11 @@
   "viewportWidth": 1080,
   "viewportHeight": 920,
   "video": false,
-  "ignoreTestFiles": ["**/*.test.js","**/custom_xml/custom_xml_vendor.xml","**/custom_xml/custom_xml.spec.js"]
+  "testFiles": "**/*.spec.js",
+  "ignoreTestFiles": [
+    "**/*.test.js",
+    "**/custom_xml/custom_xml_vendor.xml",
+    "**/custom_xml/custom_xml.spec.js",
+    "**/check-required-attributes.spec.js"
+  ]
 }

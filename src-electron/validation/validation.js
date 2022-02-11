@@ -34,7 +34,6 @@ async function validateAttribute(db, endpointTypeId, attributeRef, clusterRef) {
     clusterRef
   )
   let attribute = await queryZcl.selectAttributeById(db, attributeRef)
-    console.log("mehtest",attribute)
   return validateSpecificAttribute(endpointAttribute, attribute)
 }
 
@@ -68,10 +67,9 @@ async function validateNoDuplicateEndpoints(
 
 function validateSpecificAttribute(endpointAttribute, attribute) {
   let defaultAttributeIssues = []
-  if(attribute.isNullable && endpointAttribute.defaultValue == 'null'){
+  if (attribute.isNullable && endpointAttribute.defaultValue == 'null') {
     return { defaultValue: defaultAttributeIssues }
-  }
-  else if (!types.isString(attribute.type)) {
+  } else if (!types.isString(attribute.type)) {
     if (types.isFloat(attribute.type)) {
       if (!isValidFloat(endpointAttribute.defaultValue))
         defaultAttributeIssues.push('Invalid Float')
@@ -116,15 +114,15 @@ function validateSpecificEndpoint(endpoint) {
 //This applies to both actual numbers as well as octet strings.
 function isValidNumberString(value) {
   //We test to see if the number is valid in hex. Decimals numbers also pass this test
-  return /^(0x)?[\dA-F]+$/i.test(value) || Number.isInteger(Number(value));
+  return /^(0x)?[\dA-F]+$/i.test(value) || Number.isInteger(Number(value))
 }
 
 function isValidSignedNumberString(value) {
-  return /^(0x)?[\dA-F]+$/i.test(value) || Number.isInteger(Number(value));
+  return /^(0x)?[\dA-F]+$/i.test(value) || Number.isInteger(Number(value))
 }
 
 function isValidFloat(value) {
-  return !/^0x/i.test(value) && !isNaN(Number(value));
+  return !/^0x/i.test(value) && !isNaN(Number(value))
 }
 
 function extractFloatValue(value) {
@@ -178,7 +176,6 @@ function checkBoundsFloat(defaultValue, min, max) {
   if (Number.isNaN(max)) max = Number.MAX_VALUE
   return defaultValue >= min && defaultValue <= max
 }
-
 
 // exports
 exports.validateAttribute = validateAttribute

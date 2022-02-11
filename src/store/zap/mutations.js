@@ -382,9 +382,7 @@ export function setOptions(state, data) {
   Vue.set(state.genericOptions, data.option, [
     ...new Set(
       data.data
-        .filter((d) => {
-          return d.optionCategory === data.option
-        })
+        .filter((d) => d.optionCategory === data.option)
         .map((d) => {
           return { optionCode: d.optionCode, optionLabel: d.optionLabel }
         })

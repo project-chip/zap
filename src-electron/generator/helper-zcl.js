@@ -240,9 +240,11 @@ function zcl_device_types(options) {
  * @returns Promise of content.
  */
 async function zcl_clusters(options) {
-  let packageId = await templateUtil.ensureZclPackageId(this)
-  let cl = await queryZcl.selectAllClusters(this.global.db, packageId)
-  let promise = templateUtil.collectBlocks(cl, options, this)
+  let packageIds = await templateUtil.ensureZclPackageIds(this)
+  let cl = await Promise.all(
+    packageIds.map((id) => queryZcl.selectAllClusters(this.global.db, id))
+  )
+  let promise = templateUtil.collectBlocks(cl.flat(), options, this)
   return templateUtil.templatePromise(this.global, promise)
 }
 

@@ -126,7 +126,9 @@ async function importSinglePackage(db, sessionId, pkg, zapFilePath) {
   }
 
   // We now know we have more than 1 matching package. Find best bet.
-  let existingPackages = packages.filter((p) => fs.existsSync(p.path))
+  let existingPackages = packages.filter(
+    (p) => fs.existsSync(p.path) && p.path === absPath
+  )
 
   if (existingPackages.length == 1) {
     // Only one exists, use that one.

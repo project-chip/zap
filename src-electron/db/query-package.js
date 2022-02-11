@@ -481,6 +481,25 @@ async function insertOptionsKeyValues(
 }
 
 /**
+ * Shortcut method that returns all ui options.
+ * @param {*} db
+ * @param {*} packageId
+ * @returns object of ui options.
+ */
+async function selectAllUiOptions(db, packageId) {
+  let rows = await selectAllOptionsValues(
+    db,
+    packageId,
+    dbEnum.packageOptionCategory.ui
+  )
+  let obj = rows.reduce((prev, cur) => {
+    prev[cur.optionCode] = cur.optionLabel
+    return prev
+  }, {})
+  return obj
+}
+
+/**
  * This async function returns all options associated with a specific category.
  * @param {*} db
  * @param {*} packageId
@@ -826,3 +845,4 @@ exports.selectPackageExtension = selectPackageExtension
 exports.selectPackageExtensionByPropertyAndEntity =
   selectPackageExtensionByPropertyAndEntity
 exports.deleteSessionPackage = deleteSessionPackage
+exports.selectAllUiOptions = selectAllUiOptions

@@ -363,6 +363,24 @@ function httpGetOption(db) {
 }
 
 /**
+ * HTTP GET: ui_options
+ * @param {*} db
+ * @returns  UI options from all packages.
+ */
+function httpGetUiOptions(db) {
+  return async (request, response) => {
+    let sessionId = request.zapSessionId
+    let packages = await queryPackage.getSessionPackages(db, sessionId)
+    let p = packages.map((pkg) =>
+      queryPackage.selectAllUiOptions(db, pkg.packageRef)
+    )
+    let data = await Promise.all(p)
+    data = data.flat(1)
+    response.status(StatusCodes.OK).json(data)
+  }
+}
+
+/**
  * HTTP GET: Project packages
  */
 function httpGetPackages(db) {
@@ -730,6 +748,10 @@ exports.get = [
   {
     uri: `${restApi.uri.option}/:category`,
     callback: httpGetOption,
+  },
+  {
+    uri: restApi.uri.uiOptions,
+    callback: httpGetUiOptions,
   },
   {
     uri: restApi.uri.packages,

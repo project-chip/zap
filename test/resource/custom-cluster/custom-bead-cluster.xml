@@ -15,6 +15,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <zap>
+  <deviceType>
+    <name>Bead-DeviceType-Name</name>
+    <domain>Bead-DeviceType-Domain</domain>
+    <typeName>Bead Device Type Name</typeName>
+    <zigbeeType>Coordinator</zigbeeType>
+    <profileId editable="false">0xBEEF</profileId>
+    <deviceId editable="false">0xDEAD</deviceId>
+    <clusters lockOthers="true">
+      <include client="false" server="true" clientLocked="true" serverLocked="true">bead color</include>
+      <include client="false" server="true" clientLocked="true" serverLocked="true">bead size</include>
+    </clusters>
+  </deviceType>
+
   <domain name="Beads"/>
   <!-- Use manufacturerCode to indicate that this is a manufacturer specific
        cluster. -->
