@@ -24,6 +24,16 @@ if (process.argv.length > 2) {
   cypressMode = process.argv[2]
 }
 
+if (cypressMode == '-?') {
+  console.log(`Usage: zap-uitest.js [ MODE | -? ]
+
+This program executes the Cypress unit tests. 
+Valid modes:
+   run  -  [default] Executes all the Cypress tests in the headless mode. You might need to run via xvfb-run in a headless environment.
+   open -  Executes Cypress UI for manual run of the tests.`)
+  process.exit(0)
+}
+
 let returnCode = 0
 let svr = scriptUtil.executeCmd(null, 'npm', ['run', 'zap-devserver'])
 
@@ -47,6 +57,7 @@ cyp
 svr.then(() => {
   if (returnCode == 0) {
     console.log('😎 All done: Cypress tests passed and server shut down.')
+    process.exit(0)
   } else {
     console.log('⛔ Error: Cypress tests failed, server shut down.')
     process.exit(returnCode)
