@@ -131,8 +131,7 @@ pipeline
             {
                 script
                 {
-                    // Temporarily comment this out: sh 'rm -rf ~/.zap'
-                    withEnv(['ZAP_TEST_TIMEOUT=3600000'])
+                    withEnv(['ZAP_TEST_TIMEOUT=3600000', 'ZAP_TEMPSTATE=1'])
                     {
                         sh 'xvfb-run -a npm run test'
                     }
