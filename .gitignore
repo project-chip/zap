@@ -70,3 +70,6 @@ apack_zap.package
 # Backup files
 *~
 
+# Cypress screenshots and videos
+cypress/screenshots/**
+cypress/videos/**
