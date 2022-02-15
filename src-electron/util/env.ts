@@ -67,7 +67,7 @@ export const environmentVariable = {
   cleanupDelay: {
     name: 'ZAP_CLEANUP_DELAY',
     description:
-      'Amount of millisecons zap will wait for cleanups to perform. This is workaround for some SQLite bug. If unset, default is: 1000',
+      'Amount of millisecons zap will wait for cleanups to perform. This is workaround for some SQLite bug. If unset, default is: 1500',
   },
 }
 

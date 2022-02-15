@@ -171,9 +171,9 @@ export function processCommandLineArguments(argv: string[]) {
       default: false,
     })
     .option('cleanupDelay', {
-      desc: 'When shutting down zap, this provides a number of millisecons to wait for SQLite to perform cleanup. Default is: 1000',
+      desc: 'When shutting down zap, this provides a number of millisecons to wait for SQLite to perform cleanup. Default is: 1500',
       type: 'number',
-      default: process.env[env.environmentVariable.cleanupDelay.name] || '1000',
+      default: process.env[env.environmentVariable.cleanupDelay.name] || '1500',
     })
     .option('reuseZapInstance', {
       desc: `When starting zap, should zap attempt to reuse an instance of previous zap already running.`,
