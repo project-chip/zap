@@ -690,7 +690,7 @@ async function startUpMainInstance(isElectron, argv) {
   if (argv._.includes('status')) {
     console.log('⛔ Server is not running.')
     logRemoteData({ zapServerStatus: 'missing' })
-    cleanExit(0)
+    cleanExit(argv.cleanupDelay, 0)
   } else if (argv._.includes('selfCheck')) {
     return startSelfCheck(argv)
   } else if (argv._.includes('analyze')) {
@@ -708,16 +708,16 @@ async function startUpMainInstance(isElectron, argv) {
       quit: true,
     }).catch((code) => {
       console.log(code)
-      cleanExit(1)
+      cleanExit(argv.cleanupDelay, 1)
     })
   } else if (argv._.includes('stop')) {
     console.log('No server running, nothing to stop.')
-    cleanExit(0)
+    cleanExit(argv.cleanupDelay, 0)
   } else if (argv._.includes('generate')) {
     return startGeneration(argv).catch((err) => {
       console.log(err)
       env.printToStderr(`Zap generation error: ${err}`)
-      cleanExit(1)
+      cleanExit(argv.cleanupDelay, 1)
     })
   } else {
     // If we run with node only, we force no UI as it won't work.
@@ -727,8 +727,8 @@ async function startUpMainInstance(isElectron, argv) {
   }
 }
 
-function cleanExit(code) {
-  util.waitFor(1000).then(() => process.exit(code))
+function cleanExit(delay, code) {
+  util.waitFor(delay).then(() => process.exit(code))
 }
 
 exports.startGeneration = startGeneration
