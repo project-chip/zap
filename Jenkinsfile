@@ -267,6 +267,7 @@ pipeline
                 stage('Creating artifact for Mac')
                 {
                     agent { label 'bgbuild-mac' }
+                    options { skipDefaultCheckout() }
                     steps
                     {
                         script
