@@ -320,6 +320,7 @@ pipeline
                                     currentBuild.result = 'FAILURE'
                                 }
                             }
+                          deleteDir()
                         }
                     }
                 }
@@ -384,6 +385,7 @@ pipeline
                                     currentBuild.result = 'FAILURE'
                                 }
                             }
+                          deleteDir()
                         }
                     }
                 }
