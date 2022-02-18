@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <template>
-  <div style="width: 100%; height: auto">
+  <div style="width: 800px; max-width: 800px; height: 500px; max-height: 500px">
     <q-card>
       <q-card-section
         ><q-img src="~assets/zap_splash.png">
