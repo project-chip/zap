@@ -19,9 +19,10 @@ limitations under the License.
       <q-card-section
         ><q-img src="~assets/zap_splash.png">
           <div class="absolute-bottom text-subtitle1 text-center">
-            Version {{ version }} (fl {{ featureLevel }}, {{ date }}, #{{
+            Version {{ version }} (feature level: {{ featureLevel }}, commit #{{
               hash
-            }})
+            }}
+            from {{ date }})
             <br />
             &copy; 2020 by the authors. Released as open-source, under terms of
             Apache 2.0 license. {{ version }}
