@@ -30,22 +30,24 @@ scriptUtil
   .then(() => scriptUtil.rebuildSpaIfNeeded())
   .then(() => scriptUtil.rebuildBackendIfNeeded())
   .then(() => {
-    let cmdArgs = [
-      'electron',
-      path.join(
-        __dirname,
-        '../dist/src-electron/main-process/electron-main.js'
-      ),
-    ]
+    let plat = process.platform
+    let cmdArgs = ['electron']
+    if (plat == 'linux') {
+      // This makes it safer to run on Linux, and latest linux distros broke this.
+      cmdArgs.push('--disable-seccomp-filter-sandbox')
+    }
+    cmdArgs.push(
+      path.join(__dirname, '../dist/src-electron/main-process/electron-main.js')
+    )
 
-//     if (process.platform == 'linux') {
-//       if (!process.env.DISPLAY) {
-//         console.log(`
-// ⛔ You are on Linux and you are attempting to run zap in UI mode without DISPLAY set.
-// ⛔ Please set your DISPLAY environment variable or run zap-start.js with a command that does not require DISPLAY.`)
-//         process.exit(1)
-//       }
-//     }
+    if (process.platform == 'linux') {
+      if (!process.env.DISPLAY) {
+        console.log(`
+⛔ You are on Linux and you are attempting to run zap in UI mode without DISPLAY set.
+⛔ Please set your DISPLAY environment variable or run zap-start.js with a command that does not require DISPLAY.`)
+        process.exit(1)
+      }
+    }
     cmdArgs.push(...args)
     return scriptUtil.executeCmd(null, 'npx', cmdArgs)
   })
