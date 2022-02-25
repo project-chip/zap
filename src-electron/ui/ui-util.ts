@@ -61,7 +61,10 @@ function openFileConfiguration(
  * @param {*} httpPort
  * @param {*} options: uiMode, debugNavBar
  */
-async function openNewConfiguration(httpPort: number, options?: WindowCreateArgs) {
+async function openNewConfiguration(
+  httpPort: number,
+  options?: WindowCreateArgs
+) {
   window.windowCreate(httpPort, options)
 }
 
@@ -103,6 +106,7 @@ function openFileDialogAndReportResult(
   } else if (options.mode == 'directory') {
     p.properties = ['openDirectory']
   }
+  p.defaultPath = options.defaultPath
   dialog.showOpenDialog(browserWindow, p).then((result) => {
     if (!result.canceled) {
       let output = {
