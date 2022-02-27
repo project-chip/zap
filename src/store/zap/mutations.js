@@ -1,7 +1,6 @@
 /**
  *
  *    Copyright (c) 2020 Silicon Labs
- *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
@@ -16,9 +15,12 @@
  */
 import Vue from 'vue'
 
+const reportingMinDefault = 1
+
 export const updateShowDevTools = (state) => {
   state.showDevTools = !state.showDevTools
 }
+
 export function updateInformationText(state, text) {
   state.informationText = text
 }
@@ -50,7 +52,11 @@ export function updateAttributes(state, attributes) {
       )
     }
     if (state.attributeView.reportingMin[attribute.id] === undefined) {
-      Vue.set(state.attributeView.reportingMin, attribute.id, 0)
+      Vue.set(
+        state.attributeView.reportingMin,
+        attribute.id,
+        reportingMinDefault
+      )
     }
     if (state.attributeView.reportingMax[attribute.id] === undefined) {
       Vue.set(state.attributeView.reportingMax, attribute.id, 65534)
@@ -298,7 +304,7 @@ export function resetAttributeDefaults(state) {
       attribute.defaultValue
     )
     Vue.set(state.attributeView.storageOption, attribute.id, 'ram')
-    Vue.set(state.attributeView.reportingMin, attribute.id, 0)
+    Vue.set(state.attributeView.reportingMin, attribute.id, reportingMinDefault)
     Vue.set(state.attributeView.reportingMax, attribute.id, 65534)
     Vue.set(state.attributeView.reportableChange, attribute.id, 0)
   })

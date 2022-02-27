@@ -64,6 +64,11 @@ export const environmentVariable = {
     description:
       'If set to 1, default behavior of zap will be to reuse existing instance.',
   },
+  cleanupDelay: {
+    name: 'ZAP_CLEANUP_DELAY',
+    description:
+      'Amount of millisecons zap will wait for cleanups to perform. This is workaround for some SQLite bug. If unset, default is: 1500',
+  },
 }
 
 // builtin pino levels: trace=10, debug=20, info=30, warn=40
@@ -389,7 +394,7 @@ export function isMatchingVersion(
  * @returns true or false, depending on match
  */
 export function versionsCheck() {
-  let expectedNodeVersion = ['v14.x.x', 'v12.x.x']
+  let expectedNodeVersion = ['v14.x.x', 'v16.x.x']
   let expectedElectronVersion = ['12.2.x']
   let nodeVersion = process.version
   let electronVersion = process.versions.electron

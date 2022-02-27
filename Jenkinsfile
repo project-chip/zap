@@ -131,8 +131,7 @@ pipeline
             {
                 script
                 {
-                    // Temporarily comment this out: sh 'rm -rf ~/.zap'
-                    withEnv(['ZAP_TEST_TIMEOUT=3600000'])
+                    withEnv(['ZAP_TEST_TIMEOUT=3600000', 'ZAP_TEMPSTATE=1'])
                     {
                         sh 'xvfb-run -a npm run test'
                     }
@@ -268,6 +267,7 @@ pipeline
                 stage('Creating artifact for Mac')
                 {
                     agent { label 'bgbuild-mac' }
+                    options { skipDefaultCheckout() }
                     steps
                     {
                         script
@@ -320,6 +320,7 @@ pipeline
                                     currentBuild.result = 'FAILURE'
                                 }
                             }
+                          deleteDir()
                         }
                     }
                 }
@@ -384,6 +385,7 @@ pipeline
                                     currentBuild.result = 'FAILURE'
                                 }
                             }
+                          deleteDir()
                         }
                     }
                 }
