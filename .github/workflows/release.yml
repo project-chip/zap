@@ -1,4 +1,4 @@
-name: Build/release
+name: Build & Release
 
 on: push
 
@@ -9,7 +9,7 @@ jobs:
     # Platforms to build on/for
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest]
+        os: [macos-11, ubuntu-20.04]
       fail-fast: false
 
     steps:
@@ -21,21 +21,18 @@ jobs:
         with:
           node-version: 14.x
 
-      - name: Prepare Linux for build/release
+      - name: Prepare Linux build environment
         if: startsWith(matrix.os, 'ubuntu')
         run: |
           sudo ./src-script/install-packages-ubuntu
           sudo apt-get install --fix-missing xvfb
 
-      - name: Prepare macOS for build/release
+      - name: Prepare macOS build environment
         if: startsWith(matrix.os, 'macos')
         run: |
           ./src-script/install-packages-osx
 
-      - name: Prepare for app notarization (macOS)
-        if: startsWith(matrix.os, 'macos')
-        # Import Apple API key for app notarization on macOS
-        run: |
+          # Import Apple API key for app notarization on macOS
           mkdir -p ~/private_keys/
           echo '${{ secrets.api_key }}' > ~/private_keys/AuthKey_${{ secrets.api_key_id }}.p8
 
@@ -55,7 +52,7 @@ jobs:
       - run: xvfb-run -a npm run test:e2e-ci
         if: startsWith(matrix.os, 'ubuntu')
 
-      - name: Build/release Electron app for macOS / Windows
+      - name: Build & Release for macOS / Windows on macOS
         uses: samuelmeuli/action-electron-builder@v1.6.0
         if: startsWith(matrix.os, 'macos')
         with:
@@ -77,7 +74,7 @@ jobs:
           API_KEY_ID: ${{ secrets.api_key_id }}
           API_KEY_ISSUER_ID: ${{ secrets.api_key_issuer_id }}
 
-      - name: Build/release Electron app for Linux
+      - name: Build & Release for Linux
         uses: samuelmeuli/action-electron-builder@v1.6.0
         if: startsWith(matrix.os, 'ubuntu')
         with:
