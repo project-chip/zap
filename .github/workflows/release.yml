@@ -1,0 +1,119 @@
+name: Build & Release
+
+on: push
+
+jobs:
+  release:
+    runs-on: ${{ matrix.os }}
+
+    # Platforms to build on/for
+    strategy:
+      matrix:
+        os: [macos-11, ubuntu-20.04]
+      fail-fast: false
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+
+      - name: Install Node.js, NPM and Yarn
+        uses: actions/setup-node@v3.0.0
+        with:
+          node-version: 14.x
+
+      - name: Prepare Linux build environment
+        if: startsWith(matrix.os, 'ubuntu')
+        run: |
+          sudo ./src-script/install-packages-ubuntu
+          sudo apt-get install --fix-missing xvfb
+
+      - name: Prepare macOS build environment
+        if: startsWith(matrix.os, 'macos')
+        run: |
+          ./src-script/install-packages-osx
+
+          # Import Apple API key for app notarization on macOS
+          mkdir -p ~/private_keys/
+          echo '${{ secrets.api_key }}' > ~/private_keys/AuthKey_${{ secrets.api_key_id }}.p8
+
+      - run: npm install
+      - run: npm run version-stamp
+      - run: npm rebuild canvas --update-binary
+      - run: npm rebuild libxmljs --update-binary
+      - run: npm run build-spa
+      - run: npm run lint
+      - run: npm run test
+        if: startsWith(matrix.os, 'ubuntu')
+      - run: xvfb-run -a npm run self-check
+        if: startsWith(matrix.os, 'ubuntu')
+      - run: npm run gen
+      - run: npm run genmatter
+      - run: npm run gendotdot
+      - run: xvfb-run -a npm run test:e2e-ci
+        if: startsWith(matrix.os, 'ubuntu')
+
+      - name: Build & Release for macOS / Windows on macOS
+        uses: samuelmeuli/action-electron-builder@v1.6.0
+        if: startsWith(matrix.os, 'macos')
+        with:
+          # GitHub token, automatically provided to the action
+          # (No need to define this secret in the repo settings)
+          github_token: ${{ secrets.github_token }}
+
+          # macOS code signing certificate
+          mac_certs: ${{ secrets.mac_certs }}
+          mac_certs_password: ${{ secrets.mac_certs_password }}
+
+          # If the commit is tagged with a version (e.g. "v1.0.0"),
+          # release the app after building
+          release: ${{ startsWith(github.ref, 'refs/tags/v') }}
+
+          args: '--windows'
+        env:
+          # macOS notarization API key
+          API_KEY_ID: ${{ secrets.api_key_id }}
+          API_KEY_ISSUER_ID: ${{ secrets.api_key_issuer_id }}
+
+      - name: Build & Release for Linux
+        uses: samuelmeuli/action-electron-builder@v1.6.0
+        if: startsWith(matrix.os, 'ubuntu')
+        with:
+          # GitHub token, automatically provided to the action
+          # (No need to define this secret in the repo settings)
+          github_token: ${{ secrets.github_token }}
+
+          # macOS code signing certificate
+          mac_certs: ${{ secrets.mac_certs }}
+          mac_certs_password: ${{ secrets.mac_certs_password }}
+
+          # If the commit is tagged with a version (e.g. "v1.0.0"),
+          # release the app after building
+          release: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        env:
+          # macOS notarization API key
+          API_KEY_ID: ${{ secrets.api_key_id }}
+          API_KEY_ISSUER_ID: ${{ secrets.api_key_issuer_id }}
+      - name: Archive .exe file
+        uses: actions/upload-artifact@v2
+        if: startsWith(matrix.os, 'macos')
+        with:
+          name: zap-win-exe
+          path: dist/zap*.exe
+      - name: Archive .dmg file
+        uses: actions/upload-artifact@v2
+        if: startsWith(matrix.os, 'macos')
+        with:
+          name: zap-macosx-dmg
+          path: dist/zap*.dmg
+      - name: Archive .rpm file
+        uses: actions/upload-artifact@v2
+        if: startsWith(matrix.os, 'ubuntu')
+        with:
+          name: zap-linux-rpm
+          path: dist/zap*.rpm
+      - name: Archive .deb file
+        uses: actions/upload-artifact@v2
+        if: startsWith(matrix.os, 'ubuntu')
+        with:
+          name: zap-linux-deb
+          path: dist/zap*.deb

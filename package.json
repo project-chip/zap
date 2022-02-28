@@ -42,6 +42,7 @@
     "build": "npm run build-spa && npm run build-backend",
     "build-spa": "node src-script/build-spa.js",
     "build-backend": "npx tsc --build ./tsconfig.json",
+    "postbuild-backend": "npx copyfiles './src-electron/**/*.sql' ./dist/",
     "regen-ts-type": "node src-script/regen-ts-type.js",
     "renderer-api-regen": "node src-script/renderer-api-regen.js",
     "doc": "jsdoc src-electron src-shared -r -u docs -d ./generated-html/ README.md",
@@ -132,6 +133,7 @@
     "babel-eslint": "^10.1.0",
     "babel-jest": "^26.6.3",
     "copy-webpack-plugin": "^6.3.2",
+    "copyfiles": "^2.4.1",
     "devtron": "^1.4.0",
     "electron": "^12.2.2",
     "electron-builder": "^22.11.7",
@@ -202,6 +204,7 @@
       ]
     },
     "linux": {
+      "category": "Development",
       "target": [
         "snap",
         "AppImage",
@@ -246,7 +249,8 @@
       "!**/node_modules/sqlite3/build/Release/**/*",
       "!quasar*",
       "!test.*",
-      "!src-script/**/*"
+      "!src-script/**/*",
+      "!src-electron/**/*"
     ]
   }
 }
