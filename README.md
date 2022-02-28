@@ -4,7 +4,6 @@
 
 ![Zap](https://github.com/project-chip/zap/workflows/Zap/badge.svg)
 ![Cypress](https://github.com/project-chip/zap/workflows/Cypress/badge.svg)
-![SonarCloud](https://github.com/project-chip/zap/workflows/SonarCloud/badge.svg)
 
 ## What is ZAP?
 
