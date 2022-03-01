@@ -766,6 +766,7 @@ async function collectAttributeTypeInfo(db, zclPackageId, endpointTypes) {
 }
 
 function isGlobalAttrExcludedFromMetadata(attr) {
+  // See Matter specification section "7.13. Global Elements".
   return (
     attr.manufacturerCode === null &&
     [0xfff8, 0xfff9, 0xfffa, 0xfffb].includes(attr.code)
