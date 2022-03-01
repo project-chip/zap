@@ -765,6 +765,13 @@ async function collectAttributeTypeInfo(db, zclPackageId, endpointTypes) {
   return endpointTypes
 }
 
+function isGlobalAttrExcludedFromMetadata(attr) {
+  return (
+    attr.manufacturerCode === null &&
+    [0xfff8, 0xfff9, 0xfffa, 0xfffb].includes(attr.code)
+  )
+}
+
 /**
  * Starts the endpoint configuration block.,
  * longDefaults: longDefaults
@@ -836,8 +843,13 @@ function endpoint_config(options) {
                     ept.id
                   )
                   .then((attributes) => {
-                    // Keep only the enabled attributes
-                    cl.attributes = attributes.filter((a) => a.isIncluded === 1)
+                    // Keep only the enabled attributes, and not the global ones
+                    // we exclude from metadata.
+                    cl.attributes = attributes.filter(
+                      (a) =>
+                        a.isIncluded === 1 &&
+                        !isGlobalAttrExcludedFromMetadata(a)
+                    )
                   })
               )
               ps.push(
