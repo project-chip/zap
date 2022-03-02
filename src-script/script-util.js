@@ -166,7 +166,7 @@ async function rebuildSpaIfNeeded() {
 }
 
 async function rebuildBackendIfNeeded() {
-  return scriptUtil.executeCmd({}, 'npm', ['run', 'build-backend'])
+  return scriptUtil.executeCmd({}, 'npx', ['tsc', '--build', './tsconfig.json'])
 }
 
 /**
