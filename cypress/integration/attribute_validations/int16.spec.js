@@ -20,6 +20,7 @@ describe('Testing INT16U type validation', () => {
       .type('test', { force: true })
   })
   it('check if validation works properly', () => {
+    cy.wait(1000)
     cy.get(
       ':nth-child(19) > [style="min-width: 180px;"] > .q-field > .q-field__inner > .q-field__bottom > .q-field__messages > div'
     ).should('exist')
