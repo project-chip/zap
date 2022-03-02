@@ -28,7 +28,9 @@
     "test:e2e": "node src-script/zap-uitest.js open",
     "test:e2e-ci": "node src-script/zap-uitest.js run",
     "postinstall": "electron-builder install-app-deps && husky install && npm rebuild canvas --update-binary",
-    "wpzap": "npm run build-spa && npm run build-backend && npm run dist-mac && npm run apack:mac",
+    "buildAndPack:win": "npm run build && npm run pack:win",
+    "buildAndPack:mac": "npm run build && npm run pack:mac",
+    "buildAndPack:linux": "npm run build && npm run pack:linux",
     "zap": "node src-script/zap-start.js --logToStdout --gen ./test/gen-template/zigbee/gen-templates.json",
     "zap-dev": "npm run build-spa && quasar dev -m electron",
     "zap-devserver": "node src-script/zap-start.js server --allowCors --logToStdout --gen ./test/gen-template/zigbee/gen-templates.json --reuseZapInstance",
@@ -66,16 +68,11 @@
     "convert-dl": "node src-script/zap-convert.js -o {basename}.zap -z ./zcl-builtin/silabs/zcl.json -g test/gen-template/zigbee/gen-templates.json ./test/resource/isc/ha-door-lock.isc",
     "post-import": "node src-script/zap-start.js convert --postImportScript test/resource/test-script.js test/resource/three-endpoint-device.zap -o test.zap",
     "analyze": "node src-script/zap-start.js analyze -z ./zcl-builtin/silabs/zcl.json -g ./test/gen-template/zigbee/gen-templates.json ./test/resource/three-endpoint-device.zap -o ./tmp",
-    "pack": "node src-script/build-spa.js && electron-builder --dir",
-    "dist": "electron-builder",
-    "dist-all": "electron-builder -mwl",
-    "dist-linux": "electron-builder -l",
+    "pack": "electron-builder -mwl",
+    "pack:linux": "electron-builder -l",
+    "pack:win": "electron-builder -w",
+    "pack:mac": "electron-builder -m",
     "publish-linux": "electron-builder -l -p always",
-    "dist-win": "electron-builder -w",
-    "dist-mac": "electron-builder -m",
-    "apack:win": "cp apack.json dist/win-unpacked/apack.json && cd dist/win-unpacked && zip -r ../zap_apack_win * && cd -",
-    "apack:mac": "cp apack.json dist/mac/apack.json && cd dist/mac && zip -ry ../zap_apack_mac * && cd -",
-    "apack:linux": "cp apack.json dist/linux-unpacked/apack.json && cd dist/linux-unpacked && zip -r ../zap_apack_linux *",
     "linuxpack-ui": "./dist/linux-unpacked/zap --zclProperties zcl-builtin/silabs/zcl-test.properties --genTemplateJson test/gen-template/zigbee/gen-templates.json",
     "linuxpack-check": "./dist/linux-unpacked/zap selfCheck --zclProperties zcl-builtin/silabs/zcl-test.properties --genTemplateJson test/gen-template/zigbee/gen-templates.json",
     "linuxpack-gen": "./dist/linux-unpacked/zap generate --noUi --noServer --zclProperties zcl-builtin/silabs/zcl-test.properties --genTemplateJson test/gen-template/zigbee/gen-templates.json --output tmp",
@@ -161,6 +158,7 @@
     "jsdom": "^16.6.0",
     "jsdom-global": "^3.0.2",
     "license-checker": "^25.0.1",
+    "node-7z": "^3.0.0",
     "node-abi": "^2.30.0",
     "node-gyp": "^8.1.0",
     "node-pre-gyp": "^0.17.0",
@@ -195,16 +193,19 @@
   },
   "build": {
     "appId": "zap.id",
+    "artifactName": "${productName}-${version}-${os}.${ext}",
+    "afterAllArtifactBuild": "./src-script/pack-apack.js",
     "mac": {
       "category": "public.app-category.developer-tools",
       "darkModeSupport": true,
       "target": [
-        "dmg"
+        "zip"
       ]
     },
     "linux": {
       "category": "Development",
       "target": [
+        "zip",
         "snap",
         "AppImage",
         "deb",
@@ -214,7 +215,10 @@
     },
     "win": {
       "target": [
-        "portable"
+        "zip"
+      ],
+      "extraFiles": [
+        "apack.json"
       ]
     },
     "directories": {
@@ -225,6 +229,7 @@
     "npmRebuild": true,
     "files": [
       "**/*",
+      "apack.json",
       "dist/backend",
       "dist/src-electron",
       "dist/src-shared",

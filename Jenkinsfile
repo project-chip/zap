@@ -220,11 +220,9 @@ pipeline
                                     sh 'src-script/npm-update-binary || true'
                                     sh 'security unlock-keychain -u  "/Library/Keychains/System.keychain"'
                                     sh 'npm run version-stamp'
-                                    sh 'npm run build-spa'
-                                    sh 'npm run build-backend'
-                                    sh 'npm run dist-mac'
-                                    sh 'npm run apack:mac'
-                                    stash includes: 'dist/zap_apack_mac.zip', name: 'zap_apack_mac'
+                                    sh 'npm run build'
+                                    sh 'npm run pack:mac'
+                                    stash includes: "dist/*mac.zip", name: 'zap_apack_mac'
                                 }
                             }
                         }
@@ -237,14 +235,12 @@ pipeline
                         script
                         {
                             sh 'echo "Building for Windows"'
-                            sh 'xvfb-run -a npm run dist-win'
-                            sh 'xvfb-run -a npm run apack:win'
-                            stash includes: 'dist/zap_apack_win.zip', name: 'zap_apack_win'
+                            sh 'xvfb-run -a npm run pack:win'
+                            stash includes: "dist/*win.zip", name: 'zap_apack_win'
 
                             sh 'echo "Building for Linux"'
-                            sh 'xvfb-run -a npm run dist-linux'
-                            sh 'xvfb-run -a npm run apack:linux'
-                            stash includes: 'dist/zap_apack_linux.zip', name: 'zap_apack_linux'
+                            sh 'xvfb-run -a npm run pack:linux'
+                            stash includes: 'dist/*linux.zip', name: 'zap_apack_linux'
                         }
                     }
                 }
