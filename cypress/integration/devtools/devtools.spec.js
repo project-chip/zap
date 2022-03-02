@@ -9,7 +9,9 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 })
 describe('Testing visibility of devtools option', () => {
   beforeEach(() => {
-    cy.visit('http://localhost:8080/?restPort=9070#/')
+    cy.fixture('baseurl').then((data) => {
+      cy.visit(data.baseurl)
+    })
   })
 
   it('check if devtools option gets visible', () => {

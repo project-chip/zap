@@ -11,7 +11,9 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 })
 describe('Check ZCL Extension functionalities', () => {
   it('Verify Device Type display value', () => {
-    cy.visit('http://localhost:8080/?restPort=9070#/')
+    cy.fixture('baseurl').then((data) => {
+      cy.visit(data.baseurl)
+    })
     cy.window()
       .then(function (window) {
         window[rendApi.GLOBAL_SYMBOL_EXECUTE](

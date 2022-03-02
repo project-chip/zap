@@ -6,7 +6,9 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 })
 describe('Testing endpoints, clusters and attributes', () => {
   beforeEach(() => {
-    cy.visit('http://localhost:8080/?restPort=9070#/')
+    cy.fixture('baseurl').then((data) => {
+      cy.visit(data.baseurl)
+    })
   })
 
   it('creating 3 new endpoints', () => {
@@ -65,7 +67,7 @@ describe('Testing endpoints, clusters and attributes', () => {
     //check if configure button works fine
     cy.get(
       '#General > .q-expansion-item__container > .q-expansion-item__content > :nth-child(1) > .q-table__container > .q-table__middle > .q-table > tbody > .text-weight-bolder > :nth-child(7) > .q-btn > .q-btn__wrapper > .q-btn__content > .notranslate'
-    ).click({force:true})
+    ).click({ force: true })
     cy.wait(1000)
 
     //check if attributes are loaded
