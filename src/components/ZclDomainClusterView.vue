@@ -16,6 +16,7 @@ limitations under the License.
 
 <template>
   <div>
+    <q-btn outline @click="enableAllClusters" label="Enable All Clusters" />
     <q-table
       :data="clusters"
       :columns="columns"
@@ -189,6 +190,15 @@ export default {
     },
   },
   methods: {
+    enableAllClusters() {
+      this.clusters.forEach((singleCluster) => {
+        this.handleClusterSelection(singleCluster.id, {
+          label: 'Client & Server',
+          client: true,
+          server: true,
+        })
+      })
+    },
     toggleStatus: function () {
       this.showStatus = !this.showStatus
     },
