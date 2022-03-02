@@ -206,11 +206,9 @@
       "category": "Development",
       "target": [
         "zip",
-        "snap",
         "AppImage",
         "deb",
-        "rpm",
-        "tar.xz"
+        "rpm"
       ],
       "extraFiles": [
         "apack.json"
