@@ -21,6 +21,7 @@ describe('Testing enabled attributes amount', () => {
         .contains('Back')
         .click()
         .then(() => {})
+      cy.wait(2000)
       cy.get(':nth-child(7) > .text-right').then(($div2) => {
         const num2 = parseFloat($div2.text())
         expect(num2).to.eq(17)
