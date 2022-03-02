@@ -10,7 +10,9 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 })
 describe('Check theme functionality', () => {
   beforeEach(() => {
-    cy.visit('http://localhost:8080/?restPort=9070#/')
+    cy.fixture('baseurl').then((data) => {
+      cy.visit(data.baseurl)
+    })
   })
 
   it('Setting light theme via Preference / calling rendereApi with boolean arg', () => {

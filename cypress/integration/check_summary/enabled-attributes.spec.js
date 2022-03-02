@@ -8,7 +8,9 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 
 describe('Testing enabled attributes amount', () => {
   it('create a new endpoint and get amount of enabled attributes', () => {
-    cy.visit('http://localhost:8080/?restPort=9070#/')
+    cy.fixture('baseurl').then((data) => {
+      cy.visit(data.baseurl)
+    })
     cy.addEndpoint('Billing Unit (0x0203)', 'General')
     cy.wait(2000)
     cy.get(':nth-child(7) > .text-right').then(($div) => {
