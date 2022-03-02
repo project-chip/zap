@@ -211,6 +211,9 @@
         "deb",
         "rpm",
         "tar.xz"
+      ],
+      "extraFiles": [
+        "apack.json"
       ]
     },
     "win": {
