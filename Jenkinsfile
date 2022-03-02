@@ -256,6 +256,12 @@ pipeline
                     {
                         script
                         {
+                            def file = sh(script: "ls dist/*win.zip | head -n 1", returnStdout: true).trim()
+                            sh 'cp '+ file + ' zap_apack_win.zip'
+
+                            file = sh(script: "ls dist/*linux.zip | head -n 1", returnStdout: true).trim()
+                            sh 'cp '+ file + ' zap_apack_linux.zip'
+
                             archiveArtifacts artifacts:'dist/zap*', fingerprint: true
                         }
                     }
@@ -268,6 +274,8 @@ pipeline
                     {
                         script
                         {
+                            def file = sh(script: "ls dist/*mac.zip | head -n 1", returnStdout: true).trim()
+                            sh 'cp '+ file + ' zap_apack_mac.zip'
                             archiveArtifacts artifacts:'dist/zap*', fingerprint: true
                         }
                     }
