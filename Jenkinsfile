@@ -299,7 +299,9 @@ pipeline
                             script
                             {
                                 unstash 'zap_apack_win'
-                                unzip zipFile: 'dist/zap_apack_win.zip'
+                                sh 'ls -R'
+                                def file = sh(script: "ls dist/*win.zip | head -n 1", returnStdout: true).trim()
+                                unzip zipFile: file
                                 String response = bat(script: 'zap.exe --version', returnStdout: true).trim()
                                 echo response
                                 if ( response.indexOf('undefined') == -1) {
@@ -363,7 +365,9 @@ pipeline
                             {
                                 cleanWs()
                                 unstash 'zap_apack_linux'
-                                unzip zipFile: 'dist/zap_apack_linux.zip'
+                                sh 'ls -R'
+                                def file = sh(script: "ls dist/*linux.zip | head -n 1", returnStdout: true).trim()
+                                unzip zipFile: file
                                 sh 'chmod 755 zap'
                                 String response = sh(script: 'xvfb-run -a ./zap --version', returnStdout: true).trim()
                                 echo response
