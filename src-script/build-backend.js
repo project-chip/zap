@@ -16,6 +16,7 @@
  */
 
 const scriptUtil = require('./script-util.js')
+const copyfiles = require('copyfiles')
 
 let startTime = process.hrtime()
 
@@ -25,6 +26,18 @@ process.env.PATH = process.env.PATH + ':/usr/local/bin/'
 scriptUtil
   .rebuildBackendIfNeeded()
   .then(() => {
+    // manually copy SQL schema since TypeScript compiler ignores it.
+    console.log(`Copying ./src-electron/**/*.sql into ./dist/`)
+    copyfiles(
+      ['./src-electron/**/*.sql', './dist/'],
+      { verbose: true },
+      (err) => {
+        if (err) {
+          console.log(err)
+          throw err
+        }
+      }
+    )
     let endTime = process.hrtime(startTime)
     console.log(
       `😎 All done: ${endTime[0]}s, ${Math.round(endTime[1] / 1000000)}ms.`
