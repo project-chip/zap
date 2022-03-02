@@ -51,13 +51,15 @@ limitations under the License.
                   style="font-size: 1.5rem"
                 ></q-icon>
                 <div class="vertical-middle text-subtitle2">
-                  Reporatble change should be in {{props.row.type.toUpperCase()}} Range
+                  Reporatble change should be in
+                  {{ props.row.type.toUpperCase() }} Range
                 </div>
               </div>
             </q-popup-edit>
           </q-td>
           <q-td key="enabled" :props="props" auto-width>
             <q-toggle
+              :disable="checkReportingPolicy(props.row)"
               class="q-mt-xs"
               v-model="selectedReporting"
               :val="hashAttributeIdClusterId(props.row.id, selectedCluster.id)"
@@ -143,9 +145,11 @@ limitations under the License.
               hide-bottom-space
               outlined
               min="0"
-              v-model="selectionReportableChange[
+              v-model="
+                selectionReportableChange[
                   hashAttributeIdClusterId(props.row.id, selectedCluster.id)
-                ]"
+                ]
+              "
               :error="
                 !isDefaultValueValid(
                   hashAttributeIdClusterId(props.row.id, selectedCluster.id)
@@ -226,19 +230,20 @@ export default {
     },
     requiredAttributes: {
       get() {
-        console.log(this.relevantAttributeData
-            .filter(
-              (attribute) =>
-                !attribute.isOptional ||
-                this.requiredDeviceTypeAttributes.includes(attribute.id)
-            ))
+        console.log(
+          this.relevantAttributeData.filter(
+            (attribute) =>
+              !attribute.isOptional ||
+              this.requiredDeviceTypeAttributes.includes(attribute.id)
+          )
+        )
         return this.relevantAttributeData
-            .filter(
-              (attribute) =>
-                !attribute.isOptional ||
-                this.requiredDeviceTypeAttributes.includes(attribute.id)
-            )
-            .map((attribute) => attribute.id)
+          .filter(
+            (attribute) =>
+              !attribute.isOptional ||
+              this.requiredDeviceTypeAttributes.includes(attribute.id)
+          )
+          .map((attribute) => attribute.id)
       },
     },
   },
@@ -270,7 +275,7 @@ export default {
           field: 'attrID',
           sortable: true,
           style: 'max-width: 90px',
-          headerStyle: 'max-width: 90px'
+          headerStyle: 'max-width: 90px',
         },
         {
           name: 'attrName',
@@ -329,6 +334,16 @@ export default {
     }
   },
   methods: {
+    checkReportingPolicy(attr) {
+      if (
+        attr.reportingPolicy == 'mandatory' ||
+        attr.reportingPolicy == 'prohibited'
+      ) {
+        return true
+      } else {
+        return false
+      }
+    },
     isRowDisabled(attributeId) {
       return !this.editableAttributesReporting[attributeId]
     },
@@ -342,7 +357,7 @@ export default {
       } else {
         isDisabled = false
       }
-      return isDisabled && row.isReportable ;
+      return isDisabled && row.isReportable
     },
     isAttributeRequired(attribute) {
       // TODO set by reporting required
@@ -395,14 +410,14 @@ export default {
   },
 }
 </script>
-<style >
+<style>
 /** disableing numbber input arrows */
 input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
 /* Firefox */
-input[type=number] {
+input[type='number'] {
   -moz-appearance: textfield;
 }
 </style>
