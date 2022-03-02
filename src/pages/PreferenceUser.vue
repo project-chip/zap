@@ -15,13 +15,11 @@ limitations under the License.
 -->
 <template>
   <div>
-    <div class="text-h4 q-mb-md">User settings</div>
-    <q-separator spaced="md" />
-    <p>UI preferences</p>
+    <div class="text-h4 q-mb-md">User interface settings</div>
     <q-separator spaced="md" />
     <q-toggle
       class="q-mr-sm q-mt-lg q-mb-lg"
-      label="Dark Theme"
+      label="Enable dark theme"
       dense
       left-label
       v-model="localtheme"
@@ -32,15 +30,13 @@ limitations under the License.
     <br />
     <q-toggle
       class="q-mr-sm q-mt-lg q-mb-lg"
-      label="Dev Tools"
+      label="Enable development tools"
       dense
       left-label
       v-model="devtab"
     >
       <q-tooltip> Enable Dev Tools tab </q-tooltip>
     </q-toggle>
-    <q-separator spaced="md" />
-    <p>User preferences.</p>
     <q-input @input="setPath" v-model="localPath" label="Last file location" />
   </div>
 </template>
