@@ -117,6 +117,7 @@ async function zcl_structs(options) {
   structs.forEach((st) => {
     st.struct_contains_array = false
     st.struct_is_fabric_scoped = false
+    st.struct_has_fabric_sensitive_fields = false
     st.has_no_clusters = st.struct_cluster_count < 1
     st.has_one_cluster = st.struct_cluster_count == 1
     st.has_more_than_one_cluster = st.struct_cluster_count > 1
@@ -127,6 +128,9 @@ async function zcl_structs(options) {
       if (i.type && i.type.toLowerCase() == fabricIndexType) {
         st.struct_is_fabric_scoped = true
         st.struct_fabric_idx_field = i.label
+      }
+      if (i.isFabricSensitive) {
+        st.struct_has_fabric_sensitive_fields = true
       }
     })
   })
