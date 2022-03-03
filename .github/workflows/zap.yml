@@ -36,7 +36,7 @@ jobs:
       - run: npm run gen
       - run: npm run genmatter
       - run: npm run gendotdot
-      - run: export GH_TOKEN=${{ secrets.GITHUB_TOKEN}} && npm run dist-linux
+      - run: export GH_TOKEN=${{ secrets.GITHUB_TOKEN}} && npm run pack:linux
       - run: xvfb-run -a dist/linux-unpacked/zap selfCheck
       - name: Archive .rpm file
         uses: actions/upload-artifact@v2
