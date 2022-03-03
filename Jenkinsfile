@@ -29,7 +29,6 @@ pipeline
                     sh 'node --version'
                     sh 'npm ci'
                     sh 'npm list || true'
-                    sh 'src-script/npm-update-binary || true'
                 }
             }
         }
@@ -217,7 +216,6 @@ pipeline
                                     sh 'node --version'
                                     sh 'npm ci'
                                     sh 'npm list || true'
-                                    sh 'src-script/npm-update-binary || true'
                                     sh 'security unlock-keychain -u  "/Library/Keychains/System.keychain"'
                                     sh 'npm run version-stamp'
                                     sh 'npm run build'
