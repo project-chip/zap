@@ -166,7 +166,16 @@ async function rebuildSpaIfNeeded() {
 }
 
 async function rebuildBackendIfNeeded() {
-  return scriptUtil.executeCmd({}, 'npx', ['tsc', '--build', './tsconfig.json'])
+  return scriptUtil
+    .executeCmd({}, 'npx', ['tsc', '--build', './tsconfig.json'])
+    .then(() =>
+      scriptUtil.executeCmd({}, 'npx', [
+        'copyfiles',
+        '-V',
+        './src-electron/**/*.sql',
+        './dist/',
+      ])
+    )
 }
 
 /**
