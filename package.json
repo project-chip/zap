@@ -1,7 +1,7 @@
 {
   "type": "commonjs",
   "name": "zap",
-  "version": "2022.3.3",
+  "version": "2022.3.4",
   "description": "Configuration tool for the Zigbee Cluster Library",
   "productName": "zap",
   "cordovaId": "",
@@ -193,7 +193,7 @@
   },
   "build": {
     "appId": "zap.id",
-    "artifactName": "${productName}-${version}-${os}.${ext}",
+    "artifactName": "${productName}-${os}.${ext}",
     "afterAllArtifactBuild": "./src-script/pack-apack.js",
     "mac": {
       "category": "public.app-category.developer-tools",
