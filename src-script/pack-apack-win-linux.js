@@ -9,8 +9,7 @@ exports.default = async function (context) {
     return scriptUtil.executeCmd({}, 'npx', [
       'copyfiles',
       '-V',
-      '-u',
-      '5',
+      '-f',
       path.resolve(context.outDir, '../apack.json'),
       context.appOutDir,
     ])
