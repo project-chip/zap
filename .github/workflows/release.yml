@@ -93,6 +93,41 @@ jobs:
           # macOS notarization API key
           API_KEY_ID: ${{ secrets.api_key_id }}
           API_KEY_ISSUER_ID: ${{ secrets.api_key_issuer_id }}
+
+      - name: Setup Linux package for adapter pack test
+        id: linux_apack_setup
+        if: startsWith(matrix.os, 'ubuntu')
+        run: |
+          echo "::set-output name=linux::$(./node_modules/7zip-bin/linux/x64/7za l ./dist/*linux.zip | grep ' apack.json')"
+      - name: Verify apack.json exists in Linux .zip package
+        uses: nick-fields/assert-action@v1
+        if: startsWith(matrix.os, 'ubuntu')
+        with:
+          expected: ' apack.json'
+          actual: ${{ steps.linux_apack_setup.outputs.linux }}
+          comparison: contains
+
+      - name: Setup macOS/Windows package for adapter pack test
+        id: nonlinux_apack_setup
+        if: startsWith(matrix.os, 'macos')
+        run: |
+          echo "::set-output name=win::$(./node_modules/7zip-bin/mac/x64/7za l dist/*win.zip | grep ' apack.json')"
+          echo "::set-output name=mac::$(./node_modules/7zip-bin/mac/x64/7za l dist/*mac.zip | grep ' apack.json')"
+      - name: Verify apack.json exists in Windows .zip package
+        uses: nick-fields/assert-action@v1.1.0
+        if: startsWith(matrix.os, 'macos')
+        with:
+          expected: ' apack.json'
+          actual: ${{ steps.nonlinux_apack_setup.outputs.win }}
+          comparison: contains
+      - name: Verify apack.json exists in macOS .zip package
+        uses: nick-fields/assert-action@v1.1.0
+        if: startsWith(matrix.os, 'macos')
+        with:
+          expected: ' apack.json'
+          actual: ${{ steps.nonlinux_apack_setup.outputs.mac }}
+          comparison: contains
+
       - name: Archive .exe file
         uses: actions/upload-artifact@v2
         if: startsWith(matrix.os, 'macos')
