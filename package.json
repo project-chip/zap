@@ -194,7 +194,8 @@
   "build": {
     "appId": "zap.id",
     "artifactName": "${productName}-${os}.${ext}",
-    "afterAllArtifactBuild": "./src-script/pack-apack.js",
+    "afterPack": "./src-script/pack-apack-win-linux.js",
+    "afterAllArtifactBuild": "./src-script/pack-apack-mac.js",
     "mac": {
       "category": "public.app-category.developer-tools",
       "darkModeSupport": true,
