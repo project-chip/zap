@@ -3,7 +3,7 @@ const path = require('path')
 
 exports.default = async function (context) {
   if (
-    context.electronPlatformName === 'win' ||
+    context.electronPlatformName === 'win32' ||
     context.electronPlatformName === 'linux'
   ) {
     return scriptUtil.executeCmd({}, 'npx', [
