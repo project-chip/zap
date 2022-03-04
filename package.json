@@ -206,7 +206,6 @@
       "category": "Development",
       "target": [
         "zip",
-        "AppImage",
         "deb",
         "rpm"
       ],

@@ -128,25 +128,25 @@ jobs:
           actual: ${{ steps.nonlinux_apack_setup.outputs.mac }}
           comparison: contains
 
-      - name: Archive .exe file
+      - name: Archive Windows .zip file
         uses: actions/upload-artifact@v2
         if: startsWith(matrix.os, 'macos')
         with:
-          name: zap-win-exe
-          path: dist/zap*.exe
-      - name: Archive .dmg file
+          name: zap-win-zip
+          path: dist/zap*-win.zip
+      - name: Archive macOS .zip file
         uses: actions/upload-artifact@v2
         if: startsWith(matrix.os, 'macos')
         with:
-          name: zap-macosx-dmg
-          path: dist/zap*.dmg
-      - name: Archive .rpm file
+          name: zap-mac-zip
+          path: dist/zap*-mac.zip
+      - name: Archive Linux .rpm file
         uses: actions/upload-artifact@v2
         if: startsWith(matrix.os, 'ubuntu')
         with:
           name: zap-linux-rpm
           path: dist/zap*.rpm
-      - name: Archive .deb file
+      - name: Archive Linux .deb file
         uses: actions/upload-artifact@v2
         if: startsWith(matrix.os, 'ubuntu')
         with:
