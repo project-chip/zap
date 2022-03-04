@@ -208,17 +208,11 @@
         "zip",
         "deb",
         "rpm"
-      ],
-      "extraFiles": [
-        "apack.json"
       ]
     },
     "win": {
       "target": [
         "zip"
-      ],
-      "extraFiles": [
-        "apack.json"
       ]
     },
     "directories": {

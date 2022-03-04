@@ -6,7 +6,12 @@ const pathTo7zip = sevenBin.path7za
 
 exports.default = async function (buildResult) {
   buildResult?.artifactPaths?.forEach((element) => {
-    if (element.includes('mac') && element.endsWith('.zip')) {
+    if (
+      (element.includes('mac') ||
+        element.includes('win') ||
+        element.includes('linux')) &&
+      element.endsWith('.zip')
+    ) {
       const myStream = Seven.add(
         element,
         path.join(buildResult.outDir, '../apack.json'),
