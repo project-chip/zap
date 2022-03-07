@@ -195,7 +195,7 @@ pipeline
                 }
             }
         }
-        stage('Building distribution artifacts') {
+        stage('Building artifacts') {
             parallel {
                 stage('Building for Mac')
                 {
@@ -245,10 +245,10 @@ pipeline
             }
         }
 
-        stage('Artifact creation')
+        stage('Archiving artifacts')
         {
             parallel {
-                stage('Creating artifact for Windows / Linux')
+                stage('Archiving for Windows / Linux')
                 {
                     steps
                     {
@@ -264,7 +264,7 @@ pipeline
                         }
                     }
                 }
-                stage('Creating artifact for Mac')
+                stage('Archiving for macOS')
                 {
                     agent { label 'bgbuild-mac' }
                     options { skipDefaultCheckout() }
@@ -292,9 +292,9 @@ pipeline
             }
         }
 
-        stage('Check binaries') {
+        stage('Check artifacts') {
             parallel {
-                stage('Check executable for Windows')
+                stage('Checking Windows exe')
                 {
                     agent { label 'windows10' }
                     options { skipDefaultCheckout() }
@@ -328,7 +328,7 @@ pipeline
                         }
                     }
                 }
-                stage('Check executable for Mac')
+                stage('Checking macOS exe')
                 {
                     agent { label 'bgbuild-mac' }
                     options { skipDefaultCheckout() }
@@ -362,7 +362,7 @@ pipeline
                         }
                     }
                 }
-                stage('Check executable for Linux')
+                stage('Checking Linux exe')
                 {
                     steps
                     {

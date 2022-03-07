@@ -98,55 +98,80 @@ jobs:
         id: linux_apack_setup
         if: startsWith(matrix.os, 'ubuntu')
         run: |
-          echo "::set-output name=linux::$(./node_modules/7zip-bin/linux/x64/7za l ./dist/*linux.zip | grep ' apack.json')"
-      - name: Verify apack.json exists in Linux .zip package
+          echo "::set-output name=linuxBaseDir::$(./node_modules/7zip-bin/linux/x64/7za l ./dist/zap-linux.zip | grep apack.json)"
+          echo "::set-output name=linuxAsarDir::$(npx asar l ./dist/linux-unpacked/resources/app.asar | grep apack.json)"
+      - name: Verify apack.json exists in Linux package .zip package
         uses: nick-fields/assert-action@v1
         if: startsWith(matrix.os, 'ubuntu')
         with:
-          expected: ' apack.json'
-          actual: ${{ steps.linux_apack_setup.outputs.linux }}
+          expected: 'apack.json'
+          actual: ${{ steps.linux_apack_setup.outputs.linuxBaseDir }}
+          comparison: contains
+      - name: Verify apack.json exists in Linux package .zip package's app.asar archive
+        uses: nick-fields/assert-action@v1
+        if: startsWith(matrix.os, 'ubuntu')
+        with:
+          expected: 'apack.json'
+          actual: ${{ steps.linux_apack_setup.outputs.linuxAsarDir }}
           comparison: contains
 
       - name: Setup macOS/Windows package for adapter pack test
         id: nonlinux_apack_setup
         if: startsWith(matrix.os, 'macos')
         run: |
-          echo "::set-output name=win::$(./node_modules/7zip-bin/mac/x64/7za l dist/*win.zip | grep ' apack.json')"
-          echo "::set-output name=mac::$(./node_modules/7zip-bin/mac/x64/7za l dist/*mac.zip | grep ' apack.json')"
+          echo "::set-output name=winBaseDir::$(./node_modules/7zip-bin/mac/x64/7za l ./dist/zap-win.zip | grep apack.json)"
+          echo "::set-output name=winAsarDir::$(npx asar l ./dist/win-unpacked/resources/app.asar | grep apack.json)"
+          echo "::set-output name=macBaseDir::$(./node_modules/7zip-bin/mac/x64/7za l ./dist/zap-mac.zip | grep apack.json)"
+          echo "::set-output name=macAsarDir::$(npx asar l ./dist/mac/zap.app/Contents/Resources/app.asar | grep apack.json)"
+      - run: echo "${{ steps.nonlinux_apack_setup.outputs.winBaseDir }}"
       - name: Verify apack.json exists in Windows .zip package
         uses: nick-fields/assert-action@v1.1.0
         if: startsWith(matrix.os, 'macos')
         with:
-          expected: ' apack.json'
-          actual: ${{ steps.nonlinux_apack_setup.outputs.win }}
+          expected: 'apack.json'
+          actual: ${{ steps.nonlinux_apack_setup.outputs.winBaseDir }}
+          comparison: contains
+      - name: Verify apack.json exists in Windows .zip package's app.asar archive
+        uses: nick-fields/assert-action@v1.1.0
+        if: startsWith(matrix.os, 'macos')
+        with:
+          expected: 'apack.json'
+          actual: ${{ steps.nonlinux_apack_setup.outputs.winAsarDir }}
           comparison: contains
       - name: Verify apack.json exists in macOS .zip package
         uses: nick-fields/assert-action@v1.1.0
         if: startsWith(matrix.os, 'macos')
         with:
-          expected: ' apack.json'
-          actual: ${{ steps.nonlinux_apack_setup.outputs.mac }}
+          expected: 'apack.json'
+          actual: ${{ steps.nonlinux_apack_setup.outputs.macBaseDir }}
+          comparison: contains
+      - name: Verify apack.json exists in macOS .zip package's app.asar archive
+        uses: nick-fields/assert-action@v1.1.0
+        if: startsWith(matrix.os, 'macos')
+        with:
+          expected: 'apack.json'
+          actual: ${{ steps.nonlinux_apack_setup.outputs.macAsarDir }}
           comparison: contains
 
-      - name: Archive .exe file
+      - name: Archive Windows .zip file
         uses: actions/upload-artifact@v2
         if: startsWith(matrix.os, 'macos')
         with:
-          name: zap-win-exe
-          path: dist/zap*.exe
-      - name: Archive .dmg file
+          name: zap-win-zip
+          path: dist/zap*-win.zip
+      - name: Archive macOS .zip file
         uses: actions/upload-artifact@v2
         if: startsWith(matrix.os, 'macos')
         with:
-          name: zap-macosx-dmg
-          path: dist/zap*.dmg
-      - name: Archive .rpm file
+          name: zap-mac-zip
+          path: dist/zap*-mac.zip
+      - name: Archive Linux .rpm file
         uses: actions/upload-artifact@v2
         if: startsWith(matrix.os, 'ubuntu')
         with:
           name: zap-linux-rpm
           path: dist/zap*.rpm
-      - name: Archive .deb file
+      - name: Archive Linux .deb file
         uses: actions/upload-artifact@v2
         if: startsWith(matrix.os, 'ubuntu')
         with:
