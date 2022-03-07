@@ -299,15 +299,24 @@ async function dbMultiInsert(db, sql, arrayOfArrays) {
     env.logSql('Preparing insert', sql, arrayOfArrays.length)
     let lastIds = []
     let statement = db.prepare(sql, function (err) {
-      if (err) reject(err)
+      if (err) reject('Error While preparing sql command: ' + sql + ', ' + err)
       for (const singleArray of arrayOfArrays) {
         statement.run(singleArray, (err2) => {
-          if (err2) reject(err2)
+          if (err2)
+            reject(
+              'Error While running sql command: ' +
+                sql +
+                ', values: ' +
+                singleArray +
+                ', ' +
+                err2
+            )
           lastIds.push(this.lastID)
         })
       }
       statement.finalize((err3) => {
-        if (err3) reject(err3)
+        if (err3)
+          reject('Error While finalizing sql command: ' + sql + ', ' + err3)
         resolve(lastIds)
       })
     })

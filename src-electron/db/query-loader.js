@@ -20,6 +20,7 @@
  *
  * @module DB API: zcl loading queries
  */
+const { size } = require('underscore')
 const env = require('../util/env')
 const dbApi = require('./db-api.js')
 
@@ -1249,6 +1250,274 @@ async function updateStaticEntityReferences(db, packageId) {
   await updateBitmapClusterReferences(db, packageId)
 }
 
+/**
+ * Insert Data Type Discriminator into the database.
+ * Data is all the data types that can exist with name and whether the type is
+ * a baseline data type or not
+ * for eg
+ * If we have a type called 16BitNumber which is a UINT_16(Actual representation
+ * of 16 Bit unsigned integere) then 16BitNumber is not a baseline data type but
+ * UINT_16 is base line data type.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} data
+ */
+async function insertDataTypeDiscriminator(db, packageId, data) {
+  return dbApi.dbMultiInsert(
+    db,
+    'INSERT INTO DISCRIMINATOR (PACKAGE_REF, NAME) VALUES (?, ?)',
+    data.map((at) => [packageId, at.name])
+  )
+}
+
+/**
+ * Insert all Data Types into the database.
+ * data is a certain data type and it is inserted into the data type table based
+ * on the type of data
+ *
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} data
+ */
+async function insertDataType(db, packageId, data) {
+  return dbApi.dbMultiInsert(
+    db,
+    'INSERT INTO DATA_TYPE ( CLUSTER_REF, PACKAGE_REF, NAME, DESCRIPTION, CLUSTER_CODE, DISCRIMINATOR_REF) VALUES ( (SELECT CLUSTER_ID FROM CLUSTER WHERE CODE IS ? AND PACKAGE_REF=?), ?, ?, ?, ?, ? )',
+    data.map((at) => [
+      at.cluster_code,
+      packageId,
+      packageId,
+      at.name,
+      at.description,
+      at.cluster_code,
+      at.discriminator_ref,
+    ])
+  )
+}
+
+/**
+ * Insert all Numbers into the Number Table.
+ *
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} data
+ */
+async function insertNumber(db, packageId, data) {
+  return dbApi.dbMultiInsert(
+    db,
+    'INSERT INTO NUMBER ( NUMBER_ID, SIZE, IS_SIGNED) VALUES ( (SELECT DATA_TYPE_ID FROM DATA_TYPE WHERE PACKAGE_REF = ? AND NAME = ?), ?, ? )',
+    data.map((at) => [packageId, at.name, at.size, at.is_signed])
+  )
+}
+
+/**
+ * Insert all Strings into the String Table.
+ *
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} data
+ */
+async function insertString(db, packageId, data) {
+  return dbApi.dbMultiInsert(
+    db,
+    'INSERT INTO STRING ( STRING_ID, IS_LONG, SIZE, IS_CHAR) VALUES ( (SELECT DATA_TYPE_ID FROM DATA_TYPE WHERE PACKAGE_REF = ? AND NAME = ?), ?, ?, ? )',
+    data.map((at) => [packageId, at.name, at.is_long, at.size, at.is_char])
+  )
+}
+
+/**
+ * Insert all Baseline Enums into the Enum Table.
+ * Baseline enums are enums such as ENUM8, ENUM16 defined in the xml files
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} data
+ */
+async function insertEnum2Atomic(db, packageId, data) {
+  return dbApi.dbMultiInsert(
+    db,
+    'INSERT INTO ENUM_2 ( ENUM_ID, SIZE) VALUES ( (SELECT DATA_TYPE_ID FROM DATA_TYPE WHERE PACKAGE_REF = ? AND NAME = ? AND CLUSTER_CODE IS ?), ?)',
+    data.map((at) => [packageId, at.name, at.cluster_code, at.size])
+  )
+}
+
+/**
+ * Insert all Enums into the Enum Table.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} data
+ */
+async function insertEnum2(db, packageId, data) {
+  return dbApi.dbMultiInsert(
+    db,
+    'INSERT INTO ENUM_2 ( ENUM_ID, SIZE) VALUES ( (SELECT DATA_TYPE_ID FROM DATA_TYPE WHERE PACKAGE_REF = ? AND NAME = ? AND CLUSTER_CODE IS ?), (SELECT CASE   WHEN ((SELECT SIZE FROM ENUM_2 INNER JOIN DATA_TYPE ON ENUM_2.ENUM_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ? AND DATA_TYPE.CLUSTER_CODE= ?) IS NULL ) THEN    (SELECT SIZE FROM ENUM_2 INNER JOIN DATA_TYPE ON ENUM_2.ENUM_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ?) ELSE (SELECT SIZE FROM ENUM_2 INNER JOIN DATA_TYPE ON ENUM_2.ENUM_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ? AND DATA_TYPE.CLUSTER_CODE=?) END AS SIZE))',
+    data.map((at) => [
+      packageId,
+      at.name,
+      at.cluster_code,
+      packageId,
+      at.type,
+      at.cluster_code,
+      packageId,
+      at.type,
+      packageId,
+      at.type,
+      at.cluster_code,
+    ])
+  )
+}
+
+/**
+ * Insert all Enum Items into the Enum Item Table.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} data
+ */
+async function insertEnum2Items(db, packageId, data) {
+  return dbApi.dbMultiInsert(
+    db,
+    'INSERT INTO ENUM_ITEM_2 ( ENUM_REF, NAME, VALUE, FIELD_IDENTIFIER) VALUES ( (SELECT ENUM_ID FROM ENUM_2 INNER JOIN DATA_TYPE ON ENUM_2.ENUM_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ? AND DATA_TYPE.CLUSTER_CODE IS ?), ?, ?, ?)',
+    data.map((at) => [
+      packageId,
+      at.enumName,
+      at.enumClusterCode,
+      at.name,
+      at.value,
+      at.fieldIdentifier,
+    ])
+  )
+}
+
+/**
+ * Insert all Baseline Bitmaps into the Bitmap Table.
+ * Baseline bitmaps are bitmaps such as BITMAP8, BITMAP16 defined in the xml files
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} data
+ */
+async function insertBitmap2Atomic(db, packageId, data) {
+  return dbApi.dbMultiInsert(
+    db,
+    'INSERT INTO BITMAP_2 ( BITMAP_ID, SIZE) VALUES ( (SELECT DATA_TYPE_ID FROM DATA_TYPE WHERE PACKAGE_REF = ? AND NAME = ? AND CLUSTER_CODE IS ?), ?)',
+    data.map((at) => [packageId, at.name, at.cluster_code, at.size])
+  )
+}
+
+/**
+ * Insert all Bitmaps into the Bitmap Table.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} data
+ */
+async function insertBitmap2(db, packageId, data) {
+  return dbApi.dbMultiInsert(
+    db,
+    'INSERT INTO BITMAP_2 ( BITMAP_ID, SIZE) VALUES ( (SELECT DATA_TYPE_ID FROM DATA_TYPE WHERE PACKAGE_REF = ? AND NAME = ? AND CLUSTER_CODE IS ?), (SELECT CASE WHEN ((SELECT SIZE FROM BITMAP_2 INNER JOIN DATA_TYPE ON BITMAP_2.BITMAP_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ? AND DATA_TYPE.CLUSTER_CODE= ?) IS NULL ) THEN    (SELECT SIZE FROM BITMAP_2  INNER JOIN DATA_TYPE ON BITMAP_2.BITMAP_ID  = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ?) ELSE (SELECT SIZE FROM BITMAP_2 INNER JOIN DATA_TYPE ON BITMAP_2.BITMAP_ID  = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ? AND DATA_TYPE.CLUSTER_CODE=?) END AS SIZE))',
+    data.map((at) => [
+      packageId,
+      at.name,
+      at.cluster_code,
+      packageId,
+      at.type,
+      at.cluster_code,
+      packageId,
+      at.type,
+      packageId,
+      at.type,
+      at.cluster_code,
+    ])
+  )
+}
+
+/**
+ * Insert all Bitmap fields into the Bitmap field Table.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} data
+ */
+async function insertBitmap2Fields(db, packageId, data) {
+  return dbApi.dbMultiInsert(
+    db,
+    'INSERT INTO BITMAP_FIELD_2 ( BITMAP_REF, NAME, MASK, FIELD_IDENTIFIER) VALUES ( (SELECT BITMAP_ID FROM BITMAP_2 INNER JOIN DATA_TYPE ON BITMAP_2.BITMAP_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ? AND DATA_TYPE.CLUSTER_CODE IS ?), ?, ?, ?)',
+    data.map((at) => [
+      packageId,
+      at.bitmapName,
+      at.bitmapClusterCode,
+      at.name,
+      at.mask,
+      at.fieldIdentifier,
+    ])
+  )
+}
+
+/**
+ * Insert all Structs into the Struct Table.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} data
+ */
+async function insertStruct2(db, packageId, data) {
+  return dbApi.dbMultiInsert(
+    db,
+    'INSERT INTO STRUCT_2 ( STRUCT_ID, SIZE) VALUES ( (SELECT DATA_TYPE_ID FROM DATA_TYPE WHERE PACKAGE_REF = ? AND NAME = ? AND CLUSTER_CODE IS ?), (SELECT CASE   WHEN ((SELECT SIZE FROM STRUCT_2 INNER JOIN DATA_TYPE ON STRUCT_2.STRUCT_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ? AND DATA_TYPE.CLUSTER_CODE= ?) IS NULL ) THEN    (SELECT SIZE FROM STRUCT_2 INNER JOIN DATA_TYPE ON STRUCT_2.STRUCT_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ?) ELSE (SELECT SIZE FROM STRUCT_2 INNER JOIN DATA_TYPE ON STRUCT_2.STRUCT_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ? AND DATA_TYPE.CLUSTER_CODE=?) END AS SIZE))',
+    data.map((at) => [
+      packageId,
+      at.name,
+      at.cluster_code,
+      packageId,
+      at.type,
+      at.cluster_code,
+      packageId,
+      at.type,
+      packageId,
+      at.type,
+      at.cluster_code,
+    ])
+  )
+}
+
+/**
+ * Insert all Bitmap fields into the Bitmap field Table.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} data
+ */
+async function insertStruct2Items(db, packageId, data) {
+  return dbApi.dbMultiInsert(
+    db,
+    'INSERT INTO STRUCT_ITEM_2 ( STRUCT_REF, NAME, FIELD_IDENTIFIER, IS_ARRAY, IS_ENUM, MIN_LENGTH, MAX_LENGTH, IS_WRITABLE, IS_NULLABLE, IS_OPTIONAL, IS_FABRIC_SENSITIVE, SIZE, DATA_TYPE_REF) VALUES ( (SELECT STRUCT_ID FROM STRUCT_2 INNER JOIN DATA_TYPE ON STRUCT_2.STRUCT_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ? AND DATA_TYPE.CLUSTER_CODE IS ?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, (SELECT DATA_TYPE_ID FROM DATA_TYPE WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ?))',
+    data.map((at) => [
+      packageId,
+      at.structName,
+      at.structClusterCode,
+      at.name,
+      at.fieldIdentifier,
+      at.isArray,
+      at.isEnum,
+      at.minLength,
+      at.maxLength,
+      at.isWritable,
+      at.isNullable,
+      at.isOptional,
+      at.isFabricSensitive,
+      at.size,
+      packageId,
+      at.type,
+    ])
+  )
+}
+
 exports.insertGlobals = insertGlobals
 exports.insertClusterExtensions = insertClusterExtensions
 exports.insertClusters = insertClusters
@@ -1266,3 +1535,15 @@ exports.insertAccessOperations = insertAccessOperations
 exports.insertAccessRoles = insertAccessRoles
 exports.insertDefaultAccess = insertDefaultAccess
 exports.updateStaticEntityReferences = updateStaticEntityReferences
+exports.insertDataTypeDiscriminator = insertDataTypeDiscriminator
+exports.insertDataType = insertDataType
+exports.insertNumber = insertNumber
+exports.insertString = insertString
+exports.insertEnum2Atomic = insertEnum2Atomic
+exports.insertEnum2 = insertEnum2
+exports.insertEnum2Items = insertEnum2Items
+exports.insertBitmap2Atomic = insertBitmap2Atomic
+exports.insertBitmap2 = insertBitmap2
+exports.insertBitmap2Fields = insertBitmap2Fields
+exports.insertStruct2 = insertStruct2
+exports.insertStruct2Items = insertStruct2Items

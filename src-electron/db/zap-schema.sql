@@ -390,6 +390,57 @@ CREATE TABLE IF NOT EXISTS "TAG" (
  *         \______/ \__|                          
  */
 /*
+ DISCRIMINATOR table contains the data types loaded from packages
+ */
+DROP TABLE IF EXISTS "DISCRIMINATOR";
+CREATE TABLE IF NOT EXISTS "DISCRIMINATOR" (
+	"DISCRIMINATOR_ID"     integer NOT NULL  PRIMARY KEY  autoincrement,
+	"NAME"                 text,
+  "PACKAGE_REF" integer,
+  FOREIGN KEY (PACKAGE_REF) REFERENCES PACKAGE(PACKAGE_ID)
+);
+
+/*
+ DATA_TYPE table contains the all data types loaded from packages
+ */
+DROP TABLE IF EXISTS "DATA_TYPE";
+CREATE TABLE IF NOT EXISTS "DATA_TYPE" (
+	"DATA_TYPE_ID"         integer NOT NULL  PRIMARY KEY  autoincrement,
+	"NAME"                 text     ,
+	"DESCRIPTION"          text     ,
+	"DISCRIMINATOR_REF"    integer     ,
+	"PACKAGE_REF"          integer     ,
+  "CLUSTER_REF"          integer     ,
+  "CLUSTER_CODE"         integer     ,
+	FOREIGN KEY ( DISCRIMINATOR_REF ) REFERENCES DISCRIMINATOR( DISCRIMINATOR_ID ) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (PACKAGE_REF) REFERENCES PACKAGE(PACKAGE_ID) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY ( CLUSTER_REF ) REFERENCES CLUSTER( CLUSTER_ID ) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+/*
+ NUMBER table contains the all numbers loaded from packages
+ */
+DROP TABLE IF EXISTS "NUMBER";
+CREATE TABLE NUMBER ( 
+	NUMBER_ID            integer NOT NULL  PRIMARY KEY  ,
+	SIZE                 integer     ,
+	IS_SIGNED            integer     ,
+	FOREIGN KEY ( NUMBER_ID ) REFERENCES DATA_TYPE( DATA_TYPE_ID ) ON DELETE CASCADE ON UPDATE CASCADE
+ );
+
+/*
+ STRING table contains the all strings loaded from packages
+ */
+DROP TABLE IF EXISTS "STRING";
+CREATE TABLE STRING ( 
+	STRING_ID            integer NOT NULL  PRIMARY KEY  ,
+	IS_LONG              integer     ,
+	SIZE                 integer     ,
+	IS_CHAR              integer     ,
+	FOREIGN KEY ( STRING_ID ) REFERENCES DATA_TYPE( DATA_TYPE_ID ) ON DELETE CASCADE ON UPDATE CASCADE
+ );
+
+/*
  ATOMIC table contains the atomic types loaded from packages
  */
 DROP TABLE IF EXISTS "ATOMIC";
@@ -407,6 +458,29 @@ CREATE TABLE IF NOT EXISTS "ATOMIC" (
   "IS_SIGNED" integer default false,
   foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID)
 );
+
+/*
+ BITMAP table contains the bitmaps directly loaded from packages.
+ */
+DROP TABLE IF EXISTS "BITMAP_2";
+CREATE TABLE IF NOT EXISTS BITMAP_2 ( 
+	BITMAP_ID            integer NOT NULL  PRIMARY KEY  ,
+	SIZE                 integer     ,
+	FOREIGN KEY ( BITMAP_ID ) REFERENCES DATA_TYPE( DATA_TYPE_ID ) ON DELETE CASCADE ON UPDATE CASCADE
+ );
+/*
+ BITMAP_FIELD contains items that make up a bitmap.
+ */
+DROP TABLE IF EXISTS "BITMAP_FIELD_2";
+CREATE TABLE IF NOT EXISTS BITMAP_FIELD_2 ( 
+	BITMAP_FIELD_ID      integer NOT NULL  PRIMARY KEY autoincrement ,
+	BITMAP_REF           integer     ,
+	FIELD_IDENTIFIER     integer     ,
+	NAME                 text(100)     ,
+	MASK                 integer     ,
+	FOREIGN KEY ( BITMAP_REF ) REFERENCES BITMAP_2( BITMAP_ID )  
+ );
+
 /*
  BITMAP table contains the bitmaps directly loaded from packages.
  */
@@ -418,6 +492,7 @@ CREATE TABLE IF NOT EXISTS "BITMAP" (
   "TYPE" text,
   foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID)
 );
+
 /*
  BITMAP_FIELD contains items that make up a bitmap.
  */
@@ -442,6 +517,31 @@ CREATE TABLE IF NOT EXISTS "BITMAP_CLUSTER" (
   foreign key (CLUSTER_REF) references CLUSTER(CLUSTER_ID),
   UNIQUE(BITMAP_REF, CLUSTER_REF)
 );
+
+/*
+ ENUM table contains enums directly loaded from packages.
+ */
+DROP TABLE IF EXISTS "ENUM_2";
+CREATE TABLE IF NOT EXISTS "ENUM_2" ( 
+  ENUM_ID              integer NOT NULL  PRIMARY KEY  ,
+  SIZE                 integer     ,
+  FOREIGN KEY ( ENUM_ID ) REFERENCES DATA_TYPE( DATA_TYPE_ID ) ON DELETE CASCADE ON UPDATE CASCADE
+ );
+
+/*
+ ENUM_ITEM table contains individual enum items.
+ */
+DROP TABLE IF EXISTS "ENUM_ITEM_2";
+CREATE TABLE IF NOT EXISTS "ENUM_ITEM_2" ( 
+  "ENUM_ITEM_ID"         integer NOT NULL  PRIMARY KEY autoincrement,
+  "ENUM_REF"             integer     ,
+  "NAME"                 text     ,
+  "DESCRIPTION"          text     ,
+  "FIELD_IDENTIFIER"     integer     ,
+  "VALUE"                integer     ,
+  FOREIGN KEY ( ENUM_REF ) REFERENCES "ENUM_2"( ENUM_ID ) ON DELETE CASCADE ON UPDATE CASCADE
+ );
+
 /*
  ENUM table contains enums directly loaded from packages.
  */
@@ -476,6 +576,37 @@ CREATE TABLE IF NOT EXISTS "ENUM_CLUSTER" (
   foreign key (CLUSTER_REF) references CLUSTER(CLUSTER_ID),
   UNIQUE(ENUM_REF, CLUSTER_REF)
 );
+/*
+ STRUCT table contains structs directly loaded from packages.
+ */
+DROP TABLE IF EXISTS "STRUCT_2";
+CREATE TABLE IF NOT EXISTS STRUCT_2 ( 
+	STRUCT_ID            integer NOT NULL  PRIMARY KEY  ,
+	SIZE                 integer     ,
+	FOREIGN KEY ( STRUCT_ID ) REFERENCES DATA_TYPE( DATA_TYPE_ID )  
+ );
+/*
+ STRUCT_ITEM table contains individual struct items.
+*/
+DROP TABLE IF EXISTS "STRUCT_ITEM_2";
+CREATE TABLE IF NOT EXISTS STRUCT_ITEM_2 ( 
+	STRUCT_ITEM_ID       integer NOT NULL  PRIMARY KEY  autoincrement,
+	STRUCT_REF           integer     ,
+	FIELD_IDENTIFIER     integer     ,
+	NAME                 text(100)     ,
+	IS_ARRAY             integer     ,
+	IS_ENUM              integer     ,
+	MIN_LENGTH           integer     ,
+	MAX_LENGTH           integer     ,
+	IS_WRITABLE          integer     ,
+	IS_NULLABLE          integer     ,
+	IS_OPTIONAL          integer     ,
+	IS_FABRIC_SENSITIVE  integer     ,
+	SIZE                 integer     ,
+	DATA_TYPE_REF        integer     ,
+	FOREIGN KEY ( STRUCT_REF ) REFERENCES STRUCT_2( STRUCT_ID ) ON DELETE CASCADE ON UPDATE CASCADE,
+	FOREIGN KEY ( DATA_TYPE_REF ) REFERENCES DATA_TYPE( DATA_TYPE_ID ) ON DELETE CASCADE ON UPDATE CASCADE
+ );
 /*
  STRUCT table contains structs directly loaded from packages.
  */
