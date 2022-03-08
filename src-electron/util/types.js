@@ -52,7 +52,7 @@ async function typeSizeAttribute(db, zclPackageId, at, defaultValue = null) {
     if (!at.typeInfo.atomicType) {
       if (at.storage != dbEnum.storageOption.external) {
         throw new Error(
-          `ERROR: Unknown size for non-external attribute: ${at.label} / ${at.code}`
+          `ERROR: Unknown size for non-external attribute: ${at.name} / ${at.code}`
         )
       }
       return 0
