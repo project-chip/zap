@@ -61,19 +61,23 @@ limitations under the License.
           <div class="col-6">
             <strong>Enabled Clusters</strong>
           </div>
-          <div class="col-6 text-right">{{ selectedservers.length||"" }}</div>
+          <div class="col-6 text-right">{{ selectedservers.length || '' }}</div>
         </q-item>
         <q-item class="row">
           <div class="col-6">
             <strong>Enabled Attributes</strong>
           </div>
-          <div class="col-6 text-right">{{ selectedAttributes.length||"" }}</div>
+          <div class="col-6 text-right">
+            {{ selectedAttributes.length || '' }}
+          </div>
         </q-item>
         <q-item class="row">
           <div class="col-6">
             <strong>Enabled Reporting</strong>
           </div>
-          <div class="col-6 text-right">{{ selectedReporting.length||"" }}</div>
+          <div class="col-6 text-right">
+            {{ selectedReporting.length || '' }}
+          </div>
         </q-item>
       </q-list>
       <q-card-actions class="q-gutter-xs">
@@ -139,6 +143,31 @@ limitations under the License.
         </q-card-actions>
       </q-card>
     </q-dialog>
+    <q-dialog
+      v-model="deleteingleEndpointDialog"
+      class="background-color:transparent"
+    >
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Delete last Endpoint</div>
+
+          Deleting the only remaining endpoint may cause the ZCL configuration
+          to go into an invalid state. Are you sure want to delete this
+          endpoint?
+        </q-card-section>
+        <q-card-actions>
+          <q-btn label="Cancel" v-close-popup class="col" />
+          <q-btn
+            :label="'Delete'"
+            color="primary"
+            class="col"
+            v-close-popup="deleteEndpointDialog"
+            @click="deleteEndpoint()"
+            id="delete_last_endpoint"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
@@ -157,6 +186,7 @@ export default {
       modifyEndpointDialog: false,
       deleteEndpointDialog: false,
       confirmDeleteEndpointDialog: false,
+      deleteingleEndpointDialog: false,
     }
   },
   methods: {
@@ -194,6 +224,13 @@ export default {
       }
     },
     deleteEpt() {
+      if (this.endpoints.length == 1) {
+        this.deleteingleEndpointDialog = true
+      } else {
+        this.deleteEndpoint()
+      }
+    },
+    deleteEndpoint() {
       let endpointReference = this.endpointReference
       this.$store.dispatch('zap/deleteEndpoint', endpointReference).then(() => {
         this.$store.dispatch(
@@ -204,6 +241,13 @@ export default {
     },
   },
   computed: {
+    endpoints: {
+      get() {
+        return Array.from(this.endpointIdListSorted.keys()).map((id) => ({
+          id: id,
+        }))
+      },
+    },
     deviceType: {
       get() {
         return this.zclDeviceTypes[
@@ -252,14 +296,17 @@ export default {
       },
     },
     selectedservers() {
-      return [...this.$store.state.zap.clustersView.selectedServers , ...this.$store.state.zap.clustersView.selectedClients]
+      return [
+        ...this.$store.state.zap.clustersView.selectedServers,
+        ...this.$store.state.zap.clustersView.selectedClients,
+      ]
     },
-    selectedAttributes(){
+    selectedAttributes() {
       return this.$store.state.zap.attributeView.selectedAttributes
     },
-    selectedReporting(){
+    selectedReporting() {
       return this.$store.state.zap.attributeView.selectedReporting
-    }
+    },
   },
 }
 </script>

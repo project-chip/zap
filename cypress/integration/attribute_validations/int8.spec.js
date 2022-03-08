@@ -8,7 +8,9 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 
 describe('Testing INT8U type validation', () => {
   it('create a new endpoint and click on configure to open attributes of endpoint', () => {
-    cy.visit('http://localhost:8080/?restPort=9070#/')
+    cy.fixture('baseurl').then((data) => {
+      cy.visit(data.baseurl)
+    })
     cy.gotoAttributePage('Billing Unit (0x0203)', 'General')
     cy.wait(1000)
   })

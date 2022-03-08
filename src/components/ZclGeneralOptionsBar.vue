@@ -74,7 +74,7 @@ limitations under the License.
           flat
           :ripple="false"
           :unelevated="false"
-          :outline="none"
+          :outline="false"
           to="/customZcl"
         >
           <div class="text-align">ZCL Extensions...</div>

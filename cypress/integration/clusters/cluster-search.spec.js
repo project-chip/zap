@@ -8,7 +8,9 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 
 describe('Testing cluster search', () => {
   it('create a new endpoint and check existance of Basic and Power Configuration clusters', () => {
-    cy.visit('http://localhost:8080/?restPort=9070#/')
+    cy.fixture('baseurl').then((data) => {
+      cy.visit(data.baseurl)
+    })
     cy.addEndpoint('Billing Unit (0x0203)', 'General')
     cy.get('#General > .q-expansion-item__container > .q-item').click()
     cy.get('tbody')
