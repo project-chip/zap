@@ -16,6 +16,7 @@ describe('Testing Deleting Endpoints', () => {
   it('delete endpoint', () => {
     cy.get('button').contains('Delete').click()
     cy.get('.bg-primary > .q-btn__wrapper').click()
+    cy.get('#delete_last_endpoint').click()
   })
   it('Check if delete is successfull', () => {
     cy.get('aside')
