@@ -163,6 +163,7 @@ limitations under the License.
             class="col"
             v-close-popup="deleteEndpointDialog"
             @click="deleteEndpoint()"
+            id="delete_last_endpoint"
           />
         </q-card-actions>
       </q-card>
