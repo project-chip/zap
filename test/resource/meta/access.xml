@@ -22,4 +22,7 @@
     <access op="read" role="view"/>
     <access op="write" role="operate"/>
   </defaultAccess>
+  <defaultAccess type="event">
+    <access op="invoke"/>
+  </defaultAccess>
 </zap>

@@ -15,6 +15,7 @@
  *    limitations under the License.
  */
 
+const { option } = require('yargs')
 const queryAccess = require('../db/query-access')
 const templateUtil = require('./template-util')
 
@@ -23,6 +24,16 @@ const templateUtil = require('./template-util')
  *
  * @module Templating API: Access helpers
  */
+
+async function collectDefaultAccessList(ctx, entityType) {
+  let packageId = await templateUtil.ensureZclPackageId(ctx)
+  let defaultAccess = await queryAccess.selectDefaultAccess(
+    ctx.global.db,
+    packageId,
+    entityType
+  )
+  return defaultAccess
+}
 
 async function collectAccesslist(ctx, options) {
   let entityType = null
@@ -66,12 +77,7 @@ async function collectAccesslist(ctx, options) {
   }
 
   if (includeDefault) {
-    let packageId = await templateUtil.ensureZclPackageId(ctx)
-    let defaultAccess = await queryAccess.selectDefaultAccess(
-      ctx.global.db,
-      packageId,
-      entityType
-    )
+    let defaultAccess = await collectDefaultAccessList(ctx, entityType)
     accessList.push(...defaultAccess)
   }
 
@@ -179,5 +185,38 @@ async function access(options) {
   return templateUtil.templatePromise(this.global, p)
 }
 
+async function default_access(options) {
+  let entityType = null
+
+  if ('entity' in options.hash) {
+    entityType = options.hash.entity
+  } else {
+    entityType = ctx.entityType
+  }
+
+  if (entityType == null) {
+    throw new Error(
+      'Access helper requires entityType, either from context, or from the entity="<entityType>" option.'
+    )
+  }
+
+  let accessList = await collectDefaultAccessList(this, entityType)
+  accessList.forEach((element) => {
+    element.hasRole = element.role != null && element.role.length > 0
+    element.hasOperation =
+      element.operation != null && element.operation.length > 0
+    element.hasAccessModifier =
+      element.accessModifier != null && element.accessModifier.length > 0
+    element.hasAllAccessElements =
+      element.hasRole && element.hasOperation && element.hasAccessModifier
+    element.hasAtLeastOneAccessElement =
+      element.hasRole || element.hasOperation || element.hasAccessModifier
+  })
+
+  let p = templateUtil.collectBlocks(accessList, options, this)
+  return templateUtil.templatePromise(this.global, p)
+}
+
 exports.access = access
 exports.access_aggregate = access_aggregate
+exports.default_access = default_access
