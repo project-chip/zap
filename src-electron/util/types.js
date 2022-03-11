@@ -49,7 +49,7 @@ async function typeSize(db, zclPackageId, type) {
 async function typeSizeAttribute(db, zclPackageId, at, defaultValue = null) {
   let sizeType
   if (at.typeInfo) {
-    if (!at.typeInfo.atomicType) {
+    if (!at.typeInfo.atomicType && !at.typeInfo.size) {
       if (at.storage != dbEnum.storageOption.external) {
         throw new Error(
           `ERROR: Unknown size for non-external attribute: ${at.name} / ${at.code}`

@@ -1643,26 +1643,20 @@ async function processParsedZclData(
         )
       }
       await Promise.all(batch6)
-    } else {
-      if ('defaultAccess' in toplevel) {
-        batch3.push(
-          processDefaultAccess(db, filePath, packageId, toplevel.defaultAccess)
-        )
-      }
-      if ('atomic' in toplevel) {
-        batch3.push(processAtomics(db, filePath, packageId, toplevel.atomic))
-      }
-      if ('bitmap' in toplevel) {
-        batch3.push(processBitmaps(db, filePath, packageId, toplevel.bitmap))
-      }
-      if ('enum' in toplevel) {
-        batch3.push(processEnums(db, filePath, packageId, toplevel.enum))
-      }
-      if ('struct' in toplevel) {
-        batch3.push(processStructs(db, filePath, packageId, toplevel.struct))
-      }
-      await Promise.all(batch3)
+    } //else {
+    if ('defaultAccess' in toplevel) {
+      batch3.push(
+        processDefaultAccess(db, filePath, packageId, toplevel.defaultAccess)
+      )
     }
+    if ('atomic' in toplevel) {
+      batch3.push(processAtomics(db, filePath, packageId, toplevel.atomic))
+    }
+    if ('struct' in toplevel) {
+      batch3.push(processStructs(db, filePath, packageId, toplevel.struct))
+    }
+    await Promise.all(batch3)
+    //}
 
     // Batch 4: cluster extensions and global attributes
     //   These don't start right away, but are delayed. So we don't return
@@ -1740,7 +1734,13 @@ async function parseSingleZclFile(db, packageId, file, context) {
  */
 async function parseZclFiles(db, packageId, zclFiles, context) {
   env.logDebug(`Starting to parse ZCL files: ${zclFiles}`)
-  let individualFilePromise = zclFiles.map((file) =>
+  let typesFiles = zclFiles.filter((file) => file.includes('types.xml'))
+  let typeFilePromise = typesFiles.map((file) =>
+    parseSingleZclFile(db, packageId, file, context)
+  )
+  await Promise.all(typeFilePromise)
+  let nonTypesFiles = zclFiles.filter((file) => !file.includes('types.xml'))
+  let individualFilePromise = nonTypesFiles.map((file) =>
     parseSingleZclFile(db, packageId, file, context)
   )
   let individualResults = await Promise.all(individualFilePromise)

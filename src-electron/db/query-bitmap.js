@@ -53,10 +53,13 @@ async function selectAllBitmaps(db, packageId) {
     db,
     `
 SELECT
-  BITMAP_ID,
-  NAME,
-  TYPE
+  BITMAP.BITMAP_ID,
+  DATA_TYPE.NAME,
+  DATA_TYPE.DISCRIMINATOR,
+  BITMAP.SIZE
 FROM BITMAP
+INNER JOIN DATA_TYPE ON
+  BITMAP.BITMAP_ID = DATA_TYPE.DATA_TYPE_ID
 WHERE PACKAGE_REF = ? ORDER BY NAME`,
     [packageId]
   )
@@ -79,10 +82,11 @@ async function selectBitmapByName(db, packageId, name) {
       db,
       `
 SELECT
-  BITMAP_ID,
-  NAME,
-  TYPE
+  BITMAP.BITMAP_ID,
+  DATA_TYPE.NAME AS NAME,
+  BITMAP.SIZE AS SIZE
 FROM BITMAP
+INNER JOIN DATA_TYPE ON BITMAP.BITMAP_ID = DATA_TYPE.DATA_TYPE_ID
 WHERE NAME = ? AND PACKAGE_REF = ?`,
       [name, packageId]
     )

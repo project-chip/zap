@@ -1136,19 +1136,11 @@ async function enum_to_cli_data_type(currentContext, packageId, type, options) {
     type,
     packageId
   )
-  const enumType = await queryZcl.selectAtomicType(
-    currentContext.global.db,
-    packageId,
-    enumRecord.type
-  )
-  const enumSize = await zclUtil.calculateBytes(
-    enumType.name,
-    options,
-    currentContext.global.db,
-    packageId,
+  return helperC.as_zcl_cli_type(
+    enumRecord.size ? enumRecord.size : 1,
+    false,
     false
   )
-  return helperC.as_zcl_cli_type(enumSize, false, false)
 }
 
 /**
@@ -1170,19 +1162,11 @@ async function bitmap_to_cli_data_type(
     packageId,
     type
   )
-  const bitmapType = await queryZcl.selectAtomicType(
-    currentContext.global.db,
-    packageId,
-    bitmapRecord.type
-  )
-  const bitmapSize = await zclUtil.calculateBytes(
-    bitmapType.name,
-    options,
-    currentContext.global.db,
-    packageId,
+  return helperC.as_zcl_cli_type(
+    bitmapRecord.size ? bitmapRecord.size : 1,
+    false,
     false
   )
-  return helperC.as_zcl_cli_type(bitmapSize, false, false)
 }
 
 /**

@@ -211,6 +211,7 @@ exports.map = {
       name: x.NAME,
       type: x.TYPE,
       caption: `Enum of type ${x.TYPE}`,
+      size: x.SIZE,
     }
   },
 
@@ -278,6 +279,7 @@ exports.map = {
       label: x.NAME,
       name: x.NAME,
       type: x.TYPE,
+      size: x.SIZE,
     }
   },
 

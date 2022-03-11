@@ -98,6 +98,19 @@ function atomicType(arg = { name: 'unknown', size: 0 }) {
   }
 }
 
+function enumType(size) {
+  let enumSize = size ? size * 8 : 8
+  return 'uint' + enumSize + '_t'
+}
+
+function bitmapType(size) {
+  let bitmapSize = size ? size * 8 : 8
+  if (size == 3) {
+    bitmapSize = (size + 1) * 8
+  }
+  return 'uint' + bitmapSize + '_t'
+}
+
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
 //
 // Note: these exports are public API. Templates that might have been created in the past and are
@@ -105,3 +118,5 @@ function atomicType(arg = { name: 'unknown', size: 0 }) {
 // If you rename the functions, you need to still maintain old exports list.
 exports.atomicType = atomicType
 exports.nonAtomicType = nonAtomicType
+exports.enumType = enumType
+exports.bitmapType = bitmapType

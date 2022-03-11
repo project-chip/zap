@@ -276,6 +276,86 @@ async function calculateBytesForStructs(res, options, db, packageId) {
   }
 }
 
+function returnOptionsForTypes(size, res, options) {
+  return new Promise((resolve, reject) => {
+    let result = 0
+    switch (size) {
+      case 1:
+        result = optionsHashOrDefault(options, 'one_byte', size)
+        break
+      case 2:
+        result = optionsHashOrDefault(options, 'two_byte', size)
+        break
+      case 3:
+        result = optionsHashOrDefault(options, 'three_byte', size)
+        break
+      case 4:
+        result = optionsHashOrDefault(options, 'four_byte', size)
+        break
+      case 5:
+        result = optionsHashOrDefault(options, 'five_byte', size)
+        break
+      case 6:
+        result = optionsHashOrDefault(options, 'six_byte', size)
+        break
+      case 7:
+        result = optionsHashOrDefault(options, 'seven_byte', size)
+        break
+      case 8:
+        result = optionsHashOrDefault(options, 'eight_byte', size)
+        break
+      case 9:
+        result = optionsHashOrDefault(options, 'nine_byte', size)
+        break
+      case 10:
+        result = optionsHashOrDefault(options, 'ten_byte', size)
+        break
+      case 11:
+        result = optionsHashOrDefault(options, 'eleven_byte', size)
+        break
+      case 12:
+        result = optionsHashOrDefault(options, 'twelve_byte', size)
+        break
+      case 13:
+        result = optionsHashOrDefault(options, 'thirteen_byte', size)
+        break
+      case 14:
+        result = optionsHashOrDefault(options, 'fourteen_byte', size)
+        break
+      case 15:
+        result = optionsHashOrDefault(options, 'fifteen_byte', size)
+        break
+      case 16:
+        result = optionsHashOrDefault(options, 'sixteen_byte', size)
+        break
+      default:
+        if (
+          res != null &&
+          res.includes('long') &&
+          res.includes(dbEnum.zclType.string)
+        ) {
+          result = optionsHashOrDefault(options, 'long_string', 'l')
+        } else if (
+          res != null &&
+          !res.includes('long') &&
+          res.includes(dbEnum.zclType.string)
+        ) {
+          result = optionsHashOrDefault(options, 'short_string', 's')
+        } else if ('default' in options.hash) {
+          result = options.hash.default
+        }
+        break
+    }
+    resolve(result)
+  }).catch((err) => {
+    env.logError(
+      'Could not find size of the given type in' +
+        ' returnOptionsForTypes: ' +
+        err
+    )
+  })
+}
+
 /**
  *
  * @param {*} db
@@ -302,15 +382,17 @@ async function dataTypeCharacterFormatter(
     case dbEnum.zclType.bitmap:
       return queryZcl
         .selectBitmapByName(db, packageId, type)
-        .then((bitmap) => queryZcl.selectAtomicType(db, packageId, bitmap.type))
-        .then((res) => calculateBytes(res.name, options, db, packageId, false))
+        .then((bitmapRec) => bitmapRec.size)
+        .then((size) => {
+          return returnOptionsForTypes(size, null, options)
+        })
     case dbEnum.zclType.enum:
       return queryZcl
         .selectEnumByName(db, type, packageId)
-        .then((enumRec) =>
-          queryZcl.selectAtomicType(db, packageId, enumRec.type)
-        )
-        .then((res) => calculateBytes(res.name, options, db, packageId, false))
+        .then((enumRec) => enumRec.size)
+        .then((size) => {
+          return returnOptionsForTypes(size, null, options)
+        })
     case dbEnum.zclType.struct:
       if (dbEnum.zclType.struct in options.hash) {
         return options.hash.struct
@@ -440,10 +522,7 @@ function dataTypeHelper(
       } else {
         return queryZcl
           .selectBitmapByName(db, packageId, type)
-          .then((bitmap) =>
-            queryZcl.selectAtomicType(db, packageId, bitmap.type)
-          )
-          .then((res) => overridable.atomicType(res))
+          .then((bitmapRec) => overridable.bitmapType(bitmapRec.size))
       }
     case dbEnum.zclType.enum:
       if ('enum' in options.hash) {
@@ -455,10 +534,7 @@ function dataTypeHelper(
       } else {
         return queryZcl
           .selectEnumByName(db, type, packageId)
-          .then((enumRec) =>
-            queryZcl.selectAtomicType(db, packageId, enumRec.type)
-          )
-          .then((res) => overridable.atomicType(res))
+          .then((enumRec) => overridable.enumType(enumRec.size))
       }
     case dbEnum.zclType.struct:
       if ('struct' in options.hash) {
@@ -570,6 +646,7 @@ async function determineType(db, type, packageId) {
     return {
       type: dbEnum.zclType.enum,
       atomicType: theEnum.type,
+      size: theEnum.size,
     }
 
   let struct = await queryZcl.selectStructByName(db, type, packageId)
@@ -584,8 +661,8 @@ async function determineType(db, type, packageId) {
     return {
       type: dbEnum.zclType.bitmap,
       atomicType: theBitmap.type,
+      size: theBitmap.size,
     }
-
   return {
     type: dbEnum.zclType.unknown,
     atomicType: null,
@@ -600,16 +677,22 @@ async function createCommandSignature(db, packageId, cmd) {
     let single = ''
     let t = await determineType(db, arg.type, packageId)
     let recordedType
-    if (t.atomicType == null) {
-      // if it's not a last arg, we call it not simple.
-      if (index < cmd.commandArgs.length - 1) {
-        isSimple = false
-        recordedType = 'NULL'
-      } else {
-        recordedType = 'POINTER'
-      }
+    if (t.type === dbEnum.zclType.enum) {
+      recordedType = dbEnum.zclType.enum + (t.size * 8).toString()
+    } else if (t.type === dbEnum.zclType.bitmap) {
+      recordedType = dbEnum.zclType.bitmap + (t.size * 8).toString()
     } else {
-      recordedType = t.atomicType.toLowerCase()
+      if (t.atomicType == null) {
+        // if it's not a last arg, we call it not simple.
+        if (index < cmd.commandArgs.length - 1) {
+          isSimple = false
+          recordedType = 'NULL'
+        } else {
+          recordedType = 'POINTER'
+        }
+      } else {
+        recordedType = t.atomicType.toLowerCase()
+      }
     }
     arg.baseType = recordedType
     single += `${recordedType}`

@@ -210,7 +210,7 @@ limitations under the License.
     <item name="normal" value="0x0"/>
     <item name="configure" value="0x1"/>
   </enum>
-  <enum name="Status" type="INT8U" description="Status codes used in the ZigBee Cluster Library">
+  <enum name="Status" type="ENUM8" description="Status codes used in the ZigBee Cluster Library">
     <item name="SUCCESS" value="0x00"/>
     <item name="FAILURE" value="0x01"/>
     <item name="NOT_AUTHORIZED" value="0x7E"/>

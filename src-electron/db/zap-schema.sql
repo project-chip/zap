@@ -462,8 +462,8 @@ CREATE TABLE IF NOT EXISTS "ATOMIC" (
 /*
  BITMAP table contains the bitmaps directly loaded from packages.
  */
-DROP TABLE IF EXISTS "BITMAP_2";
-CREATE TABLE IF NOT EXISTS BITMAP_2 ( 
+DROP TABLE IF EXISTS "BITMAP";
+CREATE TABLE IF NOT EXISTS BITMAP ( 
 	BITMAP_ID            integer NOT NULL  PRIMARY KEY  ,
 	SIZE                 integer     ,
 	FOREIGN KEY ( BITMAP_ID ) REFERENCES DATA_TYPE( DATA_TYPE_ID ) ON DELETE CASCADE ON UPDATE CASCADE
@@ -471,58 +471,21 @@ CREATE TABLE IF NOT EXISTS BITMAP_2 (
 /*
  BITMAP_FIELD contains items that make up a bitmap.
  */
-DROP TABLE IF EXISTS "BITMAP_FIELD_2";
-CREATE TABLE IF NOT EXISTS BITMAP_FIELD_2 ( 
+DROP TABLE IF EXISTS "BITMAP_FIELD";
+CREATE TABLE IF NOT EXISTS BITMAP_FIELD ( 
 	BITMAP_FIELD_ID      integer NOT NULL  PRIMARY KEY autoincrement ,
 	BITMAP_REF           integer     ,
 	FIELD_IDENTIFIER     integer     ,
 	NAME                 text(100)     ,
 	MASK                 integer     ,
-	FOREIGN KEY ( BITMAP_REF ) REFERENCES BITMAP_2( BITMAP_ID )  
+	FOREIGN KEY ( BITMAP_REF ) REFERENCES BITMAP( BITMAP_ID )  
  );
-
-/*
- BITMAP table contains the bitmaps directly loaded from packages.
- */
-DROP TABLE IF EXISTS "BITMAP";
-CREATE TABLE IF NOT EXISTS "BITMAP" (
-  "BITMAP_ID" integer primary key autoincrement,
-  "PACKAGE_REF" integer,
-  "NAME" text,
-  "TYPE" text,
-  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID)
-);
-
-/*
- BITMAP_FIELD contains items that make up a bitmap.
- */
-DROP TABLE IF EXISTS "BITMAP_FIELD";
-CREATE TABLE IF NOT EXISTS "BITMAP_FIELD" (
-  "BITMAP_REF" integer,
-  "FIELD_IDENTIFIER" integer,
-  "NAME" text,
-  "MASK" integer,
-  "TYPE" text,
-  foreign key(BITMAP_REF) references BITMAP(BITMAP_ID)
-);
-/*
- BITMAP_CLUSTER table is a junction table, optionally linking a bitmap to one or more cluster
- */
-DROP TABLE IF EXISTS "BITMAP_CLUSTER";
-CREATE TABLE IF NOT EXISTS "BITMAP_CLUSTER" (
-  "BITMAP_REF" integer,
-  "CLUSTER_CODE" integer,
-  "CLUSTER_REF" integer,
-  foreign key(BITMAP_REF) references BITMAP(BITMAP_ID),
-  foreign key (CLUSTER_REF) references CLUSTER(CLUSTER_ID),
-  UNIQUE(BITMAP_REF, CLUSTER_REF)
-);
 
 /*
  ENUM table contains enums directly loaded from packages.
  */
-DROP TABLE IF EXISTS "ENUM_2";
-CREATE TABLE IF NOT EXISTS "ENUM_2" ( 
+DROP TABLE IF EXISTS "ENUM";
+CREATE TABLE IF NOT EXISTS "ENUM" ( 
   ENUM_ID              integer NOT NULL  PRIMARY KEY  ,
   SIZE                 integer     ,
   FOREIGN KEY ( ENUM_ID ) REFERENCES DATA_TYPE( DATA_TYPE_ID ) ON DELETE CASCADE ON UPDATE CASCADE
@@ -531,51 +494,17 @@ CREATE TABLE IF NOT EXISTS "ENUM_2" (
 /*
  ENUM_ITEM table contains individual enum items.
  */
-DROP TABLE IF EXISTS "ENUM_ITEM_2";
-CREATE TABLE IF NOT EXISTS "ENUM_ITEM_2" ( 
+DROP TABLE IF EXISTS "ENUM_ITEM";
+CREATE TABLE IF NOT EXISTS "ENUM_ITEM" ( 
   "ENUM_ITEM_ID"         integer NOT NULL  PRIMARY KEY autoincrement,
   "ENUM_REF"             integer     ,
   "NAME"                 text     ,
   "DESCRIPTION"          text     ,
   "FIELD_IDENTIFIER"     integer     ,
   "VALUE"                integer     ,
-  FOREIGN KEY ( ENUM_REF ) REFERENCES "ENUM_2"( ENUM_ID ) ON DELETE CASCADE ON UPDATE CASCADE
+  FOREIGN KEY ( ENUM_REF ) REFERENCES "ENUM"( ENUM_ID ) ON DELETE CASCADE ON UPDATE CASCADE
  );
 
-/*
- ENUM table contains enums directly loaded from packages.
- */
-DROP TABLE IF EXISTS "ENUM";
-CREATE TABLE IF NOT EXISTS "ENUM" (
-  "ENUM_ID" integer primary key autoincrement,
-  "PACKAGE_REF" integer,
-  "NAME" text,
-  "TYPE" text,
-  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID)
-);
-/*
- ENUM_ITEM table contains individual enum items.
- */
-DROP TABLE IF EXISTS "ENUM_ITEM";
-CREATE TABLE IF NOT EXISTS "ENUM_ITEM" (
-  "ENUM_REF" integer,
-  "FIELD_IDENTIFIER" integer,
-  "NAME" text,
-  "VALUE" integer,
-  foreign key (ENUM_REF) references ENUM(ENUM_ID)
-);
-/*
- ENUM_CLUSTER table is a junction table, optionally linking an enum to one or more clusters
- */
-DROP TABLE IF EXISTS "ENUM_CLUSTER";
-CREATE TABLE IF NOT EXISTS "ENUM_CLUSTER" (
-  "ENUM_REF" integer,
-  "CLUSTER_CODE" integer,
-  "CLUSTER_REF" integer,
-  foreign key (ENUM_REF) references ENUM(ENUM_ID),
-  foreign key (CLUSTER_REF) references CLUSTER(CLUSTER_ID),
-  UNIQUE(ENUM_REF, CLUSTER_REF)
-);
 /*
  STRUCT table contains structs directly loaded from packages.
  */

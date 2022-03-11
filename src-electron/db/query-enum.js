@@ -54,11 +54,14 @@ async function selectAllEnums(db, packageId) {
       db,
       `
 SELECT
-  ENUM_ID,
-  NAME,
-  TYPE
+  ENUM.ENUM_ID,
+  DATA_TYPE.NAME,
+  DATA_TYPE.DISCRIMINATOR_REF,
+  SIZE
 FROM
   ENUM
+INNER JOIN DATA_TYPE ON
+  ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID
 WHERE
   PACKAGE_REF = ?
 ORDER BY NAME`,
@@ -202,8 +205,9 @@ async function selectEnumByName(db, name, packageId) {
   return dbApi
     .dbGet(
       db,
-      'SELECT ENUM_ID, NAME, TYPE FROM ENUM WHERE NAME = ? AND PACKAGE_REF = ? ORDER BY NAME',
-      [name, packageId]
+      'SELECT ENUM.ENUM_ID, DATA_TYPE.NAME AS NAME, ENUM.SIZE AS SIZE FROM ENUM INNER JOIN DATA_TYPE ON ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID WHERE NAME = ? AND PACKAGE_REF = ? ORDER BY NAME'[
+        (name, packageId)
+      ]
     )
     .then(dbMapping.map.enum)
 }
