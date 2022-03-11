@@ -7,27 +7,29 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 })
 
 describe('Testing enabled attributes amount', () => {
-  it('create a new endpoint and get amount of enabled attributes', () => {
-    cy.fixture('baseurl').then((data) => {
-      cy.visit(data.baseurl)
-    })
-    cy.addEndpoint('Billing Unit (0x0203)', 'General')
-    cy.wait(2000)
-    cy.get(':nth-child(7) > .text-right').then(($div) => {
-      const num1 = parseFloat($div.text())
-      cy.gotoAttributePage('', 'General')
-      cy.get(
-        '#qvs_116 > :nth-child(2) > :nth-child(2) > .q-mt-xs > .q-toggle__inner'
-      ).click()
-      cy.get('.router-link-active')
-        .contains('Back')
-        .click()
-        .then(() => {})
-      cy.wait(2000)
-      cy.get(':nth-child(7) > .text-right').then(($div2) => {
-        const num2 = parseFloat($div2.text())
-        expect(num2).to.eq(17)
+  it(
+    'create a new endpoint and get amount of enabled attributes',
+    { retries: { runMode: 2, openMode: 2 } },
+    () => {
+      cy.fixture('baseurl').then((data) => {
+        cy.visit(data.baseurl)
       })
-    })
-  })
+      cy.addEndpoint('Billing Unit (0x0203)', 'General')
+      cy.get(':nth-child(7) > .text-right').then(($div) => {
+        const num1 = parseFloat($div.text())
+        cy.gotoAttributePage('', 'General')
+        cy.get(
+          '.table_body:eq(2) > :nth-child(2) > .q-mt-xs > .q-toggle__inner'
+        ).click()
+        cy.get('.router-link-active')
+          .contains('Back')
+          .click()
+          .then(() => {})
+        cy.get(':nth-child(7) > .text-right').then(($div2) => {
+          const num2 = parseFloat($div2.text())
+          expect(num2).to.eq(17)
+        })
+      })
+    }
+  )
 })

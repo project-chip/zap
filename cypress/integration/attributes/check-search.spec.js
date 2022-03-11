@@ -12,14 +12,17 @@ describe('Testing attribute search', () => {
       cy.visit(data.baseurl)
     })
     cy.gotoAttributePage('Billing Unit (0x0203)', 'General')
-    cy.wait(1000)
   })
-  it('check existance of ZCL version and application version', () => {
-    cy.get('tbody')
-      .children()
-      .should('contain', 'ZCL version')
-      .and('contain', 'application version')
-  })
+  it(
+    'check existance of ZCL version and application version',
+    { retries: { runMode: 2, openMode: 2 } },
+    () => {
+      cy.get('tbody')
+        .children()
+        .should('contain', 'ZCL version')
+        .and('contain', 'application version')
+    }
+  )
   it('Search for application', () => {
     cy.get(
       '.q-py-none > .q-field > .q-field__inner > .q-field__control > .q-field__control-container > input'

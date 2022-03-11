@@ -15,29 +15,35 @@ describe('Check theme functionality', () => {
     })
   })
 
-  it('Setting light theme via Preference / calling rendereApi with boolean arg', () => {
-    cy.get('#preference').click()
-    cy.wait(1000)
-    cy.get('#darkTheme')
-      // .parent()
-      // .get('[type="checkbox"]')
-      .find('input')
-      .uncheck({ force: true })
+  it(
+    'Setting light theme via Preference / calling rendereApi with boolean arg',
+    { retries: { runMode: 2, openMode: 2 } },
+    () => {
+      cy.get('#preference').click()
+      cy.get('#darkTheme')
+        // .parent()
+        // .get('[type="checkbox"]')
+        .find('input')
+        .uncheck({ force: true })
 
-    cy.get('body').should('have.css', 'background-color', 'rgba(0, 0, 0, 0)')
-  })
+      cy.get('body').should('have.css', 'background-color', 'rgba(0, 0, 0, 0)')
+    }
+  )
 
-  it('Setting dark theme via Preference / calling rendereApi with boolean arg', () => {
-    cy.get('#preference').click()
-    cy.wait(1000)
-    cy.get('#darkTheme')
-      // .parent()
-      // .get('[type="checkbox"]')
-      .find('input')
-      .check({ force: true })
+  it(
+    'Setting dark theme via Preference / calling rendereApi with boolean arg',
+    { retries: { runMode: 2, openMode: 2 } },
+    () => {
+      cy.get('#preference').click()
+      cy.get('#darkTheme')
+        // .parent()
+        // .get('[type="checkbox"]')
+        .find('input')
+        .check({ force: true })
 
-    cy.get('body').should('have.css', 'background-color', 'rgb(39, 40, 33)')
-  })
+      cy.get('body').should('have.css', 'background-color', 'rgb(39, 40, 33)')
+    }
+  )
 
   it('Setting light theme via rendererApi with string arg', () => {
     cy.window().then(function (window) {

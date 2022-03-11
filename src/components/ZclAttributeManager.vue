@@ -36,7 +36,7 @@ limitations under the License.
       style="height: calc(100vh - 210px); overflow: hidden"
     >
       <template v-slot:body="props">
-        <q-tr :props="props">
+        <q-tr :props="props" class="table_body">
           <q-td
             key="status"
             :props="props"
@@ -226,7 +226,14 @@ limitations under the License.
                       hashAttributeIdClusterId(props.row.id, selectedCluster.id)
                     ]
                   "
-                  @click="setToNull(props.row, selectedCluster.id)"
+                  @click="
+                    handleLocalChange(
+                      null,
+                      'defaultValue',
+                      props.row,
+                      selectedCluster.id
+                    )
+                  "
                 />
               </template>
             </q-input>
