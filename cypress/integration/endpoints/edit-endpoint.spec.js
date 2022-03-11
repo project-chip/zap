@@ -11,20 +11,20 @@ describe('Testing Editing endpoints', () => {
       cy.visit(data.baseurl)
     })
     cy.addEndpoint('Billing Unit (0x0203)')
-    cy.wait(1000)
   })
-  it('edit endpoint', () => {
+  it('edit endpoint', { retries: { runMode: 2, openMode: 2 } }, () => {
     cy.get('button').contains('Edit').click()
     cy.get(
       '.q-form > .q-select > .q-field__inner > .q-field__control > .q-field__control-container'
     ).click()
-    cy.wait(1000)
     cy.get('div').contains('CBA Config Tool (0x0005)').click()
-    cy.wait(1000)
     cy.get('button').contains('Save').click()
-    cy.wait(1000)
   })
-  it('Check if edit is successfull', () => {
-    cy.get('aside').children().should('contain', 'CBA Config Tool (0x0005)')
-  })
+  it(
+    'Check if edit is successfull',
+    { retries: { runMode: 2, openMode: 2 } },
+    () => {
+      cy.get('aside').children().should('contain', 'CBA Config Tool (0x0005)')
+    }
+  )
 })

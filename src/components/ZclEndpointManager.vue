@@ -27,6 +27,7 @@ limitations under the License.
         flat
         :ripple="false"
         :unelevated="false"
+        id="new_endpoint_button"
       />
       <q-space />
       <q-btn

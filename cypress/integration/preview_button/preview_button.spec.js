@@ -9,23 +9,17 @@ describe('Check preview buttton', () => {
     cy.fixture('baseurl').then((data) => {
       cy.visit(data.baseurl)
     })
-    cy.get('button').contains('Add New Endpoint').click()
-    cy.wait(1000)
-    cy.get(
-      '.q-form > .q-select > .q-field__inner > .q-field__control > .q-field__control-container'
-    ).click()
-    cy.wait(1000)
-    cy.get('div').contains('Billing Unit (0x0203)').click()
-    cy.wait(1000)
-    cy.get('button').contains('Create').click()
-    cy.wait(1000)
+    cy.addEndpoint('Billing Unit (0x0203)')
   })
-  it('Checking preview button', () => {
-    cy.get('button').contains('Preview').click()
-    cy.wait(1000)
-    cy.get('.q-pa-md > .q-btn > .q-btn__wrapper')
-      .contains('Select File')
-      .click()
-    cy.get('.q-list > div').should('contain', 'sdk-extension.out')
-  })
+  it(
+    'Checking preview button',
+    { retries: { runMode: 2, openMode: 2 } },
+    () => {
+      cy.get('button').contains('Preview').click()
+      cy.get('.q-pa-md > .q-btn > .q-btn__wrapper')
+        .contains('Select File')
+        .click()
+      cy.get('.q-list > div').should('contain', 'sdk-extension.out')
+    }
+  )
 })
