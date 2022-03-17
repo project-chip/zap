@@ -79,20 +79,17 @@ function asHex(rawValue, padding, nullValue) {
 async function asUnderlyingType(value) {
   let packageId = await templateUtil.ensureZclPackageId(this)
   let atomic = await queryZcl.selectAtomicType(this.global.db, packageId, value)
+  let bitmap = null
 
   if (atomic == null) {
     // Check if it's maybe a bitmap.
-    let bitmap = await queryZcl.selectBitmapByName(
+    bitmap = await queryZcl.selectBitmapByName(
       this.global.db,
       this.global.zclPackageId,
       value
     )
     if (bitmap != null) {
-      atomic = await queryZcl.selectAtomicType(
-        this.global.db,
-        this.global.zclPackageId,
-        bitmap.type
-      )
+      atomic = bitmap
     }
   }
 
@@ -115,6 +112,8 @@ async function asUnderlyingType(value) {
       'types',
       atomic.name
     )
+    if (opt == null && atomic && bitmap && _.isEqual(atomic, bitmap))
+      return this.global.overridable.bitmapType(bitmap.size)
     if (opt == null) return this.global.overridable.atomicType(atomic)
     else return opt.optionLabel
   }
