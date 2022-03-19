@@ -16,7 +16,12 @@ limitations under the License.
 
 <template>
   <div>
-    <q-btn outline @click="enableAllClusters" label="Enable All Clusters" />
+    <q-btn
+      v-if="this.$store.state.zap.showDevTools"
+      outline
+      @click="showEnableAllClustersDialog = true"
+      label="Enable All Clusters"
+    />
     <q-table
       :data="clusters"
       :columns="columns"
@@ -149,6 +154,29 @@ limitations under the License.
         </q-tr>
       </template>
     </q-table>
+    <q-dialog
+      v-model="showEnableAllClustersDialog"
+      class="background-color:transparent"
+    >
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Enable All Clusters</div>
+          Enabling all clusters may cause the ZCL configuration to go into an
+          invalid state. Are you sure want to enable all clusters?
+        </q-card-section>
+        <q-card-actions>
+          <q-btn label="Cancel" v-close-popup class="col" />
+          <q-btn
+            :label="'Enable All Clusters'"
+            color="primary"
+            class="col"
+            v-close-popup="showEnableAllClustersDialog"
+            @click="enableAllClusters()"
+            id="enable_all_clusters"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 <script>
@@ -347,6 +375,7 @@ export default {
   },
   data() {
     return {
+      showEnableAllClustersDialog: false,
       uc_label: 'uc label',
       clusterSelectionOptions: [
         { label: 'Not Enabled', client: false, server: false },
