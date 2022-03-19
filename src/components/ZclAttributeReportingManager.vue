@@ -82,7 +82,7 @@ limitations under the License.
             props.row.label
           }}</q-td>
           <q-td key="required" :props="props" auto-width>
-            {{ isAttributeRequired(props.row) ? 'Yes' : '' }}
+            {{ props.row.reportingPolicy }}
           </q-td>
           <q-td key="mfgID" :props="props" auto-width>{{
             selectedCluster.manufacturerCode
@@ -286,7 +286,7 @@ export default {
         },
         {
           name: 'required',
-          label: 'Required',
+          label: 'Reporting Policy',
           field: 'required',
           align: 'left',
           sortable: true,
