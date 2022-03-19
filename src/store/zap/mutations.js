@@ -223,6 +223,11 @@ export function updateAttributeDefaults(state, selectionContext) {
     selectionContext.id,
     selectionContext.defaultValueValidationIssues
   )
+  Vue.set(
+    state.attributeView.nullValues,
+    selectionContext.id,
+    selectionContext.isNull
+  )
 }
 
 export function updateCommands(state, commands) {
