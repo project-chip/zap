@@ -42,6 +42,21 @@ limitations under the License.
               class="text-amber"
               style="font-size: 1.5rem"
             />
+            <q-tooltip
+              v-if="displayCommandWarning(props.row)"
+              anchor="top middle"
+              self="bottom middle"
+              :offset="[10, 10]"
+            >
+              The outgoing command is mandatory for the cluster and device type
+              configuration you have enabled
+            </q-tooltip>
+            <!-- <q-icon
+              v-show="displayCommandWarning(props.row)"
+              name="warning"
+              class="text-amber"
+              style="font-size: 1.5rem"
+            />
             <q-popup-edit
               :disable="!displayCommandWarning(props.row)"
               :cover="false"
@@ -67,7 +82,7 @@ limitations under the License.
                   </div>
                 </div>
               </template>
-            </q-popup-edit>
+            </q-popup-edit> -->
           </q-td>
           <q-td key="out" :props="props" auto-width>
             <q-checkbox
