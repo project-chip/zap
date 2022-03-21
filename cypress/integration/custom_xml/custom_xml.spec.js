@@ -22,7 +22,6 @@ describe('Check ZCL Extension functionalities', () => {
         )
       })
       .then(() => {
-        cy.wait(1000)
         cy.get(
           ':nth-child(3) > .q-card > .q-list > :nth-child(2) > :nth-child(2)'
         ).should('contain', 'Bead Device Type Name (0xDEAD)')

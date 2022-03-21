@@ -12,21 +12,24 @@ describe('Testing attribute validation', () => {
       cy.visit(data.baseurl)
     })
     cy.gotoAttributePage('Billing Unit (0x0203)', 'General')
-    cy.wait(2000)
   })
-  it('change default input to a wrong amount', () => {
-    cy.get(
-      ':nth-child(1) > [style="min-width: 180px;"] > .q-field > .q-field__inner > .q-field__control > .q-field__control-container > input'
-    )
-      .clear({ force: true })
-      .type('99999', { force: true })
-      .then(() => {
-        cy.get('#qvs_116 > :nth-child(1) > [style="min-width: 180px;"]').should(
-          'contain',
-          'Out of range'
-        )
-      })
-  })
+  it(
+    'change default input to a wrong amount',
+    { retries: { runMode: 2, openMode: 2 } },
+    () => {
+      cy.get(
+        ':nth-child(1) > [style="min-width: 180px;"] > .q-field > .q-field__inner > .q-field__control > .q-field__control-container > input'
+      )
+        .clear({ force: true })
+        .type('99999', { force: true })
+        .then(() => {
+          cy.get('.table_body:first > [style="min-width: 180px;"]').should(
+            'contain',
+            'Out of range'
+          )
+        })
+    }
+  )
   it('change default input to a correct amount', () => {
     cy.get(
       ':nth-child(1) > [style="min-width: 180px;"] > .q-field > .q-field__inner > .q-field__control > .q-field__control-container > input'

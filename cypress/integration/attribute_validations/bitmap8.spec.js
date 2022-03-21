@@ -12,15 +12,18 @@ describe('Testing BITMAP8 type validation', () => {
       cy.visit(data.baseurl)
     })
     cy.gotoAttributePage('Billing Unit (0x0203)', 'General')
-    cy.wait(1000)
   })
-  it('getting an attribute with BITMAP8 type and change defualt amount', () => {
-    cy.get(
-      ':nth-child(16) > [style="min-width: 180px;"] > .q-field > .q-field__inner > .q-field__control > .q-field__control-container > input'
-    )
-      .clear({ force: true })
-      .type('test', { force: true })
-  })
+  it(
+    'getting an attribute with BITMAP8 type and change defualt amount',
+    { retries: { runMode: 2, openMode: 2 } },
+    () => {
+      cy.get(
+        ':nth-child(16) > [style="min-width: 180px;"] > .q-field > .q-field__inner > .q-field__control > .q-field__control-container > input'
+      )
+        .clear({ force: true })
+        .type('test', { force: true })
+    }
+  )
   it('check if validation works properly', () => {
     cy.get(
       ':nth-child(16) > [style="min-width: 180px;"] > .q-field > .q-field__inner > .q-field__bottom > .q-field__messages > div'

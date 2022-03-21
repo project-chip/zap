@@ -11,9 +11,8 @@ describe('Testing Deleting Endpoints', () => {
       cy.visit(data.baseurl)
     })
     cy.addEndpoint('Billing Unit (0x0203)')
-    cy.wait(1000)
   })
-  it('delete endpoint', () => {
+  it('delete endpoint', { retries: { runMode: 2, openMode: 2 } }, () => {
     cy.get('button').contains('Delete').click()
     cy.get('.bg-primary > .q-btn__wrapper').click()
     cy.get('#delete_last_endpoint').click()
