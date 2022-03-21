@@ -327,6 +327,8 @@ function getAllParamValuePairArrayClauses(paramValuePairArray) {
       currentString += paramValuePair.value ? '1' : '0'
     } else if (paramValuePair.value == '') {
       currentString += false
+    } else if (paramValuePair.value == null) {
+      currentString += 'null'
     } else {
       if (paramValuePair.type == 'text') {
         currentString += "'" + paramValuePair.value + "'"

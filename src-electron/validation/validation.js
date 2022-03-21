@@ -67,7 +67,7 @@ async function validateNoDuplicateEndpoints(
 
 function validateSpecificAttribute(endpointAttribute, attribute) {
   let defaultAttributeIssues = []
-  if (attribute.isNullable && endpointAttribute.defaultValue == 'null') {
+  if (attribute.isNullable && endpointAttribute.defaultValue == null) {
     return { defaultValue: defaultAttributeIssues }
   } else if (!types.isString(attribute.type)) {
     if (types.isFloat(attribute.type)) {

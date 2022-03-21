@@ -37,16 +37,26 @@ limitations under the License.
     >
       <template v-slot:body="props">
         <q-tr :props="props">
-          <q-td key="status" :props="props" class="q-px-none" style="width:30px;max-width:30px;">
+          <q-td
+            key="status"
+            :props="props"
+            class="q-px-none"
+            style="width: 30px; max-width: 30px"
+          >
             <q-icon
               v-show="displayAttrWarning(props.row)"
               name="warning"
               class="text-amber"
               style="font-size: 1.5rem"
             />
-            <q-tooltip v-if="displayAttrWarning(props.row)" anchor="top middle" self="bottom middle" :offset="[10, 10]" >
+            <q-tooltip
+              v-if="displayAttrWarning(props.row)"
+              anchor="top middle"
+              self="bottom middle"
+              :offset="[10, 10]"
+            >
               This attribute is mandatory for the cluster and device type
-                    configuration you have enabled
+              configuration you have enabled
             </q-tooltip>
             <!-- <q-popup-edit
               :disable="!displayAttrWarning(props.row)"
@@ -173,11 +183,14 @@ limitations under the License.
               bottom-slots
               hide-bottom-space
               outlined
-              :disable="
-                !selection.includes(
+              :color="
+                nullValues[
                   hashAttributeIdClusterId(props.row.id, selectedCluster.id)
-                )
+                ]
+                  ? 'grey'
+                  : ''
               "
+              :disable="isDisabled(props.row.id, selectedCluster.id)"
               :value="
                 selectionDefault[
                   hashAttributeIdClusterId(props.row.id, selectedCluster.id)
@@ -202,17 +215,21 @@ limitations under the License.
                 )
               "
             >
-            <template v-slot:append >
-              <q-btn v-if="props.row.isNullable" color="secondary" label="Null" size="sm" @click="
-                handleLocalChange(
-                  null,
-                  'defaultValue',
-                  props.row,
-                  selectedCluster.id
-                )
-              " />
-            </template>
-          </q-input>
+              <template v-slot:append>
+                <q-btn
+                  v-if="props.row.isNullable"
+                  color="secondary"
+                  label="Null"
+                  size="sm"
+                  :disabled="
+                    nullValues[
+                      hashAttributeIdClusterId(props.row.id, selectedCluster.id)
+                    ]
+                  "
+                  @click="setToNull(props.row, selectedCluster.id)"
+                />
+              </template>
+            </q-input>
           </q-td>
         </q-tr>
       </template>
@@ -231,6 +248,14 @@ export default {
   mixins: [EditableAttributeMixin],
   destroyed() {},
   methods: {
+    isDisabled(id, selectedClusterId) {
+      return !this.selection.includes(
+        this.hashAttributeIdClusterId(id, selectedClusterId)
+      )
+    },
+    setToNull(row, selectedClusterId) {
+      this.handleLocalChange(null, 'defaultValue', row, selectedClusterId)
+    },
     isAttributeRequired(attribute) {
       return this.requiredAttributes.includes(attribute.id)
     },

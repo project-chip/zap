@@ -108,6 +108,7 @@ export default function () {
       reportingMin: {},
       reportingMax: {},
       reportableChange: {},
+      nullValues: {},
     },
     commandView: {
       selectedIn: [],

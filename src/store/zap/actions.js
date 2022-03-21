@@ -125,11 +125,17 @@ export function updateSelectedAttribute(context, selectionContext) {
           view: 'attributeView',
         })
       } else if (arg.action === 'text') {
+        let isNull = false
+        if (arg.added == null) {
+          arg.added = 'NULL'
+          isNull = true
+        }
         context.commit('updateAttributeDefaults', {
           id: Util.cantorPair(arg.id, arg.clusterRef),
           newDefaultValue: arg.added,
           listType: arg.listType,
           defaultValueValidationIssues: arg.validationIssues.defaultValue,
+          isNull,
         })
       }
     })

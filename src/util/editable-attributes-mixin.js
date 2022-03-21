@@ -47,6 +47,11 @@ export default {
         return this.$store.state.zap.attributeView.selectedAttributes
       },
     },
+    nullValues: {
+      get() {
+        return this.$store.state.zap.attributeView.nullValues
+      },
+    },
     selectionSingleton: {
       get() {
         return this.$store.state.zap.attributeView.selectedSingleton
@@ -268,8 +273,12 @@ export default {
         reportMaxInterval: attributeData.reportMaxInterval,
       }
       this.$store.dispatch('zap/updateSelectedAttribute', editContext)
-      if(addedValue && listType === "selectedAttributes" && attributeData.isReportable){
-        editContext.listType = 'selectedReporting';
+      if (
+        addedValue &&
+        listType === 'selectedAttributes' &&
+        attributeData.isReportable
+      ) {
+        editContext.listType = 'selectedReporting'
         this.$store.dispatch('zap/updateSelectedAttribute', editContext)
       }
     },
