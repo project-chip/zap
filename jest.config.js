@@ -11,7 +11,7 @@ module.exports = {
   // verbose: true,
   // watch: true,
   collectCoverage: true,
-  coverageDirectory: '<rootDir>/test/jest/coverage',
+  coverageDirectory: 'jest-coverage',
   collectCoverageFrom: [
     '<rootDir>/src-electron/**/*.js',
     '<rootDir>/src-shared/**/*.js',

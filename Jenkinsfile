@@ -132,7 +132,7 @@ pipeline
                 {
                     withEnv(['ZAP_TEST_TIMEOUT=3600000', 'ZAP_TEMPSTATE=1'])
                     {
-                        sh 'xvfb-run -a npm run test'
+                        sh 'xvfb-run -a npm run test:unit'
                     }
                 }
             }

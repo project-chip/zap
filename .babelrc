@@ -1,6 +1,9 @@
 {
   "plugins": ["@babel/plugin-syntax-dynamic-import"],
   "env": {
+    "development": {
+      "plugins": ["@babel/plugin-syntax-dynamic-import", "istanbul"]
+    },
     "test": {
       "plugins": ["dynamic-import-node"],
       "presets": [

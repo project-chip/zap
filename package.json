@@ -19,14 +19,16 @@
     "lint": "eslint --ext .js,.vue src src-electron src-shared src-script test",
     "lintfix": "eslint --fix --ext .js,.vue src src-electron src-shared src-script test",
     "electron-build-dmg": "node src-script/build-dmg.js",
-    "test": "node src-script/zap-versionstamp.js && jest --reporters=jest-junit --reporters=default --updateSnapshot",
-    "test:unit": "jest --updateSnapshot",
+    "clean:report": "rm -rf .nyc_output || true",
+    "test": " npm run test:unit && npm run test:e2e-ci && npm run report",
+    "test:unit": "node src-script/zap-versionstamp.js && jest --reporters=jest-junit --reporters=default --updateSnapshot",
     "test:unit:verbose": "jest --updateSnapshot --verbose false",
     "test:unit:coverage": "jest --coverage",
     "test:unit:watch": "jest --watch",
     "test:unit:watchAll": "jest --watchAll",
     "test:e2e": "node src-script/zap-uitest.js open",
     "test:e2e-ci": "node src-script/zap-uitest.js run",
+    "report": "node src-script/zap-combine-reports.js",
     "postinstall": "electron-builder install-app-deps && husky install && npm rebuild canvas --update-binary",
     "buildAndPack:win": "npm run build && npm run pack:win",
     "buildAndPack:mac": "npm run build && npm run pack:mac",
@@ -116,6 +118,7 @@
     "@babel/plugin-transform-regenerator": "^7.14.5",
     "@babel/preset-typescript": "^7.14.5",
     "@babel/runtime-corejs2": "^7.14.6",
+    "@cypress/code-coverage": "^3.9.12",
     "@quasar/app": "^2.2.10",
     "@quasar/extras": "^1.10.8",
     "@quasar/quasar-app-extension-testing": "^1.0.3",
@@ -128,6 +131,7 @@
     "@vue/eslint-config-standard": "^6.0.0",
     "babel-eslint": "^10.1.0",
     "babel-jest": "^26.6.3",
+    "babel-plugin-istanbul": "^6.1.1",
     "copy-webpack-plugin": "^6.3.2",
     "copyfiles": "^2.4.1",
     "devtron": "^1.4.0",
@@ -250,6 +254,17 @@
       "!test.*",
       "!src-script/**/*",
       "!src-electron/**/*"
+    ]
+  },
+  "nyc": {
+    "report-dir": "cypress-coverage",
+    "include": [
+      "src/**/*.js",
+      "src/**/*.ts",
+      "src-electron/**/*.js",
+      "src-electron/**/*.ts",
+      "src-shared/**/*.js",
+      "src-shared/**/*.ts"
     ]
   }
 }
