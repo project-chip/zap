@@ -23,6 +23,7 @@ const types = require('../util/types.js')
 const string = require('../util/string')
 const _ = require('lodash')
 const dbEnum = require('../../src-shared/db-enum.js')
+const { bitmapType } = require('./overridable.js')
 
 /**
  * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
@@ -77,45 +78,62 @@ function asHex(rawValue, padding, nullValue) {
  * @param {*} value
  */
 async function asUnderlyingType(value) {
-  let packageId = await templateUtil.ensureZclPackageId(this)
-  let atomic = await queryZcl.selectAtomicType(this.global.db, packageId, value)
-  let bitmap = null
-
-  if (atomic == null) {
-    // Check if it's maybe a bitmap.
-    bitmap = await queryZcl.selectBitmapByName(
+  let dataType = null
+  // Step 1: Extracting the data type based on id or name
+  if (typeof value === 'number') {
+    dataType = await queryZcl.selectDataTypeById(this.global.db, value)
+  } else if (typeof value === 'string') {
+    dataType = await queryZcl.selectDataTypeByName(
       this.global.db,
-      this.global.zclPackageId,
-      value
+      value,
+      this.global.zclPackageId
     )
-    if (bitmap != null) {
-      atomic = bitmap
-    }
   }
-
-  // Check if it's maybe a struct
-  let struct = await queryZcl.selectStructByName(
-    this.global.db,
-    value,
-    this.global.zclPackageId
-  )
-
-  if (atomic == null) {
-    return this.global.overridable.nonAtomicType({
-      name: value,
-      isStruct: struct != null,
-    })
-  } else {
-    let opt = await queryPackage.selectSpecificOptionValue(
-      this.global.db,
-      this.global.genTemplatePackageId,
-      'types',
-      atomic.name
+  // Step 2: Detecting the type of the data type and returning the appropriate c
+  // type through overridable
+  try {
+    if (
+      dataType &&
+      dataType.discriminatorName.toLowerCase() == dbEnum.zclType.bitmap
+    ) {
+      let bt = await queryZcl.selectBitmapByName(
+        this.global.db,
+        this.global.zclPackageId,
+        dataType.name
+      )
+      return this.global.overridable.bitmapType(bt.size)
+    } else if (
+      dataType &&
+      dataType.discriminatorName.toLowerCase() == dbEnum.zclType.enum
+    ) {
+      let et = await queryZcl.selectEnumByName(
+        this.global.db,
+        dataType.name,
+        this.global.zclPackageId
+      )
+      return this.global.overridable.enumType(et.size, et.name)
+    } else if (
+      dataType &&
+      dataType.discriminatorName.toLowerCase() == dbEnum.zclType.number
+    ) {
+      let nt = await queryZcl.selectNumberByName(
+        this.global.db,
+        this.global.zclPackageId,
+        dataType.name
+      )
+      return this.global.overridable.numberType(nt.size, nt.isSigned, nt.name)
+    } else if (
+      dataType &&
+      dataType.discriminatorName.toLowerCase() == dbEnum.zclType.struct
+    ) {
+      return dataType.name
+    } else {
+      return 'uint8_t *'
+    }
+  } catch (error) {
+    error.log(
+      'Could not find the underlying type for ' + dataType.name + ' : ' + error
     )
-    if (opt == null && atomic && bitmap && _.isEqual(atomic, bitmap))
-      return this.global.overridable.bitmapType(bitmap.size)
-    if (opt == null) return this.global.overridable.atomicType(atomic)
-    else return opt.optionLabel
   }
 }
 

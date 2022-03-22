@@ -26,6 +26,8 @@ const queryAtomic = require('./query-atomic')
 const queryEnum = require('./query-enum')
 const queryStruct = require('./query-struct')
 const queryBitmap = require('./query-bitmap')
+const queryDataType = require('./query-data-type')
+const queryNumber = require('./query-number')
 
 /**
  * Retrieves all the bitmaps that are associated with a cluster.
@@ -268,37 +270,11 @@ async function selectStructsWithItemsImpl(db, packageIds, clusterId) {
     query = `
     SELECT
       S.STRUCT_ID AS STRUCT_ID,
-      S.NAME AS STRUCT_NAME,
-      (SELECT COUNT(1) FROM STRUCT_CLUSTER WHERE STRUCT_CLUSTER.STRUCT_REF = S.STRUCT_ID) AS STRUCT_CLUSTER_COUNT,
+      DT.NAME AS STRUCT_NAME,
+      (SELECT COUNT(1) FROM DATA_TYPE WHERE DATA_TYPE.DATA_TYPE_ID = S.STRUCT_ID) AS STRUCT_CLUSTER_COUNT,
       SI.NAME AS ITEM_NAME,
       SI.FIELD_IDENTIFIER AS ITEM_IDENTIFIER,
-      SI.TYPE AS ITEM_TYPE,
-      SI.IS_ARRAY AS ITEM_IS_ARRAY,
-      SI.IS_ENUM AS ITEM_IS_ENUM,
-      SI.MIN_LENGTH AS ITEM_MIN_LENGTH,
-      SI.MAX_LENGTH AS ITEM_MAX_LENGTH,
-      SI.IS_WRITABLE AS ITEM_IS_WRITABLE,
-      SI.IS_NULLABLE AS ITEM_IS_NULLABLE,
-      SI.IS_OPTIONAL AS ITEM_IS_OPTIONAL,
-      SI.IS_FABRIC_SENSITIVE AS ITEM_IS_FABRIC_SENSITIVE
-    FROM
-      STRUCT AS S
-    LEFT JOIN
-      STRUCT_ITEM AS SI
-    ON
-      S.STRUCT_ID = SI.STRUCT_REF
-    WHERE
-      S.PACKAGE_REF IN (${packageIds})
-    ORDER BY S.NAME, SI.FIELD_IDENTIFIER`
-  } else {
-    query = `
-    SELECT
-      S.STRUCT_ID AS STRUCT_ID,
-      S.NAME AS STRUCT_NAME,
-      (SELECT COUNT(1) FROM STRUCT_CLUSTER WHERE STRUCT_CLUSTER.STRUCT_REF = S.STRUCT_ID) AS STRUCT_CLUSTER_COUNT,
-      SI.NAME AS ITEM_NAME,
-      SI.FIELD_IDENTIFIER AS ITEM_IDENTIFIER,
-      SI.TYPE AS ITEM_TYPE,
+      SI.DATA_TYPE_REF AS ITEM_TYPE,
       SI.IS_ARRAY AS ITEM_IS_ARRAY,
       SI.IS_ENUM AS ITEM_IS_ENUM,
       SI.MIN_LENGTH AS ITEM_MIN_LENGTH,
@@ -310,18 +286,48 @@ async function selectStructsWithItemsImpl(db, packageIds, clusterId) {
     FROM
       STRUCT AS S
     INNER JOIN
-      STRUCT_CLUSTER AS SC
+      DATA_TYPE AS DT
     ON
-      S.STRUCT_ID = SC.STRUCT_REF
+      S.STRUCT_ID = DT.DATA_TYPE_ID
     LEFT JOIN
       STRUCT_ITEM AS SI
     ON
       S.STRUCT_ID = SI.STRUCT_REF
     WHERE
-      S.PACKAGE_REF IN (${packageIds})
+      DT.PACKAGE_REF IN (${packageIds})
+    ORDER BY DT.NAME, SI.FIELD_IDENTIFIER`
+  } else {
+    query = `
+    SELECT
+      S.STRUCT_ID AS STRUCT_ID,
+      DT.NAME AS STRUCT_NAME,
+      (SELECT COUNT(1) FROM DATA_TYPE WHERE DATA_TYPE.DATA_TYPE_ID = S.STRUCT_ID) AS STRUCT_CLUSTER_COUNT,
+      SI.NAME AS ITEM_NAME,
+      SI.FIELD_IDENTIFIER AS ITEM_IDENTIFIER,
+      SI.DATA_TYPE_REF AS ITEM_TYPE,
+      SI.IS_ARRAY AS ITEM_IS_ARRAY,
+      SI.IS_ENUM AS ITEM_IS_ENUM,
+      SI.MIN_LENGTH AS ITEM_MIN_LENGTH,
+      SI.MAX_LENGTH AS ITEM_MAX_LENGTH,
+      SI.IS_WRITABLE AS ITEM_IS_WRITABLE,
+      SI.IS_NULLABLE AS ITEM_IS_NULLABLE,
+      SI.IS_OPTIONAL AS ITEM_IS_OPTIONAL,
+      SI.IS_FABRIC_SENSITIVE AS ITEM_IS_FABRIC_SENSITIVE
+    FROM
+      STRUCT AS S
+    INNER JOIN
+      DATA_TYPE AS DT
+    ON
+      S.STRUCT_ID = DT.DATA_TYPE_ID
+    LEFT JOIN
+      STRUCT_ITEM AS SI
+    ON
+      S.STRUCT_ID = SI.STRUCT_REF
+    WHERE
+      DT.PACKAGE_REF = IN (${packageIds})
     AND
-      SC.CLUSTER_REF = ?
-    ORDER BY S.NAME, SI.FIELD_IDENTIFIER`
+      DT.CLUSTER_REF = ?
+    ORDER BY DT.NAME, SI.FIELD_IDENTIFIER`
     args = [clusterId]
   }
 
@@ -369,7 +375,7 @@ async function selectAllStructItemsById(db, id) {
 SELECT
   FIELD_IDENTIFIER,
   NAME,
-  TYPE,
+  DATA_TYPE_REF AS TYPE,
   STRUCT_REF,
   IS_ARRAY,
   IS_ENUM,
@@ -404,7 +410,7 @@ async function selectAllStructItemsByStructName(db, name, packageIds) {
 SELECT
   SI.FIELD_IDENTIFIER,
   SI.NAME,
-  SI.TYPE,
+  SI.DATA_TYPE_REF AS TYPE,
   SI.STRUCT_REF,
   SI.IS_ARRAY,
   SI.IS_ENUM,
@@ -1330,3 +1336,8 @@ exports.selectStructByName = queryStruct.selectStructByName
 exports.selectBitmapById = queryBitmap.selectBitmapById
 exports.selectAllBitmaps = queryBitmap.selectAllBitmaps
 exports.selectBitmapByName = queryBitmap.selectBitmapByName
+
+exports.selectDataTypeById = queryDataType.selectDataTypeById
+exports.selectDataTypeByName = queryDataType.selectDataTypeByName
+
+exports.selectNumberByName = queryNumber.selectNumberByName

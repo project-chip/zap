@@ -508,8 +508,8 @@ CREATE TABLE IF NOT EXISTS "ENUM_ITEM" (
 /*
  STRUCT table contains structs directly loaded from packages.
  */
-DROP TABLE IF EXISTS "STRUCT_2";
-CREATE TABLE IF NOT EXISTS STRUCT_2 ( 
+DROP TABLE IF EXISTS "STRUCT";
+CREATE TABLE IF NOT EXISTS STRUCT ( 
 	STRUCT_ID            integer NOT NULL  PRIMARY KEY  ,
 	SIZE                 integer     ,
 	FOREIGN KEY ( STRUCT_ID ) REFERENCES DATA_TYPE( DATA_TYPE_ID )  
@@ -517,8 +517,8 @@ CREATE TABLE IF NOT EXISTS STRUCT_2 (
 /*
  STRUCT_ITEM table contains individual struct items.
 */
-DROP TABLE IF EXISTS "STRUCT_ITEM_2";
-CREATE TABLE IF NOT EXISTS STRUCT_ITEM_2 ( 
+DROP TABLE IF EXISTS "STRUCT_ITEM";
+CREATE TABLE IF NOT EXISTS STRUCT_ITEM ( 
 	STRUCT_ITEM_ID       integer NOT NULL  PRIMARY KEY  autoincrement,
 	STRUCT_REF           integer     ,
 	FIELD_IDENTIFIER     integer     ,
@@ -533,50 +533,9 @@ CREATE TABLE IF NOT EXISTS STRUCT_ITEM_2 (
 	IS_FABRIC_SENSITIVE  integer     ,
 	SIZE                 integer     ,
 	DATA_TYPE_REF        integer     ,
-	FOREIGN KEY ( STRUCT_REF ) REFERENCES STRUCT_2( STRUCT_ID ) ON DELETE CASCADE ON UPDATE CASCADE,
+	FOREIGN KEY ( STRUCT_REF ) REFERENCES STRUCT( STRUCT_ID ) ON DELETE CASCADE ON UPDATE CASCADE,
 	FOREIGN KEY ( DATA_TYPE_REF ) REFERENCES DATA_TYPE( DATA_TYPE_ID ) ON DELETE CASCADE ON UPDATE CASCADE
  );
-/*
- STRUCT table contains structs directly loaded from packages.
- */
-DROP TABLE IF EXISTS "STRUCT";
-CREATE TABLE IF NOT EXISTS "STRUCT" (
-  "STRUCT_ID" integer primary key autoincrement,
-  "PACKAGE_REF" integer,
-  "NAME" text,
-  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID)
-);
-/*
- STRUCT_ITEM table contains individual struct items.
- */
-DROP TABLE IF EXISTS "STRUCT_ITEM";
-CREATE TABLE IF NOT EXISTS "STRUCT_ITEM" (
-  "STRUCT_REF" integer,
-  "FIELD_IDENTIFIER" integer,
-  "NAME" text,
-  "TYPE" text,
-  "IS_ARRAY" integer,
-  "IS_ENUM" integer,
-  "MIN_LENGTH" integer,
-  "MAX_LENGTH" integer,
-  "IS_WRITABLE" integer,
-  "IS_NULLABLE" integer,
-  "IS_OPTIONAL" integer,
-  "IS_FABRIC_SENSITIVE" integer,
-  foreign key (STRUCT_REF) references STRUCT(STRUCT_ID)
-);
-/*
- STRUCT_CLUSTER table is a junction table, optionally linking a struct to one or more clusters
- */
-DROP TABLE IF EXISTS "STRUCT_CLUSTER";
-CREATE TABLE IF NOT EXISTS "STRUCT_CLUSTER" (
-  "STRUCT_REF" integer,
-  "CLUSTER_CODE" integer,
-  "CLUSTER_REF" integer,
-  foreign key (STRUCT_REF) references STRUCT(STRUCT_ID),
-  foreign key (CLUSTER_REF) references CLUSTER(CLUSTER_ID),
-  UNIQUE(STRUCT_REF, CLUSTER_REF)
-);
 /*
  *  $$$$$$\                                                    
  * $$  __$$\                                                   

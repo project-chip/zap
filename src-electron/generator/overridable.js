@@ -98,17 +98,59 @@ function atomicType(arg = { name: 'unknown', size: 0 }) {
   }
 }
 
-function enumType(size) {
-  let enumSize = size ? size * 8 : 8
-  return 'uint' + enumSize + '_t'
+/**
+ *
+ * @param size
+ * @param name
+ * @returns The appropriate c type for an enum
+ */
+function enumType(size, name) {
+  if (name && !name.toLowerCase().includes('enum')) {
+    return 'EmberAf' + name
+  } else {
+    let enumSize = size ? size * 8 : 8
+    return 'uint' + enumSize + '_t'
+  }
 }
 
+/**
+ *
+ * @param size
+ * @returns The appropriate c type for a bitmap
+ */
 function bitmapType(size) {
   let bitmapSize = size ? size * 8 : 8
   if (size == 3) {
     bitmapSize = (size + 1) * 8
   }
   return 'uint' + bitmapSize + '_t'
+}
+
+/**
+ *
+ *
+ * @param size
+ * @param isSigned
+ * @param name
+ * @returns The appropriate c type for a number
+ */
+function numberType(size, isSigned, name) {
+  let prefix = isSigned ? 'int' : 'uint'
+  if (name == 'no_data') {
+    return 'uint8_t *'
+  }
+  if (size > 4) {
+    if (isSigned) {
+      return 'int8_t *'
+    } else {
+      return 'uint8_t *'
+    }
+  }
+  let numberSize = size ? size * 8 : 8
+  if (size == 3) {
+    numberSize = (size + 1) * 8
+  }
+  return prefix + numberSize + '_t'
 }
 
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
@@ -120,3 +162,4 @@ exports.atomicType = atomicType
 exports.nonAtomicType = nonAtomicType
 exports.enumType = enumType
 exports.bitmapType = bitmapType
+exports.numberType = numberType

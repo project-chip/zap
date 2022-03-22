@@ -1041,7 +1041,7 @@ async function processDataType(
 function prepareNumber(a) {
   return {
     size: a.$.size,
-    is_signed: a.$.name.endsWith('u') ? 0 : 1,
+    is_signed: a.$.name.endsWith('u') || !a.$.name.includes('int') ? 0 : 1,
     name: a.$.name,
     cluster_code: a.cluster ? parseInt(a.cluster[0].$.code) : null,
   }
@@ -1651,9 +1651,6 @@ async function processParsedZclData(
     }
     if ('atomic' in toplevel) {
       batch3.push(processAtomics(db, filePath, packageId, toplevel.atomic))
-    }
-    if ('struct' in toplevel) {
-      batch3.push(processStructs(db, filePath, packageId, toplevel.struct))
     }
     await Promise.all(batch3)
     //}

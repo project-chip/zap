@@ -133,10 +133,11 @@ async function zcl_structs(options) {
       if (i.isArray) {
         st.struct_contains_array = true
       }
-      if (i.type && i.type.toLowerCase() == fabricIndexType) {
+      // If case needs cleanup for the check with fabricIndexType
+      /*if (i.type && i.type.toLowerCase() == fabricIndexType) {
         st.struct_is_fabric_scoped = true
         st.struct_fabric_idx_field = i.label
-      }
+      }*/
       if (i.isFabricSensitive) {
         st.struct_has_fabric_sensitive_fields = true
       }
@@ -200,7 +201,7 @@ async function zcl_struct_items(options) {
       // For each item, let's check if it's a struct itself
       let structItems = await queryZcl.selectAllStructItemsByStructName(
         this.global.db,
-        si.type,
+        si.name,
         packageIds
       )
       if (structItems.length > 0) {
@@ -850,7 +851,7 @@ function as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument
     .catch((err) => {
       env.logError(
         'Failure in as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present: ' +
-          err
+        err
       )
     })
 }
@@ -1193,19 +1194,19 @@ async function zcl_command_argument_type_to_cli_data_type(type, options) {
     )
     const atomicSize = atomicResult
       ? await zclUtil.calculateBytes(
-          atomicResult.name,
-          options,
-          this.global.db,
-          packageId,
-          false
-        )
+        atomicResult.name,
+        options,
+        this.global.db,
+        packageId,
+        false
+      )
       : await zclUtil.calculateBytes(
-          type,
-          options,
-          this.global.db,
-          packageId,
-          false
-        )
+        type,
+        options,
+        this.global.db,
+        packageId,
+        false
+      )
     if (atomicSize == undefined || atomicSize.isNaN) {
       return helperC.as_zcl_cli_type(dbEnum.zclType.string, false, false)
     } else {
@@ -1608,7 +1609,7 @@ function as_underlying_zcl_type_ca_not_always_present_no_presentif(
       .catch((err) => {
         env.logError(
           'Error in as_underlying_zcl_type_ca_not_always_present_no_presentif ' +
-            err
+          err
         )
         throw err
       })
@@ -1753,7 +1754,7 @@ function as_underlying_zcl_type_ca_not_always_present_with_presentif(
       .catch((err) => {
         env.logError(
           'Error in as_underlying_zcl_type_ca_not_always_present_with_presentif ' +
-            err
+          err
         )
         throw err
       })
@@ -1898,7 +1899,7 @@ function as_underlying_zcl_type_ca_always_present_with_presentif(
       .catch((err) => {
         env.logError(
           'Error in as_underlying_zcl_type_ca_always_present_with_presentif ' +
-            err
+          err
         )
         throw err
       })

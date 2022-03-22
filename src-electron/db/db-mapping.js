@@ -203,14 +203,36 @@ exports.map = {
     }
   },
 
+  dataType: (x) => {
+    if (x == null) return undefined
+    return {
+      id: x.DATA_TYPE_ID,
+      name: x.NAME,
+      description: x.DESCRIPTION,
+      descriminatorId: x.DISCRIMINATOR_REF,
+      packageId: x.PACKAGE_REF,
+      clusterId: x.CLUSTER_REF,
+      discriminatorName: x.DISCRIMINATOR_NAME,
+    }
+  },
+
+  number: (x) => {
+    if (x == null) return undefined
+    return {
+      id: x.NUMBER_ID,
+      label: x.NAME,
+      name: x.NAME,
+      isSigned: x.IS_SIGNED,
+      size: x.SIZE,
+    }
+  },
+
   enum: (x) => {
     if (x == null) return undefined
     return {
       id: x.ENUM_ID,
       label: x.NAME,
       name: x.NAME,
-      type: x.TYPE,
-      caption: `Enum of type ${x.TYPE}`,
       size: x.SIZE,
     }
   },
@@ -253,6 +275,7 @@ exports.map = {
       isNullable: dbApi.fromDbBool(x.IS_NULLABLE),
       isOptional: dbApi.fromDbBool(x.IS_OPTIONAL),
       isFabricSensitive: dbApi.fromDbBool(x.IS_FABRIC_SENSITIVE),
+      dataTypeReference: x.TYPE,
     }
   },
 
