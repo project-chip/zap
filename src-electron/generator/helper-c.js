@@ -24,6 +24,8 @@ const string = require('../util/string')
 const _ = require('lodash')
 const dbEnum = require('../../src-shared/db-enum.js')
 const { bitmapType } = require('./overridable.js')
+const { env } = require('yargs')
+const envConfig = require('../util/env')
 
 /**
  * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
@@ -130,9 +132,9 @@ async function asUnderlyingType(value) {
     } else {
       return 'uint8_t *'
     }
-  } catch (error) {
-    error.log(
-      'Could not find the underlying type for ' + dataType.name + ' : ' + error
+  } catch (err) {
+    envConfig.logError(
+      'Could not find the underlying type for ' + dataType.name + ' : ' + err
     )
   }
 }

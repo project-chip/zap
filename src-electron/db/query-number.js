@@ -69,6 +69,4 @@ async function selectNumberByNameFromCache(db, packageId, name) {
   return cache.byName[name]
 }
 
-exports.selectNumberByName = dbCache.cacheEnabled
-  ? selectNumberByNameFromCache
-  : selectNumberByName
+exports.selectNumberByName = selectNumberByName

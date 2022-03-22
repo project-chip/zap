@@ -124,9 +124,5 @@ async function selectDataTypeByNameFromCache(db, name, packageId) {
   return cache.byName[name]
 }
 
-exports.selectDataTypeById = dbCache.cacheEnabled
-  ? selectDataTypeByIdFromCache
-  : selectDataTypeById
-exports.selectDataTypeByName = dbCache.cacheEnabled
-  ? selectDataTypeByNameFromCache
-  : selectDataTypeByName
+exports.selectDataTypeById = selectDataTypeById
+exports.selectDataTypeByName = selectDataTypeByName
