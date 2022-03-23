@@ -42,15 +42,13 @@ jobs:
       - run: npm rebuild libxmljs --update-binary
       - run: npm run build-spa
       - run: npm run lint
-      - run: npm run test
+      - run: xvfb-run -a npm run test
         if: startsWith(matrix.os, 'ubuntu')
       - run: xvfb-run -a npm run self-check
         if: startsWith(matrix.os, 'ubuntu')
       - run: npm run gen
       - run: npm run genmatter
       - run: npm run gendotdot
-      - run: xvfb-run -a npm run test:e2e-ci
-        if: startsWith(matrix.os, 'ubuntu')
 
       - name: Build & Release for macOS / Windows on macOS
         uses: samuelmeuli/action-electron-builder@v1.6.0
