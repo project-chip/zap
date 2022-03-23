@@ -55,6 +55,11 @@ scriptUtil
       )
     )
   )
+  .then(() =>
+    console.log(
+      `✅ Please find the combined report (Jest & Cypress) at ./coverage/lcov-report/index.html`
+    )
+  )
 
   .catch((err) => {
     console.log(err)
