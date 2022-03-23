@@ -950,16 +950,25 @@ function prepareDataType(a, dataType, context) {
   )
   let dataTypeRef = 0
   // The following is when the dataType is atomic
-  if (!dataType && a.$.name.toLowerCase().includes('bitmap')) {
-    dataTypeRef = typeMap.get('bitmap')
-  } else if (!dataType && a.$.name.toLowerCase().includes('enum')) {
-    dataTypeRef = typeMap.get('enum')
-  } else if (!dataType && a.$.name.toLowerCase().includes('string')) {
-    dataTypeRef = typeMap.get('string')
-  } else if (!dataType && a.$.name.toLowerCase().includes('struct')) {
-    dataTypeRef = typeMap.get('struct')
+  if (!dataType && a.$.name.toLowerCase().includes(dbEnum.zclType.bitmap)) {
+    dataTypeRef = typeMap.get(dbEnum.zclType.bitmap)
+  } else if (
+    !dataType &&
+    a.$.name.toLowerCase().includes(dbEnum.zclType.enum)
+  ) {
+    dataTypeRef = typeMap.get(dbEnum.zclType.enum)
+  } else if (
+    !dataType &&
+    a.$.name.toLowerCase().includes(dbEnum.zclType.string)
+  ) {
+    dataTypeRef = typeMap.get(dbEnum.zclType.string)
+  } else if (
+    !dataType &&
+    a.$.name.toLowerCase().includes(dbEnum.zclType.struct)
+  ) {
+    dataTypeRef = typeMap.get(dbEnum.zclType.struct)
   } else if (!dataType) {
-    dataTypeRef = typeMap.get('number')
+    dataTypeRef = typeMap.get(dbEnum.zclType.number)
   }
   return {
     name: a.$.name,
@@ -991,7 +1000,7 @@ async function processDataType(
     typeMap.set(x.toLowerCase(), index + 1)
   )
 
-  if (dataType == 'atomic') {
+  if (dataType == dbEnum.zclType.atomic) {
     let types = data[0].type
     env.logDebug(`${filePath}, ${packageId}: ${data.length} Atomic Data Types.`)
     return queryLoader.insertDataType(
@@ -999,33 +1008,41 @@ async function processDataType(
       packageId,
       types.map((x) => prepareDataType(x, 0, context))
     )
-  } else if (dataType == 'enum') {
+  } else if (dataType == dbEnum.zclType.enum) {
     env.logDebug(`${filePath}, ${packageId}: ${data.length} Enum Data Types.`)
     return queryLoader.insertDataType(
       db,
       packageId,
-      data.map((x) => prepareDataType(x, typeMap.get('enum'), context))
+      data.map((x) =>
+        prepareDataType(x, typeMap.get(dbEnum.zclType.enum), context)
+      )
     )
-  } else if (dataType == 'bitmap') {
+  } else if (dataType == dbEnum.zclType.bitmap) {
     env.logDebug(`${filePath}, ${packageId}: ${data.length} Bitmap Data Types.`)
     return queryLoader.insertDataType(
       db,
       packageId,
-      data.map((x) => prepareDataType(x, typeMap.get('bitmap'), context))
+      data.map((x) =>
+        prepareDataType(x, typeMap.get(dbEnum.zclType.bitmap), context)
+      )
     )
-  } else if (dataType == 'struct') {
+  } else if (dataType == dbEnum.zclType.struct) {
     env.logDebug(`${filePath}, ${packageId}: ${data.length} Struct Data Types.`)
     return queryLoader.insertDataType(
       db,
       packageId,
-      data.map((x) => prepareDataType(x, typeMap.get('struct'), context))
+      data.map((x) =>
+        prepareDataType(x, typeMap.get(dbEnum.zclType.struct), context)
+      )
     )
-  } else if (dataType == 'string') {
+  } else if (dataType == dbEnum.zclType.string) {
     env.logDebug(`${filePath}, ${packageId}: ${data.length} String Data Types.`)
     return queryLoader.insertDataType(
       db,
       packageId,
-      data.map((x) => prepareDataType(x, typeMap.get('string'), context))
+      data.map((x) =>
+        prepareDataType(x, typeMap.get(dbEnum.zclType.string), context)
+      )
     )
   }
 }
@@ -1058,10 +1075,10 @@ function prepareNumber(a) {
 async function processNumber(db, filePath, packageId, data) {
   let numbers = data[0].type.filter(function (item) {
     return (
-      !item.$.name.toLowerCase().includes('bitmap') &&
-      !item.$.name.toLowerCase().includes('enum') &&
-      !item.$.name.toLowerCase().includes('string') &&
-      !item.$.name.toLowerCase().includes('struct')
+      !item.$.name.toLowerCase().includes(dbEnum.zclType.bitmap) &&
+      !item.$.name.toLowerCase().includes(dbEnum.zclType.enum) &&
+      !item.$.name.toLowerCase().includes(dbEnum.zclType.string) &&
+      !item.$.name.toLowerCase().includes(dbEnum.zclType.struct)
     )
   })
   env.logDebug(`${filePath}, ${packageId}: ${data.length} Number Types.`)
@@ -1275,7 +1292,7 @@ async function processEnum2Items(db, filePath, packageId, data) {
  */
 async function processBitmap2Atomic(db, filePath, packageId, data) {
   let bitmaps = data[0].type.filter(function (item) {
-    return item.$.name.toLowerCase().includes('bitmap')
+    return item.$.name.toLowerCase().includes(dbEnum.zclType.bitmap)
   })
   env.logDebug(
     `${filePath}, ${packageId}: ${data.length} Baseline Bitmap Types.`
@@ -1554,58 +1571,58 @@ async function processParsedZclData(
       )
       await Promise.all(batch25)
 
-      if ('atomic' in toplevel) {
+      if (dbEnum.zclType.atomic in toplevel) {
         batch3.push(
           processDataType(
             db,
             filePath,
             packageId,
             toplevel.atomic,
-            'atomic',
+            dbEnum.zclType.atomic,
             context
           )
         )
       }
 
-      if ('bitmap' in toplevel) {
+      if (dbEnum.zclType.bitmap in toplevel) {
         batch3.push(
           processDataType(
             db,
             filePath,
             packageId,
             toplevel.bitmap,
-            'bitmap',
+            dbEnum.zclType.bitmap,
             context
           )
         )
       }
-      if ('enum' in toplevel) {
+      if (dbEnum.zclType.enum in toplevel) {
         batch3.push(
           processDataType(
             db,
             filePath,
             packageId,
             toplevel.enum,
-            'enum',
+            dbEnum.zclType.enum,
             context
           )
         )
       }
-      if ('struct' in toplevel) {
+      if (dbEnum.zclType.struct in toplevel) {
         batch3.push(
           processDataType(
             db,
             filePath,
             packageId,
             toplevel.struct,
-            'struct',
+            dbEnum.zclType.struct,
             context
           )
         )
       }
       await Promise.all(batch3)
       let batch4 = []
-      if ('atomic' in toplevel) {
+      if (dbEnum.zclType.atomic in toplevel) {
         batch4.push(processNumber(db, filePath, packageId, toplevel.atomic))
         batch4.push(processString(db, filePath, packageId, toplevel.atomic))
         batch4.push(
@@ -1617,27 +1634,27 @@ async function processParsedZclData(
       }
       await Promise.all(batch4)
       let batch5 = []
-      if ('enum' in toplevel) {
+      if (dbEnum.zclType.enum in toplevel) {
         batch5.push(processEnum2(db, filePath, packageId, toplevel.enum))
       }
-      if ('bitmap' in toplevel) {
+      if (dbEnum.zclType.bitmap in toplevel) {
         batch5.push(processBitmap2(db, filePath, packageId, toplevel.bitmap))
       }
-      if ('struct' in toplevel) {
+      if (dbEnum.zclType.struct in toplevel) {
         batch5.push(processStruct2(db, filePath, packageId, toplevel.struct))
       }
       await Promise.all(batch5)
 
       let batch6 = []
-      if ('enum' in toplevel) {
+      if (dbEnum.zclType.enum in toplevel) {
         batch6.push(processEnum2Items(db, filePath, packageId, toplevel.enum))
       }
-      if ('bitmap' in toplevel) {
+      if (dbEnum.zclType.bitmap in toplevel) {
         batch6.push(
           processBitmap2Fields(db, filePath, packageId, toplevel.bitmap)
         )
       }
-      if ('struct' in toplevel) {
+      if (dbEnum.zclType.struct in toplevel) {
         batch6.push(
           processStruct2Items(db, filePath, packageId, toplevel.struct)
         )
