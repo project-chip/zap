@@ -54,7 +54,7 @@ scriptUtil
       cmdArgs.push('--disable-seccomp-filter-sandbox')
     }
     cmdArgs.push(
-      path.join(__dirname, '../dist/src-electron/main-process/electron-main.js')
+      path.join(__dirname, '../dist/src-electron/main-process/main.js')
     )
 
     if (process.platform == 'linux') {

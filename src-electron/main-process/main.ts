@@ -23,7 +23,7 @@ require('source-map-support').install()
 import * as args from '../util/args'
 const env = require('../util/env')
 const windowJs = require('../ui/window')
-const startup = require('./startup.js')
+const startup = require('./startup')
 
 env.versionsCheck()
 
@@ -35,9 +35,7 @@ if (process.env.DEV) {
 
 function hookSecondInstanceEvents(argv: args.Arguments) {
   app.allowRendererProcessReuse = false
-  app
-    .whenReady()
-    .then(() => startup.startUpSecondaryInstance(argv))
+  app.whenReady().then(() => startup.startUpSecondaryInstance(argv))
 }
 
 /**
@@ -45,9 +43,7 @@ function hookSecondInstanceEvents(argv: args.Arguments) {
  */
 function hookMainInstanceEvents(argv: args.Arguments) {
   app.allowRendererProcessReuse = false
-  app
-    .whenReady()
-    .then(() => startup.startUpMainInstance(true, argv))
+  app.whenReady().then(() => startup.startUpMainInstance(true, argv))
 
   if (!argv._.includes('server')) {
     app.on('window-all-closed', () => {
@@ -65,9 +61,12 @@ function hookMainInstanceEvents(argv: args.Arguments) {
     startup.shutdown()
   })
 
-  app.on('second-instance', (event: Event, commandLine: string[], workingDirectory: string) => {
-    env.logInfo(`Zap instance started with command line: ${commandLine}`)
-  })
+  app.on(
+    'second-instance',
+    (event: Event, commandLine: string[], workingDirectory: string) => {
+      env.logInfo(`Zap instance started with command line: ${commandLine}`)
+    }
+  )
 }
 
 // Main lifecycle of the application

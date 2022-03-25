@@ -8,12 +8,12 @@ const config = {
     __filename: true,
   },
   mode: 'development',
-  target: 'electron-main',
+  target: 'main',
   context: path.resolve(__dirname + '/src-electron/main-process/'),
-  entry: './electron-main',
+  entry: './main',
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'electron-main.js',
+    filename: 'main.js',
   },
   module: {
     noParse: /\/native-require.js$/,

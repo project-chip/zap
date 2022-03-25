@@ -48,4 +48,4 @@ if (process.env.MODE === 'electron') {
 }
 
 // Require `main` process to boot app
-require('./electron-main.js')
+require('./main.js')
