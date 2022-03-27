@@ -31,13 +31,30 @@ scriptUtil
   .then(() => scriptUtil.rebuildBackendIfNeeded())
   .then(() => {
     let plat = process.platform
-    let cmdArgs = ['electron']
-    if (plat == 'linux') {
+    let executable = 'electron'
+
+    console.log(`Determining executable: ${args[0]}`)
+    switch (args[0]) {
+      case 'selfCheck':
+      case 'generate':
+      case 'server':
+      case 'stop':
+      case 'status':
+      case 'convert':
+      case 'analyze':
+        executable = 'node'
+    }
+
+    let cmdArgs = [executable]
+    if (executable == 'node') {
+      cmdArgs.push('--unhandled-rejections=strict')
+    }
+    if (plat == 'linux' && executable == 'electron') {
       // This makes it safer to run on Linux, and latest linux distros broke this.
       cmdArgs.push('--disable-seccomp-filter-sandbox')
     }
     cmdArgs.push(
-      path.join(__dirname, '../dist/src-electron/main-process/electron-main.js')
+      path.join(__dirname, '../dist/src-electron/main-process/main.js')
     )
 
     if (process.platform == 'linux') {
