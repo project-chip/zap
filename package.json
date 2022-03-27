@@ -1,7 +1,7 @@
 {
   "type": "commonjs",
   "name": "zap",
-  "version": "2022.3.25",
+  "version": "2022.3.27",
   "description": "Configuration tool for the Zigbee Cluster Library",
   "productName": "zap",
   "cordovaId": "",
@@ -135,7 +135,7 @@
     "copy-webpack-plugin": "^6.3.2",
     "copyfiles": "^2.4.1",
     "devtron": "^1.4.0",
-    "electron": "^12.2.2",
+    "electron": "^17.1.2",
     "electron-builder": "^22.11.7",
     "electron-debug": "^3.2.0",
     "electron-devtools-installer": "^3.2.0",

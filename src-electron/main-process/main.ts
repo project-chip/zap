@@ -34,7 +34,6 @@ if (process.env.DEV) {
 }
 
 function hookSecondInstanceEvents(argv: args.Arguments) {
-  app.allowRendererProcessReuse = false
   app.whenReady().then(() => startup.startUpSecondaryInstance(argv))
 }
 
@@ -42,7 +41,6 @@ function hookSecondInstanceEvents(argv: args.Arguments) {
  * Hook up all the events for the electron app object.
  */
 function hookMainInstanceEvents(argv: args.Arguments) {
-  app.allowRendererProcessReuse = false
   app.whenReady().then(() => startup.startUpMainInstance(true, argv))
 
   if (!argv._.includes('server')) {
