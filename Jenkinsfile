@@ -173,17 +173,17 @@ pipeline
                 }
             }
         }
-        // stage('Cypress UI tests')
-        // {
-        //     steps
-        //     {
-        //         script
-        //         {
-        //             sh 'rm -rf ~/.zap'
-        //             sh 'xvfb-run -a npm run test:e2e-ci'
-        //         }
-        //     }
-        // }
+        stage('Cypress UI tests')
+        {
+            steps
+            {
+                script
+                {
+                    sh 'rm -rf ~/.zap'
+                    sh 'xvfb-run -a npm run test:e2e-ci'
+                }
+            }
+        }
         stage('Run Sonar Scan')
         {
             steps
