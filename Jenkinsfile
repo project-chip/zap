@@ -197,35 +197,35 @@ pipeline
         }
         stage('Building artifacts') {
             parallel {
-                stage('Building for Mac')
-                {
-                    agent { label 'bgbuild-mac' }
-                    steps
-                    {
-                        script
-                        {
-                            withEnv(['PATH+LOCAL_BIN=/usr/local/bin',
-                                     'PATH+NODE14=/usr/local/opt/node@14/bin',
-                                     'NODE_TLS_REJECT_UNAUTHORIZED=0']) // workaround for a self-signed cert issue on canvas 2.7.0 on mac
-                            {
-                                withCredentials([usernamePassword(credentialsId: 'buildengineer',
-                                                                  usernameVariable: 'SL_USERNAME',
-                                                                  passwordVariable: 'SL_PASSWORD')])
-                                {
-                                    sh 'npm --version'
-                                    sh 'node --version'
-                                    sh 'npm ci'
-                                    sh 'npm list || true'
-                                    sh 'security unlock-keychain -u  "/Library/Keychains/System.keychain"'
-                                    sh 'npm run version-stamp'
-                                    sh 'npm run build'
-                                    sh 'npm run pack:mac'
-                                    stash includes: "dist/*mac.zip", name: 'zap_apack_mac'
-                                }
-                            }
-                        }
-                    }
-                }
+                // stage('Building for Mac')
+                // {
+                //     agent { label 'bgbuild-mac' }
+                //     steps
+                //     {
+                //         script
+                //         {
+                //             withEnv(['PATH+LOCAL_BIN=/usr/local/bin',
+                //                      'PATH+NODE14=/usr/local/opt/node@14/bin',
+                //                      'NODE_TLS_REJECT_UNAUTHORIZED=0']) // workaround for a self-signed cert issue on canvas 2.7.0 on mac
+                //             {
+                //                 withCredentials([usernamePassword(credentialsId: 'buildengineer',
+                //                                                   usernameVariable: 'SL_USERNAME',
+                //                                                   passwordVariable: 'SL_PASSWORD')])
+                //                 {
+                //                     sh 'npm --version'
+                //                     sh 'node --version'
+                //                     sh 'npm ci'
+                //                     sh 'npm list || true'
+                //                     sh 'security unlock-keychain -u  "/Library/Keychains/System.keychain"'
+                //                     sh 'npm run version-stamp'
+                //                     sh 'npm run build'
+                //                     sh 'npm run pack:mac'
+                //                     stash includes: "dist/*mac.zip", name: 'zap_apack_mac'
+                //                 }
+                //             }
+                //         }
+                //     }
+                // }
                 stage('Building for Windows / Linux')
                 {
                     steps
