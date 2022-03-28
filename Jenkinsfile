@@ -132,7 +132,7 @@ pipeline
                 {
                     withEnv(['ZAP_TEST_TIMEOUT=3600000', 'ZAP_TEMPSTATE=1'])
                     {
-                        sh 'xvfb-run -a npm run test:unit'
+                        sh 'npm run test:unit'
                     }
                 }
             }
@@ -144,7 +144,7 @@ pipeline
                 script
                 {
                     sh 'rm -rf ~/.zap'
-                    sh 'xvfb-run -a npm run self-check'
+                    sh 'npm run self-check'
                 }
             }
         }
@@ -153,21 +153,21 @@ pipeline
                 stage('Test Zigbee generation') {
                     steps {
                         script {
-                            sh 'xvfb-run -a npm run gen'
+                            sh 'npm run gen'
                         }
                     }
                 }
                 stage('Test Matter generation') {
                     steps {
                         script {
-                            sh 'xvfb-run -a npm run genmatter'
+                            sh 'npm run genmatter'
                         }
                     }
                 }
                 stage('Test Dotdot generation') {
                     steps {
                         script {
-                            sh 'xvfb-run -a npm run gendotdot'
+                            sh 'npm run gendotdot'
                         }
                     }
                 }
