@@ -197,36 +197,36 @@ pipeline
         }
         stage('Building artifacts') {
             parallel {
-                // stage('Building for Mac')
-                // {
-                //     agent { label 'bgbuild-mac' }
-                //     steps
-                //     {
-                //         script
-                //         {
-                //             withEnv(['PATH+LOCAL_BIN=/usr/local/bin',
-                //                      'PATH+NODE14=/usr/local/opt/node@14/bin',
-                //                      'NODE_TLS_REJECT_UNAUTHORIZED=0']) // workaround for a self-signed cert issue on canvas 2.7.0 on mac
-                //             {
-                //                 withCredentials([usernamePassword(credentialsId: 'buildengineer',
-                //                                                   usernameVariable: 'SL_USERNAME',
-                //                                                   passwordVariable: 'SL_PASSWORD')])
-                //                 {
-                //                     sh 'npm --version'
-                //                     sh 'node --version'
-                //                     sh 'npm ci'
-                //                     sh 'npm list || true'
-                //                     sh 'security unlock-keychain -u  "/Library/Keychains/System.keychain"'
-                //                     sh 'npm run version-stamp'
-                //                     sh 'npm run build'
-                //                     sh 'npm run pack:mac'
-                //                     stash includes: "dist/*mac.zip", name: 'zap_apack_mac'
-                //                 }
-                //             }
-                //         }
-                //     }
-                // }
-                stage('Building for Windows / Linux')
+/*                 stage('Building for Mac')
+                {
+                    agent { label 'bgbuild-mac' }
+                    steps
+                    {
+                        script
+                        {
+                            withEnv(['PATH+LOCAL_BIN=/usr/local/bin',
+                                     'PATH+NODE14=/usr/local/opt/node@14/bin',
+                                     'NODE_TLS_REJECT_UNAUTHORIZED=0']) // workaround for a self-signed cert issue on canvas 2.7.0 on mac
+                            {
+                                withCredentials([usernamePassword(credentialsId: 'buildengineer',
+                                                                  usernameVariable: 'SL_USERNAME',
+                                                                  passwordVariable: 'SL_PASSWORD')])
+                                {
+                                    sh 'npm --version'
+                                    sh 'node --version'
+                                    sh 'npm ci'
+                                    sh 'npm list || true'
+                                    sh 'security unlock-keychain -u  "/Library/Keychains/System.keychain"'
+                                    sh 'npm run version-stamp'
+                                    sh 'npm run build'
+                                    sh 'npm run pack:mac'
+                                    stash includes: 'dist/*mac.zip', name: 'zap_apack_mac'
+                                }
+                            }
+                        }
+                    }
+                }
+                */                stage('Building for Windows / Linux')
                 {
                     steps
                     {
@@ -234,7 +234,7 @@ pipeline
                         {
                             sh 'echo "Building for Windows"'
                             sh 'xvfb-run -a npm run pack:win'
-                            stash includes: "dist/*win.zip", name: 'zap_apack_win'
+                            stash includes: 'dist/*win.zip', name: 'zap_apack_win'
 
                             sh 'echo "Building for Linux"'
                             sh 'xvfb-run -a npm run pack:linux'
@@ -254,17 +254,17 @@ pipeline
                     {
                         script
                         {
-                            def file = sh(script: "ls dist/*win.zip | head -n 1", returnStdout: true).trim()
-                            sh 'cp '+ file + ' zap_apack_win.zip'
+                            def file = sh(script: 'ls dist/*win.zip | head -n 1', returnStdout: true).trim()
+                            sh 'cp ' + file + ' zap_apack_win.zip'
 
-                            file = sh(script: "ls dist/*linux.zip | head -n 1", returnStdout: true).trim()
-                            sh 'cp '+ file + ' zap_apack_linux.zip'
+                            file = sh(script: 'ls dist/*linux.zip | head -n 1', returnStdout: true).trim()
+                            sh 'cp ' + file + ' zap_apack_linux.zip'
 
                             archiveArtifacts artifacts:'dist/zap*', fingerprint: true
                         }
                     }
                 }
-                stage('Archiving for macOS')
+/*                 stage('Archiving for macOS')
                 {
                     agent { label 'bgbuild-mac' }
                     options { skipDefaultCheckout() }
@@ -272,13 +272,13 @@ pipeline
                     {
                         script
                         {
-                            def file = sh(script: "ls dist/*mac.zip | head -n 1", returnStdout: true).trim()
-                            sh 'cp '+ file + ' zap_apack_mac.zip'
+                            def file = sh(script: 'ls dist/*mac.zip | head -n 1', returnStdout: true).trim()
+                            sh 'cp ' + file + ' zap_apack_mac.zip'
                             archiveArtifacts artifacts:'dist/zap*', fingerprint: true
                         }
                     }
                 }
-                stage('Eclipse packaging metadata')
+                */                stage('Eclipse packaging metadata')
                 {
                     steps
                     {
@@ -306,7 +306,7 @@ pipeline
                             {
                                 unstash 'zap_apack_win'
                                 sh 'ls -R'
-                                def file = sh(script: "ls dist/*win.zip | head -n 1", returnStdout: true).trim()
+                                def file = sh(script: 'ls dist/*win.zip | head -n 1', returnStdout: true).trim()
                                 unzip zipFile: file
                                 String response = bat(script: 'zap.exe --version', returnStdout: true).trim()
                                 echo response
@@ -324,11 +324,11 @@ pipeline
                                     currentBuild.result = 'FAILURE'
                                 }
                             }
-                          deleteDir()
+                            deleteDir()
                         }
                     }
                 }
-                stage('Checking macOS exe')
+/*                 stage('Checking macOS exe')
                 {
                     agent { label 'bgbuild-mac' }
                     options { skipDefaultCheckout() }
@@ -362,7 +362,7 @@ pipeline
                         }
                     }
                 }
-                stage('Checking Linux exe')
+                */                stage('Checking Linux exe')
                 {
                     steps
                     {
@@ -372,7 +372,7 @@ pipeline
                                 cleanWs()
                                 unstash 'zap_apack_linux'
                                 sh 'ls -R'
-                                def file = sh(script: "ls dist/*linux.zip | head -n 1", returnStdout: true).trim()
+                                def file = sh(script: 'ls dist/*linux.zip | head -n 1', returnStdout: true).trim()
                                 unzip zipFile: file
                                 sh 'chmod 755 zap'
                                 String response = sh(script: 'xvfb-run -a ./zap --version', returnStdout: true).trim()
@@ -391,7 +391,7 @@ pipeline
                                     currentBuild.result = 'FAILURE'
                                 }
                             }
-                          deleteDir()
+                            deleteDir()
                         }
                     }
                 }
