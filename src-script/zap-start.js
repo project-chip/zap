@@ -57,7 +57,7 @@ scriptUtil
       path.join(__dirname, '../dist/src-electron/main-process/main.js')
     )
 
-    if (process.platform == 'linux') {
+    if (process.platform == 'linux' && executable == 'electron') {
       if (!process.env.DISPLAY) {
         console.log(`
 ⛔ You are on Linux and you are attempting to run zap in UI mode without DISPLAY set.
