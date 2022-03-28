@@ -43,7 +43,7 @@ test(
         zapFiles: null,
       },
       {
-        quit: false,
+        quitFunction: null,
         logger: (msg) => {},
       }
     )
@@ -83,7 +83,7 @@ test(
           noZapFileLog: true,
         },
         {
-          quit: false,
+          quitFunction: null,
           logger: (msg) => {},
         }
       )
@@ -106,7 +106,7 @@ test(
         zclProperties: env.builtinSilabsZclMetafile(),
       },
       {
-        quit: false,
+        quitFunction: null,
         cleanDb: false,
         logger: (msg) => {},
       }

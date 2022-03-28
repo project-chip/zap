@@ -48,13 +48,7 @@ let mainDatabase = null
  * @param {*} uiMode
  * @param {*} zapFiles An array of .zap files to open, can be empty.
  */
-async function startNormal(
-  argv,
-  options = {
-    quit: true,
-    logger: console.log,
-  }
-) {
+async function startNormal(argv) {
   let zapFiles = argv.zapFiles
   let showUrl = argv.showUrl
   let uiEnabled = !argv.noUi
@@ -128,9 +122,6 @@ async function startNormal(
           logRemoteData(httpServer.httpServerStartupMessage())
         }
       }
-    })
-    .then(() => {
-      if (argv.noServer && app != null && options.quit) app.quit()
     })
     .catch((err) => {
       env.logError(err)
@@ -213,13 +204,7 @@ function gatherFiles(filesArg, options = { suffix: '.zap', doBlank: true }) {
  * @param {*} files
  * @param {*} output
  */
-async function startConvert(
-  argv,
-  options = {
-    quit: true,
-    logger: console.log,
-  }
-) {
+async function startConvert(argv, options) {
   let files = argv.zapFiles
   let output = argv.output
   options.logger(`🤖 Conversion started
@@ -292,8 +277,8 @@ async function startConvert(
     )
     .then(() => {
       options.logger('😎 Conversion done!')
-      if (options.quit && app != null) {
-        app.quit()
+      if (options.quitFunction != null) {
+        options.quitFunction()
       }
     })
 }
@@ -304,14 +289,7 @@ async function startConvert(
  * @param {*} paths List of paths to analyze
  * @param {boolean} [options={ log: true, quit: true }]
  */
-async function startAnalyze(
-  argv,
-  options = {
-    quit: true,
-    cleanDb: true,
-    logger: console.log,
-  }
-) {
+async function startAnalyze(argv, options) {
   let paths = argv.zapFiles
   let dbFile = env.sqliteFile('analysis')
   options.logger(`🤖 Starting analysis: ${paths}`)
@@ -345,7 +323,7 @@ async function startAnalyze(
     })
     .then(() => {
       options.logger('😎 Analysis done!')
-      if (options.quit && app != null) app.quit()
+      if (options.quitFunction != null) options.quitFunction()
     })
 }
 
@@ -409,7 +387,7 @@ async function startServer(argv, options = {}) {
 async function startSelfCheck(
   argv,
   options = {
-    quit: true,
+    quitFunction: null,
     cleanDb: true,
     logger: console.log,
   }
@@ -445,8 +423,8 @@ async function startSelfCheck(
       options.logger('    👉 database closed')
       await util.waitFor(2000)
       options.logger('😎 Self-check done!')
-      if (options.quit && app != null) {
-        app.quit()
+      if (options.quitFunction != null) {
+        options.quitFunction()
       }
     })
     .catch((err) => {
@@ -513,14 +491,7 @@ async function generateSingleFile(
  *
  * @returns Nothing, triggers app.quit()
  */
-async function startGeneration(
-  argv,
-  options = {
-    quit: true,
-    cleanDb: true,
-    logger: console.log,
-  }
-) {
+async function startGeneration(argv, options) {
   let templateMetafile = argv.generationTemplate
   let zapFiles = argv.zapFiles
   let output = argv.output
@@ -572,7 +543,7 @@ async function startGeneration(
     generateSingleFile(mainDb, f, ctx.packageId, output, index, options)
   )
 
-  if (options.quit && app != null) app.quit()
+  if (options.quitFunction != null) options.quitFunction()
 }
 /**
  * Move database file out of the way into the backup location.
@@ -666,11 +637,14 @@ function quit() {
  * @param {*} isElectron
  */
 async function startUpMainInstance(isElectron, argv) {
+  let quitFunction
   if (isElectron) {
+    quitFunction = app.quit
     exports.quit = () => {
       app.quit()
     }
   } else {
+    quitFunction = null
     exports.quit = () => {
       process.exit(0)
     }
@@ -692,11 +666,21 @@ async function startUpMainInstance(isElectron, argv) {
     logRemoteData({ zapServerStatus: 'missing' })
     cleanExit(argv.cleanupDelay, 0)
   } else if (argv._.includes('selfCheck')) {
-    return startSelfCheck(argv)
+    let options = {
+      quitFunction: quitFunction,
+      cleanDb: true,
+      logger: console.log,
+    }
+    return startSelfCheck(argv, options)
   } else if (argv._.includes('analyze')) {
     if (argv.zapFiles.length < 1)
       throw 'You need to specify at least one zap file.'
-    return startAnalyze(argv)
+    let options = {
+      quitFunction: quitFunction,
+      cleanDb: true,
+      logger: console.log,
+    }
+    return startAnalyze(argv, options)
   } else if (argv._.includes('server')) {
     return startServer(argv)
   } else if (argv._.includes('convert')) {
@@ -705,7 +689,7 @@ async function startUpMainInstance(isElectron, argv) {
     if (argv.output == null) throw 'You need to specify output file.'
     return startConvert(argv, {
       logger: console.log,
-      quit: true,
+      quitFunction: quitFunction,
     }).catch((code) => {
       console.log(code)
       cleanExit(argv.cleanupDelay, 1)
@@ -714,7 +698,12 @@ async function startUpMainInstance(isElectron, argv) {
     console.log('No server running, nothing to stop.')
     cleanExit(argv.cleanupDelay, 0)
   } else if (argv._.includes('generate')) {
-    return startGeneration(argv).catch((err) => {
+    let options = {
+      quitFunction: quitFunction,
+      cleanDb: true,
+      logger: console.log,
+    }
+    return startGeneration(argv, options).catch((err) => {
       console.log(err)
       env.printToStderr(`Zap generation error: ${err}`)
       cleanExit(argv.cleanupDelay, 1)
@@ -723,7 +712,7 @@ async function startUpMainInstance(isElectron, argv) {
     // If we run with node only, we force no UI as it won't work.
     if (!isElectron) argv.noUi = true
     argv.standalone = isElectron === true
-    return startNormal(argv, {})
+    return startNormal(argv)
   }
 }
 
@@ -732,7 +721,6 @@ function cleanExit(delay, code) {
 }
 
 exports.startGeneration = startGeneration
-exports.startNormal = startNormal
 exports.startSelfCheck = startSelfCheck
 exports.clearDatabaseFile = clearDatabaseFile
 exports.startConvert = startConvert
