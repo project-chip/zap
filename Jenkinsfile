@@ -195,7 +195,16 @@ pipeline
                 }
             }
         }
-        stage('Building artifacts') {
+        stage('Building node.js artifacts') {
+            steps
+            {
+                script
+                {
+                    sh 'npm run pkg'
+                }
+            }
+        }
+        stage('Building electron artifacts') {
             parallel {
 /*                 stage('Building for Mac')
                 {
