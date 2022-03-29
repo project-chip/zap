@@ -15,7 +15,6 @@
  *    limitations under the License.
  */
 
-const { app } = require('electron')
 const fs = require('fs')
 const path = require('path')
 const _ = require('lodash')
@@ -48,7 +47,7 @@ let mainDatabase = null
  * @param {*} uiMode
  * @param {*} zapFiles An array of .zap files to open, can be empty.
  */
-async function startNormal(argv) {
+async function startNormal(quitFunction, argv) {
   let zapFiles = argv.zapFiles
   let showUrl = argv.showUrl
   let uiEnabled = !argv.noUi
@@ -59,8 +58,8 @@ async function startNormal(argv) {
   )
 
   watchdog.start(argv.watchdogTimer, () => {
-    if (app != null) {
-      app.quit()
+    if (quitFunction != null) {
+      quitFunction()
     } else {
       process.exit(0)
     }
@@ -333,7 +332,7 @@ async function startAnalyze(argv, options) {
  * @param {*} options
  * @returns promise of a startup
  */
-async function startServer(argv, options = {}) {
+async function startServer(argv, quitFunction) {
   let db = await dbApi.initDatabaseAndLoadSchema(
     env.sqliteFile(),
     env.schemaFile(),
@@ -341,8 +340,8 @@ async function startServer(argv, options = {}) {
   )
 
   watchdog.start(argv.watchdogTimer, () => {
-    if (app != null) {
-      app.quit()
+    if (quitFunction != null) {
+      quitFunction()
     } else {
       process.exit(0)
     }
@@ -489,7 +488,7 @@ async function generateSingleFile(
 /**
  * Performs headless regeneration for given parameters.
  *
- * @returns Nothing, triggers app.quit()
+ * @returns Nothing, triggers quit function
  */
 async function startGeneration(argv, options) {
   let templateMetafile = argv.generationTemplate
@@ -590,12 +589,12 @@ function logRemoteData(data) {
  *
  * @param {*} argv
  */
-function startUpSecondaryInstance(argv) {
+function startUpSecondaryInstance(quitFunction, argv) {
   console.log('🧐 Existing instance of zap will service this request.')
   ipcClient.initAndConnectClient().then(() => {
     ipcClient.on(ipcServer.eventType.overAndOut, (data) => {
       logRemoteData(data)
-      app.quit()
+      quitFunction()
     })
 
     ipcClient.on(ipcServer.eventType.over, (data) => {
@@ -634,17 +633,15 @@ function quit() {
 /**
  * Default startup method.
  *
- * @param {*} isElectron
+ * @param {*} quitFunction
+ * @param {*} argv
  */
-async function startUpMainInstance(isElectron, argv) {
-  let quitFunction
-  if (isElectron) {
-    quitFunction = app.quit
+async function startUpMainInstance(quitFunction, argv) {
+  if (quitFunction != null) {
     exports.quit = () => {
-      app.quit()
+      quitFunction()
     }
   } else {
-    quitFunction = null
     exports.quit = () => {
       process.exit(0)
     }
@@ -682,7 +679,7 @@ async function startUpMainInstance(isElectron, argv) {
     }
     return startAnalyze(argv, options)
   } else if (argv._.includes('server')) {
-    return startServer(argv)
+    return startServer(argv, quitFunction)
   } else if (argv._.includes('convert')) {
     if (argv.zapFiles.length < 1)
       throw 'You need to specify at least one zap file.'
@@ -712,7 +709,7 @@ async function startUpMainInstance(isElectron, argv) {
     // If we run with node only, we force no UI as it won't work.
     if (!isElectron) argv.noUi = true
     argv.standalone = isElectron === true
-    return startNormal(argv)
+    return startNormal(quitFunction, argv)
   }
 }
 

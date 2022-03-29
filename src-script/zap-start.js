@@ -31,9 +31,9 @@ scriptUtil
   .then(() => scriptUtil.rebuildBackendIfNeeded())
   .then(() => {
     let plat = process.platform
-    let executable = 'electron'
+    let executable
+    let main
 
-    console.log(`Determining executable: ${args[0]}`)
     switch (args[0]) {
       case 'selfCheck':
       case 'generate':
@@ -43,7 +43,14 @@ scriptUtil
       case 'convert':
       case 'analyze':
         executable = 'node'
+        main = scriptUtil.mainPath(false)
+        break
+      default:
+        executable = 'electron'
+        main = scriptUtil.mainPath(true)
+        break
     }
+    console.log(`Determining executable: ${args[0]}`)
 
     let cmdArgs = [executable]
     if (executable == 'node') {
@@ -53,9 +60,7 @@ scriptUtil
       // This makes it safer to run on Linux, and latest linux distros broke this.
       cmdArgs.push('--disable-seccomp-filter-sandbox')
     }
-    cmdArgs.push(
-      path.join(__dirname, '../dist/src-electron/main-process/main.js')
-    )
+    cmdArgs.push(main)
 
     if (process.platform == 'linux' && executable == 'electron') {
       if (!process.env.DISPLAY) {

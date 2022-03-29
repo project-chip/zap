@@ -34,14 +34,14 @@ if (process.env.DEV) {
 }
 
 function hookSecondInstanceEvents(argv: args.Arguments) {
-  app.whenReady().then(() => startup.startUpSecondaryInstance(argv))
+  app.whenReady().then(() => startup.startUpSecondaryInstance(app.quit, argv))
 }
 
 /**
  * Hook up all the events for the electron app object.
  */
 function hookMainInstanceEvents(argv: args.Arguments) {
-  app.whenReady().then(() => startup.startUpMainInstance(true, argv))
+  app.whenReady().then(() => startup.startUpMainInstance(app.quit, argv))
 
   if (!argv._.includes('server')) {
     app.on('window-all-closed', () => {
@@ -90,7 +90,7 @@ if (app != null) {
   // If the code is executed via 'node' and not via 'electron', then this
   // is where we end up.
   startup.startUpMainInstance(
-    false,
+    null,
     args.processCommandLineArguments(process.argv)
   )
 }
