@@ -36,3 +36,5 @@ startup.startUpMainInstance(
   null,
   args.processCommandLineArguments(process.argv)
 )
+
+exports.loaded = true

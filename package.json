@@ -13,7 +13,7 @@
   },
   "private": true,
   "homepage": "https://github.com/project-chip/zap",
-  "main": "dist/src-electron/main-process/main.js",
+  "main": "dist/src-electron/ui/main-ui.js",
   "scripts": {
     "lic": "node src-script/license-check.js --production",
     "lint": "eslint --ext .js,.vue src src-electron src-shared src-script test",

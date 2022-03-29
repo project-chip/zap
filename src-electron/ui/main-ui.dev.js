@@ -48,4 +48,4 @@ if (process.env.MODE === 'electron') {
 }
 
 // Require `main` process to boot app
-require('./main.js')
+require('./main-ui.js')
