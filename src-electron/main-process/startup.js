@@ -707,8 +707,12 @@ async function startUpMainInstance(quitFunction, argv) {
     })
   } else {
     // If we run with node only, we force no UI as it won't work.
-    if (!isElectron) argv.noUi = true
-    argv.standalone = isElectron === true
+    if (quitFunction == null) {
+      argv.noUi = true
+      argv.standalone = false
+    } else {
+      argv.standalone = true
+    }
     return startNormal(quitFunction, argv)
   }
 }

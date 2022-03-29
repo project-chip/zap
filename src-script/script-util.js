@@ -236,7 +236,11 @@ function doneStamp(startTime) {
  * @returns
  */
 function mainPath(isElectron) {
-  return path.join(__dirname, '../dist/src-electron/main-process/main.js')
+  if (isElectron) {
+    return path.join(__dirname, '../dist/src-electron/ui/main-ui.js')
+  } else {
+    return path.join(__dirname, '../dist/src-electron/main-process/main.js')
+  }
 }
 
 exports.executeCmd = executeCmd
