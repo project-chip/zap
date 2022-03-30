@@ -1,7 +1,7 @@
 {
   "type": "commonjs",
   "name": "zap",
-  "version": "2022.3.29",
+  "version": "2022.3.30",
   "description": "Configuration tool for the Zigbee Cluster Library",
   "productName": "zap",
   "cordovaId": "",
@@ -271,8 +271,21 @@
     ]
   },
   "pkg": {
-    "name": "zap-cli",
-    "scripts": "dist/**/*.js",
+    "scripts": [
+      "dist/src-electron/client/*.js",
+      "dist/src-electron/db/*.js",
+      "dist/src-electron/generator/*.js",
+      "dist/src-electron/ide-integration/*.js",
+      "dist/src-electron/importexport/*.js",
+      "dist/src-electron/main-process/*.js",
+      "dist/src-electron/rest/*.js",
+      "dist/src-electron/server/*.js",
+      "dist/src-electron/types/*.js",
+      "dist/src-electron/util/*.js",
+      "dist/src-electron/validation/*.js",
+      "dist/src-electron/zcl/*.js",
+      "dist/src-shared/**/*.js"
+    ],
     "targets": [
       "node16-linux-x64",
       "node16-macos-x64",
