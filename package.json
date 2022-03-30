@@ -271,6 +271,7 @@
     ]
   },
   "pkg": {
+    "name": "zap-cli",
     "scripts": "dist/**/*.js",
     "targets": [
       "node16-linux-x64",

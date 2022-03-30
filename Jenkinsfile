@@ -201,6 +201,9 @@ pipeline
                 script
                 {
                     sh 'npm run pkg'
+                    sh 'mv dist/zap-linux dist/zap-cli-linux'
+                    sh 'mv dist/zap-macos dist/zap-cli-macos'
+                    sh 'mv dist/zap-win.exe dist/zap-cli-win.exe'
                 }
             }
         }
