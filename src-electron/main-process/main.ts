@@ -23,12 +23,7 @@ const env = require('../util/env')
 const startup = require('./startup')
 
 env.versionsCheck()
-
-if (process.env.DEV) {
-  env.setDevelopmentEnv()
-} else {
-  env.setProductionEnv()
-}
+env.setProductionEnv()
 
 // If the code is executed via 'node' and not via 'electron', then this
 // is where we end up.

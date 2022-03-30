@@ -603,8 +603,6 @@ function startUpSecondaryInstance(quitFunction, argv) {
   })
   if (argv._.includes('status') || argv._.includes('server')) {
     ipcClient.emit(ipcServer.eventType.serverStatus)
-  } else if (argv._.includes('new')) {
-    ipcClient.emit(ipcServer.eventType.new)
   } else if (argv._.includes('convert') && argv.zapFiles != null) {
     ipcClient.emit(ipcServer.eventType.convert, {
       output: argv.output,
@@ -620,8 +618,6 @@ function startUpSecondaryInstance(quitFunction, argv) {
       template: argv.generationTemplate,
     }
     ipcClient.emit(ipcServer.eventType.generate, data)
-  } else if (argv.zapFiles != null) {
-    ipcClient.emit(ipcServer.eventType.open, argv.zapFiles)
   }
 }
 

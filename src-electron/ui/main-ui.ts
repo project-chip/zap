@@ -26,12 +26,7 @@ const windowJs = require('./window')
 const startup = require('../main-process/startup')
 
 env.versionsCheck()
-
-if (process.env.DEV) {
-  env.setDevelopmentEnv()
-} else {
-  env.setProductionEnv()
-}
+env.setProductionEnv()
 
 function hookSecondInstanceEvents(argv: args.Arguments) {
   app.whenReady().then(() => startup.startUpSecondaryInstance(app.quit, argv))
