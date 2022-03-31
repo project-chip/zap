@@ -50,7 +50,10 @@ scriptUtil
         main = scriptUtil.mainPath(true)
         break
     }
-    console.log(`Determining executable: ${args[0]}`)
+    if (args.includes('--version')) {
+      executable = 'node'
+      main = scriptUtil.mainPath(false)
+    }
 
     let cmdArgs = [executable]
     if (executable == 'node') {

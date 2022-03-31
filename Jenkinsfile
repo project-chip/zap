@@ -40,6 +40,7 @@ pipeline
                                 script
                         {
                                     sh 'npm run version-stamp'
+                                    sh 'npm run version'
                         }
                     }
                 }

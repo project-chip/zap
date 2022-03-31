@@ -60,6 +60,7 @@
     "self-check": "node src-script/zap-start.js selfCheck -g ./test/gen-template/zigbee/gen-templates.json",
     "post-import": "node src-script/zap-start.js convert --postImportScript test/resource/test-script.js test/resource/three-endpoint-device.zap -o test.zap",
     "analyze": "node src-script/zap-start.js analyze -z ./zcl-builtin/silabs/zcl.json -g ./test/gen-template/zigbee/gen-templates.json ./test/resource/three-endpoint-device.zap -o ./tmp",
+    "version": "node src-script/zap-start.js --version",
     "gen": "node src-script/zap-generate.js --genResultFile --stateDirectory ~/.zap/gen -z ./zcl-builtin/silabs/zcl.json -g ./test/gen-template/zigbee/gen-templates.json -i ./test/resource/three-endpoint-device.zap -o ./tmp",
     "gen2": "node src-script/zap-generate.js --genResultFile -z ./zcl-builtin/silabs/zcl.json -g ./test/gen-template/zigbee/gen-templates.json -i ./test/resource/generation-test-file-1.zap -o ./tmp",
     "gen3": "node src-script/zap-generate.js --genResultFile --stateDirectory ~/.zap/gen3 -z ./zcl-builtin/dotdot/library.xml -g ./test/gen-template/zigbee/gen-templates.json -i ./test/resource/generation-test-file-1.zap -o ./tmp",
