@@ -132,7 +132,7 @@ pipeline
                 {
                     withEnv(['ZAP_TEST_TIMEOUT=3600000', 'ZAP_TEMPSTATE=1'])
                     {
-                        sh 'xvfb-run -a npm run test:unit'
+                        sh 'npm run test:unit'
                     }
                 }
             }
@@ -144,7 +144,7 @@ pipeline
                 script
                 {
                     sh 'rm -rf ~/.zap'
-                    sh 'xvfb-run -a npm run self-check'
+                    sh 'npm run self-check'
                 }
             }
         }
@@ -153,21 +153,21 @@ pipeline
                 stage('Test Zigbee generation') {
                     steps {
                         script {
-                            sh 'xvfb-run -a npm run gen'
+                            sh 'npm run gen'
                         }
                     }
                 }
                 stage('Test Matter generation') {
                     steps {
                         script {
-                            sh 'xvfb-run -a npm run genmatter'
+                            sh 'npm run genmatter'
                         }
                     }
                 }
                 stage('Test Dotdot generation') {
                     steps {
                         script {
-                            sh 'xvfb-run -a npm run gendotdot'
+                            sh 'npm run gendotdot'
                         }
                     }
                 }
@@ -195,9 +195,21 @@ pipeline
                 }
             }
         }
-        stage('Building artifacts') {
+        stage('Building node.js artifacts') {
+            steps
+            {
+                script
+                {
+                    sh 'npm run pkg'
+                    sh 'mv dist/zap-linux dist/zap-cli-linux'
+                    sh 'mv dist/zap-macos dist/zap-cli-macos'
+                    sh 'mv dist/zap-win.exe dist/zap-cli-win.exe'
+                }
+            }
+        }
+        stage('Building electron artifacts') {
             parallel {
-                stage('Building for Mac')
+/*                 stage('Building for Mac')
                 {
                     agent { label 'bgbuild-mac' }
                     steps
@@ -220,13 +232,13 @@ pipeline
                                     sh 'npm run version-stamp'
                                     sh 'npm run build'
                                     sh 'npm run pack:mac'
-                                    stash includes: "dist/*mac.zip", name: 'zap_apack_mac'
+                                    stash includes: 'dist/*mac.zip', name: 'zap_apack_mac'
                                 }
                             }
                         }
                     }
                 }
-                stage('Building for Windows / Linux')
+                */                stage('Building for Windows / Linux')
                 {
                     steps
                     {
@@ -234,7 +246,7 @@ pipeline
                         {
                             sh 'echo "Building for Windows"'
                             sh 'xvfb-run -a npm run pack:win'
-                            stash includes: "dist/*win.zip", name: 'zap_apack_win'
+                            stash includes: 'dist/*win.zip', name: 'zap_apack_win'
 
                             sh 'echo "Building for Linux"'
                             sh 'xvfb-run -a npm run pack:linux'
@@ -254,17 +266,17 @@ pipeline
                     {
                         script
                         {
-                            def file = sh(script: "ls dist/*win.zip | head -n 1", returnStdout: true).trim()
-                            sh 'cp '+ file + ' zap_apack_win.zip'
+                            def file = sh(script: 'ls dist/*win.zip | head -n 1', returnStdout: true).trim()
+                            sh 'cp ' + file + ' zap_apack_win.zip'
 
-                            file = sh(script: "ls dist/*linux.zip | head -n 1", returnStdout: true).trim()
-                            sh 'cp '+ file + ' zap_apack_linux.zip'
+                            file = sh(script: 'ls dist/*linux.zip | head -n 1', returnStdout: true).trim()
+                            sh 'cp ' + file + ' zap_apack_linux.zip'
 
                             archiveArtifacts artifacts:'dist/zap*', fingerprint: true
                         }
                     }
                 }
-                stage('Archiving for macOS')
+/*                 stage('Archiving for macOS')
                 {
                     agent { label 'bgbuild-mac' }
                     options { skipDefaultCheckout() }
@@ -272,13 +284,13 @@ pipeline
                     {
                         script
                         {
-                            def file = sh(script: "ls dist/*mac.zip | head -n 1", returnStdout: true).trim()
-                            sh 'cp '+ file + ' zap_apack_mac.zip'
+                            def file = sh(script: 'ls dist/*mac.zip | head -n 1', returnStdout: true).trim()
+                            sh 'cp ' + file + ' zap_apack_mac.zip'
                             archiveArtifacts artifacts:'dist/zap*', fingerprint: true
                         }
                     }
                 }
-                stage('Eclipse packaging metadata')
+                */                stage('Eclipse packaging metadata')
                 {
                     steps
                     {
@@ -306,7 +318,7 @@ pipeline
                             {
                                 unstash 'zap_apack_win'
                                 sh 'ls -R'
-                                def file = sh(script: "ls dist/*win.zip | head -n 1", returnStdout: true).trim()
+                                def file = sh(script: 'ls dist/*win.zip | head -n 1', returnStdout: true).trim()
                                 unzip zipFile: file
                                 String response = bat(script: 'zap.exe --version', returnStdout: true).trim()
                                 echo response
@@ -324,11 +336,11 @@ pipeline
                                     currentBuild.result = 'FAILURE'
                                 }
                             }
-                          deleteDir()
+                            deleteDir()
                         }
                     }
                 }
-                stage('Checking macOS exe')
+/*                 stage('Checking macOS exe')
                 {
                     agent { label 'bgbuild-mac' }
                     options { skipDefaultCheckout() }
@@ -362,7 +374,7 @@ pipeline
                         }
                     }
                 }
-                stage('Checking Linux exe')
+                */                stage('Checking Linux exe')
                 {
                     steps
                     {
@@ -372,7 +384,7 @@ pipeline
                                 cleanWs()
                                 unstash 'zap_apack_linux'
                                 sh 'ls -R'
-                                def file = sh(script: "ls dist/*linux.zip | head -n 1", returnStdout: true).trim()
+                                def file = sh(script: 'ls dist/*linux.zip | head -n 1', returnStdout: true).trim()
                                 unzip zipFile: file
                                 sh 'chmod 755 zap'
                                 String response = sh(script: 'xvfb-run -a ./zap --version', returnStdout: true).trim()
@@ -391,7 +403,7 @@ pipeline
                                     currentBuild.result = 'FAILURE'
                                 }
                             }
-                          deleteDir()
+                            deleteDir()
                         }
                     }
                 }

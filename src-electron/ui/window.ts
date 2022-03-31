@@ -20,7 +20,6 @@ export {}
 const { session, BrowserWindow, dialog } = require('electron')
 const path = require('path')
 const env = require('../util/env')
-const querySession = require('../db/query-session.js')
 const menu = require('./menu.js')
 const tray = require('./tray.js')
 const browserApi = require('./browser-api.js')

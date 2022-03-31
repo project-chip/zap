@@ -10,8 +10,8 @@ module.exports = function (ctx) {
       router: 'src/router',
       store: 'src/store',
       indexHtmlTemplate: 'src/index.template.html',
-      electronMainDev: 'src-electron/main-process/main.dev.js',
-      electronMainProd: 'src-electron/main-process/main.js',
+      electronMainDev: 'src-electron/ui/main-ui.dev.js',
+      electronMainProd: 'src-electron/ui/main-ui.js',
     },
 
     // app boot file (/src/boot)

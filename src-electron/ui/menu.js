@@ -17,7 +17,7 @@
 
 const { dialog, Menu, shell } = require('electron')
 const uiJs = require('./ui-util')
-const about = require('../main-process/about')
+const about = require('./about')
 const commonUrl = require('../../src-shared/common-url.js')
 const browserApi = require('./browser-api.js')
 const rendApi = require('../../src-shared/rend-api.js')
@@ -58,19 +58,6 @@ const template = (httpPort) => [
           doSaveAs(browserWindow)
         },
       },
-      {
-        type: 'separator',
-      },
-      // {
-      //   label: 'Preferences...',
-      //   httpPort: httpPort,
-      //   click(menuItem, browserWindow, event) {
-      //     preference.createOrShowPreferencesWindow(
-      //       browserWindow,
-      //       menuItem.httpPort
-      //     )
-      //   },
-      // },
       {
         type: 'separator',
       },

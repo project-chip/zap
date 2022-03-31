@@ -15,12 +15,12 @@
  *    limitations under the License.
  */
 
-import { BrowserWindow } from "electron"
+import { BrowserWindow } from 'electron'
 
 const path = require('path')
 const env = require('../util/env')
 
-let window:BrowserWindow|null
+let window: BrowserWindow | null
 
 function createAboutWindow(parentWindow: BrowserWindow, port: number) {
   let webPreferences: Electron.WebPreferences = {

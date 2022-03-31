@@ -20,7 +20,6 @@ import ipc from 'node-ipc'
 import * as env from '../util/env'
 import * as ipcTypes from '../../src-shared/types/ipc-types'
 const path = require('path')
-const uiUtil = require('../ui/ui-util')
 const util = require('../util/util.js')
 const watchdog = require('../main-process/watchdog')
 const httpServer = require('../server/http-server.js')
@@ -33,8 +32,6 @@ const eventType: { [key: string]: string } = {
   pong: 'pong', // Return of the ping data, no response required.
   over: 'over', // Sent from server to client as an intermediate printout.
   overAndOut: 'overAndOut', // Sent from server to client as a final answer.
-  new: 'new', // Sent from client to server to request new configuration
-  open: 'open', // Sent from client to server with array of files to open
   convert: 'convert', // Sent from client to server when requesting to convert files
   generate: 'generate', // Sent from client to server when requesting generation.
   serverStatus: 'serverStatus', // Sent from client to ask for server URL
@@ -65,26 +62,6 @@ function handlerServerStatus(context: ipcTypes.IpcEventHandlerContext) {
   let svr = httpServer.httpServerStartupMessage()
   svr.zapServerStatus = 'running'
   server.ipc.server.emit(context.socket, eventType.overAndOut, svr)
-}
-
-function handlerNew(context: ipcTypes.IpcEventHandlerContext) {
-  if (context.httpPort != null) {
-    uiUtil.openNewConfiguration(context.httpPort)
-    server.ipc.server.emit(context.socket, eventType.overAndOut)
-  }
-}
-
-function handlerOpen(
-  context: ipcTypes.IpcEventHandlerContext,
-  zapFileArray: string[]
-) {
-  return util
-    .executePromisesSequentially(zapFileArray, (f: string) =>
-      uiUtil.openFileConfiguration(f, context.httpPort)
-    )
-    .then(() => {
-      server.ipc.server.emit(context.socket, eventType.overAndOut)
-    })
 }
 
 function handlerConvert(context: ipcTypes.IpcEventHandlerContext, data: any) {
@@ -154,14 +131,6 @@ const handlers = [
   {
     eventType: eventType.serverStatus,
     handler: handlerServerStatus,
-  },
-  {
-    eventType: eventType.new,
-    handler: handlerNew,
-  },
-  {
-    eventType: eventType.open,
-    handler: handlerOpen,
   },
   {
     eventType: eventType.convert,

@@ -15,7 +15,6 @@
  *    limitations under the License.
  */
 
-const { app } = require('electron')
 const fs = require('fs')
 const path = require('path')
 const _ = require('lodash')
@@ -24,7 +23,6 @@ const dbApi = require('../db/db-api.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const env = require('../util/env')
 const zclLoader = require('../zcl/zcl-loader.js')
-const windowJs = require('../ui/window')
 const httpServer = require('../server/http-server.js')
 const ipcServer = require('../server/ipc-server')
 const ipcClient = require('../client/ipc-client')
@@ -33,7 +31,6 @@ const querySession = require('../db/query-session.js')
 const util = require('../util/util.js')
 const importJs = require('../importexport/import.js')
 const exportJs = require('../importexport/export.js')
-const uiJs = require('../ui/ui-util')
 const watchdog = require('./watchdog')
 
 // This file contains various startup modes.
@@ -48,16 +45,8 @@ let mainDatabase = null
  * @param {*} uiMode
  * @param {*} zapFiles An array of .zap files to open, can be empty.
  */
-async function startNormal(
-  argv,
-  options = {
-    quit: true,
-    logger: console.log,
-  }
-) {
-  let zapFiles = argv.zapFiles
+async function startNormal(quitFunction, argv) {
   let showUrl = argv.showUrl
-  let uiEnabled = !argv.noUi
   let db = await dbApi.initDatabaseAndLoadSchema(
     env.sqliteFile(),
     env.schemaFile(),
@@ -65,77 +54,47 @@ async function startNormal(
   )
 
   watchdog.start(argv.watchdogTimer, () => {
-    if (app != null) {
-      app.quit()
+    if (quitFunction != null) {
+      quitFunction()
     } else {
       process.exit(0)
     }
   })
   mainDatabase = db
 
-  return zclLoader
-    .loadZcl(db, argv.zclProperties)
-    .then((ctx) =>
-      generatorEngine.loadTemplates(ctx.db, argv.generationTemplate)
-    )
-    .then((ctx) => {
-      if (ctx.error) {
-        env.logWarning(ctx.error)
-      }
-      return ctx
-    })
-    .then((ctx) => {
-      if (!argv.noServer)
-        return httpServer
-          .initHttpServer(ctx.db, argv.httpPort, argv.studioHttpPort, {
-            zcl: argv.zclProperties,
-            template: argv.generationTemplate,
-            allowCors: argv.allowCors,
-          })
-          .then(() => {
-            ipcServer.initServer(ctx.db, argv.httpPort)
-          })
-          .then(() => ctx)
-      else return ctx
-    })
-    .then((ctx) => {
-      let port = httpServer.httpServerPort()
+  try {
+    let ctx = await zclLoader.loadZcl(db, argv.zclProperties)
+    ctx = await generatorEngine.loadTemplates(ctx.db, argv.generationTemplate)
 
-      if (process.env.DEV && process.env.MODE === 'electron') {
-        port = 8080
-      }
-      if (showUrl) {
-        // NOTE: this is parsed/used by Studio as the default landing page.
-        console.log(httpServer.httpServerStartupMessage())
-      }
+    if (ctx.error) {
+      env.logWarning(ctx.error)
+    }
 
-      if (uiEnabled) {
-        windowJs.initializeElectronUi(port)
-        if (zapFiles.length == 0) {
-          return uiJs.openNewConfiguration(port, {
-            uiMode: argv.uiMode,
-            standalone: argv.standalone,
-            embeddedMode: argv.embeddedMode,
-          })
-        } else {
-          return util.executePromisesSequentially(zapFiles, (f) =>
-            uiJs.openFileConfiguration(f, port)
-          )
+    if (!argv.noServer) {
+      await httpServer.initHttpServer(
+        ctx.db,
+        argv.httpPort,
+        argv.studioHttpPort,
+        {
+          zcl: argv.zclProperties,
+          template: argv.generationTemplate,
+          allowCors: argv.allowCors,
         }
-      } else {
-        if (showUrl) {
-          // NOTE: this is parsed/used by Studio as the default landing page.
-          logRemoteData(httpServer.httpServerStartupMessage())
-        }
-      }
-    })
-    .then(() => {
-      if (argv.noServer && app != null && options.quit) app.quit()
-    })
-    .catch((err) => {
-      env.logError(err)
-      throw err
-    })
+      )
+      await ipcServer.initServer(ctx.db, argv.httpPort)
+    }
+    let port = httpServer.httpServerPort()
+
+    if (showUrl) {
+      // NOTE: this is parsed/used by Studio as the default landing page.
+      console.log(httpServer.httpServerStartupMessage())
+    }
+
+    return port
+  } catch (err) {
+    env.logError(err)
+    throw err
+  }
 }
 
 /**
@@ -213,13 +172,7 @@ function gatherFiles(filesArg, options = { suffix: '.zap', doBlank: true }) {
  * @param {*} files
  * @param {*} output
  */
-async function startConvert(
-  argv,
-  options = {
-    quit: true,
-    logger: console.log,
-  }
-) {
+async function startConvert(argv, options) {
   let files = argv.zapFiles
   let output = argv.output
   options.logger(`🤖 Conversion started
@@ -292,8 +245,8 @@ async function startConvert(
     )
     .then(() => {
       options.logger('😎 Conversion done!')
-      if (options.quit && app != null) {
-        app.quit()
+      if (options.quitFunction != null) {
+        options.quitFunction()
       }
     })
 }
@@ -304,14 +257,7 @@ async function startConvert(
  * @param {*} paths List of paths to analyze
  * @param {boolean} [options={ log: true, quit: true }]
  */
-async function startAnalyze(
-  argv,
-  options = {
-    quit: true,
-    cleanDb: true,
-    logger: console.log,
-  }
-) {
+async function startAnalyze(argv, options) {
   let paths = argv.zapFiles
   let dbFile = env.sqliteFile('analysis')
   options.logger(`🤖 Starting analysis: ${paths}`)
@@ -345,7 +291,7 @@ async function startAnalyze(
     })
     .then(() => {
       options.logger('😎 Analysis done!')
-      if (options.quit && app != null) app.quit()
+      if (options.quitFunction != null) options.quitFunction()
     })
 }
 
@@ -355,7 +301,7 @@ async function startAnalyze(
  * @param {*} options
  * @returns promise of a startup
  */
-async function startServer(argv, options = {}) {
+async function startServer(argv, quitFunction) {
   let db = await dbApi.initDatabaseAndLoadSchema(
     env.sqliteFile(),
     env.schemaFile(),
@@ -363,8 +309,8 @@ async function startServer(argv, options = {}) {
   )
 
   watchdog.start(argv.watchdogTimer, () => {
-    if (app != null) {
-      app.quit()
+    if (quitFunction != null) {
+      quitFunction()
     } else {
       process.exit(0)
     }
@@ -409,7 +355,7 @@ async function startServer(argv, options = {}) {
 async function startSelfCheck(
   argv,
   options = {
-    quit: true,
+    quitFunction: null,
     cleanDb: true,
     logger: console.log,
   }
@@ -445,8 +391,8 @@ async function startSelfCheck(
       options.logger('    👉 database closed')
       await util.waitFor(2000)
       options.logger('😎 Self-check done!')
-      if (options.quit && app != null) {
-        app.quit()
+      if (options.quitFunction != null) {
+        options.quitFunction()
       }
     })
     .catch((err) => {
@@ -511,16 +457,9 @@ async function generateSingleFile(
 /**
  * Performs headless regeneration for given parameters.
  *
- * @returns Nothing, triggers app.quit()
+ * @returns Nothing, triggers quit function
  */
-async function startGeneration(
-  argv,
-  options = {
-    quit: true,
-    cleanDb: true,
-    logger: console.log,
-  }
-) {
+async function startGeneration(argv, options) {
   let templateMetafile = argv.generationTemplate
   let zapFiles = argv.zapFiles
   let output = argv.output
@@ -572,7 +511,7 @@ async function startGeneration(
     generateSingleFile(mainDb, f, ctx.packageId, output, index, options)
   )
 
-  if (options.quit && app != null) app.quit()
+  if (options.quitFunction != null) options.quitFunction()
 }
 /**
  * Move database file out of the way into the backup location.
@@ -619,12 +558,12 @@ function logRemoteData(data) {
  *
  * @param {*} argv
  */
-function startUpSecondaryInstance(argv) {
+function startUpSecondaryInstance(quitFunction, argv) {
   console.log('🧐 Existing instance of zap will service this request.')
   ipcClient.initAndConnectClient().then(() => {
     ipcClient.on(ipcServer.eventType.overAndOut, (data) => {
       logRemoteData(data)
-      app.quit()
+      quitFunction()
     })
 
     ipcClient.on(ipcServer.eventType.over, (data) => {
@@ -633,8 +572,6 @@ function startUpSecondaryInstance(argv) {
   })
   if (argv._.includes('status') || argv._.includes('server')) {
     ipcClient.emit(ipcServer.eventType.serverStatus)
-  } else if (argv._.includes('new')) {
-    ipcClient.emit(ipcServer.eventType.new)
   } else if (argv._.includes('convert') && argv.zapFiles != null) {
     ipcClient.emit(ipcServer.eventType.convert, {
       output: argv.output,
@@ -650,8 +587,6 @@ function startUpSecondaryInstance(argv) {
       template: argv.generationTemplate,
     }
     ipcClient.emit(ipcServer.eventType.generate, data)
-  } else if (argv.zapFiles != null) {
-    ipcClient.emit(ipcServer.eventType.open, argv.zapFiles)
   }
 }
 
@@ -663,12 +598,15 @@ function quit() {
 /**
  * Default startup method.
  *
- * @param {*} isElectron
+ * @param {*} quitFunction
+ * @param {*} argv
  */
-async function startUpMainInstance(isElectron, argv) {
-  if (isElectron) {
+async function startUpMainInstance(callbacks, argv) {
+  let quitFunction = callbacks.quitFunction
+  let uiFunction = callbacks.uiEnableFunction
+  if (quitFunction != null) {
     exports.quit = () => {
-      app.quit()
+      quitFunction()
     }
   } else {
     exports.quit = () => {
@@ -692,20 +630,30 @@ async function startUpMainInstance(isElectron, argv) {
     logRemoteData({ zapServerStatus: 'missing' })
     cleanExit(argv.cleanupDelay, 0)
   } else if (argv._.includes('selfCheck')) {
-    return startSelfCheck(argv)
+    let options = {
+      quitFunction: quitFunction,
+      cleanDb: true,
+      logger: console.log,
+    }
+    return startSelfCheck(argv, options)
   } else if (argv._.includes('analyze')) {
     if (argv.zapFiles.length < 1)
       throw 'You need to specify at least one zap file.'
-    return startAnalyze(argv)
+    let options = {
+      quitFunction: quitFunction,
+      cleanDb: true,
+      logger: console.log,
+    }
+    return startAnalyze(argv, options)
   } else if (argv._.includes('server')) {
-    return startServer(argv)
+    return startServer(argv, quitFunction)
   } else if (argv._.includes('convert')) {
     if (argv.zapFiles.length < 1)
       throw 'You need to specify at least one zap file.'
     if (argv.output == null) throw 'You need to specify output file.'
     return startConvert(argv, {
       logger: console.log,
-      quit: true,
+      quitFunction: quitFunction,
     }).catch((code) => {
       console.log(code)
       cleanExit(argv.cleanupDelay, 1)
@@ -714,16 +662,37 @@ async function startUpMainInstance(isElectron, argv) {
     console.log('No server running, nothing to stop.')
     cleanExit(argv.cleanupDelay, 0)
   } else if (argv._.includes('generate')) {
-    return startGeneration(argv).catch((err) => {
+    let options = {
+      quitFunction: quitFunction,
+      cleanDb: true,
+      logger: console.log,
+    }
+    return startGeneration(argv, options).catch((err) => {
       console.log(err)
       env.printToStderr(`Zap generation error: ${err}`)
       cleanExit(argv.cleanupDelay, 1)
     })
   } else {
     // If we run with node only, we force no UI as it won't work.
-    if (!isElectron) argv.noUi = true
-    argv.standalone = isElectron === true
-    return startNormal(argv, {})
+    if (quitFunction == null) {
+      argv.noUi = true
+      argv.showUrl = true
+      argv.standalone = false
+    } else {
+      argv.standalone = true
+    }
+    let uiEnabled = !argv.noUi
+    let zapFiles = argv.zapFiles
+    let port = await startNormal(quitFunction, argv)
+    let showUrl = argv.showUrl
+    if (uiEnabled && uiFunction != null) {
+      uiFunction(port, zapFiles, argv.uiMode, argv.standalone)
+    } else {
+      if (showUrl) {
+        // NOTE: this is parsed/used by Studio as the default landing page.
+        logRemoteData(httpServer.httpServerStartupMessage())
+      }
+    }
   }
 }
 
@@ -732,7 +701,6 @@ function cleanExit(delay, code) {
 }
 
 exports.startGeneration = startGeneration
-exports.startNormal = startNormal
 exports.startSelfCheck = startSelfCheck
 exports.clearDatabaseFile = clearDatabaseFile
 exports.startConvert = startConvert

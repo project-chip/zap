@@ -52,5 +52,3 @@ test(
   },
   timeout.short()
 )
-
-require('../src-electron/main-process/preference.ts')

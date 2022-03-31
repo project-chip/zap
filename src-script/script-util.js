@@ -229,9 +229,24 @@ function doneStamp(startTime) {
   console.log(`😎 All done: ${duration(nsDuration)}.`)
 }
 
+/**
+ * Main entry of the program.
+ *
+ * @param {*} isNode
+ * @returns
+ */
+function mainPath(isElectron) {
+  if (isElectron) {
+    return path.join(__dirname, '../dist/src-electron/ui/main-ui.js')
+  } else {
+    return path.join(__dirname, '../dist/src-electron/main-process/main.js')
+  }
+}
+
 exports.executeCmd = executeCmd
 exports.rebuildSpaIfNeeded = rebuildSpaIfNeeded
 exports.rebuildBackendIfNeeded = rebuildBackendIfNeeded
 exports.stampVersion = stampVersion
 exports.duration = duration
 exports.doneStamp = doneStamp
+exports.mainPath = mainPath

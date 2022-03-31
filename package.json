@@ -1,7 +1,7 @@
 {
   "type": "commonjs",
   "name": "zap",
-  "version": "2022.3.27",
+  "version": "2022.3.31",
   "description": "Configuration tool for the Zigbee Cluster Library",
   "productName": "zap",
   "cordovaId": "",
@@ -13,7 +13,8 @@
   },
   "private": true,
   "homepage": "https://github.com/project-chip/zap",
-  "main": "dist/src-electron/main-process/main.js",
+  "main": "dist/src-electron/ui/main-ui.js",
+  "bin": "dist/src-electron/main-process/main.js",
   "scripts": {
     "lic": "node src-script/license-check.js --production",
     "lint": "eslint --ext .js,.vue src src-electron src-shared src-script test",
@@ -79,7 +80,8 @@
     "linuxpack-check": "./dist/linux-unpacked/zap selfCheck --zclProperties zcl-builtin/silabs/zcl-test.properties --genTemplateJson test/gen-template/zigbee/gen-templates.json",
     "linuxpack-gen": "./dist/linux-unpacked/zap generate --noUi --noServer --zclProperties zcl-builtin/silabs/zcl-test.properties --genTemplateJson test/gen-template/zigbee/gen-templates.json --output tmp",
     "linuxpack-help": "./dist/linux-unpacked/zap -?",
-    "helper-api-baseline": "node src-script/gen-helper-api.js && pretty-quick"
+    "helper-api-baseline": "node src-script/gen-helper-api.js && pretty-quick",
+    "pkg": "npm run build && npx pkg --compress GZip ."
   },
   "dependencies": {
     "@babel/runtime": "^7.14.6",
@@ -135,7 +137,7 @@
     "copy-webpack-plugin": "^6.3.2",
     "copyfiles": "^2.4.1",
     "devtron": "^1.4.0",
-    "electron": "^17.2.0",
+    "electron": "^17.1.2",
     "electron-builder": "^22.11.7",
     "electron-debug": "^3.2.0",
     "electron-devtools-installer": "^3.2.0",
@@ -166,6 +168,7 @@
     "node-abi": "^2.30.0",
     "node-gyp": "^8.1.0",
     "node-pre-gyp": "^0.17.0",
+    "pkg": "^5.5.2",
     "prettier": "^2.3.2",
     "pretty-quick": "^3.1.1",
     "quasar": "^1.15.21",
@@ -266,5 +269,35 @@
       "src-shared/**/*.js",
       "src-shared/**/*.ts"
     ]
+  },
+  "pkg": {
+    "scripts": [
+      "dist/src-electron/client/*.js",
+      "dist/src-electron/db/*.js",
+      "dist/src-electron/generator/*.js",
+      "dist/src-electron/ide-integration/*.js",
+      "dist/src-electron/importexport/*.js",
+      "dist/src-electron/main-process/*.js",
+      "dist/src-electron/rest/*.js",
+      "dist/src-electron/server/*.js",
+      "dist/src-electron/types/*.js",
+      "dist/src-electron/util/*.js",
+      "dist/src-electron/validation/*.js",
+      "dist/src-electron/zcl/*.js",
+      "dist/src-shared/**/*.js"
+    ],
+    "targets": [
+      "node16-linux-x64",
+      "node16-macos-x64",
+      "node16-win-x64"
+    ],
+    "assets": [
+      "apack.json",
+      ".version.json",
+      "dist/src-electron/db/zap-schema.sql",
+      "zcl-builtin/**/*",
+      "spa/**/*"
+    ],
+    "outputPath": "dist"
   }
 }
