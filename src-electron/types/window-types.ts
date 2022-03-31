@@ -1,5 +1,5 @@
 export interface WindowCreateArgs {
-  filePath: string
+  filePath: string | null
   uiMode?: string
   standalone?: boolean
 }

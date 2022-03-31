@@ -120,8 +120,29 @@ function openFileDialogAndReportResult(
   })
 }
 
+function enableUi(
+  port: number,
+  zapFiles: string[],
+  uiMode: string,
+  standalone: boolean
+) {
+  window.initializeElectronUi(port)
+  if (zapFiles.length == 0) {
+    return openNewConfiguration(port, {
+      uiMode: uiMode,
+      standalone: standalone,
+      filePath: null,
+    })
+  } else {
+    return util.executePromisesSequentially(zapFiles, (f: string) =>
+      openFileConfiguration(f, port)
+    )
+  }
+}
+
 exports.showErrorMessage = showErrorMessage
 exports.openFileConfiguration = openFileConfiguration
 exports.openNewConfiguration = openNewConfiguration
 exports.toggleDirtyFlag = toggleDirtyFlag
 exports.openFileDialogAndReportResult = openFileDialogAndReportResult
+exports.enableUi = enableUi

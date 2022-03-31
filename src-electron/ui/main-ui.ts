@@ -24,6 +24,7 @@ import * as args from '../util/args'
 const env = require('../util/env')
 const windowJs = require('./window')
 const startup = require('../main-process/startup')
+const uiUtil = require('./ui-util')
 
 env.versionsCheck()
 env.setProductionEnv()
@@ -36,7 +37,15 @@ function hookSecondInstanceEvents(argv: args.Arguments) {
  * Hook up all the events for the electron app object.
  */
 function hookMainInstanceEvents(argv: args.Arguments) {
-  app.whenReady().then(() => startup.startUpMainInstance(app.quit, argv))
+  app.whenReady().then(() =>
+    startup.startUpMainInstance(
+      {
+        quitFunction: app.quit,
+        uiEnableFunction: uiUtil.enableUi,
+      },
+      argv
+    )
+  )
 
   if (!argv._.includes('server')) {
     app.on('window-all-closed', () => {

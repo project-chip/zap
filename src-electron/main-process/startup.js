@@ -31,8 +31,6 @@ const querySession = require('../db/query-session.js')
 const util = require('../util/util.js')
 const importJs = require('../importexport/import.js')
 const exportJs = require('../importexport/export.js')
-const uiJs = require('../ui/ui-util')
-const windowJs = require('../ui/window')
 const watchdog = require('./watchdog')
 
 // This file contains various startup modes.
@@ -96,21 +94,6 @@ async function startNormal(quitFunction, argv) {
   } catch (err) {
     env.logError(err)
     throw err
-  }
-}
-
-function enableUi(port, zapFiles, argv) {
-  windowJs.initializeElectronUi(port)
-  if (zapFiles.length == 0) {
-    return uiJs.openNewConfiguration(port, {
-      uiMode: argv.uiMode,
-      standalone: argv.standalone,
-      embeddedMode: argv.embeddedMode,
-    })
-  } else {
-    return util.executePromisesSequentially(zapFiles, (f) =>
-      uiJs.openFileConfiguration(f, port)
-    )
   }
 }
 
@@ -618,7 +601,9 @@ function quit() {
  * @param {*} quitFunction
  * @param {*} argv
  */
-async function startUpMainInstance(quitFunction, argv) {
+async function startUpMainInstance(callbacks, argv) {
+  let quitFunction = callbacks.quitFunction
+  let uiFunction = callbacks.uiEnableFunction
   if (quitFunction != null) {
     exports.quit = () => {
       quitFunction()
@@ -700,8 +685,8 @@ async function startUpMainInstance(quitFunction, argv) {
     let zapFiles = argv.zapFiles
     let port = await startNormal(quitFunction, argv)
     let showUrl = argv.showUrl
-    if (uiEnabled) {
-      enableUi(port, zapFiles, argv)
+    if (uiEnabled && uiFunction != null) {
+      uiFunction(port, zapFiles, argv.uiMode, argv.standalone)
     } else {
       if (showUrl) {
         // NOTE: this is parsed/used by Studio as the default landing page.

@@ -28,7 +28,10 @@ env.setProductionEnv()
 // If the code is executed via 'node' and not via 'electron', then this
 // is where we end up.
 startup.startUpMainInstance(
-  null,
+  {
+    quitFunction: null,
+    uiEnableFunction: null,
+  },
   args.processCommandLineArguments(process.argv)
 )
 
