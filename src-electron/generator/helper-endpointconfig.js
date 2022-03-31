@@ -295,18 +295,37 @@ function endpoint_attribute_list(options) {
   return ret
 }
 
-function endpoint_fixed_device_id_array(options) {
+function endpoint_fixed_device_type_array(options) {
   return (
-    '{ ' + this.deviceList.map((device) => device.deviceId).join(', ') + ' }'
+    '{ ' +
+    this.deviceList
+      .map(function (device) {
+        console.log(device)
+        if (device != null && device.deviceId != null) {
+          return (
+            '{ ' +
+            device.deviceId.toString() +
+            ',' +
+            device.deviceVersion.toString() +
+            '}'
+          )
+        } else {
+          return '{}'
+        }
+      })
+      .join(', ') +
+    ' }'
   )
 }
 
-function endpoint_fixed_device_version_array(options) {
-  return (
-    '{ ' +
-    this.deviceList.map((device) => device.deviceVersion).join(', ') +
-    ' }'
-  )
+function endpoint_fixed_device_type_array_offsets(options) {
+  let listOfNums = Array.from(Array(this.deviceList.length).keys())
+  return '{ ' + listOfNums.map((num) => num.toString()).join(', ') + '}'
+}
+
+function endpoint_fixed_device_type_array_lengths(options) {
+  let listOfNums = Array(this.deviceList.length).fill(1)
+  return '{ ' + listOfNums.map((num) => num.toString()).join(', ') + '}'
 }
 
 function endpoint_attribute_min_max_count(options) {
@@ -916,9 +935,11 @@ exports.endpoint_total_storage_size = endpoint_total_storage_size
 exports.endpoint_singletons_size = endpoint_singletons_size
 exports.endpoint_fixed_endpoint_array = endpoint_fixed_endpoint_array
 exports.endpoint_fixed_endpoint_type_array = endpoint_fixed_endpoint_type_array
-exports.endpoint_fixed_device_id_array = endpoint_fixed_device_id_array
-exports.endpoint_fixed_device_version_array =
-  endpoint_fixed_device_version_array
+exports.endpoint_fixed_device_type_array = endpoint_fixed_device_type_array
+exports.endpoint_fixed_device_type_array_offsets =
+  endpoint_fixed_device_type_array_offsets
+exports.endpoint_fixed_device_type_array_lengths =
+  endpoint_fixed_device_type_array_lengths
 exports.endpoint_fixed_profile_id_array = endpoint_fixed_profile_id_array
 exports.endpoint_fixed_network_array = endpoint_fixed_network_array
 exports.endpoint_command_list = endpoint_command_list
