@@ -48,9 +48,7 @@ let mainDatabase = null
  * @param {*} zapFiles An array of .zap files to open, can be empty.
  */
 async function startNormal(quitFunction, argv) {
-  let zapFiles = argv.zapFiles
   let showUrl = argv.showUrl
-  let uiEnabled = !argv.noUi
   let db = await dbApi.initDatabaseAndLoadSchema(
     env.sqliteFile(),
     env.schemaFile(),
@@ -94,14 +92,7 @@ async function startNormal(quitFunction, argv) {
       console.log(httpServer.httpServerStartupMessage())
     }
 
-    if (uiEnabled) {
-      enableUi(port, zapFiles, argv)
-    } else {
-      if (showUrl) {
-        // NOTE: this is parsed/used by Studio as the default landing page.
-        logRemoteData(httpServer.httpServerStartupMessage())
-      }
-    }
+    return port
   } catch (err) {
     env.logError(err)
     throw err
@@ -705,7 +696,18 @@ async function startUpMainInstance(quitFunction, argv) {
     } else {
       argv.standalone = true
     }
-    return startNormal(quitFunction, argv)
+    let uiEnabled = !argv.noUi
+    let zapFiles = argv.zapFiles
+    let port = await startNormal(quitFunction, argv)
+    let showUrl = argv.showUrl
+    if (uiEnabled) {
+      enableUi(port, zapFiles, argv)
+    } else {
+      if (showUrl) {
+        // NOTE: this is parsed/used by Studio as the default landing page.
+        logRemoteData(httpServer.httpServerStartupMessage())
+      }
+    }
   }
 }
 
