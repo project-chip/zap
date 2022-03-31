@@ -418,6 +418,38 @@ function asMEI(manufacturerCode, code) {
   return '0x' + bin.int32ToHex((manufacturerCode << 16) + code)
 }
 
+// The representation of null depends on the type, so we can't use a single
+// macro that's defined elsewhere for "null value".
+function determineAttributeDefaultValue(
+  specifiedDefault,
+  type,
+  typeSize,
+  isNullable
+) {
+  if (specifiedDefault !== null || !isNullable) {
+    return specifiedDefault
+  }
+
+  if (types.isString(type)) {
+    // Handled elsewhere.
+    return null
+  }
+
+  if (types.isSignedInteger(type)) {
+    return '0x80' + '00'.repeat(typeSize - 1)
+  }
+
+  if (types.isFloat(type)) {
+    // Not supported yet.
+    throw new Error(
+      "Don't know how to output a null default value for a float type"
+    )
+  }
+
+  // Assume everything else is an unsigned integer.
+  return '0x' + 'FF'.repeat(typeSize)
+}
+
 /**
  * Attribute collection works like this:
  *    1.) Go over all the clusters that exist.
@@ -495,16 +527,23 @@ async function collectAttributes(endpointTypes) {
         // defaultSize is the size of the attribute in the readonly defaults
         // store.
         let defaultSize = typeSize
-        let attributeDefaultValue = a.defaultValue
+        let attributeDefaultValue = determineAttributeDefaultValue(
+          a.defaultValue,
+          a.type,
+          typeSize,
+          a.isNullable
+        )
         // Various types store the length of the actual content in bytes.
         // For those, we can size the default storage to be just big enough for
         // the actual default value.
         if (types.isOneBytePrefixedString(a.type)) {
           typeSize += 1
-          defaultSize = attributeDefaultValue.length + 1
+          defaultSize =
+            (attributeDefaultValue ? attributeDefaultValue.length : 0) + 1
         } else if (types.isTwoBytePrefixedString(a.type)) {
           typeSize += 2
-          defaultSize = attributeDefaultValue.length + 2
+          defaultSize =
+            (attributeDefaultValue ? attributeDefaultValue.length : 0) + 2
         }
         // External attributes should be treated as having a typeSize of 0 for
         // most purposes (e.g. allocating space for them), but should still
@@ -514,31 +553,50 @@ async function collectAttributes(endpointTypes) {
         if (a.storage == dbEnum.storageOption.external) {
           typeSize = 0
           defaultSize = 0
-          attributeDefaultValue = null
+          attributeDefaultValue = undefined
         }
 
         let defaultValueIsMacro = false
         // Zero-length strings can just use ZAP_EMPTY_DEFAULT() as the default
-        // and don't need long defaults.  Apart from that, there is one string
-        // case that _could_ fit into our 2-byte default value: a 1-char-long
-        // short string.  But figuring out how to produce a uint8_t* for it as a
-        // literal value is a pain, so just force all strings with a nonempty
-        // default value to use long defaults.
+        // and don't need long defaults.  Similar for external strings.
         //
-        // Checking whether attributeDefaultValue is falsy will catch both
+        // Apart from that, there are two string cases that _could_ fit into our
+        // 2-byte default value: a 1-char-long short string, or a null string.
+        // But figuring out how to produce a uint8_t* for those as a literal
+        // value is a pain, so just force all non-external strings with a
+        // nonempty default value to use long defaults.
         // external strings and zero-length default values.
         if (
           defaultSize > 2 ||
-          (types.isString(a.type) && attributeDefaultValue)
+          (types.isString(a.type) &&
+            attributeDefaultValue !== undefined &&
+            attributeDefaultValue !== '')
         ) {
           // We will need to generate the GENERATED_DEFAULTS
           longDefaults.push(a)
 
-          let def = types.longTypeDefaultValue(
-            defaultSize,
-            a.type,
-            a.defaultValue
-          )
+          let def
+          if (
+            types.isString(a.type) &&
+            attributeDefaultValue === null &&
+            a.isNullable
+          ) {
+            // We don't want to make longTypeDefaultValue know about our null
+            // string representation.
+            if (types.isOneBytePrefixedString(a.type)) {
+              def = ['0xFF']
+            } else if (types.isTwoBytePrefixedString(a.type)) {
+              def = ['0xFF', '0xFF']
+            } else {
+              throw new Error(`Unknown string type: ${type}`)
+            }
+          } else {
+            def = types.longTypeDefaultValue(
+              defaultSize,
+              a.type,
+              attributeDefaultValue
+            )
+          }
           let longDef = {
             value: def,
             size: defaultSize,
@@ -556,7 +614,7 @@ async function collectAttributes(endpointTypes) {
         if ((a.min != null || a.max != null) && a.isWritable) {
           mask.push('min_max')
           let minMax = {
-            default: a.defaultValue,
+            default: attributeDefaultValue,
             min: a.min,
             max: a.max,
             name: a.name,
