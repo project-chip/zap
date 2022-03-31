@@ -23,7 +23,6 @@ const dbApi = require('../db/db-api.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const env = require('../util/env')
 const zclLoader = require('../zcl/zcl-loader.js')
-const windowJs = require('../ui/window')
 const httpServer = require('../server/http-server.js')
 const ipcServer = require('../server/ipc-server')
 const ipcClient = require('../client/ipc-client')
@@ -33,6 +32,7 @@ const util = require('../util/util.js')
 const importJs = require('../importexport/import.js')
 const exportJs = require('../importexport/export.js')
 const uiJs = require('../ui/ui-util')
+const windowJs = require('../ui/window')
 const watchdog = require('./watchdog')
 
 // This file contains various startup modes.
@@ -66,66 +66,61 @@ async function startNormal(quitFunction, argv) {
   })
   mainDatabase = db
 
-  return zclLoader
-    .loadZcl(db, argv.zclProperties)
-    .then((ctx) =>
-      generatorEngine.loadTemplates(ctx.db, argv.generationTemplate)
-    )
-    .then((ctx) => {
-      if (ctx.error) {
-        env.logWarning(ctx.error)
-      }
-      return ctx
-    })
-    .then((ctx) => {
-      if (!argv.noServer)
-        return httpServer
-          .initHttpServer(ctx.db, argv.httpPort, argv.studioHttpPort, {
-            zcl: argv.zclProperties,
-            template: argv.generationTemplate,
-            allowCors: argv.allowCors,
-          })
-          .then(() => {
-            ipcServer.initServer(ctx.db, argv.httpPort)
-          })
-          .then(() => ctx)
-      else return ctx
-    })
-    .then((ctx) => {
-      let port = httpServer.httpServerPort()
+  try {
+    let ctx = await zclLoader.loadZcl(db, argv.zclProperties)
+    ctx = await generatorEngine.loadTemplates(ctx.db, argv.generationTemplate)
 
-      if (process.env.DEV && process.env.MODE === 'electron') {
-        port = 8080
-      }
+    if (ctx.error) {
+      env.logWarning(ctx.error)
+    }
+
+    if (!argv.noServer) {
+      await httpServer.initHttpServer(
+        ctx.db,
+        argv.httpPort,
+        argv.studioHttpPort,
+        {
+          zcl: argv.zclProperties,
+          template: argv.generationTemplate,
+          allowCors: argv.allowCors,
+        }
+      )
+      await ipcServer.initServer(ctx.db, argv.httpPort)
+    }
+    let port = httpServer.httpServerPort()
+
+    if (showUrl) {
+      // NOTE: this is parsed/used by Studio as the default landing page.
+      console.log(httpServer.httpServerStartupMessage())
+    }
+
+    if (uiEnabled) {
+      enableUi(port, zapFiles, argv)
+    } else {
       if (showUrl) {
         // NOTE: this is parsed/used by Studio as the default landing page.
-        console.log(httpServer.httpServerStartupMessage())
+        logRemoteData(httpServer.httpServerStartupMessage())
       }
+    }
+  } catch (err) {
+    env.logError(err)
+    throw err
+  }
+}
 
-      if (uiEnabled) {
-        windowJs.initializeElectronUi(port)
-        if (zapFiles.length == 0) {
-          return uiJs.openNewConfiguration(port, {
-            uiMode: argv.uiMode,
-            standalone: argv.standalone,
-            embeddedMode: argv.embeddedMode,
-          })
-        } else {
-          return util.executePromisesSequentially(zapFiles, (f) =>
-            uiJs.openFileConfiguration(f, port)
-          )
-        }
-      } else {
-        if (showUrl) {
-          // NOTE: this is parsed/used by Studio as the default landing page.
-          logRemoteData(httpServer.httpServerStartupMessage())
-        }
-      }
+function enableUi(port, zapFiles, argv) {
+  windowJs.initializeElectronUi(port)
+  if (zapFiles.length == 0) {
+    return uiJs.openNewConfiguration(port, {
+      uiMode: argv.uiMode,
+      standalone: argv.standalone,
+      embeddedMode: argv.embeddedMode,
     })
-    .catch((err) => {
-      env.logError(err)
-      throw err
-    })
+  } else {
+    return util.executePromisesSequentially(zapFiles, (f) =>
+      uiJs.openFileConfiguration(f, port)
+    )
+  }
 }
 
 /**
@@ -705,6 +700,7 @@ async function startUpMainInstance(quitFunction, argv) {
     // If we run with node only, we force no UI as it won't work.
     if (quitFunction == null) {
       argv.noUi = true
+      argv.showUrl = true
       argv.standalone = false
     } else {
       argv.standalone = true

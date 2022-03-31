@@ -19,6 +19,8 @@ import * as window from './window'
 import browserApi from './browser-api.js'
 import * as uiTypes from '../../src-shared/types/ui-types'
 import { WindowCreateArgs } from 'types/window-types'
+import * as util from '../util/util'
+import * as args from '../util/args'
 
 /**
  * Simple dialog to show error messages from electron renderer scope.
