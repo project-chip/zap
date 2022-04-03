@@ -296,36 +296,66 @@ function endpoint_attribute_list(options) {
 }
 
 function endpoint_fixed_device_type_array(options) {
-  return (
-    '{ ' +
-    this.deviceList
-      .map(function (device) {
-        console.log(device)
-        if (device != null && device.deviceId != null) {
-          return (
-            '{ ' +
-            device.deviceId.toString() +
-            ',' +
-            device.deviceVersion.toString() +
-            '}'
-          )
-        } else {
-          return '{}'
-        }
-      })
-      .join(', ') +
-    ' }'
-  )
+  let ret = '{'
+  let wroteItem = false
+
+  for (let i = 0; i < this.deviceList.length; i++) {
+    if (this.deviceList[i] != null && this.deviceList[i].deviceId != null) {
+      if (wroteItem) {
+        ret += ','
+      }
+
+      ret +=
+        '{' +
+        this.deviceList[i].deviceId.toString() +
+        ',' +
+        this.deviceList[i].deviceVersion.toString() +
+        '}'
+      wroteItem = true
+    }
+  }
+
+  ret += '}'
+  return ret
 }
 
 function endpoint_fixed_device_type_array_offsets(options) {
-  let listOfNums = Array.from(Array(this.deviceList.length).keys())
-  return '{ ' + listOfNums.map((num) => num.toString()).join(', ') + '}'
+  let ret = '{ '
+  let curOffset = 0
+
+  for (let i = 0; i < this.deviceList.length; i++) {
+    if (i != 0) {
+      ret += ','
+    }
+
+    ret += curOffset.toString()
+
+    if (this.deviceList[i] != null && this.deviceList[i].deviceId != null) {
+      curOffset += 1
+    }
+  }
+
+  ret += '}'
+  return ret
 }
 
 function endpoint_fixed_device_type_array_lengths(options) {
-  let listOfNums = Array(this.deviceList.length).fill(1)
-  return '{ ' + listOfNums.map((num) => num.toString()).join(', ') + '}'
+  let ret = '{ '
+
+  for (let i = 0; i < this.deviceList.length; i++) {
+    if (i != 0) {
+      ret += ','
+    }
+
+    if (this.deviceList[i] != null && this.deviceList[i].deviceId != null) {
+      ret += '1'
+    } else {
+      ret += '0'
+    }
+  }
+
+  ret += '}'
+  return ret
 }
 
 function endpoint_attribute_min_max_count(options) {
