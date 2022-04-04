@@ -94,7 +94,21 @@ async function asUnderlyingType(value) {
       packageId
     )
   }
-  // Step 2: Detecting the type of the data type and returning the appropriate c
+
+  // Step 2: Check if a type override for the data type exists in the meta-data
+  if (dataType) {
+    let typeOverride = await queryPackage.selectSpecificOptionValue(
+      this.global.db,
+      this.global.genTemplatePackageId,
+      'types',
+      dataType.name
+    )
+    if (typeOverride) {
+      return typeOverride.optionLabel
+    }
+  }
+
+  // Step 3: Detecting the type of the data type and returning the appropriate c
   // type through overridable
   try {
     if (
