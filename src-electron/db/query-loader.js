@@ -1496,7 +1496,6 @@ exports.insertAccessModifiers = insertAccessModifiers
 exports.insertAccessOperations = insertAccessOperations
 exports.insertAccessRoles = insertAccessRoles
 exports.insertDefaultAccess = insertDefaultAccess
-exports.updateStaticEntityReferences = updateStaticEntityReferences
 exports.insertDataTypeDiscriminator = insertDataTypeDiscriminator
 exports.insertDataType = insertDataType
 exports.insertNumber = insertNumber
