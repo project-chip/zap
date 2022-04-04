@@ -78,9 +78,12 @@ function asHex(rawValue, padding, nullValue) {
 /**
  * Converts the actual zcl type into an underlying usable C type.
  * @param {*} value
+ * @returns The appropriate C Type
  */
 async function asUnderlyingType(value) {
   let dataType = null
+  let packageId = await templateUtil.ensureZclPackageId(this)
+
   // Step 1: Extracting the data type based on id or name
   if (typeof value === 'number') {
     dataType = await queryZcl.selectDataTypeById(this.global.db, value)
@@ -88,7 +91,7 @@ async function asUnderlyingType(value) {
     dataType = await queryZcl.selectDataTypeByName(
       this.global.db,
       value,
-      this.global.zclPackageId
+      packageId
     )
   }
   // Step 2: Detecting the type of the data type and returning the appropriate c
@@ -100,7 +103,7 @@ async function asUnderlyingType(value) {
     ) {
       let bt = await queryZcl.selectBitmapByName(
         this.global.db,
-        this.global.zclPackageId,
+        packageId,
         dataType.name
       )
       return this.global.overridable.bitmapType(bt.size)
@@ -111,7 +114,7 @@ async function asUnderlyingType(value) {
       let et = await queryZcl.selectEnumByName(
         this.global.db,
         dataType.name,
-        this.global.zclPackageId
+        packageId
       )
       return this.global.overridable.enumType(et.size, et.name)
     } else if (
@@ -120,7 +123,7 @@ async function asUnderlyingType(value) {
     ) {
       let nt = await queryZcl.selectNumberByName(
         this.global.db,
-        this.global.zclPackageId,
+        packageId,
         dataType.name
       )
       return this.global.overridable.numberType(nt.size, nt.isSigned, nt.name)
@@ -129,6 +132,11 @@ async function asUnderlyingType(value) {
       dataType.discriminatorName.toLowerCase() == dbEnum.zclType.struct
     ) {
       return dataType.name
+    } else if (
+      dataType &&
+      dataType.discriminatorName.toLowerCase() == dbEnum.zclType.string
+    ) {
+      return this.global.overridable.stringType()
     } else {
       return 'uint8_t *'
     }
@@ -287,11 +295,12 @@ function asUnderscoreUppercase(str) {
 /**
  * Returns the cli type representation.
  *
- * @param str
- * @returns the type as represented for CLI.
+ * @param size
+ * @param isSigned
+ * @returns the type representation required for CLI.
  */
-function asCliType(str) {
-  return 'SL_CLI_ARG_' + types.convertToCliType(str).toUpperCase()
+function asCliType(size, isSigned) {
+  return 'SL_CLI_ARG_' + (isSigned ? 'INT' + size * 8 : 'UINT' + size * 8)
 }
 
 /**
@@ -326,7 +335,7 @@ function as_zcl_cli_type(str, optional, isSigned) {
 }
 
 /**
- * Returns the type of bitmap
+ * Returns the type of bitmap based on the bitmap's name
  *
  * @param {*} db
  * @param {*} bitmap_name
@@ -337,7 +346,7 @@ function dataTypeForBitmap(db, bitmap_name, packageId) {
     if (bm == null) {
       return `!!Invalid bitmap: ${bitmap_name}`
     } else {
-      return asCliType(bm.type)
+      return asCliType(bm.size, false)
     }
   })
 }
@@ -354,7 +363,7 @@ function dataTypeForEnum(db, enum_name, packageId) {
     if (e == null) {
       return `!!Invalid enum: ${enum_name}`
     } else {
-      return asCliType(e.type)
+      return asCliType(e.size, false)
     }
   })
 }

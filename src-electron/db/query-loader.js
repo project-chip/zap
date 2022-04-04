@@ -1151,12 +1151,19 @@ async function insertDefaultAccess(db, packageId, defaultAccess) {
   )
 }
 
-async function updateEnumClusterReferences(db, packageId) {
+/**
+ * This function is used as a post loading action for updating the cluster
+ * references of all the data types based on their cluster code.
+ * @param {*} db
+ * @param {*} packageId
+ * @returns promise which updates cluster references for data types
+ */
+async function updateDataTypeClusterReferences(db, packageId) {
   return dbApi.dbUpdate(
     db,
     `
 UPDATE
-  ENUM_CLUSTER
+  DATA_TYPE_CLUSTER
 SET
   CLUSTER_REF =
   (
@@ -1165,89 +1172,19 @@ SET
     FROM
       CLUSTER
     WHERE
-      CLUSTER.CODE = ENUM_CLUSTER.CLUSTER_CODE
+      CLUSTER.CODE = DATA_TYPE_CLUSTER.CLUSTER_CODE
     AND
       CLUSTER.PACKAGE_REF = ?
   )
 WHERE
   ( SELECT PACKAGE_REF
-    FROM ENUM
-    WHERE ENUM.ENUM_ID = ENUM_CLUSTER.ENUM_REF
+    FROM DATA_TYPE
+    WHERE DATA_TYPE.DATA_TYPE_ID = DATA_TYPE_CLUSTER.DATA_TYPE_REF
   ) = ?
   
 `,
     [packageId, packageId]
   )
-}
-
-async function updateStructClusterReferences(db, packageId) {
-  return dbApi.dbUpdate(
-    db,
-    `
-UPDATE
-  STRUCT_CLUSTER
-SET
-  CLUSTER_REF =
-  (
-    SELECT
-      CLUSTER_ID
-    FROM
-      CLUSTER
-    WHERE
-      CLUSTER.CODE = STRUCT_CLUSTER.CLUSTER_CODE
-    AND
-      CLUSTER.PACKAGE_REF = ?
-  )
-WHERE
-  (
-    SELECT PACKAGE_REF
-    FROM STRUCT
-    WHERE STRUCT.STRUCT_ID = STRUCT_CLUSTER.STRUCT_REF
-  ) = ?
-`,
-    [packageId, packageId]
-  )
-}
-
-async function updateBitmapClusterReferences(db, packageId) {
-  return dbApi.dbUpdate(
-    db,
-    `
-UPDATE
-  BITMAP_CLUSTER
-SET
-  CLUSTER_REF =
-  (
-    SELECT
-      CLUSTER_ID
-    FROM
-      CLUSTER
-    WHERE
-      CLUSTER.CODE = BITMAP_CLUSTER.CLUSTER_CODE
-    AND
-      CLUSTER.PACKAGE_REF = ?
-  )
-WHERE
-  (
-    SELECT PACKAGE_REF
-    FROM BITMAP
-    WHERE BITMAP.BITMAP_ID = BITMAP_CLUSTER.BITMAP_REF
-  ) = ?
-`,
-    [packageId, packageId]
-  )
-}
-
-/**
- * Post loading actions.
- *
- * @param {*} db
- * @param {*} packageId
- */
-async function updateStaticEntityReferences(db, packageId) {
-  await updateEnumClusterReferences(db, packageId)
-  await updateStructClusterReferences(db, packageId)
-  await updateBitmapClusterReferences(db, packageId)
 }
 
 /**
@@ -1258,7 +1195,7 @@ async function updateStaticEntityReferences(db, packageId) {
  * If we have a type called 16BitNumber which is a UINT_16(Actual representation
  * of 16 Bit unsigned integere) then 16BitNumber is not a baseline data type but
  * UINT_16 is base line data type.
- *
+ * Note: We have an ignore to silently ignore duplicates
  * @param {*} db
  * @param {*} packageId
  * @param {*} data
@@ -1266,39 +1203,47 @@ async function updateStaticEntityReferences(db, packageId) {
 async function insertDataTypeDiscriminator(db, packageId, data) {
   return dbApi.dbMultiInsert(
     db,
-    'INSERT INTO DISCRIMINATOR (PACKAGE_REF, NAME) VALUES (?, ?)',
+    'INSERT OR IGNORE INTO DISCRIMINATOR (PACKAGE_REF, NAME) VALUES (?, ?)',
     data.map((at) => [packageId, at.name])
   )
 }
 
 /**
  * Insert all Data Types into the database.
- * data is a certain data type and it is inserted into the data type table based
- * on the type of data
- *
- *
+ * The Data Type Cluster table is updated with the data type reference and
+ * cluster code. Cluster code is used later to update the cluster reference of
+ * the Data Type Cluster table(see updateDataTypeClusterReferences).
  * @param {*} db
  * @param {*} packageId
- * @param {*} data
+ * @param {*} data certain data type which is inserted into the data type
+ * table based on its type
  */
 async function insertDataType(db, packageId, data) {
-  return dbApi.dbMultiInsert(
+  const lastIdsArray = await dbApi.dbMultiInsert(
     db,
-    'INSERT INTO DATA_TYPE ( CLUSTER_REF, PACKAGE_REF, NAME, DESCRIPTION, CLUSTER_CODE, DISCRIMINATOR_REF) VALUES ( (SELECT CLUSTER_ID FROM CLUSTER WHERE CODE IS ? AND PACKAGE_REF=?), ?, ?, ?, ?, ? )',
-    data.map((at) => [
-      at.cluster_code,
-      packageId,
-      packageId,
-      at.name,
-      at.description,
-      at.cluster_code,
-      at.discriminator_ref,
-    ])
+    'INSERT INTO DATA_TYPE (PACKAGE_REF, NAME, DESCRIPTION, DISCRIMINATOR_REF) VALUES ( ?, ?, ?, ?)',
+    data.map((at) => [packageId, at.name, at.description, at.discriminator_ref])
   )
+
+  let clustersToLoad = []
+  for (let i = 0; i < lastIdsArray.length; i++) {
+    if (data[i].cluster_code != null) {
+      let lastId = lastIdsArray[i]
+      let clusters = data[i].cluster_code
+      let dtc = clusters.map((cl) => [lastId, parseInt(cl.$.code)])
+      clustersToLoad.push(...dtc)
+    }
+  }
+  if (clustersToLoad.length > 0)
+    await dbApi.dbMultiInsert(
+      db,
+      `INSERT INTO DATA_TYPE_CLUSTER (DATA_TYPE_REF, CLUSTER_CODE) VALUES (?, ?)`,
+      clustersToLoad
+    )
 }
 
 /**
- * Insert all Numbers into the Number Table.
+ * Insert all Number data types into the Number Table.
  *
  *
  * @param {*} db
@@ -1308,13 +1253,19 @@ async function insertDataType(db, packageId, data) {
 async function insertNumber(db, packageId, data) {
   return dbApi.dbMultiInsert(
     db,
-    'INSERT INTO NUMBER ( NUMBER_ID, SIZE, IS_SIGNED) VALUES ( (SELECT DATA_TYPE_ID FROM DATA_TYPE WHERE PACKAGE_REF = ? AND NAME = ?), ?, ? )',
-    data.map((at) => [packageId, at.name, at.size, at.is_signed])
+    'INSERT INTO NUMBER ( NUMBER_ID, SIZE, IS_SIGNED) VALUES ( (SELECT DATA_TYPE_ID FROM DATA_TYPE WHERE PACKAGE_REF = ? AND NAME = ? AND DISCRIMINATOR_REF = ?), ?, ? )',
+    data.map((at) => [
+      packageId,
+      at.name,
+      at.discriminator_ref,
+      at.size,
+      at.is_signed,
+    ])
   )
 }
 
 /**
- * Insert all Strings into the String Table.
+ * Insert all String data types into the String Table.
  *
  *
  * @param {*} db
@@ -1324,8 +1275,15 @@ async function insertNumber(db, packageId, data) {
 async function insertString(db, packageId, data) {
   return dbApi.dbMultiInsert(
     db,
-    'INSERT INTO STRING ( STRING_ID, IS_LONG, SIZE, IS_CHAR) VALUES ( (SELECT DATA_TYPE_ID FROM DATA_TYPE WHERE PACKAGE_REF = ? AND NAME = ?), ?, ?, ? )',
-    data.map((at) => [packageId, at.name, at.is_long, at.size, at.is_char])
+    'INSERT INTO STRING ( STRING_ID, IS_LONG, SIZE, IS_CHAR) VALUES ( (SELECT DATA_TYPE_ID FROM DATA_TYPE WHERE PACKAGE_REF = ? AND NAME = ? AND DISCRIMINATOR_REF = ?), ?, ?, ? )',
+    data.map((at) => [
+      packageId,
+      at.name,
+      at.discriminator_ref,
+      at.is_long,
+      at.size,
+      at.is_char,
+    ])
   )
 }
 
@@ -1340,13 +1298,15 @@ async function insertString(db, packageId, data) {
 async function insertEnum2Atomic(db, packageId, data) {
   return dbApi.dbMultiInsert(
     db,
-    'INSERT INTO ENUM ( ENUM_ID, SIZE) VALUES ( (SELECT DATA_TYPE_ID FROM DATA_TYPE WHERE PACKAGE_REF = ? AND NAME = ? AND CLUSTER_CODE IS ?), ?)',
-    data.map((at) => [packageId, at.name, at.cluster_code, at.size])
+    'INSERT INTO ENUM ( ENUM_ID, SIZE) VALUES ( (SELECT DATA_TYPE_ID FROM DATA_TYPE WHERE PACKAGE_REF = ? AND NAME = ? AND DISCRIMINATOR_REF = ?), ?)',
+    data.map((at) => [packageId, at.name, at.discriminator_ref, at.size])
   )
 }
 
 /**
  * Insert all Enums into the Enum Table.
+ * Note: Unlike insertEnum2Atomic this function adds the enums which are not
+ * baseline enums.
  *
  * @param {*} db
  * @param {*} packageId
@@ -1355,19 +1315,19 @@ async function insertEnum2Atomic(db, packageId, data) {
 async function insertEnum2(db, packageId, data) {
   return dbApi.dbMultiInsert(
     db,
-    'INSERT INTO ENUM ( ENUM_ID, SIZE) VALUES ( (SELECT DATA_TYPE_ID FROM DATA_TYPE WHERE PACKAGE_REF = ? AND NAME = ? AND CLUSTER_CODE IS ?), (SELECT CASE   WHEN ((SELECT SIZE FROM ENUM INNER JOIN DATA_TYPE ON ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ? AND DATA_TYPE.CLUSTER_CODE IS ?) IS NULL ) THEN    (SELECT SIZE FROM ENUM INNER JOIN DATA_TYPE ON ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ?) ELSE (SELECT SIZE FROM ENUM INNER JOIN DATA_TYPE ON ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ? AND DATA_TYPE.CLUSTER_CODE IS ?) END AS SIZE))',
+    'INSERT INTO ENUM ( ENUM_ID, SIZE) VALUES ( (SELECT DATA_TYPE_ID FROM DATA_TYPE WHERE PACKAGE_REF = ? AND NAME = ? AND DISCRIMINATOR_REF = ?), (SELECT CASE   WHEN ((SELECT SIZE FROM ENUM INNER JOIN DATA_TYPE ON ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ? AND DATA_TYPE.DISCRIMINATOR_REF = ?) IS NULL ) THEN    (SELECT SIZE FROM ENUM INNER JOIN DATA_TYPE ON ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ?) ELSE (SELECT SIZE FROM ENUM INNER JOIN DATA_TYPE ON ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ? AND DATA_TYPE.DISCRIMINATOR_REF = ?) END AS SIZE))',
     data.map((at) => [
       packageId,
       at.name,
-      at.cluster_code,
+      at.discriminator_ref,
       packageId,
       at.type,
-      at.cluster_code,
+      at.discriminator_ref,
       packageId,
       at.type,
       packageId,
       at.type,
-      at.cluster_code,
+      at.discriminator_ref,
     ])
   )
 }
@@ -1382,11 +1342,11 @@ async function insertEnum2(db, packageId, data) {
 async function insertEnum2Items(db, packageId, data) {
   return dbApi.dbMultiInsert(
     db,
-    'INSERT INTO ENUM_ITEM ( ENUM_REF, NAME, VALUE, FIELD_IDENTIFIER) VALUES ( (SELECT ENUM_ID FROM ENUM INNER JOIN DATA_TYPE ON ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ? AND DATA_TYPE.CLUSTER_CODE IS ?), ?, ?, ?)',
+    'INSERT INTO ENUM_ITEM ( ENUM_REF, NAME, VALUE, FIELD_IDENTIFIER) VALUES ( (SELECT ENUM_ID FROM ENUM INNER JOIN DATA_TYPE ON ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ? AND DATA_TYPE.DISCRIMINATOR_REF = (SELECT DISCRIMINATOR_ID FROM DISCRIMINATOR WHERE NAME = "ENUM" AND PACKAGE_REF=?)), ?, ?, ?)',
     data.map((at) => [
       packageId,
       at.enumName,
-      at.enumClusterCode,
+      packageId,
       at.name,
       at.value,
       at.fieldIdentifier,
@@ -1396,7 +1356,8 @@ async function insertEnum2Items(db, packageId, data) {
 
 /**
  * Insert all Baseline Bitmaps into the Bitmap Table.
- * Baseline bitmaps are bitmaps such as BITMAP8, BITMAP16 defined in the xml files
+ * Baseline bitmaps are bitmaps such as BITMAP8/MAP8, BITMAP16/MAP16 defined in
+ * the xml files
  *
  * @param {*} db
  * @param {*} packageId
@@ -1405,14 +1366,15 @@ async function insertEnum2Items(db, packageId, data) {
 async function insertBitmap2Atomic(db, packageId, data) {
   return dbApi.dbMultiInsert(
     db,
-    'INSERT INTO BITMAP ( BITMAP_ID, SIZE) VALUES ( (SELECT DATA_TYPE_ID FROM DATA_TYPE WHERE PACKAGE_REF = ? AND NAME = ? AND CLUSTER_CODE IS ?), ?)',
-    data.map((at) => [packageId, at.name, at.cluster_code, at.size])
+    'INSERT INTO BITMAP ( BITMAP_ID, SIZE) VALUES ( (SELECT DATA_TYPE_ID FROM DATA_TYPE WHERE PACKAGE_REF = ? AND NAME = ? AND DISCRIMINATOR_REF = ?), ?)',
+    data.map((at) => [packageId, at.name, at.discriminator_ref, at.size])
   )
 }
 
 /**
  * Insert all Bitmaps into the Bitmap Table.
- *
+ * Note: Unlike insertBitmap2Atomic this function adds the bitmaps which are not
+ * baseline bitmaps.
  * @param {*} db
  * @param {*} packageId
  * @param {*} data
@@ -1420,19 +1382,19 @@ async function insertBitmap2Atomic(db, packageId, data) {
 async function insertBitmap2(db, packageId, data) {
   return dbApi.dbMultiInsert(
     db,
-    'INSERT INTO BITMAP ( BITMAP_ID, SIZE) VALUES ( (SELECT DATA_TYPE_ID FROM DATA_TYPE WHERE PACKAGE_REF = ? AND NAME = ? AND CLUSTER_CODE IS ?), (SELECT CASE WHEN ((SELECT SIZE FROM BITMAP INNER JOIN DATA_TYPE ON BITMAP.BITMAP_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ? AND DATA_TYPE.CLUSTER_CODE= ?) IS NULL ) THEN    (SELECT SIZE FROM BITMAP  INNER JOIN DATA_TYPE ON BITMAP.BITMAP_ID  = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ?) ELSE (SELECT SIZE FROM BITMAP INNER JOIN DATA_TYPE ON BITMAP.BITMAP_ID  = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ? AND DATA_TYPE.CLUSTER_CODE=?) END AS SIZE))',
+    'INSERT INTO BITMAP ( BITMAP_ID, SIZE) VALUES ( (SELECT DATA_TYPE_ID FROM DATA_TYPE WHERE PACKAGE_REF = ? AND NAME = ? AND DISCRIMINATOR_REF = ?), (SELECT CASE WHEN ((SELECT SIZE FROM BITMAP INNER JOIN DATA_TYPE ON BITMAP.BITMAP_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ? AND DATA_TYPE.DISCRIMINATOR_REF = ?) IS NULL ) THEN    (SELECT SIZE FROM BITMAP  INNER JOIN DATA_TYPE ON BITMAP.BITMAP_ID  = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ?) ELSE (SELECT SIZE FROM BITMAP INNER JOIN DATA_TYPE ON BITMAP.BITMAP_ID  = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ? AND DATA_TYPE.DISCRIMINATOR_REF = ?) END AS SIZE))',
     data.map((at) => [
       packageId,
       at.name,
-      at.cluster_code,
+      at.discriminator_ref,
       packageId,
       at.type,
-      at.cluster_code,
+      at.discriminator_ref,
       packageId,
       at.type,
       packageId,
       at.type,
-      at.cluster_code,
+      at.discriminator_ref,
     ])
   )
 }
@@ -1447,11 +1409,11 @@ async function insertBitmap2(db, packageId, data) {
 async function insertBitmap2Fields(db, packageId, data) {
   return dbApi.dbMultiInsert(
     db,
-    'INSERT INTO BITMAP_FIELD ( BITMAP_REF, NAME, MASK, FIELD_IDENTIFIER) VALUES ( (SELECT BITMAP_ID FROM BITMAP INNER JOIN DATA_TYPE ON BITMAP.BITMAP_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ? AND DATA_TYPE.CLUSTER_CODE IS ?), ?, ?, ?)',
+    'INSERT INTO BITMAP_FIELD ( BITMAP_REF, NAME, MASK, FIELD_IDENTIFIER) VALUES ( (SELECT BITMAP_ID FROM BITMAP INNER JOIN DATA_TYPE ON BITMAP.BITMAP_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ? AND DATA_TYPE.DISCRIMINATOR_REF = (SELECT DISCRIMINATOR_ID FROM DISCRIMINATOR WHERE NAME = "BITMAP" AND PACKAGE_REF=?)), ?, ?, ?)',
     data.map((at) => [
       packageId,
       at.bitmapName,
-      at.bitmapClusterCode,
+      packageId,
       at.name,
       at.mask,
       at.fieldIdentifier,
@@ -1469,25 +1431,25 @@ async function insertBitmap2Fields(db, packageId, data) {
 async function insertStruct2(db, packageId, data) {
   return dbApi.dbMultiInsert(
     db,
-    'INSERT INTO STRUCT ( STRUCT_ID, SIZE) VALUES ( (SELECT DATA_TYPE_ID FROM DATA_TYPE WHERE PACKAGE_REF = ? AND NAME = ? AND CLUSTER_CODE IS ?), (SELECT CASE   WHEN ((SELECT SIZE FROM STRUCT INNER JOIN DATA_TYPE ON STRUCT.STRUCT_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ? AND DATA_TYPE.CLUSTER_CODE= ?) IS NULL ) THEN    (SELECT SIZE FROM STRUCT INNER JOIN DATA_TYPE ON STRUCT.STRUCT_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ?) ELSE (SELECT SIZE FROM STRUCT INNER JOIN DATA_TYPE ON STRUCT.STRUCT_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ? AND DATA_TYPE.CLUSTER_CODE=?) END AS SIZE))',
+    'INSERT INTO STRUCT ( STRUCT_ID, SIZE) VALUES ( (SELECT DATA_TYPE_ID FROM DATA_TYPE WHERE PACKAGE_REF = ? AND NAME = ? AND DISCRIMINATOR_REF = ?), (SELECT CASE   WHEN ((SELECT SIZE FROM STRUCT INNER JOIN DATA_TYPE ON STRUCT.STRUCT_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ? AND DATA_TYPE.DISCRIMINATOR_REF = ?) IS NULL ) THEN    (SELECT SIZE FROM STRUCT INNER JOIN DATA_TYPE ON STRUCT.STRUCT_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ?) ELSE (SELECT SIZE FROM STRUCT INNER JOIN DATA_TYPE ON STRUCT.STRUCT_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ? AND  DATA_TYPE.DISCRIMINATOR_REF = ?) END AS SIZE))',
     data.map((at) => [
       packageId,
       at.name,
-      at.cluster_code,
+      at.discriminator_ref,
       packageId,
       at.type,
-      at.cluster_code,
+      at.discriminator_ref,
       packageId,
       at.type,
       packageId,
       at.type,
-      at.cluster_code,
+      at.discriminator_ref,
     ])
   )
 }
 
 /**
- * Insert all Bitmap fields into the Bitmap field Table.
+ * Insert all Struct items into the Struct Item Table.
  *
  * @param {*} db
  * @param {*} packageId
@@ -1496,11 +1458,11 @@ async function insertStruct2(db, packageId, data) {
 async function insertStruct2Items(db, packageId, data) {
   return dbApi.dbMultiInsert(
     db,
-    'INSERT INTO STRUCT_ITEM ( STRUCT_REF, NAME, FIELD_IDENTIFIER, IS_ARRAY, IS_ENUM, MIN_LENGTH, MAX_LENGTH, IS_WRITABLE, IS_NULLABLE, IS_OPTIONAL, IS_FABRIC_SENSITIVE, SIZE, DATA_TYPE_REF) VALUES ( (SELECT STRUCT_ID FROM STRUCT INNER JOIN DATA_TYPE ON STRUCT.STRUCT_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ? AND DATA_TYPE.CLUSTER_CODE IS ?), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, (SELECT DATA_TYPE_ID FROM DATA_TYPE WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ?))',
+    'INSERT INTO STRUCT_ITEM ( STRUCT_REF, NAME, FIELD_IDENTIFIER, IS_ARRAY, IS_ENUM, MIN_LENGTH, MAX_LENGTH, IS_WRITABLE, IS_NULLABLE, IS_OPTIONAL, IS_FABRIC_SENSITIVE, SIZE, DATA_TYPE_REF) VALUES ( (SELECT STRUCT_ID FROM STRUCT INNER JOIN DATA_TYPE ON STRUCT.STRUCT_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ? AND DATA_TYPE.DISCRIMINATOR_REF = (SELECT DISCRIMINATOR_ID FROM DISCRIMINATOR WHERE NAME = "STRUCT" AND PACKAGE_REF=?)), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, (SELECT DATA_TYPE_ID FROM DATA_TYPE WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ?))',
     data.map((at) => [
       packageId,
       at.structName,
-      at.structClusterCode,
+      packageId,
       at.name,
       at.fieldIdentifier,
       at.isArray,
@@ -1547,3 +1509,4 @@ exports.insertBitmap2 = insertBitmap2
 exports.insertBitmap2Fields = insertBitmap2Fields
 exports.insertStruct2 = insertStruct2
 exports.insertStruct2Items = insertStruct2Items
+exports.updateDataTypeClusterReferences = updateDataTypeClusterReferences

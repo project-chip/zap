@@ -234,55 +234,6 @@ function maskToType(mask) {
 }
 
 /**
- * Prepare bitmap for database insertion.
- *
- * @param {*} bm
- * @returns Object for insertion into the database
- */
-function prepareBitmap(bm) {
-  let ret = { name: bm.$.name, type: bm.$.type }
-  if ('cluster' in bm) {
-    ret.clusters = []
-    bm.cluster.forEach((cl) => {
-      ret.clusters.push(parseInt(cl.$.code))
-    })
-  }
-  if ('field' in bm) {
-    ret.fields = []
-    let lastFieldId = -1
-    bm.field.forEach((field) => {
-      let defaultFieldId = lastFieldId + 1
-      lastFieldId = field.$.fieldId ? parseInt(field.$.fieldId) : defaultFieldId
-      ret.fields.push({
-        name: field.$.name,
-        mask: parseInt(field.$.mask),
-        type: maskToType(field.$.mask),
-        fieldIdentifier: lastFieldId,
-      })
-    })
-  }
-  return ret
-}
-
-/**
- * Processes bitmaps for DB insertion.
- *
- * @param {*} db
- * @param {*} filePath
- * @param {*} packageId
- * @param {*} data
- * @returns Promise of inserted bitmaps
- */
-async function processBitmaps(db, filePath, packageId, data) {
-  env.logDebug(`${filePath}, ${packageId}: ${data.length} bitmaps.`)
-  return queryLoader.insertBitmaps(
-    db,
-    packageId,
-    data.map((x) => prepareBitmap(x))
-  )
-}
-
-/**
  * Prepare atomic to db insertion.
  *
  * @param {*} a
@@ -841,64 +792,6 @@ async function processDomains(db, filePath, packageId, data) {
 }
 
 /**
- * Prepares structs for the insertion into the database.
- *
- * @param {*} struct
- * @returns Object ready to insert into the database.
- */
-function prepareStruct(struct) {
-  let ret = {
-    name: struct.$.name,
-  }
-  if ('cluster' in struct) {
-    ret.clusters = []
-    struct.cluster.forEach((cl) => {
-      ret.clusters.push(parseInt(cl.$.code))
-    })
-  }
-  if ('item' in struct) {
-    ret.items = []
-    let lastFieldId = -1
-    struct.item.forEach((item) => {
-      let defaultFieldId = lastFieldId + 1
-      lastFieldId = item.$.fieldId ? parseInt(item.$.fieldId) : defaultFieldId
-      ret.items.push({
-        name: item.$.name,
-        type: item.$.type,
-        fieldIdentifier: lastFieldId,
-        minLength: 0,
-        maxLength: item.$.length ? item.$.length : null,
-        isWritable: item.$.writable == 'true',
-        isArray: item.$.array == 'true' ? true : false,
-        isEnum: item.$.enum == 'true' ? true : false,
-        isNullable: item.$.isNullable == 'true' ? true : false,
-        isOptional: item.$.optional == 'true' ? true : false,
-        isFabricSensitive: item.$.isFabricSensitive == 'true' ? true : false,
-      })
-    })
-  }
-  return ret
-}
-
-/**
- * Processes structs.
- *
- * @param {*} db
- * @param {*} filePath
- * @param {*} packageId
- * @param {*} data
- * @returns Promise of inserted structs.
- */
-async function processStructs(db, filePath, packageId, data) {
-  env.logDebug(`${filePath}, ${packageId}: ${data.length} structs.`)
-  return queryLoader.insertStructs(
-    db,
-    packageId,
-    data.map((x) => prepareStruct(x))
-  )
-}
-
-/**
  * Prepare Data Type Discriminator for database table insertion.
  *
  * @param {*} a
@@ -916,18 +809,16 @@ function prepareDataTypeDiscriminator(a) {
  *
  * @param {*} db
  * @param {*} filePath
- * @param {*} packageId
+ * @param {*} zclDataTypes
  * @returns Promise of inserted Data Type Discriminators.
  */
-async function processDataTypeDiscriminator(db, filePath, packageId, context) {
+async function processDataTypeDiscriminator(db, packageId, zclDataTypes) {
   // Loading the Data Types using ZCLDataTypes mentioned in zcl.json metadata
   // file
-  let types = context.ZCLDataTypes.map((x, index) => {
+  let types = zclDataTypes.map((x, index) => {
     return { id: index + 1, name: x }
   })
-  env.logDebug(
-    `${filePath}, ${packageId}: ${types.length} Data Type Discriminator.`
-  )
+  env.logDebug(`${packageId}: ${types.length} Data Type Discriminator.`)
   return queryLoader.insertDataTypeDiscriminator(
     db,
     packageId,
@@ -940,14 +831,10 @@ async function processDataTypeDiscriminator(db, filePath, packageId, context) {
  *
  * @param {*} a
  * @param {*} dataType
- * @param {*} context
+ * @param {*} typeMap
  * @returns An Object
  */
-function prepareDataType(a, dataType, context) {
-  let typeMap = new Map()
-  Object.values(context.ZCLDataTypes).forEach((x, index) =>
-    typeMap.set(x.toLowerCase(), index + 1)
-  )
+function prepareDataType(a, dataType, typeMap) {
   let dataTypeRef = 0
   // The following is when the dataType is atomic
   if (!dataType && a.$.name.toLowerCase().includes(dbEnum.zclType.bitmap)) {
@@ -975,7 +862,7 @@ function prepareDataType(a, dataType, context) {
     id: parseInt(a.$.id),
     description: a.$.description ? a.$.description : a.$.name,
     discriminator_ref: dataType ? dataType : dataTypeRef,
-    cluster_code: a.cluster ? parseInt(a.cluster[0].$.code) : null,
+    cluster_code: a.cluster ? a.cluster : null,
   }
 }
 
@@ -985,20 +872,16 @@ function prepareDataType(a, dataType, context) {
  * @param {*} db
  * @param {*} filePath
  * @param {*} packageId
+ * @param {*} data
+ * @param {*} dataType
  * @returns Promise of inserted Data Types into the Data Type table.
  */
-async function processDataType(
-  db,
-  filePath,
-  packageId,
-  data,
-  dataType,
-  context
-) {
+async function processDataType(db, filePath, packageId, data, dataType) {
   let typeMap = new Map()
-  Object.values(context.ZCLDataTypes).forEach((x, index) =>
-    typeMap.set(x.toLowerCase(), index + 1)
-  )
+  let discriminators = await queryZcl.selectAllDiscriminators(db, packageId)
+  discriminators.forEach((d) => {
+    typeMap.set(d.name.toLowerCase(), d.id)
+  })
 
   if (dataType == dbEnum.zclType.atomic) {
     let types = data[0].type
@@ -1006,7 +889,7 @@ async function processDataType(
     return queryLoader.insertDataType(
       db,
       packageId,
-      types.map((x) => prepareDataType(x, 0, context))
+      types.map((x) => prepareDataType(x, 0, typeMap))
     )
   } else if (dataType == dbEnum.zclType.enum) {
     env.logDebug(`${filePath}, ${packageId}: ${data.length} Enum Data Types.`)
@@ -1014,7 +897,7 @@ async function processDataType(
       db,
       packageId,
       data.map((x) =>
-        prepareDataType(x, typeMap.get(dbEnum.zclType.enum), context)
+        prepareDataType(x, typeMap.get(dbEnum.zclType.enum), typeMap)
       )
     )
   } else if (dataType == dbEnum.zclType.bitmap) {
@@ -1023,7 +906,7 @@ async function processDataType(
       db,
       packageId,
       data.map((x) =>
-        prepareDataType(x, typeMap.get(dbEnum.zclType.bitmap), context)
+        prepareDataType(x, typeMap.get(dbEnum.zclType.bitmap), typeMap)
       )
     )
   } else if (dataType == dbEnum.zclType.struct) {
@@ -1032,7 +915,7 @@ async function processDataType(
       db,
       packageId,
       data.map((x) =>
-        prepareDataType(x, typeMap.get(dbEnum.zclType.struct), context)
+        prepareDataType(x, typeMap.get(dbEnum.zclType.struct), typeMap)
       )
     )
   } else if (dataType == dbEnum.zclType.string) {
@@ -1041,8 +924,12 @@ async function processDataType(
       db,
       packageId,
       data.map((x) =>
-        prepareDataType(x, typeMap.get(dbEnum.zclType.string), context)
+        prepareDataType(x, typeMap.get(dbEnum.zclType.string), typeMap)
       )
+    )
+  } else {
+    env.logError(
+      'Could not find the discriminator for the data type: ' + dataType
     )
   }
 }
@@ -1052,15 +939,15 @@ async function processDataType(
  *
  * @param {*} a
  * @param {*} dataType
- * @param {*} context
  * @returns An Object
  */
-function prepareNumber(a) {
+function prepareNumber(a, dataType) {
   return {
     size: a.$.size,
     is_signed: a.$.name.endsWith('u') || !a.$.name.includes('int') ? 0 : 1,
     name: a.$.name,
-    cluster_code: a.cluster ? parseInt(a.cluster[0].$.code) : null,
+    cluster_code: a.cluster ? a.cluster : null,
+    discriminator_ref: dataType,
   }
 }
 
@@ -1070,9 +957,15 @@ function prepareNumber(a) {
  * @param {*} db
  * @param {*} filePath
  * @param {*} packageId
+ * @param {*} data
  * @returns Promise of inserted numbers into the number table.
  */
 async function processNumber(db, filePath, packageId, data) {
+  let typeMap = new Map()
+  let discriminators = await queryZcl.selectAllDiscriminators(db, packageId)
+  discriminators.forEach((d) => {
+    typeMap.set(d.name.toLowerCase(), d.id)
+  })
   let numbers = data[0].type.filter(function (item) {
     return (
       !item.$.name.toLowerCase().includes(dbEnum.zclType.bitmap) &&
@@ -1085,7 +978,7 @@ async function processNumber(db, filePath, packageId, data) {
   return queryLoader.insertNumber(
     db,
     packageId,
-    numbers.map((x) => prepareNumber(x))
+    numbers.map((x) => prepareNumber(x, typeMap.get(dbEnum.zclType.number)))
   )
 }
 
@@ -1094,16 +987,16 @@ async function processNumber(db, filePath, packageId, data) {
  *
  * @param {*} a
  * @param {*} dataType
- * @param {*} context
  * @returns An Object
  */
-function prepareString(a) {
+function prepareString(a, dataType) {
   return {
     is_long: a.$.long && a.$.long.toLowerCase() == 'true' ? 1 : 0,
     size: a.$.size,
     is_char: 0,
     name: a.$.name,
-    cluster_code: a.cluster ? parseInt(a.cluster[0].$.code) : null,
+    cluster_code: a.cluster ? a.cluster : null,
+    discriminator_ref: dataType,
   }
 }
 
@@ -1113,9 +1006,15 @@ function prepareString(a) {
  * @param {*} db
  * @param {*} filePath
  * @param {*} packageId
+ * @param {*} data
  * @returns Promise of inserted strings into the String table.
  */
 async function processString(db, filePath, packageId, data) {
+  let typeMap = new Map()
+  let discriminators = await queryZcl.selectAllDiscriminators(db, packageId)
+  discriminators.forEach((d) => {
+    typeMap.set(d.name.toLowerCase(), d.id)
+  })
   let strings = data[0].type.filter(function (item) {
     return item.$.string && item.$.string.toLowerCase() == 'true'
   })
@@ -1123,59 +1022,7 @@ async function processString(db, filePath, packageId, data) {
   return queryLoader.insertString(
     db,
     packageId,
-    strings.map((x) => prepareString(x))
-  )
-}
-
-/**
- * Prepares an enum for insertion into the database.
- *
- * @param {*} en
- * @returns An object ready to go to the database.
- */
-function prepareEnum(en) {
-  let ret = {
-    name: en.$.name,
-    type: en.$.type,
-  }
-  if ('cluster' in en) {
-    ret.clusters = []
-    en.cluster.forEach((cl) => {
-      ret.clusters.push(parseInt(cl.$.code))
-    })
-  }
-
-  if ('item' in en) {
-    ret.items = []
-    let lastFieldId = -1
-    en.item.forEach((item) => {
-      let defaultFieldId = lastFieldId + 1
-      lastFieldId = item.$.fieldId ? parseInt(item.$.fieldId) : defaultFieldId
-      ret.items.push({
-        name: item.$.name,
-        value: parseInt(item.$.value),
-        fieldIdentifier: lastFieldId,
-      })
-    })
-  }
-  return ret
-}
-
-/**
- * Processes the enums.
- *
- * @param {*} db
- * @param {*} filePath
- * @param {*} packageId
- * @param {*} data
- * @returns A promise of inserted enums.
- */
-async function processEnums(db, filePath, packageId, data) {
-  env.logDebug(`${filePath}, ${packageId}: ${data.length} enums.`)
-  return queryLoader.insertEnums(
-    db,
-    packageId,
-    data.map((x) => prepareEnum(x))
+    strings.map((x) => prepareString(x, typeMap.get(dbEnum.zclType.string)))
   )
 }
 
@@ -1184,14 +1031,14 @@ async function processEnums(db, filePath, packageId, data) {
  *
  * @param {*} a
  * @param {*} dataType
- * @param {*} context
  * @returns An Object
  */
-function prepareEnum2OrBitmap2Atomic(a) {
+function prepareEnum2OrBitmap2Atomic(a, dataType) {
   return {
     size: a.$.size,
     name: a.$.name,
-    cluster_code: a.cluster ? parseInt(a.cluster[0].$.code) : null,
+    cluster_code: a.cluster ? a.cluster : null,
+    discriminator_ref: dataType,
   }
 }
 
@@ -1205,6 +1052,11 @@ function prepareEnum2OrBitmap2Atomic(a) {
  * @returns A promise of inserted enums.
  */
 async function processEnum2Atomic(db, filePath, packageId, data) {
+  let typeMap = new Map()
+  let discriminators = await queryZcl.selectAllDiscriminators(db, packageId)
+  discriminators.forEach((d) => {
+    typeMap.set(d.name.toLowerCase(), d.id)
+  })
   let enums = data[0].type.filter(function (item) {
     return item.$.name.toLowerCase().includes('enum')
   })
@@ -1212,7 +1064,9 @@ async function processEnum2Atomic(db, filePath, packageId, data) {
   return queryLoader.insertEnum2Atomic(
     db,
     packageId,
-    enums.map((x) => prepareEnum2OrBitmap2Atomic(x))
+    enums.map((x) =>
+      prepareEnum2OrBitmap2Atomic(x, typeMap.get(dbEnum.zclType.enum))
+    )
   )
 }
 
@@ -1221,14 +1075,14 @@ async function processEnum2Atomic(db, filePath, packageId, data) {
  *
  * @param {*} a
  * @param {*} dataType
- * @param {*} context
  * @returns An Object
  */
-function prepareEnum2OrBitmap2(a) {
+function prepareEnum2OrBitmap2(a, dataType) {
   return {
     name: a.$.name,
     type: a.$.type.toLowerCase(),
-    cluster_code: a.cluster ? parseInt(a.cluster[0].$.code) : null,
+    cluster_code: a.cluster ? a.cluster : null,
+    discriminator_ref: dataType,
   }
 }
 
@@ -1243,10 +1097,15 @@ function prepareEnum2OrBitmap2(a) {
  */
 async function processEnum2(db, filePath, packageId, data) {
   env.logDebug(`${filePath}, ${packageId}: ${data.length} Enum Types.`)
+  let typeMap = new Map()
+  let discriminators = await queryZcl.selectAllDiscriminators(db, packageId)
+  discriminators.forEach((d) => {
+    typeMap.set(d.name.toLowerCase(), d.id)
+  })
   return queryLoader.insertEnum2(
     db,
     packageId,
-    data.map((x) => prepareEnum2OrBitmap2(x))
+    data.map((x) => prepareEnum2OrBitmap2(x, typeMap.get(dbEnum.zclType.enum)))
   )
 }
 
@@ -1270,7 +1129,7 @@ async function processEnum2Items(db, filePath, packageId, data) {
         lastFieldId = item.$.fieldId ? parseInt(item.$.fieldId) : defaultFieldId
         enumItems.push({
           enumName: e.$.name,
-          enumClusterCode: e.cluster ? parseInt(e.cluster[0].$.code) : null,
+          enumClusterCode: e.cluster ? parseInt(e.clusterCode) : null,
           name: item.$.name,
           value: parseInt(item.$.value),
           fieldIdentifier: lastFieldId,
@@ -1291,6 +1150,11 @@ async function processEnum2Items(db, filePath, packageId, data) {
  * @returns A promise of inserted bitmaps.
  */
 async function processBitmap2Atomic(db, filePath, packageId, data) {
+  let typeMap = new Map()
+  let discriminators = await queryZcl.selectAllDiscriminators(db, packageId)
+  discriminators.forEach((d) => {
+    typeMap.set(d.name.toLowerCase(), d.id)
+  })
   let bitmaps = data[0].type.filter(function (item) {
     return item.$.name.toLowerCase().includes(dbEnum.zclType.bitmap)
   })
@@ -1300,7 +1164,9 @@ async function processBitmap2Atomic(db, filePath, packageId, data) {
   return queryLoader.insertBitmap2Atomic(
     db,
     packageId,
-    bitmaps.map((x) => prepareEnum2OrBitmap2Atomic(x))
+    bitmaps.map((x) =>
+      prepareEnum2OrBitmap2Atomic(x, typeMap.get(dbEnum.zclType.bitmap))
+    )
   )
 }
 
@@ -1315,10 +1181,17 @@ async function processBitmap2Atomic(db, filePath, packageId, data) {
  */
 async function processBitmap2(db, filePath, packageId, data) {
   env.logDebug(`${filePath}, ${packageId}: ${data.length} Bitmap Types.`)
+  let typeMap = new Map()
+  let discriminators = await queryZcl.selectAllDiscriminators(db, packageId)
+  discriminators.forEach((d) => {
+    typeMap.set(d.name.toLowerCase(), d.id)
+  })
   return queryLoader.insertBitmap2(
     db,
     packageId,
-    data.map((x) => prepareEnum2OrBitmap2(x))
+    data.map((x) =>
+      prepareEnum2OrBitmap2(x, typeMap.get(dbEnum.zclType.bitmap))
+    )
   )
 }
 
@@ -1342,7 +1215,7 @@ async function processBitmap2Fields(db, filePath, packageId, data) {
         lastFieldId = item.$.fieldId ? parseInt(item.$.fieldId) : defaultFieldId
         bitmapFields.push({
           bitmapName: bm.$.name,
-          bitmapClusterCode: bm.cluster ? parseInt(bm.cluster[0].$.code) : null,
+          bitmapClusterCode: bm.cluster ? parseInt(bm.clusterCode) : null,
           name: item.$.name,
           mask: parseInt(item.$.mask),
           fieldIdentifier: lastFieldId,
@@ -1358,13 +1231,13 @@ async function processBitmap2Fields(db, filePath, packageId, data) {
  *
  * @param {*} a
  * @param {*} dataType
- * @param {*} context
  * @returns An Object
  */
-function prepareStruct2(a) {
+function prepareStruct2(a, dataType) {
   return {
     name: a.$.name,
-    cluster_code: a.cluster ? parseInt(a.cluster[0].$.code) : null,
+    cluster_code: a.cluster ? a.cluster : null,
+    discriminator_ref: dataType,
   }
 }
 
@@ -1379,10 +1252,15 @@ function prepareStruct2(a) {
  */
 async function processStruct2(db, filePath, packageId, data) {
   env.logDebug(`${filePath}, ${packageId}: ${data.length} Struct Types.`)
+  let typeMap = new Map()
+  let discriminators = await queryZcl.selectAllDiscriminators(db, packageId)
+  discriminators.forEach((d) => {
+    typeMap.set(d.name.toLowerCase(), d.id)
+  })
   return queryLoader.insertStruct2(
     db,
     packageId,
-    data.map((x) => prepareStruct2(x))
+    data.map((x) => prepareStruct2(x, typeMap.get(dbEnum.zclType.struct)))
   )
 }
 
@@ -1406,7 +1284,7 @@ async function processStruct2Items(db, filePath, packageId, data) {
         lastFieldId = item.$.fieldId ? parseInt(item.$.fieldId) : defaultFieldId
         structItems.push({
           structName: si.$.name,
-          structClusterCode: si.cluster ? parseInt(si.cluster[0].$.code) : null,
+          structClusterCode: si.cluster ? parseInt(si.clusterCode) : null,
           name: item.$.name,
           type:
             item.$.type == item.$.type.toUpperCase()
@@ -1561,118 +1439,109 @@ async function processParsedZclData(
       )
     }
     await Promise.all(batch2)
-
-    // Batch 3: defaultAccess, types.
+    // Batch 3: Load the data type table which lists all data types
     let batch3 = []
-    if (context.ZCLDataTypes) {
-      let batch25 = []
-      batch25.push(
-        processDataTypeDiscriminator(db, filePath, packageId, context)
-      )
-      await Promise.all(batch25)
-
-      if (dbEnum.zclType.atomic in toplevel) {
-        batch3.push(
-          processDataType(
-            db,
-            filePath,
-            packageId,
-            toplevel.atomic,
-            dbEnum.zclType.atomic,
-            context
-          )
-        )
-      }
-
-      if (dbEnum.zclType.bitmap in toplevel) {
-        batch3.push(
-          processDataType(
-            db,
-            filePath,
-            packageId,
-            toplevel.bitmap,
-            dbEnum.zclType.bitmap,
-            context
-          )
-        )
-      }
-      if (dbEnum.zclType.enum in toplevel) {
-        batch3.push(
-          processDataType(
-            db,
-            filePath,
-            packageId,
-            toplevel.enum,
-            dbEnum.zclType.enum,
-            context
-          )
-        )
-      }
-      if (dbEnum.zclType.struct in toplevel) {
-        batch3.push(
-          processDataType(
-            db,
-            filePath,
-            packageId,
-            toplevel.struct,
-            dbEnum.zclType.struct,
-            context
-          )
-        )
-      }
-      await Promise.all(batch3)
-      let batch4 = []
-      if (dbEnum.zclType.atomic in toplevel) {
-        batch4.push(processNumber(db, filePath, packageId, toplevel.atomic))
-        batch4.push(processString(db, filePath, packageId, toplevel.atomic))
-        batch4.push(
-          processEnum2Atomic(db, filePath, packageId, toplevel.atomic)
-        )
-        batch4.push(
-          processBitmap2Atomic(db, filePath, packageId, toplevel.atomic)
-        )
-      }
-      await Promise.all(batch4)
-      let batch5 = []
-      if (dbEnum.zclType.enum in toplevel) {
-        batch5.push(processEnum2(db, filePath, packageId, toplevel.enum))
-      }
-      if (dbEnum.zclType.bitmap in toplevel) {
-        batch5.push(processBitmap2(db, filePath, packageId, toplevel.bitmap))
-      }
-      if (dbEnum.zclType.struct in toplevel) {
-        batch5.push(processStruct2(db, filePath, packageId, toplevel.struct))
-      }
-      await Promise.all(batch5)
-
-      let batch6 = []
-      if (dbEnum.zclType.enum in toplevel) {
-        batch6.push(processEnum2Items(db, filePath, packageId, toplevel.enum))
-      }
-      if (dbEnum.zclType.bitmap in toplevel) {
-        batch6.push(
-          processBitmap2Fields(db, filePath, packageId, toplevel.bitmap)
-        )
-      }
-      if (dbEnum.zclType.struct in toplevel) {
-        batch6.push(
-          processStruct2Items(db, filePath, packageId, toplevel.struct)
-        )
-      }
-      await Promise.all(batch6)
-    } //else {
-    if ('defaultAccess' in toplevel) {
+    if (dbEnum.zclType.atomic in toplevel) {
       batch3.push(
+        processDataType(
+          db,
+          filePath,
+          packageId,
+          toplevel.atomic,
+          dbEnum.zclType.atomic
+        )
+      )
+    }
+
+    if (dbEnum.zclType.bitmap in toplevel) {
+      batch3.push(
+        processDataType(
+          db,
+          filePath,
+          packageId,
+          toplevel.bitmap,
+          dbEnum.zclType.bitmap
+        )
+      )
+    }
+    if (dbEnum.zclType.enum in toplevel) {
+      batch3.push(
+        processDataType(
+          db,
+          filePath,
+          packageId,
+          toplevel.enum,
+          dbEnum.zclType.enum
+        )
+      )
+    }
+    if (dbEnum.zclType.struct in toplevel) {
+      batch3.push(
+        processDataType(
+          db,
+          filePath,
+          packageId,
+          toplevel.struct,
+          dbEnum.zclType.struct
+        )
+      )
+    }
+    await Promise.all(batch3)
+
+    // Batch4 and Batch5: Loads the inidividual tables per data type from
+    // atomics/baseline types to inherited types
+    let Batch4 = []
+    if (dbEnum.zclType.atomic in toplevel) {
+      Batch4.push(processNumber(db, filePath, packageId, toplevel.atomic))
+      Batch4.push(processString(db, filePath, packageId, toplevel.atomic))
+      Batch4.push(processEnum2Atomic(db, filePath, packageId, toplevel.atomic))
+      Batch4.push(
+        processBitmap2Atomic(db, filePath, packageId, toplevel.atomic)
+      )
+    }
+    await Promise.all(Batch4)
+
+    let Batch5 = []
+    if (dbEnum.zclType.enum in toplevel) {
+      Batch5.push(processEnum2(db, filePath, packageId, toplevel.enum))
+    }
+    if (dbEnum.zclType.bitmap in toplevel) {
+      Batch5.push(processBitmap2(db, filePath, packageId, toplevel.bitmap))
+    }
+    if (dbEnum.zclType.struct in toplevel) {
+      Batch5.push(processStruct2(db, filePath, packageId, toplevel.struct))
+    }
+    await Promise.all(Batch5)
+
+    // Batch7: Loads the items within a bitmap, struct and enum data types
+    let batch6 = []
+    if (dbEnum.zclType.enum in toplevel) {
+      batch6.push(processEnum2Items(db, filePath, packageId, toplevel.enum))
+    }
+    if (dbEnum.zclType.bitmap in toplevel) {
+      batch6.push(
+        processBitmap2Fields(db, filePath, packageId, toplevel.bitmap)
+      )
+    }
+    if (dbEnum.zclType.struct in toplevel) {
+      batch6.push(processStruct2Items(db, filePath, packageId, toplevel.struct))
+    }
+    await Promise.all(batch6)
+
+    // Batch7: Loads the defaultAccess
+    let Batch7 = []
+    if ('defaultAccess' in toplevel) {
+      Batch7.push(
         processDefaultAccess(db, filePath, packageId, toplevel.defaultAccess)
       )
     }
     if ('atomic' in toplevel) {
-      batch3.push(processAtomics(db, filePath, packageId, toplevel.atomic))
+      Batch7.push(processAtomics(db, filePath, packageId, toplevel.atomic))
     }
-    await Promise.all(batch3)
+    await Promise.all(Batch7)
     //}
 
-    // Batch 4: cluster extensions and global attributes
+    // Batch 8: cluster extensions and global attributes
     //   These don't start right away, but are delayed. So we don't return
     //   promises that have already started, but functions that return promises.
     let delayedPromises = []
@@ -1748,11 +1617,19 @@ async function parseSingleZclFile(db, packageId, file, context) {
  */
 async function parseZclFiles(db, packageId, zclFiles, context) {
   env.logDebug(`Starting to parse ZCL files: ${zclFiles}`)
+  // Populate the Data Type Discriminator
+  if (context.ZCLDataTypes)
+    await processDataTypeDiscriminator(db, packageId, context.ZCLDataTypes)
+
+  // Load the Types File first such the atomic types are loaded and can be
+  //referenced by other types
   let typesFiles = zclFiles.filter((file) => file.includes('types.xml'))
   let typeFilePromise = typesFiles.map((file) =>
     parseSingleZclFile(db, packageId, file, context)
   )
   await Promise.all(typeFilePromise)
+
+  // Load everything apart from atomic data types
   let nonTypesFiles = zclFiles.filter((file) => !file.includes('types.xml'))
   let individualFilePromise = nonTypesFiles.map((file) =>
     parseSingleZclFile(db, packageId, file, context)
@@ -1760,6 +1637,8 @@ async function parseZclFiles(db, packageId, zclFiles, context) {
   let individualResults = await Promise.all(individualFilePromise)
   let laterPromises = individualResults.flat(2)
   await Promise.all(laterPromises.map((promise) => promise()))
+
+  // Load some missing content which was not possible before the above was done
   return zclLoader.processZclPostLoading(db, packageId)
 }
 

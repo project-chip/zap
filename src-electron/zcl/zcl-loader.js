@@ -242,8 +242,7 @@ async function qualifyZclFile(
  */
 async function processZclPostLoading(db, packageId) {
   // These queries must make sure that they update ONLY the entities under a given packageId.
-
-  //await queryLoader.updateStaticEntityReferences(db, packageId)
+  await queryLoader.updateDataTypeClusterReferences(db, packageId)
   await queryZcl.updateDeviceTypeEntityReferences(db, packageId)
   return queryCommand.updateCommandRequestResponseReferences(db, packageId)
 }

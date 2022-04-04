@@ -15,6 +15,8 @@
  *    limitations under the License.
  */
 
+const { env } = require('yargs')
+
 /**
  * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
  *
@@ -153,6 +155,14 @@ function numberType(size, isSigned, name) {
   return prefix + numberSize + '_t'
 }
 
+/**
+ *
+ * @returns 'uint8_t *'
+ */
+function stringType() {
+  return 'uint8_t *'
+}
+
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
 //
 // Note: these exports are public API. Templates that might have been created in the past and are
@@ -163,3 +173,4 @@ exports.nonAtomicType = nonAtomicType
 exports.enumType = enumType
 exports.bitmapType = bitmapType
 exports.numberType = numberType
+exports.stringType = stringType

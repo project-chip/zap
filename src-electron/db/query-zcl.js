@@ -28,6 +28,7 @@ const queryStruct = require('./query-struct')
 const queryBitmap = require('./query-bitmap')
 const queryDataType = require('./query-data-type')
 const queryNumber = require('./query-number')
+const queryDiscriminator = require('./query-data-type-discriminator')
 
 /**
  * Retrieves all the bitmaps that are associated with a cluster.
@@ -43,18 +44,22 @@ async function selectClusterBitmaps(db, packageId, clusterId) {
       `
 SELECT
   B.BITMAP_ID,
-  B.NAME,
-  B.TYPE
+  DT.NAME,
+  B.SIZE
 FROM
   BITMAP AS B
 INNER JOIN
-  BITMAP_CLUSTER AS BC
+  DATA_TYPE AS DT
 ON
-  B.BITMAP_ID = BC.BITMAP_REF
+  B.BITMAP_ID = DT.DATA_TYPE_ID
+INNER JOIN
+  DATA_TYPE_CLUSTER AS DTC
+ON
+  DTC.DATA_TYPE_REF = DT.DATA_TYPE_ID
 WHERE
-  B.PACKAGE_REF = ?
-  AND BC.CLUSTER_REF = ?
-ORDER BY B.NAME`,
+  DT.PACKAGE_REF = ?
+  AND DTC.CLUSTER_REF = ?
+ORDER BY DT.NAME`,
       [packageId, clusterId]
     )
     .then((rows) => rows.map(dbMapping.map.bitmap))
@@ -118,18 +123,22 @@ async function selectAllStructsWithItemCount(db, packageId) {
       `
 SELECT
   STRUCT.STRUCT_ID,
-  STRUCT.NAME,
+  DATA_TYPE.NAME,
   COUNT(ITEM.NAME) AS ITEM_COUNT
 FROM
   STRUCT
+INNER JOIN
+  DATA_TYPE
+ON
+  STRUCT.STRUCT_ID = DATA_TYPE.DATA_TYPE_ID
 LEFT JOIN
   STRUCT_ITEM AS ITEM
 ON
   STRUCT.STRUCT_ID = ITEM.STRUCT_REF
 WHERE
-  STRUCT.PACKAGE_REF = ?
-GROUP BY STRUCT.NAME
-ORDER BY STRUCT.NAME`,
+  DATA_TYPE.PACKAGE_REF = ?
+GROUP BY DATA_TYPE.NAME
+ORDER BY DATA_TYPE.NAME`,
       [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.struct))
@@ -159,11 +168,15 @@ SELECT
 FROM
   CLUSTER AS C
 INNER JOIN
-  STRUCT_CLUSTER AS SC
+  DATA_TYPE_CLUSTER AS DTC
 ON
-  C.CLUSTER_ID = SC.CLUSTER_REF
+  DTC.CLUSTER_REF = C.CLUSTER_ID
+INNER JOIN
+  STRUCT AS S
+ON
+  S.STRUCT_ID = DTC.DATA_TYPE_REF
 WHERE
-  SC.STRUCT_REF = ?
+  S.STRUCT_ID = ?
 ORDER BY C.CODE
     `,
       [structId]
@@ -195,11 +208,16 @@ SELECT
 FROM
   CLUSTER AS C
 INNER JOIN
-  ENUM_CLUSTER AS EC
+  DATA_TYPE_CLUSTER AS DTC
 ON
-  C.CLUSTER_ID = EC.CLUSTER_REF
+  DTC.CLUSTER_REF = C.CLUSTER_ID
+INNER JOIN
+  ENUM AS E
+ON
+  E.ENUM_ID = DTC.DATA_TYPE_REF
 WHERE
-  EC.ENUM_REF = ?
+  E.ENUM_ID = ?
+ORDER BY C.CODE
     `,
       [enumId]
     )
@@ -230,12 +248,16 @@ SELECT
 FROM
   CLUSTER AS C
 INNER JOIN
-  BITMAP_CLUSTER AS BC
+  DATA_TYPE_CLUSTER AS DTC
 ON
-  C.CLUSTER_ID = BC.CLUSTER_REF
+  DTC.CLUSTER_REF = C.CLUSTER_ID
+INNER JOIN
+  BITMAP AS B
+ON
+  B.BITMAP_ID = DTC.DATA_TYPE_REF
 WHERE
-  BC.BITMAP_REF = ?
-    `,
+  B.BITMAP_ID = ?
+ORDER BY C.CODE    `,
       [bitmapId]
     )
     .then((rows) => rows.map(dbMapping.map.cluster))
@@ -319,6 +341,10 @@ async function selectStructsWithItemsImpl(db, packageIds, clusterId) {
       DATA_TYPE AS DT
     ON
       S.STRUCT_ID = DT.DATA_TYPE_ID
+    INNER JOIN
+      DATA_TYPE_CLUSTER AS DTC
+    ON
+      DT.DATA_TYPE_ID = DTC.DATA_TYPE_REF
     LEFT JOIN
       STRUCT_ITEM AS SI
     ON
@@ -326,7 +352,7 @@ async function selectStructsWithItemsImpl(db, packageIds, clusterId) {
     WHERE
       DT.PACKAGE_REF = IN (${packageIds})
     AND
-      DT.CLUSTER_REF = ?
+      DTC.CLUSTER_REF = ?
     ORDER BY DT.NAME, SI.FIELD_IDENTIFIER`
     args = [clusterId]
   }
@@ -426,8 +452,12 @@ INNER JOIN
   STRUCT
 ON
   STRUCT.STRUCT_ID = SI.STRUCT_REF
-WHERE STRUCT.NAME = ?
-  AND STRUCT.PACKAGE_REF IN (${packageIds})
+INNER JOIN
+  DATA_TYPE AS DT
+ON
+  DT.DATA_TYPE_ID = STRUCT.STRUCT_ID
+WHERE DT.NAME = ?
+  AND DT.PACKAGE_REF IN (${packageIds})
 ORDER BY FIELD_IDENTIFIER`,
       [name]
     )
@@ -1341,3 +1371,5 @@ exports.selectDataTypeById = queryDataType.selectDataTypeById
 exports.selectDataTypeByName = queryDataType.selectDataTypeByName
 
 exports.selectNumberByName = queryNumber.selectNumberByName
+
+exports.selectAllDiscriminators = queryDiscriminator.selectAllDiscriminators

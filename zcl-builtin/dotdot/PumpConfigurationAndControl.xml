@@ -14,7 +14,7 @@ applicable to this document can be found in the LICENSE.md file.
   id="0200" revision="1" name="PumpConfigurationAndControl">
   <classification role="application" picsCode="PCC" primaryTransaction="2" />
   
-  <type:type short="PumpOperationMode" name="PumpOperationMode" id="30">
+  <type:type short="PumpOperationMode" name="PumpOperationMode" id="30" inheritsFrom="enum8">
     <restriction>
       <type:enumeration value="00" name="Normal" />
       <type:enumeration value="01" name="Minimum" />
@@ -23,7 +23,7 @@ applicable to this document can be found in the LICENSE.md file.
     </restriction>
   </type:type>
   
-  <type:type short="PumpControlMode" name="PumpControlMode" id="30">
+  <type:type short="PumpControlMode" name="PumpControlMode" id="30" inheritsFrom="enum8">
     <restriction>
       <type:enumeration value="00" name="ConstantSpeed" />
       <type:enumeration value="01" name="ConstantPressure" />

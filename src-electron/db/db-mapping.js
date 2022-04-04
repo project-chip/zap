@@ -211,8 +211,16 @@ exports.map = {
       description: x.DESCRIPTION,
       descriminatorId: x.DISCRIMINATOR_REF,
       packageId: x.PACKAGE_REF,
-      clusterId: x.CLUSTER_REF,
       discriminatorName: x.DISCRIMINATOR_NAME,
+      clusterCode: x.CLUSTER_CODE,
+    }
+  },
+
+  discriminator: (x) => {
+    if (x == null) return undefined
+    return {
+      id: x.DISCRIMINATOR_ID,
+      name: x.NAME,
     }
   },
 
@@ -233,6 +241,7 @@ exports.map = {
       id: x.ENUM_ID,
       label: x.NAME,
       name: x.NAME,
+      caption: `Enum of size ${x.SIZE} byte`,
       size: x.SIZE,
     }
   },

@@ -108,6 +108,14 @@ async function zcl_structs(options) {
   let checkForDoubleNestedArray =
     options.hash.checkForDoubleNestedArray == 'true'
   let packageIds = await templateUtil.ensureZclPackageIds(this)
+  // fabricIndexRecord is used to update the fabric specific properties of the
+  // struct.
+  let fabricIndexRecord = await queryZcl.selectDataTypeByName(
+    this.global.db,
+    fabricIndexType,
+    packageId
+  )
+  let fabricIndex = fabricIndexRecord ? fabricIndexRecord.id : -1
   let structs
   if (this.id != null) {
     structs = await queryZcl.selectClusterStructsWithItems(
@@ -133,11 +141,10 @@ async function zcl_structs(options) {
       if (i.isArray) {
         st.struct_contains_array = true
       }
-      // If case needs cleanup for the check with fabricIndexType
-      /*if (i.type && i.type.toLowerCase() == fabricIndexType) {
+      if (fabricIndex > -1 && i.type == fabricIndex) {
         st.struct_is_fabric_scoped = true
         st.struct_fabric_idx_field = i.label
-      }*/
+      }
       if (i.isFabricSensitive) {
         st.struct_has_fabric_sensitive_fields = true
       }
@@ -153,10 +160,9 @@ async function zcl_structs(options) {
       for (const i of st.items) {
         if (i.isArray) {
           // Found an array. Now let's check if it points to a struct that also contains an array.
-          let sis = await queryZcl.selectAllStructItemsByStructName(
+          let sis = await queryZcl.selectAllStructItemsById(
             this.global.db,
-            i.type,
-            packageIds
+            i.type
           )
           if (sis.length > 0) {
             for (const ss of sis) {
@@ -199,10 +205,9 @@ async function zcl_struct_items(options) {
     for (const si of sis) {
       si.struct_item_contains_nested_array = false
       // For each item, let's check if it's a struct itself
-      let structItems = await queryZcl.selectAllStructItemsByStructName(
+      let structItems = await queryZcl.selectAllStructItemsById(
         this.global.db,
-        si.name,
-        packageIds
+        si.dataTypeReference
       )
       if (structItems.length > 0) {
         for (const s of structItems) {

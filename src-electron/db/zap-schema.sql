@@ -397,7 +397,8 @@ CREATE TABLE IF NOT EXISTS "DISCRIMINATOR" (
 	"DISCRIMINATOR_ID"     integer NOT NULL  PRIMARY KEY  autoincrement,
 	"NAME"                 text,
   "PACKAGE_REF" integer,
-  FOREIGN KEY (PACKAGE_REF) REFERENCES PACKAGE(PACKAGE_ID)
+  FOREIGN KEY (PACKAGE_REF) REFERENCES PACKAGE(PACKAGE_ID),
+  CONSTRAINT DISCRIMINATOR_INFO UNIQUE("NAME", "PACKAGE_REF")
 );
 
 /*
@@ -410,11 +411,25 @@ CREATE TABLE IF NOT EXISTS "DATA_TYPE" (
 	"DESCRIPTION"          text     ,
 	"DISCRIMINATOR_REF"    integer     ,
 	"PACKAGE_REF"          integer     ,
-  "CLUSTER_REF"          integer     ,
-  "CLUSTER_CODE"         integer     ,
 	FOREIGN KEY ( DISCRIMINATOR_REF ) REFERENCES DISCRIMINATOR( DISCRIMINATOR_ID ) ON DELETE CASCADE ON UPDATE CASCADE,
-  FOREIGN KEY (PACKAGE_REF) REFERENCES PACKAGE(PACKAGE_ID) ON DELETE CASCADE ON UPDATE CASCADE,
-  FOREIGN KEY ( CLUSTER_REF ) REFERENCES CLUSTER( CLUSTER_ID ) ON DELETE CASCADE ON UPDATE CASCADE
+  FOREIGN KEY (PACKAGE_REF) REFERENCES PACKAGE(PACKAGE_ID) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+/*
+DATA_TYPE_CLUSTER table is a junction table between the data types and clusters.
+This table stores the information on which data types are shared across clusters
+Note: The reason for having cluster code in this table is to load the Cluster
+reference during post loading. In terms of the schema an exception was made for
+loading cluster references into this table. For eg: See processZclPostLoading
+*/
+DROP TABLE IF EXISTS DATA_TYPE_CLUSTER;
+CREATE TABLE DATA_TYPE_CLUSTER ( 
+  DATA_TYPE_CLUSTER_ID    integer NOT NULL  PRIMARY KEY  autoincrement,
+	CLUSTER_REF             integer    ,
+  CLUSTER_CODE            integer    ,
+	DATA_TYPE_REF           integer    ,
+	FOREIGN KEY ( CLUSTER_REF ) REFERENCES CLUSTER( CLUSTER_ID ) ON DELETE CASCADE ON UPDATE CASCADE,
+	FOREIGN KEY ( DATA_TYPE_REF ) REFERENCES DATA_TYPE( DATA_TYPE_ID ) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 /*

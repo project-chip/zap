@@ -72,6 +72,7 @@ limitations under the License.
     <type id="0xF0" name="ieee_address" size="8" description="IEEE address" discrete="true"/>
     <type id="0xF1" name="security_key" size="16" description="128-bit security key" discrete="true"/>
     <type id="0xFF" name="unknown" size="0" description="Unknown"/>
+    <type id="0xF9" description="Fabric Index" name="fabric_idx" size="1" discrete="true" />
   </atomic>
 
   <enum name="SimpleEnum" type="ENUM8">
