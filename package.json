@@ -72,17 +72,20 @@
     "convert": "node src-script/zap-convert.js -o {basename}.zap -z ./zcl-builtin/silabs/zcl.json -g test/gen-template/zigbee/gen-templates.json ./test/resource/isc/*.isc ./test/resource/*.zap",
     "convert-dl": "node src-script/zap-convert.js -o {basename}.zap -z ./zcl-builtin/silabs/zcl.json -g test/gen-template/zigbee/gen-templates.json ./test/resource/isc/ha-door-lock.isc",
     "refresh-zap": "node src-script/zap-convert.js -z zcl-builtin/silabs/zcl.json test/resource/three-endpoint-device.zap -g test/gen-template/zigbee/gen-templates.json -o test/resource/three-endpoint-device.zap",
-    "pack": "electron-builder -mwl",
-    "pack:linux": "electron-builder -l",
-    "pack:win": "electron-builder -w",
-    "pack:mac": "electron-builder -m",
     "publish-linux": "electron-builder -l -p always",
     "linuxpack-ui": "./dist/linux-unpacked/zap --zclProperties zcl-builtin/silabs/zcl-test.properties --genTemplateJson test/gen-template/zigbee/gen-templates.json",
     "linuxpack-check": "./dist/linux-unpacked/zap selfCheck --zclProperties zcl-builtin/silabs/zcl-test.properties --genTemplateJson test/gen-template/zigbee/gen-templates.json",
     "linuxpack-gen": "./dist/linux-unpacked/zap generate --noUi --noServer --zclProperties zcl-builtin/silabs/zcl-test.properties --genTemplateJson test/gen-template/zigbee/gen-templates.json --output tmp",
     "linuxpack-help": "./dist/linux-unpacked/zap -?",
     "helper-api-baseline": "node src-script/gen-helper-api.js && pretty-quick",
-    "pkg": "npm run build && npx pkg --compress GZip ."
+    "pack": "electron-builder -mwl",
+    "pack:linux": "electron-builder -l",
+    "pack:win": "electron-builder -w",
+    "pack:mac": "electron-builder -m",
+    "pkg": "npm run build && npx pkg --out-path dist/ --compress GZip .",
+    "pkg:linux": "npm run build && npx pkg -t node16-linux-x64 --output dist/zap-linux --compress GZip .",
+    "pkg:win": "npm run build && npx pkg -t node16-win-x64 --output dist/zap-win.exe --compress GZip .",
+    "pkg:mac": "npm run build && npx pkg -t node16-macos-x64 --output dist/zap-macos --compress GZip ."
   },
   "dependencies": {
     "@babel/runtime": "^7.14.6",
@@ -298,7 +301,6 @@
       "dist/src-electron/db/zap-schema.sql",
       "zcl-builtin/**/*",
       "spa/**/*"
-    ],
-    "outputPath": "dist"
+    ]
   }
 }

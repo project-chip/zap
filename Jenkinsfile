@@ -459,6 +459,7 @@ pipeline
         {
             parallel {
                 stage('Mac') {
+                    when { equals expected: true, actual: buildForMac }
                     agent { label 'bgbuild-mac' }
                     options { skipDefaultCheckout() }
                     steps { cleanWs() }
