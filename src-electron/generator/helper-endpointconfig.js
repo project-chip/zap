@@ -659,9 +659,24 @@ async function collectAttributes(endpointTypes) {
         }
         if (a.storage == dbEnum.storageOption.nvm) {
           mask.push('TOKENIZE')
-        }
-        if (a.storage == dbEnum.storageOption.external) {
+        } else if (a.storage == dbEnum.storageOption.external) {
           mask.push('EXTERNAL_STORAGE')
+        } else if (a.storage == dbEnum.storageOption.ram) {
+          // Nothing to do
+        } else {
+          throw new Error(
+            `Unknown storage type "${a.storage}" for attribute "${
+              a.name
+            }" of cluster "${c.name}" on endpoint ${
+              ept.endpointId
+            }.  Valid values are: ${[
+              dbEnum.storageOption.nvm,
+              dbEnum.storageOption.external,
+              dbEnum.storageOption.ram,
+            ]
+              .map((s) => `"${s}"`)
+              .join(', ')}`
+          )
         }
         if (a.isSingleton) mask.push('singleton')
         if (a.isWritable) mask.push('writable')
