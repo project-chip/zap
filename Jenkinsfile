@@ -1,3 +1,6 @@
+final boolean buildForMac = false
+final boolean runCypressTests = false
+
 pipeline
 {
     agent { node { label 'Build-Farm'
@@ -174,17 +177,18 @@ pipeline
                 }
             }
         }
-        // stage('Cypress UI tests')
-        // {
-        //     steps
-        //     {
-        //         script
-        //         {
-        //             sh 'rm -rf ~/.zap'
-        //             sh 'xvfb-run -a npm run test:e2e-ci'
-        //         }
-        //     }
-        // }
+        stage('Cypress UI tests')
+        {
+            when { equals expected: true, actual: runCypressTests }
+            steps
+            {
+                script
+                {
+                    sh 'rm -rf ~/.zap'
+                    sh 'xvfb-run -a npm run test:e2e-ci'
+                }
+            }
+        }
         stage('Run Sonar Scan')
         {
             steps
@@ -210,8 +214,9 @@ pipeline
         }
         stage('Building electron artifacts') {
             parallel {
-/*                 stage('Building for Mac')
+                stage('Building for Mac')
                 {
+                    when { equals expected: true, actual: buildForMac }
                     agent { label 'bgbuild-mac' }
                     steps
                     {
@@ -239,7 +244,7 @@ pipeline
                         }
                     }
                 }
-                */                stage('Building for Windows / Linux')
+                stage('Building for Windows / Linux')
                 {
                     steps
                     {
@@ -277,8 +282,9 @@ pipeline
                         }
                     }
                 }
-/*                 stage('Archiving for macOS')
+                stage('Archiving for macOS')
                 {
+                    when { equals expected: true, actual: buildForMac }
                     agent { label 'bgbuild-mac' }
                     options { skipDefaultCheckout() }
                     steps
@@ -291,7 +297,7 @@ pipeline
                         }
                     }
                 }
-                */                stage('Eclipse packaging metadata')
+                stage('Eclipse packaging metadata')
                 {
                     steps
                     {
@@ -341,8 +347,9 @@ pipeline
                         }
                     }
                 }
-/*                 stage('Checking macOS exe')
+                stage('Checking macOS exe')
                 {
+                    when { equals expected: true, actual: buildForMac }
                     agent { label 'bgbuild-mac' }
                     options { skipDefaultCheckout() }
                     steps
@@ -375,7 +382,7 @@ pipeline
                         }
                     }
                 }
-                */                stage('Checking Linux exe')
+                stage('Checking Linux exe')
                 {
                     steps
                     {
