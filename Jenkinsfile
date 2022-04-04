@@ -1,5 +1,6 @@
 final boolean buildForMac = false
 final boolean runCypressTests = false
+final boolean triggerAdapterPackJob = false
 
 pipeline
 {
@@ -429,12 +430,11 @@ pipeline
             }
         }
 
- /* commented out until we fix this. This never works.
         stage('Run Adapter_Pack_ZAP_64 on JNKAUS-16.silabs.com')
         {
             when
             {
-                branch 'silabs'
+                allOf { branch 'silabs'; equals expected: true, actual: triggerAdapterPackJob }
             }
             steps
             {
@@ -453,7 +453,6 @@ pipeline
                 }
             }
         }
- */
 
         stage('Workspace clean up')
         {
