@@ -113,7 +113,7 @@ async function selectDataTypeByName(db, name, packageId) {
  */
 async function selectAllDataTypes(db, packageId) {
   return dbApi
-    .dbGet(
+    .dbAll(
       db,
       `
   SELECT
@@ -132,7 +132,7 @@ async function selectAllDataTypes(db, packageId) {
   WHERE DATA_TYPE.PACKAGE_REF = ?`,
       [packageId]
     )
-    .then(dbMapping.map.dataType)
+    .then((rows) => rows.map(dbMapping.map.dataType))
 }
 
 /**

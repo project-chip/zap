@@ -60,7 +60,7 @@ async function selectNumberByName(db, packageId, name) {
  */
 async function selectAllNumbers(db, packageId) {
   return dbApi
-    .dbGet(
+    .dbAll(
       db,
       `
   SELECT
@@ -73,7 +73,7 @@ async function selectAllNumbers(db, packageId) {
   WHERE PACKAGE_REF = ?`,
       [packageId]
     )
-    .then(dbMapping.map.number)
+    .then((rows) => rows.map(dbMapping.map.number))
 }
 
 /**

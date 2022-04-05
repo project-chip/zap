@@ -31,7 +31,7 @@ const dbMapping = require('./db-mapping')
  */
 async function selectAllStrings(db, packageId) {
   return dbApi
-    .dbGet(
+    .dbAll(
       db,
       `
    SELECT
@@ -46,7 +46,7 @@ async function selectAllStrings(db, packageId) {
    WHERE PACKAGE_REF = ?`,
       [packageId]
     )
-    .then(dbMapping.map.string)
+    .then((rows) => rows.map(dbMapping.map.string))
 }
 
 exports.selectAllStrings = selectAllStrings
