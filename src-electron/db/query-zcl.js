@@ -28,6 +28,7 @@ const queryStruct = require('./query-struct')
 const queryBitmap = require('./query-bitmap')
 const queryDataType = require('./query-data-type')
 const queryNumber = require('./query-number')
+const queryString = require('./query-string')
 const queryDiscriminator = require('./query-data-type-discriminator')
 
 /**
@@ -1373,3 +1374,6 @@ exports.selectDataTypeByName = queryDataType.selectDataTypeByName
 exports.selectNumberByName = queryNumber.selectNumberByName
 
 exports.selectAllDiscriminators = queryDiscriminator.selectAllDiscriminators
+exports.selectAllDataTypes = queryDataType.selectAllDataTypes
+exports.selectAllNumbers = queryNumber.selectAllNumbers
+exports.selectAllStrings = queryString.selectAllStrings

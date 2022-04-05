@@ -224,6 +224,18 @@ exports.map = {
     }
   },
 
+  string: (x) => {
+    if (x == null) return undefined
+    return {
+      id: x.STRING_ID,
+      label: x.NAME,
+      name: x.NAME,
+      isLong: x.IS_LONG,
+      isChar: x.IS_CHAR,
+      size: x.SIZE,
+    }
+  },
+
   number: (x) => {
     if (x == null) return undefined
     return {

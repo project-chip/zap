@@ -108,6 +108,7 @@ exports.totalClusterCommandCount = 609
 exports.totalServerAttributeCount = 2962
 exports.totalSpecCount = 24
 exports.totalEnumCount = 211
+exports.totalDiscriminatorCount = 6
 exports.totalEnumItemCount = 1595
 exports.totalDotDotEnums = 106
 exports.totalDotDotEnumItems = 637

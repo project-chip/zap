@@ -75,6 +75,62 @@ function asHex(rawValue, padding, nullValue) {
   }
 }
 
+async function asUnderlyingTypeHelper(dataType, context, packageId) {
+  try {
+    if (
+      dataType &&
+      dataType.discriminatorName.toLowerCase() == dbEnum.zclType.bitmap
+    ) {
+      let bt = await queryZcl.selectBitmapByName(
+        context.global.db,
+        packageId,
+        dataType.name
+      )
+      return context.global.overridable.bitmapType(bt.size)
+    } else if (
+      dataType &&
+      dataType.discriminatorName.toLowerCase() == dbEnum.zclType.enum
+    ) {
+      let et = await queryZcl.selectEnumByName(
+        context.global.db,
+        dataType.name,
+        packageId
+      )
+      return context.global.overridable.enumType(et.size, et.name)
+    } else if (
+      dataType &&
+      dataType.discriminatorName.toLowerCase() == dbEnum.zclType.number
+    ) {
+      let nt = await queryZcl.selectNumberByName(
+        context.global.db,
+        packageId,
+        dataType.name
+      )
+      return context.global.overridable.numberType(
+        nt.size,
+        nt.isSigned,
+        nt.name
+      )
+    } else if (
+      dataType &&
+      dataType.discriminatorName.toLowerCase() == dbEnum.zclType.struct
+    ) {
+      return dataType.name
+    } else if (
+      dataType &&
+      dataType.discriminatorName.toLowerCase() == dbEnum.zclType.string
+    ) {
+      return context.global.overridable.stringType()
+    } else {
+      return 'uint8_t *'
+    }
+  } catch (err) {
+    envConfig.logError(
+      'Could not find the underlying type for ' + dataType.name + ' : ' + err
+    )
+  }
+}
+
 /**
  * Converts the actual zcl type into an underlying usable C type.
  * @param {*} value
@@ -110,55 +166,7 @@ async function asUnderlyingType(value) {
 
   // Step 3: Detecting the type of the data type and returning the appropriate c
   // type through overridable
-  try {
-    if (
-      dataType &&
-      dataType.discriminatorName.toLowerCase() == dbEnum.zclType.bitmap
-    ) {
-      let bt = await queryZcl.selectBitmapByName(
-        this.global.db,
-        packageId,
-        dataType.name
-      )
-      return this.global.overridable.bitmapType(bt.size)
-    } else if (
-      dataType &&
-      dataType.discriminatorName.toLowerCase() == dbEnum.zclType.enum
-    ) {
-      let et = await queryZcl.selectEnumByName(
-        this.global.db,
-        dataType.name,
-        packageId
-      )
-      return this.global.overridable.enumType(et.size, et.name)
-    } else if (
-      dataType &&
-      dataType.discriminatorName.toLowerCase() == dbEnum.zclType.number
-    ) {
-      let nt = await queryZcl.selectNumberByName(
-        this.global.db,
-        packageId,
-        dataType.name
-      )
-      return this.global.overridable.numberType(nt.size, nt.isSigned, nt.name)
-    } else if (
-      dataType &&
-      dataType.discriminatorName.toLowerCase() == dbEnum.zclType.struct
-    ) {
-      return dataType.name
-    } else if (
-      dataType &&
-      dataType.discriminatorName.toLowerCase() == dbEnum.zclType.string
-    ) {
-      return this.global.overridable.stringType()
-    } else {
-      return 'uint8_t *'
-    }
-  } catch (err) {
-    envConfig.logError(
-      'Could not find the underlying type for ' + dataType.name + ' : ' + err
-    )
-  }
+  return asUnderlyingTypeHelper(dataType, this, packageId)
 }
 
 /**

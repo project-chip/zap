@@ -52,6 +52,31 @@ async function selectNumberByName(db, packageId, name) {
 }
 
 /**
+ * Select all numbers.
+ *
+ * @param db
+ * @param packageId
+ * @returns All numbers
+ */
+async function selectAllNumbers(db, packageId) {
+  return dbApi
+    .dbGet(
+      db,
+      `
+  SELECT
+    NUMBER.NUMBER_ID,
+    NUMBER.IS_SIGNED,
+    DATA_TYPE.NAME AS NAME,
+    NUMBER.SIZE AS SIZE
+  FROM NUMBER
+  INNER JOIN DATA_TYPE ON NUMBER.NUMBER_ID = DATA_TYPE.DATA_TYPE_ID
+  WHERE PACKAGE_REF = ?`,
+      [packageId]
+    )
+    .then(dbMapping.map.number)
+}
+
+/**
  * Select an enum matched by name from cache.
  *
  * @param {*} db
@@ -70,3 +95,4 @@ async function selectNumberByNameFromCache(db, packageId, name) {
 }
 
 exports.selectNumberByName = selectNumberByName
+exports.selectAllNumbers = selectAllNumbers

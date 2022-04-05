@@ -106,6 +106,36 @@ async function selectDataTypeByName(db, name, packageId) {
 }
 
 /**
+ * Gathers All the data types
+ * @param db
+ * @param packageId
+ * @returns All data types
+ */
+async function selectAllDataTypes(db, packageId) {
+  return dbApi
+    .dbGet(
+      db,
+      `
+  SELECT
+    DATA_TYPE.DATA_TYPE_ID,
+    DATA_TYPE.NAME AS NAME,
+    DATA_TYPE.DESCRIPTION,
+    DATA_TYPE.DISCRIMINATOR_REF,
+    DATA_TYPE.PACKAGE_REF,
+    DISCRIMINATOR.NAME AS DISCRIMINATOR_NAME
+  FROM
+    DATA_TYPE
+  INNER JOIN
+    DISCRIMINATOR
+  ON
+    DATA_TYPE.DISCRIMINATOR_REF = DISCRIMINATOR.DISCRIMINATOR_ID
+  WHERE DATA_TYPE.PACKAGE_REF = ?`,
+      [packageId]
+    )
+    .then(dbMapping.map.dataType)
+}
+
+/**
  * Select a Data type matched from cache
  * @param {*} db
  * @param {*} name
@@ -124,3 +154,4 @@ async function selectDataTypeByNameFromCache(db, name, packageId) {
 
 exports.selectDataTypeById = selectDataTypeById
 exports.selectDataTypeByName = selectDataTypeByName
+exports.selectAllDataTypes = selectAllDataTypes
