@@ -887,7 +887,7 @@ async function processEnums(db, filePath, packageId, data) {
   discriminators.forEach((d) => {
     typeMap.set(d.name.toLowerCase(), d.id)
   })
-  return queryLoader.insertEnum2(
+  return queryLoader.insertEnum(
     db,
     packageId,
     data.map((x) => prepareEnumsOrBitmaps(x, typeMap.get(dbEnum.zclType.enum)))
@@ -924,7 +924,7 @@ async function processEnumItems(db, filePath, packageId, data) {
       })
     }
   })
-  return queryLoader.insertEnum2Items(db, packageId, enumItems)
+  return queryLoader.insertEnumItems(db, packageId, enumItems)
 }
 
 /**
@@ -943,7 +943,7 @@ async function processBitmaps(db, filePath, packageId, data) {
   discriminators.forEach((d) => {
     typeMap.set(d.name.toLowerCase(), d.id)
   })
-  return queryLoader.insertBitmap2(
+  return queryLoader.insertBitmap(
     db,
     packageId,
     data.map((x) =>
@@ -982,7 +982,7 @@ async function processBitmapFields(db, filePath, packageId, data) {
       })
     }
   })
-  return queryLoader.insertBitmap2Fields(db, packageId, bitmapFields)
+  return queryLoader.insertBitmapFields(db, packageId, bitmapFields)
 }
 
 /**
@@ -1102,7 +1102,7 @@ async function processEnumsFromAtomics(db, filePath, packageId, data) {
     return item.name.toLowerCase().includes(dbEnum.zclType.enum)
   })
   env.logDebug(`${filePath}, ${packageId}: ${data.length} Baseline Enum Types.`)
-  return queryLoader.insertEnum2Atomic(
+  return queryLoader.insertEnumAtomic(
     db,
     packageId,
     enums.map((x) =>
@@ -1132,7 +1132,7 @@ async function processBitmapsFromAtomics(db, filePath, packageId, data) {
   env.logDebug(
     `${filePath}, ${packageId}: ${data.length} Baseline Bitmap Types.`
   )
-  return queryLoader.insertBitmap2Atomic(
+  return queryLoader.insertBitmapAtomic(
     db,
     packageId,
     bitmaps.map((x) =>

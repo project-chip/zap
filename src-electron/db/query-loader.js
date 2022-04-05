@@ -737,117 +737,6 @@ INSERT OR IGNORE INTO GLOBAL_ATTRIBUTE_BIT (
 }
 
 /**
- * Inserts enums into the database.
- *
- * @export
- * @param {*} db
- * @param {*} packageId
- * @param {*} data an array of objects that must contain: name, type
- * @returns A promise of enum insertion.
- */
-async function insertEnums(db, packageId, data) {
-  const lastIdsArray = await dbApi.dbMultiInsert(
-    db,
-    'INSERT INTO ENUM (PACKAGE_REF, NAME, TYPE) VALUES (?, ?, ?)',
-    data.map((en) => {
-      return [packageId, en.name, en.type]
-    })
-  )
-
-  let clustersToLoad = []
-  for (let i = 0; i < lastIdsArray.length; i++) {
-    if ('clusters' in data[i]) {
-      let lastId = lastIdsArray[i]
-      let clusters = data[i].clusters
-      clustersToLoad.push(...clusters.map((cl) => [lastId, cl]))
-    }
-  }
-  if (clustersToLoad.length > 0)
-    await dbApi.dbMultiInsert(
-      db,
-      `INSERT INTO ENUM_CLUSTER ( ENUM_REF, CLUSTER_CODE) VALUES (?,?)`,
-      clustersToLoad
-    )
-
-  let itemsToLoad = []
-  for (let i = 0; i < lastIdsArray.length; i++) {
-    if ('items' in data[i]) {
-      let lastId = lastIdsArray[i]
-      let items = data[i].items
-      itemsToLoad.push(
-        ...items.map((item) => [
-          lastId,
-          item.name,
-          item.value,
-          item.fieldIdentifier,
-        ])
-      )
-    }
-  }
-  return dbApi.dbMultiInsert(
-    db,
-    'INSERT INTO ENUM_ITEM (ENUM_REF, NAME, VALUE, FIELD_IDENTIFIER) VALUES (?, ?, ?, ?)',
-    itemsToLoad
-  )
-}
-
-/**
- * Inserts bitmaps into the database. Data is an array of objects that must contain: name, type
- *
- * @export
- * @param {*} db
- * @param {*} packageId
- * @param {*} data Array of object containing 'name' and 'type'.
- * @returns A promise of bitmap insertions.
- */
-async function insertBitmaps(db, packageId, data) {
-  const lastIdsArray = await dbApi.dbMultiInsert(
-    db,
-    'INSERT INTO BITMAP (PACKAGE_REF, NAME, TYPE) VALUES (?, ?, ?)',
-    data.map((bm) => [packageId, bm.name, bm.type])
-  )
-
-  let clustersToLoad = []
-  for (let i = 0; i < lastIdsArray.length; i++) {
-    if ('clusters' in data[i]) {
-      let lastId = lastIdsArray[i]
-      let clusters = data[i].clusters
-      clustersToLoad.push(...clusters.map((cl) => [lastId, cl]))
-    }
-  }
-
-  if (clustersToLoad.length > 0) {
-    await dbApi.dbMultiInsert(
-      db,
-      `INSERT INTO BITMAP_CLUSTER ( BITMAP_REF, CLUSTER_CODE) VALUES (?,?)`,
-      clustersToLoad
-    )
-  }
-
-  let fieldsToLoad = []
-  for (let i = 0; i < lastIdsArray.length; i++) {
-    if ('fields' in data[i]) {
-      let lastId = lastIdsArray[i]
-      let fields = data[i].fields
-      fieldsToLoad.push(
-        ...fields.map((field) => [
-          lastId,
-          field.name,
-          field.mask,
-          field.type,
-          field.fieldIdentifier,
-        ])
-      )
-    }
-  }
-  return dbApi.dbMultiInsert(
-    db,
-    'INSERT INTO BITMAP_FIELD (BITMAP_REF, NAME, MASK, TYPE, FIELD_IDENTIFIER) VALUES (?, ?, ?, ?, ?)',
-    fieldsToLoad
-  )
-}
-
-/**
  * Insert atomics into the database.
  * Data is an array of objects that must contains: name, id, description.
  * Object might also contain 'size', but possibly not.
@@ -1214,7 +1103,7 @@ async function insertString(db, packageId, data) {
  * @param {*} packageId
  * @param {*} data
  */
-async function insertEnum2Atomic(db, packageId, data) {
+async function insertEnumAtomic(db, packageId, data) {
   return dbApi.dbMultiInsert(
     db,
     'INSERT INTO ENUM ( ENUM_ID, SIZE) VALUES ( (SELECT DATA_TYPE_ID FROM DATA_TYPE WHERE PACKAGE_REF = ? AND NAME = ? AND DISCRIMINATOR_REF = ?), ?)',
@@ -1224,14 +1113,14 @@ async function insertEnum2Atomic(db, packageId, data) {
 
 /**
  * Insert all Enums into the Enum Table.
- * Note: Unlike insertEnum2Atomic this function adds the enums which are not
+ * Note: Unlike insertEnumAtomic this function adds the enums which are not
  * baseline enums.
  *
  * @param {*} db
  * @param {*} packageId
  * @param {*} data
  */
-async function insertEnum2(db, packageId, data) {
+async function insertEnum(db, packageId, data) {
   return dbApi.dbMultiInsert(
     db,
     'INSERT INTO ENUM ( ENUM_ID, SIZE) VALUES ( (SELECT DATA_TYPE_ID FROM DATA_TYPE WHERE PACKAGE_REF = ? AND NAME = ? AND DISCRIMINATOR_REF = ?), (SELECT CASE   WHEN ((SELECT SIZE FROM ENUM INNER JOIN DATA_TYPE ON ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ? AND DATA_TYPE.DISCRIMINATOR_REF = ?) IS NULL ) THEN    (SELECT SIZE FROM ENUM INNER JOIN DATA_TYPE ON ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ?) ELSE (SELECT SIZE FROM ENUM INNER JOIN DATA_TYPE ON ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ? AND DATA_TYPE.DISCRIMINATOR_REF = ?) END AS SIZE))',
@@ -1258,7 +1147,7 @@ async function insertEnum2(db, packageId, data) {
  * @param {*} packageId
  * @param {*} data
  */
-async function insertEnum2Items(db, packageId, data) {
+async function insertEnumItems(db, packageId, data) {
   return dbApi.dbMultiInsert(
     db,
     'INSERT INTO ENUM_ITEM ( ENUM_REF, NAME, VALUE, FIELD_IDENTIFIER) VALUES ( (SELECT ENUM_ID FROM ENUM INNER JOIN DATA_TYPE ON ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ? AND DATA_TYPE.DISCRIMINATOR_REF = (SELECT DISCRIMINATOR_ID FROM DISCRIMINATOR WHERE NAME = "ENUM" AND PACKAGE_REF=?)), ?, ?, ?)',
@@ -1282,7 +1171,7 @@ async function insertEnum2Items(db, packageId, data) {
  * @param {*} packageId
  * @param {*} data
  */
-async function insertBitmap2Atomic(db, packageId, data) {
+async function insertBitmapAtomic(db, packageId, data) {
   return dbApi.dbMultiInsert(
     db,
     'INSERT INTO BITMAP ( BITMAP_ID, SIZE) VALUES ( (SELECT DATA_TYPE_ID FROM DATA_TYPE WHERE PACKAGE_REF = ? AND NAME = ? AND DISCRIMINATOR_REF = ?), ?)',
@@ -1292,13 +1181,13 @@ async function insertBitmap2Atomic(db, packageId, data) {
 
 /**
  * Insert all Bitmaps into the Bitmap Table.
- * Note: Unlike insertBitmap2Atomic this function adds the bitmaps which are not
+ * Note: Unlike insertBitmapAtomic this function adds the bitmaps which are not
  * baseline bitmaps.
  * @param {*} db
  * @param {*} packageId
  * @param {*} data
  */
-async function insertBitmap2(db, packageId, data) {
+async function insertBitmap(db, packageId, data) {
   return dbApi.dbMultiInsert(
     db,
     'INSERT INTO BITMAP ( BITMAP_ID, SIZE) VALUES ( (SELECT DATA_TYPE_ID FROM DATA_TYPE WHERE PACKAGE_REF = ? AND NAME = ? AND DISCRIMINATOR_REF = ?), (SELECT CASE WHEN ((SELECT SIZE FROM BITMAP INNER JOIN DATA_TYPE ON BITMAP.BITMAP_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ? AND DATA_TYPE.DISCRIMINATOR_REF = ?) IS NULL ) THEN    (SELECT SIZE FROM BITMAP  INNER JOIN DATA_TYPE ON BITMAP.BITMAP_ID  = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ?) ELSE (SELECT SIZE FROM BITMAP INNER JOIN DATA_TYPE ON BITMAP.BITMAP_ID  = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ? AND DATA_TYPE.DISCRIMINATOR_REF = ?) END AS SIZE))',
@@ -1325,7 +1214,7 @@ async function insertBitmap2(db, packageId, data) {
  * @param {*} packageId
  * @param {*} data
  */
-async function insertBitmap2Fields(db, packageId, data) {
+async function insertBitmapFields(db, packageId, data) {
   return dbApi.dbMultiInsert(
     db,
     'INSERT INTO BITMAP_FIELD ( BITMAP_REF, NAME, MASK, FIELD_IDENTIFIER) VALUES ( (SELECT BITMAP_ID FROM BITMAP INNER JOIN DATA_TYPE ON BITMAP.BITMAP_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ? AND DATA_TYPE.DISCRIMINATOR_REF = (SELECT DISCRIMINATOR_ID FROM DISCRIMINATOR WHERE NAME = "BITMAP" AND PACKAGE_REF=?)), ?, ?, ?)',
@@ -1406,8 +1295,6 @@ exports.insertDomains = insertDomains
 exports.insertSpecs = insertSpecs
 exports.insertGlobalAttributeDefault = insertGlobalAttributeDefault
 exports.insertAtomics = insertAtomics
-exports.insertEnums = insertEnums
-exports.insertBitmaps = insertBitmaps
 exports.insertDeviceTypes = insertDeviceTypes
 exports.insertTags = insertTags
 exports.insertAccessModifiers = insertAccessModifiers
@@ -1418,12 +1305,12 @@ exports.insertDataTypeDiscriminator = insertDataTypeDiscriminator
 exports.insertDataType = insertDataType
 exports.insertNumber = insertNumber
 exports.insertString = insertString
-exports.insertEnum2Atomic = insertEnum2Atomic
-exports.insertEnum2 = insertEnum2
-exports.insertEnum2Items = insertEnum2Items
-exports.insertBitmap2Atomic = insertBitmap2Atomic
-exports.insertBitmap2 = insertBitmap2
-exports.insertBitmap2Fields = insertBitmap2Fields
+exports.insertEnumAtomic = insertEnumAtomic
+exports.insertEnum = insertEnum
+exports.insertEnumItems = insertEnumItems
+exports.insertBitmapAtomic = insertBitmapAtomic
+exports.insertBitmap = insertBitmap
+exports.insertBitmapFields = insertBitmapFields
 exports.insertStruct = insertStruct
 exports.insertStructItems = insertStructItems
 exports.updateDataTypeClusterReferences = updateDataTypeClusterReferences
