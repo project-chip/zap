@@ -295,18 +295,68 @@ function endpoint_attribute_list(options) {
   return ret
 }
 
-function endpoint_fixed_device_id_array(options) {
-  return (
-    '{ ' + this.deviceList.map((device) => device.deviceId).join(', ') + ' }'
-  )
+function endpoint_fixed_device_type_array(options) {
+  let ret = '{'
+  let wroteItem = false
+
+  for (let i = 0; i < this.deviceList.length; i++) {
+    if (this.deviceList[i] != null && this.deviceList[i].deviceId != null) {
+      if (wroteItem) {
+        ret += ','
+      }
+
+      ret +=
+        '{' +
+        '0x' +
+        bin.int16ToHex(this.deviceList[i].deviceId) +
+        ',' +
+        this.deviceList[i].deviceVersion.toString() +
+        '}'
+      wroteItem = true
+    }
+  }
+
+  ret += '}'
+  return ret
 }
 
-function endpoint_fixed_device_version_array(options) {
-  return (
-    '{ ' +
-    this.deviceList.map((device) => device.deviceVersion).join(', ') +
-    ' }'
-  )
+function endpoint_fixed_device_type_array_offsets(options) {
+  let ret = '{ '
+  let curOffset = 0
+
+  for (let i = 0; i < this.deviceList.length; i++) {
+    if (i != 0) {
+      ret += ','
+    }
+
+    ret += curOffset.toString()
+
+    if (this.deviceList[i] != null && this.deviceList[i].deviceId != null) {
+      curOffset += 1
+    }
+  }
+
+  ret += '}'
+  return ret
+}
+
+function endpoint_fixed_device_type_array_lengths(options) {
+  let ret = '{ '
+
+  for (let i = 0; i < this.deviceList.length; i++) {
+    if (i != 0) {
+      ret += ','
+    }
+
+    if (this.deviceList[i] != null && this.deviceList[i].deviceId != null) {
+      ret += '1'
+    } else {
+      ret += '0'
+    }
+  }
+
+  ret += '}'
+  return ret
 }
 
 function endpoint_attribute_min_max_count(options) {
@@ -989,9 +1039,11 @@ exports.endpoint_total_storage_size = endpoint_total_storage_size
 exports.endpoint_singletons_size = endpoint_singletons_size
 exports.endpoint_fixed_endpoint_array = endpoint_fixed_endpoint_array
 exports.endpoint_fixed_endpoint_type_array = endpoint_fixed_endpoint_type_array
-exports.endpoint_fixed_device_id_array = endpoint_fixed_device_id_array
-exports.endpoint_fixed_device_version_array =
-  endpoint_fixed_device_version_array
+exports.endpoint_fixed_device_type_array = endpoint_fixed_device_type_array
+exports.endpoint_fixed_device_type_array_offsets =
+  endpoint_fixed_device_type_array_offsets
+exports.endpoint_fixed_device_type_array_lengths =
+  endpoint_fixed_device_type_array_lengths
 exports.endpoint_fixed_profile_id_array = endpoint_fixed_profile_id_array
 exports.endpoint_fixed_network_array = endpoint_fixed_network_array
 exports.endpoint_command_list = endpoint_command_list
