@@ -17,7 +17,7 @@ describe('Testing INT8U type validation', () => {
       cy.gotoAttributePage('Billing Unit (0x0203)', 'General')
     }
   )
-  it('getting an attribute with INT8U type and change defualt amount', () => {
+  it('getting an attribute with INT8U type and change default amount', () => {
     cy.get(
       ':nth-child(1) > [style="min-width: 180px;"] > .q-field > .q-field__inner > .q-field__control > .q-field__control-container > input'
     )

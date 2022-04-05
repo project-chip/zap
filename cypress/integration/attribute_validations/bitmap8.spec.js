@@ -14,7 +14,7 @@ describe('Testing BITMAP8 type validation', () => {
     cy.gotoAttributePage('Billing Unit (0x0203)', 'General')
   })
   it(
-    'getting an attribute with BITMAP8 type and change defualt amount',
+    'getting an attribute with BITMAP8 type and change default amount',
     { retries: { runMode: 2, openMode: 2 } },
     () => {
       cy.get(

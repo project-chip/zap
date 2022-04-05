@@ -17,7 +17,7 @@ describe('Testing ENUM8 type validation', () => {
       cy.gotoAttributePage('Billing Unit (0x0203)', 'General')
     }
   )
-  it('getting an attribute with ENUM8 type and change defualt amount', () => {
+  it('getting an attribute with ENUM8 type and change default amount', () => {
     cy.get(
       ':nth-child(8) > [style="min-width: 180px;"] > .q-field > .q-field__inner > .q-field__control > .q-field__control-container > input'
     )
