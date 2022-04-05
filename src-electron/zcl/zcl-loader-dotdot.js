@@ -1016,7 +1016,7 @@ async function processStruct(db, filePath, packageId, data) {
   discriminators.forEach((d) => {
     typeMap.set(d.name.toLowerCase(), d.id)
   })
-  return queryLoader.insertStruct2(
+  return queryLoader.insertStruct(
     db,
     packageId,
     data.map((x) => prepareStruct2(x, typeMap.get(dbEnum.zclType.struct)))
@@ -1064,7 +1064,7 @@ async function processStructItems(db, filePath, packageId, data) {
       })
     }
   })
-  return queryLoader.insertStruct2Items(db, packageId, structItems)
+  return queryLoader.insertStructItems(db, packageId, structItems)
 }
 
 /**

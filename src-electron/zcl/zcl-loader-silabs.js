@@ -1233,7 +1233,7 @@ async function processBitmap2Fields(db, filePath, packageId, data) {
  * @param {*} dataType
  * @returns An Object
  */
-function prepareStruct2(a, dataType) {
+function prepareStruct(a, dataType) {
   return {
     name: a.$.name,
     cluster_code: a.cluster ? a.cluster : null,
@@ -1250,17 +1250,17 @@ function prepareStruct2(a, dataType) {
  * @param {*} data
  * @returns A promise of inserted structs.
  */
-async function processStruct2(db, filePath, packageId, data) {
+async function processStruct(db, filePath, packageId, data) {
   env.logDebug(`${filePath}, ${packageId}: ${data.length} Struct Types.`)
   let typeMap = new Map()
   let discriminators = await queryZcl.selectAllDiscriminators(db, packageId)
   discriminators.forEach((d) => {
     typeMap.set(d.name.toLowerCase(), d.id)
   })
-  return queryLoader.insertStruct2(
+  return queryLoader.insertStruct(
     db,
     packageId,
-    data.map((x) => prepareStruct2(x, typeMap.get(dbEnum.zclType.struct)))
+    data.map((x) => prepareStruct(x, typeMap.get(dbEnum.zclType.struct)))
   )
 }
 
@@ -1273,7 +1273,7 @@ async function processStruct2(db, filePath, packageId, data) {
  * @param {*} data
  * @returns A promise of inserted struct items.
  */
-async function processStruct2Items(db, filePath, packageId, data) {
+async function processStructItems(db, filePath, packageId, data) {
   env.logDebug(`${filePath}, ${packageId}: ${data.length} Struct Items.`)
   let structItems = []
   let lastFieldId = -1
@@ -1303,7 +1303,7 @@ async function processStruct2Items(db, filePath, packageId, data) {
       })
     }
   })
-  return queryLoader.insertStruct2Items(db, packageId, structItems)
+  return queryLoader.insertStructItems(db, packageId, structItems)
 }
 
 /**
@@ -1509,7 +1509,7 @@ async function processParsedZclData(
       Batch5.push(processBitmap2(db, filePath, packageId, toplevel.bitmap))
     }
     if (dbEnum.zclType.struct in toplevel) {
-      Batch5.push(processStruct2(db, filePath, packageId, toplevel.struct))
+      Batch5.push(processStruct(db, filePath, packageId, toplevel.struct))
     }
     await Promise.all(Batch5)
 
@@ -1524,7 +1524,7 @@ async function processParsedZclData(
       )
     }
     if (dbEnum.zclType.struct in toplevel) {
-      batch6.push(processStruct2Items(db, filePath, packageId, toplevel.struct))
+      batch6.push(processStructItems(db, filePath, packageId, toplevel.struct))
     }
     await Promise.all(batch6)
 

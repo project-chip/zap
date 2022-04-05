@@ -737,87 +737,6 @@ INSERT OR IGNORE INTO GLOBAL_ATTRIBUTE_BIT (
 }
 
 /**
- *
- * Inserts structs into the database.
- * data is an array of objects that must contain: name
- *
- * @export
- * @param {*} db
- * @param {*} packageId
- * @param {*} data
- * @returns A promise that resolves with an array of struct item rowids.
- */
-async function insertStructs(db, packageId, data) {
-  const lastIdsArray = await dbApi.dbMultiInsert(
-    db,
-    'INSERT INTO STRUCT (PACKAGE_REF, NAME) VALUES (?, ?)',
-    data.map((struct) => {
-      return [packageId, struct.name]
-    })
-  )
-
-  let clustersToLoad = []
-  for (let i = 0; i < lastIdsArray.length; i++) {
-    if ('clusters' in data[i]) {
-      let lastId = lastIdsArray[i]
-      let clusters = data[i].clusters
-      clustersToLoad.push(...clusters.map((cl) => [lastId, cl]))
-    }
-  }
-  if (clustersToLoad.length > 0)
-    await dbApi.dbMultiInsert(
-      db,
-      `INSERT INTO STRUCT_CLUSTER ( STRUCT_REF, CLUSTER_CODE) VALUES (?,?)`,
-      clustersToLoad
-    )
-
-  let itemsToLoad = []
-  for (let i = 0; i < lastIdsArray.length; i++) {
-    if ('items' in data[i]) {
-      let lastId = lastIdsArray[i]
-      let items = data[i].items
-      itemsToLoad.push(
-        ...items.map((item) => [
-          lastId,
-          item.name,
-          item.type,
-          item.fieldIdentifier,
-          dbApi.toDbBool(item.isArray),
-          dbApi.toDbBool(item.isEnum),
-          item.minLength,
-          item.maxLength,
-          dbApi.toDbBool(item.isWritable),
-          dbApi.toDbBool(item.isNullable),
-          dbApi.toDbBool(item.isOptional),
-          dbApi.toDbBool(item.isFabricSensitive),
-        ])
-      )
-    }
-  }
-
-  if (itemsToLoad.length > 0)
-    await dbApi.dbMultiInsert(
-      db,
-      `
-INSERT INTO STRUCT_ITEM (
-  STRUCT_REF,
-  NAME,
-  TYPE,
-  FIELD_IDENTIFIER,
-  IS_ARRAY,
-  IS_ENUM,
-  MIN_LENGTH,
-  MAX_LENGTH,
-  IS_WRITABLE,
-  IS_NULLABLE,
-  IS_OPTIONAL,
-  IS_FABRIC_SENSITIVE
-) VALUES (?,?,?,?,?,?,?,?,?,?,?, ?)`,
-      itemsToLoad
-    )
-}
-
-/**
  * Inserts enums into the database.
  *
  * @export
@@ -1428,7 +1347,7 @@ async function insertBitmap2Fields(db, packageId, data) {
  * @param {*} packageId
  * @param {*} data
  */
-async function insertStruct2(db, packageId, data) {
+async function insertStruct(db, packageId, data) {
   return dbApi.dbMultiInsert(
     db,
     'INSERT INTO STRUCT ( STRUCT_ID, SIZE) VALUES ( (SELECT DATA_TYPE_ID FROM DATA_TYPE WHERE PACKAGE_REF = ? AND NAME = ? AND DISCRIMINATOR_REF = ?), (SELECT CASE   WHEN ((SELECT SIZE FROM STRUCT INNER JOIN DATA_TYPE ON STRUCT.STRUCT_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ? AND DATA_TYPE.DISCRIMINATOR_REF = ?) IS NULL ) THEN    (SELECT SIZE FROM STRUCT INNER JOIN DATA_TYPE ON STRUCT.STRUCT_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ?) ELSE (SELECT SIZE FROM STRUCT INNER JOIN DATA_TYPE ON STRUCT.STRUCT_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ? AND  DATA_TYPE.DISCRIMINATOR_REF = ?) END AS SIZE))',
@@ -1455,7 +1374,7 @@ async function insertStruct2(db, packageId, data) {
  * @param {*} packageId
  * @param {*} data
  */
-async function insertStruct2Items(db, packageId, data) {
+async function insertStructItems(db, packageId, data) {
   return dbApi.dbMultiInsert(
     db,
     'INSERT INTO STRUCT_ITEM ( STRUCT_REF, NAME, FIELD_IDENTIFIER, IS_ARRAY, IS_ENUM, MIN_LENGTH, MAX_LENGTH, IS_WRITABLE, IS_NULLABLE, IS_OPTIONAL, IS_FABRIC_SENSITIVE, SIZE, DATA_TYPE_REF) VALUES ( (SELECT STRUCT_ID FROM STRUCT INNER JOIN DATA_TYPE ON STRUCT.STRUCT_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ? AND DATA_TYPE.DISCRIMINATOR_REF = (SELECT DISCRIMINATOR_ID FROM DISCRIMINATOR WHERE NAME = "STRUCT" AND PACKAGE_REF=?)), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, (SELECT DATA_TYPE_ID FROM DATA_TYPE WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ?))',
@@ -1487,7 +1406,6 @@ exports.insertDomains = insertDomains
 exports.insertSpecs = insertSpecs
 exports.insertGlobalAttributeDefault = insertGlobalAttributeDefault
 exports.insertAtomics = insertAtomics
-exports.insertStructs = insertStructs
 exports.insertEnums = insertEnums
 exports.insertBitmaps = insertBitmaps
 exports.insertDeviceTypes = insertDeviceTypes
@@ -1506,6 +1424,6 @@ exports.insertEnum2Items = insertEnum2Items
 exports.insertBitmap2Atomic = insertBitmap2Atomic
 exports.insertBitmap2 = insertBitmap2
 exports.insertBitmap2Fields = insertBitmap2Fields
-exports.insertStruct2 = insertStruct2
-exports.insertStruct2Items = insertStruct2Items
+exports.insertStruct = insertStruct
+exports.insertStructItems = insertStructItems
 exports.updateDataTypeClusterReferences = updateDataTypeClusterReferences
