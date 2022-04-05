@@ -307,7 +307,8 @@ function endpoint_fixed_device_type_array(options) {
 
       ret +=
         '{' +
-        this.deviceList[i].deviceId.toString() +
+        '0x' +
+        bin.int16ToHex(this.deviceList[i].deviceId) +
         ',' +
         this.deviceList[i].deviceVersion.toString() +
         '}'
