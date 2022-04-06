@@ -4,6 +4,7 @@ export interface VersionType {
   hash: number
   timestamp: number
   date: string
+  source?: boolean
 }
 
 export interface ErrorType {

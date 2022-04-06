@@ -200,7 +200,9 @@ export function sqliteTestFile(id: string, deleteExistingFile = true) {
  */
 export function zapVersionAsString() {
   let vo = zapVersion()
-  return `ver. ${vo.version}, featureLevel ${vo.featureLevel}, commit: ${vo.hash} from ${vo.date}`
+  return `ver. ${vo.version}, featureLevel ${vo.featureLevel}, commit: ${
+    vo.hash
+  } from ${vo.date}${vo.source ? ', mode: source' : ', mode: binary'}`
 }
 
 export function pathFromProjBaseDir(filePath: string): string {
@@ -248,6 +250,16 @@ export function zapVersion() {
       versionObject.date = ver.date
     } catch {
       logError('Could not retrieve version from .version.json')
+    }
+
+    try {
+      let readme = pathFromProjBaseDir('./README.md')
+      if (fs.existsSync(readme)) {
+        versionObject.source = true
+      }
+    } catch (err) {
+      console.log(err)
+      logError('Could not identify source vs binary mode.')
     }
   }
   return versionObject
@@ -393,7 +405,7 @@ export function isMatchingVersion(
  */
 export function versionsCheck() {
   let expectedNodeVersion = ['v14.x.x', 'v16.x.x']
-  let expectedElectronVersion = ['17.2.x']
+  let expectedElectronVersion = ['17.1.2']
   let nodeVersion = process.version
   let electronVersion = process.versions.electron
   let ret = true

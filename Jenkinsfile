@@ -1,3 +1,8 @@
+final boolean buildForMac = false
+final boolean runCypressTests = false
+final boolean triggerAdapterPackJob = false
+final boolean sonarScan = false
+
 pipeline
 {
     agent { node { label 'Build-Farm'
@@ -40,6 +45,7 @@ pipeline
                                 script
                         {
                                     sh 'npm run version-stamp'
+                                    sh 'npm run version'
                         }
                     }
                 }
@@ -173,19 +179,24 @@ pipeline
                 }
             }
         }
-        // stage('Cypress UI tests')
-        // {
-        //     steps
-        //     {
-        //         script
-        //         {
-        //             sh 'rm -rf ~/.zap'
-        //             sh 'xvfb-run -a npm run test:e2e-ci'
-        //         }
-        //     }
-        // }
+        stage('Cypress UI tests')
+        {
+            when { equals expected: true, actual: runCypressTests }
+            steps
+            {
+                script
+                {
+                    sh 'rm -rf ~/.zap'
+                    sh 'xvfb-run -a npm run test:e2e-ci'
+                }
+            }
+        }
         stage('Run Sonar Scan')
         {
+            when
+            {
+                allOf { branch 'silabs'; equals expected: true, actual: sonarScan }
+            }
             steps
             {
                 script
@@ -209,8 +220,9 @@ pipeline
         }
         stage('Building electron artifacts') {
             parallel {
-/*                 stage('Building for Mac')
+                stage('Building for Mac')
                 {
+                    when { equals expected: true, actual: buildForMac }
                     agent { label 'bgbuild-mac' }
                     steps
                     {
@@ -218,6 +230,7 @@ pipeline
                         {
                             withEnv(['PATH+LOCAL_BIN=/usr/local/bin',
                                      'PATH+NODE14=/usr/local/opt/node@14/bin',
+                                     //'DEBUG=electron-builder',
                                      'NODE_TLS_REJECT_UNAUTHORIZED=0']) // workaround for a self-signed cert issue on canvas 2.7.0 on mac
                             {
                                 withCredentials([usernamePassword(credentialsId: 'buildengineer',
@@ -238,7 +251,7 @@ pipeline
                         }
                     }
                 }
-                */                stage('Building for Windows / Linux')
+                stage('Building for Windows / Linux')
                 {
                     steps
                     {
@@ -276,8 +289,9 @@ pipeline
                         }
                     }
                 }
-/*                 stage('Archiving for macOS')
+                stage('Archiving for macOS')
                 {
+                    when { equals expected: true, actual: buildForMac }
                     agent { label 'bgbuild-mac' }
                     options { skipDefaultCheckout() }
                     steps
@@ -290,7 +304,7 @@ pipeline
                         }
                     }
                 }
-                */                stage('Eclipse packaging metadata')
+                stage('Eclipse packaging metadata')
                 {
                     steps
                     {
@@ -340,8 +354,9 @@ pipeline
                         }
                     }
                 }
-/*                 stage('Checking macOS exe')
+                stage('Checking macOS exe')
                 {
+                    when { equals expected: true, actual: buildForMac }
                     agent { label 'bgbuild-mac' }
                     options { skipDefaultCheckout() }
                     steps
@@ -374,7 +389,7 @@ pipeline
                         }
                     }
                 }
-                */                stage('Checking Linux exe')
+                stage('Checking Linux exe')
                 {
                     steps
                     {
@@ -421,12 +436,11 @@ pipeline
             }
         }
 
- /* commented out until we fix this. This never works.
         stage('Run Adapter_Pack_ZAP_64 on JNKAUS-16.silabs.com')
         {
             when
             {
-                branch 'silabs'
+                allOf { branch 'silabs'; equals expected: true, actual: triggerAdapterPackJob }
             }
             steps
             {
@@ -445,12 +459,12 @@ pipeline
                 }
             }
         }
- */
 
         stage('Workspace clean up')
         {
             parallel {
                 stage('Mac') {
+                    when { equals expected: true, actual: buildForMac }
                     agent { label 'bgbuild-mac' }
                     options { skipDefaultCheckout() }
                     steps { cleanWs() }

@@ -506,7 +506,7 @@ function determineAttributeDefaultValue(
  *    2.) If client is included on at least one endpoint add client atts.
  *    3.) If server is included on at least one endpoint add server atts.
  */
-async function collectAttributes(endpointTypes) {
+async function collectAttributes(endpointTypes, options) {
   let commandMfgCodes = [] // Array of { index, mfgCode } objects
   let clusterMfgCodes = [] // Array of { index, mfgCode } objects
   let attributeMfgCodes = [] // Array of { index, mfgCode } objects
@@ -714,19 +714,20 @@ async function collectAttributes(endpointTypes) {
         } else if (a.storage == dbEnum.storageOption.ram) {
           // Nothing to do
         } else {
-          throw new Error(
-            `Unknown storage type "${a.storage}" for attribute "${
-              a.name
-            }" of cluster "${c.name}" on endpoint ${
-              ept.endpointId
-            }.  Valid values are: ${[
-              dbEnum.storageOption.nvm,
-              dbEnum.storageOption.external,
-              dbEnum.storageOption.ram,
-            ]
-              .map((s) => `"${s}"`)
-              .join(', ')}`
-          )
+          if (!options.allowUnknownStorageOption)
+            throw new Error(
+              `Unknown storage type "${a.storage}" for attribute "${
+                a.name
+              }" of cluster "${c.name}" on endpoint ${
+                ept.endpointId
+              }.  Valid values are: ${[
+                dbEnum.storageOption.nvm,
+                dbEnum.storageOption.external,
+                dbEnum.storageOption.ram,
+              ]
+                .map((s) => `"${s}"`)
+                .join(', ')}`
+            )
         }
         if (a.isSingleton) mask.push('singleton')
         if (a.isWritable) mask.push('writable')
@@ -910,6 +911,10 @@ function endpoint_config(options) {
   }
   let db = this.global.db
   let sessionId = this.global.sessionId
+  let collectAttributesOptions = {
+    allowUnknownStorageOption:
+      options.hash.allowUnknownStorageOption === 'false' ? false : true,
+  }
   let promise = templateUtil
     .ensureZclPackageId(newContext)
     .then(() => queryEndpoint.selectAllEndpoints(db, sessionId))
@@ -996,7 +1001,9 @@ function endpoint_config(options) {
     .then((endpointTypes) =>
       collectAttributeSizes(db, this.global.zclPackageId, endpointTypes)
     )
-    .then((endpointTypes) => collectAttributes(endpointTypes))
+    .then((endpointTypes) =>
+      collectAttributes(endpointTypes, collectAttributesOptions)
+    )
     .then((collection) => {
       Object.assign(newContext, collection)
     })

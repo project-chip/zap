@@ -198,7 +198,11 @@ export function processCommandLineArguments(argv: string[]) {
     })
     .usage('Usage: $0 <command> [options] ... [file.zap] ...')
     .version(
-      `Version: ${zapVersion.version}\nFeature level: ${zapVersion.featureLevel}\nHash: ${zapVersion.hash}\nDate: ${zapVersion.date}`
+      `Version: ${zapVersion.version}\nFeature level: ${
+        zapVersion.featureLevel
+      }\nHash: ${zapVersion.hash}\nDate: ${zapVersion.date}${
+        zapVersion.source ? '\nMode: source' : '\nMode: binary'
+      }`
     )
     .help()
     .alias({
