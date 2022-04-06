@@ -20,7 +20,6 @@
  *
  * @module DB API: zcl loading queries
  */
-const { size } = require('underscore')
 const env = require('../util/env')
 const dbApi = require('./db-api.js')
 
