@@ -1060,7 +1060,15 @@ async function insertDataType(db, packageId, data) {
 async function insertNumber(db, packageId, data) {
   return dbApi.dbMultiInsert(
     db,
-    'INSERT INTO NUMBER ( NUMBER_ID, SIZE, IS_SIGNED) VALUES ( (SELECT DATA_TYPE_ID FROM DATA_TYPE WHERE PACKAGE_REF = ? AND NAME = ? AND DISCRIMINATOR_REF = ?), ?, ? )',
+    `
+INSERT INTO
+  NUMBER (NUMBER_ID, SIZE, IS_SIGNED)
+VALUES (
+  (SELECT DATA_TYPE_ID FROM DATA_TYPE WHERE PACKAGE_REF = ?
+    AND NAME = ?
+    AND DISCRIMINATOR_REF = ?),
+  ?,
+  ? )`,
     data.map((at) => [
       packageId,
       at.name,
@@ -1082,7 +1090,16 @@ async function insertNumber(db, packageId, data) {
 async function insertString(db, packageId, data) {
   return dbApi.dbMultiInsert(
     db,
-    'INSERT INTO STRING ( STRING_ID, IS_LONG, SIZE, IS_CHAR) VALUES ( (SELECT DATA_TYPE_ID FROM DATA_TYPE WHERE PACKAGE_REF = ? AND NAME = ? AND DISCRIMINATOR_REF = ?), ?, ?, ? )',
+    `
+INSERT INTO
+  STRING (STRING_ID, IS_LONG, SIZE, IS_CHAR)
+VALUES (
+  (SELECT DATA_TYPE_ID FROM DATA_TYPE WHERE PACKAGE_REF = ?
+    AND NAME = ?
+    AND DISCRIMINATOR_REF = ?),
+  ?,
+  ?,
+  ? )`,
     data.map((at) => [
       packageId,
       at.name,
@@ -1105,7 +1122,14 @@ async function insertString(db, packageId, data) {
 async function insertEnumAtomic(db, packageId, data) {
   return dbApi.dbMultiInsert(
     db,
-    'INSERT INTO ENUM ( ENUM_ID, SIZE) VALUES ( (SELECT DATA_TYPE_ID FROM DATA_TYPE WHERE PACKAGE_REF = ? AND NAME = ? AND DISCRIMINATOR_REF = ?), ?)',
+    `
+INSERT INTO
+  ENUM (ENUM_ID, SIZE)
+VALUES (
+  (SELECT DATA_TYPE_ID FROM DATA_TYPE WHERE PACKAGE_REF = ?
+    AND NAME = ?
+    AND DISCRIMINATOR_REF = ?),
+  ?)`,
     data.map((at) => [packageId, at.name, at.discriminator_ref, at.size])
   )
 }
@@ -1122,7 +1146,52 @@ async function insertEnumAtomic(db, packageId, data) {
 async function insertEnum(db, packageId, data) {
   return dbApi.dbMultiInsert(
     db,
-    'INSERT INTO ENUM ( ENUM_ID, SIZE) VALUES ( (SELECT DATA_TYPE_ID FROM DATA_TYPE WHERE PACKAGE_REF = ? AND NAME = ? AND DISCRIMINATOR_REF = ?), (SELECT CASE   WHEN ((SELECT SIZE FROM ENUM INNER JOIN DATA_TYPE ON ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ? AND DATA_TYPE.DISCRIMINATOR_REF = ?) IS NULL ) THEN    (SELECT SIZE FROM ENUM INNER JOIN DATA_TYPE ON ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ?) ELSE (SELECT SIZE FROM ENUM INNER JOIN DATA_TYPE ON ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ? AND DATA_TYPE.DISCRIMINATOR_REF = ?) END AS SIZE))',
+    `
+INSERT INTO
+  ENUM (ENUM_ID, SIZE)
+VALUES (
+  (SELECT DATA_TYPE_ID FROM DATA_TYPE WHERE PACKAGE_REF = ? AND NAME = ? AND DISCRIMINATOR_REF = ?),
+  (SELECT
+    CASE
+      WHEN (
+        (SELECT
+          SIZE
+         FROM
+          ENUM
+         INNER JOIN
+          DATA_TYPE
+         ON
+          ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID
+         WHERE
+          DATA_TYPE.PACKAGE_REF = ?
+          AND DATA_TYPE.NAME = ?
+          AND DATA_TYPE.DISCRIMINATOR_REF = ?)
+        IS NULL )
+        THEN 
+          (SELECT
+            SIZE
+          FROM
+            ENUM
+          INNER JOIN
+            DATA_TYPE
+          ON
+            ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID
+          WHERE
+            DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ?)
+      ELSE
+        (SELECT
+          SIZE
+         FROM
+          ENUM
+         INNER JOIN
+          DATA_TYPE
+         ON
+          ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID
+         WHERE
+          DATA_TYPE.PACKAGE_REF = ?
+          AND DATA_TYPE.NAME = ?
+          AND DATA_TYPE.DISCRIMINATOR_REF = ?)
+    END AS SIZE))`,
     data.map((at) => [
       packageId,
       at.name,
@@ -1149,7 +1218,30 @@ async function insertEnum(db, packageId, data) {
 async function insertEnumItems(db, packageId, data) {
   return dbApi.dbMultiInsert(
     db,
-    'INSERT INTO ENUM_ITEM ( ENUM_REF, NAME, VALUE, FIELD_IDENTIFIER) VALUES ( (SELECT ENUM_ID FROM ENUM INNER JOIN DATA_TYPE ON ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ? AND DATA_TYPE.DISCRIMINATOR_REF = (SELECT DISCRIMINATOR_ID FROM DISCRIMINATOR WHERE NAME = "ENUM" AND PACKAGE_REF=?)), ?, ?, ?)',
+    `
+  INSERT INTO
+    ENUM_ITEM (ENUM_REF, NAME, VALUE, FIELD_IDENTIFIER)
+  VALUES (
+    (SELECT
+      ENUM_ID
+     FROM
+      ENUM
+     INNER JOIN
+      DATA_TYPE
+     ON
+      ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID
+     WHERE DATA_TYPE.PACKAGE_REF = ?
+           AND DATA_TYPE.NAME = ?
+           AND DATA_TYPE.DISCRIMINATOR_REF = (SELECT
+                                                DISCRIMINATOR_ID
+                                              FROM
+                                                DISCRIMINATOR
+                                              WHERE
+                                                NAME = "ENUM"
+                                                AND PACKAGE_REF=?)),
+    ?,
+    ?,
+    ?)`,
     data.map((at) => [
       packageId,
       at.enumName,
@@ -1173,7 +1265,16 @@ async function insertEnumItems(db, packageId, data) {
 async function insertBitmapAtomic(db, packageId, data) {
   return dbApi.dbMultiInsert(
     db,
-    'INSERT INTO BITMAP ( BITMAP_ID, SIZE) VALUES ( (SELECT DATA_TYPE_ID FROM DATA_TYPE WHERE PACKAGE_REF = ? AND NAME = ? AND DISCRIMINATOR_REF = ?), ?)',
+    `
+INSERT INTO
+  BITMAP (BITMAP_ID, SIZE)
+VALUES (
+  (SELECT
+    DATA_TYPE_ID
+   FROM
+    DATA_TYPE
+   WHERE PACKAGE_REF = ? AND NAME = ? AND DISCRIMINATOR_REF = ?),
+  ?)`,
     data.map((at) => [packageId, at.name, at.discriminator_ref, at.size])
   )
 }
@@ -1189,7 +1290,58 @@ async function insertBitmapAtomic(db, packageId, data) {
 async function insertBitmap(db, packageId, data) {
   return dbApi.dbMultiInsert(
     db,
-    'INSERT INTO BITMAP ( BITMAP_ID, SIZE) VALUES ( (SELECT DATA_TYPE_ID FROM DATA_TYPE WHERE PACKAGE_REF = ? AND NAME = ? AND DISCRIMINATOR_REF = ?), (SELECT CASE WHEN ((SELECT SIZE FROM BITMAP INNER JOIN DATA_TYPE ON BITMAP.BITMAP_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ? AND DATA_TYPE.DISCRIMINATOR_REF = ?) IS NULL ) THEN    (SELECT SIZE FROM BITMAP  INNER JOIN DATA_TYPE ON BITMAP.BITMAP_ID  = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ?) ELSE (SELECT SIZE FROM BITMAP INNER JOIN DATA_TYPE ON BITMAP.BITMAP_ID  = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ? AND DATA_TYPE.DISCRIMINATOR_REF = ?) END AS SIZE))',
+    `
+  INSERT INTO
+    BITMAP (BITMAP_ID, SIZE) 
+  VALUES (
+    (SELECT
+      DATA_TYPE_ID
+     FROM
+      DATA_TYPE WHERE PACKAGE_REF = ?
+      AND NAME = ?
+      AND DISCRIMINATOR_REF = ?),
+    (SELECT
+      CASE
+        WHEN (
+          (SELECT
+            SIZE
+           FROM
+            BITMAP
+           INNER JOIN
+            DATA_TYPE
+           ON
+            BITMAP.BITMAP_ID = DATA_TYPE.DATA_TYPE_ID
+           WHERE
+            DATA_TYPE.PACKAGE_REF = ?
+            AND DATA_TYPE.NAME = ?
+            AND DATA_TYPE.DISCRIMINATOR_REF = ?)
+          IS NULL)
+          THEN
+            (SELECT
+              SIZE
+             FROM
+              BITMAP
+             INNER JOIN
+              DATA_TYPE
+             ON
+              BITMAP.BITMAP_ID  = DATA_TYPE.DATA_TYPE_ID
+             WHERE
+              DATA_TYPE.PACKAGE_REF = ?
+              AND DATA_TYPE.NAME = ?) 
+        ELSE
+          (SELECT
+            SIZE
+           FROM
+            BITMAP
+           INNER JOIN
+            DATA_TYPE
+           ON
+            BITMAP.BITMAP_ID  = DATA_TYPE.DATA_TYPE_ID
+           WHERE
+            DATA_TYPE.PACKAGE_REF = ?
+            AND DATA_TYPE.NAME = ?
+            AND DATA_TYPE.DISCRIMINATOR_REF = ?)
+      END AS SIZE))`,
     data.map((at) => [
       packageId,
       at.name,
@@ -1216,7 +1368,30 @@ async function insertBitmap(db, packageId, data) {
 async function insertBitmapFields(db, packageId, data) {
   return dbApi.dbMultiInsert(
     db,
-    'INSERT INTO BITMAP_FIELD ( BITMAP_REF, NAME, MASK, FIELD_IDENTIFIER) VALUES ( (SELECT BITMAP_ID FROM BITMAP INNER JOIN DATA_TYPE ON BITMAP.BITMAP_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ? AND DATA_TYPE.DISCRIMINATOR_REF = (SELECT DISCRIMINATOR_ID FROM DISCRIMINATOR WHERE NAME = "BITMAP" AND PACKAGE_REF=?)), ?, ?, ?)',
+    `
+  INSERT INTO
+    BITMAP_FIELD (BITMAP_REF, NAME, MASK, FIELD_IDENTIFIER)
+  VALUES (
+    (SELECT
+      BITMAP_ID
+     FROM
+      BITMAP
+     INNER JOIN
+      DATA_TYPE
+     ON
+      BITMAP.BITMAP_ID = DATA_TYPE.DATA_TYPE_ID
+     WHERE
+      DATA_TYPE.PACKAGE_REF = ?
+      AND DATA_TYPE.NAME = ?
+      AND DATA_TYPE.DISCRIMINATOR_REF = (SELECT
+                                          DISCRIMINATOR_ID
+                                         FROM
+                                          DISCRIMINATOR
+                                         WHERE
+                                          NAME = "BITMAP" AND PACKAGE_REF=?)),
+    ?,
+    ?,
+    ?)`,
     data.map((at) => [
       packageId,
       at.bitmapName,
@@ -1238,7 +1413,61 @@ async function insertBitmapFields(db, packageId, data) {
 async function insertStruct(db, packageId, data) {
   return dbApi.dbMultiInsert(
     db,
-    'INSERT INTO STRUCT ( STRUCT_ID, SIZE) VALUES ( (SELECT DATA_TYPE_ID FROM DATA_TYPE WHERE PACKAGE_REF = ? AND NAME = ? AND DISCRIMINATOR_REF = ?), (SELECT CASE   WHEN ((SELECT SIZE FROM STRUCT INNER JOIN DATA_TYPE ON STRUCT.STRUCT_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ? AND DATA_TYPE.DISCRIMINATOR_REF = ?) IS NULL ) THEN    (SELECT SIZE FROM STRUCT INNER JOIN DATA_TYPE ON STRUCT.STRUCT_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ?) ELSE (SELECT SIZE FROM STRUCT INNER JOIN DATA_TYPE ON STRUCT.STRUCT_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ? AND  DATA_TYPE.DISCRIMINATOR_REF = ?) END AS SIZE))',
+    `
+INSERT INTO
+  STRUCT (STRUCT_ID, SIZE)
+VALUES (
+  (SELECT
+    DATA_TYPE_ID
+   FROM
+    DATA_TYPE
+   WHERE
+    PACKAGE_REF = ?
+    AND NAME = ?
+    AND DISCRIMINATOR_REF = ?),
+  (SELECT
+    CASE 
+      WHEN (
+        (SELECT
+          SIZE
+         FROM
+          STRUCT
+         INNER JOIN
+          DATA_TYPE
+         ON
+          STRUCT.STRUCT_ID = DATA_TYPE.DATA_TYPE_ID
+         WHERE
+          DATA_TYPE.PACKAGE_REF = ?
+          AND DATA_TYPE.NAME = ?
+          AND DATA_TYPE.DISCRIMINATOR_REF = ?)
+        IS NULL )
+        THEN
+          (SELECT
+            SIZE
+           FROM
+            STRUCT
+           INNER JOIN
+            DATA_TYPE
+           ON
+            STRUCT.STRUCT_ID = DATA_TYPE.DATA_TYPE_ID
+           WHERE
+            DATA_TYPE.PACKAGE_REF = ?
+            AND DATA_TYPE.NAME = ?)
+      ELSE
+        (SELECT
+          SIZE
+         FROM
+          STRUCT
+         INNER JOIN
+          DATA_TYPE
+         ON
+          STRUCT.STRUCT_ID = DATA_TYPE.DATA_TYPE_ID
+         WHERE
+          DATA_TYPE.PACKAGE_REF = ?
+          AND DATA_TYPE.NAME = ?
+          AND 
+          DATA_TYPE.DISCRIMINATOR_REF = ?)
+    END AS SIZE))`,
     data.map((at) => [
       packageId,
       at.name,
@@ -1265,7 +1494,43 @@ async function insertStruct(db, packageId, data) {
 async function insertStructItems(db, packageId, data) {
   return dbApi.dbMultiInsert(
     db,
-    'INSERT INTO STRUCT_ITEM ( STRUCT_REF, NAME, FIELD_IDENTIFIER, IS_ARRAY, IS_ENUM, MIN_LENGTH, MAX_LENGTH, IS_WRITABLE, IS_NULLABLE, IS_OPTIONAL, IS_FABRIC_SENSITIVE, SIZE, DATA_TYPE_REF) VALUES ( (SELECT STRUCT_ID FROM STRUCT INNER JOIN DATA_TYPE ON STRUCT.STRUCT_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ? AND DATA_TYPE.DISCRIMINATOR_REF = (SELECT DISCRIMINATOR_ID FROM DISCRIMINATOR WHERE NAME = "STRUCT" AND PACKAGE_REF=?)), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, (SELECT DATA_TYPE_ID FROM DATA_TYPE WHERE DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ?))',
+    `
+  INSERT INTO
+    STRUCT_ITEM (STRUCT_REF, NAME, FIELD_IDENTIFIER, IS_ARRAY, IS_ENUM, MIN_LENGTH, MAX_LENGTH, IS_WRITABLE, IS_NULLABLE, IS_OPTIONAL, IS_FABRIC_SENSITIVE, SIZE, DATA_TYPE_REF)
+  VALUES (
+    (SELECT
+      STRUCT_ID
+     FROM
+      STRUCT
+     INNER JOIN
+      DATA_TYPE ON STRUCT.STRUCT_ID = DATA_TYPE.DATA_TYPE_ID
+     WHERE
+      DATA_TYPE.PACKAGE_REF = ?
+      AND DATA_TYPE.NAME = ?
+      AND DATA_TYPE.DISCRIMINATOR_REF = (SELECT
+                                          DISCRIMINATOR_ID
+                                         FROM
+                                          DISCRIMINATOR
+                                         WHERE
+                                          NAME = "STRUCT" AND PACKAGE_REF=?)),
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    ?,
+    (SELECT
+      DATA_TYPE_ID
+     FROM
+      DATA_TYPE
+     WHERE
+      DATA_TYPE.PACKAGE_REF = ?
+      AND DATA_TYPE.NAME = ?))`,
     data.map((at) => [
       packageId,
       at.structName,

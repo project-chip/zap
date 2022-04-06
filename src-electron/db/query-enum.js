@@ -216,9 +216,21 @@ async function selectEnumByName(db, name, packageId) {
   return dbApi
     .dbGet(
       db,
-      'SELECT ENUM.ENUM_ID, DATA_TYPE.NAME AS NAME, ENUM.SIZE AS SIZE FROM ENUM INNER JOIN DATA_TYPE ON ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID WHERE NAME = ? AND PACKAGE_REF = ? ORDER BY NAME'[
-      (name, packageId)
-      ]
+      `
+SELECT
+  ENUM.ENUM_ID,
+  DATA_TYPE.NAME AS NAME,
+  ENUM.SIZE AS SIZE 
+FROM
+  ENUM
+INNER JOIN
+  DATA_TYPE
+ON
+  ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID
+WHERE
+  NAME = ? AND PACKAGE_REF = ?
+ORDER BY NAME`,
+      [name, packageId]
     )
     .then(dbMapping.map.enum)
 }
