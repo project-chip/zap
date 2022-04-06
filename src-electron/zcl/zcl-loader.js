@@ -247,9 +247,25 @@ async function processZclPostLoading(db, packageId) {
   return queryCommand.updateCommandRequestResponseReferences(db, packageId)
 }
 
+/**
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @returns data type discriminator map
+ */
+async function getDiscriminatorMap(db, packageId) {
+  let typeMap = new Map()
+  let discriminators = await queryZcl.selectAllDiscriminators(db, packageId)
+  discriminators.forEach((d) => {
+    typeMap.set(d.name.toLowerCase(), d.id)
+  })
+  return typeMap
+}
+
 exports.loadZcl = loadZcl
 exports.recordToplevelPackage = recordToplevelPackage
 exports.recordVersion = recordVersion
 exports.processZclPostLoading = processZclPostLoading
 exports.loadIndividualFile = loadIndividualFile
 exports.qualifyZclFile = qualifyZclFile
+exports.getDiscriminatorMap = getDiscriminatorMap

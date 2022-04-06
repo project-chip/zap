@@ -877,11 +877,7 @@ function prepareDataType(a, dataType, typeMap) {
  * @returns Promise of inserted Data Types into the Data Type table.
  */
 async function processDataType(db, filePath, packageId, data, dataType) {
-  let typeMap = new Map()
-  let discriminators = await queryZcl.selectAllDiscriminators(db, packageId)
-  discriminators.forEach((d) => {
-    typeMap.set(d.name.toLowerCase(), d.id)
-  })
+  let typeMap = await zclLoader.getDiscriminatorMap(db, packageId)
 
   if (dataType == dbEnum.zclType.atomic) {
     let types = data[0].type
@@ -961,11 +957,7 @@ function prepareNumber(a, dataType) {
  * @returns Promise of inserted numbers into the number table.
  */
 async function processNumber(db, filePath, packageId, data) {
-  let typeMap = new Map()
-  let discriminators = await queryZcl.selectAllDiscriminators(db, packageId)
-  discriminators.forEach((d) => {
-    typeMap.set(d.name.toLowerCase(), d.id)
-  })
+  let typeMap = await zclLoader.getDiscriminatorMap(db, packageId)
   let numbers = data[0].type.filter(function (item) {
     return (
       !item.$.name.toLowerCase().includes(dbEnum.zclType.bitmap) &&
@@ -1010,11 +1002,7 @@ function prepareString(a, dataType) {
  * @returns Promise of inserted strings into the String table.
  */
 async function processString(db, filePath, packageId, data) {
-  let typeMap = new Map()
-  let discriminators = await queryZcl.selectAllDiscriminators(db, packageId)
-  discriminators.forEach((d) => {
-    typeMap.set(d.name.toLowerCase(), d.id)
-  })
+  let typeMap = await zclLoader.getDiscriminatorMap(db, packageId)
   let strings = data[0].type.filter(function (item) {
     return item.$.string && item.$.string.toLowerCase() == 'true'
   })
@@ -1052,11 +1040,7 @@ function prepareEnumOrBitmapAtomic(a, dataType) {
  * @returns A promise of inserted enums.
  */
 async function processEnumAtomic(db, filePath, packageId, data) {
-  let typeMap = new Map()
-  let discriminators = await queryZcl.selectAllDiscriminators(db, packageId)
-  discriminators.forEach((d) => {
-    typeMap.set(d.name.toLowerCase(), d.id)
-  })
+  let typeMap = await zclLoader.getDiscriminatorMap(db, packageId)
   let enums = data[0].type.filter(function (item) {
     return item.$.name.toLowerCase().includes('enum')
   })
@@ -1097,11 +1081,7 @@ function prepareEnumOrBitmap(a, dataType) {
  */
 async function processEnum(db, filePath, packageId, data) {
   env.logDebug(`${filePath}, ${packageId}: ${data.length} Enum Types.`)
-  let typeMap = new Map()
-  let discriminators = await queryZcl.selectAllDiscriminators(db, packageId)
-  discriminators.forEach((d) => {
-    typeMap.set(d.name.toLowerCase(), d.id)
-  })
+  let typeMap = await zclLoader.getDiscriminatorMap(db, packageId)
   return queryLoader.insertEnum(
     db,
     packageId,
@@ -1150,11 +1130,7 @@ async function processEnumItems(db, filePath, packageId, data) {
  * @returns A promise of inserted bitmaps.
  */
 async function processBitmapAtomic(db, filePath, packageId, data) {
-  let typeMap = new Map()
-  let discriminators = await queryZcl.selectAllDiscriminators(db, packageId)
-  discriminators.forEach((d) => {
-    typeMap.set(d.name.toLowerCase(), d.id)
-  })
+  let typeMap = await zclLoader.getDiscriminatorMap(db, packageId)
   let bitmaps = data[0].type.filter(function (item) {
     return item.$.name.toLowerCase().includes(dbEnum.zclType.bitmap)
   })
@@ -1181,11 +1157,7 @@ async function processBitmapAtomic(db, filePath, packageId, data) {
  */
 async function processBitmap(db, filePath, packageId, data) {
   env.logDebug(`${filePath}, ${packageId}: ${data.length} Bitmap Types.`)
-  let typeMap = new Map()
-  let discriminators = await queryZcl.selectAllDiscriminators(db, packageId)
-  discriminators.forEach((d) => {
-    typeMap.set(d.name.toLowerCase(), d.id)
-  })
+  let typeMap = await zclLoader.getDiscriminatorMap(db, packageId)
   return queryLoader.insertBitmap(
     db,
     packageId,
@@ -1250,11 +1222,7 @@ function prepareStruct(a, dataType) {
  */
 async function processStruct(db, filePath, packageId, data) {
   env.logDebug(`${filePath}, ${packageId}: ${data.length} Struct Types.`)
-  let typeMap = new Map()
-  let discriminators = await queryZcl.selectAllDiscriminators(db, packageId)
-  discriminators.forEach((d) => {
-    typeMap.set(d.name.toLowerCase(), d.id)
-  })
+  let typeMap = await zclLoader.getDiscriminatorMap(db, packageId)
   return queryLoader.insertStruct(
     db,
     packageId,
