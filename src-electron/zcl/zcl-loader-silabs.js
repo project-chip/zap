@@ -1606,7 +1606,9 @@ async function parseSingleZclFile(db, packageId, file, context) {
  * that will be resolved when all the XML files are done, or rejected if at least one fails.
  *
  * @param {*} db
- * @param {*} ctx
+ * @param {*} packageId
+ * @param {*} zclFiles
+ * @param {*} context
  * @returns Promise that resolves when all the individual promises of each file pass.
  */
 async function parseZclFiles(db, packageId, zclFiles, context) {

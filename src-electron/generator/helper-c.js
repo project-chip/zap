@@ -75,6 +75,14 @@ function asHex(rawValue, padding, nullValue) {
   }
 }
 
+/**
+ * This function is a helper function for asUnderlyingType and assists in
+ * returning the correct C type for the given data type
+ * @param {*} dataType
+ * @param {*} context
+ * @param {*} packageId
+ * @returns The appropriate C type for the given data type
+ */
 async function asUnderlyingTypeHelper(dataType, context, packageId) {
   try {
     if (
