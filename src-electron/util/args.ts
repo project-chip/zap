@@ -201,7 +201,7 @@ export function processCommandLineArguments(argv: string[]) {
       `Version: ${zapVersion.version}\nFeature level: ${
         zapVersion.featureLevel
       }\nHash: ${zapVersion.hash}\nDate: ${zapVersion.date}${
-        zapVersion.source ? '\nSource mode.' : ''
+        zapVersion.source ? '\nMode: source' : '\nMode: binary'
       }`
     )
     .help()

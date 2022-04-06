@@ -202,7 +202,7 @@ export function zapVersionAsString() {
   let vo = zapVersion()
   return `ver. ${vo.version}, featureLevel ${vo.featureLevel}, commit: ${
     vo.hash
-  } from ${vo.date}${vo.source ? ', source mode' : ''}`
+  } from ${vo.date}${vo.source ? ', mode: source' : ', mode: binary'}`
 }
 
 export function pathFromProjBaseDir(filePath: string): string {
