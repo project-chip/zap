@@ -1,6 +1,7 @@
 final boolean buildForMac = false
 final boolean runCypressTests = false
 final boolean triggerAdapterPackJob = false
+final boolean sonarScan = false
 
 pipeline
 {
@@ -192,6 +193,10 @@ pipeline
         }
         stage('Run Sonar Scan')
         {
+            when
+            {
+                allOf { branch 'silabs'; equals expected: true, actual: sonarScan }
+            }
             steps
             {
                 script
@@ -225,6 +230,7 @@ pipeline
                         {
                             withEnv(['PATH+LOCAL_BIN=/usr/local/bin',
                                      'PATH+NODE14=/usr/local/opt/node@14/bin',
+                                     //'DEBUG=electron-builder',
                                      'NODE_TLS_REJECT_UNAUTHORIZED=0']) // workaround for a self-signed cert issue on canvas 2.7.0 on mac
                             {
                                 withCredentials([usernamePassword(credentialsId: 'buildengineer',
