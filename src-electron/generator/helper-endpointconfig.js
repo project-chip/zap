@@ -863,7 +863,7 @@ function endpoint_config(options) {
   let sessionId = this.global.sessionId
   let collectAttributesOptions = {
     allowUnknownStorageOption:
-      options.hash.allowUnknownStorageOption === 'true',
+      options.hash.allowUnknownStorageOption === 'false' ? false : true,
   }
   let promise = templateUtil
     .ensureZclPackageId(newContext)
