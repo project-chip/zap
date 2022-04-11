@@ -13,7 +13,15 @@ describe('Add multiple clusters and search', () => {
     })
 
     cy.addEndpoint('CBA Thermostat (0x0301)', 'General')
+    cy.get('.vertical-align\\:middle > strong').should(
+      'contain',
+      'Endpoint - 1'
+    )
     cy.addEndpoint('Chatting Station (0x0601)', 'General')
+    cy.get('.vertical-align\\:middle > strong').should(
+      'contain',
+      'Endpoint - 2'
+    )
     cy.get(
       '#Telecommunication > .q-expansion-item__container > .q-item'
     ).click()
@@ -22,6 +30,10 @@ describe('Add multiple clusters and search', () => {
       .should('contain', 'Information')
       .and('contain', 'Data Sharing')
     cy.addEndpoint('Charging Unit (0x0204)', 'General')
+    cy.get('.vertical-align\\:middle > strong').should(
+      'contain',
+      'Endpoint - 3'
+    )
     cy.get('#General > .q-expansion-item__container > .q-item').click()
     cy.get('tbody')
       .children()
