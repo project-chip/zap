@@ -104,6 +104,7 @@
     "file-loader": "^6.2.0",
     "handlebars": "^4.7.7",
     "http-status-codes": "^2.1.4",
+    "installed-check": "^5.0.0",
     "lodash": "^4.17.21",
     "node-ipc": "^9.2.1",
     "pino": "^7.9.2",

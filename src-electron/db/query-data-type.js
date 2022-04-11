@@ -23,6 +23,9 @@ const dbApi = require('./db-api')
 const dbMapping = require('./db-mapping')
 const cacheKey = 'dataType'
 const dbCache = require('./db-cache')
+const queryZcl = require('./query-zcl')
+const envConfig = require('../util/env')
+const dbEnum = require('../../src-shared/db-enum.js')
 
 /**
  * Gathers the data type information of an entry based on data type id along
@@ -152,6 +155,65 @@ async function selectDataTypeByNameFromCache(db, name, packageId) {
   return cache.byName[name]
 }
 
+/**
+ * Return the size of the given value whether it be a reference to it in the data
+ * type table in the form of a number or be it the name of the type in the form
+ * if string.
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} value
+ * @returns The size of the given value
+ */
+async function selectSizeFromType(db, packageId, value) {
+  // Step 1: Extracting the data type based on type id or type name
+  let dataType = null
+  if (typeof value === 'number') {
+    dataType = await queryZcl.selectDataTypeById(db, value)
+  } else if (typeof value === 'string') {
+    dataType = await queryZcl.selectDataTypeByName(db, value, packageId)
+  }
+
+  // Step 2: Find the size based on the type of data
+  try {
+    if (
+      dataType &&
+      dataType.discriminatorName.toLowerCase() == dbEnum.zclType.bitmap
+    ) {
+      let bt = await queryZcl.selectBitmapByName(db, packageId, dataType.name)
+      return bt.size
+    } else if (
+      dataType &&
+      dataType.discriminatorName.toLowerCase() == dbEnum.zclType.enum
+    ) {
+      let et = await queryZcl.selectEnumByName(db, dataType.name, packageId)
+      return et.size
+    } else if (
+      dataType &&
+      dataType.discriminatorName.toLowerCase() == dbEnum.zclType.number
+    ) {
+      let nt = await queryZcl.selectNumberByName(db, packageId, dataType.name)
+      return nt.size
+    } else if (
+      dataType &&
+      dataType.discriminatorName.toLowerCase() == dbEnum.zclType.struct
+    ) {
+      return null
+    } else if (
+      dataType &&
+      dataType.discriminatorName.toLowerCase() == dbEnum.zclType.string
+    ) {
+      return null
+    } else {
+      return null
+    }
+  } catch (err) {
+    envConfig.logError(
+      'Could not find the size of type: ' + dataType.name + ' : ' + err
+    )
+  }
+}
+
 exports.selectDataTypeById = selectDataTypeById
 exports.selectDataTypeByName = selectDataTypeByName
 exports.selectAllDataTypes = selectAllDataTypes
+exports.selectSizeFromType = selectSizeFromType

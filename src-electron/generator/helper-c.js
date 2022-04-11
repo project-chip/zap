@@ -243,7 +243,7 @@ async function asBytes(value, type) {
     return templateUtil
       .ensureZclPackageId(this)
       .then((packageId) =>
-        queryZcl.selectAtomicSizeFromType(this.global.db, packageId, type)
+        queryZcl.selectSizeFromType(this.global.db, packageId, type)
       )
       .then((x) => {
         if (x == null) {

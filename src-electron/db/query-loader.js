@@ -485,10 +485,20 @@ async function insertClusterExtensions(db, packageId, knownPackages, data) {
             attributes.data.push(...attributeMap(lastId, packageId, atts))
           }
         } else {
-          // DANGER: We got here, but we don't have rows. Why not?
-          // Because clusters at this point have not yet been created? Odd.
+          // DANGER: We got here because we are adding a cluster extension for a
+          // cluster which is not defined. For eg:
+          // <clusterExtension code="0x0000">
+          // <attribute side="server" code="0x4000" define="SW_BUILD_ID"
+          //            type="CHAR_STRING" length="16" writable="false"
+          //            default="" optional="true"
+          //            introducedIn="zll-1.0-11-0037-10">sw build id</attribute>
+          // </clusterExtension>
+          // If a cluster with code 0x0000 does not exist then we run into this
+          // issue.
           env.logWarning(
-            `Attempting to insert cluster extension, but the cluster was not found: ${data[i].code}`
+            `Attempting to insert cluster extension for a cluster which does not
+            exist. Check clusterExtension meta data in xml file.
+            Cluster Code: ${data[i].code}`
           )
         }
       }

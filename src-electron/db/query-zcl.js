@@ -1350,7 +1350,6 @@ exports.selectBitmapClusters = selectBitmapClusters
 
 // Forwarded exports so we don't break API.
 exports.selectAllAtomics = queryAtomic.selectAllAtomics
-exports.selectAtomicSizeFromType = queryAtomic.selectAtomicSizeFromType
 exports.selectAtomicType = queryAtomic.selectAtomicType
 exports.selectAtomicById = queryAtomic.selectAtomicById
 
@@ -1377,3 +1376,5 @@ exports.selectAllDiscriminators = queryDiscriminator.selectAllDiscriminators
 exports.selectAllDataTypes = queryDataType.selectAllDataTypes
 exports.selectAllNumbers = queryNumber.selectAllNumbers
 exports.selectAllStrings = queryString.selectAllStrings
+exports.selectSizeFromType = queryDataType.selectSizeFromType
+exports.selectStringById = queryString.selectStringById

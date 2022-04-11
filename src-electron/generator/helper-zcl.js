@@ -1293,6 +1293,38 @@ function is_zcl_string(type) {
 }
 
 /**
+ * If helper that checks if a type is a string
+ *
+ * example:
+ * {{#if_is_string type}}
+ * type is string
+ * {{else}}
+ * type is not string
+ * {{/if_is_string}}
+ *
+ * @param {*} type
+ * @returns Promise of content.
+ */
+async function if_is_string(type, options) {
+  if (typeof type === 'number') {
+    // if type is a number then searching for the reference in the data type
+    // table
+    let dt = await queryZcl.selectDataTypeById(this.global.db, type)
+    if (dt.discriminatorName.toLowerCase() === 'string') {
+      return options.fn(this)
+    } else {
+      return options.inverse(this)
+    }
+  } else {
+    if (types.isString(type)) {
+      return options.fn(this)
+    } else {
+      return options.inverse(this)
+    }
+  }
+}
+
+/**
  * If helper that checks if a type is a bitmap
  *
  * example:
@@ -2376,3 +2408,4 @@ exports.if_is_struct = if_is_struct
 exports.if_mfg_specific_cluster = if_mfg_specific_cluster
 exports.zcl_commands_with_cluster_info = zcl_commands_with_cluster_info
 exports.zcl_commands_with_arguments = zcl_commands_with_arguments
+exports.if_is_string = if_is_string

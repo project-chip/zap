@@ -52,20 +52,6 @@ async function selectAllAtomics(db, packageId) {
   return rows.map(dbMapping.map.atomic)
 }
 
-async function selectAtomicSizeFromType(db, packageId, type) {
-  let row = await dbApi.dbGet(
-    db,
-    'SELECT ATOMIC_SIZE FROM ATOMIC WHERE PACKAGE_REF = ? AND NAME = ?',
-    // The types in the ATOMIC table are always lowercase.
-    [packageId, type.toLowerCase()]
-  )
-  if (row == null) {
-    return null
-  } else {
-    return row.ATOMIC_SIZE
-  }
-}
-
 /**
  * Locates atomic type based on a type name. Query is not case sensitive.
  *
@@ -162,34 +148,9 @@ async function selectAtomicByIdFromCache(db, id) {
   return cache.byId[id]
 }
 
-/**
- * Retrieves the size from atomic type.
- *
- * @param {*} db
- * @param {*} packageId
- * @param {*} type
- */
-async function selectAtomicSizeFromTypeFromCache(db, packageId, type) {
-  let cache
-  if (dbCache.isCached(cacheKey, packageId)) {
-    cache = dbCache.get(cacheKey, packageId)
-  } else {
-    cache = await createCache(db, packageId)
-  }
-  let at = cache.byName[type.toUpperCase()]
-  if (at == null) {
-    return null
-  } else {
-    return at.size
-  }
-}
-
 exports.selectAllAtomics = dbCache.cacheEnabled
   ? selectAllAtomicsFromCache
   : selectAllAtomics
-exports.selectAtomicSizeFromType = dbCache.cacheEnabled
-  ? selectAtomicSizeFromTypeFromCache
-  : selectAtomicSizeFromType
 exports.selectAtomicType = dbCache.cacheEnabled
   ? selectAtomicTypeFromCache
   : selectAtomicType
