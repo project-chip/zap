@@ -50,7 +50,8 @@ limitations under the License.
               class="text-amber"
               style="font-size: 1.5rem"
               @click="selectCluster(props.row)"
-            ></q-icon>
+            >
+            </q-icon>
             <q-popup-edit
               :disable="!doesClusterHaveAnyWarnings(props.row)"
               :cover="false"
@@ -115,6 +116,9 @@ limitations under the License.
           </q-td>
           <q-td key="label" :props="props" auto-width>
             {{ props.row.label }}
+            <q-tooltip>
+              {{ props.row.caption }}
+            </q-tooltip>
           </q-td>
           <q-td key="requiredCluster" :props="props">
             {{ isClusterRequired(props.row.id) }}
