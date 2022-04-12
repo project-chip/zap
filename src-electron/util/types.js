@@ -57,10 +57,8 @@ async function typeSizeAttribute(db, zclPackageId, at, defaultValue = null) {
       }
       return 0
     }
-    sizeType = at.typeInfo.atomicType
-  } else {
-    sizeType = at.type
   }
+  sizeType = at.type
   let size = await queryZcl.selectSizeFromType(db, zclPackageId, sizeType)
 
   if (size) {

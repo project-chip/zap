@@ -52,6 +52,31 @@ async function selectNumberByName(db, packageId, name) {
 }
 
 /**
+ * Select an number matched by id.
+ *
+ * @param db
+ * @param name
+ * @returns number or undefined
+ */
+async function selectNumberById(db, id) {
+  return dbApi
+    .dbGet(
+      db,
+      `
+  SELECT
+    NUMBER.NUMBER_ID,
+    NUMBER.IS_SIGNED,
+    DATA_TYPE.NAME AS NAME,
+    NUMBER.SIZE AS SIZE
+  FROM NUMBER
+  INNER JOIN DATA_TYPE ON NUMBER.NUMBER_ID = DATA_TYPE.DATA_TYPE_ID
+  WHERE NUMBER.NUMBER_ID = ?`,
+      [id]
+    )
+    .then(dbMapping.map.number)
+}
+
+/**
  * Select all numbers.
  *
  * @param db
@@ -96,3 +121,4 @@ async function selectNumberByNameFromCache(db, packageId, name) {
 
 exports.selectNumberByName = selectNumberByName
 exports.selectAllNumbers = selectAllNumbers
+exports.selectNumberById = selectNumberById

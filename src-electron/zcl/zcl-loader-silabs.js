@@ -1004,7 +1004,10 @@ function prepareString(a, dataType) {
 async function processString(db, filePath, packageId, data) {
   let typeMap = await zclLoader.getDiscriminatorMap(db, packageId)
   let strings = data[0].type.filter(function (item) {
-    return item.$.string && item.$.string.toLowerCase() == 'true'
+    return (
+      (item.$.string && item.$.string.toLowerCase() == 'true') ||
+      (item.$.name && item.$.name.toLowerCase().includes('string'))
+    )
   })
   env.logDebug(`${filePath}, ${packageId}: ${data.length} String Types.`)
   return queryLoader.insertString(
@@ -1242,8 +1245,8 @@ async function processStruct(db, filePath, packageId, data) {
 async function processStructItems(db, filePath, packageId, data) {
   env.logDebug(`${filePath}, ${packageId}: ${data.length} Struct Items.`)
   let structItems = []
-  let lastFieldId = -1
   data.forEach((si) => {
+    let lastFieldId = -1
     if ('item' in si) {
       si.item.forEach((item) => {
         let defaultFieldId = lastFieldId + 1

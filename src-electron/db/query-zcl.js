@@ -400,20 +400,25 @@ async function selectAllStructItemsById(db, id) {
       db,
       `
 SELECT
-  FIELD_IDENTIFIER,
-  NAME,
-  DATA_TYPE_REF AS TYPE,
-  STRUCT_REF,
-  IS_ARRAY,
-  IS_ENUM,
-  MIN_LENGTH,
-  MAX_LENGTH,
-  IS_WRITABLE,
-  IS_NULLABLE,
-  IS_OPTIONAL,
-  IS_FABRIC_SENSITIVE
+  STRUCT_ITEM.FIELD_IDENTIFIER,
+  STRUCT_ITEM.NAME,
+  STRUCT_ITEM.DATA_TYPE_REF AS TYPE,
+  DATA_TYPE.NAME AS DATA_TYPE_REF_NAME,
+  STRUCT_ITEM.STRUCT_REF,
+  STRUCT_ITEM.IS_ARRAY,
+  STRUCT_ITEM.IS_ENUM,
+  STRUCT_ITEM.MIN_LENGTH,
+  STRUCT_ITEM.MAX_LENGTH,
+  STRUCT_ITEM.IS_WRITABLE,
+  STRUCT_ITEM.IS_NULLABLE,
+  STRUCT_ITEM.IS_OPTIONAL,
+  STRUCT_ITEM.IS_FABRIC_SENSITIVE
 FROM
   STRUCT_ITEM
+INNER JOIN
+  DATA_TYPE
+ON
+  STRUCT_ITEM.DATA_TYPE_REF = DATA_TYPE.DATA_TYPE_ID
 WHERE STRUCT_REF = ?
 ORDER BY
   FIELD_IDENTIFIER`,
@@ -438,6 +443,7 @@ SELECT
   SI.FIELD_IDENTIFIER,
   SI.NAME,
   SI.DATA_TYPE_REF AS TYPE,
+  DATA_TYPE.NAME AS DATA_TYPE_REF_NAME,
   SI.STRUCT_REF,
   SI.IS_ARRAY,
   SI.IS_ENUM,
@@ -1378,3 +1384,5 @@ exports.selectAllNumbers = queryNumber.selectAllNumbers
 exports.selectAllStrings = queryString.selectAllStrings
 exports.selectSizeFromType = queryDataType.selectSizeFromType
 exports.selectStringById = queryString.selectStringById
+exports.selectStringByName = queryString.selectStringByName
+exports.selectNumberById = queryNumber.selectNumberById

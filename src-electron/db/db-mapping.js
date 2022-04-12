@@ -297,6 +297,7 @@ exports.map = {
       isOptional: dbApi.fromDbBool(x.IS_OPTIONAL),
       isFabricSensitive: dbApi.fromDbBool(x.IS_FABRIC_SENSITIVE),
       dataTypeReference: x.TYPE,
+      dataTypeReferenceName: x.DATA_TYPE_REF_NAME,
     }
   },
 

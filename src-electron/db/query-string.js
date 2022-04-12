@@ -76,5 +76,38 @@ async function selectStringById(db, id) {
     .then(dbMapping.map.string)
 }
 
+/**
+ * Select String by name.
+ *
+ * @param db
+ * @param name
+ * @param packageId
+ * @returns String
+ */
+async function selectStringByName(db, name, packageId) {
+  return dbApi
+    .dbGet(
+      db,
+      `
+   SELECT
+     STRING.STRING_ID,
+     STRING.IS_LONG,
+     STRING.IS_CHAR,
+     STRING.SIZE AS SIZE,
+     DATA_TYPE.NAME AS NAME
+   FROM
+     STRING
+   INNER JOIN
+     DATA_TYPE 
+   ON
+     STRING.STRING_ID = DATA_TYPE.DATA_TYPE_ID
+   WHERE
+     DATA_TYPE.NAME = ?
+     AND DATA_TYPE.PACKAGE_REF = ?`,
+      [name, packageId]
+    )
+    .then(dbMapping.map.string)
+}
 exports.selectAllStrings = selectAllStrings
 exports.selectStringById = selectStringById
+exports.selectStringByName = selectStringByName

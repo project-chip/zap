@@ -405,6 +405,33 @@ function add_prefix_to_all_strings(str, prefixStr) {
   return res
 }
 
+/**
+ *
+ * @returns A number which is result of multiplying all the arguments given
+ */
+function multiply() {
+  let nums = Array.prototype.slice.call(arguments, 0, -1)
+  return nums.reduce((prev, next) => prev * next, 1)
+}
+
+/**
+ *
+ * @param {*} val
+ * @returns true if a string has an underscore in it
+ */
+function is_string_underscored(val) {
+  return val && typeof val === 'string' ? val.includes('_') : false
+}
+
+/**
+ *
+ * @param {*} val
+ * @returns val in uppercase
+ */
+function as_uppercase(val) {
+  return val ? val.toUpperCase() : ''
+}
+
 const dep = templateUtil.deprecatedHelper
 
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
@@ -445,3 +472,6 @@ exports.is_defined = is_defined
 exports.fail = fail
 exports.replace_string = replace_string
 exports.add_prefix_to_all_strings = add_prefix_to_all_strings
+exports.multiply = multiply
+exports.is_string_underscored = is_string_underscored
+exports.as_uppercase = as_uppercase
