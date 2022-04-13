@@ -76,7 +76,23 @@ async function selectAllStructsFromCache(db, packageId) {
 
 async function selectStructById(db, id) {
   return dbApi
-    .dbGet(db, 'SELECT STRUCT_ID, NAME FROM STRUCT WHERE STRUCT_ID = ?', [id])
+    .dbGet(
+      db,
+      `
+SELECT 
+  STRUCT.STRUCT_ID,
+  DATA_TYPE.NAME,
+  DATA_TYPE.DISCRIMINATOR_REF
+FROM
+  STRUCT
+INNER JOIN
+    DATA_TYPE
+ON
+  STRUCT.STRUCT_ID = DATA_TYPE.DATA_TYPE_ID
+WHERE
+  STRUCT_ID = ?`,
+      [id]
+    )
     .then(dbMapping.map.struct)
 }
 
@@ -102,7 +118,7 @@ SELECT
 FROM
   STRUCT
 INNER JOIN
-  DATA_TYPE ON BITMAP.BITMAP_ID = DATA_TYPE.DATA_TYPE_ID
+  DATA_TYPE ON STRUCT.STRUCT_ID = DATA_TYPE.DATA_TYPE_ID
 WHERE
   NAME = ?
   AND PACKAGE_REF = ?

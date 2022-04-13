@@ -184,7 +184,23 @@ ORDER BY EI.ENUM_REF, EI.FIELD_IDENTIFIER`,
  */
 async function selectEnumById(db, id) {
   return dbApi
-    .dbGet(db, 'SELECT ENUM_ID, NAME, TYPE FROM ENUM WHERE ENUM_ID = ?', [id])
+    .dbGet(
+      db,
+      `
+SELECT
+  ENUM.ENUM_ID,
+  DATA_TYPE.NAME,
+  ENUM.SIZE
+FROM
+  ENUM
+INNER JOIN
+  DATA_TYPE
+ON
+  ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID
+WHERE
+  ENUM_ID = ?`,
+      [id]
+    )
     .then(dbMapping.map.enum)
 }
 

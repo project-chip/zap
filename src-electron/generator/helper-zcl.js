@@ -1465,11 +1465,11 @@ async function if_is_struct(type, options) {
     .ensureZclPackageId(this)
     .then((packageId) =>
       type && typeof type === 'string'
-        ? queryZcl.selectStringByName(this.global.db, type, packageId)
+        ? queryZcl.selectStructByName(this.global.db, type, packageId)
         : null
     )
     .then((res) =>
-      res ? res : queryZcl.selectStringById(this.global.db, type)
+      res ? res : queryZcl.selectStructById(this.global.db, type)
     )
     .then((res) =>
       res || type.startsWith('map') ? options.fn(this) : options.inverse(this)

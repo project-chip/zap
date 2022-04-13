@@ -298,6 +298,7 @@ exports.map = {
       isFabricSensitive: dbApi.fromDbBool(x.IS_FABRIC_SENSITIVE),
       dataTypeReference: x.TYPE,
       dataTypeReferenceName: x.DATA_TYPE_REF_NAME,
+      discriminatorName: x.DISCRIMINATOR_NAME,
     }
   },
 

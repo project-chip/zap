@@ -740,6 +740,11 @@ async function collectAttributes(endpointTypes, options) {
           zap_type = 'STRUCT'
         } else if (a.typeInfo.type == dbEnum.zclType.enum && a.typeInfo.size) {
           zap_type = 'ENUM' + a.typeInfo.size * 8
+        } else if (
+          a.typeInfo.type == dbEnum.zclType.bitmap &&
+          a.typeInfo.size
+        ) {
+          zap_type = 'BITMAP' + a.typeInfo.size * 8
         }
         let attr = {
           id: asMEI(a.manufacturerCode, a.code), // attribute code

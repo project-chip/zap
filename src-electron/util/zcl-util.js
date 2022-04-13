@@ -257,7 +257,13 @@ async function calculateBytesForStructs(res, options, db, packageId) {
         let promises = []
         items.forEach((item) =>
           promises.push(
-            dataTypeCharacterFormatter(db, packageId, item, options, type)
+            dataTypeCharacterFormatter(
+              db,
+              packageId,
+              item,
+              options,
+              item.discriminatorName.toLowerCase()
+            )
           )
         )
         return Promise.all(promises)
@@ -267,7 +273,9 @@ async function calculateBytesForStructs(res, options, db, packageId) {
       )
       .catch((err) => {
         env.logError(
-          'Could not find size of struct in' +
+          'Could not find size of struct ' +
+            res +
+            ' in' +
             ' calculate_size_for_structs: ' +
             err
         )

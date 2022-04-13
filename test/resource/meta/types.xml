@@ -92,7 +92,7 @@ limitations under the License.
   <struct name="SimpleStruct">
     <cluster code="0xABCD"/>
     <cluster code="0xABCE"/>
-    <item name="a" type="UINT8U" isNullable="true"/>
+    <item name="a" type="INT8U" isNullable="true"/>
     <item name="b" type="BOOLEAN"/>
     <item name="c" enum="true" type="ENUM8"/>
     <item name="d" type="OCTET_STRING"/>
@@ -101,50 +101,50 @@ limitations under the License.
 
   <struct name="StructWithArray">
     <cluster code="0xABCD"/>
-    <item name="a" type="UINT8U"/>
+    <item name="a" type="INT8U"/>
     <item name="b" type="BOOLEAN"/>
-    <item name="c" type="UINT8U" array="true"/>
+    <item name="c" type="INT8U" array="true"/>
   </struct>   
 
   <struct name="NestedStruct">
-    <item name="a" type="UINT8U"/>
+    <item name="a" type="INT8U"/>
     <item name="b" type="BOOLEAN" isNullable="true"/>
     <item name="c" type="SimpleStruct"/>
    </struct>
 
    <struct name="A">
-     <item name="x" type="UINT8U"/>
+     <item name="x" type="INT8U"/>
      <item name="b" type="B"/>
      <item name="c" type="C"/>
    </struct>
    <struct name="B">
-     <item name="x" type="UINT8U"/>
+     <item name="x" type="INT8U"/>
      <item name="d" type="D"/>
    </struct>
    <struct name="C">
-     <item name="x" type="UINT8U"/>
+     <item name="x" type="INT8U"/>
    </struct>
    <struct name="D">
-     <item name="x" type="UINT8U"/>
+     <item name="x" type="INT8U"/>
      <item name="c" type="C" isFabricSensitive="true"/>
    </struct>
 
   <struct name="Nest">
-    <item name="simple1" type="UINT8U"/>
-    <item name="array" type="UINT8U" array="true" isFabricSensitive="true"/>
+    <item name="simple1" type="INT8U"/>
+    <item name="array" type="INT8U" array="true" isFabricSensitive="true"/>
   </struct>
   <struct name="DoubleNest">
-    <item name="simple1" type="UINT8U"/>
+    <item name="simple1" type="INT8U"/>
     <item name="complex" type="Nest" array="true"/>
   </struct>
   <struct name="FabricScoped">
     <item name="fab_idx" type="FABRIC_IDX"/>
   </struct>
 
-  <bitmap name="TestBitmap" type="UINT8U">
+  <bitmap name="TestBitmap" type="INT8U">
     <field name="f1" mask="0x01"/>
   </bitmap>
-  <bitmap name="ClusterBitmap" type="UINT16U">
+  <bitmap name="ClusterBitmap" type="INT16U">
     <cluster code="0xABCD"/>
     <field name="f1" mask="0x01"/>
   </bitmap>

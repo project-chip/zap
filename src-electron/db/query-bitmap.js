@@ -109,10 +109,11 @@ async function selectBitmapById(db, id) {
       db,
       `
 SELECT
-  BITMAP_ID,
-  NAME,
-  TYPE
+  BITMAP.BITMAP_ID,
+  DATA_TYPE.NAME AS NAME,
+  BITMAP.SIZE
 FROM BITMAP
+INNER JOIN DATA_TYPE ON BITMAP.BITMAP_ID = DATA_TYPE.DATA_TYPE_ID
 WHERE BITMAP_ID = ?`,
       [id]
     )
