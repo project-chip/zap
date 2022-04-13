@@ -40,16 +40,20 @@ const fabricIndexType = 'fabric_idx'
  * @returns Promise of content.
  */
 async function zcl_bitmaps(options) {
-  let packageId = await templateUtil.ensureZclPackageId(this)
+  let packageIds = await templateUtil.ensureZclPackageIds(this)
   let ens
   if (this.id != null) {
-    ens = await queryZcl.selectClusterBitmaps(
-      this.global.db,
-      packageId,
-      this.id
-    )
+    ens = await Promise.all(
+      packageIds.map((packageId) =>
+        queryZcl.selectClusterBitmaps(this.global.db, packageId, this.id)
+      )
+    ).then((x) => x.flat())
   } else {
-    ens = await queryZcl.selectAllBitmaps(this.global.db, packageId)
+    ens = await Promise.all(
+      packageIds.map((packageId) =>
+        queryZcl.selectAllBitmaps(this.global.db, packageId)
+      )
+    ).then((x) => x.flat())
   }
   let promise = templateUtil.collectBlocks(ens, options, this)
   return templateUtil.templatePromise(this.global, promise)
@@ -76,12 +80,16 @@ function zcl_bitmap_items(options) {
  * @returns Promise of content.
  */
 async function zcl_enums(options) {
-  let packageId = await templateUtil.ensureZclPackageId(this)
+  let packageIds = await templateUtil.ensureZclPackageIds(this)
   let ens
   if (this.id != null) {
-    ens = await queryZcl.selectClusterEnums(this.global.db, packageId, this.id)
+    ens = await queryZcl.selectClusterEnums(this.global.db, packageIds, this.id)
   } else {
-    ens = await queryZcl.selectAllEnums(this.global.db, packageId)
+    ens = await Promise.all(
+      packageIds.map((packageId) =>
+        queryZcl.selectAllEnums(this.global.db, packageId)
+      )
+    ).then((x) => x.flat())
   }
   let promise = templateUtil.collectBlocks(ens, options, this)
   return templateUtil.templatePromise(this.global, promise)
@@ -99,18 +107,18 @@ async function zcl_enums(options) {
 async function zcl_structs(options) {
   let checkForDoubleNestedArray =
     options.hash.checkForDoubleNestedArray == 'true'
-  let packageId = await templateUtil.ensureZclPackageId(this)
+  let packageIds = await templateUtil.ensureZclPackageIds(this)
   let structs
   if (this.id != null) {
     structs = await queryZcl.selectClusterStructsWithItems(
       this.global.db,
-      packageId,
+      packageIds,
       this.id
     )
   } else {
     structs = await queryZcl.selectAllStructsWithItems(
       this.global.db,
-      packageId
+      packageIds
     )
   }
   structs = await zclUtil.sortStructsByDependency(structs)
@@ -147,7 +155,7 @@ async function zcl_structs(options) {
           let sis = await queryZcl.selectAllStructItemsByStructName(
             this.global.db,
             i.type,
-            packageId
+            packageIds
           )
           if (sis.length > 0) {
             for (const ss of sis) {
@@ -184,7 +192,7 @@ function zcl_enum_items(options) {
 async function zcl_struct_items(options) {
   let checkForDoubleNestedArray =
     options.hash.checkForDoubleNestedArray == 'true'
-  let packageId = await templateUtil.ensureZclPackageId(this)
+  let packageIds = await templateUtil.ensureZclPackageIds(this)
   let sis = await queryZcl.selectAllStructItemsById(this.global.db, this.id)
   if (checkForDoubleNestedArray) {
     for (const si of sis) {
@@ -193,7 +201,7 @@ async function zcl_struct_items(options) {
       let structItems = await queryZcl.selectAllStructItemsByStructName(
         this.global.db,
         si.type,
-        packageId
+        packageIds
       )
       if (structItems.length > 0) {
         for (const s of structItems) {
@@ -214,9 +222,9 @@ async function zcl_struct_items(options) {
  * @returns Promise of content.
  */
 async function zcl_struct_items_by_struct_name(name, options) {
-  let packageId = await templateUtil.ensureZclPackageId(this)
+  let packageIds = await templateUtil.ensureZclPackageIds(this)
   let promise = queryZcl
-    .selectAllStructItemsByStructName(this.global.db, name, packageId)
+    .selectAllStructItemsByStructName(this.global.db, name, packageIds)
     .then((st) => templateUtil.collectBlocks(st, options, this))
   return templateUtil.templatePromise(this.global, promise)
 }
@@ -229,10 +237,15 @@ async function zcl_struct_items_by_struct_name(name, options) {
  */
 function zcl_device_types(options) {
   let promise = templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) =>
-      queryZcl.selectAllDeviceTypes(this.global.db, packageId)
+    .ensureZclPackageIds(this)
+    .then((packageIds) =>
+      Promise.all(
+        packageIds.map((packageId) =>
+          queryZcl.selectAllDeviceTypes(this.global.db, packageId)
+        )
+      )
     )
+    .then((deviceTypes) => deviceTypes.flat())
     .then((cl) => templateUtil.collectBlocks(cl, options, this))
   return templateUtil.templatePromise(this.global, promise)
 }
@@ -263,17 +276,13 @@ async function zcl_clusters(options) {
  */
 function zcl_commands(options) {
   let promise = templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) => {
+    .ensureZclPackageIds(this)
+    .then((packageIds) => {
       if ('id' in this) {
         // We're functioning inside a nested context with an id, so we will only query for this cluster.
-        return queryCommand.selectCommandsByClusterId(
-          this.global.db,
-          this.id,
-          packageId
-        )
+        return queryCommand.selectCommandsByClusterId(this.global.db, this.id)
       } else {
-        return queryCommand.selectAllCommands(this.global.db, packageId)
+        return queryCommand.selectAllCommands(this.global.db, packageIds)
       }
     })
     .then((cmds) => templateUtil.collectBlocks(cmds, options, this))
@@ -287,10 +296,10 @@ function zcl_commands(options) {
  * @returns Promise of content.
  */
 async function zcl_commands_with_cluster_info(options) {
-  let packageId = await templateUtil.ensureZclPackageId(this)
+  let packageIds = await templateUtil.ensureZclPackageIds(this)
   let cmds = await queryCommand.selectAllCommandsWithClusterInfo(
     this.global.db,
-    packageId
+    packageIds
   )
   let promise = templateUtil.collectBlocks(cmds, options, this)
   return templateUtil.templatePromise(this.global, promise)
@@ -303,27 +312,35 @@ async function zcl_commands_with_cluster_info(options) {
  */
 async function zcl_commands_with_arguments(options) {
   let sortBy = options.hash.sortBy
-  let packageId = await templateUtil.ensureZclPackageId(this)
-  let cmds = await queryCommand.selectAllCommandsWithArguments(
-    this.global.db,
-    packageId
-  )
-  if ('signature' == sortBy) {
-    for (const cmd of cmds) {
-      let sig = await zclUtil.createCommandSignature(
+  let packageIds = await templateUtil.ensureZclPackageIds(this)
+
+  let cmds = await Promise.all(
+    packageIds.map(async (packageId) => {
+      let cmdsPerPackageId = await queryCommand.selectAllCommandsWithArguments(
         this.global.db,
-        packageId,
-        cmd
+        packageId
       )
-      cmd.signature = sig.signature
-      cmd.isSignatureSimple = sig.isSimple
-    }
-    cmds.sort((a, b) => {
-      if (a.isSignatureSimple && !b.isSignatureSimple) return -1
-      if (!a.isSignatureSimple && b.isSignatureSimple) return 1
-      return a.signature.localeCompare(b.signature)
+      if ('signature' == sortBy) {
+        for (const cmd of cmdsPerPackageId) {
+          let sig = await zclUtil.createCommandSignature(
+            this.global.db,
+            packageId,
+            cmd
+          )
+          cmd.signature = sig.signature
+          cmd.isSignatureSimple = sig.isSimple
+        }
+        cmdsPerPackageId.sort((a, b) => {
+          if (a.isSignatureSimple && !b.isSignatureSimple) return -1
+          if (!a.isSignatureSimple && b.isSignatureSimple) return 1
+          return a.signature.localeCompare(b.signature)
+        })
+      }
+
+      return cmdsPerPackageId
     })
-  }
+  ).then((x) => x.flat())
+
   let promise = templateUtil.collectBlocks(cmds, options, this)
   return templateUtil.templatePromise(this.global, promise)
 }
@@ -341,7 +358,7 @@ async function zcl_commands_with_arguments(options) {
  */
 function zcl_commands_by_source(options, source) {
   let promise = templateUtil
-    .ensureZclPackageId(this)
+    .ensureZclPackageId(this) // leaving to packageId since not used in template.
     .then((packageId) => {
       if ('id' in this) {
         // We're functioning inside a nested context with an id, so we will only query for this cluster.
@@ -399,17 +416,17 @@ function zcl_commands_source_server(options) {
  * @returns Promise of content.
  */
 async function zcl_events(options) {
-  let packageId = await templateUtil.ensureZclPackageId(this)
+  let packageIds = await templateUtil.ensureZclPackageIds(this)
   let events
   if ('id' in this) {
     // We're functioning inside a nested context with an id, so we will only query for this cluster.
     events = await queryEvent.selectEventsByClusterId(
       this.global.db,
       this.id,
-      packageId
+      packageIds
     )
   } else {
-    events = await queryEvent.selectAllEvents(this.global.db, packageId)
+    events = await queryEvent.selectAllEvents(this.global.db, packageIds)
   }
 
   let ps = events.map(async (ev) => {
@@ -439,9 +456,9 @@ async function zcl_events(options) {
  */
 function zcl_command_tree(options) {
   let promise = templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) =>
-      queryCommand.selectCommandTree(this.global.db, packageId)
+    .ensureZclPackageIds(this)
+    .then((packageIds) =>
+      queryCommand.selectCommandTree(this.global.db, packageIds)
     )
     .then((cmds) => {
       // Now reduce the array by collecting together arguments.
@@ -530,9 +547,9 @@ function zcl_command_tree(options) {
  */
 function zcl_global_commands(options) {
   let promise = templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) =>
-      queryCommand.selectAllGlobalCommands(this.global.db, packageId)
+    .ensureZclPackageIds(this)
+    .then((packageIds) =>
+      queryCommand.selectAllGlobalCommands(this.global.db, packageIds)
     )
     .then((cmds) => templateUtil.collectBlocks(cmds, options, this))
   return templateUtil.templatePromise(this.global, promise)
@@ -550,17 +567,17 @@ function zcl_attributes(options) {
   // If used at the toplevel, 'this' is the toplevel context object.
   // when used at the cluster level, 'this' is a cluster
   let promise = templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) => {
+    .ensureZclPackageIds(this)
+    .then((packageIds) => {
       if ('id' in this) {
         // We're functioning inside a nested context with an id, so we will only query for this cluster.
         return queryZcl.selectAttributesByClusterIdIncludingGlobal(
           this.global.db,
           this.id,
-          packageId
+          packageIds
         )
       } else {
-        return queryZcl.selectAllAttributes(this.global.db, packageId)
+        return queryZcl.selectAllAttributes(this.global.db, packageIds)
       }
     })
     .then((atts) => templateUtil.collectBlocks(atts, options, this))
@@ -579,20 +596,20 @@ function zcl_attributes_client(options) {
   // If used at the toplevel, 'this' is the toplevel context object.
   // when used at the cluster level, 'this' is a cluster
   let promise = templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) => {
+    .ensureZclPackageIds(this)
+    .then((packageIds) => {
       if ('id' in this) {
         return queryZcl.selectAttributesByClusterIdAndSideIncludingGlobal(
           this.global.db,
           this.id,
-          packageId,
+          packageIds,
           dbEnum.side.client
         )
       } else {
         return queryZcl.selectAllAttributesBySide(
           this.global.db,
           dbEnum.side.client,
-          packageId
+          packageIds
         )
       }
     })
@@ -612,21 +629,21 @@ function zcl_attributes_server(options) {
   // If used at the toplevel, 'this' is the toplevel context object.
   // when used at the cluster level, 'this' is a cluster
   let promise = templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) => {
+    .ensureZclPackageIds(this)
+    .then((packageIds) => {
       if ('id' in this) {
         // We're functioning inside a nested context with an id, so we will only query for this cluster.
         return queryZcl.selectAttributesByClusterIdAndSideIncludingGlobal(
           this.global.db,
           this.id,
-          packageId,
+          packageIds,
           dbEnum.side.server
         )
       } else {
         return queryZcl.selectAllAttributesBySide(
           this.global.db,
           dbEnum.side.server,
-          packageId
+          packageIds
         )
       }
     })
@@ -642,8 +659,15 @@ function zcl_attributes_server(options) {
  */
 async function zcl_atomics(options) {
   let promise = templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) => queryZcl.selectAllAtomics(this.global.db, packageId))
+    .ensureZclPackageIds(this)
+    .then((packageIds) =>
+      Promise.all(
+        packageIds.map((packageId) =>
+          queryZcl.selectAllAtomics(this.global.db, packageId)
+        )
+      )
+    )
+    .then((x) => x.flat())
     .then((ats) => templateUtil.collectBlocks(ats, options, this))
   return templateUtil.templatePromise(this.global, promise)
 }
@@ -656,8 +680,15 @@ async function zcl_atomics(options) {
  */
 async function zcl_cluster_largest_label_length() {
   let promise = templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) => queryZcl.selectAllClusters(this.global.db, packageId))
+    .ensureZclPackageIds(this)
+    .then((packageIds) =>
+      Promise.all(
+        packageIds.map((packageId) =>
+          queryZcl.selectAllClusters(this.global.db, packageId)
+        )
+      )
+    )
+    .then((cls) => cls.flat())
     .then((cl) => largestLabelLength(cl))
   return templateUtil.templatePromise(this.global, promise)
 }
@@ -682,11 +713,10 @@ function largestLabelLength(arrayOfClusters) {
 function zcl_command_arguments_count(commandId) {
   let promise = templateUtil
     .ensureZclPackageId(this)
-    .then((packageId) =>
+    .then(() =>
       queryCommand.selectCommandArgumentsCountByCommandId(
         this.global.db,
-        commandId,
-        packageId
+        commandId
       )
     )
   return templateUtil.templatePromise(this.global, promise)
@@ -707,7 +737,6 @@ async function ifCommandArgumentsHaveFixedLengthWithCurrentContext(
   notFixedLengthReturn,
   currentContext
 ) {
-  let packageId = await templateUtil.ensureZclPackageId(currentContext)
   let commandArgs = await queryCommand.selectCommandArgumentsByCommandId(
     currentContext.global.db,
     commandId
@@ -967,11 +996,11 @@ function zcl_event_fields(options) {
   let p
 
   if (eventFields == null) {
-    p = templateUtil.ensureZclPackageId(this).then((packageId) => {
+    p = templateUtil.ensureZclPackageIds(this).then((packageIds) => {
       if ('id' in this) {
         return queryEvent.selectEventFieldsByEventId(this.global.db, this.id)
       } else {
-        return queryEvent.selectAllEventFields(this.global.db, packageId)
+        return queryEvent.selectAllEventFields(this.global.db, packageIds)
       }
     })
   } else {
@@ -1947,8 +1976,8 @@ function if_manufacturing_specific_cluster(
   null_manufacturer_specific_return
 ) {
   let promise = templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) => queryZcl.selectClusterById(this.global.db, clusterId))
+    .ensureZclPackageIds(this)
+    .then((packageIds) => queryZcl.selectClusterById(this.global.db, clusterId))
     .then((res) => {
       if (res.manufacturerCode != null) {
         return manufacturer_specific_return

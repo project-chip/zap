@@ -84,7 +84,7 @@ async function selectAllEnumsFromCache(db, packageId) {
  * @param {*} db
  * @returns Promise that resolves with the rows of enums.
  */
-async function selectClusterEnums(db, packageId, clusterId) {
+async function selectClusterEnums(db, packageIds, clusterId) {
   return dbApi
     .dbAll(
       db,
@@ -100,10 +100,10 @@ INNER JOIN
 ON
   E.ENUM_ID = EC.ENUM_REF
 WHERE
-  E.PACKAGE_REF = ?
+  E.PACKAGE_REF IN (${packageIds})
   AND EC.CLUSTER_REF = ?
 ORDER BY E.NAME`,
-      [packageId, clusterId]
+      [clusterId]
     )
     .then((rows) => rows.map(dbMapping.map.enum))
 }

@@ -78,7 +78,7 @@ test(
       expect(x.length).toEqual(testUtil.totalDomainCount)
       x = await queryZcl.selectAllEnums(db, packageId)
       expect(x.length).toEqual(testUtil.totalEnumCount)
-      x = await queryZcl.selectAllStructsWithItems(db, packageId)
+      x = await queryZcl.selectAllStructsWithItems(db, [packageId])
       expect(x.length).toEqual(54)
       x = await queryZcl.selectAllBitmaps(db, packageId)
       expect(x.length).toEqual(121)
@@ -149,7 +149,7 @@ test(
 
       expect(rows.length).toBe(3)
 
-      let commandTree = await queryCommand.selectCommandTree(db, packageId)
+      let commandTree = await queryCommand.selectCommandTree(db, [packageId])
       let found = false
       commandTree.forEach((c) => {
         if (c.clusterCode == 0 && c.code == 0) found = true
@@ -168,7 +168,7 @@ test(
         )
       })
 
-      let attributes = await queryZcl.selectAllAttributes(db, packageId)
+      let attributes = await queryZcl.selectAllAttributes(db, [packageId])
       expect(attributes.length).toBeGreaterThan(40)
       let ps = []
       attributes.forEach((a) => {

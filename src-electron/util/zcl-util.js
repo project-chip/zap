@@ -252,7 +252,7 @@ async function calculateBytesForStructs(res, options, db, packageId) {
     return options.hash.struct
   } else {
     return queryZcl
-      .selectAllStructItemsByStructName(db, res, packageId)
+      .selectAllStructItemsByStructName(db, res, [packageId])
       .then((items) => {
         let promises = []
         items.forEach((item) =>
