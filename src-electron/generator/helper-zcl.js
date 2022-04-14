@@ -26,6 +26,11 @@ const types = require('../util/types')
 const zclUtil = require('../util/zcl-util')
 const _ = require('lodash')
 
+const characterStringTypes = ['CHAR_STRING', 'LONG_CHAR_STRING']
+const octetStringTypes = ['OCTET_STRING', 'LONG_OCTET_STRING']
+const stringShortTypes = ['CHAR_STRING', 'OCTET_STRING']
+const stringLongTypes = ['LONG_CHAR_STRING', 'LONG_OCTET_STRING']
+
 const fabricIndexType = 'fabric_idx'
 /**
  * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
@@ -199,7 +204,6 @@ function zcl_enum_items(options) {
 async function zcl_struct_items(options) {
   let checkForDoubleNestedArray =
     options.hash.checkForDoubleNestedArray == 'true'
-  let packageIds = await templateUtil.ensureZclPackageIds(this)
   let sis = await queryZcl.selectAllStructItemsById(this.global.db, this.id)
   if (checkForDoubleNestedArray) {
     for (const si of sis) {
@@ -1311,10 +1315,10 @@ async function if_is_number(type, options) {
     .then((packageId) =>
       type && typeof type === 'string'
         ? queryZcl.selectNumberByName(
-            this.global.db,
-            packageId,
-            type.toLowerCase()
-          )
+          this.global.db,
+          packageId,
+          type.toLowerCase()
+        )
         : null
     )
     .then((res) =>
@@ -1343,16 +1347,164 @@ function if_is_string(type, options) {
     .then((packageId) =>
       type && typeof type === 'string'
         ? queryZcl.selectStringByName(
-            this.global.db,
-            type.toLowerCase(),
-            packageId
-          )
+          this.global.db,
+          type.toLowerCase(),
+          packageId
+        )
         : null
     )
     .then((res) =>
       res ? res : queryZcl.selectStringById(this.global.db, type)
     )
     .then((res) => (res ? options.fn(this) : options.inverse(this)))
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
+ * If helper that checks if a string type is present in the list of char strings
+ * i.e. characterStringTypes
+ *
+ * example:
+ * {{#if_is_char_string type}}
+ * type is char string
+ * {{else}}
+ * type is not char string
+ * {{/if_is_char_string}}
+ *
+ * @param {*} type
+ * @returns Promise of content.
+ */
+function if_is_char_string(type, options) {
+  let promise = templateUtil
+    .ensureZclPackageId(this)
+    .then((packageId) =>
+      type && typeof type === 'string'
+        ? queryZcl.selectStringByName(
+          this.global.db,
+          type.toLowerCase(),
+          packageId
+        )
+        : null
+    )
+    .then((res) =>
+      res ? res : queryZcl.selectStringById(this.global.db, type)
+    )
+    .then((res) =>
+      res && res.name && characterStringTypes.includes(res.name.toUpperCase())
+        ? options.fn(this)
+        : options.inverse(this)
+    )
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
+ * If helper that checks if a string type is present in the list of octet strings
+ * i.e. octetStringTypes
+ *
+ * example:
+ * {{#if_is_octet_string type}}
+ * type is octet string
+ * {{else}}
+ * type is not octet string
+ * {{/if_is_octet_string}}
+ *
+ * @param {*} type
+ * @returns Promise of content.
+ */
+function if_is_octet_string(type, options) {
+  let promise = templateUtil
+    .ensureZclPackageId(this)
+    .then((packageId) =>
+      type && typeof type === 'string'
+        ? queryZcl.selectStringByName(
+          this.global.db,
+          type.toLowerCase(),
+          packageId
+        )
+        : null
+    )
+    .then((res) =>
+      res ? res : queryZcl.selectStringById(this.global.db, type)
+    )
+    .then((res) =>
+      res && res.name && octetStringTypes.includes(res.name.toUpperCase())
+        ? options.fn(this)
+        : options.inverse(this)
+    )
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
+ * If helper that checks if a string type is present in the list of short strings
+ * i.e. stringShortTypes
+ *
+ * example:
+ * {{#if_is_short_string type}}
+ * type is short string
+ * {{else}}
+ * type is not short string
+ * {{/if_is_short_string}}
+ *
+ * @param {*} type
+ * @returns Promise of content.
+ */
+function if_is_short_string(type, options) {
+  let promise = templateUtil
+    .ensureZclPackageId(this)
+    .then((packageId) =>
+      type && typeof type === 'string'
+        ? queryZcl.selectStringByName(
+          this.global.db,
+          type.toLowerCase(),
+          packageId
+        )
+        : null
+    )
+    .then((res) =>
+      res ? res : queryZcl.selectStringById(this.global.db, type)
+    )
+    .then((res) =>
+      res && res.name && stringShortTypes.includes(res.name.toUpperCase())
+        ? options.fn(this)
+        : options.inverse(this)
+    )
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
+ * If helper that checks if a string type is present in the list of long strings
+ * i.e. stringLongTypes
+ *
+ * example:
+ * {{#if_is_long_string type}}
+ * type is long string
+ * {{else}}
+ * type is not long string
+ * {{/if_is_long_string}}
+ *
+ * @param {*} type
+ * @returns Promise of content.
+ */
+function if_is_long_string(type, options) {
+  let promise = templateUtil
+    .ensureZclPackageId(this)
+    .then((packageId) =>
+      type && typeof type === 'string'
+        ? queryZcl.selectStringByName(
+          this.global.db,
+          type.toLowerCase(),
+          packageId
+        )
+        : null
+    )
+    .then((res) =>
+      res ? res : queryZcl.selectStringById(this.global.db, type)
+    )
+    .then((res) =>
+      res && res.name && stringLongTypes.includes(res.name.toUpperCase())
+        ? options.fn(this)
+        : options.inverse(this)
+    )
   return templateUtil.templatePromise(this.global, promise)
 }
 
@@ -1414,7 +1566,9 @@ async function if_is_bitmap(type, options) {
       res ? res : queryZcl.selectBitmapById(this.global.db, type)
     )
     .then((res) =>
-      res || type.startsWith('map') ? options.fn(this) : options.inverse(this)
+      res || (typeof type === 'string' && type.startsWith('map'))
+        ? options.fn(this)
+        : options.inverse(this)
     )
   return templateUtil.templatePromise(this.global, promise)
 }
@@ -1441,9 +1595,7 @@ async function if_is_enum(type, options) {
         : null
     )
     .then((res) => (res ? res : queryZcl.selectEnumById(this.global.db, type)))
-    .then((res) =>
-      res || type.startsWith('map') ? options.fn(this) : options.inverse(this)
-    )
+    .then((res) => (res ? options.fn(this) : options.inverse(this)))
   return templateUtil.templatePromise(this.global, promise)
 }
 
@@ -1471,9 +1623,7 @@ async function if_is_struct(type, options) {
     .then((res) =>
       res ? res : queryZcl.selectStructById(this.global.db, type)
     )
-    .then((res) =>
-      res || type.startsWith('map') ? options.fn(this) : options.inverse(this)
-    )
+    .then((res) => (res ? options.fn(this) : options.inverse(this)))
   return templateUtil.templatePromise(this.global, promise)
 }
 
@@ -2489,3 +2639,7 @@ exports.zcl_commands_with_arguments = zcl_commands_with_arguments
 exports.if_is_string = if_is_string
 exports.if_is_atomic = if_is_atomic
 exports.if_is_number = if_is_number
+exports.if_is_char_string = if_is_char_string
+exports.if_is_octet_string = if_is_octet_string
+exports.if_is_short_string = if_is_short_string
+exports.if_is_long_string = if_is_long_string

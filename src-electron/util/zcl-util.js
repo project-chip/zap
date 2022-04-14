@@ -577,21 +577,26 @@ function dataTypeHelper(
  * This is a utility function which is called from other helper functions using ut current
  * instance. See comments in asUnderlyingZclType for usage instructions.
  */
-function asUnderlyingZclTypeWithPackageId(
+async function asUnderlyingZclTypeWithPackageId(
   type,
   options,
   packageId,
   currentInstance
 ) {
+  let numberType = await queryZcl.selectDataTypeById(
+    currentInstance.global.db,
+    type
+  )
+  let actualType = typeof type === 'number' ? numberType.name : type
   return Promise.all([
     new Promise((resolve, reject) => {
       if ('isArray' in currentInstance && currentInstance.isArray)
         resolve(dbEnum.zclType.array)
       else resolve(dbEnum.zclType.unknown)
     }),
-    isEnum(currentInstance.global.db, type, packageId),
-    isStruct(currentInstance.global.db, type, packageId),
-    isBitmap(currentInstance.global.db, type, packageId),
+    isEnum(currentInstance.global.db, actualType, packageId),
+    isStruct(currentInstance.global.db, actualType, packageId),
+    isBitmap(currentInstance.global.db, actualType, packageId),
   ])
     .then(
       (res) =>
@@ -610,13 +615,13 @@ function asUnderlyingZclTypeWithPackageId(
         return dataTypeCharacterFormatter(
           currentInstance.global.db,
           packageId,
-          type,
+          actualType,
           options,
           resType
         )
       } else {
         return dataTypeHelper(
-          type,
+          actualType,
           options,
           packageId,
           currentInstance.global.db,
