@@ -45,8 +45,15 @@ async function executeCmd(ctx, cmd, args) {
     c.on('exit', (code) => {
       if (code == 0) resolve(ctx)
       else {
-        console.log(`👎 Program ${cmd} exited with error code: ${code}`)
-        reject(code)
+        if (code) {
+          console.log(`👎 Program ${cmd} exited with error code: ${code}`)
+          reject(code)
+        } else {
+          console.log(
+            `👎 Program ${cmd} exited with signal code: ${c.signalCode}`
+          )
+          reject(c.signalCode)
+        }
       }
     })
     c.stdout.on('data', (data) => {
