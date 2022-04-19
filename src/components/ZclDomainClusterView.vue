@@ -116,7 +116,7 @@ limitations under the License.
           </q-td>
           <q-td key="label" :props="props" auto-width>
             {{ props.row.label }}
-            <q-tooltip>
+            <q-tooltip :offset="[0, 0]">
               {{ props.row.caption }}
             </q-tooltip>
           </q-td>
