@@ -1,7 +1,7 @@
 {
   "type": "commonjs",
   "name": "zap",
-  "version": "2022.4.19",
+  "version": "2022.4.20",
   "description": "Configuration tool for the Zigbee Cluster Library",
   "productName": "zap",
   "cordovaId": "",
@@ -260,7 +260,8 @@
       "!quasar*",
       "!test.*",
       "!src-script/**/*",
-      "!src-electron/**/*"
+      "!src-electron/**/*",
+      "!src-shared/**/*"
     ]
   },
   "nyc": {
