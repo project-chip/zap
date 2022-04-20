@@ -163,6 +163,12 @@ jobs:
         with:
           name: zap-mac-zip
           path: dist/zap*-mac.zip
+      - name: Archive Linux .zip file
+        uses: actions/upload-artifact@v2
+        if: startsWith(matrix.os, 'ubuntu')
+        with:
+          name: zap-linux-zip
+          path: dist/zap*-linux.zip
       - name: Archive Linux .rpm file
         uses: actions/upload-artifact@v2
         if: startsWith(matrix.os, 'ubuntu')
