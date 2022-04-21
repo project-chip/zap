@@ -246,8 +246,8 @@ WHERE
  * @param {*} db
  * @returns Promise that resolves with the rows of structs, each one containing items field with rows of items.
  */
-async function selectClusterStructsWithItems(db, packageId, clusterId) {
-  return selectStructsWithItemsImpl(db, packageId, clusterId)
+async function selectClusterStructsWithItems(db, packageIds, clusterId) {
+  return selectStructsWithItemsImpl(db, packageIds, clusterId)
 }
 
 /**
@@ -257,13 +257,13 @@ async function selectClusterStructsWithItems(db, packageId, clusterId) {
  * @param {*} db
  * @returns Promise that resolves with the rows of structs, each one containing items field with rows of items.
  */
-async function selectAllStructsWithItems(db, packageId) {
-  return selectStructsWithItemsImpl(db, packageId, null)
+async function selectAllStructsWithItems(db, packageIds) {
+  return selectStructsWithItemsImpl(db, packageIds, null)
 }
 
-async function selectStructsWithItemsImpl(db, packageId, clusterId) {
+async function selectStructsWithItemsImpl(db, packageIds, clusterId) {
   let query
-  let args
+  let args = []
   if (clusterId == null) {
     query = `
     SELECT
@@ -288,9 +288,8 @@ async function selectStructsWithItemsImpl(db, packageId, clusterId) {
     ON
       S.STRUCT_ID = SI.STRUCT_REF
     WHERE
-      S.PACKAGE_REF = ?
+      S.PACKAGE_REF IN (${packageIds})
     ORDER BY S.NAME, SI.FIELD_IDENTIFIER`
-    args = [packageId]
   } else {
     query = `
     SELECT
@@ -319,11 +318,11 @@ async function selectStructsWithItemsImpl(db, packageId, clusterId) {
     ON
       S.STRUCT_ID = SI.STRUCT_REF
     WHERE
-      S.PACKAGE_REF = ?
+      S.PACKAGE_REF IN (${packageIds})
     AND
       SC.CLUSTER_REF = ?
     ORDER BY S.NAME, SI.FIELD_IDENTIFIER`
-    args = [packageId, clusterId]
+    args = [clusterId]
   }
 
   let rows = await dbApi.dbAll(db, query, args)
@@ -397,7 +396,7 @@ ORDER BY
  * @param  name
  * @returns the details of the struct items given the name of the struct
  */
-async function selectAllStructItemsByStructName(db, name, packageId) {
+async function selectAllStructItemsByStructName(db, name, packageIds) {
   return dbApi
     .dbAll(
       db,
@@ -422,9 +421,9 @@ INNER JOIN
 ON
   STRUCT.STRUCT_ID = SI.STRUCT_REF
 WHERE STRUCT.NAME = ?
-  AND STRUCT.PACKAGE_REF = ?
+  AND STRUCT.PACKAGE_REF IN (${packageIds})
 ORDER BY FIELD_IDENTIFIER`,
-      [name, packageId]
+      [name]
     )
     .then((rows) => rows.map(dbMapping.map.structItem))
 }
@@ -571,7 +570,7 @@ async function selectDeviceTypeByCodeAndName(db, packageId, code, name) {
 /**
  * Returns attributes for a given cluster.
  * IMPORTANT:
- *    packageId is needed to properly deal with the global attributes.
+ *    packageIds are needed to properly deal with the global attributes.
  *
  * This method will NOT only return the attributes that link to
  * a given cluster, but will ALSO return the attributes that have
@@ -580,13 +579,13 @@ async function selectDeviceTypeByCodeAndName(db, packageId, code, name) {
  *
  * @param {*} db
  * @param {*} clusterId
- * @param {*} packageId
+ * @param {*} packageIds
  * @returns promise of a list of attributes, including global attributes
  */
 async function selectAttributesByClusterIdIncludingGlobal(
   db,
   clusterId,
-  packageId
+  packageIds
 ) {
   return dbApi
     .dbAll(
@@ -619,9 +618,9 @@ SELECT
   MUST_USE_TIMED_WRITE
 FROM ATTRIBUTE
 WHERE (CLUSTER_REF = ? OR CLUSTER_REF IS NULL)
-  AND PACKAGE_REF = ? 
+  AND PACKAGE_REF IN (${packageIds})
 ORDER BY CODE`,
-      [clusterId, packageId]
+      [clusterId]
     )
     .then((rows) => rows.map(dbMapping.map.attribute))
 }
@@ -629,7 +628,7 @@ ORDER BY CODE`,
 async function selectAttributesByClusterIdAndSideIncludingGlobal(
   db,
   clusterId,
-  packageId,
+  packageIds,
   side
 ) {
   return dbApi
@@ -665,9 +664,9 @@ FROM ATTRIBUTE
 WHERE
   SIDE = ?
   AND (CLUSTER_REF = ? OR CLUSTER_REF IS NULL)
-  AND PACKAGE_REF = ? 
+  AND PACKAGE_REF IN (${packageIds})
 ORDER BY CODE`,
-      [side, clusterId, packageId]
+      [side, clusterId]
     )
     .then((rows) => rows.map(dbMapping.map.attribute))
 }
@@ -834,7 +833,7 @@ WHERE ATTRIBUTE_ID = ?`,
     .then(dbMapping.map.attribute)
 }
 
-async function selectAllAttributes(db, packageId) {
+async function selectAllAttributes(db, packageIds) {
   return dbApi
     .dbAll(
       db,
@@ -872,10 +871,10 @@ LEFT JOIN
 ON
   A.CLUSTER_REF = C.CLUSTER_ID
 WHERE
-  A.PACKAGE_REF = ?
+  A.PACKAGE_REF IN (${packageIds})
 ORDER BY
   C.CODE, A.CODE`,
-      [packageId]
+      []
     )
     .then((rows) => rows.map(dbMapping.map.attribute))
 }
@@ -888,7 +887,7 @@ ORDER BY
  * @param {*} packageId
  * @returns promise that resolves into attributes.
  */
-async function selectAllAttributesBySide(db, side, packageId) {
+async function selectAllAttributesBySide(db, side, packageIds) {
   let rows = await dbApi.dbAll(
     db,
     `
@@ -919,9 +918,9 @@ SELECT
   MUST_USE_TIMED_WRITE
 FROM ATTRIBUTE
    WHERE SIDE = ?
-   AND PACKAGE_REF = ?
+   AND PACKAGE_REF IN (${packageIds})
 ORDER BY CODE`,
-    [side, packageId]
+    [side]
   )
   return rows.map(dbMapping.map.attribute)
 }

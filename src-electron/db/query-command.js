@@ -1008,7 +1008,7 @@ ORDER BY
  * @param packageId
  * @returns all commands along with their cluster information
  */
-async function selectAllCommandsWithClusterInfo(db, packageId) {
+async function selectAllCommandsWithClusterInfo(db, packageIds) {
   return dbApi
     .dbAll(
       db,
@@ -1029,14 +1029,13 @@ SELECT
   CLUSTER.CODE AS CLUSTER_CODE
 FROM COMMAND
 INNER JOIN CLUSTER ON CLUSTER.CLUSTER_ID = COMMAND.CLUSTER_REF
-  WHERE COMMAND.PACKAGE_REF = ?
-ORDER BY CLUSTER.CODE, COMMAND.CODE`,
-      [packageId]
+  WHERE COMMAND.PACKAGE_REF IN (${packageIds})
+ORDER BY CLUSTER.CODE, COMMAND.CODE`
     )
     .then((rows) => rows.map(dbMapping.map.command))
 }
 
-async function selectAllCommands(db, packageId) {
+async function selectAllCommands(db, packageIds) {
   return dbApi
     .dbAll(
       db,
@@ -1054,9 +1053,8 @@ SELECT
   RESPONSE_REF,
   RESPONSE_NAME
 FROM COMMAND
-  WHERE PACKAGE_REF = ?
-ORDER BY CODE`,
-      [packageId]
+  WHERE PACKAGE_REF IN (${packageIds})
+ORDER BY CODE`
     )
     .then((rows) => rows.map(dbMapping.map.command))
 }
@@ -1127,7 +1125,7 @@ ORDER BY CODE`,
     .then((rows) => rows.map(dbMapping.map.command))
 }
 
-async function selectAllGlobalCommands(db, packageId) {
+async function selectAllGlobalCommands(db, packageIds) {
   return dbApi
     .dbAll(
       db,
@@ -1145,9 +1143,9 @@ SELECT
   RESPONSE_REF,
   RESPONSE_NAME
 FROM COMMAND
-WHERE CLUSTER_REF IS NULL AND PACKAGE_REF = ?
+WHERE CLUSTER_REF IS NULL AND PACKAGE_REF IN (${packageIds})
 ORDER BY CODE`,
-      [packageId]
+      []
     )
     .then((rows) => rows.map(dbMapping.map.command))
 }
@@ -1264,10 +1262,10 @@ ORDER BY FIELD_IDENTIFIER`,
  * use the selectAllCommands query.
  *
  * @param {*} db
- * @param {*} packageId
+ * @param {*} packageIds
  * @returns promise that resolves into a list of all commands and arguments.
  */
-async function selectCommandTree(db, packageId) {
+async function selectCommandTree(db, packageIds) {
   return dbApi
     .dbAll(
       db,
@@ -1306,7 +1304,7 @@ ON
   CMD.COMMAND_ID = CA.COMMAND_REF
 WHERE CMD.PACKAGE_REF = ?
 ORDER BY CL.CODE, CMD.CODE, CA.FIELD_IDENTIFIER`,
-      [packageId]
+      [packageIds]
     )
     .then((rows) => rows.map(dbMapping.map.command))
 }

@@ -70,10 +70,9 @@ test(
   async () => {
     zclContext = await zclLoader.loadZcl(db, testUtil.testZclMetafile)
 
-    const attributes = await queryZcl.selectAllAttributes(
-      db,
-      zclContext.packageId
-    )
+    const attributes = await queryZcl.selectAllAttributes(db, [
+      zclContext.packageId,
+    ])
     expect(attributes.length).toBe(4)
     expect(attributes[0].name).toBe('at1')
     expect(attributes[1].name).toBe('at2')

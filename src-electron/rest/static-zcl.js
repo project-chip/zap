@@ -54,11 +54,11 @@ async function returnZclEntitiesForClusterId(db, clusterId, packageId) {
     zclEntityQuery(
       queryZcl.selectAllAttributes,
       queryZcl.selectAttributesByClusterIdIncludingGlobal
-    )(db, clusterId, packageId).then((y) =>
+    )(db, clusterId, [packageId]).then((y) =>
       zclEntityQuery(
         queryCommand.selectAllCommands,
         queryCommand.selectCommandsByClusterId
-      )(db, clusterId, packageId).then((z) =>
+      )(db, clusterId).then((z) =>
         zclEntityQuery(
           queryEvent.selectAllEvents,
           queryEvent.selectEventsByClusterId

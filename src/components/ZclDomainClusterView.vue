@@ -50,7 +50,8 @@ limitations under the License.
               class="text-amber"
               style="font-size: 1.5rem"
               @click="selectCluster(props.row)"
-            ></q-icon>
+            >
+            </q-icon>
             <q-popup-edit
               :disable="!doesClusterHaveAnyWarnings(props.row)"
               :cover="false"

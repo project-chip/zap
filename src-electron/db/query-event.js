@@ -60,10 +60,10 @@ ORDER BY
  * Retrieves all events under a given package
  *
  * @param {*} db
- * @param {*} packageId
+ * @param {*} packageIds
  * @returns promise of an array of events
  */
-async function selectAllEvents(db, packageId) {
+async function selectAllEvents(db, packageIds) {
   return dbApi
     .dbAll(
       db,
@@ -85,15 +85,15 @@ INNER JOIN
 ON
   E.CLUSTER_REF = C.CLUSTER_ID
 WHERE
-  E.PACKAGE_REF = ?
+  E.PACKAGE_REF in (${packageIds})
 ORDER BY
   C.CODE, E.CODE`,
-      [packageId]
+      []
     )
     .then((rows) => rows.map(dbMapping.map.event))
 }
 
-async function selectAllEventFields(db, packageId) {
+async function selectAllEventFields(db, packageIds) {
   return dbApi
     .dbAll(
       db,
@@ -112,11 +112,10 @@ INNER JOIN
 ON
   EVENT_FIELD.EVENT_REF = EVENT.EVENT_ID
 WHERE
-  EVENT.PACKAGE_REF = ?
+  EVENT.PACKAGE_REF IN (${packageIds})
 ORDER BY
   EF.FIELD_IDENTIFIER
-`,
-      [packageId]
+`
     )
     .then((rows) => rows.map(dbMapping.map.eventField))
 }
