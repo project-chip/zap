@@ -352,7 +352,7 @@ async function selectStructsWithItemsImpl(db, packageIds, clusterId) {
     ON
       S.STRUCT_ID = SI.STRUCT_REF
     WHERE
-      DT.PACKAGE_REF = IN (${packageIds})
+      DT.PACKAGE_REF IN (${packageIds})
     AND
       DTC.CLUSTER_REF = ?
     ORDER BY DT.NAME, SI.FIELD_IDENTIFIER`

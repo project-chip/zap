@@ -113,14 +113,6 @@ async function zcl_structs(options) {
   let checkForDoubleNestedArray =
     options.hash.checkForDoubleNestedArray == 'true'
   let packageIds = await templateUtil.ensureZclPackageIds(this)
-  // fabricIndexRecord is used to update the fabric specific properties of the
-  // struct.
-  let fabricIndexRecord = await queryZcl.selectDataTypeByName(
-    this.global.db,
-    fabricIndexType,
-    packageId
-  )
-  let fabricIndex = fabricIndexRecord ? fabricIndexRecord.id : -1
   let structs
   if (this.id != null) {
     structs = await queryZcl.selectClusterStructsWithItems(
@@ -860,7 +852,7 @@ function as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument
     .catch((err) => {
       env.logError(
         'Failure in as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present: ' +
-        err
+          err
       )
     })
 }
@@ -1203,19 +1195,19 @@ async function zcl_command_argument_type_to_cli_data_type(type, options) {
     )
     const atomicSize = atomicResult
       ? await zclUtil.calculateBytes(
-        atomicResult.name,
-        options,
-        this.global.db,
-        packageId,
-        false
-      )
+          atomicResult.name,
+          options,
+          this.global.db,
+          packageId,
+          false
+        )
       : await zclUtil.calculateBytes(
-        type,
-        options,
-        this.global.db,
-        packageId,
-        false
-      )
+          type,
+          options,
+          this.global.db,
+          packageId,
+          false
+        )
     if (atomicSize == undefined || atomicSize.isNaN) {
       return helperC.as_zcl_cli_type(dbEnum.zclType.string, false, false)
     } else {
@@ -1315,10 +1307,10 @@ async function if_is_number(type, options) {
     .then((packageId) =>
       type && typeof type === 'string'
         ? queryZcl.selectNumberByName(
-          this.global.db,
-          packageId,
-          type.toLowerCase()
-        )
+            this.global.db,
+            packageId,
+            type.toLowerCase()
+          )
         : null
     )
     .then((res) =>
@@ -1347,10 +1339,10 @@ function if_is_string(type, options) {
     .then((packageId) =>
       type && typeof type === 'string'
         ? queryZcl.selectStringByName(
-          this.global.db,
-          type.toLowerCase(),
-          packageId
-        )
+            this.global.db,
+            type.toLowerCase(),
+            packageId
+          )
         : null
     )
     .then((res) =>
@@ -1380,10 +1372,10 @@ function if_is_char_string(type, options) {
     .then((packageId) =>
       type && typeof type === 'string'
         ? queryZcl.selectStringByName(
-          this.global.db,
-          type.toLowerCase(),
-          packageId
-        )
+            this.global.db,
+            type.toLowerCase(),
+            packageId
+          )
         : null
     )
     .then((res) =>
@@ -1417,10 +1409,10 @@ function if_is_octet_string(type, options) {
     .then((packageId) =>
       type && typeof type === 'string'
         ? queryZcl.selectStringByName(
-          this.global.db,
-          type.toLowerCase(),
-          packageId
-        )
+            this.global.db,
+            type.toLowerCase(),
+            packageId
+          )
         : null
     )
     .then((res) =>
@@ -1454,10 +1446,10 @@ function if_is_short_string(type, options) {
     .then((packageId) =>
       type && typeof type === 'string'
         ? queryZcl.selectStringByName(
-          this.global.db,
-          type.toLowerCase(),
-          packageId
-        )
+            this.global.db,
+            type.toLowerCase(),
+            packageId
+          )
         : null
     )
     .then((res) =>
@@ -1491,10 +1483,10 @@ function if_is_long_string(type, options) {
     .then((packageId) =>
       type && typeof type === 'string'
         ? queryZcl.selectStringByName(
-          this.global.db,
-          type.toLowerCase(),
-          packageId
-        )
+            this.global.db,
+            type.toLowerCase(),
+            packageId
+          )
         : null
     )
     .then((res) =>
@@ -1874,7 +1866,7 @@ function as_underlying_zcl_type_ca_not_always_present_no_presentif(
       .catch((err) => {
         env.logError(
           'Error in as_underlying_zcl_type_ca_not_always_present_no_presentif ' +
-          err
+            err
         )
         throw err
       })
@@ -2019,7 +2011,7 @@ function as_underlying_zcl_type_ca_not_always_present_with_presentif(
       .catch((err) => {
         env.logError(
           'Error in as_underlying_zcl_type_ca_not_always_present_with_presentif ' +
-          err
+            err
         )
         throw err
       })
@@ -2164,7 +2156,7 @@ function as_underlying_zcl_type_ca_always_present_with_presentif(
       .catch((err) => {
         env.logError(
           'Error in as_underlying_zcl_type_ca_always_present_with_presentif ' +
-          err
+            err
         )
         throw err
       })
