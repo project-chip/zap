@@ -146,7 +146,7 @@ async function zcl_structs(options) {
       if (i.isArray) {
         st.struct_contains_array = true
       }
-      if (fabricIndex > -1 && i.type == fabricIndex) {
+      if (i.type && i.type.toLowerCase() == fabricIndexType) {
         st.struct_is_fabric_scoped = true
         st.struct_fabric_idx_field = i.label
       }

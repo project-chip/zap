@@ -235,3 +235,4 @@ function debug_object(obj) {
 
 exports.tokens_context = tokens_context
 exports.token_next = token_next
+exports.debug_object = debug_object
