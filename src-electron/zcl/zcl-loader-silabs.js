@@ -519,12 +519,22 @@ function prepareCluster(cluster, context, isExtension = false) {
   }
 
   if ('attribute' in cluster) {
+    if (
+      context.loadedClusterAttributes &&
+      !context.loadedClusterAttributes[cluster.name]
+    ) {
+      context.loadedClusterAttributes[cluster.name] = []
+    }
     ret.attributes = []
     cluster.attribute.forEach((attribute) => {
       let name = attribute._
       if ('description' in attribute && name == null) {
         name = attribute.description.join('')
       }
+      if (context.loadedClusterAttributes) {
+        context.loadedClusterAttributes[cluster.name].push(name)
+      }
+
       let reportingPolicy = context.defaultReportingPolicy
       if (attribute.$.reportable == 'true') {
         reportingPolicy = dbEnum.reportingPolicy.suggested
@@ -1579,6 +1589,9 @@ async function loadSilabsZcl(db, metafile, isJson = false) {
   let ctx = {
     metadataFile: metafile,
     db: db,
+    // A map of cluster names to lists of attribute names, so we can validate
+    // our attributeAccessInterfaceAttributes makes sense.
+    loadedClusterAttributes: {},
   }
   env.logDebug(`Loading Silabs zcl file: ${ctx.metadataFile}`)
   await dbApi.dbBeginTransaction(db)
@@ -1600,6 +1613,35 @@ async function loadSilabsZcl(db, metafile, isJson = false) {
       await zclLoader.recordVersion(db, ctx.packageId, ctx.version)
     }
     await parseZclFiles(db, ctx.packageId, ctx.zclFiles, ctx)
+    // Validate that our attributeAccessInterfaceAttributes, if present, is
+    // sane.
+    if (ctx.attributeAccessInterfaceAttributes) {
+      for (let clusterName of Object.keys(
+        ctx.attributeAccessInterfaceAttributes
+      )) {
+        if (!Object.keys(ctx.loadedClusterAttributes).includes(clusterName)) {
+          throw new Error(
+            `\n\nUnknown cluster "${clusterName}" in attributeAccessInterfaceAttributes\n\n`
+          )
+        }
+
+        for (let attrName of ctx.attributeAccessInterfaceAttributes[
+          clusterName
+        ]) {
+          // ctx.loadedClusterAttributes["undefined"] is where global attributes
+          // land.
+          if (
+            !ctx.loadedClusterAttributes[clusterName].includes(attrName) &&
+            !ctx.loadedClusterAttributes['undefined'].includes(attrName)
+          ) {
+            throw new Error(
+              `\n\nUnknown attribute "${attrName}" in attributeAccessInterfaceAttributes["${clusterName}"]\n\n`
+            )
+          }
+        }
+      }
+    }
+
     if (ctx.manufacturersXml) {
       await parseManufacturerData(db, ctx.packageId, ctx.manufacturersXml)
     }
