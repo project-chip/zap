@@ -37,7 +37,6 @@ const includedHelpers = [
   require('./helper-command'),
   require('./helper-future'),
   require('./helper-access'),
-  require('./helper-string-matter'),
 ]
 
 let helpersInitializationList = null
