@@ -157,9 +157,10 @@ async function zcl_structs(options) {
       for (const i of st.items) {
         if (i.isArray) {
           // Found an array. Now let's check if it points to a struct that also contains an array.
-          let sis = await queryZcl.selectAllStructItemsById(
+          let sis = await queryZcl.selectAllStructItemsByStructName(
             this.global.db,
-            i.type
+            i.type,
+            packageIds
           )
           if (sis.length > 0) {
             for (const ss of sis) {
@@ -196,14 +197,16 @@ function zcl_enum_items(options) {
 async function zcl_struct_items(options) {
   let checkForDoubleNestedArray =
     options.hash.checkForDoubleNestedArray == 'true'
+  let packageIds = await templateUtil.ensureZclPackageIds(this)
   let sis = await queryZcl.selectAllStructItemsById(this.global.db, this.id)
   if (checkForDoubleNestedArray) {
     for (const si of sis) {
       si.struct_item_contains_nested_array = false
       // For each item, let's check if it's a struct itself
-      let structItems = await queryZcl.selectAllStructItemsById(
+      let structItems = await queryZcl.selectAllStructItemsByStructName(
         this.global.db,
-        si.dataTypeReference
+        si.type,
+        packageIds
       )
       if (structItems.length > 0) {
         for (const s of structItems) {
