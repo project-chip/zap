@@ -26,21 +26,23 @@ limitations under the License.
         </q-breadcrumbs>
       </strong>
     </div>
-    <h5 style="margin: 10px 0 0px">
-      <strong> Add Custom ZCL </strong>
-    </h5>
-    <div class="row">
-      <div style="padding: 10px 10px 10px 10px">
-        You can use this functionality to add custom ZCL clusters or commands to
-        the Zigbee Clusters Configurator
+    <div style="padding: 0 10px">
+      <h5 style="margin: 10px 0 0px">
+        <strong> Add Custom ZCL </strong>
+      </h5>
+      <div class="row items-center" style="padding: 10px 10px 10px 10px">
+        <div >
+          You can use this functionality to add custom ZCL clusters or commands to
+          the Zigbee Clusters Configurator
+        </div>
+        <q-space />
+        <q-btn
+          color="primary"
+          label="Add"
+          @click="browseForFile()"
+          v-close-popup
+        />
       </div>
-      <q-space />
-      <q-btn
-        color="primary"
-        label="Add"
-        @click="browseForFile()"
-        v-close-popup
-      />
     </div>
     <div>
       <q-list bordered separator>

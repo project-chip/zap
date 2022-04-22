@@ -51,17 +51,19 @@ limitations under the License.
         />
         <q-btn
           flat
-          @click="drawerRight = !drawerRight"
+          @click="togglePreviewTab"
           label="Preview"
           v-on:click="getGeneratedFiles"
         />
         <q-btn
           flat
-          @click="drawerRight = !drawerRight"
+          @click="togglePreviewTab"
           icon="settings"
           id="preference"
           to="/preference"
-        />
+        >
+          <q-tooltip> Preferences </q-tooltip>
+        </q-btn>
         <q-btn flat @click="homeDialog = !homeDialog" icon="mdi-alert-circle">
           <q-tooltip> About </q-tooltip>
         </q-btn>
@@ -112,10 +114,11 @@ limitations under the License.
             </q-tab-panel>
           </q-tab-panels>
           <q-drawer
-            :width="$q.screen.width * 0.6"
+            :width="$q.screen.width * 0.4"
             bordered
-            v-model="drawerRight"
+            v-model="showPreviewTab"
             side="right"
+            :breakpoint="0"
             class="zindex"
           >
             <div class="q-pa-md">
@@ -148,7 +151,7 @@ limitations under the License.
                 <template>
                   <div class="q-ma-md">
                     <q-scroll-area
-                      style="height: 70vh; width: 55vw"
+                      style="height: 70vh"
                       ref="generationScroll"
                     >
                       <pre class="q-ma-none container">{{
@@ -184,6 +187,9 @@ const observable = require('../util/observable.js')
 export default {
   name: 'ZclLayout',
   methods: {
+    togglePreviewTab(){
+      this.$store.commit('zap/togglePreviewTab')
+    },
     doGeneration(path) {
       window[rendApi.GLOBAL_SYMBOL_EXECUTE](
         rendApi.id.progressStart,
@@ -276,6 +282,14 @@ export default {
     }
   },
   computed: {
+    showPreviewTab: {
+      get() {
+        return this.$store.state.zap.showPreviewTab
+      },
+      set(){
+        return this.$store.dispatch('zap/togglePreviewTab')
+      }
+    },
     tab: {
       get() {
         return this.$store.state.zap.calledArgs['defaultUiMode']
