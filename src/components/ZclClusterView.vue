@@ -47,7 +47,7 @@ limitations under the License.
           {{ selectedCluster.label }}
         </strong>
       </h5>
-      <div style="margin-bottom: 5px; color: #323b4a">
+      <div style="margin-bottom: 5px">
         {{ selectedCluster.caption }}
       </div>
       <div class="row q-py-none">
