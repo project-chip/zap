@@ -17,10 +17,90 @@ limitations under the License.
   <div>
     <div class="text-h4 q-mb-md">Zcl packages</div>
     <p>Zcl packages.</p>
+    <q-table
+      class="my-sticky-header-table"
+      :data.sync="packages"
+      :columns="columns"
+      :pagination.sync="pagination"
+      row-key="<b>name</b>"
+      dense
+      flat
+      virtual-scroll
+      binary-state-sort
+      data-cy="Attributes"
+      style="height: calc(100vh - 210px); overflow: hidden"
+      :rows="1000"
+    >
+      <template v-slot:pagination> </template>
+    </q-table>
   </div>
 </template>
 <script>
 export default {
   name: 'PreferencePackage',
+  beforeCreate() {
+    this.$serverGet(restApi.uri.getAllPackages).then((response) => {
+      this.data = response.data
+    })
+  },
+  data() {
+    return {
+      columns: [
+        {
+          name: 'ID',
+          label: 'ID',
+          align: 'left',
+          field: 'PACKAGE_ID',
+        },
+        {
+          name: 'PATH',
+          align: 'left',
+          label: 'Path',
+          field: 'PATH',
+        },
+        {
+          name: 'TYPE',
+          align: 'left',
+          label: 'Type',
+          field: 'TYPE',
+        },
+        {
+          name: 'CRC',
+          align: 'left',
+          label: 'CRC',
+          field: 'CRC',
+        },
+        {
+          name: 'VERSION',
+          align: 'left',
+          label: 'Version',
+          field: 'VERSION',
+        },
+        {
+          name: 'PARENT_PACKAGE_REF',
+          align: 'left',
+          label: 'Parent Package ID',
+          field: 'PARENT_PACKAGE_REF',
+        },
+      ],
+    }
+  },
+  computed: {
+    packages: {
+      get() {
+        return this.$store.state.zap.allPackages
+      },
+    },
+    pagination: {
+      get() {
+        return {
+          sortBy: 'desc',
+          descending: false,
+          page: 1,
+          rowsPerPage: this.$store.state.zap.allPackages.length,
+        }
+      },
+    },
+  },
 }
 </script>

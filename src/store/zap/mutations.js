@@ -25,6 +25,10 @@ export function updateInformationText(state, text) {
   state.informationText = text
 }
 
+export function setAllPackages(state, packages) {
+  state.allPackages = packages
+}
+
 export function updateClusters(state, clusters) {
   state.clusters = clusters
   state.domains = [...new Set(state.clusters.map((a) => a.domainName))]

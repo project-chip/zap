@@ -393,6 +393,18 @@ function httpGetPackages(db) {
 }
 
 /**
+ * HTTP GET: All Packages
+ */
+function httpGetAllPackages(db) {
+  return async (request, response) => {
+    let packageSessionPackagePairs = await queryPackage.getAllPackages(db)
+    response
+      .status(StatusCodes.OK)
+      .json({ packages: packageSessionPackagePairs })
+  }
+}
+
+/**
  * HTTP POST: Add new project package
  */
 function httpPostAddNewPackage(db) {
@@ -756,6 +768,10 @@ exports.get = [
   {
     uri: restApi.uri.packages,
     callback: httpGetPackages,
+  },
+  {
+    uri: restApi.uri.getAllPackages,
+    callback: httpGetAllPackages,
   },
 ]
 

@@ -580,6 +580,9 @@ export function loadInitialData(context, data) {
       )
     }
   })
+  Vue.prototype.$serverGet(restApi.uri.getAllPackages).then((response) => {
+    context.commit('setAllPackages', response.data.packages)
+  })
 }
 
 /**
