@@ -56,7 +56,6 @@ function initLoad(store) {
     localStorage.getItem('showDevTools') &&
     localStorage.getItem('showDevTools') == 'true'
   ) {
-    console.log('mehtest', localStorage.getItem('showDevTools'))
     store.dispatch('zap/updateShowDevTools')
   }
 

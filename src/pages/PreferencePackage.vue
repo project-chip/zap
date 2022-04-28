@@ -38,11 +38,6 @@ limitations under the License.
 <script>
 export default {
   name: 'PreferencePackage',
-  beforeCreate() {
-    this.$serverGet(restApi.uri.getAllPackages).then((response) => {
-      this.data = response.data
-    })
-  },
   data() {
     return {
       columns: [

@@ -20,7 +20,8 @@
  *
  * @module REST API: user data
  */
-
+const fs = require('fs')
+const fsPromise = fs.promises
 const env = require('../util/env')
 const queryZcl = require('../db/query-zcl.js')
 const queryAttribute = require('../db/query-attribute.js')
@@ -397,10 +398,17 @@ function httpGetPackages(db) {
  */
 function httpGetAllPackages(db) {
   return async (request, response) => {
-    let packageSessionPackagePairs = await queryPackage.getAllPackages(db)
-    response
-      .status(StatusCodes.OK)
-      .json({ packages: packageSessionPackagePairs })
+    let packages = await queryPackage.getAllPackages(db)
+    await Promise.all(
+      packages.map(async (singlePackage) => {
+        singlePackage.content = await fsPromise.readFile(
+          singlePackage.PATH,
+          'utf8'
+        )
+        return singlePackage
+      })
+    )
+    response.status(StatusCodes.OK).json({ packages })
   }
 }
 
