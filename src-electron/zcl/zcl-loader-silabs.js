@@ -519,22 +519,12 @@ function prepareCluster(cluster, context, isExtension = false) {
   }
 
   if ('attribute' in cluster) {
-    if (
-      context.loadedClusterAttributes &&
-      !context.loadedClusterAttributes[cluster.name]
-    ) {
-      context.loadedClusterAttributes[cluster.name] = []
-    }
     ret.attributes = []
     cluster.attribute.forEach((attribute) => {
       let name = attribute._
       if ('description' in attribute && name == null) {
         name = attribute.description.join('')
       }
-      if (context.loadedClusterAttributes) {
-        context.loadedClusterAttributes[cluster.name].push(name)
-      }
-
       let reportingPolicy = context.defaultReportingPolicy
       if (attribute.$.reportable == 'true') {
         reportingPolicy = dbEnum.reportingPolicy.suggested
@@ -1589,9 +1579,6 @@ async function loadSilabsZcl(db, metafile, isJson = false) {
   let ctx = {
     metadataFile: metafile,
     db: db,
-    // A map of cluster names to lists of attribute names, so we can validate
-    // our attributeAccessInterfaceAttributes makes sense.
-    loadedClusterAttributes: {},
   }
   env.logDebug(`Loading Silabs zcl file: ${ctx.metadataFile}`)
   await dbApi.dbBeginTransaction(db)
@@ -1616,24 +1603,32 @@ async function loadSilabsZcl(db, metafile, isJson = false) {
     // Validate that our attributeAccessInterfaceAttributes, if present, is
     // sane.
     if (ctx.attributeAccessInterfaceAttributes) {
+      let all_known_clusters = await queryZcl.selectAllClusters(
+        db,
+        ctx.packageId
+      )
       for (let clusterName of Object.keys(
         ctx.attributeAccessInterfaceAttributes
       )) {
-        if (!Object.keys(ctx.loadedClusterAttributes).includes(clusterName)) {
+        let known_cluster = all_known_clusters.find(
+          (c) => c.name == clusterName
+        )
+        if (!known_cluster) {
           throw new Error(
             `\n\nUnknown cluster "${clusterName}" in attributeAccessInterfaceAttributes\n\n`
           )
         }
 
+        let known_cluster_attributes =
+          await queryZcl.selectAttributesByClusterIdIncludingGlobal(
+            db,
+            known_cluster.id,
+            ctx.packageId
+          )
         for (let attrName of ctx.attributeAccessInterfaceAttributes[
           clusterName
         ]) {
-          // ctx.loadedClusterAttributes["undefined"] is where global attributes
-          // land.
-          if (
-            !ctx.loadedClusterAttributes[clusterName].includes(attrName) &&
-            !ctx.loadedClusterAttributes['undefined'].includes(attrName)
-          ) {
+          if (!known_cluster_attributes.find((a) => a.name == attrName)) {
             throw new Error(
               `\n\nUnknown attribute "${attrName}" in attributeAccessInterfaceAttributes["${clusterName}"]\n\n`
             )
