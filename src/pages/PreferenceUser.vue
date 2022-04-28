@@ -79,6 +79,7 @@ export default {
         return this.$store.state.zap.showDevTools
       },
       set() {
+        localStorage.setItem('showDevTools', !this.devtab)
         return this.$store.dispatch('zap/updateShowDevTools')
       },
     },
