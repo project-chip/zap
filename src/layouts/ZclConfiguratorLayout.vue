@@ -33,7 +33,8 @@ limitations under the License.
               emit-value
               map-options
               @input="setSelectedEndpoint($event)"
-              style="width: 250px"
+              bg-color="white"
+              style="width: 250px;"
             />
           </q-toolbar-title>
           <q-toolbar-title v-on:click.ctrl="showVersion" v-else>
@@ -59,7 +60,7 @@ limitations under the License.
                 :ripple="false"
                 :unelevated="false"
                 :outline="false"
-                to="/customZcl"
+                @click="zclExtensionDialog = true"
               >
                 <div class="text-align q-ml-xs">ZCL Extensions...</div>
               </q-btn>
@@ -84,6 +85,9 @@ limitations under the License.
         <zcl-cluster-manager  />
       </q-page-container>
     </q-layout>
+    <q-dialog v-model="zclExtensionDialog" style="width:800px;">
+      <ZclExtensionDialog />
+    </q-dialog>
   </div>
 </template>
 
@@ -92,6 +96,7 @@ import ZclGeneralOptionsBar from '../components/ZclGeneralOptionsBar.vue'
 import ZclEndpointManager from '../components/ZclEndpointManager.vue'
 import ZclClusterManager from '../components/ZclClusterManager.vue'
 import InitialContent from '../components/InitialContent.vue'
+import ZclExtensionDialog from '../components/ZclCustomZclView.vue'
 
 const restApi = require('../../src-shared/rest-api.js')
 const commonUrl = require('../../src-shared/common-url.js')
@@ -199,7 +204,8 @@ export default {
   data() {
     return {
       isExpanded: false,
-      globalOptionsDialog:false
+      globalOptionsDialog:false,
+      zclExtensionDialog:false
 
     }
   },
@@ -208,6 +214,7 @@ export default {
     ZclEndpointManager,
     ZclClusterManager,
     InitialContent,
+    ZclExtensionDialog
   },
 }
 </script>
