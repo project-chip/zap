@@ -317,7 +317,7 @@ describe('User and session tests', () => {
       sessionId = userSession.sessionId
       expect(userId).not.toBeNull()
       expect(sessionId).not.toBeNull()
-      let sessions = await querySession.getUserSessions(db, userId)
+      let sessions = await querySession.getUserSessionsById(db, userId)
       expect(sessions.length).toBe(1)
     },
     testUtil.timeout.medium()
@@ -337,7 +337,7 @@ describe('User and session tests', () => {
       expect(userSession.userId).toEqual(userId)
       expect(userSession.sessionId).not.toBeNull()
       expect(userSession.sessionId).not.toEqual(sessionId)
-      let sessions = await querySession.getUserSessions(db, userId)
+      let sessions = await querySession.getUserSessionsById(db, userId)
       expect(sessions.length).toBe(2)
     },
     testUtil.timeout.medium()
@@ -357,9 +357,9 @@ describe('User and session tests', () => {
       expect(userSession.userId).not.toBeNull()
       expect(userSession.userId).not.toEqual(userId)
       expect(userSession.sessionId).toEqual(sessionId)
-      let sessions = await querySession.getUserSessions(db, userId)
+      let sessions = await querySession.getUserSessionsById(db, userId)
       expect(sessions.length).toBe(1)
-      sessions = await querySession.getUserSessions(db, userSession.userId)
+      sessions = await querySession.getUserSessionsById(db, userSession.userId)
       expect(sessions.length).toBe(1)
     },
     testUtil.timeout.medium()
@@ -379,8 +379,37 @@ describe('User and session tests', () => {
       )
       expect(userSession.userId).toEqual(userId)
       expect(userSession.sessionId).toEqual(sessionId)
-      let sessions = await querySession.getUserSessions(db, userId)
+      let sessions = await querySession.getUserSessionsById(db, userId)
       expect(sessions.length).toBe(1)
+    },
+    testUtil.timeout.medium()
+  )
+
+  test(
+    'verify user and session info getter api',
+    async () => {
+      let userKeys = await querySession
+        .getUsers(db)
+        .then((users) => users.map((u) => u.userKey))
+      expect(userKeys.includes('user1')).toBeTruthy()
+      expect(userKeys.includes('user2')).toBeTruthy()
+
+      let usersSessions = await querySession.getUsersSessions(db)
+      let user1Rows = usersSessions.filter(
+        (userSession) => userSession.userKey === 'user1'
+      )
+      expect(user1Rows.length).toBeGreaterThan(0)
+      expect(user1Rows[0].sessions.map((s) => s.sessionKey)).toContain(
+        'session2'
+      )
+
+      let user2Rows = usersSessions.filter(
+        (userSession) => userSession.userKey === 'user2'
+      )
+      expect(user2Rows.length).toBeGreaterThan(0)
+      expect(user2Rows[0].sessions.map((s) => s.sessionKey)).toContain(
+        'session1'
+      )
     },
     testUtil.timeout.medium()
   )
