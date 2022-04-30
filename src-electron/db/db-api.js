@@ -460,6 +460,11 @@ async function performSchemaLoad(db, schemaContent) {
  */
 async function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
   let schemaFileContent = await fsp.readFile(schemaPath, 'utf8')
+  let saved = {
+    savedDate: zapVersion.date,
+    savedVersion: zapVersion.version,
+    savedHash: zapVersion.hash,
+  }
   let context = {
     filePath: schemaPath,
     data: schemaFileContent,
@@ -487,6 +492,11 @@ async function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
   }
   if ('date' in zapVersion) {
     await insertOrReplaceSetting(db, 'APP', 'DATE', zapVersion.date)
+  }
+  if (context.mustLoad) {
+    await insertOrReplaceSetting(db, 'APP', 'VERSION', saved.savedVersion)
+    await insertOrReplaceSetting(db, 'APP', 'HASH', saved.savedHash)
+    await insertOrReplaceSetting(db, 'APP', 'DATE', saved.savedDate)
   }
   return db
 }
