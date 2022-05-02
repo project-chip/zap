@@ -655,12 +655,19 @@ async function determineType(db, type, packageId) {
     }
 
   let theEnum = await queryZcl.selectEnumByName(db, type, packageId)
-  if (theEnum != null)
+  if (theEnum != null) {
+    let size = theEnum.size
+    if (size == 3) {
+      size = 4
+    } else if (size == 6) {
+      size = 8
+    }
     return {
       type: dbEnum.zclType.enum,
-      atomicType: theEnum.type,
+      atomicType: 'enum' + size * 8,
       size: theEnum.size,
     }
+  }
 
   let struct = await queryZcl.selectStructByName(db, type, packageId)
   if (struct != null)
@@ -670,12 +677,20 @@ async function determineType(db, type, packageId) {
     }
 
   let theBitmap = await queryZcl.selectBitmapByName(db, packageId, type)
-  if (theBitmap != null)
+  if (theBitmap != null) {
+    let size = theBitmap.size
+    if (size == 3) {
+      size = 4
+    } else if (size == 6) {
+      size = 8
+    }
     return {
       type: dbEnum.zclType.bitmap,
-      atomicType: theBitmap.type,
+      atomicType: 'bitmap' + size * 8,
       size: theBitmap.size,
     }
+  }
+
   return {
     type: dbEnum.zclType.unknown,
     atomicType: null,
