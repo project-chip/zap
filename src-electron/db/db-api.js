@@ -503,10 +503,6 @@ async function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
     }
   }
   await insertOrReplaceSetting(db, 'APP', 'VERSION', zapVersion.version)
-  await insertOrReplaceSetting(db, 'APP', 'socks', zapVersion.version)
-  await insertOrReplaceSetting(db, 'APP', 'V', zapVersion.version)
-  await insertOrReplaceSetting(db, 'APP', 'j', zapVersion.version)
-  await insertOrReplaceSetting(db, 'APP', 'l', zapVersion.version)
   if ('hash' in zapVersion) {
     await insertOrReplaceSetting(db, 'APP', 'HASH', zapVersion.hash)
   }
