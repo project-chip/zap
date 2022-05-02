@@ -472,7 +472,6 @@ async function performSchemaLoad(db, schemaContent) {
 async function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
   let schemaFileContent = await fsp.readFile(schemaPath, 'utf8')
   let rows = []
-  rows = await saveSettings(db)
   let context = {
     filePath: schemaPath,
     data: schemaFileContent,
@@ -480,6 +479,7 @@ async function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
   }
   await determineIfSchemaShouldLoad(db, context)
   if (context.mustLoad && context.hasSchema) {
+    rows = await saveSettings(db)
     await closeDatabase(db)
     if (sqliteFile != null) util.createBackupFile(sqliteFile)
   }
@@ -490,7 +490,6 @@ async function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
       db = await initDatabase(sqliteFile)
     }
   }
-
   if (context.mustLoad) {
     await performSchemaLoad(db, context.data)
     await updateCurrentSchemaCrc(db, context)
@@ -504,6 +503,10 @@ async function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
     }
   }
   await insertOrReplaceSetting(db, 'APP', 'VERSION', zapVersion.version)
+  await insertOrReplaceSetting(db, 'APP', 'socks', zapVersion.version)
+  await insertOrReplaceSetting(db, 'APP', 'V', zapVersion.version)
+  await insertOrReplaceSetting(db, 'APP', 'j', zapVersion.version)
+  await insertOrReplaceSetting(db, 'APP', 'l', zapVersion.version)
   if ('hash' in zapVersion) {
     await insertOrReplaceSetting(db, 'APP', 'HASH', zapVersion.hash)
   }
