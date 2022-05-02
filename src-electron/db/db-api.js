@@ -400,6 +400,17 @@ async function insertOrReplaceSetting(db, category, key, value) {
     [category, key, value]
   )
 }
+/**
+ * Returns an array of containing the entire SETTING table
+ *
+ * @param {*} db
+ * @returns  An array containing the entire SETTING table
+ */
+async function saveSettings(db) {
+  let rows = []
+  rows = await dbAll(db, 'SELECT * FROM SETTING')
+  return rows
+}
 
 async function determineIfSchemaShouldLoad(db, context) {
   try {
@@ -460,11 +471,8 @@ async function performSchemaLoad(db, schemaContent) {
  */
 async function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
   let schemaFileContent = await fsp.readFile(schemaPath, 'utf8')
-  let saved = {
-    savedDate: zapVersion.date,
-    savedVersion: zapVersion.version,
-    savedHash: zapVersion.hash,
-  }
+  let rows = []
+  rows = await saveSettings(db)
   let context = {
     filePath: schemaPath,
     data: schemaFileContent,
@@ -482,9 +490,18 @@ async function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
       db = await initDatabase(sqliteFile)
     }
   }
+
   if (context.mustLoad) {
     await performSchemaLoad(db, context.data)
     await updateCurrentSchemaCrc(db, context)
+    for (let i = 0; i < rows.length; i++) {
+      await insertOrReplaceSetting(
+        db,
+        rows[i].CATEGORY,
+        rows[i].KEY,
+        rows[i].VALUE
+      )
+    }
   }
   await insertOrReplaceSetting(db, 'APP', 'VERSION', zapVersion.version)
   if ('hash' in zapVersion) {
@@ -492,11 +509,6 @@ async function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
   }
   if ('date' in zapVersion) {
     await insertOrReplaceSetting(db, 'APP', 'DATE', zapVersion.date)
-  }
-  if (context.mustLoad) {
-    await insertOrReplaceSetting(db, 'APP', 'VERSION', saved.savedVersion)
-    await insertOrReplaceSetting(db, 'APP', 'HASH', saved.savedHash)
-    await insertOrReplaceSetting(db, 'APP', 'DATE', saved.savedDate)
   }
   return db
 }
