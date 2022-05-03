@@ -105,68 +105,66 @@ export default {
     },
   },
   watch: {
-    selectedCluster() {
-      const disabledAttributes = this.relevantAttributeData.filter(
-        (singleItem) => {
-          let indexOfValue = this.selection.indexOf(
-            this.hashAttributeIdClusterId(
-              singleItem.id,
-              this.selectedCluster.id
-            )
-          )
-          if (indexOfValue === -1) {
-            return true
-          } else {
-            return false
-          }
-        }
-      )
-      disabledAttributes.forEach((singleAttribute) => {
-        let editContext = {
-          action: 'boolean',
-          endpointTypeId: this.selectedEndpointTypeId,
-          endpointTypeIdList: this.endpointTypeIdList,
-          id: singleAttribute.id,
-          value: false,
-          listType: 'selectedAttributes',
-          clusterRef: this.selectedCluster.id,
-          attributeSide: singleAttribute.side,
-          reportMinInterval: singleAttribute.reportMinInterval,
-          reportMaxInterval: singleAttribute.reportMaxInterval,
-        }
-        this.$store.dispatch('zap/updateSelectedAttribute', editContext)
-      })
-
-      this.relevantAttributeData.forEach((singleItem) => {
-        let defaultValue =
-          this.selectionDefault[
-            this.hashAttributeIdClusterId(
-              singleItem.id,
-              this.selectedCluster.id
-            )
-          ]
-
-        if (
-          defaultValue !== '' &&
-          defaultValue !== null &&
-          defaultValue !== undefined
-        ) {
-          let editContext = {
-            action: 'text',
-            endpointTypeIdList: this.endpointTypeIdList,
-            endpointTypeId: this.selectedEndpointTypeId,
-            id: singleItem.id,
-            value: defaultValue,
-            listType: 'defaultValue',
-            clusterRef: this.selectedCluster.id,
-            attributeSide: singleItem.side,
-            reportMinInterval: singleItem.reportMinInterval,
-            reportMaxInterval: singleItem.reportMaxInterval,
-          }
-          this.$store.dispatch('zap/updateSelectedAttribute', editContext)
-        }
-      })
-    },
+    // selectedCluster() {
+    //   const disabledAttributes = this.relevantAttributeData.filter(
+    //     (singleItem) => {
+    //       let indexOfValue = this.selection.indexOf(
+    //         this.hashAttributeIdClusterId(
+    //           singleItem.id,
+    //           this.selectedCluster.id
+    //         )
+    //       )
+    //       if (indexOfValue === -1) {
+    //         return true
+    //       } else {
+    //         return false
+    //       }
+    //     }
+    //   )
+    //   disabledAttributes.forEach((singleAttribute) => {
+    //     let editContext = {
+    //       action: 'boolean',
+    //       endpointTypeId: this.selectedEndpointTypeId,
+    //       endpointTypeIdList: this.endpointTypeIdList,
+    //       id: singleAttribute.id,
+    //       value: false,
+    //       listType: 'selectedAttributes',
+    //       clusterRef: this.selectedCluster.id,
+    //       attributeSide: singleAttribute.side,
+    //       reportMinInterval: singleAttribute.reportMinInterval,
+    //       reportMaxInterval: singleAttribute.reportMaxInterval,
+    //     }
+    //     this.$store.dispatch('zap/updateSelectedAttribute', editContext)
+    //   })
+    //   this.relevantAttributeData.forEach((singleItem) => {
+    //     let defaultValue =
+    //       this.selectionDefault[
+    //         this.hashAttributeIdClusterId(
+    //           singleItem.id,
+    //           this.selectedCluster.id
+    //         )
+    //       ]
+    //     if (
+    //       defaultValue !== '' &&
+    //       defaultValue !== null &&
+    //       defaultValue !== undefined
+    //     ) {
+    //       let editContext = {
+    //         action: 'text',
+    //         endpointTypeIdList: this.endpointTypeIdList,
+    //         endpointTypeId: this.selectedEndpointTypeId,
+    //         id: singleItem.id,
+    //         value: defaultValue,
+    //         listType: 'defaultValue',
+    //         clusterRef: this.selectedCluster.id,
+    //         attributeSide: singleItem.side,
+    //         reportMinInterval: singleItem.reportMinInterval,
+    //         reportMaxInterval: singleItem.reportMaxInterval,
+    //       }
+    //       this.$store.dispatch('zap/updateSelectedAttribute', editContext)
+    //     }
+    //   })
+    // },
   },
   methods: {
     handleLocalChange(localChanges, listType, attributeData, clusterId) {
