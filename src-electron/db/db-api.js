@@ -403,11 +403,11 @@ async function insertOrReplaceSetting(db, category, key, value) {
 }
 
 /**
- * Returns a promise to insert or replace a setting into the database.
+ * Updates SETTING table with values selected
  *
  * @param {*} db
- * @param {*} version
- * @returns  A promise that resolves with a rowid of created setting row or rejects with error if something goes wrong.
+ * @param {*} rows
+ * @returns  A promise that resolves with the SETTING table being repopulated
  */
 async function updateSetting(db, rows) {
   for (let i = 0; i < rows.length; i++) {
@@ -499,7 +499,6 @@ async function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
   await determineIfSchemaShouldLoad(db, context)
   if (context.mustLoad && context.hasSchema) {
     rows = await selectSettings(db)
-    console.table(rows)
     await closeDatabase(db)
     if (sqliteFile != null) util.createBackupFile(sqliteFile)
   }
