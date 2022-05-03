@@ -484,6 +484,14 @@ exports.map = {
       accessModifier: x.MODIFIER_NAME,
     }
   },
+  settings: (x) => {
+    if (x == null) return undefined
+    return {
+      category: x.CATEGORY,
+      key: x.KEY,
+      value: x.VALUE,
+    }
+  },
 }
 
 exports.reverseMap = {

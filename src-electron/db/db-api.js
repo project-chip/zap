@@ -27,6 +27,7 @@ const env = require('../util/env')
 const util = require('../util/util.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const dbCache = require('./db-cache')
+const dbMapping = require('./db-mapping.js')
 
 // This is a SQLITE specific thing. With SQLITE databases,
 // we can't have multiple transactions. So this mechanism
@@ -400,16 +401,34 @@ async function insertOrReplaceSetting(db, category, key, value) {
     [category, key, value]
   )
 }
+
 /**
- * Returns an array of containing the entire SETTING table
+ * Returns a promise to insert or replace a setting into the database.
  *
  * @param {*} db
- * @returns  An array containing the entire SETTING table
+ * @param {*} version
+ * @returns  A promise that resolves with a rowid of created setting row or rejects with error if something goes wrong.
  */
-async function saveSettings(db) {
+async function updateSetting(db, rows) {
+  for (let i = 0; i < rows.length; i++) {
+    dbInsert(
+      db,
+      'INSERT OR REPLACE INTO SETTING ( CATEGORY, KEY, VALUE ) VALUES ( ?, ?, ? )',
+      [rows[i].category, rows[i].key, rows[i].value]
+    )
+  }
+}
+
+/**
+ * Returns a promise resolving the entire SETTING table
+ *
+ * @param {*} db
+ * @returns  A promise resolving the entire SETTING table
+ */
+async function selectSettings(db) {
   let rows = []
-  rows = await dbAll(db, 'SELECT * FROM SETTING')
-  return rows
+  rows = await dbAll(db, 'SELECT CATEGORY,KEY,VALUE FROM SETTING')
+  return rows.map(dbMapping.map.settings)
 }
 
 async function determineIfSchemaShouldLoad(db, context) {
@@ -479,7 +498,8 @@ async function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
   }
   await determineIfSchemaShouldLoad(db, context)
   if (context.mustLoad && context.hasSchema) {
-    rows = await saveSettings(db)
+    rows = await selectSettings(db)
+    console.table(rows)
     await closeDatabase(db)
     if (sqliteFile != null) util.createBackupFile(sqliteFile)
   }
@@ -493,15 +513,9 @@ async function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
   if (context.mustLoad) {
     await performSchemaLoad(db, context.data)
     await updateCurrentSchemaCrc(db, context)
-    for (let i = 0; i < rows.length; i++) {
-      await insertOrReplaceSetting(
-        db,
-        rows[i].CATEGORY,
-        rows[i].KEY,
-        rows[i].VALUE
-      )
-    }
+    await updateSetting(db, rows)
   }
+
   await insertOrReplaceSetting(db, 'APP', 'VERSION', zapVersion.version)
   if ('hash' in zapVersion) {
     await insertOrReplaceSetting(db, 'APP', 'HASH', zapVersion.hash)
