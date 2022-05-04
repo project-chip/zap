@@ -133,8 +133,19 @@ async function parseZclFiles(db, ctx) {
   ctx.zclDeviceTypes = []
   ctx.zclManufacturers = []
 
-  ctx.zclFiles.forEach((file) => {
-    env.logDebug(`Starting to parse Dotdot ZCL file: ${file}`)
+  // Load the Types File first such the atomic types are loaded and can be
+  //referenced by other types
+  let typesFiles = ctx.zclFiles.filter((file) => file.includes('library.xml'))
+  let typeFilePromise = typesFiles.map((file) =>
+    parseSingleZclFile(db, ctx, file)
+  )
+  await Promise.all(typeFilePromise)
+
+  // Load everything apart from atomic data types
+  let nonTypesFiles = ctx.zclFiles.filter(
+    (file) => !file.includes('library.xml')
+  )
+  nonTypesFiles.map((file) => {
     let p = parseSingleZclFile(db, ctx, file)
     perFilePromise.push(p)
   })
@@ -1024,7 +1035,7 @@ async function processStructItems(db, filePath, packageId, data) {
           structClusterCode: si.cluster ? parseInt(si.clusterCode) : null,
           name: item.name,
           type:
-            item.type == item.type.toUpperCase()
+            item.type == item.type.toUpperCase() && item.type.length > 1
               ? item.type.toLowerCase()
               : item.type,
           fieldIdentifier: lastFieldId,

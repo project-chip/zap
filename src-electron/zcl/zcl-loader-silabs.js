@@ -1256,7 +1256,7 @@ async function processStructItems(db, filePath, packageId, data) {
           structClusterCode: si.cluster ? parseInt(si.clusterCode) : null,
           name: item.$.name,
           type:
-            item.$.type == item.$.type.toUpperCase()
+            item.$.type == item.$.type.toUpperCase() && item.$.type.length > 1
               ? item.$.type.toLowerCase()
               : item.$.type,
           fieldIdentifier: lastFieldId,
