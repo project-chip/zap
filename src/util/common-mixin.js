@@ -103,11 +103,11 @@ export default {
     endpointTypeIdList: {
       get() {
         // this.shareConfigsAcrossEndpoints is a string.
-        if (this.shareConfigsAcrossEndpoints) {
-          return Object.keys(this.endpointId)
-        } else {
-          return [this.selectedEndpointTypeId]
-        }
+        // if (this.shareConfigsAcrossEndpoints) {
+        return Object.keys(this.endpointId)
+        // } else {
+        // return [this.selectedEndpointTypeId]
+        // }
       },
     },
   },

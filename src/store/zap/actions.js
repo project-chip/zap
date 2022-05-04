@@ -724,21 +724,31 @@ export function loadZclClusterToUcComponentDependencyMap(context) {
     })
 }
 
-export function unifyClustersAndAttributesAcrossEndpoints(context, data) {
+export function unifyStatesWithinClustersAcrossEndpoints(context, data) {
   let { endpointTypeIdList } = data
   Vue.prototype
-    .$serverPost(restApi.uri.unifyClustersAcrossEndpoints, {
+    .$serverPost(restApi.uri.unifyStatesWithinClustersAcrossEndpoints, {
       endpointTypeIdList,
     })
     .then((response) => {
-      console.log(restApi.uri.unifyClustersAcrossEndpoints)
+      console.log(
+        `${restApi.uri.unifyStatesWithinClustersAcrossEndpoints} finished.`
+      )
     })
 
-  Vue.prototype
-    .$serverPost(restApi.uri.unifyAttributesAcrossEndpoints, {
-      endpointTypeIdList,
-    })
-    .then((response) => {
-      console.log(restApi.uri.unifyAttributesAcrossEndpoints)
-    })
+  // Vue.prototype
+  //   .$serverPost(restApi.uri.unifyClustersAcrossEndpoints, {
+  //     endpointTypeIdList,
+  //   })
+  //   .then((response) => {
+  //     console.log(restApi.uri.unifyClustersAcrossEndpoints)
+  //   })
+
+  // Vue.prototype
+  //   .$serverPost(restApi.uri.unifyAttributesAcrossEndpoints, {
+  //     endpointTypeIdList,
+  //   })
+  //   .then((response) => {
+  //     console.log(restApi.uri.unifyAttributesAcrossEndpoints)
+  //   })
 }
