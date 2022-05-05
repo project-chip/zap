@@ -1569,6 +1569,44 @@ async function if_is_bitmap(type, options) {
 }
 
 /**
+ * If helper that checks if a type is a bitmap which is non-atomic.
+ * Non-atomic bitmaps are bitmaps which are not bitmap8/16/32(generally defined
+ * in types.xml)
+ * example:
+ * {{#if_is_non_atomic_bitmap type}}
+ * type is non atomic bitmap
+ * {{else}}
+ * type is not a non-atomic bitmap
+ * {{/if_is_non_atomic_bitmap}}
+ *
+ * @param {*} type
+ * @returns Promise of content.
+ */
+async function if_is_non_atomic_bitmap(type, options) {
+  let packageId = await templateUtil.ensureZclPackageId(this)
+  let bitmap
+  if (type && typeof type === 'string') {
+    bitmap = await queryZcl.selectBitmapByName(this.global.db, packageId, type)
+  } else {
+    bitmap = await queryZcl.selectBitmapById(this.global.db, type)
+  }
+
+  if (bitmap) {
+    let a = await queryZcl.selectAtomicType(
+      this.global.db,
+      packageId,
+      bitmap.name
+    )
+    if (a) {
+      return options.inverse(this)
+    } else {
+      return options.fn(this)
+    }
+  }
+  return options.inverse(this)
+}
+
+/**
  * If helper that checks if a type is an enum
  *
  * * example:
@@ -1592,6 +1630,45 @@ async function if_is_enum(type, options) {
     .then((res) => (res ? res : queryZcl.selectEnumById(this.global.db, type)))
     .then((res) => (res ? options.fn(this) : options.inverse(this)))
   return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
+ * If helper that checks if a type is a enum which is non-atomic.
+ * Non-atomic enums are enums which are not enum8/16/32(generally defined
+ * in types.xml)
+ *
+ * * example:
+ * {{#if_is_non_atomic_enum type}}
+ * type is non atomic enum
+ * {{else}}
+ * type is not a non-atomic enum
+ * {{/if_is_non_atomic_enum}}
+ *
+ * @param {*} type
+ * @returns Promise of content.
+ */
+async function if_is_non_atomic_enum(type, options) {
+  let packageId = await templateUtil.ensureZclPackageId(this)
+  let enumRes
+  if (type && typeof type === 'string') {
+    enumRes = await queryZcl.selectEnumByName(this.global.db, type, packageId)
+  } else {
+    enumRes = await queryZcl.selectEnumById(this.global.db, type)
+  }
+
+  if (enumRes) {
+    let a = await queryZcl.selectAtomicType(
+      this.global.db,
+      packageId,
+      enumRes.name
+    )
+    if (a) {
+      return options.inverse(this)
+    } else {
+      return options.fn(this)
+    }
+  }
+  return options.inverse(this)
 }
 
 /**
@@ -2638,3 +2715,5 @@ exports.if_is_char_string = if_is_char_string
 exports.if_is_octet_string = if_is_octet_string
 exports.if_is_short_string = if_is_short_string
 exports.if_is_long_string = if_is_long_string
+exports.if_is_non_atomic_bitmap = if_is_non_atomic_bitmap
+exports.if_is_non_atomic_enum = if_is_non_atomic_enum
