@@ -27,6 +27,7 @@ const env = require('../util/env')
 const util = require('../util/util.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const dbCache = require('./db-cache')
+const dbMapping = require('./db-mapping.js')
 
 // This is a SQLITE specific thing. With SQLITE databases,
 // we can't have multiple transactions. So this mechanism
@@ -401,6 +402,35 @@ async function insertOrReplaceSetting(db, category, key, value) {
   )
 }
 
+/**
+ * Updates SETTING table with values selected
+ *
+ * @param {*} db
+ * @param {*} rows
+ * @returns  A promise that resolves with the SETTING table being repopulated
+ */
+async function updateSetting(db, rows) {
+  for (let i = 0; i < rows.length; i++) {
+    dbInsert(
+      db,
+      'INSERT OR REPLACE INTO SETTING ( CATEGORY, KEY, VALUE ) VALUES ( ?, ?, ? )',
+      [rows[i].category, rows[i].key, rows[i].value]
+    )
+  }
+}
+
+/**
+ * Returns a promise resolving the entire SETTING table
+ *
+ * @param {*} db
+ * @returns  A promise resolving the entire SETTING table
+ */
+async function selectSettings(db) {
+  let rows = []
+  rows = await dbAll(db, 'SELECT CATEGORY,KEY,VALUE FROM SETTING')
+  return rows.map(dbMapping.map.settings)
+}
+
 async function determineIfSchemaShouldLoad(db, context) {
   try {
     let row = await dbGet(
@@ -460,6 +490,7 @@ async function performSchemaLoad(db, schemaContent) {
  */
 async function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
   let schemaFileContent = await fsp.readFile(schemaPath, 'utf8')
+  let rows = []
   let context = {
     filePath: schemaPath,
     data: schemaFileContent,
@@ -467,6 +498,7 @@ async function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
   }
   await determineIfSchemaShouldLoad(db, context)
   if (context.mustLoad && context.hasSchema) {
+    rows = await selectSettings(db)
     await closeDatabase(db)
     if (sqliteFile != null) util.createBackupFile(sqliteFile)
   }
@@ -480,7 +512,9 @@ async function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
   if (context.mustLoad) {
     await performSchemaLoad(db, context.data)
     await updateCurrentSchemaCrc(db, context)
+    await updateSetting(db, rows)
   }
+
   await insertOrReplaceSetting(db, 'APP', 'VERSION', zapVersion.version)
   if ('hash' in zapVersion) {
     await insertOrReplaceSetting(db, 'APP', 'HASH', zapVersion.hash)

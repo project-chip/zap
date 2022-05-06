@@ -76,10 +76,10 @@ async function getSessionDirtyFlag(db, sessionId) {
   }
 }
 /**
- * Resolves w/ the session tied to a session id. 
- * 
- * @param {*} db 
- * @param {*} sessionId 
+ * Resolves w/ the session tied to a session id.
+ *
+ * @param {*} db
+ * @param {*} sessionId
  * @returns A promise that resolves into a session
  */
 async function getSessionFromSessionId(db, sessionId) {
@@ -250,16 +250,46 @@ async function createBlankSession(db, uuid = null) {
 }
 
 /**
+ * Returns all users.
+ *
+ * @param {*} db
+ * @param {*} userId
+ * @returns Promise that resolves into an array of sessions.
+ */
+async function getUsers(db) {
+  let rows = await dbApi.dbAll(db, 'SELECT * from USER')
+  return rows.map(dbMapping.map.user)
+}
+
+/**
  * Returns sessions for a given user.
  *
  * @param {*} db
  * @param {*} userId
  * @returns Promise that resolves into an array of sessions.
  */
-async function getUserSessions(db, userId) {
+async function getUsersSessions(db) {
+  let allUsers = await getUsers(db)
+  let sessionsPerUser = await Promise.all(
+    allUsers.map((user) => getUserSessionsById(db, user.userId))
+  )
+  allUsers.forEach((user, i) => {
+    user.sessions = sessionsPerUser[i]
+  })
+  return allUsers
+}
+
+/**
+ * Returns sessions for a given user.
+ *
+ * @param {*} db
+ * @param {*} userId
+ * @returns Promise that resolves into an array of sessions.
+ */
+async function getUserSessionsById(db, userId) {
   let rows = await dbApi.dbAll(
     db,
-    'SELECT SESSION_ID, CREATION_TIME, DIRTY FROM SESSION WHERE USER_REF = ?',
+    'SELECT SESSION_ID, SESSION_KEY, CREATION_TIME, DIRTY FROM SESSION WHERE USER_REF = ?',
     [userId]
   )
   return rows.map(dbMapping.map.session)
@@ -479,4 +509,6 @@ exports.insertSessionKeyValues = insertSessionKeyValues
 exports.getSessionKeyValue = getSessionKeyValue
 exports.getAllSessionKeyValues = getAllSessionKeyValues
 exports.ensureUser = ensureUser
-exports.getUserSessions = getUserSessions
+exports.getUserSessionsById = getUserSessionsById
+exports.getUsers = getUsers
+exports.getUsersSessions = getUsersSessions
