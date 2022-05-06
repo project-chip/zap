@@ -788,6 +788,11 @@ async function collectAttributes(endpointTypes, options) {
           mask: mask,
           name: cmd.name,
           comment: cluster.comment,
+          responseName: cmd.responseName,
+          responseId:
+            cmd.responseRef !== null
+              ? asMEI(cmd.responseManufacturerCode, cmd.responseCode)
+              : null,
         }
         commandList.push(command)
         cluster.commands.push(command)
