@@ -37,6 +37,7 @@ const uri = {
   sql: '/sql',
   version: '/version',
   packages: `/packages`,
+  getAllPackages: `/allpackages`,
   addNewPackage: `/packages/add`,
   sessionPackage: `/sessionPackage`,
   zclExtension: `/zclExtension/:entity/:extensionId`,

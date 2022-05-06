@@ -20,7 +20,8 @@
  *
  * @module REST API: user data
  */
-
+const fs = require('fs')
+const fsPromise = fs.promises
 const env = require('../util/env')
 const queryZcl = require('../db/query-zcl.js')
 const queryAttribute = require('../db/query-attribute.js')
@@ -393,6 +394,25 @@ function httpGetPackages(db) {
 }
 
 /**
+ * HTTP GET: All Packages
+ */
+function httpGetAllPackages(db) {
+  return async (request, response) => {
+    let packages = await queryPackage.getAllPackages(db)
+    await Promise.all(
+      packages.map(async (singlePackage) => {
+        singlePackage.content = await fsPromise.readFile(
+          singlePackage.PATH,
+          'utf8'
+        )
+        return singlePackage
+      })
+    )
+    response.status(StatusCodes.OK).json({ packages })
+  }
+}
+
+/**
  * HTTP POST: Add new project package
  */
 function httpPostAddNewPackage(db) {
@@ -756,6 +776,10 @@ exports.get = [
   {
     uri: restApi.uri.packages,
     callback: httpGetPackages,
+  },
+  {
+    uri: restApi.uri.getAllPackages,
+    callback: httpGetAllPackages,
   },
 ]
 
