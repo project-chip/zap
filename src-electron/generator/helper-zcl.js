@@ -1573,16 +1573,16 @@ async function if_is_bitmap(type, options) {
  * Non-atomic bitmaps are bitmaps which are not bitmap8/16/32(generally defined
  * in types.xml)
  * example:
- * {{#if_is_non_atomic_bitmap type}}
+ * {{#if_is_weakly_typed_bitmap type}}
  * type is non atomic bitmap
  * {{else}}
  * type is not a non-atomic bitmap
- * {{/if_is_non_atomic_bitmap}}
+ * {{/if_is_weakly_typed_bitmap}}
  *
  * @param {*} type
  * @returns Promise of content.
  */
-async function if_is_non_atomic_bitmap(type, options) {
+async function if_is_weakly_typed_bitmap(type, options) {
   let packageId = await templateUtil.ensureZclPackageId(this)
   let bitmap
   if (type && typeof type === 'string') {
@@ -1633,42 +1633,82 @@ async function if_is_enum(type, options) {
 }
 
 /**
+ * An helper function to a handlebar-helper that checks if a type is a enum
+ * which is non-atomic. Non-atomic enums are enums which are not
+ * enum8/16/32(generally defined in types.xml)
+ *
+ * * example for if_is_weakly_typed_enum:
+ * {{#if_is_weakly_typed_enum type}}
+ * type is non atomic enum
+ * {{else}}
+ * type is not a non-atomic enum
+ * {{/if_is_weakly_typed_enum}}
+ *
+ * @param {*} type
+ * @param {*} options
+ * @param {*} context
+ * @returns Promise of content.
+ */
+async function if_is_weakly_typed_enum_common(type, options, context) {
+  let packageId = await templateUtil.ensureZclPackageId(context)
+  let enumRes
+  if (type && typeof type === 'string') {
+    enumRes = await queryZcl.selectEnumByName(
+      context.global.db,
+      type,
+      packageId
+    )
+  } else {
+    enumRes = await queryZcl.selectEnumById(context.global.db, type)
+  }
+
+  if (enumRes) {
+    let a = await queryZcl.selectAtomicType(
+      context.global.db,
+      packageId,
+      enumRes.name
+    )
+    if (a) {
+      return options.inverse(context)
+    } else {
+      return options.fn(context)
+    }
+  }
+  return options.inverse(context)
+}
+
+/**
  * If helper that checks if a type is a enum which is non-atomic.
  * Non-atomic enums are enums which are not enum8/16/32(generally defined
  * in types.xml)
  *
  * * example:
- * {{#if_is_non_atomic_enum type}}
+ * {{#if_is_weakly_typed_enum type}}
  * type is non atomic enum
  * {{else}}
  * type is not a non-atomic enum
- * {{/if_is_non_atomic_enum}}
+ * {{/if_is_weakly_typed_enum}}
  *
  * @param {*} type
  * @returns Promise of content.
  */
-async function if_is_non_atomic_enum(type, options) {
-  let packageId = await templateUtil.ensureZclPackageId(this)
-  let enumRes
-  if (type && typeof type === 'string') {
-    enumRes = await queryZcl.selectEnumByName(this.global.db, type, packageId)
-  } else {
-    enumRes = await queryZcl.selectEnumById(this.global.db, type)
-  }
+async function if_is_weakly_typed_enum(type, options) {
+  return if_is_weakly_typed_enum_common(type, options, this)
+}
 
-  if (enumRes) {
-    let a = await queryZcl.selectAtomicType(
-      this.global.db,
-      packageId,
-      enumRes.name
-    )
-    if (a) {
-      return options.inverse(this)
-    } else {
-      return options.fn(this)
-    }
+/**
+ *
+ * @param {*} type
+ * @param {*} options
+ * @returns The same as if_is_weakly_typed_enum apart from some special use
+ * cases.
+ */
+async function if_is_weakly_typed_chip_enum(type, options) {
+  if (type.toLowerCase() == 'vendor_id') {
+    return options.fn(this)
+  } else {
+    return if_is_weakly_typed_enum_common(type, options, this)
   }
-  return options.inverse(this)
 }
 
 /**
@@ -2715,5 +2755,6 @@ exports.if_is_char_string = if_is_char_string
 exports.if_is_octet_string = if_is_octet_string
 exports.if_is_short_string = if_is_short_string
 exports.if_is_long_string = if_is_long_string
-exports.if_is_non_atomic_bitmap = if_is_non_atomic_bitmap
-exports.if_is_non_atomic_enum = if_is_non_atomic_enum
+exports.if_is_weakly_typed_bitmap = if_is_weakly_typed_bitmap
+exports.if_is_weakly_typed_enum = if_is_weakly_typed_enum
+exports.if_is_weakly_typed_chip_enum = if_is_weakly_typed_chip_enum
