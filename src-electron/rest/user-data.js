@@ -148,7 +148,6 @@ function httpPostAttributeUpdate(db) {
   return async (request, response) => {
     let {
       action,
-      endpointTypeId,
       endpointTypeIdList,
       id,
       value,
@@ -161,11 +160,7 @@ function httpPostAttributeUpdate(db) {
     } = request.body
 
     if (!Array.isArray(endpointTypeIdList) || !endpointTypeIdList.length) {
-      if (endpointTypeId == 'undefined') {
-        response.status(StatusCodes.BAD_REQUEST).json()
-      } else {
-        endpointTypeIdList = [endpointTypeId]
-      }
+      return response.status(StatusCodes.BAD_REQUEST).json()
     }
 
     let paramType
@@ -604,7 +599,7 @@ function httpPostUnifyAttributesAcrossEndpoints(db) {
  * 2) (native case in ZAP) In Matter, the Attribute configuration are endpoint specific.
  *
  */
-function httpPostUnifyStatesWithinClustersAcrossEndpoints(db) {
+function httpPostShareClusterStatesAcrossEndpoints(db) {
   return async (request, response) => {
     let { endpointTypeIdList } = request.body
     if (!Array.isArray(endpointTypeIdList) || endpointTypeIdList.length < 1) {
@@ -1005,8 +1000,8 @@ exports.post = [
     callback: httpPostAddNewPackage,
   },
   {
-    uri: restApi.uri.unifyStatesWithinClustersAcrossEndpoints,
-    callback: httpPostUnifyStatesWithinClustersAcrossEndpoints,
+    uri: restApi.uri.shareClusterStatesAcrossEndpoints,
+    callback: httpPostShareClusterStatesAcrossEndpoints,
   },
 ]
 

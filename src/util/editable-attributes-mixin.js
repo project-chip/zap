@@ -235,7 +235,6 @@ export default {
       let editContext = {
         action: 'text',
         endpointTypeIdList: this.endpointTypeIdList,
-        endpointTypeId: this.selectedEndpointTypeId,
         id: attributeData.id,
         value: newValue,
         listType: listType,

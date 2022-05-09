@@ -19,10 +19,7 @@ const uri = {
   zclEntity: '/zcl/:entity/:id',
   saveSessionKeyValue: '/save',
   getAllSessionKeyValues: '/allKeyValues',
-  unifyStatesWithinClustersAcrossEndpoints:
-    '/unifyStatesWithinClustersAcrossEndpoints',
-  // unifyClustersAcrossEndpoints: '/unifyClustersAcrossEndpoints',
-  // unifyAttributesAcrossEndpoints: '/unifyAttributesAcrossEndpoints',
+  shareClusterStatesAcrossEndpoints: '/shareClusterStatesAcrossEndpoints',
   generate: '/generate',
   endpoint: '/endpoint',
   endpointType: '/endpointType',

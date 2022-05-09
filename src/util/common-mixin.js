@@ -16,6 +16,7 @@
  */
 
 import * as Util from './util'
+import * as DbEnum from '../../src-shared/db-enum'
 const http = require('http-status-codes')
 
 /**
@@ -102,12 +103,11 @@ export default {
     },
     endpointTypeIdList: {
       get() {
-        // this.shareConfigsAcrossEndpoints is a string.
-        // if (this.shareConfigsAcrossEndpoints) {
-        return Object.keys(this.endpointId)
-        // } else {
-        // return [this.selectedEndpointTypeId]
-        // }
+        if (this.shareClusterStatesAcrossEndpoints()) {
+          return Object.keys(this.endpointId)
+        } else {
+          return [this.selectedEndpointTypeId]
+        }
       },
     },
   },
@@ -142,6 +142,24 @@ export default {
      */
     standaloneMode() {
       return this.$store.state.zap.standalone
+    },
+
+    /**
+     * Whether ZAP is running in Zigbee mode to enforce rules when Cluster
+     * are shared between 2 or more endpoints.
+     */
+    shareClusterStatesAcrossEndpoints() {
+      let res = this.$store.state.zap.genericOptions?.generator?.filter(
+        (x) =>
+          x.optionCode ==
+          DbEnum.generatorOptions.shareClusterStatesAcrossEndpoints
+      )
+
+      if (res?.length) {
+        return res[0].optionLabel === 'true'
+      } else {
+        return false
+      }
     },
 
     /**
