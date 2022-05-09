@@ -214,6 +214,10 @@ SELECT
   C.MANUFACTURER_CODE,
   C.IS_OPTIONAL,
   C.MUST_USE_TIMED_INVOKE,
+  C.RESPONSE_NAME,
+  RC.MANUFACTURER_CODE as RESPONSE_MANUFACTURER_CODE,
+  RC.CODE AS RESPONSE_CODE,
+  C.RESPONSE_REF,
   ETC.INCOMING,
   ETC.OUTGOING
 FROM
@@ -222,6 +226,10 @@ LEFT JOIN
   ENDPOINT_TYPE_COMMAND AS ETC
 ON
   C.COMMAND_ID = ETC.COMMAND_REF
+LEFT JOIN
+  COMMAND AS RC
+ON
+  RC.COMMAND_ID = C.RESPONSE_REF
 WHERE
   C.CLUSTER_REF = ?
   AND ETC.ENDPOINT_TYPE_REF = ?
@@ -242,6 +250,10 @@ ORDER BY C.CODE
       source: row['SOURCE'],
       isIncoming: row['INCOMING'],
       isOutgoing: row['OUTGOING'],
+      responseName: row['RESPONSE_NAME'],
+      responseManufacturerCode: row['RESPONSE_MANUFACTURER_CODE'],
+      responseCode: row['RESPONSE_CODE'],
+      responseRef: row['RESPONSE_REF'],
       hexCode: '0x' + bin.int8ToHex(row['CODE']),
     }
   })

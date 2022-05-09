@@ -452,6 +452,27 @@ async function getPackageSessionPackagePairBySessionId(db, sessionId) {
 }
 
 /**
+ * Returns all packages
+ * @param {*} db
+ */
+async function getAllPackages(db) {
+  return dbApi
+    .dbAll(
+      db,
+      `SELECT 
+        PACKAGE.PACKAGE_ID, 
+        PACKAGE.PATH, 
+        PACKAGE.TYPE, 
+        PACKAGE.CRC, 
+        PACKAGE.VERSION, 
+        PACKAGE.PARENT_PACKAGE_REF
+       FROM 
+        PACKAGE`
+    )
+    .then((rows) => rows)
+}
+
+/**
  * This async function inserts an option and its values into the DB.
  *
  * @param {*} db
@@ -839,6 +860,7 @@ exports.selectOptionValueByOptionDefaultId = selectOptionValueByOptionDefaultId
 exports.getPackagesByParentAndType = getPackagesByParentAndType
 exports.getSessionZclPackages = getSessionZclPackages
 exports.getSessionZclPackageIds = getSessionZclPackageIds
+exports.getAllPackages = getAllPackages
 
 exports.insertPackageExtension = insertPackageExtension
 exports.selectPackageExtension = selectPackageExtension

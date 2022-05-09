@@ -48,8 +48,7 @@ limitations under the License.
               self="bottom middle"
               :offset="[10, 10]"
             >
-              The outgoing command is mandatory for the cluster and device type
-              configuration you have enabled
+              {{ validationErrorMessage }}
             </q-tooltip>
             <!-- <q-icon
               v-show="displayCommandWarning(props.row)"
@@ -200,24 +199,34 @@ export default {
   },
   methods: {
     displayCommandWarning(row) {
-      return (
-        (this.isCommandRequired(row) &&
-          ((this.selectionClients.includes(this.selectedCluster.id) &&
-            row.source == 'client') ||
-            (this.selectionServers.includes(this.selectedCluster.id) &&
-              row.source == 'server')) &&
-          !this.selectionOut.includes(
-            this.hashCommandIdClusterId(row.id, this.selectedCluster.id)
-          )) ||
-        (this.isCommandRequired(row) &&
-          ((this.selectionClients.includes(this.selectedCluster.id) &&
-            row.source == 'server') ||
-            (this.selectionServers.includes(this.selectedCluster.id) &&
-              row.source == 'client')) &&
-          !this.selectionIn.includes(
-            this.hashCommandIdClusterId(row.id, this.selectedCluster.id)
-          ))
-      )
+      if (
+        this.isCommandRequired(row) &&
+        ((this.selectionClients.includes(this.selectedCluster.id) &&
+          row.source == 'client') ||
+          (this.selectionServers.includes(this.selectedCluster.id) &&
+            row.source == 'server')) &&
+        !this.selectionOut.includes(
+          this.hashCommandIdClusterId(row.id, this.selectedCluster.id)
+        )
+      ) {
+        this.validationErrorMessage =
+          'The outgoing command is mandatory for the cluster and device type configuration you have enabled'
+        return true
+      }
+      if (
+        this.isCommandRequired(row) &&
+        ((this.selectionClients.includes(this.selectedCluster.id) &&
+          row.source == 'server') ||
+          (this.selectionServers.includes(this.selectedCluster.id) &&
+            row.source == 'client')) &&
+        !this.selectionIn.includes(
+          this.hashCommandIdClusterId(row.id, this.selectedCluster.id)
+        )
+      ) {
+        this.validationErrorMessage =
+          'The ingoing command is mandatory for the cluster and device type configuration you have enabled'
+        return true
+      }
     },
     handleCommandSelection(list, listType, commandData, clusterId) {
       // We determine the ID that we need to toggle within the list.
@@ -252,6 +261,7 @@ export default {
   },
   data() {
     return {
+      validationErrorMessage: '',
       pagination: {
         rowsPerPage: 0,
       },

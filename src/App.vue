@@ -52,6 +52,12 @@ function initLoad(store) {
     type: 'object',
   })
   store.dispatch('zap/loadSessionKeyValues')
+  if (
+    localStorage.getItem('showDevTools') &&
+    localStorage.getItem('showDevTools') == 'true'
+  ) {
+    store.dispatch('zap/updateShowDevTools')
+  }
 
   let promises = []
   promises.push(store.dispatch('zap/updateClusters'))
