@@ -183,6 +183,13 @@ test(
     4: Bit 4 is assigned to tag F2 => value = 1
     5: Bit 6 is assigned to tag F3 => value = 0`
     )
+
+    let deviceType = genResult.content['device-types.txt']
+    expect(deviceType).toContain('>> Attribute: ProductURL [13]')
+    expect(deviceType).toContain('>> Command: TriggerEffect [64]')
+    expect(deviceType).toContain(
+      '=> cluster BACnet Protocol Tunnel: includeClient/includeServer/lockClient/lockServer=true/true/true/true'
+    )
   },
   testUtil.timeout.long()
 )

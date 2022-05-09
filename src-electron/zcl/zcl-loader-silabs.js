@@ -19,15 +19,15 @@ const fs = require('fs')
 const fsp = fs.promises
 const path = require('path')
 const properties = require('properties')
-const dbApi = require('../db/db-api.js')
-const queryPackage = require('../db/query-package.js')
-const queryZcl = require('../db/query-zcl.js')
-const queryLoader = require('../db/query-loader.js')
+const dbApi = require('../db/db-api')
+const queryPackage = require('../db/query-package')
+const queryDeviceType = require('../db/query-device-type')
+const queryLoader = require('../db/query-loader')
 const env = require('../util/env')
 const bin = require('../util/bin')
-const util = require('../util/util.js')
-const dbEnum = require('../../src-shared/db-enum.js')
-const zclLoader = require('./zcl-loader.js')
+const util = require('../util/util')
+const dbEnum = require('../../src-shared/db-enum')
+const zclLoader = require('./zcl-loader')
 const _ = require('lodash')
 
 /**
@@ -1979,12 +1979,13 @@ async function processCustomZclDeviceType(db, packageId) {
     name: dbEnum.customDevice.name,
     description: dbEnum.customDevice.description,
   })
-  let existingCustomDevice = await queryZcl.selectDeviceTypeByCodeAndName(
-    db,
-    packageId,
-    dbEnum.customDevice.code,
-    dbEnum.customDevice.name
-  )
+  let existingCustomDevice =
+    await queryDeviceType.selectDeviceTypeByCodeAndName(
+      db,
+      packageId,
+      dbEnum.customDevice.code,
+      dbEnum.customDevice.name
+    )
   if (existingCustomDevice == null)
     await queryLoader.insertDeviceTypes(db, packageId, customDeviceTypes)
 }

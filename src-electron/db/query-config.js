@@ -25,6 +25,7 @@ const dbMapping = require('./db-mapping.js')
 const queryPackage = require('./query-package.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const queryZcl = require('./query-zcl.js')
+const queryDeviceType = require('./query-device-type')
 const queryCommand = require('./query-command.js')
 const restApi = require('../../src-shared/rest-api.js')
 const _ = require('lodash')
@@ -576,7 +577,7 @@ async function setEndpointDefaults(
     throw new Error('Could not locate package id for a given session.')
 
   let packageId = pkgs[0].id
-  let clusters = await queryZcl.selectDeviceTypeClustersByDeviceTypeRef(
+  let clusters = await queryDeviceType.selectDeviceTypeClustersByDeviceTypeRef(
     db,
     deviceTypeRef
   )
@@ -663,7 +664,10 @@ async function resolveDefaultDeviceTypeAttributes(
   deviceTypeRef
 ) {
   let deviceTypeAttributes =
-    await queryZcl.selectDeviceTypeAttributesByDeviceTypeRef(db, deviceTypeRef)
+    await queryDeviceType.selectDeviceTypeAttributesByDeviceTypeRef(
+      db,
+      deviceTypeRef
+    )
 
   let promises = deviceTypeAttributes.map(async (deviceAttribute) => {
     if (deviceAttribute.attributeRef != null) {
@@ -705,7 +709,7 @@ async function resolveDefaultDeviceTypeAttributes(
 
 async function resolveCommandState(db, endpointTypeId, deviceCommand) {
   let deviceTypeCluster =
-    await queryZcl.selectDeviceTypeClusterByDeviceTypeClusterId(
+    await queryDeviceType.selectDeviceTypeClusterByDeviceTypeClusterId(
       db,
       deviceCommand.deviceTypeClusterRef
     )
@@ -760,7 +764,7 @@ async function resolveDefaultDeviceTypeCommands(
   endpointTypeId,
   deviceTypeRef
 ) {
-  let commands = await queryZcl.selectDeviceTypeCommandsByDeviceTypeRef(
+  let commands = await queryDeviceType.selectDeviceTypeCommandsByDeviceTypeRef(
     db,
     deviceTypeRef
   )

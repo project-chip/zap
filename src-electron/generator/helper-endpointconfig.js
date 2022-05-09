@@ -988,8 +988,7 @@ function endpoint_config(options) {
                     // we exclude from metadata.
                     cl.attributes = attributes.filter(
                       (a) =>
-                        a.isIncluded === 1 &&
-                        !isGlobalAttrExcludedFromMetadata(a)
+                        a.isIncluded && !isGlobalAttrExcludedFromMetadata(a)
                     )
                   })
               )

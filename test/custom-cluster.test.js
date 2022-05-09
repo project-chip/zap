@@ -25,7 +25,7 @@ const testUtil = require('./test-util')
 const querySession = require('../src-electron/db/query-session')
 const queryPackage = require('../src-electron/db/query-package')
 const queryConfig = require('../src-electron/db/query-config')
-const queryZcl = require('../src-electron/db/query-zcl')
+const queryDeviceType = require('../src-electron/db/query-device-type')
 
 const util = require('../src-electron/util/util')
 let db
@@ -136,7 +136,7 @@ test(
     if (x[0].packageRef == customPackageId) mainPackageId = x[1].packageRef
     else mainPackageId = x[0].packageRef
 
-    let onOffDevice = await queryZcl.selectDeviceTypeByCodeAndName(
+    let onOffDevice = await queryDeviceType.selectDeviceTypeByCodeAndName(
       db,
       mainPackageId,
       0x0000,

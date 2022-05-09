@@ -18,16 +18,17 @@
  * @jest-environment node
  */
 
-const dbApi = require('../src-electron/db/db-api.js')
-const dbEnum = require('../src-shared/db-enum.js')
-const queryZcl = require('../src-electron/db/query-zcl.js')
-const queryCommand = require('../src-electron/db/query-command.js')
-const queryPackage = require('../src-electron/db/query-package.js')
-const zclLoader = require('../src-electron/zcl/zcl-loader.js')
+const dbApi = require('../src-electron/db/db-api')
+const dbEnum = require('../src-shared/db-enum')
+const queryZcl = require('../src-electron/db/query-zcl')
+const queryDeviceType = require('../src-electron/db/query-device-type')
+const queryCommand = require('../src-electron/db/query-command')
+const queryPackage = require('../src-electron/db/query-package')
+const zclLoader = require('../src-electron/zcl/zcl-loader')
 const env = require('../src-electron/util/env.ts')
-const types = require('../src-electron/util/types.js')
-const testUtil = require('./test-util.js')
-const testQuery = require('./test-query.js')
+const types = require('../src-electron/util/types')
+const testUtil = require('./test-util')
+const testQuery = require('./test-query')
 
 beforeAll(async () => {
   process.env.DEV = true
@@ -82,7 +83,7 @@ test(
       expect(x.length).toEqual(54)
       x = await queryZcl.selectAllBitmaps(db, packageId)
       expect(x.length).toEqual(129)
-      x = await queryZcl.selectAllDeviceTypes(db, packageId)
+      x = await queryDeviceType.selectAllDeviceTypes(db, packageId)
       expect(x.length).toEqual(175)
       x = await testQuery.selectCountFrom(db, 'COMMAND_ARG')
       expect(x).toEqual(testUtil.totalCommandArgsCount)
@@ -215,7 +216,7 @@ test(
 
       x = await queryZcl.selectAllClusters(db, packageId)
       expect(x.length).toEqual(41)
-      x = await queryZcl.selectAllDeviceTypes(db, packageId)
+      x = await queryDeviceType.selectAllDeviceTypes(db, packageId)
       expect(x.length).toEqual(108)
       x = await testQuery.selectCountFrom(db, 'COMMAND_ARG')
       expect(x).toEqual(644)
@@ -237,10 +238,10 @@ test(
       expect(x).toEqual(63)
 
       //Do some checking on the device type metadata
-      x = await queryZcl.selectAllDeviceTypes(db, packageId)
+      x = await queryDeviceType.selectAllDeviceTypes(db, packageId)
 
       x.forEach((d) => {
-        queryZcl
+        queryDeviceType
           .selectDeviceTypeClustersByDeviceTypeRef(db, d.id)
           .then((dc) => {
             dc.forEach((dcr) => {
@@ -249,7 +250,7 @@ test(
                   `for ${d.caption} failed to match dcr ${dcr.clusterName}`
                 )
               } else {
-                queryZcl
+                queryDeviceType
                   .selectDeviceTypeAttributesByDeviceTypeRef(
                     db,
                     dcr.deviceTypeRef
@@ -366,7 +367,7 @@ test(
 
       x = await queryZcl.selectAllClusters(db, packageId)
       expect(x.length).toEqual(105)
-      x = await queryZcl.selectAllDeviceTypes(db, packageId)
+      x = await queryDeviceType.selectAllDeviceTypes(db, packageId)
       expect(x.length).toEqual(172)
       x = await testQuery.selectCountFrom(db, 'COMMAND_ARG')
       expect(x).toEqual(1782)

@@ -1508,12 +1508,14 @@ async function selectCommandDetailsFromAllEndpointTypesAndClusters(
     C.CLUSTER_REF = CLUSTER.CLUSTER_ID
   WHERE
     ETC.ENDPOINT_TYPE_REF IN (${endpointTypeIds})
-    AND ETC.ENDPOINT_TYPE_CLUSTER_REF in (${endpointClusterIds}) `
+    AND ETC.ENDPOINT_TYPE_CLUSTER_REF in (${endpointClusterIds})`
 
   if (doGroupBy) {
     // See: https://github.com/project-chip/zap/issues/192
-    query = query + ` GROUP BY C.NAME, C.COMMAND_ID`
+    query = query + ' GROUP BY C.NAME, C.COMMAND_ID'
   }
+
+  query = query + ' ORDER BY C.MANUFACTURER_CODE, C.CODE, C.NAME'
 
   return dbApi.dbAll(db, query).then((rows) => rows.map(commandMapFunction))
 }

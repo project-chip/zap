@@ -21,6 +21,7 @@ const fs = require('fs')
 
 const dbApi = require('../src-electron/db/db-api')
 const queryZcl = require('../src-electron/db/query-zcl')
+const queryDeviceType = require('../src-electron/db/query-device-type')
 const queryCommand = require('../src-electron/db/query-command')
 const queryLoader = require('../src-electron/db/query-loader')
 const queryConfig = require('../src-electron/db/query-config')
@@ -345,7 +346,7 @@ describe('Endpoint Type Config Queries', () => {
   test(
     'Insert EndpointType and test various states',
     () =>
-      queryZcl.selectAllDeviceTypes(db, pkgId).then((rows) => {
+      queryDeviceType.selectAllDeviceTypes(db, pkgId).then((rows) => {
         let haOnOffDeviceTypeArray = rows.filter(
           (data) => data.label === 'HA-onoff'
         )

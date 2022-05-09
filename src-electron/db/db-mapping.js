@@ -371,7 +371,9 @@ exports.map = {
     return {
       deviceTypeClusterRef: x.DEVICE_TYPE_CLUSTER_REF,
       attributeRef: x.ATTRIBUTE_REF,
-      attributeName: x.ATTRIBUTE_NAME,
+      name: x.NAME,
+      code: x.CODE,
+      manufacturerCode: x.MANUFACTURER_CODE,
     }
   },
 
@@ -380,7 +382,9 @@ exports.map = {
     return {
       deviceTypeClusterRef: x.DEVICE_TYPE_CLUSTER_REF,
       commandRef: x.COMMAND_REF,
-      commandName: x.COMMAND_NAME,
+      name: x.NAME,
+      code: x.CODE,
+      manufacturerCode: x.MANUFACTURER_CODE,
     }
   },
 
