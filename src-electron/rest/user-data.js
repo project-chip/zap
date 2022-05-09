@@ -38,7 +38,6 @@ const restApi = require('../../src-shared/rest-api.js')
 const zclLoader = require('../zcl/zcl-loader.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const { StatusCodes } = require('http-status-codes')
-const { getClusterExtensionDefault } = require('util/util')
 
 /**
  * HTTP GET: session key values
