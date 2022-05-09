@@ -99,11 +99,11 @@ describe('Testing endpoints sharing attribute values', () => {
     'Check Command changes on Endpoint 2 is reflected on Endpoint 1',
     { retries: { runMode: 2, openMode: 2 } },
     () => {
-      cy.fixture('baseurl').then((data) => {
-        cy.visit(data.baseurl)
-      })
+      // Go back to main page
+      cy.get('.router-link-active').click()
 
       cy.gotoAttributePage(false, 'General')
+
       cy.gotoCommandsTab()
       cy.get(':nth-child(3) > .q-mt-xs').should(
         'have.attr',
