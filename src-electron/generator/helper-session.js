@@ -736,7 +736,7 @@ async function all_user_cluster_generated_attributes(options) {
   let endpointAttributes =
     await queryAttribute.selectAttributeDetailsFromEnabledClusters(
       this.global.db,
-      endpointsAndClusters.map((x) => x.endpointClusterId)
+      endpointsAndClusters
     )
   return templateUtil.collectBlocks(endpointAttributes, options, this)
 }
