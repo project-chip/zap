@@ -30,6 +30,7 @@ const queryZcl = require('../src-electron/db/query-zcl')
 const queryAccess = require('../src-electron/db/query-access')
 const dbEnum = require('../src-shared/db-enum')
 const { Exception } = require('handlebars')
+const querySession = require('../src-electron/db/query-session.js')
 
 let db
 const testFile = path.join(__dirname, 'resource/test-meta.zap')
@@ -119,7 +120,7 @@ test(
     }
 
     const bitmaps = await queryZcl.selectAllBitmaps(db, zclContext.packageId)
-    expect(bitmaps.length).toBe(2)
+    expect(bitmaps.length).toBe(10)
     for (const b of bitmaps) {
       let clusters = await queryZcl.selectBitmapClusters(db, b.id)
       if (b.name == 'ClusterBitmap') {

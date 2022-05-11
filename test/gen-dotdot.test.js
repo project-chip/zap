@@ -29,6 +29,7 @@ const queryPackage = require('../src-electron/db/query-package.js')
 const {
   exportClustersFromEndpointType,
 } = require('../src-electron/db/query-impexp.js')
+const querySession = require('../src-electron/db/query-session.js')
 
 let db
 const testFile = path.join(__dirname, 'resource/three-endpoint-device.zap')
@@ -121,7 +122,7 @@ test(
 
     let types = genResult.content['dotdot-type.h']
     expect(types).not.toBeNull()
-    expect(types).toContain('// Bitmap: LevelOptions, type: map8')
+    expect(types).toContain('// Bitmap: LevelOptions, size: 1')
 
     let clusters = genResult.content['dotdot-cluster.xml']
     expect(clusters).not.toBeNull()

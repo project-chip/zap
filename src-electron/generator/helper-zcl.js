@@ -26,6 +26,11 @@ const types = require('../util/types')
 const zclUtil = require('../util/zcl-util')
 const _ = require('lodash')
 
+const characterStringTypes = ['CHAR_STRING', 'LONG_CHAR_STRING']
+const octetStringTypes = ['OCTET_STRING', 'LONG_OCTET_STRING']
+const stringShortTypes = ['CHAR_STRING', 'OCTET_STRING']
+const stringLongTypes = ['LONG_CHAR_STRING', 'LONG_OCTET_STRING']
+
 const fabricIndexType = 'fabric_idx'
 /**
  * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
@@ -1136,19 +1141,11 @@ async function enum_to_cli_data_type(currentContext, packageId, type, options) {
     type,
     packageId
   )
-  const enumType = await queryZcl.selectAtomicType(
-    currentContext.global.db,
-    packageId,
-    enumRecord.type
-  )
-  const enumSize = await zclUtil.calculateBytes(
-    enumType.name,
-    options,
-    currentContext.global.db,
-    packageId,
+  return helperC.as_zcl_cli_type(
+    enumRecord.size ? enumRecord.size : 1,
+    false,
     false
   )
-  return helperC.as_zcl_cli_type(enumSize, false, false)
 }
 
 /**
@@ -1170,19 +1167,11 @@ async function bitmap_to_cli_data_type(
     packageId,
     type
   )
-  const bitmapType = await queryZcl.selectAtomicType(
-    currentContext.global.db,
-    packageId,
-    bitmapRecord.type
-  )
-  const bitmapSize = await zclUtil.calculateBytes(
-    bitmapType.name,
-    options,
-    currentContext.global.db,
-    packageId,
+  return helperC.as_zcl_cli_type(
+    bitmapRecord.size ? bitmapRecord.size : 1,
+    false,
     false
   )
-  return helperC.as_zcl_cli_type(bitmapSize, false, false)
 }
 
 /**
@@ -1303,6 +1292,251 @@ function is_zcl_string(type) {
 }
 
 /**
+ * If helper that checks if a type is a string
+ *
+ * example:
+ * {{#if_is_number type}}
+ * type is number
+ * {{else}}
+ * type is not number
+ * {{/if_is_number}}
+ *
+ * @param {*} type
+ * @returns Promise of content.
+ */
+async function if_is_number(type, options) {
+  let promise = templateUtil
+    .ensureZclPackageId(this)
+    .then((packageId) =>
+      type && typeof type === 'string'
+        ? queryZcl.selectNumberByName(
+            this.global.db,
+            packageId,
+            type.toLowerCase()
+          )
+        : null
+    )
+    .then((res) =>
+      res ? res : queryZcl.selectNumberById(this.global.db, type)
+    )
+    .then((res) => (res ? options.fn(this) : options.inverse(this)))
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
+ * If helper that checks if a type is a string
+ *
+ * example:
+ * {{#if_is_string type}}
+ * type is string
+ * {{else}}
+ * type is not string
+ * {{/if_is_string}}
+ *
+ * @param {*} type
+ * @returns Promise of content.
+ */
+function if_is_string(type, options) {
+  let promise = templateUtil
+    .ensureZclPackageId(this)
+    .then((packageId) =>
+      type && typeof type === 'string'
+        ? queryZcl.selectStringByName(
+            this.global.db,
+            type.toLowerCase(),
+            packageId
+          )
+        : null
+    )
+    .then((res) =>
+      res ? res : queryZcl.selectStringById(this.global.db, type)
+    )
+    .then((res) => (res ? options.fn(this) : options.inverse(this)))
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
+ * If helper that checks if a string type is present in the list of char strings
+ * i.e. characterStringTypes
+ *
+ * example:
+ * {{#if_is_char_string type}}
+ * type is char string
+ * {{else}}
+ * type is not char string
+ * {{/if_is_char_string}}
+ *
+ * @param {*} type
+ * @returns Promise of content.
+ */
+function if_is_char_string(type, options) {
+  let promise = templateUtil
+    .ensureZclPackageId(this)
+    .then((packageId) =>
+      type && typeof type === 'string'
+        ? queryZcl.selectStringByName(
+            this.global.db,
+            type.toLowerCase(),
+            packageId
+          )
+        : null
+    )
+    .then((res) =>
+      res ? res : queryZcl.selectStringById(this.global.db, type)
+    )
+    .then((res) =>
+      res && res.name && characterStringTypes.includes(res.name.toUpperCase())
+        ? options.fn(this)
+        : options.inverse(this)
+    )
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
+ * If helper that checks if a string type is present in the list of octet strings
+ * i.e. octetStringTypes
+ *
+ * example:
+ * {{#if_is_octet_string type}}
+ * type is octet string
+ * {{else}}
+ * type is not octet string
+ * {{/if_is_octet_string}}
+ *
+ * @param {*} type
+ * @returns Promise of content.
+ */
+function if_is_octet_string(type, options) {
+  let promise = templateUtil
+    .ensureZclPackageId(this)
+    .then((packageId) =>
+      type && typeof type === 'string'
+        ? queryZcl.selectStringByName(
+            this.global.db,
+            type.toLowerCase(),
+            packageId
+          )
+        : null
+    )
+    .then((res) =>
+      res ? res : queryZcl.selectStringById(this.global.db, type)
+    )
+    .then((res) =>
+      res && res.name && octetStringTypes.includes(res.name.toUpperCase())
+        ? options.fn(this)
+        : options.inverse(this)
+    )
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
+ * If helper that checks if a string type is present in the list of short strings
+ * i.e. stringShortTypes
+ *
+ * example:
+ * {{#if_is_short_string type}}
+ * type is short string
+ * {{else}}
+ * type is not short string
+ * {{/if_is_short_string}}
+ *
+ * @param {*} type
+ * @returns Promise of content.
+ */
+function if_is_short_string(type, options) {
+  let promise = templateUtil
+    .ensureZclPackageId(this)
+    .then((packageId) =>
+      type && typeof type === 'string'
+        ? queryZcl.selectStringByName(
+            this.global.db,
+            type.toLowerCase(),
+            packageId
+          )
+        : null
+    )
+    .then((res) =>
+      res ? res : queryZcl.selectStringById(this.global.db, type)
+    )
+    .then((res) =>
+      res && res.name && stringShortTypes.includes(res.name.toUpperCase())
+        ? options.fn(this)
+        : options.inverse(this)
+    )
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
+ * If helper that checks if a string type is present in the list of long strings
+ * i.e. stringLongTypes
+ *
+ * example:
+ * {{#if_is_long_string type}}
+ * type is long string
+ * {{else}}
+ * type is not long string
+ * {{/if_is_long_string}}
+ *
+ * @param {*} type
+ * @returns Promise of content.
+ */
+function if_is_long_string(type, options) {
+  let promise = templateUtil
+    .ensureZclPackageId(this)
+    .then((packageId) =>
+      type && typeof type === 'string'
+        ? queryZcl.selectStringByName(
+            this.global.db,
+            type.toLowerCase(),
+            packageId
+          )
+        : null
+    )
+    .then((res) =>
+      res ? res : queryZcl.selectStringById(this.global.db, type)
+    )
+    .then((res) =>
+      res && res.name && stringLongTypes.includes(res.name.toUpperCase())
+        ? options.fn(this)
+        : options.inverse(this)
+    )
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
+ * If helper that checks if a type is an atomic
+ *
+ * example:
+ * {{#if_is_atomic type}}
+ * type is atomic
+ * {{else}}
+ * type is not atomic
+ * {{/if_is_atomic}}
+ *
+ * @param {*} type: string
+ * @returns Promise of content.
+ */
+async function if_is_atomic(type, options) {
+  let result = null
+  if (typeof type === 'string') {
+    result = await templateUtil
+      .ensureZclPackageId(this)
+      .then((packageId) =>
+        queryZcl.selectAtomicType(this.global.db, packageId, type)
+      )
+  } else {
+    env.logWarning(
+      'Passing a type which is invlaid for if_is_atomic helper: ' + type
+    )
+  }
+  if (result) {
+    return options.fn(this)
+  } else {
+    return options.inverse(this)
+  }
+}
+
+/**
  * If helper that checks if a type is a bitmap
  *
  * example:
@@ -1315,15 +1549,22 @@ function is_zcl_string(type) {
  * @param {*} type
  * @returns Promise of content.
  */
-function if_is_bitmap(type, options) {
-  let promise = templateUtil.ensureZclPackageId(this).then((packageId) =>
-    queryZcl.selectBitmapByName(this.global.db, packageId, type).then((st) => {
-      if (st || type.startsWith('map')) {
-        return options.fn(this)
-      }
-      return options.inverse(this)
-    })
-  )
+async function if_is_bitmap(type, options) {
+  let promise = templateUtil
+    .ensureZclPackageId(this)
+    .then((packageId) =>
+      type && typeof type === 'string'
+        ? queryZcl.selectBitmapByName(this.global.db, packageId, type)
+        : null
+    )
+    .then((res) =>
+      res ? res : queryZcl.selectBitmapById(this.global.db, type)
+    )
+    .then((res) =>
+      res || (typeof type === 'string' && type.startsWith('map'))
+        ? options.fn(this)
+        : options.inverse(this)
+    )
   return templateUtil.templatePromise(this.global, promise)
 }
 
@@ -1340,15 +1581,16 @@ function if_is_bitmap(type, options) {
  * @param {*} type
  * @returns Promise of content.
  */
-function if_is_enum(type, options) {
-  let promise = templateUtil.ensureZclPackageId(this).then((packageId) =>
-    queryZcl.selectEnumByName(this.global.db, type, packageId).then((st) => {
-      if (st || type.startsWith('enum')) {
-        return options.fn(this)
-      }
-      return options.inverse(this)
-    })
-  )
+async function if_is_enum(type, options) {
+  let promise = templateUtil
+    .ensureZclPackageId(this)
+    .then((packageId) =>
+      type && typeof type === 'string'
+        ? queryZcl.selectEnumByName(this.global.db, type, packageId)
+        : null
+    )
+    .then((res) => (res ? res : queryZcl.selectEnumById(this.global.db, type)))
+    .then((res) => (res ? options.fn(this) : options.inverse(this)))
   return templateUtil.templatePromise(this.global, promise)
 }
 
@@ -1365,15 +1607,18 @@ function if_is_enum(type, options) {
  * @param type
  * @returns Promise of content.
  */
-function if_is_struct(type, options) {
-  let promise = templateUtil.ensureZclPackageId(this).then((packageId) =>
-    queryZcl.selectStructByName(this.global.db, type, packageId).then((st) => {
-      if (st) {
-        return options.fn(this)
-      }
-      return options.inverse(this)
-    })
-  )
+async function if_is_struct(type, options) {
+  let promise = templateUtil
+    .ensureZclPackageId(this)
+    .then((packageId) =>
+      type && typeof type === 'string'
+        ? queryZcl.selectStructByName(this.global.db, type, packageId)
+        : null
+    )
+    .then((res) =>
+      res ? res : queryZcl.selectStructById(this.global.db, type)
+    )
+    .then((res) => (res ? options.fn(this) : options.inverse(this)))
   return templateUtil.templatePromise(this.global, promise)
 }
 
@@ -2386,3 +2631,10 @@ exports.if_is_struct = if_is_struct
 exports.if_mfg_specific_cluster = if_mfg_specific_cluster
 exports.zcl_commands_with_cluster_info = zcl_commands_with_cluster_info
 exports.zcl_commands_with_arguments = zcl_commands_with_arguments
+exports.if_is_string = if_is_string
+exports.if_is_atomic = if_is_atomic
+exports.if_is_number = if_is_number
+exports.if_is_char_string = if_is_char_string
+exports.if_is_octet_string = if_is_octet_string
+exports.if_is_short_string = if_is_short_string
+exports.if_is_long_string = if_is_long_string

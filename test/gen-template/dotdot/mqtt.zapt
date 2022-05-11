@@ -277,7 +277,7 @@ sl_status_t {{dotdot_prefix}}_{{asSnakeCaseLower parent.label}}_{{asSnakeCaseLow
   {{#if (isEnum type)}}
   doc.add("value", static_cast<{{asType parent.label}}{{asType label}}>(value));
   {{else}}
-    {{#if (isString type)}}
+    {{#if_is_string type}}
   doc.add("value", value);
     {{else}}
   // This looks a bit odd, but Boost PropertyTree insists on representing
@@ -294,7 +294,7 @@ sl_status_t {{dotdot_prefix}}_{{asSnakeCaseLower parent.label}}_{{asSnakeCaseLow
   doc.add("value", ":PlaceHolder");
         {{/if}}
       {{/if}}
-    {{/if}}
+    {{/if_is_string}}
   {{/if}}
 
 

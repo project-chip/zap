@@ -133,8 +133,19 @@ async function parseZclFiles(db, ctx) {
   ctx.zclDeviceTypes = []
   ctx.zclManufacturers = []
 
-  ctx.zclFiles.forEach((file) => {
-    env.logDebug(`Starting to parse Dotdot ZCL file: ${file}`)
+  // Load the Types File first such the atomic types are loaded and can be
+  //referenced by other types
+  let typesFiles = ctx.zclFiles.filter((file) => file.includes('library.xml'))
+  let typeFilePromise = typesFiles.map((file) =>
+    parseSingleZclFile(db, ctx, file)
+  )
+  await Promise.all(typeFilePromise)
+
+  // Load everything apart from atomic data types
+  let nonTypesFiles = ctx.zclFiles.filter(
+    (file) => !file.includes('library.xml')
+  )
+  nonTypesFiles.map((file) => {
     let p = parseSingleZclFile(db, ctx, file)
     perFilePromise.push(p)
   })
@@ -625,6 +636,491 @@ function prepareDeviceType(deviceType) {
 }
 
 /**
+ * Prepare Data Type Discriminator for database table insertion.
+ *
+ * @param {*} a
+ * @returns An Object
+ */
+function prepareDataTypeDiscriminator(a) {
+  return {
+    name: a.name,
+    id: a.id,
+  }
+}
+
+/**
+ * Processes Data Type Discriminator.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} zclDataTypes
+ * @returns Promise of inserted Data Type Discriminators.
+ */
+async function processDataTypeDiscriminator(db, packageId, zclDataTypes) {
+  // Loading the Data Types using ZCLDataTypes mentioned in zcl.json metadata
+  // file
+  let types = zclDataTypes.map((x, index) => {
+    return { id: index + 1, name: x }
+  })
+  env.logDebug(`${packageId}: ${types.length} Data Type Discriminator.`)
+  return queryLoader.insertDataTypeDiscriminator(
+    db,
+    packageId,
+    types.map((x) => prepareDataTypeDiscriminator(x))
+  )
+}
+
+/**
+ * Prepare Data Types for database table insertion.
+ *
+ * @param {*} a
+ * @param {*} dataType
+ * @param {*} typeMap
+ * @returns An Object
+ */
+function prepareDataType(a, dataType, typeMap) {
+  let dataTypeRef = 0
+  // The following is when the dataType is atomic/baseline
+  if (!dataType && a.name.toLowerCase().includes('map')) {
+    dataTypeRef = typeMap.get(dbEnum.zclType.bitmap)
+  } else if (!dataType && a.name.toLowerCase().includes(dbEnum.zclType.enum)) {
+    dataTypeRef = typeMap.get(dbEnum.zclType.enum)
+  } else if (
+    !dataType &&
+    a.name.toLowerCase().includes(dbEnum.zclType.string)
+  ) {
+    dataTypeRef = typeMap.get(dbEnum.zclType.string)
+  } else if (
+    !dataType &&
+    a.name.toLowerCase().includes(dbEnum.zclType.struct)
+  ) {
+    dataTypeRef = typeMap.get(dbEnum.zclType.struct)
+  } else if (!dataType) {
+    dataTypeRef = typeMap.get(dbEnum.zclType.number)
+  }
+  return {
+    name: a.name,
+    id: parseInt(a.id),
+    description: a.description ? a.description : a.name,
+    discriminator_ref: dataType ? dataType : dataTypeRef,
+    cluster_code: a.cluster ? a.cluster : null,
+  }
+}
+
+/**
+ * Processes Data Type.
+ *
+ * @param {*} db
+ * @param {*} filePath
+ * @param {*} packageId
+ * @param {*} data
+ * @param {*} dataType
+ * @returns Promise of inserted Data Types into the Data Type table.
+ */
+async function processDataType(db, filePath, packageId, data, dataType) {
+  let typeMap = await zclLoader.getDiscriminatorMap(db, packageId)
+
+  if (dataType == dbEnum.zclType.atomic) {
+    env.logDebug(`${filePath}, ${packageId}: ${data.length} Atomic Data Types.`)
+    return queryLoader.insertDataType(
+      db,
+      packageId,
+      data.map((x) => prepareDataType(x, 0, typeMap))
+    )
+  } else if (dataType == dbEnum.zclType.enum) {
+    env.logDebug(`${filePath}, ${packageId}: ${data.length} Enum Data Types.`)
+    return queryLoader.insertDataType(
+      db,
+      packageId,
+      data.map((x) =>
+        prepareDataType(x, typeMap.get(dbEnum.zclType.enum), typeMap)
+      )
+    )
+  } else if (dataType == dbEnum.zclType.bitmap) {
+    env.logDebug(`${filePath}, ${packageId}: ${data.length} Bitmap Data Types.`)
+    return queryLoader.insertDataType(
+      db,
+      packageId,
+      data.map((x) =>
+        prepareDataType(x, typeMap.get(dbEnum.zclType.bitmap), typeMap)
+      )
+    )
+  } else if (dataType == dbEnum.zclType.struct) {
+    env.logDebug(`${filePath}, ${packageId}: ${data.length} Struct Data Types.`)
+    return queryLoader.insertDataType(
+      db,
+      packageId,
+      data.map((x) =>
+        prepareDataType(x, typeMap.get(dbEnum.zclType.struct), typeMap)
+      )
+    )
+  } else if (dataType == dbEnum.zclType.string) {
+    env.logDebug(`${filePath}, ${packageId}: ${data.length} String Data Types.`)
+    return queryLoader.insertDataType(
+      db,
+      packageId,
+      data.map((x) =>
+        prepareDataType(x, typeMap.get(dbEnum.zclType.string), typeMap)
+      )
+    )
+  } else {
+    env.logError(
+      'Could not find the discriminator for the data type: ' + dataType
+    )
+  }
+}
+
+/**
+ * Prepare numbers for database table insertion.
+ *
+ * @param {*} a
+ * @param {*} dataType
+ * @returns An Object
+ */
+function prepareNumber(a, dataType) {
+  return {
+    size: a.size,
+    is_signed: a.name.endsWith('u') || !a.name.includes('int') ? 0 : 1,
+    name: a.name,
+    cluster_code: a.cluster ? a.cluster : null,
+    discriminator_ref: dataType,
+  }
+}
+
+/**
+ * Processes Numbers.
+ *
+ * @param {*} db
+ * @param {*} filePath
+ * @param {*} packageId
+ * @param {*} data
+ * @returns Promise of inserted numbers into the number table.
+ */
+async function processNumber(db, filePath, packageId, data) {
+  let typeMap = await zclLoader.getDiscriminatorMap(db, packageId)
+  let numbers = data.filter(function (item) {
+    return (
+      !item.name.toLowerCase().includes(dbEnum.zclType.bitmap) &&
+      !item.name.toLowerCase().includes(dbEnum.zclType.enum) &&
+      !item.name.toLowerCase().includes(dbEnum.zclType.string) &&
+      !item.name.toLowerCase().includes(dbEnum.zclType.struct)
+    )
+  })
+  env.logDebug(`${filePath}, ${packageId}: ${data.length} Number Types.`)
+  return queryLoader.insertNumber(
+    db,
+    packageId,
+    numbers.map((x) => prepareNumber(x, typeMap.get(dbEnum.zclType.number)))
+  )
+}
+
+/**
+ * Prepare strings for database table insertion.
+ *
+ * @param {*} a
+ * @param {*} dataType
+ * @returns An Object
+ */
+function prepareString(a, dataType) {
+  return {
+    is_long: a.long && a.long.toLowerCase() == 'true' ? 1 : 0,
+    size: a.size,
+    is_char: 0,
+    name: a.name,
+    cluster_code: a.cluster ? a.cluster : null,
+    discriminator_ref: dataType,
+  }
+}
+
+/**
+ * Processes Strings.
+ *
+ * @param {*} db
+ * @param {*} filePath
+ * @param {*} packageId
+ * @param {*} data
+ * @returns Promise of inserted strings into the String table.
+ */
+async function processString(db, filePath, packageId, data) {
+  let typeMap = await zclLoader.getDiscriminatorMap(db, packageId)
+  let strings = data.filter(function (item) {
+    return item.isString
+  })
+  env.logDebug(`${filePath}, ${packageId}: ${data.length} String Types.`)
+  return queryLoader.insertString(
+    db,
+    packageId,
+    strings.map((x) => prepareString(x, typeMap.get(dbEnum.zclType.string)))
+  )
+}
+
+/**
+ * Prepare enums or bitmaps for database table insertion.
+ *
+ * @param {*} a
+ * @param {*} dataType
+ * @returns An Object
+ */
+function prepareEnumsOrBitmaps(a, dataType) {
+  return {
+    name: a.name,
+    type: a.type.toLowerCase(),
+    cluster_code: a.cluster ? a.cluster : null,
+    discriminator_ref: dataType,
+  }
+}
+
+/**
+ * Processes the enums.
+ *
+ * @param {*} db
+ * @param {*} filePath
+ * @param {*} packageId
+ * @param {*} data
+ * @returns A promise of inserted enums.
+ */
+async function processEnums(db, filePath, packageId, data) {
+  env.logDebug(`${filePath}, ${packageId}: ${data.length} Enum Types.`)
+  let typeMap = await zclLoader.getDiscriminatorMap(db, packageId)
+  return queryLoader.insertEnum(
+    db,
+    packageId,
+    data.map((x) => prepareEnumsOrBitmaps(x, typeMap.get(dbEnum.zclType.enum)))
+  )
+}
+
+/**
+ * Processes the enum Items.
+ *
+ * @param {*} db
+ * @param {*} filePath
+ * @param {*} packageId
+ * @param {*} data
+ * @returns A promise of inserted enum items.
+ */
+async function processEnumItems(db, filePath, packageId, data) {
+  env.logDebug(`${filePath}, ${packageId}: ${data.length} Enum Items.`)
+  let enumItems = []
+  let lastFieldId = -1
+  data.forEach((e) => {
+    if ('items' in e) {
+      e.items.forEach((item) => {
+        let defaultFieldId = lastFieldId + 1
+        lastFieldId = item.fieldIdentifier
+          ? parseInt(item.fieldIdentifier)
+          : defaultFieldId
+        enumItems.push({
+          enumName: e.name,
+          enumClusterCode: e.cluster ? parseInt(e.clusterCode) : null,
+          name: item.name,
+          value: parseInt(item.value),
+          fieldIdentifier: lastFieldId,
+        })
+      })
+    }
+  })
+  return queryLoader.insertEnumItems(db, packageId, enumItems)
+}
+
+/**
+ * Processes the bitmaps.
+ *
+ * @param {*} db
+ * @param {*} filePath
+ * @param {*} packageId
+ * @param {*} data
+ * @returns A promise of inserted bitmaps.
+ */
+async function processBitmaps(db, filePath, packageId, data) {
+  env.logDebug(`${filePath}, ${packageId}: ${data.length} Bitmap Types.`)
+  let typeMap = await zclLoader.getDiscriminatorMap(db, packageId)
+  return queryLoader.insertBitmap(
+    db,
+    packageId,
+    data.map((x) =>
+      prepareEnumsOrBitmaps(x, typeMap.get(dbEnum.zclType.bitmap))
+    )
+  )
+}
+
+/**
+ * Processes the bitmap fields.
+ *
+ * @param {*} db
+ * @param {*} filePath
+ * @param {*} packageId
+ * @param {*} data
+ * @returns A promise of inserted bitmap fields.
+ */
+async function processBitmapFields(db, filePath, packageId, data) {
+  env.logDebug(`${filePath}, ${packageId}: ${data.length} Bitmap Fields.`)
+  let bitmapFields = []
+  let lastFieldId = -1
+  data.forEach((bm) => {
+    if ('fields' in bm) {
+      bm.fields.forEach((item) => {
+        let defaultFieldId = lastFieldId + 1
+        lastFieldId = item.fieldIdentifier
+          ? parseInt(item.fieldIdentifier)
+          : defaultFieldId
+        bitmapFields.push({
+          bitmapName: bm.name,
+          bitmapClusterCode: bm.cluster ? parseInt(bm.clusterCode) : null,
+          name: item.name,
+          mask: parseInt(item.mask),
+          fieldIdentifier: lastFieldId,
+        })
+      })
+    }
+  })
+  return queryLoader.insertBitmapFields(db, packageId, bitmapFields)
+}
+
+/**
+ * Prepare structs for database table insertion.
+ *
+ * @param {*} a
+ * @param {*} dataType
+ * @returns An Object
+ */
+function prepareStruct2(a, dataType) {
+  return {
+    name: a.name,
+    cluster_code: a.cluster ? a.cluster : null,
+    discriminator_ref: dataType,
+  }
+}
+
+/**
+ * Processes the structs.
+ *
+ * @param {*} db
+ * @param {*} filePath
+ * @param {*} packageId
+ * @param {*} data
+ * @returns A promise of inserted structs.
+ */
+async function processStruct(db, filePath, packageId, data) {
+  env.logDebug(`${filePath}, ${packageId}: ${data.length} Struct Types.`)
+  let typeMap = await zclLoader.getDiscriminatorMap(db, packageId)
+  return queryLoader.insertStruct(
+    db,
+    packageId,
+    data.map((x) => prepareStruct2(x, typeMap.get(dbEnum.zclType.struct)))
+  )
+}
+
+/**
+ * Processes the struct Items.
+ *
+ * @param {*} db
+ * @param {*} filePath
+ * @param {*} packageId
+ * @param {*} data
+ * @returns A promise of inserted struct items.
+ */
+async function processStructItems(db, filePath, packageId, data) {
+  env.logDebug(`${filePath}, ${packageId}: ${data.length} Struct Items.`)
+  let structItems = []
+  let lastFieldId = -1
+  data.forEach((si) => {
+    if ('items' in si) {
+      si.items.forEach((item) => {
+        let defaultFieldId = lastFieldId + 1
+        lastFieldId = item.fieldIdentifier
+          ? parseInt(item.fieldIdentifier)
+          : defaultFieldId
+        structItems.push({
+          structName: si.name,
+          structClusterCode: si.cluster ? parseInt(si.clusterCode) : null,
+          name: item.name,
+          type:
+            item.type == item.type.toUpperCase() && item.type.length > 1
+              ? item.type.toLowerCase()
+              : item.type,
+          fieldIdentifier: lastFieldId,
+          minLength: 0,
+          maxLength: item.length ? item.length : null,
+          isWritable: item.writable == 'true',
+          isArray: item.array == 'true' ? true : false,
+          isEnum: item.enum == 'true' ? true : false,
+          isNullable: item.isNullable == 'true' ? true : false,
+          isOptional: item.optional == 'true' ? true : false,
+          isFabricSensitive: item.isFabricSensitive == 'true' ? true : false,
+        })
+      })
+    }
+  })
+  return queryLoader.insertStructItems(db, packageId, structItems)
+}
+
+/**
+ * Prepare enums or bitmaps for database table insertion.
+ *
+ * @param {*} a
+ * @param {*} dataType
+ * @returns An Object
+ */
+function prepareEnumsOrBitmapsAtomic(a, dataType) {
+  return {
+    size: a.size,
+    name: a.name,
+    cluster_code: a.cluster ? a.cluster : null,
+    discriminator_ref: dataType,
+  }
+}
+
+/**
+ * Processes the enums.
+ *
+ * @param {*} db
+ * @param {*} filePath
+ * @param {*} packageId
+ * @param {*} data
+ * @returns A promise of inserted enums.
+ */
+async function processEnumsFromAtomics(db, filePath, packageId, data) {
+  let typeMap = await zclLoader.getDiscriminatorMap(db, packageId)
+  let enums = data.filter(function (item) {
+    return item.name.toLowerCase().includes(dbEnum.zclType.enum)
+  })
+  env.logDebug(`${filePath}, ${packageId}: ${data.length} Baseline Enum Types.`)
+  return queryLoader.insertEnumAtomic(
+    db,
+    packageId,
+    enums.map((x) =>
+      prepareEnumsOrBitmapsAtomic(x, typeMap.get(dbEnum.zclType.enum))
+    )
+  )
+}
+
+/**
+ * Processes the bitmaps.
+ *
+ * @param {*} db
+ * @param {*} filePath
+ * @param {*} packageId
+ * @param {*} data
+ * @returns A promise of inserted bitmaps.
+ */
+async function processBitmapsFromAtomics(db, filePath, packageId, data) {
+  let typeMap = await zclLoader.getDiscriminatorMap(db, packageId)
+  let bitmaps = data.filter(function (item) {
+    return item.name.toLowerCase().includes('map')
+  })
+  env.logDebug(
+    `${filePath}, ${packageId}: ${data.length} Baseline Bitmap Types.`
+  )
+  return queryLoader.insertBitmapAtomic(
+    db,
+    packageId,
+    bitmaps.map((x) =>
+      prepareEnumsOrBitmapsAtomic(x, typeMap.get(dbEnum.zclType.bitmap))
+    )
+  )
+}
+
+/**
  *
  * Promises to iterate over all the XML files and returns an aggregate promise
  * that will be resolved when all the XML files are done, or rejected if at least one fails.
@@ -674,13 +1170,61 @@ async function loadZclData(db, ctx) {
       return { code: mfgPair['code'], label: mfgPair['translation'] }
     })
   )
-
   await queryLoader.insertDeviceTypes(db, ctx.packageId, ds)
   await queryLoader.insertGlobals(db, ctx.packageId, gs)
   await queryLoader.insertAtomics(db, ctx.packageId, types.atomics)
-  await queryLoader.insertEnums(db, ctx.packageId, types.enums)
-  await queryLoader.insertBitmaps(db, ctx.packageId, types.bitmaps)
-  return queryLoader.insertStructs(db, ctx.packageId, types.structs)
+  ctx.ZCLDataTypes = ['ARRAY', 'BITMAP', 'ENUM', 'NUMBER', 'STRING', 'STRUCT']
+  await processDataTypeDiscriminator(db, ctx.packageId, ctx.ZCLDataTypes)
+  await processDataType(
+    db,
+    ctx.metadataFile,
+    ctx.packageId,
+    types.atomics,
+    dbEnum.zclType.atomic
+  )
+  await processDataType(
+    db,
+    ctx.metadataFile,
+    ctx.packageId,
+    types.enums,
+    dbEnum.zclType.enum
+  )
+  await processDataType(
+    db,
+    ctx.metadataFile,
+    ctx.packageId,
+    types.bitmaps,
+    dbEnum.zclType.bitmap
+  )
+  await processDataType(
+    db,
+    ctx.metadataFile,
+    ctx.packageId,
+    types.structs,
+    dbEnum.zclType.struct
+  )
+
+  await processEnumsFromAtomics(
+    db,
+    ctx.metadataFile,
+    ctx.packageId,
+    types.atomics
+  )
+  await processBitmapsFromAtomics(
+    db,
+    ctx.metadataFile,
+    ctx.packageId,
+    types.atomics
+  )
+  await processNumber(db, ctx.metadataFile, ctx.packageId, types.atomics)
+  await processString(db, ctx.metadataFile, ctx.packageId, types.atomics)
+  await processEnums(db, ctx.metadataFile, ctx.packageId, types.enums)
+  await processBitmaps(db, ctx.metadataFile, ctx.packageId, types.bitmaps)
+  await processStruct(db, ctx.metadataFile, ctx.packageId, types.structs)
+
+  await processEnumItems(db, ctx.metadataFile, ctx.packageId, types.enums)
+  await processBitmapFields(db, ctx.metadataFile, ctx.packageId, types.bitmaps)
+  return processStructItems(db, ctx.metadataFile, ctx.packageId, types.structs)
 }
 
 /**

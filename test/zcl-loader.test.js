@@ -81,7 +81,7 @@ test(
       x = await queryZcl.selectAllStructsWithItems(db, [packageId])
       expect(x.length).toEqual(54)
       x = await queryZcl.selectAllBitmaps(db, packageId)
-      expect(x.length).toEqual(121)
+      expect(x.length).toEqual(129)
       x = await queryZcl.selectAllDeviceTypes(db, packageId)
       expect(x.length).toEqual(175)
       x = await testQuery.selectCountFrom(db, 'COMMAND_ARG')
@@ -158,7 +158,7 @@ test(
 
       x = await dbApi.dbAll(
         db,
-        'SELECT NAME, TYPE, PACKAGE_REF FROM BITMAP WHERE NAME IN (SELECT NAME FROM BITMAP GROUP BY NAME HAVING COUNT(*)>1)',
+        'SELECT DATA_TYPE.NAME AS NAME, BITMAP.BITMAP_ID, DATA_TYPE.PACKAGE_REF FROM BITMAP INNER JOIN DATA_TYPE ON BITMAP.BITMAP_ID = DATA_TYPE.DATA_TYPE_ID WHERE NAME IN (SELECT DATA_TYPE.NAME AS NAME FROM BITMAP INNER JOIN DATA_TYPE ON BITMAP.BITMAP_ID = DATA_TYPE.DATA_TYPE_ID GROUP BY NAME HAVING COUNT(*)>1)',
         []
       )
 
@@ -177,7 +177,7 @@ test(
 
       x = await dbApi.dbAll(
         db,
-        'SELECT NAME, TYPE, PACKAGE_REF FROM ENUM WHERE NAME IN (SELECT NAME FROM ENUM GROUP BY NAME HAVING COUNT(*)>1)',
+        'SELECT DATA_TYPE.NAME, ENUM.ENUM_ID, DATA_TYPE.PACKAGE_REF FROM ENUM INNER JOIN DATA_TYPE ON ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID WHERE NAME IN (SELECT DATA_TYPE.NAME FROM ENUM INNER JOIN DATA_TYPE ON ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID GROUP BY DATA_TYPE.NAME HAVING COUNT(*)>1)',
         []
       )
 
@@ -226,7 +226,7 @@ test(
       x = await queryZcl.selectAllAtomics(db, packageId)
       expect(x.length).toEqual(56)
       x = await queryZcl.selectAllBitmaps(db, packageId)
-      expect(x.length).toEqual(61)
+      expect(x.length).toEqual(69)
       x = await queryZcl.selectAllEnums(db, packageId)
       expect(x.length).toEqual(testUtil.totalDotDotEnums)
       x = await testQuery.selectCountFrom(db, 'ENUM_ITEM')
@@ -272,7 +272,7 @@ test(
 
       x = await dbApi.dbAll(
         db,
-        'SELECT NAME, TYPE, PACKAGE_REF FROM ENUM WHERE NAME IN (SELECT NAME FROM ENUM GROUP BY NAME HAVING COUNT(*)>1)',
+        'SELECT DATA_TYPE.NAME, ENUM.ENUM_ID, DATA_TYPE.PACKAGE_REF FROM ENUM INNER JOIN DATA_TYPE ON ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID WHERE NAME IN (SELECT DATA_TYPE.NAME FROM ENUM INNER JOIN DATA_TYPE ON ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID GROUP BY DATA_TYPE.NAME HAVING COUNT(*)>1)',
         []
       )
 
@@ -336,7 +336,7 @@ test(
       expect(x.length).toBeGreaterThan(0)
       x = await dbApi.dbAll(
         db,
-        'SELECT NAME, TYPE, PACKAGE_REF FROM BITMAP WHERE NAME IN (SELECT NAME FROM BITMAP GROUP BY NAME HAVING COUNT(NAME)=1)',
+        'SELECT DATA_TYPE.NAME AS NAME, BITMAP.BITMAP_ID, DATA_TYPE.PACKAGE_REF FROM BITMAP INNER JOIN DATA_TYPE ON BITMAP.BITMAP_ID = DATA_TYPE.DATA_TYPE_ID WHERE NAME IN (SELECT DATA_TYPE.NAME AS NAME FROM BITMAP INNER JOIN DATA_TYPE ON BITMAP.BITMAP_ID = DATA_TYPE.DATA_TYPE_ID GROUP BY NAME HAVING COUNT(NAME)=1)',
         []
       )
       expect(x.length).toBeGreaterThan(0)

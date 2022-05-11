@@ -156,7 +156,7 @@ applicable to this document can be found in the LICENSE.md file.
 			<type:sequence>
 				<field name="AttributeIdentifier" type="attribId" />
 				<!-- TODO: Attribute Data Type -->
-				<field name="AccessControl" type="bitmap8" />
+				<field name="AccessControl" type="map8" />
 			</type:sequence>
 		</restriction>
 	</type:type>

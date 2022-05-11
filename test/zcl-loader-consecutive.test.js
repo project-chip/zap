@@ -21,6 +21,7 @@
 const dbApi = require('../src-electron/db/db-api')
 const dbEnum = require('../src-shared/db-enum')
 const queryZcl = require('../src-electron/db/query-zcl')
+const queryStruct = require('../src-electron/db/query-struct.js')
 const queryCommand = require('../src-electron/db/query-command')
 const queryPackage = require('../src-electron/db/query-package')
 const zclLoader = require('../src-electron/zcl/zcl-loader')
@@ -123,7 +124,19 @@ test(
       expect(x.length).toEqual(54)
 
       x = await queryZcl.selectAllBitmaps(db, jsonPackageId)
-      expect(x.length).toEqual(121)
+      expect(x.length).toEqual(129)
+
+      x = await queryZcl.selectAllDataTypes(db, jsonPackageId)
+      expect(x.length).toEqual(440)
+
+      x = await queryZcl.selectAllNumbers(db, jsonPackageId)
+      expect(x.length).toEqual(41)
+
+      x = await queryZcl.selectAllStrings(db, jsonPackageId)
+      expect(x.length).toEqual(5)
+
+      x = await queryStruct.selectAllStructs(db, jsonPackageId)
+      expect(x.length).toEqual(54)
 
       x = await queryZcl.selectAllDeviceTypes(db, jsonPackageId)
 
@@ -145,7 +158,7 @@ test(
       expect(x.length).toEqual(108)
 
       x = await queryZcl.selectAllBitmaps(db, dotdotPackageId)
-      expect(x.length).toEqual(61)
+      expect(x.length).toEqual(69)
 
       x = await queryZcl.selectAllEnums(db, dotdotPackageId)
       expect(x.length).toEqual(testUtil.totalDotDotEnums)
@@ -207,12 +220,12 @@ test(
 
       await dbApi.dbAll(
         db,
-        'SELECT NAME, TYPE, PACKAGE_REF FROM BITMAP WHERE NAME IN (SELECT NAME FROM BITMAP GROUP BY NAME HAVING COUNT(*)>1)',
+        'SELECT DATA_TYPE.NAME, BITMAP.BITMAP_ID, DATA_TYPE.PACKAGE_REF FROM BITMAP INNER JOIN DATA_TYPE ON BITMAP.BITMAP_ID = DATA_TYPE.DATA_TYPE_ID WHERE NAME IN (SELECT DATA_TYPE.NAME FROM BITMAP INNER JOIN DATA_TYPE ON BITMAP.BITMAP_ID = DATA_TYPE.DATA_TYPE_ID GROUP BY DATA_TYPE.NAME HAVING COUNT(*)>1)',
         []
       )
       await dbApi.dbAll(
         db,
-        'SELECT NAME, TYPE, PACKAGE_REF FROM ENUM WHERE NAME IN (SELECT NAME FROM ENUM GROUP BY NAME HAVING COUNT(*)>1)',
+        'SELECT DATA_TYPE.NAME, ENUM.ENUM_ID, DATA_TYPE.PACKAGE_REF FROM ENUM INNER JOIN DATA_TYPE ON ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID WHERE NAME IN (SELECT DATA_TYPE.NAME FROM ENUM INNER JOIN DATA_TYPE ON ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID GROUP BY DATA_TYPE.NAME HAVING COUNT(*)>1)',
         []
       )
     } finally {

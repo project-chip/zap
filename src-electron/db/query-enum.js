@@ -46,6 +46,7 @@ async function createCache(db, packageId) {
  *
  * @export
  * @param {*} db
+ * @param {*} packageId
  * @returns Promise that resolves with the rows of enums.
  */
 async function selectAllEnums(db, packageId) {
@@ -54,14 +55,17 @@ async function selectAllEnums(db, packageId) {
       db,
       `
 SELECT
-  ENUM_ID,
-  NAME,
-  TYPE
+  ENUM.ENUM_ID,
+  DATA_TYPE.NAME,
+  DATA_TYPE.DISCRIMINATOR_REF,
+  ENUM.SIZE
 FROM
   ENUM
+INNER JOIN DATA_TYPE ON
+  ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID
 WHERE
-  PACKAGE_REF = ?
-ORDER BY NAME`,
+  DATA_TYPE.PACKAGE_REF = ?
+ORDER BY DATA_TYPE.NAME`,
       [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.enum))
@@ -78,10 +82,12 @@ async function selectAllEnumsFromCache(db, packageId) {
 }
 
 /**
- * Retrieves all the enums in the database.
+ * Retrieves all the enums with cluster references in the database.
  *
  * @export
  * @param {*} db
+ * @param {*} packageId
+ * @param {*} clusterId
  * @returns Promise that resolves with the rows of enums.
  */
 async function selectClusterEnums(db, packageIds, clusterId) {
@@ -91,18 +97,22 @@ async function selectClusterEnums(db, packageIds, clusterId) {
       `
 SELECT
   E.ENUM_ID,
-  E.NAME,
-  E.TYPE
+  DT.NAME,
+  E.SIZE
 FROM
   ENUM AS E
 INNER JOIN
-  ENUM_CLUSTER AS EC
+  DATA_TYPE AS DT
 ON
-  E.ENUM_ID = EC.ENUM_REF
+  DT.DATA_TYPE_ID = E.ENUM_ID
+INNER JOIN
+  DATA_TYPE_CLUSTER
+ON
+  DT.DATA_TYPE_ID = DATA_TYPE_CLUSTER.DATA_TYPE_REF
 WHERE
-  E.PACKAGE_REF IN (${packageIds})
-  AND EC.CLUSTER_REF = ?
-ORDER BY E.NAME`,
+  DT.PACKAGE_REF IN (${packageIds})
+  AND DATA_TYPE_CLUSTER.CLUSTER_REF = ?
+ORDER BY DT.NAME`,
       [clusterId]
     )
     .then((rows) => rows.map(dbMapping.map.enum))
@@ -154,8 +164,12 @@ INNER JOIN
   ENUM AS E
 ON
   E.ENUM_ID = EI.ENUM_REF
+INNER JOIN
+  DATA_TYPE AS DT
+ON
+  DT.DATA_TYPE_ID = E.ENUM_ID
 WHERE
-  E.PACKAGE_REF = ?
+  DT.PACKAGE_REF = ?
 ORDER BY EI.ENUM_REF, EI.FIELD_IDENTIFIER`,
       [packageId]
     )
@@ -170,7 +184,23 @@ ORDER BY EI.ENUM_REF, EI.FIELD_IDENTIFIER`,
  */
 async function selectEnumById(db, id) {
   return dbApi
-    .dbGet(db, 'SELECT ENUM_ID, NAME, TYPE FROM ENUM WHERE ENUM_ID = ?', [id])
+    .dbGet(
+      db,
+      `
+SELECT
+  ENUM.ENUM_ID,
+  DATA_TYPE.NAME,
+  ENUM.SIZE
+FROM
+  ENUM
+INNER JOIN
+  DATA_TYPE
+ON
+  ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID
+WHERE
+  ENUM_ID = ?`,
+      [id]
+    )
     .then(dbMapping.map.enum)
 }
 
@@ -202,7 +232,20 @@ async function selectEnumByName(db, name, packageId) {
   return dbApi
     .dbGet(
       db,
-      'SELECT ENUM_ID, NAME, TYPE FROM ENUM WHERE NAME = ? AND PACKAGE_REF = ? ORDER BY NAME',
+      `
+SELECT
+  ENUM.ENUM_ID,
+  DATA_TYPE.NAME AS NAME,
+  ENUM.SIZE AS SIZE 
+FROM
+  ENUM
+INNER JOIN
+  DATA_TYPE
+ON
+  ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID
+WHERE
+  NAME = ? AND PACKAGE_REF = ?
+ORDER BY NAME`,
       [name, packageId]
     )
     .then(dbMapping.map.enum)

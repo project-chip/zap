@@ -34,7 +34,7 @@ typedef enum {
 // ZCL bitmaps
 
 {{#zcl_bitmaps}}
-// Bitmap: {{label}}, type: {{type}}
+// Bitmap: {{label}}, size: {{size}}
 {{#zcl_bitmap_items}}
 #define EMBER_AF_{{asDelimitedMacro parent.label}}_{{asDelimitedMacro label}} ({{mask}})
 #define EMBER_AF_{{asDelimitedMacro parent.label}}_{{asDelimitedMacro label}}_OFFSET ({{asOffset mask}})

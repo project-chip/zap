@@ -44,7 +44,21 @@ async function createCache(db, packageId) {
 async function selectAllStructs(db, packageId) {
   let rows = await dbApi.dbAll(
     db,
-    'SELECT STRUCT_ID, NAME FROM STRUCT WHERE PACKAGE_REF = ? ORDER BY NAME',
+    `
+  SELECT
+    STRUCT.STRUCT_ID,
+    DATA_TYPE.NAME,
+    DATA_TYPE.DISCRIMINATOR_REF
+  FROM
+    STRUCT
+  INNER JOIN
+    DATA_TYPE
+  ON
+    STRUCT.STRUCT_ID = DATA_TYPE.DATA_TYPE_ID
+  WHERE
+    PACKAGE_REF = ?
+  ORDER BY
+    NAME`,
     [packageId]
   )
   return rows.map(dbMapping.map.struct)
@@ -62,7 +76,23 @@ async function selectAllStructsFromCache(db, packageId) {
 
 async function selectStructById(db, id) {
   return dbApi
-    .dbGet(db, 'SELECT STRUCT_ID, NAME FROM STRUCT WHERE STRUCT_ID = ?', [id])
+    .dbGet(
+      db,
+      `
+SELECT 
+  STRUCT.STRUCT_ID,
+  DATA_TYPE.NAME,
+  DATA_TYPE.DISCRIMINATOR_REF
+FROM
+  STRUCT
+INNER JOIN
+    DATA_TYPE
+ON
+  STRUCT.STRUCT_ID = DATA_TYPE.DATA_TYPE_ID
+WHERE
+  STRUCT_ID = ?`,
+      [id]
+    )
     .then(dbMapping.map.struct)
 }
 
@@ -80,7 +110,20 @@ async function selectStructByName(db, name, packageId) {
   return dbApi
     .dbGet(
       db,
-      'SELECT STRUCT_ID, NAME FROM STRUCT WHERE NAME = ? AND PACKAGE_REF = ? ORDER BY NAME',
+      `
+SELECT
+  STRUCT.STRUCT_ID,
+  DATA_TYPE.NAME,
+  DATA_TYPE.DISCRIMINATOR_REF
+FROM
+  STRUCT
+INNER JOIN
+  DATA_TYPE ON STRUCT.STRUCT_ID = DATA_TYPE.DATA_TYPE_ID
+WHERE
+  NAME = ?
+  AND PACKAGE_REF = ?
+ORDER BY
+  NAME`,
       [name, packageId]
     )
     .then(dbMapping.map.struct)

@@ -242,10 +242,24 @@ async function qualifyZclFile(
  */
 async function processZclPostLoading(db, packageId) {
   // These queries must make sure that they update ONLY the entities under a given packageId.
-
-  await queryLoader.updateStaticEntityReferences(db, packageId)
+  await queryLoader.updateDataTypeClusterReferences(db, packageId)
   await queryZcl.updateDeviceTypeEntityReferences(db, packageId)
   return queryCommand.updateCommandRequestResponseReferences(db, packageId)
+}
+
+/**
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @returns data type discriminator map
+ */
+async function getDiscriminatorMap(db, packageId) {
+  let typeMap = new Map()
+  let discriminators = await queryZcl.selectAllDiscriminators(db, packageId)
+  discriminators.forEach((d) => {
+    typeMap.set(d.name.toLowerCase(), d.id)
+  })
+  return typeMap
 }
 
 exports.loadZcl = loadZcl
@@ -254,3 +268,4 @@ exports.recordVersion = recordVersion
 exports.processZclPostLoading = processZclPostLoading
 exports.loadIndividualFile = loadIndividualFile
 exports.qualifyZclFile = qualifyZclFile
+exports.getDiscriminatorMap = getDiscriminatorMap

@@ -157,13 +157,13 @@ test(
     let zclId = genResult.content['zcl-test.out']
     //expect(zclId).toEqual('random placeholder')
     expect(zclId).toContain(
-      `// ${testUtil.totalEnumCount - 1}/${
+      `// ${testUtil.totalEnumCount - 3}/${
         testUtil.totalEnumCount
-      }: label=>ZllStatus caption=>Enum of type ENUM8`
+      }: label=>ZllStatus caption=>Enum of size 1 byte`
     )
     expect(zclId).toContain(`Label count: ${testUtil.totalEnumCount}`)
     expect(zclId).toContain(
-      `// 129/${testUtil.totalEnumCount}: label=>MeteringBlockEnumerations caption=>Enum of type ENUM8`
+      `// 129/${testUtil.totalEnumCount}: label=>MeteringBlockEnumerations caption=>Enum of size 1 byte`
     )
     expect(zclId).toContain(
       '// struct: ReadReportingConfigurationAttributeRecord'
@@ -185,7 +185,7 @@ test(
     let atomics = genResult.content['atomics.out']
     expect(atomics).toContain('C type: bacnet_type_t')
     // Now check for the override
-    expect(atomics).toContain('C type: security_key_type_override')
+    //expect(atomics).toContain('C type: security_key_type_override')
 
     let zapCommand = genResult.content['zap-command.h']
     expect(zapCommand).not.toBeNull()
