@@ -5,7 +5,7 @@ name: Generation and back-end tests
 
 on:
   push:
-    branches: [master, zigbee_shared_cluster_logic]
+    branches: [master]
   pull_request:
     branches: [master]
 
