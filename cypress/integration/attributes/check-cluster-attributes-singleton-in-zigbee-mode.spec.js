@@ -63,22 +63,22 @@ describe('Testing endpoints sharing attribute values', () => {
     'verify initial values on Endpoint 2 are reflected from Endpoint 1',
     { retries: { runMode: 2, openMode: 2 } },
     () => {
-      // Set ZCL version - 1
+      // check ZCL version - 1
       cy.get(
         ':nth-child(1) > [style="min-width: 180px;"] > .q-field > .q-field__inner .q-field__control > .q-field__control-container > input'
       ).should('have.value', '1')
 
-      // Set power source - 22
+      // check power source - 22
       cy.get(
         ':nth-child(8) > [style="min-width: 180px;"] > .q-field > .q-field__inner .q-field__control > .q-field__control-container > input'
       ).should('have.value', '22')
 
-      // Set cluster revision - 33
+      // check cluster revision - 33
       cy.get(
         ':nth-child(19) > [style="min-width: 180px;"] > .q-field > .q-field__inner .q-field__control > .q-field__control-container > input'
       ).should('have.value', '33')
 
-      // Set ResetToFactoryDefaults command
+      // check ResetToFactoryDefaults command - true/enabled
       cy.gotoCommandsTab()
       cy.get(':nth-child(3) > .q-mt-xs').should(
         'have.attr',
