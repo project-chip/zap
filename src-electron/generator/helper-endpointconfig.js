@@ -617,7 +617,7 @@ async function collectAttributes(endpointTypes, options) {
         // nonempty default value to use long defaults.
         // external strings and zero-length default values.
         if (
-          defaultSize > 2 ||
+          defaultSize > 4 ||
           (types.isString(a.type) &&
             attributeDefaultValue !== undefined &&
             attributeDefaultValue !== '')
