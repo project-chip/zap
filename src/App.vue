@@ -51,6 +51,10 @@ function initLoad(store) {
     key: 'profileCodes',
     type: 'object',
   })
+  store.dispatch('zap/loadOptions', {
+    key: 'generator',
+    type: 'object',
+  })
   store.dispatch('zap/loadSessionKeyValues')
   if (
     localStorage.getItem('showDevTools') &&

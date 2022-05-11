@@ -727,21 +727,13 @@ export function loadZclClusterToUcComponentDependencyMap(context) {
     })
 }
 
-export function unifyClustersAndAttributesAcrossEndpoints(context, data) {
+export function shareClusterStatesAcrossEndpoints(context, data) {
   let { endpointTypeIdList } = data
   Vue.prototype
-    .$serverPost(restApi.uri.unifyClustersAcrossEndpoints, {
+    .$serverPost(restApi.uri.shareClusterStatesAcrossEndpoints, {
       endpointTypeIdList,
     })
     .then((response) => {
-      console.log(restApi.uri.unifyClustersAcrossEndpoints)
-    })
-
-  Vue.prototype
-    .$serverPost(restApi.uri.unifyAttributesAcrossEndpoints, {
-      endpointTypeIdList,
-    })
-    .then((response) => {
-      console.log(restApi.uri.unifyAttributesAcrossEndpoints)
+      console.log(`${restApi.uri.shareClusterStatesAcrossEndpoints} finished.`)
     })
 }

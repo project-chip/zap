@@ -324,13 +324,10 @@ export default {
                   .deviceIdentifier,
             })
             .then((res) => {
-              if (this.shareConfigsAcrossEndpoints) {
-                this.$store.dispatch(
-                  'zap/unifyClustersAndAttributesAcrossEndpoints',
-                  {
-                    endpointTypeIdList: this.endpointTypeIdList,
-                  }
-                )
+              if (this.shareClusterStatesAcrossEndpoints()) {
+                this.$store.dispatch('zap/shareClusterStatesAcrossEndpoints', {
+                  endpointTypeIdList: this.endpointTypeIdList,
+                })
               }
 
               this.$store.dispatch('zap/updateSelectedEndpointType', {

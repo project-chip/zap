@@ -24,7 +24,9 @@ const fs = require('fs')
 const fsPromise = fs.promises
 const env = require('../util/env')
 const queryZcl = require('../db/query-zcl.js')
+const dbApi = require('../db/db-api.js')
 const queryAttribute = require('../db/query-attribute.js')
+const queryCommand = require('../db/query-command.js')
 const queryConfig = require('../db/query-config.js')
 const queryEndpointType = require('../db/query-endpoint-type.js')
 const queryEndpoint = require('../db/query-endpoint.js')
@@ -145,7 +147,6 @@ function httpPostAttributeUpdate(db) {
   return async (request, response) => {
     let {
       action,
-      endpointTypeId,
       endpointTypeIdList,
       id,
       value,
@@ -158,11 +159,7 @@ function httpPostAttributeUpdate(db) {
     } = request.body
 
     if (!Array.isArray(endpointTypeIdList) || !endpointTypeIdList.length) {
-      if (endpointTypeId == 'undefined') {
-        response.status(StatusCodes.BAD_REQUEST).json()
-      } else {
-        endpointTypeIdList = [endpointTypeId]
-      }
+      return response.status(StatusCodes.BAD_REQUEST).json()
     }
 
     let paramType
@@ -447,261 +444,258 @@ function httpPostAddNewPackage(db) {
 }
 
 /**
- * HTTP POST: Unify all Attributes configuration into one presentation.
+ * HTTP POST: Unify all Attributes / Command states if a certain cluster is enabled
+ *            on more than one endpoint.
  *
- * 1) In Zigbee world, the Attribute configuration is a global singleton entity.
+ * 1) In Zigbee world, the Attribute / Command configurations is a global singleton entity.
+ *    If one cluster is enabled by more than 1 endpoint, the attribute states (on/off) should be
+ *    identical across each endpoint.
  *    To emulate the global singleton entity, this function ensures Attribute changes
  *    are applied to all endpoint specific attribute fields.
+ *    When unify event is triggered, this function will align all shared Attribute/Command states
+ *    to the first matching entry from beginning of the endpoint list.
  * 2) (native case in ZAP) In Matter, the Attribute configuration are endpoint specific.
  *
  */
-function httpPostUnifyAttributesAcrossEndpoints(db) {
+function httpPostShareClusterStatesAcrossEndpoints(db) {
   return async (request, response) => {
     let { endpointTypeIdList } = request.body
-    let resp = { oldState: {}, newState: {} }
-
-    // let respJson = {oldState: {
-    //                            endpointTypeId_1: [{cluster_state_1, cluster_state_2}],
-    //                            endpointTypeId_2: [{cluster_state_1, cluster_state_2}],
-    //                           },
-    //                 newState: {
-    //                            endpointTypeId_1: [{cluster_state_1, cluster_state_2}],
-    //                            endpointTypeId_2: [{cluster_state_1, cluster_state_2}],
-    //                           }}
-
-    if (!Array.isArray(endpointTypeIdList) || !endpointTypeIdList.length) {
-      response.status(StatusCodes.BAD_REQUEST).json()
-    } else {
-      if (endpointTypeIdList.length == 1) {
-        return response.status(StatusCodes.OK).json(resp)
-      }
-
-      let endpointsAndClusters =
-        await queryEndpointType.selectClustersAndEndpointDetailsFromEndpointTypes(
-          db,
-          endpointTypeIdList.map((x) => {
-            return { endpointTypeId: x }
-          })
-        )
-
-      let unifiedAttributesInfo =
-        await queryAttribute.selectAttributeDetailsFromEnabledClusters(
-          db,
-          endpointsAndClusters
-        )
-      unifiedAttributesInfo.forEach((entry) => {
-        // global attribute do not have cluserRefs field
-        // let's fix it up for the attribute update API.
-        if (entry.clusterRef == null) {
-          entry.clusterRef = entry.clusterId
-        }
-      })
-
-      let oldEndpointAttributesInfo = await Promise.all(
-        endpointsAndClusters.map((endpointsAndCluster) =>
-          queryAttribute
-            .selectAttributeDetailsFromEnabledClusters(db, [
-              endpointsAndCluster,
-            ])
-            .then((attrDetails) => {
-              // global attributes are not tied to specific Clusters
-              if (attrDetails.clusterRef == null) {
-                queryEndpoint.selectEndpointClusters(db)
-              }
-            })
-        )
-      )
-
-      // align all cluster states
-      if (endpointTypeIdList.length > 1) {
-        endpointTypeIdList.forEach((endpointTypeId) => {
-          unifiedAttributesInfo.forEach((attr) =>
-            queryConfig.insertOrUpdateAttributeState(
-              db,
-              endpointTypeId,
-              attr.clusterRef,
-              attr.side,
-              attr.id,
-              [
-                { key: restApi.updateKey.attributeSelected, value: 1 },
-                {
-                  key: restApi.updateKey.attributeStorage,
-                  value: `"${attr.storageOption}"`,
-                },
-                {
-                  key: restApi.updateKey.attributeSingleton,
-                  value: attr.isSingleton,
-                },
-                {
-                  key: restApi.updateKey.attributeBounded,
-                  value: attr.isAttributeBounded,
-                },
-                {
-                  key: restApi.updateKey.attributeDefault,
-                  value: attr.defaultValue,
-                },
-                {
-                  key: restApi.updateKey.attributeReporting,
-                  value: attr.isAttributeReportable,
-                },
-              ],
-              attr.attributeReportableMinValue,
-              attr.attributeReportableMaxValue,
-              attr.attributeReportableChange
-            )
-          )
-        })
-      }
-
-      resp.oldState = []
-      endpointTypeIdList.forEach((endpointTypeId, index) => {
-        resp.oldState.push({
-          endpointTypeId: endpointTypeId,
-          attributes: oldEndpointAttributesInfo[index],
-        })
-      })
-
-      let newEndpointClusterInfos = await Promise.all(
-        endpointTypeIdList.map((endpointTypeId) =>
-          queryEndpointType.selectAllClustersDetailsFromEndpointTypes(db, [
-            { endpointTypeId },
-          ])
-        )
-      ).then((endpointClusterInfos) =>
-        // sort by name
-        endpointClusterInfos.map((clus) =>
-          clus.sort((a, b) => a.name.localeCompare(b.name))
-        )
-      )
-
-      resp.newState = []
-      endpointTypeIdList.forEach((endpointTypeId, index) => {
-        resp.newState.push({
-          endpointTypeId: endpointTypeId,
-          attributes: newEndpointClusterInfos[index],
-        })
-      })
-
-      response.status(StatusCodes.OK).json(resp)
+    if (!Array.isArray(endpointTypeIdList) || endpointTypeIdList.length < 1) {
+      return response.status(StatusCodes.BAD_REQUEST).send()
     }
+
+    // Get a list of clusters enabled by multiple (>1) endpoints
+    let sharedClusterList = await queryEndpointType
+      .selectAllClustersDetailsFromEndpointTypes(
+        db,
+        endpointTypeIdList.map((id) => {
+          return { endpointTypeId: id }
+        })
+      )
+      .then((list) => list.filter((entry) => entry.endpointCount > 1))
+
+    let attrDefaults = await attributeDefaults(
+      db,
+      endpointTypeIdList,
+      sharedClusterList
+    )
+    await writeAttributeDefaults(db, attrDefaults)
+
+    let cmdDefaults = await commandDefaults(
+      db,
+      endpointTypeIdList,
+      sharedClusterList
+    )
+    await writeCommandDefaults(db, cmdDefaults)
+
+    return response.status(StatusCodes.OK).json({
+      sharedClusterList,
+      sharedAttributeDefaults: attrDefaults,
+    })
   }
 }
 
-/**
- * HTTP POST: Unify all Clusters configuration into one presentation.
- *
- * 1) In Zigbee world, the Clusters configuration is a global singleton entity.
- *    To emulate the global singleton entity, this function ensures changes 1 cluster
- *    are applied to all endpoint specific cluster fields.
- * 2) (native case in ZAP) In Matter, the Cluster configuration are endpoint specific.
- *
- */
-function httpPostUnifyClustersAcrossEndpoints(db) {
-  return async (request, response) => {
-    let { endpointTypeIdList } = request.body
-    let resp = { oldState: {}, newState: {} }
+async function commandDefaults(db, endpointTypeIdList, sharedClusterList) {
+  let sharedCmdDefaults = {}
+  let clusterIdnSideToCmdCache = {}
+  let sharedCommandList =
+    await queryCommand.selectAllCommandDetailsFromEnabledClusters(
+      db,
+      sharedClusterList.map((c) => {
+        return { endpointTypeClusterRef: c.endpointClusterId }
+      })
+    )
 
-    // let respJson = {oldState: {
-    //                            endpointTypeId_1: [{cluster_state_1, cluster_state_2}],
-    //                            endpointTypeId_2: [{cluster_state_1, cluster_state_2}],
-    //                           },
-    //                 newState: {
-    //                            endpointTypeId_1: [{cluster_state_1, cluster_state_2}],
-    //                            endpointTypeId_2: [{cluster_state_1, cluster_state_2}],
-    //                           }}
+  for (const endpointTypeId of endpointTypeIdList) {
+    for (const sharedCmd of sharedCommandList) {
+      let clusCmdCacheKey = JSON.stringify({
+        clusterId: sharedCmd.clusterId,
+        clusterSide: sharedCmd.clusterSide,
+        id: sharedCmd.id, // command id
+        code: sharedCmd.code,
+        mfgCode: sharedCmd.mfgCode,
+      })
 
-    if (!Array.isArray(endpointTypeIdList) || !endpointTypeIdList.length) {
-      response.status(StatusCodes.BAD_REQUEST).send()
-    } else {
-      if (endpointTypeIdList.length == 1) {
-        return response.status(StatusCodes.OK).json(resp)
-      }
-
-      let unifiedClustersInfo =
-        await queryEndpointType.selectAllClustersDetailsFromEndpointTypes(
+      if (clusCmdCacheKey in clusterIdnSideToCmdCache) {
+        !(endpointTypeId in sharedCmdDefaults) &&
+          (sharedCmdDefaults[endpointTypeId] = [])
+        sharedCmdDefaults[endpointTypeId].push(
+          clusterIdnSideToCmdCache[clusCmdCacheKey]
+        )
+      } else {
+        let cmds = await queryEndpoint.selectEndpointClusterCommands(
           db,
-          endpointTypeIdList.map((x) => {
-            return { endpointTypeId: x }
-          })
+          sharedCmd.clusterId,
+          endpointTypeId
         )
 
-      let oldEndpointAttributesInfo = await Promise.all(
-        endpointTypeIdList.map((endpointTypeId) =>
-          queryEndpointType.selectAllClustersDetailsFromEndpointTypes(db, [
-            { endpointTypeId },
-          ])
-        )
-      ).then((endpointClusterInfos) =>
-        // sort by name
-        endpointClusterInfos.map((clus) =>
-          clus.sort((a, b) => a.name.localeCompare(b.name))
-        )
-      )
+        // find attr
+        let matched = cmds.filter((cmd) => commandEquals(cmd, sharedCmd))
+        if (matched.length) {
+          let m = matched.shift()
 
-      // align all cluster states
-      if (endpointTypeIdList.length > 1) {
-        endpointTypeIdList.forEach((endpointTypeId) => {
-          unifiedClustersInfo.forEach((clus) => {
-            queryConfig.insertOrReplaceClusterState(
-              db,
-              endpointTypeId,
-              clus.id,
-              clus.side,
-              clus.enabled
-            )
-          })
-        })
+          !(endpointTypeId in sharedCmdDefaults) &&
+            (sharedCmdDefaults[endpointTypeId] = [])
+          sharedCmdDefaults[endpointTypeId].push(m)
+          clusterIdnSideToCmdCache[clusCmdCacheKey] = m
+        }
       }
-
-      resp.oldState = []
-      endpointTypeIdList.forEach((endpointTypeId, index) => {
-        resp.oldState.push({
-          endpointTypeId: endpointTypeId,
-          clusters: oldEndpointAttributesInfo[index],
-        })
-      })
-
-      let newEndpointClusterInfos = await Promise.all(
-        endpointTypeIdList.map((endpointTypeId) =>
-          queryEndpointType.selectAllClustersDetailsFromEndpointTypes(db, [
-            { endpointTypeId },
-          ])
-        )
-      ).then((endpointClusterInfos) =>
-        // sort by name
-        endpointClusterInfos.map((clus) =>
-          clus.sort((a, b) => a.name.localeCompare(b.name))
-        )
-      )
-
-      resp.newState = []
-      endpointTypeIdList.forEach((endpointTypeId, index) => {
-        resp.newState.push({
-          endpointTypeId: endpointTypeId,
-          clusters: newEndpointClusterInfos[index],
-        })
-      })
-
-      // env.logInfo(`Unifying cluster states across endpoint`)
-      // env.logInfo(`Before:`)
-      // resp.oldState.forEach((ep) => {
-      //   ep.clusters.forEach((clus) => {
-      //     env.logInfo(
-      //       `ep_id: ${ep.endpointTypeId}, clus_id:${clus.id}, name:${clus.name}, side:${clus.side}, enabled:${clus.enabled}`
-      //     )
-      //   })
-      // })
-      // env.logInfo(`After:`)
-      // resp.newState.forEach((ep) => {
-      //   ep.clusters.forEach((clus) => {
-      //     env.logInfo(
-      //       `ep_id: ${ep.endpointTypeId}, clus_id:${clus.id}, name:${clus.name}, side:${clus.side}, enabled:${clus.enabled}`
-      //     )
-      //   })
-      // })
-      response.status(StatusCodes.OK).json(resp)
     }
   }
+  return sharedCmdDefaults
+}
+
+async function writeCommandDefaults(db, defaults) {
+  let promises = []
+  for (const [endpointTypeId, commandList] of Object.entries(defaults)) {
+    for (const cmd of commandList) {
+      promises.push(
+        queryConfig.insertOrUpdateCommandState(
+          db,
+          endpointTypeId,
+          cmd.clusterId,
+          cmd.source,
+          cmd.id,
+          cmd.isIncoming,
+          true
+        )
+      )
+
+      promises.push(
+        queryConfig.insertOrUpdateCommandState(
+          db,
+          endpointTypeId,
+          cmd.clusterId,
+          cmd.source,
+          cmd.id,
+          cmd.isOutgoing,
+          false
+        )
+      )
+    }
+  }
+  await Promise.all(promises)
+}
+
+async function attributeDefaults(db, endpointTypeIdList, sharedClusterList) {
+  let sharedAttributeDefaults = {}
+  let clusterIdnSideToAttrCache = {}
+  let sharedAttributeList =
+    await queryAttribute.selectAttributeDetailsFromEnabledClusters(
+      db,
+      sharedClusterList
+    )
+
+  for (const endpointTypeId of endpointTypeIdList) {
+    for (const sharedAttr of sharedAttributeList) {
+      let clusAttrCacheKey = JSON.stringify({
+        clusterId: sharedAttr.clusterId,
+        side: sharedAttr.side,
+        id: sharedAttr.id, // attr id
+        code: sharedAttr.code,
+        name: sharedAttr.name,
+        type: sharedAttr.type,
+        mfgCode: sharedAttr.mfgCode,
+        define: sharedAttr.define,
+      })
+
+      if (clusAttrCacheKey in clusterIdnSideToAttrCache) {
+        !(endpointTypeId in sharedAttributeDefaults) &&
+          (sharedAttributeDefaults[endpointTypeId] = [])
+        sharedAttributeDefaults[endpointTypeId].push(
+          clusterIdnSideToAttrCache[clusAttrCacheKey]
+        )
+      } else {
+        let attributes = await queryEndpoint.selectEndpointClusterAttributes(
+          db,
+          sharedAttr.clusterId,
+          sharedAttr.side,
+          endpointTypeId
+        )
+
+        // find attr
+        let matched = attributes.filter((attr) =>
+          attributeEquals(attr, sharedAttr)
+        )
+        if (matched.length) {
+          let m = matched.shift()
+
+          !(endpointTypeId in sharedAttributeDefaults) &&
+            (sharedAttributeDefaults[endpointTypeId] = [])
+          sharedAttributeDefaults[endpointTypeId].push(m)
+          clusterIdnSideToAttrCache[clusAttrCacheKey] = m
+        }
+      }
+    }
+  }
+  return sharedAttributeDefaults
+}
+
+async function writeAttributeDefaults(db, defaults) {
+  let promises = []
+  for (const [endpointTypeId, attributeList] of Object.entries(defaults)) {
+    for (const attr of attributeList) {
+      promises.push(
+        queryConfig.insertOrUpdateAttributeState(
+          db,
+          endpointTypeId,
+          attr.clusterId,
+          attr.side,
+          attr.id,
+          [
+            { key: restApi.updateKey.attributeSelected, value: 1 },
+            {
+              key: restApi.updateKey.attributeStorage,
+              value: `"${attr.storage}"`,
+            },
+            {
+              key: restApi.updateKey.attributeSingleton,
+              value: attr.isSingleton,
+            },
+            {
+              key: restApi.updateKey.attributeBounded,
+              value: attr.isBounded,
+            },
+            {
+              key: restApi.updateKey.attributeDefault,
+              value: attr.defaultValue,
+            },
+            {
+              key: restApi.updateKey.attributeReporting,
+              value: attr.includedReportable,
+            },
+          ],
+          attr.min,
+          attr.max,
+          attr.reportableChange
+        )
+      )
+    }
+  }
+
+  await Promise.all(promises)
+}
+
+function commandEquals(a, b) {
+  return (
+    a.id === b.id &&
+    a.name === b.name &&
+    a.code === b.code &&
+    a.source === b.source &&
+    a.manufacturerCode === b.mfgCode
+  )
+}
+
+function attributeEquals(a, b) {
+  return (
+    a.id === b.id &&
+    a.code === b.code &&
+    a.name === b.name &&
+    a.side === b.side &&
+    a.type === b.type &&
+    a.manufacturerCode === b.mfgCode &&
+    a.define === b.define
+  )
 }
 
 function httpDeleteSessionPackage(db) {
@@ -747,12 +741,8 @@ exports.post = [
     callback: httpPostAddNewPackage,
   },
   {
-    uri: restApi.uri.unifyClustersAcrossEndpoints,
-    callback: httpPostUnifyClustersAcrossEndpoints,
-  },
-  {
-    uri: restApi.uri.unifyAttributesAcrossEndpoints,
-    callback: httpPostUnifyAttributesAcrossEndpoints,
+    uri: restApi.uri.shareClusterStatesAcrossEndpoints,
+    callback: httpPostShareClusterStatesAcrossEndpoints,
   },
 ]
 

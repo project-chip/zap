@@ -109,6 +109,7 @@ exports.generatorOptions = {
   routeErrToOut: 'routeErrToOut',
   postProcessConditionalFile: 'postProcessConditionalFile',
   enabled: 'enabled',
+  shareClusterStatesAcrossEndpoints: 'shareClusterStatesAcrossEndpoints',
 }
 
 exports.sessionOption = {
