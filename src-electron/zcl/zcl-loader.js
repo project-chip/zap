@@ -17,14 +17,15 @@
 
 const fs = require('fs')
 const path = require('path')
-const queryPackage = require('../db/query-package.js')
-const queryCommand = require('../db/query-command.js')
-const queryLoader = require('../db/query-loader.js')
-const dbEnum = require('../../src-shared/db-enum.js')
+const queryPackage = require('../db/query-package')
+const queryCommand = require('../db/query-command')
+const queryLoader = require('../db/query-loader')
+const dbEnum = require('../../src-shared/db-enum')
 const fsp = fs.promises
-const sLoad = require('./zcl-loader-silabs.js')
-const dLoad = require('./zcl-loader-dotdot.js')
-const queryZcl = require('../db/query-zcl.js')
+const sLoad = require('./zcl-loader-silabs')
+const dLoad = require('./zcl-loader-dotdot')
+const queryZcl = require('../db/query-zcl')
+const queryDeviceType = require('../db/query-device-type')
 const env = require('../util/env')
 const nativeRequire = require('../util/native-require')
 
@@ -243,7 +244,7 @@ async function qualifyZclFile(
 async function processZclPostLoading(db, packageId) {
   // These queries must make sure that they update ONLY the entities under a given packageId.
   await queryLoader.updateDataTypeClusterReferences(db, packageId)
-  await queryZcl.updateDeviceTypeEntityReferences(db, packageId)
+  await queryDeviceType.updateDeviceTypeEntityReferences(db, packageId)
   return queryCommand.updateCommandRequestResponseReferences(db, packageId)
 }
 

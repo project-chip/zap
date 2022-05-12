@@ -22,6 +22,7 @@ const dbApi = require('../src-electron/db/db-api')
 const dbEnum = require('../src-shared/db-enum')
 const queryZcl = require('../src-electron/db/query-zcl')
 const queryStruct = require('../src-electron/db/query-struct.js')
+const queryDeviceType = require('../src-electron/db/query-device-type')
 const queryCommand = require('../src-electron/db/query-command')
 const queryPackage = require('../src-electron/db/query-package')
 const zclLoader = require('../src-electron/zcl/zcl-loader')
@@ -138,7 +139,7 @@ test(
       x = await queryStruct.selectAllStructs(db, jsonPackageId)
       expect(x.length).toEqual(54)
 
-      x = await queryZcl.selectAllDeviceTypes(db, jsonPackageId)
+      x = await queryDeviceType.selectAllDeviceTypes(db, jsonPackageId)
 
       expect(x.length).toEqual(175)
 
@@ -154,7 +155,7 @@ test(
       x = await queryCommand.selectAllCommandArguments(db, dotdotPackageId)
       expect(x.length).toEqual(644)
 
-      x = await queryZcl.selectAllDeviceTypes(db, dotdotPackageId)
+      x = await queryDeviceType.selectAllDeviceTypes(db, dotdotPackageId)
       expect(x.length).toEqual(108)
 
       x = await queryZcl.selectAllBitmaps(db, dotdotPackageId)

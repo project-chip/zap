@@ -155,10 +155,11 @@ async function selectEndpointType(db, id) {
 }
 
 /**
- * Retrieve clusters from the endpoint type.
+ * Retrieve clusters from multiple endpoint types, calculating along the way the
+ * number of how many times a cluster is present in the given endpoint types.
  *
  * @param {*} db
- * @param {*} endpointTypeId
+ * @param {*} endpointTypes
  * @returns Promise that resolves with the data that should go into the external form.
  */
 async function selectAllClustersDetailsFromEndpointTypes(db, endpointTypes) {
@@ -177,6 +178,7 @@ async function selectAllClustersDetailsFromEndpointTypes(db, endpointTypes) {
     }
   }
 
+  let doOrderBy = false
   return dbApi
     .dbAll(
       db,
@@ -200,9 +202,14 @@ ON
 WHERE
   ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF IN (${endpointTypeIds})
 AND
-  ENDPOINT_TYPE_CLUSTER.SIDE IS NOT "" AND ENDPOINT_TYPE_CLUSTER.ENABLED=1
+  ENDPOINT_TYPE_CLUSTER.SIDE IS NOT "" AND ENDPOINT_TYPE_CLUSTER.ENABLED = 1
 GROUP BY
-  NAME, SIDE`
+  NAME, SIDE
+${
+  doOrderBy
+    ? 'ORDER BY CLUSTER.MANUFACTURER_CODE, CLUSTER.CODE, CLUSTER.DEFINE'
+    : ''
+}`
     )
     .then((rows) => rows.map(mapFunction))
 }

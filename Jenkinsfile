@@ -1,4 +1,4 @@
-final boolean buildForMac = false
+final boolean buildForMac = true
 final boolean runCypressTests = false
 final boolean triggerAdapterPackJob = false
 final boolean sonarScan = false

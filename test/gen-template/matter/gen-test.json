@@ -45,6 +45,11 @@
       "path": "feature-map.zapt",
       "name": "Feature map test template",
       "output": "feature-map.h"
+    },
+    {
+      "path": "device-types.zapt",
+      "name": "Device types",
+      "output": "device-types.txt"
     }
   ]
 }

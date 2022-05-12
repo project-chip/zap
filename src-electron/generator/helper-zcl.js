@@ -16,6 +16,7 @@
  */
 
 const queryZcl = require('../db/query-zcl')
+const queryDeviceType = require('../db/query-device-type')
 const queryCommand = require('../db/query-command')
 const queryEvent = require('../db/query-event')
 const dbEnum = require('../../src-shared/db-enum')
@@ -240,18 +241,63 @@ async function zcl_struct_items_by_struct_name(name, options) {
  * @param {*} options
  * @returns Promise of content.
  */
-function zcl_device_types(options) {
-  let promise = templateUtil
-    .ensureZclPackageIds(this)
-    .then((packageIds) =>
-      Promise.all(
-        packageIds.map((packageId) =>
-          queryZcl.selectAllDeviceTypes(this.global.db, packageId)
-        )
-      )
+async function zcl_device_types(options) {
+  let packageIds = await templateUtil.ensureZclPackageIds(this)
+  let deviceTypes = await Promise.all(
+    packageIds.map((packageId) =>
+      queryDeviceType.selectAllDeviceTypes(this.global.db, packageId)
     )
-    .then((deviceTypes) => deviceTypes.flat())
-    .then((cl) => templateUtil.collectBlocks(cl, options, this))
+  )
+  let promise = templateUtil.collectBlocks(deviceTypes.flat(), options, this)
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
+ * Block helper for use inside zcl_device_types
+ *
+ * @param {*} options
+ * @returns blocks for clusters
+ */
+async function zcl_device_type_clusters(options) {
+  let clusters = await queryDeviceType.selectDeviceTypeClustersByDeviceTypeRef(
+    this.global.db,
+    this.id
+  )
+
+  let promise = templateUtil.collectBlocks(clusters, options, this)
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
+ * Block helper for use inside zcl_device_type_clusters
+ *
+ * @param {*} options
+ * @returns blocks for commands
+ */
+async function zcl_device_type_cluster_commands(options) {
+  let deviceTypeClusterId = this.id
+  let commands = await queryDeviceType.selectDeviceTypeCommandsByDeviceTypeRef(
+    this.global.db,
+    deviceTypeClusterId
+  )
+  let promise = templateUtil.collectBlocks(commands, options, this)
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
+ * Block helper for use inside zcl_device_type_clusters
+ *
+ * @param {*} options
+ * @returns blocks for attributes
+ */
+async function zcl_device_type_cluster_attributes(options) {
+  let deviceTypeClusterId = this.id
+  let attributes =
+    await queryDeviceType.selectDeviceTypeAttributesByDeviceTypeRef(
+      this.global.db,
+      deviceTypeClusterId
+    )
+  let promise = templateUtil.collectBlocks(attributes, options, this)
   return templateUtil.templatePromise(this.global, promise)
 }
 
@@ -2494,6 +2540,10 @@ exports.zcl_struct_items = zcl_struct_items
 exports.zcl_struct_items_by_struct_name = zcl_struct_items_by_struct_name
 exports.zcl_clusters = zcl_clusters
 exports.zcl_device_types = zcl_device_types
+exports.zcl_device_type_clusters = zcl_device_type_clusters
+exports.zcl_device_type_cluster_commands = zcl_device_type_cluster_commands
+exports.zcl_device_type_cluster_attributes = zcl_device_type_cluster_attributes
+
 exports.zcl_commands = zcl_commands
 exports.zcl_commands_source_client = zcl_commands_source_client
 exports.zcl_commands_source_server = zcl_commands_source_server
