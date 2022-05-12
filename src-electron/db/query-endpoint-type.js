@@ -178,6 +178,7 @@ async function selectAllClustersDetailsFromEndpointTypes(db, endpointTypes) {
     }
   }
 
+  let doOrderBy = false
   return dbApi
     .dbAll(
       db,
@@ -204,8 +205,11 @@ AND
   ENDPOINT_TYPE_CLUSTER.SIDE IS NOT "" AND ENDPOINT_TYPE_CLUSTER.ENABLED = 1
 GROUP BY
   NAME, SIDE
-ORDER BY 
-  CLUSTER.MANUFACTURER_CODE, CLUSTER.CODE, CLUSTER.DEFINE`
+${
+  doOrderBy
+    ? 'ORDER BY CLUSTER.MANUFACTURER_CODE, CLUSTER.CODE, CLUSTER.DEFINE'
+    : ''
+}`
     )
     .then((rows) => rows.map(mapFunction))
 }
