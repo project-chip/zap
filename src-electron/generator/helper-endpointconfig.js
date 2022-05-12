@@ -920,6 +920,7 @@ function endpoint_config(options) {
   let collectAttributesOptions = {
     allowUnknownStorageOption:
       options.hash.allowUnknownStorageOption === 'false' ? false : true,
+    spaceForDefaultValue: options.hash.spaceForDefaultValue,
   }
   let promise = templateUtil
     .ensureZclPackageId(newContext)
