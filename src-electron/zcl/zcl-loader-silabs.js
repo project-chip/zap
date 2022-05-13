@@ -125,6 +125,15 @@ async function collectDataFromJsonFile(metadataFile, data) {
 
   if ('ZCLDataTypes' in obj) {
     returnObject.ZCLDataTypes = obj.ZCLDataTypes
+  } else {
+    returnObject.ZCLDataTypes = [
+      'ARRAY',
+      'BITMAP',
+      'ENUM',
+      'NUMBER',
+      'STRING',
+      'STRUCT',
+    ]
   }
 
   env.logDebug(
