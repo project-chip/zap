@@ -157,13 +157,13 @@ test(
     let zclId = genResult.content['zcl-test.out']
     //expect(zclId).toEqual('random placeholder')
     expect(zclId).toContain(
-      `// ${testUtil.totalEnumCount - 3}/${
-        testUtil.totalEnumCount
+      `// ${testUtil.totalNonAtomicEnumCount - 1}/${
+        testUtil.totalNonAtomicEnumCount
       }: label=>ZllStatus caption=>Enum of size 1 byte`
     )
-    expect(zclId).toContain(`Label count: ${testUtil.totalEnumCount}`)
+    expect(zclId).toContain(`Label count: ${testUtil.totalNonAtomicEnumCount}`)
     expect(zclId).toContain(
-      `// 129/${testUtil.totalEnumCount}: label=>MeteringBlockEnumerations caption=>Enum of size 1 byte`
+      `// 129/${testUtil.totalNonAtomicEnumCount}: label=>MeteringBlockEnumerations caption=>Enum of size 1 byte`
     )
     expect(zclId).toContain(
       '// struct: ReadReportingConfigurationAttributeRecord'
