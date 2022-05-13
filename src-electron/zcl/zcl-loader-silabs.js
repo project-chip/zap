@@ -1083,10 +1083,13 @@ function prepareEnumOrBitmap(a, dataType, typeMap) {
     (a.$.type.toLowerCase().includes('int') ||
       a.$.type.toLowerCase().includes(dbEnum.zclType.bitmap))
   ) {
-    a.$.type = 'enum' + a.$.type.toLowerCase().match(/\d+/g).join('')
     env.logWarning(
-      'Check Xml metadata for type contradiction: ' + JSON.stringify(a)
+      'Check type contradiction in XML metadata for ' +
+        a.$.name +
+        ' with type ' +
+        a.$.type
     )
+    a.$.type = 'enum' + a.$.type.toLowerCase().match(/\d+/g).join('')
   }
   return {
     name: a.$.name,
