@@ -93,7 +93,12 @@ async function zcl_enums(options) {
   } else {
     ens = await Promise.all(
       packageIds.map((packageId) =>
-        queryZcl.selectAllEnums(this.global.db, packageId)
+        queryZcl
+          .selectAllEnums(this.global.db, packageId)
+          //Filtering out all atomic enums
+          .then((es) =>
+            es.filter((e) => !e.name.toLowerCase().match(/^enum\d+$/g))
+          )
       )
     ).then((x) => x.flat())
   }
