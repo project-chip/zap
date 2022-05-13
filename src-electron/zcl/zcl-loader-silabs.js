@@ -1074,7 +1074,20 @@ async function processEnumAtomic(db, filePath, packageId, data) {
  * @param {*} dataType
  * @returns An Object
  */
-function prepareEnumOrBitmap(a, dataType) {
+function prepareEnumOrBitmap(a, dataType, typeMap) {
+  // Taking care of a typo for backwards compatibility
+  // for eg <enum name="Status" type="INT8U" i.e. an enum defined as int8u
+  let enumIndex = typeMap.get(dbEnum.zclType.enum)
+  if (
+    dataType == enumIndex &&
+    (a.$.type.toLowerCase().includes('int') ||
+      a.$.type.toLowerCase().includes(dbEnum.zclType.bitmap))
+  ) {
+    a.$.type = 'enum' + a.$.type.toLowerCase().match(/\d+/g).join('')
+    env.logWarning(
+      'Check Xml metadata for type contradiction: ' + JSON.stringify(a)
+    )
+  }
   return {
     name: a.$.name,
     type: a.$.type.toLowerCase(),
@@ -1098,7 +1111,9 @@ async function processEnum(db, filePath, packageId, data) {
   return queryLoader.insertEnum(
     db,
     packageId,
-    data.map((x) => prepareEnumOrBitmap(x, typeMap.get(dbEnum.zclType.enum)))
+    data.map((x) =>
+      prepareEnumOrBitmap(x, typeMap.get(dbEnum.zclType.enum), typeMap)
+    )
   )
 }
 
@@ -1174,7 +1189,9 @@ async function processBitmap(db, filePath, packageId, data) {
   return queryLoader.insertBitmap(
     db,
     packageId,
-    data.map((x) => prepareEnumOrBitmap(x, typeMap.get(dbEnum.zclType.bitmap)))
+    data.map((x) =>
+      prepareEnumOrBitmap(x, typeMap.get(dbEnum.zclType.bitmap), typeMap)
+    )
   )
 }
 
