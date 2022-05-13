@@ -20,11 +20,14 @@ describe('Testing endpoints, clusters and attributes', () => {
     'check if three added endpoints exist',
     { retries: { runMode: 2, openMode: 2 } },
     () => {
+      cy.get('aside').contains('Billing Unit (0x0203)').click()
+      cy.get('aside').children().should('contain', 'Billing Unit (0x0203)')
+      cy.get('aside').contains('Endpoint - 2').click()
       cy.get('aside')
         .children()
-        .should('contain', 'Billing Unit (0x0203)')
-        .and('contain', 'CBA BACnet Tunneled Device (0x000A)')
-        .and('contain', 'CBA Config Tool (0x0005)')
+        .should('contain', 'CBA BACnet Tunneled Device (0x000A)')
+      cy.get('aside').contains('Endpoint - 3').click()
+      cy.get('aside').children().should('contain', 'CBA Config Tool (0x0005)')
     }
   )
   it(
