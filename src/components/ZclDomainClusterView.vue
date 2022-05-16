@@ -320,7 +320,7 @@ export default {
 
       this.$store
         .dispatch('zap/updateSelectedClients', {
-          endpointTypeIdList: this.endpointTypeIdList,
+          endpointTypeIdList: [this.selectedEndpointTypeId],
           id: id,
           added: clientSelected,
           listType: 'selectedClients',
@@ -328,7 +328,7 @@ export default {
         })
         .then(() =>
           this.$store.dispatch('zap/updateSelectedServers', {
-            endpointTypeIdList: this.endpointTypeIdList,
+            endpointTypeIdList: [this.selectedEndpointTypeId],
             id: id,
             added: serverSelected,
             listType: 'selectedServers',
