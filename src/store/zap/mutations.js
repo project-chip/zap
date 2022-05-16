@@ -17,6 +17,10 @@ import Vue from 'vue'
 
 const reportingMinDefault = 1
 
+export const togglePreviewTab = (state) => {
+  state.showPreviewTab = !state.showPreviewTab
+}
+
 export const updateShowDevTools = (state) => {
   state.showDevTools = !state.showDevTools
 }

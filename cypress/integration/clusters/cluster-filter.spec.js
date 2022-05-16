@@ -20,7 +20,7 @@ describe('Testing cluster filters', () => {
       cy.get(
         '.bar > :nth-child(1) > :nth-child(2) > .q-field > .q-field__inner > .q-field__control'
       ).click({ force: true })
-      cy.get('#qvs_3 > :nth-child(3)').click()
+      cy.get('.q-virtual-scroll__content > :nth-child(3)').click()
       cy.get('tbody')
         .children()
         .contains('Power Configuration')
@@ -34,7 +34,7 @@ describe('Testing cluster filters', () => {
       cy.get(
         '.bar > :nth-child(1) > :nth-child(2) > .q-field > .q-field__inner > .q-field__control'
       ).click({ force: true })
-      cy.get('#qvs_3 > :nth-child(1)').click()
+      cy.get('.q-virtual-scroll__content > :nth-child(1)').click()
       cy.get('tbody').children().should('contain', 'Power Configuration')
       cy.get(
         '#General > .q-expansion-item__container > .q-expansion-item__content > :nth-child(1) > .q-table__container > .q-table__middle > .q-table > tbody > :nth-child(2) > :nth-child(6) > .q-field > .q-field__inner > .q-field__control'
@@ -51,7 +51,7 @@ describe('Testing cluster filters', () => {
     'checks if power configuration exists',
     { retries: { runMode: 2, openMode: 2 } },
     () => {
-      cy.get('#qvs_3 > :nth-child(3)').click()
+      cy.get('.q-virtual-scroll__content > :nth-child(3)').click()
       cy.get('tbody').children().should('contain', 'Power Configuration')
     }
   )

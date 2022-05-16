@@ -16,7 +16,7 @@ limitations under the License.
 <template>
   <div>
     <q-card bordered class="q-pa-sm">
-      <div class="row q-py-md">
+      <div class="q-py-md">
         <strong>
           <router-link
             to="/"
