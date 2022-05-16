@@ -528,6 +528,7 @@ async function collectAttributes(endpointTypes, options) {
   let reportList = [] // Array of { direction, endpoint, clusterId, attributeId, mask, mfgCode, minOrSource, maxOrEndpoint, reportableChangeOrTimeout }
   let longDefaultsList = [] // Array of { value, size. comment }
   let attributeIndex = 0
+  let spaceForDefaultValue = options.spaceForDefaultValue !== undefined ? options.spaceForDefaultValue : 2
 
   endpointTypes.forEach((ept) => {
     let endpoint = {
@@ -617,7 +618,7 @@ async function collectAttributes(endpointTypes, options) {
         // nonempty default value to use long defaults.
         // external strings and zero-length default values.
         if (
-          defaultSize > 2 ||
+          defaultSize > spaceForDefaultValue ||
           (types.isString(a.type) &&
             attributeDefaultValue !== undefined &&
             attributeDefaultValue !== '')
@@ -926,6 +927,7 @@ function endpoint_config(options) {
   let collectAttributesOptions = {
     allowUnknownStorageOption:
       options.hash.allowUnknownStorageOption === 'false' ? false : true,
+    spaceForDefaultValue: options.hash.spaceForDefaultValue,
   }
   let promise = templateUtil
     .ensureZclPackageId(newContext)
