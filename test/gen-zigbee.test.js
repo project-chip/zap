@@ -410,6 +410,20 @@ test(
       `0x0022, ZCL_SECURITY_KEY_ATTRIBUTE_TYPE, 16, (ATTRIBUTE_MASK_WRITABLE), { (uint8_t*)&(generatedDefaults[6]) } }, /* 37 Cluster: Green Power, Attribute: gp link key, Side: server*/`
     )
 
+    // Test EMBER_AF_GENERATED_REPORTING_CONFIG_DEFAULTS to see that it generates reporting for singleton attributes correctly
+    // This test makes sure the reporting default generates only once for a singleton attribute and not per endpoint.
+    // In this case: Basic Server Cluster, ZCL version is enabled on enpoint 2 and 242
+    expect(cfgVer2).toContain(`EMBER_AF_GENERATED_REPORTING_CONFIG_DEFAULTS`)
+    expect(cfgVer2).toContain(
+      `{ EMBER_ZCL_REPORTING_DIRECTION_REPORTED, 0x0002, 0x0000, 0x0000, CLUSTER_MASK_SERVER, 0x0000, 0, 65534, 0 }, /* Endpoint Id: 2, Cluster: Basic, Attribute: ZCL version */`
+    )
+    expect(cfgVer2).not.toContain(
+      `{ EMBER_ZCL_REPORTING_DIRECTION_REPORTED, 0x0001, 0x0000, 0x0000, CLUSTER_MASK_SERVER, 0x0000, 0, 65534, 0 }, /* Endpoint Id: 1, Cluster: Basic, Attribute: ZCL version */`
+    )
+    expect(cfgVer2).not.toContain(
+      `{ EMBER_ZCL_REPORTING_DIRECTION_REPORTED, 0x00F2, 0x0000, 0x0000, CLUSTER_MASK_SERVER, 0x0000, 0, 65534, 0 }, /* Endpoint Id: 242, Cluster: Basic, Attribute: ZCL version */`
+    )
+
     // Testing zap cli helpers
     expect(genResult.content['zap-cli.c']).toContain(
       'static const sl_cli_command_entry_t zcl_identify_cluster_command_table[]'
