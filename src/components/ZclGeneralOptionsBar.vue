@@ -146,13 +146,6 @@ export default {
         return this.$store.state.zap.selectedGenericOptions['commandDiscovery']
       },
     },
-    shareConfigsAcrossEndpointsSetting: {
-      get() {
-        return this.$store.state.zap.selectedGenericOptions[
-          'shareConfigsAcrossEndpoints'
-        ]
-      },
-    },
   },
   data() {
     return {

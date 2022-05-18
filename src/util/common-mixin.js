@@ -96,11 +96,6 @@ export default {
         return this.$store.state.zap.packages
       },
     },
-    shareConfigsAcrossEndpoints: {
-      get() {
-        return false
-      },
-    },
     endpointTypeIdList: {
       get() {
         if (this.shareClusterStatesAcrossEndpoints()) {

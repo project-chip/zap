@@ -181,7 +181,7 @@ export function updateSelectedComponent(context, payload) {
 export function updateSelectedServers(context, selectionContext) {
   return Vue.prototype
     .$serverPost(restApi.uri.cluster, {
-      endpointTypeIdList: selectionContext.endpointTypeIdList,
+      endpointTypeId: selectionContext.endpointTypeId,
       id: selectionContext.id,
       side: 'server',
       flag: selectionContext.added,
@@ -194,7 +194,7 @@ export function updateSelectedServers(context, selectionContext) {
 export function updateSelectedClients(context, selectionContext) {
   return Vue.prototype
     .$serverPost(restApi.uri.cluster, {
-      endpointTypeIdList: selectionContext.endpointTypeIdList,
+      endpointTypeId: selectionContext.endpointTypeId,
       id: selectionContext.id,
       side: 'client',
       flag: selectionContext.added,
