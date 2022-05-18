@@ -611,12 +611,13 @@ async function collectAttributes(endpointTypes, options) {
         // Zero-length strings can just use ZAP_EMPTY_DEFAULT() as the default
         // and don't need long defaults.  Similar for external strings.
         //
-        // Apart from that, there are two string cases that _could_ fit into our
-        // 2-byte default value: a 1-char-long short string, or a null string.
-        // But figuring out how to produce a uint8_t* for those as a literal
-        // value is a pain, so just force all non-external strings with a
-        // nonempty default value to use long defaults.
-        // external strings and zero-length default values.
+        // Apart from that, there are a few string cases that _could_ fit into our
+        // default value as the size is determined by spaceForDefaultValue.  Some
+        // example strings that would fit if spaceForDefaultValue were 2 bytes are:
+        // a 1-char-long short string, or a null string.  But figuring out how
+        // to produce a uint8_t* for those as a literal value is a pain, so just
+        // force all non-external strings with a nonempty default value to use
+        // long defaults.
         if (
           defaultSize > spaceForDefaultValue ||
           (types.isString(a.type) &&
