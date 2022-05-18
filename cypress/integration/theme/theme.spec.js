@@ -1,6 +1,5 @@
 /// <reference types="cypress" />
 
-const { find } = require('underscore')
 const rendApi = require('../../../src-shared/rend-api.js')
 
 Cypress.on('uncaught:exception', (err, runnable) => {
