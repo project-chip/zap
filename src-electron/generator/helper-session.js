@@ -668,7 +668,8 @@ async function is_command_default_response_disabled(command, options) {
   )
   if (
     defaultRespPolicy.toUpperCase() == 'NEVER' ||
-    (defaultRespPolicy.toUpperCase('ALWAYS') && command.disableDefaultResponse)
+    (defaultRespPolicy.toUpperCase() != 'ALWAYS' &&
+      command.disableDefaultResponse)
   ) {
     return options.fn(this)
   } else {
