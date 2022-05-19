@@ -129,7 +129,9 @@ function httpPostCluster(db) {
         })
         .send()
     } catch (err) {
-      response.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err)
+      response
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message, stack: err.stack })
     }
   }
 }
