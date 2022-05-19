@@ -128,6 +128,7 @@ limitations under the License.
                   hashAttributeIdClusterId(props.row.id, selectedCluster.id)
                 ]
               "
+              :disable="isDisabled(props.row.id, selectedCluster.id)"
               class="col"
               :options="storageOptions"
               dense
@@ -148,6 +149,7 @@ limitations under the License.
               :value="selectionSingleton"
               :val="hashAttributeIdClusterId(props.row.id, selectedCluster.id)"
               indeterminate-value="false"
+              :disable="isDisabled(props.row.id, selectedCluster.id)"
               @input="
                 handleLocalSelection(
                   $event,
@@ -164,6 +166,7 @@ limitations under the License.
               :value="selectionBounded"
               :val="hashAttributeIdClusterId(props.row.id, selectedCluster.id)"
               indeterminate-value="false"
+              :disable="isDisabled(props.row.id, selectedCluster.id)"
               @input="
                 handleLocalSelection(
                   $event,
