@@ -408,8 +408,8 @@ function prepareCluster(cluster, context, isExtension = false) {
         introducedIn: command.$.introducedIn,
         removedIn: command.$.removedIn,
         responseName: command.$.response == null ? null : command.$.response,
-        disableDefaultResponse:
-          command.$.disableDefaultResponse == 'true' ? true : false,
+        isDefaultResponseEnabled:
+          command.$.disableDefaultResponse == 'true' ? false : true,
       }
       cmd.access = extractAccessIntoArray(command)
       if (cmd.manufacturerCode == null) {

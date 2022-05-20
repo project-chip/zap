@@ -95,7 +95,7 @@ INSERT INTO COMMAND (
   MANUFACTURER_CODE,
   INTRODUCED_IN_REF,
   REMOVED_IN_REF,
-  DISABLE_DEFAULT_RESPONSE
+  IS_DEFAULT_RESPONSE_ENABLED
 ) VALUES (
   ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
@@ -225,7 +225,7 @@ function commandMap(clusterId, packageId, commands) {
     packageId,
     command.removedIn,
     packageId,
-    dbApi.toDbBool(command.disableDefaultResponse),
+    dbApi.toDbBool(command.isDefaultResponseEnabled),
   ])
 }
 

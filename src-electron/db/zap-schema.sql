@@ -170,7 +170,7 @@ CREATE TABLE IF NOT EXISTS "COMMAND" (
   "REMOVED_IN_REF" integer,
   "RESPONSE_NAME" integer,
   "RESPONSE_REF" integer,
-  "DISABLE_DEFAULT_RESPONSE" integer,
+  "IS_DEFAULT_RESPONSE_ENABLED" integer,
   foreign key (INTRODUCED_IN_REF) references SPEC(SPEC_ID),
   foreign key (REMOVED_IN_REF) references SPEC(SPEC_ID),
   foreign key (CLUSTER_REF) references CLUSTER(CLUSTER_ID),
