@@ -656,9 +656,9 @@ async function user_default_response_policy(options) {
  * An if helper to check if default response for a command is enabled or not.
  * @param {*} command
  * @param {*} options
- * @returns true if the the default response policy is either never or
- * when the policy is not always and the command has the disable default
- * response policy set to true
+ * @returns true if the the default response policy is either always or
+ * when the policy is not never and the command has the disable default
+ * response policy set to false(not true)
  */
 async function is_command_default_response_enabled(command, options) {
   let defaultRespPolicy = await querySession.getSessionKeyValue(
