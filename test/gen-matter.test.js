@@ -56,9 +56,9 @@ afterAll(() => dbApi.closeDatabase(db), testUtil.timeout.short())
 
 test('Validate loading', async () => {
   let c = await testQuery.selectCountFrom(db, 'TAG')
-  expect(c).toBe(6)
+  expect(c).toBe(15)
   c = await testQuery.selectCountFrom(db, 'GLOBAL_ATTRIBUTE_BIT')
-  expect(c).toBe(12) // 6 feature bits per each client/server of 1 cluster
+  expect(c).toBe(10)
 
   let attr = await queryAttribute.selectAttributeByCode(
     db,
@@ -72,25 +72,11 @@ test('Validate loading', async () => {
   let cluster = await queryZcl.selectClusterByCode(
     db,
     zclPackageId,
-    0x9999,
+    0x0029,
     null
   )
   expect(cluster).not.toBe(null)
-
-  let defs = await queryAttribute.selectGlobalAttributeDefaults(
-    db,
-    cluster.id,
-    attr.id
-  )
-  expect(defs).not.toBeNull()
-  expect(defs.defaultValue).toBe('0x0055')
-  expect(defs.featureBits.length).toBe(6)
-  expect(defs.featureBits[0].bit).toBe(0)
-  expect(defs.featureBits[1].bit).toBe(1)
-  expect(defs.featureBits[2].bit).toBe(2)
-  expect(defs.featureBits[3].bit).toBe(3)
-  expect(defs.featureBits[4].bit).toBe(4)
-  expect(defs.featureBits[5].bit).toBe(6)
+  expect(cluster.name).toBe('OTA Software Update Provider')
 })
 
 test(
@@ -161,35 +147,21 @@ test(
     expect(sdkExt).not.toBeNull()
     expect(
       sdkExt.includes(
-        "// event: 0x9999 / 0x0001 => HelloEvent, extensions: 'defHello'"
+        "// cluster: 0x0029 OTA Software Update Provider, text extension: ''"
       )
     ).toBeTruthy()
 
     let simpleTest = genResult.content['simple-test.h']
     expect(simpleTest).toContain(
-      'Cluster Name : Groups+Command Name : RemoveAllGroups'
-    )
-
-    let featureMap = genResult.content['feature-map.h']
-    expect(featureMap).not.toBeNull()
-    expect(featureMap).toContain(
-      `Cluster: Network Provisioning
-- default value: 0x0055
-- feature bits for the feature map attribute:
-    0: Bit 0 is assigned to tag F0 => value = 1
-    1: Bit 1 is assigned to tag C0 => value = 0
-    2: Bit 2 is assigned to tag F1 => value = 0
-    3: Bit 3 is assigned to tag C1 => value = 0
-    4: Bit 4 is assigned to tag F2 => value = 1
-    5: Bit 6 is assigned to tag F3 => value = 0`
+      'Cluster Name : OnOff+Command Name : OnWithRecallGlobalScene'
     )
 
     let deviceType = genResult.content['device-types.txt']
-    expect(deviceType).toContain('>> Attribute: ProductURL [13]')
-    expect(deviceType).toContain('>> Command: TriggerEffect [64]')
     expect(deviceType).toContain(
-      '=> cluster BACnet Protocol Tunnel: includeClient/includeServer/lockClient/lockServer=true/true/true/true'
+      '// device type: CHIP / 0x000E => MA-bridge // extension: '
     )
+    expect(deviceType).toContain('>> Attribute: identify time [0]')
+    expect(deviceType).toContain('>> Command: TriggerEffect [64]')
   },
   testUtil.timeout.long()
 )

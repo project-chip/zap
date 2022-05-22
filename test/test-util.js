@@ -112,3 +112,12 @@ exports.totalDiscriminatorCount = 6
 exports.totalEnumItemCount = 1595
 exports.totalDotDotEnums = 106
 exports.totalDotDotEnumItems = 637
+
+exports.totalMatterClusters = 58
+exports.totalMatterDeviceTypes = 40
+exports.totalMatterCommandArgs = 424
+exports.totalMatterCommands = 203
+exports.totalMatterAttributes = 509
+exports.totalMatterTags = 15
+exports.totalMatterEvents = 56
+exports.totalMatterEventFields = 83
