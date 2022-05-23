@@ -38,7 +38,6 @@ const restApi = require('../../src-shared/rest-api.js')
 const zclLoader = require('../zcl/zcl-loader.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const { StatusCodes } = require('http-status-codes')
-const _ = require('underscore')
 
 /**
  * HTTP GET: session key values
@@ -96,13 +95,13 @@ function httpPostCluster(db) {
         )
         .then((pkgs) => pkgs?.shift()?.id) // default to always picking first package
 
-      if (_.isNull(packageId)) {
+      if (packageId == null) {
         throw new Error('Unable to find packageId')
       }
 
-      let insertDefault = _.isNull(
-        await queryConfig.selectClusterState(db, endpointTypeId, id, side)
-      )
+      let insertDefault = await queryConfig
+        .selectClusterState(db, endpointTypeId, id, side)
+        .then((state) => state == null)
 
       await queryConfig.insertOrReplaceClusterState(
         db,
