@@ -336,14 +336,14 @@ test(
     expect(cfgVer2).toContain('#define GENERATED_ENDPOINT_TYPE_COUNT (2)')
     // Test GENERATED_ENDPOINT_TYPES
     expect(cfgVer2).toContain(
-      '{ ((EmberAfCluster*)&(generatedClusters[0])), 9, 241 },'
+      '{ ((EmberAfCluster*)&(generatedClusters[0])), 9, 50 },'
     )
     // Test ATTRIBUTE_LARGEST
     expect(cfgVer2).toContain('#define ATTRIBUTE_LARGEST (65)')
     // Test ATTRIBUTE_SINGLETONS_SIZE
     expect(cfgVer2).toContain('#define ATTRIBUTE_SINGLETONS_SIZE (191)')
     // Test ATTRIBUTE_MAX_SIZE
-    expect(cfgVer2).toContain('#define ATTRIBUTE_MAX_SIZE (546)')
+    expect(cfgVer2).toContain('#define ATTRIBUTE_MAX_SIZE (164)')
     // Test FIXED_ENDPOINT_COUNT
     expect(cfgVer2).toContain('#define FIXED_ENDPOINT_COUNT (2)')
     // Test EMBER_AF_GENERATED_COMMAND_COUNT
