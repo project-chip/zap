@@ -2,6 +2,7 @@ final boolean buildForMac = true
 final boolean runCypressTests = false
 final boolean triggerAdapterPackJob = false
 final boolean sonarScan = false
+final boolean validateXml = true
 
 pipeline
 {
@@ -60,6 +61,7 @@ pipeline
                 }
                 stage('XML validation')
                 {
+                    when { equals expected: true, actual: validateXml }
                     steps
                     {
                         script

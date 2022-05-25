@@ -24,13 +24,14 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - run: sudo apt-get update
-      - run: sudo apt-get install --fix-missing libpixman-1-dev libcairo-dev libsdl-pango-dev libjpeg-dev libgif-dev xvfb
+      - run: sudo apt-get install --fix-missing libpixman-1-dev libcairo-dev libsdl-pango-dev libjpeg-dev libgif-dev xvfb libxml2-utils
       - run: npm ci
       - run: npm run version-stamp
       - run: npm rebuild canvas --update-binary
       - run: npm rebuild libxmljs --update-binary
       - run: npm run build-spa
       - run: npm run lint
+      - run: npm run xml-validate
       - run: npm run test:unit
       - run: xvfb-run -a npm run self-check
       - run: npm run gen

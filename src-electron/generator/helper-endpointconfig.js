@@ -528,7 +528,10 @@ async function collectAttributes(endpointTypes, options) {
   let reportList = [] // Array of { direction, endpoint, clusterId, attributeId, mask, mfgCode, minOrSource, maxOrEndpoint, reportableChangeOrTimeout }
   let longDefaultsList = [] // Array of { value, size. comment }
   let attributeIndex = 0
-  let spaceForDefaultValue = options.spaceForDefaultValue !== undefined ? options.spaceForDefaultValue : 2
+  let spaceForDefaultValue =
+    options.spaceForDefaultValue !== undefined
+      ? options.spaceForDefaultValue
+      : 2
 
   endpointTypes.forEach((ept) => {
     let endpoint = {
@@ -611,12 +614,13 @@ async function collectAttributes(endpointTypes, options) {
         // Zero-length strings can just use ZAP_EMPTY_DEFAULT() as the default
         // and don't need long defaults.  Similar for external strings.
         //
-        // Apart from that, there are two string cases that _could_ fit into our
-        // 2-byte default value: a 1-char-long short string, or a null string.
-        // But figuring out how to produce a uint8_t* for those as a literal
-        // value is a pain, so just force all non-external strings with a
-        // nonempty default value to use long defaults.
-        // external strings and zero-length default values.
+        // Apart from that, there are a few string cases that _could_ fit into our
+        // default value as the size is determined by spaceForDefaultValue.  Some
+        // example strings that would fit if spaceForDefaultValue were 2 bytes are:
+        // a 1-char-long short string, or a null string.  But figuring out how
+        // to produce a uint8_t* for those as a literal value is a pain, so just
+        // force all non-external strings with a nonempty default value to use
+        // long defaults.
         if (
           defaultSize > spaceForDefaultValue ||
           (types.isString(a.type) &&
@@ -773,21 +777,38 @@ async function collectAttributes(endpointTypes, options) {
 
       c.commands.forEach((cmd) => {
         let mask = []
-        if (cmd.isOptional) {
-          if (cmd.isIncoming) {
-            if (c.side == dbEnum.side.server) mask.push('incoming_server')
-            else mask.push('incoming_client')
-          }
-          if (cmd.isOutgoing) {
-            if (c.side == dbEnum.side.server) mask.push('outgoing_server')
-            else mask.push('outgoing_client')
-          }
-        } else {
-          if (cmd.source == dbEnum.source.client) {
-            mask.push('incoming_server')
-          } else {
-            mask.push('incoming_client')
-          }
+        // ZAP files can have nonsense incoming/outgoing values,
+        // unfortunately, claiming that client-sourced commands are
+        // incoming for a client-side cluster.  Make sure that we only
+        // set the flags that actually make sense based on the command
+        // and cluster instance we are looking at.
+        if (
+          cmd.source == dbEnum.source.client &&
+          c.side == dbEnum.side.server &&
+          (!cmd.isOptional || cmd.isIncoming)
+        ) {
+          mask.push('incoming_server')
+        }
+        if (
+          cmd.source == dbEnum.source.client &&
+          c.side == dbEnum.side.client &&
+          (!cmd.isOptional || cmd.isOutgoing)
+        ) {
+          mask.push('outgoing_client')
+        }
+        if (
+          cmd.source == dbEnum.source.server &&
+          c.side == dbEnum.side.server &&
+          (!cmd.isOptional || cmd.isOutgoing)
+        ) {
+          mask.push('outgoing_server')
+        }
+        if (
+          cmd.source == dbEnum.source.server &&
+          c.side == dbEnum.side.client &&
+          (!cmd.isOptional || cmd.isIncoming)
+        ) {
+          mask.push('incoming_client')
         }
         let command = {
           endpointId: ept.endpointId,

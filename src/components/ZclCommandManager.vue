@@ -199,34 +199,24 @@ export default {
   },
   methods: {
     displayCommandWarning(row) {
-      if (
-        this.isCommandRequired(row) &&
-        ((this.selectionClients.includes(this.selectedCluster.id) &&
-          row.source == 'client') ||
-          (this.selectionServers.includes(this.selectedCluster.id) &&
-            row.source == 'server')) &&
-        !this.selectionOut.includes(
-          this.hashCommandIdClusterId(row.id, this.selectedCluster.id)
-        )
-      ) {
-        this.validationErrorMessage =
-          'The outgoing command is mandatory for the cluster and device type configuration you have enabled'
-        return true
-      }
-      if (
-        this.isCommandRequired(row) &&
-        ((this.selectionClients.includes(this.selectedCluster.id) &&
-          row.source == 'server') ||
-          (this.selectionServers.includes(this.selectedCluster.id) &&
-            row.source == 'client')) &&
-        !this.selectionIn.includes(
-          this.hashCommandIdClusterId(row.id, this.selectedCluster.id)
-        )
-      ) {
-        this.validationErrorMessage =
-          'The ingoing command is mandatory for the cluster and device type configuration you have enabled'
-        return true
-      }
+      return (
+        (this.isCommandRequired(row) &&
+          ((this.selectionClients.includes(this.selectedCluster.id) &&
+            row.source == 'client') ||
+            (this.selectionServers.includes(this.selectedCluster.id) &&
+              row.source == 'server')) &&
+          !this.selectionOut.includes(
+            this.hashCommandIdClusterId(row.id, this.selectedCluster.id)
+          )) ||
+        (this.isCommandRequired(row) &&
+          ((this.selectionClients.includes(this.selectedCluster.id) &&
+            row.source == 'server') ||
+            (this.selectionServers.includes(this.selectedCluster.id) &&
+              row.source == 'client')) &&
+          !this.selectionIn.includes(
+            this.hashCommandIdClusterId(row.id, this.selectedCluster.id)
+          ))
+      )
     },
     handleCommandSelection(list, listType, commandData, clusterId) {
       // We determine the ID that we need to toggle within the list.
