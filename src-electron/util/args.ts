@@ -132,6 +132,7 @@ export function processCommandLineArguments(argv: string[]) {
     })
     .options('noServer', {
       desc: "Don't run the http or IPC server. You should probably also specify -noUi with this.",
+      type: 'boolean',
       default: false,
     })
     .options('genResultFile', {
