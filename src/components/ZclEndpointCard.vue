@@ -20,7 +20,7 @@ limitations under the License.
       :bordered="isSelectedEndpoint"
       @click="setSelectedEndpointType(endpointReference)"
     >
-      <div class="row">
+      <div @click='toggleShowAllInformationOfEndpoint' class="row">
         <div class="vertical-align:middle q-pa-md col-5">
           <strong
             >Endpoint - {{ getFormattedEndpointId(endpointReference) }}</strong
@@ -49,7 +49,7 @@ limitations under the License.
         />
       </q-card-actions>
       </div>
-      <q-list dense bordered v-if="isSelectedEndpoint">
+      <q-list dense bordered v-if="showAllInformationOfEndpoint">
         <br />
         <q-item class="row">
           <div class="col-6">
@@ -85,13 +85,13 @@ limitations under the License.
           <div class="col-6">
             <strong>Enabled Clusters</strong>
           </div>
-          <div class="col-6 text-right">{{ selectedservers.length }}</div>
+          <div class="col-6">{{ selectedservers.length }}</div>
         </q-item>
         <q-item class="row">
           <div class="col-6">
             <strong>Enabled Attributes</strong>
           </div>
-          <div class="col-6 text-right">
+          <div class="col-6">
             {{ selectedAttributes.length }}
           </div>
         </q-item>
@@ -99,7 +99,7 @@ limitations under the License.
           <div class="col-6">
             <strong>Enabled Reporting</strong>
           </div>
-          <div class="col-6 text-right">
+          <div class="col-6">
             {{ selectedReporting.length }}
           </div>
         </q-item>
@@ -189,6 +189,7 @@ export default {
       deleteEndpointDialog: false,
       confirmDeleteEndpointDialog: false,
       deleteingleEndpointDialog: false,
+      showAllInformationOfEndpoint: false,
     }
   },
   methods: {
@@ -241,6 +242,9 @@ export default {
         )
       })
     },
+    toggleShowAllInformationOfEndpoint() {
+      this.showAllInformationOfEndpoint = !this.showAllInformationOfEndpoint
+    }
   },
   computed: {
     endpoints: {
