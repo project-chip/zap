@@ -396,15 +396,6 @@ function httpGetPackages(db) {
 function httpGetAllPackages(db) {
   return async (request, response) => {
     let packages = await queryPackage.getAllPackages(db)
-    await Promise.all(
-      packages.map(async (singlePackage) => {
-        singlePackage.content = await fsPromise.readFile(
-          singlePackage.PATH,
-          'utf8'
-        )
-        return singlePackage
-      })
-    )
     response.status(StatusCodes.OK).json({ packages })
   }
 }
