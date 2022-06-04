@@ -178,7 +178,7 @@ async function selectAllClustersDetailsFromEndpointTypes(db, endpointTypes) {
     }
   }
 
-  let doOrderBy = false
+  let doOrderBy = true
   return dbApi
     .dbAll(
       db,

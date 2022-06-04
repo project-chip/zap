@@ -102,7 +102,9 @@ function openFileDialogAndReportResult(
   browserWindow: Electron.BrowserWindow,
   options: uiTypes.UiFileBrowseOptionsType
 ) {
-  let p: Electron.OpenDialogOptions = {}
+  let p: Electron.OpenDialogOptions = {
+    buttonLabel: 'Generate',
+  }
   if (options.mode === 'file') {
     p.properties = ['openFile']
   } else if (options.mode == 'directory') {

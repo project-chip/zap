@@ -528,7 +528,10 @@ async function collectAttributes(endpointTypes, options) {
   let reportList = [] // Array of { direction, endpoint, clusterId, attributeId, mask, mfgCode, minOrSource, maxOrEndpoint, reportableChangeOrTimeout }
   let longDefaultsList = [] // Array of { value, size. comment }
   let attributeIndex = 0
-  let spaceForDefaultValue = options.spaceForDefaultValue !== undefined ? options.spaceForDefaultValue : 2
+  let spaceForDefaultValue =
+    options.spaceForDefaultValue !== undefined
+      ? options.spaceForDefaultValue
+      : 2
 
   endpointTypes.forEach((ept) => {
     let endpoint = {
@@ -774,21 +777,38 @@ async function collectAttributes(endpointTypes, options) {
 
       c.commands.forEach((cmd) => {
         let mask = []
-        if (cmd.isOptional) {
-          if (cmd.isIncoming) {
-            if (c.side == dbEnum.side.server) mask.push('incoming_server')
-            else mask.push('incoming_client')
-          }
-          if (cmd.isOutgoing) {
-            if (c.side == dbEnum.side.server) mask.push('outgoing_server')
-            else mask.push('outgoing_client')
-          }
-        } else {
-          if (cmd.source == dbEnum.source.client) {
-            mask.push('incoming_server')
-          } else {
-            mask.push('incoming_client')
-          }
+        // ZAP files can have nonsense incoming/outgoing values,
+        // unfortunately, claiming that client-sourced commands are
+        // incoming for a client-side cluster.  Make sure that we only
+        // set the flags that actually make sense based on the command
+        // and cluster instance we are looking at.
+        if (
+          cmd.source == dbEnum.source.client &&
+          c.side == dbEnum.side.server &&
+          cmd.isIncoming
+        ) {
+          mask.push('incoming_server')
+        }
+        if (
+          cmd.source == dbEnum.source.client &&
+          c.side == dbEnum.side.client &&
+          cmd.isOutgoing
+        ) {
+          mask.push('outgoing_client')
+        }
+        if (
+          cmd.source == dbEnum.source.server &&
+          c.side == dbEnum.side.server &&
+          cmd.isOutgoing
+        ) {
+          mask.push('outgoing_server')
+        }
+        if (
+          cmd.source == dbEnum.source.server &&
+          c.side == dbEnum.side.client &&
+          cmd.isIncoming
+        ) {
+          mask.push('incoming_client')
         }
         let command = {
           endpointId: ept.endpointId,
