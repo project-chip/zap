@@ -1516,7 +1516,7 @@ async function selectCommandDetailsFromAllEndpointTypesAndClusters(
   }
 
   // Ordering of the results:
-  // query = query + ' ORDER BY C.MANUFACTURER_CODE, C.CODE, C.NAME'
+  query = query + ' ORDER BY C.MANUFACTURER_CODE, C.CODE, C.NAME'
 
   return dbApi.dbAll(db, query).then((rows) => rows.map(commandMapFunction))
 }
