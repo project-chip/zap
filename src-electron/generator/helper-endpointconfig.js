@@ -785,28 +785,28 @@ async function collectAttributes(endpointTypes, options) {
         if (
           cmd.source == dbEnum.source.client &&
           c.side == dbEnum.side.server &&
-          (!cmd.isOptional || cmd.isIncoming)
+          cmd.isIncoming
         ) {
           mask.push('incoming_server')
         }
         if (
           cmd.source == dbEnum.source.client &&
           c.side == dbEnum.side.client &&
-          (!cmd.isOptional || cmd.isOutgoing)
+          cmd.isOutgoing
         ) {
           mask.push('outgoing_client')
         }
         if (
           cmd.source == dbEnum.source.server &&
           c.side == dbEnum.side.server &&
-          (!cmd.isOptional || cmd.isOutgoing)
+          cmd.isOutgoing
         ) {
           mask.push('outgoing_server')
         }
         if (
           cmd.source == dbEnum.source.server &&
           c.side == dbEnum.side.client &&
-          (!cmd.isOptional || cmd.isIncoming)
+          cmd.isIncoming
         ) {
           mask.push('incoming_client')
         }
