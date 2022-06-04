@@ -31,29 +31,8 @@ limitations under the License.
       style="height: calc(100vh - 210px); overflow: hidden"
       :rows="1000"
     >
-      <template v-slot:body-cell-content="props">
-        <q-td :props="props">
-          <q-btn
-            flat
-            color="secondary"
-            dense
-            icon="visibility"
-            @click="showContent(props.row)"
-          />
-        </q-td>
-      </template>
       <template v-slot:pagination> </template>
     </q-table>
-    <q-dialog v-model="showContentDialog">
-      <q-card style="width: 800px; max-width: 80vw">
-        <q-card-section>
-          <div>{{ activePackage.VERSION }} content:</div>
-          <pre>
-            {{ activePackage.content }}
-          </pre>
-        </q-card-section>
-      </q-card>
-    </q-dialog>
   </div>
 </template>
 <script>
@@ -61,7 +40,6 @@ export default {
   name: 'PreferenceGeneration',
   data() {
     return {
-      showContentDialog: false,
       activePackage: {},
       columns: [
         {
@@ -81,11 +59,6 @@ export default {
           align: 'left',
           label: 'Path',
           field: 'PATH',
-        },
-        {
-          name: 'content',
-          align: 'left',
-          label: 'Content',
         },
       ],
     }
@@ -107,13 +80,6 @@ export default {
           rowsPerPage: this.packages.length,
         }
       },
-    },
-  },
-  methods: {
-    showContent(data) {
-      console.log(data)
-      this.activePackage = data
-      this.showContentDialog = true
     },
   },
 }

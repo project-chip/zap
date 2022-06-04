@@ -63,6 +63,14 @@ export default function () {
             context.enabledClusters.find((a) => cluster.id == a.id) !=
             undefined,
         },
+        {
+          label: 'Legal Clusters',
+          domainFilterFn: (domain, currentOpenDomains, context) =>
+            context.enabledClusters.map((a) => a.domainName).includes(domain),
+          clusterFilterFn: (cluster, context) =>
+            context.enabledClusters.find((a) => cluster.id == a.id) !=
+            undefined,
+        },
       ],
       actionOptions: [
         {
