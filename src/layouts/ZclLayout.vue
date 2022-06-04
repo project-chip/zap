@@ -71,7 +71,11 @@ limitations under the License.
       <q-layout
         view="hHh Lpr lff"
         container
-        style="height: calc(100vh - 100px)"
+        :style="`${
+          this.$store.state.zap.debugNavBar
+            ? 'height: calc(100vh - 100px)'
+            : 'height: calc(100vh - 30px)'
+        }`"
         class="shadow-2 rounded-borders"
       >
         <q-page-container>
@@ -150,10 +154,7 @@ limitations under the License.
               <div>
                 <template>
                   <div class="q-ma-md">
-                    <q-scroll-area
-                      style="height: 70vh"
-                      ref="generationScroll"
-                    >
+                    <q-scroll-area style="height: 70vh" ref="generationScroll">
                       <pre class="q-ma-none container">{{
                         generationData
                       }}</pre>
@@ -187,7 +188,7 @@ const observable = require('../util/observable.js')
 export default {
   name: 'ZclLayout',
   methods: {
-    togglePreviewTab(){
+    togglePreviewTab() {
       this.$store.commit('zap/togglePreviewTab')
     },
     doGeneration(path) {
@@ -286,9 +287,9 @@ export default {
       get() {
         return this.$store.state.zap.showPreviewTab
       },
-      set(){
+      set() {
         return this.$store.dispatch('zap/togglePreviewTab')
-      }
+      },
     },
     tab: {
       get() {
