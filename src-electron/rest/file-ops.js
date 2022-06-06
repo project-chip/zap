@@ -134,6 +134,20 @@ function httpPostFileSave(db) {
   }
 }
 
+/**
+ * HTTP GET: isDirty
+ *
+ * @param {*} db
+ * @returns callback for the express uri registration
+ */
+function httpGetFileIsDirty(db) {
+  return async (req, res) => {
+    let isDirty = await querySession.getSessionDirtyFlag(db, req.zapSessionId)
+
+    return res.status(StatusCodes.OK).send({ DIRTY: isDirty })
+  }
+}
+
 exports.post = [
   {
     uri: restApi.ide.open,
@@ -142,5 +156,12 @@ exports.post = [
   {
     uri: restApi.ide.save,
     callback: httpPostFileSave,
+  },
+]
+
+exports.get = [
+  {
+    uri: restApi.ide.isDirty,
+    callback: httpGetFileIsDirty,
   },
 ]
