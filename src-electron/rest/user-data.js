@@ -83,58 +83,54 @@ function httpPostSaveSessionKeyValue(db) {
  */
 function httpPostCluster(db) {
   return async (request, response) => {
-    let { id, side, flag, endpointTypeIdList } = request.body
+    let { id, side, flag, endpointTypeId } = request.body
     let sessionId = request.zapSessionId
 
     try {
-      let pkgs = await queryPackage.getSessionPackagesByType(
-        db,
-        sessionId,
-        dbEnum.packageType.zclProperties
-      )
-
-      let packageId = pkgs[0].id
-
-      if (endpointTypeIdList.length == 0) {
-        throw new Error('Invalid function parameter: endpointTypeIdList')
-      }
-      let states = await Promise.all(
-        endpointTypeIdList.map((endpointTypeId) =>
-          queryConfig.selectClusterState(db, endpointTypeId, id, side)
+      let packageId = await queryPackage
+        .getSessionPackagesByType(
+          db,
+          sessionId,
+          dbEnum.packageType.zclProperties
         )
+        .then((pkgs) => pkgs?.shift()?.id) // default to always picking first package
+
+      if (packageId == null) {
+        throw new Error('Unable to find packageId')
+      }
+
+      let insertDefault = await queryConfig
+        .selectClusterState(db, endpointTypeId, id, side)
+        .then((state) => state == null)
+
+      await queryConfig.insertOrReplaceClusterState(
+        db,
+        endpointTypeId,
+        id,
+        side,
+        flag
       )
 
-      let insertDefaults = states.length == 0
+      if (insertDefault) {
+        await queryConfig.insertClusterDefaults(db, endpointTypeId, packageId, {
+          clusterRef: id,
+          side: side,
+        })
+      }
 
-      let promises = endpointTypeIdList.map((endpointTypeId) =>
-        queryConfig
-          .insertOrReplaceClusterState(db, endpointTypeId, id, side, flag)
-          .then(() => {
-            if (insertDefaults) {
-              return queryConfig.insertClusterDefaults(
-                db,
-                endpointTypeId,
-                packageId,
-                {
-                  clusterRef: id,
-                  side: side,
-                }
-              )
-            }
-          })
-      )
-      await Promise.all(promises)
       response
         .status(StatusCodes.OK)
         .json({
-          endpointTypeIdList: endpointTypeIdList,
-          id: id,
-          side: side,
-          flag: flag,
+          endpointTypeId,
+          id,
+          side,
+          flag,
         })
         .send()
     } catch (err) {
-      response.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err)
+      response
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .json({ message: err.message, stack: err.stack })
     }
   }
 }
@@ -488,7 +484,7 @@ function httpPostShareClusterStatesAcrossEndpoints(db) {
 
 async function commandDefaults(db, endpointTypeIdList, sharedClusterList) {
   let sharedCmdDefaults = {}
-  let clusterIdnSideToCmdCache = {}
+  let clusCmdToCmdObj = {}
   let sharedCommandList =
     await queryCommand.selectAllCommandDetailsFromEnabledClusters(
       db,
@@ -499,7 +495,7 @@ async function commandDefaults(db, endpointTypeIdList, sharedClusterList) {
 
   for (const endpointTypeId of endpointTypeIdList) {
     for (const sharedCmd of sharedCommandList) {
-      let clusCmdCacheKey = JSON.stringify({
+      let clusCmdKey = JSON.stringify({
         clusterId: sharedCmd.clusterId,
         clusterSide: sharedCmd.clusterSide,
         id: sharedCmd.id, // command id
@@ -507,12 +503,12 @@ async function commandDefaults(db, endpointTypeIdList, sharedClusterList) {
         mfgCode: sharedCmd.mfgCode,
       })
 
-      if (clusCmdCacheKey in clusterIdnSideToCmdCache) {
-        !(endpointTypeId in sharedCmdDefaults) &&
-          (sharedCmdDefaults[endpointTypeId] = [])
-        sharedCmdDefaults[endpointTypeId].push(
-          clusterIdnSideToCmdCache[clusCmdCacheKey]
-        )
+      if (!(endpointTypeId in sharedCmdDefaults)) {
+        sharedCmdDefaults[endpointTypeId] = []
+      }
+
+      if (clusCmdKey in clusCmdToCmdObj) {
+        sharedCmdDefaults[endpointTypeId].push(clusCmdToCmdObj[clusCmdKey])
       } else {
         let cmds = await queryEndpoint.selectEndpointClusterCommands(
           db,
@@ -525,10 +521,8 @@ async function commandDefaults(db, endpointTypeIdList, sharedClusterList) {
         if (matched.length) {
           let m = matched.shift()
 
-          !(endpointTypeId in sharedCmdDefaults) &&
-            (sharedCmdDefaults[endpointTypeId] = [])
           sharedCmdDefaults[endpointTypeId].push(m)
-          clusterIdnSideToCmdCache[clusCmdCacheKey] = m
+          clusCmdToCmdObj[clusCmdKey] = m
         }
       }
     }

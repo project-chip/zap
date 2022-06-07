@@ -125,6 +125,15 @@ async function collectDataFromJsonFile(metadataFile, data) {
 
   if ('ZCLDataTypes' in obj) {
     returnObject.ZCLDataTypes = obj.ZCLDataTypes
+  } else {
+    returnObject.ZCLDataTypes = [
+      'ARRAY',
+      'BITMAP',
+      'ENUM',
+      'NUMBER',
+      'STRING',
+      'STRUCT',
+    ]
   }
 
   env.logDebug(
@@ -399,6 +408,8 @@ function prepareCluster(cluster, context, isExtension = false) {
         introducedIn: command.$.introducedIn,
         removedIn: command.$.removedIn,
         responseName: command.$.response == null ? null : command.$.response,
+        isDefaultResponseEnabled:
+          command.$.disableDefaultResponse == 'true' ? false : true,
       }
       cmd.access = extractAccessIntoArray(command)
       if (cmd.manufacturerCode == null) {
@@ -1065,7 +1076,23 @@ async function processEnumAtomic(db, filePath, packageId, data) {
  * @param {*} dataType
  * @returns An Object
  */
-function prepareEnumOrBitmap(a, dataType) {
+function prepareEnumOrBitmap(a, dataType, typeMap) {
+  // Taking care of a typo for backwards compatibility
+  // for eg <enum name="Status" type="INT8U" i.e. an enum defined as int8u
+  let enumIndex = typeMap.get(dbEnum.zclType.enum)
+  if (
+    dataType == enumIndex &&
+    (a.$.type.toLowerCase().includes('int') ||
+      a.$.type.toLowerCase().includes(dbEnum.zclType.bitmap))
+  ) {
+    env.logWarning(
+      'Check type contradiction in XML metadata for ' +
+        a.$.name +
+        ' with type ' +
+        a.$.type
+    )
+    a.$.type = 'enum' + a.$.type.toLowerCase().match(/\d+/g).join('')
+  }
   return {
     name: a.$.name,
     type: a.$.type.toLowerCase(),
@@ -1089,7 +1116,9 @@ async function processEnum(db, filePath, packageId, data) {
   return queryLoader.insertEnum(
     db,
     packageId,
-    data.map((x) => prepareEnumOrBitmap(x, typeMap.get(dbEnum.zclType.enum)))
+    data.map((x) =>
+      prepareEnumOrBitmap(x, typeMap.get(dbEnum.zclType.enum), typeMap)
+    )
   )
 }
 
@@ -1165,7 +1194,9 @@ async function processBitmap(db, filePath, packageId, data) {
   return queryLoader.insertBitmap(
     db,
     packageId,
-    data.map((x) => prepareEnumOrBitmap(x, typeMap.get(dbEnum.zclType.bitmap)))
+    data.map((x) =>
+      prepareEnumOrBitmap(x, typeMap.get(dbEnum.zclType.bitmap), typeMap)
+    )
   )
 }
 

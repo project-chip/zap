@@ -67,12 +67,12 @@ Functions:`
  */
 
 async function execRendererApi(browserWindow, rendererApiCommand, ...theArgs) {
-  const info = await browserWindow.webContents.executeJavaScript(
+  const info = await browserWindow?.webContents.executeJavaScript(
     `window.${rendApi.GLOBAL_SYMBOL_INFO}`
   )
 
-  let apiFound = info.functions.filter((x) => x.id === rendererApiCommand)
-  if (!apiFound.length) {
+  let apiFound = info?.functions.filter((x) => x.id === rendererApiCommand)
+  if (!apiFound?.length) {
     env.logBrowser(
       `Unhandled renderer API function id invoked: ${rendererApiCommand}`
     )

@@ -171,6 +171,7 @@ exports.map = {
       responseName: x.RESPONSE_NAME,
       isIncoming: x.INCOMING,
       isOutgoing: x.OUTGOING,
+      isDefaultResponseEnabled: x.IS_DEFAULT_RESPONSE_ENABLED,
     }
   },
 

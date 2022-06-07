@@ -187,6 +187,28 @@ describe('Session specific queries', () => {
   ) // One for zclpropertie and one for gen template
 
   test(
+    'Test that Zigbee specific generator setting for session is present.',
+    () =>
+      queryPackage
+        .getPackagesByType(db, dbEnum.packageType.genTemplatesJson)
+        .then((packages) => {
+          expect(packages.length).toBe(1)
+          let pkgId = packages.shift().id
+
+          queryPackage
+            .selectAllOptionsValues(db, pkgId, 'generator')
+            .then((generatorConfigurations) => {
+              expect(generatorConfigurations).toBe(1)
+              expect(generatorConfigurations.shift().optionCode).toBe(
+                'shareClusterStatesAcrossEndpoints'
+              )
+              expect(generatorConfigurations.shift().optionLabel).toBe('true')
+            })
+        }),
+    testUtil.timeout.short()
+  )
+
+  test(
     'Test that ZCL package id for session is present.',
     () =>
       queryPackage
@@ -269,7 +291,7 @@ describe('Session specific queries', () => {
         .then(() => exportJs.createStateFromDatabase(db, sid))
         .then((state) => {
           expect(state.creator).toBe('zap')
-          expect(state.keyValuePairs.length).toBe(6)
+          expect(state.keyValuePairs.length).toBe(5)
           expect(state.keyValuePairs[0].key).toBe('commandDiscovery')
           expect(state.keyValuePairs[0].value).toBe('1')
           expect(state.keyValuePairs[1].key).toBe(
@@ -278,10 +300,8 @@ describe('Session specific queries', () => {
           expect(state.keyValuePairs[1].value).toBe('always')
           expect(state.keyValuePairs[2].key).toBe('key1')
           expect(state.keyValuePairs[2].value).toBe('value2')
-          expect(state.keyValuePairs[4].key).toBe('shareConfigsAcrossEndpoints')
-          expect(state.keyValuePairs[4].value).toBe('1')
-          expect(state.keyValuePairs[5].key).toBe('testKey')
-          expect(state.keyValuePairs[5].value).toBe('testValue')
+          expect(state.keyValuePairs[4].key).toBe('testKey')
+          expect(state.keyValuePairs[4].value).toBe('testValue')
           expect(state.endpointTypes.length).toBe(1)
           expect(state.endpointTypes[0].name).toBe('Test endpoint')
           expect(state.endpointTypes[0].clusters.length).toBe(0)

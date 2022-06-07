@@ -157,13 +157,13 @@ test(
     let zclId = genResult.content['zcl-test.out']
     //expect(zclId).toEqual('random placeholder')
     expect(zclId).toContain(
-      `// ${testUtil.totalEnumCount - 3}/${
-        testUtil.totalEnumCount
+      `// ${testUtil.totalNonAtomicEnumCount - 1}/${
+        testUtil.totalNonAtomicEnumCount
       }: label=>ZllStatus caption=>Enum of size 1 byte`
     )
-    expect(zclId).toContain(`Label count: ${testUtil.totalEnumCount}`)
+    expect(zclId).toContain(`Label count: ${testUtil.totalNonAtomicEnumCount}`)
     expect(zclId).toContain(
-      `// 129/${testUtil.totalEnumCount}: label=>MeteringBlockEnumerations caption=>Enum of size 1 byte`
+      `// 129/${testUtil.totalNonAtomicEnumCount}: label=>MeteringBlockEnumerations caption=>Enum of size 1 byte`
     )
     expect(zclId).toContain(
       '// struct: ReadReportingConfigurationAttributeRecord'
@@ -336,14 +336,14 @@ test(
     expect(cfgVer2).toContain('#define GENERATED_ENDPOINT_TYPE_COUNT (2)')
     // Test GENERATED_ENDPOINT_TYPES
     expect(cfgVer2).toContain(
-      '{ ((EmberAfCluster*)&(generatedClusters[0])), 9, 241 },'
+      '{ ((EmberAfCluster*)&(generatedClusters[0])), 9, 50 },'
     )
     // Test ATTRIBUTE_LARGEST
     expect(cfgVer2).toContain('#define ATTRIBUTE_LARGEST (65)')
     // Test ATTRIBUTE_SINGLETONS_SIZE
     expect(cfgVer2).toContain('#define ATTRIBUTE_SINGLETONS_SIZE (191)')
     // Test ATTRIBUTE_MAX_SIZE
-    expect(cfgVer2).toContain('#define ATTRIBUTE_MAX_SIZE (546)')
+    expect(cfgVer2).toContain('#define ATTRIBUTE_MAX_SIZE (164)')
     // Test FIXED_ENDPOINT_COUNT
     expect(cfgVer2).toContain('#define FIXED_ENDPOINT_COUNT (2)')
     // Test EMBER_AF_GENERATED_COMMAND_COUNT
@@ -408,6 +408,20 @@ test(
     )
     expect(cfgVer2).toContain(
       `0x0022, ZCL_SECURITY_KEY_ATTRIBUTE_TYPE, 16, (ATTRIBUTE_MASK_WRITABLE), { (uint8_t*)&(generatedDefaults[6]) } }, /* 37 Cluster: Green Power, Attribute: gp link key, Side: server*/`
+    )
+
+    // Test EMBER_AF_GENERATED_REPORTING_CONFIG_DEFAULTS to see that it generates reporting for singleton attributes correctly
+    // This test makes sure the reporting default generates only once for a singleton attribute and not per endpoint.
+    // In this case: Basic Server Cluster, ZCL version is enabled on enpoint 2 and 242
+    expect(cfgVer2).toContain(`EMBER_AF_GENERATED_REPORTING_CONFIG_DEFAULTS`)
+    expect(cfgVer2).toContain(
+      `{ EMBER_ZCL_REPORTING_DIRECTION_REPORTED, 0x0002, 0x0000, 0x0000, CLUSTER_MASK_SERVER, 0x0000, 0, 65534, 0 }, /* Endpoint Id: 2, Cluster: Basic, Attribute: ZCL version */`
+    )
+    expect(cfgVer2).not.toContain(
+      `{ EMBER_ZCL_REPORTING_DIRECTION_REPORTED, 0x0001, 0x0000, 0x0000, CLUSTER_MASK_SERVER, 0x0000, 0, 65534, 0 }, /* Endpoint Id: 1, Cluster: Basic, Attribute: ZCL version */`
+    )
+    expect(cfgVer2).not.toContain(
+      `{ EMBER_ZCL_REPORTING_DIRECTION_REPORTED, 0x00F2, 0x0000, 0x0000, CLUSTER_MASK_SERVER, 0x0000, 0, 65534, 0 }, /* Endpoint Id: 242, Cluster: Basic, Attribute: ZCL version */`
     )
 
     // Testing zap cli helpers

@@ -47,7 +47,7 @@ function hookMainInstanceEvents(argv: args.Arguments) {
     )
   )
 
-  if (!argv._.includes('server')) {
+  if (!argv._.includes('server') && !argv.noServer) {
     app.on('window-all-closed', () => {
       if (process.platform !== 'darwin') {
         app.quit()
@@ -74,10 +74,9 @@ function hookMainInstanceEvents(argv: args.Arguments) {
 let argv = args.processCommandLineArguments(process.argv)
 let reuseZapInstance = argv.reuseZapInstance
 let canProceedWithThisInstance
-let gotLock = app.requestSingleInstanceLock()
 
 if (reuseZapInstance) {
-  canProceedWithThisInstance = gotLock
+  canProceedWithThisInstance = app.requestSingleInstanceLock()
 } else {
   canProceedWithThisInstance = true
 }
