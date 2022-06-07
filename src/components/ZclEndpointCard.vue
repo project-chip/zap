@@ -20,8 +20,8 @@ limitations under the License.
       :bordered="isSelectedEndpoint"
       @click="setSelectedEndpointType(endpointReference)"
     >
-      <div @click='toggleShowAllInformationOfEndpoint' class="row">
-        <div class="vertical-align:middle q-pa-md col-5">
+      <div class="row">
+        <div class="vertical-align:middle q-pa-sm col-4">
           <strong
             >Endpoint - {{ getFormattedEndpointId(endpointReference) }}</strong
           >
@@ -47,6 +47,22 @@ limitations under the License.
           v-close-popup
           @click="modifyEndpointDialog = !modifyEndpointDialog"
         />
+          <q-btn
+            v-if='showAllInformationOfEndpoint'
+            @click.stop='toggleShowAllInformationOfEndpoint'
+            flat
+            dense
+            icon="arrow_downward"
+            size='xs'
+          />
+          <q-btn
+            v-else
+            flat
+            dense
+            icon="arrow_upward"
+            @click.stop='toggleShowAllInformationOfEndpoint'
+            size='xs'
+          />
       </q-card-actions>
       </div>
       <q-list dense bordered v-if="showAllInformationOfEndpoint">
@@ -314,6 +330,13 @@ export default {
       return this.$store.state.zap.attributeView.selectedReporting
     },
   },
+  watch: {
+    isSelectedEndpoint(newValue) {
+      if(newValue) {
+        this.showAllInformationOfEndpoint = true
+      }
+    }
+  }
 }
 </script>
 
