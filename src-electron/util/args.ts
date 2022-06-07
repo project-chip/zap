@@ -156,6 +156,11 @@ export function processCommandLineArguments(argv: string[]) {
       desc: 'Sets the state directory.',
       default: process.env[env.environmentVariable.stateDir.name] || '~/.zap',
     })
+    .option('jenkins', {
+      desc: 'Assume jenkins environment, enables tempState and skipPostGeneration.',
+      type: 'boolean',
+      default: process.env[env.environmentVariable.jenkinsHome.name] != null,
+    })
     .option('tempState', {
       desc: 'Use a unique temporary directory for state',
       type: 'boolean',
@@ -217,6 +222,19 @@ For more information, see ${commonUrl.projectUrl}`
     .wrap(null)
     .parse(argv)
 
+  // Apply Jenkins logic.
+  if (ret.jenkins) {
+    console.log(
+      '🔧 Detected Jenkins environment. Making necessary adjustments.'
+    )
+    if (process.env[env.environmentVariable.skipPostGen.name] == null) {
+      ret.skipPostGen = true
+    }
+    if (process.env[env.environmentVariable.uniqueStateDir.name] == null) {
+      ret.tempState = true
+    }
+  }
+
   // Collect files that are passed as loose arguments
   let allFiles = ret._.filter((arg: string | number, index: number) => {
     if (index == 0) return false
@@ -230,9 +248,10 @@ For more information, see ${commonUrl.projectUrl}`
 
   if (ret.tempState) {
     let tempDir = fs.mkdtempSync(`${os.tmpdir()}${path.sep}zap.`)
-    console.log(`Using temporary state directory: ${tempDir}`)
+    console.log(`🔧 Using temporary state directory: ${tempDir}`)
     env.setAppDirectory(tempDir)
   } else {
+    console.log(`🔧 Using state directory: ${ret.stateDirectory}`)
     env.setAppDirectory(ret.stateDirectory)
   }
 
