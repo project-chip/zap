@@ -36,6 +36,7 @@ const querySession = require('../db/query-session.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const { v4: uuidv4 } = require('uuid')
 const xml2js = require('xml2js')
+const singleInstance = require('single-instance')
 
 /**
  * Returns the CRC of the data that is passed.
@@ -552,6 +553,25 @@ function duration(nsDifference) {
   return out
 }
 
+/**
+ * This method returns true if the running instance is the first
+ * and main instance of the zap, and false if zap instance is already
+ * running.
+ *
+ */
+function mainOrSecondaryInstance(
+  allowSecondary,
+  mainInstanceCallback,
+  secondaryInstanceCallback
+) {
+  if (allowSecondary) {
+    let lock = new singleInstance('zap')
+    lock.lock().then(mainInstanceCallback).catch(secondaryInstanceCallback)
+  } else {
+    mainInstanceCallback()
+  }
+}
+
 exports.createBackupFile = createBackupFile
 exports.checksum = checksum
 exports.initializeSessionPackage = initializeSessionPackage
@@ -569,3 +589,4 @@ exports.getClusterExtensionDefault = getClusterExtensionDefault
 exports.parseXml = parseXml
 exports.readFileContentAndCrc = readFileContentAndCrc
 exports.duration = duration
+exports.mainOrSecondaryInstance = mainOrSecondaryInstance

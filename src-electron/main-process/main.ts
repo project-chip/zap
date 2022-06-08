@@ -20,19 +20,31 @@ require('source-map-support').install()
 
 import * as args from '../util/args'
 const env = require('../util/env')
+const util = require('../util/util')
 const startup = require('./startup')
 
 env.versionsCheck()
 env.setProductionEnv()
 
+let argv = args.processCommandLineArguments(process.argv)
+
+util.mainOrSecondaryInstance(
+  argv.reuseZapInstance,
+  () => {
+    startup.startUpMainInstance(
+      {
+        quitFunction: null,
+        uiEnableFunction: null,
+      },
+      argv
+    )
+  },
+  () => {
+    startup.startUpSecondaryInstance(null, argv)
+  }
+)
+
 // If the code is executed via 'node' and not via 'electron', then this
 // is where we end up.
-startup.startUpMainInstance(
-  {
-    quitFunction: null,
-    uiEnableFunction: null,
-  },
-  args.processCommandLineArguments(process.argv)
-)
 
 exports.loaded = true
