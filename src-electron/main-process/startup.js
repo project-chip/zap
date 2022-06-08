@@ -563,7 +563,8 @@ function startUpSecondaryInstance(quitFunction, argv) {
   ipcClient.initAndConnectClient().then(() => {
     ipcClient.on(ipcServer.eventType.overAndOut, (data) => {
       logRemoteData(data)
-      quitFunction()
+      if (quitFunction != null) quitFunction()
+      else process.exit(0)
     })
 
     ipcClient.on(ipcServer.eventType.over, (data) => {

@@ -25,6 +25,7 @@ const env = require('../util/env')
 const windowJs = require('./window')
 const startup = require('../main-process/startup')
 const uiUtil = require('./ui-util')
+const util = require('../util/util')
 
 env.versionsCheck()
 env.setProductionEnv()
@@ -72,18 +73,9 @@ function hookMainInstanceEvents(argv: args.Arguments) {
 }
 
 let argv = args.processCommandLineArguments(process.argv)
-let reuseZapInstance = argv.reuseZapInstance
-let canProceedWithThisInstance
 
-if (reuseZapInstance) {
-  canProceedWithThisInstance = app.requestSingleInstanceLock()
-} else {
-  canProceedWithThisInstance = true
-}
-if (canProceedWithThisInstance) {
-  hookMainInstanceEvents(argv)
-} else {
-  // The 'second-instance' event on app was triggered, we need
-  // to quit.
-  hookSecondInstanceEvents(argv)
-}
+util.mainOrSecondaryInstance(
+  argv.reuseZapInstance,
+  () => hookMainInstanceEvents(argv),
+  () => hookSecondInstanceEvents(argv)
+)
