@@ -44,7 +44,7 @@ function httpPostFileOpen(db) {
 
     if (zapFilePath) {
       name = path.posix.basename(zapFilePath)
-      env.logDebug(`Loading project(${name})`)
+      env.logInfo(`Loading project(${name})`)
 
       try {
         let importResult = await importJs.importDataFromFile(db, zapFilePath, {
@@ -55,16 +55,14 @@ function httpPostFileOpen(db) {
           sessionId: importResult.sessionId,
           sessionKey: req.session.id,
         }
-        env.logDebug(
+        env.logInfo(
           `Loaded project(${name}) into database. RESP: ${JSON.stringify(
             response
           )}`
         )
 
         if (ideProjectPath) {
-          env.logDebug(
-            `IDE: setting project path(${name}) to ${ideProjectPath}`
-          )
+          env.logInfo(`IDE: setting project path(${name}) to ${ideProjectPath}`)
           // store studio project path
           await querySession.updateSessionKeyValue(
             db,
@@ -136,6 +134,20 @@ function httpPostFileSave(db) {
   }
 }
 
+/**
+ * HTTP GET: isDirty
+ *
+ * @param {*} db
+ * @returns callback for the express uri registration
+ */
+function httpGetFileIsDirty(db) {
+  return async (req, res) => {
+    let isDirty = await querySession.getSessionDirtyFlag(db, req.zapSessionId)
+
+    return res.status(StatusCodes.OK).send({ DIRTY: isDirty })
+  }
+}
+
 exports.post = [
   {
     uri: restApi.ide.open,
@@ -144,5 +156,12 @@ exports.post = [
   {
     uri: restApi.ide.save,
     callback: httpPostFileSave,
+  },
+]
+
+exports.get = [
+  {
+    uri: restApi.ide.isDirty,
+    callback: httpGetFileIsDirty,
   },
 ]

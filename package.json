@@ -32,7 +32,7 @@
     "report": "node src-script/zap-combine-reports.js",
     "postinstall": "electron-builder install-app-deps && husky install && npm rebuild canvas --update-binary",
     "buildAndPack:win": "npm run build && npm run pack:win",
-    "buildAndPack:mac": "npm run build && npm run pack:mac",
+    "buildAndPack:mac": "npm run build && npm run pack:mac && cp apack.json dist/mac",
     "buildAndPack:linux": "npm run build && npm run pack:linux",
     "zap-dev": "npm run build-spa && quasar dev -m electron",
     "xml-validate": "zcl-builtin/shared/script/validate",
