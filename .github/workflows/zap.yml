@@ -25,6 +25,8 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: sudo apt-get update
       - run: sudo apt-get install --fix-missing libpixman-1-dev libcairo-dev libsdl-pango-dev libjpeg-dev libgif-dev xvfb libxml2-utils
+      - run: node --version
+      - run: npm --version
       - run: npm ci
       - run: npm run version-stamp
       - run: npm rebuild canvas --update-binary
