@@ -106,7 +106,7 @@ export function processCommandLineArguments(argv: string[]) {
     .option('zclProperties', {
       desc: 'zcl.properties file to read in.',
       alias: ['zcl', 'z'],
-      type: 'string',
+      type: 'array',
       default: env.builtinSilabsZclMetafile(),
     })
     .option('generationTemplate', {

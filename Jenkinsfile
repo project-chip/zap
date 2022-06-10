@@ -241,6 +241,7 @@ pipeline
                                 {
                                     sh 'npm --version'
                                     sh 'node --version'
+                                    sh 'npm config set strict-ssl false'
                                     sh 'npm ci'
                                     sh 'npm list || true'
                                     sh 'security unlock-keychain -u  "/Library/Keychains/System.keychain"'
