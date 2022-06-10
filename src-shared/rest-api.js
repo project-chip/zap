@@ -24,6 +24,7 @@ const uri = {
   endpoint: '/endpoint',
   endpointType: '/endpointType',
   initialState: '/initialState',
+  dirtyFlag: '/dirtyFlag',
   option: '/option',
   uiOptions: '/uiOptions',
   commandUpdate: '/command/update',
