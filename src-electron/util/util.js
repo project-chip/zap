@@ -52,11 +52,17 @@ function checksum(data) {
  *
  * @param {*} db
  * @param {*} sessionId
- * @param {*} metafiles: object containing 'zcl' and 'template'
+ * @param {*} options: object containing 'zcl' and 'template'
  * @returns Promise that resolves with the packages array.
  */
-async function initializeSessionPackage(db, sessionId, metafiles) {
+async function initializeSessionPackage(db, sessionId, options) {
   let promises = []
+
+  // This is the desired ZCL properties file. Because it is possible
+  // that an array is passed from the command line, we are simply taking
+  // the first one, if we pass multiple ones.
+  let zclFile = options.zcl
+  if (Array.isArray(zclFile)) zclFile = options.zcl[0]
 
   // 1. Associate a zclProperties file.
   let zclPropertiesPromise = queryPackage
@@ -73,12 +79,12 @@ async function initializeSessionPackage(db, sessionId, metafiles) {
         packageId = null
       } else {
         rows.forEach((p) => {
-          if (path.resolve(metafiles.zcl) === p.path) {
+          if (path.resolve(zclFile) === p.path) {
             packageId = p.id
           }
         })
         env.logWarning(
-          `${sessionId}, ${metafiles.zcl}: Multiple toplevel zcl.properties found. Using the first one from args: ${packageId}`
+          `${sessionId}, ${zclFile}: Multiple toplevel zcl.properties found. Using the first one from args: ${packageId}`
         )
       }
       if (packageId != null) {
@@ -103,8 +109,8 @@ async function initializeSessionPackage(db, sessionId, metafiles) {
       } else {
         rows.forEach((p) => {
           if (
-            metafiles.template != null &&
-            path.resolve(metafiles.template) === p.path
+            options.template != null &&
+            path.resolve(options.template) === p.path
           ) {
             packageId = p.id
           }

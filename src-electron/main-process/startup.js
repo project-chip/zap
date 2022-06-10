@@ -63,8 +63,8 @@ async function startNormal(quitFunction, argv) {
   mainDatabase = db
 
   try {
-    let ctx = await zclLoader.loadZcl(db, argv.zclProperties)
-    ctx = await generatorEngine.loadTemplates(ctx.db, argv.generationTemplate)
+    await zclLoader.loadZclMetafiles(db, argv.zclProperties)
+    let ctx = await generatorEngine.loadTemplates(db, argv.generationTemplate)
 
     if (ctx.error) {
       env.logWarning(ctx.error)
@@ -186,7 +186,7 @@ async function startConvert(argv, options) {
     env.zapVersion()
   )
   options.logger('    🐝 database and schema initialized')
-  await zclLoader.loadZcl(db, argv.zclProperties)
+  await zclLoader.loadZclMetafiles(db, argv.zclProperties)
   options.logger(`    🐝 zcl package loaded: ${argv.zclProperties}`)
   if (argv.generationTemplate != null) {
     await generatorEngine.loadTemplates(db, argv.generationTemplate)
@@ -265,34 +265,27 @@ async function startAnalyze(argv, options) {
     options.logger('    👉 remove old database file')
     fs.unlinkSync(dbFile)
   }
-  let db
-  return dbApi
-    .initDatabaseAndLoadSchema(dbFile, env.schemaFile(), env.zapVersion())
-    .then((d) => {
-      db = d
-      options.logger('    👉 database and schema initialized')
-      return zclLoader.loadZcl(db, argv.zclProperties)
-    })
-    .then((d) => {
-      return util.executePromisesSequentially(paths, (singlePath) =>
-        importJs
-          .importDataFromFile(db, singlePath, {
-            defaultZclMetafile: argv.zclProperties,
-            postImportScript: argv.postImportScript,
-          })
-          .then((importResult) =>
-            util.sessionReport(db, importResult.sessionId)
-          )
-          .then((report) => {
-            options.logger(`🤖 File: ${singlePath}\n`)
-            options.logger(report)
-          })
-      )
-    })
-    .then(() => {
-      options.logger('😎 Analysis done!')
-      if (options.quitFunction != null) options.quitFunction()
-    })
+  let db = await dbApi.initDatabaseAndLoadSchema(
+    dbFile,
+    env.schemaFile(),
+    env.zapVersion()
+  )
+  options.logger('    👉 database and schema initialized')
+  await zclLoader.loadZclMetafiles(db, argv.zclProperties)
+  await util.executePromisesSequentially(paths, (singlePath) =>
+    importJs
+      .importDataFromFile(db, singlePath, {
+        defaultZclMetafile: argv.zclProperties,
+        postImportScript: argv.postImportScript,
+      })
+      .then((importResult) => util.sessionReport(db, importResult.sessionId))
+      .then((report) => {
+        options.logger(`🤖 File: ${singlePath}\n`)
+        options.logger(report)
+      })
+  )
+  options.logger('😎 Analysis done!')
+  if (options.quitFunction != null) options.quitFunction()
 }
 
 /**
@@ -317,11 +310,9 @@ async function startServer(argv, quitFunction) {
   })
   mainDatabase = db
 
-  return zclLoader
-    .loadZcl(db, argv.zclProperties)
-    .then((ctx) =>
-      generatorEngine.loadTemplates(ctx.db, argv.generationTemplate)
-    )
+  await zclLoader.loadZclMetafiles(db, argv.zclProperties)
+  return generatorEngine
+    .loadTemplates(db, argv.generationTemplate)
     .then((ctx) => {
       if (ctx.error) {
         env.logWarning(ctx.error)
@@ -367,38 +358,29 @@ async function startSelfCheck(
     options.logger('    👉 remove old database file')
     fs.unlinkSync(dbFile)
   }
-  let mainDb
-  return dbApi
-    .initDatabaseAndLoadSchema(dbFile, env.schemaFile(), env.zapVersion())
-    .then((db) => {
-      mainDb = db
-      options.logger('    👉 database and schema initialized')
-      return zclLoader.loadZcl(db, argv.zclProperties)
-    })
-    .then((ctx) => {
-      options.logger('    👉 zcl data loaded')
-      return generatorEngine.loadTemplates(ctx.db, argv.generationTemplate)
-    })
-    .then(async (ctx) => {
-      if (ctx.error) {
-        options.logger(`    ⚠️  ${ctx.error}`)
-      } else {
-        options.logger('    👉 generation templates loaded')
-      }
+  let mainDb = await dbApi.initDatabaseAndLoadSchema(
+    dbFile,
+    env.schemaFile(),
+    env.zapVersion()
+  )
+  options.logger('    👉 database and schema initialized')
+  await zclLoader.loadZclMetafiles(mainDb, argv.zclProperties)
+  options.logger('    👉 zcl data loaded')
+  let ctx = await generatorEngine.loadTemplates(mainDb, argv.generationTemplate)
+  if (ctx.error) {
+    options.logger(`    ⚠️  ${ctx.error}`)
+  } else {
+    options.logger('    👉 generation templates loaded')
+  }
 
-      // This is a hack to prevent too quick shutdown that causes core dumps.
-      dbApi.closeDatabaseSync(mainDb)
-      options.logger('    👉 database closed')
-      await util.waitFor(2000)
-      options.logger('😎 Self-check done!')
-      if (options.quitFunction != null) {
-        options.quitFunction()
-      }
-    })
-    .catch((err) => {
-      env.logError(err)
-      throw err
-    })
+  // This is a hack to prevent too quick shutdown that causes core dumps.
+  dbApi.closeDatabaseSync(mainDb)
+  options.logger('    👉 database closed')
+  await util.waitFor(2000)
+  options.logger('😎 Self-check done!')
+  if (options.quitFunction != null) {
+    options.quitFunction()
+  }
 }
 
 async function generateSingleFile(
@@ -485,8 +467,8 @@ async function startGeneration(argv, options) {
     env.zapVersion()
   )
 
-  let ctx = await zclLoader.loadZcl(mainDb, zclProperties)
-  ctx = await generatorEngine.loadTemplates(ctx.db, templateMetafile)
+  await zclLoader.loadZclMetafiles(mainDb, zclProperties)
+  let ctx = await generatorEngine.loadTemplates(mainDb, templateMetafile)
   if (ctx.error) {
     throw ctx.error
   }
