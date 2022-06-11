@@ -64,13 +64,13 @@ test(
 
       ctx = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
       expect(ctx.packageId).toEqual(jsonPackageId)
-      let p = await queryPackage.getPackageByPackageId(ctx.db, ctx.packageId)
+      let p = await queryPackage.getPackageByPackageId(db, ctx.packageId)
       expect(p.version).toEqual('ZCL Test Data')
       await zclLoader.loadZcl(db, env.builtinDotdotZclMetafile())
       ctx = await zclLoader.loadZcl(db, env.builtinDotdotZclMetafile())
       dotdotPackageId = ctx.packageId
       expect(dotdotPackageId).not.toEqual(jsonPackageId)
-      p = await queryPackage.getPackageByPackageId(ctx.db, ctx.packageId)
+      p = await queryPackage.getPackageByPackageId(db, ctx.packageId)
       expect(p.version).toEqual('1.0')
 
       let rows = await queryPackage.getPackagesByType(

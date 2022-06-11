@@ -38,15 +38,21 @@ function hookSecondInstanceEvents(argv: args.Arguments) {
  * Hook up all the events for the electron app object.
  */
 function hookMainInstanceEvents(argv: args.Arguments) {
-  app.whenReady().then(() =>
-    startup.startUpMainInstance(
-      {
-        quitFunction: app.quit,
-        uiEnableFunction: uiUtil.enableUi,
-      },
-      argv
+  app
+    .whenReady()
+    .then(() =>
+      startup.startUpMainInstance(
+        {
+          quitFunction: app.quit,
+          uiEnableFunction: uiUtil.enableUi,
+        },
+        argv
+      )
     )
-  )
+    .catch((err) => {
+      console.log(err)
+      app.quit()
+    })
 
   if (!argv._.includes('server') && !argv.noServer) {
     app.on('window-all-closed', () => {

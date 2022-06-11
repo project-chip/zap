@@ -28,6 +28,7 @@ const queryZcl = require('../db/query-zcl')
 const queryDeviceType = require('../db/query-device-type')
 const env = require('../util/env')
 const nativeRequire = require('../util/native-require')
+const util = require('../util/util')
 
 const defaultValidator = (zclData) => {
   return []
@@ -64,12 +65,39 @@ async function recordVersion(db, packageId, version) {
  *
  * @export
  * @param {*} db
+ * @param {*} metadataFile array of paths
+ * @returns Array of loaded packageIds.
+ */
+async function loadZclMetafiles(db, metadataFiles) {
+  let packageIds = []
+  if (Array.isArray(metadataFiles)) {
+    for (let f of metadataFiles) {
+      let ctx = await loadZcl(db, f)
+      packageIds.push(ctx.packageId)
+    }
+  } else {
+    let ctx = await loadZcl(db, metadataFiles)
+    packageIds.push(ctx.packageId)
+  }
+  return packageIds
+}
+
+/**
+ * Loads individual zcl.json metafile.
+ *
+ * @param {*} db
  * @param {*} metadataFile
- * @returns a Promise that resolves with the db.
+ * @returns Context object that contains .db and .packageId
  */
 async function loadZcl(db, metadataFile) {
   let ext = path.extname(metadataFile)
   let resolvedMetafile = path.resolve(metadataFile)
+
+  try {
+    await fsp.access(resolvedMetafile, fs.constants.R_OK)
+  } catch {
+    throw new Error(`Can't access file: ${metadataFile}`)
+  }
   if (ext == '.xml') {
     return dLoad.loadDotdotZcl(db, resolvedMetafile)
   } else if (ext == '.properties') {
@@ -81,6 +109,13 @@ async function loadZcl(db, metadataFile) {
   }
 }
 
+/**
+ * Load individual custom XML files.
+ *
+ * @param {*} db
+ * @param {*} filePath
+ * @param {*} sessionId
+ */
 async function loadIndividualFile(db, filePath, sessionId) {
   let zclPropertiesPackages = await queryPackage.getSessionPackagesByType(
     db,
@@ -264,6 +299,7 @@ async function getDiscriminatorMap(db, packageId) {
 }
 
 exports.loadZcl = loadZcl
+exports.loadZclMetafiles = loadZclMetafiles
 exports.recordToplevelPackage = recordToplevelPackage
 exports.recordVersion = recordVersion
 exports.processZclPostLoading = processZclPostLoading
