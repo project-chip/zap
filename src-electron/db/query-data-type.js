@@ -21,8 +21,6 @@
 
 const dbApi = require('./db-api')
 const dbMapping = require('./db-mapping')
-const cacheKey = 'dataType'
-const dbCache = require('./db-cache')
 const queryZcl = require('./query-zcl')
 const envConfig = require('../util/env')
 const dbEnum = require('../../src-shared/db-enum.js')
@@ -60,22 +58,6 @@ async function selectDataTypeById(db, id) {
 }
 
 /**
- * Select a data type matched from cache
- * @param db
- * @param id
- * @returns Data Type or undefined
- */
-async function selectDataTypeByIdFromCache(db, id) {
-  let cache
-  if (dbCache.isCached(cacheKey, packageId)) {
-    cache = dbCache.get(cacheKey, packageId)
-  } else {
-    cache = await createCache(db, packageId)
-  }
-  return cache.byId[id]
-}
-
-/**
  * Gathers the data type information of an entry based on data type name along
  * with its actual type from disciminator table.
  * @param db
@@ -84,6 +66,7 @@ async function selectDataTypeByIdFromCache(db, id) {
  * @returns Data type information
  */
 async function selectDataTypeByName(db, name, packageId) {
+  let smallCaseName = name.toLowerCase()
   return dbApi
     .dbGet(
       db,
@@ -103,7 +86,7 @@ async function selectDataTypeByName(db, name, packageId) {
     DATA_TYPE.DISCRIMINATOR_REF = DISCRIMINATOR.DISCRIMINATOR_ID
   WHERE
     (DATA_TYPE.NAME = ? OR DATA_TYPE.NAME = ?) AND DATA_TYPE.PACKAGE_REF = ?`,
-      [name, name.toLowerCase(), packageId]
+      [name, smallCaseName, packageId]
     )
     .then(dbMapping.map.dataType)
 }
@@ -136,23 +119,6 @@ async function selectAllDataTypes(db, packageId) {
       [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.dataType))
-}
-
-/**
- * Select a Data type matched from cache
- * @param {*} db
- * @param {*} name
- * @param {*} packageId
- * @returns data type or undefined
- */
-async function selectDataTypeByNameFromCache(db, name, packageId) {
-  let cache
-  if (dbCache.isCached(cacheKey, packageId)) {
-    cache = dbCache.get(cacheKey, packageId)
-  } else {
-    cache = await createCache(db, packageId)
-  }
-  return cache.byName[name]
 }
 
 /**

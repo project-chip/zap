@@ -583,11 +583,15 @@ async function asUnderlyingZclTypeWithPackageId(
   packageId,
   currentInstance
 ) {
-  let numberType = await queryZcl.selectDataTypeById(
-    currentInstance.global.db,
-    type
-  )
-  let actualType = typeof type === 'number' ? numberType.name : type
+  let actualType = type
+  if (typeof type === 'number') {
+    let numberType = await queryZcl.selectDataTypeById(
+      currentInstance.global.db,
+      type
+    )
+    actualType = numberType.name
+  }
+
   return Promise.all([
     new Promise((resolve, reject) => {
       if ('isArray' in currentInstance && currentInstance.isArray)
