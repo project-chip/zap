@@ -244,9 +244,9 @@ INNER JOIN
 ON
   ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID
 WHERE
-  NAME = ? AND PACKAGE_REF = ?
+  (DATA_TYPE.NAME = ? OR DATA_TYPE.NAME = ?)AND PACKAGE_REF = ?
 ORDER BY NAME`,
-      [name, packageId]
+      [name, name.toLowerCase(), packageId]
     )
     .then(dbMapping.map.enum)
 }
