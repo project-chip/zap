@@ -26,11 +26,13 @@ limitations under the License.
     >
       <q-icon name="warning" style="font-size: 2.5em; color: red" />
     </q-btn>
+    <v-tour name="ZclTour" :steps="tutorialSteps"></v-tour>
   </div>
 </template>
 
 <script>
 import { QSpinnerGears } from 'quasar'
+import CommonMixin from './util/common-mixin'
 const rendApi = require(`../src-shared/rend-api.js`)
 const observable = require('./util/observable.js')
 const dbEnum = require(`../src-shared/db-enum.js`)
@@ -101,8 +103,136 @@ export default {
       this.$store.dispatch('zap/setDefaultUiMode', 'general')
       this.$store.commit('zap/toggleShowExceptionIcon', false)
     },
+    createNewEndpointForTour({endpointIdentifier = 1,
+                               profileIdentifier = "0x0107",
+                               networkIdentifier = 0,
+                               deviceVersion = 1,
+                               deviceTypeRef = "80",
+                               deviceIdentifier = 515,
+                             }) {
+        if(this.trialEndpoint === false) {
+          this.$store.dispatch('zap/createNewEndPoint')
+          this.$store
+            .dispatch(`zap/addEndpointType`, {
+              name: 'Anonymous Endpoint Type',
+              deviceTypeRef: deviceTypeRef,
+            })
+            .then((response) => {
+              this.$store
+                .dispatch(`zap/addEndpoint`, {
+                  endpointId: endpointIdentifier,
+                  networkId: networkIdentifier,
+                  profileId: parseInt(profileIdentifier),
+                  endpointType: response.id,
+                  endpointVersion: deviceVersion,
+                  deviceIdentifier: deviceIdentifier,
+                })
+                .then((res) => {
+                  if (this.shareClusterStatesAcrossEndpoints()) {
+                    this.$store.dispatch('zap/shareClusterStatesAcrossEndpoints', {
+                      endpointTypeIdList: this.endpointTypeIdList,
+                    })
+                  }
+
+                  this.$store.dispatch('zap/updateSelectedEndpointType', {
+                    endpointType: this.endpointType[res.id],
+                    deviceTypeRef:
+                      this.endpointDeviceTypeRef[this.endpointType[res.id]],
+                  })
+
+                  // collect all cluster id from new endpoint
+                  this.selectionClients.forEach((id) => {
+                    this.updateSelectedComponentRequest({
+                      clusterId: id,
+                      side: ['client'],
+                      added: true,
+                    })
+                  })
+
+                  this.selectionServers.forEach((id) => {
+                    this.updateSelectedComponentRequest({
+                      clusterId: id,
+                      side: ['server'],
+                      added: true,
+                    })
+                  })
+
+                  this.$store.dispatch('zap/updateSelectedEndpoint', res.id)
+                })
+            })
+          this.trialEndpoint = true
+        }
+    }
+  },
+  mixins: [CommonMixin],
+  data() {
+    return {
+      tutorialSteps: [
+        {
+          target: '.v-step-0',
+          header: {
+            title: 'Adding Endpoints'
+          },
+          content: `A Zigbee application can have multiple endpoints. Each endpoint contains a device configuration made up of Clusters on that endpoint.
+Add a new endpoint to your application by clicking <strong>ADD NEW ENDPOINT</strong> in the top left corner of the Zigbee Cluster Configurator interface`,
+        },
+        {
+          target: '.v-step-1',
+          content: 'A dialog opens in which you can select the device type for the endpoint.',
+          before: () => new Promise((resolve, reject) => {
+            this.$store.commit('zap/toggleEndpointModal', true)
+            setTimeout(() => {
+              resolve()
+            }, 250)
+          }),
+          params: {
+            placement: 'top',
+          },
+        },
+        {
+          target: '.v-step-2',
+          content: `From here you can select whether you would like the endpoint to represent something like a Light or a Door Lock. You can find the Zigbee
+device type by entering the name of the device in the <strong>Device</strong> field`,
+          params: {
+            placement: 'right',
+          },
+        },
+        {
+          target: '.v-step-3',
+          content: `To change the number of the endpoint on which you would like this device to appear, change the <strong>Endpoint</strong> setting`,
+          params: {
+            placement: 'left',
+          },
+        },
+        {
+          target: '.v-step-4',
+          content: `Once you have configured the endpoint, click <strong>CREATE</strong> to add the endpoint to your configuration.`,
+          params: {
+            placement: 'right',
+          },
+          before: this.createNewEndpointForTour
+        },
+        {
+          header: {
+            title: 'Modifying an Endpoint'
+          },
+          target: '.v-step-5',
+          content: `Select an endpoint to modify by clicking on the endpoint configuration on the left side of the Zigbee Cluster Configurator. The Endpoint
+highlighted with a blue border is the endpoint that you are in the process of modifying.`,
+          params: {
+            placement: 'right',
+          },
+          before: () => new Promise((resolve, reject) => {
+            this.$store.commit('zap/toggleEndpointModal', false)
+            resolve()
+          }),
+        },
+      ],
+      trialEndpoint: false,
+    }
   },
   mounted() {
+    this.$tours['ZclTour'].start()
     window[rendApi.GLOBAL_SYMBOL_EXECUTE](
       rendApi.id.setDarkTheme,
       storage.getItem(rendApi.storageKey.isDarkThemeActive)
