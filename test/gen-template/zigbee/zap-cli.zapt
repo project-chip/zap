@@ -100,7 +100,7 @@ void sli_zigbee_cli_zcl_{{cleanseLabel ../clusterName}}_{{cleanseLabel (asLastWo
         {{/if}}
       {{/template_options}}
 uint8_t argumentTypes[{{addOne (zcl_command_arguments_count this.id)}}] =  { {{#zcl_command_arguments}}
-                 {{zcl_command_argument_type_to_cli_data_type type struct="SL_CLI_ARG_HEX"}},
+                 {{zcl_command_argument_type_to_zcl_cli_data_type type struct="SL_CLI_ARG_HEX"}},
                           {{/zcl_command_arguments}} };
 sli_zigbee_zcl_simple_command(ZCL_CLUSTER_SPECIFIC_COMMAND | {{#if (isClient commandSource)}}ZCL_FRAME_CONTROL_CLIENT_TO_SERVER{{else}}ZCL_FRAME_CONTROL_SERVER_TO_CLIENT{{/if}},  \
                  ZCL_{{asUnderscoreUppercase clusterName}}_CLUSTER_ID,                                                       \
