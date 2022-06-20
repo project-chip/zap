@@ -136,9 +136,11 @@ async function loadIndividualFile(db, filePath, sessionId) {
   if (ext == '.xml') {
     return sLoad.loadIndividualSilabsFile(db, filePath, validator, sessionId)
   } else {
-    let error = new Error('Custom ZCL XML Error: Unknown extension file')
-    env.logError(`Error reading xml file: ${filePath}\n ` + error)
-    return { succeeded: false, err: error }
+    let err = new Error(
+      `Unable to read file with unknown extension: ${filePath}`
+    )
+    env.logWarning(err)
+    return { succeeded: false, err }
   }
 }
 
