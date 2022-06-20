@@ -47,6 +47,18 @@ function httpPostFileOpen(db) {
       env.logInfo(`Loading project(${name})`)
 
       try {
+        // set path before importDataFromFile() to avoid triggering DIRTY flag
+        if (ideProjectPath) {
+          env.logInfo(`IDE: setting project path(${name}) to ${ideProjectPath}`)
+          // store studio project path
+          await querySession.updateSessionKeyValue(
+            db,
+            req.zapSessionId,
+            dbEnum.sessionKey.ideProjectPath,
+            ideProjectPath
+          )
+        }
+
         let importResult = await importJs.importDataFromFile(db, zapFilePath, {
           sessionId: req.zapSessionId,
         })
@@ -61,16 +73,6 @@ function httpPostFileOpen(db) {
           )}`
         )
 
-        if (ideProjectPath) {
-          env.logInfo(`IDE: setting project path(${name}) to ${ideProjectPath}`)
-          // store studio project path
-          await querySession.updateSessionKeyValue(
-            db,
-            req.zapSessionId,
-            dbEnum.sessionKey.ideProjectPath,
-            ideProjectPath
-          )
-        }
         res.status(StatusCodes.OK).json(response)
       } catch (e) {
         e.project = zapFilePath
