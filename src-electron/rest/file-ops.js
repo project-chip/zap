@@ -72,11 +72,16 @@ function httpPostFileOpen(db) {
           )
         }
         res.status(StatusCodes.OK).json(response)
-      } catch (err) {
-        err.project = zapFilePath
-        studio.sendSessionCreationErrorStatus(db, err)
-        env.logError(JSON.stringify(err))
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err)
+      } catch (e) {
+        e.project = zapFilePath
+        let errMsg = {
+          project: e.project,
+          message: e.message,
+          stack: e.stack,
+        }
+        studio.sendSessionCreationErrorStatus(db, errMsg)
+        env.logError(e.message)
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(errMsg)
       }
     } else {
       let msg = `Opening/Loading project: Missing zap file path.`
