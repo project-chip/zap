@@ -325,7 +325,11 @@ async function jsonDataLoader(db, state, sessionId) {
     await Promise.all(
       newPkgs.map((pkg) => {
         let filePath = getPkgPath(pkg, state.filePath)
-        return zclLoader.loadIndividualFile(db, filePath, sessionId)
+        if (filePath.endsWith('.xml')) {
+          return zclLoader.loadIndividualFile(db, filePath, sessionId)
+        } else {
+          return {}
+        }
       })
     )
   )
