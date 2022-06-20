@@ -129,7 +129,10 @@ export default {
     }
 
     if (`debugNavBar` in query) {
-      this.$store.dispatch('zap/setDebugNavBar', query[`debugNavBar`])
+      this.$store.dispatch(
+        'zap/setDebugNavBar',
+        query[`debugNavBar`] === 'true'
+      )
     } else {
       // If we don't specify it, default is on.
       this.$store.dispatch('zap/setDebugNavBar', true)

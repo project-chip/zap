@@ -50,6 +50,11 @@
       "path": "device-types.zapt",
       "name": "Device types",
       "output": "device-types.txt"
+    },
+    {
+      "path": "endpoint-config.zapt",
+      "name": "Endpoint Configuration",
+      "output": "endpoint-config.c"
     }
   ]
 }

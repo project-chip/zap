@@ -575,8 +575,8 @@ async function collectAttributes(endpointTypes, options) {
 
       // Go over all the attributes in the endpoint and add them to the list.
       c.attributes.forEach((a) => {
-        // typeSize is the size of the attribute in the read/write attribute
-        // store.
+        // typeSize is the size of a buffer needed to hold the attribute, if
+        // that's known.
         let typeSize = a.typeSize
         // defaultSize is the size of the attribute in the readonly defaults
         // store.
@@ -599,14 +599,27 @@ async function collectAttributes(endpointTypes, options) {
           defaultSize =
             (attributeDefaultValue ? attributeDefaultValue.length : 0) + 2
         }
-        // External attributes should be treated as having a typeSize of 0 for
-        // most purposes (e.g. allocating space for them), but should still
-        // affect the "largest attribute size" value, because buffers used to
-        // read attributes, including external ones, may be sized based on that.
-        let contributionToLargestAttribute = typeSize
+        // storageSize is the size of the attribute in the read/write attribute
+        // store.
+        let storageSize = typeSize
+        // External attributes should not take up space in the default store or
+        // the read/write store.
         if (a.storage == dbEnum.storageOption.external) {
-          typeSize = 0
+          storageSize = 0
           defaultSize = 0
+          // Some external attributes do not have a usable typeSize
+          // (e.g. structs or lists of structs); the value of typeSize in those
+          // cases is an error string.  Use 0 in those cases.
+          if (typeof typeSize == 'string') {
+            typeSize = 0
+          }
+          // List-typed attributes don't have a useful typeSize no matter what.
+          // typeSizeAttribute will return values here based on various XML bits
+          // and ZAP file default values, but all of those have nothing to do
+          // with the actual attribute.
+          if (a.typeInfo.atomicType == 'array') {
+            typeSize = 0
+          }
           attributeDefaultValue = undefined
         }
 
@@ -701,14 +714,14 @@ async function collectAttributes(endpointTypes, options) {
           }
           reportList.push(rpt)
         }
-        if (contributionToLargestAttribute > largestAttribute) {
-          largestAttribute = contributionToLargestAttribute
+        if (typeSize > largestAttribute) {
+          largestAttribute = typeSize
         }
         if (a.isSingleton) {
-          singletonsSize += typeSize
+          singletonsSize += storageSize
         }
-        clusterAttributeSize += typeSize
-        totalAttributeSize += typeSize
+        clusterAttributeSize += storageSize
+        totalAttributeSize += storageSize
         if (a.side == dbEnum.side.client) {
           mask.push('client')
         }
@@ -785,28 +798,28 @@ async function collectAttributes(endpointTypes, options) {
         if (
           cmd.source == dbEnum.source.client &&
           c.side == dbEnum.side.server &&
-          (!cmd.isOptional || cmd.isIncoming)
+          cmd.isIncoming
         ) {
           mask.push('incoming_server')
         }
         if (
           cmd.source == dbEnum.source.client &&
           c.side == dbEnum.side.client &&
-          (!cmd.isOptional || cmd.isOutgoing)
+          cmd.isOutgoing
         ) {
           mask.push('outgoing_client')
         }
         if (
           cmd.source == dbEnum.source.server &&
           c.side == dbEnum.side.server &&
-          (!cmd.isOptional || cmd.isOutgoing)
+          cmd.isOutgoing
         ) {
           mask.push('outgoing_server')
         }
         if (
           cmd.source == dbEnum.source.server &&
           c.side == dbEnum.side.client &&
-          (!cmd.isOptional || cmd.isIncoming)
+          cmd.isIncoming
         ) {
           mask.push('incoming_client')
         }

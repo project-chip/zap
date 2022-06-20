@@ -50,6 +50,18 @@ describe('Testing endpoints sharing attribute values', () => {
       cy.get(':nth-child(3) > .q-mt-xs > .q-checkbox__inner > input').check({
         force: true,
       })
+
+      // Enable "ZCL version"
+      cy.gotoAttributeReportingTab()
+      cy.get(
+        // '.table_body:nth-child(1) > :nth-child(2) > .q-mt-xs > .q-toggle__inner'
+        '#qvs_118 > :nth-child(1) > :nth-child(2) > .q-mt-xs > .q-toggle__inner'
+      )
+        .find('input')
+        .check({ force: true })
+      cy.get(
+        '#qvs_118 > :nth-child(1) > :nth-child(2) > .q-mt-xs > .q-toggle__inner'
+      ).should('be.visible')
     }
   )
   it('create Endpoint 2', () => {
@@ -92,6 +104,12 @@ describe('Testing endpoints sharing attribute values', () => {
           force: true,
         })
         .should('have.attr', 'aria-checked', 'false')
+
+      // Check for enabled "ZCL version"
+      cy.gotoAttributeReportingTab()
+      cy.get(
+        '#qvs_118 > :nth-child(1) > :nth-child(2) > .q-mt-xs > .q-toggle__inner'
+      ).should('be.visible')
     }
   )
 

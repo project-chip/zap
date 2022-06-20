@@ -36,6 +36,8 @@ const querySession = require('../db/query-session.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const { v4: uuidv4 } = require('uuid')
 const xml2js = require('xml2js')
+const singleInstance = require('single-instance')
+const { reject } = require('underscore')
 
 /**
  * Returns the CRC of the data that is passed.
@@ -51,11 +53,17 @@ function checksum(data) {
  *
  * @param {*} db
  * @param {*} sessionId
- * @param {*} metafiles: object containing 'zcl' and 'template'
+ * @param {*} options: object containing 'zcl' and 'template'
  * @returns Promise that resolves with the packages array.
  */
-async function initializeSessionPackage(db, sessionId, metafiles) {
+async function initializeSessionPackage(db, sessionId, options) {
   let promises = []
+
+  // This is the desired ZCL properties file. Because it is possible
+  // that an array is passed from the command line, we are simply taking
+  // the first one, if we pass multiple ones.
+  let zclFile = options.zcl
+  if (Array.isArray(zclFile)) zclFile = options.zcl[0]
 
   // 1. Associate a zclProperties file.
   let zclPropertiesPromise = queryPackage
@@ -72,12 +80,12 @@ async function initializeSessionPackage(db, sessionId, metafiles) {
         packageId = null
       } else {
         rows.forEach((p) => {
-          if (path.resolve(metafiles.zcl) === p.path) {
+          if (path.resolve(zclFile) === p.path) {
             packageId = p.id
           }
         })
         env.logWarning(
-          `${sessionId}, ${metafiles.zcl}: Multiple toplevel zcl.properties found. Using the first one from args: ${packageId}`
+          `${sessionId}, ${zclFile}: Multiple toplevel zcl.properties found. Using the first one from args: ${packageId}`
         )
       }
       if (packageId != null) {
@@ -102,8 +110,8 @@ async function initializeSessionPackage(db, sessionId, metafiles) {
       } else {
         rows.forEach((p) => {
           if (
-            metafiles.template != null &&
-            path.resolve(metafiles.template) === p.path
+            options.template != null &&
+            path.resolve(options.template) === p.path
           ) {
             packageId = p.id
           }
@@ -552,6 +560,25 @@ function duration(nsDifference) {
   return out
 }
 
+/**
+ * This method returns true if the running instance is the first
+ * and main instance of the zap, and false if zap instance is already
+ * running.
+ *
+ */
+function mainOrSecondaryInstance(
+  allowSecondary,
+  mainInstanceCallback,
+  secondaryInstanceCallback
+) {
+  if (allowSecondary) {
+    let lock = new singleInstance('zap')
+    lock.lock().then(mainInstanceCallback).catch(secondaryInstanceCallback)
+  } else {
+    mainInstanceCallback()
+  }
+}
+
 exports.createBackupFile = createBackupFile
 exports.checksum = checksum
 exports.initializeSessionPackage = initializeSessionPackage
@@ -569,3 +596,4 @@ exports.getClusterExtensionDefault = getClusterExtensionDefault
 exports.parseXml = parseXml
 exports.readFileContentAndCrc = readFileContentAndCrc
 exports.duration = duration
+exports.mainOrSecondaryInstance = mainOrSecondaryInstance

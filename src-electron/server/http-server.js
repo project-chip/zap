@@ -171,7 +171,7 @@ async function initHttpServer(
   })
 }
 
-function userSessionHandler(db, metafiles) {
+function userSessionHandler(db, options) {
   return (req, res, next) => {
     let sessionUuid = req.query[restApi.param.sessionId]
     let userKey = req.session.id
@@ -201,11 +201,7 @@ function userSessionHandler(db, metafiles) {
         })
         .then((result) => {
           if (result.newSession) {
-            return util.initializeSessionPackage(
-              db,
-              result.sessionId,
-              metafiles
-            )
+            return util.initializeSessionPackage(db, result.sessionId, options)
           }
         })
         .then(() => {

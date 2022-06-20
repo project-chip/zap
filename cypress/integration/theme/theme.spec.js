@@ -1,6 +1,5 @@
 /// <reference types="cypress" />
 
-const { find } = require('underscore')
 const rendApi = require('../../../src-shared/rend-api.js')
 
 Cypress.on('uncaught:exception', (err, runnable) => {
@@ -16,7 +15,7 @@ describe('Check theme functionality', () => {
   })
 
   it(
-    'Setting light theme via Preference / calling rendereApi with boolean arg',
+    'Preference: set light theme',
     { retries: { runMode: 2, openMode: 2 } },
     () => {
       cy.get('#preference').click()
@@ -31,7 +30,7 @@ describe('Check theme functionality', () => {
   )
 
   it(
-    'Setting dark theme via Preference / calling rendereApi with boolean arg',
+    'Preference: set dark theme',
     { retries: { runMode: 2, openMode: 2 } },
     () => {
       cy.get('#preference').click()
@@ -45,19 +44,13 @@ describe('Check theme functionality', () => {
     }
   )
 
-  it('Setting light theme via rendererApi with string arg', () => {
-    cy.window().then(function (window) {
-      window[rendApi.GLOBAL_SYMBOL_EXECUTE](rendApi.id.setDarkTheme, 'false')
-    })
-
+  it('RendererApi: set light theme', () => {
+    cy.rendererApi(rendApi.id.setDarkTheme, 'false')
     cy.get('body').should('have.css', 'background-color', 'rgba(0, 0, 0, 0)')
   })
 
-  it('Setting dark theme via rendererApi with string arg', () => {
-    cy.window().then(function (window) {
-      window[rendApi.GLOBAL_SYMBOL_EXECUTE](rendApi.id.setDarkTheme, 'true')
-    })
-
+  it('RendererApi: set dark theme', () => {
+    cy.rendererApi(rendApi.id.setDarkTheme, 'true')
     cy.get('body').should('have.css', 'background-color', 'rgb(39, 40, 33)')
   })
 })

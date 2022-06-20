@@ -652,6 +652,56 @@ async function user_default_response_policy(options) {
   else return value
 }
 
+/**
+ * An if helper to check if default response for a command is enabled or not.
+ * @param {*} command
+ * @param {*} options
+ * @returns true if the the default response policy is either always or
+ * when the policy is not never and the command has the disable default
+ * response policy set to false(not true)
+ */
+async function is_command_default_response_enabled(command, options) {
+  let defaultRespPolicy = await querySession.getSessionKeyValue(
+    this.global.db,
+    this.global.sessionId,
+    dbEnum.sessionOption.defaultResponsePolicy
+  )
+  if (
+    defaultRespPolicy.toUpperCase() == 'ALWAYS' ||
+    (defaultRespPolicy.toUpperCase() != 'NEVER' &&
+      command.isDefaultResponseEnabled)
+  ) {
+    return options.fn(this)
+  } else {
+    return options.inverse(this)
+  }
+}
+
+/**
+ * An if helper to check if default response for a command is disabled or not.
+ * @param {*} command
+ * @param {*} options
+ * @returns true if the the default response policy is either never or
+ * when the policy is not always and the command has the disable default
+ * response policy set to true(for eg disableDefaultResponse="true" in xml).
+ */
+async function is_command_default_response_disabled(command, options) {
+  let defaultRespPolicy = await querySession.getSessionKeyValue(
+    this.global.db,
+    this.global.sessionId,
+    dbEnum.sessionOption.defaultResponsePolicy
+  )
+  if (
+    defaultRespPolicy.toUpperCase() == 'NEVER' ||
+    (defaultRespPolicy.toUpperCase() != 'ALWAYS' &&
+      !command.isDefaultResponseEnabled)
+  ) {
+    return options.fn(this)
+  } else {
+    return options.inverse(this)
+  }
+}
+
 /*
  * @param {*} endpointTypeId
  * Returns the endpoint type identifier for an endpoint type
@@ -1441,3 +1491,7 @@ exports.manufacturing_clusters_with_incoming_commands =
 exports.all_user_clusters_with_outgoing_commands =
   all_user_clusters_with_outgoing_commands
 exports.all_outgoing_commands_for_cluster = all_outgoing_commands_for_cluster
+exports.is_command_default_response_enabled =
+  is_command_default_response_enabled
+exports.is_command_default_response_disabled =
+  is_command_default_response_disabled

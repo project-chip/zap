@@ -93,7 +93,12 @@ async function zcl_enums(options) {
   } else {
     ens = await Promise.all(
       packageIds.map((packageId) =>
-        queryZcl.selectAllEnums(this.global.db, packageId)
+        queryZcl
+          .selectAllEnums(this.global.db, packageId)
+          //Filtering out all atomic enums
+          .then((es) =>
+            es.filter((e) => !e.name.toLowerCase().match(/^enum\d+$/g))
+          )
       )
     ).then((x) => x.flat())
   }
@@ -1119,154 +1124,6 @@ function zcl_command_argument_data_type(type, options) {
       throw err
     })
   return templateUtil.templatePromise(this.global, promise)
-}
-
-/**
- *
- * @param currentContext
- * @param packageId
- * @param type
- * @param options
- * @returns zcl cli type for an array
- */
-async function array_to_cli_data_type(
-  currentContext,
-  packageId,
-  type,
-  options
-) {
-  const arrayAtomicResult = await queryZcl.selectAtomicType(
-    currentContext.global.db,
-    packageId,
-    type
-  )
-  let arrayAtomicSize = undefined
-  if (arrayAtomicResult) {
-    arrayAtomicSize = await zclUtil.calculateBytes(
-      arrayAtomicResult.name,
-      options,
-      currentContext.global.db,
-      packageId,
-      false
-    )
-  } else {
-    arrayAtomicSize = await zclUtil.calculateBytes(
-      type,
-      options,
-      currentContext.global.db,
-      packageId,
-      false
-    )
-  }
-  if (arrayAtomicSize == undefined || arrayAtomicSize.isNaN) {
-    return helperC.as_zcl_cli_type(dbEnum.zclType.string, true, false)
-  } else {
-    if (arrayAtomicResult) {
-      return helperC.as_zcl_cli_type(
-        arrayAtomicSize,
-        true,
-        arrayAtomicResult.isSigned
-      )
-    } else {
-      return helperC.as_zcl_cli_type(arrayAtomicSize, true, false)
-    }
-  }
-}
-
-/**
- *
- * @param currentContext
- * @param packageId
- * @param type
- * @param options
- * @returns zcl cli type for an enum
- */
-async function enum_to_cli_data_type(currentContext, packageId, type, options) {
-  const enumRecord = await queryZcl.selectEnumByName(
-    currentContext.global.db,
-    type,
-    packageId
-  )
-  return helperC.as_zcl_cli_type(
-    enumRecord.size ? enumRecord.size : 1,
-    false,
-    false
-  )
-}
-
-/**
- *
- * @param currentContext
- * @param packageId
- * @param type
- * @param options
- * @returns zcl cli type for a bitmap
- */
-async function bitmap_to_cli_data_type(
-  currentContext,
-  packageId,
-  type,
-  options
-) {
-  const bitmapRecord = await queryZcl.selectBitmapByName(
-    currentContext.global.db,
-    packageId,
-    type
-  )
-  return helperC.as_zcl_cli_type(
-    bitmapRecord.size ? bitmapRecord.size : 1,
-    false,
-    false
-  )
-}
-
-/**
- * Helper that deals with the type of the argument.
- *
- * @param {*} typeName
- * @param {*} options
- */
-async function zcl_command_argument_type_to_cli_data_type(type, options) {
-  const packageId = await templateUtil.ensureZclPackageId(this)
-  const isEnumType = await zclUtil.isEnum(this.global.db, type, packageId)
-  const isBitmapType = await zclUtil.isBitmap(this.global.db, type, packageId)
-  if ('isArray' in this && this.isArray) {
-    return array_to_cli_data_type(this, packageId, type, options)
-  } else if (isEnumType == dbEnum.zclType.enum) {
-    return enum_to_cli_data_type(this, packageId, type, options)
-  } else if (isBitmapType == dbEnum.zclType.bitmap) {
-    return bitmap_to_cli_data_type(this, packageId, type, options)
-  } else {
-    const atomicResult = await queryZcl.selectAtomicType(
-      this.global.db,
-      packageId,
-      type
-    )
-    const atomicSize = atomicResult
-      ? await zclUtil.calculateBytes(
-          atomicResult.name,
-          options,
-          this.global.db,
-          packageId,
-          false
-        )
-      : await zclUtil.calculateBytes(
-          type,
-          options,
-          this.global.db,
-          packageId,
-          false
-        )
-    if (atomicSize == undefined || atomicSize.isNaN) {
-      return helperC.as_zcl_cli_type(dbEnum.zclType.string, false, false)
-    } else {
-      if (atomicResult) {
-        return helperC.as_zcl_cli_type(atomicSize, false, atomicResult.isSigned)
-      } else {
-        return helperC.as_zcl_cli_type(atomicSize, false, false)
-      }
-    }
-  }
 }
 
 /**
@@ -2609,8 +2466,6 @@ exports.if_manufacturing_specific_cluster = dep(
   if_manufacturing_specific_cluster,
   { to: 'if_mfg_specific_cluster' }
 )
-exports.zcl_command_argument_type_to_cli_data_type =
-  zcl_command_argument_type_to_cli_data_type
 exports.zcl_string_type_return = zcl_string_type_return
 exports.is_zcl_string = is_zcl_string
 exports.if_command_arguments_have_fixed_length =

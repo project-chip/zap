@@ -5,9 +5,12 @@ name: Generation and back-end tests
 
 on:
   push:
-    branches: [master, zigbee_shared_cluster_logic]
+    branches: [master]
   pull_request:
     branches: [master]
+
+env:
+  ZAP_TEST_TIMEOUT: 3600000
 
 jobs:
   build:
@@ -26,6 +29,8 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - run: sudo apt-get update
       - run: sudo apt-get install --fix-missing libpixman-1-dev libcairo-dev libsdl-pango-dev libjpeg-dev libgif-dev xvfb libxml2-utils
+      - run: node --version
+      - run: npm --version
       - run: npm ci
       - run: npm run version-stamp
       - run: npm rebuild canvas --update-binary
@@ -38,15 +43,4 @@ jobs:
       - run: npm run gen
       - run: npm run genmatter
       - run: npm run gendotdot
-      - run: export GH_TOKEN=${{ secrets.GITHUB_TOKEN}} && npm run pack:linux
-      - run: xvfb-run -a dist/linux-unpacked/zap selfCheck
-      - name: Archive .rpm file
-        uses: actions/upload-artifact@v2
-        with:
-          name: zap-linux-rpm
-          path: dist/zap*.rpm
-      - name: Archive .deb file
-        uses: actions/upload-artifact@v2
-        with:
-          name: zap-linux-deb
-          path: dist/zap*.deb
+      - run: npm run genmeta

@@ -101,11 +101,11 @@ async function getProjectInfo(
   if (studioProjectPath) {
     let name = await projectName(studioProjectPath)
     let path = localhost + studioHttpPort + op_tree + studioProjectPath
-    env.logInfo(`StudioUC(${name}): GET: ${path}`)
+    env.logDebug(`StudioUC(${name}): GET: ${path}`)
     return axios
       .get(path)
       .then((resp) => {
-        env.logInfo(`StudioUC(${name}): RESP: ${resp.status}`)
+        env.logDebug(`StudioUC(${name}): RESP: ${resp.status}`)
         return resp
       })
       .catch((err) => {
@@ -142,7 +142,7 @@ async function updateComponentByClusterIdAndComponentId(
   side: string
 ) {
   if (!integrationEnabled(db, sessionId)) {
-    env.logInfo(
+    env.logWarning(
       `StudioUC(): Failed to update component due to invalid Studio project path.`
     )
     return Promise.resolve({ componentIds: [], added: add })

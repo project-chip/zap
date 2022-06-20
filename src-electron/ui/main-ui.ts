@@ -25,6 +25,7 @@ const env = require('../util/env')
 const windowJs = require('./window')
 const startup = require('../main-process/startup')
 const uiUtil = require('./ui-util')
+const util = require('../util/util')
 
 env.versionsCheck()
 env.setProductionEnv()
@@ -37,17 +38,23 @@ function hookSecondInstanceEvents(argv: args.Arguments) {
  * Hook up all the events for the electron app object.
  */
 function hookMainInstanceEvents(argv: args.Arguments) {
-  app.whenReady().then(() =>
-    startup.startUpMainInstance(
-      {
-        quitFunction: app.quit,
-        uiEnableFunction: uiUtil.enableUi,
-      },
-      argv
+  app
+    .whenReady()
+    .then(() =>
+      startup.startUpMainInstance(
+        {
+          quitFunction: app.quit,
+          uiEnableFunction: uiUtil.enableUi,
+        },
+        argv
+      )
     )
-  )
+    .catch((err) => {
+      console.log(err)
+      app.quit()
+    })
 
-  if (!argv._.includes('server')) {
+  if (!argv._.includes('server') && !argv.noServer) {
     app.on('window-all-closed', () => {
       if (process.platform !== 'darwin') {
         app.quit()
@@ -72,19 +79,9 @@ function hookMainInstanceEvents(argv: args.Arguments) {
 }
 
 let argv = args.processCommandLineArguments(process.argv)
-let reuseZapInstance = argv.reuseZapInstance
-let canProceedWithThisInstance
-let gotLock = app.requestSingleInstanceLock()
 
-if (reuseZapInstance) {
-  canProceedWithThisInstance = gotLock
-} else {
-  canProceedWithThisInstance = true
-}
-if (canProceedWithThisInstance) {
-  hookMainInstanceEvents(argv)
-} else {
-  // The 'second-instance' event on app was triggered, we need
-  // to quit.
-  hookSecondInstanceEvents(argv)
-}
+util.mainOrSecondaryInstance(
+  argv.reuseZapInstance,
+  () => hookMainInstanceEvents(argv),
+  () => hookSecondInstanceEvents(argv)
+)

@@ -22,6 +22,7 @@ const dbApi = require('../src-electron/db/db-api')
 const zclLoader = require('../src-electron/zcl/zcl-loader')
 const env = require('../src-electron/util/env')
 const testUtil = require('./test-util')
+const testQuery = require('./test-query')
 const querySession = require('../src-electron/db/query-session')
 const queryPackage = require('../src-electron/db/query-package')
 const queryConfig = require('../src-electron/db/query-config')
@@ -43,16 +44,13 @@ beforeAll(async () => {
     env.zapVersion()
   )
   await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
-  let userSession = await querySession.ensureZapUserAndSession(
+  sid = await testQuery.createSession(
     db,
     'USER',
-    'SESSION'
+    'SESSION',
+    env.builtinSilabsZclMetafile(),
+    env.builtinTemplateMetafile()
   )
-  sid = userSession.sessionId
-  return util.initializeSessionPackage(db, sid, {
-    zcl: env.builtinSilabsZclMetafile(),
-    template: env.builtinTemplateMetafile(),
-  })
 }, testUtil.timeout.medium())
 
 afterAll(() => dbApi.closeDatabase(db), testUtil.timeout.short())

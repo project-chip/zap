@@ -1,3 +1,6 @@
+const rendApi = require('../../src-shared/rend-api.js')
+const _ = require('lodash')
+
 Cypress.Commands.add('addEndpoint', (name) => {
   cy.get('button').contains('Add New Endpoint').click()
   cy.get(
@@ -26,4 +29,18 @@ Cypress.Commands.add('gotoAttributeReportingTab', () => {
 
 Cypress.Commands.add('gotoCommandsTab', () => {
   cy.get(':nth-child(3) > .q-tab__content').click()
+})
+
+Cypress.Commands.add('rendererApi', (...args) => {
+  cy.window().then(function (window) {
+    const log = Cypress.log({
+      name: 'rendererApi',
+      displayName: 'RendererApi',
+      message: [`🚀 ${args[0]}(${args.slice(1)})`],
+    })
+
+    log.snapshot('before')
+    window[rendApi.GLOBAL_SYMBOL_EXECUTE].apply(null, args)
+    log.snapshot('after')
+  })
 })

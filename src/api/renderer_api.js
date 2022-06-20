@@ -66,6 +66,15 @@ function fnSave(zap_file) {
     .catch((err) => console.log(err))
 }
 
+function fnIsDirty() {
+  return window
+    .axios_server_get(`${restApi.ide.isDirty}`)
+    .then((res) => {
+      return res?.data?.DIRTY
+    })
+    .catch((err) => console.log(err))
+}
+
 export function renderer_api_execute(id, ...args) {
   let ret = null
   switch (id) {
@@ -115,6 +124,10 @@ export function renderer_api_execute(id, ...args) {
         renderer_api_notify(rendApi.id.setDarkTheme, args[0] === 'true')
       }
 
+      break
+
+    case rendApi.id.isDirty:
+      ret = fnIsDirty.apply(null)
       break
   }
   return ret

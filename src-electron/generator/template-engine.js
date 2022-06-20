@@ -37,6 +37,7 @@ const includedHelpers = [
   require('./helper-command'),
   require('./helper-future'),
   require('./helper-access'),
+  require('./helper-zigbee-zcl'),
 ]
 
 let helpersInitializationList = null

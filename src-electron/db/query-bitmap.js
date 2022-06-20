@@ -87,8 +87,8 @@ SELECT
   BITMAP.SIZE AS SIZE
 FROM BITMAP
 INNER JOIN DATA_TYPE ON BITMAP.BITMAP_ID = DATA_TYPE.DATA_TYPE_ID
-WHERE DATA_TYPE.NAME = ? AND DATA_TYPE.PACKAGE_REF = ?`,
-      [name, packageId]
+WHERE (DATA_TYPE.NAME = ? OR DATA_TYPE.NAME = ?) AND DATA_TYPE.PACKAGE_REF = ?`,
+      [name, name.toLowerCase(), packageId]
     )
     .then(dbMapping.map.bitmap)
 }

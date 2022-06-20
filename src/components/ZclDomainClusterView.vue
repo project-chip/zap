@@ -320,7 +320,7 @@ export default {
 
       this.$store
         .dispatch('zap/updateSelectedClients', {
-          endpointTypeIdList: this.endpointTypeIdList,
+          endpointTypeId: this.selectedEndpointTypeId,
           id: id,
           added: clientSelected,
           listType: 'selectedClients',
@@ -328,14 +328,22 @@ export default {
         })
         .then(() =>
           this.$store.dispatch('zap/updateSelectedServers', {
-            endpointTypeIdList: this.endpointTypeIdList,
+            endpointTypeId: this.selectedEndpointTypeId,
             id: id,
             added: serverSelected,
             listType: 'selectedServers',
             view: 'clustersView',
           })
         )
-        .then(() => this.enableRequiredComponents(id))
+        .then(() => {
+          if (this.shareClusterStatesAcrossEndpoints()) {
+            this.$store.dispatch('zap/shareClusterStatesAcrossEndpoints', {
+              endpointTypeIdList: this.endpointTypeIdList,
+            })
+          }
+
+          this.enableRequiredComponents(id)
+        })
     },
     enableRequiredComponents(id) {
       let hasClient = this.selectionClients.includes(id)

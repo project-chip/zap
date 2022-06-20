@@ -28,6 +28,7 @@ const queryEndpoint = require('../src-electron/db/query-endpoint')
 const queryEndpointType = require('../src-electron/db/query-endpoint-type')
 const queryZcl = require('../src-electron/db/query-zcl')
 const queryDeviceType = require('../src-electron/db/query-device-type')
+const testQuery = require('./test-query')
 const env = require('../src-electron/util/env.ts')
 const util = require('../src-electron/util/util')
 const types = require('../src-electron/util/types')
@@ -299,17 +300,15 @@ describe('Validate endpoint for duplicate endpointIds', () => {
   beforeAll(async () => {
     let ctx = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
     pkgId = ctx.packageId
-    let userSession = await querySession.ensureZapUserAndSession(
+
+    sid = await testQuery.createSession(
       db,
       'USER',
-      'SESSION'
+      'SESSION',
+      env.builtinSilabsZclMetafile(),
+      env.builtinTemplateMetafile()
     )
-    await util.initializeSessionPackage(db, userSession.sessionId, {
-      zcl: env.builtinSilabsZclMetafile(),
-      template: env.builtinTemplateMetafile(),
-    })
 
-    sid = userSession.sessionId
     let rows = await queryDeviceType.selectAllDeviceTypes(db, pkgId)
     let haOnOffDeviceTypeArray = rows.filter(
       (data) => data.label === 'HA-onoff'

@@ -36,7 +36,7 @@
     "text": {
       "defaultResponsePolicy": ["Always", "Conditional", "Never"]
     },
-    "bool": ["commandDiscovery", "shareConfigsAcrossEndpoints"]
+    "bool": ["commandDiscovery"]
   },
   "defaults": {
     "text": {
@@ -44,8 +44,7 @@
       "defaultResponsePolicy": "always"
     },
     "bool": {
-      "commandDiscovery": true,
-      "shareConfigsAcrossEndpoints": true
+      "commandDiscovery": true
     }
   },
   "featureFlags": {
