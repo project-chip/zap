@@ -5,7 +5,7 @@ name: Generation and back-end tests
 
 on:
   push:
-    branches: [master, zigbee_shared_cluster_logic]
+    branches: [master]
   pull_request:
     branches: [master]
 
@@ -42,15 +42,4 @@ jobs:
       - run: npm run gen
       - run: npm run genmatter
       - run: npm run gendotdot
-      - run: export GH_TOKEN=${{ secrets.GITHUB_TOKEN}} && npm run pack:linux
-      - run: xvfb-run -a dist/linux-unpacked/zap selfCheck
-      - name: Archive .rpm file
-        uses: actions/upload-artifact@v2
-        with:
-          name: zap-linux-rpm
-          path: dist/zap*.rpm
-      - name: Archive .deb file
-        uses: actions/upload-artifact@v2
-        with:
-          name: zap-linux-deb
-          path: dist/zap*.deb
+      - run: npm run genmeta
