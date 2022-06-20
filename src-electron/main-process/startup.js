@@ -193,62 +193,54 @@ async function startConvert(argv, options) {
     options.logger(`    🐝 templates loaded: ${argv.generationTemplate}`)
   }
 
-  return util
-    .executePromisesSequentially(files, (singlePath, index) =>
-      importJs
-        .importDataFromFile(db, singlePath, {
-          defaultZclMetafile: argv.zclProperties,
-          postImportScript: argv.postImportScript,
-        })
-        .then((importResult) => {
-          return util
-            .initializeSessionPackage(db, importResult.sessionId, {
-              zcl: argv.zclProperties,
-              template: argv.generationTemplate,
+  await util.executePromisesSequentially(files, (singlePath, index) =>
+    importJs
+      .importDataFromFile(db, singlePath, {
+        defaultZclMetafile: argv.zclProperties,
+        postImportScript: argv.postImportScript,
+      })
+      .then((importResult) => {
+        return util
+          .initializeSessionPackage(db, importResult.sessionId, {
+            zcl: argv.zclProperties,
+            template: argv.generationTemplate,
+          })
+          .then(() => {
+            if (argv.postImportScript) {
+              return importJs.executePostImportScript(
+                db,
+                importResult.sessionId,
+                argv.postImportScript
+              )
+            }
+          })
+          .then(() => importResult.sessionId)
+      })
+      .then((sessionId) => {
+        options.logger(`    👈 read in: ${singlePath}`)
+        let of = outputFile(singlePath, output, index)
+        let parent = path.dirname(of)
+        if (!fs.existsSync(parent)) {
+          fs.mkdirSync(parent, { recursive: true })
+        }
+        // Now we need to write the sessionKey for the file path
+        return querySession
+          .updateSessionKeyValue(db, sessionId, dbEnum.sessionKey.filePath, of)
+          .then(() =>
+            exportJs.exportDataIntoFile(db, sessionId, of, {
+              removeLog: argv.noZapFileLog,
+              createBackup: true,
             })
-            .then(() => {
-              if (argv.postImportScript) {
-                return importJs.executePostImportScript(
-                  db,
-                  importResult.sessionId,
-                  argv.postImportScript
-                )
-              }
-            })
-            .then(() => importResult.sessionId)
-        })
-        .then((sessionId) => {
-          options.logger(`    👈 read in: ${singlePath}`)
-          let of = outputFile(singlePath, output, index)
-          let parent = path.dirname(of)
-          if (!fs.existsSync(parent)) {
-            fs.mkdirSync(parent, { recursive: true })
-          }
-          // Now we need to write the sessionKey for the file path
-          return querySession
-            .updateSessionKeyValue(
-              db,
-              sessionId,
-              dbEnum.sessionKey.filePath,
-              of
-            )
-            .then(() =>
-              exportJs.exportDataIntoFile(db, sessionId, of, {
-                removeLog: argv.noZapFileLog,
-                createBackup: true,
-              })
-            )
-        })
-        .then((outputPath) => {
-          options.logger(`    👉 write out: ${outputPath}`)
-        })
-    )
-    .then(() => {
-      options.logger('😎 Conversion done!')
-      if (options.quitFunction != null) {
-        options.quitFunction()
-      }
-    })
+          )
+      })
+      .then((outputPath) => {
+        options.logger(`    👉 write out: ${outputPath}`)
+      })
+  )
+  options.logger('😎 Conversion done!')
+  if (options.quitFunction != null) {
+    options.quitFunction()
+  }
 }
 
 /**
