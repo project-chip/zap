@@ -20,8 +20,10 @@
  *
  * @module DB API: user configuration queries against the database.
  */
-const dbApi = require('../src-electron/db/db-api.js')
-const dbMapping = require('../src-electron/db/db-mapping.js')
+const dbApi = require('../src-electron/db/db-api')
+const dbMapping = require('../src-electron/db/db-mapping')
+const querySession = require('../src-electron/db/query-session')
+const util = require('../src-electron/util/util')
 
 /**
  * Resolves into all the cluster states.
@@ -139,7 +141,31 @@ WHERE
     .then((rows) => rows.map(dbMapping.map.endpointTypeAttribute))
 }
 
+/**
+ * Creates a user session and initializes it with the given packages.
+ *
+ * @param {*} db
+ * @param {*} user
+ * @param {*} sessionUuid
+ * @param {*} zclFile
+ * @param {*} genTemplatesFile
+ * @returns
+ */
+async function createSession(db, user, sessionUuid, zclFile, genTemplatesFile) {
+  let userSession = await querySession.ensureZapUserAndSession(
+    db,
+    user,
+    sessionUuid
+  )
+  await util.initializeSessionPackage(db, userSession.sessionId, {
+    zcl: zclFile,
+    template: genTemplatesFile,
+  })
+  return userSession.sessionId
+}
+
 exports.getAllEndpointTypeClusterState = getAllEndpointTypeClusterState
 exports.selectCountFrom = selectCountFrom
 exports.getEndpointTypeAttributes = getEndpointTypeAttributes
 exports.getEndpointTypeCommands = getEndpointTypeCommands
+exports.createSession = createSession
