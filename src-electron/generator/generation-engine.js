@@ -114,7 +114,9 @@ async function recordTemplatesPackage(context) {
     context.path,
     context.crc,
     dbEnum.packageType.genTemplatesJson,
-    context.templateData.version
+    context.templateData.version,
+    context.templateData.category,
+    context.templateData.description
   )
 
   let promises = []

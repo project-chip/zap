@@ -65,7 +65,8 @@ test(
       ctx = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
       expect(ctx.packageId).toEqual(jsonPackageId)
       let p = await queryPackage.getPackageByPackageId(db, ctx.packageId)
-      expect(p.version).toEqual('ZCL Test Data')
+      expect(p.version).toEqual(1)
+      expect(p.category).toEqual('zigbee')
       await zclLoader.loadZcl(db, env.builtinDotdotZclMetafile())
       ctx = await zclLoader.loadZcl(db, env.builtinDotdotZclMetafile())
       dotdotPackageId = ctx.packageId

@@ -318,7 +318,7 @@ describe('Session specific queries', () => {
           expect(state.package[zclIndex].type).toBe(
             dbEnum.packageType.zclProperties
           )
-          expect(state.package[zclIndex].version).toBe('ZCL Test Data')
+          expect(state.package[zclIndex].version).toBe(1)
           expect(state.package[genIndex].type).toBe(
             dbEnum.packageType.genTemplatesJson
           )

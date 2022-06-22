@@ -56,8 +56,14 @@ async function recordToplevelPackage(db, metadataFile, crc) {
  * @param {*} db
  * @param {*} ctx
  */
-async function recordVersion(db, packageId, version) {
-  return queryPackage.updateVersion(db, packageId, version)
+async function recordVersion(db, packageId, version, category, description) {
+  return queryPackage.updateVersion(
+    db,
+    packageId,
+    version,
+    category,
+    description
+  )
 }
 
 /**

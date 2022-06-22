@@ -182,11 +182,11 @@ async function getPathCrc(db, path) {
  * @param {*} version
  * @returns A promise of an updated version.
  */
-async function updateVersion(db, packageId, version) {
+async function updateVersion(db, packageId, version, category, description) {
   return dbApi.dbUpdate(
     db,
-    'UPDATE PACKAGE SET VERSION = ? WHERE PACKAGE_ID = ?',
-    [version, packageId]
+    'UPDATE PACKAGE SET VERSION = ?, CATEGORY = ?, DESCRIPTION = ? WHERE PACKAGE_ID = ?',
+    [version, category, description, packageId]
   )
 }
 
@@ -222,13 +222,24 @@ async function insertPathCrc(
  * @param {*} [parentId=null]
  * @returns Promise of an insert or update.
  */
-async function registerTopLevelPackage(db, path, crc, type, version = null) {
+async function registerTopLevelPackage(
+  db,
+  path,
+  crc,
+  type,
+  version = null,
+  category = null,
+  description = null
+) {
   return getPackageByPathAndType(db, path, type).then((row) => {
     if (row == null) {
       return dbApi.dbInsert(
         db,
-        'INSERT INTO PACKAGE ( PATH, CRC, TYPE, PARENT_PACKAGE_REF, VERSION ) VALUES (?,?,?,?,?)',
-        [path, crc, type, null, version]
+        `
+INSERT INTO PACKAGE ( 
+  PATH, CRC, TYPE, PARENT_PACKAGE_REF, VERSION, CATEGORY, DESCRIPTION 
+) VALUES (?,?,?,?,?,?,?)`,
+        [path, crc, type, null, version, category, description]
       )
     } else {
       return Promise.resolve(row.id)
@@ -305,7 +316,9 @@ SELECT
   PACKAGE.PATH,
   PACKAGE.TYPE,
   PACKAGE.CRC,
-  PACKAGE.VERSION
+  PACKAGE.VERSION,
+  PACKAGE.CATEGORY, 
+  PACKAGE.DESCRIPTION
 FROM PACKAGE
 INNER JOIN SESSION_PACKAGE
   ON PACKAGE.PACKAGE_ID = SESSION_PACKAGE.PACKAGE_REF
