@@ -206,7 +206,7 @@ test(
       let ctx = await zclLoader.loadZcl(db, env.builtinDotdotZclMetafile())
       let packageId = ctx.packageId
       let p = await queryPackage.getPackageByPackageId(ctx.db, packageId)
-      expect(p.version).toEqual('1.0')
+      expect(p.version).toEqual(1)
 
       let x = await queryPackage.getPackagesByType(
         db,
@@ -315,7 +315,7 @@ test(
       let packageIdDotdot = ctx.packageId
 
       p = await queryPackage.getPackageByPackageId(ctx.db, packageIdDotdot)
-      expect(p.version).toEqual('1.0')
+      expect(p.version).toEqual(1)
       rows = await queryPackage.getPackagesByType(
         db,
         dbEnum.packageType.zclProperties

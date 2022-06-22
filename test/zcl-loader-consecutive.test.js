@@ -71,7 +71,7 @@ test(
       dotdotPackageId = ctx.packageId
       expect(dotdotPackageId).not.toEqual(jsonPackageId)
       p = await queryPackage.getPackageByPackageId(db, ctx.packageId)
-      expect(p.version).toEqual('1.0')
+      expect(p.version).toEqual(1)
 
       let rows = await queryPackage.getPackagesByType(
         db,

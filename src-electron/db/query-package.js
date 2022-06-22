@@ -24,6 +24,17 @@ const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 
+const querySelectFromPackage = `
+SELECT 
+  PACKAGE_ID,
+  PATH,
+  TYPE,
+  CRC,
+  VERSION,
+  CATEGORY,
+  DESCRIPTION
+FROM PACKAGE `
+
 /**
  * Checks if the package with a given path exists and executes appropriate action.
  * Returns the promise that resolves the the package or null if nothing was found.
@@ -36,8 +47,9 @@ async function getPackageByPathAndParent(db, path, parentId, isCustom) {
   return dbApi
     .dbGet(
       db,
-      'SELECT PACKAGE_ID, PATH, TYPE, CRC, VERSION FROM PACKAGE WHERE PATH = ? AND ' +
-        (isCustom ? 'PARENT_PACKAGE_REF IS NULL' : '(PARENT_PACKAGE_REF = ?)'),
+      `${querySelectFromPackage} WHERE PATH = ? AND ${
+        isCustom ? 'PARENT_PACKAGE_REF IS NULL' : '(PARENT_PACKAGE_REF = ?)'
+      }`,
       isCustom ? [path] : [path, parentId]
     )
     .then(dbMapping.map.package)
@@ -52,11 +64,9 @@ async function getPackageByPathAndParent(db, path, parentId, isCustom) {
  */
 async function getPackageByParent(db, parentId) {
   return dbApi
-    .dbAll(
-      db,
-      'SELECT PACKAGE_ID, PATH, TYPE, CRC, VERSION FROM PACKAGE WHERE PARENT_PACKAGE_REF = ?',
-      [parentId]
-    )
+    .dbAll(db, `${querySelectFromPackage} WHERE PARENT_PACKAGE_REF = ?`, [
+      parentId,
+    ])
     .then((rows) => rows.map(dbMapping.map.package))
 }
 
@@ -70,11 +80,10 @@ async function getPackageByParent(db, parentId) {
  */
 async function getPackageByPathAndType(db, path, type) {
   return dbApi
-    .dbGet(
-      db,
-      'SELECT PACKAGE_ID, PATH, TYPE, CRC, VERSION FROM PACKAGE WHERE PATH = ? AND TYPE = ?',
-      [path, type]
-    )
+    .dbGet(db, `${querySelectFromPackage} WHERE PATH = ? AND TYPE = ?`, [
+      path,
+      type,
+    ])
     .then(dbMapping.map.package)
 }
 
@@ -109,11 +118,7 @@ async function getPackageIdByPathAndTypeAndVersion(db, path, type, version) {
  */
 async function getPackagesByType(db, type) {
   return dbApi
-    .dbAll(
-      db,
-      'SELECT PACKAGE_ID, PATH, TYPE, CRC, VERSION FROM PACKAGE WHERE TYPE = ?',
-      [type]
-    )
+    .dbAll(db, `${querySelectFromPackage} WHERE TYPE = ?`, [type])
     .then((rows) => rows.map(dbMapping.map.package))
 }
 
@@ -128,7 +133,7 @@ async function getPackagesByParentAndType(db, parentId, type) {
   return dbApi
     .dbAll(
       db,
-      'SELECT PACKAGE_ID, PATH, TYPE, CRC, VERSION FROM PACKAGE WHERE TYPE = ? AND PARENT_PACKAGE_REF = ?',
+      `${querySelectFromPackage} WHERE TYPE = ? AND PARENT_PACKAGE_REF = ?`,
       [type, parentId]
     )
     .then((rows) => rows.map(dbMapping.map.package))
@@ -144,11 +149,7 @@ async function getPackagesByParentAndType(db, parentId, type) {
  */
 async function getPackageByPackageId(db, packageId) {
   return dbApi
-    .dbGet(
-      db,
-      'SELECT PACKAGE_ID, PARENT_PACKAGE_REF, PATH, TYPE, CRC, VERSION FROM PACKAGE WHERE PACKAGE_ID = ?',
-      [packageId]
-    )
+    .dbGet(db, `${querySelectFromPackage} WHERE PACKAGE_ID = ?`, [packageId])
     .then(dbMapping.map.package)
 }
 
@@ -428,6 +429,8 @@ async function getPackageSessionPackagePairBySessionId(db, sessionId) {
         PACKAGE.TYPE, 
         PACKAGE.CRC, 
         PACKAGE.VERSION, 
+        PACKAGE.CATEGORY, 
+        PACKAGE.DESCRIPTION, 
         PACKAGE.PARENT_PACKAGE_REF,
         SESSION_PACKAGE.PACKAGE_REF,
         SESSION_PACKAGE.SESSION_REF,
@@ -460,16 +463,18 @@ async function getAllPackages(db) {
     .dbAll(
       db,
       `SELECT 
-        PACKAGE.PACKAGE_ID, 
-        PACKAGE.PATH, 
-        PACKAGE.TYPE, 
-        PACKAGE.CRC, 
-        PACKAGE.VERSION, 
-        PACKAGE.PARENT_PACKAGE_REF
+        PACKAGE_ID, 
+        PATH, 
+        TYPE, 
+        CRC, 
+        VERSION, 
+        CATEGORY,
+        DESCRIPTION,
+        PARENT_PACKAGE_REF
        FROM 
         PACKAGE`
     )
-    .then((rows) => rows)
+    .then((rows) => rows.map(dbMapping.map.package))
 }
 
 /**
