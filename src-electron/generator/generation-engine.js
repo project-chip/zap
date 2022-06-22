@@ -140,7 +140,7 @@ async function recordTemplatesPackage(context) {
           dbEnum.packageType.genSingleTemplate,
           0,
           template.output,
-          ''
+          template.name
         )
       )
     }

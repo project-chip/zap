@@ -349,7 +349,9 @@ async function getSessionGenTemplates(db, sessionId) {
       PACKAGE.PATH,
       PACKAGE.TYPE,
       PACKAGE.CRC,
-      PACKAGE.VERSION
+      PACKAGE.VERSION,
+      PACKAGE.CATEGORY,
+      PACKAGE.DESCRIPTION
     FROM PACKAGE
     WHERE 
     PACKAGE.TYPE = ? AND

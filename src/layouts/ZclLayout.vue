@@ -140,13 +140,13 @@ limitations under the License.
                     clickable
                     v-close-popup
                     @click="
-                      generationButtonText = file.version
-                      getGeneratedFile(file.version)
+                      generationButtonText = file.category
+                      getGeneratedFile(file.category)
                     "
                     :label="generationButtonText"
                   >
                     <q-item-section>
-                      <q-item-label>{{ file.version }}</q-item-label>
+                      <q-item-label>{{ file.category }}</q-item-label>
                     </q-item-section>
                   </q-item>
                 </q-list>
