@@ -204,12 +204,14 @@ async function insertPathCrc(
   crc,
   type,
   parentId = null,
-  version = null
+  version = null,
+  category = null,
+  description = null
 ) {
   return dbApi.dbInsert(
     db,
-    'INSERT INTO PACKAGE ( PATH, CRC, TYPE, PARENT_PACKAGE_REF, VERSION ) VALUES (?, ?, ?, ?, ?)',
-    [path, crc, type, parentId, version]
+    'INSERT INTO PACKAGE ( PATH, CRC, TYPE, PARENT_PACKAGE_REF, VERSION, CATEGORY, DESCRIPTION ) VALUES (?, ?, ?, ?, ?, ?, ?)',
+    [path, crc, type, parentId, version, category, description]
   )
 }
 /**
