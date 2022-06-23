@@ -65,7 +65,9 @@ test(
       let packageId = ctx.packageId
 
       let p = await queryPackage.getPackageByPackageId(ctx.db, ctx.packageId)
-      expect(p.version).toEqual('ZCL Test Data')
+      expect(p.version).toEqual(1)
+      expect(p.description).toEqual('ZigbeePro test data')
+      expect(p.category).toEqual('zigbee')
       let x = await queryPackage.getPackagesByType(
         db,
         dbEnum.packageType.zclProperties
@@ -206,7 +208,7 @@ test(
       let ctx = await zclLoader.loadZcl(db, env.builtinDotdotZclMetafile())
       let packageId = ctx.packageId
       let p = await queryPackage.getPackageByPackageId(ctx.db, packageId)
-      expect(p.version).toEqual('1.0')
+      expect(p.version).toEqual(1)
 
       let x = await queryPackage.getPackagesByType(
         db,
@@ -303,7 +305,7 @@ test(
       let packageIdSilabs = ctx.packageId
 
       let p = await queryPackage.getPackageByPackageId(ctx.db, packageIdSilabs)
-      expect(p.version).toEqual('ZCL Test Data')
+      expect(p.version).toEqual(1)
 
       let rows = await queryPackage.getPackagesByType(
         db,
@@ -315,7 +317,7 @@ test(
       let packageIdDotdot = ctx.packageId
 
       p = await queryPackage.getPackageByPackageId(ctx.db, packageIdDotdot)
-      expect(p.version).toEqual('1.0')
+      expect(p.version).toEqual(1)
       rows = await queryPackage.getPackagesByType(
         db,
         dbEnum.packageType.zclProperties
@@ -357,7 +359,7 @@ test(
       let ctx = await zclLoader.loadZcl(db, env.builtinMatterZclMetafile())
       let packageId = ctx.packageId
       let p = await queryPackage.getPackageByPackageId(ctx.db, packageId)
-      expect(p.version).toEqual('Matter Test Data')
+      expect(p.version).toEqual(1)
 
       let x = await queryPackage.getPackagesByType(
         db,

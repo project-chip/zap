@@ -1,5 +1,7 @@
 {
-  "version": "ZCL Test Data",
+  "version": 1,
+  "description": "ZigbeePro test data",
+  "category": "zigbee",
   "xmlRoot": ".",
   "xmlFile": [
     "chip.xml",

@@ -246,6 +246,7 @@ async function exportPackagesFromSession(db, sessionId) {
   let mapFunction = (x) => {
     return {
       path: x.PATH,
+      category: x.CATEGORY,
       version: x.VERSION,
       type: x.TYPE,
       required: x.REQUIRED,
@@ -257,6 +258,7 @@ async function exportPackagesFromSession(db, sessionId) {
       `
 SELECT
   PACKAGE.PATH,
+  PACKAGE.CATEGORY,
   PACKAGE.VERSION,
   PACKAGE.TYPE,
   SESSION_PACKAGE.REQUIRED

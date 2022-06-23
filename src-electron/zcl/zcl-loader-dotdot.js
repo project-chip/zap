@@ -1263,7 +1263,13 @@ async function loadDotdotZcl(db, metafile) {
     )
     await collectDataFromLibraryXml(ctx)
     if (ctx.version != null) {
-      await zclLoader.recordVersion(db, ctx.packageId, ctx.version)
+      await zclLoader.recordVersion(
+        db,
+        ctx.packageId,
+        ctx.version,
+        ctx.category,
+        ctx.description
+      )
     }
     await parseZclFiles(db, ctx)
     await loadZclData(db, ctx)

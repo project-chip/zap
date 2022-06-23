@@ -111,6 +111,8 @@ async function collectDataFromJsonFile(metadataFile, data) {
     )
   }
   returnObject.version = obj.version
+  returnObject.category = obj.category
+  returnObject.description = obj.description
   returnObject.supportCustomZclDevice = obj.supportCustomZclDevice
 
   if ('listsUseAttributeAccessInterface' in obj) {
@@ -213,6 +215,8 @@ async function collectDataFromPropertiesFile(metadataFile, data) {
 
         returnObject.supportCustomZclDevice = zclProps.supportCustomZclDevice
         returnObject.version = zclProps.version
+        returnObject.description = zclProps.description
+        returnObject.category = zclProps.category
         env.logDebug(
           `Resolving: ${returnObject.zclFiles}, version: ${returnObject.version}`
         )
@@ -2052,8 +2056,18 @@ async function loadSilabsZcl(db, metafile, isJson = false) {
       ret = await collectDataFromPropertiesFile(ctx.metadataFile, ctx.data)
     }
     Object.assign(ctx, ret)
-    if (ctx.version != null) {
-      await zclLoader.recordVersion(db, ctx.packageId, ctx.version)
+    if (
+      ctx.version != null ||
+      ctx.category != null ||
+      ctx.description != null
+    ) {
+      await zclLoader.recordVersion(
+        db,
+        ctx.packageId,
+        ctx.version,
+        ctx.category,
+        ctx.description
+      )
     }
     await parseZclFiles(db, ctx.packageId, ctx.zclFiles, ctx)
     // Validate that our attributeAccessInterfaceAttributes, if present, is
