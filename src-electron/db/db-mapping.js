@@ -32,6 +32,8 @@ exports.map = {
       path: x.PATH,
       crc: x.CRC,
       type: x.TYPE,
+      category: x.CATEGORY,
+      description: x.DESCRIPTION,
       version: x.VERSION,
       parentId: x.PARENT_PACKAGE_REF,
     }

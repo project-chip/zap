@@ -64,7 +64,8 @@ test.skip(
       dbEnum.packageType.zclProperties
     )
     expect(pkgs.length).toBe(1)
-    expect(pkgs[0].version).toBe('ZCL Test Data')
+    expect(pkgs[0].description).toBe('ZigbeePro test data')
+    expect(pkgs[0].category).toBe('zigbee')
 
     let dump = await util.sessionDump(db, sid)
 
@@ -122,7 +123,8 @@ test(
       dbEnum.packageType.zclProperties
     )
     expect(pkgs.length).toBe(1)
-    expect(pkgs[0].version).toBe('ZCL Test Data')
+    expect(pkgs[0].description).toBe('ZigbeePro test data')
+    expect(pkgs[0].category).toBe('zigbee')
 
     let dump = await util.sessionDump(db, sid)
 

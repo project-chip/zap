@@ -410,7 +410,7 @@ export function isMatchingVersion(
  */
 export function versionsCheck() {
   let expectedNodeVersion = ['v14.x.x', 'v16.x.x']
-  let expectedElectronVersion = ['17.1.2']
+  let expectedElectronVersion = ['17.4.7']
   let nodeVersion = process.version
   let electronVersion = process.versions.electron
   let ret = true
