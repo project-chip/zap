@@ -118,6 +118,9 @@ async function exportSessionPackages(db, sessionId, zapProjectFileLocation) {
     if (p.version != null) {
       ret.version = p.version
     }
+    if (p.description != null) {
+      ret.description = p.description
+    }
     return ret
   })
 }
