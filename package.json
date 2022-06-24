@@ -1,7 +1,7 @@
 {
   "type": "commonjs",
   "name": "zap",
-  "version": "2022.6.22",
+  "version": "2022.6.24",
   "description": "Configuration tool for the Zigbee Cluster Library",
   "productName": "zap",
   "cordovaId": "",
@@ -51,7 +51,7 @@
     "zap": "node src-script/zap-start.js --logToStdout --gen ./test/gen-template/zigbee/gen-templates.json",
     "zapall": "node src-script/zap-start.js --logToStdout --zcl ./zcl-builtin/silabs/zcl.json  --zcl ./zcl-builtin/matter/zcl.json --gen ./test/gen-template/zigbee/gen-templates.json",
     "zapzigbee": "node src-script/zap-start.js --logToStdout --zcl ./zcl-builtin/silabs/zcl.json --gen ./test/gen-template/zigbee/gen-templates.json",
-    "zapmatter": "node src-script/zap-start.js --logToStdoutc --gen ./test/gen-template/matter/gen-test.json",
+    "zapmatter": "node src-script/zap-start.js --logToStdoutc --zcl ./zcl-builtin/matter/zcl.json --gen ./test/gen-template/matter/gen-test.json",
     "zapmeta": "node src-script/zap-start.js --logToStdout --zcl ./test/resource/meta/zcl.json --gen ./test/resource/meta/gen-test.json ./test/resource/test-meta.zap",
     "zaphelp": "node src-script/zap-start.js --help",
     "zap-dotdot": "node src-script/zap-start.js --logToStdout --zcl ./zcl-builtin/dotdot/library.xml",

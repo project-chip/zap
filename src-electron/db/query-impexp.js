@@ -248,6 +248,7 @@ async function exportPackagesFromSession(db, sessionId) {
       path: x.PATH,
       category: x.CATEGORY,
       version: x.VERSION,
+      description: x.DESCRIPTION,
       type: x.TYPE,
       required: x.REQUIRED,
     }
@@ -260,6 +261,7 @@ SELECT
   PACKAGE.PATH,
   PACKAGE.CATEGORY,
   PACKAGE.VERSION,
+  PACKAGE.DESCRIPTION,
   PACKAGE.TYPE,
   SESSION_PACKAGE.REQUIRED
 FROM PACKAGE
