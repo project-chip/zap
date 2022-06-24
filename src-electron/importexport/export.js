@@ -107,12 +107,21 @@ async function exportSessionPackages(db, sessionId, zapProjectFileLocation) {
         pathRelativity = dbEnum.pathRelativity.relativeToZap
       }
     }
-    return {
+    let ret = {
       pathRelativity: pathRelativity,
       path: relativePath,
-      version: p.version,
       type: p.type,
     }
+    if (p.category != null) {
+      ret.category = p.category
+    }
+    if (p.version != null) {
+      ret.version = p.version
+    }
+    if (p.description != null) {
+      ret.description = p.description
+    }
+    return ret
   })
 }
 
