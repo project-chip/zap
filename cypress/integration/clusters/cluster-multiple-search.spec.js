@@ -11,13 +11,16 @@ describe('Add multiple clusters and search', () => {
     cy.fixture('baseurl').then((data) => {
       cy.visit(data.baseurl)
     })
-
-    cy.addEndpoint('CBA Thermostat (0x0301)', 'General')
+    cy.fixture('data').then((data) => {
+      cy.addEndpoint(data.endpoint4, data.cluster1)
+    })
     cy.get('.vertical-align\\:middle > strong').should(
       'contain',
       'Endpoint - 1'
     )
-    cy.addEndpoint('Chatting Station (0x0601)', 'General')
+    cy.fixture('data').then((data) => {
+      cy.addEndpoint(data.endpoint3, data.cluster1)
+    })
     cy.get('.vertical-align\\:middle > strong').should(
       'contain',
       'Endpoint - 2'
@@ -29,7 +32,9 @@ describe('Add multiple clusters and search', () => {
       .children()
       .should('contain', 'Information')
       .and('contain', 'Data Sharing')
-    cy.addEndpoint('Charging Unit (0x0204)', 'General')
+    cy.fixture('data').then((data) => {
+      cy.addEndpoint(data.endpoint5, data.cluster1)
+    })
     cy.get('.vertical-align\\:middle > strong').should(
       'contain',
       'Endpoint - 3'
