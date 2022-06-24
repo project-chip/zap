@@ -507,6 +507,10 @@ export function toggleShowExceptionIcon(state, value) {
   state.showExceptionIcon = value
 }
 
+export function updateZapFileAddress(state, value) {
+  state.zapFile = value
+}
+
 export function updateProjectPackages(state, packages) {
   Vue.set(state, 'packages', packages)
 }

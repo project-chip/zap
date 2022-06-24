@@ -24,7 +24,10 @@ limitations under the License.
         class="shadow-2 zclConfiguratorLayoutHeader"
       >
         <q-toolbar bordered class="shadow-2 zclConfiguratorLayoutHeader row">
-          <q-toolbar-title v-on:click.ctrl="showVersion" v-if="showPreviewTab && this.endpointId[this.selectedEndpointId]">
+          <q-toolbar-title
+            v-on:click.ctrl="showVersion"
+            v-if="showPreviewTab && this.endpointId[this.selectedEndpointId]"
+          >
             <q-select
               filled
               :options="endpoints"
@@ -34,11 +37,33 @@ limitations under the License.
               map-options
               @input="setSelectedEndpoint($event)"
               bg-color="white"
-              style="width: 250px;"
+              style="width: 250px"
             />
           </q-toolbar-title>
           <q-toolbar-title v-on:click.ctrl="showVersion" v-else>
             Zigbee Cluster Configurator
+            <q-btn
+              align="center"
+              flat
+              :ripple="false"
+              :unelevated="false"
+              :outline="false"
+              @click="mehtest"
+              size="sm"
+            >
+              Load
+            </q-btn>
+            <q-btn
+              align="center"
+              flat
+              :ripple="false"
+              :unelevated="false"
+              :outline="false"
+              @click="mehtestsave"
+              size="sm"
+            >
+              Save
+            </q-btn>
           </q-toolbar-title>
           <q-space />
           <q-btn
@@ -48,31 +73,37 @@ limitations under the License.
             label="View Manual"
             v-on:click="openDocumentation()"
           />
-          <q-btn flat icon="public" @click="globalOptionsDialog = !globalOptionsDialog" id="global_options">
-            <div class="q-ml-xs">
-              ZCL GLOBAL OPTIONS…
-            </div>
+          <q-btn
+            flat
+            icon="public"
+            @click="globalOptionsDialog = !globalOptionsDialog"
+            id="global_options"
+          >
+            <div class="q-ml-xs">ZCL GLOBAL OPTIONS…</div>
           </q-btn>
           <q-btn
-                icon="list"
-                align="center"
-                flat
-                :ripple="false"
-                :unelevated="false"
-                :outline="false"
-                @click="zclExtensionDialog = true"
-              >
-                <div class="text-align q-ml-xs">ZCL Extensions...</div>
-              </q-btn>
+            icon="list"
+            align="center"
+            flat
+            :ripple="false"
+            :unelevated="false"
+            :outline="false"
+            @click="zclExtensionDialog = true"
+          >
+            <div class="text-align q-ml-xs">ZCL Extensions...</div>
+          </q-btn>
         </q-toolbar>
-        
-        <q-dialog v-model="globalOptionsDialog" class="background-color:transparent">
+
+        <q-dialog
+          v-model="globalOptionsDialog"
+          class="background-color:transparent"
+        >
           <ZclGeneralOptionsBar />
         </q-dialog>
-        
       </q-header>
       <!-- Not using mobile mode, so breakpoint is set at 0 -->
-      <q-drawer v-if="!showPreviewTab"
+      <q-drawer
+        v-if="!showPreviewTab"
         v-model="leftDrawerOpen"
         bordered
         :breakpoint="0"
@@ -82,10 +113,10 @@ limitations under the License.
       </q-drawer>
       <q-page-container>
         <initial-content v-if="isSelectedEndpoint" />
-        <zcl-cluster-manager  />
+        <zcl-cluster-manager />
       </q-page-container>
     </q-layout>
-    <q-dialog v-model="zclExtensionDialog" style="width:800px;">
+    <q-dialog v-model="zclExtensionDialog" style="width: 800px">
       <ZclExtensionDialog />
     </q-dialog>
   </div>
@@ -97,6 +128,7 @@ import ZclEndpointManager from '../components/ZclEndpointManager.vue'
 import ZclClusterManager from '../components/ZclClusterManager.vue'
 import InitialContent from '../components/InitialContent.vue'
 import ZclExtensionDialog from '../components/ZclCustomZclView.vue'
+import rendApi from '../../src-shared/rend-api.js'
 
 const restApi = require('../../src-shared/rest-api.js')
 const commonUrl = require('../../src-shared/common-url.js')
@@ -104,16 +136,27 @@ const commonUrl = require('../../src-shared/common-url.js')
 export default {
   name: 'ZclConfiguratorLayout',
   methods: {
-    collapseOnResize(e){
-      if(e.currentTarget.innerWidth < 750){
-        this.miniState = true;
+    mehtest() {
+      window[rendApi.GLOBAL_SYMBOL_EXECUTE](
+        rendApi.id.open,
+        '/Users/mehrad/zap/zap/test/resource/bead.zap'
+      )
+    },
+    mehtestsave() {
+      window[rendApi.GLOBAL_SYMBOL_EXECUTE](
+        rendApi.id.save,
+        '/Users/mehrad/zap/zap/test/resource/bead.zap'
+      )
+    },
+    collapseOnResize(e) {
+      if (e.currentTarget.innerWidth < 750) {
+        this.miniState = true
       }
     },
-    setSelectedEndpoint(value){
+    setSelectedEndpoint(value) {
       this.$store.dispatch('zap/updateSelectedEndpointType', {
         endpointType: this.endpointType[value],
-        deviceTypeRef:
-          this.endpointDeviceTypeRef[this.endpointType[value]],
+        deviceTypeRef: this.endpointDeviceTypeRef[this.endpointType[value]],
       })
       this.$store.dispatch('zap/updateSelectedEndpoint', value)
     },
@@ -134,7 +177,7 @@ export default {
   },
   mounted() {
     this.$store.dispatch('zap/clearLastSelectedDomain')
-    window.addEventListener("resize", this.collapseOnResize)
+    window.addEventListener('resize', this.collapseOnResize)
   },
   computed: {
     endpointDeviceTypeRef: {
@@ -161,23 +204,23 @@ export default {
       get() {
         return this.$store.state.zap.showPreviewTab
       },
-      set(){
+      set() {
         return this.$store.dispatch('zap/togglePreviewTab')
-      }
+      },
     },
-    endpoints:{
+    endpoints: {
       get() {
-        const endpoints = [];
-        for(let id in this.endpointId){
-          if(this.endpointId[id]){
+        const endpoints = []
+        for (let id in this.endpointId) {
+          if (this.endpointId[id]) {
             endpoints.push({
               label: `Endpoint - ${this.endpointId[id]}`,
-              value: id
+              value: id,
             })
           }
         }
-        return endpoints;
-      }
+        return endpoints
+      },
     },
     leftDrawerOpen: {
       get() {
@@ -191,7 +234,7 @@ export default {
       get() {
         return this.$store.state.zap.miniState
       },
-      set(miniState){
+      set(miniState) {
         this.$store.dispatch('zap/setMiniState', miniState)
       },
     },
@@ -199,14 +242,13 @@ export default {
       get() {
         return this.$store.state.zap.endpointView.selectedEndpoint == null
       },
-    }
+    },
   },
   data() {
     return {
       isExpanded: false,
-      globalOptionsDialog:false,
-      zclExtensionDialog:false
-
+      globalOptionsDialog: false,
+      zclExtensionDialog: false,
     }
   },
   components: {
@@ -214,7 +256,7 @@ export default {
     ZclEndpointManager,
     ZclClusterManager,
     InitialContent,
-    ZclExtensionDialog
+    ZclExtensionDialog,
   },
 }
 </script>
