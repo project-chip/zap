@@ -14,12 +14,16 @@ describe('Testing enabled attributes amount', () => {
       cy.fixture('baseurl').then((data) => {
         cy.visit(data.baseurl)
       })
-      cy.addEndpoint('Billing Unit (0x0203)', 'General')
+      cy.fixture('data').then((data) => {
+        cy.addEndpoint(data.endpoint1, data.cluster1)
+      })
       cy.get(':nth-child(6) > .text-right').then(($div) => {
         const num1 = parseFloat($div.text())
-        cy.get('.q-page-container > div')
-          .children()
-          .should('contain', 'General')
+        cy.fixture('data').then((data) => {
+          cy.get('.q-page-container > div')
+            .children()
+            .should('contain', data.cluster1)
+        })
         cy.get('div').contains('General').click()
         cy.get('div').children().contains('Not Enabled').first().click()
         cy.get('.q-virtual-scroll__content > :nth-child(3)')

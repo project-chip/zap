@@ -11,7 +11,9 @@ describe('Testing attribute validation', () => {
     cy.fixture('baseurl').then((data) => {
       cy.visit(data.baseurl)
     })
-    cy.gotoAttributePage('Billing Unit (0x0203)', 'General')
+    cy.fixture('data').then((data) => {
+      cy.gotoAttributePage(data.endpoint1, data.cluster1)
+    })
   })
   it(
     'change default input to a wrong amount',

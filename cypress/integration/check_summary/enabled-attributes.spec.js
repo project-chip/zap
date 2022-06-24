@@ -14,10 +14,14 @@ describe('Testing enabled attributes amount', () => {
       cy.fixture('baseurl').then((data) => {
         cy.visit(data.baseurl)
       })
-      cy.addEndpoint('Billing Unit (0x0203)', 'General')
+      cy.fixture('data').then((data) => {
+        cy.addEndpoint(data.endpoint1, data.cluster1)
+      })
       cy.get(':nth-child(7) > .text-right').then(($div) => {
         const num1 = parseFloat($div.text())
-        cy.gotoAttributePage('', 'General')
+        cy.fixture('data').then((data) => {
+          cy.gotoAttributePage('', data.cluster1)
+        })
         cy.get(
           '.table_body:eq(2) > :nth-child(2) > .q-mt-xs > .q-toggle__inner'
         ).click()
