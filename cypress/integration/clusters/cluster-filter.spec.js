@@ -11,7 +11,9 @@ describe('Testing cluster filters', () => {
     cy.fixture('baseurl').then((data) => {
       cy.visit(data.baseurl)
     })
-    cy.addEndpoint('Billing Unit (0x0203)', 'General')
+    cy.fixture('data').then((data) => {
+      cy.addEndpoint(data.endpoint1, data.cluster1)
+    })
   })
   it(
     'filter enabled clusters and check clusters',
@@ -21,10 +23,12 @@ describe('Testing cluster filters', () => {
         '.bar > :nth-child(1) > :nth-child(2) > .q-field > .q-field__inner > .q-field__control'
       ).click({ force: true })
       cy.get('.q-virtual-scroll__content > :nth-child(3)').click()
-      cy.get('tbody')
+      cy.fixture('data').then((data) => {
+        cy.get('tbody')
         .children()
-        .contains('Power Configuration')
+        .contains(data.cluster2)
         .should('not.exist')
+      })
     }
   )
   it(
@@ -35,13 +39,17 @@ describe('Testing cluster filters', () => {
         '.bar > :nth-child(1) > :nth-child(2) > .q-field > .q-field__inner > .q-field__control'
       ).click({ force: true })
       cy.get('.q-virtual-scroll__content > :nth-child(1)').click()
-      cy.get('tbody').children().should('contain', 'Power Configuration')
+      cy.fixture('data').then((data) => {
+        cy.get('tbody').children().should('contain', data.cluster2)
+      })
       cy.get(
         '#General > .q-expansion-item__container > .q-expansion-item__content > :nth-child(1) > .q-table__container > .q-table__middle > .q-table > tbody > :nth-child(2) > :nth-child(6) > .q-field > .q-field__inner > .q-field__control'
       ).click()
-      cy.get('.q-virtual-scroll__content > :nth-child(3)')
-        .contains('Server')
+      cy.fixture('data').then((data) => {
+        cy.get('.q-virtual-scroll__content > :nth-child(3)')
+        .contains(data.server1)
         .click()
+      })
       cy.get(
         '.bar > :nth-child(1) > :nth-child(2) > .q-field > .q-field__inner > .q-field__control'
       ).click({ force: true })
@@ -52,7 +60,9 @@ describe('Testing cluster filters', () => {
     { retries: { runMode: 2, openMode: 2 } },
     () => {
       cy.get('.q-virtual-scroll__content > :nth-child(3)').click()
-      cy.get('tbody').children().should('contain', 'Power Configuration')
+      cy.fixture('data').then((data) => {
+        cy.get('tbody').children().should('contain', data.cluster2)
+      })
     }
   )
 })

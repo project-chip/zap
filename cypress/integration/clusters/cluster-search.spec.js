@@ -11,12 +11,16 @@ describe('Testing cluster search', () => {
     cy.fixture('baseurl').then((data) => {
       cy.visit(data.baseurl)
     })
-    cy.addEndpoint('Billing Unit (0x0203)', 'General')
+    cy.fixture('data').then((data) => {
+      cy.addEndpoint(data.endpoint1, data.cluster1)
+    })
     cy.get('#General > .q-expansion-item__container > .q-item').click()
-    cy.get('tbody')
+    cy.fixture('data').then((data) => {
+      cy.get('tbody')
       .children()
-      .should('contain', 'Basic')
-      .and('contain', 'Power Configuration')
+      .should('contain', data.cluster3)
+      .and('contain', data.cluster2)
+    })
   })
   it('Search for power', () => {
     cy.get(
@@ -26,7 +30,13 @@ describe('Testing cluster search', () => {
       .type('power', { force: true })
   })
   it('check if search result is correct', () => {
-    cy.get('tbody').children().contains('Basic').should('not.exist')
-    cy.get('tbody').children().should('contain', 'Power Configuration')
+    cy.fixture('data').then((data) => {
+      cy.get('tbody').children().contains(data.cluster3).should('not.exist')
+    })
+  
+    cy.fixture('data').then((data) => {
+      cy.get('tbody').children().should('contain', data.cluster2)
+    })
+    
   })
 })

@@ -18,32 +18,27 @@ describe('Testing endpoints sharing attribute values', () => {
     cy.fixture('baseurl').then((data) => {
       cy.visit(data.baseurl)
     })
-    cy.gotoAttributePage('Billing Unit (0x0203)', 'General')
+    cy.fixture('data').then((data) => {
+      cy.gotoAttributePage(data.endpoint1, data.cluster1)
+    })
   })
-  it(
-    'set initial values on Endpoint 1',
-    { retries: { runMode: 2, openMode: 2 } },
-    () => {
-      // Set ZCL version - 1
-      cy.get(
-        ':nth-child(1) > [style="min-width: 180px;"] > .q-field > .q-field__inner .q-field__control > .q-field__control-container > input'
-      )
-        .clear({ force: true })
-        .type('1', { force: true })
+  // it(
+  //   'set initial values on Endpoint 1',
+  //   { retries: { runMode: 2, openMode: 2 } },
+  //   () => {
+  //     // Set ZCL version - 1
+  //     cy.get(
+  //       ':nth-child(1) > [style="min-width: 180px;"] > .q-field > .q-field__inner .q-field__control > .q-field__control-container > input'
+  //     )
+  //       .clear({ force: true })
+  //       .type('1', { force: true })
 
-      // Set power source - 22
-      cy.get(
-        ':nth-child(8) > [style="min-width: 180px;"] > .q-field > .q-field__inner .q-field__control > .q-field__control-container > input'
-      )
-        .clear({ force: true })
-        .type('22', { force: true })
-
-      // Set cluster revision - 33
-      cy.get(
-        ':nth-child(19) > [style="min-width: 180px;"] > .q-field > .q-field__inner .q-field__control > .q-field__control-container > input'
-      )
-        .clear({ force: true })
-        .type('33', { force: true })
+  //     // Set power source - 22
+  //     cy.get(
+  //       ':nth-child(8) > [style="min-width: 180px;"] > .q-field > .q-field__inner .q-field__control > .q-field__control-container > input'
+  //     )
+  //       .clear({ force: true })
+  //       .type('22', { force: true })
 
       // Set ResetToFactoryDefaults command
       cy.gotoCommandsTab()
@@ -69,34 +64,47 @@ describe('Testing endpoints sharing attribute values', () => {
       cy.visit(data.baseurl)
     })
 
-    cy.gotoAttributePage('Chatting Station (0x0601)', 'General')
-  })
-  it(
-    'verify initial values on Endpoint 2 are reflected from Endpoint 1',
-    { retries: { runMode: 2, openMode: 2 } },
-    () => {
-      // check ZCL version - 1
-      cy.get(
-        ':nth-child(1) > [style="min-width: 180px;"] > .q-field > .q-field__inner .q-field__control > .q-field__control-container > input'
-      ).should('have.value', '1')
+  //     // Set ResetToFactoryDefaults command
+  //     cy.gotoCommandsTab()
+  //     cy.get(':nth-child(3) > .q-mt-xs > .q-checkbox__inner > input').check({
+  //       force: true,
+  //     })
+  //   }
+  // )
+  // it('create Endpoint 2', () => {
+  //   cy.fixture('baseurl').then((data) => {
+  //     cy.visit(data.baseurl)
+  //   })
+  //   cy.fixture('data').then((data) => {
+  //     cy.gotoAttributePage(data.endpoit3, data.cluster1)
+  //   })
+  // })
+  // it(
+  //   'verify initial values on Endpoint 2 are reflected from Endpoint 1',
+  //   { retries: { runMode: 2, openMode: 2 } },
+  //   () => {
+  //     // check ZCL version - 1
+  //     cy.get(
+  //       ':nth-child(1) > [style="min-width: 180px;"] > .q-field > .q-field__inner .q-field__control > .q-field__control-container > input'
+  //     ).should('have.value', '1')
 
-      // check power source - 22
-      cy.get(
-        ':nth-child(8) > [style="min-width: 180px;"] > .q-field > .q-field__inner .q-field__control > .q-field__control-container > input'
-      ).should('have.value', '22')
+  //     // check power source - 22
+  //     cy.get(
+  //       ':nth-child(8) > [style="min-width: 180px;"] > .q-field > .q-field__inner .q-field__control > .q-field__control-container > input'
+  //     ).should('have.value', '22')
 
-      // check cluster revision - 33
-      cy.get(
-        ':nth-child(19) > [style="min-width: 180px;"] > .q-field > .q-field__inner .q-field__control > .q-field__control-container > input'
-      ).should('have.value', '33')
+  //     // check cluster revision - 33
+  //     cy.get(
+  //       ':nth-child(19) > [style="min-width: 180px;"] > .q-field > .q-field__inner .q-field__control > .q-field__control-container > input'
+  //     ).should('have.value', '33')
 
-      // check ResetToFactoryDefaults command - true/enabled
-      cy.gotoCommandsTab()
-      cy.get(':nth-child(3) > .q-mt-xs').should(
-        'have.attr',
-        'aria-checked',
-        'true'
-      )
+  //     // check ResetToFactoryDefaults command - true/enabled
+  //     cy.gotoCommandsTab()
+  //     cy.get(':nth-child(3) > .q-mt-xs').should(
+  //       'have.attr',
+  //       'aria-checked',
+  //       'true'
+  //     )
 
       // Uncheck ResetToFactoryDefaults command
       cy.get(':nth-child(3) > .q-mt-xs')
@@ -113,21 +121,21 @@ describe('Testing endpoints sharing attribute values', () => {
     }
   )
 
-  it(
-    'Check Command changes on Endpoint 2 is reflected on Endpoint 1',
-    { retries: { runMode: 2, openMode: 2 } },
-    () => {
-      // Go back to main page
-      cy.get('.router-link-active').click()
+  // it(
+  //   'Check Command changes on Endpoint 2 is reflected on Endpoint 1',
+  //   { retries: { runMode: 2, openMode: 2 } },
+  //   () => {
+  //     // Go back to main page
+  //     cy.get('.router-link-active').click()
 
-      cy.gotoAttributePage(false, 'General')
+  //     cy.gotoAttributePage(false, 'General')
 
-      cy.gotoCommandsTab()
-      cy.get(':nth-child(3) > .q-mt-xs').should(
-        'have.attr',
-        'aria-checked',
-        'false'
-      )
-    }
-  )
+  //     cy.gotoCommandsTab()
+  //     cy.get(':nth-child(3) > .q-mt-xs').should(
+  //       'have.attr',
+  //       'aria-checked',
+  //       'false'
+  //     )
+  //   }
+  // )
 })
