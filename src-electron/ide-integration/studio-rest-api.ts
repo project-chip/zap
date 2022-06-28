@@ -29,10 +29,12 @@ import * as dbTypes from '../../src-shared/types/db-types'
 import * as querySession from '../db/query-session.js'
 const wsServer = require('../server/ws-server.js')
 const dbEnum = require('../../src-shared/db-enum.js')
+const queryUpgrade = __importStar(require('../db/query-upgrade.js'))
 import * as ucTypes from '../../src-shared/types/uc-component-types'
 import * as dbMappingTypes from '../types/db-mapping-types'
 import * as http from 'http-status-codes'
 import zcl from './zcl.js'
+
 import * as sqlite from 'sqlite3'
 
 const localhost = 'http://localhost:'
@@ -341,6 +343,7 @@ async function sendSessionUpgrade(db: dbTypes.DbType) {
           category: dbEnum.wsCategory.upgrade,
           payload: status,
         })
+        await queryUpgrade.updateUpgrade(db, 0, 'none')
       }
     }
   }
