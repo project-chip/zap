@@ -37,6 +37,7 @@ const includedHelpers = [
   require('./helper-command'),
   require('./helper-future'),
   require('./helper-access'),
+  require('./helper-zigbee-zcl'),
 ]
 
 let helpersInitializationList = null
@@ -153,6 +154,7 @@ function loadPartial(name, path) {
   return fsPromise
     .readFile(path, 'utf8')
     .then((data) => handlebars.registerPartial(name, data))
+    .catch((err) => console.log('Could not load partial ' + name + ': ' + err))
 }
 
 function helperWrapper(wrappedHelper) {
@@ -210,12 +212,16 @@ function loadHelper(helpers, collectionList = null) {
   }
 
   for (const singleHelper of Object.keys(helpers)) {
-    handlebars.registerHelper(
-      singleHelper,
-      helperWrapper(helpers[singleHelper])
-    )
-    if (collectionList != null) {
-      collectionList.push(singleHelper)
+    try {
+      handlebars.registerHelper(
+        singleHelper,
+        helperWrapper(helpers[singleHelper])
+      )
+      if (collectionList != null) {
+        collectionList.push(singleHelper)
+      }
+    } catch (err) {
+      console.log('Could not load helper: ' + err)
     }
   }
 }

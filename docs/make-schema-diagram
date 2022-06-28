@@ -10,11 +10,19 @@
 # It also has only ever been tested on Linux.
 #
 
-SC_HOME=~/schemacrawler-16.4.1-distribution/
-SC_BIN=${SC_HOME}/_schemacrawler/schemacrawler.sh
+SC_HOME=~/schemacrawler/latest
+SC_BIN=${SC_HOME}/_schemacrawler/bin/schemacrawler.sh
 
 SQLITE=~/.zap/self-check.sqlite
 SVG=zap-schema.svg
+
+if [ ! -x ${SC_BIN} ]; then
+    echo "Can't find schemacrawler at ${SC_BIN}."
+    echo "Please make sure schemacrawler is properly installed."
+    echo ""
+    echo "You can download it from: https://www.schemacrawler.com/"
+    exit
+fi
 
 echo "Creating schema diagram to ${SVG} from database at ${SQLITE} ..."
 

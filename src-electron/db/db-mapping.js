@@ -32,6 +32,8 @@ exports.map = {
       path: x.PATH,
       crc: x.CRC,
       type: x.TYPE,
+      category: x.CATEGORY,
+      description: x.DESCRIPTION,
       version: x.VERSION,
       parentId: x.PARENT_PACKAGE_REF,
     }
@@ -171,6 +173,7 @@ exports.map = {
       responseName: x.RESPONSE_NAME,
       isIncoming: x.INCOMING,
       isOutgoing: x.OUTGOING,
+      isDefaultResponseEnabled: x.IS_DEFAULT_RESPONSE_ENABLED,
     }
   },
 
@@ -203,14 +206,58 @@ exports.map = {
     }
   },
 
+  dataType: (x) => {
+    if (x == null) return undefined
+    return {
+      id: x.DATA_TYPE_ID,
+      name: x.NAME,
+      description: x.DESCRIPTION,
+      descriminatorId: x.DISCRIMINATOR_REF,
+      packageId: x.PACKAGE_REF,
+      discriminatorName: x.DISCRIMINATOR_NAME,
+      clusterCode: x.CLUSTER_CODE,
+    }
+  },
+
+  discriminator: (x) => {
+    if (x == null) return undefined
+    return {
+      id: x.DISCRIMINATOR_ID,
+      name: x.NAME,
+    }
+  },
+
+  string: (x) => {
+    if (x == null) return undefined
+    return {
+      id: x.STRING_ID,
+      label: x.NAME,
+      name: x.NAME,
+      isLong: x.IS_LONG,
+      isChar: x.IS_CHAR,
+      size: x.SIZE,
+    }
+  },
+
+  number: (x) => {
+    if (x == null) return undefined
+    return {
+      id: x.NUMBER_ID,
+      label: x.NAME,
+      name: x.NAME,
+      isSigned: x.IS_SIGNED,
+      size: x.SIZE,
+    }
+  },
+
   enum: (x) => {
     if (x == null) return undefined
     return {
       id: x.ENUM_ID,
       label: x.NAME,
       name: x.NAME,
-      type: x.TYPE,
-      caption: `Enum of type ${x.TYPE}`,
+      caption: `Enum of size ${x.SIZE} byte`,
+      size: x.SIZE,
     }
   },
 
@@ -252,6 +299,9 @@ exports.map = {
       isNullable: dbApi.fromDbBool(x.IS_NULLABLE),
       isOptional: dbApi.fromDbBool(x.IS_OPTIONAL),
       isFabricSensitive: dbApi.fromDbBool(x.IS_FABRIC_SENSITIVE),
+      dataTypeReference: x.TYPE,
+      dataTypeReferenceName: x.DATA_TYPE_REF_NAME,
+      discriminatorName: x.DISCRIMINATOR_NAME,
     }
   },
 
@@ -278,6 +328,7 @@ exports.map = {
       label: x.NAME,
       name: x.NAME,
       type: x.TYPE,
+      size: x.SIZE,
     }
   },
 
@@ -323,7 +374,9 @@ exports.map = {
     return {
       deviceTypeClusterRef: x.DEVICE_TYPE_CLUSTER_REF,
       attributeRef: x.ATTRIBUTE_REF,
-      attributeName: x.ATTRIBUTE_NAME,
+      name: x.NAME,
+      code: x.CODE,
+      manufacturerCode: x.MANUFACTURER_CODE,
     }
   },
 
@@ -332,7 +385,9 @@ exports.map = {
     return {
       deviceTypeClusterRef: x.DEVICE_TYPE_CLUSTER_REF,
       commandRef: x.COMMAND_REF,
-      commandName: x.COMMAND_NAME,
+      name: x.NAME,
+      code: x.CODE,
+      manufacturerCode: x.MANUFACTURER_CODE,
     }
   },
 

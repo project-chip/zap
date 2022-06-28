@@ -55,6 +55,7 @@ limitations under the License.
               :key="actionOption.label"
             >
               <q-btn
+                class="full-height"
                 outline
                 @click="doActionFilter(actionOption)"
                 :label="actionOption.label"
@@ -77,7 +78,7 @@ limitations under the License.
             </template>
           </q-input>
         </div>
-        <q-list style="padding-bottom:250px;">
+        <q-list style="padding-bottom: 250px">
           <div v-for="domainName in domainNames" :key="domainName.id">
             <div v-show="clusterDomains(domainName).length > 0">
               <q-expansion-item
@@ -114,12 +115,12 @@ export default {
     if (this.domainNames.length > 0 && this.lastSelectedDomain) {
       this.scrollToElementById(this.lastSelectedDomain)
     }
-    this.changeDomainFilter(this.filter);
+    this.changeDomainFilter(this.filter)
   },
-  watch:{
+  watch: {
     enabledClusters() {
-      this.changeDomainFilter(this.filter);
-    }
+      this.changeDomainFilter(this.filter)
+    },
   },
   computed: {
     domainNames: {
@@ -246,5 +247,4 @@ export default {
 .bar {
   padding: 15px 15px 15px 15px;
 }
-
 </style>

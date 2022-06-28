@@ -17,10 +17,79 @@ limitations under the License.
   <div>
     <div class="text-h4 q-mb-md">Zcl packages</div>
     <p>Zcl packages.</p>
+    <q-table
+      class="my-sticky-header-table"
+      :data.sync="packages"
+      :columns="columns"
+      :pagination.sync="pagination"
+      row-key="<b>name</b>"
+      dense
+      flat
+      virtual-scroll
+      binary-state-sort
+      data-cy="Attributes"
+      style="height: calc(100vh - 210px); overflow: hidden"
+      :rows="1000"
+    >
+      <template v-slot:pagination> </template>
+    </q-table>
   </div>
 </template>
 <script>
 export default {
   name: 'PreferencePackage',
+  data() {
+    return {
+      columns: [
+        {
+          name: 'path',
+          align: 'left',
+          label: 'Path',
+          field: 'path',
+        },
+        {
+          name: 'type',
+          align: 'left',
+          label: 'Type',
+          field: 'type',
+        },
+        {
+          name: 'version',
+          align: 'left',
+          label: 'Version',
+          field: 'version',
+        },
+        {
+          name: 'category',
+          align: 'left',
+          label: 'Category',
+          field: 'category',
+        },
+        {
+          name: 'description',
+          align: 'left',
+          label: 'Description',
+          field: 'description',
+        },
+      ],
+    }
+  },
+  computed: {
+    packages: {
+      get() {
+        return this.$store.state.zap.allPackages
+      },
+    },
+    pagination: {
+      get() {
+        return {
+          sortBy: 'desc',
+          descending: false,
+          page: 1,
+          rowsPerPage: this.$store.state.zap.allPackages.length,
+        }
+      },
+    },
+  },
 }
 </script>

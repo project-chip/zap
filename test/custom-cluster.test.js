@@ -22,10 +22,11 @@ const dbApi = require('../src-electron/db/db-api')
 const zclLoader = require('../src-electron/zcl/zcl-loader')
 const env = require('../src-electron/util/env')
 const testUtil = require('./test-util')
+const testQuery = require('./test-query')
 const querySession = require('../src-electron/db/query-session')
 const queryPackage = require('../src-electron/db/query-package')
 const queryConfig = require('../src-electron/db/query-config')
-const queryZcl = require('../src-electron/db/query-zcl')
+const queryDeviceType = require('../src-electron/db/query-device-type')
 
 const util = require('../src-electron/util/util')
 let db
@@ -43,16 +44,13 @@ beforeAll(async () => {
     env.zapVersion()
   )
   await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
-  let userSession = await querySession.ensureZapUserAndSession(
+  sid = await testQuery.createSession(
     db,
     'USER',
-    'SESSION'
+    'SESSION',
+    env.builtinSilabsZclMetafile(),
+    env.builtinTemplateMetafile()
   )
-  sid = userSession.sessionId
-  return util.initializeSessionPackage(db, sid, {
-    zcl: env.builtinSilabsZclMetafile(),
-    template: env.builtinTemplateMetafile(),
-  })
 }, testUtil.timeout.medium())
 
 afterAll(() => dbApi.closeDatabase(db), testUtil.timeout.short())
@@ -136,7 +134,7 @@ test(
     if (x[0].packageRef == customPackageId) mainPackageId = x[1].packageRef
     else mainPackageId = x[0].packageRef
 
-    let onOffDevice = await queryZcl.selectDeviceTypeByCodeAndName(
+    let onOffDevice = await queryDeviceType.selectDeviceTypeByCodeAndName(
       db,
       mainPackageId,
       0x0000,

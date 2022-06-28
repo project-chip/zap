@@ -862,7 +862,8 @@ SELECT
   IS_OPTIONAL,
   MUST_USE_TIMED_INVOKE,
   RESPONSE_REF,
-  RESPONSE_NAME
+  RESPONSE_NAME,
+  IS_DEFAULT_RESPONSE_ENABLED
 FROM COMMAND WHERE CLUSTER_REF = ?
 ORDER BY CODE`,
       [clusterId]
@@ -1051,7 +1052,8 @@ SELECT
   IS_OPTIONAL,
   MUST_USE_TIMED_INVOKE,
   RESPONSE_REF,
-  RESPONSE_NAME
+  RESPONSE_NAME,
+  IS_DEFAULT_RESPONSE_ENABLED
 FROM COMMAND
   WHERE PACKAGE_REF IN (${packageIds})
 ORDER BY CODE`
@@ -1141,7 +1143,8 @@ SELECT
   IS_OPTIONAL,
   MUST_USE_TIMED_INVOKE,
   RESPONSE_REF,
-  RESPONSE_NAME
+  RESPONSE_NAME,
+  IS_DEFAULT_RESPONSE_ENABLED
 FROM COMMAND
 WHERE CLUSTER_REF IS NULL AND PACKAGE_REF IN (${packageIds})
 ORDER BY CODE`,
@@ -1358,6 +1361,8 @@ function commandMapFunction(x) {
     outgoing: x.OUTGOING,
     description: x.DESCRIPTION,
     clusterSide: x.SIDE,
+    clusterId: x.CLUSTER_ID,
+    endpointClusterId: x.ENDPOINT_TYPE_CLUSTER_ID,
     clusterName: x.CLUSTER_NAME,
     clusterDefine: x.CLUSTER_DEFINE,
     isClusterEnabled: x.ENABLED,
@@ -1396,13 +1401,15 @@ async function selectAllCommandDetailsFromEnabledClusters(
     COMMAND.MUST_USE_TIMED_INVOKE,
     ENDPOINT_TYPE_CLUSTER.SIDE,
     CLUSTER.NAME AS CLUSTER_NAME,
-    ENDPOINT_TYPE_CLUSTER.ENABLED
+    CLUSTER.CLUSTER_ID,
+    ENDPOINT_TYPE_CLUSTER.ENABLED,
+    ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
   FROM COMMAND
   INNER JOIN CLUSTER
   ON COMMAND.CLUSTER_REF = CLUSTER.CLUSTER_ID
   INNER JOIN ENDPOINT_TYPE_CLUSTER
   ON CLUSTER.CLUSTER_ID = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
-  WHERE ENDPOINT_TYPE_CLUSTER.CLUSTER_REF in (${endpointTypeClusterRef})
+  WHERE ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID in (${endpointTypeClusterRef})
   GROUP BY COMMAND.NAME
         `
     )
@@ -1504,12 +1511,15 @@ async function selectCommandDetailsFromAllEndpointTypesAndClusters(
     C.CLUSTER_REF = CLUSTER.CLUSTER_ID
   WHERE
     ETC.ENDPOINT_TYPE_REF IN (${endpointTypeIds})
-    AND ETC.ENDPOINT_TYPE_CLUSTER_REF in (${endpointClusterIds}) `
+    AND ETC.ENDPOINT_TYPE_CLUSTER_REF in (${endpointClusterIds})`
 
   if (doGroupBy) {
     // See: https://github.com/project-chip/zap/issues/192
-    query = query + ` GROUP BY C.NAME, C.COMMAND_ID`
+    query = query + ' GROUP BY C.NAME, C.COMMAND_ID'
   }
+
+  // Ordering of the results:
+  query = query + ' ORDER BY C.MANUFACTURER_CODE, C.CODE, C.NAME'
 
   return dbApi.dbAll(db, query).then((rows) => rows.map(commandMapFunction))
 }

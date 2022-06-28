@@ -155,10 +155,11 @@ async function selectEndpointType(db, id) {
 }
 
 /**
- * Retrieve clusters from the endpoint type.
+ * Retrieve clusters from multiple endpoint types, calculating along the way the
+ * number of how many times a cluster is present in the given endpoint types.
  *
  * @param {*} db
- * @param {*} endpointTypeId
+ * @param {*} endpointTypes
  * @returns Promise that resolves with the data that should go into the external form.
  */
 async function selectAllClustersDetailsFromEndpointTypes(db, endpointTypes) {
@@ -177,6 +178,7 @@ async function selectAllClustersDetailsFromEndpointTypes(db, endpointTypes) {
     }
   }
 
+  let doOrderBy = true
   return dbApi
     .dbAll(
       db,
@@ -200,9 +202,14 @@ ON
 WHERE
   ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF IN (${endpointTypeIds})
 AND
-  ENDPOINT_TYPE_CLUSTER.SIDE IS NOT "" AND ENDPOINT_TYPE_CLUSTER.ENABLED=1
+  ENDPOINT_TYPE_CLUSTER.SIDE IS NOT "" AND ENDPOINT_TYPE_CLUSTER.ENABLED = 1
 GROUP BY
-  NAME, SIDE`
+  NAME, SIDE
+${
+  doOrderBy
+    ? 'ORDER BY CLUSTER.MANUFACTURER_CODE, CLUSTER.CODE, CLUSTER.DEFINE'
+    : ''
+}`
     )
     .then((rows) => rows.map(mapFunction))
 }
@@ -293,24 +300,66 @@ SELECT * FROM (
     ROW_NUMBER() OVER (PARTITION BY ENDPOINT.ENDPOINT_IDENTIFIER) ENDPOINT_INDEX,
     ROW_NUMBER() OVER () ROW_INDEX,
     (DENSE_RANK() over (PARTITION BY ENDPOINT.ENDPOINT_IDENTIFIER ORDER BY CLUSTER.MANUFACTURER_CODE, CLUSTER.NAME, ENDPOINT_TYPE_CLUSTER.SIDE) + DENSE_RANK() OVER (PARTITION BY ENDPOINT_TYPE.ENDPOINT_TYPE_ID ORDER BY CLUSTER.MANUFACTURER_CODE DESC, CLUSTER.NAME DESC, ENDPOINT_TYPE_CLUSTER.SIDE DESC) - 1) AS CLUSTER_COUNT,
-    SUM(CASE WHEN ATOMIC.IS_STRING=1 THEN 
-      CASE WHEN ATOMIC.IS_LONG=0 THEN ATTRIBUTE.MAX_LENGTH+1
-          WHEN ATOMIC.IS_LONG=1 THEN ATTRIBUTE.MAX_LENGTH+2
-          ELSE ATOMIC.ATOMIC_SIZE
-      END
-    WHEN ATOMIC.ATOMIC_SIZE IS NULL THEN ATTRIBUTE.MAX_LENGTH
-    ELSE ATOMIC.ATOMIC_SIZE
-    END) OVER (PARTITION BY ENDPOINT.ENDPOINT_IDENTIFIER) ATTRIBUTES_SIZE,
+    SUM(CASE
+          WHEN
+            (ENDPOINT_TYPE_ATTRIBUTE.SINGLETON != 1 AND ENDPOINT_TYPE_ATTRIBUTE.STORAGE_OPTION != "External")
+          THEN
+            (CASE
+              WHEN
+                ATOMIC.IS_STRING=1
+              THEN 
+                CASE
+                  WHEN
+                    ATOMIC.IS_LONG=0 THEN ATTRIBUTE.MAX_LENGTH+1
+                  WHEN
+                    ATOMIC.IS_LONG=1 THEN ATTRIBUTE.MAX_LENGTH+2
+                  ELSE
+                    ATOMIC.ATOMIC_SIZE
+                END
+              WHEN
+                ATOMIC.ATOMIC_SIZE IS NULL
+              THEN
+                ATTRIBUTE.MAX_LENGTH
+              ELSE
+                ATOMIC.ATOMIC_SIZE
+            END)
+          ELSE
+              0
+        END
+      ) OVER (PARTITION BY ENDPOINT.ENDPOINT_IDENTIFIER) ATTRIBUTES_SIZE,
     ENDPOINT_TYPE.ENDPOINT_TYPE_ID AS ENDPOINT_TYPE_ID,
     ENDPOINT.ENDPOINT_IDENTIFIER AS ENDPOINT_IDENTIFIER,
-    SUM(CASE WHEN ATOMIC.IS_STRING=1 THEN 
-          CASE WHEN ATOMIC.IS_LONG=0 THEN ATTRIBUTE.MAX_LENGTH+1
-              WHEN ATOMIC.IS_LONG=1 THEN ATTRIBUTE.MAX_LENGTH+2
-              ELSE ATOMIC.ATOMIC_SIZE
-          END
-        WHEN ATOMIC.ATOMIC_SIZE IS NULL THEN ATTRIBUTE.MAX_LENGTH
-        ELSE ATOMIC.ATOMIC_SIZE
-        END) OVER () ALL_ATTRIBUTES_SIZE_ACROSS_ENDPOINTS,
+    SUM(CASE
+          WHEN
+            (ENDPOINT_TYPE_ATTRIBUTE.SINGLETON != 1 AND ENDPOINT_TYPE_ATTRIBUTE.STORAGE_OPTION != "External")
+          THEN
+            (CASE
+              WHEN
+                ATOMIC.IS_STRING=1
+              THEN 
+                CASE
+                  WHEN
+                    ATOMIC.IS_LONG=0
+                  THEN
+                    ATTRIBUTE.MAX_LENGTH+1
+                  WHEN
+                    ATOMIC.IS_LONG=1
+                  THEN
+                    ATTRIBUTE.MAX_LENGTH+2
+                  ELSE
+                    ATOMIC.ATOMIC_SIZE
+                END
+              WHEN
+                ATOMIC.ATOMIC_SIZE IS NULL
+              THEN
+                ATTRIBUTE.MAX_LENGTH
+              ELSE
+                ATOMIC.ATOMIC_SIZE
+            END)
+          ELSE
+            0
+        END
+        ) OVER () ALL_ATTRIBUTES_SIZE_ACROSS_ENDPOINTS,
     ENDPOINT.PROFILE AS PROFILE_ID,
     ENDPOINT.DEVICE_IDENTIFIER AS DEVICE_ID,
     ENDPOINT.DEVICE_VERSION AS DEVICE_VERSION,

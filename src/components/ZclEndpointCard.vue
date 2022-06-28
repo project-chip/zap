@@ -20,12 +20,36 @@ limitations under the License.
       :bordered="isSelectedEndpoint"
       @click="setSelectedEndpointType(endpointReference)"
     >
-      <div class="vertical-align:middle q-pa-md">
-        <strong
-          >Endpoint - {{ getFormattedEndpointId(endpointReference) }}</strong
-        >
+      <div class="row">
+        <div class="vertical-align:middle q-pa-md col-5">
+          <strong
+            >Endpoint - {{ getFormattedEndpointId(endpointReference) }}</strong
+          >
+        </div>
+        <q-card-actions class="q-gutter-xs col ">
+        <q-btn
+          flat
+          dense
+          label="Delete"
+          color="primary"
+          v-close-popup
+          size="sm"
+          icon="delete"
+          @click="handleDeletionDialog"
+        />
+        <q-btn
+          flat
+          dense
+          label="Edit"
+          color="primary"
+          icon="edit"
+          size="sm"
+          v-close-popup
+          @click="modifyEndpointDialog = !modifyEndpointDialog"
+        />
+      </q-card-actions>
       </div>
-      <q-list dense bordered>
+      <q-list dense bordered v-if="isSelectedEndpoint">
         <br />
         <q-item class="row">
           <div class="col-6">
@@ -61,14 +85,14 @@ limitations under the License.
           <div class="col-6">
             <strong>Enabled Clusters</strong>
           </div>
-          <div class="col-6 text-right">{{ selectedservers.length || '' }}</div>
+          <div class="col-6 text-right">{{ selectedservers.length }}</div>
         </q-item>
         <q-item class="row">
           <div class="col-6">
             <strong>Enabled Attributes</strong>
           </div>
           <div class="col-6 text-right">
-            {{ selectedAttributes.length || '' }}
+            {{ selectedAttributes.length }}
           </div>
         </q-item>
         <q-item class="row">
@@ -76,32 +100,10 @@ limitations under the License.
             <strong>Enabled Reporting</strong>
           </div>
           <div class="col-6 text-right">
-            {{ selectedReporting.length || '' }}
+            {{ selectedReporting.length }}
           </div>
         </q-item>
       </q-list>
-      <q-card-actions class="q-gutter-xs">
-        <q-btn
-          flat
-          dense
-          label="Delete"
-          color="primary"
-          v-close-popup
-          size="sm"
-          icon="delete"
-          @click="handleDeletionDialog"
-        />
-        <q-btn
-          flat
-          dense
-          label="Edit"
-          color="primary"
-          icon="edit"
-          size="sm"
-          v-close-popup
-          @click="modifyEndpointDialog = !modifyEndpointDialog"
-        />
-      </q-card-actions>
     </q-card>
     <q-dialog
       v-model="modifyEndpointDialog"

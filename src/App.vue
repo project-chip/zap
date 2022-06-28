@@ -51,7 +51,17 @@ function initLoad(store) {
     key: 'profileCodes',
     type: 'object',
   })
+  store.dispatch('zap/loadOptions', {
+    key: 'generator',
+    type: 'object',
+  })
   store.dispatch('zap/loadSessionKeyValues')
+  if (
+    localStorage.getItem('showDevTools') &&
+    localStorage.getItem('showDevTools') == 'true'
+  ) {
+    store.dispatch('zap/updateShowDevTools')
+  }
 
   let promises = []
   promises.push(store.dispatch('zap/updateClusters'))
@@ -119,7 +129,10 @@ export default {
     }
 
     if (`debugNavBar` in query) {
-      this.$store.dispatch('zap/setDebugNavBar', query[`debugNavBar`])
+      this.$store.dispatch(
+        'zap/setDebugNavBar',
+        query[`debugNavBar`] === 'true'
+      )
     } else {
       // If we don't specify it, default is on.
       this.$store.dispatch('zap/setDebugNavBar', true)

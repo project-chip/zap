@@ -17,16 +17,18 @@
 
 const fs = require('fs')
 const path = require('path')
-const queryPackage = require('../db/query-package.js')
-const queryCommand = require('../db/query-command.js')
-const queryLoader = require('../db/query-loader.js')
-const dbEnum = require('../../src-shared/db-enum.js')
+const queryPackage = require('../db/query-package')
+const queryCommand = require('../db/query-command')
+const queryLoader = require('../db/query-loader')
+const dbEnum = require('../../src-shared/db-enum')
 const fsp = fs.promises
-const sLoad = require('./zcl-loader-silabs.js')
-const dLoad = require('./zcl-loader-dotdot.js')
-const queryZcl = require('../db/query-zcl.js')
+const sLoad = require('./zcl-loader-silabs')
+const dLoad = require('./zcl-loader-dotdot')
+const queryZcl = require('../db/query-zcl')
+const queryDeviceType = require('../db/query-device-type')
 const env = require('../util/env')
 const nativeRequire = require('../util/native-require')
+const util = require('../util/util')
 
 const defaultValidator = (zclData) => {
   return []
@@ -54,8 +56,14 @@ async function recordToplevelPackage(db, metadataFile, crc) {
  * @param {*} db
  * @param {*} ctx
  */
-async function recordVersion(db, packageId, version) {
-  return queryPackage.updateVersion(db, packageId, version)
+async function recordVersion(db, packageId, version, category, description) {
+  return queryPackage.updateVersion(
+    db,
+    packageId,
+    version,
+    category,
+    description
+  )
 }
 
 /**
@@ -63,12 +71,39 @@ async function recordVersion(db, packageId, version) {
  *
  * @export
  * @param {*} db
+ * @param {*} metadataFile array of paths
+ * @returns Array of loaded packageIds.
+ */
+async function loadZclMetafiles(db, metadataFiles) {
+  let packageIds = []
+  if (Array.isArray(metadataFiles)) {
+    for (let f of metadataFiles) {
+      let ctx = await loadZcl(db, f)
+      packageIds.push(ctx.packageId)
+    }
+  } else {
+    let ctx = await loadZcl(db, metadataFiles)
+    packageIds.push(ctx.packageId)
+  }
+  return packageIds
+}
+
+/**
+ * Loads individual zcl.json metafile.
+ *
+ * @param {*} db
  * @param {*} metadataFile
- * @returns a Promise that resolves with the db.
+ * @returns Context object that contains .db and .packageId
  */
 async function loadZcl(db, metadataFile) {
   let ext = path.extname(metadataFile)
   let resolvedMetafile = path.resolve(metadataFile)
+
+  try {
+    await fsp.access(resolvedMetafile, fs.constants.R_OK)
+  } catch {
+    throw new Error(`Can't access file: ${metadataFile}`)
+  }
   if (ext == '.xml') {
     return dLoad.loadDotdotZcl(db, resolvedMetafile)
   } else if (ext == '.properties') {
@@ -80,6 +115,13 @@ async function loadZcl(db, metadataFile) {
   }
 }
 
+/**
+ * Load individual custom XML files.
+ *
+ * @param {*} db
+ * @param {*} filePath
+ * @param {*} sessionId
+ */
 async function loadIndividualFile(db, filePath, sessionId) {
   let zclPropertiesPackages = await queryPackage.getSessionPackagesByType(
     db,
@@ -100,9 +142,11 @@ async function loadIndividualFile(db, filePath, sessionId) {
   if (ext == '.xml') {
     return sLoad.loadIndividualSilabsFile(db, filePath, validator, sessionId)
   } else {
-    let error = new Error('Custom ZCL XML Error: Unknown extension file')
-    env.logError(`Error reading xml file: ${filePath}\n ` + error)
-    return { succeeded: false, err: error }
+    let err = new Error(
+      `Unable to read file with unknown extension: ${filePath}`
+    )
+    env.logWarning(err)
+    return { succeeded: false, err }
   }
 }
 
@@ -242,15 +286,31 @@ async function qualifyZclFile(
  */
 async function processZclPostLoading(db, packageId) {
   // These queries must make sure that they update ONLY the entities under a given packageId.
-
-  await queryLoader.updateStaticEntityReferences(db, packageId)
-  await queryZcl.updateDeviceTypeEntityReferences(db, packageId)
+  await queryLoader.updateDataTypeClusterReferences(db, packageId)
+  await queryDeviceType.updateDeviceTypeEntityReferences(db, packageId)
   return queryCommand.updateCommandRequestResponseReferences(db, packageId)
 }
 
+/**
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @returns data type discriminator map
+ */
+async function getDiscriminatorMap(db, packageId) {
+  let typeMap = new Map()
+  let discriminators = await queryZcl.selectAllDiscriminators(db, packageId)
+  discriminators.forEach((d) => {
+    typeMap.set(d.name.toLowerCase(), d.id)
+  })
+  return typeMap
+}
+
 exports.loadZcl = loadZcl
+exports.loadZclMetafiles = loadZclMetafiles
 exports.recordToplevelPackage = recordToplevelPackage
 exports.recordVersion = recordVersion
 exports.processZclPostLoading = processZclPostLoading
 exports.loadIndividualFile = loadIndividualFile
 exports.qualifyZclFile = qualifyZclFile
+exports.getDiscriminatorMap = getDiscriminatorMap

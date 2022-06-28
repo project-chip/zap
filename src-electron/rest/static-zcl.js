@@ -21,13 +21,14 @@
  * @module REST API: static zcl functions
  */
 
-const queryZcl = require('../db/query-zcl.js')
-const queryCommand = require('../db/query-command.js')
-const queryEvent = require('../db/query-event.js')
-const queryPackage = require('../db/query-package.js')
-const dbEnum = require('../../src-shared/db-enum.js')
-const restApi = require('../../src-shared/rest-api.js')
-const util = require('../util/util.js')
+const queryZcl = require('../db/query-zcl')
+const queryDeviceType = require('../db/query-device-type')
+const queryCommand = require('../db/query-command')
+const queryEvent = require('../db/query-event')
+const queryPackage = require('../db/query-package')
+const dbEnum = require('../../src-shared/db-enum')
+const restApi = require('../../src-shared/rest-api')
+const util = require('../util/util')
 const env = require('../util/env')
 const { StatusCodes } = require('http-status-codes')
 
@@ -167,8 +168,8 @@ function parseForZclData(db, entity, id, packageIdArray) {
         id,
         packageIdArray,
         zclEntityQuery(
-          queryZcl.selectAllDeviceTypes,
-          queryZcl.selectDeviceTypeById
+          queryDeviceType.selectAllDeviceTypes,
+          queryDeviceType.selectDeviceTypeById
         )
       )
     case 'endpointTypeClusters':
@@ -178,11 +179,11 @@ function parseForZclData(db, entity, id, packageIdArray) {
     case 'endpointTypeCommands':
       return queryZcl.selectEndpointTypeCommandsByEndpointId(db, id)
     case `deviceTypeClusters`:
-      return queryZcl.selectDeviceTypeClustersByDeviceTypeRef(db, id)
+      return queryDeviceType.selectDeviceTypeClustersByDeviceTypeRef(db, id)
     case `deviceTypeAttributes`:
-      return queryZcl.selectDeviceTypeAttributesByDeviceTypeRef(db, id)
+      return queryDeviceType.selectDeviceTypeAttributesByDeviceTypeRef(db, id)
     case `deviceTypeCommands`:
-      return queryZcl.selectDeviceTypeCommandsByDeviceTypeRef(db, id)
+      return queryDeviceType.selectDeviceTypeCommandsByDeviceTypeRef(db, id)
     default:
       return { type: 'Unknown' }
   }

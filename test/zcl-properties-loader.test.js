@@ -18,15 +18,16 @@
  * @jest-environment node
  */
 
-const dbApi = require('../src-electron/db/db-api.js')
-const dbEnum = require('../src-shared/db-enum.js')
-const queryZcl = require('../src-electron/db/query-zcl.js')
-const queryPackage = require('../src-electron/db/query-package.js')
-const zclLoader = require('../src-electron/zcl/zcl-loader.js')
-const env = require('../src-electron/util/env.ts')
+const dbApi = require('../src-electron/db/db-api')
+const dbEnum = require('../src-shared/db-enum')
+const queryZcl = require('../src-electron/db/query-zcl')
+const queryDeviceType = require('../src-electron/db/query-device-type')
+const queryPackage = require('../src-electron/db/query-package')
+const zclLoader = require('../src-electron/zcl/zcl-loader')
+const env = require('../src-electron/util/env')
 const path = require('path')
-const testQuery = require('./test-query.js')
-const { timeout } = require('./test-util.js')
+const testQuery = require('./test-query')
+const { timeout } = require('./test-util')
 
 const zclTestPropertiesFile = path.join(
   __dirname,
@@ -58,12 +59,12 @@ test(
       x = await queryZcl.selectAllDomains(db, packageId)
       expect(x.length).toEqual(17)
       x = await queryZcl.selectAllEnums(db, packageId)
-      expect(x.length).toEqual(206)
+      expect(x.length).toEqual(208)
       x = await queryZcl.selectAllStructsWithItemCount(db, packageId)
       expect(x.length).toEqual(50)
       x = await queryZcl.selectAllBitmaps(db, packageId)
-      expect(x.length).toEqual(120)
-      x = await queryZcl.selectAllDeviceTypes(db, packageId)
+      expect(x.length).toEqual(128)
+      x = await queryDeviceType.selectAllDeviceTypes(db, packageId)
       expect(x.length).toEqual(152)
       x = await testQuery.selectCountFrom(db, 'COMMAND_ARG')
       expect(x).toEqual(1663)

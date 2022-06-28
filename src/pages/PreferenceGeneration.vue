@@ -17,10 +17,70 @@ limitations under the License.
   <div>
     <div class="text-h4 q-mb-md">Generation</div>
     <p>Generation preferences.</p>
+    <q-table
+      class="my-sticky-header-table"
+      :data.sync="packages"
+      :columns="columns"
+      :pagination.sync="pagination"
+      row-key="<b>name</b>"
+      dense
+      flat
+      virtual-scroll
+      binary-state-sort
+      data-cy="Attributes"
+      style="height: calc(100vh - 210px); overflow: hidden"
+      :rows="1000"
+    >
+      <template v-slot:pagination> </template>
+    </q-table>
   </div>
 </template>
 <script>
 export default {
   name: 'PreferenceGeneration',
+  data() {
+    return {
+      activePackage: {},
+      columns: [
+        {
+          name: 'ID',
+          label: 'ID',
+          align: 'left',
+          field: 'PACKAGE_ID',
+        },
+        {
+          name: 'VERSION',
+          align: 'left',
+          label: 'Version',
+          field: 'VERSION',
+        },
+        {
+          name: 'PATH',
+          align: 'left',
+          label: 'Path',
+          field: 'PATH',
+        },
+      ],
+    }
+  },
+  computed: {
+    packages: {
+      get() {
+        return this.$store.state.zap.allPackages.filter(
+          (singlePackage) => singlePackage.TYPE == 'gen-template'
+        )
+      },
+    },
+    pagination: {
+      get() {
+        return {
+          sortBy: 'desc',
+          descending: false,
+          page: 1,
+          rowsPerPage: this.packages.length,
+        }
+      },
+    },
+  },
 }
 </script>

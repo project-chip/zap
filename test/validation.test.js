@@ -19,18 +19,20 @@
  */
 
 const fs = require('fs')
-const dbApi = require('../src-electron/db/db-api.js')
-const zclLoader = require('../src-electron/zcl/zcl-loader.js')
-const validation = require('../src-electron/validation/validation.js')
-const querySession = require('../src-electron/db/query-session.js')
-const queryConfig = require('../src-electron/db/query-config.js')
-const queryEndpoint = require('../src-electron/db/query-endpoint.js')
-const queryEndpointType = require('../src-electron/db/query-endpoint-type.js')
-const queryZcl = require('../src-electron/db/query-zcl.js')
+const dbApi = require('../src-electron/db/db-api')
+const zclLoader = require('../src-electron/zcl/zcl-loader')
+const validation = require('../src-electron/validation/validation')
+const querySession = require('../src-electron/db/query-session')
+const queryConfig = require('../src-electron/db/query-config')
+const queryEndpoint = require('../src-electron/db/query-endpoint')
+const queryEndpointType = require('../src-electron/db/query-endpoint-type')
+const queryZcl = require('../src-electron/db/query-zcl')
+const queryDeviceType = require('../src-electron/db/query-device-type')
+const testQuery = require('./test-query')
 const env = require('../src-electron/util/env.ts')
-const util = require('../src-electron/util/util.js')
-const types = require('../src-electron/util/types.js')
-const { timeout } = require('./test-util.js')
+const util = require('../src-electron/util/util')
+const types = require('../src-electron/util/types')
+const { timeout } = require('./test-util')
 
 let db
 let sid
@@ -298,18 +300,16 @@ describe('Validate endpoint for duplicate endpointIds', () => {
   beforeAll(async () => {
     let ctx = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
     pkgId = ctx.packageId
-    let userSession = await querySession.ensureZapUserAndSession(
+
+    sid = await testQuery.createSession(
       db,
       'USER',
-      'SESSION'
+      'SESSION',
+      env.builtinSilabsZclMetafile(),
+      env.builtinTemplateMetafile()
     )
-    await util.initializeSessionPackage(db, userSession.sessionId, {
-      zcl: env.builtinSilabsZclMetafile(),
-      template: env.builtinTemplateMetafile(),
-    })
 
-    sid = userSession.sessionId
-    let rows = await queryZcl.selectAllDeviceTypes(db, pkgId)
+    let rows = await queryDeviceType.selectAllDeviceTypes(db, pkgId)
     let haOnOffDeviceTypeArray = rows.filter(
       (data) => data.label === 'HA-onoff'
     )

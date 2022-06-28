@@ -177,14 +177,14 @@ ORDER BY A.MANUFACTURER_CODE, A.CODE
       min: row.MIN,
       max: row.MAX,
       storage: row.STORAGE_OPTION,
-      isIncluded: row.INCLUDED,
-      isSingleton: row.SINGLETON,
-      isBound: row.BOUNDED,
-      isWritable: row.IS_WRITABLE,
-      isNullable: row.IS_NULLABLE,
-      mustUseTimedWrite: row.MUST_USE_TIMED_WRITE,
+      isIncluded: dbApi.fromDbBool(row.INCLUDED),
+      isSingleton: dbApi.fromDbBool(row.SINGLETON),
+      isBound: dbApi.fromDbBool(row.BOUNDED),
+      isWritable: dbApi.fromDbBool(row.IS_WRITABLE),
+      isNullable: dbApi.fromDbBool(row.IS_NULLABLE),
+      mustUseTimedWrite: dbApi.fromDbBool(row.MUST_USE_TIMED_WRITE),
       defaultValue: row.DEFAULT_VALUE,
-      includedReportable: row.INCLUDED_REPORTABLE,
+      includedReportable: dbApi.fromDbBool(row.INCLUDED_REPORTABLE),
       minInterval: row.MIN_INTERVAL,
       maxInterval: row.MAX_INTERVAL,
       reportableChange: row.REPORTABLE_CHANGE,
@@ -209,21 +209,30 @@ SELECT
   C.COMMAND_ID,
   C.NAME,
   C.CODE,
+  C.CLUSTER_REF,
   C.SOURCE,
   C.MANUFACTURER_CODE,
   C.IS_OPTIONAL,
   C.MUST_USE_TIMED_INVOKE,
-  EC.INCOMING,
-  EC.OUTGOING
+  C.RESPONSE_NAME,
+  RC.MANUFACTURER_CODE as RESPONSE_MANUFACTURER_CODE,
+  RC.CODE AS RESPONSE_CODE,
+  C.RESPONSE_REF,
+  ETC.INCOMING,
+  ETC.OUTGOING
 FROM
   COMMAND AS C
 LEFT JOIN
-  ENDPOINT_TYPE_COMMAND AS EC
+  ENDPOINT_TYPE_COMMAND AS ETC
 ON
-  C.COMMAND_ID = EC.COMMAND_REF
+  C.COMMAND_ID = ETC.COMMAND_REF
+LEFT JOIN
+  COMMAND AS RC
+ON
+  RC.COMMAND_ID = C.RESPONSE_REF
 WHERE
   C.CLUSTER_REF = ?
-  AND EC.ENDPOINT_TYPE_REF = ?
+  AND ETC.ENDPOINT_TYPE_REF = ?
 ORDER BY C.CODE
   `,
     [clusterId, endpointTypeId]
@@ -234,12 +243,17 @@ ORDER BY C.CODE
       id: row['COMMAND_ID'],
       name: row['NAME'],
       code: row['CODE'],
+      clusterId: row['CLUSTER_REF'],
       manufacturerCode: row['MANUFACTURER_CODE'],
-      isOptional: row['IS_OPTIONAL'],
-      mustUseTimedInvoke: row['MUST_USE_TIMED_INVOKE'],
+      isOptional: dbApi.fromDbBool(row['IS_OPTIONAL']),
+      mustUseTimedInvoke: dbApi.fromDbBool(row['MUST_USE_TIMED_INVOKE']),
       source: row['SOURCE'],
-      isIncoming: row['INCOMING'],
-      isOutgoing: row['OUTGOING'],
+      isIncoming: dbApi.fromDbBool(row['INCOMING']),
+      isOutgoing: dbApi.fromDbBool(row['OUTGOING']),
+      responseName: row['RESPONSE_NAME'],
+      responseManufacturerCode: row['RESPONSE_MANUFACTURER_CODE'],
+      responseCode: row['RESPONSE_CODE'],
+      responseRef: row['RESPONSE_REF'],
       hexCode: '0x' + bin.int8ToHex(row['CODE']),
     }
   })

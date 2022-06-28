@@ -69,6 +69,7 @@ exports.zclType = {
   array: 'array',
   zclCharFormatter: 'zclCharFormatter',
   string: 'string',
+  number: 'number',
 }
 
 exports.sessionKey = {
@@ -111,6 +112,7 @@ exports.generatorOptions = {
   routeErrToOut: 'routeErrToOut',
   postProcessConditionalFile: 'postProcessConditionalFile',
   enabled: 'enabled',
+  shareClusterStatesAcrossEndpoints: 'shareClusterStatesAcrossEndpoints',
 }
 
 exports.sessionOption = {

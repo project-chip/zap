@@ -48,8 +48,7 @@ limitations under the License.
               self="bottom middle"
               :offset="[10, 10]"
             >
-              The outgoing command is mandatory for the cluster and device type
-              configuration you have enabled
+              {{ validationErrorMessage }}
             </q-tooltip>
             <!-- <q-icon
               v-show="displayCommandWarning(props.row)"
@@ -252,6 +251,7 @@ export default {
   },
   data() {
     return {
+      validationErrorMessage: '',
       pagination: {
         rowsPerPage: 0,
       },

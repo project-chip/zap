@@ -217,7 +217,7 @@ describe('Miscelaneous REST API tests', () => {
       axiosInstance
         .get(`${restApi.uri.zclBitmap}all?sessionId=${sessionUuid}`)
         .then((response) => {
-          expect(response.data.length).toBe(121)
+          expect(response.data.length).toBe(129)
         }),
     testUtil.timeout.short()
   )

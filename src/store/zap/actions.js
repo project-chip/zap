@@ -181,7 +181,7 @@ export function updateSelectedComponent(context, payload) {
 export function updateSelectedServers(context, selectionContext) {
   return Vue.prototype
     .$serverPost(restApi.uri.cluster, {
-      endpointTypeIdList: selectionContext.endpointTypeIdList,
+      endpointTypeId: selectionContext.endpointTypeId,
       id: selectionContext.id,
       side: 'server',
       flag: selectionContext.added,
@@ -194,7 +194,7 @@ export function updateSelectedServers(context, selectionContext) {
 export function updateSelectedClients(context, selectionContext) {
   return Vue.prototype
     .$serverPost(restApi.uri.cluster, {
-      endpointTypeIdList: selectionContext.endpointTypeIdList,
+      endpointTypeId: selectionContext.endpointTypeId,
       id: selectionContext.id,
       side: 'client',
       flag: selectionContext.added,
@@ -580,6 +580,9 @@ export function loadInitialData(context, data) {
       )
     }
   })
+  Vue.prototype.$serverGet(restApi.uri.getAllPackages).then((response) => {
+    context.commit('setAllPackages', response.data.packages)
+  })
 }
 
 /**
@@ -724,21 +727,13 @@ export function loadZclClusterToUcComponentDependencyMap(context) {
     })
 }
 
-export function unifyClustersAndAttributesAcrossEndpoints(context, data) {
+export function shareClusterStatesAcrossEndpoints(context, data) {
   let { endpointTypeIdList } = data
   Vue.prototype
-    .$serverPost(restApi.uri.unifyClustersAcrossEndpoints, {
+    .$serverPost(restApi.uri.shareClusterStatesAcrossEndpoints, {
       endpointTypeIdList,
     })
     .then((response) => {
-      console.log(restApi.uri.unifyClustersAcrossEndpoints)
-    })
-
-  Vue.prototype
-    .$serverPost(restApi.uri.unifyAttributesAcrossEndpoints, {
-      endpointTypeIdList,
-    })
-    .then((response) => {
-      console.log(restApi.uri.unifyAttributesAcrossEndpoints)
+      console.log(`${restApi.uri.shareClusterStatesAcrossEndpoints} finished.`)
     })
 }

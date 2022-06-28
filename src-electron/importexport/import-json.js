@@ -18,7 +18,6 @@ const fs = require('fs')
 const util = require('../util/util.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const env = require('../util/env')
-const queryConfig = require('../db/query-config.js')
 const queryPackage = require('../db/query-package.js')
 const queryImpexp = require('../db/query-impexp.js')
 const querySession = require('../db/query-session.js')
@@ -325,7 +324,11 @@ async function jsonDataLoader(db, state, sessionId) {
     await Promise.all(
       newPkgs.map((pkg) => {
         let filePath = getPkgPath(pkg, state.filePath)
-        return zclLoader.loadIndividualFile(db, filePath, sessionId)
+        if (filePath.endsWith('.xml')) {
+          return zclLoader.loadIndividualFile(db, filePath, sessionId)
+        } else {
+          return {}
+        }
       })
     )
   )
@@ -430,13 +433,6 @@ function cleanJsonState(state) {
   if (!('featureLevel' in state)) {
     state.featureLevel = 0
   }
-  /*
-  state.endpoints.forEach((ep) => {
-    if (!('endpointVersion' in ep) || ep.endpointVersion == null) {
-      ep.endpointVersion = 1
-    }
-  })
-  */
 }
 
 /**

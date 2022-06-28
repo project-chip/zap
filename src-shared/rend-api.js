@@ -100,6 +100,7 @@ exports.renderer_api_info = [
   { id: 'setItem', description: 'Set item...' },
   { id: 'setStorageItem' },
   { id: 'setDarkTheme', description: 'Set dark theme...', arg: 'darkTheme' },
+  { id: 'isDirty', description: 'Query for session dirty flag' },
 ]
 
 exports.id = {
@@ -119,6 +120,7 @@ exports.id = {
   setItem: 'setItem',
   setStorageItem: 'setStorageItem',
   setDarkTheme: 'setDarkTheme',
+  isDirty: 'isDirty',
 }
 
 exports.notifyKey = {

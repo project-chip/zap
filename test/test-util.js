@@ -80,7 +80,7 @@ exports.testTemplate = {
   zigbee: './test/gen-template/zigbee/gen-templates.json',
   zigbeeCount: 27,
   matter: './test/gen-template/matter/gen-test.json',
-  matterCount: 3,
+  matterCount: 5,
   dotdot: './test/gen-template/dotdot/dotdot-templates.json',
   dotdotCount: 5,
   unittest: './test/gen-template/test/gen-test.json',
@@ -107,7 +107,18 @@ exports.totalAttributeCount = 3438
 exports.totalClusterCommandCount = 609
 exports.totalServerAttributeCount = 2962
 exports.totalSpecCount = 24
-exports.totalEnumCount = 209
+exports.totalEnumCount = 211
+exports.totalNonAtomicEnumCount = 209
+exports.totalDiscriminatorCount = 6
 exports.totalEnumItemCount = 1595
-exports.totalDotDotEnums = 104
+exports.totalDotDotEnums = 106
 exports.totalDotDotEnumItems = 637
+
+exports.totalMatterClusters = 58
+exports.totalMatterDeviceTypes = 40
+exports.totalMatterCommandArgs = 424
+exports.totalMatterCommands = 203
+exports.totalMatterAttributes = 509
+exports.totalMatterTags = 15
+exports.totalMatterEvents = 56
+exports.totalMatterEventFields = 83

@@ -33,7 +33,7 @@ const env = require('./env')
  * @param {*} type
  */
 async function typeSize(db, zclPackageId, type) {
-  return queryZcl.selectAtomicSizeFromType(db, zclPackageId, type)
+  return queryZcl.selectSizeFromType(db, zclPackageId, type)
 }
 
 /**
@@ -49,7 +49,7 @@ async function typeSize(db, zclPackageId, type) {
 async function typeSizeAttribute(db, zclPackageId, at, defaultValue = null) {
   let sizeType
   if (at.typeInfo) {
-    if (!at.typeInfo.atomicType) {
+    if (!at.typeInfo.atomicType && !at.typeInfo.size) {
       if (at.storage != dbEnum.storageOption.external) {
         throw new Error(
           `ERROR: Unknown size for non-external attribute: ${at.name} / ${at.code}`
@@ -57,11 +57,9 @@ async function typeSizeAttribute(db, zclPackageId, at, defaultValue = null) {
       }
       return 0
     }
-    sizeType = at.typeInfo.atomicType
-  } else {
-    sizeType = at.type
   }
-  let size = await queryZcl.selectAtomicSizeFromType(db, zclPackageId, sizeType)
+  sizeType = at.type
+  let size = await queryZcl.selectSizeFromType(db, zclPackageId, sizeType)
 
   if (size) {
     return size

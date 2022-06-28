@@ -246,7 +246,9 @@ async function exportPackagesFromSession(db, sessionId) {
   let mapFunction = (x) => {
     return {
       path: x.PATH,
+      category: x.CATEGORY,
       version: x.VERSION,
+      description: x.DESCRIPTION,
       type: x.TYPE,
       required: x.REQUIRED,
     }
@@ -257,7 +259,9 @@ async function exportPackagesFromSession(db, sessionId) {
       `
 SELECT
   PACKAGE.PATH,
+  PACKAGE.CATEGORY,
   PACKAGE.VERSION,
+  PACKAGE.DESCRIPTION,
   PACKAGE.TYPE,
   SESSION_PACKAGE.REQUIRED
 FROM PACKAGE
@@ -388,6 +392,7 @@ async function exportAttributesFromEndpointTypeCluster(
       code: x.CODE,
       mfgCode: x.MANUFACTURER_CODE,
       side: x.SIDE,
+      type: x.TYPE,
       included: x.INCLUDED,
       storageOption: x.STORAGE_OPTION,
       singleton: x.SINGLETON,
@@ -408,6 +413,7 @@ SELECT
   ATTRIBUTE.CODE,
   ATTRIBUTE.MANUFACTURER_CODE,
   ATTRIBUTE.SIDE,
+  ATTRIBUTE.TYPE,
   ENDPOINT_TYPE_ATTRIBUTE.INCLUDED,
   ENDPOINT_TYPE_ATTRIBUTE.STORAGE_OPTION,
   ENDPOINT_TYPE_ATTRIBUTE.SINGLETON,

@@ -26,6 +26,10 @@ const queryAtomic = require('./query-atomic')
 const queryEnum = require('./query-enum')
 const queryStruct = require('./query-struct')
 const queryBitmap = require('./query-bitmap')
+const queryDataType = require('./query-data-type')
+const queryNumber = require('./query-number')
+const queryString = require('./query-string')
+const queryDiscriminator = require('./query-data-type-discriminator')
 
 /**
  * Retrieves all the bitmaps that are associated with a cluster.
@@ -41,18 +45,22 @@ async function selectClusterBitmaps(db, packageId, clusterId) {
       `
 SELECT
   B.BITMAP_ID,
-  B.NAME,
-  B.TYPE
+  DT.NAME,
+  B.SIZE
 FROM
   BITMAP AS B
 INNER JOIN
-  BITMAP_CLUSTER AS BC
+  DATA_TYPE AS DT
 ON
-  B.BITMAP_ID = BC.BITMAP_REF
+  B.BITMAP_ID = DT.DATA_TYPE_ID
+INNER JOIN
+  DATA_TYPE_CLUSTER AS DTC
+ON
+  DTC.DATA_TYPE_REF = DT.DATA_TYPE_ID
 WHERE
-  B.PACKAGE_REF = ?
-  AND BC.CLUSTER_REF = ?
-ORDER BY B.NAME`,
+  DT.PACKAGE_REF = ?
+  AND DTC.CLUSTER_REF = ?
+ORDER BY DT.NAME`,
       [packageId, clusterId]
     )
     .then((rows) => rows.map(dbMapping.map.bitmap))
@@ -62,7 +70,7 @@ async function selectAllBitmapFieldsById(db, id) {
   return dbApi
     .dbAll(
       db,
-      'SELECT NAME, MASK, TYPE FROM BITMAP_FIELD WHERE BITMAP_REF = ? ORDER BY FIELD_IDENTIFIER',
+      'SELECT NAME, MASK FROM BITMAP_FIELD WHERE BITMAP_REF = ? ORDER BY FIELD_IDENTIFIER',
       [id]
     )
     .then((rows) => rows.map(dbMapping.map.bitmapField))
@@ -72,7 +80,7 @@ async function selectAllBitmapFields(db, packageId) {
   return dbApi
     .dbAll(
       db,
-      'SELECT NAME, MASK, TYPE, BITMAP_REF FROM BITMAP_FIELD  WHERE PACKAGE_REF = ? ORDER BY BITMAP_REF, FIELD_IDENTIFIER',
+      'SELECT NAME, MASK, BITMAP_REF FROM BITMAP_FIELD  WHERE PACKAGE_REF = ? ORDER BY BITMAP_REF, FIELD_IDENTIFIER',
       [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.bitmapField))
@@ -116,18 +124,23 @@ async function selectAllStructsWithItemCount(db, packageId) {
       `
 SELECT
   STRUCT.STRUCT_ID,
-  STRUCT.NAME,
+  DATA_TYPE.NAME,
+  DATA_TYPE.DISCRIMINATOR_REF,
   COUNT(ITEM.NAME) AS ITEM_COUNT
 FROM
   STRUCT
+INNER JOIN
+  DATA_TYPE
+ON
+  STRUCT.STRUCT_ID = DATA_TYPE.DATA_TYPE_ID
 LEFT JOIN
   STRUCT_ITEM AS ITEM
 ON
   STRUCT.STRUCT_ID = ITEM.STRUCT_REF
 WHERE
-  STRUCT.PACKAGE_REF = ?
-GROUP BY STRUCT.NAME
-ORDER BY STRUCT.NAME`,
+  DATA_TYPE.PACKAGE_REF = ?
+GROUP BY DATA_TYPE.NAME
+ORDER BY DATA_TYPE.NAME`,
       [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.struct))
@@ -157,11 +170,15 @@ SELECT
 FROM
   CLUSTER AS C
 INNER JOIN
-  STRUCT_CLUSTER AS SC
+  DATA_TYPE_CLUSTER AS DTC
 ON
-  C.CLUSTER_ID = SC.CLUSTER_REF
+  DTC.CLUSTER_REF = C.CLUSTER_ID
+INNER JOIN
+  STRUCT AS S
+ON
+  S.STRUCT_ID = DTC.DATA_TYPE_REF
 WHERE
-  SC.STRUCT_REF = ?
+  S.STRUCT_ID = ?
 ORDER BY C.CODE
     `,
       [structId]
@@ -193,11 +210,16 @@ SELECT
 FROM
   CLUSTER AS C
 INNER JOIN
-  ENUM_CLUSTER AS EC
+  DATA_TYPE_CLUSTER AS DTC
 ON
-  C.CLUSTER_ID = EC.CLUSTER_REF
+  DTC.CLUSTER_REF = C.CLUSTER_ID
+INNER JOIN
+  ENUM AS E
+ON
+  E.ENUM_ID = DTC.DATA_TYPE_REF
 WHERE
-  EC.ENUM_REF = ?
+  E.ENUM_ID = ?
+ORDER BY C.CODE
     `,
       [enumId]
     )
@@ -228,12 +250,16 @@ SELECT
 FROM
   CLUSTER AS C
 INNER JOIN
-  BITMAP_CLUSTER AS BC
+  DATA_TYPE_CLUSTER AS DTC
 ON
-  C.CLUSTER_ID = BC.CLUSTER_REF
+  DTC.CLUSTER_REF = C.CLUSTER_ID
+INNER JOIN
+  BITMAP AS B
+ON
+  B.BITMAP_ID = DTC.DATA_TYPE_REF
 WHERE
-  BC.BITMAP_REF = ?
-    `,
+  B.BITMAP_ID = ?
+ORDER BY C.CODE    `,
       [bitmapId]
     )
     .then((rows) => rows.map(dbMapping.map.cluster))
@@ -268,37 +294,11 @@ async function selectStructsWithItemsImpl(db, packageIds, clusterId) {
     query = `
     SELECT
       S.STRUCT_ID AS STRUCT_ID,
-      S.NAME AS STRUCT_NAME,
-      (SELECT COUNT(1) FROM STRUCT_CLUSTER WHERE STRUCT_CLUSTER.STRUCT_REF = S.STRUCT_ID) AS STRUCT_CLUSTER_COUNT,
+      DT.NAME AS STRUCT_NAME,
+      (SELECT COUNT(1) FROM DATA_TYPE_CLUSTER WHERE DATA_TYPE_CLUSTER.DATA_TYPE_REF = S.STRUCT_ID) AS STRUCT_CLUSTER_COUNT,
       SI.NAME AS ITEM_NAME,
       SI.FIELD_IDENTIFIER AS ITEM_IDENTIFIER,
-      SI.TYPE AS ITEM_TYPE,
-      SI.IS_ARRAY AS ITEM_IS_ARRAY,
-      SI.IS_ENUM AS ITEM_IS_ENUM,
-      SI.MIN_LENGTH AS ITEM_MIN_LENGTH,
-      SI.MAX_LENGTH AS ITEM_MAX_LENGTH,
-      SI.IS_WRITABLE AS ITEM_IS_WRITABLE,
-      SI.IS_NULLABLE AS ITEM_IS_NULLABLE,
-      SI.IS_OPTIONAL AS ITEM_IS_OPTIONAL,
-      SI.IS_FABRIC_SENSITIVE AS ITEM_IS_FABRIC_SENSITIVE
-    FROM
-      STRUCT AS S
-    LEFT JOIN
-      STRUCT_ITEM AS SI
-    ON
-      S.STRUCT_ID = SI.STRUCT_REF
-    WHERE
-      S.PACKAGE_REF IN (${packageIds})
-    ORDER BY S.NAME, SI.FIELD_IDENTIFIER`
-  } else {
-    query = `
-    SELECT
-      S.STRUCT_ID AS STRUCT_ID,
-      S.NAME AS STRUCT_NAME,
-      (SELECT COUNT(1) FROM STRUCT_CLUSTER WHERE STRUCT_CLUSTER.STRUCT_REF = S.STRUCT_ID) AS STRUCT_CLUSTER_COUNT,
-      SI.NAME AS ITEM_NAME,
-      SI.FIELD_IDENTIFIER AS ITEM_IDENTIFIER,
-      SI.TYPE AS ITEM_TYPE,
+      (SELECT DATA_TYPE.NAME FROM DATA_TYPE WHERE DATA_TYPE.DATA_TYPE_ID = SI.DATA_TYPE_REF) AS ITEM_TYPE,
       SI.IS_ARRAY AS ITEM_IS_ARRAY,
       SI.IS_ENUM AS ITEM_IS_ENUM,
       SI.MIN_LENGTH AS ITEM_MIN_LENGTH,
@@ -310,18 +310,52 @@ async function selectStructsWithItemsImpl(db, packageIds, clusterId) {
     FROM
       STRUCT AS S
     INNER JOIN
-      STRUCT_CLUSTER AS SC
+      DATA_TYPE AS DT
     ON
-      S.STRUCT_ID = SC.STRUCT_REF
+      S.STRUCT_ID = DT.DATA_TYPE_ID
     LEFT JOIN
       STRUCT_ITEM AS SI
     ON
       S.STRUCT_ID = SI.STRUCT_REF
     WHERE
-      S.PACKAGE_REF IN (${packageIds})
+      DT.PACKAGE_REF IN (${packageIds})
+    ORDER BY DT.NAME, SI.FIELD_IDENTIFIER`
+  } else {
+    query = `
+    SELECT
+      S.STRUCT_ID AS STRUCT_ID,
+      DT.NAME AS STRUCT_NAME,
+      (SELECT COUNT(1) FROM DATA_TYPE_CLUSTER WHERE DATA_TYPE_CLUSTER.DATA_TYPE_REF = S.STRUCT_ID) AS STRUCT_CLUSTER_COUNT,
+      SI.NAME AS ITEM_NAME,
+      SI.FIELD_IDENTIFIER AS ITEM_IDENTIFIER,
+      (SELECT DATA_TYPE.NAME FROM DATA_TYPE WHERE DATA_TYPE.DATA_TYPE_ID = SI.DATA_TYPE_REF) AS ITEM_TYPE,
+      SI.IS_ARRAY AS ITEM_IS_ARRAY,
+      SI.IS_ENUM AS ITEM_IS_ENUM,
+      SI.MIN_LENGTH AS ITEM_MIN_LENGTH,
+      SI.MAX_LENGTH AS ITEM_MAX_LENGTH,
+      SI.IS_WRITABLE AS ITEM_IS_WRITABLE,
+      SI.IS_NULLABLE AS ITEM_IS_NULLABLE,
+      SI.IS_OPTIONAL AS ITEM_IS_OPTIONAL,
+      SI.IS_FABRIC_SENSITIVE AS ITEM_IS_FABRIC_SENSITIVE
+    FROM
+      STRUCT AS S
+    INNER JOIN
+      DATA_TYPE AS DT
+    ON
+      S.STRUCT_ID = DT.DATA_TYPE_ID
+    INNER JOIN
+      DATA_TYPE_CLUSTER AS DTC
+    ON
+      DT.DATA_TYPE_ID = DTC.DATA_TYPE_REF
+    LEFT JOIN
+      STRUCT_ITEM AS SI
+    ON
+      S.STRUCT_ID = SI.STRUCT_REF
+    WHERE
+      DT.PACKAGE_REF IN (${packageIds})
     AND
-      SC.CLUSTER_REF = ?
-    ORDER BY S.NAME, SI.FIELD_IDENTIFIER`
+      DTC.CLUSTER_REF = ?
+    ORDER BY DT.NAME, SI.FIELD_IDENTIFIER`
     args = [clusterId]
   }
 
@@ -367,20 +401,30 @@ async function selectAllStructItemsById(db, id) {
       db,
       `
 SELECT
-  FIELD_IDENTIFIER,
-  NAME,
-  TYPE,
-  STRUCT_REF,
-  IS_ARRAY,
-  IS_ENUM,
-  MIN_LENGTH,
-  MAX_LENGTH,
-  IS_WRITABLE,
-  IS_NULLABLE,
-  IS_OPTIONAL,
-  IS_FABRIC_SENSITIVE
+  STRUCT_ITEM.FIELD_IDENTIFIER,
+  STRUCT_ITEM.NAME,
+  (SELECT DATA_TYPE.NAME FROM DATA_TYPE WHERE DATA_TYPE.DATA_TYPE_ID = STRUCT_ITEM.DATA_TYPE_REF) AS TYPE,
+  DATA_TYPE.NAME AS DATA_TYPE_REF_NAME,
+  DISCRIMINATOR.NAME AS DISCRIMINATOR_NAME,
+  STRUCT_ITEM.STRUCT_REF,
+  STRUCT_ITEM.IS_ARRAY,
+  STRUCT_ITEM.IS_ENUM,
+  STRUCT_ITEM.MIN_LENGTH,
+  STRUCT_ITEM.MAX_LENGTH,
+  STRUCT_ITEM.IS_WRITABLE,
+  STRUCT_ITEM.IS_NULLABLE,
+  STRUCT_ITEM.IS_OPTIONAL,
+  STRUCT_ITEM.IS_FABRIC_SENSITIVE
 FROM
   STRUCT_ITEM
+INNER JOIN
+  DATA_TYPE
+ON
+  STRUCT_ITEM.DATA_TYPE_REF = DATA_TYPE.DATA_TYPE_ID
+INNER JOIN
+  DISCRIMINATOR
+ON
+  DATA_TYPE.DISCRIMINATOR_REF = DISCRIMINATOR.DISCRIMINATOR_ID
 WHERE STRUCT_REF = ?
 ORDER BY
   FIELD_IDENTIFIER`,
@@ -404,7 +448,9 @@ async function selectAllStructItemsByStructName(db, name, packageIds) {
 SELECT
   SI.FIELD_IDENTIFIER,
   SI.NAME,
-  SI.TYPE,
+  (SELECT DATA_TYPE.NAME FROM DATA_TYPE WHERE DATA_TYPE.DATA_TYPE_ID = SI.DATA_TYPE_REF) AS TYPE,
+  DT.NAME AS DATA_TYPE_REF_NAME,
+  DISCRIMINATOR.NAME AS DISCRIMINATOR_NAME,
   SI.STRUCT_REF,
   SI.IS_ARRAY,
   SI.IS_ENUM,
@@ -420,8 +466,16 @@ INNER JOIN
   STRUCT
 ON
   STRUCT.STRUCT_ID = SI.STRUCT_REF
-WHERE STRUCT.NAME = ?
-  AND STRUCT.PACKAGE_REF IN (${packageIds})
+INNER JOIN
+  DATA_TYPE AS DT
+ON
+  DT.DATA_TYPE_ID = STRUCT.STRUCT_ID
+INNER JOIN
+  DISCRIMINATOR
+ON
+  DT.DISCRIMINATOR_REF = DISCRIMINATOR.DISCRIMINATOR_ID
+WHERE DT.NAME = ?
+  AND DT.PACKAGE_REF IN (${packageIds})
 ORDER BY FIELD_IDENTIFIER`,
       [name]
     )
@@ -528,43 +582,6 @@ WHERE
       [clusterId]
     )
     .then(dbMapping.map.cluster)
-}
-
-/**
- * Retrieves all the device types in the database.
- *
- * @export
- * @param {*} db
- * @returns Promise that resolves with the rows of device types.
- */
-async function selectAllDeviceTypes(db, packageId) {
-  return dbApi
-    .dbAll(
-      db,
-      'SELECT DEVICE_TYPE_ID, DOMAIN, CODE, PROFILE_ID, NAME, DESCRIPTION FROM DEVICE_TYPE WHERE PACKAGE_REF = ? ORDER BY DOMAIN, CODE',
-      [packageId]
-    )
-    .then((rows) => rows.map(dbMapping.map.deviceType))
-}
-
-async function selectDeviceTypeById(db, id) {
-  return dbApi
-    .dbGet(
-      db,
-      'SELECT DEVICE_TYPE_ID, DOMAIN, CODE, PROFILE_ID, NAME, DESCRIPTION FROM DEVICE_TYPE WHERE DEVICE_TYPE_ID = ?',
-      [id]
-    )
-    .then(dbMapping.map.deviceType)
-}
-
-async function selectDeviceTypeByCodeAndName(db, packageId, code, name) {
-  return dbApi
-    .dbGet(
-      db,
-      'SELECT DEVICE_TYPE_ID, DOMAIN, CODE, PROFILE_ID, NAME, DESCRIPTION FROM DEVICE_TYPE WHERE CODE = ? AND NAME = ? AND PACKAGE_REF = ? ',
-      [code, name, packageId]
-    )
-    .then(dbMapping.map.deviceType)
 }
 
 /**
@@ -1029,231 +1046,6 @@ ORDER BY COMMAND_REF`,
   return rows.map(dbMapping.map.endpointTypeCommand)
 }
 
-async function selectDeviceTypeClustersByDeviceTypeRef(db, deviceTypeRef) {
-  let rows = await dbApi.dbAll(
-    db,
-    `
-SELECT
-  DEVICE_TYPE_CLUSTER_ID,
-  DEVICE_TYPE_REF,
-  CLUSTER_REF,
-  CLUSTER_NAME,
-  INCLUDE_CLIENT,
-  INCLUDE_SERVER,
-  LOCK_CLIENT,
-  LOCK_SERVER
-FROM
-  DEVICE_TYPE_CLUSTER
-WHERE
-  DEVICE_TYPE_REF = ?
-ORDER BY CLUSTER_REF`,
-    [deviceTypeRef]
-  )
-  return rows.map(dbMapping.map.deviceTypeCluster)
-}
-
-async function selectDeviceTypeClusterByDeviceTypeClusterId(
-  db,
-  deviceTypeClusterId
-) {
-  let row = await dbApi.dbGet(
-    db,
-    `
-SELECT
-  DEVICE_TYPE_CLUSTER_ID,
-  DEVICE_TYPE_REF,
-  CLUSTER_REF,
-  CLUSTER_NAME,
-  INCLUDE_CLIENT,
-  INCLUDE_SERVER,
-  LOCK_CLIENT,
-  LOCK_SERVER
-FROM
-  DEVICE_TYPE_CLUSTER
-WHERE
-  DEVICE_TYPE_CLUSTER_ID = ?`,
-    [deviceTypeClusterId]
-  )
-  return dbMapping.map.deviceTypeCluster(row)
-}
-
-async function selectDeviceTypeAttributesByDeviceTypeRef(db, deviceTypeRef) {
-  let rows = await dbApi.dbAll(
-    db,
-    `
-SELECT
-  DEVICE_TYPE_CLUSTER.CLUSTER_REF,
-  DEVICE_TYPE_ATTRIBUTE.DEVICE_TYPE_CLUSTER_REF,
-  DEVICE_TYPE_ATTRIBUTE.ATTRIBUTE_REF,
-  DEVICE_TYPE_ATTRIBUTE.ATTRIBUTE_NAME
-FROM
-  DEVICE_TYPE_ATTRIBUTE,
-  DEVICE_TYPE_CLUSTER
-WHERE
-  DEVICE_TYPE_CLUSTER.DEVICE_TYPE_REF = ?
-  AND DEVICE_TYPE_CLUSTER.DEVICE_TYPE_CLUSTER_ID = DEVICE_TYPE_ATTRIBUTE.DEVICE_TYPE_CLUSTER_REF`,
-    [deviceTypeRef]
-  )
-  return rows.map(dbMapping.map.deviceTypeAttribute)
-}
-
-async function selectDeviceTypeCommandsByDeviceTypeRef(db, deviceTypeRef) {
-  let rows = await dbApi.dbAll(
-    db,
-    `
-SELECT
-  DEVICE_TYPE_CLUSTER.CLUSTER_REF,
-  DEVICE_TYPE_COMMAND.DEVICE_TYPE_CLUSTER_REF,
-  DEVICE_TYPE_COMMAND.COMMAND_REF,
-  DEVICE_TYPE_COMMAND.COMMAND_NAME
-FROM
-  DEVICE_TYPE_COMMAND,
-  DEVICE_TYPE_CLUSTER
-WHERE
-  DEVICE_TYPE_CLUSTER.DEVICE_TYPE_REF = ?
-  AND DEVICE_TYPE_CLUSTER.DEVICE_TYPE_CLUSTER_ID = DEVICE_TYPE_COMMAND.DEVICE_TYPE_CLUSTER_REF`,
-    [deviceTypeRef]
-  )
-  return rows.map(dbMapping.map.deviceTypeCommand)
-}
-
-/**
- * After loading up device type cluster table with the names,
- * this method links the refererence to actual cluster reference.
- *
- * @param {*} db
- * @returns promise of completion
- */
-async function updateClusterReferencesForDeviceTypeClusters(db, packageId) {
-  return dbApi.dbUpdate(
-    db,
-    `
-UPDATE
-  DEVICE_TYPE_CLUSTER
-SET
-  CLUSTER_REF =
-  ( SELECT
-      CLUSTER.CLUSTER_ID
-    FROM
-      CLUSTER
-    WHERE
-      lower(CLUSTER.NAME) = lower(DEVICE_TYPE_CLUSTER.CLUSTER_NAME)
-    AND
-      CLUSTER.PACKAGE_REF = ?
-  )
-WHERE
-  ( SELECT PACKAGE_REF
-    FROM DEVICE_TYPE
-    WHERE DEVICE_TYPE_ID = DEVICE_TYPE_CLUSTER.DEVICE_TYPE_REF
-  ) = ?`,
-    [packageId, packageId]
-  )
-}
-
-/**
- * After loading up device type attribute table with the names,
- * this method links the refererence to actual attribute reference.
- *
- * @param {*} db
- * @returns promise of completion
- */
-async function updateAttributeReferencesForDeviceTypeReferences(db, packageId) {
-  return dbApi.dbUpdate(
-    db,
-    `
-UPDATE
-  DEVICE_TYPE_ATTRIBUTE
-SET
-  ATTRIBUTE_REF =
-  ( SELECT
-      ATTRIBUTE.ATTRIBUTE_ID
-    FROM
-      ATTRIBUTE
-    WHERE
-      upper(ATTRIBUTE.DEFINE) = upper(DEVICE_TYPE_ATTRIBUTE.ATTRIBUTE_NAME)
-    AND
-      ATTRIBUTE.CLUSTER_REF = (
-        SELECT
-          DEVICE_TYPE_CLUSTER.CLUSTER_REF
-        FROM
-          DEVICE_TYPE_CLUSTER
-        WHERE
-          DEVICE_TYPE_CLUSTER_ID = DEVICE_TYPE_ATTRIBUTE.DEVICE_TYPE_CLUSTER_REF
-      )
-    AND
-      ATTRIBUTE.PACKAGE_REF = ?
-  )
-WHERE
-  (
-    SELECT PACKAGE_REF
-    FROM ATTRIBUTE
-    WHERE ATTRIBUTE.ATTRIBUTE_ID = DEVICE_TYPE_ATTRIBUTE.ATTRIBUTE_REF
-  ) = ?
-  `,
-    [packageId, packageId]
-  )
-}
-
-/**
- * After loading up device type command table with the names,
- * this method links the refererence to actual command reference.
- *
- * @param {*} db
- * @returns promise of completion
- */
-async function updateCommandReferencesForDeviceTypeReferences(db, packageId) {
-  return dbApi.dbUpdate(
-    db,
-    `
-UPDATE
-  DEVICE_TYPE_COMMAND
-SET
-  COMMAND_REF =
-  ( SELECT
-      COMMAND.COMMAND_ID
-    FROM
-      COMMAND
-    WHERE
-      upper(COMMAND.NAME) = upper(DEVICE_TYPE_COMMAND.COMMAND_NAME)
-    AND
-      COMMAND.CLUSTER_REF =
-      ( SELECT
-          DEVICE_TYPE_CLUSTER.CLUSTER_REF
-        FROM
-          DEVICE_TYPE_CLUSTER
-        WHERE
-          DEVICE_TYPE_CLUSTER_ID = DEVICE_TYPE_COMMAND.DEVICE_TYPE_CLUSTER_REF
-      )
-    AND
-      COMMAND.PACKAGE_REF = ?
-  )
-WHERE
-  (
-    SELECT PACKAGE_REF
-    FROM COMMAND
-    WHERE COMMAND.COMMAND_ID = DEVICE_TYPE_COMMAND.COMMAND_REF
-  ) = ?`,
-    [packageId, packageId]
-  )
-}
-
-/**
- * This method returns the promise of linking the device type clusters
- * commands and attributes to the correct IDs in the cluster, attribute
- * and command tables.
- *
- * Initial load only populates the names, so once everything is loaded,
- * we have to link the foreign keys.
- *
- * @param {*} db
- * @returns promise of completed linking
- */
-async function updateDeviceTypeEntityReferences(db, packageId) {
-  await updateClusterReferencesForDeviceTypeClusters(db, packageId)
-  await updateAttributeReferencesForDeviceTypeReferences(db, packageId)
-  return updateCommandReferencesForDeviceTypeReferences(db, packageId)
-}
-
 // exports
 exports.selectClusterBitmaps = selectClusterBitmaps
 exports.selectAllBitmapFields = selectAllBitmapFields
@@ -1272,10 +1064,6 @@ exports.selectAllStructItemsByStructName = selectAllStructItemsByStructName
 exports.selectAllClusters = selectAllClusters
 exports.selectClusterById = selectClusterById
 exports.selectClusterByCode = selectClusterByCode
-
-exports.selectAllDeviceTypes = selectAllDeviceTypes
-exports.selectDeviceTypeById = selectDeviceTypeById
-exports.selectDeviceTypeByCodeAndName = selectDeviceTypeByCodeAndName
 
 exports.selectAttributesByClusterIdAndSideIncludingGlobal =
   selectAttributesByClusterIdAndSideIncludingGlobal
@@ -1297,23 +1085,12 @@ exports.selectEndpointTypeAttribute = selectEndpointTypeAttribute
 exports.selectEndpointTypeCommandsByEndpointId =
   selectEndpointTypeCommandsByEndpointId
 
-exports.selectDeviceTypeClustersByDeviceTypeRef =
-  selectDeviceTypeClustersByDeviceTypeRef
-exports.selectDeviceTypeClusterByDeviceTypeClusterId =
-  selectDeviceTypeClusterByDeviceTypeClusterId
-exports.selectDeviceTypeAttributesByDeviceTypeRef =
-  selectDeviceTypeAttributesByDeviceTypeRef
-exports.selectDeviceTypeCommandsByDeviceTypeRef =
-  selectDeviceTypeCommandsByDeviceTypeRef
-exports.updateDeviceTypeEntityReferences = updateDeviceTypeEntityReferences
-
 exports.selectEnumClusters = selectEnumClusters
 exports.selectStructClusters = selectStructClusters
 exports.selectBitmapClusters = selectBitmapClusters
 
 // Forwarded exports so we don't break API.
 exports.selectAllAtomics = queryAtomic.selectAllAtomics
-exports.selectAtomicSizeFromType = queryAtomic.selectAtomicSizeFromType
 exports.selectAtomicType = queryAtomic.selectAtomicType
 exports.selectAtomicById = queryAtomic.selectAtomicById
 
@@ -1330,3 +1107,17 @@ exports.selectStructByName = queryStruct.selectStructByName
 exports.selectBitmapById = queryBitmap.selectBitmapById
 exports.selectAllBitmaps = queryBitmap.selectAllBitmaps
 exports.selectBitmapByName = queryBitmap.selectBitmapByName
+
+exports.selectDataTypeById = queryDataType.selectDataTypeById
+exports.selectDataTypeByName = queryDataType.selectDataTypeByName
+
+exports.selectNumberByName = queryNumber.selectNumberByName
+
+exports.selectAllDiscriminators = queryDiscriminator.selectAllDiscriminators
+exports.selectAllDataTypes = queryDataType.selectAllDataTypes
+exports.selectAllNumbers = queryNumber.selectAllNumbers
+exports.selectAllStrings = queryString.selectAllStrings
+exports.selectSizeFromType = queryDataType.selectSizeFromType
+exports.selectStringById = queryString.selectStringById
+exports.selectStringByName = queryString.selectStringByName
+exports.selectNumberById = queryNumber.selectNumberById

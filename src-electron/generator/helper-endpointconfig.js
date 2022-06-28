@@ -528,6 +528,10 @@ async function collectAttributes(endpointTypes, options) {
   let reportList = [] // Array of { direction, endpoint, clusterId, attributeId, mask, mfgCode, minOrSource, maxOrEndpoint, reportableChangeOrTimeout }
   let longDefaultsList = [] // Array of { value, size. comment }
   let attributeIndex = 0
+  let spaceForDefaultValue =
+    options.spaceForDefaultValue !== undefined
+      ? options.spaceForDefaultValue
+      : 2
 
   endpointTypes.forEach((ept) => {
     let endpoint = {
@@ -571,8 +575,8 @@ async function collectAttributes(endpointTypes, options) {
 
       // Go over all the attributes in the endpoint and add them to the list.
       c.attributes.forEach((a) => {
-        // typeSize is the size of the attribute in the read/write attribute
-        // store.
+        // typeSize is the size of a buffer needed to hold the attribute, if
+        // that's known.
         let typeSize = a.typeSize
         // defaultSize is the size of the attribute in the readonly defaults
         // store.
@@ -595,14 +599,27 @@ async function collectAttributes(endpointTypes, options) {
           defaultSize =
             (attributeDefaultValue ? attributeDefaultValue.length : 0) + 2
         }
-        // External attributes should be treated as having a typeSize of 0 for
-        // most purposes (e.g. allocating space for them), but should still
-        // affect the "largest attribute size" value, because buffers used to
-        // read attributes, including external ones, may be sized based on that.
-        let contributionToLargestAttribute = typeSize
+        // storageSize is the size of the attribute in the read/write attribute
+        // store.
+        let storageSize = typeSize
+        // External attributes should not take up space in the default store or
+        // the read/write store.
         if (a.storage == dbEnum.storageOption.external) {
-          typeSize = 0
+          storageSize = 0
           defaultSize = 0
+          // Some external attributes do not have a usable typeSize
+          // (e.g. structs or lists of structs); the value of typeSize in those
+          // cases is an error string.  Use 0 in those cases.
+          if (typeof typeSize == 'string') {
+            typeSize = 0
+          }
+          // List-typed attributes don't have a useful typeSize no matter what.
+          // typeSizeAttribute will return values here based on various XML bits
+          // and ZAP file default values, but all of those have nothing to do
+          // with the actual attribute.
+          if (a.typeInfo.atomicType == 'array') {
+            typeSize = 0
+          }
           attributeDefaultValue = undefined
         }
 
@@ -610,14 +627,15 @@ async function collectAttributes(endpointTypes, options) {
         // Zero-length strings can just use ZAP_EMPTY_DEFAULT() as the default
         // and don't need long defaults.  Similar for external strings.
         //
-        // Apart from that, there are two string cases that _could_ fit into our
-        // 2-byte default value: a 1-char-long short string, or a null string.
-        // But figuring out how to produce a uint8_t* for those as a literal
-        // value is a pain, so just force all non-external strings with a
-        // nonempty default value to use long defaults.
-        // external strings and zero-length default values.
+        // Apart from that, there are a few string cases that _could_ fit into our
+        // default value as the size is determined by spaceForDefaultValue.  Some
+        // example strings that would fit if spaceForDefaultValue were 2 bytes are:
+        // a 1-char-long short string, or a null string.  But figuring out how
+        // to produce a uint8_t* for those as a literal value is a pain, so just
+        // force all non-external strings with a nonempty default value to use
+        // long defaults.
         if (
-          defaultSize > 2 ||
+          defaultSize > spaceForDefaultValue ||
           (types.isString(a.type) &&
             attributeDefaultValue !== undefined &&
             attributeDefaultValue !== '')
@@ -696,14 +714,14 @@ async function collectAttributes(endpointTypes, options) {
           }
           reportList.push(rpt)
         }
-        if (contributionToLargestAttribute > largestAttribute) {
-          largestAttribute = contributionToLargestAttribute
+        if (typeSize > largestAttribute) {
+          largestAttribute = typeSize
         }
         if (a.isSingleton) {
-          singletonsSize += typeSize
+          singletonsSize += storageSize
         }
-        clusterAttributeSize += typeSize
-        totalAttributeSize += typeSize
+        clusterAttributeSize += storageSize
+        totalAttributeSize += storageSize
         if (a.side == dbEnum.side.client) {
           mask.push('client')
         }
@@ -738,6 +756,13 @@ async function collectAttributes(endpointTypes, options) {
           zap_type = a.typeInfo.atomicType
         } else if (a.typeInfo.type == dbEnum.zclType.struct) {
           zap_type = 'STRUCT'
+        } else if (a.typeInfo.type == dbEnum.zclType.enum && a.typeInfo.size) {
+          zap_type = 'ENUM' + a.typeInfo.size * 8
+        } else if (
+          a.typeInfo.type == dbEnum.zclType.bitmap &&
+          a.typeInfo.size
+        ) {
+          zap_type = 'BITMAP' + a.typeInfo.size * 8
         }
         let attr = {
           id: asMEI(a.manufacturerCode, a.code), // attribute code
@@ -765,21 +790,38 @@ async function collectAttributes(endpointTypes, options) {
 
       c.commands.forEach((cmd) => {
         let mask = []
-        if (cmd.isOptional) {
-          if (cmd.isIncoming) {
-            if (c.side == dbEnum.side.server) mask.push('incoming_server')
-            else mask.push('incoming_client')
-          }
-          if (cmd.isOutgoing) {
-            if (c.side == dbEnum.side.server) mask.push('outgoing_server')
-            else mask.push('outgoing_client')
-          }
-        } else {
-          if (cmd.source == dbEnum.source.client) {
-            mask.push('incoming_server')
-          } else {
-            mask.push('incoming_client')
-          }
+        // ZAP files can have nonsense incoming/outgoing values,
+        // unfortunately, claiming that client-sourced commands are
+        // incoming for a client-side cluster.  Make sure that we only
+        // set the flags that actually make sense based on the command
+        // and cluster instance we are looking at.
+        if (
+          cmd.source == dbEnum.source.client &&
+          c.side == dbEnum.side.server &&
+          cmd.isIncoming
+        ) {
+          mask.push('incoming_server')
+        }
+        if (
+          cmd.source == dbEnum.source.client &&
+          c.side == dbEnum.side.client &&
+          cmd.isOutgoing
+        ) {
+          mask.push('outgoing_client')
+        }
+        if (
+          cmd.source == dbEnum.source.server &&
+          c.side == dbEnum.side.server &&
+          cmd.isOutgoing
+        ) {
+          mask.push('outgoing_server')
+        }
+        if (
+          cmd.source == dbEnum.source.server &&
+          c.side == dbEnum.side.client &&
+          cmd.isIncoming
+        ) {
+          mask.push('incoming_client')
         }
         let command = {
           endpointId: ept.endpointId,
@@ -788,6 +830,11 @@ async function collectAttributes(endpointTypes, options) {
           mask: mask,
           name: cmd.name,
           comment: cluster.comment,
+          responseName: cmd.responseName,
+          responseId:
+            cmd.responseRef !== null
+              ? asMEI(cmd.responseManufacturerCode, cmd.responseCode)
+              : null,
         }
         commandList.push(command)
         cluster.commands.push(command)
@@ -914,6 +961,7 @@ function endpoint_config(options) {
   let collectAttributesOptions = {
     allowUnknownStorageOption:
       options.hash.allowUnknownStorageOption === 'false' ? false : true,
+    spaceForDefaultValue: options.hash.spaceForDefaultValue,
   }
   let promise = templateUtil
     .ensureZclPackageId(newContext)
@@ -976,8 +1024,7 @@ function endpoint_config(options) {
                     // we exclude from metadata.
                     cl.attributes = attributes.filter(
                       (a) =>
-                        a.isIncluded === 1 &&
-                        !isGlobalAttrExcludedFromMetadata(a)
+                        a.isIncluded && !isGlobalAttrExcludedFromMetadata(a)
                     )
                   })
               )

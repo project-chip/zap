@@ -15,73 +15,68 @@ limitations under the License.
 -->
 
 <template>
-  <div class="q-mt-lg">
-    <div class="row">
-      <div class="col-md col-sm-12 q-mb-md">
-        <div class="vertical-align:middle q-mb-xs">Product Manufacturer</div>
-        <q-select
-          use-input
-          hide-selected
-          fill-input
-          input-debounce="0"
-          :options="mfgOptions"
-          :option-label="(item) => getMfgOptionLabel(item)"
-          @new-value="createValue"
-          @input="
-            handleOptionChange(DbEnum.sessionOption.manufacturerCodes, $event)
-          "
-          v-model="selectedManufacturerCode"
-          @filter="filterMfgCode"
-          outlined
-          dense
-          data-cy="manufacturer-name-or-code"
-        />
-      </div>
-      <div class="col-md q-mb-md col-sm-12 offset-md-1">
-        <div class="vertical-align:middle q-mb-xs">Default Response Policy</div>
-        <q-select
-          :options="defaultResponsePolicyOptions"
-          v-model="selectedDefaultResponsePolicy"
-          :option-label="(item) => (item === null ? 'NULL' : item.optionLabel)"
-          @input="
-            handleEnumeratedOptionChange(
-              DbEnum.sessionOption.defaultResponsePolicy,
-              $event
-            )
-          "
-          outlined
-          dense
-          data-cy="default-response-policy"
-        />
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md q-mb-md col-sm-12">
-        <q-toggle
-          :value="commandDiscoverySetting == 1 ? true : false"
-          label="Enable Command Discovery"
-          dense
-          left-label
-          @input="handleOptionChange('commandDiscovery', $event)"
-        >
-          <q-tooltip> Enable Command Discovery for your project </q-tooltip>
-        </q-toggle>
-      </div>
-      <div class="col-md q-mb-md offset-md-1 col-sm-12">
-        <q-btn
-          align="center"
-          text-color="primary"
-          flat
-          :ripple="false"
-          :unelevated="false"
-          :outline="false"
-          to="/customZcl"
-        >
-          <div class="text-align">ZCL Extensions...</div>
-        </q-btn>
-      </div>
-      <q-space />
-    </div>
+  <div style="width: 800px; max-width: 800px">
+    <q-card bordered>
+      <q-card-section>
+        <div class="text-h6">Global Options</div>
+      </q-card-section>
+      <q-separator inset />
+      <q-card-section>
+        <div>
+          <div class="q-mb-xs">Product Manufacturer</div>
+          <q-select
+            use-input
+            hide-selected
+            fill-input
+            input-debounce="0"
+            :options="mfgOptions"
+            :option-label="(item) => getMfgOptionLabel(item)"
+            @new-value="createValue"
+            @input="
+              handleOptionChange(DbEnum.sessionOption.manufacturerCodes, $event)
+            "
+            v-model="selectedManufacturerCode"
+            @filter="filterMfgCode"
+            outlined
+            dense
+            data-cy="manufacturer-name-or-code"
+            class="q-mb-sm"
+          />
+
+          <div class="q-mb-xs">Default Response Policy</div>
+          <q-select
+            :options="defaultResponsePolicyOptions"
+            v-model="selectedDefaultResponsePolicy"
+            :option-label="
+              (item) => (item === null ? 'NULL' : item.optionLabel)
+            "
+            @input="
+              handleEnumeratedOptionChange(
+                DbEnum.sessionOption.defaultResponsePolicy,
+                $event
+              )
+            "
+            outlined
+            dense
+            data-cy="default-response-policy"
+            class="q-mb-sm"
+          />
+        </div>
+        <div class="row">
+          <div class="col-md q-mb-md col-sm-12">
+            <q-toggle
+              :value="commandDiscoverySetting == 1 ? true : false"
+              label="Enable Command Discovery"
+              dense
+              left-label
+              @input="handleOptionChange('commandDiscovery', $event)"
+            >
+              <q-tooltip> Enable Command Discovery for your project </q-tooltip>
+            </q-toggle>
+          </div>
+        </div>
+      </q-card-section>
+    </q-card>
   </div>
 </template>
 
@@ -149,13 +144,6 @@ export default {
     commandDiscoverySetting: {
       get() {
         return this.$store.state.zap.selectedGenericOptions['commandDiscovery']
-      },
-    },
-    shareConfigsAcrossEndpointsSetting: {
-      get() {
-        return this.$store.state.zap.selectedGenericOptions[
-          'shareConfigsAcrossEndpoints'
-        ]
       },
     },
   },

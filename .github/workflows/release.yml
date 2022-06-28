@@ -2,6 +2,10 @@ name: Build and release packages
 
 on: push
 
+env:
+  ZAP_TEST_TIMEOUT: 3600000
+  ZAP_TEMPSTATE: 1
+
 jobs:
   release:
     runs-on: ${{ matrix.os }}
@@ -9,7 +13,7 @@ jobs:
     # Platforms to build on/for
     strategy:
       matrix:
-        os: [macos-11, ubuntu-20.04]
+        os: [macos-11, ubuntu-latest, ubuntu-18.04]
       fail-fast: false
 
     steps:
@@ -42,9 +46,8 @@ jobs:
       - run: npm rebuild libxmljs --update-binary
       - run: npm run build-spa
       - run: npm run lint
-      - run: xvfb-run -a npm run test:unit
         if: startsWith(matrix.os, 'ubuntu')
-      - run: xvfb-run -a npm run self-check
+      - run: npm run self-check
         if: startsWith(matrix.os, 'ubuntu')
       - run: npm run gen
       - run: npm run genmatter

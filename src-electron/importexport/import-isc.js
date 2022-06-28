@@ -16,16 +16,17 @@
  */
 
 const path = require('path')
-const queryConfig = require('../db/query-config.js')
-const queryEndpoint = require('../db/query-endpoint.js')
-const queryZcl = require('../db/query-zcl.js')
-const queryAttribute = require('../db/query-attribute.js')
-const queryCommand = require('../db/query-command.js')
-const queryPackage = require('../db/query-package.js')
-const querySession = require('../db/query-session.js')
-const util = require('../util/util.js')
-const dbEnum = require('../../src-shared/db-enum.js')
-const restApi = require('../../src-shared/rest-api.js')
+const queryConfig = require('../db/query-config')
+const queryEndpoint = require('../db/query-endpoint')
+const queryZcl = require('../db/query-zcl')
+const queryDeviceType = require('../db/query-device-type')
+const queryAttribute = require('../db/query-attribute')
+const queryCommand = require('../db/query-command')
+const queryPackage = require('../db/query-package')
+const querySession = require('../db/query-session')
+const util = require('../util/util')
+const dbEnum = require('../../src-shared/db-enum')
+const restApi = require('../../src-shared/rest-api')
 const env = require('../util/env')
 
 /**
@@ -342,14 +343,14 @@ async function loadEndpointType(db, sessionId, packageId, endpointType) {
 
   let dev
   if (isCustomDevice(deviceName, deviceCode)) {
-    dev = await queryZcl.selectDeviceTypeByCodeAndName(
+    dev = await queryDeviceType.selectDeviceTypeByCodeAndName(
       db,
       packageId,
       dbEnum.customDevice.code,
       dbEnum.customDevice.name
     )
   } else {
-    dev = await queryZcl.selectDeviceTypeByCodeAndName(
+    dev = await queryDeviceType.selectDeviceTypeByCodeAndName(
       db,
       packageId,
       deviceCode,

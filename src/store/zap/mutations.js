@@ -17,12 +17,20 @@ import Vue from 'vue'
 
 const reportingMinDefault = 1
 
+export const togglePreviewTab = (state) => {
+  state.showPreviewTab = !state.showPreviewTab
+}
+
 export const updateShowDevTools = (state) => {
   state.showDevTools = !state.showDevTools
 }
 
 export function updateInformationText(state, text) {
   state.informationText = text
+}
+
+export function setAllPackages(state, packages) {
+  state.allPackages = packages
 }
 
 export function updateClusters(state, clusters) {

@@ -24,6 +24,17 @@ const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 
+const querySelectFromPackage = `
+SELECT 
+  PACKAGE_ID,
+  PATH,
+  TYPE,
+  CRC,
+  VERSION,
+  CATEGORY,
+  DESCRIPTION
+FROM PACKAGE `
+
 /**
  * Checks if the package with a given path exists and executes appropriate action.
  * Returns the promise that resolves the the package or null if nothing was found.
@@ -36,8 +47,9 @@ async function getPackageByPathAndParent(db, path, parentId, isCustom) {
   return dbApi
     .dbGet(
       db,
-      'SELECT PACKAGE_ID, PATH, TYPE, CRC, VERSION FROM PACKAGE WHERE PATH = ? AND ' +
-        (isCustom ? 'PARENT_PACKAGE_REF IS NULL' : '(PARENT_PACKAGE_REF = ?)'),
+      `${querySelectFromPackage} WHERE PATH = ? AND ${
+        isCustom ? 'PARENT_PACKAGE_REF IS NULL' : '(PARENT_PACKAGE_REF = ?)'
+      }`,
       isCustom ? [path] : [path, parentId]
     )
     .then(dbMapping.map.package)
@@ -52,11 +64,9 @@ async function getPackageByPathAndParent(db, path, parentId, isCustom) {
  */
 async function getPackageByParent(db, parentId) {
   return dbApi
-    .dbAll(
-      db,
-      'SELECT PACKAGE_ID, PATH, TYPE, CRC, VERSION FROM PACKAGE WHERE PARENT_PACKAGE_REF = ?',
-      [parentId]
-    )
+    .dbAll(db, `${querySelectFromPackage} WHERE PARENT_PACKAGE_REF = ?`, [
+      parentId,
+    ])
     .then((rows) => rows.map(dbMapping.map.package))
 }
 
@@ -70,11 +80,10 @@ async function getPackageByParent(db, parentId) {
  */
 async function getPackageByPathAndType(db, path, type) {
   return dbApi
-    .dbGet(
-      db,
-      'SELECT PACKAGE_ID, PATH, TYPE, CRC, VERSION FROM PACKAGE WHERE PATH = ? AND TYPE = ?',
-      [path, type]
-    )
+    .dbGet(db, `${querySelectFromPackage} WHERE PATH = ? AND TYPE = ?`, [
+      path,
+      type,
+    ])
     .then(dbMapping.map.package)
 }
 
@@ -109,11 +118,7 @@ async function getPackageIdByPathAndTypeAndVersion(db, path, type, version) {
  */
 async function getPackagesByType(db, type) {
   return dbApi
-    .dbAll(
-      db,
-      'SELECT PACKAGE_ID, PATH, TYPE, CRC, VERSION FROM PACKAGE WHERE TYPE = ?',
-      [type]
-    )
+    .dbAll(db, `${querySelectFromPackage} WHERE TYPE = ?`, [type])
     .then((rows) => rows.map(dbMapping.map.package))
 }
 
@@ -128,7 +133,7 @@ async function getPackagesByParentAndType(db, parentId, type) {
   return dbApi
     .dbAll(
       db,
-      'SELECT PACKAGE_ID, PATH, TYPE, CRC, VERSION FROM PACKAGE WHERE TYPE = ? AND PARENT_PACKAGE_REF = ?',
+      `${querySelectFromPackage} WHERE TYPE = ? AND PARENT_PACKAGE_REF = ?`,
       [type, parentId]
     )
     .then((rows) => rows.map(dbMapping.map.package))
@@ -144,11 +149,7 @@ async function getPackagesByParentAndType(db, parentId, type) {
  */
 async function getPackageByPackageId(db, packageId) {
   return dbApi
-    .dbGet(
-      db,
-      'SELECT PACKAGE_ID, PARENT_PACKAGE_REF, PATH, TYPE, CRC, VERSION FROM PACKAGE WHERE PACKAGE_ID = ?',
-      [packageId]
-    )
+    .dbGet(db, `${querySelectFromPackage} WHERE PACKAGE_ID = ?`, [packageId])
     .then(dbMapping.map.package)
 }
 
@@ -181,11 +182,11 @@ async function getPathCrc(db, path) {
  * @param {*} version
  * @returns A promise of an updated version.
  */
-async function updateVersion(db, packageId, version) {
+async function updateVersion(db, packageId, version, category, description) {
   return dbApi.dbUpdate(
     db,
-    'UPDATE PACKAGE SET VERSION = ? WHERE PACKAGE_ID = ?',
-    [version, packageId]
+    'UPDATE PACKAGE SET VERSION = ?, CATEGORY = ?, DESCRIPTION = ? WHERE PACKAGE_ID = ?',
+    [version, category, description, packageId]
   )
 }
 
@@ -203,12 +204,14 @@ async function insertPathCrc(
   crc,
   type,
   parentId = null,
-  version = null
+  version = null,
+  category = null,
+  description = null
 ) {
   return dbApi.dbInsert(
     db,
-    'INSERT INTO PACKAGE ( PATH, CRC, TYPE, PARENT_PACKAGE_REF, VERSION ) VALUES (?, ?, ?, ?, ?)',
-    [path, crc, type, parentId, version]
+    'INSERT INTO PACKAGE ( PATH, CRC, TYPE, PARENT_PACKAGE_REF, VERSION, CATEGORY, DESCRIPTION ) VALUES (?, ?, ?, ?, ?, ?, ?)',
+    [path, crc, type, parentId, version, category, description]
   )
 }
 /**
@@ -221,13 +224,24 @@ async function insertPathCrc(
  * @param {*} [parentId=null]
  * @returns Promise of an insert or update.
  */
-async function registerTopLevelPackage(db, path, crc, type, version = null) {
+async function registerTopLevelPackage(
+  db,
+  path,
+  crc,
+  type,
+  version = null,
+  category = null,
+  description = null
+) {
   return getPackageByPathAndType(db, path, type).then((row) => {
     if (row == null) {
       return dbApi.dbInsert(
         db,
-        'INSERT INTO PACKAGE ( PATH, CRC, TYPE, PARENT_PACKAGE_REF, VERSION ) VALUES (?,?,?,?,?)',
-        [path, crc, type, null, version]
+        `
+INSERT INTO PACKAGE ( 
+  PATH, CRC, TYPE, PARENT_PACKAGE_REF, VERSION, CATEGORY, DESCRIPTION 
+) VALUES (?,?,?,?,?,?,?)`,
+        [path, crc, type, null, version, category, description]
       )
     } else {
       return Promise.resolve(row.id)
@@ -304,7 +318,9 @@ SELECT
   PACKAGE.PATH,
   PACKAGE.TYPE,
   PACKAGE.CRC,
-  PACKAGE.VERSION
+  PACKAGE.VERSION,
+  PACKAGE.CATEGORY, 
+  PACKAGE.DESCRIPTION
 FROM PACKAGE
 INNER JOIN SESSION_PACKAGE
   ON PACKAGE.PACKAGE_ID = SESSION_PACKAGE.PACKAGE_REF
@@ -333,7 +349,9 @@ async function getSessionGenTemplates(db, sessionId) {
       PACKAGE.PATH,
       PACKAGE.TYPE,
       PACKAGE.CRC,
-      PACKAGE.VERSION
+      PACKAGE.VERSION,
+      PACKAGE.CATEGORY,
+      PACKAGE.DESCRIPTION
     FROM PACKAGE
     WHERE 
     PACKAGE.TYPE = ? AND
@@ -428,6 +446,8 @@ async function getPackageSessionPackagePairBySessionId(db, sessionId) {
         PACKAGE.TYPE, 
         PACKAGE.CRC, 
         PACKAGE.VERSION, 
+        PACKAGE.CATEGORY, 
+        PACKAGE.DESCRIPTION, 
         PACKAGE.PARENT_PACKAGE_REF,
         SESSION_PACKAGE.PACKAGE_REF,
         SESSION_PACKAGE.SESSION_REF,
@@ -449,6 +469,29 @@ async function getPackageSessionPackagePairBySessionId(db, sessionId) {
         }
       })
     )
+}
+
+/**
+ * Returns all packages
+ * @param {*} db
+ */
+async function getAllPackages(db) {
+  return dbApi
+    .dbAll(
+      db,
+      `SELECT 
+        PACKAGE_ID, 
+        PATH, 
+        TYPE, 
+        CRC, 
+        VERSION, 
+        CATEGORY,
+        DESCRIPTION,
+        PARENT_PACKAGE_REF
+       FROM 
+        PACKAGE`
+    )
+    .then((rows) => rows.map(dbMapping.map.package))
 }
 
 /**
@@ -839,6 +882,7 @@ exports.selectOptionValueByOptionDefaultId = selectOptionValueByOptionDefaultId
 exports.getPackagesByParentAndType = getPackagesByParentAndType
 exports.getSessionZclPackages = getSessionZclPackages
 exports.getSessionZclPackageIds = getSessionZclPackageIds
+exports.getAllPackages = getAllPackages
 
 exports.insertPackageExtension = insertPackageExtension
 exports.selectPackageExtension = selectPackageExtension

@@ -18,6 +18,7 @@ const restApi = require('../../../src-shared/rest-api.js')
 
 export default function () {
   return {
+    showPreviewTab: false,
     isExceptionsExpanded: false,
     exceptions: [],
     showExceptionIcon: false,
@@ -35,6 +36,7 @@ export default function () {
     genericOptions: {},
     selectedGenericOptions: {},
     projectPackages: [],
+    allPackages: [],
     clusterManager: {
       openDomains: {},
       lastSelectedDomain: null,
@@ -55,6 +57,14 @@ export default function () {
         },
         {
           label: 'Enabled Clusters',
+          domainFilterFn: (domain, currentOpenDomains, context) =>
+            context.enabledClusters.map((a) => a.domainName).includes(domain),
+          clusterFilterFn: (cluster, context) =>
+            context.enabledClusters.find((a) => cluster.id == a.id) !=
+            undefined,
+        },
+        {
+          label: 'Legal Clusters',
           domainFilterFn: (domain, currentOpenDomains, context) =>
             context.enabledClusters.map((a) => a.domainName).includes(domain),
           clusterFilterFn: (cluster, context) =>

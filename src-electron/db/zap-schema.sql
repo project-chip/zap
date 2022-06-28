@@ -33,7 +33,9 @@ CREATE TABLE "PACKAGE" (
   "PATH" text NOT NULL,
   "TYPE" text,
   "CRC" integer,
-  "VERSION" text,
+  "VERSION" integer,
+  "CATEGORY" text,
+  "DESCRIPTION" text,
   foreign key (PARENT_PACKAGE_REF) references PACKAGE(PACKAGE_ID)
 );
 /*
@@ -170,6 +172,7 @@ CREATE TABLE IF NOT EXISTS "COMMAND" (
   "REMOVED_IN_REF" integer,
   "RESPONSE_NAME" integer,
   "RESPONSE_REF" integer,
+  "IS_DEFAULT_RESPONSE_ENABLED" integer,
   foreign key (INTRODUCED_IN_REF) references SPEC(SPEC_ID),
   foreign key (REMOVED_IN_REF) references SPEC(SPEC_ID),
   foreign key (CLUSTER_REF) references CLUSTER(CLUSTER_ID),
@@ -390,6 +393,67 @@ CREATE TABLE IF NOT EXISTS "TAG" (
  *         \______/ \__|                          
  */
 /*
+ DISCRIMINATOR table contains the data types loaded from packages
+ */
+DROP TABLE IF EXISTS "DISCRIMINATOR";
+CREATE TABLE IF NOT EXISTS "DISCRIMINATOR" (
+  "DISCRIMINATOR_ID" integer NOT NULL PRIMARY KEY autoincrement,
+  "NAME" text,
+  "PACKAGE_REF" integer,
+  FOREIGN KEY (PACKAGE_REF) REFERENCES PACKAGE(PACKAGE_ID),
+  CONSTRAINT DISCRIMINATOR_INFO UNIQUE("NAME", "PACKAGE_REF")
+);
+/*
+ DATA_TYPE table contains the all data types loaded from packages
+ */
+DROP TABLE IF EXISTS "DATA_TYPE";
+CREATE TABLE IF NOT EXISTS "DATA_TYPE" (
+  "DATA_TYPE_ID" integer NOT NULL PRIMARY KEY autoincrement,
+  "NAME" text,
+  "DESCRIPTION" text,
+  "DISCRIMINATOR_REF" integer,
+  "PACKAGE_REF" integer,
+  FOREIGN KEY (DISCRIMINATOR_REF) REFERENCES DISCRIMINATOR(DISCRIMINATOR_ID) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (PACKAGE_REF) REFERENCES PACKAGE(PACKAGE_ID) ON DELETE CASCADE ON UPDATE CASCADE
+);
+/*
+ DATA_TYPE_CLUSTER table is a junction table between the data types and clusters.
+ This table stores the information on which data types are shared across clusters
+ Note: The reason for having cluster code in this table is to load the Cluster
+ reference during post loading. In terms of the schema an exception was made for
+ loading cluster references into this table. For eg: See processZclPostLoading
+ */
+DROP TABLE IF EXISTS DATA_TYPE_CLUSTER;
+CREATE TABLE DATA_TYPE_CLUSTER (
+  DATA_TYPE_CLUSTER_ID integer NOT NULL PRIMARY KEY autoincrement,
+  CLUSTER_REF integer,
+  CLUSTER_CODE integer,
+  DATA_TYPE_REF integer,
+  FOREIGN KEY (CLUSTER_REF) REFERENCES CLUSTER(CLUSTER_ID) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (DATA_TYPE_REF) REFERENCES DATA_TYPE(DATA_TYPE_ID) ON DELETE CASCADE ON UPDATE CASCADE
+);
+/*
+ NUMBER table contains the all numbers loaded from packages
+ */
+DROP TABLE IF EXISTS "NUMBER";
+CREATE TABLE NUMBER (
+  NUMBER_ID integer NOT NULL PRIMARY KEY,
+  SIZE integer,
+  IS_SIGNED integer,
+  FOREIGN KEY (NUMBER_ID) REFERENCES DATA_TYPE(DATA_TYPE_ID) ON DELETE CASCADE ON UPDATE CASCADE
+);
+/*
+ STRING table contains the all strings loaded from packages
+ */
+DROP TABLE IF EXISTS "STRING";
+CREATE TABLE STRING (
+  STRING_ID integer NOT NULL PRIMARY KEY,
+  IS_LONG integer,
+  SIZE integer,
+  IS_CHAR integer,
+  FOREIGN KEY (STRING_ID) REFERENCES DATA_TYPE(DATA_TYPE_ID) ON DELETE CASCADE ON UPDATE CASCADE
+);
+/*
  ATOMIC table contains the atomic types loaded from packages
  */
 DROP TABLE IF EXISTS "ATOMIC";
@@ -411,111 +475,75 @@ CREATE TABLE IF NOT EXISTS "ATOMIC" (
  BITMAP table contains the bitmaps directly loaded from packages.
  */
 DROP TABLE IF EXISTS "BITMAP";
-CREATE TABLE IF NOT EXISTS "BITMAP" (
-  "BITMAP_ID" integer primary key autoincrement,
-  "PACKAGE_REF" integer,
-  "NAME" text,
-  "TYPE" text,
-  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID)
+CREATE TABLE IF NOT EXISTS BITMAP (
+  BITMAP_ID integer NOT NULL PRIMARY KEY,
+  SIZE integer,
+  FOREIGN KEY (BITMAP_ID) REFERENCES DATA_TYPE(DATA_TYPE_ID) ON DELETE CASCADE ON UPDATE CASCADE
 );
 /*
  BITMAP_FIELD contains items that make up a bitmap.
  */
 DROP TABLE IF EXISTS "BITMAP_FIELD";
-CREATE TABLE IF NOT EXISTS "BITMAP_FIELD" (
-  "BITMAP_REF" integer,
-  "FIELD_IDENTIFIER" integer,
-  "NAME" text,
-  "MASK" integer,
-  "TYPE" text,
-  foreign key(BITMAP_REF) references BITMAP(BITMAP_ID)
-);
-/*
- BITMAP_CLUSTER table is a junction table, optionally linking a bitmap to one or more cluster
- */
-DROP TABLE IF EXISTS "BITMAP_CLUSTER";
-CREATE TABLE IF NOT EXISTS "BITMAP_CLUSTER" (
-  "BITMAP_REF" integer,
-  "CLUSTER_CODE" integer,
-  "CLUSTER_REF" integer,
-  foreign key(BITMAP_REF) references BITMAP(BITMAP_ID),
-  foreign key (CLUSTER_REF) references CLUSTER(CLUSTER_ID),
-  UNIQUE(BITMAP_REF, CLUSTER_REF)
+CREATE TABLE IF NOT EXISTS BITMAP_FIELD (
+  BITMAP_FIELD_ID integer NOT NULL PRIMARY KEY autoincrement,
+  BITMAP_REF integer,
+  FIELD_IDENTIFIER integer,
+  NAME text(100),
+  MASK integer,
+  FOREIGN KEY (BITMAP_REF) REFERENCES BITMAP(BITMAP_ID)
 );
 /*
  ENUM table contains enums directly loaded from packages.
  */
 DROP TABLE IF EXISTS "ENUM";
 CREATE TABLE IF NOT EXISTS "ENUM" (
-  "ENUM_ID" integer primary key autoincrement,
-  "PACKAGE_REF" integer,
-  "NAME" text,
-  "TYPE" text,
-  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID)
+  ENUM_ID integer NOT NULL PRIMARY KEY,
+  SIZE integer,
+  FOREIGN KEY (ENUM_ID) REFERENCES DATA_TYPE(DATA_TYPE_ID) ON DELETE CASCADE ON UPDATE CASCADE
 );
 /*
  ENUM_ITEM table contains individual enum items.
  */
 DROP TABLE IF EXISTS "ENUM_ITEM";
 CREATE TABLE IF NOT EXISTS "ENUM_ITEM" (
+  "ENUM_ITEM_ID" integer NOT NULL PRIMARY KEY autoincrement,
   "ENUM_REF" integer,
-  "FIELD_IDENTIFIER" integer,
   "NAME" text,
+  "DESCRIPTION" text,
+  "FIELD_IDENTIFIER" integer,
   "VALUE" integer,
-  foreign key (ENUM_REF) references ENUM(ENUM_ID)
-);
-/*
- ENUM_CLUSTER table is a junction table, optionally linking an enum to one or more clusters
- */
-DROP TABLE IF EXISTS "ENUM_CLUSTER";
-CREATE TABLE IF NOT EXISTS "ENUM_CLUSTER" (
-  "ENUM_REF" integer,
-  "CLUSTER_CODE" integer,
-  "CLUSTER_REF" integer,
-  foreign key (ENUM_REF) references ENUM(ENUM_ID),
-  foreign key (CLUSTER_REF) references CLUSTER(CLUSTER_ID),
-  UNIQUE(ENUM_REF, CLUSTER_REF)
+  FOREIGN KEY (ENUM_REF) REFERENCES "ENUM"(ENUM_ID) ON DELETE CASCADE ON UPDATE CASCADE
 );
 /*
  STRUCT table contains structs directly loaded from packages.
  */
 DROP TABLE IF EXISTS "STRUCT";
-CREATE TABLE IF NOT EXISTS "STRUCT" (
-  "STRUCT_ID" integer primary key autoincrement,
-  "PACKAGE_REF" integer,
-  "NAME" text,
-  foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID)
+CREATE TABLE IF NOT EXISTS STRUCT (
+  STRUCT_ID integer NOT NULL PRIMARY KEY,
+  SIZE integer,
+  FOREIGN KEY (STRUCT_ID) REFERENCES DATA_TYPE(DATA_TYPE_ID)
 );
 /*
  STRUCT_ITEM table contains individual struct items.
  */
 DROP TABLE IF EXISTS "STRUCT_ITEM";
-CREATE TABLE IF NOT EXISTS "STRUCT_ITEM" (
-  "STRUCT_REF" integer,
-  "FIELD_IDENTIFIER" integer,
-  "NAME" text,
-  "TYPE" text,
-  "IS_ARRAY" integer,
-  "IS_ENUM" integer,
-  "MIN_LENGTH" integer,
-  "MAX_LENGTH" integer,
-  "IS_WRITABLE" integer,
-  "IS_NULLABLE" integer,
-  "IS_OPTIONAL" integer,
-  "IS_FABRIC_SENSITIVE" integer,
-  foreign key (STRUCT_REF) references STRUCT(STRUCT_ID)
-);
-/*
- STRUCT_CLUSTER table is a junction table, optionally linking a struct to one or more clusters
- */
-DROP TABLE IF EXISTS "STRUCT_CLUSTER";
-CREATE TABLE IF NOT EXISTS "STRUCT_CLUSTER" (
-  "STRUCT_REF" integer,
-  "CLUSTER_CODE" integer,
-  "CLUSTER_REF" integer,
-  foreign key (STRUCT_REF) references STRUCT(STRUCT_ID),
-  foreign key (CLUSTER_REF) references CLUSTER(CLUSTER_ID),
-  UNIQUE(STRUCT_REF, CLUSTER_REF)
+CREATE TABLE IF NOT EXISTS STRUCT_ITEM (
+  STRUCT_ITEM_ID integer NOT NULL PRIMARY KEY autoincrement,
+  STRUCT_REF integer,
+  FIELD_IDENTIFIER integer,
+  NAME text(100),
+  IS_ARRAY integer,
+  IS_ENUM integer,
+  MIN_LENGTH integer,
+  MAX_LENGTH integer,
+  IS_WRITABLE integer,
+  IS_NULLABLE integer,
+  IS_OPTIONAL integer,
+  IS_FABRIC_SENSITIVE integer,
+  SIZE integer,
+  DATA_TYPE_REF integer NOT NULL,
+  FOREIGN KEY (STRUCT_REF) REFERENCES STRUCT(STRUCT_ID) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (DATA_TYPE_REF) REFERENCES DATA_TYPE(DATA_TYPE_ID) ON DELETE CASCADE ON UPDATE CASCADE
 );
 /*
  *  $$$$$$\                                                    
@@ -1083,3 +1111,4 @@ CREATE TABLE IF NOT EXISTS "UPGRADE" (
     )
 );
 /* EO SCHEMA */
+

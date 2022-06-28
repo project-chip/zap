@@ -18,16 +18,17 @@
  * @jest-environment node
  */
 
-const dbApi = require('../src-electron/db/db-api.js')
-const dbEnum = require('../src-shared/db-enum.js')
-const queryZcl = require('../src-electron/db/query-zcl.js')
-const queryCommand = require('../src-electron/db/query-command.js')
-const queryPackage = require('../src-electron/db/query-package.js')
-const zclLoader = require('../src-electron/zcl/zcl-loader.js')
+const dbApi = require('../src-electron/db/db-api')
+const dbEnum = require('../src-shared/db-enum')
+const queryZcl = require('../src-electron/db/query-zcl')
+const queryDeviceType = require('../src-electron/db/query-device-type')
+const queryCommand = require('../src-electron/db/query-command')
+const queryPackage = require('../src-electron/db/query-package')
+const zclLoader = require('../src-electron/zcl/zcl-loader')
 const env = require('../src-electron/util/env.ts')
-const types = require('../src-electron/util/types.js')
-const testUtil = require('./test-util.js')
-const testQuery = require('./test-query.js')
+const types = require('../src-electron/util/types')
+const testUtil = require('./test-util')
+const testQuery = require('./test-query')
 
 beforeAll(async () => {
   process.env.DEV = true
@@ -64,7 +65,9 @@ test(
       let packageId = ctx.packageId
 
       let p = await queryPackage.getPackageByPackageId(ctx.db, ctx.packageId)
-      expect(p.version).toEqual('ZCL Test Data')
+      expect(p.version).toEqual(1)
+      expect(p.description).toEqual('ZigbeePro test data')
+      expect(p.category).toEqual('zigbee')
       let x = await queryPackage.getPackagesByType(
         db,
         dbEnum.packageType.zclProperties
@@ -81,8 +84,8 @@ test(
       x = await queryZcl.selectAllStructsWithItems(db, [packageId])
       expect(x.length).toEqual(54)
       x = await queryZcl.selectAllBitmaps(db, packageId)
-      expect(x.length).toEqual(121)
-      x = await queryZcl.selectAllDeviceTypes(db, packageId)
+      expect(x.length).toEqual(129)
+      x = await queryDeviceType.selectAllDeviceTypes(db, packageId)
       expect(x.length).toEqual(175)
       x = await testQuery.selectCountFrom(db, 'COMMAND_ARG')
       expect(x).toEqual(testUtil.totalCommandArgsCount)
@@ -158,7 +161,7 @@ test(
 
       x = await dbApi.dbAll(
         db,
-        'SELECT NAME, TYPE, PACKAGE_REF FROM BITMAP WHERE NAME IN (SELECT NAME FROM BITMAP GROUP BY NAME HAVING COUNT(*)>1)',
+        'SELECT DATA_TYPE.NAME AS NAME, BITMAP.BITMAP_ID, DATA_TYPE.PACKAGE_REF FROM BITMAP INNER JOIN DATA_TYPE ON BITMAP.BITMAP_ID = DATA_TYPE.DATA_TYPE_ID WHERE NAME IN (SELECT DATA_TYPE.NAME AS NAME FROM BITMAP INNER JOIN DATA_TYPE ON BITMAP.BITMAP_ID = DATA_TYPE.DATA_TYPE_ID GROUP BY NAME HAVING COUNT(*)>1)',
         []
       )
 
@@ -177,7 +180,7 @@ test(
 
       x = await dbApi.dbAll(
         db,
-        'SELECT NAME, TYPE, PACKAGE_REF FROM ENUM WHERE NAME IN (SELECT NAME FROM ENUM GROUP BY NAME HAVING COUNT(*)>1)',
+        'SELECT DATA_TYPE.NAME, ENUM.ENUM_ID, DATA_TYPE.PACKAGE_REF FROM ENUM INNER JOIN DATA_TYPE ON ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID WHERE NAME IN (SELECT DATA_TYPE.NAME FROM ENUM INNER JOIN DATA_TYPE ON ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID GROUP BY DATA_TYPE.NAME HAVING COUNT(*)>1)',
         []
       )
 
@@ -205,7 +208,7 @@ test(
       let ctx = await zclLoader.loadZcl(db, env.builtinDotdotZclMetafile())
       let packageId = ctx.packageId
       let p = await queryPackage.getPackageByPackageId(ctx.db, packageId)
-      expect(p.version).toEqual('1.0')
+      expect(p.version).toEqual(1)
 
       let x = await queryPackage.getPackagesByType(
         db,
@@ -215,7 +218,7 @@ test(
 
       x = await queryZcl.selectAllClusters(db, packageId)
       expect(x.length).toEqual(41)
-      x = await queryZcl.selectAllDeviceTypes(db, packageId)
+      x = await queryDeviceType.selectAllDeviceTypes(db, packageId)
       expect(x.length).toEqual(108)
       x = await testQuery.selectCountFrom(db, 'COMMAND_ARG')
       expect(x).toEqual(644)
@@ -226,7 +229,7 @@ test(
       x = await queryZcl.selectAllAtomics(db, packageId)
       expect(x.length).toEqual(56)
       x = await queryZcl.selectAllBitmaps(db, packageId)
-      expect(x.length).toEqual(61)
+      expect(x.length).toEqual(69)
       x = await queryZcl.selectAllEnums(db, packageId)
       expect(x.length).toEqual(testUtil.totalDotDotEnums)
       x = await testQuery.selectCountFrom(db, 'ENUM_ITEM')
@@ -237,10 +240,10 @@ test(
       expect(x).toEqual(63)
 
       //Do some checking on the device type metadata
-      x = await queryZcl.selectAllDeviceTypes(db, packageId)
+      x = await queryDeviceType.selectAllDeviceTypes(db, packageId)
 
       x.forEach((d) => {
-        queryZcl
+        queryDeviceType
           .selectDeviceTypeClustersByDeviceTypeRef(db, d.id)
           .then((dc) => {
             dc.forEach((dcr) => {
@@ -249,7 +252,7 @@ test(
                   `for ${d.caption} failed to match dcr ${dcr.clusterName}`
                 )
               } else {
-                queryZcl
+                queryDeviceType
                   .selectDeviceTypeAttributesByDeviceTypeRef(
                     db,
                     dcr.deviceTypeRef
@@ -272,7 +275,7 @@ test(
 
       x = await dbApi.dbAll(
         db,
-        'SELECT NAME, TYPE, PACKAGE_REF FROM ENUM WHERE NAME IN (SELECT NAME FROM ENUM GROUP BY NAME HAVING COUNT(*)>1)',
+        'SELECT DATA_TYPE.NAME, ENUM.ENUM_ID, DATA_TYPE.PACKAGE_REF FROM ENUM INNER JOIN DATA_TYPE ON ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID WHERE NAME IN (SELECT DATA_TYPE.NAME FROM ENUM INNER JOIN DATA_TYPE ON ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID GROUP BY DATA_TYPE.NAME HAVING COUNT(*)>1)',
         []
       )
 
@@ -302,7 +305,7 @@ test(
       let packageIdSilabs = ctx.packageId
 
       let p = await queryPackage.getPackageByPackageId(ctx.db, packageIdSilabs)
-      expect(p.version).toEqual('ZCL Test Data')
+      expect(p.version).toEqual(1)
 
       let rows = await queryPackage.getPackagesByType(
         db,
@@ -314,7 +317,7 @@ test(
       let packageIdDotdot = ctx.packageId
 
       p = await queryPackage.getPackageByPackageId(ctx.db, packageIdDotdot)
-      expect(p.version).toEqual('1.0')
+      expect(p.version).toEqual(1)
       rows = await queryPackage.getPackagesByType(
         db,
         dbEnum.packageType.zclProperties
@@ -336,7 +339,7 @@ test(
       expect(x.length).toBeGreaterThan(0)
       x = await dbApi.dbAll(
         db,
-        'SELECT NAME, TYPE, PACKAGE_REF FROM BITMAP WHERE NAME IN (SELECT NAME FROM BITMAP GROUP BY NAME HAVING COUNT(NAME)=1)',
+        'SELECT DATA_TYPE.NAME AS NAME, BITMAP.BITMAP_ID, DATA_TYPE.PACKAGE_REF FROM BITMAP INNER JOIN DATA_TYPE ON BITMAP.BITMAP_ID = DATA_TYPE.DATA_TYPE_ID WHERE NAME IN (SELECT DATA_TYPE.NAME AS NAME FROM BITMAP INNER JOIN DATA_TYPE ON BITMAP.BITMAP_ID = DATA_TYPE.DATA_TYPE_ID GROUP BY NAME HAVING COUNT(NAME)=1)',
         []
       )
       expect(x.length).toBeGreaterThan(0)
@@ -356,7 +359,7 @@ test(
       let ctx = await zclLoader.loadZcl(db, env.builtinMatterZclMetafile())
       let packageId = ctx.packageId
       let p = await queryPackage.getPackageByPackageId(ctx.db, packageId)
-      expect(p.version).toEqual('Matter Test Data')
+      expect(p.version).toEqual(1)
 
       let x = await queryPackage.getPackagesByType(
         db,
@@ -365,21 +368,21 @@ test(
       expect(x.length).toEqual(1)
 
       x = await queryZcl.selectAllClusters(db, packageId)
-      expect(x.length).toEqual(105)
-      x = await queryZcl.selectAllDeviceTypes(db, packageId)
-      expect(x.length).toEqual(172)
+      expect(x.length).toEqual(testUtil.totalMatterClusters)
+      x = await queryDeviceType.selectAllDeviceTypes(db, packageId)
+      expect(x.length).toEqual(testUtil.totalMatterDeviceTypes)
       x = await testQuery.selectCountFrom(db, 'COMMAND_ARG')
-      expect(x).toEqual(1782)
+      expect(x).toEqual(testUtil.totalMatterCommandArgs)
       x = await testQuery.selectCountFrom(db, 'COMMAND')
-      expect(x).toEqual(625)
+      expect(x).toEqual(testUtil.totalMatterCommands)
       x = await testQuery.selectCountFrom(db, 'ATTRIBUTE')
-      expect(x).toEqual(3397)
+      expect(x).toEqual(testUtil.totalMatterAttributes)
       x = await testQuery.selectCountFrom(db, 'TAG')
-      expect(x).toEqual(6)
+      expect(x).toEqual(testUtil.totalMatterTags)
       x = await testQuery.selectCountFrom(db, 'EVENT')
-      expect(x).toEqual(1)
+      expect(x).toEqual(testUtil.totalMatterEvents)
       x = await testQuery.selectCountFrom(db, 'EVENT_FIELD')
-      expect(x).toEqual(3)
+      expect(x).toEqual(testUtil.totalMatterEventFields)
     } finally {
       await dbApi.closeDatabase(db)
     }

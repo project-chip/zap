@@ -57,7 +57,9 @@ async function recordPackageIfNonexistent(
   packagePath,
   parentId,
   packageType,
-  version
+  version,
+  category,
+  description
 ) {
   let pkg = await queryPackage.getPackageByPathAndParent(
     db,
@@ -73,7 +75,9 @@ async function recordPackageIfNonexistent(
       null,
       packageType,
       parentId,
-      version
+      version,
+      category,
+      description
     )
   } else {
     // Already exists
@@ -114,7 +118,9 @@ async function recordTemplatesPackage(context) {
     context.path,
     context.crc,
     dbEnum.packageType.genTemplatesJson,
-    context.templateData.version
+    context.templateData.version,
+    context.templateData.category,
+    context.templateData.description
   )
 
   let promises = []
@@ -132,7 +138,9 @@ async function recordTemplatesPackage(context) {
           templatePath,
           context.packageId,
           dbEnum.packageType.genSingleTemplate,
-          template.output
+          0,
+          template.output,
+          template.name
         )
       )
     }
@@ -184,6 +192,8 @@ async function recordTemplatesPackage(context) {
           helperPath,
           context.packageId,
           dbEnum.packageType.genHelper,
+          null,
+          null,
           null
         )
       )
@@ -202,6 +212,8 @@ async function recordTemplatesPackage(context) {
         overridePath,
         context.packageId,
         dbEnum.packageType.genOverride,
+        null,
+        null,
         null
       )
     )
@@ -217,7 +229,9 @@ async function recordTemplatesPackage(context) {
           null,
           dbEnum.packageType.genPartial,
           context.packageId,
-          partial.name
+          0,
+          partial.name,
+          ''
         )
       )
     })
@@ -452,7 +466,7 @@ async function generateAllTemplates(
       packages.forEach((singlePkg) => {
         if (singlePkg.type == dbEnum.packageType.genPartial) {
           partialPromises.push(
-            templateEngine.loadPartial(singlePkg.version, singlePkg.path)
+            templateEngine.loadPartial(singlePkg.category, singlePkg.path)
           )
         }
       })
@@ -472,7 +486,7 @@ async function generateAllTemplates(
         if (singlePkg.type == dbEnum.packageType.genSingleTemplate) {
           if (
             options.generateOnly == null ||
-            options.generateOnly == singlePkg.version
+            options.generateOnly == singlePkg.category
           ) {
             generationTemplates.push(singlePkg)
           }
@@ -522,12 +536,12 @@ async function generateSingleTemplate(
       genTemplateJsonPackageId,
       options
     )
-    genResult.content[singleTemplatePkg.version] = result.content
-    genResult.stats[singleTemplatePkg.version] = result.stats
+    genResult.content[singleTemplatePkg.category] = result.content
+    genResult.stats[singleTemplatePkg.category] = result.stats
     genResult.partial = true
     return genResult
   } catch (err) {
-    genResult.errors[singleTemplatePkg.version] = err
+    genResult.errors[singleTemplatePkg.category] = err
     genResult.hasErrors = true
   }
 }

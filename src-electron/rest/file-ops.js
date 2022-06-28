@@ -44,27 +44,12 @@ function httpPostFileOpen(db) {
 
     if (zapFilePath) {
       name = path.posix.basename(zapFilePath)
-      env.logDebug(`Loading project(${name})`)
+      env.logInfo(`Loading project(${name})`)
 
       try {
-        let importResult = await importJs.importDataFromFile(db, zapFilePath, {
-          sessionId: req.zapSessionId,
-        })
-
-        let response = {
-          sessionId: importResult.sessionId,
-          sessionKey: req.session.id,
-        }
-        env.logDebug(
-          `Loaded project(${name}) into database. RESP: ${JSON.stringify(
-            response
-          )}`
-        )
-
+        // set path before importDataFromFile() to avoid triggering DIRTY flag
         if (ideProjectPath) {
-          env.logDebug(
-            `IDE: setting project path(${name}) to ${ideProjectPath}`
-          )
+          env.logInfo(`IDE: setting project path(${name}) to ${ideProjectPath}`)
           // store studio project path
           await querySession.updateSessionKeyValue(
             db,
@@ -73,12 +58,32 @@ function httpPostFileOpen(db) {
             ideProjectPath
           )
         }
+
+        let importResult = await importJs.importDataFromFile(db, zapFilePath, {
+          sessionId: req.zapSessionId,
+        })
+
+        let response = {
+          sessionId: importResult.sessionId,
+          sessionKey: req.session.id,
+        }
+        env.logInfo(
+          `Loaded project(${name}) into database. RESP: ${JSON.stringify(
+            response
+          )}`
+        )
+
         res.status(StatusCodes.OK).json(response)
-      } catch (err) {
-        err.project = zapFilePath
-        studio.sendSessionCreationErrorStatus(db, err)
-        env.logError(JSON.stringify(err))
-        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err)
+      } catch (e) {
+        e.project = zapFilePath
+        let errMsg = {
+          project: e.project,
+          message: e.message,
+          stack: e.stack,
+        }
+        studio.sendSessionCreationErrorStatus(db, errMsg)
+        env.logError(e.message)
+        res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(errMsg)
       }
     } else {
       let msg = `Opening/Loading project: Missing zap file path.`
@@ -136,6 +141,20 @@ function httpPostFileSave(db) {
   }
 }
 
+/**
+ * HTTP GET: isDirty
+ *
+ * @param {*} db
+ * @returns callback for the express uri registration
+ */
+function httpGetFileIsDirty(db) {
+  return async (req, res) => {
+    let isDirty = await querySession.getSessionDirtyFlag(db, req.zapSessionId)
+
+    return res.status(StatusCodes.OK).send({ DIRTY: isDirty })
+  }
+}
+
 exports.post = [
   {
     uri: restApi.ide.open,
@@ -144,5 +163,12 @@ exports.post = [
   {
     uri: restApi.ide.save,
     callback: httpPostFileSave,
+  },
+]
+
+exports.get = [
+  {
+    uri: restApi.ide.isDirty,
+    callback: httpGetFileIsDirty,
   },
 ]

@@ -15,8 +15,8 @@
     "types": {
       "bacnet_oid": "bacnet_type_t"
     },
-    "configOptions": {
-      "shareConfigsAcrossEndpoints": false
+    "generator": {
+      "shareClusterStatesAcrossEndpoints": "true"
     }
   },
   "zcl": {
