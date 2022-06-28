@@ -19,7 +19,7 @@ import Events from 'events'
 import dbEnum from '../../src-shared/db-enum.js'
 import restApi from '../../src-shared/rest-api.js'
 import rendApi from '../../src-shared/rend-api.js'
-import { Notify } from 'quasar'
+import { Dialog, Notify } from 'quasar'
 import * as Util from '../util/util.js'
 const http = require('http-status-codes')
 
@@ -128,13 +128,37 @@ onWebSocket(dbEnum.wsCategory.sessionCreationError, (data) => {
   </center>`
   Notify.create({
     message: html,
-    color: 'negative',
+    color: 'black',
     position: 'top',
     html: true,
     timeout: 0,
   })
 
-  console.log(`sessionCreationError: ${JSON.stringify(data)}`)
+  console.log(`upgrade ${JSON.stringify(data)}`)
+})
+
+//commented unnecessary logs and listeners
+
+// onWebSocket(dbEnum.wsCategory.validation, (data) => {
+//   // console.log(`Validation recieved: ${data}`)
+// })
+
+onWebSocket(dbEnum.wsCategory.upgrade, (data) => {
+  let html = `<center>
+  <strong>${data}</strong>
+  <br>
+  'upgrade'
+  </center>`
+  Notify.create({
+    message: html,
+    color: 'primary',
+    position: 'top',
+    html: true,
+    timeout: 0,
+    actions: [{ icon: 'close', color: 'white' }],
+  })
+
+  console.log(`upgrade: ${JSON.stringify(data)}`)
 })
 
 //commented unnecessary logs
