@@ -28,6 +28,7 @@ const util = require('../util/util.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const dbCache = require('./db-cache')
 const dbMapping = require('./db-mapping.js')
+import { setUpgrade } from './query-upgrade.js'
 
 // This is a SQLITE specific thing. With SQLITE databases,
 // we can't have multiple transactions. So this mechanism
@@ -513,6 +514,7 @@ async function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
     await performSchemaLoad(db, context.data)
     await updateCurrentSchemaCrc(db, context)
     await updateSetting(db, rows)
+    await setUpgrade(db, 1, 'UPGRADE')
   }
 
   await insertOrReplaceSetting(db, 'APP', 'VERSION', zapVersion.version)

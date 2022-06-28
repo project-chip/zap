@@ -1068,4 +1068,18 @@ CREATE TABLE IF NOT EXISTS "SETTING" (
   "VALUE" text,
   UNIQUE(CATEGORY, KEY)
 );
+
+/*
+ Upgrade table
+ */
+
+CREATE TABLE IF NOT EXISTS "UPGRADE" (
+  "STATUS" text,
+  "UPGRADE" integer default 0,
+  "SESSION_REF" integer,
+  foreign key (SESSION_REF) references SESSION(SESSION_ID) on delete cascade,
+  UNIQUE(
+    SESSION_REF
+    )
+);
 /* EO SCHEMA */

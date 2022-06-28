@@ -99,6 +99,7 @@ const updateKey = {
   attributeReportChange: 'reportableChange',
   attributeStorage: 'storageOption',
   init: 'init',
+  upgrade: 'upgrade',
 }
 
 exports.param = {

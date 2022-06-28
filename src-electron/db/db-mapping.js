@@ -446,6 +446,13 @@ exports.map = {
       dirty: x.DIRTY == 1,
     }
   },
+  upgrade: (x) => {
+    if (x == null) return undefined
+    return {
+      upgrade: x.UPGRADE,
+      status: x.STATUS,
+    }
+  },
   user: (x) => {
     if (x == null) return undefined
     return {

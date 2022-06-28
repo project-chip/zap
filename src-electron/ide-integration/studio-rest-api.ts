@@ -41,6 +41,7 @@ const op_add = '/rest/clic/component/add/project/'
 const op_remove = '/rest/clic/component/remove/project/'
 
 let dirtyFlagStatusId: NodeJS.Timeout
+let upgradeFlagStatusId: NodeJS.Timeout
 let ucComponentStateReportId: NodeJS.Timeout
 let studioHttpPort: number
 
@@ -265,6 +266,9 @@ function initIdeIntegration(db: dbTypes.DbType, studioPort: number) {
   dirtyFlagStatusId = setInterval(() => {
     sendDirtyFlagStatus(db)
   }, DIRTY_FLAG_REPORT_INTERVAL_MS)
+  upgradeFlagStatusId = setInterval(() => {
+    sendSessionUpgrade(db)
+  }, DIRTY_FLAG_REPORT_INTERVAL_MS)
 
   ucComponentStateReportId = setInterval(() => {
     sendUcComponentStateReport(db)
@@ -318,6 +322,28 @@ function sendDirtyFlagStatus(db: dbTypes.DbType) {
         }
       })
     })
+}
+async function sendSessionUpgrade(db: dbTypes.DbType) {
+  let sessions = await querySession.getAllSessions(db)
+  for (const session of sessions) {
+    let socket = wsServer.clientSocket(session.sessionKey)
+    let upgrade = await querySession.getSessionUpgradeFlag(
+      db,
+      session.sessionId
+    )
+    let status = await querySession.getSessionUpgradeStatus(
+      db,
+      session.sessionId
+    )
+    if (socket) {
+      if (upgrade == 1) {
+        wsServer.sendWebSocketMessage(socket, {
+          category: dbEnum.wsCategory.upgrade,
+          payload: status,
+        })
+      }
+    }
+  }
 }
 
 /**
@@ -375,5 +401,6 @@ exports.projectName = projectName
 exports.integrationEnabled = integrationEnabled
 exports.initIdeIntegration = initIdeIntegration
 exports.deinit = deinit
+exports.sendSessionUpgrade = sendSessionUpgrade
 exports.sendSessionCreationErrorStatus = sendSessionCreationErrorStatus
 exports.sendComponentUpdateStatus = sendComponentUpdateStatus
