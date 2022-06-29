@@ -55,6 +55,11 @@
       "path": "endpoint-config.zapt",
       "name": "Endpoint Configuration",
       "output": "endpoint-config.c"
+    },
+    {
+      "path": "events.zapt",
+      "name": "Events",
+      "output": "events.out"
     }
   ]
 }

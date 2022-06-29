@@ -570,7 +570,7 @@ limitations under the License.
       <field id="1" name="arg1" type="INT8U"/>
       <field id="2" name="arg2" type="SimpleEnum"/>
       <field id="3" name="arg3" type="BOOLEAN"/>
-      <field id="4" name="arg4" type="SimpleStruct"/>
+      <field id="4" name="arg4" type="SimpleBitmap"/>
       <field id="5" name="arg5" type="SimpleStruct" array="true"/>
       <field id="6" name="arg6" type="SimpleEnum" array="true"/>
     </event>
