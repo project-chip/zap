@@ -185,5 +185,8 @@ Vue.prototype.$serverPut = serverPut
 Vue.prototype.$serverPatch = serverPatch
 Vue.prototype.$serverDelete = serverDelete
 
-window.axios_server_get = serverGet
-window.axios_server_post = serverPost
+window.serverGet = serverGet
+window.serverPost = serverPost
+window.serverPut = serverPut
+window.serverPatch = serverPatch
+window.serverDelete = serverDelete
