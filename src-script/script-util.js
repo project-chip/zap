@@ -20,6 +20,7 @@ const fs = require('fs')
 const fsp = fs.promises
 const path = require('path')
 const scriptUtil = require('./script-util.js')
+const readline = require('readline')
 
 const spaDir = path.join(__dirname, '../spa')
 const backendDir = path.join(__dirname, '../dist')
@@ -204,9 +205,70 @@ async function stampVersion() {
       console.log(`🔍 Git commit: ${version.hash} from ${version.date}`)
       return fsp.writeFile(versionFile, JSON.stringify(version))
     })
+    .then(() => setPackageJsonVersion('real'))
     .catch((err) => {
       console.log(`Error retrieving version: ${err}`)
     })
+}
+
+/**
+ * Sets the version in package.json
+ * @param {*} mode 'fake', 'real' or 'print'
+ */
+async function setPackageJsonVersion(mode) {
+  let promise = new Promise((resolve, reject) => {
+    let packageJson = path.join(__dirname, '../package.json')
+    let output = ''
+    let cnt = 0
+    let wasChanged = false
+
+    const stream = fs.createReadStream(packageJson)
+    const rl = readline.createInterface({
+      input: stream,
+      crlfDelay: Infinity,
+    })
+
+    rl.on('line', (line) => {
+      if (cnt < 10 && line.includes('"version":')) {
+        let d = new Date()
+        let output
+        if (mode == 'real') {
+          output = `  "version": "${d.getFullYear()}.${
+            d.getMonth() + 1
+          }.${d.getDate()}",`
+        } else if (mode == 'fake') {
+          output = `  "version": "0.0.0",`
+        } else {
+          output = line
+        }
+
+        if (output == line) {
+          wasChanged = false
+        } else {
+          line = output
+          wasChanged = true
+        }
+        versionPrinted = line
+      }
+      output = output.concat(line + '\n')
+      cnt++
+    })
+
+    rl.on('close', () => {
+      if (wasChanged) {
+        console.log(
+          '⛔ Version in package.json was out of date. It was automatically updated. Review and commit again, please.'
+        )
+        fs.writeFileSync(packageJson, output)
+        console.log('Updated the package.json!')
+      } else {
+        console.log('😎 Version in package.json was not changed.')
+      }
+      console.log(`🔍 Version output: ${versionPrinted}`)
+      resolve(wasChanged)
+    })
+  })
+  return promise
 }
 
 /**
@@ -257,3 +319,4 @@ exports.stampVersion = stampVersion
 exports.duration = duration
 exports.doneStamp = doneStamp
 exports.mainPath = mainPath
+exports.setPackageJsonVersion = setPackageJsonVersion

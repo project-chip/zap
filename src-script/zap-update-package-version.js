@@ -23,6 +23,7 @@
 const fs = require('fs')
 const path = require('path')
 const readline = require('readline')
+const scriptUtil = require('./script-util')
 
 if (
   process.argv[2] == '-?' ||
@@ -36,59 +37,17 @@ if (
   process.exit(0)
 }
 
-let packageJson = path.join(__dirname, '../package.json')
-let output = ''
 let mode = 'print'
 
 if (process.argv[2] == '-fake') mode = 'fake'
 if (process.argv[2] == '-real') mode = 'real'
 
-const stream = fs.createReadStream(packageJson)
-const rl = readline.createInterface({
-  input: stream,
-  crlfDelay: Infinity,
-})
-
-let wasChanged
-let cnt = 0
-let versionPrinted = ''
-
-rl.on('line', (line) => {
-  if (cnt < 10 && line.includes('"version":')) {
-    let d = new Date()
-    let output
-    if (mode == 'real') {
-      output = `  "version": "${d.getFullYear()}.${
-        d.getMonth() + 1
-      }.${d.getDate()}",`
-    } else if (mode == 'fake') {
-      output = `  "version": "0.0.0",`
-    } else {
-      output = line
-    }
-
-    if (output == line) {
-      wasChanged = false
-    } else {
-      line = output
-      wasChanged = true
-    }
-    versionPrinted = line
-  }
-  output = output.concat(line + '\n')
-  cnt++
-})
-
-rl.on('close', () => {
-  if (wasChanged) {
-    console.log(
-      '⛔ Version in package.json was out of date. It was automatically updated. Review and commit again, please.'
-    )
-    fs.writeFileSync(packageJson, output)
-    console.log('Updated the package.json!')
-  } else {
-    console.log('😎 Version in package.json was not changed.')
-  }
-  console.log(`🔍 Version output: ${versionPrinted}`)
-  process.exit(wasChanged ? 1 : 0)
-})
+scriptUtil
+  .setPackageJsonVersion(mode)
+  .then((wasChanged) => {
+    process.exit(wasChanged ? 1 : 0)
+  })
+  .catch((err) => {
+    console.log(`⛔ Error: ${err}`)
+    process.exit(1)
+  })
