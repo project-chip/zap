@@ -32,7 +32,7 @@ if (
 ) {
   console.log('Usage: zap-update-package-version.js [-fake|-real]\n')
   console.log('  fake: adds the fake version to package.json for committing')
-  console.log('  real: adds the real version to package.json for building')
+  console.log('  real: adds the real version to package.json from current date')
   console.log('\nIf no command is passed, script just prints out the version.')
   process.exit(0)
 }
@@ -43,7 +43,7 @@ if (process.argv[2] == '-fake') mode = 'fake'
 if (process.argv[2] == '-real') mode = 'real'
 
 scriptUtil
-  .setPackageJsonVersion(mode)
+  .setPackageJsonVersion(new Date(), mode)
   .then((wasChanged) => {
     if (wasChanged) {
       console.log(

@@ -47,8 +47,6 @@
     "format-code": "pretty-quick",
     "pretty-quick": "pretty-quick",
     "version-stamp": "node src-script/zap-versionstamp.js && node src-script/zap-update-package-version.js -real",
-    "version-real": "node src-script/zap-update-package-version.js -real",
-    "version-fake": "node src-script/zap-update-package-version.js -fake",
     "package-metadata": "node src-script/zap-package-metadata.js",
     "zap": "node src-script/zap-start.js --logToStdout --gen ./test/gen-template/zigbee/gen-templates.json",
     "zapall": "node src-script/zap-start.js --logToStdout --zcl ./zcl-builtin/silabs/zcl.json  --zcl ./zcl-builtin/matter/zcl.json --gen ./test/gen-template/zigbee/gen-templates.json",
