@@ -256,13 +256,7 @@ async function setPackageJsonVersion(mode) {
 
     rl.on('close', () => {
       if (wasChanged) {
-        console.log(
-          '⛔ Version in package.json was out of date. It was automatically updated. Review and commit again, please.'
-        )
         fs.writeFileSync(packageJson, output)
-        console.log('Updated the package.json!')
-      } else {
-        console.log('😎 Version in package.json was not changed.')
       }
       console.log(`🔍 Version output: ${versionPrinted}`)
       resolve(wasChanged)
