@@ -108,6 +108,7 @@ async function selectStringByName(db, name, packageId) {
     )
     .then(dbMapping.map.string)
 }
+
 exports.selectAllStrings = selectAllStrings
 exports.selectStringById = selectStringById
 exports.selectStringByName = selectStringByName

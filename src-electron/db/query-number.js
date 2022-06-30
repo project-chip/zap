@@ -21,9 +21,6 @@
 
 const dbApi = require('./db-api')
 const dbMapping = require('./db-mapping')
-const dbCache = require('./db-cache')
-
-const cacheKey = 'number'
 
 /**
  * Select an number matched by name.
@@ -99,24 +96,6 @@ async function selectAllNumbers(db, packageId) {
       [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.number))
-}
-
-/**
- * Select an enum matched by name from cache.
- *
- * @param {*} db
- * @param {*} name
- * @param {*} packageId
- * @returns enum or undefined
- */
-async function selectNumberByNameFromCache(db, packageId, name) {
-  let cache
-  if (dbCache.isCached(cacheKey, packageId)) {
-    cache = dbCache.get(cacheKey, packageId)
-  } else {
-    cache = await createCache(db, packageId)
-  }
-  return cache.byName[name]
 }
 
 exports.selectNumberByName = selectNumberByName
