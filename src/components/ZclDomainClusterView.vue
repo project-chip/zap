@@ -132,6 +132,7 @@ limitations under the License.
           </q-td>
           <q-td key="enable" :props="props">
             <q-select
+              class="v-step-8"
               :v-model="getClusterEnabledStatus(props.row.id)"
               :value="getClusterEnabledStatus(props.row.id)"
               :display-value="`${getClusterEnabledStatus(props.row.id)}`"
@@ -144,6 +145,7 @@ limitations under the License.
           <q-td key="configure" :props="props">
             <q-btn
               flat
+              class='v-step-9'
               :color="isClusterEnabled(props.row.id) ? 'primary' : 'grey'"
               dense
               :disable="!isClusterEnabled(props.row.id)"
@@ -364,6 +366,7 @@ export default {
       })
     },
     selectCluster(cluster) {
+      console.log('this is cluster', cluster, this.domainName)
       this.$store.dispatch('zap/updateSelectedCluster', cluster).then(() => {
         this.$store.dispatch(
           'zap/refreshEndpointTypeCluster',

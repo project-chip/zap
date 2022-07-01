@@ -13,8 +13,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
-<!-- TODO 
-  needs to be connected to the new UI .vue file 
+<!-- TODO
+  needs to be connected to the new UI .vue file
   connect Storage Option column to a real list
   make sure Required column is the correct list
   add action to edit button
@@ -87,7 +87,7 @@ limitations under the License.
           </q-td>
           <q-td key="included" :props="props" auto-width>
             <q-toggle
-              class="q-mt-xs"
+              class="q-mt-xs v-step-11"
               v-model="selection"
               :val="hashAttributeIdClusterId(props.row.id, selectedCluster.id)"
               indeterminate-value="false"

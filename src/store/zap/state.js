@@ -18,6 +18,10 @@ const restApi = require('../../../src-shared/rest-api.js')
 
 export default function () {
   return {
+    isTutorialRunning: false,
+    openZclExtensionsDialog: false,
+    showReportTabInCluster: "",
+    expanded: false,
     showCreateModifyEndpoint: false,
     showPreviewTab: false,
     isExceptionsExpanded: false,

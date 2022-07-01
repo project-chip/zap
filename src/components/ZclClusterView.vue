@@ -72,8 +72,8 @@ limitations under the License.
       </div>
       <div class="q-pb-sm">
         <q-tabs v-model="tab" dense active-color="blue" align="left">
-          <q-tab name="attributes" label="Attributes" />
-          <q-tab name="reporting" label="Attribute Reporting" />
+          <q-tab name="attributes" label="Attributes" class="v-step-10"/>
+          <q-tab name="reporting" label="Attribute Reporting" class="v-step-12" />
           <q-tab name="commands" label="Commands" />
           <q-tab name="events" label="Events" v-show="events.length > 0" />
         </q-tabs>
@@ -138,6 +138,16 @@ export default {
         return this.$store.state.zap.events
       },
     },
+    tutorialTab: {
+      get() {
+        return this.$store.state.zap.showReportTabInCluster
+      }
+    }
+  },
+  watch: {
+    tutorialTab(val) {
+      this.tab = val
+    }
   },
   methods: {
     setIndividualClusterFilterString(filterString) {
