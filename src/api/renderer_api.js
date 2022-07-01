@@ -50,7 +50,7 @@ export function renderer_api_info() {
 function fnOpen(zapFilePath, ideProjectPath) {
   // Make a request for a user with a given ID
   window
-    .axios_server_post(`${restApi.ide.open}`, {
+    .serverPost(`${restApi.ide.open}`, {
       zapFilePath: zapFilePath,
       ideProjectPath: ideProjectPath,
     })
@@ -62,13 +62,13 @@ function fnSave(zap_file) {
   let data = {}
   if (zap_file != null) data.path = zap_file
   window
-    .axios_server_post(`${restApi.ide.save}`, data)
+    .serverPost(`${restApi.ide.save}`, data)
     .catch((err) => console.log(err))
 }
 
 function fnIsDirty() {
   return window
-    .axios_server_get(`${restApi.ide.isDirty}`)
+    .serverGet(`${restApi.ide.isDirty}`)
     .then((res) => {
       return res?.data?.DIRTY
     })

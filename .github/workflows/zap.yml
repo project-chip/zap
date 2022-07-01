@@ -35,6 +35,7 @@ jobs:
       - run: npm run version-stamp
       - run: npm rebuild canvas --update-binary
       - run: npm rebuild libxmljs --update-binary
+      - run: npm run lic
       - run: npm run build-spa
       - run: npm run lint
       - run: npm run xml-validate
