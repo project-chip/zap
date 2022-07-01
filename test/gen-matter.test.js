@@ -162,6 +162,11 @@ test(
     )
     expect(deviceType).toContain('>> Attribute: identify time [0]')
     expect(deviceType).toContain('>> Command: TriggerEffect [64]')
+
+    let events = genResult.content['events.out']
+    expect(events).toContain('Field: arg4 [BITMAP]')
+    expect(events).toContain('Field: OperationSource [ENUM]')
+    expect(events).toContain('Field: SourceNode')
   },
   testUtil.timeout.long()
 )
