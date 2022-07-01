@@ -26,13 +26,38 @@ limitations under the License.
     >
       <q-icon name="warning" style="font-size: 2.5em; color: red" />
     </q-btn>
-    <v-tour name="ZclTour" :steps="tutorialSteps"></v-tour>
+    <v-tour name="ZclTour" :steps="tutorialSteps" :callbacks='{ onFinish: disableTutorial, onSkip: disableTutorial}'></v-tour>
+    <q-dialog
+      v-model="deletingTutorialEndpoint"
+      class="background-color:transparent"
+    >
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Delete Endpoint Created With Tutorial</div>
+
+          Do you want to delete the endpoint created for the tutorial?
+        </q-card-section>
+        <q-card-actions>
+          <q-btn label="Cancel" v-close-popup class="col" />
+          <q-btn
+            :label="'Delete'"
+            color="primary"
+            class="col"
+            v-close-popup="deleteEndpointDialog"
+            @click="deleteEndpoint()"
+            id="delete_tutorial_endpoint"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
 <script>
 import { QSpinnerGears } from 'quasar'
 import CommonMixin from './util/common-mixin'
+import tutorialConfig from './tutorials/tutorialConfig.json'
+import * as Storage from './util/storage'
 const rendApi = require(`../src-shared/rend-api.js`)
 const observable = require('./util/observable.js')
 const dbEnum = require(`../src-shared/db-enum.js`)
@@ -111,28 +136,22 @@ export default {
       this.$store.commit('zap/toggleShowExceptionIcon', false)
     },
     createNewEndpointForTour(resolve) {
-      let endpointIdentifier = 1
-      let profileIdentifier = "0x0107"
-      let networkIdentifier = 0
-      let deviceVersion = 1
-      let deviceTypeRef = "80"
-      let deviceIdentifier = 515
       if(this.endpoints.length < 1) {
           this.$store.dispatch('zap/createNewEndPoint')
           this.$store
             .dispatch(`zap/addEndpointType`, {
               name: 'Anonymous Endpoint Type',
-              deviceTypeRef: deviceTypeRef,
+              deviceTypeRef: "75",
             })
             .then((response) => {
               this.$store
                 .dispatch(`zap/addEndpoint`, {
-                  endpointId: endpointIdentifier,
-                  networkId: networkIdentifier,
-                  profileId: parseInt(profileIdentifier),
+                  endpointId: 1,
+                  networkId: 0,
+                  profileId: parseInt("0x0107"),
                   endpointType: response.id,
-                  endpointVersion: deviceVersion,
-                  deviceIdentifier: deviceIdentifier,
+                  endpointVersion: 1,
+                  deviceIdentifier: 515,
                 })
                 .then((res) => {
                   if (this.shareClusterStatesAcrossEndpoints()) {
@@ -170,83 +189,185 @@ export default {
             })
         }
       else {
+        this.$store.dispatch('zap/updateSelectedEndpointType', {
+          endpointType: this.endpointType[this.endpoints[0].id],
+          deviceTypeRef:
+            this.endpointDeviceTypeRef[this.endpointType[this.endpoints[0].id]],
+        })
+        this.$store.dispatch('zap/updateSelectedEndpoint', this.endpoints[0].id)
         resolve()
       }
+    },
+    getStorageParam() {
+      return Storage.getItem('confirmDeleteEndpointDialog')
+    },
+    handleDeletionDialog() {
+      if (this.getStorageParam() == 'true') {
+        this.deleteEpt()
+      } else {
+        this.deleteEndpointDialog = !this.deleteEndpointDialog
+      }
+    },
+    deleteEpt() {
+      if (this.endpoints.length == 1) {
+        this.deletingTutorialEndpoint = true
+      } else {
+        this.deleteEndpoint()
+      }
+    },
+
+    //  ----------  Vue Tour Functions ----------  //
+    deleteEndpoint() {
+      this.$store.dispatch('zap/deleteEndpoint', this.endpoints[0].id).then(() => {
+        this.$store.dispatch(
+          'zap/deleteEndpointType',
+          this.endpointType[this.endpoints[0].id]
+        )
+      })
+      this.deletingTutorialEndpoint = false
+      this.deleteEndpointDialog = false
+    },
+    disableTutorial() {
+      this.$store.commit('zap/toggleTutorial', false)
+      this.$store.commit('zap/triggerExpanded', false)
+      this.$store.commit('zap/openZclExtensionsDialogForTutorial', false)
+      this.handleDeletionDialog()
+    },
+    startTutorialAndCloseTheEndpointModal() {
+      return new Promise(resolve => {
+        this.$store.commit('zap/toggleEndpointModal', false)
+        this.$store.commit('zap/toggleTutorial', true)
+        resolve()
+      })
+    },
+    openEndpointModal() {
+      return new Promise((resolve) => {
+        this.$store.commit('zap/toggleEndpointModal', true)
+        setTimeout(() => {
+          resolve()
+        }, 250)
+      })
+    },
+    createMockEndpoint() {
+      return new Promise( resolve => {
+        this.$store.commit('zap/toggleEndpointModal', true)
+        setTimeout(() => {
+          resolve()
+        }, 300)
+      })
+    },
+    generateEndpointCard() {
+      return new Promise((resolve) => {
+        this.createNewEndpointForTour(resolve)
+        this.$store.commit('zap/toggleEndpointModal', false)
+      })
+    },
+    expendCluster() {
+      return new Promise( (resolve) => {
+        this.$store.commit('zap/triggerExpanded', true)
+        resolve()
+      })
+    },
+    comeBackToHomePage() {
+      return new Promise( resolve => {
+        if(this.$router.currentRoute.path !== "/") {
+          this.$router.push({ name: "Home" }).then(() => {
+            this.$store.commit('zap/triggerExpanded', true)
+            resolve()
+          })
+        } else {
+          resolve()
+        }
+      })
+    },
+    openConfigure() {
+      return new Promise( resolve => {
+        if(this.$router.currentRoute.path === "/") {
+          this.$store.commit('zap/triggerExpanded', false)
+          let payload = {
+            caption: "Attributes for determining basic information about a device, setting user device information such as location, and enabling a device.",
+            code: 0,
+            define: "BASIC_CLUSTER",
+            domainName: "General",
+            id: 22,
+            isSingleton: true,
+            label: "Basic",
+            manufacturerCode: null,
+            name: "Basic",
+            revision: null
+          }
+          this.$store.dispatch('zap/updateSelectedCluster', payload).then(() => {
+            this.$store.dispatch(
+              'zap/refreshEndpointTypeCluster',
+              this.selectedEndpointTypeId
+            )
+            this.$store.dispatch('zap/setLastSelectedDomain', "General")
+          })
+          this.$router.push({name: "cluster"}).then(() => {
+            resolve()
+          })
+        } else {
+          resolve()
+        }
+      } )
+    },
+    backToAttributesTab() {
+      return new Promise( resolve => {
+        this.$store.commit('zap/openReportTabInCluster', "attributes")
+        resolve()
+      })
+    },
+    openReportTabInCluster() {
+      return new Promise( resolve => {
+        this.$store.commit('zap/openReportTabInCluster', "reporting")
+        resolve()
+      })
+    },
+    openCommandsTabInCluster() {
+      return new Promise( resolve => {
+        if(this.$router.currentRoute.path === "/") {
+          this.$router.push({name: "cluster"}).then(() => {
+            setTimeout(() => {
+              this.$store.commit('zap/openReportTabInCluster', "commands")
+              resolve()
+            },200)
+          })
+        } else {
+          this.$store.commit('zap/openReportTabInCluster', "commands")
+          setTimeout(() => {
+            resolve()
+          },200)
+        }
+      })
+    },
+    backToHomePage() {
+      return new Promise( resolve => {
+        if(this.$router.currentRoute.path !== "/") {
+          this.$store.commit('zap/openReportTabInCluster', "attributes")
+          this.$router.push({name: "Home"}).then(() => {
+            resolve()
+          })
+        } else {
+          this.$store.commit('zap/openZclExtensionsDialogForTutorial', false)
+          resolve()
+        }
+      })
+    },
+    openZclExtensionDialog() {
+      return new Promise( resolve => {
+        this.$store.commit('zap/openZclExtensionsDialogForTutorial', true)
+        setTimeout(() => {
+          resolve()
+        },300)
+      })
     }
   },
   mixins: [CommonMixin],
   data() {
     return {
-      tutorialSteps: [
-        {
-          target: '.v-step-0',
-          header: {
-            title: 'Adding Endpoints'
-          },
-          content: `A Zigbee application can have multiple endpoints. Each endpoint contains a device configuration made up of Clusters on that endpoint.
-Add a new endpoint to your application by clicking <strong>ADD NEW ENDPOINT</strong> in the top left corner of the Zigbee Cluster Configurator interface`,
-          before: () => new Promise(resolve => {
-            this.$store.commit('zap/toggleEndpointModal', false)
-            resolve()
-          })
-        },
-        {
-          target: '.v-step-1',
-          content: 'A dialog opens in which you can select the device type for the endpoint.',
-          before: () => new Promise((resolve, reject) => {
-            this.$store.commit('zap/toggleEndpointModal', true)
-            setTimeout(() => {
-              resolve()
-            }, 250)
-          }),
-          params: {
-            placement: 'top',
-          },
-        },
-        {
-          target: '.v-step-2',
-          content: `From here you can select whether you would like the endpoint to represent something like a Light or a Door Lock. You can find the Zigbee
-device type by entering the name of the device in the <strong>Device</strong> field`,
-          params: {
-            placement: 'right',
-          },
-        },
-        {
-          target: '.v-step-3',
-          content: `To change the number of the endpoint on which you would like this device to appear, change the <strong>Endpoint</strong> setting`,
-          params: {
-            placement: 'left',
-          },
-        },
-        {
-          target: '.v-step-4',
-          content: `Once you have configured the endpoint, click <strong>CREATE</strong> to add the endpoint to your configuration.`,
-          params: {
-            placement: 'right',
-          },
-          before: () => new Promise( resolve => {
-            this.$store.commit('zap/toggleEndpointModal', true)
-            setTimeout(() => {
-              resolve()
-            }, 300)
-          })
-        },
-        {
-          header: {
-            title: 'Modifying an Endpoint'
-          },
-          target: '.v-step-5',
-          content: `Select an endpoint to modify by clicking on the endpoint configuration on the left side of the Zigbee Cluster Configurator. The Endpoint
-highlighted with a blue border is the endpoint that you are in the process of modifying.`,
-          params: {
-            placement: 'right',
-          },
-          before: () => new Promise((resolve, reject) => {
-            this.createNewEndpointForTour(resolve)
-            this.$store.commit('zap/toggleEndpointModal', false)
-          }),
-        },
-      ],
+      tutorialSteps: [],
+      deletingTutorialEndpoint: false,
+      deleteEndpointDialog: false,
     }
   },
   mounted() {
@@ -309,5 +430,24 @@ highlighted with a blue border is the endpoint that you are in the process of mo
       this.$store.dispatch('zap/updateUcComponentState', resp)
     })
   },
+  created() {
+    let config = []
+    tutorialConfig.tutorialSteps.forEach( item => {
+      config.push({
+        target: item.target,
+        header: {
+          title: item.title,
+        },
+        params: {
+          placement: item.placement,
+          enableScrolling: item.enableScrolling,
+          highlight: item.highlight
+        },
+        content: item.content,
+        before: () => item.before !== "" ? this[item.before]() : ''
+      })
+    })
+    this.tutorialSteps = config
+  }
 }
 </script>

@@ -472,8 +472,5 @@ export default {
       })
     },
   },
-  updated() {
-    console.log("AG Test",this.shownEndpoint)
-  }
 }
 </script>

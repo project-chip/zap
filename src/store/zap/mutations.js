@@ -530,3 +530,19 @@ export function loadZclClusterToUcComponentDependencyMap(state, map) {
 export function toggleEndpointModal(state, value) {
   state.showCreateModifyEndpoint = value
 }
+
+export function toggleTutorial(state, value) {
+  state.isTutorialRunning = value
+}
+
+export function triggerExpanded(state, value) {
+  state.expanded = value
+}
+
+export function openReportTabInCluster(state, value) {
+  state.showReportTabInCluster = value
+}
+
+export function openZclExtensionsDialogForTutorial(state,value) {
+  state.openZclExtensionsDialog = value
+}
