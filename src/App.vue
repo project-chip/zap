@@ -33,9 +33,9 @@ limitations under the License.
     >
       <q-card>
         <q-card-section>
-          <div class="text-h6">Delete Endpoint Created With Tutorial</div>
+          <div class="text-h6">Delete Endpoint</div>
 
-          Do you want to delete the endpoint created for the tutorial?
+          Do you want to delete the endpoint used for the tutorial?
         </q-card-section>
         <q-card-actions>
           <q-btn label="Cancel" v-close-popup class="col" />
@@ -45,7 +45,7 @@ limitations under the License.
             class="col"
             v-close-popup="deleteEndpointDialog"
             @click="deleteEndpoint()"
-            id="delete_tutorial_endpoint"
+            id="delete_last_endpoint"
           />
         </q-card-actions>
       </q-card>
@@ -198,22 +198,10 @@ export default {
         resolve()
       }
     },
-    getStorageParam() {
-      return Storage.getItem('confirmDeleteEndpointDialog')
-    },
     handleDeletionDialog() {
-      if (this.getStorageParam() == 'true') {
-        this.deleteEpt()
-      } else {
-        this.deleteEndpointDialog = !this.deleteEndpointDialog
-      }
-    },
-    deleteEpt() {
-      if (this.endpoints.length == 1) {
-        this.deletingTutorialEndpoint = true
-      } else {
-        this.deleteEndpoint()
-      }
+      this.deletingTutorialEndpoint = true
+      this.deleteEndpointDialog = !this.deleteEndpointDialog
+
     },
 
     //  ----------  Vue Tour Functions ----------  //
@@ -228,10 +216,13 @@ export default {
       this.deleteEndpointDialog = false
     },
     disableTutorial() {
-      this.$store.commit('zap/toggleTutorial', false)
-      this.$store.commit('zap/triggerExpanded', false)
-      this.$store.commit('zap/openZclExtensionsDialogForTutorial', false)
-      this.handleDeletionDialog()
+      this.$router.push({name: "Home"}).then(() => {
+        this.$store.commit('zap/toggleTutorial', false)
+        this.$store.commit('zap/triggerExpanded', false)
+        this.$store.commit('zap/openZclExtensionsDialogForTutorial', false)
+      }).then(() => {
+        this.handleDeletionDialog()
+      })
     },
     startTutorialAndCloseTheEndpointModal() {
       return new Promise(resolve => {
