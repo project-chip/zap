@@ -80,6 +80,13 @@ export default {
     showExceptionIcon() {
       return this.$store.state.zap.showExceptionIcon
     },
+    endpoints: {
+      get() {
+        return Array.from(this.endpointIdListSorted.keys()).map((id) => ({
+          id: id,
+        }))
+      },
+    },
   },
   methods: {
     setGenerationInProgress(progressMessage) {
@@ -103,14 +110,14 @@ export default {
       this.$store.dispatch('zap/setDefaultUiMode', 'general')
       this.$store.commit('zap/toggleShowExceptionIcon', false)
     },
-    createNewEndpointForTour({endpointIdentifier = 1,
-                               profileIdentifier = "0x0107",
-                               networkIdentifier = 0,
-                               deviceVersion = 1,
-                               deviceTypeRef = "80",
-                               deviceIdentifier = 515,
-                             }) {
-        if(this.trialEndpoint === false) {
+    createNewEndpointForTour(resolve) {
+      let endpointIdentifier = 1
+      let profileIdentifier = "0x0107"
+      let networkIdentifier = 0
+      let deviceVersion = 1
+      let deviceTypeRef = "80"
+      let deviceIdentifier = 515
+      if(this.endpoints.length < 1) {
           this.$store.dispatch('zap/createNewEndPoint')
           this.$store
             .dispatch(`zap/addEndpointType`, {
@@ -158,10 +165,13 @@ export default {
                   })
 
                   this.$store.dispatch('zap/updateSelectedEndpoint', res.id)
+                  resolve()
                 })
             })
-          this.trialEndpoint = true
         }
+      else {
+        resolve()
+      }
     }
   },
   mixins: [CommonMixin],
@@ -175,6 +185,10 @@ export default {
           },
           content: `A Zigbee application can have multiple endpoints. Each endpoint contains a device configuration made up of Clusters on that endpoint.
 Add a new endpoint to your application by clicking <strong>ADD NEW ENDPOINT</strong> in the top left corner of the Zigbee Cluster Configurator interface`,
+          before: () => new Promise(resolve => {
+            this.$store.commit('zap/toggleEndpointModal', false)
+            resolve()
+          })
         },
         {
           target: '.v-step-1',
@@ -210,7 +224,12 @@ device type by entering the name of the device in the <strong>Device</strong> fi
           params: {
             placement: 'right',
           },
-          before: this.createNewEndpointForTour
+          before: () => new Promise( resolve => {
+            this.$store.commit('zap/toggleEndpointModal', true)
+            setTimeout(() => {
+              resolve()
+            }, 300)
+          })
         },
         {
           header: {
@@ -223,12 +242,11 @@ highlighted with a blue border is the endpoint that you are in the process of mo
             placement: 'right',
           },
           before: () => new Promise((resolve, reject) => {
+            this.createNewEndpointForTour(resolve)
             this.$store.commit('zap/toggleEndpointModal', false)
-            resolve()
           }),
         },
       ],
-      trialEndpoint: false,
     }
   },
   mounted() {
