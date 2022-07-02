@@ -16,7 +16,7 @@ limitations under the License.
 
 <template>
   <div>
-    <q-layout view="hHh Lpr lFf">
+    <q-layout view="hHh Lpr lFf" :dense="$q.screen.lt.md">
       <q-header
         elevated
         bordered
@@ -42,7 +42,6 @@ limitations under the License.
           <q-toolbar-title v-on:click.ctrl="showVersion" v-else>
             Zigbee Cluster Configurator
           </q-toolbar-title>
-          <q-space />
           <q-btn
             class="hidden"
             outline
@@ -56,7 +55,11 @@ limitations under the License.
             @click="globalOptionsDialog = !globalOptionsDialog"
             id="global_options"
           >
-            <div class="q-ml-xs">ZCL GLOBAL OPTIONS…</div>
+            <Transition name="bounce">
+              <div v-if="displayButton" class="q-ml-xs">
+                displayButton ZCL GLOBAL OPTIONS…
+              </div>
+            </Transition>
           </q-btn>
           <q-btn
             icon="list"
@@ -67,10 +70,13 @@ limitations under the License.
             :outline="false"
             @click="zclExtensionDialog = true"
           >
-            <div class="text-align q-ml-xs">ZCL Extensions...</div>
+            <Transition name="bounce">
+              <div v-if="displayButton" class="text-align q-ml-xs">
+                ZCL Extensions...
+              </div></Transition
+            >
           </q-btn>
         </q-toolbar>
-
         <q-dialog
           v-model="globalOptionsDialog"
           class="background-color:transparent"
@@ -89,8 +95,10 @@ limitations under the License.
         <zcl-endpoint-manager />
       </q-drawer>
       <q-page-container>
-        <initial-content v-if="isSelectedEndpoint" />
-        <zcl-cluster-manager />
+        <q-scroll-area style="height: 75vh; max-width: 200vh">
+          <initial-content v-if="isSelectedEndpoint" />
+          <zcl-cluster-manager />
+        </q-scroll-area>
       </q-page-container>
     </q-layout>
     <q-dialog v-model="zclExtensionDialog" style="width: 800px">
@@ -144,6 +152,9 @@ export default {
     window.addEventListener('resize', this.collapseOnResize)
   },
   computed: {
+    displayButton() {
+      return !this.$q.screen.lt.md
+    },
     endpointDeviceTypeRef: {
       get() {
         return this.$store.state.zap.endpointTypeView.deviceTypeRef
@@ -231,7 +242,7 @@ export default {
   background: white;
   color: black;
   vertical-align: middle;
-  margin: 0px 5px 5px 0px;
+  margin-bottom: 5px;
 }
 
 .body--dark .zclConfiguratorLayoutHeader {
@@ -241,5 +252,30 @@ export default {
 
 body.body--dark {
   background: #272821;
+}
+
+.bounce-enter-active {
+  animation: bounce-in .5s;
+}
+.bounce-leave-active {
+  animation: bounce-in .5s reverse;
+}
+
+@keyframes bounce-in {
+  0% {
+    opacity: 0 ;
+  }
+  25% {
+    opacity: 0.25 ;
+  }
+  50% {
+    opacity: 0.5 ;
+  }
+  75% {
+    opacity: 0.75 ;
+  }
+  100% {
+    opacity: 1 ;
+  }
 }
 </style>
