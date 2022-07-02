@@ -40,8 +40,10 @@ limitations under the License.
             />
           </q-toolbar-title>
           <q-toolbar-title v-on:click.ctrl="showVersion" v-else>
-            Cluster Configurator:
+            <<<<<<< HEAD Cluster Configurator:
             {{ zclProperties != undefined ? zclProperties.description : '' }}
+            ======= Cluster Configurator: {{ zclProperties.description || '' }}
+            >>>>>>> 8626e3b7 (https://github.com/project-chip/zap/issues/556)
           </q-toolbar-title>
           <q-btn
             class="hidden"
