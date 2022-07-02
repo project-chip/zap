@@ -524,3 +524,9 @@ export function loadZclClusterToUcComponentDependencyMap(state, map) {
   if (map != null)
     Vue.set(state.studio, 'zclSdkExtClusterToUcComponentMap', map)
 }
+
+// Vue Tour Functions
+
+export function toggleEndpointModal(state, value) {
+  state.showCreateModifyEndpoint = value
+}
