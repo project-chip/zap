@@ -20,6 +20,7 @@ const fs = require('fs')
 const fsp = fs.promises
 const path = require('path')
 const scriptUtil = require('./script-util.js')
+const readline = require('readline')
 
 const spaDir = path.join(__dirname, '../spa')
 const backendDir = path.join(__dirname, '../dist')
@@ -191,22 +192,76 @@ async function rebuildBackendIfNeeded() {
  * ads the timestamp and saves it into .version.json
  */
 async function stampVersion() {
-  return getStdout('{"hash": null,"date": null}', 'git', [
-    'log',
-    '-1',
-    '--format={"hash": "%H","timestamp": %ct}',
-  ])
-    .then((out) => {
-      let version = JSON.parse(out)
-      let d = new Date(version.timestamp * 1000) // git gives seconds, Date needs milliseconds
-      version.date = d
-      let versionFile = path.join(__dirname, '../.version.json')
-      console.log(`🔍 Git commit: ${version.hash} from ${version.date}`)
-      return fsp.writeFile(versionFile, JSON.stringify(version))
+  try {
+    let out = await getStdout('{"hash": null,"date": null}', 'git', [
+      'log',
+      '-1',
+      '--format={"hash": "%H","timestamp": %ct}',
+    ])
+    let version = JSON.parse(out)
+    let d = new Date(version.timestamp * 1000) // git gives seconds, Date needs milliseconds
+    version.date = d
+    let versionFile = path.join(__dirname, '../.version.json')
+    console.log(`🔍 Git commit: ${version.hash} from ${version.date}`)
+    await fsp.writeFile(versionFile, JSON.stringify(version))
+
+    await setPackageJsonVersion(d, 'real')
+  } catch (err) {
+    console.log(`Error retrieving version: ${err}`)
+  }
+}
+
+/**
+ * Sets the version in package.json
+ * @param {*} mode 'fake', 'real' or 'print'
+ */
+async function setPackageJsonVersion(date, mode) {
+  let promise = new Promise((resolve, reject) => {
+    let packageJson = path.join(__dirname, '../package.json')
+    let output = ''
+    let cnt = 0
+    let wasChanged = false
+
+    const stream = fs.createReadStream(packageJson)
+    const rl = readline.createInterface({
+      input: stream,
+      crlfDelay: Infinity,
     })
-    .catch((err) => {
-      console.log(`Error retrieving version: ${err}`)
+
+    rl.on('line', (line) => {
+      if (cnt < 10 && line.includes('"version":')) {
+        let output
+        if (mode == 'real') {
+          output = `  "version": "${date.getFullYear()}.${
+            date.getMonth() + 1
+          }.${date.getDate()}",`
+        } else if (mode == 'fake') {
+          output = `  "version": "0.0.0",`
+        } else {
+          output = line
+        }
+
+        if (output == line) {
+          wasChanged = false
+        } else {
+          line = output
+          wasChanged = true
+        }
+        versionPrinted = line
+      }
+      output = output.concat(line + '\n')
+      cnt++
     })
+
+    rl.on('close', () => {
+      if (wasChanged) {
+        fs.writeFileSync(packageJson, output)
+      }
+      console.log(`🔍 Version output: ${versionPrinted}`)
+      resolve(wasChanged)
+    })
+  })
+  return promise
 }
 
 /**
@@ -257,3 +312,4 @@ exports.stampVersion = stampVersion
 exports.duration = duration
 exports.doneStamp = doneStamp
 exports.mainPath = mainPath
+exports.setPackageJsonVersion = setPackageJsonVersion

@@ -1,5 +1,6 @@
 {
-  "version": "Matter Test Data",
+  "description": "Unit Test Meta-data",
+  "version": 1,
   "xmlRoot": ".",
   "xmlFile": ["types.xml", "test1.xml", "access.xml"],
   "zclSchema": "../../../zcl-builtin/shared/schema/zcl.xsd",

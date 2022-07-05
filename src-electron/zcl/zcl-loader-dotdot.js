@@ -21,7 +21,6 @@ const env = require('../util/env')
 const path = require('path')
 const zclLoader = require('./zcl-loader')
 const dbApi = require('../db/db-api.js')
-const queryZcl = require('../db/query-zcl.js')
 const queryLoader = require('../db/query-loader.js')
 const queryPackage = require('../db/query-package.js')
 const dbEnum = require('../../src-shared/db-enum.js')
@@ -1263,7 +1262,13 @@ async function loadDotdotZcl(db, metafile) {
     )
     await collectDataFromLibraryXml(ctx)
     if (ctx.version != null) {
-      await zclLoader.recordVersion(db, ctx.packageId, ctx.version)
+      await zclLoader.recordVersion(
+        db,
+        ctx.packageId,
+        ctx.version,
+        ctx.category,
+        ctx.description
+      )
     }
     await parseZclFiles(db, ctx)
     await loadZclData(db, ctx)

@@ -22,24 +22,6 @@
  */
 const dbApi = require('./db-api')
 const dbMapping = require('./db-mapping')
-const dbCache = require('./db-cache')
-
-const cacheKey = 'bitmap'
-
-async function createCache(db, packageId) {
-  let packageSpecificCache = {
-    byName: {},
-    byId: {},
-  }
-  let d = await selectAllBitmaps(db, packageId)
-  packageSpecificCache.rawData = d
-  for (const b of d) {
-    packageSpecificCache.byName[b.name] = b
-    packageSpecificCache.byId[b.id] = b
-  }
-  dbCache.put(cacheKey, packageId, packageSpecificCache)
-  return packageSpecificCache
-}
 
 /**
  * Retrieves all the bitmaps in the database.
@@ -66,16 +48,6 @@ WHERE PACKAGE_REF = ? ORDER BY NAME`,
   return rows.map(dbMapping.map.bitmap)
 }
 
-async function selectAllBitmapsFromCache(db, packageId) {
-  let cache
-  if (dbCache.isCached(cacheKey, packageId)) {
-    cache = dbCache.get(cacheKey, packageId)
-  } else {
-    cache = await createCache(db, packageId)
-  }
-  return cache.rawData
-}
-
 async function selectBitmapByName(db, packageId, name) {
   return dbApi
     .dbGet(
@@ -93,16 +65,6 @@ WHERE (DATA_TYPE.NAME = ? OR DATA_TYPE.NAME = ?) AND DATA_TYPE.PACKAGE_REF = ?`,
     .then(dbMapping.map.bitmap)
 }
 
-async function selectBitmapByNameFromCache(db, name, packageId) {
-  let cache
-  if (dbCache.isCached(cacheKey, packageId)) {
-    cache = dbCache.get(cacheKey, packageId)
-  } else {
-    cache = await createCache(db, packageId)
-  }
-  return cache.byName[name]
-}
-
 async function selectBitmapById(db, id) {
   return dbApi
     .dbGet(
@@ -118,16 +80,6 @@ WHERE BITMAP_ID = ?`,
       [id]
     )
     .then(dbMapping.map.bitmap)
-}
-
-async function selectBitmapByIdFromCache(db, id) {
-  let cache
-  if (dbCache.isCached(cacheKey, packageId)) {
-    cache = dbCache.get(cacheKey, packageId)
-  } else {
-    cache = await createCache(db, packageId)
-  }
-  return cache.byId[id]
 }
 
 exports.selectBitmapById = selectBitmapById

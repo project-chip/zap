@@ -1,5 +1,7 @@
 {
-  "version": "Matter Test Data",
+  "description": "Matter Test Data",
+  "version": 1,
+  "category": "matter",
   "xmlRoot": ["."],
   "_comment": "Ensure access-control-definitions.xml is first in xmlFile array",
   "xmlFile": [

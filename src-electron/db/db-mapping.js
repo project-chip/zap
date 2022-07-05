@@ -32,6 +32,8 @@ exports.map = {
       path: x.PATH,
       crc: x.CRC,
       type: x.TYPE,
+      category: x.CATEGORY,
+      description: x.DESCRIPTION,
       version: x.VERSION,
       parentId: x.PARENT_PACKAGE_REF,
     }
@@ -166,6 +168,7 @@ exports.map = {
       argIsArray: dbApi.fromDbBool(x.ARG_IS_ARRAY),
       argPresentIf: x.ARG_PRESENT_IF,
       argCountArg: x.ARG_COUNT_ARG,
+      commandArgCount: x.COMMAND_ARGUMENT_COUNT,
       argIsNullable: x.ARG_IS_NULLABLE,
       responseRef: x.RESPONSE_REF,
       responseName: x.RESPONSE_NAME,

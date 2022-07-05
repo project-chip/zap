@@ -10,5 +10,5 @@ npx jsdoc src-electron src-shared -r -d ./generated-html/
 echo "🚀   > Eslint..."
 npx eslint --ext .js,.vue src src-electron src-shared src-script test
 
-echo "🚀   > Update version..."
-src-script/zap-update-package-version.js
+echo "🚀   > Reset version in package.json to 0.0.0..."
+src-script/zap-update-package-version.js -fake

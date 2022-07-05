@@ -23,45 +23,38 @@
 const fs = require('fs')
 const path = require('path')
 const readline = require('readline')
+const scriptUtil = require('./script-util')
 
-let packageJson = path.join(__dirname, '../package.json')
-let output = ''
+if (
+  process.argv[2] == '-?' ||
+  process.argv[2] == '--?' ||
+  process.argv[2] == '--help'
+) {
+  console.log('Usage: zap-update-package-version.js [-fake|-real]\n')
+  console.log('  fake: adds the fake version to package.json for committing')
+  console.log('  real: adds the real version to package.json from current date')
+  console.log('\nIf no command is passed, script just prints out the version.')
+  process.exit(0)
+}
 
-const stream = fs.createReadStream(packageJson)
-const rl = readline.createInterface({
-  input: stream,
-  crlfDelay: Infinity,
-})
+let mode = 'print'
 
-let wasChanged
-let cnt = 0
-rl.on('line', (line) => {
-  if (cnt < 10 && line.includes('"version":')) {
-    let d = new Date()
-    let output = `  "version": "${d.getFullYear()}.${
-      d.getMonth() + 1
-    }.${d.getDate()}",`
+if (process.argv[2] == '-fake') mode = 'fake'
+if (process.argv[2] == '-real') mode = 'real'
 
-    if (output == line) {
-      wasChanged = false
+scriptUtil
+  .setPackageJsonVersion(new Date(), mode)
+  .then((wasChanged) => {
+    if (wasChanged) {
+      console.log(
+        '⛔ Version in package.json was not set correctly. It was automatically updated. Review and commit again, please.'
+      )
     } else {
-      line = output
-      wasChanged = true
+      console.log('😎 Version in package.json was not changed.')
     }
-  }
-  output = output.concat(line + '\n')
-  cnt++
-})
-
-rl.on('close', () => {
-  if (wasChanged) {
-    console.log(
-      '⛔ Version in package.json was out of date. It was automatically updated. Review and commit again, please.'
-    )
-    fs.writeFileSync(packageJson, output)
-    console.log('Updated the package.json!')
-  } else {
-    console.log('😎 Version in package.json is correct.')
-  }
-  process.exit(wasChanged ? 1 : 0)
-})
+    process.exit(wasChanged ? 1 : 0)
+  })
+  .catch((err) => {
+    console.log(`⛔ Error: ${err}`)
+    process.exit(1)
+  })

@@ -1055,11 +1055,12 @@ async function insertDataType(db, packageId, data) {
     }
   }
   if (clustersToLoad.length > 0)
-    await dbApi.dbMultiInsert(
+    return dbApi.dbMultiInsert(
       db,
       `INSERT INTO DATA_TYPE_CLUSTER (DATA_TYPE_REF, CLUSTER_CODE) VALUES (?, ?)`,
       clustersToLoad
     )
+  return lastIdsArray
 }
 
 /**

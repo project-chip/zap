@@ -42,40 +42,34 @@ export default {
     return {
       columns: [
         {
-          name: 'ID',
-          label: 'ID',
-          align: 'left',
-          field: 'PACKAGE_ID',
-        },
-        {
-          name: 'PATH',
+          name: 'path',
           align: 'left',
           label: 'Path',
-          field: 'PATH',
+          field: 'path',
         },
         {
-          name: 'TYPE',
+          name: 'type',
           align: 'left',
           label: 'Type',
-          field: 'TYPE',
+          field: 'type',
         },
         {
-          name: 'CRC',
-          align: 'left',
-          label: 'CRC',
-          field: 'CRC',
-        },
-        {
-          name: 'VERSION',
+          name: 'version',
           align: 'left',
           label: 'Version',
-          field: 'VERSION',
+          field: 'version',
         },
         {
-          name: 'PARENT_PACKAGE_REF',
+          name: 'category',
           align: 'left',
-          label: 'Parent Package ID',
-          field: 'PARENT_PACKAGE_REF',
+          label: 'Category',
+          field: 'category',
+        },
+        {
+          name: 'description',
+          align: 'left',
+          label: 'Description',
+          field: 'description',
         },
       ],
     }
