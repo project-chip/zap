@@ -61,6 +61,8 @@ let cli = [
   arg.out,
   '--generationTemplate',
   arg.generationTemplate,
+  '--results',
+  arg.results,
 ]
 arg._.forEach((x) => cli.push(x))
 
