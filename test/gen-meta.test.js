@@ -111,7 +111,7 @@ test(
     const enums = await queryZcl.selectAllEnums(db, zclContext.packageId)
     for (const e of enums) {
       let clusters = await queryZcl.selectEnumClusters(db, e.id)
-      if (e.name == 'TestEnum') {
+      if (e.name == 'TestEnum' || e.name == 'SparseEnum') {
         expect(clusters.length).toBe(1)
         expect(clusters[0].code).toBe(0xabcd)
       } else {
@@ -219,6 +219,8 @@ test(
     epc = genResult.content['type-by-cluster.h']
     expect(epc).toContain('enum item: c')
     expect(epc).toContain('Bitmap: ClusterBitmap')
+    expect(epc).toContain('* First unused enum value for SparseEnum: 2')
+    expect(epc).toContain('* First next larger enum value for SparseEnum: 4')
 
     epc = genResult.content['struct.h']
     expect(epc).toContain('Nest complex;// <- has nested array')
