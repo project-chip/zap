@@ -89,6 +89,13 @@ limitations under the License.
     <item name="E" value="0x04"/>
   </enum>
 
+  <enum name="SparseEnum" type="ENUM8">
+    <cluster code="0xABCD"/>
+    <item name="Zero" value="0x00"/>
+    <item name="One" value="0x01"/>
+    <item name="Three" value="0x03"/>
+  </enum>
+
   <struct name="SimpleStruct">
     <cluster code="0xABCD"/>
     <cluster code="0xABCE"/>
