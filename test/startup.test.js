@@ -97,8 +97,8 @@ test(
         expect(fs.existsSync(testOutputFile)).toBeTruthy()
         fs.unlinkSync(testOutputFile)
 
-        expect(fs.existsSync(testOutputFile)).toBeTruthy()
-        fs.unlinkSync(testOutputFile)
+        expect(fs.existsSync(testConversionResults)).toBeTruthy()
+        fs.unlinkSync(testConversionResults)
       })
   },
   testUtil.timeout.long()
