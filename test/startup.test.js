@@ -74,6 +74,11 @@ test(
       __dirname,
       'resource/isc/test-light.conversion'
     )
+    let testConversionResults = path.join(
+      __dirname,
+      'resource/isc/test-light.conversion.results.yaml'
+    )
+
     return startup
       .startConvert(
         {
@@ -81,6 +86,7 @@ test(
           output: output,
           zclProperties: env.builtinSilabsZclMetafile(),
           noZapFileLog: true,
+          results: testConversionResults,
         },
         {
           quitFunction: null,
@@ -90,6 +96,9 @@ test(
       .then(() => {
         expect(fs.existsSync(testOutputFile)).toBeTruthy()
         fs.unlinkSync(testOutputFile)
+
+        expect(fs.existsSync(testConversionResults)).toBeTruthy()
+        fs.unlinkSync(testConversionResults)
       })
   },
   testUtil.timeout.long()
