@@ -70,8 +70,8 @@ scriptUtil
   .stampVersion()
   .then(() => scriptUtil.rebuildBackendIfNeeded())
   .then(() => scriptUtil.executeCmd(ctx, 'node', cli))
+  .then(() => scriptUtil.doneStamp(startTime))
   .then(() => {
-    scriptUtil.doneStamp(startTime)
     process.exit(0)
   })
   .catch((code) => {
