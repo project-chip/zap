@@ -79,6 +79,82 @@ async function typeSizeAttribute(db, zclPackageIds, at, defaultValue = null) {
 }
 
 /**
+ *
+ * @param {*} value
+ * @param {*} size
+ * @returns The big endian value for a given float value padded with
+ * the given size. The value is returned in hex format and prefixed with '0x'.
+ */
+function convertFloatToBigEndian(value, size) {
+  let res = ''
+  const arrayBuffer = new ArrayBuffer(size)
+  const dataView = new DataView(arrayBuffer)
+  if (size == 4) {
+    dataView.setFloat32(0, value, false)
+  } else if (size == 8) {
+    dataView.setFloat64(0, value, false)
+  } else {
+    // Throwing a warning for unknown float type and continuing with 64bit float
+    env.logWarning('Unknown Float Type value: ' + value)
+    dataView.setFloat64(0, value, false)
+  }
+  for (let i = 0; i < size; i++) {
+    let t = dataView.getUint8(i).toString(16)
+    if (t.length == 1) {
+      t = '0' + t
+    }
+    res += t
+  }
+  return '0x' + res
+}
+
+/**
+ *
+ * @param {*} value
+ * @param {*} size
+ * @returns The big endian value for a given integer value padded with
+ * the given size. The value is returned in hex format and prefixed with '0x'.
+ */
+function convertIntToBigEndian(value, size) {
+  const arrayBuffer = size <= 4 ? new ArrayBuffer(size) : new ArrayBuffer(8)
+  const dataView = new DataView(arrayBuffer)
+  let i = 0
+  if (size == 1) {
+    dataView.setInt8(0, value, false)
+  } else if (size == 2) {
+    dataView.setInt16(0, value, false)
+  } else if (size == 3) {
+    dataView.setInt32(0, value, false)
+    i = 1 // Read from 2nd byte after conversion
+  } else if (size == 4) {
+    dataView.setInt32(0, value, false)
+  } else if (size == 5) {
+    dataView.setBigInt64(0, BigInt(value), false)
+    i = 3 // Read from 4th byte after conversion
+  } else if (size == 6) {
+    dataView.setBigInt64(0, BigInt(value), false)
+    i = 2 // Read from 3rd byte after conversion
+  } else if (size == 7) {
+    dataView.setBigInt64(0, BigInt(value), false)
+    i = 1 // Read from 2nd byte after conversion
+  } else if (size == 8) {
+    dataView.setBigInt64(0, BigInt(value), false)
+  } else {
+    env.logWarning('Unknown Integer Type value: ' + value)
+    dataView.setBigInt64(0, BigInt(value), false)
+  }
+  let res = ''
+  for (let j = i; j < size + i; j++) {
+    let t = dataView.getUint8(j).toString(16)
+    if (t.length == 1) {
+      t = '0' + t
+    }
+    res += t
+  }
+  return '0x' + res
+}
+
+/**
  * If the type is more than 2 bytes long, then this method creates
  * the default byte array.
  *
@@ -88,10 +164,11 @@ async function typeSizeAttribute(db, zclPackageIds, at, defaultValue = null) {
  * @returns string which is a C-formatted byte array.
  */
 function longTypeDefaultValue(size, type, value) {
-  let v
+  let v = ''
   if (value == null || value.length == 0) {
     v = '0x00, '.repeat(size)
   } else if (isNaN(value)) {
+    // String Value
     if (isOneBytePrefixedString(type)) {
       v = bin.stringToOneByteLengthPrefixCBytes(value, size).content
     } else if (isTwoBytePrefixedString(type)) {
@@ -100,17 +177,34 @@ function longTypeDefaultValue(size, type, value) {
       v = bin.hexToCBytes(bin.stringToHex(value))
     }
   } else {
-    // First strip off the 0x.
-    if (value.startsWith('0x') || value.startsWith('0X'))
-      value = value.substring(2)
-
-    // Now pad the zeroes to the required size
-    if (size > 0) {
-      while (value.length / 2 < size) {
-        value = '0' + value
+    let temp = ''
+    // Float value
+    if (!isNaN(value) && value.toString().indexOf('.') != -1) {
+      temp = convertFloatToBigEndian(value, size)
+    } else {
+      // Positive value
+      if (value > 0) {
+        let ret = value.trim()
+        if (ret.startsWith('0x') || ret.startsWith('0X')) {
+          temp = `0x${value.slice(2).toUpperCase()}`
+        } else {
+          let tempVal = parseInt(value)
+          temp = `0x${tempVal.toString(16).toUpperCase()}`
+        }
+      } else {
+        // Negative value
+        temp = convertIntToBigEndian(value, size)
       }
     }
-    v = bin.hexToCBytes(value) + ', '
+    // Padding based on attribute size
+    let default_macro = temp.replace('0x', '').match(/.{1,2}/g)
+    let padding_length = size - default_macro.length
+    for (let i = 0; i < padding_length; i++) {
+      v += '0x00, '
+    }
+    for (let m of default_macro) {
+      v += ' 0x' + m + ','
+    }
   }
   return v
 }
@@ -228,3 +322,5 @@ exports.convertToCliType = convertToCliType
 exports.isString = isString
 exports.isFloat = isFloat
 exports.isSignedInteger = isSignedInteger
+exports.convertIntToBigEndian = convertIntToBigEndian
+exports.convertFloatToBigEndian = convertFloatToBigEndian

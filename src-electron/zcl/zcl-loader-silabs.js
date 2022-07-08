@@ -603,6 +603,33 @@ function prepareCluster(cluster, context, isExtension = false) {
       } else {
         att.manufacturerCode = parseInt(att.manufacturerCode)
       }
+      // Setting max length for string type attributes when not specified by
+      // the xml.
+      if (
+        att.type &&
+        (att.type.toLowerCase() == 'long_octet_string' ||
+          att.type.toLowerCase() == 'long_char_string') &&
+        (att.maxLength == 0 || !att.maxLength)
+      ) {
+        // Setting the max length for long strings to 1024 instead of 65534
+        // if not already set by xml.
+        env.logWarning(
+          'Long string max length not set for ' +
+            att.name +
+            ' in xml. \
+        Currently defaulting to a max length of 1024 for long strings instead of 65534 \
+        for space conservation.'
+        )
+        att.maxLength = 1024
+      }
+      if (
+        att.type &&
+        (att.type.toLowerCase() == 'octet_string' ||
+          att.type.toLowerCase() == 'char_string') &&
+        (att.maxLength == 0 || !att.maxLength)
+      ) {
+        att.maxLength = 254
+      }
       // If attribute has removedIn, then it's not valid any more in LATEST spec.
       if (att.removedIn == null) ret.attributes.push(att)
     })

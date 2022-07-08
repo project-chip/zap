@@ -235,12 +235,243 @@ test(
 )
 
 test(
-  'Generated Macro',
+  'Generated Macro little endian',
   () => {
     let options = { hash: { endian: 'little' } }
     return zclHelper
       .as_generated_default_macro('0x00003840', 4, options)
       .then((res) => expect(res).toBe('0x40, 0x38, 0x00, 0x00, '))
+  },
+  testUtil.timeout.short()
+)
+
+test(
+  'Generated Macro big endian',
+  () => {
+    let options = { hash: { endian: 'big' } }
+    return zclHelper
+      .as_generated_default_macro('0x00003840', 4, options)
+      .then((res) => expect(res).toBe(' 0x00, 0x00, 0x38, 0x40,'))
+  },
+  testUtil.timeout.short()
+)
+
+test(
+  'Generated Macro Negative Value with attribute size of 8 bytes big endian',
+  () => {
+    let options = { hash: { endian: 'big' } }
+    return zclHelper
+      .as_generated_default_macro('-5', 8, options)
+      .then((res) =>
+        expect(res).toBe(' 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFB,')
+      )
+  },
+  testUtil.timeout.short()
+)
+
+test(
+  'Generated Macro Negative Value with attribute size of 8 bytes little endian',
+  () => {
+    let options = { hash: { endian: 'little' } }
+    return zclHelper
+      .as_generated_default_macro('-5', 8, options)
+      .then((res) =>
+        expect(res).toBe('0xFB, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, ')
+      )
+  },
+  testUtil.timeout.short()
+)
+
+test(
+  'Generated Macro Negative Value with attribute size of 5 bytes big endian',
+  () => {
+    let options = { hash: { endian: 'big' } }
+    return zclHelper
+      .as_generated_default_macro('-5', 5, options)
+      .then((res) => expect(res).toBe(' 0xFF, 0xFF, 0xFF, 0xFF, 0xFB,'))
+  },
+  testUtil.timeout.short()
+)
+
+test(
+  'Generated Macro Negative Value with attribute size of 5 bytes little endian',
+  () => {
+    let options = { hash: { endian: 'little' } }
+    return zclHelper
+      .as_generated_default_macro('-5', 5, options)
+      .then((res) => expect(res).toBe('0xFB, 0xFF, 0xFF, 0xFF, 0xFF, '))
+  },
+  testUtil.timeout.short()
+)
+
+test(
+  'Generated Macro Float Value little endian',
+  () => {
+    let options = { hash: { endian: 'little' } }
+    return zclHelper
+      .as_generated_default_macro('17.0', 8, options)
+      .then((res) =>
+        expect(res).toBe('0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x31, 0x40, ')
+      )
+  },
+  testUtil.timeout.short()
+)
+
+test(
+  'Generated Macro Float Value big endian',
+  () => {
+    let options = { hash: { endian: 'big' } }
+    return zclHelper
+      .as_generated_default_macro('17.0', 8, options)
+      .then((res) =>
+        expect(res).toBe(' 0x40, 0x31, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,')
+      )
+  },
+  testUtil.timeout.short()
+)
+
+test(
+  'Generated Negative Macro Float Value little endian',
+  () => {
+    let options = { hash: { endian: 'little' } }
+    return zclHelper
+      .as_generated_default_macro('-17.0', 8, options)
+      .then((res) =>
+        expect(res).toBe('0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x31, 0xC0, ')
+      )
+  },
+  testUtil.timeout.short()
+)
+
+test(
+  'Generated Negative Macro Float Value big endian',
+  () => {
+    let options = { hash: { endian: 'big' } }
+    return zclHelper
+      .as_generated_default_macro('-17.0', 8, options)
+      .then((res) =>
+        expect(res).toBe(' 0xC0, 0x31, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,')
+      )
+  },
+  testUtil.timeout.short()
+)
+
+test(
+  'Generated Macro for 5 byte integer big endian',
+  () => {
+    let options = { hash: { endian: 'big' } }
+    return zclHelper
+      .as_generated_default_macro('549755813887', 5, options)
+      .then((res) => expect(res).toBe(' 0x7F, 0xFF, 0xFF, 0xFF, 0xFF,'))
+  },
+  testUtil.timeout.short()
+)
+
+test(
+  'Generated Macro for 5 byte integer little endian',
+  () => {
+    let options = { hash: { endian: 'little' } }
+    return zclHelper
+      .as_generated_default_macro('549755813887', 5, options)
+      .then((res) => expect(res).toBe('0xFF, 0xFF, 0xFF, 0xFF, 0x7F, '))
+  },
+  testUtil.timeout.short()
+)
+
+test(
+  'Generated Macro for 6 byte integer big endian',
+  () => {
+    let options = { hash: { endian: 'big' } }
+    return zclHelper
+      .as_generated_default_macro('140737488355327', 6, options)
+      .then((res) => expect(res).toBe(' 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,'))
+  },
+  testUtil.timeout.short()
+)
+
+test(
+  'Generated Macro for 6 byte integer little endian',
+  () => {
+    let options = { hash: { endian: 'little' } }
+    return zclHelper
+      .as_generated_default_macro('140737488355327', 6, options)
+      .then((res) => expect(res).toBe('0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, '))
+  },
+  testUtil.timeout.short()
+)
+
+test(
+  'Generated Macro for 7 byte integer big endian',
+  () => {
+    let options = { hash: { endian: 'big' } }
+    return zclHelper
+      .as_generated_default_macro('140737488355327', 7, options)
+      .then((res) =>
+        expect(res).toBe('0x00,  0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,')
+      )
+  },
+  testUtil.timeout.short()
+)
+
+test(
+  'Generated Macro for 7 byte integer little endian',
+  () => {
+    let options = { hash: { endian: 'little' } }
+    return zclHelper
+      .as_generated_default_macro('140737488355327', 7, options)
+      .then((res) =>
+        expect(res).toBe('0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F,  0x00,')
+      )
+  },
+  testUtil.timeout.short()
+)
+
+test(
+  'Generated Macro for 8 byte integer big endian',
+  () => {
+    let options = { hash: { endian: 'big' } }
+    return zclHelper
+      .as_generated_default_macro('140737488355327', 8, options)
+      .then((res) =>
+        expect(res).toBe('0x00, 0x00,  0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,')
+      )
+  },
+  testUtil.timeout.short()
+)
+
+test(
+  'Generated Macro for 8 byte integer little endian',
+  () => {
+    let options = { hash: { endian: 'little' } }
+    return zclHelper
+      .as_generated_default_macro('140737488355327', 8, options)
+      .then((res) =>
+        expect(res).toBe('0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F,  0x00, 0x00,')
+      )
+  },
+  testUtil.timeout.short()
+)
+
+test(
+  'Generated Macro for string',
+  () => {
+    let options = { hash: { endian: 'big' } }
+    return zclHelper
+      .as_generated_default_macro('abc', 5, options)
+      .then((res) => expect(res).toBe("0x03, 'a', 'b', 'c', 0, "))
+  },
+  testUtil.timeout.short()
+)
+
+test(
+  'Generated Macro for long string',
+  () => {
+    // Currently string length prefix is always little endian based
+    // on the rest of our implementation for string attribute handling.
+    let options = { hash: { endian: 'big' } }
+    return zclHelper
+      .as_generated_default_macro('abc', 259, options)
+      .then((res) => expect(res).toContain("0x03, 0x00, 'a', 'b', 'c', 0, "))
   },
   testUtil.timeout.short()
 )
