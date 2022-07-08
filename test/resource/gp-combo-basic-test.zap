@@ -1,5 +1,5 @@
 {
-  "featureLevel": 71,
+  "featureLevel": 75,
   "creator": "zap",
   "keyValuePairs": [
     {
@@ -19,14 +19,16 @@
     {
       "pathRelativity": "relativeToZap",
       "path": "../../zcl-builtin/silabs/zcl.json",
-      "version": "ZCL Test Data",
-      "type": "zcl-properties"
+      "type": "zcl-properties",
+      "category": "zigbee",
+      "version": 1,
+      "description": "ZigbeePro test data"
     },
     {
       "pathRelativity": "relativeToZap",
       "path": "../gen-template/zigbee/gen-templates.json",
-      "version": "test-v1",
-      "type": "gen-templates-json"
+      "type": "gen-templates-json",
+      "version": "test-v1"
     }
   ],
   "endpointTypes": [
@@ -835,6 +837,33 @@
               "defaultValue": "3",
               "reportable": 0,
               "minInterval": 0,
+              "maxInterval": 65534,
+              "reportableChange": 0
+            }
+          ]
+        },
+        {
+          "name": "Green Power",
+          "code": 33,
+          "mfgCode": null,
+          "define": "GREEN_POWER_CLUSTER",
+          "side": "client",
+          "enabled": 0,
+          "commands": [],
+          "attributes": [
+            {
+              "name": "gp link key",
+              "code": 34,
+              "mfgCode": null,
+              "side": "client",
+              "type": "security_key",
+              "included": 1,
+              "storageOption": "RAM",
+              "singleton": 0,
+              "bounded": 0,
+              "defaultValue": "0x0102030405060708090A0B0C0D0F0F0F",
+              "reportable": 0,
+              "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
             }
@@ -4467,7 +4496,7 @@
               "storageOption": "RAM",
               "singleton": 0,
               "bounded": 0,
-              "defaultValue": "0x0102030405060708090A0B0C0D0F0G0H",
+              "defaultValue": "0x0102030405060708090A0B0C0D0F0F0F",
               "reportable": 0,
               "minInterval": 0,
               "maxInterval": 65534,
@@ -4670,7 +4699,7 @@
               "storageOption": "RAM",
               "singleton": 0,
               "bounded": 0,
-              "defaultValue": "0x0102030405060708090A0B0C0D0F0G0H",
+              "defaultValue": "0x0102030405060708090A0B0C0D0F0F0F",
               "reportable": 0,
               "minInterval": 0,
               "maxInterval": 65534,
@@ -11904,7 +11933,7 @@
               "storageOption": "RAM",
               "singleton": 0,
               "bounded": 0,
-              "defaultValue": "0x0102030405060708090A0B0C0D0F0G0H",
+              "defaultValue": "0x0102030405060708090A0B0C0D0F0F0F",
               "reportable": 0,
               "minInterval": 0,
               "maxInterval": 65534,
@@ -12156,7 +12185,7 @@
               "storageOption": "RAM",
               "singleton": 0,
               "bounded": 0,
-              "defaultValue": "0x0102030405060708090A0B0C0D0F0G0H",
+              "defaultValue": "0x0102030405060708090A0B0C0D0F0F0F",
               "reportable": 0,
               "minInterval": 0,
               "maxInterval": 65534,
