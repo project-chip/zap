@@ -257,7 +257,6 @@ async function setPackageJsonVersion(date, mode) {
       if (wasChanged) {
         fs.writeFileSync(packageJson, output)
       }
-      console.log(`🔍 Version output: ${versionPrinted}`)
       resolve(wasChanged)
     })
   })
@@ -283,12 +282,14 @@ function duration(nsDifference) {
 
 /**
  * Printout of timings at the end of a script.
+ * This function also cleans up the package.json
  *
  * @param {*} startTime
  */
-function doneStamp(startTime) {
+async function doneStamp(startTime) {
   let nsDuration = process.hrtime.bigint() - startTime
   console.log(`😎 All done: ${duration(nsDuration)}.`)
+  return setPackageJsonVersion(null, 'fake')
 }
 
 /**
