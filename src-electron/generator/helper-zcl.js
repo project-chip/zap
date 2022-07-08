@@ -2213,26 +2213,45 @@ async function if_mfg_specific_cluster(clusterId, options) {
  */
 async function as_generated_default_macro(value, attributeSize, options) {
   let default_macro_signature = ''
+  let temp = ''
   if (attributeSize > 2) {
-    let default_macro = helperC
-      .asHex(value, null, null)
-      .replace('0x', '')
-      .match(/.{1,2}/g)
+    // String value
+    if (isNaN(value)) {
+      return format_zcl_string_as_characters_for_generated_defaults(
+        value,
+        attributeSize
+      )
+    }
+    // Float value
+    if (!isNaN(value) && value.toString().indexOf('.') != -1) {
+      temp = types.convertFloatToBigEndian(value, attributeSize)
+    } else {
+      if (value > 0) {
+        // Positive value
+        temp = helperC.asHex(value, null, null)
+      } else {
+        // Negative value
+        temp = types.convertIntToBigEndian(value, attributeSize)
+      }
+    }
+    // Padding based on attribute size
+    let default_macro = temp.replace('0x', '').match(/.{1,2}/g)
     let padding_length = attributeSize - default_macro.length
     for (let i = 0; i < padding_length; i++) {
       default_macro_signature += '0x00, '
     }
     for (let m of default_macro) {
-      default_macro_signature += ' 0x' + m + ','
+      default_macro_signature += ' 0x' + m.toUpperCase() + ','
     }
-    // Applying endianess to attributes with size less than equal to 8 bytes.
-    // Thus only swapping int64u or smaller
-    if (options.hash.endian != 'big' && attributeSize <= 8) {
-      default_macro_signature = default_macro_signature
-        .split(' ')
-        .reverse()
-        .join(' ')
-    }
+  }
+
+  // Applying endianess to attributes with size less than equal to 8 bytes.
+  // Thus only swapping int64u or smaller
+  if (options.hash.endian != 'big' && attributeSize <= 8) {
+    default_macro_signature = default_macro_signature
+      .split(' ')
+      .reverse()
+      .join(' ')
   }
   return default_macro_signature
 }
@@ -2401,24 +2420,34 @@ function command_mask_sub_helper(commandMask, str) {
  * for example:
  * {{format_zcl_string_as_characters_for_generated_defaults 'abc' 5}}
  * will return as follows:
- * 3, 'a', 'b', 'c' 0x00, 0x00
+ * 3, 'a', 'b', 'c' 0, 0
  * @param stringVal
  * @param sizeOfString
  * @returns Formatted string for generated defaults starting with the lenth of a
  * string then each character and then filler for the size allocated for the
- * string
+ * string. Long strings prefixed by 2 byte length field.
  */
 async function format_zcl_string_as_characters_for_generated_defaults(
   stringVal,
   sizeOfString
 ) {
-  let lengthOfString = stringVal.length
-  let formatted_string = lengthOfString + ', '
-  for (let i = 0; i < lengthOfString; i++) {
+  let lengthOfString = types.convertIntToBigEndian(
+    stringVal.length,
+    sizeOfString < 255 ? 1 : 2
+  )
+  lengthOfString = lengthOfString.replace('0x', '').match(/.{1,2}/g)
+  let lengthPrefix = ''
+  for (let m of lengthOfString) {
+    lengthPrefix += ' 0x' + m.toUpperCase() + ','
+  }
+  // Switching length to little endian by default.
+  lengthPrefix = lengthPrefix.split(' ').reverse().join(' ')
+  let formatted_string = lengthPrefix
+  for (let i = 0; i < stringVal.length; i++) {
     formatted_string += "'" + stringVal.charAt(i) + "', "
   }
-  for (let i = lengthOfString + 1; i < sizeOfString; i++) {
-    formatted_string += '0x00' + ', '
+  for (let i = stringVal.length + 1; i < sizeOfString; i++) {
+    formatted_string += '0' + ', '
   }
   return formatted_string
 }
