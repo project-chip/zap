@@ -18,14 +18,9 @@
 
 const scriptUtil = require('./script-util.js')
 
-let startTime = process.hrtime.bigint()
-
 //workaround: executeCmd()/spawn() fails silently without complaining about missing path to electron
 process.env.PATH = process.env.PATH + ':/usr/local/bin/'
 
-scriptUtil
-  .stampVersion()
-  .then(() => scriptUtil.doneStamp(startTime))
-  .catch((err) => {
-    console.log(err)
-  })
+scriptUtil.stampVersion().catch((err) => {
+  console.log(err)
+})
