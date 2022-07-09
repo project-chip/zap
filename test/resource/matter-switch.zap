@@ -104,8 +104,7 @@
               "maxInterval": 65534,
               "reportableChange": 0
             }
-          ],
-          "events": []
+          ]
         },
         {
           "name": "Identify",
@@ -237,8 +236,7 @@
               "maxInterval": 65534,
               "reportableChange": 0
             }
-          ],
-          "events": []
+          ]
         },
         {
           "name": "Descriptor",
@@ -247,7 +245,6 @@
           "define": "DESCRIPTOR_CLUSTER",
           "side": "client",
           "enabled": 0,
-          "commands": [],
           "attributes": [
             {
               "name": "FeatureMap",
@@ -281,8 +278,7 @@
               "maxInterval": 65534,
               "reportableChange": 0
             }
-          ],
-          "events": []
+          ]
         },
         {
           "name": "Descriptor",
@@ -291,7 +287,6 @@
           "define": "DESCRIPTOR_CLUSTER",
           "side": "server",
           "enabled": 1,
-          "commands": [],
           "attributes": [
             {
               "name": "device list",
@@ -437,8 +432,7 @@
               "maxInterval": 65534,
               "reportableChange": 0
             }
-          ],
-          "events": []
+          ]
         },
         {
           "name": "Binding",
@@ -447,7 +441,6 @@
           "define": "BINDING_CLUSTER",
           "side": "client",
           "enabled": 1,
-          "commands": [],
           "attributes": [
             {
               "name": "FeatureMap",
@@ -481,8 +474,7 @@
               "maxInterval": 65534,
               "reportableChange": 0
             }
-          ],
-          "events": []
+          ]
         },
         {
           "name": "Binding",
@@ -491,7 +483,6 @@
           "define": "BINDING_CLUSTER",
           "side": "server",
           "enabled": 0,
-          "commands": [],
           "attributes": [
             {
               "name": "Binding",
@@ -589,8 +580,7 @@
               "maxInterval": 65534,
               "reportableChange": 0
             }
-          ],
-          "events": []
+          ]
         },
         {
           "name": "Switch",
@@ -599,7 +589,6 @@
           "define": "SWITCH_CLUSTER",
           "side": "client",
           "enabled": 0,
-          "commands": [],
           "attributes": [
             {
               "name": "FeatureMap",
@@ -633,8 +622,7 @@
               "maxInterval": 65534,
               "reportableChange": 0
             }
-          ],
-          "events": []
+          ]
         },
         {
           "name": "Switch",
@@ -643,7 +631,6 @@
           "define": "SWITCH_CLUSTER",
           "side": "server",
           "enabled": 1,
-          "commands": [],
           "attributes": [
             {
               "name": "number of positions",
@@ -775,13 +762,6 @@
             }
           ],
           "events": [
-            {
-              "name": "SwitchLatched",
-              "code": 0,
-              "mfgCode": null,
-              "side": "server",
-              "included": 1
-            },
             {
               "name": "InitialPress",
               "code": 1,

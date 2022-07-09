@@ -45,19 +45,27 @@ async function exportEndpointType(db, endpointType) {
         endpointType.endpointTypeId,
         endpointClusterId
       )
-
+    if (endpointCluster.commands.length == 0) {
+      delete endpointCluster.commands
+    }
     endpointCluster.attributes =
       await queryImpExp.exportAttributesFromEndpointTypeCluster(
         db,
         endpointType.endpointTypeId,
         endpointClusterId
       )
+    if (endpointCluster.attributes.length == 0) {
+      delete endpointCluster.attributes
+    }
     endpointCluster.events =
       await queryImpExp.exportEventsFromEndpointTypeCluster(
         db,
         endpointType.endpointTypeId,
         endpointClusterId
       )
+    if (endpointCluster.events.length == 0) {
+      delete endpointCluster.events
+    }
   })
   return Promise.all(ps)
 }
