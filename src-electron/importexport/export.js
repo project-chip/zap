@@ -52,6 +52,12 @@ async function exportEndpointType(db, endpointType) {
         endpointType.endpointTypeId,
         endpointClusterId
       )
+    endpointCluster.events =
+      await queryImpExp.exportEventsFromEndpointTypeCluster(
+        db,
+        endpointType.endpointTypeId,
+        endpointClusterId
+      )
   })
   return Promise.all(ps)
 }

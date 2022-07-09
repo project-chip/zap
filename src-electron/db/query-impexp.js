@@ -375,10 +375,60 @@ VALUES
 }
 
 /**
+ * Returns a promise of data for events inside an endpoint type.
+ *
+ * @param {*} db
+ * @param {*} endpointTypeId
+ * @param {*} endpointClusterId
+ * @returns Promise that resolves with the events data.
+ */
+async function exportEventsFromEndpointTypeCluster(
+  db,
+  endpointTypeId,
+  endpointClusterId
+) {
+  let mapFunction = (x) => {
+    return {
+      name: x.NAME,
+      code: x.CODE,
+      mfgCode: x.MANUFACTURER_CODE,
+      side: x.SIDE,
+      included: x.INCLUDED,
+    }
+  }
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  E.NAME,
+  E.CODE,
+  E.MANUFACTURER_CODE,
+  E.SIDE,
+  ETE.INCLUDED
+FROM
+  EVENT AS E
+INNER JOIN
+  ENDPOINT_TYPE_EVENT AS ETE
+ON
+  E.EVENT_ID = ETE.EVENT_REF
+WHERE
+  ETE.ENDPOINT_TYPE_REF = ?
+  AND ETE.ENDPOINT_TYPE_CLUSTER_REF = ?
+ORDER BY
+  E.CODE, E.MANUFACTURER_CODE
+  `,
+      [endpointTypeId, endpointClusterId]
+    )
+    .then((rows) => rows.map(mapFunction))
+}
+
+/**
  * Returns a promise of data for attributes inside an endpoint type.
  *
  * @param {*} db
  * @param {*} endpointTypeId
+ * @param {*} endpointClusterId
  * @returns Promise that resolves with the attribute data.
  */
 async function exportAttributesFromEndpointTypeCluster(
@@ -409,31 +459,31 @@ async function exportAttributesFromEndpointTypeCluster(
       db,
       `
 SELECT
-  ATTRIBUTE.NAME,
-  ATTRIBUTE.CODE,
-  ATTRIBUTE.MANUFACTURER_CODE,
-  ATTRIBUTE.SIDE,
-  ATTRIBUTE.TYPE,
-  ENDPOINT_TYPE_ATTRIBUTE.INCLUDED,
-  ENDPOINT_TYPE_ATTRIBUTE.STORAGE_OPTION,
-  ENDPOINT_TYPE_ATTRIBUTE.SINGLETON,
-  ENDPOINT_TYPE_ATTRIBUTE.BOUNDED,
-  ENDPOINT_TYPE_ATTRIBUTE.DEFAULT_VALUE,
-  ENDPOINT_TYPE_ATTRIBUTE.INCLUDED_REPORTABLE,
-  ENDPOINT_TYPE_ATTRIBUTE.MIN_INTERVAL,
-  ENDPOINT_TYPE_ATTRIBUTE.MAX_INTERVAL,
-  ENDPOINT_TYPE_ATTRIBUTE.REPORTABLE_CHANGE
+  A.NAME,
+  A.CODE,
+  A.MANUFACTURER_CODE,
+  A.SIDE,
+  A.TYPE,
+  ETA.INCLUDED,
+  ETA.STORAGE_OPTION,
+  ETA.SINGLETON,
+  ETA.BOUNDED,
+  ETA.DEFAULT_VALUE,
+  ETA.INCLUDED_REPORTABLE,
+  ETA.MIN_INTERVAL,
+  ETA.MAX_INTERVAL,
+  ETA.REPORTABLE_CHANGE
 FROM
-  ATTRIBUTE
+  ATTRIBUTE AS A
 INNER JOIN
-  ENDPOINT_TYPE_ATTRIBUTE
+  ENDPOINT_TYPE_ATTRIBUTE AS ETA
 ON
-  ATTRIBUTE.ATTRIBUTE_ID = ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF
+  A.ATTRIBUTE_ID = ETA.ATTRIBUTE_REF
 WHERE
-  ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF = ?
-  AND ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF = ?
+  ETA.ENDPOINT_TYPE_REF = ?
+  AND ETA.ENDPOINT_TYPE_CLUSTER_REF = ?
 ORDER BY
-  ATTRIBUTE.CODE, ATTRIBUTE.MANUFACTURER_CODE
+  A.CODE, A.MANUFACTURER_CODE
     `,
       [endpointTypeId, endpointClusterId]
     )
@@ -463,13 +513,13 @@ SELECT
   A.REPORTING_POLICY,
   A.STORAGE_POLICY
 FROM 
-  ATTRIBUTE AS A, ENDPOINT_TYPE_CLUSTER
+  ATTRIBUTE AS A, ENDPOINT_TYPE_CLUSTER AS ETC
 WHERE 
   A.CODE = ?
   AND A.PACKAGE_REF IN (${packageIds})
-  AND A.SIDE = ENDPOINT_TYPE_CLUSTER.SIDE
-  AND ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = ?
-  AND (ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = A.CLUSTER_REF OR A.CLUSTER_REF IS NULL)
+  AND A.SIDE = ETC.SIDE
+  AND ETC.ENDPOINT_TYPE_CLUSTER_ID = ?
+  AND (ETC.CLUSTER_REF = A.CLUSTER_REF OR A.CLUSTER_REF IS NULL)
   AND ${
     attribute.mfgCode == null
       ? 'MANUFACTURER_CODE IS NULL'
@@ -568,23 +618,23 @@ async function exportCommandsFromEndpointTypeCluster(
       db,
       `
 SELECT
-  COMMAND.NAME,
-  COMMAND.CODE,
-  COMMAND.MANUFACTURER_CODE,
-  COMMAND.SOURCE,
-  ENDPOINT_TYPE_COMMAND.INCOMING,
-  ENDPOINT_TYPE_COMMAND.OUTGOING
+  C.NAME,
+  C.CODE,
+  C.MANUFACTURER_CODE,
+  C.SOURCE,
+  ETC.INCOMING,
+  ETC.OUTGOING
 FROM
-  COMMAND
+  COMMAND AS C
 INNER JOIN
-  ENDPOINT_TYPE_COMMAND
+  ENDPOINT_TYPE_COMMAND AS ETC
 ON
-  COMMAND.COMMAND_ID = ENDPOINT_TYPE_COMMAND.COMMAND_REF
+  C.COMMAND_ID = ETC.COMMAND_REF
 WHERE
-  ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF = ?
-  AND ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_CLUSTER_REF = ?
+  ETC.ENDPOINT_TYPE_REF = ?
+  AND ETC.ENDPOINT_TYPE_CLUSTER_REF = ?
 ORDER BY
-  COMMAND.MANUFACTURER_CODE, COMMAND.CODE
+  C.MANUFACTURER_CODE, C.CODE
         `,
       [endpointTypeId, endpointClusterId]
     )
@@ -659,6 +709,8 @@ exports.importClusterForEndpointType = importClusterForEndpointType
 exports.exportPackagesFromSession = exportPackagesFromSession
 exports.exportAttributesFromEndpointTypeCluster =
   exportAttributesFromEndpointTypeCluster
+exports.exportEventsFromEndpointTypeCluster =
+  exportEventsFromEndpointTypeCluster
 exports.importAttributeForEndpointType = importAttributeForEndpointType
 exports.exportCommandsFromEndpointTypeCluster =
   exportCommandsFromEndpointTypeCluster
