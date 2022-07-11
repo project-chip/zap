@@ -424,6 +424,24 @@ ORDER BY
 }
 
 /**
+ * Imports an event information of an endpoint type.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} endpointTypeId
+ * @param {*} endpointClusterId
+ * @param {*} event
+ * @returns Promise of an event insertion.
+ */
+async function importEventForEndpointType(
+  db,
+  packageIds,
+  endpointTypeId,
+  endpointClusterId,
+  event
+) {}
+
+/**
  * Returns a promise of data for attributes inside an endpoint type.
  *
  * @param {*} db
@@ -704,16 +722,23 @@ VALUES
 
 exports.exportEndpointTypes = exportEndpointTypes
 exports.importEndpointType = importEndpointType
+
 exports.exportClustersFromEndpointType = exportClustersFromEndpointType
 exports.importClusterForEndpointType = importClusterForEndpointType
+
 exports.exportPackagesFromSession = exportPackagesFromSession
+
+exports.exportEndpoints = exportEndpoints
+exports.importEndpoint = importEndpoint
+
 exports.exportAttributesFromEndpointTypeCluster =
   exportAttributesFromEndpointTypeCluster
-exports.exportEventsFromEndpointTypeCluster =
-  exportEventsFromEndpointTypeCluster
 exports.importAttributeForEndpointType = importAttributeForEndpointType
+
 exports.exportCommandsFromEndpointTypeCluster =
   exportCommandsFromEndpointTypeCluster
 exports.importCommandForEndpointType = importCommandForEndpointType
-exports.exportEndpoints = exportEndpoints
-exports.importEndpoint = importEndpoint
+
+exports.exportEventsFromEndpointTypeCluster =
+  exportEventsFromEndpointTypeCluster
+exports.importEventForEndpointType = importEventForEndpointType
