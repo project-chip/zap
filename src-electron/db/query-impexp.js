@@ -439,7 +439,55 @@ async function importEventForEndpointType(
   endpointTypeId,
   endpointClusterId,
   event
-) {}
+) {
+  let selectEventQuery = `
+SELECT
+  E.EVENT_ID
+FROM
+  EVENT AS E
+INNER JOIN
+  ENDPOINT_TYPE_CLUSTER AS ETC
+ON
+  E.CLUSTER_REF = ETC.CLUSTER_REF
+WHERE
+  E.CODE = ?
+  AND E.PACKAGE_REF IN (${packageIds})
+  AND E.SIDE = ETC.SIDE
+  AND ETC.ENDPOINT_TYPE_CLUSTER_ID = ?
+  AND ${
+    event.mfgCode == null
+      ? 'E.MANUFACTURER_CODE IS NULL'
+      : 'E.MANUFACTURER_CODE = ?'
+  }`
+
+  let selectArgs = [event.code, endpointClusterId]
+  if (event.mfgCode != null) selectArgs.push(event.mfgCode)
+
+  let eRow = await dbApi.dbAll(db, selectEventQuery, selectArgs)
+  let eventId
+  if (eRow.length == 0) {
+    eventId = null
+  } else {
+    eventId = eRow[0].EVENT_ID
+  }
+
+  // We got the ids, now we update ENDPOINT_TYPE_EVENT
+  let arg = [endpointTypeId, endpointClusterId, eventId, event.included]
+  return dbApi.dbInsert(
+    db,
+    `
+INSERT INTO ENDPOINT_TYPE_EVENT (
+  ENDPOINT_TYPE_REF,
+  ENDPOINT_TYPE_CLUSTER_REF,
+  EVENT_REF,
+  INCLUDED
+) VALUES (
+  ?,?,?,?
+)
+`,
+    arg
+  )
+}
 
 /**
  * Returns a promise of data for attributes inside an endpoint type.
@@ -543,11 +591,13 @@ WHERE
   AND ETC.ENDPOINT_TYPE_CLUSTER_ID = ?
   AND ${
     attribute.mfgCode == null
-      ? 'MANUFACTURER_CODE IS NULL'
-      : 'MANUFACTURER_CODE = ?'
+      ? 'A.MANUFACTURER_CODE IS NULL'
+      : 'A.MANUFACTURER_CODE = ?'
   }`
+
   let selectArgs = [attribute.code, endpointClusterId]
   if (attribute.mfgCode != null) selectArgs.push(attribute.mfgCode)
+
   let atRow = await dbApi.dbAll(db, selectAttributeQuery, selectArgs)
   let attributeId
   let reportingPolicy
@@ -592,8 +642,8 @@ WHERE
   return dbApi.dbInsert(
     db,
     `
-INSERT INTO ENDPOINT_TYPE_ATTRIBUTE
-( ENDPOINT_TYPE_REF,
+INSERT INTO ENDPOINT_TYPE_ATTRIBUTE ( 
+  ENDPOINT_TYPE_REF,
   ENDPOINT_TYPE_CLUSTER_REF,
   ATTRIBUTE_REF,
   INCLUDED,
@@ -604,9 +654,10 @@ INSERT INTO ENDPOINT_TYPE_ATTRIBUTE
   INCLUDED_REPORTABLE,
   MIN_INTERVAL,
   MAX_INTERVAL,
-  REPORTABLE_CHANGE )
-VALUES
-( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  REPORTABLE_CHANGE 
+) VALUES ( 
+  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+)
   `,
     arg
   )
