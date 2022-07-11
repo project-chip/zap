@@ -100,8 +100,8 @@ test(
     expect(state.endpointTypes.length).toBe(1)
     expect(state.endpointTypes[0].clusters.length).toBe(11)
     state.endpointTypes[0].clusters.forEach((c) => {
-      commandCount += c.commands.length
-      attributeCount += c.attributes.length
+      commandCount += c.commands ? c.commands.length : 0
+      attributeCount += c.attributes ? c.attributes.length : 0
     })
     expect(commandCount).toBe(7)
     // This flag exists for this test due to planned global attribute rework.
@@ -136,8 +136,8 @@ test(
     expect(state.endpointTypes.length).toBe(1)
     expect(state.endpointTypes[0].clusters.length).toBe(19)
     state.endpointTypes[0].clusters.forEach((c) => {
-      commandCount += c.commands.length
-      attributeCount += c.attributes.length
+      commandCount += c.commands ? c.commands.length : 0
+      attributeCount += c.attributes ? c.attributes.length : 0
     })
     expect(commandCount).toBe(24)
     // This flag exists for this test due to planned global attribute rework.
