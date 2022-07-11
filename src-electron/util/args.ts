@@ -202,6 +202,10 @@ export function processCommandLineArguments(argv: string[]) {
       type: 'string',
       default: null,
     })
+    .option('results', {
+      desc: 'Specifying the output YAML file to capture convert results.',
+      type: 'string',
+    })
     .usage('Usage: $0 <command> [options] ... [file.zap] ...')
     .version(
       `Version: ${zapVersion.version}\nFeature level: ${

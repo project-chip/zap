@@ -22,10 +22,7 @@ let startTime = process.hrtime.bigint()
 //workaround: executeCmd()/spawn() fails silently without complaining about missing path to electron
 process.env.PATH = process.env.PATH + ':/usr/local/bin/'
 
-scriptUtil
-  .rebuildSpaIfNeeded()
-  .then(() => scriptUtil.doneStamp(startTime))
-  .catch((err) => {
-    console.log(err)
-    process.exit(1)
-  })
+scriptUtil.rebuildSpaIfNeeded().catch((err) => {
+  console.log(err)
+  process.exit(1)
+})

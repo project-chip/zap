@@ -187,11 +187,61 @@ async function zcl_structs(options) {
  * Iterates over enum items. Valid only inside zcl_enums.
  * @param {*} options
  */
-function zcl_enum_items(options) {
-  let promise = queryZcl
-    .selectAllEnumItemsById(this.global.db, this.id)
-    .then((items) => templateUtil.collectBlocks(items, options, this))
-  return templateUtil.templatePromise(this.global, promise)
+async function zcl_enum_items(options) {
+  let items
+  if (this.enum_items) {
+    items = this.enum_items
+  } else {
+    items = await queryZcl.selectAllEnumItemsById(this.global.db, this.id)
+    this.enum_items = items
+  }
+  return templateUtil.templatePromise(
+    this.global,
+    templateUtil.collectBlocks(items, options, this)
+  )
+}
+
+/**
+ * This helper prints out the first unused enum value.
+ * It supports mode="next_larger" and
+ * mode="first_unused" (which is the default).
+ *
+ * @param {*} options
+ * @returns the unused enum value
+ */
+async function first_unused_enum_value(options) {
+  let mode = options.hash.mode
+  let items
+  if (this.enum_items) {
+    items = this.enum_items
+  } else {
+    items = await queryZcl.selectAllEnumItemsById(this.global.db, this.id)
+    this.enum_items = items
+  }
+  let unusedValue
+  if (mode == 'next_larger') {
+    // Find the lowest unused integer, larger than all enum values
+    unusedValue = 0
+    for (let enumItem of items) {
+      if (enumItem.value > unusedValue) {
+        unusedValue = enumItem.value
+      }
+    }
+    unusedValue += 1
+  } else {
+    unusedValue = -1
+    let isPresent
+    do {
+      unusedValue++
+      isPresent = false
+      for (let enumItem of items) {
+        if (enumItem.value == unusedValue) {
+          isPresent = true
+        }
+      }
+    } while (isPresent)
+  }
+  return unusedValue
 }
 
 /**
@@ -2534,6 +2584,7 @@ exports.as_underlying_zcl_type_ca_always_present_with_presentif = dep(
 )
 exports.if_is_struct = if_is_struct
 exports.if_mfg_specific_cluster = if_mfg_specific_cluster
+exports.first_unused_enum_value = first_unused_enum_value
 exports.zcl_commands_with_cluster_info = zcl_commands_with_cluster_info
 exports.zcl_commands_with_arguments = zcl_commands_with_arguments
 exports.if_is_string = if_is_string

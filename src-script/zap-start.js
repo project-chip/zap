@@ -76,8 +76,8 @@ scriptUtil
     cmdArgs.push(...args)
     return scriptUtil.executeCmd(null, 'npx', cmdArgs)
   })
+  .then(() => scriptUtil.doneStamp(startTime))
   .then(() => {
-    scriptUtil.doneStamp(startTime)
     process.exit(0)
   })
   .catch((err) => {

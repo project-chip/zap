@@ -29,8 +29,10 @@ Structs for cluster {{name}}:
 Enums for cluster {{name}}:
 {{#zcl_enums}}
    * Enum: {{name}}
+   * First unused enum value for {{name}}: {{first_unused_enum_value mode="first_unused"}}
+   * First next larger enum value for {{name}}: {{first_unused_enum_value mode="next_larger"}}
 {{#zcl_enum_items}}
-      - item: {{name}}
+      - item: {{name}} = {{value}}
 {{/zcl_enum_items}}
 {{/zcl_enums}}
 

@@ -16,8 +16,10 @@
  */
 
 const fs = require('fs')
+const fsp = fs.promises
 const path = require('path')
 const _ = require('lodash')
+const YAML = require('yaml')
 
 const dbApi = require('../db/db-api.js')
 const dbEnum = require('../../src-shared/db-enum.js')
@@ -175,6 +177,7 @@ function gatherFiles(filesArg, options = { suffix: '.zap', doBlank: true }) {
 async function startConvert(argv, options) {
   let files = argv.zapFiles
   let output = argv.output
+  let conversion_results = argv.results
   options.logger(`🤖 Conversion started
     🔍 input files: ${files}
     🔍 output pattern: ${output}`)
@@ -237,6 +240,25 @@ async function startConvert(argv, options) {
         options.logger(`    👉 write out: ${outputPath}`)
       })
   )
+
+  try {
+    await fsp.writeFile(
+      conversion_results,
+      YAML.stringify({
+        upgrade_results: [
+          {
+            message:
+              'Zigbee Cluster Configurator configuration has been successfully upgraded.',
+            status: 'automatic',
+          },
+        ],
+      })
+    )
+    options.logger(`    👉 write out: ${conversion_results}`)
+  } catch (error) {
+    options.logger(`    ⚠️  failed to write out: ${conversion_results}`)
+  }
+
   options.logger('😎 Conversion done!')
   if (options.quitFunction != null) {
     options.quitFunction()
