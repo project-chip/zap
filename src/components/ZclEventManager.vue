@@ -34,7 +34,7 @@ limitations under the License.
         </q-tr>
       </template>
       <template v-slot:body="props">
-        <q-tr :props="props">
+        <q-tr :props="props" class="table_body">
           <q-td key="included" :props="props" auto-width>
             <q-toggle
               class="q-mt-xs"

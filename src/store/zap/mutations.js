@@ -353,6 +353,10 @@ export function setAttributeLists(state, data) {
   )
 }
 
+export function setEventLists(state, selected) {
+  Vue.set(state.eventView, 'selectedEvents', selected)
+}
+
 export function setCommandLists(state, data) {
   Vue.set(state.commandView, 'selectedIn', data.incoming)
   Vue.set(state.commandView, 'selectedOut', data.outgoing)

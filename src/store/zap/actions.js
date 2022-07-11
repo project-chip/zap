@@ -517,9 +517,12 @@ export function setAttributeStateLists(context, selectionContext) {
 }
 
 export function setEventStateLists(context, selectionContext) {
-  // TODO: Do something with these lists.
-  //console.log('EVENT STATE LISTS')
-  //console.log(selectionContext)
+  let selected = []
+  selectionContext.forEach((record) => {
+    let ref = Util.cantorPair(record.eventRef, record.clusterRef)
+    selected.push(ref)
+  })
+  contextBridge.commit('setEventLists', selected)
 }
 
 export function setCommandStateLists(context, selectionContext) {
