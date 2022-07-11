@@ -16,6 +16,7 @@
   "main": "dist/src-electron/ui/main-ui.js",
   "bin": "dist/src-electron/main-process/main.js",
   "scripts": {
+    "download-artifact": "node src-script/download-artifact.js",
     "lic": "node src-script/license-check.js --production",
     "lint": "eslint --ext .js,.vue src src-electron src-shared src-script test",
     "lintfix": "eslint --fix --ext .js,.vue src src-electron src-shared src-script test",
@@ -177,6 +178,8 @@
     "node-abi": "^2.30.0",
     "node-gyp": "^8.1.0",
     "node-pre-gyp": "^0.17.0",
+    "nodejs-file-downloader": "^4.9.3",
+    "octokit": "^1.7.2",
     "pkg": "^5.5.2",
     "prettier": "^2.3.2",
     "pretty-quick": "^3.1.1",
