@@ -457,6 +457,16 @@ exports.map = {
     }
   },
 
+  endpointTypeEvent: (x) => {
+    if (x == null) return undefined
+    return {
+      endpointTypeRef: x.ENDPOINT_TYPE_REF,
+      clusterRef: x.CLUSTER_REF,
+      eventRef: x.EVENT_REF,
+      included: dbApi.fromDbBool(x.INCLUDED),
+    }
+  },
+
   packageExtension: (x) => {
     if (x == null) return undefined
     return {

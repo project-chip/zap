@@ -283,6 +283,14 @@ export function setDeviceTypeReference(context, endpointIdDeviceTypeRefPair) {
     .then((res) => {
       setCommandStateLists(context, res.data || [])
     })
+  Vue.prototype
+    .$serverGet(
+      `${restApi.uri.endpointTypeEvents}${endpointIdDeviceTypeRefPair.endpointId}`
+    )
+    .then((res) => {
+      setEventStateLists(context, res.data || [])
+    })
+
   context.commit('setDeviceTypeReference', endpointIdDeviceTypeRefPair)
 }
 
@@ -362,6 +370,11 @@ export function refreshEndpointTypeCluster(context, endpointType) {
     .then((res) => {
       setCommandStateLists(context, res.data || [])
     })
+  Vue.prototype
+    .$serverGet(`${restApi.uri.endpointTypeEvents}${endpointType}`)
+    .then((res) => {
+      setEventStateLists(context, res.data || [])
+    })
 }
 
 export function updateSelectedEndpointType(
@@ -390,6 +403,14 @@ export function updateSelectedEndpointType(
       .then((res) => {
         setCommandStateLists(context, res.data || [])
       })
+    Vue.prototype
+      .$serverGet(
+        `${restApi.uri.endpointTypeEvents}${endpointTypeDeviceTypeRefPair.endpointType}`
+      )
+      .then((res) => {
+        setEventStateLists(context, res.data || [])
+      })
+
     Vue.prototype
       .$serverGet(
         `${restApi.uri.deviceTypeClusters}${endpointTypeDeviceTypeRefPair.deviceTypeRef}`
@@ -493,6 +514,12 @@ export function setAttributeStateLists(context, selectionContext) {
     maxInterval: max,
     reportableChange: change,
   })
+}
+
+export function setEventStateLists(context, selectionContext) {
+  // TODO: Do something with these lists.
+  //console.log('EVENT STATE LISTS')
+  //console.log(selectionContext)
 }
 
 export function setCommandStateLists(context, selectionContext) {
