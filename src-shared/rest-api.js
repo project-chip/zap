@@ -51,9 +51,11 @@ const uri = {
   endpointTypeClusters: '/zcl/endpointTypeClusters/',
   endpointTypeAttributes: '/zcl/endpointTypeAttributes/',
   endpointTypeCommands: '/zcl/endpointTypeCommands/',
+  endpointTypeEvents: '/zcl/endpointTypeEvents/',
   deviceTypeClusters: '/zcl/deviceTypeClusters/',
   deviceTypeAttributes: '/zcl/deviceTypeAttributes/',
   deviceTypeCommands: '/zcl/deviceTypeCommands/',
+  deviceTypeEvents: '/zcl/deviceTypeEvents/',
 }
 
 const uiMode = {

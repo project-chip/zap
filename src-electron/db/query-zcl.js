@@ -1014,7 +1014,8 @@ SELECT
   ETA.MAX_INTERVAL,
   ETA.REPORTABLE_CHANGE
 FROM
-  ENDPOINT_TYPE_ATTRIBUTE AS ETA, ENDPOINT_TYPE_CLUSTER AS ETC
+  ENDPOINT_TYPE_ATTRIBUTE AS ETA, 
+  ENDPOINT_TYPE_CLUSTER AS ETC
 WHERE
   ETA.ENDPOINT_TYPE_REF = ?
   AND ETA.ATTRIBUTE_REF = ?
@@ -1030,20 +1031,44 @@ async function selectEndpointTypeCommandsByEndpointId(db, endpointTypeId) {
     db,
     `
 SELECT
-  ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF,
-  ENDPOINT_TYPE_CLUSTER.CLUSTER_REF,
-  ENDPOINT_TYPE_COMMAND.COMMAND_REF,
-  ENDPOINT_TYPE_COMMAND.INCOMING,
-  ENDPOINT_TYPE_COMMAND.OUTGOING
+  ETCO.ENDPOINT_TYPE_REF,
+  ETC.CLUSTER_REF,
+  ETCO.COMMAND_REF,
+  ETCO.INCOMING,
+  ETCO.OUTGOING
 FROM
-  ENDPOINT_TYPE_COMMAND, ENDPOINT_TYPE_CLUSTER
+  ENDPOINT_TYPE_COMMAND AS ETCO, 
+  ENDPOINT_TYPE_CLUSTER AS ETC
 WHERE
-  ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF = ?
-  AND ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_CLUSTER_REF = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
-ORDER BY COMMAND_REF`,
+  ETCO.ENDPOINT_TYPE_REF = ?
+  AND ETCO.ENDPOINT_TYPE_CLUSTER_REF = ETC.ENDPOINT_TYPE_CLUSTER_ID
+ORDER BY 
+  COMMAND_REF`,
     [endpointTypeId]
   )
   return rows.map(dbMapping.map.endpointTypeCommand)
+}
+
+async function selectEndpointTypeEventsByEndpointId(db, endpointTypeId) {
+  let rows = await dbApi.dbAll(
+    db,
+    `
+SELECT
+  ETE.ENDPOINT_TYPE_REF,
+  ETC.CLUSTER_REF,
+  ETE.EVENT_REF,
+  ETE.INCLUDED
+FROM
+  ENDPOINT_TYPE_EVENT AS ETE, 
+  ENDPOINT_TYPE_CLUSTER AS ETC
+WHERE
+  ETE.ENDPOINT_TYPE_REF = ?
+  AND ETE.ENDPOINT_TYPE_CLUSTER_REF = ETC.ENDPOINT_TYPE_CLUSTER_ID
+ORDER BY 
+  EVENT_REF`,
+    [endpointTypeId]
+  )
+  return rows.map(dbMapping.map.endpointTypeEvent)
 }
 
 // exports
@@ -1084,7 +1109,8 @@ exports.selectEndpointTypeAttributesByEndpointId =
 exports.selectEndpointTypeAttribute = selectEndpointTypeAttribute
 exports.selectEndpointTypeCommandsByEndpointId =
   selectEndpointTypeCommandsByEndpointId
-
+exports.selectEndpointTypeEventsByEndpointId =
+  selectEndpointTypeEventsByEndpointId
 exports.selectEnumClusters = selectEnumClusters
 exports.selectStructClusters = selectStructClusters
 exports.selectBitmapClusters = selectBitmapClusters
