@@ -272,6 +272,19 @@ async function importEndpointTypes(
                           )
                         )
                       })
+
+                    if ('events' in cluster)
+                      cluster.events.forEach((event) => {
+                        ps.push(
+                          queryImpexp.importEventForEndpointType(
+                            db,
+                            [packageId, ...newPackageIds],
+                            endpointId,
+                            endpointClusterId,
+                            event
+                          )
+                        )
+                      })
                     return Promise.all(ps)
                   })
               )

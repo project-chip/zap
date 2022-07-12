@@ -38,6 +38,7 @@ let sleepyGenericZap = path.join(__dirname, 'resource/isc/sleepy-generic.zap')
 let sleepyGenericIsc = path.join(__dirname, 'resource/isc/sleepy-generic.isc')
 let testFile1 = path.join(__dirname, 'resource/save-file-1.zap')
 let testFile2 = path.join(__dirname, 'resource/save-file-2.zap')
+let matterSwitch = path.join(__dirname, 'resource/matter-switch.zap')
 let testLightIsc = path.join(__dirname, 'resource/isc/test-light.isc')
 let testDoorLockIsc = path.join(__dirname, 'resource/isc/ha-door-lock.isc')
 let haLightIsc = path.join(__dirname, 'resource/isc/ha-light.isc')
@@ -100,8 +101,8 @@ test(
     expect(state.endpointTypes.length).toBe(1)
     expect(state.endpointTypes[0].clusters.length).toBe(11)
     state.endpointTypes[0].clusters.forEach((c) => {
-      commandCount += c.commands.length
-      attributeCount += c.attributes.length
+      commandCount += c.commands ? c.commands.length : 0
+      attributeCount += c.attributes ? c.attributes.length : 0
     })
     expect(commandCount).toBe(7)
     // This flag exists for this test due to planned global attribute rework.
@@ -136,12 +137,32 @@ test(
     expect(state.endpointTypes.length).toBe(1)
     expect(state.endpointTypes[0].clusters.length).toBe(19)
     state.endpointTypes[0].clusters.forEach((c) => {
-      commandCount += c.commands.length
-      attributeCount += c.attributes.length
+      commandCount += c.commands ? c.commands.length : 0
+      attributeCount += c.attributes ? c.attributes.length : 0
     })
     expect(commandCount).toBe(24)
     // This flag exists for this test due to planned global attribute rework.
     expect(attributeCount).toBe(bypassGlobalAttributes ? 16 : 28)
+  },
+  testUtil.timeout.medium()
+)
+
+test(
+  path.basename(matterSwitch) + ' - import',
+  async () => {
+    let sid = await querySession.createBlankSession(db)
+    await importJs.importDataFromFile(db, matterSwitch, { sessionId: sid })
+
+    let x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE')
+    expect(x).toBe(2)
+    x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE_CLUSTER')
+    expect(x).toBe(27)
+    x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE_COMMAND')
+    expect(x).toBe(28)
+    x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE_ATTRIBUTE')
+    expect(x).toBe(66)
+    x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE_EVENT')
+    expect(x).toBe(3)
   },
   testUtil.timeout.medium()
 )

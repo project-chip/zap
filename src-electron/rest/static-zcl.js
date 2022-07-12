@@ -178,6 +178,8 @@ function parseForZclData(db, entity, id, packageIdArray) {
       return queryZcl.selectEndpointTypeAttributesByEndpointId(db, id)
     case 'endpointTypeCommands':
       return queryZcl.selectEndpointTypeCommandsByEndpointId(db, id)
+    case 'endpointTypeEvents':
+      return queryZcl.selectEndpointTypeEventsByEndpointId(db, id)
     case `deviceTypeClusters`:
       return queryDeviceType.selectDeviceTypeClustersByDeviceTypeRef(db, id)
     case `deviceTypeAttributes`:

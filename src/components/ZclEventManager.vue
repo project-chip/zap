@@ -28,18 +28,13 @@ limitations under the License.
     >
       <template v-slot:header="props">
         <q-tr :props="props">
-          <q-th
-            v-for="col in props.cols"
-            :key="col.name"
-            :props="props"
-            style="background: #eeeeee"
-          >
+          <q-th v-for="col in props.cols" :key="col.name" :props="props">
             {{ col.label }}
           </q-th>
         </q-tr>
       </template>
       <template v-slot:body="props">
-        <q-tr :props="props">
+        <q-tr :props="props" class="table_body">
           <q-td key="included" :props="props" auto-width>
             <q-toggle
               class="q-mt-xs"
