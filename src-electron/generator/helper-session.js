@@ -127,6 +127,26 @@ function user_cluster_commands(options) {
   return templateUtil.templatePromise(this.global, promise)
 }
 
+/**
+ * Creates endpoint type cluster event iterator. This works only inside
+ * user_clusters.
+ *
+ * @param {*} options
+ * @returns Promise of the resolved blocks iterating over cluster events.
+ */
+function user_cluster_events(options) {
+  let promise = queryImpexp
+    .exportEventsFromEndpointTypeCluster(
+      this.global.db,
+      this.parent.endpointTypeId,
+      this.endpointClusterId
+    )
+    .then((endpointEvents) =>
+      templateUtil.collectBlocks(endpointEvents, options, this)
+    )
+  return templateUtil.templatePromise(this.global, promise)
+}
+
 function user_endpoint_type_count() {
   let promise = queryConfig.selectEndpointTypeCount(
     this.global.db,
@@ -1413,6 +1433,7 @@ exports.user_endpoints = user_endpoints
 exports.user_clusters = user_clusters
 exports.user_cluster_attributes = user_cluster_attributes
 exports.user_cluster_commands = user_cluster_commands
+exports.user_cluster_events = user_cluster_events
 exports.user_endpoint_type_count = user_endpoint_type_count
 exports.user_endpoint_count_by_cluster = user_endpoint_count_by_cluster
 exports.user_all_attributes = user_all_attributes
