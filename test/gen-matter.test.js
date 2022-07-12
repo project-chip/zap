@@ -38,6 +38,7 @@ let templateContext
 let zclPackageId
 
 const testFile = path.join(__dirname, 'resource/matter-test.zap')
+const testMatterSwitch = path.join(__dirname, 'resource/matter-switch.zap')
 const templateCount = testUtil.testTemplate.matterCount
 
 beforeAll(async () => {
@@ -98,43 +99,22 @@ test(
 )
 
 test(
-  'Create session',
+  path.basename(testFile) + ' - load and generate',
   async () => {
-    templateContext.sessionId = await querySession.createBlankSession(db)
-    expect(templateContext.sessionId).not.toBeNull()
-  },
-  testUtil.timeout.short()
-)
-
-test(
-  'Initialize session packages',
-  async () => {
-    let packages = await utilJs.initializeSessionPackage(
-      templateContext.db,
-      templateContext.sessionId,
-      {
-        zcl: env.builtinMatterZclMetafile(),
-        template: testUtil.testTemplate.matter,
-      }
-    )
-
+    let sessionId = await querySession.createBlankSession(db)
+    let packages = await utilJs.initializeSessionPackage(db, sessionId, {
+      zcl: env.builtinMatterZclMetafile(),
+      template: testUtil.testTemplate.matter,
+    })
     expect(packages.length).toBe(2)
-  },
-  testUtil.timeout.short()
-)
 
-test('Load a file', async () => {
-  await importJs.importDataFromFile(db, testFile, {
-    sessionId: templateContext.sessionId,
-  })
-})
+    await importJs.importDataFromFile(db, testFile, {
+      sessionId: sessionId,
+    })
 
-test(
-  'Validate basic generation',
-  async () => {
     let genResult = await genEngine.generate(
-      templateContext.db,
-      templateContext.sessionId,
+      db,
+      sessionId,
       templateContext.packageId,
       {},
       { disableDeprecationWarnings: true }
@@ -167,6 +147,42 @@ test(
     expect(events).toContain('Field: arg4 [BITMAP]')
     expect(events).toContain('Field: OperationSource [ENUM]')
     expect(events).toContain('Field: SourceNode')
+  },
+  testUtil.timeout.long()
+)
+
+test(
+  path.basename(testMatterSwitch) + ' - load and generate',
+  async () => {
+    let sessionId = await querySession.createBlankSession(db)
+    let packages = await utilJs.initializeSessionPackage(db, sessionId, {
+      zcl: env.builtinMatterZclMetafile(),
+      template: testUtil.testTemplate.matter,
+    })
+    expect(packages.length).toBe(2)
+
+    await importJs.importDataFromFile(db, testMatterSwitch, {
+      sessionId: sessionId,
+    })
+
+    let genResult = await genEngine.generate(
+      db,
+      sessionId,
+      templateContext.packageId,
+      {},
+      { disableDeprecationWarnings: true }
+    )
+
+    expect(genResult).not.toBeNull()
+    expect(genResult.partial).toBeFalsy()
+    expect(genResult.content).not.toBeNull()
+
+    let endpoints = genResult.content['endpoints.out']
+    expect(endpoints).toContain('>> device: MA-genericswitch [15]')
+    expect(endpoints).toContain('> Switch [59] - server: 1')
+    expect(endpoints).toContain('- InitialPress: 1')
+    expect(endpoints).toContain('- ShortRelease: 1')
+    expect(endpoints).toContain('- MultiPressOngoing: 1')
   },
   testUtil.timeout.long()
 )

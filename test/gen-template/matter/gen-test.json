@@ -60,6 +60,11 @@
       "path": "events.zapt",
       "name": "Events",
       "output": "events.out"
+    },
+    {
+      "path": "endpoints.zapt",
+      "name": "Endpoints",
+      "output": "endpoints.out"
     }
   ]
 }
