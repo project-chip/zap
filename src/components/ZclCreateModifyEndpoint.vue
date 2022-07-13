@@ -15,7 +15,7 @@ limitations under the License.
 -->
 <template>
   <div>
-    <q-card>
+    <q-card class="v-step-1">
       <q-card-section>
         <div class="text-h6 text-align:left">
           {{ this.endpointReference ? 'Edit Endpoint' : 'Create New Endpoint' }}
@@ -27,7 +27,7 @@ limitations under the License.
             v-model="shownEndpoint.endpointIdentifier"
             ref="endpoint"
             filled
-            class="col"
+            class="col v-step-3"
             :rules="[reqInteger, reqPosInt, reqUniqueEndpoint]"
             min="0"
           />
@@ -46,7 +46,7 @@ limitations under the License.
             ref="device"
             outlined
             filled
-            class="col"
+            class="col v-step-2"
             use-input
             hide-selected
             fill-input
@@ -91,11 +91,16 @@ limitations under the License.
         </q-form>
       </q-card-section>
       <q-card-actions>
-        <q-btn label="Cancel" v-close-popup class="col" />
+        <q-btn
+          label="Cancel"
+          @click="toggleCreateEndpointModal"
+          v-close-popup
+          class="col"
+        />
         <q-btn
           :label="endpointReference ? 'Save' : 'Create'"
           color="primary"
-          class="col"
+          class="col v-step-4"
           @click="saveOrCreateHandler()"
         />
       </q-card-actions>
@@ -233,6 +238,9 @@ export default {
     },
   },
   methods: {
+    toggleCreateEndpointModal() {
+      this.$store.commit('zap/toggleEndpointModal', false)
+    },
     getSmallestUnusedEndpointId() {
       let id = 1
       for (id; id < Object.values(this.endpointId).length + 1; id++) {
@@ -355,6 +363,7 @@ export default {
               })
 
               this.$store.dispatch('zap/updateSelectedEndpoint', res.id)
+              this.$store.commit('zap/toggleEndpointModal', false)
             })
         })
     },

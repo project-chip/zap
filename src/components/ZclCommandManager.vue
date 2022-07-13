@@ -50,6 +50,38 @@ limitations under the License.
             >
               {{ validationErrorMessage }}
             </q-tooltip>
+            <!-- <q-icon
+              v-show="displayCommandWarning(props.row)"
+              name="warning"
+              class="text-amber"
+              style="font-size: 1.5rem"
+            />
+            <q-popup-edit
+              :disable="!displayCommandWarning(props.row)"
+              :cover="false"
+              :offset="[0, -54]"
+              content-class="bg-white text-black"
+              style="overflow-wrap: break-word; padding: 0px"
+            >
+              <template v-slot="scope">
+                <div
+                  class="row items-center"
+                  items-center
+                  style="padding: 0px"
+                  @click.stop="scope.cancel"
+                >
+                  <q-icon
+                    name="warning"
+                    class="text-amber q-mr-sm"
+                    style="font-size: 1.5rem"
+                  ></q-icon>
+                  <div class="vertical-middle text-subtitle2">
+                    The outgoing command is mandatory for the cluster and device
+                    type configuration you have enabled
+                  </div>
+                </div>
+              </template>
+            </q-popup-edit> -->
           </q-td>
           <q-td key="out" :props="props" auto-width>
             <q-checkbox
@@ -75,7 +107,7 @@ limitations under the License.
               "
             />
           </q-td>
-          <q-td key="in" :props="props" auto-width>
+          <q-td key="in" :props="props" auto-width class="v-step-14">
             <q-checkbox
               class="q-mt-xs"
               v-model="selectionIn"

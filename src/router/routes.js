@@ -18,6 +18,7 @@
 const routes = [
   {
     path: '/',
+    name: 'Home',
     component: () => import('layouts/ZclLayout.vue'),
     children: [
       { path: '', component: () => import('layouts/ZclLayout.vue') }, // Consider making this a "New Project" page
@@ -25,6 +26,7 @@ const routes = [
   },
   {
     path: '/cluster',
+    name: 'cluster',
     component: () => import('components/ZclClusterView.vue'),
   },
   {

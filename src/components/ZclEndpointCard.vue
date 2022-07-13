@@ -17,6 +17,7 @@ limitations under the License.
 <template>
   <div>
     <q-card
+      class="v-step-5"
       :bordered="isSelectedEndpoint"
       @click="setSelectedEndpointType(endpointReference)"
     >
@@ -26,7 +27,7 @@ limitations under the License.
             >Endpoint - {{ getFormattedEndpointId(endpointReference) }}</strong
           >
         </div>
-        <div class="q-gutter-sm" style="display: flex; align-items: center">
+        <q-card-actions class="q-gutter-xs col">
           <q-btn
             flat
             dense
@@ -47,25 +48,7 @@ limitations under the License.
             v-close-popup
             @click="modifyEndpointDialog = !modifyEndpointDialog"
           />
-          <q-btn
-            v-if="showAllInformationOfEndpoint"
-            @click.stop="toggleShowAllInformationOfEndpoint"
-            flat
-            dense
-            icon="arrow_upward"
-            size="xs"
-            data-test="endpoint-body-toggler-hide"
-          />
-          <q-btn
-            v-else
-            flat
-            dense
-            icon="arrow_downward"
-            @click.stop="toggleShowAllInformationOfEndpoint"
-            size="xs"
-            data-test="endpoint-body-toggler-show"
-          />
-        </div>
+        </q-card-actions>
       </div>
       <q-list dense bordered v-if="showAllInformationOfEndpoint">
         <br />
