@@ -323,35 +323,28 @@ async function startServer(argv, quitFunction) {
     }
   })
   mainDatabase = db
-
-  await zclLoader.loadZclMetafiles(db, argv.zclProperties)
-  return generatorEngine
-    .loadTemplates(db, argv.generationTemplate)
-    .then((ctx) => {
-      if (ctx.error) {
-        env.logWarning(ctx.error)
+  try {
+    await zclLoader.loadZclMetafiles(db, argv.zclProperties)
+    let ctx = await generatorEngine.loadTemplates(db, argv.generationTemplate)
+    if (ctx.error) {
+      env.logWarning(ctx.error)
+    }
+    await httpServer.initHttpServer(
+      ctx.db,
+      argv.httpPort,
+      argv.studioHttpPort,
+      {
+        zcl: argv.zclProperties,
+        template: argv.generationTemplate,
+        allowCors: argv.allowCors,
       }
-      return ctx
-    })
-    .then((ctx) => {
-      return httpServer
-        .initHttpServer(ctx.db, argv.httpPort, argv.studioHttpPort, {
-          zcl: argv.zclProperties,
-          template: argv.generationTemplate,
-          allowCors: argv.allowCors,
-        })
-        .then(() => {
-          ipcServer.initServer(ctx.db, argv.httpPort)
-        })
-        .then(() => ctx)
-    })
-    .then((ctx) => {
-      logRemoteData(httpServer.httpServerStartupMessage())
-    })
-    .catch((err) => {
-      env.logError(err)
-      throw err
-    })
+    )
+    await ipcServer.initServer(ctx.db, argv.httpPort)
+    logRemoteData(httpServer.httpServerStartupMessage())
+  } catch (err) {
+    env.logError(err)
+    throw err
+  }
 }
 
 /**
@@ -554,12 +547,12 @@ function logRemoteData(data) {
  *
  * @param {*} argv
  */
-function startUpSecondaryInstance(quitFunction, argv) {
+function startUpSecondaryInstance(argv, callbacks) {
   console.log('🧐 Existing instance of zap will service this request.')
   ipcClient.initAndConnectClient().then(() => {
     ipcClient.on(ipcServer.eventType.overAndOut, (data) => {
       logRemoteData(data)
-      if (quitFunction != null) quitFunction()
+      if (callbacks.quitFunction != null) callbacks.quitFunction()
       else process.exit(0)
     })
 
@@ -598,7 +591,7 @@ function quit() {
  * @param {*} quitFunction
  * @param {*} argv
  */
-async function startUpMainInstance(callbacks, argv) {
+async function startUpMainInstance(argv, callbacks) {
   let quitFunction = callbacks.quitFunction
   let uiFunction = callbacks.uiEnableFunction
   if (quitFunction != null) {
@@ -671,7 +664,7 @@ async function startUpMainInstance(callbacks, argv) {
     })
   } else {
     // If we run with node only, we force no UI as it won't work.
-    if (quitFunction == null) {
+    if (uiEnableFunction == null) {
       argv.noUi = true
       argv.showUrl = true
       argv.standalone = false
@@ -681,11 +674,10 @@ async function startUpMainInstance(callbacks, argv) {
     let uiEnabled = !argv.noUi
     let zapFiles = argv.zapFiles
     let port = await startNormal(quitFunction, argv)
-    let showUrl = argv.showUrl
     if (uiEnabled && uiFunction != null) {
       uiFunction(port, zapFiles, argv.uiMode, argv.standalone)
     } else {
-      if (showUrl) {
+      if (argv.showUrl) {
         // NOTE: this is parsed/used by Studio as the default landing page.
         logRemoteData(httpServer.httpServerStartupMessage())
       }
