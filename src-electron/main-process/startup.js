@@ -664,7 +664,7 @@ async function startUpMainInstance(argv, callbacks) {
     })
   } else {
     // If we run with node only, we force no UI as it won't work.
-    if (quitFunction == null) {
+    if (uiEnableFunction == null) {
       argv.noUi = true
       argv.showUrl = true
       argv.standalone = false
@@ -674,11 +674,10 @@ async function startUpMainInstance(argv, callbacks) {
     let uiEnabled = !argv.noUi
     let zapFiles = argv.zapFiles
     let port = await startNormal(quitFunction, argv)
-    let showUrl = argv.showUrl
     if (uiEnabled && uiFunction != null) {
       uiFunction(port, zapFiles, argv.uiMode, argv.standalone)
     } else {
-      if (showUrl) {
+      if (argv.showUrl) {
         // NOTE: this is parsed/used by Studio as the default landing page.
         logRemoteData(httpServer.httpServerStartupMessage())
       }

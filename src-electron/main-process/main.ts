@@ -27,12 +27,11 @@ env.versionsCheck()
 env.setProductionEnv()
 
 let argv = args.processCommandLineArguments(process.argv)
-
 util.mainOrSecondaryInstance(
   argv.reuseZapInstance,
   () => {
     startup.startUpMainInstance(argv, {
-      quitFunction: null,
+      quitFunction: () => process.exit(0),
       uiEnableFunction: null,
     })
   },
