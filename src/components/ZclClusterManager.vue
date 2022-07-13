@@ -21,8 +21,10 @@ limitations under the License.
         <div class="row">
           <q-toolbar>
             <q-toolbar-title style="font-weight: bolder">
-              Endpoint
-              {{ this.endpointId[this.selectedEndpointId] }} Clusters
+              <span class="v-step-6"
+                >Endpoint
+                {{ this.endpointId[this.selectedEndpointId] }} Clusters</span
+              >
             </q-toolbar-title>
           </q-toolbar>
         </div>
@@ -39,7 +41,7 @@ limitations under the License.
             </div>
             &nbsp; &nbsp;
 
-            <div>
+            <div class="v-step-7">
               <q-select
                 outlined
                 :value="filter"
@@ -79,15 +81,16 @@ limitations under the License.
           </q-input>
         </div>
         <q-list style="padding-bottom: 250px">
-          <div v-for="domainName in domainNames" :key="domainName.id">
+          <div v-for="(domainName, index) in domainNames" :key="domainName.id">
             <div v-show="clusterDomains(domainName).length > 0">
               <q-expansion-item
                 :id="domainName"
                 switch-toggle-side
                 :label="domainName"
+                v-model="expendedCluster[index]"
                 @input="setOpenDomain(domainName, $event)"
-                :value="getDomainOpenState(domainName)"
               >
+                <!--                {{ !!(domainName === 'General' && isTutorialRunning) }}-->
                 <zcl-domain-cluster-view
                   :domainName="domainName"
                   :clusters="clusterDomains(domainName)"
@@ -120,6 +123,9 @@ export default {
   watch: {
     enabledClusters() {
       this.changeDomainFilter(this.filter)
+    },
+    expanded(val) {
+      this.expendedCluster[0] = val
     },
   },
   computed: {
@@ -181,6 +187,16 @@ export default {
         return this.$store.state.zap.clusterManager.actionOptions
       },
     },
+    isTutorialRunning: {
+      get() {
+        return this.$store.state.zap.isTutorialRunning
+      },
+    },
+    expanded: {
+      get() {
+        return this.$store.state.zap.expanded
+      },
+    },
   },
   methods: {
     scrollToElementById(tag) {
@@ -238,6 +254,30 @@ export default {
   },
   components: {
     ZclDomainClusterView,
+  },
+  data() {
+    return {
+      expendedCluster: {
+        0: false,
+        1: false,
+        2: false,
+        3: false,
+        4: false,
+        5: false,
+        6: false,
+        7: false,
+        8: false,
+        9: false,
+        10: false,
+        11: false,
+        12: false,
+        13: false,
+        14: false,
+        15: false,
+        16: false,
+        17: false,
+      },
+    }
   },
 }
 </script>

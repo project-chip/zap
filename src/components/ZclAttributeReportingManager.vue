@@ -60,7 +60,7 @@ limitations under the License.
           <q-td key="enabled" :props="props" auto-width>
             <q-toggle
               :disable="checkReportingPolicy(props.row)"
-              class="q-mt-xs"
+              class="q-mt-xs v-step-13"
               v-model="selectedReporting"
               :val="hashAttributeIdClusterId(props.row.id, selectedCluster.id)"
               indeterminate-value="false"
