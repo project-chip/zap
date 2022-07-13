@@ -22,11 +22,13 @@
  */
 import Vue from 'vue'
 import Vuex from 'vuex'
+import VueTour from 'vue-tour'
 
+require('vue-tour/dist/vue-tour.css')
 // we first import the module
 import zap from './zap'
 
-Vue.use(Vuex)
+Vue.use(VueTour).use(Vuex)
 
 export default function (/* { ssrContext } */) {
   const Store = new Vuex.Store({

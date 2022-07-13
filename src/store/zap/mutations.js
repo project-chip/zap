@@ -353,10 +353,6 @@ export function setAttributeLists(state, data) {
   )
 }
 
-export function setEventLists(state, selected) {
-  Vue.set(state.eventView, 'selectedEvents', selected)
-}
-
 export function setCommandLists(state, data) {
   Vue.set(state.commandView, 'selectedIn', data.incoming)
   Vue.set(state.commandView, 'selectedOut', data.outgoing)
@@ -527,4 +523,30 @@ export function updateUcComponentState(state, data) {
 export function loadZclClusterToUcComponentDependencyMap(state, map) {
   if (map != null)
     Vue.set(state.studio, 'zclSdkExtClusterToUcComponentMap', map)
+}
+
+// Vue Tour Functions
+
+export function toggleEndpointModal(state, value) {
+  state.showCreateModifyEndpoint = value
+}
+
+export function toggleTutorial(state, value) {
+  state.isTutorialRunning = value
+}
+
+export function triggerExpanded(state, value) {
+  state.expanded = value
+}
+
+export function openReportTabInCluster(state, value) {
+  state.showReportTabInCluster = value
+}
+
+export function openZclExtensionsDialogForTutorial(state, value) {
+  state.openZclExtensionsDialog = value
+}
+
+export function setClusterDataForTutorial(state, value) {
+  state.clusterDataForTutorial = value
 }
