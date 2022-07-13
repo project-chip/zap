@@ -62,6 +62,7 @@ limitations under the License.
             icon="list"
             align="center"
             flat
+            class="v-step-15"
             :ripple="false"
             :unelevated="false"
             :outline="false"
@@ -206,6 +207,16 @@ export default {
       get() {
         return this.$store.state.zap.endpointView.selectedEndpoint == null
       },
+    },
+    zclExtensionDialogInTutorial: {
+      get() {
+        return this.$store.state.zap.openZclExtensionsDialog
+      },
+    },
+  },
+  watch: {
+    zclExtensionDialogInTutorial(val) {
+      this.zclExtensionDialog = val
     },
   },
   data() {
