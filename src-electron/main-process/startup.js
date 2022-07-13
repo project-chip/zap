@@ -323,35 +323,28 @@ async function startServer(argv, quitFunction) {
     }
   })
   mainDatabase = db
-
-  await zclLoader.loadZclMetafiles(db, argv.zclProperties)
-  return generatorEngine
-    .loadTemplates(db, argv.generationTemplate)
-    .then((ctx) => {
-      if (ctx.error) {
-        env.logWarning(ctx.error)
+  try {
+    await zclLoader.loadZclMetafiles(db, argv.zclProperties)
+    let ctx = await generatorEngine.loadTemplates(db, argv.generationTemplate)
+    if (ctx.error) {
+      env.logWarning(ctx.error)
+    }
+    await httpServer.initHttpServer(
+      ctx.db,
+      argv.httpPort,
+      argv.studioHttpPort,
+      {
+        zcl: argv.zclProperties,
+        template: argv.generationTemplate,
+        allowCors: argv.allowCors,
       }
-      return ctx
-    })
-    .then((ctx) => {
-      return httpServer
-        .initHttpServer(ctx.db, argv.httpPort, argv.studioHttpPort, {
-          zcl: argv.zclProperties,
-          template: argv.generationTemplate,
-          allowCors: argv.allowCors,
-        })
-        .then(() => {
-          ipcServer.initServer(ctx.db, argv.httpPort)
-        })
-        .then(() => ctx)
-    })
-    .then((ctx) => {
-      logRemoteData(httpServer.httpServerStartupMessage())
-    })
-    .catch((err) => {
-      env.logError(err)
-      throw err
-    })
+    )
+    await ipcServer.initServer(ctx.db, argv.httpPort)
+    logRemoteData(httpServer.httpServerStartupMessage())
+  } catch (err) {
+    env.logError(err)
+    throw err
+  }
 }
 
 /**
