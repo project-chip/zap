@@ -120,6 +120,7 @@
     "toposort": "^2.0.2",
     "utf-8-validate": "^5.0.5",
     "uuid": "^8.3.2",
+    "vue-tour": "^2.0.0",
     "ws": "^8.5.0",
     "xml2js": "^0.4.23",
     "xsdlibrary": "^1.3.6",

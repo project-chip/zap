@@ -64,6 +64,9 @@ limitations under the License.
         >
           <q-tooltip> Preferences </q-tooltip>
         </q-btn>
+        <q-btn flat @click="showTutorial" icon="psychology_alt">
+          <q-tooltip> Tutorial </q-tooltip>
+        </q-btn>
         <q-btn flat @click="homeDialog = !homeDialog" icon="mdi-alert-circle">
           <q-tooltip> About </q-tooltip>
         </q-btn>
@@ -188,6 +191,9 @@ const observable = require('../util/observable.js')
 export default {
   name: 'ZclLayout',
   methods: {
+    showTutorial() {
+      this.$tours['ZclTour'].start()
+    },
     togglePreviewTab() {
       this.$store.commit('zap/togglePreviewTab')
     },
