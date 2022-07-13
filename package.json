@@ -58,7 +58,7 @@
     "zaphelp": "node src-script/zap-start.js --help",
     "zap-dotdot": "node src-script/zap-start.js --logToStdout --zcl ./zcl-builtin/dotdot/library.xml",
     "zap-devserver": "node src-script/zap-start.js server --allowCors --logToStdout --gen ./test/gen-template/zigbee/gen-templates.json --reuseZapInstance",
-    "server": "node src-script/zap-start.js server --logToStdout --gen ./test/gen-template/zigbee/gen-templates.json --reuseZapInstance",
+    "server": "node src-script/zap-start.js server --logToStdout --zcl ./zcl-builtin/silabs/zcl.json  --zcl ./zcl-builtin/matter/zcl.json --gen ./test/gen-template/zigbee/gen-templates.json --reuseZapInstance",
     "stop": "node src-script/zap-start.js stop --reuseZapInstance",
     "status": "node src-script/zap-start.js status --reuseZapInstance",
     "self-check": "node src-script/zap-start.js selfCheck -g ./test/gen-template/zigbee/gen-templates.json",
