@@ -31,16 +31,13 @@ let argv = args.processCommandLineArguments(process.argv)
 util.mainOrSecondaryInstance(
   argv.reuseZapInstance,
   () => {
-    startup.startUpMainInstance(
-      {
-        quitFunction: null,
-        uiEnableFunction: null,
-      },
-      argv
-    )
+    startup.startUpMainInstance(argv, {
+      quitFunction: null,
+      uiEnableFunction: null,
+    })
   },
   () => {
-    startup.startUpSecondaryInstance(null, argv)
+    startup.startUpSecondaryInstance(argv, { quitFunction: null })
   }
 )
 

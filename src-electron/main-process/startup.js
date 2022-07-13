@@ -554,12 +554,12 @@ function logRemoteData(data) {
  *
  * @param {*} argv
  */
-function startUpSecondaryInstance(quitFunction, argv) {
+function startUpSecondaryInstance(argv, callbacks) {
   console.log('🧐 Existing instance of zap will service this request.')
   ipcClient.initAndConnectClient().then(() => {
     ipcClient.on(ipcServer.eventType.overAndOut, (data) => {
       logRemoteData(data)
-      if (quitFunction != null) quitFunction()
+      if (callbacks.quitFunction != null) callbacks.quitFunction()
       else process.exit(0)
     })
 
@@ -598,7 +598,7 @@ function quit() {
  * @param {*} quitFunction
  * @param {*} argv
  */
-async function startUpMainInstance(callbacks, argv) {
+async function startUpMainInstance(argv, callbacks) {
   let quitFunction = callbacks.quitFunction
   let uiFunction = callbacks.uiEnableFunction
   if (quitFunction != null) {

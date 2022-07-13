@@ -20,6 +20,7 @@ import ipc from 'node-ipc'
 import * as env from '../util/env'
 import * as ipcTypes from '../../src-shared/types/ipc-types'
 const path = require('path')
+const os = require('os')
 const util = require('../util/util.js')
 const watchdog = require('../main-process/watchdog')
 const httpServer = require('../server/http-server.js')
@@ -47,7 +48,11 @@ const server: ipcTypes.Server = {
  * Returns the socket path for the IPC.
  */
 function socketPath() {
-  return path.join(env.appDirectory(), 'main.ipc')
+  var defaultSocketPath =
+    process.platform == 'win32'
+      ? '\\\\.\\pipe\\' + 'zap-ipc' + '-sock'
+      : path.join(os.tmpdir(), 'zap-ipc' + '.sock')
+  return defaultSocketPath
 }
 
 function log(msg: string) {

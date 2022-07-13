@@ -15,10 +15,10 @@
  *    limitations under the License.
  */
 
-const { app } = require('electron')
-
 // enable stack trace to be mapped back to the correct line number in TypeScript source files.
 require('source-map-support').install()
+
+const { app } = require('electron')
 
 import * as args from '../util/args'
 const env = require('../util/env')
@@ -31,7 +31,11 @@ env.versionsCheck()
 env.setProductionEnv()
 
 function hookSecondInstanceEvents(argv: args.Arguments) {
-  app.whenReady().then(() => startup.startUpSecondaryInstance(app.quit, argv))
+  app
+    .whenReady()
+    .then(() =>
+      startup.startUpSecondaryInstance(argv, { quitFunction: app.quit })
+    )
 }
 
 /**
@@ -41,13 +45,10 @@ function hookMainInstanceEvents(argv: args.Arguments) {
   app
     .whenReady()
     .then(() =>
-      startup.startUpMainInstance(
-        {
-          quitFunction: app.quit,
-          uiEnableFunction: uiUtil.enableUi,
-        },
-        argv
-      )
+      startup.startUpMainInstance(argv, {
+        quitFunction: app.quit,
+        uiEnableFunction: uiUtil.enableUi,
+      })
     )
     .catch((err) => {
       console.log(err)
