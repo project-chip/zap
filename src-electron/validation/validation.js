@@ -91,7 +91,7 @@ function validateSpecificAttribute(endpointAttribute, attribute) {
     let maxLengthForString =
       attribute.type == 'char_string' || attribute.type == 'octet_string'
         ? 255
-        : 65536
+        : 65535
     let maxAllowedLength = attribute.maxLength
       ? attribute.maxLength
       : maxLengthForString
