@@ -27,51 +27,51 @@ limitations under the License.
           <q-btn
             color="primary"
             icon="add"
+            class="v-step-16"
             @click="browseForFile()"
           />
         </div>
       </q-card-section>
       <q-card-section>
         <q-list bordered separator>
-          <template v-for="(sessionPackage, index) in packages">
-            <q-item v-bind:key="index">
-              <q-item-section>
-                <q-expansion-item>
-                  <template slot="header">
-                    <q-toolbar>
-                      <div>
-                        <strong>{{
-                          getFileName(sessionPackage.pkg.path)
-                        }}</strong>
-                      </div>
-                      <q-space />
-                      <q-btn
-                        label="Delete"
-                        icon="delete"
-                        flat
-                        @click.stop="deletePackage(sessionPackage)"
-                        :disable="sessionPackage.sessionPackage.required == 1"
-                      />
-                      <q-btn
-                        label="Relative to..."
-                        outlined
-                        v-show="false"
-                        @click.stop
-                      />
-                    </q-toolbar>
-                  </template>
-                  Full File path: {{ sessionPackage.pkg.path }} <br />
-                  Package Type: {{ sessionPackage.pkg.type }} <br />
-                  Version: {{ sessionPackage.pkg.version }} <br />
-                  Required:
-                  {{
-                    sessionPackage.sessionPackage.required ? 'True' : 'False'
-                  }}
-                  <br />
-                </q-expansion-item>
-              </q-item-section>
-            </q-item>
-          </template>
+          <q-item
+            v-bind:key="index"
+            v-for="(sessionPackage, index) in packages"
+          >
+            <q-item-section>
+              <q-expansion-item>
+                <template slot="header">
+                  <q-toolbar>
+                    <div>
+                      <strong>{{
+                        getFileName(sessionPackage.pkg.path)
+                      }}</strong>
+                    </div>
+                    <q-space />
+                    <q-btn
+                      label="Delete"
+                      icon="delete"
+                      flat
+                      @click.stop="deletePackage(sessionPackage)"
+                      :disable="sessionPackage.sessionPackage.required == 1"
+                    />
+                    <q-btn
+                      label="Relative to..."
+                      outlined
+                      v-show="false"
+                      @click.stop
+                    />
+                  </q-toolbar>
+                </template>
+                Full File path: {{ sessionPackage.pkg.path }} <br />
+                Package Type: {{ sessionPackage.pkg.type }} <br />
+                Version: {{ sessionPackage.pkg.version }} <br />
+                Required:
+                {{ sessionPackage.sessionPackage.required ? 'True' : 'False' }}
+                <br />
+              </q-expansion-item>
+            </q-item-section>
+          </q-item>
         </q-list>
       </q-card-section>
     </q-card>

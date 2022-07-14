@@ -454,11 +454,13 @@ export default {
     }
   },
   created() {
-    this.clusters.map((cluster) => {
-      if (cluster.domainName === 'General' && cluster.name === 'Basic') {
-        this.$store.commit('zap/setClusterDataForTutorial', cluster)
-      }
-    })
+    if (this.clusters !== undefined) {
+      this.clusters.map((cluster) => {
+        if (cluster.domainName === 'General' && cluster.name === 'Basic') {
+          this.$store.commit('zap/setClusterDataForTutorial', cluster)
+        }
+      })
+    }
   },
 }
 </script>
