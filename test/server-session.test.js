@@ -34,7 +34,6 @@ let sessionUuid = util.createUuid()
 
 beforeAll(async () => {
   const { port, baseUrl } = testUtil.testServer(__filename)
-  process.env.DEV = true
   env.setDevelopmentEnv()
   let file = env.sqliteTestFile('server-session')
   axiosInstance = axios.create({ baseURL: baseUrl })

@@ -37,7 +37,6 @@ let testScript3 = path.join(__dirname, 'resource/test-script-3.js')
 let testScript4 = path.join(__dirname, 'resource/test-script-4.js')
 
 beforeAll(() => {
-  process.env.DEV = true
   env.setDevelopmentEnv()
   let file = env.sqliteTestFile('script-api')
   return dbApi
