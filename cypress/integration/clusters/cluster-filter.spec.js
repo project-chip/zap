@@ -36,6 +36,7 @@ describe('Testing cluster filters', () => {
       ).click({ force: true })
       cy.get('.q-virtual-scroll__content > :nth-child(1)').click()
       cy.get('tbody').children().should('contain', 'Power Configuration')
+      cy.get('#General').click()
       cy.get(
         '#General > .q-expansion-item__container > .q-expansion-item__content > :nth-child(1) > .q-table__container > .q-table__middle > .q-table > tbody > :nth-child(2) > :nth-child(6) > .q-field > .q-field__inner > .q-field__control'
       ).click()
