@@ -664,7 +664,7 @@ async function startUpMainInstance(argv, callbacks) {
     })
   } else {
     // If we run with node only, we force no UI as it won't work.
-    if (uiEnableFunction == null) {
+    if (callbacks.uiEnableFunction == null) {
       argv.noUi = true
       argv.showUrl = true
       argv.standalone = false
