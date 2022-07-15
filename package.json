@@ -31,6 +31,7 @@
     "test:unit:watchAll": "jest --watchAll",
     "test:e2e": "node src-script/zap-uitest.js open",
     "test:e2e-matter": "node src-script/zap-uitestmatter.js open",
+    "test:e2e-matter-ci": "node src-script/zap-uitestmatter.js run",
     "test:e2e-ci": "node src-script/zap-uitest.js run",
     "report": "node src-script/zap-combine-reports.js",
     "postinstall": "electron-builder install-app-deps && husky install && npm rebuild canvas --update-binary && npm run version-stamp",

@@ -19,20 +19,23 @@ describe('Testing attribute validation', () => {
     'change default input to a wrong amount',
     { retries: { runMode: 2, openMode: 2 } },
     () => {
-      cy.get(
-        ':nth-child(1) > [style="min-width: 180px;"] > .q-field > .q-field__inner > .q-field__control > .q-field__control-container > input'
-      )
-        .clear({ force: true })
-        .type('99999', { force: true })
-        .then(() => {
-          cy.get('.table_body:first > [style="min-width: 180px;"]').should(
-            'contain',
-            'Out of range'
-          )
-        })
+      cy.fixture('data').then((data) => {
+        cy.get(
+          ':nth-child(1) > [style="min-width: 180px;"] > .q-field > .q-field__inner > .q-field__control > .q-field__control-container > input'
+        )
+          .clear({ force: true })
+          .type(data.outOfRangeAmount1, { force: true })
+          .then(() => {
+            cy.get('.table_body:first > [style="min-width: 180px;"]').should(
+              'contain',
+              'Out of range'
+            )
+          })
+      })
+      
     }
   )
-  it('change default input to a correct amount', () => {
+  it('change default input to a correct amount',{ retries: { runMode: 2, openMode: 2 } }, () => {
     cy.get(
       ':nth-child(1) > [style="min-width: 180px;"] > .q-field > .q-field__inner > .q-field__control > .q-field__control-container > input'
     )
