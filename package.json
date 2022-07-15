@@ -310,7 +310,8 @@
       ".version.json",
       "dist/src-electron/db/zap-schema.sql",
       "zcl-builtin/**/*",
-      "spa/**/*"
+      "spa/**/*",
+      "**/node_sqlite3.node"
     ]
   }
 }

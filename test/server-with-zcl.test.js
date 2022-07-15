@@ -34,7 +34,6 @@ let axiosInstance = null
 
 beforeAll(async () => {
   const { port, baseUrl } = testUtil.testServer(__filename)
-  process.env.DEV = true
   env.setDevelopmentEnv()
   let file = env.sqliteTestFile('server-zcl')
   axiosInstance = axios.create({ baseURL: baseUrl })

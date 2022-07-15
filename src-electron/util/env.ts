@@ -24,15 +24,15 @@ const zapUrlLog = 'zap.url'
 import { VersionType, ErrorType } from '../types/env-types'
 
 export function builtinSilabsZclMetafile() {
-  return pathFromProjBaseDir('./zcl-builtin/silabs/zcl.json')
+  return locateProjectResource('./zcl-builtin/silabs/zcl.json')
 }
 
 export function builtinMatterZclMetafile() {
-  return pathFromProjBaseDir('./zcl-builtin/matter/zcl.json')
+  return locateProjectResource('./zcl-builtin/matter/zcl.json')
 }
 
 export function builtinDotdotZclMetafile() {
-  return pathFromProjBaseDir('./zcl-builtin/dotdot/library.xml')
+  return locateProjectResource('./zcl-builtin/dotdot/library.xml')
 }
 
 export function builtinTemplateMetafile() {
@@ -210,11 +210,25 @@ export function zapVersionAsString() {
   } from ${vo.date}${vo.source ? ', mode: source' : ', mode: binary'}`
 }
 
-export function pathFromProjBaseDir(filePath: string): string {
-  if (process.env.DEV) {
+/**
+ * This function locates a resource in the project, such as various
+ * JSON files and zcl-builtin stuff.
+ *
+ * It needs to adapt to a change in path that can occur when
+ * things are copied into the dist/ directory.
+ *
+ * @param filePath
+ * @returns
+ */
+export function locateProjectResource(filePath: string): string {
+  if (fs.existsSync(path.join(__dirname, '../../zcl-builtin/'))) {
     return path.join(__dirname, '../../', filePath)
-  } else {
+  } else if (fs.existsSync(path.join(__dirname, '../../../zcl-builtin/'))) {
     return path.join(__dirname, '../../../', filePath)
+  } else {
+    throw new Error(
+      `Zap integrity error: can not locate resource: ${filePath}.`
+    )
   }
 }
 /**
@@ -233,7 +247,7 @@ export function zapVersion() {
       date: '',
     }
     try {
-      let p = require(pathFromProjBaseDir('./package.json'))
+      let p = require(locateProjectResource('./package.json'))
       versionObject.version = p.version
     } catch (err) {
       logError('Could not retrieve version from package.json')
@@ -241,7 +255,7 @@ export function zapVersion() {
     }
 
     try {
-      let p = require(pathFromProjBaseDir('./apack.json'))
+      let p = require(locateProjectResource('./apack.json'))
       versionObject.featureLevel = p.featureLevel
     } catch (err) {
       logError('Could not retrieve featureLevel from apack.json')
@@ -249,7 +263,7 @@ export function zapVersion() {
     }
 
     try {
-      let ver = require(pathFromProjBaseDir('./.version.json'))
+      let ver = require(locateProjectResource('./.version.json'))
       versionObject.hash = ver.hash
       versionObject.timestamp = ver.timestamp
       versionObject.date = ver.date
@@ -258,7 +272,7 @@ export function zapVersion() {
     }
 
     try {
-      let readme = pathFromProjBaseDir('./README.md')
+      let readme = locateProjectResource('./README.md')
       if (fs.existsSync(readme)) {
         versionObject.source = true
       }
