@@ -14,7 +14,7 @@ describe('Testing cluster search', () => {
     cy.fixture('data').then((data) => {
       cy.addEndpoint(data.endpoint1, data.cluster1)
     })
-    cy.get('#General > .q-expansion-item__container > .q-item').click()
+    cy.get('#General > .q-expansion-item__container > .q-item').click({force: true})
     cy.fixture('data').then((data) => {
       cy.get('tbody')
       .children()
@@ -23,11 +23,14 @@ describe('Testing cluster search', () => {
     })
   })
   it('Search for power', () => {
-    cy.get(
-      '.col-4 > .q-field__inner > .q-field__control > .q-field__control-container > input'
-    )
-      .clear({ force: true })
-      .type('power', { force: true })
+    cy.fixture('data').then((data) => {
+      cy.get(
+        '.col-4 > .q-field__inner > .q-field__control > .q-field__control-container > input'
+      )
+        .clear({ force: true })
+        .type(data.searchString2, { force: true })
+    })
+   
   })
   it('check if search result is correct', () => {
     cy.fixture('data').then((data) => {

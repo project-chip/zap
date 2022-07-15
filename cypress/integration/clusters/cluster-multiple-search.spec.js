@@ -25,35 +25,42 @@ describe('Add multiple clusters and search', () => {
       'contain',
       'Endpoint - 2'
     )
-    cy.get(
-      '#Telecommunication > .q-expansion-item__container > .q-item'
-    ).click()
-    cy.get('tbody')
-      .children()
-      .should('contain', 'Information')
-      .and('contain', 'Data Sharing')
     cy.fixture('data').then((data) => {
+      cy.get('tbody')
+      .children()
+      .should('contain', data.cluster5)
+      .and('contain', data.cluster6)
       cy.addEndpoint(data.endpoint5, data.cluster1)
     })
     cy.get('.vertical-align\\:middle > strong').should(
       'contain',
       'Endpoint - 3'
     )
-    cy.get('#General > .q-expansion-item__container > .q-item').click()
-    cy.get('tbody')
-      .children()
-      .should('contain', 'Identify')
-      .and('contain', 'Groups')
+    cy.fixture('data').then((data) => {
+      cy.get('#General > .q-expansion-item__container > .q-item').click({force: true})
+      cy.get('tbody')
+        .children()
+        .should('contain', data.cluster7)
+        .and('contain', data.cluster8)
+    })
+    
   })
-  it('Search for power', () => {
-    cy.get(
-      '.col-4 > .q-field__inner > .q-field__control > .q-field__control-container > input'
-    )
-      .clear({ force: true })
-      .type('power', { force: true })
+  it('Search action', () => {
+    cy.fixture('data').then((data) => {
+      cy.get(
+        '.col-4 > .q-field__inner > .q-field__control > .q-field__control-container > input'
+      )
+        .clear({ force: true })
+        .type(data.searchString2, { force: true })
+    })
+  
   })
   it('check if search result is correct', () => {
-    cy.get('tbody').children().contains('Basic').should('not.exist')
-    cy.get('tbody').children().should('contain', 'Power Configuration')
+    cy.fixture('data').then((data) => {
+      cy.get('tbody').children().contains(data.cluster3).should('not.exist')
+      cy.get('tbody').children().should('contain', data.cluster2)
+    })
+    
+    
   })
 })

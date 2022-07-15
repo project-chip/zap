@@ -6,9 +6,9 @@ Cypress.on('uncaught:exception', (err, runnable) => {
   return false
 })
 
-describe('Testing enabled attributes amount', () => {
+describe('Testing enabled clusters amount', () => {
   it(
-    'create a new endpoint and get amount of enabled attributes',
+    'create a new endpoint and get amount of enabled clusters',
     { retries: { runMode: 2, openMode: 2 } },
     () => {
       cy.fixture('baseurl').then((data) => {
@@ -24,7 +24,7 @@ describe('Testing enabled attributes amount', () => {
           .children()
           .should('contain', data.cluster1)
         })
-        cy.get('div').contains('General').click()
+        cy.get('div').contains('General').click({force: true})
         cy.get('div').children().contains('Not Enabled').first().click()
         cy.get('.q-virtual-scroll__content > :nth-child(3)')
           .contains('Server')
@@ -36,10 +36,13 @@ describe('Testing enabled attributes amount', () => {
     'checks if number is updated',
     { retries: { runMode: 2, openMode: 2 } },
     () => {
-      cy.get(':nth-child(6) > .text-right').then(($div2) => {
-        const num2 = parseFloat($div2.text())
-        expect(num2).to.eq(6)
+      cy.fixture('data').then((data) => {
+        cy.get(':nth-child(6) > .text-right').then(($div2) => {
+          const num2 = parseFloat($div2.text())
+          expect(num2).to.eq(Number(data.availableClusters1))
+        })
       })
+     
     }
   )
 })

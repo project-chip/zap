@@ -5,8 +5,8 @@ Cypress.on('uncaught:exception', (err, runnable) => {
   return false
 })
 
-describe('Testing LO Dimmable Light workflow', () => {
-  it('create a LO Dimmable Light endpoint', () => {
+describe('Testing Dimmable Light workflow', () => {
+  it('create a Dimmable Light endpoint', () => {
     cy.fixture('baseurl').then((data) => {
       cy.visit(data.baseurl)
     })
@@ -17,13 +17,13 @@ describe('Testing LO Dimmable Light workflow', () => {
       )
         .click()
         .clear({ force: true })
-        .type(data.endpoitSearch1, { force: true })
-      cy.get('div').contains(data.endpoit6).click()
+        .type("dimmable", { force: true })
+      cy.get('div').contains(data.endpoint6).click({force: true})
     })
 
     cy.get('button').contains('Create').click()
   })
-  it('Search for Over the Air Bootloading', () => {
+  it('Search for the cluster', () => {
     cy.fixture('data').then((data) => {
       cy.get(
         '.col-4 > .q-field__inner > .q-field__control > .q-field__control-container > input'

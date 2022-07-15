@@ -20,20 +20,29 @@ describe('Testing enabled attributes amount', () => {
       cy.get(':nth-child(7) > .text-right').then(($div) => {
         const num1 = parseFloat($div.text())
         cy.fixture('data').then((data) => {
-          cy.gotoAttributePage('', data.cluster1)
+          cy.get('.q-page-container > div')
+          .children()
+          .should('contain', data.cluster1)
         })
-        cy.get(
-          '.table_body:eq(2) > :nth-child(2) > .q-mt-xs > .q-toggle__inner'
-        ).click()
-        cy.get('.router-link-active')
-          .contains('Back')
+        cy.get('div').contains('General').click({force: true})
+        cy.get('div').children().contains('Not Enabled').first().click()
+        cy.get('.q-virtual-scroll__content > :nth-child(3)')
+          .contains('Server')
           .click()
-          .then(() => {})
+      })
+    }
+  )
+  it(
+    'checks if number is updated',
+    { retries: { runMode: 2, openMode: 2 } },
+    () => {
+      cy.fixture('data').then((data) => {
         cy.get(':nth-child(7) > .text-right').then(($div2) => {
           const num2 = parseFloat($div2.text())
-          expect(num2).to.eq(17)
+          expect(num2).to.eq(Number(data.availableAttributes1))
         })
       })
+     
     }
   )
 })
