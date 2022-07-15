@@ -25,7 +25,7 @@ describe('Testing enabled attributes amount', () => {
           .should('contain', data.cluster1)
         })
         cy.get('div').contains('General').click({force: true})
-        cy.get('div').children().contains('Not Enabled').first().click()
+        cy.get('div').children().contains('Not Enabled').first().click({force:true})
         cy.get('.q-virtual-scroll__content > :nth-child(3)')
           .contains('Server')
           .click()
