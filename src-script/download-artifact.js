@@ -29,15 +29,23 @@ const os = require('node:os')
 // const
 const DEFAULT_COMMIT_LATEST = 'commit_latest'
 const DEFAULT_BRANCH = 'master'
-const DEFAULT_OWNER = 'project-chip'
+const DEFAULT_OWNER = 'SiliconLabs'
 const DEFAULT_REPO = 'zap'
 
 async function downloadArtifacts(artifacts, dlOptions) {
-  let { directory, auth, owner, repo, branch, commit, platforms } = dlOptions
-  console.log(`Downloading artifacts from Github...`)
-  console.log(`Directory: ${directory}`)
-  console.log(`Repo: https://github.com/${owner}/${repo}`)
-  console.log(`Branch: ${branch}`)
+  let {
+    directory,
+    githubToken,
+    owner,
+    repo,
+    branch,
+    commit,
+    platforms,
+    formats,
+  } = dlOptions
+  console.log(
+    `Downloading ZAP artifacts from https://github.com/${owner}/${repo}/tree/${branch}`
+  )
   console.log(`Commit: ${commit}`)
 
   for (const artifact of artifacts) {
@@ -46,22 +54,29 @@ async function downloadArtifacts(artifacts, dlOptions) {
 
     let { archive_download_url, name } = artifact
 
-    const dlBinary = platforms.reduce(
+    // verify platform
+    const verifyPlatform = platforms.reduce(
       (prev, cur) => prev || name.includes(cur),
       false
     )
 
-    if (!dlBinary) {
+    const verifyFormat = formats.reduce(
+      (prev, cur) => prev || name.endsWith(cur),
+      false
+    )
+
+    if (!verifyPlatform || !verifyFormat) {
       continue
     }
 
     const downloader = new Downloader({
       url: archive_download_url,
       directory: directory,
+      cloneFiles: false, //This will cause the downloader to re-write an existing file.
       maxAttempts: 3,
       headers: {
         'User-Agent': 'Silabs Download Script',
-        Authorization: `token ${auth}`,
+        Authorization: `token ${githubToken}`,
       },
       onProgress: function (percentage, chunk, remainingSize) {
         chunkCount++
@@ -109,8 +124,8 @@ function platforms(argv) {
  *          https://docs.github.com/en/rest/actions/artifacts
  */
 async function getArtifacts(options) {
-  let { owner, repo, branch, commit, auth } = options
-  const octokit = new Octokit({ auth })
+  let { owner, repo, branch, commit, githubToken } = options
+  const octokit = new Octokit({ githubToken })
   let refCommit = ''
   let refWorkflowRunId = ''
 
@@ -197,30 +212,46 @@ function configureBuildCommand() {
       description: 'Name of Github repo: https://github.com/${owner}/${repo}',
       default: DEFAULT_REPO,
     })
-
     .option('owner', {
       alias: 'o',
       description: 'Owner of Github repo: https://github.com/${owner}/${repo}',
       default: DEFAULT_OWNER,
     })
+    .option('githubToken', {
+      description: 'Define GITHUB_TOKEN for downloading artifacts from Github',
+      default: null,
+      type: 'string',
+    })
+    .option('formats', {
+      alias: 'f',
+      description: 'Define a list of desired format for artifacts',
+      default: ['zip'],
+      type: 'array',
+    })
+    .help('h')
+    .alias('h', 'help')
 }
 
 async function main() {
-  if (!process.env.GITHUB_TOKEN) {
-    return console.error(
-      'Missing GITHUB_TOKEN env variable for Github.com access!'
-    )
-  }
-
   let y = configureBuildCommand()
   let dlOptions = {
-    auth: process.env.GITHUB_TOKEN,
+    githubToken: y.argv.githubToken
+      ? y.argv.githubToken
+      : process.env.GITHUB_TOKEN,
     owner: y.argv.owner,
     repo: y.argv.repo,
     branch: y.argv.branch,
     commit: y.argv.commit,
     directory: y.argv.dir,
     platforms: platforms(y.argv),
+    formats: y.argv.formats,
+  }
+
+  if (!dlOptions.githubToken) {
+    return console.error(
+      `Missing GITHUB_TOKEN env variable for Github.com access!
+Find more information at https://docs.github.com/en/actions/security-guides/automatic-token-authentication#about-the-github_token-secret`
+    )
   }
 
   let artifacts = await getArtifacts(dlOptions)
