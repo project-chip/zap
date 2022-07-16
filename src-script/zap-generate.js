@@ -35,6 +35,7 @@ console.log(`Executing: ${cmdArgs}`)
 scriptUtil
   .stampVersion()
   .then(() => scriptUtil.rebuildBackendIfNeeded())
+  .then(() => scriptUtil.addToJsonFile('/tmp/gen.log', cmdArgs))
   .then(() => scriptUtil.executeCmd(null, 'npx', cmdArgs))
   .then(() => scriptUtil.doneStamp(startTime))
   .then(() => {
