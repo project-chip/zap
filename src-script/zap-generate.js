@@ -35,7 +35,9 @@ console.log(`Executing: ${cmdArgs}`)
 scriptUtil
   .stampVersion()
   .then(() => scriptUtil.rebuildBackendIfNeeded())
-  .then(() => scriptUtil.addToJsonFile('/tmp/gen.log', cmdArgs))
+  // This next line is useful if your SDK is not using the sdk.json
+  // Then you regen whole SDK, and this will output the full gen.log
+  //  .then(() => scriptUtil.addToJsonFile('/tmp/gen.log', cmdArgs))
   .then(() => scriptUtil.executeCmd(null, 'npx', cmdArgs))
   .then(() => scriptUtil.doneStamp(startTime))
   .then(() => {
