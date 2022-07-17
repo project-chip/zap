@@ -264,6 +264,37 @@ async function startConvert(argv, options) {
 }
 
 /**
+ * Performs a full SDK regeneration.
+ *
+ * @param {*} argv
+ * @param {*} options
+ */
+async function startRegenerateSdk(argv, options) {
+  options.logger('🤖 Regenerating whole SDK.')
+  let sdkPath = argv.sdk
+  if (!sdkPath) {
+    options.logger(`⛔ regenerateSdk requires the --sdk <sdkFile> argument`)
+  } else {
+    options.logger(`    👈 read in: ${sdkPath}`)
+    let data = await fsp.readFile(sdkPath)
+    let sdk = JSON.parse(data)
+    let sdkRoot = path.join(path.dirname(sdkPath), sdk.meta.sdkRoot)
+    options.logger(`    👉 sdk information: ${sdk.meta.description}`)
+    options.logger(`    👉 sdk location: ${sdkRoot}`)
+    let featureLevelMatch = util.matchFeatureLevel(
+      sdk.meta.requiredFeatureLevel,
+      sdk.meta.description
+    )
+    if (!featureLevelMatch.match) {
+      options.logger(`⛔ ${featureLevelMatch.message}`)
+      throw featureLevelMatch.message
+    }
+    options.logger('😎 Regeneration done!')
+  }
+  if (options.quitFunction != null) options.quitFunction()
+}
+
+/**
  * Perform file analysis.
  *
  * @param {*} paths List of paths to analyze
@@ -567,6 +598,9 @@ function startUpSecondaryInstance(argv, callbacks) {
     })
   } else if (argv._.includes('stop')) {
     ipcClient.emit(ipcServer.eventType.stop)
+  } else if (argv._.includes('regenerateSdk')) {
+    console.log('⛔ SDK regeneration from client process is not yet supported.')
+    process.exit(0)
   } else if (argv._.includes('generate') && argv.zapFiles != null) {
     let data = {
       zapFileArray: argv.zapFiles,
@@ -644,11 +678,17 @@ async function startUpMainInstance(argv, callbacks) {
       quitFunction: quitFunction,
     }).catch((code) => {
       console.log(code)
-      cleanExit(argv.cleanupDelay, 1)
+      cleanExit(argv.cleanupDelay, 0)
     })
   } else if (argv._.includes('stop')) {
     console.log('No server running, nothing to stop.')
     cleanExit(argv.cleanupDelay, 0)
+  } else if (argv._.includes('regenerateSdk')) {
+    let options = {
+      quitFunction: quitFunction,
+      logger: console.log,
+    }
+    return startRegenerateSdk(argv, options)
   } else if (argv._.includes('generate')) {
     let options = {
       quitFunction: quitFunction,
