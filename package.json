@@ -91,7 +91,8 @@
     "pkg": "npm run build && npx pkg --out-path dist/ --compress GZip .",
     "pkg:linux": "npm run build && npx pkg -t node16-linux-x64 --output dist/zap-linux --compress GZip .",
     "pkg:win": "npm run build && npx pkg -t node16-win-x64 --output dist/zap-win.exe --compress GZip .",
-    "pkg:mac": "npm run build && npx pkg -t node16-macos-x64 --output dist/zap-macos --compress GZip ."
+    "pkg:mac": "npm run build && npx pkg -t node16-macos-x64 --output dist/zap-macos --compress GZip .",
+    "mattersdk": "node src-script/zap-start.js regenerateSdk --sdk ~/git/matter/scripts/tools/sdk.json"
   },
   "dependencies": {
     "@babel/runtime": "^7.14.6",

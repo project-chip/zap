@@ -34,6 +34,7 @@ const util = require('../util/util.js')
 const importJs = require('../importexport/import.js')
 const exportJs = require('../importexport/export.js')
 const watchdog = require('./watchdog')
+const { Z_BLOCK } = require('zlib')
 
 // This file contains various startup modes.
 
@@ -275,6 +276,13 @@ async function startRegenerateSdk(argv, options) {
   if (!sdkPath) {
     options.logger(`⛔ regenerateSdk requires the --sdk <sdkFile> argument`)
   } else {
+    let dbFile = env.sqliteFile('regenerateSdk')
+    let db = await dbApi.initDatabaseAndLoadSchema(
+      dbFile,
+      env.schemaFile(),
+      env.zapVersion()
+    )
+
     options.logger(`    👈 read in: ${sdkPath}`)
     let data = await fsp.readFile(sdkPath)
     let sdk = JSON.parse(data)
@@ -290,10 +298,17 @@ async function startRegenerateSdk(argv, options) {
       throw featureLevelMatch.message
     }
     options.logger('🐝 Loading ZCL information')
+    sdk.zclPackageId = {}
     for (let key of Object.keys(sdk.zcl)) {
       options.logger(`    👈 ${sdk.zcl[key]}`)
+      let loadData = await zclLoader.loadZcl(
+        db,
+        path.join(sdkRoot, sdk.zcl[key])
+      )
+      sdk.zclPackageId[key] = loadData.packageId
     }
     options.logger('🐝 Loading Generation templates')
+    sdk.templatePackageId = {}
     for (let key of Object.keys(sdk.templates)) {
       options.logger(`    👈 ${sdk.templates[key]}`)
     }
