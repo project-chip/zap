@@ -289,6 +289,18 @@ async function startRegenerateSdk(argv, options) {
       options.logger(`⛔ ${featureLevelMatch.message}`)
       throw featureLevelMatch.message
     }
+    options.logger('🐝 Loading ZCL information')
+    for (let key of Object.keys(sdk.zcl)) {
+      options.logger(`    👈 ${sdk.zcl[key]}`)
+    }
+    options.logger('🐝 Loading Generation templates')
+    for (let key of Object.keys(sdk.templates)) {
+      options.logger(`    👈 ${sdk.templates[key]}`)
+    }
+    options.logger('🐝 Performing generation')
+    for (let gen of sdk.generation) {
+      options.logger(`    👉 ${gen.zapFile}: ${sdk.zapFiles[gen.zapFile]}`)
+    }
     options.logger('😎 Regeneration done!')
   }
   if (options.quitFunction != null) options.quitFunction()
