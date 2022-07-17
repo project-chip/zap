@@ -311,6 +311,11 @@ async function startRegenerateSdk(argv, options) {
     sdk.templatePackageId = {}
     for (let key of Object.keys(sdk.templates)) {
       options.logger(`    👈 ${sdk.templates[key]}`)
+      let loadData = await generatorEngine.loadTemplates(
+        db,
+        path.join(sdkRoot, sdk.templates[key])
+      )
+      sdk.templatePackageId[key] = loadData.packageId
     }
     options.logger('🐝 Performing generation')
     for (let gen of sdk.generation) {
