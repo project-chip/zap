@@ -458,7 +458,7 @@ function prepareCluster(cluster, context, isExtension = false) {
         priority: event.$.priority,
         description: event.description[0].trim(),
         isOptional: event.$.optional == 'true',
-        isFabricScoped: event.$.isFabricScoped == 'true',
+        isFabricSensitive: event.$.isFabricSensitive == 'true',
       }
       ev.access = extractAccessIntoArray(event)
       if (ev.manufacturerCode == null) {

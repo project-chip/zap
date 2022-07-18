@@ -55,7 +55,7 @@ INSERT INTO EVENT (
   DESCRIPTION,
   SIDE,
   IS_OPTIONAL,
-  IS_FABRIC_SCOPED,
+  IS_FABRIC_SENSITIVE,
   PRIORITY,
   INTRODUCED_IN_REF,
   REMOVED_IN_REF
@@ -205,7 +205,7 @@ function eventMap(clusterId, packageId, events) {
     event.description,
     event.side,
     dbApi.toDbBool(event.isOptional),
-    dbApi.toDbBool(event.isFabricScoped),
+    dbApi.toDbBool(event.isFabricSensitive),
     event.priority,
     event.introducedIn,
     packageId,

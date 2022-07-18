@@ -214,7 +214,7 @@ CREATE TABLE IF NOT EXISTS "EVENT" (
   "DESCRIPTION" text,
   "SIDE" text,
   "IS_OPTIONAL" integer,
-  "IS_FABRIC_SCOPED" integer,
+  "IS_FABRIC_SENSITIVE" integer,
   "PRIORITY" text,
   "INTRODUCED_IN_REF" integer,
   "REMOVED_IN_REF" integer,

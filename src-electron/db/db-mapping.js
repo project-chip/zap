@@ -143,7 +143,7 @@ exports.map = {
       description: x.DESCRIPTION,
       side: x.SIDE,
       isOptional: dbApi.fromDbBool(x.IS_OPTIONAL),
-      isFabricScoped: dbApi.fromDbBool(x.IS_FABRIC_SCOPED),
+      isFabricSensitive: dbApi.fromDbBool(x.IS_FABRIC_SENSITIVE),
       priority: x.PRIORITY,
     }
   },
