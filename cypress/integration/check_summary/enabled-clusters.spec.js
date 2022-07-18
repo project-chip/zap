@@ -14,10 +14,8 @@ describe('Testing enabled clusters amount', () => {
       cy.fixture('baseurl').then((data) => {
         cy.visit(data.baseurl)
       })
-      cy.fixture('data').then((data) => {
-        cy.addEndpoint(data.endpoint1, data.cluster1)
-      })
-      cy.get(':nth-child(6) > .text-right').then(($div) => {
+      cy.addEndpoint('Billing Unit (0x0203)', 'General')
+      cy.get('[data-test="endpoint-enabled-clusters-amount"]').then(($div) => {
         const num1 = parseFloat($div.text())
         cy.fixture('data').then((data) => {
           cy.get('.q-page-container > div')
@@ -41,11 +39,9 @@ describe('Testing enabled clusters amount', () => {
     'checks if number is updated',
     { retries: { runMode: 2, openMode: 2 } },
     () => {
-      cy.fixture('data').then((data) => {
-        cy.get(':nth-child(6) > .text-right').then(($div2) => {
-          const num2 = parseFloat($div2.text())
-          expect(num2).to.eq(Number(data.availableClusters1))
-        })
+      cy.get('[data-test="endpoint-enabled-clusters-amount"]').then(($div2) => {
+        const num2 = parseFloat($div2.text())
+        expect(num2).to.eq(6)
       })
      
     }

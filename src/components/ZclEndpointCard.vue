@@ -20,13 +20,13 @@ limitations under the License.
       :bordered="isSelectedEndpoint"
       @click="setSelectedEndpointType(endpointReference)"
     >
-      <div style='display: flex; justify-content: space-around'>
+      <div style="display: flex; justify-content: space-around">
         <div class="vertical-align:middle q-pa-sm col-4">
           <strong
-          >Endpoint - {{ getFormattedEndpointId(endpointReference) }}</strong
+            >Endpoint - {{ getFormattedEndpointId(endpointReference) }}</strong
           >
         </div>
-        <div class='q-gutter-sm' style='display: flex; align-items: center;'>
+        <div class="q-gutter-sm" style="display: flex; align-items: center">
           <q-btn
             flat
             dense
@@ -48,20 +48,22 @@ limitations under the License.
             @click="modifyEndpointDialog = !modifyEndpointDialog"
           />
           <q-btn
-            v-if='showAllInformationOfEndpoint'
-            @click.stop='toggleShowAllInformationOfEndpoint'
+            v-if="showAllInformationOfEndpoint"
+            @click.stop="toggleShowAllInformationOfEndpoint"
             flat
             dense
-            icon="arrow_downward"
-            size='xs'
+            icon="arrow_upward"
+            size="xs"
+            data-test="endpoint-body-toggler-hide"
           />
           <q-btn
             v-else
             flat
             dense
-            icon="arrow_upward"
-            @click.stop='toggleShowAllInformationOfEndpoint'
-            size='xs'
+            icon="arrow_downward"
+            @click.stop="toggleShowAllInformationOfEndpoint"
+            size="xs"
+            data-test="endpoint-body-toggler-show"
           />
         </div>
       </div>
@@ -101,13 +103,15 @@ limitations under the License.
           <div class="col-6">
             <strong>Enabled Clusters</strong>
           </div>
-          <div class="col-6">{{ selectedservers.length }}</div>
+          <div class="col-6" data-test="endpoint-enabled-clusters-amount">
+            {{ selectedservers.length }}
+          </div>
         </q-item>
         <q-item class="row">
           <div class="col-6">
             <strong>Enabled Attributes</strong>
           </div>
-          <div class="col-6">
+          <div class="col-6" data-test="endpoint-enabled-attributes-amount">
             {{ selectedAttributes.length }}
           </div>
         </q-item>
@@ -272,7 +276,9 @@ export default {
     getEndpointCardData() {
       Vue.prototype
         .$serverGet(
-          `${restApi.uri.endpointTypeClusters}${this.endpointType[this.endpointReference]}`
+          `${restApi.uri.endpointTypeClusters}${
+            this.endpointType[this.endpointReference]
+          }`
         )
         .then((res) => {
           let enabledClients = []
@@ -291,7 +297,9 @@ export default {
 
       Vue.prototype
         .$serverGet(
-          `${restApi.uri.endpointTypeAttributes}${this.endpointType[this.endpointReference]}`
+          `${restApi.uri.endpointTypeAttributes}${
+            this.endpointType[this.endpointReference]
+          }`
         )
         .then((res) => {
           this.selectedAttributes = []
@@ -320,7 +328,7 @@ export default {
       get() {
         return this.zclDeviceTypes[
           this.endpointDeviceTypeRef[this.endpointType[this.endpointReference]]
-          ]
+        ]
       },
     },
     networkId: {
@@ -366,14 +374,14 @@ export default {
   },
   watch: {
     isSelectedEndpoint(newValue) {
-      if(newValue) {
+      if (newValue) {
         this.showAllInformationOfEndpoint = true
       }
-    }
+    },
   },
   created() {
     this.getEndpointCardData()
-  }
+  },
 }
 </script>
 
