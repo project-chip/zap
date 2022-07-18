@@ -283,6 +283,7 @@ exports.map = {
       label: x.NAME,
       name: x.NAME,
       itemCnt: x.ITEM_COUNT,
+      isFabricScoped: dbApi.fromDbBool(x.IS_FABRIC_SCOPED),
       caption: `Struct, named ${x.NAME}`,
     }
   },

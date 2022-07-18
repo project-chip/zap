@@ -124,6 +124,7 @@ async function selectAllStructsWithItemCount(db, packageId) {
       `
 SELECT
   STRUCT.STRUCT_ID,
+  STRUCT.IS_FABRIC_SCOPED,
   DATA_TYPE.NAME,
   DATA_TYPE.DISCRIMINATOR_REF,
   COUNT(ITEM.NAME) AS ITEM_COUNT
@@ -294,6 +295,7 @@ async function selectStructsWithItemsImpl(db, packageIds, clusterId) {
     query = `
     SELECT
       S.STRUCT_ID AS STRUCT_ID,
+      S.IS_FABRIC_SCOPED AS IS_FABRIC_SCOPED,
       DT.NAME AS STRUCT_NAME,
       (SELECT COUNT(1) FROM DATA_TYPE_CLUSTER WHERE DATA_TYPE_CLUSTER.DATA_TYPE_REF = S.STRUCT_ID) AS STRUCT_CLUSTER_COUNT,
       SI.NAME AS ITEM_NAME,
@@ -324,6 +326,7 @@ async function selectStructsWithItemsImpl(db, packageIds, clusterId) {
     query = `
     SELECT
       S.STRUCT_ID AS STRUCT_ID,
+      S.IS_FABRIC_SCOPED AS IS_FABRIC_SCOPED,
       DT.NAME AS STRUCT_NAME,
       (SELECT COUNT(1) FROM DATA_TYPE_CLUSTER WHERE DATA_TYPE_CLUSTER.DATA_TYPE_REF = S.STRUCT_ID) AS STRUCT_CLUSTER_COUNT,
       SI.NAME AS ITEM_NAME,
@@ -367,6 +370,7 @@ async function selectStructsWithItemsImpl(db, packageIds, clusterId) {
       objectToActOn = {
         id: value.STRUCT_ID,
         name: value.STRUCT_NAME,
+        isFabricScoped: value.IS_FABRIC_SCOPED,
         label: value.STRUCT_NAME,
         struct_cluster_count: value.STRUCT_CLUSTER_COUNT,
         items: [],
