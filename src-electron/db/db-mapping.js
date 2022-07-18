@@ -161,6 +161,7 @@ exports.map = {
       source: x.SOURCE,
       isOptional: dbApi.fromDbBool(x.IS_OPTIONAL),
       mustUseTimedInvoke: dbApi.fromDbBool(x.MUST_USE_TIMED_INVOKE),
+      isFabricScoped: dbApi.fromDbBool(x.IS_FABRIC_SCOPED),
       clusterCode: x.CLUSTER_CODE,
       clusterName: x.CLUSTER_NAME,
       clusterDefineName: x.CLUSTER_DEFINE_NAME,
