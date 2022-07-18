@@ -55,11 +55,12 @@ INSERT INTO EVENT (
   DESCRIPTION,
   SIDE,
   IS_OPTIONAL,
+  IS_FABRIC_SCOPED,
   PRIORITY,
   INTRODUCED_IN_REF,
   REMOVED_IN_REF
 ) VALUES (
-  ?, ?, ?, ?, ?, ?, ?, ?, ?,
+  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
 )
@@ -91,13 +92,14 @@ INSERT INTO COMMAND (
   SOURCE,
   IS_OPTIONAL,
   MUST_USE_TIMED_INVOKE,
+  IS_FABRIC_SCOPED,
   RESPONSE_NAME,
   MANUFACTURER_CODE,
   INTRODUCED_IN_REF,
   REMOVED_IN_REF,
   IS_DEFAULT_RESPONSE_ENABLED
 ) VALUES (
-  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   ?
@@ -148,11 +150,12 @@ INSERT INTO ATTRIBUTE (
   IS_SCENE_REQUIRED,
   ARRAY_TYPE,
   MUST_USE_TIMED_WRITE,
+  IS_FABRIC_SCOPED,
   MANUFACTURER_CODE,
   INTRODUCED_IN_REF,
   REMOVED_IN_REF
 ) VALUES (
-  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
 )`
@@ -183,6 +186,7 @@ function attributeMap(clusterId, packageId, attributes) {
     dbApi.toDbBool(attribute.isSceneRequired),
     attribute.entryType,
     dbApi.toDbBool(attribute.mustUseTimedWrite),
+    dbApi.toDbBool(attribute.isFabricScoped),
     attribute.manufacturerCode,
     attribute.introducedIn,
     packageId,
@@ -201,6 +205,7 @@ function eventMap(clusterId, packageId, events) {
     event.description,
     event.side,
     dbApi.toDbBool(event.isOptional),
+    dbApi.toDbBool(event.isFabricScoped),
     event.priority,
     event.introducedIn,
     packageId,
@@ -219,6 +224,7 @@ function commandMap(clusterId, packageId, commands) {
     command.source,
     dbApi.toDbBool(command.isOptional),
     dbApi.toDbBool(command.mustUseTimedInvoke),
+    dbApi.toDbBool(command.isFabricScoped),
     command.responseName,
     command.manufacturerCode,
     command.introducedIn,
