@@ -707,10 +707,10 @@ async function selectAttributesByClusterCodeAndManufacturerCode(
 ) {
   let manufacturerString
   if (manufacturerCode == null) {
-    manufacturerString = ' AND CLUSTER.MANUFACTURER_CODE IS NULL'
+    manufacturerString = ' AND C.MANUFACTURER_CODE IS NULL'
   } else {
     manufacturerString =
-      ' AND CLUSTER.MANUFACTURER_CODE IS NULL OR MANUFACTURER_CODE = ' +
+      ' AND C.MANUFACTURER_CODE IS NULL OR C.MANUFACTURER_CODE = ' +
       manufacturerCode
   }
   return dbApi
