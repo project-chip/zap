@@ -1250,6 +1250,7 @@ function prepareStruct(a, dataType) {
     name: a.$.name,
     cluster_code: a.cluster ? a.cluster : null,
     discriminator_ref: dataType,
+    isFabricScoped: a.$.isFabricScoped == 'true',
   }
 }
 

@@ -1435,7 +1435,7 @@ async function insertStruct(db, packageId, data) {
     db,
     `
 INSERT INTO
-  STRUCT (STRUCT_ID, SIZE)
+  STRUCT (STRUCT_ID, SIZE, IS_FABRIC_SCOPED)
 VALUES (
   (SELECT
     DATA_TYPE_ID
@@ -1487,7 +1487,7 @@ VALUES (
           AND DATA_TYPE.NAME = ?
           AND 
           DATA_TYPE.DISCRIMINATOR_REF = ?)
-    END AS SIZE))`,
+    END AS SIZE), ?)`,
     data.map((at) => [
       packageId,
       at.name,
@@ -1500,6 +1500,7 @@ VALUES (
       packageId,
       at.type,
       at.discriminator_ref,
+      dbApi.toDbBool(at.isFabricScoped),
     ])
   )
 }
