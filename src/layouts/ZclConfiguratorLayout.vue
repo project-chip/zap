@@ -40,7 +40,8 @@ limitations under the License.
             />
           </q-toolbar-title>
           <q-toolbar-title v-on:click.ctrl="showVersion" v-else>
-            Cluster Configurator: {{ zclProperties.description || '' }}
+            Cluster Configurator:
+            {{ zclProperties != undefined ? zclProperties.description : '' }}
           </q-toolbar-title>
           <q-btn
             class="hidden"
@@ -220,9 +221,11 @@ export default {
     },
     zclProperties: {
       get() {
-        return this.$store.state.zap.allPackages.find( single => single.type === 'zcl-properties')
-      }
-    }
+        return this.$store.state.zap.allPackages.find(
+          (single) => single.type === 'zcl-properties'
+        )
+      },
+    },
   },
   data() {
     return {
@@ -260,27 +263,27 @@ body.body--dark {
 }
 
 .bounce-enter-active {
-  animation: bounce-in .5s;
+  animation: bounce-in 0.5s;
 }
 .bounce-leave-active {
-  animation: bounce-in .5s reverse;
+  animation: bounce-in 0.5s reverse;
 }
 
 @keyframes bounce-in {
   0% {
-    opacity: 0 ;
+    opacity: 0;
   }
   25% {
-    opacity: 0.25 ;
+    opacity: 0.25;
   }
   50% {
-    opacity: 0.5 ;
+    opacity: 0.5;
   }
   75% {
-    opacity: 0.75 ;
+    opacity: 0.75;
   }
   100% {
-    opacity: 1 ;
+    opacity: 1;
   }
 }
 </style>
