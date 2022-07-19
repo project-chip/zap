@@ -330,6 +330,7 @@ async function startRegenerateSdk(argv, options) {
         pkgIds.push(gen.template)
       }
       for (let pkgId of pkgIds) {
+        options.logger(`    👉 generating: ${pkgId} => ${outputDirectory}`)
         await generatorEngine.generateAndWriteFiles(
           db,
           sessionId,
