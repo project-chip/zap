@@ -53,7 +53,7 @@ exports.timeout = {
     } else if (zto in process.env) {
       return parseInt(process.env[zto])
     } else {
-      return 1000
+      return 1500
     }
   },
   medium: () => {
@@ -62,7 +62,7 @@ exports.timeout = {
     } else if (zto in process.env) {
       return parseInt(process.env[zto])
     } else {
-      return 5000
+      return 10000
     }
   },
   long: () => {
@@ -71,7 +71,7 @@ exports.timeout = {
     } else if (zto in process.env) {
       return parseInt(process.env[zto])
     } else {
-      return 40000
+      return 60000
     }
   },
 }

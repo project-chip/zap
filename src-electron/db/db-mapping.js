@@ -142,6 +142,7 @@ exports.map = {
       description: x.DESCRIPTION,
       side: x.SIDE,
       isOptional: dbApi.fromDbBool(x.IS_OPTIONAL),
+      isFabricSensitive: dbApi.fromDbBool(x.IS_FABRIC_SENSITIVE),
       priority: x.PRIORITY,
     }
   },
@@ -160,6 +161,7 @@ exports.map = {
       source: x.SOURCE,
       isOptional: dbApi.fromDbBool(x.IS_OPTIONAL),
       mustUseTimedInvoke: dbApi.fromDbBool(x.MUST_USE_TIMED_INVOKE),
+      isFabricScoped: dbApi.fromDbBool(x.IS_FABRIC_SCOPED),
       clusterCode: x.CLUSTER_CODE,
       clusterName: x.CLUSTER_NAME,
       clusterDefineName: x.CLUSTER_DEFINE_NAME,
@@ -280,6 +282,7 @@ exports.map = {
       label: x.NAME,
       name: x.NAME,
       itemCnt: x.ITEM_COUNT,
+      isFabricScoped: dbApi.fromDbBool(x.IS_FABRIC_SCOPED),
       caption: `Struct, named ${x.NAME}`,
     }
   },

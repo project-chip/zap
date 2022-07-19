@@ -53,6 +53,7 @@ async function selectStructById(db, id) {
       `
 SELECT 
   STRUCT.STRUCT_ID,
+  STRUCT.IS_FABRIC_SCOPED,
   DATA_TYPE.NAME,
   DATA_TYPE.DISCRIMINATOR_REF
 FROM
@@ -75,6 +76,7 @@ async function selectStructByName(db, name, packageId) {
       `
 SELECT
   STRUCT.STRUCT_ID,
+  STRUCT.IS_FABRIC_SCOPED,
   DATA_TYPE.NAME,
   DATA_TYPE.DISCRIMINATOR_REF
 FROM
