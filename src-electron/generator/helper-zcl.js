@@ -211,6 +211,7 @@ async function zcl_enum_items(options) {
  */
 async function first_unused_enum_value(options) {
   let mode = options.hash.mode
+  let format = options.hash.format // "hex" or "decimal"
   let items
   if (this.enum_items) {
     items = this.enum_items
@@ -241,7 +242,18 @@ async function first_unused_enum_value(options) {
       }
     } while (isPresent)
   }
-  return unusedValue
+
+  if (format == 'hex') {
+    let out = unusedValue.toString(16)
+    if (this.size && this.size > 0) {
+      while (out.length < this.size * 2) {
+        out = '0' + out
+      }
+    }
+    return out
+  } else {
+    return unusedValue
+  }
 }
 
 /**

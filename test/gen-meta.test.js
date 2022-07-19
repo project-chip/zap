@@ -111,7 +111,11 @@ test(
     const enums = await queryZcl.selectAllEnums(db, zclContext.packageId)
     for (const e of enums) {
       let clusters = await queryZcl.selectEnumClusters(db, e.id)
-      if (e.name == 'TestEnum' || e.name == 'SparseEnum') {
+      if (
+        e.name == 'TestEnum' ||
+        e.name == 'SparseEnum' ||
+        e.name == 'LongerEnum'
+      ) {
         expect(clusters.length).toBe(1)
         expect(clusters[0].code).toBe(0xabcd)
       } else {
