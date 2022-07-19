@@ -34,7 +34,6 @@ const util = require('../util/util.js')
 const importJs = require('../importexport/import.js')
 const exportJs = require('../importexport/export.js')
 const watchdog = require('./watchdog')
-const { Z_BLOCK } = require('zlib')
 
 // This file contains various startup modes.
 
@@ -319,7 +318,25 @@ async function startRegenerateSdk(argv, options) {
     }
     options.logger('🐝 Performing generation')
     for (let gen of sdk.generation) {
-      options.logger(`    👉 ${gen.zapFile}: ${sdk.zapFiles[gen.zapFile]}`)
+      let inputFile = path.join(sdkRoot, sdk.zapFiles[gen.zapFile])
+      let outputDirectory = path.join(sdkRoot, gen.output)
+      options.logger(`    👈 loading: ${inputFile} `)
+      let loaderResult = await importJs.importDataFromFile(db, inputFile)
+      let sessionId = loaderResult.sessionId
+      let pkgIds = []
+      if (Array.isArray(gen.template)) {
+        pkgIds.push(...gen.template)
+      } else {
+        pkgIds.push(gen.template)
+      }
+      for (let pkgId of pkgIds) {
+        await generatorEngine.generateAndWriteFiles(
+          db,
+          sessionId,
+          sdk.templatePackageId[pkgId],
+          outputDirectory
+        )
+      }
     }
     options.logger('😎 Regeneration done!')
   }
