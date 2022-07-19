@@ -150,12 +150,11 @@ INSERT INTO ATTRIBUTE (
   IS_SCENE_REQUIRED,
   ARRAY_TYPE,
   MUST_USE_TIMED_WRITE,
-  IS_FABRIC_SCOPED,
   MANUFACTURER_CODE,
   INTRODUCED_IN_REF,
   REMOVED_IN_REF
 ) VALUES (
-  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
 )`
@@ -186,7 +185,6 @@ function attributeMap(clusterId, packageId, attributes) {
     dbApi.toDbBool(attribute.isSceneRequired),
     attribute.entryType,
     dbApi.toDbBool(attribute.mustUseTimedWrite),
-    dbApi.toDbBool(attribute.isFabricScoped),
     attribute.manufacturerCode,
     attribute.introducedIn,
     packageId,

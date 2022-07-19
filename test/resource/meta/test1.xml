@@ -33,7 +33,7 @@ limitations under the License.
       <description>at1</description>
       <access op="write" role="manage" modifier="fabric-scoped"/>
     </attribute>
-    <attribute side="server" code="0x0001" define="AT2" type="INT16U" writable="false" optional="true" isNullable="true" reportingPolicy="mandatory" isFabricScoped="true">
+    <attribute side="server" code="0x0001" define="AT2" type="INT16U" writable="false" optional="true" isNullable="true" reportingPolicy="mandatory">
       <description>at2</description>
       <access modifier="fabric-sensitive"/>
     </attribute>

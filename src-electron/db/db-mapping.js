@@ -112,7 +112,6 @@ exports.map = {
         x.REPORTING_POLICY == dbEnums.reportingPolicy.suggested,
       reportingPolicy: x.REPORTING_POLICY,
       isSceneRequired: dbApi.fromDbBool(x.IS_SCENE_REQUIRED),
-      isFabricScoped: dbApi.fromDbBool(x.IS_FABRIC_SCOPED),
       entryType: x.ARRAY_TYPE,
       mustUseTimedWrite: dbApi.fromDbBool(x.MUST_USE_TIMED_WRITE),
     }

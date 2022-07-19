@@ -549,7 +549,6 @@ function prepareCluster(cluster, context, isExtension = false) {
         isNullable: attribute.$.isNullable == 'true' ? true : false,
         entryType: attribute.$.entryType,
         mustUseTimedWrite: attribute.$.mustUseTimedWrite == 'true',
-        isFabricScoped: attribute.$.isFabricScoped == 'true',
       }
       att.access = extractAccessIntoArray(attribute)
       if (att.manufacturerCode == null) {

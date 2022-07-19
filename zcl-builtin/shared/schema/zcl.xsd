@@ -478,7 +478,6 @@ This schema describes the format of the XML files, that describe the ZCL specifi
       <xs:attribute name="array" type="xs:boolean"/>
       <xs:attribute name="isNullable" type="xs:boolean"/>
       <xs:attribute name="mustUseTimedWrite" type="xs:boolean"/>
-      <xs:attribute name="isFabricScoped" type="xs:boolean"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="description">
