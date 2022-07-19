@@ -128,7 +128,7 @@ limitations under the License.
      <item name="x" type="INT8U"/>
      <item name="d" type="D"/>
    </struct>
-   <struct name="C">
+   <struct name="C" isFabricScoped="true">
      <item name="x" type="INT8U"/>
    </struct>
    <struct name="D">

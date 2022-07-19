@@ -37,7 +37,7 @@ limitations under the License.
       <description>at2</description>
       <access modifier="fabric-sensitive"/>
     </attribute>
-    <command source="client" code="0x01" name="TestCommand1" optional="false">
+    <command source="client" code="0x01" name="TestCommand1" optional="false" isFabricScoped="true">
       <description>TestCmd1</description>
       <arg name="A" type="INT8U" isNullable="true"/>
       <arg name="B" type="CHAR_STRING"/>
@@ -71,7 +71,7 @@ limitations under the License.
       <arg name="A" type="INT8U" isNullable="true"/>
       <arg name="B" type="CHAR_STRING"/>
     </command>
-    <event code="0x0001" name="HelloEvent" priority="info" side="server">
+    <event code="0x0001" name="HelloEvent" priority="info" side="server" isFabricSensitive="true">
       <description>Example test event</description>
       <field id="1" name="arg1" type="INT8U" isNullable="true"/>
       <field id="2" name="arg2" type="INT32U" array="true"/>

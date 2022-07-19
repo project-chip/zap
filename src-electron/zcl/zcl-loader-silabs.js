@@ -414,6 +414,7 @@ function prepareCluster(cluster, context, isExtension = false) {
         responseName: command.$.response == null ? null : command.$.response,
         isDefaultResponseEnabled:
           command.$.disableDefaultResponse == 'true' ? false : true,
+        isFabricScoped: command.$.isFabricScoped == 'true',
       }
       cmd.access = extractAccessIntoArray(command)
       if (cmd.manufacturerCode == null) {
@@ -457,6 +458,7 @@ function prepareCluster(cluster, context, isExtension = false) {
         priority: event.$.priority,
         description: event.description[0].trim(),
         isOptional: event.$.optional == 'true',
+        isFabricSensitive: event.$.isFabricSensitive == 'true',
       }
       ev.access = extractAccessIntoArray(event)
       if (ev.manufacturerCode == null) {
@@ -1247,6 +1249,7 @@ function prepareStruct(a, dataType) {
     name: a.$.name,
     cluster_code: a.cluster ? a.cluster : null,
     discriminator_ref: dataType,
+    isFabricScoped: a.$.isFabricScoped == 'true',
   }
 }
 
