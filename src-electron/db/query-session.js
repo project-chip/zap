@@ -75,27 +75,7 @@ async function getSessionDirtyFlag(db, sessionId) {
     return dbApi.fromDbBool(row.DIRTY)
   }
 }
-/**
- * Resolves with true or false, depending whether this session is dirty.
- *
- * @export
- * @param {*} db
- * @param {*} sessionId
- * @returns A promise that resolves into true or false, reflecting session dirty state.
- */
-async function getSessionUpgradeFlag(db, sessionId) {
-  let row = await dbApi.dbGet(db, 'SELECT UPGRADE FROM UPGRADE')
-  if (row.UPGRADE == 0) {
-    return 0
-  } else {
-    return 1
-  }
-}
 
-async function getSessionUpgradeStatus(db, sessionId) {
-  let row = await dbApi.dbGet(db, 'SELECT STATUS FROM UPGRADE')
-  return row.STATUS
-}
 /**
  * Resolves w/ the session tied to a session id.
  *
@@ -516,8 +496,6 @@ async function getAllSessionKeyValues(db, sessionId) {
 exports.getAllSessions = getAllSessions
 exports.setSessionClean = setSessionClean
 exports.getSessionDirtyFlag = getSessionDirtyFlag
-exports.getSessionUpgradeFlag = getSessionUpgradeFlag
-exports.getSessionUpgradeStatus = getSessionUpgradeStatus
 exports.getSessionFromSessionId = getSessionFromSessionId
 exports.getSessionInfoFromSessionKey = getSessionInfoFromSessionKey
 exports.ensureZapSessionId = ensureZapSessionId

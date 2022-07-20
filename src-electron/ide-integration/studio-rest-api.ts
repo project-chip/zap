@@ -29,7 +29,7 @@ import * as dbTypes from '../../src-shared/types/db-types'
 import * as querySession from '../db/query-session.js'
 const wsServer = require('../server/ws-server.js')
 const dbEnum = require('../../src-shared/db-enum.js')
-const queryUpgrade = require('../db/query-upgrade.js')
+const queryNotice = require('../db/query-notification.js')
 import * as ucTypes from '../../src-shared/types/uc-component-types'
 import * as dbMappingTypes from '../types/db-mapping-types'
 import * as http from 'http-status-codes'
@@ -269,7 +269,7 @@ function initIdeIntegration(db: dbTypes.DbType, studioPort: number) {
     sendDirtyFlagStatus(db)
   }, DIRTY_FLAG_REPORT_INTERVAL_MS)
   upgradeFlagStatusId = setInterval(() => {
-    sendSessionUpgrade(db)
+    //sendSessionUpgrade(db)
   }, DIRTY_FLAG_REPORT_INTERVAL_MS)
 
   ucComponentStateReportId = setInterval(() => {
@@ -329,21 +329,13 @@ async function sendSessionUpgrade(db: dbTypes.DbType) {
   let sessions = await querySession.getAllSessions(db)
   for (const session of sessions) {
     let socket = wsServer.clientSocket(session.sessionKey)
-    let upgrade = await querySession.getSessionUpgradeFlag(
-      db,
-      session.sessionId
-    )
-    let status = await querySession.getSessionUpgradeStatus(
-      db,
-      session.sessionId
-    )
+    let rows = await queryNotice.getSessionNotices(db, session.sessionId)
     if (socket) {
-      if (upgrade == 1) {
+      for (let i = 0; i < rows.length; i++) {
         wsServer.sendWebSocketMessage(socket, {
           category: dbEnum.wsCategory.upgrade,
-          payload: status,
+          payload: rows[i].status,
         })
-        await queryUpgrade.updateUpgrade(db, 0, 'none')
       }
     }
   }

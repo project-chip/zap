@@ -24,7 +24,6 @@
 const env = require('../util/env')
 const studio = require('../ide-integration/studio-rest-api')
 const restApi = require('../../src-shared/rest-api.js')
-const querySession = require('../db/query-session.js')
 const { StatusCodes } = require('http-status-codes')
 
 function httpGetComponentTree(db) {
