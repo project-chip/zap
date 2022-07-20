@@ -147,6 +147,7 @@ async function initializeSessionPackage(db, sessionId, options) {
                     optionDefault.optionRef
                   )
                   .then((option) => {
+                    querySession.setSessionClean(db, sessionId)
                     return querySession.insertSessionKeyValue(
                       db,
                       sessionId,
