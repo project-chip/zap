@@ -11,27 +11,35 @@ describe('Testing attribute search', () => {
     cy.fixture('baseurl').then((data) => {
       cy.visit(data.baseurl)
     })
-    cy.gotoAttributePage('Billing Unit (0x0203)', 'General')
+    cy.fixture('data').then((data) => {
+      cy.gotoAttributePage(data.endpoint1, data.cluster1)
+    })
   })
   it(
     'check existance of ZCL version and application version',
     { retries: { runMode: 2, openMode: 2 } },
     () => {
-      cy.get('tbody')
-        .children()
-        .should('contain', 'ZCL version')
-        .and('contain', 'application version')
+      cy.fixture('data').then((data) => {
+        cy.get('tbody')
+          .children()
+          .should('contain', data.attribute1)
+          .and('contain', data.attribute2)
+      })
     }
   )
   it('Search for application', () => {
-    cy.get(
-      '.q-py-none > .q-field > .q-field__inner > .q-field__control > .q-field__control-container > input'
-    )
-      .clear({ force: true })
-      .type('application', { force: true })
+    cy.fixture('data').then((data) => {
+      cy.get(
+        '.q-py-none > .q-field > .q-field__inner > .q-field__control > .q-field__control-container > input'
+      )
+        .clear({ force: true })
+        .type(data.searchString1, { force: true })
+    })
   })
   it('check if search result is correct', () => {
-    cy.get('tbody').children().contains('ZCL version').should('not.exist')
-    cy.get('tbody').children().should('contain', 'application version')
+    cy.fixture('data').then((data) => {
+      cy.get('tbody').children().contains(data.attribute1).should('not.exist')
+      cy.get('tbody').children().should('contain', data.attribute2)
+    })
   })
 })
