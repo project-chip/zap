@@ -8,7 +8,7 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 
 describe('Testing enabled clusters amount', () => {
   it(
-    'create a new endpoint and get amount of enabled clusters',
+    'create a new endpoint and enable a clusters',
     { retries: { runMode: 2, openMode: 2 } },
     () => {
       cy.fixture('baseurl').then((data) => {
@@ -25,10 +25,18 @@ describe('Testing enabled clusters amount', () => {
             .should('contain', data.cluster1)
         })
         cy.get('div').contains('General').click({ force: true })
-        cy.get('div').children().contains('Not Enabled').first().click()
-        cy.get('.q-virtual-scroll__content > :nth-child(3)')
+        cy.get('div')
+          .children()
           .contains('Server')
-          .click()
+          .its('length')
+          .then((res) => {
+            if (res > 0) {
+              cy.get('div').children().contains('Not Enabled').first().click()
+              cy.get('.q-virtual-scroll__content > :nth-child(3)')
+                .contains('Server')
+                .click()
+            }
+          })
       })
     }
   )

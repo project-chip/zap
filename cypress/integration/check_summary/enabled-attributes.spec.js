@@ -7,35 +7,24 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 })
 
 describe('Testing enabled attributes amount', () => {
-  it(
-    'create a new endpoint and get amount of enabled attributes',
-    { retries: { runMode: 2, openMode: 2 } },
-    () => {
-      cy.fixture('baseurl').then((data) => {
-        cy.visit(data.baseurl)
-      })
+  it('create a new endpoint and enable an attribute', () => {
+    cy.fixture('baseurl').then((data) => {
+      cy.visit(data.baseurl)
+    })
+    cy.fixture('data').then((data) => {
+      cy.addEndpoint(data.endpoint1, data.cluster1)
+    })
+    cy.get(':nth-child(7) > .text-right').then(($div) => {
+      const num1 = parseFloat($div.text())
       cy.fixture('data').then((data) => {
-        cy.addEndpoint(data.endpoint1, data.cluster1)
+        cy.gotoAttributePage('', data.cluster1)
       })
-      cy.get(':nth-child(7) > .text-right').then(($div) => {
-        const num1 = parseFloat($div.text())
-        cy.fixture('data').then((data) => {
-          cy.get('.q-page-container > div')
-            .children()
-            .should('contain', data.cluster1)
-        })
-        cy.get('div').contains('General').click({ force: true })
-        cy.get('div')
-          .children()
-          .contains('Not Enabled')
-          .first()
-          .click({ force: true })
-        cy.get('.q-virtual-scroll__content > :nth-child(3)')
-          .contains('Server')
-          .click()
-      })
-    }
-  )
+      cy.get(
+        '.table_body:eq(2) > :nth-child(2) > .q-mt-xs > .q-toggle__inner'
+      ).click()
+      cy.get('.router-link-active').contains('Back').click()
+    })
+  })
   it(
     'checks if number is updated',
     { retries: { runMode: 2, openMode: 2 } },
