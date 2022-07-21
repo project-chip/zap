@@ -440,7 +440,7 @@ async function dataTypeCharacterFormatter(
 function isEnum(db, enum_name, packageId) {
   return queryZcl
     .selectEnumByName(db, enum_name, packageId)
-    .then((enums) => (enums ? dbEnum.zclType.enum : dbEnum.zclType.unknown))
+    .then((enums) => (enums ? true : false))
 }
 
 /**
@@ -454,7 +454,7 @@ function isEnum(db, enum_name, packageId) {
 function isStruct(db, struct_name, packageId) {
   return queryZcl
     .selectStructByName(db, struct_name, packageId)
-    .then((st) => (st ? dbEnum.zclType.struct : dbEnum.zclType.unknown))
+    .then((st) => (st ? true : false))
 }
 
 /**
@@ -468,7 +468,7 @@ function isStruct(db, struct_name, packageId) {
 function isBitmap(db, bitmap_name, packageId) {
   return queryZcl
     .selectBitmapByName(db, packageId, bitmap_name)
-    .then((st) => (st ? dbEnum.zclType.bitmap : dbEnum.zclType.unknown))
+    .then((st) => (st ? true : false))
 }
 
 /**
@@ -583,61 +583,51 @@ async function asUnderlyingZclTypeWithPackageId(
   packageId,
   currentInstance
 ) {
-  let actualType = type
-  if (typeof type === 'number') {
-    let numberType = await queryZcl.selectDataTypeById(
-      currentInstance.global.db,
-      type
-    )
-    actualType = numberType.name
+  try {
+    let actualType = type
+    if (typeof type === 'number') {
+      let numberType = await queryZcl.selectDataTypeById(
+        currentInstance.global.db,
+        type
+      )
+      actualType = numberType.name
+    }
+    let resType = dbEnum.zclType.unknown
+    if ('isArray' in currentInstance && currentInstance.isArray) {
+      resType = dbEnum.zclType.array
+    } else if (await isEnum(currentInstance.global.db, actualType, packageId)) {
+      resType = dbEnum.zclType.enum
+    } else if (
+      await isBitmap(currentInstance.global.db, actualType, packageId)
+    ) {
+      resType = dbEnum.zclType.bitmap
+    } else if (
+      await isStruct(currentInstance.global.db, actualType, packageId)
+    ) {
+      resType = dbEnum.zclType.struct
+    }
+    if (dbEnum.zclType.zclCharFormatter in options.hash) {
+      return dataTypeCharacterFormatter(
+        currentInstance.global.db,
+        packageId,
+        actualType,
+        options,
+        resType
+      )
+    } else {
+      return dataTypeHelper(
+        actualType,
+        options,
+        packageId,
+        currentInstance.global.db,
+        resType,
+        currentInstance.global.overridable
+      )
+    }
+  } catch (err) {
+    env.logError(err)
+    throw err
   }
-
-  return Promise.all([
-    new Promise((resolve, reject) => {
-      if ('isArray' in currentInstance && currentInstance.isArray)
-        resolve(dbEnum.zclType.array)
-      else resolve(dbEnum.zclType.unknown)
-    }),
-    isEnum(currentInstance.global.db, actualType, packageId),
-    isStruct(currentInstance.global.db, actualType, packageId),
-    isBitmap(currentInstance.global.db, actualType, packageId),
-  ])
-    .then(
-      (res) =>
-        new Promise((resolve, reject) => {
-          for (let i = 0; i < res.length; i++) {
-            if (res[i] != 'unknown') {
-              resolve(res[i])
-              return
-            }
-          }
-          resolve(dbEnum.zclType.unknown)
-        })
-    )
-    .then((resType) => {
-      if (dbEnum.zclType.zclCharFormatter in options.hash) {
-        return dataTypeCharacterFormatter(
-          currentInstance.global.db,
-          packageId,
-          actualType,
-          options,
-          resType
-        )
-      } else {
-        return dataTypeHelper(
-          actualType,
-          options,
-          packageId,
-          currentInstance.global.db,
-          resType,
-          currentInstance.global.overridable
-        )
-      }
-    })
-    .catch((err) => {
-      env.logError(err)
-      throw err
-    })
 }
 
 /**

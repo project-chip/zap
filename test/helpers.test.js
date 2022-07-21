@@ -217,10 +217,10 @@ test(
       })
 
     zclHelper.isEnum(db, 'patate', zclContext.packageId).then((result) => {
-      expect(result).toBe(dbEnum.zclType.unknown)
+      expect(result).toBeFalsy()
     })
     zclHelper.isEnum(db, 'Status', zclContext.packageId).then((result) => {
-      expect(result).toBe(dbEnum.zclType.enum)
+      expect(result).toBeTruthy()
     })
 
     zclHelper.isStruct(db, 'patate', zclContext.packageId).then((result) => {

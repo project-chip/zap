@@ -1137,55 +1137,22 @@ function zcl_event_fields(options) {
  * @param {*} typeName
  * @param {*} options
  */
-function zcl_command_argument_data_type(type, options) {
-  let promise = templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) =>
-      Promise.all([
-        zclUtil.isEnum(this.global.db, type, packageId),
-        zclUtil.isStruct(this.global.db, type, packageId),
-        zclUtil.isBitmap(this.global.db, type, packageId),
-      ])
-        .then(
-          (res) =>
-            new Promise((resolve, reject) => {
-              for (let i = 0; i < res.length; i++) {
-                if (res[i] != 'unknown') {
-                  resolve(res[i])
-                  return
-                }
-              }
-              resolve(dbEnum.zclType.unknown)
-            })
-        )
-        .then((resType) => {
-          switch (resType) {
-            case dbEnum.zclType.bitmap:
-              return helperC.data_type_for_bitmap(
-                this.global.db,
-                type,
-                packageId
-              )
-            case dbEnum.zclType.enum:
-              return helperC.data_type_for_enum(this.global.db, type, packageId)
-            case dbEnum.zclType.struct:
-              return options.hash.struct
-            case dbEnum.zclType.atomic:
-            case dbEnum.zclType.unknown:
-            default:
-              return helperC.as_cli_type(type)
-          }
-        })
-        .catch((err) => {
-          env.logError(err)
-          throw err
-        })
-    )
-    .catch((err) => {
-      env.logError(err)
-      throw err
-    })
-  return templateUtil.templatePromise(this.global, promise)
+async function zcl_command_argument_data_type(type, options) {
+  try {
+    let packageId = templateUtil.ensureZclPackageId(this)
+    if (await zclUtil.isEnum(this.global.db, type, packageId)) {
+      return helperC.data_type_for_enum(this.global.db, type, packageId)
+    } else if (await zclUtil.isStruct(this.global.db, type, packageId)) {
+      return options.hash.struct
+    } else if (await zclUtil.isBitmap(this.global.db, type, packageId)) {
+      return helperC.data_type_for_bitmap(this.global.db, type, packageId)
+    } else {
+      return helperC.as_cli_type(type)
+    }
+  } catch (err) {
+    env.logError(err)
+    throw err
+  }
 }
 
 /**
