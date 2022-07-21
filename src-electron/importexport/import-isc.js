@@ -762,6 +762,8 @@ async function iscDataLoader(db, state, sessionId) {
   await querySession.setSessionClean(db, sessionId)
   return {
     sessionId: sessionId,
+    zclPackageId: zclPackageId,
+    templateIds: genPackages,
     errors: [],
     warnings: [],
   }
