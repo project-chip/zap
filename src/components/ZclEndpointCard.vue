@@ -99,12 +99,36 @@ limitations under the License.
           </div>
           <div class="col-6">{{ endpointVersion[endpointReference] }}</div>
         </q-item>
+<!--        <q-item class="row">-->
+<!--          <div class="col-6">-->
+<!--            <strong>Enabled Clusters</strong>-->
+<!--          </div>-->
+<!--          <div class="col-6" data-test="endpoint-enabled-clusters-amount">-->
+<!--            {{ selectedservers.length }}-->
+<!--          </div>-->
+<!--        </q-item>-->
+<!--        <q-item class="row">-->
+<!--          <div class="col-6">-->
+<!--            <strong>Enabled Attributes</strong>-->
+<!--          </div>-->
+<!--          <div class="col-6" data-test="endpoint-enabled-attributes-amount">-->
+<!--            {{ selectedAttributes.length }}-->
+<!--          </div>-->
+<!--        </q-item>-->
+<!--        <q-item class="row">-->
+<!--          <div class="col-6">-->
+<!--            <strong>Enabled Reporting</strong>-->
+<!--          </div>-->
+<!--          <div class="col-6">-->
+<!--            {{ selectedReporting.length }}-->
+<!--          </div>-->
+<!--        </q-item>-->
         <q-item class="row">
           <div class="col-6">
             <strong>Enabled Clusters</strong>
           </div>
           <div class="col-6" data-test="endpoint-enabled-clusters-amount">
-            {{ selectedservers.length }}
+            {{ getEnpointData[endpointReference].selectedservers.length }}
           </div>
         </q-item>
         <q-item class="row">
@@ -112,7 +136,7 @@ limitations under the License.
             <strong>Enabled Attributes</strong>
           </div>
           <div class="col-6" data-test="endpoint-enabled-attributes-amount">
-            {{ selectedAttributes.length }}
+            {{ getEnpointData[endpointReference].selectedAttributes.length }}
           </div>
         </q-item>
         <q-item class="row">
@@ -120,7 +144,7 @@ limitations under the License.
             <strong>Enabled Reporting</strong>
           </div>
           <div class="col-6">
-            {{ selectedReporting.length }}
+            {{ getEnpointData[endpointReference].selectedReporting.length }}
           </div>
         </q-item>
       </q-list>
@@ -274,47 +298,13 @@ export default {
       this.showAllInformationOfEndpoint = !this.showAllInformationOfEndpoint
     },
     getEndpointCardData() {
-      Vue.prototype
-        .$serverGet(
-          `${restApi.uri.endpointTypeClusters}${
-            this.endpointType[this.endpointReference]
-          }`
-        )
-        .then((res) => {
-          let enabledClients = []
-          let enabledServers = []
-          res.data.forEach((record) => {
-            if (record.enabled) {
-              if (record.side === 'client') {
-                enabledClients.push(record.clusterRef)
-              } else {
-                enabledServers.push(record.clusterRef)
-              }
-            }
-          })
-          this.selectedservers = [...enabledServers, ...enabledServers]
+      this.$store.dispatch('zap/generateAllEndpointsData',
+        {
+          endpointId: this.endpointReference,
+          clusterRequestUrl: `${restApi.uri.endpointTypeClusters}${this.endpointType[this.endpointReference]}`,
+          attributesRequestUrl: `${restApi.uri.endpointTypeAttributes}${this.endpointType[this.endpointReference]}`,
         })
-
-      Vue.prototype
-        .$serverGet(
-          `${restApi.uri.endpointTypeAttributes}${
-            this.endpointType[this.endpointReference]
-          }`
-        )
-        .then((res) => {
-          this.selectedAttributes = []
-          this.selectedReporting = []
-          res.data.forEach((record) => {
-            let resolvedReference = Util.cantorPair(
-              record.attributeRef,
-              record.clusterRef
-            )
-            if (record.included) this.selectedAttributes.push(resolvedReference)
-            if (record.includedReportable)
-              this.selectedReporting.push(resolvedReference)
-          })
-        })
-    },
+    }
   },
   computed: {
     endpoints: {
@@ -371,6 +361,11 @@ export default {
         return this.selectedEndpointId == this.endpointReference
       },
     },
+    getEnpointData: {
+      get() {
+        return this.$store.state.zap.allEndpointsData
+      }
+    }
   },
   watch: {
     isSelectedEndpoint(newValue) {
