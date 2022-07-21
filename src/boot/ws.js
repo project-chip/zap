@@ -128,13 +128,13 @@ onWebSocket(dbEnum.wsCategory.sessionCreationError, (data) => {
   </center>`
   Notify.create({
     message: html,
-    color: 'black',
+    color: 'primary',
     position: 'top',
     html: true,
     timeout: 0,
   })
 
-  console.log(`upgrade ${JSON.stringify(data)}`)
+  console.log(`sessionCreationError: ${JSON.stringify(data)}`)
 })
 
 //commented unnecessary logs and listeners
