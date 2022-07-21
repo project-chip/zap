@@ -1,6 +1,10 @@
 name: Build and release packages
 
-on: push
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
 
 env:
   ZAP_TEST_TIMEOUT: 3600000
@@ -13,7 +17,7 @@ jobs:
     # Platforms to build on/for
     strategy:
       matrix:
-        os: [macos-11, ubuntu-latest, ubuntu-18.04]
+        os: [macos-11, ubuntu-latest]
       fail-fast: false
 
     steps:
@@ -49,9 +53,6 @@ jobs:
         if: startsWith(matrix.os, 'ubuntu')
       - run: npm run self-check
         if: startsWith(matrix.os, 'ubuntu')
-      - run: npm run gen
-      - run: npm run genmatter
-      - run: npm run gendotdot
 
       - name: Build & Release for macOS / Windows on macOS
         uses: samuelmeuli/action-electron-builder@v1.6.0
@@ -94,6 +95,27 @@ jobs:
           # macOS notarization API key
           API_KEY_ID: ${{ secrets.api_key_id }}
           API_KEY_ISSUER_ID: ${{ secrets.api_key_issuer_id }}
+
+      - run: npm run pkg:linux
+        if: startsWith(matrix.os, 'ubuntu')
+      - run: mv dist/zap-linux zap-cli-linux
+        if: startsWith(matrix.os, 'ubuntu')
+      - run: ./node_modules/7zip-bin/linux/x64/7za a dist/zap-linux.zip zap-cli-linux
+        if: startsWith(matrix.os, 'ubuntu')
+
+      - run: npm run pkg:mac
+        if: startsWith(matrix.os, 'macos')
+      - run: mv dist/zap-macos zap-cli-macos
+        if: startsWith(matrix.os, 'macos')
+      - run: ./node_modules/7zip-bin/mac/x64/7za a dist/zap-mac.zip zap-cli-macos
+        if: startsWith(matrix.os, 'macos')
+
+      - run: npm run pkg:win
+        if: startsWith(matrix.os, 'macos')
+      - run: mv dist/zap-win.exe zap-cli-win.exe
+        if: startsWith(matrix.os, 'macos')
+      - run: ./node_modules/7zip-bin/mac/x64/7za a dist/zap-win.zip zap-cli-win.exe
+        if: startsWith(matrix.os, 'macos')
 
       - name: Setup Linux package for adapter pack test
         id: linux_apack_setup

@@ -87,6 +87,17 @@ function validateSpecificAttribute(endpointAttribute, attribute) {
       if (!checkAttributeBoundsInteger(attribute, endpointAttribute))
         defaultAttributeIssues.push('Out of range')
     }
+  } else if (types.isString(attribute.type)) {
+    let maxLengthForString =
+      attribute.type == 'char_string' || attribute.type == 'octet_string'
+        ? 254
+        : 65534
+    let maxAllowedLength = attribute.maxLength
+      ? attribute.maxLength
+      : maxLengthForString
+    if (endpointAttribute.defaultValue.length > maxAllowedLength) {
+      defaultAttributeIssues.push('String length out of range')
+    }
   }
   return { defaultValue: defaultAttributeIssues }
 }

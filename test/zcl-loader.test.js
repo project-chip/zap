@@ -31,7 +31,6 @@ const testUtil = require('./test-util')
 const testQuery = require('./test-query')
 
 beforeAll(async () => {
-  process.env.DEV = true
   env.setDevelopmentEnv()
 })
 

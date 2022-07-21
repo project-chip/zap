@@ -55,11 +55,12 @@ INSERT INTO EVENT (
   DESCRIPTION,
   SIDE,
   IS_OPTIONAL,
+  IS_FABRIC_SENSITIVE,
   PRIORITY,
   INTRODUCED_IN_REF,
   REMOVED_IN_REF
 ) VALUES (
-  ?, ?, ?, ?, ?, ?, ?, ?, ?,
+  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
 )
@@ -91,13 +92,14 @@ INSERT INTO COMMAND (
   SOURCE,
   IS_OPTIONAL,
   MUST_USE_TIMED_INVOKE,
+  IS_FABRIC_SCOPED,
   RESPONSE_NAME,
   MANUFACTURER_CODE,
   INTRODUCED_IN_REF,
   REMOVED_IN_REF,
   IS_DEFAULT_RESPONSE_ENABLED
 ) VALUES (
-  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   ?
@@ -201,6 +203,7 @@ function eventMap(clusterId, packageId, events) {
     event.description,
     event.side,
     dbApi.toDbBool(event.isOptional),
+    dbApi.toDbBool(event.isFabricSensitive),
     event.priority,
     event.introducedIn,
     packageId,
@@ -219,6 +222,7 @@ function commandMap(clusterId, packageId, commands) {
     command.source,
     dbApi.toDbBool(command.isOptional),
     dbApi.toDbBool(command.mustUseTimedInvoke),
+    dbApi.toDbBool(command.isFabricScoped),
     command.responseName,
     command.manufacturerCode,
     command.introducedIn,
@@ -1429,7 +1433,7 @@ async function insertStruct(db, packageId, data) {
     db,
     `
 INSERT INTO
-  STRUCT (STRUCT_ID, SIZE)
+  STRUCT (STRUCT_ID, SIZE, IS_FABRIC_SCOPED)
 VALUES (
   (SELECT
     DATA_TYPE_ID
@@ -1481,7 +1485,7 @@ VALUES (
           AND DATA_TYPE.NAME = ?
           AND 
           DATA_TYPE.DISCRIMINATOR_REF = ?)
-    END AS SIZE))`,
+    END AS SIZE), ?)`,
     data.map((at) => [
       packageId,
       at.name,
@@ -1494,6 +1498,7 @@ VALUES (
       packageId,
       at.type,
       at.discriminator_ref,
+      dbApi.toDbBool(at.isFabricScoped),
     ])
   )
 }
