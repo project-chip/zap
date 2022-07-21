@@ -28,8 +28,6 @@ const util = require('../util/util.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const dbCache = require('./db-cache')
 const dbMapping = require('./db-mapping.js')
-import { sessionId } from 'util/script-api.js'
-import { setNotification } from './query-notification.js'
 
 // This is a SQLITE specific thing. With SQLITE databases,
 // we can't have multiple transactions. So this mechanism
@@ -499,13 +497,7 @@ async function performSchemaLoad(db, schemaContent) {
  * @param {*} zapVersion
  * @returns A promise that resolves with the same db that got passed in, or rejects with an error.
  */
-async function loadSchema(
-  db,
-  schemaPath,
-  zapVersion,
-  sqliteFile = null,
-  sessionId
-) {
+async function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
   let schemaFileContent = await fsp.readFile(schemaPath, 'utf8')
   let rows = []
   let context = {
@@ -530,7 +522,6 @@ async function loadSchema(
     await performSchemaLoad(db, context.data)
     await updateCurrentSchemaCrc(db, context)
     await updateSetting(db, rows)
-    await setNotification(db, 'WARNING', 'Schema updata!', sessionId, 'Medium')
   }
 
   await insertOrReplaceSetting(db, 'APP', 'VERSION', zapVersion.version)
@@ -551,14 +542,9 @@ async function loadSchema(
  * @param {*} zapVersion
  * @returns Promise that resolves into the database object.
  */
-async function initDatabaseAndLoadSchema(
-  sqliteFile,
-  schemaFile,
-  zapVersion,
-  sessionId
-) {
+async function initDatabaseAndLoadSchema(sqliteFile, schemaFile, zapVersion) {
   let db = await initDatabase(sqliteFile)
-  return loadSchema(db, schemaFile, zapVersion, sqliteFile, sessionId)
+  return loadSchema(db, schemaFile, zapVersion, sqliteFile)
 }
 
 /**

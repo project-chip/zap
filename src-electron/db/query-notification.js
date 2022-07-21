@@ -23,21 +23,30 @@
 const dbApi = require('./db-api.js')
 
 /**
- * Sets a notification
+ * Sets a notification in the SESSION_NOTICE table
  *
  * @export
  * @param {*} db
+ * @param {*} type
+ * @param {*} status
  * @param {*} sessionId
- * @returns A promise that resolves with the number of rows updated.
+ * @param {*} severity
  */
-async function setNotification(db, type, status, session, severity) {
+async function setNotification(db, type, status, sessionId, severity) {
   return dbApi.dbUpdate(
     db,
     'INSERT OR REPLACE INTO SESSION_NOTICE ( SESSION_REF, NOTICE_TYPE, NOTICE_MESSAGE, NOTICE_SEVERITY ) VALUES ( ?, ?, ?, ?)',
-    [session, type, status, severity]
+    [sessionId, type, status, severity]
   )
 }
-//todo
+/**
+ * Deletes a notification from the SESSION_NOTICE table
+ *
+ * @export
+ * @param {*} db
+ * @param {*} upgrade
+ * @param {*} status
+ */
 async function deleteNotification(db, upgrade, status) {
   return dbApi.dbUpdate(
     db,
@@ -45,6 +54,13 @@ async function deleteNotification(db, upgrade, status) {
     [upgrade, status]
   )
 }
+
+/**
+ * Retrieves a notification from the SESSION_NOTICE table
+ *
+ * @export
+ * @param {*} db
+ */
 async function getNotification(db) {
   let rows = []
   rows = await dbAll(
