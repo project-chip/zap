@@ -33,7 +33,7 @@ const env = require('./env')
  * @param {*} type
  */
 async function typeSize(db, zclPackageId, type) {
-  return queryZcl.selectSizeFromType(db, zclPackageId, type)
+  return queryZcl.selectSizeFromType(db, [zclPackageId], type)
 }
 
 /**
@@ -41,12 +41,12 @@ async function typeSize(db, zclPackageId, type) {
  * into consideration, so that strings are properly sized.
  *
  * @param {*} db
- * @param {*} zclPackageId
+ * @param {*} zclPackageIds
  * @param {*} at
  * @param {*} [defaultValue=null]
  * @returns Promise that resolves into the size of the attribute.
  */
-async function typeSizeAttribute(db, zclPackageId, at, defaultValue = null) {
+async function typeSizeAttribute(db, zclPackageIds, at, defaultValue = null) {
   let sizeType
   if (at.typeInfo) {
     if (!at.typeInfo.atomicType && !at.typeInfo.size) {
@@ -59,7 +59,7 @@ async function typeSizeAttribute(db, zclPackageId, at, defaultValue = null) {
     }
   }
   sizeType = at.type
-  let size = await queryZcl.selectSizeFromType(db, zclPackageId, sizeType)
+  let size = await queryZcl.selectSizeFromType(db, zclPackageIds, sizeType)
 
   if (size) {
     return size

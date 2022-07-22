@@ -42,7 +42,7 @@ function ensureState(condition, error) {
 //
 // Load Step 1
 //
-function loadAtomics(packageId) {
+function loadAtomics(packageIds) {
   const { db, sessionId } = this.global;
   const options = { hash: {} };
 
@@ -58,20 +58,24 @@ function loadAtomics(packageId) {
       })
     );
 
-  return zclQuery.selectAllAtomics(db, packageId).then(resolveZclTypes);
+  return zclQuery.selectAllAtomics(db, packageIds).then(resolveZclTypes);
 }
 
-function loadBitmaps(packageId) {
+function loadBitmaps(packageIds) {
   const { db, sessionId } = this.global;
-  return zclQuery.selectAllBitmaps(db, packageId);
+  return Promise.all(
+    packageIds.map((packageId) => zclQuery.selectAllBitmaps(db, packageId))
+  ).then((x) => x.flat());
 }
 
-function loadEnums(packageId) {
+function loadEnums(packageIds) {
   const { db, sessionId } = this.global;
-  return zclQuery.selectAllEnums(db, packageId);
+  return Promise.all(
+    packageIds.map((packageId) => zclQuery.selectAllEnums(db, packageId))
+  ).then((x) => x.flat());
 }
 
-function loadStructItems(struct, packageId) {
+function loadStructItems(struct) {
   const { db, sessionId } = this.global;
   return zclQuery
     .selectAllStructItemsById(db, struct.id)
@@ -81,14 +85,12 @@ function loadStructItems(struct, packageId) {
     });
 }
 
-function loadStructs(packageId) {
+function loadStructs(packageIds) {
   const { db, sessionId } = this.global;
   return zclQuery
-    .selectAllStructsWithItemCount(db, packageId)
+    .selectAllStructsWithItemCount(db, packageIds)
     .then((structs) =>
-      Promise.all(
-        structs.map((struct) => loadStructItems.call(this, struct, packageId))
-      )
+      Promise.all(structs.map((struct) => loadStructItems.call(this, struct)))
     );
 }
 
@@ -164,10 +166,10 @@ async function loadClusters() {
   return clusters.filter((cluster) => cluster.enabled == 1);
 }
 
-function loadCommandResponse(command, packageId) {
+function loadCommandResponse(command) {
   const { db, sessionId } = this.global;
   return queryCommand
-    .selectCommandById(db, command.id, packageId)
+    .selectCommandById(db, command.id)
     .then((commandDetails) => {
       if (commandDetails.responseRef == null) {
         command.response = null;
@@ -175,7 +177,7 @@ function loadCommandResponse(command, packageId) {
       }
 
       return queryCommand
-        .selectCommandById(db, commandDetails.responseRef, packageId)
+        .selectCommandById(db, commandDetails.responseRef)
         .then((response) => {
           command.response = response;
           return command;
@@ -183,20 +185,20 @@ function loadCommandResponse(command, packageId) {
     });
 }
 
-function loadCommandArguments(command, packageId) {
+function loadCommandArguments(command) {
   const { db, sessionId } = this.global;
   return queryCommand
-    .selectCommandArgumentsByCommandId(db, command.id, packageId)
+    .selectCommandArgumentsByCommandId(db, command.id)
     .then((commandArguments) => {
       command.arguments = commandArguments;
       return command;
     });
 }
 
-async function loadAllCommands(packageId) {
+async function loadAllCommands(packageIds) {
   const { db, sessionId } = this.global;
   let cmds = await queryCommand.selectAllCommandsWithClusterInfo(db, [
-    packageId,
+    packageIds,
   ]);
   // For each command, include it twice: once as outgoing for its source, once
   // as incoming for its destination.
@@ -213,10 +215,10 @@ async function loadAllCommands(packageId) {
     clusterSide: cmd.source == 'server' ? 'client' : 'server',
   }));
   let commands = Promise.resolve(outgoing.concat(incoming));
-  return loadCommandsCommon.call(this, packageId, commands);
+  return loadCommandsCommon.call(this, commands);
 }
 
-function loadCommands(packageId) {
+function loadCommands() {
   const { db, sessionId } = this.global;
   let cmds = queryEndpointType
     .selectEndpointTypeIds(db, sessionId)
@@ -234,34 +236,30 @@ function loadCommands(packageId) {
       )
     );
 
-  return loadCommandsCommon.call(this, packageId, cmds);
+  return loadCommandsCommon.call(this, cmds);
 }
 
 // commandsPromise is a promise for an array of commands.
-function loadCommandsCommon(packageId, commandsPromise) {
+function loadCommandsCommon(commandsPromise) {
   return commandsPromise
     .then((commands) =>
       Promise.all(
-        commands.map((command) =>
-          loadCommandResponse.call(this, command, packageId)
-        )
+        commands.map((command) => loadCommandResponse.call(this, command))
       )
     )
     .then((commands) =>
       Promise.all(
-        commands.map((command) =>
-          loadCommandArguments.call(this, command, packageId)
-        )
+        commands.map((command) => loadCommandArguments.call(this, command))
       )
     );
 }
 
-async function loadAllAttributes(packageId) {
+async function loadAllAttributes(packageIds) {
   // The 'server' side is enforced here, because the list of attributes is used to generate client global
   // commands to retrieve server side attributes.
   const { db, sessionId } = this.global;
   let attrs = await zclQuery.selectAllAttributesBySide(db, 'server', [
-    packageId,
+    packageIds,
   ]);
   const globalAttrs = attrs.filter((attr) => attr.clusterRef == null);
   // Exclude global attributes for now, since we will add them ourselves for
@@ -271,7 +269,12 @@ async function loadAllAttributes(packageId) {
   // set the latter here.
   attrs.forEach((attr) => (attr.clusterId = attr.clusterRef));
 
-  const clusters = await zclQuery.selectAllClusters(db, packageId);
+  const clusters = await Promise.all(
+    packageIds.map((packageId) =>
+      zclQuery.selectAllClusters(this.global.db, packageId)
+    )
+  ).then((cls) => cls.flat());
+
   for (let cluster of clusters) {
     for (let globalAttr of globalAttrs) {
       attrs.push({ ...globalAttr, clusterId: cluster.id });
@@ -290,7 +293,7 @@ async function loadAllAttributes(packageId) {
   return attrs.sort((a, b) => a.code - b.code);
 }
 
-function loadAttributes(packageId) {
+function loadAttributes() {
   // The 'server' side is enforced here, because the list of attributes is used to generate client global
   // commands to retrieve server side attributes.
   const { db, sessionId } = this.global;
@@ -324,13 +327,15 @@ function loadAttributes(packageId) {
   //.then(attributes => Promise.all(attributes.map(attribute => types.typeSizeAttribute(db, packageId, attribute))
 }
 
-async function loadAllEvents(packageId) {
+async function loadAllEvents(packageIds) {
   const { db, sessionId } = this.global;
-  let clusters = await zclQuery.selectAllClusters(db, packageId);
-  return loadEventsCommon.call(this, packageId, clusters);
+  let clusters = await Promise.all(
+    packageIds.map((packageId) => zclQuery.selectAllClusters(db, packageId))
+  ).then((cls) => cls.flat());
+  return loadEventsCommon.call(this, packageIds, clusters);
 }
 
-async function loadEvents(packageId) {
+async function loadEvents(packageIds) {
   const { db, sessionId } = this.global;
   let clusters = await queryEndpointType
     .selectEndpointTypeIds(db, sessionId)
@@ -342,13 +347,13 @@ async function loadEvents(packageId) {
       )
     )
     .then((clusters) => clusters.flat(3));
-  return loadEventsCommon.call(this, packageId, clusters);
+  return loadEventsCommon.call(this, packageIds, clusters);
 }
 
 // clusters is an array of clusters (not a promise).
-function loadEventsCommon(packageId, clusters) {
+function loadEventsCommon(packageIds, clusters) {
   const { db, sessionId } = this.global;
-  return queryEvent.selectAllEvents(db, packageId).then((events) => {
+  return queryEvent.selectAllEvents(db, packageIds).then((events) => {
     events.forEach((event) => {
       const cluster = clusters.find(
         (cluster) => cluster.code == event.clusterCode
@@ -364,10 +369,10 @@ function loadEventsCommon(packageId, clusters) {
   });
 }
 
-function loadGlobalAttributes(packageId) {
+function loadGlobalAttributes(packageIds) {
   const { db, sessionId } = this.global;
   return zclQuery
-    .selectAllAttributes(db, packageId)
+    .selectAllAttributes(db, packageIds)
     .then((attributes) =>
       attributes.filter((attribute) => attribute.clusterRef == null)
     )
@@ -789,18 +794,18 @@ Clusters.init = async function (context, includeAll) {
     }
     this.ready.running = true;
 
-    let packageId = await templateUtil
-      .ensureZclPackageId(context)
+    let packageIds = await templateUtil
+      .ensureZclPackageIds(context)
       .catch((err) => {
         console.log(err);
         throw err;
       });
 
     const loadTypes = [
-      loadAtomics.call(context, packageId),
-      loadEnums.call(context, packageId),
-      loadBitmaps.call(context, packageId),
-      loadStructs.call(context, packageId),
+      loadAtomics.call(context, packageIds),
+      loadEnums.call(context, packageIds),
+      loadBitmaps.call(context, packageIds),
+      loadStructs.call(context, packageIds),
     ];
 
     const promises = [
@@ -808,14 +813,15 @@ Clusters.init = async function (context, includeAll) {
       loadEndpoints.call(context),
       // For now just always use loadClusters, because we have a bunch of things
       // defined in our XML that are not actually part of Matter.
-      (includeAll ? loadClusters : loadClusters).call(context, packageId),
-      (includeAll ? loadAllCommands : loadCommands).call(context, packageId),
-      (includeAll ? loadAllAttributes : loadAttributes).call(
-        context,
-        packageId
-      ),
-      loadGlobalAttributes.call(context, packageId),
-      (includeAll ? loadAllEvents : loadEvents).call(context, packageId),
+      loadClusters.call(context),
+      includeAll
+        ? loadAllCommands.call(context, packageIds)
+        : loadCommands.call(context),
+      includeAll
+        ? loadAllAttributes.call(context, packageIds)
+        : loadAttributes.call(context),
+      loadGlobalAttributes.call(context, packageIds),
+      (includeAll ? loadAllEvents : loadEvents).call(context, packageIds),
     ];
 
     let [

@@ -54,7 +54,7 @@ function token_cluster_create(config) {
   map of clusters is required in order to gather all attributes (singletons and
   non-singletons) from all endpoint clusters.
 */
-function tokens_context(options) {
+async function tokens_context(options) {
   let context = {
     global: this.global,
     endpoints: {},
@@ -66,7 +66,7 @@ function tokens_context(options) {
     token_id: 0xb000,
   }
   let promises = []
-
+  let packageIds = await templateUtil.ensureZclPackageIds(this)
   // Loop through all the endpoints
   this.endpoints.forEach((endpoint) => {
     // Endpoint
@@ -155,7 +155,7 @@ function tokens_context(options) {
                   types
                     .typeSizeAttribute(
                       this.global.db,
-                      this.global.zclPackageId,
+                      packageIds,
                       attribute,
                       `ERROR: ${attribute.name}, invalid size, ${attribute.type}`
                     )

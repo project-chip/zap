@@ -25,10 +25,10 @@ const dbMapping = require('./db-mapping')
 /**
  *
  * @param {*} db
- * @param {*} packageId
+ * @param {*} packageIds
  * @returns all the data type discriminator information
  */
-async function selectAllDiscriminators(db, packageId) {
+async function selectAllDiscriminators(db, packageIds) {
   return dbApi
     .dbAll(
       db,
@@ -39,8 +39,8 @@ async function selectAllDiscriminators(db, packageId) {
     FROM
       DISCRIMINATOR
     WHERE
-      PACKAGE_REF = ?`,
-      [packageId]
+      PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
+      `
     )
     .then((rows) => rows.map(dbMapping.map.discriminator))
 }

@@ -124,16 +124,16 @@ function asObjectiveCNumberType(label, type, asLowerCased) {
   }
 
   const promise = templateUtil
-    .ensureZclPackageId(this)
+    .ensureZclPackageIds(this)
     .then(fn.bind(this))
     .catch((err) => console.log(err));
   return templateUtil.templatePromise(this.global, promise);
 }
 
 async function asObjectiveCClass(type, cluster, options) {
-  let pkgId = await templateUtil.ensureZclPackageId(this);
+  let pkgIds = await templateUtil.ensureZclPackageIds(this);
   let isStruct = await zclHelper
-    .isStruct(this.global.db, type, pkgId)
+    .isStruct(this.global.db, type, pkgIds)
     .then((zclType) => zclType != 'unknown');
 
   if (

@@ -87,10 +87,9 @@ test(
     expect(access[0].role).toBeNull()
     expect(access[0].accessModifier).toBe('fabric-sensitive')
 
-    const structs = await queryZcl.selectAllStructsWithItemCount(
-      db,
-      zclContext.packageId
-    )
+    const structs = await queryZcl.selectAllStructsWithItemCount(db, [
+      zclContext.packageId,
+    ])
     for (const s of structs) {
       let clusters = await queryZcl.selectStructClusters(db, s.id)
       if (s.name == 'SimpleStruct') {

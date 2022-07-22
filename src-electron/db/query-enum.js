@@ -82,7 +82,7 @@ INNER JOIN
 ON
   DT.DATA_TYPE_ID = DATA_TYPE_CLUSTER.DATA_TYPE_REF
 WHERE
-  DT.PACKAGE_REF IN (${packageIds})
+  DT.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
   AND DATA_TYPE_CLUSTER.CLUSTER_REF = ?
 ORDER BY DT.NAME`,
       [clusterId]
@@ -181,10 +181,10 @@ WHERE
  *
  * @param {*} db
  * @param {*} name
- * @param {*} packageId
+ * @param {*} packageIds
  * @returns enum or undefined
  */
-async function selectEnumByName(db, name, packageId) {
+async function selectEnumByName(db, name, packageIds) {
   return dbApi
     .dbGet(
       db,
@@ -200,9 +200,11 @@ INNER JOIN
 ON
   ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID
 WHERE
-  (DATA_TYPE.NAME = ? OR DATA_TYPE.NAME = ?)AND PACKAGE_REF = ?
+  (DATA_TYPE.NAME = ? OR DATA_TYPE.NAME = ?)AND PACKAGE_REF IN (${dbApi.toInClause(
+    packageIds
+  )})
 ORDER BY NAME`,
-      [name, name.toLowerCase(), packageId]
+      [name, name.toLowerCase()]
     )
     .then(dbMapping.map.enum)
 }

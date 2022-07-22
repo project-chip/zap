@@ -139,12 +139,15 @@ async function sortStructsByDependency(structs) {
  *
  * @param {*} res
  * @param {*} options
+ * @param {*} db
+ * @param {*} packageIds
+ * @param {*} isStructType
  */
-function calculateBytes(res, options, db, packageId, isStructType) {
+function calculateBytes(res, options, db, packageIds, isStructType) {
   if (!isStructType) {
-    return calculateBytesForTypes(res, options, db, packageId)
+    return calculateBytesForTypes(res, options, db, packageIds)
   } else {
-    return calculateBytesForStructs(res, options, db, packageId)
+    return calculateBytesForStructs(res, options, db, packageIds)
   }
 }
 
@@ -163,9 +166,9 @@ function optionsHashOrDefault(options, optionsKey, defaultValue) {
   }
 }
 
-function calculateBytesForTypes(res, options, db, packageId) {
+function calculateBytesForTypes(res, options, db, packageIds) {
   return queryZcl
-    .selectSizeFromType(db, packageId, res.toLowerCase())
+    .selectSizeFromType(db, packageIds, res.toLowerCase())
     .then((x) => {
       return new Promise((resolve, reject) => {
         let result = 0
@@ -248,19 +251,19 @@ function calculateBytesForTypes(res, options, db, packageId) {
     })
 }
 
-async function calculateBytesForStructs(res, options, db, packageId) {
+async function calculateBytesForStructs(res, options, db, packageIds) {
   if ('struct' in options.hash) {
     return options.hash.struct
   } else {
     return queryZcl
-      .selectAllStructItemsByStructName(db, res, [packageId])
+      .selectAllStructItemsByStructName(db, res, packageIds)
       .then((items) => {
         let promises = []
         items.forEach((item) =>
           promises.push(
             dataTypeCharacterFormatter(
               db,
-              packageId,
+              packageIds,
               item,
               options,
               item.discriminatorName.toLowerCase()
@@ -368,7 +371,7 @@ function returnOptionsForTypes(size, res, options) {
 /**
  *
  * @param {*} db
- * @param {*} packageId
+ * @param {*} packageIds
  * @param {*} type
  * @param {*} options
  * @param {*} resType
@@ -376,7 +379,7 @@ function returnOptionsForTypes(size, res, options) {
  */
 async function dataTypeCharacterFormatter(
   db,
-  packageId,
+  packageIds,
   type,
   options,
   resType
@@ -390,14 +393,14 @@ async function dataTypeCharacterFormatter(
       }
     case dbEnum.zclType.bitmap:
       return queryZcl
-        .selectBitmapByName(db, packageId, type)
+        .selectBitmapByName(db, packageIds, type)
         .then((bitmapRec) => bitmapRec.size)
         .then((size) => {
           return returnOptionsForTypes(size, null, options)
         })
     case dbEnum.zclType.enum:
       return queryZcl
-        .selectEnumByName(db, type, packageId)
+        .selectEnumByName(db, type, packageIds)
         .then((enumRec) => enumRec.size)
         .then((size) => {
           return returnOptionsForTypes(size, null, options)
@@ -406,13 +409,13 @@ async function dataTypeCharacterFormatter(
       if (dbEnum.zclType.struct in options.hash) {
         return options.hash.struct
       } else {
-        return calculateBytes(type, options, db, packageId, true)
+        return calculateBytes(type, options, db, packageIds, true)
       }
     case dbEnum.zclType.atomic:
     case dbEnum.zclType.unknown:
     default:
       return queryZcl
-        .selectAtomicType(db, packageId, type)
+        .selectAtomicType(db, packageIds, type)
         .then((atomic) => {
           if (
             atomic &&
@@ -426,7 +429,7 @@ async function dataTypeCharacterFormatter(
             return type
           }
         })
-        .then((res) => calculateBytes(res, options, db, packageId, false))
+        .then((res) => calculateBytes(res, options, db, packageIds, false))
   }
 }
 
@@ -435,12 +438,12 @@ async function dataTypeCharacterFormatter(
  *
  * @param {*} db
  * @param {*} enum_name
- * @param {*} packageId
+ * @param {*} packageIds
  * @returns Promise of content.
  */
-function isEnum(db, enum_name, packageId) {
+function isEnum(db, enum_name, packageIds) {
   return queryZcl
-    .selectEnumByName(db, enum_name, packageId)
+    .selectEnumByName(db, enum_name, packageIds)
     .then((enums) => (enums ? dbEnum.zclType.enum : dbEnum.zclType.unknown))
 }
 
@@ -449,12 +452,12 @@ function isEnum(db, enum_name, packageId) {
  *
  * @param {*} db
  * @param {*} struct_name
- * @param {*} packageId
+ * @param {*} packageIds
  * @returns Promise of content.
  */
-function isStruct(db, struct_name, packageId) {
+function isStruct(db, struct_name, packageIds) {
   return queryZcl
-    .selectStructByName(db, struct_name, packageId)
+    .selectStructByName(db, struct_name, packageIds)
     .then((st) => (st ? dbEnum.zclType.struct : dbEnum.zclType.unknown))
 }
 
@@ -465,9 +468,9 @@ function isStruct(db, struct_name, packageId) {
  * @param {*} packageId
  * @returns Promise of content.
  */
-function isEvent(db, event_name, packageId) {
+function isEvent(db, event_name, packageIds) {
   return queryEvent
-    .selectAllEvents(db, packageId)
+    .selectAllEvents(db, packageIds)
     .then((events) => events.find((event) => event.name == event_name))
     .then((events) => (events ? 'event' : dbEnum.zclType.unknown))
 }
@@ -477,12 +480,12 @@ function isEvent(db, event_name, packageId) {
  *
  * @param {*} db
  * @param {*} bitmap_name
- * @param {*} packageId
+ * @param {*} packageIds
  * @returns Promise of content.
  */
-function isBitmap(db, bitmap_name, packageId) {
+function isBitmap(db, bitmap_name, packageIds) {
   return queryZcl
-    .selectBitmapByName(db, packageId, bitmap_name)
+    .selectBitmapByName(db, packageIds, bitmap_name)
     .then((st) => (st ? dbEnum.zclType.bitmap : dbEnum.zclType.unknown))
 }
 
@@ -508,7 +511,7 @@ function defaultMessageForTypeConversion(fromType, toType, noWarning) {
  *
  * @param {*} type
  * @param {*} options
- * @param {*} packageId
+ * @param {*} packageIds
  * @param {*} db
  * @param {*} resolvedType
  * @param {*} overridable
@@ -517,7 +520,7 @@ function defaultMessageForTypeConversion(fromType, toType, noWarning) {
 function dataTypeHelper(
   type,
   options,
-  packageId,
+  packageIds,
   db,
   resolvedType,
   overridable
@@ -532,7 +535,7 @@ function dataTypeHelper(
         )
       } else {
         return queryZcl
-          .selectAtomicType(db, packageId, dbEnum.zclType.array)
+          .selectAtomicType(db, packageIds, dbEnum.zclType.array)
           .then((atomic) => overridable.atomicType(atomic))
       }
     case dbEnum.zclType.bitmap:
@@ -544,7 +547,7 @@ function dataTypeHelper(
         )
       } else {
         return queryZcl
-          .selectBitmapByName(db, packageId, type)
+          .selectBitmapByName(db, packageIds, type)
           .then((bitmapRec) => overridable.bitmapType(bitmapRec.size))
       }
     case dbEnum.zclType.enum:
@@ -556,7 +559,7 @@ function dataTypeHelper(
         )
       } else {
         return queryZcl
-          .selectEnumByName(db, type, packageId)
+          .selectEnumByName(db, type, packageIds)
           .then((enumRec) => overridable.enumType(enumRec.size))
       }
     case dbEnum.zclType.struct:
@@ -573,7 +576,7 @@ function dataTypeHelper(
     case dbEnum.zclType.unknown:
     default:
       return queryZcl
-        .selectAtomicType(db, packageId, type)
+        .selectAtomicType(db, packageIds, type)
         .then((atomic) => overridable.atomicType(atomic))
   }
 }
@@ -582,7 +585,7 @@ function dataTypeHelper(
  *
  * @param type
  * @param options
- * @param packageId
+ * @param packageIds
  * @param currentInstance
  *
  * Note: If the options has zclCharFormatter set to true then the function will
@@ -595,7 +598,7 @@ function dataTypeHelper(
 async function asUnderlyingZclTypeWithPackageId(
   type,
   options,
-  packageId,
+  packageIds,
   currentInstance
 ) {
   let actualType = type
@@ -613,9 +616,9 @@ async function asUnderlyingZclTypeWithPackageId(
         resolve(dbEnum.zclType.array)
       else resolve(dbEnum.zclType.unknown)
     }),
-    isEnum(currentInstance.global.db, actualType, packageId),
-    isStruct(currentInstance.global.db, actualType, packageId),
-    isBitmap(currentInstance.global.db, actualType, packageId),
+    isEnum(currentInstance.global.db, actualType, packageIds),
+    isStruct(currentInstance.global.db, actualType, packageIds),
+    isBitmap(currentInstance.global.db, actualType, packageIds),
   ])
     .then(
       (res) =>
@@ -633,7 +636,7 @@ async function asUnderlyingZclTypeWithPackageId(
       if (dbEnum.zclType.zclCharFormatter in options.hash) {
         return dataTypeCharacterFormatter(
           currentInstance.global.db,
-          packageId,
+          packageIds,
           actualType,
           options,
           resType
@@ -642,7 +645,7 @@ async function asUnderlyingZclTypeWithPackageId(
         return dataTypeHelper(
           actualType,
           options,
-          packageId,
+          packageIds,
           currentInstance.global.db,
           resType,
           currentInstance.global.overridable
@@ -662,18 +665,18 @@ async function asUnderlyingZclTypeWithPackageId(
  * Base type for struct is a null.
  *
  * @param {*} db
- * @param {*} packageId
  * @param {*} type
+ * @param {*} packageIds
  */
-async function determineType(db, type, packageId) {
-  let atomic = await queryZcl.selectAtomicType(db, packageId, type)
+async function determineType(db, type, packageIds) {
+  let atomic = await queryZcl.selectAtomicType(db, packageIds, type)
   if (atomic != null)
     return {
       type: dbEnum.zclType.atomic,
       atomicType: atomic.name,
     }
 
-  let theEnum = await queryZcl.selectEnumByName(db, type, packageId)
+  let theEnum = await queryZcl.selectEnumByName(db, type, packageIds)
   if (theEnum != null) {
     let size = theEnum.size
     if (size == 3) {
@@ -688,14 +691,14 @@ async function determineType(db, type, packageId) {
     }
   }
 
-  let struct = await queryZcl.selectStructByName(db, type, packageId)
+  let struct = await queryZcl.selectStructByName(db, type, packageIds)
   if (struct != null)
     return {
       type: dbEnum.zclType.struct,
       atomicType: null,
     }
 
-  let theBitmap = await queryZcl.selectBitmapByName(db, packageId, type)
+  let theBitmap = await queryZcl.selectBitmapByName(db, packageIds, type)
   if (theBitmap != null) {
     let size = theBitmap.size
     if (size == 3) {

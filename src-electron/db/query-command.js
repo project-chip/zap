@@ -1052,14 +1052,14 @@ SELECT
   COMMAND.RESPONSE_NAME,
   CLUSTER.NAME AS CLUSTER_NAME,
   CLUSTER.CODE AS CLUSTER_CODE
-FROM 
+FROM
   COMMAND
-INNER JOIN 
-  CLUSTER 
-ON 
+INNER JOIN
+  CLUSTER
+ON
   CLUSTER.CLUSTER_ID = COMMAND.CLUSTER_REF
 WHERE
-  COMMAND.PACKAGE_REF IN (${packageIds})
+  COMMAND.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
 ORDER BY CLUSTER.CODE, COMMAND.CODE`
     )
     .then((rows) => rows.map(dbMapping.map.command))
@@ -1091,7 +1091,7 @@ LEFT JOIN
   COMMAND_ARG
 ON
   COMMAND.COMMAND_ID = COMMAND_ARG.COMMAND_REF
-  WHERE PACKAGE_REF IN (${packageIds})
+  WHERE PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
 GROUP BY
   COMMAND.COMMAND_ID
 ORDER BY CODE`
@@ -1099,7 +1099,7 @@ ORDER BY CODE`
     .then((rows) => rows.map(dbMapping.map.command))
 }
 
-async function selectAllCommandsBySource(db, source, packageId) {
+async function selectAllCommandsBySource(db, source, packageIds) {
   return dbApi
     .dbAll(
       db,
@@ -1117,13 +1117,13 @@ SELECT
   IS_FABRIC_SCOPED,
   RESPONSE_REF,
   RESPONSE_NAME
-FROM 
+FROM
   COMMAND
 WHERE
   SOURCE = ?
-  AND PACKAGE_REF = ?
+  AND PACKAGE_REF ${packageIds})
 ORDER BY CODE`,
-      [source, packageId]
+      [source]
     )
     .then((rows) => rows.map(dbMapping.map.command))
 }
@@ -1134,13 +1134,15 @@ ORDER BY CODE`,
  *
  * @param {*} db
  * @param {*} clusterId
+ * @param {*} source
+ * @param {*} packageIds
  * @returns promise of an array of command rows, which represent per-cluster commands, excluding global commands.
  */
 async function selectCommandsByClusterIdAndSource(
   db,
   clusterId,
   source,
-  packageId
+  packageIds
 ) {
   return dbApi
     .dbAll(
@@ -1161,9 +1163,9 @@ FROM COMMAND
 WHERE
   CLUSTER_REF = ?
   AND SOURCE = ?
-  AND PACKAGE_REF = ?
+  AND PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
 ORDER BY CODE`,
-      [clusterId, source, packageId]
+      [clusterId, source]
     )
     .then((rows) => rows.map(dbMapping.map.command))
 }
@@ -1188,17 +1190,17 @@ SELECT
   COMMAND.RESPONSE_NAME,
   COMMAND.IS_DEFAULT_RESPONSE_ENABLED,
   COUNT(COMMAND_ARG.COMMAND_REF) AS COMMAND_ARGUMENT_COUNT
-FROM 
+FROM
   COMMAND
 LEFT JOIN
   COMMAND_ARG
 ON
   COMMAND.COMMAND_ID = COMMAND_ARG.COMMAND_REF
 WHERE
-  CLUSTER_REF IS NULL AND PACKAGE_REF IN (${packageIds})
+  CLUSTER_REF IS NULL AND PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
 GROUP BY
   COMMAND.COMMAND_ID
-ORDER BY 
+ORDER BY
   CODE`,
       []
     )
@@ -1235,7 +1237,7 @@ ORDER BY
     .then((rows) => rows.map(dbMapping.map.command))
 }
 
-async function selectAllCommandArguments(db, packageId) {
+async function selectAllCommandArguments(db, packageIds) {
   return dbApi
     .dbAll(
       db,
@@ -1255,9 +1257,8 @@ SELECT
 FROM COMMAND_ARG, COMMAND
 WHERE
   COMMAND_ARG.COMMAND_REF = COMMAND.COMMAND_ID
-  AND COMMAND.PACKAGE_REF = ?
-ORDER BY COMMAND_REF, FIELD_IDENTIFIER`,
-      [packageId]
+  AND COMMAND.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
+ORDER BY COMMAND_REF, FIELD_IDENTIFIER`
     )
     .then((rows) => rows.map(dbMapping.map.commandArgument))
 }
@@ -1267,7 +1268,6 @@ ORDER BY COMMAND_REF, FIELD_IDENTIFIER`,
  *
  * @param {*} db
  * @param {*} commandId
- * @param {*} [packageId=null]
  * @returns A promise with number of command arguments for a command
  */
 async function selectCommandArgumentsCountByCommandId(db, commandId) {

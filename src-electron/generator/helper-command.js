@@ -37,14 +37,8 @@ async function if_command_arguments_exist(
   argument_return,
   no_argument_return
 ) {
-  let packageId = await templateUtil.ensureZclPackageId(this)
-
   let promise = queryCommand
-    .selectCommandArgumentsCountByCommandId(
-      this.global.db,
-      commandId,
-      packageId
-    )
+    .selectCommandArgumentsCountByCommandId(this.global.db, commandId)
     .then((res) => {
       if (res > 0) {
         return argument_return
@@ -72,11 +66,9 @@ async function if_command_arguments_exist(
  *
  */
 async function if_command_args_exist(commandId, options) {
-  let packageId = await templateUtil.ensureZclPackageId(this)
   let res = await queryCommand.selectCommandArgumentsCountByCommandId(
     this.global.db,
-    commandId,
-    packageId
+    commandId
   )
   if (res > 0) {
     return options.fn(this)

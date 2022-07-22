@@ -22,7 +22,6 @@
  */
 const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
-const dbCache = require('./db-cache')
 
 const ATOMIC_QUERY = `
 SELECT
@@ -59,12 +58,15 @@ async function selectAllAtomics(db, packageId) {
  * @param {*} packageId
  * @param {*} typeName
  */
-async function selectAtomicType(db, packageId, name) {
+async function selectAtomicType(db, packageIds, name) {
   return dbApi
-    .dbGet(db, `${ATOMIC_QUERY} WHERE PACKAGE_REF = ? AND UPPER(NAME) = ?`, [
-      packageId,
-      name == null ? name : name.toUpperCase(),
-    ])
+    .dbGet(
+      db,
+      `${ATOMIC_QUERY} WHERE PACKAGE_REF IN (${dbApi.toInClause(
+        packageIds
+      )}) AND UPPER(NAME) = ?`,
+      [name == null ? name : name.toUpperCase()]
+    )
     .then(dbMapping.map.atomic)
 }
 
@@ -79,79 +81,6 @@ async function selectAtomicById(db, id) {
     .then((rows) => rows.map(dbMapping.map.atomic))
 }
 
-/**
- * Function that populates cache.
- *
- * @param {*} db
- * @param {*} packageId
- * @returns Newly created cache object, after it's put into the cache.
- */
-async function createCache(db, packageId) {
-  let packageSpecificCache = {
-    byName: {},
-    byId: {},
-  }
-  let d = await selectAllAtomics(db, packageId)
-  packageSpecificCache.rawData = d
-  for (const at of d) {
-    packageSpecificCache.byName[at.name.toUpperCase()] = at
-    packageSpecificCache.byId[at.id] = at
-  }
-  dbCache.put(cacheKey, packageId, packageSpecificCache)
-  return packageSpecificCache
-}
-
-/**
- * Locates atomic type based on a type name. Query is not case sensitive.
- *
- * @param {*} db
- * @param {*} packageId
- * @param {*} typeName
- */
-async function selectAtomicTypeFromCache(db, packageId, name) {
-  let cache
-  if (dbCache.isCached(cacheKey, packageId)) {
-    cache = dbCache.get(cacheKey, packageId)
-  } else {
-    cache = await createCache(db, packageId)
-  }
-  return cache.byName[name.toUpperCase()]
-}
-
-/**
- * Retrieves all atomic types under a given package Id.
- * @param {*} db
- * @param {*} packageId
- */
-async function selectAllAtomicsFromCache(db, packageId) {
-  let cache
-  if (dbCache.isCached(cacheKey, packageId)) {
-    cache = dbCache.get(cacheKey, packageId)
-  } else {
-    cache = await createCache(db, packageId)
-  }
-  return cache.rawData
-}
-
-/**
- * Retrieves atomic type by a given Id.
- * @param {*} db
- * @param {*} packageId
- */
-async function selectAtomicByIdFromCache(db, id) {
-  let cache
-  if (dbCache.isCached(cacheKey, packageId)) {
-    cache = dbCache.get(cacheKey, packageId)
-  } else {
-    cache = await createCache(db, packageId)
-  }
-  return cache.byId[id]
-}
-
-exports.selectAllAtomics = dbCache.cacheEnabled
-  ? selectAllAtomicsFromCache
-  : selectAllAtomics
-exports.selectAtomicType = dbCache.cacheEnabled
-  ? selectAtomicTypeFromCache
-  : selectAtomicType
+exports.selectAllAtomics = selectAllAtomics
+exports.selectAtomicType = selectAtomicType
 exports.selectAtomicById = selectAtomicById

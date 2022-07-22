@@ -23,38 +23,41 @@
 const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
 
-async function selectAccessOperations(db, packageId) {
+async function selectAccessOperations(db, packageIds) {
   return dbApi
     .dbAll(
       db,
       `
-SELECT NAME, DESCRIPTION FROM OPERATION WHERE PACKAGE_REF = ? ORDER BY NAME
-`,
-      [packageId]
+SELECT NAME, DESCRIPTION FROM OPERATION WHERE PACKAGE_REF IN (${dbApi.toInClause(
+        packageIds
+      )}) ORDER BY NAME
+`
     )
     .then((rows) => rows.map(dbMapping.map.accessOperation))
 }
 
-async function selectAccessRoles(db, packageId) {
+async function selectAccessRoles(db, packageIds) {
   return dbApi
     .dbAll(
       db,
       `
-SELECT NAME, DESCRIPTION, LEVEL FROM ROLE WHERE PACKAGE_REF = ? ORDER BY NAME
-    `,
-      [packageId]
+SELECT NAME, DESCRIPTION, LEVEL FROM ROLE WHERE PACKAGE_REF IN (${dbApi.toInClause(
+        packageIds
+      )}) ORDER BY NAME
+    `
     )
     .then((rows) => rows.map(dbMapping.map.accessRole))
 }
 
-async function selectAccessModifiers(db, packageId) {
+async function selectAccessModifiers(db, packageIds) {
   return dbApi
     .dbAll(
       db,
       `
-SELECT NAME, DESCRIPTION FROM ACCESS_MODIFIER WHERE PACKAGE_REF = ? ORDER BY NAME
-    `,
-      [packageId]
+SELECT NAME, DESCRIPTION FROM ACCESS_MODIFIER WHERE PACKAGE_REF IN (${dbApi.toInClause(
+        packageIds
+      )}) ORDER BY NAME
+    `
     )
     .then((rows) => rows.map(dbMapping.map.accessModifier))
 }
@@ -67,7 +70,7 @@ SELECT NAME, DESCRIPTION FROM ACCESS_MODIFIER WHERE PACKAGE_REF = ? ORDER BY NAM
  * @param {*} type
  * @returns array of {operation/role/accessModifier} objects.
  */
-async function selectDefaultAccess(db, packageId, type) {
+async function selectDefaultAccess(db, packageIds, type) {
   return dbApi
     .dbAll(
       db,
@@ -88,10 +91,10 @@ LEFT JOIN ROLE
 ON A.ROLE_REF = ROLE.ROLE_ID
 LEFT JOIN ACCESS_MODIFIER
 ON A.ACCESS_MODIFIER_REF = ACCESS_MODIFIER.ACCESS_MODIFIER_ID
-WHERE DA.PACKAGE_REF = ? AND DA.ENTITY_TYPE = ?
+WHERE DA.PACKAGE_REF IN (${dbApi.toInClause(packageIds)}) AND DA.ENTITY_TYPE = ?
 ORDER BY OPERATION.NAME, ROLE.NAME, ACCESS_MODIFIER.NAME
 `,
-      [packageId, type]
+      [type]
     )
     .then((rows) => rows.map(dbMapping.map.access))
 }

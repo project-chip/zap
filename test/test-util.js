@@ -78,7 +78,7 @@ exports.timeout = {
 
 exports.testTemplate = {
   zigbee: './test/gen-template/zigbee/gen-templates.json',
-  zigbeeCount: 27,
+  zigbeeCount: 28,
   matter: './test/gen-template/matter/gen-test.json',
   matterCount: 7,
   matter2: './test/gen-template/matter2/templates.json',
@@ -97,6 +97,7 @@ exports.testZclMetafile = path.join(__dirname, './resource/meta/zcl.json')
 exports.testServer = testServer
 
 exports.testCustomXml = './test/resource/custom-cluster/test-custom.xml'
+exports.testCustomXml2 = './test/resource/custom-cluster/custom-dut.xml'
 exports.customClusterXml =
   './test/resource/custom-cluster/custom-bead-cluster.xml'
 exports.badTestCustomXml = './test/resource/custom-cluster/bad-test-custom.xml'

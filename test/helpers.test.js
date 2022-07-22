@@ -74,6 +74,7 @@ test(
     let globalCtx = {
       db: zclContext.db,
       zclPackageId: zclContext.packageId,
+      zclPackageIds: [zclContext.packageId],
     }
     ctx = {
       global: globalCtx,

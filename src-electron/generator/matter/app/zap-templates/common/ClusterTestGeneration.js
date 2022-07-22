@@ -1179,18 +1179,18 @@ async function asTestType(type, isList) {
     return 'list';
   }
 
-  const pkgId = await templateUtil.ensureZclPackageId(this);
+  const pkgIds = await templateUtil.ensureZclPackageIds(this);
   const db = this.global.db;
 
-  const isEnum = await zclHelper.isEnum(db, type, pkgId);
+  const isEnum = await zclHelper.isEnum(db, type, pkgIds);
   if (isEnum != 'unknown') {
-    const enumObj = await queryEnum.selectEnumByName(db, type, pkgId);
+    const enumObj = await queryEnum.selectEnumByName(db, type, pkgIds);
     return 'enum' + 8 * enumObj.size;
   }
 
-  const isBitmap = await zclHelper.isBitmap(db, type, pkgId);
+  const isBitmap = await zclHelper.isBitmap(db, type, pkgIds);
   if (isBitmap != 'unknown') {
-    const bitmapObj = await queryBitmap.selectBitmapByName(db, pkgId, type);
+    const bitmapObj = await queryBitmap.selectBitmapByName(db, pkgIds, type);
     return 'bitmap' + 8 * bitmapObj.size;
   }
 

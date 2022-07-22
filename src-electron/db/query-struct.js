@@ -69,7 +69,7 @@ WHERE
     .then(dbMapping.map.struct)
 }
 
-async function selectStructByName(db, name, packageId) {
+async function selectStructByName(db, name, packageIds) {
   return dbApi
     .dbGet(
       db,
@@ -85,10 +85,10 @@ INNER JOIN
   DATA_TYPE ON STRUCT.STRUCT_ID = DATA_TYPE.DATA_TYPE_ID
 WHERE
   NAME = ?
-  AND PACKAGE_REF = ?
+  AND PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
 ORDER BY
   NAME`,
-      [name, packageId]
+      [name]
     )
     .then(dbMapping.map.struct)
 }

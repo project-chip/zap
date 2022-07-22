@@ -62,10 +62,10 @@ async function selectDataTypeById(db, id) {
  * with its actual type from disciminator table.
  * @param db
  * @param name
- * @param packageId
+ * @param packageIds
  * @returns Data type information
  */
-async function selectDataTypeByName(db, name, packageId) {
+async function selectDataTypeByName(db, name, packageIds) {
   let smallCaseName = name.toLowerCase()
   return dbApi
     .dbGet(
@@ -85,8 +85,10 @@ async function selectDataTypeByName(db, name, packageId) {
   ON
     DATA_TYPE.DISCRIMINATOR_REF = DISCRIMINATOR.DISCRIMINATOR_ID
   WHERE
-    (DATA_TYPE.NAME = ? OR DATA_TYPE.NAME = ?) AND DATA_TYPE.PACKAGE_REF = ?`,
-      [name, smallCaseName, packageId]
+    (DATA_TYPE.NAME = ? OR DATA_TYPE.NAME = ?) AND DATA_TYPE.PACKAGE_REF IN (${dbApi.toInClause(
+      packageIds
+    )})`,
+      [name, smallCaseName]
     )
     .then(dbMapping.map.dataType)
 }
@@ -126,17 +128,17 @@ async function selectAllDataTypes(db, packageId) {
  * type table in the form of a number or be it the name of the type in the form
  * if string.
  * @param {*} db
- * @param {*} packageId
+ * @param {*} packageIds
  * @param {*} value
  * @returns The size of the given value
  */
-async function selectSizeFromType(db, packageId, value) {
+async function selectSizeFromType(db, packageIds, value) {
   // Step 1: Extracting the data type based on type id or type name
   let dataType = null
   if (typeof value === 'number') {
     dataType = await queryZcl.selectDataTypeById(db, value)
   } else if (typeof value === 'string') {
-    dataType = await queryZcl.selectDataTypeByName(db, value, packageId)
+    dataType = await queryZcl.selectDataTypeByName(db, value, packageIds)
   }
 
   // Step 2: Find the size based on the type of data
@@ -145,19 +147,19 @@ async function selectSizeFromType(db, packageId, value) {
       dataType &&
       dataType.discriminatorName.toLowerCase() == dbEnum.zclType.bitmap
     ) {
-      let bt = await queryZcl.selectBitmapByName(db, packageId, dataType.name)
+      let bt = await queryZcl.selectBitmapByName(db, packageIds, dataType.name)
       return bt.size
     } else if (
       dataType &&
       dataType.discriminatorName.toLowerCase() == dbEnum.zclType.enum
     ) {
-      let et = await queryZcl.selectEnumByName(db, dataType.name, packageId)
+      let et = await queryZcl.selectEnumByName(db, dataType.name, packageIds)
       return et.size
     } else if (
       dataType &&
       dataType.discriminatorName.toLowerCase() == dbEnum.zclType.number
     ) {
-      let nt = await queryZcl.selectNumberByName(db, packageId, dataType.name)
+      let nt = await queryZcl.selectNumberByName(db, packageIds, dataType.name)
       return nt.size
     } else if (
       dataType &&

@@ -109,8 +109,8 @@ async function accessorTraitType(type) {
 
 async function typeAsDelimitedMacro(type) {
   const { db } = this.global;
-  const pkgId = await templateUtil.ensureZclPackageId(this);
-  const typeInfo = await zclUtil.determineType(db, type, pkgId);
+  const pkgIds = await templateUtil.ensureZclPackageIds(this);
+  const typeInfo = await zclUtil.determineType(db, type, pkgIds);
   return cHelper.asDelimitedMacro.call(this, typeInfo.atomicType);
 }
 
