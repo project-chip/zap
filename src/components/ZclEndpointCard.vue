@@ -404,7 +404,9 @@ export default {
     },
   },
   created() {
-    this.getEndpointCardData()
+    if (this.$serverGet != null) {
+      this.getEndpointCardData()
+    }
   },
 }
 </script>

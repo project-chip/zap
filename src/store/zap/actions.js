@@ -797,7 +797,6 @@ export function generateAllEndpointsData(context, endpointData) {
         record.clusterRef
       )
       if (record.included) {
-        console.log('tell me what is your data?', resolvedReference);
         attr.push(resolvedReference)
       }
       if (record.includedReportable) {
