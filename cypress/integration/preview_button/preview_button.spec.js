@@ -9,7 +9,9 @@ describe('Check preview buttton', () => {
     cy.fixture('baseurl').then((data) => {
       cy.visit(data.baseurl)
     })
-    cy.addEndpoint('Billing Unit (0x0203)')
+    cy.fixture('data').then((data) => {
+      cy.addEndpoint(data.endpoint1)
+    })
   })
   it(
     'Checking preview button',
@@ -19,7 +21,9 @@ describe('Check preview buttton', () => {
       cy.get('.q-pa-md > .q-btn > .q-btn__wrapper')
         .contains('Select File')
         .click()
-      cy.get('.q-list > div').should('contain', 'sdk-extension.out')
+      cy.fixture('data').then((data) => {
+        cy.get('.q-list > div').should('contain', data.previewBtnData)
+      })
     }
   )
 })
