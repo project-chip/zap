@@ -64,7 +64,7 @@ function asTypeMinValue(type) {
   }
 
   const promise = templateUtil
-    .ensureZclPackageId(this)
+    .ensureZclPackageIds(this)
     .then(fn.bind(this))
     .catch((err) => {
       console.log(err);
@@ -103,7 +103,7 @@ function asTypeMaxValue(type) {
   }
 
   const promise = templateUtil
-    .ensureZclPackageId(this)
+    .ensureZclPackageIds(this)
     .then(fn.bind(this))
     .catch((err) => {
       console.log(err);
@@ -113,11 +113,11 @@ function asTypeMaxValue(type) {
 }
 
 async function structs_with_cluster_name(options) {
-  const packageId = await templateUtil.ensureZclPackageId(this);
+  const packageIds = await templateUtil.ensureZclPackageIds(this);
 
   const structs = await zclQuery.selectAllStructsWithItems(
     this.global.db,
-    packageId
+    packageIds
   );
 
   let blocks = [];

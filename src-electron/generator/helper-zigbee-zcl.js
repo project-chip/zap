@@ -48,18 +48,18 @@ async function zcl_command_argument_type_to_cli_data_type_util(
   context,
   options
 ) {
-  const packageId = await templateUtil.ensureZclPackageId(context)
+  const packageIds = await templateUtil.ensureZclPackageIds(context)
   let arrayExtension = 'isArray' in context && context.isArray ? 'OPT' : ''
   let dataType = await queryZcl.selectDataTypeByName(
     context.global.db,
     type,
-    packageId
+    packageIds
   )
   if (dataType) {
     if (dataType.discriminatorName.toLowerCase() == dbEnum.zclType.bitmap) {
       let bitmap = await queryZcl.selectBitmapByName(
         context.global.db,
-        packageId,
+        packageIds,
         dataType.name
       )
       let bitmapSize = await get_cli_size(bitmap.size, type, allowZclTypes)
@@ -70,7 +70,7 @@ async function zcl_command_argument_type_to_cli_data_type_util(
       let en = await queryZcl.selectEnumByName(
         context.global.db,
         dataType.name,
-        packageId
+        packageIds
       )
       let enumSize = await get_cli_size(en.size, type, allowZclTypes)
       return cliPrefix + '_UINT' + enumSize + arrayExtension
@@ -79,7 +79,7 @@ async function zcl_command_argument_type_to_cli_data_type_util(
     ) {
       let number = await queryZcl.selectNumberByName(
         context.global.db,
-        packageId,
+        packageIds,
         dataType.name
       )
       let numSize = await get_cli_size(number.size, type, allowZclTypes)

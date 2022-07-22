@@ -198,6 +198,11 @@
       "output": "zap-command.h"
     },
     {
+      "path": "zap-command-ver-2.zapt",
+      "name": "ZCL command APIs version 2",
+      "output": "zap-command-ver-2.h"
+    },
+    {
       "path": "zap-outgoing-command.zapt",
       "name": "ZCL outgoing command",
       "output": "zap-outgoing-command.out"

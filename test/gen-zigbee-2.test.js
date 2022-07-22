@@ -265,3 +265,77 @@ test(
   },
   testUtil.timeout.long()
 )
+
+test(
+  'Validate custom xml package loading',
+  async () => {
+    // Import a zap file
+    let { sessionId, errors, warnings } = await importJs.importDataFromFile(
+      db,
+      testFile2
+    )
+
+    // Load a custom xml file
+    let result = await zclLoader.loadIndividualFile(
+      db,
+      testUtil.testCustomXml2,
+      sessionId
+    )
+
+    if (!result.succeeded) {
+      console.log(`Test failure: ${result.err}`)
+    }
+    expect(result.succeeded).toBeTruthy()
+
+    // Add the packageId from above into the session
+    await queryPackage.insertSessionPackage(
+      db,
+      sessionId,
+      result.packageId,
+      false
+    )
+
+    // Generate code using templates
+    let genResult = await genEngine.generate(
+      db,
+      sessionId,
+      templateContext.packageId,
+      {},
+      {
+        disableDeprecationWarnings: true,
+      }
+    )
+    // Check if the types are generated correctly
+    // Test custom enum generation
+    let types = genResult.content['zap-type.h']
+    expect(types).toContain('EMBER_ZCL_CUSTOM_STATUS_A = 0,')
+    expect(types).toContain('EmberAfCustomStatus;')
+    // Test custom struct generation
+    expect(types).toContain('typedef struct _CustomStruct')
+    expect(types).toContain('uint32_t S1;')
+    expect(types).toContain('EmberAfCustomType2 S2;')
+    expect(types).toContain('EmberAfCustomLevel S3;')
+    expect(types).toContain('EmberAfCustomArea S4;')
+
+    // Test custom outgoing commands are generated correctly
+    let commands = genResult.content['zap-command-ver-2.h']
+    expect(commands).toContain('#define emberAfFillCommandCustomClusterC1')
+    expect(commands).toContain('ZCL_C1_COMMAND_ID')
+    expect(commands).toContain('#define emberAfFillCommandCustomClusterC13')
+    expect(commands).toContain('ZCL_C13_COMMAND_ID')
+
+    // Test command structs genereted
+    let structs = genResult.content['zap-command-structs.h']
+    expect(structs).toContain(
+      'typedef struct __zcl_custom_cluster_cluster_c14_command'
+    )
+    expect(structs).toContain('sl_zcl_custom_cluster_cluster_c5_command_t;')
+
+    // Test Custom attributes and command ids
+    let ids = genResult.content['zap-id.h']
+    expect(ids).toContain('#define ZCL_C15_COMMAND_ID (0x03)')
+    expect(ids).toContain('#define ZCL_A8_ATTRIBUTE_ID (0x0301)')
+    expect(ids).toContain('#define ZCL_C11_COMMAND_ID (0x0A)')
+  },
+  testUtil.timeout.long()
+)

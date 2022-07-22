@@ -115,9 +115,10 @@ async function selectDomainById(db, id) {
  *
  * @export
  * @param {*} db
+ * @param {*} packageIds
  * @returns Promise that resolves with the rows of structs.
  */
-async function selectAllStructsWithItemCount(db, packageId) {
+async function selectAllStructsWithItemCount(db, packageIds) {
   return dbApi
     .dbAll(
       db,
@@ -139,10 +140,9 @@ LEFT JOIN
 ON
   STRUCT.STRUCT_ID = ITEM.STRUCT_REF
 WHERE
-  DATA_TYPE.PACKAGE_REF = ?
+  DATA_TYPE.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
 GROUP BY DATA_TYPE.NAME
-ORDER BY DATA_TYPE.NAME`,
-      [packageId]
+ORDER BY DATA_TYPE.NAME`
     )
     .then((rows) => rows.map(dbMapping.map.struct))
 }
@@ -320,7 +320,7 @@ async function selectStructsWithItemsImpl(db, packageIds, clusterId) {
     ON
       S.STRUCT_ID = SI.STRUCT_REF
     WHERE
-      DT.PACKAGE_REF IN (${packageIds})
+      DT.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
     ORDER BY DT.NAME, SI.FIELD_IDENTIFIER`
   } else {
     query = `
@@ -355,7 +355,7 @@ async function selectStructsWithItemsImpl(db, packageIds, clusterId) {
     ON
       S.STRUCT_ID = SI.STRUCT_REF
     WHERE
-      DT.PACKAGE_REF IN (${packageIds})
+      DT.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
     AND
       DTC.CLUSTER_REF = ?
     ORDER BY DT.NAME, SI.FIELD_IDENTIFIER`
@@ -479,7 +479,7 @@ INNER JOIN
 ON
   DT.DISCRIMINATOR_REF = DISCRIMINATOR.DISCRIMINATOR_ID
 WHERE DT.NAME = ?
-  AND DT.PACKAGE_REF IN (${packageIds})
+  AND DT.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
 ORDER BY FIELD_IDENTIFIER`,
       [name]
     )
@@ -639,7 +639,7 @@ SELECT
   MUST_USE_TIMED_WRITE
 FROM ATTRIBUTE
 WHERE (CLUSTER_REF = ? OR CLUSTER_REF IS NULL)
-  AND PACKAGE_REF IN (${packageIds})
+  AND PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
 ORDER BY CODE`,
       [clusterId]
     )
@@ -685,7 +685,7 @@ FROM ATTRIBUTE
 WHERE
   SIDE = ?
   AND (CLUSTER_REF = ? OR CLUSTER_REF IS NULL)
-  AND PACKAGE_REF IN (${packageIds})
+  AND PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
 ORDER BY CODE`,
       [side, clusterId]
     )
@@ -744,8 +744,8 @@ SELECT
   A.IS_SCENE_REQUIRED,
   A.ARRAY_TYPE,
   A.MUST_USE_TIMED_WRITE
-FROM 
-  ATTRIBUTE AS A, 
+FROM
+  ATTRIBUTE AS A,
   CLUSTER AS C
 WHERE C.CODE = ?
   AND C.CLUSTER_ID = A.CLUSTER_REF
@@ -894,7 +894,7 @@ LEFT JOIN
 ON
   A.CLUSTER_REF = C.CLUSTER_ID
 WHERE
-  A.PACKAGE_REF IN (${packageIds})
+  A.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
 ORDER BY
   C.CODE, A.CODE`,
       []
@@ -941,7 +941,7 @@ SELECT
   MUST_USE_TIMED_WRITE
 FROM ATTRIBUTE
    WHERE SIDE = ?
-   AND PACKAGE_REF IN (${packageIds})
+   AND PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
 ORDER BY CODE`,
     [side]
   )
@@ -1020,7 +1020,7 @@ SELECT
   ETA.MAX_INTERVAL,
   ETA.REPORTABLE_CHANGE
 FROM
-  ENDPOINT_TYPE_ATTRIBUTE AS ETA, 
+  ENDPOINT_TYPE_ATTRIBUTE AS ETA,
   ENDPOINT_TYPE_CLUSTER AS ETC
 WHERE
   ETA.ENDPOINT_TYPE_REF = ?
@@ -1043,12 +1043,12 @@ SELECT
   ETCO.INCOMING,
   ETCO.OUTGOING
 FROM
-  ENDPOINT_TYPE_COMMAND AS ETCO, 
+  ENDPOINT_TYPE_COMMAND AS ETCO,
   ENDPOINT_TYPE_CLUSTER AS ETC
 WHERE
   ETCO.ENDPOINT_TYPE_REF = ?
   AND ETCO.ENDPOINT_TYPE_CLUSTER_REF = ETC.ENDPOINT_TYPE_CLUSTER_ID
-ORDER BY 
+ORDER BY
   COMMAND_REF`,
     [endpointTypeId]
   )
@@ -1065,12 +1065,12 @@ SELECT
   ETE.EVENT_REF,
   ETE.INCLUDED
 FROM
-  ENDPOINT_TYPE_EVENT AS ETE, 
+  ENDPOINT_TYPE_EVENT AS ETE,
   ENDPOINT_TYPE_CLUSTER AS ETC
 WHERE
   ETE.ENDPOINT_TYPE_REF = ?
   AND ETE.ENDPOINT_TYPE_CLUSTER_REF = ETC.ENDPOINT_TYPE_CLUSTER_ID
-ORDER BY 
+ORDER BY
   EVENT_REF`,
     [endpointTypeId]
   )

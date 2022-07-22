@@ -132,7 +132,7 @@ function asJniSignatureBasic(type, useBoxedTypes) {
   }
 
   const promise = templateUtil
-    .ensureZclPackageId(this)
+    .ensureZclPackageIds(this)
     .then(fn.bind(this))
     .catch((err) => {
       console.log(err);
@@ -194,13 +194,13 @@ async function asUnderlyingBasicType(type) {
 }
 
 async function asJavaType(type, zclType, cluster, options) {
-  let pkgId = await templateUtil.ensureZclPackageId(this);
+  let pkgIds = await templateUtil.ensureZclPackageIds(this);
   if (zclType == null) {
     const options = { hash: {} };
     zclType = await zclHelper.asUnderlyingZclType.call(this, type, options);
   }
   let isStruct = await zclHelper
-    .isStruct(this.global.db, type, pkgId)
+    .isStruct(this.global.db, type, pkgIds)
     .then((zclType) => zclType != 'unknown');
 
   let classType = '';
@@ -258,12 +258,12 @@ async function asJniClassName(type, zclType, cluster, options) {
 }
 
 async function asJniHelper(type, zclType, cluster, options) {
-  let pkgId = await templateUtil.ensureZclPackageId(this);
+  let pkgIds = await templateUtil.ensureZclPackageIds(this);
   if (zclType == null) {
     zclType = await zclHelper.asUnderlyingZclType.call(this, type, options);
   }
   let isStruct = await zclHelper
-    .isStruct(this.global.db, type, pkgId)
+    .isStruct(this.global.db, type, pkgIds)
     .then((zclType) => zclType != 'unknown');
 
   if (this.isOptional) {

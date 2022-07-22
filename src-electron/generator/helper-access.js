@@ -26,10 +26,10 @@ const dbEnum = require('../../src-shared/db-enum')
  */
 
 async function collectDefaultAccessList(ctx, entityType) {
-  let packageId = await templateUtil.ensureZclPackageId(ctx)
+  let packageIds = await templateUtil.ensureZclPackageIds(ctx)
   let defaultAccess = await queryAccess.selectDefaultAccess(
     ctx.global.db,
-    packageId,
+    packageIds,
     entityType
   )
   return defaultAccess
@@ -90,7 +90,7 @@ async function collectAccesslist(ctx, options) {
  * @param {*} options
  */
 async function access_aggregate(options) {
-  let packageId = await templateUtil.ensureZclPackageId(this)
+  let packageIds = await templateUtil.ensureZclPackageIds(this)
   let accessList = await collectAccesslist(this, options)
   let ignoreEmpty
   if ('ignoreEmpty' in options.hash) {
@@ -101,13 +101,13 @@ async function access_aggregate(options) {
 
   let allOps = await queryAccess.selectAccessOperations(
     this.global.db,
-    packageId
+    packageIds
   )
   let allMods = await queryAccess.selectAccessModifiers(
     this.global.db,
-    packageId
+    packageIds
   )
-  let allRoles = await queryAccess.selectAccessRoles(this.global.db, packageId)
+  let allRoles = await queryAccess.selectAccessRoles(this.global.db, packageIds)
   let roleLevels = {}
   allRoles.forEach((r) => {
     roleLevels[r.name] = r.level

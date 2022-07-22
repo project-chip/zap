@@ -174,7 +174,7 @@ test(
       expect(attributes.length).toBeGreaterThan(40)
       let ps = []
       attributes.forEach((a) => {
-        ps.push(types.typeSizeAttribute(db, packageId, a))
+        ps.push(types.typeSizeAttribute(db, [packageId], a))
       })
 
       x = await dbApi.dbAll(
@@ -233,7 +233,7 @@ test(
       expect(x.length).toEqual(testUtil.totalDotDotEnums)
       x = await testQuery.selectCountFrom(db, 'ENUM_ITEM')
       expect(x).toEqual(testUtil.totalDotDotEnumItems)
-      x = await queryZcl.selectAllStructsWithItemCount(db, packageId)
+      x = await queryZcl.selectAllStructsWithItemCount(db, [packageId])
       expect(x.length).toEqual(20)
       x = await testQuery.selectCountFrom(db, 'STRUCT_ITEM')
       expect(x).toEqual(63)

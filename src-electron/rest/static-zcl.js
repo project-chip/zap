@@ -157,10 +157,9 @@ function parseForZclData(db, entity, id, packageIdArray) {
         db,
         id,
         packageIdArray,
-        zclEntityQuery(
-          queryZcl.selectAllStructsWithItemCount,
-          queryZcl.selectStructById
-        )
+        zclEntityQuery(queryZcl.selectAllStructsWithItemCount, [
+          queryZcl.selectStructById,
+        ])
       )
     case 'deviceType':
       return reduceAndConcatenateZclEntity(

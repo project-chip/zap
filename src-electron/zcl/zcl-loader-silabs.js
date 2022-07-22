@@ -514,6 +514,7 @@ function prepareCluster(cluster, context, isExtension = false) {
         })
       }
       if (
+        context.fabricHandling &&
         context.fabricHandling.automaticallyCreateFields &&
         ev.isFabricSensitive
       ) {
@@ -936,12 +937,20 @@ function prepareDataType(a, dataType, typeMap) {
  * @param {*} db
  * @param {*} filePath
  * @param {*} packageId
+ * @param {*} knownPackages
  * @param {*} data
  * @param {*} dataType
  * @returns Promise of inserted Data Types into the Data Type table.
  */
-async function processDataType(db, filePath, packageId, data, dataType) {
-  let typeMap = await zclLoader.getDiscriminatorMap(db, packageId)
+async function processDataType(
+  db,
+  filePath,
+  packageId,
+  knownPackages,
+  data,
+  dataType
+) {
+  let typeMap = await zclLoader.getDiscriminatorMap(db, knownPackages)
 
   if (dataType == dbEnum.zclType.atomic) {
     let types = data[0].type
@@ -1017,11 +1026,12 @@ function prepareNumber(a, dataType) {
  * @param {*} db
  * @param {*} filePath
  * @param {*} packageId
+ * @param {*} knownPackages
  * @param {*} data
  * @returns Promise of inserted numbers into the number table.
  */
-async function processNumber(db, filePath, packageId, data) {
-  let typeMap = await zclLoader.getDiscriminatorMap(db, packageId)
+async function processNumber(db, filePath, packageId, knownPackages, data) {
+  let typeMap = await zclLoader.getDiscriminatorMap(db, knownPackages)
   let numbers = data[0].type.filter(function (item) {
     return (
       !item.$.name.toLowerCase().includes(dbEnum.zclType.bitmap) &&
@@ -1062,11 +1072,12 @@ function prepareString(a, dataType) {
  * @param {*} db
  * @param {*} filePath
  * @param {*} packageId
+ * @param {*} knownPackages
  * @param {*} data
  * @returns Promise of inserted strings into the String table.
  */
-async function processString(db, filePath, packageId, data) {
-  let typeMap = await zclLoader.getDiscriminatorMap(db, packageId)
+async function processString(db, filePath, packageId, knownPackages, data) {
+  let typeMap = await zclLoader.getDiscriminatorMap(db, knownPackages)
   let strings = data[0].type.filter(function (item) {
     return (
       (item.$.string && item.$.string.toLowerCase() == 'true') ||
@@ -1103,11 +1114,12 @@ function prepareEnumOrBitmapAtomic(a, dataType) {
  * @param {*} db
  * @param {*} filePath
  * @param {*} packageId
+ * @param {*} knownPackages
  * @param {*} data
  * @returns A promise of inserted enums.
  */
-async function processEnumAtomic(db, filePath, packageId, data) {
-  let typeMap = await zclLoader.getDiscriminatorMap(db, packageId)
+async function processEnumAtomic(db, filePath, packageId, knownPackages, data) {
+  let typeMap = await zclLoader.getDiscriminatorMap(db, knownPackages)
   let enums = data[0].type.filter(function (item) {
     return item.$.name.toLowerCase().includes('enum')
   })
@@ -1159,15 +1171,16 @@ function prepareEnumOrBitmap(a, dataType, typeMap) {
  * @param {*} db
  * @param {*} filePath
  * @param {*} packageId
+ * @param {*} knownPackages
  * @param {*} data
  * @returns A promise of inserted enums.
  */
-async function processEnum(db, filePath, packageId, data) {
+async function processEnum(db, filePath, packageId, knownPackages, data) {
   env.logDebug(`${filePath}, ${packageId}: ${data.length} Enum Types.`)
-  let typeMap = await zclLoader.getDiscriminatorMap(db, packageId)
+  let typeMap = await zclLoader.getDiscriminatorMap(db, knownPackages)
   return queryLoader.insertEnum(
     db,
-    packageId,
+    knownPackages,
     data.map((x) =>
       prepareEnumOrBitmap(x, typeMap.get(dbEnum.zclType.enum), typeMap)
     )
@@ -1180,10 +1193,11 @@ async function processEnum(db, filePath, packageId, data) {
  * @param {*} db
  * @param {*} filePath
  * @param {*} packageId
+ * @param {*} knownPackages
  * @param {*} data
  * @returns A promise of inserted enum items.
  */
-async function processEnumItems(db, filePath, packageId, data) {
+async function processEnumItems(db, filePath, packageId, knownPackages, data) {
   env.logDebug(`${filePath}, ${packageId}: ${data.length} Enum Items.`)
   let enumItems = []
   let lastFieldId = -1
@@ -1202,7 +1216,7 @@ async function processEnumItems(db, filePath, packageId, data) {
       })
     }
   })
-  return queryLoader.insertEnumItems(db, packageId, enumItems)
+  return queryLoader.insertEnumItems(db, packageId, knownPackages, enumItems)
 }
 
 /**
@@ -1211,11 +1225,18 @@ async function processEnumItems(db, filePath, packageId, data) {
  * @param {*} db
  * @param {*} filePath
  * @param {*} packageId
+ * @param {*} knownPackages
  * @param {*} data
  * @returns A promise of inserted bitmaps.
  */
-async function processBitmapAtomic(db, filePath, packageId, data) {
-  let typeMap = await zclLoader.getDiscriminatorMap(db, packageId)
+async function processBitmapAtomic(
+  db,
+  filePath,
+  packageId,
+  knownPackages,
+  data
+) {
+  let typeMap = await zclLoader.getDiscriminatorMap(db, knownPackages)
   let bitmaps = data[0].type.filter(function (item) {
     return item.$.name.toLowerCase().includes(dbEnum.zclType.bitmap)
   })
@@ -1237,15 +1258,16 @@ async function processBitmapAtomic(db, filePath, packageId, data) {
  * @param {*} db
  * @param {*} filePath
  * @param {*} packageId
+ * @param {*} knownPackages
  * @param {*} data
  * @returns A promise of inserted bitmaps.
  */
-async function processBitmap(db, filePath, packageId, data) {
+async function processBitmap(db, filePath, packageId, knownPackages, data) {
   env.logDebug(`${filePath}, ${packageId}: ${data.length} Bitmap Types.`)
-  let typeMap = await zclLoader.getDiscriminatorMap(db, packageId)
+  let typeMap = await zclLoader.getDiscriminatorMap(db, knownPackages)
   return queryLoader.insertBitmap(
     db,
-    packageId,
+    knownPackages,
     data.map((x) =>
       prepareEnumOrBitmap(x, typeMap.get(dbEnum.zclType.bitmap), typeMap)
     )
@@ -1258,10 +1280,17 @@ async function processBitmap(db, filePath, packageId, data) {
  * @param {*} db
  * @param {*} filePath
  * @param {*} packageId
+ * @param {*} knownPackages
  * @param {*} data
  * @returns A promise of inserted bitmap fields.
  */
-async function processBitmapFields(db, filePath, packageId, data) {
+async function processBitmapFields(
+  db,
+  filePath,
+  packageId,
+  knownPackages,
+  data
+) {
   env.logDebug(`${filePath}, ${packageId}: ${data.length} Bitmap Fields.`)
   let bitmapFields = []
   let lastFieldId = -1
@@ -1280,7 +1309,12 @@ async function processBitmapFields(db, filePath, packageId, data) {
       })
     }
   })
-  return queryLoader.insertBitmapFields(db, packageId, bitmapFields)
+  return queryLoader.insertBitmapFields(
+    db,
+    packageId,
+    knownPackages,
+    bitmapFields
+  )
 }
 
 /**
@@ -1305,15 +1339,16 @@ function prepareStruct(a, dataType) {
  * @param {*} db
  * @param {*} filePath
  * @param {*} packageId
+ * @param {*} knownPackages
  * @param {*} data
  * @returns A promise of inserted structs.
  */
-async function processStruct(db, filePath, packageId, data) {
+async function processStruct(db, filePath, packageId, knownPackages, data) {
   env.logDebug(`${filePath}, ${packageId}: ${data.length} Struct Types.`)
-  let typeMap = await zclLoader.getDiscriminatorMap(db, packageId)
+  let typeMap = await zclLoader.getDiscriminatorMap(db, knownPackages)
   return queryLoader.insertStruct(
     db,
-    packageId,
+    knownPackages,
     data.map((x) => prepareStruct(x, typeMap.get(dbEnum.zclType.struct)))
   )
 }
@@ -1323,12 +1358,12 @@ async function processStruct(db, filePath, packageId, data) {
  *
  * @param {*} db
  * @param {*} filePath
- * @param {*} packageId
+ * @param {*} packageIds
  * @param {*} data
  * @returns A promise of inserted struct items.
  */
-async function processStructItems(db, filePath, packageId, data, context) {
-  env.logDebug(`${filePath}, ${packageId}: ${data.length} Struct Items.`)
+async function processStructItems(db, filePath, packageIds, data, context) {
+  env.logDebug(`${filePath}, ${packageIds}: ${data.length} Struct Items.`)
   let structItems = []
   data.forEach((si) => {
     let lastFieldId = -1
@@ -1358,6 +1393,7 @@ async function processStructItems(db, filePath, packageId, data, context) {
     }
 
     if (
+      context.fabricHandling &&
       context.fabricHandling.automaticallyCreateFields &&
       si.$.isFabricScoped == 'true'
     ) {
@@ -1378,7 +1414,7 @@ async function processStructItems(db, filePath, packageId, data, context) {
       })
     }
   })
-  return queryLoader.insertStructItems(db, packageId, structItems)
+  return queryLoader.insertStructItems(db, packageIds, structItems)
 }
 
 /**
@@ -1523,6 +1559,7 @@ async function processParsedZclData(
           db,
           filePath,
           packageId,
+          knownPackages,
           toplevel.atomic,
           dbEnum.zclType.atomic
         )
@@ -1535,6 +1572,7 @@ async function processParsedZclData(
           db,
           filePath,
           packageId,
+          knownPackages,
           toplevel.bitmap,
           dbEnum.zclType.bitmap
         )
@@ -1546,6 +1584,7 @@ async function processParsedZclData(
           db,
           filePath,
           packageId,
+          knownPackages,
           toplevel.enum,
           dbEnum.zclType.enum
         )
@@ -1557,6 +1596,7 @@ async function processParsedZclData(
           db,
           filePath,
           packageId,
+          knownPackages,
           toplevel.struct,
           dbEnum.zclType.struct
         )
@@ -1568,36 +1608,78 @@ async function processParsedZclData(
     // atomics/baseline types to inherited types
     let Batch4 = []
     if (dbEnum.zclType.atomic in toplevel) {
-      Batch4.push(processNumber(db, filePath, packageId, toplevel.atomic))
-      Batch4.push(processString(db, filePath, packageId, toplevel.atomic))
-      Batch4.push(processEnumAtomic(db, filePath, packageId, toplevel.atomic))
-      Batch4.push(processBitmapAtomic(db, filePath, packageId, toplevel.atomic))
+      Batch4.push(
+        processNumber(db, filePath, packageId, knownPackages, toplevel.atomic)
+      )
+      Batch4.push(
+        processString(db, filePath, packageId, knownPackages, toplevel.atomic)
+      )
+      Batch4.push(
+        processEnumAtomic(
+          db,
+          filePath,
+          packageId,
+          knownPackages,
+          toplevel.atomic
+        )
+      )
+      Batch4.push(
+        processBitmapAtomic(
+          db,
+          filePath,
+          packageId,
+          knownPackages,
+          toplevel.atomic
+        )
+      )
     }
     await Promise.all(Batch4)
 
     let Batch5 = []
     if (dbEnum.zclType.enum in toplevel) {
-      Batch5.push(processEnum(db, filePath, packageId, toplevel.enum))
+      Batch5.push(
+        processEnum(db, filePath, packageId, knownPackages, toplevel.enum)
+      )
     }
     if (dbEnum.zclType.bitmap in toplevel) {
-      Batch5.push(processBitmap(db, filePath, packageId, toplevel.bitmap))
+      Batch5.push(
+        processBitmap(db, filePath, packageId, knownPackages, toplevel.bitmap)
+      )
     }
     if (dbEnum.zclType.struct in toplevel) {
-      Batch5.push(processStruct(db, filePath, packageId, toplevel.struct))
+      Batch5.push(
+        processStruct(db, filePath, packageId, knownPackages, toplevel.struct)
+      )
     }
     await Promise.all(Batch5)
 
     // Batch7: Loads the items within a bitmap, struct and enum data types
     let batch6 = []
     if (dbEnum.zclType.enum in toplevel) {
-      batch6.push(processEnumItems(db, filePath, packageId, toplevel.enum))
+      batch6.push(
+        processEnumItems(db, filePath, packageId, knownPackages, toplevel.enum)
+      )
     }
     if (dbEnum.zclType.bitmap in toplevel) {
-      batch6.push(processBitmapFields(db, filePath, packageId, toplevel.bitmap))
+      batch6.push(
+        processBitmapFields(
+          db,
+          filePath,
+          packageId,
+          knownPackages,
+          toplevel.bitmap
+        )
+      )
     }
     if (dbEnum.zclType.struct in toplevel) {
       batch6.push(
-        processStructItems(db, filePath, packageId, toplevel.struct, context)
+        processStructItems(
+          db,
+          filePath,
+          knownPackages,
+          toplevel.struct,
+          context
+        )
       )
     }
     await Promise.all(batch6)
