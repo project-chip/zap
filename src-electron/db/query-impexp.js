@@ -190,7 +190,9 @@ async function importEndpointType(db, sessionId, packageIds, endpointType) {
     let deviceTypeId = await dbApi
       .dbAll(
         db,
-        `SELECT DEVICE_TYPE_ID,PACKAGE_REF FROM DEVICE_TYPE WHERE CODE = ? AND PROFILE_ID = ? AND NAME = ? AND PACKAGE_REF IN (${packageIds})`,
+        `SELECT DEVICE_TYPE_ID,PACKAGE_REF FROM DEVICE_TYPE WHERE CODE = ? AND PROFILE_ID = ? AND NAME = ? AND PACKAGE_REF IN (${dbApi.toInClause(
+          packageIds
+        )})`,
         [
           parseInt(endpointType.deviceTypeCode),
           parseInt(endpointType.deviceTypeProfileId),
@@ -214,7 +216,9 @@ async function importEndpointType(db, sessionId, packageIds, endpointType) {
     let deviceTypeId = await dbApi
       .dbAll(
         db,
-        `SELECT DEVICE_TYPE_ID,PACKAGE_REF FROM DEVICE_TYPE WHERE CODE = ? AND PROFILE_ID = ? AND PACKAGE_REF IN (${packageIds})`,
+        `SELECT DEVICE_TYPE_ID,PACKAGE_REF FROM DEVICE_TYPE WHERE CODE = ? AND PROFILE_ID = ? AND PACKAGE_REF IN (${dbApi.toInClause(
+          packageIds
+        )})`,
         [
           parseInt(endpointType.deviceTypeCode),
           parseInt(endpointType.deviceTypeProfileId),
@@ -332,7 +336,9 @@ async function importClusterForEndpointType(
   let matchedPackageId = await dbApi
     .dbAll(
       db,
-      `SELECT CLUSTER_ID, PACKAGE_REF FROM CLUSTER WHERE PACKAGE_REF IN (${packageIds}) AND CODE = ? AND ${
+      `SELECT CLUSTER_ID, PACKAGE_REF FROM CLUSTER WHERE PACKAGE_REF IN (${dbApi.toInClause(
+        packageIds
+      )}) AND CODE = ? AND ${
         cluster.mfgCode == null
           ? 'MANUFACTURER_CODE IS NULL'
           : 'MANUFACTURER_CODE = ?'
@@ -451,7 +457,7 @@ ON
   E.CLUSTER_REF = ETC.CLUSTER_REF
 WHERE
   E.CODE = ?
-  AND E.PACKAGE_REF IN (${packageIds})
+  AND E.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
   AND E.SIDE = ETC.SIDE
   AND ETC.ENDPOINT_TYPE_CLUSTER_ID = ?
   AND ${
@@ -574,19 +580,19 @@ async function importAttributeForEndpointType(
   attribute
 ) {
   let selectAttributeQuery = `
-SELECT 
+SELECT
   A.ATTRIBUTE_ID,
   A.REPORTING_POLICY,
   A.STORAGE_POLICY
-FROM 
+FROM
   ATTRIBUTE AS A
 INNER JOIN
   ENDPOINT_TYPE_CLUSTER AS ETC
 ON
   ETC.CLUSTER_REF = A.CLUSTER_REF OR A.CLUSTER_REF IS NULL
-WHERE 
+WHERE
   A.CODE = ?
-  AND A.PACKAGE_REF IN (${packageIds})
+  AND A.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
   AND A.SIDE = ETC.SIDE
   AND ETC.ENDPOINT_TYPE_CLUSTER_ID = ?
   AND ${
@@ -737,7 +743,7 @@ async function importCommandForEndpointType(
       FROM COMMAND, ENDPOINT_TYPE_CLUSTER WHERE
         COMMAND.CODE = ?
         AND COMMAND.SOURCE = ?
-        AND COMMAND.PACKAGE_REF IN (${packageIds})
+        AND COMMAND.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
         AND ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = ?
         AND COMMAND.CLUSTER_REF = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
         AND ${

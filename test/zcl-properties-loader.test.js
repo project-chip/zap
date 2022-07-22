@@ -60,7 +60,7 @@ test(
       expect(x.length).toEqual(17)
       x = await queryZcl.selectAllEnums(db, packageId)
       expect(x.length).toEqual(208)
-      x = await queryZcl.selectAllStructsWithItemCount(db, packageId)
+      x = await queryZcl.selectAllStructsWithItemCount(db, [packageId])
       expect(x.length).toEqual(50)
       x = await queryZcl.selectAllBitmaps(db, packageId)
       expect(x.length).toEqual(128)

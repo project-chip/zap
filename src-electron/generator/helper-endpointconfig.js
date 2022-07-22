@@ -885,11 +885,13 @@ async function collectAttributes(endpointTypes, options) {
 /**
  * This function goes over all the attributes and populates sizes.
  *
+ * @param {*} db
+ * @param {*} zclPackageIds
  * @param {*} endpointTypes
  * @returns promise that resolves with the passed endpointTypes, after populating the attribute type sizes.
  *
  */
-async function collectAttributeSizes(db, zclPackageId, endpointTypes) {
+async function collectAttributeSizes(db, zclPackageIds, endpointTypes) {
   let ps = []
   endpointTypes.forEach((ept) => {
     ept.clusters.forEach((cl) => {
@@ -898,7 +900,7 @@ async function collectAttributeSizes(db, zclPackageId, endpointTypes) {
           types
             .typeSizeAttribute(
               db,
-              zclPackageId,
+              zclPackageIds,
               at,
               `ERROR: ${at.name}, invalid size, ${at.type}`
             )
@@ -915,17 +917,19 @@ async function collectAttributeSizes(db, zclPackageId, endpointTypes) {
 
 /**
  * This function goes over all attributes and populates atomic types.
+ * @param {*} db
+ * @param {*} zclPackageIds
  * @param {*} endpointTypes
  * @returns promise that resolves with the passed endpointTypes, after populating the attribute atomic types.
  *
  */
-async function collectAttributeTypeInfo(db, zclPackageId, endpointTypes) {
+async function collectAttributeTypeInfo(db, zclPackageIds, endpointTypes) {
   let ps = []
   endpointTypes.forEach((ept) => {
     ept.clusters.forEach((cl) => {
       cl.attributes.forEach((at) => {
         ps.push(
-          zclUtil.determineType(db, at.type, zclPackageId).then((typeInfo) => {
+          zclUtil.determineType(db, at.type, zclPackageIds).then((typeInfo) => {
             at.typeInfo = typeInfo
           })
         )
@@ -964,7 +968,7 @@ function endpoint_config(options) {
     spaceForDefaultValue: options.hash.spaceForDefaultValue,
   }
   let promise = templateUtil
-    .ensureZclPackageId(newContext)
+    .ensureZclPackageIds(newContext)
     .then(() => queryEndpoint.selectAllEndpoints(db, sessionId))
     .then((endpoints) => {
       newContext.endpoints = endpoints
@@ -1043,10 +1047,10 @@ function endpoint_config(options) {
       return Promise.all(promises).then(() => endpointTypes)
     })
     .then((endpointTypes) =>
-      collectAttributeTypeInfo(db, this.global.zclPackageId, endpointTypes)
+      collectAttributeTypeInfo(db, this.global.zclPackageIds, endpointTypes)
     )
     .then((endpointTypes) =>
-      collectAttributeSizes(db, this.global.zclPackageId, endpointTypes)
+      collectAttributeSizes(db, this.global.zclPackageIds, endpointTypes)
     )
     .then((endpointTypes) =>
       collectAttributes(endpointTypes, collectAttributesOptions)

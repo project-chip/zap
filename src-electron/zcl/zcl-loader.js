@@ -294,12 +294,12 @@ async function processZclPostLoading(db, packageId) {
 /**
  *
  * @param {*} db
- * @param {*} packageId
+ * @param {*} packageIds
  * @returns data type discriminator map
  */
-async function getDiscriminatorMap(db, packageId) {
+async function getDiscriminatorMap(db, packageIds) {
   let typeMap = new Map()
-  let discriminators = await queryZcl.selectAllDiscriminators(db, packageId)
+  let discriminators = await queryZcl.selectAllDiscriminators(db, packageIds)
   discriminators.forEach((d) => {
     typeMap.set(d.name.toLowerCase(), d.id)
   })

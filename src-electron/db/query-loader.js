@@ -464,7 +464,9 @@ async function insertClusterExtensions(db, packageId, knownPackages, data) {
   return dbApi
     .dbMultiSelect(
       db,
-      `SELECT CLUSTER_ID FROM CLUSTER WHERE PACKAGE_REF IN (${knownPackages.toString()}) AND CODE = ?`,
+      `SELECT CLUSTER_ID FROM CLUSTER WHERE PACKAGE_REF IN (${dbApi.toInClause(
+        knownPackages
+      )}) AND CODE = ?`,
       data.map((cluster) => [cluster.code])
     )
     .then((rows) => {
@@ -1005,7 +1007,7 @@ WHERE
     FROM DATA_TYPE
     WHERE DATA_TYPE.DATA_TYPE_ID = DATA_TYPE_CLUSTER.DATA_TYPE_REF
   ) = ?
-  
+
 `,
     [packageId, packageId]
   )
@@ -1158,17 +1160,19 @@ VALUES (
  * baseline enums.
  *
  * @param {*} db
- * @param {*} packageId
+ * @param {*} packageIds
  * @param {*} data
  */
-async function insertEnum(db, packageId, data) {
+async function insertEnum(db, packageIds, data) {
   return dbApi.dbMultiInsert(
     db,
     `
 INSERT INTO
   ENUM (ENUM_ID, SIZE)
 VALUES (
-  (SELECT DATA_TYPE_ID FROM DATA_TYPE WHERE PACKAGE_REF = ? AND NAME = ? AND DISCRIMINATOR_REF = ?),
+  (SELECT DATA_TYPE_ID FROM DATA_TYPE WHERE PACKAGE_REF IN (${dbApi.toInClause(
+    packageIds
+  )}) AND NAME = ? AND DISCRIMINATOR_REF = ?),
   (SELECT
     CASE
       WHEN (
@@ -1181,11 +1185,11 @@ VALUES (
          ON
           ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID
          WHERE
-          DATA_TYPE.PACKAGE_REF = ?
+          DATA_TYPE.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
           AND DATA_TYPE.NAME = ?
           AND DATA_TYPE.DISCRIMINATOR_REF = ?)
         IS NULL )
-        THEN 
+        THEN
           (SELECT
             SIZE
           FROM
@@ -1195,7 +1199,9 @@ VALUES (
           ON
             ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID
           WHERE
-            DATA_TYPE.PACKAGE_REF = ? AND DATA_TYPE.NAME = ?)
+            DATA_TYPE.PACKAGE_REF IN (${dbApi.toInClause(
+              packageIds
+            )}) AND DATA_TYPE.NAME = ?)
       ELSE
         (SELECT
           SIZE
@@ -1206,20 +1212,16 @@ VALUES (
          ON
           ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID
          WHERE
-          DATA_TYPE.PACKAGE_REF = ?
+          DATA_TYPE.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
           AND DATA_TYPE.NAME = ?
           AND DATA_TYPE.DISCRIMINATOR_REF = ?)
     END AS SIZE))`,
     data.map((at) => [
-      packageId,
       at.name,
       at.discriminator_ref,
-      packageId,
       at.type,
       at.discriminator_ref,
-      packageId,
       at.type,
-      packageId,
       at.type,
       at.discriminator_ref,
     ])
@@ -1231,9 +1233,10 @@ VALUES (
  *
  * @param {*} db
  * @param {*} packageId
+ * @param {*} knownPackages
  * @param {*} data
  */
-async function insertEnumItems(db, packageId, data) {
+async function insertEnumItems(db, packageId, knownPackages, data) {
   return dbApi.dbMultiInsert(
     db,
     `
@@ -1256,14 +1259,15 @@ async function insertEnumItems(db, packageId, data) {
                                                 DISCRIMINATOR
                                               WHERE
                                                 NAME = "ENUM"
-                                                AND PACKAGE_REF=?)),
+                                                AND PACKAGE_REF IN (${dbApi.toInClause(
+                                                  knownPackages
+                                                )}))),
     ?,
     ?,
     ?)`,
     data.map((at) => [
       packageId,
       at.enumName,
-      packageId,
       at.name,
       at.value,
       at.fieldIdentifier,
@@ -1302,20 +1306,20 @@ VALUES (
  * Note: Unlike insertBitmapAtomic this function adds the bitmaps which are not
  * baseline bitmaps.
  * @param {*} db
- * @param {*} packageId
+ * @param {*} packageIds
  * @param {*} data
  */
-async function insertBitmap(db, packageId, data) {
+async function insertBitmap(db, packageIds, data) {
   return dbApi.dbMultiInsert(
     db,
     `
   INSERT INTO
-    BITMAP (BITMAP_ID, SIZE) 
+    BITMAP (BITMAP_ID, SIZE)
   VALUES (
     (SELECT
       DATA_TYPE_ID
      FROM
-      DATA_TYPE WHERE PACKAGE_REF = ?
+      DATA_TYPE WHERE PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
       AND NAME = ?
       AND DISCRIMINATOR_REF = ?),
     (SELECT
@@ -1330,7 +1334,7 @@ async function insertBitmap(db, packageId, data) {
            ON
             BITMAP.BITMAP_ID = DATA_TYPE.DATA_TYPE_ID
            WHERE
-            DATA_TYPE.PACKAGE_REF = ?
+            DATA_TYPE.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
             AND DATA_TYPE.NAME = ?
             AND DATA_TYPE.DISCRIMINATOR_REF = ?)
           IS NULL)
@@ -1344,8 +1348,8 @@ async function insertBitmap(db, packageId, data) {
              ON
               BITMAP.BITMAP_ID  = DATA_TYPE.DATA_TYPE_ID
              WHERE
-              DATA_TYPE.PACKAGE_REF = ?
-              AND DATA_TYPE.NAME = ?) 
+              DATA_TYPE.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
+              AND DATA_TYPE.NAME = ?)
         ELSE
           (SELECT
             SIZE
@@ -1356,20 +1360,16 @@ async function insertBitmap(db, packageId, data) {
            ON
             BITMAP.BITMAP_ID  = DATA_TYPE.DATA_TYPE_ID
            WHERE
-            DATA_TYPE.PACKAGE_REF = ?
+            DATA_TYPE.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
             AND DATA_TYPE.NAME = ?
             AND DATA_TYPE.DISCRIMINATOR_REF = ?)
       END AS SIZE))`,
     data.map((at) => [
-      packageId,
       at.name,
       at.discriminator_ref,
-      packageId,
       at.type,
       at.discriminator_ref,
-      packageId,
       at.type,
-      packageId,
       at.type,
       at.discriminator_ref,
     ])
@@ -1381,9 +1381,10 @@ async function insertBitmap(db, packageId, data) {
  *
  * @param {*} db
  * @param {*} packageId
+ * @param {*} knownPackages
  * @param {*} data
  */
-async function insertBitmapFields(db, packageId, data) {
+async function insertBitmapFields(db, packageId, knownPackages, data) {
   return dbApi.dbMultiInsert(
     db,
     `
@@ -1406,14 +1407,15 @@ async function insertBitmapFields(db, packageId, data) {
                                          FROM
                                           DISCRIMINATOR
                                          WHERE
-                                          NAME = "BITMAP" AND PACKAGE_REF=?)),
+                                          NAME = "BITMAP" AND PACKAGE_REF IN (${dbApi.toInClause(
+                                            knownPackages
+                                          )}))),
     ?,
     ?,
     ?)`,
     data.map((at) => [
       packageId,
       at.bitmapName,
-      packageId,
       at.name,
       at.mask,
       at.fieldIdentifier,
@@ -1425,10 +1427,10 @@ async function insertBitmapFields(db, packageId, data) {
  * Insert all Structs into the Struct Table.
  *
  * @param {*} db
- * @param {*} packageId
+ * @param {*} packageIds
  * @param {*} data
  */
-async function insertStruct(db, packageId, data) {
+async function insertStruct(db, packageIds, data) {
   return dbApi.dbMultiInsert(
     db,
     `
@@ -1440,11 +1442,11 @@ VALUES (
    FROM
     DATA_TYPE
    WHERE
-    PACKAGE_REF = ?
+    PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
     AND NAME = ?
     AND DISCRIMINATOR_REF = ?),
   (SELECT
-    CASE 
+    CASE
       WHEN (
         (SELECT
           SIZE
@@ -1455,7 +1457,7 @@ VALUES (
          ON
           STRUCT.STRUCT_ID = DATA_TYPE.DATA_TYPE_ID
          WHERE
-          DATA_TYPE.PACKAGE_REF = ?
+          DATA_TYPE.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
           AND DATA_TYPE.NAME = ?
           AND DATA_TYPE.DISCRIMINATOR_REF = ?)
         IS NULL )
@@ -1469,7 +1471,7 @@ VALUES (
            ON
             STRUCT.STRUCT_ID = DATA_TYPE.DATA_TYPE_ID
            WHERE
-            DATA_TYPE.PACKAGE_REF = ?
+            DATA_TYPE.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
             AND DATA_TYPE.NAME = ?)
       ELSE
         (SELECT
@@ -1481,21 +1483,17 @@ VALUES (
          ON
           STRUCT.STRUCT_ID = DATA_TYPE.DATA_TYPE_ID
          WHERE
-          DATA_TYPE.PACKAGE_REF = ?
+          DATA_TYPE.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
           AND DATA_TYPE.NAME = ?
-          AND 
+          AND
           DATA_TYPE.DISCRIMINATOR_REF = ?)
     END AS SIZE), ?)`,
     data.map((at) => [
-      packageId,
       at.name,
       at.discriminator_ref,
-      packageId,
       at.type,
       at.discriminator_ref,
-      packageId,
       at.type,
-      packageId,
       at.type,
       at.discriminator_ref,
       dbApi.toDbBool(at.isFabricScoped),
@@ -1507,10 +1505,10 @@ VALUES (
  * Insert all Struct items into the Struct Item Table.
  *
  * @param {*} db
- * @param {*} packageId
+ * @param {*} packageIds
  * @param {*} data
  */
-async function insertStructItems(db, packageId, data) {
+async function insertStructItems(db, packageIds, data) {
   return dbApi.dbMultiInsert(
     db,
     `
@@ -1524,14 +1522,16 @@ async function insertStructItems(db, packageId, data) {
      INNER JOIN
       DATA_TYPE ON STRUCT.STRUCT_ID = DATA_TYPE.DATA_TYPE_ID
      WHERE
-      DATA_TYPE.PACKAGE_REF = ?
+      DATA_TYPE.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
       AND DATA_TYPE.NAME = ?
       AND DATA_TYPE.DISCRIMINATOR_REF = (SELECT
                                           DISCRIMINATOR_ID
                                          FROM
                                           DISCRIMINATOR
                                          WHERE
-                                          NAME = "STRUCT" AND PACKAGE_REF=?)),
+                                          NAME = "STRUCT" AND PACKAGE_REF IN (${dbApi.toInClause(
+                                            packageIds
+                                          )}))),
     ?,
     ?,
     ?,
@@ -1548,12 +1548,10 @@ async function insertStructItems(db, packageId, data) {
      FROM
       DATA_TYPE
      WHERE
-      DATA_TYPE.PACKAGE_REF = ?
+      DATA_TYPE.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
       AND DATA_TYPE.NAME = ?))`,
     data.map((at) => [
-      packageId,
       at.structName,
-      packageId,
       at.name,
       at.fieldIdentifier,
       at.isArray,
@@ -1565,7 +1563,6 @@ async function insertStructItems(db, packageId, data) {
       at.isOptional,
       at.isFabricSensitive,
       at.size,
-      packageId,
       at.type,
     ])
   )

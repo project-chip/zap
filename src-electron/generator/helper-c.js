@@ -78,10 +78,10 @@ function asHex(rawValue, padding, nullValue) {
  * returning the correct C type for the given data type
  * @param {*} dataType
  * @param {*} context
- * @param {*} packageId
+ * @param {*} packageIds
  * @returns The appropriate C type for the given data type
  */
-async function asUnderlyingTypeHelper(dataType, context, packageId) {
+async function asUnderlyingTypeHelper(dataType, context, packageIds) {
   try {
     if (
       dataType &&
@@ -89,7 +89,7 @@ async function asUnderlyingTypeHelper(dataType, context, packageId) {
     ) {
       let bt = await queryZcl.selectBitmapByName(
         context.global.db,
-        packageId,
+        packageIds,
         dataType.name
       )
       return context.global.overridable.bitmapType(bt.size)
@@ -100,7 +100,7 @@ async function asUnderlyingTypeHelper(dataType, context, packageId) {
       let et = await queryZcl.selectEnumByName(
         context.global.db,
         dataType.name,
-        packageId
+        packageIds
       )
       return context.global.overridable.enumType(et.size, et.name)
     } else if (
@@ -109,7 +109,7 @@ async function asUnderlyingTypeHelper(dataType, context, packageId) {
     ) {
       let nt = await queryZcl.selectNumberByName(
         context.global.db,
-        packageId,
+        packageIds,
         dataType.name
       )
       return context.global.overridable.numberType(
@@ -144,7 +144,7 @@ async function asUnderlyingTypeHelper(dataType, context, packageId) {
  */
 async function asUnderlyingType(value) {
   let dataType = null
-  let packageId = await templateUtil.ensureZclPackageId(this)
+  let packageIds = await templateUtil.ensureZclPackageIds(this)
 
   // Step 1: Extracting the data type based on id or name
   if (typeof value === 'number') {
@@ -153,7 +153,7 @@ async function asUnderlyingType(value) {
     dataType = await queryZcl.selectDataTypeByName(
       this.global.db,
       value,
-      packageId
+      packageIds
     )
   }
 
@@ -172,7 +172,7 @@ async function asUnderlyingType(value) {
 
   // Step 3: Detecting the type of the data type and returning the appropriate c
   // type through overridable
-  return asUnderlyingTypeHelper(dataType, this, packageId)
+  return asUnderlyingTypeHelper(dataType, this, packageIds)
 }
 
 /**
@@ -239,9 +239,9 @@ async function asBytes(value, type) {
     return value
   } else {
     return templateUtil
-      .ensureZclPackageId(this)
-      .then((packageId) =>
-        queryZcl.selectSizeFromType(this.global.db, packageId, type)
+      .ensureZclPackageIds(this)
+      .then((packageIds) =>
+        queryZcl.selectSizeFromType(this.global.db, packageIds, type)
       )
       .then((x) => {
         if (x == null) {
@@ -367,10 +367,10 @@ function as_zcl_cli_type(str, optional, isSigned) {
  *
  * @param {*} db
  * @param {*} bitmap_name
- * @param {*} packageId
+ * @param {*} packageIds
  */
-function dataTypeForBitmap(db, bitmap_name, packageId) {
-  return queryZcl.selectBitmapByName(db, packageId, bitmap_name).then((bm) => {
+function dataTypeForBitmap(db, bitmap_name, packageIds) {
+  return queryZcl.selectBitmapByName(db, packageIds, bitmap_name).then((bm) => {
     if (bm == null) {
       return `!!Invalid bitmap: ${bitmap_name}`
     } else {
@@ -384,10 +384,10 @@ function dataTypeForBitmap(db, bitmap_name, packageId) {
  *
  * @param {*} db
  * @param {*} enum_name
- * @param {*} packageId
+ * @param {*} packageIds
  */
-function dataTypeForEnum(db, enum_name, packageId) {
-  return queryZcl.selectEnumByName(db, enum_name, packageId).then((e) => {
+function dataTypeForEnum(db, enum_name, packageIds) {
+  return queryZcl.selectEnumByName(db, enum_name, packageIds).then((e) => {
     if (e == null) {
       return `!!Invalid enum: ${enum_name}`
     } else {

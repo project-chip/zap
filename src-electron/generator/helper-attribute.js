@@ -38,10 +38,10 @@ async function attributeDefault(options) {
   // when used at the cluster level, 'this' is a cluster
   let code = parseInt(options.hash.code)
 
-  let packageId = await templateUtil.ensureZclPackageId(this)
+  let packageIds = await templateUtil.ensureZclPackageIds(this)
   let attr = await queryAttribute.selectAttributeByCode(
     this.global.db,
-    packageId,
+    packageIds,
     this.id,
     code,
     this.mfgCode
@@ -50,7 +50,7 @@ async function attributeDefault(options) {
     // Check if it's global attribute
     attr = await queryAttribute.selectAttributeByCode(
       this.global.db,
-      packageId,
+      packageIds,
       null,
       code,
       this.mfgCode

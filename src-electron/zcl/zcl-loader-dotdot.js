@@ -883,7 +883,7 @@ async function processEnums(db, filePath, packageId, data) {
   let typeMap = await zclLoader.getDiscriminatorMap(db, packageId)
   return queryLoader.insertEnum(
     db,
-    packageId,
+    [packageId],
     data.map((x) => prepareEnumsOrBitmaps(x, typeMap.get(dbEnum.zclType.enum)))
   )
 }
@@ -918,7 +918,7 @@ async function processEnumItems(db, filePath, packageId, data) {
       })
     }
   })
-  return queryLoader.insertEnumItems(db, packageId, enumItems)
+  return queryLoader.insertEnumItems(db, packageId, [packageId], enumItems)
 }
 
 /**
@@ -935,7 +935,7 @@ async function processBitmaps(db, filePath, packageId, data) {
   let typeMap = await zclLoader.getDiscriminatorMap(db, packageId)
   return queryLoader.insertBitmap(
     db,
-    packageId,
+    [packageId],
     data.map((x) =>
       prepareEnumsOrBitmaps(x, typeMap.get(dbEnum.zclType.bitmap))
     )
@@ -972,7 +972,12 @@ async function processBitmapFields(db, filePath, packageId, data) {
       })
     }
   })
-  return queryLoader.insertBitmapFields(db, packageId, bitmapFields)
+  return queryLoader.insertBitmapFields(
+    db,
+    packageId,
+    [packageId],
+    bitmapFields
+  )
 }
 
 /**
@@ -1004,7 +1009,7 @@ async function processStruct(db, filePath, packageId, data) {
   let typeMap = await zclLoader.getDiscriminatorMap(db, packageId)
   return queryLoader.insertStruct(
     db,
-    packageId,
+    [packageId],
     data.map((x) => prepareStruct2(x, typeMap.get(dbEnum.zclType.struct)))
   )
 }
@@ -1050,7 +1055,7 @@ async function processStructItems(db, filePath, packageId, data) {
       })
     }
   })
-  return queryLoader.insertStructItems(db, packageId, structItems)
+  return queryLoader.insertStructItems(db, [packageId], structItems)
 }
 
 /**

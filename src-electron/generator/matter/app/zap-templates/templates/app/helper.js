@@ -305,7 +305,7 @@ async function asNativeType(type) {
   }
 
   const promise = templateUtil
-    .ensureZclPackageId(this)
+    .ensureZclPackageIds(this)
     .then(fn.bind(this))
     .catch((err) => {
       console.log(err);
@@ -527,7 +527,9 @@ async function zapTypeToClusterObjectType(type, isDecodable, options) {
     );
   }
 
-  let typeStr = await templateUtil.ensureZclPackageId(this).then(fn.bind(this));
+  let typeStr = await templateUtil
+    .ensureZclPackageIds(this)
+    .then(fn.bind(this));
   if ((this.isArray || this.entryType) && !options.hash.forceNotList) {
     passByReference = true;
     // If we did not have a namespace provided, we can assume we're inside
@@ -638,7 +640,7 @@ async function _zapTypeToPythonClusterObjectType(type, options) {
     }
   }
 
-  let promise = templateUtil.ensureZclPackageId(this).then(fn.bind(this));
+  let promise = templateUtil.ensureZclPackageIds(this).then(fn.bind(this));
   if ((this.isArray || this.entryType) && !options.hash.forceNotList) {
     promise = promise.then((typeStr) => `typing.List[${typeStr}]`);
   }
@@ -724,7 +726,7 @@ async function _getPythonFieldDefault(type, options) {
     }
   }
 
-  let promise = templateUtil.ensureZclPackageId(this).then(fn.bind(this));
+  let promise = templateUtil.ensureZclPackageIds(this).then(fn.bind(this));
   if ((this.isArray || this.entryType) && !options.hash.forceNotList) {
     promise = promise.then((typeStr) => `field(default_factory=lambda: [])`);
   }
@@ -801,10 +803,10 @@ function hasProperty(obj, prop) {
 
 async function zcl_events_fields_by_event_name(name, options) {
   const { db, sessionId } = this.global;
-  const packageId = await templateUtil.ensureZclPackageId(this);
+  const packageIds = await templateUtil.ensureZclPackageIds(this);
 
   const promise = queryEvents
-    .selectAllEvents(db, packageId)
+    .selectAllEvents(db, packageIds)
     .then((events) => events.find((event) => event.name == name))
     .then((evt) => queryEvents.selectEventFieldsByEventId(db, evt.id))
     .then((fields) =>
@@ -820,11 +822,11 @@ async function zcl_events_fields_by_event_name(name, options) {
 // Must be used inside zcl_clusters
 async function zcl_commands_that_need_timed_invoke(options) {
   const { db } = this.global;
-  let packageId = await templateUtil.ensureZclPackageId(this);
+  let packageIds = await templateUtil.ensureZclPackageIds(this);
   let commands = await queryCommand.selectCommandsByClusterId(
     db,
     this.id,
-    packageId
+    packageIds
   );
   commands = commands.filter((cmd) => cmd.mustUseTimedInvoke);
   return templateUtil.collectBlocks(commands, options, this);
@@ -833,8 +835,8 @@ async function zcl_commands_that_need_timed_invoke(options) {
 // Allows conditioning generation on whether the given type is a fabric-scoped
 // struct.
 async function if_is_fabric_scoped_struct(type, options) {
-  let packageId = await templateUtil.ensureZclPackageId(this);
-  let st = await zclQuery.selectStructByName(this.global.db, type, packageId);
+  let packageIds = await templateUtil.ensureZclPackageIds(this);
+  let st = await zclQuery.selectStructByName(this.global.db, type, packageIds);
 
   if (st) {
     // TODO: Should know whether a struct is fabric-scoped without sniffing its

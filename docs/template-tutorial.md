@@ -92,7 +92,7 @@ Whichever helpers get executed they all contain `global` inside their context th
 - `db`: connection to the database being used
 - `sessionId`: session id for the user data being used
 - `genTemplatePackageId`: toplevel package id for gen-template.json file, used for querying options and other
-- `zclPackageId`: populated after you call `templateUtil.ensureZclPackageId()` the first time, used for querying the ZCL static data.
+- `zclPackageId`: populated after you call `templateUtil.ensureZclPackageIds()` the first time, used for querying the ZCL static data.
 
 Whenever a context switches, the switch will preserve this `global` object inside the context for helpers to access.
 

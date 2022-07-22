@@ -470,21 +470,21 @@ async function zcl_commands_with_arguments(options) {
  */
 function zcl_commands_by_source(options, source) {
   let promise = templateUtil
-    .ensureZclPackageId(this) // leaving to packageId since not used in template.
-    .then((packageId) => {
+    .ensureZclPackageIds(this) // leaving to packageId since not used in template.
+    .then((packageIds) => {
       if ('id' in this) {
         // We're functioning inside a nested context with an id, so we will only query for this cluster.
         return queryCommand.selectCommandsByClusterIdAndSource(
           this.global.db,
           this.id,
           source,
-          packageId
+          packageIds
         )
       } else {
         return queryCommand.selectAllCommandsBySource(
           this.global.db,
           source,
-          packageId
+          packageIds
         )
       }
     })
@@ -816,14 +816,10 @@ function largestLabelLength(arrayOfClusters) {
  * @returns Number of command arguments as an integer
  */
 function zcl_command_arguments_count(commandId) {
-  let promise = templateUtil
-    .ensureZclPackageId(this)
-    .then(() =>
-      queryCommand.selectCommandArgumentsCountByCommandId(
-        this.global.db,
-        commandId
-      )
-    )
+  let promise = queryCommand.selectCommandArgumentsCountByCommandId(
+    this.global.db,
+    commandId
+  )
   return templateUtil.templatePromise(this.global, promise)
 }
 
@@ -905,11 +901,8 @@ function as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument
   appendString,
   options
 ) {
-  return templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) =>
-      queryCommand.selectCommandArgumentsByCommandId(this.global.db, command)
-    )
+  return queryCommand
+    .selectCommandArgumentsByCommandId(this.global.db, command)
     .then(
       (commandArgs) =>
         new Promise((resolve, reject) => {
@@ -939,12 +932,12 @@ function as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument
         )
       ) {
         return templateUtil
-          .ensureZclPackageId(this)
-          .then((packageId) =>
+          .ensureZclPackageIds(this)
+          .then((packageIds) =>
             zclUtil.asUnderlyingZclTypeWithPackageId(
               type,
               options,
-              packageId,
+              packageIds,
               this
             )
           )
@@ -987,12 +980,12 @@ function as_underlying_zcl_type_if_command_is_not_fixed_length(
         return ''
       } else {
         return templateUtil
-          .ensureZclPackageId(this)
-          .then((packageId) =>
+          .ensureZclPackageIds(this)
+          .then((packageIds) =>
             zclUtil.asUnderlyingZclTypeWithPackageId(
               type,
               options,
-              packageId,
+              packageIds,
               this
             )
           )
@@ -1014,30 +1007,23 @@ function as_underlying_zcl_type_if_command_is_not_fixed_length(
  * called with commands which do not have a fixed length.
  */
 function command_arguments_total_length(commandId) {
-  return templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) => {
-      let res = queryCommand.selectCommandArgumentsByCommandId(
-        this.global.db,
-        commandId
-      )
-      return res
-    })
+  return queryCommand
+    .selectCommandArgumentsByCommandId(this.global.db, commandId)
     .then((commandArgs) =>
       new Promise((resolve, reject) => {
         let argsLength = []
-        for (let argIndex = 0; argIndex < commandArgs.length; argIndex++) {
-          let argType = commandArgs[argIndex].type
+        for (const commandArg of commandArgs) {
+          let argType = commandArg.type
           let argOptions = {}
           argOptions.hash = {}
           argOptions.hash[dbEnum.zclType.zclCharFormatter] = true
           let argLength = templateUtil
-            .ensureZclPackageId(this)
-            .then((packageId) =>
+            .ensureZclPackageIds(this)
+            .then((packageIds) =>
               zclUtil.asUnderlyingZclTypeWithPackageId(
                 argType,
                 argOptions,
-                packageId,
+                packageIds,
                 this
               )
             )
@@ -1070,7 +1056,7 @@ async function zcl_command_arguments(options) {
   // the commandArgs are already present and there is no need
   // to do additional queries.
   if (commandArgs == null) {
-    p = templateUtil.ensureZclPackageId(this).then((packageId) => {
+    p = templateUtil.ensureZclPackageIds(this).then((packageIds) => {
       if ('id' in this) {
         // We're functioning inside a nested context with an id, so we will only query for this cluster.
         return queryCommand.selectCommandArgumentsByCommandId(
@@ -1078,7 +1064,10 @@ async function zcl_command_arguments(options) {
           this.id
         )
       } else {
-        return queryCommand.selectAllCommandArguments(this.global.db, packageId)
+        return queryCommand.selectAllCommandArguments(
+          this.global.db,
+          packageIds
+        )
       }
     })
   } else {
@@ -1126,12 +1115,12 @@ function zcl_event_fields(options) {
  */
 function zcl_command_argument_data_type(type, options) {
   let promise = templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) =>
+    .ensureZclPackageIds(this)
+    .then((packageIds) =>
       Promise.all([
-        zclUtil.isEnum(this.global.db, type, packageId),
-        zclUtil.isStruct(this.global.db, type, packageId),
-        zclUtil.isBitmap(this.global.db, type, packageId),
+        zclUtil.isEnum(this.global.db, type, packageIds),
+        zclUtil.isStruct(this.global.db, type, packageIds),
+        zclUtil.isBitmap(this.global.db, type, packageIds),
       ])
         .then(
           (res) =>
@@ -1151,10 +1140,14 @@ function zcl_command_argument_data_type(type, options) {
               return helperC.data_type_for_bitmap(
                 this.global.db,
                 type,
-                packageId
+                packageIds
               )
             case dbEnum.zclType.enum:
-              return helperC.data_type_for_enum(this.global.db, type, packageId)
+              return helperC.data_type_for_enum(
+                this.global.db,
+                type,
+                packageIds
+              )
             case dbEnum.zclType.struct:
               return options.hash.struct
             case dbEnum.zclType.atomic:
@@ -1193,9 +1186,9 @@ function zcl_command_argument_data_type(type, options) {
  * will return 'b'
  */
 async function asUnderlyingZclType(type, options) {
-  const packageId = await templateUtil.ensureZclPackageId(this)
+  const packageIds = await templateUtil.ensureZclPackageIds(this)
   let promise = zclUtil
-    .asUnderlyingZclTypeWithPackageId(type, options, packageId, this)
+    .asUnderlyingZclTypeWithPackageId(type, options, packageIds, this)
     .catch((err) => {
       env.logError(err)
       throw err
@@ -1258,12 +1251,12 @@ function is_zcl_string(type) {
  */
 async function if_is_number(type, options) {
   let promise = templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) =>
+    .ensureZclPackageIds(this)
+    .then((packageIds) =>
       type && typeof type === 'string'
         ? queryZcl.selectNumberByName(
             this.global.db,
-            packageId,
+            packageIds,
             type.toLowerCase()
           )
         : null
@@ -1290,13 +1283,13 @@ async function if_is_number(type, options) {
  */
 function if_is_string(type, options) {
   let promise = templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) =>
+    .ensureZclPackageIds(this)
+    .then((packageIds) =>
       type && typeof type === 'string'
         ? queryZcl.selectStringByName(
             this.global.db,
             type.toLowerCase(),
-            packageId
+            packageIds
           )
         : null
     )
@@ -1323,13 +1316,13 @@ function if_is_string(type, options) {
  */
 function if_is_char_string(type, options) {
   let promise = templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) =>
+    .ensureZclPackageIds(this)
+    .then((packageIds) =>
       type && typeof type === 'string'
         ? queryZcl.selectStringByName(
             this.global.db,
             type.toLowerCase(),
-            packageId
+            packageIds
           )
         : null
     )
@@ -1360,13 +1353,13 @@ function if_is_char_string(type, options) {
  */
 function if_is_octet_string(type, options) {
   let promise = templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) =>
+    .ensureZclPackageIds(this)
+    .then((packageIds) =>
       type && typeof type === 'string'
         ? queryZcl.selectStringByName(
             this.global.db,
             type.toLowerCase(),
-            packageId
+            packageIds
           )
         : null
     )
@@ -1397,13 +1390,13 @@ function if_is_octet_string(type, options) {
  */
 function if_is_short_string(type, options) {
   let promise = templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) =>
+    .ensureZclPackageIds(this)
+    .then((packageIds) =>
       type && typeof type === 'string'
         ? queryZcl.selectStringByName(
             this.global.db,
             type.toLowerCase(),
-            packageId
+            packageIds
           )
         : null
     )
@@ -1434,13 +1427,13 @@ function if_is_short_string(type, options) {
  */
 function if_is_long_string(type, options) {
   let promise = templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) =>
+    .ensureZclPackageIds(this)
+    .then((packageIds) =>
       type && typeof type === 'string'
         ? queryZcl.selectStringByName(
             this.global.db,
             type.toLowerCase(),
-            packageId
+            packageIds
           )
         : null
     )
@@ -1472,9 +1465,9 @@ async function if_is_atomic(type, options) {
   let result = null
   if (typeof type === 'string') {
     result = await templateUtil
-      .ensureZclPackageId(this)
-      .then((packageId) =>
-        queryZcl.selectAtomicType(this.global.db, packageId, type)
+      .ensureZclPackageIds(this)
+      .then((packageIds) =>
+        queryZcl.selectAtomicType(this.global.db, packageIds, type)
       )
   } else {
     env.logWarning(
@@ -1503,10 +1496,10 @@ async function if_is_atomic(type, options) {
  */
 async function if_is_bitmap(type, options) {
   let promise = templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) =>
+    .ensureZclPackageIds(this)
+    .then((packageIds) =>
       type && typeof type === 'string'
-        ? queryZcl.selectBitmapByName(this.global.db, packageId, type)
+        ? queryZcl.selectBitmapByName(this.global.db, packageIds, type)
         : null
     )
     .then((res) =>
@@ -1535,10 +1528,10 @@ async function if_is_bitmap(type, options) {
  */
 async function if_is_enum(type, options) {
   let promise = templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) =>
+    .ensureZclPackageIds(this)
+    .then((packageIds) =>
       type && typeof type === 'string'
-        ? queryZcl.selectEnumByName(this.global.db, type, packageId)
+        ? queryZcl.selectEnumByName(this.global.db, type, packageIds)
         : null
     )
     .then((res) => (res ? res : queryZcl.selectEnumById(this.global.db, type)))
@@ -1561,10 +1554,10 @@ async function if_is_enum(type, options) {
  */
 async function if_is_struct(type, options) {
   let promise = templateUtil
-    .ensureZclPackageId(this)
-    .then((packageId) =>
+    .ensureZclPackageIds(this)
+    .then((packageIds) =>
       type && typeof type === 'string'
-        ? queryZcl.selectStructByName(this.global.db, type, packageId)
+        ? queryZcl.selectStructByName(this.global.db, type, packageIds)
         : null
     )
     .then((res) =>
@@ -1664,12 +1657,12 @@ function as_underlying_zcl_type_command_argument_always_present(
         } else {
           // Return the underlying zcl type if the command argument is always present.
           return templateUtil
-            .ensureZclPackageId(this)
-            .then((packageId) =>
+            .ensureZclPackageIds(this)
+            .then((packageIds) =>
               zclUtil.asUnderlyingZclTypeWithPackageId(
                 type,
                 options,
-                packageId,
+                packageIds,
                 this
               )
             )
@@ -1764,12 +1757,12 @@ function as_underlying_zcl_type_command_argument_not_always_present_no_presentif
         // Return the underlying zcl type since command argument is not always present and there is no present if conditionality
         if ((introducedInRef || removedInRef) && !presentIf) {
           return templateUtil
-            .ensureZclPackageId(this)
-            .then((packageId) =>
+            .ensureZclPackageIds(this)
+            .then((packageIds) =>
               zclUtil.asUnderlyingZclTypeWithPackageId(
                 type,
                 options,
-                packageId,
+                packageIds,
                 this
               )
             )
@@ -1808,12 +1801,12 @@ function as_underlying_zcl_type_ca_not_always_present_no_presentif(
     !commandArg.presentIf
   ) {
     let promise = templateUtil
-      .ensureZclPackageId(this)
-      .then((packageId) =>
+      .ensureZclPackageIds(this)
+      .then((packageIds) =>
         zclUtil.asUnderlyingZclTypeWithPackageId(
           commandArg.type,
           options,
-          packageId,
+          packageIds,
           this
         )
       ) // Adding the appendString for the underlying zcl type
@@ -1909,12 +1902,12 @@ function as_underlying_zcl_type_command_argument_not_always_present_with_present
         // Return the underlying zcl type since command argument is not always present and there is present if conditionality.
         if ((introducedInRef || removedInRef) && presentIf) {
           return templateUtil
-            .ensureZclPackageId(this)
-            .then((packageId) =>
+            .ensureZclPackageIds(this)
+            .then((packageIds) =>
               zclUtil.asUnderlyingZclTypeWithPackageId(
                 type,
                 options,
-                packageId,
+                packageIds,
                 this
               )
             )
@@ -1953,12 +1946,12 @@ function as_underlying_zcl_type_ca_not_always_present_with_presentif(
     commandArg.presentIf
   ) {
     let promise = templateUtil
-      .ensureZclPackageId(this)
-      .then((packageId) =>
+      .ensureZclPackageIds(this)
+      .then((packageIds) =>
         zclUtil.asUnderlyingZclTypeWithPackageId(
           commandArg.type,
           options,
-          packageId,
+          packageIds,
           this
         )
       ) // Adding the appendString for the underlying zcl type
@@ -2054,12 +2047,12 @@ function as_underlying_zcl_type_command_argument_always_present_with_presentif(
         // Return the underlying zcl type since command argument is always present and there is a present if condition
         if (!(introducedInRef || removedInRef) && presentIf) {
           return templateUtil
-            .ensureZclPackageId(this)
-            .then((packageId) =>
+            .ensureZclPackageIds(this)
+            .then((packageIds) =>
               zclUtil.asUnderlyingZclTypeWithPackageId(
                 type,
                 options,
-                packageId,
+                packageIds,
                 this
               )
             )
@@ -2098,12 +2091,12 @@ function as_underlying_zcl_type_ca_always_present_with_presentif(
     commandArg.presentIf
   ) {
     let promise = templateUtil
-      .ensureZclPackageId(this)
-      .then((packageId) =>
+      .ensureZclPackageIds(this)
+      .then((packageIds) =>
         zclUtil.asUnderlyingZclTypeWithPackageId(
           commandArg.type,
           options,
-          packageId,
+          packageIds,
           this
         )
       ) // Adding the appendString for the underlying zcl type

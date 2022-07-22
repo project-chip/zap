@@ -567,6 +567,15 @@ function fromDbBool(value) {
   return value == 1
 }
 
+/**
+ *
+ * @param {*} value
+ * @returns Given value in the form of string
+ */
+function toInClause(value) {
+  return value ? value.toString() : value
+}
+
 exports.dbBeginTransaction = dbBeginTransaction
 exports.dbCommit = dbCommit
 exports.dbRollback = dbRollback
@@ -585,3 +594,4 @@ exports.loadSchema = loadSchema
 exports.initDatabaseAndLoadSchema = initDatabaseAndLoadSchema
 exports.toDbBool = toDbBool
 exports.fromDbBool = fromDbBool
+exports.toInClause = toInClause

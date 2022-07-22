@@ -545,10 +545,14 @@ async function chip_endpoint_clusters(options) {
  * @returns Promise of content.
  */
 async function if_is_strongly_typed_bitmap(type, options) {
-  let packageId = await templateUtil.ensureZclPackageId(this);
+  let packageIds = await templateUtil.ensureZclPackageIds(this);
   let bitmap;
   if (type && typeof type === 'string') {
-    bitmap = await queryZcl.selectBitmapByName(this.global.db, packageId, type);
+    bitmap = await queryZcl.selectBitmapByName(
+      this.global.db,
+      packageIds,
+      type
+    );
   } else {
     bitmap = await queryZcl.selectBitmapById(this.global.db, type);
   }
@@ -556,7 +560,7 @@ async function if_is_strongly_typed_bitmap(type, options) {
   if (bitmap) {
     let a = await queryZcl.selectAtomicType(
       this.global.db,
-      packageId,
+      packageIds,
       bitmap.name
     );
     if (a) {
@@ -589,14 +593,14 @@ async function if_is_strongly_typed_chip_enum(type, options) {
   if (type.toLowerCase() == 'vendor_id') {
     return options.fn(this);
   } else {
-    let packageId = await templateUtil.ensureZclPackageId(this);
+    let packageIds = await templateUtil.ensureZclPackageIds(this);
     let enumRes;
     // Retrieving the enum from the enum table
     if (type && typeof type === 'string') {
       enumRes = await queryZcl.selectEnumByName(
         this.global.db,
         type,
-        packageId
+        packageIds
       );
     } else {
       enumRes = await queryZcl.selectEnumById(this.global.db, type);
@@ -607,7 +611,7 @@ async function if_is_strongly_typed_chip_enum(type, options) {
     if (enumRes) {
       let a = await queryZcl.selectAtomicType(
         this.global.db,
-        packageId,
+        packageIds,
         enumRes.name
       );
       if (a) {
@@ -630,8 +634,8 @@ async function if_chip_enum(type, options) {
     return options.fn(this);
   }
 
-  let pkgId = await templateUtil.ensureZclPackageId(this);
-  let checkResult = await zclHelper.isEnum(this.global.db, type, pkgId);
+  let pkgIds = await templateUtil.ensureZclPackageIds(this);
+  let checkResult = await zclHelper.isEnum(this.global.db, type, pkgIds);
   let result;
   if (checkResult != 'unknown') {
     result = options.fn(this);
@@ -656,8 +660,8 @@ async function if_chip_complex(options) {
     return options.fn(this);
   }
 
-  let pkgId = await templateUtil.ensureZclPackageId(this);
-  let checkResult = await zclHelper.isStruct(this.global.db, this.type, pkgId);
+  let pkgIds = await templateUtil.ensureZclPackageIds(this);
+  let checkResult = await zclHelper.isStruct(this.global.db, this.type, pkgIds);
   let result;
   if (checkResult != 'unknown') {
     result = options.fn(this);

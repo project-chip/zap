@@ -88,7 +88,7 @@ INNER JOIN
 ON
   E.CLUSTER_REF = C.CLUSTER_ID
 WHERE
-  E.PACKAGE_REF in (${packageIds})
+  E.PACKAGE_REF in (${dbApi.toInClause(packageIds)})
 ORDER BY
   C.CODE, E.CODE`,
       []
@@ -115,7 +115,7 @@ INNER JOIN
 ON
   EVENT_FIELD.EVENT_REF = EVENT.EVENT_ID
 WHERE
-  EVENT.PACKAGE_REF IN (${packageIds})
+  EVENT.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
 ORDER BY
   EF.FIELD_IDENTIFIER
 `

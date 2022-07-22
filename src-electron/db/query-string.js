@@ -81,10 +81,10 @@ async function selectStringById(db, id) {
  *
  * @param db
  * @param name
- * @param packageId
+ * @param packageIds
  * @returns String
  */
-async function selectStringByName(db, name, packageId) {
+async function selectStringByName(db, name, packageIds) {
   return dbApi
     .dbGet(
       db,
@@ -98,13 +98,13 @@ async function selectStringByName(db, name, packageId) {
    FROM
      STRING
    INNER JOIN
-     DATA_TYPE 
+     DATA_TYPE
    ON
      STRING.STRING_ID = DATA_TYPE.DATA_TYPE_ID
    WHERE
      DATA_TYPE.NAME = ?
-     AND DATA_TYPE.PACKAGE_REF = ?`,
-      [name, packageId]
+     AND DATA_TYPE.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})`,
+      [name]
     )
     .then(dbMapping.map.string)
 }

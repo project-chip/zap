@@ -578,7 +578,7 @@ async function selectReportableAttributeDetailsFromEnabledClustersAndEndpoints(
 
 async function selectAttributeByCode(
   db,
-  packageId,
+  packageIds,
   clusterCode,
   attributeCode,
   manufacturerCode
@@ -586,14 +586,14 @@ async function selectAttributeByCode(
   if (clusterCode == null) {
     return selectGlobalAttributeByCode(
       db,
-      packageId,
+      packageIds,
       attributeCode,
       manufacturerCode
     )
   } else {
     return selectNonGlobalAttributeByCode(
       db,
-      packageId,
+      packageIds,
       clusterCode,
       attributeCode,
       manufacturerCode
@@ -603,13 +603,13 @@ async function selectAttributeByCode(
 
 async function selectNonGlobalAttributeByCode(
   db,
-  packageId,
+  packageIds,
   clusterCode,
   attributeCode,
   manufacturerCode
 ) {
   let manufacturerCondition
-  let arg = [packageId, attributeCode, clusterCode]
+  let arg = [attributeCode, clusterCode]
 
   if (manufacturerCode == null || manufacturerCode == 0) {
     manufacturerCondition = 'C.MANUFACTURER_CODE IS NULL'
@@ -648,7 +648,7 @@ SELECT
 FROM ATTRIBUTE AS A
 INNER JOIN CLUSTER AS C
 ON C.CLUSTER_ID = A.CLUSTER_REF
-WHERE A.PACKAGE_REF = ?
+WHERE A.PACKAGE_REF IN (${packageIds})
   AND A.CODE = ?
   AND C.CODE = ?
   AND ${manufacturerCondition}`,
@@ -659,12 +659,12 @@ WHERE A.PACKAGE_REF = ?
 
 async function selectGlobalAttributeByCode(
   db,
-  packageId,
+  packageIds,
   attributeCode,
   manufacturerCode
 ) {
   let manufacturerCondition
-  let arg = [packageId, attributeCode]
+  let arg = [attributeCode]
 
   if (manufacturerCode == null || manufacturerCode == 0) {
     manufacturerCondition = 'A.MANUFACTURER_CODE IS NULL'
@@ -701,7 +701,7 @@ SELECT
   A.ARRAY_TYPE,
   A.MUST_USE_TIMED_WRITE
 FROM ATTRIBUTE AS A
-WHERE A.PACKAGE_REF = ?
+WHERE A.PACKAGE_REF IN (${packageIds})
   AND A.CODE = ?
   AND ${manufacturerCondition}`,
       arg
