@@ -10,21 +10,27 @@ describe('Testing Editing endpoints', () => {
     cy.fixture('baseurl').then((data) => {
       cy.visit(data.baseurl)
     })
-    cy.addEndpoint('Billing Unit (0x0203)')
+    cy.fixture('data').then((data) => {
+      cy.addEndpoint(data.endpoint1)
+    })
   })
   it('edit endpoint', { retries: { runMode: 2, openMode: 2 } }, () => {
     cy.get('button').contains('Edit').click()
     cy.get(
       '.q-form > .q-select > .q-field__inner > .q-field__control > .q-field__control-container'
     ).click()
-    cy.get('div').contains('CBA Config Tool (0x0005)').click()
+    cy.fixture('data').then((data) => {
+      cy.get('div').contains(data.endpoint2).click()
+    })
     cy.get('button').contains('Save').click()
   })
   it(
     'Check if edit is successfull',
     { retries: { runMode: 2, openMode: 2 } },
     () => {
-      cy.get('aside').children().should('contain', 'CBA Config Tool (0x0005)')
+      cy.fixture('data').then((data) => {
+        cy.get('aside').children().should('contain', data.endpoint2)
+      })
     }
   )
 })
