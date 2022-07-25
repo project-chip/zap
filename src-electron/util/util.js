@@ -132,37 +132,21 @@ async function initializeSessionPackage(db, sessionId, options) {
     })
   promises.push(genTemplateJsonPromise)
 
-  return Promise.all(promises)
-    .then(() => queryPackage.getSessionPackages(db, sessionId))
-    .then((packages) => {
-      let p = packages.map((pkg) =>
-        queryPackage
-          .selectAllDefaultOptions(db, pkg.packageRef)
-          .then((optionDefaultsArray) =>
-            Promise.all(
-              optionDefaultsArray.map((optionDefault) => {
-                return queryPackage
-                  .selectOptionValueByOptionDefaultId(
-                    db,
-                    optionDefault.optionRef
-                  )
-                  .then((option) => {
-                    return querySession.insertSessionKeyValue(
-                      db,
-                      sessionId,
-                      option.optionCategory,
-                      option.optionCode
-                    )
-                  })
-                  .then(async () => {
-                    await querySession.setSessionClean(db, sessionId)
-                  })
-              })
-            )
-          )
-      )
-      return Promise.all(p).then(() => packages)
-    })
+  await Promise.all(promises)
+  let packages = await queryPackage.getSessionPackages(db, sessionId)
+  let optionDefaultsArray = await packages.map((pkg) =>
+    queryPackage.selectAllDefaultOptions(db, pkg.packageRef)
+  )
+  let option = await optionDefaultsArray.map((optionDefault) =>
+    queryPackage.selectOptionValueByOptionDefaultId(db, optionDefault.optionRef)
+  )
+  await querySession.insertSessionKeyValue(
+    db,
+    sessionId,
+    option.optionCategory,
+    option.optionCode
+  )
+  await querySession.setSessionClean(db, sessionId)
 }
 
 /**
