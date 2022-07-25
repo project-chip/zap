@@ -70,9 +70,6 @@ test(
   path.basename(testScript3),
   async () => {
     let sid = await querySession.createBlankSession(db)
-    await utilJs.initializeSessionPackage(db, sid, {
-      zcl: env.builtinSilabsZclMetafile,
-    })
     await importJs.importDataFromFile(db, testFile, {
       sessionId: sid,
       postImportScript: testScript3,
@@ -122,9 +119,6 @@ test(
   path.basename(testScript4),
   async () => {
     let sid = await querySession.createBlankSession(db)
-    await utilJs.initializeSessionPackage(db, sid, {
-      zcl: env.builtinSilabsZclMetafile,
-    })
     await importJs.importDataFromFile(db, testFile, {
       sessionId: sid,
       postImportScript: testScript4,

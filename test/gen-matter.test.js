@@ -102,11 +102,6 @@ test(
   path.basename(testFile) + ' - load and generate',
   async () => {
     let sessionId = await querySession.createBlankSession(db)
-    let packages = await utilJs.initializeSessionPackage(db, sessionId, {
-      zcl: env.builtinMatterZclMetafile(),
-      template: testUtil.testTemplate.matter,
-    })
-    expect(packages.length).toBe(2)
 
     await importJs.importDataFromFile(db, testFile, {
       sessionId: sessionId,
@@ -155,11 +150,6 @@ test(
   path.basename(testMatterSwitch) + ' - load and generate',
   async () => {
     let sessionId = await querySession.createBlankSession(db)
-    let packages = await utilJs.initializeSessionPackage(db, sessionId, {
-      zcl: env.builtinMatterZclMetafile(),
-      template: testUtil.testTemplate.matter,
-    })
-    expect(packages.length).toBe(2)
 
     await importJs.importDataFromFile(db, testMatterSwitch, {
       sessionId: sessionId,

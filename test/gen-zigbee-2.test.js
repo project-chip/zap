@@ -94,34 +94,12 @@ test(
 )
 
 test(
-  'Initialize session packages',
-  async () => {
-    let packages = await utilJs.initializeSessionPackage(
-      templateContext.db,
-      templateContext.sessionId,
-      {
-        zcl: env.builtinSilabsZclMetafile(),
-        template: env.builtinTemplateMetafile(),
-      }
-    )
-
-    expect(packages.length).toBe(2)
-  },
-  testUtil.timeout.short()
-)
-
-test(
   'Test file 2 generation',
   async () => {
     let { sessionId, errors, warnings } = await importJs.importDataFromFile(
       db,
       testFile2
     )
-
-    await utilJs.initializeSessionPackage(db, sessionId, {
-      zcl: env.builtinSilabsZclMetafile(),
-      template: env.builtinTemplateMetafile(),
-    })
 
     expect(errors.length).toBe(0)
     expect(warnings.length).toBe(0)
