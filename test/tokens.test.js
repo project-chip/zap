@@ -74,21 +74,6 @@ test(
 )
 
 test(
-  'Initialize session packages',
-  async () => {
-    await utilJs.initializeSessionPackage(
-      templateContext.db,
-      templateContext.sessionId,
-      {
-        zcl: env.builtinSilabsZclMetafile(),
-        template: env.builtinTemplateMetafile(),
-      }
-    )
-  },
-  testUtil.timeout.medium()
-)
-
-test(
   'Test tokens header generation',
   async () => {
     let genResult = await genEngine.generate(

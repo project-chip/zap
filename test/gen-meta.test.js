@@ -189,7 +189,6 @@ test(
     let importResult = await importJs.importDataFromFile(db, testFile)
     sessionId = importResult.sessionId
     expect(sessionId).not.toBeNull()
-    await queryPackage.insertSessionPackage(db, sessionId, zclContext.packageId)
   },
   testUtil.timeout.medium()
 )
