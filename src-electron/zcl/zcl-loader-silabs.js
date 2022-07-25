@@ -31,6 +31,10 @@ const dbEnum = require('../../src-shared/db-enum')
 const zclLoader = require('./zcl-loader')
 const _ = require('lodash')
 
+const fabricIndexFieldId = 0xfe
+const fabricIndexFieldName = 'FabricIndex'
+const fabricIndexType = 'fabric_idx'
+
 /**
  * Promises to read the JSON file and resolve all the data.
  * @param {*} ctx  Context containing information about the file
@@ -486,6 +490,22 @@ function prepareCluster(cluster, context, isExtension = false) {
           }
         })
       }
+      if (ev.isFabricSensitive) {
+        if (!ev.fields) {
+          ev.fields = []
+        }
+        ev.fields.push({
+          name: fabricIndexFieldName,
+          type: fabricIndexType,
+          isArray: false,
+          isNullable: false,
+          isOptional: false,
+          fieldIdentifier: fabricIndexFieldId,
+          introducedIn: null,
+          removedIn: null,
+        })
+      }
+
       // We only add event if it does not have removedIn
       if (ev.removedIn == null) ret.events.push(ev)
     })
@@ -1308,6 +1328,24 @@ async function processStructItems(db, filePath, packageId, data) {
           isOptional: item.$.optional == 'true' ? true : false,
           isFabricSensitive: item.$.isFabricSensitive == 'true' ? true : false,
         })
+      })
+    }
+
+    if (si.$.isFabricScoped == 'true') {
+      structItems.push({
+        structName: si.$.name,
+        structClusterCode: si.cluster ? parseInt(si.clusterCode) : null,
+        name: fabricIndexFieldName,
+        type: fabricIndexType,
+        fieldIdentifier: fabricIndexFieldId,
+        minLength: 0,
+        maxLength: null,
+        isWritable: false,
+        isArray: false,
+        isEnum: false,
+        isNullable: false,
+        isOptional: false,
+        isFabricSensitive: false,
       })
     }
   })

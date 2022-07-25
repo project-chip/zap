@@ -229,9 +229,7 @@ test(
     expect(epc).toContain('Nest complex;// <- has nested array')
     expect(epc).toContain('// DoubleNest <- contains nested array')
     expect(epc).toContain('array;  // FABRIC SENSITIVE')
-    expect(epc).toContain(
-      '// Struct is fabric scroped, fabric index field label: fab_idx'
-    )
+    expect(epc).toContain('// Struct is fabric-scoped')
 
     epc = genResult.content['access.out']
     expect(epc).not.toBeNull()
@@ -242,7 +240,7 @@ test(
     expect(epc).toContain(
       '* Aggregates [3]: fScope=true/fSensitive=false/read=view/write=[operate - manage]/invoke=NONE'
     )
-    expect(epc).toContain('HelloEvent is a fabric scoped event, field: fabric')
+    expect(epc).toContain('HelloEvent is a fabric-sensitive event')
   },
   testUtil.timeout.medium()
 )
