@@ -26,7 +26,7 @@ const { timeout } = require('./test-util.js')
 test(
   'helper functions need to be snake_case without uppercase characters unless they are deprecated',
   () => {
-    let helpers = templateEngine.allGlobalHelpers()
+    let helpers = templateEngine.allBuiltInHelpers()
     expect(Object.keys(helpers.api).length).toBeGreaterThan(10)
     for (const x of Object.keys(helpers.api)) {
       expect(helpers.api[x]).not.toBeNull()
@@ -40,7 +40,7 @@ test(
 test(
   'check that there is no overlapping duplicates',
   () => {
-    let helpers = templateEngine.allGlobalHelpers()
+    let helpers = templateEngine.allBuiltInHelpers()
     let dups = helpers.duplicates.join(', ')
     expect(dups).toBe('')
   },
@@ -53,7 +53,7 @@ test(
     let apiFromFile = JSON.parse(
       fs.readFileSync(path.join(__dirname, 'helper-api-baseline.json'))
     )
-    let helpers = templateEngine.allGlobalHelpers()
+    let helpers = templateEngine.allBuiltInHelpers()
 
     let errorMessage = ''
 

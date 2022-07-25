@@ -167,3 +167,8 @@ exports.customDevice = {
   code: 0xffff,
   profileId: 0xffff,
 }
+
+exports.helperCategory = {
+  zigbee: 'zigbee',
+  matter: 'matter',
+}

@@ -23,7 +23,7 @@ const _ = require('lodash')
 const nativeRequire = require('../util/native-require')
 const fsPromise = require('fs').promises
 const promisedHandlebars = require('promised-handlebars')
-const handlebars = promisedHandlebars(require('handlebars'))
+const defaultHandlebars = require('handlebars')
 
 const includedHelpers = [
   require('./helper-zcl'),
@@ -48,17 +48,19 @@ const templateCompileOptions = {
 
 const precompiledTemplates = {}
 
+const handlebarsInstance = {}
+
 /**
  * Resolves into a precompiled template, either from previous precompile or freshly compiled.
  * @param {*} singleTemplatePkg
  * @returns templates
  */
-async function produceCompiledTemplate(singleTemplatePkg) {
+async function produceCompiledTemplate(hb, singleTemplatePkg) {
   if (singleTemplatePkg.id in precompiledTemplates) {
     return precompiledTemplates[singleTemplatePkg.id]
   } else {
     let data = await fsPromise.readFile(singleTemplatePkg.path, 'utf8')
-    let template = handlebars.compile(data, templateCompileOptions)
+    let template = hb.compile(data, templateCompileOptions)
     precompiledTemplates[singleTemplatePkg.id] = template
     return template
   }
@@ -74,6 +76,7 @@ async function produceCompiledTemplate(singleTemplatePkg) {
  * @returns Promise that resolves with the 'utf8' string that contains the generated content.
  */
 async function produceContent(
+  hb,
   db,
   sessionId,
   singleTemplatePkg,
@@ -83,7 +86,7 @@ async function produceContent(
     disableDeprecationWarnings: false,
   }
 ) {
-  let template = await produceCompiledTemplate(singleTemplatePkg)
+  let template = await produceCompiledTemplate(hb, singleTemplatePkg)
   let context = {
     global: {
       disableDeprecationWarnings: options.disableDeprecationWarnings,
@@ -150,11 +153,13 @@ function loadOverridable(overridePath) {
  *
  * @param {*} path
  */
-function loadPartial(name, path) {
-  return fsPromise
-    .readFile(path, 'utf8')
-    .then((data) => handlebars.registerPartial(name, data))
-    .catch((err) => console.log('Could not load partial ' + name + ': ' + err))
+async function loadPartial(hb, name, path) {
+  try {
+    let data = await fsPromise.readFile(path, 'utf8')
+    hb.registerPartial(name, data)
+  } catch (err) {
+    console.log('Could not load partial ' + name + ': ' + err)
+  }
 }
 
 function helperWrapper(wrappedHelper) {
@@ -203,7 +208,7 @@ function helperWrapper(wrappedHelper) {
  *                      this is required to force webpack to resolve the included files
  *                      as path will be difference after being packed for production.
  */
-function loadHelper(helpers, collectionList = null) {
+function loadHelper(hb, helpers, collectionList = null) {
   // helper
   // when template path are passed via CLI
   // Other paths are 'required()' to workaround webpack path issue.
@@ -213,10 +218,7 @@ function loadHelper(helpers, collectionList = null) {
 
   for (const singleHelper of Object.keys(helpers)) {
     try {
-      handlebars.registerHelper(
-        singleHelper,
-        helperWrapper(helpers[singleHelper])
-      )
+      hb.registerHelper(singleHelper, helperWrapper(helpers[singleHelper]))
       if (collectionList != null) {
         collectionList.push(singleHelper)
       }
@@ -232,17 +234,23 @@ function loadHelper(helpers, collectionList = null) {
  *
  * @returns Object containing all the helper functions.
  */
-function allGlobalHelpers() {
+function allBuiltInHelpers() {
   let allHelpers = {
     api: {}, // keyed functions
+    category: {}, // categories, keyed the same.
     duplicates: [], // array of duplicates
   }
   includedHelpers.forEach((helperPkg) => {
     for (const singleHelper of Object.keys(helperPkg)) {
+      // 'meta' inside a helper class signals category and is not a helper.
+      if (singleHelper === 'meta') continue
       if (allHelpers.api[singleHelper] != null) {
         allHelpers.duplicates.push(singleHelper)
       }
       allHelpers.api[singleHelper] = helperPkg[singleHelper]
+      if (helperPkg.meta != null && helperPkg.meta.category != null) {
+        allHelpers.category[singleHelper] = helperPkg.meta.category
+      }
     }
   })
   return allHelpers
@@ -251,12 +259,12 @@ function allGlobalHelpers() {
 /**
  * Global helper initialization
  */
-function initializeGlobalHelpers() {
+function initializeGlobalHelpers(hb) {
   if (helpersInitializationList != null) return
 
   helpersInitializationList = []
   includedHelpers.forEach((element) => {
-    loadHelper(element, helpersInitializationList)
+    loadHelper(hb, element, helpersInitializationList)
   })
 }
 
@@ -264,9 +272,25 @@ function globalHelpersList() {
   return helpersInitializationList
 }
 
+/**
+ * This method returns the correct instance for a given generation flow.
+ *
+ * TBD: At this point it doesn't do anything yet, it's just
+ * a central point to get the correct instance.
+ *
+ * @returns Instance of handlebars to be used.
+ */
+function hbInstance() {
+  if (handlebarsInstance.default == null) {
+    handlebarsInstance.default = promisedHandlebars(defaultHandlebars)
+  }
+  return handlebarsInstance.default
+}
+
 exports.produceContent = produceContent
 exports.loadHelper = loadHelper
 exports.loadPartial = loadPartial
 exports.initializeGlobalHelpers = initializeGlobalHelpers
-exports.allGlobalHelpers = allGlobalHelpers
+exports.allBuiltInHelpers = allBuiltInHelpers
 exports.globalHelpersList = globalHelpersList
+exports.hbInstance = hbInstance

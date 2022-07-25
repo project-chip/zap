@@ -19,7 +19,7 @@
 const templateEngine = require('../dist/src-electron/generator/template-engine')
 const fs = require('fs')
 
-let helpers = templateEngine.allGlobalHelpers()
+let helpers = templateEngine.allBuiltInHelpers()
 let ar = []
 
 if (helpers.duplicates.length > 0) {
@@ -28,7 +28,11 @@ if (helpers.duplicates.length > 0) {
 }
 
 for (const key of Object.keys(helpers.api)) {
-  ar.push({ name: key, isDeprecated: helpers.api[key].isDeprecated })
+  let helper = { name: key, isDeprecated: helpers.api[key].isDeprecated }
+  if (helpers.category[key] != null) {
+    helper.category = helpers.category[key]
+  }
+  ar.push(helper)
 }
 
 ar.sort((a, b) => a.name.localeCompare(b.name))

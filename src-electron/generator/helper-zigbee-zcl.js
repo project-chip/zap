@@ -140,3 +140,7 @@ exports.zcl_command_argument_type_to_cli_data_type =
   zcl_command_argument_type_to_cli_data_type
 exports.zcl_command_argument_type_to_zcl_cli_data_type =
   zcl_command_argument_type_to_zcl_cli_data_type
+
+exports.meta = {
+  category: dbEnum.helperCategory.zigbee,
+}
