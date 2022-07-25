@@ -64,102 +64,111 @@ async function initializeSessionPackage(db, sessionId, options) {
   let zclFile = options.zcl
   if (Array.isArray(zclFile)) zclFile = options.zcl[0]
 
-  // 1. Associate a zclProperties file.
-  let zclPropertiesPromise = queryPackage
-    .getPackagesByType(db, dbEnum.packageType.zclProperties)
-    .then((rows) => {
-      let packageId
-      if (rows.length == 1) {
-        packageId = rows[0].id
-        env.logDebug(
-          `Single zcl.properties found, using it for the session: ${packageId}`
-        )
-      } else if (rows.length == 0) {
-        env.logError(`No zcl.properties found for session.`)
-        packageId = null
-      } else {
-        rows.forEach((p) => {
-          if (path.resolve(zclFile) === p.path) {
-            packageId = p.id
-          }
-        })
-        env.logWarning(
-          `${sessionId}, ${zclFile}: Multiple toplevel zcl.properties found. Using the first one from args: ${packageId}`
-        )
-      }
-      if (packageId != null) {
-        return queryPackage.insertSessionPackage(db, sessionId, packageId, true)
-      }
-    })
-  promises.push(zclPropertiesPromise)
+  // 0. Read current packages.
+  let currentPackages =
+    await queryPackage.getPackageSessionPackagePairBySessionId(db, sessionId)
+  let hasZclPackage = false
+  let hasGenTemplate = false
+  currentPackages.forEach((pair) => {
+    if (pair.pkg.type == dbEnum.packageType.zclProperties) {
+      hasZclPackage = true
+    }
+    if (pair.pkg.type == dbEnum.packageType.genTemplatesJson) {
+      hasGenTemplate = true
+    }
+  })
 
-  // 2. Associate a gen template file
-  let genTemplateJsonPromise = queryPackage
-    .getPackagesByType(db, dbEnum.packageType.genTemplatesJson)
-    .then((rows) => {
-      let packageId
-      if (rows.length == 1) {
-        packageId = rows[0].id
-        env.logDebug(
-          `Single generation template metafile found, using it for the session: ${packageId}`
-        )
-      } else if (rows.length == 0) {
-        env.logInfo(`No generation template metafile found for session.`)
-        packageId = null
-      } else {
-        rows.forEach((p) => {
-          if (
-            options.template != null &&
-            path.resolve(options.template) === p.path
-          ) {
-            packageId = p.id
-          }
-        })
-        if (packageId != null) {
-          env.logWarning(
-            `Multiple toplevel generation template metafiles found. Using the one from args: ${packageId}`
-          )
-        } else {
+  // 1. Associate a zclProperties file.
+  if (!hasZclPackage) {
+    let zclPropertiesPromise = queryPackage
+      .getPackagesByType(db, dbEnum.packageType.zclProperties)
+      .then((rows) => {
+        let packageId
+        if (rows.length == 1) {
           packageId = rows[0].id
+          env.logDebug(
+            `Single zcl.properties found, using it for the session: ${packageId}`
+          )
+        } else if (rows.length == 0) {
+          env.logError(`No zcl.properties found for session.`)
+          packageId = null
+        } else {
+          rows.forEach((p) => {
+            if (path.resolve(zclFile) === p.path) {
+              packageId = p.id
+            }
+          })
           env.logWarning(
-            `Multiple toplevel generation template metafiles found. Using the first one.`
+            `${sessionId}, ${zclFile}: Multiple toplevel zcl.properties found. Using the first one from args: ${packageId}`
           )
         }
-      }
-      if (packageId != null) {
-        return queryPackage.insertSessionPackage(db, sessionId, packageId, true)
-      }
-    })
-  promises.push(genTemplateJsonPromise)
-
-  return Promise.all(promises)
-    .then(() => queryPackage.getSessionPackages(db, sessionId))
-    .then((packages) => {
-      let p = packages.map((pkg) =>
-        queryPackage
-          .selectAllDefaultOptions(db, pkg.packageRef)
-          .then((optionDefaultsArray) =>
-            Promise.all(
-              optionDefaultsArray.map((optionDefault) => {
-                return queryPackage
-                  .selectOptionValueByOptionDefaultId(
-                    db,
-                    optionDefault.optionRef
-                  )
-                  .then((option) => {
-                    return querySession.insertSessionKeyValue(
-                      db,
-                      sessionId,
-                      option.optionCategory,
-                      option.optionCode
-                    )
-                  })
-              })
-            )
+        if (packageId != null) {
+          return queryPackage.insertSessionPackage(
+            db,
+            sessionId,
+            packageId,
+            true
           )
-      )
-      return Promise.all(p).then(() => packages)
-    })
+        }
+      })
+    promises.push(zclPropertiesPromise)
+  }
+
+  // 2. Associate a gen template file
+  if (!hasGenTemplate) {
+    let genTemplateJsonPromise = queryPackage
+      .getPackagesByType(db, dbEnum.packageType.genTemplatesJson)
+      .then((rows) => {
+        let packageId
+        if (rows.length == 1) {
+          packageId = rows[0].id
+          env.logDebug(
+            `Single generation template metafile found, using it for the session: ${packageId}`
+          )
+        } else if (rows.length == 0) {
+          env.logInfo(`No generation template metafile found for session.`)
+          packageId = null
+        } else {
+          rows.forEach((p) => {
+            if (
+              options.template != null &&
+              path.resolve(options.template) === p.path
+            ) {
+              packageId = p.id
+            }
+          })
+          if (packageId != null) {
+            env.logWarning(
+              `Multiple toplevel generation template metafiles found. Using the one from args: ${packageId}`
+            )
+          } else {
+            packageId = rows[0].id
+            env.logWarning(
+              `Multiple toplevel generation template metafiles found. Using the first one.`
+            )
+          }
+        }
+        if (packageId != null) {
+          return queryPackage.insertSessionPackage(
+            db,
+            sessionId,
+            packageId,
+            true
+          )
+        }
+      })
+    promises.push(genTemplateJsonPromise)
+  }
+
+  if (promises.length > 0) await Promise.all(promises)
+
+  // We have to set the default session key values.
+  let packages = await queryPackage.insertSessionKeyValuesFromPackageDefaults(
+    db,
+    sessionId
+  )
+
+  return packages
 }
 
 /**

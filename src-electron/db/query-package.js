@@ -23,6 +23,7 @@
 const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
 const dbEnum = require('../../src-shared/db-enum.js')
+const querySession = require('./query-session')
 
 const querySelectFromPackage = `
 SELECT 
@@ -437,38 +438,38 @@ async function getSessionPackages(db, sessionId) {
  * @param {*} sessionId
  */
 async function getPackageSessionPackagePairBySessionId(db, sessionId) {
-  return dbApi
-    .dbAll(
-      db,
-      `SELECT 
-        PACKAGE.PACKAGE_ID, 
-        PACKAGE.PATH, 
-        PACKAGE.TYPE, 
-        PACKAGE.CRC, 
-        PACKAGE.VERSION, 
-        PACKAGE.CATEGORY, 
-        PACKAGE.DESCRIPTION, 
-        PACKAGE.PARENT_PACKAGE_REF,
-        SESSION_PACKAGE.PACKAGE_REF,
-        SESSION_PACKAGE.SESSION_REF,
-        SESSION_PACKAGE.REQUIRED
-       FROM 
-        PACKAGE, 
-        SESSION_PACKAGE 
-       WHERE 
-        PACKAGE.PACKAGE_ID = SESSION_PACKAGE.PACKAGE_REF 
-        AND SESSION_PACKAGE.SESSION_REF = ?
-        AND SESSION_PACKAGE.ENABLED = 1`,
-      [sessionId]
-    )
-    .then((rows) =>
-      rows.map((x) => {
-        return {
-          pkg: dbMapping.map.package(x),
-          sessionPackage: dbMapping.map.sessionPackage(x),
-        }
-      })
-    )
+  let rows = await dbApi.dbAll(
+    db,
+    `
+SELECT 
+  P.PACKAGE_ID, 
+  P.PATH, 
+  P.TYPE, 
+  P.CRC, 
+  P.VERSION, 
+  P.CATEGORY, 
+  P.DESCRIPTION, 
+  P.PARENT_PACKAGE_REF,
+  SP.PACKAGE_REF,
+  SP.SESSION_REF,
+  SP.REQUIRED
+FROM 
+  PACKAGE AS P
+INNER JOIN
+  SESSION_PACKAGE AS SP
+ON
+  P.PACKAGE_ID = SP.PACKAGE_REF
+WHERE 
+  SP.SESSION_REF = ?
+  AND SP.ENABLED = 1`,
+    [sessionId]
+  )
+  return rows.map((x) => {
+    return {
+      pkg: dbMapping.map.package(x),
+      sessionPackage: dbMapping.map.sessionPackage(x),
+    }
+  })
 }
 
 /**
@@ -854,6 +855,36 @@ ORDER BY
     )
 }
 
+/**
+ * Takes defaults key values from package, and inserts them into the session
+ * as initial values.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @returns the list of packages from getSessionPackages()
+ */
+async function insertSessionKeyValuesFromPackageDefaults(db, sessionId) {
+  let packages = await getSessionPackages(db, sessionId)
+  let p = packages.map(async (pkg) => {
+    let optionDefaultsArray = await selectAllDefaultOptions(db, pkg.packageRef)
+    let promises = optionDefaultsArray.map(async (optionDefault) => {
+      let option = await selectOptionValueByOptionDefaultId(
+        db,
+        optionDefault.optionRef
+      )
+      return querySession.insertSessionKeyValue(
+        db,
+        sessionId,
+        option.optionCategory,
+        option.optionCode
+      )
+    })
+    return Promise.all(promises)
+  })
+  await Promise.all(p)
+  return packages
+}
+
 // exports
 exports.getPackageByPathAndParent = getPackageByPathAndParent
 exports.getPackageByPackageId = getPackageByPackageId
@@ -890,3 +921,5 @@ exports.selectPackageExtensionByPropertyAndEntity =
   selectPackageExtensionByPropertyAndEntity
 exports.deleteSessionPackage = deleteSessionPackage
 exports.selectAllUiOptions = selectAllUiOptions
+exports.insertSessionKeyValuesFromPackageDefaults =
+  insertSessionKeyValuesFromPackageDefaults
