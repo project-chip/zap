@@ -641,6 +641,8 @@ async function iscDataLoader(db, state, sessionId) {
   let endpointTypes = state.endpointTypes
   let promises = []
 
+  // We don't have the package info inside ISC file, so we
+  // do our best here.
   await util.initializeSessionPackage(db, sessionId, {
     zcl: state.zclMetafile,
     template: null,

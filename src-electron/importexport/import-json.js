@@ -404,9 +404,6 @@ async function jsonDataLoader(db, state, sessionId) {
   await Promise.all(promisesStage2)
   await querySession.setSessionClean(db, sessionId)
 
-  // ensure the PACKAGE_REF is correct inside SESSION_PACKAGE table.
-  // Issue: upon startup, initializeSessionPackage() inits everything from the commandline args.
-  //        when loading an .zap configuration, it might refer to a different package than the startup package.
   if ('package' in state) {
     await Promise.all(
       state.package.map(async (pkg) => {
