@@ -196,64 +196,62 @@ async function startConvert(argv, options) {
     options.logger(`    🐝 templates loaded: ${argv.generationTemplate}`)
   }
 
-  await util.executePromisesSequentially(files, (singlePath, index) =>
-    importJs
-      .importDataFromFile(db, singlePath, {
-        defaultZclMetafile: argv.zclProperties,
-        postImportScript: argv.postImportScript,
-      })
-      .then((importResult) => {
-        return util
-          .initializeSessionPackage(db, importResult.sessionId, {
-            zcl: argv.zclProperties,
-            template: argv.generationTemplate,
-          })
-          .then(() => {
-            if (argv.postImportScript) {
-              return importJs.executePostImportScript(
-                db,
-                importResult.sessionId,
-                argv.postImportScript
-              )
-            }
-          })
-          .then(() => importResult.sessionId)
-      })
-      .then((sessionId) => {
-        options.logger(`    👈 read in: ${singlePath}`)
-        let of = outputFile(singlePath, output, index)
-        let parent = path.dirname(of)
-        if (!fs.existsSync(parent)) {
-          fs.mkdirSync(parent, { recursive: true })
-        }
-        // Now we need to write the sessionKey for the file path
-        return querySession
-          .updateSessionKeyValue(db, sessionId, dbEnum.sessionKey.filePath, of)
-          .then(() =>
-            exportJs.exportDataIntoFile(db, sessionId, of, {
-              removeLog: argv.noZapFileLog,
-              createBackup: true,
-            })
-          )
-      })
-      .then((outputPath) => {
-        options.logger(`    👉 write out: ${outputPath}`)
-      })
-  )
+  await util.executePromisesSequentially(files, async (singlePath, index) => {
+    let importResult = await importJs.importDataFromFile(db, singlePath, {
+      defaultZclMetafile: argv.zclProperties,
+      postImportScript: argv.postImportScript,
+    })
+
+    let sessionId = importResult.sessionId
+
+    await util.initializeSessionPackage(db, sessionId, {
+      zcl: argv.zclProperties,
+      template: argv.generationTemplate,
+    })
+
+    if (argv.postImportScript) {
+      await importJs.executePostImportScript(
+        db,
+        importResult.sessionId,
+        argv.postImportScript
+      )
+    }
+
+    options.logger(`    👈 read in: ${singlePath}`)
+    let of = outputFile(singlePath, output, index)
+    let parent = path.dirname(of)
+    if (!fs.existsSync(parent)) {
+      fs.mkdirSync(parent, { recursive: true })
+    }
+    // Now we need to write the sessionKey for the file path
+    await querySession.updateSessionKeyValue(
+      db,
+      sessionId,
+      dbEnum.sessionKey.filePath,
+      of
+    )
+    let outputPath = await exportJs.exportDataIntoFile(db, sessionId, of, {
+      removeLog: argv.noZapFileLog,
+      createBackup: true,
+    })
+
+    options.logger(`    👉 write out: ${outputPath}`)
+  })
 
   try {
-    await fsp.writeFile(
-      conversion_results,
-      YAML.stringify({
-        upgrade_results: [
-          {
-            message:
-              'Zigbee Cluster Configurator configuration has been successfully upgraded.',
-            status: 'automatic',
-          },
-        ],
-      })
-    )
+    if (conversion_results != null)
+      await fsp.writeFile(
+        conversion_results,
+        YAML.stringify({
+          upgrade_results: [
+            {
+              message:
+                'Zigbee Cluster Configurator configuration has been successfully upgraded.',
+              status: 'automatic',
+            },
+          ],
+        })
+      )
     options.logger(`    👉 write out: ${conversion_results}`)
   } catch (error) {
     options.logger(`    ⚠️  failed to write out: ${conversion_results}`)

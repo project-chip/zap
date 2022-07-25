@@ -160,20 +160,20 @@ async function importSinglePackage(db, sessionId, pkg, zapFilePath) {
   }
 }
 
-// Resolves an array of { packageId:, packageType:} objects into { packageId: id, otherIds: [] }
+// Resolves an array of { packageId:, packageType:} objects into { zclPackageId: id, templateIds: [] }
 function convertPackageResult(sessionId, data) {
   let ret = {
     sessionId: sessionId,
-    packageId: null,
-    otherIds: [],
+    zclPackageId: null,
+    templateIds: [],
     optionalIds: [],
   }
   data.forEach((obj) => {
     if (obj == null) return null
     if (obj.packageType == dbEnum.packageType.zclProperties) {
-      ret.packageId = obj.packageId
+      ret.zclPackageId = obj.packageId
     } else if (obj.packageType == dbEnum.packageType.genTemplatesJson) {
-      ret.otherIds.push(obj.packageId)
+      ret.templateIds.push(obj.packageId)
     } else {
       ret.optionalIds.push(obj.packageId)
     }
@@ -348,14 +348,32 @@ async function jsonDataLoader(db, state, sessionId) {
     .filter((p) => p.succeeded)
     .map((p) => p.packageId)
 
-  let data = await importPackages(db, sessionId, state.package, state.filePath)
+  let packageData = await importPackages(
+    db,
+    sessionId,
+    state.package,
+    state.filePath
+  )
 
-  // data: { sessionId, packageId, otherIds, optionalIds}
+  // packageData: { sessionId, packageId, otherIds, optionalIds}
   let promisesStage0 = []
   let promisesStage1 = [] // Stage 1 is endpoint types
   let promisesStage2 = [] // Stage 2 is endpoints, which require endpoint types to be loaded prior.
-  if (data.optionalIds.length > 0) {
-    data.optionalIds.forEach((optionalId) =>
+
+  promisesStage0.push(
+    queryPackage.insertSessionPackage(db, sessionId, packageData.zclPackageId)
+  )
+
+  if (packageData.templateIds.length > 0) {
+    packageData.templateIds.forEach((templateId) => {
+      promisesStage0.push(
+        queryPackage.insertSessionPackage(db, sessionId, templateId)
+      )
+    })
+  }
+
+  if (packageData.optionalIds.length > 0) {
+    packageData.optionalIds.forEach((optionalId) =>
       promisesStage0.push(
         queryPackage.insertSessionPackage(db, sessionId, optionalId)
       )
@@ -364,7 +382,7 @@ async function jsonDataLoader(db, state, sessionId) {
 
   if ('keyValuePairs' in state) {
     promisesStage1.push(
-      importSessionKeyValues(db, data.sessionId, state.keyValuePairs)
+      importSessionKeyValues(db, sessionId, state.keyValuePairs)
     )
   }
 
@@ -372,8 +390,8 @@ async function jsonDataLoader(db, state, sessionId) {
     promisesStage1.push(
       importEndpointTypes(
         db,
-        data.sessionId,
-        data.packageId,
+        sessionId,
+        packageData.zclPackageId,
         state.endpointTypes,
         state.endpoints,
         newPkgIds
@@ -384,11 +402,8 @@ async function jsonDataLoader(db, state, sessionId) {
   await Promise.all(promisesStage0)
   await Promise.all(promisesStage1)
   await Promise.all(promisesStage2)
-  await querySession.setSessionClean(db, data.sessionId)
+  await querySession.setSessionClean(db, sessionId)
 
-  // ensure the PACKAGE_REF is correct inside SESSION_PACKAGE table.
-  // Issue: upon startup, initializeSessionPackage() inits everything from the commandline args.
-  //        when loading an .zap configuration, it might refer to a different package than the startup package.
   if ('package' in state) {
     await Promise.all(
       state.package.map(async (pkg) => {
@@ -396,7 +411,7 @@ async function jsonDataLoader(db, state, sessionId) {
 
         let sessionPkgs = await queryPackage.getSessionPackagesByType(
           db,
-          data.sessionId,
+          sessionId,
           pkg.type
         )
         let invalidSessionPkgs = sessionPkgs.filter(
@@ -434,7 +449,9 @@ async function jsonDataLoader(db, state, sessionId) {
   }
 
   return {
-    sessionId: data.sessionId,
+    sessionId: packageData.sessionId,
+    zclPackageId: packageData.zclPackageId,
+    templateIds: packageData.templateIds,
     errors: [],
     warnings: [],
   }
