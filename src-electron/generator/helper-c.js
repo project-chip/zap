@@ -23,8 +23,6 @@ const types = require('../util/types.js')
 const string = require('../util/string')
 const _ = require('lodash')
 const dbEnum = require('../../src-shared/db-enum.js')
-const { bitmapType } = require('./overridable.js')
-const { env } = require('yargs')
 const envConfig = require('../util/env')
 
 /**

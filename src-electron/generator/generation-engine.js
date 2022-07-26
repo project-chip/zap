@@ -446,70 +446,72 @@ async function generateAllTemplates(
     disableDeprecationWarnings: false,
   }
 ) {
-  return queryPackage
-    .getPackageByParent(genResult.db, genTemplateJsonPkg.id)
-    .then((packages) => {
-      let generationTemplates = []
-      let helperPromises = []
-      let partialPromises = []
-      let overridePath = null
+  let packages = await queryPackage.getPackageByParent(
+    genResult.db,
+    genTemplateJsonPkg.id
+  )
+  let generationTemplates = []
+  let helperPromises = []
+  let partialPromises = []
+  let overridePath = null
 
-      // First extract overridePath if one exists, as we need to
-      // pass it to the generation.
-      packages.forEach((singlePkg) => {
-        if (singlePkg.type == dbEnum.packageType.genOverride) {
-          overridePath = singlePkg.path
-        }
-      })
+  let hb = templateEngine.hbInstance()
 
-      // Next load the partials
-      packages.forEach((singlePkg) => {
-        if (singlePkg.type == dbEnum.packageType.genPartial) {
-          partialPromises.push(
-            templateEngine.loadPartial(singlePkg.category, singlePkg.path)
-          )
-        }
-      })
+  // First extract overridePath if one exists, as we need to
+  // pass it to the generation.
+  packages.forEach((singlePkg) => {
+    if (singlePkg.type == dbEnum.packageType.genOverride) {
+      overridePath = singlePkg.path
+    }
+  })
 
-      // Initialize global helpers
-      templateEngine.initializeGlobalHelpers()
-
-      // Next load the addon helpers
-      packages.forEach((singlePkg) => {
-        if (singlePkg.type == dbEnum.packageType.genHelper) {
-          helperPromises.push(templateEngine.loadHelper(singlePkg.path))
-        }
-      })
-
-      // Next prepare the templates
-      packages.forEach((singlePkg) => {
-        if (singlePkg.type == dbEnum.packageType.genSingleTemplate) {
-          if (
-            options.generateOnly == null ||
-            options.generateOnly == singlePkg.category
-          ) {
-            generationTemplates.push(singlePkg)
-          }
-        }
-      })
-
-      // And finally go over the actual templates.
-      return Promise.all(helperPromises).then(() =>
-        Promise.all(partialPromises).then(() => {
-          let templates = generationTemplates.map((pkg) =>
-            generateSingleTemplate(genResult, pkg, genTemplateJsonPkg.id, {
-              overridePath: overridePath,
-              disableDeprecationWarnings: options.disableDeprecationWarnings,
-            })
-          )
-          return Promise.all(templates)
-        })
+  // Next load the partials
+  packages.forEach((singlePkg) => {
+    if (singlePkg.type == dbEnum.packageType.genPartial) {
+      partialPromises.push(
+        templateEngine.loadPartial(
+          templateEngine.hb,
+          singlePkg.category,
+          singlePkg.path
+        )
       )
+    }
+  })
+
+  // Initialize global helpers
+  templateEngine.initializeGlobalHelpers(hb)
+
+  // Next load the addon helpers
+  packages.forEach((singlePkg) => {
+    if (singlePkg.type == dbEnum.packageType.genHelper) {
+      helperPromises.push(templateEngine.loadHelper(hb, singlePkg.path))
+    }
+  })
+
+  // Next prepare the templates
+  packages.forEach((singlePkg) => {
+    if (singlePkg.type == dbEnum.packageType.genSingleTemplate) {
+      if (
+        options.generateOnly == null ||
+        options.generateOnly == singlePkg.category
+      ) {
+        generationTemplates.push(singlePkg)
+      }
+    }
+  })
+
+  // And finally go over the actual templates.
+  await Promise.all(helperPromises)
+  await Promise.all(partialPromises)
+  let templates = generationTemplates.map((pkg) =>
+    generateSingleTemplate(hb, genResult, pkg, genTemplateJsonPkg.id, {
+      overridePath: overridePath,
+      disableDeprecationWarnings: options.disableDeprecationWarnings,
     })
-    .then(() => {
-      genResult.partial = false
-      return genResult
-    })
+  )
+  await Promise.all(templates)
+  genResult.partial = false
+  return genResult
 }
 
 /**
@@ -520,6 +522,7 @@ async function generateAllTemplates(
  * @returns promise that resolves with the genResult, with newly generated content added.
  */
 async function generateSingleTemplate(
+  hb,
   genResult,
   singleTemplatePkg,
   genTemplateJsonPackageId,
@@ -530,6 +533,7 @@ async function generateSingleTemplate(
 ) {
   try {
     let result = await templateEngine.produceContent(
+      hb,
       genResult.db,
       genResult.sessionId,
       singleTemplatePkg,
@@ -563,27 +567,23 @@ async function generate(
     disableDeprecationWarnings: false,
   }
 ) {
-  return queryPackage
-    .getPackageByPackageId(db, templatePackageId)
-    .then((pkg) => {
-      if (pkg == null)
-        throw new Error(`Invalid packageId: ${templatePackageId}`)
-      let genResult = {
-        db: db,
-        sessionId: sessionId,
-        content: {},
-        stats: {},
-        errors: {},
-        hasErrors: false,
-        generatorOptions: templateGeneratorOptions,
-        templatePath: path.dirname(pkg.path),
-      }
-      if (pkg.type === dbEnum.packageType.genTemplatesJson) {
-        return generateAllTemplates(genResult, pkg, options)
-      } else {
-        throw new Error(`Invalid package type: ${pkg.type}`)
-      }
-    })
+  let pkg = await queryPackage.getPackageByPackageId(db, templatePackageId)
+  if (pkg == null) throw new Error(`Invalid packageId: ${templatePackageId}`)
+  let genResult = {
+    db: db,
+    sessionId: sessionId,
+    content: {},
+    stats: {},
+    errors: {},
+    hasErrors: false,
+    generatorOptions: templateGeneratorOptions,
+    templatePath: path.dirname(pkg.path),
+  }
+  if (pkg.type === dbEnum.packageType.genTemplatesJson) {
+    return generateAllTemplates(genResult, pkg, options)
+  } else {
+    throw new Error(`Invalid package type: ${pkg.type}`)
+  }
 }
 
 /**

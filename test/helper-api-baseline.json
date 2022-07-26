@@ -1,6 +1,6 @@
 [
-  { "name": "access" },
-  { "name": "access_aggregate" },
+  { "name": "access", "category": "matter" },
+  { "name": "access_aggregate", "category": "matter" },
   { "name": "add_one" },
   { "name": "add_prefix_to_all_strings" },
   { "name": "add_to_accumulator" },
@@ -124,7 +124,7 @@
   { "name": "dataTypeForBitmap", "isDeprecated": true },
   { "name": "dataTypeForEnum", "isDeprecated": true },
   { "name": "debug_object" },
-  { "name": "default_access" },
+  { "name": "default_access", "category": "matter" },
   { "name": "device_type_extension" },
   { "name": "endpoint_attribute_count" },
   { "name": "endpoint_attribute_list" },
@@ -300,8 +300,14 @@
   { "name": "zcl_cluster_largest_label_length" },
   { "name": "zcl_clusters" },
   { "name": "zcl_command_argument_data_type" },
-  { "name": "zcl_command_argument_type_to_cli_data_type" },
-  { "name": "zcl_command_argument_type_to_zcl_cli_data_type" },
+  {
+    "name": "zcl_command_argument_type_to_cli_data_type",
+    "category": "zigbee"
+  },
+  {
+    "name": "zcl_command_argument_type_to_zcl_cli_data_type",
+    "category": "zigbee"
+  },
   { "name": "zcl_command_arguments" },
   { "name": "zcl_command_arguments_count" },
   { "name": "zcl_command_tree" },
