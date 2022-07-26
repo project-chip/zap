@@ -80,6 +80,7 @@ export function processCommandLineArguments(argv: string[]) {
     ['server', 'Run zap in a server mode.'],
     ['stop', 'Stop zap server if one is running.'],
     ['new', 'If in client mode, start a new window on a main instance.'],
+    ['regenerateSdk', 'Perform full SDK regeneration.'],
   ])
   let y = yargs
   for (let cmd of commands.entries()) {
@@ -108,6 +109,11 @@ export function processCommandLineArguments(argv: string[]) {
       alias: ['zcl', 'z'],
       type: 'array',
       default: env.builtinSilabsZclMetafile(),
+    })
+    .option('sdk', {
+      desc: 'sdk.json file to read, for operations that act on whole SDK',
+      type: 'string',
+      default: null,
     })
     .option('generationTemplate', {
       desc: 'generation template metafile (gen-template.json) to read in.',

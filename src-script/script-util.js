@@ -306,6 +306,26 @@ function mainPath(isElectron) {
   }
 }
 
+/**
+ * Simple function that reads a JSON file representing an array,
+ * and adds an object to it. If file doesn't exist it will create it
+ * with an array containing the passed object.
+ *
+ * @param {*} file
+ * @param {*} object
+ */
+async function addToJsonFile(file, object) {
+  let json
+  if (fs.existsSync(file)) {
+    let data = await fsp.readFile(file)
+    json = JSON.parse(data)
+  } else {
+    json = []
+  }
+  json.push(object)
+  await fsp.writeFile(file, JSON.stringify(json, null, 2))
+}
+
 exports.executeCmd = executeCmd
 exports.rebuildSpaIfNeeded = rebuildSpaIfNeeded
 exports.rebuildBackendIfNeeded = rebuildBackendIfNeeded
@@ -314,3 +334,4 @@ exports.duration = duration
 exports.doneStamp = doneStamp
 exports.mainPath = mainPath
 exports.setPackageJsonVersion = setPackageJsonVersion
+exports.addToJsonFile = addToJsonFile

@@ -21,77 +21,24 @@ const scriptUtil = require('./script-util.js')
 
 let startTime = process.hrtime.bigint()
 
-let arg = yargs
-  .option('zcl', {
-    desc: 'Specifies zcl metafile file to be used.',
-    alias: 'z',
-    type: 'string',
-    demandOption: true,
-  })
-  .option('out', {
-    desc: 'Output directory where the generated files will go.',
-    alias: 'o',
-    type: 'string',
-    demandOption: true,
-  })
-  .option('generationTemplate', {
-    desc: 'Specifies gen-template.json file to be used.',
-    alias: 'g',
-    type: 'string',
-    demandOption: true,
-  })
-  .option('in', {
-    desc: 'Input .zap file from which to read configuration.',
-    alias: 'i',
-    type: 'string',
-    demandOption: false,
-  })
-  .option('stateDirectory', {
-    desc: 'State directory',
-    type: 'string',
-    demandOption: false,
-    default: '~/.zap',
-  })
-  .option('genResultFile', {
-    desc: 'Gen result file',
-    type: 'boolean',
-    demandOption: false,
-    default: false,
-  })
-  .demandOption(
-    ['zcl', 'out', 'generationTemplate'],
-    'Please provide required options!'
-  )
-  .help()
-  .wrap(null).argv
+let args = process.argv.slice(2)
+let executable = 'node'
+let main = scriptUtil.mainPath(false)
 
-let ctx = {}
+let cmdArgs = [executable]
+cmdArgs.push(main)
+cmdArgs.push('generate')
+cmdArgs.push('--unhandled-rejections=strict')
+cmdArgs.push(...args)
 
-let cli = [
-  scriptUtil.mainPath(false),
-  'generate',
-  '--noUi',
-  '--noServer',
-  '--stateDirectory',
-  arg.stateDirectory,
-  '--zcl',
-  arg.zcl,
-  '--generationTemplate',
-  arg.generationTemplate,
-  '--out',
-  arg.out,
-]
-if (arg.genResultFile) {
-  cli.push('--genResultFile')
-}
-if (arg.in != null) {
-  cli.push(arg.in)
-}
-
+console.log(`Executing: ${cmdArgs}`)
 scriptUtil
   .stampVersion()
   .then(() => scriptUtil.rebuildBackendIfNeeded())
-  .then(() => scriptUtil.executeCmd(ctx, 'node', cli))
+  // This next line is useful if your SDK is not using the sdk.json
+  // Then you regen whole SDK, and this will output the full gen.log
+  //  .then(() => scriptUtil.addToJsonFile('/tmp/gen.log', cmdArgs))
+  .then(() => scriptUtil.executeCmd(null, 'npx', cmdArgs))
   .then(() => scriptUtil.doneStamp(startTime))
   .then(() => {
     process.exit(0)

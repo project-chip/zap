@@ -45,3 +45,4 @@ jobs:
       - run: npm run genmatter
       - run: npm run gendotdot
       - run: npm run genmeta
+      - run: npm run metasdk

@@ -22,6 +22,8 @@ These two categories are decoupled and loaded separately, mostly because their m
 
 The second category (generation templates and extesions), however, follow the SDK itself. The generation templates will change, if the embedded code that they are targetting changes. Hence the breakup into these two categories.
 
+- **sdk.json**: This json file is a shortcut to the previous two meta-data elements. It allows for a single file to be used as an interface to one or more ZCL metafiles and generation templates. It can also list `*.zap` files which can be used to target automatic regeneration. See example under `test/resource/meta/sdk.json`.
+
 ## ZCL metafiles
 
 The ZAP tool loads the ZCL metadata starting from the top-level ZCL metafile.
