@@ -370,7 +370,7 @@ async function selectStructsWithItemsImpl(db, packageIds, clusterId) {
       objectToActOn = {
         id: value.STRUCT_ID,
         name: value.STRUCT_NAME,
-        isFabricScoped: value.IS_FABRIC_SCOPED,
+        isFabricScoped: dbApi.fromDbBool(value.IS_FABRIC_SCOPED),
         label: value.STRUCT_NAME,
         struct_cluster_count: value.STRUCT_CLUSTER_COUNT,
         items: [],
