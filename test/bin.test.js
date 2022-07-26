@@ -118,13 +118,13 @@ test(
 
     r = bin.stringToTwoByteLengthPrefixCBytes('Test string')
     expect(r.content).toContain(
-      "0, 11, 'T', 'e', 's', 't', ' ', 's', 't', 'r', 'i', 'n', 'g',"
+      "11, 0, 'T', 'e', 's', 't', ' ', 's', 't', 'r', 'i', 'n', 'g',"
     )
     expect(r.length).toBe(13)
 
     r = bin.stringToTwoByteLengthPrefixCBytes('x'.repeat(300), 400, false)
     expect(r.content).toContain(
-      "1, 44, 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x',"
+      "44, 1, 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x',"
     )
     expect(r.length).toBe(302)
 

@@ -125,7 +125,9 @@ function hexToBinary(hex: string) {
 
   cleansedHex = cleansedHex.replace(/[^0-F]/g, '')
 
-  return parseInt(cleansedHex, 16).toString(2).padStart(cleansedHex.length*4, '0')
+  return parseInt(cleansedHex, 16)
+    .toString(2)
+    .padStart(cleansedHex.length * 4, '0')
 }
 
 /**
@@ -139,7 +141,11 @@ function hexToBinary(hex: string) {
  * @returns Object containing 'length' and 'content', where length
  * is number of bytes used and content is actual content in C format.
  */
-function stringToOneByteLengthPrefixCBytes(value: string, maxLength: number, pad = true) {
+function stringToOneByteLengthPrefixCBytes(
+  value: string,
+  maxLength: number,
+  pad = true
+) {
   let len = value.length
   let ret = `${len}, `
   for (let i = 0; i < len; i++) {
@@ -169,10 +175,14 @@ function stringToOneByteLengthPrefixCBytes(value: string, maxLength: number, pad
  * @returns Object containing 'length' and 'content', where length
  * is number of bytes used and content is actual content in C format.
  */
-function stringToTwoByteLengthPrefixCBytes(value: string, maxLength: number, pad = true) {
+function stringToTwoByteLengthPrefixCBytes(
+  value: string,
+  maxLength: number,
+  pad = true
+) {
   let len = value.length
-  let ret = `${(len >> 8) & 0xff}, `
-  ret = ret.concat(`${len & 0xff}, `)
+  let ret = `${len & 0xff}, `
+  ret = ret.concat(`${(len >> 8) & 0xff}, `)
   for (let i = 0; i < len; i++) {
     ret = ret.concat(`'${value[i]}', `)
   }
