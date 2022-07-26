@@ -324,10 +324,12 @@ async function startRegenerateSdk(argv, options) {
       let loaderResult = await importJs.importDataFromFile(db, inputFile)
       let sessionId = loaderResult.sessionId
       let pkgIds = []
-      if (Array.isArray(gen.template)) {
-        pkgIds.push(...gen.template)
-      } else {
-        pkgIds.push(gen.template)
+      if (gen.template != null) {
+        if (Array.isArray(gen.template)) {
+          pkgIds.push(...gen.template)
+        } else {
+          pkgIds.push(gen.template)
+        }
       }
       for (let pkgId of pkgIds) {
         options.logger(`    👉 generating: ${pkgId} => ${outputDirectory}`)
@@ -335,7 +337,15 @@ async function startRegenerateSdk(argv, options) {
           db,
           sessionId,
           sdk.templatePackageId[pkgId],
-          outputDirectory
+          outputDirectory,
+          {
+            logger: (msg) => {
+              console.log(`    ${msg}`)
+            },
+            backup: false,
+            genResultFile: false,
+            skipPostGeneration: false,
+          }
         )
       }
     }
