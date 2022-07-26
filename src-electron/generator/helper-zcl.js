@@ -32,7 +32,6 @@ const octetStringTypes = ['OCTET_STRING', 'LONG_OCTET_STRING']
 const stringShortTypes = ['CHAR_STRING', 'OCTET_STRING']
 const stringLongTypes = ['LONG_CHAR_STRING', 'LONG_OCTET_STRING']
 
-const fabricIndexType = 'fabric_idx'
 /**
  * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
  *
@@ -135,7 +134,6 @@ async function zcl_structs(options) {
   structs = await zclUtil.sortStructsByDependency(structs)
   structs.forEach((st) => {
     st.struct_contains_array = false
-    st.struct_is_fabric_scoped = false
     st.struct_has_fabric_sensitive_fields = false
     st.has_no_clusters = st.struct_cluster_count < 1
     st.has_one_cluster = st.struct_cluster_count == 1
@@ -143,10 +141,6 @@ async function zcl_structs(options) {
     st.items.forEach((i) => {
       if (i.isArray) {
         st.struct_contains_array = true
-      }
-      if (i.type && i.type.toLowerCase() == fabricIndexType) {
-        st.struct_is_fabric_scoped = true
-        st.struct_fabric_idx_field = i.label
       }
       if (i.isFabricSensitive) {
         st.struct_has_fabric_sensitive_fields = true
@@ -548,17 +542,10 @@ async function zcl_events(options) {
   }
 
   let ps = events.map(async (ev) => {
-    ev.event_is_fabric_scoped = false
     ev.items = await queryEvent.selectEventFieldsByEventId(
       this.global.db,
       ev.id
     )
-    ev.items.forEach((i) => {
-      if (i.type && i.type.toLowerCase() == fabricIndexType && !i.isNullable) {
-        ev.event_is_fabric_scoped = true
-        ev.event_fabric_idx_field = i.name
-      }
-    })
   })
   await Promise.all(ps)
 

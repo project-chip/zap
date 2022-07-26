@@ -7,8 +7,8 @@
 {{#if struct_contains_nested_array}}
 // {{label}} <- contains nested array
 {{/if}}
-{{#if struct_is_fabric_scoped}}
-// Struct is fabric scroped, fabric index field label: {{ struct_fabric_idx_field }}
+{{#if isFabricScoped}}
+// Struct is fabric-scoped
 {{/if}}
 {{#zcl_struct_items checkForDoubleNestedArray="true"}}
 {{#first}}
