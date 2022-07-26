@@ -469,11 +469,7 @@ async function generateAllTemplates(
   packages.forEach((singlePkg) => {
     if (singlePkg.type == dbEnum.packageType.genPartial) {
       partialPromises.push(
-        templateEngine.loadPartial(
-          templateEngine.hb,
-          singlePkg.category,
-          singlePkg.path
-        )
+        templateEngine.loadPartial(hb, singlePkg.category, singlePkg.path)
       )
     }
   })
