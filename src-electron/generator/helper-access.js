@@ -15,9 +15,9 @@
  *    limitations under the License.
  */
 
-const { option } = require('yargs')
 const queryAccess = require('../db/query-access')
 const templateUtil = require('./template-util')
+const dbEnum = require('../../src-shared/db-enum')
 
 /**
  * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
@@ -220,3 +220,7 @@ async function default_access(options) {
 exports.access = access
 exports.access_aggregate = access_aggregate
 exports.default_access = default_access
+
+exports.meta = {
+  category: dbEnum.helperCategory.matter,
+}
