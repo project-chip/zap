@@ -264,6 +264,97 @@ async function startConvert(argv, options) {
 }
 
 /**
+ * Performs a full SDK regeneration.
+ *
+ * @param {*} argv
+ * @param {*} options
+ */
+async function startRegenerateSdk(argv, options) {
+  options.logger('🤖 Regenerating whole SDK.')
+  let sdkPath = argv.sdk
+  if (!sdkPath) {
+    options.logger(`⛔ regenerateSdk requires the --sdk <sdkFile> argument`)
+  } else {
+    let dbFile = env.sqliteFile('regenerateSdk')
+    let db = await dbApi.initDatabaseAndLoadSchema(
+      dbFile,
+      env.schemaFile(),
+      env.zapVersion()
+    )
+
+    options.logger(`    👈 read in: ${sdkPath}`)
+    let data = await fsp.readFile(sdkPath)
+    let sdk = JSON.parse(data)
+    let sdkRoot = path.join(path.dirname(sdkPath), sdk.meta.sdkRoot)
+    options.logger(`    👉 sdk information: ${sdk.meta.description}`)
+    options.logger(`    👉 sdk location: ${sdkRoot}`)
+    let featureLevelMatch = util.matchFeatureLevel(
+      sdk.meta.requiredFeatureLevel,
+      sdk.meta.description
+    )
+    if (!featureLevelMatch.match) {
+      options.logger(`⛔ ${featureLevelMatch.message}`)
+      throw featureLevelMatch.message
+    }
+    options.logger('🐝 Loading ZCL information')
+    sdk.zclPackageId = {}
+    for (let key of Object.keys(sdk.zcl)) {
+      options.logger(`    👈 ${sdk.zcl[key]}`)
+      let loadData = await zclLoader.loadZcl(
+        db,
+        path.join(sdkRoot, sdk.zcl[key])
+      )
+      sdk.zclPackageId[key] = loadData.packageId
+    }
+    options.logger('🐝 Loading Generation templates')
+    sdk.templatePackageId = {}
+    for (let key of Object.keys(sdk.templates)) {
+      options.logger(`    👈 ${sdk.templates[key]}`)
+      let loadData = await generatorEngine.loadTemplates(
+        db,
+        path.join(sdkRoot, sdk.templates[key])
+      )
+      sdk.templatePackageId[key] = loadData.packageId
+    }
+    options.logger('🐝 Performing generation')
+    for (let gen of sdk.generation) {
+      let inputFile = path.join(sdkRoot, sdk.zapFiles[gen.zapFile])
+      let outputDirectory = path.join(sdkRoot, gen.output)
+      options.logger(`    👈 loading: ${inputFile} `)
+      let loaderResult = await importJs.importDataFromFile(db, inputFile)
+      let sessionId = loaderResult.sessionId
+      let pkgIds = []
+      if (gen.template != null) {
+        if (Array.isArray(gen.template)) {
+          pkgIds.push(...gen.template)
+        } else {
+          pkgIds.push(gen.template)
+        }
+      }
+      for (let pkgId of pkgIds) {
+        options.logger(`    👉 generating: ${pkgId} => ${outputDirectory}`)
+        await generatorEngine.generateAndWriteFiles(
+          db,
+          sessionId,
+          sdk.templatePackageId[pkgId],
+          outputDirectory,
+          {
+            logger: (msg) => {
+              console.log(`    ${msg}`)
+            },
+            backup: false,
+            genResultFile: false,
+            skipPostGeneration: false,
+          }
+        )
+      }
+    }
+    options.logger('😎 Regeneration done!')
+  }
+  if (options.quitFunction != null) options.quitFunction()
+}
+
+/**
  * Perform file analysis.
  *
  * @param {*} paths List of paths to analyze
@@ -567,6 +658,9 @@ function startUpSecondaryInstance(argv, callbacks) {
     })
   } else if (argv._.includes('stop')) {
     ipcClient.emit(ipcServer.eventType.stop)
+  } else if (argv._.includes('regenerateSdk')) {
+    console.log('⛔ SDK regeneration from client process is not yet supported.')
+    process.exit(0)
   } else if (argv._.includes('generate') && argv.zapFiles != null) {
     let data = {
       zapFileArray: argv.zapFiles,
@@ -644,11 +738,17 @@ async function startUpMainInstance(argv, callbacks) {
       quitFunction: quitFunction,
     }).catch((code) => {
       console.log(code)
-      cleanExit(argv.cleanupDelay, 1)
+      cleanExit(argv.cleanupDelay, 0)
     })
   } else if (argv._.includes('stop')) {
     console.log('No server running, nothing to stop.')
     cleanExit(argv.cleanupDelay, 0)
+  } else if (argv._.includes('regenerateSdk')) {
+    let options = {
+      quitFunction: quitFunction,
+      logger: console.log,
+    }
+    return startRegenerateSdk(argv, options)
   } else if (argv._.includes('generate')) {
     let options = {
       quitFunction: quitFunction,

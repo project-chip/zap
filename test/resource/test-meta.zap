@@ -1,5 +1,5 @@
 {
-  "featureLevel": 62,
+  "featureLevel": 77,
   "creator": "zap",
   "keyValuePairs": [
     {
@@ -18,15 +18,16 @@
   "package": [
     {
       "pathRelativity": "relativeToZap",
-      "path": "../../zcl-builtin/silabs/zcl.json",
-      "version": "ZCL Test Data",
-      "type": "zcl-properties"
+      "path": "meta/zcl.json",
+      "type": "zcl-properties",
+      "version": 1,
+      "description": "Unit Test Meta-data"
     },
     {
       "pathRelativity": "relativeToZap",
-      "path": "../gen-template/zigbee/gen-templates.json",
-      "version": "test-v1",
-      "type": "gen-templates-json"
+      "path": "meta/gen-test.json",
+      "type": "gen-templates-json",
+      "version": "meta-test"
     }
   ],
   "endpointTypes": [
@@ -64,5 +65,6 @@
       "endpointVersion": 1,
       "deviceIdentifier": 65535
     }
-  ]
+  ],
+  "log": []
 }
