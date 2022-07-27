@@ -463,21 +463,18 @@ pipeline
             }
         }
 
-        stage('Creating Github downloader binary') {
-            stage('Building for Mac / Linux / Windows')
+        stage('Building download-artifact for Mac / Linux / Windows')
+        {
+            steps
             {
-                steps
+                script
                 {
-                    script
-                    {
-                        sh 'echo "Building...'
-                        sh 'npm run pkg:download-artifact'
-                        archiveArtifacts artifacts:'dist/download-artifact*', fingerprint: true
-                    }
+                    sh 'echo "Building..."'
+                    sh 'npm run pkg:download-artifact'
+                    archiveArtifacts artifacts:'dist/download-artifact*', fingerprint: true
                 }
             }
         }
-
 
         stage('Workspace clean up')
         {
