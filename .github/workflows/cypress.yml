@@ -5,9 +5,9 @@ name: Cypress UI tests - Zigbee data
 
 on:
   push:
-    branches: [master]
+    branches: [rel]
   pull_request:
-    branches: [master]
+    branches: [rel]
 
 jobs:
   build:

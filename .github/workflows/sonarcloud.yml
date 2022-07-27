@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - master
+      - rel
       - zigbee_shared_cluster_logic
   pull_request_target:
     types: [opened, synchronize, reopened]

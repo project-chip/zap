@@ -5,9 +5,9 @@ name: Generation and back-end tests
 
 on:
   push:
-    branches: [master]
+    branches: [rel]
   pull_request:
-    branches: [master]
+    branches: [rel]
 
 env:
   ZAP_TEST_TIMEOUT: 3600000
