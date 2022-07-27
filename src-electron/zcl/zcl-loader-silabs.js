@@ -31,10 +31,6 @@ const dbEnum = require('../../src-shared/db-enum')
 const zclLoader = require('./zcl-loader')
 const _ = require('lodash')
 
-const fabricIndexFieldId = 0xfe
-const fabricIndexFieldName = 'FabricIndex'
-const fabricIndexType = 'fabric_idx'
-
 /**
  * Promises to read the JSON file and resolve all the data.
  * @param {*} ctx  Context containing information about the file
@@ -142,6 +138,28 @@ async function collectDataFromJsonFile(metadataFile, data) {
     ]
   }
 
+  // zcl.json can contain 'fabricHandling' toplevel key. It is expected
+  // to look like this:
+  //  "fabricHandling": {
+  //    "automaticallyCreateFields": true,
+  //    "indexFieldId": 254,
+  //    "indexFieldName": "FabricIndex",
+  //    "indexType": "fabric_idx"
+  // },
+  //
+  // If this configuration is present, then special logic to automatically
+  // add fabric index field to fabric-sensitive and fabric-scoped
+  // things will kick in.
+  //
+  // If this field is not present then the special logic will not
+  // happen.
+  if ('fabricHandling' in obj) {
+    returnObject.fabricHandling = obj.fabricHandling
+  } else {
+    returnObject.fabricHandling = {
+      automaticallyCreateFields: false,
+    }
+  }
   env.logDebug(
     `Resolving: ${returnObject.zclFiles}, version: ${returnObject.version}`
   )
@@ -221,6 +239,11 @@ async function collectDataFromPropertiesFile(metadataFile, data) {
         returnObject.version = zclProps.version
         returnObject.description = zclProps.description
         returnObject.category = zclProps.category
+        // Don't bother with allowing this in the properties file.
+        // It's legacy only.
+        returnObject.fabricHandling = {
+          automaticallyCreateFields: false,
+        }
         env.logDebug(
           `Resolving: ${returnObject.zclFiles}, version: ${returnObject.version}`
         )
@@ -490,17 +513,20 @@ function prepareCluster(cluster, context, isExtension = false) {
           }
         })
       }
-      if (ev.isFabricSensitive) {
+      if (
+        context.fabricHandling.automaticallyCreateFields &&
+        ev.isFabricSensitive
+      ) {
         if (!ev.fields) {
           ev.fields = []
         }
         ev.fields.push({
-          name: fabricIndexFieldName,
-          type: fabricIndexType,
+          name: context.fabricHandling.indexFieldName,
+          type: context.fabricHandling.indexType,
           isArray: false,
           isNullable: false,
           isOptional: false,
-          fieldIdentifier: fabricIndexFieldId,
+          fieldIdentifier: context.fabricHandling.indexFieldId,
           introducedIn: null,
           removedIn: null,
         })
@@ -1301,7 +1327,7 @@ async function processStruct(db, filePath, packageId, data) {
  * @param {*} data
  * @returns A promise of inserted struct items.
  */
-async function processStructItems(db, filePath, packageId, data) {
+async function processStructItems(db, filePath, packageId, data, context) {
   env.logDebug(`${filePath}, ${packageId}: ${data.length} Struct Items.`)
   let structItems = []
   data.forEach((si) => {
@@ -1331,13 +1357,16 @@ async function processStructItems(db, filePath, packageId, data) {
       })
     }
 
-    if (si.$.isFabricScoped == 'true') {
+    if (
+      context.fabricHandling.automaticallyCreateFields &&
+      si.$.isFabricScoped == 'true'
+    ) {
       structItems.push({
         structName: si.$.name,
         structClusterCode: si.cluster ? parseInt(si.clusterCode) : null,
-        name: fabricIndexFieldName,
-        type: fabricIndexType,
-        fieldIdentifier: fabricIndexFieldId,
+        name: context.fabricHandling.indexFieldName,
+        type: context.fabricHandling.indexType,
+        fieldIdentifier: context.fabricHandling.indexFieldId,
         minLength: 0,
         maxLength: null,
         isWritable: false,
@@ -1433,6 +1462,7 @@ async function processParsedZclData(
   let packageId = argument.packageId
   previouslyKnownPackages.add(packageId)
   let knownPackages = Array.from(previouslyKnownPackages)
+
   if (!('result' in argument)) {
     return []
   } else {
@@ -1566,7 +1596,9 @@ async function processParsedZclData(
       batch6.push(processBitmapFields(db, filePath, packageId, toplevel.bitmap))
     }
     if (dbEnum.zclType.struct in toplevel) {
-      batch6.push(processStructItems(db, filePath, packageId, toplevel.struct))
+      batch6.push(
+        processStructItems(db, filePath, packageId, toplevel.struct, context)
+      )
     }
     await Promise.all(batch6)
 
