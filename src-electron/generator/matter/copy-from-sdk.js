@@ -32,7 +32,7 @@ if (args[0] == null) {
 
 let matterRoot = args[0]
 
-const directories = [
+const srcDirectories = [
   'controller/java/templates',
   'controller/python/templates',
   'darwin/Framework/CHIP/templates',
@@ -46,9 +46,37 @@ const directories = [
   'app/zap-templates/common/variables',
 ]
 
-directories.forEach((dir) => {
+const examplesDirectories = [
+  'darwin-framework-tool/templates',
+  'darwin-framework-tool/templates/tests',
+  'chip-tool/templates/tests',
+  'chip-tool/templates',
+  'placeholder/templates/',
+]
+
+srcDirectories.forEach((dir) => {
   fs.mkdirSync(dir, { recursive: true })
   let dirPath = path.join(path.join(matterRoot, 'src'), dir)
+  if (!fs.existsSync(dirPath)) {
+    console.log(`Failed to locate: ${dirPath}`)
+    process.exit(1)
+  }
+  console.log(`Reading: ${dirPath}`)
+  fs.readdir(dirPath, (err, files) => {
+    let jsFiles = files
+      .filter((f) => f.endsWith('.js'))
+      .map((f) => path.join(dirPath, f))
+
+    jsFiles.forEach((f) => {
+      console.log(`Copying: ${f}`)
+      fs.copyFileSync(f, path.join(dir, path.basename(f)))
+    })
+  })
+})
+
+examplesDirectories.forEach((dir) => {
+  fs.mkdirSync(dir, { recursive: true })
+  let dirPath = path.join(path.join(matterRoot, 'examples'), dir)
   if (!fs.existsSync(dirPath)) {
     console.log(`Failed to locate: ${dirPath}`)
     process.exit(1)
