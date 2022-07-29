@@ -230,7 +230,7 @@ test(
     expect(epc).toContain('// DoubleNest <- contains nested array')
     expect(epc).toContain('array;  // FABRIC SENSITIVE')
     expect(epc).toContain('// Struct is fabric-scoped')
-
+    expect(epc).toContain('uint8_t IndexForFabricField')
     epc = genResult.content['access.out']
     expect(epc).not.toBeNull()
     expect(epc).toContain(
