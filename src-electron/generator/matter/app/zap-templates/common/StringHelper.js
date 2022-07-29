@@ -50,8 +50,5 @@ exports.isShortString = isShortString
 exports.isLongString = isLongString
 
 exports.meta = {
-  alias: [
-    'common/StringHelper.js',
-    '../../../src/app/zap-templates/common/StringHelper.js',
-  ],
+  alias: ['common/StringHelper.js'],
 }

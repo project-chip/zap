@@ -361,5 +361,5 @@ exports.convertAttributeCallbackTypeToJavaName =
 exports.incrementDepth = incrementDepth
 
 exports.meta = {
-  aliases: [],
+  alias: ['controller/java/templates/helper.js'],
 }

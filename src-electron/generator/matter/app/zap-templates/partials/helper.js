@@ -43,8 +43,5 @@ exports.pad = pad
 exports.concat = concat
 
 exports.meta = {
-  alias: [
-    'partials/helper.js',
-    '../../../src/app/zap-templates/partials/helper.js',
-  ],
+  alias: ['partials/helper.js'],
 }

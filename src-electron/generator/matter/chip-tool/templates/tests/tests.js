@@ -15,21 +15,23 @@
  *    limitations under the License.
  */
 
-const testPath  = '../../../../src/app/tests/suites/';
-const TestSuite = require(testPath + 'tests.js');
+const testPath = '../../../../src/app/tests/suites/'
+const TestSuite = require(testPath + 'tests.js')
 
-function getManualTests()
-{
-  return TestSuite.getManualTests();
+function getManualTests() {
+  return TestSuite.getManualTests()
 }
 
-function getTests()
-{
-  return TestSuite.getTests();
+function getTests() {
+  return TestSuite.getTests()
 }
 
 //
 // Module exports
 //
-exports.getTests       = getTests;
-exports.getManualTests = getManualTests;
+exports.getTests = getTests
+exports.getManualTests = getManualTests
+
+exports.meta = {
+  alias: ['chip-tool/templates/tests/tests.js'],
+}

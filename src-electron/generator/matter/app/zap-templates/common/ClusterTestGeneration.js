@@ -1204,5 +1204,5 @@ exports.chip_tests_iterate_constraints = chip_tests_iterate_constraints
 exports.asTestType = asTestType
 
 exports.meta = {
-  alias: ['../../../src/app/zap-templates/common/ClusterTestGeneration.js'],
+  alias: ['common/ClusterTestGeneration.js'],
 }

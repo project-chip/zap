@@ -260,3 +260,7 @@ exports.commandHasRequiredField = commandHasRequiredField
 exports.objCEnumName = objCEnumName
 exports.objCEnumItemLabel = objCEnumItemLabel
 exports.hasArguments = hasArguments
+
+exports.meta = {
+  alias: ['darwin/Framework/CHIP/templates/helper.js'],
+}

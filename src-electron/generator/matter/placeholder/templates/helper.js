@@ -15,18 +15,21 @@
  *    limitations under the License.
  */
 
-function getTests()
-{
+function getTests() {
   try {
-    const appTest = require('../linux/apps/app1/tests.js');
-    return appTest.getTests();
+    const appTest = require('../linux/apps/app1/tests.js')
+    return appTest.getTests()
   } catch (e) {
-    console.info("No tests configuration has been found.");
-    return '';
+    console.info('No tests configuration has been found.')
+    return ''
   }
 }
 
 //
 // Module exports
 //
-exports.getTests = getTests;
+exports.getTests = getTests
+
+exports.meta = {
+  alias: ['placeholder/templates/helper.js'],
+}

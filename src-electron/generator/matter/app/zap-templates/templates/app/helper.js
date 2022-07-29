@@ -924,8 +924,5 @@ exports.if_is_fabric_scoped_struct = if_is_fabric_scoped_struct
 exports.if_is_non_zero_default = if_is_non_zero_default
 
 exports.meta = {
-  alias: [
-    'templates/app/helper.js',
-    '../../../src/app/zap-templates/templates/app/helper.js',
-  ],
+  alias: ['templates/app/helper.js'],
 }

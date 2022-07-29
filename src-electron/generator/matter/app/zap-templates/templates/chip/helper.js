@@ -771,8 +771,5 @@ exports.if_is_strongly_typed_chip_enum = if_is_strongly_typed_chip_enum
 exports.if_is_strongly_typed_bitmap = if_is_strongly_typed_bitmap
 
 exports.meta = {
-  alias: [
-    'templates/chip/helper.js',
-    '../../../src/app/zap-templates/templates/chip/helper.js',
-  ],
+  alias: ['templates/chip/helper.js'],
 }

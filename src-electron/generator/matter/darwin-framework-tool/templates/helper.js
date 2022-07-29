@@ -15,12 +15,15 @@
  *    limitations under the License.
  */
 
-function hasArguments()
-{
+function hasArguments() {
   return !!this.arguments.length
 }
 
 //
 // Module exports
 //
-exports.hasArguments = hasArguments;
+exports.hasArguments = hasArguments
+
+exports.meta = {
+  alias: ['darwin-framework-tool/templates/helper.js'],
+}
