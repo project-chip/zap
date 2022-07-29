@@ -1202,3 +1202,7 @@ exports.octetStringFromHexString = octetStringFromHexString
 exports.chip_tests_iterate_expected_list = chip_tests_iterate_expected_list
 exports.chip_tests_iterate_constraints = chip_tests_iterate_constraints
 exports.asTestType = asTestType
+
+exports.meta = {
+  alias: ['../../../src/app/zap-templates/common/ClusterTestGeneration.js'],
+}

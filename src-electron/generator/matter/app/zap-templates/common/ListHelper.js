@@ -15,14 +15,17 @@
  *    limitations under the License.
  */
 
-const listType = 'ARRAY';
+const listType = 'ARRAY'
 
-function isList(type)
-{
-  return type.toUpperCase() == listType;
+function isList(type) {
+  return type.toUpperCase() == listType
 }
 
 //
 // Module exports
 //
-exports.isList = isList;
+exports.isList = isList
+
+exports.meta = {
+  alias: ['common/ListHelper.js'],
+}

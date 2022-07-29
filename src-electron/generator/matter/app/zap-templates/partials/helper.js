@@ -15,22 +15,22 @@
  *    limitations under the License.
  */
 
-function pad(label, len, ch = ' ')
-{
-  return label.padEnd(len, ch);
+function pad(label, len, ch = ' ') {
+  return label.padEnd(len, ch)
 }
 
-function concat()
-{
+function concat() {
   let str = ''
   // Last argument is our hash argument.
-  for (let arg = 0; arg < arguments.length - 1; ++arg)
-  {
+  for (let arg = 0; arg < arguments.length - 1; ++arg) {
     if (typeof arguments[arg] != 'object' || arguments[arg] instanceof String) {
-      str += arguments[arg];
+      str += arguments[arg]
     } else {
       throw new TypeError(
-          `Unexpected object in concat: ${arg}:${Object.prototype.toString.call(arguments[arg])}, ${JSON.stringify(arguments)}`);
+        `Unexpected object in concat: ${arg}:${Object.prototype.toString.call(
+          arguments[arg]
+        )}, ${JSON.stringify(arguments)}`
+      )
     }
   }
   return str
@@ -39,5 +39,12 @@ function concat()
 //
 // Module exports
 //
-exports.pad    = pad;
-exports.concat = concat;
+exports.pad = pad
+exports.concat = concat
+
+exports.meta = {
+  alias: [
+    'partials/helper.js',
+    '../../../src/app/zap-templates/partials/helper.js',
+  ],
+}

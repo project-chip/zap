@@ -359,3 +359,7 @@ exports.convertBasicCTypeToJavaBoxedType = convertBasicCTypeToJavaBoxedType
 exports.convertAttributeCallbackTypeToJavaName =
   convertAttributeCallbackTypeToJavaName
 exports.incrementDepth = incrementDepth
+
+exports.meta = {
+  aliases: [],
+}

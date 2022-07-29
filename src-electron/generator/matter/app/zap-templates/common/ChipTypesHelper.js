@@ -15,39 +15,41 @@
  *    limitations under the License.
  */
 
-function asBasicType(type)
-{
+function asBasicType(type) {
   switch (type) {
-  case 'chip::ActionId':
-  case 'chip::FabricIndex':
-  case 'chip::Percent':
-    return 'uint8_t';
-  case 'chip::EndpointId':
-  case 'chip::GroupId':
-  case 'chip::VendorId':
-  case 'chip::Percent100ths':
-  case 'chip::Protocols::InteractionModel::Status':
-    return 'uint16_t';
-  case 'chip::ClusterId':
-  case 'chip::AttributeId':
-  case 'chip::FieldId':
-  case 'chip::EventId':
-  case 'chip::CommandId':
-  case 'chip::TransactionId':
-  case 'chip::DeviceTypeId':
-  case 'chip::StatusCode':
-  case 'chip::DataVersion':
-    return 'uint32_t';
-  case 'chip::EventNumber':
-  case 'chip::FabricId':
-  case 'chip::NodeId':
-    return 'uint64_t';
-  default:
-    return type;
+    case 'chip::ActionId':
+    case 'chip::FabricIndex':
+    case 'chip::Percent':
+      return 'uint8_t'
+    case 'chip::EndpointId':
+    case 'chip::GroupId':
+    case 'chip::VendorId':
+    case 'chip::Percent100ths':
+    case 'chip::Protocols::InteractionModel::Status':
+      return 'uint16_t'
+    case 'chip::ClusterId':
+    case 'chip::AttributeId':
+    case 'chip::FieldId':
+    case 'chip::EventId':
+    case 'chip::CommandId':
+    case 'chip::TransactionId':
+    case 'chip::DeviceTypeId':
+    case 'chip::StatusCode':
+    case 'chip::DataVersion':
+      return 'uint32_t'
+    case 'chip::EventNumber':
+    case 'chip::FabricId':
+    case 'chip::NodeId':
+      return 'uint64_t'
+    default:
+      return type
   }
 }
 
 //
 // Module exports
 //
-exports.asBasicType = asBasicType;
+exports.asBasicType = asBasicType
+exports.meta = {
+  alias: ['common/ChipTypesHelper.js'],
+}
