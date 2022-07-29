@@ -77,6 +77,12 @@
     "zll.xml"
   ],
   "manufacturersXml": "../shared/manufacturers.xml",
+  "fabricHandling": {
+    "automaticallyCreateFields": true,
+    "indexFieldId": 254,
+    "indexFieldName": "FabricIndex",
+    "indexType": "fabric_idx"
+  },
   "options": {
     "text": {
       "defaultResponsePolicy": ["Always", "Conditional", "Never"]
