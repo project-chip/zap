@@ -15,7 +15,7 @@
  *    limitations under the License.
  */
 
-const kListAttributeAtomicTypeId = 0x48;
+const kListAttributeAtomicTypeId = 0x48
 
 /**
  * Returns the calculated length of the given attribute list
@@ -25,26 +25,11 @@ const kListAttributeAtomicTypeId = 0x48;
  *
  * @param {*} options
  */
-function asListEntryLength(options)
-{
-  return this.size;
-  if (this.atomicTypeId == undefined) {
-    const error = 'asListEntryLength: missing atomic type.';
-    console.log(error);
-    throw error;
-  }
-
-  if (this.atomicTypeId != kListAttributeAtomicTypeId) {
-    const error = 'asListEntryLength: Not a list.';
-    console.log(error);
-    throw error;
-  }
-
-  const entryType = this.entryType;
-  return entryType.size || entryType.map(type => type.size).reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+function asListEntryLength(options) {
+  return this.size
 }
 
 //
 // Module exports
 //
-exports.asListEntryLength = asListEntryLength;
+exports.asListEntryLength = asListEntryLength

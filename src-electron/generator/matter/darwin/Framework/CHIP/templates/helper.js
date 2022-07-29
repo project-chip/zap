@@ -16,24 +16,23 @@
  */
 
 // Import helpers from zap core
-const zapPath      = '../../../../../third_party/zap/repo/dist/src-electron/';
-const string       = require(zapPath + 'util/string.js')
+const zapPath = '../../../../../third_party/zap/repo/dist/src-electron/'
+const string = require(zapPath + 'util/string.js')
 const templateUtil = require(zapPath + 'generator/template-util.js')
-const zclHelper    = require(zapPath + 'generator/helper-zcl.js')
+const zclHelper = require(zapPath + 'generator/helper-zcl.js')
 
-const ChipTypesHelper = require('../../../../../src/app/zap-templates/common/ChipTypesHelper.js');
-const TestHelper      = require('../../../../../src/app/zap-templates/common/ClusterTestGeneration.js');
-const StringHelper    = require('../../../../../src/app/zap-templates/common/StringHelper.js');
-const appHelper       = require('../../../../../src/app/zap-templates/templates/app/helper.js');
+const ChipTypesHelper = require('../../../../../src/app/zap-templates/common/ChipTypesHelper.js')
+const TestHelper = require('../../../../../src/app/zap-templates/common/ClusterTestGeneration.js')
+const StringHelper = require('../../../../../src/app/zap-templates/common/StringHelper.js')
+const appHelper = require('../../../../../src/app/zap-templates/templates/app/helper.js')
 
-function asObjectiveCBasicType(type, options)
-{
+function asObjectiveCBasicType(type, options) {
   if (StringHelper.isOctetString(type)) {
-    return options.hash.is_mutable ? 'NSMutableData *' : 'NSData *';
+    return options.hash.is_mutable ? 'NSMutableData *' : 'NSData *'
   } else if (StringHelper.isCharString(type)) {
-    return options.hash.is_mutable ? 'NSMutableString *' : 'NSString *';
+    return options.hash.is_mutable ? 'NSMutableString *' : 'NSString *'
   } else {
-    return ChipTypesHelper.asBasicType(this.chipType);
+    return ChipTypesHelper.asBasicType(this.chipType)
   }
 }
 
@@ -41,142 +40,164 @@ function asObjectiveCBasicType(type, options)
  * Converts an expression involving possible variables whose types are objective C objects into an expression whose type is a C++
  * type
  */
-async function asTypedExpressionFromObjectiveC(value, type)
-{
-  const valueIsANumber = !isNaN(value);
+async function asTypedExpressionFromObjectiveC(value, type) {
+  const valueIsANumber = !isNaN(value)
   if (!value || valueIsANumber) {
-    return appHelper.asTypedLiteral.call(this, value, type);
+    return appHelper.asTypedLiteral.call(this, value, type)
   }
 
-  const tokens = value.split(' ');
+  const tokens = value.split(' ')
   if (tokens.length < 2) {
-    return appHelper.asTypedLiteral.call(this, value, type);
+    return appHelper.asTypedLiteral.call(this, value, type)
   }
 
-  let expr = [];
+  let expr = []
   for (let i = 0; i < tokens.length; i++) {
-    const token = tokens[i];
-    if ([ '+', '-', '/', '*', '%' ].includes(token)) {
-      expr[i] = token;
+    const token = tokens[i]
+    if (['+', '-', '/', '*', '%'].includes(token)) {
+      expr[i] = token
     } else if (!isNaN(token.replace(/ULL$|UL$|U$|LL$|L$/i, ''))) {
-      expr[i] = await appHelper.asTypedLiteral.call(this, token, type);
+      expr[i] = await appHelper.asTypedLiteral.call(this, token, type)
     } else {
-      const variableType = TestHelper.chip_tests_variables_get_type.call(this, token);
-      const asType       = await asObjectiveCNumberType.call(this, token, variableType, true);
-      expr[i]            = `[${token} ${asType}Value]`;
+      const variableType = TestHelper.chip_tests_variables_get_type.call(
+        this,
+        token
+      )
+      const asType = await asObjectiveCNumberType.call(
+        this,
+        token,
+        variableType,
+        true
+      )
+      expr[i] = `[${token} ${asType}Value]`
     }
   }
 
-  return expr.join(' ');
+  return expr.join(' ')
 }
 
-function asObjectiveCNumberType(label, type, asLowerCased)
-{
-  function fn(pkgId)
-  {
-    const options = { 'hash' : {} };
-    return zclHelper.asUnderlyingZclType.call(this, type, options)
-        .then(zclType => {
-          const basicType = ChipTypesHelper.asBasicType(zclType);
-          switch (basicType) {
+function asObjectiveCNumberType(label, type, asLowerCased) {
+  function fn(pkgId) {
+    const options = { hash: {} }
+    return zclHelper.asUnderlyingZclType
+      .call(this, type, options)
+      .then((zclType) => {
+        const basicType = ChipTypesHelper.asBasicType(zclType)
+        switch (basicType) {
           case 'bool':
-            return 'Bool';
+            return 'Bool'
           case 'uint8_t':
-            return 'UnsignedChar';
+            return 'UnsignedChar'
           case 'uint16_t':
-            return 'UnsignedShort';
+            return 'UnsignedShort'
           case 'uint32_t':
-            return 'UnsignedInt';
+            return 'UnsignedInt'
           case 'uint64_t':
-            return 'UnsignedLongLong';
+            return 'UnsignedLongLong'
           case 'int8_t':
-            return 'Char';
+            return 'Char'
           case 'int16_t':
-            return 'Short';
+            return 'Short'
           case 'int32_t':
-            return 'Int';
+            return 'Int'
           case 'int64_t':
-            return 'LongLong';
+            return 'LongLong'
           case 'float':
-            return 'Float';
+            return 'Float'
           case 'double':
-            return 'Double';
+            return 'Double'
           default:
-            error = label + ': Unhandled underlying type ' + zclType + ' for original type ' + type;
-            throw error;
-          }
-        })
-        .then(typeName => asLowerCased ? (typeName[0].toLowerCase() + typeName.substring(1)) : typeName);
+            error =
+              label +
+              ': Unhandled underlying type ' +
+              zclType +
+              ' for original type ' +
+              type
+            throw error
+        }
+      })
+      .then((typeName) =>
+        asLowerCased
+          ? typeName[0].toLowerCase() + typeName.substring(1)
+          : typeName
+      )
   }
 
-  const promise = templateUtil.ensureZclPackageId(this).then(fn.bind(this)).catch(err => console.log(err));
+  const promise = templateUtil
+    .ensureZclPackageId(this)
+    .then(fn.bind(this))
+    .catch((err) => console.log(err))
   return templateUtil.templatePromise(this.global, promise)
 }
 
-async function asObjectiveCClass(type, cluster, options)
-{
-  let pkgId    = await templateUtil.ensureZclPackageId(this);
-  let isStruct = await zclHelper.isStruct(this.global.db, type, pkgId).then(zclType => zclType != 'unknown');
+async function asObjectiveCClass(type, cluster, options) {
+  let pkgId = await templateUtil.ensureZclPackageId(this)
+  let isStruct = await zclHelper
+    .isStruct(this.global.db, type, pkgId)
+    .then((zclType) => zclType != 'unknown')
 
-  if ((this.isArray || this.entryType || options.hash.forceList) && !options.hash.forceNotList) {
-    return 'NSArray';
+  if (
+    (this.isArray || this.entryType || options.hash.forceList) &&
+    !options.hash.forceNotList
+  ) {
+    return 'NSArray'
   }
 
   if (StringHelper.isOctetString(type)) {
-    return 'NSData';
+    return 'NSData'
   }
 
   if (StringHelper.isCharString(type)) {
-    return 'NSString';
+    return 'NSString'
   }
 
   if (isStruct) {
-    return `MTR${appHelper.asUpperCamelCase(cluster)}Cluster${appHelper.asUpperCamelCase(type)}`;
+    return `MTR${appHelper.asUpperCamelCase(
+      cluster
+    )}Cluster${appHelper.asUpperCamelCase(type)}`
   }
 
-  return 'NSNumber';
+  return 'NSNumber'
 }
 
-async function asObjectiveCType(type, cluster, options)
-{
-  let typeStr = await asObjectiveCClass.call(this, type, cluster, options);
+async function asObjectiveCType(type, cluster, options) {
+  let typeStr = await asObjectiveCClass.call(this, type, cluster, options)
   if (this.isNullable || this.isOptional) {
-    typeStr = `${typeStr} * _Nullable`;
+    typeStr = `${typeStr} * _Nullable`
   } else {
-    typeStr = `${typeStr} * _Nonnull`;
+    typeStr = `${typeStr} * _Nonnull`
   }
 
-  return typeStr;
+  return typeStr
 }
 
-function asStructPropertyName(prop)
-{
-  prop = appHelper.asLowerCamelCase(prop);
+function asStructPropertyName(prop) {
+  prop = appHelper.asLowerCamelCase(prop)
 
   // If prop is now "description", we need to rename it, because that's
   // reserved.
-  if (prop == "description") {
-    return "descriptionString";
+  if (prop == 'description') {
+    return 'descriptionString'
   }
 
   // If prop starts with a sequence of capital letters (which can happen for
   // output of asLowerCamelCase if the original string started that way,
   // lowercase all but the last one.
-  return prop.replace(/^([A-Z]+)([A-Z])/, (match, p1, p2) => { return p1.toLowerCase() + p2 });
+  return prop.replace(/^([A-Z]+)([A-Z])/, (match, p1, p2) => {
+    return p1.toLowerCase() + p2
+  })
 }
 
-function asGetterName(prop)
-{
-  let propName = asStructPropertyName(prop);
-  if (propName.match(/^new[A-Z]/) || propName == "count") {
-    return "get" + appHelper.asUpperCamelCase(prop);
+function asGetterName(prop) {
+  let propName = asStructPropertyName(prop)
+  if (propName.match(/^new[A-Z]/) || propName == 'count') {
+    return 'get' + appHelper.asUpperCamelCase(prop)
   }
-  return propName;
+  return propName
 }
 
-function commandHasRequiredField(command)
-{
-  return command.arguments.some(arg => !arg.isOptional);
+function commandHasRequiredField(command) {
+  return command.arguments.some((arg) => !arg.isOptional)
 }
 
 /**
@@ -189,26 +210,24 @@ function commandHasRequiredField(command)
  * This function strips out the redundant cluster names, and strips off trailing
  * "Enum" bits on the enum names while we're here.
  */
-function objCEnumName(clusterName, enumLabel)
-{
-  clusterName = appHelper.asUpperCamelCase(clusterName);
-  enumLabel   = appHelper.asUpperCamelCase(enumLabel);
+function objCEnumName(clusterName, enumLabel) {
+  clusterName = appHelper.asUpperCamelCase(clusterName)
+  enumLabel = appHelper.asUpperCamelCase(enumLabel)
   // Some enum names have one or more copies of the cluster name at the
   // beginning.
   while (enumLabel.startsWith(clusterName)) {
-    enumLabel = enumLabel.substring(clusterName.length);
+    enumLabel = enumLabel.substring(clusterName.length)
   }
 
-  if (enumLabel.endsWith("Enum")) {
+  if (enumLabel.endsWith('Enum')) {
     // Strip that off; it'll clearly be an enum anyway.
-    enumLabel = enumLabel.substring(0, enumLabel.length - "Enum".length);
+    enumLabel = enumLabel.substring(0, enumLabel.length - 'Enum'.length)
   }
 
-  return "MTR" + clusterName + enumLabel;
+  return 'MTR' + clusterName + enumLabel
 }
 
-function objCEnumItemLabel(itemLabel)
-{
+function objCEnumItemLabel(itemLabel) {
   // Check for the case when we're:
   // 1. A single word (that's the regexp at the beginning, which matches the
   //    word-splitting regexp in string.toCamelCase).
@@ -217,28 +236,27 @@ function objCEnumItemLabel(itemLabel)
   // This will get converted to lowercase except the first letter by
   // asUpperCamelCase, which is not really what we want.
   if (!/ |_|-|\//.test(itemLabel) && itemLabel.toUpperCase() == itemLabel) {
-    return itemLabel.replace(/[\.:]/g, '');
+    return itemLabel.replace(/[.:]/g, '')
   }
 
-  return appHelper.asUpperCamelCase(itemLabel);
+  return appHelper.asUpperCamelCase(itemLabel)
 }
 
-function hasArguments()
-{
+function hasArguments() {
   return !!this.arguments.length
 }
 
 //
 // Module exports
 //
-exports.asObjectiveCBasicType           = asObjectiveCBasicType;
-exports.asObjectiveCNumberType          = asObjectiveCNumberType;
-exports.asObjectiveCClass               = asObjectiveCClass;
-exports.asObjectiveCType                = asObjectiveCType;
-exports.asStructPropertyName            = asStructPropertyName;
-exports.asTypedExpressionFromObjectiveC = asTypedExpressionFromObjectiveC;
-exports.asGetterName                    = asGetterName;
-exports.commandHasRequiredField         = commandHasRequiredField;
-exports.objCEnumName                    = objCEnumName;
-exports.objCEnumItemLabel               = objCEnumItemLabel;
-exports.hasArguments                    = hasArguments;
+exports.asObjectiveCBasicType = asObjectiveCBasicType
+exports.asObjectiveCNumberType = asObjectiveCNumberType
+exports.asObjectiveCClass = asObjectiveCClass
+exports.asObjectiveCType = asObjectiveCType
+exports.asStructPropertyName = asStructPropertyName
+exports.asTypedExpressionFromObjectiveC = asTypedExpressionFromObjectiveC
+exports.asGetterName = asGetterName
+exports.commandHasRequiredField = commandHasRequiredField
+exports.objCEnumName = objCEnumName
+exports.objCEnumItemLabel = objCEnumItemLabel
+exports.hasArguments = hasArguments
