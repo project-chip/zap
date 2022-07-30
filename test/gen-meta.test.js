@@ -28,9 +28,6 @@ const testUtil = require('./test-util')
 const queryPackage = require('../src-electron/db/query-package')
 const queryZcl = require('../src-electron/db/query-zcl')
 const queryAccess = require('../src-electron/db/query-access')
-const dbEnum = require('../src-shared/db-enum')
-const { Exception } = require('handlebars')
-const querySession = require('../src-electron/db/query-session.js')
 
 let db
 const testFile = path.join(__dirname, 'resource/test-meta.zap')
@@ -214,11 +211,11 @@ test(
     expect(epc).not.toBeNull()
     expect(epc).toContain('Test1 template.')
     expect(epc).toContain('- attribute: at2 => true => mandatory')
+    expect(epc).toContain('Stamp: Meta stamp.')
 
     epc = genResult.content['out/test1.out']
     expect(epc).not.toBeNull()
     expect(epc).toContain('validating')
-    expect(epc).toContain('Stamp: Meta stamp.')
 
     epc = genResult.content['type-by-cluster.h']
     expect(epc).toContain('enum item: c')
