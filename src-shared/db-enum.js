@@ -41,6 +41,7 @@ exports.packageOptionCategory = {
   profileCodes: 'profileCodes',
   validationTimersFlags: 'validationTimersFlags',
   ui: 'ui',
+  helperCategories: 'helperCategories',
 }
 
 exports.side = {

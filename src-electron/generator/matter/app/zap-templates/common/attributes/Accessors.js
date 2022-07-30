@@ -23,6 +23,7 @@ const cHelper = require(zapPath + 'generator/helper-c.js')
 const zclHelper = require(zapPath + 'generator/helper-zcl.js')
 const templateUtil = require(zapPath + 'generator/template-util.js')
 const zclUtil = require(zapPath + 'util/zcl-util.js')
+const dbEnum = require('../../../../../../../src-shared/db-enum')
 
 // Not sure what to do with EUI64 yet.
 const unsupportedTypes = ['EUI64']

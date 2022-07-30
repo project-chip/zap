@@ -30,6 +30,7 @@ const { Deferred } = require('./Deferred.js')
 const ListHelper = require('./ListHelper.js')
 const StringHelper = require('./StringHelper.js')
 const ChipTypesHelper = require('./ChipTypesHelper.js')
+const dbEnum = require('../../../../../../src-shared/db-enum')
 
 // Helper for better error reporting.
 function ensureState(condition, error) {

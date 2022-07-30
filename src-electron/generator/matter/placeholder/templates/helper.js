@@ -15,6 +15,8 @@
  *    limitations under the License.
  */
 
+const dbEnum = require('../../../../../src-shared/db-enum')
+
 function getTests() {
   try {
     const appTest = require('../linux/apps/app1/tests.js')

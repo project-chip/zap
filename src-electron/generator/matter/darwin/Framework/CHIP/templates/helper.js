@@ -24,6 +24,7 @@ const ChipTypesHelper = require('../../../../app/zap-templates/common/ChipTypesH
 const TestHelper = require('../../../../app/zap-templates/common/ClusterTestGeneration.js')
 const StringHelper = require('../../../../app/zap-templates/common/StringHelper.js')
 const appHelper = require('../../../../app/zap-templates/templates/app/helper.js')
+const dbEnum = require('../../../../../../../src-shared/db-enum')
 
 function asObjectiveCBasicType(type, options) {
   if (StringHelper.isOctetString(type)) {

@@ -15,6 +15,8 @@
  *    limitations under the License.
  */
 
+const dbEnum = require('../../../../../../src-shared/db-enum')
+
 function asBasicType(type) {
   switch (type) {
     case 'chip::ActionId':

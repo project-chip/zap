@@ -16,6 +16,7 @@
  */
 
 const listType = 'ARRAY'
+const dbEnum = require('../../../../../../src-shared/db-enum')
 
 function isList(type) {
   return type.toUpperCase() == listType

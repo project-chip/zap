@@ -28,6 +28,7 @@ const templateUtil = require(zapPath + 'generator/template-util.js')
 const zclHelper = require(zapPath + 'generator/helper-zcl.js')
 const queryEnum = require(zapPath + 'db/query-enum')
 const queryBitmap = require(zapPath + 'db/query-bitmap')
+const dbEnum = require('../../../../../../src-shared/db-enum')
 
 const {
   getClusters,

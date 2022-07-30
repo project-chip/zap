@@ -20,6 +20,7 @@ const zapPath = '../../../../'
 const templateUtil = require(zapPath + 'generator/template-util.js')
 const zclHelper = require(zapPath + 'generator/helper-zcl.js')
 const zclQuery = require(zapPath + 'db/query-zcl.js')
+const dbEnum = require('../../../../../src-shared/db-enum')
 
 const ChipTypesHelper = require('../../app/zap-templates/common/ChipTypesHelper')
 

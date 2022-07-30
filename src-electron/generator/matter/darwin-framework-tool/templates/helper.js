@@ -14,6 +14,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+const dbEnum = require('../../../../../src-shared/db-enum')
 
 function hasArguments() {
   return !!this.arguments.length

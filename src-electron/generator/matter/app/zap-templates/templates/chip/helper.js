@@ -22,6 +22,7 @@ const zclHelper = require(zapPath + 'generator/helper-zcl.js')
 const iteratorUtil = require(zapPath + 'util/iterator-util.js')
 const queryAccess = require(zapPath + 'db/query-access')
 const queryZcl = require(zapPath + 'db/query-zcl')
+const dbEnum = require('../../../../../../../src-shared/db-enum')
 
 const { asBlocks, ensureClusters } = require('../../common/ClustersHelper.js')
 const StringHelper = require('../../common/StringHelper.js')

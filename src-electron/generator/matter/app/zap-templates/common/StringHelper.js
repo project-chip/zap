@@ -19,6 +19,7 @@ const characterStringTypes = ['CHAR_STRING', 'LONG_CHAR_STRING']
 const octetStringTypes = ['OCTET_STRING', 'LONG_OCTET_STRING']
 const stringShortTypes = ['CHAR_STRING', 'OCTET_STRING']
 const stringLongTypes = ['LONG_CHAR_STRING', 'LONG_OCTET_STRING']
+const dbEnum = require('../../../../../../src-shared/db-enum')
 
 function isString(type) {
   return isCharString(type) || isOctetString(type)

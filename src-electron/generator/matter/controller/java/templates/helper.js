@@ -22,6 +22,7 @@ const zclHelper = require(zapPath + 'generator/helper-zcl.js')
 const ChipTypesHelper = require('../../../app/zap-templates/common/ChipTypesHelper.js')
 const StringHelper = require('../../../app/zap-templates/common/StringHelper.js')
 const appHelper = require('../../../app/zap-templates/templates/app/helper.js')
+const dbEnum = require('../../../../../../src-shared/db-enum')
 
 function convertBasicCTypeToJavaType(cType) {
   switch (cType) {

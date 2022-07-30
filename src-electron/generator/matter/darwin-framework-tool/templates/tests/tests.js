@@ -16,6 +16,7 @@
  */
 
 const TestSuite = require('../../../app/tests/suites/tests')
+const dbEnum = require('../../../../../../src-shared/db-enum')
 
 function getManualTests() {
   return []
