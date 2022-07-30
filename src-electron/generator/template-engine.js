@@ -250,6 +250,9 @@ function loadHelper(hb, helpers, collectionList = null) {
  * Returns an object that contains all the helper functions, keyed
  * by their name
  *
+ * NOTE: This method is ONLY used for API testing. You should not use
+ * this method for any real work inside the engine or something.
+ *
  * @returns Object containing all the helper functions.
  */
 function allBuiltInHelpers() {
