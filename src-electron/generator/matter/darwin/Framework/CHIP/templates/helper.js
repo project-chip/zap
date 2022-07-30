@@ -16,15 +16,14 @@
  */
 
 // Import helpers from zap core
-const zapPath = '../../../../../third_party/zap/repo/dist/src-electron/'
-const string = require(zapPath + 'util/string.js')
-const templateUtil = require(zapPath + 'generator/template-util.js')
-const zclHelper = require(zapPath + 'generator/helper-zcl.js')
+const string = require('../../../../../../util/string')
+const templateUtil = require('../../../../../../generator/template-util')
+const zclHelper = require('../../../../../../generator/helper-zcl.js')
 
-const ChipTypesHelper = require('../../../../../src/app/zap-templates/common/ChipTypesHelper.js')
-const TestHelper = require('../../../../../src/app/zap-templates/common/ClusterTestGeneration.js')
-const StringHelper = require('../../../../../src/app/zap-templates/common/StringHelper.js')
-const appHelper = require('../../../../../src/app/zap-templates/templates/app/helper.js')
+const ChipTypesHelper = require('../../../../app/zap-templates/common/ChipTypesHelper')
+const TestHelper = require('../../../../app/zap-templates/common/ClusterTestGeneration.js')
+const StringHelper = require('../../../../app/zap-templates/common/StringHelper.js')
+const appHelper = require('../../../../app/zap-templates/templates/app/helper.js')
 
 function asObjectiveCBasicType(type, options) {
   if (StringHelper.isOctetString(type)) {

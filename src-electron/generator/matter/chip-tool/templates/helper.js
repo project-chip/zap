@@ -16,12 +16,12 @@
  */
 
 // Import helpers from zap core
-const zapPath = '../../../third_party/zap/repo/dist/src-electron/'
+const zapPath = '../../../../'
 const templateUtil = require(zapPath + 'generator/template-util.js')
 const zclHelper = require(zapPath + 'generator/helper-zcl.js')
 const zclQuery = require(zapPath + 'db/query-zcl.js')
 
-const ChipTypesHelper = require('../../../src/app/zap-templates/common/ChipTypesHelper.js')
+const ChipTypesHelper = require('../../app/zap-templates/common/ChipTypesHelper')
 
 function asDelimitedCommand(name) {
   return name.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()

@@ -15,7 +15,7 @@
  *    limitations under the License.
  */
 
-const zapPath = '../../../../../third_party/zap/repo/dist/src-electron/'
+const zapPath = '../../../../../../'
 const ListHelper = require('../../common/ListHelper.js')
 const StringHelper = require('../../common/StringHelper.js')
 const appHelper = require('../../templates/app/helper.js')

@@ -20,10 +20,11 @@ const {
   zapTypeToEncodableClusterObjectType,
   asUpperCamelCase,
   asLowerCamelCase,
-} = require('../../../../src/app/zap-templates/templates/app/helper.js')
+} = require('../../../app/zap-templates/templates/app/helper')
+
 const {
   isTestOnlyCluster,
-} = require('../../../../src/app/zap-templates/common/simulated-clusters/SimulatedClusters.js')
+} = require('../../../app/zap-templates/common/simulated-clusters/SimulatedClusters')
 
 function utf8StringLength(str) {
   return new TextEncoder().encode(str).length

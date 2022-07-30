@@ -15,8 +15,7 @@
  *    limitations under the License.
  */
 
-const testPath = '../../../../src/app/tests/suites/'
-const TestSuite = require(testPath + 'tests.js')
+const TestSuite = require('../../../app/tests/suites/tests')
 
 function getManualTests() {
   return []
