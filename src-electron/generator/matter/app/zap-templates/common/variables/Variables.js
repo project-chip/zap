@@ -20,7 +20,7 @@
  */
 
 // Import helpers from zap core
-const zapPath = '../../../../../third_party/zap/repo/dist/src-electron/'
+const zapPath = '../../../../../../'
 const zclHelper = require(zapPath + 'generator/helper-zcl.js')
 const templateUtil = require(zapPath + 'generator/template-util.js')
 

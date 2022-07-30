@@ -38,6 +38,24 @@ const includedHelpers = [
   require('./helper-future'),
   require('./helper-access'),
   require('./helper-zigbee-zcl'),
+
+  require('./matter/controller/java/templates/helper.js'),
+  require('./matter/controller/python/templates/helper.js'),
+  require('./matter/darwin-framework-tool/templates/tests/tests.js'),
+  require('./matter/darwin-framework-tool/templates/helper.js'),
+  require('./matter/darwin/Framework/CHIP/templates/helper.js'),
+  require('./matter/chip-tool/templates/tests/tests.js'),
+  require('./matter/chip-tool/templates/tests/helper.js'),
+  require('./matter/chip-tool/templates/helper.js'),
+  require('./matter/app/zap-templates/templates/chip/helper.js'),
+  require('./matter/app/zap-templates/templates/app/helper.js'),
+  require('./matter/app/zap-templates/partials/helper.js'),
+  require('./matter/app/zap-templates/common/ListHelper.js'),
+  require('./matter/app/zap-templates/common/ClusterTestGeneration.js'),
+  require('./matter/app/zap-templates/common/ChipTypesHelper.js'),
+  require('./matter/app/zap-templates/common/attributes/Accessors.js'),
+  require('./matter/app/zap-templates/common/StringHelper.js'),
+  require('./matter/placeholder/templates/helper.js'),
 ]
 
 let helpersInitializationList = null

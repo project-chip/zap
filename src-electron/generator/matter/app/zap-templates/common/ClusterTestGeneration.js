@@ -18,17 +18,16 @@
 const basePath = '../../../../'
 const testPath = 'src/app/tests/suites/'
 const certificationPath = 'src/app/tests/suites/certification/'
-const zapPath = basePath + 'third_party/zap/repo/'
-const YAML = require(zapPath + 'node_modules/yaml')
+const zapPath = '../../../../../'
+const YAML = require('yaml')
 const fs = require('fs')
 const path = require('path')
 
 // Import helpers from zap core
-const templateUtil = require(zapPath +
-  'dist/src-electron/generator/template-util.js')
-const zclHelper = require(zapPath + 'dist/src-electron/generator/helper-zcl.js')
-const queryEnum = require(zapPath + 'dist/src-electron/db/query-enum')
-const queryBitmap = require(zapPath + 'dist/src-electron/db/query-bitmap')
+const templateUtil = require(zapPath + 'generator/template-util.js')
+const zclHelper = require(zapPath + 'generator/helper-zcl.js')
+const queryEnum = require(zapPath + 'db/query-enum')
+const queryBitmap = require(zapPath + 'db/query-bitmap')
 
 const {
   getClusters,
@@ -573,10 +572,7 @@ function assertCommandOrAttributeOrEvent(context) {
 }
 
 const PICS = (() => {
-  let filepath = path.resolve(
-    __dirname,
-    basePath + certificationPath + 'PICS.yaml'
-  )
+  let filepath = path.resolve(__dirname, '../../../files/PICS.yaml')
   const data = fs.readFileSync(filepath, { encoding: 'utf8', flag: 'r' })
   const yaml = YAML.parse(data)
 
