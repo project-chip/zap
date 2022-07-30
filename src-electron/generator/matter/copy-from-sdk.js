@@ -35,6 +35,8 @@ let matterRoot = args[0]
 const srcDirectories = [
   'controller/java/templates',
   'controller/python/templates',
+  'app/tests/suites',
+  'app/tests/suites/examples/templates',
   'darwin/Framework/CHIP/templates',
   'app/zap-templates/templates/chip',
   'app/zap-templates/templates/app',
