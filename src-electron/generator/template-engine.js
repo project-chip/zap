@@ -39,23 +39,25 @@ const includedHelpers = [
   require('./helper-access'),
   require('./helper-zigbee-zcl'),
 
-  require('./matter/controller/java/templates/helper.js'),
-  require('./matter/controller/python/templates/helper.js'),
-  require('./matter/darwin-framework-tool/templates/tests/tests.js'),
-  require('./matter/darwin-framework-tool/templates/helper.js'),
-  require('./matter/darwin/Framework/CHIP/templates/helper.js'),
-  require('./matter/chip-tool/templates/tests/tests.js'),
-  require('./matter/chip-tool/templates/tests/helper.js'),
-  require('./matter/chip-tool/templates/helper.js'),
-  require('./matter/app/zap-templates/templates/chip/helper.js'),
-  require('./matter/app/zap-templates/templates/app/helper.js'),
-  require('./matter/app/zap-templates/partials/helper.js'),
-  require('./matter/app/zap-templates/common/ListHelper.js'),
-  require('./matter/app/zap-templates/common/ClusterTestGeneration.js'),
-  require('./matter/app/zap-templates/common/ChipTypesHelper.js'),
-  require('./matter/app/zap-templates/common/attributes/Accessors.js'),
-  require('./matter/app/zap-templates/common/StringHelper.js'),
-  require('./matter/placeholder/templates/helper.js'),
+  require('./matter/controller/java/templates/helper'),
+  require('./matter/controller/python/templates/helper'),
+  require('./matter/darwin-framework-tool/templates/tests/tests'),
+  require('./matter/darwin-framework-tool/templates/helper'),
+  require('./matter/darwin/Framework/CHIP/templates/helper'),
+  require('./matter/chip-tool/templates/tests/tests'),
+  require('./matter/chip-tool/templates/tests/helper'),
+  require('./matter/chip-tool/templates/helper'),
+  require('./matter/app/zap-templates/templates/chip/helper'),
+  require('./matter/app/zap-templates/templates/app/helper'),
+  require('./matter/app/zap-templates/partials/helper'),
+  require('./matter/app/zap-templates/common/ListHelper'),
+  require('./matter/app/zap-templates/common/ClusterTestGeneration'),
+  require('./matter/app/zap-templates/common/ChipTypesHelper'),
+  require('./matter/app/zap-templates/common/attributes/Accessors'),
+  require('./matter/app/zap-templates/common/StringHelper'),
+  require('./matter/placeholder/templates/helper'),
+
+  require('./meta/helper-meta'),
 ]
 
 let helpersInitializationList = null
@@ -278,6 +280,23 @@ function allBuiltInHelpers() {
 }
 
 /**
+ * Given an alias, this method finds a builtin helper package
+ * by its alias.
+ *
+ * @param {*} alias
+ * @returns Helper package or undefined if none was found.
+ */
+function findHelperPackageByAlias(alias) {
+  let helpers = includedHelpers.filter((helperPkg) => {
+    if (helperPkg.meta != null && helperPkg.meta.alias != null) {
+      return helperPkg.meta.alias.includes(alias)
+    }
+  })
+  if (helpers.length > 0) return helpers[0]
+  else return undefined
+}
+
+/**
  * Global helper initialization
  */
 function initializeGlobalHelpers(hb) {
@@ -315,3 +334,4 @@ exports.initializeGlobalHelpers = initializeGlobalHelpers
 exports.allBuiltInHelpers = allBuiltInHelpers
 exports.globalHelpersList = globalHelpersList
 exports.hbInstance = hbInstance
+exports.findHelperPackageByAlias = findHelperPackageByAlias

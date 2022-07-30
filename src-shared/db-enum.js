@@ -42,6 +42,7 @@ exports.packageOptionCategory = {
   validationTimersFlags: 'validationTimersFlags',
   ui: 'ui',
   helperCategories: 'helperCategories',
+  helperAliases: 'helperAliases',
 }
 
 exports.side = {

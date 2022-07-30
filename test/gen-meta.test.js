@@ -218,6 +218,7 @@ test(
     epc = genResult.content['out/test1.out']
     expect(epc).not.toBeNull()
     expect(epc).toContain('validating')
+    expect(epc).toContain('Stamp: Meta stamp.')
 
     epc = genResult.content['type-by-cluster.h']
     expect(epc).toContain('enum item: c')

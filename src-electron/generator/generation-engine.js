@@ -183,21 +183,45 @@ async function recordTemplatesPackage(context) {
   }
 
   // Deal with helpers
+  let helperAliases = []
   if (context.templateData.helpers != null) {
     context.templateData.helpers.forEach((helper) => {
-      let helperPath = path.join(path.dirname(context.path), helper)
-      promises.push(
-        recordPackageIfNonexistent(
-          context.db,
-          helperPath,
-          context.packageId,
-          dbEnum.packageType.genHelper,
-          null,
-          null,
-          null
+      let pkg = templateEngine.findHelperPackageByAlias(helper)
+
+      if (pkg != null) {
+        // The helper listed is an alias to a built-in helper
+        // Put it in the array to write into DB later.
+        helperAliases.push({
+          code: helper,
+          value: '',
+        })
+      } else {
+        // We don't have an alias by that name, so we assume it's a path.
+        let helperPath = path.join(path.dirname(context.path), helper)
+        promises.push(
+          recordPackageIfNonexistent(
+            context.db,
+            helperPath,
+            context.packageId,
+            dbEnum.packageType.genHelper,
+            null,
+            null,
+            null
+          )
         )
-      )
+      }
     })
+  }
+
+  if (helperAliases.length > 0) {
+    promises.push(
+      queryPackage.insertOptionsKeyValues(
+        context.db,
+        context.packageId,
+        dbEnum.packageOptionCategory.helperAliases,
+        helperAliases
+      )
+    )
   }
 
   // Deal with overrides

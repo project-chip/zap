@@ -1,5 +1,7 @@
 Test1 template.
 
+Stamp: {{meta_stamp}}
+
 Clusters:
 {{#zcl_clusters}}
 {{label}}
