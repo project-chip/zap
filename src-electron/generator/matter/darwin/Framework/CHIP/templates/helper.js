@@ -261,5 +261,6 @@ exports.objCEnumItemLabel = objCEnumItemLabel
 exports.hasArguments = hasArguments
 
 exports.meta = {
+  category: dbEnum.helperCategory.matter,
   alias: ['darwin/Framework/CHIP/templates/helper.js'],
 }

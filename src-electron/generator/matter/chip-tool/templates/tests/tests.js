@@ -32,5 +32,6 @@ exports.getTests = getTests
 exports.getManualTests = getManualTests
 
 exports.meta = {
+  category: dbEnum.helperCategory.matter,
   alias: ['chip-tool/templates/tests/tests.js'],
 }

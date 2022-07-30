@@ -118,5 +118,6 @@ exports.accessorTraitType = accessorTraitType
 exports.typeAsDelimitedMacro = typeAsDelimitedMacro
 
 exports.meta = {
+  category: dbEnum.helperCategory.matter,
   alias: ['common/attributes/Accessors.js'],
 }

@@ -169,5 +169,6 @@ exports.structs_with_cluster_name = structs_with_cluster_name
 exports.assertSameTestType = assertSameTestType
 
 exports.meta = {
+  category: dbEnum.helperCategory.matter,
   alias: ['chip-tool/templates/helper.js'],
 }

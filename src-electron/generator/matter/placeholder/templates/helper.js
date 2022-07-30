@@ -31,5 +31,6 @@ function getTests() {
 exports.getTests = getTests
 
 exports.meta = {
+  category: dbEnum.helperCategory.matter,
   alias: ['placeholder/templates/helper.js'],
 }

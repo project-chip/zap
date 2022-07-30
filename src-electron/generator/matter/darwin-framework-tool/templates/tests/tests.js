@@ -88,5 +88,6 @@ exports.getTests = getTests
 exports.getManualTests = getManualTests
 
 exports.mta = {
+  category: dbEnum.helperCategory.matter,
   alias: ['darwin-framework-tool/templates/tests/tests.js'],
 }

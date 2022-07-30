@@ -1200,5 +1200,6 @@ exports.chip_tests_iterate_constraints = chip_tests_iterate_constraints
 exports.asTestType = asTestType
 
 exports.meta = {
+  category: dbEnum.helperCategory.matter,
   alias: ['common/ClusterTestGeneration.js'],
 }

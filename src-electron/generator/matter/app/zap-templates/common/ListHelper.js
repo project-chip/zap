@@ -27,5 +27,6 @@ function isList(type) {
 exports.isList = isList
 
 exports.meta = {
+  category: dbEnum.helperCategory.matter,
   alias: ['common/ListHelper.js'],
 }

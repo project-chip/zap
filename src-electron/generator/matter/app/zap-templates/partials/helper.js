@@ -43,5 +43,6 @@ exports.pad = pad
 exports.concat = concat
 
 exports.meta = {
+  category: dbEnum.helperCategory.matter,
   alias: ['partials/helper.js'],
 }

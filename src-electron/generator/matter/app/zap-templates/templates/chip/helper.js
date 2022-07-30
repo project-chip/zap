@@ -771,5 +771,6 @@ exports.if_is_strongly_typed_chip_enum = if_is_strongly_typed_chip_enum
 exports.if_is_strongly_typed_bitmap = if_is_strongly_typed_bitmap
 
 exports.meta = {
+  category: dbEnum.helperCategory.matter,
   alias: ['templates/chip/helper.js'],
 }

@@ -116,5 +116,6 @@ exports.asDecodableType = asDecodableType
 exports.asEncodableType = asEncodableType
 
 exports.meta = {
+  category: dbEnum.helperCategory.matter,
   alias: ['chip-tool/templates/tests/helper.js'],
 }

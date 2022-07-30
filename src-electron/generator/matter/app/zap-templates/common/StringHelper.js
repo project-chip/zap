@@ -50,5 +50,6 @@ exports.isShortString = isShortString
 exports.isLongString = isLongString
 
 exports.meta = {
+  category: dbEnum.helperCategory.matter,
   alias: ['common/StringHelper.js'],
 }
