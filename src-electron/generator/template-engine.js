@@ -42,10 +42,8 @@ const includedHelpers = [
 
   require('./matter/controller/java/templates/helper'),
   require('./matter/controller/python/templates/helper'),
-  require('./matter/darwin-framework-tool/templates/tests/tests'),
   require('./matter/darwin-framework-tool/templates/helper'),
   require('./matter/darwin/Framework/CHIP/templates/helper'),
-  require('./matter/chip-tool/templates/tests/tests'),
   require('./matter/chip-tool/templates/tests/helper'),
   require('./matter/chip-tool/templates/helper'),
   require('./matter/app/zap-templates/templates/chip/helper'),
@@ -269,7 +267,7 @@ function allBuiltInHelpers() {
       if (singleHelper === 'meta') continue
       let helperObject = {
         name: singleHelper,
-        isDeprecated: singleHelper.isDeprecated ? true : false,
+        isDeprecated: helperPkg[singleHelper].isDeprecated ? true : false,
         category: helperPkg.meta?.category,
         alias: helperPkg.meta?.alias,
       }

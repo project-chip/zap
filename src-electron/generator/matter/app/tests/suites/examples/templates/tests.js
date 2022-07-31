@@ -15,35 +15,30 @@
  *    limitations under the License.
  */
 
-function getManualTests()
-{
-  const ExampleManualCataCategory = [
-    'examples/Test_Example',
-  ];
+function getManualTests() {
+  const ExampleManualCataCategory = ['examples/Test_Example']
 
   const tests = [
     ExampleManualCataCategory, //
-
-  ];
-  return tests.flat(1);
+  ]
+  return tests.flat(1)
 }
 
-function getTests()
-{
+function getTests() {
   const TestExample = [
     'examples/Test_Example_1',
     'examples/Test_Example_2',
     'examples/Test_Example_3',
-  ];
+  ]
 
   const tests = [
     TestExample, //
-  ];
-  return tests.flat(1);
+  ]
+  return tests.flat(1)
 }
 
 //
 // Module exports
 //
-exports.getTests       = getTests;
-exports.getManualTests = getManualTests;
+exports.getTests = getTests
+exports.getManualTests = getManualTests

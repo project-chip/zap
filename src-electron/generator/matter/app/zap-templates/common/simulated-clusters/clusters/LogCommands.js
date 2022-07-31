@@ -25,21 +25,24 @@
  */
 
 const Log = {
-  name : 'Log',
-  arguments : [ { type : 'CHAR_STRING', name : 'message' } ],
-};
+  name: 'Log',
+  arguments: [{ type: 'CHAR_STRING', name: 'message' }],
+}
 
 const UserPrompt = {
-  name : 'UserPrompt',
-  arguments : [ { type : 'CHAR_STRING', name : 'message' }, { type : 'CHAR_STRING', name : 'expectedValue', isOptional : true } ],
-};
+  name: 'UserPrompt',
+  arguments: [
+    { type: 'CHAR_STRING', name: 'message' },
+    { type: 'CHAR_STRING', name: 'expectedValue', isOptional: true },
+  ],
+}
 
 const LogCommands = {
-  name : 'LogCommands',
-  commands : [ Log, UserPrompt ],
-};
+  name: 'LogCommands',
+  commands: [Log, UserPrompt],
+}
 
 //
 // Module exports
 //
-exports.cluster = LogCommands;
+exports.cluster = LogCommands

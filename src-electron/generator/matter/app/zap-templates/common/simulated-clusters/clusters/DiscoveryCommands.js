@@ -25,124 +25,134 @@
  */
 
 const kTypeArgument = {
-  name : 'type',
-  type : 'CHAR_STRING',
-};
+  name: 'type',
+  type: 'CHAR_STRING',
+}
 
 const kNumberValueArgument = {
-  name : 'value',
-  type : 'INT64U',
-};
+  name: 'value',
+  type: 'INT64U',
+}
 
 const kStringValueArgument = {
-  name : 'value',
-  type : 'CHAR_STRING',
-};
+  name: 'value',
+  type: 'CHAR_STRING',
+}
 
 const kDefaultResponse = {
-  arguments : [
-    { name : 'hostName', type : 'CHAR_STRING', chipType : 'chip::CharSpan' }, //
-    { name : 'instanceName', type : 'CHAR_STRING', chipType : 'chip::CharSpan' }, //
-    { name : 'longDiscriminator', type : 'INT16U', chipType : 'uint16_t' }, //
-    { name : 'shortDiscriminator', type : 'INT8U', chipType : 'uint8_t' }, //
-    { name : 'vendorId', type : 'INT16U', chipType : 'uint16_t' }, //
-    { name : 'productId', type : 'INT16U', chipType : 'uint16_t' }, //
-    { name : 'commissioningMode', type : 'INT8U', chipType : 'uint8_t' }, //
-    { name : 'deviceType', type : 'INT16U', chipType : 'uint16_t' }, //
-    { name : 'deviceName', type : 'CHAR_STRING' }, //
-    { name : 'rotatingId', type : 'OCTET_STRING', chipType : 'chip::ByteSpan' }, //
-    { name : 'rotatingIdLen', type : 'INT64U', chipType : 'uint64_t' }, //
-    { name : 'pairingHint', type : 'INT16U', chipType : 'uint16_t' }, //
-    { name : 'pairingInstruction', type : 'CHAR_STRING' }, //
-    { name : 'supportsTcp', type : 'BOOLEAN', chipType : 'bool' }, //
-    { name : 'numIPs', type : 'INT8U', chipType : 'uint8_t' }, //
-    { name : 'port', type : 'INT16U', chipType : 'uint16_t' }, //
-    { name : 'mrpRetryIntervalIdle', type : 'INT32U', chipType : 'uint32_t', isOptional : true }, //
-    { name : 'mrpRetryIntervalActive', type : 'INT32U', chipType : 'uint32_t', isOptional : true }, //
-  ]
-};
+  arguments: [
+    { name: 'hostName', type: 'CHAR_STRING', chipType: 'chip::CharSpan' }, //
+    { name: 'instanceName', type: 'CHAR_STRING', chipType: 'chip::CharSpan' }, //
+    { name: 'longDiscriminator', type: 'INT16U', chipType: 'uint16_t' }, //
+    { name: 'shortDiscriminator', type: 'INT8U', chipType: 'uint8_t' }, //
+    { name: 'vendorId', type: 'INT16U', chipType: 'uint16_t' }, //
+    { name: 'productId', type: 'INT16U', chipType: 'uint16_t' }, //
+    { name: 'commissioningMode', type: 'INT8U', chipType: 'uint8_t' }, //
+    { name: 'deviceType', type: 'INT16U', chipType: 'uint16_t' }, //
+    { name: 'deviceName', type: 'CHAR_STRING' }, //
+    { name: 'rotatingId', type: 'OCTET_STRING', chipType: 'chip::ByteSpan' }, //
+    { name: 'rotatingIdLen', type: 'INT64U', chipType: 'uint64_t' }, //
+    { name: 'pairingHint', type: 'INT16U', chipType: 'uint16_t' }, //
+    { name: 'pairingInstruction', type: 'CHAR_STRING' }, //
+    { name: 'supportsTcp', type: 'BOOLEAN', chipType: 'bool' }, //
+    { name: 'numIPs', type: 'INT8U', chipType: 'uint8_t' }, //
+    { name: 'port', type: 'INT16U', chipType: 'uint16_t' }, //
+    {
+      name: 'mrpRetryIntervalIdle',
+      type: 'INT32U',
+      chipType: 'uint32_t',
+      isOptional: true,
+    }, //
+    {
+      name: 'mrpRetryIntervalActive',
+      type: 'INT32U',
+      chipType: 'uint32_t',
+      isOptional: true,
+    }, //
+  ],
+}
 
 //
 // Commissionable
 //
 
 const FindCommissionable = {
-  name : 'FindCommissionable',
-  responseName : 'DiscoveryCommandResponse',
-  response : kDefaultResponse
-};
+  name: 'FindCommissionable',
+  responseName: 'DiscoveryCommandResponse',
+  response: kDefaultResponse,
+}
 
 const FindCommissionableByShortDiscriminator = {
-  name : 'FindCommissionableByShortDiscriminator',
-  arguments : [ kNumberValueArgument ],
-  responseName : 'DiscoveryCommandResponse',
-  response : kDefaultResponse
-};
+  name: 'FindCommissionableByShortDiscriminator',
+  arguments: [kNumberValueArgument],
+  responseName: 'DiscoveryCommandResponse',
+  response: kDefaultResponse,
+}
 
 const FindCommissionableByLongDiscriminator = {
-  name : 'FindCommissionableByLongDiscriminator',
-  arguments : [ kNumberValueArgument ],
-  responseName : 'DiscoveryCommandResponse',
-  response : kDefaultResponse
-};
+  name: 'FindCommissionableByLongDiscriminator',
+  arguments: [kNumberValueArgument],
+  responseName: 'DiscoveryCommandResponse',
+  response: kDefaultResponse,
+}
 
 const FindCommissionableByCompressedFabricId = {
-  name : 'FindOperationalByCompressedFabricId',
-  arguments : [ kNumberValueArgument ],
-  responseName : 'DiscoveryCommandResponse',
-  response : kDefaultResponse
-};
+  name: 'FindOperationalByCompressedFabricId',
+  arguments: [kNumberValueArgument],
+  responseName: 'DiscoveryCommandResponse',
+  response: kDefaultResponse,
+}
 
 const FindCommissionableByCommissioningMode = {
-  name : 'FindCommissionableByCommissioningMode',
-  responseName : 'DiscoveryCommandResponse',
-  response : kDefaultResponse
-};
+  name: 'FindCommissionableByCommissioningMode',
+  responseName: 'DiscoveryCommandResponse',
+  response: kDefaultResponse,
+}
 
 const FindCommissionableByVendorId = {
-  name : 'FindCommissionableByVendorId',
-  arguments : [ kNumberValueArgument ],
-  responseName : 'DiscoveryCommandResponse',
-  response : kDefaultResponse
-};
+  name: 'FindCommissionableByVendorId',
+  arguments: [kNumberValueArgument],
+  responseName: 'DiscoveryCommandResponse',
+  response: kDefaultResponse,
+}
 
 const FindCommissionableByDeviceType = {
-  name : 'FindCommissionableByDeviceType',
-  arguments : [ kNumberValueArgument ],
-  responseName : 'DiscoveryCommandResponse',
-  response : kDefaultResponse
-};
+  name: 'FindCommissionableByDeviceType',
+  arguments: [kNumberValueArgument],
+  responseName: 'DiscoveryCommandResponse',
+  response: kDefaultResponse,
+}
 
 const FindCommissionableByName = {
-  name : 'FindCommissionableByName',
-  arguments : [ kStringValueArgument ],
-  responseName : 'DiscoveryCommandResponse',
-  response : kDefaultResponse
-};
+  name: 'FindCommissionableByName',
+  arguments: [kStringValueArgument],
+  responseName: 'DiscoveryCommandResponse',
+  response: kDefaultResponse,
+}
 
 //
 // Commissioner
 //
 
 const FindCommissioner = {
-  name : 'FindCommissioner',
-  responseName : 'DiscoveryCommandResponse',
-  response : kDefaultResponse
-};
+  name: 'FindCommissioner',
+  responseName: 'DiscoveryCommandResponse',
+  response: kDefaultResponse,
+}
 
 const FindCommissionerByVendorId = {
-  name : 'FindCommissionerByVendorId',
-  arguments : [ kNumberValueArgument ],
-  responseName : 'DiscoveryCommandResponse',
-  response : kDefaultResponse
-};
+  name: 'FindCommissionerByVendorId',
+  arguments: [kNumberValueArgument],
+  responseName: 'DiscoveryCommandResponse',
+  response: kDefaultResponse,
+}
 
 const FindCommissionerByDeviceType = {
-  name : 'FindCommissionerByDeviceType',
-  arguments : [ kNumberValueArgument ],
-  responseName : 'DiscoveryCommandResponse',
-  response : kDefaultResponse
-};
+  name: 'FindCommissionerByDeviceType',
+  arguments: [kNumberValueArgument],
+  responseName: 'DiscoveryCommandResponse',
+  response: kDefaultResponse,
+}
 
 const commands = [
   // Commissionable
@@ -157,14 +167,14 @@ const commands = [
   FindCommissioner,
   FindCommissionerByVendorId,
   FindCommissionerByDeviceType,
-];
+]
 
 const DiscoveryCommands = {
-  name : 'DiscoveryCommands',
-  commands : commands,
-};
+  name: 'DiscoveryCommands',
+  commands: commands,
+}
 
 //
 // Module exports
 //
-exports.cluster = DiscoveryCommands;
+exports.cluster = DiscoveryCommands
