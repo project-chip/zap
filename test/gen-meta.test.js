@@ -212,6 +212,7 @@ test(
     expect(epc).toContain('Test1 template.')
     expect(epc).toContain('- attribute: at2 => true => mandatory')
     expect(epc).toContain('Stamp: Meta stamp.')
+    expect(epc).toContain('Category: Meta category.')
 
     epc = genResult.content['out/test1.out']
     expect(epc).not.toBeNull()

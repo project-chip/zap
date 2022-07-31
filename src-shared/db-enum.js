@@ -173,4 +173,5 @@ exports.customDevice = {
 exports.helperCategory = {
   zigbee: 'zigbee',
   matter: 'matter',
+  meta: 'meta',
 }

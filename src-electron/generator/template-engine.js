@@ -57,6 +57,7 @@ const includedHelpers = [
   require('./matter/placeholder/templates/helper'),
 
   require('./meta/helper-meta'),
+  require('./meta/helper-meta-2'),
 ]
 
 const templateCompileOptions = {

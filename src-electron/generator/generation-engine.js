@@ -183,6 +183,27 @@ async function recordTemplatesPackage(context) {
     }
   }
 
+  // Deal with categories
+  let helperCategories = []
+  if (context.templateData.categories != null) {
+    context.templateData.categories.forEach((cat) => {
+      helperCategories.push({
+        code: cat,
+        value: '',
+      })
+    })
+  }
+  if (helperCategories.length > 0) {
+    promises.push(
+      queryPackage.insertOptionsKeyValues(
+        context.db,
+        context.packageId,
+        dbEnum.packageOptionCategory.helperCategories,
+        helperCategories
+      )
+    )
+  }
+
   // Deal with helpers
   let helperAliases = []
   if (context.templateData.helpers != null) {
@@ -213,7 +234,6 @@ async function recordTemplatesPackage(context) {
       }
     })
   }
-
   if (helperAliases.length > 0) {
     promises.push(
       queryPackage.insertOptionsKeyValues(
@@ -476,7 +496,7 @@ async function calculateIncludedAliasesAndCategories(db, genTemplatesPkgId) {
     dbEnum.packageOptionCategory.helperCategories
   )
   for (let c of categories) {
-    include.categories.push(a.optionCode)
+    included.categories.push(c.optionCode)
   }
 
   return included

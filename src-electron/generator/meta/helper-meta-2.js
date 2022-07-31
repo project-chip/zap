@@ -15,11 +15,14 @@
  *    limitations under the License.
  */
 
-async function meta_stamp() {
-  return 'Meta stamp.'
+const dbEnum = require('../../../src-shared/db-enum')
+
+async function meta_category() {
+  return 'Meta category.'
 }
 
-exports.meta_stamp = meta_stamp
+exports.meta_category = meta_category
 exports.meta = {
   alias: ['meta-helper'],
+  category: dbEnum.helperCategory.meta,
 }

@@ -1,6 +1,7 @@
 Test1 template.
 
 Stamp: {{meta_stamp}}
+Category: {{meta_category}}
 
 Clusters:
 {{#zcl_clusters}}
