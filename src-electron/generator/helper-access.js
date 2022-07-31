@@ -223,4 +223,5 @@ exports.default_access = default_access
 
 exports.meta = {
   category: dbEnum.helperCategory.matter,
+  alias: ['access'],
 }

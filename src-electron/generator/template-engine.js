@@ -59,8 +59,6 @@ const includedHelpers = [
   require('./meta/helper-meta'),
 ]
 
-let helpersInitializationList = null
-
 const templateCompileOptions = {
   noEscape: true,
 }
@@ -227,7 +225,7 @@ function helperWrapper(wrappedHelper) {
  *                      this is required to force webpack to resolve the included files
  *                      as path will be difference after being packed for production.
  */
-function loadHelper(hb, helpers, collectionList = null) {
+function loadHelper(hb, helpers) {
   // helper
   // when template path are passed via CLI
   // Other paths are 'required()' to workaround webpack path issue.
@@ -238,9 +236,6 @@ function loadHelper(hb, helpers, collectionList = null) {
   for (const singleHelper of Object.keys(helpers)) {
     try {
       hb.registerHelper(singleHelper, helperWrapper(helpers[singleHelper]))
-      if (collectionList != null) {
-        collectionList.push(singleHelper)
-      }
     } catch (err) {
       console.log('Could not load helper: ' + err)
     }
@@ -314,10 +309,13 @@ function findHelperPackageByAlias(alias) {
 /**
  * Global helper initialization
  */
-function initializeGlobalHelpers(hb) {
-  if (helpersInitializationList != null) return
-
-  helpersInitializationList = []
+function initializeGlobalHelpers(
+  hb,
+  included = {
+    aliases: [],
+    categories: [],
+  }
+) {
   includedHelpers.forEach((helperPkg) => {
     let loadIt = true
     if (helperPkg.meta != null) {
@@ -325,17 +323,15 @@ function initializeGlobalHelpers(hb) {
         loadIt = false
       }
       if (helperPkg.meta.alias != null && helperPkg.meta.alias.length > 0) {
-        loadIt = false
+        loadIt = included.aliases.includes(helperPkg.meta.alias[0])
       }
     }
+    // We are not loading the helper if it has category or is aliased,
+    // but that category or alias is not mentioned in the gen-templates.json.
     if (loadIt) {
-      loadHelper(hb, helperPkg, helpersInitializationList)
+      loadHelper(hb, helperPkg)
     }
   })
-}
-
-function globalHelpersList() {
-  return helpersInitializationList
 }
 
 /**
@@ -358,6 +354,5 @@ exports.loadHelper = loadHelper
 exports.loadPartial = loadPartial
 exports.initializeGlobalHelpers = initializeGlobalHelpers
 exports.allBuiltInHelpers = allBuiltInHelpers
-exports.globalHelpersList = globalHelpersList
 exports.hbInstance = hbInstance
 exports.findHelperPackageByAlias = findHelperPackageByAlias

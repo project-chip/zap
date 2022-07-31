@@ -28,6 +28,7 @@ const dbEnum = require('../../src-shared/db-enum.js')
 const env = require('../util/env')
 const templateEngine = require('./template-engine.js')
 const dbApi = require('../db/db-api.js')
+const { include } = require('underscore')
 
 /**
  * Given a path, it will read generation template object into memory.
@@ -454,6 +455,33 @@ async function loadTemplates(db, genTemplatesJson) {
     })
 }
 
+async function calculateIncludedAliasesAndCategories(db, genTemplatesPkgId) {
+  let included = {
+    aliases: [],
+    categories: [],
+  }
+
+  let aliases = await queryPackage.selectAllOptionsValues(
+    db,
+    genTemplatesPkgId,
+    dbEnum.packageOptionCategory.helperAliases
+  )
+  for (let a of aliases) {
+    included.aliases.push(a.optionCode)
+  }
+
+  let categories = await queryPackage.selectAllOptionsValues(
+    db,
+    genTemplatesPkgId,
+    dbEnum.packageOptionCategory.helperCategories
+  )
+  for (let c of categories) {
+    include.categories.push(a.optionCode)
+  }
+
+  return included
+}
+
 /**
  * Generates all the templates inside a toplevel package.
  *
@@ -498,8 +526,13 @@ async function generateAllTemplates(
     }
   })
 
+  let included = await calculateIncludedAliasesAndCategories(
+    genResult.db,
+    genTemplateJsonPkg.id
+  )
+
   // Initialize global helpers
-  templateEngine.initializeGlobalHelpers(hb)
+  templateEngine.initializeGlobalHelpers(hb, included)
 
   // Next load the addon helpers
   packages.forEach((singlePkg) => {
@@ -640,29 +673,9 @@ async function generateGenerationContent(genResult, timing = {}) {
     timing: timing,
     stats: {},
   }
-  out.stats.templates = {}
-
-  for (const statKey of Object.keys(genResult.stats).sort()) {
-    out.stats.templates[statKey] = genResult.stats[statKey]
-  }
-
   for (const f of Object.keys(genResult.content).sort()) {
     out.content.push(f)
   }
-  out.stats.allHelpers = {}
-
-  let allHelpers = [...templateEngine.globalHelpersList()].sort()
-  allHelpers.forEach((h) => {
-    out.stats.allHelpers[h] = 0
-  })
-
-  for (const [template, stat] of Object.entries(out.stats.templates)) {
-    for (const [helper, value] of Object.entries(stat)) {
-      let count = value.useCount
-      out.stats.allHelpers[helper] += count
-    }
-  }
-
   return Promise.resolve(JSON.stringify(out, null, 2))
 }
 
