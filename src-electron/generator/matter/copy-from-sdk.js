@@ -53,7 +53,8 @@ const examplesDirectories = [
   'darwin-framework-tool/templates/tests',
   'chip-tool/templates/tests',
   'chip-tool/templates',
-  'placeholder/templates/',
+  'placeholder/templates',
+  'placeholder/linux/apps/app1',
 ]
 
 srcDirectories.forEach((dir) => {
