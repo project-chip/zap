@@ -24,6 +24,7 @@ const nativeRequire = require('../util/native-require')
 const fsPromise = require('fs').promises
 const promisedHandlebars = require('promised-handlebars')
 const defaultHandlebars = require('handlebars')
+const { asJniClassName } = require('./matter/controller/java/templates/helper')
 
 const includedHelpers = [
   require('./helper-zcl'),
@@ -259,22 +260,38 @@ function loadHelper(hb, helpers, collectionList = null) {
  */
 function allBuiltInHelpers() {
   let allHelpers = {
-    api: {}, // keyed functions
-    category: {}, // categories, keyed the same.
-    duplicates: [], // array of duplicates
+    hasDuplicates: false,
+    duplicates: [],
   }
+  let h = []
   includedHelpers.forEach((helperPkg) => {
     for (const singleHelper of Object.keys(helperPkg)) {
-      // 'meta' inside a helper class signals category and is not a helper.
       if (singleHelper === 'meta') continue
-      if (allHelpers.api[singleHelper] != null) {
-        allHelpers.duplicates.push(singleHelper)
+      let helperObject = {
+        name: singleHelper,
+        isDeprecated: singleHelper.isDeprecated ? true : false,
+        category: helperPkg.meta?.category,
+        alias: helperPkg.meta?.alias,
       }
-      allHelpers.api[singleHelper] = helperPkg[singleHelper]
-      if (helperPkg.meta != null && helperPkg.meta.category != null) {
-        allHelpers.category[singleHelper] = helperPkg.meta.category
-      }
+      h.push(helperObject)
     }
+  })
+  allHelpers.helpers = h.sort((a, b) => {
+    if (a.name != b.name) return a.name.localeCompare(b.name)
+    if (a.category != null && b.category != null && a.category != b.category)
+      return a.category.localeCompare(b.category)
+    if (
+      a.alias != null &&
+      b.alias != null &&
+      a.alias.length > 0 &&
+      b.alias.length > 0 &&
+      a.alias[0] != b.alias[0]
+    )
+      return a.alias[0].localeCompare(b.alias[0])
+
+    allHelpers.duplicates.push(a.name)
+    allHelpers.hasDuplicates = true
+    return 0
   })
   return allHelpers
 }

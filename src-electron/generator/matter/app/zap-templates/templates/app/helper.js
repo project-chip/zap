@@ -30,7 +30,7 @@ const StringHelper = require('../../common/StringHelper.js')
 const ChipTypesHelper = require('../../common/ChipTypesHelper.js')
 const TestHelper = require('../../common/ClusterTestGeneration.js')
 
-zclHelper['isEvent'] = function (db, event_name, packageId) {
+function isEvent(db, event_name, packageId) {
   return queryEvents
     .selectAllEvents(db, packageId)
     .then((events) => events.find((event) => event.name == event_name))
@@ -922,6 +922,7 @@ exports.zcl_commands_that_need_timed_invoke =
   zcl_commands_that_need_timed_invoke
 exports.if_is_fabric_scoped_struct = if_is_fabric_scoped_struct
 exports.if_is_non_zero_default = if_is_non_zero_default
+exports.isEvent = isEvent
 
 exports.meta = {
   category: dbEnum.helperCategory.matter,

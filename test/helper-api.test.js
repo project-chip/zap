@@ -31,7 +31,9 @@ test(
     for (const x of Object.keys(helpers.api)) {
       expect(helpers.api[x]).not.toBeNull()
       let n = x
-      if (!helpers.api[x].isDeprecated) expect(n.toLowerCase()).toEqual(n)
+      if (!helpers.api[x].isDeprecated) {
+        if (!helpers.category[x]) expect(n.toLowerCase()).toEqual(n)
+      }
     }
   },
   timeout.short()

@@ -86,7 +86,7 @@
     "linuxpack-check": "./dist/linux-unpacked/zap selfCheck --zclProperties zcl-builtin/silabs/zcl-test.properties --genTemplateJson test/gen-template/zigbee/gen-templates.json",
     "linuxpack-gen": "./dist/linux-unpacked/zap generate --noUi --noServer --zclProperties zcl-builtin/silabs/zcl-test.properties --genTemplateJson test/gen-template/zigbee/gen-templates.json --output tmp",
     "linuxpack-help": "./dist/linux-unpacked/zap -?",
-    "helper-api-baseline": "node src-script/gen-helper-api.js && pretty-quick",
+    "helper-api-baseline": "npx tsc --build ./tsconfig.json && node src-script/gen-helper-api.js && pretty-quick",
     "pack": "electron-builder -mwl",
     "pack:linux": "electron-builder -l",
     "pack:win": "electron-builder -w",
