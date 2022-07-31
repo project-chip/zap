@@ -318,8 +318,19 @@ function initializeGlobalHelpers(hb) {
   if (helpersInitializationList != null) return
 
   helpersInitializationList = []
-  includedHelpers.forEach((element) => {
-    loadHelper(hb, element, helpersInitializationList)
+  includedHelpers.forEach((helperPkg) => {
+    let loadIt = true
+    if (helperPkg.meta != null) {
+      if (helperPkg.meta.category != null) {
+        loadIt = false
+      }
+      if (helperPkg.meta.alias != null && helperPkg.meta.alias.length > 0) {
+        loadIt = false
+      }
+    }
+    if (loadIt) {
+      loadHelper(hb, helperPkg, helpersInitializationList)
+    }
   })
 }
 
