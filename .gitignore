@@ -80,3 +80,6 @@ jest-coverage
 coverage
 cypress-coverage
 reports
+
+# Downloaded artifacts from Nexus / Github / etc via download-artifact script
+artifacts
