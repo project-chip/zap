@@ -19,6 +19,13 @@ const { ensureClusters } = require('../ClustersHelper.js')
 
 const fs = require('fs')
 const path = require('path')
+const clusterFiles = [
+  require('./clusters/CommissionerCommands'),
+  require('./clusters/DelayCommands'),
+  require('./clusters/DiscoveryCommands'),
+  require('./clusters/LogCommands'),
+  require('./clusters/SystemCommands'),
+]
 
 let SimulatedClusters = []
 ;(async () => {
@@ -27,8 +34,8 @@ let SimulatedClusters = []
   simulatedClustersFiles = simulatedClustersFiles.filter((f) =>
     f.endsWith('.js')
   )
-  SimulatedClusters = simulatedClustersFiles.map((filename) => {
-    let cluster = require(path.join(simulatedClustersPath, filename)).cluster
+  clusterFiles.map((clusterFile) => {
+    let cluster = clusterFile.cluster
     cluster.commands.forEach((command) => {
       if (!('name' in command)) {
         console.error('Error in: ' + filename + '. Missing command name.')
