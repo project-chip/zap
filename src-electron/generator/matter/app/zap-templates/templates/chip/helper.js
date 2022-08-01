@@ -714,7 +714,7 @@ async function chip_access_elements(options) {
 
   let accessEntries = []
 
-  for (element of accessList) {
+  for (let element of accessList) {
     if (!element.operation) {
       continue // not a valid operation (likely null)
     }

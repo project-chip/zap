@@ -579,7 +579,7 @@ function enhancedCommands(commands, types) {
     // but don't stomp on a true isResponse value if it's set already because
     // some other command had this one as its response.
     command.isResponse = command.isResponse || command.name.includes('Response')
-    command.isManufacturerSpecificCommand = !!this.mfgCode
+    command.isManufacturerSpecificCommand = !!command.mfgCode
 
     command.hasSpecificResponse = !!command.response
     if (command.response) {

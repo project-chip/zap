@@ -1,0 +1,232 @@
+# Copyright (c) 2021 Project CHIP Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: 24.4.1. [TC-LVL-4.1] Move Verification (DUT as Server)
+
+config:
+  nodeId: 0x12344321
+  cluster: 'Level Control'
+  endpoint: 1
+
+tests:
+  - label: 'Wait for the commissioned device to be retrieved'
+    cluster: 'DelayCommands'
+    command: 'WaitForCommissionee'
+    arguments:
+      values:
+        - name: 'nodeId'
+          value: nodeId
+
+  - label: 'Precondition Send On Command'
+    cluster: 'On/Off'
+    PICS: OO.S.C01.Rsp
+    command: 'On'
+
+  - label: 'Check on/off attribute value is true after on command'
+    cluster: 'On/Off'
+    PICS: OO.S.A0000
+    command: 'readAttribute'
+    attribute: 'OnOff'
+    response:
+      value: 1
+
+  - label: 'TH writes 0 to the Options attribute'
+    PICS: LVL.S.A000f
+    command: 'writeAttribute'
+    attribute: 'Options'
+    arguments:
+      value: 0
+
+  - label: 'Reads Minlevel attribute from DUT'
+    PICS: LVL.S.A0002
+    command: 'readAttribute'
+    attribute: 'min level'
+    response:
+      saveAs: MinlevelValue
+      constraints:
+        type: int8u
+        minValue: 0
+        maxValue: 255
+
+  - label: 'sends a MoveToLevelWithOnOff command'
+    PICS: LVL.S.C00.Rsp
+    command: 'MoveToLevelWithOnOff'
+    arguments:
+      values:
+        - name: 'level'
+          value: 1
+        - name: 'transitionTime'
+          value: 0
+        - name: 'OptionsMask'
+          value: 1
+        - name: 'OptionsOverride'
+          value: 1
+
+  - label: 'reads max level attribute from DUT'
+    PICS: LVL.S.A0003
+    command: 'readAttribute'
+    attribute: 'max level'
+    response:
+      saveAs: MaxlevelValue
+      constraints:
+        type: int8u
+        minValue: 0
+        maxValue: 255
+
+  - label: 'sends a Move up command'
+    PICS: LVL.S.C01.Rsp
+    command: 'Move'
+    arguments:
+      values:
+        - name: 'moveMode'
+          value: 0
+        - name: 'rate'
+          value: 32
+        - name: 'OptionsMask'
+          value: 1
+        - name: 'OptionsOverride'
+          value: 1
+
+  - label:
+      'Physically verify that the DUT moves at a rate of 32 units per second
+      or as close as possible to this rate and completes moving to its
+      maximum level'
+    cluster: 'LogCommands'
+    command: 'UserPrompt'
+    PICS: PICS_USER_PROMPT && LVL.S.C01.Rsp
+    arguments:
+      values:
+        - name: 'message'
+          value: "Please enter 'y' for success"
+        - name: 'expectedValue'
+          value: 'y'
+
+  - label: 'Wait 9000ms'
+    cluster: 'DelayCommands'
+    command: 'WaitForMs'
+    arguments:
+      values:
+        - name: 'ms'
+          value: 10000
+
+  - label: 'Reads CurrentLevel attribute from DUT'
+    PICS: LVL.S.C01.Rsp && LVL.S.A0000 && LVL.S.A0003
+    command: 'readAttribute'
+    attribute: 'current level'
+    response:
+      value: MaxlevelValue
+
+  - label: 'sends a Move command'
+    PICS: LVL.S.C05.Rsp
+    command: 'Move'
+    arguments:
+      values:
+        - name: 'moveMode'
+          value: 1
+        - name: 'rate'
+          value: 64
+        - name: 'OptionsMask'
+          value: 1
+        - name: 'OptionsOverride'
+          value: 1
+
+  - label:
+      'Physically verify that the DUT moves at a rate of 64 units per second
+      or as close as possible to this rate and complete moving to its
+      minimum level'
+    cluster: 'LogCommands'
+    command: 'UserPrompt'
+    PICS: PICS_USER_PROMPT && LVL.S.C05.Rsp
+    arguments:
+      values:
+        - name: 'message'
+          value: "Please enter 'y' for success"
+        - name: 'expectedValue'
+          value: 'y'
+
+  - label: 'Wait 5000ms'
+    cluster: 'DelayCommands'
+    command: 'WaitForMs'
+    arguments:
+      values:
+        - name: 'ms'
+          value: 5000
+
+  - label: 'reads CurrentLevel attribute from DUT'
+    PICS: LVL.S.C05.Rsp && LVL.S.A0000
+    command: 'readAttribute'
+    attribute: 'current level'
+    response:
+      value: MinlevelValue
+      constraints:
+        minValue: 0
+        maxValue: 255
+
+  - label: 'reads default move rate attribute from DUT'
+    PICS: LVL.S.A0014
+    command: 'readAttribute'
+    attribute: 'default move rate'
+    response:
+      saveAs: DefaultMoveRateValue
+      constraints:
+        type: int8u
+        minValue: 0
+        maxValue: 255
+
+  - label: 'sends a Move up command at default move rate'
+    PICS: LVL.S.C05.Rsp && LVL.S.A0014
+    command: 'Move'
+    arguments:
+      values:
+        - name: 'moveMode'
+          value: 0
+        - name: 'rate'
+          value: 255
+        - name: 'OptionsMask'
+          value: 1
+        - name: 'OptionsOverride'
+          value: 1
+
+  - label: 'Wait 500ms'
+    cluster: 'DelayCommands'
+    command: 'WaitForMs'
+    arguments:
+      values:
+        - name: 'ms'
+          value: 500
+
+  - label: 'Physically verify that the device moves at the rate recorded in step
+      3a and completes moving to its maximum level'
+    cluster: 'LogCommands'
+    command: 'UserPrompt'
+    PICS: PICS_USER_PROMPT && LVL.S.C05.Rsp && LVL.S.A0014
+    arguments:
+      values:
+        - name: 'message'
+          value: "Please enter 'y' for success"
+        - name: 'expectedValue'
+          value: 'y'
+
+  - label: 'Precondition send Off Command'
+    cluster: 'On/Off'
+    PICS: OO.S.C00.Rsp
+    command: 'Off'
+
+  - label: 'Check on/off attribute value is false after off command'
+    cluster: 'On/Off'
+    PICS: OO.S.A0000
+    command: 'readAttribute'
+    attribute: 'OnOff'
+    response:
+      value: 0

@@ -435,10 +435,13 @@ function parse(filename, useSynthesizeWaitForReport) {
   if (isCertificationTest) {
     filepath = path.resolve(
       __dirname,
-      basePath + certificationPath + filename + '.yaml'
+      '../../../files/certification/' + filename + '.yaml'
     )
   } else {
-    filepath = path.resolve(__dirname, basePath + testPath + filename + '.yaml')
+    filepath = path.resolve(
+      __dirname,
+      '../../../files/tests/' + filename + '.yaml'
+    )
   }
 
   const data = fs.readFileSync(filepath, { encoding: 'utf8', flag: 'r' })
@@ -573,7 +576,10 @@ function assertCommandOrAttributeOrEvent(context) {
 }
 
 const PICS = (() => {
-  let filepath = path.resolve(__dirname, '../../../files/PICS.yaml')
+  let filepath = path.resolve(
+    __dirname,
+    '../../../files/certification/PICS.yaml'
+  )
   const data = fs.readFileSync(filepath, { encoding: 'utf8', flag: 'r' })
   const yaml = YAML.parse(data)
 
