@@ -30,10 +30,6 @@ const clusterFiles = [
 let SimulatedClusters = []
 ;(async () => {
   const simulatedClustersPath = path.join(__dirname, 'clusters')
-  let simulatedClustersFiles = await fs.promises.readdir(simulatedClustersPath)
-  simulatedClustersFiles = simulatedClustersFiles.filter((f) =>
-    f.endsWith('.js')
-  )
   clusterFiles.map((clusterFile) => {
     let cluster = clusterFile.cluster
     cluster.commands.forEach((command) => {
