@@ -26,11 +26,18 @@ const path = require('path')
 let args = process.argv.slice(2)
 
 if (args[0] == null) {
-  console.log('Usage: node copy-from-sdk.js <MATTER_SDK_ROOT>')
+  console.log(
+    'Usage: node copy-from-sdk.js <MATTER_SDK_ROOT> [all|yaml|examples|src]'
+  )
   process.exit(1)
 }
 
 let matterRoot = args[0]
+
+let what = 'all'
+if (args[1] != null) {
+  what = args[1]
+}
 
 const srcDirectories = [
   'controller/java/templates',
@@ -57,42 +64,79 @@ const examplesDirectories = [
   'placeholder/linux/apps/app1',
 ]
 
-srcDirectories.forEach((dir) => {
-  fs.mkdirSync(dir, { recursive: true })
-  let dirPath = path.join(path.join(matterRoot, 'src'), dir)
-  if (!fs.existsSync(dirPath)) {
-    console.log(`Failed to locate: ${dirPath}`)
-    process.exit(1)
-  }
-  console.log(`Reading: ${dirPath}`)
-  fs.readdir(dirPath, (err, files) => {
-    let jsFiles = files
-      .filter((f) => f.endsWith('.js'))
-      .map((f) => path.join(dirPath, f))
+const yamlDirs = [
+  {
+    src: 'src/app/tests/suites/',
+    dest: 'files/tests',
+  },
+  {
+    src: 'src/app/tests/suites/certification/',
+    dest: 'files/certification',
+  },
+]
 
-    jsFiles.forEach((f) => {
-      console.log(`Copying: ${f}`)
-      fs.copyFileSync(f, path.join(dir, path.basename(f)))
+if (what == 'all' || what == 'src')
+  srcDirectories.forEach((dir) => {
+    fs.mkdirSync(dir, { recursive: true })
+    let dirPath = path.join(path.join(matterRoot, 'src'), dir)
+    if (!fs.existsSync(dirPath)) {
+      console.log(`Failed to locate: ${dirPath}`)
+      process.exit(1)
+    }
+    console.log(`Reading: ${dirPath}`)
+    fs.readdir(dirPath, (err, files) => {
+      let jsFiles = files
+        .filter((f) => f.endsWith('.js'))
+        .map((f) => path.join(dirPath, f))
+
+      jsFiles.forEach((f) => {
+        console.log(`Copying: ${f}`)
+        fs.copyFileSync(f, path.join(dir, path.basename(f)))
+      })
     })
   })
-})
 
-examplesDirectories.forEach((dir) => {
-  fs.mkdirSync(dir, { recursive: true })
-  let dirPath = path.join(path.join(matterRoot, 'examples'), dir)
-  if (!fs.existsSync(dirPath)) {
-    console.log(`Failed to locate: ${dirPath}`)
-    process.exit(1)
-  }
-  console.log(`Reading: ${dirPath}`)
-  fs.readdir(dirPath, (err, files) => {
-    let jsFiles = files
-      .filter((f) => f.endsWith('.js'))
-      .map((f) => path.join(dirPath, f))
+if (what == 'all' || what == 'examples')
+  examplesDirectories.forEach((dir) => {
+    fs.mkdirSync(dir, { recursive: true })
+    let dirPath = path.join(path.join(matterRoot, 'examples'), dir)
+    if (!fs.existsSync(dirPath)) {
+      console.log(`Failed to locate: ${dirPath}`)
+      process.exit(1)
+    }
+    console.log(`Reading: ${dirPath}`)
+    fs.readdir(dirPath, (err, files) => {
+      let jsFiles = files
+        .filter((f) => f.endsWith('.js'))
+        .map((f) => path.join(dirPath, f))
 
-    jsFiles.forEach((f) => {
-      console.log(`Copying: ${f}`)
-      fs.copyFileSync(f, path.join(dir, path.basename(f)))
+      jsFiles.forEach((f) => {
+        console.log(`Copying: ${f}`)
+        fs.copyFileSync(f, path.join(dir, path.basename(f)))
+      })
     })
   })
-})
+
+if (what == 'all' || what == 'yaml')
+  yamlDirs.forEach((dir) => {
+    let src = dir.src
+    let dest = dir.dest
+    fs.mkdirSync(dest, { recursive: true })
+    let dirPath = path.join(matterRoot, src)
+    if (!fs.existsSync(dirPath)) {
+      console.log(`Failed to locate: ${dirPath}`)
+      process.exit(1)
+    }
+    console.log(`Reading: ${dirPath}`)
+    fs.readdir(dirPath, (err, files) => {
+      let jsFiles = files
+        .filter((f) => f.endsWith('.yaml'))
+        .map((f) => path.join(dirPath, f))
+
+      jsFiles.forEach((f) => {
+        let d = path.join(dest, path.basename(f))
+        console.log(`Copying: ${f} => ${d}`)
+        fs.copyFileSync(f, d)
+      })
+    })
+  })
