@@ -167,6 +167,7 @@ async function initializeSessionPackage(db, sessionId, options) {
     db,
     sessionId
   )
+  await querySession.setSessionClean(db, sessionId)
 
   return packages
 }
