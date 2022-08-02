@@ -67,6 +67,15 @@ beforeAll(async () => {
 afterAll(() => dbApi.closeDatabase(db), testUtil.timeout.short())
 
 test(
+  'Dirty Flag Validation',
+  async () => {
+    let result = await querySession.getSessionDirtyFlag(db, sid)
+    expect(result).toBeFalsy()
+  },
+  testUtil.timeout.short()
+)
+
+test(
   'Path CRC queries.',
   async () => {
     let path = '/some/random/path'
