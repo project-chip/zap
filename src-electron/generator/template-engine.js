@@ -235,6 +235,7 @@ function loadHelper(hb, helpers) {
   }
 
   for (const singleHelper of Object.keys(helpers)) {
+    if (singleHelper === 'meta') continue
     try {
       hb.registerHelper(singleHelper, helperWrapper(helpers[singleHelper]))
     } catch (err) {
