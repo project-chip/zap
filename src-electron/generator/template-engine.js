@@ -45,6 +45,7 @@ const includedHelpers = [
   require('./matter/darwin-framework-tool/templates/helper'),
   require('./matter/darwin/Framework/CHIP/templates/helper'),
   require('./matter/chip-tool/templates/tests/helper'),
+  require('./matter/chip-tool/templates/tests/tests'),
   require('./matter/chip-tool/templates/helper'),
   require('./matter/app/zap-templates/templates/chip/helper'),
   require('./matter/app/zap-templates/templates/app/helper'),
