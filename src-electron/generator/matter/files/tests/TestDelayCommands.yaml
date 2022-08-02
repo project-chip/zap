@@ -15,23 +15,23 @@
 name: Delay Commands Tests
 
 config:
-  nodeId: 0x12344321
-  cluster: 'Test Cluster'
-  endpoint: 1
+    nodeId: 0x12344321
+    cluster: "Test Cluster"
+    endpoint: 1
 
 tests:
-  - label: 'Wait for the commissioned device to be retrieved'
-    cluster: 'DelayCommands'
-    command: 'WaitForCommissionee'
-    arguments:
-      values:
-        - name: 'nodeId'
-          value: nodeId
+    - label: "Wait for the commissioned device to be retrieved"
+      cluster: "DelayCommands"
+      command: "WaitForCommissionee"
+      arguments:
+          values:
+              - name: "nodeId"
+                value: nodeId
 
-  - label: 'Wait 100ms'
-    cluster: 'DelayCommands'
-    command: 'WaitForMs'
-    arguments:
-      values:
-        - name: 'ms'
-          value: 100
+    - label: "Wait 100ms"
+      cluster: "DelayCommands"
+      command: "WaitForMs"
+      arguments:
+          values:
+              - name: "ms"
+                value: 100

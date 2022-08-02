@@ -15,86 +15,92 @@
 name: Binding Tests
 
 config:
-  nodeId: 0x12344321
-  cluster: 'Binding'
-  endpoint: 1
+    nodeId: 0x12344321
+    cluster: "Binding"
+    endpoint: 1
 
 tests:
-  - label: 'Wait for the commissioned device to be retrieved'
-    cluster: 'DelayCommands'
-    command: 'WaitForCommissionee'
-    arguments:
-      values:
-        - name: 'nodeId'
-          value: nodeId
+    - label: "Wait for the commissioned device to be retrieved"
+      cluster: "DelayCommands"
+      command: "WaitForCommissionee"
+      arguments:
+          values:
+              - name: "nodeId"
+                value: nodeId
 
-  - label: 'Write empty binding table'
-    command: 'writeAttribute'
-    attribute: 'binding'
-    arguments:
-      value: []
+    - label: "Write empty binding table"
+      command: "writeAttribute"
+      attribute: "binding"
+      arguments:
+          value: []
 
-  - label: 'Read empty binding table'
-    command: 'readAttribute'
-    attribute: 'binding'
-    response:
-      value: []
+    - label: "Read empty binding table"
+      command: "readAttribute"
+      attribute: "binding"
+      response:
+          value: []
 
-  - label: 'Write invalid binding table'
-    command: 'writeAttribute'
-    attribute: 'binding'
-    arguments:
-      value:
-        [
-          { FabricIndex: 0 },
-          { FabricIndex: 0, Node: 1, Group: 1, Endpoint: 1, Cluster: 6 },
-        ]
-    response:
-      error: CONSTRAINT_ERROR
+    - label: "Write invalid binding table"
+      command: "writeAttribute"
+      attribute: "binding"
+      arguments:
+          value:
+              [
+                  { FabricIndex: 0 },
+                  {
+                      FabricIndex: 0,
+                      Node: 1,
+                      Group: 1,
+                      Endpoint: 1,
+                      Cluster: 6,
+                  },
+              ]
+      response:
+          error: CONSTRAINT_ERROR
 
-  - label: 'Write binding table (endpoint 1)'
-    command: 'writeAttribute'
-    attribute: 'binding'
-    arguments:
-      value:
-        [
-          { FabricIndex: 0, Group: 1 },
-          { FabricIndex: 0, Node: 1, Endpoint: 1, Cluster: 6 },
-          { FabricIndex: 0, Node: 2, Endpoint: 1 },
-        ]
+    - label: "Write binding table (endpoint 1)"
+      command: "writeAttribute"
+      attribute: "binding"
+      arguments:
+          value:
+              [
+                  { FabricIndex: 0, Group: 1 },
+                  { FabricIndex: 0, Node: 1, Endpoint: 1, Cluster: 6 },
+                  { FabricIndex: 0, Node: 2, Endpoint: 1 },
+              ]
 
-  - label: 'Read binding table (endpoint 1)'
-    command: 'readAttribute'
-    attribute: 'binding'
-    response:
-      value:
-        [
-          { FabricIndex: 1, Group: 1 },
-          { FabricIndex: 1, Node: 1, Endpoint: 1, Cluster: 6 },
-          { FabricIndex: 1, Node: 2, Endpoint: 1 },
-        ]
+    - label: "Read binding table (endpoint 1)"
+      command: "readAttribute"
+      attribute: "binding"
+      response:
+          value:
+              [
+                  { FabricIndex: 1, Group: 1 },
+                  { FabricIndex: 1, Node: 1, Endpoint: 1, Cluster: 6 },
+                  { FabricIndex: 1, Node: 2, Endpoint: 1 },
+              ]
 
-  - label: 'Write binding table (endpoint 0)'
-    command: 'writeAttribute'
-    attribute: 'binding'
-    endpoint: 0
-    arguments:
-      value: [{ FabricIndex: 0, Node: 3, Endpoint: 1 }]
+    - label: "Write binding table (endpoint 0)"
+      command: "writeAttribute"
+      attribute: "binding"
+      endpoint: 0
+      arguments:
+          value: [{ FabricIndex: 0, Node: 3, Endpoint: 1 }]
 
-  - label: 'Read binding table (endpoint 0)'
-    command: 'readAttribute'
-    attribute: 'binding'
-    endpoint: 0
-    response:
-      value: [{ FabricIndex: 1, Node: 3, Endpoint: 1 }]
+    - label: "Read binding table (endpoint 0)"
+      command: "readAttribute"
+      attribute: "binding"
+      endpoint: 0
+      response:
+          value: [{ FabricIndex: 1, Node: 3, Endpoint: 1 }]
 
-  - label: 'Verify endpoint 1 not changed'
-    command: 'readAttribute'
-    attribute: 'binding'
-    response:
-      value:
-        [
-          { FabricIndex: 1, Group: 1 },
-          { FabricIndex: 1, Node: 1, Endpoint: 1, Cluster: 6 },
-          { FabricIndex: 1, Node: 2, Endpoint: 1 },
-        ]
+    - label: "Verify endpoint 1 not changed"
+      command: "readAttribute"
+      attribute: "binding"
+      response:
+          value:
+              [
+                  { FabricIndex: 1, Group: 1 },
+                  { FabricIndex: 1, Node: 1, Endpoint: 1, Cluster: 6 },
+                  { FabricIndex: 1, Node: 2, Endpoint: 1 },
+              ]

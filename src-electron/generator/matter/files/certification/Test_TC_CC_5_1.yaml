@@ -15,116 +15,116 @@
 name: 27.2.9. [TC-CC-5.1] Color MoveTo functionality with server as DUT
 
 config:
-  nodeId: 0x12344321
-  cluster: 'Color Control'
-  endpoint: 1
-  colorXConfigValue:
-    type: int16u
-    defaultValue: 400
-  colorYConfigValue:
-    type: int16u
-    defaultValue: 500
+    nodeId: 0x12344321
+    cluster: "Color Control"
+    endpoint: 1
+    colorXConfigValue:
+        type: int16u
+        defaultValue: 400
+    colorYConfigValue:
+        type: int16u
+        defaultValue: 500
 
 tests:
-  - label: 'Wait for the commissioned device to be retrieved'
-    cluster: 'DelayCommands'
-    command: 'WaitForCommissionee'
-    arguments:
-      values:
-        - name: 'nodeId'
-          value: nodeId
+    - label: "Wait for the commissioned device to be retrieved"
+      cluster: "DelayCommands"
+      command: "WaitForCommissionee"
+      arguments:
+          values:
+              - name: "nodeId"
+                value: nodeId
 
-  - label: 'Turn on light for color control tests'
-    cluster: 'On/Off'
-    command: 'on'
+    - label: "Turn on light for color control tests"
+      cluster: "On/Off"
+      command: "on"
 
-  - label: 'Check on/off attribute value is true after on command'
-    cluster: 'On/Off'
-    command: 'readAttribute'
-    attribute: 'OnOff'
-    response:
-      value: 1
+    - label: "Check on/off attribute value is true after on command"
+      cluster: "On/Off"
+      command: "readAttribute"
+      attribute: "OnOff"
+      response:
+          value: 1
 
-  - label: 'TH writes 0 to the Options attribute'
-    PICS: CC.S.F03 && CC.S.A000f
-    command: 'writeAttribute'
-    attribute: 'Options'
-    arguments:
-      value: 0
+    - label: "TH writes 0 to the Options attribute"
+      PICS: CC.S.F03 && CC.S.A000f
+      command: "writeAttribute"
+      attribute: "Options"
+      arguments:
+          value: 0
 
-  - label: 'TH reads CurrentX attribute from DUT'
-    PICS: CC.S.F03 && CC.S.A0003
-    command: 'readAttribute'
-    attribute: 'CurrentX'
-    response:
-      constraints:
-        type: int16u
-        minValue: 0
-        maxValue: 65279
+    - label: "TH reads CurrentX attribute from DUT"
+      PICS: CC.S.F03 && CC.S.A0003
+      command: "readAttribute"
+      attribute: "CurrentX"
+      response:
+          constraints:
+              type: int16u
+              minValue: 0
+              maxValue: 65279
 
-  - label: 'TH reads CurrentY attribute from DUT'
-    PICS: CC.S.F03 && CC.S.A0004
-    command: 'readAttribute'
-    attribute: 'CurrentY'
-    response:
-      constraints:
-        type: int16u
-        minValue: 0
-        maxValue: 65279
+    - label: "TH reads CurrentY attribute from DUT"
+      PICS: CC.S.F03 && CC.S.A0004
+      command: "readAttribute"
+      attribute: "CurrentY"
+      response:
+          constraints:
+              type: int16u
+              minValue: 0
+              maxValue: 65279
 
-  - label: 'TH sends MoveToColor command to DUT'
-    PICS: CC.S.F03 && CC.S.C07.Rsp
-    command: 'MoveToColor'
-    arguments:
-      values:
-        - name: 'colorX'
+    - label: "TH sends MoveToColor command to DUT"
+      PICS: CC.S.F03 && CC.S.C07.Rsp
+      command: "MoveToColor"
+      arguments:
+          values:
+              - name: "colorX"
+                value: colorXConfigValue
+              - name: "colorY"
+                value: colorYConfigValue
+              - name: "TransitionTime"
+                value: 10
+              - name: "OptionsMask"
+                value: 0
+              - name: "OptionsOverride"
+                value: 0
+
+    - label: "Wait 1500ms"
+      cluster: "DelayCommands"
+      command: "WaitForMs"
+      arguments:
+          values:
+              - name: "ms"
+                value: 1500
+
+    - label: "Over TransitionTime, TH reads CurrentX attribute from DUT"
+      PICS: CC.S.F03 && CC.S.A0003 && CC.S.C07.Rsp
+      command: "readAttribute"
+      attribute: "CurrentX"
+      response:
           value: colorXConfigValue
-        - name: 'colorY'
+          constraints:
+              type: int16u
+              minValue: 0
+              maxValue: 65279
+
+    - label: "Over TransitionTime, TH reads CurrentY attribute from DUT"
+      PICS: CC.S.F03 && CC.S.A0004 && CC.S.C07.Rsp
+      command: "readAttribute"
+      attribute: "CurrentY"
+      response:
           value: colorYConfigValue
-        - name: 'TransitionTime'
-          value: 10
-        - name: 'OptionsMask'
+          constraints:
+              type: int16u
+              minValue: 0
+              maxValue: 65279
+
+    - label: "Turn off light that we turned on"
+      cluster: "On/Off"
+      command: "off"
+
+    - label: "Check on/off attribute value is false after off command"
+      cluster: "On/Off"
+      command: "readAttribute"
+      attribute: "OnOff"
+      response:
           value: 0
-        - name: 'OptionsOverride'
-          value: 0
-
-  - label: 'Wait 1500ms'
-    cluster: 'DelayCommands'
-    command: 'WaitForMs'
-    arguments:
-      values:
-        - name: 'ms'
-          value: 1500
-
-  - label: 'Over TransitionTime, TH reads CurrentX attribute from DUT'
-    PICS: CC.S.F03 && CC.S.A0003 && CC.S.C07.Rsp
-    command: 'readAttribute'
-    attribute: 'CurrentX'
-    response:
-      value: colorXConfigValue
-      constraints:
-        type: int16u
-        minValue: 0
-        maxValue: 65279
-
-  - label: 'Over TransitionTime, TH reads CurrentY attribute from DUT'
-    PICS: CC.S.F03 && CC.S.A0004 && CC.S.C07.Rsp
-    command: 'readAttribute'
-    attribute: 'CurrentY'
-    response:
-      value: colorYConfigValue
-      constraints:
-        type: int16u
-        minValue: 0
-        maxValue: 65279
-
-  - label: 'Turn off light that we turned on'
-    cluster: 'On/Off'
-    command: 'off'
-
-  - label: 'Check on/off attribute value is false after off command'
-    cluster: 'On/Off'
-    command: 'readAttribute'
-    attribute: 'OnOff'
-    response:
-      value: 0

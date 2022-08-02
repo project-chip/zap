@@ -16,37 +16,38 @@
 name: 3.2.2. [TC-PRS-2.2] Primary functionality with server as DUT
 
 config:
-  nodeId: 0x12344321
-  cluster: 'Basic'
-  endpoint: 0
+    nodeId: 0x12344321
+    cluster: "Basic"
+    endpoint: 0
 
 tests:
-  - label: 'Commission DUT to TH'
-    verification: |
+    - label: "Commission DUT to TH"
+      verification: |
 
-    disabled: true
+      disabled: true
 
-  - label: 'TH reads from the DUT the MeasuredValue attribute'
-    PICS: PRS.S.A0000
-    verification: |
-      Verify on the TH Log:
+    - label: "TH reads from the DUT the MeasuredValue attribute"
+      PICS: PRS.S.A0000
+      verification: |
+          Verify on the TH Log:
 
-      ./chip-tool pressuremeasurement read measured-value 1 1
+          ./chip-tool pressuremeasurement read measured-value 1 1
 
-      CHIP:TOO:   MeasuredValue: 0
-    disabled: true
+          CHIP:TOO:   MeasuredValue: 0
+      disabled: true
 
-  - label: 'Operate on device to change the pressure significantly'
-    PICS: PRS.M.PressureChange
-    verification: |
-      Operate at device
-    disabled: true
+    - label: "Operate on device to change the pressure significantly"
+      PICS: PRS.M.PressureChange
+      verification: |
+          Operate at device
+      disabled: true
 
-  - label: 'After a few seconds, TH reads from the DUT the MeasuredValue
-      attribute'
-    PICS: PRS.S.A0000
-    verification: |
-      ./chip-tool pressuremeasurement read measured-value 1 1
+    - label:
+          "After a few seconds, TH reads from the DUT the MeasuredValue
+          attribute"
+      PICS: PRS.S.A0000
+      verification: |
+          ./chip-tool pressuremeasurement read measured-value 1 1
 
-      DUT action missing [cant verify using Raspi]
-    disabled: true
+          DUT action missing [cant verify using Raspi]
+      disabled: true

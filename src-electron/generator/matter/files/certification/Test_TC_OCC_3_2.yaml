@@ -16,42 +16,42 @@
 name: 3.2.6. [TC-OCC-3.2] Primary functionality with client as DUT
 
 config:
-  nodeId: 0x12344321
-  cluster: 'Basic'
-  endpoint: 0
+    nodeId: 0x12344321
+    cluster: "Basic"
+    endpoint: 0
 
 tests:
-  - label: 'Commission TH to DUT'
-    verification: |
+    - label: "Commission TH to DUT"
+      verification: |
 
-    disabled: true
+      disabled: true
 
-  - label: 'DUT reads Occupancy attribute from TH'
-    PICS: OCC.C.A0000
-    verification: |
-      verify on Reference app receives the right response for the data sent in the below commands
-      ./chip-tool occupancysensing read occupancy 1 1
+    - label: "DUT reads Occupancy attribute from TH"
+      PICS: OCC.C.A0000
+      verification: |
+          verify on Reference app receives the right response for the data sent in the below commands
+          ./chip-tool occupancysensing read occupancy 1 1
 
-      Verify in TH all-clusters-app log
+          Verify in TH all-clusters-app log
 
-      [1648461864.548948][9281:9286] CHIP:TOO: Endpoint: 1 Cluster: 0x0000_0406 Attribute 0x0000_0000 DataVersion: 3082917122
-      [1648461864.549008][9281:9286] CHIP:TOO:   occupancy: 0
-    disabled: true
+          [1648461864.548948][9281:9286] CHIP:TOO: Endpoint: 1 Cluster: 0x0000_0406 Attribute 0x0000_0000 DataVersion: 3082917122
+          [1648461864.549008][9281:9286] CHIP:TOO:   occupancy: 0
+      disabled: true
 
-  - label: 'Operate on TH to change the occupancy status'
-    PICS: OCC.M.OccupancyChange
-    verification: |
-      Logs will be device specific[Dut Action needed]
-    disabled: true
+    - label: "Operate on TH to change the occupancy status"
+      PICS: OCC.M.OccupancyChange
+      verification: |
+          Logs will be device specific[Dut Action needed]
+      disabled: true
 
-  - label: 'after a few seconds, DUT reads Occupancy attribute from TH'
-    PICS: OCC.C.A0000
-    verification: |
-      verify on Reference app receives the right response for the data sent in the below commands
-      ./chip-tool occupancysensing read occupancy 1 1
+    - label: "after a few seconds, DUT reads Occupancy attribute from TH"
+      PICS: OCC.C.A0000
+      verification: |
+          verify on Reference app receives the right response for the data sent in the below commands
+          ./chip-tool occupancysensing read occupancy 1 1
 
-      Verify in TH all-clusters-app log
+          Verify in TH all-clusters-app log
 
-      [1648461864.548948][9281:9286] CHIP:TOO: Endpoint: 1 Cluster: 0x0000_0406 Attribute 0x0000_0000 DataVersion: 3082917122
-      [1648461864.549008][9281:9286] CHIP:TOO:   occupancy: 1
-    disabled: true
+          [1648461864.548948][9281:9286] CHIP:TOO: Endpoint: 1 Cluster: 0x0000_0406 Attribute 0x0000_0000 DataVersion: 3082917122
+          [1648461864.549008][9281:9286] CHIP:TOO:   occupancy: 1
+      disabled: true

@@ -15,55 +15,55 @@
 name: 19.10.1. [TC-TGTNAV-8.1] Navigate Target Verification
 
 config:
-  nodeId: 0x12344321
-  cluster: 'Target Navigator'
-  endpoint: 1
-  targetvalue1:
-    type: int8u
-    defaultValue: 1
-  targetvalue2:
-    type: int8u
-    defaultValue: 2
+    nodeId: 0x12344321
+    cluster: "Target Navigator"
+    endpoint: 1
+    targetvalue1:
+        type: int8u
+        defaultValue: 1
+    targetvalue2:
+        type: int8u
+        defaultValue: 2
 
 tests:
-  - label: 'Wait for the commissioned device to be retrieved'
-    cluster: 'DelayCommands'
-    command: 'WaitForCommissionee'
-    arguments:
-      values:
-        - name: 'nodeId'
-          value: nodeId
+    - label: "Wait for the commissioned device to be retrieved"
+      cluster: "DelayCommands"
+      command: "WaitForCommissionee"
+      arguments:
+          values:
+              - name: "nodeId"
+                value: nodeId
 
-  - label: 'Reads the CurrentTarget attribute'
-    PICS: TGTNAV.S.A0001
-    command: 'readAttribute'
-    attribute: 'CurrentTarget'
-    response:
-      constraints:
-        type: int8u
-        minValue: 0
-        maxValue: 255
+    - label: "Reads the CurrentTarget attribute"
+      PICS: TGTNAV.S.A0001
+      command: "readAttribute"
+      attribute: "CurrentTarget"
+      response:
+          constraints:
+              type: int8u
+              minValue: 0
+              maxValue: 255
 
-  - label: 'Reads the TargetList attribute'
-    PICS: TGTNAV.S.A0000
-    command: 'readAttribute'
-    attribute: 'TargetList'
-    response:
-      saveAs: TargetListValues
-      constraints:
-        type: list
+    - label: "Reads the TargetList attribute"
+      PICS: TGTNAV.S.A0000
+      command: "readAttribute"
+      attribute: "TargetList"
+      response:
+          saveAs: TargetListValues
+          constraints:
+              type: list
 
-  - label: 'Sends a NavigateTarget command'
-    PICS: TGTNAV.S.C0000
-    command: 'NavigateTarget'
-    arguments:
-      values:
-        - name: 'Target'
+    - label: "Sends a NavigateTarget command"
+      PICS: TGTNAV.S.C0000
+      command: "NavigateTarget"
+      arguments:
+          values:
+              - name: "Target"
+                value: targetvalue1
+
+    - label: "Reads the CurrentTarget attribute"
+      PICS: TGTNAV.S.A0001 && TGTNAV.S.C0000
+      command: "readAttribute"
+      attribute: "CurrentTarget"
+      response:
           value: targetvalue1
-
-  - label: 'Reads the CurrentTarget attribute'
-    PICS: TGTNAV.S.A0001 && TGTNAV.S.C0000
-    command: 'readAttribute'
-    attribute: 'CurrentTarget'
-    response:
-      value: targetvalue1

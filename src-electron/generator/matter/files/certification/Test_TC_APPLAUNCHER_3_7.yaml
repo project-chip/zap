@@ -15,55 +15,59 @@
 name: 19.4.3. [TC-APPLAUNCHER-3.7] Launch Application Verification
 
 config:
-  nodeId: 0x12344321
-  cluster: 'Application Launcher'
-  endpoint: 1
-  catalogVendorId:
-    type: int16u
-    defaultValue: 123
-  applicationId:
-    type: char_string
-    defaultValue: 'exampleid'
+    nodeId: 0x12344321
+    cluster: "Application Launcher"
+    endpoint: 1
+    catalogVendorId:
+        type: int16u
+        defaultValue: 123
+    applicationId:
+        type: char_string
+        defaultValue: "exampleid"
 
 tests:
-  - label: 'Wait for the commissioned device to be retrieved'
-    cluster: 'DelayCommands'
-    command: 'WaitForCommissionee'
-    arguments:
-      values:
-        - name: 'nodeId'
-          value: nodeId
+    - label: "Wait for the commissioned device to be retrieved"
+      cluster: "DelayCommands"
+      command: "WaitForCommissionee"
+      arguments:
+          values:
+              - name: "nodeId"
+                value: nodeId
 
-  - label: 'Launch an app with the provided a application ID'
-    PICS: APPLAUNCHER.S.C0000
-    command: 'LaunchApp'
-    arguments:
-      values:
-        - name: 'Data'
-          value: 'Hello World'
-        - name: 'application'
-          value:
-            { catalogVendorId: catalogVendorId, applicationId: applicationId }
-    response:
-      values:
-        - name: 'status'
-          value: 0
+    - label: "Launch an app with the provided a application ID"
+      PICS: APPLAUNCHER.S.C0000
+      command: "LaunchApp"
+      arguments:
+          values:
+              - name: "Data"
+                value: "Hello World"
+              - name: "application"
+                value:
+                    {
+                        catalogVendorId: catalogVendorId,
+                        applicationId: applicationId,
+                    }
+      response:
+          values:
+              - name: "status"
+                value: 0
 
-  - label: 'TH sends a LaunchApp command to DUT to launch an app which is not
-      available'
-    PICS: APPLAUNCHER.S.C0000
-    command: 'LaunchApp'
-    arguments:
-      values:
-        - name: 'data'
-          value: 'Hello World'
-        - name: 'application'
-          value:
-            {
-              catalogVendorId: catalogVendorId,
-              applicationId: 'NonAvailableApp',
-            }
-    response:
-      values:
-        - name: 'status'
-          value: 1
+    - label:
+          "TH sends a LaunchApp command to DUT to launch an app which is not
+          available"
+      PICS: APPLAUNCHER.S.C0000
+      command: "LaunchApp"
+      arguments:
+          values:
+              - name: "data"
+                value: "Hello World"
+              - name: "application"
+                value:
+                    {
+                        catalogVendorId: catalogVendorId,
+                        applicationId: "NonAvailableApp",
+                    }
+      response:
+          values:
+              - name: "status"
+                value: 1

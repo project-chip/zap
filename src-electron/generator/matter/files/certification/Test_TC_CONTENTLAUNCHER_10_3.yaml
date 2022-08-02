@@ -16,32 +16,34 @@
 name: 3.12.2. [TC-CONTENTLAUNCHER-10.3] Launch Content Verification
 
 config:
-  nodeId: 0x12344321
-  cluster: 'Basic'
-  endpoint: 0
+    nodeId: 0x12344321
+    cluster: "Basic"
+    endpoint: 0
 
 tests:
-  - label: 'TH sends a LaunchContent command to the DUT with a search parameter
-      and string, and AutoPlay flag set to false'
-    PICS: CONTENTLAUNCHER.C.C0000
-    verification: |
-      ./chip-tool contentlauncher launch-content '{"parameterList": [ { "type": 0, "value": "exampleString", "externalIDList": [ { "name": "exampleName", "value": "exampleValue"} ] } ] }' 0 1 1
+    - label:
+          "TH sends a LaunchContent command to the DUT with a search parameter
+          and string, and AutoPlay flag set to false"
+      PICS: CONTENTLAUNCHER.C.C0000
+      verification: |
+          ./chip-tool contentlauncher launch-content '{"parameterList": [ { "type": 0, "value": "exampleString", "externalIDList": [ { "name": "exampleName", "value": "exampleValue"} ] } ] }' 0 1 1
 
-      Verify in TH Log:
-      [1651062794.114531][157317:157322] CHIP:TOO:   LaunchResponse: {
-      [1651062794.114546][157317:157322] CHIP:TOO:     status: 0
-      [1651062794.114553][157317:157322] CHIP:TOO:     data: exampleData
-      [1651062794.114560][157317:157322] CHIP:TOO:    }
-    disabled: true
+          Verify in TH Log:
+          [1651062794.114531][157317:157322] CHIP:TOO:   LaunchResponse: {
+          [1651062794.114546][157317:157322] CHIP:TOO:     status: 0
+          [1651062794.114553][157317:157322] CHIP:TOO:     data: exampleData
+          [1651062794.114560][157317:157322] CHIP:TOO:    }
+      disabled: true
 
-  - label: 'TH sends a LaunchContent command to the DUT with a search parameter
-      and string, and AutoPlay flag set to true'
-    PICS: CONTENTLAUNCHER.C.C0000
-    verification: |
-      ./chip-tool contentlauncher launch-content '{"parameterList": [ { "type": 0, "value": "exampleString", "externalIDList": [ { "name": "exampleName", "value": "exampleValue"} ] } ] }' 1 1 1
-      Verify in TH Log:
-      [1651062895.695667][157343:157348] CHIP:TOO:   LaunchResponse: {
-      [1651062895.695703][157343:157348] CHIP:TOO:     status: 0
-      [1651062895.695724][157343:157348] CHIP:TOO:     data: exampleData
-      [1651062895.695746][157343:157348] CHIP:TOO:    }
-    disabled: true
+    - label:
+          "TH sends a LaunchContent command to the DUT with a search parameter
+          and string, and AutoPlay flag set to true"
+      PICS: CONTENTLAUNCHER.C.C0000
+      verification: |
+          ./chip-tool contentlauncher launch-content '{"parameterList": [ { "type": 0, "value": "exampleString", "externalIDList": [ { "name": "exampleName", "value": "exampleValue"} ] } ] }' 1 1 1
+          Verify in TH Log:
+          [1651062895.695667][157343:157348] CHIP:TOO:   LaunchResponse: {
+          [1651062895.695703][157343:157348] CHIP:TOO:     status: 0
+          [1651062895.695724][157343:157348] CHIP:TOO:     data: exampleData
+          [1651062895.695746][157343:157348] CHIP:TOO:    }
+      disabled: true

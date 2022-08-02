@@ -15,38 +15,38 @@
 name: 19.9.1. [TC-AUDIOOUTPUT-7.1] Select Output Verification
 
 config:
-  nodeId: 0x12344321
-  cluster: 'Audio Output'
-  endpoint: 1
+    nodeId: 0x12344321
+    cluster: "Audio Output"
+    endpoint: 1
 
 tests:
-  - label: 'Wait for the commissioned device to be retrieved'
-    cluster: 'DelayCommands'
-    command: 'WaitForCommissionee'
-    arguments:
-      values:
-        - name: 'nodeId'
-          value: nodeId
+    - label: "Wait for the commissioned device to be retrieved"
+      cluster: "DelayCommands"
+      command: "WaitForCommissionee"
+      arguments:
+          values:
+              - name: "nodeId"
+                value: nodeId
 
-  - label: 'Reads the OutputList attribute'
-    PICS: AUDIOOUTPUT.S.A0000
-    command: 'readAttribute'
-    attribute: 'OutputList'
-    response:
-      constraints:
-        type: list
+    - label: "Reads the OutputList attribute"
+      PICS: AUDIOOUTPUT.S.A0000
+      command: "readAttribute"
+      attribute: "OutputList"
+      response:
+          constraints:
+              type: list
 
-  - label: 'Sends a SelectAudioOutput command'
-    PICS: AUDIOOUTPUT.S.C0000
-    command: 'SelectOutput'
-    arguments:
-      values:
-        - name: 'Index'
+    - label: "Sends a SelectAudioOutput command"
+      PICS: AUDIOOUTPUT.S.C0000
+      command: "SelectOutput"
+      arguments:
+          values:
+              - name: "Index"
+                value: 1
+
+    - label: "Reads the CurrentOutput attribute"
+      PICS: AUDIOOUTPUT.S.A0001
+      command: "readAttribute"
+      attribute: "CurrentOutput"
+      response:
           value: 1
-
-  - label: 'Reads the CurrentOutput attribute'
-    PICS: AUDIOOUTPUT.S.A0001
-    command: 'readAttribute'
-    attribute: 'CurrentOutput'
-    response:
-      value: 1

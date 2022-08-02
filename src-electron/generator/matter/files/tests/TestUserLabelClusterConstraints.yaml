@@ -15,38 +15,43 @@
 name: User Label Cluster Tests
 
 config:
-  nodeId: 0x12344321
-  cluster: 'User Label'
-  endpoint: 0
+    nodeId: 0x12344321
+    cluster: "User Label"
+    endpoint: 0
 
 tests:
-  - label: 'Wait for the commissioned device to be retrieved'
-    cluster: 'DelayCommands'
-    command: 'WaitForCommissionee'
-    arguments:
-      values:
-        - name: 'nodeId'
-          value: nodeId
+    - label: "Wait for the commissioned device to be retrieved"
+      cluster: "DelayCommands"
+      command: "WaitForCommissionee"
+      arguments:
+          values:
+              - name: "nodeId"
+                value: nodeId
 
-  - label: 'Attempt to write overly long item for label'
-    command: 'writeAttribute'
-    attribute: 'label list'
-    arguments:
-      value:
-        [
-          {
-            label: 'this is longer than sixteen characters',
-            value: 'bedroom 2',
-          },
-        ]
-    response:
-      error: CONSTRAINT_ERROR
+    - label: "Attempt to write overly long item for label"
+      command: "writeAttribute"
+      attribute: "label list"
+      arguments:
+          value:
+              [
+                  {
+                      label: "this is longer than sixteen characters",
+                      value: "bedroom 2",
+                  },
+              ]
+      response:
+          error: CONSTRAINT_ERROR
 
-  - label: 'Attempt to write overly long item for value'
-    command: 'writeAttribute'
-    attribute: 'label list'
-    arguments:
-      value:
-        [{ label: 'test', value: 'this is longer than sixteen characters' }]
-    response:
-      error: CONSTRAINT_ERROR
+    - label: "Attempt to write overly long item for value"
+      command: "writeAttribute"
+      attribute: "label list"
+      arguments:
+          value:
+              [
+                  {
+                      label: "test",
+                      value: "this is longer than sixteen characters",
+                  },
+              ]
+      response:
+          error: CONSTRAINT_ERROR

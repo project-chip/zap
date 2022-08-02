@@ -15,44 +15,44 @@
 name: Subscribe Tests - OnOff Cluster
 
 config:
-  nodeId: 0x12344321
-  cluster: 'On/Off'
-  endpoint: 1
+    nodeId: 0x12344321
+    cluster: "On/Off"
+    endpoint: 1
 
 tests:
-  - label: 'Wait for the commissioned device to be retrieved'
-    cluster: 'DelayCommands'
-    command: 'WaitForCommissionee'
-    arguments:
-      values:
-        - name: 'nodeId'
-          value: nodeId
+    - label: "Wait for the commissioned device to be retrieved"
+      cluster: "DelayCommands"
+      command: "WaitForCommissionee"
+      arguments:
+          values:
+              - name: "nodeId"
+                value: nodeId
 
-  - label: 'Set OnOff Attribute to false'
-    command: 'Off'
+    - label: "Set OnOff Attribute to false"
+      command: "Off"
 
-  - label: 'Subscribe OnOff Attribute'
-    command: 'subscribeAttribute'
-    attribute: 'OnOff'
-    minInterval: 2
-    maxInterval: 5
-    response:
-      value: false
+    - label: "Subscribe OnOff Attribute"
+      command: "subscribeAttribute"
+      attribute: "OnOff"
+      minInterval: 2
+      maxInterval: 5
+      response:
+          value: false
 
-  - label: 'Turn On the light to see attribute change'
-    command: 'On'
+    - label: "Turn On the light to see attribute change"
+      command: "On"
 
-  - label: 'Check for attribute report'
-    command: 'waitForReport'
-    attribute: 'OnOff'
-    response:
-      value: true
+    - label: "Check for attribute report"
+      command: "waitForReport"
+      attribute: "OnOff"
+      response:
+          value: true
 
-  - label: 'Turn Off the light to see attribute change'
-    command: 'Off'
+    - label: "Turn Off the light to see attribute change"
+      command: "Off"
 
-  - label: 'Check for attribute report'
-    command: 'waitForReport'
-    attribute: 'OnOff'
-    response:
-      value: false
+    - label: "Check for attribute report"
+      command: "waitForReport"
+      attribute: "OnOff"
+      response:
+          value: false

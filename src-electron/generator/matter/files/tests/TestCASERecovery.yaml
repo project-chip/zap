@@ -15,61 +15,61 @@
 name: Test for CASE recovery
 
 config:
-  nodeId: 0x12344321
-  cluster: 'Basic'
-  endpoint: 0
+    nodeId: 0x12344321
+    cluster: "Basic"
+    endpoint: 0
 
 tests:
-  - label: 'Wait for the commissioned device to be retrieved'
-    cluster: 'DelayCommands'
-    command: 'WaitForCommissionee'
-    arguments:
-      values:
-        - name: 'nodeId'
-          value: nodeId
+    - label: "Wait for the commissioned device to be retrieved"
+      cluster: "DelayCommands"
+      command: "WaitForCommissionee"
+      arguments:
+          values:
+              - name: "nodeId"
+                value: nodeId
 
-  # Make sure we have a working CASE session.
-  - label: 'Read an attribute'
-    command: 'readAttribute'
-    attribute: 'DataModelRevision'
-    response:
-      value: 1
+    # Make sure we have a working CASE session.
+    - label: "Read an attribute"
+      command: "readAttribute"
+      attribute: "DataModelRevision"
+      response:
+          value: 1
 
-  - label: 'Reboot the server'
-    cluster: 'SystemCommands'
-    command: 'Reboot'
+    - label: "Reboot the server"
+      cluster: "SystemCommands"
+      command: "Reboot"
 
-  - label: 'Re-get our session, but without expiring sesssions'
-    cluster: 'DelayCommands'
-    command: 'WaitForCommissionee'
-    arguments:
-      values:
-        - name: 'nodeId'
-          value: nodeId
-        - name: 'expireExistingSession'
-          value: false
+    - label: "Re-get our session, but without expiring sesssions"
+      cluster: "DelayCommands"
+      command: "WaitForCommissionee"
+      arguments:
+          values:
+              - name: "nodeId"
+                value: nodeId
+              - name: "expireExistingSession"
+                value: false
 
-  # Try to do something with the CASE session.  This should time out, but
-  # mark the CASE session as defunct.
-  - label: 'Read an attribute again'
-    command: 'readAttribute'
-    attribute: 'DataModelRevision'
-    response:
-      error: FAILURE
+    # Try to do something with the CASE session.  This should time out, but
+    # mark the CASE session as defunct.
+    - label: "Read an attribute again"
+      command: "readAttribute"
+      attribute: "DataModelRevision"
+      response:
+          error: FAILURE
 
-  - label: 'Re-get our session, but without expiring sesssions'
-    cluster: 'DelayCommands'
-    command: 'WaitForCommissionee'
-    arguments:
-      values:
-        - name: 'nodeId'
-          value: nodeId
-        - name: 'expireExistingSession'
-          value: false
+    - label: "Re-get our session, but without expiring sesssions"
+      cluster: "DelayCommands"
+      command: "WaitForCommissionee"
+      arguments:
+          values:
+              - name: "nodeId"
+                value: nodeId
+              - name: "expireExistingSession"
+                value: false
 
-  # Now trying to do another read should create a new CASE session successfully.
-  - label: 'Read an attribute a third time'
-    command: 'readAttribute'
-    attribute: 'DataModelRevision'
-    response:
-      value: 1
+    # Now trying to do another read should create a new CASE session successfully.
+    - label: "Read an attribute a third time"
+      command: "readAttribute"
+      attribute: "DataModelRevision"
+      response:
+          value: 1

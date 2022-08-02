@@ -15,13 +15,16 @@
  *    limitations under the License.
  */
 
-function getTests() {
-  const tests = ['Test_TC_BINFO_2_3_Simulated']
+function getTests()
+{
+  const tests = [
+    "Test_TC_BINFO_2_3_Simulated",
+  ];
 
-  return tests.join(', ')
+  return tests.join(', ');
 }
 
 //
 // Module exports
 //
-exports.getTests = getTests
+exports.getTests = getTests;

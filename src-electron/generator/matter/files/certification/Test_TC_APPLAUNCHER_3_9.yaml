@@ -15,38 +15,41 @@
 name: 19.4.7. [TC-APPLAUNCHER-3.9] Hide Application Verification
 
 config:
-  nodeId: 0x12344321
-  cluster: 'Application Launcher'
-  endpoint: 1
-  catalogVendorId:
-    type: int16u
-    defaultValue: 123
-  applicationId:
-    type: char_string
-    defaultValue: 'exampleid'
+    nodeId: 0x12344321
+    cluster: "Application Launcher"
+    endpoint: 1
+    catalogVendorId:
+        type: int16u
+        defaultValue: 123
+    applicationId:
+        type: char_string
+        defaultValue: "exampleid"
 
 tests:
-  - label: 'Wait for the commissioned device to be retrieved'
-    cluster: 'DelayCommands'
-    command: 'WaitForCommissionee'
-    arguments:
-      values:
-        - name: 'nodeId'
-          value: nodeId
+    - label: "Wait for the commissioned device to be retrieved"
+      cluster: "DelayCommands"
+      command: "WaitForCommissionee"
+      arguments:
+          values:
+              - name: "nodeId"
+                value: nodeId
 
-  - label: 'TH sends HideApp command to DUT'
-    PICS: APPLAUNCHER.S.C0002
-    command: 'HideApp'
-    arguments:
-      values:
-        - name: 'application'
-          value:
-            { catalogVendorId: catalogVendorId, applicationId: applicationId }
+    - label: "TH sends HideApp command to DUT"
+      PICS: APPLAUNCHER.S.C0002
+      command: "HideApp"
+      arguments:
+          values:
+              - name: "application"
+                value:
+                    {
+                        catalogVendorId: catalogVendorId,
+                        applicationId: applicationId,
+                    }
 
-  - label: 'Reads the Status attribute'
-    cluster: 'Application Basic'
-    endpoint: 3
-    command: 'readAttribute'
-    attribute: 'Status'
-    response:
-      value: 0
+    - label: "Reads the Status attribute"
+      cluster: "Application Basic"
+      endpoint: 3
+      command: "readAttribute"
+      attribute: "Status"
+      response:
+          value: 0

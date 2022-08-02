@@ -15,87 +15,87 @@
 name: User Label Cluster Tests
 
 config:
-  nodeId: 0x12344321
-  cluster: 'User Label'
-  endpoint: 0
+    nodeId: 0x12344321
+    cluster: "User Label"
+    endpoint: 0
 
 tests:
-  - label: 'Wait for the commissioned device to be retrieved'
-    cluster: 'DelayCommands'
-    command: 'WaitForCommissionee'
-    arguments:
-      values:
-        - name: 'nodeId'
-          value: nodeId
+    - label: "Wait for the commissioned device to be retrieved"
+      cluster: "DelayCommands"
+      command: "WaitForCommissionee"
+      arguments:
+          values:
+              - name: "nodeId"
+                value: nodeId
 
-  - label: 'Commit User Label List'
-    command: 'writeAttribute'
-    attribute: 'label list'
-    arguments:
-      value:
-        [
-          { label: 'room', value: 'bedroom 1' },
-          { label: 'orientation', value: 'South' },
-          { label: 'floor', value: '2' },
-          { label: 'direction', value: 'down' },
-        ]
+    - label: "Commit User Label List"
+      command: "writeAttribute"
+      attribute: "label list"
+      arguments:
+          value:
+              [
+                  { label: "room", value: "bedroom 1" },
+                  { label: "orientation", value: "South" },
+                  { label: "floor", value: "2" },
+                  { label: "direction", value: "down" },
+              ]
 
-  - label: 'Verify committed User Label List'
-    command: 'readAttribute'
-    attribute: 'label list'
-    response:
-      value:
-        [
-          { label: 'room', value: 'bedroom 1' },
-          { label: 'orientation', value: 'South' },
-          { label: 'floor', value: '2' },
-          { label: 'direction', value: 'down' },
-        ]
+    - label: "Verify committed User Label List"
+      command: "readAttribute"
+      attribute: "label list"
+      response:
+          value:
+              [
+                  { label: "room", value: "bedroom 1" },
+                  { label: "orientation", value: "South" },
+                  { label: "floor", value: "2" },
+                  { label: "direction", value: "down" },
+              ]
 
-  - label: 'Clear User Label List'
-    command: 'writeAttribute'
-    attribute: 'label list'
-    arguments:
-      value: []
+    - label: "Clear User Label List"
+      command: "writeAttribute"
+      attribute: "label list"
+      arguments:
+          value: []
 
-  - label: 'Read User Label List'
-    command: 'readAttribute'
-    attribute: 'label list'
-    response:
-      value: []
+    - label: "Read User Label List"
+      command: "readAttribute"
+      attribute: "label list"
+      response:
+          value: []
 
-  - label: 'Write User Label List'
-    command: 'writeAttribute'
-    attribute: 'label list'
-    arguments:
-      value:
-        [
-          { label: 'room', value: 'bedroom 2' },
-          { label: 'orientation', value: 'North' },
-          { label: 'floor', value: '5' },
-          { label: 'direction', value: 'up' },
-        ]
+    - label: "Write User Label List"
+      command: "writeAttribute"
+      attribute: "label list"
+      arguments:
+          value:
+              [
+                  { label: "room", value: "bedroom 2" },
+                  { label: "orientation", value: "North" },
+                  { label: "floor", value: "5" },
+                  { label: "direction", value: "up" },
+              ]
 
-  - label: 'Reboot target device'
-    cluster: 'SystemCommands'
-    command: 'Reboot'
+    - label: "Reboot target device"
+      cluster: "SystemCommands"
+      command: "Reboot"
 
-  - label: 'Wait for the commissioned device to be retrieved'
-    cluster: 'DelayCommands'
-    command: 'WaitForCommissionee'
-    arguments:
-      values:
-        - name: 'nodeId'
-          value: nodeId
+    - label: "Wait for the commissioned device to be retrieved"
+      cluster: "DelayCommands"
+      command: "WaitForCommissionee"
+      arguments:
+          values:
+              - name: "nodeId"
+                value: nodeId
 
-  - label: 'Verify User Label List after reboot'
-    command: 'readAttribute'
-    attribute: 'label list'
-    response:
-      value:
-        [
-          { label: 'room', value: 'bedroom 2' },
-          { label: 'orientation', value: 'North' },
-          { label: 'floor', value: '5' },
-          { label: 'direction', value: 'up' },
-        ]
+    - label: "Verify User Label List after reboot"
+      command: "readAttribute"
+      attribute: "label list"
+      response:
+          value:
+              [
+                  { label: "room", value: "bedroom 2" },
+                  { label: "orientation", value: "North" },
+                  { label: "floor", value: "5" },
+                  { label: "direction", value: "up" },
+              ]
