@@ -16,7 +16,7 @@ limitations under the License.
 
 Note: 
   This file was generated automatically from the official
-  CSA alliance manufacturer ID database on: Mon Aug 01 2022 11:33:39 GMT-0400 (Eastern Daylight Time)
+  CSA alliance manufacturer ID database on: Tue Aug 02 2022 08:01:02 GMT-0400 (Eastern Daylight Time)
   Please do not edit manually!
 -->
 <map>
@@ -438,11 +438,13 @@ Note:
   <mapping code="0x119E" translation="Guangzhou Lanvee Tech. Co. Ltd."/>
   <mapping code="0x119F" translation="Venstar"/>
   <mapping code="0x1200" translation="SLV"/>
-  <mapping code="0x1201" translation="Smartlok Inc."/>
+  <mapping code="0x1201" translation="Halo Smart Labs"/>
   <mapping code="0x1202" translation="Scout Security Inc."/>
   <mapping code="0x1203" translation="Alibaba China Inc."/>
   <mapping code="0x1204" translation="Resolution Products, Inc."/>
   <mapping code="0x1205" translation="Smartlok Inc."/>
+  <mapping code="0x1206" translation="Lux Products Corp."/>
+  <mapping code="0x1207" translation="Vimar SpA"/>
   <mapping code="0x1208" translation="Universal Lighting Technologies"/>
   <mapping code="0x1209" translation="Robert Bosch, GmbH"/>
   <mapping code="0x120A" translation="Accenture"/>
