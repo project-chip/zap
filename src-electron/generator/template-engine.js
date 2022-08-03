@@ -312,7 +312,7 @@ function findHelperPackageByAlias(alias) {
 /**
  * Global helper initialization
  */
-function initializeGlobalHelpers(
+function initializeBuiltInHelpersForPackage(
   hb,
   included = {
     aliases: [],
@@ -355,7 +355,7 @@ function hbInstance() {
 exports.produceContent = produceContent
 exports.loadHelper = loadHelper
 exports.loadPartial = loadPartial
-exports.initializeGlobalHelpers = initializeGlobalHelpers
+exports.initializeBuiltInHelpersForPackage = initializeBuiltInHelpersForPackage
 exports.allBuiltInHelpers = allBuiltInHelpers
 exports.hbInstance = hbInstance
 exports.findHelperPackageByAlias = findHelperPackageByAlias

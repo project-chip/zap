@@ -545,15 +545,17 @@ async function generateAllTemplates(
     }
   })
 
+  // Let's collect the required list of helpers.
   let included = await calculateIncludedAliasesAndCategories(
     genResult.db,
     genTemplateJsonPkg.id
   )
 
-  // Initialize global helpers
-  templateEngine.initializeGlobalHelpers(hb, included)
+  // Initialize helpers package. This is based on the specific
+  // list that was calculated above in the `included`
+  templateEngine.initializeBuiltInHelpersForPackage(hb, included)
 
-  // Next load the addon helpers
+  // Next load the addon helpers which were not yet initialized earlier.
   packages.forEach((singlePkg) => {
     if (singlePkg.type == dbEnum.packageType.genHelper) {
       helperPromises.push(templateEngine.loadHelper(hb, singlePkg.path))
