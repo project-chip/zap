@@ -1,7 +1,7 @@
 {
   "name": "Meta test templates",
   "version": "meta-test",
-  "helpers": ["meta-helper", "access"],
+  "helpers": ["meta-helper"],
   "categories": ["meta"],
   "templates": [
     {

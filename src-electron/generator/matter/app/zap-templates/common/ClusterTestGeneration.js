@@ -234,7 +234,7 @@ function setDefaultPICS(test) {
     .split(/[&|() !]+/g)
     .filter((item) => item.length)
   items.forEach((key) => {
-    if (!PICS.has(key)) {
+    if (!retrievePICS().has(key)) {
       const errorStr =
         'PICS database does not contains any defined value for: ' + key
       throwError(test, errorStr)
@@ -575,11 +575,16 @@ function assertCommandOrAttributeOrEvent(context) {
   })
 }
 
-const PICS = (() => {
+let loadedPICS = null
+
+function retrievePICS() {
+  if (loadedPICS != null) return loadedPICS
+
   let filepath = path.resolve(
     __dirname,
     '../../../files/certification/PICS.yaml'
   )
+  console.log('READING PICS FILE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
   const data = fs.readFileSync(filepath, { encoding: 'utf8', flag: 'r' })
   const yaml = YAML.parse(data)
 
@@ -593,14 +598,17 @@ const PICS = (() => {
     get: get,
     has: has,
   }
-  return PICS
-})()
+
+  loadedPICS = PICS
+
+  return loadedPICS
+}
 
 //
 // Templates
 //
 function chip_tests_pics(options) {
-  return templateUtil.collectBlocks(PICS.getAll(), options, this)
+  return templateUtil.collectBlocks(retrievePICS().getAll(), options, this)
 }
 
 async function configureTestItem(item) {
