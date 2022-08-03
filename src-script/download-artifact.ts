@@ -193,7 +193,6 @@ async function nexusGetArtifacts(url: string, options: DlOptions) {
     continuationToken = resp?.data?.continuationToken
 
     do {
-      let url
       if (continuationToken) {
         url = url + `&continuationToken=${continuationToken}`
       } else {
