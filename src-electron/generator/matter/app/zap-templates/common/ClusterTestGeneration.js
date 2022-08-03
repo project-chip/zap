@@ -584,7 +584,6 @@ function retrievePICS() {
     __dirname,
     '../../../files/certification/PICS.yaml'
   )
-  console.log('READING PICS FILE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
   const data = fs.readFileSync(filepath, { encoding: 'utf8', flag: 'r' })
   const yaml = YAML.parse(data)
 
