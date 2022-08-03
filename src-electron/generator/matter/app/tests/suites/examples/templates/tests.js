@@ -42,3 +42,8 @@ function getTests() {
 //
 exports.getTests = getTests
 exports.getManualTests = getManualTests
+
+exports.meta = {
+  category: dbEnum.helperCategory.matter,
+  alias: ['app/tests/suites/examples/templates/tests.js'],
+}

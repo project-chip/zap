@@ -15,19 +15,15 @@
  *    limitations under the License.
  */
 
-const basePath = '../../../../'
-const testPath = 'src/app/tests/suites/'
-const certificationPath = 'src/app/tests/suites/certification/'
-const zapPath = '../../../../../'
 const YAML = require('yaml')
 const fs = require('fs')
 const path = require('path')
 
 // Import helpers from zap core
-const templateUtil = require(zapPath + 'generator/template-util.js')
-const zclHelper = require(zapPath + 'generator/helper-zcl.js')
-const queryEnum = require(zapPath + 'db/query-enum')
-const queryBitmap = require(zapPath + 'db/query-bitmap')
+const templateUtil = require('../../../../../generator/template-util')
+const zclHelper = require('../../../../../generator/helper-zcl')
+const queryEnum = require('../../../../../db/query-enum')
+const queryBitmap = require('../../../../../db/query-bitmap')
 const dbEnum = require('../../../../../../src-shared/db-enum')
 
 const {
@@ -36,9 +32,9 @@ const {
   getAttributes,
   getEvents,
   isTestOnlyCluster,
-} = require('./simulated-clusters/SimulatedClusters.js')
-const { asBlocks, ensureClusters } = require('./ClustersHelper.js')
-const { Variables } = require('./variables/Variables.js')
+} = require('./simulated-clusters/SimulatedClusters')
+const { asBlocks, ensureClusters } = require('./ClustersHelper')
+const { Variables } = require('./variables/Variables')
 
 const kIdentityName = 'identity'
 const kClusterName = 'cluster'
