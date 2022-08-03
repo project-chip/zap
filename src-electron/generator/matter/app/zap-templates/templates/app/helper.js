@@ -622,13 +622,13 @@ async function _zapTypeToPythonClusterObjectType(type, options) {
       return 'uint'
     }
 
-    resolvedType = await zclHelper.asUnderlyingZclType.call(
+    let resolvedType = await zclHelper.asUnderlyingZclType.call(
       { global: this.global },
       type,
       options
     )
     {
-      basicType = ChipTypesHelper.asBasicType(resolvedType)
+      let basicType = ChipTypesHelper.asBasicType(resolvedType)
       if (basicType.match(/^int\d+_t$/)) {
         return 'int'
       }
@@ -708,13 +708,13 @@ async function _getPythonFieldDefault(type, options) {
       return '0'
     }
 
-    resolvedType = await zclHelper.asUnderlyingZclType.call(
+    let resolvedType = await zclHelper.asUnderlyingZclType.call(
       { global: this.global },
       type,
       options
     )
     {
-      basicType = ChipTypesHelper.asBasicType(resolvedType)
+      let basicType = ChipTypesHelper.asBasicType(resolvedType)
       if (basicType.match(/^int\d+_t$/)) {
         return '0'
       }

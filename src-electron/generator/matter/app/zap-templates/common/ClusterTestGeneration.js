@@ -747,11 +747,13 @@ function attachGlobal(global, value, errorContext) {
   if (Array.isArray(value)) {
     value = value.map((v) => attachGlobal(global, v, errorContext))
   } else if (value instanceof Object) {
-    for (key in value) {
+    for (let key of Object.keys(value)) {
       if (key == 'global') {
         continue
       }
-      value[key] = attachGlobal(global, value[key], errorContext)
+      let desc = Object.getOwnPropertyDescriptor(value, key) || {}
+      if (desc.writable)
+        value[key] = attachGlobal(global, value[key], errorContext)
     }
   } else if (value === null) {
     value = new NullObject()

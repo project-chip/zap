@@ -24,7 +24,6 @@ const nativeRequire = require('../util/native-require')
 const fsPromise = require('fs').promises
 const promisedHandlebars = require('promised-handlebars')
 const defaultHandlebars = require('handlebars')
-const { asJniClassName } = require('./matter/controller/java/templates/helper')
 
 const includedHelpers = [
   require('./helper-zcl'),
@@ -43,6 +42,7 @@ const includedHelpers = [
   require('./matter/controller/java/templates/helper'),
   require('./matter/controller/python/templates/helper'),
   require('./matter/darwin-framework-tool/templates/helper'),
+  require('./matter/darwin-framework-tool/templates/tests/tests'),
   require('./matter/darwin/Framework/CHIP/templates/helper'),
   require('./matter/chip-tool/templates/tests/helper'),
   require('./matter/chip-tool/templates/tests/tests'),

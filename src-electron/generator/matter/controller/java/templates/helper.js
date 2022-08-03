@@ -102,7 +102,7 @@ function asJavaBoxedType(type, zclType) {
 }
 
 function asJniBasicType(type, useBoxedTypes) {
-  if (this.isOptional) {
+  if (this && this.isOptional) {
     return 'jobject'
   } else if (StringHelper.isOctetString(type)) {
     return 'jbyteArray'
