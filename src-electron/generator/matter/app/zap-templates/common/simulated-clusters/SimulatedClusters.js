@@ -30,7 +30,7 @@ const clusterFiles = [
 let SimulatedClusters = []
 ;(async () => {
   const simulatedClustersPath = path.join(__dirname, 'clusters')
-  clusterFiles.map((clusterFile) => {
+  SimulatedClusters = clusterFiles.map((clusterFile) => {
     let cluster = clusterFile.cluster
     cluster.commands.forEach((command) => {
       if (!('name' in command)) {
