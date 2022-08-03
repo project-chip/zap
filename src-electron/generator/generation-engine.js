@@ -28,7 +28,6 @@ const dbEnum = require('../../src-shared/db-enum.js')
 const env = require('../util/env')
 const templateEngine = require('./template-engine.js')
 const dbApi = require('../db/db-api.js')
-const { include } = require('underscore')
 
 /**
  * Given a path, it will read generation template object into memory.
