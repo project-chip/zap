@@ -218,7 +218,7 @@ function setDefaultTypeForCommand(test) {
   test.isWait = false
 }
 
-function setDefaultPICS(test) {
+function setDefaultPICS(test, picsFilePath) {
   const defaultPICS = ''
   setDefault(test, kPICSName, defaultPICS)
 
@@ -230,7 +230,7 @@ function setDefaultPICS(test) {
     .split(/[&|() !]+/g)
     .filter((item) => item.length)
   items.forEach((key) => {
-    if (!retrievePICS().has(key)) {
+    if (!retrievePICS(picsFilePath).has(key)) {
       const errorStr =
         'PICS database does not contains any defined value for: ' + key
       throwError(test, errorStr)
@@ -407,7 +407,12 @@ function setDefaultResponse(test, useSynthesizeWaitForReport) {
   })
 }
 
-function setDefaults(test, defaultConfig, useSynthesizeWaitForReport) {
+function setDefaults(
+  test,
+  defaultConfig,
+  useSynthesizeWaitForReport,
+  picsFilePath
+) {
   const defaultIdentityName =
     kIdentityName in defaultConfig ? defaultConfig[kIdentityName] : 'alpha'
   const defaultClusterName = defaultConfig[kClusterName] || null
@@ -420,24 +425,24 @@ function setDefaults(test, defaultConfig, useSynthesizeWaitForReport) {
   setDefault(test, kEndpointName, defaultEndpointId)
   setDefault(test, kDisabledName, defaultDisabled)
   setDefaultType(test)
-  setDefaultPICS(test)
+  setDefaultPICS(test, picsFilePath)
   setDefaultArguments(test)
   setDefaultResponse(test, useSynthesizeWaitForReport)
 }
 
-function parse(filename, useSynthesizeWaitForReport) {
+function parseYamlTest(
+  filename,
+  useSynthesizeWaitForReport,
+  picsFilePath,
+  certificationDir,
+  testDir
+) {
   let filepath
   const isCertificationTest = filename.startsWith('Test_TC_')
   if (isCertificationTest) {
-    filepath = path.resolve(
-      __dirname,
-      '../../../files/certification/' + filename + '.yaml'
-    )
+    filepath = path.resolve(path.join(certificationDir, filename + '.yaml'))
   } else {
-    filepath = path.resolve(
-      __dirname,
-      '../../../files/tests/' + filename + '.yaml'
-    )
+    filepath = path.resolve(path.join(testDir, filename + '.yaml'))
   }
 
   const data = fs.readFileSync(filepath, { encoding: 'utf8', flag: 'r' })
@@ -479,7 +484,7 @@ function parse(filename, useSynthesizeWaitForReport) {
   yaml.tests.forEach((test) => {
     test.filename = filename
     test.testName = yaml.name
-    setDefaults(test, defaultConfig, useSynthesizeWaitForReport)
+    setDefaults(test, defaultConfig, useSynthesizeWaitForReport, picsFilePath)
   })
 
   // Filter disabled tests
@@ -573,13 +578,9 @@ function assertCommandOrAttributeOrEvent(context) {
 
 let loadedPICS = null
 
-function retrievePICS() {
+function retrievePICS(filepath) {
   if (loadedPICS != null) return loadedPICS
 
-  let filepath = path.resolve(
-    __dirname,
-    '../../../files/certification/PICS.yaml'
-  )
   const data = fs.readFileSync(filepath, { encoding: 'utf8', flag: 'r' })
   const yaml = YAML.parse(data)
 
@@ -603,7 +604,11 @@ function retrievePICS() {
 // Templates
 //
 function chip_tests_pics(options) {
-  return templateUtil.collectBlocks(retrievePICS().getAll(), options, this)
+  return templateUtil.collectBlocks(
+    retrievePICS(this.global.resource('pics-metafile')).getAll(),
+    options,
+    this
+  )
 }
 
 async function configureTestItem(item) {
@@ -635,7 +640,13 @@ async function chip_tests(list, options) {
   const items = Array.isArray(list) ? list : list.split(',')
   const names = items.map((name) => name.trim())
   let tests = names.map((item) =>
-    parse(item, options.hash.useSynthesizeWaitForReport)
+    parseYamlTest(
+      item,
+      options.hash.useSynthesizeWaitForReport,
+      global.resource('pics-metafile'),
+      global.resource('certification-metadir'),
+      global.resource('test-metadir')
+    )
   )
 
   const context = this

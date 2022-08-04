@@ -168,7 +168,10 @@ async function recordTemplatesPackage(context) {
         // Treat this data as an object.
         let codeLabelArray = []
         for (const code of Object.keys(data)) {
-          codeLabelArray.push({ code: code, label: data[code] })
+          codeLabelArray.push({
+            code: code,
+            label: data[code],
+          })
         }
         promises.push(
           queryPackage.insertOptionsKeyValues(
@@ -188,7 +191,7 @@ async function recordTemplatesPackage(context) {
     context.templateData.categories.forEach((cat) => {
       helperCategories.push({
         code: cat,
-        value: '',
+        label: '',
       })
     })
   }
@@ -214,7 +217,7 @@ async function recordTemplatesPackage(context) {
         // Put it in the array to write into DB later.
         helperAliases.push({
           code: helper,
-          value: '',
+          label: '',
         })
       } else {
         // We don't have an alias by that name, so we assume it's a path.
@@ -254,7 +257,10 @@ async function recordTemplatesPackage(context) {
       )
       if (!fs.existsSync(resourcePath))
         throw new Error(`Resource not found: ${resourcePath}`)
-      resources.push({ code: key, value: resourcePath })
+      resources.push({
+        code: key,
+        label: resourcePath,
+      })
     }
   }
   if (resources.length > 0) {
@@ -529,7 +535,7 @@ async function retrievePackageMetaInfo(db, genTemplatesPkgId) {
     dbEnum.packageOptionCategory.resources
   )
   for (let c of resources) {
-    metaInfo.resources[c.optionCode] = c.value
+    metaInfo.resources[c.optionCode] = c.optionLabel
   }
 
   return metaInfo
