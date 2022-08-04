@@ -27,7 +27,7 @@ let args = process.argv.slice(2)
 
 if (args[0] == null) {
   console.log(
-    'Usage: node copy-from-sdk.js <MATTER_SDK_ROOT> [all|yaml|examples|src]'
+    'Usage: node copy-from-sdk.js <MATTER_SDK_ROOT> [all|examples|src]'
   )
   process.exit(1)
 }
@@ -62,17 +62,6 @@ const examplesDirectories = [
   'chip-tool/templates',
   'placeholder/templates',
   'placeholder/linux/apps/app1',
-]
-
-const yamlDirs = [
-  {
-    src: 'src/app/tests/suites/',
-    dest: 'files/tests',
-  },
-  {
-    src: 'src/app/tests/suites/certification/',
-    dest: 'files/certification',
-  },
 ]
 
 if (what == 'all' || what == 'src')
@@ -113,30 +102,6 @@ if (what == 'all' || what == 'examples')
       jsFiles.forEach((f) => {
         console.log(`Copying: ${f}`)
         fs.copyFileSync(f, path.join(dir, path.basename(f)))
-      })
-    })
-  })
-
-if (what == 'all' || what == 'yaml')
-  yamlDirs.forEach((dir) => {
-    let src = dir.src
-    let dest = dir.dest
-    fs.mkdirSync(dest, { recursive: true })
-    let dirPath = path.join(matterRoot, src)
-    if (!fs.existsSync(dirPath)) {
-      console.log(`Failed to locate: ${dirPath}`)
-      process.exit(1)
-    }
-    console.log(`Reading: ${dirPath}`)
-    fs.readdir(dirPath, (err, files) => {
-      let jsFiles = files
-        .filter((f) => f.endsWith('.yaml'))
-        .map((f) => path.join(dirPath, f))
-
-      jsFiles.forEach((f) => {
-        let d = path.join(dest, path.basename(f))
-        console.log(`Copying: ${f} => ${d}`)
-        fs.copyFileSync(f, d)
       })
     })
   })
