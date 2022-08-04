@@ -79,7 +79,10 @@ function getTests() {
   // TODO: Test_TC_BINFO_2_1 does not work on Darwin for now.
   tests.disable('Test_TC_BINFO_2_1')
 
-  return tests
+  // TODO: Test_TC_SWTCH_2_1 does not work on Darwin for now.
+  tests.disable('Test_TC_SWTCH_2_1');
+
+  return tests;
 }
 
 //
