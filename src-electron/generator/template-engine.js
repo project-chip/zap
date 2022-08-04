@@ -88,6 +88,8 @@ async function produceCompiledTemplate(hb, singleTemplatePkg) {
 /**
  * Given db connection, session and a single template package, produce the output.
  *
+ * @param {*} hb
+ * @param {*} metaInfo
  * @param {*} db
  * @param {*} sessionId
  * @param {*} singlePkg
@@ -96,6 +98,7 @@ async function produceCompiledTemplate(hb, singleTemplatePkg) {
  */
 async function produceContent(
   hb,
+  metaInfo,
   db,
   sessionId,
   singleTemplatePkg,
@@ -116,6 +119,15 @@ async function produceContent(
       promises: [],
       genTemplatePackageId: genTemplateJsonPackageId,
       overridable: loadOverridable(options.overridePath),
+      resource: (key) => {
+        if (key in metaInfo.resources) {
+          return metaInfo.resources[key]
+        } else {
+          throw new Error(
+            `Resource "${key}" not found among the context resources. Check your template.json file.`
+          )
+        }
+      },
       stats: {},
     },
   }

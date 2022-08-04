@@ -244,6 +244,30 @@ async function recordTemplatesPackage(context) {
     )
   }
 
+  // Deal with resource references
+  let resources = []
+  if (context.templateData.resources != null) {
+    for (let key of Object.keys(context.templateData.resources)) {
+      let resourcePath = path.join(
+        path.dirname(context.path),
+        context.templateData.resources[key]
+      )
+      if (!fs.existsSync(resourcePath))
+        throw new Error(`Resource not found: ${resourcePath}`)
+      resources.push({ code: key, value: resourcePath })
+    }
+  }
+  if (resources.length > 0) {
+    promises.push(
+      queryPackage.insertOptionsKeyValues(
+        context.db,
+        context.packageId,
+        dbEnum.packageOptionCategory.resources,
+        resources
+      )
+    )
+  }
+
   // Deal with overrides
   if (context.templateData.override != null) {
     let overridePath = path.join(
@@ -474,10 +498,11 @@ async function loadTemplates(db, genTemplatesJson) {
     })
 }
 
-async function calculateIncludedAliasesAndCategories(db, genTemplatesPkgId) {
-  let included = {
+async function retrievePackageMetaInfo(db, genTemplatesPkgId) {
+  let metaInfo = {
     aliases: [],
     categories: [],
+    resources: {},
   }
 
   let aliases = await queryPackage.selectAllOptionsValues(
@@ -486,7 +511,7 @@ async function calculateIncludedAliasesAndCategories(db, genTemplatesPkgId) {
     dbEnum.packageOptionCategory.helperAliases
   )
   for (let a of aliases) {
-    included.aliases.push(a.optionCode)
+    metaInfo.aliases.push(a.optionCode)
   }
 
   let categories = await queryPackage.selectAllOptionsValues(
@@ -495,10 +520,19 @@ async function calculateIncludedAliasesAndCategories(db, genTemplatesPkgId) {
     dbEnum.packageOptionCategory.helperCategories
   )
   for (let c of categories) {
-    included.categories.push(c.optionCode)
+    metaInfo.categories.push(c.optionCode)
   }
 
-  return included
+  let resources = await queryPackage.selectAllOptionsValues(
+    db,
+    genTemplatesPkgId,
+    dbEnum.packageOptionCategory.resources
+  )
+  for (let c of resources) {
+    metaInfo.resources[c.optionCode] = c.value
+  }
+
+  return metaInfo
 }
 
 /**
@@ -546,14 +580,14 @@ async function generateAllTemplates(
   })
 
   // Let's collect the required list of helpers.
-  let included = await calculateIncludedAliasesAndCategories(
+  let metaInfo = await retrievePackageMetaInfo(
     genResult.db,
     genTemplateJsonPkg.id
   )
 
   // Initialize helpers package. This is based on the specific
-  // list that was calculated above in the `included`
-  templateEngine.initializeBuiltInHelpersForPackage(hb, included)
+  // list that was calculated above in the `metaInfo`
+  templateEngine.initializeBuiltInHelpersForPackage(hb, metaInfo)
 
   // Next load the addon helpers which were not yet initialized earlier.
   packages.forEach((singlePkg) => {
@@ -578,10 +612,17 @@ async function generateAllTemplates(
   await Promise.all(helperPromises)
   await Promise.all(partialPromises)
   let templates = generationTemplates.map((pkg) =>
-    generateSingleTemplate(hb, genResult, pkg, genTemplateJsonPkg.id, {
-      overridePath: overridePath,
-      disableDeprecationWarnings: options.disableDeprecationWarnings,
-    })
+    generateSingleTemplate(
+      hb,
+      metaInfo,
+      genResult,
+      pkg,
+      genTemplateJsonPkg.id,
+      {
+        overridePath: overridePath,
+        disableDeprecationWarnings: options.disableDeprecationWarnings,
+      }
+    )
   )
   await Promise.all(templates)
   genResult.partial = false
@@ -597,6 +638,7 @@ async function generateAllTemplates(
  */
 async function generateSingleTemplate(
   hb,
+  metaInfo,
   genResult,
   singleTemplatePkg,
   genTemplateJsonPackageId,
@@ -608,6 +650,7 @@ async function generateSingleTemplate(
   try {
     let result = await templateEngine.produceContent(
       hb,
+      metaInfo,
       genResult.db,
       genResult.sessionId,
       singleTemplatePkg,
