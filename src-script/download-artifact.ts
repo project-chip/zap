@@ -193,7 +193,6 @@ async function nexusGetArtifacts(url: string, options: DlOptions) {
     continuationToken = resp?.data?.continuationToken
 
     do {
-      let url
       if (continuationToken) {
         url = url + `&continuationToken=${continuationToken}`
       } else {
@@ -213,9 +212,6 @@ async function nexusGetArtifacts(url: string, options: DlOptions) {
 
 async function nexusDownloadArtifacts(items: any, dlOptions: DlOptions) {
   let { owner, repo, branch, outputDir, platforms, formats } = dlOptions
-  console.log(
-    `Repo: ${NEXUS_SERVER}/#browse/browse:${NEXUS_REPO_NAME}:${dlOptions.owner}/${dlOptions.repo}/${dlOptions.branch}`
-  )
 
   // item example:
   //   {
@@ -249,6 +245,9 @@ async function nexusDownloadArtifacts(items: any, dlOptions: DlOptions) {
 
   if (items.length > 1) {
     let date = items[0].path.match(dateRegex)[1]
+    console.log(
+      `Repo: ${NEXUS_SERVER}/#browse/browse:${NEXUS_REPO_NAME}:${dlOptions.owner}/${dlOptions.repo}/${dlOptions.branch}/${date}`
+    )
 
     let artifacts = await nexusGetArtifacts(
       nexusRestApiUrl(
