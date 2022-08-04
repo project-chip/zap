@@ -54,13 +54,12 @@ describe('Testing endpoints sharing attribute values', () => {
       // Enable "ZCL version"
       cy.gotoAttributeReportingTab()
       cy.get(
-        // '.table_body:nth-child(1) > :nth-child(2) > .q-mt-xs > .q-toggle__inner'
-        '#qvs_118 > :nth-child(1) > :nth-child(2) > .q-mt-xs > .q-toggle__inner'
+        '[data-cy="Attributes Reporting"] > .q-table__middle > .q-table > .q-virtual-scroll__content > :nth-child(1) > :nth-child(2) > .q-mt-xs > .q-toggle__inner'
       )
         .find('input')
         .check({ force: true })
       cy.get(
-        '#qvs_118 > :nth-child(1) > :nth-child(2) > .q-mt-xs > .q-toggle__inner'
+        '[data-cy="Attributes Reporting"] > .q-table__middle > .q-table > .q-virtual-scroll__content > :nth-child(1) > :nth-child(2) > .q-mt-xs > .q-toggle__inner'
       ).should('be.visible')
     }
   )
@@ -108,7 +107,7 @@ describe('Testing endpoints sharing attribute values', () => {
       // Check for enabled "ZCL version"
       cy.gotoAttributeReportingTab()
       cy.get(
-        '#qvs_118 > :nth-child(1) > :nth-child(2) > .q-mt-xs > .q-toggle__inner'
+        '[data-cy="Attributes Reporting"] > .q-table__middle > .q-table > .q-virtual-scroll__content > :nth-child(1) > :nth-child(2) > .q-mt-xs > .q-toggle__inner'
       ).should('be.visible')
     }
   )
