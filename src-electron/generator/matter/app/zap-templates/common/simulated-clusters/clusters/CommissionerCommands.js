@@ -30,22 +30,22 @@ const PairWithCode = {
     { type: 'NODE_ID', name: 'nodeId' },
     { type: 'CHAR_STRING', name: 'payload' },
   ],
-}
+};
 
 const Unpair = {
   name: 'Unpair',
   arguments: [{ type: 'NODE_ID', name: 'nodeId' }],
-}
+};
 
-const name = 'CommissionerCommands'
-const commands = [PairWithCode, Unpair]
+const name = 'CommissionerCommands';
+const commands = [PairWithCode, Unpair];
 
 const CommissionerCommands = {
   name,
   commands,
-}
+};
 
 //
 // Module exports
 //
-exports.cluster = CommissionerCommands
+exports.cluster = CommissionerCommands;

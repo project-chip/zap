@@ -18,22 +18,22 @@
 function atomicType(arg) {
   switch (arg.name) {
     case 'boolean':
-      return 'bool'
+      return 'bool';
     case 'single':
-      return 'float'
+      return 'float';
     case 'double':
-      return 'double'
+      return 'double';
     case 'int40s':
     case 'int48s':
     case 'int56s':
     case 'int64s':
-      return 'int64_t'
+      return 'int64_t';
     case 'int40u':
     case 'int48u':
     case 'int56u':
     case 'int64u':
     case 'bitmap64':
-      return 'uint64_t'
+      return 'uint64_t';
     case 'action_id':
     case 'cluster_id':
     case 'command_id':
@@ -50,39 +50,39 @@ function atomicType(arg) {
           .split('_')
           .map((part) => part[0].toUpperCase() + part.substring(1))
           .join('')
-      )
+      );
     case 'attrib_id':
-      return 'chip::AttributeId'
+      return 'chip::AttributeId';
     case 'data_ver':
-      return 'chip::DataVersion'
+      return 'chip::DataVersion';
     case 'devtype_id':
-      return 'chip::DeviceTypeId'
+      return 'chip::DeviceTypeId';
     case 'endpoint_no':
-      return 'chip::EndpointId'
+      return 'chip::EndpointId';
     case 'event_no':
-      return 'chip::EventNumber'
+      return 'chip::EventNumber';
     case 'fabric_idx':
-      return 'chip::FabricIndex'
+      return 'chip::FabricIndex';
     case 'octet_string':
     case 'long_octet_string':
-      return 'chip::ByteSpan'
+      return 'chip::ByteSpan';
     case 'char_string':
     case 'long_char_string':
-      return 'chip::CharSpan'
+      return 'chip::CharSpan';
     case 'eui64':
-      return 'chip::NodeId'
+      return 'chip::NodeId';
     case 'percent':
-      return 'chip::Percent'
+      return 'chip::Percent';
     case 'percent100ths':
-      return 'chip::Percent100ths'
+      return 'chip::Percent100ths';
     case 'epoch_us':
-      return 'uint64_t'
+      return 'uint64_t';
     case 'epoch_s':
     case 'utc':
-      return 'uint32_t'
+      return 'uint32_t';
     default:
-      throw 'not overriding'
+      throw 'not overriding';
   }
 }
 
-exports.atomicType = atomicType
+exports.atomicType = atomicType;

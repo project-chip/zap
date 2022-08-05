@@ -15,45 +15,45 @@
  *    limitations under the License.
  */
 
-const TestSuite = require('../../../app/tests/suites/tests')
-const dbEnum = require('../../../../../../src-shared/db-enum')
+const TestSuite = require('../../../app/tests/suites/tests');
+const dbEnum = require('../../../../../../src-shared/db-enum');
 
 function getManualTests() {
-  return []
+  return [];
 }
 
 // clang-format off
 
 function getTests() {
-  let tests = TestSuite.getTests()
+  let tests = TestSuite.getTests();
 
   // TODO: This test needs FindCommissionable
-  tests.disable('Test_TC_SC_4_2')
+  tests.disable('Test_TC_SC_4_2');
 
   // TestClusterComplexTypes requires representing nullable optionals in ways
   // that can differentiate missing and null, which Darwin can't right now.
-  tests.disable('TestClusterComplexTypes')
+  tests.disable('TestClusterComplexTypes');
 
   // TODO: TestEvents not supported in the codegen yet.
-  tests.disable('TestEvents')
+  tests.disable('TestEvents');
 
   // TODO: TestDiscovery needs FindCommissionable
-  tests.disable('TestDiscovery')
+  tests.disable('TestDiscovery');
 
   // TODO: TestGroupMessaging does not work on Darwin for now.
-  tests.disable('TestGroupMessaging')
+  tests.disable('TestGroupMessaging');
 
   // TODO: Test_TC_DIAG_TH_NW_2_1 does not work on Darwin for now.
-  tests.disable('Test_TC_DGTHREAD_2_1')
+  tests.disable('Test_TC_DGTHREAD_2_1');
 
   // TODO: Test_TC_DIAG_TH_NW_2_2 does not work on Darwin for now.
-  tests.disable('Test_TC_DGTHREAD_2_2')
+  tests.disable('Test_TC_DGTHREAD_2_2');
 
   // TODO: Test_TC_DIAG_TH_NW_2_3 does not work on Darwin for now.
-  tests.disable('Test_TC_DGTHREAD_2_3')
+  tests.disable('Test_TC_DGTHREAD_2_3');
 
   // TODO: Test_TC_DIAG_TH_NW_2_4 does not work on Darwin for now.
-  tests.disable('Test_TC_DGTHREAD_2_4')
+  tests.disable('Test_TC_DGTHREAD_2_4');
 
   // TODO: Test_TC_CC_9_1 does not work on Darwin for now.
   // But is disabled in CI, so we can't disable it here.
@@ -68,16 +68,16 @@ function getTests() {
   //tests.disable('Test_TC_CC_9_3');
 
   // TODO: Test_TC_MC_3_7 does not work on Darwin for now.
-  tests.disable('Test_TC_APPLAUNCHER_3_7')
+  tests.disable('Test_TC_APPLAUNCHER_3_7');
 
   // TODO: Test_TC_MC_3_8 does not work on Darwin for now.
-  tests.disable('Test_TC_APPLAUNCHER_3_8')
+  tests.disable('Test_TC_APPLAUNCHER_3_8');
 
   // TODO: Test_TC_MC_3_9 does not work on Darwin for now.
-  tests.disable('Test_TC_APPLAUNCHER_3_9')
+  tests.disable('Test_TC_APPLAUNCHER_3_9');
 
   // TODO: Test_TC_BINFO_2_1 does not work on Darwin for now.
-  tests.disable('Test_TC_BINFO_2_1')
+  tests.disable('Test_TC_BINFO_2_1');
 
   // TODO: Test_TC_SWTCH_2_1 does not work on Darwin for now.
   tests.disable('Test_TC_SWTCH_2_1');
@@ -88,10 +88,10 @@ function getTests() {
 //
 // Module exports
 //
-exports.getTests = getTests
-exports.getManualTests = getManualTests
+exports.getTests = getTests;
+exports.getManualTests = getManualTests;
 
 exports.meta = {
   category: dbEnum.helperCategory.matter,
   alias: ['darwin-framework-tool/templates/tests/tests.js'],
-}
+};

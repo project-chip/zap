@@ -14,18 +14,18 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-const dbEnum = require('../../../../../src-shared/db-enum')
+const dbEnum = require('../../../../../src-shared/db-enum');
 
 function hasArguments() {
-  return !!this.arguments.length
+  return !!this.arguments.length;
 }
 
 //
 // Module exports
 //
-exports.hasArguments = hasArguments
+exports.hasArguments = hasArguments;
 
 exports.meta = {
   category: dbEnum.helperCategory.matter,
   alias: ['darwin-framework-tool/templates/helper.js'],
-}
+};

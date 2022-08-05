@@ -27,17 +27,17 @@
 const kTypeArgument = {
   name: 'type',
   type: 'CHAR_STRING',
-}
+};
 
 const kNumberValueArgument = {
   name: 'value',
   type: 'INT64U',
-}
+};
 
 const kStringValueArgument = {
   name: 'value',
   type: 'CHAR_STRING',
-}
+};
 
 const kDefaultResponse = {
   arguments: [
@@ -70,7 +70,7 @@ const kDefaultResponse = {
       isOptional: true,
     }, //
   ],
-}
+};
 
 //
 // Commissionable
@@ -80,55 +80,55 @@ const FindCommissionable = {
   name: 'FindCommissionable',
   responseName: 'DiscoveryCommandResponse',
   response: kDefaultResponse,
-}
+};
 
 const FindCommissionableByShortDiscriminator = {
   name: 'FindCommissionableByShortDiscriminator',
   arguments: [kNumberValueArgument],
   responseName: 'DiscoveryCommandResponse',
   response: kDefaultResponse,
-}
+};
 
 const FindCommissionableByLongDiscriminator = {
   name: 'FindCommissionableByLongDiscriminator',
   arguments: [kNumberValueArgument],
   responseName: 'DiscoveryCommandResponse',
   response: kDefaultResponse,
-}
+};
 
 const FindCommissionableByCompressedFabricId = {
   name: 'FindOperationalByCompressedFabricId',
   arguments: [kNumberValueArgument],
   responseName: 'DiscoveryCommandResponse',
   response: kDefaultResponse,
-}
+};
 
 const FindCommissionableByCommissioningMode = {
   name: 'FindCommissionableByCommissioningMode',
   responseName: 'DiscoveryCommandResponse',
   response: kDefaultResponse,
-}
+};
 
 const FindCommissionableByVendorId = {
   name: 'FindCommissionableByVendorId',
   arguments: [kNumberValueArgument],
   responseName: 'DiscoveryCommandResponse',
   response: kDefaultResponse,
-}
+};
 
 const FindCommissionableByDeviceType = {
   name: 'FindCommissionableByDeviceType',
   arguments: [kNumberValueArgument],
   responseName: 'DiscoveryCommandResponse',
   response: kDefaultResponse,
-}
+};
 
 const FindCommissionableByName = {
   name: 'FindCommissionableByName',
   arguments: [kStringValueArgument],
   responseName: 'DiscoveryCommandResponse',
   response: kDefaultResponse,
-}
+};
 
 //
 // Commissioner
@@ -138,21 +138,21 @@ const FindCommissioner = {
   name: 'FindCommissioner',
   responseName: 'DiscoveryCommandResponse',
   response: kDefaultResponse,
-}
+};
 
 const FindCommissionerByVendorId = {
   name: 'FindCommissionerByVendorId',
   arguments: [kNumberValueArgument],
   responseName: 'DiscoveryCommandResponse',
   response: kDefaultResponse,
-}
+};
 
 const FindCommissionerByDeviceType = {
   name: 'FindCommissionerByDeviceType',
   arguments: [kNumberValueArgument],
   responseName: 'DiscoveryCommandResponse',
   response: kDefaultResponse,
-}
+};
 
 const commands = [
   // Commissionable
@@ -167,14 +167,14 @@ const commands = [
   FindCommissioner,
   FindCommissionerByVendorId,
   FindCommissionerByDeviceType,
-]
+];
 
 const DiscoveryCommands = {
   name: 'DiscoveryCommands',
   commands: commands,
-}
+};
 
 //
 // Module exports
 //
-exports.cluster = DiscoveryCommands
+exports.cluster = DiscoveryCommands;

@@ -16,14 +16,14 @@
  */
 
 // Import helpers from zap core
-const dbEnum = require('../../../../../../src-shared/db-enum')
-const ChipTypesHelper = require('../../../app/zap-templates/common/ChipTypesHelper')
+const dbEnum = require('../../../../../../src-shared/db-enum');
+const ChipTypesHelper = require('../../../app/zap-templates/common/ChipTypesHelper');
 
 function asPythonType(zclType) {
-  const type = ChipTypesHelper.asBasicType(zclType)
+  const type = ChipTypesHelper.asBasicType(zclType);
   switch (type) {
     case 'bool':
-      return 'bool'
+      return 'bool';
     case 'int8_t':
     case 'int16_t':
     case 'int32_t':
@@ -32,19 +32,19 @@ function asPythonType(zclType) {
     case 'uint16_t':
     case 'uint32_t':
     case 'uint64_t':
-      return 'int'
+      return 'int';
     case 'char *':
-      return 'str'
+      return 'str';
     case 'uint8_t *':
     case 'chip::ByteSpan':
-      return 'bytes'
+      return 'bytes';
     case 'chip::CharSpan':
-      return 'str'
+      return 'str';
   }
 }
 
 function asPythonCType(zclType) {
-  const type = ChipTypesHelper.asBasicType(zclType)
+  const type = ChipTypesHelper.asBasicType(zclType);
   switch (type) {
     case 'bool':
     case 'int8_t':
@@ -55,20 +55,20 @@ function asPythonCType(zclType) {
     case 'uint16_t':
     case 'uint32_t':
     case 'uint64_t':
-      return 'c_' + type.replace('_t', '')
+      return 'c_' + type.replace('_t', '');
     case 'char *':
     case 'uint8_t *':
-      return 'c_char_p'
+      return 'c_char_p';
   }
 }
 
 //
 // Module exports
 //
-exports.asPythonType = asPythonType
-exports.asPythonCType = asPythonCType
+exports.asPythonType = asPythonType;
+exports.asPythonCType = asPythonCType;
 
 exports.meta = {
   category: dbEnum.helperCategory.matter,
   alias: ['controller/python/templates/helper.js'],
-}
+};

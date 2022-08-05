@@ -15,24 +15,24 @@
  *    limitations under the License.
  */
 
-const dbEnum = require('../../../../../src-shared/db-enum')
+const dbEnum = require('../../../../../src-shared/db-enum');
 
 function getTests() {
   try {
-    const appTest = require('../linux/apps/app1/tests.js')
-    return appTest.getTests()
+    const appTest = require('../linux/apps/app1/tests.js');
+    return appTest.getTests();
   } catch (e) {
-    console.info('No tests configuration has been found.')
-    return ''
+    console.info('No tests configuration has been found.');
+    return '';
   }
 }
 
 //
 // Module exports
 //
-exports.getTests = getTests
+exports.getTests = getTests;
 
 exports.meta = {
   category: dbEnum.helperCategory.matter,
   alias: ['placeholder/templates/helper.js'],
-}
+};

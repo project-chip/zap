@@ -14,25 +14,25 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-const dbEnum = require('../../../../../../src-shared/db-enum')
+const dbEnum = require('../../../../../../src-shared/db-enum');
 
-const TestSuite = require('../../../app/tests/suites/tests')
+const TestSuite = require('../../../app/tests/suites/tests');
 
 function getManualTests() {
-  return TestSuite.getManualTests()
+  return TestSuite.getManualTests();
 }
 
 function getTests() {
-  return TestSuite.getTests()
+  return TestSuite.getTests();
 }
 
 //
 // Module exports
 //
-exports.getTests = getTests
-exports.getManualTests = getManualTests
+exports.getTests = getTests;
+exports.getManualTests = getManualTests;
 
 exports.meta = {
   category: dbEnum.helperCategory.matter,
   alias: ['chip-tool/templates/tests/tests.js'],
-}
+};

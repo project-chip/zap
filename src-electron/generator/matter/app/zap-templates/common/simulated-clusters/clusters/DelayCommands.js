@@ -27,11 +27,11 @@
 const WaitForMs = {
   name: 'WaitForMs',
   arguments: [{ type: 'INT32U', name: 'ms' }],
-}
+};
 
 const WaitForCommissioning = {
   name: 'WaitForCommissioning',
-}
+};
 
 const WaitForCommissionee = {
   name: 'WaitForCommissionee',
@@ -39,7 +39,7 @@ const WaitForCommissionee = {
     { type: 'NODE_ID', name: 'nodeId' },
     { type: 'BOOLEAN', name: 'expireExistingSession', isOptional: true },
   ],
-}
+};
 
 const WaitForMessage = {
   name: 'WaitForMessage',
@@ -47,22 +47,22 @@ const WaitForMessage = {
     { type: 'CHAR_STRING', name: 'registerKey', isOptional: true },
     { type: 'CHAR_STRING', name: 'message' },
   ],
-}
+};
 
-const name = 'DelayCommands'
+const name = 'DelayCommands';
 const commands = [
   WaitForMs,
   WaitForCommissioning,
   WaitForCommissionee,
   WaitForMessage,
-]
+];
 
 const DelayCommands = {
   name,
   commands,
-}
+};
 
 //
 // Module exports
 //
-exports.cluster = DelayCommands
+exports.cluster = DelayCommands;

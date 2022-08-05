@@ -15,20 +15,20 @@
  *    limitations under the License.
  */
 
-const dbEnum = require('../../../../../../src-shared/db-enum')
+const dbEnum = require('../../../../../../src-shared/db-enum');
 
 function asBasicType(type) {
   switch (type) {
     case 'chip::ActionId':
     case 'chip::FabricIndex':
     case 'chip::Percent':
-      return 'uint8_t'
+      return 'uint8_t';
     case 'chip::EndpointId':
     case 'chip::GroupId':
     case 'chip::VendorId':
     case 'chip::Percent100ths':
     case 'chip::Protocols::InteractionModel::Status':
-      return 'uint16_t'
+      return 'uint16_t';
     case 'chip::ClusterId':
     case 'chip::AttributeId':
     case 'chip::FieldId':
@@ -38,21 +38,21 @@ function asBasicType(type) {
     case 'chip::DeviceTypeId':
     case 'chip::StatusCode':
     case 'chip::DataVersion':
-      return 'uint32_t'
+      return 'uint32_t';
     case 'chip::EventNumber':
     case 'chip::FabricId':
     case 'chip::NodeId':
-      return 'uint64_t'
+      return 'uint64_t';
     default:
-      return type
+      return type;
   }
 }
 
 //
 // Module exports
 //
-exports.asBasicType = asBasicType
+exports.asBasicType = asBasicType;
 exports.meta = {
   category: dbEnum.helperCategory.matter,
   alias: ['common/ChipTypesHelper.js'],
-}
+};

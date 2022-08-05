@@ -15,21 +15,21 @@
  *    limitations under the License.
  */
 
-const dbEnum = require('../../../../../../src-shared/db-enum')
+const dbEnum = require('../../../../../../src-shared/db-enum');
 
 const {
   zapTypeToDecodableClusterObjectType,
   zapTypeToEncodableClusterObjectType,
   asUpperCamelCase,
   asLowerCamelCase,
-} = require('../../../app/zap-templates/templates/app/helper')
+} = require('../../../app/zap-templates/templates/app/helper');
 
 const {
   isTestOnlyCluster,
-} = require('../../../app/zap-templates/common/simulated-clusters/SimulatedClusters')
+} = require('../../../app/zap-templates/common/simulated-clusters/SimulatedClusters');
 
 function utf8StringLength(str) {
-  return new TextEncoder().encode(str).length
+  return new TextEncoder().encode(str).length;
 }
 
 /*
@@ -38,86 +38,86 @@ function utf8StringLength(str) {
  *
  */
 function asPropertyValue(options) {
-  let rootObject = 'value'
+  let rootObject = 'value';
 
-  let context = options.hash.context || this
+  let context = options.hash.context || this;
 
   // The decodable type for commands is a struct by default, even if the
   // command just returns a single value.
   if (context.parent.isCommand) {
-    rootObject += '.' + asLowerCamelCase(context.name)
+    rootObject += '.' + asLowerCamelCase(context.name);
   }
 
   if (context.isOptional && !options.hash.dontUnwrapValue) {
-    rootObject += '.Value()'
+    rootObject += '.Value()';
   }
 
-  return rootObject
+  return rootObject;
 }
 
 async function asEncodableType() {
   // Copy some properties needed by zapTypeToEncodableClusterObjectType
-  let target = { global: this.global, entryType: this.entryType }
+  let target = { global: this.global, entryType: this.entryType };
 
-  let type
+  let type;
   if ('commandObject' in this) {
-    type = this.commandObject.name
+    type = this.commandObject.name;
   } else if ('attributeObject' in this) {
-    type = this.attributeObject.type
-    target.isArray = this.attributeObject.isArray
-    target.isOptional = this.attributeObject.isOptional
-    target.isNullable = this.attributeObject.isNullable
+    type = this.attributeObject.type;
+    target.isArray = this.attributeObject.isArray;
+    target.isOptional = this.attributeObject.isOptional;
+    target.isNullable = this.attributeObject.isNullable;
   } else {
-    throw new Error('Unsupported encodable type')
+    throw new Error('Unsupported encodable type');
   }
 
   if (isTestOnlyCluster(this.cluster) || 'commandObject' in this) {
     return `chip::app::Clusters::${asUpperCamelCase(
       this.cluster
-    )}::Commands::${asUpperCamelCase(type)}::Type`
+    )}::Commands::${asUpperCamelCase(type)}::Type`;
   }
 
-  const options = { hash: { ns: this.cluster } }
-  return await zapTypeToEncodableClusterObjectType.call(target, type, options)
+  const options = { hash: { ns: this.cluster } };
+  return await zapTypeToEncodableClusterObjectType.call(target, type, options);
 }
 
 async function asDecodableType() {
   // Copy some properties needed by zapTypeToDecodableClusterObjectType
-  let target = { global: this.global, entryType: this.entryType }
+  let target = { global: this.global, entryType: this.entryType };
 
-  let type
+  let type;
   if ('commandObject' in this) {
-    type = this.commandObject.responseName
+    type = this.commandObject.responseName;
   } else if ('attributeObject' in this) {
-    type = this.attributeObject.type
-    target.isArray = this.attributeObject.isArray
-    target.isOptional = this.attributeObject.isOptional
-    target.isNullable = this.attributeObject.isNullable
+    type = this.attributeObject.type;
+    target.isArray = this.attributeObject.isArray;
+    target.isOptional = this.attributeObject.isOptional;
+    target.isNullable = this.attributeObject.isNullable;
   } else if ('eventObject' in this) {
-    type = this.event
+    type = this.event;
   } else {
-    throw new Error('Unsupported decodable type')
+    throw new Error('Unsupported decodable type');
   }
 
   if (isTestOnlyCluster(this.cluster) || 'commandObject' in this) {
     return `chip::app::Clusters::${asUpperCamelCase(
       this.cluster
-    )}::Commands::${asUpperCamelCase(type)}::DecodableType`
+    )}::Commands::${asUpperCamelCase(type)}::DecodableType`;
   }
 
-  const options = { hash: { ns: this.cluster } }
-  return await zapTypeToDecodableClusterObjectType.call(target, type, options)
+  const options = { hash: { ns: this.cluster } };
+  return await zapTypeToDecodableClusterObjectType.call(target, type, options);
 }
 
 //
 // Module exports
 //
-exports.utf8StringLength = utf8StringLength
-exports.asPropertyValue = asPropertyValue
-exports.asDecodableType = asDecodableType
-exports.asEncodableType = asEncodableType
+exports.utf8StringLength = utf8StringLength;
+exports.asPropertyValue = asPropertyValue;
+exports.asDecodableType = asDecodableType;
+exports.asEncodableType = asEncodableType;
 
 exports.meta = {
   category: dbEnum.helperCategory.matter,
   alias: ['chip-tool/templates/tests/helper.js'],
-}
+};

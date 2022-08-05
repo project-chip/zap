@@ -15,90 +15,90 @@
  *    limitations under the License.
  */
 
-const { ensureClusters } = require('../ClustersHelper.js')
+const { ensureClusters } = require('../ClustersHelper.js');
 
-const fs = require('fs')
-const path = require('path')
+const fs = require('fs');
+const path = require('path');
 const clusterFiles = [
   require('./clusters/CommissionerCommands'),
   require('./clusters/DelayCommands'),
   require('./clusters/DiscoveryCommands'),
   require('./clusters/LogCommands'),
   require('./clusters/SystemCommands'),
-]
+];
 
-let SimulatedClusters = []
-;(async () => {
-  const simulatedClustersPath = path.join(__dirname, 'clusters')
+let SimulatedClusters = [];
+(async () => {
+  const simulatedClustersPath = path.join(__dirname, 'clusters');
   SimulatedClusters = clusterFiles.map((clusterFile) => {
-    let cluster = clusterFile.cluster
+    let cluster = clusterFile.cluster;
     cluster.commands.forEach((command) => {
       if (!('name' in command)) {
-        console.error('Error in: ' + filename + '. Missing command name.')
-        throw new Error()
+        console.error('Error in: ' + filename + '. Missing command name.');
+        throw new Error();
       }
 
       if (!('arguments' in command)) {
-        command.arguments = []
+        command.arguments = [];
       }
 
       if (!('response' in command)) {
-        command.response = { arguments: [] }
+        command.response = { arguments: [] };
       }
 
       if (command.arguments.length) {
-        command.hasSpecificArguments = true
+        command.hasSpecificArguments = true;
       }
 
       if (command.response.arguments.length) {
-        command.hasSpecificResponse = true
+        command.hasSpecificResponse = true;
       }
-    })
-    return cluster
-  })
-  return SimulatedClusters
-})()
+    });
+    return cluster;
+  });
+  return SimulatedClusters;
+})();
 
 function getSimulatedCluster(clusterName) {
-  return SimulatedClusters.find((cluster) => cluster.name == clusterName)
+  return SimulatedClusters.find((cluster) => cluster.name == clusterName);
 }
 
 function getClusters(context) {
   return ensureClusters(context, true)
     .getClusters()
-    .then((clusters) => clusters.concat(SimulatedClusters).flat(1))
+    .then((clusters) => clusters.concat(SimulatedClusters).flat(1));
 }
 
 function getCommands(context, clusterName) {
-  const cluster = getSimulatedCluster(clusterName)
+  const cluster = getSimulatedCluster(clusterName);
   return cluster
     ? Promise.resolve(cluster.commands)
-    : ensureClusters(context).getClientCommands(clusterName)
+    : ensureClusters(context).getClientCommands(clusterName);
 }
 
 function getAttributes(context, clusterName) {
-  const cluster = getSimulatedCluster(clusterName)
+  const cluster = getSimulatedCluster(clusterName);
   return cluster
     ? Promise.resolve(cluster.attributes)
-    : ensureClusters(context).getServerAttributes(clusterName)
+    : ensureClusters(context).getServerAttributes(clusterName);
 }
 
 function getEvents(context, clusterName) {
-  const cluster = getSimulatedCluster(clusterName)
+  const cluster = getSimulatedCluster(clusterName);
   return cluster
     ? Promise.resolve(cluster.events)
-    : ensureClusters(context).getServerEvents(clusterName)
+    : ensureClusters(context).getServerEvents(clusterName);
 }
 
 function isTestOnlyCluster(clusterName) {
-  return !!getSimulatedCluster(clusterName)
+  return !!getSimulatedCluster(clusterName);
 }
 
 //
 // Module exports
 //
-exports.getClusters = getClusters
-exports.getCommands = getCommands
-exports.getAttributes = getAttributes
-exports.getEvents = getEvents
-exports.isTestOnlyCluster = isTestOnlyCluster
+exports.getClusters = getClusters;
+exports.getCommands = getCommands;
+exports.getAttributes = getAttributes;
+exports.getEvents = getEvents;
+exports.isTestOnlyCluster = isTestOnlyCluster;

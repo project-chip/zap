@@ -16,28 +16,28 @@
  */
 
 // Import helpers from zap core
-const zapPath = '../../../../../'
-const queryConfig = require(zapPath + 'db/query-config.js')
-const queryCommand = require(zapPath + 'db/query-command.js')
-const queryEndpoint = require(zapPath + 'db/query-endpoint.js')
-const queryEndpointType = require(zapPath + 'db/query-endpoint-type.js')
-const queryEvent = require(zapPath + 'db/query-event.js')
-const templateUtil = require(zapPath + 'generator/template-util.js')
-const zclHelper = require(zapPath + 'generator/helper-zcl.js')
-const zclQuery = require(zapPath + 'db/query-zcl.js')
+const zapPath = '../../../../../';
+const queryConfig = require(zapPath + 'db/query-config.js');
+const queryCommand = require(zapPath + 'db/query-command.js');
+const queryEndpoint = require(zapPath + 'db/query-endpoint.js');
+const queryEndpointType = require(zapPath + 'db/query-endpoint-type.js');
+const queryEvent = require(zapPath + 'db/query-event.js');
+const templateUtil = require(zapPath + 'generator/template-util.js');
+const zclHelper = require(zapPath + 'generator/helper-zcl.js');
+const zclQuery = require(zapPath + 'db/query-zcl.js');
 
-const { Deferred } = require('./Deferred.js')
-const ListHelper = require('./ListHelper.js')
-const StringHelper = require('./StringHelper.js')
-const ChipTypesHelper = require('./ChipTypesHelper.js')
-const dbEnum = require('../../../../../../src-shared/db-enum')
+const { Deferred } = require('./Deferred.js');
+const ListHelper = require('./ListHelper.js');
+const StringHelper = require('./StringHelper.js');
+const ChipTypesHelper = require('./ChipTypesHelper.js');
+const dbEnum = require('../../../../../../src-shared/db-enum');
 
 // Helper for better error reporting.
 function ensureState(condition, error) {
   if (!condition) {
-    let err = new Error(error)
-    console.log(`${error}: ` + err.stack)
-    throw err
+    let err = new Error(error);
+    console.log(`${error}: ` + err.stack);
+    throw err;
   }
 }
 
@@ -45,8 +45,8 @@ function ensureState(condition, error) {
 // Load Step 1
 //
 function loadAtomics(packageId) {
-  const { db, sessionId } = this.global
-  const options = { hash: {} }
+  const { db, sessionId } = this.global;
+  const options = { hash: {} };
 
   const resolveZclTypes = (atomics) =>
     Promise.all(
@@ -54,44 +54,44 @@ function loadAtomics(packageId) {
         return zclHelper.asUnderlyingZclType
           .call(this, atomic.name, options)
           .then((zclType) => {
-            atomic.chipType = zclType
-            return atomic
-          })
+            atomic.chipType = zclType;
+            return atomic;
+          });
       })
-    )
+    );
 
-  return zclQuery.selectAllAtomics(db, packageId).then(resolveZclTypes)
+  return zclQuery.selectAllAtomics(db, packageId).then(resolveZclTypes);
 }
 
 function loadBitmaps(packageId) {
-  const { db, sessionId } = this.global
-  return zclQuery.selectAllBitmaps(db, packageId)
+  const { db, sessionId } = this.global;
+  return zclQuery.selectAllBitmaps(db, packageId);
 }
 
 function loadEnums(packageId) {
-  const { db, sessionId } = this.global
-  return zclQuery.selectAllEnums(db, packageId)
+  const { db, sessionId } = this.global;
+  return zclQuery.selectAllEnums(db, packageId);
 }
 
 function loadStructItems(struct, packageId) {
-  const { db, sessionId } = this.global
+  const { db, sessionId } = this.global;
   return zclQuery
     .selectAllStructItemsById(db, struct.id)
     .then((structItems) => {
-      struct.items = structItems
-      return struct
-    })
+      struct.items = structItems;
+      return struct;
+    });
 }
 
 function loadStructs(packageId) {
-  const { db, sessionId } = this.global
+  const { db, sessionId } = this.global;
   return zclQuery
     .selectAllStructsWithItemCount(db, packageId)
     .then((structs) =>
       Promise.all(
         structs.map((struct) => loadStructItems.call(this, struct, packageId))
       )
-    )
+    );
 }
 
 /**
@@ -99,11 +99,11 @@ function loadStructs(packageId) {
  * are defined within those endpoints.
  */
 async function loadEndpoints() {
-  let result = []
+  let result = [];
 
-  const { db, sessionId } = this.global
+  const { db, sessionId } = this.global;
 
-  const endpoints = await queryEndpoint.selectAllEndpoints(db, sessionId)
+  const endpoints = await queryEndpoint.selectAllEndpoints(db, sessionId);
 
   // Selection is one by one since existing API does not seem to provide
   // linkage between cluster and what endpoint it belongs to.
@@ -113,93 +113,93 @@ async function loadEndpoints() {
     const endpointClusters =
       await queryEndpointType.selectAllClustersDetailsFromEndpointTypes(db, [
         { endpointTypeId: endpoint.endpointTypeRef },
-      ])
+      ]);
     result.push({
       ...endpoint,
       clusters: endpointClusters.filter((c) => c.enabled == 1),
-    })
+    });
   }
 
-  return result
+  return result;
 }
 
 async function loadAllClusters(packageId) {
-  const { db, sessionId } = this.global
+  const { db, sessionId } = this.global;
 
-  let allClusters = await zclQuery.selectAllClusters(db, packageId)
+  let allClusters = await zclQuery.selectAllClusters(db, packageId);
   // To match what loadClusters does, sort by cluster name (not cluster code).
   allClusters.sort((a, b) => {
     if (a.name < b.name) {
-      return -1
+      return -1;
     }
     if (a.name == b.name) {
-      return 0
+      return 0;
     }
-    return 1
-  })
+    return 1;
+  });
   let serverClusters = allClusters.map((cluster) => ({
     ...cluster,
     side: 'server',
     enabled: true,
-  }))
+  }));
   let clientClusters = allClusters.map((cluster) => ({
     ...cluster,
     side: 'client',
     enabled: true,
-  }))
-  return serverClusters.concat(clientClusters)
+  }));
+  return serverClusters.concat(clientClusters);
 }
 
 async function loadClusters() {
-  const { db, sessionId } = this.global
+  const { db, sessionId } = this.global;
 
   const endpointTypes = await queryEndpointType.selectEndpointTypeIds(
     db,
     sessionId
-  )
+  );
   const clusters =
     await queryEndpointType.selectAllClustersDetailsFromEndpointTypes(
       db,
       endpointTypes
-    )
+    );
 
-  return clusters.filter((cluster) => cluster.enabled == 1)
+  return clusters.filter((cluster) => cluster.enabled == 1);
 }
 
 function loadCommandResponse(command, packageId) {
-  const { db, sessionId } = this.global
+  const { db, sessionId } = this.global;
   return queryCommand
     .selectCommandById(db, command.id, packageId)
     .then((commandDetails) => {
       if (commandDetails.responseRef == null) {
-        command.response = null
-        return command
+        command.response = null;
+        return command;
       }
 
       return queryCommand
         .selectCommandById(db, commandDetails.responseRef, packageId)
         .then((response) => {
-          command.response = response
-          return command
-        })
-    })
+          command.response = response;
+          return command;
+        });
+    });
 }
 
 function loadCommandArguments(command, packageId) {
-  const { db, sessionId } = this.global
+  const { db, sessionId } = this.global;
   return queryCommand
     .selectCommandArgumentsByCommandId(db, command.id, packageId)
     .then((commandArguments) => {
-      command.arguments = commandArguments
-      return command
-    })
+      command.arguments = commandArguments;
+      return command;
+    });
 }
 
 async function loadAllCommands(packageId) {
-  const { db, sessionId } = this.global
+  const { db, sessionId } = this.global;
   let cmds = await queryCommand.selectAllCommandsWithClusterInfo(db, [
     packageId,
-  ])
+  ]);
   // For each command, include it twice: once as outgoing for its source, once
   // as incoming for its destination.
   let outgoing = cmds.map((cmd) => ({
@@ -207,19 +207,19 @@ async function loadAllCommands(packageId) {
     incoming: false,
     outgoing: true,
     clusterSide: cmd.source,
-  }))
+  }));
   let incoming = cmds.map((cmd) => ({
     ...cmd,
     incoming: true,
     outgoing: false,
     clusterSide: cmd.source == 'server' ? 'client' : 'server',
-  }))
-  let commands = Promise.resolve(outgoing.concat(incoming))
-  return loadCommandsCommon.call(this, packageId, commands)
+  }));
+  let commands = Promise.resolve(outgoing.concat(incoming));
+  return loadCommandsCommon.call(this, packageId, commands);
 }
 
 function loadCommands(packageId) {
-  const { db, sessionId } = this.global
+  const { db, sessionId } = this.global;
   let cmds = queryEndpointType
     .selectEndpointTypeIds(db, sessionId)
     .then((endpointTypes) =>
@@ -234,9 +234,9 @@ function loadCommands(packageId) {
         endpointTypesAndClusters,
         true
       )
-    )
+    );
 
-  return loadCommandsCommon.call(this, packageId, cmds)
+  return loadCommandsCommon.call(this, packageId, cmds);
 }
 
 // commandsPromise is a promise for an array of commands.
@@ -255,47 +255,47 @@ function loadCommandsCommon(packageId, commandsPromise) {
           loadCommandArguments.call(this, command, packageId)
         )
       )
-    )
+    );
 }
 
 async function loadAllAttributes(packageId) {
   // The 'server' side is enforced here, because the list of attributes is used to generate client global
   // commands to retrieve server side attributes.
-  const { db, sessionId } = this.global
+  const { db, sessionId } = this.global;
   let attrs = await zclQuery.selectAllAttributesBySide(db, 'server', [
     packageId,
-  ])
-  const globalAttrs = attrs.filter((attr) => attr.clusterRef == null)
+  ]);
+  const globalAttrs = attrs.filter((attr) => attr.clusterRef == null);
   // Exclude global attributes for now, since we will add them ourselves for
   // all clusters.
-  attrs = attrs.filter((attr) => attr.clusterRef != null)
+  attrs = attrs.filter((attr) => attr.clusterRef != null);
   // selectAllAttributesBySide sets clusterRef, not clusterId, so manually
   // set the latter here.
-  attrs.forEach((attr) => (attr.clusterId = attr.clusterRef))
+  attrs.forEach((attr) => (attr.clusterId = attr.clusterRef));
 
-  const clusters = await zclQuery.selectAllClusters(db, packageId)
+  const clusters = await zclQuery.selectAllClusters(db, packageId);
   for (let cluster of clusters) {
     for (let globalAttr of globalAttrs) {
-      attrs.push({ ...globalAttr, clusterId: cluster.id })
+      attrs.push({ ...globalAttr, clusterId: cluster.id });
     }
   }
   // selectAllAttributesBySide includes optionality information, which we
   // don't want here, because the types of the attributes are not in fact
   // optionals for our purposes.
-  attrs.forEach((attr) => delete attr.isOptional)
+  attrs.forEach((attr) => delete attr.isOptional);
   // Treat all attributes that could be reportable as reportable.
   attrs.forEach((attr) => {
     if (attr.isReportable) {
-      attr.includedReportable = true
+      attr.includedReportable = true;
     }
-  })
-  return attrs.sort((a, b) => a.code - b.code)
+  });
+  return attrs.sort((a, b) => a.code - b.code);
 }
 
 function loadAttributes(packageId) {
   // The 'server' side is enforced here, because the list of attributes is used to generate client global
   // commands to retrieve server side attributes.
-  const { db, sessionId } = this.global
+  const { db, sessionId } = this.global;
   return queryEndpointType
     .selectEndpointTypeIds(db, sessionId)
     .then((endpointTypes) =>
@@ -322,18 +322,18 @@ function loadAttributes(packageId) {
     .then((attributes) =>
       attributes.filter((attribute) => attribute.isIncluded)
     )
-    .then((attributes) => attributes.sort((a, b) => a.code - b.code))
+    .then((attributes) => attributes.sort((a, b) => a.code - b.code));
   //.then(attributes => Promise.all(attributes.map(attribute => types.typeSizeAttribute(db, packageId, attribute))
 }
 
 async function loadAllEvents(packageId) {
-  const { db, sessionId } = this.global
-  let clusters = await zclQuery.selectAllClusters(db, packageId)
-  return loadEventsCommon.call(this, packageId, clusters)
+  const { db, sessionId } = this.global;
+  let clusters = await zclQuery.selectAllClusters(db, packageId);
+  return loadEventsCommon.call(this, packageId, clusters);
 }
 
 async function loadEvents(packageId) {
-  const { db, sessionId } = this.global
+  const { db, sessionId } = this.global;
   let clusters = await queryEndpointType
     .selectEndpointTypeIds(db, sessionId)
     .then((endpointTypes) =>
@@ -343,37 +343,37 @@ async function loadEvents(packageId) {
         )
       )
     )
-    .then((clusters) => clusters.flat(3))
-  return loadEventsCommon.call(this, packageId, clusters)
+    .then((clusters) => clusters.flat(3));
+  return loadEventsCommon.call(this, packageId, clusters);
 }
 
 // clusters is an array of clusters (not a promise).
 function loadEventsCommon(packageId, clusters) {
-  const { db, sessionId } = this.global
+  const { db, sessionId } = this.global;
   return queryEvent.selectAllEvents(db, packageId).then((events) => {
     events.forEach((event) => {
       const cluster = clusters.find(
         (cluster) => cluster.code == event.clusterCode
-      )
+      );
       if (cluster) {
-        event.clusterId = cluster.clusterId
-        event.clusterName = cluster.name
+        event.clusterId = cluster.clusterId;
+        event.clusterName = cluster.name;
       }
-    })
+    });
     return events.filter((event) =>
       clusters.find((cluster) => cluster.code == event.clusterCode)
-    )
-  })
+    );
+  });
 }
 
 function loadGlobalAttributes(packageId) {
-  const { db, sessionId } = this.global
+  const { db, sessionId } = this.global;
   return zclQuery
     .selectAllAttributes(db, packageId)
     .then((attributes) =>
       attributes.filter((attribute) => attribute.clusterRef == null)
     )
-    .then((attributes) => attributes.map((attribute) => attribute.code))
+    .then((attributes) => attributes.map((attribute) => attribute.code));
 }
 
 //
@@ -382,18 +382,18 @@ function loadGlobalAttributes(packageId) {
 
 function asChipCallback(item) {
   if (StringHelper.isOctetString(item.type)) {
-    return { name: 'OctetString', type: 'const chip::ByteSpan' }
+    return { name: 'OctetString', type: 'const chip::ByteSpan' };
   }
 
   if (StringHelper.isCharString(item.type)) {
-    return { name: 'CharString', type: 'const chip::CharSpan' }
+    return { name: 'CharString', type: 'const chip::CharSpan' };
   }
 
   if (item.isArray) {
-    return { name: 'List', type: null }
+    return { name: 'List', type: null };
   }
 
-  const basicType = ChipTypesHelper.asBasicType(item.chipType)
+  const basicType = ChipTypesHelper.asBasicType(item.chipType);
   switch (basicType) {
     case 'int8_t':
     case 'int16_t':
@@ -402,7 +402,7 @@ function asChipCallback(item) {
       return {
         name: 'Int' + basicType.replace(/[^0-9]/g, '') + 's',
         type: basicType,
-      }
+      };
     case 'uint8_t':
     case 'uint16_t':
     case 'uint32_t':
@@ -410,219 +410,220 @@ function asChipCallback(item) {
       return {
         name: 'Int' + basicType.replace(/[^0-9]/g, '') + 'u',
         type: basicType,
-      }
+      };
     case 'bool':
-      return { name: 'Boolean', type: 'bool' }
+      return { name: 'Boolean', type: 'bool' };
     case 'float':
-      return { name: 'Float', type: 'float' }
+      return { name: 'Float', type: 'float' };
     case 'double':
-      return { name: 'Double', type: 'double' }
+      return { name: 'Double', type: 'double' };
     default:
-      return { name: 'Unsupported', type: null }
+      return { name: 'Unsupported', type: null };
   }
 }
 
 function getAtomic(atomics, type) {
-  return atomics.find((atomic) => atomic.name == type.toLowerCase())
+  return atomics.find((atomic) => atomic.name == type.toLowerCase());
 }
 
 function getBitmap(bitmaps, type) {
-  return bitmaps.find((bitmap) => bitmap.label == type)
+  return bitmaps.find((bitmap) => bitmap.label == type);
 }
 
 function getEnum(enums, type) {
-  return enums.find((enumItem) => enumItem.label == type)
+  return enums.find((enumItem) => enumItem.label == type);
 }
 
 function getStruct(structs, type) {
-  return structs.find((struct) => struct.label == type)
+  return structs.find((struct) => struct.label == type);
 }
 
 function handleString(item, [atomics, enums, bitmaps, structs]) {
   if (!StringHelper.isString(item.type)) {
-    return false
+    return false;
   }
 
-  const atomic = getAtomic(atomics, item.type)
+  const atomic = getAtomic(atomics, item.type);
   if (!atomic) {
-    return false
+    return false;
   }
 
-  const kLengthSizeInBytes = 2
+  const kLengthSizeInBytes = 2;
 
-  item.atomicTypeId = atomic.atomicId
+  item.atomicTypeId = atomic.atomicId;
   if (StringHelper.isOctetString(item.type)) {
-    item.chipType = 'chip::ByteSpan'
+    item.chipType = 'chip::ByteSpan';
   } else {
-    item.chipType = 'chip::CharSpan'
+    item.chipType = 'chip::CharSpan';
   }
-  item.size = kLengthSizeInBytes + item.maxLength
-  item.name = item.name || item.label
-  return true
+  item.size = kLengthSizeInBytes + item.maxLength;
+  item.name = item.name || item.label;
+  return true;
 }
 
 function handleList(item, [atomics, enums, bitmaps, structs]) {
   if (!ListHelper.isList(item.type)) {
-    return false
+    return false;
   }
 
-  const entryType = item.entryType
+  const entryType = item.entryType;
   if (!entryType) {
-    console.log(item)
-    throw new Error(item.label, 'List[T] is missing type "T" information')
+    console.log(item);
+    throw new Error(item.label, 'List[T] is missing type "T" information');
   }
 
-  item.isArray = true
-  item.type = entryType
-  enhancedItem(item, [atomics, enums, bitmaps, structs])
+  item.isArray = true;
+  item.type = entryType;
+  enhancedItem(item, [atomics, enums, bitmaps, structs]);
 
-  return true
+  return true;
 }
 
 function handleStruct(item, [atomics, enums, bitmaps, structs]) {
-  const struct = getStruct(structs, item.type)
+  const struct = getStruct(structs, item.type);
   if (!struct) {
-    return false
+    return false;
   }
 
   // Add a leading `_` before the name of struct to match what is done in the af-structs.zapt template.
   // For instance structs are declared as "typedef struct _{{asType label}}".
-  item.chipType = '_' + item.type
-  item.isStruct = true
+  item.chipType = '_' + item.type;
+  item.isStruct = true;
 
   struct.items.map((structItem) =>
     enhancedItem(structItem, [atomics, enums, bitmaps, structs])
-  )
-  item.items = struct.items
+  );
+  item.items = struct.items;
   item.size = struct.items
     .map((type) => type.size)
-    .reduce((accumulator, currentValue) => accumulator + currentValue, 0)
-  return true
+    .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+  return true;
 }
 
 function handleBasic(item, [atomics, enums, bitmaps, structs]) {
-  let itemType = item.type
+  let itemType = item.type;
 
-  const enumItem = getEnum(enums, itemType)
+  const enumItem = getEnum(enums, itemType);
   if (enumItem) {
-    item.isEnum = true
-    itemType = 'enum' + enumItem.size * 8
+    item.isEnum = true;
+    itemType = 'enum' + enumItem.size * 8;
   }
 
-  const bitmap = getBitmap(bitmaps, itemType)
+  const bitmap = getBitmap(bitmaps, itemType);
   if (bitmap) {
-    item.isBitmap = true
-    itemType = 'bitmap' + bitmap.size * 8
+    item.isBitmap = true;
+    itemType = 'bitmap' + bitmap.size * 8;
   }
 
-  const atomic = getAtomic(atomics, itemType)
+  const atomic = getAtomic(atomics, itemType);
   if (atomic) {
-    item.name = item.name || item.label
-    item.isStruct = false
-    item.atomicTypeId = atomic.atomicId
-    item.size = atomic.size
-    item.chipType = atomic.chipType
-    return true
+    item.name = item.name || item.label;
+    item.isStruct = false;
+    item.atomicTypeId = atomic.atomicId;
+    item.size = atomic.size;
+    item.chipType = atomic.chipType;
+    return true;
   }
 
-  return false
+  return false;
 }
 
 function enhancedItem(item, types) {
   if (handleString(item, types)) {
-    return
+    return;
   }
 
   if (handleList(item, types)) {
-    return
+    return;
   }
 
   if (handleStruct(item, types)) {
-    return
+    return;
   }
 
   if (handleBasic(item, types)) {
-    return
+    return;
   }
 
-  console.log(item)
-  throw new Error(item.type + ' not found.')
+  console.log(item);
+  throw new Error(item.type + ' not found.');
 }
 
 function inlineStructItems(args) {
-  const returnedArgs = []
+  const returnedArgs = [];
   args.forEach((argument) => {
     if (!argument.isStruct) {
-      returnedArgs.push(argument)
-      return
+      returnedArgs.push(argument);
+      return;
     }
 
     argument.items.forEach((item) => {
-      returnedArgs.push(item)
-    })
-  })
+      returnedArgs.push(item);
+    });
+  });
 
-  return returnedArgs
+  return returnedArgs;
 }
 
 function enhancedCommands(commands, types) {
   commands.forEach((command) => {
     command.arguments.forEach((argument) => {
-      enhancedItem(argument, types)
+      enhancedItem(argument, types);
       argument.isComplex =
-        argument.isList || argument.isStruct || argument.isArray
-    })
-  })
+        argument.isList || argument.isStruct || argument.isArray;
+    });
+  });
 
   commands.forEach((command) => {
     // Flag things ending in "Response" so we can filter out unused responses,
     // but don't stomp on a true isResponse value if it's set already because
     // some other command had this one as its response.
-    command.isResponse = command.isResponse || command.name.includes('Response')
-    command.isManufacturerSpecificCommand = !!command.mfgCode
+    command.isResponse =
+      command.isResponse || command.name.includes('Response');
+    command.isManufacturerSpecificCommand = !!command.mfgCode;
 
-    command.hasSpecificResponse = !!command.response
+    command.hasSpecificResponse = !!command.response;
     if (command.response) {
-      const responseName = command.response.name
-      command.responseName = responseName
+      const responseName = command.response.name;
+      command.responseName = responseName;
       // The 'response' property contains the response returned by the `selectCommandById`
       // helper. But this one does not contains all the metadata informations added by
       // `enhancedItem`, so instead of using the one from ZAP, retrieve the enhanced version.
       command.response = commands.find(
         (command) => command.name == responseName
-      )
+      );
       // We might have failed to find a response if our configuration is weird
       // in some way.
       if (command.response) {
-        command.response.isResponse = true
+        command.response.isResponse = true;
       }
     } else {
-      command.responseName = 'DefaultSuccess'
-      command.response = { arguments: [] }
+      command.responseName = 'DefaultSuccess';
+      command.response = { arguments: [] };
     }
-  })
+  });
 
   // Filter unused responses
   commands = commands.filter((command) => {
     if (!command.isResponse) {
-      return true
+      return true;
     }
 
-    const responseName = command.name
-    return commands.find((command) => command.responseName == responseName)
-  })
+    const responseName = command.name;
+    return commands.find((command) => command.responseName == responseName);
+  });
 
   // At this stage, 'command.arguments' may contains 'struct'. But some controllers does not know (yet) how
   // to handle them. So those needs to be inlined.
   commands.forEach((command) => {
     if (command.isResponse) {
-      return
+      return;
     }
 
-    command.expandedArguments = inlineStructItems(command.arguments)
-  })
+    command.expandedArguments = inlineStructItems(command.arguments);
+  });
 
-  return commands
+  return commands;
 }
 
 function enhancedEvents(events, types) {
@@ -634,22 +635,22 @@ function enhancedEvents(events, types) {
       isEvent: true,
       isNullable: false,
       label: event.name,
-    }
-    event.response = { arguments: [argument] }
-  })
-  return events
+    };
+    event.response = { arguments: [argument] };
+  });
+  return events;
 }
 
 function enhancedAttributes(attributes, globalAttributes, types) {
   attributes.forEach((attribute) => {
-    enhancedItem(attribute, types)
-    attribute.isGlobalAttribute = globalAttributes.includes(attribute.code)
-    attribute.isWritableAttribute = !!attribute.isWritable
-    attribute.isReportableAttribute = !!attribute.includedReportable
-    attribute.chipCallback = asChipCallback(attribute)
+    enhancedItem(attribute, types);
+    attribute.isGlobalAttribute = globalAttributes.includes(attribute.code);
+    attribute.isWritableAttribute = !!attribute.isWritable;
+    attribute.isReportableAttribute = !!attribute.includedReportable;
+    attribute.chipCallback = asChipCallback(attribute);
     attribute.isComplex =
-      attribute.isList || attribute.isStruct || attribute.isArray
-  })
+      attribute.isList || attribute.isStruct || attribute.isArray;
+  });
 
   attributes.forEach((attribute) => {
     const argument = {
@@ -662,52 +663,52 @@ function enhancedAttributes(attributes, globalAttributes, types) {
       chipType: attribute.chipType,
       chipCallback: attribute.chipCallback,
       label: attribute.name,
-    }
-    attribute.arguments = [argument]
-    attribute.response = { arguments: [argument] }
-  })
+    };
+    attribute.arguments = [argument];
+    attribute.response = { arguments: [argument] };
+  });
 
   // At this stage, the 'attributes' array contains all attributes enabled for all endpoints. It means
   // that a lot of attributes are duplicated if a cluster is enabled on multiple endpoints but that's
   // not what the templates expect. So let's deduplicate them.
   const compare = (a, b) =>
-    a.name == b.name && a.clusterId == b.clusterId && a.side == b.side
+    a.name == b.name && a.clusterId == b.clusterId && a.side == b.side;
   return attributes.filter(
     (att, index) => attributes.findIndex((att2) => compare(att, att2)) == index
-  )
+  );
 }
 
 const Clusters = {
   ready: new Deferred(),
   post_processing_ready: new Deferred(),
-}
+};
 
 class ClusterStructUsage {
   constructor() {
-    this.usedStructures = new Map() // Structure label -> structure
-    this.clustersForStructure = new Map() // Structure label -> Set(Cluster name)
-    this.structuresForCluster = new Map() // Cluster name -> Set(Structure label)
+    this.usedStructures = new Map(); // Structure label -> structure
+    this.clustersForStructure = new Map(); // Structure label -> Set(Cluster name)
+    this.structuresForCluster = new Map(); // Cluster name -> Set(Structure label)
   }
 
   addUsedStructure(clusterName, structure) {
     // Record that generally this structure is used
-    this.usedStructures.set(structure.label, structure)
+    this.usedStructures.set(structure.label, structure);
 
     // Record that this structure is used by a
     // particular cluster name
-    let clusterSet = this.clustersForStructure.get(structure.label)
+    let clusterSet = this.clustersForStructure.get(structure.label);
     if (!clusterSet) {
-      clusterSet = new Set()
-      this.clustersForStructure.set(structure.label, clusterSet)
+      clusterSet = new Set();
+      this.clustersForStructure.set(structure.label, clusterSet);
     }
-    clusterSet.add(clusterName)
+    clusterSet.add(clusterName);
 
-    let structureLabelSet = this.structuresForCluster.get(clusterName)
+    let structureLabelSet = this.structuresForCluster.get(clusterName);
     if (!structureLabelSet) {
-      structureLabelSet = new Set()
-      this.structuresForCluster.set(clusterName, structureLabelSet)
+      structureLabelSet = new Set();
+      this.structuresForCluster.set(clusterName, structureLabelSet);
     }
-    structureLabelSet.add(structure.label)
+    structureLabelSet.add(structure.label);
   }
 
   /**
@@ -716,20 +717,20 @@ class ClusterStructUsage {
    *   - only that cluster ever uses it
    */
   structuresSpecificToCluster(clusterName) {
-    let clusterStructures = this.structuresForCluster.get(clusterName)
+    let clusterStructures = this.structuresForCluster.get(clusterName);
     if (!clusterStructures) {
-      return []
+      return [];
     }
 
     return Array.from(clusterStructures)
       .filter((name) => this.clustersForStructure.get(name).size == 1)
-      .map((name) => this.usedStructures.get(name))
+      .map((name) => this.usedStructures.get(name));
   }
 
   structuresUsedByMultipleClusters() {
     return Array.from(this.usedStructures.values()).filter(
       (s) => this.clustersForStructure.get(s.label).size > 1
-    )
+    );
   }
 }
 
@@ -738,48 +739,48 @@ Clusters._addUsedStructureNames = async function (
   startType,
   allKnownStructs
 ) {
-  const struct = getStruct(allKnownStructs, startType.type)
+  const struct = getStruct(allKnownStructs, startType.type);
   if (!struct) {
-    return
+    return;
   }
 
-  this._cluster_structures.addUsedStructure(clusterName, struct)
+  this._cluster_structures.addUsedStructure(clusterName, struct);
 
   for (const item of struct.items) {
-    this._addUsedStructureNames(clusterName, item, allKnownStructs)
+    this._addUsedStructureNames(clusterName, item, allKnownStructs);
   }
-}
+};
 
 Clusters._computeUsedStructureNames = async function (structs) {
   // NOTE: this MUST be called only after attribute promise is resolved
   // as iteration of `get*ByClusterName` needs that data.
   for (const cluster of this._clusters) {
-    const attributes = await this.getAttributesByClusterName(cluster.name)
+    const attributes = await this.getAttributesByClusterName(cluster.name);
     for (const attribute of attributes) {
       if (attribute.isStruct) {
-        this._addUsedStructureNames(cluster.name, attribute, structs)
+        this._addUsedStructureNames(cluster.name, attribute, structs);
       }
     }
 
-    const commands = await this.getCommandsByClusterName(cluster.name)
+    const commands = await this.getCommandsByClusterName(cluster.name);
     for (const command of commands) {
       for (const argument of command.arguments) {
-        this._addUsedStructureNames(cluster.name, argument, structs)
+        this._addUsedStructureNames(cluster.name, argument, structs);
       }
     }
 
-    const responses = await this.getResponsesByClusterName(cluster.name)
+    const responses = await this.getResponsesByClusterName(cluster.name);
     for (const response of responses) {
       for (const argument of response.arguments) {
-        this._addUsedStructureNames(cluster.name, argument, structs)
+        this._addUsedStructureNames(cluster.name, argument, structs);
       }
     }
   }
 
   this._used_structure_names = new Set(
     this._cluster_structures.usedStructures.keys()
-  )
-}
+  );
+};
 
 /**
  * If includeAll is true, all events/commands/attributes will be included, not
@@ -787,23 +788,23 @@ Clusters._computeUsedStructureNames = async function (structs) {
  */
 Clusters.init = async function (context, includeAll) {
   if (this.ready.running) {
-    return this.ready
+    return this.ready;
   }
-  this.ready.running = true
+  this.ready.running = true;
 
   let packageId = await templateUtil
     .ensureZclPackageId(context)
     .catch((err) => {
-      console.log(err)
-      throw err
-    })
+      console.log(err);
+      throw err;
+    });
 
   const loadTypes = [
     loadAtomics.call(context, packageId),
     loadEnums.call(context, packageId),
     loadBitmaps.call(context, packageId),
     loadStructs.call(context, packageId),
-  ]
+  ];
 
   const promises = [
     Promise.all(loadTypes),
@@ -815,7 +816,7 @@ Clusters.init = async function (context, includeAll) {
     (includeAll ? loadAllAttributes : loadAttributes).call(context, packageId),
     loadGlobalAttributes.call(context, packageId),
     (includeAll ? loadAllEvents : loadEvents).call(context, packageId),
-  ]
+  ];
 
   let [
     types,
@@ -825,113 +826,115 @@ Clusters.init = async function (context, includeAll) {
     attributes,
     globalAttributes,
     events,
-  ] = await Promise.all(promises)
+  ] = await Promise.all(promises);
 
-  this._endpoints = endpoints
-  this._clusters = clusters
-  this._commands = enhancedCommands(commands, types)
-  this._attributes = enhancedAttributes(attributes, globalAttributes, types)
-  this._events = enhancedEvents(events, types)
-  this._cluster_structures = new ClusterStructUsage()
+  this._endpoints = endpoints;
+  this._clusters = clusters;
+  this._commands = enhancedCommands(commands, types);
+  this._attributes = enhancedAttributes(attributes, globalAttributes, types);
+  this._events = enhancedEvents(events, types);
+  this._cluster_structures = new ClusterStructUsage();
 
   // data is ready, but not full post - processing
-  this.ready.resolve()
+  this.ready.resolve();
 
-  await this._computeUsedStructureNames(types[3])
+  await this._computeUsedStructureNames(types[3]);
 
-  return this.post_processing_ready.resolve()
-}
+  return this.post_processing_ready.resolve();
+};
 
 //
 // Helpers: All
 //
 function asBlocks(promise, options) {
-  return promise.then((data) => templateUtil.collectBlocks(data, options, this))
+  return promise.then((data) =>
+    templateUtil.collectBlocks(data, options, this)
+  );
 }
 
 function ensureClusters(context, includeAll = false) {
   // Kick off Clusters initialization.  This is async, but that's fine: all the
   // getters on Clusters wait on that initialziation to complete.
-  ensureState(context, "Don't have a context")
+  ensureState(context, "Don't have a context");
 
-  Clusters.init(context, includeAll)
-  return Clusters
+  Clusters.init(context, includeAll);
+  return Clusters;
 }
 
 //
 // Helpers: Get all clusters/commands/responses/attributes.
 //
-const kResponseFilter = (isResponse, item) => isResponse == item.isResponse
+const kResponseFilter = (isResponse, item) => isResponse == item.isResponse;
 
 Clusters.ensureReady = function () {
-  ensureState(this.ready.running)
-  return this.ready
-}
+  ensureState(this.ready.running);
+  return this.ready;
+};
 
 Clusters.ensurePostProcessingDone = function () {
-  ensureState(this.ready.running)
-  return this.post_processing_ready
-}
+  ensureState(this.ready.running);
+  return this.post_processing_ready;
+};
 
 Clusters.getClusters = function () {
-  return this.ensureReady().then(() => this._clusters)
-}
+  return this.ensureReady().then(() => this._clusters);
+};
 
 Clusters.getEndPoints = function () {
-  return this.ensureReady().then(() => this._endpoints)
-}
+  return this.ensureReady().then(() => this._endpoints);
+};
 
 Clusters.getCommands = function () {
   return this.ensureReady().then(() =>
     this._commands.filter(kResponseFilter.bind(null, false))
-  )
-}
+  );
+};
 
 Clusters.getResponses = function () {
   return this.ensureReady().then(() =>
     this._commands.filter(kResponseFilter.bind(null, true))
-  )
-}
+  );
+};
 
 Clusters.getAttributes = function () {
-  return this.ensureReady().then(() => this._attributes)
-}
+  return this.ensureReady().then(() => this._attributes);
+};
 
 Clusters.getEvents = function () {
-  return this.ensureReady().then(() => this._events)
-}
+  return this.ensureReady().then(() => this._events);
+};
 
 //
 // Helpers: Get by Cluster Name
 //
 const kNameFilter = (name, item) =>
-  name.toLowerCase() == (item.clusterName || item.name).toLowerCase()
+  name.toLowerCase() == (item.clusterName || item.name).toLowerCase();
 
 Clusters.getCommandsByClusterName = function (name) {
   return this.getCommands().then((items) =>
     items.filter(kNameFilter.bind(null, name))
-  )
-}
+  );
+};
 
 Clusters.getResponsesByClusterName = function (name) {
   return this.getResponses().then((items) =>
     items.filter(kNameFilter.bind(null, name))
-  )
-}
+  );
+};
 
 Clusters.getAttributesByClusterName = function (name) {
   return this.ensureReady().then(() => {
-    const clusterId = this._clusters.find(kNameFilter.bind(null, name)).id
-    const filter = (attribute) => attribute.clusterId == clusterId
-    return this.getAttributes().then((items) => items.filter(filter))
-  })
-}
+    const clusterId = this._clusters.find(kNameFilter.bind(null, name)).id;
+    const filter = (attribute) => attribute.clusterId == clusterId;
+    return this.getAttributes().then((items) => items.filter(filter));
+  });
+};
 
 Clusters.getEventsByClusterName = function (name) {
   return this.getEvents().then((items) =>
     items.filter(kNameFilter.bind(null, name))
-  )
-}
+  );
+};
 
 //
 // Helpers: Get by Cluster Side
@@ -940,116 +943,116 @@ const kSideFilter = (side, item) =>
   item.source
     ? (item.source == side && item.outgoing) ||
       (item.source != side && item.incoming)
-    : item.side == side
+    : item.side == side;
 
 Clusters.getCommandsByClusterSide = function (side) {
   return this.getCommands().then((items) =>
     items.filter(kSideFilter.bind(null, side))
-  )
-}
+  );
+};
 
 Clusters.getResponsesByClusterSide = function (side) {
   return this.getResponses().then((items) =>
     items.filter(kSideFilter.bind(null, side))
-  )
-}
+  );
+};
 
 Clusters.getAttributesByClusterSide = function (side) {
   return this.getAttributes().then((items) =>
     items.filter(kSideFilter.bind(null, side))
-  )
-}
+  );
+};
 
 Clusters.getEventsByClusterSide = function (side) {
   return this.getEvents().then((items) =>
     items.filter(kSideFilter.bind(null, side))
-  )
-}
+  );
+};
 
 //
 // Helpers: Client
 //
-const kClientSideFilter = kSideFilter.bind(null, 'client')
+const kClientSideFilter = kSideFilter.bind(null, 'client');
 
 Clusters.getClientClusters = function () {
-  return this.getClusters().then((items) => items.filter(kClientSideFilter))
-}
+  return this.getClusters().then((items) => items.filter(kClientSideFilter));
+};
 
 Clusters.getClientCommands = function (name) {
   return this.getCommandsByClusterName(name).then((items) =>
     items.filter(kClientSideFilter)
-  )
-}
+  );
+};
 
 Clusters.getClientResponses = function (name) {
   return this.getResponsesByClusterName(name).then((items) =>
     items.filter(kClientSideFilter)
-  )
-}
+  );
+};
 
 Clusters.getClientAttributes = function (name) {
   return this.getAttributesByClusterName(name).then((items) =>
     items.filter(kClientSideFilter)
-  )
-}
+  );
+};
 
 Clusters.getClientEvents = function (name) {
   return this.getEventsByClusterName(name).then((items) =>
     items.filter(kClientSideFilter)
-  )
-}
+  );
+};
 
 //
 // Helpers: Server
 //
-const kServerSideFilter = kSideFilter.bind(null, 'server')
+const kServerSideFilter = kSideFilter.bind(null, 'server');
 
 Clusters.getServerClusters = function () {
-  return this.getClusters().then((items) => items.filter(kServerSideFilter))
-}
+  return this.getClusters().then((items) => items.filter(kServerSideFilter));
+};
 
 Clusters.getServerCommands = function (name) {
   return this.getCommandsByClusterName(name).then((items) =>
     items.filter(kServerSideFilter)
-  )
-}
+  );
+};
 
 Clusters.getServerResponses = function (name) {
   return this.getResponsesByClusterName(name).then((items) =>
     items.filter(kServerSideFilter)
-  )
-}
+  );
+};
 
 Clusters.getServerAttributes = function (name) {
   return this.getAttributesByClusterName(name).then((items) =>
     items.filter(kServerSideFilter)
-  )
-}
+  );
+};
 
 Clusters.getUsedStructureNames = function () {
-  return this.ensurePostProcessingDone().then(() => this._used_structure_names)
-}
+  return this.ensurePostProcessingDone().then(() => this._used_structure_names);
+};
 
 Clusters.getStructuresByClusterName = function (name) {
   return this.ensurePostProcessingDone().then(() =>
     this._cluster_structures.structuresSpecificToCluster(name)
-  )
-}
+  );
+};
 
 Clusters.getSharedStructs = function () {
   return this.ensurePostProcessingDone().then(() =>
     this._cluster_structures.structuresUsedByMultipleClusters()
-  )
-}
+  );
+};
 
 Clusters.getServerEvents = function (name) {
   return this.getEventsByClusterName(name).then((items) =>
     items.filter(kServerSideFilter)
-  )
-}
+  );
+};
 
 //
 // Module exports
 //
-exports.asBlocks = asBlocks
-exports.ensureClusters = ensureClusters
+exports.asBlocks = asBlocks;
+exports.ensureClusters = ensureClusters;

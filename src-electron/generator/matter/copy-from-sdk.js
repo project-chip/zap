@@ -20,23 +20,23 @@
 // a mechanism to keep Matter source in sync, as part of the larger
 // cleanup exercise. Once that is done, this script will go away.
 
-const fs = require('fs')
-const path = require('path')
+const fs = require('fs');
+const path = require('path');
 
-let args = process.argv.slice(2)
+let args = process.argv.slice(2);
 
 if (args[0] == null) {
   console.log(
     'Usage: node copy-from-sdk.js <MATTER_SDK_ROOT> [all|examples|src]'
-  )
-  process.exit(1)
+  );
+  process.exit(1);
 }
 
-let matterRoot = args[0]
+let matterRoot = args[0];
 
-let what = 'all'
+let what = 'all';
 if (args[1] != null) {
-  what = args[1]
+  what = args[1];
 }
 
 const srcDirectories = [
@@ -53,7 +53,7 @@ const srcDirectories = [
   'app/zap-templates/common/simulated-clusters/clusters',
   'app/zap-templates/common/attributes',
   'app/zap-templates/common/variables',
-]
+];
 
 const examplesDirectories = [
   'darwin-framework-tool/templates',
@@ -62,46 +62,46 @@ const examplesDirectories = [
   'chip-tool/templates',
   'placeholder/templates',
   'placeholder/linux/apps/app1',
-]
+];
 
 if (what == 'all' || what == 'src')
   srcDirectories.forEach((dir) => {
-    fs.mkdirSync(dir, { recursive: true })
-    let dirPath = path.join(path.join(matterRoot, 'src'), dir)
+    fs.mkdirSync(dir, { recursive: true });
+    let dirPath = path.join(path.join(matterRoot, 'src'), dir);
     if (!fs.existsSync(dirPath)) {
-      console.log(`Failed to locate: ${dirPath}`)
-      process.exit(1)
+      console.log(`Failed to locate: ${dirPath}`);
+      process.exit(1);
     }
-    console.log(`Reading: ${dirPath}`)
+    console.log(`Reading: ${dirPath}`);
     fs.readdir(dirPath, (err, files) => {
       let jsFiles = files
         .filter((f) => f.endsWith('.js'))
-        .map((f) => path.join(dirPath, f))
+        .map((f) => path.join(dirPath, f));
 
       jsFiles.forEach((f) => {
-        console.log(`Copying: ${f}`)
-        fs.copyFileSync(f, path.join(dir, path.basename(f)))
-      })
-    })
-  })
+        console.log(`Copying: ${f}`);
+        fs.copyFileSync(f, path.join(dir, path.basename(f)));
+      });
+    });
+  });
 
 if (what == 'all' || what == 'examples')
   examplesDirectories.forEach((dir) => {
-    fs.mkdirSync(dir, { recursive: true })
-    let dirPath = path.join(path.join(matterRoot, 'examples'), dir)
+    fs.mkdirSync(dir, { recursive: true });
+    let dirPath = path.join(path.join(matterRoot, 'examples'), dir);
     if (!fs.existsSync(dirPath)) {
-      console.log(`Failed to locate: ${dirPath}`)
-      process.exit(1)
+      console.log(`Failed to locate: ${dirPath}`);
+      process.exit(1);
     }
-    console.log(`Reading: ${dirPath}`)
+    console.log(`Reading: ${dirPath}`);
     fs.readdir(dirPath, (err, files) => {
       let jsFiles = files
         .filter((f) => f.endsWith('.js'))
-        .map((f) => path.join(dirPath, f))
+        .map((f) => path.join(dirPath, f));
 
       jsFiles.forEach((f) => {
-        console.log(`Copying: ${f}`)
-        fs.copyFileSync(f, path.join(dir, path.basename(f)))
-      })
-    })
-  })
+        console.log(`Copying: ${f}`);
+        fs.copyFileSync(f, path.join(dir, path.basename(f)));
+      });
+    });
+  });

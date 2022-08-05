@@ -15,19 +15,19 @@
  *    limitations under the License.
  */
 
-const listType = 'ARRAY'
-const dbEnum = require('../../../../../../src-shared/db-enum')
+const listType = 'ARRAY';
+const dbEnum = require('../../../../../../src-shared/db-enum');
 
 function isList(type) {
-  return type.toUpperCase() == listType
+  return type.toUpperCase() == listType;
 }
 
 //
 // Module exports
 //
-exports.isList = isList
+exports.isList = isList;
 
 exports.meta = {
   category: dbEnum.helperCategory.matter,
   alias: ['common/ListHelper.js'],
-}
+};

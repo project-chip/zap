@@ -15,7 +15,7 @@
  *    limitations under the License.
  */
 
-const kListAttributeAtomicTypeId = 0x48
+const kListAttributeAtomicTypeId = 0x48;
 
 /**
  * Returns the calculated length of the given attribute list
@@ -26,10 +26,10 @@ const kListAttributeAtomicTypeId = 0x48
  * @param {*} options
  */
 function asListEntryLength(options) {
-  return this.size
+  return this.size;
 }
 
 //
 // Module exports
 //
-exports.asListEntryLength = asListEntryLength
+exports.asListEntryLength = asListEntryLength;

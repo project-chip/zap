@@ -37,22 +37,22 @@ const Start = {
     // OTA requestor specific arguments
     { name: 'otaDownloadPath', type: 'CHAR_STRING', isOptional: true },
   ],
-}
+};
 
 const Stop = {
   name: 'Stop',
   arguments: [{ name: 'registerKey', type: 'CHAR_STRING', isOptional: true }],
-}
+};
 
 const Reboot = {
   name: 'Reboot',
   arguments: [{ name: 'registerKey', type: 'CHAR_STRING', isOptional: true }],
-}
+};
 
 const FactoryReset = {
   name: 'FactoryReset',
   arguments: [{ name: 'registerKey', type: 'CHAR_STRING', isOptional: true }],
-}
+};
 
 const CreateOtaImage = {
   name: 'CreateOtaImage',
@@ -61,7 +61,7 @@ const CreateOtaImage = {
     { name: 'rawImageFilePath', type: 'CHAR_STRING' },
     { name: 'rawImageContent', type: 'CHAR_STRING' },
   ],
-}
+};
 
 const CompareFiles = {
   name: 'CompareFiles',
@@ -69,14 +69,14 @@ const CompareFiles = {
     { name: 'file1', type: 'CHAR_STRING' },
     { name: 'file2', type: 'CHAR_STRING' },
   ],
-}
+};
 
 const SystemCommands = {
   name: 'SystemCommands',
   commands: [Start, Stop, Reboot, FactoryReset, CreateOtaImage, CompareFiles],
-}
+};
 
 //
 // Module exports
 //
-exports.cluster = SystemCommands
+exports.cluster = SystemCommands;
