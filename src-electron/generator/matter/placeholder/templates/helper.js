@@ -16,10 +16,10 @@
  */
 
 const dbEnum = require('../../../../../src-shared/db-enum');
+const appTest = require('../linux/apps/app1/tests.js');
 
 function getTests() {
   try {
-    const appTest = require('../linux/apps/app1/tests.js');
     return appTest.getTests();
   } catch (e) {
     console.info('No tests configuration has been found.');

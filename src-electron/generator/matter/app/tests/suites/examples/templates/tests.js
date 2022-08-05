@@ -14,27 +14,15 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+const path = require('path');
+const util = require('../../../../../../../util/util');
 
 function getManualTests() {
-  const ExampleManualCataCategory = ['examples/Test_Example'];
-
-  const tests = [
-    ExampleManualCataCategory, //
-  ];
-  return tests.flat(1);
+  return util.collectTests(path.join(__dirname, 'manualTests.json'));
 }
 
 function getTests() {
-  const TestExample = [
-    'examples/Test_Example_1',
-    'examples/Test_Example_2',
-    'examples/Test_Example_3',
-  ];
-
-  const tests = [
-    TestExample, //
-  ];
-  return tests.flat(1);
+  return util.collectTests(path.join(__dirname, 'tests.json'));
 }
 
 //

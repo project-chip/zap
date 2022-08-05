@@ -588,6 +588,34 @@ function mainOrSecondaryInstance(
   }
 }
 
+function disable(testName) {
+  const index = this.indexOf(testName)
+  if (index == -1) {
+    const errStr = `Test ${testName}  does not exists.`
+    throw new Error(errStr)
+  }
+
+  this.splice(index, 1)
+}
+
+/**
+ * Utility method that collects tests from a JSON file.
+ *
+ * @param {*} jsonFile
+ */
+function collectTests(jsonFile) {
+  let data = fs.readFileSync(jsonFile)
+  let tests = JSON.parse(data)
+  if (!('collection' in tests)) {
+    throw new Error(
+      'JSON file for tests needs to contain an element "collection"'
+    )
+  }
+  const flatTests = tests.collection.map((c) => tests[c]).flat(1)
+  flatTests.disable = disable.bind(flatTests)
+  return flatTests
+}
+
 exports.createBackupFile = createBackupFile
 exports.checksum = checksum
 exports.initializeSessionPackage = initializeSessionPackage
@@ -606,3 +634,4 @@ exports.parseXml = parseXml
 exports.readFileContentAndCrc = readFileContentAndCrc
 exports.duration = duration
 exports.mainOrSecondaryInstance = mainOrSecondaryInstance
+exports.collectTests = collectTests

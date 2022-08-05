@@ -14,20 +14,11 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-
-function disable(testName) {
-  const index = this.indexOf(testName);
-  if (index == -1) {
-    const errStr = `Test ${testName}  does not exists.`;
-    throw new Error(errStr);
-  }
-
-  this.splice(index, 1);
-}
-
-// clang-format off
+const path = require('path');
+const util = require('../../../../../util/util');
 
 function getManualTests() {
+<<<<<<< HEAD
 <<<<<<< HEAD
     const DeviceDiscovery = [
         "Test_TC_DD_1_5",
@@ -1722,9 +1713,14 @@ function getTests() {
   tests.disable = disable.bind(tests);
   return tests;
 >>>>>>> 1c935550 (Configure Matter code to stop doing ASI and instead put semicolons in the code.)
+=======
+  return util.collectTests(path.join(__dirname, 'manualTests.json'));
 }
 
-// clang-format on
+function getTests() {
+  return util.collectTests(path.join(__dirname, 'tests.json'));
+>>>>>>> 851961d5 (Move the tests out into JSON files.)
+}
 
 //
 // Module exports

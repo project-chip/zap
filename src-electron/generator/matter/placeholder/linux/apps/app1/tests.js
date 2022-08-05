@@ -15,13 +15,19 @@
  *    limitations under the License.
  */
 
+<<<<<<< HEAD
 function getTests()
 {
   const tests = [
     "Test_TC_BINFO_2_3_Simulated",
   ];
+=======
+const path = require('path');
+const util = require('../../../../../../util/util');
+>>>>>>> 851961d5 (Move the tests out into JSON files.)
 
-  return tests.join(', ');
+function getTests() {
+  return util.collectTests(path.join(__dirname, 'tests.json'));
 }
 
 //
