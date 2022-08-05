@@ -26,28 +26,28 @@ limitations under the License.
             >Endpoint - {{ getFormattedEndpointId(endpointReference) }}</strong
           >
         </div>
-        <q-card-actions class="q-gutter-xs col ">
-        <q-btn
-          flat
-          dense
-          label="Delete"
-          color="primary"
-          v-close-popup
-          size="sm"
-          icon="delete"
-          @click="handleDeletionDialog"
-        />
-        <q-btn
-          flat
-          dense
-          label="Edit"
-          color="primary"
-          icon="edit"
-          size="sm"
-          v-close-popup
-          @click="modifyEndpointDialog = !modifyEndpointDialog"
-        />
-      </q-card-actions>
+        <q-card-actions class="q-gutter-xs col">
+          <q-btn
+            flat
+            dense
+            label="Delete"
+            color="primary"
+            v-close-popup
+            size="sm"
+            icon="delete"
+            @click="handleDeletionDialog"
+          />
+          <q-btn
+            flat
+            dense
+            label="Edit"
+            color="primary"
+            icon="edit"
+            size="sm"
+            v-close-popup
+            @click="modifyEndpointDialog = !modifyEndpointDialog"
+          />
+        </q-card-actions>
       </div>
       <q-list dense bordered v-if="isSelectedEndpoint">
         <br />
@@ -67,7 +67,7 @@ limitations under the License.
             {{ networkId[endpointReference] }}
           </div>
         </q-item>
-        <q-item class="row">
+        <q-item v-if="$store.state.zap.currentZapCategory !== 'matter'" class="row">
           <div class="col-6">
             <strong>Profile ID</strong>
           </div>

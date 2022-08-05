@@ -31,6 +31,7 @@ export function updateInformationText(state, text) {
 
 export function setAllPackages(state, packages) {
   state.allPackages = packages
+  state.currentZapCategory = packages.find( pkg => pkg.type === "zcl-properties").category
 }
 
 export function updateClusters(state, clusters) {

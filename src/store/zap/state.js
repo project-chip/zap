@@ -37,6 +37,7 @@ export default function () {
     selectedGenericOptions: {},
     projectPackages: [],
     allPackages: [],
+    currentZapCategory: '',
     clusterManager: {
       openDomains: {},
       lastSelectedDomain: null,
