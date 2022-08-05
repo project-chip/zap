@@ -8,7 +8,7 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 
 describe('Testing enabled clusters amount', () => {
   it(
-    'create a new endpoint and enable a clusters',
+    'create a new endpoint and get amount of enabled clusters',
     { retries: { runMode: 2, openMode: 2 } },
     () => {
       cy.fixture('baseurl').then((data) => {
