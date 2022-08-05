@@ -32,6 +32,7 @@ limitations under the License.
 <script>
 import { QSpinnerGears } from 'quasar'
 const rendApi = require(`../src-shared/rend-api.js`)
+const restApi = require(`../src-shared/rest-api.js`)
 const observable = require('./util/observable.js')
 const dbEnum = require(`../src-shared/db-enum.js`)
 const storage = require('./util/storage.js')
@@ -103,6 +104,11 @@ export default {
     },
   },
   mounted() {
+    if (this.$serverGet != null) {
+      this.$serverGet(restApi.uri.uiOptions).then((res) => {
+        console.log(res.data)
+      })
+    }
     window[rendApi.GLOBAL_SYMBOL_EXECUTE](
       rendApi.id.setDarkTheme,
       storage.getItem(rendApi.storageKey.isDarkThemeActive)
