@@ -42,10 +42,8 @@ const includedHelpers = [
   require('./matter/controller/java/templates/helper'),
   require('./matter/controller/python/templates/helper'),
   require('./matter/darwin-framework-tool/templates/helper'),
-  require('./matter/darwin-framework-tool/templates/tests/tests'),
   require('./matter/darwin/Framework/CHIP/templates/helper'),
   require('./matter/chip-tool/templates/tests/helper'),
-  require('./matter/chip-tool/templates/tests/tests'),
   require('./matter/chip-tool/templates/helper'),
   require('./matter/app/zap-templates/templates/chip/helper'),
   require('./matter/app/zap-templates/templates/app/helper'),
@@ -55,7 +53,6 @@ const includedHelpers = [
   require('./matter/app/zap-templates/common/ChipTypesHelper'),
   require('./matter/app/zap-templates/common/attributes/Accessors'),
   require('./matter/app/zap-templates/common/StringHelper'),
-  require('./matter/placeholder/templates/helper'),
 
   require('./meta/helper-meta'),
   require('./meta/helper-meta-2'),
