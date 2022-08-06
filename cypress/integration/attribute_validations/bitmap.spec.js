@@ -22,7 +22,7 @@ describe('Testing BITMAP type validation', () => {
       cy.fixture('data').then((data) => {
         if (data.endpoint1 === 'Matter Bridge (0x000E)') {
           cy.get(
-            '#qvs_61 > :nth-child(6) > :nth-child(2) > .q-mt-xs > .q-toggle__inner'
+            '[data-cy=Attributes] > .q-table__middle > .q-table > .q-virtual-scroll__content > :nth-child(6) > :nth-child(2) > .q-mt-xs > .q-toggle__inner'
           ).click({ force: true })
         }
         cy.get(
