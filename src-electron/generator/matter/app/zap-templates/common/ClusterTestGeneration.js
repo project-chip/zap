@@ -25,6 +25,7 @@ const zclHelper = require('../../../../../generator/helper-zcl');
 const queryEnum = require('../../../../../db/query-enum');
 const queryBitmap = require('../../../../../db/query-bitmap');
 const dbEnum = require('../../../../../../src-shared/db-enum');
+const util = require('../../../../../util/util');
 
 const {
   getClusters,
@@ -634,10 +635,21 @@ async function configureTestItem(item) {
   }
 }
 
-async function chip_tests(list, options) {
+async function chip_tests(listOrJson, options) {
   // Set a global on our items so assertCommandOrAttributeOrEvent can work.
   let global = this.global;
-  const items = Array.isArray(list) ? list : list.split(',');
+  let items;
+
+  if (Array.isArray(listOrJson)) {
+    items = listOrJson;
+  } else {
+    if (listOrJson.endsWith('.json')) {
+      // It's a JSON file. Read it.
+      items = util.collectTests(listOrJson);
+    } else {
+      items = listOrJson.split(',');
+    }
+  }
   const names = items.map((name) => name.trim());
   let tests = names.map((item) =>
     parseYamlTest(

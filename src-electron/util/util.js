@@ -600,20 +600,35 @@ function disable(testName) {
 
 /**
  * Utility method that collects tests from a JSON file.
+ * JSON file supports following special keys:
+ *    "include": "path/to/json/file"  - includes the said JSON file
+ *    "disable": [ "test", "test1" ...] - disables the specified tests
+ *    "collection": ["key", "key2", ...] - collects final list of tests
  *
  * @param {*} jsonFile
  */
-function collectTests(jsonFile) {
+function collectTests(jsonFile, recursiveLevel = 0) {
+  if (recursiveLevel > 20) {
+    // Prevent infinite recursion
+    throw new Error(`Recursion too deep in tests inclusion.`)
+  }
   let data = fs.readFileSync(jsonFile)
   let tests = JSON.parse(data)
-  if (!('collection' in tests)) {
-    throw new Error(
-      'JSON file for tests needs to contain an element "collection"'
+  let collectedTests = []
+  if ('include' in tests) {
+    let f = path.join(path.dirname(jsonFile), tests.include)
+    collectedTests.push(...collectTests(f, recursiveLevel++))
+  }
+  if ('collection' in tests) {
+    collectedTests.push(...tests.collection.map((c) => tests[c]).flat(1))
+  }
+  if ('disable' in tests) {
+    collectedTests = collectedTests.filter(
+      (test) => !tests.disable.includes(test)
     )
   }
-  const flatTests = tests.collection.map((c) => tests[c]).flat(1)
-  flatTests.disable = disable.bind(flatTests)
-  return flatTests
+  collectedTests.disable = disable.bind(collectedTests)
+  return collectedTests
 }
 
 exports.createBackupFile = createBackupFile

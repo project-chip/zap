@@ -15,8 +15,9 @@
  *    limitations under the License.
  */
 
-const TestSuite = require('../../../app/tests/suites/tests');
 const dbEnum = require('../../../../../../src-shared/db-enum');
+const util = require('../../../../../util/util');
+const path = require('path');
 
 function getManualTests() {
   return [];
@@ -25,64 +26,7 @@ function getManualTests() {
 // clang-format off
 
 function getTests() {
-  let tests = TestSuite.getTests();
-
-  // TODO: This test needs FindCommissionable
-  tests.disable('Test_TC_SC_4_2');
-
-  // TestClusterComplexTypes requires representing nullable optionals in ways
-  // that can differentiate missing and null, which Darwin can't right now.
-  tests.disable('TestClusterComplexTypes');
-
-  // TODO: TestEvents not supported in the codegen yet.
-  tests.disable('TestEvents');
-
-  // TODO: TestDiscovery needs FindCommissionable
-  tests.disable('TestDiscovery');
-
-  // TODO: TestGroupMessaging does not work on Darwin for now.
-  tests.disable('TestGroupMessaging');
-
-  // TODO: Test_TC_DIAG_TH_NW_2_1 does not work on Darwin for now.
-  tests.disable('Test_TC_DGTHREAD_2_1');
-
-  // TODO: Test_TC_DIAG_TH_NW_2_2 does not work on Darwin for now.
-  tests.disable('Test_TC_DGTHREAD_2_2');
-
-  // TODO: Test_TC_DIAG_TH_NW_2_3 does not work on Darwin for now.
-  tests.disable('Test_TC_DGTHREAD_2_3');
-
-  // TODO: Test_TC_DIAG_TH_NW_2_4 does not work on Darwin for now.
-  tests.disable('Test_TC_DGTHREAD_2_4');
-
-  // TODO: Test_TC_CC_9_1 does not work on Darwin for now.
-  // But is disabled in CI, so we can't disable it here.
-  //tests.disable('Test_TC_CC_9_1');
-
-  // TODO: Test_TC_CC_9_2 does not work on Darwin for now.
-  // But is disabled in CI, so we can't disable it here.
-  //tests.disable('Test_TC_CC_9_2');
-
-  // TODO: Test_TC_CC_9_3 does not work on Darwin for now.
-  // But is disabled in CI, so we can't disable it here.
-  //tests.disable('Test_TC_CC_9_3');
-
-  // TODO: Test_TC_MC_3_7 does not work on Darwin for now.
-  tests.disable('Test_TC_APPLAUNCHER_3_7');
-
-  // TODO: Test_TC_MC_3_8 does not work on Darwin for now.
-  tests.disable('Test_TC_APPLAUNCHER_3_8');
-
-  // TODO: Test_TC_MC_3_9 does not work on Darwin for now.
-  tests.disable('Test_TC_APPLAUNCHER_3_9');
-
-  // TODO: Test_TC_BINFO_2_1 does not work on Darwin for now.
-  tests.disable('Test_TC_BINFO_2_1');
-
-  // TODO: Test_TC_SWTCH_2_1 does not work on Darwin for now.
-  tests.disable('Test_TC_SWTCH_2_1');
-
-  return tests;
+  return util.collectTests(path.join(__dirname, 'ciTests.json'));
 }
 
 //

@@ -1718,8 +1718,12 @@ function getTests() {
 }
 
 function getTests() {
+<<<<<<< HEAD
   return util.collectTests(path.join(__dirname, 'tests.json'));
 >>>>>>> 851961d5 (Move the tests out into JSON files.)
+=======
+  return util.collectTests(path.join(__dirname, 'ciTests.json'));
+>>>>>>> 42c81530 (Move all the tests into ciTests json, deal with a more complex include+disable case.)
 }
 
 //

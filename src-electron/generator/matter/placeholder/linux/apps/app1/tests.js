@@ -27,7 +27,7 @@ const util = require('../../../../../../util/util');
 >>>>>>> 851961d5 (Move the tests out into JSON files.)
 
 function getTests() {
-  return util.collectTests(path.join(__dirname, 'tests.json'));
+  return util.collectTests(path.join(__dirname, 'ciTests.json'));
 }
 
 //

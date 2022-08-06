@@ -15,8 +15,6 @@
  *    limitations under the License.
  */
 
-const { env } = require('yargs')
-
 /**
  * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
  *

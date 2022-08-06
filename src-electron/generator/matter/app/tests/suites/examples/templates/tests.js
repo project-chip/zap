@@ -22,7 +22,7 @@ function getManualTests() {
 }
 
 function getTests() {
-  return util.collectTests(path.join(__dirname, 'tests.json'));
+  return util.collectTests(path.join(__dirname, 'ciTests.json'));
 }
 
 //
