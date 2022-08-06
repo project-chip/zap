@@ -645,7 +645,8 @@ async function chip_tests(listOrJson, options) {
   } else {
     if (listOrJson.endsWith('.json')) {
       // It's a JSON file. Read it.
-      items = util.collectTests(listOrJson);
+      let f = path.join(path.dirname(global.templatePath), listOrJson);
+      items = util.collectTests(f);
     } else {
       items = listOrJson.split(',');
     }
