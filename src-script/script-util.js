@@ -184,14 +184,6 @@ async function rebuildBackendIfNeeded() {
         './dist/',
       ])
     )
-    .then(() =>
-      scriptUtil.executeCmd({}, 'npx', [
-        'copyfiles',
-        '-V',
-        './src-electron/generator/matter/**/*.json',
-        './dist/',
-      ])
-    )
 }
 
 /**
