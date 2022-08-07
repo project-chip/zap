@@ -168,7 +168,10 @@ async function recordTemplatesPackage(context) {
         // Treat this data as an object.
         let codeLabelArray = []
         for (const code of Object.keys(data)) {
-          codeLabelArray.push({ code: code, label: data[code] })
+          codeLabelArray.push({
+            code: code,
+            label: data[code],
+          })
         }
         promises.push(
           queryPackage.insertOptionsKeyValues(
@@ -182,22 +185,93 @@ async function recordTemplatesPackage(context) {
     }
   }
 
+  // Deal with categories
+  let helperCategories = []
+  if (context.templateData.categories != null) {
+    context.templateData.categories.forEach((cat) => {
+      helperCategories.push({
+        code: cat,
+        label: '',
+      })
+    })
+  }
+  if (helperCategories.length > 0) {
+    promises.push(
+      queryPackage.insertOptionsKeyValues(
+        context.db,
+        context.packageId,
+        dbEnum.packageOptionCategory.helperCategories,
+        helperCategories
+      )
+    )
+  }
+
   // Deal with helpers
+  let helperAliases = []
   if (context.templateData.helpers != null) {
     context.templateData.helpers.forEach((helper) => {
-      let helperPath = path.join(path.dirname(context.path), helper)
-      promises.push(
-        recordPackageIfNonexistent(
-          context.db,
-          helperPath,
-          context.packageId,
-          dbEnum.packageType.genHelper,
-          null,
-          null,
-          null
+      let pkg = templateEngine.findHelperPackageByAlias(helper)
+
+      if (pkg != null) {
+        // The helper listed is an alias to a built-in helper
+        // Put it in the array to write into DB later.
+        helperAliases.push({
+          code: helper,
+          label: '',
+        })
+      } else {
+        // We don't have an alias by that name, so we assume it's a path.
+        let helperPath = path.join(path.dirname(context.path), helper)
+        promises.push(
+          recordPackageIfNonexistent(
+            context.db,
+            helperPath,
+            context.packageId,
+            dbEnum.packageType.genHelper,
+            null,
+            null,
+            null
+          )
         )
-      )
+      }
     })
+  }
+  if (helperAliases.length > 0) {
+    promises.push(
+      queryPackage.insertOptionsKeyValues(
+        context.db,
+        context.packageId,
+        dbEnum.packageOptionCategory.helperAliases,
+        helperAliases
+      )
+    )
+  }
+
+  // Deal with resource references
+  let resources = []
+  if (context.templateData.resources != null) {
+    for (let key of Object.keys(context.templateData.resources)) {
+      let resourcePath = path.join(
+        path.dirname(context.path),
+        context.templateData.resources[key]
+      )
+      if (!fs.existsSync(resourcePath))
+        throw new Error(`Resource not found: ${resourcePath}`)
+      resources.push({
+        code: key,
+        label: resourcePath,
+      })
+    }
+  }
+  if (resources.length > 0) {
+    promises.push(
+      queryPackage.insertOptionsKeyValues(
+        context.db,
+        context.packageId,
+        dbEnum.packageOptionCategory.resources,
+        resources
+      )
+    )
   }
 
   // Deal with overrides
@@ -430,6 +504,43 @@ async function loadTemplates(db, genTemplatesJson) {
     })
 }
 
+async function retrievePackageMetaInfo(db, genTemplatesPkgId) {
+  let metaInfo = {
+    aliases: [],
+    categories: [],
+    resources: {},
+  }
+
+  let aliases = await queryPackage.selectAllOptionsValues(
+    db,
+    genTemplatesPkgId,
+    dbEnum.packageOptionCategory.helperAliases
+  )
+  for (let a of aliases) {
+    metaInfo.aliases.push(a.optionCode)
+  }
+
+  let categories = await queryPackage.selectAllOptionsValues(
+    db,
+    genTemplatesPkgId,
+    dbEnum.packageOptionCategory.helperCategories
+  )
+  for (let c of categories) {
+    metaInfo.categories.push(c.optionCode)
+  }
+
+  let resources = await queryPackage.selectAllOptionsValues(
+    db,
+    genTemplatesPkgId,
+    dbEnum.packageOptionCategory.resources
+  )
+  for (let c of resources) {
+    metaInfo.resources[c.optionCode] = c.optionLabel
+  }
+
+  return metaInfo
+}
+
 /**
  * Generates all the templates inside a toplevel package.
  *
@@ -474,10 +585,17 @@ async function generateAllTemplates(
     }
   })
 
-  // Initialize global helpers
-  templateEngine.initializeGlobalHelpers(hb)
+  // Let's collect the required list of helpers.
+  let metaInfo = await retrievePackageMetaInfo(
+    genResult.db,
+    genTemplateJsonPkg.id
+  )
 
-  // Next load the addon helpers
+  // Initialize helpers package. This is based on the specific
+  // list that was calculated above in the `metaInfo`
+  templateEngine.initializeBuiltInHelpersForPackage(hb, metaInfo)
+
+  // Next load the addon helpers which were not yet initialized earlier.
   packages.forEach((singlePkg) => {
     if (singlePkg.type == dbEnum.packageType.genHelper) {
       helperPromises.push(templateEngine.loadHelper(hb, singlePkg.path))
@@ -500,10 +618,17 @@ async function generateAllTemplates(
   await Promise.all(helperPromises)
   await Promise.all(partialPromises)
   let templates = generationTemplates.map((pkg) =>
-    generateSingleTemplate(hb, genResult, pkg, genTemplateJsonPkg.id, {
-      overridePath: overridePath,
-      disableDeprecationWarnings: options.disableDeprecationWarnings,
-    })
+    generateSingleTemplate(
+      hb,
+      metaInfo,
+      genResult,
+      pkg,
+      genTemplateJsonPkg.id,
+      {
+        overridePath: overridePath,
+        disableDeprecationWarnings: options.disableDeprecationWarnings,
+      }
+    )
   )
   await Promise.all(templates)
   genResult.partial = false
@@ -519,6 +644,7 @@ async function generateAllTemplates(
  */
 async function generateSingleTemplate(
   hb,
+  metaInfo,
   genResult,
   singleTemplatePkg,
   genTemplateJsonPackageId,
@@ -530,6 +656,7 @@ async function generateSingleTemplate(
   try {
     let result = await templateEngine.produceContent(
       hb,
+      metaInfo,
       genResult.db,
       genResult.sessionId,
       singleTemplatePkg,
@@ -616,29 +743,9 @@ async function generateGenerationContent(genResult, timing = {}) {
     timing: timing,
     stats: {},
   }
-  out.stats.templates = {}
-
-  for (const statKey of Object.keys(genResult.stats).sort()) {
-    out.stats.templates[statKey] = genResult.stats[statKey]
-  }
-
   for (const f of Object.keys(genResult.content).sort()) {
     out.content.push(f)
   }
-  out.stats.allHelpers = {}
-
-  let allHelpers = [...templateEngine.globalHelpersList()].sort()
-  allHelpers.forEach((h) => {
-    out.stats.allHelpers[h] = 0
-  })
-
-  for (const [template, stat] of Object.entries(out.stats.templates)) {
-    for (const [helper, value] of Object.entries(stat)) {
-      let count = value.useCount
-      out.stats.allHelpers[helper] += count
-    }
-  }
-
   return Promise.resolve(JSON.stringify(out, null, 2))
 }
 

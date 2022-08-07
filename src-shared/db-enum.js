@@ -41,6 +41,9 @@ exports.packageOptionCategory = {
   profileCodes: 'profileCodes',
   validationTimersFlags: 'validationTimersFlags',
   ui: 'ui',
+  helperCategories: 'helperCategories',
+  helperAliases: 'helperAliases',
+  resources: 'resources',
 }
 
 exports.side = {
@@ -171,4 +174,5 @@ exports.customDevice = {
 exports.helperCategory = {
   zigbee: 'zigbee',
   matter: 'matter',
+  meta: 'meta',
 }

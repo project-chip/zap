@@ -102,6 +102,17 @@ async function importSinglePackage(db, sessionId, pkg, zapFilePath) {
     }
   }
 
+  // We have only one. Use it and be done
+  if (packages.length == 1) {
+    env.logDebug(
+      `Only one package of given type ${pkg.type} present. Using it.`
+    )
+    return {
+      packageId: packages[0].id,
+      packageType: pkg.type,
+    }
+  }
+
   // Filter to just the ones that match the version
   packages = packages.filter((p) => p.version == pkg.version)
   // If there isn't any abort, if there is only one, use it.

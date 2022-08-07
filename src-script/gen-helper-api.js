@@ -19,18 +19,18 @@
 const templateEngine = require('../dist/src-electron/generator/template-engine')
 const fs = require('fs')
 
-let helpers = templateEngine.allBuiltInHelpers()
+let api = templateEngine.allBuiltInHelpers()
 let ar = []
 
-if (helpers.duplicates.length > 0) {
-  console.log(`API has duplicates: ${helpers.duplicates}`)
+if (api.hasDuplicates) {
+  console.log(`API has duplicates: ${api.duplicates}`)
   process.exit(1)
 }
 
-for (const key of Object.keys(helpers.api)) {
-  let helper = { name: key, isDeprecated: helpers.api[key].isDeprecated }
-  if (helpers.category[key] != null) {
-    helper.category = helpers.category[key]
+for (const h of api.helpers) {
+  let helper = { name: h.name, isDeprecated: h.isDeprecated }
+  if (h.category != null) {
+    helper.category = h.category
   }
   ar.push(helper)
 }

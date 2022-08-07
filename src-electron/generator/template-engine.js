@@ -38,9 +38,25 @@ const includedHelpers = [
   require('./helper-future'),
   require('./helper-access'),
   require('./helper-zigbee-zcl'),
-]
 
-let helpersInitializationList = null
+  require('./matter/controller/java/templates/helper'),
+  require('./matter/controller/python/templates/helper'),
+  require('./matter/darwin-framework-tool/templates/helper'),
+  require('./matter/darwin/Framework/CHIP/templates/helper'),
+  require('./matter/chip-tool/templates/tests/helper'),
+  require('./matter/chip-tool/templates/helper'),
+  require('./matter/app/zap-templates/templates/chip/helper'),
+  require('./matter/app/zap-templates/templates/app/helper'),
+  require('./matter/app/zap-templates/partials/helper'),
+  require('./matter/app/zap-templates/common/ListHelper'),
+  require('./matter/app/zap-templates/common/ClusterTestGeneration'),
+  require('./matter/app/zap-templates/common/ChipTypesHelper'),
+  require('./matter/app/zap-templates/common/attributes/Accessors'),
+  require('./matter/app/zap-templates/common/StringHelper'),
+
+  require('./meta/helper-meta'),
+  require('./meta/helper-meta-2'),
+]
 
 const templateCompileOptions = {
   noEscape: true,
@@ -69,6 +85,8 @@ async function produceCompiledTemplate(hb, singleTemplatePkg) {
 /**
  * Given db connection, session and a single template package, produce the output.
  *
+ * @param {*} hb
+ * @param {*} metaInfo
  * @param {*} db
  * @param {*} sessionId
  * @param {*} singlePkg
@@ -77,6 +95,7 @@ async function produceCompiledTemplate(hb, singleTemplatePkg) {
  */
 async function produceContent(
   hb,
+  metaInfo,
   db,
   sessionId,
   singleTemplatePkg,
@@ -97,6 +116,15 @@ async function produceContent(
       promises: [],
       genTemplatePackageId: genTemplateJsonPackageId,
       overridable: loadOverridable(options.overridePath),
+      resource: (key) => {
+        if (key in metaInfo.resources) {
+          return metaInfo.resources[key]
+        } else {
+          throw new Error(
+            `Resource "${key}" not found among the context resources. Check your template.json file.`
+          )
+        }
+      },
       stats: {},
     },
   }
@@ -208,7 +236,7 @@ function helperWrapper(wrappedHelper) {
  *                      this is required to force webpack to resolve the included files
  *                      as path will be difference after being packed for production.
  */
-function loadHelper(hb, helpers, collectionList = null) {
+function loadHelper(hb, helpers) {
   // helper
   // when template path are passed via CLI
   // Other paths are 'required()' to workaround webpack path issue.
@@ -217,11 +245,9 @@ function loadHelper(hb, helpers, collectionList = null) {
   }
 
   for (const singleHelper of Object.keys(helpers)) {
+    if (singleHelper === 'meta') continue
     try {
       hb.registerHelper(singleHelper, helperWrapper(helpers[singleHelper]))
-      if (collectionList != null) {
-        collectionList.push(singleHelper)
-      }
     } catch (err) {
       console.log('Could not load helper: ' + err)
     }
@@ -232,44 +258,92 @@ function loadHelper(hb, helpers, collectionList = null) {
  * Returns an object that contains all the helper functions, keyed
  * by their name
  *
+ * NOTE: This method is ONLY used for API testing. You should not use
+ * this method for any real work inside the engine or something.
+ *
  * @returns Object containing all the helper functions.
  */
 function allBuiltInHelpers() {
   let allHelpers = {
-    api: {}, // keyed functions
-    category: {}, // categories, keyed the same.
-    duplicates: [], // array of duplicates
+    hasDuplicates: false,
+    duplicates: [],
   }
+  let h = []
   includedHelpers.forEach((helperPkg) => {
     for (const singleHelper of Object.keys(helperPkg)) {
-      // 'meta' inside a helper class signals category and is not a helper.
       if (singleHelper === 'meta') continue
-      if (allHelpers.api[singleHelper] != null) {
-        allHelpers.duplicates.push(singleHelper)
+      let helperObject = {
+        name: singleHelper,
+        isDeprecated: helperPkg[singleHelper].isDeprecated ? true : false,
+        category: helperPkg.meta?.category,
+        alias: helperPkg.meta?.alias,
       }
-      allHelpers.api[singleHelper] = helperPkg[singleHelper]
-      if (helperPkg.meta != null && helperPkg.meta.category != null) {
-        allHelpers.category[singleHelper] = helperPkg.meta.category
-      }
+      h.push(helperObject)
     }
+  })
+  allHelpers.helpers = h.sort((a, b) => {
+    if (a.name != b.name) return a.name.localeCompare(b.name)
+    if (a.category != null && b.category != null && a.category != b.category)
+      return a.category.localeCompare(b.category)
+    if (
+      a.alias != null &&
+      b.alias != null &&
+      a.alias.length > 0 &&
+      b.alias.length > 0 &&
+      a.alias[0] != b.alias[0]
+    )
+      return a.alias[0].localeCompare(b.alias[0])
+
+    allHelpers.duplicates.push(a.name)
+    allHelpers.hasDuplicates = true
+    return 0
   })
   return allHelpers
 }
 
 /**
- * Global helper initialization
+ * Given an alias, this method finds a builtin helper package
+ * by its alias.
+ *
+ * @param {*} alias
+ * @returns Helper package or undefined if none was found.
  */
-function initializeGlobalHelpers(hb) {
-  if (helpersInitializationList != null) return
-
-  helpersInitializationList = []
-  includedHelpers.forEach((element) => {
-    loadHelper(hb, element, helpersInitializationList)
+function findHelperPackageByAlias(alias) {
+  let helpers = includedHelpers.filter((helperPkg) => {
+    if (helperPkg.meta != null && helperPkg.meta.alias != null) {
+      return helperPkg.meta.alias.includes(alias)
+    }
   })
+  if (helpers.length > 0) return helpers[0]
+  else return undefined
 }
 
-function globalHelpersList() {
-  return helpersInitializationList
+/**
+ * Global helper initialization
+ */
+function initializeBuiltInHelpersForPackage(
+  hb,
+  included = {
+    aliases: [],
+    categories: [],
+  }
+) {
+  includedHelpers.forEach((helperPkg) => {
+    let loadIt = true
+    if (helperPkg.meta != null) {
+      if (helperPkg.meta.category != null) {
+        loadIt = false
+      }
+      if (helperPkg.meta.alias != null && helperPkg.meta.alias.length > 0) {
+        loadIt = included.aliases.includes(helperPkg.meta.alias[0])
+      }
+    }
+    // We are not loading the helper if it has category or is aliased,
+    // but that category or alias is not mentioned in the gen-templates.json.
+    if (loadIt) {
+      loadHelper(hb, helperPkg)
+    }
+  })
 }
 
 /**
@@ -290,7 +364,7 @@ function hbInstance() {
 exports.produceContent = produceContent
 exports.loadHelper = loadHelper
 exports.loadPartial = loadPartial
-exports.initializeGlobalHelpers = initializeGlobalHelpers
+exports.initializeBuiltInHelpersForPackage = initializeBuiltInHelpersForPackage
 exports.allBuiltInHelpers = allBuiltInHelpers
-exports.globalHelpersList = globalHelpersList
 exports.hbInstance = hbInstance
+exports.findHelperPackageByAlias = findHelperPackageByAlias
