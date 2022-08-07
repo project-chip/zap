@@ -220,7 +220,3 @@ async function default_access(options) {
 exports.access = access
 exports.access_aggregate = access_aggregate
 exports.default_access = default_access
-
-exports.meta = {
-  category: dbEnum.helperCategory.matter,
-}

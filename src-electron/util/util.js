@@ -588,6 +588,49 @@ function mainOrSecondaryInstance(
   }
 }
 
+function disable(testName) {
+  const index = this.indexOf(testName)
+  if (index == -1) {
+    const errStr = `Test ${testName}  does not exists.`
+    throw new Error(errStr)
+  }
+
+  this.splice(index, 1)
+}
+
+/**
+ * Utility method that collects tests from a JSON file.
+ * JSON file supports following special keys:
+ *    "include": "path/to/json/file"  - includes the said JSON file
+ *    "disable": [ "test", "test1" ...] - disables the specified tests
+ *    "collection": ["key", "key2", ...] - collects final list of tests
+ *
+ * @param {*} jsonFile
+ */
+function collectTests(jsonFile, recursiveLevel = 0) {
+  if (recursiveLevel > 20) {
+    // Prevent infinite recursion
+    throw new Error(`Recursion too deep in tests inclusion.`)
+  }
+  let data = fs.readFileSync(jsonFile)
+  let tests = JSON.parse(data)
+  let collectedTests = []
+  if ('include' in tests) {
+    let f = path.join(path.dirname(jsonFile), tests.include)
+    collectedTests.push(...collectTests(f, recursiveLevel++))
+  }
+  if ('collection' in tests) {
+    collectedTests.push(...tests.collection.map((c) => tests[c]).flat(1))
+  }
+  if ('disable' in tests) {
+    collectedTests = collectedTests.filter(
+      (test) => !tests.disable.includes(test)
+    )
+  }
+  collectedTests.disable = disable.bind(collectedTests)
+  return collectedTests
+}
+
 exports.createBackupFile = createBackupFile
 exports.checksum = checksum
 exports.initializeSessionPackage = initializeSessionPackage
@@ -606,3 +649,4 @@ exports.parseXml = parseXml
 exports.readFileContentAndCrc = readFileContentAndCrc
 exports.duration = duration
 exports.mainOrSecondaryInstance = mainOrSecondaryInstance
+exports.collectTests = collectTests

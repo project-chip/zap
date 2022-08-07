@@ -1,6 +1,8 @@
 {
   "name": "Meta test templates",
   "version": "meta-test",
+  "helpers": ["meta-helper"],
+  "categories": ["meta"],
   "templates": [
     {
       "path": "test1.zapt",

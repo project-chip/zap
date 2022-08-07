@@ -2511,6 +2511,9 @@ exports.isStruct = dep(zclUtil.isStruct, { to: 'is_struct' })
 exports.is_enum = zclUtil.isEnum
 exports.isEnum = dep(zclUtil.isEnum, { to: 'is_enum' })
 
+exports.is_event = zclUtil.isEvent
+exports.isEvent = dep(zclUtil.isEvent, { to: 'is_event' })
+
 exports.if_manufacturing_specific_cluster = dep(
   if_manufacturing_specific_cluster,
   { to: 'if_mfg_specific_cluster' }

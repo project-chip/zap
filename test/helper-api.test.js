@@ -24,48 +24,49 @@ const path = require('path')
 const { timeout } = require('./test-util.js')
 
 test(
-  'helper functions need to be snake_case without uppercase characters unless they are deprecated',
+  'Helper functions need to be snake_case without uppercase characters unless they are deprecated.',
   () => {
-    let helpers = templateEngine.allBuiltInHelpers()
-    expect(Object.keys(helpers.api).length).toBeGreaterThan(10)
-    for (const x of Object.keys(helpers.api)) {
-      expect(helpers.api[x]).not.toBeNull()
-      let n = x
-      if (!helpers.api[x].isDeprecated) expect(n.toLowerCase()).toEqual(n)
+    let api = templateEngine.allBuiltInHelpers()
+    expect(Object.keys(api.helpers).length).toBeGreaterThan(50)
+    for (const x of api.helpers) {
+      let n = x.name
+      if (!x.isDeprecated && x.category == null) {
+        expect(n.toLowerCase()).toEqual(n)
+      }
     }
   },
   timeout.short()
 )
 
 test(
-  'check that there is no overlapping duplicates',
+  'Check that there is no overlapping duplicates.',
   () => {
-    let helpers = templateEngine.allBuiltInHelpers()
-    let dups = helpers.duplicates.join(', ')
+    let api = templateEngine.allBuiltInHelpers()
+    expect(api.hasDuplicates).toBe(false)
+    let dups = api.duplicates.join(', ')
     expect(dups).toBe('')
   },
   timeout.short()
 )
 
 test(
-  'compare APIs against the baseline',
+  'Compare APIs against the baseline.',
   () => {
     let apiFromFile = JSON.parse(
       fs.readFileSync(path.join(__dirname, 'helper-api-baseline.json'))
     )
-    let helpers = templateEngine.allBuiltInHelpers()
+    let api = templateEngine.allBuiltInHelpers()
 
     let errorMessage = ''
 
-    apiFromFile.forEach((api) => {
-      let fn = api.name
-      let apiFn = helpers.api[fn]
+    apiFromFile.forEach((x) => {
+      let apiFn = api.helpers.find((a) => a.name === x.name)
       if (apiFn == undefined) {
-        errorMessage += `Helper ${fn} has been removed, breaking the API.\n`
+        errorMessage += `Helper ${x.name} has been removed, breaking the API.\n`
       }
-      if (api.isDeprecated) {
+      if (x.isDeprecated) {
         if (!apiFn.isDeprecated)
-          errorMessage += `Helper ${fn} has been deprecated, but now it's not any more.\n`
+          errorMessage += `Helper ${x.name} has been deprecated, but now it's not any more.\n`
       }
     })
     expect(errorMessage).toEqual('')

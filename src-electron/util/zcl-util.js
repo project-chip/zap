@@ -22,6 +22,7 @@
  */
 const toposort = require('toposort')
 const queryZcl = require('../db/query-zcl')
+const queryEvent = require('../db/query-event')
 const dbEnum = require('../../src-shared/db-enum')
 const env = require('./env')
 const types = require('./types')
@@ -458,6 +459,20 @@ function isStruct(db, struct_name, packageId) {
 }
 
 /**
+ * Function that checks if a given thing is an avent.
+ * @param {*} db
+ * @param {*} event_name
+ * @param {*} packageId
+ * @returns Promise of content.
+ */
+function isEvent(db, event_name, packageId) {
+  return queryEvent
+    .selectAllEvents(db, packageId)
+    .then((events) => events.find((event) => event.name == event_name))
+    .then((events) => (events ? 'event' : dbEnum.zclType.unknown))
+}
+
+/**
  * Local function that checks if a bitmap by the name exists
  *
  * @param {*} db
@@ -765,6 +780,7 @@ exports.sortStructsByDependency = sortStructsByDependency
 exports.isEnum = isEnum
 exports.isBitmap = isBitmap
 exports.isStruct = isStruct
+exports.isEvent = isEvent
 exports.asUnderlyingZclTypeWithPackageId = asUnderlyingZclTypeWithPackageId
 exports.determineType = determineType
 exports.dataTypeCharacterFormatter = dataTypeCharacterFormatter
