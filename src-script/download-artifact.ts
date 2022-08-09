@@ -37,8 +37,8 @@ const DEFAULT_COMMIT_LATEST = 'commit_latest'
 const DEFAULT_BRANCH = 'master'
 const DEFAULT_OWNER = 'SiliconLabs'
 const DEFAULT_REPO = 'zap'
-const NEXUS_SERVER = 'https://nexus.silabs.com'
-const NEXUS_REPO_NAME = 'test-binary-archiver'
+const NEXUS_SERVER = 'https://nexus.silabs.net'
+const NEXUS_REPO_NAME = 'zap-release-package'
 
 // cheap and secure
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0'
@@ -70,7 +70,7 @@ async function githubDownloadArtifacts(artifacts: any, dlOptions: DlOptions) {
 
   console.log(`Repo: https://github.com/${owner}/${repo}/tree/${branch}`)
   console.log(
-    `Commit: https://github.com/${owner}/${repo}/commit/${commit.substring(
+    `Commit: https://github.com/${owner}/${repo}/commit/${commit?.substring(
       0,
       7
     )}`
@@ -353,13 +353,13 @@ async function githubGetArtifacts(options: DlOptions) {
       // multiple builds can correspond to the same commit id
       // always pick artifacts with the latest run (newest run "id")
       if (artifacts?.length) {
-        refWorkflowRunId = artifacts[0].workflow_run.id
+        refWorkflowRunId = artifacts[0]?.workflow_run?.id
         artifacts = artifacts.filter(
           (artifact: any) => artifact.workflow_run.id == refWorkflowRunId
         )
       }
 
-      return [].concat(artifacts)
+      return [...artifacts]
     }
   } else {
     console.error('Unable to retrieve any artifacts for download.')
