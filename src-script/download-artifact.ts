@@ -302,12 +302,6 @@ async function githubGetArtifacts(options: DlOptions) {
   let { owner, repo, branch, commit, githubToken } = options
   const octokit = new Octokit({
     githubToken,
-    log: {
-      debug: () => {},
-      info: () => {},
-      warn: console.warn,
-      error: console.error,
-    },
   })
   let refCommit: string | undefined = ''
   let refWorkflowRunId: number | undefined = 0
