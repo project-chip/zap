@@ -20,19 +20,19 @@
 // This util script downloads ZAP artifact from Github.com
 // Usage: node ./download-artifact.js $branch [ $commit | latest ]
 
-const { Octokit, App } = require('octokit')
-const { StatusCodes } = require('http-status-codes')
-const Downloader = require('nodejs-file-downloader')
-const yargs = require('yargs')
-const os = require('node:os')
-const isReachable = require('is-reachable')
-const axios = require('axios').default
-const path = require('path')
-const fs = require('fs')
-const { format, compareAsc, compareDesc, isEqual } = require('date-fns')
-const DEBUG = false
+import { Octokit, App } from 'octokit'
+import { StatusCodes } from 'http-status-codes'
+import Downloader from 'nodejs-file-downloader'
+import yargs from 'yargs'
+import os from 'node:os'
+import isReachable from 'is-reachable'
+import axios from 'axios'
+import path from 'path'
+import fs from 'fs'
+import { format, compareAsc, compareDesc, isEqual } from 'date-fns'
 
 // const
+const DEBUG = false
 const DEFAULT_COMMIT_LATEST = 'commit_latest'
 const DEFAULT_BRANCH = 'master'
 const DEFAULT_OWNER = 'SiliconLabs'
@@ -300,9 +300,17 @@ async function nexusDownloadArtifacts(items: any, dlOptions: DlOptions) {
  */
 async function githubGetArtifacts(options: DlOptions) {
   let { owner, repo, branch, commit, githubToken } = options
-  const octokit = new Octokit({ githubToken })
-  let refCommit = ''
-  let refWorkflowRunId = ''
+  const octokit = new Octokit({
+    githubToken,
+    log: {
+      debug: () => {},
+      info: () => {},
+      warn: console.warn,
+      error: console.error,
+    },
+  })
+  let refCommit: string | undefined = ''
+  let refWorkflowRunId: number | undefined = 0
 
   const res = await octokit.request(
     'GET /repos/{owner}/{repo}/actions/artifacts',
@@ -326,9 +334,9 @@ async function githubGetArtifacts(options: DlOptions) {
 
   if (artifacts && artifacts.length) {
     if (commit === DEFAULT_COMMIT_LATEST) {
-      refCommit = artifacts[0].workflow_run.head_sha
+      refCommit = artifacts[0]?.workflow_run?.head_sha
       options.commit = refCommit
-      refWorkflowRunId = artifacts[0].workflow_run.id
+      refWorkflowRunId = artifacts[0]?.workflow_run?.id
 
       return artifacts.filter(
         (artifact: any) =>
@@ -429,7 +437,7 @@ interface DlOptions {
   owner: string
   repo: string
   branch: string
-  commit: string
+  commit: string | undefined
   outputDir: string
   platforms: string[]
   formats: string[]
