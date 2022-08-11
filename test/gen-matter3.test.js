@@ -19,27 +19,20 @@
  */
 
 const path = require('path')
-const genEngine = require('../src-electron/generator/generation-engine.js')
-const env = require('../src-electron/util/env.ts')
-const dbApi = require('../src-electron/db/db-api.js')
-const queryPackage = require('../src-electron/db/query-package.js')
-const queryAttribute = require('../src-electron/db/query-attribute.js')
-const querySession = require('../src-electron/db/query-session.js')
-const queryZcl = require('../src-electron/db/query-zcl.js')
-const utilJs = require('../src-electron/util/util.js')
-const zclLoader = require('../src-electron/zcl/zcl-loader.js')
-const helperZap = require('../src-electron/generator/helper-zap.js')
-const importJs = require('../src-electron/importexport/import.js')
-const testUtil = require('./test-util.js')
-const testQuery = require('./test-query.js')
+const genEngine = require('../src-electron/generator/generation-engine')
+const env = require('../src-electron/util/env')
+const dbApi = require('../src-electron/db/db-api')
+const querySession = require('../src-electron/db/query-session')
+const zclLoader = require('../src-electron/zcl/zcl-loader')
+const importJs = require('../src-electron/importexport/import')
+const testUtil = require('./test-util')
 
 let db
 let templateContext
 let zclPackageId
 
 const testFile = path.join(__dirname, 'resource/matter-test.zap')
-const testMatterSwitch = path.join(__dirname, 'resource/matter-switch.zap')
-const templateCount = testUtil.testTemplate.matter2Count
+const templateCount = testUtil.testTemplate.matter3Count
 
 beforeAll(async () => {
   env.setDevelopmentEnv()
@@ -60,13 +53,13 @@ test(
   async () => {
     templateContext = await genEngine.loadTemplates(
       db,
-      testUtil.testTemplate.matter2
+      testUtil.testTemplate.matter3
     )
 
     expect(templateContext.crc).not.toBeNull()
     expect(templateContext.templateData).not.toBeNull()
-    expect(templateContext.templateData.name).toEqual('CHIP Tests templates')
-    expect(templateContext.templateData.version).toEqual('chip-v1')
+    expect(templateContext.templateData.name).toEqual('Matter 3 test templates')
+    expect(templateContext.templateData.version).toEqual('matter-3')
     expect(templateContext.templateData.templates.length).toEqual(templateCount)
     expect(templateContext.packageId).not.toBeNull()
   },
@@ -89,7 +82,6 @@ test(
       {},
       { disableDeprecationWarnings: true }
     )
-    console.log(genResult)
   },
   testUtil.timeout.long()
 )
