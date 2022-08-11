@@ -43,7 +43,7 @@ const templateCount = testUtil.testTemplate.matter2Count
 
 beforeAll(async () => {
   env.setDevelopmentEnv()
-  let file = env.sqliteTestFile('gen-matter3')
+  let file = env.sqliteTestFile('gen-matter2')
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
     env.schemaFile(),
