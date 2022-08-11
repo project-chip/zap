@@ -16,7 +16,6 @@
  *    limitations under the License.
  */
 
-const yargs = require('yargs')
 const scriptUtil = require('./script-util.js')
 
 let startTime = process.hrtime.bigint()
