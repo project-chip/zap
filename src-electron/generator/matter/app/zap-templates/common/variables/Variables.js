@@ -20,14 +20,12 @@
  */
 
 // Import helpers from zap core
-const zapPath = '../../../../../../';
-const zclHelper = require(zapPath + 'generator/helper-zcl.js');
-const templateUtil = require(zapPath + 'generator/template-util.js');
+const zclHelper = require('../../../../../../generator/helper-zcl');
 
 const {
   getCommands,
   getAttributes,
-} = require('../simulated-clusters/SimulatedClusters.js');
+} = require('../simulated-clusters/SimulatedClusters');
 
 const knownVariables = {
   nodeId: { type: 'NODE_ID', defaultValue: 0x12345, isNullable: false },

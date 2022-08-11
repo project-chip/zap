@@ -32,12 +32,11 @@ let templateContext
 let zclPackageId
 
 const testFile = path.join(__dirname, 'resource/matter-test.zap')
-const testMatterSwitch = path.join(__dirname, 'resource/matter-switch.zap')
-const templateCount = testUtil.testTemplate.matter2Count
+const templateCount = testUtil.testTemplate.matter3Count
 
 beforeAll(async () => {
   env.setDevelopmentEnv()
-  let file = env.sqliteTestFile('gen-matter3')
+  let file = env.sqliteTestFile('gen-matter2')
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
     env.schemaFile(),
@@ -54,13 +53,13 @@ test(
   async () => {
     templateContext = await genEngine.loadTemplates(
       db,
-      testUtil.testTemplate.matter2
+      testUtil.testTemplate.matter3
     )
 
     expect(templateContext.crc).not.toBeNull()
     expect(templateContext.templateData).not.toBeNull()
-    expect(templateContext.templateData.name).toEqual('CHIP Tests templates')
-    expect(templateContext.templateData.version).toEqual('chip-v1')
+    expect(templateContext.templateData.name).toEqual('Matter 3 test templates')
+    expect(templateContext.templateData.version).toEqual('matter-3')
     expect(templateContext.templateData.templates.length).toEqual(templateCount)
     expect(templateContext.packageId).not.toBeNull()
   },
