@@ -26,10 +26,13 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
       - run: sudo ./src-script/install-packages-ubuntu
+        if: startsWith(matrix.os, 'ubuntu')
       - run: sudo apt-get install --fix-missing xvfb
+        if: startsWith(matrix.os, 'ubuntu')
       - run: npm ci
       - run: npm run version-stamp
       - run: npm rebuild canvas --update-binary
       - run: npm rebuild libxmljs --update-binary
       - run: npm run build-spa
       - run: xvfb-run -a npm run test:e2e-ci
+        if: startsWith(matrix.os, 'ubuntu')
