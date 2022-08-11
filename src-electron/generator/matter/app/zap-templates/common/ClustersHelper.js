@@ -545,7 +545,6 @@ function enhancedItem(item, types) {
     return;
   }
 
-  console.log(item);
   throw new Error(item.type + ' not found.');
 }
 
@@ -573,7 +572,6 @@ function enhancedCommands(commands, types) {
         argument.isList || argument.isStruct || argument.isArray;
     });
   });
-
   commands.forEach((command) => {
     // Flag things ending in "Response" so we can filter out unused responses,
     // but don't stomp on a true isResponse value if it's set already because
@@ -787,60 +785,69 @@ Clusters._computeUsedStructureNames = async function (structs) {
  * just the ones enabled in the ZAP configuration.
  */
 Clusters.init = async function (context, includeAll) {
-  if (this.ready.running) {
-    return this.ready;
+  try {
+    if (this.ready.running) {
+      return this.ready;
+    }
+    this.ready.running = true;
+
+    let packageId = await templateUtil
+      .ensureZclPackageId(context)
+      .catch((err) => {
+        console.log(err);
+        throw err;
+      });
+
+    const loadTypes = [
+      loadAtomics.call(context, packageId),
+      loadEnums.call(context, packageId),
+      loadBitmaps.call(context, packageId),
+      loadStructs.call(context, packageId),
+    ];
+
+    const promises = [
+      Promise.all(loadTypes),
+      loadEndpoints.call(context),
+      // For now just always use loadClusters, because we have a bunch of things
+      // defined in our XML that are not actually part of Matter.
+      (includeAll ? loadClusters : loadClusters).call(context, packageId),
+      (includeAll ? loadAllCommands : loadCommands).call(context, packageId),
+      (includeAll ? loadAllAttributes : loadAttributes).call(
+        context,
+        packageId
+      ),
+      loadGlobalAttributes.call(context, packageId),
+      (includeAll ? loadAllEvents : loadEvents).call(context, packageId),
+    ];
+
+    let [
+      types,
+      endpoints,
+      clusters,
+      commands,
+      attributes,
+      globalAttributes,
+      events,
+    ] = await Promise.all(promises);
+
+    this._endpoints = endpoints;
+    this._clusters = clusters;
+    this._commands = enhancedCommands(commands, types);
+    this._attributes = enhancedAttributes(attributes, globalAttributes, types);
+    this._events = enhancedEvents(events, types);
+    this._cluster_structures = new ClusterStructUsage();
+
+    // data is ready, but not full post - processing
+    this.ready.resolve();
+
+    await this._computeUsedStructureNames(types[3]);
+
+    return this.post_processing_ready.resolve();
+  } catch (err) {
+    console.log(err);
+    this.ready.resolve();
+    throw err;
   }
-  this.ready.running = true;
-
-  let packageId = await templateUtil
-    .ensureZclPackageId(context)
-    .catch((err) => {
-      console.log(err);
-      throw err;
-    });
-
-  const loadTypes = [
-    loadAtomics.call(context, packageId),
-    loadEnums.call(context, packageId),
-    loadBitmaps.call(context, packageId),
-    loadStructs.call(context, packageId),
-  ];
-
-  const promises = [
-    Promise.all(loadTypes),
-    loadEndpoints.call(context),
-    // For now just always use loadClusters, because we have a bunch of things
-    // defined in our XML that are not actually part of Matter.
-    (includeAll ? loadClusters : loadClusters).call(context, packageId),
-    (includeAll ? loadAllCommands : loadCommands).call(context, packageId),
-    (includeAll ? loadAllAttributes : loadAttributes).call(context, packageId),
-    loadGlobalAttributes.call(context, packageId),
-    (includeAll ? loadAllEvents : loadEvents).call(context, packageId),
-  ];
-
-  let [
-    types,
-    endpoints,
-    clusters,
-    commands,
-    attributes,
-    globalAttributes,
-    events,
-  ] = await Promise.all(promises);
-
-  this._endpoints = endpoints;
-  this._clusters = clusters;
-  this._commands = enhancedCommands(commands, types);
-  this._attributes = enhancedAttributes(attributes, globalAttributes, types);
-  this._events = enhancedEvents(events, types);
-  this._cluster_structures = new ClusterStructUsage();
-
-  // data is ready, but not full post - processing
-  this.ready.resolve();
-
-  await this._computeUsedStructureNames(types[3]);
-
-  return this.post_processing_ready.resolve();
 };
 
 //
