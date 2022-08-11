@@ -16,20 +16,18 @@
  */
 
 // Import helpers from zap core
-const zapPath = '../../../../../';
-const queryConfig = require(zapPath + 'db/query-config.js');
-const queryCommand = require(zapPath + 'db/query-command.js');
-const queryEndpoint = require(zapPath + 'db/query-endpoint.js');
-const queryEndpointType = require(zapPath + 'db/query-endpoint-type.js');
-const queryEvent = require(zapPath + 'db/query-event.js');
-const templateUtil = require(zapPath + 'generator/template-util.js');
-const zclHelper = require(zapPath + 'generator/helper-zcl.js');
-const zclQuery = require(zapPath + 'db/query-zcl.js');
+const queryCommand = require('../../../../../db/query-command');
+const queryEndpoint = require('../../../../../db/query-endpoint');
+const queryEndpointType = require('../../../../../db/query-endpoint-type');
+const queryEvent = require('../../../../../db/query-event');
+const templateUtil = require('../../../../../generator/template-util');
+const zclHelper = require('../../../../../generator/helper-zcl');
+const zclQuery = require('../../../../../db/query-zcl');
 
-const { Deferred } = require('./Deferred.js');
-const ListHelper = require('./ListHelper.js');
-const StringHelper = require('./StringHelper.js');
-const ChipTypesHelper = require('./ChipTypesHelper.js');
+const { Deferred } = require('./Deferred');
+const ListHelper = require('./ListHelper');
+const StringHelper = require('./StringHelper');
+const ChipTypesHelper = require('./ChipTypesHelper');
 const dbEnum = require('../../../../../../src-shared/db-enum');
 
 // Helper for better error reporting.
