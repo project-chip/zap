@@ -9,7 +9,7 @@
 
 ## What is ZAP?
 
-ZAP is a generic generation engine and user interface for applications and libraries based on [Zigbee Cluster Library](https://zigbeealliance.org/developer_resources/zigbee-cluster-library/), the specification developed by the [Zigbee Alliance](https://zigbeealliance.org/).
+ZAP is a generic generation engine and user interface for applications and libraries based on [Zigbee Cluster Library](https://zigbeealliance.org/developer_resources/zigbee-cluster-library/), the specification developed by the [Zigbee Alliance](https://zigbeealliance.org/). Let's do a test
 
 ZAP allows you to perform the following:
 
