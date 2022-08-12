@@ -528,3 +528,11 @@ export function loadZclClusterToUcComponentDependencyMap(state, map) {
   if (map != null)
     Vue.set(state.studio, 'zclSdkExtClusterToUcComponentMap', map)
 }
+
+export function setAllEndpointsData(state, value) {
+  Vue.set(state.allEndpointsData, value.endpointId,
+    { 'selectedservers': value.servers,
+      'selectedReporting': value.report,
+      'selectedAttributes': value.attr,
+      id: value.endpointId })
+}

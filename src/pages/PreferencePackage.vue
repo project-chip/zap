@@ -42,34 +42,34 @@ export default {
     return {
       columns: [
         {
-          name: 'path',
-          align: 'left',
-          label: 'Path',
-          field: 'path',
-        },
-        {
-          name: 'type',
-          align: 'left',
-          label: 'Type',
-          field: 'type',
-        },
-        {
-          name: 'version',
-          align: 'left',
-          label: 'Version',
-          field: 'version',
-        },
-        {
-          name: 'category',
+          name: 'CATEGORY',
           align: 'left',
           label: 'Category',
           field: 'category',
         },
         {
-          name: 'description',
+          name: 'DESCRIPTION',
           align: 'left',
           label: 'Description',
           field: 'description',
+        },
+        {
+          name: 'PATH',
+          align: 'left',
+          label: 'Path',
+          field: 'path',
+        },
+        {
+          name: 'TYPE',
+          align: 'left',
+          label: 'Type',
+          field: 'type',
+        },
+        {
+          name: 'VERSION',
+          align: 'left',
+          label: 'Version',
+          field: 'version',
         },
       ],
     }
