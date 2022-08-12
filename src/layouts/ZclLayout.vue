@@ -57,7 +57,6 @@ limitations under the License.
         />
         <q-btn
           flat
-          @click="togglePreviewTab"
           icon="settings"
           id="preference"
           to="/preference"

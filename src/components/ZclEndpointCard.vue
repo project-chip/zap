@@ -20,36 +20,54 @@ limitations under the License.
       :bordered="isSelectedEndpoint"
       @click="setSelectedEndpointType(endpointReference)"
     >
-      <div class="row">
-        <div class="vertical-align:middle q-pa-md col-5">
+      <div style="display: flex; justify-content: space-around">
+        <div class="vertical-align:middle q-pa-sm col-4">
           <strong
             >Endpoint - {{ getFormattedEndpointId(endpointReference) }}</strong
           >
         </div>
-        <q-card-actions class="q-gutter-xs col ">
-        <q-btn
-          flat
-          dense
-          label="Delete"
-          color="primary"
-          v-close-popup
-          size="sm"
-          icon="delete"
-          @click="handleDeletionDialog"
-        />
-        <q-btn
-          flat
-          dense
-          label="Edit"
-          color="primary"
-          icon="edit"
-          size="sm"
-          v-close-popup
-          @click="modifyEndpointDialog = !modifyEndpointDialog"
-        />
-      </q-card-actions>
+        <div class="q-gutter-sm" style="display: flex; align-items: center">
+          <q-btn
+            flat
+            dense
+            label="Delete"
+            color="primary"
+            v-close-popup
+            size="sm"
+            icon="delete"
+            @click="handleDeletionDialog"
+          />
+          <q-btn
+            flat
+            dense
+            label="Edit"
+            color="primary"
+            icon="edit"
+            size="sm"
+            v-close-popup
+            @click="modifyEndpointDialog = !modifyEndpointDialog"
+          />
+          <q-btn
+            v-if="showAllInformationOfEndpoint"
+            @click.stop="toggleShowAllInformationOfEndpoint"
+            flat
+            dense
+            icon="arrow_upward"
+            size="xs"
+            data-test="endpoint-body-toggler-hide"
+          />
+          <q-btn
+            v-else
+            flat
+            dense
+            icon="arrow_downward"
+            @click.stop="toggleShowAllInformationOfEndpoint"
+            size="xs"
+            data-test="endpoint-body-toggler-show"
+          />
+        </div>
       </div>
-      <q-list dense bordered v-if="isSelectedEndpoint">
+      <q-list dense bordered v-if="showAllInformationOfEndpoint">
         <br />
         <q-item class="row">
           <div class="col-6">
@@ -81,17 +99,43 @@ limitations under the License.
           </div>
           <div class="col-6">{{ endpointVersion[endpointReference] }}</div>
         </q-item>
+        <!--        <q-item class="row">-->
+        <!--          <div class="col-6">-->
+        <!--            <strong>Enabled Clusters</strong>-->
+        <!--          </div>-->
+        <!--          <div class="col-6" data-test="endpoint-enabled-clusters-amount">-->
+        <!--            {{ selectedservers.length }}-->
+        <!--          </div>-->
+        <!--        </q-item>-->
+        <!--        <q-item class="row">-->
+        <!--          <div class="col-6">-->
+        <!--            <strong>Enabled Attributes</strong>-->
+        <!--          </div>-->
+        <!--          <div class="col-6" data-test="endpoint-enabled-attributes-amount">-->
+        <!--            {{ selectedAttributes.length }}-->
+        <!--          </div>-->
+        <!--        </q-item>-->
+        <!--        <q-item class="row">-->
+        <!--          <div class="col-6">-->
+        <!--            <strong>Enabled Reporting</strong>-->
+        <!--          </div>-->
+        <!--          <div class="col-6">-->
+        <!--            {{ selectedReporting.length }}-->
+        <!--          </div>-->
+        <!--        </q-item>-->
         <q-item class="row">
           <div class="col-6">
             <strong>Enabled Clusters</strong>
           </div>
-          <div class="col-6 text-right">{{ selectedservers.length }}</div>
+          <div class="col-6" data-test="endpoint-enabled-clusters-amount">
+            {{ selectedservers.length }}
+          </div>
         </q-item>
         <q-item class="row">
           <div class="col-6">
             <strong>Enabled Attributes</strong>
           </div>
-          <div class="col-6 text-right">
+          <div class="col-6" data-test="endpoint-enabled-attributes-amount">
             {{ selectedAttributes.length }}
           </div>
         </q-item>
@@ -99,7 +143,7 @@ limitations under the License.
           <div class="col-6">
             <strong>Enabled Reporting</strong>
           </div>
-          <div class="col-6 text-right">
+          <div class="col-6">
             {{ selectedReporting.length }}
           </div>
         </q-item>
@@ -112,6 +156,7 @@ limitations under the License.
       <zcl-create-modify-endpoint
         v-bind:endpointReference="endpointReference"
         v-on:saveOrCreateValidated="modifyEndpointDialog = false"
+        @updateData="getEndpointCardData()"
       />
     </q-dialog>
     <q-dialog
@@ -177,6 +222,10 @@ limitations under the License.
 import ZclCreateModifyEndpoint from './ZclCreateModifyEndpoint.vue'
 import CommonMixin from '../util/common-mixin'
 import * as Storage from '../util/storage'
+import Vue from 'vue'
+import restApi from '../../src-shared/rest-api'
+import { setAttributeStateLists, setClusterList } from '../store/zap/actions'
+import * as Util from '../util/util'
 
 export default {
   name: 'ZclEndpointCard',
@@ -189,6 +238,10 @@ export default {
       deleteEndpointDialog: false,
       confirmDeleteEndpointDialog: false,
       deleteingleEndpointDialog: false,
+      showAllInformationOfEndpoint: false,
+      selectedservers: [],
+      selectedAttributes: [],
+      selectedReporting: [],
     }
   },
   methods: {
@@ -240,6 +293,51 @@ export default {
           this.endpointType[endpointReference]
         )
       })
+    },
+    toggleShowAllInformationOfEndpoint() {
+      this.showAllInformationOfEndpoint = !this.showAllInformationOfEndpoint
+    },
+    getEndpointCardData() {
+      Vue.prototype
+        .$serverGet(
+          `${restApi.uri.endpointTypeClusters}${
+            this.endpointType[this.endpointReference]
+          }`
+        )
+        .then((res) => {
+          let enabledClients = []
+          let enabledServers = []
+          res.data.forEach((record) => {
+            if (record.enabled) {
+              if (record.side === 'client') {
+                enabledClients.push(record.clusterRef)
+              } else {
+                enabledServers.push(record.clusterRef)
+              }
+            }
+          })
+          this.selectedservers = [...enabledServers, ...enabledServers]
+        })
+
+      Vue.prototype
+        .$serverGet(
+          `${restApi.uri.endpointTypeAttributes}${
+            this.endpointType[this.endpointReference]
+          }`
+        )
+        .then((res) => {
+          this.selectedAttributes = []
+          this.selectedReporting = []
+          res.data.forEach((record) => {
+            let resolvedReference = Util.cantorPair(
+              record.attributeRef,
+              record.clusterRef
+            )
+            if (record.included) this.selectedAttributes.push(resolvedReference)
+            if (record.includedReportable)
+              this.selectedReporting.push(resolvedReference)
+          })
+        })
     },
   },
   computed: {
@@ -297,18 +395,18 @@ export default {
         return this.selectedEndpointId == this.endpointReference
       },
     },
-    selectedservers() {
-      return [
-        ...this.$store.state.zap.clustersView.selectedServers,
-        ...this.$store.state.zap.clustersView.selectedClients,
-      ]
+  },
+  watch: {
+    isSelectedEndpoint(newValue) {
+      if (newValue) {
+        this.showAllInformationOfEndpoint = true
+      }
     },
-    selectedAttributes() {
-      return this.$store.state.zap.attributeView.selectedAttributes
-    },
-    selectedReporting() {
-      return this.$store.state.zap.attributeView.selectedReporting
-    },
+  },
+  created() {
+    if (this.$serverGet != null) {
+      this.getEndpointCardData()
+    }
   },
 }
 </script>
