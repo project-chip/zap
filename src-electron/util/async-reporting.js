@@ -16,25 +16,35 @@
  */
 
 /**
- * This module provides the mechanism for dealing with the dirty flag.
+ * This module provides the mechanism for dealing with the async reporting
+ * from backend to the UI.
  *
- * @module JS API: dirty flag
+ * This mechanism takes care of:
+ *   - dirty flag
+ *
+ * @module JS API: async reporting
  */
 
+const env = require('./env')
 const wsServer = require('../server/ws-server')
 const querySession = require('../db/query-session')
-const env = require('../util/env')
 const dbEnum = require('../../src-shared/db-enum')
 
-let dirtyFlagStatusId = null
-const defaultDirtyFlagIntervalMs = 1000
+// This object contains all the async reports.
+let asyncReports = {
+  dirtyFlag: {
+    fn: sendDirtyFlagStatus,
+    intervalMs: 1000,
+    sessionBased: true,
+  },
+}
 
 /**
  * Sends a dirty flag status for a single session.
  * @param {*} db
  * @param {*} session
  */
-async function sendDirtyFlagForOneSession(db, session) {
+async function sendDirtyFlagStatus(db, session) {
   let socket = wsServer.clientSocket(session.sessionKey)
   if (socket) {
     try {
@@ -59,35 +69,39 @@ async function sendDirtyFlagForOneSession(db, session) {
 }
 
 /**
- * This function triggers the sending of dirty flags for all sessions.
- * @param {*} db
- */
-async function sendDirtyFlagStatus(db) {
-  let sessions = await querySession.getAllSessions(db)
-
-  let allPromises = sessions.map((session) =>
-    sendDirtyFlagForOneSession(db, session)
-  )
-  return Promise.all(allPromises)
-}
-
-/**
  * Start the interval that will check and report dirty flags.
  * @param {*} db
  * @param {*} intervalMs
  */
-function startDirtyFlagReporting(db, intervalMs = defaultDirtyFlagIntervalMs) {
-  dirtyFlagStatusId = setInterval(() => {
-    sendDirtyFlagStatus(db)
-  }, intervalMs)
+function startAsyncReporting(db) {
+  for (let key of Object.keys(asyncReports)) {
+    let report = asyncReports[key]
+    if (report.sessionBased) {
+      // Session based reports get iterated over all sessions
+      // and called with appropriate session.
+      report.id = setInterval(async () => {
+        let sessions = await querySession.getAllSessions(db)
+        let allPromises = sessions.map((session) => report.fn(db, session))
+        return Promise.all(allPromises)
+      }, report.intervalMs)
+    } else {
+      // Non session based reports get called once with the db as the argument.
+      report.id = setInterval(() => {
+        report.fn(db)
+      }, report.intervalMs)
+    }
+  }
 }
 
 /**
  * Stop the interval that will check and report dirty flags
  */
-function stopDirtyFlagReporting() {
-  if (dirtyFlagStatusId) clearInterval(dirtyFlagStatusId)
+function stopAsyncReporting() {
+  for (let key of Object.keys(asyncReports)) {
+    let report = asyncReports[key]
+    if (report.id) clearInterval(report.id)
+  }
 }
 
-exports.startDirtyFlagReporting = startDirtyFlagReporting
-exports.stopDirtyFlagReporting = stopDirtyFlagReporting
+exports.startAsyncReporting = startAsyncReporting
+exports.stopAsyncReporting = stopAsyncReporting
