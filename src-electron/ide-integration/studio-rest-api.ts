@@ -21,7 +21,6 @@
  */
 
 // dirty flag reporting interval
-const DIRTY_FLAG_REPORT_INTERVAL_MS = 1000
 const UC_COMPONENT_STATE_REPORTING_INTERVAL_ID = 6000
 import axios, { AxiosPromise, AxiosResponse } from 'axios'
 import * as env from '../util/env'
@@ -33,14 +32,12 @@ import * as ucTypes from '../../src-shared/types/uc-component-types'
 import * as dbMappingTypes from '../types/db-mapping-types'
 import * as http from 'http-status-codes'
 import zcl from './zcl.js'
-import * as sqlite from 'sqlite3'
 
 const localhost = 'http://localhost:'
 const op_tree = '/rest/clic/components/all/project/'
 const op_add = '/rest/clic/component/add/project/'
 const op_remove = '/rest/clic/component/remove/project/'
 
-let dirtyFlagStatusId: NodeJS.Timeout
 let ucComponentStateReportId: NodeJS.Timeout
 let studioHttpPort: number
 
@@ -262,9 +259,6 @@ function httpPostComponentUpdate(
  */
 function initIdeIntegration(db: dbTypes.DbType, studioPort: number) {
   studioHttpPort = studioPort
-  dirtyFlagStatusId = setInterval(() => {
-    sendDirtyFlagStatus(db)
-  }, DIRTY_FLAG_REPORT_INTERVAL_MS)
 
   ucComponentStateReportId = setInterval(() => {
     sendUcComponentStateReport(db)
@@ -274,8 +268,7 @@ function initIdeIntegration(db: dbTypes.DbType, studioPort: number) {
 /**
  * Clears up the reporting interval.
  */
-function deinit() {
-  if (dirtyFlagStatusId) clearInterval(dirtyFlagStatusId)
+function deinitIdeIntegration() {
   if (ucComponentStateReportId) clearInterval(ucComponentStateReportId)
 }
 
@@ -294,30 +287,6 @@ async function sendUcComponentStateReport(db: dbTypes.DbType) {
       })
     }
   }
-}
-
-function sendDirtyFlagStatus(db: dbTypes.DbType) {
-  // TODO: delegate type declaration to actual function
-  querySession
-    .getAllSessions(db)
-    .then((sessions: dbMappingTypes.SessionType[]) => {
-      sessions.forEach((session) => {
-        let socket = wsServer.clientSocket(session.sessionKey)
-        if (socket) {
-          querySession
-            .getSessionDirtyFlag(db, session.sessionId)
-            .then((flag) => {
-              wsServer.sendWebSocketMessage(socket, {
-                category: dbEnum.wsCategory.dirtyFlag,
-                payload: flag,
-              })
-            })
-            .catch((err) => {
-              env.logWarning('Could not query dirty status.')
-            })
-        }
-      })
-    })
 }
 
 /**
@@ -374,6 +343,6 @@ exports.updateComponentByClusterIdAndComponentId =
 exports.projectName = projectName
 exports.integrationEnabled = integrationEnabled
 exports.initIdeIntegration = initIdeIntegration
-exports.deinit = deinit
+exports.deinitIdeIntegration = deinitIdeIntegration
 exports.sendSessionCreationErrorStatus = sendSessionCreationErrorStatus
 exports.sendComponentUpdateStatus = sendComponentUpdateStatus

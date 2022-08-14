@@ -31,6 +31,7 @@ const studio = require('../ide-integration/studio-rest-api')
 const restApi = require('../../src-shared/rest-api.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const watchdog = require('../main-process/watchdog')
+const dirtyFlag = require('../util/dirty-flag')
 
 const restApiModules = [
   require('../rest/admin.js'),
@@ -168,6 +169,7 @@ async function initHttpServer(
       watchdog.reset()
     })
     studio.initIdeIntegration(db, studioPort)
+    dirtyFlag.startDirtyFlagReporting(db)
   })
 }
 
@@ -243,7 +245,8 @@ function shutdownHttpServer() {
  */
 function shutdownHttpServerSync(fn = null) {
   if (httpServer != null) {
-    studio.deinit()
+    dirtyFlag.stopDirtyFlagReporting()
+    studio.deinitIdeIntegration()
     httpServer.close(() => {
       env.logDebug('HTTP server shut down.')
       httpServer = null
