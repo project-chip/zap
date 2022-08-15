@@ -67,7 +67,8 @@ async function getSessionDirtyFlag(db, sessionId) {
   let row = await dbApi.dbGet(
     db,
     'SELECT DIRTY FROM SESSION WHERE SESSION_ID = ?',
-    [sessionId]
+    [sessionId],
+    false
   )
   if (row == null) {
     return undefined
