@@ -22,7 +22,10 @@ let browserToUse = 'chrome'
 let cypressMode = 'run'
 let testsType = 'zigbee'
 
-let ignoreErrorCode = true
+// This is a test only. Set to true only
+// if you want the action to technically pass,
+// even if the tests actually fail.
+let ignoreErrorCode = false
 
 if (process.argv.length > 2) {
   cypressMode = process.argv[2]
