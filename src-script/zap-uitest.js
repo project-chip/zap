@@ -18,6 +18,7 @@
 
 const scriptUtil = require('./script-util.js')
 
+let browserToUse = 'chrome'
 let cypressMode = 'run'
 let testsType = 'zigbee'
 
@@ -64,7 +65,7 @@ let cyp = scriptUtil.executeCmd(null, 'npx', [
   'start-test',
   'quasar dev',
   'http-get://localhost:8080',
-  `npx cypress ${cypressMode} ${fixturesConfig}`,
+  `npx cypress ${cypressMode} --browser ${browserToUse} ${fixturesConfig}`,
 ])
 
 cyp
