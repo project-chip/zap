@@ -19,6 +19,7 @@
 const scriptUtil = require('./script-util.js')
 
 let cypressMode = 'run'
+let testsType = 'zigbee'
 
 let ignoreErrorCode = true
 
@@ -26,8 +27,12 @@ if (process.argv.length > 2) {
   cypressMode = process.argv[2]
 }
 
-if (cypressMode == '-?') {
-  console.log(`Usage: zap-uitest.js [ MODE | -? ]
+if (process.argv.length > 3) {
+  testsType = process.argv[3]
+}
+
+function printUsage() {
+  console.log(`Usage: zap-uitest.js [ MODE | -? ] [matter|zigbee]
 
 This program executes the Cypress unit tests. 
 Valid modes:
@@ -36,14 +41,30 @@ Valid modes:
   process.exit(0)
 }
 
+if (cypressMode == '-?') {
+  printUsage()
+}
+
+let svrCmd
+let fixturesConfig
+if (testsType == 'zigbee') {
+  svrCmd = 'zap-devserver'
+  fixturesConfig = ''
+} else if (testsType == 'matter') {
+  svrCmd = 'matterzap-devserver'
+  fixturesConfig = '--config fixturesFolder=cypress/matterFixtures'
+} else {
+  printUsage()
+}
+
 let returnCode = 0
-let svr = scriptUtil.executeCmd(null, 'npm', ['run', 'zap-devserver'])
+let svr = scriptUtil.executeCmd(null, 'npm', ['run', svrCmd])
 
 let cyp = scriptUtil.executeCmd(null, 'npx', [
   'start-test',
   'quasar dev',
   'http-get://localhost:8080',
-  `npx cypress ${cypressMode}`,
+  `npx cypress ${cypressMode} ${fixturesConfig}`,
 ])
 
 cyp
