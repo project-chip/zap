@@ -34,7 +34,7 @@ jobs:
       - name: Install Node.js, NPM and Yarn
         uses: actions/setup-node@v3.0.0
         with:
-          node-version: 16.x
+          node-version: 18.x
           cache: 'npm'
 
       - name: Prepare Linux build environment
