@@ -53,7 +53,7 @@ jobs:
           # create variables
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
 
-          if [ -n "$KEYCHAIN_PASSWORD" ]; then
+          if [ -n "$P12_PASSWORD" ]; then
             # import certificate and provisioning profile from secrets
             echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode --output ${RUNNER_TEMP}/build_certificate.p12
             echo -n "$TRUSTED_CERTIFICATE_BASE64" | base64 --decode --output ${RUNNER_TEMP}/trusted_certificate.cer
