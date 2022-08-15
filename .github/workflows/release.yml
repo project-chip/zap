@@ -53,21 +53,23 @@ jobs:
           # create variables
           KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
 
-          # import certificate and provisioning profile from secrets
-          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode --output ${RUNNER_TEMP}/build_certificate.p12
-          echo -n "$TRUSTED_CERTIFICATE_BASE64" | base64 --decode --output ${RUNNER_TEMP}/trusted_certificate.cer
+          if [ -n "$KEYCHAIN_PASSWORD" ]; then
+            # import certificate and provisioning profile from secrets
+            echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode --output ${RUNNER_TEMP}/build_certificate.p12
+            echo -n "$TRUSTED_CERTIFICATE_BASE64" | base64 --decode --output ${RUNNER_TEMP}/trusted_certificate.cer
 
-          # create temporary keychain
-          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
-          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+            # create temporary keychain
+            security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+            security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+            security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
 
-          # import certificate to keychain
-          security import ${RUNNER_TEMP}/trusted_certificate.cer -P "$P12_PASSWORD" -k $KEYCHAIN_PATH -A
-          security import ${RUNNER_TEMP}/build_certificate.p12 -P "$P12_PASSWORD" -k $KEYCHAIN_PATH -A
+            # import certificate to keychain
+            security import ${RUNNER_TEMP}/trusted_certificate.cer -P "$P12_PASSWORD" -k $KEYCHAIN_PATH -A
+            security import ${RUNNER_TEMP}/build_certificate.p12 -P "$P12_PASSWORD" -k $KEYCHAIN_PATH -A
 
-          security find-identity -v
-          security list-keychain -d user -s $KEYCHAIN_PATH
+            security find-identity -v
+            security list-keychain -d user -s $KEYCHAIN_PATH
+          fi
 
       - name: Initialize...
         run: |
