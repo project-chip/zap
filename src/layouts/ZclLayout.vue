@@ -55,15 +55,15 @@ limitations under the License.
           label="Preview"
           v-on:click="getGeneratedFiles"
         />
-        <q-btn
-          flat
-          icon="settings"
-          id="preference"
-          to="/preference"
-        >
+        <q-btn flat icon="settings" id="preference" to="/preference">
           <q-tooltip> Preferences </q-tooltip>
         </q-btn>
-        <q-btn flat @click="showTutorial" icon="psychology_alt">
+        <q-btn
+          v-if="this.$store.state.zap.showDevTools"
+          flat
+          @click="showTutorial"
+          icon="psychology_alt"
+        >
           <q-tooltip> Tutorial </q-tooltip>
         </q-btn>
         <q-btn flat @click="homeDialog = !homeDialog" icon="mdi-alert-circle">

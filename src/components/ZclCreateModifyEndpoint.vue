@@ -221,8 +221,8 @@ export default {
           this.profileCodesOptions == null
             ? null
             : this.profileCodesOptions.find(
-              (o) => o.optionCode === this.shownEndpoint.profileIdentifier
-            )
+                (o) => o.optionCode === this.shownEndpoint.profileIdentifier
+              )
 
         return profileOption
           ? profileOption.optionCode + ' (' + profileOption.optionLabel + ')'
@@ -233,7 +233,7 @@ export default {
       get() {
         return this.$store.state.zap.genericOptions[
           DbEnum.sessionOption.profileCodes
-          ]
+        ]
       },
     },
   },
@@ -309,7 +309,7 @@ export default {
       return (
         _.isNil(_.findKey(this.endpointId, (a) => a == value)) ||
         this.endpointReference ==
-        _.findKey(this.endpointId, (a) => a == value) ||
+          _.findKey(this.endpointId, (a) => a == value) ||
         'Endpoint identifier must be unique'
       )
     },
@@ -318,7 +318,7 @@ export default {
         .dispatch(`zap/addEndpointType`, {
           name: 'Anonymous Endpoint Type',
           deviceTypeRef:
-          shownEndpoint.deviceTypeRefAndDeviceIdPair.deviceTypeRef,
+            shownEndpoint.deviceTypeRefAndDeviceIdPair.deviceTypeRef,
         })
         .then((response) => {
           this.$store
@@ -329,8 +329,8 @@ export default {
               endpointType: response.id,
               endpointVersion: this.shownEndpoint.deviceVersion,
               deviceIdentifier:
-              this.shownEndpoint.deviceTypeRefAndDeviceIdPair
-                .deviceIdentifier,
+                this.shownEndpoint.deviceTypeRefAndDeviceIdPair
+                  .deviceIdentifier,
             })
             .then((res) => {
               if (this.shareClusterStatesAcrossEndpoints()) {

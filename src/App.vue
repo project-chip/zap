@@ -384,7 +384,9 @@ export default {
     }
   },
   mounted() {
-    this.$tours['ZclTour'].start()
+    if (this.$store.state.zap.showDevTools) {
+      this.$tours['ZclTour'].start()
+    }
     window[rendApi.GLOBAL_SYMBOL_EXECUTE](
       rendApi.id.setDarkTheme,
       storage.getItem(rendApi.storageKey.isDarkThemeActive)
