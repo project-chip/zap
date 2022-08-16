@@ -34,6 +34,7 @@ const util = require('../util/util.js')
 const importJs = require('../importexport/import.js')
 const exportJs = require('../importexport/export.js')
 const watchdog = require('./watchdog')
+const sdkUtil = require('../util/sdk-util')
 
 // This file contains various startup modes.
 
@@ -282,61 +283,45 @@ async function startRegenerateSdk(argv, options) {
       env.zapVersion()
     )
 
-    options.logger(`    👈 read in: ${sdkPath}`)
-    let data = await fsp.readFile(sdkPath)
-    let sdk = JSON.parse(data)
-    let sdkRoot = path.join(path.dirname(sdkPath), sdk.meta.sdkRoot)
-    options.logger(`    👉 sdk information: ${sdk.meta.description}`)
-    options.logger(`    👉 sdk location: ${sdkRoot}`)
-    let featureLevelMatch = util.matchFeatureLevel(
-      sdk.meta.requiredFeatureLevel,
-      sdk.meta.description
-    )
-    if (!featureLevelMatch.match) {
-      options.logger(`⛔ ${featureLevelMatch.message}`)
-      throw featureLevelMatch.message
-    }
+    let sdk = await sdkUtil.readSdkJson(sdkPath, options)
+
     options.logger('🐝 Loading ZCL information')
     sdk.zclPackageId = {}
-    for (let key of Object.keys(sdk.zcl)) {
-      options.logger(`    👈 ${sdk.zcl[key]}`)
-      let loadData = await zclLoader.loadZcl(
-        db,
-        path.join(sdkRoot, sdk.zcl[key])
-      )
+    for (let key of Object.keys(sdk.rt.zclMetafiles)) {
+      let p = sdk.rt.zclMetafiles[key]
+      options.logger(`    👈 ${p}`)
+      let loadData = await zclLoader.loadZcl(db, p)
       sdk.zclPackageId[key] = loadData.packageId
     }
-    options.logger('🐝 Loading Generation templates')
+    options.logger('🐝 Loading generation templates')
     sdk.templatePackageId = {}
-    for (let key of Object.keys(sdk.templates)) {
-      options.logger(`    👈 ${sdk.templates[key]}`)
-      let loadData = await generatorEngine.loadTemplates(
-        db,
-        path.join(sdkRoot, sdk.templates[key])
-      )
+    for (let key of Object.keys(sdk.rt.genTemplates)) {
+      let p = sdk.rt.genTemplates[key]
+      options.logger(`    👈 ${p}`)
+      let loadData = await generatorEngine.loadTemplates(db, p)
       sdk.templatePackageId[key] = loadData.packageId
     }
     options.logger('🐝 Performing generation')
-    for (let gen of sdk.generation) {
-      let inputFile = path.join(sdkRoot, sdk.zapFiles[gen.zapFile])
-      let outputDirectory = path.join(sdkRoot, gen.output)
+    for (let gen of sdk.rt.generateCommands) {
+      let inputFile = gen.inputFile
+      let outputDirectory = gen.outputDirectory
       options.logger(`    👈 loading: ${inputFile} `)
       let loaderResult = await importJs.importDataFromFile(db, inputFile)
       let sessionId = loaderResult.sessionId
-      let pkgIds = []
+      let templateKeys = []
       if (gen.template != null) {
         if (Array.isArray(gen.template)) {
-          pkgIds.push(...gen.template)
+          templateKeys.push(...gen.template)
         } else {
-          pkgIds.push(gen.template)
+          templateKeys.push(gen.template)
         }
       }
-      for (let pkgId of pkgIds) {
-        options.logger(`    👉 generating: ${pkgId} => ${outputDirectory}`)
+      for (let tK of templateKeys) {
+        options.logger(`    👉 generating: ${tK} => ${outputDirectory}`)
         await generatorEngine.generateAndWriteFiles(
           db,
           sessionId,
-          sdk.templatePackageId[pkgId],
+          sdk.templatePackageId[tK],
           outputDirectory,
           {
             logger: (msg) => {
