@@ -11,12 +11,12 @@
     "main": "gen-test.json"
   },
   "zapFiles": {
-    "test": "../test-meta.zap"
+    "test": "../test-meta*.zap"
   },
   "generation": [
     {
       "zapFile": "test",
-      "output": "../../../tmp",
+      "output": "../../../tmp/{zapFileBasename}/",
       "zcl": "main",
       "template": "main"
     }

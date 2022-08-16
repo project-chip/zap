@@ -18,6 +18,7 @@ const fs = require('fs')
 const fsp = fs.promises
 const path = require('path')
 const util = require('./util')
+const fastGlob = require('fast-glob')
 
 /**
  * @module JS API: SDK utilities
@@ -76,12 +77,22 @@ async function readSdkJson(
   options.logger('🐝 Resolving generation patterns')
   sdk.rt.generateCommands = []
   for (let gen of sdk.generation) {
-    let inputFile = path.join(sdkRoot, sdk.zapFiles[gen.zapFile])
-    let outputDirectory = path.join(sdkRoot, gen.output)
-    sdk.rt.generateCommands.push({
-      inputFile: inputFile,
-      outputDirectory: outputDirectory,
-      template: gen.template,
+    let globPattern = sdk.zapFiles[gen.zapFile]
+    const entries = await fastGlob(globPattern, { cwd: sdkRoot })
+    entries.forEach((e) => {
+      let inputFile = path.join(sdkRoot, e)
+      let output = gen.output
+      output = output.replace(
+        '{zapFileBasename}',
+        path.basename(inputFile, '.zap')
+      )
+
+      let outputDirectory = path.join(sdkRoot, output)
+      sdk.rt.generateCommands.push({
+        inputFile: inputFile,
+        outputDirectory: outputDirectory,
+        template: gen.template,
+      })
     })
   }
   return sdk
