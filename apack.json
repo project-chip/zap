@@ -62,6 +62,9 @@
     "zapFull": {
       "cmd": "$(zap) --showUrl --zcl ${sdkRoot}/app/zcl/zcl-zap.json"
     },
+    "zapRegenSdk": {
+      "cmd": "$(zap) regenerateSdk --sdk ${sdkJsonFile}"
+    },
     "zapIscConvert": {
       "cmd": "$(zap) convert --noUi --noServer --noZapFileLog --zcl ${sdkRoot}/app/zcl/zcl-zap.json --out ${outFile} ${inFile}"
     },
