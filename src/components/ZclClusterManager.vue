@@ -1,4 +1,4 @@
-<!--
+  <!--
 Copyright (c) 2008,2020 Silicon Labs.
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -87,10 +87,9 @@ limitations under the License.
                 :id="domainName"
                 switch-toggle-side
                 :label="domainName"
-                v-model="expendedCluster[index]"
+                v-model="expandedCluster[domainName + index]"
                 @input="setOpenDomain(domainName, $event)"
               >
-                <!--                {{ !!(domainName === 'General' && isTutorialRunning) }}-->
                 <zcl-domain-cluster-view
                   :domainName="domainName"
                   :clusters="clusterDomains(domainName)"
@@ -125,7 +124,7 @@ export default {
       this.changeDomainFilter(this.filter)
     },
     expanded(val) {
-      this.expendedCluster[0] = val
+      this.expandedCluster['General0'] = val
     },
   },
   computed: {
@@ -257,25 +256,8 @@ export default {
   },
   data() {
     return {
-      expendedCluster: {
-        0: false,
-        1: false,
-        2: false,
-        3: false,
-        4: false,
-        5: false,
-        6: false,
-        7: false,
-        8: false,
-        9: false,
-        10: false,
-        11: false,
-        12: false,
-        13: false,
-        14: false,
-        15: false,
-        16: false,
-        17: false,
+      expandedCluster: {
+        General0: false
       },
     }
   },
