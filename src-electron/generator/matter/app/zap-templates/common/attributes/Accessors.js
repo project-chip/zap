@@ -124,5 +124,5 @@ exports.typeAsDelimitedMacro = typeAsDelimitedMacro;
 
 exports.meta = {
   category: dbEnum.helperCategory.matter,
-  alias: ['common/attributes/Accessors.js'],
+  alias: ['common/attributes/Accessors.js', 'matter-accessors'],
 };
