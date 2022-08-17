@@ -52,7 +52,34 @@ async function urlContent(url: string) {
   return resp.data
 }
 
-async function githubDownloadArtifacts(artifacts: any, dlOptions: DlOptions) {
+function verifyPlatformAndFormat(
+  name: string,
+  platforms: string[],
+  formats: string[]
+) {
+  // verify platform
+  const verifyPlatform = platforms.reduce(
+    (prev, cur) => prev || name.includes(cur),
+    false
+  )
+
+  const verifyFormat = formats.reduce(
+    (prev, cur) => prev || name.endsWith(cur),
+    false
+  )
+
+  if (!verifyPlatform || !verifyFormat) {
+    return false
+  }
+
+  return true
+}
+
+async function githubDownloadArtifacts(
+  artifacts: any,
+  dlOptions: DlOptions,
+  verifyPlatformAndFormat: Function
+) {
   let {
     outputDir,
     githubToken,
@@ -89,19 +116,7 @@ async function githubDownloadArtifacts(artifacts: any, dlOptions: DlOptions) {
     console.log(`Output directory: ${outputDir}`)
     for (const artifact of artifacts) {
       let { archive_download_url, name, created_at, size_in_bytes } = artifact
-
-      // verify platform
-      const verifyPlatform = platforms.reduce(
-        (prev, cur) => prev || name.includes(cur),
-        false
-      )
-
-      const verifyFormat = formats.reduce(
-        (prev, cur) => prev || name.endsWith(cur),
-        false
-      )
-
-      if (!verifyPlatform || !verifyFormat) {
+      if (!verifyPlatformAndFormat.call(null, name, platforms, formats)) {
         continue
       }
 
@@ -121,6 +136,50 @@ async function githubDownloadArtifacts(artifacts: any, dlOptions: DlOptions) {
       } catch (err) {
         console.error(err)
       }
+    }
+  }
+}
+
+async function githubListArtifacts(
+  artifacts: any,
+  dlOptions: DlOptions,
+  verifyPlatformAndFormat: Function
+) {
+  let { branch, outputDir, platforms, formats } = dlOptions
+
+  if (artifacts.length == 0) {
+    return
+  }
+
+  if (artifacts.length) {
+    if (dlOptions.mirror) {
+      outputDir = path.join(outputDir, 'artifacts')
+    }
+
+    let artifactsList: string[] = []
+    for (const artifact of artifacts) {
+      let { name } = artifact
+      if (!verifyPlatformAndFormat.call(null, name, platforms, formats)) {
+        continue
+      }
+
+      let artifactPath = path.join(
+        branch,
+        artifacts[0].created_at,
+        `${name}.zip`
+      )
+
+      if (DEBUG) console.log(`${artifactPath}`)
+      artifactsList.push(artifactPath)
+    }
+    try {
+      fs.mkdirSync(outputDir, { recursive: true })
+      fs.writeFileSync(
+        path.join(outputDir, `${branch}.txt`),
+        artifactsList.join('\n')
+      )
+    } catch (err) {
+      console.error(err)
     }
   }
 }
@@ -416,6 +475,11 @@ function configureBuildCommand() {
       type: 'boolean',
       default: false,
     })
+    .option('nameOnly', {
+      description: `Output list of latest artifacts to <branch_name>.txt. Used for verifying the presence on Nexus`,
+      type: 'boolean',
+      default: false,
+    })
     .option('src', {
       description: `URL source for obtaining ZAP binaries`,
       type: 'string',
@@ -437,6 +501,7 @@ interface DlOptions {
   formats: string[]
   src: string
   mirror: boolean
+  nameOnly: boolean
 }
 
 async function main() {
@@ -454,6 +519,7 @@ async function main() {
     formats: y.argv.formats,
     src: y.argv.src,
     mirror: y.argv.mirror,
+    nameOnly: y.argv.nameOnly,
   }
 
   // Download site sources: Nexus, Github
@@ -474,7 +540,15 @@ Find more information at https://docs.github.com/en/actions/security-guides/auto
     }
 
     let artifacts = await githubGetArtifacts(dlOptions)
-    await githubDownloadArtifacts(artifacts, dlOptions)
+    if (dlOptions.nameOnly) {
+      await githubListArtifacts(artifacts, dlOptions, verifyPlatformAndFormat)
+    } else {
+      await githubDownloadArtifacts(
+        artifacts,
+        dlOptions,
+        verifyPlatformAndFormat
+      )
+    }
   }
 }
 
