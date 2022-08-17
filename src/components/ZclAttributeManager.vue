@@ -58,32 +58,6 @@ limitations under the License.
               This attribute is mandatory for the cluster and device type
               configuration you have enabled
             </q-tooltip>
-            <!-- <q-popup-edit
-              :disable="!displayAttrWarning(props.row)"
-              :cover="false"
-              :offset="[0, -54]"
-              content-class="bg-white text-black"
-              style="overflow-wrap: break-word; padding: 0px"
-            >
-              <template v-slot="scope">
-                <div
-                  class="row items-center"
-                  items-center
-                  style="padding: 0px"
-                  @click.stop="scope.cancel"
-                >
-                  <q-icon
-                    name="warning"
-                    class="text-amber q-mr-sm"
-                    style="font-size: 1.5rem"
-                  ></q-icon>
-                  <div class="vertical-middle text-subtitle2">
-                    This attribute is mandatory for the cluster and device type
-                    configuration you have enabled
-                  </div>
-                </div>
-              </template>
-            </q-popup-edit> -->
           </q-td>
           <q-td key="included" :props="props" auto-width>
             <q-toggle

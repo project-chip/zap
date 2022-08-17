@@ -150,5 +150,9 @@ export default function () {
       zclSdkExtClusterToUcComponentMap: [],
     },
     allEndpointsData: {},
+    deviceTypeRefAndDeviceIdPair: {
+      deviceTypeRef: null,
+      deviceIdentifier: null,
+    },
   }
 }
