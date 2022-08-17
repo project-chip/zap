@@ -78,6 +78,7 @@ async function readSdkJson(
   sdk.rt.generateCommands = []
   for (let gen of sdk.generation) {
     let globPattern = sdk.zapFiles[gen.zapFile]
+    let index = 0
     const entries = await fastGlob(globPattern, { cwd: sdkRoot })
     entries.forEach((e) => {
       let inputFile = path.join(sdkRoot, e)
@@ -87,6 +88,14 @@ async function readSdkJson(
         path.basename(inputFile, '.zap')
       )
 
+      output = output.replace(
+        '{zapFileLastDirname}',
+        path.basename(path.dirname(inputFile))
+      )
+
+      output = output.replace('{zapFileGlobIndex}', `${index}`)
+
+      index++
       let outputDirectory = path.join(sdkRoot, output)
       sdk.rt.generateCommands.push({
         inputFile: inputFile,

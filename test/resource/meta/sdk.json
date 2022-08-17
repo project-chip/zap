@@ -16,7 +16,7 @@
   "generation": [
     {
       "zapFile": "test",
-      "output": "../../../tmp/{zapFileBasename}/",
+      "output": "../../../tmp/{zapFileBasename}_{zapFileGlobIndex}/",
       "zcl": "main",
       "template": "main"
     }
