@@ -920,5 +920,5 @@ exports.if_is_non_zero_default = if_is_non_zero_default;
 
 exports.meta = {
   category: dbEnum.helperCategory.matter,
-  alias: ['templates/app/helper.js'],
+  alias: ['templates/app/helper.js', 'matter-app-helper'],
 };

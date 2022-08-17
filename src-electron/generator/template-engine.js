@@ -329,15 +329,36 @@ function initializeBuiltInHelpersForPackage(
   }
 ) {
   includedHelpers.forEach((helperPkg) => {
-    let loadIt = true
+    let hasMatchingCategory = false
+    let hasMeta = false
+    let hasMatchingAlias = false
+
+    // Let's analyze the things.
     if (helperPkg.meta != null) {
+      hasMeta = true
+      // Let's check if category matches.
       if (helperPkg.meta.category != null) {
-        loadIt = false
+        hasMatchingCategory = included.categories.includes(
+          helperPkg.meta.category
+        )
       }
       if (helperPkg.meta.alias != null && helperPkg.meta.alias.length > 0) {
-        loadIt = included.aliases.includes(helperPkg.meta.alias[0])
+        helperPkg.meta.alias.forEach((a) => {
+          if (included.aliases.includes(a)) hasMatchingAlias = true
+        })
       }
     }
+
+    // Now let's see if we need to load it.
+    // We will load all the helpers that have no `meta` object,
+    // but if they do have 'meta' object, than either category or alias has to match.
+    let loadIt
+    if (hasMeta) {
+      loadIt = hasMatchingAlias || hasMatchingCategory
+    } else {
+      loadIt = true
+    }
+
     // We are not loading the helper if it has category or is aliased,
     // but that category or alias is not mentioned in the gen-templates.json.
     if (loadIt) {

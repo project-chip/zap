@@ -174,5 +174,5 @@ exports.assertSameTestType = assertSameTestType;
 
 exports.meta = {
   category: dbEnum.helperCategory.matter,
-  alias: ['chip-tool/templates/helper.js'],
+  alias: ['chip-tool/templates/helper.js', 'matter-chip-tool-helper'],
 };

@@ -52,5 +52,5 @@ exports.isLongString = isLongString;
 
 exports.meta = {
   category: dbEnum.helperCategory.matter,
-  alias: ['common/StringHelper.js'],
+  alias: ['common/StringHelper.js', 'matter-string-helper'],
 };
