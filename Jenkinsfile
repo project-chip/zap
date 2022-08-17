@@ -47,6 +47,8 @@ pipeline
                         {
                                     sh 'npm run version-stamp'
                                     sh 'npm run version'
+                                    sh 'npm rebuild canvas --update-binary'
+                                    sh 'npm rebuild libxmljs --update-binary'
                         }
                     }
                 }
@@ -247,7 +249,7 @@ pipeline
                                     sh 'security unlock-keychain -u  "/Library/Keychains/System.keychain"'
                                     sh 'npm run version-stamp'
                                     sh 'npm run build'
-                                    sh 'npm run pack:mac'
+                                    sh 'npm run pack:mac:native'
                                     stash includes: 'dist/*mac.zip', name: 'zap_apack_mac'
                                 }
                             }

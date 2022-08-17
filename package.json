@@ -91,6 +91,7 @@
     "pack:linux": "exec electron-builder -l",
     "pack:win": "exec electron-builder -w",
     "pack:mac": "exec electron-builder -m --universal",
+    "pack:mac:native": "exec electron-builder -m",
     "pkg": "npm run build && npx pkg --out-path dist/ --compress GZip .",
     "pkg:linux": "npm run build && npx pkg -t node16-linux-x64 --output dist/zap-linux --compress GZip .",
     "pkg:win": "npm run build && npx pkg -t node16-win-x64 --output dist/zap-win.exe --compress GZip .",
