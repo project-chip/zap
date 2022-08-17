@@ -119,5 +119,8 @@ exports.asEncodableType = asEncodableType;
 
 exports.meta = {
   category: dbEnum.helperCategory.matter,
-  alias: ['chip-tool/templates/tests/helper.js'],
+  alias: [
+    'chip-tool/templates/tests/helper.js',
+    'matter-chip-tool-test-helper',
+  ],
 };

@@ -70,5 +70,5 @@ exports.asPythonCType = asPythonCType;
 
 exports.meta = {
   category: dbEnum.helperCategory.matter,
-  alias: ['controller/python/templates/helper.js'],
+  alias: ['controller/python/templates/helper.js', 'matter-python-helper'],
 };

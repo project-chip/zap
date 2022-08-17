@@ -362,5 +362,5 @@ exports.incrementDepth = incrementDepth;
 
 exports.meta = {
   category: dbEnum.helperCategory.matter,
-  alias: ['controller/java/templates/helper.js'],
+  alias: ['controller/java/templates/helper.js', 'matter-java-helper'],
 };

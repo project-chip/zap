@@ -1237,5 +1237,5 @@ exports.asTestType = asTestType;
 
 exports.meta = {
   category: dbEnum.helperCategory.matter,
-  alias: ['common/ClusterTestGeneration.js'],
+  alias: ['common/ClusterTestGeneration.js', 'matter-cluster-test-generation'],
 };
