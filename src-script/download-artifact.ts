@@ -159,7 +159,7 @@ async function githubListArtifacts(
     let artifactsList: string[] = []
     for (const artifact of artifacts) {
       let { name } = artifact
-      if (!verifyPlatformAndFormat(null, name, platforms, formats)) {
+      if (!verifyPlatformAndFormat.call(null, name, platforms, formats)) {
         continue
       }
 
