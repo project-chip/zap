@@ -558,3 +558,10 @@ export function openZclExtensionsDialogForTutorial(state, value) {
 export function setClusterDataForTutorial(state, value) {
   state.clusterDataForTutorial = value
 }
+
+export function setDeviceTypeRefAndDeviceIdPair(state, value) {
+  state.deviceTypeRefAndDeviceIdPair = {
+    deviceTypeRef: value.deviceTypeRef,
+    deviceIdentifier: value.deviceIdentifier,
+  }
+}
