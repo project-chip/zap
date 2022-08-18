@@ -20,8 +20,6 @@ describe('Check theme functionality', () => {
     () => {
       cy.get('#preference').click()
       cy.get('#darkTheme')
-        // .parent()
-        // .get('[type="checkbox"]')
         .find('input')
         .uncheck({ force: true })
 
@@ -35,8 +33,6 @@ describe('Check theme functionality', () => {
     () => {
       cy.get('#preference').click()
       cy.get('#darkTheme')
-        // .parent()
-        // .get('[type="checkbox"]')
         .find('input')
         .check({ force: true })
 

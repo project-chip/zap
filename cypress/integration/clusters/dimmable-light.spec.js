@@ -10,26 +10,25 @@ describe('Testing Dimmable Light workflow', () => {
     cy.fixture('baseurl').then((data) => {
       cy.visit(data.baseurl)
     })
-    cy.get('button').contains('Add New Endpoint').click()
+    cy.get('[data-test="add-new-endpoint"]').click()
     cy.fixture('data').then((data) => {
       cy.get(
-        '.q-form > .q-select > .q-field__inner > .q-field__control >  .q-field__control-container > .q-field__native > input'
+        '[data-test="select-endpoint-input"]'
       )
         .click()
         .clear({ force: true })
         .type('dimmable', { force: true })
       cy.get('div').contains(data.endpoint6).click({ force: true })
     })
-
     cy.get('button').contains('Create').click()
   })
   it('Search for the cluster', () => {
     cy.fixture('data').then((data) => {
       cy.get(
-        '.col-4 > .q-field__inner > .q-field__control > .q-field__control-container > input'
+        '[data-test="search-clusters"]'
       )
         .clear({ force: true })
-        .type(data.cluster4, { force: true })
+        .type(data.cluster4)
     })
   })
   it('Enabling Client & Server', () => {
