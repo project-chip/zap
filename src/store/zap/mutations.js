@@ -537,6 +537,10 @@ export function setAllEndpointsData(state, value) {
       id: value.endpointId })
 }
 
-export function updateIsZigbee(state, value) {
-  value == 0 ? state.isZigbee = false : state.isZigbee = true
+export function updateIsProfileIdShown (state, value) {
+  value == 0 ? state.isProfileIdShown  = false : state.isProfileIdShown  = true
+}
+
+export function updateIsClusterOptionChanged(state, value) {
+  state.isClusterOptionChanged = value
 }

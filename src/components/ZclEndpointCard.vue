@@ -85,7 +85,7 @@ limitations under the License.
             {{ networkId[endpointReference] }}
           </div>
         </q-item>
-        <q-item class="row" v-if="$store.state.zap.isZigbee">
+        <q-item class="row" v-if="$store.state.zap.isProfileIdShown">
           <div class="col-6">
             <strong>Profile ID</strong>
           </div>
@@ -99,30 +99,6 @@ limitations under the License.
           </div>
           <div class="col-6">{{ endpointVersion[endpointReference] }}</div>
         </q-item>
-        <!--        <q-item class="row">-->
-        <!--          <div class="col-6">-->
-        <!--            <strong>Enabled Clusters</strong>-->
-        <!--          </div>-->
-        <!--          <div class="col-6" data-test="endpoint-enabled-clusters-amount">-->
-        <!--            {{ selectedservers.length }}-->
-        <!--          </div>-->
-        <!--        </q-item>-->
-        <!--        <q-item class="row">-->
-        <!--          <div class="col-6">-->
-        <!--            <strong>Enabled Attributes</strong>-->
-        <!--          </div>-->
-        <!--          <div class="col-6" data-test="endpoint-enabled-attributes-amount">-->
-        <!--            {{ selectedAttributes.length }}-->
-        <!--          </div>-->
-        <!--        </q-item>-->
-        <!--        <q-item class="row">-->
-        <!--          <div class="col-6">-->
-        <!--            <strong>Enabled Reporting</strong>-->
-        <!--          </div>-->
-        <!--          <div class="col-6">-->
-        <!--            {{ selectedReporting.length }}-->
-        <!--          </div>-->
-        <!--        </q-item>-->
         <q-item class="row">
           <div class="col-6">
             <strong>Enabled Clusters</strong>
@@ -316,7 +292,7 @@ export default {
               }
             }
           })
-          this.selectedservers = [...enabledServers, ...enabledServers]
+          this.selectedservers = [...enabledServers, ...enabledClients]
         })
 
       Vue.prototype
@@ -395,11 +371,22 @@ export default {
         return this.selectedEndpointId == this.endpointReference
       },
     },
+    isClusterOptionChanged: {
+      get() {
+        return this.$store.state.zap.isClusterOptionChanged
+      },
+    },
   },
   watch: {
     isSelectedEndpoint(newValue) {
       if (newValue) {
         this.showAllInformationOfEndpoint = true
+      }
+    },
+    isClusterOptionChanged(val) {
+      if (val) {
+        this.getEndpointCardData()
+        this.$store.commit('zap/updateIsClusterOptionChanged', false)
       }
     },
   },
