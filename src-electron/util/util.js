@@ -599,36 +599,40 @@ function disable(testName) {
 }
 
 /**
- * Utility method that collects tests from a JSON file.
- * JSON file supports following special keys:
+ * Utility method that collects data from a JSON file.
+ *
+ * JSON file is formatted as a bunch of keyed strings:
+ *    "someKey": [ "a", "b", "c"]
+ * Then it supports following special keys:
  *    "include": "path/to/json/file"  - includes the said JSON file
- *    "disable": [ "test", "test1" ...] - disables the specified tests
- *    "collection": ["key", "key2", ...] - collects final list of tests
+ *    "disable": [ "x", "y" ...] - disables the specified data points
+ *    "collection": ["key", "key2", ...] - collects final list of data points
  *
  * @param {*} jsonFile
  */
-function collectTests(jsonFile, recursiveLevel = 0) {
+async function collectJsonData(jsonFile, recursiveLevel = 0) {
   if (recursiveLevel > 20) {
     // Prevent infinite recursion
-    throw new Error(`Recursion too deep in tests inclusion.`)
+    throw new Error(`Recursion too deep in JSON file inclusion.`)
   }
-  let data = fs.readFileSync(jsonFile)
-  let tests = JSON.parse(data)
-  let collectedTests = []
-  if ('include' in tests) {
-    let f = path.join(path.dirname(jsonFile), tests.include)
-    collectedTests.push(...collectTests(f, recursiveLevel++))
+  let rawData = await fsp.readFile(jsonFile)
+  let jsonData = JSON.parse(rawData)
+  let collectedData = []
+  if ('include' in jsonData) {
+    let f = path.join(path.dirname(jsonFile), jsonData.include)
+    let includedData = await collectJsonData(f, recursiveLevel++)
+    collectedData.push(...includedData)
   }
-  if ('collection' in tests) {
-    collectedTests.push(...tests.collection.map((c) => tests[c]).flat(1))
+  if ('collection' in jsonData) {
+    collectedData.push(...jsonData.collection.map((c) => jsonData[c]).flat(1))
   }
-  if ('disable' in tests) {
-    collectedTests = collectedTests.filter(
-      (test) => !tests.disable.includes(test)
+  if ('disable' in jsonData) {
+    collectedData = collectedData.filter(
+      (test) => !jsonData.disable.includes(test)
     )
   }
-  collectedTests.disable = disable.bind(collectedTests)
-  return collectedTests
+  collectedData.disable = disable.bind(collectedData)
+  return collectedData
 }
 
 exports.createBackupFile = createBackupFile
@@ -649,4 +653,4 @@ exports.parseXml = parseXml
 exports.readFileContentAndCrc = readFileContentAndCrc
 exports.duration = duration
 exports.mainOrSecondaryInstance = mainOrSecondaryInstance
-exports.collectTests = collectTests
+exports.collectJsonData = collectJsonData
