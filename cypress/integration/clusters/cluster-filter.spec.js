@@ -20,8 +20,8 @@ describe('Testing cluster filters', () => {
     { retries: { runMode: 2, openMode: 2 } },
     () => {
       cy.get(
-        '.bar > :nth-child(1) > :nth-child(2) > .q-field > .q-field__inner > .q-field__control'
-      ).click({ force: true })
+        '[data-test="filter-input"]'
+      ).click()
       cy.get('.q-virtual-scroll__content > :nth-child(3)').click()
       cy.fixture('data').then((data) => {
         cy.get('tbody').children().contains(data.cluster2).should('not.exist')
@@ -33,8 +33,8 @@ describe('Testing cluster filters', () => {
     { retries: { runMode: 2, openMode: 2 } },
     () => {
       cy.get(
-        '.bar > :nth-child(1) > :nth-child(2) > .q-field > .q-field__inner > .q-field__control'
-      ).click({ force: true })
+        '[data-test="filter-input"]'
+      ).click({force:true})
       cy.get('.q-virtual-scroll__content > :nth-child(1)').click()
       cy.fixture('data').then((data) => {
         cy.get('tbody').children().should('contain', data.cluster2)
