@@ -58,7 +58,7 @@ limitations under the License.
           >
             <Transition name="bounce">
               <div v-if="displayButton" class="q-ml-xs">
-                displayButton ZCL GLOBAL OPTIONS…
+                ZCL Global Options…
               </div>
             </Transition>
           </q-btn>
@@ -73,7 +73,7 @@ limitations under the License.
           >
             <Transition name="bounce">
               <div v-if="displayButton" class="text-align q-ml-xs">
-                ZCL Extensions...
+                ZCL Extensions…
               </div></Transition
             >
           </q-btn>
