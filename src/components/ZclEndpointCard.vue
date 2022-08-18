@@ -36,6 +36,7 @@ limitations under the License.
             size="sm"
             icon="delete"
             @click="handleDeletionDialog"
+            data-test="delete-endpoint"
           />
           <q-btn
             flat
@@ -46,6 +47,7 @@ limitations under the License.
             size="sm"
             v-close-popup
             @click="modifyEndpointDialog = !modifyEndpointDialog"
+            data-test="edit-endpoint"
           />
           <q-btn
             v-if="showAllInformationOfEndpoint"

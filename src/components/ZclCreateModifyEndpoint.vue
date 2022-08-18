@@ -57,6 +57,7 @@ limitations under the License.
             @filter="filterDeviceTypes"
             @input="setDeviceTypeCallback"
             @new-value="createValue"
+            data-test="select-endpoint-input"
           />
           <div class="q-gutter-md row">
             <q-input

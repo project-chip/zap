@@ -47,6 +47,7 @@ limitations under the License.
                 dense
                 class="col-2"
                 @input="changeDomainFilter($event)"
+                data-test="filter-input"
               />
             </div>
             &nbsp;
@@ -72,6 +73,7 @@ limitations under the License.
             @input="changeFilterString($event)"
             @clear="changeFilterString('')"
             :value="filterString"
+            data-test="search-clusters"
           >
             <template v-slot:prepend>
               <q-icon name="search" />
@@ -87,6 +89,7 @@ limitations under the License.
                 :label="domainName"
                 @input="setOpenDomain(domainName, $event)"
                 :value="getDomainOpenState(domainName)"
+                data-test="Cluster"
               >
                 <zcl-domain-cluster-view
                   :domainName="domainName"

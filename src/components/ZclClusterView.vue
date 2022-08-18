@@ -21,6 +21,7 @@ limitations under the License.
           <router-link
             to="/"
             style="text-decoration: none; color: #027be3; font-weight: bold"
+            data-test="back-to-home"
             ><i
               aria-hidden="true"
               role="presentation"
