@@ -85,7 +85,7 @@ limitations under the License.
             {{ networkId[endpointReference] }}
           </div>
         </q-item>
-        <q-item class="row">
+        <q-item class="row" v-if="$store.state.zap.isZigbee">
           <div class="col-6">
             <strong>Profile ID</strong>
           </div>

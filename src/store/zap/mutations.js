@@ -536,3 +536,7 @@ export function setAllEndpointsData(state, value) {
       'selectedAttributes': value.attr,
       id: value.endpointId })
 }
+
+export function updateIsZigbee(state, value) {
+  value == 0 ? state.isZigbee = false : state.isZigbee = true
+}

@@ -106,7 +106,7 @@ export default {
   mounted() {
     if (this.$serverGet != null) {
       this.$serverGet(restApi.uri.uiOptions).then((res) => {
-        console.log(res.data)
+        this.$store.commit('zap/updateIsZigbee', res.data.showProfileId)
       })
     }
     window[rendApi.GLOBAL_SYMBOL_EXECUTE](

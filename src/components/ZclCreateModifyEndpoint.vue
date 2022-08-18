@@ -32,6 +32,7 @@ limitations under the License.
             min="0"
           />
           <q-input
+            v-if="$store.state.zap.isZigbee"
             label="Profile ID"
             v-model="computedProfileId"
             ref="profile"
@@ -272,12 +273,14 @@ export default {
         value.deviceIdentifier
     },
     saveOrCreateHandler() {
+      let profile = this.$store.state.zap.isZigbee ? this.$refs.profile.validate() : true
+
       if (
         this.$refs.endpoint.validate() &&
         this.$refs.device.validate() &&
         this.$refs.network.validate() &&
         this.$refs.version.validate() &&
-        this.$refs.profile.validate()
+        profile
       ) {
         this.$emit('saveOrCreateValidated')
         if (this.endpointReference) {

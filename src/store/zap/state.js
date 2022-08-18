@@ -18,6 +18,7 @@ const restApi = require('../../../src-shared/rest-api.js')
 
 export default function () {
   return {
+    isZigbee: null,
     showPreviewTab: false,
     isExceptionsExpanded: false,
     exceptions: [],
