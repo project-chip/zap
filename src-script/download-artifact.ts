@@ -20,7 +20,7 @@
 // This util script downloads ZAP artifact from Github.com
 // Usage: node ./download-artifact.js $branch [ $commit | latest ]
 
-import { Octokit, App } from 'octokit'
+import { Octokit } from 'octokit'
 import { StatusCodes } from 'http-status-codes'
 import Downloader from 'nodejs-file-downloader'
 import yargs from 'yargs'
@@ -39,6 +39,7 @@ const DEFAULT_OWNER = 'SiliconLabs'
 const DEFAULT_REPO = 'zap'
 const NEXUS_SERVER = 'https://nexus.silabs.net'
 const NEXUS_REPO_NAME = 'zap-release-package'
+const cachedBranches = ['master', 'rel']
 
 // cheap and secure
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0'
@@ -523,7 +524,11 @@ async function main() {
   }
 
   // Download site sources: Nexus, Github
-  if (dlOptions.src === 'nexus' && (await isReachable(NEXUS_SERVER))) {
+  if (
+    dlOptions.src === 'nexus' &&
+    cachedBranches.includes(dlOptions.branch) &&
+    (await isReachable(NEXUS_SERVER))
+  ) {
     const nexusUrl = nexusRestApiUrl(
       NEXUS_REPO_NAME,
       `${dlOptions.owner}/${dlOptions.repo}/${dlOptions.branch}/*`
