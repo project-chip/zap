@@ -78,6 +78,14 @@ limitations under the License.
               </div></Transition
             >
           </q-btn>
+          <q-btn flat icon="warning" to="/notifications" id="Notifications">
+            <Transition name="bounce">
+              <div v-if="displayButton" class="text-align q-ml-xs">
+                Notifications
+              </div></Transition
+            >
+            <q-tooltip> Notifications </q-tooltip>
+          </q-btn>
         </q-toolbar>
         <q-dialog
           v-model="globalOptionsDialog"
