@@ -344,6 +344,9 @@ export default {
 
           this.enableRequiredComponents(id)
         })
+        .then(() => {
+          this.$store.commit('zap/updateIsClusterOptionChanged', true)
+        })
     },
     enableRequiredComponents(id) {
       let hasClient = this.selectionClients.includes(id)

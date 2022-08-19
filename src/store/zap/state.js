@@ -18,6 +18,7 @@ const restApi = require('../../../src-shared/rest-api.js')
 
 export default function () {
   return {
+    isProfileIdShown: null,
     showPreviewTab: false,
     isExceptionsExpanded: false,
     exceptions: [],
@@ -144,5 +145,6 @@ export default function () {
       zclSdkExtClusterToUcComponentMap: [],
     },
     allEndpointsData: {},
+    isClusterOptionChanged: false
   }
 }
