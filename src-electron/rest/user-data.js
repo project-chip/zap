@@ -365,11 +365,8 @@ function httpGetUiOptions(db) {
   return async (request, response) => {
     let sessionId = request.zapSessionId
     let packages = await queryPackage.getSessionPackages(db, sessionId)
-    let p = packages.map((pkg) =>
-      queryPackage.selectAllUiOptions(db, pkg.packageRef)
-    )
-    let data = await Promise.all(p)
-    data = data.flat(1)
+    let zclPackage = await queryPackage.getZclPropertiesPackage(db, packages)
+    let data = await queryPackage.selectAllUiOptions(db, zclPackage[0].id)
     response.status(StatusCodes.OK).json(data)
   }
 }

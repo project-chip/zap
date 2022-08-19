@@ -72,6 +72,25 @@ async function getPackageByParent(db, parentId) {
 }
 
 /**
+ * Get zcl properties package from an array of packages.
+ *
+ * @param {*} db
+ * @param {*} packages
+ * @returns promise that resolves into an array of packages.
+ */
+async function getZclPropertiesPackage(db, packages) {
+  const packageIds = packages.map((singlePackage) => singlePackage.packageRef)
+  return dbApi
+    .dbAll(
+      db,
+      `${querySelectFromPackage} WHERE TYPE = 'zcl-properties' AND PACKAGE_ID in (${packageIds.join(
+        ','
+      )})`
+    )
+    .then((rows) => rows.map(dbMapping.map.package))
+}
+
+/**
  * Returns the package by path and type.
  *
  * @param {*} db
@@ -896,6 +915,7 @@ exports.getPackageSessionPackagePairBySessionId =
   getPackageSessionPackagePairBySessionId
 
 exports.getPathCrc = getPathCrc
+exports.getZclPropertiesPackage = getZclPropertiesPackage
 exports.insertPathCrc = insertPathCrc
 exports.updatePathCrc = updatePathCrc
 exports.registerTopLevelPackage = registerTopLevelPackage

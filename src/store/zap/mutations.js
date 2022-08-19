@@ -536,3 +536,11 @@ export function setAllEndpointsData(state, value) {
       'selectedAttributes': value.attr,
       id: value.endpointId })
 }
+
+export function updateIsProfileIdShown (state, value) {
+  value == 0 ? state.isProfileIdShown  = false : state.isProfileIdShown  = true
+}
+
+export function updateIsClusterOptionChanged(state, value) {
+  state.isClusterOptionChanged = value
+}
