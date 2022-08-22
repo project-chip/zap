@@ -19,6 +19,10 @@
       "exe": "zap.app/Contents/MacOS/zap",
       "optional": true
     },
+    "zap:macosx.ARM64": {
+      "exe": "zap.app/Contents/MacOS/zap",
+      "optional": true
+    },
     "zap": {
       "engine": "node",
       "optional": true,
