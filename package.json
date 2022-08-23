@@ -17,7 +17,8 @@
   "bin": "dist/src-electron/main-process/main.js",
   "scripts": {
     "download-artifact": "ts-node src-script/download-artifact.ts",
-    "pkg:download-artifact": "tsc src-script/download-artifact.ts --outDir ./dist/ && npx pkg ./dist/download-artifact.js -t node16-linux-x64,node16-linux-arm64,node16-macos-x64,node16-win-x64 --output dist/download-artifact --compress GZip",
+    "pkg:download-artifact": "npx pkg src-script/download-artifact.js  -t node16-linux-x64,node16-linux-arm64,node16-macos-x64,node16-win-x64 --output dist/download-artifact --compress GZip",
+    "compile:download-artifact": "tsc src-script/download-artifact.ts --esModuleInterop",
     "lic": "node src-script/license-check.js --production",
     "lint": "eslint --ext .js,.vue src src-electron src-shared src-script test",
     "lintfix": "eslint --fix --ext .js,.vue src src-electron src-shared src-script test",
@@ -91,6 +92,7 @@
     "pack:linux": "exec electron-builder -l",
     "pack:win": "exec electron-builder -w",
     "pack:mac": "exec electron-builder -m --universal",
+    "pack:mac:native": "exec electron-builder -m",
     "pkg": "npm run build && npx pkg --out-path dist/ --compress GZip .",
     "pkg:linux": "npm run build && npx pkg -t node16-linux-x64 --output dist/zap-linux --compress GZip .",
     "pkg:win": "npm run build && npx pkg -t node16-win-x64 --output dist/zap-win.exe --compress GZip .",
