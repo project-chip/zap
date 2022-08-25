@@ -128,6 +128,7 @@ limitations under the License.
               props.row.manufacturerCode
                 ? asHex(props.row.manufacturerCode, 4)
                 : '---'
+              /* incorporate one step here */
             }}
           </q-td>
           <q-td key="enable" :props="props">
@@ -165,7 +166,7 @@ limitations under the License.
         <q-card-section>
           <div class="text-h6">Enable All Clusters</div>
           Enabling all clusters may cause the ZCL configuration to go into an
-          invalid state. Are you sure want to enable all clusters?
+          invalid state. Are you sure you want to enable all clusters?
         </q-card-section>
         <q-card-actions>
           <q-btn label="Cancel" v-close-popup class="col" />
@@ -459,8 +460,8 @@ export default {
   created() {
     // This function check you created endpoint before and right now you are in the tutorial steps, then sets cluster data
     if (this.clusters !== undefined) {
-      if(this.clusters[0].domainName == this.$store.state.zap.domains[0]) {
-        this.$store.commit('zap/setClusterDataForTutorial', this.clusters[0]) 
+      if (this.clusters[0].domainName == this.$store.state.zap.domains[0]) {
+        this.$store.commit('zap/setClusterDataForTutorial', this.clusters[0])
       }
     }
   },

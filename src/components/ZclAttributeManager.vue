@@ -61,7 +61,7 @@ limitations under the License.
           </q-td>
           <q-td key="included" :props="props" auto-width>
             <q-toggle
-              class="q-mt-xs v-step-11"
+              class="q-mt-xs v-step-13"
               v-model="selection"
               :val="hashAttributeIdClusterId(props.row.id, selectedCluster.id)"
               indeterminate-value="false"

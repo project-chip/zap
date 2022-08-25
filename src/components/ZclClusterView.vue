@@ -76,9 +76,9 @@ limitations under the License.
           <q-tab
             name="reporting"
             label="Attribute Reporting"
-            class="v-step-12"
+            class="v-step-11"
           />
-          <q-tab name="commands" label="Commands" />
+          <q-tab name="commands" label="Commands" class="v-step-12" />
           <q-tab name="events" label="Events" v-show="events.length > 0" />
         </q-tabs>
 
