@@ -97,6 +97,7 @@ export default {
         title: 'Select an XML file containing custom ZCL objects',
         mode: 'file',
         defaultPath: this.packageToLoad,
+        buttonLabel: 'Open'
       })
     },
     loadNewPackage() {

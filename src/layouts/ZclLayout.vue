@@ -211,6 +211,7 @@ export default {
         title: 'Select directory to generate into',
         mode: 'directory',
         defaultPath: currentPath,
+        buttonLabel: 'Generate'
       })
     },
     getGeneratedFiles() {
