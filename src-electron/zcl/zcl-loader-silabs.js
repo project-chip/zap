@@ -611,16 +611,16 @@ function prepareCluster(cluster, context, isExtension = false) {
           att.type.toLowerCase() == 'long_char_string') &&
         (att.maxLength == 0 || !att.maxLength)
       ) {
-        // Setting the max length for long strings to 1024 instead of 65534
+        // Setting the max length for long strings to 253 instead of 65534
         // if not already set by xml.
         env.logWarning(
           'Long string max length not set for ' +
             att.name +
             ' in xml. \
-        Currently defaulting to a max length of 1024 for long strings instead of 65534 \
-        for space conservation.'
+        Currently defaulting to a max length of 253 for long strings instead of 65534 \
+        for space conservation and no support available for long strings in zigbee pro'
         )
-        att.maxLength = 1024
+        att.maxLength = 253
       }
       if (
         att.type &&
