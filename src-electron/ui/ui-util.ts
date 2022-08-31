@@ -105,6 +105,11 @@ function openFileDialogAndReportResult(
   let p: Electron.OpenDialogOptions = {
     buttonLabel: 'Generate',
   }
+
+  if (options.buttonLabel) {
+    p.buttonLabel = options.buttonLabel
+  }
+
   if (options.mode === 'file') {
     p.properties = ['openFile']
   } else if (options.mode == 'directory') {
