@@ -116,7 +116,7 @@ function convertFloatToBigEndian(value, size) {
  * the given size. The value is returned in hex format and prefixed with '0x'.
  */
 function convertIntToBigEndian(value, size) {
-  const arrayBuffer = size <= 4 ? new ArrayBuffer(size) : new ArrayBuffer(8)
+  const arrayBuffer = new ArrayBuffer(Math.pow(2, Math.ceil(Math.log2(size))))
   const dataView = new DataView(arrayBuffer)
   let i = 0
   if (size == 1) {

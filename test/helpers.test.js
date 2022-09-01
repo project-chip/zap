@@ -235,6 +235,32 @@ test(
 )
 
 test(
+  'Generated Macro little endian for attribute of size 3 bytes',
+  () => {
+    let options = { hash: { endian: 'little' } }
+    return zclHelper
+      .as_generated_default_macro('0x003840', 3, options)
+      .then((res) => {
+        return expect(res).toBe('0x40, 0x38, 0x00, ')
+      })
+  },
+  testUtil.timeout.short()
+)
+
+test(
+  'Generated Macro big endian for attribute of size 3 bytes',
+  () => {
+    let options = { hash: { endian: 'big' } }
+    return zclHelper
+      .as_generated_default_macro('0x003840', 3, options)
+      .then((res) => {
+        return expect(res).toBe(' 0x00, 0x38, 0x40,')
+      })
+  },
+  testUtil.timeout.short()
+)
+
+test(
   'Generated Macro little endian',
   () => {
     let options = { hash: { endian: 'little' } }
