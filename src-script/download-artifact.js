@@ -85,6 +85,7 @@ var DEFAULT_OWNER = 'SiliconLabs';
 var DEFAULT_REPO = 'zap';
 var NEXUS_SERVER = 'https://nexus.silabs.net';
 var NEXUS_REPO_NAME = 'zap-release-package';
+var cachedBranches = ['master', 'rel'];
 // cheap and secure
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0';
 function nexusRestApiUrl(repository, nameFilter) {
@@ -549,6 +550,10 @@ function main() {
                     _b.label = 2;
                 case 2:
                     if (!_a) return [3 /*break*/, 5];
+                    if (!cachedBranches.includes(dlOptions.branch)) {
+                        console.log("Branch ".concat(dlOptions.branch, " is not cached on Nexus. Defaulting to master branch instead."));
+                        dlOptions.branch = 'master';
+                    }
                     nexusUrl = nexusRestApiUrl(NEXUS_REPO_NAME, "".concat(dlOptions.owner, "/").concat(dlOptions.repo, "/").concat(dlOptions.branch, "/*"));
                     return [4 /*yield*/, nexusGetArtifacts(nexusUrl, dlOptions)];
                 case 3:
