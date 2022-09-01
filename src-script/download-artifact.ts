@@ -524,11 +524,12 @@ async function main() {
   }
 
   // Download site sources: Nexus, Github
-  if (
-    dlOptions.src === 'nexus' &&
-    cachedBranches.includes(dlOptions.branch) &&
-    (await isReachable(NEXUS_SERVER))
-  ) {
+  if (dlOptions.src === 'nexus' && (await isReachable(NEXUS_SERVER))) {
+    if (!cachedBranches.includes(dlOptions.branch)) {
+      console.log(`Branch ${dlOptions.branch} is not cached on Nexus. Defaulting to master branch instead.`)
+      dlOptions.branch = 'master'
+    }
+
     const nexusUrl = nexusRestApiUrl(
       NEXUS_REPO_NAME,
       `${dlOptions.owner}/${dlOptions.repo}/${dlOptions.branch}/*`
