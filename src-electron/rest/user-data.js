@@ -703,7 +703,7 @@ function httpDeleteSessionPackage(db) {
  * @param {*} db
  * @returns newly created endpoint id
  */
- function httpPostDuplicateEndpoint(db) {
+function httpPostDuplicateEndpoint(db) {
   return async (req, res) => {
     let endpointId = req.body.id
     let endpointIdentifier = req.body.endpointIdentifier
