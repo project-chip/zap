@@ -309,9 +309,9 @@ function nexusGetArtifacts(url, options) {
         });
     });
 }
-function nexusDownloadArtifacts(items, dlOptions) {
+function nexusDownloadArtifacts(items, dlOptions, verifyPlatformAndFormat) {
     return __awaiter(this, void 0, void 0, function () {
-        var owner, repo, branch, outputDir, platforms, formats, dateRegex, date, artifacts, jsonFiles, jsonContent, _loop_1, _i, artifacts_3, artifact;
+        var owner, repo, branch, outputDir, platforms, formats, dateRegex, date, artifacts, jsonFiles, jsonContent, _i, artifacts_3, artifact, downloadUrl, name_3;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -347,31 +347,20 @@ function nexusDownloadArtifacts(items, dlOptions) {
                     jsonContent = _a.sent();
                     console.log("Commit: ".concat(jsonContent.workflow_run.head_sha.substring(0, 7)));
                     console.log("Output directory: ".concat(outputDir));
-                    _loop_1 = function (artifact) {
-                        var downloadUrl, name_3, verifyPlatform, verifyFormat;
-                        return __generator(this, function (_b) {
-                            switch (_b.label) {
-                                case 0:
-                                    downloadUrl = artifact.downloadUrl;
-                                    name_3 = downloadUrl.substring(downloadUrl.lastIndexOf('/') + 1);
-                                    verifyPlatform = platforms.reduce(function (prev, cur) { return prev || name_3.includes(cur); }, false);
-                                    verifyFormat = formats.reduce(function (prev, cur) { return prev || name_3.endsWith(cur); }, false);
-                                    if (!verifyPlatform || !verifyFormat) {
-                                        return [2 /*return*/, "continue"];
-                                    }
-                                    return [4 /*yield*/, download(artifact.downloadUrl, outputDir, undefined, name_3)];
-                                case 1:
-                                    _b.sent();
-                                    return [2 /*return*/];
-                            }
-                        });
-                    };
                     _i = 0, artifacts_3 = artifacts;
                     _a.label = 3;
                 case 3:
                     if (!(_i < artifacts_3.length)) return [3 /*break*/, 6];
                     artifact = artifacts_3[_i];
-                    return [5 /*yield**/, _loop_1(artifact)];
+                    downloadUrl = artifact.downloadUrl;
+                    name_3 = downloadUrl.substring(downloadUrl.lastIndexOf('/') + 1);
+                    // download .json from Nexus as well.
+                    // This is needed by internal CI to track zap version across builds.
+                    formats.push('.json');
+                    if (!verifyPlatformAndFormat.call(null, name_3, platforms, formats)) {
+                        return [3 /*break*/, 5];
+                    }
+                    return [4 /*yield*/, download(artifact.downloadUrl, outputDir, undefined, name_3)];
                 case 4:
                     _a.sent();
                     _a.label = 5;
@@ -558,7 +547,7 @@ function main() {
                     return [4 /*yield*/, nexusGetArtifacts(nexusUrl, dlOptions)];
                 case 3:
                     nexusItems = _b.sent();
-                    return [4 /*yield*/, nexusDownloadArtifacts(nexusItems, dlOptions)];
+                    return [4 /*yield*/, nexusDownloadArtifacts(nexusItems, dlOptions, verifyPlatformAndFormat)];
                 case 4:
                     _b.sent();
                     return [3 /*break*/, 10];

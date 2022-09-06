@@ -270,7 +270,11 @@ async function nexusGetArtifacts(url: string, options: DlOptions) {
   return accumulatedItems
 }
 
-async function nexusDownloadArtifacts(items: any, dlOptions: DlOptions) {
+async function nexusDownloadArtifacts(
+  items: any,
+  dlOptions: DlOptions,
+  verifyPlatformAndFormat: Function
+) {
   let { owner, repo, branch, outputDir, platforms, formats } = dlOptions
 
   // item example:
@@ -329,18 +333,12 @@ async function nexusDownloadArtifacts(items: any, dlOptions: DlOptions) {
     for (const artifact of artifacts) {
       let { downloadUrl } = artifact
       let name = downloadUrl.substring(downloadUrl.lastIndexOf('/') + 1)
-      // verify platform
-      const verifyPlatform = platforms.reduce(
-        (prev, cur) => prev || name.includes(cur),
-        false
-      )
 
-      const verifyFormat = formats.reduce(
-        (prev, cur) => prev || name.endsWith(cur),
-        false
-      )
+      // download .json from Nexus as well.
+      // This is needed by internal CI to track zap version across builds.
 
-      if (!verifyPlatform || !verifyFormat) {
+      formats.push('.json')
+      if (!verifyPlatformAndFormat.call(null, name, platforms, formats)) {
         continue
       }
 
@@ -526,7 +524,9 @@ async function main() {
   // Download site sources: Nexus, Github
   if (dlOptions.src === 'nexus' && (await isReachable(NEXUS_SERVER))) {
     if (!cachedBranches.includes(dlOptions.branch)) {
-      console.log(`Branch ${dlOptions.branch} is not cached on Nexus. Defaulting to master branch instead.`)
+      console.log(
+        `Branch ${dlOptions.branch} is not cached on Nexus. Defaulting to master branch instead.`
+      )
       dlOptions.branch = 'master'
     }
 
@@ -536,7 +536,7 @@ async function main() {
     )
 
     let nexusItems = await nexusGetArtifacts(nexusUrl, dlOptions)
-    await nexusDownloadArtifacts(nexusItems, dlOptions)
+    await nexusDownloadArtifacts(nexusItems, dlOptions, verifyPlatformAndFormat)
   } else {
     if (!dlOptions.githubToken) {
       return console.error(
