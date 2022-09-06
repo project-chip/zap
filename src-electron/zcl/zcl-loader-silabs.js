@@ -460,6 +460,10 @@ function prepareCluster(cluster, context, isExtension = false) {
             cmd.args.push({
               name: arg.$.name,
               type: arg.$.type,
+              min: arg.$.min,
+              max: arg.$.max,
+              minLength: 0,
+              maxLength: arg.$.length ? arg.$.length : null,
               isArray: arg.$.array == 'true' ? 1 : 0,
               presentIf: arg.$.presentIf,
               isNullable: arg.$.isNullable == 'true' ? true : false,
