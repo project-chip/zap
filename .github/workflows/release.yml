@@ -73,10 +73,10 @@ jobs:
 
       - name: Initialize...
         run: |
-          npm ci
-          npm run version-stamp
           npm rebuild canvas --update-binary
           npm rebuild libxmljs --update-binary
+          npm ci
+          npm run version-stamp
 
       - name: Building frontend / backend
         run: |
