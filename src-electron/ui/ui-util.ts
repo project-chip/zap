@@ -118,9 +118,22 @@ function openFileDialogAndReportResult(
   p.defaultPath = options.defaultPath
   dialog.showOpenDialog(browserWindow, p).then((result) => {
     if (!result.canceled) {
+      let paths : string[] = [];
+      // check if application is running on Windows standalone mode, then replace the backward slashs with forward slash
+      // otherwise it throw an JSON syntax error
+      if(process.platform == "win32"){
+        result.filePaths.forEach(path => {
+          paths.push(
+            path.replace(/\\/g, '/')
+            );
+        })
+      }else{
+        paths = result.filePaths
+      }
+      
       let output = {
         context: options.context,
-        filePaths: result.filePaths,
+        filePaths: paths,
       }
       browserApi.reportFiles(browserWindow, output)
     }
