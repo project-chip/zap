@@ -54,6 +54,7 @@ limitations under the License.
           @click="togglePreviewTab"
           label="Preview"
           v-on:click="getGeneratedFiles"
+          data-test="preview"
         />
         <q-btn
           flat
@@ -131,6 +132,7 @@ limitations under the License.
                 :label="generationButtonText"
                 dropdown-icon="change_history"
                 class="full-width"
+                data-test="select-file-in-preview"
               >
                 <q-list>
                   <q-item

@@ -15,7 +15,7 @@ describe('Testing Editing endpoints', () => {
     })
   })
   it('edit endpoint', { retries: { runMode: 2, openMode: 2 } }, () => {
-    cy.get('button').contains('Edit').click()
+    cy.get('[data-test="edit-endpoint"]').click()
     cy.get(
       '.q-form > .q-select > .q-field__inner > .q-field__control > .q-field__control-container'
     ).click()

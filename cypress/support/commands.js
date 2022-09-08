@@ -2,9 +2,9 @@ const rendApi = require('../../src-shared/rend-api.js')
 const _ = require('lodash')
 
 Cypress.Commands.add('addEndpoint', (name) => {
-  cy.get('button').contains('Add New Endpoint').click()
+  cy.get('[data-test="add-new-endpoint"]').click()
   cy.get(
-    '.q-form > .q-select > .q-field__inner > .q-field__control > .q-field__control-container'
+    '[data-test="select-endpoint-input"]'
   ).click()
   cy.get('div').contains(name).click({ force: true })
   cy.get('button').contains('Create').click()
@@ -12,7 +12,7 @@ Cypress.Commands.add('addEndpoint', (name) => {
 
 Cypress.Commands.add('gotoAttributePage', (endpoint, cluster, nth = 0) => {
   if (endpoint) cy.addEndpoint(endpoint)
-  cy.get('.q-page-container > div').children().should('contain', cluster)
+  cy.get('[data-test="Cluster"]').should('contain', cluster)
   cy.get('div').contains(cluster).click({ force: true })
   cy.get(
     `#${cluster} > .q-expansion-item__container > .q-expansion-item__content > :nth-child(1) > .q-table__container > .q-table__middle > .q-table > tbody > .text-weight-bolder > :nth-child(7) > .q-btn > .q-btn__wrapper > .q-btn__content > .notranslate`
