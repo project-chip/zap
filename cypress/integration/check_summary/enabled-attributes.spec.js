@@ -29,6 +29,7 @@ describe('Testing enabled attributes amount', () => {
     'checks if number is updated',
     { retries: { runMode: 2, openMode: 2 } },
     () => {
+      cy.get('[data-test="endpoint-body-toggler-show"]').click()
       cy.fixture('data').then((data) => {
         cy.get('[data-test="endpoint-enabled-attributes-amount"]').then(($div2) => {
           const num2 = parseFloat($div2.text())
