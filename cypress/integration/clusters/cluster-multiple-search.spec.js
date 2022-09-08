@@ -49,10 +49,10 @@ describe('Add multiple clusters and search', () => {
   it('Search action', () => {
     cy.fixture('data').then((data) => {
       cy.get(
-        '.col-4 > .q-field__inner > .q-field__control > .q-field__control-container > input'
+        '[data-test="search-clusters"]'
       )
-        .clear({ force: true })
-        .type(data.searchString2, { force: true })
+        .clear({force: true})
+        .type(data.searchString2)
     })
   })
   it('check if search result is correct', () => {
