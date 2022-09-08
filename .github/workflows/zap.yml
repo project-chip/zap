@@ -49,14 +49,14 @@ jobs:
       - run: npm run metasdk
       - run: npm run server&
       - name: Verify 2nd attempt to start server will print out sever URL
-        id: 2ndServerStartOutput
+        id: secondServerStartOutput
         run: |
           echo "::set-output name=npmRunServer::$(npm run server|grep '"url"')"
-      - run: echo "${{ steps.2ndServerStartOutput.outputs.npmRunServer }}"
+      - run: echo "${{ steps.secondServerStartOutput.outputs.npmRunServer }}"
       - name: Verify apack.json exists in Windows .zip package
         uses: nick-fields/assert-action@v1.1.0
         if: startsWith(matrix.os, 'macos')
         with:
           expected: 'http://'
-          actual: ${{ steps.2ndServerStartOutput.outputs.npmRunServer }}
+          actual: ${{ steps.secondServerStartOutput.outputs.npmRunServer }}
           comparison: contains
