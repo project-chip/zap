@@ -20,7 +20,7 @@ limitations under the License.
       :bordered="isSelectedEndpoint"
       @click="setSelectedEndpointType(endpointReference)"
     >
-      <div style="display: flex; justify-content: space-around">
+      <div class="q-mx-sm" style="display: flex; justify-content: space-between">
         <div class="vertical-align:middle q-pa-sm col-4">
           <strong
             >Endpoint - {{ getFormattedEndpointId(endpointReference) }}</strong
@@ -31,11 +31,10 @@ limitations under the License.
             flat
             dense
             color="primary"
-            label="Copy"
             v-close-popup
-            size="xs"
+            size="sm"
             icon="content_copy"
-            @click="duplicateEndpoint()"
+            @click.stop="duplicateEndpoint()"
           >
             <q-tooltip>
               Copy
@@ -44,10 +43,9 @@ limitations under the License.
           <q-btn
             flat
             dense
-            label="Delete"
             color="primary"
             v-close-popup
-            size="xs"
+            size="sm"
             icon="delete"
             @click="handleDeletionDialog"
             data-test="delete-endpoint"
@@ -59,10 +57,9 @@ limitations under the License.
           <q-btn
             flat
             dense
-            label="Edit"
             color="primary"
             icon="edit"
-            size="xs"
+            size="sm"
             v-close-popup
             @click="modifyEndpointDialog = !modifyEndpointDialog"
             data-test="edit-endpoint"
@@ -77,7 +74,7 @@ limitations under the License.
             flat
             dense
             icon="mdi-chevron-up"
-            size="xs"
+            size="sm"
             data-test="endpoint-body-toggler-hide"
           />
           <q-btn
@@ -86,7 +83,7 @@ limitations under the License.
             dense
             icon="mdi-chevron-down"
             @click.stop="toggleShowAllInformationOfEndpoint"
-            size="xs"
+            size="sm"
             data-test="endpoint-body-toggler-show"
           />
         </div>
@@ -254,9 +251,9 @@ export default {
             endpointId: this.endpointReference,
             endpointIdentifier: this.getSmallestUnusedEndpointId(),
             endpointTypeId: res.id,
-          })
-        }).then(() => {
+          }).then(() => {
           this.$store.dispatch('zap/loadInitialData')
+        })
         })
     },
     getFormattedEndpointId(endpointRef) {
