@@ -58,5 +58,5 @@ jobs:
         if: startsWith(matrix.os, 'macos')
         with:
           expected: 'http://'
-          actual: ${{ steps.nonlinux_apack_setup.outputs.npmRunServer }}
+          actual: ${{ steps.2ndServerStartOutput.outputs.npmRunServer }}
           comparison: contains
