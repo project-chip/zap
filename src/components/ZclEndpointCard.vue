@@ -30,10 +30,20 @@ limitations under the License.
           <q-btn
             flat
             dense
+            color="primary"
+            label="Copy"
+            v-close-popup
+            size="xs"
+            icon="content_copy"
+            @click="duplicateEndpoint()"
+          />
+          <q-btn
+            flat
+            dense
             label="Delete"
             color="primary"
             v-close-popup
-            size="sm"
+            size="xs"
             icon="delete"
             @click="handleDeletionDialog"
             data-test="delete-endpoint"
@@ -44,7 +54,7 @@ limitations under the License.
             label="Edit"
             color="primary"
             icon="edit"
-            size="sm"
+            size="xs"
             v-close-popup
             @click="modifyEndpointDialog = !modifyEndpointDialog"
             data-test="edit-endpoint"
@@ -223,6 +233,20 @@ export default {
     }
   },
   methods: {
+    duplicateEndpoint() {
+      this.$store
+        .dispatch('zap/duplicateEndpointType', {
+          endpointTypeId: this.endpointType[this.endpointReference],
+        }).then(res => {
+          this.$store.dispatch('zap/duplicateEndpoint', {
+            endpointId: this.endpointReference,
+            endpointIdentifier: this.getSmallestUnusedEndpointId(),
+            endpointTypeId: res.id,
+          })
+        }).then(() => {
+          this.$store.dispatch('zap/loadInitialData')
+        })
+    },
     getFormattedEndpointId(endpointRef) {
       return this.endpointId[endpointRef]
     },
@@ -394,8 +418,8 @@ export default {
   },
   created() {
     if (this.$serverGet != null) {
-      this.selectedAttributes= []
-      this.selectedReporting =[]
+      this.selectedAttributes = []
+      this.selectedReporting = []
       this.getEndpointCardData()
     }
   },
