@@ -36,7 +36,11 @@ limitations under the License.
             size="xs"
             icon="content_copy"
             @click="duplicateEndpoint()"
-          />
+          >
+            <q-tooltip>
+              Copy
+            </q-tooltip>
+          </q-btn>
           <q-btn
             flat
             dense
@@ -47,7 +51,11 @@ limitations under the License.
             icon="delete"
             @click="handleDeletionDialog"
             data-test="delete-endpoint"
-          />
+          >
+            <q-tooltip>
+              Delete
+            </q-tooltip>
+          </q-btn>
           <q-btn
             flat
             dense
@@ -58,13 +66,17 @@ limitations under the License.
             v-close-popup
             @click="modifyEndpointDialog = !modifyEndpointDialog"
             data-test="edit-endpoint"
-          />
+          >
+            <q-tooltip>
+              Edit
+            </q-tooltip>
+          </q-btn>
           <q-btn
             v-if="showAllInformationOfEndpoint"
             @click.stop="toggleShowAllInformationOfEndpoint"
             flat
             dense
-            icon="arrow_upward"
+            icon="mdi-chevron-up"
             size="xs"
             data-test="endpoint-body-toggler-hide"
           />
@@ -72,7 +84,7 @@ limitations under the License.
             v-else
             flat
             dense
-            icon="arrow_downward"
+            icon="mdi-chevron-down"
             @click.stop="toggleShowAllInformationOfEndpoint"
             size="xs"
             data-test="endpoint-body-toggler-show"
@@ -418,6 +430,7 @@ export default {
   },
   created() {
     if (this.$serverGet != null) {
+      this.selectedservers = []
       this.selectedAttributes = []
       this.selectedReporting = []
       this.getEndpointCardData()
