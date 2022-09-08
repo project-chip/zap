@@ -394,6 +394,8 @@ export default {
   },
   created() {
     if (this.$serverGet != null) {
+      this.selectedAttributes= []
+      this.selectedReporting =[]
       this.getEndpointCardData()
     }
   },
