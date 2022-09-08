@@ -47,3 +47,16 @@ jobs:
       - run: npm run gendotdot
       - run: npm run genmeta
       - run: npm run metasdk
+      - run: npm run server&
+      - name: Verify 2nd attempt to start server will print out sever URL
+        id: 2ndServerStartOutput
+        run: |
+          echo "::set-output name=npmRunServer::$(npm run server|grep '"url"')"
+      - run: echo "${{ steps.2ndServerStartOutput.outputs.npmRunServer }}"
+      - name: Verify apack.json exists in Windows .zip package
+        uses: nick-fields/assert-action@v1.1.0
+        if: startsWith(matrix.os, 'macos')
+        with:
+          expected: 'http://'
+          actual: ${{ steps.nonlinux_apack_setup.outputs.npmRunServer }}
+          comparison: contains
