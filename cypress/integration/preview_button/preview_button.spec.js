@@ -17,9 +17,8 @@ describe('Check preview buttton', () => {
     'Checking preview button',
     { retries: { runMode: 2, openMode: 2 } },
     () => {
-      cy.get('button').contains('Preview').click()
-      cy.get('.q-pa-md > .q-btn > .q-btn__wrapper')
-        .contains('Select File')
+      cy.get('[data-test="preview"]').click()
+      cy.get('[data-test="select-file-in-preview"]')
         .click()
       cy.fixture('data').then((data) => {
         cy.get('.q-list > div').should('contain', data.previewBtnData)
