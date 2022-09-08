@@ -50,11 +50,7 @@ limitations under the License.
             icon="delete"
             @click="handleDeletionDialog"
             data-test="delete-endpoint"
-          >
-            <q-tooltip>
-              Delete
-            </q-tooltip>
-          </q-btn>
+          />
           <q-btn
             flat
             dense
@@ -64,11 +60,7 @@ limitations under the License.
             v-close-popup
             @click="modifyEndpointDialog = !modifyEndpointDialog"
             data-test="edit-endpoint"
-          >
-            <q-tooltip>
-              Edit
-            </q-tooltip>
-          </q-btn>
+          />
           <q-btn
             v-if="getEndpointInformation"
             @click.stop="toggleShowAllInformationOfEndpoint(false)"
