@@ -155,7 +155,9 @@ async function insertClusterDefaults(db, endpointTypeId, packageId, cluster) {
   promises.push(
     resolveDefaultAttributes(db, endpointTypeId, packageId, [cluster])
   )
-  promises.push(resolveNonOptionalCommands(db, endpointTypeId, [cluster]))
+  promises.push(
+    resolveNonOptionalCommands(db, endpointTypeId, [cluster], packageId)
+  )
   return Promise.all(promises)
 }
 
@@ -636,7 +638,7 @@ async function setEndpointDefaults(
     resolveDefaultDeviceTypeAttributes(db, endpointTypeId, deviceTypeRef),
     resolveDefaultDeviceTypeCommands(db, endpointTypeId, deviceTypeRef),
     resolveDefaultAttributes(db, endpointTypeId, packageId, defaultClusters),
-    resolveNonOptionalCommands(db, endpointTypeId, defaultClusters)
+    resolveNonOptionalCommands(db, endpointTypeId, defaultClusters, packageId)
   )
 
   return Promise.all(promises).finally(() => {
@@ -817,10 +819,15 @@ async function resolveDefaultDeviceTypeCommands(
   )
 }
 
-async function resolveNonOptionalCommands(db, endpointTypeId, clusters) {
+async function resolveNonOptionalCommands(
+  db,
+  endpointTypeId,
+  clusters,
+  packageIds
+) {
   let clustersPromises = clusters.map((cluster) =>
     queryCommand
-      .selectCommandsByClusterId(db, cluster.clusterRef)
+      .selectCommandsByClusterId(db, cluster.clusterRef, packageIds)
       .then((commands) =>
         Promise.all(
           commands.map((command) => {

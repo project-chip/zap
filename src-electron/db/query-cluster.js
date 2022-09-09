@@ -27,11 +27,13 @@ const dbMapping = require('./db-mapping.js')
  * All cluster details along with their attribute details per endpoint.
  * @param db
  * @param endpointsAndClusters
+ * @param packageIds
  * @returns cluster details along with their attribute details per endpoint.
  */
 async function selectClusterDetailsFromEnabledClusters(
   db,
-  endpointsAndClusters
+  endpointsAndClusters,
+  packageIds
 ) {
   let endpointClusterIds = endpointsAndClusters
     .map((ep) => ep.endpointClusterId)
@@ -143,6 +145,7 @@ async function selectClusterDetailsFromEnabledClusters(
     AND ENDPOINT_TYPE_CLUSTER.ENABLED = 1
     AND ENDPOINT_TYPE_ATTRIBUTE.INCLUDED = 1
     AND ENDPOINT_TYPE_CLUSTER.SIDE = ATTRIBUTE.SIDE
+    AND ATTRIBUTE.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
   GROUP BY
     ENDPOINT.ENDPOINT_IDENTIFIER,
     CLUSTER.NAME,

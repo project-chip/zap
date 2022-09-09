@@ -392,7 +392,11 @@ function zcl_commands(options) {
     .then((packageIds) => {
       if ('id' in this) {
         // We're functioning inside a nested context with an id, so we will only query for this cluster.
-        return queryCommand.selectCommandsByClusterId(this.global.db, this.id)
+        return queryCommand.selectCommandsByClusterId(
+          this.global.db,
+          this.id,
+          packageIds
+        )
       } else {
         return queryCommand.selectAllCommands(this.global.db, packageIds)
       }

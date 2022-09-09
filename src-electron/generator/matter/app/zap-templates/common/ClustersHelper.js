@@ -218,7 +218,7 @@ async function loadAllCommands(packageIds) {
   return loadCommandsCommon.call(this, commands);
 }
 
-function loadCommands() {
+function loadCommands(packageIds) {
   const { db, sessionId } = this.global;
   let cmds = queryEndpointType
     .selectEndpointTypeIds(db, sessionId)
@@ -232,7 +232,8 @@ function loadCommands() {
       queryCommand.selectCommandDetailsFromAllEndpointTypesAndClusters(
         db,
         endpointTypesAndClusters,
-        true
+        true,
+        packageIds
       )
     );
 
@@ -816,7 +817,7 @@ Clusters.init = async function (context, includeAll) {
       loadClusters.call(context),
       includeAll
         ? loadAllCommands.call(context, packageIds)
-        : loadCommands.call(context),
+        : loadCommands.call(context, packageIds),
       includeAll
         ? loadAllAttributes.call(context, packageIds)
         : loadAttributes.call(context),
