@@ -107,6 +107,22 @@ export default {
     },
   },
   methods: {
+    getSmallestUnusedEndpointId() {
+      let id = 1
+      for (id; id < Object.values(this.endpointId).length + 1; id++) {
+        if (
+          _.isNil(
+            _.find(
+              Object.values(this.endpointId),
+              (existingEndpointId) => id == existingEndpointId
+            )
+          )
+        ) {
+          return id
+        }
+      }
+      return id
+    },
     asHex(value, padding) {
       return Util.asHex(value, padding)
     },

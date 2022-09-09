@@ -66,6 +66,26 @@ DO UPDATE SET ENABLED = ?`,
 }
 
 /**
+ * Promise to get a endpoint type's clusters.
+ * @param {*} db
+ * @param {*} endpointTypeId
+ */
+ async function selectEndpointClusters(db, endpointTypeId) {
+  let rows = await dbApi
+    .dbAll(
+      db,
+      `
+    SELECT * FROM ENDPOINT_TYPE_CLUSTER
+    WHERE
+      ENDPOINT_TYPE_REF = ?
+    `,
+      [endpointTypeId]
+    )
+    
+    return rows.map(dbMapping.map.endpointTypeCluster)
+}
+
+/**
  * Promise to get a cluster's state.
  * This must return undefined/null for if the cluster state has not been used before for the endpointType
  * @param {*} db
@@ -516,6 +536,30 @@ async function insertEndpointType(
     deviceTypeRef,
     doTransaction
   )
+  return newEndpointTypeId
+}
+
+/**
+* Promises to duplicate an endpoint type.
+*
+* @export
+* @param {*} db
+* @param {*} endpointTypeId
+* @returns Promise to duplicate endpoint type.
+*/
+async function duplicateEndpointType(
+  db, 
+  endpointTypeId
+  ) {
+  let newEndpointTypeId = await dbApi.dbInsert(
+    db,
+    `INSERT INTO ENDPOINT_TYPE (SESSION_REF, NAME, DEVICE_TYPE_REF)
+    select SESSION_REF, NAME, DEVICE_TYPE_REF
+    from ENDPOINT_TYPE
+    where ENDPOINT_TYPE_ID = ?`,
+    [endpointTypeId]
+  )
+
   return newEndpointTypeId
 }
 
@@ -1161,6 +1205,8 @@ exports.insertOrUpdateAttributeState = insertOrUpdateAttributeState
 exports.insertOrUpdateCommandState = insertOrUpdateCommandState
 exports.insertOrUpdateEventState = insertOrUpdateEventState
 exports.convertRestKeyToDbColumn = convertRestKeyToDbColumn
+exports.duplicateEndpointType = duplicateEndpointType
+exports.selectEndpointClusters = selectEndpointClusters
 
 exports.updateEndpoint = updateEndpoint
 

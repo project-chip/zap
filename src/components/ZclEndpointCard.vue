@@ -20,7 +20,7 @@ limitations under the License.
       :bordered="isSelectedEndpoint"
       @click="setSelectedEndpointType(endpointReference)"
     >
-      <div style="display: flex; justify-content: space-around">
+      <div class="q-mx-sm" style="display: flex; justify-content: space-between">
         <div class="vertical-align:middle q-pa-sm col-4">
           <strong
             >Endpoint - {{ getFormattedEndpointId(endpointReference) }}</strong
@@ -30,41 +30,60 @@ limitations under the License.
           <q-btn
             flat
             dense
-            label="Delete"
+            color="primary"
+            v-close-popup
+            size="sm"
+            icon="content_copy"
+            @click.stop="duplicateEndpoint()"
+          >
+            <q-tooltip>
+              Copy
+            </q-tooltip>
+          </q-btn>
+          <q-btn
+            flat
+            dense
             color="primary"
             v-close-popup
             size="sm"
             icon="delete"
             @click="handleDeletionDialog"
             data-test="delete-endpoint"
-          />
+          >
+            <q-tooltip>
+              Delete
+            </q-tooltip>
+          </q-btn>
           <q-btn
             flat
             dense
-            label="Edit"
             color="primary"
             icon="edit"
             size="sm"
             v-close-popup
             @click="modifyEndpointDialog = !modifyEndpointDialog"
             data-test="edit-endpoint"
-          />
+          >
+            <q-tooltip>
+              Edit
+            </q-tooltip>
+          </q-btn>
           <q-btn
             v-if="showAllInformationOfEndpoint"
             @click.stop="toggleShowAllInformationOfEndpoint"
             flat
             dense
-            icon="arrow_upward"
-            size="xs"
+            icon="mdi-chevron-up"
+            size="sm"
             data-test="endpoint-body-toggler-hide"
           />
           <q-btn
             v-else
             flat
             dense
-            icon="arrow_downward"
+            icon="mdi-chevron-down"
             @click.stop="toggleShowAllInformationOfEndpoint"
-            size="xs"
+            size="sm"
             data-test="endpoint-body-toggler-show"
           />
         </div>
@@ -106,7 +125,7 @@ limitations under the License.
             <strong>Enabled Clusters</strong>
           </div>
           <div class="col-6" data-test="endpoint-enabled-clusters-amount">
-            {{ selectedservers.length }}
+            {{ selectedServers.length }}
           </div>
         </q-item>
         <q-item class="row">
@@ -217,12 +236,26 @@ export default {
       confirmDeleteEndpointDialog: false,
       deleteingleEndpointDialog: false,
       showAllInformationOfEndpoint: false,
-      selectedservers: [],
+      selectedServers: [],
       selectedAttributes: [],
       selectedReporting: [],
     }
   },
   methods: {
+    duplicateEndpoint() {
+      this.$store
+        .dispatch('zap/duplicateEndpointType', {
+          endpointTypeId: this.endpointType[this.endpointReference],
+        }).then(res => {
+          this.$store.dispatch('zap/duplicateEndpoint', {
+            endpointId: this.endpointReference,
+            endpointIdentifier: this.getSmallestUnusedEndpointId(),
+            endpointTypeId: res.id,
+          }).then(() => {
+          this.$store.dispatch('zap/loadInitialData')
+        })
+        })
+    },
     getFormattedEndpointId(endpointRef) {
       return this.endpointId[endpointRef]
     },
@@ -294,7 +327,7 @@ export default {
               }
             }
           })
-          this.selectedservers = [...enabledServers, ...enabledClients]
+          this.selectedServers = [...enabledServers, ...enabledClients]
         })
 
       Vue.prototype
@@ -394,8 +427,9 @@ export default {
   },
   created() {
     if (this.$serverGet != null) {
-      this.selectedAttributes= []
-      this.selectedReporting =[]
+      this.selectedServers = []
+      this.selectedAttributes = []
+      this.selectedReporting = []
       this.getEndpointCardData()
     }
   },

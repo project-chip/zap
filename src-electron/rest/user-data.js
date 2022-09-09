@@ -697,6 +697,69 @@ function httpDeleteSessionPackage(db) {
   }
 }
 
+/**
+ * Creating a duplicate for endpoint
+ * 
+ * @param {*} db
+ * @returns newly created endpoint id
+ */
+function httpPostDuplicateEndpoint(db) {
+  return async (req, res) => {
+    let endpointId = req.body.id
+    let endpointIdentifier = req.body.endpointIdentifier
+    let endpointTypeId = req.body.endpointTypeId
+    let id = await queryEndpoint.duplicateEndpoint(
+      db,
+      endpointId,
+      endpointIdentifier,
+      endpointTypeId
+    )
+    res.status(StatusCodes.OK).json({id:id})
+  }
+}
+
+/**
+ * Creating a duplicate for endpoint-type and endpoint-type-attributes
+ * 
+ * @param {*} db
+ * @returns newly created endpoint-type id
+ */
+function httpPostDuplicateEndpointType(db) {
+  return async (request, response) => {
+    let { endpointTypeId } = request.body
+    let newId = await queryConfig.duplicateEndpointType(
+      db, endpointTypeId
+    )
+
+    duplicateEndpointTypeClusters(db, endpointTypeId, newId)
+
+    response.status(StatusCodes.OK).json({
+      id: newId
+    })
+  }
+}
+
+/**
+ * duplicate all clusters and attributes of an old endpoint type, using oldEndpointType id and newly created endpointType id
+ * 
+ * @param {*} db
+ * @param {*} oldEndpointTypeId
+ * @param {*} newEndpointTypeId
+ */
+async function duplicateEndpointTypeClusters(db, oldEndpointTypeId, newEndpointTypeId) {
+  let oldEndpointTypeClusters = await queryConfig.selectEndpointClusters(db, oldEndpointTypeId);
+  oldEndpointTypeClusters.forEach(async (endpointTypeCluster) => {
+    let newEndpointTypeClusterId = await queryConfig.insertOrReplaceClusterState(db,newEndpointTypeId,endpointTypeCluster.clusterRef,endpointTypeCluster.side, endpointTypeCluster.enabled)
+    let oldAttributes = await queryAttribute.selectEndpointTypeAttributesByEndpointTypeRefAndClusterRef(db,oldEndpointTypeId,endpointTypeCluster.endpointTypeClusterId)
+    oldAttributes.forEach(async (attrubute) => {
+      await queryAttribute.duplicateEndpointTypeAttribute(db,
+        newEndpointTypeId,
+        newEndpointTypeClusterId,
+        attrubute)
+    })
+  })
+}
+
 exports.post = [
   {
     uri: restApi.uri.cluster,
@@ -725,6 +788,14 @@ exports.post = [
   {
     uri: restApi.uri.shareClusterStatesAcrossEndpoints,
     callback: httpPostShareClusterStatesAcrossEndpoints,
+  },
+  {
+    uri: restApi.uri.duplicateEndpoint,
+    callback: httpPostDuplicateEndpoint,
+  },
+  {
+    uri: restApi.uri.duplicateEndpointType,
+    callback: httpPostDuplicateEndpointType,
   },
 ]
 
