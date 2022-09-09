@@ -38,6 +38,7 @@ const restApi = require('../../src-shared/rest-api.js')
 const zclLoader = require('../zcl/zcl-loader.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const { StatusCodes } = require('http-status-codes')
+const { map } = require('underscore')
 
 /**
  * HTTP GET: session key values
@@ -444,6 +445,15 @@ function httpPostAddNewPackage(db) {
 function httpPostShareClusterStatesAcrossEndpoints(db) {
   return async (request, response) => {
     let { endpointTypeIdList } = request.body
+    let sessionId = request.zapSessionId
+    let packageIds = await queryPackage.getSessionPackagesByType(
+      db,
+      sessionId,
+      dbEnum.packageType.zclProperties
+    )
+    packageIds = packageIds.map(function getId(item) {
+      return item.id
+    })
     if (!Array.isArray(endpointTypeIdList) || endpointTypeIdList.length < 1) {
       return response.status(StatusCodes.BAD_REQUEST).send()
     }
@@ -461,14 +471,16 @@ function httpPostShareClusterStatesAcrossEndpoints(db) {
     let attrDefaults = await attributeDefaults(
       db,
       endpointTypeIdList,
-      sharedClusterList
+      sharedClusterList,
+      packageIds
     )
     await writeAttributeDefaults(db, attrDefaults)
 
     let cmdDefaults = await commandDefaults(
       db,
       endpointTypeIdList,
-      sharedClusterList
+      sharedClusterList,
+      packageIds
     )
     await writeCommandDefaults(db, cmdDefaults)
 
@@ -479,7 +491,12 @@ function httpPostShareClusterStatesAcrossEndpoints(db) {
   }
 }
 
-async function commandDefaults(db, endpointTypeIdList, sharedClusterList) {
+async function commandDefaults(
+  db,
+  endpointTypeIdList,
+  sharedClusterList,
+  packageIds
+) {
   let sharedCmdDefaults = {}
   let clusCmdToCmdObj = {}
   let sharedCommandList =
@@ -487,7 +504,8 @@ async function commandDefaults(db, endpointTypeIdList, sharedClusterList) {
       db,
       sharedClusterList.map((c) => {
         return { endpointTypeClusterRef: c.endpointClusterId }
-      })
+      }),
+      packageIds
     )
 
   for (const endpointTypeId of endpointTypeIdList) {
@@ -559,13 +577,19 @@ async function writeCommandDefaults(db, defaults) {
   await Promise.all(promises)
 }
 
-async function attributeDefaults(db, endpointTypeIdList, sharedClusterList) {
+async function attributeDefaults(
+  db,
+  endpointTypeIdList,
+  sharedClusterList,
+  packageIds
+) {
   let sharedAttributeDefaults = {}
   let clusterIdnSideToAttrCache = {}
   let sharedAttributeList =
     await queryAttribute.selectAttributeDetailsFromEnabledClusters(
       db,
-      sharedClusterList
+      sharedClusterList,
+      packageIds
     )
 
   for (const endpointTypeId of endpointTypeIdList) {
