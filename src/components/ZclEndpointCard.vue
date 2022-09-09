@@ -125,7 +125,7 @@ limitations under the License.
             <strong>Enabled Clusters</strong>
           </div>
           <div class="col-6" data-test="endpoint-enabled-clusters-amount">
-            {{ selectedservers.length }}
+            {{ selectedServers.length }}
           </div>
         </q-item>
         <q-item class="row">
@@ -236,7 +236,7 @@ export default {
       confirmDeleteEndpointDialog: false,
       deleteingleEndpointDialog: false,
       showAllInformationOfEndpoint: false,
-      selectedservers: [],
+      selectedServers: [],
       selectedAttributes: [],
       selectedReporting: [],
     }
@@ -327,7 +327,7 @@ export default {
               }
             }
           })
-          this.selectedservers = [...enabledServers, ...enabledClients]
+          this.selectedServers = [...enabledServers, ...enabledClients]
         })
 
       Vue.prototype
@@ -427,7 +427,7 @@ export default {
   },
   created() {
     if (this.$serverGet != null) {
-      this.selectedservers = []
+      this.selectedServers = []
       this.selectedAttributes = []
       this.selectedReporting = []
       this.getEndpointCardData()

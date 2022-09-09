@@ -708,17 +708,13 @@ function httpPostDuplicateEndpoint(db) {
     let endpointId = req.body.id
     let endpointIdentifier = req.body.endpointIdentifier
     let endpointTypeId = req.body.endpointTypeId
-    try {
-      let id = await queryEndpoint.duplicateEndpoint(
-        db,
-        endpointId,
-        endpointIdentifier,
-        endpointTypeId
-      )
-      res.status(StatusCodes.OK).json({id:id})
-    } catch (err) {
-      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err)
-    }
+    let id = await queryEndpoint.duplicateEndpoint(
+      db,
+      endpointId,
+      endpointIdentifier,
+      endpointTypeId
+    )
+    res.status(StatusCodes.OK).json({id:id})
   }
 }
 
@@ -731,19 +727,15 @@ function httpPostDuplicateEndpoint(db) {
 function httpPostDuplicateEndpointType(db) {
   return async (request, response) => {
     let { endpointTypeId } = request.body
-    try {
-      let newId = await queryConfig.duplicateEndpointType(
-        db, endpointTypeId
-      )
+    let newId = await queryConfig.duplicateEndpointType(
+      db, endpointTypeId
+    )
 
-      duplicateEndpointTypeClusters(db, endpointTypeId, newId)
+    duplicateEndpointTypeClusters(db, endpointTypeId, newId)
 
-      response.status(StatusCodes.OK).json({
-        id: newId
-      })
-    } catch (err) {
-      response.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err)
-    }
+    response.status(StatusCodes.OK).json({
+      id: newId
+    })
   }
 }
 
@@ -755,21 +747,17 @@ function httpPostDuplicateEndpointType(db) {
  * @param {*} newEndpointTypeId
  */
 async function duplicateEndpointTypeClusters(db, oldEndpointTypeId, newEndpointTypeId) {
-  try {
-      let oldEndpointTypeClusters = await queryConfig.selectEndpointClusters(db, oldEndpointTypeId);
-      oldEndpointTypeClusters.forEach(async (endpointTypeCluster) => {
-        let newEndpointTypeClusterId = await queryConfig.insertOrReplaceClusterState(db,newEndpointTypeId,endpointTypeCluster.clusterRef,endpointTypeCluster.side, endpointTypeCluster.enabled)
-        let oldAttributes = await queryAttribute.selectEndpointTypeAttributesByEndpointTypeRefAndClusterRef(db,oldEndpointTypeId,endpointTypeCluster.endpointTypeClusterId)
-        oldAttributes.forEach(async (attrubute) => {
-          await queryAttribute.duplicateEndpointTypeAttribute(db,
-            newEndpointTypeId,
-            newEndpointTypeClusterId,
-            attrubute)
-        })
-      })
-  } catch (err) {
-    console.log(err);
-  }
+  let oldEndpointTypeClusters = await queryConfig.selectEndpointClusters(db, oldEndpointTypeId);
+  oldEndpointTypeClusters.forEach(async (endpointTypeCluster) => {
+    let newEndpointTypeClusterId = await queryConfig.insertOrReplaceClusterState(db,newEndpointTypeId,endpointTypeCluster.clusterRef,endpointTypeCluster.side, endpointTypeCluster.enabled)
+    let oldAttributes = await queryAttribute.selectEndpointTypeAttributesByEndpointTypeRefAndClusterRef(db,oldEndpointTypeId,endpointTypeCluster.endpointTypeClusterId)
+    oldAttributes.forEach(async (attrubute) => {
+      await queryAttribute.duplicateEndpointTypeAttribute(db,
+        newEndpointTypeId,
+        newEndpointTypeClusterId,
+        attrubute)
+    })
+  })
 }
 
 exports.post = [
