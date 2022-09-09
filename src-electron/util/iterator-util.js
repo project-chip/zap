@@ -31,7 +31,7 @@ const queryCommand = require('../db/query-command.js')
  */
 async function all_user_cluster_commands_helper(options) {
   let endpointTypes = await templateUtil.ensureEndpointTypeIds(this)
-
+  let packageIds = await templateUtil.ensureZclPackageIds(this)
   let endpointsAndClusters =
     await queryEndpointType.selectClustersAndEndpointDetailsFromEndpointTypes(
       this.global.db,
@@ -41,7 +41,8 @@ async function all_user_cluster_commands_helper(options) {
   return queryCommand.selectCommandDetailsFromAllEndpointTypesAndClusters(
     this.global.db,
     endpointsAndClusters,
-    true
+    true,
+    packageIds
   )
 }
 

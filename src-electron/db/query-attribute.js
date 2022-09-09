@@ -144,11 +144,13 @@ async function duplicateEndpointTypeAttribute(
  *
  * @param {*} db
  * @param {*} endpointTypeId
+ * @param {*} packageIds
  * @returns Promise that resolves with the attribute data.
  */
 async function selectAllAttributeDetailsFromEnabledClusters(
   db,
-  endpointsAndClusters
+  endpointsAndClusters,
+  packageIds
 ) {
   let endpointTypeClusterRef = endpointsAndClusters
     .map((ep) => ep.endpointTypeClusterRef)
@@ -175,8 +177,9 @@ async function selectAllAttributeDetailsFromEnabledClusters(
   ON ATTRIBUTE.CLUSTER_REF = CLUSTER.CLUSTER_ID
   INNER JOIN ENDPOINT_TYPE_CLUSTER
   ON CLUSTER.CLUSTER_ID = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
-  WHERE ENDPOINT_TYPE_CLUSTER.CLUSTER_REF in (${endpointTypeClusterRef})
+  WHERE ENDPOINT_TYPE_CLUSTER.CLUSTER_REF IN (${endpointTypeClusterRef})
   AND ENDPOINT_TYPE_ATTRIBUTE.INCLUDED = 1
+  AND ATTRIBUTE.PACKAGE_REF IN (${dbApi.toInClause(packageIds)}) 
   GROUP BY ATTRIBUTE.NAME
         `
     )
@@ -189,13 +192,16 @@ async function selectAllAttributeDetailsFromEnabledClusters(
  *
  * @param db
  * @param endpointTypeId
+ * @param isManufacturingSpecific,
+ * @param packageIds
  * @returns Promise that resolves with the manufacturing/non-manufacturing
  * specific attribute data.
  */
 async function selectAttributeDetailsFromAllEndpointTypesAndClustersUtil(
   db,
   endpointsAndClusters,
-  isManufacturingSpecific
+  isManufacturingSpecific,
+  packageIds
 ) {
   let endpointTypeIds = endpointsAndClusters
     .map((ep) => ep.endpointId)
@@ -236,6 +242,7 @@ async function selectAttributeDetailsFromAllEndpointTypesAndClustersUtil(
         (isManufacturingSpecific ? `NOT ` : ``) +
         `NULL
     AND ENDPOINT_TYPE_ATTRIBUTE.INCLUDED = 1
+    AND ATTRIBUTE.PACKAGE_REF IN (${dbApi.toInClause(packageIds)}) 
   GROUP BY ATTRIBUTE.NAME
         `
     )
@@ -247,16 +254,19 @@ async function selectAttributeDetailsFromAllEndpointTypesAndClustersUtil(
  *
  * @param db
  * @param endpointTypeId
+ * @param packageIds
  * @returns Promise that resolves with the manufacturing specific attribute data.
  */
 async function selectManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters(
   db,
-  endpointsAndClusters
+  endpointsAndClusters,
+  packageIds
 ) {
   return selectAttributeDetailsFromAllEndpointTypesAndClustersUtil(
     db,
     endpointsAndClusters,
-    true
+    true,
+    packageIds
   )
 }
 
@@ -265,16 +275,19 @@ async function selectManufacturerSpecificAttributeDetailsFromAllEndpointTypesAnd
  *
  * @param db
  * @param endpointTypeId
+ * @param packageIds
  * @returns Promise that resolves with the non-manufacturing specific attribute data.
  */
 async function selectNonManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters(
   db,
-  endpointsAndClusters
+  endpointsAndClusters,
+  packageIds
 ) {
   return selectAttributeDetailsFromAllEndpointTypesAndClustersUtil(
     db,
     endpointsAndClusters,
-    false
+    false,
+    packageIds
   )
 }
 
@@ -284,11 +297,13 @@ async function selectNonManufacturerSpecificAttributeDetailsFromAllEndpointTypes
  *
  * @param {*} db
  * @param {*} endpointTypeId
+ * @param {*} packageIds
  * @returns Promise that resolves with the attribute data.
  */
 async function selectAttributeDetailsWithABoundFromEnabledClusters(
   db,
-  endpointsAndClusters
+  endpointsAndClusters,
+  packageIds
 ) {
   let endpointClusterIds = endpointsAndClusters
     .map((ep) => ep.endpointClusterId)
@@ -337,6 +352,7 @@ ON
 WHERE ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF in (${endpointClusterIds})
   AND ENDPOINT_TYPE_ATTRIBUTE.INCLUDED = 1 AND ENDPOINT_TYPE_ATTRIBUTE.BOUNDED !=0
   AND ENDPOINT_TYPE_CLUSTER.ENABLED=1
+  AND ATTRIBUTE.PACKAGE_REF IN (${dbApi.toInClause(packageIds)}) 
 GROUP BY CLUSTER.MANUFACTURER_CODE, CLUSTER.CODE, ATTRIBUTE.MANUFACTURER_CODE, ATTRIBUTE.NAME, ATTRIBUTE.SIDE
         `
     )
@@ -347,11 +363,13 @@ GROUP BY CLUSTER.MANUFACTURER_CODE, CLUSTER.CODE, ATTRIBUTE.MANUFACTURER_CODE, A
  * The enabled attributes details across all endpoints and clusters.
  * @param db
  * @param endpointsAndClusters
+ * @param packageIds
  * @returns The enabled attributes details across all endpoints and clusters.
  */
 async function selectAttributeDetailsFromEnabledClusters(
   db,
-  endpointsAndClusters
+  endpointsAndClusters,
+  packageIds
 ) {
   let endpointClusterIds = endpointsAndClusters
     .map((ep) => ep.endpointClusterId)
@@ -387,7 +405,6 @@ async function selectAttributeDetailsFromEnabledClusters(
       db,
       `
   SELECT
-
   ATTRIBUTE.ATTRIBUTE_ID,
     ATTRIBUTE.NAME,
     ATTRIBUTE.CODE,
@@ -445,6 +462,7 @@ async function selectAttributeDetailsFromEnabledClusters(
   ON ATOMIC.NAME = ATTRIBUTE.TYPE
   WHERE ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF IN (${endpointClusterIds})
   AND ENDPOINT_TYPE_ATTRIBUTE.INCLUDED = 1 AND ENDPOINT_TYPE_CLUSTER.ENABLED=1 AND ENDPOINT_TYPE_CLUSTER.SIDE=ATTRIBUTE.SIDE
+  AND ATTRIBUTE.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
   GROUP BY CLUSTER.MANUFACTURER_CODE, CLUSTER.CODE, ATTRIBUTE.CODE, ATTRIBUTE.MANUFACTURER_CODE, ATTRIBUTE.SIDE
   ORDER BY CLUSTER.MANUFACTURER_CODE, CLUSTER.CODE, ENDPOINT_TYPE_CLUSTER.SIDE, ATTRIBUTE.CODE, ATTRIBUTE.MANUFACTURER_CODE
         `
@@ -456,6 +474,7 @@ async function selectAttributeDetailsFromEnabledClusters(
  *
  * @param db
  * @param endpointsAndClusters
+ * @param packageIds
  * @returns
  * Default values for the attributes longer than a pointer,
  * in a form of a binary blob. All attribute values with size greater than 2 bytes.
@@ -464,7 +483,11 @@ async function selectAttributeDetailsFromEnabledClusters(
  * and maximum values
  */
 
-async function selectAttributeBoundDetails(db, endpointsAndClusters) {
+async function selectAttributeBoundDetails(
+  db,
+  endpointsAndClusters,
+  packageIds
+) {
   let endpointClusterIds = endpointsAndClusters
     .map((ep) => ep.endpointClusterId)
     .toString()
@@ -525,6 +548,7 @@ async function selectAttributeBoundDetails(db, endpointsAndClusters) {
       WHEN ATOMIC.ATOMIC_SIZE IS NULL THEN ATTRIBUTE.MAX_LENGTH
       ELSE ATOMIC.ATOMIC_SIZE
     END) > 2 AND ENDPOINT_TYPE_ATTRIBUTE.INCLUDED = 1 AND ATT_VALUE IS NOT NULL AND ATT_VALUE != "" AND REPLACE(ATT_VALUE, '0', '')!='x' AND REPLACE(ATT_VALUE, '0', '')!=''
+    AND ATTRIBUTE.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
   GROUP BY CLUSTER.MANUFACTURER_CODE, CLUSTER.CODE, ATTRIBUTE.CODE, ATTRIBUTE.MANUFACTURER_CODE, ATTRIBUTE.SIDE
   UNION
   SELECT
@@ -565,6 +589,7 @@ AND (CASE
     WHEN ATOMIC.ATOMIC_SIZE IS NULL THEN ATTRIBUTE.MAX_LENGTH
     ELSE ATOMIC.ATOMIC_SIZE
   END) > 2 AND ENDPOINT_TYPE_ATTRIBUTE.INCLUDED = 1 AND ATT_VALUE IS NOT NULL AND ATT_VALUE != "" AND ENDPOINT_TYPE_ATTRIBUTE.BOUNDED !=0 AND REPLACE(ATT_VALUE, '0', '')!='x' AND REPLACE(ATT_VALUE, '0', '')!=''
+  AND ATTRIBUTE.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
 GROUP BY CLUSTER.MANUFACTURER_CODE, CLUSTER.CODE, ATTRIBUTE.CODE, ATTRIBUTE.MANUFACTURER_CODE, ATTRIBUTE.SIDE
 UNION
   SELECT
@@ -605,6 +630,7 @@ AND (CASE
     WHEN ATOMIC.ATOMIC_SIZE IS NULL THEN ATTRIBUTE.MAX_LENGTH
     ELSE ATOMIC.ATOMIC_SIZE
   END) > 2 AND ENDPOINT_TYPE_ATTRIBUTE.INCLUDED = 1 AND ATT_VALUE IS NOT NULL AND ATT_VALUE != "" AND ENDPOINT_TYPE_ATTRIBUTE.BOUNDED !=0 AND REPLACE(ATT_VALUE, '0', '')!='x' AND REPLACE(ATT_VALUE, '0', '')!=''
+  AND ATTRIBUTE.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
 GROUP BY CLUSTER.MANUFACTURER_CODE, CLUSTER.CODE, ATTRIBUTE.CODE, ATTRIBUTE.MANUFACTURER_CODE, ATTRIBUTE.SIDE )
         `
     )
@@ -615,11 +641,13 @@ GROUP BY CLUSTER.MANUFACTURER_CODE, CLUSTER.CODE, ATTRIBUTE.CODE, ATTRIBUTE.MANU
  * The reportable attribute details per endpoint per clusters.
  * @param {*} db
  * @param {*} endpointsAndClusters
+ * @param {*} packageIds
  * @returns * The reportable attribute details per endpoint per clusters.
  */
 async function selectReportableAttributeDetailsFromEnabledClustersAndEndpoints(
   db,
-  endpointsAndClusters
+  endpointsAndClusters,
+  packageIds
 ) {
   let endpointClusterIds = endpointsAndClusters
     .map((ep) => ep.endpointClusterId)
@@ -669,6 +697,7 @@ async function selectReportableAttributeDetailsFromEnabledClustersAndEndpoints(
   WHERE ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF IN (${endpointClusterIds})
   AND ENDPOINT_TYPE_ATTRIBUTE.INCLUDED = 1 AND ENDPOINT_TYPE_CLUSTER.ENABLED=1 AND ENDPOINT_TYPE_CLUSTER.SIDE=ATTRIBUTE.SIDE
   AND ENDPOINT_TYPE_ATTRIBUTE.INCLUDED_REPORTABLE = 1
+  AND ATTRIBUTE.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
   GROUP BY CASE WHEN SINGLETON=0 THEN ENDPOINT.ENDPOINT_IDENTIFIER END, CLUSTER.MANUFACTURER_CODE, CLUSTER.CODE, ATTRIBUTE.CODE, ATTRIBUTE.MANUFACTURER_CODE, ATTRIBUTE.SIDE
   HAVING CASE WHEN SINGLETON=1 THEN ENDPOINT.ENDPOINT_IDENTIFIER = MIN(ENDPOINT.ENDPOINT_IDENTIFIER) ELSE SINGLETON=0 END
   ORDER BY ENDPOINT.ENDPOINT_IDENTIFIER, CLUSTER.MANUFACTURER_CODE, CLUSTER.CODE, ATTRIBUTE.CODE, ATTRIBUTE.MANUFACTURER_CODE
@@ -749,7 +778,7 @@ SELECT
 FROM ATTRIBUTE AS A
 INNER JOIN CLUSTER AS C
 ON C.CLUSTER_ID = A.CLUSTER_REF
-WHERE A.PACKAGE_REF IN (${packageIds})
+WHERE A.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
   AND A.CODE = ?
   AND C.CODE = ?
   AND ${manufacturerCondition}`,
@@ -802,7 +831,7 @@ SELECT
   A.ARRAY_TYPE,
   A.MUST_USE_TIMED_WRITE
 FROM ATTRIBUTE AS A
-WHERE A.PACKAGE_REF IN (${packageIds})
+WHERE A.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
   AND A.CODE = ?
   AND ${manufacturerCondition}`,
       arg
@@ -811,11 +840,11 @@ WHERE A.PACKAGE_REF IN (${packageIds})
 }
 
 /**
- * Retrieves the global attribute data for a given attribute code.
+ * Retrieves the global attribute data for a given attribute and cluster code.
  *
  * @param {*} db
- * @param {*} packageId
- * @param {*} attributeCode
+ * @param {*} clusterRef
+ * @param {*} attributeRef
  */
 async function selectGlobalAttributeDefaults(db, clusterRef, attributeRef) {
   return dbApi

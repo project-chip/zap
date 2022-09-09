@@ -447,13 +447,16 @@ GROUP BY NAME`
  * Returns a promise of data for commands inside all existing endpoint types.
  *
  * @param {*} db
- * @param {*} endpointTypeId
+ * @param {*} endpointTypes
+ * @param {*} endpointClusterId
+ * @param {*} packageIds
  * @returns Promise that resolves with the command data.
  */
 async function selectCommandDetailsFromAllEndpointTypeCluster(
   db,
   endpointTypes,
-  endpointClusterId
+  endpointClusterId,
+  packageIds
 ) {
   let endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
   let mapFunction = (x) => {
@@ -483,6 +486,7 @@ async function selectCommandDetailsFromAllEndpointTypeCluster(
   INNER JOIN ENDPOINT_TYPE_COMMAND
   ON COMMAND.COMMAND_ID = ENDPOINT_TYPE_COMMAND.COMMAND_REF
   WHERE ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF IN (${endpointTypeIds}) AND ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_CLUSTER_REF = ?
+  AND COMMAND.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
         `,
       [endpointClusterId]
     )

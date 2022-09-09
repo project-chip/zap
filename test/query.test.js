@@ -154,7 +154,7 @@ test(
       pkgId
     )
     expect(rows.length).toBe(0)
-    rows = await queryCommand.selectCommandsByClusterId(db, rowid)
+    rows = await queryCommand.selectCommandsByClusterId(db, rowid, pkgId)
     expect(rows.length).toBe(0)
   },
   testUtil.timeout.short()
