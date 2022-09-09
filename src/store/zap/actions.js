@@ -339,12 +339,28 @@ export function addEndpointType(context, endpointTypeData) {
     })
 }
 
+export function duplicateEndpointType(context, { endpointTypeId }) {
+  return Vue.prototype
+    .$serverPost(restApi.uri.duplicateEndpointType, { endpointTypeId: endpointTypeId })
+    .then((res) => {
+      return res.data
+    })
+}
+
 export function deleteEndpoint(context, endpointId) {
   Vue.prototype
     .$serverDelete(restApi.uri.endpoint, { params: { id: endpointId } })
     .then((response) => {
       context.commit('deleteEndpoint', { id: response.data.id })
     })
+}
+
+export function duplicateEndpoint(context, {endpointId, endpointIdentifier, endpointTypeId}) {
+  return Vue.prototype
+    .$serverPost(restApi.uri.duplicateEndpoint, { id: endpointId, endpointIdentifier: endpointIdentifier, endpointTypeId: endpointTypeId })
+    .then((response) => {
+    return response
+    }) 
 }
 
 export function deleteEndpointType(context, endpointTypeId) {

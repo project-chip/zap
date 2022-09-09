@@ -39,6 +39,107 @@ function attributeExportMapping(x) {
 }
 
 /**
+ * Promises to select all endpoint type attributes filtered by EndpointTypeRef and ClusterRef.
+ *
+ * @export
+ * @param {*} db
+ * @param {*} endpointTypeRef
+ * @param {*} endpointTypeClusterRef
+ * @returns Records of selected Endpoint Type Attributes.
+ */
+ async function selectEndpointTypeAttributesByEndpointTypeRefAndClusterRef(
+  db,
+  endpointTypeRef,
+  endpointTypeClusterRef
+){
+  let rows = await dbApi.dbAll(
+    db,
+    `
+    select 
+      ENDPOINT_TYPE_ATTRIBUTE_ID,
+      ENDPOINT_TYPE_REF,
+      ENDPOINT_TYPE_CLUSTER_REF AS 'CLUSTER_REF',
+      ATTRIBUTE_REF,
+      INCLUDED,
+      STORAGE_OPTION,
+      SINGLETON,
+      BOUNDED,
+      DEFAULT_VALUE,
+      INCLUDED_REPORTABLE,
+      MIN_INTERVAL,
+      MAX_INTERVAL,
+      REPORTABLE_CHANGE
+    from 
+      ENDPOINT_TYPE_ATTRIBUTE
+    where
+      ENDPOINT_TYPE_REF = ? and ENDPOINT_TYPE_CLUSTER_REF = ?`,
+    [endpointTypeRef,endpointTypeClusterRef]
+  )
+  return rows.map(dbMapping.map.endpointTypeAttribute)
+}
+
+/**
+ * Promises to duplicate endpoint type attributes.
+ *
+ * @export
+ * @param {*} db
+ * @param {*} newEndpointTypeRef
+ * @param {*} newEndpointTypeClusterRef
+ * @param {*} attribute
+ * @returns Promise duplicated endpoint type attribute's id.
+ */
+async function duplicateEndpointTypeAttribute(
+  db,
+  newEndpointTypeRef,
+  newEndpointTypeClusterRef,
+  attribute
+){
+  return await dbApi.dbInsert(
+    db,
+    `INSERT INTO ENDPOINT_TYPE_ATTRIBUTE (
+      ENDPOINT_TYPE_REF,
+      ENDPOINT_TYPE_CLUSTER_REF,
+      ATTRIBUTE_REF,
+      INCLUDED,
+      STORAGE_OPTION,
+      SINGLETON,
+      BOUNDED,
+      DEFAULT_VALUE,
+      INCLUDED_REPORTABLE,
+      MIN_INTERVAL,
+      MAX_INTERVAL,
+      REPORTABLE_CHANGE)
+      VALUES (
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?,
+        ?
+      )`,
+    [ newEndpointTypeRef,
+      newEndpointTypeClusterRef,
+      attribute.attributeRef,
+      attribute.included,
+      attribute.storageOption,
+      attribute.singleton,
+      attribute.bounded,
+      attribute.defaultValue,
+      attribute.includedReportable,
+      attribute.minInterval,
+      attribute.maxInterval,
+      attribute.reportableChange ]
+  )
+}
+
+
+/**
  * Returns a promise of data for attributes inside an endpoint type.
  *
  * @param {*} db
@@ -771,3 +872,5 @@ exports.selectReportableAttributeDetailsFromEnabledClustersAndEndpoints =
   selectReportableAttributeDetailsFromEnabledClustersAndEndpoints
 exports.selectGlobalAttributeDefaults = selectGlobalAttributeDefaults
 exports.selectAttributeByCode = selectAttributeByCode
+exports.duplicateEndpointTypeAttribute = duplicateEndpointTypeAttribute
+exports.selectEndpointTypeAttributesByEndpointTypeRefAndClusterRef = selectEndpointTypeAttributesByEndpointTypeRefAndClusterRef
