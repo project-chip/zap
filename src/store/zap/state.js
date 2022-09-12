@@ -145,6 +145,7 @@ export default function () {
       zclSdkExtClusterToUcComponentMap: [],
     },
     allEndpointsData: {},
-    isClusterOptionChanged: false
+    isClusterOptionChanged: false,
+    showEndpointData: {}
   }
 }

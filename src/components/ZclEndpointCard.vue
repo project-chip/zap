@@ -69,8 +69,8 @@ limitations under the License.
             </q-tooltip>
           </q-btn>
           <q-btn
-            v-if="showAllInformationOfEndpoint"
-            @click.stop="toggleShowAllInformationOfEndpoint"
+            v-if="getEndpointInformation"
+            @click.stop="toggleShowAllInformationOfEndpoint(false)"
             flat
             dense
             icon="mdi-chevron-up"
@@ -82,13 +82,13 @@ limitations under the License.
             flat
             dense
             icon="mdi-chevron-down"
-            @click.stop="toggleShowAllInformationOfEndpoint"
+            @click.stop="toggleShowAllInformationOfEndpoint(true)"
             size="sm"
             data-test="endpoint-body-toggler-show"
           />
         </div>
       </div>
-      <q-list dense bordered v-if="showAllInformationOfEndpoint">
+      <q-list dense bordered v-if="getEndpointInformation">
         <br />
         <q-item class="row">
           <div class="col-6">
@@ -305,8 +305,8 @@ export default {
         )
       })
     },
-    toggleShowAllInformationOfEndpoint() {
-      this.showAllInformationOfEndpoint = !this.showAllInformationOfEndpoint
+    toggleShowAllInformationOfEndpoint(value) {
+      this.$store.commit('zap/toggleShowEndpoint', { id: this.endpointReference, value: value })
     },
     getEndpointCardData() {
       Vue.prototype
@@ -411,11 +411,16 @@ export default {
         return this.$store.state.zap.isClusterOptionChanged
       },
     },
+    getEndpointInformation: {
+      get() {
+        return this.$store.state.zap.showEndpointData[this.endpointReference]
+      }
+    }
   },
   watch: {
     isSelectedEndpoint(newValue) {
       if (newValue) {
-        this.showAllInformationOfEndpoint = true
+        this.$store.commit('zap/toggleShowEndpoint', { id: this.endpointReference, value: true })
       }
     },
     isClusterOptionChanged(val) {
