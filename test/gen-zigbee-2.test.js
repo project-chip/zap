@@ -324,6 +324,11 @@ test(
     expect(commands).toContain('#define emberAfFillCommandCustomClusterC13')
     expect(commands).toContain('ZCL_C13_COMMAND_ID')
 
+    // Test custom command coming from standard cluster extensions(identify cluster extension)
+    expect(commands).toContain(
+      '#define emberAfFillCommandIdentifyClusterSampleMfgSpecificIdentifyCommand1'
+    )
+
     // Test command structs genereted
     let structs = genResult.content['zap-command-structs.h']
     expect(structs).toContain(
@@ -336,6 +341,37 @@ test(
     expect(ids).toContain('#define ZCL_C15_COMMAND_ID (0x03)')
     expect(ids).toContain('#define ZCL_A8_ATTRIBUTE_ID (0x0301)')
     expect(ids).toContain('#define ZCL_C11_COMMAND_ID (0x0A)')
+
+    // Test custom attributes coming from standard cluster extensions(identify cluster extension)
+    expect(ids).toContain(
+      '#define ZCL_SAMPLE_MFG_SPECIFIC_IDENTIFY_1_ATTRIBUTE_ID (0x0000)'
+    )
+
+    // Delete the custom xml packageId from the existing session and test generation again
+    await queryPackage.deleteSessionPackage(db, sessionId, result.packageId)
+
+    // Generate again after removing a custom xml file
+    genResult = await genEngine.generate(
+      db,
+      sessionId,
+      templateContext.packageId,
+      {},
+      {
+        disableDeprecationWarnings: true,
+      }
+    )
+    ids = genResult.content['zap-id.h']
+    commands = genResult.content['zap-command-ver-2.h']
+
+    // Test custom attributes removal coming from standard cluster extensions(identify cluster extension)
+    expect(ids).not.toContain(
+      '#define ZCL_SAMPLE_MFG_SPECIFIC_IDENTIFY_1_ATTRIBUTE_ID (0x0000)'
+    )
+
+    // Test custom command removal coming from standard cluster extensions(identify cluster extension)
+    expect(commands).not.toContain(
+      '#define emberAfFillCommandIdentifyClusterSampleMfgSpecificIdentifyCommand1'
+    )
   },
   testUtil.timeout.long()
 )
