@@ -189,7 +189,7 @@ var DEFAULT_OWNER = 'SiliconLabs'
 var DEFAULT_REPO = 'zap'
 var NEXUS_SERVER = 'https://nexus.silabs.net'
 var NEXUS_REPO_NAME = 'zap-release-package'
-var cachedBranches = ['master', 'rel']
+var nexusCachedBranches = ['master', 'rel']
 // cheap and secure
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0'
 function nexusRestApiUrl(repository, nameFilter) {
@@ -448,10 +448,45 @@ function platforms(argv) {
   }
   return list
 }
+function getExistingGithubBranches(options) {
+  var _a
+  return __awaiter(this, void 0, void 0, function () {
+    var url, branches, resp, error_2
+    return __generator(this, function (_b) {
+      switch (_b.label) {
+        case 0:
+          url = 'https://api.github.com/repos/'
+            .concat(options.owner, '/')
+            .concat(options.repo, '/branches')
+          branches = []
+          _b.label = 1
+        case 1:
+          _b.trys.push([1, 3, , 4])
+          if (DEBUG) console.log('GET: '.concat(url))
+          return [4 /*yield*/, axios_1['default'].get(url)]
+        case 2:
+          resp = _b.sent()
+          branches =
+            (_a = resp === null || resp === void 0 ? void 0 : resp.data) ===
+              null || _a === void 0
+              ? void 0
+              : _a.map(function (x) {
+                  return x.name
+                })
+          return [3 /*break*/, 4]
+        case 3:
+          error_2 = _b.sent()
+          return [3 /*break*/, 4]
+        case 4:
+          return [2 /*return*/, branches]
+      }
+    })
+  })
+}
 function nexusGetArtifacts(baseUrl, options) {
   var _a, _b, _c, _d
   return __awaiter(this, void 0, void 0, function () {
-    var accumulatedItems, continuationToken, resp, url, error_2
+    var accumulatedItems, continuationToken, resp, url, error_3
     return __generator(this, function (_e) {
       switch (_e.label) {
         case 0:
@@ -505,8 +540,8 @@ function nexusGetArtifacts(baseUrl, options) {
         case 6:
           return [3 /*break*/, 8]
         case 7:
-          error_2 = _e.sent()
-          console.error(error_2)
+          error_3 = _e.sent()
+          console.error(error_3)
           return [3 /*break*/, 8]
         case 8:
           return [2 /*return*/, accumulatedItems]
@@ -753,7 +788,7 @@ function githubGetArtifacts(options) {
               return [2 /*return*/, __spreadArray([], artifacts, true)]
             }
           } else {
-            console.error('Unable to retrieve any artifacts for download.')
+            console.error('Unable to find any artifacts for download.')
             return [2 /*return*/, []]
           }
           return [2 /*return*/]
@@ -834,7 +869,7 @@ function configureBuildCommand() {
 }
 function main() {
   return __awaiter(this, void 0, void 0, function () {
-    var y, dlOptions, _a, nexusUrl, nexusItems, artifacts
+    var y, dlOptions, githubBranches, _a, nexusUrl, nexusItems, artifacts
     return __generator(this, function (_b) {
       switch (_b.label) {
         case 0:
@@ -854,23 +889,44 @@ function main() {
             mirror: y.argv.mirror,
             nameOnly: y.argv.nameOnly,
           }
-          _a = dlOptions.src === 'nexus'
-          if (!_a) return [3 /*break*/, 2]
-          return [4 /*yield*/, (0, is_reachable_1['default'])(NEXUS_SERVER)]
+          return [
+            4 /*yield*/,
+            getExistingGithubBranches(dlOptions),
+            // evaluate artifact source
+          ]
         case 1:
-          _a = _b.sent()
-          _b.label = 2
+          githubBranches = _b.sent()
+          _a = dlOptions.src === 'nexus'
+          if (!_a) return [3 /*break*/, 3]
+          return [4 /*yield*/, (0, is_reachable_1['default'])(NEXUS_SERVER)]
         case 2:
-          if (!_a) return [3 /*break*/, 5]
-          if (!cachedBranches.includes(dlOptions.branch)) {
-            console.log(
-              'Branch '.concat(
-                dlOptions.branch,
-                ' is not cached on Nexus. Defaulting to master branch instead.'
+          _a = _b.sent()
+          _b.label = 3
+        case 3:
+          // evaluate artifact source
+          if (_a) {
+            if (
+              githubBranches.includes(dlOptions.branch) &&
+              !nexusCachedBranches.includes(dlOptions.branch)
+            ) {
+              console.log(
+                'Branch '.concat(
+                  dlOptions.branch,
+                  ' is not cached on Nexus. Defaulting to master branch on Github instead.'
+                )
               )
-            )
-            dlOptions.branch = 'master'
+              dlOptions.src = 'github'
+            } else if (!nexusCachedBranches.includes(dlOptions.branch)) {
+              console.log(
+                'Branch '.concat(
+                  dlOptions.branch,
+                  ' is not cached on Nexus. Defaulting to master branch instead.'
+                )
+              )
+              dlOptions.branch = 'master'
+            }
           }
+          if (!(dlOptions.src === 'nexus')) return [3 /*break*/, 6]
           nexusUrl = nexusRestApiUrl(
             NEXUS_REPO_NAME,
             ''
@@ -879,7 +935,7 @@ function main() {
               .concat(dlOptions.branch, '/*')
           )
           return [4 /*yield*/, nexusGetArtifacts(nexusUrl, dlOptions)]
-        case 3:
+        case 4:
           nexusItems = _b.sent()
           return [
             4 /*yield*/,
@@ -889,10 +945,10 @@ function main() {
               verifyPlatformAndFormat
             ),
           ]
-        case 4:
-          _b.sent()
-          return [3 /*break*/, 10]
         case 5:
+          _b.sent()
+          return [3 /*break*/, 11]
+        case 6:
           if (!dlOptions.githubToken) {
             return [
               2 /*return*/,
@@ -902,17 +958,17 @@ function main() {
             ]
           }
           return [4 /*yield*/, githubGetArtifacts(dlOptions)]
-        case 6:
+        case 7:
           artifacts = _b.sent()
-          if (!dlOptions.nameOnly) return [3 /*break*/, 8]
+          if (!dlOptions.nameOnly) return [3 /*break*/, 9]
           return [
             4 /*yield*/,
             githubListArtifacts(artifacts, dlOptions, verifyPlatformAndFormat),
           ]
-        case 7:
-          _b.sent()
-          return [3 /*break*/, 10]
         case 8:
+          _b.sent()
+          return [3 /*break*/, 11]
+        case 9:
           return [
             4 /*yield*/,
             githubDownloadArtifacts(
@@ -921,10 +977,10 @@ function main() {
               verifyPlatformAndFormat
             ),
           ]
-        case 9:
-          _b.sent()
-          _b.label = 10
         case 10:
+          _b.sent()
+          _b.label = 11
+        case 11:
           return [2 /*return*/]
       }
     })
