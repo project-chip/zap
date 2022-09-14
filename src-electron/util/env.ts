@@ -265,13 +265,6 @@ export function zapVersion() {
     }
 
     try {
-      let p = require(locateProjectResource('./package.json'))
-      versionObject.version = p.version
-    } catch (err) {
-      logError('Could not retrieve version from package.json')
-    }
-
-    try {
       let readme = locateProjectResource('./README.md')
       if (fs.existsSync(readme)) {
         versionObject.source = true
