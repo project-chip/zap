@@ -16,8 +16,6 @@
  *    limitations under the License.
  */
 
-const path = require('path')
-
 const scriptUtil = require('./script-util.js')
 
 //workaround: executeCmd()/spawn() fails silently without complaining about missing path to electron

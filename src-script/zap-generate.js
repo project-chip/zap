@@ -21,16 +21,15 @@ const scriptUtil = require('./script-util.js')
 let startTime = process.hrtime.bigint()
 
 let args = process.argv.slice(2)
-let executable = 'node'
-let main = scriptUtil.mainPath(false)
 
-let cmdArgs = [executable]
-cmdArgs.push(main)
-cmdArgs.push('generate')
-cmdArgs.push('--unhandled-rejections=strict')
+let cmdArgs = [
+  'node',
+  scriptUtil.mainPath(false),
+  'generate',
+  '--unhandled-rejections=strict',
+]
 cmdArgs.push(...args)
 
-console.log(`Executing: ${cmdArgs}`)
 scriptUtil
   .stampVersion()
   .then(() => scriptUtil.rebuildBackendIfNeeded())
