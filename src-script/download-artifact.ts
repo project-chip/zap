@@ -242,19 +242,20 @@ function platforms(argv: any) {
   return list
 }
 
-async function nexusGetArtifacts(url: string, options: DlOptions) {
+async function nexusGetArtifacts(baseUrl: string, options: DlOptions) {
   let accumulatedItems: any[] = []
   let continuationToken = ''
 
   try {
-    if (DEBUG) console.log(`GET: ${url}`)
-    let resp = await axios.get(url)
+    if (DEBUG) console.log(`GET: ${baseUrl}`)
+    let resp = await axios.get(baseUrl)
     accumulatedItems = accumulatedItems.concat(resp?.data?.items)
     continuationToken = resp?.data?.continuationToken
 
+    let url = ''
     do {
       if (continuationToken) {
-        url = url + `&continuationToken=${continuationToken}`
+        url = baseUrl + `&continuationToken=${continuationToken}`
       } else {
         break
       }
