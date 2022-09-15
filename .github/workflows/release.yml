@@ -81,8 +81,6 @@ jobs:
       - name: Building frontend / backend
         run: |
           npm run build
-          npm run lint
-          npm run self-check
 
       - name: Build & Release for Windows / Mac universal binary on macOS
         if: startsWith(matrix.os, 'macos')
