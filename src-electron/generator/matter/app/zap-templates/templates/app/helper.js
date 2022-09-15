@@ -407,9 +407,28 @@ function asLowerCamelCase(label) {
   return str.replace(/[^A-Za-z0-9_]/g, '');
 }
 
-function asUpperCamelCase(label) {
-  let str = string.toCamelCase(label, false);
-  return str.replace(/[^A-Za-z0-9_]/g, '');
+function asUpperCamelCase(label, options) {
+  const preserveAcronyms = options && options.hash.preserveAcronyms;
+
+  let tokens = label.replace(/[+()&]/g, '').split(/ |_|-|\//);
+
+  let str = tokens
+    .map((token) => {
+      let isAcronym = token == token.toUpperCase();
+      if (!isAcronym) {
+        return token[0].toUpperCase() + token.substring(1);
+      }
+
+      if (preserveAcronyms) {
+        return token;
+      }
+
+      // if preserveAcronyms is false, then anything beyond the first letter becomes lower-case.
+      return token[0] + token.substring(1).toLowerCase();
+    })
+    .join('');
+
+  return str.replace(/[^A-Za-z0-9_ ]/g, '');
 }
 
 function chip_friendly_endpoint_type_name(options) {
