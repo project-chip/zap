@@ -58,4 +58,8 @@ module.exports = {
   transformIgnorePatterns: ['<rootDir>/node_modules/(?!quasar/lang)'],
   snapshotSerializers: ['<rootDir>/node_modules/jest-serializer-vue'],
   testResultsProcessor: 'jest-sonar-reporter',
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '<rootDir>/test/download-artifact.test.js',
+  ],
 }
