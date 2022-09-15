@@ -169,6 +169,7 @@ async function selectAllClustersDetailsFromEndpointTypes(db, endpointTypes) {
       id: x.CLUSTER_ID,
       name: x.NAME,
       code: x.CODE,
+      description: x.DESCRIPTION,
       define: x.DEFINE,
       mfgCode: x.MANUFACTURER_CODE,
       side: x.SIDE,
@@ -186,6 +187,7 @@ async function selectAllClustersDetailsFromEndpointTypes(db, endpointTypes) {
 SELECT
   CLUSTER.CLUSTER_ID,
   CLUSTER.CODE,
+  CLUSTER.DESCRIPTION,
   CLUSTER.MANUFACTURER_CODE,
   CLUSTER.NAME,
   CLUSTER.DEFINE,
