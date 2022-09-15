@@ -110,6 +110,10 @@ INSERT INTO COMMAND_ARG (
   COMMAND_REF,
   NAME,
   TYPE,
+  MIN,
+  MAX,
+  MIN_LENGTH,
+  MAX_LENGTH,
   IS_ARRAY,
   PRESENT_IF,
   IS_NULLABLE,
@@ -119,7 +123,7 @@ INSERT INTO COMMAND_ARG (
   INTRODUCED_IN_REF,
   REMOVED_IN_REF
 ) VALUES (
-  ?, ?, ?, ?, ?, ?, ?, ?, ?,
+  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
 )`
@@ -254,6 +258,10 @@ function argMap(cmdId, packageId, args) {
     cmdId,
     arg.name,
     arg.type,
+    arg.min,
+    arg.max,
+    arg.minLength,
+    arg.maxLength,
     dbApi.toDbBool(arg.isArray),
     arg.presentIf,
     dbApi.toDbBool(arg.isNullable),
