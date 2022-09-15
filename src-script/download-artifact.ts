@@ -39,7 +39,7 @@ const DEFAULT_OWNER = 'SiliconLabs'
 const DEFAULT_REPO = 'zap'
 const NEXUS_SERVER = 'https://nexus.silabs.net'
 const NEXUS_REPO_NAME = 'zap-release-package'
-const cachedBranches = ['master', 'rel']
+const nexusCachedBranches = ['master', 'rel']
 
 // cheap and secure
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0'
@@ -242,19 +242,35 @@ function platforms(argv: any) {
   return list
 }
 
-async function nexusGetArtifacts(url: string, options: DlOptions) {
-  let accumulatedItems: any[] = []
-  let continuationToken = ''
+async function getExistingGithubBranches(
+  options: DlOptions
+): Promise<string[]> {
+  const url = `https://api.github.com/repos/${options.owner}/${options.repo}/branches`
+  let branches = []
 
   try {
     if (DEBUG) console.log(`GET: ${url}`)
     let resp = await axios.get(url)
+    branches = resp?.data?.map((x: any) => x.name)
+  } catch (error) {}
+
+  return branches
+}
+
+async function nexusGetArtifacts(baseUrl: string, options: DlOptions) {
+  let accumulatedItems: any[] = []
+  let continuationToken = ''
+
+  try {
+    if (DEBUG) console.log(`GET: ${baseUrl}`)
+    let resp = await axios.get(baseUrl)
     accumulatedItems = accumulatedItems.concat(resp?.data?.items)
     continuationToken = resp?.data?.continuationToken
 
+    let url = ''
     do {
       if (continuationToken) {
-        url = url + `&continuationToken=${continuationToken}`
+        url = baseUrl + `&continuationToken=${continuationToken}`
       } else {
         break
       }
@@ -414,7 +430,7 @@ async function githubGetArtifacts(options: DlOptions) {
       return [...artifacts]
     }
   } else {
-    console.error('Unable to retrieve any artifacts for download.')
+    console.error('Unable to find any artifacts for download.')
     return []
   }
 }
@@ -521,15 +537,28 @@ async function main() {
     nameOnly: y.argv.nameOnly,
   }
 
-  // Download site sources: Nexus, Github
+  let githubBranches = await getExistingGithubBranches(dlOptions)
+
+  // evaluate artifact source
   if (dlOptions.src === 'nexus' && (await isReachable(NEXUS_SERVER))) {
-    if (!cachedBranches.includes(dlOptions.branch)) {
+    if (
+      githubBranches.includes(dlOptions.branch) &&
+      !nexusCachedBranches.includes(dlOptions.branch)
+    ) {
+      console.log(
+        `Branch ${dlOptions.branch} is not cached on Nexus. Defaulting to master branch on Github instead.`
+      )
+      dlOptions.src = 'github'
+    } else if (!nexusCachedBranches.includes(dlOptions.branch)) {
       console.log(
         `Branch ${dlOptions.branch} is not cached on Nexus. Defaulting to master branch instead.`
       )
       dlOptions.branch = 'master'
     }
+  }
 
+  // Download site sources: Nexus, Github
+  if (dlOptions.src === 'nexus') {
     const nexusUrl = nexusRestApiUrl(
       NEXUS_REPO_NAME,
       `${dlOptions.owner}/${dlOptions.repo}/${dlOptions.branch}/*`
