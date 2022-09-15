@@ -146,7 +146,7 @@ export function logInitLogFile() {
  *
  * @param {*} path Absolute path. Typically '~/.zap'.
  */
-export function setAppDirectory(directoryPath: string) {
+export function setAppDirectory(directoryPath: string): string | null {
   let appDir
   if (directoryPath.startsWith('~/')) {
     appDir = path.join(os.homedir(), directoryPath.substring(2))
@@ -157,6 +157,7 @@ export function setAppDirectory(directoryPath: string) {
     fs.mkdirSync(appDir, { recursive: true })
   }
   applicationStateDirectory = appDir
+  return applicationStateDirectory
 }
 
 /**
