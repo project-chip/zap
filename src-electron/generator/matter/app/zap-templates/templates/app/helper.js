@@ -414,9 +414,13 @@ function asUpperCamelCase(label, options) {
 
   let str = tokens
     .map((token) => {
-      let isAcronym = token == token.toUpperCase();
+      let isAcronym = (token == token.toUpperCase());
       if (!isAcronym) {
-        return token[0].toUpperCase() + token.substring(1);
+        let newToken = token[0].toUpperCase();
+        if (token.length > 1) {
+            newToken += token.substring(1);
+        }
+        return newToken;
       }
 
       if (preserveAcronyms) {
@@ -424,11 +428,15 @@ function asUpperCamelCase(label, options) {
       }
 
       // if preserveAcronyms is false, then anything beyond the first letter becomes lower-case.
-      return token[0] + token.substring(1).toLowerCase();
+      let newToken = token[0];
+      if (token.length > 1) {
+          newToken += token.substring(1).toLowerCase();
+      }
+      return newToken;
     })
     .join('');
 
-  return str.replace(/[^A-Za-z0-9_ ]/g, '');
+  return str.replace(/[^A-Za-z0-9_]/g, '');
 }
 
 function chip_friendly_endpoint_type_name(options) {
