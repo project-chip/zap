@@ -956,6 +956,10 @@ async function selectAllCommandsWithArguments(db, packageId) {
       clusterMfgCode: x.CLUSTER_MANUFACTURER_CODE,
       argName: x.ARG_NAME,
       argType: x.ARG_TYPE,
+      argMin: x.ARG_MIN,
+      argMax: x.ARG_MAX,
+      argMinLength: x.ARG_MIN_LENGTH,
+      argMaxLength: x.ARG_MAX_LENGTH,
       argFieldId: x.FIELD_IDENTIFIER,
       argIsArray: dbApi.fromDbBool(x.ARG_IS_ARRAY),
       argPresentIf: x.ARG_PRESENT_IF,
@@ -986,6 +990,10 @@ SELECT
   CL.MANUFACTURER_CODE AS CLUSTER_MANUFACTURER_CODE,
   CA.NAME AS ARG_NAME,
   CA.TYPE AS ARG_TYPE,
+  CA.MIN as ARG_MIN,
+  CA.MAX as ARG_MAX,
+  CA.MIN_LENGTH as ARG_MIN_LENGTH,
+  CA.MAX_LENGTH as ARG_MAX_LENGTH,
   CA.FIELD_IDENTIFIER,
   CA.IS_ARRAY AS ARG_IS_ARRAY,
   CA.PRESENT_IF AS ARG_PRESENT_IF,
@@ -1019,6 +1027,10 @@ ORDER BY
         name: x.argName,
         label: x.argName,
         type: x.argType,
+        min: x.min,
+        max: x.max,
+        minLength: x.minLength,
+        maxLength: x.maxLength,
         fieldId: x.argFieldId,
         isArray: x.argIsArray,
         presentIf: x.argPresentIf,
@@ -1031,6 +1043,10 @@ ORDER BY
       }
       delete x.argName
       delete x.argType
+      delete x.argMin
+      delete x.argMax
+      delete x.argMinLength
+      delete x.argMaxLength
       delete x.argFieldId
       delete x.argIsArray
       delete x.argPresentIf
@@ -1292,6 +1308,10 @@ SELECT
   COMMAND_ARG.FIELD_IDENTIFIER,
   COMMAND_ARG.NAME,
   COMMAND_ARG.TYPE,
+  COMMAND_ARG.MIN,
+  COMMAND_ARG.MAX,
+  COMMAND_ARG.MIN_LENGTH,
+  COMMAND_ARG.MAX_LENGTH,
   COMMAND_ARG.IS_ARRAY,
   COMMAND_ARG.PRESENT_IF,
   COMMAND_ARG.IS_NULLABLE,
@@ -1345,6 +1365,10 @@ SELECT
   FIELD_IDENTIFIER,
   NAME,
   TYPE,
+  MIN,
+  MAX,
+  MIN_LENGTH,
+  MAX_LENGTH,
   IS_ARRAY,
   PRESENT_IF,
   IS_NULLABLE,
@@ -1394,6 +1418,10 @@ SELECT
   CL.DEFINE AS CLUSTER_DEFINE_NAME,
   CA.NAME AS ARG_NAME,
   CA.TYPE AS ARG_TYPE,
+  CA.MIN AS ARG_MIN,
+  CA.MAX AS ARG_MAX,
+  CA.MIN_LENGTH AS ARG_MIN_LENGTH,
+  CA.MAX_LENGTH AS ARG_MAX_LENGTH,
   CA.IS_ARRAY AS ARG_IS_ARRAY,
   CA.PRESENT_IF AS ARG_PRESENT_IF,
   CA.IS_NULLABLE AS ARG_IS_NULLABLE,
