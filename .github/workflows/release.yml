@@ -79,8 +79,6 @@ jobs:
       - name: Building frontend / backend
         run: |
           npm run build
-          npm run lint
-          npm run self-check
 
       - name: Build & Release for Windows / Mac universal binary on macOS
         if: startsWith(matrix.os, 'macos')
@@ -119,7 +117,7 @@ jobs:
           # CSC_LINK: ${{ secrets.api_key_id }}
           # CSC_KEY_PASSWORD: ${{ secrets.api_key_issuer_id }}
 
-      - name: Get ZAP version (macOS)
+      - name: ZAP version (macOS) - Getter
         id: zap_version_mac
         if: startsWith(matrix.os, 'macos')
         run: |
@@ -127,15 +125,22 @@ jobs:
           ./dist/zap-mac/zap.app/Contents/MacOS/zap --version
           echo "::set-output name=version::$(./dist/zap-mac/zap.app/Contents/MacOS/zap --version)"
           rm -rf dist/zap-mac
-      - name: Verify ZAP version (macOS)
+      - name: ZAP version (macOS) - Verify exe running
         uses: nick-fields/assert-action@v1
         if: startsWith(matrix.os, 'macos')
         with:
           expected: 'Version'
           actual: ${{ steps.zap_version_mac.outputs.version }}
           comparison: contains
+      - name: ZAP version (macOS) - Verify version stamp
+        uses: nick-fields/assert-action@v1
+        if: startsWith(matrix.os, 'macos')
+        with:
+          expected: '0.0.0'
+          actual: ${{ steps.zap_version_mac.outputs.version }}
+          comparison: notContains
 
-      - name: Get ZAP version (Linux)
+      - name: ZAP version (Linux) - Getter
         id: zap_version_linux
         if: startsWith(matrix.os, 'ubuntu')
         run: |
@@ -143,13 +148,20 @@ jobs:
           ./dist/zap-linux/zap --version
           echo "::set-output name=version::$(./dist/zap-linux/zap --version)"
           rm -rf dist/zap-linux
-      - name: Verify ZAP version (Linux)
+      - name: ZAP version (Linux) - Verify exe running
         uses: nick-fields/assert-action@v1
         if: startsWith(matrix.os, 'ubuntu')
         with:
           expected: 'Version'
           actual: ${{ steps.zap_version_linux.outputs.version }}
           comparison: contains
+      - name: ZAP version (Linux) - Verify version stamp
+        uses: nick-fields/assert-action@v1
+        if: startsWith(matrix.os, 'ubuntu')
+        with:
+          expected: '0.0.0'
+          actual: ${{ steps.zap_version_linux.outputs.version }}
+          comparison: notContains
 
       - name: Setup Linux package for adapter pack test
         id: linux_apack_setup

@@ -152,9 +152,9 @@ async function asObjectiveCClass(type, cluster, options) {
   }
 
   if (isStruct) {
-    return `MTR${appHelper.asUpperCamelCase(
-      cluster
-    )}Cluster${appHelper.asUpperCamelCase(type)}`;
+    return `MTR${appHelper.asUpperCamelCase(cluster, {
+      hash: { preserveAcronyms: true },
+    })}Cluster${appHelper.asUpperCamelCase(type)}`;
   }
 
   return 'NSNumber';
@@ -211,7 +211,9 @@ function commandHasRequiredField(command) {
  * "Enum" bits on the enum names while we're here.
  */
 function objCEnumName(clusterName, enumLabel) {
-  clusterName = appHelper.asUpperCamelCase(clusterName);
+  clusterName = appHelper.asUpperCamelCase(clusterName, {
+    hash: { preserveAcronyms: true },
+  });
   enumLabel = appHelper.asUpperCamelCase(enumLabel);
   // Some enum names have one or more copies of the cluster name at the
   // beginning.

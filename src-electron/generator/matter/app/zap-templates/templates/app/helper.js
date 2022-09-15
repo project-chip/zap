@@ -407,8 +407,35 @@ function asLowerCamelCase(label) {
   return str.replace(/[^A-Za-z0-9_]/g, '');
 }
 
-function asUpperCamelCase(label) {
-  let str = string.toCamelCase(label, false);
+function asUpperCamelCase(label, options) {
+  const preserveAcronyms = options && options.hash.preserveAcronyms;
+
+  let tokens = label.replace(/[+()&]/g, '').split(/ |_|-|\//);
+
+  let str = tokens
+    .map((token) => {
+      let isAcronym = (token == token.toUpperCase());
+      if (!isAcronym) {
+        let newToken = token[0].toUpperCase();
+        if (token.length > 1) {
+            newToken += token.substring(1);
+        }
+        return newToken;
+      }
+
+      if (preserveAcronyms) {
+        return token;
+      }
+
+      // if preserveAcronyms is false, then anything beyond the first letter becomes lower-case.
+      let newToken = token[0];
+      if (token.length > 1) {
+          newToken += token.substring(1).toLowerCase();
+      }
+      return newToken;
+    })
+    .join('');
+
   return str.replace(/[^A-Za-z0-9_]/g, '');
 }
 
