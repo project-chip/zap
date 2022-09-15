@@ -326,7 +326,7 @@ export default {
 </script>
 
 <style scoped>
-/deep/ .q-tab-panel {
+:deep() .q-tab-panel {
   max-height: calc(100vh - 100px);
   overflow: hidden;
 }

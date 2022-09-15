@@ -541,6 +541,12 @@ export function updateIsProfileIdShown (state, value) {
   value == 0 ? state.isProfileIdShown  = false : state.isProfileIdShown  = true
 }
 
+// This function will update the cluster stage if cluster changed it will update the endpoint data
 export function updateIsClusterOptionChanged(state, value) {
   state.isClusterOptionChanged = value
+}
+
+// This function will toggle showEndpointData state and save that state
+export function toggleShowEndpoint(state, item) {
+  Vue.set(state.showEndpointData, item.id, item.value)
 }
