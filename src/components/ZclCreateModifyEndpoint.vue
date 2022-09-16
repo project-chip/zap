@@ -15,7 +15,7 @@ limitations under the License.
 -->
 <template>
   <div>
-    <q-card>
+    <q-card class="v-step-1">
       <q-card-section>
         <div class="text-h6 text-align:left">
           {{ this.endpointReference ? 'Edit Endpoint' : 'Create New Endpoint' }}
@@ -27,7 +27,7 @@ limitations under the License.
             v-model="shownEndpoint.endpointIdentifier"
             ref="endpoint"
             filled
-            class="col"
+            class="col v-step-3"
             :rules="[reqInteger, reqPosInt, reqUniqueEndpoint]"
             min="0"
           />
@@ -47,18 +47,22 @@ limitations under the License.
             ref="device"
             outlined
             filled
-            class="col"
+            class="col v-step-2"
             use-input
             hide-selected
             fill-input
             :options="deviceTypeOptions"
-            v-model="computedDeviceTypeRefAndDeviceIdPair"
+            v-model="deviceTypeRefAndDeviceIdPair"
             :rules="[(val) => val != null || '* Required']"
             :option-label="getDeviceOptionLabel"
             @filter="filterDeviceTypes"
             @input="setDeviceTypeCallback"
-            data-test="select-endpoint-input"  
-          />
+            data-test="select-endpoint-input"
+          >
+            <template v-slot:selected>
+              <template> Choose an option </template>
+            </template>
+          </q-select>
           <div class="q-gutter-md row">
             <q-input
               label="Network"
@@ -92,11 +96,16 @@ limitations under the License.
         </q-form>
       </q-card-section>
       <q-card-actions>
-        <q-btn label="Cancel" v-close-popup class="col" />
+        <q-btn
+          label="Cancel"
+          @click="toggleCreateEndpointModal"
+          v-close-popup
+          class="col"
+        />
         <q-btn
           :label="endpointReference ? 'Save' : 'Create'"
           color="primary"
-          class="col"
+          class="col v-step-4"
           @click="saveOrCreateHandler()"
         />
       </q-card-actions>
@@ -115,6 +124,11 @@ export default {
   props: ['endpointReference'],
   emits: ['saveOrCreateValidated'],
   mixins: [CommonMixin],
+  watch: {
+    deviceTypeRefAndDeviceIdPair(val) {
+      this.setDeviceTypeCallback(val)
+    },
+  },
   mounted() {
     if (this.endpointReference != null) {
       this.shownEndpoint.endpointIdentifier = parseInt(
@@ -130,7 +144,7 @@ export default {
       this.shownEndpoint.deviceVersion = parseInt(
         this.endpointVersion[this.endpointReference]
       )
-      this.shownEndpoint.deviceTypeRefAndDeviceIdPair = {
+      this.deviceTypeRefAndDeviceIdPair = {
         deviceTypeRef:
           this.endpointDeviceTypeRef[this.endpointType[this.endpointReference]],
         deviceIdentifier: this.endpointDeviceId[this.endpointReference],
@@ -147,10 +161,6 @@ export default {
         profileIdentifier: null,
         networkIdentifier: 0,
         deviceVersion: 1,
-        deviceTypeRefAndDeviceIdPair: {
-          deviceTypeRef: null,
-          deviceIdentifier: null,
-        },
       },
       saveOrCreateCloseFlag: false,
     }
@@ -206,9 +216,9 @@ export default {
         return this.$store.state.zap.endpointView.deviceId
       },
     },
-    computedDeviceTypeRefAndDeviceIdPair: {
+    deviceTypeRefAndDeviceIdPair: {
       get() {
-        return this.shownEndpoint.deviceTypeRefAndDeviceIdPair
+        return this.$store.state.zap.deviceTypeRefAndDeviceIdPair
       },
     },
     computedProfileId: {
@@ -217,8 +227,8 @@ export default {
           this.profileCodesOptions == null
             ? null
             : this.profileCodesOptions.find(
-              (o) => o.optionCode === this.shownEndpoint.profileIdentifier
-            )
+                (o) => o.optionCode === this.shownEndpoint.profileIdentifier
+              )
 
         return profileOption
           ? profileOption.optionCode + ' (' + profileOption.optionLabel + ')'
@@ -229,11 +239,14 @@ export default {
       get() {
         return this.$store.state.zap.genericOptions[
           DbEnum.sessionOption.profileCodes
-          ]
+        ]
       },
     },
   },
   methods: {
+    toggleCreateEndpointModal() {
+      this.$store.commit('zap/toggleEndpointModal', false)
+    },
     setProfileId(value) {
       this.shownEndpoint.profileIdentifier = value
     },
@@ -251,9 +264,8 @@ export default {
         profileId = this.asHex(this.zclDeviceTypes[deviceTypeRef].profileId, 4)
       }
       this.shownEndpoint.profileIdentifier = profileId
-      this.shownEndpoint.deviceTypeRefAndDeviceIdPair.deviceTypeRef =
-        value.deviceTypeRef
-      this.shownEndpoint.deviceTypeRefAndDeviceIdPair.deviceIdentifier =
+      this.deviceTypeRefAndDeviceIdPair.deviceTypeRef = value.deviceTypeRef
+      this.deviceTypeRefAndDeviceIdPair.deviceIdentifier =
         value.deviceIdentifier
     },
     saveOrCreateHandler() {
@@ -271,7 +283,7 @@ export default {
           this.editEpt(this.shownEndpoint, this.endpointReference)
           this.$emit('updateData')
         } else {
-          this.newEpt(this.shownEndpoint)
+          this.newEpt()
         }
       }
     },
@@ -288,16 +300,15 @@ export default {
       return (
         _.isNil(_.findKey(this.endpointId, (a) => a == value)) ||
         this.endpointReference ==
-        _.findKey(this.endpointId, (a) => a == value) ||
+          _.findKey(this.endpointId, (a) => a == value) ||
         'Endpoint identifier must be unique'
       )
     },
-    newEpt(shownEndpoint) {
+    newEpt() {
       this.$store
         .dispatch(`zap/addEndpointType`, {
           name: 'Anonymous Endpoint Type',
-          deviceTypeRef:
-          shownEndpoint.deviceTypeRefAndDeviceIdPair.deviceTypeRef,
+          deviceTypeRef: this.deviceTypeRefAndDeviceIdPair.deviceTypeRef,
         })
         .then((response) => {
           this.$store
@@ -308,8 +319,7 @@ export default {
               endpointType: response.id,
               endpointVersion: this.shownEndpoint.deviceVersion,
               deviceIdentifier:
-              this.shownEndpoint.deviceTypeRefAndDeviceIdPair
-                .deviceIdentifier,
+                this.deviceTypeRefAndDeviceIdPair.deviceIdentifier,
             })
             .then((res) => {
               if (this.shareClusterStatesAcrossEndpoints()) {
@@ -342,6 +352,7 @@ export default {
               })
 
               this.$store.dispatch('zap/updateSelectedEndpoint', res.id)
+              this.$store.commit('zap/toggleEndpointModal', false)
             })
         })
     },
@@ -351,7 +362,7 @@ export default {
       this.$store.dispatch('zap/updateEndpointType', {
         endpointTypeId: endpointTypeReference,
         updatedKey: RestApi.updateKey.deviceTypeRef,
-        updatedValue: shownEndpoint.deviceTypeRefAndDeviceIdPair.deviceTypeRef,
+        updatedValue: this.deviceTypeRefAndDeviceIdPair.deviceTypeRef,
       })
 
       this.$store.dispatch('zap/updateEndpoint', {
@@ -375,9 +386,7 @@ export default {
           },
           {
             updatedKey: RestApi.updateKey.deviceId,
-            value: parseInt(
-              shownEndpoint.deviceTypeRefAndDeviceIdPair.deviceIdentifier
-            ),
+            value: parseInt(this.deviceTypeRefAndDeviceIdPair.deviceIdentifier),
           },
         ],
       })
@@ -425,9 +434,8 @@ export default {
       try {
         done(
           {
-            deviceTypeRef: this.shownEndpoint.deviceTypeRefAndDeviceIdPair
-              .deviceTypeRef
-              ? this.shownEndpoint.deviceTypeRefAndDeviceIdPair.deviceTypeRef
+            deviceTypeRef: this.deviceTypeRefAndDeviceIdPair.deviceTypeRef
+              ? this.deviceTypeRefAndDeviceIdPair.deviceTypeRef
               : this.customDeviceIdReference,
             deviceIdentifier: parseInt(val),
           },
@@ -454,6 +462,12 @@ export default {
         })
       })
     },
+  },
+  destroyed() {
+    this.$store.commit('zap/setDeviceTypeRefAndDeviceIdPair', {
+      deviceTypeRef: null,
+      deviceIdentifier: null,
+    })
   },
 }
 </script>

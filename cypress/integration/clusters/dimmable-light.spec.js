@@ -34,7 +34,7 @@ describe('Testing Dimmable Light workflow', () => {
   it('Enabling Client & Server', () => {
     cy.get(
       ':nth-child(6) > .q-field > .q-field__inner > .q-field__control'
-    ).click()
+    ).click({ force: true })
     cy.fixture('data').then((data) => {
       cy.get('.q-item__section > .q-item__label').contains(data.server2).click()
     })
@@ -42,7 +42,7 @@ describe('Testing Dimmable Light workflow', () => {
   it('Check Configuration page', () => {
     cy.get(
       ':nth-child(7) > .q-btn > .q-btn__wrapper > .q-btn__content > .notranslate'
-    ).click()
+    ).click({ force: true })
     cy.fixture('data').then((data) => {
       cy.get('tr.table_body').contains(data.attribute3).should('be.visible')
     })

@@ -21,19 +21,22 @@ describe('Testing enabled clusters amount', () => {
         const num1 = parseFloat($div.text())
         cy.fixture('data').then((data) => {
           cy.get('.q-page-container > div')
-          .children()
-          .should('contain', data.cluster1)
+            .children()
+            .should('contain', data.cluster1)
         })
-        cy.get('div').contains('General').click({force: true})
-        cy.get('div').children().contains('Server').its('length').then(res=>{
-          if(res > 0){
-            cy.get('div').children().contains('Not Enabled').first().click()
-            cy.get('.q-virtual-scroll__content > :nth-child(3)')
-              .contains('Server')
-              .click()
-          }
-      });
-        
+        cy.get('div').contains('General').click({ force: true })
+        cy.get('div')
+          .children()
+          .contains('Server')
+          .its('length')
+          .then((res) => {
+            if (res > 0) {
+              cy.get('div').children().contains('Not Enabled').first().click()
+              cy.get('.q-virtual-scroll__content > :nth-child(3)')
+                .contains('Server')
+                .click()
+            }
+          })
       })
     }
   )
@@ -47,7 +50,6 @@ describe('Testing enabled clusters amount', () => {
           expect(num2).to.eq(Number(data.availableClusters1))
         })
       })
-     
     }
   )
 })

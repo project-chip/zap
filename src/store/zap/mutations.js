@@ -353,10 +353,6 @@ export function setAttributeLists(state, data) {
   )
 }
 
-export function setEventLists(state, selected) {
-  Vue.set(state.eventView, 'selectedEvents', selected)
-}
-
 export function setCommandLists(state, data) {
   Vue.set(state.commandView, 'selectedIn', data.incoming)
   Vue.set(state.commandView, 'selectedOut', data.outgoing)
@@ -530,23 +526,58 @@ export function loadZclClusterToUcComponentDependencyMap(state, map) {
 }
 
 export function setAllEndpointsData(state, value) {
-  Vue.set(state.allEndpointsData, value.endpointId,
-    { 'selectedservers': value.servers,
-      'selectedReporting': value.report,
-      'selectedAttributes': value.attr,
-      id: value.endpointId })
+  Vue.set(state.allEndpointsData, value.endpointId, {
+    selectedservers: value.servers,
+    selectedReporting: value.report,
+    selectedAttributes: value.attr,
+    id: value.endpointId,
+  })
 }
 
-export function updateIsProfileIdShown (state, value) {
-  value == 0 ? state.isProfileIdShown  = false : state.isProfileIdShown  = true
+// Vue Tour Functions
+export function toggleEndpointModal(state, value) {
+  state.showCreateModifyEndpoint = value
 }
 
-// This function will update the cluster stage if cluster changed it will update the endpoint data
-export function updateIsClusterOptionChanged(state, value) {
-  state.isClusterOptionChanged = value
+export function toggleTutorial(state, value) {
+  state.isTutorialRunning = value
+}
+
+export function triggerExpanded(state, value) {
+  state.expanded = value
+}
+
+export function openReportTabInCluster(state, value) {
+  state.showReportTabInCluster = value
+}
+
+export function openZclExtensionsDialogForTutorial(state, value) {
+  state.openZclExtensionsDialog = value
+}
+
+export function setClusterDataForTutorial(state, value) {
+  state.clusterDataForTutorial = value
+}
+
+export function updateIsProfileIdShown(state, value) {
+  value == 0
+    ? (state.isProfileIdShown = false)
+    : (state.isProfileIdShown = true)
+}
+
+export function setDeviceTypeRefAndDeviceIdPair(state, value) {
+  state.deviceTypeRefAndDeviceIdPair = {
+    deviceTypeRef: value.deviceTypeRef,
+    deviceIdentifier: value.deviceIdentifier,
+  }
 }
 
 // This function will toggle showEndpointData state and save that state
 export function toggleShowEndpoint(state, item) {
   Vue.set(state.showEndpointData, item.id, item.value)
+}
+
+// This function will update the cluster stage if cluster changed it will update the endpoint data
+export function updateIsClusterOptionChanged(state, value) {
+  state.isClusterOptionChanged = value
 }

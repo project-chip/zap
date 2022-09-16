@@ -56,13 +56,16 @@ limitations under the License.
           v-on:click="getGeneratedFiles"
           data-test="preview"
         />
-        <q-btn
-          flat
-          icon="settings"
-          id="preference"
-          to="/preference"
-        >
+        <q-btn flat icon="settings" id="preference" to="/preference">
           <q-tooltip> Preferences </q-tooltip>
+        </q-btn>
+        <q-btn
+          v-if="this.$store.state.zap.showDevTools"
+          flat
+          @click="showTutorial"
+          icon="psychology_alt"
+        >
+          <q-tooltip> Tutorial </q-tooltip>
         </q-btn>
         <q-btn flat @click="homeDialog = !homeDialog" icon="mdi-alert-circle">
           <q-tooltip> About </q-tooltip>
@@ -189,6 +192,9 @@ const observable = require('../util/observable.js')
 export default {
   name: 'ZclLayout',
   methods: {
+    showTutorial() {
+      this.$tours['ZclTour'].start()
+    },
     togglePreviewTab() {
       this.$store.commit('zap/togglePreviewTab')
     },

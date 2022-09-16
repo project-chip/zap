@@ -19,6 +19,12 @@ const restApi = require('../../../src-shared/rest-api.js')
 export default function () {
   return {
     isProfileIdShown: null,
+    clusterDataForTutorial: [],
+    isTutorialRunning: false,
+    openZclExtensionsDialog: false,
+    showReportTabInCluster: '',
+    expanded: false,
+    showCreateModifyEndpoint: false,
     showPreviewTab: false,
     isExceptionsExpanded: false,
     exceptions: [],
@@ -145,7 +151,11 @@ export default function () {
       zclSdkExtClusterToUcComponentMap: [],
     },
     allEndpointsData: {},
+    showEndpointData: {},
     isClusterOptionChanged: false,
-    showEndpointData: {}
+    deviceTypeRefAndDeviceIdPair: {
+      deviceTypeRef: null,
+      deviceIdentifier: null,
+    },
   }
 }

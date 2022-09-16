@@ -790,36 +790,39 @@ export function generateAllEndpointsData(context, endpointData) {
   let attr = []
   let report = []
   let server = []
-  let promise1 = Vue.prototype.$serverGet(endpointData.clusterRequestUrl).then((res) => {
-    let enabledClients = []
-    let enabledServers = []
-    res.data.forEach((record) => {
-      if (record.enabled) {
-        if (record.side === 'client') {
-          enabledClients.push(record.clusterRef)
-        } else {
-          enabledServers.push(record.clusterRef)
+  let promise1 = Vue.prototype
+    .$serverGet(endpointData.clusterRequestUrl)
+    .then((res) => {
+      let enabledClients = []
+      let enabledServers = []
+      res.data.forEach((record) => {
+        if (record.enabled) {
+          if (record.side === 'client') {
+            enabledClients.push(record.clusterRef)
+          } else {
+            enabledServers.push(record.clusterRef)
+          }
         }
-      }
+      })
+      server = [...enabledServers, ...enabledServers]
     })
-    server = [...enabledServers, ...enabledServers]
-  })
 
-  let promise2 = Vue.prototype.$serverGet(endpointData.attributesRequestUrl).then((res) => {
-
-    res.data.forEach((record) => {
-      let resolvedReference = Util.cantorPair(
-        record.attributeRef,
-        record.clusterRef
-      )
-      if (record.included) {
-        attr.push(resolvedReference)
-      }
-      if (record.includedReportable) {
-        report.push(resolvedReference)
-      }
+  let promise2 = Vue.prototype
+    .$serverGet(endpointData.attributesRequestUrl)
+    .then((res) => {
+      res.data.forEach((record) => {
+        let resolvedReference = Util.cantorPair(
+          record.attributeRef,
+          record.clusterRef
+        )
+        if (record.included) {
+          attr.push(resolvedReference)
+        }
+        if (record.includedReportable) {
+          report.push(resolvedReference)
+        }
+      })
     })
-  })
 
   Promise.all([promise1, promise2]).then(() => {
     context.commit('setAllEndpointsData', {
