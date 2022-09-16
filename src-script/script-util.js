@@ -200,12 +200,12 @@ async function stampVersion() {
     ])
     let version = JSON.parse(out)
     let d = new Date(version.timestamp * 1000) // git gives seconds, Date needs milliseconds
+    let result = await setPackageJsonVersion(d, 'real')
     version.date = d
+    version.zapVersion = result.version
     let versionFile = path.join(__dirname, '../.version.json')
     console.log(`🔍 Git commit: ${version.hash} from ${version.date}`)
     await fsp.writeFile(versionFile, JSON.stringify(version))
-
-    await setPackageJsonVersion(d, 'real')
   } catch (err) {
     console.log(`Error retrieving version: ${err}`)
   }
@@ -220,7 +220,10 @@ async function setPackageJsonVersion(date, mode) {
     let packageJson = path.join(__dirname, '../package.json')
     let output = ''
     let cnt = 0
-    let wasChanged = false
+    let result = {
+      wasChanged: false,
+      version: null,
+    }
 
     const stream = fs.createReadStream(packageJson)
     const rl = readline.createInterface({
@@ -232,20 +235,23 @@ async function setPackageJsonVersion(date, mode) {
       if (cnt < 10 && line.includes('"version":')) {
         let output
         if (mode == 'real') {
-          output = `  "version": "${date.getFullYear()}.${
+          result.version = `${date.getFullYear()}.${
             date.getMonth() + 1
-          }.${date.getDate()}",`
+          }.${date.getDate()}`
+          output = `  "version": "${result.version}",`
         } else if (mode == 'fake') {
-          output = `  "version": "0.0.0",`
+          result.version = '0.0.0'
+          output = `  "version": "${result.version}",`
         } else {
+          result.version = line
           output = line
         }
 
         if (output == line) {
-          wasChanged = false
+          result.wasChanged = false
         } else {
           line = output
-          wasChanged = true
+          result.wasChanged = true
         }
         versionPrinted = line
       }
@@ -254,10 +260,10 @@ async function setPackageJsonVersion(date, mode) {
     })
 
     rl.on('close', () => {
-      if (wasChanged) {
+      if (result.wasChanged) {
         fs.writeFileSync(packageJson, output)
       }
-      resolve(wasChanged)
+      resolve(result)
     })
   })
   return promise

@@ -44,15 +44,17 @@ if (process.argv[2] == '-real') mode = 'real'
 
 scriptUtil
   .setPackageJsonVersion(new Date(), mode)
-  .then((wasChanged) => {
-    if (wasChanged) {
+  .then((result) => {
+    if (result.wasChanged) {
       console.log(
-        '⛔ Version in package.json was not set correctly. It was automatically updated. Review and commit again, please.'
+        `⛔ Version in package.json was not set correctly. It was automatically updated to ${result.version}. Review and commit again, please.`
       )
     } else {
-      console.log('😎 Version in package.json was not changed.')
+      console.log(
+        `😎 Version in package.json was not changed from ${result.version}.`
+      )
     }
-    process.exit(wasChanged ? 1 : 0)
+    process.exit(result.wasChanged ? 1 : 0)
   })
   .catch((err) => {
     console.log(`⛔ Error: ${err}`)

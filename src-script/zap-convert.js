@@ -16,60 +16,26 @@
  *    limitations under the License.
  */
 
-const yargs = require('yargs')
 const scriptUtil = require('./script-util.js')
 
 let startTime = process.hrtime.bigint()
 
-let arg = yargs
-  .option('zcl', {
-    desc: 'Specifies zcl metafile file to be used.',
-    alias: 'z',
-    type: 'string',
-    demandOption: true,
-  })
-  .option('generationTemplate', {
-    desc: 'Specifies gen-template.json file to be used.',
-    alias: 'g',
-    type: 'string',
-    demandOption: true,
-  })
-  .option('out', {
-    desc: 'Output filename where the converted file goes.',
-    alias: 'o',
-    type: 'string',
-    demandOption: true,
-  })
-  .demandOption(
-    ['zcl', 'out', 'generationTemplate'],
-    'Please provide required options!'
-  )
-  .help()
-  .wrap(null).argv
+let args = process.argv.slice(2)
 
-let ctx = {}
-
-let cli = [
+let cmdArgs = [
+  'node',
   scriptUtil.mainPath(false),
   'convert',
   '--noUi',
   '--noServer',
   '--noZapFileLog',
-  '--zcl',
-  arg.zcl,
-  '--out',
-  arg.out,
-  '--generationTemplate',
-  arg.generationTemplate,
-  '--results',
-  arg.results,
 ]
-arg._.forEach((x) => cli.push(x))
+cmdArgs.push(...args)
 
 scriptUtil
   .stampVersion()
   .then(() => scriptUtil.rebuildBackendIfNeeded())
-  .then(() => scriptUtil.executeCmd(ctx, 'node', cli))
+  .then(() => scriptUtil.executeCmd(null, 'npx', cmdArgs))
   .then(() => scriptUtil.doneStamp(startTime))
   .then(() => {
     process.exit(0)

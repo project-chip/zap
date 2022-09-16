@@ -16,8 +16,6 @@
  *    limitations under the License.
  */
 
-const path = require('path')
-
 const scriptUtil = require('./script-util.js')
 
 //workaround: executeCmd()/spawn() fails silently without complaining about missing path to electron
@@ -33,6 +31,7 @@ scriptUtil
     let plat = process.platform
     let executable
     let main
+    let extraArgs = []
 
     switch (args[0]) {
       case 'selfCheck':
@@ -40,11 +39,15 @@ scriptUtil
       case 'server':
       case 'stop':
       case 'status':
-      case 'convert':
       case 'analyze':
       case 'regenerateSdk':
         executable = 'node'
         main = scriptUtil.mainPath(false)
+        break
+      case 'convert':
+        executable = 'node'
+        main = scriptUtil.mainPath(false)
+        extraArgs = ['--noUi', '--noServer', '--noZapFileLog']
         break
       default:
         executable = 'electron'
@@ -74,6 +77,7 @@ scriptUtil
         process.exit(1)
       }
     }
+    cmdArgs.push(...extraArgs)
     cmdArgs.push(...args)
     return scriptUtil.executeCmd(null, 'npx', cmdArgs)
   })

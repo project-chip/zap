@@ -20,7 +20,7 @@ const os = require('os')
 import fs from 'fs'
 const pino = require('pino')
 const zapBaseUrl = 'http://localhost:'
-const zapUrlLog = 'zap.url'
+
 import { VersionType, ErrorType } from '../types/env-types'
 
 export function builtinSilabsZclMetafile() {
@@ -247,14 +247,6 @@ export function zapVersion() {
       date: '',
     }
     try {
-      let p = require(locateProjectResource('./package.json'))
-      versionObject.version = p.version
-    } catch (err) {
-      logError('Could not retrieve version from package.json')
-      versionObject.version = '0.0.0'
-    }
-
-    try {
       let p = require(locateProjectResource('./apack.json'))
       versionObject.featureLevel = p.featureLevel
     } catch (err) {
@@ -267,6 +259,7 @@ export function zapVersion() {
       versionObject.hash = ver.hash
       versionObject.timestamp = ver.timestamp
       versionObject.date = ver.date
+      versionObject.version = ver.zapVersion
     } catch {
       logError('Could not retrieve version from .version.json')
     }
