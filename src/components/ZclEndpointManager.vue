@@ -19,9 +19,9 @@ limitations under the License.
     <!-- Add onClick handler for new endpoint-->
     <div class="row">
       <q-btn
-        class="vertical-align:middle q-pa-md q-mini-drawer-hide row-8"
+        class="vertical-align:middle q-pa-md q-mini-drawer-hide row-8 v-step-0"
         text-color="primary"
-        @click="newEndpointDialog = true"
+        @click="toggleCreateEndpointModal()"
         icon="add"
         label="Add New Endpoint"
         flat
@@ -42,19 +42,18 @@ limitations under the License.
       />
     </div>
     <q-separator class="q-mini-drawer-hide" />
-    <template v-for="(child, index) in endpoints">
       <zcl-endpoint-card
+        v-for="(child, index) in endpoints"
         v-bind:key="index"
         v-bind:endpointReference="child.id"
         class="q-mini-drawer-hide"
       >
       </zcl-endpoint-card>
-    </template>
 
-    <q-dialog v-model="newEndpointDialog" class="background-color:transparent">
+    <q-dialog v-model="showEndpointModal" class="background-color:transparent">
       <zcl-create-modify-endpoint
         v-bind:endpointReference="null"
-        v-on:saveOrCreateValidated="newEndpointDialog = false"
+        v-on:saveOrCreateValidated="toggleCreateEndpointModal()"
       />
     </q-dialog>
   </div>
@@ -101,11 +100,23 @@ export default {
         }))
       },
     },
+    // This computed will show create endpoint modal, its trigger with vue tour
+    showEndpointModal: {
+      get() {
+        return this.$store.state.zap.showCreateModifyEndpoint
+      },
+    },
   },
   data() {
     return {
       newEndpointDialog: false,
     }
+  },
+  methods: {
+    // This function changing the modal state
+    toggleCreateEndpointModal() {
+      this.$store.commit('zap/toggleEndpointModal', true)
+    },
   },
 }
 </script>

@@ -26,11 +26,13 @@ limitations under the License.
     >
       <q-icon name="warning" style="font-size: 2.5em; color: red" />
     </q-btn>
+    <VueTour />
   </div>
 </template>
 
 <script>
 import { QSpinnerGears } from 'quasar'
+import VueTour from './tutorials/VueTour.vue'
 const rendApi = require(`../src-shared/rend-api.js`)
 const restApi = require(`../src-shared/rest-api.js`)
 const observable = require('./util/observable.js')
@@ -75,6 +77,9 @@ function initLoad(store) {
 
 export default {
   name: 'App',
+  components: {
+    VueTour,
+  },
   computed: {
     showExceptionIcon() {
       return this.$store.state.zap.showExceptionIcon

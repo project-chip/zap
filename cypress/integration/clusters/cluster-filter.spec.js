@@ -22,7 +22,7 @@ describe('Testing cluster filters', () => {
       cy.get(
         '[data-test="filter-input"]'
       ).click()
-      cy.get('.q-virtual-scroll__content > :nth-child(3)').click()
+      cy.get('.q-virtual-scroll__content > :nth-child(3)').click({force: true})
       cy.fixture('data').then((data) => {
         cy.get('tbody').children().contains(data.cluster2).should('not.exist')
       })
@@ -39,9 +39,10 @@ describe('Testing cluster filters', () => {
       cy.fixture('data').then((data) => {
         cy.get('tbody').children().should('contain', data.cluster2)
       })
+      cy.get('#General').click({force: true})
       cy.get(
         '#General > .q-expansion-item__container > .q-expansion-item__content > :nth-child(1) > .q-table__container > .q-table__middle > .q-table > tbody > :nth-child(2) > :nth-child(6) > .q-field > .q-field__inner > .q-field__control'
-      ).click()
+      ).click({ force: true })
       cy.fixture('data').then((data) => {
         cy.get('.q-virtual-scroll__content > :nth-child(3)')
           .contains(data.server1)
@@ -56,7 +57,7 @@ describe('Testing cluster filters', () => {
     'checks if power configuration exists',
     { retries: { runMode: 2, openMode: 2 } },
     () => {
-      cy.get('.q-virtual-scroll__content > :nth-child(3)').click()
+      cy.get('.q-virtual-scroll__content > :nth-child(2)').click({force: true})
       cy.fixture('data').then((data) => {
         cy.get('tbody').children().should('contain', data.cluster2)
       })

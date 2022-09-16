@@ -353,10 +353,6 @@ export function setAttributeLists(state, data) {
   )
 }
 
-export function setEventLists(state, selected) {
-  Vue.set(state.eventView, 'selectedEvents', selected)
-}
-
 export function setCommandLists(state, data) {
   Vue.set(state.commandView, 'selectedIn', data.incoming)
   Vue.set(state.commandView, 'selectedOut', data.outgoing)
@@ -537,16 +533,57 @@ export function setAllEndpointsData(state, value) {
       id: value.endpointId })
 }
 
-export function updateIsProfileIdShown (state, value) {
-  value == 0 ? state.isProfileIdShown  = false : state.isProfileIdShown  = true
+// This function change state of showCreateModifyEndpoint and will show or hide create endpoint modal
+export function toggleEndpointModal(state, value) {
+  state.showCreateModifyEndpoint = value
 }
 
-// This function will update the cluster stage if cluster changed it will update the endpoint data
-export function updateIsClusterOptionChanged(state, value) {
-  state.isClusterOptionChanged = value
+// This function will show you is tutorial step running or not
+export function toggleTutorial(state, value) {
+  state.isTutorialRunning = value
+}
+
+// This function will expand the cluster so you can see data in it ( this function used for vue tour )
+export function triggerExpanded(state, value) {
+  state.expanded = value
+}
+
+// This function will change the tab of the cluster configuration page
+export function openReportTabInCluster(state, value) {
+  state.showReportTabInCluster = value
+}
+
+// This function will open the extension modal ( this function used for vue tour )
+export function openZclExtensionsDialogForTutorial(state, value) {
+  state.openZclExtensionsDialog = value
+}
+
+// This function will set data of the endpoint that you created for showing clusters
+export function setClusterDataForTutorial(state, value) {
+  state.clusterDataForTutorial = value
+}
+
+// This function will check whether should we show the profile id to the users or no
+export function updateIsProfileIdShown(state, value) {
+  value == 0
+    ? (state.isProfileIdShown = false)
+    : (state.isProfileIdShown = true)
+}
+
+// This function will sets the deviceTypeRef and deviceIdentifier so users can see which device chosen in the tutorial
+export function setDeviceTypeRefAndDeviceIdPair(state, value) {
+  state.deviceTypeRefAndDeviceIdPair = {
+    deviceTypeRef: value.deviceTypeRef,
+    deviceIdentifier: value.deviceIdentifier,
+  }
 }
 
 // This function will toggle showEndpointData state and save that state
 export function toggleShowEndpoint(state, item) {
   Vue.set(state.showEndpointData, item.id, item.value)
+}
+
+// This function will update the cluster stage if cluster changed it will update the endpoint data
+export function updateIsClusterOptionChanged(state, value) {
+  state.isClusterOptionChanged = value
 }
