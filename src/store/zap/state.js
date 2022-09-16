@@ -18,6 +18,7 @@ const restApi = require('../../../src-shared/rest-api.js')
 
 export default function () {
   return {
+    isZapConfigSelected: false,
     isProfileIdShown: null,
     clusterDataForTutorial: [],
     isTutorialRunning: false,

@@ -46,3 +46,8 @@ Cypress.Commands.add('rendererApi', (...args) => {
     log.snapshot('after')
   })
 })
+
+Cypress.Commands.add('setZclProperties', () => {
+  cy.get('[data-test="gen-template"]').click()
+  cy.get('[data-test="login-submit"]').click()
+})

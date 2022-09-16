@@ -10,6 +10,7 @@ describe('Testing Dimmable Light workflow', () => {
     cy.fixture('baseurl').then((data) => {
       cy.visit(data.baseurl)
     })
+    cy.setZclProperties()
     cy.get('[data-test="add-new-endpoint"]').click()
     cy.fixture('data').then((data) => {
       cy.get(

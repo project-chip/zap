@@ -41,6 +41,66 @@ async function getAllSessions(db) {
 }
 
 /**
+ * Reloads a previous session.
+ *
+ * @export
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} userRef
+ * @param {*} sessionKey
+ * @returns A promise that resolves with the one row updated.
+ */
+async function reloadSession(db, sessionId, userRef, sessionKey) {
+  return dbApi.dbUpdate(
+    db,
+    'UPDATE SESSION SET DIRTY = ?, USER_REF = ? , SESSION_KEY = ? WHERE SESSION_ID = ?',
+    [1, userRef, sessionKey, sessionId]
+  )
+}
+
+/**
+ * Returns a promise that resolves into an array of objects containing 'sessionId', 'sessionKey' and 'creationTime' and assigned packages.
+ * Dirty Sessions are the sessions which are created in the past and not saved
+ *
+ * @export
+ * @param {*} db
+ * @returns A promise of executing a query.
+ */
+async function getDirtySessionsWithPackages(db) {
+  let rows = await dbApi.dbAll(
+    db,
+    `
+SELECT 
+  SESSION.SESSION_ID,
+  SESSION.SESSION_KEY,
+  SESSION.CREATION_TIME,
+  SESSION.DIRTY,
+  SESSION_PACKAGE.SESSION_REF,
+  SESSION_PACKAGE.PACKAGE_REF
+  FROM SESSION
+  INNER JOIN SESSION_PACKAGE
+  ON SESSION.SESSION_ID = SESSION_PACKAGE.SESSION_REF
+  WHERE SESSION.DIRTY = 1`,
+    []
+  )
+  let sessions = []
+  rows.forEach((row) => {
+    let session = sessions.find((s) => s.SESSION_ID === row.SESSION_ID)
+    if (session) {
+      session.PACKAGE_REF.push(row.PACKAGE_REF)
+    } else {
+      sessions.push({
+        SESSION_ID: row.SESSION_ID,
+        SESSION_KEY: row.SESSION_KEY,
+        CREATION_TIME: row.CREATION_TIME,
+        PACKAGE_REF: [row.PACKAGE_REF],
+      })
+    }
+  })
+  return sessions.map(dbMapping.map.session)
+}
+
+/**
  * Sets the session dirty flag to false.
  *
  * @export
@@ -494,6 +554,10 @@ async function getAllSessionKeyValues(db, sessionId) {
 
 // exports
 exports.getAllSessions = getAllSessions
+exports.reloadSession = reloadSession
+exports.getDirtySessionsWithPackages = getDirtySessionsWithPackages
+exports.ensureBlankSession = ensureBlankSession
+exports.linkSessionToUser = linkSessionToUser
 exports.setSessionClean = setSessionClean
 exports.getSessionDirtyFlag = getSessionDirtyFlag
 exports.getSessionFromSessionId = getSessionFromSessionId

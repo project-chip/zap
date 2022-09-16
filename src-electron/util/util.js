@@ -53,9 +53,17 @@ function checksum(data) {
  * @param {*} db
  * @param {*} sessionId
  * @param {*} options: object containing 'zcl' and 'template'
+ * @param {*} selectedZclPropertyPackage
+ * @param {*} selectedGenTemplatePackages
  * @returns Promise that resolves with the packages array.
  */
-async function initializeSessionPackage(db, sessionId, options) {
+async function initializeSessionPackage(
+  db,
+  sessionId,
+  options,
+  selectedZclPropertyPackage = null,
+  selectedGenTemplatePackages = []
+) {
   let promises = []
 
   // This is the desired ZCL properties file. Because it is possible
@@ -84,7 +92,9 @@ async function initializeSessionPackage(db, sessionId, options) {
       .getPackagesByType(db, dbEnum.packageType.zclProperties)
       .then((rows) => {
         let packageId
-        if (rows.length == 1) {
+        if (selectedZclPropertyPackage) {
+        packageId = selectedZclPropertyPackage
+      } else if (rows.length == 1) {
           packageId = rows[0].id
           env.logDebug(
             `Single zcl.properties found, using it for the session: ${packageId}`
@@ -114,62 +124,80 @@ async function initializeSessionPackage(db, sessionId, options) {
     promises.push(zclPropertiesPromise)
   }
 
-  // 2. Associate a gen template file
-  if (!hasGenTemplate) {
-    let genTemplateJsonPromise = queryPackage
-      .getPackagesByType(db, dbEnum.packageType.genTemplatesJson)
-      .then((rows) => {
-        let packageId
-        if (rows.length == 1) {
-          packageId = rows[0].id
-          env.logDebug(
-            `Single generation template metafile found, using it for the session: ${packageId}`
-          )
-        } else if (rows.length == 0) {
-          env.logInfo(`No generation template metafile found for session.`)
-          packageId = null
-        } else {
-          rows.forEach((p) => {
-            if (
-              options.template != null &&
-              path.resolve(options.template) === p.path
-            ) {
-              packageId = p.id
-            }
-          })
-          if (packageId != null) {
-            env.logWarning(
-              `Multiple toplevel generation template metafiles found. Using the one from args: ${packageId}`
-            )
-          } else {
+  // 2. Associate gen template files
+  if (!hasGenTemplate) {let genTemplateJsonPromise = queryPackage
+    .getPackagesByType(db, dbEnum.packageType.genTemplatesJson)
+    .then((rows) => {
+      let packageId
+      if(selectedGenTemplatePackages.length > 0){
+        selectedGenTemplatePackages.forEach(gen => {
+          if (gen) {
+            packageId = gen
+          } else if (rows.length == 1) {
             packageId = rows[0].id
-            env.logWarning(
-              `Multiple toplevel generation template metafiles found. Using the first one.`
+            env.logDebug(
+              `Single generation template metafile found, using it for the session: ${packageId}`
             )
+          } else if (rows.length == 0) {
+            env.logInfo(`No generation template metafile found for session.`)
+            packageId = null
+          } else {
+            rows.forEach((p) => {
+              if (
+                options.template != null &&
+                path.resolve(options.template) === p.path
+              ) {
+                packageId = p.id
+              }
+            })
+            if (packageId != null) {
+              env.logWarning(
+                `Multiple toplevel generation template metafiles found. Using the one from args: ${packageId}`
+              )
+            } else {
+              packageId = rows[0].id
+              env.logWarning(
+                `Multiple toplevel generation template metafiles found. Using the first one.`
+              )
+            }
           }
-        }
-        if (packageId != null) {
-          return queryPackage.insertSessionPackage(
-            db,
-            sessionId,
-            packageId,
-            true
-          )
+          if (packageId != null) {
+            return queryPackage.insertSessionPackage(db, sessionId, packageId, true)
+          }
+        })
         }
       })
     promises.push(genTemplateJsonPromise)
   }
 
-  if (promises.length > 0) await Promise.all(promises)
-
-  // We have to set the default session key values.
-  let packages = await queryPackage.insertSessionKeyValuesFromPackageDefaults(
-    db,
-    sessionId
-  )
-  await querySession.setSessionClean(db, sessionId)
-
-  return packages
+  return Promise.all(promises)
+    .then(() => queryPackage.getSessionPackages(db, sessionId))
+    .then((packages) => {
+      let p = packages.map((pkg) =>
+        queryPackage
+          .selectAllDefaultOptions(db, pkg.packageRef)
+          .then((optionDefaultsArray) =>
+            Promise.all(
+              optionDefaultsArray.map((optionDefault) => {
+                return queryPackage
+                  .selectOptionValueByOptionDefaultId(
+                    db,
+                    optionDefault.optionRef
+                  )
+                  .then((option) => {
+                    return querySession.insertSessionKeyValue(
+                      db,
+                      sessionId,
+                      option.optionCategory,
+                      option.optionCode
+                    )
+                  })
+              })
+            )
+          )
+      )
+      return Promise.all(p).then(() => packages)
+    })
 }
 
 /**

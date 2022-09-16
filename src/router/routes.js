@@ -17,6 +17,10 @@
 
 const routes = [
   {
+    path: '/login',
+    component: () => import('pages/ZapConfig.vue'),
+  },
+  {
     path: '/',
     name: 'Home',
     component: () => import('layouts/ZclLayout.vue'),

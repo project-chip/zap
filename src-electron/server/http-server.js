@@ -31,6 +31,7 @@ const studio = require('../ide-integration/studio-rest-api')
 const restApi = require('../../src-shared/rest-api.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const watchdog = require('../main-process/watchdog')
+const initialize = require('../rest/initialize')
 const dirtyFlag = require('../util/async-reporting')
 
 const restApiModules = [
@@ -139,6 +140,14 @@ async function initHttpServer(
         resave: true,
         saveUninitialized: true,
       })
+    )
+
+    app.get('/zcl/initialPackagesSessions', initialize.packagesAndSessions(db))
+
+    app.post('/zcl/reloadSession', initialize.loadPreviousSessions(db))
+    app.post(
+      '/zcl/initializeSession',
+      initialize.initializeSession(db, options)
     )
 
     app.use(userSessionHandler(db, options))
