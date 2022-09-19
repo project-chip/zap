@@ -30,6 +30,10 @@ const util = require('../util/util')
 env.versionsCheck()
 env.setProductionEnv()
 
+console.log(`GPU DEBUG: main-ui.ts`)
+console.log(app.getGPUFeatureStatus())
+console.log(app.commandLine)
+
 function hookSecondInstanceEvents(argv: args.Arguments) {
   app
     .whenReady()

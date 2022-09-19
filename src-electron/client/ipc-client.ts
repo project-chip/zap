@@ -30,7 +30,7 @@ const client: ipcTypes.Client = {
 let lastPong: string = ''
 
 function log(msg: string) {
-  env.logIpc(`Ipc client: ${msg}`)
+  console.log(`JING IPC Client: ${msg}`)
 }
 
 /**

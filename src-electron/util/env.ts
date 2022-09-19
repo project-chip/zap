@@ -376,6 +376,8 @@ export function logBrowser(msg: string, err = null) {
  */
 export function logIpc(msg: string, err = null) {
   log('ipc', msg, err)
+  // log('ipc', msg, err)
+  console.log(`JING IPC: ${msg}`)
 }
 
 /**
