@@ -2456,6 +2456,200 @@ async function format_zcl_string_as_characters_for_generated_defaults(
   return formatted_string
 }
 
+/**
+ * Given a zcl device type returns its sign, size and zcl data type info stored
+ * in the database table.
+ * Note: Enums and Bitmaps are considered to be unsigned.
+ * @param {*} type
+ * @param {*} context
+ * @param {*} options
+ * @returns returns sign, size and info of zcl device type
+ * Available Options:
+ * - size: Determine whether to calculate the size of zcl device type in bits
+ * or bytes
+ * for eg: get_sign_and_size_of_zcl_type('int8u' this size='bits') will return
+ * the size in bits which will be 8. If not mentioned then it will return the size
+ * in bytes i.e. 1 in this case.
+ */
+async function get_sign_and_size_of_zcl_type(type, context, options) {
+  const packageIds = await templateUtil.ensureZclPackageIds(context)
+  let isTypeSigned = false
+  let dataTypesize = 0
+  let sizeMultiple = 1
+  if (options.size == 'bits') {
+    sizeMultiple = 8
+  }
+
+  // Extracting the type in the data type table
+  let dataType = await queryZcl.selectDataTypeByName(
+    context.global.db,
+    type,
+    packageIds
+  )
+
+  // Checking if the type is signed or unsigned
+  if (
+    dataType &&
+    dataType.discriminatorName.toLowerCase() == dbEnum.zclType.number
+  ) {
+    let number = await queryZcl.selectNumberByName(
+      context.global.db,
+      packageIds,
+      dataType.name
+    )
+    if (number.isSigned) {
+      isTypeSigned = true
+    }
+  }
+
+  // Extracting the size of the data type
+  if (dataType) {
+    if (dataType.discriminatorName.toLowerCase() == dbEnum.zclType.bitmap) {
+      let bitmap = await queryZcl.selectBitmapByName(
+        context.global.db,
+        packageIds,
+        dataType.name
+      )
+      dataTypesize = Math.pow(2, Math.ceil(Math.log2(bitmap.size)))
+    } else if (
+      dataType.discriminatorName.toLowerCase() == dbEnum.zclType.enum
+    ) {
+      let en = await queryZcl.selectEnumByName(
+        context.global.db,
+        dataType.name,
+        packageIds
+      )
+      dataTypesize = Math.pow(2, Math.ceil(Math.log2(en.size)))
+    } else if (
+      dataType.discriminatorName.toLowerCase() == dbEnum.zclType.number
+    ) {
+      let number = await queryZcl.selectNumberByName(
+        context.global.db,
+        packageIds,
+        dataType.name
+      )
+      dataTypesize = Math.pow(2, Math.ceil(Math.log2(number.size)))
+    }
+  } else {
+    env.logError(`Data Type ${type} is not defined in the data type table.`)
+  }
+  return {
+    isTypeSigned: isTypeSigned,
+    dataTypesize: dataTypesize * sizeMultiple,
+    dataType: dataType,
+  }
+}
+
+/**
+ * Given a zcl data type return the min allowed value for that zcl data type
+ * based on the language specified in the options
+ * @param {*} type
+ * @param {*} options
+ * @returns max allowed value for the given zcl data type
+ * Available Options:
+ * - language: determines the output of the helper based on language
+ * for eg: (as_type_min_value language='c++') will give the output specific to
+ * the c++ language.
+ * Note: If language is not specified then helper throws an error.
+ */
+async function as_type_min_value(type, options) {
+  let signAndSize = await get_sign_and_size_of_zcl_type(type, this, {
+    size: 'bits',
+  })
+  let isTypeSigned = signAndSize.isTypeSigned
+  let dataTypesize = signAndSize.dataTypesize
+  let dataType = signAndSize.dataType
+
+  // Returning min value based on c++ language
+  if (options.hash.language == 'c++') {
+    if (!isTypeSigned) {
+      return 0
+    } else {
+      // Exceptions: single and double zcl types
+      if (dataType && dataType.name == 'single') {
+        return `-std::numeric_limits<float>::infinity()`
+      } else if (dataType && dataType.name == 'double') {
+        return `-std::numeric_limits<double>::infinity()`
+      } else {
+        return 'INT' + dataTypesize + '_MIN'
+      }
+    }
+  } else {
+    throw new Error(
+      'Minimum value cannot be determined by as_type_min_value \
+due to no language option specified in the template'
+    )
+  }
+}
+
+/**
+ * Given a zcl data type return the max allowed value for that zcl data type
+ * based on the language specified in the options
+ * @param {*} type
+ * @param {*} options
+ * @returns max allowed value for the given zcl data type
+ * Available Options:
+ * - language: determines the output of the helper based on language
+ * for eg: (as_type_max_value language='c++') will give the output specific to
+ * the c++ language.
+ * Note: If language is not specified then the helper returns size of type in
+ * bits.
+ */
+async function as_type_max_value(type, options) {
+  let signAndSize = await get_sign_and_size_of_zcl_type(type, this, {
+    size: 'bits',
+  })
+  let isTypeSigned = signAndSize.isTypeSigned
+  let dataTypesize = signAndSize.dataTypesize
+  let dataType = signAndSize.dataType
+
+  // Returning max value based on c++ language
+  if (options.hash.language == 'c++') {
+    if (!isTypeSigned) {
+      // Exceptions: boolean type
+      if (dataType && dataType.name == 'boolean') {
+        return `1`
+      } else {
+        return 'UINT' + dataTypesize + '_MAX'
+      }
+    } else {
+      // Exceptions: single and double zcl types
+      if (dataType && dataType.name == 'single') {
+        return `std::numeric_limits<float>::infinity()`
+      } else if (dataType && dataType.name == 'double') {
+        return `std::numeric_limits<double>::infinity()`
+      } else {
+        return 'INT' + dataTypesize + '_MAX'
+      }
+    }
+  } else {
+    throw new Error(
+      'Maximum value cannot be determined by as_type_max_value \
+due to no language option specified in the template'
+    )
+  }
+}
+
+/**
+ * Returns all structs which have clusters associated with them
+ * @param {*} options
+ * Available Options:
+ * - groupByStructName: Can group the query results based on struct name for
+ * structs which are present in more than one cluster
+ * eg Usage:
+ * {{#structs_with_clusters groupByStructName=1}}{{/structs_with_clusters}}
+ */
+async function structs_with_clusters(options) {
+  const packageIds = await templateUtil.ensureZclPackageIds(this)
+  let structs = await queryZcl.selectStructsWithClusterAssociation(
+    this.global.db,
+    packageIds,
+    options.hash.groupByStructName
+  )
+  let promise = templateUtil.collectBlocks(structs, options, this)
+  return templateUtil.templatePromise(this.global, promise)
+}
+
 const dep = templateUtil.deprecatedHelper
 
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
@@ -2622,3 +2816,6 @@ exports.if_is_char_string = if_is_char_string
 exports.if_is_octet_string = if_is_octet_string
 exports.if_is_short_string = if_is_short_string
 exports.if_is_long_string = if_is_long_string
+exports.structs_with_clusters = structs_with_clusters
+exports.as_type_max_value = as_type_max_value
+exports.as_type_min_value = as_type_min_value
