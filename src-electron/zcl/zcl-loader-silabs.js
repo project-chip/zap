@@ -1058,9 +1058,24 @@ async function processDataType(
  * @returns An Object
  */
 function prepareNumber(a, dataType) {
+  // Adding explicit exceptions for signed types when xml does not specify it
+  let isSignedException = false
+  if (
+    (!('signed' in a.$) && a.$.name.toLowerCase() == 'single') ||
+    a.$.name.toLowerCase() == 'double'
+  ) {
+    isSignedException = true
+  }
   return {
     size: a.$.size,
-    is_signed: a.$.name.endsWith('u') || !a.$.name.includes('int') ? 0 : 1,
+    is_signed:
+      'signed' in a.$
+        ? a.$.signed.toLowerCase() === 'true'
+          ? 1
+          : 0
+        : isSignedException || /^int[0-9]{1,2}s?$/.test(a.$.name)
+        ? 1
+        : 0,
     name: a.$.name,
     cluster_code: a.cluster ? a.cluster : null,
     discriminator_ref: dataType,

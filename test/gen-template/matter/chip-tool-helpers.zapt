@@ -1,0 +1,7 @@
+{{#zcl_clusters}}
+  {{#zcl_commands_source_client}}
+    {{#zcl_command_arguments}}
+    {{as_type_min_value type language='c++'}},{{as_type_max_value type language='c++'}}// actual type: {{type}}
+    {{/zcl_command_arguments}}
+  {{/zcl_commands_source_client}}
+{{/zcl_clusters}}

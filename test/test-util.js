@@ -80,7 +80,7 @@ exports.testTemplate = {
   zigbee: './test/gen-template/zigbee/gen-templates.json',
   zigbeeCount: 28,
   matter: './test/gen-template/matter/gen-test.json',
-  matterCount: 7,
+  matterCount: 8,
   matter2: './test/gen-template/matter2/templates.json',
   matter2Count: 1,
   matter3: './test/gen-template/matter3/t.json',

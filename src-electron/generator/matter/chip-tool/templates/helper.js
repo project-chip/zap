@@ -163,13 +163,27 @@ async function assertSameTestType(current, expected) {
   throw error;
 }
 
+const dep = templateUtil.deprecatedHelper;
+
 //
 // Module exports
 //
-exports.asDelimitedCommand = asDelimitedCommand;
-exports.asTypeMinValue = asTypeMinValue;
-exports.asTypeMaxValue = asTypeMaxValue;
-exports.structs_with_cluster_name = structs_with_cluster_name;
+exports.asDelimitedCommand = dep(
+  asDelimitedCommand,
+  'asDelimitedCommand has been deprecated. Use cleanse_label_as_kebab_case instead'
+);
+exports.asTypeMinValue = dep(
+  asTypeMinValue,
+  'asTypeMinValue has been deprecated. Use as_type_min_value instead'
+);
+exports.asTypeMaxValue = dep(
+  asTypeMaxValue,
+  'asTypeMaxValue has been deprecated. Use as_type_max_value instead'
+);
+exports.structs_with_cluster_name = dep(
+  structs_with_cluster_name,
+  'structs_with_cluster_name has been deprecated. Use structs_with_clusters instead'
+);
 exports.assertSameTestType = assertSameTestType;
 
 exports.meta = {
