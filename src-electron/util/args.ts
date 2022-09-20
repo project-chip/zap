@@ -258,11 +258,13 @@ For more information, see ${commonUrl.projectUrl}`
 
   if (ret.tempState) {
     let tempDir = fs.mkdtempSync(`${os.tmpdir()}${path.sep}zap.`)
-    console.log(`🔧 Using temporary state directory: ${tempDir}`)
-    env.setAppDirectory(tempDir)
+    console.log(
+      `🔧 Using temporary state directory: ${env.setAppDirectory(tempDir)}`
+    )
   } else {
-    console.log(`🔧 Using state directory: ${ret.stateDirectory}`)
-    env.setAppDirectory(ret.stateDirectory)
+    console.log(
+      `🔧 Using state directory: ${env.setAppDirectory(ret.stateDirectory)}`
+    )
   }
 
   return ret
