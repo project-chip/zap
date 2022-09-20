@@ -65,6 +65,11 @@
       "path": "endpoints.zapt",
       "name": "Endpoints",
       "output": "endpoints.out"
+    },
+    {
+      "path": "chip-tool-helpers.zapt",
+      "name": "Helpers in chip-tool",
+      "output": "chip-tool-helpers.txt"
     }
   ]
 }

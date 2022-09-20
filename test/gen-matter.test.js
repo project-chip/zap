@@ -142,6 +142,14 @@ test(
     expect(events).toContain('Field: arg4 [BITMAP]')
     expect(events).toContain('Field: OperationSource [ENUM]')
     expect(events).toContain('Field: SourceNode')
+
+    let chipToolHelper = genResult.content['chip-tool-helpers.txt']
+    expect(chipToolHelper).toContain('0,1// actual type: BOOLEAN')
+    expect(chipToolHelper).toContain('0,UINT16_MAX// actual type: INT16U')
+    expect(chipToolHelper).toContain(
+      '0,UINT8_MAX// actual type: OnOffDelayedAllOffEffectVariant'
+    )
+    expect(chipToolHelper).toContain('0,UINT16_MAX// actual type: vendor_id')
   },
   testUtil.timeout.long()
 )

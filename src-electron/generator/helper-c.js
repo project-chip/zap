@@ -286,11 +286,13 @@ function asUnderscoreLowercase(str) {
 }
 
 /**
- * returns a string after converting ':' and ' ' into '-'
+ * returns a string after converting ':', ' ' and camel case into '-'
+ *
  * @param {*} label
  */
 function cleanseLabelAsKebabCase(label) {
-  return string.toCleanSymbolAsKebabCase(label)
+  let res = label.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase()
+  return string.toCleanSymbolAsKebabCase(res)
 }
 
 /**

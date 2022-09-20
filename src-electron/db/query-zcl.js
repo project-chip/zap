@@ -1153,3 +1153,5 @@ exports.selectSizeFromType = queryDataType.selectSizeFromType
 exports.selectStringById = queryString.selectStringById
 exports.selectStringByName = queryString.selectStringByName
 exports.selectNumberById = queryNumber.selectNumberById
+exports.selectStructsWithClusterAssociation =
+  queryStruct.selectStructsWithClusterAssociation

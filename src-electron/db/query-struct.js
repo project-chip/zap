@@ -93,6 +93,55 @@ ORDER BY
     .then(dbMapping.map.struct)
 }
 
+/**
+ * Get all structs which have a cluster associated with them. If a struct is
+ * present in more than one cluster then it can be grouped by struct name to
+ * avoid additional rows.
+ * @param {*} db
+ * @param {*} packageIds
+ * @param {*} groupByStructName
+ * @returns structs which have an association with clusters
+ */
+async function selectStructsWithClusterAssociation(
+  db,
+  packageIds,
+  groupByStructName
+) {
+  let groupByClause = groupByStructName ? `GROUP BY DT.NAME` : ``
+  let rows = await dbApi.dbAll(
+    db,
+    `
+SELECT
+  S.STRUCT_ID AS STRUCT_ID,
+  S.IS_FABRIC_SCOPED AS IS_FABRIC_SCOPED,
+  DT.NAME AS NAME,
+  (SELECT COUNT(1) FROM DATA_TYPE_CLUSTER WHERE DATA_TYPE_CLUSTER.DATA_TYPE_REF = S.STRUCT_ID) AS STRUCT_CLUSTER_COUNT,
+  CLUSTER.NAME AS CLUSTER_NAME
+FROM
+  STRUCT AS S
+INNER JOIN
+  DATA_TYPE AS DT
+ON
+  S.STRUCT_ID = DT.DATA_TYPE_ID
+INNER JOIN
+  DATA_TYPE_CLUSTER AS DTC
+ON
+  DT.DATA_TYPE_ID = DTC.DATA_TYPE_REF
+INNER JOIN
+  CLUSTER
+ON
+  DTC.CLUSTER_REF = CLUSTER.CLUSTER_ID
+WHERE
+  DT.PACKAGE_REF IN (${dbApi.toInClause(packageIds)}) ` +
+      groupByClause +
+      ` ORDER BY
+  DT.NAME`
+  )
+  return rows.map(dbMapping.map.struct)
+}
+
 exports.selectStructById = selectStructById
 exports.selectAllStructs = selectAllStructs
 exports.selectStructByName = selectStructByName
+exports.selectStructsWithClusterAssociation =
+  selectStructsWithClusterAssociation
