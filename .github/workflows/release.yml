@@ -2,9 +2,11 @@ name: Build and release packages
 
 on:
   push:
+    branches: [master]
   pull_request:
+    branches: [master]
   workflow_dispatch:
-
+    branches: [master]
 
 env:
   ZAP_TEST_TIMEOUT: 3600000
