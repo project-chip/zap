@@ -19,7 +19,7 @@ limitations under the License.
       <q-card-section>
         <div class="text-h5">Add Custom ZCL</div>
         <div class="row items-center">
-          <div>
+          <div class="col-11">
             You can use this functionality to add custom ZCL clusters or
             commands to the Zigbee Clusters Configurator
           </div>
@@ -30,6 +30,9 @@ limitations under the License.
             class="v-step-17"
             @click="browseForFile()"
           />
+          <form method="post" enctype="multipart/form-data">
+            <input type="file" class="hidden" id="file-upload" standout @change="fileSelected" data-test="add-file-input"/>
+          </form>
         </div>
       </q-card-section>
       <q-card-section>
@@ -88,22 +91,37 @@ import { Notify } from 'quasar'
 export default {
   mixins: [CommonMixin],
   methods: {
+    fileSelected(event){
+      this.packageToLoad = event.target.files[0]
+      this.loadNewPackage()
+    },
     getFileName(path) {
       let fileName = path.match(/[^/]+$/)
       return fileName.length > 0 ? fileName[0] : path
     },
     browseForFile() {
-      window[rendApi.GLOBAL_SYMBOL_NOTIFY](rendApi.notifyKey.fileBrowse, {
-        context: 'customXml',
-        title: 'Select an XML file containing custom ZCL objects',
-        mode: 'file',
-        defaultPath: this.packageToLoad,
-        buttonLabel: 'Open',
-      })
+      if(this.standaloneMode()){
+        window[rendApi.GLOBAL_SYMBOL_NOTIFY](rendApi.notifyKey.fileBrowse, {
+          context: 'customXml',
+          title: 'Select an XML file containing custom ZCL objects',
+          mode: 'file',
+          defaultPath: this.packageToLoad,
+          buttonLabel: 'Open'
+        })
+      }else{
+        document.getElementById('file-upload').click()
+      }
     },
     loadNewPackage() {
+      let formData = {}
+      if(this.standaloneMode()){
+        formData = {path : this.packageToLoad}
+      }else{
+        formData = new FormData();
+        formData.append('path',this.packageToLoad)
+      }
       return this.$store
-        .dispatch('zap/addNewPackage', this.packageToLoad)
+        .dispatch('zap/addNewPackage', formData)
         .then((packageStatus) => {
           if (packageStatus.isValid) {
             this.error = null

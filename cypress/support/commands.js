@@ -1,3 +1,5 @@
+import 'cypress-file-upload';
+
 const rendApi = require('../../src-shared/rend-api.js')
 const _ = require('lodash')
 

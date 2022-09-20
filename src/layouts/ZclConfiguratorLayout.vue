@@ -71,6 +71,7 @@ limitations under the License.
             :unelevated="false"
             :outline="false"
             @click="zclExtensionDialog = true"
+            data-test="zcl-extensions-btn"
           >
             <Transition name="bounce">
               <div v-if="displayButton" class="text-align q-ml-xs">

@@ -679,8 +679,10 @@ export async function loadSessionKeyValues(context) {
  * @returns validity object
  */
 export async function addNewPackage(context, filePath) {
-  let response = await Vue.prototype.$serverPost(restApi.uri.addNewPackage, {
-    path: filePath,
+  let response = await Vue.prototype.$serverPost(restApi.uri.addNewPackage, filePath, {
+    header : {
+      'Content-Type' : 'multipart/form-data'
+    }
   })
 
   if (response.data.isValid) {

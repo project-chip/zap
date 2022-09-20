@@ -26,6 +26,7 @@ const env = require('../util/env')
 const queryZcl = require('../db/query-zcl.js')
 const dbApi = require('../db/db-api.js')
 const queryAttribute = require('../db/query-attribute.js')
+import formidable from 'formidable';
 const queryCommand = require('../db/query-command.js')
 const queryConfig = require('../db/query-config.js')
 const queryEndpointType = require('../db/query-endpoint-type.js')
@@ -401,28 +402,46 @@ function httpPostAddNewPackage(db) {
     let sessionId = req.zapSessionId
     let filePath = req.body.path
     try {
-      let data = await zclLoader.loadIndividualFile(db, filePath, sessionId)
-      let status
-      if (data.err) {
-        status = {
-          isValid: false,
-          err: data.err.message,
-        }
-      } else {
-        await queryPackage.insertSessionPackage(
-          db,
-          sessionId,
-          data.packageId,
-          false
-        )
-        status = {
-          isValid: true,
-          sessionId: sessionId,
-        }
+      if(typeof req.body.path != 'string'){
+        let form = new formidable.IncomingForm()
+        form.parse(req, async function (err, fields, files) {
+          let oldpath = files.path.filepath
+          filePath =  __dirname + '/../../../user-files/' + files.path.originalFilename
+          let dir = __dirname + '/../../../user-files'
+          if (!fs.existsSync(dir)){
+            fs.mkdirSync(dir);
+          }
+          fs.copyFile(oldpath, filePath, async function (err) {
+            if (err) throw err
+            res.status(StatusCodes.OK).json(await storePackagePathInDatabase(db, filePath, sessionId))
+          });
+        })
+      }else{
+        res.status(StatusCodes.OK).json(await storePackagePathInDatabase(db, filePath, sessionId))
       }
-      res.status(StatusCodes.OK).json(status)
     } catch (err) {
       response.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err)
+    }
+  }
+}
+
+async function storePackagePathInDatabase(db, filePath, sessionId){
+  let data = await zclLoader.loadIndividualFile(db, filePath, sessionId)
+  if (data.err) {
+    return {
+      isValid: false,
+      err: data.err.message,
+    }
+  } else {
+    await queryPackage.insertSessionPackage(
+      db,
+      sessionId,
+      data.packageId,
+      false
+    )
+    return {
+      isValid: true,
+      sessionId: sessionId,
     }
   }
 }
