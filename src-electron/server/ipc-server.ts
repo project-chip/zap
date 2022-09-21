@@ -48,9 +48,9 @@ const server: ipcTypes.Server = {
  * Returns the socket path for the IPC.
  */
 function socketPath() {
-  var defaultSocketPath =
+  let defaultSocketPath =
     process.platform == 'win32'
-      ? '\\\\.\\pipe\\' + 'zap-ipc' + '-sock'
+      ? 'zap-ipc-sock'
       : path.join(os.tmpdir(), 'zap-ipc' + '.sock')
   return defaultSocketPath
 }
