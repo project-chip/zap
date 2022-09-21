@@ -13,6 +13,10 @@
   },
   "private": true,
   "homepage": "https://github.com/project-chip/zap",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:project-chip/zap.git"
+  },
   "main": "dist/src-electron/ui/main-ui.js",
   "bin": "dist/src-electron/main-process/main.js",
   "scripts": {
