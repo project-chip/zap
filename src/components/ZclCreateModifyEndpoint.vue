@@ -321,12 +321,27 @@ export default {
               deviceIdentifier:
                 this.deviceTypeRefAndDeviceIdPair.deviceIdentifier,
             })
-            .then((res) => {
+            .then(async (res) => {
+              let endpointTypeIdList = this.endpointTypeIdList
+              endpointTypeIdList.push(res.endpointType)
+
               if (this.shareClusterStatesAcrossEndpoints()) {
-                this.$store.dispatch('zap/shareClusterStatesAcrossEndpoints', {
-                  endpointTypeIdList: this.endpointTypeIdList,
+                await this.$store.dispatch('zap/shareClusterStatesAcrossEndpoints', {
+                  endpointTypeIdList: endpointTypeIdList,
                 })
               }
+
+              await this.$store.commit('zap/addEndpoint', {
+                id: res.id,
+                endpointId: res.endpointId,
+                endpointTypeRef: res.endpointType,
+                networkId: res.networkId,
+                profileId: res.profileId,
+                deviceIdentifier: res.deviceId,
+                endpointVersion: res.endpointVersion,
+                endpointIdValidationIssues: res.validationIssues.endpointId,
+                networkIdValidationIssues: res.validationIssues.networkId,
+              })
 
               this.$store.dispatch('zap/updateSelectedEndpointType', {
                 endpointType: this.endpointType[res.id],
