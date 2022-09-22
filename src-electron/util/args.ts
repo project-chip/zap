@@ -220,6 +220,16 @@ export function processCommandLineArguments(argv: string[]) {
         zapVersion.source ? '\nMode: source' : '\nMode: binary'
       }`
     )
+    .version(
+      '--versionJson',
+      JSON.stringify({
+        Version: zapVersion.version,
+        'Feature level': zapVersion.featureLevel,
+        Hash: zapVersion.hash,
+        Date: zapVersion.date,
+        Mode: zapVersion.source ? 'source' : 'binary',
+      }, null, 1)
+    )
     .help()
     .alias({
       help: ['h', '?'],
