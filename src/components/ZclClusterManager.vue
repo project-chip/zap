@@ -21,8 +21,10 @@ limitations under the License.
         <div class="row">
           <q-toolbar>
             <q-toolbar-title style="font-weight: bolder">
-              Endpoint
-              {{ this.endpointId[this.selectedEndpointId] }} Clusters
+              <span class="v-step-6"
+                >Endpoint
+                {{ this.endpointId[this.selectedEndpointId] }} Clusters</span
+              >
             </q-toolbar-title>
           </q-toolbar>
         </div>
@@ -39,7 +41,7 @@ limitations under the License.
             </div>
             &nbsp; &nbsp;
 
-            <div>
+            <div class="v-step-7">
               <q-select
                 outlined
                 :value="filter"
@@ -81,12 +83,13 @@ limitations under the License.
           </q-input>
         </div>
         <q-list style="padding-bottom: 250px">
-          <div v-for="domainName in domainNames" :key="domainName.id">
+          <div v-for="(domainName, index) in domainNames" :key="domainName.id">
             <div v-show="clusterDomains(domainName).length > 0">
               <q-expansion-item
                 :id="domainName"
                 switch-toggle-side
                 :label="domainName"
+                :ref="domainName + index"
                 @input="setOpenDomain(domainName, $event)"
                 :value="getDomainOpenState(domainName)"
                 data-test="Cluster"
@@ -123,6 +126,9 @@ export default {
   watch: {
     enabledClusters() {
       this.changeDomainFilter(this.filter)
+    },
+    expanded() {
+      this.$refs[this.$store.state.zap.domains[0] + 0][0].show()
     },
   },
   computed: {
@@ -182,6 +188,16 @@ export default {
     actionOptions: {
       get() {
         return this.$store.state.zap.clusterManager.actionOptions
+      },
+    },
+    isTutorialRunning: {
+      get() {
+        return this.$store.state.zap.isTutorialRunning
+      },
+    },
+    expanded: {
+      get() {
+        return this.$store.state.zap.expanded
       },
     },
   },

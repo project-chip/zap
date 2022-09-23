@@ -132,6 +132,7 @@ limitations under the License.
           </q-td>
           <q-td key="enable" :props="props">
             <q-select
+              class="v-step-8"
               :v-model="getClusterEnabledStatus(props.row.id)"
               :value="getClusterEnabledStatus(props.row.id)"
               :display-value="`${getClusterEnabledStatus(props.row.id)}`"
@@ -144,6 +145,7 @@ limitations under the License.
           <q-td key="configure" :props="props">
             <q-btn
               flat
+              class="v-step-9"
               :color="isClusterEnabled(props.row.id) ? 'primary' : 'grey'"
               dense
               :disable="!isClusterEnabled(props.row.id)"
@@ -452,6 +454,14 @@ export default {
           style: 'width: 10%',
         },
       ],
+    }
+  },
+  created() {
+    // This function check you created endpoint before and right now you are in the tutorial steps, then sets cluster data
+    if (this.clusters !== undefined) {
+      if(this.clusters[0].domainName == this.$store.state.zap.domains[0]) {
+        this.$store.commit('zap/setClusterDataForTutorial', this.clusters[0]) 
+      }
     }
   },
 }
