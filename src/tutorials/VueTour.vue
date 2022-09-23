@@ -221,6 +221,21 @@ export default {
     expandCluster() {
       return new Promise((resolve) => {
         this.$store.commit('zap/triggerExpanded', true)
+        document
+          .getElementsByClassName(
+            'q-select__dropdown-icon q-icon mdi mdi-menu-down'
+          )[1]
+          .click()
+        resolve()
+      })
+    },
+    showFilter() {
+      return new Promise((resolve) => {
+        document
+          .getElementsByClassName(
+            'q-select__dropdown-icon q-icon mdi mdi-menu-down'
+          )[0]
+          .click()
         resolve()
       })
     },

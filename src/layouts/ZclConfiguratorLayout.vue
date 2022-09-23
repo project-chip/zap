@@ -66,7 +66,7 @@ limitations under the License.
             icon="list"
             align="center"
             flat
-            class="v-step-15"
+            class="v-step-16"
             :ripple="false"
             :unelevated="false"
             :outline="false"

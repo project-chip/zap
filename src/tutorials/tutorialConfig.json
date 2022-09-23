@@ -3,38 +3,38 @@
     {
       "target": ".v-step-0",
       "title": "Adding Endpoints",
-      "content": "A Zigbee application can have multiple endpoints. Each endpoint contains a device configuration made up of Clusters on that endpoint. Add a new endpoint to your application by clicking <strong>ADD NEW ENDPOINT</strong> in the top left corner of the Zigbee Cluster Configurator interface",
+      "content": "A Zigbee application can have multiple endpoints. Each endpoint contains a device configuration made up of Clusters on that endpoint. Add a new endpoint to your application by clicking <strong>ADD NEW ENDPOINT</strong> in the top left corner of the Zigbee Cluster Configurator interface.",
       "before": "startTutorialAndCloseTheEndpointModal",
       "placement": "bottom",
       "enableScrolling": true,
-      "highlight": true
+      "highlight": false
     },
     {
       "target": ".v-step-1",
       "title": "",
-      "content": "A dialog opens in which you can select the device type for the endpoint.",
+      "content": "To change the number of the endpoint on which you would like this device to appear, change the <strong>Endpoint</strong> setting.",
       "before": "openEndpointModal",
-      "placement": "top",
+      "placement": "left",
       "enableScrolling": true,
-      "highlight": true
+      "highlight": false
     },
     {
       "target": ".v-step-2",
       "title": "",
-      "content": "From here you can select whether you would like the endpoint to represent something like a Light or a Door Lock. You can find the Zigbee device type by entering the name of the device in the <strong>Device</strong> field",
+      "content": "From here you can select whether you would like the endpoint to represent something like a Light or a Door Lock. You can find the Zigbee device type by entering the name of the device in the <strong>Device</strong> field.",
       "before": "",
-      "placement": "right",
+      "placement": "left",
       "enableScrolling": true,
-      "highlight": true
+      "highlight": false
     },
     {
       "target": ".v-step-3",
       "title": "",
-      "content": "To change the number of the endpoint on which you would like this device to appear, change the <strong>Endpoint</strong> setting",
-      "before": "setDeviceEndpoint",
+      "content": "An endpoint can be assigned a network id that corresponds to which <strong>network</strong> it is on.",
+      "before": "",
       "placement": "left",
       "enableScrolling": true,
-      "highlight": true
+      "highlight": false
     },
     {
       "target": ".v-step-4",
@@ -43,115 +43,124 @@
       "before": "createMockEndpoint",
       "placement": "right",
       "enableScrolling": true,
-      "highlight": true
+      "highlight": false
     },
     {
       "target": ".v-step-5",
       "title": "Modifying an Endpoint",
-      "content": "Select an endpoint to modify by clicking on the endpoint configuration on the left side of the Zigbee Cluster Configurator. The Endpoint highlighted with a blue border is the endpoint that you are in the process of modifying.",
+      "content": "To modify an endpoint, click on the endpoint configuration on the left side of the Zigbee Cluster Configurator. A <strong>blue border</strong> corresponds to the endpoint being modified.",
       "before": "generateEndpointCard",
-      "placement": "right",
+      "placement": "bottom",
       "enableScrolling": true,
-      "highlight": true
+      "highlight": false
     },
     {
       "target": ".v-step-6",
       "title": "",
-      "content": "When the endpoint is highlighted, you can modify the clusters enabled on that endpoint in the cluster configuration editor on the right side of the Zigbee Cluster Configurator.",
+      "content": "The clusters of the highlighted endpoint can be modified on the right side of the Zigbee Cluster Configurator.",
       "before": "",
-      "placement": "bottom",
+      "placement": "right",
       "enableScrolling": false,
-      "highlight": true
+      "highlight": false
     },
     {
       "target": ".v-step-7",
       "title": "",
-      "content": "The Show dropdown gives you options by which to view the clusters that are available or enabled on your endpoint. To see only clusters that are enabled on the endpoint, select the ‘Enabled Clusters’ option.",
-      "before": "",
+      "content": "The Show dropdown shows all the available clusters for a certain endpoint. Selecting the <strong>Enabled Clusters</strong> option will display only clusters enabled on the endpoint.",
+      "before": "showFilter",
       "placement": "right",
       "enableScrolling": false,
-      "highlight": true
+      "highlight": false
     },
     {
       "target": ".v-step-8",
       "title": "Configuring a Cluster",
-      "content": "You can enable either the Client or Server (or both) sides of a cluster, by changing the ‘Client’ and ‘Server’ settings in the Enable column. Note that, depending on the changes you make, you may be notified that components have been added to your project.",
+      "content": "You can enable the Client and/or Server sides of a cluster through changing the <strong>Client and Server</strong> settings in the Enable column. In order to remove a cluster from a configuration, select the <strong>Not Enabled</strong> option. Depending on the changes you make, you may be notified that components have been added to your project.",
       "before": "expandCluster",
-      "placement": "top",
+      "placement": "left",
       "enableScrolling": false,
-      "highlight": true
+      "highlight": false
     },
     {
       "target": ".v-step-9",
       "title": "Configuring a Cluster",
-      "content": "Each cluster can be configured to implement Zigbee cluster attributes and commands. The Enable Command Discovery toggle in the top interface ribbon allows the list of commands supported by the device to be visible through the Zigbee General Command Discovery command interface.",
+      "content": "Each cluster can be configured to implement Zigbee cluster attributes and commands. The Enable Command Discovery toggle in the top interface ribbon allows the list of commands supported by the device to be visible.",
       "before": "comeBackToHomePage",
-      "placement": "right",
+      "placement": "left",
       "enableScrolling": false,
-      "highlight": true
+      "highlight": false
     },
     {
       "target": ".v-step-10",
       "title": "Configuring Attributes",
-      "content": "Attributes are configured through the first tab in the cluster configuration interface, as shown.",
+      "content": "Attribute configurations can be updated in this tab.",
       "before": "openConfigure",
-      "placement": "top",
+      "placement": "bottom",
       "enableScrolling": false,
-      "highlight": true
+      "highlight": false
     },
     {
       "target": ".v-step-11",
-      "title": "",
-      "content": "To enable or disable an attribute for a given cluster, click the On/Off toggle. When the toggle is shaded blue and to the right the attribute is ON. If the toggle is grey and to the left, the attribute is off and thus not enabled for that cluster. In the figure below, the on/off attribute is implemented, whereas the reporting status attribute is not.",
+      "title": "Configuring Attribute Reporting",
+      "content": "Default attribute reporting is configured in this tab.",
       "before": "",
       "placement": "bottom",
       "enableScrolling": false,
-      "highlight": true
+      "highlight": false
     },
     {
       "target": ".v-step-12",
-      "title": "Configuring Attribute Reporting",
-      "content": "Default attribute reporting is configured through the Attribute Reporting tab in the cluster configuration interface.",
-      "before": "backToAttributesTab",
+      "title": "Commands",
+      "content": "You can manage the handling of commands for a cluster in this tab.",
+      "before": "",
       "placement": "bottom",
       "enableScrolling": false,
-      "highlight": true
+      "highlight": false
     },
     {
       "target": ".v-step-13",
       "title": "",
-      "content": "As with attribute enablement, default attribute reporting is controlled through the toggle interface on the left of the Attribute Reporting table. An attribute is set up to be reported by default when the toggle is on.",
-      "before": "openReportTabInCluster",
+      "content": "To enable or disable an attribute, click on the <strong>On/Off</strong> toggle. The attribute is <strong>ON</strong> when the toggle is shaded blue and to the right, and <strong>OFF</strong> when the toggle is shaded gray and to the left.",
+      "before": "backToAttributesTab",
       "placement": "bottom",
       "enableScrolling": false,
-      "highlight": true
+      "highlight": false
     },
     {
       "target": ".v-step-14",
       "title": "",
-      "content": "For instance, in the following example, Endpoint 1 only implements the Server side of the On/Off cluster. Therefore, it is only possible for the cluster to receive the Off command ‘In’, which is in fact enabled for that cluster. With this setting enabled, the Zigbee Cluster Configurator automatically generates command handling code for handling the On/Off cluster’s ‘Off’ command. This will ensure that, when an ‘Off’ command is received, it will be routed to the correct command handling callback",
-      "before": "openCommandsTabInCluster",
+      "content": "Default attribute reporting is also controlled through the toggle. If the toggle is on, the attribute is set up to be reported by default.",
+      "before": "openReportTabInCluster",
       "placement": "bottom",
       "enableScrolling": false,
-      "highlight": true
+      "highlight": false
     },
     {
       "target": ".v-step-15",
-      "title": "Adding Custom Clusters",
-      "content": "In Zigbee, developers can add their own custom clusters to their applications. This functionality is supported by the Zigbee Cluster Library (ZCL). The custom ZCL must be described in the Silicon Labs ZCL XML format. For examples of custom ZCL XML, see the file sampleextensions.xml in the <GSDK install location>/app/zcl directory. This XML file can be used as a reference for your custom ZCL XML file. Once you have created your custom ZCL XML file, it can be added to your project through the ZCL EXTENSIONS… interface",
-      "before": "backToHomePage",
-      "placement": "right",
+      "title": "",
+      "content": "For instance, in the following example, Endpoint 1 only implements the Server side of the On/Off cluster. Therefore, it is only possible for the cluster to receive the Off command ‘In’, which is in fact enabled for that cluster. With this setting enabled, the Zigbee Cluster Configurator automatically generates command handling code for handling the On/Off cluster’s ‘Off’ command. This will ensure that, when an ‘Off’ command is received, it will be routed to the correct command handling callback.",
+      "before": "openCommandsTabInCluster",
+      "placement": "bottom",
       "enableScrolling": false,
-      "highlight": true
+      "highlight": false
     },
     {
       "target": ".v-step-16",
-      "title": "",
-      "content": "Clicking ZCL EXTENSIONS… opens the Custom ZCL page in the Zigbee Cluster Configurator. Click Add to add your custom ZCL XML to the project. Browse to the location of the custom ZCL XML, select a file, and click Open. Once the custom ZCL XML has been read into the Zigbee Cluster Configurator, your custom clusters, attributes, commands, and so on\nare accessible to the configuration of your application.",
-      "before": "openZclExtensionDialog",
+      "title": "Adding Custom Clusters",
+      "content": "In Zigbee, the Zigbee Cluster Library (ZCL) allows developers to add their own custom clusters to their applications. The custom ZCL must be described in the Silicon Labs ZCL XML format. For examples of custom ZCL XML, see the file sampleextensions.xml in the <GSDK install location>/app/zcl directory. This XML file can be used as a reference for your custom ZCL XML file. Once you have created your custom ZCL XML file, it can be added to your project through the ZCL EXTENSIONS… interface.",
+      "before": "backToHomePage",
       "placement": "bottom",
       "enableScrolling": false,
-      "highlight": true
+      "highlight": false
+    },
+    {
+      "target": ".v-step-17",
+      "title": "",
+      "content": "Clicking <strong>ZCL EXTENSIONS…</strong> opens the Custom ZCL page in the Zigbee Cluster Configurator. Click <strong>Add</strong> to add your custom ZCL XML to the project. Browse to the location of the custom ZCL XML, select a file, and click <strong>Open</strong>. Once the custom ZCL XML has been read into the Zigbee Cluster Configurator, your custom clusters, attributes, commands, and so on are accessible to the configuration of your application.",
+      "before": "openZclExtensionDialog",
+      "placement": "right",
+      "enableScrolling": false,
+      "highlight": false
     }
   ]
 }

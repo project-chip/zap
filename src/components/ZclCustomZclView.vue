@@ -27,7 +27,7 @@ limitations under the License.
           <q-btn
             color="primary"
             icon="add"
-            class="v-step-16"
+            class="v-step-17"
             @click="browseForFile()"
           />
         </div>
@@ -98,7 +98,7 @@ export default {
         title: 'Select an XML file containing custom ZCL objects',
         mode: 'file',
         defaultPath: this.packageToLoad,
-        buttonLabel: 'Open'
+        buttonLabel: 'Open',
       })
     },
     loadNewPackage() {
