@@ -799,11 +799,12 @@ export function generateAllEndpointsData(context, endpointData) {
           enabledClients.push(record.clusterRef)
         } else {
           enabledServers.push(record.clusterRef)
+          
+          }
         }
-      }
+      })
+      server = [...enabledServers, ...enabledClients]
     })
-    server = [...enabledServers, ...enabledServers]
-  })
 
   let promise2 = Vue.prototype.$serverGet(endpointData.attributesRequestUrl).then((res) => {
 

@@ -27,14 +27,15 @@ limitations under the License.
           <q-btn
             color="primary"
             icon="add"
+            class="v-step-16"
             @click="browseForFile()"
           />
         </div>
       </q-card-section>
       <q-card-section>
         <q-list bordered separator>
-          <template v-for="(sessionPackage, index) in packages">
-            <q-item v-bind:key="index">
+          <div v-for="(sessionPackage, index) in packages" :key="index">
+            <q-item>
               <q-item-section>
                 <q-expansion-item>
                   <template slot="header">
@@ -71,7 +72,7 @@ limitations under the License.
                 </q-expansion-item>
               </q-item-section>
             </q-item>
-          </template>
+          </div>
         </q-list>
       </q-card-section>
     </q-card>
