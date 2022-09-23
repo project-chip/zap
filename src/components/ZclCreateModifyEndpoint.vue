@@ -15,7 +15,7 @@ limitations under the License.
 -->
 <template>
   <div>
-    <q-card class="v-step-1">
+    <q-card>
       <q-card-section>
         <div class="text-h6 text-align:left">
           {{ this.endpointReference ? 'Edit Endpoint' : 'Create New Endpoint' }}
@@ -27,7 +27,7 @@ limitations under the License.
             v-model="shownEndpoint.endpointIdentifier"
             ref="endpoint"
             filled
-            class="col v-step-3"
+            class="col v-step-1"
             :rules="[reqInteger, reqPosInt, reqUniqueEndpoint]"
             min="0"
           />
@@ -71,14 +71,11 @@ limitations under the License.
               ref="network"
               outlined
               filled
+              class="col v-step-3"
               stack-label
               :rules="[reqInteger, reqPosInt]"
               min="0"
             >
-              <q-tooltip>
-                An endpoint can be assigned a network id that corresponds to
-                which network it is on.
-              </q-tooltip>
             </q-input>
 
             <q-input
@@ -227,8 +224,8 @@ export default {
           this.profileCodesOptions == null
             ? null
             : this.profileCodesOptions.find(
-              (o) => o.optionCode === this.shownEndpoint.profileIdentifier
-            )
+                (o) => o.optionCode === this.shownEndpoint.profileIdentifier
+              )
 
         return profileOption
           ? profileOption.optionCode + ' (' + profileOption.optionLabel + ')'
@@ -239,7 +236,7 @@ export default {
       get() {
         return this.$store.state.zap.genericOptions[
           DbEnum.sessionOption.profileCodes
-          ]
+        ]
       },
     },
   },
@@ -270,7 +267,9 @@ export default {
         value.deviceIdentifier
     },
     saveOrCreateHandler() {
-      let profile = this.$store.state.zap.isProfileIdShown ? this.$refs.profile.validate() : true
+      let profile = this.$store.state.zap.isProfileIdShown
+        ? this.$refs.profile.validate()
+        : true
 
       if (
         this.$refs.endpoint.validate() &&
@@ -301,7 +300,7 @@ export default {
       return (
         _.isNil(_.findKey(this.endpointId, (a) => a == value)) ||
         this.endpointReference ==
-        _.findKey(this.endpointId, (a) => a == value) ||
+          _.findKey(this.endpointId, (a) => a == value) ||
         'Endpoint identifier must be unique'
       )
     },

@@ -75,7 +75,7 @@ limitations under the License.
               "
             />
           </q-td>
-          <q-td key="in" :props="props" auto-width class="v-step-14">
+          <q-td key="in" :props="props" auto-width class="v-step-15">
             <q-checkbox
               class="q-mt-xs"
               v-model="selectionIn"
