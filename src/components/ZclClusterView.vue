@@ -21,6 +21,7 @@ limitations under the License.
           <router-link
             to="/"
             style="text-decoration: none; color: #027be3; font-weight: bold"
+            data-test="back-btn"
             ><i
               aria-hidden="true"
               role="presentation"
@@ -64,6 +65,7 @@ limitations under the License.
           @input="setIndividualClusterFilterString($event)"
           @clear="setIndividualClusterFilterString('')"
           :value="individualClusterFilterString"
+          data-test="attributes-search-input"
         >
           <template v-slot:prepend>
             <q-icon name="search" />

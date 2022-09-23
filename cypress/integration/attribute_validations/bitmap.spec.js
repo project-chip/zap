@@ -20,23 +20,23 @@ describe('Testing BITMAP type validation', () => {
     { retries: { runMode: 2, openMode: 2 } },
     () => {
       cy.fixture('data').then((data) => {
-        if (data.endpoint1 === 'Matter Bridge (0x000E)') {
-          cy.get(
-            '[data-cy=Attributes] > .q-table__middle > .q-table > .q-virtual-scroll__content > :nth-child(6) > :nth-child(2) > .q-mt-xs > .q-toggle__inner'
-          ).click({ force: true })
-        }
+        // if (data.endpoint1 === 'Matter Bridge (0x000E)') {
         cy.get(
-          `:nth-child(${data.bitmapinputpath}) > [style="min-width: 180px;"] > .q-field > .q-field__inner > .q-field__control > .q-field__control-container > input`
+          `[data-test="attribute-status-toggle-${data.attribute4}"]`
+        ).click()
+        // }
+        cy.get(
+          `[data-test="attribute-input-${data.attribute4}"] > .q-field > .q-field__inner > .q-field__control > .q-field__control-container > input`
         )
-          .clear({ force: true })
-          .type('test', { force: true })
+          .clear({force: true})
+          .type('test')
       })
     }
   )
   it('check if validation works properly', () => {
     cy.fixture('data').then((data) => {
       cy.get(
-        `:nth-child(${data.bitmapinputpath}) > [style="min-width: 180px;"] > .q-field > .q-field__inner > .q-field__bottom > .q-field__messages > div`
+        `[data-test="attribute-input-${data.attribute4}"] > .q-field > .q-field__inner > .q-field__bottom > .q-field__messages > div`
       ).should('exist')
     })
   })

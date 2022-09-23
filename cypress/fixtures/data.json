@@ -19,6 +19,11 @@
   "attribute1": "ZCL version",
   "attribute2": "application version",
   "attribute3": "OTA Upgrade Server ID",
+  "attribute4": "alarm mask",
+  "attribute5": "device enabled",
+  "attribute6": "power source",
+  "attribute7": "cluster revision",
+  "attribute8": "application version",
   "searchString1": "application",
   "searchString2": "power",
   "server1": "Server",
@@ -26,11 +31,5 @@
   "previewBtnData": "sdk-extension.out",
   "outOfRangeAmount1": "99999",
   "availableAttributes1": "17",
-  "availableClusters1": "6",
-  "enum8inputpath": "8",
-  "int16inputpath": "19",
-  "int8clusterpath": "0",
-  "booleanclusterpath": "0",
-  "booleaninputpath": "15",
-  "bitmapinputpath": "16"
+  "availableClusters1": "6"
 }

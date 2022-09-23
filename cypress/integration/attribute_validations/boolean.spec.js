@@ -25,7 +25,7 @@ describe('Testing BOOLEAN type validation', () => {
     () => {
       cy.fixture('data').then((data) => {
         cy.get(
-          `:nth-child(${data.booleaninputpath}) > [style="min-width: 180px;"] > .q-field > .q-field__inner > .q-field__control > .q-field__control-container > input`
+          `[data-test="attribute-input-${data.attribute5}"] > .q-field > .q-field__inner > .q-field__control > .q-field__control-container > input`
         )
           .clear({ force: true })
           .type('test', { force: true })
@@ -35,7 +35,7 @@ describe('Testing BOOLEAN type validation', () => {
   it('check if validation works properly', () => {
     cy.fixture('data').then((data) => {
       cy.get(
-        `:nth-child(${data.booleaninputpath}) > [style="min-width: 180px;"] > .q-field > .q-field__inner > .q-field__bottom > .q-field__messages > div`
+        `[data-test="attribute-input-${data.attribute5}"] > .q-field > .q-field__inner > .q-field__bottom > .q-field__messages > div`
       ).should('exist')
     })
   })

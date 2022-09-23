@@ -16,21 +16,23 @@ describe('Testing disabling enabled attributes', () => {
     })
   })
   it(
-    'getting enabled attribute and disable it',
+    'getting an enabled attribute and disable it',
     { retries: { runMode: 2, openMode: 2 } },
     () => {
-      cy.get(
-        '.table_body:first > :nth-child(2) > .q-mt-xs > .q-toggle__inner'
-      ).click()
-      cy.get(
-        '.table_body:first > :nth-child(2) > .q-mt-xs > .q-toggle__inner'
-      ).should('be.visible')
-      cy.get(
-        '.table_body:first > :nth-child(2) > .q-mt-xs > .q-toggle__inner'
-      ).click()
-      cy.contains(
-        '.table_body:first > :nth-child(2) > .q-mt-xs > .q-toggle__inner'
-      ).should('not.exist')
+      cy.fixture('data').then((data) => {
+        cy.get(
+          `[data-test="attribute-status-toggle-${data.attribute1}"]`
+        ).click()
+        cy.get(
+          `[data-test="attribute-warning-${data.attribute1}"]`
+        ).should('be.visible')
+        cy.get(
+          `[data-test="attribute-status-toggle-${data.attribute1}"]`
+        ).click()
+        cy.contains(
+          `[data-test="attribute-warning-${data.attribute1}"]`
+        ).should('not.exist')
+      })
     }
   )
 })

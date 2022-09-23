@@ -19,6 +19,11 @@
   "attribute1": "GeneratedCommandList",
   "attribute2": "identify time",
   "attribute3": "ClusterRevision",
+  "attribute4": "FeatureMap",
+  "attribute5": "OnOff",
+  "attribute6": "identify type",
+  "attribute7": "identify time",
+  "attribute8": "GeneratedCommandList",
   "searchString1": "identify",
   "searchString2": "On/Off",
   "server1": "Server",
@@ -26,11 +31,5 @@
   "previewBtnData": "access.out",
   "outOfRangeAmount1": "9999999999999999",
   "availableAttributes1": "28",
-  "availableClusters1": "5",
-  "enum8inputpath": "2",
-  "int16inputpath": "1",
-  "int8clusterpath": "1",
-  "booleanclusterpath": "1",
-  "booleaninputpath": "1",
-  "bitmapinputpath": "5"
+  "availableClusters1": "5"
 }

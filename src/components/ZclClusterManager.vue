@@ -89,7 +89,7 @@ limitations under the License.
                 :label="domainName"
                 @input="setOpenDomain(domainName, $event)"
                 :value="getDomainOpenState(domainName)"
-                data-test="Cluster"
+                :data-test="`clusters-${domainName}`"
               >
                 <zcl-domain-cluster-view
                   :domainName="domainName"
