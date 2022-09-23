@@ -20,16 +20,20 @@ describe('Testing INT8U type validation', () => {
     'getting an attribute with INT8U type and change default amount',
     { retries: { runMode: 2, openMode: 2 } },
     () => {
-      cy.get(
-        ':nth-child(1) > [style="min-width: 180px;"] > .q-field > .q-field__inner > .q-field__control > .q-field__control-container > input'
-      )
-        .clear({ force: true })
-        .type('test', { force: true })
+      cy.fixture('data').then((data) => {
+        cy.get(
+          `[data-test="attribute-input-${data.attribute1}"] > .q-field > .q-field__inner > .q-field__control > .q-field__control-container > input`
+        )
+          .clear({ force: true })
+          .type('test', { force: true })
+      })
     }
   )
   it('check if validation works properly', () => {
-    cy.get(
-      ':nth-child(1) > [style="min-width: 180px;"] > .q-field > .q-field__inner > .q-field__bottom > .q-field__messages > div'
-    ).should('exist')
+    cy.fixture('data').then((data) => {
+      cy.get(
+        `[data-test="attribute-input-${data.attribute1}"] > .q-field > .q-field__inner > .q-field__bottom > .q-field__messages > div`
+      ).should('exist')
+    })
   })
 })

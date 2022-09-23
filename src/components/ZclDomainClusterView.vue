@@ -141,6 +141,7 @@ limitations under the License.
               dense
               outlined
               @input="handleClusterSelection(props.row.id, $event)"
+              :data-test="`cluster-status-select-${props.row.label}`"
             />
           </q-td>
           <q-td key="configure" :props="props">

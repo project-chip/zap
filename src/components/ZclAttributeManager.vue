@@ -42,6 +42,7 @@ limitations under the License.
             :props="props"
             class="q-px-none"
             style="width: 30px; max-width: 30px"
+           :data-test="`attribute-warning-${props.row.label}`"
           >
             <q-icon
               v-show="displayAttrWarning(props.row)"
@@ -74,6 +75,7 @@ limitations under the License.
                   selectedCluster.id
                 )
               "
+              :data-test="`attribute-status-toggle-${props.row.label}`"
             />
           </q-td>
           <q-td key="attrID" :props="props" auto-width>{{
@@ -154,7 +156,7 @@ limitations under the License.
           <q-td key="type" :props="props" auto-width>{{
             props.row.type ? props.row.type.toUpperCase() : 'UNKNOWN'
           }}</q-td>
-          <q-td key="default" :props="props" auto-width>
+          <q-td key="default" :props="props" auto-width  :data-test="`attribute-input-${props.row.label}`">
             <q-input
               dense
               bottom-slots
