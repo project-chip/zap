@@ -321,6 +321,48 @@ async function importEndpointTypes(
  * @returns a promise that resolves into a sessionId that was created.
  */
 async function jsonDataLoader(db, state, sessionId) {
+  // Loading all packages before custom xml to make sure clusterExtensions are
+  // handled properly
+  let mainPackages = state.package.filter(
+    (pkg) => pkg.type != dbEnum.packageType.zclXmlStandalone
+  )
+  let mainPackageData = await importPackages(
+    db,
+    sessionId,
+    mainPackages,
+    state.filePath
+  )
+
+  let mainPackagePromise = []
+  mainPackagePromise.push(
+    queryPackage.insertSessionPackage(
+      db,
+      sessionId,
+      mainPackageData.zclPackageId
+    )
+  )
+
+  if (mainPackageData.templateIds.length > 0) {
+    mainPackageData.templateIds.forEach((templateId) => {
+      mainPackagePromise.push(
+        queryPackage.insertSessionPackage(db, sessionId, templateId)
+      )
+    })
+  }
+
+  if (mainPackageData.optionalIds.length > 0) {
+    mainPackageData.optionalIds.forEach((optionalId) =>
+      mainPackagePromise.push(
+        queryPackage.insertSessionPackage(db, sessionId, optionalId)
+      )
+    )
+  }
+  await Promise.all(mainPackagePromise)
+
+  // Loading custom xml after the basic xml packages have been loaded
+  let zclXmlStandAlonePackages = state.package.filter(
+    (pkg) => pkg.type == dbEnum.packageType.zclXmlStandalone
+  )
   // import any packages new to the DB
   let newPkgs = await Promise.all(
     state.package.map((pkg) =>
@@ -359,37 +401,26 @@ async function jsonDataLoader(db, state, sessionId) {
     .filter((p) => p.succeeded)
     .map((p) => p.packageId)
 
-  let packageData = await importPackages(
+  let standAlonePackageData = await importPackages(
     db,
     sessionId,
-    state.package,
+    zclXmlStandAlonePackages,
     state.filePath
   )
 
   // packageData: { sessionId, packageId, otherIds, optionalIds}
-  let promisesStage0 = []
-  let promisesStage1 = [] // Stage 1 is endpoint types
-  let promisesStage2 = [] // Stage 2 is endpoints, which require endpoint types to be loaded prior.
-
-  promisesStage0.push(
-    queryPackage.insertSessionPackage(db, sessionId, packageData.zclPackageId)
-  )
-
-  if (packageData.templateIds.length > 0) {
-    packageData.templateIds.forEach((templateId) => {
-      promisesStage0.push(
-        queryPackage.insertSessionPackage(db, sessionId, templateId)
-      )
-    })
-  }
-
-  if (packageData.optionalIds.length > 0) {
-    packageData.optionalIds.forEach((optionalId) =>
-      promisesStage0.push(
+  let optionalPackagePromises = []
+  if (standAlonePackageData.optionalIds.length > 0) {
+    standAlonePackageData.optionalIds.forEach((optionalId) =>
+      optionalPackagePromises.push(
         queryPackage.insertSessionPackage(db, sessionId, optionalId)
       )
     )
   }
+  await Promise.all(optionalPackagePromises)
+
+  let promisesStage1 = [] // Stage 1 is endpoint types
+  let promisesStage2 = [] // Stage 2 is endpoints, which require endpoint types to be loaded prior.
 
   if ('keyValuePairs' in state) {
     promisesStage1.push(
@@ -402,7 +433,7 @@ async function jsonDataLoader(db, state, sessionId) {
       importEndpointTypes(
         db,
         sessionId,
-        packageData.zclPackageId,
+        mainPackageData.zclPackageId,
         state.endpointTypes,
         state.endpoints,
         newPkgIds
@@ -410,7 +441,6 @@ async function jsonDataLoader(db, state, sessionId) {
     )
   }
 
-  await Promise.all(promisesStage0)
   await Promise.all(promisesStage1)
   await Promise.all(promisesStage2)
   await querySession.setSessionClean(db, sessionId)
@@ -460,9 +490,9 @@ async function jsonDataLoader(db, state, sessionId) {
   }
 
   return {
-    sessionId: packageData.sessionId,
-    zclPackageId: packageData.zclPackageId,
-    templateIds: packageData.templateIds,
+    sessionId: mainPackageData.sessionId,
+    zclPackageId: mainPackageData.zclPackageId,
+    templateIds: mainPackageData.templateIds,
     errors: [],
     warnings: [],
   }
