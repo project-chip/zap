@@ -37,6 +37,7 @@ const testFile4 = path.join(
   __dirname,
   'resource/mfg-specific-clusters-commands.zap'
 )
+const testFile5 = path.join(__dirname, 'resource/zap-file-with-custom-xml.zap')
 
 beforeAll(async () => {
   env.setDevelopmentEnv()
@@ -349,6 +350,112 @@ test(
 
     // Delete the custom xml packageId from the existing session and test generation again
     await queryPackage.deleteSessionPackage(db, sessionId, result.packageId)
+
+    // Generate again after removing a custom xml file
+    genResult = await genEngine.generate(
+      db,
+      sessionId,
+      templateContext.packageId,
+      {},
+      {
+        disableDeprecationWarnings: true,
+      }
+    )
+    ids = genResult.content['zap-id.h']
+    commands = genResult.content['zap-command-ver-2.h']
+
+    // Test custom attributes removal coming from standard cluster extensions(identify cluster extension)
+    expect(ids).not.toContain(
+      '#define ZCL_SAMPLE_MFG_SPECIFIC_IDENTIFY_1_ATTRIBUTE_ID (0x0000)'
+    )
+
+    // Test custom command removal coming from standard cluster extensions(identify cluster extension)
+    expect(commands).not.toContain(
+      '#define emberAfFillCommandIdentifyClusterSampleMfgSpecificIdentifyCommand1'
+    )
+  },
+  testUtil.timeout.long()
+)
+
+test(
+  'Validate custom xml package already present in the zap file',
+  async () => {
+    // Import a zap file which already has a custom xml file reference
+    let { sessionId, errors, warnings } = await importJs.importDataFromFile(
+      db,
+      testFile5
+    )
+
+    // Generate code using templates
+    let genResult = await genEngine.generate(
+      db,
+      sessionId,
+      templateContext.packageId,
+      {},
+      {
+        disableDeprecationWarnings: true,
+      }
+    )
+    // Check if the types are generated correctly
+    // Test custom enum generation
+    let types = genResult.content['zap-type.h']
+    expect(types).toContain('EMBER_ZCL_CUSTOM_STATUS_A = 0,')
+    expect(types).toContain('EmberAfCustomStatus;')
+    // Test custom struct generation
+    expect(types).toContain('typedef struct _CustomStruct')
+    expect(types).toContain('uint32_t S1;')
+    expect(types).toContain('EmberAfCustomType2 S2;')
+    expect(types).toContain('EmberAfCustomLevel S3;')
+    expect(types).toContain('EmberAfCustomArea S4;')
+
+    // Test custom outgoing commands are generated correctly
+    let commands = genResult.content['zap-command-ver-2.h']
+    expect(commands).toContain('#define emberAfFillCommandCustomClusterC1')
+    expect(commands).toContain('ZCL_C1_COMMAND_ID')
+    expect(commands).toContain('#define emberAfFillCommandCustomClusterC13')
+    expect(commands).toContain('ZCL_C13_COMMAND_ID')
+
+    // Test custom command coming from standard cluster extensions(identify cluster extension)
+    expect(commands).toContain(
+      '#define emberAfFillCommandIdentifyClusterSampleMfgSpecificIdentifyCommand1'
+    )
+
+    // Test command structs genereted
+    let structs = genResult.content['zap-command-structs.h']
+    expect(structs).toContain(
+      'typedef struct __zcl_custom_cluster_cluster_c14_command'
+    )
+    expect(structs).toContain('sl_zcl_custom_cluster_cluster_c5_command_t;')
+
+    // Test Custom attributes and command ids
+    let ids = genResult.content['zap-id.h']
+    expect(ids).toContain('#define ZCL_C15_COMMAND_ID (0x03)')
+    expect(ids).toContain('#define ZCL_A8_ATTRIBUTE_ID (0x0301)')
+    expect(ids).toContain('#define ZCL_C11_COMMAND_ID (0x0A)')
+
+    // Test custom attributes coming from standard cluster extensions(identify cluster extension)
+    expect(ids).toContain(
+      '#define ZCL_SAMPLE_MFG_SPECIFIC_IDENTIFY_1_ATTRIBUTE_ID (0x0000)'
+    )
+
+    // Delete the custom xml packageId from the existing session and test generation again
+    let allSessionPackages = await queryPackage.getSessionPackages(
+      db,
+      sessionId
+    )
+    let packageInfoPromises = allSessionPackages.map((pkg) =>
+      queryPackage.getPackageByPackageId(db, pkg.packageRef)
+    )
+    await Promise.all(packageInfoPromises)
+    let zclCustomXmlPackages = packageInfoPromises.filter(
+      (pkg) => pkg._W._W.type == 'zcl-xml-standalone'
+    )
+    let xmlPackageRemovalPromises = zclCustomXmlPackages.map((pkg) =>
+      queryPackage.deleteSessionPackage(db, sessionId, pkg._W._W.id)
+    )
+    await Promise.all(xmlPackageRemovalPromises)
+
+    allSessionPackages = await queryPackage.getSessionPackages(db, sessionId)
 
     // Generate again after removing a custom xml file
     genResult = await genEngine.generate(
