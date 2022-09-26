@@ -117,16 +117,14 @@ async function getPackageByPathAndType(db, path, type) {
  * @returns Promise of a query.
  */
 async function getPackageIdByPathAndTypeAndVersion(db, path, type, version) {
-  return dbApi
-    .dbGet(
-      db,
-      'SELECT PACKAGE_ID FROM PACKAGE WHERE PATH = ? AND TYPE = ? AND VERSION = ?',
-      [path, type, version]
-    )
-    .then((row) => {
-      if (row == null) return null
-      else return row.PACKAGE_ID
-    })
+  // Version can be null for custom xml
+  let packageQuery =
+    `SELECT PACKAGE_ID FROM PACKAGE WHERE PATH = '${path}' AND TYPE = '${type}' AND ` +
+    (version ? `VERSION = '${version}'` : `VERSION IS NULL`)
+  return dbApi.dbGet(db, packageQuery).then((row) => {
+    if (row == null) return null
+    else return row.PACKAGE_ID
+  })
 }
 
 /**
