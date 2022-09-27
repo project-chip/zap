@@ -40,6 +40,13 @@ async function get_cli_size(size, type, allowZclTypes) {
  * @param {*} context
  * @param {*} options
  * @returns the zcl cli data type string with the cli prefix given
+ * Additional Options:
+ * - isOptional option can be passed along with the command argument
+ * to return optional command argument extension accordingly
+ * eg:
+ * #zcl_command_arguments
+ *   zcl_command_argument_type_to_zcl_cli_data_type type isOptional=isOptional
+ * /zcl_command_arguments
  */
 async function zcl_command_argument_type_to_cli_data_type_util(
   type,
@@ -49,7 +56,10 @@ async function zcl_command_argument_type_to_cli_data_type_util(
   options
 ) {
   const packageIds = await templateUtil.ensureZclPackageIds(context)
-  let arrayExtension = 'isArray' in context && context.isArray ? 'OPT' : ''
+  let optionalArgumentExtension =
+    ('isArray' in context && context.isArray) || options.hash.isOptional
+      ? 'OPT'
+      : ''
   let dataType = await queryZcl.selectDataTypeByName(
     context.global.db,
     type,
@@ -63,7 +73,7 @@ async function zcl_command_argument_type_to_cli_data_type_util(
         dataType.name
       )
       let bitmapSize = await get_cli_size(bitmap.size, type, allowZclTypes)
-      return cliPrefix + '_UINT' + bitmapSize + arrayExtension
+      return cliPrefix + '_UINT' + bitmapSize + optionalArgumentExtension
     } else if (
       dataType.discriminatorName.toLowerCase() == dbEnum.zclType.enum
     ) {
@@ -73,7 +83,7 @@ async function zcl_command_argument_type_to_cli_data_type_util(
         packageIds
       )
       let enumSize = await get_cli_size(en.size, type, allowZclTypes)
-      return cliPrefix + '_UINT' + enumSize + arrayExtension
+      return cliPrefix + '_UINT' + enumSize + optionalArgumentExtension
     } else if (
       dataType.discriminatorName.toLowerCase() == dbEnum.zclType.number
     ) {
@@ -84,18 +94,18 @@ async function zcl_command_argument_type_to_cli_data_type_util(
       )
       let numSize = await get_cli_size(number.size, type, allowZclTypes)
       if (numSize > 32) {
-        return cliPrefix + '_HEX' + arrayExtension
+        return cliPrefix + '_HEX' + optionalArgumentExtension
       }
       let numType = '_' + (number.isSigned ? '' : 'U') + 'INT' + numSize
-      return cliPrefix + numType + arrayExtension
+      return cliPrefix + numType + optionalArgumentExtension
     } else if (
       dataType.discriminatorName.toLowerCase() == dbEnum.zclType.struct
     ) {
-      return cliPrefix + '_HEX' + arrayExtension
+      return cliPrefix + '_HEX' + optionalArgumentExtension
     } else if (
       dataType.discriminatorName.toLowerCase() == dbEnum.zclType.string
     ) {
-      return cliPrefix + '_STRING' + arrayExtension
+      return cliPrefix + '_STRING' + optionalArgumentExtension
     } else {
       return ''
     }

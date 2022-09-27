@@ -467,7 +467,10 @@ function prepareCluster(cluster, context, isExtension = false) {
               isArray: arg.$.array == 'true' ? 1 : 0,
               presentIf: arg.$.presentIf,
               isNullable: arg.$.isNullable == 'true' ? true : false,
-              isOptional: arg.$.optional == 'true' ? true : false,
+              isOptional:
+                arg.$.optional == 'true' || arg.$.optional == '1'
+                  ? true
+                  : false,
               countArg: arg.$.countArg,
               fieldIdentifier: lastFieldId,
               introducedIn: arg.$.introducedIn,
