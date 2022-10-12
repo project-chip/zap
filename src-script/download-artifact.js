@@ -869,9 +869,9 @@ function configureBuildCommand() {
 }
 function main() {
   return __awaiter(this, void 0, void 0, function () {
-    var y, dlOptions, githubBranches, _a, nexusUrl, nexusItems, artifacts
-    return __generator(this, function (_b) {
-      switch (_b.label) {
+    var y, dlOptions, githubBranches, nexusUrl, nexusItems, artifacts
+    return __generator(this, function (_a) {
+      switch (_a.label) {
         case 0:
           y = configureBuildCommand()
           dlOptions = {
@@ -895,37 +895,40 @@ function main() {
             // evaluate artifact source
           ]
         case 1:
-          githubBranches = _b.sent()
-          _a = dlOptions.src === 'nexus'
-          if (!_a) return [3 /*break*/, 3]
+          githubBranches = _a.sent()
+          if (!(dlOptions.src === 'nexus')) return [3 /*break*/, 3]
           return [4 /*yield*/, (0, is_reachable_1['default'])(NEXUS_SERVER)]
         case 2:
-          _a = _b.sent()
-          _b.label = 3
-        case 3:
-          // evaluate artifact source
-          if (_a) {
-            if (
-              githubBranches.includes(dlOptions.branch) &&
-              !nexusCachedBranches.includes(dlOptions.branch)
-            ) {
-              console.log(
-                'Branch '.concat(
-                  dlOptions.branch,
-                  ' is not cached on Nexus. Defaulting to master branch on Github instead.'
-                )
+          if (!_a.sent()) {
+            console.log(
+              'Unable to reach Nexus sever ('.concat(
+                NEXUS_SERVER,
+                '). Defaulting to Github instead.'
               )
-              dlOptions.src = 'github'
-            } else if (!nexusCachedBranches.includes(dlOptions.branch)) {
-              console.log(
-                'Branch '.concat(
-                  dlOptions.branch,
-                  ' is not cached on Nexus. Defaulting to master branch instead.'
-                )
+            )
+            dlOptions.src = 'github'
+          } else if (
+            githubBranches.includes(dlOptions.branch) &&
+            !nexusCachedBranches.includes(dlOptions.branch)
+          ) {
+            console.log(
+              'Branch '.concat(
+                dlOptions.branch,
+                ' is not cached on Nexus. Defaulting to master branch on Github instead.'
               )
-              dlOptions.branch = 'master'
-            }
+            )
+            dlOptions.src = 'github'
+          } else if (!nexusCachedBranches.includes(dlOptions.branch)) {
+            console.log(
+              'Branch '.concat(
+                dlOptions.branch,
+                ' is not cached on Nexus. Defaulting to master branch instead.'
+              )
+            )
+            dlOptions.branch = 'master'
           }
+          _a.label = 3
+        case 3:
           if (!(dlOptions.src === 'nexus')) return [3 /*break*/, 6]
           nexusUrl = nexusRestApiUrl(
             NEXUS_REPO_NAME,
@@ -936,7 +939,7 @@ function main() {
           )
           return [4 /*yield*/, nexusGetArtifacts(nexusUrl, dlOptions)]
         case 4:
-          nexusItems = _b.sent()
+          nexusItems = _a.sent()
           return [
             4 /*yield*/,
             nexusDownloadArtifacts(
@@ -946,7 +949,7 @@ function main() {
             ),
           ]
         case 5:
-          _b.sent()
+          _a.sent()
           return [3 /*break*/, 11]
         case 6:
           if (!dlOptions.githubToken) {
@@ -959,14 +962,14 @@ function main() {
           }
           return [4 /*yield*/, githubGetArtifacts(dlOptions)]
         case 7:
-          artifacts = _b.sent()
+          artifacts = _a.sent()
           if (!dlOptions.nameOnly) return [3 /*break*/, 9]
           return [
             4 /*yield*/,
             githubListArtifacts(artifacts, dlOptions, verifyPlatformAndFormat),
           ]
         case 8:
-          _b.sent()
+          _a.sent()
           return [3 /*break*/, 11]
         case 9:
           return [
@@ -978,8 +981,8 @@ function main() {
             ),
           ]
         case 10:
-          _b.sent()
-          _b.label = 11
+          _a.sent()
+          _a.label = 11
         case 11:
           return [2 /*return*/]
       }
