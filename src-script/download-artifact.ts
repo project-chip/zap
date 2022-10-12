@@ -540,8 +540,13 @@ async function main() {
   let githubBranches = await getExistingGithubBranches(dlOptions)
 
   // evaluate artifact source
-  if (dlOptions.src === 'nexus' && (await isReachable(NEXUS_SERVER))) {
-    if (
+  if (dlOptions.src === 'nexus') {
+    if (!(await isReachable(NEXUS_SERVER))) {
+      console.log(
+        `Unable to reach Nexus sever (${NEXUS_SERVER}). Defaulting to Github instead.`
+      )
+      dlOptions.src = 'github'
+    } else if (
       githubBranches.includes(dlOptions.branch) &&
       !nexusCachedBranches.includes(dlOptions.branch)
     ) {
