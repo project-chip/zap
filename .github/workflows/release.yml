@@ -29,7 +29,7 @@ jobs:
 
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Install Node.js, NPM and Yarn
         uses: actions/setup-node@v3.0.0
@@ -233,31 +233,31 @@ jobs:
           comparison: contains
 
       - name: Archive Windows .zip file
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: startsWith(matrix.os, 'macos')
         with:
           name: zap-win-zip
           path: dist/zap*-win.zip
       - name: Archive macOS .zip file
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: startsWith(matrix.os, 'macos')
         with:
           name: zap-mac-zip
           path: dist/zap*-mac.zip
       - name: Archive Linux .zip file
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: startsWith(matrix.os, 'ubuntu')
         with:
           name: zap-linux-zip
           path: dist/zap*-linux.zip
       - name: Archive Linux .rpm file
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: startsWith(matrix.os, 'ubuntu')
         with:
           name: zap-linux-rpm
           path: dist/zap*.rpm
       - name: Archive Linux .deb file
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: startsWith(matrix.os, 'ubuntu')
         with:
           name: zap-linux-deb
