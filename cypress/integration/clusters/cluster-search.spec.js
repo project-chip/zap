@@ -11,6 +11,7 @@ describe('Testing cluster search', () => {
     cy.fixture('baseurl').then((data) => {
       cy.visit(data.baseurl)
     })
+    cy.setZclProperties()
     cy.fixture('data').then((data) => {
       cy.addEndpoint(data.endpoint1, data.cluster1)
     })

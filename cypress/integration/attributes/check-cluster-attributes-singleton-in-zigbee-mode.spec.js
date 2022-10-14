@@ -18,6 +18,7 @@ describe('Testing endpoints sharing attribute values', () => {
     cy.fixture('baseurl').then((data) => {
       cy.visit(data.baseurl)
     })
+    cy.setZclProperties()
     cy.gotoAttributePage('Billing Unit (0x0203)', 'General')
   })
   it(

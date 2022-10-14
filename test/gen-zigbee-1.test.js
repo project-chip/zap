@@ -50,6 +50,7 @@ beforeAll(async () => {
 afterAll(() => dbApi.closeDatabase(db), testUtil.timeout.short())
 
 let templateContext
+let templatePkgId
 
 test(
   'Basic gen template parsing and generation',
@@ -58,6 +59,7 @@ test(
       db,
       testUtil.testTemplate.zigbee
     )
+    templatePkgId = context.packageId
     expect(context.crc).not.toBeNull()
     expect(context.templateData).not.toBeNull()
     expect(context.templateData.name).toEqual('Test templates')
@@ -100,7 +102,9 @@ test(
       {
         zcl: env.builtinSilabsZclMetafile(),
         template: env.builtinTemplateMetafile(),
-      }
+      },
+      null,
+      [templatePkgId]
     )
 
     expect(packages.length).toBe(2)
