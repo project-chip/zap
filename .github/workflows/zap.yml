@@ -33,6 +33,7 @@ jobs:
       - run: node --version
       - run: npm --version
       - run: npm ci
+      - run: npm run metafile-check
       - run: npm run version-stamp
       - run: npm rebuild canvas --update-binary
       - run: npm rebuild libxmljs --update-binary
