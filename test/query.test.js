@@ -53,6 +53,7 @@ const restApi = require('../src-shared/rest-api')
 let db
 let sid
 let pkgId
+let templatePkgId
 
 beforeAll(async () => {
   env.setDevelopmentEnv()
@@ -168,7 +169,13 @@ test(
 
 test(
   'Now load the generation data.',
-  () => generationEngine.loadTemplates(db, testUtil.testTemplate.zigbee),
+  async () => {
+    let x = await generationEngine.loadTemplates(
+      db,
+      testUtil.testTemplate.zigbee
+    )
+    templatePkgId = x.packageId
+  },
   testUtil.timeout.medium()
 )
 
@@ -180,10 +187,16 @@ describe('Session specific queries', () => {
       'SESSION'
     )
     sid = userSession.sessionId
-    await util.initializeSessionPackage(db, sid, {
-      zcl: env.builtinSilabsZclMetafile(),
-      template: env.builtinTemplateMetafile(),
-    })
+    await util.initializeSessionPackage(
+      db,
+      sid,
+      {
+        zcl: env.builtinSilabsZclMetafile(),
+        template: testUtil.testTemplate.zigbee,
+      },
+      null,
+      [templatePkgId]
+    )
   }, testUtil.timeout.medium())
 
   test(
@@ -191,7 +204,7 @@ describe('Session specific queries', () => {
     () =>
       queryPackage
         .getSessionPackages(db, sid)
-        .then((ids) => expect(ids.length).toBe(1)),
+        .then((ids) => expect(ids.length).toBe(2)),
     testUtil.timeout.short()
   ) // One for zclpropertie and one for gen template
 
@@ -314,7 +327,7 @@ describe('Session specific queries', () => {
           expect(state.endpointTypes.length).toBe(1)
           expect(state.endpointTypes[0].name).toBe('Test endpoint')
           expect(state.endpointTypes[0].clusters.length).toBe(0)
-          expect(state.package.length).toBe(1)
+          expect(state.package.length).toBe(2)
           let zclIndex
           let genIndex
           if (state.package[0].type === dbEnum.packageType.zclProperties) {

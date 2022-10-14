@@ -93,8 +93,8 @@ async function initializeSessionPackage(
       .then((rows) => {
         let packageId
         if (selectedZclPropertyPackage) {
-        packageId = selectedZclPropertyPackage
-      } else if (rows.length == 1) {
+          packageId = selectedZclPropertyPackage
+        } else if (rows.length == 1) {
           packageId = rows[0].id
           env.logDebug(
             `Single zcl.properties found, using it for the session: ${packageId}`
@@ -125,46 +125,52 @@ async function initializeSessionPackage(
   }
 
   // 2. Associate gen template files
-  if (!hasGenTemplate) {let genTemplateJsonPromise = queryPackage
-    .getPackagesByType(db, dbEnum.packageType.genTemplatesJson)
-    .then((rows) => {
-      let packageId
-      if(selectedGenTemplatePackages.length > 0){
-        selectedGenTemplatePackages.forEach(gen => {
-          if (gen) {
-            packageId = gen
-          } else if (rows.length == 1) {
-            packageId = rows[0].id
-            env.logDebug(
-              `Single generation template metafile found, using it for the session: ${packageId}`
-            )
-          } else if (rows.length == 0) {
-            env.logInfo(`No generation template metafile found for session.`)
-            packageId = null
-          } else {
-            rows.forEach((p) => {
-              if (
-                options.template != null &&
-                path.resolve(options.template) === p.path
-              ) {
-                packageId = p.id
-              }
-            })
-            if (packageId != null) {
-              env.logWarning(
-                `Multiple toplevel generation template metafiles found. Using the one from args: ${packageId}`
-              )
-            } else {
+  if (!hasGenTemplate) {
+    let genTemplateJsonPromise = queryPackage
+      .getPackagesByType(db, dbEnum.packageType.genTemplatesJson)
+      .then((rows) => {
+        let packageId
+        if (selectedGenTemplatePackages.length > 0) {
+          selectedGenTemplatePackages.forEach((gen) => {
+            if (gen) {
+              packageId = gen
+            } else if (rows.length == 1) {
               packageId = rows[0].id
-              env.logWarning(
-                `Multiple toplevel generation template metafiles found. Using the first one.`
+              env.logDebug(
+                `Single generation template metafile found, using it for the session: ${packageId}`
+              )
+            } else if (rows.length == 0) {
+              env.logInfo(`No generation template metafile found for session.`)
+              packageId = null
+            } else {
+              rows.forEach((p) => {
+                if (
+                  options.template != null &&
+                  path.resolve(options.template) === p.path
+                ) {
+                  packageId = p.id
+                }
+              })
+              if (packageId != null) {
+                env.logWarning(
+                  `Multiple toplevel generation template metafiles found. Using the one from args: ${packageId}`
+                )
+              } else {
+                packageId = rows[0].id
+                env.logWarning(
+                  `Multiple toplevel generation template metafiles found. Using the first one.`
+                )
+              }
+            }
+            if (packageId != null) {
+              return queryPackage.insertSessionPackage(
+                db,
+                sessionId,
+                packageId,
+                true
               )
             }
-          }
-          if (packageId != null) {
-            return queryPackage.insertSessionPackage(db, sessionId, packageId, true)
-          }
-        })
+          })
         }
       })
     promises.push(genTemplateJsonPromise)
