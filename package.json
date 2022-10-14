@@ -148,7 +148,7 @@
     "@babel/preset-typescript": "^7.14.5",
     "@babel/runtime-corejs2": "^7.14.6",
     "@cypress/code-coverage": "^3.9.12",
-    "@quasar/app": "^2.2.10",
+    "@quasar/app": "^3.3.3",
     "@quasar/extras": "^1.10.8",
     "@quasar/quasar-app-extension-testing": "^1.0.3",
     "@quasar/quasar-app-extension-testing-e2e-cypress": "^3.1.2",
