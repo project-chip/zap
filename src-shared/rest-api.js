@@ -112,6 +112,7 @@ const updateKey = {
 exports.param = {
   sessionId: 'sessionId',
   path: 'path',
+  templatePackageId: 'templatePackageId',
 }
 
 exports.uri = uri

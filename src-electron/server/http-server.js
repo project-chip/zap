@@ -199,6 +199,14 @@ function userSessionHandler(db, options) {
         req.session.zapSessionId = {}
         zapSessionId = null
       }
+      let tpk = req.query[restApi.param.templatePackageId]
+      let pkgArray = null
+      if (tpk) {
+        pkgArray = [tpk]
+      } else {
+        pkgArray = []
+      }
+
       querySession
         .ensureZapUserAndSession(db, userKey, sessionUuid, {
           sessionId: zapSessionId,
@@ -212,7 +220,13 @@ function userSessionHandler(db, options) {
         })
         .then((result) => {
           if (result.newSession) {
-            return util.initializeSessionPackage(db, result.sessionId, options)
+            return util.initializeSessionPackage(
+              db,
+              result.sessionId,
+              options,
+              null,
+              pkgArray
+            )
           }
         })
         .then(() => {
