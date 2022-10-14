@@ -153,7 +153,7 @@ async function asObjectiveCClass(type, cluster, options) {
 
   if (isStruct) {
     return `MTR${appHelper.asUpperCamelCase(cluster, {
-      hash: { preserveAcronyms: true },
+      hash: { preserveAcronyms: false },
     })}Cluster${appHelper.asUpperCamelCase(type)}`;
   }
 
@@ -212,7 +212,7 @@ function commandHasRequiredField(command) {
  */
 function objCEnumName(clusterName, enumLabel) {
   clusterName = appHelper.asUpperCamelCase(clusterName, {
-    hash: { preserveAcronyms: true },
+    hash: { preserveAcronyms: false },
   });
   enumLabel = appHelper.asUpperCamelCase(enumLabel);
   // Some enum names have one or more copies of the cluster name at the

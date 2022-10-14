@@ -12,3 +12,6 @@ npx eslint --ext .js,.vue src src-electron src-shared src-script test
 
 echo "🚀   > Reset version in package.json to 0.0.0..."
 src-script/zap-update-package-version.js -fake
+
+echo "🚀   > Check versions in package-lock.json..."
+src-script/zap-validate-metafiles.js
