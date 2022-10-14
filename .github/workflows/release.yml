@@ -2,11 +2,8 @@ name: Build and release packages
 
 on:
   push:
-    branches: [master]
   pull_request:
-    branches: [master]
   workflow_dispatch:
-    branches: [master]
 
 env:
   ZAP_TEST_TIMEOUT: 3600000
@@ -127,7 +124,7 @@ jobs:
           ./dist/zap-mac/zap.app/Contents/MacOS/zap --version
           echo 'version<<EOF' >> $GITHUB_OUTPUT
           ./dist/zap-mac/zap.app/Contents/MacOS/zap --version >> $GITHUB_OUTPUT
-          echo 'EOF' >> $GITHUB_ENV
+          echo 'EOF' >> $GITHUB_OUTPUT
           rm -rf dist/zap-mac
       - name: ZAP version (macOS) - Verify exe running
         uses: nick-fields/assert-action@v1
@@ -152,7 +149,7 @@ jobs:
           ./dist/zap-linux/zap --version
           echo 'version<<EOF' >> $GITHUB_OUTPUT
           ./dist/zap-linux/zap --version >> $GITHUB_OUTPUT
-          echo 'EOF' >> $GITHUB_ENV
+          echo 'EOF' >> $GITHUB_OUTPUT
           rm -rf dist/zap-linux
       - name: ZAP version (Linux) - Verify exe running
         uses: nick-fields/assert-action@v1
