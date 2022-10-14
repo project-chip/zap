@@ -125,7 +125,9 @@ jobs:
         run: |
           unzip dist/zap-mac.zip -d dist/zap-mac
           ./dist/zap-mac/zap.app/Contents/MacOS/zap --version
-          echo "version=$(./dist/zap-mac/zap.app/Contents/MacOS/zap --version)" >> $GITHUB_OUTPUT
+          echo 'version<<EOF' >> $GITHUB_OUTPUT
+          ./dist/zap-mac/zap.app/Contents/MacOS/zap --version >> $GITHUB_OUTPUT
+          echo 'EOF' >> $GITHUB_ENV
           rm -rf dist/zap-mac
       - name: ZAP version (macOS) - Verify exe running
         uses: nick-fields/assert-action@v1
@@ -148,7 +150,9 @@ jobs:
         run: |
           unzip dist/zap-linux.zip -d dist/zap-linux
           ./dist/zap-linux/zap --version
-          echo "version=$(./dist/zap-linux/zap --version)" >> $GITHUB_OUTPUT
+          echo 'version<<EOF' >> $GITHUB_OUTPUT
+          ./dist/zap-linux/zap --version >> $GITHUB_OUTPUT
+          echo 'EOF' >> $GITHUB_ENV
           rm -rf dist/zap-linux
       - name: ZAP version (Linux) - Verify exe running
         uses: nick-fields/assert-action@v1
