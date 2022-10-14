@@ -144,9 +144,9 @@ limitations under the License.
                     clickable
                     v-close-popup
                     @click="
-                      generationButtonText = file.category
-                      getGeneratedFile(file.category)
-                    "
+                    generationButtonText = file.category
+                    getGeneratedFile(file.category)
+                  "
                     :label="generationButtonText"
                   >
                     <q-item-section>
@@ -159,7 +159,7 @@ limitations under the License.
                 <template>
                   <div class="q-ma-md">
                     <q-scroll-area style="height: 70vh" ref="generationScroll">
-                      <pre class="q-ma-none container">{{
+                    <pre class="q-ma-none container">{{
                         generationData
                       }}</pre>
                       <q-scroll-observer @scroll="onScroll" />
@@ -185,12 +185,14 @@ import ZclInformationSetup from '../components/ZclInformationSetup.vue'
 import ZclConfiguratorLayout from './ZclConfiguratorLayout.vue'
 import SqlQuery from '../components/SqlQuery.vue'
 import About from '../pages/About.vue'
+import CommonMixin from '../util/common-mixin'
 const restApi = require(`../../src-shared/rest-api.js`)
 const rendApi = require(`../../src-shared/rend-api.js`)
 const observable = require('../util/observable.js')
 
 export default {
   name: 'ZclLayout',
+  mixins: [CommonMixin],
   methods: {
     // This function will start vue tour steps
     showTutorial() {

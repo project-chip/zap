@@ -11,6 +11,7 @@ describe('Testing INT8U type validation', () => {
     cy.fixture('baseurl').then((data) => {
       cy.visit(data.baseurl)
     })
+    cy.setZclProperties()
     cy.fixture('data').then((data) => {
       cy.gotoAttributePage(data.endpoint7, data.cluster9, data.int8clusterpath)
     })

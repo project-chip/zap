@@ -33,6 +33,8 @@ limitations under the License.
 <script>
 import { QSpinnerGears } from 'quasar'
 import VueTour from './tutorials/VueTour.vue'
+import CommonMixin from './util/common-mixin'
+import querystring from 'querystring'
 const rendApi = require(`../src-shared/rend-api.js`)
 const restApi = require(`../src-shared/rest-api.js`)
 const observable = require('./util/observable.js')
@@ -80,6 +82,7 @@ export default {
   components: {
     VueTour,
   },
+  mixins: [CommonMixin],
   computed: {
     showExceptionIcon() {
       return this.$store.state.zap.showExceptionIcon
@@ -107,71 +110,90 @@ export default {
       this.$store.dispatch('zap/setDefaultUiMode', 'general')
       this.$store.commit('zap/toggleShowExceptionIcon', false)
     },
-  },
-  mounted() {
-    if (this.$serverGet != null) {
-      this.$serverGet(restApi.uri.uiOptions).then((res) => {
-        this.$store.commit('zap/updateIsProfileIdShown', res.data.showProfileId)
-        console.log(res.data);
+    getAppData() {
+      if (this.$serverGet != null) {
+        this.$serverGet(restApi.uri.uiOptions).then((res) => {
+          this.$store.commit('zap/updateIsProfileIdShown', res.data.showProfileId)
+          console.log(res.data);
+        })
+      }
+
+      this.$q.loading.show({
+        spinner: QSpinnerGears,
+        messageColor: 'white',
+        message: 'Please wait while zap is loading...',
+        spinnerSize: 300,
       })
-    }
+
+      // Parse the query string into the front end.
+      const querystring = require('querystring')
+      let search = global.location.search
+
+      if (search[0] === '?') {
+        search = search.substring(1)
+      }
+
+      let query = querystring.parse(search)
+      if (query[`uiMode`]) {
+        this.$store.dispatch('zap/setDefaultUiMode', query[`uiMode`])
+      }
+
+      if (`debugNavBar` in query) {
+        this.$store.dispatch(
+          'zap/setDebugNavBar',
+          query[`debugNavBar`] === 'true'
+        )
+      } else {
+        // If we don't specify it, default is on.
+        this.$store.dispatch('zap/setDebugNavBar', true)
+      }
+
+      if ('standalone' in query) {
+        this.$store.dispatch('zap/setStandalone', query['standalone'])
+      }
+
+      this.zclDialogTitle = 'ZCL tab!'
+      this.zclDialogText =
+        'Welcome to ZCL tab. This is just a test of a dialog.'
+      this.zclDialogFlag = false
+
+      observable.observeAttribute(
+        rendApi.observable.progress_attribute,
+        (message) => {
+          this.setGenerationInProgress(message)
+        }
+      )
+
+      initLoad(this.$store).then(() => {
+        this.$q.loading.hide()
+      })
+
+      this.$onWebSocket(dbEnum.wsCategory.ucComponentStateReport, (resp) => {
+        this.$store.dispatch('zap/updateUcComponentState', resp)
+      })
+    },
+  },
+  created() {
     window[rendApi.GLOBAL_SYMBOL_EXECUTE](
       rendApi.id.setDarkTheme,
       storage.getItem(rendApi.storageKey.isDarkThemeActive)
     )
-
-    this.$q.loading.show({
-      spinner: QSpinnerGears,
-      messageColor: 'white',
-      message: 'Please wait while zap is loading...',
-      spinnerSize: 300,
-    })
-
-    // Parse the query string into the front end.
-    const querystring = require('querystring')
-    let search = global.location.search
-
-    if (search[0] === '?') {
-      search = search.substring(1)
-    }
-
-    let query = querystring.parse(search)
-    if (query[`uiMode`]) {
-      this.$store.dispatch('zap/setDefaultUiMode', query[`uiMode`])
-    }
-
-    if (`debugNavBar` in query) {
-      this.$store.dispatch(
-        'zap/setDebugNavBar',
-        query[`debugNavBar`] === 'true'
-      )
+    if(this.isZapConfigSelected != true) {
+      this.$router.push({ path: '/login' })
     } else {
-      // If we don't specify it, default is on.
-      this.$store.dispatch('zap/setDebugNavBar', true)
+      this.$router.push({ path: '/' })
+      this.getAppData()
     }
-
-    if ('standalone' in query) {
-      this.$store.dispatch('zap/setStandalone', query['standalone'])
-    }
-
-    this.zclDialogTitle = 'ZCL tab!'
-    this.zclDialogText = 'Welcome to ZCL tab. This is just a test of a dialog.'
-    this.zclDialogFlag = false
-
-    observable.observeAttribute(
-      rendApi.observable.progress_attribute,
-      (message) => {
-        this.setGenerationInProgress(message)
-      }
-    )
-
-    initLoad(this.$store).then(() => {
-      this.$q.loading.hide()
-    })
-
-    this.$onWebSocket(dbEnum.wsCategory.ucComponentStateReport, (resp) => {
-      this.$store.dispatch('zap/updateUcComponentState', resp)
-    })
   },
+  watch: {
+    isZapConfigSelected(val) {
+      if(val != true) {
+        this.$router.push({path: '/login'})
+      } else {
+        this.$router.push({ path: '/' })
+        this.getAppData()
+      }
+    }
+  }
 }
 </script>

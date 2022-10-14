@@ -33,6 +33,7 @@ const util = require('../src-electron/util/util.js')
 let db
 const { port, baseUrl } = testUtil.testServer(__filename)
 let uuid = util.createUuid()
+let templatePkgId = null
 
 beforeAll(async () => {
   env.setDevelopmentEnv()
@@ -73,6 +74,7 @@ describe('Session specific tests', () => {
         testUtil.testTemplate.zigbee
       )
       let packageId = context.packageId
+      templatePkgId = packageId
       expect(packageId).not.toBe(null)
       expect(db).not.toBe(null)
 
@@ -176,7 +178,9 @@ describe('Session specific tests', () => {
   test(
     'test retrieval of all preview template files',
     async () => {
-      let response = await axios.get(`${baseUrl}/preview/?sessionId=${uuid}`)
+      let response = await axios.get(
+        `${baseUrl}/preview/?sessionId=${uuid}&templatePackageId=${templatePkgId}`
+      )
       templateCount = response.data['length']
       for (let i = 0; i < response.data['length']; i++) {
         expect(response.data[i]['version']).toBeDefined()

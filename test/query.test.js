@@ -53,6 +53,7 @@ const restApi = require('../src-shared/rest-api')
 let db
 let sid
 let pkgId
+let templatePkgId
 
 beforeAll(async () => {
   env.setDevelopmentEnv()
@@ -168,7 +169,13 @@ test(
 
 test(
   'Now load the generation data.',
-  () => generationEngine.loadTemplates(db, testUtil.testTemplate.zigbee),
+  async () => {
+    let x = await generationEngine.loadTemplates(
+      db,
+      testUtil.testTemplate.zigbee
+    )
+    templatePkgId = x.packageId
+  },
   testUtil.timeout.medium()
 )
 
@@ -180,10 +187,16 @@ describe('Session specific queries', () => {
       'SESSION'
     )
     sid = userSession.sessionId
-    await util.initializeSessionPackage(db, sid, {
-      zcl: env.builtinSilabsZclMetafile(),
-      template: env.builtinTemplateMetafile(),
-    })
+    await util.initializeSessionPackage(
+      db,
+      sid,
+      {
+        zcl: env.builtinSilabsZclMetafile(),
+        template: testUtil.testTemplate.zigbee,
+      },
+      null,
+      [templatePkgId]
+    )
   }, testUtil.timeout.medium())
 
   test(

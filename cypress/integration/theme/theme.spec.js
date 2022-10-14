@@ -8,22 +8,20 @@ Cypress.on('uncaught:exception', (err, runnable) => {
   return false
 })
 describe('Check theme functionality', () => {
-  beforeEach(() => {
+  it('Set Data', () => {
     cy.fixture('baseurl').then((data) => {
       cy.visit(data.baseurl)
     })
+    cy.setZclProperties()
   })
-
   it(
     'Preference: set light theme',
     { retries: { runMode: 2, openMode: 2 } },
     () => {
       cy.get('#preference').click()
-      cy.get('#darkTheme')
-        .find('input')
-        .uncheck({ force: true })
-
+      cy.get('#darkTheme').find('input').uncheck({ force: true })
       cy.get('body').should('have.css', 'background-color', 'rgba(0, 0, 0, 0)')
+      cy.get('[data-test="go-back-button"]').click()
     }
   )
 
@@ -32,11 +30,10 @@ describe('Check theme functionality', () => {
     { retries: { runMode: 2, openMode: 2 } },
     () => {
       cy.get('#preference').click()
-      cy.get('#darkTheme')
-        .find('input')
-        .check({ force: true })
-
+      cy.get('#darkTheme').find('input').check({ force: true })
       cy.get('body').should('have.css', 'background-color', 'rgb(39, 40, 33)')
+      cy.get('[data-test="go-back-button"]').click()
+
     }
   )
 
@@ -45,8 +42,4 @@ describe('Check theme functionality', () => {
     cy.get('body').should('have.css', 'background-color', 'rgba(0, 0, 0, 0)')
   })
 
-  it('RendererApi: set dark theme', () => {
-    cy.rendererApi(rendApi.id.setDarkTheme, 'true')
-    cy.get('body').should('have.css', 'background-color', 'rgb(39, 40, 33)')
-  })
 })

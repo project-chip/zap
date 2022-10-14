@@ -24,6 +24,11 @@ const http = require('http-status-codes')
  */
 export default {
   computed: {
+    isZapConfigSelected: {
+      get() {
+        return this.$store.state.zap.isZapConfigSelected
+      }
+    },
     selectedEndpointTypeId: {
       get() {
         return this.$store.state.zap.endpointTypeView.selectedEndpointType

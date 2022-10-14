@@ -10,6 +10,7 @@ describe('Testing Deleting Endpoints', () => {
     cy.fixture('baseurl').then((url) => {
       cy.visit(url.baseurl)
     })
+    cy.setZclProperties()
     cy.fixture('data').then((data) => {
       cy.addEndpoint(data.endpoint1)
     })

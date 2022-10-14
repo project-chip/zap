@@ -15,6 +15,7 @@ describe('Testing visibility of devtools option', () => {
   })
 
   it('check if devtools option gets visible', () => {
+    cy.setZclProperties()
     cy.get(
       'a.q-btn > .q-btn__wrapper > .q-btn__content > .material-icons'
     ).click()

@@ -20,6 +20,7 @@ describe('Check theme functionality', () => {
   })
 
   it('Checkig for dirty flag after opening config', () => {
+    cy.setZclProperties()
     cy.rendererApi(rendApi.id.open, testFile)
     cy.get('.q-list > :nth-child(4) > :nth-child(2)').should('have.length', 1)
 
