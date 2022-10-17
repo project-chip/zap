@@ -525,12 +525,17 @@ export function loadZclClusterToUcComponentDependencyMap(state, map) {
     Vue.set(state.studio, 'zclSdkExtClusterToUcComponentMap', map)
 }
 
+export function selectZapConfig(state, val) {
+  state.isZapConfigSelected = val
+}
+
 export function setAllEndpointsData(state, value) {
-  Vue.set(state.allEndpointsData, value.endpointId,
-    { 'selectedservers': value.servers,
-      'selectedReporting': value.report,
-      'selectedAttributes': value.attr,
-      id: value.endpointId })
+  Vue.set(state.allEndpointsData, value.endpointId, {
+    selectedservers: value.servers,
+    selectedReporting: value.report,
+    selectedAttributes: value.attr,
+    id: value.endpointId,
+  })
 }
 
 // This function change state of showCreateModifyEndpoint and will show or hide create endpoint modal

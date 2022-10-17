@@ -58,6 +58,9 @@ const uri = {
   deviceTypeAttributes: '/zcl/deviceTypeAttributes/',
   deviceTypeCommands: '/zcl/deviceTypeCommands/',
   deviceTypeEvents: '/zcl/deviceTypeEvents/',
+  initialPackagesSessions: '/zcl/initialPackagesSessions/',
+  initializeSession: '/zcl/initializeSession/',
+  reloadSession: '/zcl/reloadSession/',
 }
 
 const uiMode = {
@@ -109,6 +112,7 @@ const updateKey = {
 exports.param = {
   sessionId: 'sessionId',
   path: 'path',
+  templatePackageId: 'templatePackageId',
 }
 
 exports.uri = uri
