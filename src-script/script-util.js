@@ -179,19 +179,11 @@ async function rebuildBackendIfNeeded() {
     .then(() =>
       scriptUtil.executeCmd({}, 'npx', [
         'copyfiles',
-        '-V',
         './src-electron/**/*.sql',
-        './dist/',
-      ])
-    )
-    .then(() => {
-      scriptUtil.executeCmd({}, 'npx', [
-        'copyfiles',
-        '-V',
         './src-electron/icons/*',
         './dist/',
       ])
-    })
+    )
 }
 
 /**
