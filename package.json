@@ -337,6 +337,7 @@
     "assets": [
       "apack.json",
       ".version.json",
+      "dist/src-electron/icons/*",
       "dist/src-electron/db/zap-schema.sql",
       "zcl-builtin/**/*",
       "spa/**/*",
