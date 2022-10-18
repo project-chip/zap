@@ -184,6 +184,14 @@ async function rebuildBackendIfNeeded() {
         './dist/',
       ])
     )
+    .then(() => {
+      scriptUtil.executeCmd({}, 'npx', [
+        'copyfiles',
+        '-V',
+        './src-electron/icons/*',
+        './dist/',
+      ])
+    })
 }
 
 /**
