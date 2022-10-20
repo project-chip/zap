@@ -25,6 +25,7 @@ const appHelper = require('../../../app/zap-templates/templates/app/helper.js');
 const dbEnum = require('../../../../../../src-shared/db-enum');
 
 function convertBasicCTypeToJavaType(cType) {
+  let error = '';
   switch (cType) {
     case 'uint8_t':
     case 'int8_t':
@@ -49,6 +50,7 @@ function convertBasicCTypeToJavaType(cType) {
 }
 
 function convertBasicCTypeToJniType(cType) {
+  let error = '';
   switch (convertBasicCTypeToJavaType(cType)) {
     case 'int':
       return 'jint';
@@ -67,6 +69,7 @@ function convertBasicCTypeToJniType(cType) {
 }
 
 function convertBasicCTypeToJavaBoxedType(cType) {
+  let error = '';
   switch (convertBasicCTypeToJavaType(cType)) {
     case 'int':
       return 'Integer';
@@ -143,6 +146,7 @@ function asJniSignatureBasic(type, useBoxedTypes) {
 
 function convertCTypeToJniSignature(cType, useBoxedTypes) {
   let javaType;
+  let error = '';
   if (useBoxedTypes) {
     javaType = convertBasicCTypeToJavaBoxedType(cType);
   } else {

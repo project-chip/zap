@@ -2,7 +2,7 @@
 {{#if (chip_has_client_clusters)}}
 
 {{#chip_client_clusters}}
-{{#chip_server_cluster_attributes}}
+{{#all_user_cluster_attributes_irrespective_of_manufatucuring_specification name 'server'}}
 {{#unless (isStrEqual chipCallback.name "Unsupported")}}
 {{#if isWritableAttribute}}
 
@@ -22,6 +22,6 @@ JNI_METHOD(void, {{asUpperCamelCase ../name}}Cluster, write{{asUpperCamelCase na
 }
 {{/if}}
 {{/unless}}
-{{/chip_server_cluster_attributes}}
+{{/all_user_cluster_attributes_irrespective_of_manufatucuring_specification}}
 {{/chip_client_clusters}}
 {{/if}}

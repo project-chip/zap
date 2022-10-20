@@ -40,7 +40,7 @@
 
   {{/chip_cluster_responses}}
 
-  {{#chip_server_cluster_attributes}}
+  {{#all_user_cluster_attributes_irrespective_of_manufatucuring_specification name 'server'}}
   {{#unless (isStrEqual chipCallback.name "Unsupported")}}
   {{#if_basic_global_response}}
   {{else}}
@@ -62,8 +62,8 @@
     {{/if}}
   {{/if_basic_global_response}}
   {{/unless}}
-  {{/chip_server_cluster_attributes}}
-  {{#chip_server_cluster_attributes}}
+  {{/all_user_cluster_attributes_irrespective_of_manufatucuring_specification}}
+  {{#all_user_cluster_attributes_irrespective_of_manufatucuring_specification name 'server'}}
   {{! TODO: Add support for struct-typed attributes }}
   {{#unless (isStrEqual chipCallback.name "Unsupported")}}
 
@@ -99,8 +99,8 @@
     }
   {{/if}}
   {{/unless}}
-  {{/chip_server_cluster_attributes}}
-  {{#chip_server_cluster_attributes}}
+  {{/all_user_cluster_attributes_irrespective_of_manufatucuring_specification}}
+  {{#all_user_cluster_attributes_irrespective_of_manufatucuring_specification name 'server'}}
   {{! TODO: Add support for struct-typed attributes }}
   {{#unless (isStrEqual chipCallback.name "Unsupported")}}
 
@@ -124,7 +124,7 @@
       {{/if_basic_global_response}}, int minInterval, int maxInterval);
   {{/if}}
   {{/unless}}
-  {{/chip_server_cluster_attributes}}
+  {{/all_user_cluster_attributes_irrespective_of_manufatucuring_specification}}
   }
   {{#not_last}}
 

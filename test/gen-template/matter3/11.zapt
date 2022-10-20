@@ -15,7 +15,7 @@ public:
 {{/chip_server_global_responses}}
 
 {{#chip_client_clusters}}
-{{#chip_server_cluster_attributes}}
+{{#all_user_cluster_attributes_irrespective_of_manufatucuring_specification name 'server'}}
 {{#unless (isStrEqual chipCallback.name "Unsupported")}}
 {{#if_basic_global_response}}
 {{else}}
@@ -27,7 +27,7 @@ class CHIP{{asUpperCamelCase parent.name}}{{asUpperCamelCase name}}AttributeCall
 {{/if_basic_global_response}}
 
 {{/unless}}
-{{/chip_server_cluster_attributes}}
+{{/all_user_cluster_attributes_irrespective_of_manufatucuring_specification}}
 {{/chip_client_clusters}}
 
 {{/if}}

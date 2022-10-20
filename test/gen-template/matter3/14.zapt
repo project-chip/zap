@@ -3,7 +3,7 @@
 
     {{#chip_client_clusters}}
        Map<String, InteractionInfo> read{{asUpperCamelCase name}}InteractionInfo = new LinkedHashMap<>();
-        {{#chip_server_cluster_attributes}}
+        {{#all_user_cluster_attributes_irrespective_of_manufatucuring_specification name 'server'}}
         {{! TODO: Add support for struct-typed attributes }}
         {{#unless (isStrEqual chipCallback.name "Unsupported")}}
         Map<String, CommandParameterInfo> read{{asUpperCamelCase ../name}}{{asUpperCamelCase name}}CommandParams = new LinkedHashMap<String, CommandParameterInfo>();
@@ -26,7 +26,7 @@
         );
         read{{asUpperCamelCase ../name}}InteractionInfo.put("read{{asUpperCamelCase name}}Attribute", read{{asUpperCamelCase ../name}}{{asUpperCamelCase name}}AttributeInteractionInfo);
         {{/unless}}
-        {{/chip_server_cluster_attributes}}
+        {{/all_user_cluster_attributes_irrespective_of_manufatucuring_specification}}
         readAttributeMap.put("{{asLowerCamelCase name}}", read{{asUpperCamelCase name}}InteractionInfo);
         {{/chip_client_clusters}}
 

@@ -12,11 +12,11 @@
   public static String attributeIdToName(long clusterId, long attributeId) {
     {{#chip_client_clusters}}
     if (clusterId == {{code}}L) {
-      {{#chip_server_cluster_attributes}}
+      {{#all_user_cluster_attributes_irrespective_of_manufatucuring_specification name 'server'}}
       if (attributeId == {{code}}L) {
         return "{{asUpperCamelCase name}}";
       }
-      {{/chip_server_cluster_attributes}}
+      {{/all_user_cluster_attributes_irrespective_of_manufatucuring_specification}}
       return "";
     }
     {{/chip_client_clusters}}

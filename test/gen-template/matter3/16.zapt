@@ -21,7 +21,7 @@
 {{/chip_cluster_commands}}
             },
             "attributes": {
-{{#chip_server_cluster_attributes}}
+{{#all_user_cluster_attributes_irrespective_of_manufatucuring_specification name 'server'}}
                 {{asHex code 8}}: {
                     "attributeName": "{{asUpperCamelCase name}}",
                     "attributeId": {{asHex code 8}},
@@ -33,7 +33,7 @@
                     "writable": True,
                     {{/if}}
                 },
-{{/chip_server_cluster_attributes}}
+{{/all_user_cluster_attributes_irrespective_of_manufatucuring_specification}}
             },
     }
 {{/chip_client_clusters}}

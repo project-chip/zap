@@ -650,8 +650,10 @@ async function selectAttributesByClusterIdAndSideIncludingGlobal(
   db,
   clusterId,
   packageIds,
-  side
+  side,
+  hasIsOptional
 ) {
+  let optionalAttributeString = hasIsOptional ? 'IS_OPTIONAL,' : ''
   return dbApi
     .dbAll(
       db,
@@ -662,7 +664,14 @@ SELECT
   CODE,
   MANUFACTURER_CODE,
   NAME,
-  TYPE,
+  CASE
+    WHEN
+      ATTRIBUTE.ARRAY_TYPE IS NULL
+    THEN
+      ATTRIBUTE.TYPE
+    ELSE
+      ATTRIBUTE.ARRAY_TYPE
+  END AS TYPE,
   SIDE,
   DEFINE,
   MIN,
@@ -675,12 +684,20 @@ SELECT
   REPORTABLE_CHANGE_LENGTH,
   IS_WRITABLE,
   DEFAULT_VALUE,
-  IS_OPTIONAL,
+  ${optionalAttributeString}
   REPORTING_POLICY,
   IS_NULLABLE,
   IS_SCENE_REQUIRED,
   ARRAY_TYPE,
-  MUST_USE_TIMED_WRITE
+  MUST_USE_TIMED_WRITE,
+  CASE
+    WHEN
+      ATTRIBUTE.ARRAY_TYPE IS NOT NULL
+    THEN
+      1
+    ELSE
+      0
+  END AS IS_ARRAY
 FROM ATTRIBUTE
 WHERE
   SIDE = ?

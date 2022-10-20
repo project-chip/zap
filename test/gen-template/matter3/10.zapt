@@ -35,7 +35,7 @@ void CHIP{{chipCallback.name}}AttributeCallback::CallbackFn(void * context, {{ch
 {{/chip_server_global_responses}}
 
 {{#chip_client_clusters}}
-{{#chip_server_cluster_attributes}}
+{{#all_user_cluster_attributes_irrespective_of_manufatucuring_specification name 'server'}}
 {{! TODO: Add support for struct-typed attributes }}
 {{#unless (isStrEqual chipCallback.name "Unsupported")}}
 
@@ -71,7 +71,7 @@ void CHIP{{asUpperCamelCase parent.name}}{{asUpperCamelCase name}}AttributeCallb
   {{/if_basic_global_response}}
 {{/if}}
 {{/unless}}
-{{/chip_server_cluster_attributes}}
+{{/all_user_cluster_attributes_irrespective_of_manufatucuring_specification}}
 {{/chip_client_clusters}}
 
 {{/if}}

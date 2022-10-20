@@ -746,7 +746,8 @@ function zcl_attributes_server(options) {
           this.global.db,
           this.id,
           packageIds,
-          dbEnum.side.server
+          dbEnum.side.server,
+          options.hash.hasIsOptional ? options.hash.hasIsOptional : false
         )
       } else {
         return queryZcl.selectAllAttributesBySide(
@@ -2726,6 +2727,224 @@ function if_compare(leftValue, rightValue, options) {
   }
 }
 
+async function zcl_data_type_size_and_sign(
+  type,
+  dataType,
+  packageIds,
+  context
+) {
+  let result = 0
+  let isSigned = false
+  if (dataType.discriminatorName.toLowerCase() == dbEnum.zclType.bitmap) {
+    let bitmap = await queryZcl.selectBitmapByName(
+      context.global.db,
+      packageIds,
+      dataType.name
+    )
+    result = bitmap.size
+  } else if (dataType.discriminatorName.toLowerCase() == dbEnum.zclType.enum) {
+    let en = await queryZcl.selectEnumByName(
+      context.global.db,
+      dataType.name,
+      packageIds
+    )
+    result = en.size
+  } else if (
+    dataType.discriminatorName.toLowerCase() == dbEnum.zclType.number
+  ) {
+    let number = await queryZcl.selectNumberByName(
+      context.global.db,
+      packageIds,
+      dataType.name
+    )
+    isSigned = number.isSigned
+    result = number.size
+  } else {
+    env.logWarning(type + ' is a complex type and size could not be determined')
+  }
+  return { size: result, isSigned: isSigned }
+}
+
+function as_underlying_Objective_C_Class_type_for_zcl_type(
+  type,
+  dataType,
+  context,
+  options
+) {
+  let hash = options.hash
+  if (
+    (context.isArray || context.entryType || hash.forceList) &&
+    !hash.forceNotList
+  ) {
+    return 'NSArray'
+  } else if (octetStringTypes.includes(type.toUpperCase())) {
+    return 'NSData'
+  } else if (characterStringTypes.includes(type.toUpperCase())) {
+    return 'NSString'
+  } else if (
+    dataType.discriminatorName.toLowerCase() == dbEnum.zclType.struct
+  ) {
+    return `MTR${helperC.asCamelCased(hash.cluster, false, {
+      hash: { preserveAcronyms: hash.preserveAcronyms },
+    })}Cluster${helperC.asCamelCased(type, false)}`
+  }
+  return 'NSNumber'
+}
+
+function as_underlying_python_type_for_zcl_type(type, dataType) {
+  if (
+    dataType.discriminatorName.toLowerCase() == dbEnum.zclType.bitmap ||
+    dataType.discriminatorName.toLowerCase() == dbEnum.zclType.enum ||
+    dataType.discriminatorName.toLowerCase() == dbEnum.zclType.number
+  ) {
+    // returning nothing for floats
+    if (
+      dataType.name.includes('float') ||
+      dataType.name.includes('double') ||
+      dataType.name.includes('single')
+    ) {
+      return ''
+    }
+    return 'int'
+  } else if (octetStringTypes.includes(type.toUpperCase())) {
+    return 'bytes'
+  } else if (characterStringTypes.includes(type.toUpperCase())) {
+    return 'str'
+  } else {
+    return ''
+  }
+}
+
+/*
+ *
+ * @param {*} type
+ * @param {*} options
+ * @returns the size of of the zcl type with cutsomizations through options
+ * Available Options:
+ * - language: Specify the language of return for eg c, python, etc
+ * - roundUpToPowerOfTwo: Rounds the size up to the nearest power of 2
+ * - sizeIn: By default size is returned in bytes but it can be returned in bits
+ * by mentioning sizeIn="bits"
+ * - prefix: Add a prefix string to the underlying zcl type size
+ * - signedPrefix: Use this prefix instead of the prefix mentioned when it is a signed zcl type
+ * - postfix: Add a postfix string to the underlying zcl type size
+ * - unSignedPostfix: Use this postfix instead of the postfix mentioned when it is a signed zcl type
+ * - All other options passed to this helper are considered as overrides for
+ * zcl types
+ * for eg: (get_underlying_language_specific_zcl_type single="float") will return the zcl
+ * data type "float" for "single"
+ * Note: "single" is an exception here
+ *
+ */
+async function get_underlying_language_specific_zcl_type(type, options) {
+  let hash = options.hash
+  let prefix = hash && hash.prefix ? hash.prefix : ''
+  let signedPrefix = hash && hash.signedPrefix ? hash.signedPrefix : ''
+  let unSignedPostfix = hash && hash.unSignedPostfix ? hash.unSignedPostfix : ''
+  let postfix = hash && hash.postfix ? hash.postfix : ''
+  let sizeMultiple = 1
+  let result = 0
+  let isSigned = 0
+  if (hash && hash.sizeIn == 'bits') {
+    sizeMultiple = 8
+  }
+
+  // Get ZCL Data Type from the db
+  const packageIds = await templateUtil.ensureZclPackageIds(this)
+  let dataType = await queryZcl.selectDataTypeByName(
+    this.global.db,
+    type,
+    packageIds
+  )
+  if (!dataType) {
+    env.logWarning(type + ' not found in the data_type table')
+    return 0
+  }
+
+  if (dataType) {
+    // Overwrite any type with the one coming from the template options
+    // Eg: {{get_underlying_language_specific_zcl_type type boolean='bool'}}
+    // Here all types named 'boolean' will return 'bool'
+    if (type in hash) {
+      return hash[type]
+    }
+    // Language Specific: python
+    if (hash.language == 'python') {
+      return as_underlying_python_type_for_zcl_type(type, dataType)
+    } else if (hash.language == 'objectiveCClass') {
+      return as_underlying_Objective_C_Class_type_for_zcl_type(
+        type,
+        dataType,
+        this,
+        options
+      )
+    } else if (hash.language == 'c++' || hash.language == 'objectiveC') {
+      if (
+        dataType.discriminatorName.toLowerCase() == dbEnum.zclType.string &&
+        hash.language == 'c++'
+      ) {
+        if (octetStringTypes.includes(type.toUpperCase())) {
+          return 'OctetString'
+        } else if (characterStringTypes.includes(type.toUpperCase())) {
+          return 'CharString'
+        } else if (this.isArray) {
+          return 'List'
+        }
+      } else if (dataType.name.includes('float')) {
+        return hash.asUpperCamelCase ? 'Float' : 'float'
+      } else if (dataType.name.includes('double')) {
+        return hash.asUpperCamelCase ? 'Double' : 'double'
+      } else if (dataType.name.includes('single')) {
+        return hash.asUpperCamelCase ? 'Float' : 'float'
+      } else {
+        let sizeAndSign = await zcl_data_type_size_and_sign(
+          type,
+          dataType,
+          packageIds,
+          this
+        )
+        result = sizeAndSign.size
+        isSigned = sizeAndSign.isSigned
+      }
+    }
+  }
+  result =
+    hash && hash.roundUpToPowerOfTwo
+      ? Math.pow(2, Math.ceil(Math.log2(result)))
+      : result
+  // Returning for objective C
+  if (hash.language == 'objectiveC') {
+    if (!isSigned) {
+      switch (result) {
+        case 1:
+          return 'unsignedChar'
+        case 2:
+          return 'unsignedShort'
+        case 4:
+          return 'unsignedInt'
+        case 8:
+          return 'unsignedLongLong'
+      }
+    } else {
+      switch (result) {
+        case 1:
+          return 'char'
+        case 2:
+          return 'short'
+        case 4:
+          return 'int'
+        case 8:
+          return 'longLong'
+      }
+    }
+  }
+  return (
+    (!isSigned ? prefix : signedPrefix) +
+    result * sizeMultiple +
+    (!isSigned && unSignedPostfix ? unSignedPostfix : postfix)
+  )
+}
+
 const dep = templateUtil.deprecatedHelper
 
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
@@ -2897,3 +3116,5 @@ exports.as_type_max_value = as_type_max_value
 exports.as_type_min_value = as_type_min_value
 exports.as_zcl_type_size = as_zcl_type_size
 exports.if_compare = if_compare
+exports.get_underlying_language_specific_zcl_type =
+  get_underlying_language_specific_zcl_type

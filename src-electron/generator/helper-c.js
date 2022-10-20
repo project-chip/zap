@@ -263,8 +263,39 @@ async function asBytes(value, type) {
  * @param {*} str
  * @returns a spaced out string in lowercase
  */
-function asCamelCased(label, firstLower = true) {
-  return string.toCamelCase(label, firstLower)
+function asCamelCased(label, firstLower = true, options = { hash: {} }) {
+  const preserveAcronyms = options && options.hash.preserveAcronyms
+  if (!preserveAcronyms) {
+    return string.toCamelCase(label, firstLower)
+  } else {
+    let tokens = label.replace(/[+()&]/g, '').split(/ |_|-|\//)
+
+    let str = tokens
+      .map((token) => {
+        let isAcronym = token == token.toUpperCase()
+        if (!isAcronym) {
+          let newToken = token[0].toUpperCase()
+          if (token.length > 1) {
+            newToken += token.substring(1)
+          }
+          return newToken
+        }
+
+        if (preserveAcronyms) {
+          return token
+        }
+
+        // if preserveAcronyms is false, then anything beyond the first letter becomes lower-case.
+        let newToken = token[0]
+        if (token.length > 1) {
+          newToken += token.substring(1).toLowerCase()
+        }
+        return newToken
+      })
+      .join('')
+
+    return str.replace(/[^A-Za-z0-9_]/g, '')
+  }
 }
 
 /**

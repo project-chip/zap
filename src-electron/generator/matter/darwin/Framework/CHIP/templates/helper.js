@@ -78,6 +78,7 @@ async function asTypedExpressionFromObjectiveC(value, type) {
 
 function asObjectiveCNumberType(label, type, asLowerCased) {
   function fn(pkgId) {
+    let error = '';
     const options = { hash: {} };
     return zclHelper.asUnderlyingZclType
       .call(this, type, options)

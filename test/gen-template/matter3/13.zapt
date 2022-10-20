@@ -7,7 +7,7 @@
       }
 
   {{/chip_cluster_responses}}
-      {{#chip_server_cluster_attributes}}
+      {{#all_user_cluster_attributes_irrespective_of_manufatucuring_specification name 'server'}}
       {{#if isArray}}
       {{#if isStruct}}
 
@@ -19,7 +19,7 @@
           CommandResponseInfo commandResponseInfo = new CommandResponseInfo("valueList", "List<{{> asJavaTypeForEntry isArray=false}}>");
       }
       {{/if}}
-      {{/chip_server_cluster_attributes}}
+      {{/all_user_cluster_attributes_irrespective_of_manufatucuring_specification}}
 
   {{/chip_client_clusters}}
 

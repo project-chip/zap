@@ -442,11 +442,11 @@ async function all_cli_commands_for_user_enabled_clusters(options) {
  */
 async function all_user_clusters(options) {
   let endpointTypes = await templateUtil.ensureEndpointTypeIds(this)
-
   let clusters =
     await queryEndpointType.selectAllClustersDetailsFromEndpointTypes(
       this.global.db,
-      endpointTypes
+      endpointTypes,
+      options
     )
 
   return templateUtil.collectBlocks(clusters, options, this)
