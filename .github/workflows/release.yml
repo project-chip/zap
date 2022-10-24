@@ -263,3 +263,27 @@ jobs:
         with:
           name: zap-linux-deb
           path: dist/zap*.deb
+
+changelog:
+  exclude:
+    labels:
+      - ignore-for-release
+  categories:
+    - title: New Features
+      labels:
+        - enhancement
+    - title: Matter changes
+      labels:
+        - matter
+    - title: ZigBee Pro changes
+      labels:
+        - zigbee pro
+    - title: Bug Fixes
+      labels:
+        - bug
+    - title: Breaking Changes
+      labels:
+        - breaking-change
+    - title: Other Changes
+      labels:
+        - '*'
