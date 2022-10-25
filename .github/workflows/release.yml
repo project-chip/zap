@@ -84,14 +84,12 @@ jobs:
         run: |
           npm run pack:win
           npm run pkg:win
-          mv dist/zap-win.exe zap-cli.exe
-          ./node_modules/7zip-bin/mac/x64/7za a dist/zap-win.zip zap-cli.exe
+          npm run pack:cli:win
           rm zap-cli.exe
 
           npm run pack:mac
           npm run pkg:mac
-          mv dist/zap-macos zap-cli
-          ./node_modules/7zip-bin/mac/x64/7za a dist/zap-mac.zip zap-cli
+          npm run pack:cli:mac
           rm zap-cli
 
         env:
@@ -106,8 +104,8 @@ jobs:
         run: |
           npm run pack:linux
           npm run pkg:linux
-          mv dist/zap-linux zap-cli
-          ./node_modules/7zip-bin/linux/x64/7za a dist/zap-linux.zip zap-cli
+          npm run pack:cli:linux
+          rm zap-cli
 
         env:
           GH_TOKEN: ${{ secrets.github_token }}
