@@ -29,19 +29,19 @@
       "exe": "src-script/zap-start.js"
     },
     "zap-cli:win32.x86_64": {
-      "exe": "zap-cli-win.exe",
+      "exe": "zap-cli.exe",
       "optional": true
     },
     "zap-cli:linux.x86_64": {
-      "exe": "zap-cli-linux",
+      "exe": "zap-cli",
       "optional": true
     },
     "zap-cli:macosx.x86_64": {
-      "exe": "zap-cli-macos",
+      "exe": "zap-cli",
       "optional": true
     },
     "zap-cli:macosx.ARM64": {
-      "exe": "zap-cli-macos",
+      "exe": "zap-cli",
       "optional": true
     },
     "zap-cli": {
