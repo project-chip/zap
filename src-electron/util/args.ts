@@ -218,7 +218,7 @@ export function processCommandLineArguments(argv: string[]) {
         zapVersion.featureLevel
       }\nHash: ${zapVersion.hash}\nDate: ${zapVersion.date}${
         zapVersion.source ? '\nMode: source' : '\nMode: binary'
-      }`
+      }${zapVersion.source ? '' : `\nExecutable: ${process.argv0}`} `
     )
     .help()
     .alias({

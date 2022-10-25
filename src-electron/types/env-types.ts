@@ -5,6 +5,7 @@ export interface VersionType {
   timestamp: number
   date: string
   source?: boolean
+  exe: string
 }
 
 export interface ErrorType {
