@@ -208,7 +208,7 @@ export function zapVersionAsString() {
   let vo = zapVersion()
   return `ver. ${vo.version}, featureLevel ${vo.featureLevel}, commit: ${
     vo.hash
-  } from ${vo.date}${vo.source ? ', mode: source' : ', mode: binary'}`
+  } from ${vo.date}, mode: ${vo.source ? 'source' : 'binary'}, exe: ${vo.exe}`
 }
 
 /**
@@ -246,6 +246,7 @@ export function zapVersion() {
       hash: 0,
       timestamp: 0,
       date: '',
+      exe: process.argv0,
     }
     try {
       let p = require(locateProjectResource('./apack.json'))

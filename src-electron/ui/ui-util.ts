@@ -20,7 +20,6 @@ import browserApi from './browser-api.js'
 import * as uiTypes from '../../src-shared/types/ui-types'
 import { WindowCreateArgs } from 'types/window-types'
 import * as util from '../util/util'
-import * as args from '../util/args'
 
 /**
  * Simple dialog to show error messages from electron renderer scope.
@@ -118,16 +117,14 @@ function openFileDialogAndReportResult(
   p.defaultPath = options.defaultPath
   dialog.showOpenDialog(browserWindow, p).then((result) => {
     if (!result.canceled) {
-      let paths : string[] = [];
+      let paths: string[] = []
       // check if application is running on Windows standalone mode, then replace the backward slashs with forward slash
       // otherwise it will throw a JSON syntax error
-      if(process.platform == "win32"){
-        result.filePaths.forEach(path => {
-          paths.push(
-            path.replace(/\\/g, '/')
-            );
+      if (process.platform == 'win32') {
+        result.filePaths.forEach((path) => {
+          paths.push(path.replace(/\\/g, '/'))
         })
-      }else{
+      } else {
         paths = result.filePaths
       }
 

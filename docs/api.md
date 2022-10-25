@@ -40,11 +40,11 @@
 <dt><a href="#module_DB API_ device type database access">DB API: device type database access</a></dt>
 <dd><p>This module provides queries for device types.</p>
 </dd>
-<dt><a href="#module_DB API_ endpoint type queries against the database.">DB API: endpoint type queries against the database.</a></dt>
-<dd><p>This module provides queries for endpoint type.</p>
-</dd>
 <dt><a href="#module_DB API_ endpoint configuration queries against the database.">DB API: endpoint configuration queries against the database.</a></dt>
 <dd><p>This module provides queries for endpoint configuration.</p>
+</dd>
+<dt><a href="#module_DB API_ endpoint type queries against the database.">DB API: endpoint type queries against the database.</a></dt>
+<dd><p>This module provides queries for endpoint type.</p>
 </dd>
 <dt><a href="#module_DB API_ zcl database access">DB API: zcl database access</a></dt>
 <dd><p>This module provides queries for enums.</p>
@@ -61,13 +61,13 @@
 <dt><a href="#module_DB API_ package-based queries.">DB API: package-based queries.</a></dt>
 <dd><p>This module provides queries related to packages.</p>
 </dd>
+<dt><a href="#module_DB API_ session related queries.">DB API: session related queries.</a></dt>
+<dd><p>This module provides session related queries.</p>
+</dd>
 <dt><a href="#module_DB API_ zcl database access">DB API: zcl database access</a></dt>
 <dd><p>This module provides queries for ZCL static entities
 inside a single session. Things like:
    all visible clusters, etc.</p>
-</dd>
-<dt><a href="#module_DB API_ session related queries.">DB API: session related queries.</a></dt>
-<dd><p>This module provides session related queries.</p>
 </dd>
 <dt><a href="#module_DB API_ zcl database access">DB API: zcl database access</a></dt>
 <dd><p>This module provides queries for enums.</p>
@@ -134,10 +134,20 @@ inside a single session. Things like:
 </dd>
 <dt><a href="#module_JS API_ renderer API related utilities">JS API: renderer API related utilities</a></dt>
 <dd></dd>
+<dt><a href="#module_JS API_ async reporting">JS API: async reporting</a></dt>
+<dd><p>This module provides the mechanism for dealing with the async reporting
+from backend to the UI.</p>
+<p>This mechanism takes care of:</p>
+<ul>
+<li>dirty flag</li>
+</ul>
+</dd>
 <dt><a href="#module_JS API_ post-import.">JS API: post-import.</a></dt>
 <dd><p>This module contains the API functions for the post-load
 scripting functionality.</p>
 </dd>
+<dt><a href="#module_JS API_ SDK utilities">JS API: SDK utilities</a></dt>
+<dd></dd>
 <dt><a href="#module_JS API_ type related utilities">JS API: type related utilities</a></dt>
 <dd></dd>
 <dt><a href="#module_JS API_ random utilities">JS API: random utilities</a></dt>
@@ -432,6 +442,19 @@ scripting functionality.</p>
 <dt><a href="#templateUtil">templateUtil</a></dt>
 <dd><p>This module provides API to access various iterator utilities that can then
 be used to build iterator helpers.</p>
+</dd>
+<dt><a href="#fs">fs</a></dt>
+<dd><p>Copyright (c) 2022 Silicon Labs</p>
+<p>   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at</p>
+<pre><code>   http://www.apache.org/licenses/LICENSE-2.0
+</code></pre>
+<p>   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.</p>
 </dd>
 <dt><a href="#queryZcl">queryZcl</a></dt>
 <dd><p>Copyright (c) 2020 Silicon Labs</p>
@@ -755,6 +778,13 @@ queries that are needed to load the attribute state</p>
 <dd><p>Function that actually loads the data out of a state object.
 Session at this point is blank, and has no packages.</p>
 </dd>
+<dt><a href="#readDataFromFile">readDataFromFile(filePath)</a> ⇒</dt>
+<dd><p>Reads the data from the file and resolves with the state object if all is good.</p>
+</dd>
+<dt><a href="#importDataFromFile">importDataFromFile(db, filePath)</a> ⇒</dt>
+<dd><p>Writes the data from the file into a new session.
+NOTE: This function does NOT initialize session packages.</p>
+</dd>
 <dt><a href="#importSessionKeyValues">importSessionKeyValues(db, sessionId, keyValuePairs)</a></dt>
 <dd><p>Resolves with a promise that imports session key values.</p>
 </dd>
@@ -764,13 +794,6 @@ with the succesfull writing into the database.</p>
 </dd>
 <dt><a href="#readJsonData">readJsonData(filePath, data)</a> ⇒</dt>
 <dd><p>Parses JSON file and creates a state object out of it, which is passed further down the chain.</p>
-</dd>
-<dt><a href="#readDataFromFile">readDataFromFile(filePath)</a> ⇒</dt>
-<dd><p>Reads the data from the file and resolves with the state object if all is good.</p>
-</dd>
-<dt><a href="#importDataFromFile">importDataFromFile(db, filePath)</a> ⇒</dt>
-<dd><p>Writes the data from the file into a new session.
-NOTE: This function does NOT initialize session packages.</p>
 </dd>
 <dt><a href="#initSessionTimers">initSessionTimers()</a></dt>
 <dd><p>Start session specific validation.</p>
@@ -816,6 +839,15 @@ NOTE: This function does NOT initialize session packages.</p>
 </dd>
 <dt><a href="#startUpMainInstance">startUpMainInstance(quitFunction, argv)</a></dt>
 <dd><p>Default startup method.</p>
+</dd>
+<dt><a href="#packagesAndSessions">packagesAndSessions(db)</a> ⇒</dt>
+<dd><p>This function returns Properties, Templates and Dirty-Sessions</p>
+</dd>
+<dt><a href="#initializeSession">initializeSession(db, options:)</a> ⇒</dt>
+<dd><p>This function creates a new session with its packages according to selected Properties and Templates</p>
+</dd>
+<dt><a href="#loadPreviousSessions">loadPreviousSessions(db)</a> ⇒</dt>
+<dd><p>This function reloads previous session by user selected session&#39;s id</p>
 </dd>
 <dt><a href="#doOpen">doOpen(menuItem, browserWindow, event)</a></dt>
 <dd><p>Perform a file-&gt;open operation.</p>
@@ -962,6 +994,37 @@ that will be resolved when all the XML files are done, or rejected if at least o
 <dd><p>Toplevel function that loads the xml library file
 and orchestrates the promise chain.</p>
 </dd>
+<dt><a href="#recordToplevelPackage">recordToplevelPackage(db, metadataFile, crc)</a> ⇒</dt>
+<dd><p>Records the toplevel package information and resolves into packageId</p>
+</dd>
+<dt><a href="#recordVersion">recordVersion(db, ctx)</a></dt>
+<dd><p>Records the version into the database.</p>
+</dd>
+<dt><a href="#loadZclMetafiles">loadZclMetafiles(db, metadataFile)</a> ⇒</dt>
+<dd><p>Toplevel function that loads the zcl file and passes it off to the correct zcl loader.</p>
+</dd>
+<dt><a href="#loadZcl">loadZcl(db, metadataFile)</a> ⇒</dt>
+<dd><p>Loads individual zcl.json metafile.</p>
+</dd>
+<dt><a href="#loadIndividualFile">loadIndividualFile(db, filePath, sessionId)</a></dt>
+<dd><p>Load individual custom XML files.</p>
+</dd>
+<dt><a href="#bindValidationScript">bindValidationScript(db, basePackageId)</a></dt>
+<dd><p>This function creates a validator function with signatuee fn(stringToValidateOn)</p>
+</dd>
+<dt><a href="#getSchemaAndValidationScript">getSchemaAndValidationScript(db, basePackageId)</a></dt>
+<dd><p>Returns an object with zclSchema and zclValidation elements.</p>
+</dd>
+<dt><a href="#qualifyZclFile">qualifyZclFile(db, info, parentPackageId)</a> ⇒</dt>
+<dd><p>Promises to qualify whether zcl file needs to be reloaded.
+If yes, the it will resolve with {filePath, data, packageId}
+If not, then it will resolve with {error}</p>
+</dd>
+<dt><a href="#processZclPostLoading">processZclPostLoading(db)</a> ⇒</dt>
+<dd><p>Promises to perform a post loading step.</p>
+</dd>
+<dt><a href="#getDiscriminatorMap">getDiscriminatorMap(db, packageIds)</a> ⇒</dt>
+<dd></dd>
 <dt><a href="#collectDataFromJsonFile">collectDataFromJsonFile(ctx)</a> ⇒</dt>
 <dd><p>Promises to read the JSON file and resolve all the data.</p>
 </dd>
@@ -1135,37 +1198,6 @@ e.g. for ClusterExtensions.</p>
 <dd><p>Toplevel function that loads the toplevel metafile
 and orchestrates the promise chain.</p>
 </dd>
-<dt><a href="#recordToplevelPackage">recordToplevelPackage(db, metadataFile, crc)</a> ⇒</dt>
-<dd><p>Records the toplevel package information and resolves into packageId</p>
-</dd>
-<dt><a href="#recordVersion">recordVersion(db, ctx)</a></dt>
-<dd><p>Records the version into the database.</p>
-</dd>
-<dt><a href="#loadZclMetafiles">loadZclMetafiles(db, metadataFile)</a> ⇒</dt>
-<dd><p>Toplevel function that loads the zcl file and passes it off to the correct zcl loader.</p>
-</dd>
-<dt><a href="#loadZcl">loadZcl(db, metadataFile)</a> ⇒</dt>
-<dd><p>Loads individual zcl.json metafile.</p>
-</dd>
-<dt><a href="#loadIndividualFile">loadIndividualFile(db, filePath, sessionId)</a></dt>
-<dd><p>Load individual custom XML files.</p>
-</dd>
-<dt><a href="#bindValidationScript">bindValidationScript(db, basePackageId)</a></dt>
-<dd><p>This function creates a validator function with signatuee fn(stringToValidateOn)</p>
-</dd>
-<dt><a href="#getSchemaAndValidationScript">getSchemaAndValidationScript(db, basePackageId)</a></dt>
-<dd><p>Returns an object with zclSchema and zclValidation elements.</p>
-</dd>
-<dt><a href="#qualifyZclFile">qualifyZclFile(db, info, parentPackageId)</a> ⇒</dt>
-<dd><p>Promises to qualify whether zcl file needs to be reloaded.
-If yes, the it will resolve with {filePath, data, packageId}
-If not, then it will resolve with {error}</p>
-</dd>
-<dt><a href="#processZclPostLoading">processZclPostLoading(db)</a> ⇒</dt>
-<dd><p>Promises to perform a post loading step.</p>
-</dd>
-<dt><a href="#getDiscriminatorMap">getDiscriminatorMap(db, packageIds)</a> ⇒</dt>
-<dd></dd>
 </dl>
 
 <a name="module_DB API_ External URLs."></a>
@@ -1208,6 +1240,7 @@ This module provides generic DB functions for performing SQL queries.
   - [~initDatabaseAndLoadSchema(sqliteFile, schemaFile, zapVersion)](#module*JS API* low level database access..initDatabaseAndLoadSchema) ⇒
   - [~toDbBool(value)](#module*JS API* low level database access..toDbBool) ⇒
   - [~fromDbBool(value)](#module*JS API* low level database access..fromDbBool) ⇒
+  - [~toInClause(value)](#module*JS API* low level database access..toInClause) ⇒
 
 <a name="module_JS API_ low level database access..dbBeginTransaction"></a>
 
@@ -1507,6 +1540,17 @@ Returns a true or false JS boolean from the value that was read in the database.
 | ----- | --------------- |
 | value | <code>\*</code> |
 
+<a name="module_JS API_ low level database access..toInClause"></a>
+
+### JS API: low level database access~toInClause(value) ⇒
+
+**Kind**: inner method of [<code>JS API: low level database access</code>](#module*JS API* low level database access)  
+**Returns**: Given value in the form of string
+
+| Param | Type            |
+| ----- | --------------- |
+| value | <code>\*</code> |
+
 <a name="module_DB API_ zcl database access"></a>
 
 ## DB API: zcl database access
@@ -1531,6 +1575,7 @@ This module provides cache for commonly used static database queries.
   - [~selectAllSessionClusters(db, sessionId)](#module*DB API* zcl database access..selectAllSessionClusters) ⇒
   - [~selectSessionAttributeByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionAttributeByCode) ⇒
   - [~selectSessionCommandByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionCommandByCode) ⇒
+  - [~selectStructsWithClusterAssociation(db, packageIds, groupByStructName)](#module*DB API* zcl database access..selectStructsWithClusterAssociation) ⇒
   - [~selectClusterBitmaps(db, packageId, clusterId)](#module*DB API* zcl database access..selectClusterBitmaps) ⇒
   - [~selectAllDomains(db)](#module*DB API* zcl database access..selectAllDomains) ⇒
   - [~selectAllStructsWithItemCount(db, packageIds)](#module*DB API* zcl database access..selectAllStructsWithItemCount) ⇒
@@ -1778,6 +1823,23 @@ Returns the command available to this session by the code.
 | --------- | --------------- |
 | db        | <code>\*</code> |
 | sessionId | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectStructsWithClusterAssociation"></a>
+
+### DB API: zcl database access~selectStructsWithClusterAssociation(db, packageIds, groupByStructName) ⇒
+
+Get all structs which have a cluster associated with them. If a struct is
+present in more than one cluster then it can be grouped by struct name to
+avoid additional rows.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: structs which have an association with clusters
+
+| Param             | Type            |
+| ----------------- | --------------- |
+| db                | <code>\*</code> |
+| packageIds        | <code>\*</code> |
+| groupByStructName | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectClusterBitmaps"></a>
 
@@ -2049,6 +2111,7 @@ This module provides queries for atomic type queries.
   - [~selectAllSessionClusters(db, sessionId)](#module*DB API* zcl database access..selectAllSessionClusters) ⇒
   - [~selectSessionAttributeByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionAttributeByCode) ⇒
   - [~selectSessionCommandByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionCommandByCode) ⇒
+  - [~selectStructsWithClusterAssociation(db, packageIds, groupByStructName)](#module*DB API* zcl database access..selectStructsWithClusterAssociation) ⇒
   - [~selectClusterBitmaps(db, packageId, clusterId)](#module*DB API* zcl database access..selectClusterBitmaps) ⇒
   - [~selectAllDomains(db)](#module*DB API* zcl database access..selectAllDomains) ⇒
   - [~selectAllStructsWithItemCount(db, packageIds)](#module*DB API* zcl database access..selectAllStructsWithItemCount) ⇒
@@ -2296,6 +2359,23 @@ Returns the command available to this session by the code.
 | --------- | --------------- |
 | db        | <code>\*</code> |
 | sessionId | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectStructsWithClusterAssociation"></a>
+
+### DB API: zcl database access~selectStructsWithClusterAssociation(db, packageIds, groupByStructName) ⇒
+
+Get all structs which have a cluster associated with them. If a struct is
+present in more than one cluster then it can be grouped by struct name to
+avoid additional rows.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: structs which have an association with clusters
+
+| Param             | Type            |
+| ----------------- | --------------- |
+| db                | <code>\*</code> |
+| packageIds        | <code>\*</code> |
+| groupByStructName | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectClusterBitmaps"></a>
 
@@ -2561,6 +2641,7 @@ This module provides queries for enums.
   - [~selectAllSessionClusters(db, sessionId)](#module*DB API* zcl database access..selectAllSessionClusters) ⇒
   - [~selectSessionAttributeByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionAttributeByCode) ⇒
   - [~selectSessionCommandByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionCommandByCode) ⇒
+  - [~selectStructsWithClusterAssociation(db, packageIds, groupByStructName)](#module*DB API* zcl database access..selectStructsWithClusterAssociation) ⇒
   - [~selectClusterBitmaps(db, packageId, clusterId)](#module*DB API* zcl database access..selectClusterBitmaps) ⇒
   - [~selectAllDomains(db)](#module*DB API* zcl database access..selectAllDomains) ⇒
   - [~selectAllStructsWithItemCount(db, packageIds)](#module*DB API* zcl database access..selectAllStructsWithItemCount) ⇒
@@ -2808,6 +2889,23 @@ Returns the command available to this session by the code.
 | --------- | --------------- |
 | db        | <code>\*</code> |
 | sessionId | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectStructsWithClusterAssociation"></a>
+
+### DB API: zcl database access~selectStructsWithClusterAssociation(db, packageIds, groupByStructName) ⇒
+
+Get all structs which have a cluster associated with them. If a struct is
+present in more than one cluster then it can be grouped by struct name to
+avoid additional rows.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: structs which have an association with clusters
+
+| Param             | Type            |
+| ----------------- | --------------- |
+| db                | <code>\*</code> |
+| packageIds        | <code>\*</code> |
+| groupByStructName | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectClusterBitmaps"></a>
 
@@ -3179,17 +3277,17 @@ we have to link the foreign keys.
 | ----- | --------------- |
 | db    | <code>\*</code> |
 
-<a name="module_DB API_ endpoint type queries against the database."></a>
-
-## DB API: endpoint type queries against the database.
-
-This module provides queries for endpoint type.
-
 <a name="module_DB API_ endpoint configuration queries against the database."></a>
 
 ## DB API: endpoint configuration queries against the database.
 
 This module provides queries for endpoint configuration.
+
+<a name="module_DB API_ endpoint type queries against the database."></a>
+
+## DB API: endpoint type queries against the database.
+
+This module provides queries for endpoint type.
 
 <a name="module_DB API_ zcl database access"></a>
 
@@ -3215,6 +3313,7 @@ This module provides queries for enums.
   - [~selectAllSessionClusters(db, sessionId)](#module*DB API* zcl database access..selectAllSessionClusters) ⇒
   - [~selectSessionAttributeByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionAttributeByCode) ⇒
   - [~selectSessionCommandByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionCommandByCode) ⇒
+  - [~selectStructsWithClusterAssociation(db, packageIds, groupByStructName)](#module*DB API* zcl database access..selectStructsWithClusterAssociation) ⇒
   - [~selectClusterBitmaps(db, packageId, clusterId)](#module*DB API* zcl database access..selectClusterBitmaps) ⇒
   - [~selectAllDomains(db)](#module*DB API* zcl database access..selectAllDomains) ⇒
   - [~selectAllStructsWithItemCount(db, packageIds)](#module*DB API* zcl database access..selectAllStructsWithItemCount) ⇒
@@ -3462,6 +3561,23 @@ Returns the command available to this session by the code.
 | --------- | --------------- |
 | db        | <code>\*</code> |
 | sessionId | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectStructsWithClusterAssociation"></a>
+
+### DB API: zcl database access~selectStructsWithClusterAssociation(db, packageIds, groupByStructName) ⇒
+
+Get all structs which have a cluster associated with them. If a struct is
+present in more than one cluster then it can be grouped by struct name to
+avoid additional rows.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: structs which have an association with clusters
+
+| Param             | Type            |
+| ----------------- | --------------- |
+| db                | <code>\*</code> |
+| packageIds        | <code>\*</code> |
+| groupByStructName | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectClusterBitmaps"></a>
 
@@ -4144,6 +4260,12 @@ Insert all Struct items into the Struct Item Table.
 
 This module provides queries related to packages.
 
+<a name="module_DB API_ session related queries."></a>
+
+## DB API: session related queries.
+
+This module provides session related queries.
+
 <a name="module_DB API_ zcl database access"></a>
 
 ## DB API: zcl database access
@@ -4170,6 +4292,7 @@ all visible clusters, etc.
   - [~selectAllSessionClusters(db, sessionId)](#module*DB API* zcl database access..selectAllSessionClusters) ⇒
   - [~selectSessionAttributeByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionAttributeByCode) ⇒
   - [~selectSessionCommandByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionCommandByCode) ⇒
+  - [~selectStructsWithClusterAssociation(db, packageIds, groupByStructName)](#module*DB API* zcl database access..selectStructsWithClusterAssociation) ⇒
   - [~selectClusterBitmaps(db, packageId, clusterId)](#module*DB API* zcl database access..selectClusterBitmaps) ⇒
   - [~selectAllDomains(db)](#module*DB API* zcl database access..selectAllDomains) ⇒
   - [~selectAllStructsWithItemCount(db, packageIds)](#module*DB API* zcl database access..selectAllStructsWithItemCount) ⇒
@@ -4417,6 +4540,23 @@ Returns the command available to this session by the code.
 | --------- | --------------- |
 | db        | <code>\*</code> |
 | sessionId | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectStructsWithClusterAssociation"></a>
+
+### DB API: zcl database access~selectStructsWithClusterAssociation(db, packageIds, groupByStructName) ⇒
+
+Get all structs which have a cluster associated with them. If a struct is
+present in more than one cluster then it can be grouped by struct name to
+avoid additional rows.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: structs which have an association with clusters
+
+| Param             | Type            |
+| ----------------- | --------------- |
+| db                | <code>\*</code> |
+| packageIds        | <code>\*</code> |
+| groupByStructName | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectClusterBitmaps"></a>
 
@@ -4652,12 +4792,6 @@ Query for attributes by side.
 | side      | <code>\*</code> |
 | packageId | <code>\*</code> |
 
-<a name="module_DB API_ session related queries."></a>
-
-## DB API: session related queries.
-
-This module provides session related queries.
-
 <a name="module_DB API_ zcl database access"></a>
 
 ## DB API: zcl database access
@@ -4682,6 +4816,7 @@ This module provides queries for enums.
   - [~selectAllSessionClusters(db, sessionId)](#module*DB API* zcl database access..selectAllSessionClusters) ⇒
   - [~selectSessionAttributeByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionAttributeByCode) ⇒
   - [~selectSessionCommandByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionCommandByCode) ⇒
+  - [~selectStructsWithClusterAssociation(db, packageIds, groupByStructName)](#module*DB API* zcl database access..selectStructsWithClusterAssociation) ⇒
   - [~selectClusterBitmaps(db, packageId, clusterId)](#module*DB API* zcl database access..selectClusterBitmaps) ⇒
   - [~selectAllDomains(db)](#module*DB API* zcl database access..selectAllDomains) ⇒
   - [~selectAllStructsWithItemCount(db, packageIds)](#module*DB API* zcl database access..selectAllStructsWithItemCount) ⇒
@@ -4929,6 +5064,23 @@ Returns the command available to this session by the code.
 | --------- | --------------- |
 | db        | <code>\*</code> |
 | sessionId | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectStructsWithClusterAssociation"></a>
+
+### DB API: zcl database access~selectStructsWithClusterAssociation(db, packageIds, groupByStructName) ⇒
+
+Get all structs which have a cluster associated with them. If a struct is
+present in more than one cluster then it can be grouped by struct name to
+avoid additional rows.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: structs which have an association with clusters
+
+| Param             | Type            |
+| ----------------- | --------------- |
+| db                | <code>\*</code> |
+| packageIds        | <code>\*</code> |
+| groupByStructName | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectClusterBitmaps"></a>
 
@@ -5188,6 +5340,7 @@ This module provides queries for ZCL static queries.
   - [~selectAllSessionClusters(db, sessionId)](#module*DB API* zcl database access..selectAllSessionClusters) ⇒
   - [~selectSessionAttributeByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionAttributeByCode) ⇒
   - [~selectSessionCommandByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionCommandByCode) ⇒
+  - [~selectStructsWithClusterAssociation(db, packageIds, groupByStructName)](#module*DB API* zcl database access..selectStructsWithClusterAssociation) ⇒
   - [~selectClusterBitmaps(db, packageId, clusterId)](#module*DB API* zcl database access..selectClusterBitmaps) ⇒
   - [~selectAllDomains(db)](#module*DB API* zcl database access..selectAllDomains) ⇒
   - [~selectAllStructsWithItemCount(db, packageIds)](#module*DB API* zcl database access..selectAllStructsWithItemCount) ⇒
@@ -5435,6 +5588,23 @@ Returns the command available to this session by the code.
 | --------- | --------------- |
 | db        | <code>\*</code> |
 | sessionId | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectStructsWithClusterAssociation"></a>
+
+### DB API: zcl database access~selectStructsWithClusterAssociation(db, packageIds, groupByStructName) ⇒
+
+Get all structs which have a cluster associated with them. If a struct is
+present in more than one cluster then it can be grouped by struct name to
+avoid additional rows.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: structs which have an association with clusters
+
+| Param             | Type            |
+| ----------------- | --------------- |
+| db                | <code>\*</code> |
+| packageIds        | <code>\*</code> |
+| groupByStructName | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectClusterBitmaps"></a>
 
@@ -5701,6 +5871,7 @@ Query for attributes by side.
   - [~hbInstance()](#module*JS API* generator logic..hbInstance) ⇒
   - [~makeSynchronizablePromise(promise)](#module*JS API* generator logic..makeSynchronizablePromise)
   - [~collectBlocks(resultArray, options, context)](#module*JS API* generator logic..collectBlocks) ⇒
+  - [~ensureZclPackageId(context)](#module*JS API* generator logic..ensureZclPackageId) ⇒
   - [~ensureZclPackageIds(context)](#module*JS API* generator logic..ensureZclPackageIds) ⇒
   - [~ensureTemplatePackageId(context)](#module*JS API* generator logic..ensureTemplatePackageId) ⇒
   - [~ensureEndpointTypeIds(context)](#module*JS API* generator logic..ensureEndpointTypeIds) ⇒
@@ -6062,6 +6233,19 @@ executing promises for each, and collecting them into the outgoing string.
 | resultArray | <code>\*</code> |                                          |
 | options     | <code>\*</code> | Options passed from a block helper.      |
 | context     | <code>\*</code> | The context from within this was called. |
+
+<a name="module_JS API_ generator logic..ensureZclPackageId"></a>
+
+### JS API: generator logic~ensureZclPackageId(context) ⇒
+
+Returns the promise that resolves with the ZCL properties package id.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+**Returns**: promise that resolves with the package id.
+
+| Param   | Type            |
+| ------- | --------------- |
+| context | <code>\*</code> |
 
 <a name="module_JS API_ generator logic..ensureZclPackageIds"></a>
 
@@ -6445,7 +6629,7 @@ Given a camel case string, convert it into one with underscore and lowercase
 
 ### Templating API: C formatting helpers~cleanseLabelAsKebabCase(label)
 
-returns a string after converting ':' and ' ' into '-'
+returns a string after converting ':', ' ' and camel case into '-'
 
 **Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module*Templating API* C formatting helpers)
 
@@ -6833,7 +7017,7 @@ Given a camel case string, convert it into one with underscore and lowercase
 
 ### Templating API: C formatting helpers~cleanseLabelAsKebabCase(label)
 
-returns a string after converting ':' and ' ' into '-'
+returns a string after converting ':', ' ' and camel case into '-'
 
 **Kind**: inner method of [<code>Templating API: C formatting helpers</code>](#module*Templating API* C formatting helpers)
 
@@ -8204,6 +8388,10 @@ This module contains the API for templating. For more detailed instructions, rea
   - [~command_mask(commmandSource, clusterSide, isIncomingEnabled, isOutgoingEnabled, manufacturingCode, prefixForMask)](#module*Templating API* static zcl helpers..command_mask) ⇒
   - [~command_mask_sub_helper(commandMask, str)](#module*Templating API* static zcl helpers..command_mask_sub_helper) ⇒
   - [~format_zcl_string_as_characters_for_generated_defaults(stringVal, sizeOfString)](#module*Templating API* static zcl helpers..format_zcl_string_as_characters_for_generated_defaults) ⇒
+  - [~get_sign_and_size_of_zcl_type(type, context, options)](#module*Templating API* static zcl helpers..get_sign_and_size_of_zcl_type) ⇒
+  - [~as_type_min_value(type, options)](#module*Templating API* static zcl helpers..as_type_min_value) ⇒
+  - [~as_type_max_value(type, options)](#module*Templating API* static zcl helpers..as_type_max_value) ⇒
+  - [~structs_with_clusters(options)](#module*Templating API* static zcl helpers..structs_with_clusters)
 
 <a name="module_Templating API_ static zcl helpers..zcl_bitmaps"></a>
 
@@ -9264,17 +9452,96 @@ This may be used within all_user_cluster_attributes_for_generated_defaults
 for example:
 {{format_zcl_string_as_characters_for_generated_defaults 'abc' 5}}
 will return as follows:
-3, 'a', 'b', 'c' 0x00, 0x00
+3, 'a', 'b', 'c' 0, 0
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module*Templating API* static zcl helpers)  
 **Returns**: Formatted string for generated defaults starting with the lenth of a
 string then each character and then filler for the size allocated for the
-string
+string. Long strings prefixed by 2 byte length field.
 
 | Param        |
 | ------------ |
 | stringVal    |
 | sizeOfString |
+
+<a name="module_Templating API_ static zcl helpers..get_sign_and_size_of_zcl_type"></a>
+
+### Templating API: static zcl helpers~get_sign_and_size_of_zcl_type(type, context, options) ⇒
+
+Given a zcl device type returns its sign, size and zcl data type info stored
+in the database table.
+Note: Enums and Bitmaps are considered to be unsigned.
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module*Templating API* static zcl helpers)  
+**Returns**: returns sign, size and info of zcl device type
+Available Options:
+
+- size: Determine whether to calculate the size of zcl device type in bits
+  or bytes
+  for eg: get_sign_and_size_of_zcl_type('int8u' this size='bits') will return
+  the size in bits which will be 8. If not mentioned then it will return the size
+  in bytes i.e. 1 in this case.
+
+| Param   | Type            |
+| ------- | --------------- |
+| type    | <code>\*</code> |
+| context | <code>\*</code> |
+| options | <code>\*</code> |
+
+<a name="module_Templating API_ static zcl helpers..as_type_min_value"></a>
+
+### Templating API: static zcl helpers~as_type_min_value(type, options) ⇒
+
+Given a zcl data type return the min allowed value for that zcl data type
+based on the language specified in the options
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module*Templating API* static zcl helpers)  
+**Returns**: max allowed value for the given zcl data type
+Available Options:
+
+- language: determines the output of the helper based on language
+  for eg: (as_type_min_value language='c++') will give the output specific to
+  the c++ language.
+  Note: If language is not specified then helper throws an error.
+
+| Param   | Type            |
+| ------- | --------------- |
+| type    | <code>\*</code> |
+| options | <code>\*</code> |
+
+<a name="module_Templating API_ static zcl helpers..as_type_max_value"></a>
+
+### Templating API: static zcl helpers~as_type_max_value(type, options) ⇒
+
+Given a zcl data type return the max allowed value for that zcl data type
+based on the language specified in the options
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module*Templating API* static zcl helpers)  
+**Returns**: max allowed value for the given zcl data type
+Available Options:
+
+- language: determines the output of the helper based on language
+  for eg: (as_type_max_value language='c++') will give the output specific to
+  the c++ language.
+  Note: If language is not specified then the helper returns size of type in
+  bits.
+
+| Param   | Type            |
+| ------- | --------------- |
+| type    | <code>\*</code> |
+| options | <code>\*</code> |
+
+<a name="module_Templating API_ static zcl helpers..structs_with_clusters"></a>
+
+### Templating API: static zcl helpers~structs_with_clusters(options)
+
+Returns all structs which have clusters associated with them
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module*Templating API* static zcl helpers)
+
+| Param   | Type            | Description                                                                                                                                                                                                                        |
+| ------- | --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| options | <code>\*</code> | Available Options: - groupByStructName: Can group the query results based on struct name for structs which are present in more than one cluster eg Usage: {{#structs_with_clusters groupByStructName=1}}{{/structs_with_clusters}} |
 
 <a name="module_Templating API_ Overridable functions."></a>
 
@@ -9313,6 +9580,7 @@ This module contains the API for templating. For more detailed instructions, rea
   - [~hbInstance()](#module*JS API* generator logic..hbInstance) ⇒
   - [~makeSynchronizablePromise(promise)](#module*JS API* generator logic..makeSynchronizablePromise)
   - [~collectBlocks(resultArray, options, context)](#module*JS API* generator logic..collectBlocks) ⇒
+  - [~ensureZclPackageId(context)](#module*JS API* generator logic..ensureZclPackageId) ⇒
   - [~ensureZclPackageIds(context)](#module*JS API* generator logic..ensureZclPackageIds) ⇒
   - [~ensureTemplatePackageId(context)](#module*JS API* generator logic..ensureTemplatePackageId) ⇒
   - [~ensureEndpointTypeIds(context)](#module*JS API* generator logic..ensureEndpointTypeIds) ⇒
@@ -9674,6 +9942,19 @@ executing promises for each, and collecting them into the outgoing string.
 | resultArray | <code>\*</code> |                                          |
 | options     | <code>\*</code> | Options passed from a block helper.      |
 | context     | <code>\*</code> | The context from within this was called. |
+
+<a name="module_JS API_ generator logic..ensureZclPackageId"></a>
+
+### JS API: generator logic~ensureZclPackageId(context) ⇒
+
+Returns the promise that resolves with the ZCL properties package id.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+**Returns**: promise that resolves with the package id.
+
+| Param   | Type            |
+| ------- | --------------- |
+| context | <code>\*</code> |
 
 <a name="module_JS API_ generator logic..ensureZclPackageIds"></a>
 
@@ -9867,6 +10148,7 @@ Function wrapper that can be used when a helper is deprecated.
   - [~hbInstance()](#module*JS API* generator logic..hbInstance) ⇒
   - [~makeSynchronizablePromise(promise)](#module*JS API* generator logic..makeSynchronizablePromise)
   - [~collectBlocks(resultArray, options, context)](#module*JS API* generator logic..collectBlocks) ⇒
+  - [~ensureZclPackageId(context)](#module*JS API* generator logic..ensureZclPackageId) ⇒
   - [~ensureZclPackageIds(context)](#module*JS API* generator logic..ensureZclPackageIds) ⇒
   - [~ensureTemplatePackageId(context)](#module*JS API* generator logic..ensureTemplatePackageId) ⇒
   - [~ensureEndpointTypeIds(context)](#module*JS API* generator logic..ensureEndpointTypeIds) ⇒
@@ -10228,6 +10510,19 @@ executing promises for each, and collecting them into the outgoing string.
 | resultArray | <code>\*</code> |                                          |
 | options     | <code>\*</code> | Options passed from a block helper.      |
 | context     | <code>\*</code> | The context from within this was called. |
+
+<a name="module_JS API_ generator logic..ensureZclPackageId"></a>
+
+### JS API: generator logic~ensureZclPackageId(context) ⇒
+
+Returns the promise that resolves with the ZCL properties package id.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+**Returns**: promise that resolves with the package id.
+
+| Param   | Type            |
+| ------- | --------------- |
+| context | <code>\*</code> |
 
 <a name="module_JS API_ generator logic..ensureZclPackageIds"></a>
 
@@ -10411,6 +10706,9 @@ This module provides the API to access zcl specific information.
   - [~httpGetAllPackages()](#module*REST API* user data..httpGetAllPackages)
   - [~httpPostAddNewPackage()](#module*REST API* user data..httpPostAddNewPackage)
   - [~httpPostShareClusterStatesAcrossEndpoints()](#module*REST API* user data..httpPostShareClusterStatesAcrossEndpoints)
+  - [~httpPostDuplicateEndpoint(db)](#module*REST API* user data..httpPostDuplicateEndpoint) ⇒
+  - [~httpPostDuplicateEndpointType(db)](#module*REST API* user data..httpPostDuplicateEndpointType) ⇒
+  - [~duplicateEndpointTypeClusters(db, oldEndpointTypeId, newEndpointTypeId)](#module*REST API* user data..duplicateEndpointTypeClusters)
 
 <a name="module_REST API_ user data..getComponentIdsByCluster"></a>
 
@@ -10583,6 +10881,46 @@ on more than one endpoint.
 2. (native case in ZAP) In Matter, the Attribute configuration are endpoint specific.
 
 **Kind**: inner method of [<code>REST API: user data</code>](#module*REST API* user data)  
+<a name="module_REST API_ user data..httpPostDuplicateEndpoint"></a>
+
+### REST API: user data~httpPostDuplicateEndpoint(db) ⇒
+
+Creating a duplicate for endpoint
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module*REST API* user data)  
+**Returns**: newly created endpoint id
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+
+<a name="module_REST API_ user data..httpPostDuplicateEndpointType"></a>
+
+### REST API: user data~httpPostDuplicateEndpointType(db) ⇒
+
+Creating a duplicate for endpoint-type and endpoint-type-attributes
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module*REST API* user data)  
+**Returns**: newly created endpoint-type id
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+
+<a name="module_REST API_ user data..duplicateEndpointTypeClusters"></a>
+
+### REST API: user data~duplicateEndpointTypeClusters(db, oldEndpointTypeId, newEndpointTypeId)
+
+duplicate all clusters and attributes of an old endpoint type, using oldEndpointType id and newly created endpointType id
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module*REST API* user data)
+
+| Param             | Type            |
+| ----------------- | --------------- |
+| db                | <code>\*</code> |
+| oldEndpointTypeId | <code>\*</code> |
+| newEndpointTypeId | <code>\*</code> |
+
 <a name="module_REST API_ admin functions"></a>
 
 ## REST API: admin functions
@@ -10954,6 +11292,9 @@ This module provides the REST API to the user specific data.
   - [~httpGetAllPackages()](#module*REST API* user data..httpGetAllPackages)
   - [~httpPostAddNewPackage()](#module*REST API* user data..httpPostAddNewPackage)
   - [~httpPostShareClusterStatesAcrossEndpoints()](#module*REST API* user data..httpPostShareClusterStatesAcrossEndpoints)
+  - [~httpPostDuplicateEndpoint(db)](#module*REST API* user data..httpPostDuplicateEndpoint) ⇒
+  - [~httpPostDuplicateEndpointType(db)](#module*REST API* user data..httpPostDuplicateEndpointType) ⇒
+  - [~duplicateEndpointTypeClusters(db, oldEndpointTypeId, newEndpointTypeId)](#module*REST API* user data..duplicateEndpointTypeClusters)
 
 <a name="module_REST API_ user data..getComponentIdsByCluster"></a>
 
@@ -11126,6 +11467,46 @@ on more than one endpoint.
 2. (native case in ZAP) In Matter, the Attribute configuration are endpoint specific.
 
 **Kind**: inner method of [<code>REST API: user data</code>](#module*REST API* user data)  
+<a name="module_REST API_ user data..httpPostDuplicateEndpoint"></a>
+
+### REST API: user data~httpPostDuplicateEndpoint(db) ⇒
+
+Creating a duplicate for endpoint
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module*REST API* user data)  
+**Returns**: newly created endpoint id
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+
+<a name="module_REST API_ user data..httpPostDuplicateEndpointType"></a>
+
+### REST API: user data~httpPostDuplicateEndpointType(db) ⇒
+
+Creating a duplicate for endpoint-type and endpoint-type-attributes
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module*REST API* user data)  
+**Returns**: newly created endpoint-type id
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+
+<a name="module_REST API_ user data..duplicateEndpointTypeClusters"></a>
+
+### REST API: user data~duplicateEndpointTypeClusters(db, oldEndpointTypeId, newEndpointTypeId)
+
+duplicate all clusters and attributes of an old endpoint type, using oldEndpointType id and newly created endpointType id
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module*REST API* user data)
+
+| Param             | Type            |
+| ----------------- | --------------- |
+| db                | <code>\*</code> |
+| oldEndpointTypeId | <code>\*</code> |
+| newEndpointTypeId | <code>\*</code> |
+
 <a name="module_JS API_ http server"></a>
 
 ## JS API: http server
@@ -11438,12 +11819,80 @@ Returns a promise that resolves into the session key.
 | ------------- | --------------- |
 | browserWindow | <code>\*</code> |
 
+<a name="module_JS API_ async reporting"></a>
+
+## JS API: async reporting
+
+This module provides the mechanism for dealing with the async reporting
+from backend to the UI.
+
+This mechanism takes care of:
+
+- dirty flag
+
+* [JS API: async reporting](#module*JS API* async reporting)
+  - [~sendDirtyFlagStatus(db, session)](#module*JS API* async reporting..sendDirtyFlagStatus)
+  - [~startAsyncReporting(db, intervalMs)](#module*JS API* async reporting..startAsyncReporting)
+  - [~stopAsyncReporting()](#module*JS API* async reporting..stopAsyncReporting)
+
+<a name="module_JS API_ async reporting..sendDirtyFlagStatus"></a>
+
+### JS API: async reporting~sendDirtyFlagStatus(db, session)
+
+Sends a dirty flag status for a single session.
+
+**Kind**: inner method of [<code>JS API: async reporting</code>](#module*JS API* async reporting)
+
+| Param   | Type            |
+| ------- | --------------- |
+| db      | <code>\*</code> |
+| session | <code>\*</code> |
+
+<a name="module_JS API_ async reporting..startAsyncReporting"></a>
+
+### JS API: async reporting~startAsyncReporting(db, intervalMs)
+
+Start the interval that will check and report dirty flags.
+
+**Kind**: inner method of [<code>JS API: async reporting</code>](#module*JS API* async reporting)
+
+| Param      | Type            |
+| ---------- | --------------- |
+| db         | <code>\*</code> |
+| intervalMs | <code>\*</code> |
+
+<a name="module_JS API_ async reporting..stopAsyncReporting"></a>
+
+### JS API: async reporting~stopAsyncReporting()
+
+Stop the interval that will check and report dirty flags
+
+**Kind**: inner method of [<code>JS API: async reporting</code>](#module*JS API* async reporting)  
 <a name="module_JS API_ post-import."></a>
 
 ## JS API: post-import.
 
 This module contains the API functions for the post-load
 scripting functionality.
+
+<a name="module_JS API_ SDK utilities"></a>
+
+## JS API: SDK utilities
+
+<a name="module_JS API_ SDK utilities..readSdkJson"></a>
+
+### JS API: SDK utilities~readSdkJson(sdkPath, logger)
+
+This function reads in the sdk.json that is passed as sdkPath,
+and resolve the promise with the sdk object.
+logger is used for printouts.
+
+**Kind**: inner method of [<code>JS API: SDK utilities</code>](#module*JS API* SDK utilities)
+
+| Param   | Type            |
+| ------- | --------------- |
+| sdkPath | <code>\*</code> |
+| logger  | <code>\*</code> |
 
 <a name="module_JS API_ type related utilities"></a>
 
@@ -11452,6 +11901,8 @@ scripting functionality.
 - [JS API: type related utilities](#module*JS API* type related utilities)
   - [~typeSize(db, zclPackageId, type)](#module*JS API* type related utilities..typeSize)
   - [~typeSizeAttribute(db, zclPackageIds, at, [defaultValue])](#module*JS API* type related utilities..typeSizeAttribute) ⇒
+  - [~convertFloatToBigEndian(value, size)](#module*JS API* type related utilities..convertFloatToBigEndian) ⇒
+  - [~convertIntToBigEndian(value, size)](#module*JS API* type related utilities..convertIntToBigEndian) ⇒
   - [~longTypeDefaultValue(size, type, value)](#module*JS API* type related utilities..longTypeDefaultValue) ⇒
   - [~convertToCliType(str)](#module*JS API* type related utilities..convertToCliType) ⇒
   - [~isString(type)](#module*JS API* type related utilities..isString) ⇒
@@ -11491,6 +11942,32 @@ into consideration, so that strings are properly sized.
 | zclPackageIds  | <code>\*</code> |               |
 | at             | <code>\*</code> |               |
 | [defaultValue] | <code>\*</code> | <code></code> |
+
+<a name="module_JS API_ type related utilities..convertFloatToBigEndian"></a>
+
+### JS API: type related utilities~convertFloatToBigEndian(value, size) ⇒
+
+**Kind**: inner method of [<code>JS API: type related utilities</code>](#module*JS API* type related utilities)  
+**Returns**: The big endian value for a given float value padded with
+the given size. The value is returned in hex format and prefixed with '0x'.
+
+| Param | Type            |
+| ----- | --------------- |
+| value | <code>\*</code> |
+| size  | <code>\*</code> |
+
+<a name="module_JS API_ type related utilities..convertIntToBigEndian"></a>
+
+### JS API: type related utilities~convertIntToBigEndian(value, size) ⇒
+
+**Kind**: inner method of [<code>JS API: type related utilities</code>](#module*JS API* type related utilities)  
+**Returns**: The big endian value for a given integer value padded with
+the given size. The value is returned in hex format and prefixed with '0x'.
+
+| Param | Type            |
+| ----- | --------------- |
+| value | <code>\*</code> |
+| size  | <code>\*</code> |
 
 <a name="module_JS API_ type related utilities..longTypeDefaultValue"></a>
 
@@ -11593,7 +12070,7 @@ Checks if type is a two-byte lengh string.
 
 - [JS API: random utilities](#module*JS API* random utilities)
   - [~checksum(data)](#module*JS API* random utilities..checksum) ⇒
-  - [~initializeSessionPackage(db, sessionId, options:)](#module*JS API* random utilities..initializeSessionPackage) ⇒
+  - [~initializeSessionPackage(db, sessionId, options:, selectedZclPropertyPackage, selectedGenTemplatePackages)](#module*JS API* random utilities..initializeSessionPackage) ⇒
   - [~createBackupFile(filePath)](#module*JS API* random utilities..createBackupFile)
   - [~matchFeatureLevel(featureLevel)](#module*JS API* random utilities..matchFeatureLevel)
   - [~sessionReport(db, sessionId)](#module*JS API* random utilities..sessionReport) ⇒
@@ -11610,7 +12087,7 @@ Checks if type is a two-byte lengh string.
   - [~readFileContentAndCrc(metadata)](#module*JS API* random utilities..readFileContentAndCrc) ⇒
   - [~duration(nsDifference)](#module*JS API* random utilities..duration) ⇒
   - [~mainOrSecondaryInstance()](#module*JS API* random utilities..mainOrSecondaryInstance)
-  - [~collectTests(jsonFile)](#module*JS API* random utilities..collectTests)
+  - [~collectJsonData(jsonFile)](#module*JS API* random utilities..collectJsonData)
 
 <a name="module_JS API_ random utilities..checksum"></a>
 
@@ -11627,18 +12104,20 @@ Returns the CRC of the data that is passed.
 
 <a name="module_JS API_ random utilities..initializeSessionPackage"></a>
 
-### JS API: random utilities~initializeSessionPackage(db, sessionId, options:) ⇒
+### JS API: random utilities~initializeSessionPackage(db, sessionId, options:, selectedZclPropertyPackage, selectedGenTemplatePackages) ⇒
 
 This function assigns a proper package ID to the session.
 
 **Kind**: inner method of [<code>JS API: random utilities</code>](#module*JS API* random utilities)  
 **Returns**: Promise that resolves with the packages array.
 
-| Param     | Type            | Description                            |
-| --------- | --------------- | -------------------------------------- |
-| db        | <code>\*</code> |                                        |
-| sessionId | <code>\*</code> |                                        |
-| options:  | <code>\*</code> | object containing 'zcl' and 'template' |
+| Param                       | Type            | Description                            |
+| --------------------------- | --------------- | -------------------------------------- |
+| db                          | <code>\*</code> |                                        |
+| sessionId                   | <code>\*</code> |                                        |
+| options:                    | <code>\*</code> | object containing 'zcl' and 'template' |
+| selectedZclPropertyPackage  | <code>\*</code> |                                        |
+| selectedGenTemplatePackages | <code>\*</code> |                                        |
 
 <a name="module_JS API_ random utilities..createBackupFile"></a>
 
@@ -11854,15 +12333,18 @@ and main instance of the zap, and false if zap instance is already
 running.
 
 **Kind**: inner method of [<code>JS API: random utilities</code>](#module*JS API* random utilities)  
-<a name="module_JS API_ random utilities..collectTests"></a>
+<a name="module_JS API_ random utilities..collectJsonData"></a>
 
-### JS API: random utilities~collectTests(jsonFile)
+### JS API: random utilities~collectJsonData(jsonFile)
 
-Utility method that collects tests from a JSON file.
-JSON file supports following special keys:
+Utility method that collects data from a JSON file.
+
+JSON file is formatted as a bunch of keyed strings:
+"someKey": [ "a", "b", "c"]
+Then it supports following special keys:
 "include": "path/to/json/file" - includes the said JSON file
-"disable": [ "test", "test1" ...] - disables the specified tests
-"collection": ["key", "key2", ...] - collects final list of tests
+"disable": [ "x", "y" ...] - disables the specified data points
+"collection": ["key", "key2", ...] - collects final list of data points
 
 **Kind**: inner method of [<code>JS API: random utilities</code>](#module*JS API* random utilities)
 
@@ -12551,6 +13033,25 @@ environment.
 
 This module provides API to access various iterator utilities that can then
 be used to build iterator helpers.
+
+**Kind**: global constant  
+<a name="fs"></a>
+
+## fs
+
+Copyright (c) 2022 Silicon Labs
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 
 **Kind**: global constant  
 <a name="queryZcl"></a>
@@ -13270,6 +13771,14 @@ function allows the template to increment the token ID within the tokens context
 
 **Kind**: global function  
 **Returns**: the zcl cli data type string with the cli prefix given
+Additional Options:
+
+- isOptional option can be passed along with the command argument
+  to return optional command argument extension accordingly
+  eg:
+  #zcl_command_arguments
+  zcl_command_argument_type_to_zcl_cli_data_type type isOptional=isOptional
+  /zcl_command_arguments
 
 | Param     | Type            |
 | --------- | --------------- |
@@ -13537,6 +14046,34 @@ Session at this point is blank, and has no packages.
 | state     | <code>\*</code> |
 | sessionId | <code>\*</code> |
 
+<a name="readDataFromFile"></a>
+
+## readDataFromFile(filePath) ⇒
+
+Reads the data from the file and resolves with the state object if all is good.
+
+**Kind**: global function  
+**Returns**: Promise of file reading.
+
+| Param    | Type            |
+| -------- | --------------- |
+| filePath | <code>\*</code> |
+
+<a name="importDataFromFile"></a>
+
+## importDataFromFile(db, filePath) ⇒
+
+Writes the data from the file into a new session.
+NOTE: This function does NOT initialize session packages.
+
+**Kind**: global function  
+**Returns**: a promise that resolves with the import result object that contains: sessionId, errors, warnings.
+
+| Param    | Type            |
+| -------- | --------------- |
+| db       | <code>\*</code> |
+| filePath | <code>\*</code> |
+
 <a name="importSessionKeyValues"></a>
 
 ## importSessionKeyValues(db, sessionId, keyValuePairs)
@@ -13580,34 +14117,6 @@ Parses JSON file and creates a state object out of it, which is passed further d
 | -------- | --------------- |
 | filePath | <code>\*</code> |
 | data     | <code>\*</code> |
-
-<a name="readDataFromFile"></a>
-
-## readDataFromFile(filePath) ⇒
-
-Reads the data from the file and resolves with the state object if all is good.
-
-**Kind**: global function  
-**Returns**: Promise of file reading.
-
-| Param    | Type            |
-| -------- | --------------- |
-| filePath | <code>\*</code> |
-
-<a name="importDataFromFile"></a>
-
-## importDataFromFile(db, filePath) ⇒
-
-Writes the data from the file into a new session.
-NOTE: This function does NOT initialize session packages.
-
-**Kind**: global function  
-**Returns**: a promise that resolves with the import result object that contains: sessionId, errors, warnings.
-
-| Param    | Type            |
-| -------- | --------------- |
-| db       | <code>\*</code> |
-| filePath | <code>\*</code> |
 
 <a name="initSessionTimers"></a>
 
@@ -13781,6 +14290,46 @@ Default startup method.
 | ------------ | --------------- |
 | quitFunction | <code>\*</code> |
 | argv         | <code>\*</code> |
+
+<a name="packagesAndSessions"></a>
+
+## packagesAndSessions(db) ⇒
+
+This function returns Properties, Templates and Dirty-Sessions
+
+**Kind**: global function  
+**Returns**: Properties, Templates and Dirty-Sessions.
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+
+<a name="initializeSession"></a>
+
+## initializeSession(db, options:) ⇒
+
+This function creates a new session with its packages according to selected Properties and Templates
+
+**Kind**: global function  
+**Returns**: A success message.
+
+| Param    | Type            | Description                            |
+| -------- | --------------- | -------------------------------------- |
+| db       | <code>\*</code> |                                        |
+| options: | <code>\*</code> | object containing 'zcl' and 'template' |
+
+<a name="loadPreviousSessions"></a>
+
+## loadPreviousSessions(db) ⇒
+
+This function reloads previous session by user selected session's id
+
+**Kind**: global function  
+**Returns**: A success message.
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
 
 <a name="doOpen"></a>
 
@@ -14421,6 +14970,144 @@ and orchestrates the promise chain.
 | ----- | --------------- | ------------------- |
 | db    | <code>\*</code> |                     |
 | ctx   | <code>\*</code> | Context of loading. |
+
+<a name="recordToplevelPackage"></a>
+
+## recordToplevelPackage(db, metadataFile, crc) ⇒
+
+Records the toplevel package information and resolves into packageId
+
+**Kind**: global function  
+**Returns**: packageId
+
+| Param        | Type            |
+| ------------ | --------------- |
+| db           | <code>\*</code> |
+| metadataFile | <code>\*</code> |
+| crc          | <code>\*</code> |
+
+<a name="recordVersion"></a>
+
+## recordVersion(db, ctx)
+
+Records the version into the database.
+
+**Kind**: global function
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+| ctx   | <code>\*</code> |
+
+<a name="loadZclMetafiles"></a>
+
+## loadZclMetafiles(db, metadataFile) ⇒
+
+Toplevel function that loads the zcl file and passes it off to the correct zcl loader.
+
+**Kind**: global function  
+**Returns**: Array of loaded packageIds.
+
+| Param        | Type            | Description    |
+| ------------ | --------------- | -------------- |
+| db           | <code>\*</code> |                |
+| metadataFile | <code>\*</code> | array of paths |
+
+<a name="loadZcl"></a>
+
+## loadZcl(db, metadataFile) ⇒
+
+Loads individual zcl.json metafile.
+
+**Kind**: global function  
+**Returns**: Context object that contains .db and .packageId
+
+| Param        | Type            |
+| ------------ | --------------- |
+| db           | <code>\*</code> |
+| metadataFile | <code>\*</code> |
+
+<a name="loadIndividualFile"></a>
+
+## loadIndividualFile(db, filePath, sessionId)
+
+Load individual custom XML files.
+
+**Kind**: global function
+
+| Param     | Type            |
+| --------- | --------------- |
+| db        | <code>\*</code> |
+| filePath  | <code>\*</code> |
+| sessionId | <code>\*</code> |
+
+<a name="bindValidationScript"></a>
+
+## bindValidationScript(db, basePackageId)
+
+This function creates a validator function with signatuee fn(stringToValidateOn)
+
+**Kind**: global function
+
+| Param         | Type            |
+| ------------- | --------------- |
+| db            | <code>\*</code> |
+| basePackageId | <code>\*</code> |
+
+<a name="getSchemaAndValidationScript"></a>
+
+## getSchemaAndValidationScript(db, basePackageId)
+
+Returns an object with zclSchema and zclValidation elements.
+
+**Kind**: global function
+
+| Param         | Type            |
+| ------------- | --------------- |
+| db            | <code>\*</code> |
+| basePackageId | <code>\*</code> |
+
+<a name="qualifyZclFile"></a>
+
+## qualifyZclFile(db, info, parentPackageId) ⇒
+
+Promises to qualify whether zcl file needs to be reloaded.
+If yes, the it will resolve with {filePath, data, packageId}
+If not, then it will resolve with {error}
+
+**Kind**: global function  
+**Returns**: Promise that resolves int he object of data.
+
+| Param           | Type            |
+| --------------- | --------------- |
+| db              | <code>\*</code> |
+| info            | <code>\*</code> |
+| parentPackageId | <code>\*</code> |
+
+<a name="processZclPostLoading"></a>
+
+## processZclPostLoading(db) ⇒
+
+Promises to perform a post loading step.
+
+**Kind**: global function  
+**Returns**: Promise to deal with the post-loading cleanup.
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+
+<a name="getDiscriminatorMap"></a>
+
+## getDiscriminatorMap(db, packageIds) ⇒
+
+**Kind**: global function  
+**Returns**: data type discriminator map
+
+| Param      | Type            |
+| ---------- | --------------- |
+| db         | <code>\*</code> |
+| packageIds | <code>\*</code> |
 
 <a name="collectDataFromJsonFile"></a>
 
@@ -15212,141 +15899,3 @@ and orchestrates the promise chain.
 | ----- | --------------- | ----------------------- |
 | db    | <code>\*</code> |                         |
 | ctx   | <code>\*</code> | The context of loading. |
-
-<a name="recordToplevelPackage"></a>
-
-## recordToplevelPackage(db, metadataFile, crc) ⇒
-
-Records the toplevel package information and resolves into packageId
-
-**Kind**: global function  
-**Returns**: packageId
-
-| Param        | Type            |
-| ------------ | --------------- |
-| db           | <code>\*</code> |
-| metadataFile | <code>\*</code> |
-| crc          | <code>\*</code> |
-
-<a name="recordVersion"></a>
-
-## recordVersion(db, ctx)
-
-Records the version into the database.
-
-**Kind**: global function
-
-| Param | Type            |
-| ----- | --------------- |
-| db    | <code>\*</code> |
-| ctx   | <code>\*</code> |
-
-<a name="loadZclMetafiles"></a>
-
-## loadZclMetafiles(db, metadataFile) ⇒
-
-Toplevel function that loads the zcl file and passes it off to the correct zcl loader.
-
-**Kind**: global function  
-**Returns**: Array of loaded packageIds.
-
-| Param        | Type            | Description    |
-| ------------ | --------------- | -------------- |
-| db           | <code>\*</code> |                |
-| metadataFile | <code>\*</code> | array of paths |
-
-<a name="loadZcl"></a>
-
-## loadZcl(db, metadataFile) ⇒
-
-Loads individual zcl.json metafile.
-
-**Kind**: global function  
-**Returns**: Context object that contains .db and .packageId
-
-| Param        | Type            |
-| ------------ | --------------- |
-| db           | <code>\*</code> |
-| metadataFile | <code>\*</code> |
-
-<a name="loadIndividualFile"></a>
-
-## loadIndividualFile(db, filePath, sessionId)
-
-Load individual custom XML files.
-
-**Kind**: global function
-
-| Param     | Type            |
-| --------- | --------------- |
-| db        | <code>\*</code> |
-| filePath  | <code>\*</code> |
-| sessionId | <code>\*</code> |
-
-<a name="bindValidationScript"></a>
-
-## bindValidationScript(db, basePackageId)
-
-This function creates a validator function with signatuee fn(stringToValidateOn)
-
-**Kind**: global function
-
-| Param         | Type            |
-| ------------- | --------------- |
-| db            | <code>\*</code> |
-| basePackageId | <code>\*</code> |
-
-<a name="getSchemaAndValidationScript"></a>
-
-## getSchemaAndValidationScript(db, basePackageId)
-
-Returns an object with zclSchema and zclValidation elements.
-
-**Kind**: global function
-
-| Param         | Type            |
-| ------------- | --------------- |
-| db            | <code>\*</code> |
-| basePackageId | <code>\*</code> |
-
-<a name="qualifyZclFile"></a>
-
-## qualifyZclFile(db, info, parentPackageId) ⇒
-
-Promises to qualify whether zcl file needs to be reloaded.
-If yes, the it will resolve with {filePath, data, packageId}
-If not, then it will resolve with {error}
-
-**Kind**: global function  
-**Returns**: Promise that resolves int he object of data.
-
-| Param           | Type            |
-| --------------- | --------------- |
-| db              | <code>\*</code> |
-| info            | <code>\*</code> |
-| parentPackageId | <code>\*</code> |
-
-<a name="processZclPostLoading"></a>
-
-## processZclPostLoading(db) ⇒
-
-Promises to perform a post loading step.
-
-**Kind**: global function  
-**Returns**: Promise to deal with the post-loading cleanup.
-
-| Param | Type            |
-| ----- | --------------- |
-| db    | <code>\*</code> |
-
-<a name="getDiscriminatorMap"></a>
-
-## getDiscriminatorMap(db, packageIds) ⇒
-
-**Kind**: global function  
-**Returns**: data type discriminator map
-
-| Param      | Type            |
-| ---------- | --------------- |
-| db         | <code>\*</code> |
-| packageIds | <code>\*</code> |
