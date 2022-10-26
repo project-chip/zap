@@ -282,7 +282,6 @@ export default {
   },
   methods: {
     submitForm() {
-      console.log('Submitting form....')
       if (this.customConfig === 'generate') {
         if (
           this.selectedZclPropertiesData != null &&
@@ -292,8 +291,6 @@ export default {
             zclProperties: this.selectedZclPropertiesData.id,
             genTemplate: this.selectedZclGenData,
           }
-          console.log('Post: initializeSession')
-          console.log(data)
           this.$serverPost(restApi.uri.initializeSession, data).then(
             (result) => {
               this.$store.commit('zap/selectZapConfig', true)
@@ -301,7 +298,6 @@ export default {
           )
         }
       } else {
-        console.log(`Post: reloadSession: ${this.selectedZclSessionData.id}`)
         this.$serverPost(restApi.uri.reloadSession, {
           sessionId: this.selectedZclSessionData.id,
         }).then((result) => {
@@ -312,7 +308,6 @@ export default {
   },
   beforeCreate() {
     this.$serverGet(restApi.uri.initialPackagesSessions).then((result) => {
-      console.log(result.data)
       this.zclPropertiesRow = result.data.zclProperties
       this.selectedZclPropertiesData = result.data.zclProperties[0]
       this.zclGenRow = result.data.zclGenTemplates
