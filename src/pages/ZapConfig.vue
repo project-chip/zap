@@ -282,19 +282,26 @@ export default {
   },
   methods: {
     submitForm() {
+      console.log('Submitting form....')
       if (this.customConfig === 'generate') {
         if (
           this.selectedZclPropertiesData != null &&
           this.selectedZclGenData.length != 0
         ) {
-          this.$serverPost(restApi.uri.initializeSession, {
+          let data = {
             zclProperties: this.selectedZclPropertiesData.id,
             genTemplate: this.selectedZclGenData,
-          }).then((result) => {
-            this.$store.commit('zap/selectZapConfig', true)
-          })
+          }
+          console.log('Post: initializeSession')
+          console.log(data)
+          this.$serverPost(restApi.uri.initializeSession, data).then(
+            (result) => {
+              this.$store.commit('zap/selectZapConfig', true)
+            }
+          )
         }
       } else {
+        console.log(`Post: reloadSession: ${this.selectedZclSessionData.id}`)
         this.$serverPost(restApi.uri.reloadSession, {
           sessionId: this.selectedZclSessionData.id,
         }).then((result) => {
@@ -305,11 +312,15 @@ export default {
   },
   beforeCreate() {
     this.$serverGet(restApi.uri.initialPackagesSessions).then((result) => {
+      console.log(result.data)
       this.zclPropertiesRow = result.data.zclProperties
       this.selectedZclPropertiesData = result.data.zclProperties[0]
       this.zclGenRow = result.data.zclGenTemplates
 
       if (this.zclPropertiesRow.length == 1 && this.zclGenRow.length == 1) {
+        // We shortcut this page, if there is exactly one of each,
+        // since we simply assume that they are selected and move on.
+        this.selectedZclGenData[0] = this.zclGenRow[0].id
         this.customConfig = 'generate'
         this.submitForm()
       }
