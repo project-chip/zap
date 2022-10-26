@@ -1054,33 +1054,36 @@ function command_arguments_total_length(commandId) {
  */
 async function zcl_command_arguments(options) {
   let commandArgs = this.commandArgs
-  let p
 
   // When we are coming from commant_tree, then
   // the commandArgs are already present and there is no need
   // to do additional queries.
   if (commandArgs == null) {
-    p = templateUtil.ensureZclPackageIds(this).then((packageIds) => {
-      if ('id' in this) {
-        // We're functioning inside a nested context with an id, so we will only query for this cluster.
-        return queryCommand.selectCommandArgumentsByCommandId(
-          this.global.db,
-          this.id
-        )
-      } else {
-        return queryCommand.selectAllCommandArguments(
-          this.global.db,
-          packageIds
-        )
-      }
-    })
-  } else {
-    p = Promise.resolve(commandArgs)
+    if ('id' in this) {
+      // We're functioning inside a nested context with an id, so we will only query for this cluster.
+      commandArgs = await queryCommand.selectCommandArgumentsByCommandId(
+        this.global.db,
+        this.id
+      )
+    } else {
+      let packageIds = await templateUtil.ensureZclPackageIds(this)
+      commandArgs = await queryCommand.selectAllCommandArguments(
+        this.global.db,
+        packageIds
+      )
+    }
   }
-
-  let promise = p.then((args) =>
-    templateUtil.collectBlocks(args, options, this)
-  )
+  // Adding command argument type size and sign
+  for (let i = 0; i < commandArgs.length; i++) {
+    let sizeAndSign = await get_sign_and_size_of_zcl_type(
+      commandArgs[i].type,
+      this,
+      options
+    )
+    commandArgs[i].typeSize = sizeAndSign.dataTypesize
+    commandArgs[i].typeIsSigned = sizeAndSign.isTypeSigned
+  }
+  let promise = templateUtil.collectBlocks(commandArgs, options, this)
   return templateUtil.templatePromise(this.global, promise)
 }
 
@@ -2476,7 +2479,7 @@ async function get_sign_and_size_of_zcl_type(type, context, options) {
   let isTypeSigned = false
   let dataTypesize = 0
   let sizeMultiple = 1
-  if (options.size == 'bits') {
+  if (options && options.size == 'bits') {
     sizeMultiple = 8
   }
 
@@ -2650,6 +2653,79 @@ async function structs_with_clusters(options) {
   return templateUtil.templatePromise(this.global, promise)
 }
 
+/**
+ * Returns the size of the zcl type if possible else returns -1
+ * @param {*} type
+ * @param {*} options
+ * @returns size of zcl type
+ */
+async function as_zcl_type_size(type, options) {
+  let signAndSize = await get_sign_and_size_of_zcl_type(type, this)
+  let dataTypesize = signAndSize.dataTypesize
+  if (dataTypesize != 0) {
+    return dataTypesize
+  } else {
+    return -1
+  }
+}
+
+/**
+ * An if helper for comparisons
+ * @param {*} leftValue 
+ * @param {*} rightValue 
+ * @param {*} options 
+ * @returns Promise of content
+ * example: checking if (4 < 5)
+ * (if_compare 4 5 operator='<')
+ * Content when comparison returns true
+ * {{else}}
+ * Content when comparison returns false
+ * (/if_compare)
+
+ */
+function if_compare(leftValue, rightValue, options) {
+  if (arguments.length != 3) {
+    throw new Error(
+      'if_compare needs left value, right value and a comparison operator under operator='
+    )
+  }
+  let result = false
+  // List of valid operations
+  switch (options.hash.operator) {
+    case '==':
+      result = leftValue == rightValue
+      break
+    case '===':
+      result = leftValue === rightValue
+      break
+    case '!=':
+      result = leftValue != rightValue
+      break
+    case '<':
+      result = leftValue < rightValue
+      break
+    case '>':
+      result = leftValue > rightValue
+      break
+    case '<=':
+      result = leftValue <= rightValue
+      break
+    case '>=':
+      result = leftValue >= rightValue
+      break
+    default:
+      throw new Error(
+        'if_compare does not recognize the operator: ' + options.hash.operator
+      )
+  }
+
+  if (result) {
+    return options.fn(this)
+  } else {
+    return options.inverse(this)
+  }
+}
+
 const dep = templateUtil.deprecatedHelper
 
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
@@ -2819,3 +2895,5 @@ exports.if_is_long_string = if_is_long_string
 exports.structs_with_clusters = structs_with_clusters
 exports.as_type_max_value = as_type_max_value
 exports.as_type_min_value = as_type_min_value
+exports.as_zcl_type_size = as_zcl_type_size
+exports.if_compare = if_compare
