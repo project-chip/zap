@@ -17,7 +17,7 @@
 
 export {}
 
-const { session, BrowserWindow, dialog } = require('electron')
+const { BrowserWindow, dialog } = require('electron')
 const path = require('path')
 const env = require('../util/env')
 const menu = require('./menu.js')

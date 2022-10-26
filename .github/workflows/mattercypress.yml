@@ -5,9 +5,7 @@ name: Cypress UI tests - Matter data
 
 on:
   push:
-    branches: [master]
   pull_request:
-    branches: [master]
 
 jobs:
   build:
