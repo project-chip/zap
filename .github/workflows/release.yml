@@ -85,12 +85,10 @@ jobs:
           npm run pack:win
           npm run pkg:win
           npm run pack:cli:win
-          rm zap-cli.exe
 
           npm run pack:mac
           npm run pkg:mac
           npm run pack:cli:mac
-          rm zap-cli
 
         env:
           GH_TOKEN: ${{ secrets.github_token }}
@@ -105,7 +103,6 @@ jobs:
           npm run pack:linux
           npm run pkg:linux
           npm run pack:cli:linux
-          rm zap-cli
 
         env:
           GH_TOKEN: ${{ secrets.github_token }}

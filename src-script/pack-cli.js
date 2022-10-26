@@ -29,10 +29,10 @@ if (platform.includes('darwin') || platform.includes('mac')) {
     `${baseDir}/dist/zap-cli.exe`,
     () => {}
   )
-  args.push('a', `${baseDir}/dist/zap-win.zip`, 'zap-cli.exe')
+  args.push('a', `${baseDir}/dist/zap-win.zip`, `${baseDir}/dist/zap-cli.exe`)
 } else {
   fs.rename(`${baseDir}/dist/zap-linux`, `${baseDir}/dist/zap-cli`, () => {})
-  args.push('a', `${baseDir}/dist/zap-linux.zip`, 'zap-cli')
+  args.push('a', `${baseDir}/dist/zap-linux.zip`, `${baseDir}/dist/zap-cli`)
 }
 
 scriptUtil.executeCmd({}, zip.path7za, [...args])
