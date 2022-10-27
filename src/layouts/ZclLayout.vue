@@ -56,7 +56,7 @@ limitations under the License.
           v-on:click="getGeneratedFiles"
           data-test="preview"
         />
-        <q-btn flat icon="settings" id="preference" to="/preference">
+        <q-btn flat icon="settings" id="preference" to="/preference" data-test="preferences">
           <q-tooltip> Preferences </q-tooltip>
         </q-btn>
         <q-btn
@@ -64,6 +64,7 @@ limitations under the License.
           flat
           @click="showTutorial"
           icon="psychology_alt"
+          data-test="tutorial"
         >
           <q-tooltip> Tutorial </q-tooltip>
         </q-btn>

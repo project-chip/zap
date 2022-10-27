@@ -34,6 +34,7 @@ limitations under the License.
       dense
       left-label
       v-model="devtab"
+      data-test="toggle-development-tools"
     >
       <q-tooltip> Enable Dev Tools tab </q-tooltip>
     </q-toggle>

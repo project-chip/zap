@@ -48,6 +48,6 @@ Cypress.Commands.add('rendererApi', (...args) => {
 })
 
 Cypress.Commands.add('setZclProperties', () => {
-  cy.get('[data-test="gen-template"]').click()
+  cy.get('[data-test="gen-template"]').first().click()
   cy.get('[data-test="login-submit"]').click()
 })
