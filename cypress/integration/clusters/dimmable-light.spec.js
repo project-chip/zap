@@ -37,7 +37,7 @@ describe('Testing Dimmable Light workflow', () => {
       ':nth-child(6) > .q-field > .q-field__inner > .q-field__control'
     ).click({ force: true })
     cy.fixture('data').then((data) => {
-      cy.get('.q-item__section > .q-item__label').contains(data.server2).click()
+      cy.get('.q-item__section > .q-item__label').contains(data.server2).click({force: true})
     })
   })
   it('Check Configuration page', () => {
