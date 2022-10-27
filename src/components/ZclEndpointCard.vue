@@ -129,22 +129,6 @@ limitations under the License.
             {{ selectedServers.length }}
           </div>
         </q-item>
-        <q-item class="row">
-          <div class="col-6">
-            <strong>Enabled Attributes</strong>
-          </div>
-          <div class="col-6" data-test="endpoint-enabled-attributes-amount">
-            {{ selectedAttributes.length }}
-          </div>
-        </q-item>
-        <q-item class="row">
-          <div class="col-6">
-            <strong>Enabled Reporting</strong>
-          </div>
-          <div class="col-6">
-            {{ selectedReporting.length }}
-          </div>
-        </q-item>
       </q-list>
     </q-card>
     <q-dialog
@@ -222,8 +206,6 @@ import CommonMixin from '../util/common-mixin'
 import * as Storage from '../util/storage'
 import Vue from 'vue'
 import restApi from '../../src-shared/rest-api'
-import { setAttributeStateLists, setClusterList } from '../store/zap/actions'
-import * as Util from '../util/util'
 
 export default {
   name: 'ZclEndpointCard',
@@ -238,8 +220,6 @@ export default {
       deleteingleEndpointDialog: false,
       showAllInformationOfEndpoint: false,
       selectedServers: [],
-      selectedAttributes: [],
-      selectedReporting: [],
     }
   },
   methods: {
@@ -330,26 +310,6 @@ export default {
           })
           this.selectedServers = [...enabledServers, ...enabledClients]
         })
-
-      Vue.prototype
-        .$serverGet(
-          `${restApi.uri.endpointTypeAttributes}${
-            this.endpointType[this.endpointReference]
-          }`
-        )
-        .then((res) => {
-          this.selectedAttributes = []
-          this.selectedReporting = []
-          res.data.forEach((record) => {
-            let resolvedReference = Util.cantorPair(
-              record.attributeRef,
-              record.clusterRef
-            )
-            if (record.included) this.selectedAttributes.push(resolvedReference)
-            if (record.includedReportable)
-              this.selectedReporting.push(resolvedReference)
-          })
-        })
     },
   },
   computed: {
@@ -434,8 +394,6 @@ export default {
   created() {
     if (this.$serverGet != null) {
       this.selectedServers = []
-      this.selectedAttributes = []
-      this.selectedReporting = []
       this.getEndpointCardData()
     }
   },
