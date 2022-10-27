@@ -31,5 +31,6 @@
   "previewBtnData": "access.out",
   "outOfRangeAmount1": "9999999999999999",
   "availableAttributes1": "28",
-  "availableClusters1": "5"
+  "availableClusters1": "5",
+  "booleanClusterPath": "1"
 }

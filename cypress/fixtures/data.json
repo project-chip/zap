@@ -31,5 +31,6 @@
   "previewBtnData": "sdk-extension.out",
   "outOfRangeAmount1": "99999",
   "availableAttributes1": "17",
-  "availableClusters1": "6"
+  "availableClusters1": "6",
+  "booleanClusterPath": "0"
 }
