@@ -17,9 +17,8 @@
                   checked-icon="task_alt"
                   unchecked-icon="panorama_fish_eye"
                   val="generate"
-                  label="generate new session"
+                  label="Generate New Session"
                 />
-                <div v-else>Generate New Session</div>
                 <q-radio
                   v-if="loadPreSessionData.length"
                   v-model="customConfig"
@@ -27,14 +26,17 @@
                   class="q-ml-xl"
                   unchecked-icon="panorama_fish_eye"
                   val="load"
-                  label="restore unsaved session"
+                  label="Restore Unsaved Session"
                 />
               </div>
-              <p class="text-center" v-if="isMultiplePackage && customConfig === 'generate'">
+              <p
+                class="text-center"
+                v-if="isMultiplePackage && customConfig === 'generate'"
+              >
                 There are multiple packages of ZCL metadata loaded. Please
                 select the one you wish to use with this configuration.
               </p>
-              <p class="text-center" v-else-if="customConfig === 'generate'">
+              <p class="text-center" v-else-if="customConfig === 'load'">
                 These are sessions found in the database that were not saved
                 into a .zap file. You can select them here, and continue the
                 work with the configuration.
@@ -131,7 +133,7 @@
               </template>
               <template v-else>
                 <q-table
-                  title="Session"
+                  title=""
                   :data="loadPreSessionData"
                   :columns="loadPreSessionCol"
                   row-key="name"
@@ -165,7 +167,9 @@
                         <div>{{ props.row.genTemplateFile.version }}</div>
                       </q-td>
                       <q-td key="creation time" :props="props">
-                        <div>{{ new Date(props.row.creationTime) }}</div>
+                        <div>
+                          {{ new Date(props.row.creationTime).toDateString() }}
+                        </div>
                       </q-td>
                     </q-tr>
                   </template>
@@ -173,7 +177,13 @@
               </template>
 
               <div class="row justify-end q-mt-xl">
-                <q-btn :disable="disableSubmitButton" :color="disableSubmitButton ? 'blue-grey' : 'primary'" @click="submitForm" label="Submit" data-test="login-submit"/>
+                <q-btn
+                  :disable="disableSubmitButton"
+                  :color="disableSubmitButton ? 'blue-grey' : 'primary'"
+                  @click="submitForm"
+                  label="Submit"
+                  data-test="login-submit"
+                />
               </div>
             </div>
           </q-page-container>
@@ -215,7 +225,7 @@ const generateNewSessionCol = [
 const loadPreSessionCol = [
   {
     name: 'select',
-    label: '',
+    label: 'Session',
     align: 'center',
   },
   {
@@ -226,7 +236,7 @@ const loadPreSessionCol = [
   {
     name: 'gen template file',
     align: 'left',
-    label: 'Gen Template File',
+    label: 'Generation Template File',
   },
   {
     name: 'creation time',
@@ -257,21 +267,26 @@ export default {
       },
     }
   },
-  computed:{
+  computed: {
     disableSubmitButton: function () {
-      if(this.customConfig === 'generate')
-        return this.selectedZclPropertiesData == null || this.selectedZclGenData.length == 0
-      else
-        return this.selectedZclSessionData == null
+      if (this.customConfig === 'generate')
+        return (
+          this.selectedZclPropertiesData == null ||
+          this.selectedZclGenData.length == 0
+        )
+      else return this.selectedZclSessionData == null
     },
     isMultiplePackage: function () {
       return this.zclPropertiesRow.length > 1
-    }
+    },
   },
   methods: {
     submitForm() {
       if (this.customConfig === 'generate') {
-        if(this.selectedZclPropertiesData != null && this.selectedZclGenData.length != 0){
+        if (
+          this.selectedZclPropertiesData != null &&
+          this.selectedZclGenData.length != 0
+        ) {
           this.$serverPost(restApi.uri.initializeSession, {
             zclProperties: this.selectedZclPropertiesData.id,
             genTemplate: this.selectedZclGenData,
@@ -294,7 +309,7 @@ export default {
       this.selectedZclPropertiesData = result.data.zclProperties[0]
       this.zclGenRow = result.data.zclGenTemplates
 
-      if (this.zclPropertiesRow.length == 1 && this.zclGenRow.length == 1){
+      if (this.zclPropertiesRow.length == 1 && this.zclGenRow.length == 1) {
         this.customConfig = 'generate'
         this.submitForm()
       }
