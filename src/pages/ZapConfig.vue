@@ -29,14 +29,11 @@
                   label="Restore Unsaved Session"
                 />
               </div>
-              <p
-                class="text-center"
-                v-if="isMultiplePackage && customConfig === 'generate'"
-              >
+              <p class="text-center" v-if="customConfig === 'generate'">
                 There are multiple packages of ZCL metadata loaded. Please
                 select the one you wish to use with this configuration.
               </p>
-              <p class="text-center" v-else-if="customConfig === 'load'">
+              <p class="text-center" v-if="customConfig === 'load'">
                 These are sessions found in the database that were not saved
                 into a .zap file. You can select them here, and continue the
                 work with the configuration.
@@ -110,7 +107,7 @@
                     </q-tr>
                   </template>
                   <template v-slot:body="props">
-                    <q-tr :props="props" class="table_body">
+                    <q-tr @click="selectGenDataRow(props.row.id)" :props="props" class="table_body">
                       <q-td key="select" :props="props">
                         <q-checkbox
                           v-model="selectedZclGenData"
@@ -133,7 +130,7 @@
               </template>
               <template v-else>
                 <q-table
-                  title=""
+                  class="q-mt-md"
                   :data="loadPreSessionData"
                   :columns="loadPreSessionCol"
                   row-key="name"
@@ -167,8 +164,10 @@
                         <div>{{ props.row.genTemplateFile.version }}</div>
                       </q-td>
                       <q-td key="creation time" :props="props">
-                        <div>
-                          {{ new Date(props.row.creationTime).toDateString() }}
+                        <div>{{ new Date(props.row.creationTime).toDateString() }}
+                          <q-tooltip>
+                            {{ new Date(props.row.creationTime) }}
+                          </q-tooltip>
                         </div>
                       </q-td>
                     </q-tr>
@@ -194,6 +193,7 @@
 </template>
 
 <script>
+import { log } from 'handlebars'
 import restApi from '../../src-shared/rest-api.js'
 
 const generateNewSessionCol = [
@@ -302,6 +302,15 @@ export default {
         })
       }
     },
+    selectGenDataRow(id) {
+      let index = null
+      index = this.selectedZclGenData.findIndex(i => i === id)
+      if(index < 0) {
+        this.selectedZclGenData.push(id)
+      } else {
+        this.selectedZclGenData.splice(index, 1)
+      }
+    }
   },
   beforeCreate() {
     this.$serverGet(restApi.uri.initialPackagesSessions).then((result) => {
@@ -309,7 +318,8 @@ export default {
       this.selectedZclPropertiesData = result.data.zclProperties[0]
       this.zclGenRow = result.data.zclGenTemplates
 
-      if (this.zclPropertiesRow.length == 1 && this.zclGenRow.length == 1) {
+      if (this.zclPropertiesRow.length == 1 && this.zclGenRow.length == 1){
+        this.selectedZclGenData = [this.zclGenRow[0].id]
         this.customConfig = 'generate'
         this.submitForm()
       }
