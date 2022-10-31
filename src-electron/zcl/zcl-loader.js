@@ -138,7 +138,7 @@ async function loadIndividualFile(db, filePath, sessionId) {
     return sLoad.loadIndividualSilabsFile(db, filePath, validator, sessionId)
   } else {
     let err = new Error(
-      `Unable to read file with unknown extension: ${filePath}`
+      `Unable to read file: ${filePath}. Expecting an XML file with ZCL clusters.`
     )
     env.logWarning(err)
     return { succeeded: false, err }
