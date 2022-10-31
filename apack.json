@@ -4,7 +4,7 @@
   "description": "Graphical configuration tool for application and libraries based on Zigbee Cluster Library.",
   "path": [".", "node_modules/.bin/", "ZAP.app/Contents/MacOS"],
   "requiredFeatureLevel": "apack.core:9",
-  "featureLevel": 82,
+  "featureLevel": 83,
   "uc.triggerExtension": "zap",
   "executable": {
     "zap:win32.x86_64": {
@@ -27,6 +27,27 @@
       "engine": "node",
       "optional": true,
       "exe": "src-script/zap-start.js"
+    },
+    "zap-cli:win32.x86_64": {
+      "exe": "zap-cli.exe",
+      "optional": true
+    },
+    "zap-cli:linux.x86_64": {
+      "exe": "zap-cli",
+      "optional": true
+    },
+    "zap-cli:macosx.x86_64": {
+      "exe": "zap-cli",
+      "optional": true
+    },
+    "zap-cli:macosx.ARM64": {
+      "exe": "zap-cli",
+      "optional": true
+    },
+    "zap-cli": {
+      "engine": "node",
+      "optional": true,
+      "exe": "src-script/zap-start.js"
     }
   },
   "function": {
@@ -34,16 +55,16 @@
       "cmd": "$(zap)"
     },
     "selfcheck:uc_cli": {
-      "cmd": "$(zap) selfCheck"
+      "cmd": "$(zap-cli) selfCheck"
     },
     "version:uc_cli": {
-      "cmd": "$(zap) --version"
+      "cmd": "$(zap-cli) --version"
     },
     "uc_generate": {
-      "cmd": "$(zap) generate --noUi --noServer -o ${generationOutput} --zcl ${sdkRoot}/app/zcl/zcl-zap.json --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json --in ${contentFolder}"
+      "cmd": "$(zap-cli) generate --noUi --noServer -o ${generationOutput} --zcl ${sdkRoot}/app/zcl/zcl-zap.json --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json --in ${contentFolder}"
     },
     "uc_upgrade": {
-      "cmd": "$(zap) convert --noUi --noServer -o ${tempContentFolder}/zcl_config.zap --zcl ${sdkRoot}/app/zcl/zcl-zap.json --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json ${tempContentFolder}/zcl_config.zap --results ${results}"
+      "cmd": "$(zap-cli) convert --noUi --noServer -o ${tempContentFolder}/zcl_config.zap --zcl ${sdkRoot}/app/zcl/zcl-zap.json --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json ${tempContentFolder}/zcl_config.zap --results ${results}"
     },
     "zapHelp": {
       "cmd": "$(zap) --help"

@@ -99,11 +99,6 @@ async function loadZcl(db, metadataFile) {
   let ext = path.extname(metadataFile)
   let resolvedMetafile = path.resolve(metadataFile)
 
-  try {
-    await fsp.access(resolvedMetafile, fs.constants.R_OK)
-  } catch {
-    throw new Error(`Can't access file: ${metadataFile}`)
-  }
   if (ext == '.xml') {
     return dLoad.loadDotdotZcl(db, resolvedMetafile)
   } else if (ext == '.properties') {
