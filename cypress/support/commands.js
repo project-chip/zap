@@ -47,7 +47,9 @@ Cypress.Commands.add('rendererApi', (...args) => {
 
 Cypress.Commands.add('setZclProperties', () => {
   cy.get('body').then(($body) => {
-    if ($body.find('[data-test="gen-template"]').length) {
+    // The above doesn't work. It does find the buttons, even
+    // if they are hidden, obviously....
+    /*if ($body.find('[data-test="gen-template"]').length) {
       // These should happen if the selection page is shown
       cy.get('[data-test="gen-template"]').click()
       cy.get('[data-test="login-submit"]').click()
@@ -55,6 +57,6 @@ Cypress.Commands.add('setZclProperties', () => {
       // These happen if selection page is not shown
       cy.get('[data-test="gen-template"]').should('not.exist')
       cy.get('[data-test="login-submit"]').should('not.exist')
-    }
+    }*/
   })
 })
