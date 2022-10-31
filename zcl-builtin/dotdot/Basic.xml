@@ -136,7 +136,7 @@ applicable to this document can be found in the LICENSE.md file.
           <type:enumeration value="21" name="MudRoom" />
           <type:enumeration value="22" name="Nursery" />
           <type:enumeration value="23" name="Pantry" />
-          <type:enumeration value="24" name="Office" />
+          <type:enumeration value="24" name="SecondaryOffice" />
           <type:enumeration value="25" name="Outside" />
           <type:enumeration value="26" name="Pool" />
           <type:enumeration value="27" name="Porch" />
@@ -157,7 +157,7 @@ applicable to this document can be found in the LICENSE.md file.
           <type:enumeration value="36" name="Patio" />
           <type:enumeration value="37" name="Driveway" />
           <type:enumeration value="38" name="SunRoom" />
-          <type:enumeration value="39" name="LivingRoom" />
+          <type:enumeration value="39" name="SecondaryLivingRoom" />
           <type:enumeration value="3A" name="Spa" />
           <type:enumeration value="3B" name="Whirlpool" />
           <type:enumeration value="3C" name="Shed" />

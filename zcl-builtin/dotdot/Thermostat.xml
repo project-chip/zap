@@ -178,7 +178,7 @@ applicable to this document can be found in the LICENSE.md file.
      	  <type:enumeration value="03" name="Wednesday" />
      	  <type:enumeration value="04" name="Thursday" />
      	  <type:enumeration value="05" name="Friday" />
-     	  <type:enumeration value="06" name="Sunday" />
+     	  <type:enumeration value="06" name="Saturday" />
       	</restriction>
       </attribute>
       <attribute id="0021" name="NumberOfWeeklyTransitions" type="uint8" max="255" />

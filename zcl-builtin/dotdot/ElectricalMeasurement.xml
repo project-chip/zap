@@ -214,7 +214,7 @@ applicable to this document can be found in the LICENSE.md file.
           <field name="ProfileIntervalPeriod" type="ProfileIntervalPeriod" />
           <field name="NumberOfIntervalsDelivered" type="uint8" />
           <field name="AttributeId" type="attribId" /> 
-          <field name="Intervals" type="unk" array="true" arrayLengthSize="0" />
+          <field name="Intervals" type="uint8" array="true" arrayLengthSize="0" />
         </fields>
       </command>
     </commands>

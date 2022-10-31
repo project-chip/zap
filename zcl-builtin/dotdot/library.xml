@@ -252,7 +252,7 @@ applicable to this document can be found in the LICENSE.md file.
     </restriction>
   </type:type>
   <!-- Misc -->
-  <type:type id="f0" short="eui64" name="IEEE address" discrete="true">
+  <type:type id="f0" short="EUI64" name="IEEE address" discrete="true">
     <restriction>
       <type:length value="8" />
     </restriction>
@@ -322,7 +322,7 @@ applicable to this document can be found in the LICENSE.md file.
       <type:enumeration name="clusterId" value="e8" />
       <type:enumeration name="attribId" value="e9" />
       <type:enumeration name="bacOID" value="ea" />
-      <type:enumeration name="eui64" value="f0" />
+      <type:enumeration name="EUI64" value="f0" />
       <type:enumeration name="key128" value="f1" />
       <type:enumeration name="unk" value="ff" />
     </restriction>
