@@ -183,7 +183,7 @@ async function selectAllAttributeDetailsFromEnabledClusters(
 ) {
   let sideFilter = ''
   if (side) {
-    sideFilter = " AND ATTRIBUTE.SIDE = 'server'"
+    sideFilter = ` AND ATTRIBUTE.SIDE = '${side}' `
   }
   let endpointTypeClusterRef = endpointsAndClusters
     .map((ep) => ep.endpointTypeClusterRef)

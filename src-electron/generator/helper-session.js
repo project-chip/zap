@@ -294,7 +294,8 @@ async function all_user_cluster_attribute_util(
       await queryAttribute.selectAllAttributeDetailsFromEnabledClusters(
         currentContext.global.db,
         endpointsAndClusters,
-        packageIds
+        packageIds,
+        side
       )
   } else if (isManufacturingSpecific) {
     endpointAttributes =
