@@ -34,7 +34,6 @@ limitations under the License.
 import { QSpinnerGears } from 'quasar'
 import VueTour from './tutorials/VueTour.vue'
 import CommonMixin from './util/common-mixin'
-import querystring from 'querystring'
 const rendApi = require(`../src-shared/rend-api.js`)
 const restApi = require(`../src-shared/rest-api.js`)
 const observable = require('./util/observable.js')
@@ -113,8 +112,10 @@ export default {
     getAppData() {
       if (this.$serverGet != null) {
         this.$serverGet(restApi.uri.uiOptions).then((res) => {
-          this.$store.commit('zap/updateIsProfileIdShown', res.data.showProfileId)
-          console.log(res.data);
+          this.$store.commit(
+            'zap/updateIsProfileIdShown',
+            res.data.showProfileId
+          )
         })
       }
 
@@ -178,7 +179,7 @@ export default {
       rendApi.id.setDarkTheme,
       storage.getItem(rendApi.storageKey.isDarkThemeActive)
     )
-    if(this.isZapConfigSelected != true) {
+    if (this.isZapConfigSelected != true) {
       this.$router.push({ path: '/login' })
     } else {
       this.$router.push({ path: '/' })
@@ -187,13 +188,13 @@ export default {
   },
   watch: {
     isZapConfigSelected(val) {
-      if(val != true) {
-        this.$router.push({path: '/login'})
+      if (val != true) {
+        this.$router.push({ path: '/login' })
       } else {
         this.$router.push({ path: '/' })
         this.getAppData()
       }
-    }
-  }
+    },
+  },
 }
 </script>
