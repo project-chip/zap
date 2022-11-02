@@ -116,7 +116,6 @@ export default {
             'zap/updateIsProfileIdShown',
             res.data.showProfileId
           )
-          console.log(res.data)
         })
       }
 
