@@ -287,12 +287,15 @@ export default {
           this.selectedZclPropertiesData != null &&
           this.selectedZclGenData.length != 0
         ) {
-          this.$serverPost(restApi.uri.initializeSession, {
+          let data = {
             zclProperties: this.selectedZclPropertiesData.id,
             genTemplate: this.selectedZclGenData,
-          }).then((result) => {
-            this.$store.commit('zap/selectZapConfig', true)
-          })
+          }
+          this.$serverPost(restApi.uri.initializeSession, data).then(
+            (result) => {
+              this.$store.commit('zap/selectZapConfig', true)
+            }
+          )
         }
       } else {
         this.$serverPost(restApi.uri.reloadSession, {
@@ -310,6 +313,9 @@ export default {
       this.zclGenRow = result.data.zclGenTemplates
 
       if (this.zclPropertiesRow.length == 1 && this.zclGenRow.length == 1) {
+        // We shortcut this page, if there is exactly one of each,
+        // since we simply assume that they are selected and move on.
+        this.selectedZclGenData[0] = this.zclGenRow[0].id
         this.customConfig = 'generate'
         this.submitForm()
       }
