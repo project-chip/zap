@@ -17,6 +17,7 @@
 
 const queryAttribute = require('../db/query-attribute')
 const templateUtil = require('./template-util')
+const queryZcl = require('../db/query-zcl')
 
 async function featureBits(options) {
   if ('featureBits' in this) {
@@ -65,6 +66,77 @@ async function attributeDefault(options) {
   return templateUtil.templatePromise(this.global, p)
 }
 
+/**
+ * If helper that checks if an attribute is not supported.
+ * An attribute is not supported when it is a struct. However it is supported
+ * if it is an array of structs.
+ * @param {*} type
+ * @param {*} isArray
+ * @param {*} options
+ * @returns Promise of content
+ */
+async function if_unsupported_attribute_type(type, isArray, options) {
+  let struct = null
+  if (isArray) {
+    return options.inverse(this)
+  } else {
+    let packageIds = await templateUtil.ensureZclPackageIds(this)
+    if (type && typeof type == 'string') {
+      struct = await queryZcl.selectStructByName(
+        this.global.db,
+        type,
+        packageIds
+      )
+    } else if (type) {
+      struct = await queryZcl.selectStructById(this.global.db, type)
+    } else {
+      console.log('Attribute type not defined for ' + this.name)
+    }
+    if (struct) {
+      return options.fn(this)
+    } else {
+      return options.inverse(this)
+    }
+  }
+}
+
+/**
+ * If helper that checks if an attribute is complex or not.
+ * An attribute is complex if it is either nullable, optional, array type or
+ * struct.
+ * This helper should be used within an attribute block helper.
+ *
+ * example:
+ * {{#if_attribute_complex type}}
+ * type is complex
+ * {{else}}
+ * type is not complex
+ * {{/if_attribute_complex}}
+ * @param {*} type
+ * @param {*} options
+ * @returns Promise of content
+ */
+async function if_attribute_complex(type, options) {
+  let struct = null
+  if (this.isNullable || this.isOptional || this.isArray) {
+    return options.fn(this)
+  } else {
+    let packageIds = await templateUtil.ensureZclPackageIds(this)
+    if (type && typeof type == 'string') {
+      struct = await queryZcl.selectStructByName(
+        this.global.db,
+        type,
+        packageIds
+      )
+    }
+    if (struct) {
+      return options.fn(this)
+    } else {
+      return options.inverse(this)
+    }
+  }
+}
+
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
 //
 // Note: these exports are public API. Templates that might have been created in the past and are
@@ -73,3 +145,5 @@ async function attributeDefault(options) {
 
 exports.global_attribute_default = attributeDefault
 exports.feature_bits = featureBits
+exports.if_unsupported_attribute_type = if_unsupported_attribute_type
+exports.if_attribute_complex = if_attribute_complex

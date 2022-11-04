@@ -2815,6 +2815,53 @@ function as_underlying_python_type_for_zcl_type(type, dataType) {
   }
 }
 
+/**
+ * Java's data type for the corresponding zcl data type.
+ * @param {*} type
+ * @param {*} dataType
+ * @param {*} packageIds
+ * @param {*} context
+ * @returns Java's data type for the corresponding zcl data type.
+ */
+async function as_underlying_java_type_for_zcl_type(
+  type,
+  dataType,
+  packageIds,
+  context
+) {
+  if (
+    dataType.discriminatorName.toLowerCase() == dbEnum.zclType.bitmap ||
+    dataType.discriminatorName.toLowerCase() == dbEnum.zclType.enum ||
+    dataType.discriminatorName.toLowerCase() == dbEnum.zclType.number
+  ) {
+    if (dataType.name.includes('float')) {
+      return 'Float'
+    } else if (dataType.name.includes('double')) {
+      return 'Double'
+    } else if (dataType.name.includes('single')) {
+      return 'Float'
+    } else {
+      let sizeAndSign = await zcl_data_type_size_and_sign(
+        type,
+        dataType,
+        packageIds,
+        context
+      )
+      if (sizeAndSign.size >= 3) {
+        return 'Long'
+      }
+    }
+    return 'Integer'
+  } else if (octetStringTypes.includes(type.toUpperCase())) {
+    return 'OctetString'
+  } else if (characterStringTypes.includes(type.toUpperCase())) {
+    return 'CharString'
+  } else {
+    let error = 'Unhandled type ' + type
+    throw error
+  }
+}
+
 /*
  *
  * @param {*} type
@@ -2868,8 +2915,16 @@ async function get_underlying_language_specific_zcl_type(type, options) {
     if (type in hash) {
       return hash[type]
     }
-    // Language Specific: python
-    if (hash.language == 'python') {
+    if (hash.language == 'java') {
+      // Language Specific: Java
+      return as_underlying_java_type_for_zcl_type(
+        type,
+        dataType,
+        packageIds,
+        this
+      )
+    } else if (hash.language == 'python') {
+      // Language Specific: Python
       return as_underlying_python_type_for_zcl_type(type, dataType)
     } else if (hash.language == 'objectiveCClass') {
       return as_underlying_Objective_C_Class_type_for_zcl_type(
