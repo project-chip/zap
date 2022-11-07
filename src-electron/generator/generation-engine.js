@@ -497,7 +497,9 @@ async function loadTemplates(
     }
     return globalCtx
   } else {
-    return loadSingleTemplate(db, genTemplatesJsonArray)
+    let ctx = await loadSingleTemplate(db, genTemplatesJsonArray)
+    ctx.packageIds = [ctx.packageId]
+    return ctx
   }
 }
 
