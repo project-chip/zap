@@ -480,6 +480,7 @@ async function loadTemplates(
   if (Array.isArray(genTemplatesJsonArray)) {
     let globalCtx = {
       packageIds: [],
+      packageId: null,
     }
     if (genTemplatesJsonArray != null && genTemplatesJsonArray.length > 0) {
       for (let jsonFile of genTemplatesJsonArray) {
@@ -487,6 +488,9 @@ async function loadTemplates(
         if (ctx.error) {
           if (options.failOnLoadingError) globalCtx.error = ctx.error
         } else {
+          if (globalCtx.packageId == null) {
+            globalCtx.packageId = ctx.packageId
+          }
           globalCtx.packageIds.push(ctx.packageId)
         }
       }

@@ -567,6 +567,8 @@ async function startGeneration(argv, options) {
     throw ctx.error
   }
 
+  let packageId = ctx.packageId
+
   let files = gatherFiles(zapFiles, { suffix: '.zap', doBlank: true })
   if (files.length == 0) {
     options.logger(`    👎 no zap files found in: ${zapFiles}`)
@@ -584,7 +586,7 @@ async function startGeneration(argv, options) {
   options.logger(`🕐 Setup time: ${util.duration(nsDuration)} `)
 
   await util.executePromisesSequentially(files, (f, index) =>
-    generateSingleFile(mainDb, f, ctx.packageId, output, index, options)
+    generateSingleFile(mainDb, f, packageId, output, index, options)
   )
 
   if (options.quitFunction != null) options.quitFunction()
