@@ -78,7 +78,13 @@ limitations under the License.
               </div></Transition
             >
           </q-btn>
-          <q-btn flat icon="warning" to="/notifications" id="Notifications">
+          <q-btn
+            flat
+            icon="warning"
+            to="/notifications"
+            id="Notifications"
+            :color="displayNotifications"
+          >
             <Transition name="bounce">
               <div v-if="displayButton" class="text-align q-ml-xs">
                 Notifications
@@ -164,6 +170,9 @@ export default {
   computed: {
     displayButton() {
       return !this.$q.screen.lt.md
+    },
+    displayNotifications() {
+      return this.notifications
     },
     endpointDeviceTypeRef: {
       get() {
@@ -251,8 +260,23 @@ export default {
       isExpanded: false,
       globalOptionsDialog: false,
       zclExtensionDialog: false,
+      notifications: '',
     }
   },
+  created() {
+    this.$serverGet(restApi.uri.notification)
+      .then((resp) => {
+        if (resp.data[0] === undefined) {
+          this.notifications = 'white'
+        } else {
+          this.notifications = 'red'
+        }
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+  },
+
   components: {
     ZclGeneralOptionsBar,
     ZclEndpointManager,
