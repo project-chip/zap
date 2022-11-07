@@ -497,7 +497,7 @@ async function loadSingleTemplate(db, genTemplatesJson) {
     env.logWarning(context.error)
     return Promise.resolve(context)
   }
-
+  context.path = file
   try {
     await dbApi.dbBeginTransaction(db)
     await fsPromise.access(file, fs.constants.R_OK)
