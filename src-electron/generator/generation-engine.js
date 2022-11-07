@@ -28,6 +28,7 @@ const dbEnum = require('../../src-shared/db-enum.js')
 const env = require('../util/env')
 const templateEngine = require('./template-engine.js')
 const dbApi = require('../db/db-api.js')
+const e = require('express')
 
 /**
  * Given a path, it will read generation template object into memory.
@@ -468,9 +469,13 @@ async function loadZclExtensions(db, packageId, zclExt, defaultsPath) {
  * @param {*} genTemplatesJsonArray
  */
 async function loadTemplates(db, genTemplatesJsonArray) {
-  if (genTemplatesJsonArray != null && genTemplatesJsonArray.length > 0) {
-    let ctx = await loadSingleTemplate(db, genTemplatesJsonArray[0])
-    return ctx
+  if (Array.isArray(genTemplatesJsonArray)) {
+    if (genTemplatesJsonArray != null && genTemplatesJsonArray.length > 0) {
+      let ctx = await loadSingleTemplate(db, genTemplatesJsonArray[0])
+      return ctx
+    }
+  } else {
+    return loadSingleTemplate(db, genTemplatesJsonArray)
   }
 }
 
