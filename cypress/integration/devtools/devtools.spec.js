@@ -16,9 +16,7 @@ describe('Testing visibility of devtools option', () => {
 
   it('check if devtools option gets visible', () => {
     cy.setZclProperties()
-    cy.get(
-      'a.q-btn > .q-btn__wrapper > .q-btn__content > .material-icons'
-    ).click()
+    cy.get('#preference > .q-btn__wrapper > .q-btn__content > .q-icon').click()
     cy.get('[aria-label="Enable development tools"] > .q-toggle__label').click()
     cy.get('.q-btn__wrapper').contains('Back').click()
     cy.get('.q-gutter-y-md > :nth-child(1)').should('contain', 'Dev Tools')

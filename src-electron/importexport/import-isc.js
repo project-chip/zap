@@ -28,6 +28,7 @@ const util = require('../util/util')
 const dbEnum = require('../../src-shared/db-enum')
 const restApi = require('../../src-shared/rest-api')
 const env = require('../util/env')
+const notification = require('../db/query-notification.js')
 
 /**
  * Locates or adds an attribute, and returns it.
@@ -640,6 +641,13 @@ async function loadSessionKeyValues(db, sessionId, keyValues) {
 async function iscDataLoader(db, state, sessionId) {
   let endpointTypes = state.endpointTypes
   let promises = []
+  await notification.setNotification(
+    db,
+    'UPGRADE',
+    'ISC FILE UPGRADED TO ZAP FILE. PLEASE SAVE AS TO SAVE OFF NEWLY CREATED ZAP FILE.',
+    sessionId,
+    1
+  )
 
   // We don't have the package info inside ISC file, so we
   // do our best here.

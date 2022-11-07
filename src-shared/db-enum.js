@@ -90,6 +90,7 @@ exports.pathRelativity = {
 exports.wsCategory = {
   generic: 'generic',
   dirtyFlag: 'dirtyFlag',
+  upgrade: 'upgrade',
   validation: 'validation',
   sessionCreationError: 'sessionCreationError',
   componentUpdateStatus: 'componentUpdateStatus',
