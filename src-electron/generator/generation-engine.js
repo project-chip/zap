@@ -498,15 +498,14 @@ async function loadSingleTemplate(db, genTemplatesJson) {
     return Promise.resolve(context)
   }
 
-  context.path = file
   try {
     await dbApi.dbBeginTransaction(db)
-    await fsPromise.access(context.path, fs.constants.R_OK)
+    await fsPromise.access(file, fs.constants.R_OK)
     context = await loadGenTemplate(context)
     context = await recordTemplatesPackage(context)
     return context
   } catch (err) {
-    env.logInfo(`Can not read templates from: ${context.path}`)
+    env.logInfo(`Can not read templates from: ${context.file}`)
     throw err
   } finally {
     dbApi.dbCommit(db)

@@ -403,17 +403,12 @@ async function startServer(argv, quitFunction) {
     if (ctx.error) {
       env.logWarning(ctx.error)
     }
-    await httpServer.initHttpServer(
-      ctx.db,
-      argv.httpPort,
-      argv.studioHttpPort,
-      {
-        zcl: argv.zclProperties,
-        template: argv.generationTemplate,
-        allowCors: argv.allowCors,
-      }
-    )
-    await ipcServer.initServer(ctx.db, argv.httpPort)
+    await httpServer.initHttpServer(db, argv.httpPort, argv.studioHttpPort, {
+      zcl: argv.zclProperties,
+      template: argv.generationTemplate,
+      allowCors: argv.allowCors,
+    })
+    await ipcServer.initServer(db, argv.httpPort)
     logRemoteData(httpServer.httpServerStartupMessage())
   } catch (err) {
     env.logError(err)
