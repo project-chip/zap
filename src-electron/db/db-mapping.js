@@ -568,6 +568,17 @@ exports.map = {
       value: x.VALUE,
     }
   },
+  notifications: (x) => {
+    if (x == null) return undefined
+    return {
+      ref: x.SESSION_REF,
+      type: x.NOTICE_TYPE,
+      message: x.NOTICE_MESSAGE,
+      severity: x.NOTICE_SEVERITY,
+      order: x.NOTICE_ORDER,
+      display: x.DISPLAY,
+    }
+  },
 }
 
 exports.reverseMap = {

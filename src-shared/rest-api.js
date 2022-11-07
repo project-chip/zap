@@ -24,6 +24,7 @@ const uri = {
   endpoint: '/endpoint',
   endpointType: '/endpointType',
   initialState: '/initialState',
+  notification: '/notification',
   duplicateEndpoint: '/duplicateEndpoint',
   duplicateEndpointType: '/duplicateEndpointType',
   dirtyFlag: '/dirtyFlag',

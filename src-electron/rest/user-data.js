@@ -28,6 +28,7 @@ const dbApi = require('../db/db-api.js')
 const queryAttribute = require('../db/query-attribute.js')
 const queryCommand = require('../db/query-command.js')
 const queryConfig = require('../db/query-config.js')
+const queryNotification = require('../db/query-notification.js')
 const queryEndpointType = require('../db/query-endpoint-type.js')
 const queryEndpoint = require('../db/query-endpoint.js')
 const querySession = require('../db/query-session.js')
@@ -53,6 +54,20 @@ function httpGetSessionKeyValues(db) {
       sessionId
     )
     response.status(StatusCodes.OK).json(sessionKeyValues)
+  }
+}
+
+/**
+ * HTTP GET: session get notifications
+ *
+ * @param {*} db
+ * @returns callback for the express uri registration
+ */
+function httpGetNotifications(db) {
+  return async (request, response) => {
+    let sessionId = request.zapSessionId
+    let notifications = await queryNotification.getNotification(db, sessionId)
+    response.status(StatusCodes.OK).json(notifications)
   }
 }
 
@@ -722,7 +737,7 @@ function httpDeleteSessionPackage(db) {
 
 /**
  * Creating a duplicate for endpoint
- * 
+ *
  * @param {*} db
  * @returns newly created endpoint id
  */
@@ -737,48 +752,67 @@ function httpPostDuplicateEndpoint(db) {
       endpointIdentifier,
       endpointTypeId
     )
-    res.status(StatusCodes.OK).json({id:id})
+    res.status(StatusCodes.OK).json({ id: id })
   }
 }
 
 /**
  * Creating a duplicate for endpoint-type and endpoint-type-attributes
- * 
+ *
  * @param {*} db
  * @returns newly created endpoint-type id
  */
 function httpPostDuplicateEndpointType(db) {
   return async (request, response) => {
     let { endpointTypeId } = request.body
-    let newId = await queryConfig.duplicateEndpointType(
-      db, endpointTypeId
-    )
+    let newId = await queryConfig.duplicateEndpointType(db, endpointTypeId)
 
     duplicateEndpointTypeClusters(db, endpointTypeId, newId)
 
     response.status(StatusCodes.OK).json({
-      id: newId
+      id: newId,
     })
   }
 }
 
 /**
  * duplicate all clusters and attributes of an old endpoint type, using oldEndpointType id and newly created endpointType id
- * 
+ *
  * @param {*} db
  * @param {*} oldEndpointTypeId
  * @param {*} newEndpointTypeId
  */
-async function duplicateEndpointTypeClusters(db, oldEndpointTypeId, newEndpointTypeId) {
-  let oldEndpointTypeClusters = await queryConfig.selectEndpointClusters(db, oldEndpointTypeId);
+async function duplicateEndpointTypeClusters(
+  db,
+  oldEndpointTypeId,
+  newEndpointTypeId
+) {
+  let oldEndpointTypeClusters = await queryConfig.selectEndpointClusters(
+    db,
+    oldEndpointTypeId
+  )
   oldEndpointTypeClusters.forEach(async (endpointTypeCluster) => {
-    let newEndpointTypeClusterId = await queryConfig.insertOrReplaceClusterState(db,newEndpointTypeId,endpointTypeCluster.clusterRef,endpointTypeCluster.side, endpointTypeCluster.enabled)
-    let oldAttributes = await queryAttribute.selectEndpointTypeAttributesByEndpointTypeRefAndClusterRef(db,oldEndpointTypeId,endpointTypeCluster.endpointTypeClusterId)
+    let newEndpointTypeClusterId =
+      await queryConfig.insertOrReplaceClusterState(
+        db,
+        newEndpointTypeId,
+        endpointTypeCluster.clusterRef,
+        endpointTypeCluster.side,
+        endpointTypeCluster.enabled
+      )
+    let oldAttributes =
+      await queryAttribute.selectEndpointTypeAttributesByEndpointTypeRefAndClusterRef(
+        db,
+        oldEndpointTypeId,
+        endpointTypeCluster.endpointTypeClusterId
+      )
     oldAttributes.forEach(async (attrubute) => {
-      await queryAttribute.duplicateEndpointTypeAttribute(db,
+      await queryAttribute.duplicateEndpointTypeAttribute(
+        db,
         newEndpointTypeId,
         newEndpointTypeClusterId,
-        attrubute)
+        attrubute
+      )
     })
   })
 }
@@ -826,6 +860,10 @@ exports.get = [
   {
     uri: restApi.uri.getAllSessionKeyValues,
     callback: httpGetSessionKeyValues,
+  },
+  {
+    uri: restApi.uri.notification,
+    callback: httpGetNotifications,
   },
   {
     uri: restApi.uri.initialState,

@@ -23,6 +23,9 @@ exports.renderer_api = {
     dirtyFlag: {
       arg: 'dirtyState',
     },
+    notification: {
+      arg: 'notification',
+    },
     fileBrowse: {
       arg: 'browseObject',
     },
@@ -120,7 +123,11 @@ exports.id = {
   isDirty: 'isDirty',
 }
 
-exports.notifyKey = { dirtyFlag: 'dirtyFlag', fileBrowse: 'fileBrowse' }
+exports.notifyKey = {
+  dirtyFlag: 'dirtyFlag',
+  fileBrowse: 'fileBrowse',
+  notification: 'notification',
+}
 
 exports.jsonPrefix = 'rendererApiJson:'
 
