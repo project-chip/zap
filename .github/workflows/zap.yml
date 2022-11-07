@@ -27,7 +27,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
       - run: sudo apt-get update
-      - run: sudo apt-get install --fix-missing libpixman-1-dev libcairo-dev libsdl-pango-dev libjpeg-dev libgif-dev xvfb libxml2-utils
+      - run: sudo apt-get install --fix-missing libpixman-1-dev libcairo-dev libsdl-pango-dev libjpeg-dev libgif-dev libxml2-utils
       - run: node --version
       - run: npm --version
       - run: npm ci
@@ -40,7 +40,7 @@ jobs:
       - run: npm run lint
       - run: npm run xml-validate
       - run: npm run test:unit
-      - run: xvfb-run -a npm run self-check
+      - run: npm run self-check
       - run: npm run gen
       - run: npm run genmatter
       - run: npm run gendotdot

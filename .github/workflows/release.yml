@@ -38,7 +38,6 @@ jobs:
         if: startsWith(matrix.os, 'ubuntu')
         run: |
           sudo ./src-script/install-packages-ubuntu
-          sudo apt-get install --fix-missing xvfb
 
       - name: Prepare macOS build environment
         if: startsWith(matrix.os, 'macos')
