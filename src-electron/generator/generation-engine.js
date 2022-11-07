@@ -28,6 +28,7 @@ const dbEnum = require('../../src-shared/db-enum.js')
 const env = require('../util/env')
 const templateEngine = require('./template-engine.js')
 const dbApi = require('../db/db-api.js')
+const e = require('express')
 
 /**
  * Given a path, it will read generation template object into memory.
@@ -463,13 +464,53 @@ async function loadZclExtensions(db, packageId, zclExt, defaultsPath) {
 }
 
 /**
+ * Api that loads an array of template JSON files or a single file if
+ * you just pass in one String.
+ *
+ * @param {*} db
+ * @param {*} genTemplatesJsonArray
+ */
+async function loadTemplates(
+  db,
+  genTemplatesJsonArray,
+  options = {
+    failOnLoadingError: true,
+  }
+) {
+  if (Array.isArray(genTemplatesJsonArray)) {
+    let globalCtx = {
+      packageIds: [],
+      packageId: null,
+    }
+    if (genTemplatesJsonArray != null && genTemplatesJsonArray.length > 0) {
+      for (let jsonFile of genTemplatesJsonArray) {
+        let ctx = await loadSingleTemplate(db, jsonFile)
+        if (ctx.error) {
+          if (options.failOnLoadingError) globalCtx.error = ctx.error
+        } else {
+          if (globalCtx.packageId == null) {
+            globalCtx.packageId = ctx.packageId
+          }
+          globalCtx.packageIds.push(ctx.packageId)
+        }
+      }
+    }
+    return globalCtx
+  } else {
+    let ctx = await loadSingleTemplate(db, genTemplatesJsonArray)
+    ctx.packageIds = [ctx.packageId]
+    return ctx
+  }
+}
+
+/**
  * Main API async function to load templates from a gen-template.json file.
  *
  * @param {*} db Database
- * @param {*} genTemplatesJson Path to the JSON file
+ * @param {*} genTemplatesJson Path to the JSON file or an array of paths to JSON file
  * @returns the loading context, contains: db, path, crc, packageId and templateData, or error
  */
-async function loadTemplates(db, genTemplatesJson) {
+async function loadSingleTemplate(db, genTemplatesJson) {
   let context = {
     db: db,
   }
@@ -485,23 +526,19 @@ async function loadTemplates(db, genTemplatesJson) {
     env.logWarning(context.error)
     return Promise.resolve(context)
   }
-
   context.path = file
-  return dbApi
-    .dbBeginTransaction(db)
-    .then(() => fsPromise.access(context.path, fs.constants.R_OK))
-    .then(() => {
-      env.logDebug(`Loading generation templates from: ${context.path}`)
-      return loadGenTemplate(context)
-    })
-    .then((ctx) => recordTemplatesPackage(ctx))
-    .catch((err) => {
-      env.logInfo(`Can not read templates from: ${context.path}`)
-      throw err
-    })
-    .finally(() => {
-      dbApi.dbCommit(db)
-    })
+  try {
+    await dbApi.dbBeginTransaction(db)
+    await fsPromise.access(file, fs.constants.R_OK)
+    context = await loadGenTemplate(context)
+    context = await recordTemplatesPackage(context)
+    return context
+  } catch (err) {
+    env.logInfo(`Can not read templates from: ${context.file}`)
+    throw err
+  } finally {
+    dbApi.dbCommit(db)
+  }
 }
 
 async function retrievePackageMetaInfo(db, genTemplatesPkgId) {
