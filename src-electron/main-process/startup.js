@@ -74,17 +74,12 @@ async function startNormal(quitFunction, argv) {
     }
 
     if (!argv.noServer) {
-      await httpServer.initHttpServer(
-        ctx.db,
-        argv.httpPort,
-        argv.studioHttpPort,
-        {
-          zcl: argv.zclProperties,
-          template: argv.generationTemplate,
-          allowCors: argv.allowCors,
-        }
-      )
-      await ipcServer.initServer(ctx.db, argv.httpPort)
+      await httpServer.initHttpServer(db, argv.httpPort, argv.studioHttpPort, {
+        zcl: argv.zclProperties,
+        template: argv.generationTemplate,
+        allowCors: argv.allowCors,
+      })
+      await ipcServer.initServer(db, argv.httpPort)
     }
     let port = httpServer.httpServerPort()
 
@@ -440,13 +435,20 @@ async function startSelfCheck(
     env.zapVersion()
   )
   options.logger('    👉 database and schema initialized')
-  await zclLoader.loadZclMetafiles(mainDb, argv.zclProperties)
-  options.logger('    👉 zcl data loaded')
+  let zclPackageIds = await zclLoader.loadZclMetafiles(
+    mainDb,
+    argv.zclProperties
+  )
+  options.logger(
+    `    👉 zcl metadata packlages loaded: ${zclPackageIds.length}`
+  )
   let ctx = await generatorEngine.loadTemplates(mainDb, argv.generationTemplate)
   if (ctx.error) {
     options.logger(`    ⚠️  ${ctx.error}`)
   } else {
-    options.logger('    👉 generation templates loaded')
+    options.logger(
+      `    👉 generation template packages loaded: ${ctx.packageIds.length}`
+    )
   }
 
   // This is a hack to prevent too quick shutdown that causes core dumps.

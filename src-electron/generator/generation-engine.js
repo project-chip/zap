@@ -464,16 +464,28 @@ async function loadZclExtensions(db, packageId, zclExt, defaultsPath) {
 }
 
 /**
- * Api that loads an array of template JSON files.
+ * Api that loads an array of template JSON files or a single file if
+ * you just pass in one String.
+ *
  * @param {*} db
  * @param {*} genTemplatesJsonArray
  */
 async function loadTemplates(db, genTemplatesJsonArray) {
   if (Array.isArray(genTemplatesJsonArray)) {
-    if (genTemplatesJsonArray != null && genTemplatesJsonArray.length > 0) {
-      let ctx = await loadSingleTemplate(db, genTemplatesJsonArray[0])
-      return ctx
+    let globalCtx = {
+      packageIds: [],
     }
+    if (genTemplatesJsonArray != null && genTemplatesJsonArray.length > 0) {
+      for (let jsonFile of genTemplatesJsonArray) {
+        let ctx = await loadSingleTemplate(db, jsonFile)
+        if (ctx.error) {
+          globalCtx.error = ctx.error
+        } else {
+          globalCtx.packageIds.push(ctx.packageId)
+        }
+      }
+    }
+    return globalCtx
   } else {
     return loadSingleTemplate(db, genTemplatesJsonArray)
   }
