@@ -39,13 +39,6 @@ async function setNotification(db, type, status, sessionId, severity) {
     [sessionId, type, status, severity, 1]
   )
 }
-async function setAllNotificationDisplay(db, sessionId) {
-  return dbApi.dbUpdate(
-    db,
-    'UPDATE SESSION_NOTICE SET DISPLAY = ? WHERE SESSION_REF = ?',
-    [0, sessionId]
-  )
-}
 /**
  * Deletes a notification from the SESSION_NOTICE table
  *
