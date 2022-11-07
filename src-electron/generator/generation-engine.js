@@ -470,7 +470,13 @@ async function loadZclExtensions(db, packageId, zclExt, defaultsPath) {
  * @param {*} db
  * @param {*} genTemplatesJsonArray
  */
-async function loadTemplates(db, genTemplatesJsonArray) {
+async function loadTemplates(
+  db,
+  genTemplatesJsonArray,
+  options = {
+    failOnLoadingError: true,
+  }
+) {
   if (Array.isArray(genTemplatesJsonArray)) {
     let globalCtx = {
       packageIds: [],
@@ -479,7 +485,7 @@ async function loadTemplates(db, genTemplatesJsonArray) {
       for (let jsonFile of genTemplatesJsonArray) {
         let ctx = await loadSingleTemplate(db, jsonFile)
         if (ctx.error) {
-          globalCtx.error = ctx.error
+          if (options.failOnLoadingError) globalCtx.error = ctx.error
         } else {
           globalCtx.packageIds.push(ctx.packageId)
         }

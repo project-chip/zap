@@ -208,7 +208,7 @@ export function processCommandLineArguments(argv: string[]) {
       type: 'string',
       default: null,
     })
-    .option('noFail', {
+    .option('noLoadingFailure', {
       desc: 'If you specify an invalid file for templates or zcl metafiles, zap will not fail, but will ignore it.',
       type: 'boolean',
       default: false,

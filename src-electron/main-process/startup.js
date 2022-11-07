@@ -67,7 +67,9 @@ async function startNormal(quitFunction, argv) {
 
   try {
     await zclLoader.loadZclMetafiles(db, argv.zclProperties)
-    let ctx = await generatorEngine.loadTemplates(db, argv.generationTemplate)
+    let ctx = await generatorEngine.loadTemplates(db, argv.generationTemplate, {
+      failOnLoadingError: !argv.noLoadingFailure,
+    })
 
     if (ctx.error) {
       env.logWarning(ctx.error)
@@ -188,7 +190,9 @@ async function startConvert(argv, options) {
   await zclLoader.loadZclMetafiles(db, argv.zclProperties)
   options.logger(`    🐝 zcl package loaded: ${argv.zclProperties}`)
   if (argv.generationTemplate != null) {
-    await generatorEngine.loadTemplates(db, argv.generationTemplate)
+    await generatorEngine.loadTemplates(db, argv.generationTemplate, {
+      failOnLoadingError: !argv.noLoadingFailure,
+    })
     options.logger(`    🐝 templates loaded: ${argv.generationTemplate}`)
   }
 
@@ -293,7 +297,9 @@ async function startRegenerateSdk(argv, options) {
     for (let key of Object.keys(sdk.rt.genTemplates)) {
       let p = sdk.rt.genTemplates[key]
       options.logger(`    👈 ${p}`)
-      let loadData = await generatorEngine.loadTemplates(db, p)
+      let loadData = await generatorEngine.loadTemplates(db, p, {
+        failOnLoadingError: !argv.noLoadingFailure,
+      })
       sdk.templatePackageId[key] = loadData.packageId
     }
     options.logger('🐝 Performing generation')
@@ -394,7 +400,9 @@ async function startServer(argv, quitFunction) {
   mainDatabase = db
   try {
     await zclLoader.loadZclMetafiles(db, argv.zclProperties)
-    let ctx = await generatorEngine.loadTemplates(db, argv.generationTemplate)
+    let ctx = await generatorEngine.loadTemplates(db, argv.generationTemplate, {
+      failOnLoadingError: !argv.noLoadingFailure,
+    })
     if (ctx.error) {
       env.logWarning(ctx.error)
     }
@@ -442,7 +450,13 @@ async function startSelfCheck(
   options.logger(
     `    👉 zcl metadata packlages loaded: ${zclPackageIds.length}`
   )
-  let ctx = await generatorEngine.loadTemplates(mainDb, argv.generationTemplate)
+  let ctx = await generatorEngine.loadTemplates(
+    mainDb,
+    argv.generationTemplate,
+    {
+      failOnLoadingError: !argv.noLoadingFailure,
+    }
+  )
   if (ctx.error) {
     options.logger(`    ⚠️  ${ctx.error}`)
   } else {
@@ -546,7 +560,9 @@ async function startGeneration(argv, options) {
   )
 
   await zclLoader.loadZclMetafiles(mainDb, zclProperties)
-  let ctx = await generatorEngine.loadTemplates(mainDb, templateMetafile)
+  let ctx = await generatorEngine.loadTemplates(mainDb, templateMetafile, {
+    failOnLoadingError: !argv.noLoadingFailure,
+  })
   if (ctx.error) {
     throw ctx.error
   }
