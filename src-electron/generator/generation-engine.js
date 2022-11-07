@@ -463,13 +463,25 @@ async function loadZclExtensions(db, packageId, zclExt, defaultsPath) {
 }
 
 /**
+ * Api that loads an array of template JSON files.
+ * @param {*} db
+ * @param {*} genTemplatesJsonArray
+ */
+async function loadTemplates(db, genTemplatesJsonArray) {
+  if (genTemplatesJsonArray != null && genTemplatesJsonArray.length > 0) {
+    let ctx = await loadSingleTemplate(db, genTemplatesJsonArray[0])
+    return ctx
+  }
+}
+
+/**
  * Main API async function to load templates from a gen-template.json file.
  *
  * @param {*} db Database
- * @param {*} genTemplatesJson Path to the JSON file
+ * @param {*} genTemplatesJson Path to the JSON file or an array of paths to JSON file
  * @returns the loading context, contains: db, path, crc, packageId and templateData, or error
  */
-async function loadTemplates(db, genTemplatesJson) {
+async function loadSingleTemplate(db, genTemplatesJson) {
   let context = {
     db: db,
   }
@@ -487,21 +499,18 @@ async function loadTemplates(db, genTemplatesJson) {
   }
 
   context.path = file
-  return dbApi
-    .dbBeginTransaction(db)
-    .then(() => fsPromise.access(context.path, fs.constants.R_OK))
-    .then(() => {
-      env.logDebug(`Loading generation templates from: ${context.path}`)
-      return loadGenTemplate(context)
-    })
-    .then((ctx) => recordTemplatesPackage(ctx))
-    .catch((err) => {
-      env.logInfo(`Can not read templates from: ${context.path}`)
-      throw err
-    })
-    .finally(() => {
-      dbApi.dbCommit(db)
-    })
+  try {
+    await dbApi.dbBeginTransaction(db)
+    await fsPromise.access(context.path, fs.constants.R_OK)
+    context = await loadGenTemplate(context)
+    context = await recordTemplatesPackage(context)
+    return context
+  } catch (err) {
+    env.logInfo(`Can not read templates from: ${context.path}`)
+    throw err
+  } finally {
+    dbApi.dbCommit(db)
+  }
 }
 
 async function retrievePackageMetaInfo(db, genTemplatesPkgId) {

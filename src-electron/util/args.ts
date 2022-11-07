@@ -118,7 +118,7 @@ export function processCommandLineArguments(argv: string[]) {
     .option('generationTemplate', {
       desc: 'generation template metafile (gen-template.json) to read in.',
       alias: ['gen', 'g'],
-      type: 'string',
+      type: 'array',
       default: env.builtinTemplateMetafile(),
     })
     .option('uiMode', {
@@ -207,6 +207,11 @@ export function processCommandLineArguments(argv: string[]) {
       desc: 'Script to execute after data is loaded.',
       type: 'string',
       default: null,
+    })
+    .option('noFail', {
+      desc: 'If you specify an invalid file for templates or zcl metafiles, zap will not fail, but will ignore it.',
+      type: 'boolean',
+      default: false,
     })
     .option('results', {
       desc: 'Specifying the output YAML file to capture convert results.',
