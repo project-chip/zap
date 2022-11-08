@@ -66,7 +66,9 @@ async function startNormal(quitFunction, argv) {
   mainDatabase = db
 
   try {
-    await zclLoader.loadZclMetafiles(db, argv.zclProperties)
+    await zclLoader.loadZclMetafiles(db, argv.zclProperties, {
+      failOnLoadingError: !argv.noLoadingFailure,
+    })
     let ctx = await generatorEngine.loadTemplates(db, argv.generationTemplate, {
       failOnLoadingError: !argv.noLoadingFailure,
     })
@@ -187,7 +189,9 @@ async function startConvert(argv, options) {
     env.zapVersion()
   )
   options.logger('    🐝 database and schema initialized')
-  await zclLoader.loadZclMetafiles(db, argv.zclProperties)
+  await zclLoader.loadZclMetafiles(db, argv.zclProperties, {
+    failOnLoadingError: !argv.noLoadingFailure,
+  })
   options.logger(`    🐝 zcl package loaded: ${argv.zclProperties}`)
   if (argv.generationTemplate != null) {
     await generatorEngine.loadTemplates(db, argv.generationTemplate, {
@@ -360,7 +364,9 @@ async function startAnalyze(argv, options) {
     env.zapVersion()
   )
   options.logger('    👉 database and schema initialized')
-  await zclLoader.loadZclMetafiles(db, argv.zclProperties)
+  await zclLoader.loadZclMetafiles(db, argv.zclProperties, {
+    failOnLoadingError: !argv.noLoadingFailure,
+  })
   await util.executePromisesSequentially(paths, (singlePath) =>
     importJs
       .importDataFromFile(db, singlePath, {
@@ -399,7 +405,9 @@ async function startServer(argv, quitFunction) {
   })
   mainDatabase = db
   try {
-    await zclLoader.loadZclMetafiles(db, argv.zclProperties)
+    await zclLoader.loadZclMetafiles(db, argv.zclProperties, {
+      failOnLoadingError: !argv.noLoadingFailure,
+    })
     let ctx = await generatorEngine.loadTemplates(db, argv.generationTemplate, {
       failOnLoadingError: !argv.noLoadingFailure,
     })
@@ -445,7 +453,10 @@ async function startSelfCheck(
   options.logger('    👉 database and schema initialized')
   let zclPackageIds = await zclLoader.loadZclMetafiles(
     mainDb,
-    argv.zclProperties
+    argv.zclProperties,
+    {
+      failOnLoadingError: !argv.noLoadingFailure,
+    }
   )
   options.logger(
     `    👉 zcl metadata packlages loaded: ${zclPackageIds.length}`
@@ -559,7 +570,9 @@ async function startGeneration(argv, options) {
     env.zapVersion()
   )
 
-  await zclLoader.loadZclMetafiles(mainDb, zclProperties)
+  await zclLoader.loadZclMetafiles(mainDb, zclProperties, {
+    failOnLoadingError: !argv.noLoadingFailure,
+  })
   let ctx = await generatorEngine.loadTemplates(mainDb, templateMetafile, {
     failOnLoadingError: !argv.noLoadingFailure,
   })

@@ -74,16 +74,30 @@ async function recordVersion(db, packageId, version, category, description) {
  * @param {*} metadataFile array of paths
  * @returns Array of loaded packageIds.
  */
-async function loadZclMetafiles(db, metadataFiles) {
+async function loadZclMetafiles(
+  db,
+  metadataFiles,
+  options = {
+    failOnLoadingError: true,
+  }
+) {
   let packageIds = []
   if (Array.isArray(metadataFiles)) {
     for (let f of metadataFiles) {
-      let ctx = await loadZcl(db, f)
-      packageIds.push(ctx.packageId)
+      try {
+        let ctx = await loadZcl(db, f)
+        packageIds.push(ctx.packageId)
+      } catch (err) {
+        if (options.failOnLoadingError) throw err
+      }
     }
   } else {
-    let ctx = await loadZcl(db, metadataFiles)
-    packageIds.push(ctx.packageId)
+    try {
+      let ctx = await loadZcl(db, metadataFiles)
+      packageIds.push(ctx.packageId)
+    } catch (err) {
+      if (options.failOnLoadingError) throw err
+    }
   }
   return packageIds
 }
