@@ -11,7 +11,6 @@ jobs:
   cypress-zigbee:
     name: Cypress UI tests with Zigbee data
     runs-on: ${{ matrix.os }}
-    needs: prep
     strategy:
       matrix:
         node-version: [16.x]
@@ -39,7 +38,6 @@ jobs:
   cypress-matter:
     name: Cypress UI tests with Matter data
     runs-on: ${{ matrix.os }}
-    needs: prep
     strategy:
       matrix:
         node-version: [16.x]
