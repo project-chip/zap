@@ -188,6 +188,8 @@ exports.map = {
       label: x.NAME,
       name: x.NAME,
       type: x.TYPE,
+      typeSize: x.TYPE_SIZE,
+      typeIsSigned: x.TYPE_IS_SIGNED,
       min: x.MIN,
       max: x.MAX,
       minLength: x.MIN_LENGTH,
@@ -566,6 +568,17 @@ exports.map = {
       category: x.CATEGORY,
       key: x.KEY,
       value: x.VALUE,
+    }
+  },
+  notifications: (x) => {
+    if (x == null) return undefined
+    return {
+      ref: x.SESSION_REF,
+      type: x.NOTICE_TYPE,
+      message: x.NOTICE_MESSAGE,
+      severity: x.NOTICE_SEVERITY,
+      order: x.NOTICE_ORDER,
+      display: x.DISPLAY,
     }
   },
 }

@@ -38,7 +38,6 @@ jobs:
         if: startsWith(matrix.os, 'ubuntu')
         run: |
           sudo ./src-script/install-packages-ubuntu
-          sudo apt-get install --fix-missing xvfb
 
       - name: Prepare macOS build environment
         if: startsWith(matrix.os, 'macos')
@@ -84,15 +83,11 @@ jobs:
         run: |
           npm run pack:win
           npm run pkg:win
-          mv dist/zap-win.exe zap-cli-win.exe
-          ./node_modules/7zip-bin/mac/x64/7za a dist/zap-win.zip zap-cli-win.exe
-          rm zap-cli-win.exe
+          npm run pack:cli:win
 
           npm run pack:mac
           npm run pkg:mac
-          mv dist/zap-macos zap-cli-macos
-          ./node_modules/7zip-bin/mac/x64/7za a dist/zap-mac.zip zap-cli-macos
-          rm zap-cli-macos
+          npm run pack:cli:mac
 
         env:
           GH_TOKEN: ${{ secrets.github_token }}
@@ -106,8 +101,7 @@ jobs:
         run: |
           npm run pack:linux
           npm run pkg:linux
-          mv dist/zap-linux zap-cli-linux
-          ./node_modules/7zip-bin/linux/x64/7za a dist/zap-linux.zip zap-cli-linux
+          npm run pack:cli:linux
 
         env:
           GH_TOKEN: ${{ secrets.github_token }}

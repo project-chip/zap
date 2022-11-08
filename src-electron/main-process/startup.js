@@ -66,25 +66,24 @@ async function startNormal(quitFunction, argv) {
   mainDatabase = db
 
   try {
-    await zclLoader.loadZclMetafiles(db, argv.zclProperties)
-    let ctx = await generatorEngine.loadTemplates(db, argv.generationTemplate)
+    await zclLoader.loadZclMetafiles(db, argv.zclProperties, {
+      failOnLoadingError: !argv.noLoadingFailure,
+    })
+    let ctx = await generatorEngine.loadTemplates(db, argv.generationTemplate, {
+      failOnLoadingError: !argv.noLoadingFailure,
+    })
 
     if (ctx.error) {
       env.logWarning(ctx.error)
     }
 
     if (!argv.noServer) {
-      await httpServer.initHttpServer(
-        ctx.db,
-        argv.httpPort,
-        argv.studioHttpPort,
-        {
-          zcl: argv.zclProperties,
-          template: argv.generationTemplate,
-          allowCors: argv.allowCors,
-        }
-      )
-      await ipcServer.initServer(ctx.db, argv.httpPort)
+      await httpServer.initHttpServer(db, argv.httpPort, argv.studioHttpPort, {
+        zcl: argv.zclProperties,
+        template: argv.generationTemplate,
+        allowCors: argv.allowCors,
+      })
+      await ipcServer.initServer(db, argv.httpPort)
     }
     let port = httpServer.httpServerPort()
 
@@ -190,10 +189,14 @@ async function startConvert(argv, options) {
     env.zapVersion()
   )
   options.logger('    🐝 database and schema initialized')
-  await zclLoader.loadZclMetafiles(db, argv.zclProperties)
+  await zclLoader.loadZclMetafiles(db, argv.zclProperties, {
+    failOnLoadingError: !argv.noLoadingFailure,
+  })
   options.logger(`    🐝 zcl package loaded: ${argv.zclProperties}`)
   if (argv.generationTemplate != null) {
-    await generatorEngine.loadTemplates(db, argv.generationTemplate)
+    await generatorEngine.loadTemplates(db, argv.generationTemplate, {
+      failOnLoadingError: !argv.noLoadingFailure,
+    })
     options.logger(`    🐝 templates loaded: ${argv.generationTemplate}`)
   }
 
@@ -298,7 +301,9 @@ async function startRegenerateSdk(argv, options) {
     for (let key of Object.keys(sdk.rt.genTemplates)) {
       let p = sdk.rt.genTemplates[key]
       options.logger(`    👈 ${p}`)
-      let loadData = await generatorEngine.loadTemplates(db, p)
+      let loadData = await generatorEngine.loadTemplates(db, p, {
+        failOnLoadingError: !argv.noLoadingFailure,
+      })
       sdk.templatePackageId[key] = loadData.packageId
     }
     options.logger('🐝 Performing generation')
@@ -359,7 +364,9 @@ async function startAnalyze(argv, options) {
     env.zapVersion()
   )
   options.logger('    👉 database and schema initialized')
-  await zclLoader.loadZclMetafiles(db, argv.zclProperties)
+  await zclLoader.loadZclMetafiles(db, argv.zclProperties, {
+    failOnLoadingError: !argv.noLoadingFailure,
+  })
   await util.executePromisesSequentially(paths, (singlePath) =>
     importJs
       .importDataFromFile(db, singlePath, {
@@ -398,22 +405,21 @@ async function startServer(argv, quitFunction) {
   })
   mainDatabase = db
   try {
-    await zclLoader.loadZclMetafiles(db, argv.zclProperties)
-    let ctx = await generatorEngine.loadTemplates(db, argv.generationTemplate)
+    await zclLoader.loadZclMetafiles(db, argv.zclProperties, {
+      failOnLoadingError: !argv.noLoadingFailure,
+    })
+    let ctx = await generatorEngine.loadTemplates(db, argv.generationTemplate, {
+      failOnLoadingError: !argv.noLoadingFailure,
+    })
     if (ctx.error) {
       env.logWarning(ctx.error)
     }
-    await httpServer.initHttpServer(
-      ctx.db,
-      argv.httpPort,
-      argv.studioHttpPort,
-      {
-        zcl: argv.zclProperties,
-        template: argv.generationTemplate,
-        allowCors: argv.allowCors,
-      }
-    )
-    await ipcServer.initServer(ctx.db, argv.httpPort)
+    await httpServer.initHttpServer(db, argv.httpPort, argv.studioHttpPort, {
+      zcl: argv.zclProperties,
+      template: argv.generationTemplate,
+      allowCors: argv.allowCors,
+    })
+    await ipcServer.initServer(db, argv.httpPort)
     logRemoteData(httpServer.httpServerStartupMessage())
   } catch (err) {
     env.logError(err)
@@ -445,13 +451,29 @@ async function startSelfCheck(
     env.zapVersion()
   )
   options.logger('    👉 database and schema initialized')
-  await zclLoader.loadZclMetafiles(mainDb, argv.zclProperties)
-  options.logger('    👉 zcl data loaded')
-  let ctx = await generatorEngine.loadTemplates(mainDb, argv.generationTemplate)
+  let zclPackageIds = await zclLoader.loadZclMetafiles(
+    mainDb,
+    argv.zclProperties,
+    {
+      failOnLoadingError: !argv.noLoadingFailure,
+    }
+  )
+  options.logger(
+    `    👉 zcl metadata packlages loaded: ${zclPackageIds.length}`
+  )
+  let ctx = await generatorEngine.loadTemplates(
+    mainDb,
+    argv.generationTemplate,
+    {
+      failOnLoadingError: !argv.noLoadingFailure,
+    }
+  )
   if (ctx.error) {
     options.logger(`    ⚠️  ${ctx.error}`)
   } else {
-    options.logger('    👉 generation templates loaded')
+    options.logger(
+      `    👉 generation template packages loaded: ${ctx.packageIds.length}`
+    )
   }
 
   // This is a hack to prevent too quick shutdown that causes core dumps.
@@ -548,11 +570,17 @@ async function startGeneration(argv, options) {
     env.zapVersion()
   )
 
-  await zclLoader.loadZclMetafiles(mainDb, zclProperties)
-  let ctx = await generatorEngine.loadTemplates(mainDb, templateMetafile)
+  await zclLoader.loadZclMetafiles(mainDb, zclProperties, {
+    failOnLoadingError: !argv.noLoadingFailure,
+  })
+  let ctx = await generatorEngine.loadTemplates(mainDb, templateMetafile, {
+    failOnLoadingError: !argv.noLoadingFailure,
+  })
   if (ctx.error) {
     throw ctx.error
   }
+
+  let packageId = ctx.packageId
 
   let files = gatherFiles(zapFiles, { suffix: '.zap', doBlank: true })
   if (files.length == 0) {
@@ -571,7 +599,7 @@ async function startGeneration(argv, options) {
   options.logger(`🕐 Setup time: ${util.duration(nsDuration)} `)
 
   await util.executePromisesSequentially(files, (f, index) =>
-    generateSingleFile(mainDb, f, ctx.packageId, output, index, options)
+    generateSingleFile(mainDb, f, packageId, output, index, options)
   )
 
   if (options.quitFunction != null) options.quitFunction()

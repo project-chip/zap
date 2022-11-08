@@ -29,7 +29,7 @@ module.exports = {
       statements: 64,
       branches: 51,
       functions: 60,
-      lines: 65,
+      lines: 64,
     },
   },
   testMatch: ['<rootDir>/test/*.test.js', '<rootDir>/test/*.test.ts'],

@@ -45,6 +45,11 @@ const routes = [
     path: '/about',
     component: () => import('pages/About.vue'),
   },
+  {
+    path: '/notifications',
+    name: 'notifications',
+    component: () => import('pages/Notifications.vue'),
+  },
 ]
 
 // Always leave this as last one

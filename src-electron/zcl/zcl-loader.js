@@ -74,16 +74,30 @@ async function recordVersion(db, packageId, version, category, description) {
  * @param {*} metadataFile array of paths
  * @returns Array of loaded packageIds.
  */
-async function loadZclMetafiles(db, metadataFiles) {
+async function loadZclMetafiles(
+  db,
+  metadataFiles,
+  options = {
+    failOnLoadingError: true,
+  }
+) {
   let packageIds = []
   if (Array.isArray(metadataFiles)) {
     for (let f of metadataFiles) {
-      let ctx = await loadZcl(db, f)
-      packageIds.push(ctx.packageId)
+      try {
+        let ctx = await loadZcl(db, f)
+        packageIds.push(ctx.packageId)
+      } catch (err) {
+        if (options.failOnLoadingError) throw err
+      }
     }
   } else {
-    let ctx = await loadZcl(db, metadataFiles)
-    packageIds.push(ctx.packageId)
+    try {
+      let ctx = await loadZcl(db, metadataFiles)
+      packageIds.push(ctx.packageId)
+    } catch (err) {
+      if (options.failOnLoadingError) throw err
+    }
   }
   return packageIds
 }
@@ -99,11 +113,6 @@ async function loadZcl(db, metadataFile) {
   let ext = path.extname(metadataFile)
   let resolvedMetafile = path.resolve(metadataFile)
 
-  try {
-    await fsp.access(resolvedMetafile, fs.constants.R_OK)
-  } catch {
-    throw new Error(`Can't access file: ${metadataFile}`)
-  }
   if (ext == '.xml') {
     return dLoad.loadDotdotZcl(db, resolvedMetafile)
   } else if (ext == '.properties') {
@@ -143,7 +152,7 @@ async function loadIndividualFile(db, filePath, sessionId) {
     return sLoad.loadIndividualSilabsFile(db, filePath, validator, sessionId)
   } else {
     let err = new Error(
-      `Unable to read file with unknown extension: ${filePath}`
+      `Unable to read file: ${filePath}. Expecting an XML file with ZCL clusters.`
     )
     env.logWarning(err)
     return { succeeded: false, err }

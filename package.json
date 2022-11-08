@@ -99,12 +99,16 @@
     "pack:win": "cross-env NODE_OPTIONS=--max-old-space-size=4096 electron-builder -w",
     "pack:mac": "cross-env NODE_OPTIONS=--max-old-space-size=4096 electron-builder -m --universal",
     "pack:mac:native": "cross-env NODE_OPTIONS=--max-old-space-size=4096 electron-builder -m",
+    "pack:cli:linux": "node ./src-script/pack-cli.js -p linux",
+    "pack:cli:win": "node ./src-script/pack-cli.js -p win",
+    "pack:cli:mac": "node ./src-script/pack-cli.js -p mac",
     "pkg": "npx pkg --out-path dist/ --compress GZip --options max-old-space-size=4096 .",
     "pkg:linux": "npx pkg -t node16-linux-x64 --output dist/zap-linux --compress GZip --options max-old-space-size=4096 .",
     "pkg:win": "npx pkg -t node16-win-x64 --output dist/zap-win.exe --compress GZip --options max-old-space-size=4096 .",
     "pkg:mac": "npx pkg -t node16-macos-x64 --output dist/zap-macos --compress GZip --options max-old-space-size=4096 .",
     "mattersdk": "node src-script/zap-start.js regenerateSdk --sdk ~/git/matter/scripts/tools/sdk.json",
-    "metasdk": "node src-script/zap-start.js regenerateSdk --sdk test/resource/meta/sdk.json"
+    "metasdk": "node src-script/zap-start.js regenerateSdk --sdk test/resource/meta/sdk.json",
+    "zip": "node ./src-script/7zip-bin-wrapper.js"
   },
   "dependencies": {
     "@babel/runtime": "^7.14.6",

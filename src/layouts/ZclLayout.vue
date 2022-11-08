@@ -144,9 +144,9 @@ limitations under the License.
                     clickable
                     v-close-popup
                     @click="
-                    generationButtonText = file.category
-                    getGeneratedFile(file.category)
-                  "
+                      generationButtonText = file.category
+                      getGeneratedFile(file.category)
+                    "
                     :label="generationButtonText"
                   >
                     <q-item-section>
@@ -159,7 +159,7 @@ limitations under the License.
                 <template>
                   <div class="q-ma-md">
                     <q-scroll-area style="height: 70vh" ref="generationScroll">
-                    <pre class="q-ma-none container">{{
+                      <pre class="q-ma-none container">{{
                         generationData
                       }}</pre>
                       <q-scroll-observer @scroll="onScroll" />
@@ -222,7 +222,7 @@ export default {
         title: 'Select directory to generate into',
         mode: 'directory',
         defaultPath: currentPath,
-        buttonLabel: 'Generate'
+        buttonLabel: 'Generate',
       })
     },
     getGeneratedFiles() {
