@@ -2258,6 +2258,9 @@ async function loadSilabsZcl(db, metafile, isJson = false) {
     db: db,
   }
   env.logDebug(`Loading Silabs zcl file: ${ctx.metadataFile}`)
+  if (!fs.existsSync(ctx.metadataFile)) {
+    throw new Error(`Can't locate: ${ctx.metadataFile}`)
+  }
   await dbApi.dbBeginTransaction(db)
   try {
     Object.assign(ctx, await util.readFileContentAndCrc(ctx.metadataFile))
