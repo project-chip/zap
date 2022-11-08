@@ -1257,8 +1257,11 @@ async function loadDotdotZcl(db, metafile) {
     db: db,
   }
   env.logDebug(`Loading Dotdot zcl file: ${metafile}`)
+  if (!fs.existsSync(metafile)) {
+    throw new Error(`Can't locate: ${metafile}`)
+  }
+  await dbApi.dbBeginTransaction(db)
   try {
-    await dbApi.dbBeginTransaction(db)
     Object.assign(ctx, await util.readFileContentAndCrc(ctx.metadataFile))
     ctx.packageId = await zclLoader.recordToplevelPackage(
       db,
