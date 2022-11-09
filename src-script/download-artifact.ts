@@ -551,7 +551,7 @@ async function main() {
       !nexusCachedBranches.includes(dlOptions.branch)
     ) {
       console.log(
-        `Branch ${dlOptions.branch} is not cached on Nexus. Defaulting to master branch on Github instead.`
+        `Branch ${dlOptions.branch} is not cached on Nexus. Defaulting to Github instead.`
       )
       dlOptions.src = 'github'
     } else if (!nexusCachedBranches.includes(dlOptions.branch)) {
