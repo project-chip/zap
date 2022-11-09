@@ -524,12 +524,11 @@ async function loadSingleTemplate(db, genTemplatesJson) {
   if (!fs.existsSync(file)) {
     context.error = `Can't locate templates file: ${file}`
     env.logWarning(context.error)
-    return Promise.resolve(context)
+    return context
   }
   context.path = file
+  await dbApi.dbBeginTransaction(db)
   try {
-    await dbApi.dbBeginTransaction(db)
-    await fsPromise.access(file, fs.constants.R_OK)
     context = await loadGenTemplate(context)
     context = await recordTemplatesPackage(context)
     return context

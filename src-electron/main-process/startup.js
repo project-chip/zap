@@ -458,9 +458,7 @@ async function startSelfCheck(
       failOnLoadingError: !argv.noLoadingFailure,
     }
   )
-  options.logger(
-    `    👉 zcl metadata packlages loaded: ${zclPackageIds.length}`
-  )
+  options.logger(`    👉 zcl metadata packages loaded: ${zclPackageIds.length}`)
   let ctx = await generatorEngine.loadTemplates(
     mainDb,
     argv.generationTemplate,
