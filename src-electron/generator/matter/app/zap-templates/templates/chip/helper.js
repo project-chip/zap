@@ -30,7 +30,7 @@ function throwErrorIfUndefined(item, errorMsg, conditions) {
     if (condition == undefined) {
       console.log(item);
       console.log(errorMsg);
-      throw error;
+      throw errorMsg;
     }
   });
 }

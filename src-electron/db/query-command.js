@@ -564,6 +564,7 @@ async function selectAllIncomingOrOutgoingCommandsForCluster(
       numberOfClusterSidesEnabled: x.NO_OF_CLUSTER_SIDES_ENABLED,
       id: x.COMMAND_ID,
       commandName: x.COMMAND_NAME,
+      name: x.COMMAND_NAME,
       commandSource: x.COMMAND_SOURCE,
       code: x.COMMAND_CODE,
       mustUseTimedInvoke: dbApi.fromDbBool(x.MUST_USE_TIMED_INVOKE),

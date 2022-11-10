@@ -399,6 +399,34 @@ async function if_command_fixed_length(commandId, options) {
   return options.fn(this)
 }
 
+/**
+ * If helper which checks if a command has atleast one required command
+ * argument.
+ *
+ * example:
+ * {{#if_command_has_required_argument commandId}}
+ * command has a required argument
+ * {{else}}
+ * command does not have a required argument
+ * {{/if_command_has_required_argument}}
+ * @param {*} commandId
+ * @param {*} options
+ * @returns  content in the handlebar template based on the commandId
+ * having a required command argument or not as shown in the example.
+ */
+async function if_command_has_required_argument(commandId, options) {
+  let commandArgs = await queryCommand.selectCommandArgumentsByCommandId(
+    this.global.db,
+    commandId
+  )
+  for (let commandArg of commandArgs) {
+    if (!commandArg.isOptional) {
+      return options.fn(this)
+    }
+  }
+  return options.inverse(this)
+}
+
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
 //
 // Note: these exports are public API. Templates that might have been created in the past and are
@@ -438,3 +466,4 @@ exports.if_command_arg_not_always_present_with_presentif =
 exports.if_command_arg_always_present_with_presentif =
   if_command_arg_always_present_with_presentif
 exports.if_command_args_exist = if_command_args_exist
+exports.if_command_has_required_argument = if_command_has_required_argument

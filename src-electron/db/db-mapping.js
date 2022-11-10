@@ -179,6 +179,7 @@ exports.map = {
       argIsNullable: x.ARG_IS_NULLABLE,
       responseRef: x.RESPONSE_REF,
       responseName: x.RESPONSE_NAME,
+      hasSpecificResponse: x.RESPONSE_REF ? 1 : 0,
       isIncoming: x.INCOMING,
       isOutgoing: x.OUTGOING,
       isDefaultResponseEnabled: x.IS_DEFAULT_RESPONSE_ENABLED,
