@@ -806,6 +806,7 @@ async function generateAndWriteFiles(
     backup: false,
     genResultFile: false,
     skipPostGeneration: false,
+    appendGenerationSubdirectory: false,
   }
 ) {
   let timing = {}
@@ -835,10 +836,26 @@ async function generateAndWriteFiles(
     templateGeneratorOptions
   )
 
+  // The path we append, assuming you specify the --appendGenerationSubdirectory, and a
+  // appendDirectory generator option is present in the genTemplates.json file
+  let appendedPath = null
+  if (
+    templateGeneratorOptions.appendDirectory != null &&
+    options.appendGenerationSubdirectory
+  ) {
+    appendedPath = templateGeneratorOptions.appendDirectory
+  }
+
+  console.log(`Appended path: ${appendedPath}`)
+  if (appendedPath != null) {
+    outputDirectory = path.join(outputDirectory, appendedPath)
+  }
+
   if (!fs.existsSync(outputDirectory)) {
     options.logger(`✅ Creating directory: ${outputDirectory}`)
     fs.mkdirSync(outputDirectory, { recursive: true })
   }
+
   options.logger('🤖 Generating files:')
   let promises = []
   for (const f of Object.keys(genResult.content)) {
