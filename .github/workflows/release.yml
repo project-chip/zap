@@ -266,12 +266,6 @@ jobs:
       - uses: actions/download-artifact@v3
       - name: List downloaded files
         run: ls -R
-      - name: Unzip artifacts
-        run: unzip zap-linux-deb.zip
-          unzip zap-linux-rpm.zip
-          unzip zap-linux-zip.zip
-          unzip zap-mac-zip.zip
-          unzip zap-win-zip.zip
       - name: List unzipped files
         run: ls -R
       - name: Creating Github Release
@@ -280,8 +274,8 @@ jobs:
         with:
           generate_release_notes: true
           files: |
-            zap-linux.deb
-            zap-linux.rpm
-            zap-linux.zip
-            zap-mac.zip
-            zap-win.zip
+            zap-linux-deb/zap-linux.deb
+            zap-linux-rpm/zap-linux.rpm
+            zap-linux-zip/zap-linux.zip
+            zap-mac-zip/zap-mac.zip
+            zap-win-zip/zap-win.zip
