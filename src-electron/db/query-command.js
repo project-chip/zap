@@ -571,6 +571,7 @@ async function selectAllIncomingOrOutgoingCommandsForCluster(
       isFabricScoped: dbApi.fromDbBool(x.IS_FABRIC_SCOPED),
       responseName: x.RESPONSE_NAME,
       responseRef: x.RESPONSE_REF,
+      hasSpecificResponse: x.RESPONSE_REF ? 1 : 0,
       incoming: x.INCOMING,
       outgoing: x.OUTGOING,
       mfgCommandCount: x.MANUFACTURING_SPECIFIC_COMMAND_COUNT,
