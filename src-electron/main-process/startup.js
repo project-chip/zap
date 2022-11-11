@@ -335,6 +335,7 @@ async function startRegenerateSdk(argv, options) {
             backup: false,
             genResultFile: false,
             skipPostGeneration: false,
+            appendGenerationSubdirectory: argv.appendGenerationSubdirectory,
           }
         )
       }
@@ -592,6 +593,7 @@ async function startGeneration(argv, options) {
   options.genResultFile = genResultFile
   options.skipPostGeneration = skipPostGeneration
   options.postImportScript = argv.postImportScript
+  options.appendGenerationSubdirectory = argv.appendGenerationSubdirectory
 
   let nsDuration = process.hrtime.bigint() - hrstart
   options.logger(`🕐 Setup time: ${util.duration(nsDuration)} `)

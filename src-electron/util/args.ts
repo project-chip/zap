@@ -213,6 +213,11 @@ export function processCommandLineArguments(argv: string[]) {
       type: 'boolean',
       default: false,
     })
+    .option('appendGenerationSubdirectory', {
+      desc: 'If you specify package option generator/appendDirectory it will be used as a appended directory to specified generation directory.',
+      type: 'boolean',
+      default: false,
+    })
     .option('results', {
       desc: 'Specifying the output YAML file to capture convert results.',
       type: 'string',
