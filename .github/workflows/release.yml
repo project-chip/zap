@@ -1,5 +1,8 @@
 name: Build and release packages
 
+permissions:
+  contents: write
+
 on:
   push:
   pull_request:
