@@ -218,7 +218,15 @@ async function asJavaType(type, zclType, cluster, options) {
       cluster
     )}Cluster${appHelper.asUpperCamelCase(type)}`;
   } else {
-    classType += asJavaBoxedType(type, zclType);
+    let boxedType = asJavaBoxedType(type, zclType);
+    if (boxedType == 'Object') {
+      boxedType = await zclHelper.as_underlying_language_specific_zcl_type_util(
+        type,
+        { hash: { language: 'java' } },
+        this
+      );
+    }
+    classType += boxedType;
   }
 
   if (!options.hash.underlyingType) {

@@ -2862,10 +2862,21 @@ async function as_underlying_java_type_for_zcl_type(
   }
 }
 
+/**
+ * See as_underlying_language_specific_zcl_type_util
+ * @param {*} type
+ * @param {*} options
+ * @returns Underlying language specific data type for a given zcl data type
+ */
+async function as_underlying_language_specific_zcl_type(type, options) {
+  return as_underlying_language_specific_zcl_type_util(type, options, this)
+}
+
 /*
  *
  * @param {*} type
  * @param {*} options
+ * @param {*} context
  * @returns the size of of the zcl type with cutsomizations through options
  * Available Options:
  * - language: Specify the language of return for eg c, python, etc
@@ -2878,12 +2889,16 @@ async function as_underlying_java_type_for_zcl_type(
  * - unSignedPostfix: Use this postfix instead of the postfix mentioned when it is a signed zcl type
  * - All other options passed to this helper are considered as overrides for
  * zcl types
- * for eg: (get_underlying_language_specific_zcl_type single="float") will return the zcl
+ * for eg: (as_underlying_language_specific_zcl_type single="float") will return the zcl
  * data type "float" for "single"
  * Note: "single" is an exception here
  *
  */
-async function get_underlying_language_specific_zcl_type(type, options) {
+async function as_underlying_language_specific_zcl_type_util(
+  type,
+  options,
+  context
+) {
   let hash = options.hash
   let prefix = hash && hash.prefix ? hash.prefix : ''
   let signedPrefix = hash && hash.signedPrefix ? hash.signedPrefix : ''
@@ -2897,9 +2912,9 @@ async function get_underlying_language_specific_zcl_type(type, options) {
   }
 
   // Get ZCL Data Type from the db
-  const packageIds = await templateUtil.ensureZclPackageIds(this)
+  const packageIds = await templateUtil.ensureZclPackageIds(context)
   let dataType = await queryZcl.selectDataTypeByName(
-    this.global.db,
+    context.global.db,
     type,
     packageIds
   )
@@ -2910,7 +2925,7 @@ async function get_underlying_language_specific_zcl_type(type, options) {
 
   if (dataType) {
     // Overwrite any type with the one coming from the template options
-    // Eg: {{get_underlying_language_specific_zcl_type type boolean='bool'}}
+    // Eg: {{as_underlying_language_specific_zcl_type type boolean='bool'}}
     // Here all types named 'boolean' will return 'bool'
     if (type in hash) {
       return hash[type]
@@ -2921,7 +2936,7 @@ async function get_underlying_language_specific_zcl_type(type, options) {
         type,
         dataType,
         packageIds,
-        this
+        context
       )
     } else if (hash.language == 'python') {
       // Language Specific: Python
@@ -2930,7 +2945,7 @@ async function get_underlying_language_specific_zcl_type(type, options) {
       return as_underlying_Objective_C_Class_type_for_zcl_type(
         type,
         dataType,
-        this,
+        context,
         options
       )
     } else if (hash.language == 'c++' || hash.language == 'objectiveC') {
@@ -2942,7 +2957,7 @@ async function get_underlying_language_specific_zcl_type(type, options) {
           return 'OctetString'
         } else if (characterStringTypes.includes(type.toUpperCase())) {
           return 'CharString'
-        } else if (this.isArray) {
+        } else if (context.isArray) {
           return 'List'
         }
       } else if (dataType.name.includes('float')) {
@@ -2956,7 +2971,7 @@ async function get_underlying_language_specific_zcl_type(type, options) {
           type,
           dataType,
           packageIds,
-          this
+          context
         )
         result = sizeAndSign.size
         isSigned = sizeAndSign.isSigned
@@ -3171,5 +3186,7 @@ exports.as_type_max_value = as_type_max_value
 exports.as_type_min_value = as_type_min_value
 exports.as_zcl_type_size = as_zcl_type_size
 exports.if_compare = if_compare
-exports.get_underlying_language_specific_zcl_type =
-  get_underlying_language_specific_zcl_type
+exports.as_underlying_language_specific_zcl_type =
+  as_underlying_language_specific_zcl_type
+exports.as_underlying_language_specific_zcl_type_util =
+  as_underlying_language_specific_zcl_type_util
