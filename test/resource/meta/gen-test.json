@@ -3,6 +3,11 @@
   "version": "meta-test",
   "helpers": ["meta-helper"],
   "categories": ["meta"],
+  "options": {
+    "generator": {
+      "appendDirectory": "zap-generated"
+    }
+  },
   "templates": [
     {
       "path": "test1.zapt",
