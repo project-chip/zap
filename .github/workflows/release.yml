@@ -238,8 +238,6 @@ jobs:
       - uses: actions/download-artifact@v3
       - name: List downloaded files
         run: ls -R
-      - name: List unzipped files
-        run: ls -R
       - name: Creating Github Release
         uses: softprops/action-gh-release@v1
         with:
