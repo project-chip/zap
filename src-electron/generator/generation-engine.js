@@ -501,6 +501,11 @@ async function loadTemplates(
     let ctx = await loadSingleTemplate(db, genTemplatesJsonArray)
     ctx.packageIds = [ctx.packageId]
     return ctx
+  } else {
+    // We didn't load anything, we don't return anything.
+    return {
+      nop: true,
+    }
   }
 }
 
@@ -847,7 +852,6 @@ async function generateAndWriteFiles(
     appendedPath = templateGeneratorOptions.appendDirectory
   }
 
-  console.log(`Appended path: ${appendedPath}`)
   if (appendedPath != null) {
     outputDirectory = path.join(outputDirectory, appendedPath)
   }

@@ -469,7 +469,9 @@ async function startSelfCheck(
       failOnLoadingError: !argv.noLoadingFailure,
     }
   )
-  if (ctx.error) {
+  if (ctx.nop) {
+    options.logger(`    👉 no generation template packages loaded`)
+  } else if (ctx.error) {
     options.logger(`    ⚠️  ${ctx.error}`)
   } else {
     options.logger(
