@@ -204,6 +204,7 @@ async function startConvert(argv, options) {
     let importResult = await importJs.importDataFromFile(db, singlePath, {
       defaultZclMetafile: argv.zclProperties,
       postImportScript: argv.postImportScript,
+      fuzzyPackageMatch: argv.fuzzyPackageMatch,
     })
 
     let sessionId = importResult.sessionId
@@ -373,6 +374,7 @@ async function startAnalyze(argv, options) {
       .importDataFromFile(db, singlePath, {
         defaultZclMetafile: argv.zclProperties,
         postImportScript: argv.postImportScript,
+        fuzzyPackageMatch: argv.fuzzyPackageMatch,
       })
       .then((importResult) => util.sessionReport(db, importResult.sessionId))
       .then((report) => {
@@ -496,6 +498,7 @@ async function generateSingleFile(
     zcl: env.builtinSilabsZclMetafile(),
     template: env.builtinTemplateMetafile(),
     postImportScript: null,
+    fuzzyPackageMatch: true,
   }
 ) {
   let hrstart = process.hrtime.bigint()
@@ -510,6 +513,7 @@ async function generateSingleFile(
     let importResult = await importJs.importDataFromFile(db, f, {
       defaultZclMetafile: options.zcl,
       postImportScript: options.postImportScript,
+      fuzzyPackageMatch: options.fuzzyPackageMatch,
     })
     sessionId = importResult.sessionId
     output = outputFile(f, outputPattern, index)
@@ -594,6 +598,7 @@ async function startGeneration(argv, options) {
   options.skipPostGeneration = skipPostGeneration
   options.postImportScript = argv.postImportScript
   options.appendGenerationSubdirectory = argv.appendGenerationSubdirectory
+  options.fuzzyPackageMatch = argv.fuzzyPackageMatch
 
   let nsDuration = process.hrtime.bigint() - hrstart
   options.logger(`🕐 Setup time: ${util.duration(nsDuration)} `)

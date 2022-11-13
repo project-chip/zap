@@ -85,6 +85,7 @@ async function importDataFromFile(
     sessionId: null,
     defaultZclMetafile: env.builtinSilabsZclMetafile(),
     postImportScript: null,
+    fuzzyPackageMatch: true,
   }
 ) {
   try {

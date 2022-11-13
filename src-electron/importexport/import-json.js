@@ -71,7 +71,7 @@ async function autoLoadPackage(db, pkg, absPath) {
 // Resolves into a { packageId:, packageType:}
 // object, pkg has`path`, `version`, `type`. It can ALSO have pathRelativity. If pathRelativity is missing
 // path is considered absolute.
-async function importSinglePackage(db, sessionId, pkg, zapFilePath) {
+async function importSinglePackage(db, pkg, zapFilePath) {
   let autoloading = false
   let absPath = getPkgPath(pkg, zapFilePath)
   let pkgId = await queryPackage.getPackageIdByPathAndTypeAndVersion(
@@ -196,9 +196,8 @@ async function importSinglePackage(db, sessionId, pkg, zapFilePath) {
 }
 
 // Resolves an array of { packageId:, packageType:} objects into { zclPackageId: id, templateIds: [] }
-function convertPackageResult(sessionId, data) {
+function convertPackageResult(data) {
   let ret = {
-    sessionId: sessionId,
     zclPackageId: null,
     templateIds: [],
     optionalIds: [],
@@ -217,16 +216,16 @@ function convertPackageResult(sessionId, data) {
 }
 
 // Returns a promise that resolves into an object containing: packageId and otherIds
-async function importPackages(db, sessionId, packages, zapFilePath) {
+async function importPackages(db, packages, zapFilePath) {
   let allQueries = []
   if (packages != null) {
     env.logDebug(`Loading ${packages.length} packages`)
     packages.forEach((p) => {
-      allQueries.push(importSinglePackage(db, sessionId, p, zapFilePath))
+      allQueries.push(importSinglePackage(db, p, zapFilePath))
     })
   }
   let data = await Promise.all(allQueries)
-  return convertPackageResult(sessionId, data)
+  return convertPackageResult(data)
 }
 
 async function importEndpointTypes(
@@ -354,10 +353,10 @@ async function jsonDataLoader(db, state, sessionId) {
   )
   let mainPackageData = await importPackages(
     db,
-    sessionId,
     topLevelPackages,
     state.filePath
   )
+  mainPackageData.sessionId = sessionId
 
   let mainPackagePromise = []
   mainPackagePromise.push(
@@ -429,10 +428,10 @@ async function jsonDataLoader(db, state, sessionId) {
 
   let standAlonePackageData = await importPackages(
     db,
-    sessionId,
     zclXmlStandAlonePackages,
     state.filePath
   )
+  standAlonePackageData.sessionId = sessionId
 
   // packageData: { sessionId, packageId, otherIds, optionalIds}
   let optionalPackagePromises = []

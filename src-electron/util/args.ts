@@ -218,6 +218,11 @@ export function processCommandLineArguments(argv: string[]) {
       type: 'boolean',
       default: false,
     })
+    .option('fuzzyPackageMatch', {
+      desc: 'Zap files list specific packages and not finding them is an error. With fuzzy match, you can make zap use the pre-loaded packages as a backup instead of a hard error.',
+      type: 'boolean',
+      default: true,
+    })
     .option('results', {
       desc: 'Specifying the output YAML file to capture convert results.',
       type: 'string',

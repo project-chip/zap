@@ -128,12 +128,6 @@ async function loadZcl(db, metadataFile) {
  * @param {*} sessionId Current session within which we're loading this file.
  */
 async function loadIndividualFile(db, filePath, sessionId) {
-  let zclPropertiesPackages = await queryPackage.getSessionPackagesByType(
-    db,
-    sessionId,
-    dbEnum.packageType.zclProperties
-  )
-
   let ext = path.extname(filePath)
   if (ext == '.xml') {
     return sLoad.loadIndividualSilabsFile(db, filePath, sessionId)
