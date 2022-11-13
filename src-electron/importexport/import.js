@@ -28,6 +28,7 @@ const dbApi = require('../db/db-api.js')
 const querySession = require('../db/query-session.js')
 const env = require('../util/env')
 const script = require('../util/script')
+const dbEnum = require('../../src-shared/db-enum')
 
 /**
  * Reads the data from the file and resolves with the state object if all is good.
@@ -85,7 +86,7 @@ async function importDataFromFile(
     sessionId: null,
     defaultZclMetafile: env.builtinSilabsZclMetafile(),
     postImportScript: null,
-    fuzzyPackageMatch: true,
+    packageMatch: dbEnum.packageMatch.fuzzy,
   }
 ) {
   try {
@@ -97,7 +98,7 @@ async function importDataFromFile(
     } else {
       sid = options.sessionId
     }
-    let loaderResult = await state.loader(db, state, sid)
+    let loaderResult = await state.loader(db, state, sid, options.packageMatch)
     if (options.postImportScript != null) {
       await executePostImportScript(
         db,

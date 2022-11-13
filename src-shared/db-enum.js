@@ -176,3 +176,8 @@ exports.helperCategory = {
   matter: 'matter',
   meta: 'meta',
 }
+
+exports.packageMatch = {
+  fuzzy: 'fuzzy',
+  strict: 'strict',
+}

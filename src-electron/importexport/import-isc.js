@@ -638,7 +638,7 @@ async function loadSessionKeyValues(db, sessionId, keyValues) {
  * @param {*} state
  * @param {*} sessionId
  */
-async function iscDataLoader(db, state, sessionId) {
+async function iscDataLoader(db, state, sessionId, packageMatch) {
   let endpointTypes = state.endpointTypes
   let promises = []
   await notification.setNotification(

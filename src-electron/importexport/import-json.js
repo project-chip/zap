@@ -71,7 +71,7 @@ async function autoLoadPackage(db, pkg, absPath) {
 // Resolves into a { packageId:, packageType:}
 // object, pkg has`path`, `version`, `type`. It can ALSO have pathRelativity. If pathRelativity is missing
 // path is considered absolute.
-async function importSinglePackage(db, pkg, zapFilePath) {
+async function importSinglePackage(db, pkg, zapFilePath, packageMatch) {
   let autoloading = false
   let absPath = getPkgPath(pkg, zapFilePath)
   let pkgId = await queryPackage.getPackageIdByPathAndTypeAndVersion(
@@ -216,12 +216,12 @@ function convertPackageResult(data) {
 }
 
 // Returns a promise that resolves into an object containing: packageId and otherIds
-async function importPackages(db, packages, zapFilePath) {
+async function importPackages(db, packages, zapFilePath, packageMatch) {
   let allQueries = []
   if (packages != null) {
     env.logDebug(`Loading ${packages.length} packages`)
     packages.forEach((p) => {
-      allQueries.push(importSinglePackage(db, p, zapFilePath))
+      allQueries.push(importSinglePackage(db, p, zapFilePath, packageMatch))
     })
   }
   let data = await Promise.all(allQueries)
@@ -341,9 +341,10 @@ async function importEndpointTypes(
  * @param {*} sessionId If null, then new session will get
  *              created, otherwise it loads the data into an
  *              existing session. Previous session data is not deleted.
+ * @param {*} packageMatch One of the package match strategies. See dbEnum.packageMatch
  * @returns a promise that resolves into a sessionId that was created.
  */
-async function jsonDataLoader(db, state, sessionId) {
+async function jsonDataLoader(db, state, sessionId, packageMatch) {
   // Loading all packages before custom xml to make sure clusterExtensions are
   // handled properly
   let topLevelPackages = state.package.filter(
@@ -354,7 +355,8 @@ async function jsonDataLoader(db, state, sessionId) {
   let mainPackageData = await importPackages(
     db,
     topLevelPackages,
-    state.filePath
+    state.filePath,
+    packageMatch
   )
   mainPackageData.sessionId = sessionId
 
@@ -429,7 +431,8 @@ async function jsonDataLoader(db, state, sessionId) {
   let standAlonePackageData = await importPackages(
     db,
     zclXmlStandAlonePackages,
-    state.filePath
+    state.filePath,
+    packageMatch
   )
   standAlonePackageData.sessionId = sessionId
 
