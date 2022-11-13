@@ -52,7 +52,7 @@ if (cypressMode == '-?') {
 let svrCmd
 let fixturesConfig
 if (testsType == 'zigbee') {
-  svrCmd = 'zap-devserver'
+  svrCmd = 'zigbeezap-devserver'
   fixturesConfig = ''
 } else if (testsType == 'matter') {
   svrCmd = 'matterzap-devserver'
