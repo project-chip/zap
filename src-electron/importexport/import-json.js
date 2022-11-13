@@ -57,10 +57,22 @@ function getPkgPath(pkg, zapFilePath) {
   }
 }
 
+// AutoLoad package. If succesful it returns an object:
+//  {
+//      packageId: <pkgId>
+//      packageType: <type>
+// }
+async function autoLoadPackage(db, pkg, absPath) {
+  console.log(`Autoload package: ${absPath}`)
+  console.log(pkg)
+  throw new Error('Not implemented.')
+}
+
 // Resolves into a { packageId:, packageType:}
 // object, pkg has`path`, `version`, `type`. It can ALSO have pathRelativity. If pathRelativity is missing
 // path is considered absolute.
 async function importSinglePackage(db, sessionId, pkg, zapFilePath) {
+  let autoloading = false
   let absPath = getPkgPath(pkg, zapFilePath)
   let pkgId = await queryPackage.getPackageIdByPathAndTypeAndVersion(
     db,
@@ -74,6 +86,18 @@ async function importSinglePackage(db, sessionId, pkg, zapFilePath) {
     return {
       packageId: pkgId,
       packageType: pkg.type,
+    }
+  }
+
+  // No perfect match.
+  // We will attempt to simply load up the package as it is listed in the file.
+  if (autoloading) {
+    try {
+      let retValue = await autoLoadPackage(db, pkg, absPath)
+      return retValue
+    } catch (err) {
+      console.log('FAILED TO AUTO-LOAD PACKAGE!!!')
+      console.log(err)
     }
   }
 
@@ -323,13 +347,15 @@ async function importEndpointTypes(
 async function jsonDataLoader(db, state, sessionId) {
   // Loading all packages before custom xml to make sure clusterExtensions are
   // handled properly
-  let mainPackages = state.package.filter(
-    (pkg) => pkg.type != dbEnum.packageType.zclXmlStandalone
+  let topLevelPackages = state.package.filter(
+    (pkg) =>
+      pkg.type == dbEnum.packageType.zclProperties ||
+      pkg.type == dbEnum.packageType.genTemplatesJson
   )
   let mainPackageData = await importPackages(
     db,
     sessionId,
-    mainPackages,
+    topLevelPackages,
     state.filePath
   )
 

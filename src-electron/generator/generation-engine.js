@@ -484,6 +484,7 @@ async function loadTemplates(
     }
     if (genTemplatesJsonArray != null && genTemplatesJsonArray.length > 0) {
       for (let jsonFile of genTemplatesJsonArray) {
+        if (jsonFile == null || jsonFile == '') continue
         let ctx = await loadSingleTemplate(db, jsonFile)
         if (ctx.error) {
           if (options.failOnLoadingError) globalCtx.error = ctx.error
@@ -496,7 +497,7 @@ async function loadTemplates(
       }
     }
     return globalCtx
-  } else {
+  } else if (genTemplatesJsonArray != null) {
     let ctx = await loadSingleTemplate(db, genTemplatesJsonArray)
     ctx.packageIds = [ctx.packageId]
     return ctx
