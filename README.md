@@ -4,12 +4,11 @@
 
 ![Generation and back-end tests](https://github.com/project-chip/zap/workflows/Generation%20and%20back-end%20tests/badge.svg)
 ![Cypress UI tests](https://github.com/project-chip/zap/workflows/Cypress%20UI%20tests/badge.svg)
-![SonarCloud scan](https://github.com/project-chip/zap/workflows/SonarCloud/badge.svg)
 ![Build and release](https://github.com/project-chip/zap/workflows/Build%20&%20Release/badge.svg)
 
 ## What is ZAP?
 
-ZAP is a generic generation engine and user interface for applications and libraries based on [Zigbee Cluster Library](https://zigbeealliance.org/developer_resources/zigbee-cluster-library/), the specification developed by the [Zigbee Alliance](https://zigbeealliance.org/).
+ZAP is a generic generation engine and user interface for applications and libraries based on Zigbee Cluster Library, the specification developed by the [Connectivity Standards Alliance](https://csa-iot.org/).
 
 ZAP allows you to perform the following:
 
