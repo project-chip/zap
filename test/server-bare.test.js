@@ -209,21 +209,17 @@ describe('Session specific tests', () => {
   // We save and then load, which creates a new session.
   test(
     'save into a file and load from file',
-    () => {
+    async () => {
       let f = path.join(env.appDirectory(), 'test-output.json')
       if (fs.existsSync(f)) fs.unlinkSync(f)
       expect(fs.existsSync(f)).toBeFalsy()
-      return exportJs
-        .exportDataIntoFile(db, sessionId, f)
-        .then(() => {
-          expect(fs.existsSync(f)).toBeTruthy()
-        })
-        .then(() => importJs.importDataFromFile(db, f))
-        .then((importResult) => {
-          secondSessionId = importResult.sessionId
-          fs.unlinkSync(f)
-          return Promise.resolve(1)
-        })
+      await exportJs.exportDataIntoFile(db, sessionId, f)
+      expect(fs.existsSync(f)).toBeTruthy()
+      let importResult = await importJs.importDataFromFile(db, f, {
+        packageMatch: dbEnum.packageMatch.ignore,
+      })
+      secondSessionId = importResult.sessionId
+      fs.unlinkSync(f)
     },
     testUtil.timeout.medium()
   )

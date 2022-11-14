@@ -178,6 +178,7 @@ exports.helperCategory = {
 }
 
 exports.packageMatch = {
-  fuzzy: 'fuzzy',
-  strict: 'strict',
+  fuzzy: 'fuzzy', // This mechanism will attempt to match the ones from zap file, then give up and do fuzzy match if it fails.
+  strict: 'strict', // This mechanism will ONLY use the records of packages in the .zap file.
+  ignore: 'ignore', // This mechanism will completely ignore the use of packages in the .zap file.
 }
