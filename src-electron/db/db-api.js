@@ -114,6 +114,16 @@ async function dbCommit(db) {
 }
 
 /**
+ * Not an async function, simply returns a boolean value whether
+ * there is a currently active transaction.
+ *
+ * @returns true if transaction is active, false if not.
+ */
+function isTransactionActive() {
+  return inTransaction
+}
+
+/**
  * Returns a promise to execute a rollback of a transaction.
  *
  * @export
@@ -578,6 +588,7 @@ function toInClause(value) {
 
 exports.dbBeginTransaction = dbBeginTransaction
 exports.dbCommit = dbCommit
+exports.isTransactionActive = isTransactionActive
 exports.dbRollback = dbRollback
 exports.dbRemove = dbRemove
 exports.dbUpdate = dbUpdate

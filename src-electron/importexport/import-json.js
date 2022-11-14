@@ -22,6 +22,7 @@ const queryPackage = require('../db/query-package.js')
 const queryImpexp = require('../db/query-impexp.js')
 const querySession = require('../db/query-session.js')
 const zclLoader = require('../zcl/zcl-loader.js')
+const generationEngine = require('../generator/generation-engine')
 
 /**
  * Resolves with a promise that imports session key values.
@@ -63,16 +64,33 @@ function getPkgPath(pkg, zapFilePath) {
 //      packageType: <type>
 // }
 async function autoLoadPackage(db, pkg, absPath) {
-  console.log(`Autoload package: ${absPath}`)
-  console.log(pkg)
-  throw new Error('Not implemented.')
+  if (pkg.type === dbEnum.packageType.zclProperties) {
+    let ctx = await zclLoader.loadZcl(db, absPath)
+    return {
+      packageId: ctx.packageId,
+      packageType: pkg.type,
+    }
+  } else if (pkg.type === dbEnum.packageType.genTemplatesJson) {
+    let ctx = await generationEngine.loadTemplates(db, [absPath], {
+      failOnLoadingError: true,
+    })
+    if (ctx.error) throw new Error(ctx.error)
+    return {
+      packageId: ctx.packageId,
+      packageType: pkg.type,
+    }
+  } else {
+    throw new Error(
+      `Auto-loading of package type "${pkg.type}" is not implemented.`
+    )
+  }
 }
 
 // Resolves into a { packageId:, packageType:}
 // object, pkg has`path`, `version`, `type`. It can ALSO have pathRelativity. If pathRelativity is missing
 // path is considered absolute.
 async function importSinglePackage(db, pkg, zapFilePath, packageMatch) {
-  let autoloading = false
+  let autoloading = true
   let absPath = getPkgPath(pkg, zapFilePath)
   let pkgId = await queryPackage.getPackageIdByPathAndTypeAndVersion(
     db,
@@ -92,13 +110,7 @@ async function importSinglePackage(db, pkg, zapFilePath, packageMatch) {
   // No perfect match.
   // We will attempt to simply load up the package as it is listed in the file.
   if (autoloading) {
-    try {
-      let retValue = await autoLoadPackage(db, pkg, absPath)
-      return retValue
-    } catch (err) {
-      console.log('FAILED TO AUTO-LOAD PACKAGE!!!')
-      console.log(err)
-    }
+    return await autoLoadPackage(db, pkg, absPath)
   }
 
   // Now we have to perform the guessing logic.

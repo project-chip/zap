@@ -176,34 +176,32 @@ async function initializeSessionPackage(
     promises.push(genTemplateJsonPromise)
   }
 
-  return Promise.all(promises)
-    .then(() => queryPackage.getSessionPackages(db, sessionId))
-    .then((packages) => {
-      let p = packages.map((pkg) =>
-        queryPackage
-          .selectAllDefaultOptions(db, pkg.packageRef)
-          .then((optionDefaultsArray) =>
-            Promise.all(
-              optionDefaultsArray.map((optionDefault) => {
-                return queryPackage
-                  .selectOptionValueByOptionDefaultId(
-                    db,
-                    optionDefault.optionRef
-                  )
-                  .then((option) => {
-                    return querySession.insertSessionKeyValue(
-                      db,
-                      sessionId,
-                      option.optionCategory,
-                      option.optionCode
-                    )
-                  })
+  await Promise.all(promises)
+
+  let packages = await queryPackage.getSessionPackagesWithTypes(db, sessionId)
+  let p = packages.map((pkg) =>
+    queryPackage
+      .selectAllDefaultOptions(db, pkg.packageRef)
+      .then((optionDefaultsArray) =>
+        Promise.all(
+          optionDefaultsArray.map((optionDefault) => {
+            return queryPackage
+              .selectOptionValueByOptionDefaultId(db, optionDefault.optionRef)
+              .then((option) => {
+                return querySession.insertSessionKeyValue(
+                  db,
+                  sessionId,
+                  option.optionCategory,
+                  option.optionCode
+                )
               })
-            )
-          )
+          })
+        )
       )
-      return Promise.all(p).then(() => packages)
-    })
+  )
+
+  await Promise.all(p)
+  return packages
 }
 
 /**

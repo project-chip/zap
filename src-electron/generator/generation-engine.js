@@ -525,6 +525,7 @@ async function loadSingleTemplate(db, genTemplatesJson) {
     env.logWarning(context.error)
     return Promise.resolve(context)
   }
+  let isTransactionAlreadyExisting = dbApi.isTransactionActive()
 
   let file = path.resolve(genTemplatesJson)
   if (!fs.existsSync(file)) {
@@ -533,7 +534,7 @@ async function loadSingleTemplate(db, genTemplatesJson) {
     return context
   }
   context.path = file
-  await dbApi.dbBeginTransaction(db)
+  if (!isTransactionAlreadyExisting) await dbApi.dbBeginTransaction(db)
   try {
     context = await loadGenTemplate(context)
     context = await recordTemplatesPackage(context)
@@ -542,7 +543,7 @@ async function loadSingleTemplate(db, genTemplatesJson) {
     env.logInfo(`Can not read templates from: ${context.file}`)
     throw err
   } finally {
-    dbApi.dbCommit(db)
+    if (!isTransactionAlreadyExisting) await dbApi.dbCommit(db)
   }
 }
 

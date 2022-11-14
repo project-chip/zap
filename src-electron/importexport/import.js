@@ -108,7 +108,7 @@ async function importDataFromFile(
     }
     return loaderResult
   } finally {
-    dbApi.dbCommit(db)
+    await dbApi.dbCommit(db)
   }
 }
 

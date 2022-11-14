@@ -491,8 +491,8 @@ async function startSelfCheck(
 
 async function generateSingleFile(
   db,
-  f,
-  templatePackageId,
+  zapFile,
+  templatePackageId, // This may be null if none is preloaded.
   outputPattern,
   index,
   options = {
@@ -506,23 +506,29 @@ async function generateSingleFile(
   let hrstart = process.hrtime.bigint()
   let sessionId
   let output
-  if (f === BLANK_SESSION) {
+  if (zapFile === BLANK_SESSION) {
     options.logger(`👉 using empty configuration`)
     sessionId = await querySession.createBlankSession(db)
     output = outputPattern
   } else {
-    options.logger(`👉 using input file: ${f}`)
-    let importResult = await importJs.importDataFromFile(db, f, {
+    options.logger(`👉 using input file: ${zapFile}`)
+    let importResult = await importJs.importDataFromFile(db, zapFile, {
       defaultZclMetafile: options.zcl,
       postImportScript: options.postImportScript,
       packageMatch: options.packageMatch,
     })
     sessionId = importResult.sessionId
-    output = outputFile(f, outputPattern, index)
+    output = outputFile(zapFile, outputPattern, index)
   }
   options.logger(`👉 using output destination: ${output}`)
 
-  await util.initializeSessionPackage(db, sessionId, options)
+  let sessPkg = await util.initializeSessionPackage(db, sessionId, options)
+  let usedTemplatePackageId = templatePackageId
+  for (let pkg of sessPkg) {
+    if (pkg.type === dbEnum.packageType.genTemplatesJson) {
+      usedTemplatePackageId = pkg.packageRef
+    }
+  }
 
   let nsDuration = process.hrtime.bigint() - hrstart
   options.logger(`🕐 File loading time: ${util.duration(nsDuration)}`)
@@ -531,14 +537,14 @@ async function generateSingleFile(
   let genResult = await generatorEngine.generateAndWriteFiles(
     db,
     sessionId,
-    templatePackageId,
+    usedTemplatePackageId,
     output,
     options
   )
 
   if (genResult.hasErrors) {
     console.log(JSON.stringify(genResult.errors))
-    throw new Error(`Generation failed: ${f}`)
+    throw new Error(`Generation failed: ${zapFile}`)
   }
 
   return genResult
@@ -585,7 +591,7 @@ async function startGeneration(argv, options) {
     throw ctx.error
   }
 
-  let packageId = ctx.packageId
+  let globalTemplatePackageId = ctx.packageId
 
   let files = gatherFiles(zapFiles, { suffix: '.zap', doBlank: true })
   if (files.length == 0) {
@@ -606,7 +612,14 @@ async function startGeneration(argv, options) {
   options.logger(`🕐 Setup time: ${util.duration(nsDuration)} `)
 
   await util.executePromisesSequentially(files, (f, index) =>
-    generateSingleFile(mainDb, f, packageId, output, index, options)
+    generateSingleFile(
+      mainDb,
+      f,
+      globalTemplatePackageId,
+      output,
+      index,
+      options
+    )
   )
 
   if (options.quitFunction != null) options.quitFunction()

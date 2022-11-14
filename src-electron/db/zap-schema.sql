@@ -1118,16 +1118,15 @@ CREATE TABLE IF NOT EXISTS "SETTING" (
   UNIQUE(CATEGORY, KEY)
 );
 /*
-  Session Notification table
-*/
-
- CREATE TABLE IF NOT EXISTS "SESSION_NOTICE" (
-   "SESSION_REF" integer,
-   "NOTICE_TYPE" text,
-   "NOTICE_MESSAGE" text,
-   "NOTICE_SEVERITY" integer,
-   "NOTICE_ORDER"  integer primary key autoincrement,
-   "DISPLAY" integer,
-   foreign key (SESSION_REF) references SESSION(SESSION_ID) on delete cascade
- );
+ Session Notification table
+ */
+CREATE TABLE IF NOT EXISTS "SESSION_NOTICE" (
+  "SESSION_REF" integer,
+  "NOTICE_TYPE" text,
+  "NOTICE_MESSAGE" text,
+  "NOTICE_SEVERITY" integer,
+  "NOTICE_ORDER" integer primary key autoincrement,
+  "DISPLAY" integer,
+  foreign key (SESSION_REF) references SESSION(SESSION_ID) on delete cascade
+);
 /* EO SCHEMA */

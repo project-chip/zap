@@ -449,6 +449,35 @@ async function getSessionPackages(db, sessionId) {
 }
 
 /**
+ * Returns the session package IDs with types.
+ * @param {*} db
+ * @param {*} sessionId
+ * @returns The promise that resolves into an array of package IDs.
+ */
+async function getSessionPackagesWithTypes(db, sessionId) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT 
+  SP.PACKAGE_REF,
+  SP.SESSION_REF,
+  SP.REQUIRED,
+  P.TYPE
+FROM 
+  SESSION_PACKAGE AS SP
+INNER JOIN 
+  PACKAGE AS P
+ON 
+  SP.PACKAGE_REF = P.PACKAGE_ID
+WHERE 
+  SP.SESSION_REF = ? AND SP.ENABLED = 1`,
+      [sessionId]
+    )
+    .then((rows) => rows.map(dbMapping.map.sessionPackage))
+}
+
+/**
  * Returns all packages associated w/ a given sessionId
  * @param {*} db
  * @param {*} packageId
@@ -920,6 +949,7 @@ exports.registerTopLevelPackage = registerTopLevelPackage
 exports.updateVersion = updateVersion
 exports.insertSessionPackage = insertSessionPackage
 exports.getSessionPackages = getSessionPackages
+exports.getSessionPackagesWithTypes = getSessionPackagesWithTypes
 exports.insertOptionsKeyValues = insertOptionsKeyValues
 exports.selectAllOptionsValues = selectAllOptionsValues
 exports.selectSpecificOptionValue = selectSpecificOptionValue

@@ -505,6 +505,7 @@ exports.map = {
       packageRef: x.PACKAGE_REF,
       sessionRef: x.SESSION_REF,
       required: x.REQUIRED,
+      type: x.TYPE,
     }
   },
   sessionLog: (x) => {
