@@ -73,6 +73,7 @@ jobs:
         if: startsWith(matrix.os, 'ubuntu')
 
   generate-and-backend-tests:
+    name: Generation and back-end tests
     runs-on: ${{ matrix.os }}
 
     strategy:
