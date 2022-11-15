@@ -22,16 +22,14 @@ const path = require('path')
 const genEngine = require('../src-electron/generator/generation-engine.js')
 const env = require('../src-electron/util/env.ts')
 const dbApi = require('../src-electron/db/db-api.js')
-const queryPackage = require('../src-electron/db/query-package.js')
 const queryAttribute = require('../src-electron/db/query-attribute.js')
 const querySession = require('../src-electron/db/query-session.js')
 const queryZcl = require('../src-electron/db/query-zcl.js')
-const utilJs = require('../src-electron/util/util.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
-const helperZap = require('../src-electron/generator/helper-zap.js')
 const importJs = require('../src-electron/importexport/import.js')
 const testUtil = require('./test-util.js')
 const testQuery = require('./test-query.js')
+const dbEnum = require('../src-shared/db-enum')
 
 let db
 let templateContext
@@ -105,6 +103,7 @@ test(
 
     await importJs.importDataFromFile(db, testFile, {
       sessionId: sessionId,
+      packageMatch: dbEnum.packageMatch.ignore,
     })
 
     let genResult = await genEngine.generate(
