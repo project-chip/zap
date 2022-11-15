@@ -73,7 +73,7 @@
     "status": "node src-script/zap-start.js status --reuseZapInstance",
     "self-check": "node src-script/zap-start.js selfCheck -g ./test/gen-template/zigbee/gen-templates.json",
     "post-import": "node src-script/zap-start.js convert --postImportScript test/resource/test-script.js test/resource/three-endpoint-device.zap -o test.zap",
-    "analyze": "node src-script/zap-start.js analyze -z ./zcl-builtin/silabs/zcl.json -g ./test/gen-template/zigbee/gen-templates.json ./test/resource/three-endpoint-device.zap -o ./tmp",
+    "analyze": "node src-script/zap-start.js analyze ./test/resource/three-endpoint-device.zap",
     "version": "node src-script/zap-start.js --version",
     "metafile-check": "node src-script/zap-validate-metafiles.js",
     "test:gen": "npm run gen && npm run genmatter && npm run gendotdot && npm run genmeta && npm run genmeta2",
