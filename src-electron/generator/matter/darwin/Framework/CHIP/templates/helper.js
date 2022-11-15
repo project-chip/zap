@@ -130,6 +130,22 @@ function asObjectiveCNumberType(label, type, asLowerCased) {
   return templateUtil.templatePromise(this.global, promise);
 }
 
+const compatClusterNameMap = {
+  UnitTesting: 'TestCluster',
+};
+
+function compatClusterNameRemapping(cluster) {
+  cluster = appHelper.asUpperCamelCase(cluster, {
+    hash: { preserveAcronyms: false },
+  });
+
+  if (cluster in compatClusterNameMap) {
+    cluster = compatClusterNameMap[cluster];
+  }
+
+  return cluster;
+}
+
 async function asObjectiveCClass(type, cluster, options) {
   let pkgIds = await templateUtil.ensureZclPackageIds(this);
   let isStruct = await zclHelper
@@ -152,9 +168,14 @@ async function asObjectiveCClass(type, cluster, options) {
   }
 
   if (isStruct) {
-    return `MTR${appHelper.asUpperCamelCase(cluster, {
-      hash: { preserveAcronyms: false },
-    })}Cluster${appHelper.asUpperCamelCase(type)}`;
+    if (options.hash.compatRemapClusterName) {
+      cluster = compatClusterNameRemapping.call(this, cluster);
+    } else {
+      cluster = appHelper.asUpperCamelCase(cluster, {
+        hash: { preserveAcronyms: false },
+      });
+    }
+    return `MTR${cluster}Cluster${appHelper.asUpperCamelCase(type)}`;
   }
 
   return 'NSNumber';
@@ -262,6 +283,7 @@ exports.commandHasRequiredField = commandHasRequiredField;
 exports.objCEnumName = objCEnumName;
 exports.objCEnumItemLabel = objCEnumItemLabel;
 exports.hasArguments = hasArguments;
+exports.compatClusterNameRemapping = compatClusterNameRemapping;
 
 exports.meta = {
   category: dbEnum.helperCategory.matter,
