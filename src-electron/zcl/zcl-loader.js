@@ -21,14 +21,11 @@ const queryPackage = require('../db/query-package')
 const queryCommand = require('../db/query-command')
 const queryLoader = require('../db/query-loader')
 const dbEnum = require('../../src-shared/db-enum')
-const fsp = fs.promises
 const sLoad = require('./zcl-loader-silabs')
 const dLoad = require('./zcl-loader-dotdot')
 const queryZcl = require('../db/query-zcl')
 const queryDeviceType = require('../db/query-device-type')
 const env = require('../util/env')
-const nativeRequire = require('../util/native-require')
-const util = require('../util/util')
 
 /**
  * Records the toplevel package information and resolves into packageId
@@ -38,12 +35,13 @@ const util = require('../util/util')
  * @returns packageId
  */
 async function recordToplevelPackage(db, metadataFile, crc) {
-  return queryPackage.registerTopLevelPackage(
+  let topLevel = await queryPackage.registerTopLevelPackage(
     db,
     metadataFile,
     crc,
     dbEnum.packageType.zclProperties
   )
+  return topLevel.id
 }
 
 /**
