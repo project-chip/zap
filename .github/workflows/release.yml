@@ -107,7 +107,6 @@ jobs:
 
   build-zap:
     name: Build ZAP
-    needs: [cypress-zigbee, cypress-matter, generate-and-backend-tests]
     runs-on: ${{ matrix.os }}
 
     # Platforms to build on/for
