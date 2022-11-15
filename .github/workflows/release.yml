@@ -18,13 +18,96 @@ env:
   KEYCHAIN_PASSWORD: silabs
 
 jobs:
-  build:
+  cypress-zigbee:
+    name: Cypress UI tests with Zigbee data
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        node-version: [16.x]
+        os: [ubuntu-22.04]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3.0.0
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      - run: sudo ./src-script/install-packages-ubuntu
+      - run: sudo apt-get install --fix-missing xvfb
+      - run: npm ci
+      - run: npm run version-stamp
+      - run: npm rebuild canvas --update-binary
+      - run: npm rebuild libxmljs --update-binary
+      - run: npm run build-spa
+      - run: xvfb-run -a npm run test:e2e-ci
+
+  cypress-matter:
+    name: Cypress UI tests with Matter data
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        node-version: [16.x]
+        os: [ubuntu-22.04]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3.0.0
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      - run: sudo ./src-script/install-packages-ubuntu
+      - run: sudo apt-get install --fix-missing xvfb
+      - run: npm ci
+      - run: npm run version-stamp
+      - run: npm rebuild canvas --update-binary
+      - run: npm rebuild libxmljs --update-binary
+      - run: npm run build-spa
+      - run: xvfb-run -a npm run test:e2e-matter-ci
+
+  generate-and-backend-tests:
+    name: Generation and back-end tests
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        node-version: [16.x]
+        os: [ubuntu-22.04]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3.0.0
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      - run: sudo apt-get update
+      - run: sudo apt-get install --fix-missing libpixman-1-dev libcairo-dev libsdl-pango-dev libjpeg-dev libgif-dev libxml2-utils
+      - run: node --version
+      - run: npm --version
+      - run: npm ci
+      - run: npm run metafile-check
+      - run: npm run version-stamp
+      - run: npm rebuild canvas --update-binary
+      - run: npm rebuild libxmljs --update-binary
+      - run: npm run lic
+      - run: npm run build-spa
+      - run: npm run lint
+      - run: npm run xml-validate
+      - run: npm run self-check
+      - run: npm run test:unit
+      - run: npm run test:gen
+
+  build-zap:
+    name: Build ZAP
+    needs: [cypress-zigbee, cypress-matter, generate-and-backend-tests]
     runs-on: ${{ matrix.os }}
 
     # Platforms to build on/for
     strategy:
       matrix:
-        os: [macos-11, ubuntu-latest]
+        os: [macos-11, ubuntu-22.04]
       fail-fast: false
 
     steps:
@@ -231,9 +314,9 @@ jobs:
 
   release:
     if: startsWith(github.ref, 'refs/tags/')
-    needs: [build]
+    needs: [build-zap]
     name: Create Github Release
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/download-artifact@v3
       - name: List downloaded files
