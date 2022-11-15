@@ -58,11 +58,15 @@ function getPkgPath(pkg, zapFilePath) {
   }
 }
 
-// AutoLoad package. If succesful it returns an object:
-//  {
-//      packageId: <pkgId>
-//      packageType: <type>
-// }
+/**
+ * Auto-load package. If succesful it returns an object.
+ * Otherwise it throws an exception.
+ *
+ * @param {*} db
+ * @param {*} pkg
+ * @param {*} absPath
+ * @returns object containing packageId and packageType.
+ */
 async function autoLoadPackage(db, pkg, absPath) {
   if (pkg.type === dbEnum.packageType.zclProperties) {
     let ctx = await zclLoader.loadZcl(db, absPath)
