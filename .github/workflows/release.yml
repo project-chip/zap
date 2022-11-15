@@ -79,7 +79,7 @@ jobs:
     strategy:
       matrix:
         node-version: [16.x]
-        os: [ubuntu-latest]
+        os: [ubuntu-22.04]
 
     steps:
       - uses: actions/checkout@v3
@@ -105,7 +105,7 @@ jobs:
       - run: npm run test:unit
       - run: npm run test:gen
 
-  build:
+  build-zap:
     name: Build ZAP
     needs: [cypress-zigbee, cypress-matter, generate-and-backend-tests]
     runs-on: ${{ matrix.os }}
@@ -113,7 +113,7 @@ jobs:
     # Platforms to build on/for
     strategy:
       matrix:
-        os: [macos-11, ubuntu-latest]
+        os: [macos-11, ubuntu-22.04]
       fail-fast: false
 
     steps:
@@ -320,9 +320,9 @@ jobs:
 
   release:
     if: startsWith(github.ref, 'refs/tags/')
-    needs: [build]
+    needs: [build-zap]
     name: Create Github Release
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/download-artifact@v3
       - name: List downloaded files
