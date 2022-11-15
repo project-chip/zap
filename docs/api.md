@@ -58,6 +58,9 @@
 <dt><a href="#module_DB API_ zcl loading queries">DB API: zcl loading queries</a></dt>
 <dd><p>This module provides queries for ZCL loading</p>
 </dd>
+<dt><a href="#module_DB API_ session related queries.">DB API: session related queries.</a></dt>
+<dd><p>This module provides notification related queries.</p>
+</dd>
 <dt><a href="#module_DB API_ package-based queries.">DB API: package-based queries.</a></dt>
 <dd><p>This module provides queries related to packages.</p>
 </dd>
@@ -788,7 +791,7 @@ NOTE: This function does NOT initialize session packages.</p>
 <dt><a href="#importSessionKeyValues">importSessionKeyValues(db, sessionId, keyValuePairs)</a></dt>
 <dd><p>Resolves with a promise that imports session key values.</p>
 </dd>
-<dt><a href="#jsonDataLoader">jsonDataLoader(db, state, sessionId)</a> ⇒</dt>
+<dt><a href="#jsonDataLoader">jsonDataLoader(db, state, sessionId, packageMatch)</a> ⇒</dt>
 <dd><p>Given a state object, this method returns a promise that resolves
 with the succesfull writing into the database.</p>
 </dd>
@@ -1009,12 +1012,6 @@ and orchestrates the promise chain.</p>
 <dt><a href="#loadIndividualFile">loadIndividualFile(db, filePath, sessionId)</a></dt>
 <dd><p>Load individual custom XML files.</p>
 </dd>
-<dt><a href="#bindValidationScript">bindValidationScript(db, basePackageId)</a></dt>
-<dd><p>This function creates a validator function with signatuee fn(stringToValidateOn)</p>
-</dd>
-<dt><a href="#getSchemaAndValidationScript">getSchemaAndValidationScript(db, basePackageId)</a></dt>
-<dd><p>Returns an object with zclSchema and zclValidation elements.</p>
-</dd>
 <dt><a href="#qualifyZclFile">qualifyZclFile(db, info, parentPackageId)</a> ⇒</dt>
 <dd><p>Promises to qualify whether zcl file needs to be reloaded.
 If yes, the it will resolve with {filePath, data, packageId}
@@ -1158,9 +1155,6 @@ that will be resolved when all the XML files are done, or rejected if at least o
 <dt><a href="#parseProfilesData">parseProfilesData(db, ctx)</a> ⇒</dt>
 <dd><p>Parses the profiles xml.</p>
 </dd>
-<dt><a href="#parseZclSchema">parseZclSchema(db)</a></dt>
-<dd><p>Parses the ZCL Schema</p>
-</dd>
 <dt><a href="#parseFeatureFlags">parseFeatureFlags(db, packageId, featureFlags)</a> ⇒</dt>
 <dd><p>Inside the <code>zcl.json</code> can be a <code>featureFlags</code> key, which is
 a general purpose object. It contains keys, that map to objects.
@@ -1221,6 +1215,7 @@ This module provides generic DB functions for performing SQL queries.
 - [JS API: low level database access](#module*JS API* low level database access)
   - [~dbBeginTransaction(db)](#module*JS API* low level database access..dbBeginTransaction) ⇒
   - [~dbCommit(db)](#module*JS API* low level database access..dbCommit) ⇒
+  - [~isTransactionActive()](#module*JS API* low level database access..isTransactionActive) ⇒
   - [~dbRollback(db)](#module*JS API* low level database access..dbRollback) ⇒
   - [~dbRemove(db, query, args)](#module*JS API* low level database access..dbRemove) ⇒
   - [~dbUpdate(db, query, args)](#module*JS API* low level database access..dbUpdate) ⇒
@@ -1277,6 +1272,15 @@ Returns a promise to execute a commit.
 | ----- | --------------- |
 | db    | <code>\*</code> |
 
+<a name="module_JS API_ low level database access..isTransactionActive"></a>
+
+### JS API: low level database access~isTransactionActive() ⇒
+
+Not an async function, simply returns a boolean value whether
+there is a currently active transaction.
+
+**Kind**: inner method of [<code>JS API: low level database access</code>](#module*JS API* low level database access)  
+**Returns**: true if transaction is active, false if not.  
 <a name="module_JS API_ low level database access..dbRollback"></a>
 
 ### JS API: low level database access~dbRollback(db) ⇒
@@ -4254,6 +4258,12 @@ Insert all Struct items into the Struct Item Table.
 | packageIds | <code>\*</code> |
 | data       | <code>\*</code> |
 
+<a name="module_DB API_ session related queries."></a>
+
+## DB API: session related queries.
+
+This module provides notification related queries.
+
 <a name="module_DB API_ package-based queries."></a>
 
 ## DB API: package-based queries.
@@ -5845,11 +5855,12 @@ Query for attributes by side.
 ## JS API: generator logic
 
 - [JS API: generator logic](#module*JS API* generator logic)
-  - [~loadGenTemplate()](#module*JS API* generator logic..loadGenTemplate) ⇒
+  - [~loadGenTemplateFromFile(path)](#module*JS API* generator logic..loadGenTemplateFromFile) ⇒
   - [~recordTemplatesPackage(context)](#module*JS API* generator logic..recordTemplatesPackage) ⇒
   - [~decodePackageExtensionEntity(entityType, entity)](#module*JS API* generator logic..decodePackageExtensionEntity) ⇒
   - [~loadZclExtensions(zclExt)](#module*JS API* generator logic..loadZclExtensions) ⇒
-  - [~loadTemplates(db, genTemplatesJson)](#module*JS API* generator logic..loadTemplates) ⇒
+  - [~loadTemplates(db, genTemplatesJsonArray)](#module*JS API* generator logic..loadTemplates)
+  - [~loadSingleTemplate(db, genTemplatesJson)](#module*JS API* generator logic..loadSingleTemplate) ⇒
   - [~generateAllTemplates(genResult, genTemplateJsonPkg, generateOnly)](#module*JS API* generator logic..generateAllTemplates) ⇒
   - [~generateSingleTemplate(genResult, singleTemplatePkg)](#module*JS API* generator logic..generateSingleTemplate) ⇒
   - [~generate(db, packageId)](#module*JS API* generator logic..generate) ⇒
@@ -5884,18 +5895,18 @@ Query for attributes by side.
   - [~templatePromise(global, promise)](#module*JS API* generator logic..templatePromise)
   - [~deprecatedHelper(fn, explanation)](#module*JS API* generator logic..deprecatedHelper) ⇒
 
-<a name="module_JS API_ generator logic..loadGenTemplate"></a>
+<a name="module_JS API_ generator logic..loadGenTemplateFromFile"></a>
 
-### JS API: generator logic~loadGenTemplate() ⇒
+### JS API: generator logic~loadGenTemplateFromFile(path) ⇒
 
 Given a path, it will read generation template object into memory.
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
-**Returns**: context.templates, context.crc
+**Returns**: Object that contains: data, crc, templateData
 
-| Param        | Type            |
-| ------------ | --------------- |
-| context.path | <code>\*</code> |
+| Param | Type            |
+| ----- | --------------- |
+| path  | <code>\*</code> |
 
 <a name="module_JS API_ generator logic..recordTemplatesPackage"></a>
 
@@ -5941,17 +5952,31 @@ Returns a promise that will load the zcl extensions.
 
 <a name="module_JS API_ generator logic..loadTemplates"></a>
 
-### JS API: generator logic~loadTemplates(db, genTemplatesJson) ⇒
+### JS API: generator logic~loadTemplates(db, genTemplatesJsonArray)
+
+Api that loads an array of template JSON files or a single file if
+you just pass in one String.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)
+
+| Param                 | Type            |
+| --------------------- | --------------- |
+| db                    | <code>\*</code> |
+| genTemplatesJsonArray | <code>\*</code> |
+
+<a name="module_JS API_ generator logic..loadSingleTemplate"></a>
+
+### JS API: generator logic~loadSingleTemplate(db, genTemplatesJson) ⇒
 
 Main API async function to load templates from a gen-template.json file.
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
 **Returns**: the loading context, contains: db, path, crc, packageId and templateData, or error
 
-| Param            | Type            | Description           |
-| ---------------- | --------------- | --------------------- |
-| db               | <code>\*</code> | Database              |
-| genTemplatesJson | <code>\*</code> | Path to the JSON file |
+| Param            | Type            | Description                                             |
+| ---------------- | --------------- | ------------------------------------------------------- |
+| db               | <code>\*</code> | Database                                                |
+| genTemplatesJson | <code>\*</code> | Path to the JSON file or an array of paths to JSON file |
 
 <a name="module_JS API_ generator logic..generateAllTemplates"></a>
 
@@ -8392,6 +8417,8 @@ This module contains the API for templating. For more detailed instructions, rea
   - [~as_type_min_value(type, options)](#module*Templating API* static zcl helpers..as_type_min_value) ⇒
   - [~as_type_max_value(type, options)](#module*Templating API* static zcl helpers..as_type_max_value) ⇒
   - [~structs_with_clusters(options)](#module*Templating API* static zcl helpers..structs_with_clusters)
+  - [~as_zcl_type_size(type, options)](#module*Templating API* static zcl helpers..as_zcl_type_size) ⇒
+  - [~if_compare(leftValue, rightValue, options)](#module*Templating API* static zcl helpers..if_compare) ⇒ <code>Object</code>
 
 <a name="module_Templating API_ static zcl helpers..zcl_bitmaps"></a>
 
@@ -9543,6 +9570,41 @@ Returns all structs which have clusters associated with them
 | ------- | --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | options | <code>\*</code> | Available Options: - groupByStructName: Can group the query results based on struct name for structs which are present in more than one cluster eg Usage: {{#structs_with_clusters groupByStructName=1}}{{/structs_with_clusters}} |
 
+<a name="module_Templating API_ static zcl helpers..as_zcl_type_size"></a>
+
+### Templating API: static zcl helpers~as_zcl_type_size(type, options) ⇒
+
+Returns the size of the zcl type if possible else returns -1
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module*Templating API* static zcl helpers)  
+**Returns**: size of zcl type
+
+| Param   | Type            |
+| ------- | --------------- |
+| type    | <code>\*</code> |
+| options | <code>\*</code> |
+
+<a name="module_Templating API_ static zcl helpers..if_compare"></a>
+
+### Templating API: static zcl helpers~if_compare(leftValue, rightValue, options) ⇒ <code>Object</code>
+
+An if helper for comparisons
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module*Templating API* static zcl helpers)  
+**Returns**: <code>Object</code> - Promise of content
+example: checking if (4 < 5)
+(if_compare 4 5 operator='<')
+Content when comparison returns true
+
+Content when comparison returns false
+(/if_compare)
+
+| Param      | Type            |
+| ---------- | --------------- |
+| leftValue  | <code>\*</code> |
+| rightValue | <code>\*</code> |
+| options    | <code>\*</code> |
+
 <a name="module_Templating API_ Overridable functions."></a>
 
 ## Templating API: Overridable functions.
@@ -9554,11 +9616,12 @@ This module contains the API for templating. For more detailed instructions, rea
 ## JS API: generator logic
 
 - [JS API: generator logic](#module*JS API* generator logic)
-  - [~loadGenTemplate()](#module*JS API* generator logic..loadGenTemplate) ⇒
+  - [~loadGenTemplateFromFile(path)](#module*JS API* generator logic..loadGenTemplateFromFile) ⇒
   - [~recordTemplatesPackage(context)](#module*JS API* generator logic..recordTemplatesPackage) ⇒
   - [~decodePackageExtensionEntity(entityType, entity)](#module*JS API* generator logic..decodePackageExtensionEntity) ⇒
   - [~loadZclExtensions(zclExt)](#module*JS API* generator logic..loadZclExtensions) ⇒
-  - [~loadTemplates(db, genTemplatesJson)](#module*JS API* generator logic..loadTemplates) ⇒
+  - [~loadTemplates(db, genTemplatesJsonArray)](#module*JS API* generator logic..loadTemplates)
+  - [~loadSingleTemplate(db, genTemplatesJson)](#module*JS API* generator logic..loadSingleTemplate) ⇒
   - [~generateAllTemplates(genResult, genTemplateJsonPkg, generateOnly)](#module*JS API* generator logic..generateAllTemplates) ⇒
   - [~generateSingleTemplate(genResult, singleTemplatePkg)](#module*JS API* generator logic..generateSingleTemplate) ⇒
   - [~generate(db, packageId)](#module*JS API* generator logic..generate) ⇒
@@ -9593,18 +9656,18 @@ This module contains the API for templating. For more detailed instructions, rea
   - [~templatePromise(global, promise)](#module*JS API* generator logic..templatePromise)
   - [~deprecatedHelper(fn, explanation)](#module*JS API* generator logic..deprecatedHelper) ⇒
 
-<a name="module_JS API_ generator logic..loadGenTemplate"></a>
+<a name="module_JS API_ generator logic..loadGenTemplateFromFile"></a>
 
-### JS API: generator logic~loadGenTemplate() ⇒
+### JS API: generator logic~loadGenTemplateFromFile(path) ⇒
 
 Given a path, it will read generation template object into memory.
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
-**Returns**: context.templates, context.crc
+**Returns**: Object that contains: data, crc, templateData
 
-| Param        | Type            |
-| ------------ | --------------- |
-| context.path | <code>\*</code> |
+| Param | Type            |
+| ----- | --------------- |
+| path  | <code>\*</code> |
 
 <a name="module_JS API_ generator logic..recordTemplatesPackage"></a>
 
@@ -9650,17 +9713,31 @@ Returns a promise that will load the zcl extensions.
 
 <a name="module_JS API_ generator logic..loadTemplates"></a>
 
-### JS API: generator logic~loadTemplates(db, genTemplatesJson) ⇒
+### JS API: generator logic~loadTemplates(db, genTemplatesJsonArray)
+
+Api that loads an array of template JSON files or a single file if
+you just pass in one String.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)
+
+| Param                 | Type            |
+| --------------------- | --------------- |
+| db                    | <code>\*</code> |
+| genTemplatesJsonArray | <code>\*</code> |
+
+<a name="module_JS API_ generator logic..loadSingleTemplate"></a>
+
+### JS API: generator logic~loadSingleTemplate(db, genTemplatesJson) ⇒
 
 Main API async function to load templates from a gen-template.json file.
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
 **Returns**: the loading context, contains: db, path, crc, packageId and templateData, or error
 
-| Param            | Type            | Description           |
-| ---------------- | --------------- | --------------------- |
-| db               | <code>\*</code> | Database              |
-| genTemplatesJson | <code>\*</code> | Path to the JSON file |
+| Param            | Type            | Description                                             |
+| ---------------- | --------------- | ------------------------------------------------------- |
+| db               | <code>\*</code> | Database                                                |
+| genTemplatesJson | <code>\*</code> | Path to the JSON file or an array of paths to JSON file |
 
 <a name="module_JS API_ generator logic..generateAllTemplates"></a>
 
@@ -10122,11 +10199,12 @@ Function wrapper that can be used when a helper is deprecated.
 ## JS API: generator logic
 
 - [JS API: generator logic](#module*JS API* generator logic)
-  - [~loadGenTemplate()](#module*JS API* generator logic..loadGenTemplate) ⇒
+  - [~loadGenTemplateFromFile(path)](#module*JS API* generator logic..loadGenTemplateFromFile) ⇒
   - [~recordTemplatesPackage(context)](#module*JS API* generator logic..recordTemplatesPackage) ⇒
   - [~decodePackageExtensionEntity(entityType, entity)](#module*JS API* generator logic..decodePackageExtensionEntity) ⇒
   - [~loadZclExtensions(zclExt)](#module*JS API* generator logic..loadZclExtensions) ⇒
-  - [~loadTemplates(db, genTemplatesJson)](#module*JS API* generator logic..loadTemplates) ⇒
+  - [~loadTemplates(db, genTemplatesJsonArray)](#module*JS API* generator logic..loadTemplates)
+  - [~loadSingleTemplate(db, genTemplatesJson)](#module*JS API* generator logic..loadSingleTemplate) ⇒
   - [~generateAllTemplates(genResult, genTemplateJsonPkg, generateOnly)](#module*JS API* generator logic..generateAllTemplates) ⇒
   - [~generateSingleTemplate(genResult, singleTemplatePkg)](#module*JS API* generator logic..generateSingleTemplate) ⇒
   - [~generate(db, packageId)](#module*JS API* generator logic..generate) ⇒
@@ -10161,18 +10239,18 @@ Function wrapper that can be used when a helper is deprecated.
   - [~templatePromise(global, promise)](#module*JS API* generator logic..templatePromise)
   - [~deprecatedHelper(fn, explanation)](#module*JS API* generator logic..deprecatedHelper) ⇒
 
-<a name="module_JS API_ generator logic..loadGenTemplate"></a>
+<a name="module_JS API_ generator logic..loadGenTemplateFromFile"></a>
 
-### JS API: generator logic~loadGenTemplate() ⇒
+### JS API: generator logic~loadGenTemplateFromFile(path) ⇒
 
 Given a path, it will read generation template object into memory.
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
-**Returns**: context.templates, context.crc
+**Returns**: Object that contains: data, crc, templateData
 
-| Param        | Type            |
-| ------------ | --------------- |
-| context.path | <code>\*</code> |
+| Param | Type            |
+| ----- | --------------- |
+| path  | <code>\*</code> |
 
 <a name="module_JS API_ generator logic..recordTemplatesPackage"></a>
 
@@ -10218,17 +10296,31 @@ Returns a promise that will load the zcl extensions.
 
 <a name="module_JS API_ generator logic..loadTemplates"></a>
 
-### JS API: generator logic~loadTemplates(db, genTemplatesJson) ⇒
+### JS API: generator logic~loadTemplates(db, genTemplatesJsonArray)
+
+Api that loads an array of template JSON files or a single file if
+you just pass in one String.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)
+
+| Param                 | Type            |
+| --------------------- | --------------- |
+| db                    | <code>\*</code> |
+| genTemplatesJsonArray | <code>\*</code> |
+
+<a name="module_JS API_ generator logic..loadSingleTemplate"></a>
+
+### JS API: generator logic~loadSingleTemplate(db, genTemplatesJson) ⇒
 
 Main API async function to load templates from a gen-template.json file.
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
 **Returns**: the loading context, contains: db, path, crc, packageId and templateData, or error
 
-| Param            | Type            | Description           |
-| ---------------- | --------------- | --------------------- |
-| db               | <code>\*</code> | Database              |
-| genTemplatesJson | <code>\*</code> | Path to the JSON file |
+| Param            | Type            | Description                                             |
+| ---------------- | --------------- | ------------------------------------------------------- |
+| db               | <code>\*</code> | Database                                                |
+| genTemplatesJson | <code>\*</code> | Path to the JSON file or an array of paths to JSON file |
 
 <a name="module_JS API_ generator logic..generateAllTemplates"></a>
 
@@ -10694,6 +10786,7 @@ This module provides the API to access zcl specific information.
 - [REST API: user data](#module*REST API* user data)
   - [~getComponentIdsByCluster(db, sessionId, clusterId, side)](#module*REST API* user data..getComponentIdsByCluster) ⇒ <code>\*</code>
   - [~httpGetSessionKeyValues(db)](#module*REST API* user data..httpGetSessionKeyValues) ⇒
+  - [~httpGetNotifications(db)](#module*REST API* user data..httpGetNotifications) ⇒
   - [~httpPostSaveSessionKeyValue(db)](#module*REST API* user data..httpPostSaveSessionKeyValue) ⇒
   - [~httpPostCluster(db)](#module*REST API* user data..httpPostCluster) ⇒
   - [~httpPostAttributeUpdate(db)](#module*REST API* user data..httpPostAttributeUpdate) ⇒
@@ -10731,6 +10824,19 @@ Promise that return a list of component Ids required by a specific cluster
 ### REST API: user data~httpGetSessionKeyValues(db) ⇒
 
 HTTP GET: session key values
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module*REST API* user data)  
+**Returns**: callback for the express uri registration
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+
+<a name="module_REST API_ user data..httpGetNotifications"></a>
+
+### REST API: user data~httpGetNotifications(db) ⇒
+
+HTTP GET: session get notifications
 
 **Kind**: inner method of [<code>REST API: user data</code>](#module*REST API* user data)  
 **Returns**: callback for the express uri registration
@@ -11280,6 +11386,7 @@ This module provides the REST API to the user specific data.
 - [REST API: user data](#module*REST API* user data)
   - [~getComponentIdsByCluster(db, sessionId, clusterId, side)](#module*REST API* user data..getComponentIdsByCluster) ⇒ <code>\*</code>
   - [~httpGetSessionKeyValues(db)](#module*REST API* user data..httpGetSessionKeyValues) ⇒
+  - [~httpGetNotifications(db)](#module*REST API* user data..httpGetNotifications) ⇒
   - [~httpPostSaveSessionKeyValue(db)](#module*REST API* user data..httpPostSaveSessionKeyValue) ⇒
   - [~httpPostCluster(db)](#module*REST API* user data..httpPostCluster) ⇒
   - [~httpPostAttributeUpdate(db)](#module*REST API* user data..httpPostAttributeUpdate) ⇒
@@ -11317,6 +11424,19 @@ Promise that return a list of component Ids required by a specific cluster
 ### REST API: user data~httpGetSessionKeyValues(db) ⇒
 
 HTTP GET: session key values
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module*REST API* user data)  
+**Returns**: callback for the express uri registration
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+
+<a name="module_REST API_ user data..httpGetNotifications"></a>
+
+### REST API: user data~httpGetNotifications(db) ⇒
+
+HTTP GET: session get notifications
 
 **Kind**: inner method of [<code>REST API: user data</code>](#module*REST API* user data)  
 **Returns**: callback for the express uri registration
@@ -14090,7 +14210,7 @@ Resolves with a promise that imports session key values.
 
 <a name="jsonDataLoader"></a>
 
-## jsonDataLoader(db, state, sessionId) ⇒
+## jsonDataLoader(db, state, sessionId, packageMatch) ⇒
 
 Given a state object, this method returns a promise that resolves
 with the succesfull writing into the database.
@@ -14098,11 +14218,12 @@ with the succesfull writing into the database.
 **Kind**: global function  
 **Returns**: a promise that resolves into a sessionId that was created.
 
-| Param     | Type            | Description                                                                                                                             |
-| --------- | --------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| db        | <code>\*</code> |                                                                                                                                         |
-| state     | <code>\*</code> |                                                                                                                                         |
-| sessionId | <code>\*</code> | If null, then new session will get created, otherwise it loads the data into an existing session. Previous session data is not deleted. |
+| Param        | Type            | Description                                                                                                                             |
+| ------------ | --------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| db           | <code>\*</code> |                                                                                                                                         |
+| state        | <code>\*</code> |                                                                                                                                         |
+| sessionId    | <code>\*</code> | If null, then new session will get created, otherwise it loads the data into an existing session. Previous session data is not deleted. |
+| packageMatch | <code>\*</code> | One of the package match strategies. See dbEnum.packageMatch                                                                            |
 
 <a name="readJsonData"></a>
 
@@ -15035,37 +15156,11 @@ Load individual custom XML files.
 
 **Kind**: global function
 
-| Param     | Type            |
-| --------- | --------------- |
-| db        | <code>\*</code> |
-| filePath  | <code>\*</code> |
-| sessionId | <code>\*</code> |
-
-<a name="bindValidationScript"></a>
-
-## bindValidationScript(db, basePackageId)
-
-This function creates a validator function with signatuee fn(stringToValidateOn)
-
-**Kind**: global function
-
-| Param         | Type            |
-| ------------- | --------------- |
-| db            | <code>\*</code> |
-| basePackageId | <code>\*</code> |
-
-<a name="getSchemaAndValidationScript"></a>
-
-## getSchemaAndValidationScript(db, basePackageId)
-
-Returns an object with zclSchema and zclValidation elements.
-
-**Kind**: global function
-
-| Param         | Type            |
-| ------------- | --------------- |
-| db            | <code>\*</code> |
-| basePackageId | <code>\*</code> |
+| Param     | Type            | Description                                           |
+| --------- | --------------- | ----------------------------------------------------- |
+| db        | <code>\*</code> |                                                       |
+| filePath  | <code>\*</code> |                                                       |
+| sessionId | <code>\*</code> | Current session within which we're loading this file. |
 
 <a name="qualifyZclFile"></a>
 
@@ -15748,18 +15843,6 @@ Parses the profiles xml.
 | ----- | --------------- |
 | db    | <code>\*</code> |
 | ctx   | <code>\*</code> |
-
-<a name="parseZclSchema"></a>
-
-## parseZclSchema(db)
-
-Parses the ZCL Schema
-
-**Kind**: global function
-
-| Param | Type            |
-| ----- | --------------- |
-| db    | <code>\*</code> |
 
 <a name="parseFeatureFlags"></a>
 
