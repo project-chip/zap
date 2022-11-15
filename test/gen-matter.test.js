@@ -103,7 +103,6 @@ test(
 
     await importJs.importDataFromFile(db, testFile, {
       sessionId: sessionId,
-      packageMatch: dbEnum.packageMatch.ignore,
     })
 
     let genResult = await genEngine.generate(

@@ -18,15 +18,17 @@
   "package": [
     {
       "pathRelativity": "relativeToZap",
-      "path": "../../zcl-builtin/silabs/zcl.json",
-      "version": "ZCL Test Data",
-      "type": "zcl-properties"
+      "path": "../../zcl-builtin/matter/zcl.json",
+      "type": "zcl-properties",
+      "category": "matter",
+      "version": 1,
+      "description": "Matter Test Data"
     },
     {
       "pathRelativity": "relativeToZap",
-      "path": "../gen-template/zigbee/gen-templates.json",
-      "version": "test-v1",
-      "type": "gen-templates-json"
+      "path": "../gen-template/matter/gen-test.json",
+      "type": "gen-templates-json",
+      "version": "test-matter"
     }
   ],
   "endpointTypes": [
