@@ -70,10 +70,6 @@ async function collectDataFromJsonFile(metadataFile, data) {
   f = util.locateRelativeFilePath(fileLocations, obj.zclSchema)
   if (f != null) returnObject.zclSchema = f
 
-  // Zcl Validation Script
-  f = util.locateRelativeFilePath(fileLocations, obj.zclValidation)
-  if (f != null) returnObject.zclValidation = f
-
   // General options
   // Note that these values when put into OPTION_CODE will generally be converted to lowercase.
   if (obj.options) {
@@ -215,10 +211,6 @@ async function collectDataFromPropertiesFile(metadataFile, data) {
         // Zcl XSD file
         f = util.locateRelativeFilePath(fileLocations, zclProps.zclSchema)
         if (f != null) returnObject.zclSchema = f
-
-        // Zcl Validation Script
-        f = util.locateRelativeFilePath(fileLocations, zclProps.zclValidation)
-        if (f != null) returnObject.zclValidation = f
 
         // General options
         // Note that these values when put into OPTION_CODE will generally be converted to lowercase.
@@ -1909,40 +1901,6 @@ async function parseProfilesData(db, packageId, profilesXml) {
 }
 
 /**
- * Parses the ZCL Schema
- * @param {*} db
- */
-async function parseZclSchema(db, packageId, zclSchema, zclValidation) {
-  let content = await fsp.readFile(zclSchema)
-  let info = {
-    filePath: zclSchema,
-    data: content,
-    crc: util.checksum(content),
-  }
-  await zclLoader.qualifyZclFile(
-    db,
-    info,
-    packageId,
-    dbEnum.packageType.zclSchema,
-    false
-  )
-  content = await fsp.readFile(zclValidation)
-  info = {
-    filePath: zclValidation,
-    data: content,
-    crc: util.checksum(content),
-  }
-
-  return zclLoader.qualifyZclFile(
-    db,
-    info,
-    packageId,
-    dbEnum.packageType.zclValidation,
-    false
-  )
-}
-
-/**
  * Inside the `zcl.json` can be a `featureFlags` key, which is
  * a general purpose object. It contains keys, that map to objects.
  * Each key is a "package option category".
@@ -2161,12 +2119,7 @@ async function parseBoolDefaults(db, pkgRef, booleanCategories) {
  * @param {*} filePath
  * @returns Promise of a loaded file.
  */
-async function loadIndividualSilabsFile(
-  db,
-  filePath,
-  boundValidator,
-  sessionId
-) {
+async function loadIndividualSilabsFile(db, filePath, sessionId) {
   try {
     let fileContent = await fsp.readFile(filePath)
     let data = {
@@ -2183,15 +2136,9 @@ async function loadIndividualSilabsFile(
       true
     )
     let pkgId = result.packageId
-    if (boundValidator != null && fileContent != null) {
-      result.validation = boundValidator(fileContent)
-    }
     if (result.data) {
       result.result = await util.parseXml(result.data)
       delete result.data
-    }
-    if (result.validation && result.validation.isValid == false) {
-      throw new Error('Validation Failed')
     }
     let sessionPackages = await queryPackage.getSessionZclPackages(
       db,
@@ -2257,11 +2204,14 @@ async function loadSilabsZcl(db, metafile, isJson = false) {
     metadataFile: metafile,
     db: db,
   }
+  let isTransactionAlreadyExisting = dbApi.isTransactionActive()
   env.logDebug(`Loading Silabs zcl file: ${metafile}`)
   if (!fs.existsSync(metafile)) {
     throw new Error(`Can't locate: ${metafile}`)
   }
-  await dbApi.dbBeginTransaction(db)
+
+  if (!isTransactionAlreadyExisting) await dbApi.dbBeginTransaction(db)
+
   try {
     Object.assign(ctx, await util.readFileContentAndCrc(ctx.metadataFile))
     ctx.packageId = await zclLoader.recordToplevelPackage(
@@ -2342,9 +2292,6 @@ async function loadSilabsZcl(db, metafile, isJson = false) {
     if (ctx.defaults) {
       await parseDefaults(db, ctx.packageId, ctx.defaults)
     }
-    if (ctx.zclSchema && ctx.zclValidation) {
-      await parseZclSchema(db, ctx.packageId, ctx.zclSchema, ctx.zclValidation)
-    }
     if (ctx.featureFlags) {
       await parseFeatureFlags(db, ctx.packageId, ctx.featureFlags)
     }
@@ -2355,7 +2302,7 @@ async function loadSilabsZcl(db, metafile, isJson = false) {
     env.logError(err)
     throw err
   } finally {
-    dbApi.dbCommit(db)
+    if (!isTransactionAlreadyExisting) await dbApi.dbCommit(db)
   }
   return ctx
 }

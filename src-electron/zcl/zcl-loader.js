@@ -21,18 +21,11 @@ const queryPackage = require('../db/query-package')
 const queryCommand = require('../db/query-command')
 const queryLoader = require('../db/query-loader')
 const dbEnum = require('../../src-shared/db-enum')
-const fsp = fs.promises
 const sLoad = require('./zcl-loader-silabs')
 const dLoad = require('./zcl-loader-dotdot')
 const queryZcl = require('../db/query-zcl')
 const queryDeviceType = require('../db/query-device-type')
 const env = require('../util/env')
-const nativeRequire = require('../util/native-require')
-const util = require('../util/util')
-
-const defaultValidator = (zclData) => {
-  return []
-}
 
 /**
  * Records the toplevel package information and resolves into packageId
@@ -42,12 +35,13 @@ const defaultValidator = (zclData) => {
  * @returns packageId
  */
 async function recordToplevelPackage(db, metadataFile, crc) {
-  return queryPackage.registerTopLevelPackage(
+  let topLevel = await queryPackage.registerTopLevelPackage(
     db,
     metadataFile,
     crc,
     dbEnum.packageType.zclProperties
   )
+  return topLevel.id
 }
 
 /**
@@ -129,27 +123,12 @@ async function loadZcl(db, metadataFile) {
  *
  * @param {*} db
  * @param {*} filePath
- * @param {*} sessionId
+ * @param {*} sessionId Current session within which we're loading this file.
  */
 async function loadIndividualFile(db, filePath, sessionId) {
-  let zclPropertiesPackages = await queryPackage.getSessionPackagesByType(
-    db,
-    sessionId,
-    dbEnum.packageType.zclProperties
-  )
-
-  let validator
-  if (zclPropertiesPackages.length == 0) {
-    env.logDebug(`Unable to find a validator for project, skipping validator`)
-    // Return an function that returns an empty array
-    validator = defaultValidator
-  } else {
-    validator = await bindValidationScript(db, zclPropertiesPackages[0].id)
-  }
-
   let ext = path.extname(filePath)
   if (ext == '.xml') {
-    return sLoad.loadIndividualSilabsFile(db, filePath, validator, sessionId)
+    return sLoad.loadIndividualSilabsFile(db, filePath, sessionId)
   } else {
     let err = new Error(
       `Unable to read file: ${filePath}. Expecting an XML file with ZCL clusters.`
@@ -157,67 +136,6 @@ async function loadIndividualFile(db, filePath, sessionId) {
     env.logWarning(err)
     return { succeeded: false, err }
   }
-}
-
-/**
- * This function creates a validator function with signatuee fn(stringToValidateOn)
- *
- * @param {*} db
- * @param {*} basePackageId
- */
-async function bindValidationScript(db, basePackageId) {
-  try {
-    let data = await getSchemaAndValidationScript(db, basePackageId)
-
-    if (
-      !(dbEnum.packageType.zclSchema in data) ||
-      !(dbEnum.packageType.zclValidation in data)
-    ) {
-      return defaultValidator
-    } else {
-      let zclSchema = data[dbEnum.packageType.zclSchema]
-      let zclValidation = data[dbEnum.packageType.zclValidation]
-      let module = nativeRequire(zclValidation)
-      let validateZclFile = module.validateZclFile
-
-      env.logDebug(`Reading individual file: ${zclSchema}`)
-      let schemaFileContent = await fsp.readFile(zclSchema)
-      return validateZclFile.bind(null, schemaFileContent)
-    }
-  } catch (err) {
-    env.logError(`Error loading package specific validator: ${err}`)
-    return defaultValidator
-  }
-}
-
-/**
- * Returns an object with zclSchema and zclValidation elements.
- * @param {*} db
- * @param {*} basePackageId
- */
-async function getSchemaAndValidationScript(db, basePackageId) {
-  let promises = []
-  promises.push(
-    queryPackage.getPackagesByParentAndType(
-      db,
-      basePackageId,
-      dbEnum.packageType.zclSchema
-    )
-  )
-  promises.push(
-    queryPackage.getPackagesByParentAndType(
-      db,
-      basePackageId,
-      dbEnum.packageType.zclValidation
-    )
-  )
-  let data = await Promise.all(promises)
-  return data.reduce((result, item) => {
-    if (item.length >= 1) {
-      result[item[0].type] = item[0].path
-    }
-    return result
-  }, {})
 }
 
 /**

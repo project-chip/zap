@@ -33,21 +33,22 @@ const e = require('express')
 /**
  * Given a path, it will read generation template object into memory.
  *
- * @param {*} context.path
- * @returns context.templates, context.crc
+ * @param {*} path
+ * @returns Object that contains: data, crc, templateData
  */
-async function loadGenTemplate(context) {
-  context.data = await fsPromise.readFile(context.path, 'utf8')
-  context.crc = util.checksum(context.data)
-  context.templateData = JSON.parse(context.data)
+async function loadGenTemplateFromFile(path) {
+  let ret = {}
+  ret.data = await fsPromise.readFile(path, 'utf8')
+  ret.crc = util.checksum(ret.data)
+  ret.templateData = JSON.parse(ret.data)
 
   let requiredFeatureLevel = 0
-  if ('requiredFeatureLevel' in context.templateData) {
-    requiredFeatureLevel = context.templateData.requiredFeatureLevel
+  if ('requiredFeatureLevel' in ret.templateData) {
+    requiredFeatureLevel = ret.templateData.requiredFeatureLevel
   }
-  let status = util.matchFeatureLevel(requiredFeatureLevel, context.path)
+  let status = util.matchFeatureLevel(requiredFeatureLevel, path)
   if (status.match) {
-    return context
+    return ret
   } else {
     throw status.message
   }
@@ -114,7 +115,7 @@ async function loadTemplateOptionsFromJsonFile(
  * @returns promise that resolves with the same context passed in, except packageId added to it
  */
 async function recordTemplatesPackage(context) {
-  context.packageId = await queryPackage.registerTopLevelPackage(
+  let topLevel = await queryPackage.registerTopLevelPackage(
     context.db,
     context.path,
     context.crc,
@@ -123,6 +124,9 @@ async function recordTemplatesPackage(context) {
     context.templateData.category,
     context.templateData.description
   )
+
+  context.packageId = topLevel.id
+  if (topLevel.existedPreviously) return context
 
   let promises = []
   env.logDebug(`Loading ${context.templateData.templates.length} templates.`)
@@ -484,6 +488,7 @@ async function loadTemplates(
     }
     if (genTemplatesJsonArray != null && genTemplatesJsonArray.length > 0) {
       for (let jsonFile of genTemplatesJsonArray) {
+        if (jsonFile == null || jsonFile == '') continue
         let ctx = await loadSingleTemplate(db, jsonFile)
         if (ctx.error) {
           if (options.failOnLoadingError) globalCtx.error = ctx.error
@@ -496,10 +501,15 @@ async function loadTemplates(
       }
     }
     return globalCtx
-  } else {
+  } else if (genTemplatesJsonArray != null) {
     let ctx = await loadSingleTemplate(db, genTemplatesJsonArray)
     ctx.packageIds = [ctx.packageId]
     return ctx
+  } else {
+    // We didn't load anything, we don't return anything.
+    return {
+      nop: true,
+    }
   }
 }
 
@@ -519,6 +529,7 @@ async function loadSingleTemplate(db, genTemplatesJson) {
     env.logWarning(context.error)
     return Promise.resolve(context)
   }
+  let isTransactionAlreadyExisting = dbApi.isTransactionActive()
 
   let file = path.resolve(genTemplatesJson)
   if (!fs.existsSync(file)) {
@@ -527,16 +538,16 @@ async function loadSingleTemplate(db, genTemplatesJson) {
     return context
   }
   context.path = file
-  await dbApi.dbBeginTransaction(db)
+  if (!isTransactionAlreadyExisting) await dbApi.dbBeginTransaction(db)
   try {
-    context = await loadGenTemplate(context)
+    Object.assign(context, await loadGenTemplateFromFile(file))
     context = await recordTemplatesPackage(context)
     return context
   } catch (err) {
-    env.logInfo(`Can not read templates from: ${context.file}`)
+    env.logInfo(`Can not read templates from: ${file}`)
     throw err
   } finally {
-    dbApi.dbCommit(db)
+    if (!isTransactionAlreadyExisting) await dbApi.dbCommit(db)
   }
 }
 
@@ -846,7 +857,6 @@ async function generateAndWriteFiles(
     appendedPath = templateGeneratorOptions.appendDirectory
   }
 
-  console.log(`Appended path: ${appendedPath}`)
   if (appendedPath != null) {
     outputDirectory = path.join(outputDirectory, appendedPath)
   }

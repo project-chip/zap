@@ -26,7 +26,6 @@ exports.packageType = {
   zclXmlStandalone: 'zcl-xml-standalone',
   sqlSchema: 'sql-schema',
   zclSchema: 'zcl-schema',
-  zclValidation: 'zcl-validation-script',
   genTemplatesJson: 'gen-templates-json',
   genSingleTemplate: 'gen-template',
   genHelper: 'gen-helper',
@@ -176,4 +175,10 @@ exports.helperCategory = {
   zigbee: 'zigbee',
   matter: 'matter',
   meta: 'meta',
+}
+
+exports.packageMatch = {
+  fuzzy: 'fuzzy', // This mechanism will attempt to match the ones from zap file, then give up and do fuzzy match if it fails.
+  strict: 'strict', // This mechanism will ONLY use the records of packages in the .zap file.
+  ignore: 'ignore', // This mechanism will completely ignore the use of packages in the .zap file.
 }

@@ -240,7 +240,7 @@ async function insertPathCrc(
  * @param {*} crc
  * @param {*} type
  * @param {*} [parentId=null]
- * @returns Promise of an insert or update.
+ * @returns An object containing: id, existedPreviously
  */
 async function registerTopLevelPackage(
   db,
@@ -251,20 +251,28 @@ async function registerTopLevelPackage(
   category = null,
   description = null
 ) {
-  return getPackageByPathAndType(db, path, type).then((row) => {
-    if (row == null) {
-      return dbApi.dbInsert(
-        db,
-        `
+  let row = await getPackageByPathAndType(db, path, type)
+  if (row == null) {
+    // Doesn't exist. We have to add it.
+    let id = await dbApi.dbInsert(
+      db,
+      `
 INSERT INTO PACKAGE ( 
   PATH, CRC, TYPE, PARENT_PACKAGE_REF, VERSION, CATEGORY, DESCRIPTION 
 ) VALUES (?,?,?,?,?,?,?)`,
-        [path, crc, type, null, version, category, description]
-      )
-    } else {
-      return Promise.resolve(row.id)
+      [path, crc, type, null, version, category, description]
+    )
+    return {
+      id: id,
+      existedPreviously: false,
     }
-  })
+  } else {
+    // Exists. We just return it.
+    return {
+      id: row.id,
+      existedPreviously: true,
+    }
+  }
 }
 
 /**
@@ -443,6 +451,35 @@ async function getSessionPackages(db, sessionId) {
     .dbAll(
       db,
       'SELECT PACKAGE_REF, SESSION_REF, REQUIRED FROM SESSION_PACKAGE WHERE SESSION_REF = ? AND ENABLED = 1',
+      [sessionId]
+    )
+    .then((rows) => rows.map(dbMapping.map.sessionPackage))
+}
+
+/**
+ * Returns the session package IDs with types.
+ * @param {*} db
+ * @param {*} sessionId
+ * @returns The promise that resolves into an array of package IDs.
+ */
+async function getSessionPackagesWithTypes(db, sessionId) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT 
+  SP.PACKAGE_REF,
+  SP.SESSION_REF,
+  SP.REQUIRED,
+  P.TYPE
+FROM 
+  SESSION_PACKAGE AS SP
+INNER JOIN 
+  PACKAGE AS P
+ON 
+  SP.PACKAGE_REF = P.PACKAGE_ID
+WHERE 
+  SP.SESSION_REF = ? AND SP.ENABLED = 1`,
       [sessionId]
     )
     .then((rows) => rows.map(dbMapping.map.sessionPackage))
@@ -669,10 +706,14 @@ async function insertPackageExtensionDefault(
   return dbApi.dbMultiInsert(
     db,
     `
-INSERT INTO PACKAGE_EXTENSION_DEFAULT
-  (PACKAGE_EXTENSION_REF, ENTITY_CODE, ENTITY_QUALIFIER, PARENT_CODE, MANUFACTURER_CODE, VALUE)
-VALUES
-  ( ?, ?, ?, ?, ?, ?)
+INSERT INTO PACKAGE_EXTENSION_DEFAULT (
+  PACKAGE_EXTENSION_REF, 
+  ENTITY_CODE, 
+  ENTITY_QUALIFIER, 
+  PARENT_CODE, 
+  MANUFACTURER_CODE, 
+  VALUE 
+) VALUES ( ?, ?, ?, ?, ?, ? )
 ON CONFLICT DO NOTHING
     `,
     defaultArray.map((d) => {
@@ -707,10 +748,15 @@ async function insertPackageExtension(
     .dbMultiInsert(
       db,
       `
-INSERT INTO PACKAGE_EXTENSION 
-  (PACKAGE_REF, ENTITY, PROPERTY, TYPE, CONFIGURABILITY, LABEL, GLOBAL_DEFAULT) 
-VALUES 
-  (?, ?, ?, ?, ?, ?, ?)
+INSERT INTO PACKAGE_EXTENSION ( 
+  PACKAGE_REF, 
+  ENTITY, 
+  PROPERTY, 
+  TYPE, 
+  CONFIGURABILITY, 
+  LABEL, 
+  GLOBAL_DEFAULT
+) VALUES (?, ?, ?, ?, ?, ?, ?)
 ON CONFLICT DO NOTHING`,
       propertyArray.map((p) => {
         return [
@@ -920,6 +966,7 @@ exports.registerTopLevelPackage = registerTopLevelPackage
 exports.updateVersion = updateVersion
 exports.insertSessionPackage = insertSessionPackage
 exports.getSessionPackages = getSessionPackages
+exports.getSessionPackagesWithTypes = getSessionPackagesWithTypes
 exports.insertOptionsKeyValues = insertOptionsKeyValues
 exports.selectAllOptionsValues = selectAllOptionsValues
 exports.selectSpecificOptionValue = selectSpecificOptionValue

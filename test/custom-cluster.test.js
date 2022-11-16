@@ -23,12 +23,10 @@ const zclLoader = require('../src-electron/zcl/zcl-loader')
 const env = require('../src-electron/util/env')
 const testUtil = require('./test-util')
 const testQuery = require('./test-query')
-const querySession = require('../src-electron/db/query-session')
 const queryPackage = require('../src-electron/db/query-package')
 const queryConfig = require('../src-electron/db/query-config')
 const queryDeviceType = require('../src-electron/db/query-device-type')
 
-const util = require('../src-electron/util/util')
 let db
 let sid
 let mfgCode = 0xbead
