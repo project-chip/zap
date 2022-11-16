@@ -525,6 +525,10 @@ function dataTypeHelper(
   resolvedType,
   overridable
 ) {
+  let no_warning = { no_warning: 0 }
+  if ('no_warning' in options.hash) {
+    no_warning = { no_warning: options.hash.no_warning }
+  }
   switch (resolvedType) {
     case dbEnum.zclType.array:
       if ('array' in options.hash) {
@@ -577,7 +581,7 @@ function dataTypeHelper(
     default:
       return queryZcl
         .selectAtomicType(db, packageIds, type)
-        .then((atomic) => overridable.atomicType(atomic))
+        .then((atomic) => overridable.atomicType({ ...atomic, ...no_warning }))
   }
 }
 
