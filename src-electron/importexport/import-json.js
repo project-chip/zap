@@ -114,7 +114,13 @@ async function importSinglePackage(db, pkg, zapFilePath, packageMatch) {
   // No perfect match.
   // We will attempt to simply load up the package as it is listed in the file.
   if (autoloading && !(packageMatch === dbEnum.packageMatch.ignore)) {
-    return await autoLoadPackage(db, pkg, absPath)
+    try {
+      return await autoLoadPackage(db, pkg, absPath)
+    } catch (err) {
+      if (dbEnum.packageMatch == dbEnum.packageMatch.strict) {
+        throw err
+      }
+    }
   }
 
   // Now we have to perform the guessing logic.
