@@ -172,6 +172,17 @@ async function initializeSessionPackage(
             }
           })
         }
+        if (packageId == null && rows.length > 0) {
+          // If package id is not resolved and there are gen-template packages available
+          // then pick the first one available
+          packageId = rows[0].id
+          return queryPackage.insertSessionPackage(
+            db,
+            sessionId,
+            packageId,
+            true
+          )
+        }
       })
     promises.push(genTemplateJsonPromise)
   }
