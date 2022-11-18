@@ -385,58 +385,69 @@ function hasSpecificAttributes(options) {
   return this.count > kGlobalAttributes.length;
 }
 
-function asLowerCamelCase(label) {
-  let str = string.toCamelCase(label, true);
-  // Check for the case when we're:
-  // 1. A single word (that's the regexp at the beginning, which matches the
-  //    word-splitting regexp in string.toCamelCase).
-  // 2. Starting with multiple capital letters in a row.
-  // 3. But not _all_ capital letters (which we purposefully
-  //    convert to all-lowercase).
-  //
-  // and if all those conditions hold, preserve the leading capital letters by
-  // uppercasing the first one, which got lowercased.
-  if (
-    !/ |_|-|\//.test(label) &&
-    label.length > 1 &&
-    label.substring(0, 2).toUpperCase() == label.substring(0, 2) &&
-    label.toUpperCase() != label
-  ) {
-    str = str[0].toUpperCase() + str.substring(1);
-  }
-  return str.replace(/[^A-Za-z0-9_]/g, '');
-}
-
-function asUpperCamelCase(label, options) {
-  const preserveAcronyms = options && options.hash.preserveAcronyms;
-
-  let tokens = label.replace(/[+()&]/g, '').split(/ |_|-|\//);
+// firstLower should be true for asLowerCamelCase, false for asUpperCamelCase.
+function asCamelCase(label, firstLower, preserveAcronyms) {
+  const wordSplitRegexp = / |_|-|\//;
+  let tokens = label.replace(/[+()&]/g, '').split(wordSplitRegexp);
 
   let str = tokens
-    .map((token) => {
-      let isAcronym = (token == token.toUpperCase());
+    .map((token, index) => {
+      let isAcronym = token == token.toUpperCase();
+
+      if (isAcronym && preserveAcronyms) {
+        return token;
+      }
+
+      let newToken =
+        index == 0 && firstLower
+          ? token[0].toLowerCase()
+          : token[0].toUpperCase();
+
       if (!isAcronym) {
-        let newToken = token[0].toUpperCase();
         if (token.length > 1) {
-            newToken += token.substring(1);
+          newToken += token.substring(1);
         }
         return newToken;
       }
 
-      if (preserveAcronyms) {
-        return token;
-      }
-
       // if preserveAcronyms is false, then anything beyond the first letter becomes lower-case.
-      let newToken = token[0];
       if (token.length > 1) {
-          newToken += token.substring(1).toLowerCase();
+        newToken += token.substring(1).toLowerCase();
       }
       return newToken;
     })
     .join('');
 
+  if (firstLower) {
+    // Check for the case when we're:
+    // 1. A single word (i.e. not matching our word-split regexp).
+    // 2. Starting with multiple capital letters in a row.
+    // 3. But not _all_ capital letters (which we purposefully
+    //    convert to all-lowercase in the don't-preserve-acronyms case).
+    //
+    // and if all those conditions hold, preserve the leading capital letters by
+    // uppercasing the first one, which got lowercased.
+    if (
+      !wordSplitRegexp.test(label) &&
+      label.length > 1 &&
+      label.substring(0, 2).toUpperCase() == label.substring(0, 2) &&
+      label.toUpperCase() != label
+    ) {
+      str = str[0].toUpperCase() + str.substring(1);
+    }
+  }
+
   return str.replace(/[^A-Za-z0-9_]/g, '');
+}
+
+function asLowerCamelCase(label, options) {
+  const preserveAcronyms = options && options.hash.preserveAcronyms;
+  return asCamelCase(label, true, preserveAcronyms);
+}
+
+function asUpperCamelCase(label, options) {
+  const preserveAcronyms = options && options.hash.preserveAcronyms;
+  return asCamelCase(label, false, preserveAcronyms);
 }
 
 function chip_friendly_endpoint_type_name(options) {
