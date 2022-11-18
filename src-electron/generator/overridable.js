@@ -56,9 +56,10 @@ function nonAtomicType(arg = { name: 'unknown', isStruct: false }) {
  *
  * @param {*} arg Object containing name and size
  */
-function atomicType(arg = { name: 'unknown', size: 0 }) {
+function atomicType(arg = { name: 'unknown', size: 0, no_warning: 0 }) {
   let name = arg.name
   let size = arg.size
+  let no_warning = arg.no_warning
   if (name.startsWith('int')) {
     let signed
     if (name.endsWith('s')) signed = true
@@ -91,9 +92,13 @@ function atomicType(arg = { name: 'unknown', size: 0 }) {
       case 'boolean':
         return 'uint8_t'
       case 'array':
-        return `/* TYPE WARNING: ${name} array defaults to */ uint8_t * `
+        return no_warning
+          ? `uint8_t *`
+          : `/* TYPE WARNING: ${name} array defaults to */ uint8_t * `
       default:
-        return `/* TYPE WARNING: ${name} defaults to */ uint8_t * `
+        return no_warning
+          ? `uint8_t *`
+          : `/* TYPE WARNING: ${name} defaults to */ uint8_t * `
     }
   }
 }
