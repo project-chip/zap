@@ -227,7 +227,7 @@ export function processCommandLineArguments(argv: string[]) {
     .option('packageMatch', {
       desc: "Determines how to associate with packages in zap file. 'strict' will cause loading to fail if specified package files are not found, 'fuzzy' will associate with similar packages, 'ignore' will ignore the packages in zap file.",
       choices: ['fuzzy', 'strict', 'ignore'],
-      default: 'fuzzy',
+      default: 'ignore',
     })
     .option('results', {
       desc: 'Specifying the output YAML file to capture convert results.',
