@@ -24,6 +24,7 @@ const fsPromise = fs.promises
 const path = require('path')
 const util = require('../util/util.js')
 const queryPackage = require('../db/query-package.js')
+const querySession = require('../db/query-session')
 const dbEnum = require('../../src-shared/db-enum.js')
 const env = require('../util/env')
 const templateEngine = require('./template-engine.js')
@@ -818,6 +819,7 @@ async function generateAndWriteFiles(
     genResultFile: false,
     skipPostGeneration: false,
     appendGenerationSubdirectory: false,
+    generationLog: null,
   }
 ) {
   let timing = {}
@@ -902,12 +904,51 @@ async function generateAndWriteFiles(
     })
   )
 
+  if (options.generationLog) {
+    let pkg = await queryPackage.getPackageByPackageId(db, templatePackageId)
+    let filePath = await querySession.getSessionKeyValue(
+      db,
+      sessionId,
+      dbEnum.sessionKey.filePath
+    )
+    let zclPkg = await queryPackage.getSessionPackagesByType(
+      db,
+      sessionId,
+      dbEnum.packageType.zclProperties
+    )
+    promises.push(
+      createGenerationLog(options.generationLog, {
+        zapFile: filePath,
+        output: outputDirectory,
+        templatePath: pkg.path,
+        zclPath: zclPkg.path,
+      })
+    )
+  }
+
   await Promise.all(promises)
 
   if (options.skipPostGeneration) {
     return genResult
   } else {
     return postProcessGeneratedFiles(outputDirectory, genResult, options.logger)
+  }
+}
+
+async function createGenerationLog(logFile, genData) {
+  try {
+    let jsonData
+    if (fs.existsSync(logFile)) {
+      let data = await fsPromise.readFile(logFile)
+      jsonData = JSON.parse(data)
+    } else {
+      jsonData = []
+    }
+    jsonData.push(genData)
+    await fsPromise.writeFile(logFile, JSON.stringify(jsonData, null, 2))
+  } catch (err) {
+    console.log(err)
+    console.log(`Could not write log: ${logFile}`)
   }
 }
 

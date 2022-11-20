@@ -35,6 +35,7 @@ const importJs = require('../importexport/import.js')
 const exportJs = require('../importexport/export.js')
 const watchdog = require('./watchdog')
 const sdkUtil = require('../util/sdk-util')
+const { argv } = require('process')
 
 // This file contains various startup modes.
 
@@ -337,6 +338,7 @@ async function startRegenerateSdk(argv, options) {
             genResultFile: false,
             skipPostGeneration: false,
             appendGenerationSubdirectory: argv.appendGenerationSubdirectory,
+            generationLog: argv.generationLog,
           }
         )
       }
@@ -501,6 +503,7 @@ async function generateSingleFile(
     template: env.builtinTemplateMetafile(),
     postImportScript: null,
     packageMatch: dbEnum.packageMatch.fuzzy,
+    generationLog: null,
   }
 ) {
   let hrstart = process.hrtime.bigint()
@@ -534,6 +537,7 @@ async function generateSingleFile(
   options.logger(`🕐 File loading time: ${util.duration(nsDuration)}`)
 
   options.fileLoadTime = nsDuration
+
   let genResult = await generatorEngine.generateAndWriteFiles(
     db,
     sessionId,
@@ -607,6 +611,7 @@ async function startGeneration(argv, options) {
   options.postImportScript = argv.postImportScript
   options.appendGenerationSubdirectory = argv.appendGenerationSubdirectory
   options.packageMatch = argv.packageMatch
+  options.generationLog = argv.generationLog
 
   let nsDuration = process.hrtime.bigint() - hrstart
   options.logger(`🕐 Setup time: ${util.duration(nsDuration)} `)
