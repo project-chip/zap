@@ -399,9 +399,7 @@ function asCamelCase(label, firstLower, preserveAcronyms) {
       }
 
       let newToken =
-        index == 0 && firstLower
-          ? token[0].toLowerCase()
-          : token[0].toUpperCase();
+        index == 0 && firstLower ? token.toLowerCase() : token.toUpperCase();
 
       if (!isAcronym) {
         if (token.length > 1) {
