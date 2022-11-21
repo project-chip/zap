@@ -398,6 +398,8 @@ function asCamelCase(label, firstLower, preserveAcronyms) {
         return token;
       }
 
+      if (token.length === 0) return token;
+
       let newToken =
         index == 0 && firstLower
           ? token[0].toLowerCase()
