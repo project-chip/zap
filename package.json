@@ -85,7 +85,7 @@
     "genmatter1": "node src-script/zap-generate.js --genResultFile --stateDirectory ~/.zap/genmatter -z ./zcl-builtin/matter/zcl.json -g ./test/gen-template/matter/gen-test.json -i ./test/resource/matter-test.zap -o ./tmp/matter1",
     "genmatter2": "node src-script/zap-generate.js --genResultFile --stateDirectory ~/.zap/genmatter2 -z ./zcl-builtin/matter/zcl.json -g ./test/gen-template/matter/gen-test.json -i ./test/resource/matter-switch.zap -o ./tmp/matter2",
     "genmeta": "node src-script/zap-generate.js --genResultFile --stateDirectory ~/.zap/genmeta -z ./test/resource/meta/zcl.json -g ./test/resource/meta/gen-test.json --appendGenerationSubdirectory -o ./tmp -i  ./test/resource/test-meta.zap",
-    "genmeta2": "node src-script/zap-generate.js --genResultFile --stateDirectory ~/.zap/genmeta --appendGenerationSubdirectory -o ./tmp -i  ./test/resource/test-meta.zap",
+    "genmeta2": "node src-script/zap-generate.js --genResultFile --stateDirectory ~/.zap/genmeta --appendGenerationSubdirectory -o ./tmp -i  ./test/resource/test-meta.zap --packageMatch fuzzy",
     "gentest": "node src-script/zap-generate.js --genResultFile --stateDirectory ~/.zap/gentest -z ./zcl-builtin/silabs/zcl.json -g ./test/gen-template/test/gen-test.json -o ./tmp",
     "gendotdot": "node src-script/zap-generate.js --genResultFile -z ./zcl-builtin/dotdot/library.xml -g ./test/gen-template/dotdot/dotdot-templates.json -o ./tmp",
     "convert": "node src-script/zap-convert.js -o {basename}.zap -z ./zcl-builtin/silabs/zcl.json -g test/gen-template/zigbee/gen-templates.json ./test/resource/isc/*.isc ./test/resource/*.zap",

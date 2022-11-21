@@ -69,6 +69,11 @@ export const environmentVariable = {
     description:
       'Amount of millisecons zap will wait for cleanups to perform. This is workaround for some SQLite bug. If unset, default is: 1500',
   },
+  zapGenerationLog: {
+    name: 'ZAP_GENERATION_LOG',
+    description:
+      'Points to a JSON file, which will be used to log every generation performed.',
+  },
   jenkinsHome: {
     name: 'JENKINS_HOME',
     description:

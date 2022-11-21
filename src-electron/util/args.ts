@@ -193,6 +193,12 @@ export function processCommandLineArguments(argv: string[]) {
       default:
         process.env[env.environmentVariable.reuseZapInstance.name] == '1',
     })
+    .option('generationLog', {
+      desc: `Whenever generation is performed, a record of it will be put into this file.`,
+      type: 'string',
+      default:
+        process.env[env.environmentVariable.zapGenerationLog.name] || null,
+    })
     .option('watchdogTimer', {
       desc: `In a server mode, how long of no-activity (in ms) shuts down the server.`,
       type: 'number',
@@ -219,9 +225,9 @@ export function processCommandLineArguments(argv: string[]) {
       default: false,
     })
     .option('packageMatch', {
-      desc: "Determines how to associate with packages in zap file. 'strict' will cause loading to fail if specified package files are not found, 'fuzzy' will associate with similar packages.",
-      choices: ['fuzzy', 'strict'],
-      default: 'fuzzy',
+      desc: "Determines how to associate with packages in zap file. 'strict' will cause loading to fail if specified package files are not found, 'fuzzy' will associate with similar packages, 'ignore' will ignore the packages in zap file.",
+      choices: ['fuzzy', 'strict', 'ignore'],
+      default: 'ignore',
     })
     .option('results', {
       desc: 'Specifying the output YAML file to capture convert results.',
