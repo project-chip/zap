@@ -48,7 +48,8 @@ function checksum(data) {
 }
 
 /**
- * This function assigns a proper package ID to the session.
+ * This function assigns a proper package ID to the session if there
+ * are no packages present. It will also populate session options.
  *
  * @param {*} db
  * @param {*} sessionId
