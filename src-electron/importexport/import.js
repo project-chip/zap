@@ -20,8 +20,6 @@
  * and imports it into a database.
  */
 const fsp = require('fs').promises
-const path = require('path')
-
 const importIsc = require('./import-isc.js')
 const importJson = require('./import-json.js')
 const dbApi = require('../db/db-api.js')

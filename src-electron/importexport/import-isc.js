@@ -651,7 +651,7 @@ async function iscDataLoader(db, state, sessionId) {
 
   // We don't have the package info inside ISC file, so we
   // do our best here.
-  await util.initializeSessionPackage(db, sessionId, {
+  await util.ensurePackagesAndPopulateSessionOptions(db, sessionId, {
     zcl: state.zclMetafile,
     template: null,
   })

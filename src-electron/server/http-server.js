@@ -220,7 +220,7 @@ function userSessionHandler(db, options) {
         })
         .then((result) => {
           if (result.newSession) {
-            return util.initializeSessionPackage(
+            return util.ensurePackagesAndPopulateSessionOptions(
               db,
               result.sessionId,
               options,

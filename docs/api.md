@@ -791,6 +791,14 @@ NOTE: This function does NOT initialize session packages.</p>
 <dt><a href="#importSessionKeyValues">importSessionKeyValues(db, sessionId, keyValuePairs)</a></dt>
 <dd><p>Resolves with a promise that imports session key values.</p>
 </dd>
+<dt><a href="#autoLoadPackage">autoLoadPackage(db, pkg, absPath)</a> ⇒</dt>
+<dd><p>Auto-load package. If succesful it returns an object.
+Otherwise it throws an exception.</p>
+</dd>
+<dt><a href="#convertPackageResult">convertPackageResult(data)</a> ⇒</dt>
+<dd><p>Convert the array of results into a more palatable value.
+Resolves an array of { packageId:, packageType:} objects into { zclPackageId: id, templateIds: [] }</p>
+</dd>
 <dt><a href="#jsonDataLoader">jsonDataLoader(db, state, sessionId, packageMatch)</a> ⇒</dt>
 <dd><p>Given a state object, this method returns a promise that resolves
 with the succesfull writing into the database.</p>
@@ -12190,7 +12198,7 @@ Checks if type is a two-byte lengh string.
 
 - [JS API: random utilities](#module*JS API* random utilities)
   - [~checksum(data)](#module*JS API* random utilities..checksum) ⇒
-  - [~initializeSessionPackage(db, sessionId, options:, selectedZclPropertyPackage, selectedGenTemplatePackages)](#module*JS API* random utilities..initializeSessionPackage) ⇒
+  - [~ensurePackagesAndPopulateSessionOptions(db, sessionId, options:, selectedZclPropertyPackage, selectedGenTemplatePackages)](#module*JS API* random utilities..ensurePackagesAndPopulateSessionOptions) ⇒
   - [~createBackupFile(filePath)](#module*JS API* random utilities..createBackupFile)
   - [~matchFeatureLevel(featureLevel)](#module*JS API* random utilities..matchFeatureLevel)
   - [~sessionReport(db, sessionId)](#module*JS API* random utilities..sessionReport) ⇒
@@ -12222,11 +12230,12 @@ Returns the CRC of the data that is passed.
 | ----- | --------------- |
 | data  | <code>\*</code> |
 
-<a name="module_JS API_ random utilities..initializeSessionPackage"></a>
+<a name="module_JS API_ random utilities..ensurePackagesAndPopulateSessionOptions"></a>
 
-### JS API: random utilities~initializeSessionPackage(db, sessionId, options:, selectedZclPropertyPackage, selectedGenTemplatePackages) ⇒
+### JS API: random utilities~ensurePackagesAndPopulateSessionOptions(db, sessionId, options:, selectedZclPropertyPackage, selectedGenTemplatePackages) ⇒
 
-This function assigns a proper package ID to the session.
+This function assigns a proper package ID to the session if there
+are no packages present. It will also populate session options.
 
 **Kind**: inner method of [<code>JS API: random utilities</code>](#module*JS API* random utilities)  
 **Returns**: Promise that resolves with the packages array.
@@ -14207,6 +14216,36 @@ Resolves with a promise that imports session key values.
 | db            | <code>\*</code> |
 | sessionId     | <code>\*</code> |
 | keyValuePairs | <code>\*</code> |
+
+<a name="autoLoadPackage"></a>
+
+## autoLoadPackage(db, pkg, absPath) ⇒
+
+Auto-load package. If succesful it returns an object.
+Otherwise it throws an exception.
+
+**Kind**: global function  
+**Returns**: object containing packageId and packageType.
+
+| Param   | Type            |
+| ------- | --------------- |
+| db      | <code>\*</code> |
+| pkg     | <code>\*</code> |
+| absPath | <code>\*</code> |
+
+<a name="convertPackageResult"></a>
+
+## convertPackageResult(data) ⇒
+
+Convert the array of results into a more palatable value.
+Resolves an array of { packageId:, packageType:} objects into { zclPackageId: id, templateIds: [] }
+
+**Kind**: global function  
+**Returns**: an object that contains session ids.
+
+| Param | Type            |
+| ----- | --------------- |
+| data  | <code>\*</code> |
 
 <a name="jsonDataLoader"></a>
 

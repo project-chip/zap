@@ -96,7 +96,7 @@ test(
 test(
   'Initialize session packages',
   async () => {
-    let packages = await utilJs.initializeSessionPackage(
+    let packages = await utilJs.ensurePackagesAndPopulateSessionOptions(
       templateContext.db,
       templateContext.sessionId,
       {

@@ -187,7 +187,7 @@ describe('Session specific queries', () => {
       'SESSION'
     )
     sid = userSession.sessionId
-    await util.initializeSessionPackage(
+    await util.ensurePackagesAndPopulateSessionOptions(
       db,
       sid,
       {

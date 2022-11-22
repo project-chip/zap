@@ -210,7 +210,7 @@ async function startConvert(argv, options) {
 
     let sessionId = importResult.sessionId
 
-    await util.initializeSessionPackage(db, sessionId, {
+    await util.ensurePackagesAndPopulateSessionOptions(db, sessionId, {
       zcl: argv.zclProperties,
       template: argv.generationTemplate,
     })
@@ -525,7 +525,11 @@ async function generateSingleFile(
   }
   options.logger(`👉 using output destination: ${output}`)
 
-  let sessPkg = await util.initializeSessionPackage(db, sessionId, options)
+  let sessPkg = await util.ensurePackagesAndPopulateSessionOptions(
+    db,
+    sessionId,
+    options
+  )
   let usedTemplatePackageId = templatePackageId
   for (let pkg of sessPkg) {
     if (pkg.type === dbEnum.packageType.genTemplatesJson) {

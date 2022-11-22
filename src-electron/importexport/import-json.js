@@ -148,21 +148,26 @@ async function importSinglePackage(db, pkg, zapFilePath, packageMatch) {
     }
   }
 
-  // We have only one. Use it and be done
-  if (packages.length == 1) {
+  // Moving on. We have more than one package, so we have to
+  // make a smart decision.
+  //
+
+  // First narrow down to the category.
+  let categoryMatch = packages.filter((p) => p.category == pkg.category)
+  if (categoryMatch.length == 1) {
     env.logDebug(
-      `Only one package of given type ${pkg.type} present. Using it.`
+      `Only one package of given type ${pkg.type} and category ${pkg.category} present. Using it.`
     )
     return {
-      packageId: packages[0].id,
+      packageId: categoryMatch[0].id,
       packageType: pkg.type,
     }
   }
 
   // Filter to just the ones that match the version
-  packages = packages.filter((p) => p.version == pkg.version)
+  let versionMatch = packages.filter((p) => p.version == pkg.version)
   // If there isn't any abort, if there is only one, use it.
-  if (packages.length == 0) {
+  if (versionMatch.length == 0) {
     let msg = `No packages of type ${pkg.type} that match version ${pkg.version} found in the database.`
     if (pkg.type == dbEnum.packageType.genTemplatesJson) {
       // We don't throw exception for genTemplatesJson, we can survive without.
@@ -171,15 +176,17 @@ async function importSinglePackage(db, pkg, zapFilePath, packageMatch) {
     } else {
       throw new Error(msg)
     }
-  } else if (packages.length == 1) {
+  } else if (versionMatch.length == 1) {
     env.logDebug(
       `Only one package of given type ${pkg.type} and version ${pkg.version} present. Using it.`
     )
     return {
-      packageId: packages[0].id,
+      packageId: versionMatch[0].id,
       packageType: pkg.type,
     }
   }
+
+  // Neither category match, nor version match had only one version.
 
   // We now know we have more than 1 matching package. Find best bet.
   let existingPackages = packages.filter(
@@ -217,7 +224,13 @@ async function importSinglePackage(db, pkg, zapFilePath, packageMatch) {
   }
 }
 
-// Resolves an array of { packageId:, packageType:} objects into { zclPackageId: id, templateIds: [] }
+/**
+ * Convert the array of results into a more palatable value.
+ * Resolves an array of { packageId:, packageType:} objects into { zclPackageId: id, templateIds: [] }
+ *
+ * @param {*} data
+ * @returns an object that contains session ids.
+ */
 function convertPackageResult(data) {
   let ret = {
     zclPackageId: null,
