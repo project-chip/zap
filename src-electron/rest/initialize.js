@@ -5,10 +5,10 @@ const restApi = require('../../src-shared/rest-api.js')
 const util = require('../util/util.js')
 
 /**
-  * This function returns Properties, Templates and Dirty-Sessions
-  * @param {*} db
-  * @returns Properties, Templates and Dirty-Sessions.
-  */
+ * This function returns Properties, Templates and Dirty-Sessions
+ * @param {*} db
+ * @returns Properties, Templates and Dirty-Sessions.
+ */
 module.exports.packagesAndSessions = (db) => {
   return async (req, res) => {
     const zclProperties = await queryPackage.getPackagesByType(
@@ -29,11 +29,11 @@ module.exports.packagesAndSessions = (db) => {
 }
 
 /**
-  * This function creates a new session with its packages according to selected Properties and Templates
-  * @param {*} db
-  * @param {*} options: object containing 'zcl' and 'template'
-  * @returns A success message.
-  */
+ * This function creates a new session with its packages according to selected Properties and Templates
+ * @param {*} db
+ * @param {*} options: object containing 'zcl' and 'template'
+ * @returns A success message.
+ */
 module.exports.initializeSession = (db, options) => {
   return async (req, res) => {
     let sessionUuid = req.query[restApi.param.sessionId]
@@ -41,7 +41,7 @@ module.exports.initializeSession = (db, options) => {
     let user = await querySession.ensureUser(db, userKey)
     let sessionId = await querySession.ensureBlankSession(db, sessionUuid)
     await querySession.linkSessionToUser(db, sessionId, user.userId)
-    await util.initializeSessionPackage(
+    await util.ensurePackagesAndPopulateSessionOptions(
       db,
       sessionId,
       options,
@@ -55,10 +55,10 @@ module.exports.initializeSession = (db, options) => {
 }
 
 /**
-  * This function reloads previous session by user selected session's id
-  * @param {*} db
-  * @returns A success message.
-  */
+ * This function reloads previous session by user selected session's id
+ * @param {*} db
+ * @returns A success message.
+ */
 module.exports.loadPreviousSessions = (db) => {
   return async (req, res) => {
     let sessionUuid = req.query[restApi.param.sessionId]

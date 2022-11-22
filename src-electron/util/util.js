@@ -57,7 +57,7 @@ function checksum(data) {
  * @param {*} selectedGenTemplatePackages
  * @returns Promise that resolves with the packages array.
  */
-async function initializeSessionPackage(
+async function ensurePackagesAndPopulateSessionOptions(
   db,
   sessionId,
   options,
@@ -187,9 +187,13 @@ async function initializeSessionPackage(
     promises.push(genTemplateJsonPromise)
   }
 
-  await Promise.all(promises)
+  if (promises.length > 0) await Promise.all(promises)
 
+  // We read all the packages.
   let packages = await queryPackage.getSessionPackagesWithTypes(db, sessionId)
+
+  // Now we create promises with the queries that populate the
+  // session key/value pairs from package options.
   let p = packages.map((pkg) =>
     queryPackage
       .selectAllDefaultOptions(db, pkg.packageRef)
@@ -680,7 +684,8 @@ async function collectJsonData(jsonFile, recursiveLevel = 0) {
 
 exports.createBackupFile = createBackupFile
 exports.checksum = checksum
-exports.initializeSessionPackage = initializeSessionPackage
+exports.ensurePackagesAndPopulateSessionOptions =
+  ensurePackagesAndPopulateSessionOptions
 exports.matchFeatureLevel = matchFeatureLevel
 exports.sessionReport = sessionReport
 exports.sessionDump = sessionDump

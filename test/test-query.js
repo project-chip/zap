@@ -157,10 +157,14 @@ async function createSession(db, user, sessionUuid, zclFile, genTemplatesFile) {
     user,
     sessionUuid
   )
-  await util.initializeSessionPackage(db, userSession.sessionId, {
-    zcl: zclFile,
-    template: genTemplatesFile,
-  })
+  await util.ensurePackagesAndPopulateSessionOptions(
+    db,
+    userSession.sessionId,
+    {
+      zcl: zclFile,
+      template: genTemplatesFile,
+    }
+  )
   return userSession.sessionId
 }
 
