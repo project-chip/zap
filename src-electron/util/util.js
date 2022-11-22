@@ -194,6 +194,13 @@ async function ensurePackagesAndPopulateSessionOptions(
 
   // Now we create promises with the queries that populate the
   // session key/value pairs from package options.
+
+  await populateSessionPackageOptions(db, sessionId, packages)
+
+  return packages
+}
+
+async function populateSessionPackageOptions(db, sessionId, packages) {
   let p = packages.map((pkg) =>
     queryPackage
       .selectAllDefaultOptions(db, pkg.packageRef)
@@ -215,8 +222,7 @@ async function ensurePackagesAndPopulateSessionOptions(
       )
   )
 
-  await Promise.all(p)
-  return packages
+  return Promise.all(p)
 }
 
 /**
