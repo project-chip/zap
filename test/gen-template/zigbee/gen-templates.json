@@ -1,6 +1,7 @@
 {
   "name": "Test templates",
   "version": "test-v1",
+  "category": "zigbee",
   "requiredFeatureLevel": 2,
   "options": {
     "testOption": {

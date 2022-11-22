@@ -26,10 +26,6 @@ const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const importJs = require('../src-electron/importexport/import.js')
 const testUtil = require('./test-util.js')
 const queryPackage = require('../src-electron/db/query-package.js')
-const {
-  exportClustersFromEndpointType,
-} = require('../src-electron/db/query-impexp.js')
-const querySession = require('../src-electron/db/query-session.js')
 
 let db
 const testFile = path.join(__dirname, 'resource/three-endpoint-device.zap')
