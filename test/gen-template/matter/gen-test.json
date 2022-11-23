@@ -1,6 +1,7 @@
 {
   "name": "Matter test template",
   "version": "test-matter",
+  "category": "matter",
   "options": {
     "testOption": {
       "code1": "label1",
