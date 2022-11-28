@@ -1,0 +1,58 @@
+name: Build and release packages
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+env:
+  ZAP_TEST_TIMEOUT: 3600000
+  ZAP_TEMPSTATE: 1
+
+jobs:
+  matter-sdk-codegen:
+    name: Test matter sdk codegen changes
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        node-version: [16.x]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3.0.0
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      - run: sudo ./src-script/install-packages-ubuntu
+      - run: sudo apt-get install --fix-missing xvfb
+      - run: npm ci
+      - run: npm run version-stamp
+      - run: npm rebuild canvas --update-binary
+      - run: npm rebuild libxmljs --update-binary
+      - run: npm run build-spa
+
+      - name: Checkout Matter SDK
+        uses: actions/checkout@v3
+        with:
+          repository: project-chip/connectedhomeip
+          path: chip_repo
+
+      - name: Generate all
+        run: |
+          cd chip_repo
+          ZAP_DEVELOPMENT_PATH=.. scripts/tools/zap_regen_all.py
+
+      - name: Ensure git works in the chip repository checkout
+        run: git config --global --add safe.directory `pwd`/chip_repo
+
+      - name: Check for uncommited changes
+        run: |
+          cd chip_repo
+          git add .
+          # Show the full diff
+          git diff-index -p HEAD --
+          # Also show just the files that are different, to make it easy
+          # to tell at a glance what might be going on.  And throw in
+          # --exit-code to make this job fail if there is a difference.
+          git diff-index --exit-code HEAD --
+
