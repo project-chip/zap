@@ -171,8 +171,12 @@ async function asObjectiveCClass(type, cluster, options) {
     if (options.hash.compatRemapClusterName) {
       cluster = compatClusterNameRemapping.call(this, cluster);
     } else {
+      let preserveAcronyms = true;
+      if ('preserveAcronyms' in options.hash) {
+        preserveAcronyms = options.hash.preserveAcronyms;
+      }
       cluster = appHelper.asUpperCamelCase(cluster, {
-        hash: { preserveAcronyms: false },
+        hash: { preserveAcronyms: preserveAcronyms },
       });
     }
     return `MTR${cluster}Cluster${appHelper.asUpperCamelCase(type)}`;
@@ -231,9 +235,9 @@ function commandHasRequiredField(command) {
  * This function strips out the redundant cluster names, and strips off trailing
  * "Enum" bits on the enum names while we're here.
  */
-function objCEnumName(clusterName, enumLabel) {
+function objCEnumName(clusterName, enumLabel, options) {
   clusterName = appHelper.asUpperCamelCase(clusterName, {
-    hash: { preserveAcronyms: false },
+    hash: { preserveAcronyms: options.hash.preserveAcronyms },
   });
   enumLabel = appHelper.asUpperCamelCase(enumLabel);
   // Some enum names have one or more copies of the cluster name at the
