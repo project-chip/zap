@@ -345,10 +345,9 @@ jobs:
       - name: Unpack linux artifact
         run: |
           # show what we have
-          ls -R 
           mkdir zap-release
           cd zap-release
-          unzip ../zap*-linux.zip
+          unzip ../zap-linux-zip/zap-*.zip
 
       # Checkout without actions/checkout@v3 since that one uses a repository specific token
       - name: Checkout Matter SDK
