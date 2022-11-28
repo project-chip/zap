@@ -14,119 +14,122 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <template>
-  <div v-show="commandData.length > 0">
-    <q-table
-      class="my-sticky-header-table"
-      :data="commandData"
-      :columns="columns"
-      row-key="<b>name</b>"
-      dense
-      virtual-scroll
-      flat
-      binary-state-sort
-      :pagination.sync="pagination"
-    >
-      <template v-slot:header="props">
-        <q-tr :props="props">
-          <q-th v-for="col in props.cols" :key="col.name" :props="props">
-            {{ col.label }}
-          </q-th>
-        </q-tr>
-      </template>
-      <template v-slot:body="props">
-        <q-tr :props="props">
-          <q-td key="status" :props="props" class="q-px-none">
-            <q-icon
-              v-show="displayCommandWarning(props.row)"
-              name="warning"
-              class="text-amber"
-              style="font-size: 1.5rem"
-            />
-            <q-tooltip
-              v-if="displayCommandWarning(props.row)"
-              anchor="top middle"
-              self="bottom middle"
-              :offset="[10, 10]"
-            >
-              {{ validationErrorMessage }}
-            </q-tooltip>
-          </q-td>
-          <q-td key="out" :props="props" auto-width>
-            <q-checkbox
-              class="q-mt-xs"
-              v-model="selectionOut"
-              :val="hashCommandIdClusterId(props.row.id, selectedCluster.id)"
-              v-show="
-                (selectionClients.includes(selectedCluster.id) &&
-                  props.row.source == 'client') ||
-                (selectionServers.includes(selectedCluster.id) &&
-                  props.row.source == 'server') ||
-                props.row.source == 'either'
-              "
-              indeterminate-value="false"
-              keep-color
-              @input="
-                handleCommandSelection(
-                  selectionOut,
-                  'selectedOut',
-                  props.row,
-                  selectedCluster.id
-                )
-              "
-            />
-          </q-td>
-          <q-td key="in" :props="props" auto-width class="v-step-15">
-            <q-checkbox
-              class="q-mt-xs"
-              v-model="selectionIn"
-              :val="hashCommandIdClusterId(props.row.id, selectedCluster.id)"
-              indeterminate-value="false"
-              keep-color
-              v-show="
-                (selectionServers.includes(selectedCluster.id) &&
-                  props.row.source == 'client') ||
-                (selectionClients.includes(selectedCluster.id) &&
-                  props.row.source == 'server') ||
-                props.row.source == 'either'
-              "
-              @input="
-                handleCommandSelection(
-                  selectionIn,
-                  'selectedIn',
-                  props.row,
-                  selectedCluster.id
-                )
-              "
-            />
-          </q-td>
-          <q-td key="direction" :props="props" auto-width>{{
-            props.row.source === 'client'
-              ? 'Client ➞ Server'
-              : props.row.source === 'server'
-              ? 'Server ➞ Client'
-              : 'Client ↔ Server'
-          }}</q-td>
-          <q-td key="commandId" :props="props" auto-width>{{
-            asHex(props.row.code, 2)
-          }}</q-td>
-          <q-td key="commandName" :props="props" auto-width>{{
-            props.row.label
-          }}</q-td>
-          <q-td key="required" :props="props" auto-width>
-            {{ isCommandRequired(props.row) ? 'Yes' : '' }}
-          </q-td>
-          <q-td key="mfgId" :props="props" auto-width
-            >{{
-              selectedCluster.manufacturerCode
-                ? asHex(selectedCluster.manufacturerCode, 4)
-                : props.row.manufacturerCode
-                ? asHex(props.row.manufacturerCode, 4)
-                : '-'
-            }}
-          </q-td>
-        </q-tr>
-      </template>
-    </q-table>
+  <div>
+    <div v-if="commandData.length > 0">
+      <q-table
+        class="my-sticky-header-table"
+        :data="commandData"
+        :columns="columns"
+        row-key="<b>name</b>"
+        dense
+        virtual-scroll
+        flat
+        binary-state-sort
+        :pagination.sync="pagination"
+      >
+        <template v-slot:header="props">
+          <q-tr :props="props">
+            <q-th v-for="col in props.cols" :key="col.name" :props="props">
+              {{ col.label }}
+            </q-th>
+          </q-tr>
+        </template>
+        <template v-slot:body="props">
+          <q-tr :props="props">
+            <q-td key="status" :props="props" class="q-px-none">
+              <q-icon
+                v-show="displayCommandWarning(props.row)"
+                name="warning"
+                class="text-amber"
+                style="font-size: 1.5rem"
+              />
+              <q-tooltip
+                v-if="displayCommandWarning(props.row)"
+                anchor="top middle"
+                self="bottom middle"
+                :offset="[10, 10]"
+              >
+                {{ validationErrorMessage }}
+              </q-tooltip>
+            </q-td>
+            <q-td key="out" :props="props" auto-width>
+              <q-checkbox
+                class="q-mt-xs"
+                v-model="selectionOut"
+                :val="hashCommandIdClusterId(props.row.id, selectedCluster.id)"
+                v-show="
+                  (selectionClients.includes(selectedCluster.id) &&
+                    props.row.source == 'client') ||
+                  (selectionServers.includes(selectedCluster.id) &&
+                    props.row.source == 'server') ||
+                  props.row.source == 'either'
+                "
+                indeterminate-value="false"
+                keep-color
+                @input="
+                  handleCommandSelection(
+                    selectionOut,
+                    'selectedOut',
+                    props.row,
+                    selectedCluster.id
+                  )
+                "
+              />
+            </q-td>
+            <q-td key="in" :props="props" auto-width class="v-step-15">
+              <q-checkbox
+                class="q-mt-xs"
+                v-model="selectionIn"
+                :val="hashCommandIdClusterId(props.row.id, selectedCluster.id)"
+                indeterminate-value="false"
+                keep-color
+                v-show="
+                  (selectionServers.includes(selectedCluster.id) &&
+                    props.row.source == 'client') ||
+                  (selectionClients.includes(selectedCluster.id) &&
+                    props.row.source == 'server') ||
+                  props.row.source == 'either'
+                "
+                @input="
+                  handleCommandSelection(
+                    selectionIn,
+                    'selectedIn',
+                    props.row,
+                    selectedCluster.id
+                  )
+                "
+              />
+            </q-td>
+            <q-td key="direction" :props="props" auto-width>{{
+              props.row.source === 'client'
+                ? 'Client ➞ Server'
+                : props.row.source === 'server'
+                ? 'Server ➞ Client'
+                : 'Client ↔ Server'
+            }}</q-td>
+            <q-td key="commandId" :props="props" auto-width>{{
+              asHex(props.row.code, 2)
+            }}</q-td>
+            <q-td key="commandName" :props="props" auto-width>{{
+              props.row.label
+            }}</q-td>
+            <q-td key="required" :props="props" auto-width>
+              {{ isCommandRequired(props.row) ? 'Yes' : '' }}
+            </q-td>
+            <q-td key="mfgId" :props="props" auto-width
+              >{{
+                selectedCluster.manufacturerCode
+                  ? asHex(selectedCluster.manufacturerCode, 4)
+                  : props.row.manufacturerCode
+                  ? asHex(props.row.manufacturerCode, 4)
+                  : '-'
+              }}
+            </q-td>
+          </q-tr>
+        </template>
+      </q-table>
+    </div>
+    <div v-else><br />{{ noCommandsMessage }}</div>
   </div>
 </template>
 
@@ -219,6 +222,7 @@ export default {
   },
   data() {
     return {
+      noCommandsMessage: 'No commands available for this cluster.',
       validationErrorMessage: '',
       pagination: {
         rowsPerPage: 0,
