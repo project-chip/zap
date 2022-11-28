@@ -342,6 +342,9 @@ jobs:
 
     steps:
       - uses: actions/download-artifact@v3
+        with:
+          name: zap-linux-zip
+
       - name: Unpack linux artifact
         run: |
           # show what we have
