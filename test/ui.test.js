@@ -178,7 +178,7 @@ describe('Component mounting test', () => {
     'ZclCommandManager',
     () => {
       const wrapper = shallowMount(ZclCommandManager, { store: ZapStore() })
-      expect(wrapper.html().length).toBeGreaterThan(100)
+      expect(wrapper.html().length).toBeGreaterThan(60)
     },
     timeout.short()
   )
