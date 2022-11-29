@@ -80,6 +80,7 @@ import ZclClusterLayout from '../src/layouts/ZclClusterLayout.vue'
 import ZclConfiguratorLayout from '../src/layouts/ZclConfiguratorLayout.vue'
 import Error404 from '../src/pages/Error404.vue'
 import Preference from '../src/pages/Preference.vue'
+import Notifications from '../src/pages/Notifications.vue'
 import PreferenceGeneration from '../src/pages/PreferenceGeneration.vue'
 import PreferenceUser from '../src/pages/PreferenceUser.vue'
 import PreferencePackage from '../src/pages/PreferencePackage.vue'
@@ -178,7 +179,7 @@ describe('Component mounting test', () => {
     'ZclCommandManager',
     () => {
       const wrapper = shallowMount(ZclCommandManager, { store: ZapStore() })
-      expect(wrapper.html().length).toBeGreaterThan(60)
+      expect(wrapper.html().length).toBeGreaterThan(100)
     },
     timeout.short()
   )
@@ -252,6 +253,14 @@ describe('Component mounting test', () => {
     'ZclConfiguratorLayout',
     () => {
       const wrapper = shallowMount(ZclConfiguratorLayout, { store: ZapStore() })
+      expect(wrapper.html().length).toBeGreaterThan(100)
+    },
+    timeout.short()
+  )
+  test(
+    'Notifications',
+    () => {
+      const wrapper = shallowMount(Notifications, { store: ZapStore() })
       expect(wrapper.html().length).toBeGreaterThan(100)
     },
     timeout.short()
