@@ -167,7 +167,7 @@ async function importSinglePackage(db, pkg, zapFilePath, packageMatch) {
   // Filter to just the ones that match the version
   let versionMatch = packages.filter((p) => p.version == pkg.version)
   // If there isn't any abort, if there is only one, use it.
-  if (versionMatch.length == 0) {
+  if (versionMatch.length == 0 && packageMatch === dbEnum.packageMatch.strict) {
     let msg = `No packages of type ${pkg.type} that match version ${pkg.version} found in the database.`
     if (pkg.type == dbEnum.packageType.genTemplatesJson) {
       // We don't throw exception for genTemplatesJson, we can survive without.
