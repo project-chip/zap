@@ -21,10 +21,8 @@
  * @module REST API: user data
  */
 const fs = require('fs')
-const fsPromise = fs.promises
 const env = require('../util/env')
 const queryZcl = require('../db/query-zcl.js')
-const dbApi = require('../db/db-api.js')
 const queryAttribute = require('../db/query-attribute.js')
 const queryCommand = require('../db/query-command.js')
 const queryConfig = require('../db/query-config.js')
@@ -381,7 +379,9 @@ function httpGetUiOptions(db) {
     let sessionId = request.zapSessionId
     let packages = await queryPackage.getSessionPackages(db, sessionId)
     let zclPackage = await queryPackage.getZclPropertiesPackage(db, packages)
-    let data = await queryPackage.selectAllUiOptions(db, zclPackage[0].id)
+    let data = []
+    if (zclPackage != null && zclPackage.length > 0)
+      data = await queryPackage.selectAllUiOptions(db, zclPackage[0].id)
     response.status(StatusCodes.OK).json(data)
   }
 }

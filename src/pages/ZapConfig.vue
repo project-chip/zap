@@ -297,6 +297,13 @@ export default {
             }
           )
         }
+      } else if (this.customConfig === 'passthrough') {
+        let data = {
+          newConfiguration: true,
+        }
+        this.$serverPost(restApi.uri.initializeSession, data).then((result) => {
+          this.$store.commit('zap/selectZapConfig', true)
+        })
       } else {
         this.$serverPost(restApi.uri.reloadSession, {
           sessionId: this.selectedZclSessionData.id,
@@ -312,7 +319,13 @@ export default {
       this.selectedZclPropertiesData = result.data.zclProperties[0]
       this.zclGenRow = result.data.zclGenTemplates
 
-      if (this.zclPropertiesRow.length == 1 && this.zclGenRow.length == 1) {
+      if (!window.location.search.includes('newConfig=true')) {
+        this.customConfig = 'passthrough'
+        this.submitForm()
+      } else if (
+        this.zclPropertiesRow.length == 1 &&
+        this.zclGenRow.length == 1
+      ) {
         // We shortcut this page, if there is exactly one of each,
         // since we simply assume that they are selected and move on.
         this.selectedZclGenData[0] = this.zclGenRow[0].id

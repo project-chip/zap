@@ -380,6 +380,9 @@ async function importEndpointTypes(
  * @returns a promise that resolves into a sessionId that was created.
  */
 async function jsonDataLoader(db, state, sessionId, packageMatch) {
+  // Initially clean up all the packages from the session.
+  await queryPackage.deleteAllSessionPackages(db, sessionId)
+
   // Loading all packages before custom xml to make sure clusterExtensions are
   // handled properly
   let topLevelPackages = state.package.filter(

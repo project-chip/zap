@@ -327,6 +327,21 @@ async function deleteSessionPackage(db, sessionId, packageId) {
 }
 
 /**
+ * Deletes all session packages.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @returns promise
+ */
+async function deleteAllSessionPackages(db, sessionId) {
+  return dbApi.dbRemove(
+    db,
+    `DELETE FROM SESSION_PACKAGE WHERE SESSION_REF = ?`,
+    [sessionId]
+  )
+}
+
+/**
  * Returns session packages of a given type.
  *
  * @param {*} db
@@ -979,6 +994,7 @@ exports.getPackagesByParentAndType = getPackagesByParentAndType
 exports.getSessionZclPackages = getSessionZclPackages
 exports.getSessionZclPackageIds = getSessionZclPackageIds
 exports.getAllPackages = getAllPackages
+exports.deleteAllSessionPackages = deleteAllSessionPackages
 
 exports.insertPackageExtension = insertPackageExtension
 exports.selectPackageExtension = selectPackageExtension
