@@ -292,17 +292,17 @@ export default {
           sortable: true,
         },
         {
-          name: 'clientServer',
-          label: 'Client/Server',
-          field: 'clientServer',
-          align: 'left',
-          sortable: true,
-        },
-        {
           name: 'mfgID',
           label: 'Mfg Code',
           align: 'left',
           field: 'mfgID',
+          sortable: true,
+        },
+        {
+          name: 'clientServer',
+          label: 'Client/Server',
+          field: 'clientServer',
+          align: 'left',
           sortable: true,
         },
         {
