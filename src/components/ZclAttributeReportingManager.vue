@@ -84,15 +84,15 @@ limitations under the License.
           <q-td key="required" :props="props" auto-width>
             {{ props.row.reportingPolicy }}
           </q-td>
+          <q-td key="clientServer" :props="props" auto-width>{{
+            props.row.side === 'client' ? 'Client' : 'Server'
+          }}</q-td>
           <q-td key="mfgID" :props="props" auto-width>{{
             selectedCluster.manufacturerCode
               ? asHex(selectedCluster.manufacturerCode, 4)
               : props.row.manufacturerCode
               ? asHex(props.row.manufacturerCode, 4)
               : ''
-          }}</q-td>
-          <q-td key="clientServer" :props="props" auto-width>{{
-            props.row.side === 'client' ? 'Client' : 'Server'
           }}</q-td>
           <q-td key="min" :props="props" auto-width>
             <q-input
@@ -292,17 +292,17 @@ export default {
           sortable: true,
         },
         {
-          name: 'mfgID',
-          label: 'Mfg Code',
-          align: 'left',
-          field: 'mfgID',
-          sortable: true,
-        },
-        {
           name: 'clientServer',
           label: 'Client/Server',
           field: 'clientServer',
           align: 'left',
+          sortable: true,
+        },
+        {
+          name: 'mfgID',
+          label: 'Mfg Code',
+          align: 'left',
+          field: 'mfgID',
           sortable: true,
         },
         {
