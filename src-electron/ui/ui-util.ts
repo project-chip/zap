@@ -66,6 +66,11 @@ async function openNewConfiguration(
   httpPort: number,
   options?: WindowCreateArgs
 ) {
+  if (options == null) {
+    options = { filePath: null, new: true }
+  } else {
+    options.new = true
+  }
   window.windowCreate(httpPort, options)
 }
 

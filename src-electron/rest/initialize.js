@@ -41,13 +41,15 @@ module.exports.initializeSession = (db, options) => {
     let user = await querySession.ensureUser(db, userKey)
     let sessionId = await querySession.ensureBlankSession(db, sessionUuid)
     await querySession.linkSessionToUser(db, sessionId, user.userId)
-    await util.ensurePackagesAndPopulateSessionOptions(
-      db,
-      sessionId,
-      options,
-      req.body.zclProperties,
-      req.body.genTemplate
-    )
+    if (!req.body.newConfiguration) {
+      await util.ensurePackagesAndPopulateSessionOptions(
+        db,
+        sessionId,
+        options,
+        req.body.zclProperties,
+        req.body.genTemplate
+      )
+    }
     return res.send({
       message: 'Session created successfully',
     })
