@@ -50,9 +50,10 @@ export function windowCreateIfNotThere(port: number) {
   }
 }
 
-export function createQueryString(
+function createQueryString(
   uiMode?: string | undefined,
   standalone?: boolean | undefined,
+  isNew?: boolean | undefined,
   restPort?: number
 ) {
   var params = new Map()
@@ -67,6 +68,10 @@ export function createQueryString(
 
   if (standalone !== undefined) {
     params.set('standalone', standalone)
+  }
+
+  if (isNew !== undefined) {
+    params.set('newConfig', isNew)
   }
 
   // Electron/Development mode
@@ -112,6 +117,7 @@ export function windowCreate(port: number, args?: WindowCreateArgs) {
   let queryString = createQueryString(
     args?.uiMode,
     args?.standalone,
+    args?.new,
     httpServer.httpServerPort()
   )
 
