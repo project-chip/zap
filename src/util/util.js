@@ -72,7 +72,13 @@ export function notifyComponentUpdateStatus(componentIdStates, added) {
       let msg = `<div><strong>The following components ${verb} ${action}.</strong></div>`
       msg += `<div><span style="text-transform: capitalize"><ul>`
       msg += components
-        .map((id) => `<li>${id.replace(/_/g, ' ')}</li>`)
+        .map((id) => {
+          if (id.lastIndexOf('%') != -1) {
+            id = id.substring(id.lastIndexOf('%') + 1)
+          }
+
+          return `<li>${id.replace(/_/g, ' ')}</li>`
+        })
         .join(' ')
       msg += `</ul></span></div>`
 
@@ -93,31 +99,40 @@ export function getSelectedUcComponents(ucComponentList) {
 
 export function getUcComponents(ucComponentTreeResponse) {
   // computed selected Nodes
-  let selected = []
+  let selectedComponents = []
   if (ucComponentTreeResponse) {
     ucComponentTreeResponse.filter(function f(e) {
       if (e.children) {
         e.children.filter(f, this)
       }
 
-      if (e.id && e.id.includes('zigbee_')) {
+      if (e.id && (e.id.includes('zigbee_') || e.id.includes('extension-'))) {
         this.push(e)
       }
-    }, selected)
+    }, selectedComponents)
   }
-  return selected
+  return selectedComponents
 }
 
 /**
- * Extract cluster id string "$cluster" from the internal Uc Component Id
+ * Extract a list of cluster id from a list of Uc component id
  *
- * e.g. "zigbee_basic" from "studiocomproot-Zigbee-Cluster_Library-Common-zigbee_basic"
+ * return: a list of ids
+ *   id value example:
+ *     "zigbee_basic" from "studiocomproot-Zigbee-Cluster_Library-Common-zigbee_basic"
+       "%extension-matter%matter_level_control" from "matter:1.0.0-Matter-Clusters-%extension-matter%matter_level_control"
  * @param {*} ucComponentIds - an array of ids
  */
 export function getClusterIdsByUcComponents(ucComponents) {
   return ucComponents
-    .map((x) => x.id)
-    .map((x) => x.substr(x.lastIndexOf('-') + 1))
+    .map((component) => component.id)
+    .map((id) => {
+      if (id.includes('zigbee')) {
+        return id.substr(id.lastIndexOf('-') + 1)
+      } else if (id.includes('%extension-')) {
+        return id.substr(id.lastIndexOf('%extension-'))
+      }
+    })
 }
 
 /**
