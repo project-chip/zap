@@ -476,6 +476,8 @@ async function selectAttributeDetailsFromEnabledClusters(
       mfgAttributeCount: x.MANUFACTURING_SPECIFIC_ATTRIBUTE_COUNT,
       singletonAttributeSize: x.SINGLETON_ATTRIBUTE_SIZE,
       maxAttributeSize: x.MAX_ATTRIBUTE_SIZE,
+      isGlobalAttribute: x.IS_GLOBAL_ATTRIBUTE,
+      isArray: x.IS_ARRAY,
     }
   }
   return dbApi
@@ -491,6 +493,22 @@ async function selectAttributeDetailsFromEnabledClusters(
     ATTRIBUTE.DEFINE,
     ATTRIBUTE.MANUFACTURER_CODE,
     ATTRIBUTE.IS_WRITABLE,
+    CASE
+      WHEN
+        ATTRIBUTE.CLUSTER_REF IS NULL
+      THEN
+        1
+      ELSE
+        0
+    END AS IS_GLOBAL_ATTRIBUTE,
+    CASE
+      WHEN
+        ATTRIBUTE.ARRAY_TYPE IS NOT NULL
+      THEN
+        1
+      ELSE
+        0
+    END AS IS_ARRAY,
     CLUSTER.CLUSTER_ID AS CLUSTER_ID,
     ENDPOINT_TYPE_CLUSTER.SIDE AS CLUSTER_SIDE,
     CLUSTER.NAME AS CLUSTER_NAME,
