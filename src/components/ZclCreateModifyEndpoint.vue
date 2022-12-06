@@ -463,6 +463,9 @@ export default {
       })
     },
   },
+  created() {
+    this.$store.dispatch('zap/updateZclDeviceTypes')
+  },
   destroyed() {
     // This function will empty the deviceTypeRef state
     this.$store.commit('zap/setDeviceTypeRefAndDeviceIdPair', {
