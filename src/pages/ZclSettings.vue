@@ -28,7 +28,6 @@ limitations under the License.
 <script>
 export default {
   name: 'ZclSettings',
-  components: {},
   methods: {
     fileUpload(test) {
       console.log(test)
