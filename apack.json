@@ -6,6 +6,7 @@
   "requiredFeatureLevel": "apack.core:9",
   "featureLevel": 89,
   "uc.triggerExtension": "zap",
+  "uc.sdkProvidedProperties": "zcl.matterTemplateJsonFile, zcl.matterZclJsonFile",
   "executable": {
     "zap:win32.x86_64": {
       "exe": "zap.exe",
@@ -61,10 +62,10 @@
       "cmd": "$(zap-cli) --version"
     },
     "uc_generate": {
-      "cmd": "$(zap-cli) generate --noUi --noServer -o ${generationOutput} --packageMatch fuzzy --zcl ${sdkRoot}/app/zcl/zcl-zap.json --zcl ${sdkRoot}/extension/matter/src/app/zap-templates/zcl/zcl.json --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json --generationTemplate ${sdkRoot}/extension/matter/src/app/zap-templates/app-templates.json --in ${contentFolder} --noLoadingFailure --appendGenerationSubdirectory"
+      "cmd": "$(zap-cli) generate --noUi --noServer -o ${generationOutput} --packageMatch fuzzy --zcl ${sdkRoot}/app/zcl/zcl-zap.json --zcl ${zcl.matterZclJsonFile} --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json --generationTemplate ${zcl.matterTemplateJsonFile} --in ${contentFolder} --noLoadingFailure --appendGenerationSubdirectory"
     },
     "uc_upgrade": {
-      "cmd": "$(zap-cli) convert --noUi --noServer -o ${tempContentFolder}/zcl_config.zap --packageMatch fuzzy --zcl ${sdkRoot}/app/zcl/zcl-zap.json --zcl ${sdkRoot}/extension/matter/src/app/zap-templates/zcl/zcl.json --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json --generationTemplate ${sdkRoot}/extension/matter/src/app/zap-templates/app-templates.json ${tempContentFolder}/zcl_config.zap --results ${results} --noLoadingFailure --appendGenerationSubdirectory"
+      "cmd": "$(zap-cli) convert --noUi --noServer -o ${tempContentFolder}/zcl_config.zap --packageMatch fuzzy --zcl ${sdkRoot}/app/zcl/zcl-zap.json --zcl ${zcl.matterZclJsonFile} --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json --generationTemplate ${zcl.matterTemplateJsonFile} ${tempContentFolder}/zcl_config.zap --results ${results} --noLoadingFailure --appendGenerationSubdirectory"
     },
     "zapHelp": {
       "cmd": "$(zap) --help"
@@ -73,7 +74,7 @@
       "cmd": "$(zap) selfCheck"
     },
     "zapServer": {
-      "cmd": "$(zap) server --reuseZapInstance --packageMatch fuzzy --zcl ${sdkRoot}/app/zcl/zcl-zap.json --zcl ${sdkRoot}/extension/matter/src/app/zap-templates/zcl/zcl.json --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json --generationTemplate ${sdkRoot}/extension/matter/src/app/zap-templates/app-templates.json --studioHttpPort ${studioHttpPort} --noLoadingFailure --appendGenerationSubdirectory"
+      "cmd": "$(zap) server --reuseZapInstance --packageMatch fuzzy --zcl ${sdkRoot}/app/zcl/zcl-zap.json --zcl ${zcl.matterZclJsonFile} --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json --generationTemplate ${zcl.matterTemplateJsonFile} --studioHttpPort ${studioHttpPort} --noLoadingFailure --appendGenerationSubdirectory"
     },
     "zapStop": {
       "cmd": "$(zap) stop --reuseZapInstance"
