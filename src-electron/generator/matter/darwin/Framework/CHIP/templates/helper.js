@@ -15,10 +15,15 @@
  *    limitations under the License.
  */
 
+const YAML = require('yaml');
+const fs = require('fs');
+const path = require('path');
+
 // Import helpers from zap core
 const string = require('../../../../../../util/string');
 const templateUtil = require('../../../../../../generator/template-util');
 const zclHelper = require('../../../../../../generator/helper-zcl.js');
+const zclQuery = require('../../../../../../db/query-zcl.js');
 
 const ChipTypesHelper = require('../../../../app/zap-templates/common/ChipTypesHelper');
 const TestHelper = require('../../../../app/zap-templates/common/ClusterTestGeneration.js');
@@ -146,6 +151,30 @@ function compatClusterNameRemapping(cluster) {
   return cluster;
 }
 
+const compatAttributeNameMap = {
+  Descriptor: {
+    DeviceTypeList: 'DeviceList',
+  },
+};
+
+function compatAttributeNameRemapping(cluster, attribute) {
+  cluster = appHelper.asUpperCamelCase(cluster, {
+    hash: { preserveAcronyms: false },
+  });
+
+  attribute = appHelper.asUpperCamelCase(attribute, {
+    hash: { preserveAcronyms: false },
+  });
+
+  if (cluster in compatAttributeNameMap) {
+    if (attribute in compatAttributeNameMap[cluster]) {
+      attribute = compatAttributeNameMap[cluster][attribute];
+    }
+  }
+
+  return attribute;
+}
+
 async function asObjectiveCClass(type, cluster, options) {
   let pkgIds = await templateUtil.ensureZclPackageIds(this);
   let isStruct = await zclHelper
@@ -262,6 +291,10 @@ function objCEnumItemLabel(itemLabel) {
   //
   // This will get converted to lowercase except the first letter by
   // asUpperCamelCase, which is not really what we want.
+  //
+  // This is not just using asUpperCamelCase with preserveAcronyms=true, because
+  // there are some enum names like "WEP-PERSONAL" that we don't want to
+  // preserve the PERSONAL part for.
   if (!/ |_|-|\//.test(itemLabel) && itemLabel.toUpperCase() == itemLabel) {
     return itemLabel.replace(/[.:]/g, '');
   }
@@ -271,6 +304,340 @@ function objCEnumItemLabel(itemLabel) {
 
 function hasArguments() {
   return !!this.arguments.length;
+}
+
+let availabilityData;
+function fetchAvailabilityData(global) {
+  if (!availabilityData) {
+    let f = path.join(path.dirname(global.templatePath), 'availability.yaml');
+    // NOTE: This has to be sync, so we can use this data in if conditions.
+    let rawData = fs.readFileSync(f, { encoding: 'utf8', flag: 'r' });
+    availabilityData = YAML.parse(rawData);
+  }
+  return availabilityData;
+}
+
+function findReleaseForPath(availabilityData, path, options) {
+  if (options.hash.isForIds) {
+    // Ids include all clusters, not just the ones we have real support for.
+    // Try looking for things under "ids:" first.
+    let newPath = [...path];
+    // Insert "ids" after the "introduced" or "deprecated" bit.
+    newPath.splice(1, 0, 'ids');
+    let releaseData = findReleaseForPath(availabilityData, newPath, {
+      hash: { isForIds: false },
+    });
+    if (releaseData !== undefined) {
+      return releaseData;
+    }
+  }
+
+  if (options.hash.isForCommandPayload) {
+    // Command payloads include all clusters, not just the ones we have real
+    // support for. Try looking for things under "command payloads:" first.
+    let newPath = [...path];
+    // Insert "command payloads" after the "introduced" or "deprecated" bit.
+    newPath.splice(newPath.indexOf('commands'), 1, 'command payloads');
+    let releaseData = findReleaseForPath(availabilityData, newPath, {
+      hash: { isForCommandPayload: false },
+    });
+    if (releaseData !== undefined) {
+      return releaseData;
+    }
+  }
+
+  for (let releaseData of availabilityData) {
+    // Our path, except the last item, leads to an array.  The last item is then
+    // a possible item in that array.
+    let containerNames = [...path];
+    let item = containerNames.pop();
+    let currentContainer = releaseData;
+    while (currentContainer !== undefined && containerNames.length != 0) {
+      currentContainer = currentContainer?.[containerNames.shift()];
+    }
+
+    if (currentContainer === undefined) {
+      continue;
+    }
+
+    if (currentContainer.includes(item)) {
+      return releaseData;
+    }
+
+    // Go on to the next release
+  }
+
+  return undefined;
+}
+
+function findReleaseByName(availabilityData, name) {
+  return availabilityData.find((releaseData) => releaseData.release == name);
+}
+
+function makeAvailabilityPath(clusterName, options) {
+  if (options.hash.struct) {
+    if (options.hash.structField) {
+      return [
+        'struct fields',
+        clusterName,
+        options.hash.struct,
+        options.hash.structField,
+      ];
+    }
+
+    return ['structs', clusterName, options.hash.struct];
+  }
+
+  if (options.hash.event) {
+    if (options.hash.eventField) {
+      return [
+        'event fields',
+        clusterName,
+        options.hash.event,
+        options.hash.eventField,
+      ];
+    }
+
+    return ['events', clusterName, options.hash.event];
+  }
+
+  if (options.hash.command) {
+    if (options.hash.commandField) {
+      return [
+        'command fields',
+        clusterName,
+        options.hash.command,
+        options.hash.commandField,
+      ];
+    }
+
+    return ['commands', clusterName, options.hash.command];
+  }
+
+  if (options.hash.attribute) {
+    return ['attributes', clusterName, options.hash.attribute];
+  }
+
+  if (options.hash.enum) {
+    if (options.hash.enumValue) {
+      return [
+        'enum values',
+        clusterName,
+        options.hash.enum,
+        options.hash.enumValue,
+      ];
+    }
+
+    return ['enums', clusterName, options.hash.enum];
+  }
+
+  if (options.hash.bitmap) {
+    if (options.hash.bitmapValue) {
+      return [
+        'bitmap values',
+        clusterName,
+        options.hash.bitmap,
+        options.hash.bitmapValue,
+      ];
+    }
+
+    return ['bitmaps', clusterName, options.hash.bitmap];
+  }
+
+  if (options.hash.api) {
+    return ['apis', options.hash.api];
+  }
+
+  if (options.hash.globalAttribute) {
+    return ['global attributes', options.hash.globalAttribute];
+  }
+
+  return ['clusters', clusterName];
+}
+
+async function availability(clusterName, options) {
+  const data = fetchAvailabilityData(this.global);
+  const path = makeAvailabilityPath(clusterName, options);
+
+  if (
+    options.hash.fabricScopedDeprecationMessage &&
+    options.hash.nonFabricScopedDeprecationMessage &&
+    options.hash.type
+  ) {
+    // Figure out the right deprecation message for cases where it unfortunately
+    // depends on the type.
+    if (options.hash.deprecationMessage) {
+      throw new Error(
+        `Should not specify deprecationMessage along with fabricScopedDeprecationMessage and nonFabricScopedDeprecationMessage`
+      );
+    }
+    let packageIds = await templateUtil.ensureZclPackageIds(this);
+    let st = await zclQuery.selectStructByName(
+      this.global.db,
+      options.hash.type,
+      packageIds
+    );
+    if (st && st.isFabricScoped) {
+      options.hash.deprecationMessage =
+        options.hash.fabricScopedDeprecationMessage;
+    } else {
+      options.hash.deprecationMessage =
+        options.hash.nonFabricScopedDeprecationMessage;
+    }
+  }
+
+  // This assumes that an item is introduced in some single release (which
+  // corresponds to some set of versions) and is deprecated in some other release,
+  // which corresponds to some other set of versions, and that we don't have
+  // things being introduced or deprecated in multiple different releases with
+  // different versions.
+  let introducedRelease = findReleaseForPath(
+    data,
+    ['introduced', ...path],
+    options
+  );
+  if (introducedRelease !== undefined && options.hash.minimalRelease) {
+    let minimalRelease = findReleaseByName(data, options.hash.minimalRelease);
+    if (minimalRelease === undefined) {
+      throw new Error(`Invalid release name: ${options.hash.minimalRelease}`);
+    }
+    if (data.indexOf(minimalRelease) > data.indexOf(introducedRelease)) {
+      introducedRelease = minimalRelease;
+    }
+  }
+  let introducedVersions = introducedRelease?.versions;
+
+  let deprecatedRelease = findReleaseForPath(
+    data,
+    ['deprecated', ...path],
+    options
+  );
+  if (options.hash.deprecatedRelease) {
+    let minimalDeprecatedRelease = findReleaseByName(
+      data,
+      options.hash.deprecatedRelease
+    );
+    if (
+      deprecatedRelease === undefined ||
+      data.indexOf(deprecatedRelease) > data.indexOf(minimalDeprecatedRelease)
+    ) {
+      deprecatedRelease = minimalDeprecatedRelease;
+    }
+  }
+  const deprecatedVersions = deprecatedRelease?.versions;
+
+  if (introducedVersions === undefined && deprecatedVersions !== undefined) {
+    throw new Error(
+      `Found deprecation but no introduction for: '${clusterName}' '${JSON.stringify(
+        options.hash
+      )}'`
+    );
+  }
+
+  if (introducedVersions === undefined) {
+    console.log(
+      `WARNING: Missing "introduced" entry for: '${clusterName}' '${JSON.stringify(
+        options.hash
+      )}'`
+    );
+    introducedVersions = 'future';
+  }
+
+  if (introducedVersions === 'future') {
+    return 'MTR_NEWLY_AVAILABLE';
+  }
+
+  if (introducedVersions === '' && deprecatedVersions === undefined) {
+    // TODO: For now, to minimize changes to code by not outputting availability on
+    // things that don't already have it.  Eventually this block should go
+    // away.
+    return '';
+  }
+
+  if (deprecatedVersions === undefined) {
+    let availabilityStrings = Object.entries(introducedVersions).map(
+      ([os, version]) => `${os}(${version})`
+    );
+    return `API_AVAILABLE(${availabilityStrings.join(', ')})`;
+  }
+
+  if (!options.hash.deprecationMessage) {
+    throw new Error(
+      `Deprecation needs a deprecation message for ${clusterName} and ${JSON.stringify(
+        options.hash
+      )}`
+    );
+  }
+
+  if (deprecatedVersions === 'future') {
+    // TODO: For now, to minimize changes to code by not outputting
+    // availability on things that don't already have it.  Eventually this
+    // condition and the return after it should go away and the return inside
+    // the if should become unconditional.
+    if (introducedVersions != '') {
+      let availabilityStrings = Object.entries(introducedVersions).map(
+        ([os, version]) => `${os}(${version})`
+      );
+      return `API_AVAILABLE(${availabilityStrings.join(
+        ', '
+      )}) MTR_NEWLY_DEPRECATED("${options.hash.deprecationMessage}")`;
+    }
+    return `MTR_NEWLY_DEPRECATED("${options.hash.deprecationMessage}")`;
+  }
+
+  // Make sure the set of OSes we were introduced and deprecated on is the same.
+  let introducedOSes = Object.keys(introducedVersions);
+  let deprecatedOSes = Object.keys(deprecatedVersions);
+  for (let os of deprecatedOSes) {
+    if (!introducedOSes.includes(os)) {
+      throw new Error(
+        `Deprecation versions '${JSON.stringify(
+          deprecatedVersions
+        )}' include an OS that introduction versions '${JSON.stringify(
+          introducedVersions
+        )}' do not include: '${os}'.`
+      );
+    }
+  }
+  for (let os of introducedOSes) {
+    if (!deprecatedOSes.includes(os)) {
+      throw new Error(
+        `Deprecation versions '${JSON.stringify(
+          deprecatedVersions
+        )}' do not include an OS that introduction versions '${JSON.stringify(
+          introducedVersions
+        )}' include: '${os}'.`
+      );
+    }
+  }
+
+  let availabilityStrings = Object.entries(introducedVersions).map(
+    ([os, version]) => `${os}(${version}, ${deprecatedVersions[os]})`
+  );
+  return `API_DEPRECATED("${
+    options.hash.deprecationMessage
+  }", ${availabilityStrings.join(', ')})`;
+}
+
+function wasIntroducedBeforeRelease(releaseName, clusterName, options) {
+  const data = fetchAvailabilityData(this.global);
+  const path = makeAvailabilityPath(clusterName, options);
+
+  let introducedRelease = findReleaseForPath(
+    data,
+    ['introduced', ...path],
+    options
+  );
+  if (introducedRelease === undefined) {
+    return false;
+  }
+
+  let referenceRelease = findReleaseByName(data, releaseName);
+  if (referenceRelease === undefined) {
+    throw new Error(`Invalid release name: ${releaseName}`);
+  }
+
+  return data.indexOf(introducedRelease) < data.indexOf(referenceRelease);
 }
 
 //
@@ -288,6 +655,9 @@ exports.objCEnumName = objCEnumName;
 exports.objCEnumItemLabel = objCEnumItemLabel;
 exports.hasArguments = hasArguments;
 exports.compatClusterNameRemapping = compatClusterNameRemapping;
+exports.compatAttributeNameRemapping = compatAttributeNameRemapping;
+exports.availability = availability;
+exports.wasIntroducedBeforeRelease = wasIntroducedBeforeRelease;
 
 exports.meta = {
   category: dbEnum.helperCategory.matter,
