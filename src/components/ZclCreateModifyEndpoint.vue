@@ -464,7 +464,8 @@ export default {
     },
   },
   created() {
-    this.$store.dispatch('zap/updateZclDeviceTypes')
+    if (this.$serverGet != null)
+      this.$store.dispatch('zap/updateZclDeviceTypes')
   },
   destroyed() {
     // This function will empty the deviceTypeRef state
