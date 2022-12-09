@@ -99,9 +99,8 @@ jobs:
       - run: npm run test:unit
       - run: npm run test:gen
 
-  build-zap:
+  build:
     name: Build ZAP
-    needs: [cypress-zigbee, cypress-matter, generate-and-backend-tests]
     runs-on: ${{ matrix.os }}
 
     # Platforms to build on/for
@@ -281,6 +280,18 @@ jobs:
           command_line: npx asar l ./dist/mac-universal/zap.app/Contents/Resources/app-arm64.asar | grep apack.json
           contains: 'apack.json'
 
+  create-artifact:
+    name: Create artifacts
+    needs: [cypress-zigbee, cypress-matter, generate-and-backend-tests, build]
+    runs-on: ${{ matrix.os }}
+
+    # Platforms to build on/for
+    strategy:
+      matrix:
+        os: [macos-11, ubuntu-22.04]
+      fail-fast: false
+
+    steps:
       - name: Archive Windows .zip file
         uses: actions/upload-artifact@v3
         if: startsWith(matrix.os, 'macos')
@@ -314,8 +325,8 @@ jobs:
 
   release:
     if: startsWith(github.ref, 'refs/tags/')
-    needs: [build-zap]
-    name: Create Github Release
+    needs: [create-artifact]
+    name: Create release
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/download-artifact@v3
