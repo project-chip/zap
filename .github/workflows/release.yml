@@ -341,7 +341,7 @@ jobs:
 
   matter-sdk-codegen:
     name: Test matter sdk codegen changes
-    needs: [build-zap]
+    needs: [create-artifact]
     runs-on: ubuntu-22.04
     strategy:
       matrix:
