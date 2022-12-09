@@ -39,6 +39,19 @@
 <script>
 import restApi from '../../src-shared/rest-api.js'
 export default {
+  methods: {
+    getNotifications() {
+      this.$serverGet(restApi.uri.notification)
+        .then((resp) => {
+          for (let i = 0; i < resp.data.length; i++) {
+            this.notis.push(resp.data[i])
+          }
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+    },
+  },
   data() {
     return {
       columns: [
@@ -66,15 +79,10 @@ export default {
     }
   },
   created() {
-    this.$serverGet(restApi.uri.notification)
-      .then((resp) => {
-        for (let i = 0; i < resp.data.length; i++) {
-          this.notis.push(resp.data[i])
-        }
-      })
-      .catch((err) => {
-        console.log(err)
-      })
+    if (this.$serverGet != null) {
+      this.notis = []
+      this.getNotifications()
+    }
   },
 }
 </script>
