@@ -100,20 +100,37 @@ function loadPreviousSessions(db) {
   }
 }
 
+/**
+ * Init function from the App.vue
+ * @param {*} db
+ * @returns A success message.
+ */
+function init(db) {
+  return async (req, res) => {
+    return res.send({
+      message: 'Session initialized',
+    })
+  }
+}
+
 exports.get = [
   {
-    uri: '/zcl/initialPackagesSessions',
+    uri: restApi.uri.initialPackagesSessions,
     callback: packagesAndSessions,
   },
 ]
 
 exports.post = [
   {
-    uri: '/zcl/reloadSession',
+    uri: restApi.uri.reloadSession,
     callback: loadPreviousSessions,
   },
   {
-    uri: '/zcl/initializeSession',
+    uri: restApi.uri.initializeSession,
     callback: initializeSession,
+  },
+  {
+    uri: restApi.uri.init,
+    callback: init,
   },
 ]

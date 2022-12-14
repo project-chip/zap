@@ -41,7 +41,14 @@ const dbEnum = require(`../src-shared/db-enum.js`)
 const storage = require('./util/storage.js')
 const _ = require('lodash')
 
-function initLoad(store) {
+async function initializeSession() {
+  console.log(this)
+  return this.serverPost(restApi.uri.init)
+}
+
+async function initLoad(store) {
+  await initializeSession()
+
   store.dispatch('zap/loadInitialData')
   store.dispatch('zap/loadOptions', {
     key: 'defaultResponsePolicy',
