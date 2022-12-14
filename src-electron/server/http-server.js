@@ -42,6 +42,7 @@ const restApiModules = [
   require('../rest/ide-api-handler.js'),
   require('../rest/endpoint.js'),
   require('../rest/user-data.js'),
+  require('../rest/initialize.js'),
 ]
 let httpServer = null
 
@@ -141,15 +142,6 @@ async function initHttpServer(
         saveUninitialized: true,
       })
     )
-
-    app.get('/zcl/initialPackagesSessions', initialize.packagesAndSessions(db))
-
-    app.post('/zcl/reloadSession', initialize.loadPreviousSessions(db))
-    app.post(
-      '/zcl/initializeSession',
-      initialize.initializeSession(db, options)
-    )
-
     app.use(userSessionHandler(db, options))
 
     // REST modules
