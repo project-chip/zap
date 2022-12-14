@@ -346,6 +346,7 @@ function findReleaseForPath(availabilityData, path, options) {
     }
   }
 
+  let foundRelease = undefined;
   for (let releaseData of availabilityData) {
     // Our path, except the last item, leads to an array.  The last item is then
     // a possible item in that array.
@@ -361,13 +362,21 @@ function findReleaseForPath(availabilityData, path, options) {
     }
 
     if (currentContainer.includes(item)) {
-      return releaseData;
+      if (foundRelease !== undefined) {
+        throw new Error(
+          `Found two releases matching path: ${JSON.stringify(path)}`
+        );
+      }
+
+      // Store for now so we can do the "only one thing matches" check above on
+      // later releases.
+      foundRelease = releaseData;
     }
 
     // Go on to the next release
   }
 
-  return undefined;
+  return foundRelease;
 }
 
 function findReleaseByName(availabilityData, name) {
@@ -486,11 +495,6 @@ async function availability(clusterName, options) {
     }
   }
 
-  // This assumes that an item is introduced in some single release (which
-  // corresponds to some set of versions) and is deprecated in some other release,
-  // which corresponds to some other set of versions, and that we don't have
-  // things being introduced or deprecated in multiple different releases with
-  // different versions.
   let introducedRelease = findReleaseForPath(
     data,
     ['introduced', ...path],
