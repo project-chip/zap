@@ -52,7 +52,7 @@ limitations under the License.
             hide-selected
             fill-input
             :options="deviceTypeOptions"
-            v-model="deviceTypeRefAndDeviceIdPair"
+            v-model="devicePair"
             :rules="[(val) => val != null || '* Required']"
             :option-label="getDeviceOptionLabel"
             @filter="filterDeviceTypes"
@@ -141,7 +141,7 @@ export default {
       this.shownEndpoint.deviceVersion = parseInt(
         this.endpointVersion[this.endpointReference]
       )
-      this.deviceTypeRefAndDeviceIdPair = {
+      this.devicePair = {
         deviceTypeRef:
           this.endpointDeviceTypeRef[this.endpointType[this.endpointReference]],
         deviceIdentifier: this.endpointDeviceId[this.endpointReference],
@@ -213,11 +213,6 @@ export default {
         return this.$store.state.zap.endpointView.deviceId
       },
     },
-    deviceTypeRefAndDeviceIdPair: {
-      get() {
-        return this.$store.state.zap.deviceTypeRefAndDeviceIdPair
-      },
-    },
     computedProfileId: {
       get() {
         let profileOption =
@@ -262,9 +257,8 @@ export default {
         profileId = this.asHex(this.zclDeviceTypes[deviceTypeRef].profileId, 4)
       }
       this.shownEndpoint.profileIdentifier = profileId
-      this.deviceTypeRefAndDeviceIdPair.deviceTypeRef = value.deviceTypeRef
-      this.deviceTypeRefAndDeviceIdPair.deviceIdentifier =
-        value.deviceIdentifier
+      this.devicePair.deviceTypeRef = value.deviceTypeRef
+      this.devicePair.deviceIdentifier = value.deviceIdentifier
     },
     saveOrCreateHandler() {
       let profile = this.$store.state.zap.isProfileIdShown
@@ -308,7 +302,7 @@ export default {
       this.$store
         .dispatch(`zap/addEndpointType`, {
           name: 'Anonymous Endpoint Type',
-          deviceTypeRef: this.deviceTypeRefAndDeviceIdPair.deviceTypeRef,
+          deviceTypeRef: this.devicePair.deviceTypeRef,
         })
         .then((response) => {
           this.$store
@@ -318,8 +312,7 @@ export default {
               profileId: parseInt(this.shownEndpoint.profileIdentifier),
               endpointType: response.id,
               endpointVersion: this.shownEndpoint.deviceVersion,
-              deviceIdentifier:
-                this.deviceTypeRefAndDeviceIdPair.deviceIdentifier,
+              deviceIdentifier: this.devicePair.deviceIdentifier,
             })
             .then((res) => {
               if (this.shareClusterStatesAcrossEndpoints()) {
@@ -362,7 +355,7 @@ export default {
       this.$store.dispatch('zap/updateEndpointType', {
         endpointTypeId: endpointTypeReference,
         updatedKey: RestApi.updateKey.deviceTypeRef,
-        updatedValue: this.deviceTypeRefAndDeviceIdPair.deviceTypeRef,
+        updatedValue: this.devicePair.deviceTypeRef,
       })
 
       this.$store.dispatch('zap/updateEndpoint', {
@@ -386,7 +379,7 @@ export default {
           },
           {
             updatedKey: RestApi.updateKey.deviceId,
-            value: parseInt(this.deviceTypeRefAndDeviceIdPair.deviceIdentifier),
+            value: parseInt(this.devicePair.deviceIdentifier),
           },
         ],
       })
@@ -434,8 +427,8 @@ export default {
       try {
         done(
           {
-            deviceTypeRef: this.deviceTypeRefAndDeviceIdPair.deviceTypeRef
-              ? this.deviceTypeRefAndDeviceIdPair.deviceTypeRef
+            deviceTypeRef: this.devicePair.deviceTypeRef
+              ? this.devicePair.deviceTypeRef
               : this.customDeviceIdReference,
             deviceIdentifier: parseInt(val),
           },
