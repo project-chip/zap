@@ -464,6 +464,44 @@ function makeAvailabilityPath(clusterName, options) {
   return ['clusters', clusterName];
 }
 
+/**
+ * Takes a path (not including the leading "introduced" or "deprecated") and
+ * modifies it to point to the container of the thing being referenced, if any.
+ * If there is no container, returns undefined.
+ */
+function findPathToContainer(availabilityPath) {
+  switch (availabilityPath[0]) {
+    case 'struct fields':
+      return ['structs', ...availabilityPath.slice(1, -1)];
+    case 'event fields':
+      return ['events', ...availabilityPath.slice(1, -1)];
+    case 'command fields':
+      return ['commands', ...availabilityPath.slice(1, -1)];
+    case 'enum values':
+      return ['enums', ...availabilityPath.slice(1, -1)];
+    case 'bitmap values':
+      return ['bitmaps', ...availabilityPath.slice(1, -1)];
+
+    case 'structs':
+    case 'events':
+    case 'commands':
+    case 'attributes':
+    case 'enums':
+    case 'bitmaps':
+      return ['clusters', ...availabilityPath.slice(1, -1)];
+
+    case 'apis':
+    case 'global attributes':
+    case 'clusters':
+      return undefined;
+
+    default:
+      throw `Don't know how to find container for path '${JSON.stringify(
+        availabilityPath
+      )}'`;
+  }
+}
+
 async function availability(clusterName, options) {
   const data = fetchAvailabilityData(this.global);
   const path = makeAvailabilityPath(clusterName, options);
@@ -511,11 +549,16 @@ async function availability(clusterName, options) {
   }
   let introducedVersions = introducedRelease?.versions;
 
-  let deprecatedRelease = findReleaseForPath(
-    data,
-    ['deprecated', ...path],
-    options
-  );
+  let deprecatedRelease = undefined;
+  let deprecationPath = [...path];
+  while (deprecatedRelease === undefined && deprecationPath != undefined) {
+    deprecatedRelease = findReleaseForPath(
+      data,
+      ['deprecated', ...deprecationPath],
+      options
+    );
+    deprecationPath = findPathToContainer(deprecationPath);
+  }
   if (options.hash.deprecatedRelease) {
     let minimalDeprecatedRelease = findReleaseByName(
       data,
