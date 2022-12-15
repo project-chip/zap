@@ -96,7 +96,11 @@ jobs:
       - run: npm run lint
       - run: npm run xml-validate
       - run: npm run self-check
+      - run: npm run test:e2e-ci
       - run: npm run test:unit
+      - run: npm run report
+      - name: Codecov
+        uses: codecov/codecov-action@v3.1.1
       - run: npm run test:gen
 
   build-zap:
