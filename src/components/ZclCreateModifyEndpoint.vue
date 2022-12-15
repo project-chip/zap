@@ -32,7 +32,7 @@ limitations under the License.
             min="0"
           />
           <q-input
-            v-if="$store.state.zap.isProfileIdShown"
+            v-show="$store.state.zap.isProfileIdShown"
             label="Profile ID"
             v-model="computedProfileId"
             ref="profile"
