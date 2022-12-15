@@ -878,13 +878,8 @@ async function if_is_fabric_scoped_struct(type, options) {
   let packageIds = await templateUtil.ensureZclPackageIds(this);
   let st = await zclQuery.selectStructByName(this.global.db, type, packageIds);
 
-  if (st) {
-    // TODO: Should know whether a struct is fabric-scoped without sniffing its
-    // members.
-    let fields = await zclQuery.selectAllStructItemsById(this.global.db, st.id);
-    if (fields.find((i) => i.type.toLowerCase() == 'fabric_idx')) {
-      return options.fn(this);
-    }
+  if (st && st.isFabricScoped) {
+    return options.fn(this);
   }
 
   return options.inverse(this);
