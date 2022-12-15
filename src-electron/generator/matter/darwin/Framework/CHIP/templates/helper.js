@@ -135,29 +135,21 @@ function asObjectiveCNumberType(label, type, asLowerCased) {
   return templateUtil.templatePromise(this.global, promise);
 }
 
-const compatClusterNameMap = {
-  UnitTesting: 'TestCluster',
-};
-
-function compatClusterNameRemapping(cluster) {
+function compatClusterNameRemapping(cluster, options) {
   cluster = appHelper.asUpperCamelCase(cluster, {
     hash: { preserveAcronyms: false },
   });
 
-  if (cluster in compatClusterNameMap) {
-    cluster = compatClusterNameMap[cluster];
+  const old = oldName.call(this, cluster, options);
+
+  if (old) {
+    return old;
   }
 
   return cluster;
 }
 
-const compatAttributeNameMap = {
-  Descriptor: {
-    DeviceTypeList: 'DeviceList',
-  },
-};
-
-function compatAttributeNameRemapping(cluster, attribute) {
+function compatAttributeNameRemapping(cluster, attribute, options) {
   cluster = appHelper.asUpperCamelCase(cluster, {
     hash: { preserveAcronyms: false },
   });
@@ -166,13 +158,30 @@ function compatAttributeNameRemapping(cluster, attribute) {
     hash: { preserveAcronyms: false },
   });
 
-  if (cluster in compatAttributeNameMap) {
-    if (attribute in compatAttributeNameMap[cluster]) {
-      attribute = compatAttributeNameMap[cluster][attribute];
-    }
+  const old = oldName.call(this, cluster, {
+    hash: {
+      ...options.hash,
+      attribute: attribute,
+    },
+  });
+
+  if (old) {
+    return old;
   }
 
   return attribute;
+}
+
+/**
+ * Figure out whether the entity represented by cluster+options (could be a
+ * cluster, attribute, command, etc) has an old name that it was renamed from,
+ * and if so return it.
+ */
+function oldName(cluster, options) {
+  const data = fetchAvailabilityData(this.global);
+  const path = makeAvailabilityPath(cluster, options);
+
+  return findDataForPath(data, ['renames', ...path]);
 }
 
 async function asObjectiveCClass(type, cluster, options) {
@@ -198,7 +207,7 @@ async function asObjectiveCClass(type, cluster, options) {
 
   if (isStruct) {
     if (options.hash.compatRemapClusterName) {
-      cluster = compatClusterNameRemapping.call(this, cluster);
+      cluster = compatClusterNameRemapping.call(this, cluster, { hash: {} });
     } else {
       let preserveAcronyms = true;
       if ('preserveAcronyms' in options.hash) {
@@ -317,6 +326,35 @@ function fetchAvailabilityData(global) {
   return availabilityData;
 }
 
+function findDataForPath(availabilityData, path) {
+  let foundData = undefined;
+  for (let releaseData of availabilityData) {
+    let names = [...path];
+    let currentValue = releaseData;
+    while (currentValue != undefined && names.length != 0) {
+      currentValue = currentValue[names.shift()];
+    }
+
+    if (currentValue === undefined) {
+      continue;
+    }
+
+    if (foundData !== undefined) {
+      throw new Error(
+        `Found two releases matching path: ${JSON.stringify(path)}`
+      );
+    }
+
+    // Store for now so we can do the "only one thing matches" check above on
+    // later releases.
+    foundData = currentValue;
+
+    // Go on to the next release
+  }
+
+  return foundData;
+}
+
 function findReleaseForPath(availabilityData, path, options) {
   if (options.hash.isForIds) {
     // Ids include all clusters, not just the ones we have real support for.
@@ -354,7 +392,7 @@ function findReleaseForPath(availabilityData, path, options) {
     let item = containerNames.pop();
     let currentContainer = releaseData;
     while (currentContainer !== undefined && containerNames.length != 0) {
-      currentContainer = currentContainer?.[containerNames.shift()];
+      currentContainer = currentContainer[containerNames.shift()];
     }
 
     if (currentContainer === undefined) {
@@ -594,13 +632,6 @@ async function availability(clusterName, options) {
     return 'MTR_NEWLY_AVAILABLE';
   }
 
-  if (introducedVersions === '' && deprecatedVersions === undefined) {
-    // TODO: For now, to minimize changes to code by not outputting availability on
-    // things that don't already have it.  Eventually this block should go
-    // away.
-    return '';
-  }
-
   if (deprecatedVersions === undefined) {
     let availabilityStrings = Object.entries(introducedVersions).map(
       ([os, version]) => `${os}(${version})`
@@ -617,19 +648,12 @@ async function availability(clusterName, options) {
   }
 
   if (deprecatedVersions === 'future') {
-    // TODO: For now, to minimize changes to code by not outputting
-    // availability on things that don't already have it.  Eventually this
-    // condition and the return after it should go away and the return inside
-    // the if should become unconditional.
-    if (introducedVersions != '') {
-      let availabilityStrings = Object.entries(introducedVersions).map(
-        ([os, version]) => `${os}(${version})`
-      );
-      return `API_AVAILABLE(${availabilityStrings.join(
-        ', '
-      )})\nMTR_NEWLY_DEPRECATED("${options.hash.deprecationMessage}")`;
-    }
-    return `MTR_NEWLY_DEPRECATED("${options.hash.deprecationMessage}")`;
+    let availabilityStrings = Object.entries(introducedVersions).map(
+      ([os, version]) => `${os}(${version})`
+    );
+    return `API_AVAILABLE(${availabilityStrings.join(
+      ', '
+    )})\nMTR_NEWLY_DEPRECATED("${options.hash.deprecationMessage}")`;
   }
 
   // Make sure the set of OSes we were introduced and deprecated on is the same.
