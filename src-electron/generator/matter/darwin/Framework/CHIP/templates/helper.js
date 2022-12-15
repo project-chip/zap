@@ -309,7 +309,7 @@ function hasArguments() {
 let availabilityData;
 function fetchAvailabilityData(global) {
   if (!availabilityData) {
-    let f = path.join(path.dirname(global.templatePath), 'availability.yaml');
+    let f = global.resource('availability-data');
     // NOTE: This has to be sync, so we can use this data in if conditions.
     let rawData = fs.readFileSync(f, { encoding: 'utf8', flag: 'r' });
     availabilityData = YAML.parse(rawData);
