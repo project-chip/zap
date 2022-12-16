@@ -112,7 +112,10 @@ limitations under the License.
       </q-drawer>
       <q-page-container>
         <q-scroll-area style="height: 75vh; max-width: 200vh">
-          <initial-content v-if="isSelectedEndpoint" />
+          <initial-content
+            v-if="isSelectedEndpoint"
+            :ui-theme="uiThemeCategory"
+          />
           <zcl-cluster-manager />
         </q-scroll-area>
       </q-page-container>
@@ -232,6 +235,11 @@ export default {
       },
       set(newLeftDrawerOpenState) {
         this.$store.dispatch('zap/setLeftDrawerState', newLeftDrawerOpenState)
+      },
+    },
+    uiThemeCategory: {
+      get() {
+        return this.$store.state.zap.selectedZapConfig?.zclProperties.category
       },
     },
     miniState: {

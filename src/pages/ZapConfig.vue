@@ -293,7 +293,10 @@ export default {
           }
           this.$serverPost(restApi.uri.initializeSession, data).then(
             (result) => {
-              this.$store.commit('zap/selectZapConfig', true)
+              this.$store.commit('zap/selectZapConfig', {
+                zclProperties: this.selectedZclPropertiesData,
+                genTemplate: this.selectedZclGenData,
+              })
             }
           )
         }
@@ -301,14 +304,21 @@ export default {
         let data = {
           newConfiguration: true,
         }
+
         this.$serverPost(restApi.uri.initializeSession, data).then((result) => {
-          this.$store.commit('zap/selectZapConfig', true)
+          this.$store.commit('zap/selectZapConfig', {
+            zclProperties: this.selectedZclPropertiesData,
+            genTemplate: this.selectedZclGenData,
+          })
         })
       } else {
         this.$serverPost(restApi.uri.reloadSession, {
           sessionId: this.selectedZclSessionData.id,
         }).then((result) => {
-          this.$store.commit('zap/selectZapConfig', true)
+          this.$store.commit('zap/selectZapConfig', {
+            sessionId: this.selectedZclSessionData.id,
+            zclProperties: this.selectedZclSessionData.zclProperty,
+          })
         })
       }
     },
@@ -354,5 +364,3 @@ export default {
   },
 }
 </script>
-
-<style scoped></style>

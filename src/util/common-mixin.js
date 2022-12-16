@@ -26,8 +26,8 @@ export default {
   computed: {
     isZapConfigSelected: {
       get() {
-        return this.$store.state.zap.isZapConfigSelected
-      }
+        return this.$store.state.zap.selectedZapConfig !== null
+      },
     },
     selectedEndpointTypeId: {
       get() {
