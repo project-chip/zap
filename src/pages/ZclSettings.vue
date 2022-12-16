@@ -20,7 +20,7 @@ limitations under the License.
       label="Included XMLs"
       multiple
       clearable
-      @input="fileUpload(files)"
+      @update:model-value="fileUpload(files)"
     />
   </div>
 </template>

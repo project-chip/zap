@@ -17,7 +17,7 @@ describe('Testing Deleting Endpoints', () => {
   })
   it('delete endpoint', { retries: { runMode: 2, openMode: 2 } }, () => {
     cy.get('[data-test="delete-endpoint"]').click()
-    cy.get('.bg-primary > .q-btn__wrapper').click()
+    cy.get('.bg-primary > .q-btn__content').click()
     cy.get('#delete_last_endpoint').click()
   })
   it('Check if delete is successfull', () => {

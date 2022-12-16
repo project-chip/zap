@@ -78,16 +78,16 @@ import ZclGeneralOptionsBar from '../src/components/ZclGeneralOptionsBar.vue'
 import ZclInformationSetup from '../src/components/ZclInformationSetup.vue'
 import ZclClusterLayout from '../src/layouts/ZclClusterLayout.vue'
 import ZclConfiguratorLayout from '../src/layouts/ZclConfiguratorLayout.vue'
-import Error404 from '../src/pages/Error404.vue'
-import Preference from '../src/pages/Preference.vue'
-import Notifications from '../src/pages/Notifications.vue'
+import Error404 from '../src/pages/ErrorPage404.vue'
+import Preference from '../src/pages/PreferencePage.vue'
+import Notifications from '../src/pages/NotificationsPage.vue'
 import PreferenceGeneration from '../src/pages/PreferenceGeneration.vue'
 import PreferenceUser from '../src/pages/PreferenceUser.vue'
 import PreferencePackage from '../src/pages/PreferencePackage.vue'
 import ZclSettings from '../src/pages/ZclSettings.vue'
 import UcComponentSetup from '../src/components/UcComponentSetup.vue'
 import ZclCustomZclView from '../src/components/ZclCustomZclView.vue'
-import About from '../src/pages/About.vue'
+import About from '../src/pages/AboutPage.vue'
 import ZclLayout from '../src/layouts/ZclLayout.vue'
 import { timeout } from './test-util.js'
 
@@ -252,7 +252,9 @@ describe('Component mounting test', () => {
   test(
     'ZclConfiguratorLayout',
     () => {
-      const wrapper = shallowMount(ZclConfiguratorLayout, { store: ZapStore() })
+      const wrapper = shallowMount(ZclConfiguratorLayout, {
+        store: ZapStore(),
+      })
       expect(wrapper.html().length).toBeGreaterThan(100)
     },
     timeout.short()

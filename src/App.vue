@@ -15,7 +15,7 @@ limitations under the License.
 -->
 
 <template>
-  <div id="q-app">
+  <div>
     <q-ajax-bar color="grey" />
     <router-view />
     <q-btn
@@ -26,20 +26,20 @@ limitations under the License.
     >
       <q-icon name="warning" style="font-size: 2.5em; color: red" />
     </q-btn>
-    <VueTour />
+    <!-- <VueTour /> -->
   </div>
 </template>
 
 <script>
+import { defineComponent } from 'vue'
 import { QSpinnerGears } from 'quasar'
-import VueTour from './tutorials/VueTour.vue'
+// import VueTour from './tutorials/VueTour.vue'
 import CommonMixin from './util/common-mixin'
 const rendApi = require(`../src-shared/rend-api.js`)
 const restApi = require(`../src-shared/rest-api.js`)
 const observable = require('./util/observable.js')
 const dbEnum = require(`../src-shared/db-enum.js`)
 const storage = require('./util/storage.js')
-const _ = require('lodash')
 
 async function initializeSession() {
   return this.serverPost(restApi.uri.init)
@@ -82,10 +82,10 @@ async function initLoad(store) {
   return Promise.all(promises)
 }
 
-export default {
+export default defineComponent({
   name: 'App',
   components: {
-    VueTour,
+    // VueTour,
   },
   mixins: [CommonMixin],
   computed: {
@@ -202,5 +202,5 @@ export default {
       }
     },
   },
-}
+})
 </script>

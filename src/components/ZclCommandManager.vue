@@ -18,14 +18,14 @@ limitations under the License.
     <div v-if="commandData.length > 0">
       <q-table
         class="my-sticky-header-table"
-        :data="commandData"
+        :rows="commandData"
         :columns="columns"
         row-key="<b>name</b>"
         dense
         virtual-scroll
         flat
         binary-state-sort
-        :pagination.sync="pagination"
+        v-model:pagination="pagination"
       >
         <template v-slot:header="props">
           <q-tr :props="props">
@@ -66,7 +66,7 @@ limitations under the License.
                 "
                 indeterminate-value="false"
                 keep-color
-                @input="
+                @update:model-value="
                   handleCommandSelection(
                     selectionOut,
                     'selectedOut',
@@ -90,7 +90,7 @@ limitations under the License.
                     props.row.source == 'server') ||
                   props.row.source == 'either'
                 "
-                @input="
+                @update:model-value="
                   handleCommandSelection(
                     selectionIn,
                     'selectedIn',

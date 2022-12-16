@@ -39,24 +39,24 @@ const routes = [
   },
   {
     path: '/preference',
-    component: () => import('pages/Preference.vue'),
+    component: () => import('pages/PreferencePage.vue'),
   },
   {
     path: '/about',
-    component: () => import('pages/About.vue'),
+    component: () => import('pages/AboutPage.vue'),
   },
   {
     path: '/notifications',
     name: 'notifications',
-    component: () => import('pages/Notifications.vue'),
+    component: () => import('pages/NotificationsPage.vue'),
   },
 ]
 
 // Always leave this as last one
 if (process.env.MODE !== 'ssr') {
   routes.push({
-    path: '*',
-    component: () => import('pages/Error404.vue'),
+    path: '/:catchAll(.*)*',
+    component: () => import('pages/ErrorPage404.vue'),
   })
 }
 

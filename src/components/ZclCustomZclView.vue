@@ -38,7 +38,7 @@ limitations under the License.
             <q-item>
               <q-item-section>
                 <q-expansion-item>
-                  <template slot="header">
+                  <template #header>
                     <q-toolbar>
                       <div>
                         <strong>{{

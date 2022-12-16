@@ -44,11 +44,11 @@ limitations under the License.
             <div class="v-step-7">
               <q-select
                 outlined
-                :value="filter"
+                :model-value="filter"
                 :options="filterOptions"
                 dense
                 class="col-2"
-                @input="changeDomainFilter($event)"
+                @update:model-value="changeDomainFilter($event)"
                 data-test="filter-input"
               />
             </div>
@@ -72,9 +72,9 @@ limitations under the License.
             clearable
             class="col-4"
             placeholder="Search Clusters"
-            @input="changeFilterString($event)"
+            @update:model-value="changeFilterString($event)"
             @clear="changeFilterString('')"
-            :value="filterString"
+            :model-value="filterString"
             data-test="search-clusters"
           >
             <template v-slot:prepend>
@@ -90,8 +90,8 @@ limitations under the License.
                 switch-toggle-side
                 :label="domainName"
                 :ref="domainName + index"
-                @input="setOpenDomain(domainName, $event)"
-                :value="getDomainOpenState(domainName)"
+                @update:model-value="setOpenDomain(domainName, $event)"
+                :model-value="getDomainOpenState(domainName)"
                 data-test="Cluster"
               >
                 <zcl-domain-cluster-view
@@ -111,7 +111,7 @@ limitations under the License.
 import ZclDomainClusterView from './ZclDomainClusterView.vue'
 import CommonMixin from '../util/common-mixin'
 import { scroll } from 'quasar'
-const { getScrollTarget, setScrollPosition } = scroll
+const { getScrollTarget, setVerticalScrollPosition } = scroll
 
 export default {
   name: 'ZclClusterManager',
@@ -206,7 +206,7 @@ export default {
       const el = document.getElementById(tag)
       const target = getScrollTarget(el)
       const offset = el.offsetTop
-      setScrollPosition(target, offset)
+      setVerticalScrollPosition(target, offset)
     },
     clusterDomains(domainName) {
       return this.relevantClusters

@@ -23,14 +23,14 @@ limitations under the License.
   <div v-show="relevantAttributeData.length > 0">
     <q-table
       class="my-sticky-header-table"
-      :data.sync="relevantAttributeData"
+      :rows="relevantAttributeData"
       :columns="columns"
       row-key="<b>name</b>"
       dense
       flat
       virtual-scroll
       binary-state-sort
-      :pagination.sync="pagination"
+      v-model:pagination="pagination"
       :sort-method="customAttributeSort"
       data-cy="Attributes"
       style="height: calc(100vh - 210px); overflow: hidden"
@@ -66,7 +66,7 @@ limitations under the License.
               :val="hashAttributeIdClusterId(props.row.id, selectedCluster.id)"
               indeterminate-value="false"
               keep-color
-              @input="
+              @update:model-value="
                 toggleAttributeSelection(
                   selection,
                   'selectedAttributes',
@@ -97,7 +97,7 @@ limitations under the License.
           }}</q-td>
           <q-td key="storageOption" :props="props" auto-width>
             <q-select
-              :value="
+              :model-value="
                 selectionStorageOption[
                   hashAttributeIdClusterId(props.row.id, selectedCluster.id)
                 ]
@@ -107,7 +107,7 @@ limitations under the License.
               :options="storageOptions"
               dense
               outlined
-              @input="
+              @update:model-value="
                 handleLocalChange(
                   $event,
                   'storageOption',
@@ -120,11 +120,11 @@ limitations under the License.
           <q-td key="singleton" :props="props" auto-width>
             <q-checkbox
               class="q-mt-xs"
-              :value="selectionSingleton"
+              :model-value="selectionSingleton"
               :val="hashAttributeIdClusterId(props.row.id, selectedCluster.id)"
               indeterminate-value="false"
               :disable="isDisabled(props.row.id, selectedCluster.id)"
-              @input="
+              @update:model-value="
                 handleLocalSelection(
                   $event,
                   'selectedSingleton',
@@ -137,11 +137,11 @@ limitations under the License.
           <q-td key="bounded" :props="props" auto-width>
             <q-checkbox
               class="q-mt-xs"
-              :value="selectionBounded"
+              :model-value="selectionBounded"
               :val="hashAttributeIdClusterId(props.row.id, selectedCluster.id)"
               indeterminate-value="false"
               :disable="isDisabled(props.row.id, selectedCluster.id)"
-              @input="
+              @update:model-value="
                 handleLocalSelection(
                   $event,
                   'selectedBounded',
@@ -168,7 +168,7 @@ limitations under the License.
                   : ''
               "
               :disable="isDisabled(props.row.id, selectedCluster.id)"
-              :value="
+              :model-value="
                 selectionDefault[
                   hashAttributeIdClusterId(props.row.id, selectedCluster.id)
                 ]
@@ -183,7 +183,7 @@ limitations under the License.
                   hashAttributeIdClusterId(props.row.id, selectedCluster.id)
                 )
               "
-              @input="
+              @update:model-value="
                 handleLocalChange(
                   $event,
                   'defaultValue',
@@ -230,7 +230,6 @@ import EditableAttributeMixin from '../util/editable-attributes-mixin'
 export default {
   name: 'ZclAttributeManager',
   mixins: [EditableAttributeMixin],
-  destroyed() {},
   methods: {
     isDisabled(id, selectedClusterId) {
       return !this.selection.includes(

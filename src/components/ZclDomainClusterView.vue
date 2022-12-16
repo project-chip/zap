@@ -23,7 +23,7 @@ limitations under the License.
       label="Enable All Clusters"
     />
     <q-table
-      :data="clusters"
+      :rows="clusters"
       :columns="columns"
       :visible-columns="visibleColumns"
       :rows-per-page-options="[0]"
@@ -57,7 +57,7 @@ limitations under the License.
               :cover="false"
               :offset="[0, -54]"
               v-model="uc_label"
-              content-class="bg-white text-black"
+              class="bg-white text-black"
               style="overflow-wrap: break-word; padding: 0px"
             >
               <div v-show="missingRequiredUcComponents(props.row).length">
@@ -135,12 +135,12 @@ limitations under the License.
             <q-select
               class="v-step-8"
               :v-model="getClusterEnabledStatus(props.row.id)"
-              :value="getClusterEnabledStatus(props.row.id)"
+              :model-value="getClusterEnabledStatus(props.row.id)"
               :display-value="`${getClusterEnabledStatus(props.row.id)}`"
               :options="clusterSelectionOptions"
               dense
               outlined
-              @input="handleClusterSelection(props.row.id, $event)"
+              @update:model-value="handleClusterSelection(props.row.id, $event)"
             />
           </q-td>
           <q-td key="configure" :props="props">

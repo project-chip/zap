@@ -17,14 +17,14 @@ limitations under the License.
   <div v-show="eventData.length > 0">
     <q-table
       class="my-sticky-header-table"
-      :data="eventData"
+      :rows="eventData"
       :columns="columns"
       row-key="<b>name</b>"
       dense
       virtual-scroll
       flat
       binary-state-sort
-      :pagination.sync="pagination"
+      v-model:pagination="pagination"
     >
       <template v-slot:header="props">
         <q-tr :props="props">
@@ -42,7 +42,7 @@ limitations under the License.
               :val="hashEventIdClusterId(props.row.id, selectedCluster.id)"
               indeterminate-value="false"
               keep-color
-              @input="
+              @update:model-value="
                 handleEventSelection(
                   selectedEvents,
                   'selectedEvents',

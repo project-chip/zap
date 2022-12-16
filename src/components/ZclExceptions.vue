@@ -43,7 +43,7 @@ limitations under the License.
 
 <script>
 export default {
-  name: 'Exceptions',
+  name: 'ZclExceptions',
   computed: {
     exceptions() {
       return this.$store.state.zap.exceptions

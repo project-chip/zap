@@ -14,7 +14,8 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-import Vue from 'vue'
+
+import { axiosRequests } from '../../boot/axios'
 import * as Util from '../../util/util.js'
 import restApi from '../../../src-shared/rest-api.js'
 import dbEnum from '../../../src-shared/db-enum.js'
@@ -31,7 +32,7 @@ export function updateExceptions(context, data) {
 }
 
 export function updateInformationText(context, text) {
-  Vue.prototype
+  axiosRequests
     .$serverPost(restApi.uri.saveSessionKeyValue, {
       key: dbEnum.sessionKey.informationText,
       value: text,
@@ -42,19 +43,19 @@ export function updateInformationText(context, text) {
 }
 
 export function updateClusters(context) {
-  Vue.prototype.$serverGet(restApi.uri.zclCluster + 'all').then((response) => {
+  axiosRequests.$serverGet(restApi.uri.zclCluster + 'all').then((response) => {
     context.commit('updateClusters', response.data.clusterData)
   })
 }
 
 export function updateAtomics(context) {
-  Vue.prototype.$serverGet(restApi.uri.zclAtomics + 'all').then((response) => {
+  axiosRequests.$serverGet(restApi.uri.zclAtomics + 'all').then((response) => {
     context.commit('updateAtomics', response.data)
   })
 }
 
 export async function updateSelectedCluster(context, cluster) {
-  let res = await Vue.prototype.$serverGet(
+  let res = await axiosRequests.$serverGet(
     restApi.uri.zclCluster + `${cluster.id}`
   )
   context.commit('updateSelectedCluster', [cluster])
@@ -76,7 +77,7 @@ export function updateEvents(context, events) {
 }
 
 export function updateZclDeviceTypes(context) {
-  Vue.prototype
+  axiosRequests
     .$serverGet(restApi.uri.zclDeviceType + 'all')
     .then((response) => {
       let deviceTypes = response.data || []
@@ -103,7 +104,7 @@ export function selectConfiguration(context, configurationName) {
 }
 
 export function initSelectedAttribute(context, selectionContext) {
-  return Vue.prototype
+  return axiosRequests
     .$serverPost(restApi.uri.attributeUpdate, selectionContext)
     .then((res) => {
       let arg = res.data
@@ -112,7 +113,7 @@ export function initSelectedAttribute(context, selectionContext) {
 }
 
 export function updateSelectedAttribute(context, selectionContext) {
-  Vue.prototype
+  axiosRequests
     .$serverPost(restApi.uri.attributeUpdate, selectionContext)
     .then((res) => {
       let arg = res.data
@@ -142,7 +143,7 @@ export function updateSelectedAttribute(context, selectionContext) {
 }
 
 export async function updateSelectedCommands(context, selectionContext) {
-  let res = await Vue.prototype.$serverPost(
+  let res = await axiosRequests.$serverPost(
     restApi.uri.commandUpdate,
     selectionContext
   )
@@ -158,7 +159,7 @@ export async function updateSelectedCommands(context, selectionContext) {
 }
 
 export function updateSelectedEvents(context, selectionContext) {
-  Vue.prototype
+  axiosRequests
     .$serverPost(restApi.uri.eventUpdate, selectionContext)
     .then((res) => {
       let arg = res.data
@@ -175,11 +176,11 @@ export function updateSelectedEvents(context, selectionContext) {
 
 export function updateSelectedComponent(context, payload) {
   let op = payload.added ? restApi.uc.componentAdd : restApi.uc.componentRemove
-  return Vue.prototype.$serverPost(op, payload)
+  return axiosRequests.$serverPost(op, payload)
 }
 
 export function updateSelectedServers(context, selectionContext) {
-  return Vue.prototype
+  return axiosRequests
     .$serverPost(restApi.uri.cluster, {
       endpointTypeId: selectionContext.endpointTypeId,
       id: selectionContext.id,
@@ -192,7 +193,7 @@ export function updateSelectedServers(context, selectionContext) {
 }
 
 export function updateSelectedClients(context, selectionContext) {
-  return Vue.prototype
+  return axiosRequests
     .$serverPost(restApi.uri.cluster, {
       endpointTypeId: selectionContext.endpointTypeId,
       id: selectionContext.id,
@@ -205,7 +206,7 @@ export function updateSelectedClients(context, selectionContext) {
 }
 
 export function getProjectPackages(context) {
-  return Vue.prototype.$serverGet(restApi.uri.packages).then((res) => {
+  return axiosRequests.$serverGet(restApi.uri.packages).then((res) => {
     let data = res.data
     context.commit('updateProjectPackages', data)
   })
@@ -226,7 +227,7 @@ export function updateSelectedEndpoint(context, endpoint) {
 }
 
 export function updateEndpointType(context, endpointType) {
-  Vue.prototype
+  axiosRequests
     .$serverPatch(restApi.uri.endpointType, endpointType)
     .then((res) => {
       let arg = res.data
@@ -240,21 +241,21 @@ export function updateEndpointType(context, endpointType) {
 }
 
 export function setDeviceTypeReference(context, endpointIdDeviceTypeRefPair) {
-  Vue.prototype
+  axiosRequests
     .$serverGet(
       `${restApi.uri.deviceTypeClusters}${endpointIdDeviceTypeRefPair.deviceTypeRef}`
     )
     .then((res) => {
       setRecommendedClusterList(context, res.data)
     })
-  Vue.prototype
+  axiosRequests
     .$serverGet(
       `${restApi.uri.deviceTypeAttributes}${endpointIdDeviceTypeRefPair.deviceTypeRef}`
     )
     .then((res) => {
       setRequiredAttributes(context, res.data)
     })
-  Vue.prototype
+  axiosRequests
     .$serverGet(
       `${restApi.uri.deviceTypeCommands}${endpointIdDeviceTypeRefPair.deviceTypeRef}`
     )
@@ -262,28 +263,28 @@ export function setDeviceTypeReference(context, endpointIdDeviceTypeRefPair) {
       setRequiredCommands(context, res.data)
     })
 
-  Vue.prototype
+  axiosRequests
     .$serverGet(
       `${restApi.uri.endpointTypeClusters}${endpointIdDeviceTypeRefPair.endpointId}`
     )
     .then((res) => {
       setClusterList(context, res.data)
     })
-  Vue.prototype
+  axiosRequests
     .$serverGet(
       `${restApi.uri.endpointTypeAttributes}${endpointIdDeviceTypeRefPair.endpointId}`
     )
     .then((res) => {
       setAttributeStateLists(context, res.data || [])
     })
-  Vue.prototype
+  axiosRequests
     .$serverGet(
       `${restApi.uri.endpointTypeCommands}${endpointIdDeviceTypeRefPair.endpointId}`
     )
     .then((res) => {
       setCommandStateLists(context, res.data || [])
     })
-  Vue.prototype
+  axiosRequests
     .$serverGet(
       `${restApi.uri.endpointTypeEvents}${endpointIdDeviceTypeRefPair.endpointId}`
     )
@@ -295,7 +296,7 @@ export function setDeviceTypeReference(context, endpointIdDeviceTypeRefPair) {
 }
 
 export function updateEndpoint(context, endpoint) {
-  Vue.prototype.$serverPatch(restApi.uri.endpoint, endpoint).then((res) => {
+  axiosRequests.$serverPatch(restApi.uri.endpoint, endpoint).then((res) => {
     let arg = res.data
     context.commit('updateEndpoint', {
       id: arg.endpointId,
@@ -307,7 +308,7 @@ export function updateEndpoint(context, endpoint) {
 }
 
 export function addEndpoint(context, newEndpointContext) {
-  return Vue.prototype
+  return axiosRequests
     .$serverPost(restApi.uri.endpoint, newEndpointContext)
     .then((res) => {
       let arg = res.data
@@ -327,7 +328,7 @@ export function addEndpoint(context, newEndpointContext) {
 }
 
 export function addEndpointType(context, endpointTypeData) {
-  return Vue.prototype
+  return axiosRequests
     .$serverPost(restApi.uri.endpointType, endpointTypeData)
     .then((res) => {
       context.commit('addEndpointType', {
@@ -340,31 +341,40 @@ export function addEndpointType(context, endpointTypeData) {
 }
 
 export function duplicateEndpointType(context, { endpointTypeId }) {
-  return Vue.prototype
-    .$serverPost(restApi.uri.duplicateEndpointType, { endpointTypeId: endpointTypeId })
+  return axiosRequests
+    .$serverPost(restApi.uri.duplicateEndpointType, {
+      endpointTypeId: endpointTypeId,
+    })
     .then((res) => {
       return res.data
     })
 }
 
 export function deleteEndpoint(context, endpointId) {
-  Vue.prototype
+  axiosRequests
     .$serverDelete(restApi.uri.endpoint, { params: { id: endpointId } })
     .then((response) => {
       context.commit('deleteEndpoint', { id: response.data.id })
     })
 }
 
-export function duplicateEndpoint(context, {endpointId, endpointIdentifier, endpointTypeId}) {
-  return Vue.prototype
-    .$serverPost(restApi.uri.duplicateEndpoint, { id: endpointId, endpointIdentifier: endpointIdentifier, endpointTypeId: endpointTypeId })
+export function duplicateEndpoint(
+  context,
+  { endpointId, endpointIdentifier, endpointTypeId }
+) {
+  return axiosRequests
+    .$serverPost(restApi.uri.duplicateEndpoint, {
+      id: endpointId,
+      endpointIdentifier: endpointIdentifier,
+      endpointTypeId: endpointTypeId,
+    })
     .then((response) => {
-    return response
-    }) 
+      return response
+    })
 }
 
 export function deleteEndpointType(context, endpointTypeId) {
-  Vue.prototype
+  axiosRequests
     .$serverDelete(restApi.uri.endpointType, { params: { id: endpointTypeId } })
     .then((response) => {
       if (response.data.successful) {
@@ -376,17 +386,17 @@ export function deleteEndpointType(context, endpointTypeId) {
 }
 
 export function refreshEndpointTypeCluster(context, endpointType) {
-  Vue.prototype
+  axiosRequests
     .$serverGet(`${restApi.uri.endpointTypeAttributes}${endpointType}`)
     .then((res) => {
       setAttributeStateLists(context, res.data || [])
     })
-  Vue.prototype
+  axiosRequests
     .$serverGet(`${restApi.uri.endpointTypeCommands}${endpointType}`)
     .then((res) => {
       setCommandStateLists(context, res.data || [])
     })
-  Vue.prototype
+  axiosRequests
     .$serverGet(`${restApi.uri.endpointTypeEvents}${endpointType}`)
     .then((res) => {
       setEventStateLists(context, res.data || [])
@@ -398,28 +408,28 @@ export function updateSelectedEndpointType(
   endpointTypeDeviceTypeRefPair
 ) {
   if (endpointTypeDeviceTypeRefPair != null) {
-    Vue.prototype
+    axiosRequests
       .$serverGet(
         `${restApi.uri.endpointTypeClusters}${endpointTypeDeviceTypeRefPair.endpointType}`
       )
       .then((res) => {
         setClusterList(context, res.data)
       })
-    Vue.prototype
+    axiosRequests
       .$serverGet(
         `${restApi.uri.endpointTypeAttributes}${endpointTypeDeviceTypeRefPair.endpointType}`
       )
       .then((res) => {
         setAttributeStateLists(context, res.data || [])
       })
-    Vue.prototype
+    axiosRequests
       .$serverGet(
         `${restApi.uri.endpointTypeCommands}${endpointTypeDeviceTypeRefPair.endpointType}`
       )
       .then((res) => {
         setCommandStateLists(context, res.data || [])
       })
-    Vue.prototype
+    axiosRequests
       .$serverGet(
         `${restApi.uri.endpointTypeEvents}${endpointTypeDeviceTypeRefPair.endpointType}`
       )
@@ -427,21 +437,21 @@ export function updateSelectedEndpointType(
         setEventStateLists(context, res.data || [])
       })
 
-    Vue.prototype
+    axiosRequests
       .$serverGet(
         `${restApi.uri.deviceTypeClusters}${endpointTypeDeviceTypeRefPair.deviceTypeRef}`
       )
       .then((res) => {
         setRecommendedClusterList(context, res.data)
       })
-    Vue.prototype
+    axiosRequests
       .$serverGet(
         `${restApi.uri.deviceTypeAttributes}${endpointTypeDeviceTypeRefPair.deviceTypeRef}`
       )
       .then((res) => {
         setRequiredAttributes(context, res.data)
       })
-    Vue.prototype
+    axiosRequests
       .$serverGet(
         `${restApi.uri.deviceTypeCommands}${endpointTypeDeviceTypeRefPair.deviceTypeRef}`
       )
@@ -611,7 +621,7 @@ export function setMiniState(context, data) {
  * @param {*} data
  */
 export function loadInitialData(context, data) {
-  Vue.prototype.$serverGet(restApi.uri.initialState).then((response) => {
+  axiosRequests.$serverGet(restApi.uri.initialState).then((response) => {
     let initialState = response.data
     if ('endpoints' in initialState) {
       context.commit('initializeEndpoints', initialState.endpoints)
@@ -628,7 +638,7 @@ export function loadInitialData(context, data) {
       )
     }
   })
-  Vue.prototype.$serverGet(restApi.uri.getAllPackages).then((response) => {
+  axiosRequests.$serverGet(restApi.uri.getAllPackages).then((response) => {
     context.commit('setAllPackages', response.data.packages)
   })
 }
@@ -637,7 +647,7 @@ export function loadInitialData(context, data) {
  * This action loads the option from the backend, including any defaults that may exist.
  */
 export function loadOptions(context, option) {
-  Vue.prototype
+  axiosRequests
     .$serverGet(`${restApi.uri.option}/${option.key}`)
     .then((response) => {
       let optionsData = {
@@ -657,7 +667,7 @@ export function loadOptions(context, option) {
  * @param {*} data Object containing 'key' and 'value'
  */
 export async function setSelectedGenericKey(context, data) {
-  let response = await Vue.prototype.$serverPost(
+  let response = await axiosRequests.$serverPost(
     restApi.uri.saveSessionKeyValue,
     data
   )
@@ -665,7 +675,7 @@ export async function setSelectedGenericKey(context, data) {
 }
 
 export async function loadSessionKeyValues(context) {
-  let response = await Vue.prototype.$serverGet(
+  let response = await axiosRequests.$serverGet(
     restApi.uri.getAllSessionKeyValues
   )
   context.commit('loadSessionKeyValues', response.data)
@@ -679,7 +689,7 @@ export async function loadSessionKeyValues(context) {
  * @returns validity object
  */
 export async function addNewPackage(context, filePath) {
-  let response = await Vue.prototype.$serverPost(restApi.uri.addNewPackage, {
+  let response = await axiosRequests.$serverPost(restApi.uri.addNewPackage, {
     path: filePath,
   })
 
@@ -692,7 +702,7 @@ export async function addNewPackage(context, filePath) {
 }
 
 export function deleteSessionPackage(context, sessionPackage) {
-  return Vue.prototype
+  return axiosRequests
     .$serverDelete(restApi.uri.sessionPackage, { params: sessionPackage })
     .then((response) => {
       return getProjectPackages(context)
@@ -765,7 +775,7 @@ export function updateUcComponentState(context, projectInfoJson) {
 }
 
 export function loadZclClusterToUcComponentDependencyMap(context) {
-  Vue.prototype
+  axiosRequests
     .$serverGet(`/zclExtension/cluster/component`)
     .then((response) => {
       context.commit(
@@ -777,7 +787,7 @@ export function loadZclClusterToUcComponentDependencyMap(context) {
 
 export function shareClusterStatesAcrossEndpoints(context, data) {
   let { endpointTypeIdList } = data
-  Vue.prototype
+  axiosRequests
     .$serverPost(restApi.uri.shareClusterStatesAcrossEndpoints, {
       endpointTypeIdList,
     })
@@ -790,37 +800,39 @@ export function generateAllEndpointsData(context, endpointData) {
   let attr = []
   let report = []
   let server = []
-  let promise1 = Vue.prototype.$serverGet(endpointData.clusterRequestUrl).then((res) => {
-    let enabledClients = []
-    let enabledServers = []
-    res.data.forEach((record) => {
-      if (record.enabled) {
-        if (record.side === 'client') {
-          enabledClients.push(record.clusterRef)
-        } else {
-          enabledServers.push(record.clusterRef)
-          
+  let promise1 = axiosRequests
+    .$serverGet(endpointData.clusterRequestUrl)
+    .then((res) => {
+      let enabledClients = []
+      let enabledServers = []
+      res.data.forEach((record) => {
+        if (record.enabled) {
+          if (record.side === 'client') {
+            enabledClients.push(record.clusterRef)
+          } else {
+            enabledServers.push(record.clusterRef)
           }
         }
       })
       server = [...enabledServers, ...enabledClients]
     })
 
-  let promise2 = Vue.prototype.$serverGet(endpointData.attributesRequestUrl).then((res) => {
-
-    res.data.forEach((record) => {
-      let resolvedReference = Util.cantorPair(
-        record.attributeRef,
-        record.clusterRef
-      )
-      if (record.included) {
-        attr.push(resolvedReference)
-      }
-      if (record.includedReportable) {
-        report.push(resolvedReference)
-      }
+  let promise2 = axiosRequests
+    .$serverGet(endpointData.attributesRequestUrl)
+    .then((res) => {
+      res.data.forEach((record) => {
+        let resolvedReference = Util.cantorPair(
+          record.attributeRef,
+          record.clusterRef
+        )
+        if (record.included) {
+          attr.push(resolvedReference)
+        }
+        if (record.includedReportable) {
+          report.push(resolvedReference)
+        }
+      })
     })
-  })
 
   Promise.all([promise1, promise2]).then(() => {
     context.commit('setAllEndpointsData', {

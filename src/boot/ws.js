@@ -14,14 +14,12 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-import Vue from 'vue'
 import Events from 'events'
 import dbEnum from '../../src-shared/db-enum.js'
 import restApi from '../../src-shared/rest-api.js'
 import rendApi from '../../src-shared/rend-api.js'
 import { Notify } from 'quasar'
 import * as Util from '../util/util.js'
-const http = require('http-status-codes')
 
 const tickInterval = 15000 // 15 seconds tick interval for server watchdog.
 
@@ -150,6 +148,8 @@ onWebSocket(dbEnum.wsCategory.componentUpdateStatus, (obj) => {
 //   console.log(`Generic message received: ${JSON.stringify(data)}`)
 // )
 
-Vue.prototype.$sendWebSocketData = sendWebSocketData
-Vue.prototype.$sendWebSocketMessage = sendWebSocketMessage
-Vue.prototype.$onWebSocket = onWebSocket
+export default ({ app }) => {
+  app.config.globalProperties.$sendWebSocketData = sendWebSocketData
+  app.config.globalProperties.$sendWebSocketMessage = sendWebSocketMessage
+  app.config.globalProperties.$onWebSocket = onWebSocket
+}

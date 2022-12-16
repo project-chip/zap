@@ -19,9 +19,9 @@ limitations under the License.
     <p>Generation preferences.</p>
     <q-table
       class="my-sticky-header-table"
-      :data.sync="packages"
+      :rows="packages"
       :columns="columns"
-      :pagination.sync="pagination"
+      v-model:pagination="pagination"
       row-key="<b>name</b>"
       dense
       flat
@@ -29,7 +29,6 @@ limitations under the License.
       binary-state-sort
       data-cy="Attributes"
       style="height: calc(100vh - 210px); overflow: hidden"
-      :rows="1000"
     >
       <template v-slot:pagination> </template>
     </q-table>

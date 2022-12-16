@@ -15,14 +15,12 @@
  *    limitations under the License.
  */
 
-import Vue from 'vue'
 import axios from 'axios'
 import { v4 as uuidv4 } from 'uuid'
 import restApi from '../../src-shared/rest-api.js'
 import * as Util from '../util/util.js'
-import store from '../store/index.js'
 
-const vuex = store()
+let zapUpdateExceptions = (payload, statusCode, message) => {}
 
 // You can set this to false to not log all the roundtrips
 const log = false
@@ -135,13 +133,11 @@ function serverPost(url, data, config = null) {
   return axios['post'](fillUrl(url), data, fillConfig(config))
     .then((response) => processResponse('POST', url, response))
     .catch((error) => {
-      vuex.dispatch('zap/updateExceptions', {
-        url,
-        method: 'post',
-        payload: data,
-        statusCode: error.response.status,
-        message: error.response.data.message,
-      })
+      zapUpdateExceptions(
+        data,
+        error.response.status,
+        error.response.data.message
+      )
     })
 }
 
@@ -176,15 +172,35 @@ function serverPatch(url, data, config = null) {
     .catch((error) => console.log(error))
 }
 
-// Now tie these functions to vue instance
-Vue.prototype.$serverGet = serverGet
-Vue.prototype.$serverPost = serverPost
-Vue.prototype.$serverPut = serverPut
-Vue.prototype.$serverPatch = serverPatch
-Vue.prototype.$serverDelete = serverDelete
-
 window.serverGet = serverGet
 window.serverPost = serverPost
 window.serverPut = serverPut
 window.serverPatch = serverPatch
 window.serverDelete = serverDelete
+
+export default ({ app, store }) => {
+  zapUpdateExceptions = (payload, statusCode, message) => {
+    store.dispatch('zap/updateExceptions', {
+      url,
+      method: 'post',
+      payload,
+      statusCode,
+      message,
+    })
+  }
+
+  // Now tie these functions to vue instance
+  app.config.globalProperties.$serverGet = serverGet
+  app.config.globalProperties.$serverPost = serverPost
+  app.config.globalProperties.$serverPut = serverPut
+  app.config.globalProperties.$serverPatch = serverPatch
+  app.config.globalProperties.$serverDelete = serverDelete
+}
+
+export const axiosRequests = {
+  $serverGet: serverGet,
+  $serverPost: serverPost,
+  $serverPut: serverPut,
+  $serverPatch: serverPatch,
+  $serverDelete: serverDelete,
+}

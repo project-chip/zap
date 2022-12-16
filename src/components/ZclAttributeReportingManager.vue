@@ -17,14 +17,14 @@ limitations under the License.
   <div v-show="attributeData.length > 0">
     <q-table
       class="my-sticky-header-table"
-      :data.sync="attributeData"
+      :rows="attributeData"
       :columns="columns"
       row-key="<b>name</b>"
       dense
       flat
       virtual-scroll
       binary-state-sort
-      :pagination.sync="pagination"
+      v-model:pagination="pagination"
       :sort-method="customAttributeSort"
       data-cy="Attributes Reporting"
     >
@@ -41,7 +41,7 @@ limitations under the License.
               :disable="!displayAttrWarning(props.row)"
               :cover="false"
               :offset="[0, -54]"
-              content-class="bg-white text-black"
+              class="bg-white text-black"
               style="overflow-wrap: break-word; padding: 0px"
             >
               <div class="row items-center" items-center style="padding: 0px">
@@ -65,7 +65,7 @@ limitations under the License.
               :val="hashAttributeIdClusterId(props.row.id, selectedCluster.id)"
               indeterminate-value="false"
               keep-color
-              @input="
+              @update:model-value="
                 toggleAttributeSelection(
                   selectedReporting,
                   'selectedReporting',
@@ -99,12 +99,12 @@ limitations under the License.
               dense
               type="number"
               outlined
-              :value="
+              :model-value="
                 selectionMin[
                   hashAttributeIdClusterId(props.row.id, selectedCluster.id)
                 ]
               "
-              @input="
+              @update:model-value="
                 handleLocalChange(
                   $event,
                   'reportingMin',
@@ -119,12 +119,12 @@ limitations under the License.
               dense
               type="number"
               outlined
-              :value="
+              :model-value="
                 selectionMax[
                   hashAttributeIdClusterId(props.row.id, selectedCluster.id)
                 ]
               "
-              @input="
+              @update:model-value="
                 handleLocalChange(
                   $event,
                   'reportingMax',
@@ -160,7 +160,7 @@ limitations under the License.
                   hashAttributeIdClusterId(props.row.id, selectedCluster.id)
                 )
               "
-              @input="
+              @update:model-value="
                 handleAttributeDefaultChange(
                   $event,
                   'reportableChange',

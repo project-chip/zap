@@ -32,7 +32,7 @@ limitations under the License.
             :options="mfgOptions"
             :option-label="(item) => getMfgOptionLabel(item)"
             @new-value="createValue"
-            @input="
+            @update:model-value="
               handleOptionChange(DbEnum.sessionOption.manufacturerCodes, $event)
             "
             v-model="selectedManufacturerCode"
@@ -50,7 +50,7 @@ limitations under the License.
             :option-label="
               (item) => (item === null ? 'NULL' : item.optionLabel)
             "
-            @input="
+            @update:model-value="
               handleEnumeratedOptionChange(
                 DbEnum.sessionOption.defaultResponsePolicy,
                 $event
@@ -65,11 +65,13 @@ limitations under the License.
         <div class="row">
           <div class="col-md q-mb-md col-sm-12">
             <q-toggle
-              :value="commandDiscoverySetting == 1 ? true : false"
+              :model-value="commandDiscoverySetting == 1 ? true : false"
               label="Enable Command Discovery"
               dense
               left-label
-              @input="handleOptionChange('commandDiscovery', $event)"
+              @update:model-value="
+                handleOptionChange('commandDiscovery', $event)
+              "
             >
               <q-tooltip> Enable Command Discovery for your project </q-tooltip>
             </q-toggle>
@@ -149,8 +151,11 @@ export default {
   },
   data() {
     return {
-      mfgOptions: this.defaultManufacturerCodes,
+      mfgOptions: null,
     }
+  },
+  beforeMount() {
+    this.mfgOptions = this.defaultManufacturerCodes
   },
   methods: {
     handleEnumeratedOptionChange(option, value) {

@@ -26,11 +26,11 @@ limitations under the License.
             <q-select
               filled
               :options="endpoints"
-              :value="selectedEndpointId"
+              :model-value="selectedEndpointId"
               label="Endpoint"
               emit-value
               map-options
-              @input="setSelectedEndpoint($event)"
+              @update:model-value="setSelectedEndpoint($event)"
               style="width: 250px"
             />
           </q-toolbar-title>

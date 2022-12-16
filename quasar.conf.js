@@ -1,7 +1,9 @@
 // Configuration for your app
 // https://quasar.dev/quasar-cli/quasar-conf-js
+const ESLintPlugin = require('eslint-webpack-plugin')
+const { configure } = require('quasar/wrappers')
 
-module.exports = function (ctx) {
+module.exports = configure(function (ctx) {
   return {
     supportTS: true,
     // Source files of application
@@ -10,8 +12,7 @@ module.exports = function (ctx) {
       router: 'src/router',
       store: 'src/store',
       indexHtmlTemplate: 'src/index.template.html',
-      electronMainDev: 'src-electron/ui/main-ui.dev.js',
-      electronMainProd: 'src-electron/ui/main-ui.js',
+      electronMain: 'src-electron/ui/main-ui.js',
     },
 
     // app boot file (/src/boot)
@@ -38,7 +39,7 @@ module.exports = function (ctx) {
     // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-framework
     framework: {
       iconSet: 'mdi-v4', // Quasar icon set
-      lang: 'en-us', // Quasar language pack
+      lang: 'en-US', // Quasar language pack
 
       // Possible values for "all":
       // * 'auto' - Auto-import needed Quasar components & directives
@@ -60,9 +61,6 @@ module.exports = function (ctx) {
       },
     },
 
-    // https://quasar.dev/quasar-cli/cli-documentation/supporting-ie
-    supportIE: false,
-
     // Full list of options: https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-build
     build: {
       scopeHoisting: true,
@@ -77,15 +75,7 @@ module.exports = function (ctx) {
 
       // https://quasar.dev/quasar-cli/cli-documentation/handling-webpack
       extendWebpack(cfg) {
-        cfg.module.rules.push({
-          enforce: 'pre',
-          test: /\.(js|vue)$/,
-          loader: 'eslint-loader',
-          exclude: /node_modules/,
-          options: {
-            formatter: require('eslint').CLIEngine.getFormatter('stylish'),
-          },
-        })
+        cfg.plugins.push(new ESLintPlugin({ extensions: ['js', 'vue'] }))
         cfg.module.rules.push({
           enforce: 'pre',
           test: /\.(sql)$/,
@@ -97,7 +87,9 @@ module.exports = function (ctx) {
 
     // Full list of options: https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-devServer
     devServer: {
-      https: false,
+      server: {
+        type: 'http',
+      },
       port: 8080,
       open: false,
       headers: {
@@ -211,9 +203,23 @@ module.exports = function (ctx) {
       // More info: https://quasar.dev/quasar-cli/developing-electron-apps/node-integration
       nodeIntegration: false,
 
-      extendWebpack(cfg) {
+      extendWebpackMain(cfg) {
         // do something with Electron main process Webpack cfg
         // chainWebpack also available besides this extendWebpack
+        cfg.plugins.push(new ESLintPlugin({ extensions: ['js'] }))
+        cfg.module.rules.push({
+          enforce: 'pre',
+          test: /\.(png|jpe?g|gif|sql)$/,
+          loader: 'file-loader',
+          exclude: /node_modules/,
+          options: {
+            name: '[path][name].[ext]',
+          },
+        })
+      },
+
+      extendWebpackPreload(cfg) {
+        cfg.plugins.push(new ESLintPlugin({ extensions: ['js'] }))
         cfg.module.rules.push({
           enforce: 'pre',
           test: /\.(png|jpe?g|gif|sql)$/,
@@ -226,4 +232,4 @@ module.exports = function (ctx) {
       },
     },
   }
-}
+})
