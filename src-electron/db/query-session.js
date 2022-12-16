@@ -243,11 +243,9 @@ async function ensureZapUserAndSession(
     userId: null,
   }
 ) {
-  let log = true
 
   if (options.sessionId != null && options.userId != null) {
     // if we're passed both IDs, we simply return them back.
-    if (log) console.log('We have both USER ID and SESSION ID!')
     return {
       sessionId: options.sessionId,
       userId: options.userId,
@@ -256,7 +254,6 @@ async function ensureZapUserAndSession(
   } else if (options.sessionId != null) {
     // we have a session, but not the user, so we create
     // the user and link the session with it.
-    if (log) console.log('We have SESSION ID, but NOT the USER ID!')
     let user = await ensureUser(db, userKey)
     await linkSessionToUser(db, options.sessionId, user.userId)
     return {
@@ -267,7 +264,6 @@ async function ensureZapUserAndSession(
   } else if (options.userId != null) {
     // we have the user, but not the session, so we create the session,
     // and link it to the user.
-    if (log) console.log('We have USER ID, but NOT the SESSION ID!')
     let sessionId = await ensureBlankSession(db, sessionUuid)
     await linkSessionToUser(db, sessionId, options.userId)
     return {
@@ -277,7 +273,6 @@ async function ensureZapUserAndSession(
     }
   } else {
     // we have nothing, create both the user and the session.
-    if (log) console.log('We have neither USER ID, nor the SESSION ID!')
     let user = await ensureUser(db, userKey)
     let sessionId = await ensureBlankSession(db, sessionUuid)
     await linkSessionToUser(db, sessionId, user.userId)

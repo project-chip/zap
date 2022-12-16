@@ -42,7 +42,6 @@ const storage = require('./util/storage.js')
 const _ = require('lodash')
 
 async function initializeSession() {
-  console.log(this)
   return this.serverPost(restApi.uri.init)
 }
 
