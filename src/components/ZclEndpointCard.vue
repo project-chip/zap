@@ -21,7 +21,10 @@ limitations under the License.
       :bordered="isSelectedEndpoint"
       @click="setSelectedEndpointType(endpointReference)"
     >
-      <div class="q-mx-sm" style="display: flex; justify-content: space-between">
+      <div
+        class="q-mx-sm"
+        style="display: flex; justify-content: space-between"
+      >
         <div class="vertical-align:middle q-pa-sm col-4">
           <strong
             >Endpoint - {{ getFormattedEndpointId(endpointReference) }}</strong
@@ -37,9 +40,7 @@ limitations under the License.
             icon="content_copy"
             @click.stop="duplicateEndpoint()"
           >
-            <q-tooltip>
-              Copy
-            </q-tooltip>
+            <q-tooltip> Copy </q-tooltip>
           </q-btn>
           <q-btn
             flat
@@ -51,9 +52,7 @@ limitations under the License.
             @click="handleDeletionDialog"
             data-test="delete-endpoint"
           >
-            <q-tooltip>
-              Delete
-            </q-tooltip>
+            <q-tooltip> Delete </q-tooltip>
           </q-btn>
           <q-btn
             flat
@@ -65,9 +64,7 @@ limitations under the License.
             @click="modifyEndpointDialog = !modifyEndpointDialog"
             data-test="edit-endpoint"
           >
-            <q-tooltip>
-              Edit
-            </q-tooltip>
+            <q-tooltip> Edit </q-tooltip>
           </q-btn>
           <q-btn
             v-if="getEndpointInformation"
@@ -165,7 +162,7 @@ limitations under the License.
         <q-card-section>
           <div class="text-h6">Delete Endpoint</div>
 
-          This action is irreversible and you will loose all the data under the
+          This action is irreversible and you will lose all the data under the
           endpoint.
         </q-card-section>
         <q-card-section>
@@ -247,14 +244,17 @@ export default {
       this.$store
         .dispatch('zap/duplicateEndpointType', {
           endpointTypeId: this.endpointType[this.endpointReference],
-        }).then(res => {
-          this.$store.dispatch('zap/duplicateEndpoint', {
-            endpointId: this.endpointReference,
-            endpointIdentifier: this.getSmallestUnusedEndpointId(),
-            endpointTypeId: res.id,
-          }).then(() => {
-          this.$store.dispatch('zap/loadInitialData')
         })
+        .then((res) => {
+          this.$store
+            .dispatch('zap/duplicateEndpoint', {
+              endpointId: this.endpointReference,
+              endpointIdentifier: this.getSmallestUnusedEndpointId(),
+              endpointTypeId: res.id,
+            })
+            .then(() => {
+              this.$store.dispatch('zap/loadInitialData')
+            })
         })
     },
     getFormattedEndpointId(endpointRef) {
@@ -307,7 +307,10 @@ export default {
       })
     },
     toggleShowAllInformationOfEndpoint(value) {
-      this.$store.commit('zap/toggleShowEndpoint', { id: this.endpointReference, value: value })
+      this.$store.commit('zap/toggleShowEndpoint', {
+        id: this.endpointReference,
+        value: value,
+      })
     },
     getEndpointCardData() {
       Vue.prototype
@@ -415,13 +418,16 @@ export default {
     getEndpointInformation: {
       get() {
         return this.$store.state.zap.showEndpointData[this.endpointReference]
-      }
-    }
+      },
+    },
   },
   watch: {
     isSelectedEndpoint(newValue) {
       if (newValue) {
-        this.$store.commit('zap/toggleShowEndpoint', { id: this.endpointReference, value: true })
+        this.$store.commit('zap/toggleShowEndpoint', {
+          id: this.endpointReference,
+          value: true,
+        })
       }
     },
     isClusterOptionChanged(val) {
