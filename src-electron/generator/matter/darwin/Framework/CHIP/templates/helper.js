@@ -627,7 +627,7 @@ async function availability(clusterName, options) {
       );
       return `API_AVAILABLE(${availabilityStrings.join(
         ', '
-      )}) MTR_NEWLY_DEPRECATED("${options.hash.deprecationMessage}")`;
+      )})\nMTR_NEWLY_DEPRECATED("${options.hash.deprecationMessage}")`;
     }
     return `MTR_NEWLY_DEPRECATED("${options.hash.deprecationMessage}")`;
   }
