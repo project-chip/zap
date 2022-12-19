@@ -137,7 +137,7 @@ function asObjectiveCNumberType(label, type, asLowerCased) {
 
 function compatClusterNameRemapping(cluster, options) {
   cluster = appHelper.asUpperCamelCase(cluster, {
-    hash: { preserveAcronyms: false },
+    hash: { preserveAcronyms: true },
   });
 
   const old = oldName.call(this, cluster, options);
@@ -151,11 +151,11 @@ function compatClusterNameRemapping(cluster, options) {
 
 function compatAttributeNameRemapping(cluster, attribute, options) {
   cluster = appHelper.asUpperCamelCase(cluster, {
-    hash: { preserveAcronyms: false },
+    hash: { preserveAcronyms: true },
   });
 
   attribute = appHelper.asUpperCamelCase(attribute, {
-    hash: { preserveAcronyms: false },
+    hash: { preserveAcronyms: true },
   });
 
   const old = oldName.call(this, cluster, {
@@ -170,6 +170,29 @@ function compatAttributeNameRemapping(cluster, attribute, options) {
   }
 
   return attribute;
+}
+
+function compatCommandNameRemapping(cluster, command, options) {
+  cluster = appHelper.asUpperCamelCase(cluster, {
+    hash: { preserveAcronyms: true },
+  });
+
+  command = appHelper.asUpperCamelCase(command, {
+    hash: { preserveAcronyms: true },
+  });
+
+  const old = oldName.call(this, cluster, {
+    hash: {
+      ...options.hash,
+      command: command,
+    },
+  });
+
+  if (old) {
+    return old;
+  }
+
+  return command;
 }
 
 /**
@@ -643,7 +666,7 @@ async function availability(clusterName, options) {
     throw new Error(
       `Deprecation needs a deprecation message for ${clusterName} and ${JSON.stringify(
         options.hash
-      )}`
+      )} (${this.global.templatePath}:${options.loc.start.line})`
     );
   }
 
@@ -711,6 +734,90 @@ function wasIntroducedBeforeRelease(releaseName, clusterName, options) {
   return data.indexOf(introducedRelease) < data.indexOf(referenceRelease);
 }
 
+function wasRemoved(cluster, options) {
+  const data = fetchAvailabilityData(this.global);
+  const path = makeAvailabilityPath(cluster, options);
+
+  let removedRelease = findReleaseForPath(data, ['removed', ...path], options);
+  return removedRelease !== undefined;
+}
+
+function and() {
+  let args = [...arguments];
+  // Strip off the options arg.
+  let options = args.pop();
+
+  return args.reduce((running, current) => {
+    if (current instanceof Promise) {
+      throw new Error(
+        "Promise passed as argument to 'and'.  You probably want to use async_if/async_and"
+      );
+    }
+    return running && current;
+  }, true);
+}
+
+function or() {
+  let args = [...arguments];
+  // Strip off the options arg.
+  let options = args.pop();
+
+  return args.reduce((running, current) => {
+    if (current instanceof Promise) {
+      throw new Error(
+        "Promise passed as argument to 'or'.  You probably want to use async_if/async_or"
+      );
+    }
+    return running || current;
+  }, false);
+}
+
+function not(value) {
+  if (value instanceof Promise) {
+    throw new Error(
+      "Promise passed as argument to 'not'.  You probably want to use async_if/async_not"
+    );
+  }
+
+  return !value;
+}
+
+async function async_if(value, options) {
+  let condition = await value;
+  if (condition) {
+    return options.fn(this);
+  } else {
+    return options.inverse(this);
+  }
+}
+
+async function async_and() {
+  let args = [...arguments];
+  // Strip off the options arg.
+  let options = args.pop();
+
+  let booleans = await Promise.all(args);
+  return booleans.reduce((running, current) => {
+    return running && current;
+  }, true);
+}
+
+async function async_or() {
+  let args = [...arguments];
+  // Strip off the options arg.
+  let options = args.pop();
+
+  let booleans = await Promise.all(args);
+  return booleans.reduce((running, current) => {
+    return running || current;
+  }, false);
+}
+
+async function async_not(value) {
+  let toBeNegated = await value;
+  return !toBeNegated;
+}
+
 //
 // Module exports
 //
@@ -727,8 +834,17 @@ exports.objCEnumItemLabel = objCEnumItemLabel;
 exports.hasArguments = hasArguments;
 exports.compatClusterNameRemapping = compatClusterNameRemapping;
 exports.compatAttributeNameRemapping = compatAttributeNameRemapping;
+exports.compatCommandNameRemapping = compatCommandNameRemapping;
 exports.availability = availability;
 exports.wasIntroducedBeforeRelease = wasIntroducedBeforeRelease;
+exports.wasRemoved = wasRemoved;
+exports.and = and;
+exports.or = or;
+exports.not = not;
+exports.async_if = async_if;
+exports.async_and = async_and;
+exports.async_or = async_or;
+exports.async_not = async_not;
 
 exports.meta = {
   category: dbEnum.helperCategory.matter,
