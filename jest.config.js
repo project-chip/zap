@@ -62,4 +62,8 @@ module.exports = {
     '/node_modules/',
     '<rootDir>/test/download-artifact.test.js',
   ],
+  coveragePathIgnorePatterns: [
+    '/node_modules/',
+    '<rootDir>/src-electron/generator/matter/darwin/Framework/CHIP/templates/helper.js',
+  ],
 }

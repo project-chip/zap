@@ -207,6 +207,10 @@ function oldName(cluster, options) {
   return findDataForPath(data, ['renames', ...path]);
 }
 
+function hasOldName(cluster, options) {
+  return oldName.call(this, cluster, options) !== undefined;
+}
+
 async function asObjectiveCClass(type, cluster, options) {
   let pkgIds = await templateUtil.ensureZclPackageIds(this);
   let isStruct = await zclHelper
@@ -742,6 +746,50 @@ function wasRemoved(cluster, options) {
   return removedRelease !== undefined;
 }
 
+function hasRenamedFields(cluster, options) {
+  const data = fetchAvailabilityData(this.global);
+  // Try to minimize duplication by reusing existing path-construction and
+  // manipulation bits.  Just use dummy values for the leaf we're going to
+  // remove.
+  let hashAddition;
+  if (options.hash.struct) {
+    hashAddition = {
+        structField: "dummy"
+    };
+  } else if (options.hash.event) {
+    hashAddition = {
+        eventField: "dummy"
+    };
+  } else if (options.hash.command) {
+    hashAddition = {
+        commandField: "dummy"
+    };
+  } else if (options.hash.enum) {
+    hashAddition = {
+        enumValue: "dummy"
+    };
+  } else if (options.hash.bitmap) {
+    hashAddition = {
+        bitmapValue: "dummy"
+    };
+  } else {
+    throw new Error(`hasRenamedFields called for a non-container object: ${cluster} '${JSON.stringfify(options.hash)}'`);
+  }
+
+  let path = makeAvailabilityPath(cluster, {
+    hash: {
+      ...options.hash, ...hashAddition
+    }
+  });
+
+  // Now strip off the last bit of the path, so we're just checking for any
+  // renames in our container.
+  path.pop();
+
+  return findDataForPath(data, [ 'renames', ...path ]) !== undefined;
+
+}
+
 function and() {
   let args = [...arguments];
   // Strip off the options arg.
@@ -845,6 +893,9 @@ exports.async_if = async_if;
 exports.async_and = async_and;
 exports.async_or = async_or;
 exports.async_not = async_not;
+exports.oldName = oldName;
+exports.hasOldName = hasOldName;
+exports.hasRenamedFields = hasRenamedFields;
 
 exports.meta = {
   category: dbEnum.helperCategory.matter,
