@@ -260,9 +260,11 @@ function httpPostComponentUpdate(
 function initIdeIntegration(db: dbTypes.DbType, studioPort: number) {
   studioHttpPort = studioPort
 
-  ucComponentStateReportId = setInterval(() => {
-    sendUcComponentStateReport(db)
-  }, UC_COMPONENT_STATE_REPORTING_INTERVAL_ID)
+  if (studioPort) {
+    ucComponentStateReportId = setInterval(() => {
+      sendUcComponentStateReport(db)
+    }, UC_COMPONENT_STATE_REPORTING_INTERVAL_ID)
+  }
 }
 
 /**
