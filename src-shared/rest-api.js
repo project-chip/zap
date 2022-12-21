@@ -59,9 +59,10 @@ const uri = {
   deviceTypeAttributes: '/zcl/deviceTypeAttributes/',
   deviceTypeCommands: '/zcl/deviceTypeCommands/',
   deviceTypeEvents: '/zcl/deviceTypeEvents/',
-  initialPackagesSessions: '/zcl/initialPackagesSessions/',
-  initializeSession: '/zcl/initializeSession/',
-  reloadSession: '/zcl/reloadSession/',
+  initialPackagesSessions: '/zcl/initialPackagesSessions',
+  initializeSession: '/zcl/initializeSession',
+  reloadSession: '/zcl/reloadSession',
+  init: '/init',
 }
 
 const uiMode = {

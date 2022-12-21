@@ -1,3 +1,25 @@
+/**
+ *
+ *    Copyright (c) 2022 Silicon Labs
+ *
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
+ *    You may obtain a copy of the License at
+ *
+ *        http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *    Unless required by applicable law or agreed to in writing, software
+ *    distributed under the License is distributed on an "AS IS" BASIS,
+ *    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *    See the License for the specific language governing permissions and
+ *    limitations under the License.
+ */
+
+/**
+ * This module provides the REST API to the session initialization
+ *
+ * @module REST API: initialization functions
+ */
 const queryPackage = require('../db/query-package.js')
 const querySession = require('../db/query-session.js')
 const dbEnum = require('../../src-shared/db-enum.js')
@@ -9,7 +31,7 @@ const util = require('../util/util.js')
  * @param {*} db
  * @returns Properties, Templates and Dirty-Sessions.
  */
-module.exports.packagesAndSessions = (db) => {
+function packagesAndSessions(db) {
   return async (req, res) => {
     const zclProperties = await queryPackage.getPackagesByType(
       db,
@@ -34,7 +56,7 @@ module.exports.packagesAndSessions = (db) => {
  * @param {*} options: object containing 'zcl' and 'template'
  * @returns A success message.
  */
-module.exports.initializeSession = (db, options) => {
+function initializeSession(db) {
   return async (req, res) => {
     let sessionUuid = req.query[restApi.param.sessionId]
     let userKey = req.session.id
@@ -45,7 +67,7 @@ module.exports.initializeSession = (db, options) => {
       await util.ensurePackagesAndPopulateSessionOptions(
         db,
         sessionId,
-        options,
+        {},
         req.body.zclProperties,
         req.body.genTemplate
       )
@@ -61,7 +83,7 @@ module.exports.initializeSession = (db, options) => {
  * @param {*} db
  * @returns A success message.
  */
-module.exports.loadPreviousSessions = (db) => {
+function loadPreviousSessions(db) {
   return async (req, res) => {
     let sessionUuid = req.query[restApi.param.sessionId]
     let userKey = req.session.id
@@ -77,3 +99,38 @@ module.exports.loadPreviousSessions = (db) => {
     })
   }
 }
+
+/**
+ * Init function from the App.vue
+ * @param {*} db
+ * @returns A success message.
+ */
+function init(db) {
+  return async (req, res) => {
+    return res.send({
+      message: 'Session initialized',
+    })
+  }
+}
+
+exports.get = [
+  {
+    uri: restApi.uri.initialPackagesSessions,
+    callback: packagesAndSessions,
+  },
+]
+
+exports.post = [
+  {
+    uri: restApi.uri.reloadSession,
+    callback: loadPreviousSessions,
+  },
+  {
+    uri: restApi.uri.initializeSession,
+    callback: initializeSession,
+  },
+  {
+    uri: restApi.uri.init,
+    callback: init,
+  },
+]

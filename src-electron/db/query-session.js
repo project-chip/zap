@@ -243,8 +243,9 @@ async function ensureZapUserAndSession(
     userId: null,
   }
 ) {
+
   if (options.sessionId != null && options.userId != null) {
-    // if we're past both IDs, we simply return them back.
+    // if we're passed both IDs, we simply return them back.
     return {
       sessionId: options.sessionId,
       userId: options.userId,

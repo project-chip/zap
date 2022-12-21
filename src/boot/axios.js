@@ -24,8 +24,6 @@ import store from '../store/index.js'
 
 const vuex = store()
 
-Vue.prototype.$axios = axios({ withCredentials: true })
-
 // You can set this to false to not log all the roundtrips
 const log = false
 
