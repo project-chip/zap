@@ -96,7 +96,7 @@ export function processCommandLineArguments(argv: string[]) {
     .option('studioHttpPort', {
       desc: "Port used for integration with Silicon Labs Simplicity Studio's internal HTTP server",
       type: 'number',
-      default: 9000,
+      default: -1,
     })
     .option('zapFile', {
       desc: 'input .zap file to read in. You can also specify them without an option, directly.',
