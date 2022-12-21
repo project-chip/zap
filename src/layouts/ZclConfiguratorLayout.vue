@@ -147,9 +147,7 @@ export default {
     getNotifications() {
       this.$serverGet(restApi.uri.notification)
         .then((resp) => {
-          if (resp.data[0] === undefined) {
-            this.notification = 'white'
-          } else {
+          if (resp.data[0] != undefined) {
             this.notification = 'red'
           }
         })
