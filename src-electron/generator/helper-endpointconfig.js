@@ -288,7 +288,7 @@ function endpoint_attribute_list(options) {
       }
       finalDefaultValue = `ZAP_SIMPLE_DEFAULT(${defaultValue})`
     }
-    ret += `  { ${at.id}, ${at.type}, ${at.size}, ${mask}, ${finalDefaultValue} }, /* ${at.name} */  \\\n`
+    ret += `  { ${finalDefaultValue}, ${at.id}, ${at.size}, ${at.type}, ${mask} }, /* ${at.name} */  \\\n`
   })
   ret += '}\n'
 
