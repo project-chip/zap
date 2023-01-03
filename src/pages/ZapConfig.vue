@@ -50,6 +50,8 @@
                   row-key="name"
                   :pagination.sync="newGenerationPagination"
                   hide-bottom
+                  flat
+                  bordered
                 >
                   <template v-slot:header="props">
                     <q-tr :props="props">
@@ -63,7 +65,11 @@
                     </q-tr>
                   </template>
                   <template v-slot:body="props">
-                    <q-tr :props="props" class="table_body">
+                    <q-tr
+                      :props="props"
+                      class="table_body cursor-pointer"
+                      @click="selectZclPropertiesData(props.row)"
+                    >
                       <q-td key="select" :props="props">
                         <q-radio
                           v-model="selectedZclPropertiesData"
@@ -91,6 +97,9 @@
                   row-key="name"
                   :pagination.sync="newGenerationPagination"
                   hide-bottom
+                  flat
+                  bordered
+                  class="q-mt-lg"
                 >
                   <template v-slot:top>
                     <div class="q-table__title q-mr-md">
@@ -110,7 +119,11 @@
                     </q-tr>
                   </template>
                   <template v-slot:body="props">
-                    <q-tr :props="props" class="table_body">
+                    <q-tr
+                      :props="props"
+                      class="table_body cursor-pointer"
+                      @click="selectZclGenData(props.row.id)"
+                    >
                       <q-td key="select" :props="props">
                         <q-checkbox
                           v-model="selectedZclGenData"
@@ -138,6 +151,8 @@
                   :columns="loadPreSessionCol"
                   row-key="name"
                   :pagination.sync="pagination"
+                  flat
+                  bordered
                 >
                   <template v-slot:header="props">
                     <q-tr :props="props">
@@ -151,7 +166,11 @@
                     </q-tr>
                   </template>
                   <template v-slot:body="props">
-                    <q-tr :props="props" class="table_body">
+                    <q-tr
+                      :props="props"
+                      class="table_body cursor-pointer"
+                      @click="selectZclSessionData(props.row)"
+                    >
                       <q-td key="select" :props="props">
                         <q-radio
                           v-model="selectedZclSessionData"
@@ -169,6 +188,17 @@
                       <q-td key="creation time" :props="props">
                         <div>
                           {{ new Date(props.row.creationTime).toDateString() }}
+                          <q-icon
+                            name="info_outline"
+                            class="q-ml-xs q-mb-xs"
+                            color="primary"
+                          >
+                            <q-tooltip anchor="top middle" self="center middle">
+                              {{
+                                new Date(props.row.creationTime).toUTCString()
+                              }}
+                            </q-tooltip>
+                          </q-icon>
                         </div>
                       </q-td>
                     </q-tr>
@@ -250,7 +280,6 @@ export default {
   data() {
     return {
       customConfig: 'generate',
-      selected: [],
       selectedZclPropertiesData: null,
       selectedZclGenData: [],
       selectedZclSessionData: null,
@@ -281,6 +310,20 @@ export default {
     },
   },
   methods: {
+    selectZclPropertiesData(item) {
+      this.selectedZclPropertiesData = item
+    },
+    selectZclSessionData(item) {
+      this.selectedZclSessionData = item
+    },
+    selectZclGenData(id) {
+      let index = this.selectedZclGenData.indexOf(id)
+      if (index === -1) {
+        this.selectedZclGenData.push(id)
+      } else {
+        this.selectedZclGenData.splice(index, 1)
+      }
+    },
     submitForm() {
       if (this.customConfig === 'generate') {
         if (
