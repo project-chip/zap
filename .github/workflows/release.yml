@@ -221,6 +221,9 @@ jobs:
           npm run pkg:linux
           npm run pack:cli:linux
 
+          mv dist/zap-linux-amd64.deb dist/zap-linux-x64.deb
+          mv dist/zap-linux-x86_64.rpm dist/zap-linux-x64.rpm
+
         env:
           GH_TOKEN: ${{ secrets.github_token }}
 
@@ -228,30 +231,30 @@ jobs:
           # CSC_LINK: ${{ secrets.api_key_id }}
           # CSC_KEY_PASSWORD: ${{ secrets.api_key_issuer_id }}
 
-      - name: ZAP binary check (macOS) - unzip
+      - name: ZAP binary check (macOS x64) - unzip
         if: startsWith(matrix.os, 'macos')
-        run: unzip dist/zap-mac.zip -d dist/zap-mac
-      - name: ZAP binary check (macOS) - check version is set
+        run: unzip dist/zap-mac-x64.zip -d dist/zap-mac
+      - name: ZAP binary check (macOS x64) - check version is set
         if: startsWith(matrix.os, 'macos')
         uses: GuillaumeFalourd/assert-command-line-output@v2.1
         with:
           command_line: ./dist/zap-mac/zap.app/Contents/MacOS/zap --version
           contains: '0.0.0'
           expected_result: FAILED
-      - name: ZAP binary check (macOS) - check version is set via CLI
+      - name: ZAP binary check (macOS x64) - check version is set via CLI
         if: startsWith(matrix.os, 'macos')
         uses: GuillaumeFalourd/assert-command-line-output@v2.1
         with:
           command_line: ./dist/zap-mac/zap-cli --version
           contains: '0.0.0'
           expected_result: FAILED
-      - name: ZAP binary check (macOS) - unzip cleanup
+      - name: ZAP binary check (macOS x64) - unzip cleanup
         if: startsWith(matrix.os, 'macos')
         run: rm -rf dist/zap-mac
 
       - name: ZAP binary check (Linux) - unzip
         if: startsWith(matrix.os, 'ubuntu')
-        run: unzip dist/zap-linux.zip -d dist/zap-linux
+        run: unzip dist/zap-linux-x64.zip -d dist/zap-linux
       - name: ZAP binary check (Linux) - check version is set
         if: startsWith(matrix.os, 'ubuntu')
         uses: GuillaumeFalourd/assert-command-line-output@v2.1
@@ -273,7 +276,7 @@ jobs:
         if: startsWith(matrix.os, 'ubuntu')
         uses: GuillaumeFalourd/assert-command-line-output@v2.1
         with:
-          command_line: ./node_modules/7zip-bin/linux/x64/7za l ./dist/zap-linux.zip | grep apack.json
+          command_line: ./node_modules/7zip-bin/linux/x64/7za l ./dist/zap-linux-x64.zip | grep apack.json
           contains: 'apack.json'
       - name: Verify apack.json exists in package's app.asar archive
         if: startsWith(matrix.os, 'ubuntu')
@@ -282,67 +285,104 @@ jobs:
           command_line: npx asar l ./dist/linux-unpacked/resources/app.asar | grep apack.json
           contains: 'apack.json'
 
-      - name: Verify apack.json exists in Windows .zip package
+      - name: Verify apack.json exists in Windows x64 .zip package
         if: startsWith(matrix.os, 'macos')
         uses: GuillaumeFalourd/assert-command-line-output@v2.1
         with:
-          command_line: ./node_modules/7zip-bin/mac/x64/7za l ./dist/zap-win.zip | grep apack.json
+          command_line: ./node_modules/7zip-bin/mac/x64/7za l ./dist/zap-win-x64.zip | grep apack.json
           contains: 'apack.json'
-      - name: Verify apack.json exists in Windows .zip package's app.asar archive
+      - name: Verify apack.json exists in Windows x64 .zip package's app.asar archive
         if: startsWith(matrix.os, 'macos')
         uses: GuillaumeFalourd/assert-command-line-output@v2.1
         with:
           command_line: npx asar l ./dist/win-unpacked/resources/app.asar | grep apack.json
           contains: 'apack.json'
-      - name: Verify apack.json exists in macOS .zip package
+      - name: Verify apack.json exists in Windows arm64 .zip package
         if: startsWith(matrix.os, 'macos')
         uses: GuillaumeFalourd/assert-command-line-output@v2.1
         with:
-          command_line: ./node_modules/7zip-bin/mac/x64/7za l ./dist/zap-mac.zip | grep apack.json
+          command_line: ./node_modules/7zip-bin/mac/x64/7za l ./dist/zap-win-arm64.zip | grep apack.json
           contains: 'apack.json'
-      - name: Verify apack.json exists in macOS .zip package's app-x64.asar archive
+      - name: Verify apack.json exists in Windows arm64 .zip package's app.asar archive
         if: startsWith(matrix.os, 'macos')
         uses: GuillaumeFalourd/assert-command-line-output@v2.1
         with:
-          command_line: npx asar l ./dist/mac-universal/zap.app/Contents/Resources/app-x64.asar | grep apack.json
-          contains: 'apack.json'
-      - name: Verify apack.json exists in macOS .zip package's app-arm64.asar archive
-        if: startsWith(matrix.os, 'macos')
-        uses: GuillaumeFalourd/assert-command-line-output@v2.1
-        with:
-          command_line: npx asar l ./dist/mac-universal/zap.app/Contents/Resources/app-arm64.asar | grep apack.json
+          command_line: npx asar l ./dist/win-arm64-unpacked/resources/app.asar | grep apack.json
           contains: 'apack.json'
 
-      - name: Archive Windows .zip file
+      - name: Verify apack.json exists in macOS x64 .zip package
+        if: startsWith(matrix.os, 'macos')
+        uses: GuillaumeFalourd/assert-command-line-output@v2.1
+        with:
+          command_line: ./node_modules/7zip-bin/mac/x64/7za l ./dist/zap-mac-x64.zip | grep apack.json
+          contains: 'apack.json'
+      - name: Verify apack.json exists in macOS x64 .zip package's app-x64.asar archive
+        if: startsWith(matrix.os, 'macos')
+        uses: GuillaumeFalourd/assert-command-line-output@v2.1
+        with:
+          command_line: npx asar l ./dist/mac/zap.app/Contents/Resources/app-x64.asar | grep apack.json
+          contains: 'apack.json'
+      - name: Verify apack.json exists in macOS arm64 .zip package
+        if: startsWith(matrix.os, 'macos')
+        uses: GuillaumeFalourd/assert-command-line-output@v2.1
+        with:
+          command_line: ./node_modules/7zip-bin/mac/x64/7za l ./dist/zap-mac-arm64.zip | grep apack.json
+          contains: 'apack.json'
+      - name: Verify apack.json exists in macOS arm64 .zip package's app-arm64.asar archive
+        if: startsWith(matrix.os, 'macos')
+        uses: GuillaumeFalourd/assert-command-line-output@v2.1
+        with:
+          command_line: npx asar l ./dist/mac-arm64/zap.app/Contents/Resources/app-arm64.asar | grep apack.json
+          contains: 'apack.json'
+
+      - name: Archive Windows (x64) .zip file
         uses: actions/upload-artifact@v3
         if: startsWith(matrix.os, 'macos')
         with:
-          name: zap-win-zip
-          path: dist/zap*-win.zip
-      - name: Archive macOS .zip file
+          name: zap-win-x64-zip
+          path: dist/zap-win-x64.zip
+      - name: Archive Windows (arm64) .zip file
         uses: actions/upload-artifact@v3
         if: startsWith(matrix.os, 'macos')
         with:
-          name: zap-mac-zip
-          path: dist/zap*-mac.zip
-      - name: Archive Linux .zip file
+          name: zap-win-arm64-zip
+          path: dist/zap-win-arm64.zip
+      - name: Archive macOS x64 .zip file
+        uses: actions/upload-artifact@v3
+        if: startsWith(matrix.os, 'macos')
+        with:
+          name: zap-mac-x64-zip
+          path: dist/zap-mac-x64.zip
+      - name: Archive macOS arm64 .zip file
+        uses: actions/upload-artifact@v3
+        if: startsWith(matrix.os, 'macos')
+        with:
+          name: zap-mac-arm64-zip
+          path: dist/zap-mac-arm64.zip
+      - name: Archive Linux (x64) .zip file
         uses: actions/upload-artifact@v3
         if: startsWith(matrix.os, 'ubuntu')
         with:
-          name: zap-linux-zip
-          path: dist/zap*-linux.zip
+          name: zap-linux-x64-zip
+          path: dist/zap-linux-x64.zip
+      - name: Archive Linux (arm64) .zip file
+        uses: actions/upload-artifact@v3
+        if: startsWith(matrix.os, 'ubuntu')
+        with:
+          name: zap-linux-arm64-zip
+          path: dist/zap-linux-arm64.zip
       - name: Archive Linux .rpm file
         uses: actions/upload-artifact@v3
         if: startsWith(matrix.os, 'ubuntu')
         with:
-          name: zap-linux-rpm
-          path: dist/zap*.rpm
-      - name: Archive Linux .deb file
+          name: zap-linux-x64-rpm
+          path: dist/zap-linux-x64.rpm
+      - name: Archive Linux x64 .deb file
         uses: actions/upload-artifact@v3
         if: startsWith(matrix.os, 'ubuntu')
         with:
-          name: zap-linux-deb
-          path: dist/zap*.deb
+          name: zap-linux-x64-deb
+          path: dist/zap-linux-x64.deb
 
   release:
     if: startsWith(github.ref, 'refs/tags/')
@@ -358,7 +398,7 @@ jobs:
         with:
           generateReleaseNotes: true
           prerelease: ${{ endsWith(github.ref, 'nightly') }}
-          artifacts: 'zap-linux-deb/zap-linux.deb, zap-linux-rpm/zap-linux.rpm, zap-linux-zip/zap-linux.zip, zap-mac-zip/zap-mac.zip, zap-win-zip/zap-win.zip'
+          artifacts: 'zap-linux-x64-deb/zap-linux-x64.deb, zap-linux-x64-rpm/zap-linux-x64.rpm, zap-linux-x64-zip/zap-linux-x64.zip, zap-linux-arm64-zip/zap-linux-arm64.zip, zap-mac-x64-zip/zap-mac-x64.zip, zap-mac-arm64-zip/zap-mac-arm64.zip, zap-win-x64-zip/zap-win-x64.zip, zap-win-arm64-zip/zap-win-arm64.zip'
 
   matter-sdk-codegen:
     name: Test matter sdk codegen changes
@@ -375,11 +415,11 @@ jobs:
     steps:
       - uses: actions/download-artifact@v3
         with:
-          name: zap-linux-zip
+          name: zap-linux-x64-zip
 
       - name: Unpack linux artifact
         run: |
-          mkdir zap-release && cd zap-release && unzip ../zap-linux.zip
+          mkdir zap-release && cd zap-release && unzip ../zap-linux-x64.zip
 
       # Checkout without actions/checkout@v3 since that one uses a repository specific token
       - name: Checkout Matter SDK
