@@ -216,6 +216,12 @@ async function stampVersion() {
  * @param {*} mode 'fake', 'real' or 'print'
  */
 async function setPackageJsonVersion(date, mode) {
+  if (process.env.ZAP_SKIP_REAL_VERSION != null) {
+    // If you set ZAP_SKIP_REAL_VERSION environment variable, then this whole
+    // version muddling is turned off.
+    return true
+  }
+
   let promise = new Promise((resolve, reject) => {
     let packageJson = path.join(__dirname, '../package.json')
     let output = ''

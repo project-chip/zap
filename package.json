@@ -107,6 +107,7 @@
     "pack:cli:mac": "node ./src-script/pack-cli.js -p mac",
     "pkg": "npx pkg --out-path dist/ --compress GZip --options max-old-space-size=4096 .",
     "pkg:linux": "npx pkg -t node16-linux-x64 --output dist/zap-linux --compress GZip --options max-old-space-size=4096 .",
+    "pkg-use-local-fork": "node ../pkg/lib-es5/bin.js -t node16-linux-x64 --output dist/zap-linux --compress GZip --options max-old-space-size=4096 .",
     "pkg:win": "npx pkg -t node16-win-x64 --output dist/zap-win.exe --compress GZip --options max-old-space-size=4096 .",
     "pkg:mac": "npx pkg -t node16-macos-x64 --output dist/zap-macos --compress GZip --options max-old-space-size=4096 .",
     "mattersdk": "node src-script/zap-start.js regenerateSdk --sdk ~/git/matter/scripts/tools/sdk.json",
