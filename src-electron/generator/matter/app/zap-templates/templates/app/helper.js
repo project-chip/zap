@@ -392,7 +392,9 @@ function asCamelCase(label, firstLower, preserveAcronyms) {
 
   let str = tokens
     .map((token, index) => {
-      let isAcronym = token == token.toUpperCase();
+      let isAllUpperCase = token == token.toUpperCase();
+      // PERSONAL is not actually an acronym.
+      let isAcronym =  isAllUpperCase && token != "PERSONAL";
 
       if (isAcronym && preserveAcronyms) {
         return token;
@@ -405,14 +407,15 @@ function asCamelCase(label, firstLower, preserveAcronyms) {
           ? token[0].toLowerCase()
           : token[0].toUpperCase();
 
-      if (!isAcronym) {
+      if (!isAllUpperCase) {
         if (token.length > 1) {
           newToken += token.substring(1);
         }
         return newToken;
       }
 
-      // if preserveAcronyms is false, then anything beyond the first letter becomes lower-case.
+      // If this is an all-upper-case thing not being preserved as an acronym,
+      // then anything beyond the first letter becomes lower-case.
       if (token.length > 1) {
         newToken += token.substring(1).toLowerCase();
       }
