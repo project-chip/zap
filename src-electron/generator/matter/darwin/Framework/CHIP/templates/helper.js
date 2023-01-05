@@ -745,7 +745,12 @@ function wasRemoved(cluster, options) {
   const data = fetchAvailabilityData(this.global);
   const path = makeAvailabilityPath(cluster, options);
 
-  let removedRelease = findReleaseForPath(data, ['removed', ...path], options);
+  let removedRelease = undefined;
+  let removalPath = [...path];
+  while (removedRelease === undefined && removalPath !== undefined) {
+    removedRelease = findReleaseForPath(data, ['removed', ...removalPath], options);
+    removalPath = findPathToContainer(removalPath);
+  }
   return removedRelease !== undefined;
 }
 
