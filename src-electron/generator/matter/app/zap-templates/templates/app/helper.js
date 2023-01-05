@@ -15,6 +15,9 @@
  *    limitations under the License.
  */
 
+const YAML = require('yaml');
+const fs = require('fs');
+
 // Import helpers from zap core
 const zapPath = '../../../../../../';
 const templateUtil = require(zapPath + 'generator/template-util.js');
@@ -791,46 +794,15 @@ function getPythonFieldDefault(type, options) {
 
 // Allow-list of enums that we generate as enums, not enum classes.  The goal is
 // to drive this down to 0.
+let weakEnumList = undefined;
 function isWeaklyTypedEnum(label) {
-  return [
-    'AttributeWritePermission',
-    'BarrierControlBarrierPosition',
-    'BarrierControlMovingState',
-    'ColorControlOptions',
-    'ColorLoopAction',
-    'ColorLoopDirection',
-    'ColorMode',
-    'ContentLaunchStatus',
-    'ContentLaunchStreamingType',
-    'EnhancedColorMode',
-    'HardwareFaultType',
-    'HueDirection',
-    'HueMoveMode',
-    'HueStepMode',
-    'IdentifyEffectIdentifier',
-    'IdentifyEffectVariant',
-    'IdentifyIdentifyType',
-    'InterfaceType',
-    'KeypadLockout',
-    'LevelControlOptions',
-    'MoveMode',
-    'NetworkFaultType',
-    'OnOffDelayedAllOffEffectVariant',
-    'OnOffDyingLightEffectVariant',
-    'OnOffEffectIdentifier',
-    'PHYRateType',
-    'RadioFaultType',
-    'RoutingRole',
-    'SaturationMoveMode',
-    'SaturationStepMode',
-    'SecurityType',
-    'SetpointAdjustMode',
-    'StartUpOnOffValue',
-    'StatusCode',
-    'StepMode',
-    'TemperatureDisplayMode',
-    'WiFiVersionType',
-  ].includes(label);
+  if (weakEnumList === undefined) {
+    let f = this.global.resource('weak-enum-list');
+    // NOTE: This has to be sync, so we can use this data in if conditions.
+    let rawData = fs.readFileSync(f, { encoding: 'utf8', flag: 'r' });
+    weakEnumList = YAML.parse(rawData);
+  }
+  return weakEnumList.includes(label);
 }
 
 function incrementDepth(depth) {
