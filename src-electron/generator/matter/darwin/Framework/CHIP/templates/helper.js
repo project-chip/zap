@@ -17,7 +17,6 @@
 
 const YAML = require('yaml');
 const fs = require('fs');
-const path = require('path');
 
 // Import helpers from zap core
 const string = require('../../../../../../util/string');
