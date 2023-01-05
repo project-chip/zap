@@ -318,7 +318,11 @@ function objCEnumName(clusterName, enumLabel, options) {
   return 'MTR' + clusterName + enumLabel;
 }
 
-function objCEnumItemLabel(itemLabel) {
+function objCEnumItemLabel(itemLabel, options) {
+  if (options.hash.preserveAcronyms) {
+    return appHelper.asUpperCamelCase.call(this, itemLabel, options);
+  }
+
   // Check for the case when we're:
   // 1. A single word (that's the regexp at the beginning, which matches the
   //    word-splitting regexp in string.toCamelCase).
