@@ -808,6 +808,17 @@ function isWeaklyTypedEnum(label) {
   return weakEnumList.includes(label);
 }
 
+let legacyStructList = undefined;
+function isLegacyStruct(label) {
+  if (legacyStructList === undefined) {
+    let f = this.global.resource('legacy-struct-list');
+    // NOTE: This has to be sync, so we can use this data in if conditions.
+    let rawData = fs.readFileSync(f, { encoding: 'utf8', flag: 'r' });
+    legacyStructList = YAML.parse(rawData);
+  }
+  return legacyStructList.includes(label);
+}
+
 function incrementDepth(depth) {
   return depth + 1;
 }
@@ -920,6 +931,7 @@ exports.zapTypeToDecodableClusterObjectType =
   zapTypeToDecodableClusterObjectType;
 exports.zapTypeToPythonClusterObjectType = zapTypeToPythonClusterObjectType;
 exports.isWeaklyTypedEnum = isWeaklyTypedEnum;
+exports.isLegacyStruct = isLegacyStruct;
 exports.getPythonFieldDefault = getPythonFieldDefault;
 exports.incrementDepth = incrementDepth;
 exports.zcl_events_fields_by_event_name = zcl_events_fields_by_event_name;
