@@ -65,7 +65,7 @@ function httpPostFileOpen(db) {
 
         let response = {
           sessionId: importResult.sessionId,
-          sessionKey: req.session.id,
+          sessionKey: req.zapSessionId,
         }
         env.logInfo(
           `Loaded project(${name}) into database. RESP: ${JSON.stringify(

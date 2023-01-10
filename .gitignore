@@ -81,6 +81,9 @@ coverage
 cypress-coverage
 reports
 
+# clinic.js performance profiling data
+.clinic
+
 # Downloaded artifacts from Nexus / Github / etc via download-artifact script
 artifacts
 **/zap-*.zip
