@@ -48,8 +48,6 @@ module.exports = {
     '^uuid$': '<rootDir>/node_modules/uuid',
   },
   transform: {
-    '.*\\.vue$':
-      '<rootDir>/node_modules/@quasar/quasar-app-extension-testing-unit-jest/node_modules/@vue/vue3-jest',
     '.*\\.[jt]sx?$': 'babel-jest',
     '.+\\.(css|styl|less|sass|scss|svg|png|jpg|ttf|woff|woff2)$':
       'jest-transform-stub',
