@@ -17,53 +17,9 @@
  *
  * @jest-environment jsdom
  */
-
-import {
-  Quasar,
-  QBtn,
-  QFile,
-  QSplitter,
-  QSpace,
-  QPageContainer,
-  QDrawer,
-  QToolbar,
-  QToolbarTitle,
-  QHeader,
-  QTable,
-  QLayout,
-  QInput,
-  QIcon,
-  QToggle,
-  QCardSection,
-  QCard,
-  QTabs,
-  QTab,
-  QForm,
-  QSelect,
-  QSeparator,
-  QList,
-  QBreadcrumbs,
-  QBreadcrumbsEl,
-  QTooltip,
-  QField,
-  QCardActions,
-  QDialog,
-  QItem,
-  QTree,
-  ClosePopup,
-  QImg,
-  QTabPanel,
-  QTabPanels,
-  QExpansionItem,
-  QBtnDropdown,
-  QScrollArea,
-  QScrollObserver,
-  QCheckbox,
-} from 'quasar'
-import Vue from 'vue'
-
-import { shallowMount } from '@vue/test-utils'
-import ZapStore from '../src/store/index.js'
+import { describe, expect, it } from '@jest/globals'
+import { installQuasarPlugin } from '@quasar/quasar-app-extension-testing-unit-jest'
+import { shallowMount, mount } from '@vue/test-utils'
 
 import ZclAttributeManager from '../src/components/ZclAttributeManager.vue'
 import ZclAttributeReportingManager from '../src/components/ZclAttributeReportingManager.vue'
@@ -89,61 +45,22 @@ import UcComponentSetup from '../src/components/UcComponentSetup.vue'
 import ZclCustomZclView from '../src/components/ZclCustomZclView.vue'
 import About from '../src/pages/AboutPage.vue'
 import ZclLayout from '../src/layouts/ZclLayout.vue'
+
 import { timeout } from './test-util.js'
+import ZapStore from '../src/store/index.js'
 
+installQuasarPlugin()
 const observable = require('../src/util/observable.js')
-
-Vue.use(Quasar, {
-  components: {
-    QBtn,
-    QFile,
-    QSplitter,
-    QSpace,
-    QPageContainer,
-    QDrawer,
-    QToolbar,
-    QToolbarTitle,
-    QHeader,
-    QTable,
-    QLayout,
-    QInput,
-    QToggle,
-    QCardSection,
-    QCard,
-    QTabs,
-    QTab,
-    QForm,
-    QSelect,
-    QSeparator,
-    QList,
-    QBreadcrumbs,
-    QBreadcrumbsEl,
-    QTooltip,
-    QField,
-    QCardActions,
-    QDialog,
-    QItem,
-    QIcon,
-    QTree,
-    QImg,
-    QTabPanel,
-    QTabPanels,
-    QExpansionItem,
-    QBtnDropdown,
-    QScrollArea,
-    QScrollObserver,
-    QCheckbox,
-  },
-  directives: {
-    ClosePopup,
-  },
-})
 
 describe('Component mounting test', () => {
   test(
     'ZclAttributeManager',
     () => {
-      const wrapper = shallowMount(ZclAttributeManager, { store: ZapStore() })
+      const wrapper = shallowMount(ZclAttributeManager, {
+        global: {
+          plugins: [ZapStore()],
+        },
+      })
       expect(wrapper.html().length).toBeGreaterThan(100)
     },
     timeout.short()
@@ -152,7 +69,9 @@ describe('Component mounting test', () => {
     'ZclAttributeReportingManager',
     () => {
       const wrapper = shallowMount(ZclAttributeReportingManager, {
-        store: ZapStore(),
+        global: {
+          plugins: [ZapStore()],
+        },
       })
       expect(ZclAttributeReportingManager.data()).not.toBe(null)
       expect(wrapper.html().length).toBeGreaterThan(100)
@@ -162,7 +81,11 @@ describe('Component mounting test', () => {
   test(
     'ZclClusterManager',
     () => {
-      const wrapper = shallowMount(ZclClusterManager, { store: ZapStore() })
+      const wrapper = shallowMount(ZclClusterManager, {
+        global: {
+          plugins: [ZapStore()],
+        },
+      })
       expect(wrapper.html().length).toBeGreaterThan(100)
     },
     timeout.short()
@@ -170,7 +93,11 @@ describe('Component mounting test', () => {
   test(
     'ZclClusterView',
     () => {
-      const wrapper = shallowMount(ZclClusterView, { store: ZapStore() })
+      const wrapper = mount(ZclClusterView, {
+        global: {
+          plugins: [ZapStore()],
+        },
+      })
       expect(wrapper.html().includes('Endpoint')).toBe(true)
     },
     timeout.short()
@@ -178,7 +105,11 @@ describe('Component mounting test', () => {
   test(
     'ZclCommandManager',
     () => {
-      const wrapper = shallowMount(ZclCommandManager, { store: ZapStore() })
+      const wrapper = shallowMount(ZclCommandManager, {
+        global: {
+          plugins: [ZapStore()],
+        },
+      })
       expect(wrapper.html().length).toBeGreaterThan(60)
     },
     timeout.short()
@@ -186,8 +117,10 @@ describe('Component mounting test', () => {
   test(
     'ZclCreateModifyEndpoint',
     () => {
-      const wrapper = shallowMount(ZclCreateModifyEndpoint, {
-        store: ZapStore(),
+      const wrapper = mount(ZclCreateModifyEndpoint, {
+        global: {
+          plugins: [ZapStore()],
+        },
       })
       expect(wrapper.html().length).toBeGreaterThan(100)
     },
@@ -196,7 +129,11 @@ describe('Component mounting test', () => {
   test(
     'ZclDomainClusterView',
     () => {
-      const wrapper = shallowMount(ZclDomainClusterView, { store: ZapStore() })
+      const wrapper = shallowMount(ZclDomainClusterView, {
+        global: {
+          plugins: [ZapStore()],
+        },
+      })
       expect(wrapper.html().length).toBeGreaterThan(100)
     },
     timeout.short()
@@ -204,7 +141,11 @@ describe('Component mounting test', () => {
   test(
     'ZclEndpointCard',
     () => {
-      const wrapper = shallowMount(ZclEndpointCard, { store: ZapStore() })
+      const wrapper = shallowMount(ZclEndpointCard, {
+        global: {
+          plugins: [ZapStore()],
+        },
+      })
       expect(wrapper.html().length).toBeGreaterThan(100)
     },
     timeout.short()
@@ -212,7 +153,11 @@ describe('Component mounting test', () => {
   test(
     'ZclEndpointManager',
     () => {
-      const wrapper = shallowMount(ZclEndpointManager, { store: ZapStore() })
+      const wrapper = shallowMount(ZclEndpointManager, {
+        global: {
+          plugins: [ZapStore()],
+        },
+      })
       expect(wrapper.html().length).toBeGreaterThan(100)
     },
     timeout.short()
@@ -220,7 +165,11 @@ describe('Component mounting test', () => {
   test(
     'ZclGeneralOptionsBar',
     () => {
-      const wrapper = shallowMount(ZclGeneralOptionsBar, { store: ZapStore() })
+      const wrapper = shallowMount(ZclGeneralOptionsBar, {
+        global: {
+          plugins: [ZapStore()],
+        },
+      })
       expect(wrapper.html().length).toBeGreaterThan(100)
     },
     timeout.short()
@@ -228,7 +177,11 @@ describe('Component mounting test', () => {
   test(
     'ZclInformationSetup',
     () => {
-      const wrapper = shallowMount(ZclInformationSetup, { store: ZapStore() })
+      const wrapper = shallowMount(ZclInformationSetup, {
+        global: {
+          plugins: [ZapStore()],
+        },
+      })
       expect(wrapper.html().length).toBeGreaterThan(100)
     },
     timeout.short()
@@ -236,7 +189,11 @@ describe('Component mounting test', () => {
   test(
     'ZclClusterLayout',
     () => {
-      const wrapper = shallowMount(ZclClusterLayout, { store: ZapStore() })
+      const wrapper = shallowMount(ZclClusterLayout, {
+        global: {
+          plugins: [ZapStore()],
+        },
+      })
       expect(wrapper.html().length).toBeGreaterThan(90)
     },
     timeout.short()
@@ -244,7 +201,11 @@ describe('Component mounting test', () => {
   test(
     'ZclLayout',
     () => {
-      const wrapper = shallowMount(ZclLayout, { store: ZapStore() })
+      const wrapper = shallowMount(ZclLayout, {
+        global: {
+          plugins: [ZapStore()],
+        },
+      })
       expect(wrapper.html().length).toBeGreaterThan(90)
     },
     timeout.short()
@@ -253,7 +214,9 @@ describe('Component mounting test', () => {
     'ZclConfiguratorLayout',
     () => {
       const wrapper = shallowMount(ZclConfiguratorLayout, {
-        store: ZapStore(),
+        global: {
+          plugins: [ZapStore()],
+        },
       })
       expect(wrapper.html().length).toBeGreaterThan(100)
     },
@@ -262,7 +225,11 @@ describe('Component mounting test', () => {
   test(
     'Notifications',
     () => {
-      const wrapper = shallowMount(Notifications, { store: ZapStore() })
+      const wrapper = shallowMount(Notifications, {
+        global: {
+          plugins: [ZapStore()],
+        },
+      })
       expect(wrapper.html().length).toBeGreaterThan(100)
     },
     timeout.short()
@@ -270,7 +237,11 @@ describe('Component mounting test', () => {
   test(
     'Error404',
     () => {
-      const wrapper = shallowMount(Error404, { store: ZapStore() })
+      const wrapper = shallowMount(Error404, {
+        global: {
+          plugins: [ZapStore()],
+        },
+      })
       expect(wrapper.html().length).toBeGreaterThan(50)
     },
     timeout.short()
@@ -278,7 +249,11 @@ describe('Component mounting test', () => {
   test(
     'Preference',
     () => {
-      const wrapper = shallowMount(Preference, { store: ZapStore() })
+      const wrapper = shallowMount(Preference, {
+        global: {
+          plugins: [ZapStore()],
+        },
+      })
       expect(wrapper.html().length).toBeGreaterThan(50)
     },
     timeout.short()
@@ -286,7 +261,11 @@ describe('Component mounting test', () => {
   test(
     'PreferenceGeneration',
     () => {
-      const wrapper = shallowMount(PreferenceGeneration, { store: ZapStore() })
+      const wrapper = shallowMount(PreferenceGeneration, {
+        global: {
+          plugins: [ZapStore()],
+        },
+      })
       expect(wrapper.html().length).toBeGreaterThan(50)
     },
     timeout.short()
@@ -294,7 +273,11 @@ describe('Component mounting test', () => {
   test(
     'PreferenceUser',
     () => {
-      const wrapper = shallowMount(PreferenceUser, { store: ZapStore() })
+      const wrapper = shallowMount(PreferenceUser, {
+        global: {
+          plugins: [ZapStore()],
+        },
+      })
       expect(wrapper.html().length).toBeGreaterThan(50)
     },
     timeout.short()
@@ -302,7 +285,11 @@ describe('Component mounting test', () => {
   test(
     'PreferencePackage',
     () => {
-      const wrapper = shallowMount(PreferencePackage, { store: ZapStore() })
+      const wrapper = shallowMount(PreferencePackage, {
+        global: {
+          plugins: [ZapStore()],
+        },
+      })
       expect(wrapper.html().length).toBeGreaterThan(50)
     },
     timeout.short()
@@ -310,7 +297,11 @@ describe('Component mounting test', () => {
   test(
     'ZclSettings',
     () => {
-      const wrapper = shallowMount(ZclSettings, { store: ZapStore() })
+      const wrapper = shallowMount(ZclSettings, {
+        global: {
+          plugins: [ZapStore()],
+        },
+      })
       expect(wrapper.html().length).toBeGreaterThan(50)
     },
     timeout.short()
@@ -318,7 +309,11 @@ describe('Component mounting test', () => {
   test(
     'UcComponentSetup',
     () => {
-      const wrapper = shallowMount(UcComponentSetup, { store: ZapStore() })
+      const wrapper = shallowMount(UcComponentSetup, {
+        global: {
+          plugins: [ZapStore()],
+        },
+      })
       expect(wrapper.html().length).toBeGreaterThan(50)
     },
     timeout.short()
@@ -326,7 +321,11 @@ describe('Component mounting test', () => {
   test(
     'ZclCustomZclView',
     () => {
-      const wrapper = shallowMount(ZclCustomZclView, { store: ZapStore() })
+      const wrapper = shallowMount(ZclCustomZclView, {
+        global: {
+          plugins: [ZapStore()],
+        },
+      })
       expect(wrapper.html().length).toBeGreaterThan(50)
     },
     timeout.short()

@@ -26,8 +26,9 @@ const rendApi = require('../src-shared/rend-api.js')
 import routes from '../src/router/routes.js'
 import index from '../src/router/index.js'
 import { timeout } from './test-util.js'
+import { createApp } from 'vue'
 
-const Vue = require('vue')
+const app = createApp({})
 
 test(
   'Global renderer API',
@@ -50,7 +51,7 @@ test(
 test(
   'WebSockets',
   () => {
-    expect(Vue.prototype.$onWebSocket).not.toBeNull()
+    expect(app.config.globalProperties.$onWebSocket).not.toBeNull()
   },
   timeout.short()
 )
@@ -60,7 +61,7 @@ test(
   () => {
     expect(routes.length).toBeGreaterThan(0)
     let router = index()
-    expect(router.mode).toBe('hash')
+    expect(router).not.toBeNull()
   },
   timeout.short()
 )

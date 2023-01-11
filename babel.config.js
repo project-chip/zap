@@ -1,16 +1,22 @@
-const fs = require('fs-extra')
-let extend = undefined
+/* eslint-disable */
+module.exports = (api) => {
+  const envOptions = {}
 
-/**
- * The .babelrc file has been created to assist Jest for transpiling.
- * You should keep your application's babel rules in this file.
- */
+  // Options scaffolded by Quasar out of the box
+  if (api.caller((caller) => caller && caller.target === 'node')) {
+    envOptions.targets = { node: 'current' }
+  }
 
-if (fs.existsSync('./.babelrc')) {
-  extend = './.babelrc'
-}
+  // Only used in test environment in JS codebases
+  if (api.env() === 'test') {
+    envOptions.modules = 'commonjs'
+    envOptions.targets = { node: 'current' }
+  }
 
-module.exports = {
-  presets: ['@quasar/babel-preset-app'],
-  extends: extend,
+  return {
+    presets: [
+      ['@quasar/babel-preset-app', envOptions],
+      '@babel/preset-typescript',
+    ],
+  }
 }

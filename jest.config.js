@@ -2,9 +2,9 @@ module.exports = {
   globals: {
     __DEV__: true,
   },
+  preset: '@quasar/quasar-app-extension-testing-unit-jest',
   globalSetup: '<rootDir>/test/global-setup.js',
   globalTeardown: '<rootDir>/test/global-teardown.js',
-  setupFilesAfterEnv: ['<rootDir>/test/jest/jest.setup.js'],
   // noStackTrace: true,
   // bail: true,
   // cache: false,
@@ -35,19 +35,21 @@ module.exports = {
   testMatch: ['<rootDir>/test/*.test.js', '<rootDir>/test/*.test.ts'],
   moduleFileExtensions: ['vue', 'js', 'jsx', 'json', 'ts', 'tsx'],
   moduleNameMapper: {
-    '^vue$': '<rootDir>/node_modules/vue/dist/vue.common.js',
+    '^vue$': '<rootDir>/node_modules/vue',
     '^test-utils$':
       '<rootDir>/node_modules/@vue/test-utils/dist/vue-test-utils.js',
-    '^quasar$': '<rootDir>/node_modules/quasar/dist/quasar.common.js',
+    '^quasar$': '<rootDir>/node_modules/quasar/dist/quasar.esm.prod.js',
     '^~/(.*)$': '<rootDir>/$1',
     '^src/(.*)$': '<rootDir>/src/$1',
     '.*css$': '<rootDir>/test/jest/utils/stub.css',
     '.*\\.sql$': '<rootDir>/test/jest/__mocks__/zap-sql-mock.js',
     '\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$':
       '<rootDir>/test/jest/__mocks__/file-mock.js',
+    '^uuid$': '<rootDir>/node_modules/uuid',
   },
   transform: {
-    '.*\\.vue$': 'vue-jest',
+    '.*\\.vue$':
+      '<rootDir>/node_modules/@quasar/quasar-app-extension-testing-unit-jest/node_modules/@vue/vue3-jest',
     '.*\\.[jt]sx?$': 'babel-jest',
     '.+\\.(css|styl|less|sass|scss|svg|png|jpg|ttf|woff|woff2)$':
       'jest-transform-stub',
@@ -55,8 +57,6 @@ module.exports = {
     // '.*\\.vue$': '<rootDir>/node_modules/@quasar/quasar-app-extension-testing-unit-jest/node_modules/vue-jest',
     // '.*\\.js$': '<rootDir>/node_modules/@quasar/quasar-app-extension-testing-unit-jest/node_modules/babel-jest'
   },
-  transformIgnorePatterns: ['<rootDir>/node_modules/(?!quasar/lang)'],
-  snapshotSerializers: ['<rootDir>/node_modules/jest-serializer-vue'],
   testResultsProcessor: 'jest-sonar-reporter',
   testPathIgnorePatterns: [
     '/node_modules/',
