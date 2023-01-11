@@ -35,17 +35,12 @@ module.exports = {
   testMatch: ['<rootDir>/test/*.test.js', '<rootDir>/test/*.test.ts'],
   moduleFileExtensions: ['vue', 'js', 'jsx', 'json', 'ts', 'tsx'],
   moduleNameMapper: {
-    '^vue$': '<rootDir>/node_modules/vue',
-    '^test-utils$':
-      '<rootDir>/node_modules/@vue/test-utils/dist/vue-test-utils.js',
-    '^quasar$': '<rootDir>/node_modules/quasar/dist/quasar.esm.prod.js',
     '^~/(.*)$': '<rootDir>/$1',
     '^src/(.*)$': '<rootDir>/src/$1',
     '.*css$': '<rootDir>/test/jest/utils/stub.css',
     '.*\\.sql$': '<rootDir>/test/jest/__mocks__/zap-sql-mock.js',
     '\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$':
       '<rootDir>/test/jest/__mocks__/file-mock.js',
-    '^uuid$': '<rootDir>/node_modules/uuid',
   },
   transform: {
     '.*\\.[jt]sx?$': 'babel-jest',
