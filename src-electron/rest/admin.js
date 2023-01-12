@@ -16,6 +16,7 @@
  */
 
 const dbApi = require('../db/db-api.js')
+const dbCache = require('../db/db-cache.js')
 const restApi = require('../../src-shared/rest-api.js')
 const env = require('../util/env')
 const { StatusCodes } = require('http-status-codes')
@@ -84,6 +85,27 @@ function httpGetVersion(db) {
   }
 }
 
+/**
+ * API: /cache
+ * Response JSON:
+ * <pre>
+ * 	 {
+ *      keys: 0,    // global key count
+ *      hits: 0,    // global hit count
+ *      misses: 0,  // global miss count
+ *      ksize: 0,   // global key size count in approximately bytes
+ *      vsize: 0    // global value size count in approximately bytes
+ * 	 }
+ * </pre>
+ *
+ * @param {*} db
+ */
+function httpGetCache(db) {
+  return (request, response) => {
+    response.status(StatusCodes.OK).json(dbCache.cacheStats())
+  }
+}
+
 exports.post = [
   {
     uri: restApi.uri.sql,
@@ -95,5 +117,9 @@ exports.get = [
   {
     uri: restApi.uri.version,
     callback: httpGetVersion,
+  },
+  {
+    uri: restApi.uri.cache,
+    callback: httpGetCache,
   },
 ]
