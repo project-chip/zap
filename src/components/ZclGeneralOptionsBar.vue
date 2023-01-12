@@ -112,7 +112,7 @@ export default {
     },
     defaultManufacturerCodes: {
       get() {
-        return this.manufacturerCodesOptions.map((option) => option.optionCode)
+        return this.manufacturerCodesOptions?.map((option) => option.optionCode)
       },
     },
     selectedDefaultResponsePolicy: {
