@@ -340,7 +340,7 @@ async function zcl_device_type_cluster_commands(options) {
     this.global.db,
     this.deviceTypeRef
   )
-  commands = commands.filter((x) => x.deviceTypeClusterId == this.id)
+  commands = commands.filter((x) => x.deviceTypeClusterRef == this.id)
   let promise = templateUtil.collectBlocks(commands, options, this)
   return templateUtil.templatePromise(this.global, promise)
 }
@@ -357,7 +357,7 @@ async function zcl_device_type_cluster_attributes(options) {
       this.global.db,
       this.deviceTypeRef
     )
-  attributes = attributes.filter((x) => x.deviceTypeClusterId == this.id)
+  attributes = attributes.filter((x) => x.deviceTypeClusterRef == this.id)
   let promise = templateUtil.collectBlocks(attributes, options, this)
   return templateUtil.templatePromise(this.global, promise)
 }
