@@ -469,7 +469,10 @@ function chip_friendly_endpoint_type_name(options) {
 }
 
 function asMEI(prefix, suffix) {
-  return cHelper.asHex((prefix << 16) + suffix, 8);
+  // Left-shift (and for that matter bitwise or) produces a _signed_ 32-bit
+  // number, which will probably be negative.  Force it to unsigned 32-bit using
+  // >>> 0.
+  return cHelper.asHex(((prefix << 16) | suffix) >>> 0, 8);
 }
 
 // Not to be exported.

@@ -465,7 +465,10 @@ function endpoint_attribute_long_defaults(options) {
 }
 
 function asMEI(manufacturerCode, code) {
-  return '0x' + bin.int32ToHex((manufacturerCode << 16) + code)
+  // Left-shift (and for that matter bitwise or) produces a _signed_ 32-bit
+  // number, which will probably be negative.  Force it to unsigned 32-bit using
+  // >>> 0.
+  return '0x' + bin.int32ToHex(((manufacturerCode << 16) | code) >>> 0);
 }
 
 // The representation of null depends on the type, so we can't use a single
