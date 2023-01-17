@@ -23,7 +23,7 @@
 const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
 const NodeCache = require('node-cache')
-const cache = new NodeCache()
+const cache = new NodeCache({ useClones: false })
 const cacheEnabled = true
 
 /**
