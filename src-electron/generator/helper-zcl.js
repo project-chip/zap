@@ -336,11 +336,11 @@ async function zcl_device_type_clusters(options) {
  * @returns blocks for commands
  */
 async function zcl_device_type_cluster_commands(options) {
-  let deviceTypeClusterId = this.id
   let commands = await queryDeviceType.selectDeviceTypeCommandsByDeviceTypeRef(
     this.global.db,
-    deviceTypeClusterId
+    this.deviceTypeRef
   )
+  commands = commands.filter((x) => x.deviceTypeClusterRef == this.id)
   let promise = templateUtil.collectBlocks(commands, options, this)
   return templateUtil.templatePromise(this.global, promise)
 }
@@ -352,12 +352,12 @@ async function zcl_device_type_cluster_commands(options) {
  * @returns blocks for attributes
  */
 async function zcl_device_type_cluster_attributes(options) {
-  let deviceTypeClusterId = this.id
   let attributes =
     await queryDeviceType.selectDeviceTypeAttributesByDeviceTypeRef(
       this.global.db,
-      deviceTypeClusterId
+      this.deviceTypeRef
     )
+  attributes = attributes.filter((x) => x.deviceTypeClusterRef == this.id)
   let promise = templateUtil.collectBlocks(attributes, options, this)
   return templateUtil.templatePromise(this.global, promise)
 }
