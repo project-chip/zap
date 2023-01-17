@@ -21,6 +21,7 @@
  * @module DB API: zcl database access
  */
 const dbApi = require('./db-api.js')
+const dbCache = require('./db-cache.js')
 const dbMapping = require('./db-mapping.js')
 
 const ATOMIC_QUERY = `
@@ -82,5 +83,5 @@ async function selectAtomicById(db, id) {
 }
 
 exports.selectAllAtomics = selectAllAtomics
-exports.selectAtomicType = selectAtomicType
+exports.selectAtomicType = dbCache.cacheQuery(selectAtomicType)
 exports.selectAtomicById = selectAtomicById

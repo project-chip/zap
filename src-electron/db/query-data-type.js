@@ -24,6 +24,7 @@ const dbMapping = require('./db-mapping')
 const queryZcl = require('./query-zcl')
 const envConfig = require('../util/env')
 const dbEnum = require('../../src-shared/db-enum.js')
+const dbCache = require('./db-cache')
 
 /**
  * Gathers the data type information of an entry based on data type id along
@@ -182,6 +183,6 @@ async function selectSizeFromType(db, packageIds, value) {
 }
 
 exports.selectDataTypeById = selectDataTypeById
-exports.selectDataTypeByName = selectDataTypeByName
+exports.selectDataTypeByName = dbCache.cacheQuery(selectDataTypeByName)
 exports.selectAllDataTypes = selectAllDataTypes
 exports.selectSizeFromType = selectSizeFromType
