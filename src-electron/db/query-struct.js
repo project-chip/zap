@@ -21,6 +21,7 @@
  * @module DB API: zcl database access
  */
 const dbApi = require('./db-api')
+const dbCache = require('./db-cache')
 const dbMapping = require('./db-mapping')
 
 async function selectAllStructs(db, packageId) {
@@ -142,6 +143,6 @@ WHERE
 
 exports.selectStructById = selectStructById
 exports.selectAllStructs = selectAllStructs
-exports.selectStructByName = selectStructByName
+exports.selectStructByName = dbCache.cacheQuery(selectStructByName)
 exports.selectStructsWithClusterAssociation =
   selectStructsWithClusterAssociation

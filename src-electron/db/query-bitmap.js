@@ -21,6 +21,7 @@
  * @module DB API: zcl database access
  */
 const dbApi = require('./db-api')
+const dbCache = require('./db-cache')
 const dbMapping = require('./db-mapping')
 
 /**
@@ -86,4 +87,4 @@ WHERE BITMAP_ID = ?`,
 
 exports.selectBitmapById = selectBitmapById
 exports.selectAllBitmaps = selectAllBitmaps
-exports.selectBitmapByName = selectBitmapByName
+exports.selectBitmapByName = dbCache.cacheQuery(selectBitmapByName)
