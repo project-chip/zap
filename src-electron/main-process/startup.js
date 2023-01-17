@@ -631,6 +631,8 @@ async function startGeneration(argv, options) {
     )
   )
 
+  await dbApi.closeDatabase(mainDb)
+
   if (options.quitFunction != null) options.quitFunction()
 }
 /**
