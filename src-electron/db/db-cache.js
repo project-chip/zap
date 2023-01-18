@@ -24,7 +24,7 @@ const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
 const NodeCache = require('node-cache')
 const cache = new NodeCache({ useClones: false })
-const cacheEnabled = true
+let cacheEnabled = true
 
 /**
  * Clears the entire cache.
@@ -67,7 +67,12 @@ function isCached(key, packageId) {
 }
 
 /**
- * Returns true if a given key/packageId cache exists.
+ * Cache input / output of provided queryFunction
+ * The queryFunction is assumed to have the following signature:
+ *
+ *   async function queryFunction(db, ...) {...}
+ *
+ * The DB handle is ignored and the remaining arguments are used as the cache key.
  *
  * @param {*} key
  * @param {*} packageId
@@ -75,7 +80,7 @@ function isCached(key, packageId) {
  */
 function cacheQuery(queryFunction) {
   return function () {
-    if (arguments.length) {
+    if (arguments.length && cacheEnabled) {
       // assume queryFunction's first argument is always the DB connection handler
       let key = JSON.stringify([
         queryFunction.name,
@@ -103,9 +108,25 @@ function cacheStats() {
   return cache.getStats()
 }
 
+/**
+ * Enable the Database Query cache
+ */
+function enable() {
+  cacheEnabled = true
+}
+
+/**
+ * Disable the database cache
+ */
+function disable() {
+  cacheEnabled = false
+}
+
 exports.clear = clear
 exports.put = put
 exports.get = get
 exports.isCached = isCached
 exports.cacheQuery = cacheQuery
 exports.cacheStats = cacheStats
+exports.enable = enable
+exports.disable = disable
