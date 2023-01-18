@@ -200,6 +200,7 @@
     "eslint-plugin-vue": "^9.8.0",
     "eslint-webpack-plugin": "^3.2.0",
     "file-loader": "^6.2.0",
+    "find": "^0.3.0",
     "folder-hash": "^4.0.1",
     "husky": "^7.0.1",
     "is-reachable": "^5.2.1",
