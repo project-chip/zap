@@ -233,6 +233,10 @@ export function processCommandLineArguments(argv: string[]) {
       desc: 'Specifying the output YAML file to capture convert results.',
       type: 'string',
     })
+    .option('disableDbCaching', {
+      desc: 'Disable query caching when accessing database',
+      type: 'boolean',
+    })
     .usage('Usage: $0 <command> [options] ... [file.zap] ...')
     .version(
       `Version: ${zapVersion.version}\nFeature level: ${
