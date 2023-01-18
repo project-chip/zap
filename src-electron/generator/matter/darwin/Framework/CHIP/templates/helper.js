@@ -234,6 +234,11 @@ async function asObjectiveCClass(type, cluster, options) {
   if (isStruct) {
     if (options.hash.compatRemapClusterName) {
       cluster = compatClusterNameRemapping.call(this, cluster, { hash: {} });
+      type = oldName.call(this, cluster, {
+        hash: {
+          "struct": type
+        }
+      }) || type;
     } else {
       let preserveAcronyms = true;
       if ('preserveAcronyms' in options.hash) {
