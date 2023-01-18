@@ -266,6 +266,51 @@ ORDER BY C.CODE
 }
 
 /**
+ * Retrieves endpoint cluster events.
+ *
+ * @param {*} db
+ * @param {*} clusterId
+ * @param {*} endpointTypeId
+ * @returns promise that resolves into endpoint cluster events
+ */
+async function selectEndpointClusterEvents(db, clusterId, endpointTypeId) {
+  let rows = await dbApi.dbAll(
+    db,
+    `
+SELECT
+  E.EVENT_ID,
+  E.NAME,
+  E.CODE,
+  E.MANUFACTURER_CODE,
+  E.IS_OPTIONAL
+FROM
+  EVENT AS E
+LEFT JOIN
+  ENDPOINT_TYPE_EVENT AS ETE
+ON
+  E.EVENT_ID = ETE.EVENT_REF
+WHERE
+  E.CLUSTER_REF = ?
+  AND ETE.ENDPOINT_TYPE_REF = ?
+ORDER BY E.MANUFACTURER_CODE, E.CODE
+  `,
+    [clusterId, endpointTypeId]
+  )
+
+  return rows.map((row) => {
+    return {
+      id: row['EVENT_ID'],
+      name: row['NAME'],
+      code: row['CODE'],
+      clusterId: clusterId,
+      manufacturerCode: row['MANUFACTURER_CODE'],
+      isOptional: dbApi.fromDbBool(row['IS_OPTIONAL']),
+      hexCode: '0x' + bin.int16ToHex(row['CODE']),
+    }
+  })
+}
+
+/**
  * Deletes an endpoint.
  *
  * @export
@@ -379,6 +424,7 @@ WHERE
 exports.selectEndpointClusters = selectEndpointClusters
 exports.selectEndpointClusterAttributes = selectEndpointClusterAttributes
 exports.selectEndpointClusterCommands = selectEndpointClusterCommands
+exports.selectEndpointClusterEvents = selectEndpointClusterEvents
 exports.insertEndpoint = insertEndpoint
 exports.deleteEndpoint = deleteEndpoint
 exports.selectEndpoint = selectEndpoint

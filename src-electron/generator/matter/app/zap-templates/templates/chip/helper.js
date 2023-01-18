@@ -438,7 +438,7 @@ function chip_server_cluster_attributes(options) {
 }
 
 /**
- * Creates block iterator over the server side cluster attributes
+ * Creates block iterator over the server side cluster events
  * for a given cluster.
  *
  * This function is meant to be used inside a {{#chip_server_clusters}}
