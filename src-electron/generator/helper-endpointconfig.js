@@ -562,6 +562,7 @@ async function collectAttributes(endpointTypes, options) {
         attributeSize: 0,
         mask: [],
         commands: [],
+        events: [],
         functions: 'NULL',
         comment: `Endpoint: ${ept.endpointId}, Cluster: ${c.name} (${c.side})`,
       }
@@ -847,6 +848,17 @@ async function collectAttributes(endpointTypes, options) {
           commandMfgCodes.push(mfgCmd)
         }
       })
+
+      // Go over the events
+      c.events.sort(zclUtil.eventComparator)
+      c.events.forEach((ev) => {
+        let event = {
+          eventId: asMEI(ev.manufacturerCode, ev.code),
+          name: cmd.name,
+        }
+        cluster.events.push(event)
+      })
+
       endpointAttributeSize += clusterAttributeSize
       cluster.attributeSize = clusterAttributeSize
       clusterList.push(cluster)

@@ -273,6 +273,16 @@
     "category": "matter"
   },
   {
+    "name": "chip_endpoint_generated_event_count",
+    "isDeprecated": false,
+    "category": "matter"
+  },
+  {
+    "name": "chip_endpoint_generated_event_list",
+    "isDeprecated": false,
+    "category": "matter"
+  },
+  {
     "name": "chip_endpoint_generated_functions",
     "isDeprecated": false,
     "category": "matter"

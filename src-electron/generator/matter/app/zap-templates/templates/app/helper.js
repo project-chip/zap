@@ -38,6 +38,7 @@ const TestHelper = require('../../common/ClusterTestGeneration.js');
 const kGlobalAttributes = [
   0xfff8, // GeneratedCommandList
   0xfff9, // AcceptedCommandList
+  0xfffa, // EventList
   0xfffb, // AttributeList
   0xfffc, // ClusterRevision
   0xfffd, // FeatureMap
@@ -187,6 +188,37 @@ function chip_endpoint_generated_commands_list(options) {
   return templateUtil.collectBlocks(ret, options, this);
 }
 
+function chip_endpoint_generated_event_count(options) {
+  let count = 0;
+  this.clusterList.forEach((c) => {
+    count += c.events.length
+  });
+  return count;
+}
+
+function chip_endpoint_generated_event_list(options) {
+  let ret = [];
+  let index = 0;
+  this.clusterList.forEach((c) => {
+    let events = [];
+
+    c.events.forEach((ev) => {
+      events.push(`${ev.eventId} /* ${ev.name} */`);
+    });
+
+    if (events.length > 0) {
+      ret.push({ text: `  /* ${c.comment} */\\` });
+      ret.push({
+        text: `  /*   EventList (index=${index}) */ \\\n  ${events.join(
+          ', \\\n  '
+        )}, \\`,
+      });
+      index += events.length;
+    }
+  });
+  return templateUtil.collectBlocks(ret, options, this);
+}
+
 /**
  * Return endpoint config GENERATED_CLUSTER MACRO
  * To be used as a replacement of endpoint_cluster_list since this one
@@ -195,6 +227,7 @@ function chip_endpoint_generated_commands_list(options) {
 function chip_endpoint_cluster_list() {
   let ret = '{ \\\n';
   let totalCommands = 0;
+  let totalEvents = 0;
   this.clusterList.forEach((c) => {
     let mask = '';
     let functionArray = c.functions;
@@ -258,6 +291,17 @@ function chip_endpoint_cluster_list() {
       } )`;
     }
 
+    let generatedEventListVal = 'nullptr';
+    let generatedEventCount = 0;
+    c.events.forEach((event) => {
+      generatedEventCount++;
+    });
+
+    if (generatedEventCount > 0) {
+      totalEvents += generatedEventCount;
+      generatedEventListVal = `ZAP_GENERATED_EVENTS_INDEX( ${totalEvents} )`;
+    }
+
     ret = ret.concat(`  { \\
       /* ${c.comment} */ \\
       .clusterId = ${c.clusterId},  \\
@@ -268,6 +312,8 @@ function chip_endpoint_cluster_list() {
       .functions = ${functionArray}, \\
       .acceptedCommandList = ${acceptedCommandsListVal} ,\\
       .generatedCommandList = ${generatedCommandsListVal} ,\\
+      .eventList = ${generatedEventListVal}, \\
+      .eventCount = ${generatedEventCount}, \\
     },\\\n`);
 
     totalCommands = totalCommands + acceptedCommands + generatedCommands;
@@ -917,6 +963,10 @@ exports.chip_endpoint_cluster_list = chip_endpoint_cluster_list;
 exports.chip_endpoint_data_version_count = chip_endpoint_data_version_count;
 exports.chip_endpoint_generated_commands_list =
   chip_endpoint_generated_commands_list;
+exports.chip_endpoint_generated_event_count =
+  chip_endpoint_generated_event_count;
+exports.chip_endpoint_generated_event_list =
+  chip_endpoint_generated_event_list;
 exports.asTypedExpression = asTypedExpression;
 exports.asTypedLiteral = asTypedLiteral;
 exports.asLowerCamelCase = asLowerCamelCase;

@@ -75,6 +75,23 @@ function commandComparator(a, b) {
   return 0
 }
 
+/**
+ * Comparator for sorting events.
+ *
+ * @param {*} a
+ * @param {*} b
+ * @returns -1, 0 or 1
+ */
+function eventComparator(a, b) {
+  if (a.manufacturerCode < b.manufacturerCode) return -1
+  if (a.manufacturerCode > b.manufacturerCode) return 1
+
+  if (a.hexCode < b.hexCode) return -1
+  if (a.hexCode > b.hexCode) return 1
+
+  return 0
+}
+
 function findStructByName(structs, name) {
   for (const s of structs) {
     if (s.name == name) {
@@ -783,6 +800,7 @@ async function createCommandSignature(db, packageId, cmd) {
 exports.clusterComparator = clusterComparator
 exports.attributeComparator = attributeComparator
 exports.commandComparator = commandComparator
+exports.eventComparator = eventComparator
 exports.sortStructsByDependency = sortStructsByDependency
 exports.isEnum = isEnum
 exports.isBitmap = isBitmap
