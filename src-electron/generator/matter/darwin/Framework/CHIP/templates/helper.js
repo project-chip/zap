@@ -234,6 +234,13 @@ async function asObjectiveCClass(type, cluster, options) {
   if (isStruct) {
     if (options.hash.compatRemapClusterName) {
       cluster = compatClusterNameRemapping.call(this, cluster, { hash: {} });
+      // If we are generating the "use the old name" API, here, and using the
+      // pre-everything-got-renamed cluster name, we need to also use the
+      // pre-everything-got-renamed struct name.  For example, if a struct got
+      // renamed from Foo to FooStruct and there is an attribute that has that
+      // type, we want to output the pre-renaming name for the getters that
+      // predate the "great Matter API revamp", and the post-renaming name for
+      // the ones that post-date it.
       type = oldName.call(this, cluster, {
         hash: {
           "struct": type
