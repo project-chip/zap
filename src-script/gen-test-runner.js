@@ -16,18 +16,24 @@
  *    limitations under the License.
  */
 
+/**
+ *  This test runner profiles the ZAP backend generation speed by loading / calling generate through its RESTful APIs.
+ *
+ *  Usage:
+ *    $ ./gen-test-runner.js $ZAP_SERVER_PORT $ZAP_SAMPLE_APP $GENERATED_DIR
+ */
+
 const axios = require('axios').default
 const { CookieJar } = require('tough-cookie')
 const { wrapper } = require('axios-cookiejar-support')
-let port = process.argv[2]
-const baseURL = `http://localhost:${port}`
 const restApi = require('../src-shared/rest-api')
 const { rest } = require('lodash')
 let sessionId = ''
-const TEST_RUN_COUNT = 6
-const INPUT_FILE =
-  '/Users/jiteng/repo/gsdk_boston/protocol/zigbee/app/framework/sample-apps/full-th/config/zcl/zcl_config.zap'
-const OUTPUT_DIR = '/Users/jiteng/Downloads/zap_generation'
+const TEST_RUN_COUNT = 10
+let port = process.argv[2]
+const baseURL = `http://localhost:${port}`
+const INPUT_FILE = process.argv[3]
+const OUTPUT_DIR = process.argv[4]
 
 async function main() {
   console.log(`ZAP port: ${baseURL}`)
