@@ -23,6 +23,7 @@
 const dbApi = require('./db-api')
 const dbCache = require('./db-cache')
 const dbMapping = require('./db-mapping')
+const queryUtil = require('./query-util')
 
 async function selectAllStructs(db, packageId) {
   let rows = await dbApi.dbAll(
@@ -95,6 +96,38 @@ ORDER BY
 }
 
 /**
+ * Select a struct matched by name and clusterId
+ * @param {*} db
+ * @param {*} name
+ * @param {*} clusterId
+ * @param {*} packageIds
+ * @returns struct information or undefined
+ */
+async function selectStructByNameAndClusterId(db, name, clusterId, packageIds) {
+  let queryWithoutClusterId = queryUtil.sqlQueryForDataTypeByNameAndClusterId(
+    'struct',
+    null,
+    packageIds
+  )
+  let queryWithClusterId = queryUtil.sqlQueryForDataTypeByNameAndClusterId(
+    'struct',
+    clusterId,
+    packageIds
+  )
+  let res = await dbApi
+    .dbAll(db, queryWithoutClusterId, [name])
+    .then((rows) => rows.map(dbMapping.map.struct))
+
+  if (res && res.length == 1) {
+    return res[0]
+  } else {
+    return dbApi
+      .dbGet(db, queryWithClusterId, [name, clusterId])
+      .then(dbMapping.map.struct)
+  }
+}
+
+/**
  * Get all structs which have a cluster associated with them. If a struct is
  * present in more than one cluster then it can be grouped by struct name to
  * avoid additional rows.
@@ -144,5 +177,8 @@ WHERE
 exports.selectStructById = selectStructById
 exports.selectAllStructs = selectAllStructs
 exports.selectStructByName = dbCache.cacheQuery(selectStructByName)
+exports.selectStructByNameAndClusterId = dbCache.cacheQuery(
+  selectStructByNameAndClusterId
+)
 exports.selectStructsWithClusterAssociation =
   selectStructsWithClusterAssociation

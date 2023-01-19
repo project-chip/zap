@@ -23,6 +23,11 @@ const ChipTypesHelper = require('../../../app/zap-templates/common/ChipTypesHelp
 const StringHelper = require('../../../app/zap-templates/common/StringHelper.js');
 const appHelper = require('../../../app/zap-templates/templates/app/helper.js');
 const dbEnum = require('../../../../../../src-shared/db-enum');
+const queryZcl = require(zapPath + 'db/query-zcl');
+const zclUtil = require(zapPath + 'util/zcl-util.js');
+
+const characterStringTypes = ['CHAR_STRING', 'LONG_CHAR_STRING'];
+const octetStringTypes = ['OCTET_STRING', 'LONG_OCTET_STRING'];
 
 function convertBasicCTypeToJavaType(cType) {
   switch (cType) {
@@ -187,6 +192,82 @@ function convertAttributeCallbackTypeToJavaName(cType) {
   }
 }
 
+/**
+ * Note: This helper needs to be used under a block helper which has a
+ * reference to clusterId.
+ * Available options:
+ * - isBoxedJavaType: 0/1 to return string types in different ways
+ * - All other options passed to this helper are considered as overrides for
+ * zcl types
+ * for eg: (as_underlying_java_zcl_type type clusterId boolean='Boolean')
+ * will return "Boolean" for "boolean" type
+ * @param {*} type
+ * @param {*} clusterId
+ * @param {*} options
+ * @returns The corresponding java data type for a zcl data type.
+ */
+async function as_underlying_java_zcl_type(type, clusterId, options) {
+  let hash = options.hash;
+  // Overwrite any type with the one coming from the template options
+  // Eg: {{as_underlying_java_zcl_type type [clusterId] boolean='Boolean'}}
+  // Here all types named 'boolean' will be returned as 'Boolean'
+  if (type in hash) {
+    return hash[type];
+  }
+
+  // Get ZCL Data Type from the db
+  const packageIds = await templateUtil.ensureZclPackageIds(this);
+  let dataType = await queryZcl.selectDataTypeByNameAndClusterId(
+    this.global.db,
+    type,
+    clusterId,
+    packageIds
+  );
+
+  if (!dataType) {
+    env.logWarning(type + ' not found in the data_type table');
+    return 0;
+  }
+  let isBoxedJavaType =
+    hash && hash.isBoxedJavaType ? hash.isBoxedJavaType : false;
+  if (
+    dataType.discriminatorName.toLowerCase() == dbEnum.zclType.bitmap ||
+    dataType.discriminatorName.toLowerCase() == dbEnum.zclType.enum ||
+    dataType.discriminatorName.toLowerCase() == dbEnum.zclType.number
+  ) {
+    if (dataType.name.includes('float')) {
+      return 'Float';
+    } else if (dataType.name.includes('double')) {
+      return 'Double';
+    } else if (dataType.name.includes('single')) {
+      return 'Float';
+    } else {
+      let sizeAndSign = await zclUtil.zcl_data_type_size_and_sign(
+        type,
+        dataType,
+        clusterId,
+        packageIds,
+        this
+      );
+      if (sizeAndSign.size >= 3) {
+        return 'Long';
+      }
+    }
+    return 'Integer';
+  } else if (octetStringTypes.includes(type.toUpperCase())) {
+    return isBoxedJavaType ? 'byte[]' : 'OctetString';
+  } else if (characterStringTypes.includes(type.toUpperCase())) {
+    return isBoxedJavaType ? 'String' : 'CharString';
+  } else {
+    let error = 'Unhandled type ' + type;
+    if (isBoxedJavaType) {
+      return 'Object';
+    } else {
+      throw error;
+    }
+  }
+}
+
 async function asUnderlyingBasicType(type) {
   const options = { hash: {} };
   let zclType = await zclHelper.asUnderlyingZclType.call(this, type, options);
@@ -342,12 +423,92 @@ function incrementDepth(depth) {
   return depth + 1;
 }
 
+/**
+ * If helper that checks if an attribute is basic or not based for java code
+ * generation
+ * For eg: In java, an attribute is not basic if it is either nullable, optional,
+ * array type or struct.
+ * Note: This helper should be used within an attribute block helper and also
+ * needs to be used under a block helper which has a reference to clusterId.
+ * example:
+ * {{#if_basic_attribute type}}
+ * type is basic
+ * {{else}}
+ * type is not basic
+ * {{/if_basic_attribute}}
+ * @param {*} type
+ * @param {*} clusterId
+ * @param {*} options
+ * @returns Promise of content
+ */
+async function if_basic_attribute(type, clusterId, options) {
+  let struct = null;
+  if (this.isNullable || this.isOptional || this.isArray) {
+    return options.inverse(this);
+  } else {
+    let packageIds = await templateUtil.ensureZclPackageIds(this);
+    struct = await queryZcl.selectStructByNameAndClusterId(
+      this.global.db,
+      type,
+      clusterId,
+      packageIds
+    );
+    if (struct) {
+      return options.inverse(this);
+    } else {
+      return options.fn(this);
+    }
+  }
+}
+
+/**
+ * If helper that checks if an attribute is not supported for java code
+ * generation
+ * Note: This helper needs to be used under a block helper which has a
+ * reference to clusterId.
+ * For eg: In java, an attribute callback is not supported when it is a struct.
+ * However it is supported if it is an array of structs.
+ * @param {*} type
+ * @param {*} isArray
+ * @param {*} clusterId
+ * @param {*} options
+ * @returns Promise of content
+ */
+async function if_unsupported_attribute_callback(
+  type,
+  isArray,
+  clusterId,
+  options
+) {
+  let struct = null;
+  if (isArray) {
+    return options.inverse(this);
+  } else {
+    let packageIds = await templateUtil.ensureZclPackageIds(this);
+    struct = await queryZcl.selectStructByNameAndClusterId(
+      this.global.db,
+      type,
+      clusterId,
+      packageIds
+    );
+    if (struct) {
+      return options.fn(this);
+    } else {
+      return options.inverse(this);
+    }
+  }
+}
+
+const dep = templateUtil.deprecatedHelper;
+
 //
 // Module exports
 //
 exports.asUnderlyingBasicType = asUnderlyingBasicType;
 exports.asJavaType = asJavaType;
-exports.asJavaBoxedType = asJavaBoxedType;
+exports.asJavaBoxedType = dep(asJavaBoxedType, {
+  to: 'as_underlying_java_zcl_type',
+});
 exports.asJniType = asJniType;
 exports.asJniSignature = asJniSignature;
 exports.asJniClassName = asJniClassName;
@@ -356,11 +517,16 @@ exports.asJniSignatureBasic = asJniSignatureBasic;
 exports.convertBasicCTypeToJniType = convertBasicCTypeToJniType;
 exports.convertCTypeToJniSignature = convertCTypeToJniSignature;
 exports.convertBasicCTypeToJavaBoxedType = convertBasicCTypeToJavaBoxedType;
-exports.convertAttributeCallbackTypeToJavaName =
-  convertAttributeCallbackTypeToJavaName;
+exports.convertAttributeCallbackTypeToJavaName = dep(
+  convertAttributeCallbackTypeToJavaName,
+  { to: 'as_underlying_java_zcl_type' }
+);
 exports.incrementDepth = incrementDepth;
 
 exports.meta = {
   category: dbEnum.helperCategory.matter,
   alias: ['controller/java/templates/helper.js', 'matter-java-helper'],
 };
+exports.as_underlying_java_zcl_type = as_underlying_java_zcl_type;
+exports.if_basic_attribute = if_basic_attribute;
+exports.if_unsupported_attribute_callback = if_unsupported_attribute_callback;

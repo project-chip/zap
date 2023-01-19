@@ -21,6 +21,7 @@
 const dbApi = require('./db-api')
 const dbMapping = require('./db-mapping')
 const dbCache = require('./db-cache')
+const queryUtil = require('./query-util')
 
 /**
  * Select an number matched by name.
@@ -46,6 +47,38 @@ async function selectNumberByName(db, packageIds, name) {
       [name]
     )
     .then(dbMapping.map.number)
+}
+
+/**
+ * Select a number matched by name and clusterId
+ *
+ * @param db
+ * @param name
+ * @param packageIds
+ * @returns number information or undefined
+ */
+async function selectNumberByNameAndClusterId(db, name, clusterId, packageIds) {
+  let queryWithoutClusterId = queryUtil.sqlQueryForDataTypeByNameAndClusterId(
+    'number',
+    null,
+    packageIds
+  )
+  let queryWithClusterId = queryUtil.sqlQueryForDataTypeByNameAndClusterId(
+    'number',
+    clusterId,
+    packageIds
+  )
+  let res = await dbApi
+    .dbAll(db, queryWithoutClusterId, [name])
+    .then((rows) => rows.map(dbMapping.map.number))
+
+  if (res && res.length == 1) {
+    return res[0]
+  } else {
+    return dbApi
+      .dbGet(db, queryWithClusterId, [name, clusterId])
+      .then(dbMapping.map.number)
+  }
 }
 
 /**
@@ -99,5 +132,8 @@ async function selectAllNumbers(db, packageId) {
 }
 
 exports.selectNumberByName = dbCache.cacheQuery(selectNumberByName)
+exports.selectNumberByNameAndClusterId = dbCache.cacheQuery(
+  selectNumberByNameAndClusterId
+)
 exports.selectAllNumbers = selectAllNumbers
 exports.selectNumberById = selectNumberById

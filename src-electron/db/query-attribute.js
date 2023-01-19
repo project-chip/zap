@@ -24,21 +24,6 @@ const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
 const dbCache = require('./db-cache')
 
-function attributeExportMapping(x) {
-  return {
-    id: x.ATTRIBUTE_ID,
-    name: x.NAME,
-    code: x.CODE,
-    side: x.SIDE,
-    type: x.TYPE,
-    define: x.DEFINE,
-    mfgCode: x.MANUFACTURER_CODE,
-    clusterSide: x.SIDE,
-    clusterName: x.CLUSTER_NAME,
-    isClusterEnabled: x.ENABLED,
-  }
-}
-
 /**
  * Promises to select all endpoint type attributes filtered by EndpointTypeRef and ClusterRef.
  *
@@ -147,13 +132,19 @@ async function duplicateEndpointTypeAttribute(
  * @param {*} db
  * @param {*} endpointTypeId
  * @param {*} packageIds
+ * @param {*} side
  * @returns Promise that resolves with the attribute data.
  */
 async function selectAllAttributeDetailsFromEnabledClusters(
   db,
   endpointsAndClusters,
-  packageIds
+  packageIds,
+  side = null
 ) {
+  let sideFilter = ''
+  if (side) {
+    sideFilter = ` AND ATTRIBUTE.SIDE = '${side}' `
+  }
   let endpointTypeClusterRef = endpointsAndClusters
     .map((ep) => ep.endpointTypeClusterRef)
     .toString()
@@ -171,21 +162,59 @@ async function selectAllAttributeDetailsFromEnabledClusters(
     ATTRIBUTE.MANUFACTURER_CODE,
     ENDPOINT_TYPE_CLUSTER.SIDE,
     CLUSTER.NAME AS CLUSTER_NAME,
-    ENDPOINT_TYPE_CLUSTER.ENABLED
+    ENDPOINT_TYPE_CLUSTER.ENABLED,
+     CASE
+       WHEN
+         ATTRIBUTE.ARRAY_TYPE IS NOT NULL
+       THEN
+         1
+       ELSE
+         0
+     END AS IS_ARRAY,
+     ATTRIBUTE.IS_WRITABLE,
+     ATTRIBUTE.IS_NULLABLE,
+     ATTRIBUTE.MAX_LENGTH,
+     ATTRIBUTE.MIN_LENGTH,
+     ATTRIBUTE.MIN,
+     ATTRIBUTE.MAX,
+     ATTRIBUTE.ARRAY_TYPE,
+     ATTRIBUTE.MUST_USE_TIMED_WRITE,
+     ATTRIBUTE.IS_SCENE_REQUIRED,
+     ATTRIBUTE.IS_OPTIONAL,
+     CASE
+       WHEN
+         ATTRIBUTE.CLUSTER_REF IS NULL
+       THEN
+         1
+       ELSE
+         0
+     END AS IS_GLOBAL_ATTRIBUTE,
+     ENDPOINT_TYPE_ATTRIBUTE.INCLUDED_REPORTABLE,
+     ENDPOINT_TYPE_ATTRIBUTE.STORAGE_OPTION,
+     ENDPOINT_TYPE_ATTRIBUTE.SINGLETON,
+     ENDPOINT_TYPE_ATTRIBUTE.BOUNDED,
+     ENDPOINT_TYPE_ATTRIBUTE.INCLUDED,
+     ENDPOINT_TYPE_ATTRIBUTE.DEFAULT_VALUE,
+     ENDPOINT_TYPE_ATTRIBUTE.MIN_INTERVAL,
+     ENDPOINT_TYPE_ATTRIBUTE.MAX_INTERVAL,
+     ENDPOINT_TYPE_ATTRIBUTE.REPORTABLE_CHANGE
   FROM ATTRIBUTE
   INNER JOIN ENDPOINT_TYPE_ATTRIBUTE
   ON ATTRIBUTE.ATTRIBUTE_ID = ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF
-  INNER JOIN CLUSTER
-  ON ATTRIBUTE.CLUSTER_REF = CLUSTER.CLUSTER_ID
   INNER JOIN ENDPOINT_TYPE_CLUSTER
-  ON CLUSTER.CLUSTER_ID = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
+  ON ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
+  INNER JOIN CLUSTER
+  ON ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = CLUSTER.CLUSTER_ID
   WHERE ENDPOINT_TYPE_CLUSTER.CLUSTER_REF IN (${endpointTypeClusterRef})
   AND ENDPOINT_TYPE_ATTRIBUTE.INCLUDED = 1
-  AND ATTRIBUTE.PACKAGE_REF IN (${dbApi.toInClause(packageIds)}) 
-  GROUP BY ATTRIBUTE.NAME
+  AND ENDPOINT_TYPE_CLUSTER.ENABLED = 1
+   AND ATTRIBUTE.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
+   ${sideFilter}
+   GROUP BY CLUSTER.MANUFACTURER_CODE, CLUSTER.CODE, ATTRIBUTE.MANUFACTURER_CODE, ATTRIBUTE.CODE, ATTRIBUTE.SIDE
+   ORDER BY ATTRIBUTE.CODE
         `
     )
-    .then((rows) => rows.map(attributeExportMapping))
+    .then((rows) => rows.map(dbMapping.map.endpointTypeAttributeExtended))
 }
 
 /**
@@ -248,7 +277,7 @@ async function selectAttributeDetailsFromAllEndpointTypesAndClustersUtil(
   GROUP BY ATTRIBUTE.NAME
         `
     )
-    .then((rows) => rows.map(attributeExportMapping))
+    .then((rows) => rows.map(dbMapping.map.endpointTypeAttributeExtended))
 }
 
 /**

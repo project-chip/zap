@@ -23,6 +23,7 @@
 const dbApi = require('./db-api')
 const dbCache = require('./db-cache')
 const dbMapping = require('./db-mapping')
+const queryUtil = require('./query-util')
 
 /**
  * Retrieves all the enums in the database.
@@ -210,9 +211,45 @@ ORDER BY NAME`,
     .then(dbMapping.map.enum)
 }
 
+/**
+ * Select an enum matched by name and clusterId.
+ *
+ * @param {*} db
+ * @param {*} name
+ * @param {*} clusterId
+ * @param {*} packageIds
+ * @returns enum information or undefined
+ */
+async function selectEnumByNameAndClusterId(db, name, clusterId, packageIds) {
+  let queryWithoutClusterId = queryUtil.sqlQueryForDataTypeByNameAndClusterId(
+    'enum',
+    null,
+    packageIds
+  )
+  let queryWithClusterId = queryUtil.sqlQueryForDataTypeByNameAndClusterId(
+    'enum',
+    clusterId,
+    packageIds
+  )
+  let res = await dbApi
+    .dbAll(db, queryWithoutClusterId, [name, name.toLowerCase()])
+    .then((rows) => rows.map(dbMapping.map.enum))
+
+  if (res && res.length == 1) {
+    return res[0]
+  } else {
+    return dbApi
+      .dbGet(db, queryWithClusterId, [name, name.toLowerCase(), clusterId])
+      .then(dbMapping.map.enum)
+  }
+}
+
 // exports
 exports.selectAllEnums = selectAllEnums
 exports.selectEnumByName = dbCache.cacheQuery(selectEnumByName)
+exports.selectEnumByNameAndClusterId = dbCache.cacheQuery(
+  selectEnumByNameAndClusterId
+)
 exports.selectEnumById = selectEnumById
 exports.selectClusterEnums = selectClusterEnums
 exports.selectAllEnumItemsById = selectAllEnumItemsById

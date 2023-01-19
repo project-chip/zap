@@ -23,6 +23,7 @@
 const dbApi = require('./db-api')
 const dbCache = require('./db-cache')
 const dbMapping = require('./db-mapping')
+const queryUtil = require('./query-util')
 
 /**
  * Retrieves all the bitmaps in the database.
@@ -68,6 +69,39 @@ WHERE (DATA_TYPE.NAME = ? OR DATA_TYPE.NAME = ?) AND DATA_TYPE.PACKAGE_REF IN ($
     .then(dbMapping.map.bitmap)
 }
 
+/**
+ * Select a bitmap matched by name and clusterId.
+ * @param {*} db
+ * @param {*} name
+ * @param {*} clusterId
+ * @param {*} packageIds
+ * @returns bitmap information or undefined
+ */
+async function selectBitmapByNameAndClusterId(db, name, clusterId, packageIds) {
+  let queryWithoutClusterId = queryUtil.sqlQueryForDataTypeByNameAndClusterId(
+    'bitmap',
+    null,
+    packageIds
+  )
+  let queryWithClusterId = queryUtil.sqlQueryForDataTypeByNameAndClusterId(
+    'bitmap',
+    clusterId,
+    packageIds
+  )
+
+  let res = await dbApi
+    .dbAll(db, queryWithoutClusterId, [name, name.toLowerCase()])
+    .then((rows) => rows.map(dbMapping.map.bitmap))
+
+  if (res && res.length == 1) {
+    return res[0]
+  } else {
+    return dbApi
+      .dbGet(db, queryWithClusterId, [name, name.toLowerCase(), clusterId])
+      .then(dbMapping.map.bitmap)
+  }
+}
+
 async function selectBitmapById(db, id) {
   return dbApi
     .dbGet(
@@ -88,3 +122,6 @@ WHERE BITMAP_ID = ?`,
 exports.selectBitmapById = selectBitmapById
 exports.selectAllBitmaps = selectAllBitmaps
 exports.selectBitmapByName = dbCache.cacheQuery(selectBitmapByName)
+exports.selectBitmapByNameAndClusterId = dbCache.cacheQuery(
+  selectBitmapByNameAndClusterId
+)

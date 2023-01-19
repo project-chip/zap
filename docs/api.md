@@ -40,11 +40,11 @@
 <dt><a href="#module_DB API_ device type database access">DB API: device type database access</a></dt>
 <dd><p>This module provides queries for device types.</p>
 </dd>
-<dt><a href="#module_DB API_ endpoint configuration queries against the database.">DB API: endpoint configuration queries against the database.</a></dt>
-<dd><p>This module provides queries for endpoint configuration.</p>
-</dd>
 <dt><a href="#module_DB API_ endpoint type queries against the database.">DB API: endpoint type queries against the database.</a></dt>
 <dd><p>This module provides queries for endpoint type.</p>
+</dd>
+<dt><a href="#module_DB API_ endpoint configuration queries against the database.">DB API: endpoint configuration queries against the database.</a></dt>
+<dd><p>This module provides queries for endpoint configuration.</p>
 </dd>
 <dt><a href="#module_DB API_ zcl database access">DB API: zcl database access</a></dt>
 <dd><p>This module provides queries for enums.</p>
@@ -64,13 +64,13 @@
 <dt><a href="#module_DB API_ package-based queries.">DB API: package-based queries.</a></dt>
 <dd><p>This module provides queries related to packages.</p>
 </dd>
-<dt><a href="#module_DB API_ session related queries.">DB API: session related queries.</a></dt>
-<dd><p>This module provides session related queries.</p>
-</dd>
 <dt><a href="#module_DB API_ zcl database access">DB API: zcl database access</a></dt>
 <dd><p>This module provides queries for ZCL static entities
 inside a single session. Things like:
    all visible clusters, etc.</p>
+</dd>
+<dt><a href="#module_DB API_ session related queries.">DB API: session related queries.</a></dt>
+<dd><p>This module provides session related queries.</p>
 </dd>
 <dt><a href="#module_DB API_ zcl database access">DB API: zcl database access</a></dt>
 <dd><p>This module provides queries for enums.</p>
@@ -122,6 +122,9 @@ inside a single session. Things like:
 </dd>
 <dt><a href="#module_REST API_ generation functions">REST API: generation functions</a></dt>
 <dd><p>This module provides the REST API to the IDE component handling.</p>
+</dd>
+<dt><a href="#module_REST API_ initialization functions">REST API: initialization functions</a></dt>
+<dd><p>This module provides the REST API to the session initialization</p>
 </dd>
 <dt><a href="#module_REST API_ static zcl functions">REST API: static zcl functions</a></dt>
 <dd><p>This module provides the REST API to the static zcl queries.</p>
@@ -530,6 +533,10 @@ with its actual type from disciminator table.</p>
 <dd><p>Gathers the data type information of an entry based on data type name along
 with its actual type from disciminator table.</p>
 </dd>
+<dt><a href="#selectDataTypeByNameAndClusterId">selectDataTypeByNameAndClusterId(db, name, clusterId, packageIds)</a> ⇒</dt>
+<dd><p>Gathers the data type information based on data type name and
+clusterId along with its actual type from disciminator table.</p>
+</dd>
 <dt><a href="#selectAllDataTypes">selectAllDataTypes(db, packageId)</a> ⇒</dt>
 <dd><p>Gathers All the data types</p>
 </dd>
@@ -540,6 +547,9 @@ if string.</p>
 </dd>
 <dt><a href="#selectNumberByName">selectNumberByName(db, name, packageIds)</a> ⇒</dt>
 <dd><p>Select an number matched by name.</p>
+</dd>
+<dt><a href="#selectNumberByNameAndClusterId">selectNumberByNameAndClusterId(db, name, packageIds)</a> ⇒</dt>
+<dd><p>Select a number matched by name and clusterId</p>
 </dd>
 <dt><a href="#selectNumberById">selectNumberById(db, name)</a> ⇒</dt>
 <dd><p>Select an number matched by id.</p>
@@ -660,6 +670,11 @@ endpoint type array, for the appropriate endpoint.</p>
 <dd><p>Generates array of { index , mfgCode } pairs, matching
 the indexes in attribute table.</p>
 </dd>
+<dt><a href="#endpoint_reporting_config_defaults">endpoint_reporting_config_defaults(options)</a></dt>
+<dd><p>This helper supports an &quot;order&quot; CSV string, such as:
+  &quot;direction,endpoint,clusterId,attributeId,mask,mfgCode,minmax&quot;
+The string above is a default value, and it determines in what order are the fields generated.</p>
+</dd>
 <dt><a href="#collectAttributes">collectAttributes()</a></dt>
 <dd><p>Attribute collection works like this:
    1.) Go over all the clusters that exist.
@@ -713,6 +728,33 @@ Use it as: {{future name=&quot;NAME&quot;}}</p>
 <dd><p>The token template assigns an unique ID to each unique attribute. These IDs
   span all attributes from all clusters from all endpointTypes. This helper
   function allows the template to increment the token ID within the tokens context.</p>
+</dd>
+<dt><a href="#token_attribute_util">token_attribute_util(context, options)</a> ⇒</dt>
+<dd><p>Util function that extracts all the token attribute information.</p>
+</dd>
+<dt><a href="#token_attributes">token_attributes(endpointTypeRef, options)</a> ⇒</dt>
+<dd><p>Get information about all the token attributes in the configuration or this
+helper can be used within an endpoint block helper to fetch the
+corresponding token attributes based on endpoint type given.
+Available Options:
+isSingleton: 0/1, option can be used to filter attributes based on singleton
+or non-singleton(Available with endpointTypeRef only)</p>
+</dd>
+<dt><a href="#token_attribute_clusters">token_attribute_clusters(endpointTypeRef, options)</a> ⇒</dt>
+<dd><p>This helper can return all token associated clusters across endpoints or
+this helper can be used within an endpoint block helper to fetch the
+corresponding token associated clusters.
+Available Options:
+isSingleton: 0/1, option can be used to filter clusters based on singleton
+or non-singleton attributes.</p>
+</dd>
+<dt><a href="#token_attribute_endpoints">token_attribute_endpoints(options)</a> ⇒</dt>
+<dd><p>Get all endpoints which have token attributes in the configuration.
+AvailableOptions:</p>
+<ul>
+<li>isSingleton: 0/1, option can be used to filter endpoints based on singleton
+or non-singleton.</li>
+</ul>
 </dd>
 <dt><a href="#get_cli_size">get_cli_size(size, type, allowZclTypes)</a> ⇒</dt>
 <dd></dd>
@@ -781,13 +823,6 @@ queries that are needed to load the attribute state</p>
 <dd><p>Function that actually loads the data out of a state object.
 Session at this point is blank, and has no packages.</p>
 </dd>
-<dt><a href="#readDataFromFile">readDataFromFile(filePath)</a> ⇒</dt>
-<dd><p>Reads the data from the file and resolves with the state object if all is good.</p>
-</dd>
-<dt><a href="#importDataFromFile">importDataFromFile(db, filePath)</a> ⇒</dt>
-<dd><p>Writes the data from the file into a new session.
-NOTE: This function does NOT initialize session packages.</p>
-</dd>
 <dt><a href="#importSessionKeyValues">importSessionKeyValues(db, sessionId, keyValuePairs)</a></dt>
 <dd><p>Resolves with a promise that imports session key values.</p>
 </dd>
@@ -805,6 +840,13 @@ with the succesfull writing into the database.</p>
 </dd>
 <dt><a href="#readJsonData">readJsonData(filePath, data)</a> ⇒</dt>
 <dd><p>Parses JSON file and creates a state object out of it, which is passed further down the chain.</p>
+</dd>
+<dt><a href="#readDataFromFile">readDataFromFile(filePath)</a> ⇒</dt>
+<dd><p>Reads the data from the file and resolves with the state object if all is good.</p>
+</dd>
+<dt><a href="#importDataFromFile">importDataFromFile(db, filePath)</a> ⇒</dt>
+<dd><p>Writes the data from the file into a new session.
+NOTE: This function does NOT initialize session packages.</p>
 </dd>
 <dt><a href="#initSessionTimers">initSessionTimers()</a></dt>
 <dd><p>Start session specific validation.</p>
@@ -850,15 +892,6 @@ with the succesfull writing into the database.</p>
 </dd>
 <dt><a href="#startUpMainInstance">startUpMainInstance(quitFunction, argv)</a></dt>
 <dd><p>Default startup method.</p>
-</dd>
-<dt><a href="#packagesAndSessions">packagesAndSessions(db)</a> ⇒</dt>
-<dd><p>This function returns Properties, Templates and Dirty-Sessions</p>
-</dd>
-<dt><a href="#initializeSession">initializeSession(db, options:)</a> ⇒</dt>
-<dd><p>This function creates a new session with its packages according to selected Properties and Templates</p>
-</dd>
-<dt><a href="#loadPreviousSessions">loadPreviousSessions(db)</a> ⇒</dt>
-<dd><p>This function reloads previous session by user selected session&#39;s id</p>
 </dd>
 <dt><a href="#doOpen">doOpen(menuItem, browserWindow, event)</a></dt>
 <dd><p>Perform a file-&gt;open operation.</p>
@@ -1005,31 +1038,6 @@ that will be resolved when all the XML files are done, or rejected if at least o
 <dd><p>Toplevel function that loads the xml library file
 and orchestrates the promise chain.</p>
 </dd>
-<dt><a href="#recordToplevelPackage">recordToplevelPackage(db, metadataFile, crc)</a> ⇒</dt>
-<dd><p>Records the toplevel package information and resolves into packageId</p>
-</dd>
-<dt><a href="#recordVersion">recordVersion(db, ctx)</a></dt>
-<dd><p>Records the version into the database.</p>
-</dd>
-<dt><a href="#loadZclMetafiles">loadZclMetafiles(db, metadataFile)</a> ⇒</dt>
-<dd><p>Toplevel function that loads the zcl file and passes it off to the correct zcl loader.</p>
-</dd>
-<dt><a href="#loadZcl">loadZcl(db, metadataFile)</a> ⇒</dt>
-<dd><p>Loads individual zcl.json metafile.</p>
-</dd>
-<dt><a href="#loadIndividualFile">loadIndividualFile(db, filePath, sessionId)</a></dt>
-<dd><p>Load individual custom XML files.</p>
-</dd>
-<dt><a href="#qualifyZclFile">qualifyZclFile(db, info, parentPackageId)</a> ⇒</dt>
-<dd><p>Promises to qualify whether zcl file needs to be reloaded.
-If yes, the it will resolve with {filePath, data, packageId}
-If not, then it will resolve with {error}</p>
-</dd>
-<dt><a href="#processZclPostLoading">processZclPostLoading(db)</a> ⇒</dt>
-<dd><p>Promises to perform a post loading step.</p>
-</dd>
-<dt><a href="#getDiscriminatorMap">getDiscriminatorMap(db, packageIds)</a> ⇒</dt>
-<dd></dd>
 <dt><a href="#collectDataFromJsonFile">collectDataFromJsonFile(ctx)</a> ⇒</dt>
 <dd><p>Promises to read the JSON file and resolve all the data.</p>
 </dd>
@@ -1200,6 +1208,31 @@ e.g. for ClusterExtensions.</p>
 <dd><p>Toplevel function that loads the toplevel metafile
 and orchestrates the promise chain.</p>
 </dd>
+<dt><a href="#recordToplevelPackage">recordToplevelPackage(db, metadataFile, crc)</a> ⇒</dt>
+<dd><p>Records the toplevel package information and resolves into packageId</p>
+</dd>
+<dt><a href="#recordVersion">recordVersion(db, ctx)</a></dt>
+<dd><p>Records the version into the database.</p>
+</dd>
+<dt><a href="#loadZclMetafiles">loadZclMetafiles(db, metadataFile)</a> ⇒</dt>
+<dd><p>Toplevel function that loads the zcl file and passes it off to the correct zcl loader.</p>
+</dd>
+<dt><a href="#loadZcl">loadZcl(db, metadataFile)</a> ⇒</dt>
+<dd><p>Loads individual zcl.json metafile.</p>
+</dd>
+<dt><a href="#loadIndividualFile">loadIndividualFile(db, filePath, sessionId)</a></dt>
+<dd><p>Load individual custom XML files.</p>
+</dd>
+<dt><a href="#qualifyZclFile">qualifyZclFile(db, info, parentPackageId)</a> ⇒</dt>
+<dd><p>Promises to qualify whether zcl file needs to be reloaded.
+If yes, the it will resolve with {filePath, data, packageId}
+If not, then it will resolve with {error}</p>
+</dd>
+<dt><a href="#processZclPostLoading">processZclPostLoading(db)</a> ⇒</dt>
+<dd><p>Promises to perform a post loading step.</p>
+</dd>
+<dt><a href="#getDiscriminatorMap">getDiscriminatorMap(db, packageIds)</a> ⇒</dt>
+<dd></dd>
 </dl>
 
 <a name="module_DB API_ External URLs."></a>
@@ -1571,22 +1604,29 @@ This module provides cache for commonly used static database queries.
 
 - [DB API: zcl database access](#module*DB API* zcl database access)
   - [~clear()](#module*DB API* zcl database access..clear)
-  - [~put(key, packageId, data)](#module*DB API* zcl database access..put)
+  - [~put(key, packageId, data)](#module*DB API* zcl database access..put) ⇒
   - [~get(key, packageId)](#module*DB API* zcl database access..get) ⇒
   - [~isCached(key, packageId)](#module*DB API* zcl database access..isCached) ⇒
+  - [~cacheQuery(key, packageId)](#module*DB API* zcl database access..cacheQuery) ⇒
+  - [~cacheStats()](#module*DB API* zcl database access..cacheStats)
+  - [~enable()](#module*DB API* zcl database access..enable)
+  - [~disable()](#module*DB API* zcl database access..disable)
   - [~selectAtomicType(db, packageId, typeName)](#module*DB API* zcl database access..selectAtomicType)
   - [~selectAtomicById(db, packageId)](#module*DB API* zcl database access..selectAtomicById)
   - [~selectAllBitmaps(db)](#module*DB API* zcl database access..selectAllBitmaps) ⇒
+  - [~selectBitmapByNameAndClusterId(db, name, clusterId, packageIds)](#module*DB API* zcl database access..selectBitmapByNameAndClusterId) ⇒
   - [~selectAllEnums(db, packageId)](#module*DB API* zcl database access..selectAllEnums) ⇒
   - [~selectClusterEnums(db, packageId, clusterId)](#module*DB API* zcl database access..selectClusterEnums) ⇒
   - [~selectAllEnumItemsById(db, id)](#module*DB API* zcl database access..selectAllEnumItemsById) ⇒
   - [~selectAllEnumItems(db, packageId)](#module*DB API* zcl database access..selectAllEnumItems) ⇒
   - [~selectEnumById(db, id)](#module*DB API* zcl database access..selectEnumById) ⇒
   - [~selectEnumByName(db, name, packageIds)](#module*DB API* zcl database access..selectEnumByName) ⇒
+  - [~selectEnumByNameAndClusterId(db, name, clusterId, packageIds)](#module*DB API* zcl database access..selectEnumByNameAndClusterId) ⇒
   - [~selectSessionClusterByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionClusterByCode) ⇒
   - [~selectAllSessionClusters(db, sessionId)](#module*DB API* zcl database access..selectAllSessionClusters) ⇒
   - [~selectSessionAttributeByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionAttributeByCode) ⇒
   - [~selectSessionCommandByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionCommandByCode) ⇒
+  - [~selectStructByNameAndClusterId(db, name, clusterId, packageIds)](#module*DB API* zcl database access..selectStructByNameAndClusterId) ⇒
   - [~selectStructsWithClusterAssociation(db, packageIds, groupByStructName)](#module*DB API* zcl database access..selectStructsWithClusterAssociation) ⇒
   - [~selectClusterBitmaps(db, packageId, clusterId)](#module*DB API* zcl database access..selectClusterBitmaps) ⇒
   - [~selectAllDomains(db)](#module*DB API* zcl database access..selectAllDomains) ⇒
@@ -1614,11 +1654,12 @@ Clears the entire cache.
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 <a name="module_DB API_ zcl database access..put"></a>
 
-### DB API: zcl database access~put(key, packageId, data)
+### DB API: zcl database access~put(key, packageId, data) ⇒
 
 Puts a data object into the cache under a given key/packageId
 
-**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: Returns true on success.
 
 | Param     | Type            |
 | --------- | --------------- |
@@ -1633,7 +1674,7 @@ Puts a data object into the cache under a given key/packageId
 Returns a data object under a given key/packageId.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
-**Returns**: cached object or null if none is present
+**Returns**: cached object or undefined if none is present or expired.
 
 | Param     | Type            |
 | --------- | --------------- |
@@ -1654,6 +1695,46 @@ Returns true if a given key/packageId cache exists.
 | key       | <code>\*</code> |
 | packageId | <code>\*</code> |
 
+<a name="module_DB API_ zcl database access..cacheQuery"></a>
+
+### DB API: zcl database access~cacheQuery(key, packageId) ⇒
+
+Cache input / output of provided queryFunction
+The queryFunction is assumed to have the following signature:
+
+async function queryFunction(db, ...) {...}
+
+The DB handle is ignored and the remaining arguments are used as the cache key.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: true or false, depending on whether the cache is present.
+
+| Param     | Type            |
+| --------- | --------------- |
+| key       | <code>\*</code> |
+| packageId | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..cacheStats"></a>
+
+### DB API: zcl database access~cacheStats()
+
+Returns the cache statistics.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+<a name="module_DB API_ zcl database access..enable"></a>
+
+### DB API: zcl database access~enable()
+
+Enable the Database Query cache
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+<a name="module_DB API_ zcl database access..disable"></a>
+
+### DB API: zcl database access~disable()
+
+Disable the database cache
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 <a name="module_DB API_ zcl database access..selectAtomicType"></a>
 
 ### DB API: zcl database access~selectAtomicType(db, packageId, typeName)
@@ -1693,6 +1774,22 @@ Retrieves all the bitmaps in the database.
 | Param | Type            |
 | ----- | --------------- |
 | db    | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectBitmapByNameAndClusterId"></a>
+
+### DB API: zcl database access~selectBitmapByNameAndClusterId(db, name, clusterId, packageIds) ⇒
+
+Select a bitmap matched by name and clusterId.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: bitmap information or undefined
+
+| Param      | Type            |
+| ---------- | --------------- |
+| db         | <code>\*</code> |
+| name       | <code>\*</code> |
+| clusterId  | <code>\*</code> |
+| packageIds | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectAllEnums"></a>
 
@@ -1780,6 +1877,22 @@ Select an enum matched by name.
 | name       | <code>\*</code> |
 | packageIds | <code>\*</code> |
 
+<a name="module_DB API_ zcl database access..selectEnumByNameAndClusterId"></a>
+
+### DB API: zcl database access~selectEnumByNameAndClusterId(db, name, clusterId, packageIds) ⇒
+
+Select an enum matched by name and clusterId.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: enum information or undefined
+
+| Param      | Type            |
+| ---------- | --------------- |
+| db         | <code>\*</code> |
+| name       | <code>\*</code> |
+| clusterId  | <code>\*</code> |
+| packageIds | <code>\*</code> |
+
 <a name="module_DB API_ zcl database access..selectSessionClusterByCode"></a>
 
 ### DB API: zcl database access~selectSessionClusterByCode(db, sessionId) ⇒
@@ -1835,6 +1948,22 @@ Returns the command available to this session by the code.
 | --------- | --------------- |
 | db        | <code>\*</code> |
 | sessionId | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectStructByNameAndClusterId"></a>
+
+### DB API: zcl database access~selectStructByNameAndClusterId(db, name, clusterId, packageIds) ⇒
+
+Select a struct matched by name and clusterId
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: struct information or undefined
+
+| Param      | Type            |
+| ---------- | --------------- |
+| db         | <code>\*</code> |
+| name       | <code>\*</code> |
+| clusterId  | <code>\*</code> |
+| packageIds | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectStructsWithClusterAssociation"></a>
 
@@ -2107,22 +2236,29 @@ This module provides queries for atomic type queries.
 
 - [DB API: zcl database access](#module*DB API* zcl database access)
   - [~clear()](#module*DB API* zcl database access..clear)
-  - [~put(key, packageId, data)](#module*DB API* zcl database access..put)
+  - [~put(key, packageId, data)](#module*DB API* zcl database access..put) ⇒
   - [~get(key, packageId)](#module*DB API* zcl database access..get) ⇒
   - [~isCached(key, packageId)](#module*DB API* zcl database access..isCached) ⇒
+  - [~cacheQuery(key, packageId)](#module*DB API* zcl database access..cacheQuery) ⇒
+  - [~cacheStats()](#module*DB API* zcl database access..cacheStats)
+  - [~enable()](#module*DB API* zcl database access..enable)
+  - [~disable()](#module*DB API* zcl database access..disable)
   - [~selectAtomicType(db, packageId, typeName)](#module*DB API* zcl database access..selectAtomicType)
   - [~selectAtomicById(db, packageId)](#module*DB API* zcl database access..selectAtomicById)
   - [~selectAllBitmaps(db)](#module*DB API* zcl database access..selectAllBitmaps) ⇒
+  - [~selectBitmapByNameAndClusterId(db, name, clusterId, packageIds)](#module*DB API* zcl database access..selectBitmapByNameAndClusterId) ⇒
   - [~selectAllEnums(db, packageId)](#module*DB API* zcl database access..selectAllEnums) ⇒
   - [~selectClusterEnums(db, packageId, clusterId)](#module*DB API* zcl database access..selectClusterEnums) ⇒
   - [~selectAllEnumItemsById(db, id)](#module*DB API* zcl database access..selectAllEnumItemsById) ⇒
   - [~selectAllEnumItems(db, packageId)](#module*DB API* zcl database access..selectAllEnumItems) ⇒
   - [~selectEnumById(db, id)](#module*DB API* zcl database access..selectEnumById) ⇒
   - [~selectEnumByName(db, name, packageIds)](#module*DB API* zcl database access..selectEnumByName) ⇒
+  - [~selectEnumByNameAndClusterId(db, name, clusterId, packageIds)](#module*DB API* zcl database access..selectEnumByNameAndClusterId) ⇒
   - [~selectSessionClusterByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionClusterByCode) ⇒
   - [~selectAllSessionClusters(db, sessionId)](#module*DB API* zcl database access..selectAllSessionClusters) ⇒
   - [~selectSessionAttributeByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionAttributeByCode) ⇒
   - [~selectSessionCommandByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionCommandByCode) ⇒
+  - [~selectStructByNameAndClusterId(db, name, clusterId, packageIds)](#module*DB API* zcl database access..selectStructByNameAndClusterId) ⇒
   - [~selectStructsWithClusterAssociation(db, packageIds, groupByStructName)](#module*DB API* zcl database access..selectStructsWithClusterAssociation) ⇒
   - [~selectClusterBitmaps(db, packageId, clusterId)](#module*DB API* zcl database access..selectClusterBitmaps) ⇒
   - [~selectAllDomains(db)](#module*DB API* zcl database access..selectAllDomains) ⇒
@@ -2150,11 +2286,12 @@ Clears the entire cache.
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 <a name="module_DB API_ zcl database access..put"></a>
 
-### DB API: zcl database access~put(key, packageId, data)
+### DB API: zcl database access~put(key, packageId, data) ⇒
 
 Puts a data object into the cache under a given key/packageId
 
-**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: Returns true on success.
 
 | Param     | Type            |
 | --------- | --------------- |
@@ -2169,7 +2306,7 @@ Puts a data object into the cache under a given key/packageId
 Returns a data object under a given key/packageId.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
-**Returns**: cached object or null if none is present
+**Returns**: cached object or undefined if none is present or expired.
 
 | Param     | Type            |
 | --------- | --------------- |
@@ -2190,6 +2327,46 @@ Returns true if a given key/packageId cache exists.
 | key       | <code>\*</code> |
 | packageId | <code>\*</code> |
 
+<a name="module_DB API_ zcl database access..cacheQuery"></a>
+
+### DB API: zcl database access~cacheQuery(key, packageId) ⇒
+
+Cache input / output of provided queryFunction
+The queryFunction is assumed to have the following signature:
+
+async function queryFunction(db, ...) {...}
+
+The DB handle is ignored and the remaining arguments are used as the cache key.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: true or false, depending on whether the cache is present.
+
+| Param     | Type            |
+| --------- | --------------- |
+| key       | <code>\*</code> |
+| packageId | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..cacheStats"></a>
+
+### DB API: zcl database access~cacheStats()
+
+Returns the cache statistics.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+<a name="module_DB API_ zcl database access..enable"></a>
+
+### DB API: zcl database access~enable()
+
+Enable the Database Query cache
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+<a name="module_DB API_ zcl database access..disable"></a>
+
+### DB API: zcl database access~disable()
+
+Disable the database cache
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 <a name="module_DB API_ zcl database access..selectAtomicType"></a>
 
 ### DB API: zcl database access~selectAtomicType(db, packageId, typeName)
@@ -2229,6 +2406,22 @@ Retrieves all the bitmaps in the database.
 | Param | Type            |
 | ----- | --------------- |
 | db    | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectBitmapByNameAndClusterId"></a>
+
+### DB API: zcl database access~selectBitmapByNameAndClusterId(db, name, clusterId, packageIds) ⇒
+
+Select a bitmap matched by name and clusterId.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: bitmap information or undefined
+
+| Param      | Type            |
+| ---------- | --------------- |
+| db         | <code>\*</code> |
+| name       | <code>\*</code> |
+| clusterId  | <code>\*</code> |
+| packageIds | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectAllEnums"></a>
 
@@ -2316,6 +2509,22 @@ Select an enum matched by name.
 | name       | <code>\*</code> |
 | packageIds | <code>\*</code> |
 
+<a name="module_DB API_ zcl database access..selectEnumByNameAndClusterId"></a>
+
+### DB API: zcl database access~selectEnumByNameAndClusterId(db, name, clusterId, packageIds) ⇒
+
+Select an enum matched by name and clusterId.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: enum information or undefined
+
+| Param      | Type            |
+| ---------- | --------------- |
+| db         | <code>\*</code> |
+| name       | <code>\*</code> |
+| clusterId  | <code>\*</code> |
+| packageIds | <code>\*</code> |
+
 <a name="module_DB API_ zcl database access..selectSessionClusterByCode"></a>
 
 ### DB API: zcl database access~selectSessionClusterByCode(db, sessionId) ⇒
@@ -2371,6 +2580,22 @@ Returns the command available to this session by the code.
 | --------- | --------------- |
 | db        | <code>\*</code> |
 | sessionId | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectStructByNameAndClusterId"></a>
+
+### DB API: zcl database access~selectStructByNameAndClusterId(db, name, clusterId, packageIds) ⇒
+
+Select a struct matched by name and clusterId
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: struct information or undefined
+
+| Param      | Type            |
+| ---------- | --------------- |
+| db         | <code>\*</code> |
+| name       | <code>\*</code> |
+| clusterId  | <code>\*</code> |
+| packageIds | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectStructsWithClusterAssociation"></a>
 
@@ -2637,22 +2862,29 @@ This module provides queries for enums.
 
 - [DB API: zcl database access](#module*DB API* zcl database access)
   - [~clear()](#module*DB API* zcl database access..clear)
-  - [~put(key, packageId, data)](#module*DB API* zcl database access..put)
+  - [~put(key, packageId, data)](#module*DB API* zcl database access..put) ⇒
   - [~get(key, packageId)](#module*DB API* zcl database access..get) ⇒
   - [~isCached(key, packageId)](#module*DB API* zcl database access..isCached) ⇒
+  - [~cacheQuery(key, packageId)](#module*DB API* zcl database access..cacheQuery) ⇒
+  - [~cacheStats()](#module*DB API* zcl database access..cacheStats)
+  - [~enable()](#module*DB API* zcl database access..enable)
+  - [~disable()](#module*DB API* zcl database access..disable)
   - [~selectAtomicType(db, packageId, typeName)](#module*DB API* zcl database access..selectAtomicType)
   - [~selectAtomicById(db, packageId)](#module*DB API* zcl database access..selectAtomicById)
   - [~selectAllBitmaps(db)](#module*DB API* zcl database access..selectAllBitmaps) ⇒
+  - [~selectBitmapByNameAndClusterId(db, name, clusterId, packageIds)](#module*DB API* zcl database access..selectBitmapByNameAndClusterId) ⇒
   - [~selectAllEnums(db, packageId)](#module*DB API* zcl database access..selectAllEnums) ⇒
   - [~selectClusterEnums(db, packageId, clusterId)](#module*DB API* zcl database access..selectClusterEnums) ⇒
   - [~selectAllEnumItemsById(db, id)](#module*DB API* zcl database access..selectAllEnumItemsById) ⇒
   - [~selectAllEnumItems(db, packageId)](#module*DB API* zcl database access..selectAllEnumItems) ⇒
   - [~selectEnumById(db, id)](#module*DB API* zcl database access..selectEnumById) ⇒
   - [~selectEnumByName(db, name, packageIds)](#module*DB API* zcl database access..selectEnumByName) ⇒
+  - [~selectEnumByNameAndClusterId(db, name, clusterId, packageIds)](#module*DB API* zcl database access..selectEnumByNameAndClusterId) ⇒
   - [~selectSessionClusterByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionClusterByCode) ⇒
   - [~selectAllSessionClusters(db, sessionId)](#module*DB API* zcl database access..selectAllSessionClusters) ⇒
   - [~selectSessionAttributeByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionAttributeByCode) ⇒
   - [~selectSessionCommandByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionCommandByCode) ⇒
+  - [~selectStructByNameAndClusterId(db, name, clusterId, packageIds)](#module*DB API* zcl database access..selectStructByNameAndClusterId) ⇒
   - [~selectStructsWithClusterAssociation(db, packageIds, groupByStructName)](#module*DB API* zcl database access..selectStructsWithClusterAssociation) ⇒
   - [~selectClusterBitmaps(db, packageId, clusterId)](#module*DB API* zcl database access..selectClusterBitmaps) ⇒
   - [~selectAllDomains(db)](#module*DB API* zcl database access..selectAllDomains) ⇒
@@ -2680,11 +2912,12 @@ Clears the entire cache.
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 <a name="module_DB API_ zcl database access..put"></a>
 
-### DB API: zcl database access~put(key, packageId, data)
+### DB API: zcl database access~put(key, packageId, data) ⇒
 
 Puts a data object into the cache under a given key/packageId
 
-**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: Returns true on success.
 
 | Param     | Type            |
 | --------- | --------------- |
@@ -2699,7 +2932,7 @@ Puts a data object into the cache under a given key/packageId
 Returns a data object under a given key/packageId.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
-**Returns**: cached object or null if none is present
+**Returns**: cached object or undefined if none is present or expired.
 
 | Param     | Type            |
 | --------- | --------------- |
@@ -2720,6 +2953,46 @@ Returns true if a given key/packageId cache exists.
 | key       | <code>\*</code> |
 | packageId | <code>\*</code> |
 
+<a name="module_DB API_ zcl database access..cacheQuery"></a>
+
+### DB API: zcl database access~cacheQuery(key, packageId) ⇒
+
+Cache input / output of provided queryFunction
+The queryFunction is assumed to have the following signature:
+
+async function queryFunction(db, ...) {...}
+
+The DB handle is ignored and the remaining arguments are used as the cache key.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: true or false, depending on whether the cache is present.
+
+| Param     | Type            |
+| --------- | --------------- |
+| key       | <code>\*</code> |
+| packageId | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..cacheStats"></a>
+
+### DB API: zcl database access~cacheStats()
+
+Returns the cache statistics.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+<a name="module_DB API_ zcl database access..enable"></a>
+
+### DB API: zcl database access~enable()
+
+Enable the Database Query cache
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+<a name="module_DB API_ zcl database access..disable"></a>
+
+### DB API: zcl database access~disable()
+
+Disable the database cache
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 <a name="module_DB API_ zcl database access..selectAtomicType"></a>
 
 ### DB API: zcl database access~selectAtomicType(db, packageId, typeName)
@@ -2759,6 +3032,22 @@ Retrieves all the bitmaps in the database.
 | Param | Type            |
 | ----- | --------------- |
 | db    | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectBitmapByNameAndClusterId"></a>
+
+### DB API: zcl database access~selectBitmapByNameAndClusterId(db, name, clusterId, packageIds) ⇒
+
+Select a bitmap matched by name and clusterId.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: bitmap information or undefined
+
+| Param      | Type            |
+| ---------- | --------------- |
+| db         | <code>\*</code> |
+| name       | <code>\*</code> |
+| clusterId  | <code>\*</code> |
+| packageIds | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectAllEnums"></a>
 
@@ -2846,6 +3135,22 @@ Select an enum matched by name.
 | name       | <code>\*</code> |
 | packageIds | <code>\*</code> |
 
+<a name="module_DB API_ zcl database access..selectEnumByNameAndClusterId"></a>
+
+### DB API: zcl database access~selectEnumByNameAndClusterId(db, name, clusterId, packageIds) ⇒
+
+Select an enum matched by name and clusterId.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: enum information or undefined
+
+| Param      | Type            |
+| ---------- | --------------- |
+| db         | <code>\*</code> |
+| name       | <code>\*</code> |
+| clusterId  | <code>\*</code> |
+| packageIds | <code>\*</code> |
+
 <a name="module_DB API_ zcl database access..selectSessionClusterByCode"></a>
 
 ### DB API: zcl database access~selectSessionClusterByCode(db, sessionId) ⇒
@@ -2901,6 +3206,22 @@ Returns the command available to this session by the code.
 | --------- | --------------- |
 | db        | <code>\*</code> |
 | sessionId | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectStructByNameAndClusterId"></a>
+
+### DB API: zcl database access~selectStructByNameAndClusterId(db, name, clusterId, packageIds) ⇒
+
+Select a struct matched by name and clusterId
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: struct information or undefined
+
+| Param      | Type            |
+| ---------- | --------------- |
+| db         | <code>\*</code> |
+| name       | <code>\*</code> |
+| clusterId  | <code>\*</code> |
+| packageIds | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectStructsWithClusterAssociation"></a>
 
@@ -3289,17 +3610,17 @@ we have to link the foreign keys.
 | ----- | --------------- |
 | db    | <code>\*</code> |
 
-<a name="module_DB API_ endpoint configuration queries against the database."></a>
-
-## DB API: endpoint configuration queries against the database.
-
-This module provides queries for endpoint configuration.
-
 <a name="module_DB API_ endpoint type queries against the database."></a>
 
 ## DB API: endpoint type queries against the database.
 
 This module provides queries for endpoint type.
+
+<a name="module_DB API_ endpoint configuration queries against the database."></a>
+
+## DB API: endpoint configuration queries against the database.
+
+This module provides queries for endpoint configuration.
 
 <a name="module_DB API_ zcl database access"></a>
 
@@ -3309,22 +3630,29 @@ This module provides queries for enums.
 
 - [DB API: zcl database access](#module*DB API* zcl database access)
   - [~clear()](#module*DB API* zcl database access..clear)
-  - [~put(key, packageId, data)](#module*DB API* zcl database access..put)
+  - [~put(key, packageId, data)](#module*DB API* zcl database access..put) ⇒
   - [~get(key, packageId)](#module*DB API* zcl database access..get) ⇒
   - [~isCached(key, packageId)](#module*DB API* zcl database access..isCached) ⇒
+  - [~cacheQuery(key, packageId)](#module*DB API* zcl database access..cacheQuery) ⇒
+  - [~cacheStats()](#module*DB API* zcl database access..cacheStats)
+  - [~enable()](#module*DB API* zcl database access..enable)
+  - [~disable()](#module*DB API* zcl database access..disable)
   - [~selectAtomicType(db, packageId, typeName)](#module*DB API* zcl database access..selectAtomicType)
   - [~selectAtomicById(db, packageId)](#module*DB API* zcl database access..selectAtomicById)
   - [~selectAllBitmaps(db)](#module*DB API* zcl database access..selectAllBitmaps) ⇒
+  - [~selectBitmapByNameAndClusterId(db, name, clusterId, packageIds)](#module*DB API* zcl database access..selectBitmapByNameAndClusterId) ⇒
   - [~selectAllEnums(db, packageId)](#module*DB API* zcl database access..selectAllEnums) ⇒
   - [~selectClusterEnums(db, packageId, clusterId)](#module*DB API* zcl database access..selectClusterEnums) ⇒
   - [~selectAllEnumItemsById(db, id)](#module*DB API* zcl database access..selectAllEnumItemsById) ⇒
   - [~selectAllEnumItems(db, packageId)](#module*DB API* zcl database access..selectAllEnumItems) ⇒
   - [~selectEnumById(db, id)](#module*DB API* zcl database access..selectEnumById) ⇒
   - [~selectEnumByName(db, name, packageIds)](#module*DB API* zcl database access..selectEnumByName) ⇒
+  - [~selectEnumByNameAndClusterId(db, name, clusterId, packageIds)](#module*DB API* zcl database access..selectEnumByNameAndClusterId) ⇒
   - [~selectSessionClusterByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionClusterByCode) ⇒
   - [~selectAllSessionClusters(db, sessionId)](#module*DB API* zcl database access..selectAllSessionClusters) ⇒
   - [~selectSessionAttributeByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionAttributeByCode) ⇒
   - [~selectSessionCommandByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionCommandByCode) ⇒
+  - [~selectStructByNameAndClusterId(db, name, clusterId, packageIds)](#module*DB API* zcl database access..selectStructByNameAndClusterId) ⇒
   - [~selectStructsWithClusterAssociation(db, packageIds, groupByStructName)](#module*DB API* zcl database access..selectStructsWithClusterAssociation) ⇒
   - [~selectClusterBitmaps(db, packageId, clusterId)](#module*DB API* zcl database access..selectClusterBitmaps) ⇒
   - [~selectAllDomains(db)](#module*DB API* zcl database access..selectAllDomains) ⇒
@@ -3352,11 +3680,12 @@ Clears the entire cache.
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 <a name="module_DB API_ zcl database access..put"></a>
 
-### DB API: zcl database access~put(key, packageId, data)
+### DB API: zcl database access~put(key, packageId, data) ⇒
 
 Puts a data object into the cache under a given key/packageId
 
-**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: Returns true on success.
 
 | Param     | Type            |
 | --------- | --------------- |
@@ -3371,7 +3700,7 @@ Puts a data object into the cache under a given key/packageId
 Returns a data object under a given key/packageId.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
-**Returns**: cached object or null if none is present
+**Returns**: cached object or undefined if none is present or expired.
 
 | Param     | Type            |
 | --------- | --------------- |
@@ -3392,6 +3721,46 @@ Returns true if a given key/packageId cache exists.
 | key       | <code>\*</code> |
 | packageId | <code>\*</code> |
 
+<a name="module_DB API_ zcl database access..cacheQuery"></a>
+
+### DB API: zcl database access~cacheQuery(key, packageId) ⇒
+
+Cache input / output of provided queryFunction
+The queryFunction is assumed to have the following signature:
+
+async function queryFunction(db, ...) {...}
+
+The DB handle is ignored and the remaining arguments are used as the cache key.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: true or false, depending on whether the cache is present.
+
+| Param     | Type            |
+| --------- | --------------- |
+| key       | <code>\*</code> |
+| packageId | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..cacheStats"></a>
+
+### DB API: zcl database access~cacheStats()
+
+Returns the cache statistics.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+<a name="module_DB API_ zcl database access..enable"></a>
+
+### DB API: zcl database access~enable()
+
+Enable the Database Query cache
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+<a name="module_DB API_ zcl database access..disable"></a>
+
+### DB API: zcl database access~disable()
+
+Disable the database cache
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 <a name="module_DB API_ zcl database access..selectAtomicType"></a>
 
 ### DB API: zcl database access~selectAtomicType(db, packageId, typeName)
@@ -3431,6 +3800,22 @@ Retrieves all the bitmaps in the database.
 | Param | Type            |
 | ----- | --------------- |
 | db    | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectBitmapByNameAndClusterId"></a>
+
+### DB API: zcl database access~selectBitmapByNameAndClusterId(db, name, clusterId, packageIds) ⇒
+
+Select a bitmap matched by name and clusterId.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: bitmap information or undefined
+
+| Param      | Type            |
+| ---------- | --------------- |
+| db         | <code>\*</code> |
+| name       | <code>\*</code> |
+| clusterId  | <code>\*</code> |
+| packageIds | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectAllEnums"></a>
 
@@ -3518,6 +3903,22 @@ Select an enum matched by name.
 | name       | <code>\*</code> |
 | packageIds | <code>\*</code> |
 
+<a name="module_DB API_ zcl database access..selectEnumByNameAndClusterId"></a>
+
+### DB API: zcl database access~selectEnumByNameAndClusterId(db, name, clusterId, packageIds) ⇒
+
+Select an enum matched by name and clusterId.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: enum information or undefined
+
+| Param      | Type            |
+| ---------- | --------------- |
+| db         | <code>\*</code> |
+| name       | <code>\*</code> |
+| clusterId  | <code>\*</code> |
+| packageIds | <code>\*</code> |
+
 <a name="module_DB API_ zcl database access..selectSessionClusterByCode"></a>
 
 ### DB API: zcl database access~selectSessionClusterByCode(db, sessionId) ⇒
@@ -3573,6 +3974,22 @@ Returns the command available to this session by the code.
 | --------- | --------------- |
 | db        | <code>\*</code> |
 | sessionId | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectStructByNameAndClusterId"></a>
+
+### DB API: zcl database access~selectStructByNameAndClusterId(db, name, clusterId, packageIds) ⇒
+
+Select a struct matched by name and clusterId
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: struct information or undefined
+
+| Param      | Type            |
+| ---------- | --------------- |
+| db         | <code>\*</code> |
+| name       | <code>\*</code> |
+| clusterId  | <code>\*</code> |
+| packageIds | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectStructsWithClusterAssociation"></a>
 
@@ -4278,12 +4695,6 @@ This module provides notification related queries.
 
 This module provides queries related to packages.
 
-<a name="module_DB API_ session related queries."></a>
-
-## DB API: session related queries.
-
-This module provides session related queries.
-
 <a name="module_DB API_ zcl database access"></a>
 
 ## DB API: zcl database access
@@ -4294,22 +4705,29 @@ all visible clusters, etc.
 
 - [DB API: zcl database access](#module*DB API* zcl database access)
   - [~clear()](#module*DB API* zcl database access..clear)
-  - [~put(key, packageId, data)](#module*DB API* zcl database access..put)
+  - [~put(key, packageId, data)](#module*DB API* zcl database access..put) ⇒
   - [~get(key, packageId)](#module*DB API* zcl database access..get) ⇒
   - [~isCached(key, packageId)](#module*DB API* zcl database access..isCached) ⇒
+  - [~cacheQuery(key, packageId)](#module*DB API* zcl database access..cacheQuery) ⇒
+  - [~cacheStats()](#module*DB API* zcl database access..cacheStats)
+  - [~enable()](#module*DB API* zcl database access..enable)
+  - [~disable()](#module*DB API* zcl database access..disable)
   - [~selectAtomicType(db, packageId, typeName)](#module*DB API* zcl database access..selectAtomicType)
   - [~selectAtomicById(db, packageId)](#module*DB API* zcl database access..selectAtomicById)
   - [~selectAllBitmaps(db)](#module*DB API* zcl database access..selectAllBitmaps) ⇒
+  - [~selectBitmapByNameAndClusterId(db, name, clusterId, packageIds)](#module*DB API* zcl database access..selectBitmapByNameAndClusterId) ⇒
   - [~selectAllEnums(db, packageId)](#module*DB API* zcl database access..selectAllEnums) ⇒
   - [~selectClusterEnums(db, packageId, clusterId)](#module*DB API* zcl database access..selectClusterEnums) ⇒
   - [~selectAllEnumItemsById(db, id)](#module*DB API* zcl database access..selectAllEnumItemsById) ⇒
   - [~selectAllEnumItems(db, packageId)](#module*DB API* zcl database access..selectAllEnumItems) ⇒
   - [~selectEnumById(db, id)](#module*DB API* zcl database access..selectEnumById) ⇒
   - [~selectEnumByName(db, name, packageIds)](#module*DB API* zcl database access..selectEnumByName) ⇒
+  - [~selectEnumByNameAndClusterId(db, name, clusterId, packageIds)](#module*DB API* zcl database access..selectEnumByNameAndClusterId) ⇒
   - [~selectSessionClusterByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionClusterByCode) ⇒
   - [~selectAllSessionClusters(db, sessionId)](#module*DB API* zcl database access..selectAllSessionClusters) ⇒
   - [~selectSessionAttributeByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionAttributeByCode) ⇒
   - [~selectSessionCommandByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionCommandByCode) ⇒
+  - [~selectStructByNameAndClusterId(db, name, clusterId, packageIds)](#module*DB API* zcl database access..selectStructByNameAndClusterId) ⇒
   - [~selectStructsWithClusterAssociation(db, packageIds, groupByStructName)](#module*DB API* zcl database access..selectStructsWithClusterAssociation) ⇒
   - [~selectClusterBitmaps(db, packageId, clusterId)](#module*DB API* zcl database access..selectClusterBitmaps) ⇒
   - [~selectAllDomains(db)](#module*DB API* zcl database access..selectAllDomains) ⇒
@@ -4337,11 +4755,12 @@ Clears the entire cache.
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 <a name="module_DB API_ zcl database access..put"></a>
 
-### DB API: zcl database access~put(key, packageId, data)
+### DB API: zcl database access~put(key, packageId, data) ⇒
 
 Puts a data object into the cache under a given key/packageId
 
-**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: Returns true on success.
 
 | Param     | Type            |
 | --------- | --------------- |
@@ -4356,7 +4775,7 @@ Puts a data object into the cache under a given key/packageId
 Returns a data object under a given key/packageId.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
-**Returns**: cached object or null if none is present
+**Returns**: cached object or undefined if none is present or expired.
 
 | Param     | Type            |
 | --------- | --------------- |
@@ -4377,6 +4796,46 @@ Returns true if a given key/packageId cache exists.
 | key       | <code>\*</code> |
 | packageId | <code>\*</code> |
 
+<a name="module_DB API_ zcl database access..cacheQuery"></a>
+
+### DB API: zcl database access~cacheQuery(key, packageId) ⇒
+
+Cache input / output of provided queryFunction
+The queryFunction is assumed to have the following signature:
+
+async function queryFunction(db, ...) {...}
+
+The DB handle is ignored and the remaining arguments are used as the cache key.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: true or false, depending on whether the cache is present.
+
+| Param     | Type            |
+| --------- | --------------- |
+| key       | <code>\*</code> |
+| packageId | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..cacheStats"></a>
+
+### DB API: zcl database access~cacheStats()
+
+Returns the cache statistics.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+<a name="module_DB API_ zcl database access..enable"></a>
+
+### DB API: zcl database access~enable()
+
+Enable the Database Query cache
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+<a name="module_DB API_ zcl database access..disable"></a>
+
+### DB API: zcl database access~disable()
+
+Disable the database cache
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 <a name="module_DB API_ zcl database access..selectAtomicType"></a>
 
 ### DB API: zcl database access~selectAtomicType(db, packageId, typeName)
@@ -4416,6 +4875,22 @@ Retrieves all the bitmaps in the database.
 | Param | Type            |
 | ----- | --------------- |
 | db    | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectBitmapByNameAndClusterId"></a>
+
+### DB API: zcl database access~selectBitmapByNameAndClusterId(db, name, clusterId, packageIds) ⇒
+
+Select a bitmap matched by name and clusterId.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: bitmap information or undefined
+
+| Param      | Type            |
+| ---------- | --------------- |
+| db         | <code>\*</code> |
+| name       | <code>\*</code> |
+| clusterId  | <code>\*</code> |
+| packageIds | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectAllEnums"></a>
 
@@ -4503,6 +4978,22 @@ Select an enum matched by name.
 | name       | <code>\*</code> |
 | packageIds | <code>\*</code> |
 
+<a name="module_DB API_ zcl database access..selectEnumByNameAndClusterId"></a>
+
+### DB API: zcl database access~selectEnumByNameAndClusterId(db, name, clusterId, packageIds) ⇒
+
+Select an enum matched by name and clusterId.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: enum information or undefined
+
+| Param      | Type            |
+| ---------- | --------------- |
+| db         | <code>\*</code> |
+| name       | <code>\*</code> |
+| clusterId  | <code>\*</code> |
+| packageIds | <code>\*</code> |
+
 <a name="module_DB API_ zcl database access..selectSessionClusterByCode"></a>
 
 ### DB API: zcl database access~selectSessionClusterByCode(db, sessionId) ⇒
@@ -4558,6 +5049,22 @@ Returns the command available to this session by the code.
 | --------- | --------------- |
 | db        | <code>\*</code> |
 | sessionId | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectStructByNameAndClusterId"></a>
+
+### DB API: zcl database access~selectStructByNameAndClusterId(db, name, clusterId, packageIds) ⇒
+
+Select a struct matched by name and clusterId
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: struct information or undefined
+
+| Param      | Type            |
+| ---------- | --------------- |
+| db         | <code>\*</code> |
+| name       | <code>\*</code> |
+| clusterId  | <code>\*</code> |
+| packageIds | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectStructsWithClusterAssociation"></a>
 
@@ -4810,6 +5317,12 @@ Query for attributes by side.
 | side      | <code>\*</code> |
 | packageId | <code>\*</code> |
 
+<a name="module_DB API_ session related queries."></a>
+
+## DB API: session related queries.
+
+This module provides session related queries.
+
 <a name="module_DB API_ zcl database access"></a>
 
 ## DB API: zcl database access
@@ -4818,22 +5331,29 @@ This module provides queries for enums.
 
 - [DB API: zcl database access](#module*DB API* zcl database access)
   - [~clear()](#module*DB API* zcl database access..clear)
-  - [~put(key, packageId, data)](#module*DB API* zcl database access..put)
+  - [~put(key, packageId, data)](#module*DB API* zcl database access..put) ⇒
   - [~get(key, packageId)](#module*DB API* zcl database access..get) ⇒
   - [~isCached(key, packageId)](#module*DB API* zcl database access..isCached) ⇒
+  - [~cacheQuery(key, packageId)](#module*DB API* zcl database access..cacheQuery) ⇒
+  - [~cacheStats()](#module*DB API* zcl database access..cacheStats)
+  - [~enable()](#module*DB API* zcl database access..enable)
+  - [~disable()](#module*DB API* zcl database access..disable)
   - [~selectAtomicType(db, packageId, typeName)](#module*DB API* zcl database access..selectAtomicType)
   - [~selectAtomicById(db, packageId)](#module*DB API* zcl database access..selectAtomicById)
   - [~selectAllBitmaps(db)](#module*DB API* zcl database access..selectAllBitmaps) ⇒
+  - [~selectBitmapByNameAndClusterId(db, name, clusterId, packageIds)](#module*DB API* zcl database access..selectBitmapByNameAndClusterId) ⇒
   - [~selectAllEnums(db, packageId)](#module*DB API* zcl database access..selectAllEnums) ⇒
   - [~selectClusterEnums(db, packageId, clusterId)](#module*DB API* zcl database access..selectClusterEnums) ⇒
   - [~selectAllEnumItemsById(db, id)](#module*DB API* zcl database access..selectAllEnumItemsById) ⇒
   - [~selectAllEnumItems(db, packageId)](#module*DB API* zcl database access..selectAllEnumItems) ⇒
   - [~selectEnumById(db, id)](#module*DB API* zcl database access..selectEnumById) ⇒
   - [~selectEnumByName(db, name, packageIds)](#module*DB API* zcl database access..selectEnumByName) ⇒
+  - [~selectEnumByNameAndClusterId(db, name, clusterId, packageIds)](#module*DB API* zcl database access..selectEnumByNameAndClusterId) ⇒
   - [~selectSessionClusterByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionClusterByCode) ⇒
   - [~selectAllSessionClusters(db, sessionId)](#module*DB API* zcl database access..selectAllSessionClusters) ⇒
   - [~selectSessionAttributeByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionAttributeByCode) ⇒
   - [~selectSessionCommandByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionCommandByCode) ⇒
+  - [~selectStructByNameAndClusterId(db, name, clusterId, packageIds)](#module*DB API* zcl database access..selectStructByNameAndClusterId) ⇒
   - [~selectStructsWithClusterAssociation(db, packageIds, groupByStructName)](#module*DB API* zcl database access..selectStructsWithClusterAssociation) ⇒
   - [~selectClusterBitmaps(db, packageId, clusterId)](#module*DB API* zcl database access..selectClusterBitmaps) ⇒
   - [~selectAllDomains(db)](#module*DB API* zcl database access..selectAllDomains) ⇒
@@ -4861,11 +5381,12 @@ Clears the entire cache.
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 <a name="module_DB API_ zcl database access..put"></a>
 
-### DB API: zcl database access~put(key, packageId, data)
+### DB API: zcl database access~put(key, packageId, data) ⇒
 
 Puts a data object into the cache under a given key/packageId
 
-**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: Returns true on success.
 
 | Param     | Type            |
 | --------- | --------------- |
@@ -4880,7 +5401,7 @@ Puts a data object into the cache under a given key/packageId
 Returns a data object under a given key/packageId.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
-**Returns**: cached object or null if none is present
+**Returns**: cached object or undefined if none is present or expired.
 
 | Param     | Type            |
 | --------- | --------------- |
@@ -4901,6 +5422,46 @@ Returns true if a given key/packageId cache exists.
 | key       | <code>\*</code> |
 | packageId | <code>\*</code> |
 
+<a name="module_DB API_ zcl database access..cacheQuery"></a>
+
+### DB API: zcl database access~cacheQuery(key, packageId) ⇒
+
+Cache input / output of provided queryFunction
+The queryFunction is assumed to have the following signature:
+
+async function queryFunction(db, ...) {...}
+
+The DB handle is ignored and the remaining arguments are used as the cache key.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: true or false, depending on whether the cache is present.
+
+| Param     | Type            |
+| --------- | --------------- |
+| key       | <code>\*</code> |
+| packageId | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..cacheStats"></a>
+
+### DB API: zcl database access~cacheStats()
+
+Returns the cache statistics.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+<a name="module_DB API_ zcl database access..enable"></a>
+
+### DB API: zcl database access~enable()
+
+Enable the Database Query cache
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+<a name="module_DB API_ zcl database access..disable"></a>
+
+### DB API: zcl database access~disable()
+
+Disable the database cache
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 <a name="module_DB API_ zcl database access..selectAtomicType"></a>
 
 ### DB API: zcl database access~selectAtomicType(db, packageId, typeName)
@@ -4940,6 +5501,22 @@ Retrieves all the bitmaps in the database.
 | Param | Type            |
 | ----- | --------------- |
 | db    | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectBitmapByNameAndClusterId"></a>
+
+### DB API: zcl database access~selectBitmapByNameAndClusterId(db, name, clusterId, packageIds) ⇒
+
+Select a bitmap matched by name and clusterId.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: bitmap information or undefined
+
+| Param      | Type            |
+| ---------- | --------------- |
+| db         | <code>\*</code> |
+| name       | <code>\*</code> |
+| clusterId  | <code>\*</code> |
+| packageIds | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectAllEnums"></a>
 
@@ -5027,6 +5604,22 @@ Select an enum matched by name.
 | name       | <code>\*</code> |
 | packageIds | <code>\*</code> |
 
+<a name="module_DB API_ zcl database access..selectEnumByNameAndClusterId"></a>
+
+### DB API: zcl database access~selectEnumByNameAndClusterId(db, name, clusterId, packageIds) ⇒
+
+Select an enum matched by name and clusterId.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: enum information or undefined
+
+| Param      | Type            |
+| ---------- | --------------- |
+| db         | <code>\*</code> |
+| name       | <code>\*</code> |
+| clusterId  | <code>\*</code> |
+| packageIds | <code>\*</code> |
+
 <a name="module_DB API_ zcl database access..selectSessionClusterByCode"></a>
 
 ### DB API: zcl database access~selectSessionClusterByCode(db, sessionId) ⇒
@@ -5082,6 +5675,22 @@ Returns the command available to this session by the code.
 | --------- | --------------- |
 | db        | <code>\*</code> |
 | sessionId | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectStructByNameAndClusterId"></a>
+
+### DB API: zcl database access~selectStructByNameAndClusterId(db, name, clusterId, packageIds) ⇒
+
+Select a struct matched by name and clusterId
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: struct information or undefined
+
+| Param      | Type            |
+| ---------- | --------------- |
+| db         | <code>\*</code> |
+| name       | <code>\*</code> |
+| clusterId  | <code>\*</code> |
+| packageIds | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectStructsWithClusterAssociation"></a>
 
@@ -5342,22 +5951,29 @@ This module provides queries for ZCL static queries.
 
 - [DB API: zcl database access](#module*DB API* zcl database access)
   - [~clear()](#module*DB API* zcl database access..clear)
-  - [~put(key, packageId, data)](#module*DB API* zcl database access..put)
+  - [~put(key, packageId, data)](#module*DB API* zcl database access..put) ⇒
   - [~get(key, packageId)](#module*DB API* zcl database access..get) ⇒
   - [~isCached(key, packageId)](#module*DB API* zcl database access..isCached) ⇒
+  - [~cacheQuery(key, packageId)](#module*DB API* zcl database access..cacheQuery) ⇒
+  - [~cacheStats()](#module*DB API* zcl database access..cacheStats)
+  - [~enable()](#module*DB API* zcl database access..enable)
+  - [~disable()](#module*DB API* zcl database access..disable)
   - [~selectAtomicType(db, packageId, typeName)](#module*DB API* zcl database access..selectAtomicType)
   - [~selectAtomicById(db, packageId)](#module*DB API* zcl database access..selectAtomicById)
   - [~selectAllBitmaps(db)](#module*DB API* zcl database access..selectAllBitmaps) ⇒
+  - [~selectBitmapByNameAndClusterId(db, name, clusterId, packageIds)](#module*DB API* zcl database access..selectBitmapByNameAndClusterId) ⇒
   - [~selectAllEnums(db, packageId)](#module*DB API* zcl database access..selectAllEnums) ⇒
   - [~selectClusterEnums(db, packageId, clusterId)](#module*DB API* zcl database access..selectClusterEnums) ⇒
   - [~selectAllEnumItemsById(db, id)](#module*DB API* zcl database access..selectAllEnumItemsById) ⇒
   - [~selectAllEnumItems(db, packageId)](#module*DB API* zcl database access..selectAllEnumItems) ⇒
   - [~selectEnumById(db, id)](#module*DB API* zcl database access..selectEnumById) ⇒
   - [~selectEnumByName(db, name, packageIds)](#module*DB API* zcl database access..selectEnumByName) ⇒
+  - [~selectEnumByNameAndClusterId(db, name, clusterId, packageIds)](#module*DB API* zcl database access..selectEnumByNameAndClusterId) ⇒
   - [~selectSessionClusterByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionClusterByCode) ⇒
   - [~selectAllSessionClusters(db, sessionId)](#module*DB API* zcl database access..selectAllSessionClusters) ⇒
   - [~selectSessionAttributeByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionAttributeByCode) ⇒
   - [~selectSessionCommandByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionCommandByCode) ⇒
+  - [~selectStructByNameAndClusterId(db, name, clusterId, packageIds)](#module*DB API* zcl database access..selectStructByNameAndClusterId) ⇒
   - [~selectStructsWithClusterAssociation(db, packageIds, groupByStructName)](#module*DB API* zcl database access..selectStructsWithClusterAssociation) ⇒
   - [~selectClusterBitmaps(db, packageId, clusterId)](#module*DB API* zcl database access..selectClusterBitmaps) ⇒
   - [~selectAllDomains(db)](#module*DB API* zcl database access..selectAllDomains) ⇒
@@ -5385,11 +6001,12 @@ Clears the entire cache.
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 <a name="module_DB API_ zcl database access..put"></a>
 
-### DB API: zcl database access~put(key, packageId, data)
+### DB API: zcl database access~put(key, packageId, data) ⇒
 
 Puts a data object into the cache under a given key/packageId
 
-**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: Returns true on success.
 
 | Param     | Type            |
 | --------- | --------------- |
@@ -5404,7 +6021,7 @@ Puts a data object into the cache under a given key/packageId
 Returns a data object under a given key/packageId.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
-**Returns**: cached object or null if none is present
+**Returns**: cached object or undefined if none is present or expired.
 
 | Param     | Type            |
 | --------- | --------------- |
@@ -5425,6 +6042,46 @@ Returns true if a given key/packageId cache exists.
 | key       | <code>\*</code> |
 | packageId | <code>\*</code> |
 
+<a name="module_DB API_ zcl database access..cacheQuery"></a>
+
+### DB API: zcl database access~cacheQuery(key, packageId) ⇒
+
+Cache input / output of provided queryFunction
+The queryFunction is assumed to have the following signature:
+
+async function queryFunction(db, ...) {...}
+
+The DB handle is ignored and the remaining arguments are used as the cache key.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: true or false, depending on whether the cache is present.
+
+| Param     | Type            |
+| --------- | --------------- |
+| key       | <code>\*</code> |
+| packageId | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..cacheStats"></a>
+
+### DB API: zcl database access~cacheStats()
+
+Returns the cache statistics.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+<a name="module_DB API_ zcl database access..enable"></a>
+
+### DB API: zcl database access~enable()
+
+Enable the Database Query cache
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+<a name="module_DB API_ zcl database access..disable"></a>
+
+### DB API: zcl database access~disable()
+
+Disable the database cache
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 <a name="module_DB API_ zcl database access..selectAtomicType"></a>
 
 ### DB API: zcl database access~selectAtomicType(db, packageId, typeName)
@@ -5464,6 +6121,22 @@ Retrieves all the bitmaps in the database.
 | Param | Type            |
 | ----- | --------------- |
 | db    | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectBitmapByNameAndClusterId"></a>
+
+### DB API: zcl database access~selectBitmapByNameAndClusterId(db, name, clusterId, packageIds) ⇒
+
+Select a bitmap matched by name and clusterId.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: bitmap information or undefined
+
+| Param      | Type            |
+| ---------- | --------------- |
+| db         | <code>\*</code> |
+| name       | <code>\*</code> |
+| clusterId  | <code>\*</code> |
+| packageIds | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectAllEnums"></a>
 
@@ -5551,6 +6224,22 @@ Select an enum matched by name.
 | name       | <code>\*</code> |
 | packageIds | <code>\*</code> |
 
+<a name="module_DB API_ zcl database access..selectEnumByNameAndClusterId"></a>
+
+### DB API: zcl database access~selectEnumByNameAndClusterId(db, name, clusterId, packageIds) ⇒
+
+Select an enum matched by name and clusterId.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: enum information or undefined
+
+| Param      | Type            |
+| ---------- | --------------- |
+| db         | <code>\*</code> |
+| name       | <code>\*</code> |
+| clusterId  | <code>\*</code> |
+| packageIds | <code>\*</code> |
+
 <a name="module_DB API_ zcl database access..selectSessionClusterByCode"></a>
 
 ### DB API: zcl database access~selectSessionClusterByCode(db, sessionId) ⇒
@@ -5606,6 +6295,22 @@ Returns the command available to this session by the code.
 | --------- | --------------- |
 | db        | <code>\*</code> |
 | sessionId | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectStructByNameAndClusterId"></a>
+
+### DB API: zcl database access~selectStructByNameAndClusterId(db, name, clusterId, packageIds) ⇒
+
+Select a struct matched by name and clusterId
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: struct information or undefined
+
+| Param      | Type            |
+| ---------- | --------------- |
+| db         | <code>\*</code> |
+| name       | <code>\*</code> |
+| clusterId  | <code>\*</code> |
+| packageIds | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectStructsWithClusterAssociation"></a>
 
@@ -7285,7 +7990,7 @@ This module contains the API for templating. For more detailed instructions, rea
   - [~user_cluster_commands_all_endpoints(options)](#module*Templating API* user-data specific helpers..user_cluster_commands_all_endpoints)
   - [~user_cluster_has_enabled_command(name, side)](#module*Templating API* user-data specific helpers..user_cluster_has_enabled_command) ⇒
   - [~all_user_cluster_commands_irrespective_of_manufaturing_specification(options)](#module*Templating API* user-data specific helpers..all_user_cluster_commands_irrespective_of_manufaturing_specification) ⇒
-  - [~all_user_cluster_attributes_irrespective_of_manufatucuring_specification(options)](#module*Templating API* user-data specific helpers..all_user_cluster_attributes_irrespective_of_manufatucuring_specification) ⇒
+  - [~enabled_attributes_for_cluster_and_side(name, side, options)](#module*Templating API* user-data specific helpers..enabled_attributes_for_cluster_and_side) ⇒
   - [~user_session_key(options)](#module*Templating API* user-data specific helpers..user_session_key) ⇒
   - [~if_command_discovery_enabled()](#module*Templating API* user-data specific helpers..if_command_discovery_enabled)
   - [~is_command_default_response_enabled(command, options)](#module*Templating API* user-data specific helpers..is_command_default_response_enabled) ⇒
@@ -7644,20 +8349,29 @@ and non-manufacturing specific cluster commands.
 | ------- |
 | options |
 
-<a name="module_Templating API_ user-data specific helpers..all_user_cluster_attributes_irrespective_of_manufatucuring_specification"></a>
+<a name="module_Templating API_ user-data specific helpers..enabled_attributes_for_cluster_and_side"></a>
 
-### Templating API: user-data specific helpers~all_user_cluster_attributes_irrespective_of_manufatucuring_specification(options) ⇒
+### Templating API: user-data specific helpers~enabled_attributes_for_cluster_and_side(name, side, options) ⇒
 
 Creates endpoint type cluster attribute iterator. This fetches all
-manufacturing and non-manufaturing specific attributes which have been enabled
-on added endpoints
+manufacturing-specific and standard attributes which have been enabled on
+added endpoints based on the name and side of the cluster. When side
+is not mentioned then client and server attributes are returned.
+Available Options:
+
+- removeKeys: Removes one or more keys from the map(for eg keys in db-mapping.js)
+  for eg:(#enabled_attributes_for_cluster_and_side
+  [cluster-name], [cluster-side], removeKeys='isOptional, isNullable')
+  will remove 'isOptional' and 'isNullable' from the results
 
 **Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module*Templating API* user-data specific helpers)  
 **Returns**: Promise of the resolved blocks iterating over manufacturing specific
-and non-manufacturing specific cluster attributes.
+and standard cluster attributes.
 
 | Param   |
 | ------- |
+| name    |
+| side    |
 | options |
 
 <a name="module_Templating API_ user-data specific helpers..user_session_key"></a>
@@ -8421,12 +9135,13 @@ This module contains the API for templating. For more detailed instructions, rea
   - [~command_mask(commmandSource, clusterSide, isIncomingEnabled, isOutgoingEnabled, manufacturingCode, prefixForMask)](#module*Templating API* static zcl helpers..command_mask) ⇒
   - [~command_mask_sub_helper(commandMask, str)](#module*Templating API* static zcl helpers..command_mask_sub_helper) ⇒
   - [~format_zcl_string_as_characters_for_generated_defaults(stringVal, sizeOfString)](#module*Templating API* static zcl helpers..format_zcl_string_as_characters_for_generated_defaults) ⇒
-  - [~get_sign_and_size_of_zcl_type(type, context, options)](#module*Templating API* static zcl helpers..get_sign_and_size_of_zcl_type) ⇒
   - [~as_type_min_value(type, options)](#module*Templating API* static zcl helpers..as_type_min_value) ⇒
   - [~as_type_max_value(type, options)](#module*Templating API* static zcl helpers..as_type_max_value) ⇒
   - [~structs_with_clusters(options)](#module*Templating API* static zcl helpers..structs_with_clusters)
   - [~as_zcl_type_size(type, options)](#module*Templating API* static zcl helpers..as_zcl_type_size) ⇒
   - [~if_compare(leftValue, rightValue, options)](#module*Templating API* static zcl helpers..if_compare) ⇒ <code>Object</code>
+  - [~if_is_data_type_signed(type, clusterId, options)](#module*Templating API* static zcl helpers..if_is_data_type_signed) ⇒
+  - [~as_zcl_data_type_size(type, clusterId, options)](#module*Templating API* static zcl helpers..as_zcl_data_type_size) ⇒
 
 <a name="module_Templating API_ static zcl helpers..zcl_bitmaps"></a>
 
@@ -8757,6 +9472,11 @@ that belong to that cluster.
 Iterator over the server attributes. If it is used at toplevel, if iterates over all the server attributes
 in the database. If used within zcl_cluster context, it iterates over all the server attributes
 that belong to that cluster.
+Available Options:
+
+- removeKeys: Removes one or more keys from the map(for eg keys in db-mapping.js)
+  for eg: (#zcl_attributes_server removeKeys='isOptional, isNullable') will remove 'isOptional'
+  from the results
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module*Templating API* static zcl helpers)  
 **Returns**: Promise of attribute iteration.
@@ -9417,6 +10137,10 @@ will return: 0x00, 0x00, 0x38, 0x40,
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module*Templating API* static zcl helpers)  
 **Returns**: Formatted attribute value based on given arguments
+Available options:
+
+- endian: Specify 'big' or 'little' endian format
+- isCommaTerminated: '0' or '1' for output to have a ',' at the end
 
 | Param         |
 | ------------- |
@@ -9430,6 +10154,9 @@ will return: 0x00, 0x00, 0x38, 0x40,
 
 Given the attributes of a zcl attribute. Creates an attribute mask based on
 the given options
+Available options:
+isClusterCodeMfgSpecific: 0/1, This is to determine if cluster code needs to
+be used to determine if a cluster is mfg specific or not.
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module*Templating API* static zcl helpers)  
 **Returns**: attribute mask based on given values
@@ -9489,6 +10216,12 @@ for example:
 will return as follows:
 3, 'a', 'b', 'c' 0, 0
 
+Available Options:
+
+- isOctet: 0/1 can be used to return results correctly for octet strings
+- isCommaTerminated: 0/1 can be used to return result with/without ',' at
+  the end
+
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module*Templating API* static zcl helpers)  
 **Returns**: Formatted string for generated defaults starting with the lenth of a
 string then each character and then filler for the size allocated for the
@@ -9498,30 +10231,6 @@ string. Long strings prefixed by 2 byte length field.
 | ------------ |
 | stringVal    |
 | sizeOfString |
-
-<a name="module_Templating API_ static zcl helpers..get_sign_and_size_of_zcl_type"></a>
-
-### Templating API: static zcl helpers~get_sign_and_size_of_zcl_type(type, context, options) ⇒
-
-Given a zcl device type returns its sign, size and zcl data type info stored
-in the database table.
-Note: Enums and Bitmaps are considered to be unsigned.
-
-**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module*Templating API* static zcl helpers)  
-**Returns**: returns sign, size and info of zcl device type
-Available Options:
-
-- size: Determine whether to calculate the size of zcl device type in bits
-  or bytes
-  for eg: get_sign_and_size_of_zcl_type('int8u' this size='bits') will return
-  the size in bits which will be 8. If not mentioned then it will return the size
-  in bytes i.e. 1 in this case.
-
-| Param   | Type            |
-| ------- | --------------- |
-| type    | <code>\*</code> |
-| context | <code>\*</code> |
-| options | <code>\*</code> |
 
 <a name="module_Templating API_ static zcl helpers..as_type_min_value"></a>
 
@@ -9612,6 +10321,43 @@ Content when comparison returns false
 | leftValue  | <code>\*</code> |
 | rightValue | <code>\*</code> |
 | options    | <code>\*</code> |
+
+<a name="module_Templating API_ static zcl helpers..if_is_data_type_signed"></a>
+
+### Templating API: static zcl helpers~if_is_data_type_signed(type, clusterId, options) ⇒
+
+Check if the given type is signed or not based on the type name and cluster
+id.
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module*Templating API* static zcl helpers)  
+**Returns**: Promise of content
+
+| Param     | Type            |
+| --------- | --------------- |
+| type      | <code>\*</code> |
+| clusterId | <code>\*</code> |
+| options   | <code>\*</code> |
+
+<a name="module_Templating API_ static zcl helpers..as_zcl_data_type_size"></a>
+
+### Templating API: static zcl helpers~as_zcl_data_type_size(type, clusterId, options) ⇒
+
+Fetches the size of the data type based on type name and cluster id given
+Note: size is zero for structs
+Available Options:
+
+- roundUpToPowerOfTwo: Rounds the size up to the nearest power of 2
+- sizeIn: By default size is returned in bytes but it can be returned in bits
+  by mentioning sizeIn="bits"
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module*Templating API* static zcl helpers)  
+**Returns**: size of the data type
+
+| Param     | Type            |
+| --------- | --------------- |
+| type      | <code>\*</code> |
+| clusterId | <code>\*</code> |
+| options   | <code>\*</code> |
 
 <a name="module_Templating API_ Overridable functions."></a>
 
@@ -11044,6 +11790,7 @@ This module provides the REST API to the admin functions.
 - [REST API: admin functions](#module*REST API* admin functions)
   - [~httpPostSql(db, app)](#module*REST API* admin functions..httpPostSql) ⇒
   - [~httpGetVersion(db)](#module*REST API* admin functions..httpGetVersion) ⇒
+  - [~httpGetCache(db)](#module*REST API* admin functions..httpGetCache)
 
 <a name="module_REST API_ admin functions..httpPostSql"></a>
 
@@ -11093,6 +11840,29 @@ Response JSON:
 
 **Kind**: inner method of [<code>REST API: admin functions</code>](#module*REST API* admin functions)  
 **Returns**: callback for the express uri registration.
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+
+<a name="module_REST API_ admin functions..httpGetCache"></a>
+
+### REST API: admin functions~httpGetCache(db)
+
+API: /cache
+Response JSON:
+
+<pre>
+	 {
+     keys: 0,    // global key count
+     hits: 0,    // global hit count
+     misses: 0,  // global miss count
+     ksize: 0,   // global key size count in approximately bytes
+     vsize: 0    // global value size count in approximately bytes
+	 }
+</pre>
+
+**Kind**: inner method of [<code>REST API: admin functions</code>](#module*REST API* admin functions)
 
 | Param | Type            |
 | ----- | --------------- |
@@ -11345,6 +12115,71 @@ HTTP PUT: performs local generation into a specified directory.
 Enable components by 'componentId' or corresponding components specified, via 'defaults', by 'clusterId' / 'roles'
 
 **Kind**: inner method of [<code>REST API: generation functions</code>](#module*REST API* generation functions)
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+
+<a name="module_REST API_ initialization functions"></a>
+
+## REST API: initialization functions
+
+This module provides the REST API to the session initialization
+
+- [REST API: initialization functions](#module*REST API* initialization functions)
+  - [~packagesAndSessions(db)](#module*REST API* initialization functions..packagesAndSessions) ⇒
+  - [~initializeSession(db, options:)](#module*REST API* initialization functions..initializeSession) ⇒
+  - [~loadPreviousSessions(db)](#module*REST API* initialization functions..loadPreviousSessions) ⇒
+  - [~init(db)](#module*REST API* initialization functions..init) ⇒
+
+<a name="module_REST API_ initialization functions..packagesAndSessions"></a>
+
+### REST API: initialization functions~packagesAndSessions(db) ⇒
+
+This function returns Properties, Templates and Dirty-Sessions
+
+**Kind**: inner method of [<code>REST API: initialization functions</code>](#module*REST API* initialization functions)  
+**Returns**: Properties, Templates and Dirty-Sessions.
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+
+<a name="module_REST API_ initialization functions..initializeSession"></a>
+
+### REST API: initialization functions~initializeSession(db, options:) ⇒
+
+This function creates a new session with its packages according to selected Properties and Templates
+
+**Kind**: inner method of [<code>REST API: initialization functions</code>](#module*REST API* initialization functions)  
+**Returns**: A success message.
+
+| Param    | Type            | Description                            |
+| -------- | --------------- | -------------------------------------- |
+| db       | <code>\*</code> |                                        |
+| options: | <code>\*</code> | object containing 'zcl' and 'template' |
+
+<a name="module_REST API_ initialization functions..loadPreviousSessions"></a>
+
+### REST API: initialization functions~loadPreviousSessions(db) ⇒
+
+This function reloads previous session by user selected session's id
+
+**Kind**: inner method of [<code>REST API: initialization functions</code>](#module*REST API* initialization functions)  
+**Returns**: A success message.
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+
+<a name="module_REST API_ initialization functions..init"></a>
+
+### REST API: initialization functions~init(db) ⇒
+
+Init function from the App.vue
+
+**Kind**: inner method of [<code>REST API: initialization functions</code>](#module*REST API* initialization functions)  
+**Returns**: A success message.
 
 | Param | Type            |
 | ----- | --------------- |
@@ -12038,6 +12873,7 @@ logger is used for printouts.
   - [~isSignedInteger(type)](#module*JS API* type related utilities..isSignedInteger) ⇒
   - [~isOneBytePrefixedString(type)](#module*JS API* type related utilities..isOneBytePrefixedString) ⇒
   - [~isTwoBytePrefixedString(type)](#module*JS API* type related utilities..isTwoBytePrefixedString) ⇒
+  - [~getSignAndSizeOfZclType(type, context, options)](#module*JS API* type related utilities..getSignAndSizeOfZclType) ⇒
 
 <a name="module_JS API_ type related utilities..typeSize"></a>
 
@@ -12191,6 +13027,30 @@ Checks if type is a two-byte lengh string.
 | Param | Type            |
 | ----- | --------------- |
 | type  | <code>\*</code> |
+
+<a name="module_JS API_ type related utilities..getSignAndSizeOfZclType"></a>
+
+### JS API: type related utilities~getSignAndSizeOfZclType(type, context, options) ⇒
+
+Given a zcl device type returns its sign, size and zcl data type info stored
+in the database table.
+Note: Enums and Bitmaps are considered to be unsigned.
+
+**Kind**: inner method of [<code>JS API: type related utilities</code>](#module*JS API* type related utilities)  
+**Returns**: returns sign, size and info of zcl device type
+Available Options:
+
+- size: Determine whether to calculate the size of zcl device type in bits
+  or bytes
+  for eg: getSignAndSizeOfZclType('int8u' this size='bits') will return
+  the size in bits which will be 8. If not mentioned then it will return the size
+  in bytes i.e. 1 in this case.
+
+| Param   | Type            |
+| ------- | --------------- |
+| type    | <code>\*</code> |
+| context | <code>\*</code> |
+| options | <code>\*</code> |
 
 <a name="module_JS API_ random utilities"></a>
 
@@ -12491,6 +13351,7 @@ This module provides the API to access various zcl utilities.
   - [~clusterComparator(a, b)](#module*REST API* various zcl utilities..clusterComparator) ⇒
   - [~attributeComparator(a, b)](#module*REST API* various zcl utilities..attributeComparator) ⇒
   - [~commandComparator(a, b)](#module*REST API* various zcl utilities..commandComparator) ⇒
+  - [~eventComparator(a, b)](#module*REST API* various zcl utilities..eventComparator) ⇒
   - [~sortStructsByDependency(structs)](#module*REST API* various zcl utilities..sortStructsByDependency) ⇒
   - [~calculateBytes(res, options, db, packageIds, isStructType)](#module*REST API* various zcl utilities..calculateBytes)
   - [~optionsHashOrDefault(options, optionsKey, defaultValue)](#module*REST API* various zcl utilities..optionsHashOrDefault)
@@ -12503,6 +13364,7 @@ This module provides the API to access various zcl utilities.
   - [~dataTypeHelper(type, options, packageIds, db, resolvedType, overridable)](#module*REST API* various zcl utilities..dataTypeHelper) ⇒
   - [~asUnderlyingZclTypeWithPackageId(type, options, packageIds, currentInstance)](#module*REST API* various zcl utilities..asUnderlyingZclTypeWithPackageId)
   - [~determineType(db, type, packageIds)](#module*REST API* various zcl utilities..determineType)
+  - [~zcl_data_type_size_and_sign(type, dataType, clusterId, packageIds, context)](#module*REST API* various zcl utilities..zcl_data_type_size_and_sign) ⇒
 
 <a name="module_REST API_ various zcl utilities..clusterComparator"></a>
 
@@ -12537,6 +13399,20 @@ Comparator for sorting attribute.
 ### REST API: various zcl utilities~commandComparator(a, b) ⇒
 
 Comparator for sorting commands.
+
+**Kind**: inner method of [<code>REST API: various zcl utilities</code>](#module*REST API* various zcl utilities)  
+**Returns**: -1, 0 or 1
+
+| Param | Type            |
+| ----- | --------------- |
+| a     | <code>\*</code> |
+| b     | <code>\*</code> |
+
+<a name="module_REST API_ various zcl utilities..eventComparator"></a>
+
+### REST API: various zcl utilities~eventComparator(a, b) ⇒
+
+Comparator for sorting events.
 
 **Kind**: inner method of [<code>REST API: various zcl utilities</code>](#module*REST API* various zcl utilities)  
 **Returns**: -1, 0 or 1
@@ -12735,6 +13611,21 @@ Base type for struct is a null.
 | db         | <code>\*</code> |
 | type       | <code>\*</code> |
 | packageIds | <code>\*</code> |
+
+<a name="module_REST API_ various zcl utilities..zcl_data_type_size_and_sign"></a>
+
+### REST API: various zcl utilities~zcl_data_type_size_and_sign(type, dataType, clusterId, packageIds, context) ⇒
+
+**Kind**: inner method of [<code>REST API: various zcl utilities</code>](#module*REST API* various zcl utilities)  
+**Returns**: The size and sign of a zcl data type
+
+| Param      | Type            |
+| ---------- | --------------- |
+| type       | <code>\*</code> |
+| dataType   | <code>\*</code> |
+| clusterId  | <code>\*</code> |
+| packageIds | <code>\*</code> |
+| context    | <code>\*</code> |
 
 <a name="renderer_api"></a>
 
@@ -13310,6 +14201,23 @@ with its actual type from disciminator table.
 | name       |
 | packageIds |
 
+<a name="selectDataTypeByNameAndClusterId"></a>
+
+## selectDataTypeByNameAndClusterId(db, name, clusterId, packageIds) ⇒
+
+Gathers the data type information based on data type name and
+clusterId along with its actual type from disciminator table.
+
+**Kind**: global function  
+**Returns**: Data type information
+
+| Param      |
+| ---------- |
+| db         |
+| name       |
+| clusterId  |
+| packageIds |
+
 <a name="selectAllDataTypes"></a>
 
 ## selectAllDataTypes(db, packageId) ⇒
@@ -13349,6 +14257,21 @@ Select an number matched by name.
 
 **Kind**: global function  
 **Returns**: number or undefined
+
+| Param      |
+| ---------- |
+| db         |
+| name       |
+| packageIds |
+
+<a name="selectNumberByNameAndClusterId"></a>
+
+## selectNumberByNameAndClusterId(db, name, packageIds) ⇒
+
+Select a number matched by name and clusterId
+
+**Kind**: global function  
+**Returns**: number information or undefined
 
 | Param      |
 | ---------- |
@@ -13752,6 +14675,20 @@ the indexes in attribute table.
 | ------- | --------------- |
 | options | <code>\*</code> |
 
+<a name="endpoint_reporting_config_defaults"></a>
+
+## endpoint_reporting_config_defaults(options)
+
+This helper supports an "order" CSV string, such as:
+"direction,endpoint,clusterId,attributeId,mask,mfgCode,minmax"
+The string above is a default value, and it determines in what order are the fields generated.
+
+**Kind**: global function
+
+| Param   | Type            |
+| ------- | --------------- |
+| options | <code>\*</code> |
+
 <a name="collectAttributes"></a>
 
 ## collectAttributes()
@@ -13881,6 +14818,80 @@ span all attributes from all clusters from all endpointTypes. This helper
 function allows the template to increment the token ID within the tokens context.
 
 **Kind**: global function  
+<a name="token_attribute_util"></a>
+
+## token_attribute_util(context, options) ⇒
+
+Util function that extracts all the token attribute information.
+
+**Kind**: global function  
+**Returns**: Information on all token attributes in the configuration.
+
+| Param   | Type            |
+| ------- | --------------- |
+| context | <code>\*</code> |
+| options | <code>\*</code> |
+
+<a name="token_attributes"></a>
+
+## token_attributes(endpointTypeRef, options) ⇒
+
+Get information about all the token attributes in the configuration or this
+helper can be used within an endpoint block helper to fetch the
+corresponding token attributes based on endpoint type given.
+Available Options:
+isSingleton: 0/1, option can be used to filter attributes based on singleton
+or non-singleton(Available with endpointTypeRef only)
+
+**Kind**: global function  
+**Returns**: singleton and non-singleton token attributes along with their
+endpoint information. Singleton attributes are only returned once whereas
+non-singleton attributes are returned per endpoint. However if used within
+an endpoint block helper it returns token_attributes for a given endpoint
+type.
+
+| Param           | Type            |
+| --------------- | --------------- |
+| endpointTypeRef | <code>\*</code> |
+| options         | <code>\*</code> |
+
+<a name="token_attribute_clusters"></a>
+
+## token_attribute_clusters(endpointTypeRef, options) ⇒
+
+This helper can return all token associated clusters across endpoints or
+this helper can be used within an endpoint block helper to fetch the
+corresponding token associated clusters.
+Available Options:
+isSingleton: 0/1, option can be used to filter clusters based on singleton
+or non-singleton attributes.
+
+**Kind**: global function  
+**Returns**: Token associated clusters for a particular endpoint type or all
+token associated clusters across endpoints.
+
+| Param           | Type            |
+| --------------- | --------------- |
+| endpointTypeRef | <code>\*</code> |
+| options         | <code>\*</code> |
+
+<a name="token_attribute_endpoints"></a>
+
+## token_attribute_endpoints(options) ⇒
+
+Get all endpoints which have token attributes in the configuration.
+AvailableOptions:
+
+- isSingleton: 0/1, option can be used to filter endpoints based on singleton
+  or non-singleton.
+
+**Kind**: global function  
+**Returns**: all endpoints with token attributes
+
+| Param   | Type            |
+| ------- | --------------- |
+| options | <code>\*</code> |
+
 <a name="get_cli_size"></a>
 
 ## get_cli_size(size, type, allowZclTypes) ⇒
@@ -14175,34 +15186,6 @@ Session at this point is blank, and has no packages.
 | state     | <code>\*</code> |
 | sessionId | <code>\*</code> |
 
-<a name="readDataFromFile"></a>
-
-## readDataFromFile(filePath) ⇒
-
-Reads the data from the file and resolves with the state object if all is good.
-
-**Kind**: global function  
-**Returns**: Promise of file reading.
-
-| Param    | Type            |
-| -------- | --------------- |
-| filePath | <code>\*</code> |
-
-<a name="importDataFromFile"></a>
-
-## importDataFromFile(db, filePath) ⇒
-
-Writes the data from the file into a new session.
-NOTE: This function does NOT initialize session packages.
-
-**Kind**: global function  
-**Returns**: a promise that resolves with the import result object that contains: sessionId, errors, warnings.
-
-| Param    | Type            |
-| -------- | --------------- |
-| db       | <code>\*</code> |
-| filePath | <code>\*</code> |
-
 <a name="importSessionKeyValues"></a>
 
 ## importSessionKeyValues(db, sessionId, keyValuePairs)
@@ -14277,6 +15260,34 @@ Parses JSON file and creates a state object out of it, which is passed further d
 | -------- | --------------- |
 | filePath | <code>\*</code> |
 | data     | <code>\*</code> |
+
+<a name="readDataFromFile"></a>
+
+## readDataFromFile(filePath) ⇒
+
+Reads the data from the file and resolves with the state object if all is good.
+
+**Kind**: global function  
+**Returns**: Promise of file reading.
+
+| Param    | Type            |
+| -------- | --------------- |
+| filePath | <code>\*</code> |
+
+<a name="importDataFromFile"></a>
+
+## importDataFromFile(db, filePath) ⇒
+
+Writes the data from the file into a new session.
+NOTE: This function does NOT initialize session packages.
+
+**Kind**: global function  
+**Returns**: a promise that resolves with the import result object that contains: sessionId, errors, warnings.
+
+| Param    | Type            |
+| -------- | --------------- |
+| db       | <code>\*</code> |
+| filePath | <code>\*</code> |
 
 <a name="initSessionTimers"></a>
 
@@ -14450,46 +15461,6 @@ Default startup method.
 | ------------ | --------------- |
 | quitFunction | <code>\*</code> |
 | argv         | <code>\*</code> |
-
-<a name="packagesAndSessions"></a>
-
-## packagesAndSessions(db) ⇒
-
-This function returns Properties, Templates and Dirty-Sessions
-
-**Kind**: global function  
-**Returns**: Properties, Templates and Dirty-Sessions.
-
-| Param | Type            |
-| ----- | --------------- |
-| db    | <code>\*</code> |
-
-<a name="initializeSession"></a>
-
-## initializeSession(db, options:) ⇒
-
-This function creates a new session with its packages according to selected Properties and Templates
-
-**Kind**: global function  
-**Returns**: A success message.
-
-| Param    | Type            | Description                            |
-| -------- | --------------- | -------------------------------------- |
-| db       | <code>\*</code> |                                        |
-| options: | <code>\*</code> | object containing 'zcl' and 'template' |
-
-<a name="loadPreviousSessions"></a>
-
-## loadPreviousSessions(db) ⇒
-
-This function reloads previous session by user selected session's id
-
-**Kind**: global function  
-**Returns**: A success message.
-
-| Param | Type            |
-| ----- | --------------- |
-| db    | <code>\*</code> |
 
 <a name="doOpen"></a>
 
@@ -15130,118 +16101,6 @@ and orchestrates the promise chain.
 | ----- | --------------- | ------------------- |
 | db    | <code>\*</code> |                     |
 | ctx   | <code>\*</code> | Context of loading. |
-
-<a name="recordToplevelPackage"></a>
-
-## recordToplevelPackage(db, metadataFile, crc) ⇒
-
-Records the toplevel package information and resolves into packageId
-
-**Kind**: global function  
-**Returns**: packageId
-
-| Param        | Type            |
-| ------------ | --------------- |
-| db           | <code>\*</code> |
-| metadataFile | <code>\*</code> |
-| crc          | <code>\*</code> |
-
-<a name="recordVersion"></a>
-
-## recordVersion(db, ctx)
-
-Records the version into the database.
-
-**Kind**: global function
-
-| Param | Type            |
-| ----- | --------------- |
-| db    | <code>\*</code> |
-| ctx   | <code>\*</code> |
-
-<a name="loadZclMetafiles"></a>
-
-## loadZclMetafiles(db, metadataFile) ⇒
-
-Toplevel function that loads the zcl file and passes it off to the correct zcl loader.
-
-**Kind**: global function  
-**Returns**: Array of loaded packageIds.
-
-| Param        | Type            | Description    |
-| ------------ | --------------- | -------------- |
-| db           | <code>\*</code> |                |
-| metadataFile | <code>\*</code> | array of paths |
-
-<a name="loadZcl"></a>
-
-## loadZcl(db, metadataFile) ⇒
-
-Loads individual zcl.json metafile.
-
-**Kind**: global function  
-**Returns**: Context object that contains .db and .packageId
-
-| Param        | Type            |
-| ------------ | --------------- |
-| db           | <code>\*</code> |
-| metadataFile | <code>\*</code> |
-
-<a name="loadIndividualFile"></a>
-
-## loadIndividualFile(db, filePath, sessionId)
-
-Load individual custom XML files.
-
-**Kind**: global function
-
-| Param     | Type            | Description                                           |
-| --------- | --------------- | ----------------------------------------------------- |
-| db        | <code>\*</code> |                                                       |
-| filePath  | <code>\*</code> |                                                       |
-| sessionId | <code>\*</code> | Current session within which we're loading this file. |
-
-<a name="qualifyZclFile"></a>
-
-## qualifyZclFile(db, info, parentPackageId) ⇒
-
-Promises to qualify whether zcl file needs to be reloaded.
-If yes, the it will resolve with {filePath, data, packageId}
-If not, then it will resolve with {error}
-
-**Kind**: global function  
-**Returns**: Promise that resolves int he object of data.
-
-| Param           | Type            |
-| --------------- | --------------- |
-| db              | <code>\*</code> |
-| info            | <code>\*</code> |
-| parentPackageId | <code>\*</code> |
-
-<a name="processZclPostLoading"></a>
-
-## processZclPostLoading(db) ⇒
-
-Promises to perform a post loading step.
-
-**Kind**: global function  
-**Returns**: Promise to deal with the post-loading cleanup.
-
-| Param | Type            |
-| ----- | --------------- |
-| db    | <code>\*</code> |
-
-<a name="getDiscriminatorMap"></a>
-
-## getDiscriminatorMap(db, packageIds) ⇒
-
-**Kind**: global function  
-**Returns**: data type discriminator map
-
-| Param      | Type            |
-| ---------- | --------------- |
-| db         | <code>\*</code> |
-| packageIds | <code>\*</code> |
 
 <a name="collectDataFromJsonFile"></a>
 
@@ -16021,3 +16880,115 @@ and orchestrates the promise chain.
 | ----- | --------------- | ----------------------- |
 | db    | <code>\*</code> |                         |
 | ctx   | <code>\*</code> | The context of loading. |
+
+<a name="recordToplevelPackage"></a>
+
+## recordToplevelPackage(db, metadataFile, crc) ⇒
+
+Records the toplevel package information and resolves into packageId
+
+**Kind**: global function  
+**Returns**: packageId
+
+| Param        | Type            |
+| ------------ | --------------- |
+| db           | <code>\*</code> |
+| metadataFile | <code>\*</code> |
+| crc          | <code>\*</code> |
+
+<a name="recordVersion"></a>
+
+## recordVersion(db, ctx)
+
+Records the version into the database.
+
+**Kind**: global function
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+| ctx   | <code>\*</code> |
+
+<a name="loadZclMetafiles"></a>
+
+## loadZclMetafiles(db, metadataFile) ⇒
+
+Toplevel function that loads the zcl file and passes it off to the correct zcl loader.
+
+**Kind**: global function  
+**Returns**: Array of loaded packageIds.
+
+| Param        | Type            | Description    |
+| ------------ | --------------- | -------------- |
+| db           | <code>\*</code> |                |
+| metadataFile | <code>\*</code> | array of paths |
+
+<a name="loadZcl"></a>
+
+## loadZcl(db, metadataFile) ⇒
+
+Loads individual zcl.json metafile.
+
+**Kind**: global function  
+**Returns**: Context object that contains .db and .packageId
+
+| Param        | Type            |
+| ------------ | --------------- |
+| db           | <code>\*</code> |
+| metadataFile | <code>\*</code> |
+
+<a name="loadIndividualFile"></a>
+
+## loadIndividualFile(db, filePath, sessionId)
+
+Load individual custom XML files.
+
+**Kind**: global function
+
+| Param     | Type            | Description                                           |
+| --------- | --------------- | ----------------------------------------------------- |
+| db        | <code>\*</code> |                                                       |
+| filePath  | <code>\*</code> |                                                       |
+| sessionId | <code>\*</code> | Current session within which we're loading this file. |
+
+<a name="qualifyZclFile"></a>
+
+## qualifyZclFile(db, info, parentPackageId) ⇒
+
+Promises to qualify whether zcl file needs to be reloaded.
+If yes, the it will resolve with {filePath, data, packageId}
+If not, then it will resolve with {error}
+
+**Kind**: global function  
+**Returns**: Promise that resolves int he object of data.
+
+| Param           | Type            |
+| --------------- | --------------- |
+| db              | <code>\*</code> |
+| info            | <code>\*</code> |
+| parentPackageId | <code>\*</code> |
+
+<a name="processZclPostLoading"></a>
+
+## processZclPostLoading(db) ⇒
+
+Promises to perform a post loading step.
+
+**Kind**: global function  
+**Returns**: Promise to deal with the post-loading cleanup.
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+
+<a name="getDiscriminatorMap"></a>
+
+## getDiscriminatorMap(db, packageIds) ⇒
+
+**Kind**: global function  
+**Returns**: data type discriminator map
+
+| Param      | Type            |
+| ---------- | --------------- |
+| db         | <code>\*</code> |
+| packageIds | <code>\*</code> |

@@ -1,0 +1,22 @@
+{{#chip_client_clusters }}
+ {{#zcl_attributes_server removeKeys='isOptional'}}
+    {{#if_unsupported_attribute_callback type isArray ../id language='java'}}
+attribute callback for {{name}} of {{type}} type is not supported in java
+    {{else}}
+attribute callback for {{name}} of {{type}} type is supported in java
+      {{#if_basic_attribute type ../id language='java'}}
+  attribute {{name}} of {{type}} type is basic type in java
+      {{else}}
+  attribute {{name}} of {{type}} type is not basic type in java
+      {{/if_basic_attribute}}
+    {{/if_unsupported_attribute_callback}}
+Underlying Java type for attribute {{name}} of {{type}} type: {{as_underlying_java_zcl_type type ../id boolean="Boolean"}}
+Underlying Python type for attribute {{name}} of {{type}} type: {{as_underlying_python_zcl_type type ../id boolean="bool" BOOLEAN="bool"}}
+    {{#if_is_data_type_signed type ../id}}
+attribute {{name}} of type {{type}} is signed. The size of this attribute is: {{as_zcl_data_type_size type ../id sizeIn='bits' roundUpToPowerOfTwo=1}} bits
+    {{else}}
+attribute {{name}} of type {{type}} is unsigned. The size of this attribute is: {{as_zcl_data_type_size type ../id sizeIn='bits' roundUpToPowerOfTwo=1}} bits
+    {{/if_is_data_type_signed}}
+
+  {{/zcl_attributes_server}}
+{{/chip_client_clusters}}

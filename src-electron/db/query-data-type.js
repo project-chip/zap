@@ -95,6 +95,71 @@ async function selectDataTypeByName(db, name, packageIds) {
 }
 
 /**
+ * Gathers the data type information based on data type name and
+ * clusterId along with its actual type from disciminator table.
+ * @param db
+ * @param name
+ * @param clusterId
+ * @param packageIds
+ * @returns Data type information
+ */
+async function selectDataTypeByNameAndClusterId(
+  db,
+  name,
+  clusterId,
+  packageIds
+) {
+  let selectQueryString = `
+  SELECT
+    DATA_TYPE.DATA_TYPE_ID,
+    DATA_TYPE.NAME AS NAME,
+    DATA_TYPE.DESCRIPTION,
+    DATA_TYPE.DISCRIMINATOR_REF,
+    DATA_TYPE.PACKAGE_REF,
+    DISCRIMINATOR.NAME AS DISCRIMINATOR_NAME
+  FROM
+    DATA_TYPE
+  INNER JOIN
+    DISCRIMINATOR
+  ON
+    DATA_TYPE.DISCRIMINATOR_REF = DISCRIMINATOR.DISCRIMINATOR_ID `
+
+  let clusterQueryExtension = `
+  INNER JOIN
+    DATA_TYPE_CLUSTER
+  ON
+    DATA_TYPE.DATA_TYPE_ID = DATA_TYPE_CLUSTER.DATA_TYPE_REF `
+
+  let whereClause = `
+  WHERE
+    (DATA_TYPE.NAME = ? OR DATA_TYPE.NAME = ?)
+    AND DATA_TYPE.PACKAGE_REF IN (${dbApi.toInClause(packageIds)}) `
+
+  let whereClauseClusterExtension = `
+  AND DATA_TYPE_CLUSTER.CLUSTER_REF = ?`
+
+  let queryWithoutClusterId = selectQueryString + whereClause
+  let queryWithClusterId =
+    selectQueryString +
+    clusterQueryExtension +
+    whereClause +
+    whereClauseClusterExtension
+
+  let smallCaseName = name.toLowerCase()
+  let res = await dbApi
+    .dbAll(db, queryWithoutClusterId, [name, smallCaseName])
+    .then((rows) => rows.map(dbMapping.map.dataType))
+
+  if (res && res.length == 1) {
+    return res[0]
+  } else {
+    return dbApi
+      .dbGet(db, queryWithClusterId, [name, smallCaseName, clusterId])
+      .then(dbMapping.map.dataType)
+  }
+}
+
+/**
  * Gathers All the data types
  * @param db
  * @param packageId
@@ -186,3 +251,6 @@ exports.selectDataTypeById = selectDataTypeById
 exports.selectDataTypeByName = dbCache.cacheQuery(selectDataTypeByName)
 exports.selectAllDataTypes = selectAllDataTypes
 exports.selectSizeFromType = selectSizeFromType
+exports.selectDataTypeByNameAndClusterId = dbCache.cacheQuery(
+  selectDataTypeByNameAndClusterId
+)

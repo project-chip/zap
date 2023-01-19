@@ -1132,18 +1132,27 @@ exports.selectAllEnumItemsById = queryEnum.selectAllEnumItemsById
 exports.selectAllEnumItems = queryEnum.selectAllEnumItems
 exports.selectEnumById = queryEnum.selectEnumById
 exports.selectEnumByName = queryEnum.selectEnumByName
+exports.selectEnumByNameAndClusterId = queryEnum.selectEnumByNameAndClusterId
 
 exports.selectStructById = queryStruct.selectStructById
 exports.selectStructByName = queryStruct.selectStructByName
+exports.selectStructByNameAndClusterId =
+  queryStruct.selectStructByNameAndClusterId
 
 exports.selectBitmapById = queryBitmap.selectBitmapById
 exports.selectAllBitmaps = queryBitmap.selectAllBitmaps
 exports.selectBitmapByName = queryBitmap.selectBitmapByName
+exports.selectBitmapByNameAndClusterId =
+  queryBitmap.selectBitmapByNameAndClusterId
 
 exports.selectDataTypeById = queryDataType.selectDataTypeById
 exports.selectDataTypeByName = queryDataType.selectDataTypeByName
+exports.selectDataTypeByNameAndClusterId =
+  queryDataType.selectDataTypeByNameAndClusterId
 
 exports.selectNumberByName = queryNumber.selectNumberByName
+exports.selectNumberByNameAndClusterId =
+  queryNumber.selectNumberByNameAndClusterId
 
 exports.selectAllDiscriminators = queryDiscriminator.selectAllDiscriminators
 exports.selectAllDataTypes = queryDataType.selectAllDataTypes
