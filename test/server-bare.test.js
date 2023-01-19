@@ -261,7 +261,7 @@ describe('Session specific tests', () => {
 })
 
 describe('Miscelaneous REST API tests', () => {
-  test.skip(
+  test(
     'test initial state',
     () =>
       axiosInstance.get(restApi.uri.initialState).then((response) => {
