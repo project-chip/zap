@@ -591,8 +591,9 @@ function enhancedCommands(commands, types) {
       // The 'response' property contains the response returned by the `selectCommandById`
       // helper. But this one does not contains all the metadata informations added by
       // `enhancedItem`, so instead of using the one from ZAP, retrieve the enhanced version.
+      const clusterName = command.clusterName;
       command.response = commands.find(
-        (command) => command.name == responseName
+        (command) => command.name == responseName && command.clusterName == clusterName
       );
       // We might have failed to find a response if our configuration is weird
       // in some way.
