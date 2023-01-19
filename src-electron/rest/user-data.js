@@ -330,20 +330,24 @@ function httpPostEventUpdate(db) {
 function httpGetInitialState(db) {
   return async (request, response) => {
     let sessionId = request.zapSessionId
-    let state = {}
+    let state = { endpointTypes: [], endpoints: [], sessionKeyValues: [] }
 
-    let session = await querySession.getSessionFromSessionId(db, sessionId)
-    asyncValidation.initAsyncValidation(db, session)
+    try {
+      let session = await querySession.getSessionFromSessionId(db, sessionId)
+      await asyncValidation.initAsyncValidation(db, session)
 
-    let results = await Promise.all([
-      queryEndpointType.selectAllEndpointTypes(db, sessionId),
-      queryEndpoint.selectAllEndpoints(db, sessionId),
-      querySession.getAllSessionKeyValues(db, sessionId),
-    ])
+      let results = await Promise.all([
+        queryEndpointType.selectAllEndpointTypes(db, sessionId),
+        queryEndpoint.selectAllEndpoints(db, sessionId),
+        querySession.getAllSessionKeyValues(db, sessionId),
+      ])
 
-    state.endpointTypes = results[0]
-    state.endpoints = results[1]
-    state.sessionKeyValues = results[2]
+      state.endpointTypes = results[0]
+      state.endpoints = results[1]
+      state.sessionKeyValues = results[2]
+    } catch (error) {
+      console.error(error)
+    }
 
     response.status(StatusCodes.OK).json(state)
   }
