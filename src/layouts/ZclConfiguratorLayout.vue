@@ -17,13 +17,8 @@ limitations under the License.
 <template>
   <div>
     <q-layout view="hHh Lpr lFf" :dense="$q.screen.lt.md">
-      <q-header
-        elevated
-        bordered
-        height-hint="500"
-        class="shadow-2 zclConfiguratorLayoutHeader"
-      >
-        <q-toolbar bordered class="shadow-2 zclConfiguratorLayoutHeader row">
+      <q-header bordered height-hint="500" class="zclConfiguratorLayoutHeader">
+        <q-toolbar class="row">
           <q-toolbar-title
             v-on:click.ctrl="showVersion"
             v-if="showPreviewTab && this.endpointId[this.selectedEndpointId]"
@@ -298,11 +293,9 @@ export default {
 
 <style lang="scss">
 .zclConfiguratorLayoutHeader {
-  border: 1px white;
   background: white;
   color: black;
-  vertical-align: middle;
-  margin-bottom: 5px;
+  margin-bottom: 3px;
 }
 
 .body--dark .zclConfiguratorLayoutHeader {
