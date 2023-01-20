@@ -366,7 +366,7 @@ jobs:
       - name: Generate all
         run: |
           cd chip_repo
-          ZAP_INSTALL_PATH=../zap-release scripts/tools/zap_regen_all.py
+          ZAP_INSTALL_PATH=../zap-release scripts/run_in_build_env.sh scripts/tools/zap_regen_all.py
 
       - name: Ensure git works in the chip repository checkout
         run: git config --global --add safe.directory `pwd`/chip_repo
