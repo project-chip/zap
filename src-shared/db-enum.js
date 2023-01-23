@@ -84,6 +84,7 @@ exports.pathRelativity = {
   relativeToZap: 'relativeToZap',
   relativeToUserHome: 'relativeToHome',
   absolute: 'absolute',
+  resolveEnvVars: 'resolveEnvVars',
 }
 
 exports.wsCategory = {
