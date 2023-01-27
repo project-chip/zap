@@ -1262,7 +1262,7 @@ async function processEnumItems(db, filePath, packageId, knownPackages, data) {
         lastFieldId = item.$.fieldId ? parseInt(item.$.fieldId) : defaultFieldId
         enumItems.push({
           enumName: e.$.name,
-          enumClusterCode: e.cluster ? parseInt(e.clusterCode) : null,
+          enumClusterCode: e.cluster ? e.cluster : null,
           name: item.$.name,
           value: parseInt(item.$.value),
           fieldIdentifier: lastFieldId,
@@ -1355,7 +1355,7 @@ async function processBitmapFields(
         lastFieldId = item.$.fieldId ? parseInt(item.$.fieldId) : defaultFieldId
         bitmapFields.push({
           bitmapName: bm.$.name,
-          bitmapClusterCode: bm.cluster ? parseInt(bm.clusterCode) : null,
+          bitmapClusterCode: bm.cluster ? bm.cluster : null,
           name: item.$.name,
           mask: parseInt(item.$.mask),
           fieldIdentifier: lastFieldId,
@@ -1427,7 +1427,7 @@ async function processStructItems(db, filePath, packageIds, data, context) {
         lastFieldId = item.$.fieldId ? parseInt(item.$.fieldId) : defaultFieldId
         structItems.push({
           structName: si.$.name,
-          structClusterCode: si.cluster ? parseInt(si.clusterCode) : null,
+          structClusterCode: si.cluster ? si.cluster : null,
           name: item.$.name,
           type:
             item.$.type == item.$.type.toUpperCase() && item.$.type.length > 1
