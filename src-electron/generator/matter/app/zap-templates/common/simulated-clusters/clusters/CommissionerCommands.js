@@ -37,8 +37,18 @@ const Unpair = {
   arguments: [{ type: 'NODE_ID', name: 'nodeId' }],
 };
 
+const GetCommissionerNodeId = {
+  name: 'GetCommissionerNodeId',
+  responseName: 'GetCommissionerNodeIdResponse',
+  response: {
+    arguments: [
+      { name: 'nodeId', type: 'NODE_ID' }, //
+    ]
+  }
+}
+
 const name = 'CommissionerCommands';
-const commands = [PairWithCode, Unpair];
+const commands = [PairWithCode, Unpair, GetCommissionerNodeId];
 
 const CommissionerCommands = {
   name,
