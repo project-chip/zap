@@ -220,11 +220,11 @@ describe('Session specific queries', () => {
           queryPackage
             .selectAllOptionsValues(db, pkgId, 'generator')
             .then((generatorConfigurations) => {
-              expect(generatorConfigurations).toBe(1)
-              expect(generatorConfigurations.shift().optionCode).toBe(
+              expect(generatorConfigurations.length).toBe(1)
+              expect(generatorConfigurations[0].optionCode).toBe(
                 'shareClusterStatesAcrossEndpoints'
               )
-              expect(generatorConfigurations.shift().optionLabel).toBe('true')
+              expect(generatorConfigurations[0].optionLabel).toBe('true')
             })
         }),
     testUtil.timeout.short()

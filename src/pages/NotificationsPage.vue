@@ -5,7 +5,7 @@
     </q-toolbar>
     <q-table
       title="Notifications"
-      :data="notis"
+      :rows="notis"
       :columns="columns"
       row-key="ref"
     >

@@ -13,7 +13,14 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-import Vue from 'vue'
+
+function vue3Set(object, property, value) {
+  object[property] = value
+}
+
+function vue3Delete(object, property) {
+  delete object[property]
+}
 
 const reportingMinDefault = 1
 
@@ -53,24 +60,24 @@ export function updateSelectedEndpoint(state, endpoint) {
 export function updateAttributes(state, attributes) {
   attributes.forEach((attribute) => {
     if (state.attributeView.defaultValue[attribute.id] === undefined) {
-      Vue.set(
+      vue3Set(
         state.attributeView.defaultValue,
         attribute.id,
         attribute.defaultValue
       )
     }
     if (state.attributeView.reportingMin[attribute.id] === undefined) {
-      Vue.set(
+      vue3Set(
         state.attributeView.reportingMin,
         attribute.id,
         reportingMinDefault
       )
     }
     if (state.attributeView.reportingMax[attribute.id] === undefined) {
-      Vue.set(state.attributeView.reportingMax, attribute.id, 65534)
+      vue3Set(state.attributeView.reportingMax, attribute.id, 65534)
     }
     if (state.attributeView.reportableChange[attribute.id] === undefined) {
-      Vue.set(state.attributeView.reportableChange, attribute.id, 0)
+      vue3Set(state.attributeView.reportableChange, attribute.id, 0)
     }
   })
   state.attributes = attributes
@@ -104,19 +111,19 @@ export function setEndpointTypeAttribute(state, endpointTypeAttribute) {
     view: 'attributeView',
   })
 
-  Vue.set(
+  vue3Set(
     state.attributeView.defaultValue,
     attribute.id,
     attribute.defaultValue
   )
-  Vue.set(
+  vue3Set(
     state.attributeView.storageOption,
     attribute.id,
     attribute.storageOption
   )
-  Vue.set(state.attributeView.reportingMin, attribute.id, attribute.minInterval)
-  Vue.set(state.attributeView.reportingMax, attribute.id, attribute.maxInterval)
-  Vue.set(
+  vue3Set(state.attributeView.reportingMin, attribute.id, attribute.minInterval)
+  vue3Set(state.attributeView.reportingMax, attribute.id, attribute.maxInterval)
+  vue3Set(
     state.attributeView.reportableChange,
     attribute.id,
     attribute.reportableChange
@@ -126,25 +133,25 @@ export function setEndpointTypeAttribute(state, endpointTypeAttribute) {
 export function initializeDefaultEndpoints(state, defaultEndpoints) {
   defaultEndpoints.forEach((endpoint) => {
     if (state.endpointView.endpointId[endpoint.id] === undefined) {
-      Vue.set(state.endpointView.endpointId, endpoint.id, endpoint.endpointId)
+      vue3Set(state.endpointView.endpointId, endpoint.id, endpoint.endpointId)
     }
     if (state.endpointView.endpointType[endpoint.id] === undefined) {
-      Vue.set(
+      vue3Set(
         state.endpointView.endpointType,
         endpoint.id,
         endpoint.endpointTypeRef
       )
     }
     if (state.endpointView.networkId[endpoint.id] === undefined) {
-      Vue.set(state.endpointView.networkId, endpoint.id, endpoint.networkId)
+      vue3Set(state.endpointView.networkId, endpoint.id, endpoint.networkId)
     }
 
     if (state.endpointView.profileId[endpoint.id] === undefined) {
-      Vue.set(state.endpointView.profileId, endpoint.id, endpoint.profileId)
+      vue3Set(state.endpointView.profileId, endpoint.id, endpoint.profileId)
     }
 
     if (state.endpointView.endpointVersion[endpoint.id] === undefined) {
-      Vue.set(
+      vue3Set(
         state.endpointView.endpointVersion,
         endpoint.id,
         endpoint.endpointVersion
@@ -154,26 +161,26 @@ export function initializeDefaultEndpoints(state, defaultEndpoints) {
 }
 
 export function addEndpoint(state, endpoint) {
-  Vue.set(state.endpointView.endpointId, endpoint.id, endpoint.endpointId)
-  Vue.set(
+  vue3Set(state.endpointView.endpointId, endpoint.id, endpoint.endpointId)
+  vue3Set(
     state.endpointView.endpointType,
     endpoint.id,
     endpoint.endpointTypeRef
   )
-  Vue.set(state.endpointView.networkId, endpoint.id, endpoint.networkId)
-  Vue.set(state.endpointView.profileId, endpoint.id, endpoint.profileId)
-  Vue.set(state.endpointView.deviceId, endpoint.id, endpoint.deviceIdentifier)
-  Vue.set(
+  vue3Set(state.endpointView.networkId, endpoint.id, endpoint.networkId)
+  vue3Set(state.endpointView.profileId, endpoint.id, endpoint.profileId)
+  vue3Set(state.endpointView.deviceId, endpoint.id, endpoint.deviceIdentifier)
+  vue3Set(
     state.endpointView.endpointVersion,
     endpoint.id,
     endpoint.endpointVersion
   )
-  Vue.set(
+  vue3Set(
     state.endpointView.endpointIdValidationIssues,
     endpoint.id,
     endpoint.endpointIdValidationIssues
   )
-  Vue.set(
+  vue3Set(
     state.endpointView.networkIdValidationIssues,
     endpoint.id,
     endpoint.networkIdValidationIssues
@@ -182,14 +189,14 @@ export function addEndpoint(state, endpoint) {
 
 export function updateEndpoint(state, context) {
   context.changes.forEach((data) => {
-    Vue.set(state.endpointView[data.updatedKey], context.id, data.value)
+    vue3Set(state.endpointView[data.updatedKey], context.id, data.value)
   })
-  Vue.set(
+  vue3Set(
     state.endpointView.endpointIdValidationIssues,
     context.id,
     context.endpointIdValidationIssues
   )
-  Vue.set(
+  vue3Set(
     state.endpointView.networkIdValidationIssues,
     context.id,
     context.networkIdValidationIssues
@@ -199,10 +206,10 @@ export function updateEndpoint(state, context) {
 export function initializeDefaultEndpointsTypes(state, defaultEndpointsTypes) {
   defaultEndpointsTypes.forEach((endpointType) => {
     if (state.endpointTypeView.name[endpointType.id] === undefined) {
-      Vue.set(state.endpointTypeView.name, endpointType.id, endpointType.name)
+      vue3Set(state.endpointTypeView.name, endpointType.id, endpointType.name)
     }
     if (state.endpointTypeView.deviceTypeRef[endpointType.id] === undefined) {
-      Vue.set(
+      vue3Set(
         state.endpointTypeView.deviceTypeRef,
         endpointType.id,
         endpointType.deviceTypeRef
@@ -212,8 +219,8 @@ export function initializeDefaultEndpointsTypes(state, defaultEndpointsTypes) {
 }
 
 export function addEndpointType(state, endpointType) {
-  Vue.set(state.endpointTypeView.name, endpointType.id, endpointType.name)
-  Vue.set(
+  vue3Set(state.endpointTypeView.name, endpointType.id, endpointType.name)
+  vue3Set(
     state.endpointTypeView.deviceTypeRef,
     endpointType.id,
     endpointType.deviceTypeRef
@@ -221,17 +228,17 @@ export function addEndpointType(state, endpointType) {
 }
 
 export function updateAttributeDefaults(state, selectionContext) {
-  Vue.set(
+  vue3Set(
     state.attributeView[selectionContext.listType],
     selectionContext.id,
     selectionContext.newDefaultValue
   )
-  Vue.set(
+  vue3Set(
     state.attributeView.defaultValueValidationIssues,
     selectionContext.id,
     selectionContext.defaultValueValidationIssues
   )
-  Vue.set(
+  vue3Set(
     state.attributeView.nullValues,
     selectionContext.id,
     selectionContext.isNull
@@ -273,7 +280,7 @@ export function updateInclusionList(state, selectionContext) {
 }
 
 export function setDeviceTypeReference(state, endpointIdDeviceTypeRefPair) {
-  Vue.set(
+  vue3Set(
     state.endpointTypeView.deviceTypeRef,
     endpointIdDeviceTypeRefPair.endpointId,
     endpointIdDeviceTypeRefPair.deviceTypeRef
@@ -286,16 +293,16 @@ export function updateSelectedEndpointType(state, endpointType) {
 
 export function removeEndpointType(state, endpointType) {
   state.endpointTypeView.selectedEndpointType = []
-  Vue.delete(state.endpointTypeView.name, endpointType.id)
-  Vue.delete(state.endpointTypeView.deviceTypeRef, endpointType.id)
+  vue3Delete(state.endpointTypeView.name, endpointType.id)
+  vue3Delete(state.endpointTypeView.deviceTypeRef, endpointType.id)
 }
 
 export function deleteEndpoint(state, endpoint) {
   state.endpointView.selectedEndpoint = null
-  Vue.delete(state.endpointView.endpointId, endpoint.id)
-  Vue.delete(state.endpointView.endpointType, endpoint.id)
-  Vue.delete(state.endpointView.networkId, endpoint.id)
-  Vue.delete(state.endpointView.endpointVersion, endpoint.id)
+  vue3Delete(state.endpointView.endpointId, endpoint.id)
+  vue3Delete(state.endpointView.endpointType, endpoint.id)
+  vue3Delete(state.endpointView.networkId, endpoint.id)
+  vue3Delete(state.endpointView.endpointVersion, endpoint.id)
 }
 
 export function setClusterList(state, data) {
@@ -311,15 +318,15 @@ export function resetAttributeDefaults(state) {
   state.attributeView.storageOption = {}
 
   state.attributes.forEach((attribute) => {
-    Vue.set(
+    vue3Set(
       state.attributeView.defaultValue,
       attribute.id,
       attribute.defaultValue
     )
-    Vue.set(state.attributeView.storageOption, attribute.id, 'ram')
-    Vue.set(state.attributeView.reportingMin, attribute.id, reportingMinDefault)
-    Vue.set(state.attributeView.reportingMax, attribute.id, 65534)
-    Vue.set(state.attributeView.reportableChange, attribute.id, 0)
+    vue3Set(state.attributeView.storageOption, attribute.id, 'ram')
+    vue3Set(state.attributeView.reportingMin, attribute.id, reportingMinDefault)
+    vue3Set(state.attributeView.reportingMax, attribute.id, 65534)
+    vue3Set(state.attributeView.reportableChange, attribute.id, 0)
   })
 }
 
@@ -331,44 +338,44 @@ export function setAttributeLists(state, data) {
 
   resetAttributeDefaults(state)
   Object.entries(data.defaultValue).forEach(([attributeRef, defaultVal]) => {
-    Vue.set(state.attributeView.defaultValue, attributeRef, defaultVal)
+    vue3Set(state.attributeView.defaultValue, attributeRef, defaultVal)
   })
   Object.entries(data.storageOption).forEach(
     ([attributeRef, storageOption]) => {
-      Vue.set(state.attributeView.storageOption, attributeRef, storageOption)
+      vue3Set(state.attributeView.storageOption, attributeRef, storageOption)
     }
   )
 
   Object.entries(data.minInterval).forEach(([attributeRef, defaultVal]) => {
-    Vue.set(state.attributeView.reportingMin, attributeRef, defaultVal)
+    vue3Set(state.attributeView.reportingMin, attributeRef, defaultVal)
   })
 
   Object.entries(data.maxInterval).forEach(([attributeRef, defaultVal]) => {
-    Vue.set(state.attributeView.reportingMax, attributeRef, defaultVal)
+    vue3Set(state.attributeView.reportingMax, attributeRef, defaultVal)
   })
   Object.entries(data.reportableChange).forEach(
     ([attributeRef, defaultVal]) => {
-      Vue.set(state.attributeView.reportableChange, attributeRef, defaultVal)
+      vue3Set(state.attributeView.reportableChange, attributeRef, defaultVal)
     }
   )
 }
 
 export function setCommandLists(state, data) {
-  Vue.set(state.commandView, 'selectedIn', data.incoming)
-  Vue.set(state.commandView, 'selectedOut', data.outgoing)
+  vue3Set(state.commandView, 'selectedIn', data.incoming)
+  vue3Set(state.commandView, 'selectedOut', data.outgoing)
 }
 
 export function setRecommendedClusterList(state, data) {
-  Vue.set(state.clustersView, 'recommendedClients', data.recommendedClients)
-  Vue.set(state.clustersView, 'recommendedServers', data.recommendedServers)
+  vue3Set(state.clustersView, 'recommendedClients', data.recommendedClients)
+  vue3Set(state.clustersView, 'recommendedServers', data.recommendedServers)
 }
 
 export function setRequiredAttributesList(state, data) {
-  Vue.set(state.attributeView, 'requiredAttributes', data.requiredAttributes)
+  vue3Set(state.attributeView, 'requiredAttributes', data.requiredAttributes)
 }
 
 export function setRequiredCommandsList(state, data) {
-  Vue.set(state.commandView, 'requiredCommands', data.requiredCommands)
+  vue3Set(state.commandView, 'requiredCommands', data.requiredCommands)
 }
 
 export function setLeftDrawerState(state, data) {
@@ -398,7 +405,7 @@ export function initializeSessionKeyValues(state, sessionKeyValues) {
 }
 
 export function setOptions(state, data) {
-  Vue.set(state.genericOptions, data.option, [
+  vue3Set(state.genericOptions, data.option, [
     ...new Set(
       data.data
         .filter((d) => d.optionCategory === data.option)
@@ -410,17 +417,17 @@ export function setOptions(state, data) {
 }
 
 export function setSelectedGenericOption(state, keyValue) {
-  Vue.set(state.selectedGenericOptions, keyValue.key, keyValue.value)
+  vue3Set(state.selectedGenericOptions, keyValue.key, keyValue.value)
 }
 
 export function loadSessionKeyValues(state, sessionKeyValues) {
   sessionKeyValues.map((keyValue) => {
-    Vue.set(state.selectedGenericOptions, keyValue.key, keyValue.value)
+    vue3Set(state.selectedGenericOptions, keyValue.key, keyValue.value)
   })
 }
 
 export function setDefaultUiMode(state, uiMode) {
-  Vue.set(state.calledArgs, `defaultUiMode`, uiMode)
+  vue3Set(state.calledArgs, `defaultUiMode`, uiMode)
 }
 
 export function setDebugNavBar(state, debugNavBar) {
@@ -432,7 +439,7 @@ export function setStandalone(state, standalone) {
 }
 
 export function setOpenDomain(state, context) {
-  Vue.set(state.clusterManager.openDomains, context.domainName, context.value)
+  vue3Set(state.clusterManager.openDomains, context.domainName, context.value)
 }
 
 export function setDomainFilter(state, filterEnabledClusterPair) {
@@ -508,21 +515,21 @@ export function toggleShowExceptionIcon(state, value) {
 }
 
 export function updateProjectPackages(state, packages) {
-  Vue.set(state, 'packages', packages)
+  vue3Set(state, 'packages', packages)
 }
 
 export function updateUcComponentState(state, data) {
   if (data != null) {
-    Vue.set(state.studio, 'projectInfoJson', data.projectInfoJson)
-    Vue.set(state.studio, 'ucComponents', data.ucComponents)
-    Vue.set(state.studio, 'selectedUcComponents', data.selectedUcComponents)
-    Vue.set(state.studio, 'selectedUcComponentIds', data.selectedUcComponentIds)
+    vue3Set(state.studio, 'projectInfoJson', data.projectInfoJson)
+    vue3Set(state.studio, 'ucComponents', data.ucComponents)
+    vue3Set(state.studio, 'selectedUcComponents', data.selectedUcComponents)
+    vue3Set(state.studio, 'selectedUcComponentIds', data.selectedUcComponentIds)
   }
 }
 
 export function loadZclClusterToUcComponentDependencyMap(state, map) {
   if (map != null)
-    Vue.set(state.studio, 'zclSdkExtClusterToUcComponentMap', map)
+    vue3Set(state.studio, 'zclSdkExtClusterToUcComponentMap', map)
 }
 
 export function selectZapConfig(state, val) {
@@ -530,7 +537,7 @@ export function selectZapConfig(state, val) {
 }
 
 export function setAllEndpointsData(state, value) {
-  Vue.set(state.allEndpointsData, value.endpointId, {
+  vue3Set(state.allEndpointsData, value.endpointId, {
     selectedservers: value.servers,
     selectedReporting: value.report,
     selectedAttributes: value.attr,
@@ -585,7 +592,7 @@ export function setDeviceTypeRefAndDeviceIdPair(state, value) {
 
 // This function will toggle showEndpointData state and save that state
 export function toggleShowEndpoint(state, item) {
-  Vue.set(state.showEndpointData, item.id, item.value)
+  vue3Set(state.showEndpointData, item.id, item.value)
 }
 
 // This function will update the cluster stage if cluster changed it will update the endpoint data

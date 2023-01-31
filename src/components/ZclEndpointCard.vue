@@ -169,8 +169,10 @@ limitations under the License.
           <q-checkbox
             class="q-mt-xs"
             label="Don't show this dialog again"
-            :value="confirmDeleteEndpointDialog"
-            @input="confirmDeleteEndpointDialog = !confirmDeleteEndpointDialog"
+            :model-value="confirmDeleteEndpointDialog"
+            @update:model-value="
+              confirmDeleteEndpointDialog = !confirmDeleteEndpointDialog
+            "
           />
         </q-card-section>
         <q-card-actions>
@@ -217,9 +219,7 @@ limitations under the License.
 import ZclCreateModifyEndpoint from './ZclCreateModifyEndpoint.vue'
 import CommonMixin from '../util/common-mixin'
 import * as Storage from '../util/storage'
-import Vue from 'vue'
 import restApi from '../../src-shared/rest-api'
-import { setAttributeStateLists, setClusterList } from '../store/zap/actions'
 import * as Util from '../util/util'
 
 export default {
@@ -313,46 +313,42 @@ export default {
       })
     },
     getEndpointCardData() {
-      Vue.prototype
-        .$serverGet(
-          `${restApi.uri.endpointTypeClusters}${
-            this.endpointType[this.endpointReference]
-          }`
-        )
-        .then((res) => {
-          let enabledClients = []
-          let enabledServers = []
-          res.data.forEach((record) => {
-            if (record.enabled) {
-              if (record.side === 'client') {
-                enabledClients.push(record.clusterRef)
-              } else {
-                enabledServers.push(record.clusterRef)
-              }
+      this.$serverGet(
+        `${restApi.uri.endpointTypeClusters}${
+          this.endpointType[this.endpointReference]
+        }`
+      ).then((res) => {
+        let enabledClients = []
+        let enabledServers = []
+        res.data.forEach((record) => {
+          if (record.enabled) {
+            if (record.side === 'client') {
+              enabledClients.push(record.clusterRef)
+            } else {
+              enabledServers.push(record.clusterRef)
             }
-          })
-          this.selectedServers = [...enabledServers, ...enabledClients]
+          }
         })
+        this.selectedServers = [...enabledServers, ...enabledClients]
+      })
 
-      Vue.prototype
-        .$serverGet(
-          `${restApi.uri.endpointTypeAttributes}${
-            this.endpointType[this.endpointReference]
-          }`
-        )
-        .then((res) => {
-          this.selectedAttributes = []
-          this.selectedReporting = []
-          res.data.forEach((record) => {
-            let resolvedReference = Util.cantorPair(
-              record.attributeRef,
-              record.clusterRef
-            )
-            if (record.included) this.selectedAttributes.push(resolvedReference)
-            if (record.includedReportable)
-              this.selectedReporting.push(resolvedReference)
-          })
+      this.$serverGet(
+        `${restApi.uri.endpointTypeAttributes}${
+          this.endpointType[this.endpointReference]
+        }`
+      ).then((res) => {
+        this.selectedAttributes = []
+        this.selectedReporting = []
+        res.data.forEach((record) => {
+          let resolvedReference = Util.cantorPair(
+            record.attributeRef,
+            record.clusterRef
+          )
+          if (record.included) this.selectedAttributes.push(resolvedReference)
+          if (record.includedReportable)
+            this.selectedReporting.push(resolvedReference)
         })
+      })
     },
   },
   computed: {

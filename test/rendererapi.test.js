@@ -15,7 +15,7 @@
  *    limitations under the License.
  *
  *
- * @jest-environment node
+ * @jest-environment jsdom
  */
 
 import { renderer_api_info } from '../src/api/renderer_api'

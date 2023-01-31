@@ -16,7 +16,7 @@ limitations under the License.
 <template>
   <div>
     <q-toolbar class="shadow-2">
-      <q-btn icon="arrow_back" to="/" label="Back" data-test="go-back-button"/>
+      <q-btn icon="arrow_back" to="/" label="Back" data-test="go-back-button" />
     </q-toolbar>
     <q-splitter v-model="splitterModel" style="height: 100%">
       <template v-slot:before>
@@ -60,7 +60,7 @@ import PreferencePackage from './PreferencePackage.vue'
 import PreferenceGeneration from './PreferenceGeneration.vue'
 import PreferenceUser from './PreferenceUser.vue'
 export default {
-  name: 'Preference',
+  name: 'PreferencePage',
   components: {
     PreferencePackage,
     PreferenceGeneration,

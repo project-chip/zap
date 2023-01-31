@@ -51,16 +51,20 @@ limitations under the License.
         />
         <q-btn
           flat
-          @click="togglePreviewTab"
+          @click="
+            () => {
+              togglePreviewTab()
+              getGeneratedFiles()
+            }
+          "
           label="Preview"
-          v-on:click="getGeneratedFiles"
           data-test="preview"
         />
         <q-btn flat icon="settings" id="preference" to="/preference">
           <q-tooltip> Preferences </q-tooltip>
         </q-btn>
         <q-btn
-          v-if="this.$store.state.zap.showDevTools"
+          v-if="this.$store.state.zap.showDevTools && false"
           flat
           @click="showTutorial"
           icon="psychology_alt"
@@ -144,8 +148,10 @@ limitations under the License.
                     clickable
                     v-close-popup
                     @click="
-                      generationButtonText = file.category
-                      getGeneratedFile(file.category)
+                      () => {
+                        generationButtonText = file.category
+                        getGeneratedFile(file.category)
+                      }
                     "
                     :label="generationButtonText"
                   >
@@ -180,11 +186,11 @@ limitations under the License.
 
 <script>
 import UcComponentSetup from '../components/UcComponentSetup.vue'
-import Exceptions from '../components/Exceptions.vue'
+import Exceptions from '../components/ZclExceptions.vue'
 import ZclInformationSetup from '../components/ZclInformationSetup.vue'
 import ZclConfiguratorLayout from './ZclConfiguratorLayout.vue'
 import SqlQuery from '../components/SqlQuery.vue'
-import About from '../pages/About.vue'
+import About from '../pages/AboutPage.vue'
 import CommonMixin from '../util/common-mixin'
 const restApi = require(`../../src-shared/rest-api.js`)
 const rendApi = require(`../../src-shared/rend-api.js`)
@@ -196,7 +202,7 @@ export default {
   methods: {
     // This function will start vue tour steps
     showTutorial() {
-      this.$tours['ZclTour'].start()
+      // this.$tours['ZclTour'].start()
     },
     togglePreviewTab() {
       this.$store.commit('zap/togglePreviewTab')
@@ -237,7 +243,7 @@ export default {
           this.maxIndex = result.data['size']
           this.index = index
           this.currentFile = fileName
-          this.$refs.generationScroll.setScrollPosition(0)
+          this.$refs.generationScroll.setScrollPosition('vertical', 0)
         })
         .catch((err) => console.log('Server Get:' + err))
     },

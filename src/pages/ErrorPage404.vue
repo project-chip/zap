@@ -30,6 +30,6 @@ limitations under the License.
 
 <script>
 export default {
-  name: 'Error404',
+  name: 'ErrorPage404',
 }
 </script>

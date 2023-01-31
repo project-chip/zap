@@ -45,10 +45,10 @@
               <template v-if="customConfig === 'generate'">
                 <q-table
                   title="Zigbee Cluster Library metadata"
-                  :data="zclPropertiesRow"
+                  :rows="zclPropertiesRow"
                   :columns="newSessionCol"
                   row-key="name"
-                  :pagination.sync="newGenerationPagination"
+                  v-model:pagination="newGenerationPagination"
                   hide-bottom
                 >
                   <template v-slot:header="props">
@@ -86,10 +86,10 @@
                 </q-table>
                 <q-table
                   title="Zap Generation Templates"
-                  :data="zclGenRow"
+                  :rows="zclGenRow"
                   :columns="newSessionCol"
                   row-key="name"
-                  :pagination.sync="newGenerationPagination"
+                  v-model:pagination="newGenerationPagination"
                   hide-bottom
                 >
                   <template v-slot:top>
@@ -134,10 +134,10 @@
               <template v-else>
                 <q-table
                   title=""
-                  :data="loadPreSessionData"
+                  :rows="loadPreSessionData"
                   :columns="loadPreSessionCol"
                   row-key="name"
-                  :pagination.sync="pagination"
+                  v-model:pagination="pagination"
                 >
                   <template v-slot:header="props">
                     <q-tr :props="props">

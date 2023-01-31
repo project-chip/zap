@@ -40,9 +40,9 @@ describe(
       })
     })
     it('Check Configuration page', () => {
-      cy.get(
-        ':nth-child(7) > .q-btn > .q-btn__wrapper > .q-btn__content > .notranslate'
-      ).click({ force: true })
+      cy.get(':nth-child(7) > .q-btn > .q-btn__content > .notranslate').click({
+        force: true,
+      })
       cy.fixture('data').then((data) => {
         cy.get('tr.table_body').contains(data.attribute3).should('be.visible')
       })

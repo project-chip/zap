@@ -40,7 +40,7 @@ limitations under the License.
             filled
             class="col"
             :rules="[reqInteger, reqPosInt]"
-            @input="setProfileId"
+            @update:model-value="setProfileId"
           />
           <q-select
             label="Device"
@@ -56,7 +56,7 @@ limitations under the License.
             :rules="[(val) => val != null || '* Required']"
             :option-label="getDeviceOptionLabel"
             @filter="filterDeviceTypes"
-            @input="setDeviceTypeCallback"
+            @update:model-value="setDeviceTypeCallback"
             data-test="select-endpoint-input"
           >
             <template v-slot:selected>
@@ -152,7 +152,7 @@ export default {
   },
   data() {
     return {
-      deviceTypeOptions: this.zclDeviceTypeOptions,
+      deviceTypeOptions: null,
       shownEndpoint: {
         endpointIdentifier: 1,
         profileIdentifier: null,
@@ -456,11 +456,10 @@ export default {
       })
     },
   },
-  created() {
-    if (this.$serverGet != null)
-      this.$store.dispatch('zap/updateZclDeviceTypes')
+  beforeMount() {
+    this.deviceTypeOptions = this.zclDeviceTypeOptions
   },
-  destroyed() {
+  unmounted() {
     // This function will empty the deviceTypeRef state
     this.$store.commit('zap/setDeviceTypeRefAndDeviceIdPair', {
       deviceTypeRef: null,

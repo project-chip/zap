@@ -15,7 +15,7 @@
  *    limitations under the License.
  *
  *
- * @jest-environment node
+ * @jest-environment jsdom
  */
 
 const util = require('../src/util/util.js')

@@ -61,9 +61,9 @@ limitations under the License.
           outlined
           clearable
           :placeholder="placeHolderText"
-          @input="setIndividualClusterFilterString($event)"
+          @update:model-value="setIndividualClusterFilterString($event)"
           @clear="setIndividualClusterFilterString('')"
-          :value="individualClusterFilterString"
+          :model-value="individualClusterFilterString"
         >
           <template v-slot:prepend>
             <q-icon name="search" />

@@ -36,7 +36,7 @@ limitations under the License.
 const restApi = require(`../../src-shared/rest-api.js`)
 
 export default {
-  name: 'About',
+  name: 'AboutPage',
   mounted() {
     if (this.$serverGet != null) {
       this.$serverGet(restApi.uri.version).then((result) => {

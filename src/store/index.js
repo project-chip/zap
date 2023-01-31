@@ -20,23 +20,17 @@
  *
  * Copyright (c) 2020 Silicon Labs
  */
-import Vue from 'vue'
-import Vuex from 'vuex'
-import VueTour from 'vue-tour'
 
-require('vue-tour/dist/vue-tour.css')
-// we first import the module
+import { store } from 'quasar/wrappers'
+import { createStore } from 'vuex'
 import zap from './zap'
 
-Vue.use(VueTour).use(Vuex)
-
-export default function (/* { ssrContext } */) {
-  const Store = new Vuex.Store({
+export default store(function (/* { ssrContext } */) {
+  const Store = createStore({
     modules: {
-      // then we reference it
       zap,
     },
   })
 
   return Store
-}
+})

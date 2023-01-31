@@ -15,12 +15,10 @@
  *    limitations under the License.
  *
  *
- * @jest-environment node
+ * @jest-environment jsdom
  */
 
-import ZapState from '../src/store/zap/state.js'
 import { timeout } from './test-util.js'
-const mutations = require('../src/store/zap/mutations.js')
 const CommonMixin = require('../src/util/common-mixin.js')
 
 test(

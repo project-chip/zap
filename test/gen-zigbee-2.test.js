@@ -446,12 +446,12 @@ test(
     let packageInfoPromises = allSessionPackages.map((pkg) =>
       queryPackage.getPackageByPackageId(db, pkg.packageRef)
     )
-    await Promise.all(packageInfoPromises)
-    let zclCustomXmlPackages = packageInfoPromises.filter(
-      (pkg) => pkg._W._W.type == 'zcl-xml-standalone'
+    let zclCustomXmlPackages = await Promise.all(packageInfoPromises).then(
+      (sessionPackages) =>
+        sessionPackages.filter((pkg) => pkg.type == 'zcl-xml-standalone')
     )
     let xmlPackageRemovalPromises = zclCustomXmlPackages.map((pkg) =>
-      queryPackage.deleteSessionPackage(db, sessionId, pkg._W._W.id)
+      queryPackage.deleteSessionPackage(db, sessionId, pkg.id)
     )
     await Promise.all(xmlPackageRemovalPromises)
 

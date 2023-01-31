@@ -23,7 +23,7 @@ describe('Testing enabled attributes amount', () => {
       cy.get(
         '.table_body:eq(2) > :nth-child(2) > .q-mt-xs > .q-toggle__inner'
       ).click()
-      cy.get('.router-link-active').contains('Back').click()
+      cy.contains('Back').click()
     })
   })
   it(
@@ -31,10 +31,12 @@ describe('Testing enabled attributes amount', () => {
     { retries: { runMode: 2, openMode: 2 } },
     () => {
       cy.fixture('data').then((data) => {
-        cy.get('[data-test="endpoint-enabled-attributes-amount"]').then(($div2) => {
-          const num2 = parseFloat($div2.text())
-          expect(num2).to.eq(Number(data.availableAttributes1))
-        })
+        cy.get('[data-test="endpoint-enabled-attributes-amount"]').then(
+          ($div2) => {
+            const num2 = parseFloat($div2.text())
+            expect(num2).to.eq(Number(data.availableAttributes1))
+          }
+        )
       })
     }
   )
