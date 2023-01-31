@@ -64,7 +64,7 @@ limitations under the License.
           <q-tooltip> Preferences </q-tooltip>
         </q-btn>
         <q-btn
-          v-if="this.$store.state.zap.showDevTools"
+          v-if="this.$store.state.zap.showDevTools && false"
           flat
           @click="showTutorial"
           icon="psychology_alt"
