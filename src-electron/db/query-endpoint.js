@@ -280,8 +280,6 @@ async function selectEndpointClusterEvents(db, clusterId, endpointTypeId) {
 SELECT
   E.EVENT_ID,
   E.CLUSTER_REF,
-  E.CLUSTER_CODE,
-  E.PACKAGE_REF,
   E.CODE,
   E.MANUFACTURER_CODE,
   E.NAME,
