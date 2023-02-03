@@ -274,7 +274,7 @@ ORDER BY C.CODE
  * @returns promise that resolves into endpoint cluster events
  */
 async function selectEndpointClusterEvents(db, clusterId, endpointTypeId) {
-  let rows = await dbApi.dbAll(
+  return dbApi.dbAll(
     db,
     `
 SELECT
@@ -296,18 +296,7 @@ ORDER BY E.MANUFACTURER_CODE, E.CODE
   `,
     [clusterId, endpointTypeId]
   )
-
-  return rows.map((row) => {
-    return {
-      id: row['EVENT_ID'],
-      name: row['NAME'],
-      code: row['CODE'],
-      clusterId: clusterId,
-      manufacturerCode: row['MANUFACTURER_CODE'],
-      isOptional: dbApi.fromDbBool(row['IS_OPTIONAL']),
-      hexCode: '0x' + bin.int16ToHex(row['CODE']),
-    }
-  })
+  .then((rows) => rows.map(dbMapping.map.event))
 }
 
 /**

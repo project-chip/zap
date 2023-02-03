@@ -86,8 +86,8 @@ function eventComparator(a, b) {
   if (a.manufacturerCode < b.manufacturerCode) return -1
   if (a.manufacturerCode > b.manufacturerCode) return 1
 
-  if (a.hexCode < b.hexCode) return -1
-  if (a.hexCode > b.hexCode) return 1
+  if (a.code < b.code) return -1
+  if (a.code > b.code) return 1
 
   return 0
 }
