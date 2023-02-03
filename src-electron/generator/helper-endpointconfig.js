@@ -513,7 +513,6 @@ async function collectAttributes(endpointTypes, options) {
   let commandMfgCodes = [] // Array of { index, mfgCode } objects
   let clusterMfgCodes = [] // Array of { index, mfgCode } objects
   let attributeMfgCodes = [] // Array of { index, mfgCode } objects
-  let eventMfgCodes = [] // Array of { index, mfgCode } objects
   let eventList = []
   let attributeList = []
   let commandList = []
@@ -867,14 +866,6 @@ async function collectAttributes(endpointTypes, options) {
           comment: cluster.comment,
         }
         eventList.push(event)
-
-        if (ev.manufacturerCode) {
-          let mfgEv = {
-            index: eventList.length - 1,
-            mfgCode: ev.manufacturerCode,
-          }
-          eventMfgCodes.push(mfgEv)
-        }
       })
 
       endpointAttributeSize += clusterAttributeSize
@@ -900,7 +891,6 @@ async function collectAttributes(endpointTypes, options) {
     commandList: commandList,
     eventList: eventList,
     longDefaults: longDefaults,
-    eventMfgCodes: eventMfgCodes,
     clusterMfgCodes: clusterMfgCodes,
     commandMfgCodes: commandMfgCodes,
     attributeMfgCodes: attributeMfgCodes,
