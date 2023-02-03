@@ -42,7 +42,7 @@
 #define GENERATED_EVENTS {{ chip_endpoint_generated_event_list }}
 // clang-format on
 
-#define ZAP_GENERATED_EVENTS_INDEX(index) ((chip::EventId *) (&generatedEvents[index]))
+#define ZAP_GENERATED_EVENTS_INDEX(index) (&generatedEvents[index])
 
 // Cluster function static arrays
 #define GENERATED_FUNCTION_ARRAYS   {{chip_endpoint_generated_functions}}
