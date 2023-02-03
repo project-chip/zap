@@ -279,10 +279,17 @@ async function selectEndpointClusterEvents(db, clusterId, endpointTypeId) {
     `
 SELECT
   E.EVENT_ID,
-  E.NAME,
+  E.CLUSTER_REF,
+  E.CLUSTER_CODE,
+  E.PACKAGE_REF,
   E.CODE,
   E.MANUFACTURER_CODE,
-  E.IS_OPTIONAL
+  E.NAME,
+  E.DESCRIPTION,
+  E.SIDE,
+  E.IS_OPTIONAL,
+  E.IS_FABRIC_SENSITIVE,
+  E.PRIORITY
 FROM
   EVENT AS E
 LEFT JOIN
