@@ -280,6 +280,15 @@ function setDefaultResponse(test, useSynthesizeWaitForReport) {
   const defaultResponse = test.expectMultipleResponses ? [] : {};
   setDefault(test, kResponseName, defaultResponse);
 
+  // filter 'values: null' for readEvent command.
+  if (kResponseName in test && test.expectMultipleResponses) {
+      const response = test[kResponseName];
+      if (kValuesName in response && response[kValuesName] == null) {
+          test[kResponseName] = []
+      }
+  }
+
+
   // There is different syntax for expressing the expected response, but in the
   // end it needs to be converted to an array of responses.
   if (kResponseName in test && !Array.isArray(test[kResponseName])) {
