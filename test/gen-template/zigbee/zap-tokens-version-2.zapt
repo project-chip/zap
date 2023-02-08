@@ -1,0 +1,171 @@
+{{zap_header}}
+
+// This file contains the tokens for nonSingletons stored in flash
+
+{{#token_attributes}}
+  {{#first}}
+// Identifier tags for tokens
+  {{/first}}
+  {{#if isSingleton}}
+// Creator for singleton attribute: {{name}}
+#define CREATOR_{{define}}_SINGLETON {{as_hex tokenId 4}}
+#define NVM3KEY_{{define}}_SINGLETON (NVM3KEY_DOMAIN_ZIGBEE | {{as_hex tokenId 4}})
+  {{else}}
+// Creator for attribute: {{name}}, endpoint: {{endpointId}}
+#define CREATOR_{{define}}_{{endpointId}} {{as_hex tokenId 4}}
+#define NVM3KEY_{{define}}_{{endpointId}} (NVM3KEY_DOMAIN_ZIGBEE | {{as_hex tokenId 4}})
+  {{/if}}
+{{/token_attributes}}
+
+
+{{#token_attribute_endpoints}}
+  {{#first}}
+// Types for the tokens
+#ifdef DEFINETYPES
+  {{/first}}
+{{/token_attribute_endpoints}}
+{{#all_user_cluster_generated_attributes}}
+    {{#if_compare 'NVM' storageOption operator='=='}}
+        {{#if_compare attributeSize 2 operator='>'}}
+typedef uint8_t tokType_{{as_snake_case define}}[{{attributeSize}}];
+        {{else}}
+typedef {{as_underlying_type type}} tokType_{{as_snake_case define}};
+        {{/if_compare}}
+    {{/if_compare}}
+{{/all_user_cluster_generated_attributes}}
+{{#token_attribute_endpoints}}
+  {{#first}}
+#endif // DEFINETYPES
+  {{/first}}
+{{/token_attribute_endpoints}}
+
+{{#token_attribute_endpoints}}
+  {{#first}}
+// Actual token definitions
+#ifdef DEFINETOKENS
+  {{/first}}
+{{/token_attribute_endpoints}}
+{{#all_user_cluster_generated_attributes}}
+    {{#if_compare 'NVM' storageOption operator='=='}}
+        {{#if isSingleton}}
+          {{#if (is_number_greater_than attributeSize 2)}}  
+DEFINE_BASIC_TOKEN({{define}}_SINGLETON, tokType_{{as_snake_case define}}, { {{as_generated_default_macro defaultValue attributeSize endian="big" isCommaTerminated=0}} })
+            {{else if defaultValue}}
+DEFINE_BASIC_TOKEN({{define}}_SINGLETON, tokType_{{as_snake_case define}}, {{as_hex defaultValue}})
+            {{else}}
+DEFINE_BASIC_TOKEN({{define}}_SINGLETON, tokType_{{as_snake_case define}}, 0)
+          {{/if}}
+        {{/if}}
+    {{/if_compare}}
+{{/all_user_cluster_generated_attributes}}
+
+{{#generated_clustes_details}}
+    {{#all_user_cluster_generated_attributes}}
+        {{#if_compare 'NVM' storageOption operator='=='}}
+            {{#unless isSingleton}}
+                {{#if (is_lowercase_equal ./clusterName ../clusterName)}}
+                    {{#if (is_lowercase_equal ./clusterSide ../clusterSide)}}
+                        {{#if_compare attributeSize 2 operator='>'}}
+DEFINE_BASIC_TOKEN({{define}}_{{../endpointIdentifier}}, tokType_{{as_snake_case define}}, { {{as_generated_default_macro defaultValue attributeSize endian="big" isCommaTerminated=0}} })
+                        {{else if defaultValue}}
+DEFINE_BASIC_TOKEN({{define}}_{{../endpointIdentifier}}, tokType_{{as_snake_case define}}, {{as_hex defaultValue}})
+                        {{else}}
+DEFINE_BASIC_TOKEN({{define}}_{{../endpointIdentifier}}, tokType_{{as_snake_case define}}, 0)
+                        {{/if_compare}}
+                    {{/if}}
+                {{/if}}
+            {{/unless}}
+        {{/if_compare}}
+    {{/all_user_cluster_generated_attributes}}
+{{/generated_clustes_details}}
+{{#token_attribute_endpoints}}
+  {{#first}}
+#endif // DEFINETOKENS
+  {{/first}}
+{{/token_attribute_endpoints}}
+
+{{#token_attribute_endpoints}}
+  {{#first}}
+// Macro snippet that loads all the attributes from tokens
+#define GENERATED_TOKEN_LOADER(endpoint) do {
+  {{/first}}
+{{/token_attribute_endpoints}}
+{{#all_user_cluster_generated_attributes}}
+    {{#first}}
+        {{#if_compare tokenizedAttributeSize 0 operator='>'}}
+  uint8_t ptr[{{maxTokenAttributeSize}}]; \
+        {{/if_compare}}
+        {{#if_compare nonSingletonTokenizedAttributeSize 0 operator='>'}}
+  uint8_t curNetwork = emberGetCurrentNetwork(); \
+  uint8_t epNetwork; \
+        {{/if_compare}}
+    {{/first}}
+    {{#if_compare 'NVM' storageOption operator='=='}}
+        {{#if isSingleton}}
+  halCommonGetToken((tokType_{{as_snake_case define}} *)ptr, TOKEN_{{define}}_SINGLETON); \
+  emberAfWrite{{#if isManufacturingSpecific}}ManufacturerSpecific{{/if}}{{as_camel_cased side false}}Attribute({{smallestEndpointIdentifier}}, ZCL_{{as_delimited_macro clusterName}}_CLUSTER_ID, ZCL_{{define}}_ATTRIBUTE_ID, {{#if isManufacturingSpecific}}{{as_hex mfgCode 4}}, {{/if}}(uint8_t*)ptr, ZCL_{{as_delimited_macro type}}_ATTRIBUTE_TYPE); \
+        {{/if}}
+    {{/if_compare}}
+{{/all_user_cluster_generated_attributes}}
+
+{{#token_attribute_endpoints isSingleton=0}}
+    {{#token_attributes endpointTypeRef isSingleton=0}}
+        {{#first}}
+  epNetwork = emberAfNetworkIndexFromEndpoint({{../endpointId}}); \
+  if({{../endpointId}} == (endpoint) || (EMBER_BROADCAST_ENDPOINT == (endpoint) && epNetwork == curNetwork)) { \
+        {{/first}}
+    halCommonGetToken((tokType_{{as_snake_case define}} *)ptr, TOKEN_{{define}}_{{../endpointId}}); \
+    emberAfWrite{{#if isManufacturingSpecific}}ManufacturerSpecific{{/if}}{{as_camel_cased side false}}Attribute({{../endpointId}}, ZCL_{{as_delimited_macro clusterName}}_CLUSTER_ID, ZCL_{{define}}_ATTRIBUTE_ID, {{#if isManufacturingSpecific}}{{as_hex mfgCode 4}}, {{/if}}(uint8_t*)ptr, ZCL_{{as_delimited_macro type}}_ATTRIBUTE_TYPE); \
+        {{#last}}
+  }
+        {{/last}}
+    {{/token_attributes}}
+    {{#last}}
+} while (false)
+    {{/last}}
+{{/token_attribute_endpoints}}
+
+{{#all_user_cluster_generated_attributes}}
+  {{#first}}
+    {{#if_compare tokenizedAttributeSize 0 operator='>'}}
+// Macro snippet that saves the attribute to token
+#define GENERATED_TOKEN_SAVER do {
+  uint8_t allZeroData[{{maxTokenAttributeSize}}];                                                                                                     \
+  MEMSET(allZeroData, 0, {{maxTokenAttributeSize}});                                                                                                  \
+  if ( data == NULL ) { data = allZeroData; }
+    {{/if_compare}}
+  {{/first}}
+{{/all_user_cluster_generated_attributes}}
+{{#token_attribute_clusters isSingleton=1}}
+    if ( {{as_hex code 4}} == clusterId ) {
+    {{#all_user_cluster_generated_attributes}}
+        {{#if_compare 'NVM' storageOption operator='=='}}
+            {{#if isSingleton}}
+                {{#if (is_lowercase_equal ./clusterName ../name)}}
+if ( {{as_hex code 4}} == metadata->attributeId && {{as_hex mfgCode 4}} == emberAfGetMfgCode(metadata) && {{#if_compare 'server' side operator='=='}}!{{/if_compare}}emberAfAttributeIsClient(metadata) ) {   \
+        halCommonSetToken(TOKEN_{{define}}_SINGLETON, data); } 
+                {{/if}}
+            {{/if}}
+        {{/if_compare}}
+    {{/all_user_cluster_generated_attributes}}
+    }
+{{/token_attribute_clusters}}
+{{#token_attribute_endpoints isSingleton=0}}
+if ( {{endpointId}} == endpoint ) { \
+    {{#token_attribute_clusters endpointTypeRef isSingleton=0}}
+    {{#not_first}}else {{/not_first}}if ( {{as_hex code 4}} == clusterId ) { \
+        {{#token_attributes ../endpointTypeRef isSingleton=0}}
+          {{#if (is_lowercase_equal ./clusterName ../name)}}
+if ( {{as_hex code 4}} == metadata->attributeId && {{as_hex mfgCode 4}} == emberAfGetMfgCode(metadata) && {{#if side}}!{{/if}}emberAfAttributeIsClient(metadata) ) \
+          halCommonSetToken(TOKEN_{{define}}_{{../../endpointId}}, data); \
+          {{/if}}
+        {{/token_attributes}}
+    }
+    {{/token_attribute_clusters}}
+}
+{{/token_attribute_endpoints}}
+{{#token_attribute_endpoints}}
+  {{#first}}
+} while (false)
+  {{/first}}
+{{/token_attribute_endpoints}}

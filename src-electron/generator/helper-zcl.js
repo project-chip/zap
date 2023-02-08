@@ -2217,10 +2217,15 @@ async function if_mfg_specific_cluster(clusterId, options) {
  * @param attributeSize
  * @param options
  * @returns Formatted attribute value based on given arguments
+ * Available options:
+ * - endian: Specify 'big' or 'little' endian format
+ * - isCommaTerminated: '0' or '1' for output to have a ',' at the end
  */
 async function as_generated_default_macro(value, attributeSize, options) {
   let default_macro_signature = ''
   let temp = ''
+  let isCommaTerminated =
+    'isCommaTerminated' in options.hash ? options.hash.isCommaTerminated : true
   if (attributeSize > 2) {
     // String value
     if (isNaN(value)) {
@@ -2260,7 +2265,9 @@ async function as_generated_default_macro(value, attributeSize, options) {
       .reverse()
       .join(' ')
   }
-  return default_macro_signature
+  return isCommaTerminated
+    ? default_macro_signature
+    : default_macro_signature.trim().slice(0, -1)
 }
 
 /**

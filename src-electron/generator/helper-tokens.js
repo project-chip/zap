@@ -19,6 +19,8 @@ const templateUtil = require('./template-util')
 const types = require('../util/types.js')
 const string = require('../util/string')
 const helperC = require('./helper-c.js')
+const queryAttribute = require('../db/query-attribute.js')
+const queryCluster = require('../db/query-cluster.js')
 
 function token_cluster_create(config) {
   return {
@@ -227,12 +229,146 @@ function debug_object(obj) {
   return JSON.stringify(obj)
 }
 
+/**
+ * Util function that extracts all the token attribute information.
+ * @param {*} context
+ * @param {*} options
+ * @returns Information on all token attributes in the configuration.
+ */
+async function token_attribute_util(context, options) {
+  let packageIds = await templateUtil.ensureZclPackageIds(context)
+  let res = await queryAttribute.selectAllUserTokenAttributes(
+    context.global.db,
+    context.global.sessionId,
+    packageIds,
+    options
+  )
+  return res
+}
+
+/**
+ * Get information about all the token attributes in the configuration or this
+ * helper can be used within an endpoint block helper to fetch the
+ * corresponding token attributes based on endpoint type given.
+ * Available Options:
+ * isSingleton: 0/1, option can be used to filter attributes based on singleton
+ * or non-singleton(Available with endpointTypeRef only)
+ * @param {*} endpointTypeRef
+ * @param {*} options
+ * @returns singleton and non-singleton token attributes along with their
+ * endpoint information. Singleton attributes are only returned once whereas
+ * non-singleton attributes are returned per endpoint. However if used within
+ * an endpoint block helper it returns token_attributes for a given endpoint
+ * type.
+ */
+async function token_attributes(endpointTypeRef, options) {
+  if (typeof endpointTypeRef != 'object') {
+    let packageIds = await templateUtil.ensureZclPackageIds(this)
+    let endpointTokenAttributes =
+      await queryAttribute.selectTokenAttributesForEndpoint(
+        this.global.db,
+        packageIds,
+        endpointTypeRef,
+        options
+      )
+    return templateUtil.collectBlocks(endpointTokenAttributes, options, this)
+  } else {
+    // Since no enpointTypeRef was provided, options are entailed within
+    // endpointTypeRef
+    options = endpointTypeRef
+    let allTokenAttributes = await token_attribute_util(this, options)
+    return templateUtil.collectBlocks(allTokenAttributes, options, this)
+  }
+}
+
+/**
+ * This helper can return all token associated clusters across endpoints or
+ * this helper can be used within an endpoint block helper to fetch the
+ * corresponding token associated clusters.
+ * Available Options:
+ * isSingleton: 0/1, option can be used to filter clusters based on singleton
+ * or non-singleton attributes.
+ * @param {*} endpointTypeRef
+ * @param {*} options
+ * @returns Token associated clusters for a particular endpoint type or all
+ * token associated clusters across endpoints.
+ */
+async function token_attribute_clusters(endpointTypeRef, options) {
+  let packageIds = await templateUtil.ensureZclPackageIds(this)
+  if (typeof endpointTypeRef != 'object') {
+    // Token attribute clusters based on given endpoint type reference
+    let endpointTokenAttributeClusters =
+      await queryCluster.selectTokenAttributeClustersForEndpoint(
+        this.global.db,
+        packageIds,
+        endpointTypeRef,
+        options
+      )
+    return templateUtil.collectBlocks(
+      endpointTokenAttributeClusters,
+      options,
+      this
+    )
+  } else {
+    // All token attribute clusters available in the configuration
+    // Since no enpointTypeRef was provided, options are entailed within
+    // endpointTypeRef
+    options = endpointTypeRef
+    let allTokenAttributeClusters =
+      await queryCluster.selectAllUserClustersWithTokenAttributes(
+        this.global.db,
+        this.global.sessionId,
+        packageIds,
+        options
+      )
+    return templateUtil.collectBlocks(allTokenAttributeClusters, options, this)
+  }
+}
+
+/**
+ * Get all endpoints which have token attributes in the configuration.
+ * AvailableOptions:
+ * - isSingleton: 0/1, option can be used to filter endpoints based on singleton
+ * or non-singleton.
+ * @param {*} options
+ * @returns all endpoints with token attributes
+ */
+async function token_attribute_endpoints(options) {
+  let isSingletonSpecific = 'isSingleton' in options.hash
+  let allTokenAttributes = await token_attribute_util(this, options)
+  if (isSingletonSpecific) {
+    allTokenAttributes = allTokenAttributes.filter(
+      (item) => item.isSingleton == options.hash.isSingleton
+    )
+  }
+  let uniqueEndpoints = [
+    ...new Map(
+      allTokenAttributes.map((item) => [
+        item['endpointId'],
+        { endpointId: item.endpointId, endpointTypeRef: item.endpointTypeRef },
+      ])
+    ).values(),
+  ]
+  return templateUtil.collectBlocks(uniqueEndpoints, options, this)
+}
+
+const dep = templateUtil.deprecatedHelper
+
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
 //
 // Note: these exports are public API. Templates that might have been created in the past and are
 // available in the wild might depend on these names.
 // If you rename the functions, you need to still maintain old exports list.
 
-exports.tokens_context = tokens_context
-exports.token_next = token_next
+exports.tokens_context = dep(
+  tokens_context,
+  'tokens_context has been deprecated. Use token_attributes, token_attribute_clusters and token_attribute_endpoints instead.'
+)
+exports.token_next = dep(
+  token_next,
+  'token_next has been deprecated. Use token_attributes, token_attribute_clusters and token_attribute_endpoints instead.'
+)
 exports.debug_object = debug_object
+exports.token_attributes = token_attributes
+exports.token_attribute_clusters = token_attribute_clusters
+exports.token_attribute_endpoints = token_attribute_endpoints

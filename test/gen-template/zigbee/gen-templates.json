@@ -249,6 +249,11 @@
       "output": "zap-tokens.h"
     },
     {
+      "path": "zap-tokens-version-2.zapt",
+      "name": "ZCL tokens version 2",
+      "output": "zap-tokens-version-2.h"
+    },
+    {
       "path": "atomics.zapt",
       "name": "ZCL Atomics",
       "output": "atomics.out"

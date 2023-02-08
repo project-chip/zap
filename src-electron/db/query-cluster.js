@@ -160,5 +160,129 @@ ORDER BY
     .then((rows) => rows.map(mapFunction))
 }
 
+/**
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} packageIds
+ * @param {*} options
+ * @returns All token attribute clusters across endpoints. Clusters can be
+ * filtered based on the singleton/non-singleton attributes.
+ */
+async function selectAllUserClustersWithTokenAttributes(
+  db,
+  sessionId,
+  packageIds,
+  options
+) {
+  let singletonQuery =
+    'isSingleton' in options.hash
+      ? `AND ENDPOINT_TYPE_ATTRIBUTE.SINGLETON=${options.hash.isSingleton}`
+      : ``
+
+  let rows = await dbApi.dbAll(
+    db,
+    `
+  SELECT
+    CLUSTER.NAME,
+    CLUSTER.CODE,
+    ENDPOINT_TYPE_CLUSTER.SIDE,
+    COUNT() OVER (PARTITION BY ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF) AS TOKEN_ATTRIBUTES_COUNT
+  FROM
+    ENDPOINT_TYPE_ATTRIBUTE
+  INNER JOIN
+    ENDPOINT_TYPE_CLUSTER
+  ON 
+    ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
+  INNER JOIN
+    ENDPOINT_TYPE
+  ON
+    ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+  INNER JOIN
+    CLUSTER
+  ON
+    ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = CLUSTER.CLUSTER_ID
+  WHERE
+    ENDPOINT_TYPE.SESSION_REF = ?
+  AND
+    ENDPOINT_TYPE_CLUSTER.ENABLED=1
+  AND
+    CLUSTER.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
+  ${singletonQuery}
+  AND
+    ENDPOINT_TYPE_ATTRIBUTE.STORAGE_OPTION='NVM'
+  AND
+    ENDPOINT_TYPE_ATTRIBUTE.INCLUDED=1
+  GROUP BY
+    CLUSTER.CODE, CLUSTER.MANUFACTURER_CODE
+    `,
+    sessionId
+  )
+
+  return rows.map(dbMapping.map.endpointTypeClusterExtended)
+}
+
+/**
+ *
+ * @param {*} db
+ * @param {*} packageIds
+ * @param {*} endpointTypeRef
+ * @param {*} options
+ * @returns Clusters which have token attributes based on the endpoint type
+ * reference given. Can also filter the clusters based on singleton and
+ * non-singlton attributes.
+ */
+async function selectTokenAttributeClustersForEndpoint(
+  db,
+  packageIds,
+  endpointTypeRef,
+  options
+) {
+  let singletonQuery =
+    'isSingleton' in options.hash
+      ? `AND ENDPOINT_TYPE_ATTRIBUTE.SINGLETON=${options.hash.isSingleton}`
+      : ``
+
+  let rows = await dbApi.dbAll(
+    db,
+    `
+  SELECT
+    CLUSTER.NAME AS NAME,
+    CLUSTER.DEFINE,
+    CLUSTER.MANUFACTURER_CODE AS CLUSTER_MANUFACTURER_CODE,
+    CLUSTER.CODE
+  FROM
+    ENDPOINT_TYPE_ATTRIBUTE
+  INNER JOIN
+    ENDPOINT_TYPE_CLUSTER
+  ON
+    ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
+  INNER JOIN
+    CLUSTER
+  ON
+    ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = CLUSTER.CLUSTER_ID
+  WHERE
+    ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF = ?
+  AND
+    ENDPOINT_TYPE_ATTRIBUTE.INCLUDED = 1
+  AND
+    ENDPOINT_TYPE_CLUSTER.ENABLED = 1
+  AND
+    ENDPOINT_TYPE_ATTRIBUTE.STORAGE_OPTION = 'NVM'
+  AND
+    CLUSTER.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
+  ${singletonQuery}
+  GROUP BY
+    CLUSTER.CODE, CLUSTER.MANUFACTURER_CODE
+    `,
+    endpointTypeRef
+  )
+  return rows.map(dbMapping.map.cluster)
+}
+
 exports.selectClusterDetailsFromEnabledClusters =
   selectClusterDetailsFromEnabledClusters
+exports.selectAllUserClustersWithTokenAttributes =
+  selectAllUserClustersWithTokenAttributes
+exports.selectTokenAttributeClustersForEndpoint =
+  selectTokenAttributeClustersForEndpoint
