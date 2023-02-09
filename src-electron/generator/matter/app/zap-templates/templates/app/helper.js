@@ -102,6 +102,16 @@ function chip_endpoint_generated_functions() {
         hasFunctionArray = true;
       }
 
+      if (configData.ClustersWithShutdownFunctions.includes(clusterName)) {
+        hasFunctionArray = true;
+        functionList = functionList.concat(
+          `  (EmberAfGenericClusterFunction) Matter${cHelper.asCamelCased(
+             clusterName,
+             false
+          )}ClusterServerShutdownCallback,\\\n`
+        );
+      }
+
       if (configData.ClustersWithPreAttributeChangeFunctions.includes(clusterName)) {
         functionList = functionList.concat(
           `  (EmberAfGenericClusterFunction) Matter${cHelper.asCamelCased(
@@ -216,6 +226,11 @@ function chip_endpoint_cluster_list() {
 
       if (configData.ClustersWithAttributeChangedFunctions.includes(clusterName)) {
         c.mask.push('ATTRIBUTE_CHANGED_FUNCTION');
+        hasFunctionArray = true;
+      }
+
+      if (configData.ClustersWithShutdownFunctions.includes(clusterName)) {
+        c.mask.push('SHUTDOWN_FUNCTION');
         hasFunctionArray = true;
       }
 
