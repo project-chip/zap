@@ -667,7 +667,6 @@
   { "name": "isString", "isDeprecated": false, "category": "matter" },
   { "name": "isStruct", "isDeprecated": true },
   { "name": "isTestOnlyCluster", "isDeprecated": false, "category": "matter" },
-  { "name": "isWeaklyTypedEnum", "isDeprecated": false, "category": "matter" },
   { "name": "iterate", "isDeprecated": false },
   { "name": "iterate_accumulator", "isDeprecated": false },
   { "name": "iterateAccumulator", "isDeprecated": true },
