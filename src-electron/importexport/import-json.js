@@ -266,10 +266,9 @@ async function importPackages(db, packages, zapFilePath, packageMatch) {
 async function importEndpointTypes(
   db,
   sessionId,
-  packageId,
+  allZclPackageIds,
   endpointTypes,
-  endpoints,
-  newPackageIds
+  endpoints
 ) {
   let allQueries = []
   let sortedEndpoints = {}
@@ -286,7 +285,7 @@ async function importEndpointTypes(
     endpointTypes.forEach((et, index) => {
       allQueries.push(
         queryImpexp
-          .importEndpointType(db, sessionId, [packageId, ...newPackageIds], et)
+          .importEndpointType(db, sessionId, allZclPackageIds, et)
           .then((endpointId) => {
             // Now we need to import commands, attributes and clusters.
             let promises = []
@@ -309,7 +308,7 @@ async function importEndpointTypes(
                 queryImpexp
                   .importClusterForEndpointType(
                     db,
-                    [packageId, ...newPackageIds],
+                    allZclPackageIds,
                     endpointId,
                     cluster
                   )
@@ -321,7 +320,7 @@ async function importEndpointTypes(
                         ps.push(
                           queryImpexp.importCommandForEndpointType(
                             db,
-                            [packageId, ...newPackageIds],
+                            allZclPackageIds,
                             endpointId,
                             endpointClusterId,
                             command
@@ -334,7 +333,7 @@ async function importEndpointTypes(
                         ps.push(
                           queryImpexp.importAttributeForEndpointType(
                             db,
-                            [packageId, ...newPackageIds],
+                            allZclPackageIds,
                             endpointId,
                             endpointClusterId,
                             attribute
@@ -347,7 +346,7 @@ async function importEndpointTypes(
                         ps.push(
                           queryImpexp.importEventForEndpointType(
                             db,
-                            [packageId, ...newPackageIds],
+                            allZclPackageIds,
                             endpointId,
                             endpointClusterId,
                             event
@@ -425,37 +424,54 @@ async function jsonDataLoader(db, state, sessionId, packageMatch) {
   await Promise.all(mainPackagePromise)
 
   // Loading custom xml after the basic xml packages have been loaded
+
   let zclXmlStandAlonePackages = state.package.filter(
     (pkg) => pkg.type == dbEnum.packageType.zclXmlStandalone
   )
-  // import any packages new to the DB
-  let newPkgs = await Promise.all(
-    state.package.map((pkg) =>
-      queryPackage.getPackageIdByPathAndTypeAndVersion(
+
+  // First gather all package Ids...
+  let allExistingPackageIds = await Promise.all(
+    state.package.map(async (pkg) => {
+      let packageId = await queryPackage.getPackageIdByPathAndTypeAndVersion(
         db,
         getPkgPath(pkg, state.filePath),
         pkg.type,
         pkg.version
       )
-    )
+      return {
+        packageId: packageId,
+        packageType: pkg.type,
+      }
+    })
   )
-    .then((pkgIds) =>
-      pkgIds.map((pkgId, index) => {
-        // packages that is new to DB will carry null value.
-        if (pkgId) {
-          return null
-        } else {
-          return state.package[index]
-        }
-      })
-    )
-    .then((newPkgs) => newPkgs.filter((x) => x))
 
-  let newPkgIds = (
+  // ... some are null, which means that they need to be loaded, some are not null.
+  // Lets gather the actual packages that did not have a pkgId, so that they will be loaded
+  let packagesThatWillHaveToBeLoaded = allExistingPackageIds
+    .map((pkg, index) => {
+      // packages that is new to DB will carry null value.
+      if (pkg.packageId) {
+        return null
+      } else {
+        return state.package[index]
+      }
+    })
+    .filter((x) => x)
+
+  let existingCustomXmlPackageIds = allExistingPackageIds
+    .filter(
+      (p) =>
+        p.packageType === dbEnum.packageType.zclXmlStandalone &&
+        p.packageId != null
+    )
+    .map((p) => p.packageId)
+
+  // New pkgIds will contain the IDs of the packages that we had to load...
+  let newlyLoadedCustomPackageIds = (
     await Promise.all(
-      newPkgs.map((pkg) => {
+      packagesThatWillHaveToBeLoaded.map((pkg) => {
         let filePath = getPkgPath(pkg, state.filePath)
-        if (filePath.endsWith('.xml')) {
+        if (pkg.type === dbEnum.packageType.zclXmlStandalone) {
           return zclLoader.loadIndividualFile(db, filePath, sessionId)
         } else {
           return {}
@@ -495,14 +511,17 @@ async function jsonDataLoader(db, state, sessionId, packageMatch) {
   }
 
   if ('endpointTypes' in state) {
+    const allZclPackageIds = []
+    allZclPackageIds.push(mainPackageData.zclPackageId)
+    allZclPackageIds.push(...existingCustomXmlPackageIds)
+    allZclPackageIds.push(...newlyLoadedCustomPackageIds)
     promisesStage1.push(
       importEndpointTypes(
         db,
         sessionId,
-        mainPackageData.zclPackageId,
+        allZclPackageIds,
         state.endpointTypes,
-        state.endpoints,
-        newPkgIds
+        state.endpoints
       )
     )
   }
