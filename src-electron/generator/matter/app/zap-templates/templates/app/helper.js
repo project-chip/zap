@@ -44,50 +44,33 @@ const kGlobalAttributes = [
   0xfffd, // FeatureMap
 ];
 
+let configData = undefined;
+function getConfigData(global) {
+  if (configData === undefined) {
+    let f = global.resource('config-data');
+    // NOTE: This has to be sync, so we can use this data in if conditions.
+    let rawData = fs.readFileSync(f, { encoding: 'utf8', flag: 'r' });
+    configData = YAML.parse(rawData);
+  }
+  return configData;
+}
+
+function isInConfigList(string, listName)
+{
+  const data = getConfigData(this.global);
+  return data[listName].includes(string);
+}
+
 //  Endpoint-config specific helpers
 // these helpers are a Hot fix for the "GENERATED_FUNCTIONS" problem
 // They should be removed or replace once issue #4369 is resolved
 // These helpers only works within the endpoint_config iterator
 
-// List of all cluster with generated functions
-const endpointClusterWithInit = [
-  'Basic',
-  'Color Control',
-  'Groups',
-  'Identify',
-  'Level Control',
-  'Localization Configuration',
-  'Occupancy Sensing',
-  'On/Off',
-  'Pump Configuration and Control',
-  'Scenes',
-  'Time Format Localization',
-  'Thermostat',
-  'Mode Select',
-];
-const endpointClusterWithAttributeChanged = [
-  'Bridged Device Basic',
-  'Door Lock',
-  'Identify',
-  'Pump Configuration and Control',
-  'Window Covering',
-  'Fan Control',
-];
-const endpointClusterWithPreAttribute = [
-  'Door Lock',
-  'Pump Configuration and Control',
-  'Thermostat User Interface Configuration',
-  'Time Format Localization',
-  'Localization Configuration',
-  'Mode Select',
-  'Fan Control',
-  'Thermostat',
-];
-
 /**
  * Populate the GENERATED_FUNCTIONS field
  */
 function chip_endpoint_generated_functions() {
+  const configData = getConfigData(this.global);
   let alreadySetCluster = [];
   let ret = '\\\n';
   this.clusterList.forEach((c) => {
@@ -99,7 +82,7 @@ function chip_endpoint_generated_functions() {
     }
     if (c.comment.includes('server')) {
       let hasFunctionArray = false;
-      if (endpointClusterWithInit.includes(clusterName)) {
+      if (configData.ClustersWithInitFunctions.includes(clusterName)) {
         hasFunctionArray = true;
         functionList = functionList.concat(
           `  (EmberAfGenericClusterFunction) emberAf${cHelper.asCamelCased(
@@ -109,7 +92,7 @@ function chip_endpoint_generated_functions() {
         );
       }
 
-      if (endpointClusterWithAttributeChanged.includes(clusterName)) {
+      if (configData.ClustersWithAttributeChangedFunctions.includes(clusterName)) {
         functionList = functionList.concat(
           `  (EmberAfGenericClusterFunction) Matter${cHelper.asCamelCased(
             clusterName,
@@ -119,7 +102,7 @@ function chip_endpoint_generated_functions() {
         hasFunctionArray = true;
       }
 
-      if (endpointClusterWithPreAttribute.includes(clusterName)) {
+      if (configData.ClustersWithPreAttributeChangeFunctions.includes(clusterName)) {
         functionList = functionList.concat(
           `  (EmberAfGenericClusterFunction) Matter${cHelper.asCamelCased(
             clusterName,
@@ -216,6 +199,7 @@ function chip_endpoint_generated_event_list(options) {
  * includes the GENERATED_FUNCTIONS array
  */
 function chip_endpoint_cluster_list() {
+  const configData = getConfigData(this.global);
   let ret = '{ \\\n';
   let totalCommands = 0;
   this.clusterList.forEach((c) => {
@@ -225,17 +209,17 @@ function chip_endpoint_cluster_list() {
 
     if (c.comment.includes('server')) {
       let hasFunctionArray = false;
-      if (endpointClusterWithInit.includes(clusterName)) {
+      if (configData.ClustersWithInitFunctions.includes(clusterName)) {
         c.mask.push('INIT_FUNCTION');
         hasFunctionArray = true;
       }
 
-      if (endpointClusterWithAttributeChanged.includes(clusterName)) {
+      if (configData.ClustersWithAttributeChangedFunctions.includes(clusterName)) {
         c.mask.push('ATTRIBUTE_CHANGED_FUNCTION');
         hasFunctionArray = true;
       }
 
-      if (endpointClusterWithPreAttribute.includes(clusterName)) {
+      if (configData.ClustersWithPreAttributeChangeFunctions.includes(clusterName)) {
         c.mask.push('PRE_ATTRIBUTE_CHANGED_FUNCTION');
         hasFunctionArray = true;
       }
@@ -829,30 +813,6 @@ function getPythonFieldDefault(type, options) {
   return _getPythonFieldDefault.call(this, type, options);
 }
 
-// Allow-list of enums that we generate as enums, not enum classes.  The goal is
-// to drive this down to 0.
-let weakEnumList = undefined;
-function isWeaklyTypedEnum(label) {
-  if (weakEnumList === undefined) {
-    let f = this.global.resource('weak-enum-list');
-    // NOTE: This has to be sync, so we can use this data in if conditions.
-    let rawData = fs.readFileSync(f, { encoding: 'utf8', flag: 'r' });
-    weakEnumList = YAML.parse(rawData);
-  }
-  return weakEnumList.includes(label);
-}
-
-let legacyStructList = undefined;
-function isLegacyStruct(label) {
-  if (legacyStructList === undefined) {
-    let f = this.global.resource('legacy-struct-list');
-    // NOTE: This has to be sync, so we can use this data in if conditions.
-    let rawData = fs.readFileSync(f, { encoding: 'utf8', flag: 'r' });
-    legacyStructList = YAML.parse(rawData);
-  }
-  return legacyStructList.includes(label);
-}
-
 function incrementDepth(depth) {
   return depth + 1;
 }
@@ -966,8 +926,7 @@ exports.zapTypeToEncodableClusterObjectType =
 exports.zapTypeToDecodableClusterObjectType =
   zapTypeToDecodableClusterObjectType;
 exports.zapTypeToPythonClusterObjectType = zapTypeToPythonClusterObjectType;
-exports.isWeaklyTypedEnum = isWeaklyTypedEnum;
-exports.isLegacyStruct = isLegacyStruct;
+exports.isInConfigList = isInConfigList;
 exports.getPythonFieldDefault = getPythonFieldDefault;
 exports.incrementDepth = incrementDepth;
 exports.zcl_events_fields_by_event_name = zcl_events_fields_by_event_name;
