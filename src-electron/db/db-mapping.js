@@ -78,6 +78,7 @@ exports.map = {
       domainName: x.DOMAIN_NAME,
       isSingleton: dbApi.fromDbBool(x.IS_SINGLETON),
       revision: x.REVISION,
+      isManufacturingSpecific: dbApi.toDbBool(x.CLUSTER_MANUFACTURER_CODE),
     }
   },
 
@@ -439,6 +440,20 @@ exports.map = {
     }
   },
 
+  endpointTypeClusterExtended: (x) => {
+    if (x == null) return undefined
+    return {
+      endpointTypeClusterId: x.ENDPOINT_TYPE_CLUSTER_ID,
+      endpointTypeRef: x.ENDPOINT_TYPE_REF,
+      clusterRef: x.CLUSTER_REF,
+      side: x.SIDE,
+      enabled: dbApi.fromDbBool(x.ENABLED),
+      name: x.NAME, // Cluster Name
+      code: x.CODE, // Cluster Code
+      tokenAttributesCount: x.TOKEN_ATTRIBUTES_COUNT, // Number of Token Attributes within the endpoint type cluster
+    }
+  },
+
   endpointTypeAttribute: (x) => {
     if (x == null) return undefined
     return {
@@ -454,6 +469,40 @@ exports.map = {
       minInterval: x.MIN_INTERVAL,
       maxInterval: x.MAX_INTERVAL,
       reportableChange: x.REPORTABLE_CHANGE,
+    }
+  },
+
+  endpointTypeAttributeExtended: (x) => {
+    if (x == null) return undefined
+    return {
+      endpointTypeRef: x.ENDPOINT_TYPE_REF,
+      clusterRef: x.CLUSTER_REF,
+      attributeRef: x.ATTRIBUTE_REF,
+      included: dbApi.fromDbBool(x.INCLUDED),
+      storageOption: x.STORAGE_OPTION,
+      singleton: dbApi.fromDbBool(x.SINGLETON),
+      bounded: dbApi.fromDbBool(x.BOUNDED),
+      defaultValue: x.DEFAULT_VALUE,
+      includedReportable: dbApi.fromDbBool(x.INCLUDED_REPORTABLE),
+      minInterval: x.MIN_INTERVAL,
+      maxInterval: x.MAX_INTERVAL,
+      reportableChange: x.REPORTABLE_CHANGE,
+      name: x.NAME, // Attribute Name
+      code: x.CODE, // Attribute Code
+      side: x.SIDE, // Attribute Side
+      define: x.DEFINE, // Attribute define
+      type: x.TYPE, // Attribute type
+      mfgCode: x.MANUFACTURER_CODE
+        ? x.MANUFACTURER_CODE
+        : x.CLUSTER_MANUFACTURER_CODE, // Attribute manufacturer code
+      clusterMfgCode: x.CLUSTER_MANUFACTURER_CODE,
+      clusterName: x.CLUSTER_NAME,
+      isSingleton: dbApi.fromDbBool(x.SINGLETON), // Endpoint type attribute is singleton or not
+      isManufacturingSpecific: dbApi.toDbBool(
+        x.MANUFACTURER_CODE | x.CLUSTER_MANUFACTURER_CODE
+      ), // Is Attribute mfg specific or not
+      endpointId: x.ENDPOINT_IDENTIFIER, // Endpoint type attribute's endpoint Id
+      tokenId: x.TOKEN_ID, // Endpoint type attribute's token id
     }
   },
 
