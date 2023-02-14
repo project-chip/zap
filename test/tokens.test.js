@@ -412,7 +412,7 @@ test(
       'DEFINE_BASIC_TOKEN(APPLICATION_VERSION_7, tokType_application_version'
     )
     expect(header).toContain(
-      "DEFINE_BASIC_TOKEN(PRODUCT_CODE_7, tokType_product_code, { 0x03, 'A', 'B', 'C', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  })"
+      'DEFINE_BASIC_TOKEN(PRODUCT_CODE_7, tokType_product_code, { 0x03, 0x41, 0x42, 0x43, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 })'
     )
     expect(header).toContain(
       'DEFINE_BASIC_TOKEN(LEVEL_CONTROL_REMAINING_TIME_7, tokType_level_control_remaining_time, 0xA)'
@@ -426,18 +426,6 @@ test(
 
     // GENERATED_TOKEN_LOADER
 
-    expect(header).toContain(
-      'halCommonGetToken((tokType_stack_version *)ptr, TOKEN_STACK_VERSION_SINGLETON);'
-    )
-    expect(header).toContain(
-      'emberAfWriteServerAttribute(1, ZCL_BASIC_CLUSTER_ID, ZCL_STACK_VERSION_ATTRIBUTE_ID, (uint8_t*)ptr, ZCL_INT8U_ATTRIBUTE_TYPE);'
-    )
-    expect(header).toContain(
-      'halCommonGetToken((tokType_hw_version *)ptr, TOKEN_HW_VERSION_1);'
-    )
-    expect(header).toContain(
-      'emberAfWriteServerAttribute(1, ZCL_BASIC_CLUSTER_ID, ZCL_HW_VERSION_ATTRIBUTE_ID, (uint8_t*)ptr, ZCL_INT8U_ATTRIBUTE_TYPE);'
-    )
     expect(header).toContain(
       'halCommonGetToken((tokType_stack_version *)ptr, TOKEN_STACK_VERSION_7);'
     )

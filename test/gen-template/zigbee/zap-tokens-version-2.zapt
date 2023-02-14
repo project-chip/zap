@@ -26,11 +26,13 @@
 {{/token_attribute_endpoints}}
 {{#all_user_cluster_generated_attributes}}
     {{#if_compare 'NVM' storageOption operator='=='}}
-        {{#if_compare attributeSize 2 operator='>'}}
+        {{#if isString}}
 typedef uint8_t tokType_{{as_snake_case define}}[{{attributeSize}}];
+        {{else if (is_number_greater_than attributeSize 4)}}
+typedef uint8_t tokType_{{as_snake_case define}}[{{attributeSize}}];        
         {{else}}
 typedef {{as_underlying_type type}} tokType_{{as_snake_case define}};
-        {{/if_compare}}
+        {{/if}}
     {{/if_compare}}
 {{/all_user_cluster_generated_attributes}}
 {{#token_attribute_endpoints}}
@@ -48,11 +50,17 @@ typedef {{as_underlying_type type}} tokType_{{as_snake_case define}};
 {{#all_user_cluster_generated_attributes}}
     {{#if_compare 'NVM' storageOption operator='=='}}
         {{#if isSingleton}}
-          {{#if (is_number_greater_than attributeSize 2)}}  
-DEFINE_BASIC_TOKEN({{define}}_SINGLETON, tokType_{{as_snake_case define}}, { {{as_generated_default_macro defaultValue attributeSize endian="big" isCommaTerminated=0}} })
-            {{else if defaultValue}}
-DEFINE_BASIC_TOKEN({{define}}_SINGLETON, tokType_{{as_snake_case define}}, {{as_hex defaultValue}})
+          {{#if isString}}  
+            {{#if_compare 'octet' type operator='in'}}
+DEFINE_BASIC_TOKEN({{define}}_SINGLETON, tokType_{{as_snake_case define}}, { {{format_zcl_string_as_characters_for_generated_defaults defaultValue attributeSize isCommaTerminated=0 isOctet=1}} })
             {{else}}
+DEFINE_BASIC_TOKEN({{define}}_SINGLETON, tokType_{{as_snake_case define}}, { {{format_zcl_string_as_characters_for_generated_defaults defaultValue attributeSize isCommaTerminated=0}} })
+            {{/if_compare}}
+          {{else if (is_number_greater_than attributeSize 4)}}
+DEFINE_BASIC_TOKEN({{define}}_SINGLETON, tokType_{{as_snake_case define}}, { {{as_generated_default_macro defaultValue attributeSize endian="big" isCommaTerminated=0}} })
+          {{else if defaultValue}}
+DEFINE_BASIC_TOKEN({{define}}_SINGLETON, tokType_{{as_snake_case define}}, {{as_hex defaultValue}})
+          {{else}}
 DEFINE_BASIC_TOKEN({{define}}_SINGLETON, tokType_{{as_snake_case define}}, 0)
           {{/if}}
         {{/if}}
@@ -65,13 +73,19 @@ DEFINE_BASIC_TOKEN({{define}}_SINGLETON, tokType_{{as_snake_case define}}, 0)
             {{#unless isSingleton}}
                 {{#if (is_lowercase_equal ./clusterName ../clusterName)}}
                     {{#if (is_lowercase_equal ./clusterSide ../clusterSide)}}
-                        {{#if_compare attributeSize 2 operator='>'}}
+                        {{#if isString}}
+                          {{#if_compare 'octet' type operator='in'}}
+DEFINE_BASIC_TOKEN({{define}}_{{../endpointIdentifier}}, tokType_{{as_snake_case define}}, { {{format_zcl_string_as_characters_for_generated_defaults defaultValue attributeSize isCommaTerminated=0 isOctet=1}} })
+                          {{else}}
+DEFINE_BASIC_TOKEN({{define}}_{{../endpointIdentifier}}, tokType_{{as_snake_case define}}, { {{format_zcl_string_as_characters_for_generated_defaults defaultValue attributeSize isCommaTerminated=0}} })
+                          {{/if_compare}}
+                        {{else if (is_number_greater_than attributeSize 4)}}
 DEFINE_BASIC_TOKEN({{define}}_{{../endpointIdentifier}}, tokType_{{as_snake_case define}}, { {{as_generated_default_macro defaultValue attributeSize endian="big" isCommaTerminated=0}} })
                         {{else if defaultValue}}
 DEFINE_BASIC_TOKEN({{define}}_{{../endpointIdentifier}}, tokType_{{as_snake_case define}}, {{as_hex defaultValue}})
                         {{else}}
 DEFINE_BASIC_TOKEN({{define}}_{{../endpointIdentifier}}, tokType_{{as_snake_case define}}, 0)
-                        {{/if_compare}}
+                        {{/if}}
                     {{/if}}
                 {{/if}}
             {{/unless}}
@@ -87,7 +101,7 @@ DEFINE_BASIC_TOKEN({{define}}_{{../endpointIdentifier}}, tokType_{{as_snake_case
 {{#token_attribute_endpoints}}
   {{#first}}
 // Macro snippet that loads all the attributes from tokens
-#define GENERATED_TOKEN_LOADER(endpoint) do {
+#define GENERATED_TOKEN_LOADER(endpoint) do { \
   {{/first}}
 {{/token_attribute_endpoints}}
 {{#all_user_cluster_generated_attributes}}
@@ -107,7 +121,6 @@ DEFINE_BASIC_TOKEN({{define}}_{{../endpointIdentifier}}, tokType_{{as_snake_case
         {{/if}}
     {{/if_compare}}
 {{/all_user_cluster_generated_attributes}}
-
 {{#token_attribute_endpoints isSingleton=0}}
     {{#token_attributes endpointTypeRef isSingleton=0}}
         {{#first}}
@@ -117,38 +130,40 @@ DEFINE_BASIC_TOKEN({{define}}_{{../endpointIdentifier}}, tokType_{{as_snake_case
     halCommonGetToken((tokType_{{as_snake_case define}} *)ptr, TOKEN_{{define}}_{{../endpointId}}); \
     emberAfWrite{{#if isManufacturingSpecific}}ManufacturerSpecific{{/if}}{{as_camel_cased side false}}Attribute({{../endpointId}}, ZCL_{{as_delimited_macro clusterName}}_CLUSTER_ID, ZCL_{{define}}_ATTRIBUTE_ID, {{#if isManufacturingSpecific}}{{as_hex mfgCode 4}}, {{/if}}(uint8_t*)ptr, ZCL_{{as_delimited_macro type}}_ATTRIBUTE_TYPE); \
         {{#last}}
-  }
+  } \
         {{/last}}
     {{/token_attributes}}
-    {{#last}}
+{{/token_attribute_endpoints}}
+{{#token_attribute_endpoints}}
+    {{#first}}
 } while (false)
-    {{/last}}
+    {{/first}}
 {{/token_attribute_endpoints}}
 
 {{#all_user_cluster_generated_attributes}}
   {{#first}}
     {{#if_compare tokenizedAttributeSize 0 operator='>'}}
 // Macro snippet that saves the attribute to token
-#define GENERATED_TOKEN_SAVER do {
-  uint8_t allZeroData[{{maxTokenAttributeSize}}];                                                                                                     \
-  MEMSET(allZeroData, 0, {{maxTokenAttributeSize}});                                                                                                  \
-  if ( data == NULL ) { data = allZeroData; }
+#define GENERATED_TOKEN_SAVER do { \
+  uint8_t allZeroData[{{maxTokenAttributeSize}}]; \
+  MEMSET(allZeroData, 0, {{maxTokenAttributeSize}});  \
+  if ( data == NULL ) { data = allZeroData; } \
     {{/if_compare}}
   {{/first}}
 {{/all_user_cluster_generated_attributes}}
 {{#token_attribute_clusters isSingleton=1}}
-    if ( {{as_hex code 4}} == clusterId ) {
+    if ( {{as_hex code 4}} == clusterId ) { \
     {{#all_user_cluster_generated_attributes}}
         {{#if_compare 'NVM' storageOption operator='=='}}
             {{#if isSingleton}}
                 {{#if (is_lowercase_equal ./clusterName ../name)}}
 if ( {{as_hex code 4}} == metadata->attributeId && {{as_hex mfgCode 4}} == emberAfGetMfgCode(metadata) && {{#if_compare 'server' side operator='=='}}!{{/if_compare}}emberAfAttributeIsClient(metadata) ) {   \
-        halCommonSetToken(TOKEN_{{define}}_SINGLETON, data); } 
+        halCommonSetToken(TOKEN_{{define}}_SINGLETON, data); } \
                 {{/if}}
             {{/if}}
         {{/if_compare}}
     {{/all_user_cluster_generated_attributes}}
-    }
+    } \
 {{/token_attribute_clusters}}
 {{#token_attribute_endpoints isSingleton=0}}
 if ( {{endpointId}} == endpoint ) { \
@@ -160,9 +175,9 @@ if ( {{as_hex code 4}} == metadata->attributeId && {{as_hex mfgCode 4}} == ember
           halCommonSetToken(TOKEN_{{define}}_{{../../endpointId}}, data); \
           {{/if}}
         {{/token_attributes}}
-    }
+    } \
     {{/token_attribute_clusters}}
-}
+} \
 {{/token_attribute_endpoints}}
 {{#token_attribute_endpoints}}
   {{#first}}
