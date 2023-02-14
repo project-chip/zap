@@ -407,6 +407,7 @@ async function selectAttributeDetailsFromEnabledClusters(
       maxAttributeSize: x.MAX_ATTRIBUTE_SIZE,
       maxTokenAttributeSize: x.MAX_TOKEN_ATTRIBUTE_SIZE,
       smallestEndpointIdentifier: x.SMALLEST_ENDPOINT_IDENTIFIER,
+      isString: x.IS_STRING,
       isManufacturingSpecific: dbApi.toDbBool(
         x.MANUFACTURER_CODE | x.CLUSTER_MANUFACTURER_CODE
       ), // Is Attribute mfg specific or not
@@ -417,7 +418,8 @@ async function selectAttributeDetailsFromEnabledClusters(
       db,
       `
   SELECT
-  ATTRIBUTE.ATTRIBUTE_ID,
+    ATOMIC.IS_STRING AS IS_STRING,
+    ATTRIBUTE.ATTRIBUTE_ID,
     ATTRIBUTE.NAME,
     ATTRIBUTE.CODE,
     ATTRIBUTE.SIDE,
@@ -1047,7 +1049,7 @@ ON
 INNER JOIN
   ENDPOINT_TYPE
 ON
-  ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+  ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
 INNER JOIN
   ENDPOINT
 ON

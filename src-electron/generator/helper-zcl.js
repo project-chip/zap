@@ -2231,7 +2231,8 @@ async function as_generated_default_macro(value, attributeSize, options) {
     if (isNaN(value)) {
       return format_zcl_string_as_characters_for_generated_defaults(
         value,
-        attributeSize
+        attributeSize,
+        options
       )
     }
     // Float value
@@ -2435,6 +2436,11 @@ function command_mask_sub_helper(commandMask, str) {
  * {{format_zcl_string_as_characters_for_generated_defaults 'abc' 5}}
  * will return as follows:
  * 3, 'a', 'b', 'c' 0, 0
+ *
+ * Available Options:
+ * - isOctet: 0/1 can be used to return results correctly for octet strings
+ * - isCommaTerminated: 0/1 can be used to return result with/without ',' at
+ * the end
  * @param stringVal
  * @param sizeOfString
  * @returns Formatted string for generated defaults starting with the lenth of a
@@ -2443,8 +2449,12 @@ function command_mask_sub_helper(commandMask, str) {
  */
 async function format_zcl_string_as_characters_for_generated_defaults(
   stringVal,
-  sizeOfString
+  sizeOfString,
+  options
 ) {
+  let isOctet = 'isOctet' in options.hash ? options.hash.isOctet : false
+  let isCommaTerminated =
+    'isCommaTerminated' in options.hash ? options.hash.isCommaTerminated : true
   let lengthOfString = types.convertIntToBigEndian(
     stringVal.length,
     sizeOfString < 255 ? 1 : 2
@@ -2458,12 +2468,17 @@ async function format_zcl_string_as_characters_for_generated_defaults(
   lengthPrefix = lengthPrefix.split(' ').reverse().join(' ')
   let formatted_string = lengthPrefix
   for (let i = 0; i < stringVal.length; i++) {
-    formatted_string += "'" + stringVal.charAt(i) + "', "
+    formatted_string +=
+      (!isOctet
+        ? "'" + stringVal.charAt(i) + "'"
+        : '0x' + stringVal.charCodeAt(i).toString(16)) + ', '
   }
   for (let i = stringVal.length + 1; i < sizeOfString; i++) {
     formatted_string += '0' + ', '
   }
-  return formatted_string
+  return isCommaTerminated
+    ? formatted_string
+    : formatted_string.trim().slice(0, -1)
 }
 
 /**
@@ -2719,6 +2734,9 @@ function if_compare(leftValue, rightValue, options) {
       break
     case '>=':
       result = leftValue >= rightValue
+      break
+    case 'in':
+      result = rightValue.includes(leftValue)
       break
     default:
       throw new Error(
