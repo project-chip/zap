@@ -32,11 +32,18 @@ const dbMapping = require('./db-mapping.js')
  * @param {*} sessionId
  * @param {*} severity
  */
-async function setNotification(db, type, status, sessionId, severity) {
+async function setNotification(
+  db,
+  type,
+  status,
+  sessionId,
+  severity = 2,
+  display = 0
+) {
   return dbApi.dbUpdate(
     db,
     'INSERT INTO SESSION_NOTICE ( SESSION_REF, NOTICE_TYPE, NOTICE_MESSAGE, NOTICE_SEVERITY, DISPLAY) VALUES ( ?, ?, ?, ?, ?)',
-    [sessionId, type, status, severity, 1]
+    [sessionId, type, status, severity, display]
   )
 }
 
