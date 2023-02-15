@@ -503,6 +503,7 @@ exports.map = {
       ), // Is Attribute mfg specific or not
       endpointId: x.ENDPOINT_IDENTIFIER, // Endpoint type attribute's endpoint Id
       tokenId: x.TOKEN_ID, // Endpoint type attribute's token id
+      smallestEndpointIdentifier: x.SMALLEST_ENDPOINT_IDENTIFIER, // Smallest endpoint Id in which the attribute is present
     }
   },
 
