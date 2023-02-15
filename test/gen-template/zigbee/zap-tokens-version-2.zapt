@@ -114,13 +114,13 @@ DEFINE_BASIC_TOKEN({{define}}_{{../endpointIdentifier}}, tokType_{{as_snake_case
   uint8_t epNetwork; \
         {{/if_compare}}
     {{/first}}
-    {{#if_compare 'NVM' storageOption operator='=='}}
+  {{/all_user_cluster_generated_attributes}}
+  {{#token_attributes}}
         {{#if isSingleton}}
   halCommonGetToken((tokType_{{as_snake_case define}} *)ptr, TOKEN_{{define}}_SINGLETON); \
   emberAfWrite{{#if isManufacturingSpecific}}ManufacturerSpecific{{/if}}{{as_camel_cased side false}}Attribute({{smallestEndpointIdentifier}}, ZCL_{{as_delimited_macro clusterName}}_CLUSTER_ID, ZCL_{{define}}_ATTRIBUTE_ID, {{#if isManufacturingSpecific}}{{as_hex mfgCode 4}}, {{/if}}(uint8_t*)ptr, ZCL_{{as_delimited_macro type}}_ATTRIBUTE_TYPE); \
         {{/if}}
-    {{/if_compare}}
-{{/all_user_cluster_generated_attributes}}
+  {{/token_attributes}}
 {{#token_attribute_endpoints isSingleton=0}}
     {{#token_attributes endpointTypeRef isSingleton=0}}
         {{#first}}
