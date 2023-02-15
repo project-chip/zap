@@ -335,27 +335,17 @@ test(
     let header = genResult.content['zap-tokens-version-2.h']
 
     // Singletons
-    expect(header).toContain('#define CREATOR_STACK_VERSION_SINGLETON 0xB00A')
+    expect(header).toContain('#define CREATOR_STACK_VERSION_SINGLETON 0xB008')
     expect(header).toContain(
-      '#define NVM3KEY_STACK_VERSION_SINGLETON (NVM3KEY_DOMAIN_ZIGBEE | 0xB00A)'
+      '#define NVM3KEY_STACK_VERSION_SINGLETON (NVM3KEY_DOMAIN_ZIGBEE | 0xB008)'
     )
 
-    expect(header).toContain('#define CREATOR_HW_VERSION_SINGLETON 0xB004')
+    expect(header).toContain('#define CREATOR_HW_VERSION_SINGLETON 0xB003')
     expect(header).toContain(
-      '#define NVM3KEY_HW_VERSION_SINGLETON (NVM3KEY_DOMAIN_ZIGBEE | 0xB004)'
+      '#define NVM3KEY_HW_VERSION_SINGLETON (NVM3KEY_DOMAIN_ZIGBEE | 0xB003)'
     )
 
     // Non-singletons
-    expect(header).toContain('#define CREATOR_STACK_VERSION_7 0xB009')
-    expect(header).toContain(
-      '#define NVM3KEY_STACK_VERSION_7 (NVM3KEY_DOMAIN_ZIGBEE | 0xB009)'
-    )
-
-    expect(header).toContain('#define CREATOR_HW_VERSION_1 0xB003')
-    expect(header).toContain(
-      '#define NVM3KEY_HW_VERSION_1 (NVM3KEY_DOMAIN_ZIGBEE | 0xB003)'
-    )
-
     expect(header).toContain('#define CREATOR_APPLICATION_VERSION_1 0xB000')
     expect(header).toContain(
       '#define NVM3KEY_APPLICATION_VERSION_1 (NVM3KEY_DOMAIN_ZIGBEE | 0xB000)'
@@ -366,9 +356,9 @@ test(
       '#define NVM3KEY_APPLICATION_VERSION_7 (NVM3KEY_DOMAIN_ZIGBEE | 0xB001)'
     )
 
-    expect(header).toContain('#define CREATOR_PRODUCT_CODE_1 0xB005')
+    expect(header).toContain('#define CREATOR_PRODUCT_CODE_1 0xB004')
     expect(header).toContain(
-      '#define NVM3KEY_PRODUCT_CODE_1 (NVM3KEY_DOMAIN_ZIGBEE | 0xB005)'
+      '#define NVM3KEY_PRODUCT_CODE_1 (NVM3KEY_DOMAIN_ZIGBEE | 0xB004)'
     )
 
     expect(header).toContain(
@@ -379,17 +369,17 @@ test(
     )
 
     expect(header).toContain(
-      '#define CREATOR_LEVEL_CONTROL_REMAINING_TIME_7 0xB006'
+      '#define CREATOR_LEVEL_CONTROL_REMAINING_TIME_7 0xB005'
     )
     expect(header).toContain(
-      '#define NVM3KEY_LEVEL_CONTROL_REMAINING_TIME_7 (NVM3KEY_DOMAIN_ZIGBEE | 0xB006)'
+      '#define NVM3KEY_LEVEL_CONTROL_REMAINING_TIME_7 (NVM3KEY_DOMAIN_ZIGBEE | 0xB005)'
     )
 
     expect(header).toContain(
-      '#define CREATOR_COLOR_CONTROL_REMAINING_TIME_7 0xB007'
+      '#define CREATOR_COLOR_CONTROL_REMAINING_TIME_7 0xB006'
     )
     expect(header).toContain(
-      '#define NVM3KEY_COLOR_CONTROL_REMAINING_TIME_7 (NVM3KEY_DOMAIN_ZIGBEE | 0xB007)'
+      '#define NVM3KEY_COLOR_CONTROL_REMAINING_TIME_7 (NVM3KEY_DOMAIN_ZIGBEE | 0xB006)'
     )
 
     // DEFINETYPES
@@ -427,10 +417,10 @@ test(
     // GENERATED_TOKEN_LOADER
 
     expect(header).toContain(
-      'halCommonGetToken((tokType_stack_version *)ptr, TOKEN_STACK_VERSION_7);'
+      'halCommonGetToken((tokType_stack_version *)ptr, TOKEN_STACK_VERSION_SINGLETON);'
     )
     expect(header).toContain(
-      'emberAfWriteServerAttribute(7, ZCL_BASIC_CLUSTER_ID, ZCL_STACK_VERSION_ATTRIBUTE_ID, (uint8_t*)ptr, ZCL_INT8U_ATTRIBUTE_TYPE);'
+      'emberAfWriteServerAttribute(1, ZCL_BASIC_CLUSTER_ID, ZCL_STACK_VERSION_ATTRIBUTE_ID, (uint8_t*)ptr, ZCL_INT8U_ATTRIBUTE_TYPE);'
     )
     expect(header).toContain(
       'if(1 == (endpoint) || (EMBER_BROADCAST_ENDPOINT == (endpoint) && epNetwork == curNetwork))'
@@ -453,18 +443,16 @@ test(
     expect(header).toContain('if ( 0x0000 == clusterId )')
     expect(header).not.toContain('if ( 0x0001 == clusterId )')
     expect(header).toContain(
-      'if ( 0x0002 == metadata->attributeId && 0x0000 == emberAfGetMfgCode(metadata) && !emberAfAttributeIsClient(metadata) ) {'
-    )
-
-    expect(header).toContain(
-      'halCommonSetToken(TOKEN_STACK_VERSION_SINGLETON, data); }'
+      'if ( 0x0002 == metadata->attributeId && 0x0000 == emberAfGetMfgCode(metadata) && !emberAfAttributeIsClient(metadata) )'
     )
 
     expect(header).toContain(
       'if ( 0x0003 == metadata->attributeId && 0x0000 == emberAfGetMfgCode(metadata) && !emberAfAttributeIsClient(metadata) )'
     )
 
-    expect(header).toContain('halCommonSetToken(TOKEN_HW_VERSION_1, data);')
+    expect(header).toContain(
+      'halCommonSetToken(TOKEN_HW_VERSION_SINGLETON, data);'
+    )
 
     expect(header).toContain('if ( 1 == endpoint )')
     expect(header).toContain('if ( 7 == endpoint )')
