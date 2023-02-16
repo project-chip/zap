@@ -100,16 +100,18 @@ async function dbBeginTransaction(db) {
  */
 async function dbCommit(db) {
   return new Promise((resolve, reject) => {
-    db.run('COMMIT', [], function (err) {
-      if (err) {
-        env.logError('Failed to COMMIT')
-        reject(err)
-      } else {
-        env.logSql('Executed COMMIT')
-        inTransaction = false
-        resolve()
-      }
-    })
+    if(inTransaction) {
+      db.run('COMMIT', [], function (err) {
+        if (err) {
+          env.logError('Failed to COMMIT')
+          reject(err)
+        } else {
+          env.logSql('Executed COMMIT')
+          inTransaction = false
+          resolve()
+        }
+      })
+    }
   })
 }
 
