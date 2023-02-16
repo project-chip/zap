@@ -82,7 +82,7 @@ function chip_endpoint_generated_functions() {
     }
     if (c.comment.includes('server')) {
       let hasFunctionArray = false;
-      if (configData.ClustersWithInitFunctions.includes(clusterName)) {
+      if (configData.ClustersWithInitFunctions && configData.ClustersWithInitFunctions.includes(clusterName)) {
         hasFunctionArray = true;
         functionList = functionList.concat(
           `  (EmberAfGenericClusterFunction) emberAf${cHelper.asCamelCased(
@@ -92,7 +92,7 @@ function chip_endpoint_generated_functions() {
         );
       }
 
-      if (configData.ClustersWithAttributeChangedFunctions.includes(clusterName)) {
+      if (configData.ClustersWithAttributeChangedFunctions && configData.ClustersWithAttributeChangedFunctions.includes(clusterName)) {
         functionList = functionList.concat(
           `  (EmberAfGenericClusterFunction) Matter${cHelper.asCamelCased(
             clusterName,
@@ -102,7 +102,7 @@ function chip_endpoint_generated_functions() {
         hasFunctionArray = true;
       }
 
-      if (configData.ClustersWithShutdownFunctions.includes(clusterName)) {
+      if (configData.ClustersWithShutdownFunctions && configData.ClustersWithShutdownFunctions.includes(clusterName)) {
         hasFunctionArray = true;
         functionList = functionList.concat(
           `  (EmberAfGenericClusterFunction) Matter${cHelper.asCamelCased(
@@ -112,7 +112,7 @@ function chip_endpoint_generated_functions() {
         );
       }
 
-      if (configData.ClustersWithPreAttributeChangeFunctions.includes(clusterName)) {
+      if (configData.ClustersWithPreAttributeChangeFunctions && configData.ClustersWithPreAttributeChangeFunctions.includes(clusterName)) {
         functionList = functionList.concat(
           `  (EmberAfGenericClusterFunction) Matter${cHelper.asCamelCased(
             clusterName,
@@ -219,22 +219,22 @@ function chip_endpoint_cluster_list() {
 
     if (c.comment.includes('server')) {
       let hasFunctionArray = false;
-      if (configData.ClustersWithInitFunctions.includes(clusterName)) {
+      if (configData.ClustersWithInitFunctions && configData.ClustersWithInitFunctions.includes(clusterName)) {
         c.mask.push('INIT_FUNCTION');
         hasFunctionArray = true;
       }
 
-      if (configData.ClustersWithAttributeChangedFunctions.includes(clusterName)) {
+      if (configData.ClustersWithAttributeChangedFunctions && configData.ClustersWithAttributeChangedFunctions.includes(clusterName)) {
         c.mask.push('ATTRIBUTE_CHANGED_FUNCTION');
         hasFunctionArray = true;
       }
 
-      if (configData.ClustersWithShutdownFunctions.includes(clusterName)) {
+      if (configData.ClustersWithShutdownFunctions && configData.ClustersWithShutdownFunctions.includes(clusterName)) {
         c.mask.push('SHUTDOWN_FUNCTION');
         hasFunctionArray = true;
       }
 
-      if (configData.ClustersWithPreAttributeChangeFunctions.includes(clusterName)) {
+      if (configData.ClustersWithPreAttributeChangeFunctions && configData.ClustersWithPreAttributeChangeFunctions.includes(clusterName)) {
         c.mask.push('PRE_ATTRIBUTE_CHANGED_FUNCTION');
         hasFunctionArray = true;
       }
