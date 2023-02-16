@@ -33,7 +33,7 @@ beforeAll(() => {
 test('Downloading from Nexus (default)', async () => {
   let output = execSync(download_artifact_script)
   console.log(output.toString())
-  expect(output.toString()).toMatch(/.*nexus.silabs.*/)
+  expect(output.toString()).toMatch(/.*artifactory.silabs.*/)
   expect(output.toString()).toMatch(/.*zap-...-zip.zip[.]*done.*/)
 })
 

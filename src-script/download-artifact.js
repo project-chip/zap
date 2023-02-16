@@ -187,27 +187,140 @@ var DEFAULT_COMMIT_LATEST = 'commit_latest'
 var DEFAULT_BRANCH = 'master'
 var DEFAULT_OWNER = 'SiliconLabs'
 var DEFAULT_REPO = 'zap'
-var NEXUS_SERVER = 'https://nexus.silabs.net'
-var NEXUS_REPO_NAME = 'zap-release-package'
+var ARTIFACTORY_SERVER = 'https://artifactory.silabs.net'
+var ARTIFACTORY_REPO_NAME = 'zap-release-package'
 var nexusCachedBranches = ['master', 'rel']
 // cheap and secure
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0'
-function nexusRestApiUrl(repository, nameFilter) {
-  return ''
-    .concat(NEXUS_SERVER, '/service/rest/v1/search/assets?repository=')
-    .concat(repository, '&name=')
-    .concat(nameFilter)
-}
-function urlContent(url) {
+function artifactoryGetLatestFolder(opt) {
   return __awaiter(this, void 0, void 0, function () {
-    var resp
+    var _a, folders, paths, folder
+    return __generator(this, function (_b) {
+      switch (_b.label) {
+        case 0:
+          return [4 /*yield*/, artifactoryGetFolders(opt)]
+        case 1:
+          ;(_a = _b.sent()), (folders = _a.folders), (paths = _a.paths)
+          folder = folders.shift()
+          paths.push(folder)
+          return [2 /*return*/, { folder: folder, paths: paths }]
+      }
+    })
+  })
+}
+function artifactoryGetFolders(opt, uri) {
+  var _a
+  if (uri === void 0) {
+    uri = ''
+  }
+  return __awaiter(this, void 0, void 0, function () {
+    var resp, folders, dateRegex
+    return __generator(this, function (_b) {
+      switch (_b.label) {
+        case 0:
+          return [4 /*yield*/, artifactoryStorageGet(opt, uri)]
+        case 1:
+          resp = _b.sent()
+          folders =
+            (_a = resp === null || resp === void 0 ? void 0 : resp.children) ===
+              null || _a === void 0
+              ? void 0
+              : _a
+                  .filter(function (x) {
+                    return x.folder === true
+                  })
+                  .map(function (x) {
+                    return x.uri
+                  })
+          dateRegex = new RegExp('/([^\\/]*)/')
+          folders.sort(function (a, b) {
+            // sort entries via 'path' key
+            // e.g. path: 'SiliconLabs/zap/master/2022-07-22T14:55:43Z/zap-win-zip.json'
+            // let boo = a?.match(dateRegex)
+            if (a.startsWith('/')) {
+              a = a.substring(1)
+            }
+            if (b.startsWith('/')) {
+              b = b.substring(1)
+            }
+            var dateA = new Date(a)
+            var dateB = new Date(b)
+            if ((0, date_fns_1.isEqual)(dateA, dateB)) {
+              return b.localeCompare(a)
+            } else {
+              return (0, date_fns_1.compareDesc)(dateA, dateB)
+            }
+          })
+          return [
+            2 /*return*/,
+            {
+              folders: folders,
+              paths: [resp === null || resp === void 0 ? void 0 : resp.uri],
+            },
+          ]
+      }
+    })
+  })
+}
+function artifactoryStorageGet(dlOptions, uri) {
+  if (uri === void 0) {
+    uri = ''
+  }
+  return __awaiter(this, void 0, void 0, function () {
+    var url
+    return __generator(this, function (_a) {
+      url = ''
+        .concat(
+          ARTIFACTORY_SERVER,
+          '/artifactory/api/storage/gsdk-generic-production/'
+        )
+        .concat(ARTIFACTORY_REPO_NAME, '/')
+        .concat(dlOptions.owner, '/')
+        .concat(dlOptions.repo, '/')
+        .concat(dlOptions.branch, '/')
+        .concat(uri)
+      return [2 /*return*/, httpGet(url)]
+    })
+  })
+}
+function artifactoryGetContent(paths) {
+  return __awaiter(this, void 0, void 0, function () {
+    var resp, files
     return __generator(this, function (_a) {
       switch (_a.label) {
         case 0:
+          return [4 /*yield*/, httpGet(paths.join(''))]
+        case 1:
+          resp = _a.sent()
+          files =
+            resp === null || resp === void 0
+              ? void 0
+              : resp.children.map(function (x) {
+                  return x.uri
+                })
+          return [2 /*return*/, files]
+      }
+    })
+  })
+}
+function httpGet(url) {
+  return __awaiter(this, void 0, void 0, function () {
+    var resp, err_1
+    return __generator(this, function (_a) {
+      switch (_a.label) {
+        case 0:
+          _a.trys.push([0, 2, , 3])
+          if (DEBUG) console.log('GET: '.concat(url))
           return [4 /*yield*/, axios_1['default'].get(url)]
         case 1:
           resp = _a.sent()
           return [2 /*return*/, resp.data]
+        case 2:
+          err_1 = _a.sent()
+          console.error(err_1)
+          return [2 /*return*/, []]
+        case 3:
+          return [2 /*return*/]
       }
     })
   })
@@ -410,7 +523,9 @@ function download(archive_download_url, outDir, githubToken, name) {
           _a.label = 1
         case 1:
           _a.trys.push([1, 3, , 4])
-          process.stdout.write('Downloading '.concat(name, '...'))
+          process.stdout.write(
+            'Downloading '.concat(path_1['default'].basename(name), '...')
+          )
           return [4 /*yield*/, downloader.download()] //Downloader.download() returns a promise.
         case 2:
           _a.sent() //Downloader.download() returns a promise.
@@ -476,6 +591,7 @@ function getExistingGithubBranches(options) {
           return [3 /*break*/, 4]
         case 3:
           error_2 = _b.sent()
+          console.error(error_2)
           return [3 /*break*/, 4]
         case 4:
           return [2 /*return*/, branches]
@@ -483,73 +599,12 @@ function getExistingGithubBranches(options) {
     })
   })
 }
-function nexusGetArtifacts(baseUrl, options) {
-  var _a, _b, _c, _d
-  return __awaiter(this, void 0, void 0, function () {
-    var accumulatedItems, continuationToken, resp, url, error_3
-    return __generator(this, function (_e) {
-      switch (_e.label) {
-        case 0:
-          accumulatedItems = []
-          continuationToken = ''
-          _e.label = 1
-        case 1:
-          _e.trys.push([1, 7, , 8])
-          if (DEBUG) console.log('GET: '.concat(baseUrl))
-          return [4 /*yield*/, axios_1['default'].get(baseUrl)]
-        case 2:
-          resp = _e.sent()
-          accumulatedItems = accumulatedItems.concat(
-            (_a = resp === null || resp === void 0 ? void 0 : resp.data) ===
-              null || _a === void 0
-              ? void 0
-              : _a.items
-          )
-          continuationToken =
-            (_b = resp === null || resp === void 0 ? void 0 : resp.data) ===
-              null || _b === void 0
-              ? void 0
-              : _b.continuationToken
-          url = ''
-          _e.label = 3
-        case 3:
-          if (continuationToken) {
-            url = baseUrl + '&continuationToken='.concat(continuationToken)
-          } else {
-            return [3 /*break*/, 6]
-          }
-          if (DEBUG) console.log('GET: '.concat(url))
-          return [4 /*yield*/, axios_1['default'].get(url)]
-        case 4:
-          resp = _e.sent()
-          accumulatedItems = accumulatedItems.concat(
-            (_c = resp === null || resp === void 0 ? void 0 : resp.data) ===
-              null || _c === void 0
-              ? void 0
-              : _c.items
-          )
-          continuationToken =
-            (_d = resp === null || resp === void 0 ? void 0 : resp.data) ===
-              null || _d === void 0
-              ? void 0
-              : _d.continuationToken
-          _e.label = 5
-        case 5:
-          if (continuationToken) return [3 /*break*/, 3]
-          _e.label = 6
-        case 6:
-          return [3 /*break*/, 8]
-        case 7:
-          error_3 = _e.sent()
-          console.error(error_3)
-          return [3 /*break*/, 8]
-        case 8:
-          return [2 /*return*/, accumulatedItems]
-      }
-    })
-  })
-}
-function nexusDownloadArtifacts(items, dlOptions, verifyPlatformAndFormat) {
+function artifactoryDownloadArtifacts(
+  latest,
+  dlOptions,
+  verifyPlatformAndFormat
+) {
+  var _a
   return __awaiter(this, void 0, void 0, function () {
     var owner,
       repo,
@@ -557,18 +612,17 @@ function nexusDownloadArtifacts(items, dlOptions, verifyPlatformAndFormat) {
       outputDir,
       platforms,
       formats,
-      dateRegex,
-      date,
+      files,
+      json,
       artifacts,
-      jsonFiles,
+      baseUri,
       jsonContent,
       _i,
-      artifacts_3,
+      _b,
       artifact,
-      downloadUrl,
-      name_3
-    return __generator(this, function (_a) {
-      switch (_a.label) {
+      downloadUrl
+    return __generator(this, function (_c) {
+      switch (_c.label) {
         case 0:
           ;(owner = dlOptions.owner),
             (repo = dlOptions.repo),
@@ -576,98 +630,64 @@ function nexusDownloadArtifacts(items, dlOptions, verifyPlatformAndFormat) {
             (outputDir = dlOptions.outputDir),
             (platforms = dlOptions.platforms),
             (formats = dlOptions.formats)
-          dateRegex = new RegExp(
-            ''.concat(owner, '/').concat(repo, '/').concat(branch, '/([^/]*)')
-          )
-          items.sort(function (a, b) {
-            var _a, _b, _c
-            // sort entries via 'path' key
-            // e.g. path: 'SiliconLabs/zap/master/2022-07-22T14:55:43Z/zap-win-zip.json'
-            var res =
-              (_a = a === null || a === void 0 ? void 0 : a.path) === null ||
-              _a === void 0
-                ? void 0
-                : _a.match(dateRegex)
-            var dateA = new Date(
-              (_b = a === null || a === void 0 ? void 0 : a.path) === null ||
-              _b === void 0
-                ? void 0
-                : _b.match(dateRegex)[1]
-            )
-            var dateB = new Date(
-              (_c = b === null || b === void 0 ? void 0 : b.path) === null ||
-              _c === void 0
-                ? void 0
-                : _c.match(dateRegex)[1]
-            )
-            if ((0, date_fns_1.isEqual)(dateA, dateB)) {
-              return b.path.localeCompare(a.path)
-            } else {
-              return (0, date_fns_1.compareDesc)(dateA, dateB)
-            }
-          })
-          if (!(items.length > 1)) return [3 /*break*/, 6]
-          date = items[0].path.match(dateRegex)[1]
-          console.log(
-            'Repo: '
-              .concat(NEXUS_SERVER, '/#browse/browse:')
-              .concat(NEXUS_REPO_NAME, ':')
-              .concat(dlOptions.owner, '/')
-              .concat(dlOptions.repo, '/')
-              .concat(dlOptions.branch, '/')
-              .concat(date)
-          )
-          return [
-            4 /*yield*/,
-            nexusGetArtifacts(
-              nexusRestApiUrl(
-                NEXUS_REPO_NAME,
-                ''
-                  .concat(dlOptions.owner, '/')
-                  .concat(dlOptions.repo, '/')
-                  .concat(dlOptions.branch, '/')
-                  .concat(date, '/*')
-              ),
-              dlOptions
-            ),
-            // find commit
-          ]
+          if (!(latest != null)) return [3 /*break*/, 7]
+          return [4 /*yield*/, artifactoryGetContent(latest.paths)]
         case 1:
-          artifacts = _a.sent()
-          jsonFiles = artifacts.filter(function (x) {
-            return x.contentType.toLowerCase().includes('json')
+          files = _c.sent()
+          json =
+            (_a = files.filter(function (x) {
+              return x.toLowerCase().endsWith('.json')
+            })) === null || _a === void 0
+              ? void 0
+              : _a.shift()
+          artifacts = files.filter(function (x) {
+            return !x.toLowerCase().endsWith('.json')
           })
-          return [4 /*yield*/, urlContent(jsonFiles.shift().downloadUrl)]
+          if (!(json && artifacts && artifacts.length > 0))
+            return [3 /*break*/, 6]
+          baseUri = latest.paths.join('').replace('/api/storage', '')
+          return [4 /*yield*/, httpGet(baseUri + json)]
         case 2:
-          jsonContent = _a.sent()
+          jsonContent = _c.sent()
+          console.log('Repo: '.concat(baseUri))
           console.log(
             'Commit: '.concat(jsonContent.workflow_run.head_sha.substring(0, 7))
           )
           console.log('Output directory: '.concat(outputDir))
-          ;(_i = 0), (artifacts_3 = artifacts)
-          _a.label = 3
+          ;(_i = 0), (_b = __spreadArray([json], artifacts, true))
+          _c.label = 3
         case 3:
-          if (!(_i < artifacts_3.length)) return [3 /*break*/, 6]
-          artifact = artifacts_3[_i]
-          downloadUrl = artifact.downloadUrl
-          name_3 = downloadUrl.substring(downloadUrl.lastIndexOf('/') + 1)
-          // download .json from Nexus as well.
+          if (!(_i < _b.length)) return [3 /*break*/, 6]
+          artifact = _b[_i]
+          downloadUrl = baseUri + artifact
+          // download .json from Artifactory as well.
           // This is needed by internal CI to track zap version across builds.
-          formats.push('.json')
-          if (!verifyPlatformAndFormat.call(null, name_3, platforms, formats)) {
+          if (
+            !verifyPlatformAndFormat.call(
+              null,
+              artifact,
+              platforms,
+              __spreadArray(__spreadArray([], formats, true), ['.json'], false)
+            )
+          ) {
             return [3 /*break*/, 5]
           }
           return [
             4 /*yield*/,
-            download(artifact.downloadUrl, outputDir, undefined, name_3),
+            download(downloadUrl, outputDir, undefined, artifact),
           ]
         case 4:
-          _a.sent()
-          _a.label = 5
+          _c.sent()
+          _c.label = 5
         case 5:
           _i++
           return [3 /*break*/, 3]
         case 6:
+          return [3 /*break*/, 8]
+        case 7:
+          console.log('No artifacts were found!')
+          _c.label = 8
+        case 8:
           return [2 /*return*/]
       }
     })
@@ -848,13 +868,13 @@ function configureBuildCommand() {
     })
     .option('mirror', {
       description:
-        'Download Github artifacts into ./artifacts folder to simplify Nexus upload process.',
+        'Download Github artifacts into ./artifacts folder to simplify Artifactory upload process.',
       type: 'boolean',
       default: false,
     })
     .option('nameOnly', {
       description:
-        'Output list of latest artifacts to <branch_name>.txt. Used for verifying the presence on Nexus',
+        'Output list of latest artifacts to <branch_name>.txt. Used for verifying the presence on Artifactory',
       type: 'boolean',
       default: false,
     })
@@ -869,7 +889,7 @@ function configureBuildCommand() {
 }
 function main() {
   return __awaiter(this, void 0, void 0, function () {
-    var y, dlOptions, githubBranches, nexusUrl, nexusItems, artifacts
+    var y, dlOptions, githubBranches, latest, artifacts
     return __generator(this, function (_a) {
       switch (_a.label) {
         case 0:
@@ -897,12 +917,17 @@ function main() {
         case 1:
           githubBranches = _a.sent()
           if (!(dlOptions.src === 'nexus')) return [3 /*break*/, 3]
-          return [4 /*yield*/, (0, is_reachable_1['default'])(NEXUS_SERVER)]
+          return [
+            4 /*yield*/,
+            (0, is_reachable_1['default'])(ARTIFACTORY_SERVER, {
+              timeout: 10000,
+            }),
+          ]
         case 2:
           if (!_a.sent()) {
             console.log(
-              'Unable to reach Nexus sever ('.concat(
-                NEXUS_SERVER,
+              'Unable to reach Artifactory server ('.concat(
+                ARTIFACTORY_SERVER,
                 '). Defaulting to Github instead.'
               )
             )
@@ -914,7 +939,7 @@ function main() {
             console.log(
               'Branch '.concat(
                 dlOptions.branch,
-                ' is not cached on Nexus. Defaulting to master branch on Github instead.'
+                ' is not cached on Artifactory. Defaulting to Github instead.'
               )
             )
             dlOptions.src = 'github'
@@ -922,7 +947,7 @@ function main() {
             console.log(
               'Branch '.concat(
                 dlOptions.branch,
-                ' is not cached on Nexus. Defaulting to master branch instead.'
+                ' is not cached on Artifactory. Defaulting to master branch instead.'
               )
             )
             dlOptions.branch = 'master'
@@ -930,20 +955,13 @@ function main() {
           _a.label = 3
         case 3:
           if (!(dlOptions.src === 'nexus')) return [3 /*break*/, 6]
-          nexusUrl = nexusRestApiUrl(
-            NEXUS_REPO_NAME,
-            ''
-              .concat(dlOptions.owner, '/')
-              .concat(dlOptions.repo, '/')
-              .concat(dlOptions.branch, '/*')
-          )
-          return [4 /*yield*/, nexusGetArtifacts(nexusUrl, dlOptions)]
+          return [4 /*yield*/, artifactoryGetLatestFolder(dlOptions)]
         case 4:
-          nexusItems = _a.sent()
+          latest = _a.sent()
           return [
             4 /*yield*/,
-            nexusDownloadArtifacts(
-              nexusItems,
+            artifactoryDownloadArtifacts(
+              latest,
               dlOptions,
               verifyPlatformAndFormat
             ),
