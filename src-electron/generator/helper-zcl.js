@@ -2274,6 +2274,9 @@ async function as_generated_default_macro(value, attributeSize, options) {
 /**
  * Given the attributes of a zcl attribute. Creates an attribute mask based on
  * the given options
+ * Available options:
+ * isClusterCodeMfgSpecific: 0/1, This is to determine if cluster code needs to
+ * be used to determine if a cluster is mfg specific or not.
  * @param writable
  * @param storageOption
  * @param minMax
@@ -2294,8 +2297,13 @@ async function attribute_mask(
   client,
   isSingleton,
   prefixString,
-  postfixString
+  postfixString,
+  options
 ) {
+  let isClusterCodeMfgSpecific =
+    options && 'isClusterCodeMfgSpecific' in options.hash
+      ? options.hash.isClusterCodeMfgSpecific
+      : false
   let attributeMask = ''
   // mask for isWritable
   if (writable) {
@@ -2322,7 +2330,7 @@ async function attribute_mask(
   }
 
   // mask for manufacturing specific attributes
-  if (mfgSpecific && clusterCode < 64512) {
+  if (mfgSpecific || (isClusterCodeMfgSpecific && clusterCode < 64512)) {
     attributeMask +=
       (attributeMask ? '| ' : '') +
       prefixString +
