@@ -246,6 +246,11 @@ function endpoint_attribute_count(options) {
 }
 
 function endpoint_attribute_list(options) {
+  let order = options.hash.order
+  if (order == null || order.length == 0) {
+    // This is the default value if none is specified
+    order = 'default,id,size,type,mask'
+  }
   let comment = null
 
   let littleEndian = true
@@ -288,7 +293,29 @@ function endpoint_attribute_list(options) {
       }
       finalDefaultValue = `ZAP_SIMPLE_DEFAULT(${defaultValue})`
     }
-    ret += `  { ${finalDefaultValue}, ${at.id}, ${at.size}, ${at.type}, ${mask} }, /* ${at.name} */  \\\n`
+    let orderTokens = order.split(',').map((x) => (x ? x.trim() : ''))
+    let items = []
+    orderTokens.forEach((tok) => {
+      switch (tok) {
+        case 'default':
+          items.push(finalDefaultValue)
+          break
+        case 'id':
+          items.push(at.id)
+          break
+        case 'size':
+          items.push(at.size)
+          break
+        case 'type':
+          items.push(at.type)
+          break
+        case 'mask':
+          items.push(mask)
+          break
+      }
+    })
+
+    ret += `  { ${items.join(', ')} }, /* ${at.name} */  \\\n`
   })
   ret += '}\n'
 
