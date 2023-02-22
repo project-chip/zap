@@ -241,11 +241,12 @@ async function asObjectiveCClass(type, cluster, options) {
       // type, we want to output the pre-renaming name for the getters that
       // predate the "great Matter API revamp", and the post-renaming name for
       // the ones that post-date it.
-      type = oldName.call(this, cluster, {
-        hash: {
-          "struct": type
-        }
-      }) || type;
+      type =
+        oldName.call(this, cluster, {
+          hash: {
+            struct: type,
+          },
+        }) || type;
     } else {
       let preserveAcronyms = true;
       if ('preserveAcronyms' in options.hash) {
@@ -362,8 +363,14 @@ function fetchAvailabilityData(global) {
   if (!availabilityData) {
     let f = global.resource('availability-data');
     // NOTE: This has to be sync, so we can use this data in if conditions.
-    let rawData = fs.readFileSync(f, { encoding: 'utf8', flag: 'r' });
-    availabilityData = YAML.parse(rawData);
+    if (f) {
+      let rawData = fs.readFileSync(f, { encoding: 'utf8', flag: 'r' });
+      availabilityData = YAML.parse(rawData);
+    } else {
+      throw new Error(
+        `Resource availability-data not found among the context resources. Check your template.json file.`
+      );
+    }
   }
   return availabilityData;
 }
@@ -760,7 +767,11 @@ function wasRemoved(cluster, options) {
   let removedRelease = undefined;
   let removalPath = [...path];
   while (removedRelease === undefined && removalPath !== undefined) {
-    removedRelease = findReleaseForPath(data, ['removed', ...removalPath], options);
+    removedRelease = findReleaseForPath(
+      data,
+      ['removed', ...removalPath],
+      options
+    );
     removalPath = findPathToContainer(removalPath);
   }
   return removedRelease !== undefined;
@@ -774,40 +785,44 @@ function hasRenamedFields(cluster, options) {
   let hashAddition;
   if (options.hash.struct) {
     hashAddition = {
-        structField: "dummy"
+      structField: 'dummy',
     };
   } else if (options.hash.event) {
     hashAddition = {
-        eventField: "dummy"
+      eventField: 'dummy',
     };
   } else if (options.hash.command) {
     hashAddition = {
-        commandField: "dummy"
+      commandField: 'dummy',
     };
   } else if (options.hash.enum) {
     hashAddition = {
-        enumValue: "dummy"
+      enumValue: 'dummy',
     };
   } else if (options.hash.bitmap) {
     hashAddition = {
-        bitmapValue: "dummy"
+      bitmapValue: 'dummy',
     };
   } else {
-    throw new Error(`hasRenamedFields called for a non-container object: ${cluster} '${JSON.stringfify(options.hash)}'`);
+    throw new Error(
+      `hasRenamedFields called for a non-container object: ${cluster} '${JSON.stringfify(
+        options.hash
+      )}'`
+    );
   }
 
   let path = makeAvailabilityPath(cluster, {
     hash: {
-      ...options.hash, ...hashAddition
-    }
+      ...options.hash,
+      ...hashAddition,
+    },
   });
 
   // Now strip off the last bit of the path, so we're just checking for any
   // renames in our container.
   path.pop();
 
-  return findDataForPath(data, [ 'renames', ...path ]) !== undefined;
-
+  return findDataForPath(data, ['renames', ...path]) !== undefined;
 }
 
 function and() {
