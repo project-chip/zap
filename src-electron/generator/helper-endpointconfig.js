@@ -400,7 +400,15 @@ function endpoint_attribute_min_max_list(options) {
   return ret
 }
 
+/**
+ * This helper supports an "order" CSV string, such as:
+ *   "direction,endpoint,clusterId,attributeId,mask,mfgCode,minmax"
+ * The string above is a default value, and it determines in what order are the fields generated.
+ *
+ * @param {*} options
+ */
 function endpoint_reporting_config_defaults(options) {
+  let order = options.hash.order
   let comment = null
 
   let ret = '{ \\\n'
@@ -418,7 +426,17 @@ function endpoint_reporting_config_defaults(options) {
         .map((m) => `ZAP_CLUSTER_MASK(${m.toUpperCase()})`)
         .join(' | ')
     }
-    ret += `  { ZAP_REPORT_DIRECTION(${r.direction}), ${r.endpoint}, ${r.clusterId}, ${r.attributeId}, ${mask}, ${r.mfgCode}, {{ ${r.minOrSource}, ${r.maxOrEndpoint}, ${r.reportableChangeOrTimeout} }} }, /* ${r.name} */ \\\n`
+    let items = [
+      `ZAP_REPORT_DIRECTION(${r.direction})`,
+      r.endpoint,
+      r.clusterId,
+      r.attributeId,
+      mask,
+      r.mfgCode,
+      `{{ ${r.minOrSource}, ${r.maxOrEndpoint}, ${r.reportableChangeOrTimeout} }}`,
+    ]
+    let singleRow = `  { ${items.join(', ')} }, /* ${r.name} */ \\\n`
+    ret += singleRow
   })
   ret += '}\n'
 
@@ -468,7 +486,7 @@ function asMEI(manufacturerCode, code) {
   // Left-shift (and for that matter bitwise or) produces a _signed_ 32-bit
   // number, which will probably be negative.  Force it to unsigned 32-bit using
   // >>> 0.
-  return '0x' + bin.int32ToHex(((manufacturerCode << 16) | code) >>> 0);
+  return '0x' + bin.int32ToHex(((manufacturerCode << 16) | code) >>> 0)
 }
 
 // The representation of null depends on the type, so we can't use a single
