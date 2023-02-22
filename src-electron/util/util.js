@@ -444,16 +444,6 @@ function createAbsolutePath(relativePath, relativity, zapFilePath) {
       return path.join(os.homedir(), relativePath)
     case dbEnum.pathRelativity.relativeToZap:
       return path.join(path.dirname(zapFilePath), relativePath)
-    case dbEnum.pathRelativity.resolveEnvVars:
-      for (let key in process.env) {
-        if (Object.prototype.hasOwnProperty.call(process.env, key)) {
-          relativePath = relativePath.replaceAll('$' + key, process.env[key])
-          relativePath = relativePath.replaceAll('${' + key + '}', process.env[key])
-        }
-      }
-      if (relativePath.indexOf('$') !== -1) {
-        throw new Error('resolveEnvVars: unable to resolve environment variables completely: ' + relativePath)
-      }
   }
   return relativePath
 }
