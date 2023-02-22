@@ -431,15 +431,35 @@ function endpoint_reporting_config_defaults(options) {
         .join(' | ')
     }
     let orderTokens = order.split(',').map((x) => (x ? x.trim() : ''))
-    let items = [
-      `ZAP_REPORT_DIRECTION(${r.direction})`,
-      r.endpoint,
-      r.clusterId,
-      r.attributeId,
-      mask,
-      r.mfgCode,
-      `{{ ${r.minOrSource}, ${r.maxOrEndpoint}, ${r.reportableChangeOrTimeout} }}`,
-    ]
+    let items = []
+    orderTokens.forEach((tok) => {
+      switch (tok) {
+        case 'direction':
+          items.push(`ZAP_REPORT_DIRECTION(${r.direction})`)
+          break
+        case 'endpoint':
+          items.push(r.endpoint)
+          break
+        case 'clusterId':
+          items.push(r.clusterId)
+          break
+        case 'attributeId':
+          items.push(r.attributeId)
+          break
+        case 'mask':
+          items.push(mask)
+          break
+        case 'mfgCode':
+          items.push(r.mfgCode)
+          break
+        case 'minmax':
+          items.push(
+            `{{ ${r.minOrSource}, ${r.maxOrEndpoint}, ${r.reportableChangeOrTimeout} }}`
+          )
+          break
+      }
+    })
+
     let singleRow = `  { ${items.join(', ')} }, /* ${r.name} */ \\\n`
     ret += singleRow
   })
