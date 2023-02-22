@@ -409,6 +409,10 @@ function endpoint_attribute_min_max_list(options) {
  */
 function endpoint_reporting_config_defaults(options) {
   let order = options.hash.order
+  if (order == null || order.length == 0) {
+    // This is the default value if none is specified
+    order = 'direction,endpoint,clusterId,attributeId,mask,mfgCode,minmax'
+  }
   let comment = null
 
   let ret = '{ \\\n'
@@ -426,6 +430,7 @@ function endpoint_reporting_config_defaults(options) {
         .map((m) => `ZAP_CLUSTER_MASK(${m.toUpperCase()})`)
         .join(' | ')
     }
+    let orderTokens = order.split(',').map((x) => (x ? x.trim() : ''))
     let items = [
       `ZAP_REPORT_DIRECTION(${r.direction})`,
       r.endpoint,
