@@ -249,7 +249,7 @@ function endpoint_attribute_list(options) {
   let order = options.hash.order
   if (order == null || order.length == 0) {
     // This is the default value if none is specified
-    order = 'default,id,size,type,mask'
+    order = 'id, type, size, mask, default'
   }
   let comment = null
 
