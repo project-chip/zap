@@ -375,6 +375,14 @@ test(
     expect(genResult).not.toBeNull()
     expect(genResult.partial).toBeFalsy()
     expect(genResult.content).not.toBeNull()
+    let cfg = genResult.content['zap-config.h']
+    expect(cfg).toContain(
+      '{ ZAP_REPORT_DIRECTION(REPORTED), 0x0002, 0x00000000, 0x00000000, ZAP_CLUSTER_MASK(SERVER), 0x0000, {{ 0, 65534, 0 }} }, /* ZCL version */'
+    )
+    expect(cfg).toContain(
+      '{ ZAP_REPORT_DIRECTION(REPORTED), 0x0001, 0x00000300, 0x00000003, ZAP_CLUSTER_MASK(SERVER), 0x0000, {{ 0, 65534, 0 }} }, /* current x */'
+    )
+
     let cfgVer2 = genResult.content['zap-config-version-2.h']
 
     // Test GENERATED_DEFAULTS big endian

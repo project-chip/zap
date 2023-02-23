@@ -246,6 +246,11 @@ function endpoint_attribute_count(options) {
 }
 
 function endpoint_attribute_list(options) {
+  let order = options.hash.order
+  if (order == null || order.length == 0) {
+    // This is the default value if none is specified
+    order = 'default,id,size,type,mask'
+  }
   let comment = null
 
   let littleEndian = true
@@ -288,7 +293,29 @@ function endpoint_attribute_list(options) {
       }
       finalDefaultValue = `ZAP_SIMPLE_DEFAULT(${defaultValue})`
     }
-    ret += `  { ${finalDefaultValue}, ${at.id}, ${at.size}, ${at.type}, ${mask} }, /* ${at.name} */  \\\n`
+    let orderTokens = order.split(',').map((x) => (x ? x.trim() : ''))
+    let items = []
+    orderTokens.forEach((tok) => {
+      switch (tok) {
+        case 'default':
+          items.push(finalDefaultValue)
+          break
+        case 'id':
+          items.push(at.id)
+          break
+        case 'size':
+          items.push(at.size)
+          break
+        case 'type':
+          items.push(at.type)
+          break
+        case 'mask':
+          items.push(mask)
+          break
+      }
+    })
+
+    ret += `  { ${items.join(', ')} }, /* ${at.name} */  \\\n`
   })
   ret += '}\n'
 
@@ -365,6 +392,10 @@ function endpoint_attribute_min_max_count(options) {
 
 function endpoint_attribute_min_max_list(options) {
   let comment = null
+  let order = options.hash.order
+  if (order == null || order.length == 0) {
+    order = 'def,min,max'
+  }
 
   let ret = '{ \\\n'
   this.minMaxList.forEach((mm, index) => {
@@ -391,7 +422,24 @@ function endpoint_attribute_min_max_list(options) {
       (min >= 0 ? '' : '-') + '0x' + Math.abs(min).toString(16).toUpperCase()
     let maxS =
       (max >= 0 ? '' : '-') + '0x' + Math.abs(max).toString(16).toUpperCase()
-    ret += `  { (uint16_t)${defS}, (uint16_t)${minS}, (uint16_t)${maxS} }${
+    let defMinMaxItems = []
+    order
+      .split(',')
+      .map((x) => (x ? x.trim() : ''))
+      .forEach((tok) => {
+        switch (tok) {
+          case 'def':
+            defMinMaxItems.push(`(uint16_t)${defS}`)
+            break
+          case 'min':
+            defMinMaxItems.push(`(uint16_t)${minS}`)
+            break
+          case 'max':
+            defMinMaxItems.push(`(uint16_t)${maxS}`)
+            break
+        }
+      })
+    ret += `  { ${defMinMaxItems.join(', ')} }${
       index == this.minMaxList.length - 1 ? '' : ','
     } /* ${mm.name} */ \\\n`
   })
@@ -400,7 +448,23 @@ function endpoint_attribute_min_max_list(options) {
   return ret
 }
 
+/**
+ * This helper supports an "order" CSV string, such as:
+ *   "direction,endpoint,clusterId,attributeId,mask,mfgCode,minmax"
+ * The string above is a default value, and it determines in what order are the fields generated.
+ *
+ * @param {*} options
+ */
 function endpoint_reporting_config_defaults(options) {
+  let order = options.hash.order
+  if (order == null || order.length == 0) {
+    // This is the default value if none is specified
+    order = 'direction,endpoint,clusterId,attributeId,mask,mfgCode,minmax'
+  }
+  let minmaxorder = options.hash.minmaxorder
+  if (minmaxorder == null || minmaxorder.length == 0) {
+    minmaxorder = 'min,max,change'
+  }
   let comment = null
 
   let ret = '{ \\\n'
@@ -410,6 +474,22 @@ function endpoint_reporting_config_defaults(options) {
       comment = r.comment
     }
 
+    let minmaxItems = []
+    let minmaxToks = minmaxorder.split(',').map((x) => (x ? x.trim() : ''))
+    minmaxToks.forEach((tok) => {
+      switch (tok) {
+        case 'min':
+          minmaxItems.push(r.minOrSource)
+          break
+        case 'max':
+          minmaxItems.push(r.maxOrEndpoint)
+          break
+        case 'change':
+          minmaxItems.push(r.reportableChangeOrTimeout)
+          break
+      }
+    })
+    let minmax = minmaxItems.join(', ')
     let mask = ''
     if (r.mask.length == 0) {
       mask = '0'
@@ -418,7 +498,36 @@ function endpoint_reporting_config_defaults(options) {
         .map((m) => `ZAP_CLUSTER_MASK(${m.toUpperCase()})`)
         .join(' | ')
     }
-    ret += `  { ZAP_REPORT_DIRECTION(${r.direction}), ${r.endpoint}, ${r.clusterId}, ${r.attributeId}, ${mask}, ${r.mfgCode}, {{ ${r.minOrSource}, ${r.maxOrEndpoint}, ${r.reportableChangeOrTimeout} }} }, /* ${r.name} */ \\\n`
+    let orderTokens = order.split(',').map((x) => (x ? x.trim() : ''))
+    let items = []
+    orderTokens.forEach((tok) => {
+      switch (tok) {
+        case 'direction':
+          items.push(`ZAP_REPORT_DIRECTION(${r.direction})`)
+          break
+        case 'endpoint':
+          items.push(r.endpoint)
+          break
+        case 'clusterId':
+          items.push(r.clusterId)
+          break
+        case 'attributeId':
+          items.push(r.attributeId)
+          break
+        case 'mask':
+          items.push(mask)
+          break
+        case 'mfgCode':
+          items.push(r.mfgCode)
+          break
+        case 'minmax':
+          items.push(`{{ ${minmax} }}`)
+          break
+      }
+    })
+
+    let singleRow = `  { ${items.join(', ')} }, /* ${r.name} */ \\\n`
+    ret += singleRow
   })
   ret += '}\n'
 
@@ -468,7 +577,7 @@ function asMEI(manufacturerCode, code) {
   // Left-shift (and for that matter bitwise or) produces a _signed_ 32-bit
   // number, which will probably be negative.  Force it to unsigned 32-bit using
   // >>> 0.
-  return '0x' + bin.int32ToHex(((manufacturerCode << 16) | code) >>> 0);
+  return '0x' + bin.int32ToHex(((manufacturerCode << 16) | code) >>> 0)
 }
 
 // The representation of null depends on the type, so we can't use a single
