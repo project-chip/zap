@@ -392,6 +392,10 @@ function endpoint_attribute_min_max_count(options) {
 
 function endpoint_attribute_min_max_list(options) {
   let comment = null
+  let order = options.hash.order
+  if (order == null || order.length == 0) {
+    order = 'def,min,max'
+  }
 
   let ret = '{ \\\n'
   this.minMaxList.forEach((mm, index) => {
@@ -418,7 +422,24 @@ function endpoint_attribute_min_max_list(options) {
       (min >= 0 ? '' : '-') + '0x' + Math.abs(min).toString(16).toUpperCase()
     let maxS =
       (max >= 0 ? '' : '-') + '0x' + Math.abs(max).toString(16).toUpperCase()
-    ret += `  { (uint16_t)${defS}, (uint16_t)${minS}, (uint16_t)${maxS} }${
+    let defMinMaxItems = []
+    order
+      .split(',')
+      .map((x) => (x ? x.trim() : ''))
+      .forEach((tok) => {
+        switch (tok) {
+          case 'def':
+            defMinMaxItems.push(`(uint16_t)${defS}`)
+            break
+          case 'min':
+            defMinMaxItems.push(`(uint16_t)${minS}`)
+            break
+          case 'max':
+            defMinMaxItems.push(`(uint16_t)${maxS}`)
+            break
+        }
+      })
+    ret += `  { ${defMinMaxItems.join(', ')} }${
       index == this.minMaxList.length - 1 ? '' : ','
     } /* ${mm.name} */ \\\n`
   })
