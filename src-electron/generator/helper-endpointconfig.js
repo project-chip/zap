@@ -440,6 +440,10 @@ function endpoint_reporting_config_defaults(options) {
     // This is the default value if none is specified
     order = 'direction,endpoint,clusterId,attributeId,mask,mfgCode,minmax'
   }
+  let minmaxorder = options.hash.minmaxorder
+  if (minmaxorder == null || minmaxorder.length == 0) {
+    minmaxorder = 'min,max,change'
+  }
   let comment = null
 
   let ret = '{ \\\n'
@@ -449,6 +453,22 @@ function endpoint_reporting_config_defaults(options) {
       comment = r.comment
     }
 
+    let minmaxItems = []
+    let minmaxToks = minmaxorder.split(',').map((x) => (x ? x.trim() : ''))
+    minmaxToks.forEach((tok) => {
+      switch (tok) {
+        case 'min':
+          minmaxItems.push(r.minOrSource)
+          break
+        case 'max':
+          minmaxItems.push(r.maxOrEndpoint)
+          break
+        case 'change':
+          minmaxItems.push(r.reportableChangeOrTimeout)
+          break
+      }
+    })
+    let minmax = minmaxItems.join(', ')
     let mask = ''
     if (r.mask.length == 0) {
       mask = '0'
@@ -480,9 +500,7 @@ function endpoint_reporting_config_defaults(options) {
           items.push(r.mfgCode)
           break
         case 'minmax':
-          items.push(
-            `{{ ${r.minOrSource}, ${r.maxOrEndpoint}, ${r.reportableChangeOrTimeout} }}`
-          )
+          items.push(`{{ ${minmax} }}`)
           break
       }
     })
