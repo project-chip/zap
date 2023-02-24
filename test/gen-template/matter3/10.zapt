@@ -1,4 +1,3 @@
-{{> header}}
 {{#if (chip_has_client_clusters)}}
 {{#chip_server_global_responses}}
 {{! TODO: Add support for struct-typed attributes }}

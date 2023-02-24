@@ -1,4 +1,3 @@
-{{> header}}
 package chip.devicecontroller;
 
 {{#if (chip_has_client_clusters)}}
