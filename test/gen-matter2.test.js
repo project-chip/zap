@@ -83,7 +83,6 @@ test(
       {},
       { disableDeprecationWarnings: true }
     )
-    console.log(genResult)
   },
   testUtil.timeout.long()
 )
