@@ -261,7 +261,13 @@ function chip_endpoint_generated_event_list(options) {
  * To be used as a replacement of endpoint_cluster_list since this one
  * includes the GENERATED_FUNCTIONS array
  */
-function chip_endpoint_cluster_list() {
+function chip_endpoint_cluster_list(options) {
+  let order = options.hash.order;
+  if (order == null || order.length == 0) {
+    order =
+      'clusterId, attributes, attributeCount, clusterSize, mask, functions, acceptedCommandList, generatedCommandList';
+    // eventList and eventCount was added later, so default needs to stay like this for backwards compatibility.
+  }
   const configData = getConfigData(this.global);
   let ret = '{ \\\n';
   let totalCommands = 0;
@@ -352,18 +358,51 @@ function chip_endpoint_cluster_list() {
       eventList = `ZAP_GENERATED_EVENTS_INDEX( ${c.eventIndex} )`;
     }
 
+    let individualItems = [];
+    let orderTokens = order.split(',').map((x) => (x ? x.trim() : ''));
+    orderTokens.forEach((tok) => {
+      switch (tok) {
+        case 'clusterId':
+          individualItems.push(`.clusterId = ${c.clusterId}`);
+          break;
+        case 'attributes':
+          individualItems.push(
+            `.attributes = ZAP_ATTRIBUTE_INDEX(${c.attributeIndex})`
+          );
+          break;
+        case 'attributeCount':
+          individualItems.push(`.attributeCount = ${c.attributeCount}`);
+          break;
+        case 'clusterSize:':
+          individualItems.push(`.clusterSize = ${c.attributeSize}`);
+          break;
+        case 'mask':
+          individualItems.push(`.mask = ${mask}`);
+          break;
+        case 'functions':
+          individualItems.push(`.functions = ${functionArray}`);
+          break;
+        case 'acceptedCommandList':
+          individualItems.push(
+            `.acceptedCommandList = ${acceptedCommandsListVal}`
+          );
+          break;
+        case 'generatedCommandList':
+          individualItems.push(
+            `.generatedCommandList = ${generatedCommandsListVal}`
+          );
+          break;
+        case 'eventList':
+          individualItems.push(`.eventList = ${eventList}`);
+          break;
+        case 'eventCount':
+          individualItems.push(`.eventCount = ${eventCount}`);
+          break;
+      }
+    });
     ret = ret.concat(`  { \\
       /* ${c.comment} */ \\
-      .clusterId = ${c.clusterId},  \\
-      .attributes = ZAP_ATTRIBUTE_INDEX(${c.attributeIndex}), \\
-      .attributeCount = ${c.attributeCount}, \\
-      .clusterSize = ${c.attributeSize}, \\
-      .mask = ${mask}, \\
-      .functions = ${functionArray}, \\
-      .acceptedCommandList = ${acceptedCommandsListVal} ,\\
-      .generatedCommandList = ${generatedCommandsListVal} ,\\
-      .eventList = ${eventList}, \\
-      .eventCount = ${eventCount}, \\
+      ${individualItems.join(', \\\n')}, \\
     },\\\n`);
 
     totalCommands = totalCommands + acceptedCommands + generatedCommands;
