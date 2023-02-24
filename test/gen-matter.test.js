@@ -169,6 +169,7 @@ test(
       { disableDeprecationWarnings: true }
     )
 
+    console.log(genResult)
     expect(genResult).not.toBeNull()
     expect(genResult.partial).toBeFalsy()
     expect(genResult.content).not.toBeNull()

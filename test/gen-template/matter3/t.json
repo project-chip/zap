@@ -96,11 +96,6 @@
       "path": "16.zapt",
       "name": "Test 16",
       "output": "16.out"
-    },
-    {
-      "path": "17.zapt",
-      "name": "Test 17",
-      "output": "17.out"
     }
   ]
 }

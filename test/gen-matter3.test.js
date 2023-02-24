@@ -82,6 +82,7 @@ test(
       {},
       { disableDeprecationWarnings: true }
     )
+    expect(genResult.hasErrors).toEqual(false)
   },
   testUtil.timeout.long()
 )
