@@ -130,49 +130,41 @@ limitations under the License.
             v-model="showPreviewTab"
             side="right"
             :breakpoint="0"
-            class="zindex"
+            class="column"
           >
-            <div class="q-pa-md">
-              <q-btn-dropdown
-                no-caps
-                color="blue"
-                :label="generationButtonText"
-                dropdown-icon="change_history"
-                class="full-width"
-                data-test="select-file-in-preview"
-              >
-                <q-list>
-                  <q-item
-                    v-for="(file, i) in generationFiles"
-                    :key="i"
-                    clickable
-                    v-close-popup
-                    @click="
-                      () => {
-                        generationButtonText = file.category
-                        getGeneratedFile(file.category)
-                      }
-                    "
-                    :label="generationButtonText"
-                  >
-                    <q-item-section>
-                      <q-item-label>{{ file.category }}</q-item-label>
-                    </q-item-section>
-                  </q-item>
-                </q-list>
-              </q-btn-dropdown>
-              <div>
-                <template>
-                  <div class="q-ma-md">
-                    <q-scroll-area style="height: 70vh" ref="generationScroll">
-                      <pre class="q-ma-none container">{{
-                        generationData
-                      }}</pre>
-                      <q-scroll-observer @scroll="onScroll" />
-                    </q-scroll-area>
-                  </div>
-                </template>
-              </div>
+            <q-btn-dropdown
+              no-caps
+              color="blue"
+              :label="generationButtonText"
+              dropdown-icon="change_history"
+              class="q-mx-sm q-mt-sm"
+              data-test="select-file-in-preview"
+            >
+              <q-list>
+                <q-item
+                  v-for="(file, i) in generationFiles"
+                  :key="i"
+                  clickable
+                  v-close-popup
+                  @click="
+                    () => {
+                      generationButtonText = file.category
+                      getGeneratedFile(file.category)
+                    }
+                  "
+                  :label="generationButtonText"
+                >
+                  <q-item-section>
+                    <q-item-label>{{ file.category }}</q-item-label>
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </q-btn-dropdown>
+            <div class="col">
+              <q-scroll-area class="fit" ref="generationScroll">
+                <pre class="q-ma-sm">{{ generationData }}</pre>
+                <q-scroll-observer @scroll="onScroll" />
+              </q-scroll-area>
             </div>
           </q-drawer>
         </q-page-container>

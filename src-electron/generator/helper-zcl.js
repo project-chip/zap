@@ -2217,16 +2217,22 @@ async function if_mfg_specific_cluster(clusterId, options) {
  * @param attributeSize
  * @param options
  * @returns Formatted attribute value based on given arguments
+ * Available options:
+ * - endian: Specify 'big' or 'little' endian format
+ * - isCommaTerminated: '0' or '1' for output to have a ',' at the end
  */
 async function as_generated_default_macro(value, attributeSize, options) {
   let default_macro_signature = ''
   let temp = ''
+  let isCommaTerminated =
+    'isCommaTerminated' in options.hash ? options.hash.isCommaTerminated : true
   if (attributeSize > 2) {
     // String value
     if (isNaN(value)) {
       return format_zcl_string_as_characters_for_generated_defaults(
         value,
-        attributeSize
+        attributeSize,
+        options
       )
     }
     // Float value
@@ -2260,12 +2266,17 @@ async function as_generated_default_macro(value, attributeSize, options) {
       .reverse()
       .join(' ')
   }
-  return default_macro_signature
+  return isCommaTerminated
+    ? default_macro_signature
+    : default_macro_signature.trim().slice(0, -1)
 }
 
 /**
  * Given the attributes of a zcl attribute. Creates an attribute mask based on
  * the given options
+ * Available options:
+ * isClusterCodeMfgSpecific: 0/1, This is to determine if cluster code needs to
+ * be used to determine if a cluster is mfg specific or not.
  * @param writable
  * @param storageOption
  * @param minMax
@@ -2286,8 +2297,13 @@ async function attribute_mask(
   client,
   isSingleton,
   prefixString,
-  postfixString
+  postfixString,
+  options
 ) {
+  let isClusterCodeMfgSpecific =
+    options && 'isClusterCodeMfgSpecific' in options.hash
+      ? options.hash.isClusterCodeMfgSpecific
+      : false
   let attributeMask = ''
   // mask for isWritable
   if (writable) {
@@ -2314,7 +2330,7 @@ async function attribute_mask(
   }
 
   // mask for manufacturing specific attributes
-  if (mfgSpecific && clusterCode < 64512) {
+  if (mfgSpecific || (isClusterCodeMfgSpecific && clusterCode < 64512)) {
     attributeMask +=
       (attributeMask ? '| ' : '') +
       prefixString +
@@ -2428,6 +2444,11 @@ function command_mask_sub_helper(commandMask, str) {
  * {{format_zcl_string_as_characters_for_generated_defaults 'abc' 5}}
  * will return as follows:
  * 3, 'a', 'b', 'c' 0, 0
+ *
+ * Available Options:
+ * - isOctet: 0/1 can be used to return results correctly for octet strings
+ * - isCommaTerminated: 0/1 can be used to return result with/without ',' at
+ * the end
  * @param stringVal
  * @param sizeOfString
  * @returns Formatted string for generated defaults starting with the lenth of a
@@ -2436,8 +2457,12 @@ function command_mask_sub_helper(commandMask, str) {
  */
 async function format_zcl_string_as_characters_for_generated_defaults(
   stringVal,
-  sizeOfString
+  sizeOfString,
+  options
 ) {
+  let isOctet = 'isOctet' in options.hash ? options.hash.isOctet : false
+  let isCommaTerminated =
+    'isCommaTerminated' in options.hash ? options.hash.isCommaTerminated : true
   let lengthOfString = types.convertIntToBigEndian(
     stringVal.length,
     sizeOfString < 255 ? 1 : 2
@@ -2451,12 +2476,17 @@ async function format_zcl_string_as_characters_for_generated_defaults(
   lengthPrefix = lengthPrefix.split(' ').reverse().join(' ')
   let formatted_string = lengthPrefix
   for (let i = 0; i < stringVal.length; i++) {
-    formatted_string += "'" + stringVal.charAt(i) + "', "
+    formatted_string +=
+      (!isOctet
+        ? "'" + stringVal.charAt(i) + "'"
+        : '0x' + stringVal.charCodeAt(i).toString(16)) + ', '
   }
   for (let i = stringVal.length + 1; i < sizeOfString; i++) {
     formatted_string += '0' + ', '
   }
-  return formatted_string
+  return isCommaTerminated
+    ? formatted_string
+    : formatted_string.trim().slice(0, -1)
 }
 
 /**
@@ -2712,6 +2742,9 @@ function if_compare(leftValue, rightValue, options) {
       break
     case '>=':
       result = leftValue >= rightValue
+      break
+    case 'in':
+      result = rightValue.includes(leftValue)
       break
     default:
       throw new Error(

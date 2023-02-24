@@ -24,6 +24,7 @@ const nativeRequire = require('../util/native-require')
 const fsPromise = require('fs').promises
 const promisedHandlebars = require('promised-handlebars')
 const defaultHandlebars = require('handlebars')
+const notification = require('../db/query-notification.js')
 
 const includedHelpers = [
   require('./helper-zcl'),
@@ -120,9 +121,14 @@ async function produceContent(
         if (key in metaInfo.resources) {
           return metaInfo.resources[key]
         } else {
-          throw new Error(
-            `Resource "${key}" not found among the context resources. Check your template.json file.`
+          notification.setNotification(
+            db,
+            'UPGRADE WARNING',
+            'Resource "${key}" not found among the context resources. Check your template.json file. You may need a Matter SDK upgrade.',
+            sessionId,
+            1
           )
+          return null
         }
       },
       stats: {},

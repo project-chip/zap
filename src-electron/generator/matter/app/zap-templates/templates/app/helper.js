@@ -38,17 +38,38 @@ const TestHelper = require('../../common/ClusterTestGeneration.js');
 const kGlobalAttributes = [
   0xfff8, // GeneratedCommandList
   0xfff9, // AcceptedCommandList
+  0xfffa, // EventList
   0xfffb, // AttributeList
   0xfffc, // ClusterRevision
   0xfffd, // FeatureMap
 ];
+
+let configData = undefined;
+function getConfigData(global) {
+  if (configData === undefined) {
+    let f = global.resource('config-data');
+    // NOTE: This has to be sync, so we can use this data in if conditions.
+    if (f) {
+      let rawData = fs.readFileSync(f, { encoding: 'utf8', flag: 'r' });
+      configData = YAML.parse(rawData);
+    }
+  }
+  return configData;
+}
+
+function isInConfigList(string, listName) {
+  const data = getConfigData(this.global);
+  return data[listName].includes(string);
+}
 
 //  Endpoint-config specific helpers
 // these helpers are a Hot fix for the "GENERATED_FUNCTIONS" problem
 // They should be removed or replace once issue #4369 is resolved
 // These helpers only works within the endpoint_config iterator
 
-// List of all cluster with generated functions
+// List of clusters with generated functions maintained for backwards
+// compatibility. The following lists are outdated and are kept to
+// make sure older SDK releases continue working with zap updates.
 const endpointClusterWithInit = [
   'Basic',
   'Color Control',
@@ -87,6 +108,7 @@ const endpointClusterWithPreAttribute = [
  * Populate the GENERATED_FUNCTIONS field
  */
 function chip_endpoint_generated_functions() {
+  const configData = getConfigData(this.global);
   let alreadySetCluster = [];
   let ret = '\\\n';
   this.clusterList.forEach((c) => {
@@ -98,7 +120,18 @@ function chip_endpoint_generated_functions() {
     }
     if (c.comment.includes('server')) {
       let hasFunctionArray = false;
-      if (endpointClusterWithInit.includes(clusterName)) {
+      let isClusterInitFunctionIncluded = configData
+        ? configData.ClustersWithInitFunctions.includes(clusterName)
+        : endpointClusterWithInit.includes(clusterName);
+      let isClusterAttributeChangedFunctionIncluded = configData
+        ? configData.ClustersWithAttributeChangedFunctions.includes(clusterName)
+        : endpointClusterWithAttributeChanged.includes(clusterName);
+      let isClusterPreAttributeChangedFunctionIncluded = configData
+        ? configData.ClustersWithPreAttributeChangeFunctions.includes(
+            clusterName
+          )
+        : endpointClusterWithPreAttribute.includes(clusterName);
+      if (isClusterInitFunctionIncluded) {
         hasFunctionArray = true;
         functionList = functionList.concat(
           `  (EmberAfGenericClusterFunction) emberAf${cHelper.asCamelCased(
@@ -108,7 +141,7 @@ function chip_endpoint_generated_functions() {
         );
       }
 
-      if (endpointClusterWithAttributeChanged.includes(clusterName)) {
+      if (isClusterAttributeChangedFunctionIncluded) {
         functionList = functionList.concat(
           `  (EmberAfGenericClusterFunction) Matter${cHelper.asCamelCased(
             clusterName,
@@ -118,7 +151,21 @@ function chip_endpoint_generated_functions() {
         hasFunctionArray = true;
       }
 
-      if (endpointClusterWithPreAttribute.includes(clusterName)) {
+      if (
+        configData &&
+        'ClustersWithShutdownFunctions' in configData &&
+        configData.ClustersWithShutdownFunctions.includes(clusterName)
+      ) {
+        hasFunctionArray = true;
+        functionList = functionList.concat(
+          `  (EmberAfGenericClusterFunction) Matter${cHelper.asCamelCased(
+            clusterName,
+            false
+          )}ClusterServerShutdownCallback,\\\n`
+        );
+      }
+
+      if (isClusterPreAttributeChangedFunctionIncluded) {
         functionList = functionList.concat(
           `  (EmberAfGenericClusterFunction) Matter${cHelper.asCamelCased(
             clusterName,
@@ -187,32 +234,73 @@ function chip_endpoint_generated_commands_list(options) {
   return templateUtil.collectBlocks(ret, options, this);
 }
 
+function chip_endpoint_generated_event_count(options) {
+  return this.eventList.length;
+}
+
+function chip_endpoint_generated_event_list(options) {
+  let comment = null;
+
+  let index = 0;
+  let ret = '{ \\\n';
+  this.eventList.forEach((ev) => {
+    if (ev.comment != comment) {
+      ret += `  /* ${ev.comment} */ \\\n`;
+      ret += `  /* EventList (index=${index}) */ \\\n`;
+      comment = ev.comment;
+    }
+    ret += `  ${ev.eventId}, /* ${ev.name} */ \\\n`;
+    index++;
+  });
+  ret += '}\n';
+  return ret;
+}
+
 /**
  * Return endpoint config GENERATED_CLUSTER MACRO
  * To be used as a replacement of endpoint_cluster_list since this one
  * includes the GENERATED_FUNCTIONS array
  */
 function chip_endpoint_cluster_list() {
+  const configData = getConfigData(this.global);
   let ret = '{ \\\n';
   let totalCommands = 0;
   this.clusterList.forEach((c) => {
     let mask = '';
     let functionArray = c.functions;
     let clusterName = c.clusterName;
+    let isClusterInitFunctionIncluded = configData
+      ? configData.ClustersWithInitFunctions.includes(clusterName)
+      : endpointClusterWithInit.includes(clusterName);
+    let isClusterAttributeChangedFunctionIncluded = configData
+      ? configData.ClustersWithAttributeChangedFunctions.includes(clusterName)
+      : endpointClusterWithAttributeChanged.includes(clusterName);
+    let isClusterPreAttributeChangedFunctionIncluded = configData
+      ? configData.ClustersWithPreAttributeChangeFunctions.includes(clusterName)
+      : endpointClusterWithPreAttribute.includes(clusterName);
 
     if (c.comment.includes('server')) {
       let hasFunctionArray = false;
-      if (endpointClusterWithInit.includes(clusterName)) {
+      if (isClusterInitFunctionIncluded) {
         c.mask.push('INIT_FUNCTION');
         hasFunctionArray = true;
       }
 
-      if (endpointClusterWithAttributeChanged.includes(clusterName)) {
+      if (isClusterAttributeChangedFunctionIncluded) {
         c.mask.push('ATTRIBUTE_CHANGED_FUNCTION');
         hasFunctionArray = true;
       }
 
-      if (endpointClusterWithPreAttribute.includes(clusterName)) {
+      if (
+        configData &&
+        'ClustersWithShutdownFunctions' in configData &&
+        configData.ClustersWithShutdownFunctions.includes(clusterName)
+      ) {
+        c.mask.push('SHUTDOWN_FUNCTION');
+        hasFunctionArray = true;
+      }
+
+      if (isClusterPreAttributeChangedFunctionIncluded) {
         c.mask.push('PRE_ATTRIBUTE_CHANGED_FUNCTION');
         hasFunctionArray = true;
       }
@@ -258,6 +346,12 @@ function chip_endpoint_cluster_list() {
       } )`;
     }
 
+    let eventCount = c.eventCount;
+    let eventList = 'nullptr';
+    if (eventCount > 0) {
+      eventList = `ZAP_GENERATED_EVENTS_INDEX( ${c.eventIndex} )`;
+    }
+
     ret = ret.concat(`  { \\
       /* ${c.comment} */ \\
       .clusterId = ${c.clusterId},  \\
@@ -268,6 +362,8 @@ function chip_endpoint_cluster_list() {
       .functions = ${functionArray}, \\
       .acceptedCommandList = ${acceptedCommandsListVal} ,\\
       .generatedCommandList = ${generatedCommandsListVal} ,\\
+      .eventList = ${eventList}, \\
+      .eventCount = ${eventCount}, \\
     },\\\n`);
 
     totalCommands = totalCommands + acceptedCommands + generatedCommands;
@@ -397,7 +493,7 @@ function asCamelCase(label, firstLower, preserveAcronyms) {
     .map((token, index) => {
       let isAllUpperCase = token == token.toUpperCase();
       // PERSONAL is not actually an acronym.
-      let isAcronym =  isAllUpperCase && token != "PERSONAL";
+      let isAcronym = isAllUpperCase && token != 'PERSONAL';
 
       if (isAcronym && preserveAcronyms) {
         return token;
@@ -798,15 +894,56 @@ function getPythonFieldDefault(type, options) {
   return _getPythonFieldDefault.call(this, type, options);
 }
 
-// Allow-list of enums that we generate as enums, not enum classes.  The goal is
-// to drive this down to 0.
+// Allow-list of enums that we generate as enums, not enum classes.
 let weakEnumList = undefined;
 function isWeaklyTypedEnum(label) {
   if (weakEnumList === undefined) {
     let f = this.global.resource('weak-enum-list');
     // NOTE: This has to be sync, so we can use this data in if conditions.
-    let rawData = fs.readFileSync(f, { encoding: 'utf8', flag: 'r' });
-    weakEnumList = YAML.parse(rawData);
+    if (f) {
+      let rawData = fs.readFileSync(f, { encoding: 'utf8', flag: 'r' });
+      weakEnumList = YAML.parse(rawData);
+    } else {
+      weakEnumList = [
+        'AttributeWritePermission',
+        'BarrierControlBarrierPosition',
+        'BarrierControlMovingState',
+        'ColorControlOptions',
+        'ColorLoopAction',
+        'ColorLoopDirection',
+        'ColorMode',
+        'ContentLaunchStatus',
+        'ContentLaunchStreamingType',
+        'EnhancedColorMode',
+        'HardwareFaultType',
+        'HueDirection',
+        'HueMoveMode',
+        'HueStepMode',
+        'IdentifyEffectIdentifier',
+        'IdentifyEffectVariant',
+        'IdentifyIdentifyType',
+        'InterfaceType',
+        'KeypadLockout',
+        'LevelControlOptions',
+        'MoveMode',
+        'NetworkFaultType',
+        'OnOffDelayedAllOffEffectVariant',
+        'OnOffDyingLightEffectVariant',
+        'OnOffEffectIdentifier',
+        'PHYRateType',
+        'RadioFaultType',
+        'RoutingRole',
+        'SaturationMoveMode',
+        'SaturationStepMode',
+        'SecurityType',
+        'SetpointAdjustMode',
+        'StartUpOnOffValue',
+        'StatusCode',
+        'StepMode',
+        'TemperatureDisplayMode',
+        'WiFiVersionType',
+      ];
+    }
   }
   return weakEnumList.includes(label);
 }
@@ -912,6 +1049,8 @@ async function if_is_non_zero_default(value, options) {
   }
 }
 
+const dep = templateUtil.deprecatedHelper;
+
 //
 // Module exports
 //
@@ -920,6 +1059,9 @@ exports.chip_endpoint_cluster_list = chip_endpoint_cluster_list;
 exports.chip_endpoint_data_version_count = chip_endpoint_data_version_count;
 exports.chip_endpoint_generated_commands_list =
   chip_endpoint_generated_commands_list;
+exports.chip_endpoint_generated_event_count =
+  chip_endpoint_generated_event_count;
+exports.chip_endpoint_generated_event_list = chip_endpoint_generated_event_list;
 exports.asTypedExpression = asTypedExpression;
 exports.asTypedLiteral = asTypedLiteral;
 exports.asLowerCamelCase = asLowerCamelCase;
@@ -933,8 +1075,13 @@ exports.zapTypeToEncodableClusterObjectType =
 exports.zapTypeToDecodableClusterObjectType =
   zapTypeToDecodableClusterObjectType;
 exports.zapTypeToPythonClusterObjectType = zapTypeToPythonClusterObjectType;
-exports.isWeaklyTypedEnum = isWeaklyTypedEnum;
-exports.isLegacyStruct = isLegacyStruct;
+exports.isWeaklyTypedEnum = dep(isWeaklyTypedEnum, {
+  to: 'isInConfigList',
+});
+exports.isLegacyStruct = dep(isLegacyStruct, {
+  to: 'isInConfigList',
+});
+exports.isInConfigList = isInConfigList;
 exports.getPythonFieldDefault = getPythonFieldDefault;
 exports.incrementDepth = incrementDepth;
 exports.zcl_events_fields_by_event_name = zcl_events_fields_by_event_name;

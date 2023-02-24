@@ -78,7 +78,7 @@ exports.timeout = {
 
 exports.testTemplate = {
   zigbee: './test/gen-template/zigbee/gen-templates.json',
-  zigbeeCount: 28,
+  zigbeeCount: 29,
   matter: './test/gen-template/matter/gen-test.json',
   matterCount: 8,
   matter2: './test/gen-template/matter2/templates.json',
@@ -123,7 +123,7 @@ exports.totalMatterClusters = 58
 exports.totalMatterDeviceTypes = 40
 exports.totalMatterCommandArgs = 424
 exports.totalMatterCommands = 203
-exports.totalMatterAttributes = 509
+exports.totalMatterAttributes = 510
 exports.totalMatterTags = 15
 exports.totalMatterEvents = 56
 exports.totalMatterEventFields = 83

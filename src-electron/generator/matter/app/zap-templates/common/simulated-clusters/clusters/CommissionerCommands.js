@@ -29,6 +29,7 @@ const PairWithCode = {
   arguments: [
     { type: 'NODE_ID', name: 'nodeId' },
     { type: 'CHAR_STRING', name: 'payload' },
+    { type: 'BOOLEAN', name: 'discoverOnce', isOptional: true },
   ],
 };
 

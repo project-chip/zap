@@ -47,11 +47,11 @@ function attributeExportMapping(x) {
  * @param {*} endpointTypeClusterRef
  * @returns Records of selected Endpoint Type Attributes.
  */
- async function selectEndpointTypeAttributesByEndpointTypeRefAndClusterRef(
+async function selectEndpointTypeAttributesByEndpointTypeRefAndClusterRef(
   db,
   endpointTypeRef,
   endpointTypeClusterRef
-){
+) {
   let rows = await dbApi.dbAll(
     db,
     `
@@ -73,7 +73,7 @@ function attributeExportMapping(x) {
       ENDPOINT_TYPE_ATTRIBUTE
     where
       ENDPOINT_TYPE_REF = ? and ENDPOINT_TYPE_CLUSTER_REF = ?`,
-    [endpointTypeRef,endpointTypeClusterRef]
+    [endpointTypeRef, endpointTypeClusterRef]
   )
   return rows.map(dbMapping.map.endpointTypeAttribute)
 }
@@ -93,7 +93,7 @@ async function duplicateEndpointTypeAttribute(
   newEndpointTypeRef,
   newEndpointTypeClusterRef,
   attribute
-){
+) {
   return await dbApi.dbInsert(
     db,
     `INSERT INTO ENDPOINT_TYPE_ATTRIBUTE (
@@ -123,7 +123,8 @@ async function duplicateEndpointTypeAttribute(
         ?,
         ?
       )`,
-    [ newEndpointTypeRef,
+    [
+      newEndpointTypeRef,
       newEndpointTypeClusterRef,
       attribute.attributeRef,
       attribute.included,
@@ -134,10 +135,10 @@ async function duplicateEndpointTypeAttribute(
       attribute.includedReportable,
       attribute.minInterval,
       attribute.maxInterval,
-      attribute.reportableChange ]
+      attribute.reportableChange,
+    ]
   )
 }
-
 
 /**
  * Returns a promise of data for attributes inside an endpoint type.
@@ -382,7 +383,9 @@ async function selectAttributeDetailsFromEnabledClusters(
       side: x.SIDE,
       type: x.TYPE,
       define: x.DEFINE,
-      mfgCode: x.MANUFACTURER_CODE,
+      mfgCode: x.MANUFACTURER_CODE
+        ? x.MANUFACTURER_CODE
+        : x.CLUSTER_MANUFACTURER_CODE,
       isWritable: x.IS_WRITABLE,
       clusterId: x.CLUSTER_ID,
       clusterSide: x.CLUSTER_SIDE,
@@ -397,7 +400,16 @@ async function selectAttributeDetailsFromEnabledClusters(
       clusterIndex: x.CLUSTER_INDEX,
       mfgAttributeCount: x.MANUFACTURING_SPECIFIC_ATTRIBUTE_COUNT,
       singletonAttributeSize: x.SINGLETON_ATTRIBUTE_SIZE,
+      singletonTokenizedAttributeSize: x.SINGLETON_TOKENIZED_ATTRIBUTE_SIZE,
+      nonSingletonTokenizedAttributeSize:
+        x.NON_SINGLETON_TOKENIZED_ATTRIBUTE_SIZE,
+      tokenizedAttributeSize: x.TOKENIZED_ATTRIBUTE_SIZE,
       maxAttributeSize: x.MAX_ATTRIBUTE_SIZE,
+      maxTokenAttributeSize: x.MAX_TOKEN_ATTRIBUTE_SIZE,
+      isString: x.IS_STRING,
+      isManufacturingSpecific: dbApi.toDbBool(
+        x.MANUFACTURER_CODE | x.CLUSTER_MANUFACTURER_CODE
+      ), // Is Attribute mfg specific or not
     }
   }
   return dbApi
@@ -405,7 +417,8 @@ async function selectAttributeDetailsFromEnabledClusters(
       db,
       `
   SELECT
-  ATTRIBUTE.ATTRIBUTE_ID,
+    ATOMIC.IS_STRING AS IS_STRING,
+    ATTRIBUTE.ATTRIBUTE_ID,
     ATTRIBUTE.NAME,
     ATTRIBUTE.CODE,
     ATTRIBUTE.SIDE,
@@ -418,6 +431,7 @@ async function selectAttributeDetailsFromEnabledClusters(
     CLUSTER.NAME AS CLUSTER_NAME,
     CLUSTER.DEFINE AS CLUSTER_DEFINE,
     CLUSTER.CODE AS CLUSTER_CODE,
+    CLUSTER.MANUFACTURER_CODE AS CLUSTER_MANUFACTURER_CODE,
     ENDPOINT_TYPE_ATTRIBUTE.BOUNDED,
     ENDPOINT_TYPE_ATTRIBUTE.STORAGE_OPTION,
     ENDPOINT_TYPE_ATTRIBUTE.SINGLETON,
@@ -432,7 +446,10 @@ async function selectAttributeDetailsFromEnabledClusters(
         ELSE ATOMIC.ATOMIC_SIZE
     END AS ATOMIC_SIZE,
     ROW_NUMBER() OVER (PARTITION BY CLUSTER.MANUFACTURER_CODE, CLUSTER.CODE, ENDPOINT_TYPE_CLUSTER.SIDE ORDER BY CLUSTER.MANUFACTURER_CODE, CLUSTER.CODE, ATTRIBUTE.CODE, ATTRIBUTE.MANUFACTURER_CODE) CLUSTER_INDEX,
-    COUNT (ATTRIBUTE.MANUFACTURER_CODE) OVER () AS MANUFACTURING_SPECIFIC_ATTRIBUTE_COUNT,
+    COUNT (CASE WHEN ATTRIBUTE.MANUFACTURER_CODE THEN ATTRIBUTE.MANUFACTURER_CODE
+                WHEN CLUSTER.MANUFACTURER_CODE THEN CLUSTER.MANUFACTURER_CODE
+                ELSE NULL
+           END) OVER () AS MANUFACTURING_SPECIFIC_ATTRIBUTE_COUNT,
     SUM (CASE WHEN ENDPOINT_TYPE_ATTRIBUTE.SINGLETON=1 THEN 
           CASE WHEN ATOMIC.IS_STRING=1 THEN 
             CASE WHEN ATOMIC.IS_LONG=0 THEN ATTRIBUTE.MAX_LENGTH+1
@@ -443,6 +460,25 @@ async function selectAttributeDetailsFromEnabledClusters(
           ELSE ATOMIC.ATOMIC_SIZE
           END
         ELSE 0 END) OVER () AS SINGLETON_ATTRIBUTE_SIZE,
+    SUM (CASE WHEN ENDPOINT_TYPE_ATTRIBUTE.SINGLETON=1 THEN 
+          CASE WHEN ENDPOINT_TYPE_ATTRIBUTE.STORAGE_OPTION='NVM' THEN 
+            1
+          ELSE
+            0
+          END
+        ELSE 0 END) OVER () AS SINGLETON_TOKENIZED_ATTRIBUTE_SIZE,
+    SUM (CASE WHEN ENDPOINT_TYPE_ATTRIBUTE.SINGLETON=0 THEN 
+          CASE WHEN ENDPOINT_TYPE_ATTRIBUTE.STORAGE_OPTION='NVM' THEN 
+            1
+          ELSE
+            0
+          END
+        ELSE 0 END) OVER () AS NON_SINGLETON_TOKENIZED_ATTRIBUTE_SIZE,
+    SUM (CASE WHEN ENDPOINT_TYPE_ATTRIBUTE.STORAGE_OPTION='NVM' THEN 
+            1
+         ELSE
+            0
+         END) OVER () AS TOKENIZED_ATTRIBUTE_SIZE,
     MAX(CASE WHEN ATOMIC.IS_STRING=1 THEN 
           CASE WHEN ATOMIC.IS_LONG=0 THEN ATTRIBUTE.MAX_LENGTH+1
               WHEN ATOMIC.IS_LONG=1 THEN ATTRIBUTE.MAX_LENGTH+2
@@ -450,7 +486,19 @@ async function selectAttributeDetailsFromEnabledClusters(
           END
         WHEN ATOMIC.ATOMIC_SIZE IS NULL THEN ATTRIBUTE.MAX_LENGTH
         ELSE ATOMIC.ATOMIC_SIZE
-        END) OVER () AS MAX_ATTRIBUTE_SIZE
+        END) OVER () AS MAX_ATTRIBUTE_SIZE,
+    MAX(CASE WHEN ENDPOINT_TYPE_ATTRIBUTE.STORAGE_OPTION='NVM' THEN
+          CASE WHEN ATOMIC.IS_STRING=1 THEN 
+            CASE WHEN ATOMIC.IS_LONG=0 THEN ATTRIBUTE.MAX_LENGTH+1
+                WHEN ATOMIC.IS_LONG=1 THEN ATTRIBUTE.MAX_LENGTH+2
+                ELSE ATOMIC.ATOMIC_SIZE
+            END
+          WHEN ATOMIC.ATOMIC_SIZE IS NULL THEN ATTRIBUTE.MAX_LENGTH
+          ELSE ATOMIC.ATOMIC_SIZE
+          END
+        ELSE
+          0
+        END) OVER () AS MAX_TOKEN_ATTRIBUTE_SIZE
   FROM ATTRIBUTE
   INNER JOIN ENDPOINT_TYPE_ATTRIBUTE
   ON ATTRIBUTE.ATTRIBUTE_ID = ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF
@@ -503,6 +551,7 @@ async function selectAttributeBoundDetails(
       attributeValueType: x.ATTRIBUTE_VALUE_TYPE,
       arrayIndex: x.ARRAY_INDEX,
       isString: x.IS_STRING,
+      isSingleton: x.SINGLETON,
     }
   }
   return dbApi
@@ -527,7 +576,8 @@ async function selectAttributeBoundDetails(
       ELSE ATOMIC.ATOMIC_SIZE
     END AS ATOMIC_SIZE,
     'DEFAULT' as ATTRIBUTE_VALUE_TYPE,
-    ATOMIC.IS_STRING AS IS_STRING
+    ATOMIC.IS_STRING AS IS_STRING,
+    ENDPOINT_TYPE_ATTRIBUTE.SINGLETON
   FROM ATTRIBUTE
   INNER JOIN ENDPOINT_TYPE_ATTRIBUTE
   ON ATTRIBUTE.ATTRIBUTE_ID = ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF
@@ -568,7 +618,8 @@ async function selectAttributeBoundDetails(
     ELSE ATOMIC.ATOMIC_SIZE
   END AS ATOMIC_SIZE,
   'MINIMUM' as ATTRIBUTE_VALUE_TYPE,
-  ATOMIC.IS_STRING AS IS_STRING
+  ATOMIC.IS_STRING AS IS_STRING,
+  ENDPOINT_TYPE_ATTRIBUTE.SINGLETON
 FROM ATTRIBUTE
 INNER JOIN ENDPOINT_TYPE_ATTRIBUTE
 ON ATTRIBUTE.ATTRIBUTE_ID = ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF
@@ -609,7 +660,8 @@ UNION
     ELSE ATOMIC.ATOMIC_SIZE
   END AS ATOMIC_SIZE,
   'MAXIMUM' as ATTRIBUTE_VALUE_TYPE,
-  ATOMIC.IS_STRING AS IS_STRING
+  ATOMIC.IS_STRING AS IS_STRING,
+  ENDPOINT_TYPE_ATTRIBUTE.SINGLETON
 FROM ATTRIBUTE
 INNER JOIN ENDPOINT_TYPE_ATTRIBUTE
 ON ATTRIBUTE.ATTRIBUTE_ID = ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF
@@ -886,6 +938,170 @@ ORDER BY
     )
 }
 
+/**
+ *
+ * @param {*} db
+ * @param {*} packageIds
+ * @param {*} endpointTypeRef
+ * @param {*} options
+ * @returns Token attributes for a specific endpoint type based on the endpoint
+ * type reference. Can also filter the attributes based on whether the
+ * attribute is configured to be singleton or not.
+ */
+async function selectTokenAttributesForEndpoint(
+  db,
+  packageIds,
+  endpointTypeRef,
+  options
+) {
+  let singletonQuery =
+    'isSingleton' in options.hash
+      ? `AND ENDPOINT_TYPE_ATTRIBUTE.SINGLETON=${options.hash.isSingleton}`
+      : ``
+
+  let rows = await dbApi.dbAll(
+    db,
+    `
+  SELECT
+    ATTRIBUTE.NAME AS NAME,
+    ATTRIBUTE.CODE AS CODE,
+    ATTRIBUTE.SIDE AS SIDE,
+    ATTRIBUTE.DEFINE,
+    ATTRIBUTE.TYPE,
+    ATTRIBUTE.MANUFACTURER_CODE AS MANUFACTURER_CODE,
+    CLUSTER.MANUFACTURER_CODE AS CLUSTER_MANUFACTURER_CODE,
+    CLUSTER.NAME AS CLUSTER_NAME,
+    ENDPOINT_TYPE_ATTRIBUTE.SINGLETON,
+    ENDPOINT_TYPE_ATTRIBUTE.STORAGE_OPTION
+  FROM
+    ATTRIBUTE
+  INNER JOIN
+    ENDPOINT_TYPE_ATTRIBUTE
+  ON
+    ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF = ATTRIBUTE.ATTRIBUTE_ID
+  INNER JOIN
+    ENDPOINT_TYPE_CLUSTER
+  ON
+    ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
+  INNER JOIN
+    CLUSTER
+  ON
+    ATTRIBUTE.CLUSTER_REF = CLUSTER.CLUSTER_ID
+  WHERE
+    ENDPOINT_TYPE_CLUSTER.ENABLED = 1
+  AND
+    ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF = ?
+  AND
+    ENDPOINT_TYPE_ATTRIBUTE.INCLUDED = 1
+  AND
+    ENDPOINT_TYPE_ATTRIBUTE.STORAGE_OPTION = 'NVM'
+  AND
+    ATTRIBUTE.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
+  ${singletonQuery}
+    `,
+    endpointTypeRef
+  )
+  return rows.map(dbMapping.map.endpointTypeAttributeExtended)
+}
+
+/**
+ * Gets all token attribute information.
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} packageIds
+ * @param {*} options
+ * @returns All token attributes. Singleton token attributes are only returned
+ * once whereas non-singleton token attributes are returned per endpoint.
+ */
+async function selectAllUserTokenAttributes(
+  db,
+  sessionId,
+  packageIds,
+  options
+) {
+  const tokenSqlQuery = `SELECT
+  ATTRIBUTE.NAME,
+  ATTRIBUTE.CODE,
+  ATTRIBUTE.MANUFACTURER_CODE,
+  ATTRIBUTE.DEFINE,
+  ATTRIBUTE.SIDE,
+  ATTRIBUTE.TYPE,
+  CLUSTER.NAME AS CLUSTER_NAME,
+  CLUSTER.CODE AS CLUSTER_CODE,
+  CLUSTER.MANUFACTURER_CODE AS CLUSTER_MANUFACTURER_CODE,
+  ENDPOINT_TYPE_ATTRIBUTE.SINGLETON,
+  ENDPOINT.ENDPOINT_IDENTIFIER,
+  ENDPOINT.ENDPOINT_TYPE_REF,
+  MIN
+    (ENDPOINT.ENDPOINT_IDENTIFIER)
+  OVER
+    (PARTITION BY
+      CLUSTER.CODE,
+      CLUSTER.MANUFACTURER_CODE,
+      ATTRIBUTE.CODE,
+      ATTRIBUTE.MANUFACTURER_CODE,
+      ATTRIBUTE.SIDE) AS SMALLEST_ENDPOINT_IDENTIFIER
+FROM
+  ATTRIBUTE
+INNER JOIN
+  ENDPOINT_TYPE_ATTRIBUTE
+ON
+  ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF = ATTRIBUTE.ATTRIBUTE_ID
+INNER JOIN
+  ENDPOINT_TYPE_CLUSTER
+ON 
+  ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
+INNER JOIN
+  ENDPOINT_TYPE
+ON
+  ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+INNER JOIN
+  ENDPOINT
+ON
+  ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT.ENDPOINT_TYPE_REF
+INNER JOIN
+  CLUSTER
+ON
+  ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = CLUSTER.CLUSTER_ID
+WHERE
+  ENDPOINT_TYPE.SESSION_REF = ${sessionId}
+AND
+  ENDPOINT_TYPE_CLUSTER.ENABLED=1
+AND
+  ATTRIBUTE.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
+AND
+  ENDPOINT_TYPE_ATTRIBUTE.STORAGE_OPTION='NVM'
+AND
+  ENDPOINT_TYPE_ATTRIBUTE.INCLUDED=1`
+
+  // Selecting the rows in such a way that singletons token attributes exist
+  // only once and non-singleton token attributes exist per endpoint.
+  let rows = await dbApi.dbAll(
+    db,
+    `
+    SELECT
+      *,
+      ROW_NUMBER() OVER() + 45055 AS TOKEN_ID
+    FROM
+      (
+        ${tokenSqlQuery} AND ENDPOINT_TYPE_ATTRIBUTE.SINGLETON = 0
+        UNION
+        ${tokenSqlQuery} AND ENDPOINT_TYPE_ATTRIBUTE.SINGLETON = 1
+        GROUP BY
+          CLUSTER.CODE,
+          CLUSTER.MANUFACTURER_CODE,
+          ATTRIBUTE.CODE,
+          ATTRIBUTE.MANUFACTURER_CODE,
+          ATTRIBUTE.SIDE
+      )
+    ORDER BY
+      TOKEN_ID
+    `
+  )
+
+  return rows.map(dbMapping.map.endpointTypeAttributeExtended)
+}
+
 exports.selectAllAttributeDetailsFromEnabledClusters =
   selectAllAttributeDetailsFromEnabledClusters
 exports.selectManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters =
@@ -902,4 +1118,7 @@ exports.selectReportableAttributeDetailsFromEnabledClustersAndEndpoints =
 exports.selectGlobalAttributeDefaults = selectGlobalAttributeDefaults
 exports.selectAttributeByCode = selectAttributeByCode
 exports.duplicateEndpointTypeAttribute = duplicateEndpointTypeAttribute
-exports.selectEndpointTypeAttributesByEndpointTypeRefAndClusterRef = selectEndpointTypeAttributesByEndpointTypeRefAndClusterRef
+exports.selectEndpointTypeAttributesByEndpointTypeRefAndClusterRef =
+  selectEndpointTypeAttributesByEndpointTypeRefAndClusterRef
+exports.selectTokenAttributesForEndpoint = selectTokenAttributesForEndpoint
+exports.selectAllUserTokenAttributes = selectAllUserTokenAttributes

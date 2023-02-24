@@ -246,6 +246,11 @@ function endpoint_attribute_count(options) {
 }
 
 function endpoint_attribute_list(options) {
+  let order = options.hash.order
+  if (order == null || order.length == 0) {
+    // This is the default value if none is specified
+    order = 'id, type, size, mask, default'
+  }
   let comment = null
 
   let littleEndian = true
@@ -288,7 +293,29 @@ function endpoint_attribute_list(options) {
       }
       finalDefaultValue = `ZAP_SIMPLE_DEFAULT(${defaultValue})`
     }
-    ret += `  { ${finalDefaultValue}, ${at.id}, ${at.size}, ${at.type}, ${mask} }, /* ${at.name} */  \\\n`
+    let orderTokens = order.split(',').map((x) => (x ? x.trim() : ''))
+    let items = []
+    orderTokens.forEach((tok) => {
+      switch (tok) {
+        case 'default':
+          items.push(finalDefaultValue)
+          break
+        case 'id':
+          items.push(at.id)
+          break
+        case 'size':
+          items.push(at.size)
+          break
+        case 'type':
+          items.push(at.type)
+          break
+        case 'mask':
+          items.push(mask)
+          break
+      }
+    })
+
+    ret += `  { ${items.join(', ')} }, /* ${at.name} */  \\\n`
   })
   ret += '}\n'
 
@@ -365,6 +392,10 @@ function endpoint_attribute_min_max_count(options) {
 
 function endpoint_attribute_min_max_list(options) {
   let comment = null
+  let order = options.hash.order
+  if (order == null || order.length == 0) {
+    order = 'def,min,max'
+  }
 
   let ret = '{ \\\n'
   this.minMaxList.forEach((mm, index) => {
@@ -391,7 +422,24 @@ function endpoint_attribute_min_max_list(options) {
       (min >= 0 ? '' : '-') + '0x' + Math.abs(min).toString(16).toUpperCase()
     let maxS =
       (max >= 0 ? '' : '-') + '0x' + Math.abs(max).toString(16).toUpperCase()
-    ret += `  { (uint16_t)${defS}, (uint16_t)${minS}, (uint16_t)${maxS} }${
+    let defMinMaxItems = []
+    order
+      .split(',')
+      .map((x) => (x ? x.trim() : ''))
+      .forEach((tok) => {
+        switch (tok) {
+          case 'def':
+            defMinMaxItems.push(`(uint16_t)${defS}`)
+            break
+          case 'min':
+            defMinMaxItems.push(`(uint16_t)${minS}`)
+            break
+          case 'max':
+            defMinMaxItems.push(`(uint16_t)${maxS}`)
+            break
+        }
+      })
+    ret += `  { ${defMinMaxItems.join(', ')} }${
       index == this.minMaxList.length - 1 ? '' : ','
     } /* ${mm.name} */ \\\n`
   })
@@ -400,7 +448,23 @@ function endpoint_attribute_min_max_list(options) {
   return ret
 }
 
+/**
+ * This helper supports an "order" CSV string, such as:
+ *   "direction,endpoint,clusterId,attributeId,mask,mfgCode,minmax"
+ * The string above is a default value, and it determines in what order are the fields generated.
+ *
+ * @param {*} options
+ */
 function endpoint_reporting_config_defaults(options) {
+  let order = options.hash.order
+  if (order == null || order.length == 0) {
+    // This is the default value if none is specified
+    order = 'direction,endpoint,clusterId,attributeId,mask,mfgCode,minmax'
+  }
+  let minmaxorder = options.hash.minmaxorder
+  if (minmaxorder == null || minmaxorder.length == 0) {
+    minmaxorder = 'min,max,change'
+  }
   let comment = null
 
   let ret = '{ \\\n'
@@ -410,6 +474,22 @@ function endpoint_reporting_config_defaults(options) {
       comment = r.comment
     }
 
+    let minmaxItems = []
+    let minmaxToks = minmaxorder.split(',').map((x) => (x ? x.trim() : ''))
+    minmaxToks.forEach((tok) => {
+      switch (tok) {
+        case 'min':
+          minmaxItems.push(r.minOrSource)
+          break
+        case 'max':
+          minmaxItems.push(r.maxOrEndpoint)
+          break
+        case 'change':
+          minmaxItems.push(r.reportableChangeOrTimeout)
+          break
+      }
+    })
+    let minmax = minmaxItems.join(', ')
     let mask = ''
     if (r.mask.length == 0) {
       mask = '0'
@@ -418,7 +498,36 @@ function endpoint_reporting_config_defaults(options) {
         .map((m) => `ZAP_CLUSTER_MASK(${m.toUpperCase()})`)
         .join(' | ')
     }
-    ret += `  { ZAP_REPORT_DIRECTION(${r.direction}), ${r.endpoint}, ${r.clusterId}, ${r.attributeId}, ${mask}, ${r.mfgCode}, {{ ${r.minOrSource}, ${r.maxOrEndpoint}, ${r.reportableChangeOrTimeout} }} }, /* ${r.name} */ \\\n`
+    let orderTokens = order.split(',').map((x) => (x ? x.trim() : ''))
+    let items = []
+    orderTokens.forEach((tok) => {
+      switch (tok) {
+        case 'direction':
+          items.push(`ZAP_REPORT_DIRECTION(${r.direction})`)
+          break
+        case 'endpoint':
+          items.push(r.endpoint)
+          break
+        case 'clusterId':
+          items.push(r.clusterId)
+          break
+        case 'attributeId':
+          items.push(r.attributeId)
+          break
+        case 'mask':
+          items.push(mask)
+          break
+        case 'mfgCode':
+          items.push(r.mfgCode)
+          break
+        case 'minmax':
+          items.push(`{{ ${minmax} }}`)
+          break
+      }
+    })
+
+    let singleRow = `  { ${items.join(', ')} }, /* ${r.name} */ \\\n`
+    ret += singleRow
   })
   ret += '}\n'
 
@@ -468,7 +577,7 @@ function asMEI(manufacturerCode, code) {
   // Left-shift (and for that matter bitwise or) produces a _signed_ 32-bit
   // number, which will probably be negative.  Force it to unsigned 32-bit using
   // >>> 0.
-  return '0x' + bin.int32ToHex(((manufacturerCode << 16) | code) >>> 0);
+  return '0x' + bin.int32ToHex(((manufacturerCode << 16) | code) >>> 0)
 }
 
 // The representation of null depends on the type, so we can't use a single
@@ -513,10 +622,11 @@ async function collectAttributes(endpointTypes, options) {
   let commandMfgCodes = [] // Array of { index, mfgCode } objects
   let clusterMfgCodes = [] // Array of { index, mfgCode } objects
   let attributeMfgCodes = [] // Array of { index, mfgCode } objects
+  let eventList = []
   let attributeList = []
   let commandList = []
   let endpointList = [] // Array of { clusterIndex, clusterCount, attributeSize }
-  let clusterList = [] // Array of { clusterId, attributeIndex, attributeCount, attributeSize, mask, functions, comment }
+  let clusterList = [] // Array of { clusterId, attributeIndex, attributeCount, attributeSize, eventIndex, eventCount, mask, functions, comment }
   let longDefaults = [] // Array of strings representing bytes
   let longDefaultsIndex = 0
   let minMaxIndex = 0
@@ -531,6 +641,7 @@ async function collectAttributes(endpointTypes, options) {
   let reportList = [] // Array of { direction, endpoint, clusterId, attributeId, mask, mfgCode, minOrSource, maxOrEndpoint, reportableChangeOrTimeout }
   let longDefaultsList = [] // Array of { value, size. comment }
   let attributeIndex = 0
+  let eventIndex = 0
   let spaceForDefaultValue =
     options.spaceForDefaultValue !== undefined
       ? options.spaceForDefaultValue
@@ -563,6 +674,8 @@ async function collectAttributes(endpointTypes, options) {
         attributeIndex: attributeIndex,
         attributeCount: c.attributes.length,
         attributeSize: 0,
+        eventIndex: eventIndex,
+        eventCount: c.events.length,
         mask: [],
         commands: [],
         functions: 'NULL',
@@ -573,6 +686,7 @@ async function collectAttributes(endpointTypes, options) {
 
       clusterIndex++
       attributeIndex += c.attributes.length
+      eventIndex += c.events.length
 
       c.attributes.sort(zclUtil.attributeComparator)
 
@@ -850,6 +964,19 @@ async function collectAttributes(endpointTypes, options) {
           commandMfgCodes.push(mfgCmd)
         }
       })
+
+      // Go over the events
+      c.events.sort(zclUtil.eventComparator)
+
+      c.events.forEach((ev) => {
+        let event = {
+          eventId: asMEI(ev.manufacturerCode, ev.code),
+          name: ev.name,
+          comment: cluster.comment,
+        }
+        eventList.push(event)
+      })
+
       endpointAttributeSize += clusterAttributeSize
       cluster.attributeSize = clusterAttributeSize
       clusterList.push(cluster)
@@ -871,6 +998,7 @@ async function collectAttributes(endpointTypes, options) {
     clusterList: clusterList,
     attributeList: attributeList,
     commandList: commandList,
+    eventList: eventList,
     longDefaults: longDefaults,
     clusterMfgCodes: clusterMfgCodes,
     commandMfgCodes: commandMfgCodes,
@@ -1011,11 +1139,12 @@ function endpoint_config(options) {
             ept.clusters = clusters // Put 'clusters' into endpoint
             let ps = []
             clusters.forEach((cl) => {
-              // No client-side attributes or commands (at least for
+              // No client-side attributes, commands, and events (at least for
               // endpoint_config purposes) in Matter.
               if (cl.side == dbEnum.side.client) {
                 cl.attributes = []
                 cl.commands = []
+                cl.events = []
                 return
               }
               ps.push(
@@ -1040,6 +1169,13 @@ function endpoint_config(options) {
                   .selectEndpointClusterCommands(db, cl.clusterId, ept.id)
                   .then((commands) => {
                     cl.commands = commands
+                  })
+              )
+              ps.push(
+                queryEndpoint
+                  .selectEndpointClusterEvents(db, cl.clusterId, ept.id)
+                  .then((events) => {
+                    cl.events = events
                   })
               )
             })

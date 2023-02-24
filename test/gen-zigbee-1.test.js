@@ -375,6 +375,14 @@ test(
     expect(genResult).not.toBeNull()
     expect(genResult.partial).toBeFalsy()
     expect(genResult.content).not.toBeNull()
+    let cfg = genResult.content['zap-config.h']
+    expect(cfg).toContain(
+      '{ ZAP_REPORT_DIRECTION(REPORTED), 0x0002, 0x00000000, 0x00000000, ZAP_CLUSTER_MASK(SERVER), 0x0000, {{ 0, 65534, 0 }} }, /* ZCL version */'
+    )
+    expect(cfg).toContain(
+      '{ ZAP_REPORT_DIRECTION(REPORTED), 0x0001, 0x00000300, 0x00000003, ZAP_CLUSTER_MASK(SERVER), 0x0000, {{ 0, 65534, 0 }} }, /* current x */'
+    )
+
     let cfgVer2 = genResult.content['zap-config-version-2.h']
 
     // Test GENERATED_DEFAULTS big endian
@@ -465,11 +473,11 @@ test(
 
     // Test GENERATED_ATTRIBUTES for the same attribute name but different attribute code
     expect(cfgVer3).toContain(
-      '{ 0x0000, ZCL_INT16U_ATTRIBUTE_TYPE, 2, (ATTRIBUTE_MASK_WRITABLE), { (uint8_t*)0x0000  } }, /* 51 Cluster: Sample Mfg Specific Cluster 2, Attribute: ember sample attribute 2, Side: server*/'
+      '{ 0x0000, ZCL_INT16U_ATTRIBUTE_TYPE, 2, (ATTRIBUTE_MASK_WRITABLE| ATTRIBUTE_MASK_MANUFACTURER_SPECIFIC), { (uint8_t*)0x0000  } }, /* 51 Cluster: Sample Mfg Specific Cluster 2, Attribute: ember sample attribute 2, Side: server*/'
     )
 
     expect(cfgVer3).toContain(
-      '{ 0x0001, ZCL_INT16U_ATTRIBUTE_TYPE, 2, (ATTRIBUTE_MASK_WRITABLE), { (uint8_t*)0x0000  } }, /* 52 Cluster: Sample Mfg Specific Cluster 2, Attribute: ember sample attribute 2, Side: server*/'
+      '{ 0x0001, ZCL_INT16U_ATTRIBUTE_TYPE, 2, (ATTRIBUTE_MASK_WRITABLE| ATTRIBUTE_MASK_MANUFACTURER_SPECIFIC), { (uint8_t*)0x0000  } }, /* 52 Cluster: Sample Mfg Specific Cluster 2, Attribute: ember sample attribute 2, Side: server*/'
     )
 
     // Test GENERATED_CLUSTERS for attribute index and size on endpoint 1 and endpoint 2
