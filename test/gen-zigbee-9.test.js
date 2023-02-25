@@ -25,15 +25,18 @@ const queryPackage = require('../src-electron/db/query-package')
 const zclLoader = require('../src-electron/zcl/zcl-loader')
 const importJs = require('../src-electron/importexport/import')
 const testUtil = require('./test-util')
+const querySession = require('../src-electron/db/query-session')
 
 const templateCount = testUtil.testTemplate.zigbee2Count
 const testFile = testUtil.zigbeeTestFile.fullTh
 
 let db
+let templateContext
+let sessionId
 
 beforeAll(async () => {
   env.setDevelopmentEnv()
-  let file = env.sqliteTestFile('genzigbee8')
+  let file = env.sqliteTestFile('genzigbee9')
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
     env.schemaFile(),
@@ -43,8 +46,6 @@ beforeAll(async () => {
 }, testUtil.timeout.medium())
 
 afterAll(() => dbApi.closeDatabase(db), testUtil.timeout.short())
-
-let templateContext
 
 test(
   'Basic gen template parsing and generation',
@@ -77,16 +78,24 @@ test(
 )
 
 test(
-  'Generate full th',
+  `Load the zap file: ${testFile}`,
   async () => {
     // Import a zap file which already has a custom xml file reference
-    let { sessionId, errors, warnings } = await importJs.importDataFromFile(
+    sessionId = await querySession.createBlankSession(db)
+    let { sid, errors, warnings } = await importJs.importDataFromFile(
       db,
-      testFile
+      testFile,
+      { sessionId: sessionId }
     )
     expect(errors.length).toBe(0)
     expect(warnings.length).toBe(0)
+  },
+  testUtil.timeout.short()
+)
 
+test(
+  'Generate full th',
+  async () => {
     // Generate code using templates
     let genResult = await genEngine.generate(
       db,
@@ -97,6 +106,8 @@ test(
         disableDeprecationWarnings: true,
       }
     )
+    console.log(genResult)
+    expect(genResult.hasErrors).not.toBeTruthy()
   },
-  testUtil.timeout.long() * 2
+  testUtil.timeout.long()
 )
