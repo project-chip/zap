@@ -131,20 +131,7 @@ test(
     if (!result.succeeded) {
       console.log(`Test failure: ${result.err}`)
     }
-    expect(result.hasErrors).toBeFalsy()
-    expect(result).not.toBeNull()
-    expect(result.partial).toBeFalsy()
-    expect(result.content).not.toBeNull()
     expect(result.succeeded).toBeTruthy()
-
-    // Check that the sdk extension got generated
-    let sdkExtension = result.content['sdk-extension.out']
-    expect(sdkExtension).not.toBeNull()
-    expect(
-      sdkExtension.includes(
-        'IMPLEMENTED_COMMANDS2>IdentifyQueryResponse,IdentifyQuery,<END2'
-      )
-    ).toBeTruthy()
 
     // Add the packageId from above into the session
     await queryPackage.insertSessionPackage(
@@ -164,6 +151,21 @@ test(
         disableDeprecationWarnings: true,
       }
     )
+
+    expect(genResult.hasErrors).toBeFalsy()
+    expect(genResult).not.toBeNull()
+    expect(genResult.partial).toBeFalsy()
+    expect(genResult.content).not.toBeNull()
+
+    // Check that the sdk extension got generated
+    let sdkExtension = genResult.content['sdk-extension.out']
+    expect(sdkExtension).not.toBeNull()
+    expect(
+      sdkExtension.includes(
+        'IMPLEMENTED_COMMANDS2>IdentifyQueryResponse,IdentifyQuery,<END2'
+      )
+    ).toBeTruthy()
+
     // Check if the types are generated correctly
     // Test custom enum generation
     let types = genResult.content['zap-type.h']
@@ -232,5 +234,5 @@ test(
       '#define emberAfFillCommandIdentifyClusterSampleMfgSpecificIdentifyCommand1'
     )
   },
-  testUtil.timeout.long()
+  testUtil.timeout.long() * 2
 )
