@@ -312,6 +312,8 @@ function endpoint_attribute_list(options) {
         case 'mask':
           items.push(mask)
           break
+        default:
+          throw new Error(`Unknown token '${tok}' in order optional argument`);
       }
     })
 
@@ -523,6 +525,8 @@ function endpoint_reporting_config_defaults(options) {
         case 'minmax':
           items.push(`{{ ${minmax} }}`)
           break
+        default:
+          throw new Error(`Unknown token '${tok}' in order optional argument`);
       }
     })
 
