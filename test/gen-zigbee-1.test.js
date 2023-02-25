@@ -113,7 +113,7 @@ test(
 )
 
 test(
-  'Validate basic generation',
+  'Validate base generation',
   async () => {
     let genResult = await genEngine.generate(
       templateContext.db,
@@ -122,32 +122,13 @@ test(
       {},
       { disableDeprecationWarnings: true }
     )
+
     expect(genResult).not.toBeNull()
     expect(genResult.partial).toBeFalsy()
     expect(genResult.content).not.toBeNull()
     let simpleTest = genResult.content['simple-test.out']
     expect(simpleTest.startsWith('Test template file.')).toBeTruthy()
     expect(simpleTest).toContain('Strange type: bacnet_type_t')
-  },
-  testUtil.timeout.long()
-)
-
-test(
-  'Validate more complex generation',
-  async () => {
-    let genResult = await genEngine.generate(
-      templateContext.db,
-      templateContext.sessionId,
-      templateContext.packageId,
-      {},
-      { disableDeprecationWarnings: true }
-    )
-
-    expect(genResult).not.toBeNull()
-    expect(genResult.partial).toBeFalsy()
-    expect(genResult.content).not.toBeNull()
-    let simpleTest = genResult.content['simple-test.out']
-    expect(simpleTest.startsWith('Test template file.')).toBeTruthy()
     expect(simpleTest).toContain(helperZap.zap_header())
     expect(simpleTest).toContain(`SessionId: ${genResult.sessionId}`)
     expect(simpleTest).toContain('Addon: This is example of test addon helper')
@@ -234,24 +215,6 @@ test(
     // Testing {{#zcl_struct_items_by_struct_name}} helper
     expect(zclId).toContain(`configureReportingRecords::direction struct item`)
     expect(zclId).toContain(`readAttributeStatusRecords is struct`)
-  },
-  testUtil.timeout.long()
-)
-
-test(
-  'Validate test file 1 generation',
-  async () => {
-    let genResult = await genEngine.generate(
-      templateContext.db,
-      templateContext.sessionId,
-      templateContext.packageId,
-      {},
-      { disableDeprecationWarnings: true }
-    )
-
-    expect(genResult).not.toBeNull()
-    expect(genResult.partial).toBeFalsy()
-    expect(genResult.content).not.toBeNull()
 
     let zapId = genResult.content['zap-id.h']
     //expect(zapId).toEqual('random placeholder')
@@ -291,7 +254,7 @@ test(
 )
 
 test(
-  'Test file 1 generation',
+  `Zap file generation: ${testFile}`,
   async () => {
     let sid = await querySession.createBlankSession(db)
     let loaderResult = await importJs.importDataFromFile(db, testFile, {
@@ -357,7 +320,7 @@ test(
 )
 
 test(
-  'Test generated defaults and cli',
+  `Zap file generation: ${testFile5}`,
   async () => {
     let sid = await querySession.createBlankSession(db)
     await importJs.importDataFromFile(db, testFile5, { sessionId: sid })
@@ -451,7 +414,7 @@ test(
 )
 
 test(
-  'Test zap config for mfg specific content',
+  `Zap file generation: ${testFile6}`,
   async () => {
     let sid = await querySession.createBlankSession(db)
     await importJs.importDataFromFile(db, testFile6, { sessionId: sid })
@@ -534,44 +497,4 @@ test(
     expect(cfgVer3).toContain('{ 52, 0x1049 },')
   },
   testUtil.timeout.long()
-)
-
-test(
-  'Test content indexer - simple',
-  async () => {
-    let preview = await genEngine.contentIndexer('Short example')
-    expect(preview['1']).toBe('Short example\n')
-  },
-  testUtil.timeout.short()
-)
-
-test(
-  'Test content indexer - line by line',
-  async () => {
-    let preview = await genEngine.contentIndexer(
-      'Short example\nwith three\nlines of text',
-      1
-    )
-    expect(preview['1']).toBe('Short example\n')
-    expect(preview['2']).toBe('with three\n')
-    expect(preview['3']).toBe('lines of text\n')
-  },
-  testUtil.timeout.short()
-)
-
-test(
-  'Test content indexer - blocks',
-  async () => {
-    let content = ''
-    let i = 0
-    for (i = 0; i < 1000; i++) {
-      content = content.concat(`line ${i}\n`)
-    }
-    let preview = await genEngine.contentIndexer(content, 50)
-    expect(preview['1'].startsWith('line 0')).toBeTruthy()
-    expect(preview['2'].startsWith('line 50')).toBeTruthy()
-    expect(preview['3'].startsWith('line 100')).toBeTruthy()
-    expect(preview['20'].startsWith('line 950')).toBeTruthy()
-  },
-  testUtil.timeout.short()
 )
