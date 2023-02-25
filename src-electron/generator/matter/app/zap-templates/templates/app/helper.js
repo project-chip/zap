@@ -373,7 +373,7 @@ function chip_endpoint_cluster_list(options) {
         case 'attributeCount':
           individualItems.push(`.attributeCount = ${c.attributeCount}`);
           break;
-        case 'clusterSize:':
+        case 'clusterSize':
           individualItems.push(`.clusterSize = ${c.attributeSize}`);
           break;
         case 'mask':
@@ -398,11 +398,13 @@ function chip_endpoint_cluster_list(options) {
         case 'eventCount':
           individualItems.push(`.eventCount = ${eventCount}`);
           break;
+        default:
+          throw new Error(`Unknown token '${tok}' in order optional argument`);
       }
     });
     ret = ret.concat(`  { \\
       /* ${c.comment} */ \\
-      ${individualItems.join(', \\\n')}, \\
+      ${individualItems.join(', \\\n      ')}, \\
     },\\\n`);
 
     totalCommands = totalCommands + acceptedCommands + generatedCommands;
