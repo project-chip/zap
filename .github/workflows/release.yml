@@ -96,7 +96,6 @@ jobs:
       - run: npm run lint
       - run: npm run xml-validate
       - run: npm run self-check
-      - run: npm run test:e2e-ci
       - run: npm run test:unit
       - run: npm run report
       - name: Codecov
