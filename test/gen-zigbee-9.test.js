@@ -93,9 +93,24 @@ test(
   testUtil.timeout.short()
 )
 
-test(
-  'Generate full th',
-  async () => {
+// We here generate each one separatelly in a separate test case.
+test.each([
+  'zap-cluster-command-parser.h',
+  'zap-print.h',
+  'zap-id.h',
+  'zap-event.c',
+  'zap-enabled-incoming-commands.h',
+  'zap-event.h',
+  'zap-config.h',
+  'zap-type.h',
+  'zap-tokens.h',
+  'zap-cli.c',
+  'zap-command.h',
+  'zap-command-structs.h',
+  'zap-cluster-command-parser.c',
+])(
+  'Generate %p',
+  async (item) => {
     // Generate code using templates
     let genResult = await genEngine.generate(
       db,
@@ -103,10 +118,11 @@ test(
       templateContext.packageId,
       {},
       {
+        generateOnly: item,
         disableDeprecationWarnings: true,
       }
     )
-    console.log(genResult)
+
     expect(genResult.hasErrors).not.toBeTruthy()
   },
   testUtil.timeout.long()
