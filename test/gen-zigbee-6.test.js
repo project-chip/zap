@@ -32,7 +32,7 @@ const testFile = testUtil.zigbeeTestFile.onOff
 
 beforeAll(async () => {
   env.setDevelopmentEnv()
-  let file = env.sqliteTestFile('genzigbee2')
+  let file = env.sqliteTestFile('genzigbee6')
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
     env.schemaFile(),

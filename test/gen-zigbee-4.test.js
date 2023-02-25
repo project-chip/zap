@@ -34,7 +34,7 @@ const testFile = testUtil.zigbeeTestFile.gpCombo
 
 beforeAll(async () => {
   env.setDevelopmentEnv()
-  let file = env.sqliteTestFile('genzigbee1')
+  let file = env.sqliteTestFile('genzigbee4')
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
     env.schemaFile(),
