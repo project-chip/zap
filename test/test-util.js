@@ -79,6 +79,8 @@ exports.timeout = {
 exports.testTemplate = {
   zigbee: './test/gen-template/zigbee/gen-templates.json',
   zigbeeCount: 29,
+  zigbee2: './test/gen-template/zigbee2/gen-templates.json',
+  zigbee2Count: 13,
   matter: './test/gen-template/matter/gen-test.json',
   matterCount: 8,
   matter2: './test/gen-template/matter2/templates.json',
@@ -103,6 +105,7 @@ exports.zigbeeTestFile = {
     'resource/mfg-specific-clusters-commands.zap'
   ),
   customXml: path.join(__dirname, 'resource/zap-file-with-custom-xml.zap'),
+  fullTh: path.join(__dirname, 'resource/full-th.zap'),
 }
 
 exports.testZclMetafile = path.join(__dirname, './resource/meta/zcl.json')
