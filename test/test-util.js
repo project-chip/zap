@@ -92,6 +92,19 @@ exports.testTemplate = {
   meta: './test/resource/meta/gen-test.json',
 }
 
+exports.zigbeeTestFile = {
+  file1: path.join(__dirname, 'resource/generation-test-file-1.zap'),
+  gpCombo: path.join(__dirname, 'resource/gp-combo-basic-test.zap'),
+  mfgSpecific: path.join(__dirname, 'resource/mfgSpecificConfig.zap'),
+  threeEp: path.join(__dirname, 'resource/three-endpoint-device.zap'),
+  onOff: path.join(__dirname, 'resource/zll-on-off-switch-test.zap'),
+  mfgClusters: path.join(
+    __dirname,
+    'resource/mfg-specific-clusters-commands.zap'
+  ),
+  customXml: path.join(__dirname, 'resource/zap-file-with-custom-xml.zap'),
+}
+
 exports.testZclMetafile = path.join(__dirname, './resource/meta/zcl.json')
 
 exports.testServer = testServer

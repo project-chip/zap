@@ -26,9 +26,10 @@ const zclLoader = require('../src-electron/zcl/zcl-loader')
 const importJs = require('../src-electron/importexport/import')
 const testUtil = require('./test-util')
 
-let db
 const templateCount = testUtil.testTemplate.zigbeeCount
-const testFile = testUtil.zigbeeTestFile.threeEp
+const testFile = testUtil.zigbeeTestFile.customXml
+
+let db
 
 beforeAll(async () => {
   env.setDevelopmentEnv()
@@ -76,83 +77,15 @@ test(
 )
 
 test(
-  'Test file 2 generation',
+  'Validate custom xml package already present in the zap file',
   async () => {
+    // Import a zap file which already has a custom xml file reference
     let { sessionId, errors, warnings } = await importJs.importDataFromFile(
       db,
       testFile
     )
     expect(errors.length).toBe(0)
     expect(warnings.length).toBe(0)
-
-    let genResult = await genEngine.generate(
-      db,
-      sessionId,
-      templateContext.packageId,
-      {},
-      {
-        disableDeprecationWarnings: true,
-      }
-    )
-
-    expect(genResult.hasErrors).toBeFalsy()
-    expect(genResult).not.toBeNull()
-    expect(genResult.partial).toBeFalsy()
-    expect(genResult.content).not.toBeNull()
-    let sdkExtension = genResult.content['sdk-extension.out']
-    expect(sdkExtension).not.toBeNull()
-    expect(
-      sdkExtension.includes(
-        'IMPLEMENTED_COMMANDS2>IdentifyQueryResponse,IdentifyQuery,<END2'
-      )
-    ).toBeTruthy()
-  },
-  testUtil.timeout.long()
-)
-
-test(
-  'Validate custom xml package loading',
-  async () => {
-    // Import a zap file
-    let { sessionId, errors, warnings } = await importJs.importDataFromFile(
-      db,
-      testFile
-    )
-    expect(errors.length).toBe(0)
-    expect(warnings.length).toBe(0)
-
-    // Load a custom xml file
-    let result = await zclLoader.loadIndividualFile(
-      db,
-      testUtil.testCustomXml2,
-      sessionId
-    )
-
-    if (!result.succeeded) {
-      console.log(`Test failure: ${result.err}`)
-    }
-    expect(result.hasErrors).toBeFalsy()
-    expect(result).not.toBeNull()
-    expect(result.partial).toBeFalsy()
-    expect(result.content).not.toBeNull()
-    expect(result.succeeded).toBeTruthy()
-
-    // Check that the sdk extension got generated
-    let sdkExtension = result.content['sdk-extension.out']
-    expect(sdkExtension).not.toBeNull()
-    expect(
-      sdkExtension.includes(
-        'IMPLEMENTED_COMMANDS2>IdentifyQueryResponse,IdentifyQuery,<END2'
-      )
-    ).toBeTruthy()
-
-    // Add the packageId from above into the session
-    await queryPackage.insertSessionPackage(
-      db,
-      sessionId,
-      result.packageId,
-      false
-    )
 
     // Generate code using templates
     let genResult = await genEngine.generate(
@@ -207,7 +140,23 @@ test(
     )
 
     // Delete the custom xml packageId from the existing session and test generation again
-    await queryPackage.deleteSessionPackage(db, sessionId, result.packageId)
+    let allSessionPackages = await queryPackage.getSessionPackages(
+      db,
+      sessionId
+    )
+    let packageInfoPromises = allSessionPackages.map((pkg) =>
+      queryPackage.getPackageByPackageId(db, pkg.packageRef)
+    )
+    let zclCustomXmlPackages = await Promise.all(packageInfoPromises).then(
+      (sessionPackages) =>
+        sessionPackages.filter((pkg) => pkg.type == 'zcl-xml-standalone')
+    )
+    let xmlPackageRemovalPromises = zclCustomXmlPackages.map((pkg) =>
+      queryPackage.deleteSessionPackage(db, sessionId, pkg.id)
+    )
+    await Promise.all(xmlPackageRemovalPromises)
+
+    allSessionPackages = await queryPackage.getSessionPackages(db, sessionId)
 
     // Generate again after removing a custom xml file
     genResult = await genEngine.generate(
