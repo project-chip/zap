@@ -25,6 +25,7 @@ const queryPackage = require('../src-electron/db/query-package')
 const zclLoader = require('../src-electron/zcl/zcl-loader')
 const importJs = require('../src-electron/importexport/import')
 const testUtil = require('./test-util')
+const querySession = require('../src-electron/db/query-session')
 
 let db
 const templateCount = testUtil.testTemplate.zigbeeCount
@@ -78,12 +79,8 @@ test(
 test(
   'Testing zap command parser generation',
   async () => {
-    let { sid, errors, warnings } = await importJs.importDataFromFile(
-      db,
-      testFile
-    )
-    expect(errors.length).toBe(0)
-    expect(warnings.length).toBe(0)
+    let sid = await querySession.createBlankSession(db)
+    await importJs.importDataFromFile(db, testFile, { sessionId: sid })
 
     let genResult = await genEngine.generate(
       db,

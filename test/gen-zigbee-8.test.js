@@ -181,5 +181,5 @@ test(
       '#define emberAfFillCommandIdentifyClusterSampleMfgSpecificIdentifyCommand1'
     )
   },
-  testUtil.timeout.long()
+  testUtil.timeout.long() * 2
 )

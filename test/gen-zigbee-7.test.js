@@ -78,16 +78,27 @@ test(
 test(
   'Testing zap command parser generation for manufacturing specific clusters',
   async () => {
-    let { sid, errors, warnings } = await importJs.importDataFromFile(
+    let { sessionId, errors, warnings } = await importJs.importDataFromFile(
       db,
       testFile
     )
     expect(errors.length).toBe(0)
     expect(warnings.length).toBe(0)
 
+    // Load a custom xml file
+    let result = await zclLoader.loadIndividualFile(
+      db,
+      testUtil.testCustomXml2,
+      sessionId
+    )
+    if (!result.succeeded) {
+      console.log(result)
+    }
+    expect(result.succeeded).toBeTruthy()
+
     let genResult = await genEngine.generate(
       db,
-      sid,
+      sessionId,
       templateContext.packageId,
       {},
       {

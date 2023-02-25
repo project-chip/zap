@@ -127,10 +127,6 @@ test(
       testUtil.testCustomXml2,
       sessionId
     )
-
-    if (!result.succeeded) {
-      console.log(`Test failure: ${result.err}`)
-    }
     expect(result.succeeded).toBeTruthy()
 
     // Add the packageId from above into the session
