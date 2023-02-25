@@ -48,7 +48,7 @@ const kDefaultResponse = {
     { name: 'vendorId', type: 'INT16U', chipType: 'uint16_t' }, //
     { name: 'productId', type: 'INT16U', chipType: 'uint16_t' }, //
     { name: 'commissioningMode', type: 'INT8U', chipType: 'uint8_t' }, //
-    { name: 'deviceType', type: 'INT16U', chipType: 'uint16_t' }, //
+    { name: 'deviceType', type: 'INT32U', chipType: 'uint32_t' }, //
     { name: 'deviceName', type: 'CHAR_STRING' }, //
     { name: 'rotatingId', type: 'OCTET_STRING', chipType: 'chip::ByteSpan' }, //
     { name: 'rotatingIdLen', type: 'INT64U', chipType: 'uint64_t' }, //
