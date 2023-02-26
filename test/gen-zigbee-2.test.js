@@ -92,6 +92,7 @@ test(
       templateContext.packageId,
       {},
       {
+        generateOnly: 'sdk-extension.out',
         disableDeprecationWarnings: true,
       }
     )
