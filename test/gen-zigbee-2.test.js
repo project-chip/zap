@@ -25,6 +25,7 @@ const queryPackage = require('../src-electron/db/query-package')
 const zclLoader = require('../src-electron/zcl/zcl-loader')
 const importJs = require('../src-electron/importexport/import')
 const testUtil = require('./test-util')
+const path = require('path')
 
 let db
 const templateCount = testUtil.testTemplate.zigbeeCount
@@ -76,7 +77,7 @@ test(
 )
 
 test(
-  'Test file 2 generation',
+  `Zap file generation: ${path.relative(__dirname, testFile)}`,
   async () => {
     let { sessionId, errors, warnings } = await importJs.importDataFromFile(
       db,
@@ -111,7 +112,7 @@ test(
 )
 
 test(
-  'Validate custom xml package loading',
+  `Validate custom xml package loading: ${path.relative(__dirname, testFile)}`,
   async () => {
     // Import a zap file
     let { sessionId, errors, warnings } = await importJs.importDataFromFile(
@@ -144,6 +145,13 @@ test(
       templateContext.packageId,
       {},
       {
+        generateOnly: [
+          'sdk-extension.out',
+          'zap-type.h',
+          'zap-command-ver-2.h',
+          'zap-command-structs.h',
+          'zap-id.h',
+        ],
         disableDeprecationWarnings: true,
       }
     )
@@ -214,6 +222,7 @@ test(
       templateContext.packageId,
       {},
       {
+        generateOnly: ['zap-id.h', 'zap-command-ver-2.h'],
         disableDeprecationWarnings: true,
       }
     )

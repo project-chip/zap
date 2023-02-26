@@ -102,6 +102,7 @@ test(
       templateContext.packageId,
       {},
       {
+        generateOnly: 'zap-command-parser-ver-4.c',
         disableDeprecationWarnings: true,
       }
     )

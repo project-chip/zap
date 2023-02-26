@@ -67,7 +67,7 @@ test(
 )
 
 test(
-  path.basename(testFile) + ' - load and generate',
+  `Zap file generation: ${path.relative(__dirname, testFile)}`,
   async () => {
     let sessionId = await querySession.createBlankSession(db)
 

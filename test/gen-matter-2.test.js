@@ -32,7 +32,6 @@ let templateContext
 let zclPackageId
 
 const testFile = path.join(__dirname, 'resource/matter-test.zap')
-const testMatterSwitch = path.join(__dirname, 'resource/matter-switch.zap')
 const templateCount = testUtil.testTemplate.matter2Count
 
 beforeAll(async () => {
@@ -68,7 +67,7 @@ test(
 )
 
 test(
-  path.basename(testFile) + ' - load and generate',
+  `Zap file generation: ${path.relative(__dirname, testFile)}`,
   async () => {
     let sessionId = await querySession.createBlankSession(db)
 

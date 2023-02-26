@@ -29,7 +29,6 @@ const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const importJs = require('../src-electron/importexport/import.js')
 const testUtil = require('./test-util.js')
 const testQuery = require('./test-query.js')
-const dbEnum = require('../src-shared/db-enum')
 
 let db
 let templateContext
@@ -97,7 +96,7 @@ test(
 )
 
 test(
-  path.basename(testFile) + ' - load and generate',
+  `Zap file generation: ${path.relative(__dirname, testFile)}`,
   async () => {
     let sessionId = await querySession.createBlankSession(db)
 
@@ -153,7 +152,7 @@ test(
 )
 
 test(
-  path.basename(testMatterSwitch) + ' - load and generate',
+  `Zap file generation: ${path.relative(__dirname, testMatterSwitch)}`,
   async () => {
     let sessionId = await querySession.createBlankSession(db)
 

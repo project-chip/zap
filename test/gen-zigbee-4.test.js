@@ -27,6 +27,7 @@ const utilJs = require('../src-electron/util/util')
 const zclLoader = require('../src-electron/zcl/zcl-loader')
 const importJs = require('../src-electron/importexport/import')
 const testUtil = require('./test-util')
+const path = require('path')
 
 let db
 const templateCount = testUtil.testTemplate.zigbeeCount
@@ -109,7 +110,7 @@ test(
 )
 
 test(
-  `Zap file generation: ${testFile}`,
+  `Zap file generation: ${path.relative(__dirname, testFile)}`,
   async () => {
     let sid = await querySession.createBlankSession(db)
     await importJs.importDataFromFile(db, testFile, { sessionId: sid })

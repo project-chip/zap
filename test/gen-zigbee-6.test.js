@@ -26,6 +26,7 @@ const zclLoader = require('../src-electron/zcl/zcl-loader')
 const importJs = require('../src-electron/importexport/import')
 const testUtil = require('./test-util')
 const querySession = require('../src-electron/db/query-session')
+const path = require('path')
 
 let db
 const templateCount = testUtil.testTemplate.zigbeeCount
@@ -88,6 +89,11 @@ test(
       templateContext.packageId,
       {},
       {
+        generateOnly: [
+          'zap-command-parser-ver-3.c',
+          'zap-command-parser-ver-5.c',
+          'zap-outgoing-command.out',
+        ],
         disableDeprecationWarnings: true,
       }
     )

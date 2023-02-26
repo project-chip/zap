@@ -94,6 +94,12 @@ test(
       templateContext.packageId,
       {},
       {
+        generateOnly: [
+          'zap-type.h',
+          'zap-command-ver-2.h',
+          'zap-command-structs.h',
+          'zap-id.h',
+        ],
         disableDeprecationWarnings: true,
       }
     )
@@ -165,6 +171,12 @@ test(
       templateContext.packageId,
       {},
       {
+        generateOnly: [
+          'zap-type.h',
+          'zap-command-ver-2.h',
+          'zap-command-structs.h',
+          'zap-id.h',
+        ],
         disableDeprecationWarnings: true,
       }
     )
