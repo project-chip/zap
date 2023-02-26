@@ -1,12 +1,13 @@
 {
-  "description": "Matter SDK ZCL data",
+  "description": "Matter SDK ZCL data with some extensions",
   "category": "matter",
   "version": 1,
   "xmlRoot": [
     ".",
     "./data-model/chip/",
     "./data-model/draft/",
-    "./data-model/silabs/"
+    "./data-model/silabs/",
+    "./data-model/test"
   ],
   "_comment": "Ensure access-control-definitions.xml is first in xmlFile array",
   "xmlFile": [
@@ -55,6 +56,7 @@
     "media-input-cluster.xml",
     "media-playback-cluster.xml",
     "mode-select-cluster.xml",
+    "mode-select-extensions.xml",
     "network-commissioning-cluster.xml",
     "occupancy-sensing-cluster.xml",
     "onoff-cluster.xml",
@@ -94,7 +96,7 @@
     "types/occupancy-sensing.xml",
     "types/thermostat-user-interface-configuration.xml"
   ],
-  "manufacturersXml": "data-model/manufacturers.xml",
+  "manufacturersXml": "../../../../src/app/zap-templates/zcl/data-model/manufacturers.xml",
   "options": {
     "text": {
       "defaultResponsePolicy": ["Always", "Conditional", "Never"]

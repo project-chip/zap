@@ -108,6 +108,11 @@ exports.zigbeeTestFile = {
   fullTh: path.join(__dirname, 'resource/full-th.zap'),
 }
 
+exports.matterTestFile = {
+  matterTest: path.join(__dirname, 'resource/matter-test.zap'),
+  switch: path.join(__dirname, 'resource/matter-switch.zap'),
+}
+
 exports.testZclMetafile = path.join(__dirname, './resource/meta/zcl.json')
 
 exports.testServer = testServer
@@ -135,11 +140,12 @@ exports.totalEnumItemCount = 1595
 exports.totalDotDotEnums = 106
 exports.totalDotDotEnumItems = 637
 
-exports.totalMatterClusters = 58
-exports.totalMatterDeviceTypes = 40
-exports.totalMatterCommandArgs = 424
-exports.totalMatterCommands = 203
-exports.totalMatterAttributes = 510
-exports.totalMatterTags = 15
-exports.totalMatterEvents = 56
-exports.totalMatterEventFields = 83
+exports.totalMatterClusters = 72
+exports.totalMatterDeviceTypes = 117
+exports.totalMatterCommandArgs = 595
+exports.totalMatterCommands = 248
+exports.totalMatterAttributes = 784
+exports.totalMatterTags = 17
+exports.totalMatterEvents = 60
+exports.totalMatterEventFields = 94
+exports.totalMatterGlobalAttributeBits = 12

@@ -31,12 +31,12 @@ let db
 let templateContext
 let zclPackageId
 
-const testFile = path.join(__dirname, 'resource/matter-test.zap')
+const testFile = testUtil.matterTestFile.matterTest
 const templateCount = testUtil.testTemplate.matter3Count
 
 beforeAll(async () => {
   env.setDevelopmentEnv()
-  let file = env.sqliteTestFile('gen-matter2')
+  let file = env.sqliteTestFile('gen-matter-3')
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
     env.schemaFile(),

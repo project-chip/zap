@@ -34,13 +34,13 @@ let db
 let templateContext
 let zclPackageId
 
-const testFile = path.join(__dirname, 'resource/matter-test.zap')
-const testMatterSwitch = path.join(__dirname, 'resource/matter-switch.zap')
+const testFile = testUtil.matterTestFile.matterTest
+const testMatterSwitch = testUtil.matterTestFile.switch
 const templateCount = testUtil.testTemplate.matterCount
 
 beforeAll(async () => {
   env.setDevelopmentEnv()
-  let file = env.sqliteTestFile('gen-matter')
+  let file = env.sqliteTestFile('gen-matter-1')
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
     env.schemaFile(),
@@ -54,9 +54,9 @@ afterAll(() => dbApi.closeDatabase(db), testUtil.timeout.short())
 
 test('Validate loading', async () => {
   let c = await testQuery.selectCountFrom(db, 'TAG')
-  expect(c).toBe(15)
+  expect(c).toBe(testUtil.totalMatterTags)
   c = await testQuery.selectCountFrom(db, 'GLOBAL_ATTRIBUTE_BIT')
-  expect(c).toBe(10)
+  expect(c).toBe(testUtil.totalMatterGlobalAttributeBits)
 
   let attr = await queryAttribute.selectAttributeByCode(
     db,
@@ -130,13 +130,13 @@ test(
 
     let deviceType = genResult.content['device-types.txt']
     expect(deviceType).toContain(
-      '// device type: CHIP / 0x000E => MA-bridge // extension: '
+      '// device type: CHIP / 0x0105 => MA-colordimmerswitch // extension: '
     )
-    expect(deviceType).toContain('>> Attribute: identify time [0]')
-    expect(deviceType).toContain('>> Command: TriggerEffect [64]')
+    expect(deviceType).toContain('>> Attribute: StartUpCurrentLevel [16384]')
+    expect(deviceType).toContain('>> Command: MoveToLevelWithOnOff [4]')
 
     let events = genResult.content['events.out']
-    expect(events).toContain('Field: arg4 [BITMAP]')
+    expect(events).toContain('Field: PreviousState [ENUM]')
     expect(events).toContain('Field: OperationSource [ENUM]')
     expect(events).toContain('Field: SourceNode')
 
@@ -144,9 +144,8 @@ test(
     expect(chipToolHelper).toContain('0,1// actual type: BOOLEAN')
     expect(chipToolHelper).toContain('0,UINT16_MAX// actual type: INT16U')
     expect(chipToolHelper).toContain(
-      '0,UINT8_MAX// actual type: OnOffDelayedAllOffEffectVariant'
+      '0,UINT0_MAX// actual type: ThermostatScheduleTransition'
     )
-    expect(chipToolHelper).toContain('0,UINT16_MAX// actual type: vendor_id')
   },
   testUtil.timeout.long()
 )
