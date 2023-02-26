@@ -111,6 +111,7 @@ exports.zigbeeTestFile = {
 exports.matterTestFile = {
   matterTest: path.join(__dirname, 'resource/matter-test.zap'),
   switch: path.join(__dirname, 'resource/matter-switch.zap'),
+  allClusters: path.join(__dirname, 'resource/matter-all-clusters.zap'),
 }
 
 exports.testZclMetafile = path.join(__dirname, './resource/meta/zcl.json')
