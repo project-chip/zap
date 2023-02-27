@@ -84,6 +84,14 @@ test(
     )
     expect(genResult.hasErrors).toEqual(false)
 
+    // Note: A lot of these tests here are for sake of backwards
+    // compatibility. Latest ZAP must be able to generate content for
+    // the old SDKs, so if you changed something that generates
+    // endpoint_config differently, please be very very careful and
+    // make yourself you can answer positively the following question:
+    //   will after my changes, zap still be able to generate content
+    //   that will work with an older SDK.
+    //
     let ept = genResult.content['endpoint_config.h']
     expect(ept).toContain(`{ \\
       /* Endpoint: 65534, Cluster: Network Commissioning (server) */ \\
