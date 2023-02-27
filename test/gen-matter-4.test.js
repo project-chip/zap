@@ -88,7 +88,7 @@ test(
     // compatibility. Latest ZAP must be able to generate content for
     // the old SDKs, so if you changed something that generates
     // endpoint_config differently, please be very very careful and
-    // make yourself you can answer positively the following question:
+    // make sure you can answer positively the following question:
     //   will after my changes, zap still be able to generate content
     //   that will work with an older SDK.
     //
