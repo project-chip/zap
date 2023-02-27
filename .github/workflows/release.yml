@@ -41,6 +41,11 @@ jobs:
       - run: npm rebuild libxmljs --update-binary
       - run: npm run build-spa
       - run: xvfb-run -a npm run test:e2e-ci
+      - name: Upload code coverage artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: cypress-coverage
+          path: cypress-coverage/coverage-final.json
 
   cypress-matter:
     name: Cypress UI tests with Matter data
@@ -97,6 +102,11 @@ jobs:
       - run: npm run xml-validate
       - run: npm run self-check
       - run: npm run test:unit
+      - name: Upload code coverage artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: jest-coverage
+          path: jest-coverage/coverage-final.json
       - run: npm run test:gen
 
   code-coverage:
@@ -110,9 +120,17 @@ jobs:
         os: [ubuntu-22.04]
 
     steps:
-      - run: echo "npm run report"
-  #      - name: Codecov
-  #        uses: codecov/codecov-action@v3.1.1
+      - name: Download cypress coverage artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: cypress-artifact
+      - name: Download jest coverage artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: jest-artifact
+      - run: npm run report
+      - name: Codecov
+        uses: codecov/codecov-action@v3.1.1
 
   build-zap:
     name: Build ZAP
