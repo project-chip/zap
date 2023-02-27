@@ -66,9 +66,10 @@
 #define GENERATED_CLUSTER_COUNT {{endpoint_cluster_count}}
 
 
-// clang-format off
 #define GENERATED_CLUSTERS {{chip_endpoint_cluster_list}}
-// clang-format on
+
+#define STRANGELY_ORDERED_LIST {{chip_endpoint_cluster_list order='mask,attributeCount,clusterId'}}
+
 
 #define ZAP_CLUSTER_INDEX(index) (&generatedClusters[index])
 

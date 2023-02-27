@@ -157,6 +157,14 @@ test(
     expect(ept).toContain('#define FIXED_DEVICE_TYPE_LENGTHS { 1,1,1,1}')
     expect(ept).toContain('#define FIXED_ENDPOINT_TYPES { 0, 1, 2, 3 }')
     expect(ept).toContain('#define FIXED_NETWORKS { 0, 0, 0, 0 }')
+
+    // Some odd ordering
+    expect(ept).toContain(`{ \\
+      /* Endpoint: 0, Cluster: Basic Information (server) */ \\
+      .mask = ZAP_CLUSTER_MASK(SERVER), \\
+      .attributeCount = 22, \\
+      .clusterId = 0x00000028, \\
+    },\\`)
   },
   testUtil.timeout.long()
 )
