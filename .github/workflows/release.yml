@@ -120,14 +120,14 @@ jobs:
         os: [ubuntu-22.04]
 
     steps:
-      - name: Download cypress coverage artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: cypress-artifact
       - name: Download jest coverage artifact
         uses: actions/download-artifact@v3
         with:
-          name: jest-artifact
+          name: jest-coverage
+      - name: Download cypress coverage artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: cypress-coverage
       - run: npm run report
       - name: Codecov
         uses: codecov/codecov-action@v3.1.1
