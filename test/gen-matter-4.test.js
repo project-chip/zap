@@ -113,6 +113,42 @@ test(
     expect(ept).toContain(
       '{ (uint16_t)-0x64, (uint16_t)-0x96, (uint16_t)0xC8 }'
     )
+    expect(ept).toContain('#define GENERATED_MIN_MAX_DEFAULT_COUNT 51')
+    expect(ept).toContain('#define GENERATED_ATTRIBUTE_COUNT 739')
+    expect(ept).toContain(`/* EventList (index=8) */ \\
+  0x00000000, /* HardwareFaultChange */ \\
+  0x00000001, /* RadioFaultChange */ \\
+  0x00000002, /* NetworkFaultChange */ \\
+  0x00000003, /* BootReason */ \\
+  `)
+    expect(ept)
+      .toContain(`const EmberAfGenericClusterFunction chipFuncArrayFanControlServer[] = {\\
+  (EmberAfGenericClusterFunction) MatterFanControlClusterServerAttributeChangedCallback,\\
+  (EmberAfGenericClusterFunction) MatterFanControlClusterServerPreAttributeChangedCallback,\\
+};`)
+    expect(ept).toContain(`/*   AcceptedCommandList (index=240) */ \\
+  0x00000000 /* Off */, \\
+  0x00000001 /* On */, \\
+  0x00000002 /* Toggle */, \\
+  chip::kInvalidCommandId /* end of list */,`)
+    expect(ept).toContain('#define GENERATED_CLUSTER_COUNT 81')
+    expect(ept).toContain('#define ZAP_FIXED_ENDPOINT_DATA_VERSION_COUNT 79')
+    expect(ept).toContain('#define ATTRIBUTE_SINGLETONS_SIZE (37)')
+    expect(ept).toContain('#define ATTRIBUTE_MAX_SIZE (3998)')
+    expect(ept).toContain('#define FIXED_ENDPOINT_COUNT (4)')
+    expect(ept).toContain(
+      '#define FIXED_ENDPOINT_ARRAY { 0x0000, 0x0001, 0x0002, 0xFFFE }'
+    )
+    expect(ept).toContain(
+      '#define FIXED_PROFILE_IDS { 0x0103, 0x0103, 0x0103, 0x0103 }'
+    )
+    expect(ept).toContain(
+      '#define FIXED_DEVICE_TYPES {{0x0016,1},{0x0100,1},{0x0100,1},{0xF002,1}}'
+    )
+    expect(ept).toContain('#define FIXED_DEVICE_TYPE_OFFSETS { 0,1,2,3}')
+    expect(ept).toContain('#define FIXED_DEVICE_TYPE_LENGTHS { 1,1,1,1}')
+    expect(ept).toContain('#define FIXED_ENDPOINT_TYPES { 0, 1, 2, 3 }')
+    expect(ept).toContain('#define FIXED_NETWORKS { 0, 0, 0, 0 }')
   },
   testUtil.timeout.long()
 )
