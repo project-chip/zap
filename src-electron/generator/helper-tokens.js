@@ -349,6 +349,7 @@ async function token_attribute_endpoints(options) {
       ])
     ).values(),
   ]
+  uniqueEndpoints.sort((a, b) => (a.endpointId > b.endpointId ? 1 : -1))
   return templateUtil.collectBlocks(uniqueEndpoints, options, this)
 }
 

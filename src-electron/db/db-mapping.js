@@ -497,6 +497,7 @@ exports.map = {
         : x.CLUSTER_MANUFACTURER_CODE, // Attribute manufacturer code
       clusterMfgCode: x.CLUSTER_MANUFACTURER_CODE,
       clusterName: x.CLUSTER_NAME,
+      clusterDefine: x.CLUSTER_DEFINE,
       isSingleton: dbApi.fromDbBool(x.SINGLETON), // Endpoint type attribute is singleton or not
       isManufacturingSpecific: dbApi.toDbBool(
         x.MANUFACTURER_CODE | x.CLUSTER_MANUFACTURER_CODE

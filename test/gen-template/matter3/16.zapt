@@ -1,8 +1,3 @@
-'''
-{{> header}}
-'''
-
-
 {{#chip_client_clusters}}
     _{{asDelimitedMacro name}}_CLUSTER_INFO = {
             "clusterName": "{{asUpperCamelCase name}}",
