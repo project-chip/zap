@@ -382,6 +382,8 @@ test(
       expect(x).toEqual(testUtil.totalMatterEvents)
       x = await testQuery.selectCountFrom(db, 'EVENT_FIELD')
       expect(x).toEqual(testUtil.totalMatterEventFields)
+      x = await testQuery.selectCountFrom(db, 'GLOBAL_ATTRIBUTE_BIT')
+      expect(x).toBe(testUtil.totalMatterGlobalAttributeBits)
     } finally {
       await dbApi.closeDatabase(db)
     }

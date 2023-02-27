@@ -87,8 +87,8 @@ async function importDataFromFile(
     packageMatch: dbEnum.packageMatch.fuzzy,
   }
 ) {
+  let state = await readDataFromFile(filePath, options.defaultZclMetafile)
   try {
-    let state = await readDataFromFile(filePath, options.defaultZclMetafile)
     await dbApi.dbBeginTransaction(db)
     let sid
     if (options.sessionId == null) {

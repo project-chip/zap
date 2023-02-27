@@ -1,0 +1,8 @@
+{{#zcl_commands_with_arguments}}
+  {{#if argCount}}
+/** @brief Parser function for "{{name}}" ZCL command from "{{clusterName}}" cluster
+ */
+EmberAfStatus zcl_decode_{{as_underscore_lowercase clusterName}}_cluster_{{as_underscore_lowercase name}}_command (EmberAfClusterCommand * cmd, sl_zcl_{{as_underscore_lowercase clusterName}}_cluster_{{as_underscore_lowercase name}}_command_t *cmd_struct);
+  {{/if}}
+{{/zcl_commands_with_arguments}}
+

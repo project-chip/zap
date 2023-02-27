@@ -25,8 +25,6 @@ const dbApi = require('../src-electron/db/db-api.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader.js')
 const importJs = require('../src-electron/importexport/import.js')
 const testUtil = require('./test-util.js')
-const queryPackage = require('../src-electron/db/query-package.js')
-const utilJs = require('../src-electron/util/util.js')
 
 let db
 const testFile = path.join(__dirname, 'resource/tokens-test.zap')
@@ -64,7 +62,7 @@ test(
 )
 
 test(
-  'Test file import',
+  `Test file import: ${path.relative(__dirname, testFile)}`,
   async () => {
     let importResult = await importJs.importDataFromFile(db, testFile)
     templateContext.sessionId = importResult.sessionId
@@ -81,7 +79,10 @@ test(
       templateContext.sessionId,
       templateContext.packageId,
       {},
-      { disableDeprecationWarnings: true }
+      {
+        generateOnly: 'zap-tokens.h',
+        disableDeprecationWarnings: true,
+      }
     )
 
     expect(genResult).not.toBeNull()
@@ -325,7 +326,10 @@ test(
       templateContext.sessionId,
       templateContext.packageId,
       {},
-      { disableDeprecationWarnings: true }
+      {
+        generateOnly: 'zap-tokens-version-2.h',
+        disableDeprecationWarnings: true,
+      }
     )
 
     expect(genResult).not.toBeNull()
