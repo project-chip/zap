@@ -40,7 +40,7 @@ jobs:
       - run: npm rebuild canvas --update-binary
       - run: npm rebuild libxmljs --update-binary
       - run: npm run build-spa
-      - run: xvfb-run -a npm run test:e2e-ci
+      - run: npm run test:e2e-ci
       - name: Upload code coverage artifacts
         uses: actions/upload-artifact@v3
         with:
@@ -69,7 +69,7 @@ jobs:
       - run: npm rebuild canvas --update-binary
       - run: npm rebuild libxmljs --update-binary
       - run: npm run build-spa
-      - run: xvfb-run -a npm run test:e2e-matter-ci
+      - run: npm run test:e2e-matter-ci
 
   generate-and-backend-tests:
     name: Generation and back-end tests
