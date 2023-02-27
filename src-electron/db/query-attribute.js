@@ -1086,15 +1086,31 @@ AND
       ROW_NUMBER() OVER() + 45055 AS TOKEN_ID
     FROM
       (
-        ${tokenSqlQuery} AND ENDPOINT_TYPE_ATTRIBUTE.SINGLETON = 0
-        UNION
-        ${tokenSqlQuery} AND ENDPOINT_TYPE_ATTRIBUTE.SINGLETON = 1
-        GROUP BY
-          CLUSTER.CODE,
-          CLUSTER.MANUFACTURER_CODE,
-          ATTRIBUTE.CODE,
-          ATTRIBUTE.MANUFACTURER_CODE,
-          ATTRIBUTE.SIDE
+        SELECT * FROM (
+          ${tokenSqlQuery} AND ENDPOINT_TYPE_ATTRIBUTE.SINGLETON = 0
+          UNION
+          ${tokenSqlQuery} AND ENDPOINT_TYPE_ATTRIBUTE.SINGLETON = 1
+          GROUP BY
+            CLUSTER.CODE,
+            CLUSTER.MANUFACTURER_CODE,
+            ATTRIBUTE.CODE,
+            ATTRIBUTE.MANUFACTURER_CODE,
+            ATTRIBUTE.SIDE
+        )
+        ORDER BY
+          SINGLETON DESC,
+          CLUSTER_MANUFACTURER_CODE,
+          MANUFACTURER_CODE,
+          CASE
+            WHEN
+              SINGLETON = 1
+            THEN
+              SMALLEST_ENDPOINT_IDENTIFIER
+            ELSE
+              ENDPOINT_IDENTIFIER
+          END,
+          CLUSTER_CODE,
+          CODE
       )
     ORDER BY
       TOKEN_ID

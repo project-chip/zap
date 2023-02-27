@@ -339,37 +339,37 @@ test(
     let header = genResult.content['zap-tokens-version-2.h']
 
     // Singletons
-    expect(header).toContain('#define CREATOR_STACK_VERSION_SINGLETON 0xB008')
+    expect(header).toContain('#define CREATOR_STACK_VERSION_SINGLETON 0xB000')
     expect(header).toContain(
-      '#define NVM3KEY_STACK_VERSION_SINGLETON (NVM3KEY_DOMAIN_ZIGBEE | 0xB008)'
+      '#define NVM3KEY_STACK_VERSION_SINGLETON (NVM3KEY_DOMAIN_ZIGBEE | 0xB000)'
     )
 
-    expect(header).toContain('#define CREATOR_HW_VERSION_SINGLETON 0xB003')
+    expect(header).toContain('#define CREATOR_HW_VERSION_SINGLETON 0xB001')
     expect(header).toContain(
-      '#define NVM3KEY_HW_VERSION_SINGLETON (NVM3KEY_DOMAIN_ZIGBEE | 0xB003)'
+      '#define NVM3KEY_HW_VERSION_SINGLETON (NVM3KEY_DOMAIN_ZIGBEE | 0xB001)'
     )
 
     // Non-singletons
-    expect(header).toContain('#define CREATOR_APPLICATION_VERSION_1 0xB000')
+    expect(header).toContain('#define CREATOR_APPLICATION_VERSION_1 0xB002')
     expect(header).toContain(
-      '#define NVM3KEY_APPLICATION_VERSION_1 (NVM3KEY_DOMAIN_ZIGBEE | 0xB000)'
+      '#define NVM3KEY_APPLICATION_VERSION_1 (NVM3KEY_DOMAIN_ZIGBEE | 0xB002)'
     )
 
-    expect(header).toContain('#define CREATOR_APPLICATION_VERSION_7 0xB001')
+    expect(header).toContain('#define CREATOR_APPLICATION_VERSION_7 0xB004')
     expect(header).toContain(
-      '#define NVM3KEY_APPLICATION_VERSION_7 (NVM3KEY_DOMAIN_ZIGBEE | 0xB001)'
+      '#define NVM3KEY_APPLICATION_VERSION_7 (NVM3KEY_DOMAIN_ZIGBEE | 0xB004)'
     )
 
-    expect(header).toContain('#define CREATOR_PRODUCT_CODE_1 0xB004')
+    expect(header).toContain('#define CREATOR_PRODUCT_CODE_1 0xB003')
     expect(header).toContain(
-      '#define NVM3KEY_PRODUCT_CODE_1 (NVM3KEY_DOMAIN_ZIGBEE | 0xB004)'
+      '#define NVM3KEY_PRODUCT_CODE_1 (NVM3KEY_DOMAIN_ZIGBEE | 0xB003)'
     )
 
     expect(header).toContain(
-      '#define CREATOR_COLOR_CONTROL_COLOR_MODE_7 0xB002'
+      '#define CREATOR_COLOR_CONTROL_COLOR_MODE_7 0xB008'
     )
     expect(header).toContain(
-      '#define NVM3KEY_COLOR_CONTROL_COLOR_MODE_7 (NVM3KEY_DOMAIN_ZIGBEE | 0xB002)'
+      '#define NVM3KEY_COLOR_CONTROL_COLOR_MODE_7 (NVM3KEY_DOMAIN_ZIGBEE | 0xB008)'
     )
 
     expect(header).toContain(
@@ -380,10 +380,10 @@ test(
     )
 
     expect(header).toContain(
-      '#define CREATOR_COLOR_CONTROL_REMAINING_TIME_7 0xB006'
+      '#define CREATOR_COLOR_CONTROL_REMAINING_TIME_7 0xB007'
     )
     expect(header).toContain(
-      '#define NVM3KEY_COLOR_CONTROL_REMAINING_TIME_7 (NVM3KEY_DOMAIN_ZIGBEE | 0xB006)'
+      '#define NVM3KEY_COLOR_CONTROL_REMAINING_TIME_7 (NVM3KEY_DOMAIN_ZIGBEE | 0xB007)'
     )
 
     // DEFINETYPES
