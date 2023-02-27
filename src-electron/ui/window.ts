@@ -107,6 +107,7 @@ export function windowCreate(port: number, args?: WindowCreateArgs) {
     x: 50 + windowCounter * 20,
     y: 50 + windowCounter * 20,
     resizable: true,
+    frame: false, // <-- add this
     center: true,
     icon: path.join(env.iconsDirectory(), 'zap_32x32.png'),
     title: args?.filePath == null ? menu.newConfiguration : args?.filePath,

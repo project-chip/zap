@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <template>
-  <div class="q-pa-md dark">
+  <q-page>
     <q-dialog v-model="zclDialogFlag">
       <q-card>
         <q-card-section>
@@ -87,6 +87,7 @@ limitations under the License.
       >
         <q-page-container>
           <q-tab-panels v-model="tab" animated>
+            <!-- dev tools panel-->
             <q-tab-panel name="general">
               <q-scroll-area style="height: 80vh">
                 <q-expansion-item
@@ -120,7 +121,9 @@ limitations under the License.
                 </q-expansion-item>
               </q-scroll-area>
             </q-tab-panel>
-            <q-tab-panel :name="restApi.uiMode.ZIGBEE" class="q-pa-none">
+
+            <!-- zcl panel-->
+            <q-tab-panel :name="restApi.uiMode.ZIGBEE">
               <zcl-configurator-layout />
             </q-tab-panel>
           </q-tab-panels>
@@ -173,7 +176,7 @@ limitations under the License.
     <q-dialog v-model="homeDialog">
       <About />
     </q-dialog>
-  </div>
+  </q-page>
 </template>
 
 <script>

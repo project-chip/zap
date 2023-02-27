@@ -1,6 +1,6 @@
 {
   "name": "zap",
-  "version": "0.0.0",
+  "version": "2023.2.17",
   "description": "Configuration tool for the Zigbee Cluster Library",
   "productName": "zap",
   "cordovaId": "",
@@ -66,8 +66,8 @@
     "zaphelp": "node src-script/zap-start.js --help",
     "zap-dotdot": "node src-script/zap-start.js --logToStdout --zcl ./zcl-builtin/dotdot/library.xml",
     "zigbeezap-devserver": "node src-script/zap-start.js server --stateDirectory ~/.zap/zigbee-server/ --allowCors --logToStdout --gen ./test/gen-template/zigbee/gen-templates.json --reuseZapInstance",
-    "matterzap-devserver": "node src-script/zap-start.js server --stateDirectory ~/.zap/matter-server/ --allowCors --logToStdout --zcl ./test/resource/old-matter/zcl.json --gen ./test/resource/meta/gen-test.json --reuseZapInstance",
-    "server": "node src-script/zap-start.js server --logToStdout --zcl ./zcl-builtin/silabs/zcl.json  --zcl ./zcl-builtin/matter/zcl.json --gen ./test/gen-template/zigbee/gen-templates.json --reuseZapInstance",
+    "matterzap-devserver": "node src-script/zap-start.js server --stateDirectory ~/.zap/matter-server/ --allowCors --logToStdout --zcl ./zcl-builtin/matter/zcl.json --gen ./test/resource/meta/gen-test.json --reuseZapInstance",
+    "server": "node src-script/zap-start.js server --stateDirectory ~/.zap/server/ --allowCors --logToStdout --zcl ./zcl-builtin/silabs/zcl.json  --zcl ./zcl-builtin/matter/zcl.json --gen ./test/gen-template/zigbee/gen-templates.json  --gen ./test/gen-template/matter/gen-test.json ",
     "stop": "node src-script/zap-start.js stop --reuseZapInstance",
     "status": "node src-script/zap-start.js status --reuseZapInstance",
     "self-check": "node src-script/zap-start.js selfCheck -g ./test/gen-template/zigbee/gen-templates.json",
