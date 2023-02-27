@@ -1,6 +1,7 @@
 {
   "name": "Matter 3 test templates",
   "version": "matter-3",
+  "category": "matter",
   "helpers": [
     "common/ChipTypesHelper.js",
     "common/ListHelper.js",
@@ -9,7 +10,34 @@
     "templates/app/helper.js",
     "templates/chip/helper.js",
     "controller/java/templates/helper.js",
-    "controller/python/templates/helper.js"
+    "controller/python/templates/helper.js",
+    "darwin/Framework/CHIP/templates/helper.js"
+  ],
+  "partials": [
+    {
+      "name": "header",
+      "path": "partials/header.zapt"
+    },
+    {
+      "name": "clusters_header",
+      "path": "partials/clusters_header.zapt"
+    },
+    {
+      "name": "cluster_header",
+      "path": "partials/cluster_header.zapt"
+    },
+    {
+      "name": "encode_value",
+      "path": "partials/encode_value.zapt"
+    },
+    {
+      "name": "decodable_value",
+      "path": "partials/decodable_value.zapt"
+    },
+    {
+      "name": "decode_value",
+      "path": "partials/decode_value.zapt"
+    }
   ],
   "resources": {
     "pics-metafile": "../matter2/yaml/x.yaml",

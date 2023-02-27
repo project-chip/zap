@@ -1,0 +1,6 @@
+{{~new_line 1~}}
+{{~#all_user_clusters_with_incoming_commands~}}
+    {{~#all_incoming_commands_for_cluster clusterName clusterSide~}}
+#define ZCL_CLUSTER_{{as_delimited_macro ../clusterName}}_{{as_delimited_macro ../clusterSide}}_INCOMING_COMMAND_{{as_delimited_macro commandName}}_ENABLED{{~new_line 1~}}
+    {{/all_incoming_commands_for_cluster}}
+{{~/all_user_clusters_with_incoming_commands~}}

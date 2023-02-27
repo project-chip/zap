@@ -31,13 +31,12 @@ let db
 let templateContext
 let zclPackageId
 
-const testFile = path.join(__dirname, 'resource/matter-test.zap')
-const testMatterSwitch = path.join(__dirname, 'resource/matter-switch.zap')
+const testFile = testUtil.matterTestFile.matterTest
 const templateCount = testUtil.testTemplate.matter2Count
 
 beforeAll(async () => {
   env.setDevelopmentEnv()
-  let file = env.sqliteTestFile('gen-matter3')
+  let file = env.sqliteTestFile('gen-matter-2')
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
     env.schemaFile(),
@@ -68,7 +67,7 @@ test(
 )
 
 test(
-  path.basename(testFile) + ' - load and generate',
+  `Zap file generation: ${path.relative(__dirname, testFile)}`,
   async () => {
     let sessionId = await querySession.createBlankSession(db)
 
@@ -83,6 +82,7 @@ test(
       {},
       { disableDeprecationWarnings: true }
     )
+    expect(genResult.hasErrors).not.toBeTruthy()
   },
   testUtil.timeout.long()
 )

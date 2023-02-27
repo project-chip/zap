@@ -653,10 +653,16 @@ async function generateAllTemplates(
   // Next prepare the templates
   packages.forEach((singlePkg) => {
     if (singlePkg.type == dbEnum.packageType.genSingleTemplate) {
-      if (
-        options.generateOnly == null ||
-        options.generateOnly == singlePkg.category
+      if (options.generateOnly == null) {
+        generationTemplates.push(singlePkg)
+      } else if (
+        Array.isArray(options.generateOnly) &&
+        options.generateOnly.includes(singlePkg.category)
       ) {
+        // If generateOnly is an array that contains the name
+        generationTemplates.push(singlePkg)
+      } else if (options.generateOnly == singlePkg.category) {
+        // If the generate Only contains the name, then we include it
         generationTemplates.push(singlePkg)
       }
     }

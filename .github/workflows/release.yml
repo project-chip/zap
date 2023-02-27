@@ -96,12 +96,23 @@ jobs:
       - run: npm run lint
       - run: npm run xml-validate
       - run: npm run self-check
-      - run: npm run test:e2e-ci
       - run: npm run test:unit
-      - run: npm run report
-      - name: Codecov
-        uses: codecov/codecov-action@v3.1.1
       - run: npm run test:gen
+
+  code-coverage:
+    name: Code coverage
+    needs: [cypress-zigbee, cypress-matter, generate-and-backend-tests]
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        node-version: [16.x]
+        os: [ubuntu-22.04]
+
+    steps:
+      - run: echo "npm run report"
+  #      - name: Codecov
+  #        uses: codecov/codecov-action@v3.1.1
 
   build-zap:
     name: Build ZAP

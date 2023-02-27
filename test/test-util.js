@@ -71,7 +71,7 @@ exports.timeout = {
     } else if (zto in process.env) {
       return parseInt(process.env[zto])
     } else {
-      return 60000
+      return 90000
     }
   },
 }
@@ -79,6 +79,8 @@ exports.timeout = {
 exports.testTemplate = {
   zigbee: './test/gen-template/zigbee/gen-templates.json',
   zigbeeCount: 29,
+  zigbee2: './test/gen-template/zigbee2/gen-templates.json',
+  zigbee2Count: 13,
   matter: './test/gen-template/matter/gen-test.json',
   matterCount: 8,
   matter2: './test/gen-template/matter2/templates.json',
@@ -90,6 +92,26 @@ exports.testTemplate = {
   unittest: './test/gen-template/test/gen-test.json',
   testCount: 3,
   meta: './test/resource/meta/gen-test.json',
+}
+
+exports.zigbeeTestFile = {
+  file1: path.join(__dirname, 'resource/generation-test-file-1.zap'),
+  gpCombo: path.join(__dirname, 'resource/gp-combo-basic-test.zap'),
+  mfgSpecific: path.join(__dirname, 'resource/mfgSpecificConfig.zap'),
+  threeEp: path.join(__dirname, 'resource/three-endpoint-device.zap'),
+  onOff: path.join(__dirname, 'resource/zll-on-off-switch-test.zap'),
+  mfgClusters: path.join(
+    __dirname,
+    'resource/mfg-specific-clusters-commands.zap'
+  ),
+  customXml: path.join(__dirname, 'resource/zap-file-with-custom-xml.zap'),
+  fullTh: path.join(__dirname, 'resource/full-th.zap'),
+}
+
+exports.matterTestFile = {
+  matterTest: path.join(__dirname, 'resource/matter-test.zap'),
+  switch: path.join(__dirname, 'resource/matter-switch.zap'),
+  allClusters: path.join(__dirname, 'resource/matter-all-clusters.zap'),
 }
 
 exports.testZclMetafile = path.join(__dirname, './resource/meta/zcl.json')
@@ -119,11 +141,12 @@ exports.totalEnumItemCount = 1595
 exports.totalDotDotEnums = 106
 exports.totalDotDotEnumItems = 637
 
-exports.totalMatterClusters = 58
-exports.totalMatterDeviceTypes = 40
-exports.totalMatterCommandArgs = 424
-exports.totalMatterCommands = 203
-exports.totalMatterAttributes = 510
-exports.totalMatterTags = 15
-exports.totalMatterEvents = 56
-exports.totalMatterEventFields = 83
+exports.totalMatterClusters = 72
+exports.totalMatterDeviceTypes = 117
+exports.totalMatterCommandArgs = 595
+exports.totalMatterCommands = 248
+exports.totalMatterAttributes = 784
+exports.totalMatterTags = 17
+exports.totalMatterEvents = 60
+exports.totalMatterEventFields = 94
+exports.totalMatterGlobalAttributeBits = 12

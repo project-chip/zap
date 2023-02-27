@@ -50,6 +50,48 @@ afterAll(async () => {
   await dbApi.closeDatabase(db)
 }, testUtil.timeout.medium())
 
+describe('Content indexer', () => {
+  test(
+    'Test content indexer - simple',
+    async () => {
+      let preview = await generationEngine.contentIndexer('Short example')
+      expect(preview['1']).toBe('Short example\n')
+    },
+    testUtil.timeout.short()
+  )
+
+  test(
+    'Test content indexer - line by line',
+    async () => {
+      let preview = await generationEngine.contentIndexer(
+        'Short example\nwith three\nlines of text',
+        1
+      )
+      expect(preview['1']).toBe('Short example\n')
+      expect(preview['2']).toBe('with three\n')
+      expect(preview['3']).toBe('lines of text\n')
+    },
+    testUtil.timeout.short()
+  )
+
+  test(
+    'Test content indexer - blocks',
+    async () => {
+      let content = ''
+      let i = 0
+      for (i = 0; i < 1000; i++) {
+        content = content.concat(`line ${i}\n`)
+      }
+      let preview = await generationEngine.contentIndexer(content, 50)
+      expect(preview['1'].startsWith('line 0')).toBeTruthy()
+      expect(preview['2'].startsWith('line 50')).toBeTruthy()
+      expect(preview['3'].startsWith('line 100')).toBeTruthy()
+      expect(preview['20'].startsWith('line 950')).toBeTruthy()
+    },
+    testUtil.timeout.short()
+  )
+})
+
 describe('Session specific tests', () => {
   test(
     'make sure there is no session at the beginning',
