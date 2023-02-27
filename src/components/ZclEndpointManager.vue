@@ -15,40 +15,30 @@ limitations under the License.
 -->
 
 <template>
-  <div>
-    <!-- Add onClick handler for new endpoint-->
-    <div class="row">
+  <q-list>
+    <div class="row justify-between q-mt-md q-mb-xs">
+      <q-item-label class="q-my-auto" header>Endpoints</q-item-label>
       <q-btn
-        class="vertical-align:middle q-pa-md q-mini-drawer-hide row-8 v-step-0"
+        class="q-px-md q-mini-drawer-hide row-8 v-step-0"
         text-color="primary"
         @click="toggleCreateEndpointModal()"
         icon="add"
-        label="Add New Endpoint"
+        label="Add Endpoint"
         flat
+        rounded
         :ripple="false"
         :unelevated="false"
         id="new_endpoint_button"
         data-test="add-new-endpoint"
       />
-      <q-space />
-      <q-btn
-        text-color="primary"
-        :icon="miniState ? 'fast_forward' : 'fast_rewind'"
-        flat
-        :ripple="false"
-        :unelevated="false"
-        @click="miniState = !miniState"
-        class="col"
-      />
     </div>
-    <q-separator class="q-mini-drawer-hide" />
-      <zcl-endpoint-card
-        v-for="(child, index) in endpoints"
-        v-bind:key="index"
-        v-bind:endpointReference="child.id"
-        class="q-mini-drawer-hide"
-      >
-      </zcl-endpoint-card>
+
+    <zcl-endpoint-card
+      v-for="(child, index) in endpoints"
+      v-bind:key="index"
+      v-bind:endpointReference="child.id"
+      class="q-mini-drawer-hide"
+    />
 
     <q-dialog v-model="showEndpointModal" class="background-color:transparent">
       <zcl-create-modify-endpoint
@@ -56,7 +46,7 @@ limitations under the License.
         v-on:saveOrCreateValidated="toggleCreateEndpointModal()"
       />
     </q-dialog>
-  </div>
+  </q-list>
 </template>
 
 <script>

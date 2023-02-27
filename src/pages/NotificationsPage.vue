@@ -1,14 +1,7 @@
 <template>
-  <div class="q-pa-md">
-    <q-toolbar class="shadow-2">
-      <q-btn icon="arrow_back" to="/" label="Back" data-test="go-back-button" />
-    </q-toolbar>
-    <q-table
-      title="Notifications"
-      :rows="notis"
-      :columns="columns"
-      row-key="ref"
-    >
+  <PreferencePageLayout>
+    <template #title>Notifications </template>
+    <q-table :rows="notis" :columns="columns" row-key="ref" flat>
       <template v-slot:header="props">
         <q-tr :props="props">
           <q-th v-for="col in props.cols" :key="col.name" :props="props">
@@ -33,12 +26,17 @@
         </q-tr>
       </template>
     </q-table>
-  </div>
+  </PreferencePageLayout>
 </template>
 
 <script>
+import PreferencePageLayout from '../layouts/PreferencePageLayout.vue'
+
 import restApi from '../../src-shared/rest-api.js'
 export default {
+  components: {
+    PreferencePageLayout,
+  },
   methods: {
     getNotifications() {
       this.$serverGet(restApi.uri.notification)

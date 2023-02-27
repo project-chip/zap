@@ -22,9 +22,11 @@ module.exports = configure(function (ctx) {
 
     // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-css
     css: ['app.sass'],
-
+    animations: ['fadeInLeft', 'fadeOutLeft'],
     // https://github.com/quasarframework/quasar/tree/dev/extras
     extras: [
+      'material-icons', // optional, you are not bound to it
+      'material-icons-outlined', // optional, you are not bound to it
       // 'ionicons-v4',
       'mdi-v4',
       // 'fontawesome-v5',
@@ -33,12 +35,11 @@ module.exports = configure(function (ctx) {
       // 'roboto-font-latin-ext', // this or either 'roboto-font', NEVER both!
 
       'roboto-font', // optional, you are not bound to it
-      'material-icons', // optional, you are not bound to it
     ],
 
     // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-framework
     framework: {
-      iconSet: 'mdi-v4', // Quasar icon set
+      iconSet: 'material-icons', // Quasar icon set
       lang: 'en-US', // Quasar language pack
 
       // Possible values for "all":

@@ -14,64 +14,64 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <template>
-  <div>
-    <q-card bordered class="q-pa-sm">
-      <div class="q-py-md">
-        <strong>
-          <router-link
-            to="/"
-            style="text-decoration: none; color: #027be3; font-weight: bold"
-            ><i
-              aria-hidden="true"
-              role="presentation"
-              class="q-breadcrumbs__el-icon material-icons q-icon notranslate"
-              >keyboard_arrow_left</i
-            >
-            Back</router-link
-          >
-          <q-breadcrumbs active-color="">
-            <!-- this needs to be updated depending on how the pages will work -->
-            <q-breadcrumbs-el class="">
-              Endpoint {{ this.endpointId[this.selectedEndpointId] }}
-            </q-breadcrumbs-el>
-            <q-breadcrumbs-el>
-              {{ selectedCluster.domainName }}
-            </q-breadcrumbs-el>
-            <q-breadcrumbs-el>{{ selectedCluster.label }}</q-breadcrumbs-el>
-          </q-breadcrumbs>
-        </strong>
-      </div>
+  <div class="popup-wrap row">
+    <q-card flat class="col column q-pa-lg">
+      <div>
+        <div class="row no-wrap">
+          <div class="col">
+            <div class="text-h4">
+              {{ selectedCluster.label }}
+            </div>
 
-      <h5 style="margin: 10px 0 0px">
-        <strong>
-          {{ selectedCluster.label }}
-        </strong>
-      </h5>
-      <div style="margin-bottom: 5px">
-        {{ selectedCluster.caption }}
-      </div>
-      <div class="row q-py-none">
-        <div>
-          Cluster ID: {{ asHex(selectedCluster.code, 4) }}, Enabled for
-          <strong> {{ enabledMessage }} </strong>
+            <q-breadcrumbs active-color="grey">
+              <!-- this needs to be updated depending on how the pages will work -->
+              <q-breadcrumbs-el>
+                Endpoint {{ this.endpointId[this.selectedEndpointId] }}
+              </q-breadcrumbs-el>
+              <q-breadcrumbs-el>
+                {{ selectedCluster.domainName }}
+              </q-breadcrumbs-el>
+              <q-breadcrumbs-el>{{ selectedCluster.label }}</q-breadcrumbs-el>
+            </q-breadcrumbs>
+          </div>
+          <div class="col-auto">
+            <q-btn to="/" flat rounded icon="close" />
+          </div>
         </div>
-        <q-space />
-        <q-input
-          dense
-          outlined
-          clearable
-          :placeholder="placeHolderText"
-          @update:model-value="setIndividualClusterFilterString($event)"
-          @clear="setIndividualClusterFilterString('')"
-          :model-value="individualClusterFilterString"
-        >
-          <template v-slot:prepend>
-            <q-icon name="search" />
-          </template>
-        </q-input>
+        <div class="row items-center no-wrap q-py-lg">
+          <div class="col">
+            {{ selectedCluster.caption }}
+            <div>
+              Cluster ID: {{ asHex(selectedCluster.code, 4) }}, Enabled for
+              <strong> {{ enabledMessage }} </strong>
+            </div>
+          </div>
+          <div class="col-auto">
+            <q-input
+              dense
+              outlined
+              clearable
+              :placeholder="placeHolderText"
+              @update:model-value="setIndividualClusterFilterString($event)"
+              @clear="setIndividualClusterFilterString('')"
+              :model-value="individualClusterFilterString"
+            >
+              <template v-slot:prepend>
+                <q-icon name="search" />
+              </template>
+            </q-input>
+          </div>
+        </div>
       </div>
-      <div class="q-pb-sm">
-        <q-tabs v-model="tab" dense active-color="blue" align="left">
+      <div class="col column">
+        <q-tabs
+          v-model="tab"
+          dense
+          align="left"
+          active-bg-color="primary"
+          indicator-color="primary"
+          class="q-pl-lg"
+        >
           <q-tab name="attributes" label="Attributes" class="v-step-10" />
           <q-tab
             name="reporting"
@@ -81,24 +81,26 @@ limitations under the License.
           <q-tab name="commands" label="Commands" class="v-step-12" />
           <q-tab name="events" label="Events" v-show="events.length > 0" />
         </q-tabs>
-
-        <q-separator />
-        <div v-show="Object.keys(selectedCluster).length > 0">
-          <div class="col" v-show="tab == 'attributes'">
+        <div
+          class="col column linear-border-wrap"
+          v-show="Object.keys(selectedCluster).length > 0"
+        >
+          <div class="" v-show="tab == 'attributes'">
             <ZclAttributeManager />
           </div>
-          <div class="col" v-show="tab == 'commands'">
+          <div class="col column" v-show="tab == 'commands'">
             <ZclCommandManager />
           </div>
-          <div class="col" v-show="tab == 'reporting'">
+          <div class="col column" v-show="tab == 'reporting'">
             <ZclAttributeReportingManager />
           </div>
-          <div class="col" v-show="tab == 'events'">
+          <div class="col column" v-show="tab == 'events'">
             <ZclEventManager />
           </div>
         </div>
       </div>
     </q-card>
+    <q-resize-observer @resize="onResize" />
   </div>
 </template>
 <script>
@@ -153,14 +155,30 @@ export default {
       this.tab = val
     },
   },
+  mounted() {
+    window.addEventListener('resize', this.calculateTableSize)
+  },
+  unmounted() {
+    window.removeEventListener('resize', this.calculateTableSize)
+  },
   methods: {
     setIndividualClusterFilterString(filterString) {
       this.$store.dispatch('zap/setIndividualClusterFilterString', filterString)
+    },
+    onResize(size) {
+      this.tableHeight = size.height - 380 + 'px'
+      this.tableWidth = size.width - 80 + 'px'
+    },
+    calculateTableSize() {
+      this.tableHeight = '30px'
+      this.tableWidth = '500px'
     },
   },
   data() {
     return {
       tab: 'attributes',
+      tableHeight: '30px',
+      tableWidth: '500px',
     }
   },
 
@@ -172,3 +190,56 @@ export default {
   },
 }
 </script>
+<style lang="scss">
+.popup-wrap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  height: 100vh;
+  overflow: hidden;
+  width: 100vw;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  padding: 65px 16px;
+}
+.q-tab {
+  padding: 2px 16px;
+  margin-right: 9px;
+  width: fit-content;
+  border-radius: 5px 5px 0 0;
+  text-transform: none;
+  color: rgb(95, 101, 111);
+  &--active {
+    color: white;
+  }
+}
+
+.q-tab {
+  &--active {
+    .q-tab {
+      &__content {
+        .q-tab {
+          &__label {
+            color: white;
+          }
+        }
+      }
+    }
+  }
+}
+.q-table th,
+.q-table td {
+  padding: 5px;
+  background-color: inherit;
+  text-align: center;
+}
+.q-table--dense .q-table th,
+.q-table--dense .q-table td {
+  padding: 2px 5px;
+}
+.my-sticky-header-table {
+  width: v-bind(tableWidth);
+  height: v-bind(tableHeight);
+}
+</style>

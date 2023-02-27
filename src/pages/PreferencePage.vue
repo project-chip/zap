@@ -15,9 +15,6 @@ limitations under the License.
 -->
 <template>
   <div>
-    <q-toolbar class="shadow-2">
-      <q-btn icon="arrow_back" to="/" label="Back" data-test="go-back-button" />
-    </q-toolbar>
     <q-splitter v-model="splitterModel" style="height: 100%">
       <template v-slot:before>
         <q-tabs v-model="tab" vertical class="text-teal">
@@ -28,6 +25,7 @@ limitations under the License.
             icon="mdi-file-document-edit-outline"
             label="Generation"
           />
+          <q-tab name="about" icon="mdi-lan" label="About" />
         </q-tabs>
       </template>
 
@@ -50,6 +48,10 @@ limitations under the License.
           <q-tab-panel name="gen">
             <PreferenceGeneration />
           </q-tab-panel>
+
+          <q-tab-panel name="about">
+            <About />
+          </q-tab-panel>
         </q-tab-panels>
       </template>
     </q-splitter>
@@ -59,12 +61,14 @@ limitations under the License.
 import PreferencePackage from './PreferencePackage.vue'
 import PreferenceGeneration from './PreferenceGeneration.vue'
 import PreferenceUser from './PreferenceUser.vue'
+import About from './AboutPage.vue'
 export default {
   name: 'PreferencePage',
   components: {
     PreferencePackage,
     PreferenceGeneration,
     PreferenceUser,
+    About,
   },
   data() {
     return {

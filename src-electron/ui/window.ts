@@ -25,6 +25,7 @@ const tray = require('./tray.js')
 const browserApi = require('./browser-api.js')
 const querystringUtil = require('querystring')
 const httpServer = require('../server/http-server.js')
+import { showHidden } from 'yargs'
 import { WindowCreateArgs } from '../types/window-types'
 
 let windowCounter = 0
@@ -107,6 +108,9 @@ export function windowCreate(port: number, args?: WindowCreateArgs) {
     x: 50 + windowCounter * 20,
     y: 50 + windowCounter * 20,
     resizable: true,
+    // frame: false,
+    trafficLightPosition: { x: 15, y: 20 },
+    titleBarStyle: 'hidden',
     center: true,
     icon: path.join(env.iconsDirectory(), 'zap_32x32.png'),
     title: args?.filePath == null ? menu.newConfiguration : args?.filePath,

@@ -15,11 +15,11 @@ limitations under the License.
 -->
 
 <template>
-  <div>
+  <div class="q-mx-md q-mb-sm">
     <q-card
-      :class="{ 'v-step-5': isSelectedEndpoint }"
-      :bordered="isSelectedEndpoint"
+      :class="{ 'active v-step-5': isSelectedEndpoint }"
       @click="setSelectedEndpointType(endpointReference)"
+      flat
     >
       <div
         class="q-mx-sm"
@@ -34,31 +34,7 @@ limitations under the License.
           <q-btn
             flat
             dense
-            color="primary"
-            v-close-popup
-            size="sm"
-            icon="content_copy"
-            @click.stop="duplicateEndpoint()"
-          >
-            <q-tooltip> Copy </q-tooltip>
-          </q-btn>
-          <q-btn
-            flat
-            dense
-            color="primary"
-            v-close-popup
-            size="sm"
-            icon="delete"
-            @click="handleDeletionDialog"
-            data-test="delete-endpoint"
-          >
-            <q-tooltip> Delete </q-tooltip>
-          </q-btn>
-          <q-btn
-            flat
-            dense
-            color="primary"
-            icon="edit"
+            icon="o_edit"
             size="sm"
             v-close-popup
             @click="modifyEndpointDialog = !modifyEndpointDialog"
@@ -66,6 +42,28 @@ limitations under the License.
           >
             <q-tooltip> Edit </q-tooltip>
           </q-btn>
+          <q-btn
+            flat
+            dense
+            v-close-popup
+            size="sm"
+            icon="o_content_copy"
+            @click.stop="duplicateEndpoint()"
+          >
+            <q-tooltip> Copy </q-tooltip>
+          </q-btn>
+          <q-btn
+            flat
+            dense
+            v-close-popup
+            size="sm"
+            icon="o_delete"
+            @click="handleDeletionDialog"
+            data-test="delete-endpoint"
+          >
+            <q-tooltip> Delete </q-tooltip>
+          </q-btn>
+
           <q-btn
             v-if="getEndpointInformation"
             @click.stop="toggleShowAllInformationOfEndpoint(false)"
@@ -86,63 +84,52 @@ limitations under the License.
           />
         </div>
       </div>
-      <q-list dense bordered v-if="getEndpointInformation">
-        <br />
-        <q-item class="row">
-          <div class="col-6">
-            <strong>Device</strong>
-          </div>
-          <div class="col-6">
-            {{ getDeviceOptionLabel() }}
-          </div>
-        </q-item>
-        <q-item class="row">
-          <div class="col-6">
-            <strong>Network</strong>
-          </div>
-          <div class="col-6">
-            {{ networkId[endpointReference] }}
-          </div>
-        </q-item>
-        <q-item class="row" v-if="$store.state.zap.isProfileIdShown">
-          <div class="col-6">
-            <strong>Profile ID</strong>
-          </div>
-          <div class="col-6">
-            {{ asHex(profileId[endpointReference], 4) }}
-          </div>
-        </q-item>
-        <q-item class="row">
-          <div class="col-6">
-            <strong>Version</strong>
-          </div>
-          <div class="col-6">{{ endpointVersion[endpointReference] }}</div>
-        </q-item>
-        <q-item class="row">
-          <div class="col-6">
-            <strong>Enabled Clusters</strong>
-          </div>
-          <div class="col-6" data-test="endpoint-enabled-clusters-amount">
-            {{ selectedServers.length }}
-          </div>
-        </q-item>
-        <q-item class="row">
-          <div class="col-6">
-            <strong>Enabled Attributes</strong>
-          </div>
-          <div class="col-6" data-test="endpoint-enabled-attributes-amount">
-            {{ selectedAttributes.length }}
-          </div>
-        </q-item>
-        <q-item class="row">
-          <div class="col-6">
-            <strong>Enabled Reporting</strong>
-          </div>
-          <div class="col-6">
-            {{ selectedReporting.length }}
-          </div>
-        </q-item>
-      </q-list>
+      <q-slide-transition>
+        <q-list class="cursor-pointer" dense v-if="getEndpointInformation">
+          <q-item class="row">
+            <div class="col-6">Device</div>
+            <div class="col-6">
+              <strong>{{ getDeviceOptionLabel() }}</strong>
+            </div>
+          </q-item>
+          <q-item class="row">
+            <div class="col-6">Network</div>
+            <div class="col-6">
+              <strong> {{ networkId[endpointReference] }}</strong>
+            </div>
+          </q-item>
+          <q-item class="row" v-if="$store.state.zap.isProfileIdShown">
+            <div class="col-6">Profile ID</div>
+            <div class="col-6">
+              <strong> {{ asHex(profileId[endpointReference], 4) }}</strong>
+            </div>
+          </q-item>
+          <q-item class="row">
+            <div class="col-6">Version</div>
+            <div class="col-6">
+              <strong>{{ endpointVersion[endpointReference] }} </strong>
+            </div>
+          </q-item>
+          <q-item class="row">
+            <div class="col-6">Enabled Clusters</div>
+            <div class="col-6" data-test="endpoint-enabled-clusters-amount">
+              <strong>{{ selectedServers.length }}</strong>
+            </div>
+          </q-item>
+          <q-item class="row">
+            <div class="col-6">Enabled Attributes</div>
+            <div class="col-6" data-test="endpoint-enabled-attributes-amount">
+              <strong>{{ selectedAttributes.length }}</strong>
+            </div>
+          </q-item>
+          <q-item class="row">
+            <div class="col-6">Enabled Reporting</div>
+            <div class="col-6">
+              <strong>{{ selectedReporting.length }}</strong>
+            </div>
+          </q-item>
+        </q-list>
+      </q-slide-transition>
     </q-card>
     <q-dialog
       v-model="modifyEndpointDialog"
@@ -444,8 +431,20 @@ export default {
 }
 </script>
 
-<style scoped lang="sass">
-.q-card
-  border-width: 1px
-  border-color: $primary
+<style scoped lang="scss">
+.q-card {
+  color: $grey;
+  border-radius: 8px;
+  .q-list {
+    font-size: 12px;
+    .q-item {
+      min-height: 0;
+      padding: 3px 16px;
+    }
+  }
+  &.active {
+    color: #fff;
+    background: var(--q-primary);
+  }
+}
 </style>
