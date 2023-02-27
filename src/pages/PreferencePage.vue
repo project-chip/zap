@@ -28,6 +28,7 @@ limitations under the License.
             icon="mdi-file-document-edit-outline"
             label="Generation"
           />
+          <q-tab name="about" icon="mdi-lan" label="About" />
         </q-tabs>
       </template>
 
@@ -50,6 +51,10 @@ limitations under the License.
           <q-tab-panel name="gen">
             <PreferenceGeneration />
           </q-tab-panel>
+
+          <q-tab-panel name="about">
+            <About />
+          </q-tab-panel>
         </q-tab-panels>
       </template>
     </q-splitter>
@@ -59,12 +64,14 @@ limitations under the License.
 import PreferencePackage from './PreferencePackage.vue'
 import PreferenceGeneration from './PreferenceGeneration.vue'
 import PreferenceUser from './PreferenceUser.vue'
+import About from './AboutPage.vue'
 export default {
   name: 'PreferencePage',
   components: {
     PreferencePackage,
     PreferenceGeneration,
     PreferenceUser,
+    About,
   },
   data() {
     return {

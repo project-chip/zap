@@ -1,8 +1,5 @@
 <template>
   <div class="q-pa-md">
-    <q-toolbar class="shadow-2">
-      <q-btn icon="arrow_back" to="/" label="Back" data-test="go-back-button" />
-    </q-toolbar>
     <q-table
       title="Notifications"
       :rows="notis"

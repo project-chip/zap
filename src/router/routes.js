@@ -23,7 +23,7 @@ const routes = [
   {
     path: '/',
     name: 'Home',
-    component: () => import('layouts/ZclLayout.vue'),
+    component: () => import('layouts/MainLayout.vue'),
     children: [
       { path: '', component: () => import('layouts/ZclLayout.vue') }, // Consider making this a "New Project" page
     ],
@@ -48,7 +48,10 @@ const routes = [
   {
     path: '/notifications',
     name: 'notifications',
-    component: () => import('pages/NotificationsPage.vue'),
+    component: () => import('layouts/MainLayout.vue'),
+    children: [
+      { path: '', component: () => import('pages/NotificationsPage.vue') }, // Consider making this a "New Project" page
+    ],
   },
 ]
 
