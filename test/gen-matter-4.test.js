@@ -83,6 +83,36 @@ test(
       { disableDeprecationWarnings: true }
     )
     expect(genResult.hasErrors).toEqual(false)
+
+    let ept = genResult.content['endpoint_config.h']
+    expect(ept).toContain(`{ \\
+      /* Endpoint: 65534, Cluster: Network Commissioning (server) */ \\
+      .clusterId = 0x00000031, \\
+      .attributes = ZAP_ATTRIBUTE_INDEX(729), \\
+      .attributeCount = 10, \\
+      .clusterSize = 0, \\
+      .mask = ZAP_CLUSTER_MASK(SERVER), \\
+      .functions = NULL, \\
+      .acceptedCommandList = ZAP_GENERATED_COMMANDS_INDEX( 244 ), \\
+      .generatedCommandList = ZAP_GENERATED_COMMANDS_INDEX( 251 ), \\
+    },\\`)
+
+    expect(ept).toContain(`#define GENERATED_ENDPOINT_TYPES { \\
+  { ZAP_CLUSTER_INDEX(0), 29, 377 }, \\
+  { ZAP_CLUSTER_INDEX(29), 46, 3516 }, \\
+  { ZAP_CLUSTER_INDEX(75), 5, 105 }, \\
+  { ZAP_CLUSTER_INDEX(80), 1, 0 }, \\
+}`)
+    expect(ept).toContain(
+      `{ 0x00000005, ZAP_TYPE(ENUM8), 1, ZAP_ATTRIBUTE_MASK(EXTERNAL_STORAGE) | ZAP_ATTRIBUTE_MASK(NULLABLE), ZAP_EMPTY_DEFAULT() }, /* LastNetworkingStatus */`
+    )
+    expect(ept).toContain(
+      '{ (uint16_t)0xFF, (uint16_t)0x64, (uint16_t)0xFFFF }, /* BallastFactorAdjustment */'
+    )
+    expect(ept).toContain(`6, 'C', 'o', 'f', 'f', 'e', 'e', \\`)
+    expect(ept).toContain(
+      '{ (uint16_t)-0x64, (uint16_t)-0x96, (uint16_t)0xC8 }'
+    )
   },
   testUtil.timeout.long()
 )
