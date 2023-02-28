@@ -115,10 +115,17 @@ jobs:
         os: [ubuntu-22.04]
 
     steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3.0.0
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
       - name: Download jest coverage artifact
         uses: actions/download-artifact@v3
         with:
           name: jest-coverage
+      - run: npm ci
       - run: npm run report
       - name: Codecov
         uses: codecov/codecov-action@v3.1.1
