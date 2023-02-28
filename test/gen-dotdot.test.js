@@ -99,6 +99,7 @@ test(
     expect(genResult).not.toBeNull()
     expect(genResult.partial).toBeFalsy()
     expect(genResult.content).not.toBeNull()
+    expect(genResult.hasErrors).toBeFalsy()
 
     let epc = genResult.content['test1.h']
     expect(epc).not.toBeNull()

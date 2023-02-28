@@ -313,6 +313,87 @@ function isTwoBytePrefixedString(type) {
   return type == 'long_char_string' || type == 'long_octet_string'
 }
 
+/**
+ * Given a zcl device type returns its sign, size and zcl data type info stored
+ * in the database table.
+ * Note: Enums and Bitmaps are considered to be unsigned.
+ * @param {*} type
+ * @param {*} context
+ * @param {*} options
+ * @returns returns sign, size and info of zcl device type
+ * Available Options:
+ * - size: Determine whether to calculate the size of zcl device type in bits
+ * or bytes
+ * for eg: getSignAndSizeOfZclType('int8u' this size='bits') will return
+ * the size in bits which will be 8. If not mentioned then it will return the size
+ * in bytes i.e. 1 in this case.
+ */
+async function getSignAndSizeOfZclType(db, type, packageIds, options) {
+  let isTypeSigned = false
+  let dataTypesize = 0
+  let sizeMultiple = 1
+  let isKnown = true
+
+  if (options && options.size == 'bits') {
+    sizeMultiple = 8
+  }
+
+  // Extracting the type in the data type table
+  let dataType = await queryZcl.selectDataTypeByName(db, type, packageIds)
+
+  // Checking if the type is signed or unsigned
+  if (
+    dataType &&
+    dataType.discriminatorName.toLowerCase() == dbEnum.zclType.number
+  ) {
+    let number = await queryZcl.selectNumberByName(
+      db,
+      packageIds,
+      dataType.name
+    )
+    if (number.isSigned) {
+      isTypeSigned = true
+    }
+  }
+
+  // Extracting the size of the data type
+  if (dataType) {
+    if (dataType.discriminatorName.toLowerCase() == dbEnum.zclType.bitmap) {
+      let bitmap = await queryZcl.selectBitmapByName(
+        db,
+        packageIds,
+        dataType.name
+      )
+      dataTypesize = Math.pow(2, Math.ceil(Math.log2(bitmap.size)))
+    } else if (
+      dataType.discriminatorName.toLowerCase() == dbEnum.zclType.enum
+    ) {
+      let en = await queryZcl.selectEnumByName(db, dataType.name, packageIds)
+      dataTypesize = Math.pow(2, Math.ceil(Math.log2(en.size)))
+    } else if (
+      dataType.discriminatorName.toLowerCase() == dbEnum.zclType.number
+    ) {
+      let number = await queryZcl.selectNumberByName(
+        db,
+        packageIds,
+        dataType.name
+      )
+      dataTypesize = Math.pow(2, Math.ceil(Math.log2(number.size)))
+    }
+  } else {
+    isKnown = false
+  }
+  let ret = {
+    isTypeSigned: isTypeSigned,
+    dataTypesize: dataTypesize * sizeMultiple,
+    dataType: dataType,
+  }
+  // If this type was not defined, we tag it as `isNotDefined=true`.
+  // One day we will do something better...
+  if (!isKnown) ret.isNotDefined = true
+  return ret
+}
+
 exports.typeSize = typeSize
 exports.typeSizeAttribute = typeSizeAttribute
 exports.longTypeDefaultValue = longTypeDefaultValue
@@ -324,3 +405,4 @@ exports.isFloat = isFloat
 exports.isSignedInteger = isSignedInteger
 exports.convertIntToBigEndian = convertIntToBigEndian
 exports.convertFloatToBigEndian = convertFloatToBigEndian
+exports.getSignAndSizeOfZclType = getSignAndSizeOfZclType

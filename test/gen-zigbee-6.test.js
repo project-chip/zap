@@ -97,6 +97,7 @@ test(
         disableDeprecationWarnings: true,
       }
     )
+    expect(genResult.hasErrors).toBeFalsy()
 
     let pv3 = genResult.content['zap-command-parser-ver-3.c']
     // Test Cluster command parsers that should be defined

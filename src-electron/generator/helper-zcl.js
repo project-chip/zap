@@ -1055,6 +1055,7 @@ function command_arguments_total_length(commandId) {
 async function zcl_command_arguments(options) {
   let commandArgs = this.commandArgs
 
+  let packageIds = await templateUtil.ensureZclPackageIds(this)
   // When we are coming from commant_tree, then
   // the commandArgs are already present and there is no need
   // to do additional queries.
@@ -1066,7 +1067,6 @@ async function zcl_command_arguments(options) {
         this.id
       )
     } else {
-      let packageIds = await templateUtil.ensureZclPackageIds(this)
       commandArgs = await queryCommand.selectAllCommandArguments(
         this.global.db,
         packageIds
@@ -1075,9 +1075,10 @@ async function zcl_command_arguments(options) {
   }
   // Adding command argument type size and sign
   for (let i = 0; i < commandArgs.length; i++) {
-    let sizeAndSign = await get_sign_and_size_of_zcl_type(
+    let sizeAndSign = await types.getSignAndSizeOfZclType(
+      this.global.db,
       commandArgs[i].type,
-      this,
+      packageIds,
       options
     )
     commandArgs[i].typeSize = sizeAndSign.dataTypesize
@@ -2490,90 +2491,6 @@ async function format_zcl_string_as_characters_for_generated_defaults(
 }
 
 /**
- * Given a zcl device type returns its sign, size and zcl data type info stored
- * in the database table.
- * Note: Enums and Bitmaps are considered to be unsigned.
- * @param {*} type
- * @param {*} context
- * @param {*} options
- * @returns returns sign, size and info of zcl device type
- * Available Options:
- * - size: Determine whether to calculate the size of zcl device type in bits
- * or bytes
- * for eg: get_sign_and_size_of_zcl_type('int8u' this size='bits') will return
- * the size in bits which will be 8. If not mentioned then it will return the size
- * in bytes i.e. 1 in this case.
- */
-async function get_sign_and_size_of_zcl_type(type, context, options) {
-  const packageIds = await templateUtil.ensureZclPackageIds(context)
-  let isTypeSigned = false
-  let dataTypesize = 0
-  let sizeMultiple = 1
-  if (options && options.size == 'bits') {
-    sizeMultiple = 8
-  }
-
-  // Extracting the type in the data type table
-  let dataType = await queryZcl.selectDataTypeByName(
-    context.global.db,
-    type,
-    packageIds
-  )
-
-  // Checking if the type is signed or unsigned
-  if (
-    dataType &&
-    dataType.discriminatorName.toLowerCase() == dbEnum.zclType.number
-  ) {
-    let number = await queryZcl.selectNumberByName(
-      context.global.db,
-      packageIds,
-      dataType.name
-    )
-    if (number.isSigned) {
-      isTypeSigned = true
-    }
-  }
-
-  // Extracting the size of the data type
-  if (dataType) {
-    if (dataType.discriminatorName.toLowerCase() == dbEnum.zclType.bitmap) {
-      let bitmap = await queryZcl.selectBitmapByName(
-        context.global.db,
-        packageIds,
-        dataType.name
-      )
-      dataTypesize = Math.pow(2, Math.ceil(Math.log2(bitmap.size)))
-    } else if (
-      dataType.discriminatorName.toLowerCase() == dbEnum.zclType.enum
-    ) {
-      let en = await queryZcl.selectEnumByName(
-        context.global.db,
-        dataType.name,
-        packageIds
-      )
-      dataTypesize = Math.pow(2, Math.ceil(Math.log2(en.size)))
-    } else if (
-      dataType.discriminatorName.toLowerCase() == dbEnum.zclType.number
-    ) {
-      let number = await queryZcl.selectNumberByName(
-        context.global.db,
-        packageIds,
-        dataType.name
-      )
-      dataTypesize = Math.pow(2, Math.ceil(Math.log2(number.size)))
-    }
-  } else {
-    env.logError(`Data Type ${type} is not defined in the data type table.`)
-  }
-  return {
-    isTypeSigned: isTypeSigned,
-    dataTypesize: dataTypesize * sizeMultiple,
-    dataType: dataType,
-  }
-}
-
-/**
  * Given a zcl data type return the min allowed value for that zcl data type
  * based on the language specified in the options
  * @param {*} type
@@ -2586,9 +2503,15 @@ async function get_sign_and_size_of_zcl_type(type, context, options) {
  * Note: If language is not specified then helper throws an error.
  */
 async function as_type_min_value(type, options) {
-  let signAndSize = await get_sign_and_size_of_zcl_type(type, this, {
-    size: 'bits',
-  })
+  let packageIds = await templateUtil.ensureZclPackageIds(this)
+  let signAndSize = await types.getSignAndSizeOfZclType(
+    this.global.db,
+    type,
+    packageIds,
+    {
+      size: 'bits',
+    }
+  )
   let isTypeSigned = signAndSize.isTypeSigned
   let dataTypesize = signAndSize.dataTypesize
   let dataType = signAndSize.dataType
@@ -2629,9 +2552,15 @@ due to no language option specified in the template'
  * bits.
  */
 async function as_type_max_value(type, options) {
-  let signAndSize = await get_sign_and_size_of_zcl_type(type, this, {
-    size: 'bits',
-  })
+  let packageIds = await templateUtil.ensureZclPackageIds(this)
+  let signAndSize = await types.getSignAndSizeOfZclType(
+    this.global.db,
+    type,
+    packageIds,
+    {
+      size: 'bits',
+    }
+  )
   let isTypeSigned = signAndSize.isTypeSigned
   let dataTypesize = signAndSize.dataTypesize
   let dataType = signAndSize.dataType
@@ -2690,7 +2619,12 @@ async function structs_with_clusters(options) {
  * @returns size of zcl type
  */
 async function as_zcl_type_size(type, options) {
-  let signAndSize = await get_sign_and_size_of_zcl_type(type, this)
+  let packageIds = await templateUtil.ensureZclPackageIds(this)
+  let signAndSize = await types.getSignAndSizeOfZclType(
+    this.global.db,
+    type,
+    packageIds
+  )
   let dataTypesize = signAndSize.dataTypesize
   if (dataTypesize != 0) {
     return dataTypesize
