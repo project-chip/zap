@@ -82,8 +82,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
-      - run: sudo apt-get update
-      - run: sudo apt-get install --fix-missing libpixman-1-dev libcairo-dev libsdl-pango-dev libjpeg-dev libgif-dev libxml2-utils
+      - run: sudo ./src-script/install-packages-ubuntu
       - run: node --version
       - run: npm --version
       - run: npm ci
@@ -125,6 +124,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: jest-coverage
+      - run: sudo ./src-script/install-packages-ubuntu
       - run: npm ci
       - run: npm run report
       - name: Codecov
