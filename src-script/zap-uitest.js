@@ -40,7 +40,7 @@ function printUsage() {
 
 This program executes the Cypress unit tests. 
 Valid modes:
-   run  -  [default] Executes all the Cypress tests in the headless mode. You might need to run via xvfb-run in a headless environment.
+   run  -  [default] Executes all the Cypress tests in the headless mode.
    open -  Executes Cypress UI for manual run of the tests.`)
   process.exit(0)
 }

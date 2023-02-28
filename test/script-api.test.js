@@ -31,7 +31,7 @@ const queryEndpoint = require('../src-electron/db/query-endpoint')
 const dbEnum = require('../src-shared/db-enum')
 const utilJs = require('../src-electron/util/util')
 
-let testFile = path.join(__dirname, 'resource/three-endpoint-device.zap')
+let testFile = testUtil.zigbeeTestFile.threeEp
 let testScript2 = path.join(__dirname, 'resource/test-script-2.js')
 let testScript3 = path.join(__dirname, 'resource/test-script-3.js')
 let testScript4 = path.join(__dirname, 'resource/test-script-4.js')
