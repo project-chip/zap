@@ -83,6 +83,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
       - run: sudo ./src-script/install-packages-ubuntu
+      - run: sudo apt-get install --fix-missing libxml2-utils
       - run: node --version
       - run: npm --version
       - run: npm ci
