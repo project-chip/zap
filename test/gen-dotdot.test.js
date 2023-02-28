@@ -28,7 +28,7 @@ const testUtil = require('./test-util.js')
 const queryPackage = require('../src-electron/db/query-package.js')
 
 let db
-const testFile = path.join(__dirname, 'resource/three-endpoint-device.zap')
+const testFile = testUtil.zigbeeTestFile.threeEp
 let sessionId
 let templateContext
 let zclContext
