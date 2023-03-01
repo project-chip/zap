@@ -34,7 +34,7 @@ const bin = require('../src-electron/util/bin.ts')
 
 let db
 const templateCount = testUtil.testTemplate.zigbeeCount
-const testFile = path.join(__dirname, 'resource/three-endpoint-device.zap')
+const testFile = testUtil.zigbeeTestFile.threeEp
 let sessionId
 let templateContext
 let zclContext

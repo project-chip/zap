@@ -124,6 +124,11 @@
       "path": "16.zapt",
       "name": "Test 16",
       "output": "16.out"
+    },
+    {
+      "path": "endpoint_config.zapt",
+      "name": "Endpoint Config",
+      "output": "endpoint_config.h"
     }
   ]
 }

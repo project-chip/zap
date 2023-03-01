@@ -28,7 +28,7 @@ const testUtil = require('./test-util.js')
 const queryPackage = require('../src-electron/db/query-package.js')
 
 let db
-const testFile = path.join(__dirname, 'resource/three-endpoint-device.zap')
+const testFile = testUtil.zigbeeTestFile.threeEp
 let sessionId
 let templateContext
 let zclContext
@@ -99,6 +99,7 @@ test(
     expect(genResult).not.toBeNull()
     expect(genResult.partial).toBeFalsy()
     expect(genResult.content).not.toBeNull()
+    expect(genResult.hasErrors).toBeFalsy()
 
     let epc = genResult.content['test1.h']
     expect(epc).not.toBeNull()

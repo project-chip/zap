@@ -84,10 +84,7 @@ describe('Miscelaneous REST API tests', () => {
     () =>
       axiosInstance
         .post(`${restApi.ide.open}?sessionId=${sessionUuid}`, {
-          zapFilePath: path.join(
-            __dirname,
-            'resource/three-endpoint-device.zap'
-          ),
+          zapFilePath: testUtil.zigbeeTestFile.threeEp,
         })
         .then((response) => {
           expect(response.status).toBe(StatusCodes.OK)

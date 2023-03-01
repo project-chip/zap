@@ -40,7 +40,7 @@ jobs:
       - run: npm rebuild canvas --update-binary
       - run: npm rebuild libxmljs --update-binary
       - run: npm run build-spa
-      - run: xvfb-run -a npm run test:e2e-ci
+      - run: npm run test:e2e-ci
 
   cypress-matter:
     name: Cypress UI tests with Matter data
@@ -64,7 +64,7 @@ jobs:
       - run: npm rebuild canvas --update-binary
       - run: npm rebuild libxmljs --update-binary
       - run: npm run build-spa
-      - run: xvfb-run -a npm run test:e2e-matter-ci
+      - run: npm run test:e2e-matter-ci
 
   generate-and-backend-tests:
     name: Generation and back-end tests
@@ -82,8 +82,8 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
-      - run: sudo apt-get update
-      - run: sudo apt-get install --fix-missing libpixman-1-dev libcairo-dev libsdl-pango-dev libjpeg-dev libgif-dev libxml2-utils
+      - run: sudo ./src-script/install-packages-ubuntu
+      - run: sudo apt-get install --fix-missing libxml2-utils
       - run: node --version
       - run: npm --version
       - run: npm ci
@@ -97,6 +97,11 @@ jobs:
       - run: npm run xml-validate
       - run: npm run self-check
       - run: npm run test:unit
+      - name: Upload code coverage artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: jest-coverage
+          path: jest-coverage/coverage-final.json
       - run: npm run test:gen
 
   code-coverage:
@@ -110,9 +115,21 @@ jobs:
         os: [ubuntu-22.04]
 
     steps:
-      - run: echo "npm run report"
-  #      - name: Codecov
-  #        uses: codecov/codecov-action@v3.1.1
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3.0.0
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      - name: Download jest coverage artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: jest-coverage
+      - run: sudo ./src-script/install-packages-ubuntu
+      - run: npm ci
+      - run: npm run report
+      - name: Codecov
+        uses: codecov/codecov-action@v3.1.1
 
   build-zap:
     name: Build ZAP

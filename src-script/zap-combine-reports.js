@@ -17,30 +17,31 @@
  */
 
 const scriptUtil = require('./script-util.js')
-
-let startTime = process.hrtime.bigint()
+const fs = require('fs')
 
 //workaround: executeCmd()/spawn() fails silently without complaining about missing path to electron
 process.env.PATH = process.env.PATH + ':/usr/local/bin/'
 
 scriptUtil
   .executeCmd({}, 'mkdir', ['-p', 'reports'])
-  .then(() =>
-    scriptUtil.executeCmd(
-      {},
-      'cp',
-      'cypress-coverage/coverage-final.json reports/from-cypress.json'.split(
-        ' '
+  .then(() => {
+    if (fs.existsSync('cypress-coverage/coverage-final.json'))
+      scriptUtil.executeCmd(
+        {},
+        'cp',
+        'cypress-coverage/coverage-final.json reports/from-cypress.json'.split(
+          ' '
+        )
       )
-    )
-  )
+  })
 
-  .then(() =>
-    scriptUtil.executeCmd({}, 'cp', [
-      'jest-coverage/coverage-final.json',
-      'reports/from-jest.json',
-    ])
-  )
+  .then(() => {
+    if (fs.existsSync('jest-coverage/coverage-final.json'))
+      scriptUtil.executeCmd({}, 'cp', [
+        'jest-coverage/coverage-final.json',
+        'reports/from-jest.json',
+      ])
+  })
 
   .then(() => scriptUtil.executeCmd({}, 'npx', ['nyc', 'merge', 'reports']))
   .then(() =>
