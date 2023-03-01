@@ -14,14 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <template>
-  <div>
-    <div class="text-h4 q-mb-md">Zcl packages</div>
-    <p>Zcl packages.</p>
+  <PreferencePageLayout>
+    <template #title> Generation</template>
     <q-table
       class="my-sticky-header-table"
       :rows="packages"
       :columns="columns"
-      v-model:pagination="pagination"
+      :pagination="pagination"
       row-key="<b>name</b>"
       dense
       flat
@@ -32,43 +31,37 @@ limitations under the License.
     >
       <template v-slot:pagination> </template>
     </q-table>
-  </div>
+  </PreferencePageLayout>
 </template>
 <script>
+import PreferencePageLayout from '../../layouts/PreferencePageLayout.vue'
+
 export default {
-  name: 'PreferencePackage',
+  name: 'PreferenceGeneration',
+  components: {
+    PreferencePageLayout,
+  },
   data() {
     return {
+      activePackage: {},
       columns: [
         {
-          name: 'CATEGORY',
+          name: 'ID',
+          label: 'ID',
           align: 'left',
-          label: 'Category',
-          field: 'category',
-        },
-        {
-          name: 'DESCRIPTION',
-          align: 'left',
-          label: 'Description',
-          field: 'description',
-        },
-        {
-          name: 'PATH',
-          align: 'left',
-          label: 'Path',
-          field: 'path',
-        },
-        {
-          name: 'TYPE',
-          align: 'left',
-          label: 'Type',
-          field: 'type',
+          field: 'PACKAGE_ID',
         },
         {
           name: 'VERSION',
           align: 'left',
           label: 'Version',
-          field: 'version',
+          field: 'VERSION',
+        },
+        {
+          name: 'PATH',
+          align: 'left',
+          label: 'Path',
+          field: 'PATH',
         },
       ],
     }
@@ -76,7 +69,9 @@ export default {
   computed: {
     packages: {
       get() {
-        return this.$store.state.zap.allPackages
+        return this.$store.state.zap.allPackages.filter(
+          (singlePackage) => singlePackage.TYPE == 'gen-template'
+        )
       },
     },
     pagination: {
@@ -85,7 +80,7 @@ export default {
           sortBy: 'desc',
           descending: false,
           page: 1,
-          rowsPerPage: this.$store.state.zap.allPackages.length,
+          rowsPerPage: this.packages.length,
         }
       },
     },

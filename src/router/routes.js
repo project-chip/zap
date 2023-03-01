@@ -25,7 +25,13 @@ const routes = [
     name: 'Home',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      { path: '', component: () => import('layouts/ZclLayout.vue') }, // Consider making this a "New Project" page
+      {
+        path: '',
+        components: {
+          default: () => import('layouts/ZclLayout.vue'),
+          sidebar: () => import('components/MainSidebar.vue'),
+        },
+      }, // Consider making this a "New Project" page
     ],
   },
   {
@@ -38,12 +44,110 @@ const routes = [
     component: () => import('components/ZclCustomZclView.vue'),
   },
   {
-    path: '/preference',
-    component: () => import('pages/PreferencePage.vue'),
+    path: '/preferences/user',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [
+      {
+        path: '',
+        components: {
+          default: () => import('pages/preferences/PreferenceUser.vue'),
+          sidebar: () => import('components/SettingsSidebar.vue'),
+        },
+      },
+    ],
   },
   {
-    path: '/about',
-    component: () => import('pages/AboutPage.vue'),
+    path: '/preferences/generation',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [
+      {
+        path: '',
+        components: {
+          default: () => import('pages/preferences/PreferenceGeneration.vue'),
+          sidebar: () => import('components/SettingsSidebar.vue'),
+        },
+      },
+    ],
+  },
+  {
+    path: '/preferences/package',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [
+      {
+        path: '',
+        components: {
+          default: () => import('pages/preferences/PreferencePackage.vue'),
+          sidebar: () => import('components/SettingsSidebar.vue'),
+        },
+      },
+    ],
+  },
+  {
+    path: '/preferences/about',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [
+      {
+        path: '',
+        components: {
+          default: () => import('pages/preferences/AboutPage.vue'),
+          sidebar: () => import('components/SettingsSidebar.vue'),
+        },
+      },
+    ],
+  },
+  {
+    path: '/preferences/devtools/information-setup',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [
+      {
+        path: '',
+        components: {
+          default: () =>
+            import('pages/preferences/devtools/InformationSetup.vue'),
+          sidebar: () => import('components/SettingsSidebar.vue'),
+        },
+      },
+    ],
+  },
+  {
+    path: '/preferences/devtools/sql-query',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [
+      {
+        path: '',
+        components: {
+          default: () => import('pages/preferences/devtools/SqlQuery.vue'),
+          sidebar: () => import('components/SettingsSidebar.vue'),
+        },
+      },
+    ],
+  },
+  {
+    path: '/preferences/devtools/uc-components',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [
+      {
+        path: '',
+        components: {
+          default: () =>
+            import('pages/preferences/devtools/UcComponentSetup.vue'),
+          sidebar: () => import('components/SettingsSidebar.vue'),
+        },
+      },
+    ],
+  },
+  {
+    path: '/preferences/devtools/api-exceptions',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [
+      {
+        path: '',
+        components: {
+          default: () => import('pages/preferences/devtools/ApiExceptions.vue'),
+          sidebar: () => import('components/SettingsSidebar.vue'),
+        },
+      },
+    ],
   },
   {
     path: '/notifications',

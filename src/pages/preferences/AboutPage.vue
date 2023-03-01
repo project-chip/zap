@@ -14,29 +14,30 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <template>
-  <div style="width: 800px; max-width: 800px; height: 500px; max-height: 500px">
-    <q-card>
-      <q-card-section
-        ><q-img src="~assets/zap_splash.png">
-          <div class="absolute-bottom text-subtitle1 text-center">
-            Version {{ version }} (feature level: {{ featureLevel }}, commit #{{
-              hash
-            }}
-            from {{ date }})
-            <br />
-            &copy; 2020 by the authors. Released as open-source, under terms of
-            Apache 2.0 license. {{ version }}
-          </div>
-        </q-img>
-      </q-card-section>
-    </q-card>
-  </div>
+  <PreferencePageLayout>
+    <template #title>About </template>
+    <q-img src="~assets/zap_splash.png">
+      <div class="absolute-bottom text-subtitle1 text-center">
+        Version {{ version }} (feature level: {{ featureLevel }}, commit #{{
+          hash
+        }}
+        from {{ date }})
+        <br />
+        &copy; 2020 by the authors. Released as open-source, under terms of
+        Apache 2.0 license. {{ version }}
+      </div>
+    </q-img>
+  </PreferencePageLayout>
 </template>
 <script>
-const restApi = require(`../../src-shared/rest-api.js`)
+const restApi = require(`../../../src-shared/rest-api.js`)
+import PreferencePageLayout from '../../layouts/PreferencePageLayout.vue'
 
 export default {
   name: 'AboutPage',
+  components: {
+    PreferencePageLayout,
+  },
   mounted() {
     if (this.$serverGet != null) {
       this.$serverGet(restApi.uri.version).then((result) => {
