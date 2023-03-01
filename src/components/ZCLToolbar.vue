@@ -104,7 +104,7 @@
       class="cursor-pointer"
       flat
       no-caps
-      to="/preference"
+      to="/preferences/user"
       id="Settings"
       color="grey"
     >

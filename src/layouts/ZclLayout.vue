@@ -185,7 +185,7 @@ import Exceptions from '../components/ZclExceptions.vue'
 import ZclInformationSetup from '../components/ZclInformationSetup.vue'
 import ZclConfiguratorLayout from './ZclConfiguratorLayout.vue'
 import SqlQuery from '../components/SqlQuery.vue'
-import About from '../pages/AboutPage.vue'
+import About from '../pages/preferences/AboutPage.vue'
 import CommonMixin from '../util/common-mixin'
 import { startTour } from '../boot/tour'
 

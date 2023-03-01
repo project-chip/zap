@@ -22,7 +22,7 @@ module.exports = configure(function (ctx) {
 
     // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-css
     css: ['app.sass'],
-
+    animations: ['fadeInLeft', 'fadeOutLeft'],
     // https://github.com/quasarframework/quasar/tree/dev/extras
     extras: [
       'material-icons', // optional, you are not bound to it

@@ -15,9 +15,6 @@ limitations under the License.
 -->
 <template>
   <div>
-    <q-toolbar class="shadow-2">
-      <q-btn icon="arrow_back" to="/" label="Back" data-test="go-back-button" />
-    </q-toolbar>
     <q-splitter v-model="splitterModel" style="height: 100%">
       <template v-slot:before>
         <q-tabs v-model="tab" vertical class="text-teal">

@@ -48,7 +48,7 @@
                   :rows="zclPropertiesRow"
                   :columns="newSessionCol"
                   row-key="name"
-                  v-model:pagination="newGenerationPagination"
+                  :pagination="newGenerationPagination"
                   hide-bottom
                 >
                   <template v-slot:header="props">
@@ -89,7 +89,7 @@
                   :rows="zclGenRow"
                   :columns="newSessionCol"
                   row-key="name"
-                  v-model:pagination="newGenerationPagination"
+                  :pagination="newGenerationPagination"
                   hide-bottom
                 >
                   <template v-slot:top>
@@ -137,7 +137,7 @@
                   :rows="loadPreSessionData"
                   :columns="loadPreSessionCol"
                   row-key="name"
-                  v-model:pagination="pagination"
+                  :pagination="pagination"
                 >
                   <template v-slot:header="props">
                     <q-tr :props="props">

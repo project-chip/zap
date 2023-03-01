@@ -3,7 +3,6 @@
     <q-header class="transparent">
       <ZCLToolbar />
     </q-header>
-
     <q-drawer
       class="bg-glass"
       v-model="drawer"
@@ -47,44 +46,20 @@
       </div>
 
       <q-scroll-area style="height: calc(100% - 53.8px); margin-top: 53.8px">
-        <q-list padding class="menu-list">
-          <q-item clickable v-ripple>
-            <q-item-section avatar>
-              <q-icon name="inbox" />
-            </q-item-section>
-
-            <q-item-section> Inbox </q-item-section>
-          </q-item>
-
-          <q-item active clickable v-ripple>
-            <q-item-section avatar>
-              <q-icon name="star" />
-            </q-item-section>
-
-            <q-item-section> Star </q-item-section>
-          </q-item>
-
-          <q-item clickable v-ripple>
-            <q-item-section avatar>
-              <q-icon name="send" />
-            </q-item-section>
-
-            <q-item-section> Send </q-item-section>
-          </q-item>
-
-          <q-item clickable v-ripple>
-            <q-item-section avatar>
-              <q-icon name="drafts" />
-            </q-item-section>
-
-            <q-item-section> Drafts </q-item-section>
-          </q-item>
-        </q-list>
+        <router-view v-slot="{ Component }" name="sidebar">
+          <transition mode="out-in" name="slide-left">
+            <component :is="Component" />
+          </transition>
+        </router-view>
       </q-scroll-area>
     </q-drawer>
+
     <q-page-container>
-      <!-- TODO: modify this height -->
-      <router-view></router-view>
+      <router-view v-slot="{ Component }">
+        <transition mode="out-in" name="slide-down">
+          <component :is="Component" />
+        </transition>
+      </router-view>
     </q-page-container>
   </q-layout>
 </template>
@@ -147,5 +122,35 @@ export default {
 }
 .q-drawer {
   background: transparent;
+}
+
+.slide-left-leave-active,
+.slide-left-enter-active {
+  transition: all 0.25s ease-out;
+}
+
+.slide-left-enter-from {
+  opacity: 0;
+  transform: translateX(-100px);
+}
+
+.slide-left-leave-to {
+  opacity: 0;
+  transform: translateX(-100px);
+}
+
+.slide-down-leave-active,
+.slide-down-enter-active {
+  transition: all 0.5s ease-out;
+}
+
+.slide-down-enter-from {
+  opacity: 0;
+  transform: translateY(-75px);
+}
+
+.slide-down-leave-to {
+  opacity: 0;
+  transform: translateY(35px);
 }
 </style>
