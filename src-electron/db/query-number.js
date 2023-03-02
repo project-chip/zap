@@ -18,9 +18,9 @@
 /**
  * This module provides queries for numbers
  */
-
 const dbApi = require('./db-api')
 const dbMapping = require('./db-mapping')
+const dbCache = require('./db-cache')
 
 /**
  * Select an number matched by name.
@@ -98,6 +98,6 @@ async function selectAllNumbers(db, packageId) {
     .then((rows) => rows.map(dbMapping.map.number))
 }
 
-exports.selectNumberByName = selectNumberByName
+exports.selectNumberByName = dbCache.cacheQuery(selectNumberByName)
 exports.selectAllNumbers = selectAllNumbers
 exports.selectNumberById = selectNumberById

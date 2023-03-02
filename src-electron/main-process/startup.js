@@ -22,6 +22,7 @@ const _ = require('lodash')
 const YAML = require('yaml')
 
 const dbApi = require('../db/db-api.js')
+const dbCache = require('../db/db-cache.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const env = require('../util/env')
 const zclLoader = require('../zcl/zcl-loader.js')
@@ -631,6 +632,8 @@ async function startGeneration(argv, options) {
     )
   )
 
+  await dbApi.closeDatabase(mainDb)
+
   if (options.quitFunction != null) options.quitFunction()
 }
 /**
@@ -742,6 +745,11 @@ async function startUpMainInstance(argv, callbacks) {
     env.logInitStdout()
   } else {
     env.logInitLogFile()
+  }
+
+  if (argv.disableDbCaching) {
+    console.log('⛔ Dabatase caching is disabled.')
+    dbCache.disable()
   }
 
   // For now delete the DB file. There is some weird constraint we run into.

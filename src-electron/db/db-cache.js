@@ -22,15 +22,15 @@
  */
 const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
-
-const cacheEnabled = true
-let cache = {}
+const NodeCache = require('node-cache')
+const cache = new NodeCache({ useClones: false })
+let cacheEnabled = true
 
 /**
  * Clears the entire cache.
  */
 function clear() {
-  cache = {}
+  cache.flushAll()
 }
 
 /**
@@ -38,11 +38,10 @@ function clear() {
  * @param {*} key
  * @param {*} packageId
  * @param {*} data
+ * @returns Returns true on success.
  */
 function put(key, packageId, data) {
-  const keyCache = {}
-  keyCache[packageId] = data
-  cache[key] = keyCache
+  return cache.set(JSON.stringify([key, packageId]), data)
 }
 
 /**
@@ -50,15 +49,10 @@ function put(key, packageId, data) {
  *
  * @param {*} key
  * @param {*} packageId
- * @returns cached object or null if none is present
+ * @returns cached object or undefined if none is present or expired.
  */
 function get(key, packageId) {
-  const keyCache = cache[key]
-  if (keyCache != null) {
-    return keyCache[packageId]
-  } else {
-    return null
-  }
+  return cache.get(JSON.stringify([key, packageId]))
 }
 
 /**
@@ -69,13 +63,70 @@ function get(key, packageId) {
  * @returns true or false, depending on whether the cache is present.
  */
 function isCached(key, packageId) {
-  const keyCache = cache[key]
-  return keyCache != null && keyCache[packageId] != null
+  return cache.has(JSON.stringify([key, packageId]))
+}
+
+/**
+ * Cache input / output of provided queryFunction
+ * The queryFunction is assumed to have the following signature:
+ *
+ *   async function queryFunction(db, ...) {...}
+ *
+ * The DB handle is ignored and the remaining arguments are used as the cache key.
+ *
+ * @param {*} key
+ * @param {*} packageId
+ * @returns true or false, depending on whether the cache is present.
+ */
+function cacheQuery(queryFunction) {
+  return function () {
+    if (arguments.length && cacheEnabled) {
+      // assume queryFunction's first argument is always the DB connection handler
+      let key = JSON.stringify([
+        queryFunction.name,
+        Array.prototype.slice.call(arguments, 1),
+      ])
+
+      // check cache
+      let value = cache.get(key)
+      if (value == undefined) {
+        value = queryFunction.apply(this, arguments)
+        cache.set(key, value)
+      }
+      return value
+    } else {
+      return queryFunction.apply(this, arguments)
+    }
+  }
+}
+
+/**
+ * Returns the cache statistics.
+ *
+ */
+function cacheStats() {
+  return cache.getStats()
+}
+
+/**
+ * Enable the Database Query cache
+ */
+function enable() {
+  cacheEnabled = true
+}
+
+/**
+ * Disable the database cache
+ */
+function disable() {
+  cacheEnabled = false
 }
 
 exports.clear = clear
 exports.put = put
 exports.get = get
 exports.isCached = isCached
-
-exports.cacheEnabled = cacheEnabled
+exports.cacheQuery = cacheQuery
+exports.cacheStats = cacheStats
+exports.enable = enable
+exports.disable = disable

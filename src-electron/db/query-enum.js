@@ -21,6 +21,7 @@
  * @module DB API: zcl database access
  */
 const dbApi = require('./db-api')
+const dbCache = require('./db-cache')
 const dbMapping = require('./db-mapping')
 
 /**
@@ -211,8 +212,7 @@ ORDER BY NAME`,
 
 // exports
 exports.selectAllEnums = selectAllEnums
-exports.selectEnumByName = selectEnumByName
-
+exports.selectEnumByName = dbCache.cacheQuery(selectEnumByName)
 exports.selectEnumById = selectEnumById
 exports.selectClusterEnums = selectClusterEnums
 exports.selectAllEnumItemsById = selectAllEnumItemsById
