@@ -15,7 +15,7 @@ limitations under the License.
 -->
 
 <template>
-  <div>
+  <div class="q-px-lg">
     <div v-if="uiTheme === 'matter'">
       <h3 id="zcl-advanced-platform">Welcome to Matter</h3>
     </div>

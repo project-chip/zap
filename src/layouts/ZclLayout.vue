@@ -64,9 +64,9 @@ limitations under the License.
           <q-tooltip> Preferences </q-tooltip>
         </q-btn>
         <q-btn
-          v-if="this.$store.state.zap.showDevTools && false"
+          v-if="this.$store.state.zap.showDevTools"
           flat
-          @click="showTutorial"
+          @click="startTour"
           icon="psychology_alt"
         >
           <q-tooltip> Tutorial </q-tooltip>
@@ -120,7 +120,7 @@ limitations under the License.
                 </q-expansion-item>
               </q-scroll-area>
             </q-tab-panel>
-            <q-tab-panel :name="restApi.uiMode.ZIGBEE">
+            <q-tab-panel :name="restApi.uiMode.ZIGBEE" class="q-pa-none">
               <zcl-configurator-layout />
             </q-tab-panel>
           </q-tab-panels>
@@ -184,6 +184,8 @@ import ZclConfiguratorLayout from './ZclConfiguratorLayout.vue'
 import SqlQuery from '../components/SqlQuery.vue'
 import About from '../pages/AboutPage.vue'
 import CommonMixin from '../util/common-mixin'
+import { startTour } from '../boot/tour'
+
 const restApi = require(`../../src-shared/rest-api.js`)
 const rendApi = require(`../../src-shared/rend-api.js`)
 const observable = require('../util/observable.js')
@@ -193,9 +195,7 @@ export default {
   mixins: [CommonMixin],
   methods: {
     // This function will start vue tour steps
-    showTutorial() {
-      // this.$tours['ZclTour'].start()
-    },
+    startTour,
     togglePreviewTab() {
       this.$store.commit('zap/togglePreviewTab')
     },

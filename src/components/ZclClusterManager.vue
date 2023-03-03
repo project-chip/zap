@@ -15,95 +15,90 @@ limitations under the License.
 -->
 
 <template>
-  <div v-show="selectedEndpointTypeId.length != 0">
-    <q-scroll-area style="height: 100vh; max-width: 200vh">
-      <q-card flat square>
-        <div class="row">
-          <q-toolbar>
-            <q-toolbar-title style="font-weight: bolder">
-              <span class="v-step-6"
-                >Endpoint
-                {{ this.endpointId[this.selectedEndpointId] }} Clusters</span
-              >
-            </q-toolbar-title>
-          </q-toolbar>
-        </div>
-        <div class="row bar align=left section-header">
-          <div class="row">
-            <div
-              style="
-                vertical-align: middle;
-                text-align: center;
-                padding: 10px 0 0 0;
-              "
-            >
-              Show
-            </div>
-            &nbsp; &nbsp;
-
-            <div class="v-step-7">
-              <q-select
-                outlined
-                :model-value="filter"
-                :options="filterOptions"
-                dense
-                class="col-2"
-                @update:model-value="changeDomainFilter($event)"
-                data-test="filter-input"
-              />
-            </div>
-            &nbsp;
-            <div
-              v-for="actionOption in actionOptions"
-              :key="actionOption.label"
-            >
-              <q-btn
-                class="full-height"
-                outline
-                @click="doActionFilter(actionOption)"
-                :label="actionOption.label"
-              />
-            </div>
-          </div>
-          <q-space />
-          <q-input
-            dense
-            outlined
-            clearable
-            class="col-4"
-            placeholder="Search Clusters"
-            @update:model-value="changeFilterString($event)"
-            @clear="changeFilterString('')"
-            :model-value="filterString"
-            data-test="search-clusters"
+  <div v-if="selectedEndpointTypeId.length != 0" class="window-height">
+    <div class="row">
+      <q-toolbar>
+        <q-toolbar-title style="font-weight: bolder">
+          <span class="v-step-6"
+            >Endpoint
+            {{ this.endpointId[this.selectedEndpointId] }} Clusters</span
           >
-            <template v-slot:prepend>
-              <q-icon name="search" />
-            </template>
-          </q-input>
+        </q-toolbar-title>
+      </q-toolbar>
+    </div>
+    <div class="row bar align=left section-header">
+      <div class="row">
+        <div
+          style="
+            vertical-align: middle;
+            text-align: center;
+            padding: 10px 0 0 0;
+          "
+        >
+          Show
         </div>
-        <q-list style="padding-bottom: 250px">
-          <div v-for="(domainName, index) in domainNames" :key="domainName.id">
-            <div v-show="clusterDomains(domainName).length > 0">
-              <q-expansion-item
-                :id="domainName"
-                switch-toggle-side
-                :label="domainName"
-                :ref="domainName + index"
-                @update:model-value="setOpenDomain(domainName, $event)"
-                :model-value="getDomainOpenState(domainName)"
-                data-test="Cluster"
-              >
-                <zcl-domain-cluster-view
-                  :domainName="domainName"
-                  :clusters="clusterDomains(domainName)"
-                />
-              </q-expansion-item>
-              <q-separator />
-            </div>
+        &nbsp; &nbsp;
+
+        <div class="v-step-7">
+          <q-select
+            outlined
+            :model-value="filter"
+            :options="filterOptions"
+            dense
+            class="col-2"
+            @update:model-value="changeDomainFilter($event)"
+            data-test="filter-input"
+          />
+        </div>
+        &nbsp;
+        <div v-for="actionOption in actionOptions" :key="actionOption.label">
+          <q-btn
+            class="full-height"
+            outline
+            @click="doActionFilter(actionOption)"
+            :label="actionOption.label"
+          />
+        </div>
+      </div>
+      <q-space />
+      <q-input
+        dense
+        outlined
+        clearable
+        class="col-4"
+        placeholder="Search Clusters"
+        @update:model-value="changeFilterString($event)"
+        @clear="changeFilterString('')"
+        :model-value="filterString"
+        data-test="search-clusters"
+      >
+        <template v-slot:prepend>
+          <q-icon name="search" />
+        </template>
+      </q-input>
+    </div>
+    <q-scroll-area style="" class="fit q-px-md">
+      <q-list style="padding-bottom: 250px">
+        <div v-for="(domainName, index) in domainNames" :key="domainName.id">
+          <div v-show="clusterDomains(domainName).length > 0">
+            <q-expansion-item
+              :id="domainName"
+              switch-toggle-side
+              :label="domainName"
+              :ref="domainName + index"
+              @update:model-value="setOpenDomain(domainName, $event)"
+              :model-value="getDomainOpenState(domainName)"
+              data-test="Cluster"
+            >
+              <zcl-domain-cluster-view
+                :domainName="domainName"
+                :clusters="clusterDomains(domainName)"
+              />
+            </q-expansion-item>
+            <q-separator />
           </div>
-        </q-list>
-      </q-card>
+        </div>
+      </q-list>
     </q-scroll-area>
   </div>
 </template>
