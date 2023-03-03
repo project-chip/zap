@@ -26,14 +26,14 @@ limitations under the License.
     >
       <q-icon name="warning" style="font-size: 2.5em; color: red" />
     </q-btn>
-    <!-- <VueTour /> -->
+    <zcl-tour />
   </div>
 </template>
 
 <script>
 import { defineComponent } from 'vue'
 import { QSpinnerGears } from 'quasar'
-// import VueTour from './tutorials/VueTour.vue'
+import ZclTour from './tutorials/ZclTour.vue'
 import CommonMixin from './util/common-mixin'
 const rendApi = require(`../src-shared/rend-api.js`)
 const restApi = require(`../src-shared/rest-api.js`)
@@ -85,7 +85,7 @@ async function initLoad(store) {
 export default defineComponent({
   name: 'App',
   components: {
-    // VueTour,
+    ZclTour,
   },
   mixins: [CommonMixin],
   computed: {

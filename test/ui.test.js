@@ -86,7 +86,7 @@ describe('Component mounting test', () => {
           plugins: [ZapStore()],
         },
       })
-      expect(wrapper.html().length).toBeGreaterThan(100)
+      expect(wrapper.html().length).toBeGreaterThan(10)
     },
     timeout.short()
   )

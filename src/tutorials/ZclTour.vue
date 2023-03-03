@@ -16,10 +16,10 @@ limitations under the License.
 <template>
   <div>
     <v-tour
-      name="ZclTour"
+      ref="zcl-tour"
       :steps="tutorialSteps"
-      :callbacks="{ onFinish: disableTutorial, onSkip: disableTutorial }"
-    ></v-tour>
+      @onTourEnd="disableTutorial"
+    />
     <q-dialog
       v-model="deletingTutorialEndpoint"
       class="background-color:transparent"
@@ -48,8 +48,10 @@ limitations under the License.
 <script>
 import tutorialConfig from './tutorialConfig.json'
 import CommonMixin from '../util/common-mixin'
+import { setStartTour } from '../boot/tour'
+
 export default {
-  name: 'VueTour',
+  name: 'ZclTour',
   computed: {
     endpoints: {
       get() {
@@ -76,6 +78,9 @@ export default {
     },
   },
   methods: {
+    startTour() {
+      this.$refs['zcl-tour'].resetTour()
+    },
     // This function will create a endpoint for tutorial
     createNewEndpointForTour(resolve) {
       if (this.endpoints.length < 1) {
@@ -85,7 +90,11 @@ export default {
             deviceTypeRef: this.zclDeviceTypeOptions[0].deviceTypeRef,
           })
           .then((response) => {
-            let profileId = this.asHex(this.zclDeviceTypes[this.zclDeviceTypeOptions[0].deviceTypeRef].profileId, 4)
+            let profileId = this.asHex(
+              this.zclDeviceTypes[this.zclDeviceTypeOptions[0].deviceTypeRef]
+                .profileId,
+              4
+            )
             this.$store
               .dispatch(`zap/addEndpoint`, {
                 endpointId: parseInt(this.getSmallestUnusedEndpointId()),
@@ -160,7 +169,7 @@ export default {
     },
     // This function will disable tutorial
     disableTutorial() {
-      if (this.$router.currentRoute.path === '/') {
+      if (this.$route.path === '/') {
         this.$store.commit('zap/toggleTutorial', false)
         this.$store.commit('zap/triggerExpanded', false)
         this.endpoints.length > 0 ? this.handleDeletionDialog() : ''
@@ -242,7 +251,7 @@ export default {
     // This function will move user to the home page
     comeBackToHomePage() {
       return new Promise((resolve) => {
-        if (this.$router.currentRoute.path !== '/') {
+        if (this.$route.path !== '/') {
           this.$router.push({ name: 'Home' }).then(() => {
             this.$store.commit('zap/triggerExpanded', true)
             resolve()
@@ -255,7 +264,7 @@ export default {
     // This function will open the cluster configuration page
     openConfigure() {
       return new Promise((resolve) => {
-        if (this.$router.currentRoute.path === '/') {
+        if (this.$route.path === '/') {
           this.$store.commit('zap/triggerExpanded', false)
           this.$store
             .dispatch('zap/updateSelectedCluster', this.tourCluster)
@@ -264,7 +273,10 @@ export default {
                 'zap/refreshEndpointTypeCluster',
                 this.selectedEndpointTypeId
               )
-              this.$store.dispatch('zap/setLastSelectedDomain', this.$store.state.zap.domains[0])
+              this.$store.dispatch(
+                'zap/setLastSelectedDomain',
+                this.$store.state.zap.domains[0]
+              )
             })
           this.$router.push({ name: 'cluster' }).then(() => {
             resolve()
@@ -291,7 +303,7 @@ export default {
     // This function will change the tab of configuration page to commands
     openCommandsTabInCluster() {
       return new Promise((resolve) => {
-        if (this.$router.currentRoute.path === '/') {
+        if (this.$route.path === '/') {
           this.$router.push({ name: 'cluster' }).then(() => {
             setTimeout(() => {
               this.$store.commit('zap/openReportTabInCluster', 'commands')
@@ -309,7 +321,7 @@ export default {
     // This function will move user to the home page
     backToHomePage() {
       return new Promise((resolve) => {
-        if (this.$router.currentRoute.path !== '/') {
+        if (this.$route.path !== '/') {
           this.$store.commit('zap/openReportTabInCluster', 'attributes')
           this.$router.push({ name: 'Home' }).then(() => {
             resolve()
@@ -339,27 +351,37 @@ export default {
     }
   },
   mounted() {
-    if (this.$store.state.zap.showDevTools) {
-      this.$tours['ZclTour'].start()
-    }
+    setStartTour(() => this.startTour())
   },
   created() {
     let config = []
-    tutorialConfig.tutorialSteps.forEach((item) => {
+
+    const stepsCount = tutorialConfig.tutorialSteps.length
+    for (let i = 0; i < stepsCount; i++) {
+      const step = tutorialConfig.tutorialSteps[i]
+      const prevStep = i > 0 ? tutorialConfig.tutorialSteps[i - 1].before : null
+      const nextStep =
+        i + 1 < stepsCount ? tutorialConfig.tutorialSteps[i + 1].before : null
       config.push({
-        target: item.target,
-        header: {
-          title: item.title,
-        },
-        params: {
-          placement: item.placement,
-          enableScrolling: item.enableScrolling,
-          highlight: item.highlight,
-        },
-        content: item.content,
-        before: () => (item.before !== '' ? this[item.before]() : ''),
+        target: step.target,
+        // header: {
+        //   title: step.title,
+        // },
+        content: step.title
+          ? '<strong>' + step.title + '</strong><br/>' + step.content
+          : step.content,
+        placement: step.placement,
+        // params: {
+        //   enableScrolling: step.enableScrolling,
+        //   highlight: step.highlight,
+        // },
+        onNext: async () =>
+          nextStep !== null ? await this[nextStep]() : void 0,
+        onPrev: async () =>
+          prevStep !== null ? await this[prevStep]() : void 0,
       })
-    })
+    }
+
     this.tutorialSteps = config
   },
 }
