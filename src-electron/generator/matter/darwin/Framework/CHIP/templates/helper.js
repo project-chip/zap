@@ -734,7 +734,7 @@ async function availability(clusterName, options) {
   let availabilityStrings = Object.entries(introducedVersions).map(
     ([os, version]) => `${os}(${version}, ${deprecatedVersions[os]})`
   );
-  return `API_DEPRECATED("${
+  return `MTR_DEPRECATED("${
     options.hash.deprecationMessage
   }", ${availabilityStrings.join(', ')})`;
 }
