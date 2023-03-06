@@ -232,7 +232,7 @@ export default {
         this.$store.commit('zap/triggerExpanded', true)
         document
           .getElementsByClassName(
-            'q-select__dropdown-icon q-icon mdi mdi-menu-down'
+            ' q-icon material-icons q-expansion-item__toggle-icon'
           )[1]
           .click()
         resolve()
@@ -242,7 +242,7 @@ export default {
       return new Promise((resolve) => {
         document
           .getElementsByClassName(
-            'q-select__dropdown-icon q-icon mdi mdi-menu-down'
+            ' q-icon material-icons q-select__dropdown-icon'
           )[0]
           .click()
         resolve()
@@ -323,7 +323,7 @@ export default {
       return new Promise((resolve) => {
         if (this.$route.path !== '/') {
           this.$store.commit('zap/openReportTabInCluster', 'attributes')
-          this.$router.push({ name: 'Home' }).then(() => {
+          this.$router.push('/').then(() => {
             resolve()
           })
         } else {
@@ -368,7 +368,12 @@ export default {
         //   title: step.title,
         // },
         content: step.title
-          ? '<strong>' + step.title + '</strong><br/>' + step.content
+          ? '<strong>' +
+            i +
+            ' - ' +
+            step.title +
+            '</strong><br/>' +
+            step.content
           : step.content,
         placement: step.placement,
         // params: {

@@ -17,8 +17,7 @@ limitations under the License.
 <template>
   <div class="q-mx-md q-mb-sm">
     <q-card
-      class="v-step-5"
-      :class="{ active: isSelectedEndpoint }"
+      :class="{ 'active v-step-5': isSelectedEndpoint }"
       @click="setSelectedEndpointType(endpointReference)"
       flat
     >
