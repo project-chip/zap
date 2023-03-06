@@ -7,7 +7,7 @@
       class="bg-glass"
       v-model="drawer"
       show-if-above
-      :width="200"
+      :width="300"
       :breakpoint="500"
       style="border-right: 1px solid #ddd"
     >

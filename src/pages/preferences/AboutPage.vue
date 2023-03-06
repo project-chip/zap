@@ -25,6 +25,12 @@ limitations under the License.
         <br />
         &copy; 2020 by the authors. Released as open-source, under terms of
         Apache 2.0 license. {{ version }}
+        <br />
+        <q-btn
+          color="primary"
+          label="View Manual"
+          v-on:click="openDocumentation()"
+        />
       </div>
     </q-img>
   </PreferencePageLayout>
@@ -32,6 +38,7 @@ limitations under the License.
 <script>
 const restApi = require(`../../../src-shared/rest-api.js`)
 import PreferencePageLayout from '../../layouts/PreferencePageLayout.vue'
+const commonUrl = require('../../../src-shared/common-url.js')
 
 export default {
   name: 'AboutPage',
@@ -64,6 +71,11 @@ export default {
       hash: '',
       date: '',
     }
+  },
+  methods: {
+    openDocumentation() {
+      window.open(commonUrl.documentationUrl, '_blank')
+    },
   },
 }
 </script>

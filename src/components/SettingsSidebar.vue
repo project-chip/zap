@@ -6,6 +6,7 @@
         clickable
         :active="menuItem.link === $route.fullPath"
         v-ripple
+        class="drawer-button"
       >
         <q-item-section avatar>
           <q-icon :name="menuItem.icon" />
@@ -116,32 +117,23 @@ export default {
   },
 }
 </script>
-<style lang="scss">
-.q-layout {
-  background: grey;
-  background: url('/bg-layout.png');
-  background-attachment: fixed;
-  background-size: cover;
-  animation: fadeInAnimation ease 1.5s;
-  animation-iteration-count: 1;
-  animation-fill-mode: forwards;
-}
-
-@keyframes fadeInAnimation {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-.bg-glass {
-  background-color: rgba(238, 238, 238, 0.61);
-  -webkit-backdrop-filter: blur(7px);
-  backdrop-filter: blur(7px);
-  border-bottom: 1px solid rgba(233, 232, 238, 1);
-}
+<style lang="scss" scoped>
 .q-drawer {
   background: transparent;
+}
+.q-item {
+  margin: 5px 15px;
+  padding: 6px 9px;
+  border-radius: 6px;
+  min-height: 0;
+  .q-item__section--avatar {
+    min-width: 0px;
+  }
+}
+.q-item.q-router-link--active,
+.q-item--active {
+  background: var(--q-primary);
+  color: #fff;
+  font-weight: 700;
 }
 </style>
