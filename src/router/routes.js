@@ -29,7 +29,7 @@ const routes = [
         path: '',
         components: {
           default: () => import('layouts/ZclLayout.vue'),
-          sidebar: () => import('components/MainSidebar.vue'),
+          sidebar: () => import('components/ZclEndpointManager.vue'),
         },
       }, // Consider making this a "New Project" page
     ],
