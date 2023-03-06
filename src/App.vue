@@ -33,6 +33,8 @@ limitations under the License.
 <script>
 import { defineComponent } from 'vue'
 import { QSpinnerGears } from 'quasar'
+import ZclTour from './tutorials/ZclTour.vue'
+
 // import VueTour from './tutorials/VueTour.vue'
 
 import CommonMixin from './util/common-mixin'
