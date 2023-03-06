@@ -47,7 +47,20 @@
         <div>Regenerate</div>
       </div>
     </q-btn>
-
+    <q-btn
+      v-if="this.$store.state.zap.showDevTools"
+      flat
+      push
+      no-caps
+      color="grey"
+      class="cursor-pointer"
+      @click="startTour"
+    >
+      <div class="text-center">
+        <q-icon name="o_psychology_alt" />
+        <div>Tutorial</div>
+      </div>
+    </q-btn>
     <q-btn
       id="global_options"
       color="grey"
@@ -63,7 +76,7 @@
     </q-btn>
 
     <q-btn
-      class="cursor-pointer q-py-sm"
+      class="cursor-pointer q-py-sm v-step-16"
       flat
       no-caps
       color="grey"
@@ -127,6 +140,7 @@
 <script>
 import ZclGeneralOptionsBar from '../components/ZclGeneralOptionsBar.vue'
 import ZclExtensionDialog from '../components/ZclCustomZclView.vue'
+import { startTour } from '../boot/tour'
 
 const rendApi = require(`../../src-shared/rend-api.js`)
 const restApi = require(`../../src-shared/rest-api.js`)
@@ -159,6 +173,8 @@ export default {
     }
   },
   methods: {
+    // This function will start vue tour steps
+    startTour,
     generateIntoDirectory(currentPath) {
       window[rendApi.GLOBAL_SYMBOL_NOTIFY](rendApi.notifyKey.fileBrowse, {
         context: 'generateDir',
