@@ -22,6 +22,7 @@
  */
 const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
+const dbCache = require('./db-cache')
 
 function attributeExportMapping(x) {
   return {
@@ -1120,17 +1121,21 @@ AND
   return rows.map(dbMapping.map.endpointTypeAttributeExtended)
 }
 
-exports.selectAllAttributeDetailsFromEnabledClusters =
+exports.selectAllAttributeDetailsFromEnabledClusters = dbCache.cacheQuery(
   selectAllAttributeDetailsFromEnabledClusters
+)
 exports.selectManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters =
   selectManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters
 exports.selectNonManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters =
   selectNonManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters
 exports.selectAttributeDetailsWithABoundFromEnabledClusters =
-  selectAttributeDetailsWithABoundFromEnabledClusters
-exports.selectAttributeDetailsFromEnabledClusters =
+  dbCache.cacheQuery(selectAttributeDetailsWithABoundFromEnabledClusters)
+exports.selectAttributeDetailsFromEnabledClusters = dbCache.cacheQuery(
   selectAttributeDetailsFromEnabledClusters
-exports.selectAttributeBoundDetails = selectAttributeBoundDetails
+)
+exports.selectAttributeBoundDetails = dbCache.cacheQuery(
+  selectAttributeBoundDetails
+)
 exports.selectReportableAttributeDetailsFromEnabledClustersAndEndpoints =
   selectReportableAttributeDetailsFromEnabledClustersAndEndpoints
 exports.selectGlobalAttributeDefaults = selectGlobalAttributeDefaults
