@@ -29,6 +29,7 @@ const dbEnum = require('../../src-shared/db-enum.js')
 const env = require('../util/env')
 const templateEngine = require('./template-engine.js')
 const dbApi = require('../db/db-api.js')
+const dbCache = require('../db/db-cache.js')
 const e = require('express')
 
 /**
@@ -828,6 +829,9 @@ async function generateAndWriteFiles(
     generationLog: null,
   }
 ) {
+  // in case user customization has invalidated the cache
+  dbCache.clear()
+
   let timing = {}
   if (options.fileLoadTime) {
     timing.fileLoad = {
@@ -1066,6 +1070,9 @@ async function contentIndexer(content, linesPerIndex = 2000) {
  * @returns promise that resolves into a preview object.
  */
 async function generateSingleFileForPreview(db, sessionId, outFileName) {
+  // in case user customization has invalidated the cache
+  dbCache.clear()
+
   return queryPackage
     .getSessionPackagesByType(
       db,
