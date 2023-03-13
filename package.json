@@ -145,7 +145,7 @@
     "quasar": "^2.10.2",
     "single-instance": "^0.0.1",
     "source-map-support": "^0.5.19",
-    "sqlite3": "^5.0.2",
+    "sqlite3": "^5.1.5",
     "toposort": "^2.0.2",
     "utf-8-validate": "^5.0.5",
     "uuid": "^8.3.2",
