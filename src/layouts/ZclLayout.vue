@@ -27,7 +27,7 @@ limitations under the License.
       </q-card>
     </q-dialog>
     <div class="q-gutter-y-md height: 10vh">
-      <q-toolbar class="shadow-2" v-if="this.$store.state.zap.debugNavBar">
+      <!-- <q-toolbar class="shadow-2" v-if="this.$store.state.zap.debugNavBar">
         <q-tabs flat v-model="tab">
           <q-tab
             v-if="this.$store.state.zap.showDevTools"
@@ -74,7 +74,7 @@ limitations under the License.
         <q-btn flat @click="homeDialog = !homeDialog" icon="mdi-alert-circle">
           <q-tooltip> About </q-tooltip>
         </q-btn>
-      </q-toolbar>
+      </q-toolbar> -->
       <q-layout
         view="hHh Lpr lff"
         container

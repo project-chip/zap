@@ -6,7 +6,6 @@
         clickable
         :active="menuItem.link === $route.fullPath"
         v-ripple
-        class="drawer-button"
       >
         <q-item-section avatar>
           <q-icon :name="menuItem.icon" />

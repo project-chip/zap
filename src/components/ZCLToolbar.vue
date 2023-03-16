@@ -48,20 +48,6 @@
       </div>
     </q-btn>
     <q-btn
-      v-if="this.$store.state.zap.showDevTools"
-      flat
-      push
-      no-caps
-      color="grey"
-      class="cursor-pointer"
-      @click="startTour"
-    >
-      <div class="text-center">
-        <q-icon name="o_psychology_alt" />
-        <div>Tutorial</div>
-      </div>
-    </q-btn>
-    <q-btn
       id="global_options"
       color="grey"
       flat
@@ -111,6 +97,20 @@
       <div class="text-center">
         <q-icon name="o_preview" />
         <div class="">Preview</div>
+      </div>
+    </q-btn>
+    <q-btn
+      v-if="this.$store.state.zap.showDevTools"
+      flat
+      push
+      no-caps
+      color="grey"
+      class="cursor-pointer"
+      @click="startTour"
+    >
+      <div class="text-center">
+        <q-icon name="o_psychology_alt" />
+        <div>Tutorial</div>
       </div>
     </q-btn>
     <q-btn
