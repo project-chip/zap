@@ -12,36 +12,9 @@
       style="border-right: 1px solid #ddd"
     >
       <div
-        class="full-width absolute-top text-h4 q-pt-md q-px-md row justify-between"
+        class="full-width absolute-top text-h4 q-pt-md q-px-md row justify-end"
         style="height: 53.8px"
       >
-        <div>
-          <q-btn
-            dense
-            unelevated
-            round
-            size="5px"
-            color="red-12"
-            @click="closeApp"
-          />
-          <q-btn
-            class="q-mx-sm"
-            dense
-            unelevated
-            round
-            size="5px"
-            color="warning"
-            @click="minimize"
-          />
-          <q-btn
-            dense
-            unelevated
-            round
-            size="5px"
-            color="green-14"
-            @click="toggleMaximize"
-          />
-        </div>
         <div>ZCL</div>
       </div>
 

@@ -20,8 +20,8 @@ limitations under the License.
       :nodes="ucComponentTree"
       node-key="id"
       tick-strategy="leaf"
-      v-model:ticked="ucComponentTicked"
-      v-model:expanded="uc.expanded"
+      :ticked="ucComponentTicked"
+      :expanded="uc.expanded"
       @update:ticked="handleClick"
     ></q-tree>
   </PreferencePageLayout>

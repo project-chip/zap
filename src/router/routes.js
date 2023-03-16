@@ -17,8 +17,9 @@
 
 const routes = [
   {
-    path: '/login',
-    component: () => import('pages/ZapConfig.vue'),
+    path: '/config',
+    component: () => import('layouts/ConfigLayout.vue'),
+    children: [{ path: '', component: () => import('pages/ZapConfig.vue') }],
   },
   {
     path: '/',
@@ -31,7 +32,7 @@ const routes = [
           default: () => import('layouts/ZclLayout.vue'),
           sidebar: () => import('components/ZclEndpointManager.vue'),
         },
-      }, // Consider making this a "New Project" page
+      },
     ],
   },
   {
@@ -154,7 +155,7 @@ const routes = [
     name: 'notifications',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      { path: '', component: () => import('pages/NotificationsPage.vue') }, // Consider making this a "New Project" page
+      { path: '', component: () => import('pages/NotificationsPage.vue') },
     ],
   },
 ]

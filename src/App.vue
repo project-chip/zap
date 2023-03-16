@@ -15,7 +15,12 @@ limitations under the License.
 -->
 
 <template>
-  <div>
+  <div
+    :class="{
+      zigbee: uiThemeCategory === 'zigbee',
+      matter: uiThemeCategory !== 'zigbee',
+    }"
+  >
     <q-ajax-bar color="grey" />
     <router-view />
     <q-btn
@@ -94,6 +99,11 @@ export default defineComponent({
   computed: {
     showExceptionIcon() {
       return this.$store.state.zap.showExceptionIcon
+    },
+    uiThemeCategory: {
+      get() {
+        return this.$store.state.zap.selectedZapConfig?.zclProperties.category
+      },
     },
   },
   methods: {
@@ -189,7 +199,7 @@ export default defineComponent({
       storage.getItem(rendApi.storageKey.isDarkThemeActive)
     )
     if (this.isZapConfigSelected != true) {
-      this.$router.push({ path: '/login' })
+      this.$router.push({ path: '/config' })
     } else {
       this.$router.push({ path: '/' })
       this.getAppData()
@@ -198,7 +208,7 @@ export default defineComponent({
   watch: {
     isZapConfigSelected(val) {
       if (val != true) {
-        this.$router.push({ path: '/login' })
+        this.$router.push({ path: '/config' })
       } else {
         this.$router.push({ path: '/' })
         this.getAppData()
@@ -207,3 +217,19 @@ export default defineComponent({
   },
 })
 </script>
+<style lang="scss" scoped>
+.slide-left-leave-active,
+.slide-left-enter-active {
+  transition: all 0.25s ease-out;
+}
+
+.slide-left-enter-from {
+  opacity: 0;
+  transform: translateX(-100px);
+}
+
+.slide-left-leave-to {
+  opacity: 0;
+  transform: translateX(-100px);
+}
+</style>
