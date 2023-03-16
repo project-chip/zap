@@ -129,6 +129,11 @@
       "path": "endpoint_config.zapt",
       "name": "Endpoint Config",
       "output": "endpoint_config.h"
+    },
+    {
+      "path": "miscellaneous_helper_tests.zapt",
+      "name": "miscellaneous helper",
+      "output": "miscellaneous_helper_tests.out"
     }
   ]
 }

@@ -168,3 +168,95 @@ test(
   },
   testUtil.timeout.long()
 )
+
+test(
+  `Zap testing miscellaneouos type specific helpers: ${path.relative(
+    __dirname,
+    testFile
+  )}`,
+  async () => {
+    let sessionId = await querySession.createBlankSession(db)
+
+    await importJs.importDataFromFile(db, testFile, {
+      sessionId: sessionId,
+    })
+
+    let genResult = await genEngine.generate(
+      db,
+      sessionId,
+      templateContext.packageId,
+      {},
+      { disableDeprecationWarnings: true }
+    )
+    expect(genResult.hasErrors).toEqual(false)
+
+    // Note: A lot of these tests here are for sake of backwards
+    // compatibility. Latest ZAP must be able to generate content for
+    // the old SDKs, so if you changed something that generates
+    // endpoint_config differently, please be very very careful and
+    // make sure you can answer positively the following question:
+    //   will after my changes, zap still be able to generate content
+    //   that will work with an older SDK.
+    //
+    let ept = genResult.content['miscellaneous_helper_tests.out']
+
+    // Testing if_unsupported_attribute_callback helper
+    expect(ept).toContain(
+      'attribute callback for OnOff of boolean type is supported in java'
+    )
+    expect(ept).toContain(
+      'attribute callback for GlobalSceneControl of boolean type is supported in java'
+    )
+    expect(ept).toContain(
+      'attribute callback for GeneratedCommandList of command_id type is supported in java'
+    )
+
+    // Testing if_basic_attribute helper
+    expect(ept).toContain(
+      'attribute OnTime of int16u type is basic type in java'
+    )
+    expect(ept).toContain(
+      'attribute EventList of event_id type is not basic type in java'
+    )
+    expect(ept).toContain(
+      'attribute StartUpOnOff of OnOffStartUpOnOff type is not basic type in java'
+    )
+
+    // Testing as_underlying_java_zcl_type helper
+    expect(ept).toContain(
+      'Underlying Java type for attribute OnOff of boolean type: Boolean'
+    )
+    expect(ept).toContain(
+      'Underlying Java type for attribute OnTime of int16u type: Integer'
+    )
+    expect(ept).toContain(
+      'Underlying Java type for attribute GeneratedCommandList of command_id type: Long'
+    )
+
+    // Testing as_underlying_python_zcl_type helper
+    expect(ept).toContain(
+      'Underlying Python type for attribute OnOff of boolean type: bool'
+    )
+    expect(ept).toContain(
+      'Underlying Python type for attribute OnTime of int16u type: int'
+    )
+    expect(ept).toContain(
+      'Underlying Python type for attribute GeneratedCommandList of command_id type: int'
+    )
+
+    // Testing if_is_data_type_signed and as_zcl_data_type_size
+    expect(ept).toContain(
+      'attribute OnOff of type boolean is unsigned. The size of this attribute is: 8 bits'
+    )
+    expect(ept).toContain(
+      'attribute OnTime of type int16u is unsigned. The size of this attribute is: 16 bits'
+    )
+    expect(ept).toContain(
+      'attribute StartUpOnOff of type OnOffStartUpOnOff is unsigned. The size of this attribute is: 8 bits'
+    )
+    expect(ept).toContain(
+      'attribute GeneratedCommandList of type command_id is unsigned. The size of this attribute is: 32 bits'
+    )
+  },
+  testUtil.timeout.long()
+)

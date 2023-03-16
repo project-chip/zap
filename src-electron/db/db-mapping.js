@@ -23,6 +23,7 @@
 
 const dbApi = require('./db-api.js')
 const dbEnums = require('../../src-shared/db-enum.js')
+const bin = require('../util/bin')
 
 exports.map = {
   package: (x) => {
@@ -93,7 +94,7 @@ exports.map = {
       manufacturerCode: x.MANUFACTURER_CODE,
       name: x.NAME,
       label: x.NAME,
-      type: x.TYPE,
+      type: x.TYPE != 'array' ? x.TYPE : x.ARRAY_TYPE,
       side: x.SIDE,
       define: x.DEFINE,
       min: x.MIN,
@@ -105,15 +106,20 @@ exports.map = {
       reportableChange: x.REPORTABLE_CHANGE,
       reportableChangeLength: x.REPORTABLE_CHANGE_LENGTH,
       isWritable: dbApi.fromDbBool(x.IS_WRITABLE),
+      isWritableAttribute: dbApi.fromDbBool(x.IS_WRITABLE),
       isNullable: dbApi.fromDbBool(x.IS_NULLABLE),
       defaultValue: x.DEFAULT_VALUE,
       isOptional: dbApi.fromDbBool(x.IS_OPTIONAL),
       isReportable:
         x.REPORTING_POLICY == dbEnums.reportingPolicy.mandatory ||
         x.REPORTING_POLICY == dbEnums.reportingPolicy.suggested,
+      isReportableAttribute:
+        x.REPORTING_POLICY == dbEnums.reportingPolicy.mandatory ||
+        x.REPORTING_POLICY == dbEnums.reportingPolicy.suggested,
       reportingPolicy: x.REPORTING_POLICY,
       isSceneRequired: dbApi.fromDbBool(x.IS_SCENE_REQUIRED),
       entryType: x.ARRAY_TYPE,
+      isArray: x.ARRAY_TYPE ? 1 : 0,
       mustUseTimedWrite: dbApi.fromDbBool(x.MUST_USE_TIMED_WRITE),
     }
   },
@@ -475,36 +481,61 @@ exports.map = {
   endpointTypeAttributeExtended: (x) => {
     if (x == null) return undefined
     return {
-      endpointTypeRef: x.ENDPOINT_TYPE_REF,
-      clusterRef: x.CLUSTER_REF,
+      arrayType: x.ARRAY_TYPE,
       attributeRef: x.ATTRIBUTE_REF,
-      included: dbApi.fromDbBool(x.INCLUDED),
-      storageOption: x.STORAGE_OPTION,
-      singleton: dbApi.fromDbBool(x.SINGLETON),
       bounded: dbApi.fromDbBool(x.BOUNDED),
-      defaultValue: x.DEFAULT_VALUE,
-      includedReportable: dbApi.fromDbBool(x.INCLUDED_REPORTABLE),
-      minInterval: x.MIN_INTERVAL,
-      maxInterval: x.MAX_INTERVAL,
-      reportableChange: x.REPORTABLE_CHANGE,
-      name: x.NAME, // Attribute Name
-      code: x.CODE, // Attribute Code
-      side: x.SIDE, // Attribute Side
-      define: x.DEFINE, // Attribute define
-      type: x.TYPE, // Attribute type
-      mfgCode: x.MANUFACTURER_CODE
-        ? x.MANUFACTURER_CODE
-        : x.CLUSTER_MANUFACTURER_CODE, // Attribute manufacturer code
+      clusterDefine: x.CLUSTER_DEFINE,
       clusterMfgCode: x.CLUSTER_MANUFACTURER_CODE,
       clusterName: x.CLUSTER_NAME,
-      clusterDefine: x.CLUSTER_DEFINE,
-      isSingleton: dbApi.fromDbBool(x.SINGLETON), // Endpoint type attribute is singleton or not
+      clusterRef: x.CLUSTER_REF,
+      clusterSide: x.SIDE,
+      code: x.CODE, // Attribute Code
+      defaultValue: x.DEFAULT_VALUE,
+      define: x.DEFINE, // Attribute define
+      endpointId: x.ENDPOINT_IDENTIFIER, // Endpoint type attribute's endpoint Id
+      endpointTypeRef: x.ENDPOINT_TYPE_REF,
+      entryType: x.ARRAY_TYPE,
+      hexCode: '0x' + bin.int16ToHex(x['CODE'] ? x['CODE'] : 0), // Attribute code in hex
+      id: x.ATTRIBUTE_ID, // Attribute id
+      included: dbApi.fromDbBool(x.INCLUDED),
+      includedReportable: dbApi.fromDbBool(x.INCLUDED_REPORTABLE), // Is attribute reportable
+      isArray: x.IS_ARRAY, // Is attribute of type array
+      isBound: dbApi.fromDbBool(x.BOUNDED), // Is endpoint type attribute bounded
+      isClusterEnabled: x.ENABLED,
+      isGlobalAttribute: x.IS_GLOBAL_ATTRIBUTE, // Is attribute global
+      isIncluded: dbApi.fromDbBool(x.INCLUDED), // Is endpoint type attribute included
       isManufacturingSpecific: dbApi.toDbBool(
         x.MANUFACTURER_CODE | x.CLUSTER_MANUFACTURER_CODE
       ), // Is Attribute mfg specific or not
-      endpointId: x.ENDPOINT_IDENTIFIER, // Endpoint type attribute's endpoint Id
-      tokenId: x.TOKEN_ID, // Endpoint type attribute's token id
+      isNullable: dbApi.fromDbBool(x.IS_NULLABLE), // Is attribute nullable
+      isOptionalAttribute: dbApi.fromDbBool(x.IS_OPTIONAL),
+      isReportableAttribute: dbApi.fromDbBool(x.INCLUDED_REPORTABLE), // Is attribute reportable
+      isSceneRequired: dbApi.fromDbBool(x.IS_SCENE_REQUIRED),
+      isSingleton: dbApi.fromDbBool(x.SINGLETON), // Endpoint type attribute is singleton or not
+      isWritable: dbApi.fromDbBool(x.IS_WRITABLE), // Is attribute writable
+      isWritableAttribute: dbApi.fromDbBool(x.IS_WRITABLE), // Is attribute writable
+      manufacturerCode: x.MANUFACTURER_CODE
+        ? x.MANUFACTURER_CODE
+        : x.CLUSTER_MANUFACTURER_CODE, // Attribute manufacturer code
+      max: x.MAX, // Attribute max value
+      maxInterval: x.MAX_INTERVAL,
+      maxLength: x.MAX_LENGTH, // Attribute max length
+      mfgCode: x.MANUFACTURER_CODE
+        ? x.MANUFACTURER_CODE
+        : x.CLUSTER_MANUFACTURER_CODE, // Attribute manufacturer code
+      min: x.MIN, // Attribute min value
+      minInterval: x.MIN_INTERVAL,
+      minLength: x.MIN_LENGTH, // Attribute min length
+      mustUseTimedWrite: dbApi.fromDbBool(x.MUST_USE_TIMED_WRITE),
+      name: x.NAME, // Attribute Name
+      reportableChange: x.REPORTABLE_CHANGE,
+      side: x.SIDE, // Attribute Side
+      singleton: dbApi.fromDbBool(x.SINGLETON),
       smallestEndpointIdentifier: x.SMALLEST_ENDPOINT_IDENTIFIER, // Smallest endpoint Id in which the attribute is present
+      storage: x.STORAGE_OPTION,
+      storageOption: x.STORAGE_OPTION,
+      tokenId: x.TOKEN_ID, // Endpoint type attribute's token id
+      type: x.TYPE != 'array' ? x.TYPE : x.ARRAY_TYPE, // Attribute type
     }
   },
 

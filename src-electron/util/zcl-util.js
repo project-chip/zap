@@ -797,6 +797,57 @@ async function createCommandSignature(db, packageId, cmd) {
   }
 }
 
+/**
+ *
+ * @param {*} type
+ * @param {*} dataType
+ * @param {*} clusterId
+ * @param {*} packageIds
+ * @param {*} context
+ * @returns The size and sign of a zcl data type
+ */
+async function zcl_data_type_size_and_sign(
+  type,
+  dataType,
+  clusterId,
+  packageIds,
+  context
+) {
+  let result = 0
+  let isSigned = false
+  if (dataType.discriminatorName.toLowerCase() == dbEnum.zclType.bitmap) {
+    let bitmap = await queryZcl.selectBitmapByNameAndClusterId(
+      context.global.db,
+      dataType.name,
+      clusterId,
+      packageIds
+    )
+    result = bitmap.size
+  } else if (dataType.discriminatorName.toLowerCase() == dbEnum.zclType.enum) {
+    let en = await queryZcl.selectEnumByNameAndClusterId(
+      context.global.db,
+      dataType.name,
+      clusterId,
+      packageIds
+    )
+    result = en.size
+  } else if (
+    dataType.discriminatorName.toLowerCase() == dbEnum.zclType.number
+  ) {
+    let number = await queryZcl.selectNumberByNameAndClusterId(
+      context.global.db,
+      dataType.name,
+      clusterId,
+      packageIds
+    )
+    isSigned = number.isSigned
+    result = number.size
+  } else {
+    env.logWarning(type + ' is a complex type and size could not be determined')
+  }
+  return { size: result, isSigned: isSigned }
+}
+
 exports.clusterComparator = clusterComparator
 exports.attributeComparator = attributeComparator
 exports.commandComparator = commandComparator
@@ -811,3 +862,4 @@ exports.determineType = determineType
 exports.dataTypeCharacterFormatter = dataTypeCharacterFormatter
 exports.calculateBytes = calculateBytes
 exports.createCommandSignature = createCommandSignature
+exports.zcl_data_type_size_and_sign = zcl_data_type_size_and_sign

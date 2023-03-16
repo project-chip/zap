@@ -730,33 +730,39 @@ function zcl_attributes_client(options) {
  * Iterator over the server attributes. If it is used at toplevel, if iterates over all the server attributes
  * in the database. If used within zcl_cluster context, it iterates over all the server attributes
  * that belong to that cluster.
- *
+ * Available Options:
+ * - removeKeys: Removes one or more keys from the map(for eg keys in db-mapping.js)
+ * for eg: (#zcl_attributes_server removeKeys='isOptional, isNullable') will remove 'isOptional'
+ * from the results
  * @param {*} options
  * @returns Promise of attribute iteration.
  */
-function zcl_attributes_server(options) {
+async function zcl_attributes_server(options) {
   // If used at the toplevel, 'this' is the toplevel context object.
   // when used at the cluster level, 'this' is a cluster
-  let promise = templateUtil
-    .ensureZclPackageIds(this)
-    .then((packageIds) => {
-      if ('id' in this) {
-        // We're functioning inside a nested context with an id, so we will only query for this cluster.
-        return queryZcl.selectAttributesByClusterIdAndSideIncludingGlobal(
-          this.global.db,
-          this.id,
-          packageIds,
-          dbEnum.side.server
-        )
-      } else {
-        return queryZcl.selectAllAttributesBySide(
-          this.global.db,
-          dbEnum.side.server,
-          packageIds
-        )
-      }
-    })
-    .then((atts) => templateUtil.collectBlocks(atts, options, this))
+  let packageIds = await templateUtil.ensureZclPackageIds(this)
+  let serverAttributes = ''
+  if ('id' in this) {
+    // We're functioning inside a nested context with an id, so we will only query for this cluster.
+    serverAttributes =
+      await queryZcl.selectAttributesByClusterIdAndSideIncludingGlobal(
+        this.global.db,
+        this.id,
+        packageIds,
+        dbEnum.side.server
+      )
+  } else {
+    serverAttributes = await queryZcl.selectAllAttributesBySide(
+      this.global.db,
+      dbEnum.side.server,
+      packageIds
+    )
+  }
+  if ('removeKeys' in options.hash) {
+    let keys = options.hash.removeKeys.split(',')
+    keys.forEach((k) => serverAttributes.map((attr) => delete attr[k.trim()]))
+  }
+  let promise = templateUtil.collectBlocks(serverAttributes, options, this)
   return templateUtil.templatePromise(this.global, promise)
 }
 
@@ -2693,6 +2699,88 @@ function if_compare(leftValue, rightValue, options) {
   }
 }
 
+/**
+ * Check if the given type is signed or not based on the type name and cluster
+ * id.
+ * Note: This helper needs to be used under a block helper which has a
+ * reference to clusterId.
+ * @param {*} type
+ * @param {*} clusterId
+ * @param {*} options
+ * @returns Promise of content
+ */
+async function if_is_data_type_signed(type, clusterId, options) {
+  // Get ZCL Data Type from the db
+  const packageIds = await templateUtil.ensureZclPackageIds(this)
+  let dataType = await queryZcl.selectDataTypeByNameAndClusterId(
+    this.global.db,
+    type,
+    clusterId,
+    packageIds
+  )
+
+  let sizeAndSign = await zclUtil.zcl_data_type_size_and_sign(
+    type,
+    dataType,
+    clusterId,
+    packageIds,
+    this
+  )
+  if (sizeAndSign.isSigned) {
+    return options.fn(this)
+  } else {
+    return options.inverse(this)
+  }
+}
+
+/**
+ * Fetches the size of the data type based on type name and cluster id given
+ * Note:
+ * - Size is zero for structs
+ * - This helper needs to be used under a block helper which has a
+ * reference to clusterId.
+ * Available Options:
+ * - roundUpToPowerOfTwo: Rounds the size up to the nearest power of 2
+ * - sizeIn: By default size is returned in bytes but it can be returned in bits
+ * by mentioning sizeIn="bits"
+ * @param {*} type
+ * @param {*} clusterId
+ * @param {*} options
+ * @returns size of the data type
+ */
+async function as_zcl_data_type_size(type, clusterId, options) {
+  let hash = options.hash
+  let sizeMultiple = 1
+  let result = 0
+  if (hash && hash.sizeIn == 'bits') {
+    sizeMultiple = 8
+  }
+
+  // Get ZCL Data Type from the db
+  const packageIds = await templateUtil.ensureZclPackageIds(this)
+  let dataType = await queryZcl.selectDataTypeByNameAndClusterId(
+    this.global.db,
+    type,
+    clusterId,
+    packageIds
+  )
+
+  let sizeAndSign = await zclUtil.zcl_data_type_size_and_sign(
+    type,
+    dataType,
+    clusterId,
+    packageIds,
+    this
+  )
+  result = sizeAndSign.size
+  result =
+    hash && hash.roundUpToPowerOfTwo
+      ? Math.pow(2, Math.ceil(Math.log2(result)))
+      : result
+
+  return result * sizeMultiple
+}
+
 const dep = templateUtil.deprecatedHelper
 
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
@@ -2864,3 +2952,5 @@ exports.as_type_max_value = as_type_max_value
 exports.as_type_min_value = as_type_min_value
 exports.as_zcl_type_size = as_zcl_type_size
 exports.if_compare = if_compare
+exports.if_is_data_type_signed = if_is_data_type_signed
+exports.as_zcl_data_type_size = as_zcl_data_type_size

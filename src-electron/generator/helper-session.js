@@ -294,7 +294,8 @@ async function all_user_cluster_attribute_util(
       await queryAttribute.selectAllAttributeDetailsFromEnabledClusters(
         currentContext.global.db,
         endpointsAndClusters,
-        packageIds
+        packageIds,
+        side
       )
   } else if (isManufacturingSpecific) {
     endpointAttributes =
@@ -310,6 +311,10 @@ async function all_user_cluster_attribute_util(
         endpointsAndClusters,
         packageIds
       )
+  }
+  if ('removeKeys' in options.hash) {
+    let keys = options.hash.removeKeys.split(',')
+    keys.forEach((k) => endpointAttributes.map((attr) => delete attr[k.trim()]))
   }
 
   let availableAttributes = []
@@ -612,18 +617,22 @@ function all_user_cluster_commands_irrespective_of_manufaturing_specification(
 
 /**
  * Creates endpoint type cluster attribute iterator. This fetches all
- * manufacturing and non-manufaturing specific attributes which have been enabled
- * on added endpoints
+ * manufacturer-specific and standard attributes which have been enabled on
+ * added endpoints based on the name and side of the cluster. When side
+ * is not mentioned then client and server attributes are returned.
+ * Available Options:
+ * - removeKeys: Removes one or more keys from the map(for eg keys in db-mapping.js)
+ * for eg:(#enabled_attributes_for_cluster_and_side
+ *          [cluster-name], [cluster-side], removeKeys='isOptional, isNullable')
+ * will remove 'isOptional' and 'isNullable' from the results
  *
+ * @param name
+ * @param side
  * @param options
  * @returns Promise of the resolved blocks iterating over manufacturing specific
- * and non-manufacturing specific cluster attributes.
+ * and standard cluster attributes.
  */
-function all_user_cluster_attributes_irrespective_of_manufatucuring_specification(
-  name,
-  side,
-  options
-) {
+function enabled_attributes_for_cluster_and_side(name, side, options) {
   return all_user_cluster_attribute_util(name, side, options, this, false, true)
 }
 
@@ -1526,7 +1535,15 @@ exports.all_user_cluster_manufacturer_specific_attributes =
 exports.all_user_cluster_non_manufacturer_specific_attributes =
   all_user_cluster_non_manufacturer_specific_attributes
 exports.all_user_cluster_attributes_irrespective_of_manufatucuring_specification =
-  all_user_cluster_attributes_irrespective_of_manufatucuring_specification
+  enabled_attributes_for_cluster_and_side
+exports.all_user_cluster_attributes_irrespective_of_manufatucuring_specification =
+  dep(enabled_attributes_for_cluster_and_side, {
+    from: 'all_user_cluster_attributes_irrespective_of_manufatucuring_specification',
+    to: 'enabled_attributes_for_cluster_and_side',
+  })
+exports.enabled_attributes_for_cluster_and_side =
+  enabled_attributes_for_cluster_and_side
+
 exports.all_user_cluster_attributes_for_generated_defaults =
   all_user_cluster_attributes_for_generated_defaults
 exports.all_user_cluster_generated_attributes =

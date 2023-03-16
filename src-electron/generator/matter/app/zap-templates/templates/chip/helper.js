@@ -745,6 +745,8 @@ async function chip_access_elements(options) {
   return templateUtil.templatePromise(this.global, p);
 }
 
+const dep = templateUtil.deprecatedHelper;
+
 //
 // Module exports
 //
@@ -762,7 +764,12 @@ exports.chip_server_global_responses = chip_server_global_responses;
 exports.chip_cluster_responses = chip_cluster_responses;
 exports.chip_cluster_response_arguments = chip_cluster_response_arguments;
 exports.chip_attribute_list_entryTypes = chip_attribute_list_entryTypes;
-exports.chip_server_cluster_attributes = chip_server_cluster_attributes;
+exports.chip_server_cluster_attributes = dep(
+  chip_server_cluster_attributes,
+  'chip_server_cluster_attributes has been deprecated. Use \
+  enabled_attributes_for_cluster_and_side and \
+  zcl_attributes_server to get enabled and all server attributes respectively'
+);
 exports.chip_server_cluster_events = chip_server_cluster_events;
 exports.chip_server_has_list_attributes = chip_server_has_list_attributes;
 exports.chip_server_has_reportable_attributes =
@@ -772,7 +779,9 @@ exports.chip_endpoints = chip_endpoints;
 exports.chip_endpoint_clusters = chip_endpoint_clusters;
 exports.if_chip_enum = if_chip_enum;
 exports.if_chip_complex = if_chip_complex;
-exports.if_basic_global_response = if_basic_global_response;
+exports.if_basic_global_response = dep(if_basic_global_response, {
+  to: 'if_basic_attribute',
+});
 exports.chip_cluster_specific_structs = chip_cluster_specific_structs;
 exports.chip_shared_structs = chip_shared_structs;
 exports.chip_access_elements = chip_access_elements;
