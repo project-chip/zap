@@ -33,7 +33,7 @@ On the [release page](https://github.com/project-chip/zap/releases), there are t
 
 ### Source code
 
-Refer to [more detailed development instructions](docs/development-instructions.md) for more details.
+Refer to [development instructions](docs/development-instructions.md) for more details.
 
 ## License
 
