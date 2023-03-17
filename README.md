@@ -26,10 +26,10 @@ On the [release page](https://github.com/project-chip/zap/releases), there are t
 
 - Official release:
   Verified builds with dedicated Zigbee test suites.
-  The release name format is "vYYYY.DD.MM"
+  The release name format is `vYYYY.DD.MM`
 - Pre-release:
   Builds with the latest features and are NOT verified with dedicated Zigbee test suites.
-  The release name format is "vYYYY.DD.MM-nightly"
+  The release name format is `vYYYY.DD.MM-nightly`
 
 ### Source code
 
