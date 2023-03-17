@@ -42,7 +42,7 @@ This software is licensed under [Apache 2.0 license](LICENSE.txt).
 ## Detailed Documentation
 
 - [FAQ](docs/faq.md)
-- [Release instructions](docs/development-instructions.md)
+- [Release instructions](docs/release.md)
 - [Development Instructions](docs/development-instructions.md)
 - [Design](docs/design.md)
 - [Template tutorial](docs/template-tutorial.md)
