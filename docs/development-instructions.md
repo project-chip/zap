@@ -2,11 +2,18 @@
 
 This section lists instructions for various things you might need to do in this repo.
 
+This is a node.js application, so you need node environment installed. The best way is to simply download latest install of [node](https://nodejs.org/en/download/) and you will get node and npm. If you have an older version of node installed on your workstation, it may give you trouble, particularly if it's very old. So make sure you have latest node v16.x version, with the npm that comes with it available. Run `node --version` to check what version is picked up. v14.x mostly works as well, there is some success with v18.x, but at this point v16.x is recommended.
+
+Once you have a desired version of node, you can run:
+
 **Install the dependencies:**
 
 ```bash
 npm install
 ```
+
+It is not uncommon to run into native library compilation problems at this point.
+There are various `src-script/install-*` scripts for different platforms. Please refer to [FAQ](docs/faq.md) for additional details of which script to run on different platforms and then rerun `npm install`.
 
 **Start the application:**
 
