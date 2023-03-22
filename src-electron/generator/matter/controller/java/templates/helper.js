@@ -28,6 +28,7 @@ const zclUtil = require(zapPath + 'util/zcl-util.js');
 
 const characterStringTypes = ['CHAR_STRING', 'LONG_CHAR_STRING'];
 const octetStringTypes = ['OCTET_STRING', 'LONG_OCTET_STRING'];
+const basicAttributeExceptionList = ['vendor_id'];
 
 function convertBasicCTypeToJavaType(cType) {
   switch (cType) {
@@ -443,7 +444,12 @@ function incrementDepth(depth) {
  */
 async function if_basic_attribute(type, clusterId, options) {
   let struct = null;
-  if (this.isNullable || this.isOptional || this.isArray) {
+  if (
+    this.isNullable ||
+    this.isOptional ||
+    this.isArray ||
+    basicAttributeExceptionList.includes(type)
+  ) {
     return options.inverse(this);
   } else {
     let packageIds = await templateUtil.ensureZclPackageIds(this);
