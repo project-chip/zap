@@ -20,7 +20,6 @@
  *
  * @module REST API: user data
  */
-const fs = require('fs')
 const env = require('../util/env')
 const queryZcl = require('../db/query-zcl.js')
 const queryAttribute = require('../db/query-attribute.js')
@@ -334,7 +333,7 @@ function httpGetInitialState(db) {
 
     try {
       let session = await querySession.getSessionFromSessionId(db, sessionId)
-      await asyncValidation.initAsyncValidation(db, session)
+      if (session) await asyncValidation.initAsyncValidation(db, session)
 
       let results = await Promise.all([
         queryEndpointType.selectAllEndpointTypes(db, sessionId),

@@ -53,15 +53,32 @@ afterAll(
 
 test(
   'get index.html',
-  () =>
-    axiosInstance.get('/index.html').then((response) => {
-      let sessionCookie = response.headers['set-cookie'][0]
-      axiosInstance.defaults.headers.Cookie = sessionCookie
-      expect(
-        response.data.includes(
-          'Configuration tool for the Zigbee Cluster Library'
-        )
-      ).toBeTruthy()
-    }),
+  async () => {
+    let response = await axiosInstance.get('/index.html')
+    let sessionCookie = response.headers['set-cookie'][0]
+    axiosInstance.defaults.headers.Cookie = sessionCookie
+    expect(response.data).toContain(
+      'Configuration tool for the Zigbee Cluster Library'
+    )
+  },
+  testUtil.timeout.medium()
+)
+
+test.each([
+  restApi.uri.getAllSessionKeyValues,
+  restApi.uri.uiOptions,
+  restApi.uri.packages,
+  restApi.uri.initialState,
+  restApi.uri.notification,
+  restApi.uri.getAllPackages,
+  restApi.ide.isDirty,
+  restApi.uri.version,
+  restApi.uri.cache,
+])(
+  'Test GET: %p',
+  async (uri) => {
+    let response = await axiosInstance.get(uri)
+    expect(response.data).not.toBeNull()
+  },
   testUtil.timeout.medium()
 )

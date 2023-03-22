@@ -21,35 +21,34 @@
  *
  */
 
-import * as env from '../util/env'
-import * as SessionType from '../types/db-mapping-types'
-import * as SessionTimersTypes from '../types/session-timers-types'
 const queryPackage = require('../db/query-package.js')
 const sessionTimers = require('../main-process/session-timers.js')
 const wsServer = require('../server/ws-server.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 
-let ASYNC_ENFORCE_COMMON_CLUSTER_SPEC_INTERVAL_MS = 3000
+const commonClusterSpecEnforceInterval = 3000
 
-const TimerTypeFunctionMap = {
-  zigbeeEnforceCommonClusterSpec: zigbeeEnforceCommonClusterSpecInit
-}
-
- /**
+/**
  * Start session specific validation.
  *
  */
 export async function initAsyncValidation(db, session) {
-  let validationTimers = await queryPackage.getSessionPackages(db, session.sessionId)
-                  .then((packages) => {
-                    let p = packages.map((pkg) =>
-                          queryPackage.selectAllOptionsValues(db, pkg.packageRef, dbEnum.packageOptionCategory.validationTimersFlags))
-                    return Promise.all(p).then((data) => data.flat(1))
-                  })
+  let validationTimers = await queryPackage
+    .getSessionPackages(db, session.sessionId)
+    .then((packages) => {
+      let p = packages.map((pkg) =>
+        queryPackage.selectAllOptionsValues(
+          db,
+          pkg.packageRef,
+          dbEnum.packageOptionCategory.validationTimersFlags
+        )
+      )
+      return Promise.all(p).then((data) => data.flat(1))
+    })
 
   let timers = []
   let validationTimersFlag = {}
-  validationTimers.forEach(data => {
+  validationTimers.forEach((data) => {
     validationTimersFlag[data.optionCode] = true
   })
 
@@ -62,8 +61,10 @@ export async function initAsyncValidation(db, session) {
 
 function zigbeeEnforceCommonClusterSpecInit(session) {
   let timerSetup = {
-    func: function () {zigbeeEnforceCommonClusterSpecCallback(session)},
-    timerInterval : ASYNC_ENFORCE_COMMON_CLUSTER_SPEC_INTERVAL_MS
+    func: function () {
+      zigbeeEnforceCommonClusterSpecCallback(session)
+    },
+    timerInterval: commonClusterSpecEnforceInterval,
   }
   return timerSetup
 }
@@ -71,10 +72,10 @@ function zigbeeEnforceCommonClusterSpecInit(session) {
 function zigbeeEnforceCommonClusterSpecCallback(session) {
   let socket = wsServer.clientSocket(session.sessionKey)
   if (socket) {
-        wsServer.sendWebSocketMessage(socket, {
-          category: dbEnum.wsCategory.validation,
-          payload: "green",
-        })
+    wsServer.sendWebSocketMessage(socket, {
+      category: dbEnum.wsCategory.validation,
+      payload: 'green',
+    })
   }
 }
 

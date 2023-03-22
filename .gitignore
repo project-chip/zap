@@ -78,6 +78,7 @@ cypress/videos/**
 jest-coverage
 .nyc_output
 coverage
+coverage.json
 cypress-coverage
 reports
 
