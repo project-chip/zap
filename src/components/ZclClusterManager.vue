@@ -15,91 +15,79 @@ limitations under the License.
 -->
 
 <template>
-  <div v-if="selectedEndpointTypeId.length != 0" class="window-height">
-    <div class="row">
-      <q-toolbar>
-        <q-toolbar-title style="font-weight: bolder">
-          <span class="v-step-6"
-            >Endpoint
-            {{ this.endpointId[this.selectedEndpointId] }} Clusters</span
-          >
-        </q-toolbar-title>
-      </q-toolbar>
-    </div>
-    <div class="row bar align=left section-header">
-      <div class="row">
-        <div
-          style="
-            vertical-align: middle;
-            text-align: center;
-            padding: 10px 0 0 0;
-          "
+  <div v-if="selectedEndpointTypeId.length != 0">
+    <div class="row justify-between q-py-md">
+      <div class="text-h4">
+        <span class="v-step-6"
+          >Endpoint
+          {{ this.endpointId[this.selectedEndpointId] }} Clusters</span
         >
-          Show
-        </div>
-        &nbsp; &nbsp;
-
+      </div>
+      <div class="row">
         <div class="v-step-7">
           <q-select
             outlined
             :model-value="filter"
             :options="filterOptions"
             dense
-            class="col-2"
             @update:model-value="changeDomainFilter($event)"
             data-test="filter-input"
           />
         </div>
-        &nbsp;
+
+        <div class="q-mx-sm">
+          <q-input
+            dense
+            outlined
+            clearable
+            placeholder="Search Clusters"
+            @update:model-value="changeFilterString($event)"
+            @clear="changeFilterString('')"
+            :model-value="filterString"
+            data-test="search-clusters"
+          >
+            <template v-slot:prepend>
+              <q-icon name="search" />
+            </template>
+          </q-input>
+        </div>
         <div v-for="actionOption in actionOptions" :key="actionOption.label">
           <q-btn
             class="full-height"
-            outline
+            flat
+            rounded
             @click="doActionFilter(actionOption)"
             :label="actionOption.label"
+            color="primary"
           />
         </div>
       </div>
-      <q-space />
-      <q-input
-        dense
-        outlined
-        clearable
-        class="col-4"
-        placeholder="Search Clusters"
-        @update:model-value="changeFilterString($event)"
-        @clear="changeFilterString('')"
-        :model-value="filterString"
-        data-test="search-clusters"
-      >
-        <template v-slot:prepend>
-          <q-icon name="search" />
-        </template>
-      </q-input>
     </div>
-    <q-scroll-area style="" class="fit q-px-md">
-      <q-list style="padding-bottom: 250px">
-        <div v-for="(domainName, index) in domainNames" :key="domainName.id">
-          <div v-show="clusterDomains(domainName).length > 0">
-            <q-expansion-item
-              :id="domainName"
-              switch-toggle-side
-              :label="domainName"
-              :ref="domainName + index"
-              @update:model-value="setOpenDomain(domainName, $event)"
-              :model-value="getDomainOpenState(domainName)"
-              data-test="Cluster"
-            >
-              <zcl-domain-cluster-view
-                :domainName="domainName"
-                :clusters="clusterDomains(domainName)"
-              />
-            </q-expansion-item>
-            <q-separator />
-          </div>
+
+    <q-list>
+      <div v-for="(domainName, index) in domainNames" :key="domainName.id">
+        <div v-show="clusterDomains(domainName).length > 0">
+          <q-expansion-item
+            :id="domainName"
+            :label="domainName"
+            :ref="domainName + index"
+            @update:model-value="setOpenDomain(domainName, $event)"
+            :model-value="getDomainOpenState(domainName)"
+            data-test="Cluster"
+            header-class="bg-white text-primary"
+          >
+            <q-card>
+              <q-card-section>
+                <zcl-domain-cluster-view
+                  :domainName="domainName"
+                  :clusters="clusterDomains(domainName)"
+                />
+              </q-card-section>
+            </q-card>
+          </q-expansion-item>
         </div>
-      </q-list>
-    </q-scroll-area>
+      </div>
+    </q-list>
   </div>
 </template>
 <script>
@@ -260,5 +248,73 @@ export default {
 <style lang="scss">
 .bar {
   padding: 15px 15px 15px 15px;
+}
+.q-expansion-item {
+  margin-bottom: 10px;
+  &.q-expansion-item--collapsed {
+    .q-expansion-item__container {
+      .q-item {
+        transition: all 0.1s ease-out;
+        min-height: auto;
+        background: linear-gradient(#fff, #fff) padding-box,
+          linear-gradient(90deg, rgba(78, 143, 242, 1), rgba(118, 246, 207, 1))
+            border-box !important;
+        border: 2px solid transparent;
+        border-radius: 14px;
+        padding: 7px 14px;
+        &__label {
+          transition: all 0.1s ease-in-out;
+          width: fit-content;
+          font-weight: 700;
+        }
+      }
+    }
+  }
+  .q-expansion-item__content {
+    transition: all 0.1s ease-in !important;
+    background: linear-gradient(#fff, #fff) padding-box,
+      linear-gradient(90deg, rgba(78, 143, 242, 1), rgba(118, 246, 207, 1))
+        border-box !important;
+    border: 2px solid white;
+    border-radius: 14px;
+    padding: 0px;
+    margin-top: 0px;
+    opacity: 0;
+    overflow: hidden;
+    min-height: auto;
+  }
+  &.q-expansion-item--expanded {
+    .q-focus-helper {
+      opacity: 0 !important;
+    }
+    .q-expansion-item__container {
+      .q-item {
+        transition: all 0.4s ease-out;
+        min-height: auto;
+        padding-bottom: 0;
+        border: 2px solid white;
+        border-radius: 14px;
+        padding: 7px 14px;
+        &__section {
+          margin-bottom: -10px;
+        }
+        &__label {
+          transition: all 0.1s ease-in-out;
+          margin-bottom: -1px;
+          margin-left: 3px;
+          background: #539ced;
+          color: white;
+          padding: 2px 16px;
+          width: fit-content;
+          border-radius: 5px 5px 0 0;
+        }
+      }
+      .q-expansion-item__content {
+        transition: all 1s ease-out !important;
+        opacity: 1;
+        border-color: transparent;
+      }
+    }
+  }
 }
 </style>

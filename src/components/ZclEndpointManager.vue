@@ -25,6 +25,7 @@ limitations under the License.
         icon="add"
         label="Add Endpoint"
         flat
+        rounded
         :ripple="false"
         :unelevated="false"
         id="new_endpoint_button"
