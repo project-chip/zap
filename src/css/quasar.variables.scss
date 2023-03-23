@@ -29,13 +29,21 @@ h2{
   padding: 0px;
   margin: 0px
 }
-
+.text-h4{
+  font-size: 2rem;
+}
 .q-rounded-borders-xl{
   border-radius: 20px;
 }
-
+.q-btn--rounded{
+  border-radius: 12px;
+}
 .zigbeee{
   --q-color-primary: #C10015;
   --q-primary: #C10015;
 
+
+}
+:root {
+  --q-transition-duration: 1s;
 }
