@@ -16,16 +16,16 @@ Pushing a tag triggers the release creation CI process, which creates the build 
 $ git checkout master
 ```
 
-2. Tag the pre-release using the format `vYYYY.DD.MM-nightly` and provide a descriptive message:
+2. Tag the pre-release using the format `vYYYY.MM.DD-nightly` and provide a descriptive message:
 
 ```bash
-$ git tag -a vYYYY.DD.MM-nightly -m 'Pre-release build from master branch'
+$ git tag -a vYYYY.MM.DD-nightly -m 'Pre-release build from master branch'
 ```
 
 3. Push the tag to the remote repository:
 
 ```bash
-$ git push origin vYYYY.DD.MM-nightly
+$ git push origin vYYYY.MM.DD-nightly
 ```
 
 **To create an official release, follow these steps:**
@@ -36,14 +36,14 @@ $ git push origin vYYYY.DD.MM-nightly
 $ git checkout rel
 ```
 
-2. Tag the release using the format `vYYYY.DD.MM` and provide a descriptive message:
+2. Tag the release using the format `vYYYY.MM.DD` and provide a descriptive message:
 
 ```bash
-$ git tag -a vYYYY.DD.MM -m 'ZAP official release vYYYY.MM.DD'
+$ git tag -a vYYYY.MM.DD -m 'ZAP official release vYYYY.MM.DD'
 ```
 
 3. Push the tag to the remote repository:
 
 ```bash
-$ git push origin vYYYY.DD.MM
+$ git push origin vYYYY.MM.DD
 ```
