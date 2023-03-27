@@ -193,8 +193,7 @@ function convertAttributeCallbackTypeToJavaName(cType) {
 }
 
 /**
- * Note: This helper needs to be used under a block helper which has a
- * reference to clusterId.
+ * Note: This is a util function
  * Available options:
  * - isBoxedJavaType: 0/1 to return string types in different ways
  * - All other options passed to this helper are considered as overrides for
@@ -206,7 +205,12 @@ function convertAttributeCallbackTypeToJavaName(cType) {
  * @param {*} options
  * @returns The corresponding java data type for a zcl data type.
  */
-async function as_underlying_java_zcl_type(type, clusterId, options) {
+async function as_underlying_java_zcl_type_util(
+  type,
+  clusterId,
+  options,
+  context
+) {
   let hash = options.hash;
   // Overwrite any type with the one coming from the template options
   // Eg: {{as_underlying_java_zcl_type type [clusterId] boolean='Boolean'}}
@@ -216,9 +220,9 @@ async function as_underlying_java_zcl_type(type, clusterId, options) {
   }
 
   // Get ZCL Data Type from the db
-  const packageIds = await templateUtil.ensureZclPackageIds(this);
+  const packageIds = await templateUtil.ensureZclPackageIds(context);
   let dataType = await queryZcl.selectDataTypeByNameAndClusterId(
-    this.global.db,
+    context.global.db,
     type,
     clusterId,
     packageIds
@@ -247,7 +251,7 @@ async function as_underlying_java_zcl_type(type, clusterId, options) {
         dataType,
         clusterId,
         packageIds,
-        this
+        context
       );
       if (sizeAndSign.size >= 3) {
         return 'Long';
@@ -266,6 +270,24 @@ async function as_underlying_java_zcl_type(type, clusterId, options) {
       throw error;
     }
   }
+}
+
+/**
+ * Note: This helper needs to be used under a block helper which has a
+ * reference to clusterId.
+ * Available options:
+ * - isBoxedJavaType: 0/1 to return string types in different ways
+ * - All other options passed to this helper are considered as overrides for
+ * zcl types
+ * for eg: (as_underlying_java_zcl_type type clusterId boolean='Boolean')
+ * will return "Boolean" for "boolean" type
+ * @param {*} type
+ * @param {*} clusterId
+ * @param {*} options
+ * @returns The corresponding java data type for a zcl data type.
+ */
+async function as_underlying_java_zcl_type(type, clusterId, options) {
+  return as_underlying_java_zcl_type_util(type, clusterId, options, this);
 }
 
 async function asUnderlyingBasicType(type) {
@@ -295,7 +317,16 @@ async function asJavaType(type, zclType, cluster, options) {
       cluster
     )}Cluster${appHelper.asUpperCamelCase(type)}`;
   } else {
-    classType += asJavaBoxedType(type, zclType);
+    let javaBoxedType = asJavaBoxedType(type, zclType);
+    if (javaBoxedType == 'Object' && options.hash.clusterId) {
+      javaBoxedType = await as_underlying_java_zcl_type_util(
+        type,
+        options.hash.clusterId,
+        options,
+        this
+      );
+    }
+    classType += javaBoxedType;
   }
 
   if (!options.hash.underlyingType) {

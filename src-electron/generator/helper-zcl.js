@@ -406,6 +406,38 @@ function zcl_commands(options) {
 }
 
 /**
+ * Returns all commands which are command responses.
+ * For eg, If the xml has the following:
+ * <command source="client" code="0x00" name="newCmd" response="newCmdResponse">
+ * then newCmdResponse will be included in the list of commands returned here.
+ *
+ * There are two modes of this helper:
+ * - when used in a global context, it iterates over ALL command responses in
+ * the database.
+ * - when used inside a `zcl_cluster` block helper, it iterates only over the
+ * commands responses for that cluster.
+ * @param {*} options
+ * @returns all command responses
+ */
+async function zcl_command_responses(options) {
+  let packageIds = await templateUtil.ensureZclPackageIds(this)
+  let cmds = null
+  if ('id' in this) {
+    cmds = await queryCommand.selectCommandsByClusterId(
+      this.global.db,
+      this.id,
+      packageIds
+    )
+  } else {
+    cmds = await queryCommand.selectAllCommands(this.global.db, packageIds)
+  }
+  let commandResponses = cmds.map((cmd) => cmd.responseName)
+  let res = cmds.filter((cmd) => commandResponses.includes(cmd.name))
+  let promise = templateUtil.collectBlocks(res, options, this)
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
  * Block helper iterating over all commands with cluster information.
  * Note: Similar to zcl_commands but has cluster information as well.
  * @param {*} options
@@ -2954,3 +2986,4 @@ exports.as_zcl_type_size = as_zcl_type_size
 exports.if_compare = if_compare
 exports.if_is_data_type_signed = if_is_data_type_signed
 exports.as_zcl_data_type_size = as_zcl_data_type_size
+exports.zcl_command_responses = zcl_command_responses
