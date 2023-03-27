@@ -164,6 +164,7 @@ exports.map = {
       manufacturerCode: x.MANUFACTURER_CODE,
       label: x.NAME,
       name: x.NAME,
+      commandName: x.NAME,
       description: x.DESCRIPTION,
       source: x.SOURCE,
       isOptional: dbApi.fromDbBool(x.IS_OPTIONAL),
