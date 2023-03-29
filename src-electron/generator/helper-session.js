@@ -451,7 +451,8 @@ async function all_user_clusters(options) {
   let clusters =
     await queryEndpointType.selectAllClustersDetailsFromEndpointTypes(
       this.global.db,
-      endpointTypes
+      endpointTypes,
+      options
     )
 
   return templateUtil.collectBlocks(clusters, options, this)

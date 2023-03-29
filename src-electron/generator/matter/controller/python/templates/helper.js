@@ -79,7 +79,7 @@ async function as_underlying_python_zcl_type(type, clusterId, options) {
     clusterId,
     packageIds
   );
-  if (type == 'boolean') {
+  if (type && type.toLowerCase() == 'boolean') {
     return 'bool';
   } else if (
     dataType.discriminatorName.toLowerCase() == dbEnum.zclType.bitmap ||

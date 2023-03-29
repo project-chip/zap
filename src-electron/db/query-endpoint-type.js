@@ -162,7 +162,17 @@ async function selectEndpointType(db, id) {
  * @param {*} endpointTypes
  * @returns Promise that resolves with the data that should go into the external form.
  */
-async function selectAllClustersDetailsFromEndpointTypes(db, endpointTypes) {
+async function selectAllClustersDetailsFromEndpointTypes(
+  db,
+  endpointTypes,
+  options = null
+) {
+  let side = null
+  let endpointClusterSideFilter = 'ENDPOINT_TYPE_CLUSTER.SIDE IS NOT ""'
+  if (options && options.hash.side) {
+    side = options.hash.side.toLowerCase()
+    endpointClusterSideFilter = "ENDPOINT_TYPE_CLUSTER.SIDE = '" + side + "'"
+  }
   let endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
   let mapFunction = (x) => {
     return {
@@ -205,7 +215,7 @@ ON
 WHERE
   ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF IN (${endpointTypeIds})
 AND
-  ENDPOINT_TYPE_CLUSTER.SIDE IS NOT "" AND ENDPOINT_TYPE_CLUSTER.ENABLED = 1
+${endpointClusterSideFilter} AND ENDPOINT_TYPE_CLUSTER.ENABLED = 1
 GROUP BY
   NAME, SIDE
 ${

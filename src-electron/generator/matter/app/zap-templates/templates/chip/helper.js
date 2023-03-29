@@ -752,16 +752,27 @@ const dep = templateUtil.deprecatedHelper;
 //
 exports.chip_clusters = chip_clusters;
 exports.chip_has_clusters = chip_has_clusters;
-exports.chip_client_clusters = chip_client_clusters;
+exports.chip_client_clusters = dep(
+  chip_client_clusters,
+  'chip_client_clusters has been deprecated. Use all_user_clusters with the \
+  side option as client'
+);
 exports.chip_has_client_clusters = chip_has_client_clusters;
 exports.chip_server_clusters = chip_server_clusters;
 exports.chip_has_server_clusters = chip_has_server_clusters;
-exports.chip_cluster_commands = chip_cluster_commands;
-exports.chip_cluster_command_arguments = chip_cluster_command_arguments;
+exports.chip_cluster_commands = dep(
+  chip_cluster_commands,
+  'chip_cluster_commands has been deprecated. Use zcl_commands with source attribute as client'
+);
+exports.chip_cluster_command_arguments = dep(chip_cluster_command_arguments, {
+  to: 'zcl_command_arguments',
+});
 exports.chip_cluster_command_arguments_with_structs_expanded =
   chip_cluster_command_arguments_with_structs_expanded;
 exports.chip_server_global_responses = chip_server_global_responses;
-exports.chip_cluster_responses = chip_cluster_responses;
+exports.chip_cluster_responses = dep(chip_cluster_responses, {
+  to: 'zcl_command_responses',
+});
 exports.chip_cluster_response_arguments = chip_cluster_response_arguments;
 exports.chip_attribute_list_entryTypes = chip_attribute_list_entryTypes;
 exports.chip_server_cluster_attributes = dep(
