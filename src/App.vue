@@ -47,33 +47,32 @@ async function initializeSession() {
 
 async function initLoad(store) {
   await initializeSession()
-
-  store.dispatch('zap/loadInitialData')
-  store.dispatch('zap/loadOptions', {
+  let promises = []
+  promises.push(store.dispatch('zap/loadInitialData'))
+  promises.push(store.dispatch('zap/loadOptions', {
     key: 'defaultResponsePolicy',
     type: 'string',
-  })
-  store.dispatch('zap/loadOptions', {
+  }))
+  promises.push(store.dispatch(('zap/loadOptions', {
     key: 'manufacturerCodes',
     type: 'object',
-  })
-  store.dispatch('zap/loadOptions', {
+  })))
+  promises.push(store.dispatch(('zap/loadOptions', {
     key: 'profileCodes',
     type: 'object',
-  })
-  store.dispatch('zap/loadOptions', {
+  })))
+  promises.push(store.dispatch(('zap/loadOptions', {
     key: 'generator',
     type: 'object',
-  })
-  store.dispatch('zap/loadSessionKeyValues')
+  })))
+  promises.push(store.dispatch(('zap/loadSessionKeyValues')))
+
   if (
     localStorage.getItem('showDevTools') &&
     localStorage.getItem('showDevTools') == 'true'
-  ) {
-    store.dispatch('zap/updateShowDevTools')
+  ){
+    promises.push(store.dispatch('zap/updateShowDevTools'))
   }
-
-  let promises = []
   promises.push(store.dispatch('zap/updateClusters'))
   promises.push(store.dispatch('zap/updateAtomics'))
   promises.push(store.dispatch('zap/updateZclDeviceTypes'))
