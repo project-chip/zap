@@ -13,14 +13,14 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
-<!-- TODO 
-  needs to be connected to the new UI .vue file 
+<!-- TODO
+  needs to be connected to the new UI .vue file
   connect Storage Option column to a real list
   make sure Required column is the correct list
   add action to edit button
 -->
 <template>
-  <div v-show="relevantAttributeData.length > 0">
+  <div class="col" v-show="relevantAttributeData.length > 0">
     <q-table
       class="my-sticky-header-table"
       :rows="relevantAttributeData"
@@ -33,7 +33,8 @@ limitations under the License.
       v-model:pagination="pagination"
       :sort-method="customAttributeSort"
       data-cy="Attributes"
-      style="height: calc(100vh - 210px); overflow: hidden"
+      :style="{ height: tableHeight + 'px' }"
+      separator="horizontal"
     >
       <template v-slot:body="props">
         <q-tr :props="props" class="table_body">
@@ -218,6 +219,7 @@ limitations under the License.
         </q-tr>
       </template>
     </q-table>
+    <q-resize-observer @resize="onResize" />
   </div>
 </template>
 
@@ -231,6 +233,9 @@ export default {
   name: 'ZclAttributeManager',
   mixins: [EditableAttributeMixin],
   methods: {
+    onResize(size) {
+      this.tableHeight = size.height
+    },
     isDisabled(id, selectedClusterId) {
       return !this.selection.includes(
         this.hashAttributeIdClusterId(id, selectedClusterId)
@@ -333,6 +338,9 @@ export default {
       }
       return data
     },
+    calculateTableHeight() {
+      this.tableHeight = 30
+    },
   },
 
   computed: {
@@ -352,8 +360,15 @@ export default {
       return Object.values(DbEnum.storageOption)
     },
   },
+  mounted() {
+    window.addEventListener('resize', this.calculateTableHeight)
+  },
+  unmounted() {
+    window.removeEventListener('resize', this.calculateTableHeight)
+  },
   data() {
     return {
+      tableHeight: 30,
       pagination: {
         rowsPerPage: 0,
         sortBy: 'clientServer',
