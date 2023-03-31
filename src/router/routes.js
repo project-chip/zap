@@ -38,7 +38,16 @@ const routes = [
   {
     path: '/cluster',
     name: 'cluster',
-    component: () => import('components/ZclClusterView.vue'),
+    component: () => import('layouts/MainLayout.vue'),
+    children: [
+      {
+        path: '',
+        components: {
+          default: () => import('components/ZclClusterView.vue'),
+          sidebar: () => import('components/ZclEndpointManager.vue'),
+        },
+      },
+    ],
   },
   {
     path: '/customZcl',

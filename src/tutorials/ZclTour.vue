@@ -232,7 +232,7 @@ export default {
         this.$store.commit('zap/triggerExpanded', true)
         document
           .getElementsByClassName(
-            ' q-icon material-icons q-expansion-item__toggle-icon'
+            ' q-icon notranslate material-icons q-expansion-item__toggle-icon'
           )[1]
           .click()
         resolve()
@@ -252,9 +252,11 @@ export default {
     comeBackToHomePage() {
       return new Promise((resolve) => {
         if (this.$route.path !== '/') {
-          this.$router.push({ name: 'Home' }).then(() => {
+          this.$router.push('/').then(() => {
             this.$store.commit('zap/triggerExpanded', true)
-            resolve()
+            setTimeout(() => {
+              resolve()
+            }, 1000)
           })
         } else {
           resolve()
@@ -278,8 +280,10 @@ export default {
                 this.$store.state.zap.domains[0]
               )
             })
-          this.$router.push({ name: 'cluster' }).then(() => {
-            resolve()
+          this.$router.push('/cluster').then(() => {
+            setTimeout(() => {
+              resolve()
+            }, 1000)
           })
         } else {
           resolve()
@@ -304,11 +308,11 @@ export default {
     openCommandsTabInCluster() {
       return new Promise((resolve) => {
         if (this.$route.path === '/') {
-          this.$router.push({ name: 'cluster' }).then(() => {
+          this.$router.push('/cluster').then(() => {
             setTimeout(() => {
               this.$store.commit('zap/openReportTabInCluster', 'commands')
               resolve()
-            }, 200)
+            }, 1000)
           })
         } else {
           this.$store.commit('zap/openReportTabInCluster', 'commands')

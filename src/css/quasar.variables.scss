@@ -38,6 +38,16 @@ h2{
 .q-btn--rounded{
   border-radius: 12px;
 }
+
+.linear-border-wrap{
+  background: linear-gradient(#fff, #fff) padding-box,
+  linear-gradient(90deg, rgba(78, 143, 242, 1), rgba(118, 246, 207, 1))
+    border-box !important;
+border: 2px solid transparent;
+border-radius: 14px;
+padding:3px;
+}
+
 .zigbeee{
   --q-color-primary: #C10015;
   --q-primary: #C10015;
