@@ -805,7 +805,7 @@ function hasRenamedFields(cluster, options) {
     };
   } else {
     throw new Error(
-      `hasRenamedFields called for a non-container object: ${cluster} '${JSON.stringfify(
+      `hasRenamedFields called for a non-container object: ${cluster} '${JSON.stringify(
         options.hash
       )}'`
     );
