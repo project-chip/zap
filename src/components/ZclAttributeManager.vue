@@ -33,7 +33,6 @@ limitations under the License.
       v-model:pagination="pagination"
       :sort-method="customAttributeSort"
       data-cy="Attributes"
-      :style="{ height: tableHeight + 'px' }"
       separator="horizontal"
     >
       <template v-slot:body="props">
@@ -219,7 +218,6 @@ limitations under the License.
         </q-tr>
       </template>
     </q-table>
-    <q-resize-observer @resize="onResize" />
   </div>
 </template>
 
@@ -233,9 +231,6 @@ export default {
   name: 'ZclAttributeManager',
   mixins: [EditableAttributeMixin],
   methods: {
-    onResize(size) {
-      this.tableHeight = size.height
-    },
     isDisabled(id, selectedClusterId) {
       return !this.selection.includes(
         this.hashAttributeIdClusterId(id, selectedClusterId)
@@ -338,9 +333,6 @@ export default {
       }
       return data
     },
-    calculateTableHeight() {
-      this.tableHeight = 30
-    },
   },
 
   computed: {
@@ -360,15 +352,9 @@ export default {
       return Object.values(DbEnum.storageOption)
     },
   },
-  mounted() {
-    window.addEventListener('resize', this.calculateTableHeight)
-  },
-  unmounted() {
-    window.removeEventListener('resize', this.calculateTableHeight)
-  },
+
   data() {
     return {
-      tableHeight: 30,
       pagination: {
         rowsPerPage: 0,
         sortBy: 'clientServer',

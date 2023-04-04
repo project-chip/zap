@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <template>
-  <div v-show="attributeData.length > 0">
+  <div class="col" v-show="attributeData.length > 0">
     <q-table
       class="my-sticky-header-table"
       :rows="attributeData"
