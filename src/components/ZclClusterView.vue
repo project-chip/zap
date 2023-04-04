@@ -82,27 +82,25 @@ limitations under the License.
           <q-tab name="events" label="Events" v-show="events.length > 0" />
         </q-tabs>
         <div
-          class="col column"
+          class="col column linear-border-wrap"
           v-show="Object.keys(selectedCluster).length > 0"
         >
-          <div
-            class="col column linear-border-wrap"
-            v-show="tab == 'attributes'"
-          >
+          <div class="" v-show="tab == 'attributes'">
             <ZclAttributeManager />
           </div>
-          <div class="col" v-show="tab == 'commands'">
+          <div class="col column" v-show="tab == 'commands'">
             <ZclCommandManager />
           </div>
-          <div class="col" v-show="tab == 'reporting'">
+          <div class="col column" v-show="tab == 'reporting'">
             <ZclAttributeReportingManager />
           </div>
-          <div class="col" v-show="tab == 'events'">
+          <div class="col column" v-show="tab == 'events'">
             <ZclEventManager />
           </div>
         </div>
       </div>
     </q-card>
+    <q-resize-observer @resize="onResize" />
   </div>
 </template>
 <script>
@@ -157,14 +155,30 @@ export default {
       this.tab = val
     },
   },
+  mounted() {
+    window.addEventListener('resize', this.calculateTableSize)
+  },
+  unmounted() {
+    window.removeEventListener('resize', this.calculateTableSize)
+  },
   methods: {
     setIndividualClusterFilterString(filterString) {
       this.$store.dispatch('zap/setIndividualClusterFilterString', filterString)
+    },
+    onResize(size) {
+      this.tableHeight = size.height - 380 + 'px'
+      this.tableWidth = size.width - 80 + 'px'
+    },
+    calculateTableSize() {
+      this.tableHeight = '30px'
+      this.tableWidth = '500px'
     },
   },
   data() {
     return {
       tab: 'attributes',
+      tableHeight: '30px',
+      tableWidth: '500px',
     }
   },
 
@@ -176,7 +190,7 @@ export default {
   },
 }
 </script>
-<style lang="scss" scoped>
+<style lang="scss">
 .popup-wrap {
   position: absolute;
   top: 0;
@@ -223,5 +237,9 @@ export default {
 .q-table--dense .q-table th,
 .q-table--dense .q-table td {
   padding: 2px 5px;
+}
+.my-sticky-header-table {
+  width: v-bind(tableWidth);
+  height: v-bind(tableHeight);
 }
 </style>
