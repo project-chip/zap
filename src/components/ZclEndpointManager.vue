@@ -16,10 +16,10 @@ limitations under the License.
 
 <template>
   <q-list>
-    <div class="row justify-between">
+    <div class="row justify-between q-mt-md q-mb-xs">
       <q-item-label class="q-my-auto" header>Endpoints</q-item-label>
       <q-btn
-        class="q-pa-md q-mini-drawer-hide row-8 v-step-0"
+        class="q-px-md q-mini-drawer-hide row-8 v-step-0"
         text-color="primary"
         @click="toggleCreateEndpointModal()"
         icon="add"
