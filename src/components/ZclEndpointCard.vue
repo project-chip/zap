@@ -444,7 +444,7 @@ export default {
   }
   &.active {
     color: #fff;
-    background: $primary;
+    background: var(--q-primary);
   }
 }
 </style>

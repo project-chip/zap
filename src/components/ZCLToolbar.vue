@@ -2,11 +2,19 @@
   <q-toolbar class="bg-glass q-electron-drag">
     <q-toolbar-title style="width: 180px">
       <Transition mode="out-in" name="slide-up">
-        <img
-          v-if="$route.fullPath === '/'"
-          class="my-auto block"
-          src="/matter_logo.svg"
-        />
+        <div v-if="$route.fullPath === '/'">
+          <img
+            v-if="uiThemeCategory === 'zigbee'"
+            class="my-auto block logo"
+            src="/zigbee_logo.svg"
+          />
+          <img
+            v-else-if="uiThemeCategory === 'matter'"
+            class="my-auto block logo"
+            src="/matter_logo.svg"
+          />
+        </div>
+
         <q-btn
           v-else
           flat
@@ -155,6 +163,11 @@ export default {
     zclExtensionDialogInTutorial: {
       get() {
         return this.$store.state.zap.openZclExtensionsDialog
+      },
+    },
+    uiThemeCategory: {
+      get() {
+        return this.$store.state.zap.selectedZapConfig?.zclProperties.category
       },
     },
   },

@@ -2,7 +2,7 @@
   <q-page
     padding
     class="row justify-center items-center full-height"
-    :class="{ zigbeee: getuitheme === 'zigbee' }"
+    :class="{ zigbee: getuitheme === 'zigbee' }"
   >
     <Transition name="slide-up" mode="out-in" appear>
       <q-card flat class="q-px-xl q-py-lg q-rounded-borders-xl bg-glass">
@@ -386,7 +386,7 @@ export default {
   background-size: cover;
   transition: 2s;
 
-  &.zigbeee {
+  &.zigbee {
     background: url('/bg-zigbee.jpg');
     //  background-attachment: fixed;
     background-size: cover;

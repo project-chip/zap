@@ -114,12 +114,12 @@ export default {
 
 .slide-down-leave-active,
 .slide-down-enter-active {
-  transition: all 0.5s ease-out;
+  transition: all 0.25s ease-out;
 }
 
 .slide-down-enter-from {
   opacity: 0;
-  transform: translateY(-75px);
+  transform: translateY(-35px);
 }
 
 .slide-down-leave-to {

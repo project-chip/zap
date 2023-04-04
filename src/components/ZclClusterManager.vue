@@ -64,7 +64,7 @@ limitations under the License.
       </div>
     </div>
 
-    <q-list>
+    <q-list class="cluster-list">
       <div v-for="(domainName, index) in domainNames" :key="domainName.id">
         <div v-show="clusterDomains(domainName).length > 0">
           <q-expansion-item
@@ -248,73 +248,5 @@ export default {
 <style lang="scss">
 .bar {
   padding: 15px 15px 15px 15px;
-}
-.q-expansion-item {
-  margin-bottom: 10px;
-  &.q-expansion-item--collapsed {
-    .q-expansion-item__container {
-      .q-item {
-        transition: all 0.1s ease-out;
-        min-height: auto;
-        background: linear-gradient(#fff, #fff) padding-box,
-          linear-gradient(90deg, rgba(78, 143, 242, 1), rgba(118, 246, 207, 1))
-            border-box !important;
-        border: 2px solid transparent;
-        border-radius: 14px;
-        padding: 7px 14px;
-        &__label {
-          transition: all 0.1s ease-in-out;
-          width: fit-content;
-          font-weight: 700;
-        }
-      }
-    }
-  }
-  .q-expansion-item__content {
-    transition: all 0.1s ease-in !important;
-    background: linear-gradient(#fff, #fff) padding-box,
-      linear-gradient(90deg, rgba(78, 143, 242, 1), rgba(118, 246, 207, 1))
-        border-box !important;
-    border: 2px solid white;
-    border-radius: 14px;
-    padding: 0px;
-    margin-top: 0px;
-    opacity: 0;
-    overflow: hidden;
-    min-height: auto;
-  }
-  &.q-expansion-item--expanded {
-    .q-focus-helper {
-      opacity: 0 !important;
-    }
-    .q-expansion-item__container {
-      .q-item {
-        transition: all 0.4s ease-out;
-        min-height: auto;
-        padding-bottom: 0;
-        border: 2px solid white;
-        border-radius: 14px;
-        padding: 7px 14px;
-        &__section {
-          margin-bottom: -10px;
-        }
-        &__label {
-          transition: all 0.1s ease-in-out;
-          margin-bottom: -1px;
-          margin-left: 3px;
-          background: #539ced;
-          color: white;
-          padding: 2px 16px;
-          width: fit-content;
-          border-radius: 5px 5px 0 0;
-        }
-      }
-      .q-expansion-item__content {
-        transition: all 1s ease-out !important;
-        opacity: 1;
-        border-color: transparent;
-      }
-    }
-  }
 }
 </style>
