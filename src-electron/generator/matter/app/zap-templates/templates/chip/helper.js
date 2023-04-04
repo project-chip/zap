@@ -750,44 +750,81 @@ const dep = templateUtil.deprecatedHelper;
 //
 // Module exports
 //
-exports.chip_clusters = chip_clusters;
-exports.chip_has_clusters = chip_has_clusters;
+exports.chip_clusters = dep(
+  chip_clusters,
+  'chip_clusters has been deprecated. Use all_user_clusters.'
+);
+exports.chip_has_clusters = dep(
+  chip_has_clusters,
+  'Use first/last block helper within all_user_clusters.'
+);
 exports.chip_client_clusters = dep(
   chip_client_clusters,
   'chip_client_clusters has been deprecated. Use all_user_clusters with the \
-  side option as client'
+  side option as client.'
 );
-exports.chip_has_client_clusters = chip_has_client_clusters;
-exports.chip_server_clusters = chip_server_clusters;
-exports.chip_has_server_clusters = chip_has_server_clusters;
+exports.chip_has_client_clusters = dep(
+  chip_has_client_clusters,
+  'chip_has_client_clusters has been deprecated. Use if_enabled_clusters with side option as client.'
+);
+exports.chip_server_clusters = dep(
+  chip_server_clusters,
+  'chip_server_clusters has been deprecated. Use all_user_clusters with the side option as server.'
+);
+exports.chip_has_server_clusters = dep(
+  chip_has_server_clusters,
+  'chip_has_server_clusters has been deprecated. Use if_enabled_clusters with side option as server.'
+);
 exports.chip_cluster_commands = dep(
   chip_cluster_commands,
-  'chip_cluster_commands has been deprecated. Use zcl_commands with source attribute as client'
+  'chip_cluster_commands has been deprecated. Use zcl_commands with source attribute as client.'
 );
 exports.chip_cluster_command_arguments = dep(chip_cluster_command_arguments, {
   to: 'zcl_command_arguments',
 });
-exports.chip_cluster_command_arguments_with_structs_expanded =
-  chip_cluster_command_arguments_with_structs_expanded;
+exports.chip_cluster_command_arguments_with_structs_expanded = dep(
+  chip_cluster_command_arguments_with_structs_expanded,
+  'chip_cluster_command_arguments_with_structs_expanded has been deprecated. Use if_is_struct and zcl_struct_items_by_struct_name to expand the structs.'
+);
 exports.chip_server_global_responses = chip_server_global_responses;
 exports.chip_cluster_responses = dep(chip_cluster_responses, {
   to: 'zcl_command_responses',
 });
-exports.chip_cluster_response_arguments = chip_cluster_response_arguments;
+exports.chip_cluster_response_arguments = dep(
+  chip_cluster_response_arguments,
+  'chip_cluster_response_arguments has been deprecated. Use zcl_command_arguments.'
+);
 exports.chip_attribute_list_entryTypes = chip_attribute_list_entryTypes;
 exports.chip_server_cluster_attributes = dep(
   chip_server_cluster_attributes,
   'chip_server_cluster_attributes has been deprecated. Use \
   enabled_attributes_for_cluster_and_side and \
-  zcl_attributes_server to get enabled and all server attributes respectively'
+  zcl_attributes_server to get enabled and all server attributes respectively.'
 );
-exports.chip_server_cluster_events = chip_server_cluster_events;
-exports.chip_server_has_list_attributes = chip_server_has_list_attributes;
-exports.chip_server_has_reportable_attributes =
-  chip_server_has_reportable_attributes;
-exports.chip_available_cluster_commands = chip_available_cluster_commands;
-exports.chip_endpoints = chip_endpoints;
-exports.chip_endpoint_clusters = chip_endpoint_clusters;
+exports.chip_server_cluster_events = dep(
+  chip_server_cluster_events,
+  'chip_server_cluster_events has been deprecated. Use zcl_events.'
+);
+exports.chip_server_has_list_attributes = dep(
+  chip_server_has_list_attributes,
+  'chip_server_has_list_attributes has been deprecated. Use isArray option to fiter array type attributes and use first/last blocks for one time checks.'
+);
+exports.chip_server_has_reportable_attributes = dep(
+  chip_server_has_reportable_attributes,
+  'chip_server_has_reportable_attributes has been deprecated. Use isReportableAttribute option to fiter reportable attributes and use first/last blocks for one time checks.'
+);
+exports.chip_available_cluster_commands = dep(
+  chip_available_cluster_commands,
+  'chip_available_cluster_commands has been deprecated. Use zcl_commands or all_user_cluster_generated_commands.'
+);
+exports.chip_endpoints = dep(
+  chip_endpoints,
+  'chip_endpoints has been deprecated. Use user_endpoints.'
+);
+exports.chip_endpoint_clusters = dep(
+  chip_endpoint_clusters,
+  'chip_endpoint_clusters has been deprecated. Use user_clusters or all_user_clusters.'
+);
 exports.if_chip_enum = if_chip_enum;
 exports.if_chip_complex = if_chip_complex;
 exports.if_basic_global_response = dep(if_basic_global_response, {

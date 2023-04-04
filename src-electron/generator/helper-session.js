@@ -1489,6 +1489,30 @@ async function generated_attribute_min_max_index(
   return dataPtr
 }
 
+/**
+ * If helper that checks if there are clusters enabled
+ * Available options:
+ * - side: side="client/server" can be used to check if there are client or
+ * server side clusters are available
+ * @param {*} options
+ * @returns Promise of content.
+ *
+ */
+async function if_enabled_clusters(options) {
+  let endpointTypes = await templateUtil.ensureEndpointTypeIds(this)
+  let clusters =
+    await queryEndpointType.selectAllClustersDetailsFromEndpointTypes(
+      this.global.db,
+      endpointTypes,
+      options
+    )
+  if (clusters.length > 0) {
+    return options.fn(this)
+  } else {
+    return options.inverse(this)
+  }
+}
+
 const dep = templateUtil.deprecatedHelper
 
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
@@ -1592,3 +1616,4 @@ exports.is_command_default_response_enabled =
   is_command_default_response_enabled
 exports.is_command_default_response_disabled =
   is_command_default_response_disabled
+exports.if_enabled_clusters = if_enabled_clusters
