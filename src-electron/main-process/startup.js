@@ -177,6 +177,7 @@ function gatherFiles(filesArg, options = { suffix: '.zap', doBlank: true }) {
  * @param {*} output
  */
 async function startConvert(argv, options) {
+  let zapFiles = argv.zapFiles
   let files = gatherFiles(zapFiles, { suffix: '.zap', doBlank: true })
   if (files.length == 0) {
     options.logger(`    👎 no zap files found in: ${zapFiles}`)
