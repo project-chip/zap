@@ -183,6 +183,7 @@ async function startConvert(argv, options) {
     options.logger(`    👎 no zap files found in: ${zapFiles}`)
     throw `👎 no zap files found in: ${zapFiles}`
   }
+  if (argv.output == null) throw 'You need to specify output file.'
   let output = argv.output
   let conversion_results = argv.results
   options.logger(`🤖 Conversion started
