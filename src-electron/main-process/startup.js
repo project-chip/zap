@@ -177,7 +177,11 @@ function gatherFiles(filesArg, options = { suffix: '.zap', doBlank: true }) {
  * @param {*} output
  */
 async function startConvert(argv, options) {
-  let files = argv.zapFiles
+  let files = gatherFiles(zapFiles, { suffix: '.zap', doBlank: true })
+  if (files.length == 0) {
+    options.logger(`    👎 no zap files found in: ${zapFiles}`)
+    throw `👎 no zap files found in: ${zapFiles}`
+  }
   let output = argv.output
   let conversion_results = argv.results
   options.logger(`🤖 Conversion started
@@ -780,9 +784,6 @@ async function startUpMainInstance(argv, callbacks) {
   } else if (argv._.includes('server')) {
     return startServer(argv, quitFunction)
   } else if (argv._.includes('convert')) {
-    if (argv.zapFiles.length < 1)
-      throw 'You need to specify at least one zap file.'
-    if (argv.output == null) throw 'You need to specify output file.'
     return startConvert(argv, {
       logger: console.log,
       quitFunction: quitFunction,
