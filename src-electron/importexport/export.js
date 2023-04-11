@@ -28,6 +28,8 @@ const querySession = require('../db/query-session.js')
 const queryImpExp = require('../db/query-impexp.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 
+const defaultFileFormat = 0
+
 async function exportEndpointType(db, endpointType) {
   let data = await queryImpExp.exportClustersFromEndpointType(
     db,
@@ -155,6 +157,7 @@ async function exportDataIntoFile(
   options = {
     removeLog: false,
     createBackup: false,
+    fileFormat: defaultFileFormat,
   }
 ) {
   env.logDebug(`Writing state from session ${sessionId} into file ${filePath}`)
@@ -162,7 +165,9 @@ async function exportDataIntoFile(
   if (options.removeLog) delete state.log
 
   // avoid unncessary Studio integration id from being saved in file.
-  state['keyValuePairs'] = state['keyValuePairs'].filter(x => x.key != dbEnum.sessionKey.ideProjectPath)
+  state['keyValuePairs'] = state['keyValuePairs'].filter(
+    (x) => x.key != dbEnum.sessionKey.ideProjectPath
+  )
 
   if (fs.existsSync(filePath)) {
     fs.copyFileSync(filePath, filePath + '~')
@@ -208,10 +213,17 @@ async function getSessionKeyValues(db, sessionId, excludedKeys) {
  * @param {*} sessionId
  * @returns state object that needs to be saved into a file.
  */
-async function createStateFromDatabase(db, sessionId) {
+async function createStateFromDatabase(
+  db,
+  sessionId,
+  fileFormat = defaultFileFormat
+) {
   let state = {
     featureLevel: env.zapVersion().featureLevel,
     creator: 'zap',
+  }
+  if (fileFormat > 0) {
+    state.fileFormat = fileFormat
   }
   let promises = []
   let excludedKeys = [dbEnum.sessionKey.filePath]
@@ -249,3 +261,4 @@ async function createStateFromDatabase(db, sessionId) {
 // exports
 exports.exportDataIntoFile = exportDataIntoFile
 exports.createStateFromDatabase = createStateFromDatabase
+exports.defaultFileFormat = defaultFileFormat
