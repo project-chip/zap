@@ -23,6 +23,10 @@ const zapBaseUrl = 'http://localhost:'
 
 import { VersionType, ErrorType } from '../types/env-types'
 
+export function defaultFileFormat() {
+  return 0
+}
+
 export function builtinSilabsZclMetafile() {
   return locateProjectResource('./zcl-builtin/silabs/zcl.json')
 }
@@ -78,6 +82,10 @@ export const environmentVariable = {
     name: 'JENKINS_HOME',
     description:
       'When this env variable is present, zap will assume Jenkins environment. That will assume ZAP_TEMPSTATE and ZAP_SKIP_POST_GENERATION to be 1 by default.',
+  },
+  saveFileFormat: {
+    name: 'ZAP_SAVE_FILE_FORMAT',
+    description: `Overrides a default saved zap file format, ${defaultFileFormat()}. It should be an integer number 0 or greater. This only affects file saving.`,
   },
 }
 

@@ -199,6 +199,13 @@ export function processCommandLineArguments(argv: string[]) {
       default:
         process.env[env.environmentVariable.zapGenerationLog.name] || null,
     })
+    .option('saveFileFormat', {
+      desc: `Specify default save file format.`,
+      type: 'number',
+      default:
+        process.env[env.environmentVariable.saveFileFormat.name] ||
+        env.defaultFileFormat(),
+    })
     .option('watchdogTimer', {
       desc: `In a server mode, how long of no-activity (in ms) shuts down the server.`,
       type: 'number',

@@ -28,7 +28,7 @@ const querySession = require('../db/query-session.js')
 const queryImpExp = require('../db/query-impexp.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 
-const defaultFileFormat = 0
+const defaultFileFormat = env.defaultFileFormat()
 
 async function exportEndpointType(db, endpointType) {
   let data = await queryImpExp.exportClustersFromEndpointType(
@@ -213,11 +213,7 @@ async function getSessionKeyValues(db, sessionId, excludedKeys) {
  * @param {*} sessionId
  * @returns state object that needs to be saved into a file.
  */
-async function createStateFromDatabase(
-  db,
-  sessionId,
-  fileFormat = defaultFileFormat
-) {
+async function createStateFromDatabase(db, sessionId) {
   let state = {
     featureLevel: env.zapVersion().featureLevel,
     creator: 'zap',
