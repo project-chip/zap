@@ -108,7 +108,7 @@ export function processCommandLineArguments(argv: string[]) {
       desc: 'zcl.properties file to read in.',
       alias: ['zcl', 'z'],
       type: 'array',
-      default: env.builtinSilabsZclMetafile(),
+      default: [env.builtinMatterZclMetafile(), env.builtinSilabsZclMetafile()],
     })
     .option('sdk', {
       desc: 'sdk.json file to read, for operations that act on whole SDK',
@@ -119,7 +119,7 @@ export function processCommandLineArguments(argv: string[]) {
       desc: 'generation template metafile (gen-template.json) to read in.',
       alias: ['gen', 'g'],
       type: 'array',
-      default: env.builtinTemplateMetafile(),
+      default: [],
     })
     .option('uiMode', {
       desc: 'Mode of the UI to begin in. Options are: ZIGBEE',
