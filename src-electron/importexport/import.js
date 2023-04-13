@@ -27,6 +27,7 @@ const querySession = require('../db/query-session.js')
 const env = require('../util/env')
 const script = require('../util/script')
 const dbEnum = require('../../src-shared/db-enum')
+const ff = require('./file-format.js')
 
 /**
  * Reads the data from the file and resolves with the state object if all is good.
@@ -88,6 +89,7 @@ async function importDataFromFile(
   }
 ) {
   let state = await readDataFromFile(filePath, options.defaultZclMetafile)
+  state = ff.convertFromFile(state)
   try {
     await dbApi.dbBeginTransaction(db)
     let sid

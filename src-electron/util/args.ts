@@ -277,6 +277,8 @@ For more information, see ${commonUrl.projectUrl}`
     }
   }
 
+  env.setSaveFileFormat(ret.saveFileFormat)
+
   // Collect files that are passed as loose arguments
   let allFiles = ret._.filter((arg: string | number, index: number) => {
     if (index == 0) return false

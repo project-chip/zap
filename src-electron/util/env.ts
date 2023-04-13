@@ -23,8 +23,14 @@ const zapBaseUrl = 'http://localhost:'
 
 import { VersionType, ErrorType } from '../types/env-types'
 
+let saveFileFormat = 0
+
+export function setSaveFileFormat(n: number) {
+  saveFileFormat = n
+}
+
 export function defaultFileFormat() {
-  return 0
+  return saveFileFormat
 }
 
 export function builtinSilabsZclMetafile() {
