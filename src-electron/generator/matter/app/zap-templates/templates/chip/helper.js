@@ -830,8 +830,14 @@ exports.if_chip_complex = if_chip_complex;
 exports.if_basic_global_response = dep(if_basic_global_response, {
   to: 'if_basic_attribute',
 });
-exports.chip_cluster_specific_structs = chip_cluster_specific_structs;
-exports.chip_shared_structs = chip_shared_structs;
+exports.chip_cluster_specific_structs = dep(
+  chip_cluster_specific_structs,
+  'chip_cluster_specific_structs has been deprecated. Use zcl_structs.'
+);
+exports.chip_shared_structs = dep(
+  chip_shared_structs,
+  'chip_shared_structs has been deprecated. Use zcl_structs along with has_more_than_one_cluster attribute.'
+);
 exports.chip_access_elements = chip_access_elements;
 exports.if_is_strongly_typed_chip_enum = if_is_strongly_typed_chip_enum;
 exports.if_is_strongly_typed_bitmap = if_is_strongly_typed_bitmap;
