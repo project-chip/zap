@@ -42,5 +42,7 @@ test('Conversion', async () => {
   let state3JSON = JSON.stringify(state2, null, 2)
 
   expect(state1JSON).not.toEqual(state2JSON)
+
+  // state3JSON is functionally the same, but NOT equal to state1JSON
   //expect(state3JSON).toEqual(state1JSON)
 })
