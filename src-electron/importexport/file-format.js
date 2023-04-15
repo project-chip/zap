@@ -105,11 +105,15 @@ function packCommand(cmd) {
 function unpackKeyValuePairs(keyValuePairs) {
   let kvps = []
   for (let kvp of keyValuePairs) {
-    let pair = kvp.split('=').map((x) => x.trim())
-    kvps.push({
-      key: pair[0],
-      value: pair[1],
-    })
+    if (_.isString(kvp)) {
+      let pair = kvp.split('=').map((x) => x.trim())
+      kvps.push({
+        key: pair[0],
+        value: pair[1],
+      })
+    } else {
+      kvps.push(kvp)
+    }
   }
   return kvps
 }
