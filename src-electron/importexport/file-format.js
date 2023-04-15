@@ -41,9 +41,9 @@ function unpackAttribute(a) {
   attr.singleton = toks[4] === 'singleton' ? 1 : 0
   attr.bounded = toks[5] === 'bound' ? 1 : 0
   attr.defaultValue = toks[6]
-  attr.reportable = parseInt(a.reportable)
-  attr.minInterval = parseInt(a.minInterval)
-  attr.maxInterval = parseInt(a.maxInterval)
+  attr.reportable = parseInt(toks[7])
+  attr.minInterval = parseInt(toks[8])
+  attr.maxInterval = parseInt(toks[9])
   attr.included = 1
   return attr
 }
