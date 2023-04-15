@@ -44,6 +44,7 @@ function unpackAttribute(a) {
   attr.reportable = parseInt(a.reportable)
   attr.minInterval = parseInt(a.minInterval)
   attr.maxInterval = parseInt(a.maxInterval)
+  attr.included = 1
   return attr
 }
 
@@ -76,7 +77,7 @@ function unpackCommand(c) {
   if (toks.length != 5) throw new Error(`Invalid format: ${a}`)
 
   let cmd = {}
-  cmd.code = type.hexStringToInt(toks[0])
+  cmd.code = types.hexStringToInt(toks[0])
   if (toks[1].length == 0) {
     cmd.mfgCode = null
   } else {
@@ -110,6 +111,7 @@ function unpackKeyValuePairs(keyValuePairs) {
       value: pair[1],
     })
   }
+  return kvps
 }
 
 // Packs key value pairs for extenrnal representation
@@ -129,6 +131,7 @@ function cleanseCluster(c) {
   } else {
     delete c.mfgCode
   }
+  delete c.enabled
 }
 
 // Uncleanses the toplevel cluster data.
@@ -144,6 +147,7 @@ function uncleanseCluster(c) {
     if (code.startsWith('0x')) code = code.substring(2)
     c.mfgCode = parseInt(code, 16)
   }
+  c.enabled = 1
 }
 
 /**
@@ -164,7 +168,6 @@ function convertToFile(state) {
       let onlyEnabledClusters = []
       for (let c of ept.clusters) {
         if (c.enabled === 1 || c.enabled === true) {
-          delete c.enabled
           onlyEnabledClusters.push(c)
         }
       }
@@ -219,7 +222,7 @@ function convertToFile(state) {
  * This function gets the JSON from the file, and converts it to the correct database state
  */
 function convertFromFile(state) {
-  if (state.fileFormat && state.fileFormat > 1) {
+  if (state.fileFormat && state.fileFormat > 0) {
     // Convert key value pairs
     if (state.keyValuePairs) {
       state.keyValuePairs = unpackKeyValuePairs(state.keyValuePairs)
@@ -229,32 +232,32 @@ function convertFromFile(state) {
       // Now uncleanse the clusters
       for (let c of ept.clusters) {
         uncleanseCluster(c)
-      }
 
-      // Now we convert all the attributes...
-      if (c.attributes) {
-        let atts = []
-        for (let a of c.attributes) {
-          if (_.isString(a)) {
-            atts.push(unpackAttribute(a))
-          } else {
-            atts.push(a)
+        // Now we convert all the attributes...
+        if (c.attributes) {
+          let atts = []
+          for (let a of c.attributes) {
+            if (_.isString(a)) {
+              atts.push(unpackAttribute(a))
+            } else {
+              atts.push(a)
+            }
           }
+          c.attributes = atts
         }
-        c.attributes = atts
-      }
 
-      // ... and commands.
-      if (c.commands) {
-        let cmds = []
-        for (let cmd of c.commands) {
-          if (_.isString(cmd)) {
-            cmds.push(unpackCommand(cmd))
-          } else {
-            cmds.push(cmd)
+        // ... and commands.
+        if (c.commands) {
+          let cmds = []
+          for (let cmd of c.commands) {
+            if (_.isString(cmd)) {
+              cmds.push(unpackCommand(cmd))
+            } else {
+              cmds.push(cmd)
+            }
           }
+          c.commands = cmds
         }
-        c.commands = cmds
       }
     }
     return state

@@ -167,16 +167,15 @@ async function exportDataIntoFile(
   } else {
     delete state.fileFormat
   }
-  state = ff.convertToFile(state)
-
-  if (options.removeLog) delete state.log
-
   // avoid unncessary Studio integration id from being saved in file.
   if (state.keyValuePairs) {
     state.keyValuePairs = state.keyValuePairs.filter(
       (x) => x.key != dbEnum.sessionKey.ideProjectPath
     )
   }
+  state = ff.convertToFile(state)
+
+  if (options.removeLog) delete state.log
 
   if (fs.existsSync(filePath)) {
     fs.copyFileSync(filePath, filePath + '~')
