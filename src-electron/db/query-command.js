@@ -1176,7 +1176,7 @@ ON
   WHERE PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
 GROUP BY
   COMMAND.COMMAND_ID
-ORDER BY CODE`
+ORDER BY COMMAND.CODE, COMMAND.NAME`
     )
     .then((rows) => rows.map(dbMapping.map.command))
 }
