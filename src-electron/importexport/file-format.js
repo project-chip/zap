@@ -27,7 +27,7 @@ function unpackAttribute(a) {
     data = a
   }
   let toks = data.split(' | ').map((x) => x.trim())
-  if (toks.length != 11) throw new Error(`Invalid format: ${a}`)
+  if (toks.length != 12) throw new Error(`Invalid format: ${a}`)
 
   let attr = {}
   attr.included = toks[0] === '+' ? 1 : 0
@@ -45,6 +45,7 @@ function unpackAttribute(a) {
   attr.reportable = parseInt(toks[8])
   attr.minInterval = parseInt(toks[9])
   attr.maxInterval = parseInt(toks[10])
+  attr.reportableChange = parseInt(toks[11])
   return attr
 }
 
@@ -62,6 +63,7 @@ function packAttribute(a) {
     a.reportable,
     a.minInterval,
     a.maxInterval,
+    a.reportableChange,
   ].join(' | ')
   return `${data} => ${a.name} [${a.type}]`
 }
@@ -85,8 +87,8 @@ function unpackCommand(c) {
     cmd.mfgCode = types.hexStringToInt(toks[1])
   }
   cmd.source = toks[2]
-  cmd.incoming = toks[3]
-  cmd.outgoing = toks[4]
+  cmd.incoming = toks[3] === '1' ? 1 : 0
+  cmd.outgoing = toks[4] === '1' ? 1 : 0
   return cmd
 }
 
