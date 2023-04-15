@@ -27,30 +27,31 @@ function unpackAttribute(a) {
     data = a
   }
   let toks = data.split(' | ').map((x) => x.trim())
-  if (toks.length != 10) throw new Error(`Invalid format: ${a}`)
+  if (toks.length != 11) throw new Error(`Invalid format: ${a}`)
 
   let attr = {}
-  attr.code = types.hexStringToInt(toks[0])
-  if (toks[1].length == 0) {
+  attr.included = toks[0] === '+' ? 1 : 0
+  attr.code = types.hexStringToInt(toks[1])
+  if (toks[2].length == 0) {
     attr.mfgCode = null
   } else {
-    attr.mfgCode = types.hexStringToInt(toks[1])
+    attr.mfgCode = types.hexStringToInt(toks[2])
   }
-  attr.side = toks[2]
-  attr.storageOption = toks[3]
-  attr.singleton = toks[4] === 'singleton' ? 1 : 0
-  attr.bounded = toks[5] === 'bound' ? 1 : 0
-  attr.defaultValue = toks[6]
-  attr.reportable = parseInt(toks[7])
-  attr.minInterval = parseInt(toks[8])
-  attr.maxInterval = parseInt(toks[9])
-  attr.included = 1
+  attr.side = toks[3]
+  attr.storageOption = toks[4]
+  attr.singleton = toks[5] === 'singleton' ? 1 : 0
+  attr.bounded = toks[6] === 'bound' ? 1 : 0
+  attr.defaultValue = toks[7]
+  attr.reportable = parseInt(toks[8])
+  attr.minInterval = parseInt(toks[9])
+  attr.maxInterval = parseInt(toks[10])
   return attr
 }
 
 // Converts attribute object for internal representation.
 function packAttribute(a) {
   let data = [
+    a.included === 1 ? '+' : '-',
     types.intToHexString(a.code, 2),
     a.mfgCode != null ? types.intToHexString(a.mfgCode, 2) : '      ',
     a.side,
@@ -135,7 +136,6 @@ function cleanseCluster(c) {
   } else {
     delete c.mfgCode
   }
-  delete c.enabled
 }
 
 // Uncleanses the toplevel cluster data.
@@ -151,7 +151,6 @@ function uncleanseCluster(c) {
     if (code.startsWith('0x')) code = code.substring(2)
     c.mfgCode = parseInt(code, 16)
   }
-  c.enabled = 1
 }
 
 /**
@@ -168,31 +167,9 @@ function convertToFile(state) {
     }
 
     for (let ept of state.endpointTypes) {
-      // First only retain enabled clusters
-      let onlyEnabledClusters = []
-      for (let c of ept.clusters) {
-        if (c.enabled === 1 || c.enabled === true) {
-          onlyEnabledClusters.push(c)
-        }
-      }
-      ept.clusters = onlyEnabledClusters
-
       // Now cleanse the clusters
       for (let c of ept.clusters) {
         cleanseCluster(c)
-      }
-
-      // Now remove all non-included attributes
-      for (let c of ept.clusters) {
-        if (c.attributes) {
-          let onlyIncludedAttributes = []
-          for (let a of c.attributes) {
-            if (a.included === 1 || a.included === true) {
-              onlyIncludedAttributes.push(a)
-            }
-          }
-          c.attributes = onlyIncludedAttributes
-        }
       }
 
       for (let c of ept.clusters) {
