@@ -96,6 +96,11 @@ exports.testTemplate = {
 
 exports.otherTestFile = {
   fileFormat0: path.join(__dirname, 'resource/file-format/file-format-0.zap'),
+  fileFormat1: path.join(__dirname, 'resource/file-format/file-format-1.zap'),
+  fileFormatFuture: path.join(
+    __dirname,
+    'resource/file-format/file-format-future.zap'
+  ),
 }
 
 exports.zigbeeTestFile = {

@@ -22,11 +22,9 @@ const importJs = require('../src-electron/importexport/import')
 const testUtil = require('./test-util')
 const fileFormat = require('../src-electron/importexport/file-format')
 
-const testFile = testUtil.otherTestFile.fileFormat0
-
-test('Conversion', async () => {
+test('Conversion of format 0 to format 1', async () => {
   // Read format 0 file, make sure it's format 0.
-  state1 = await importJs.readDataFromFile(testFile)
+  state1 = await importJs.readDataFromFile(testUtil.otherTestFile.fileFormat0)
   expect(state1.fileFormat).toBeUndefined()
   // Request updated file format.
   state1.fileFormat = 1
@@ -45,4 +43,23 @@ test('Conversion', async () => {
 
   // state3JSON is functionally the same, but NOT equal to state1JSON
   //expect(state3JSON).toEqual(state1JSON)
+})
+
+test('Read format 1', async () => {
+  let state = await importJs.readDataFromFile(
+    testUtil.otherTestFile.fileFormat1
+  )
+  expect(state).not.toBeNull()
+  expect(state.endpointTypes.length).toEqual(1)
+  expect(state.endpointTypes[0].clusters.length).toEqual(3)
+  expect(state.endpoints.length).toEqual(1)
+})
+
+test('Future file', async () => {
+  try {
+    await importJs.readDataFromFile(testUtil.otherTestFile.fileFormatFuture)
+    fail('Import should fail.')
+  } catch (err) {
+    expect(err.message).toContain('requires feature level 99999, we only have')
+  }
 })
