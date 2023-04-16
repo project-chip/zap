@@ -38,7 +38,7 @@ function unpackAttribute(a) {
     attr.mfgCode = types.hexStringToInt(toks[2])
   }
   attr.side = toks[3]
-  attr.storageOption = toks[4]
+  attr.storageOption = toks[4] === 'Ext' ? 'External' : toks[4]
   attr.singleton = toks[5] === 'singleton' ? 1 : 0
   attr.bounded = toks[6] === 'bound' ? 1 : 0
   attr.defaultValue = toks[7]
@@ -56,10 +56,10 @@ function packAttribute(a) {
     types.intToHexString(a.code, 2),
     a.mfgCode != null ? types.intToHexString(a.mfgCode, 2) : '      ',
     a.side,
-    a.storageOption,
+    a.storageOption === 'External' ? 'Ext' : a.storageOption,
     a.singleton ? 'singleton' : '         ',
     a.bounded ? 'bound' : '     ',
-    a.defaultValue.padStart(15, ' '),
+    a.defaultValue.padStart(20, ' '),
     a.reportable,
     a.minInterval,
     a.maxInterval,
@@ -92,7 +92,7 @@ function unpackCommand(c) {
   return cmd
 }
 
-// Converts command object for internal representation.
+// Converts command object for file representation.
 function packCommand(cmd) {
   let data = [
     types.intToHexString(cmd.code, 2),
@@ -102,6 +102,41 @@ function packCommand(cmd) {
     cmd.outgoing,
   ].join(' | ')
   return `${data} => ${cmd.name}`
+}
+
+// Convert string representation to internal object representation
+function unpackEvent(ev) {
+  let data
+  if (ev.includes('=>')) {
+    data = ev.split('=>')[0]
+  } else {
+    data = ev
+  }
+  let toks = data.split(' | ').map((x) => x.trim())
+  if (toks.length != 4) throw new Error(`Invalid format: ${a}`)
+
+  let evnt = {}
+  evnt.included = toks[0] === '+' ? 1 : 0
+  evnt.code = types.hexStringToInt(toks[1])
+  if (toks[2].length == 0) {
+    evnt.mfgCode = null
+  } else {
+    evnt.mfgCode = types.hexStringToInt(toks[2])
+  }
+  evnt.side = toks[3]
+
+  return evnt
+}
+
+// Converts event object for file representation
+function packEvent(ev) {
+  let data = [
+    ev.included === 1 ? '+' : '-',
+    types.intToHexString(ev.code, 2),
+    ev.mfgCode != null ? types.intToHexString(ev.mfgCode, 2) : '      ',
+    ev.side,
+  ].join(' | ')
+  return `${data} => ${ev.name}`
 }
 
 // Converts the key value pairs in the file into internal representation
@@ -184,13 +219,22 @@ function convertToFile(state) {
           c.attributes = atts
         }
 
-        // ... and commands.
+        // ... and commands...
         if (c.commands) {
           let cmds = []
           for (let cmd of c.commands) {
             cmds.push(packCommand(cmd))
           }
           c.commands = cmds
+        }
+
+        // ... and events.
+        if (c.events) {
+          let evs = []
+          for (let ev of c.events) {
+            evs.push(packEvent(ev))
+          }
+          c.events = evs
         }
       }
     }
@@ -240,6 +284,19 @@ function convertFromFile(state) {
             }
           }
           c.commands = cmds
+        }
+
+        // ... and events.
+        if (c.events) {
+          let evs = []
+          for (let ev of c.events) {
+            if (_.isString(ev)) {
+              evs.push(unpackEvent(ev))
+            } else {
+              evs.push(ev)
+            }
+          }
+          c.events = evs
         }
       }
     }
