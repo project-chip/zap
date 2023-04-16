@@ -1,6 +1,6 @@
 {
   "fileFormat": 1,
-  "featureLevel": 95,
+  "featureLevel": 96,
   "creator": "zap",
   "keyValuePairs": [
     "commandDiscovery = 1",

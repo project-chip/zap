@@ -159,7 +159,7 @@ test(
     x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE_CLUSTER')
     expect(x).toBe(27)
     x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE_COMMAND')
-    expect(x).toBe(28)
+    expect(x).toBe(26)
     x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE_ATTRIBUTE')
     expect(x).toBe(66)
     x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE_EVENT')
