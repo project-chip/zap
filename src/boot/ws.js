@@ -120,9 +120,8 @@ onWebSocket(dbEnum.wsCategory.dirtyFlag, (data) => {
 
 onWebSocket(dbEnum.wsCategory.sessionCreationError, (data) => {
   let html = `<center>
-  <strong>${data.error}</strong>
+  <strong>${data}</strong>
   <br>
-  ${data.errorMessage}
   </center>`
   Notify.create({
     message: html,
@@ -130,6 +129,7 @@ onWebSocket(dbEnum.wsCategory.sessionCreationError, (data) => {
     position: 'top',
     html: true,
     timeout: 0,
+    actions: [{ icon: 'close', color: 'white' }],
   })
 
   console.log(`sessionCreationError: ${JSON.stringify(data)}`)

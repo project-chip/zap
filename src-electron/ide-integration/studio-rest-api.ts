@@ -295,18 +295,20 @@ async function sendUcComponentStateReport(db: dbTypes.DbType) {
  * Notify front-end that current session failed to load.
  * @param {} err
  */
-function sendSessionCreationErrorStatus(db: dbTypes.DbType, err: string) {
+function sendSessionCreationErrorStatus(db: dbTypes.DbType, err: string, sessionId: number) {
   // TODO: delegate type declaration to actual function
   querySession
     .getAllSessions(db)
     .then((sessions: dbMappingTypes.SessionType[]) =>
       sessions.forEach((session) => {
-        let socket = wsServer.clientSocket(session.sessionKey)
-        if (socket) {
-          wsServer.sendWebSocketMessage(socket, {
-            category: dbEnum.wsCategory.sessionCreationError,
-            payload: err,
-          })
+        if(session.sessionId == sessionId){
+          let socket = wsServer.clientSocket(session.sessionKey)
+          if (socket) {
+            wsServer.sendWebSocketMessage(socket, {
+              category: dbEnum.wsCategory.sessionCreationError,
+              payload: err,
+            })
+          }
         }
       })
     )
