@@ -453,7 +453,8 @@ function githubListArtifacts(artifacts, dlOptions, verifyPlatformAndFormat) {
       artifacts_2,
       artifact,
       name_2,
-      artifactPath
+      artifactPath,
+      dir
     return __generator(this, function (_a) {
       ;(branch = dlOptions.branch),
         (outputDir = dlOptions.outputDir),
@@ -482,7 +483,10 @@ function githubListArtifacts(artifacts, dlOptions, verifyPlatformAndFormat) {
           artifactsList.push(artifactPath)
         }
         try {
-          fs_1['default'].mkdirSync(outputDir, { recursive: true })
+          dir = path_1['default'].dirname(
+            path_1['default'].join(outputDir, ''.concat(branch, '.txt'))
+          )
+          fs_1['default'].mkdirSync(dir, { recursive: true })
           fs_1['default'].writeFileSync(
             path_1['default'].join(outputDir, ''.concat(branch, '.txt')),
             artifactsList.join('\n')
