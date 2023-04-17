@@ -232,7 +232,10 @@ async function githubListArtifacts(
       artifactsList.push(artifactPath)
     }
     try {
-      fs.mkdirSync(outputDir, { recursive: true })
+      // in case branch names have slashes (feature/branchName)
+      let dir = path.dirname(path.join(outputDir, `${branch}.txt`))
+
+      fs.mkdirSync(dir, { recursive: true })
       fs.writeFileSync(
         path.join(outputDir, `${branch}.txt`),
         artifactsList.join('\n')
