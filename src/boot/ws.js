@@ -120,9 +120,8 @@ onWebSocket(dbEnum.wsCategory.dirtyFlag, (data) => {
 
 onWebSocket(dbEnum.wsCategory.sessionCreationError, (data) => {
   let html = `<center>
-  <strong>${data.error}</strong>
+  <strong>${data}</strong>
   <br>
-  ${data.errorMessage}
   </center>`
   Notify.create({
     message: html,

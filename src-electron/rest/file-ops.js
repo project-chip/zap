@@ -81,7 +81,7 @@ function httpPostFileOpen(db) {
           message: e.message,
           stack: e.stack,
         }
-        studio.sendSessionCreationErrorStatus(db, errMsg)
+        studio.sendSessionCreationErrorStatus(db, errMsg.message)
         env.logError(e.message)
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(errMsg)
       }
