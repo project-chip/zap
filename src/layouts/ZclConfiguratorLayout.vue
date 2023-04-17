@@ -139,17 +139,6 @@ export default {
         this.miniState = true
       }
     },
-    getNotifications() {
-      this.$serverGet(restApi.uri.notification)
-        .then((resp) => {
-          if (resp.data[0] != undefined) {
-            this.notification = 'red'
-          }
-        })
-        .catch((err) => {
-          console.log(err)
-        })
-    },
     setSelectedEndpoint(value) {
       this.$store.dispatch('zap/updateSelectedEndpointType', {
         endpointType: this.endpointType[value],
@@ -272,12 +261,6 @@ export default {
       globalOptionsDialog: false,
       zclExtensionDialog: false,
       notification: '',
-    }
-  },
-  created() {
-    if (this.$serverGet != null) {
-      this.notification = ''
-      this.getNotifications()
     }
   },
 

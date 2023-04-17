@@ -28,6 +28,7 @@ const exportJs = require('../importexport/export.js')
 const path = require('path')
 const { StatusCodes } = require('http-status-codes')
 const querySession = require('../db/query-session.js')
+const queryNotification = require('../db/query-notification.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const studio = require('../ide-integration/studio-rest-api')
 
@@ -81,7 +82,8 @@ function httpPostFileOpen(db) {
           message: e.message,
           stack: e.stack,
         }
-        studio.sendSessionCreationErrorStatus(db, errMsg.message)
+        queryNotification.setNotification(db, "ERROR", errMsg.message, req.zapSessionId, 1)
+        studio.sendSessionCreationErrorStatus(db, errMsg.message, req.zapSessionId)
         env.logError(e.message)
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(errMsg)
       }

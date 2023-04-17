@@ -229,7 +229,7 @@ function userSessionHandler(db, options) {
             error: 'Could not create session: ' + err.message,
             errorMessage: err,
           }
-          studio.sendSessionCreationErrorStatus(db, resp)
+          studio.sendSessionCreationErrorStatus(db, resp, zapSessionId)
           env.logError(resp)
         })
     }
