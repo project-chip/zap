@@ -120,6 +120,12 @@ test(
     let types = genResult.content['dotdot-type.h']
     expect(types).not.toBeNull()
     expect(types).toContain('// Bitmap: LevelOptions, size: 1')
+    expect(types).toContain(
+      '#define EMBER_AF_COLOR_CONTROL_COLOR_CAPABILITIES_COLOR_LOOP_SUPPORTED (4) // type:  bool'
+    )
+    expect(types).toContain(
+      '#define EMBER_AF_RESTART_DEVICE_OPTIONS_STARTUP_MODE (7) // type:  enum8'
+    )
 
     let clusters = genResult.content['dotdot-cluster.xml']
     expect(clusters).not.toBeNull()

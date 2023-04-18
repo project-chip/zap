@@ -968,6 +968,7 @@ async function processBitmapFields(db, filePath, packageId, data) {
           name: item.name,
           mask: parseInt(item.mask),
           fieldIdentifier: lastFieldId,
+          type: item.type,
         })
       })
     }
