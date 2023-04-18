@@ -1573,7 +1573,7 @@ async function insertBitmapFields(db, packageId, knownPackages, data) {
     db,
     `
   INSERT INTO
-    BITMAP_FIELD (BITMAP_REF, NAME, MASK, FIELD_IDENTIFIER)
+    BITMAP_FIELD (BITMAP_REF, NAME, MASK, FIELD_IDENTIFIER, TYPE)
   VALUES (
     (SELECT
       CASE
@@ -1586,6 +1586,7 @@ async function insertBitmapFields(db, packageId, knownPackages, data) {
         ELSE
           (${SELECT_CLUSTER_SPECIFIC_BITMAP})
         END AS BITMAP_ID),
+    ?,
     ?,
     ?,
     ?)`,
@@ -1605,6 +1606,7 @@ async function insertBitmapFields(db, packageId, knownPackages, data) {
       at.name,
       at.mask,
       at.fieldIdentifier,
+      at.type,
     ])
   )
 }
