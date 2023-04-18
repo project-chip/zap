@@ -394,6 +394,20 @@ async function getSignAndSizeOfZclType(db, type, packageIds, options) {
   return ret
 }
 
+// Converts a JS number to a hex representation with padding.
+// intToHexString(17, 2) => 0x0011
+function intToHexString(n, byteCount) {
+  return '0x' + n.toString(16).padStart(2 * byteCount, '0')
+}
+
+// Convers a hex representation created by the intToHexString
+// back into a JS integer.
+function hexStringToInt(s) {
+  let c = s
+  if (s.startsWith('0x') || s.startsWith('0X')) c = s.substring(2)
+  return parseInt(c, 16)
+}
+
 exports.typeSize = typeSize
 exports.typeSizeAttribute = typeSizeAttribute
 exports.longTypeDefaultValue = longTypeDefaultValue
@@ -406,3 +420,5 @@ exports.isSignedInteger = isSignedInteger
 exports.convertIntToBigEndian = convertIntToBigEndian
 exports.convertFloatToBigEndian = convertFloatToBigEndian
 exports.getSignAndSizeOfZclType = getSignAndSizeOfZclType
+exports.intToHexString = intToHexString
+exports.hexStringToInt = hexStringToInt

@@ -94,6 +94,15 @@ exports.testTemplate = {
   meta: './test/resource/meta/gen-test.json',
 }
 
+exports.otherTestFile = {
+  fileFormat0: path.join(__dirname, 'resource/file-format/file-format-0.zap'),
+  fileFormat1: path.join(__dirname, 'resource/file-format/file-format-1.zap'),
+  fileFormatFuture: path.join(
+    __dirname,
+    'resource/file-format/file-format-future.zap'
+  ),
+}
+
 exports.zigbeeTestFile = {
   file1: path.join(__dirname, 'resource/generation-test-file-1.zap'),
   gpCombo: path.join(__dirname, 'resource/gp-combo-basic-test.zap'),

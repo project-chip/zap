@@ -246,6 +246,7 @@ async function startConvert(argv, options) {
     let outputPath = await exportJs.exportDataIntoFile(db, sessionId, of, {
       removeLog: argv.noZapFileLog,
       createBackup: true,
+      fileFormat: argv.saveFileFormat,
     })
 
     options.logger(`    👉 write out: ${outputPath}`)
