@@ -23,7 +23,7 @@ const zapBaseUrl = 'http://localhost:'
 
 import { VersionType, ErrorType } from '../types/env-types'
 
-let saveFileFormat = 1
+let saveFileFormat = 0
 
 export function setSaveFileFormat(n: number) {
   saveFileFormat = n
