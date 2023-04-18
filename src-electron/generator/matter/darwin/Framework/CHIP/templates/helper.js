@@ -739,9 +739,22 @@ async function availability(clusterName, options) {
   }", ${availabilityStrings.join(', ')})`;
 }
 
-function wasIntroducedBeforeRelease(releaseName, clusterName, options) {
-  const data = fetchAvailabilityData(this.global);
-  const path = makeAvailabilityPath(clusterName, options);
+/**
+ * Utility for wasIntroducedBeforeRelease and isSupported.  Returns undefined if
+ * the the thing we are looking at was not officially introduced, otherwise
+ * returns -1 if it was introduced before the reference release, 0 if it was
+ * introduced in the reference release, 1 if it was introduced after the
+ * reference release.
+ *
+ * Throws if referenceRelease is not defined.
+ */
+function compareIntroductionToReferenceRelease(global, cluster, options, referenceRelease) {
+  if (referenceRelease === undefined) {
+    throw new Error("Can't compare to non-existent release");
+  }
+
+  const data = fetchAvailabilityData(global);
+  const path = makeAvailabilityPath(cluster, options);
 
   let introducedRelease = findReleaseForPath(
     data,
@@ -749,32 +762,78 @@ function wasIntroducedBeforeRelease(releaseName, clusterName, options) {
     options
   );
   if (introducedRelease === undefined) {
-    return false;
+    return undefined;
   }
+
+  let referenceIndex = data.indexOf(referenceRelease);
+  let introducedIndex = data.indexOf(introducedRelease);
+  if (introducedIndex < referenceIndex) {
+    return -1;
+  }
+
+  if (introducedIndex > referenceIndex) {
+    return 1;
+  }
+
+  return 0;
+}
+
+function wasIntroducedBeforeRelease(releaseName, clusterName, options) {
+  const data = fetchAvailabilityData(this.global);
+  const path = makeAvailabilityPath(clusterName, options);
 
   let referenceRelease = findReleaseByName(data, releaseName);
   if (referenceRelease === undefined) {
     throw new Error(`Invalid release name: ${releaseName}`);
   }
 
-  return data.indexOf(introducedRelease) < data.indexOf(referenceRelease);
+  let comparisonStatus = compareIntroductionToReferenceRelease(this.global, clusterName, options, referenceRelease);
+  if (comparisonStatus === undefined) {
+    // Not introduced yet, so not introduced before anything in particular.
+    return false;
+  }
+
+  return comparisonStatus == -1;
+}
+
+/**
+ * Utility for wasRemoved and findProvisionalRelease.  Finds a release that
+ * mentions the given path or some ancestor of it in the given section.
+ */
+function findReleaseForPathOrAncestorAndSection(global, cluster, options, section) {
+  const data = fetchAvailabilityData(global);
+  let path = makeAvailabilityPath(cluster, options);
+
+  let foundRelease = undefined;
+  while (foundRelease === undefined && path !== undefined) {
+    foundRelease = findReleaseForPath(
+      data,
+      [section, ...path],
+      options
+    );
+    path = findPathToContainer(path);
+  }
+  return foundRelease;
 }
 
 function wasRemoved(cluster, options) {
-  const data = fetchAvailabilityData(this.global);
-  const path = makeAvailabilityPath(cluster, options);
+  return findReleaseForPathOrAncestorAndSection(this.global, cluster, options, 'removed') !== undefined;
+}
 
-  let removedRelease = undefined;
-  let removalPath = [...path];
-  while (removedRelease === undefined && removalPath !== undefined) {
-    removedRelease = findReleaseForPath(
-      data,
-      ['removed', ...removalPath],
-      options
-    );
-    removalPath = findPathToContainer(removalPath);
+function isSupported(cluster, options) {
+  if (wasRemoved.call(this, cluster, options)) {
+    return false;
   }
-  return removedRelease !== undefined;
+
+  let provisionalRelease = findReleaseForPathOrAncestorAndSection(this.global, cluster, options, 'provisional');
+  if (provisionalRelease === undefined) {
+    // Default to enabled, even if not explicitly introduced.
+    return true;
+  }
+
+  let comparisonStatus = compareIntroductionToReferenceRelease(this.global, cluster, options, provisionalRelease);
+  // Only supported if it's listed as introduced after the release it was provisional in.
+  return comparisonStatus === 1;
 }
 
 function hasRenamedFields(cluster, options) {
@@ -921,6 +980,7 @@ exports.compatCommandNameRemapping = compatCommandNameRemapping;
 exports.availability = availability;
 exports.wasIntroducedBeforeRelease = wasIntroducedBeforeRelease;
 exports.wasRemoved = wasRemoved;
+exports.isSupported = isSupported;
 exports.and = and;
 exports.or = or;
 exports.not = not;
