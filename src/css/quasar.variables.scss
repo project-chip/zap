@@ -12,40 +12,40 @@
 // to match your app's branding.
 // Tip: Use the "Theme Builder" on Quasar's documentation website.
 
-$primary   : #539CED;
-$secondary : #26A69A;
-$accent    : #9C27B0;
+$primary: #539ced;
+$secondary: #26a69a;
+$accent: #9c27b0;
 
-$dark      : #272821;
+$dark: #272821;
 $dark-header-bar-bg: #444540;
-$grey: #67696D;
+$grey: #67696d;
 
-$positive  : #21BA45;
-$negative  : #C10015;
-$info      : #31CCEC;
-$warning   : #F2C037;
+$positive: #21ba45;
+$negative: #c10015;
+$info: #31ccec;
+$warning: #f2c037;
 
-h2{
+h2 {
   padding: 0px;
-  margin: 0px
+  margin: 0px;
 }
-.text-h4{
+.text-h4 {
   font-size: 2rem;
 }
-.q-rounded-borders-xl{
+.q-rounded-borders-xl {
   border-radius: 20px;
 }
-.q-btn--rounded{
+.q-btn--rounded {
   border-radius: 12px;
 }
 
-.linear-border-wrap{
+.linear-border-wrap {
   background: linear-gradient(#fff, #fff) padding-box,
-  linear-gradient(90deg, rgba(78, 143, 242, 1), rgba(118, 246, 207, 1))
-    border-box !important;
+    linear-gradient(90deg, rgba(78, 143, 242, 1), rgba(118, 246, 207, 1))
+      border-box !important;
   border: 2px solid transparent;
   border-radius: 14px;
-  padding:3px;
+  padding: 3px;
   display: block;
 }
 .cluster-list {
@@ -123,14 +123,16 @@ h2{
   }
 }
 
-.zigbee{
-  --q-color-primary: #C10015;
-  --q-primary: #C10015;
-
-  .linear-border-wrap{
+.zigbee {
+  --q-color-primary: #c10015;
+  --q-primary: #c10015;
+  .q-item.q-router-link--active,
+  .q-item--active {
+    color: var(--q-primary);
+  }
+  .linear-border-wrap {
     background: linear-gradient(#fff, #fff) padding-box,
-    linear-gradient(90deg, rgba(236, 4, 68, 1), rgba(0, 0, 0, 1))
-      border-box !important;
+      linear-gradient(90deg, rgba(236, 4, 68, 1), rgba(0, 0, 0, 1)) border-box !important;
   }
   .cluster-list {
     .q-expansion-item {
@@ -141,10 +143,7 @@ h2{
             transition: all 0.1s ease-out;
             min-height: auto;
             background: linear-gradient(#fff, #fff) padding-box,
-              linear-gradient(
-                  90deg,
-                  rgba(236, 4, 68, 1), rgba(0, 0, 0, 1)
-                )
+              linear-gradient(90deg, rgba(236, 4, 68, 1), rgba(0, 0, 0, 1))
                 border-box !important;
             border: 2px solid transparent;
             border-radius: 14px;
@@ -189,7 +188,7 @@ h2{
               transition: all 0.1s ease-in-out;
               margin-bottom: -1px;
               margin-left: 3px;
-              background:  rgba(236, 4, 68, 1);
+              background: rgba(236, 4, 68, 1);
               color: white;
               padding: 2px 16px;
               width: fit-content;
@@ -206,7 +205,7 @@ h2{
     }
   }
 }
-.logo{
+.logo {
   width: 100%;
   height: auto;
   max-width: 150px;
