@@ -27,6 +27,7 @@
       </Transition>
     </q-toolbar-title>
     <q-btn
+      v-if="showDebugNavItems"
       id="generate"
       color="grey"
       flat
@@ -41,6 +42,7 @@
       </div>
     </q-btn>
     <q-btn
+      v-if="showDebugNavItems"
       id="regenerate"
       color="grey"
       flat
@@ -95,12 +97,18 @@
       </div>
     </q-btn>
     <q-btn
+      v-if="showDebugNavItems"
       class="cursor-pointer"
       flat
       no-caps
-      to="/notifications"
-      id="Notifications"
+      id="Preview"
       color="grey"
+      @click="
+        () => {
+          togglePreviewTab()
+        }
+      "
+      data-test="preview"
     >
       <div class="text-center">
         <q-icon name="o_preview" />
@@ -108,7 +116,7 @@
       </div>
     </q-btn>
     <q-btn
-      v-if="this.$store.state.zap.showDevTools"
+      v-if="this.$store.state.zap.showDevTools && showDebugNavItems"
       flat
       push
       no-caps
@@ -122,6 +130,7 @@
       </div>
     </q-btn>
     <q-btn
+      v-if="showDebugNavItems"
       class="cursor-pointer"
       flat
       no-caps
@@ -160,9 +169,22 @@ export default {
     ZclExtensionDialog,
   },
   computed: {
+    showPreviewTab: {
+      get() {
+        return this.$store.state.zap.showPreviewTab
+      },
+      set() {
+        return this.$store.dispatch('zap/togglePreviewTab')
+      },
+    },
     zclExtensionDialogInTutorial: {
       get() {
         return this.$store.state.zap.openZclExtensionsDialog
+      },
+    },
+    showDebugNavItems: {
+      get() {
+        return this.$store.state.zap.debugNavBar
       },
     },
     uiThemeCategory: {
@@ -188,6 +210,9 @@ export default {
   methods: {
     // This function will start vue tour steps
     startTour,
+    togglePreviewTab() {
+      this.$store.commit('zap/togglePreviewTab')
+    },
     generateIntoDirectory(currentPath) {
       window[rendApi.GLOBAL_SYMBOL_NOTIFY](rendApi.notifyKey.fileBrowse, {
         context: 'generateDir',
@@ -219,6 +244,9 @@ export default {
         this.doGeneration(this.generationDirectory)
       }
     })
+    observable.observeAttribute(rendApi.observable.debugNavBar, (value) => {
+      this.$store.dispatch('zap/setDebugNavBar', value)
+    })
   },
 }
 </script>
@@ -238,6 +266,9 @@ export default {
   }
   &.disabled {
     opacity: 0.3 !important;
+  }
+  &.q-btn--active {
+    color: var(--q-primary) !important;
   }
 }
 .slide-up-enter-active,

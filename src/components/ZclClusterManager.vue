@@ -17,7 +17,22 @@ limitations under the License.
 <template>
   <div v-if="selectedEndpointTypeId.length != 0">
     <div class="row justify-between q-py-md">
-      <div class="text-h4">
+      <div
+        v-on:click.ctrl="showVersion"
+        v-if="showPreviewTab && this.endpointId[this.selectedEndpointId]"
+      >
+        <q-select
+          class=""
+          outlined
+          :options="endpoints"
+          :model-value="selectedEndpointId"
+          dense
+          emit-value
+          map-options
+          @update:model-value="setSelectedEndpointType($event)"
+        />
+      </div>
+      <div v-else class="text-h4">
         <span class="v-step-6"
           >Endpoint
           {{ this.endpointId[this.selectedEndpointId] }} Clusters</span
@@ -115,6 +130,11 @@ export default {
     },
   },
   computed: {
+    showPreviewTab: {
+      get() {
+        return this.$store.state.zap.showPreviewTab
+      },
+    },
     domainNames: {
       get() {
         return this.$store.state.zap.domains
@@ -183,6 +203,21 @@ export default {
         return this.$store.state.zap.expanded
       },
     },
+
+    endpoints: {
+      get() {
+        const endpoints = []
+        for (let id in this.endpointId) {
+          if (this.endpointId[id]) {
+            endpoints.push({
+              label: `Endpoint - ${this.endpointId[id]}`,
+              value: id,
+            })
+          }
+        }
+        return endpoints
+      },
+    },
   },
   methods: {
     scrollToElementById(tag) {
@@ -217,6 +252,17 @@ export default {
       this.$store.dispatch('zap/setOpenDomain', {
         domainName: domainName,
         value: event,
+      })
+    },
+    showVersion() {
+      this.$serverGet(restApi.uri.version).then((result) => {
+        let msg = `ZAP Version Information
+
+ - version: ${result.data.version}
+ - feature level: ${result.data.featureLevel}
+ - date of relese commit: ${result.data.date}
+ - hash of release commit: ${result.data.hash}`
+        alert(msg)
       })
     },
     getDomainOpenState(domainName) {
