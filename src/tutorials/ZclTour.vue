@@ -372,12 +372,7 @@ export default {
         //   title: step.title,
         // },
         content: step.title
-          ? '<strong>' +
-            i +
-            ' - ' +
-            step.title +
-            '</strong><br/>' +
-            step.content
+          ? '<strong>' + step.title + '</strong><br/>' + step.content
           : step.content,
         placement: step.placement,
         // params: {
