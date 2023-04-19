@@ -739,9 +739,21 @@ async function availability(clusterName, options) {
   }", ${availabilityStrings.join(', ')})`;
 }
 
-function wasIntroducedBeforeRelease(releaseName, clusterName, options) {
-  const data = fetchAvailabilityData(this.global);
-  const path = makeAvailabilityPath(clusterName, options);
+/**
+ * Utility for wasIntroducedBeforeRelease and isSupported.  Returns undefined if
+ * the the path we are looking at was not officially introduced, otherwise
+ * returns -1 if it was introduced before the reference release, 0 if it was
+ * introduced in the reference release, 1 if it was introduced after the
+ * reference release.
+ *
+ * Throws if referenceRelease is not defined.
+ */
+function compareIntroductionToReferenceRelease(global, path, options, referenceRelease) {
+  if (referenceRelease === undefined) {
+    throw new Error("Can't compare to non-existent release");
+  }
+
+  const data = fetchAvailabilityData(global);
 
   let introducedRelease = findReleaseForPath(
     data,
@@ -749,32 +761,125 @@ function wasIntroducedBeforeRelease(releaseName, clusterName, options) {
     options
   );
   if (introducedRelease === undefined) {
-    return false;
+    return undefined;
   }
+
+  let referenceIndex = data.indexOf(referenceRelease);
+  let introducedIndex = data.indexOf(introducedRelease);
+  if (introducedIndex < referenceIndex) {
+    return -1;
+  }
+
+  if (introducedIndex > referenceIndex) {
+    return 1;
+  }
+
+  return 0;
+}
+
+function wasIntroducedBeforeRelease(releaseName, clusterName, options) {
+  const data = fetchAvailabilityData(this.global);
+  const path = makeAvailabilityPath(clusterName, options);
 
   let referenceRelease = findReleaseByName(data, releaseName);
   if (referenceRelease === undefined) {
     throw new Error(`Invalid release name: ${releaseName}`);
   }
 
-  return data.indexOf(introducedRelease) < data.indexOf(referenceRelease);
+  let comparisonStatus = compareIntroductionToReferenceRelease(
+    this.global,
+    makeAvailabilityPath(clusterName, options),
+    options, referenceRelease
+  );
+  if (comparisonStatus === undefined) {
+    // Not introduced yet, so not introduced before anything in particular.
+    return false;
+  }
+
+  return comparisonStatus == -1;
+}
+
+/**
+ * Utility for wasRemoved and findProvisionalRelease.  Finds a release that
+ * mentions the given path or some ancestor of it in the given section.  Returns
+ * the release and the path that ended up being found, or undefined if nothing
+ * was found.
+ */
+function findReleaseForPathOrAncestorAndSection(global, cluster, options, section) {
+  const data = fetchAvailabilityData(global);
+  let path = makeAvailabilityPath(cluster, options);
+
+  while (path !== undefined) {
+    let foundRelease = findReleaseForPath(
+      data,
+      [section, ...path],
+      options
+    );
+    if (foundRelease !== undefined) {
+      return { release: foundRelease, path: path };
+    }
+    path = findPathToContainer(path);
+  }
+  return undefined;
 }
 
 function wasRemoved(cluster, options) {
-  const data = fetchAvailabilityData(this.global);
-  const path = makeAvailabilityPath(cluster, options);
+  return findReleaseForPathOrAncestorAndSection(this.global, cluster, options, 'removed') !== undefined;
+}
 
-  let removedRelease = undefined;
-  let removalPath = [...path];
-  while (removedRelease === undefined && removalPath !== undefined) {
-    removedRelease = findReleaseForPath(
-      data,
-      ['removed', ...removalPath],
-      options
-    );
-    removalPath = findPathToContainer(removalPath);
+function pathsEqual(path1, path2) {
+  if (path1.length != path2.length) {
+    return false;
   }
-  return removedRelease !== undefined;
+
+  for (let i = 0; i < path1.length; ++i) {
+    if (path1[i] != path2[i]) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function isSupported(cluster, options) {
+  if (wasRemoved.call(this, cluster, options)) {
+    return false;
+  }
+
+  let provisionalRelease = findReleaseForPathOrAncestorAndSection(this.global, cluster, options, 'provisional');
+  if (provisionalRelease === undefined) {
+    // Default to enabled, even if not explicitly introduced.
+    return true;
+  }
+
+  let path = makeAvailabilityPath(cluster, options);
+  while (path !== undefined) {
+    let comparisonStatus = compareIntroductionToReferenceRelease(
+      this.global,
+      path,
+      options,
+      provisionalRelease.release
+    );
+
+    // If we have an explicit introduction for something that is at the scope of
+    // the provisional thing or narrower, and that introduction comes no earlier
+    // than the provisional marking (we allow the same release for cases we
+    // unfortunately have where we introduced some parts of a provisional
+    // thing), then this is supported.
+    if (comparisonStatus === 1 || comparisonStatus === 0) {
+      return true;
+    }
+
+    // If we have walked all the way up to the path to the provisional thing
+    // without finding an overriding introduction, we are done.
+    if (pathsEqual(path, provisionalRelease.path)) {
+      break;
+    }
+
+    path = findPathToContainer(path);
+  }
+
+  return false;
 }
 
 function hasRenamedFields(cluster, options) {
@@ -921,6 +1026,7 @@ exports.compatCommandNameRemapping = compatCommandNameRemapping;
 exports.availability = availability;
 exports.wasIntroducedBeforeRelease = wasIntroducedBeforeRelease;
 exports.wasRemoved = wasRemoved;
+exports.isSupported = isSupported;
 exports.and = and;
 exports.or = or;
 exports.not = not;
