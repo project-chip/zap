@@ -369,12 +369,7 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-.bg-glass {
-  background-color: rgba(238, 238, 238, 0.61);
-  -webkit-backdrop-filter: blur(7px);
-  backdrop-filter: blur(7px);
-  border-bottom: 1px solid rgba(233, 232, 238, 1);
-}
+
 .q-page {
   background: url('/bg-matter.jpg');
   // background: @image, -moz-linear-gradient(top, @startColor, @endColor); // FF 3.6+

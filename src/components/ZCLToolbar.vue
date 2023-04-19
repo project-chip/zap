@@ -6,16 +6,7 @@
     >
       <Transition mode="out-in" name="slide-up">
         <div v-if="$route.fullPath === '/'">
-          <img
-            v-if="uiThemeCategory === 'zigbee'"
-            class="my-auto block logo"
-            src="/zigbee_logo.svg"
-          />
-          <img
-            v-else-if="uiThemeCategory === 'matter'"
-            class="my-auto block logo"
-            src="/matter_logo.svg"
-          />
+          <img class="my-auto block logo" :src="getLogo" />
         </div>
 
         <q-btn
@@ -190,9 +181,15 @@ export default {
         return this.$store.state.zap.debugNavBar
       },
     },
-    uiThemeCategory: {
+    getLogo: {
       get() {
-        return this.$store.state.zap.selectedZapConfig?.zclProperties.category
+        return (
+          '/' +
+          this.$store.state.zap.selectedZapConfig?.zclProperties.category +
+          '_logo' +
+          (this.$q.dark.isActive ? '_white' : '') +
+          '.svg'
+        )
       },
     },
   },
@@ -254,12 +251,6 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-.bg-glass {
-  background-color: rgba(238, 238, 238, 0.61);
-  -webkit-backdrop-filter: blur(7px);
-  backdrop-filter: blur(7px);
-  border-bottom: 1px solid rgba(233, 232, 238, 1);
-}
 .logo-margin {
   margin-left: 75px;
 }

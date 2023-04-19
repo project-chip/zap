@@ -185,34 +185,6 @@ export default {
 }
 </script>
 <style lang="scss">
-.q-layout {
-  background: grey;
-  background: url('/bg-layout.png');
-  background-attachment: fixed;
-  background-size: cover;
-  animation: fadeInAnimation ease 1.5s;
-  animation-iteration-count: 1;
-  animation-fill-mode: forwards;
-}
-
-@keyframes fadeInAnimation {
-  0% {
-    opacity: 0;
-  }
-  100% {
-    opacity: 1;
-  }
-}
-.bg-glass {
-  background-color: rgba(238, 238, 238, 0.61);
-  -webkit-backdrop-filter: blur(7px);
-  backdrop-filter: blur(7px);
-  border-bottom: 1px solid rgba(233, 232, 238, 1);
-}
-.q-drawer {
-  background: transparent;
-}
-
 .slide-left-leave-active,
 .slide-left-enter-active {
   transition: all 0.25s ease-out;
