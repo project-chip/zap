@@ -140,13 +140,13 @@ export default {
         this.miniState = true
       }
     },
-    setSelectedEndpoint(value) {
-      this.$store.dispatch('zap/updateSelectedEndpointType', {
-        endpointType: this.endpointType[value],
-        deviceTypeRef: this.endpointDeviceTypeRef[this.endpointType[value]],
-      })
-      this.$store.dispatch('zap/updateSelectedEndpoint', value)
-    },
+    // setSelectedEndpoint(value) {
+    //   this.$store.dispatch('zap/updateSelectedEndpointType', {
+    //     endpointType: this.endpointType[value],
+    //     deviceTypeRef: this.endpointDeviceTypeRef[this.endpointType[value]],
+    //   })
+    //   this.$store.dispatch('zap/updateSelectedEndpoint', value)
+    // },
     openDocumentation() {
       window.open(commonUrl.documentationUrl, '_blank')
     },

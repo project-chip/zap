@@ -78,7 +78,7 @@
           </q-item>
         </q-list>
       </q-btn-dropdown>
-      <div class="col column bg-white q-mx-sm">
+      <div class="col column q-mx-sm">
         <q-scroll-area class="fit" ref="generationScroll">
           <pre class="q-ma-sm">{{ generationData }}</pre>
           <q-scroll-observer @scroll="onScroll" />
