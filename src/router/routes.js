@@ -164,7 +164,13 @@ const routes = [
     name: 'notifications',
     component: () => import('layouts/MainLayout.vue'),
     children: [
-      { path: '', component: () => import('pages/NotificationsPage.vue') },
+      {
+        path: '',
+        components: {
+          default: () => import('pages/NotificationsPage.vue'),
+          sidebar: () => import('components/ZclEndpointManager.vue'),
+        },
+      },
     ],
   },
 ]
