@@ -15,12 +15,7 @@ limitations under the License.
 -->
 
 <template>
-  <div
-    :class="{
-      zigbee: uiThemeCategory === 'zigbee',
-      matter: uiThemeCategory !== 'zigbee',
-    }"
-  >
+  <div>
     <q-ajax-bar color="grey" />
     <router-view />
     <q-btn
@@ -192,6 +187,15 @@ export default defineComponent({
         this.$store.dispatch('zap/updateUcComponentState', resp)
       })
     },
+    addClassToBody() {
+      if (this.uiThemeCategory === 'zigbee') {
+        document.body.classList.remove('matter')
+        document.body.classList.add('zigbee')
+      } else {
+        document.body.classList.remove('zigbee')
+        document.body.classList.add('matter')
+      }
+    },
   },
   created() {
     window[rendApi.GLOBAL_SYMBOL_EXECUTE](
@@ -205,6 +209,16 @@ export default defineComponent({
       this.getAppData()
     }
   },
+  mounted() {
+    this.addClassToBody()
+  },
+  unmounted() {
+    if (this.uiThemeCategory === 'zigbee') {
+      document.body.classList.remove('zigbee')
+    } else {
+      document.body.classList.remove('matter')
+    }
+  },
   watch: {
     isZapConfigSelected(val) {
       if (val != true) {
@@ -213,6 +227,9 @@ export default defineComponent({
         this.$router.push({ path: '/' })
         this.getAppData()
       }
+    },
+    uiThemeCategory() {
+      this.addClassToBody()
     },
   },
 })
