@@ -1,6 +1,9 @@
 <template>
   <q-toolbar class="bg-glass q-electron-drag">
-    <q-toolbar-title style="width: 180px">
+    <q-toolbar-title
+      :class="{ 'logo-margin': showPreviewTab }"
+      style="width: 180px"
+    >
       <Transition mode="out-in" name="slide-up">
         <div v-if="$route.fullPath === '/'">
           <img
@@ -256,6 +259,9 @@ export default {
   -webkit-backdrop-filter: blur(7px);
   backdrop-filter: blur(7px);
   border-bottom: 1px solid rgba(233, 232, 238, 1);
+}
+.logo-margin {
+  margin-left: 75px;
 }
 .q-btn {
   font-size: 10px;
