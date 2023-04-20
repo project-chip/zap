@@ -297,6 +297,32 @@ async function zcl_struct_items_by_struct_name(name, options) {
 }
 
 /**
+ * Block helper iterating over all struct items given the struct name and
+ * cluster name.
+ *
+ * @param name
+ * @param clusterName
+ * @param options
+ * @returns Promise of content.
+ */
+async function zcl_struct_items_by_struct_and_cluster_name(
+  name,
+  clusterName,
+  options
+) {
+  let packageIds = await templateUtil.ensureZclPackageIds(this)
+  let promise = queryZcl
+    .selectAllStructItemsByStructName(
+      this.global.db,
+      name,
+      packageIds,
+      clusterName
+    )
+    .then((st) => templateUtil.collectBlocks(st, options, this))
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
  * Block helper iterating over all deviceTypes.
  *
  * @param {*} options
@@ -2987,3 +3013,5 @@ exports.if_compare = if_compare
 exports.if_is_data_type_signed = if_is_data_type_signed
 exports.as_zcl_data_type_size = as_zcl_data_type_size
 exports.zcl_command_responses = zcl_command_responses
+exports.zcl_struct_items_by_struct_and_cluster_name =
+  zcl_struct_items_by_struct_and_cluster_name
