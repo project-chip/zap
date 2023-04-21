@@ -438,13 +438,39 @@ ORDER BY
 }
 
 /**
- *
+ * Retrieves the struct items based on struct and cluster name.
+ * Note: By default clusterName is null.
  *
  * @param  db
  * @param  name
- * @returns the details of the struct items given the name of the struct
+ * @param  packageIds
+ * @param  clusterName
+ * @returns the details of the struct items
  */
-async function selectAllStructItemsByStructName(db, name, packageIds) {
+async function selectAllStructItemsByStructName(
+  db,
+  name,
+  packageIds,
+  clusterName = null
+) {
+  let clusterJoinQuery = ''
+  let clusterWhereQuery = ''
+  if (clusterName) {
+    clusterJoinQuery = ` 
+    INNER JOIN
+      DATA_TYPE_CLUSTER
+    ON
+      DATA_TYPE_CLUSTER.DATA_TYPE_REF = DT.DATA_TYPE_ID
+    INNER JOIN
+      CLUSTER
+    ON
+      DATA_TYPE_CLUSTER.CLUSTER_REF = CLUSTER.CLUSTER_ID 
+      `
+    clusterWhereQuery = ` 
+    AND
+      CLUSTER.NAME = "${clusterName}" 
+      `
+  }
   return dbApi
     .dbAll(
       db,
@@ -474,12 +500,14 @@ INNER JOIN
   DATA_TYPE AS DT
 ON
   DT.DATA_TYPE_ID = STRUCT.STRUCT_ID
+${clusterJoinQuery}
 INNER JOIN
   DISCRIMINATOR
 ON
   DT.DISCRIMINATOR_REF = DISCRIMINATOR.DISCRIMINATOR_ID
 WHERE DT.NAME = ?
   AND DT.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
+  ${clusterWhereQuery}
 ORDER BY FIELD_IDENTIFIER`,
       [name]
     )

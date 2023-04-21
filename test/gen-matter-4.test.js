@@ -257,6 +257,24 @@ test(
     expect(ept).toContain(
       'attribute GeneratedCommandList of type command_id is unsigned. The size of this attribute is: 32 bits'
     )
+
+    // Testing cluster specific structs
+    expect(ept).toContain(
+      'TargetStruct item 0 from Access Control cluster: Cluster'
+    )
+    expect(ept).toContain(
+      'TargetStruct item 1 from Access Control cluster: Endpoint'
+    )
+    expect(ept).toContain(
+      'TargetStruct item 2 from Access Control cluster: DeviceType'
+    )
+    expect(ept).toContain('TargetStruct item 0 from Binding cluster: Node')
+    expect(ept).toContain('TargetStruct item 1 from Binding cluster: Group')
+    expect(ept).toContain('TargetStruct item 2 from Binding cluster: Endpoint')
+    expect(ept).toContain('TargetStruct item 3 from Binding cluster: Cluster')
+    expect(ept).toContain(
+      'TargetStruct item 4 from Binding cluster: FabricIndex'
+    )
   },
   testUtil.timeout.long()
 )
