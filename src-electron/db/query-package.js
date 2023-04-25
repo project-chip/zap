@@ -342,6 +342,22 @@ async function deleteAllSessionPackages(db, sessionId) {
 }
 
 /**
+ * Performs a delete on the package table based on the package Id. Since
+ * package id is a reference for many foreign keys(sqlite) under a delete
+ * cascade operation this will delete entries from the other tables as well.
+ * Note: In sqlite, On Delete cascade happens when the sql instance has
+ * "PRAGMA FOREIGN_KEYS=ON"
+ * @param {*} db
+ * @param {*} packageId
+ * @returns promise of a delete query from the package table
+ */
+async function deletePackagesByPackageId(db, packageId) {
+  return dbApi.dbRemove(db, `DELETE FROM PACKAGE WHERE PACKAGE_ID = ?`, [
+    packageId,
+  ])
+}
+
+/**
  * Returns session packages of a given type.
  *
  * @param {*} db
@@ -1004,3 +1020,4 @@ exports.deleteSessionPackage = deleteSessionPackage
 exports.selectAllUiOptions = selectAllUiOptions
 exports.insertSessionKeyValuesFromPackageDefaults =
   insertSessionKeyValuesFromPackageDefaults
+exports.deletePackagesByPackageId = deletePackagesByPackageId

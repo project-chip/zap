@@ -1817,6 +1817,42 @@ async function parseSingleZclFile(db, packageId, file, context) {
 }
 
 /**
+ * Checks if there is a crc mismatch on any xml file. This can be used to
+ * decide if there is a need to reload all the xml files.
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} files
+ * @returns boolean based on whether there is a crc mismatch for any file
+ */
+async function isCrcMismatch(db, packageId, files) {
+  let crcMismatch = false
+  let promises = []
+  for (let file of files) {
+    let fileContent = await fsp.readFile(file)
+    let filePath = file
+    let actualCrc = util.checksum(fileContent)
+
+    let pkg = await queryPackage.getPackageByPathAndParent(
+      db,
+      filePath,
+      packageId,
+      false
+    )
+
+    if (pkg != null && pkg.crc != actualCrc) {
+      env.logDebug(
+        `CRC missmatch for file ${pkg.path}, (${pkg.crc} vs ${actualCrc}) package id ${pkg.id}, parsing.
+        Deleting package id: ${packageId}`
+      )
+      promises.push(queryPackage.deletePackagesByPackageId(db, packageId))
+      crcMismatch = true
+    }
+  }
+  await Promise.all(promises)
+  return crcMismatch
+}
+
+/**
  *
  * Promises to iterate over all the XML files and returns an aggregate promise
  * that will be resolved when all the XML files are done, or rejected if at least one fails.
@@ -2191,6 +2227,33 @@ async function processCustomZclDeviceType(db, packageId) {
 }
 
 /**
+ * Updates the context after loading a top level package
+ * @param {*} db
+ * @param {*} context
+ * @param {*} isJson
+ * @returns the context after a top level package is loaded.
+ */
+async function recordTopLevelPackages(db, context, isJson) {
+  Object.assign(context, await util.readFileContentAndCrc(context.metadataFile))
+  context.packageId = await zclLoader.recordToplevelPackage(
+    db,
+    context.metadataFile,
+    context.crc
+  )
+  let ret
+  if (isJson) {
+    ret = await collectDataFromJsonFile(context.metadataFile, context.data)
+  } else {
+    ret = await collectDataFromPropertiesFile(
+      context.metadataFile,
+      context.data
+    )
+  }
+  Object.assign(context, ret)
+  return context
+}
+
+/**
  * Toplevel function that loads the toplevel metafile
  * and orchestrates the promise chain.
  *
@@ -2213,19 +2276,14 @@ async function loadSilabsZcl(db, metafile, isJson = false) {
   if (!isTransactionAlreadyExisting) await dbApi.dbBeginTransaction(db)
 
   try {
-    Object.assign(ctx, await util.readFileContentAndCrc(ctx.metadataFile))
-    ctx.packageId = await zclLoader.recordToplevelPackage(
-      db,
-      ctx.metadataFile,
-      ctx.crc
-    )
-    let ret
-    if (isJson) {
-      ret = await collectDataFromJsonFile(ctx.metadataFile, ctx.data)
-    } else {
-      ret = await collectDataFromPropertiesFile(ctx.metadataFile, ctx.data)
+    ctx = await recordTopLevelPackages(db, ctx, isJson)
+
+    // Check if there is any CRC mismatch on any of the xml files
+    let crcMismatch = await isCrcMismatch(db, ctx.packageId, ctx.zclFiles)
+    // Reload all the files if there is a crc mismatch on any of the files
+    if (crcMismatch) {
+      ctx = await recordTopLevelPackages(db, ctx, isJson)
     }
-    Object.assign(ctx, ret)
     if (
       ctx.version != null ||
       ctx.category != null ||

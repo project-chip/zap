@@ -401,6 +401,7 @@ async function initDatabase(sqlitePath) {
         reject(err)
       } else {
         env.logSql(`Connected to the database at: ${sqlitePath}`)
+        db.get('PRAGMA FOREIGN_KEYS=1')
         resolve(db)
       }
     })
