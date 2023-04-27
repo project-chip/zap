@@ -118,6 +118,7 @@ exports.map = {
         x.REPORTING_POLICY == dbEnums.reportingPolicy.mandatory ||
         x.REPORTING_POLICY == dbEnums.reportingPolicy.suggested,
       reportingPolicy: x.REPORTING_POLICY,
+      storagePolicy: x.STORAGE_POLICY,
       isSceneRequired: dbApi.fromDbBool(x.IS_SCENE_REQUIRED),
       entryType: x.ARRAY_TYPE,
       isArray: x.ARRAY_TYPE ? 1 : 0,
