@@ -202,9 +202,12 @@ async function startConvert(argv, options) {
   })
   options.logger(`    🐝 zcl package loaded: ${argv.zclProperties}`)
   if (argv.generationTemplate != null) {
-    await generatorEngine.loadTemplates(db, argv.generationTemplate, {
+    let ctx = await generatorEngine.loadTemplates(db, argv.generationTemplate, {
       failOnLoadingError: !argv.noLoadingFailure,
     })
+    if (ctx.error) {
+      throw ctx.error
+    }
     options.logger(`    🐝 templates loaded: ${argv.generationTemplate}`)
   }
 
