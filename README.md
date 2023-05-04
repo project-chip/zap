@@ -20,6 +20,10 @@ ZAP is a generic templating engine. Examples are provided for how to generate ar
 
 ## Quick setup
 
+### Node Version
+
+- Node LTS: 18.16.0
+
 ### Prebuilt binaries
 
 On the [release page](https://github.com/project-chip/zap/releases), there are two flavors of prebuilt binaries.
