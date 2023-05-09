@@ -36,7 +36,7 @@ limitations under the License.
           </q-toolbar-title>
           <q-toolbar-title v-on:click.ctrl="showVersion" v-else>
             Cluster Configurator:
-            {{ zclProperties != undefined ? zclProperties.description : '' }}
+            {{ zclProperties != undefined ? description : '' }}
           </q-toolbar-title>
           <q-btn
             class="hidden"
@@ -222,6 +222,12 @@ export default {
     uiThemeCategory: {
       get() {
         return this.$store.state.zap.selectedZapConfig?.zclProperties.category
+      },
+    },
+    description: {
+      get() {
+        return this.$store.state.zap.selectedZapConfig?.zclProperties
+          .description
       },
     },
     miniState: {
