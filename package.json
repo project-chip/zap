@@ -100,15 +100,15 @@
     "pack": "cross-env NODE_OPTIONS=--max-old-space-size=4096 electron-builder -mwl",
     "pack:linux": "cross-env NODE_OPTIONS=--max-old-space-size=4096 electron-builder -l",
     "pack:win": "cross-env NODE_OPTIONS=--max-old-space-size=4096 electron-builder -w",
-    "pack:mac": "cross-env NODE_OPTIONS=--max-old-space-size=4096 electron-builder -m --universal",
+    "pack:mac": "cross-env NODE_OPTIONS=--max-old-space-size=4096 electron-builder -m",
     "pack:mac:native": "cross-env NODE_OPTIONS=--max-old-space-size=4096 electron-builder -m",
     "pack:cli:linux": "node ./src-script/pack-cli.js -p linux",
     "pack:cli:win": "node ./src-script/pack-cli.js -p win",
     "pack:cli:mac": "node ./src-script/pack-cli.js -p mac",
     "pkg": "npx pkg --out-path dist/ --compress GZip --options max-old-space-size=4096 .",
-    "pkg:linux": "npx pkg -t node18-linux-x64 --output dist/zap-linux --compress GZip --options max-old-space-size=4096 .",
+    "pkg:linux": "npx pkg -t node18-linux-x64,node18-linux-arm64 --public --no-bytecode --output dist/zap-linux --compress GZip --options max-old-space-size=4096 .",
     "pkg-use-local-fork": "node ../pkg/lib-es5/bin.js -t node18-linux-x64 --output dist/zap-linux --compress GZip --options max-old-space-size=4096 .",
-    "pkg:win": "npx pkg -t node18-win-x64 --output dist/zap-win.exe --compress GZip --options max-old-space-size=4096 .",
+    "pkg:win": "npx pkg -t node18-win-x64,node18-win-arm64 --public --no-bytecode --output dist/zap-win --compress GZip --options max-old-space-size=4096 .",
     "pkg:mac": "npx pkg -t node18-macos-x64 --output dist/zap-macos --compress GZip --options max-old-space-size=4096 .",
     "mattersdk": "node src-script/zap-start.js regenerateSdk --sdk ~/git/matter/scripts/tools/sdk.json",
     "metasdk": "node src-script/zap-start.js regenerateSdk --sdk test/resource/meta/sdk.json",
@@ -219,7 +219,7 @@
     "node-pre-gyp": "^0.17.0",
     "nodejs-file-downloader": "^4.9.3",
     "octokit": "^1.7.2",
-    "pkg": "^5.5.2",
+    "pkg": "^5.8.1",
     "prettier": "^2.3.2",
     "pretty-quick": "^3.1.1",
     "ts-loader": "^8.0.17",
@@ -243,27 +243,51 @@
   },
   "build": {
     "appId": "zap.id",
-    "artifactName": "${productName}-${os}.${ext}",
+    "artifactName": "${productName}-${os}-${arch}.${ext}",
     "afterPack": "./src-script/pack-apack-win-linux.js",
     "afterAllArtifactBuild": "./src-script/pack-apack-mac.js",
     "mac": {
       "category": "public.app-category.developer-tools",
       "darkModeSupport": true,
       "target": [
-        "zip"
+        {
+          "target": "zip",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
       ]
     },
     "linux": {
       "category": "Development",
       "target": [
-        "zip",
-        "deb",
-        "rpm"
+        {
+          "target": "zip",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "deb",
+          "arch": "x64"
+        },
+        {
+          "target": "rpm",
+          "arch": "x64"
+        }
       ]
     },
     "win": {
       "target": [
-        "zip"
+        {
+          "target": "zip",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
       ]
     },
     "directories": {
