@@ -782,12 +782,7 @@ CREATE TABLE IF NOT EXISTS "ENDPOINT_TYPE_ATTRIBUTE" (
   "REPORTABLE_CHANGE" integer default 0,
   foreign key (ENDPOINT_TYPE_REF) references ENDPOINT_TYPE(ENDPOINT_TYPE_ID) on delete cascade,
   foreign key (ENDPOINT_TYPE_CLUSTER_REF) references ENDPOINT_TYPE_CLUSTER(ENDPOINT_TYPE_CLUSTER_ID) on delete cascade,
-  foreign key (ATTRIBUTE_REF) references ATTRIBUTE(ATTRIBUTE_ID) on delete cascade,
-  UNIQUE(
-    ENDPOINT_TYPE_REF,
-    ATTRIBUTE_REF,
-    ENDPOINT_TYPE_CLUSTER_REF
-  )
+  foreign key (ATTRIBUTE_REF) references ATTRIBUTE(ATTRIBUTE_ID) on delete cascade
 );
 /*
  ENDPOINT_TYPE_COMMAND table contains the user data configuration for the various parameters that exist
