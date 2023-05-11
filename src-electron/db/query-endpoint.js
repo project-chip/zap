@@ -23,6 +23,7 @@
 const dbApi = require('./db-api.js')
 const bin = require('../util/bin')
 const dbMapping = require('./db-mapping.js')
+const { where } = require('underscore')
 
 /**
  * Returns a promise resolving into all endpoints.
@@ -274,9 +275,10 @@ ORDER BY C.CODE
  * @returns promise that resolves into endpoint cluster events
  */
 async function selectEndpointClusterEvents(db, clusterId, endpointTypeId) {
-  return dbApi.dbAll(
-    db,
-    `
+  return dbApi
+    .dbAll(
+      db,
+      `
 SELECT
   E.EVENT_ID,
   E.CLUSTER_REF,
@@ -299,9 +301,9 @@ WHERE
   AND ETE.ENDPOINT_TYPE_REF = ?
 ORDER BY E.MANUFACTURER_CODE, E.CODE
   `,
-    [clusterId, endpointTypeId]
-  )
-  .then((rows) => rows.map(dbMapping.map.event))
+      [clusterId, endpointTypeId]
+    )
+    .then((rows) => rows.map(dbMapping.map.event))
 }
 
 /**
@@ -363,24 +365,21 @@ INTO ENDPOINT (
 }
 
 /**
-* @export
-* @param {*} db
-* @param {*} id
-* @param {*} endpointIdentifier
-* @returns Promise to duplicate an endpoint.
-*/
-async function duplicateEndpoint( db, id, endpointIdentifier, endpointTypeId ) {
-  return dbApi.dbInsert( db,
+ * @export
+ * @param {*} db
+ * @param {*} id
+ * @param {*} endpointIdentifier
+ * @returns Promise to duplicate an endpoint.
+ */
+async function duplicateEndpoint(db, id, endpointIdentifier, endpointTypeId) {
+  return dbApi.dbInsert(
+    db,
     `
     insert into ENDPOINT (SESSION_REF,ENDPOINT_IDENTIFIER,ENDPOINT_TYPE_REF,NETWORK_IDENTIFIER,DEVICE_VERSION,DEVICE_IDENTIFIER,PROFILE)
     select SESSION_REF, ? , ? ,NETWORK_IDENTIFIER,DEVICE_VERSION,DEVICE_IDENTIFIER,PROFILE
     from ENDPOINT
     where ENDPOINT_ID = ?`,
-    [
-      endpointIdentifier,
-      endpointTypeId,
-      id
-    ]
+    [endpointIdentifier, endpointTypeId, id]
   )
 }
 
@@ -414,6 +413,24 @@ WHERE
     )
     .then(dbMapping.map.endpoint)
 }
+async function selectEndpointDevices(db, endpointId) {
+  return dbApi
+    .dbGet(
+      db,
+      `
+SELECT
+  ENDPOINT_ID,
+  SESSION_REF,
+  DEVICE_VERSION,
+  DEVICE_IDENTIFIER
+FROM
+  DEVICE
+WHERE
+  ENDPOINT_ID = ?`,
+      [endpointId]
+    )
+    .then(dbMapping.map.endpoint)
+}
 
 exports.selectEndpointClusters = selectEndpointClusters
 exports.selectEndpointClusterAttributes = selectEndpointClusterAttributes
@@ -424,3 +441,4 @@ exports.deleteEndpoint = deleteEndpoint
 exports.selectEndpoint = selectEndpoint
 exports.duplicateEndpoint = duplicateEndpoint
 exports.selectAllEndpoints = selectAllEndpoints
+exports.selectEndpointsDevices = selectEndpointDevices

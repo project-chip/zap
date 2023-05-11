@@ -730,12 +730,24 @@ CREATE TABLE IF NOT EXISTS "ENDPOINT" (
   "PROFILE" integer,
   "ENDPOINT_IDENTIFIER" integer,
   "NETWORK_IDENTIFIER" integer,
-  "DEVICE_IDENTIFIER" integer,
-  "DEVICE_VERSION" integer,
   foreign key (SESSION_REF) references SESSION(SESSION_ID) on delete cascade,
   foreign key (ENDPOINT_TYPE_REF) references ENDPOINT_TYPE(ENDPOINT_TYPE_ID) on delete
   set NULL
 );
+/*
+ DEVICE table contains the device types for an endpoint.
+ */
+DROP TABLE IF EXISTS "DEVICE";
+CREATE TABLE IF NOT EXISTS "DEVICE" (
+  "DEVICE_ID" integer primary key autoincrement,
+  "SESSION_REF" integer,
+  "ENDPOINT_REF" integer,
+  "DEVICE_IDENTIFIER" integer,
+  "DEVICE_VERSION" integer,
+  foreign key (SESSION_REF) references SESSION(SESSION_ID) on delete cascade,
+  set NULL
+);
+
 /*
  SESSION_CLUSTER contains the on/off values for cluster.
  SIDE is client or server

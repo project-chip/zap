@@ -432,6 +432,16 @@ exports.map = {
       deviceIdentifier: x.DEVICE_IDENTIFIER,
     }
   },
+  device: (x) => {
+    if (x == null) return undefined
+    return {
+      id: x.DEVICE_ID,
+      sessionRef: x.SESSION_REF,
+      endpointId: x.ENDPOINT_IDENTIFIER,
+      endpointVersion: x.DEVICE_VERSION,
+      deviceIdentifier: x.DEVICE_IDENTIFIER,
+    }
+  },
   endpointType: (x) => {
     if (x == null) return undefined
     return {
