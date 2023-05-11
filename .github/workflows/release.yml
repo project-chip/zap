@@ -234,6 +234,62 @@ jobs:
           # CSC_LINK: ${{ secrets.api_key_id }}
           # CSC_KEY_PASSWORD: ${{ secrets.api_key_issuer_id }}
 
+      - name: Verify zap-cli exists in Linux x64 .zip package
+        if: startsWith(matrix.os, 'ubuntu')
+        run: |
+          output=$(./node_modules/7zip-bin/linux/x64/7za l ./dist/zap-linux-x64.zip)
+          expression=zap-cli
+          if [[ $output == *"$expression"* ]]; then
+            echo "Output contains $expression"
+          else
+            echo "Output does not contain $expression"
+            exit 1
+          fi
+      - name: Verify zap-cli exists in Linux arm64 .zip package
+        if: startsWith(matrix.os, 'ubuntu')
+        run: |
+          output=$(./node_modules/7zip-bin/linux/x64/7za l ./dist/zap-linux-arm64.zip)
+          expression=zap-cli
+          if [[ $output == *"$expression"* ]]; then
+            echo "Output contains $expression"
+          else
+            echo "Output does not contain $expression"
+            exit 1
+          fi
+      - name: Verify zap-cli exists in Windows x64 .zip package
+        if: startsWith(matrix.os, 'macos')
+        run: |
+          output=$(./node_modules/7zip-bin/mac/x64/7za l ./dist/zap-win-x64.zip)
+          expression=zap-cli
+          if [[ $output == *"$expression"* ]]; then
+            echo "Output contains $expression"
+          else
+            echo "Output does not contain $expression"
+            exit 1
+          fi
+      - name: Verify zap-cli exists in Windows arm64 .zip package
+        if: startsWith(matrix.os, 'macos')
+        run: |
+          output=$(./node_modules/7zip-bin/mac/x64/7za l ./dist/zap-win-arm64.zip)
+          expression=zap-cli
+          if [[ $output == *"$expression"* ]]; then
+            echo "Output contains $expression"
+          else
+            echo "Output does not contain $expression"
+            exit 1
+          fi
+      - name: Verify zap-cli exists in macOS x64 .zip package
+        if: startsWith(matrix.os, 'macos')
+        run: |
+          output=$(./node_modules/7zip-bin/mac/x64/7za l ./dist/zap-mac-x64.zip | grep zap-cli)
+          expression=zap-cli
+          if [[ $output == *"$expression"* ]]; then
+            echo "Output contains $expression"
+          else
+            echo "Output does not contain $expression"
+            exit 1
+          fi
+
       - name: ZAP binary check (macOS x64) - unzip
         if: startsWith(matrix.os, 'macos')
         run: unzip dist/zap-mac-x64.zip -d dist/zap-mac
