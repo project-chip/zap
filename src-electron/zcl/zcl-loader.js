@@ -195,7 +195,18 @@ async function qualifyZclFile(
       env.logDebug(
         `CRC missmatch for file ${pkg.path}, (${pkg.crc} vs ${actualCrc}) package id ${pkg.id}, parsing.`
       )
-      await queryPackage.updatePathCrc(db, filePath, actualCrc, parentPackageId)
+      // Reloading the zcl xml file when there is a CRC mismatch(changes) on it.
+      // This check makes sure that when a custom xml is edited, deleted and
+      // re-added from ZCL Extensions in ZAP UI then the custom xml package is
+      // updated in the backend to reflect the right configuration.
+      await queryPackage.deletePackagesByPackageId(db, pkg.id)
+      let packageId = await queryPackage.insertPathCrc(
+        db,
+        filePath,
+        actualCrc,
+        packageType,
+        parentPackageId
+      )
       return {
         filePath: filePath,
         data: data,

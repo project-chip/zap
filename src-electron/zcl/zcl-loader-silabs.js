@@ -2259,7 +2259,8 @@ async function recordTopLevelPackages(db, context, isJson) {
  *
  * @export
  * @param {*} db
- * @param {*} ctx The context of loading.
+ * @param {*} metafile The metadata for loading packages into backend.
+ * @param {*} isJson
  * @returns a Promise that resolves with the db.
  */
 async function loadSilabsZcl(db, metafile, isJson = false) {

@@ -23,6 +23,7 @@ const queryImpexp = require('../db/query-impexp.js')
 const querySession = require('../db/query-session.js')
 const zclLoader = require('../zcl/zcl-loader.js')
 const generationEngine = require('../generator/generation-engine')
+const fsp = fs.promises
 
 /**
  * Resolves with a promise that imports session key values.
@@ -438,6 +439,29 @@ async function jsonDataLoader(db, state, sessionId, packageMatch) {
         pkg.type,
         pkg.version
       )
+      // Checking if standalone xml file content changed by checking for a crc
+      // mismatch. If there is a crc mismatch then delete the package so that
+      // it does not come under the list of existing packages.
+      // This check makes sure that if a custom xml is updated and the zap file
+      // is re-opened then the custom xml is reloaded to reflect the correct
+      // configuration.
+      if (pkg.type == 'zcl-xml-standalone') {
+        let info = await queryPackage.getPackageByPackageId(db, packageId)
+        let fileContent = await fsp.readFile(info.path)
+        let actualCrc = util.checksum(fileContent)
+        if (info != null && actualCrc != info.crc) {
+          env.logDebug(
+            `CRC missmatch for file ${pkg.path}, (${pkg.crc} vs ${actualCrc}) package id ${pkg.id}, parsing.
+            Deleting package id: ${packageId}`
+          )
+          await queryPackage.deletePackagesByPackageId(db, packageId)
+        }
+        return {
+          packageId: null,
+          packageType: pkg.type,
+        }
+      }
+
       return {
         packageId: packageId,
         packageType: pkg.type,
