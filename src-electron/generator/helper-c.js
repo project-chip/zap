@@ -121,7 +121,7 @@ async function asUnderlyingTypeHelper(dataType, context, packageIds) {
       dataType &&
       dataType.discriminatorName.toLowerCase() == dbEnum.zclType.struct
     ) {
-      return dataType.name
+      return context.global.overridable.structType()
     } else if (
       dataType &&
       dataType.discriminatorName.toLowerCase() == dbEnum.zclType.string
