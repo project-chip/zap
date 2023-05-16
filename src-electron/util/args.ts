@@ -244,6 +244,11 @@ export function processCommandLineArguments(argv: string[]) {
       desc: 'Disable query caching when accessing database',
       type: 'boolean',
     })
+    .option('noop', {
+      desc: 'If this flag is present, then conversion will not do anything, while reporting success.',
+      type: 'boolean',
+      deafult: false,
+    })
     .usage('Usage: $0 <command> [options] ... [file.zap] ...')
     .version(
       `Version: ${zapVersion.version}\nFeature level: ${

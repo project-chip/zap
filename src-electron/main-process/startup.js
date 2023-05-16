@@ -170,6 +170,15 @@ function gatherFiles(filesArg, options = { suffix: '.zap', doBlank: true }) {
   return list
 }
 
+async function noopConvert(resultsFile, logger) {
+  if (resultsFile != null) {
+    logger(`😎 No-op conversion: ${resultsFile}`)
+    return writeConversionResultsFile(resultsFile)
+  } else {
+    logger(`😎 No-op, no result, conversion.`)
+  }
+}
+
 /**
  * Perform file conversion.
  *
@@ -177,6 +186,12 @@ function gatherFiles(filesArg, options = { suffix: '.zap', doBlank: true }) {
  * @param {*} output
  */
 async function startConvert(argv, options) {
+  let noop = argv.noop === true
+
+  if (noop) {
+    return noopConvert(argv.results, options.logger)
+  }
+
   let zapFiles = argv.zapFiles
   let files = gatherFiles(zapFiles, { suffix: '.zap', doBlank: true })
   if (files.length == 0) {
@@ -257,18 +272,7 @@ async function startConvert(argv, options) {
 
   try {
     if (conversion_results != null)
-      await fsp.writeFile(
-        conversion_results,
-        YAML.stringify({
-          upgrade_results: [
-            {
-              message:
-                'Zigbee Cluster Configurator configuration has been successfully upgraded.',
-              status: 'automatic',
-            },
-          ],
-        })
-      )
+      await writeConversionResultsFile(conversion_results)
     options.logger(`    👉 write out: ${conversion_results}`)
   } catch (error) {
     options.logger(`    ⚠️  failed to write out: ${conversion_results}`)
@@ -278,6 +282,21 @@ async function startConvert(argv, options) {
   if (options.quitFunction != null) {
     options.quitFunction()
   }
+}
+
+async function writeConversionResultsFile(file) {
+  return fsp.writeFile(
+    file,
+    YAML.stringify({
+      upgrade_results: [
+        {
+          message:
+            'Zigbee Cluster Configurator configuration has been successfully upgraded.',
+          status: 'automatic',
+        },
+      ],
+    })
+  )
 }
 
 /**
