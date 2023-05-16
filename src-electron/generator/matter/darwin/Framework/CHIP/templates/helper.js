@@ -589,6 +589,42 @@ function findPathToContainer(availabilityPath) {
   }
 }
 
+/**
+ * Finds the release in which this path, or one of its ancestors, was
+ * deprecated, if such a release exists.  If no such release exists, returns
+ * undefined.
+ */
+function findDeprecationRelease(global, path, options) {
+  if (path === undefined) {
+    return undefined;
+  }
+
+  const data = fetchAvailabilityData(global);
+  let deprecatedRelease = undefined;
+  let deprecationPath = [...path];
+  while (deprecatedRelease === undefined && deprecationPath != undefined) {
+    deprecatedRelease = findReleaseForPath(
+      data,
+      ['deprecated', ...deprecationPath],
+      options
+    );
+    deprecationPath = findPathToContainer(deprecationPath);
+  }
+  if (options.hash.deprecatedRelease) {
+    let minimalDeprecatedRelease = findReleaseByName(
+      data,
+      options.hash.deprecatedRelease
+    );
+    if (
+      deprecatedRelease === undefined ||
+      data.indexOf(deprecatedRelease) > data.indexOf(minimalDeprecatedRelease)
+    ) {
+      deprecatedRelease = minimalDeprecatedRelease;
+    }
+  }
+  return deprecatedRelease;
+}
+
 async function availability(clusterName, options) {
   const data = fetchAvailabilityData(this.global);
   const path = makeAvailabilityPath(clusterName, options);
@@ -636,28 +672,7 @@ async function availability(clusterName, options) {
   }
   let introducedVersions = introducedRelease?.versions;
 
-  let deprecatedRelease = undefined;
-  let deprecationPath = [...path];
-  while (deprecatedRelease === undefined && deprecationPath != undefined) {
-    deprecatedRelease = findReleaseForPath(
-      data,
-      ['deprecated', ...deprecationPath],
-      options
-    );
-    deprecationPath = findPathToContainer(deprecationPath);
-  }
-  if (options.hash.deprecatedRelease) {
-    let minimalDeprecatedRelease = findReleaseByName(
-      data,
-      options.hash.deprecatedRelease
-    );
-    if (
-      deprecatedRelease === undefined ||
-      data.indexOf(deprecatedRelease) > data.indexOf(minimalDeprecatedRelease)
-    ) {
-      deprecatedRelease = minimalDeprecatedRelease;
-    }
-  }
+  let deprecatedRelease = findDeprecationRelease(this.global, path, options);
   const deprecatedVersions = deprecatedRelease?.versions;
 
   if (introducedVersions === undefined && deprecatedVersions !== undefined) {
@@ -842,8 +857,22 @@ function pathsEqual(path1, path2) {
 }
 
 function isSupported(cluster, options) {
+  // Things that are removed are not supported.
   if (wasRemoved.call(this, cluster, options)) {
     return false;
+  }
+
+  // Things that have a deprecated container and were not introduced before the
+  // deprecation are not supported.
+  let path = makeAvailabilityPath(cluster, options);
+  let deprecationRelease = findDeprecationRelease(this.global, findPathToContainer(path), options);
+  if (deprecationRelease !== undefined) {
+    let comparisonStatus = compareIntroductionToReferenceRelease(this.global, path, options, deprecationRelease);
+    // The only case where we might be supported is if we have an explicit
+    // introduction and the introduction comes before the ancestor deprecation.
+    if (comparisonStatus != -1) {
+      return false;
+    }
   }
 
   let provisionalRelease = findReleaseForPathOrAncestorAndSection(this.global, cluster, options, 'provisional');
@@ -852,7 +881,6 @@ function isSupported(cluster, options) {
     return true;
   }
 
-  let path = makeAvailabilityPath(cluster, options);
   while (path !== undefined) {
     let comparisonStatus = compareIntroductionToReferenceRelease(
       this.global,
