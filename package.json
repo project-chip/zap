@@ -1,6 +1,6 @@
 {
   "name": "zap",
-  "version": "0.0.0",
+  "version": "2023.5.11",
   "description": "Configuration tool for the Zigbee Cluster Library",
   "productName": "zap",
   "cordovaId": "",
@@ -146,7 +146,7 @@
     "quasar": "^2.10.2",
     "single-instance": "^0.0.1",
     "source-map-support": "^0.5.19",
-    "sqlite3": "5.1.4",
+    "sqlite3": "^5.1.6",
     "toposort": "^2.0.2",
     "utf-8-validate": "^5.0.5",
     "uuid": "^8.3.2",
