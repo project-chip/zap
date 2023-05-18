@@ -502,3 +502,23 @@ jobs:
           # to tell at a glance what might be going on.  And throw in
           # --exit-code to make this job fail if there is a difference.
           git diff-index --exit-code HEAD --
+
+  zigbee-sdk-codegen:
+    name: Test gecko sdk Zigbee codegen changes
+    needs: [build-zap]
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3.0.0
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      - run: sudo ./src-script/install-packages-ubuntu
+      - run: sudo apt-get install --fix-missing libxml2-utils
+      - run: npm ci
+      - run: node ./src-script/gsdk-public-regen.js ./gecko_sdk/ ./tmp

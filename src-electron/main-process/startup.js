@@ -132,7 +132,9 @@ function outputFile(inputFile, outputPattern, index = 0) {
     output = output.replace('{basename}', basename)
     output = output.replace('{index}', index)
     if (!hadDir) {
-      if (!output.startsWith('/')) output = path.join(dir, output)
+      if (!(output.startsWith('/') || output.startsWith('./'))) {
+        output = path.join(dir, output)
+      }
     }
   }
   return output

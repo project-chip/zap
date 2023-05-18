@@ -241,9 +241,8 @@ async function setPackageJsonVersion(date, mode) {
       if (cnt < 10 && line.includes('"version":')) {
         let output
         if (mode == 'real') {
-          result.version = `${date.getFullYear()}.${
-            date.getMonth() + 1
-          }.${date.getDate()}`
+          result.version = `${date.getFullYear()}.${date.getMonth() + 1
+            }.${date.getDate()}`
           output = `  "version": "${result.version}",`
         } else if (mode == 'fake') {
           result.version = '0.0.0'
@@ -338,6 +337,35 @@ async function addToJsonFile(file, object) {
   await fsp.writeFile(file, JSON.stringify(json, null, 2))
 }
 
+// Recursive entry
+async function doLocate(directory, depth, pattern, collector) {
+  if (depth > 50) {
+    console.log("WARNING: Recursive depth of 50 exceeded. Aborting.")
+    return
+  }
+
+  let content = await fsp.readdir(directory)
+
+  for (let f of content.map((x) => path.join(directory, x))) {
+    let stat = await fsp.stat(f)
+    if (stat.isDirectory()) {
+      await doLocate(f, depth + 1, pattern, collector)
+    } else if (stat.isFile()) {
+      if (f.match(pattern)) {
+        collector.push(f)
+      }
+    }
+  }
+}
+/**
+ * Function that recursively finds files under a given directory
+ */
+async function locateRecursively(rootDir, filePattern) {
+  let files = []
+  await doLocate(rootDir, 0, filePattern, files)
+  return files
+}
+
 exports.executeCmd = executeCmd
 exports.rebuildSpaIfNeeded = rebuildSpaIfNeeded
 exports.rebuildBackendIfNeeded = rebuildBackendIfNeeded
@@ -347,3 +375,4 @@ exports.doneStamp = doneStamp
 exports.mainPath = mainPath
 exports.setPackageJsonVersion = setPackageJsonVersion
 exports.addToJsonFile = addToJsonFile
+exports.locateRecursively = locateRecursively
