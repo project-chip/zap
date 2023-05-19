@@ -93,6 +93,14 @@ limitations under the License.
             </div>
           </q-item>
           <q-item class="row">
+            <div class="col-6">
+              <strong>Primary Device</strong>
+            </div>
+            <div class="col-6">
+              {{ getPrimaryDeviceOptionLabel() }}
+            </div>
+          </q-item>
+          <q-item class="row">
             <div class="col-6">Network</div>
             <div class="col-6">
               <strong> {{ networkId[endpointReference] }}</strong>
@@ -271,6 +279,9 @@ export default {
         )
       }
     },
+    getPrimaryDeviceOptionLabel() {
+      return '' // TODO
+    },
     handleDeletionDialog() {
       if (this.getStorageParam() == 'true') {
         this.deleteEpt()
@@ -353,6 +364,9 @@ export default {
           this.endpointDeviceTypeRef[this.endpointType[this.endpointReference]]
         ]
       },
+    },
+    primaryDeviceType() {
+      return '' // TODO
     },
     networkId: {
       get() {
