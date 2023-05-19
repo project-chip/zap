@@ -63,8 +63,8 @@ function getSimulatedCluster(clusterName) {
   return SimulatedClusters.find((cluster) => cluster.name == clusterName);
 }
 
-function getClusters(context) {
-  return ensureClusters(context, true)
+function getClusters(context, includeAllClusters = false) {
+  return ensureClusters(context, true, includeAllClusters)
     .getClusters()
     .then((clusters) => clusters.concat(SimulatedClusters).flat(1));
 }

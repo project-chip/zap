@@ -640,6 +640,12 @@ async function chip_tests(listOrJson, options) {
   let global = this.global;
   let items;
 
+  if (options.hash.includeAllClusters) {
+    // Trigger fetch of the cluster bits before some of the iterators inside us
+    // try to do it and fail to pass includeAllClusters=true.
+    getClusters(this, /* includeAllClusters = */ true)
+  }
+
   if (Array.isArray(listOrJson)) {
     items = listOrJson;
   } else {
@@ -1036,7 +1042,7 @@ function checkIsInsideTestOnlyClusterBlock(conditions, name) {
  * @param {*} options
  */
 async function chip_tests_only_clusters(options) {
-  const clusters = await getClusters(this);
+  const clusters = await getClusters(this, options.hash.includeAllClusters);
   const testOnlyClusters = clusters.filter((cluster) =>
     isTestOnlyCluster(cluster.name)
   );

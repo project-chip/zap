@@ -789,7 +789,7 @@ Clusters._computeUsedStructureNames = async function (structs) {
  * If includeAll is true, all events/commands/attributes will be included, not
  * just the ones enabled in the ZAP configuration.
  */
-Clusters.init = async function (context, includeAll) {
+Clusters.init = async function (context, includeAllClusterConstructs, includeAllClusters) {
   try {
     if (this.ready.running) {
       return this.ready;
@@ -813,17 +813,17 @@ Clusters.init = async function (context, includeAll) {
     const promises = [
       Promise.all(loadTypes),
       loadEndpoints.call(context),
-      // For now just always use loadClusters, because we have a bunch of things
-      // defined in our XML that are not actually part of Matter.
-      loadClusters.call(context),
-      includeAll
+      includeAllClusters
+        ? loadAllClusters.call(context, packageIds)
+        : loadClusters.call(context),
+      includeAllClusterConstructs
         ? loadAllCommands.call(context, packageIds)
         : loadCommands.call(context, packageIds),
-      includeAll
+      includeAllClusterConstructs
         ? loadAllAttributes.call(context, packageIds)
         : loadAttributes.call(context),
       loadGlobalAttributes.call(context, packageIds),
-      (includeAll ? loadAllEvents : loadEvents).call(context, packageIds),
+      (includeAllClusterConstructs ? loadAllEvents : loadEvents).call(context, packageIds),
     ];
 
     let [
@@ -865,12 +865,12 @@ function asBlocks(promise, options) {
   );
 }
 
-function ensureClusters(context, includeAll = false) {
+function ensureClusters(context, includeAllClusterConstructs = false, includeAllClusters = false) {
   // Kick off Clusters initialization.  This is async, but that's fine: all the
   // getters on Clusters wait on that initialziation to complete.
   ensureState(context, "Don't have a context");
 
-  Clusters.init(context, includeAll);
+  Clusters.init(context, includeAllClusterConstructs, includeAllClusters);
   return Clusters;
 }
 
