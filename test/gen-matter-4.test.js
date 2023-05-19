@@ -26,12 +26,19 @@ const querySession = require('../src-electron/db/query-session')
 const zclLoader = require('../src-electron/zcl/zcl-loader')
 const importJs = require('../src-electron/importexport/import')
 const testUtil = require('./test-util')
+const queryEndpoint = require('../src-electron/db/query-endpoint.js')
+const queryEndpointType = require('../src-electron/db/query-endpoint-type.js')
+const queryConfig = require('../src-electron/db/query-config')
+const queryDeviceType = require('../src-electron/db/query-device-type')
+const util = require('../src-electron/util/util')
 
 let db
 let templateContext
 let zclPackageId
 
 const testFile = testUtil.matterTestFile.allClusters
+const multipleDeviceTypePerEndpointTestFile =
+  testUtil.matterTestFile.multipleDeviceTypesPerEndpoint
 const templateCount = testUtil.testTemplate.matter3Count
 
 beforeAll(async () => {
@@ -89,8 +96,8 @@ test(
     // the old SDKs, so if you changed something that generates
     // endpoint_config differently, please be very very careful and
     // make sure you can answer positively the following question:
-    //   will after my changes, zap still be able to generate content
-    //   that will work with an older SDK.
+    //   after my changes, will zap still be able to generate content
+    //   that works with an older SDK.
     //
     let ept = genResult.content['endpoint_config.h']
     expect(ept).toContain(`{ \\
@@ -153,6 +160,9 @@ test(
     expect(ept).toContain(
       '#define FIXED_DEVICE_TYPES {{0x0016,1},{0x0100,1},{0x0100,1},{0xF002,1}}'
     )
+    expect(ept).toContain(
+      '#define FIXED_DEVICE_TYPES_WITH_ENDPOINT {{0x0016,1,0},{0x0100,1,1},{0x0100,1,2},{0xF002,1,65534}}'
+    )
     expect(ept).toContain('#define FIXED_DEVICE_TYPE_OFFSETS { 0,1,2,3}')
     expect(ept).toContain('#define FIXED_DEVICE_TYPE_LENGTHS { 1,1,1,1}')
     expect(ept).toContain('#define FIXED_ENDPOINT_TYPES { 0, 1, 2, 3 }')
@@ -165,6 +175,54 @@ test(
       .attributeCount = 22, \\
       .clusterId = 0x00000028, \\
     },\\`)
+  },
+  testUtil.timeout.long()
+)
+
+test(
+  `Zap multiple device type per endpoint file generation: ${path.relative(
+    __dirname,
+    multipleDeviceTypePerEndpointTestFile
+  )}`,
+  async () => {
+    let sessionId = await querySession.createBlankSession(db)
+
+    await importJs.importDataFromFile(
+      db,
+      multipleDeviceTypePerEndpointTestFile,
+      {
+        sessionId: sessionId,
+      }
+    )
+
+    let genResult = await genEngine.generate(
+      db,
+      sessionId,
+      templateContext.packageId,
+      {},
+      { disableDeprecationWarnings: true }
+    )
+    expect(genResult.hasErrors).toEqual(false)
+
+    let ept = genResult.content['endpoint_config.h']
+
+    expect(ept).toContain(
+      '#define FIXED_DEVICE_TYPES {{0x0016,1},{0x0101,2},{0x0100,1},{0x0101,1},{0x0100,1},{0xF002,1}}'
+    )
+    expect(ept).toContain(
+      '#define FIXED_DEVICE_TYPES_WITH_ENDPOINT {{0x0016,1,0},{0x0101,2,1},{0x0100,1,1},{0x0101,1,2},{0x0100,1,2},{0xF002,1,65534}}'
+    )
+    expect(ept).toContain('#define FIXED_DEVICE_TYPE_OFFSETS { 0,1,3,5}')
+    expect(ept).toContain('#define FIXED_DEVICE_TYPE_LENGTHS { 1,2,2,1}')
+    expect(ept).toContain('#define FIXED_ENDPOINT_TYPES { 0, 1, 2, 3 }')
+
+    // Test user_device_types helper within user_endpoints
+    expect(ept).toContain('Endpoint 0, DeviceId: 22, DeviceVersion: 1')
+    expect(ept).toContain('Endpoint 1, DeviceId: 256, DeviceVersion: 1')
+    expect(ept).toContain('Endpoint 1, DeviceId: 257, DeviceVersion: 2')
+    expect(ept).toContain('Endpoint 2, DeviceId: 256, DeviceVersion: 1')
+    expect(ept).toContain('Endpoint 2, DeviceId: 257, DeviceVersion: 1')
+    expect(ept).toContain('Endpoint 65534, DeviceId: 61442, DeviceVersion: 1')
   },
   testUtil.timeout.long()
 )
@@ -275,6 +333,97 @@ test(
     expect(ept).toContain(
       'TargetStruct item 4 from Binding cluster: FabricIndex'
     )
+  },
+  testUtil.timeout.long()
+)
+
+test(
+  `Zap file generation for multiple zcl device types per endpoint: ${path.relative(
+    __dirname,
+    testFile
+  )}`,
+  async () => {
+    // Creating a session with matter specific session packages
+    let userSession = await querySession.ensureZapUserAndSession(
+      db,
+      'USER',
+      'SESSION'
+    )
+    let sid = userSession.sessionId
+    await util.ensurePackagesAndPopulateSessionOptions(
+      db,
+      sid,
+      {
+        zcl: env.builtinMatterZclMetafile(),
+        template: testUtil.testTemplate.matter3,
+      },
+      null,
+      [templateContext.packageId]
+    )
+
+    // Extract device types for insertion into an endpoint
+    let allDeviceTypes = await queryDeviceType.selectAllDeviceTypes(
+      db,
+      zclPackageId
+    )
+    let matterLightDevices = allDeviceTypes.filter(
+      (data) =>
+        data.label === 'MA-onofflight' || data.label === 'MA-dimmablelight'
+    )
+    let matterLightDeviceRefs = matterLightDevices.map((dt) => dt.id)
+    let matterLightDeviceIds = matterLightDevices.map((dt) => dt.code)
+
+    // insert the device types above into an endpoint type
+    await queryConfig.insertEndpointType(
+      db,
+      sid,
+      'testEndpointType',
+      matterLightDeviceRefs,
+      matterLightDeviceIds,
+      [1, 2] //device type version
+    )
+
+    // Getting the endpoint cluster information and making sure clusters from both
+    // device types are added.
+    let epts = await queryEndpointType.selectAllEndpointTypes(db, sid)
+    expect(epts[0].deviceTypeRef.length).toEqual(2)
+    let clusters = await queryEndpoint.selectEndpointClusters(db, epts[0].id)
+    let clusterNames = clusters.map((cl) => cl.name)
+    expect(clusterNames.length).toEqual(6)
+    expect(clusterNames.includes('Identify')).toEqual(true)
+    expect(clusterNames.includes('Groups')).toEqual(true)
+    expect(clusterNames.includes('Scenes')).toEqual(true)
+    expect(clusterNames.includes('On/Off')).toEqual(true)
+    expect(clusterNames.includes('Descriptor')).toEqual(true)
+
+    // Cluster coming from just MA-dimmablelight and not MA-onofflight
+    expect(clusterNames.includes('Level Control')).toEqual(true)
+
+    // Edit the endpoint type and add another device type and test the update
+    let additionalMatterLightDevice = allDeviceTypes.filter(
+      (data) => data.label === 'MA-colortemperaturelight'
+    )
+
+    let matterLightDevicesExtended = matterLightDeviceRefs.concat(
+      additionalMatterLightDevice.map((dt) => dt.id)
+    )
+    let matterLightDeviceIdsExtended = matterLightDeviceIds.concat(
+      additionalMatterLightDevice.map((dt) => dt.code)
+    )
+    let changesArray = [
+      { key: 'deviceTypeRef', value: matterLightDevicesExtended },
+      { key: 'deviceVersion', value: [1, 1, 1] },
+      { key: 'deviceId', value: matterLightDeviceIdsExtended },
+    ]
+    await queryConfig.updateEndpointType(db, sid, epts[0].id, changesArray)
+
+    epts = await queryEndpointType.selectAllEndpointTypes(db, sid)
+    expect(epts[0].deviceTypeRef.length).toEqual(3)
+    clusters = await queryEndpoint.selectEndpointClusters(db, epts[0].id)
+    clusterNames = clusters.map((cl) => cl.name)
+    expect(clusterNames.length).toEqual(7)
+    // Cluster coming from just MA-colortemperaturelight
+    expect(clusterNames.includes('Color Control')).toEqual(true)
   },
   testUtil.timeout.long()
 )

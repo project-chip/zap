@@ -313,7 +313,7 @@ function endpoint_attribute_list(options) {
           items.push(mask)
           break
         default:
-          throw new Error(`Unknown token '${tok}' in order optional argument`);
+          throw new Error(`Unknown token '${tok}' in order optional argument`)
       }
     })
 
@@ -324,22 +324,47 @@ function endpoint_attribute_list(options) {
   return ret
 }
 
-function endpoint_fixed_device_type_array(options) {
+async function device_list(context, options) {
+  // Extracting device versions and identifiers from endpoint types
+  let endpointTypes = context.endpointTypes
+  let deviceList = []
+  endpointTypes.forEach((ept) =>
+    ept.deviceIdentifiers.forEach((dId, index) =>
+      deviceList.push({
+        endpointIdentifier: ept.endpointId,
+        deviceId: dId,
+        deviceVersion: ept.deviceVersions[index],
+      })
+    )
+  )
+  return deviceList
+}
+
+async function endpoint_fixed_device_type_array(options) {
+  let deviceList = await device_list(this, options)
+  let isEndpointIncluded =
+    options.hash && options.hash.isEndpointIncluded
+      ? options.hash.isEndpointIncluded
+      : false
   let ret = '{'
   let wroteItem = false
+  let endpointIdentifier = ''
 
-  for (let i = 0; i < this.deviceList.length; i++) {
-    if (this.deviceList[i] != null && this.deviceList[i].deviceId != null) {
+  for (let i = 0; i < deviceList.length; i++) {
+    if (deviceList[i] != null && deviceList[i].deviceId != null) {
       if (wroteItem) {
         ret += ','
       }
-
+      endpointIdentifier = isEndpointIncluded
+        ? ',' + deviceList[i].endpointIdentifier.toString()
+        : ''
       ret +=
         '{' +
         '0x' +
-        bin.int16ToHex(this.deviceList[i].deviceId) +
+        bin.int16ToHex(deviceList[i].deviceId) +
         ',' +
-        this.deviceList[i].deviceVersion.toString() +
+        deviceList[i].deviceVersion.toString() +
+        endpointIdentifier +
         '}'
       wroteItem = true
     }
@@ -349,39 +374,54 @@ function endpoint_fixed_device_type_array(options) {
   return ret
 }
 
-function endpoint_fixed_device_type_array_offsets(options) {
+async function endpoint_fixed_device_type_array_offsets(options) {
+  let deviceList = await device_list(this, options)
   let ret = '{ '
-  let curOffset = 0
+  let currentOffset = 0
+  let currentEndpoint = -1
 
-  for (let i = 0; i < this.deviceList.length; i++) {
+  for (let i = 0; i < deviceList.length; i++) {
+    if (
+      currentEndpoint != -1 &&
+      currentEndpoint == deviceList[i].endpointIdentifier
+    ) {
+      currentOffset += 1
+      continue
+    }
     if (i != 0) {
       ret += ','
     }
 
-    ret += curOffset.toString()
+    ret += currentOffset.toString()
 
-    if (this.deviceList[i] != null && this.deviceList[i].deviceId != null) {
-      curOffset += 1
+    if (deviceList[i] != null && deviceList[i].deviceId != null) {
+      currentOffset += 1
     }
+    currentEndpoint = deviceList[i].endpointIdentifier
   }
 
   ret += '}'
   return ret
 }
 
-function endpoint_fixed_device_type_array_lengths(options) {
+async function endpoint_fixed_device_type_array_lengths(options) {
+  let deviceList = await device_list(this, options)
+  let endpointDeviceLengthMap = {}
   let ret = '{ '
 
-  for (let i = 0; i < this.deviceList.length; i++) {
+  for (let i = 0; i < deviceList.length; i++) {
+    if (endpointDeviceLengthMap[deviceList[i].endpointIdentifier]) {
+      endpointDeviceLengthMap[deviceList[i].endpointIdentifier] += 1
+    } else {
+      endpointDeviceLengthMap[deviceList[i].endpointIdentifier] = 1
+    }
+  }
+
+  for (let i = 0; i < Object.keys(endpointDeviceLengthMap).length; i++) {
     if (i != 0) {
       ret += ','
     }
-
-    if (this.deviceList[i] != null && this.deviceList[i].deviceId != null) {
-      ret += '1'
-    } else {
-      ret += '0'
-    }
+    ret += Object.values(endpointDeviceLengthMap)[i]
   }
 
   ret += '}'
@@ -526,7 +566,7 @@ function endpoint_reporting_config_defaults(options) {
           items.push(`{{ ${minmax} }}`)
           break
         default:
-          throw new Error(`Unknown token '${tok}' in order optional argument`);
+          throw new Error(`Unknown token '${tok}' in order optional argument`)
       }
     })
 
@@ -660,7 +700,7 @@ async function collectAttributes(endpointTypes, options) {
 
     let device = {
       deviceId: ept.deviceIdentifier,
-      deviceVersion: ept.endpointVersion,
+      deviceVersion: ept.deviceVersion,
     }
     endpointAttributeSize = 0
     deviceList.push(device)
@@ -1111,7 +1151,7 @@ function endpoint_config(options) {
       endpoints.forEach((ep) => {
         endpointTypeIds.push({
           deviceIdentifier: ep.deviceIdentifier,
-          endpointVersion: ep.endpointVersion,
+          deviceVersion: ep.deviceVersion,
           endpointTypeId: ep.endpointTypeRef,
           endpointIdentifier: ep.endpointId,
         })
@@ -1126,7 +1166,7 @@ function endpoint_config(options) {
             .selectEndpointType(db, eptId.endpointTypeId)
             .then((ept) => {
               ept.endpointId = eptId.endpointIdentifier
-              ept.endpointVersion = eptId.endpointVersion
+              ept.deviceVersion = eptId.deviceVersion
               ept.deviceIdentifier = eptId.deviceIdentifier
               return ept
             })

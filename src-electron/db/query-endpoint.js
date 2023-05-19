@@ -36,16 +36,15 @@ async function selectAllEndpoints(db, sessionId) {
     db,
     `
 SELECT
-  ENDPOINT_ID,
-  SESSION_REF,
-  ENDPOINT_TYPE_REF,
-  PROFILE,
-  ENDPOINT_IDENTIFIER,
-  NETWORK_IDENTIFIER,
-  DEVICE_VERSION,
-  DEVICE_IDENTIFIER
-FROM ENDPOINT
-WHERE SESSION_REF = ?
+  ENDPOINT.ENDPOINT_ID,
+  ENDPOINT.SESSION_REF,
+  ENDPOINT.ENDPOINT_TYPE_REF,
+  ENDPOINT.PROFILE,
+  ENDPOINT.ENDPOINT_IDENTIFIER,
+  ENDPOINT.NETWORK_IDENTIFIER
+FROM
+  ENDPOINT
+WHERE ENDPOINT.SESSION_REF = ?
 ORDER BY ENDPOINT_IDENTIFIER
     `,
     [sessionId]
@@ -274,9 +273,10 @@ ORDER BY C.CODE
  * @returns promise that resolves into endpoint cluster events
  */
 async function selectEndpointClusterEvents(db, clusterId, endpointTypeId) {
-  return dbApi.dbAll(
-    db,
-    `
+  return dbApi
+    .dbAll(
+      db,
+      `
 SELECT
   E.EVENT_ID,
   E.CLUSTER_REF,
@@ -299,9 +299,9 @@ WHERE
   AND ETE.ENDPOINT_TYPE_REF = ?
 ORDER BY E.MANUFACTURER_CODE, E.CODE
   `,
-    [clusterId, endpointTypeId]
-  )
-  .then((rows) => rows.map(dbMapping.map.event))
+      [clusterId, endpointTypeId]
+    )
+    .then((rows) => rows.map(dbMapping.map.event))
 }
 
 /**
@@ -325,6 +325,7 @@ async function deleteEndpoint(db, id) {
  * @param {*} endpointIdentifier
  * @param {*} endpointTypeRef
  * @param {*} networkIdentifier
+ * @param {*} profileIdentifier
  * @returns Promise to update endpoints.
  */
 async function insertEndpoint(
@@ -333,9 +334,7 @@ async function insertEndpoint(
   endpointIdentifier,
   endpointTypeRef,
   networkIdentifier,
-  profileIdentifier,
-  endpointVersion,
-  deviceIdentifier
+  profileIdentifier
 ) {
   return dbApi.dbInsert(
     db,
@@ -346,41 +345,48 @@ INTO ENDPOINT (
   ENDPOINT_IDENTIFIER,
   ENDPOINT_TYPE_REF,
   NETWORK_IDENTIFIER,
-  DEVICE_VERSION,
-  DEVICE_IDENTIFIER,
   PROFILE
-) VALUES ( ?, ?, ?, ?, ?, ?, ?)`,
+) VALUES ( ?, ?, ?, ?, ?)`,
     [
       sessionId,
       endpointIdentifier,
       endpointTypeRef,
       networkIdentifier,
-      endpointVersion,
-      deviceIdentifier,
       profileIdentifier,
     ]
   )
 }
 
 /**
-* @export
-* @param {*} db
-* @param {*} id
-* @param {*} endpointIdentifier
-* @returns Promise to duplicate an endpoint.
-*/
-async function duplicateEndpoint( db, id, endpointIdentifier, endpointTypeId ) {
-  return dbApi.dbInsert( db,
+ * @export
+ * @param {*} db
+ * @param {*} id
+ * @param {*} endpointIdentifier
+ * @returns Promise to duplicate an endpoint.
+ */
+async function duplicateEndpoint(db, id, endpointIdentifier, endpointTypeId) {
+  return dbApi.dbInsert(
+    db,
     `
-    insert into ENDPOINT (SESSION_REF,ENDPOINT_IDENTIFIER,ENDPOINT_TYPE_REF,NETWORK_IDENTIFIER,DEVICE_VERSION,DEVICE_IDENTIFIER,PROFILE)
-    select SESSION_REF, ? , ? ,NETWORK_IDENTIFIER,DEVICE_VERSION,DEVICE_IDENTIFIER,PROFILE
-    from ENDPOINT
-    where ENDPOINT_ID = ?`,
-    [
-      endpointIdentifier,
-      endpointTypeId,
-      id
-    ]
+    INSERT INTO
+      ENDPOINT (
+        SESSION_REF,
+        ENDPOINT_IDENTIFIER,
+        ENDPOINT_TYPE_REF,
+        NETWORK_IDENTIFIER,
+        PROFILE
+      )
+    SELECT 
+      SESSION_REF,
+      ?,
+      ?,
+      NETWORK_IDENTIFIER,
+      PROFILE
+    FROM
+      ENDPOINT
+    WHERE
+      ENDPOINT_ID = ?`,
+    [endpointIdentifier, endpointTypeId, id]
   )
 }
 
@@ -398,16 +404,20 @@ async function selectEndpoint(db, endpointId) {
       db,
       `
 SELECT
-  ENDPOINT_ID,
-  SESSION_REF,
-  ENDPOINT_IDENTIFIER,
-  ENDPOINT_TYPE_REF,
-  PROFILE,
-  NETWORK_IDENTIFIER,
-  DEVICE_VERSION,
-  DEVICE_IDENTIFIER
+  ENDPOINT.ENDPOINT_ID,
+  ENDPOINT.SESSION_REF,
+  ENDPOINT.ENDPOINT_IDENTIFIER,
+  ENDPOINT.ENDPOINT_TYPE_REF,
+  ENDPOINT.PROFILE,
+  ENDPOINT.NETWORK_IDENTIFIER,
+  ENDPOINT_TYPE_DEVICE.DEVICE_VERSION,
+  ENDPOINT_TYPE_DEVICE.DEVICE_IDENTIFIER
 FROM
   ENDPOINT
+LEFT JOIN
+  ENDPOINT_TYPE_DEVICE
+ON
+  ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF = ENDPOINT.ENDPOINT_TYPE_REF
 WHERE
   ENDPOINT_ID = ?`,
       [endpointId]

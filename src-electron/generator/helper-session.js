@@ -31,6 +31,7 @@ const querySession = require('../db/query-session.js')
 const helperZcl = require('./helper-zcl.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const iteratorUtil = require('../util/iterator-util.js')
+const queryDeviceType = require('../db/query-device-type.js')
 
 /**
  * Creates block iterator over the endpoints.
@@ -38,14 +39,40 @@ const iteratorUtil = require('../util/iterator-util.js')
  * @param {*} options
  */
 function user_endpoints(options) {
-  let promise = templateUtil
-    .ensureEndpointTypeIds(this)
-    .then((endpointTypes) =>
-      queryImpexp.exportEndpoints(
-        this.global.db,
-        this.global.sessionId,
-        endpointTypes
-      )
+  let promise = Promise.all([
+    queryImpexp.exportEndpointTypes(this.global.db, this.global.sessionId),
+    templateUtil
+      .ensureEndpointTypeIds(this)
+      .then((endpointTypes) =>
+        queryImpexp.exportEndpoints(
+          this.global.db,
+          this.global.sessionId,
+          endpointTypes
+        )
+      ),
+  ])
+    .then(
+      (EptEp) =>
+        new Promise((resolve, reject) => {
+          let endpointTypeMap = {}
+          let endpointTypes = EptEp[0]
+          let endpoints = EptEp[1]
+          endpointTypes.forEach(
+            (ept) =>
+              (endpointTypeMap[ept.endpointTypeId] = {
+                deviceVersions: ept.deviceVersions,
+                deviceIdentifiers: ept.deviceIdentifiers,
+              })
+          )
+          // Adding device Identifiers and versions to endpoints from endpoint types
+          endpoints.forEach((ep) => {
+            ep.deviceIdentifier =
+              endpointTypeMap[ep.endpointTypeRef].deviceIdentifiers
+            ep.endpointVersion =
+              endpointTypeMap[ep.endpointTypeRef].deviceVersions
+          })
+          resolve(endpoints)
+        })
     )
     .then((endpoints) =>
       endpoints.map((x) => {
@@ -54,6 +81,22 @@ function user_endpoints(options) {
       })
     )
     .then((endpoints) => templateUtil.collectBlocks(endpoints, options, this))
+
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
+ * Creates device type iterator over an endpoint type id.
+ * This works inside user_endpoints or user_endpoint_types.
+ * @param {*} options
+ */
+async function user_device_types(options) {
+  let promise = queryDeviceType
+    .selectDeviceTypesByEndpointTypeId(this.global.db, this.endpointTypeId)
+    .then((deviceTypes) =>
+      templateUtil.collectBlocks(deviceTypes, options, this)
+    )
+
   return templateUtil.templatePromise(this.global, promise)
 }
 
@@ -1626,3 +1669,4 @@ exports.is_command_default_response_enabled =
 exports.is_command_default_response_disabled =
   is_command_default_response_disabled
 exports.if_enabled_clusters = if_enabled_clusters
+exports.user_device_types = user_device_types

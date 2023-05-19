@@ -76,6 +76,25 @@ async function selectDeviceTypeByCodeAndName(db, packageId, code, name) {
     .then(dbMapping.map.deviceType)
 }
 
+/**
+ * Retrieves the device type by the package, code and name.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} code
+ * @param {*} name
+ * @returns Device type
+ */
+async function selectDeviceTypeByCode(db, packageId, code) {
+  return dbApi
+    .dbGet(
+      db,
+      'SELECT DEVICE_TYPE_ID, DOMAIN, CODE, PROFILE_ID, NAME, DESCRIPTION FROM DEVICE_TYPE WHERE CODE = ? AND PACKAGE_REF = ? ',
+      [code, packageId]
+    )
+    .then(dbMapping.map.deviceType)
+}
+
 async function selectDeviceTypeClustersByDeviceTypeRef(db, deviceTypeRef) {
   let rows = await dbApi.dbAll(
     db,
@@ -92,7 +111,7 @@ async function selectDeviceTypeClustersByDeviceTypeRef(db, deviceTypeRef) {
   FROM
     DEVICE_TYPE_CLUSTER
   WHERE
-    DEVICE_TYPE_REF = ?
+    DEVICE_TYPE_REF IN (?)
   ORDER BY CLUSTER_NAME`,
     [deviceTypeRef]
   )
@@ -146,7 +165,7 @@ async function selectDeviceTypeAttributesByDeviceTypeRef(db, deviceTypeRef) {
   ON
     AT.ATTRIBUTE_REF = ATTRIBUTE.ATTRIBUTE_ID
   WHERE
-    C.DEVICE_TYPE_REF = ?`,
+    C.DEVICE_TYPE_REF IN (?)`,
     [deviceTypeRef]
   )
   return rows.map(dbMapping.map.deviceTypeAttribute)
@@ -174,7 +193,7 @@ async function selectDeviceTypeCommandsByDeviceTypeRef(db, deviceTypeRef) {
   ON
     CMD.COMMAND_REF = COMMAND.COMMAND_ID
   WHERE
-    C.DEVICE_TYPE_REF = ?`,
+    C.DEVICE_TYPE_REF IN (?)`,
     [deviceTypeRef]
   )
   return rows.map(dbMapping.map.deviceTypeCommand)
@@ -309,10 +328,36 @@ async function updateDeviceTypeEntityReferences(db, packageId) {
   return updateCommandReferencesForDeviceTypeReferences(db, packageId)
 }
 
+/**
+ * Retrieves the zcl device type information based on an endpoint type id
+ * @param {*} db
+ * @param {*} endpointTypeId
+ * @returns promise with zcl device type information based on endpoint type id
+ */
+async function selectDeviceTypesByEndpointTypeId(db, endpointTypeId) {
+  let rows = await dbApi.dbAll(
+    db,
+    `
+  SELECT
+    ETD.ENDPOINT_TYPE_DEVICE_ID,
+    ETD.DEVICE_TYPE_REF,
+    ETD.ENDPOINT_TYPE_REF,
+    ETD.DEVICE_TYPE_ORDER,
+    ETD.DEVICE_IDENTIFIER,
+    ETD.DEVICE_VERSION
+  FROM
+    ENDPOINT_TYPE_DEVICE AS ETD
+  WHERE
+    ETD.ENDPOINT_TYPE_REF = ?`,
+    [endpointTypeId]
+  )
+  return rows.map(dbMapping.map.endpointTypeDevice)
+}
+
 exports.selectAllDeviceTypes = selectAllDeviceTypes
 exports.selectDeviceTypeById = selectDeviceTypeById
 exports.selectDeviceTypeByCodeAndName = selectDeviceTypeByCodeAndName
-
+exports.selectDeviceTypeByCode = selectDeviceTypeByCode
 exports.selectDeviceTypeClustersByDeviceTypeRef =
   selectDeviceTypeClustersByDeviceTypeRef
 exports.selectDeviceTypeClusterByDeviceTypeClusterId =
@@ -322,3 +367,4 @@ exports.selectDeviceTypeAttributesByDeviceTypeRef =
 exports.selectDeviceTypeCommandsByDeviceTypeRef =
   selectDeviceTypeCommandsByDeviceTypeRef
 exports.updateDeviceTypeEntityReferences = updateDeviceTypeEntityReferences
+exports.selectDeviceTypesByEndpointTypeId = selectDeviceTypesByEndpointTypeId

@@ -14,15 +14,9 @@ describe(
         cy.visit(data.baseurl)
       })
       cy.setZclProperties()
-      cy.get('[data-test="add-new-endpoint"]').click()
       cy.fixture('data').then((data) => {
-        cy.get('[data-test="select-endpoint-input"]')
-          .click()
-          .clear({ force: true })
-          .type('dimmable', { force: true })
-        cy.get('div').contains(data.endpoint6).click({ force: true })
+        cy.addEndpoint(data.endpoint6)
       })
-      cy.get('button').contains('Create').click()
     })
     it('Search for the cluster', () => {
       cy.fixture('data').then((data) => {

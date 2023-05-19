@@ -341,6 +341,12 @@ async function readIscData(filePath, data, zclMetafile) {
 async function loadEndpointType(db, sessionId, packageId, endpointType) {
   let deviceName = endpointType.device
   let deviceCode = endpointType.deviceId
+  let deviceVersion = endpointType.deviceVersion
+  if (endpointType.device == 'zcustom' && endpointType.deviceId != -1) {
+    deviceName = await queryDeviceType
+      .selectDeviceTypeByCode(db, packageId, endpointType.deviceId)
+      .then((dev) => (dev ? dev.name : deviceName))
+  }
 
   let dev
   if (isCustomDevice(deviceName, deviceCode)) {
@@ -366,6 +372,8 @@ async function loadEndpointType(db, sessionId, packageId, endpointType) {
     sessionId,
     endpointType.typeName,
     dev.id,
+    dev.code,
+    deviceVersion,
     false
   )
 }
