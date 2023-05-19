@@ -32,7 +32,7 @@ limitations under the License.
             min="0"
           />
           <q-input
-            v-show="$store.state.zap.isProfileIdShown"
+            v-if="$store.state.zap.isProfileIdShown"
             label="Profile ID"
             v-model="computedProfileId"
             ref="profile"
@@ -45,24 +45,36 @@ limitations under the License.
           <q-select
             label="Device"
             ref="device"
+            filled
+            class="col v-step-2"
+            use-input
+            :multiple="enableMultipleDevice"
+            :use-chips="enableMultipleDevice"
+            :options="deviceTypeOptions"
+            v-model="devicePair"
+            @update:model-value="setDeviceTypeCallback"
+            :rules="[(val) => val != null || '* Required']"
+            :option-label="getDeviceOptionLabel"
+            @filter="filterDeviceTypes"
+            data-test="select-endpoint-input"
+          />
+          <q-select
+            v-if="enablePrimaryDevice"
+            label="Primary Device"
+            ref="primary-device"
             outlined
             filled
             class="col v-step-2"
             use-input
             hide-selected
             fill-input
-            :options="deviceTypeOptions"
-            v-model="devicePair"
+            :options="deviceType"
+            v-model="primaryDeviceType"
             :rules="[(val) => val != null || '* Required']"
             :option-label="getDeviceOptionLabel"
             @filter="filterDeviceTypes"
-            @update:model-value="setDeviceTypeCallback"
-            data-test="select-endpoint-input"
-          >
-            <template v-slot:selected>
-              <template> Choose an option </template>
-            </template>
-          </q-select>
+            data-test="endpoint-primary-device"
+          />
           <div class="q-gutter-md row">
             <q-input
               label="Network"
@@ -160,6 +172,10 @@ export default {
         deviceVersion: 1,
       },
       saveOrCreateCloseFlag: false,
+      deviceType: null,
+      primaryDeviceType: null,
+      enableMultipleDevice: true, // TODO make it data driven
+      enablePrimaryDevice: true, // TODO make it data driven
     }
   },
   computed: {
@@ -243,8 +259,40 @@ export default {
     setProfileId(value) {
       this.shownEndpoint.profileIdentifier = value
     },
-    setDeviceTypeCallback(value) {
-      let deviceTypeRef = value.deviceTypeRef
+    setDeviceTypeCallback(newValue) {
+      console.log(newValue)
+      const value =
+        Array.isArray(newValue) && newValue.length > 0 ? newValue[0] : newValue
+      const { deviceTypeRef, deviceIdentifier } = value
+
+      // Set device pair
+      if (this.devicePair == undefined) {
+        this.devicePair = {}
+      }
+      this.devicePair.deviceTypeRef = deviceTypeRef
+      this.devicePair.deviceIdentifier = deviceIdentifier
+
+      // Set primary device if necessary
+      if (this.enablePrimaryDevice) {
+        if (this.primaryDeviceType === null) {
+          this.primaryDeviceType = value
+        } else {
+          if (Array.isArray(newValue)) {
+            if (
+              !newValue.includes(
+                (device) =>
+                  device.deviceTypeRef ===
+                    this.primaryDeviceType.deviceTypeRef &&
+                  device.deviceIdentifier ===
+                    this.primaryDeviceType.deviceIdentifier
+              )
+            ) {
+              this.primaryDeviceType = value
+            }
+          }
+        }
+      }
+
       let profileId = this.shownEndpoint.profileIdentifier
       // On change of device type, reset the profileId to the current deviceType _unless_ the default profileId is custom
       if (this.shownEndpoint.profileIdentifier != null) {
@@ -257,8 +305,6 @@ export default {
         profileId = this.asHex(this.zclDeviceTypes[deviceTypeRef].profileId, 4)
       }
       this.shownEndpoint.profileIdentifier = profileId
-      this.devicePair.deviceTypeRef = value.deviceTypeRef
-      this.devicePair.deviceIdentifier = value.deviceIdentifier
     },
     saveOrCreateHandler() {
       let profile = this.$store.state.zap.isProfileIdShown

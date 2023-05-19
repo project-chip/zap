@@ -84,52 +84,73 @@ limitations under the License.
           />
         </div>
       </div>
-      <q-slide-transition>
-        <q-list class="cursor-pointer" dense v-if="getEndpointInformation">
-          <q-item class="row">
-            <div class="col-6">Device</div>
-            <div class="col-6">
-              <strong>{{ getDeviceOptionLabel() }}</strong>
-            </div>
-          </q-item>
-          <q-item class="row">
-            <div class="col-6">Network</div>
-            <div class="col-6">
-              <strong> {{ networkId[endpointReference] }}</strong>
-            </div>
-          </q-item>
-          <q-item class="row" v-if="$store.state.zap.isProfileIdShown">
-            <div class="col-6">Profile ID</div>
-            <div class="col-6">
-              <strong> {{ asHex(profileId[endpointReference], 4) }}</strong>
-            </div>
-          </q-item>
-          <q-item class="row">
-            <div class="col-6">Version</div>
-            <div class="col-6">
-              <strong>{{ endpointVersion[endpointReference] }} </strong>
-            </div>
-          </q-item>
-          <q-item class="row">
-            <div class="col-6">Enabled Clusters</div>
-            <div class="col-6" data-test="endpoint-enabled-clusters-amount">
-              <strong>{{ selectedServers.length }}</strong>
-            </div>
-          </q-item>
-          <q-item class="row">
-            <div class="col-6">Enabled Attributes</div>
-            <div class="col-6" data-test="endpoint-enabled-attributes-amount">
-              <strong>{{ selectedAttributes.length }}</strong>
-            </div>
-          </q-item>
-          <q-item class="row">
-            <div class="col-6">Enabled Reporting</div>
-            <div class="col-6">
-              <strong>{{ selectedReporting.length }}</strong>
-            </div>
-          </q-item>
-        </q-list>
-      </q-slide-transition>
+      <q-list dense bordered v-if="getEndpointInformation">
+        <br />
+        <q-item class="row">
+          <div class="col-6">
+            <strong>Device</strong>
+          </div>
+          <div class="col-6">
+            <strong>{{ getDeviceOptionLabel() }}</strong>
+          </div>
+        </q-item>
+        <q-item class="row">
+          <div class="col-6">
+            <strong>Primary Device</strong>
+          </div>
+          <div class="col-6">
+            <strong>{{ getPrimaryDeviceOptionLabel() }}</strong>
+          </div>
+        </q-item>
+        <q-item class="row">
+          <div class="col-6">
+            <strong>Network</strong>
+          </div>
+          <div class="col-6">
+            <strong>{{ networkId[endpointReference] }}</strong>
+          </div>
+        </q-item>
+        <q-item class="row" v-if="$store.state.zap.isProfileIdShown">
+          <div class="col-6">
+            <strong>Profile ID</strong>
+          </div>
+          <div class="col-6">
+            <strong>{{ asHex(profileId[endpointReference], 4) }}</strong>
+          </div>
+        </q-item>
+        <q-item class="row">
+          <div class="col-6">
+            <strong>Version</strong>
+          </div>
+          <div class="col-6">
+            <strong>{{ endpointVersion[endpointReference] }}</strong>
+          </div>
+        </q-item>
+        <q-item class="row">
+          <div class="col-6">
+            <strong>Enabled Clusters</strong>
+          </div>
+          <div class="col-6" data-test="endpoint-enabled-clusters-amount">
+            {{ selectedServers.length }}
+          </div>
+        </q-item>
+        <q-item class="row">
+          <div class="col-6">
+            <strong>Enabled Attributes</strong>
+          </div>
+          <div class="col-6" data-test="endpoint-enabled-attributes-amount">
+            {{ selectedAttributes.length }}
+          </div>
+        </q-item>
+        <q-item class="row">
+          <div class="col-6">
+            <strong>Enabled Reporting</strong>
+          </div>
+          <div class="col-6">
+            {{ selectedReporting.length }}
+          </div>
+        </q-item>
+      </q-list>
     </q-card>
     <q-dialog
       v-model="modifyEndpointDialog"
@@ -271,6 +292,9 @@ export default {
         )
       }
     },
+    getPrimaryDeviceOptionLabel() {
+      return '' // TODO
+    },
     handleDeletionDialog() {
       if (this.getStorageParam() == 'true') {
         this.deleteEpt()
@@ -353,6 +377,9 @@ export default {
           this.endpointDeviceTypeRef[this.endpointType[this.endpointReference]]
         ]
       },
+    },
+    primaryDeviceType() {
+      return '' // TODO
     },
     networkId: {
       get() {
