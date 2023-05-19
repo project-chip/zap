@@ -29,9 +29,7 @@ limitations under the License.
       <template v-slot:body="props">
         <q-tr
           :props="props"
-          :class="
-            isClusterEnabled(props.row.id) ? '' : 'disabled disabled-cluster'
-          "
+          :class="isClusterEnabled(props.row.id) ? '' : ' disabled-cluster'"
         >
           <q-td key="status" :props="props" class="q-px-none">
             <q-icon
@@ -143,6 +141,7 @@ limitations under the License.
               icon="o_settings"
               @click="selectCluster(props.row)"
               to="/cluster"
+              :id="domainName + '-' + props.row.id"
             />
           </q-td>
         </q-tr>
@@ -485,6 +484,6 @@ export default {
   border-style: dashed !important;
 }
 .disabled-cluster {
-  opacity: 0.2 !important;
+  opacity: 0.3 !important;
 }
 </style>
