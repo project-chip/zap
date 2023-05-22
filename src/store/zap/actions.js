@@ -227,6 +227,7 @@ export function updateSelectedEndpoint(context, endpoint) {
 }
 
 export function updateEndpointType(context, endpointType) {
+  // TODO this uri should handle deviceTypeRef as array
   axiosRequests
     .$serverPatch(restApi.uri.endpointType, endpointType)
     .then((res) => {
@@ -234,7 +235,7 @@ export function updateEndpointType(context, endpointType) {
       if (arg.updatedKey === 'deviceTypeRef') {
         setDeviceTypeReference(context, {
           endpointId: arg.endpointTypeId,
-          deviceTypeRef: arg.updatedValue,
+          deviceTypeRef: arg.updatedValue, // TODO this should be an array
         })
       }
     })
@@ -296,6 +297,7 @@ export function setDeviceTypeReference(context, endpointIdDeviceTypeRefPair) {
 }
 
 export function updateEndpoint(context, endpoint) {
+  // TODO this uri should handle deviceIdentifier as array
   axiosRequests.$serverPatch(restApi.uri.endpoint, endpoint).then((res) => {
     let arg = res.data
     context.commit('updateEndpoint', {
@@ -308,36 +310,42 @@ export function updateEndpoint(context, endpoint) {
 }
 
 export function addEndpoint(context, newEndpointContext) {
-  return axiosRequests
-    .$serverPost(restApi.uri.endpoint, newEndpointContext)
-    .then((res) => {
-      let arg = res.data
-      context.commit('addEndpoint', {
-        id: arg.id,
-        endpointId: arg.endpointId,
-        endpointTypeRef: arg.endpointType,
-        networkId: arg.networkId,
-        profileId: arg.profileId,
-        deviceIdentifier: arg.deviceId,
-        endpointVersion: arg.endpointVersion,
-        endpointIdValidationIssues: arg.validationIssues.endpointId,
-        networkIdValidationIssues: arg.validationIssues.networkId,
+  return (
+    axiosRequests
+      // TODO this uri should handle deviceIdentifier as array
+      .$serverPost(restApi.uri.endpoint, newEndpointContext)
+      .then((res) => {
+        let arg = res.data
+        context.commit('addEndpoint', {
+          id: arg.id,
+          endpointId: arg.endpointId,
+          endpointTypeRef: arg.endpointType,
+          networkId: arg.networkId,
+          profileId: arg.profileId,
+          deviceIdentifier: arg.deviceId, // TODO this should be array too
+          endpointVersion: arg.endpointVersion,
+          endpointIdValidationIssues: arg.validationIssues.endpointId,
+          networkIdValidationIssues: arg.validationIssues.networkId,
+        })
+        return arg
       })
-      return arg
-    })
+  )
 }
 
 export function addEndpointType(context, endpointTypeData) {
-  return axiosRequests
-    .$serverPost(restApi.uri.endpointType, endpointTypeData)
-    .then((res) => {
-      context.commit('addEndpointType', {
-        id: res.data.id,
-        name: res.data.name,
-        deviceTypeRef: res.data.deviceTypeRef,
+  return (
+    axiosRequests
+      // TODO this uri should handle deviceTypeRef as array
+      .$serverPost(restApi.uri.endpointType, endpointTypeData)
+      .then((res) => {
+        context.commit('addEndpointType', {
+          id: res.data.id,
+          name: res.data.name,
+          deviceTypeRef: res.data.deviceTypeRef, // TODO array should be returned
+        })
+        return res.data
       })
-      return res.data
-    })
+  )
 }
 
 export function duplicateEndpointType(context, { endpointTypeId }) {
