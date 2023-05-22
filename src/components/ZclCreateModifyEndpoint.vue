@@ -51,9 +51,10 @@ limitations under the License.
             :multiple="enableMultipleDevice"
             :use-chips="enableMultipleDevice"
             :options="deviceTypeOptions"
-            v-model="devicePair"
-            @update:model-value="setDeviceTypeCallback"
-            :rules="[(val) => val != null || '* Required']"
+            v-model="deviceType"
+            :rules="[
+              (val) => !(val == null || val?.length == 0) || '* Required',
+            ]"
             :option-label="getDeviceOptionLabel"
             @filter="filterDeviceTypes"
             data-test="select-endpoint-input"
@@ -153,14 +154,21 @@ export default {
       this.shownEndpoint.deviceVersion = parseInt(
         this.endpointVersion[this.endpointReference]
       )
-      this.devicePair = {
+      // TODO refactor this after API change
+      const firstDeviceType = {
         deviceTypeRef:
           this.endpointDeviceTypeRef[this.endpointType[this.endpointReference]],
         deviceIdentifier: this.endpointDeviceId[this.endpointReference],
       }
+      // Set device types only in edit mode
+      this.deviceTypeTmp = [firstDeviceType] // TODO make device pair to be array and set it here from the store
+      this.primaryDeviceTypeTmp = null // TODO set it here from the store
     } else {
       this.shownEndpoint.endpointIdentifier = this.getSmallestUnusedEndpointId()
     }
+    const enableMultiDeviceFeatures = true
+    this.enableMultipleDevice = enableMultiDeviceFeatures // TODO make it data driven from the store
+    this.enablePrimaryDevice = enableMultiDeviceFeatures // TODO make it data driven from the store
   },
   data() {
     return {
@@ -172,10 +180,10 @@ export default {
         deviceVersion: 1,
       },
       saveOrCreateCloseFlag: false,
-      deviceType: null,
-      primaryDeviceType: null,
-      enableMultipleDevice: true, // TODO make it data driven
-      enablePrimaryDevice: true, // TODO make it data driven
+      deviceTypeTmp: [], // Temp store for the selected device types
+      primaryDeviceTypeTmp: null, // Temp store for the selected primary device type
+      enableMultipleDevice: false, // TODO make it data driven
+      enablePrimaryDevice: false, // TODO make it data driven
     }
   },
   computed: {
@@ -250,6 +258,54 @@ export default {
         ]
       },
     },
+    deviceType: {
+      get() {
+        // New temporary variable
+        return this.enableMultipleDevice
+          ? this.deviceTypeTmp
+          : this.deviceTypeTmp[0]
+      },
+      set(newValue) {
+        const value = !Array.isArray(newValue) ? [newValue] : newValue
+
+        // New temporary variable
+        this.deviceTypeTmp = value
+
+        // Existing logic
+        this.setDeviceTypeCallback(value)
+
+        // Set primary device if necessary
+        const newPrimaryDeviceType =
+          Array.isArray(value) && value.length > 0 ? value[0] : null
+        if (this.enablePrimaryDevice) {
+          if (this.primaryDeviceType === null) {
+            this.primaryDeviceType = newPrimaryDeviceType
+          } else {
+            if (
+              !value.includes(
+                (deviceType) =>
+                  deviceType.deviceTypeRef ===
+                    this.primaryDeviceType.deviceTypeRef &&
+                  deviceType.deviceIdentifier ===
+                    this.primaryDeviceType.deviceIdentifier
+              )
+            ) {
+              this.primaryDeviceType = newPrimaryDeviceType
+            }
+          }
+        }
+      },
+    },
+    primaryDeviceType: {
+      get() {
+        return this.primaryDeviceTypeTmp
+      },
+      set(value) {
+        this.primaryDeviceTypeTmp = value
+
+        // TODO write back to the store and backend here
+      },
+    },
   },
   methods: {
     // This function will close the endpoint modal
@@ -259,52 +315,27 @@ export default {
     setProfileId(value) {
       this.shownEndpoint.profileIdentifier = value
     },
-    setDeviceTypeCallback(newValue) {
-      console.log(newValue)
-      const value =
-        Array.isArray(newValue) && newValue.length > 0 ? newValue[0] : newValue
-      const { deviceTypeRef, deviceIdentifier } = value
-
-      // Set device pair
-      if (this.devicePair == undefined) {
-        this.devicePair = {}
-      }
-      this.devicePair.deviceTypeRef = deviceTypeRef
-      this.devicePair.deviceIdentifier = deviceIdentifier
-
-      // Set primary device if necessary
-      if (this.enablePrimaryDevice) {
-        if (this.primaryDeviceType === null) {
-          this.primaryDeviceType = value
+    setDeviceTypeCallback(value) {
+      const firstValue = Array.isArray(value) ? value[0] : value
+      // Check deviceTypreRef truthy - at least 1 item selected
+      if (firstValue) {
+        const { deviceTypeRef } = firstValue
+        let profileId = this.shownEndpoint.profileIdentifier
+        // On change of device type, reset the profileId to the current deviceType _unless_ the default profileId is custom
+        if (this.shownEndpoint.profileIdentifier != null) {
+          profileId =
+            this.zclDeviceTypes[deviceTypeRef].profileId ==
+            DbEnum.customDevice.profileId
+              ? this.asHex(profileId, 4)
+              : this.asHex(this.zclDeviceTypes[deviceTypeRef].profileId, 4)
         } else {
-          if (Array.isArray(newValue)) {
-            if (
-              !newValue.includes(
-                (device) =>
-                  device.deviceTypeRef ===
-                    this.primaryDeviceType.deviceTypeRef &&
-                  device.deviceIdentifier ===
-                    this.primaryDeviceType.deviceIdentifier
-              )
-            ) {
-              this.primaryDeviceType = value
-            }
-          }
+          profileId = this.asHex(
+            this.zclDeviceTypes[deviceTypeRef].profileId,
+            4
+          )
         }
+        this.shownEndpoint.profileIdentifier = profileId
       }
-
-      let profileId = this.shownEndpoint.profileIdentifier
-      // On change of device type, reset the profileId to the current deviceType _unless_ the default profileId is custom
-      if (this.shownEndpoint.profileIdentifier != null) {
-        profileId =
-          this.zclDeviceTypes[deviceTypeRef].profileId ==
-          DbEnum.customDevice.profileId
-            ? this.asHex(profileId, 4)
-            : this.asHex(this.zclDeviceTypes[deviceTypeRef].profileId, 4)
-      } else {
-        profileId = this.asHex(this.zclDeviceTypes[deviceTypeRef].profileId, 4)
-      }
-      this.shownEndpoint.profileIdentifier = profileId
     },
     saveOrCreateHandler() {
       let profile = this.$store.state.zap.isProfileIdShown
@@ -348,7 +379,9 @@ export default {
       this.$store
         .dispatch(`zap/addEndpointType`, {
           name: 'Anonymous Endpoint Type',
-          deviceTypeRef: this.devicePair.deviceTypeRef,
+          deviceTypeRef: this.deviceTypeTmp?.map?.(
+            (dt) => dt.deviceTypeRef
+          )?.[0],
         })
         .then((response) => {
           this.$store
@@ -358,7 +391,9 @@ export default {
               profileId: parseInt(this.shownEndpoint.profileIdentifier),
               endpointType: response.id,
               endpointVersion: this.shownEndpoint.deviceVersion,
-              deviceIdentifier: this.devicePair.deviceIdentifier,
+              deviceIdentifier: this.deviceTypeTmp?.map?.(
+                (dt) => dt.deviceIdentifier
+              )?.[0],
             })
             .then((res) => {
               if (this.shareClusterStatesAcrossEndpoints()) {
@@ -401,7 +436,7 @@ export default {
       this.$store.dispatch('zap/updateEndpointType', {
         endpointTypeId: endpointTypeReference,
         updatedKey: RestApi.updateKey.deviceTypeRef,
-        updatedValue: this.devicePair.deviceTypeRef,
+        updatedValue: this.deviceTypeTmp?.map?.((dt) => dt.deviceTypeRef)?.[0],
       })
 
       this.$store.dispatch('zap/updateEndpoint', {
@@ -425,7 +460,9 @@ export default {
           },
           {
             updatedKey: RestApi.updateKey.deviceId,
-            value: parseInt(this.devicePair.deviceIdentifier),
+            value: parseInt(
+              this.deviceTypeTmp?.map?.((dt) => dt.deviceIdentifier)?.[0]
+            ),
           },
         ],
       })
@@ -467,22 +504,6 @@ export default {
           this.asHex(this.zclDeviceTypes[item.deviceTypeRef].code, 4) +
           ')'
         )
-      }
-    },
-    createValue(val, done) {
-      try {
-        done(
-          {
-            deviceTypeRef: this.devicePair.deviceTypeRef
-              ? this.devicePair.deviceTypeRef
-              : this.customDeviceIdReference,
-            deviceIdentifier: parseInt(val),
-          },
-          'add-unique'
-        )
-      } catch (err) {
-        //Catch bad inputs.
-        console.log(err)
       }
     },
     filterDeviceTypes(val, update) {
