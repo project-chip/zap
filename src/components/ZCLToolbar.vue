@@ -110,7 +110,6 @@
       </div>
     </q-btn>
     <q-btn
-      v-if="this.$store.state.zap.showDevTools && showDebugNavItems"
       flat
       push
       no-caps
