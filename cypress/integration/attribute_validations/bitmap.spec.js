@@ -26,6 +26,7 @@ describe('Testing BITMAP type validation', () => {
             '[data-cy=Attributes] > .q-table__middle > .q-table > .q-virtual-scroll__content > :nth-child(6) > :nth-child(2) > .q-mt-xs > .q-toggle__inner'
           ).click({ force: true })
         }
+
         cy.get(
           `:nth-child(${data.bitmapinputpath}) > [style="min-width: 180px;"] > .q-field > .q-field__inner > .q-field__control > .q-field__control-container > input`
         )

@@ -59,7 +59,7 @@ limitations under the License.
               configuration you have enabled
             </q-tooltip>
           </q-td>
-          <q-td key="included" :props="props" auto-width>
+          <q-td key="included" :props="props" auto-width class="toggle-box">
             <q-toggle
               class="q-mt-xs v-step-13"
               v-model="selection"
