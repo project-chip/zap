@@ -165,6 +165,7 @@ limitations under the License.
         <q-card-actions>
           <q-btn label="Cancel" v-close-popup class="col" />
           <q-btn
+            id="delete_endpoint"
             :label="'Delete'"
             color="primary"
             class="col"

@@ -16,7 +16,7 @@ describe('Testing enabled attributes amount', () => {
       cy.addEndpoint(data.endpoint1, data.cluster1)
       cy.gotoAttributePage('', data.cluster1)
     })
-    cy.wait(700)
+    cy.wait(1000)
     cy.get('[data-test="endpoint-enabled-attributes-amount"]').then(($div) => {
       const num1 = parseFloat($div.text())
       cy.fixture('data').then((data) => {
