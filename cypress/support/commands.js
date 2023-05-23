@@ -3,7 +3,9 @@ const _ = require('lodash')
 
 Cypress.Commands.add('addEndpoint', (name) => {
   cy.get('[data-test="add-new-endpoint"]').click()
-  cy.get('[data-test="select-endpoint-input"]').click()
+  cy.get('[data-test="select-endpoint-input"]')
+    .click()
+    .type(name, { force: true })
   cy.wait(500)
   cy.get('div').contains(name).click({ force: true })
   cy.get('button').contains('Create').click()

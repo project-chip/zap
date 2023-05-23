@@ -38,7 +38,7 @@ if (process.argv.length > 3) {
 function printUsage() {
   console.log(`Usage: zap-uitest.js [ MODE | -? ] [matter|zigbee]
 
-This program executes the Cypress unit tests. 
+This program executes the Cypress unit tests.
 Valid modes:
    run  -  [default] Executes all the Cypress tests in the headless mode.
    open -  Executes Cypress UI for manual run of the tests.`)

@@ -1,5 +1,5 @@
 {
-  "endpoint1": "Matter Bridge (0x000E)",
+  "endpoint1": "Matter Control Bridge",
   "endpoint2": "Matter Bridged Device (0x0013)",
   "endpoint3": "Matter Color Temperature Light (0x010C)",
   "endpoint4": "Matter Bridged Device (0x0013)",
