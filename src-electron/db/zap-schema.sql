@@ -715,10 +715,25 @@ CREATE TABLE IF NOT EXISTS "ENDPOINT_TYPE" (
   "ENDPOINT_TYPE_ID" integer primary key autoincrement,
   "SESSION_REF" integer,
   "NAME" text,
-  "DEVICE_TYPE_REF" integer,
-  foreign key (SESSION_REF) references SESSION(SESSION_ID) on delete cascade,
-  foreign key(DEVICE_TYPE_REF) references DEVICE_TYPE(DEVICE_TYPE_ID)
+  foreign key (SESSION_REF) references SESSION(SESSION_ID) on delete cascade
 );
+
+/*
+ ENDPOINT_TYPE_DEVICE: many-to-many relationship between endpoint type and
+ device type.
+ */
+DROP TABLE IF EXISTS "ENDPOINT_TYPE_DEVICE";
+CREATE TABLE IF NOT EXISTS "ENDPOINT_TYPE_DEVICE" (
+  "ENDPOINT_TYPE_DEVICE_ID" integer primary key autoincrement,
+  "DEVICE_TYPE_REF" INTEGER,
+  "ENDPOINT_TYPE_REF" INTEGER,
+  "DEVICE_TYPE_ORDER" INTEGER,
+  foreign key(DEVICE_TYPE_REF) references DEVICE_TYPE(DEVICE_TYPE_ID) on delete cascade,
+  foreign key (ENDPOINT_TYPE_REF) references ENDPOINT_TYPE(ENDPOINT_TYPE_ID) on delete
+  set NULL,
+  UNIQUE("ENDPOINT_TYPE_REF", "DEVICE_TYPE_REF")
+);
+
 /*
  ENDPOINT table contains the toplevel configured endpoints.
  */

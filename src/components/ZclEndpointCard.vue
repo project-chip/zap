@@ -90,11 +90,18 @@ limitations under the License.
           <div class="col-6">
             <strong>Device</strong>
           </div>
-          <div class="col-6">
-            <strong>{{ getDeviceOptionLabel() }}</strong>
+          <div class="col-6" v-if="isDeviceTypeArray">
+            <li v-for="dev in deviceType" :key="dev.id">
+              {{ `${dev.description} (${asHex(dev.code, 4)})` }}
+            </li>
+          </div>
+          <div class="col-6" v-if="!isDeviceTypeArray">
+            {{
+              `${deviceType[0].description} (${asHex(deviceType[0].code, 4)})`
+            }}
           </div>
         </q-item>
-        <q-item class="row">
+        <q-item class="row" v-if="isDeviceTypeArray">
           <div class="col-6">
             <strong>Primary Device</strong>
           </div>
@@ -124,30 +131,6 @@ limitations under the License.
           </div>
           <div class="col-6">
             <strong>{{ endpointVersion[endpointReference] }}</strong>
-          </div>
-        </q-item>
-        <q-item class="row">
-          <div class="col-6">
-            <strong>Enabled Clusters</strong>
-          </div>
-          <div class="col-6" data-test="endpoint-enabled-clusters-amount">
-            {{ selectedServers.length }}
-          </div>
-        </q-item>
-        <q-item class="row">
-          <div class="col-6">
-            <strong>Enabled Attributes</strong>
-          </div>
-          <div class="col-6" data-test="endpoint-enabled-attributes-amount">
-            {{ selectedAttributes.length }}
-          </div>
-        </q-item>
-        <q-item class="row">
-          <div class="col-6">
-            <strong>Enabled Reporting</strong>
-          </div>
-          <div class="col-6">
-            {{ selectedReporting.length }}
           </div>
         </q-item>
       </q-list>
@@ -281,8 +264,14 @@ export default {
     },
     getDeviceOptionLabel() {
       if (this.deviceType == null) return ''
-      if (this.deviceId[this.endpointReference] != this.deviceType.code) {
-        return this.asHex(this.deviceId[this.endpointReference], 4)
+      if (Array.isArray(this.deviceType)) {
+        let deviceOptionLabels = []
+        this.deviceType.forEach((d, index) =>
+          deviceOptionLabels.push(
+            d.description + '(' + this.asHex(d.code, 4) + ')'
+          )
+        )
+        return deviceOptionLabels
       } else {
         return (
           this.deviceType.description +
@@ -293,7 +282,22 @@ export default {
       }
     },
     getPrimaryDeviceOptionLabel() {
-      return '' // TODO
+      if (this.deviceType == null) return ''
+      if (Array.isArray(this.deviceType)) {
+        return (
+          this.deviceType[0].description +
+          ' (' +
+          this.asHex(this.deviceType[0].code, 4) +
+          ')'
+        )
+      } else {
+        return (
+          this.deviceType.description +
+          ' (' +
+          this.asHex(this.deviceType.code, 4) +
+          ')'
+        )
+      }
     },
     handleDeletionDialog() {
       if (this.getStorageParam() == 'true') {
@@ -373,13 +377,29 @@ export default {
     },
     deviceType: {
       get() {
-        return this.zclDeviceTypes[
+        let refs =
           this.endpointDeviceTypeRef[this.endpointType[this.endpointReference]]
-        ]
+        let deviceTypes = []
+        if (refs.length > 0) {
+          refs.forEach((ref) => deviceTypes.push(this.zclDeviceTypes[ref]))
+          return deviceTypes
+        } else {
+          return this.zclDeviceTypes[
+            this.endpointDeviceTypeRef[
+              this.endpointType[this.endpointReference]
+            ]
+          ]
+        }
       },
     },
-    primaryDeviceType() {
-      return '' // TODO
+    isDeviceTypeArray: {
+      get() {
+        return (
+          Array.isArray(this.deviceType) &&
+          this.deviceType &&
+          this.deviceType.length > 1
+        )
+      },
     },
     networkId: {
       get() {

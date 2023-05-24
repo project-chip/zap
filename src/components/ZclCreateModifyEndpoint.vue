@@ -379,9 +379,7 @@ export default {
       this.$store
         .dispatch(`zap/addEndpointType`, {
           name: 'Anonymous Endpoint Type',
-          deviceTypeRef: this.deviceTypeTmp?.map?.(
-            (dt) => dt.deviceTypeRef
-          )?.[0],
+          deviceTypeRef: this.deviceTypeTmp?.map?.((dt) => dt.deviceTypeRef),
         })
         .then((response) => {
           this.$store
@@ -393,7 +391,7 @@ export default {
               endpointVersion: this.shownEndpoint.deviceVersion,
               deviceIdentifier: this.deviceTypeTmp?.map?.(
                 (dt) => dt.deviceIdentifier
-              )?.[0],
+              ),
             })
             .then((res) => {
               if (this.shareClusterStatesAcrossEndpoints()) {
@@ -436,7 +434,7 @@ export default {
       this.$store.dispatch('zap/updateEndpointType', {
         endpointTypeId: endpointTypeReference,
         updatedKey: RestApi.updateKey.deviceTypeRef,
-        updatedValue: this.deviceTypeTmp?.map?.((dt) => dt.deviceTypeRef)?.[0],
+        updatedValue: this.deviceTypeTmp?.map?.((dt) => dt.deviceTypeRef),
       })
 
       this.$store.dispatch('zap/updateEndpoint', {
@@ -461,7 +459,7 @@ export default {
           {
             updatedKey: RestApi.updateKey.deviceId,
             value: parseInt(
-              this.deviceTypeTmp?.map?.((dt) => dt.deviceIdentifier)?.[0]
+              this.deviceTypeTmp?.map?.((dt) => dt.deviceIdentifier)
             ),
           },
         ],
@@ -493,17 +491,30 @@ export default {
     },
     getDeviceOptionLabel(item) {
       if (item == null || item.deviceTypeRef == null) return ''
-      if (
-        item.deviceIdentifier != this.zclDeviceTypes[item.deviceTypeRef].code
-      ) {
-        return this.asHex(item.deviceIdentifier, 4)
-      } else {
-        return (
-          this.zclDeviceTypes[item.deviceTypeRef].description +
-          ' (' +
-          this.asHex(this.zclDeviceTypes[item.deviceTypeRef].code, 4) +
-          ')'
+      if (Array.isArray(item.deviceTypeRef)) {
+        let deviceOptionLabels = []
+        item.deviceTypeRef.forEach((d) =>
+          deviceOptionLabels.push(
+            this.zclDeviceTypes[d].description +
+              ' (' +
+              this.asHex(this.zclDeviceTypes[d].code, 4) +
+              ')'
+          )
         )
+        return deviceOptionLabels
+      } else {
+        if (
+          item.deviceIdentifier != this.zclDeviceTypes[item.deviceTypeRef].code
+        ) {
+          return this.asHex(item.deviceIdentifier, 4)
+        } else {
+          return (
+            this.zclDeviceTypes[item.deviceTypeRef].description +
+            ' (' +
+            this.asHex(this.zclDeviceTypes[item.deviceTypeRef].code, 4) +
+            ')'
+          )
+        }
       }
     },
     filterDeviceTypes(val, update) {

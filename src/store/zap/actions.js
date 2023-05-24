@@ -227,7 +227,6 @@ export function updateSelectedEndpoint(context, endpoint) {
 }
 
 export function updateEndpointType(context, endpointType) {
-  // TODO this uri should handle deviceTypeRef as array
   axiosRequests
     .$serverPatch(restApi.uri.endpointType, endpointType)
     .then((res) => {
@@ -235,7 +234,7 @@ export function updateEndpointType(context, endpointType) {
       if (arg.updatedKey === 'deviceTypeRef') {
         setDeviceTypeReference(context, {
           endpointId: arg.endpointTypeId,
-          deviceTypeRef: arg.updatedValue, // TODO this should be an array
+          deviceTypeRef: arg.updatedValue,
         })
       }
     })
@@ -333,19 +332,16 @@ export function addEndpoint(context, newEndpointContext) {
 }
 
 export function addEndpointType(context, endpointTypeData) {
-  return (
-    axiosRequests
-      // TODO this uri should handle deviceTypeRef as array
-      .$serverPost(restApi.uri.endpointType, endpointTypeData)
-      .then((res) => {
-        context.commit('addEndpointType', {
-          id: res.data.id,
-          name: res.data.name,
-          deviceTypeRef: res.data.deviceTypeRef, // TODO array should be returned
-        })
-        return res.data
+  return axiosRequests
+    .$serverPost(restApi.uri.endpointType, endpointTypeData)
+    .then((res) => {
+      context.commit('addEndpointType', {
+        id: res.data.id,
+        name: res.data.name,
+        deviceTypeRef: res.data.deviceTypeRef,
       })
-  )
+      return res.data
+    })
 }
 
 export function duplicateEndpointType(context, { endpointTypeId }) {
