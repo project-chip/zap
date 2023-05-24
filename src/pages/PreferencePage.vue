@@ -58,10 +58,10 @@ limitations under the License.
   </div>
 </template>
 <script>
-import PreferencePackage from './PreferencePackage.vue'
-import PreferenceGeneration from './PreferenceGeneration.vue'
-import PreferenceUser from './PreferenceUser.vue'
-import About from './AboutPage.vue'
+import PreferencePackage from './preferences/PreferencePackage.vue'
+import PreferenceGeneration from './preferences/PreferenceGeneration.vue'
+import PreferenceUser from './preferences/PreferenceUser.vue'
+import About from './preferences/AboutPage.vue'
 export default {
   name: 'PreferencePage',
   components: {
