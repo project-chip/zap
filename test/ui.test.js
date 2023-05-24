@@ -44,7 +44,7 @@ import ZclSettings from '../src/pages/ZclSettings.vue'
 import UcComponentSetup from '../src/components/UcComponentSetup.vue'
 import ZclCustomZclView from '../src/components/ZclCustomZclView.vue'
 import About from '../src/pages/preferences/AboutPage.vue'
-import ZclLayout from '../src/layouts/ZclLayout.vue'
+import MainLayout from '../src/layouts/MainLayout.vue'
 
 import { timeout } from './test-util.js'
 import ZapStore from '../src/store/index.js'
@@ -199,9 +199,9 @@ describe('Component mounting test', () => {
     timeout.short()
   )
   test(
-    'ZclLayout',
+    'MainLayout',
     () => {
-      const wrapper = shallowMount(ZclLayout, {
+      const wrapper = shallowMount(MainLayout, {
         global: {
           plugins: [ZapStore()],
         },
