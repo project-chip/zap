@@ -274,9 +274,10 @@ ORDER BY C.CODE
  * @returns promise that resolves into endpoint cluster events
  */
 async function selectEndpointClusterEvents(db, clusterId, endpointTypeId) {
-  return dbApi.dbAll(
-    db,
-    `
+  return dbApi
+    .dbAll(
+      db,
+      `
 SELECT
   E.EVENT_ID,
   E.CLUSTER_REF,
@@ -299,9 +300,9 @@ WHERE
   AND ETE.ENDPOINT_TYPE_REF = ?
 ORDER BY E.MANUFACTURER_CODE, E.CODE
   `,
-    [clusterId, endpointTypeId]
-  )
-  .then((rows) => rows.map(dbMapping.map.event))
+      [clusterId, endpointTypeId]
+    )
+    .then((rows) => rows.map(dbMapping.map.event))
 }
 
 /**
@@ -337,6 +338,9 @@ async function insertEndpoint(
   endpointVersion,
   deviceIdentifier
 ) {
+  let primaryDeviceIdentifierForEndpoint = Array.isArray(deviceIdentifier)
+    ? deviceIdentifier[0]
+    : deviceIdentifier
   return dbApi.dbInsert(
     db,
     `
@@ -356,31 +360,28 @@ INTO ENDPOINT (
       endpointTypeRef,
       networkIdentifier,
       endpointVersion,
-      deviceIdentifier,
+      primaryDeviceIdentifierForEndpoint,
       profileIdentifier,
     ]
   )
 }
 
 /**
-* @export
-* @param {*} db
-* @param {*} id
-* @param {*} endpointIdentifier
-* @returns Promise to duplicate an endpoint.
-*/
-async function duplicateEndpoint( db, id, endpointIdentifier, endpointTypeId ) {
-  return dbApi.dbInsert( db,
+ * @export
+ * @param {*} db
+ * @param {*} id
+ * @param {*} endpointIdentifier
+ * @returns Promise to duplicate an endpoint.
+ */
+async function duplicateEndpoint(db, id, endpointIdentifier, endpointTypeId) {
+  return dbApi.dbInsert(
+    db,
     `
     insert into ENDPOINT (SESSION_REF,ENDPOINT_IDENTIFIER,ENDPOINT_TYPE_REF,NETWORK_IDENTIFIER,DEVICE_VERSION,DEVICE_IDENTIFIER,PROFILE)
     select SESSION_REF, ? , ? ,NETWORK_IDENTIFIER,DEVICE_VERSION,DEVICE_IDENTIFIER,PROFILE
     from ENDPOINT
     where ENDPOINT_ID = ?`,
-    [
-      endpointIdentifier,
-      endpointTypeId,
-      id
-    ]
+    [endpointIdentifier, endpointTypeId, id]
   )
 }
 
