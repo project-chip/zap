@@ -129,6 +129,7 @@ test(
     expect(simpleTest).toContain('Addon: This is example of test addon helper')
 
     let zclId = genResult.content['zcl-test.out']
+    zclId = zclId.split('\n').map(s => s.trim()).join('\n');
     //expect(zclId).toEqual('random placeholder')
     expect(zclId).toContain(
       `// ${testUtil.totalNonAtomicEnumCount - 1}/${
@@ -147,6 +148,7 @@ test(
     expect(zclId).toContain('att: 0x0002 gps communication mode')
     expect(zclId).toContain('First item\n// struct: BlockThreshold')
     expect(zclId).toContain('// struct: WwahClusterStatusToUseTC\nLast item')
+    
     expect(zclId).toContain('// event: 0x0001 HelloEvent')
     expect(zclId).toContain('-> field: 0x0002 arg2 INT32U')
 
