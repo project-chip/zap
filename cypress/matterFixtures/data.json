@@ -27,10 +27,10 @@
   "outOfRangeAmount1": "9999999999999999",
   "availableAttributes1": "85",
   "availableClusters1": "10",
-  "enum8inputpath": "2",
-  "int16inputpath": "1",
+  "enum8inputpath": "4",
+  "int16inputpath": "2",
   "int8clusterpath": "0",
   "booleanclusterpath": "0",
   "booleaninputpath": "1",
-  "bitmapinputpath": "5"
+  "bitmapinputpath": "1"
 }
