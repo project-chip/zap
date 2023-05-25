@@ -109,5 +109,3 @@ receivedString = receivedString.split('\n').map(s => s.trim()).join('\n');
 
 Check if node version is v18, and try to install it with Chocolatey
 Also, you can Check doc/faq.md for help
-
-*this command might also solve server issues in CI tests
