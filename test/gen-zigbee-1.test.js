@@ -129,6 +129,8 @@ test(
     expect(simpleTest).toContain('Addon: This is example of test addon helper')
 
     let zclId = genResult.content['zcl-test.out']
+    // In windows, if the generated string has multiple lines (with \n inside), it will include a trailing space at the end of each line
+    // so we need to remove the trailing space if it exists to clean up the string
     zclId = zclId.split('\n').map(s => s.trim()).join('\n');
     //expect(zclId).toEqual('random placeholder')
     expect(zclId).toContain(

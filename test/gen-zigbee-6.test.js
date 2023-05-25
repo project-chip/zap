@@ -181,6 +181,8 @@ test(
     //********* Test the helpers related to outgoing commands******************
     // Test Cluster outgoing commands that should be generated
     let zapOutgoingCommands = genResult.content['zap-outgoing-command.out']
+    // In windows, if the generated string has multiple lines (with \n inside), it will include a trailing space at the end of each line
+    // so we need to remove the trailing space if it exists to clean up the string
     zapOutgoingCommands = zapOutgoingCommands.split('\n').map(s => s.trim()).join('\n');
     expect(zapOutgoingCommands).not.toBeNull()
     expect(zapOutgoingCommands).toContain(

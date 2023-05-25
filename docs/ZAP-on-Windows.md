@@ -1,11 +1,10 @@
-# ZAP on Windows
+# Install ZAP from Source on Windows
 
 ## Prerequisite Package & Settings
 
 **1. Windows Powershell:** 
 
 In the desktop search bar, input "Windows Powershell" and run as administrator
-
 
 **2. Clone Repo:**
 ```
@@ -33,11 +32,12 @@ choco install nodejs-lts
 
 *if you install Node already, and fail some tests similar to "cannot find Node", reinstall Node with chocolatey again
 
-
 ## Run ZAP App
 
-**1. Install node modules:** <br>
-```npm install```
+**1. Install node modules:**
+```
+npm install
+```
 *sometimes it might help to run:
 
 ```
@@ -63,20 +63,12 @@ npm rebuild sqlite3
 ```
 *if more bugs appear, try solve failed tests before running the app
 
-
-
-
-
 ## Run Tests
 ```
 npm run test
 ```
 
-
-
-
 ## Fix Failed Tests
-
 
 **1. Exceed Timeout**
 
@@ -96,16 +88,15 @@ npm rebuild canvas --update-binary
 npm run report
 ```
 If fails due to "cp" or "mv" or "mkdir -p" when executing the above command, which is part of 'npm run test', it is because they are supposed to be Linux commands and does not compile in Windows.
-Currently we delete the command to exclude it from 'npm run test' to remove failure → **might need to be fixed**
+There are too many incompatible commands used when running reports and correcting all of them requires huge efforts and might lead to new bugs or inconsistency. Currently we delete the command to exclude it from 'npm run test' to remove failure → **might need to be fixed**
 
 **4. get index.html or other server issue**
 
-If fails due to “get index.html Request failed with status code 404”, run:
+If fails due to “get index.html Request failed with status code 404” in unit tests or having server connection issues in e2e-ci tests, run:
 ```
 npm run build
 ```
 and then run test again
-*this command might also solve server issues in CI tests
 
 **5. Generation Output Inconsistency**
 
@@ -118,3 +109,5 @@ receivedString = receivedString.split('\n').map(s => s.trim()).join('\n');
 
 Check if node version is v18, and try to install it with Chocolatey
 Also, you can Check doc/faq.md for help
+
+*this command might also solve server issues in CI tests
