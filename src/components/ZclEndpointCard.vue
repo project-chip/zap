@@ -87,18 +87,21 @@ limitations under the License.
       <q-list dense bordered v-if="getEndpointInformation">
         <br />
         <q-item class="row">
-          <div class="col-6">
+          <div v-if="isDeviceTypeArray" class="col">
             <strong>Device</strong>
-          </div>
-          <div class="col-6" v-if="isDeviceTypeArray">
             <li v-for="dev in deviceType" :key="dev.id">
               {{ `${dev.description} (${asHex(dev.code, 4)})` }}
             </li>
           </div>
-          <div class="col-6" v-if="!isDeviceTypeArray">
-            {{
-              `${deviceType[0].description} (${asHex(deviceType[0].code, 4)})`
-            }}
+          <div v-else class="col row">
+            <div class="col-6">
+              <strong>Device</strong>
+            </div>
+            <div class="col-6">
+              {{
+                `${deviceType[0].description} (${asHex(deviceType[0].code, 4)})`
+              }}
+            </div>
           </div>
         </q-item>
         <q-item class="row" v-if="isDeviceTypeArray">
@@ -384,21 +387,19 @@ export default {
           refs.forEach((ref) => deviceTypes.push(this.zclDeviceTypes[ref]))
           return deviceTypes
         } else {
-          return this.zclDeviceTypes[
-            this.endpointDeviceTypeRef[
-              this.endpointType[this.endpointReference]
-            ]
+          return [
+            this.zclDeviceTypes[
+              this.endpointDeviceTypeRef[
+                this.endpointType[this.endpointReference]
+              ]
+            ],
           ]
         }
       },
     },
     isDeviceTypeArray: {
       get() {
-        return (
-          Array.isArray(this.deviceType) &&
-          this.deviceType &&
-          this.deviceType.length > 1
-        )
+        return Array.isArray(this.deviceType) && this.deviceType.length > 1
       },
     },
     networkId: {

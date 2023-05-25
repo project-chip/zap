@@ -154,15 +154,28 @@ export default {
       this.shownEndpoint.deviceVersion = parseInt(
         this.endpointVersion[this.endpointReference]
       )
-      // TODO refactor this after API change
-      const firstDeviceType = {
-        deviceTypeRef:
-          this.endpointDeviceTypeRef[this.endpointType[this.endpointReference]],
-        deviceIdentifier: this.endpointDeviceId[this.endpointReference],
+
+      const deviceTypeRefs =
+        this.endpointDeviceTypeRef[this.endpointType[this.endpointReference]]
+      const deviceIdentifiers = this.endpointDeviceId[this.endpointReference]
+      const deviceTypes = []
+      if (Array.isArray(deviceTypeRefs)) {
+        for (let i = 0; i < deviceTypeRefs.length; i++) {
+          deviceTypes.push({
+            deviceTypeRef: deviceTypeRefs[i],
+            deviceIdentifier: deviceIdentifiers[i],
+          })
+        }
+      } else {
+        deviceTypes.push({
+          deviceTypeRef: deviceTypeRefs,
+          deviceIdentifier: deviceIdentifiers,
+        })
       }
+
       // Set device types only in edit mode
-      this.deviceTypeTmp = [firstDeviceType] // TODO make device pair to be array and set it here from the store
-      this.primaryDeviceTypeTmp = null // TODO set it here from the store
+      this.deviceTypeTmp = deviceTypes
+      this.primaryDeviceTypeTmp = deviceTypes[0] ?? null // TODO set it here from the store
     } else {
       this.shownEndpoint.endpointIdentifier = this.getSmallestUnusedEndpointId()
     }
@@ -376,12 +389,20 @@ export default {
       )
     },
     newEpt() {
+      const deviceTypeRef = []
+      this.deviceTypeTmp.forEach((dt) => {
+        deviceTypeRef.push(dt.deviceTypeRef)
+      })
       this.$store
         .dispatch(`zap/addEndpointType`, {
           name: 'Anonymous Endpoint Type',
-          deviceTypeRef: this.deviceTypeTmp?.map?.((dt) => dt.deviceTypeRef),
+          deviceTypeRef,
         })
         .then((response) => {
+          const deviceIdentifier = []
+          this.deviceTypeTmp.forEach((dt) =>
+            deviceIdentifier.push(dt.deviceIdentifier)
+          )
           this.$store
             .dispatch(`zap/addEndpoint`, {
               endpointId: parseInt(this.shownEndpoint.endpointIdentifier),
@@ -389,9 +410,7 @@ export default {
               profileId: parseInt(this.shownEndpoint.profileIdentifier),
               endpointType: response.id,
               endpointVersion: this.shownEndpoint.deviceVersion,
-              deviceIdentifier: this.deviceTypeTmp?.map?.(
-                (dt) => dt.deviceIdentifier
-              ),
+              deviceIdentifier,
             })
             .then((res) => {
               if (this.shareClusterStatesAcrossEndpoints()) {
@@ -431,10 +450,18 @@ export default {
     editEpt(shownEndpoint, endpointReference) {
       let endpointTypeReference = this.endpointType[this.endpointReference]
 
+      const deviceTypeRef = []
+      const deviceIdentifier = []
+
+      this.deviceTypeTmp.forEach((dt) => {
+        deviceTypeRef.push(dt.deviceTypeRef)
+        deviceIdentifier.push(parseInt(dt.deviceIdentifier))
+      })
+
       this.$store.dispatch('zap/updateEndpointType', {
         endpointTypeId: endpointTypeReference,
         updatedKey: RestApi.updateKey.deviceTypeRef,
-        updatedValue: this.deviceTypeTmp?.map?.((dt) => dt.deviceTypeRef),
+        updatedValue: deviceTypeRef,
       })
 
       this.$store.dispatch('zap/updateEndpoint', {
@@ -458,9 +485,7 @@ export default {
           },
           {
             updatedKey: RestApi.updateKey.deviceId,
-            value: parseInt(
-              this.deviceTypeTmp?.map?.((dt) => dt.deviceIdentifier)
-            ),
+            value: deviceIdentifier,
           },
         ],
       })
@@ -491,31 +516,38 @@ export default {
     },
     getDeviceOptionLabel(item) {
       if (item == null || item.deviceTypeRef == null) return ''
-      if (Array.isArray(item.deviceTypeRef)) {
-        let deviceOptionLabels = []
-        item.deviceTypeRef.forEach((d) =>
-          deviceOptionLabels.push(
-            this.zclDeviceTypes[d].description +
-              ' (' +
-              this.asHex(this.zclDeviceTypes[d].code, 4) +
-              ')'
-          )
+      // if (Array.isArray(item.deviceTypeRef)) {
+      //   let deviceOptionLabels = []
+      //   item.deviceTypeRef.forEach((d) =>
+      //     deviceOptionLabels.push(
+      //       this.zclDeviceTypes[d].description +
+      //         ' (' +
+      //         this.asHex(this.zclDeviceTypes[d].code, 4) +
+      //         ')'
+      //     )
+      //   )
+      //   return deviceOptionLabels
+      // } else {
+      if (
+        item.deviceIdentifier != this.zclDeviceTypes[item.deviceTypeRef].code
+      ) {
+        console.log(
+          item.deviceIdentifier,
+          '-',
+          item.deviceTypeRef,
+          '-',
+          this.zclDeviceTypes[item.deviceTypeRef]
         )
-        return deviceOptionLabels
+        return this.asHex(item.deviceIdentifier, 4)
       } else {
-        if (
-          item.deviceIdentifier != this.zclDeviceTypes[item.deviceTypeRef].code
-        ) {
-          return this.asHex(item.deviceIdentifier, 4)
-        } else {
-          return (
-            this.zclDeviceTypes[item.deviceTypeRef].description +
-            ' (' +
-            this.asHex(this.zclDeviceTypes[item.deviceTypeRef].code, 4) +
-            ')'
-          )
-        }
+        return (
+          this.zclDeviceTypes[item.deviceTypeRef].description +
+          ' (' +
+          this.asHex(this.zclDeviceTypes[item.deviceTypeRef].code, 4) +
+          ')'
+        )
       }
+      // }
     },
     filterDeviceTypes(val, update) {
       if (val === '') {
