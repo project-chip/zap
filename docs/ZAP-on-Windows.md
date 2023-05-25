@@ -4,7 +4,7 @@
 
 **1. Windows Powershell:** 
 
-In desktop search bar, input "Windows Powershell" and run as administrator
+In the desktop search bar, input "Windows Powershell" and run as administrator
 
 
 **2. Clone Repo:**
