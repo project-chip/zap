@@ -129,6 +129,7 @@ test(
     expect(simpleTest).toContain('Addon: This is example of test addon helper')
 
     let zclId = genResult.content['zcl-test.out']
+    zclId = zclId.split('\n').map(s => s.trim()).join('\n');
     //expect(zclId).toEqual('random placeholder')
     expect(zclId).toContain(
       `// ${testUtil.totalNonAtomicEnumCount - 1}/${
