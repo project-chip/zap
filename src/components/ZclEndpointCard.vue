@@ -420,7 +420,14 @@ export default {
         this.$store.commit('zap/updateIsClusterOptionChanged', false)
       }
     },
+    $route(to, from) {
+      if (from.fullPath === '/cluster' && to.fullPath === '/') {
+        console.log('most')
+        this.getEndpointCardData()
+      }
+    },
   },
+
   created() {
     if (this.$serverGet != null) {
       this.selectedServers = []
