@@ -13,7 +13,10 @@
       style="border-right: 1px solid #ddd"
     >
       <div
-        class="full-width absolute-top text-h4 q-pt-md q-px-md row justify-end"
+        class="full-width absolute-top text-h4 q-pt-md q-px-md row q-electron-drag"
+        :class="{
+          'justify-end': isElectron && isMac,
+        }"
         style="height: 53.8px"
       >
         <div>ZCL</div>
@@ -97,6 +100,7 @@
 </template>
 <script>
 import ZCLToolbar from '../components/ZCLToolbar.vue'
+import { isElectron, isMac } from '../util/platform'
 const restApi = require(`../../src-shared/rest-api.js`)
 
 export default {
@@ -106,6 +110,8 @@ export default {
   name: 'MainLayout',
   data() {
     return {
+      isElectron,
+      isMac,
       drawerRight: false,
       generationFiles: '',
       generationData: 'Generated Data',

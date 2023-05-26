@@ -17,7 +17,7 @@
 
 export {}
 
-const { BrowserWindow, dialog } = require('electron')
+const { BrowserWindow, dialog, ipcMain } = require('electron')
 const path = require('path')
 const env = require('../util/env')
 const menu = require('./menu.js')
@@ -57,7 +57,7 @@ function createQueryString(
   isNew?: boolean | undefined,
   restPort?: number
 ) {
-  var params = new Map()
+  const params = new Map()
 
   if (!arguments.length) {
     return ''
@@ -100,6 +100,7 @@ export function windowCreate(port: number, args?: WindowCreateArgs) {
   let webPreferences = {
     nodeIntegration: false,
     worldSafeExecuteJavaScript: true,
+    preload: path.resolve(__dirname, 'preload.js'),
   }
   windowCounter++
   let w = new BrowserWindow({
@@ -108,14 +109,21 @@ export function windowCreate(port: number, args?: WindowCreateArgs) {
     x: 50 + windowCounter * 20,
     y: 50 + windowCounter * 20,
     resizable: true,
-    // frame: false,
-    trafficLightPosition: { x: 15, y: 20 },
-    titleBarStyle: 'hidden',
     center: true,
     icon: path.join(env.iconsDirectory(), 'zap_32x32.png'),
     title: args?.filePath == null ? menu.newConfiguration : args?.filePath,
     useContentSize: true,
     webPreferences: webPreferences,
+    titleBarStyle: 'hidden',
+    trafficLightPosition: { x: 15, y: 20 },
+    titleBarOverlay: {
+      color: '#F4F4F4',
+      symbolColor: '#67696D',
+    },
+  })
+
+  ipcMain.on('set-title-bar-overlay', (_event, value) => {
+    w.setTitleBarOverlay(value)
   })
 
   let queryString = createQueryString(

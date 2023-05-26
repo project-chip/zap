@@ -12,7 +12,7 @@ module.exports = configure(function (ctx) {
       router: 'src/router',
       store: 'src/store',
       indexHtmlTemplate: 'src/index.template.html',
-      electronMain: 'src-electron/ui/main-ui.js',
+      electronMain: 'src-electron/ui/main-ui',
     },
 
     // app boot file (/src/boot)
@@ -22,7 +22,7 @@ module.exports = configure(function (ctx) {
 
     // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-css
     css: ['app.sass'],
-    animations: ['fadeInLeft', 'fadeOutLeft'],
+
     // https://github.com/quasarframework/quasar/tree/dev/extras
     extras: [
       'material-icons', // optional, you are not bound to it
@@ -102,7 +102,7 @@ module.exports = configure(function (ctx) {
 
     // animations: 'all', // --- includes all animations
     // https://quasar.dev/options/animations
-    animations: [],
+    animations: ['fadeInLeft', 'fadeOutLeft'],
 
     // https://quasar.dev/quasar-cli/developing-ssr/configuring-ssr
     ssr: {

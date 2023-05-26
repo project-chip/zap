@@ -1,22 +1,9 @@
 <template>
-  <q-layout view="hHh Lpr lff" class="q-electron-drag">
+  <q-layout view="hHh Lpr lff">
     <div
-      class="full-width absolute-top text-h4 q-pt-md q-px-md row justify-between"
-      style="height: 53.8px"
-    >
-      <div>
-        <q-btn dense unelevated round size="5px" color="red-12" />
-        <q-btn
-          class="q-mx-sm"
-          dense
-          unelevated
-          round
-          size="5px"
-          color="warning"
-        />
-        <q-btn dense unelevated round size="5px" color="green-14" />
-      </div>
-    </div>
+      class="full-width absolute-top q-electron-drag"
+      style="height: 50px"
+    ></div>
     <q-page-container>
       <router-view />
     </q-page-container>

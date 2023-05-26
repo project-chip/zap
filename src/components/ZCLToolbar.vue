@@ -1,5 +1,8 @@
 <template>
-  <q-toolbar class="bg-glass q-electron-drag">
+  <q-toolbar
+    class="bg-glass q-electron-drag"
+    :class="{ 'window-button-padding-right': isElectron && isWin }"
+  >
     <q-toolbar-title
       :class="{ 'logo-margin': showPreviewTab }"
       style="width: 180px"
@@ -151,6 +154,7 @@
 import ZclGeneralOptionsBar from '../components/ZclGeneralOptionsBar.vue'
 import ZclExtensionDialog from '../components/ZclCustomZclView.vue'
 import { startTour } from '../boot/tour'
+import { isElectron, isWin } from '../util/platform'
 
 const rendApi = require(`../../src-shared/rend-api.js`)
 const restApi = require(`../../src-shared/rest-api.js`)
@@ -199,6 +203,8 @@ export default {
   },
   data() {
     return {
+      isElectron,
+      isWin,
       isExpanded: false,
       globalOptionsDialog: false,
       zclExtensionDialog: false,
@@ -281,5 +287,9 @@ export default {
 .slide-up-leave-to {
   opacity: 0;
   transform: translateY(-30px);
+}
+
+.window-button-padding-right {
+  padding-right: calc(100vw - env(titlebar-area-width, 100vw) + 2px);
 }
 </style>
