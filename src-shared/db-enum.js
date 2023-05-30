@@ -43,6 +43,7 @@ exports.packageOptionCategory = {
   helperCategories: 'helperCategories',
   helperAliases: 'helperAliases',
   resources: 'resources',
+  outputOptions: 'outputOptions',
 }
 
 exports.side = {

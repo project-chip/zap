@@ -131,10 +131,10 @@ async function recordTemplatesPackage(context) {
   if (topLevel.existedPreviously) return context
 
   let promises = []
-  env.logDebug(`Loading ${context.templateData.templates.length} templates.`)
+  let allTemplates = context.templateData.templates
 
-  // Add templates queries to the list of promises
-  context.templateData.templates.forEach((template) => {
+  env.logDebug(`Loading ${allTemplates.length} templates.`)
+  allTemplates.forEach((template) => {
     let templatePath = path.resolve(
       path.join(path.dirname(context.path), template.path)
     )
@@ -148,7 +148,22 @@ async function recordTemplatesPackage(context) {
           0,
           template.output,
           template.name
-        )
+        ).then((id) => {
+          // We loaded the individual file, now we add options
+          if (template.iterator) {
+            return queryPackage.insertOptionsKeyValues(
+              context.db,
+              id,
+              dbEnum.packageOptionCategory.outputOptions,
+              [
+                {
+                  code: 'iterator',
+                  label: template.iterator,
+                },
+              ]
+            )
+          }
+        })
       )
     }
   })
@@ -491,7 +506,7 @@ async function loadTemplates(
     if (genTemplatesJsonArray != null && genTemplatesJsonArray.length > 0) {
       for (let jsonFile of genTemplatesJsonArray) {
         if (jsonFile == null || jsonFile == '') continue
-        let ctx = await loadSingleTemplate(db, jsonFile)
+        let ctx = await loadGenTemplatesJsonFile(db, jsonFile)
         if (ctx.error) {
           if (options.failOnLoadingError) globalCtx.error = ctx.error
         } else {
@@ -504,7 +519,7 @@ async function loadTemplates(
     }
     return globalCtx
   } else if (genTemplatesJsonArray != null) {
-    let ctx = await loadSingleTemplate(db, genTemplatesJsonArray)
+    let ctx = await loadGenTemplatesJsonFile(db, genTemplatesJsonArray)
     ctx.packageIds = [ctx.packageId]
     return ctx
   } else {
@@ -522,7 +537,7 @@ async function loadTemplates(
  * @param {*} genTemplatesJson Path to the JSON file or an array of paths to JSON file
  * @returns the loading context, contains: db, path, crc, packageId and templateData, or error
  */
-async function loadSingleTemplate(db, genTemplatesJson) {
+async function loadGenTemplatesJsonFile(db, genTemplatesJson) {
   let context = {
     db: db,
   }
