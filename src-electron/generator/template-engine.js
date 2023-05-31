@@ -25,6 +25,7 @@ const fsPromise = require('fs').promises
 const promisedHandlebars = require('promised-handlebars')
 const defaultHandlebars = require('handlebars')
 const notification = require('../db/query-notification.js')
+const dbEnum = require('../../src-shared/db-enum')
 
 const includedHelpers = [
   require('./helper-zcl'),
@@ -84,6 +85,54 @@ async function produceCompiledTemplate(hb, singleTemplatePkg) {
 }
 
 /**
+ * This function is reached if the template is an "iterative one", meaning
+ * it has the iterator set to one of the valid options.
+ *
+ * @param {*} hb
+ * @param {*} metaInfo
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} singleTemplatePkg
+ * @param {*} genTemplateJsonPackageId
+ * @param {*} options
+ * @returns Promise that resolves into an array of key/content/stats objects.
+ */
+async function produceIterativeContent(
+  hb,
+  metaInfo,
+  db,
+  sessionId,
+  singleTemplatePkg,
+  genTemplateJsonPackageId,
+  options = {
+    overridePath: null,
+    disableDeprecationWarnings: false,
+  }
+) {
+  switch (singleTemplatePkg.iterator) {
+    case dbEnum.iteratorValues.selectedCluster:
+      // Iterate over all selected clusters
+      break
+    case dbEnum.iteratorValues.availableCluster:
+      // Iterate over all available clusters
+      break
+    default:
+      throw new Error(
+        `Invalid value for iterator: ${singleTemplatePkg.iterator}`
+      )
+  }
+  return produceContent(
+    hb,
+    metaInfo,
+    db,
+    sessionId,
+    singleTemplatePkg,
+    genTemplateJsonPackageId,
+    options
+  )
+}
+
+/**
  * Given db connection, session and a single template package, produce the output.
  *
  * @param {*} hb
@@ -92,7 +141,7 @@ async function produceCompiledTemplate(hb, singleTemplatePkg) {
  * @param {*} sessionId
  * @param {*} singlePkg
  * @param {*} overridePath: if passed, it provides a path to the override file that can override the overridable.js
- * @returns Promise that resolves with the 'utf8' string that contains the generated content.
+ * @returns Promise that resolves into an array of key/content/stats objects.
  */
 async function produceContent(
   hb,
@@ -135,10 +184,13 @@ async function produceContent(
     },
   }
   let content = await template(context)
-  return {
-    content: content,
-    stats: context.global.stats,
-  }
+  return [
+    {
+      key: singleTemplatePkg.category,
+      content: content,
+      stats: context.global.stats,
+    },
+  ]
 }
 
 /**
@@ -389,6 +441,7 @@ function hbInstance() {
 }
 
 exports.produceContent = produceContent
+exports.produceIterativeContent = produceIterativeContent
 exports.loadHelper = loadHelper
 exports.loadPartial = loadPartial
 exports.initializeBuiltInHelpersForPackage = initializeBuiltInHelpersForPackage

@@ -38,7 +38,7 @@
       "path": "cluster_iterator.zapt",
       "name": "Cluster iterator.",
       "output": "cluster_out_{id}.out",
-      "iterator": "available_cluster"
+      "iterator": "availableCluster"
     }
   ]
 }

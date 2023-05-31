@@ -632,6 +632,19 @@ async function generateAllTemplates(
 
   let hb = templateEngine.hbInstance()
 
+  for (let pkg of packages) {
+    let outputOptions = await queryPackage.selectAllOptionsValues(
+      genResult.db,
+      pkg.id,
+      dbEnum.packageOptionCategory.outputOptions
+    )
+    outputOptions.forEach((opt) => {
+      if (opt.optionCode == 'iterator') {
+        pkg.iterator = opt.optionLabel
+      }
+    })
+  }
+
   // First extract overridePath if one exists, as we need to
   // pass it to the generation.
   packages.forEach((singlePkg) => {
@@ -723,8 +736,14 @@ async function generateSingleTemplate(
     disableDeprecationWarnings: false,
   }
 ) {
+  let genFunction
+  if (singleTemplatePkg.iterator != null) {
+    genFunction = templateEngine.produceIterativeContent
+  } else {
+    genFunction = templateEngine.produceContent
+  }
   try {
-    let result = await templateEngine.produceContent(
+    let resultArray = await genFunction(
       hb,
       metaInfo,
       genResult.db,
@@ -733,8 +752,10 @@ async function generateSingleTemplate(
       genTemplateJsonPackageId,
       options
     )
-    genResult.content[singleTemplatePkg.category] = result.content
-    genResult.stats[singleTemplatePkg.category] = result.stats
+    for (let result of resultArray) {
+      genResult.content[result.key] = result.content
+      genResult.stats[result.key] = result.stats
+    }
     genResult.partial = true
     return genResult
   } catch (err) {

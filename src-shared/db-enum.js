@@ -46,6 +46,13 @@ exports.packageOptionCategory = {
   outputOptions: 'outputOptions',
 }
 
+// these are allowed values for the value of "iterator" for
+// the individual template in a templates.json file.
+exports.iteratorValues = {
+  availableCluster: 'availableCluster',
+  selectedCluster: 'selectedCluster',
+}
+
 exports.side = {
   client: 'client',
   server: 'server',
