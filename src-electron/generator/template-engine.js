@@ -123,7 +123,7 @@ async function produceIterativeContent(
     disableDeprecationWarnings: false,
   }
 ) {
-  let iterationArray
+  let iterationArray = []
   let res = []
   switch (singleTemplatePkg.iterator) {
     case dbEnum.iteratorValues.selectedCluster:
@@ -135,28 +135,25 @@ async function produceIterativeContent(
         db,
         sessionId
       )
-      for (let cl of iterationArray) {
-        options.overrideKey = createIterableFileName(
-          singleTemplatePkg.category,
-          cl
-        )
-        options.initialContext = cl
-        let r = await produceContent(
-          hb,
-          metaInfo,
-          db,
-          sessionId,
-          singleTemplatePkg,
-          genTemplateJsonPackageId,
-          options
-        )
-        res.push(...r)
-      }
       break
     default:
       throw new Error(
         `Invalid value for iterator: ${singleTemplatePkg.iterator}`
       )
+  }
+  for (let it of iterationArray) {
+    options.overrideKey = createIterableFileName(singleTemplatePkg.category, it)
+    options.initialContext = it
+    let r = await produceContent(
+      hb,
+      metaInfo,
+      db,
+      sessionId,
+      singleTemplatePkg,
+      genTemplateJsonPackageId,
+      options
+    )
+    res.push(...r)
   }
   return res
 }
