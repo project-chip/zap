@@ -92,7 +92,7 @@ async function selectDeviceTypeClustersByDeviceTypeRef(db, deviceTypeRef) {
   FROM
     DEVICE_TYPE_CLUSTER
   WHERE
-    DEVICE_TYPE_REF = ?
+    DEVICE_TYPE_REF IN (?)
   ORDER BY CLUSTER_NAME`,
     [deviceTypeRef]
   )
@@ -146,7 +146,7 @@ async function selectDeviceTypeAttributesByDeviceTypeRef(db, deviceTypeRef) {
   ON
     AT.ATTRIBUTE_REF = ATTRIBUTE.ATTRIBUTE_ID
   WHERE
-    C.DEVICE_TYPE_REF = ?`,
+    C.DEVICE_TYPE_REF IN (?)`,
     [deviceTypeRef]
   )
   return rows.map(dbMapping.map.deviceTypeAttribute)
@@ -174,7 +174,7 @@ async function selectDeviceTypeCommandsByDeviceTypeRef(db, deviceTypeRef) {
   ON
     CMD.COMMAND_REF = COMMAND.COMMAND_ID
   WHERE
-    C.DEVICE_TYPE_REF = ?`,
+    C.DEVICE_TYPE_REF IN (?)`,
     [deviceTypeRef]
   )
   return rows.map(dbMapping.map.deviceTypeCommand)

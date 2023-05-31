@@ -351,6 +351,8 @@ function getAllParamValuePairArrayClauses(paramValuePairArray) {
       currentString += false
     } else if (paramValuePair.value == null) {
       currentString += 'null'
+    } else if (Array.isArray(paramValuePair.value)) {
+      currentString += paramValuePair.value[0]
     } else {
       if (paramValuePair.type == 'text') {
         currentString += "'" + paramValuePair.value + "'"
@@ -549,7 +551,7 @@ async function insertEndpointType(
   // Resolve endpointDefaults based on device type order. Reversing the order
   // such that the device type defaults are maintained based on the order from
   // deviceTypeRefs
-  let deviceTypeRefsReversed = deviceTypeRefs.reverse()
+  let deviceTypeRefsReversed = deviceTypeRefs
   for (const dtRef of deviceTypeRefsReversed) {
     await setEndpointDefaults(
       db,
@@ -571,9 +573,10 @@ async function insertEndpointType(
  * @returns Promise to duplicate endpoint type.
  */
 async function duplicateEndpointType(db, endpointTypeId) {
-  let newEndpointTypeId = await dbApi.dbInsert(
+  // Extract all the device types based on endpoint type id
+  let endpointTypeDeviceInfo = await dbApi.dbAll(
     db,
-    `INSERT INTO ENDPOINT_TYPE (SESSION_REF, NAME, DEVICE_TYPE_REF)
+    `
     SELECT
       ENDPOINT_TYPE.SESSION_REF, ENDPOINT_TYPE.NAME, ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_REF
     FROM
@@ -583,9 +586,40 @@ async function duplicateEndpointType(db, endpointTypeId) {
     ON
       ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF
     WHERE
-      ENDPOINT_TYPE_ID = ?`,
+      ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF = ?`,
     [endpointTypeId]
   )
+
+  let newEndpointTypeId = 0
+  if (endpointTypeDeviceInfo && endpointTypeDeviceInfo.length > 0) {
+    // Enter into the endpoint_type table
+    newEndpointTypeId = await dbApi.dbInsert(
+      db,
+      `INSERT INTO ENDPOINT_TYPE (SESSION_REF, NAME)
+      VALUES (?, ?)`,
+      [endpointTypeDeviceInfo[0].SESSION_REF, endpointTypeDeviceInfo[0].NAME]
+    )
+
+    // Enter into the endpoint_type_device table to establish the endpoint_type
+    // and device type relationship
+    let endpointTypeDeviceInfoValues = []
+    endpointTypeDeviceInfo.forEach((dt, index) =>
+      endpointTypeDeviceInfoValues.push([
+        newEndpointTypeId,
+        dt.DEVICE_TYPE_REF,
+        index,
+      ])
+    )
+    await dbApi.dbMultiInsert(
+      db,
+      `
+      INSERT INTO
+        ENDPOINT_TYPE_DEVICE (ENDPOINT_TYPE_REF, DEVICE_TYPE_REF, DEVICE_TYPE_ORDER)
+      VALUES
+        (?, ?, ?)`,
+      endpointTypeDeviceInfoValues
+    )
+  }
 
   return newEndpointTypeId
 }
@@ -606,7 +640,7 @@ async function updateEndpointType(
   updatedValue
 ) {
   let param = convertRestKeyToDbColumn(updateKey)
-  let wasPresent = await dbApi.dbGet(
+  let existingDeviceTypes = await dbApi.dbAll(
     db,
     `
     SELECT
@@ -620,14 +654,42 @@ async function updateEndpointType(
       ENDPOINT_TYPE_ID = ? AND SESSION_REF = ?`,
     [endpointTypeId, sessionId]
   )
+  let newEndpointId = endpointTypeId
+  if (param != 'DEVICE_TYPE_REF') {
+    newEndpointId = await dbApi.dbUpdate(
+      db, // Check for update with schema change
+      `UPDATE ENDPOINT_TYPE SET ${param} = ? WHERE ENDPOINT_TYPE_ID = ? AND SESSION_REF = ?`,
+      [updatedValue, endpointTypeId, sessionId]
+    )
+  }
 
-  let newEndpointId = await dbApi.dbUpdate(
-    db, // Check for update with schema change
-    `UPDATE ENDPOINT_TYPE SET ${param} = ? WHERE ENDPOINT_TYPE_ID = ? AND SESSION_REF = ?`,
-    [updatedValue, endpointTypeId, sessionId]
+  existingDeviceTypes = existingDeviceTypes.map((dt) => dt[param])
+  // Delete the endpoint_type_device references based on endpoint_type_id
+  await dbApi.dbRemove(
+    db,
+    'DELETE FROM ENDPOINT_TYPE_DEVICE WHERE ENDPOINT_TYPE_REF = ?',
+    endpointTypeId
   )
 
-  if (param === 'DEVICE_TYPE_REF' && wasPresent[param] != updatedValue) {
+  //Re-insert endpoint_type_device references with the new references to device types
+  let endpointTypeDeviceInfoValues = []
+  existingDeviceTypes.forEach((dt, index) =>
+    endpointTypeDeviceInfoValues.push([endpointTypeId, dt, index])
+  )
+  await dbApi.dbMultiInsert(
+    db,
+    `
+    INSERT INTO
+      ENDPOINT_TYPE_DEVICE (ENDPOINT_TYPE_REF, DEVICE_TYPE_REF, DEVICE_TYPE_ORDER)
+    VALUES
+      (?, ?, ?)`,
+    endpointTypeDeviceInfoValues
+  )
+
+  let isDeviceTypeRefsUpdated =
+    existingDeviceTypes.length === updatedValue.length &&
+    existingDeviceTypes.every((value, index) => value == updatedValue[index])
+  if (param === 'DEVICE_TYPE_REF' && isDeviceTypeRefsUpdated) {
     await setEndpointDefaults(db, sessionId, endpointTypeId, updatedValue)
   }
   return newEndpointId
