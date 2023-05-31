@@ -548,11 +548,8 @@ async function insertEndpointType(
     newEndpointTypeIdDeviceCombination
   )
 
-  // Resolve endpointDefaults based on device type order. Reversing the order
-  // such that the device type defaults are maintained based on the order from
-  // deviceTypeRefs
-  let deviceTypeRefsReversed = deviceTypeRefs
-  for (const dtRef of deviceTypeRefsReversed) {
+  // Resolve endpointDefaults based on device type order.
+  for (const dtRef of deviceTypeRefs) {
     await setEndpointDefaults(
       db,
       sessionId,

@@ -377,6 +377,7 @@ exports.map = {
       profileId: x.PROFILE_ID,
       domain: x.DOMAIN,
       label: x.NAME,
+      name: x.NAME,
       caption: x.DESCRIPTION,
     }
   },
@@ -440,6 +441,7 @@ exports.map = {
       sessionRef: x.SESSION_REF,
       name: x.NAME,
       deviceTypeRef: x.DEVICE_TYPE_REF,
+      deviceTypes: x.deviceTypes,
     }
   },
   endpointTypeCluster: (x) => {
