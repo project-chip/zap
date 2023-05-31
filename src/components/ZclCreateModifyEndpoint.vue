@@ -132,7 +132,7 @@ const _ = require('lodash')
 export default {
   name: 'ZclCreateModifyEndpoint',
   props: ['endpointReference'],
-  emits: ['saveOrCreateValidated'],
+  emits: ['saveOrCreateValidated', 'updateData'],
   mixins: [CommonMixin],
   watch: {
     deviceTypeRefAndDeviceIdPair(val) {
@@ -531,13 +531,6 @@ export default {
       if (
         item.deviceIdentifier != this.zclDeviceTypes[item.deviceTypeRef].code
       ) {
-        console.log(
-          item.deviceIdentifier,
-          '-',
-          item.deviceTypeRef,
-          '-',
-          this.zclDeviceTypes[item.deviceTypeRef]
-        )
         return this.asHex(item.deviceIdentifier, 4)
       } else {
         return (
