@@ -239,6 +239,15 @@ test(
       '* Aggregates [3]: fScope=true/fSensitive=false/read=view/write=[operate - manage]/invoke=NONE'
     )
     expect(epc).toContain('HelloEvent is a fabric-sensitive event')
+
+    // Iterative stuff
+    let c = genResult.content['cluster_out_test_1.out']
+    expect(c).not.toBeNull()
+    expect(c).toContain('Cluster desc: Test 1 description')
+
+    c = genResult.content['cluster_out_test_2.out']
+    expect(c).not.toBeNull()
+    expect(c).toContain('Cluster desc: Test 2 description')
   },
   testUtil.timeout.medium()
 )

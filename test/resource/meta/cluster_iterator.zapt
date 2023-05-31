@@ -1,2 +1,7 @@
 This file iterates over all clusters.
 
+Cluster code: {{code}}
+Cluster name: {{name}}
+Cluster desc: {{description}}
+Cluster define: {{define}}
+

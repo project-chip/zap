@@ -26,6 +26,7 @@ const promisedHandlebars = require('promised-handlebars')
 const defaultHandlebars = require('handlebars')
 const notification = require('../db/query-notification.js')
 const dbEnum = require('../../src-shared/db-enum')
+const querySessionZcl = require('../db/query-session-zcl')
 
 const includedHelpers = [
   require('./helper-zcl'),
@@ -84,6 +85,19 @@ async function produceCompiledTemplate(hb, singleTemplatePkg) {
   }
 }
 
+function createIterableFileName(filePattern, item) {
+  let out = filePattern
+  for (let key of Object.keys(item)) {
+    let value = item[key]
+    if (value == null) continue
+    out = out.replace(`{${key}}`, value)
+    out = out.replace(`{${key}:hex}`, value.toString(16))
+    out = out.replace(`{${key}:tolowercase}`, value.toString().toLowerCase())
+    out = out.replace(`{${key}:touppercase}`, value.toString().toUpperCase())
+  }
+  return out
+}
+
 /**
  * This function is reached if the template is an "iterative one", meaning
  * it has the iterator set to one of the valid options.
@@ -109,27 +123,42 @@ async function produceIterativeContent(
     disableDeprecationWarnings: false,
   }
 ) {
+  let iterationArray
+  let res = []
   switch (singleTemplatePkg.iterator) {
     case dbEnum.iteratorValues.selectedCluster:
       // Iterate over all selected clusters
       break
     case dbEnum.iteratorValues.availableCluster:
       // Iterate over all available clusters
+      iterationArray = await querySessionZcl.selectAllSessionClusters(
+        db,
+        sessionId
+      )
+      for (let cl of iterationArray) {
+        options.overrideKey = createIterableFileName(
+          singleTemplatePkg.category,
+          cl
+        )
+        options.initialContext = cl
+        let r = await produceContent(
+          hb,
+          metaInfo,
+          db,
+          sessionId,
+          singleTemplatePkg,
+          genTemplateJsonPackageId,
+          options
+        )
+        res.push(...r)
+      }
       break
     default:
       throw new Error(
         `Invalid value for iterator: ${singleTemplatePkg.iterator}`
       )
   }
-  return produceContent(
-    hb,
-    metaInfo,
-    db,
-    sessionId,
-    singleTemplatePkg,
-    genTemplateJsonPackageId,
-    options
-  )
+  return res
 }
 
 /**
@@ -152,7 +181,9 @@ async function produceContent(
   genTemplateJsonPackageId,
   options = {
     overridePath: null,
+    overrideKey: null,
     disableDeprecationWarnings: false,
+    initialContext: null,
   }
 ) {
   let template = await produceCompiledTemplate(hb, singleTemplatePkg)
@@ -183,10 +214,16 @@ async function produceContent(
       stats: {},
     },
   }
+  if (options.initialContext != null) {
+    Object.assign(context, options.initialContext)
+  }
   let content = await template(context)
   return [
     {
-      key: singleTemplatePkg.category,
+      key:
+        options.overrideKey == null
+          ? singleTemplatePkg.category
+          : options.overrideKey,
       content: content,
       stats: context.global.stats,
     },
