@@ -1,21 +1,16 @@
 # Install ZAP from Source on Windows
 
-## Prerequisite Package & Settings
+## Windows-specific Prerequisite Settings
 
 **1. Windows Powershell:** 
 
-In the desktop search bar, input "Windows Powershell" and run as administrator
+In desktop search bar, input "Windows Powershell" and run as administrator. Run all the following commands inside Powershell.
 
-**2. Clone Repo:**
-```
-git clone https://github.com/project-chip/zap
-```
-If having file permission issue, clone it under \Users\<user_name> directory, do not put it under Desktop
+**2. Chocolatey:**
 
-**3. Chocolatey:**
+Install from https://chocolatey.org/install
 
-install from https://chocolatey.org/install
-check if installed properly:
+Check if installed properly:
 ```
 choco -v
 ```
@@ -24,7 +19,7 @@ Install pkgconfiglite package:
 choco install pkgconfiglite
 ```
 
-**4. Install Node:**
+**3. Install Node if you have not:**
 ```
 choco install nodejs-lts
 ```
@@ -32,40 +27,24 @@ choco install nodejs-lts
 
 *if you install Node already, and fail some tests similar to "cannot find Node", reinstall Node with chocolatey again
 
-## Run ZAP App
+**4. Follow the instruction page for other installation details**
 
-**1. Install node modules:**
-```
-npm install
-```
-*sometimes it might help to run:
+https://github.com/project-chip/zap/blob/master/docs/development-instructions.md
 
-```
-npm install -g npm
-```
-*if has error like, "'exec' is not recognized as an internal or external command," go to package.json, search for the line below with "postinstall", delete "exec "
-```
-"postinstall": "exec electron-builder install-app-deps && husky install && npm rebuild canvas --update-binary && npm run version-stamp"
-```
-*if still has error, it will not affect running app and passing tests, but will affect release and the line above is not run properly → **might need to be fixed**
+## Fix Possible Error
 
-**2. run zap app:**
-```
-npm run zap
-```
-*if error about "tsc command not found", run:
-```
-npm uninstall tsc
-```
-*if error about "sqlite3.node" occurs in a pop out window, run:
+**1. sqlite3**
+
+When running the ZAP app, if has error about "sqlite3.node" occured in a pop out window, run:
 ```
 npm rebuild sqlite3
 ```
-*if more bugs appear, try solve failed tests before running the app
 
-## Run Tests
+**2. electron-builder:**
+
+When doing npm install, in post-install, if has error on the following command, related to "electron-builder install-app-deps", "node_modules/canvas" or "node-pre-gyp", it is because the electron-builder is not completely compatible with Windows and the installation error will not cause failure in the ZAP app
 ```
-npm run test
+"postinstall": "electron-builder install-app-deps && husky install && npm rebuild canvas --update-binary && npm run version-stamp"
 ```
 
 ## Fix Failed Tests
@@ -83,29 +62,18 @@ If fails due to "Test suite failed to run Cannot find module '../build/Release/c
 ```
 npm rebuild canvas --update-binary
 ```
-**3. Run Report**
-```
-npm run report
-```
-If fails due to "cp" or "mv" or "mkdir -p" when executing the above command, which is part of 'npm run test', it is because they are supposed to be Linux commands and does not compile in Windows.
-There are too many incompatible commands used when running reports and correcting all of them requires huge efforts and might lead to new bugs or inconsistency. Currently we delete the command to exclude it from 'npm run test' to remove failure → **might need to be fixed**
 
-**4. get index.html or other server issue**
+**3. get index.html or other server issue**
 
 If fails due to “get index.html Request failed with status code 404” in unit tests or having server connection issues in e2e-ci tests, run:
 ```
 npm run build
 ```
-and then run test again
 
-**5. Generation Output Inconsistency**
-
-If fails due to “Validate base generation” or “Testing zap command parser generation”, it is because the output format is inconsistent with expected due to some format error, not a real bug, currently fixed by cleaning string up before comparing like below
-```
-receivedString = receivedString.split('\n').map(s => s.trim()).join('\n');
-```
-
-**6. Other**
+**4. Other**
 
 Check if node version is v18, and try to install it with Chocolatey
-Also, you can Check doc/faq.md for help
+
+Also, you can Check the faq doc for help: https://github.com/project-chip/zap/blob/master/docs/faq.md
+
+

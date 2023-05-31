@@ -29,7 +29,7 @@
     "electron-build-dmg": "node src-script/build-dmg.js",
     "clean:report": "rm -rf .nyc_output || true",
     "tsc": "tsc --build ./tsconfig.json",
-    "test": " npm run test:unit && npm run test:e2e-ci",
+    "test": " npm run test:unit && npm run test:e2e-ci && npm run report",
     "test:unit": "node src-script/zap-versionstamp.js && jest --reporters=jest-junit --reporters=default --updateSnapshot",
     "test:unit:verbose": "jest --updateSnapshot --verbose false",
     "test:unit:coverage": "jest --coverage",

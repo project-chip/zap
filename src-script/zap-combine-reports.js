@@ -18,36 +18,29 @@
 
 const scriptUtil = require('./script-util.js')
 const fs = require('fs')
+const fsExtra = require('fs-extra')
 
 //workaround: executeCmd()/spawn() fails silently without complaining about missing path to electron
 process.env.PATH = process.env.PATH + ':/usr/local/bin/'
 
-scriptUtil
-  .executeCmd({}, 'mkdir', ['-p', 'reports'])
-  .then(() => {
-    if (fs.existsSync('cypress-coverage/coverage-final.json'))
-      scriptUtil.executeCmd(
-        {},
-        'cp',
-        'cypress-coverage/coverage-final.json reports/from-cypress.json'.split(
-          ' '
-        )
-      )
-  })
 
-  .then(() => {
-    if (fs.existsSync('jest-coverage/coverage-final.json'))
-      scriptUtil.executeCmd({}, 'cp', [
-        'jest-coverage/coverage-final.json',
-        'reports/from-jest.json',
-      ])
-  })
+async function executeScript() {
+  try {
+    // Create directory if it does not exist
+    await fsExtra.ensureDir('reports')
 
-  .then(() => scriptUtil.executeCmd({}, 'npx', ['nyc', 'merge', 'reports']))
-  .then(() =>
-    scriptUtil.executeCmd({}, 'mv', ['coverage.json', '.nyc_output/out.json'])
-  )
-  .then(() =>
+    if (fsExtra.existsSync('cypress-coverage/coverage-final.json')) {
+      await fsExtra.copy('cypress-coverage/coverage-final.json', 'reports/from-cypress.json')
+    }
+
+    if (fsExtra.existsSync('jest-coverage/coverage-final.json')) {
+      await fsExtra.copy('jest-coverage/coverage-final.json', 'reports/from-jest.json')
+    }
+
+    scriptUtil.executeCmd({}, 'npx', ['nyc', 'merge', 'reports'])
+
+    await fsExtra.move('coverage.json', '.nyc_output/out.json', { overwrite: true });
+
     scriptUtil.executeCmd(
       {},
       'npx',
@@ -55,13 +48,14 @@ scriptUtil
         ' '
       )
     )
-  )
-  .then(() =>
+
     console.log(
       `✅ Please find the combined report (Jest & Cypress) at ./coverage/lcov-report/index.html`
     )
-  )
 
-  .catch((err) => {
+  } catch (err) {
     console.log(err)
-  })
+  }
+}
+
+executeScript()
