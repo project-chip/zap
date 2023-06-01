@@ -15,13 +15,7 @@ limitations under the License.
 -->
 
 <template>
-  <div>
-    <q-btn
-      v-if="this.$store.state.zap.showDevTools"
-      outline
-      @click="showEnableAllClustersDialog = true"
-      label="Enable All Clusters"
-    />
+  <div class="row justify-center">
     <q-table
       :rows="clusters"
       :columns="columns"
@@ -29,21 +23,17 @@ limitations under the License.
       :rows-per-page-options="[0]"
       hide-pagination
       row-key="id"
+      class="col-12"
       flat
-      square
-      bordered
-      table-header-class="section-header"
     >
       <template v-slot:body="props">
-        <q-tr
-          :props="props"
-          :class="
-            isClusterEnabled(props.row.id)
-              ? 'text-weight-bolder'
-              : 'text-weight-regular'
-          "
-        >
-          <q-td key="status" :props="props" class="q-px-none">
+        <q-tr :props="props">
+          <q-td
+            key="status"
+            :props="props"
+            class="q-px-none"
+            :class="isClusterEnabled(props.row.id) ? '' : ' disabled-cluster'"
+          >
             <q-icon
               v-show="doesClusterHaveAnyWarnings(props.row)"
               name="warning"
@@ -114,16 +104,33 @@ limitations under the License.
               </div>
             </q-popup-edit>
           </q-td>
-          <q-td key="label" :props="props" auto-width>
+          <q-td
+            key="label"
+            :props="props"
+            auto-width
+            :class="isClusterEnabled(props.row.id) ? '' : ' disabled-cluster'"
+          >
             {{ props.row.label }}
           </q-td>
-          <q-td key="requiredCluster" :props="props">
+          <q-td
+            key="requiredCluster"
+            :props="props"
+            :class="isClusterEnabled(props.row.id) ? '' : ' disabled-cluster'"
+          >
             {{ isClusterRequired(props.row.id) }}
           </q-td>
-          <q-td key="clusterId" :props="props">
+          <q-td
+            key="clusterId"
+            :props="props"
+            :class="isClusterEnabled(props.row.id) ? '' : ' disabled-cluster'"
+          >
             {{ asHex(props.row.code, 4) }}
           </q-td>
-          <q-td key="manufacturerId" :props="props">
+          <q-td
+            key="manufacturerId"
+            :props="props"
+            :class="isClusterEnabled(props.row.id) ? '' : ' disabled-cluster'"
+          >
             {{
               props.row.manufacturerCode
                 ? asHex(props.row.manufacturerCode, 4)
@@ -143,21 +150,34 @@ limitations under the License.
               @update:model-value="handleClusterSelection(props.row.id, $event)"
             />
           </q-td>
-          <q-td key="configure" :props="props">
+          <q-td
+            key="configure"
+            :props="props"
+            :class="isClusterEnabled(props.row.id) ? '' : ' disabled-cluster'"
+          >
             <q-btn
               flat
               class="v-step-9"
               :color="isClusterEnabled(props.row.id) ? 'primary' : 'grey'"
               dense
               :disable="!isClusterEnabled(props.row.id)"
-              icon="settings"
+              icon="o_settings"
               @click="selectCluster(props.row)"
               to="/cluster"
+              :id="domainName + '-' + props.row.id"
             />
           </q-td>
         </q-tr>
       </template>
     </q-table>
+    <q-btn
+      v-if="this.$store.state.zap.showDevTools"
+      @click="showEnableAllClustersDialog = true"
+      label="Enable All Clusters"
+      color="primary"
+      class="col-3"
+      rounded
+    />
     <q-dialog
       v-model="showEnableAllClustersDialog"
       class="background-color:transparent"
@@ -473,5 +493,20 @@ export default {
 .bar {
   background-color: $grey-4;
   padding: 15px 15px 15px 15px;
+}
+.q-table th,
+.q-table td {
+  padding: 5px;
+  background-color: inherit;
+  text-align: center;
+}
+.q-table thead th {
+  border-color: rgba(173, 173, 173, 1);
+}
+.q-table tbody td {
+  border-style: dashed !important;
+}
+.disabled-cluster {
+  opacity: 0.3 !important;
 }
 </style>

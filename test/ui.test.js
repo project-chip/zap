@@ -37,14 +37,14 @@ import ZclConfiguratorLayout from '../src/layouts/ZclConfiguratorLayout.vue'
 import Error404 from '../src/pages/ErrorPage404.vue'
 import Preference from '../src/pages/PreferencePage.vue'
 import Notifications from '../src/pages/NotificationsPage.vue'
-import PreferenceGeneration from '../src/pages/PreferenceGeneration.vue'
-import PreferenceUser from '../src/pages/PreferenceUser.vue'
-import PreferencePackage from '../src/pages/PreferencePackage.vue'
+import PreferenceGeneration from '../src/pages/preferences/PreferenceGeneration.vue'
+import PreferenceUser from '../src/pages/preferences/PreferenceUser.vue'
+import PreferencePackage from '../src/pages/preferences/PreferencePackage.vue'
 import ZclSettings from '../src/pages/ZclSettings.vue'
 import UcComponentSetup from '../src/components/UcComponentSetup.vue'
 import ZclCustomZclView from '../src/components/ZclCustomZclView.vue'
-import About from '../src/pages/AboutPage.vue'
-import ZclLayout from '../src/layouts/ZclLayout.vue'
+import About from '../src/pages/preferences/AboutPage.vue'
+import MainLayout from '../src/layouts/MainLayout.vue'
 
 import { timeout } from './test-util.js'
 import ZapStore from '../src/store/index.js'
@@ -199,14 +199,14 @@ describe('Component mounting test', () => {
     timeout.short()
   )
   test(
-    'ZclLayout',
+    'MainLayout',
     () => {
-      const wrapper = shallowMount(ZclLayout, {
+      const wrapper = shallowMount(MainLayout, {
         global: {
           plugins: [ZapStore()],
         },
       })
-      expect(wrapper.html().length).toBeGreaterThan(90)
+      expect(wrapper.html().length).toBeGreaterThan(60)
     },
     timeout.short()
   )
@@ -230,7 +230,7 @@ describe('Component mounting test', () => {
           plugins: [ZapStore()],
         },
       })
-      expect(wrapper.html().length).toBeGreaterThan(100)
+      expect(wrapper.html().length).toBeGreaterThan(50)
     },
     timeout.short()
   )

@@ -14,9 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <template>
-  <div>
-    <div class="text-h4 q-mb-md">User interface settings</div>
-    <q-separator spaced="md" />
+  <PreferencePageLayout>
+    <template #title> User interface settings</template>
+
     <q-toggle
       class="q-mr-sm q-mt-lg q-mb-lg"
       label="Enable dark theme"
@@ -37,15 +37,24 @@ limitations under the License.
     >
       <q-tooltip> Enable Dev Tools tab </q-tooltip>
     </q-toggle>
-    <q-input @input="setPath" v-model="localPath" label="Last file location" />
-  </div>
+    <br />
+    <div class="row w-full">
+      <div class="q-my-auto q-pr-sm">Last file location</div>
+      <q-input dense @input="setPath" v-model="localPath" label="Browse" />
+    </div>
+  </PreferencePageLayout>
 </template>
 <script>
-import * as storage from '../util/storage.js'
-import rendApi from '../../src-shared/rend-api.js'
-const observable = require('../util/observable.js')
+import * as storage from '../../util/storage.js'
+import rendApi from '../../../src-shared/rend-api.js'
+const observable = require('../../util/observable.js')
+import PreferencePageLayout from '../../layouts/PreferencePageLayout.vue'
+
 export default {
   name: 'PreferenceUser',
+  components: {
+    PreferencePageLayout,
+  },
   data() {
     return {
       localtheme: this.$q.dark.isActive,

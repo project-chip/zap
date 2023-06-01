@@ -18,10 +18,10 @@ describe('Check theme functionality', () => {
     'Preference: set light theme',
     { retries: { runMode: 2, openMode: 2 } },
     () => {
-      cy.get('#preference').click()
+      cy.get('#Settings').click()
+      cy.wait(500)
       cy.get('#darkTheme').find('input').uncheck({ force: true })
-      cy.get('body').should('have.css', 'background-color', 'rgba(0, 0, 0, 0)')
-      cy.get('[data-test="go-back-button"]').click()
+      cy.get('body').should('have.class', 'body--light')
     }
   )
 
@@ -29,17 +29,15 @@ describe('Check theme functionality', () => {
     'Preference: set dark theme',
     { retries: { runMode: 2, openMode: 2 } },
     () => {
-      cy.get('#preference').click()
+      cy.get('#Settings').click()
+      cy.wait(500)
       cy.get('#darkTheme').find('input').check({ force: true })
-      cy.get('body').should('have.css', 'background-color', 'rgb(39, 40, 33)')
-      cy.get('[data-test="go-back-button"]').click()
-
+      cy.get('body').should('have.class', 'body--dark')
     }
   )
 
   it('RendererApi: set light theme', () => {
     cy.rendererApi(rendApi.id.setDarkTheme, 'false')
-    cy.get('body').should('have.css', 'background-color', 'rgba(0, 0, 0, 0)')
+    cy.get('body').should('have.class', 'body--light')
   })
-
 })

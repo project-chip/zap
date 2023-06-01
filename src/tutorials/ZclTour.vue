@@ -232,7 +232,7 @@ export default {
         this.$store.commit('zap/triggerExpanded', true)
         document
           .getElementsByClassName(
-            'q-select__dropdown-icon q-icon mdi mdi-menu-down'
+            ' q-icon notranslate material-icons q-expansion-item__toggle-icon'
           )[1]
           .click()
         resolve()
@@ -242,7 +242,7 @@ export default {
       return new Promise((resolve) => {
         document
           .getElementsByClassName(
-            'q-select__dropdown-icon q-icon mdi mdi-menu-down'
+            ' q-icon material-icons q-select__dropdown-icon'
           )[0]
           .click()
         resolve()
@@ -252,9 +252,11 @@ export default {
     comeBackToHomePage() {
       return new Promise((resolve) => {
         if (this.$route.path !== '/') {
-          this.$router.push({ name: 'Home' }).then(() => {
+          this.$router.push('/').then(() => {
             this.$store.commit('zap/triggerExpanded', true)
-            resolve()
+            setTimeout(() => {
+              resolve()
+            }, 1000)
           })
         } else {
           resolve()
@@ -278,8 +280,10 @@ export default {
                 this.$store.state.zap.domains[0]
               )
             })
-          this.$router.push({ name: 'cluster' }).then(() => {
-            resolve()
+          this.$router.push('/cluster').then(() => {
+            setTimeout(() => {
+              resolve()
+            }, 1000)
           })
         } else {
           resolve()
@@ -304,11 +308,11 @@ export default {
     openCommandsTabInCluster() {
       return new Promise((resolve) => {
         if (this.$route.path === '/') {
-          this.$router.push({ name: 'cluster' }).then(() => {
+          this.$router.push('/cluster').then(() => {
             setTimeout(() => {
               this.$store.commit('zap/openReportTabInCluster', 'commands')
               resolve()
-            }, 200)
+            }, 1000)
           })
         } else {
           this.$store.commit('zap/openReportTabInCluster', 'commands')
@@ -323,7 +327,7 @@ export default {
       return new Promise((resolve) => {
         if (this.$route.path !== '/') {
           this.$store.commit('zap/openReportTabInCluster', 'attributes')
-          this.$router.push({ name: 'Home' }).then(() => {
+          this.$router.push('/').then(() => {
             resolve()
           })
         } else {

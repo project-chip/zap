@@ -31,7 +31,7 @@ describe('Testing attribute search', () => {
   it('Search for application', () => {
     cy.fixture('data').then((data) => {
       cy.get(
-        '.q-py-none > .q-field > .q-field__inner > .q-field__control > .q-field__control-container > input'
+        '.col-auto > .q-field > .q-field__inner > .q-field__control > .q-field__control-container > input'
       )
         .clear({ force: true })
         .type(data.searchString1, { force: true })

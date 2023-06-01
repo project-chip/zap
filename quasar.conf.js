@@ -12,7 +12,7 @@ module.exports = configure(function (ctx) {
       router: 'src/router',
       store: 'src/store',
       indexHtmlTemplate: 'src/index.template.html',
-      electronMain: 'src-electron/ui/main-ui.js',
+      electronMain: 'src-electron/ui/main-ui',
     },
 
     // app boot file (/src/boot)
@@ -25,6 +25,8 @@ module.exports = configure(function (ctx) {
 
     // https://github.com/quasarframework/quasar/tree/dev/extras
     extras: [
+      'material-icons', // optional, you are not bound to it
+      'material-icons-outlined', // optional, you are not bound to it
       // 'ionicons-v4',
       'mdi-v4',
       // 'fontawesome-v5',
@@ -33,12 +35,11 @@ module.exports = configure(function (ctx) {
       // 'roboto-font-latin-ext', // this or either 'roboto-font', NEVER both!
 
       'roboto-font', // optional, you are not bound to it
-      'material-icons', // optional, you are not bound to it
     ],
 
     // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-framework
     framework: {
-      iconSet: 'mdi-v4', // Quasar icon set
+      iconSet: 'material-icons', // Quasar icon set
       lang: 'en-US', // Quasar language pack
 
       // Possible values for "all":
@@ -101,7 +102,7 @@ module.exports = configure(function (ctx) {
 
     // animations: 'all', // --- includes all animations
     // https://quasar.dev/options/animations
-    animations: [],
+    animations: ['fadeInLeft', 'fadeOutLeft'],
 
     // https://quasar.dev/quasar-cli/developing-ssr/configuring-ssr
     ssr: {

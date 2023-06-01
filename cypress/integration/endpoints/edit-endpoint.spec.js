@@ -16,12 +16,14 @@ describe('Testing Editing endpoints', () => {
     })
   })
   it('edit endpoint', { retries: { runMode: 2, openMode: 2 } }, () => {
-    cy.get('[data-test="edit-endpoint"]').click()
-    cy.get(
-      '.q-form > .q-select > .q-field__inner > .q-field__control > .q-field__control-container'
-    ).click()
+    cy.get('[data-test="edit-endpoint"]').last().click()
+
     cy.fixture('data').then((data) => {
-      cy.get('div').contains(data.endpoint2).click()
+      cy.get('[data-test="select-endpoint-input"]')
+        .click()
+        .type(data.endpoint2.substring(0, 5), { force: true })
+      cy.wait(500)
+      cy.get('div').contains(data.endpoint2).click({ force: true })
     })
     cy.get('button').contains('Save').click()
   })

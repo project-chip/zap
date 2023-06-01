@@ -34,6 +34,9 @@ limitations under the License.
 import { defineComponent } from 'vue'
 import { QSpinnerGears } from 'quasar'
 import ZclTour from './tutorials/ZclTour.vue'
+
+// import VueTour from './tutorials/VueTour.vue'
+
 import CommonMixin from './util/common-mixin'
 const rendApi = require(`../src-shared/rend-api.js`)
 const restApi = require(`../src-shared/rest-api.js`)
@@ -90,6 +93,11 @@ export default defineComponent({
   computed: {
     showExceptionIcon() {
       return this.$store.state.zap.showExceptionIcon
+    },
+    uiThemeCategory: {
+      get() {
+        return this.$store.state.zap.selectedZapConfig?.zclProperties.category
+      },
     },
   },
   methods: {
@@ -178,6 +186,15 @@ export default defineComponent({
         this.$store.dispatch('zap/updateUcComponentState', resp)
       })
     },
+    addClassToBody() {
+      if (this.uiThemeCategory === 'zigbee') {
+        document.body.classList.remove('matter')
+        document.body.classList.add('zigbee')
+      } else {
+        document.body.classList.remove('zigbee')
+        document.body.classList.add('matter')
+      }
+    },
   },
   created() {
     window[rendApi.GLOBAL_SYMBOL_EXECUTE](
@@ -185,21 +202,50 @@ export default defineComponent({
       storage.getItem(rendApi.storageKey.isDarkThemeActive)
     )
     if (this.isZapConfigSelected != true) {
-      this.$router.push({ path: '/login' })
+      this.$router.push({ path: '/config' })
     } else {
       this.$router.push({ path: '/' })
       this.getAppData()
     }
   },
+  mounted() {
+    this.addClassToBody()
+  },
+  unmounted() {
+    if (this.uiThemeCategory === 'zigbee') {
+      document.body.classList.remove('zigbee')
+    } else {
+      document.body.classList.remove('matter')
+    }
+  },
   watch: {
     isZapConfigSelected(val) {
       if (val != true) {
-        this.$router.push({ path: '/login' })
+        this.$router.push({ path: '/config' })
       } else {
         this.$router.push({ path: '/' })
         this.getAppData()
       }
     },
+    uiThemeCategory() {
+      this.addClassToBody()
+    },
   },
 })
 </script>
+<style lang="scss" scoped>
+.slide-left-leave-active,
+.slide-left-enter-active {
+  transition: all 0.25s ease-out;
+}
+
+.slide-left-enter-from {
+  opacity: 0;
+  transform: translateX(-100px);
+}
+
+.slide-left-leave-to {
+  opacity: 0;
+  transform: translateX(-100px);
+}
+</style>

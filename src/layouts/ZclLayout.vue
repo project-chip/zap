@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <template>
-  <div class="q-pa-md dark">
+  <q-page>
     <q-dialog v-model="zclDialogFlag">
       <q-card>
         <q-card-section>
@@ -27,7 +27,7 @@ limitations under the License.
       </q-card>
     </q-dialog>
     <div class="q-gutter-y-md height: 10vh">
-      <q-toolbar class="shadow-2" v-if="this.$store.state.zap.debugNavBar">
+      <!-- <q-toolbar class="shadow-2" v-if="this.$store.state.zap.debugNavBar">
         <q-tabs flat v-model="tab">
           <q-tab
             v-if="this.$store.state.zap.showDevTools"
@@ -74,7 +74,7 @@ limitations under the License.
         <q-btn flat @click="homeDialog = !homeDialog" icon="mdi-alert-circle">
           <q-tooltip> About </q-tooltip>
         </q-btn>
-      </q-toolbar>
+      </q-toolbar> -->
       <q-layout
         view="hHh Lpr lff"
         container
@@ -87,6 +87,7 @@ limitations under the License.
       >
         <q-page-container>
           <q-tab-panels v-model="tab" animated>
+            <!-- dev tools panel-->
             <q-tab-panel name="general">
               <q-scroll-area style="height: 80vh">
                 <q-expansion-item
@@ -120,7 +121,9 @@ limitations under the License.
                 </q-expansion-item>
               </q-scroll-area>
             </q-tab-panel>
-            <q-tab-panel :name="restApi.uiMode.ZIGBEE" class="q-pa-none">
+
+            <!-- zcl panel-->
+            <q-tab-panel :name="restApi.uiMode.ZIGBEE">
               <zcl-configurator-layout />
             </q-tab-panel>
           </q-tab-panels>
@@ -173,7 +176,7 @@ limitations under the License.
     <q-dialog v-model="homeDialog">
       <About />
     </q-dialog>
-  </div>
+  </q-page>
 </template>
 
 <script>
@@ -182,7 +185,7 @@ import Exceptions from '../components/ZclExceptions.vue'
 import ZclInformationSetup from '../components/ZclInformationSetup.vue'
 import ZclConfiguratorLayout from './ZclConfiguratorLayout.vue'
 import SqlQuery from '../components/SqlQuery.vue'
-import About from '../pages/AboutPage.vue'
+import About from '../pages/preferences/AboutPage.vue'
 import CommonMixin from '../util/common-mixin'
 import { startTour } from '../boot/tour'
 
