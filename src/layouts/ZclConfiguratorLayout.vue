@@ -36,7 +36,7 @@ limitations under the License.
           </q-toolbar-title>
           <q-toolbar-title v-on:click.ctrl="showVersion" v-else>
             Cluster Configurator:
-            {{ zclProperties != undefined ? description : '' }}
+            {{ zclProperties.description }}
           </q-toolbar-title>
           <q-btn
             class="hidden"
@@ -134,6 +134,11 @@ const commonUrl = require('../../src-shared/common-url.js')
 export default {
   name: 'ZclConfiguratorLayout',
   methods: {
+    getPackages() {
+      this.$serverGet(restApi.uri.notification).then((resp) => {
+        zclProperties.description = resp[0].description
+      })
+    },
     collapseOnResize(e) {
       if (e.currentTarget.innerWidth < 750) {
         this.miniState = true
@@ -226,8 +231,7 @@ export default {
     },
     description: {
       get() {
-        return this.$store.state.zap.selectedZapConfig?.zclProperties
-          .description
+        return getPackages()
       },
     },
     miniState: {
