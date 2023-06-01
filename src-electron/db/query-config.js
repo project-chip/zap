@@ -524,9 +524,12 @@ async function insertEndpointType(
   db,
   sessionId,
   name,
-  deviceTypeRefs,
+  deviceTypeRef,
   doTransaction = true
 ) {
+  let deviceTypeRefs = Array.isArray(deviceTypeRef)
+    ? deviceTypeRef
+    : [deviceTypeRef]
   // Insert endpoint type
   let newEndpointTypeId = await dbApi.dbInsert(
     db,

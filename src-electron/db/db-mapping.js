@@ -441,7 +441,7 @@ exports.map = {
       sessionRef: x.SESSION_REF,
       name: x.NAME,
       deviceTypeRef: x.DEVICE_TYPE_REF,
-      deviceTypes: x.deviceTypes,
+      deviceTypes: x.deviceTypes, // Populated outside the sql query mapping.
     }
   },
   endpointTypeCluster: (x) => {
