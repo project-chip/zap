@@ -42,7 +42,7 @@
       "path": "cluster_iterator.zapt",
       "name": "Cluster iterator.",
       "output": "cluster_out_{define:tolowercase}.out",
-      "iterator": "availableCluster"
+      "iterator": "selectedCluster"
     }
   ]
 }
