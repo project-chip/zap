@@ -56,3 +56,4 @@ This software is licensed under [Apache 2.0 license](LICENSE.txt).
 - [API](docs/api.md)
 - [Coding standard](docs/coding-standard.md)
 - [Notifications](docs/notifications.md)
+- [Install ZAP from source on Windows](docs/ZAP-on-Windows.md)

@@ -40,7 +40,7 @@
     "test:e2e-matter": "node src-script/zap-uitest.js open matter",
     "test:e2e-matter-ci": "node src-script/zap-uitest.js run matter",
     "report": "node src-script/zap-combine-reports.js",
-    "postinstall": "exec electron-builder install-app-deps && husky install && npm rebuild canvas --update-binary && npm run version-stamp",
+    "postinstall": "electron-builder install-app-deps && husky install && npm rebuild canvas --update-binary && npm run version-stamp",
     "buildAndPack:win": "npm run build && npm run pack:win",
     "buildAndPack:mac": "npm run build && npm run pack:mac && cp apack.json dist/mac",
     "buildAndPack:linux": "npm run build && npm run pack:linux",
