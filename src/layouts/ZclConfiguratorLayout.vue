@@ -135,7 +135,7 @@ export default {
   name: 'ZclConfiguratorLayout',
   methods: {
     getPackages() {
-      this.$serverGet(restApi.uri.notification).then((resp) => {
+      this.$serverGet(restApi.uri.packages).then((resp) => {
         zclProperties.description = resp[0].description
       })
     },
@@ -229,11 +229,6 @@ export default {
         return this.$store.state.zap.selectedZapConfig?.zclProperties.category
       },
     },
-    description: {
-      get() {
-        return getPackages()
-      },
-    },
     miniState: {
       get() {
         return this.$store.state.zap.miniState
@@ -271,6 +266,11 @@ export default {
       globalOptionsDialog: false,
       zclExtensionDialog: false,
       notification: '',
+    }
+  },
+  created() {
+    if (this.$serverGet != null) {
+      this.getPackages()
     }
   },
 
