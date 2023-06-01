@@ -26,7 +26,7 @@ const promisedHandlebars = require('promised-handlebars')
 const defaultHandlebars = require('handlebars')
 const notification = require('../db/query-notification.js')
 const dbEnum = require('../../src-shared/db-enum')
-const querySessionZcl = require('../db/query-session-zcl')
+const templateIterators = require('./template-iterators')
 
 const includedHelpers = [
   require('./helper-zcl'),
@@ -123,24 +123,12 @@ async function produceIterativeContent(
     disableDeprecationWarnings: false,
   }
 ) {
-  let iterationArray = []
+  let iterationArray = await templateIterators.getIterativeObject(
+    singleTemplatePkg.iterator,
+    db,
+    sessionId
+  )
   let res = []
-  switch (singleTemplatePkg.iterator) {
-    case dbEnum.iteratorValues.selectedCluster:
-      // Iterate over all selected clusters
-      break
-    case dbEnum.iteratorValues.availableCluster:
-      // Iterate over all available clusters
-      iterationArray = await querySessionZcl.selectAllSessionClusters(
-        db,
-        sessionId
-      )
-      break
-    default:
-      throw new Error(
-        `Invalid value for iterator: ${singleTemplatePkg.iterator}`
-      )
-  }
   for (let it of iterationArray) {
     options.overrideKey = createIterableFileName(singleTemplatePkg.category, it)
     options.initialContext = it

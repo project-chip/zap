@@ -1,8 +1,12 @@
 {
   "name": "Meta test templates",
   "version": "meta-test",
-  "helpers": ["meta-helper"],
-  "categories": ["meta"],
+  "helpers": [
+    "meta-helper"
+  ],
+  "categories": [
+    "meta"
+  ],
   "options": {
     "generator": {
       "appendDirectory": "zap-generated"
