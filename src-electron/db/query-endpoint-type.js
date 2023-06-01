@@ -47,24 +47,54 @@ async function deleteEndpointType(db, id) {
  * @returns promise that resolves into rows in the database table.
  */
 async function selectAllEndpointTypes(db, sessionId) {
-  let rows = await dbApi.dbAll(
-    db,
-    `
+  let endpointTypes = await dbApi
+    .dbAll(
+      db,
+      `
 SELECT
   ENDPOINT_TYPE.ENDPOINT_TYPE_ID,
   ENDPOINT_TYPE.NAME,
-  ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_REF,
   ENDPOINT_TYPE.SESSION_REF
 FROM
   ENDPOINT_TYPE
-INNER JOIN
-  ENDPOINT_TYPE_DEVICE
-ON
-  ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF
 WHERE SESSION_REF = ? ORDER BY NAME`,
-    [sessionId]
-  )
-  return rows.map(dbMapping.map.endpointType)
+      [sessionId]
+    )
+    .then((rows) => rows.map(dbMapping.map.endpointType))
+
+  // Select deviceTypes for each endpointType
+  for (let et of endpointTypes) {
+    et.deviceTypeRef = await dbApi
+      .dbAll(
+        db,
+        `
+        SELECT
+          DEVICE_TYPE.DEVICE_TYPE_ID,
+          DEVICE_TYPE.CODE,
+          DEVICE_TYPE.NAME,
+          DEVICE_TYPE.PROFILE_ID
+        FROM
+          DEVICE_TYPE
+        LEFT JOIN
+          ENDPOINT_TYPE_DEVICE
+        ON
+          ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_REF = DEVICE_TYPE.DEVICE_TYPE_ID
+        INNER JOIN
+          ENDPOINT_TYPE
+        ON
+          ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF
+        WHERE
+          ENDPOINT_TYPE.SESSION_REF = ?
+          AND ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF = ?
+        ORDER BY
+          DEVICE_TYPE.NAME,
+          DEVICE_TYPE.CODE,
+          DEVICE_TYPE.PROFILE_ID`,
+        [sessionId, et.endpointTypeId]
+      )
+      .then((rows) => rows.map((x) => x.DEVICE_TYPE_ID))
+  }
+  return endpointTypes
 }
 
 /**
@@ -89,14 +119,6 @@ SELECT
   ENDPOINT_TYPE.ENDPOINT_TYPE_ID
 FROM
   ENDPOINT_TYPE
-INNER JOIN
-  ENDPOINT_TYPE_DEVICE
-ON
-  ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF
-LEFT JOIN
-  DEVICE_TYPE
-ON
-  ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_REF = DEVICE_TYPE.DEVICE_TYPE_ID
 WHERE
   ENDPOINT_TYPE.SESSION_REF = ?
 ORDER BY ENDPOINT_TYPE.NAME`,
@@ -133,14 +155,6 @@ INNER JOIN
   ENDPOINT
 ON
   ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT.ENDPOINT_TYPE_REF
-INNER JOIN
-  ENDPOINT_TYPE_DEVICE
-ON
-  ENDPOINT_TYPE.ENDPOINT_TYPE = ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF
-LEFT JOIN
-  DEVICE_TYPE
-ON
-  ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_REF = DEVICE_TYPE.DEVICE_TYPE_ID
 WHERE
   ENDPOINT_TYPE.SESSION_REF = ?
 ORDER BY ENDPOINT_TYPE.NAME`,
@@ -157,26 +171,46 @@ ORDER BY ENDPOINT_TYPE.NAME`,
  * @returns endpoint type
  */
 async function selectEndpointType(db, id) {
-  return dbApi
+  let endpointTypeId = await dbApi
     .dbGet(
       db,
       `
       SELECT
         ENDPOINT_TYPE.ENDPOINT_TYPE_ID,
         ENDPOINT_TYPE.SESSION_REF,
-        ENDPOINT_TYPE.NAME,
-        ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_REF
+        ENDPOINT_TYPE.NAME
       FROM
         ENDPOINT_TYPE
-      INNER JOIN
-        ENDPOINT_TYPE_DEVICE
-      ON
-        ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF
       WHERE
         ENDPOINT_TYPE_ID = ?`,
       [id]
     )
     .then(dbMapping.map.endpointType)
+
+  // Device types for endpoint
+  endpointType.deviceTypes = await dbApi
+    .dbAll(
+      db,
+      `
+    SELECT
+      DEVICE_TYPE.DEVICE_TYPE_ID
+    FROM
+      DEVICE_TYPE
+    LEFT JOIN
+      ENDPOINT_TYPE_DEVICE
+    ON
+      ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_REF = DEVICE_TYPE.DEVICE_TYPE_ID
+    WHERE
+      ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF = ?
+    ORDER BY
+      DEVICE_TYPE.NAME,
+      DEVICE_TYPE.CODE,
+      DEVICE_TYPE.PROFILE_ID`,
+      [id]
+    )
+    .then((rows) => rows.map((row) => row.DEVICE_TYPE_ID))
+
+  return endpointType
 }
 
 /**
