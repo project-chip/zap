@@ -54,7 +54,7 @@ async function executeScript() {
     )
 
   } catch (err) {
-    console.log(err)
+    console.log("Error in generating reports at zap-combine-reports.js file and executeScript function: " + err)
   }
 }
 

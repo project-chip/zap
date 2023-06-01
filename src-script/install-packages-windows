@@ -1,4 +1,0 @@
-# Packages you have to install on Windows to get source build to compile via npm install.
-# Make sure Chocolatey is installed before running the script
-
-choco install pkgconfiglite
