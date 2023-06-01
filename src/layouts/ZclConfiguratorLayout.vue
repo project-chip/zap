@@ -169,6 +169,7 @@ export default {
   mounted() {
     this.$store.dispatch('zap/clearLastSelectedDomain')
     window.addEventListener('resize', this.collapseOnResize)
+    this.getPackages()
   },
   computed: {
     displayButton() {
@@ -266,11 +267,6 @@ export default {
       globalOptionsDialog: false,
       zclExtensionDialog: false,
       notification: '',
-    }
-  },
-  created() {
-    if (this.$serverGet != null) {
-      this.getPackages()
     }
   },
 
