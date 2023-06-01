@@ -181,6 +181,9 @@ ORDER BY
         [sessionId, et.endpointTypeId]
       )
       .then((rows) => rows.map(dbMapping.map.deviceType))
+
+    // Loading endpointTypeRef as primary endpointType for backwards compatibility
+    et.deviceTypeRef = et.deviceTypes[0]
   }
   return endpointTypes
 }

@@ -171,7 +171,7 @@ ORDER BY ENDPOINT_TYPE.NAME`,
  * @returns endpoint type
  */
 async function selectEndpointType(db, id) {
-  let endpointTypeId = await dbApi
+  let endpointType = await dbApi
     .dbGet(
       db,
       `
@@ -209,6 +209,9 @@ async function selectEndpointType(db, id) {
       [id]
     )
     .then((rows) => rows.map((row) => row.DEVICE_TYPE_ID))
+
+  // Loading endpointTypeRef as primary endpointType for backwards compatibility
+  endpointType.deviceTypeRef = endpointType.deviceTypes[0]
 
   return endpointType
 }
