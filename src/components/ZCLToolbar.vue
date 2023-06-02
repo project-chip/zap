@@ -9,7 +9,7 @@
     >
       <Transition mode="out-in" name="slide-up">
         <div v-if="$route.fullPath === '/'">
-          <img class="my-auto block logo" :src="getLogo" />
+          <img v-if="getLogo" class="my-auto block logo" :src="getLogo" />
         </div>
 
         <q-btn
@@ -186,13 +186,17 @@ export default {
     },
     getLogo: {
       get() {
-        return (
-          '/' +
-          this.$store.state.zap.selectedZapConfig?.zclProperties.category +
-          '_logo' +
-          (this.$q.dark.isActive ? '_white' : '') +
-          '.svg'
-        )
+        if (this.$store.state.zap.selectedZapConfig?.zclProperties.category) {
+          return (
+            '/' +
+            this.$store.state.zap.selectedZapConfig?.zclProperties.category +
+            '_logo' +
+            (this.$q.dark.isActive ? '_white' : '') +
+            '.svg'
+          )
+        } else {
+          return ''
+        }
       },
     },
   },
