@@ -165,7 +165,7 @@ async function selectEndpointType(db, id) {
 async function selectAllClustersDetailsFromEndpointTypes(
   db,
   endpointTypes,
-  side = null // should be null, 'client' or 'server'
+  side = null // should be null (for either), 'client' or 'server'
 ) {
   let endpointClusterSideFilter = 'ENDPOINT_TYPE_CLUSTER.SIDE IS NOT ""'
   if (side != null) {

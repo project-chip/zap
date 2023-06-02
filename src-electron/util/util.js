@@ -29,7 +29,6 @@ const childProcess = require('child_process')
 const queryPackage = require('../db/query-package.js')
 const queryEndpoint = require('../db/query-endpoint.js')
 const queryEndpointType = require('../db/query-endpoint-type.js')
-const queryConfig = require('../db/query-config.js')
 const queryZcl = require('../db/query-zcl.js')
 const queryCommand = require('../db/query-command.js')
 const querySession = require('../db/query-session.js')
@@ -37,6 +36,7 @@ const dbEnum = require('../../src-shared/db-enum.js')
 const { v4: uuidv4 } = require('uuid')
 const xml2js = require('xml2js')
 const singleInstance = require('single-instance')
+const string = require('./string')
 
 /**
  * Returns the CRC of the data that is passed.
@@ -448,11 +448,17 @@ function createAbsolutePath(relativePath, relativity, zapFilePath) {
       for (let key in process.env) {
         if (Object.prototype.hasOwnProperty.call(process.env, key)) {
           relativePath = relativePath.replaceAll('$' + key, process.env[key])
-          relativePath = relativePath.replaceAll('${' + key + '}', process.env[key])
+          relativePath = relativePath.replaceAll(
+            '${' + key + '}',
+            process.env[key]
+          )
         }
       }
       if (relativePath.indexOf('$') !== -1) {
-        throw new Error('resolveEnvVars: unable to resolve environment variables completely: ' + relativePath)
+        throw new Error(
+          'resolveEnvVars: unable to resolve environment variables completely: ' +
+            relativePath
+        )
       }
   }
   return relativePath
@@ -699,6 +705,40 @@ async function collectJsonData(jsonFile, recursiveLevel = 0) {
   return collectedData
 }
 
+/**
+ * This function receives pattern and data, and it formats pattern
+ * by applyind data to it via it's keys.
+ * For example, if pattern is "{a}" and data.a is 1, then this prints out "1".
+ *
+ * @param {*} pattern
+ * @param {*} data
+ */
+function patternFormat(pattern, data) {
+  let out = pattern
+  for (let key of Object.keys(data)) {
+    let value = data[key]
+    if (value == null) continue
+    out = out.replace(`{${key}}`, value)
+    out = out.replace(`{${key}:hexuppercase}`, value.toString(16).toUpperCase())
+    out = out.replace(`{${key}:hexlowercase}`, value.toString(16).toLowerCase())
+    out = out.replace(`{${key}:tolowercase}`, value.toString().toLowerCase())
+    out = out.replace(`{${key}:touppercase}`, value.toString().toUpperCase())
+    out = out.replace(
+      `{${key}:tocamelcase}`,
+      string.toCamelCase(value.toString())
+    )
+    out = out.replace(
+      `{${key}:tosnakecase}`,
+      string.toSnakeCase(value.toString())
+    )
+    out = out.replace(
+      `{${key}:tosnakecaseallcaps}`,
+      string.toSnakeCaseAllCaps(value.toString())
+    )
+  }
+  return out
+}
+
 exports.createBackupFile = createBackupFile
 exports.checksum = checksum
 exports.ensurePackagesAndPopulateSessionOptions =
@@ -719,3 +759,4 @@ exports.readFileContentAndCrc = readFileContentAndCrc
 exports.duration = duration
 exports.mainOrSecondaryInstance = mainOrSecondaryInstance
 exports.collectJsonData = collectJsonData
+exports.patternFormat = patternFormat

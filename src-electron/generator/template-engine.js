@@ -25,7 +25,7 @@ const fsPromise = require('fs').promises
 const promisedHandlebars = require('promised-handlebars')
 const defaultHandlebars = require('handlebars')
 const notification = require('../db/query-notification.js')
-const dbEnum = require('../../src-shared/db-enum')
+const util = require('../util/util')
 const templateIterators = require('./template-iterators')
 
 const includedHelpers = [
@@ -85,19 +85,6 @@ async function produceCompiledTemplate(hb, singleTemplatePkg) {
   }
 }
 
-function createIterableFileName(filePattern, item) {
-  let out = filePattern
-  for (let key of Object.keys(item)) {
-    let value = item[key]
-    if (value == null) continue
-    out = out.replace(`{${key}}`, value)
-    out = out.replace(`{${key}:hex}`, value.toString(16))
-    out = out.replace(`{${key}:tolowercase}`, value.toString().toLowerCase())
-    out = out.replace(`{${key}:touppercase}`, value.toString().toUpperCase())
-  }
-  return out
-}
-
 /**
  * This function is reached if the template is an "iterative one", meaning
  * it has the iterator set to one of the valid options.
@@ -130,7 +117,7 @@ async function produceIterativeContent(
   )
   let res = []
   for (let it of iterationArray) {
-    options.overrideKey = createIterableFileName(singleTemplatePkg.category, it)
+    options.overrideKey = util.patternFormat(singleTemplatePkg.category, it)
     options.initialContext = it
     let r = await produceContent(
       hb,
