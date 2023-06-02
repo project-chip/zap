@@ -41,6 +41,8 @@ const op_remove = '/rest/clic/component/remove/project/'
 let ucComponentStateReportId: NodeJS.Timeout
 let studioHttpPort: number
 
+const notification = require('../db/query-notification.js')
+
 function projectPath(db: dbTypes.DbType, sessionId: number) {
   return querySession.getSessionKeyValue(
     db,

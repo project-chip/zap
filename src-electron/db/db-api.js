@@ -28,6 +28,7 @@ const util = require('../util/util.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const dbCache = require('./db-cache')
 const dbMapping = require('./db-mapping.js')
+const notification = require('./query-notification.js')
 
 // This is a SQLITE specific thing. With SQLITE databases,
 // we can't have multiple transactions. So this mechanism
@@ -159,6 +160,7 @@ async function dbRemove(db, query, args) {
     db.run(query, args, function (err) {
       if (err) {
         env.logError(`Failed remove: ${query}: ${args}`)
+        notification.setNotification(db, 'ERROR', `Failed remove: ${query}: ${args}`, this.global.sessionId, 2, 0)
         reject(err)
       } else {
         env.logSql('Executed remove', query, args)
@@ -182,6 +184,7 @@ async function dbUpdate(db, query, args) {
     db.run(query, args, function (err) {
       if (err) {
         env.logError(`Failed update: ${query}: ${args}`)
+        notification.setNotification(db, 'ERROR', `Failed update: ${query}: ${args}`, this.global.sessionId, 2, 0)
         reject(err)
       } else {
         env.logSql('Executed update', query, args)
@@ -205,6 +208,7 @@ async function dbInsert(db, query, args) {
     db.run(query, args, function (err) {
       if (err) {
         env.logError(`Failed insert: ${query}: ${args} : ${err}`)
+        notification.setNotification(db, 'ERROR', `Failed insert: ${query}: ${args} : ${err}`, this.global.sessionId, 2, 0)
         reject(err)
       } else {
         env.logSql('Executed insert', query, args)
@@ -228,6 +232,7 @@ async function dbAll(db, query, args) {
     db.all(query, args, (err, rows) => {
       if (err) {
         env.logError(`Failed all: ${query}: ${args} : ${err}`)
+        notification.setNotification(db, 'ERROR', `Failed all: ${query}: ${args} : ${err}`, this.global.sessionId, 2, 0)
         reject(err)
       } else {
         env.logSql('Executed all', query, args)
@@ -250,7 +255,10 @@ async function dbGet(db, query, args, reportError = true) {
   return new Promise((resolve, reject) => {
     db.get(query, args, (err, row) => {
       if (err) {
-        if (reportError) env.logError(`Failed get: ${query}: ${args} : ${err}`)
+        if (reportError) { 
+          env.logError(`Failed get: ${query}: ${args} : ${err}`) 
+          notification.setNotification(db, 'ERROR', `Failed get: ${query}: ${args} : ${err}`, this.global.sessionId, 2, 0)
+        }
         reject(err)
       } else {
         env.logSql('Executed get', query, args)
@@ -490,7 +498,9 @@ async function performSchemaLoad(db, schemaContent) {
       db.exec(schemaContent, (err) => {
         if (err) {
           env.logError('Failed to populate schema')
+          notification.setNotification(db, 'ERROR', `Failed to populate schema`, this.global.sessionId, 2, 0)
           env.logError(err)
+          notification.setNotification(db, 'ERROR', err, this.global.sessionId, 2, 0)
           reject(err)
         }
         resolve()

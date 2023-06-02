@@ -25,6 +25,8 @@ const queryZcl = require('./query-zcl')
 const envConfig = require('../util/env')
 const dbEnum = require('../../src-shared/db-enum.js')
 const dbCache = require('./db-cache')
+const notification = require('./query-notification.js')
+
 
 /**
  * Gathers the data type information of an entry based on data type id along
@@ -244,6 +246,7 @@ async function selectSizeFromType(db, packageIds, value) {
     envConfig.logError(
       'Could not find the size of type: ' + dataType.name + ' : ' + err
     )
+    notification.setNotification(db, 'ERROR', 'Could not find the size of type: ' + dataType.name + ' : ' + err, this.global.sessionId, 2, 0)
   }
 }
 

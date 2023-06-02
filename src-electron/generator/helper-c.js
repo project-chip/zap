@@ -24,6 +24,8 @@ const string = require('../util/string')
 const _ = require('lodash')
 const dbEnum = require('../../src-shared/db-enum.js')
 const envConfig = require('../util/env')
+const notification = require('../db/query-notification.js')
+
 
 /**
  * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
@@ -134,6 +136,7 @@ async function asUnderlyingTypeHelper(dataType, context, packageIds) {
     envConfig.logError(
       'Could not find the underlying type for ' + dataType.name + ' : ' + err
     )
+    notification.setNotification(context.global.db, 'ERROR', 'Could not find the size of type: ' + dataType.name + ' : ' + err, context.global.sessionId, 2, 0)
   }
 }
 

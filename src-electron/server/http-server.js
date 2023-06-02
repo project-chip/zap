@@ -33,6 +33,8 @@ const dbEnum = require('../../src-shared/db-enum.js')
 const watchdog = require('../main-process/watchdog')
 const initialize = require('../rest/initialize')
 const dirtyFlag = require('../util/async-reporting')
+const notification = require('../db/query-notification.js')
+
 
 const restApiModules = [
   require('../rest/admin.js'),
@@ -219,6 +221,7 @@ function userSessionHandler(db, options) {
           }
           studio.sendSessionCreationErrorStatus(db, resp, zapSessionId)
           env.logError(resp)
+          notification.setNotification(db, 'ERROR', resp, result.sessionId, 2, 0)
         })
     }
   }
