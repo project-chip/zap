@@ -1,8 +1,12 @@
 {
   "name": "Meta test templates",
   "version": "meta-test",
-  "helpers": ["meta-helper"],
-  "categories": ["meta"],
+  "helpers": [
+    "meta-helper"
+  ],
+  "categories": [
+    "meta"
+  ],
   "options": {
     "generator": {
       "appendDirectory": "zap-generated"
@@ -33,6 +37,12 @@
       "path": "access.zapt",
       "name": "Access data example",
       "output": "access.out"
+    },
+    {
+      "path": "cluster_iterator.zapt",
+      "name": "Cluster iterator.",
+      "output": "cluster_out_{define:tolowercase}.out",
+      "iterator": "selectedCluster"
     }
   ]
 }
