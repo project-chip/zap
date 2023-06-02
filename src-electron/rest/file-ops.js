@@ -85,6 +85,7 @@ function httpPostFileOpen(db) {
         queryNotification.setNotification(db, "ERROR", errMsg.message, req.zapSessionId, 1)
         studio.sendSessionCreationErrorStatus(db, errMsg.message, req.zapSessionId)
         env.logError(e.message)
+        queryNotification.setNotification(db, 'ERROR', errMsg.message, importResult.sessionId, 2, 0)
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(errMsg)
       }
     } else {
@@ -135,6 +136,7 @@ function httpPostFileSave(db) {
       } catch (err) {
         let msg = `Unable to save project.`
         env.logError(msg, err)
+        queryNotification.setNotification(db, 'ERROR', msg, req.zapSessionId, 2, 0)
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err)
       }
     } else {

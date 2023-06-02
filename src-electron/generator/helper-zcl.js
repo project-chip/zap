@@ -26,6 +26,8 @@ const env = require('../util/env')
 const types = require('../util/types')
 const zclUtil = require('../util/zcl-util')
 const _ = require('lodash')
+const notification = require('../db/query-notification.js')
+
 
 const characterStringTypes = ['CHAR_STRING', 'LONG_CHAR_STRING']
 const octetStringTypes = ['OCTET_STRING', 'LONG_OCTET_STRING']
@@ -1018,6 +1020,8 @@ function as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument
         'Failure in as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present: ' +
           err
       )
+      notification.setNotification(this.global.db, 'ERROR', 'Failure in as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present: ' +
+      err, this.global.sessionId, 2, 0)
     })
 }
 
@@ -1062,6 +1066,7 @@ function as_underlying_zcl_type_if_command_is_not_fixed_length(
     .then((res) => (res ? res + appendString : res))
     .catch((err) => {
       env.logError(err)
+      notification.setNotification(this.global.db, 'ERROR', err, this.global.sessionId, 2, 0)
       throw err
     })
   return templateUtil.templatePromise(this.global, promise)
@@ -1105,7 +1110,8 @@ function command_arguments_total_length(commandId) {
       })
     )
     .catch((err) =>
-      env.logError('Unable to get the length of the command arguments: ' + err)
+      env.logError('Unable to get the length of the command arguments: ' + err),
+      notification.setNotification(this.global.db, 'ERROR', 'Unable to get the length of the command arguments: ' + err, this.global.sessionId, 2, 0)
     )
 }
 
@@ -1230,11 +1236,13 @@ function zcl_command_argument_data_type(type, options) {
         })
         .catch((err) => {
           env.logError(err)
+          notification.setNotification(this.global.db, 'ERROR', err, this.global.sessionId, 2, 0)
           throw err
         })
     )
     .catch((err) => {
       env.logError(err)
+      notification.setNotification(this.global.db, 'ERROR', err, this.global.sessionId, 2, 0)
       throw err
     })
   return templateUtil.templatePromise(this.global, promise)
@@ -1263,6 +1271,7 @@ async function asUnderlyingZclType(type, options) {
     .asUnderlyingZclTypeWithPackageId(type, options, packageIds, this)
     .catch((err) => {
       env.logError(err)
+      notification.setNotification(this.global.db, 'ERROR', err, this.global.sessionId, 2, 0)
       throw err
     })
   return templateUtil.templatePromise(this.global, promise)
@@ -1745,6 +1754,7 @@ function as_underlying_zcl_type_command_argument_always_present(
     .then((res) => (res ? res + appendString : res))
     .catch((err) => {
       env.logError(err)
+      notification.setNotification(this.global.db, 'ERROR', err, this.global.sessionId, 2, 0)
       throw err
     })
   return templateUtil.templatePromise(this.global, promise)
@@ -1847,6 +1857,7 @@ function as_underlying_zcl_type_command_argument_not_always_present_no_presentif
     .then((res) => (res ? res + appendString : res))
     .catch((err) => {
       env.logError(err)
+      notification.setNotification(this.global.db, 'ERROR', err, this.global.sessionId, 2, 0)
       throw err
     })
   return templateUtil.templatePromise(this.global, promise)
@@ -1888,6 +1899,8 @@ function as_underlying_zcl_type_ca_not_always_present_no_presentif(
           'Error in as_underlying_zcl_type_ca_not_always_present_no_presentif ' +
             err
         )
+        notification.setNotification(this.global.db, 'ERROR', 'Error in as_underlying_zcl_type_ca_not_always_present_no_presentif ' +
+        err, this.global.sessionId, 2, 0)
         throw err
       })
     return templateUtil.templatePromise(this.global, promise)
@@ -1992,6 +2005,7 @@ function as_underlying_zcl_type_command_argument_not_always_present_with_present
     .then((res) => (res ? res + appendString : res))
     .catch((err) => {
       env.logError(err)
+      notification.setNotification(this.global.db, 'ERROR', err, this.global.sessionId, 2, 0)
       throw err
     })
   return templateUtil.templatePromise(this.global, promise)
@@ -2033,6 +2047,8 @@ function as_underlying_zcl_type_ca_not_always_present_with_presentif(
           'Error in as_underlying_zcl_type_ca_not_always_present_with_presentif ' +
             err
         )
+        notification.setNotification(this.global.db, 'ERROR', 'Error in as_underlying_zcl_type_ca_not_always_present_with_presentif ' +
+        err, this.global.sessionId, 2, 0)
         throw err
       })
     return templateUtil.templatePromise(this.global, promise)
@@ -2137,6 +2153,7 @@ function as_underlying_zcl_type_command_argument_always_present_with_presentif(
     .then((res) => (res ? res + appendString : res))
     .catch((err) => {
       env.logError(err)
+      notification.setNotification(this.global.db, 'ERROR', err, this.global.sessionId, 2, 0)
       throw err
     })
   return templateUtil.templatePromise(this.global, promise)
@@ -2178,6 +2195,8 @@ function as_underlying_zcl_type_ca_always_present_with_presentif(
           'Error in as_underlying_zcl_type_ca_always_present_with_presentif ' +
             err
         )
+        notification.setNotification(this.global.db, 'ERROR', 'Error in as_underlying_zcl_type_ca_always_present_with_presentif ' +
+        err, this.global.sessionId, 2, 0)
         throw err
       })
     return templateUtil.templatePromise(this.global, promise)
