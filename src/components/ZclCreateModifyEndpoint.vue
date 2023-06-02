@@ -175,13 +175,16 @@ export default {
 
       // Set device types only in edit mode
       this.deviceTypeTmp = deviceTypes
-      this.primaryDeviceTypeTmp = deviceTypes[0] ?? null // TODO set it here from the store
+      this.primaryDeviceTypeTmp = deviceTypes[0] ?? null // First item is the primary device type
     } else {
       this.shownEndpoint.endpointIdentifier = this.getSmallestUnusedEndpointId()
     }
-    const enableMultiDeviceFeatures = true
-    this.enableMultipleDevice = enableMultiDeviceFeatures // TODO make it data driven from the store
-    this.enablePrimaryDevice = enableMultiDeviceFeatures // TODO make it data driven from the store
+
+    const enableMultiDeviceFeatures =
+      this.$store.state.zap.selectedZapConfig?.zclProperties?.category ===
+      'matter'
+    this.enableMultipleDevice = enableMultiDeviceFeatures
+    this.enablePrimaryDevice = enableMultiDeviceFeatures
   },
   data() {
     return {
@@ -291,19 +294,19 @@ export default {
         const newPrimaryDeviceType =
           Array.isArray(value) && value.length > 0 ? value[0] : null
         if (this.enablePrimaryDevice) {
-          if (this.primaryDeviceType === null) {
-            this.primaryDeviceType = newPrimaryDeviceType
+          if (this.primaryDeviceTypeTmp === null) {
+            this.primaryDeviceTypeTmp = newPrimaryDeviceType
           } else {
             if (
               !value.includes(
                 (deviceType) =>
                   deviceType.deviceTypeRef ===
-                    this.primaryDeviceType.deviceTypeRef &&
+                    this.primaryDeviceTypeTmp.deviceTypeRef &&
                   deviceType.deviceIdentifier ===
-                    this.primaryDeviceType.deviceIdentifier
+                    this.primaryDeviceTypeTmp.deviceIdentifier
               )
             ) {
-              this.primaryDeviceType = newPrimaryDeviceType
+              this.primaryDeviceTypeTmp = newPrimaryDeviceType
             }
           }
         }
@@ -314,9 +317,16 @@ export default {
         return this.primaryDeviceTypeTmp
       },
       set(value) {
-        this.primaryDeviceTypeTmp = value
-
-        // TODO write back to the store and backend here
+        if (this.primaryDeviceTypeTmp?.deviceTypeRef == value?.deviceTypeRef) {
+          return
+        }
+        const newPrimaryDevice = value
+        let tempDeviceType = this.deviceType
+        tempDeviceType = tempDeviceType.filter(
+          (d) => d.deviceTypeRef !== newPrimaryDevice.deviceTypeRef
+        )
+        tempDeviceType.unshift(newPrimaryDevice)
+        this.deviceType = tempDeviceType
       },
     },
   },
@@ -516,18 +526,6 @@ export default {
     },
     getDeviceOptionLabel(item) {
       if (item == null || item.deviceTypeRef == null) return ''
-      // if (Array.isArray(item.deviceTypeRef)) {
-      //   let deviceOptionLabels = []
-      //   item.deviceTypeRef.forEach((d) =>
-      //     deviceOptionLabels.push(
-      //       this.zclDeviceTypes[d].description +
-      //         ' (' +
-      //         this.asHex(this.zclDeviceTypes[d].code, 4) +
-      //         ')'
-      //     )
-      //   )
-      //   return deviceOptionLabels
-      // } else {
       if (
         item.deviceIdentifier != this.zclDeviceTypes[item.deviceTypeRef].code
       ) {
