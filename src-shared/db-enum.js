@@ -51,6 +51,8 @@ exports.packageOptionCategory = {
 exports.iteratorValues = {
   availableCluster: 'availableCluster',
   selectedCluster: 'selectedCluster',
+  selectedClientCluster: 'selectedClientCluster',
+  selectedServerCluster: 'selectedServerCluster',
 }
 
 exports.side = {

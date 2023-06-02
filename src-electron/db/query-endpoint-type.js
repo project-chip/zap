@@ -165,11 +165,10 @@ async function selectEndpointType(db, id) {
 async function selectAllClustersDetailsFromEndpointTypes(
   db,
   endpointTypes,
-  options = null
+  side = null // should be null, 'client' or 'server'
 ) {
-  let side = null
   let endpointClusterSideFilter = 'ENDPOINT_TYPE_CLUSTER.SIDE IS NOT ""'
-  if (options && options.hash.side) {
+  if (side != null) {
     side = options.hash.side.toLowerCase()
     endpointClusterSideFilter = "ENDPOINT_TYPE_CLUSTER.SIDE = '" + side + "'"
   }

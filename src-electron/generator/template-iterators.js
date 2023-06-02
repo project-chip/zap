@@ -22,20 +22,45 @@ const queryEndpointType = require('../db/query-endpoint-type')
 /**
  * @module JS API: template iterators.
  */
+
 // this structure links the names of iterators with the function.
 const iterators = {}
 iterators[dbEnums.iteratorValues.availableCluster] = availableClusterIterator
 iterators[dbEnums.iteratorValues.selectedCluster] = selectedClusterIterator
+iterators[dbEnums.iteratorValues.selectedServerCluster] =
+  selectedServerClusterIterator
+iterators[dbEnums.iteratorValues.selectedClientCluster] =
+  selectedClientClusterIterator
 
 // Iterator over all available clusters
 async function availableClusterIterator(db, sessionId) {
   return querySessionZcl.selectAllSessionClusters(db, sessionId)
 }
 
-// Iterator over all available clusters
+// Iterator over all selected clusters
 async function selectedClusterIterator(db, sessionId) {
   let epts = await queryEndpointType.selectEndpointTypeIds(db, sessionId)
   return queryEndpointType.selectAllClustersDetailsFromEndpointTypes(db, epts)
+}
+
+// Iterator over all selected client clusters
+async function selectedClientClusterIterator(db, sessionId) {
+  let epts = await queryEndpointType.selectEndpointTypeIds(db, sessionId)
+  return queryEndpointType.selectAllClustersDetailsFromEndpointTypes(
+    db,
+    epts,
+    dbEnums.side.client
+  )
+}
+
+// Iterator over all selected server clusters
+async function selectedServerClusterIterator(db, sessionId) {
+  let epts = await queryEndpointType.selectEndpointTypeIds(db, sessionId)
+  return queryEndpointType.selectAllClustersDetailsFromEndpointTypes(
+    db,
+    epts,
+    dbEnums.side.server
+  )
 }
 
 // Function that returns a given iteration array for a given iterator name.
@@ -44,7 +69,10 @@ async function getIterativeObject(iteratorName, db, sessionId) {
   if (fn != null) {
     return fn(db, sessionId)
   } else {
-    throw new Error(`Invalid value for iterator: ${iteratorName}`)
+    let validValues = Object.keys(iterators).join(', ')
+    throw new Error(
+      `Invalid value for iterator: ${iteratorName}. Valid values: ${validValues}`
+    )
   }
 }
 
