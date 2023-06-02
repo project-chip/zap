@@ -120,6 +120,20 @@ limitations under the License.
         />
       </q-card-actions>
     </q-card>
+    <q-dialog v-model="showWarningDialog" persistent>
+      <zcl-warning-dialog
+        title="Do you want to proceed?"
+        message="ZCL device type is being modified which can cause all the configuration on the endpoint to be cleared and re-adjusted."
+        cancel-label="No"
+        ok-label="Yes"
+        @ok="
+          () => {
+            warningDialogReturnValue = 'ok'
+            saveOrCreateHandler()
+          }
+        "
+      />
+    </q-dialog>
   </div>
 </template>
 
@@ -127,6 +141,7 @@ limitations under the License.
 import * as RestApi from '../../src-shared/rest-api'
 import * as DbEnum from '../../src-shared/db-enum'
 import CommonMixin from '../util/common-mixin'
+import ZclWarningDialog from './ZclWarningDialog.vue'
 const _ = require('lodash')
 
 export default {
@@ -134,6 +149,7 @@ export default {
   props: ['endpointReference'],
   emits: ['saveOrCreateValidated', 'updateData'],
   mixins: [CommonMixin],
+  components: { ZclWarningDialog },
   watch: {
     deviceTypeRefAndDeviceIdPair(val) {
       this.setDeviceTypeCallback(val)
@@ -175,6 +191,7 @@ export default {
 
       // Set device types only in edit mode
       this.deviceTypeTmp = deviceTypes
+      this.deviceTypeMountSnapshot = JSON.parse(JSON.stringify(deviceTypes))
       this.primaryDeviceTypeTmp = deviceTypes[0] ?? null // First item is the primary device type
     } else {
       this.shownEndpoint.endpointIdentifier = this.getSmallestUnusedEndpointId()
@@ -198,8 +215,11 @@ export default {
       saveOrCreateCloseFlag: false,
       deviceTypeTmp: [], // Temp store for the selected device types
       primaryDeviceTypeTmp: null, // Temp store for the selected primary device type
-      enableMultipleDevice: false, // TODO make it data driven
-      enablePrimaryDevice: false, // TODO make it data driven
+      enableMultipleDevice: false,
+      enablePrimaryDevice: false,
+      showWarningDialog: false,
+      warningDialogReturnValue: null,
+      deviceTypeMountSnapshot: null,
     }
   },
   computed: {
@@ -361,6 +381,21 @@ export default {
       }
     },
     saveOrCreateHandler() {
+      // Check if warning dialog available for the given situation
+      if (
+        this.endpointReference &&
+        this.warningDialogReturnValue == null &&
+        this.deviceType?.length > 1
+      ) {
+        // Check if warning dialog should be shown
+        let deviceTypeChanged = true
+        // this.deviceTypeMountSnapshot
+        if (deviceTypeChanged) {
+          this.showWarningDialog = true
+          return
+        }
+      }
+      this.warningDialogReturnValue = null
       let profile = this.$store.state.zap.isProfileIdShown
         ? this.$refs.profile.validate()
         : true
