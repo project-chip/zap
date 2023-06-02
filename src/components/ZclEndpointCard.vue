@@ -99,7 +99,10 @@ limitations under the License.
             </div>
             <div class="col-6">
               {{
-                `${deviceType[0].description} (${asHex(deviceType[0].code, 4)})`
+                `${deviceType[0]?.description} (${asHex(
+                  deviceType[0]?.code,
+                  4
+                )})`
               }}
             </div>
           </div>
@@ -265,43 +268,6 @@ export default {
       )
       this.deleteEpt()
     },
-    getDeviceOptionLabel() {
-      if (this.deviceType == null) return ''
-      if (Array.isArray(this.deviceType)) {
-        let deviceOptionLabels = []
-        this.deviceType.forEach((d, index) =>
-          deviceOptionLabels.push(
-            d.description + '(' + this.asHex(d.code, 4) + ')'
-          )
-        )
-        return deviceOptionLabels
-      } else {
-        return (
-          this.deviceType.description +
-          ' (' +
-          this.asHex(this.deviceType.code, 4) +
-          ')'
-        )
-      }
-    },
-    getPrimaryDeviceOptionLabel() {
-      if (this.deviceType == null) return ''
-      if (Array.isArray(this.deviceType)) {
-        return (
-          this.deviceType[0].description +
-          ' (' +
-          this.asHex(this.deviceType[0].code, 4) +
-          ')'
-        )
-      } else {
-        return (
-          this.deviceType.description +
-          ' (' +
-          this.asHex(this.deviceType.code, 4) +
-          ')'
-        )
-      }
-    },
     handleDeletionDialog() {
       if (this.getStorageParam() == 'true') {
         this.deleteEpt()
@@ -383,7 +349,7 @@ export default {
         let refs =
           this.endpointDeviceTypeRef[this.endpointType[this.endpointReference]]
         let deviceTypes = []
-        if (refs.length > 0) {
+        if (refs?.length > 0) {
           refs.forEach((ref) => deviceTypes.push(this.zclDeviceTypes[ref]))
           return deviceTypes
         } else {
@@ -396,6 +362,24 @@ export default {
           ]
         }
       },
+    },
+    getPrimaryDeviceOptionLabel() {
+      if (this.deviceType == null) return ''
+      if (Array.isArray(this.deviceType)) {
+        return (
+          this.deviceType[0].description +
+          ' (' +
+          this.asHex(this.deviceType[0].code, 4) +
+          ')'
+        )
+      } else {
+        return (
+          this.deviceType.description +
+          ' (' +
+          this.asHex(this.deviceType.code, 4) +
+          ')'
+        )
+      }
     },
     isDeviceTypeArray: {
       get() {
