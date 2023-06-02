@@ -123,7 +123,7 @@ limitations under the License.
     <q-dialog v-model="showWarningDialog" persistent>
       <zcl-warning-dialog
         title="Do you want to proceed?"
-        message="ZCL device type is being modified which can cause all the configuration on the endpoint to be cleared and re-adjusted."
+        :message="warningMessage"
         cancel-label="No"
         ok-label="Yes"
         @ok="
@@ -217,6 +217,7 @@ export default {
       primaryDeviceTypeTmp: null, // Temp store for the selected primary device type
       enableMultipleDevice: false,
       enablePrimaryDevice: false,
+      warningMessage: '',
       showWarningDialog: false,
       warningDialogReturnValue: null,
       deviceTypeMountSnapshot: null,
@@ -391,6 +392,8 @@ export default {
         let deviceTypeChanged = true
         // this.deviceTypeMountSnapshot
         if (deviceTypeChanged) {
+          this.warningMessage =
+            'ZCL device type is being modified which can cause all the configuration on the endpoint to be cleared and re-adjusted.'
           this.showWarningDialog = true
           return
         }
