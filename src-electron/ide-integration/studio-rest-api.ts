@@ -41,6 +41,8 @@ const op_remove = '/rest/clic/component/remove/project/'
 let ucComponentStateReportId: NodeJS.Timeout
 let studioHttpPort: number
 
+const notification = require('../db/query-notification.js')
+
 function projectPath(db: dbTypes.DbType, sessionId: number) {
   return querySession.getSessionKeyValue(
     db,
@@ -107,12 +109,14 @@ async function getProjectInfo(
       })
       .catch((err) => {
         env.logError(`StudioUC(${name}): ERR: ${err}`)
+        notification.setNotification(db, 'ERROR', `StudioUC(${name}): ERR: ${err}`, sessionId, 2, 0)
         return { data: [] }
       })
   } else {
     env.logError(
       `StudioUC(): Invalid Studio path project. Failed to retrieve project info.`
     )
+    notification.setNotification(db, 'ERROR', `StudioUC(): Invalid Studio path project. Failed to retrieve project info.`, sessionId, 2, 0)
     return { data: [] }
   }
 }

@@ -37,6 +37,8 @@ const dbEnum = require('../../src-shared/db-enum.js')
 const { v4: uuidv4 } = require('uuid')
 const xml2js = require('xml2js')
 const singleInstance = require('single-instance')
+const notification = require('../db/query-notification.js')
+
 
 /**
  * Returns the CRC of the data that is passed.

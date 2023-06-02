@@ -52,14 +52,15 @@ async function setNotification(
  *
  * @export
  * @param {*} db
- * @param {*} upgrade
- * @param {*} status
+ * @param {*} sessionId
+ * @param {*} type
+ * @param {*} message
  */
-async function deleteNotification(db, upgrade, status) {
+async function deleteNotification(db, sessionId, type, message) {
   return dbApi.dbUpdate(
     db,
-    'DELETE FROM SESSION_NOTICE WHERE ( SESSION_REF, STATUS ) = ( ?, ? )',
-    [upgrade, status]
+    'DELETE FROM SESSION_NOTICE WHERE ( SESSION_REF, NOTICE_TYPE, NOTICE_MESSAGE ) = ( ?, ?, ? )',
+    [sessionId, type, message]
   )
 }
 /**
