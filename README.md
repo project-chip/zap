@@ -2,9 +2,7 @@
 
 # ZCL Advanced Platform
 
-![Generation and back-end tests](https://github.com/project-chip/zap/workflows/Generation%20and%20back-end%20tests/badge.svg)
-![Cypress UI tests](https://github.com/project-chip/zap/workflows/Cypress%20UI%20tests/badge.svg)
-![Build and release](https://github.com/project-chip/zap/workflows/Build%20&%20Release/badge.svg)
+[![Build and release packages](https://github.com/project-chip/zap/actions/workflows/release.yml/badge.svg)](https://github.com/project-chip/zap/actions/workflows/release.yml)
 
 ## What is ZAP?
 
