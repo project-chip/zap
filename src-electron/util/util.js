@@ -735,6 +735,7 @@ function patternFormat(pattern, data) {
       `{${key}:tosnakecaseallcaps}`,
       string.toSnakeCaseAllCaps(value.toString())
     )
+    // Note: if you add more of these, add the documentation to sdk-integration.md
   }
   return out
 }
