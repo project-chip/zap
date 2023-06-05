@@ -673,9 +673,10 @@ async function updateEndpointType(
 
   //Re-insert endpoint_type_device references with the new references to device types
   let endpointTypeDeviceInfoValues = []
-  existingDeviceTypes.forEach((dt, index) =>
+  updatedValue.forEach((dt, index) =>
     endpointTypeDeviceInfoValues.push([endpointTypeId, dt, index])
   )
+
   await dbApi.dbMultiInsert(
     db,
     `
