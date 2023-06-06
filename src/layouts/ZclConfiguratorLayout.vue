@@ -86,6 +86,7 @@ limitations under the License.
               </div></Transition
             >
             <q-tooltip> Notifications </q-tooltip>
+            <q-badge color="red" floating>{{ notificationCount }}</q-badge>
           </q-btn>
         </q-toolbar>
         <q-dialog
@@ -161,6 +162,11 @@ export default {
         alert(msg)
       })
     },
+  },
+  created() {
+    this.$onWebSocket('notificationCount', (data) => {
+      this.notificationCount = data.payload;
+    })
   },
   mounted() {
     this.$store.dispatch('zap/clearLastSelectedDomain')
@@ -268,6 +274,7 @@ export default {
       globalOptionsDialog: false,
       zclExtensionDialog: false,
       notification: '',
+      notificationCount: 0,
     }
   },
 

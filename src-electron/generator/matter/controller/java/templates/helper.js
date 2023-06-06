@@ -25,6 +25,7 @@ const appHelper = require('../../../app/zap-templates/templates/app/helper.js');
 const dbEnum = require('../../../../../../src-shared/db-enum');
 const queryZcl = require(zapPath + 'db/query-zcl');
 const zclUtil = require(zapPath + 'util/zcl-util.js');
+const notification = require(zapPath + 'db/query-notification.js')
 
 const characterStringTypes = ['CHAR_STRING', 'LONG_CHAR_STRING'];
 const octetStringTypes = ['OCTET_STRING', 'LONG_OCTET_STRING'];
@@ -230,6 +231,7 @@ async function as_underlying_java_zcl_type_util(
 
   if (!dataType) {
     env.logWarning(type + ' not found in the data_type table');
+    notification.setNotification(context.global.db, "WARNING", type + ' not found in the data_type table', context.global.sessionId, 1, 0)
     return 0;
   }
   let isBoxedJavaType =
