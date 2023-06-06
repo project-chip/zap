@@ -22,6 +22,8 @@
  */
 const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
+const querySession = require('./query-session.js')
+const wsServer = require('../server/ws-server.js')
 /**
  * Sets a notification in the SESSION_NOTICE table
  *
@@ -40,6 +42,18 @@ async function setNotification(
   severity = 2,
   display = 0
 ) {
+  let sessions = await querySession.getAllSessions(db)
+  for (const session of sessions) {
+    if (session.sessionId == sessionId) {
+      let socket = wsServer.clientSocket(session.sessionKey)
+      let resp = await getNotification(db, sessionId)
+      wsServer.sendWebSocketMessage(socket, {
+        category: 'notificationCount',
+        payload: resp.length + 1,
+      })
+    }
+  }
+
   return dbApi.dbUpdate(
     db,
     'INSERT INTO SESSION_NOTICE ( SESSION_REF, NOTICE_TYPE, NOTICE_MESSAGE, NOTICE_SEVERITY, DISPLAY) VALUES ( ?, ?, ?, ?, ?)',

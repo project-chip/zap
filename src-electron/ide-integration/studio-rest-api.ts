@@ -140,6 +140,7 @@ async function updateComponentByClusterIdAndComponentId(
     env.logWarning(
       `StudioUC(): Failed to update component due to invalid Studio project path.`
     )
+    notification.setNotification(db, "WARNING", `StudioUC(): Failed to update component due to invalid Studio project path.`, sessionId, 1, 0)
     return Promise.resolve({ componentIds: [], added: add })
   }
 

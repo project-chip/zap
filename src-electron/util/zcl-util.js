@@ -857,6 +857,7 @@ async function zcl_data_type_size_and_sign(
     result = number.size
   } else {
     env.logWarning(type + ' is a complex type and size could not be determined')
+    notification.setNotification(context.global.db, "WARNING", type + ' is a complex type and size could not be determined', context.global.sessionId, 1, 0)
   }
   return { size: result, isSigned: isSigned }
 }

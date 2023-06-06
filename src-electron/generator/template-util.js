@@ -20,6 +20,7 @@ const queryEndpointType = require('../db/query-endpoint-type.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const env = require('../util/env')
 const _ = require('lodash')
+const notification = require('../db/query-notification.js')
 
 /**
  * @module JS API: generator logic
@@ -380,6 +381,7 @@ function deprecatedHelper(fn, explanation) {
     ) {
       this.global.deprecationWarnings[fn.name] = true
       env.logWarning(`${this.global.templatePath} : ${msg}`)
+      notification.setNotification(this.global.db, "WARNING", `${this.global.templatePath} : ${msg}`, this.global.sessionId, 1, 0)
     }
     return fn.apply(this, arguments)
   }
