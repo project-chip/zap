@@ -86,7 +86,7 @@ limitations under the License.
               </div></Transition
             >
             <q-tooltip> Notifications </q-tooltip>
-            <q-badge color="red" floating>{{ notificationCount }}</q-badge>
+            <q-badge color="red" floating>{{ this.$store.state.zap.notificationCount }}</q-badge>
           </q-btn>
         </q-toolbar>
         <q-dialog
@@ -129,9 +129,11 @@ limitations under the License.
 import ZclClusterManager from '../components/ZclClusterManager.vue'
 import InitialContent from '../components/InitialContent.vue'
 import ZclExtensionDialog from '../components/ZclCustomZclView.vue'
+import { Notify } from 'quasar'
 
 const restApi = require('../../src-shared/rest-api.js')
 const commonUrl = require('../../src-shared/common-url.js')
+const dbEnum = require('../../src-shared/db-enum.js')
 
 export default {
   name: 'ZclConfiguratorLayout',
@@ -163,12 +165,27 @@ export default {
       })
     },
   },
-  created() {
-    this.$onWebSocket('notificationCount', (data) => {
-      this.notificationCount = data.payload;
-    })
-  },
   mounted() {
+    this.$onWebSocket(dbEnum.wsCategory.notificationCount, (data) => {
+      let {notificationCount, display, message} = data
+      this.$store.commit('zap/updateNotificationCount', notificationCount)
+      console.log(message)
+      if(display != 0) {
+        let html = `<center>
+          <strong>${message}</strong>
+          <br>
+          </center>`
+        Notify.create({
+          message: html,
+          color: 'negative',
+          position: 'top',
+          html: true,
+          timeout: 0,
+          actions: [{ icon: 'close', color: 'white' }],
+        })
+      }
+    })
+
     this.$store.dispatch('zap/clearLastSelectedDomain')
     window.addEventListener('resize', this.collapseOnResize)
   },
@@ -274,7 +291,6 @@ export default {
       globalOptionsDialog: false,
       zclExtensionDialog: false,
       notification: '',
-      notificationCount: 0,
     }
   },
 
