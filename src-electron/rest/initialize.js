@@ -50,6 +50,68 @@ function packagesAndSessions(db) {
   }
 }
 
+function createSession(db) {
+  return async (req, res) => {
+    console.log(req.body)
+    let { zclProperties, genTemplate } = req.body
+    let sessionUuid = req.query[restApi.param.sessionId]
+    let userKey = req.session.id
+    console.log('2')
+
+    if (sessionUuid == null || userKey == null) {
+      console.log('placeholder')
+    } else {
+      let zapUserId = req.session.zapUserId
+      let zapSessionId
+      if (`zapSessionId` in req.session) {
+        console.log('3')
+        zapSessionId = req.session.zapSessionId[sessionUuid]
+      } else {
+        console.log('4')
+        req.session.zapSessionId = {}
+        zapSessionId = null
+      }
+      let tpk = zclProperties
+      console.log(zclProperties)
+      let pkgArray = null
+      if (tpk) {
+        pkgArray = tpk
+      } else {
+        pkgArray = []
+      }
+
+      querySession
+        .ensureZapUserAndSession(db, userKey, sessionUuid, {
+          sessionId: zapSessionId,
+          userId: zapUserId,
+        })
+        .then((result) => {
+          req.session.zapUserId = result.userId
+          req.session.zapSessionId[sessionUuid] = result.sessionId
+          req.zapSessionId = result.sessionId
+          console.table(result)
+          return result
+        })
+        .then((result) => {
+          if (result.newSession) {
+            console.table(genTemplate)
+            //console.log(options)
+            return util.ensurePackagesAndPopulateSessionOptions(
+              db,
+              result.sessionId,
+              null,
+              pkgArray,
+              ['Users/paregan/zap/test/gen-template/zigbee/gen-templates.json']
+            )
+          }
+        })
+    }
+    return res.send({
+      message: 'Session created successfully',
+    })
+  }
+}
+
 /**
  * This function creates a new session with its packages according to selected Properties and Templates
  * @param {*} db
@@ -58,20 +120,14 @@ function packagesAndSessions(db) {
  */
 function initializeSession(db) {
   return async (req, res) => {
-    let sessionUuid = req.query[restApi.param.sessionId]
-    let userKey = req.session.id
-    let user = await querySession.ensureUser(db, userKey)
-    let sessionId = await querySession.ensureBlankSession(db, sessionUuid)
-    await querySession.linkSessionToUser(db, sessionId, user.userId)
-    if (!req.body.newConfiguration) {
-      await util.ensurePackagesAndPopulateSessionOptions(
-        db,
-        sessionId,
-        {},
-        req.body.zclProperties,
-        req.body.genTemplate
-      )
-    }
+    console.log(req.body.sessionId)
+    await util.ensurePackagesAndPopulateSessionOptions(
+      db,
+      req.body.sessionId,
+      {},
+      req.body.zclProperties,
+      req.body.genTemplate
+    )
     return res.send({
       message: 'Session created successfully',
     })
@@ -128,6 +184,10 @@ exports.post = [
   {
     uri: restApi.uri.initializeSession,
     callback: initializeSession,
+  },
+  {
+    uri: restApi.uri.createSession,
+    callback: createSession,
   },
   {
     uri: restApi.uri.init,

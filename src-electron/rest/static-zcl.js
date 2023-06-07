@@ -219,7 +219,7 @@ function httpGetZclEntity(db) {
 function httpGetZclExtension(db) {
   return (request, response) => {
     const { entity, extensionId } = request.params
-    let sessionId = request.zapSessionId
+    let sessionId = request.sessionId
     if (!sessionId) {
       let err = 'Unable to retrieve zcl extension. Invalid sessionId!'
       env.logError(err)

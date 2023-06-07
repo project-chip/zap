@@ -311,17 +311,15 @@ export default {
           this.selectedZclGenData.length != 0
         ) {
           let data = {
-            zclProperties: this.selectedZclPropertiesData.id,
+            zclProperties: this.selectedZclPropertiesData.path,
             genTemplate: this.selectedZclGenData,
           }
-          this.$serverPost(restApi.uri.initializeSession, data).then(
-            (result) => {
-              this.$store.commit('zap/selectZapConfig', {
-                zclProperties: this.selectedZclPropertiesData,
-                genTemplate: this.selectedZclGenData,
-              })
-            }
-          )
+          this.$serverPost(restApi.uri.createSession, data).then((result) => {
+            this.$store.commit('zap/selectZapConfig', {
+              zclProperties: this.selectedZclPropertiesData,
+              genTemplate: this.selectedZclGenData,
+            })
+          })
         }
       } else if (this.customConfig === 'passthrough') {
         let data = {
@@ -355,7 +353,7 @@ export default {
 
       if (!window.location.search.includes('newConfig=true')) {
         this.customConfig = 'passthrough'
-        this.submitForm()
+        //this.submitForm()
       } else if (
         this.zclPropertiesRow.length == 1 &&
         this.zclGenRow.length == 1
