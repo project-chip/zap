@@ -22,8 +22,8 @@
  */
 const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
-const querySession = require('./query-session.js')
 const wsServer = require('../server/ws-server.js')
+const dbEnum = require('../../src-shared/db-enum.js')
 /**
  * Sets a notification in the SESSION_NOTICE table
  *
@@ -42,23 +42,38 @@ async function setNotification(
   severity = 2,
   display = 0
 ) {
-  let sessions = await querySession.getAllSessions(db)
-  for (const session of sessions) {
-    if (session.sessionId == sessionId) {
-      let socket = wsServer.clientSocket(session.sessionKey)
-      let resp = await getNotification(db, sessionId)
-      wsServer.sendWebSocketMessage(socket, {
-        category: 'notificationCount',
-        payload: resp.length + 1,
-      })
-    }
-  }
-
-  return dbApi.dbUpdate(
+  let updateResp =  dbApi.dbUpdate(
     db,
     'INSERT INTO SESSION_NOTICE ( SESSION_REF, NOTICE_TYPE, NOTICE_MESSAGE, NOTICE_SEVERITY, DISPLAY) VALUES ( ?, ?, ?, ?, ?)',
     [sessionId, type, status, severity, display]
   )
+
+  let rows = []
+  rows = await dbApi.dbAll(
+    db,
+    'SELECT SESSION_KEY FROM SESSION WHERE SESSION_ID = ?',
+    [sessionId]
+  )
+  if(rows && rows.length > 0) {
+    let session = rows.map(dbMapping.map.session)
+    let sessionKey = session[0].sessionKey
+    let socket = wsServer.clientSocket(sessionKey)
+    let notifications = await getNotification(db, sessionId)
+    let notificationCount = 0
+    if(notifications) {
+      notificationCount = notifications.length
+    }
+    let obj = {
+      notificationCount: notificationCount, 
+      display: display,
+      message: status.toString()
+    }
+    wsServer.sendWebSocketData(socket, dbEnum.wsCategory.notificationCount, obj)
+  }
+  else {
+    console.log("No session found with given sessionId, cannot initalize websocket")
+  }
+  return updateResp
 }
 
 /**

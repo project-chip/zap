@@ -252,7 +252,7 @@ function httpGetZclExtension(db) {
       })
       .catch((err) => {
         env.logError(err)
-        notification.setNotification(db, 'ERROR', err, sessionId, 2, 0)
+        notification.setNotification(db, 'ERROR', err, sessionId, 2, 1)
         return response.status(StatusCodes.NOT_FOUND).send(err)
       })
   }
