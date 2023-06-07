@@ -427,7 +427,7 @@ export default {
           this.selectedZclGenData.length != 0
         ) {
           let data = {
-            zclProperties: this.selectedZclPropertiesData.path,
+            zclProperties: this.selectedZclPropertiesData,
             genTemplate: this.selectedZclGenData,
           }
           this.$serverPost(restApi.uri.createSession, data)
