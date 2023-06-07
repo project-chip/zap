@@ -49,31 +49,48 @@ async function initializeSession() {
 }
 
 async function initLoad(store) {
-  await initializeSession()
+  //await initializeSession()
   let promises = []
   promises.push(store.dispatch('zap/loadInitialData'))
-  promises.push(store.dispatch('zap/loadOptions', {
-    key: 'defaultResponsePolicy',
-    type: 'string',
-  }))
-  promises.push(store.dispatch(('zap/loadOptions', {
-    key: 'manufacturerCodes',
-    type: 'object',
-  })))
-  promises.push(store.dispatch(('zap/loadOptions', {
-    key: 'profileCodes',
-    type: 'object',
-  })))
-  promises.push(store.dispatch(('zap/loadOptions', {
-    key: 'generator',
-    type: 'object',
-  })))
-  promises.push(store.dispatch(('zap/loadSessionKeyValues')))
+  promises.push(
+    store.dispatch('zap/loadOptions', {
+      key: 'defaultResponsePolicy',
+      type: 'string',
+    })
+  )
+  promises.push(
+    store.dispatch(
+      ('zap/loadOptions',
+      {
+        key: 'manufacturerCodes',
+        type: 'object',
+      })
+    )
+  )
+  promises.push(
+    store.dispatch(
+      ('zap/loadOptions',
+      {
+        key: 'profileCodes',
+        type: 'object',
+      })
+    )
+  )
+  promises.push(
+    store.dispatch(
+      ('zap/loadOptions',
+      {
+        key: 'generator',
+        type: 'object',
+      })
+    )
+  )
+  promises.push(store.dispatch('zap/loadSessionKeyValues'))
 
   if (
     localStorage.getItem('showDevTools') &&
     localStorage.getItem('showDevTools') == 'true'
-  ){
+  ) {
     promises.push(store.dispatch('zap/updateShowDevTools'))
   }
   promises.push(store.dispatch('zap/updateClusters'))
@@ -224,7 +241,6 @@ export default defineComponent({
         this.$router.push({ path: '/config' })
       } else {
         this.$router.push({ path: '/' })
-        this.getAppData()
       }
     },
     uiThemeCategory() {

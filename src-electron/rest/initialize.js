@@ -63,6 +63,7 @@ function createSession(db) {
     } else {
       let zapUserId = req.session.zapUserId
       let zapSessionId
+      console.log(req.session)
       if (`zapSessionId` in req.session) {
         console.log('3')
         zapSessionId = req.session.zapSessionId[sessionUuid]
@@ -89,7 +90,7 @@ function createSession(db) {
           req.session.zapUserId = result.userId
           req.session.zapSessionId[sessionUuid] = result.sessionId
           req.zapSessionId = result.sessionId
-          console.table(result)
+          console.table(result.sessionId)
           return result
         })
         .then((result) => {
@@ -101,7 +102,7 @@ function createSession(db) {
               result.sessionId,
               null,
               pkgArray,
-              ['Users/paregan/zap/test/gen-template/zigbee/gen-templates.json']
+              ['/Users/paregan/zap/test/gen-template/mmatter2/templates.json']
             )
           }
         })
