@@ -62,7 +62,7 @@ async function ensurePackagesAndPopulateSessionOptions(
   db,
   sessionId,
   options = null,
-  selectedZclPropertyPackage = null,
+  selectedZclPropertyPackage = [],
   selectedGenTemplatePackages = []
 ) {
   let promises = []
@@ -92,7 +92,7 @@ async function ensurePackagesAndPopulateSessionOptions(
       .then((rows) => {
         let packageId
         if (selectedZclPropertyPackage) {
-          packageId = selectedZclPropertyPackage
+          packageId = selectedZclPropertyPackage.id
         } else if (rows.length == 1) {
           packageId = rows[0].id
           env.logDebug(
