@@ -20,6 +20,7 @@ import restApi from '../../src-shared/rest-api.js'
 import rendApi from '../../src-shared/rend-api.js'
 import { Notify } from 'quasar'
 import * as Util from '../util/util.js'
+import store from '../store'
 
 const tickInterval = 15000 // 15 seconds tick interval for server watchdog.
 
@@ -141,6 +142,27 @@ onWebSocket(dbEnum.wsCategory.componentUpdateStatus, (obj) => {
   // console.log(`componentUpdateStatus: ${JSON.stringify(obj)}`)
   Util.notifyComponentUpdateStatus(data, added)
 })
+
+// receive notification data
+onWebSocket(dbEnum.wsCategory.notificationInfo, (data) => {
+  let {display, message} = data
+  if(display != 0) {
+    let html = `<center>
+      <strong>${message}</strong>
+      <br>
+      </center>`
+    Notify.create({
+      message: html,
+      color: 'negative',
+      position: 'top',
+      html: true,
+      timeout: 0,
+      actions: [{ icon: 'close', color: 'white' }],
+    })
+  }
+})
+
+
 
 //commented unnecessary logs and listeners
 

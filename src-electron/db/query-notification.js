@@ -54,21 +54,21 @@ async function setNotification(
     'SELECT SESSION_KEY FROM SESSION WHERE SESSION_ID = ?',
     [sessionId]
   )
+  console.log(rows)
   if(rows && rows.length > 0) {
-    let session = rows.map(dbMapping.map.session)
-    let sessionKey = session[0].sessionKey
+    let sessionKey = rows[0].SESSION_KEY
     let socket = wsServer.clientSocket(sessionKey)
     let notifications = await getNotification(db, sessionId)
     let notificationCount = 0
     if(notifications) {
       notificationCount = notifications.length
     }
-    let obj = {
-      notificationCount: notificationCount, 
+    let obj = { 
       display: display,
       message: status.toString()
     }
-    wsServer.sendWebSocketData(socket, dbEnum.wsCategory.notificationCount, obj)
+    wsServer.sendWebSocketData(socket, dbEnum.wsCategory.notificationInfo, obj)
+    wsServer.sendWebSocketData(socket, dbEnum.wsCategory.notificationCount, notificationCount)
   }
   else {
     console.log("No session found with given sessionId, cannot initalize websocket")
