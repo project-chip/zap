@@ -456,8 +456,10 @@ export default {
       })
     },
   },
-  beforeMount() {
-    this.deviceTypeOptions = this.zclDeviceTypeOptions
+  created() {
+    if (this.$serverGet != null) {
+      this.deviceTypeOptions = this.$store.state.zap.zclDeviceTypes
+    }
   },
   unmounted() {
     // This function will empty the deviceTypeRef state
