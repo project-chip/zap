@@ -90,8 +90,11 @@
     >
       <div class="text-center">
         <q-icon name="o_assignment_late" />
-        <div>Notifications</div>
-      </div>
+        <div>
+        Notifications
+        <q-badge style="top: 5px; right: 5px" color="red" floating>{{ this.$store.state.zap.notificationCount }}</q-badge>
+        </div>
+      </div>   
     </q-btn>
     <q-btn
       v-if="showDebugNavItems"
@@ -159,6 +162,7 @@ import { isElectron, isWin } from '../util/platform'
 const rendApi = require(`../../src-shared/rend-api.js`)
 const restApi = require(`../../src-shared/rest-api.js`)
 const observable = require('../util/observable.js')
+const dbEnum = require('../../src-shared/db-enum.js')
 export default {
   name: 'ZCLToolbar',
   components: {
@@ -247,6 +251,10 @@ export default {
     },
   },
   mounted() {
+    this.$onWebSocket(dbEnum.wsCategory.notificationCount, (notificationCount) => { 
+      this.$store.commit('zap/updateNotificationCount', notificationCount)
+    })
+
     observable.observeAttribute(rendApi.observable.reported_files, (value) => {
       if (value.context == 'generateDir') {
         this.generationDirectory = value.filePaths[0]
