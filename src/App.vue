@@ -241,6 +241,7 @@ export default defineComponent({
         this.$router.push({ path: '/config' })
       } else {
         this.$router.push({ path: '/' })
+        this.getAppData()
       }
     },
     uiThemeCategory() {

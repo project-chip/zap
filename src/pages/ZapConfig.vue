@@ -265,58 +265,6 @@ const loadPreSessionCol = [
   },
 ]
 
-async function initLoad(store) {
-  //await initializeSession()
-  let promises = []
-  promises.push(store.dispatch('zap/loadInitialData'))
-  promises.push(
-    store.dispatch('zap/loadOptions', {
-      key: 'defaultResponsePolicy',
-      type: 'string',
-    })
-  )
-  promises.push(
-    store.dispatch(
-      ('zap/loadOptions',
-      {
-        key: 'manufacturerCodes',
-        type: 'object',
-      })
-    )
-  )
-  promises.push(
-    store.dispatch(
-      ('zap/loadOptions',
-      {
-        key: 'profileCodes',
-        type: 'object',
-      })
-    )
-  )
-  promises.push(
-    store.dispatch(
-      ('zap/loadOptions',
-      {
-        key: 'generator',
-        type: 'object',
-      })
-    )
-  )
-  promises.push(store.dispatch('zap/loadSessionKeyValues'))
-
-  if (
-    localStorage.getItem('showDevTools') &&
-    localStorage.getItem('showDevTools') == 'true'
-  ) {
-    promises.push(store.dispatch('zap/updateShowDevTools'))
-  }
-  promises.push(store.dispatch('zap/updateClusters'))
-  promises.push(store.dispatch('zap/updateAtomics'))
-  promises.push(store.dispatch('zap/updateZclDeviceTypes'))
-  promises.push(store.dispatch(`zap/getProjectPackages`))
-  promises.push(store.dispatch(`zap/loadZclClusterToUcComponentDependencyMap`))
-  return Promise.all(promises)
-}
 export default {
   name: 'ZapConfig',
   data() {
@@ -356,70 +304,6 @@ export default {
     },
   },
   methods: {
-    getAppData() {
-      if (this.$serverGet != null) {
-        this.$serverGet(restApi.uri.uiOptions).then((res) => {
-          this.$store.commit(
-            'zap/updateIsProfileIdShown',
-            res.data.showProfileId
-          )
-        })
-      }
-
-      this.$q.loading.show({
-        spinner: QSpinnerGears,
-        messageColor: 'white',
-        message: 'Please wait while zap is loading...',
-        spinnerSize: 300,
-      })
-
-      // Parse the query string into the front end.
-      const querystring = require('querystring')
-      let search = global.location.search
-
-      if (search[0] === '?') {
-        search = search.substring(1)
-      }
-
-      let query = querystring.parse(search)
-      if (query[`uiMode`]) {
-        this.$store.dispatch('zap/setDefaultUiMode', query[`uiMode`])
-      }
-
-      if (`debugNavBar` in query) {
-        this.$store.dispatch(
-          'zap/setDebugNavBar',
-          query[`debugNavBar`] === 'true'
-        )
-      } else {
-        // If we don't specify it, default is on.
-        this.$store.dispatch('zap/setDebugNavBar', true)
-      }
-
-      if ('standalone' in query) {
-        this.$store.dispatch('zap/setStandalone', query['standalone'])
-      }
-
-      this.zclDialogTitle = 'ZCL tab!'
-      this.zclDialogText =
-        'Welcome to ZCL tab. This is just a test of a dialog.'
-      this.zclDialogFlag = false
-
-      observable.observeAttribute(
-        rendApi.observable.progress_attribute,
-        (message) => {
-          this.setGenerationInProgress(message)
-        }
-      )
-
-      initLoad(this.$store).then(() => {
-        this.$q.loading.hide()
-      })
-
-      this.$onWebSocket(dbEnum.wsCategory.ucComponentStateReport, (resp) => {
-        this.$store.dispatch('zap/updateUcComponentState', resp)
-      })
-    },
     submitForm() {
       if (this.customConfig === 'generate') {
         if (
@@ -430,16 +314,12 @@ export default {
             zclProperties: this.selectedZclPropertiesData,
             genTemplate: this.selectedZclGenData,
           }
-          this.$serverPost(restApi.uri.createSession, data)
-            .then((result) => {
-              this.$store.commit('zap/selectZapConfig', {
-                zclProperties: this.selectedZclPropertiesData,
-                genTemplate: this.selectedZclGenData,
-              })
+          this.$serverPost(restApi.uri.createSession, data).then((result) => {
+            this.$store.commit('zap/selectZapConfig', {
+              zclProperties: this.selectedZclPropertiesData,
+              genTemplate: this.selectedZclGenData,
             })
-            .then(() => {
-              this.getAppData()
-            })
+          })
         }
       } else if (this.customConfig === 'passthrough') {
         let data = {

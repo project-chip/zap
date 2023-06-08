@@ -534,6 +534,7 @@ export function loadZclClusterToUcComponentDependencyMap(state, map) {
 
 export function selectZapConfig(state, val) {
   state.selectedZapConfig = val
+  return true
 }
 
 export function setAllEndpointsData(state, value) {
