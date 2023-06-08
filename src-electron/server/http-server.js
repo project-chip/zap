@@ -210,17 +210,6 @@ function userSessionHandler(db, options) {
           req.zapSessionId = result.sessionId
           return result
         })
-        .then((result) => {
-          if (result.newSession) {
-            return util.ensurePackagesAndPopulateSessionOptions(
-              db,
-              result.sessionId,
-              options,
-              null,
-              pkgArray
-            )
-          }
-        })
         .then(() => {
           next()
         })
