@@ -157,19 +157,18 @@ export default {
 
       const deviceTypeRefs =
         this.endpointDeviceTypeRef[this.endpointType[this.endpointReference]]
-      const deviceIdentifiers = this.endpointDeviceId[this.endpointReference]
       const deviceTypes = []
       if (Array.isArray(deviceTypeRefs)) {
         for (let i = 0; i < deviceTypeRefs.length; i++) {
           deviceTypes.push({
             deviceTypeRef: deviceTypeRefs[i],
-            deviceIdentifier: deviceIdentifiers[i],
+            deviceIdentifier: this.zclDeviceTypes[deviceTypeRefs[i]].code,
           })
         }
       } else {
         deviceTypes.push({
           deviceTypeRef: deviceTypeRefs,
-          deviceIdentifier: deviceIdentifiers,
+          deviceIdentifier: this.zclDeviceTypes[deviceTypeRefs].code,
         })
       }
 
