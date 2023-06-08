@@ -326,7 +326,7 @@ export default {
           newConfiguration: true,
         }
 
-        this.$serverPost(restApi.uri.initializeSession, data).then((result) => {
+        this.$serverPost(restApi.uri.createSession, data).then((result) => {
           this.$store.commit('zap/selectZapConfig', {
             zclProperties: this.selectedZclPropertiesData,
             genTemplate: this.selectedZclGenData,
@@ -352,8 +352,8 @@ export default {
       this.zclGenRow = result.data.zclGenTemplates
 
       if (!window.location.search.includes('newConfig=true')) {
-        this.customConfig = 'passthrough'
-        //this.submitForm()
+        this.customConfig = 'generate'
+        this.submitForm()
       } else if (
         this.zclPropertiesRow.length == 1 &&
         this.zclGenRow.length == 1

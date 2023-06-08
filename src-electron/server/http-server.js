@@ -142,7 +142,7 @@ async function initHttpServer(
         saveUninitialized: true,
       })
     )
-    //app.use(userSessionHandler(db, options))
+    app.use(userSessionHandler(db, options))
 
     // REST modules
     registerAllRestModules(db, app)

@@ -54,7 +54,6 @@ function fnOpen(zapFilePath, ideProjectPath) {
       zapFilePath: zapFilePath,
       ideProjectPath: ideProjectPath,
     })
-    .then((res) => window.location.reload())
     .catch((err) => console.log(err))
 }
 
