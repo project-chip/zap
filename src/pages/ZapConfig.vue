@@ -323,7 +323,8 @@ export default {
         }
       } else if (this.customConfig === 'passthrough') {
         let data = {
-          newConfiguration: true,
+          zclProperties: this.selectedZclPropertiesData,
+          genTemplate: this.selectedZclGenData,
         }
 
         this.$serverPost(restApi.uri.createSession, data).then((result) => {
@@ -353,7 +354,7 @@ export default {
 
       if (!window.location.search.includes('newConfig=true')) {
         this.customConfig = 'generate'
-        this.submitForm()
+        // this.submitForm()
       } else if (
         this.zclPropertiesRow.length == 1 &&
         this.zclGenRow.length == 1
