@@ -30,7 +30,7 @@
                 v-model="customConfig"
                 checked-icon="task_alt"
                 unchecked-icon="panorama_fish_eye"
-                val="generate"
+                val="select"
                 label="Generate New Session"
               />
               <q-radio
@@ -45,7 +45,7 @@
             </div>
             <p
               class="text-center"
-              v-if="isMultiplePackage && customConfig === 'generate'"
+              v-if="isMultiplePackage && customConfig === 'select'"
             >
               There are multiple packages of ZCL metadata loaded. Please select
               the one you wish to use with this configuration.
@@ -56,7 +56,7 @@
               the configuration.
             </p>
 
-            <template v-if="customConfig === 'generate'">
+            <template v-if="customConfig === 'select'">
               <q-table
                 title="Zigbee Cluster Library metadata"
                 :rows="zclPropertiesRow"
@@ -269,7 +269,7 @@ export default {
   name: 'ZapConfig',
   data() {
     return {
-      customConfig: 'generate',
+      customConfig: 'select',
       selected: [],
       selectedZclPropertiesData: null,
       selectedZclGenData: [],
@@ -289,7 +289,7 @@ export default {
   },
   computed: {
     disableSubmitButton: function () {
-      if (this.customConfig === 'generate')
+      if (this.customConfig === 'select')
         return (
           this.selectedZclPropertiesData == null ||
           this.selectedZclGenData.length == 0
@@ -305,7 +305,7 @@ export default {
   },
   methods: {
     submitForm() {
-      if (this.customConfig === 'generate') {
+      if (this.customConfig === 'select') {
         if (
           this.selectedZclPropertiesData != null &&
           this.selectedZclGenData.length != 0
@@ -357,7 +357,7 @@ export default {
         this.customConfig = 'passthrough'
         this.submitForm()
       } else {
-        this.customConfig = 'generate'
+        this.customConfig = 'select'
       }
 
       result.data.sessions.forEach((item) => {
