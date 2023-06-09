@@ -49,6 +49,29 @@ function packagesAndSessions(db) {
     })
   }
 }
+/**
+ * This function returns Properties, Templates and Dirty-Sessions
+ * @param {*} db
+ * @returns Properties, Templates and Dirty-Sessions.
+ */
+function sessionAttempt(db) {
+  return async (req, res) => {
+    const zclProperties = await queryPackage.getPackagesByType(
+      db,
+      dbEnum.packageType.zclProperties
+    )
+    const zclGenTemplates = await queryPackage.getPackagesByType(
+      db,
+      dbEnum.packageType.genTemplatesJson
+    )
+    const sessions = await querySession.getDirtySessionsWithPackages(db)
+    return res.send({
+      zclGenTemplates,
+      zclProperties,
+      sessions,
+    })
+  }
+}
 
 function createSession(db) {
   return async (req, res) => {
@@ -102,7 +125,7 @@ function createSession(db) {
               result.sessionId,
               null,
               pkgArray,
-              ['/Users/paregan/zap/test/gen-template/mmatter2/templates.json']
+              genTemplate
             )
           }
         })

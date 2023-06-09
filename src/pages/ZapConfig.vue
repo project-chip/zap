@@ -132,7 +132,7 @@
                     <q-td key="select" :props="props">
                       <q-checkbox
                         v-model="selectedZclGenData"
-                        :val="props.row.id"
+                        :val="props.row.path"
                         data-test="gen-template"
                       />
                     </q-td>
@@ -323,8 +323,7 @@ export default {
         }
       } else if (this.customConfig === 'passthrough') {
         let data = {
-          zclProperties: this.selectedZclPropertiesData,
-          genTemplate: this.selectedZclGenData,
+          newConfiguration: true,
         }
 
         this.$serverPost(restApi.uri.createSession, data).then((result) => {
@@ -362,7 +361,7 @@ export default {
         // We shortcut this page, if there is exactly one of each,
         // since we simply assume that they are selected and move on.
         this.selectedZclGenData[0] = this.zclGenRow[0].id
-        this.customConfig = 'generate'
+        this.customConfig = 'passthrough'
         this.submitForm()
       }
 
