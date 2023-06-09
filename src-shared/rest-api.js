@@ -60,7 +60,7 @@ const uri = {
   deviceTypeAttributes: '/zcl/deviceTypeAttributes/',
   deviceTypeCommands: '/zcl/deviceTypeCommands/',
   deviceTypeEvents: '/zcl/deviceTypeEvents/',
-  initialPackagesSessions: '/zcl/initialPackagesSessions',
+  sessionAttempt: '/zcl/sessionAttempt',
   initializeSession: '/zcl/initializeSession',
   createSession: '/zcl/createSession',
   reloadSession: '/zcl/reloadSession',

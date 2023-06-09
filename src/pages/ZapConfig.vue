@@ -314,7 +314,7 @@ export default {
             zclProperties: this.selectedZclPropertiesData,
             genTemplate: this.selectedZclGenData,
           }
-          this.$serverPost(restApi.uri.createSession, data).then((result) => {
+          this.$serverPost(restApi.uri.sessionCreate, data).then((result) => {
             this.$store.commit('zap/selectZapConfig', {
               zclProperties: this.selectedZclPropertiesData,
               genTemplate: this.selectedZclGenData,
@@ -326,7 +326,7 @@ export default {
           newConfiguration: true,
         }
 
-        this.$serverPost(restApi.uri.createSession, data).then((result) => {
+        this.$serverPost(restApi.uri.sessionCreate, data).then((result) => {
           this.$store.commit('zap/selectZapConfig', {
             zclProperties: this.selectedZclPropertiesData,
             genTemplate: this.selectedZclGenData,
@@ -346,7 +346,7 @@ export default {
   },
   beforeCreate() {
     // setCssVar('primary', '#33F')
-    this.$serverGet(restApi.uri.initialPackagesSessions).then((result) => {
+    this.$serverGet(restApi.uri.sessionAttempt).then((result) => {
       this.zclPropertiesRow = result.data.zclProperties
       this.selectedZclPropertiesData = result.data.zclProperties[0]
       this.zclGenRow = result.data.zclGenTemplates

@@ -31,29 +31,6 @@ const util = require('../util/util.js')
  * @param {*} db
  * @returns Properties, Templates and Dirty-Sessions.
  */
-function packagesAndSessions(db) {
-  return async (req, res) => {
-    const zclProperties = await queryPackage.getPackagesByType(
-      db,
-      dbEnum.packageType.zclProperties
-    )
-    const zclGenTemplates = await queryPackage.getPackagesByType(
-      db,
-      dbEnum.packageType.genTemplatesJson
-    )
-    const sessions = await querySession.getDirtySessionsWithPackages(db)
-    return res.send({
-      zclGenTemplates,
-      zclProperties,
-      sessions,
-    })
-  }
-}
-/**
- * This function returns Properties, Templates and Dirty-Sessions
- * @param {*} db
- * @returns Properties, Templates and Dirty-Sessions.
- */
 function sessionAttempt(db) {
   return async (req, res) => {
     const zclProperties = await queryPackage.getPackagesByType(
@@ -73,7 +50,7 @@ function sessionAttempt(db) {
   }
 }
 
-function createSession(db) {
+function sessionCreate(db) {
   return async (req, res) => {
     console.log(req.body)
     let { zclProperties, genTemplate } = req.body
@@ -195,8 +172,8 @@ function init(db) {
 
 exports.get = [
   {
-    uri: restApi.uri.initialPackagesSessions,
-    callback: packagesAndSessions,
+    uri: restApi.uri.sessionAttempt,
+    callback: sessionAttempt,
   },
 ]
 
@@ -210,8 +187,8 @@ exports.post = [
     callback: initializeSession,
   },
   {
-    uri: restApi.uri.createSession,
-    callback: createSession,
+    uri: restApi.uri.sessionCreate,
+    callback: sessionCreate,
   },
   {
     uri: restApi.uri.init,
