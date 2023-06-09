@@ -350,19 +350,14 @@ export default {
       this.zclPropertiesRow = result.data.zclProperties
       this.selectedZclPropertiesData = result.data.zclProperties[0]
       this.zclGenRow = result.data.zclGenTemplates
-
-      if (!window.location.search.includes('newConfig=true')) {
-        this.customConfig = 'generate'
-        // this.submitForm()
-      } else if (
-        this.zclPropertiesRow.length == 1 &&
-        this.zclGenRow.length == 1
-      ) {
+      if (this.zclPropertiesRow.length == 1 && this.zclGenRow.length == 1) {
         // We shortcut this page, if there is exactly one of each,
         // since we simply assume that they are selected and move on.
-        this.selectedZclGenData[0] = this.zclGenRow[0].id
+        this.selectedZclGenData[0] = this.zclGenRow[0].path
         this.customConfig = 'passthrough'
         this.submitForm()
+      } else {
+        this.customConfig = 'generate'
       }
 
       result.data.sessions.forEach((item) => {
