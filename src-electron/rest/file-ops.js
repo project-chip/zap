@@ -42,7 +42,7 @@ function httpPostFileOpen(db) {
   return async (req, res) => {
     let { zapFilePath, ideProjectPath } = req.body
     let name = ''
-
+    //console.log(zapFilePath)
     if (zapFilePath) {
       if (studio.integrationEnabled(db, req.zapSessionId)) {
         name = path.posix.dirname(

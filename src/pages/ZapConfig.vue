@@ -278,6 +278,7 @@ export default {
       newSessionCol: generateNewSessionCol,
       loadPreSessionCol: loadPreSessionCol,
       zclGenRow: [],
+      path: window.location,
       loadPreSessionData: [],
       pagination: {
         rowsPerPage: 10,
@@ -313,6 +314,7 @@ export default {
           let data = {
             zclProperties: this.selectedZclPropertiesData,
             genTemplate: this.selectedZclGenData,
+            appPath: this.path,
           }
           this.$serverPost(restApi.uri.sessionCreate, data).then((result) => {
             this.$store.commit('zap/selectZapConfig', {
@@ -344,9 +346,8 @@ export default {
       }
     },
   },
-  beforeCreate() {
-    // setCssVar('primary', '#33F')
-    this.$serverGet(restApi.uri.sessionAttempt).then((result) => {
+  mounted() {
+    this.$serverPost(restApi.uri.sessionAttempt, this.path).then((result) => {
       this.zclPropertiesRow = result.data.zclProperties
       this.selectedZclPropertiesData = result.data.zclProperties[0]
       this.zclGenRow = result.data.zclGenTemplates

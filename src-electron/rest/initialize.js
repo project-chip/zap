@@ -33,6 +33,8 @@ const util = require('../util/util.js')
  */
 function sessionAttempt(db) {
   return async (req, res) => {
+    console.log('ATTEMPT')
+    console.log(req.body)
     const zclProperties = await queryPackage.getPackagesByType(
       db,
       dbEnum.packageType.zclProperties
@@ -53,7 +55,8 @@ function sessionAttempt(db) {
 function sessionCreate(db) {
   return async (req, res) => {
     console.log(req.body)
-    let { zclProperties, genTemplate } = req.body
+    let { zclProperties, genTemplate, appPath } = req.body
+    console.log(appPath)
     let sessionUuid = req.query[restApi.param.sessionId]
     let userKey = req.session.id
     console.log('2')
@@ -170,13 +173,6 @@ function init(db) {
   }
 }
 
-exports.get = [
-  {
-    uri: restApi.uri.sessionAttempt,
-    callback: sessionAttempt,
-  },
-]
-
 exports.post = [
   {
     uri: restApi.uri.reloadSession,
@@ -193,5 +189,9 @@ exports.post = [
   {
     uri: restApi.uri.init,
     callback: init,
+  },
+  {
+    uri: restApi.uri.sessionAttempt,
+    callback: sessionAttempt,
   },
 ]
