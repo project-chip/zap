@@ -89,8 +89,15 @@ limitations under the License.
           <q-item class="row">
             <div v-if="isDeviceTypeArray" class="col">
               <strong>Device</strong>
-              <li v-for="dev in deviceType" :key="dev.id">
-                {{ `${dev.description} (${asHex(dev.code, 4)})` }}
+              <li
+                v-for="dev in deviceType"
+                :key="dev.id"
+                class="q-pl-md"
+                style="list-style-type: none"
+              >
+                <strong>{{
+                  `${dev.description} (${asHex(dev.code, 4)})`
+                }}</strong>
               </li>
             </div>
             <div v-else class="col row">
@@ -98,12 +105,12 @@ limitations under the License.
                 <strong>Device</strong>
               </div>
               <div class="col-6">
-                {{
-                  `${deviceType[0].description} (${asHex(
-                    deviceType[0].code,
+                <strong>{{
+                  `${deviceType[0]?.description} (${asHex(
+                    deviceType[0]?.code,
                     4
                   )})`
-                }}
+                }}</strong>
               </div>
             </div>
           </q-item>
