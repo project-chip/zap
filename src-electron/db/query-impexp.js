@@ -151,8 +151,8 @@ ORDER BY
     .then((rows) => rows.map(dbMapping.map.endpointType))
 
   //Associate each endpoint type to the device types
-  for (let et of endpointTypes) {
-    et.deviceTypes = await dbApi
+  for (let i = 0; i < endpointTypes.length; i++) {
+    endpointTypes[i].deviceTypes = await dbApi
       .dbAll(
         db,
         `
@@ -178,12 +178,21 @@ ORDER BY
           DEVICE_TYPE.NAME,
           DEVICE_TYPE.CODE,
           DEVICE_TYPE.PROFILE_ID`,
-        [sessionId, et.endpointTypeId]
+        [sessionId, endpointTypes[i].endpointTypeId]
       )
       .then((rows) => rows.map(dbMapping.map.deviceType))
 
     // Loading endpointTypeRef as primary endpointType for backwards compatibility
-    et.deviceTypeRef = et.deviceTypes[0]
+    endpointTypes[i].deviceTypeRef = endpointTypes[i].deviceTypes[0]
+    endpointTypes[i].deviceTypeName = endpointTypes[i].deviceTypeRef
+      ? endpointTypes[i].deviceTypeRef.name
+      : ''
+    endpointTypes[i].deviceTypeCode = endpointTypes[i].deviceTypeRef
+      ? endpointTypes[i].deviceTypeRef.code
+      : ''
+    endpointTypes[i].deviceTypeProfileId = endpointTypes[i].deviceTypeRef
+      ? endpointTypes[i].deviceTypeRef.profileId
+      : ''
   }
   return endpointTypes
 }

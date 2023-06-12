@@ -673,9 +673,10 @@ async function updateEndpointType(
 
   //Re-insert endpoint_type_device references with the new references to device types
   let endpointTypeDeviceInfoValues = []
-  existingDeviceTypes.forEach((dt, index) =>
+  updatedValue.forEach((dt, index) =>
     endpointTypeDeviceInfoValues.push([endpointTypeId, dt, index])
   )
+
   await dbApi.dbMultiInsert(
     db,
     `
@@ -687,10 +688,16 @@ async function updateEndpointType(
   )
 
   let isDeviceTypeRefsUpdated =
-    existingDeviceTypes.length === updatedValue.length &&
-    existingDeviceTypes.every((value, index) => value == updatedValue[index])
+    existingDeviceTypes.length !== updatedValue.length ||
+    existingDeviceTypes.every((value, index) => value != updatedValue[index])
+
+  // When updating the zcl device types, overwrite on top of existing configuration
+  // Note: Here the existing selections are not removed. For eg: the clusters which
+  // came from a removed zcl device type continue to exist.
   if (param === 'DEVICE_TYPE_REF' && isDeviceTypeRefsUpdated) {
-    await setEndpointDefaults(db, sessionId, endpointTypeId, updatedValue)
+    for (const dtRef of updatedValue) {
+      await setEndpointDefaults(db, sessionId, endpointTypeId, dtRef)
+    }
   }
   return newEndpointId
 }

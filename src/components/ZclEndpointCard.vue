@@ -107,53 +107,41 @@ limitations under the License.
               </div>
             </div>
           </q-item>
-          <q-item class="row">
+          <q-item class="row" v-if="isDeviceTypeArray">
             <div class="col-6">
               <strong>Primary Device</strong>
             </div>
             <div class="col-6">
-              {{
+              <strong>{{
                 `${deviceType[0]?.description} (${asHex(
                   deviceType[0]?.code,
                   4
                 )})`
-              }}
+              }}</strong>
             </div>
           </q-item>
           <q-item class="row">
-            <div class="col-6">Network</div>
             <div class="col-6">
-              <strong> {{ networkId[endpointReference] }}</strong>
+              <strong>Network</strong>
+            </div>
+            <div class="col-6">
+              <strong>{{ networkId[endpointReference] }}</strong>
             </div>
           </q-item>
           <q-item class="row" v-if="$store.state.zap.isProfileIdShown">
-            <div class="col-6">Profile ID</div>
             <div class="col-6">
-              <strong> {{ asHex(profileId[endpointReference], 4) }}</strong>
+              <strong>Profile ID</strong>
             </div>
-          </q-item>
-          <q-item class="row">
-            <div class="col-6">Version</div>
             <div class="col-6">
-              <strong>{{ endpointVersion[endpointReference] }} </strong>
+              <strong>{{ asHex(profileId[endpointReference], 4) }}</strong>
             </div>
           </q-item>
           <q-item class="row">
-            <div class="col-6">Enabled Clusters</div>
-            <div class="col-6" data-test="endpoint-enabled-clusters-amount">
-              <strong>{{ selectedServers.length }}</strong>
-            </div>
-          </q-item>
-          <q-item class="row">
-            <div class="col-6">Enabled Attributes</div>
-            <div class="col-6" data-test="endpoint-enabled-attributes-amount">
-              <strong>{{ selectedAttributes.length }}</strong>
-            </div>
-          </q-item>
-          <q-item class="row">
-            <div class="col-6">Enabled Reporting</div>
             <div class="col-6">
-              <strong>{{ selectedReporting.length }}</strong>
+              <strong>Version</strong>
+            </div>
+            <div class="col-6">
+              <strong>{{ endpointVersion[endpointReference] }}</strong>
             </div>
           </q-item>
         </q-list>

@@ -173,25 +173,23 @@ export default {
 
       const deviceTypeRefs =
         this.endpointDeviceTypeRef[this.endpointType[this.endpointReference]]
-      const deviceIdentifiers = this.endpointDeviceId[this.endpointReference]
       const deviceTypes = []
       if (Array.isArray(deviceTypeRefs)) {
         for (let i = 0; i < deviceTypeRefs.length; i++) {
           deviceTypes.push({
             deviceTypeRef: deviceTypeRefs[i],
-            deviceIdentifier: deviceIdentifiers[i],
+            deviceIdentifier: this.zclDeviceTypes[deviceTypeRefs[i]].code,
           })
         }
       } else {
         deviceTypes.push({
           deviceTypeRef: deviceTypeRefs,
-          deviceIdentifier: deviceIdentifiers,
+          deviceIdentifier: this.zclDeviceTypes[deviceTypeRefs].code,
         })
       }
 
       // Set device types only in edit mode
       this.deviceTypeTmp = deviceTypes
-      this.deviceTypeMountSnapshot = JSON.parse(JSON.stringify(deviceTypes))
       this.primaryDeviceTypeTmp = deviceTypes[0] ?? null // First item is the primary device type
     } else {
       this.shownEndpoint.endpointIdentifier = this.getSmallestUnusedEndpointId()
@@ -217,10 +215,6 @@ export default {
       primaryDeviceTypeTmp: null, // Temp store for the selected primary device type
       enableMultipleDevice: false,
       enablePrimaryDevice: false,
-      warningMessage: '',
-      showWarningDialog: false,
-      warningDialogReturnValue: null,
-      deviceTypeMountSnapshot: null,
     }
   },
   computed: {
@@ -466,7 +460,6 @@ export default {
                   endpointTypeIdList: this.endpointTypeIdList,
                 })
               }
-
               this.$store.dispatch('zap/updateSelectedEndpointType', {
                 endpointType: this.endpointType[res.id],
                 deviceTypeRef:
@@ -557,8 +550,7 @@ export default {
 
       this.$store.dispatch('zap/updateSelectedEndpointType', {
         endpointType: endpointReference,
-        deviceTypeRef:
-          this.endpointDeviceTypeRef[this.endpointType[this.endpointReference]],
+        deviceTypeRef: deviceTypeRef,
       })
       this.$store.dispatch('zap/updateSelectedEndpoint', this.endpointReference)
     },
