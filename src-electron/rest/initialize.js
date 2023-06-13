@@ -36,10 +36,10 @@ const fsp = fs.promises
 function sessionAttempt(db) {
   return async (req, res) => {
     console.log('ATTEMPT')
-    let filePath = req.body.search.split('filePath=')
-    filePath = filePath[1].replaceAll('%2F', '//').trim()
-    console.log(filePath)
+    let filePath = req.body.search
     if (filePath) {
+      filePath = filePath.split('filePath=')
+      filePath = filePath[1].replaceAll('%2F', '//').trim()
       console.log('TEST!!!')
       let data = await fsp.readFile(filePath)
       let obj = JSON.parse(data)
