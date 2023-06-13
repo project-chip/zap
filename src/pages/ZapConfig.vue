@@ -325,7 +325,8 @@ export default {
         }
       } else if (this.customConfig === 'passthrough') {
         let data = {
-          newConfiguration: true,
+          zclProperties: this.selectedZclPropertiesData,
+          genTemplate: this.selectedZclGenData,
         }
 
         this.$serverPost(restApi.uri.sessionCreate, data).then((result) => {
@@ -346,7 +347,7 @@ export default {
       }
     },
   },
-  mounted() {
+  created() {
     this.$serverPost(restApi.uri.sessionAttempt, this.path).then((result) => {
       this.zclPropertiesRow = result.data.zclProperties
       this.selectedZclPropertiesData = result.data.zclProperties[0]
