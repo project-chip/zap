@@ -249,6 +249,21 @@ export default {
     regenerateIntoDirectory(currentPath) {
       this.doGeneration(currentPath)
     },
+    getNotifications() {
+      this.$serverGet(restApi.uri.notification)
+        .then((resp) => {
+          let notificationCount = resp.data.length
+          this.$store.commit('zap/updateNotificationCount', notificationCount)
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+    },
+  },
+  created() {
+    if (this.$serverGet != null) {
+      this.getNotifications()
+    }
   },
   mounted() {
     this.$onWebSocket(dbEnum.wsCategory.notificationCount, (notificationCount) => { 

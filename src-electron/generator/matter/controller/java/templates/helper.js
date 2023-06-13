@@ -231,7 +231,6 @@ async function as_underlying_java_zcl_type_util(
 
   if (!dataType) {
     env.logWarning(type + ' not found in the data_type table');
-    notification.setNotification(context.global.db, "WARNING", type + ' not found in the data_type table', context.global.sessionId, 1, 0)
     return 0;
   }
   let isBoxedJavaType =

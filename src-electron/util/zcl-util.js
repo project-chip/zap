@@ -26,7 +26,6 @@ const queryEvent = require('../db/query-event')
 const dbEnum = require('../../src-shared/db-enum')
 const env = require('./env')
 const types = require('./types')
-const notification = require('../db/query-notification.js')
 
 
 /**
@@ -267,8 +266,6 @@ function calculateBytesForTypes(res, options, db, packageIds) {
           ' calculateBytesForTypes: ' +
           err
       )
-      notification.setNotification(db, 'ERROR', 'Could not find size of the given type in' +
-      ' calculateBytesForTypes: ' + err, this.global.sessionId, 2, 0)
     })
 }
 
@@ -304,11 +301,6 @@ async function calculateBytesForStructs(res, options, db, packageIds) {
             ' calculate_size_for_structs: ' +
             err
         )
-        notification.setNotification(db, 'ERROR', 'Could not find size of struct ' +
-        res +
-        ' in' +
-        ' calculate_size_for_structs: ' +
-        err, this.global.sessionId, 2, 0)
         return 0
       })
   }
@@ -391,8 +383,6 @@ function returnOptionsForTypes(size, res, options) {
         ' returnOptionsForTypes: ' +
         err
     )
-    notification.setNotification(db, 'ERROR', 'Could not find size of the given type in' +
-    ' returnOptionsForTypes: ' + err, this.global.sessionId, 2, 0)
   })
 }
 
@@ -686,8 +676,6 @@ async function asUnderlyingZclTypeWithPackageId(
     })
     .catch((err) => {
       env.logError(err)
-      notification.setNotification(currentInstance.global.db, 'ERROR', 'Could not find size of the given type in' +
-    ' returnOptionsForTypes: ' + err, currentInstance.global.sessionId, 2, 0)
       throw err
     })
 }
@@ -857,7 +845,6 @@ async function zcl_data_type_size_and_sign(
     result = number.size
   } else {
     env.logWarning(type + ' is a complex type and size could not be determined')
-    notification.setNotification(context.global.db, "WARNING", type + ' is a complex type and size could not be determined', context.global.sessionId, 1, 0)
   }
   return { size: result, isSigned: isSigned }
 }

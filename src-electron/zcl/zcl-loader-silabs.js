@@ -30,6 +30,7 @@ const util = require('../util/util')
 const dbEnum = require('../../src-shared/db-enum')
 const zclLoader = require('./zcl-loader')
 const _ = require('lodash')
+const queryNotification = require('../db/query-notification')
 
 /**
  * Promises to read the JSON file and resolve all the data.
@@ -2159,6 +2160,7 @@ async function loadIndividualSilabsFile(db, filePath, sessionId) {
     return { succeeded: true, packageId: pkgId }
   } catch (err) {
     env.logError(`Error reading xml file: ${filePath}\n` + err.message)
+    queryNotification.setNotification(db, "ERROR", `Error reading xml file: ${filePath}\n` + err.message, sessionId, 2, 0)
     return { succeeded: false, err: err }
   }
 }

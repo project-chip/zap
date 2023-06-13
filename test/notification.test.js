@@ -61,6 +61,8 @@ test(
 
     let notifications = await notification.getNotification(db, sessionId)
 
+    let order = 0
+
     // check if the returned notifications include the one we just set
     let isNotificationSet = false;
     for(let i = 0; i < notifications.length; i++) {
@@ -71,6 +73,7 @@ test(
             notifications[i].display === display)
           {
             isNotificationSet = true;
+            order = notifications[i].order
             break;
           }
     }
@@ -78,7 +81,7 @@ test(
 
 
     // delete the notification we just created
-    await notification.deleteNotification(db, sessionId, type, message)
+    await notification.deleteNotification(db, order)
 
     notifications = await notification.getNotification(db, sessionId)
 

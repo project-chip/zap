@@ -94,25 +94,15 @@ function httpPostFileOpen(db) {
           message: e.message,
           stack: e.stack,
         }
-        queryNotification.setNotification(
-          db,
-          'ERROR',
-          errMsg.message,
-          req.zapSessionId,
-          1
-        )
-        studio.sendSessionCreationErrorStatus(
-          db,
-          errMsg.message,
-          req.zapSessionId
-        )
+        studio.sendSessionCreationErrorStatus(db, errMsg.message, req.zapSessionId)
         env.logError(e.message)
-        queryNotification.setNotification(db, 'ERROR', errMsg.message, importResult.sessionId, 2, 0)
+        queryNotification.setNotification(db, 'ERROR', errMsg.message, req.zapSessionId, 2, 0)
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(errMsg)
       }
     } else {
       let msg = `Opening/Loading project: Missing zap file path.`
       env.logWarning(msg)
+      queryNotification.setNotification(db, 'WARNING', errMsg.message, req.zapSessionId, 2, 0)
       res.status(StatusCodes.BAD_REQUEST).send({ error: msg })
     }
   }

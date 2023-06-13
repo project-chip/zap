@@ -11,6 +11,9 @@
       </template>
       <template v-slot:body="props">
         <q-tr :props="props" class="table_body">
+          <q-td style="display: none;" key="order" :props="props">
+            <div>{{ props.row.order }}</div>
+          </q-td>
           <q-td key="ref" :props="props">
             <div>{{ props.row.ref }}</div>
           </q-td>
@@ -22,6 +25,9 @@
           </q-td>
           <q-td key="severity" :props="props">
             <div>{{ props.row.severity }}</div>
+          </q-td>
+          <q-td> 
+            <q-btn icon="delete" @click="deleteNotification(props.row.order)"/>
           </q-td>
         </q-tr>
       </template>
@@ -44,11 +50,26 @@ export default {
           for (let i = 0; i < resp.data.length; i++) {
             this.notis.push(resp.data[i])
           }
+          let notificationCount = resp.data.length
+          this.$store.commit('zap/updateNotificationCount', notificationCount)
         })
         .catch((err) => {
           console.log(err)
         })
     },
+    deleteNotification(data) {
+      console.log(data)
+      let parameters = {
+        order: data,
+      }
+      let config = {params: parameters}
+      this.$serverDelete(restApi.uri.deleteNotification, config)
+        .then((resp) => {
+           this.notis = []
+           this.getNotifications()
+        })
+    }
+
   },
   data() {
     return {
@@ -72,6 +93,12 @@ export default {
           label: 'severity',
           field: 'severity',
         },
+        {
+          name: 'delete',
+          align: 'center',
+          label: 'delete',
+          field: 'delete',
+        }
       ],
       notis: [],
     }

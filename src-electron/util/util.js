@@ -37,7 +37,7 @@ const { v4: uuidv4 } = require('uuid')
 const xml2js = require('xml2js')
 const singleInstance = require('single-instance')
 const string = require('./string')
-const notification = require('../db/query-notification.js')
+const queryNotification = require('../db/query-notification.js')
 
 /**
  * Returns the CRC of the data that is passed.
@@ -105,6 +105,7 @@ async function ensurePackagesAndPopulateSessionOptions(
           )
         } else if (rows.length == 0) {
           env.logError(`No zcl.properties found for session.`)
+          queryNotification.setNotification(db, "WARNING", `No zcl.properties found for session.`, 2, 0)
           packageId = null
         } else {
           rows.forEach((p) => {
@@ -115,7 +116,7 @@ async function ensurePackagesAndPopulateSessionOptions(
           env.logWarning(
             `${sessionId}, ${zclFile}: Multiple toplevel zcl.properties found. Using the first one from args: ${packageId}`
           )
-          notification.setNotification(db, "WARNING", `${sessionId}, ${zclFile}: Multiple toplevel zcl.properties found. Using the first one from args: ${packageId}`, 
+          queryNotification.setNotification(db, "WARNING", `${sessionId}, ${zclFile}: Multiple toplevel zcl.properties found. Using the first one from args: ${packageId}`, 
           sessionId, 1, 0)
         }
         if (packageId != null) {
@@ -161,14 +162,14 @@ async function ensurePackagesAndPopulateSessionOptions(
                 env.logWarning(
                   `Multiple toplevel generation template metafiles found. Using the one from args: ${packageId}`
                 )
-                notification.setNotification(db, "WARNING", `Multiple toplevel generation template metafiles found. Using the one from args: ${packageId}`, 
+                queryNotification.setNotification(db, "WARNING", `Multiple toplevel generation template metafiles found. Using the one from args: ${packageId}`, 
                 sessionId, 1, 0)
               } else {
                 packageId = rows[0].id
                 env.logWarning(
                   `Multiple toplevel generation template metafiles found. Using the first one.`
                 )
-                notification.setNotification(db, "WARNING", `Multiple toplevel generation template metafiles found. Using the first one.`, sessionId, 1, 0)
+                queryNotification.setNotification(db, "WARNING", `Multiple toplevel generation template metafiles found. Using the first one.`, sessionId, 1, 0)
               }
             }
             if (packageId != null) {
