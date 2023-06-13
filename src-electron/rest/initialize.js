@@ -25,6 +25,8 @@ const querySession = require('../db/query-session.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const restApi = require('../../src-shared/rest-api.js')
 const util = require('../util/util.js')
+const fs = require('fs')
+const fsp = fs.promises
 
 /**
  * This function returns Properties, Templates and Dirty-Sessions
@@ -35,22 +37,47 @@ function sessionAttempt(db) {
   return async (req, res) => {
     console.log('ATTEMPT')
     let filePath = req.body.search.split('filePath=')
-    console.log(filePath[1].replaceAll('%2F', '//'))
-
-    const zclProperties = await queryPackage.getPackagesByType(
-      db,
-      dbEnum.packageType.zclProperties
-    )
-    const zclGenTemplates = await queryPackage.getPackagesByType(
-      db,
-      dbEnum.packageType.genTemplatesJson
-    )
-    const sessions = await querySession.getDirtySessionsWithPackages(db)
-    return res.send({
-      zclGenTemplates,
-      zclProperties,
-      sessions,
-    })
+    filePath = filePath[1].replaceAll('%2F', '//').trim()
+    console.log(filePath)
+    if (filePath) {
+      console.log('TEST!!!')
+      let data = await fsp.readFile(filePath)
+      let obj = JSON.parse(data)
+      console.log(obj)
+      console.log(obj.package[0].category)
+      let category = obj.package[0].category
+      const zclProperties = await queryPackage.getPackagesByCategoryAndType(
+        db,
+        dbEnum.packageType.zclProperties,
+        category
+      )
+      const zclGenTemplates = await queryPackage.getPackagesByCategoryAndType(
+        db,
+        dbEnum.packageType.genTemplatesJson,
+        category
+      )
+      const sessions = await querySession.getDirtySessionsWithPackages(db)
+      return res.send({
+        zclGenTemplates,
+        zclProperties,
+        sessions,
+      })
+    } else {
+      const zclProperties = await queryPackage.getPackagesByType(
+        db,
+        dbEnum.packageType.zclProperties
+      )
+      const zclGenTemplates = await queryPackage.getPackagesByType(
+        db,
+        dbEnum.packageType.genTemplatesJson
+      )
+      const sessions = await querySession.getDirtySessionsWithPackages(db)
+      return res.send({
+        zclGenTemplates,
+        zclProperties,
+        sessions,
+      })
+    }
   }
 }
 

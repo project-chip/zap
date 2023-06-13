@@ -139,6 +139,21 @@ async function getPackagesByType(db, type) {
     .dbAll(db, `${querySelectFromPackage} WHERE TYPE = ?`, [type])
     .then((rows) => rows.map(dbMapping.map.package))
 }
+/**
+ * Returns packages of a given type.
+ *
+ * @param {*} db
+ * @param {*} type
+ * @returns A promise that resolves into the rows array of packages.
+ */
+async function getPackagesByCategoryAndType(db, type, category) {
+  return dbApi
+    .dbAll(db, `${querySelectFromPackage} WHERE TYPE = ? AND CATEGORY = ?`, [
+      type,
+      category,
+    ])
+    .then((rows) => rows.map(dbMapping.map.package))
+}
 
 /**
  * Returns packages of a given type and parent.
@@ -1004,3 +1019,4 @@ exports.deleteSessionPackage = deleteSessionPackage
 exports.selectAllUiOptions = selectAllUiOptions
 exports.insertSessionKeyValuesFromPackageDefaults =
   insertSessionKeyValuesFromPackageDefaults
+exports.getPackagesByCategoryAndType = getPackagesByCategoryAndType
