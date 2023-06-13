@@ -34,7 +34,9 @@ const util = require('../util/util.js')
 function sessionAttempt(db) {
   return async (req, res) => {
     console.log('ATTEMPT')
-    console.log(req.body)
+    let filePath = req.body.search.split('filePath=')
+    console.log(filePath[1].replaceAll('%2F', '//'))
+
     const zclProperties = await queryPackage.getPackagesByType(
       db,
       dbEnum.packageType.zclProperties
@@ -54,9 +56,8 @@ function sessionAttempt(db) {
 
 function sessionCreate(db) {
   return async (req, res) => {
-    console.log(req.body)
     let { zclProperties, genTemplate, appPath } = req.body
-    console.log(appPath)
+
     let sessionUuid = req.query[restApi.param.sessionId]
     let userKey = req.session.id
     console.log('2')
