@@ -37,7 +37,7 @@ function sessionAttempt(db) {
   return async (req, res) => {
     console.log('ATTEMPT')
     console.log(req.body.search)
-    if (req.body.search.includes('filePath=\\')) {
+    if (req.body.search.includes('filePath=%2F')) {
       let filePath = req.body.search.split('filePath=')
       filePath = filePath[1].replaceAll('%2F', '//').trim()
       console.log('TEST!!!')
