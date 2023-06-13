@@ -55,6 +55,7 @@ function createQueryString(
   uiMode?: string | undefined,
   standalone?: boolean | undefined,
   isNew?: boolean | undefined,
+  filePath?: string | null | undefined,
   restPort?: number
 ) {
   const params = new Map()
@@ -74,6 +75,9 @@ function createQueryString(
   if (isNew !== undefined) {
     params.set('newConfig', isNew)
   }
+  if (filePath !== undefined) {
+    params.set('filePath', filePath)
+  }
 
   // Electron/Development mode
   if (
@@ -92,7 +96,7 @@ function createQueryString(
  *
  * @export
  * @param {*} port
- * @param {*} [filePath=null]
+ * @param {*} filePath
  * @param {*} [uiMode=null]
  * @returns BrowserWindow that got created
  */
@@ -130,6 +134,7 @@ export function windowCreate(port: number, args?: WindowCreateArgs) {
     args?.uiMode,
     args?.standalone,
     args?.new,
+    args?.filePath,
     httpServer.httpServerPort()
   )
 
