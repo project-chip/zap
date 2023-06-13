@@ -176,7 +176,7 @@ export default {
         this.$store.commit('zap/toggleEndpointModal', false)
       } else {
         this.$router
-          .push({ name: 'Home' })
+          .push('/')
           .then(() => {})
           .then(() => {
             this.endpoints.length > 0 ? this.handleDeletionDialog() : ''
