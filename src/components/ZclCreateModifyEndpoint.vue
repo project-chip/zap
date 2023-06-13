@@ -399,13 +399,19 @@ export default {
     },
     newEpt() {
       const deviceTypeRef = []
+      const deviceIdentifier = []
+      const deviceVersion = []
       this.deviceTypeTmp.forEach((dt) => {
         deviceTypeRef.push(dt.deviceTypeRef)
+        deviceIdentifier.push(dt.deviceIdentifier)
+        deviceVersion.push(dt.deviceVersion)
       })
       this.$store
         .dispatch(`zap/addEndpointType`, {
           name: 'Anonymous Endpoint Type',
           deviceTypeRef,
+          deviceIdentifier,
+          deviceVersion,
         })
         .then((response) => {
           const deviceIdentifier = []

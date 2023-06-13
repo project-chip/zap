@@ -70,14 +70,8 @@ function httpDeleteEndpointType(db) {
  */
 function httpPostEndpoint(db) {
   return async (request, response) => {
-    let {
-      endpointId,
-      networkId,
-      profileId,
-      endpointType,
-      endpointVersion,
-      deviceIdentifier,
-    } = request.body
+    let { endpointId, networkId, profileId, endpointType, deviceIdentifier } =
+      request.body
     let sessionId = request.zapSessionId
     let newId = await queryEndpoint.insertEndpoint(
       db,
@@ -86,7 +80,6 @@ function httpPostEndpoint(db) {
       endpointType,
       networkId,
       profileId,
-      endpointVersion,
       deviceIdentifier
     )
     try {
@@ -99,7 +92,6 @@ function httpPostEndpoint(db) {
         networkId: networkId,
         deviceId: deviceIdentifier,
         profileId: profileId,
-        endpointVersion: endpointVersion,
         validationIssues: validationData,
       })
     } catch (err) {
@@ -144,20 +136,24 @@ function httpPatchEndpoint(db) {
  */
 function httpPostEndpointType(db) {
   return async (request, response) => {
-    let { name, deviceTypeRef } = request.body
+    let { name, deviceTypeRef, deviceIdentifier, deviceVersion } = request.body
     let sessionId = request.zapSessionId
     try {
       let newId = await queryConfig.insertEndpointType(
         db,
         sessionId,
         name,
-        deviceTypeRef
+        deviceTypeRef,
+        deviceIdentifier,
+        deviceVersion
       )
 
       response.status(StatusCodes.OK).json({
         id: newId,
         name: name,
         deviceTypeRef: deviceTypeRef,
+        deviceTypeIdentifier: deviceVersion,
+        deviceTypeVersion: deviceVersion,
       })
     } catch (err) {
       response.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err)

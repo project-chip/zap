@@ -525,11 +525,19 @@ async function insertEndpointType(
   sessionId,
   name,
   deviceTypeRef,
+  deviceTypeIdentifier,
+  deviceTypeVersion,
   doTransaction = true
 ) {
   let deviceTypeRefs = Array.isArray(deviceTypeRef)
     ? deviceTypeRef
     : [deviceTypeRef]
+  let deviceTypeIdentifiers = Array.isArray(deviceTypeIdentifier)
+    ? deviceTypeIdentifier
+    : [deviceTypeIdentifier]
+  let deviceTypeVersions = Array.isArray(deviceTypeVersion)
+    ? deviceTypeVersion
+    : [deviceTypeVersion]
   // Insert endpoint type
   let newEndpointTypeId = await dbApi.dbInsert(
     db,
@@ -540,14 +548,20 @@ async function insertEndpointType(
   // Creating endpoint type and device type ref combinations along with order of insertion
   let newEndpointTypeIdDeviceCombination = []
   for (let i = 0; i < deviceTypeRefs.length; i++) {
-    let endpointTypeDevice = [newEndpointTypeId, deviceTypeRefs[i], i]
+    let endpointTypeDevice = [
+      newEndpointTypeId,
+      deviceTypeRefs[i],
+      deviceTypeIdentifiers[i],
+      deviceTypeVersions[i],
+      i,
+    ]
     newEndpointTypeIdDeviceCombination.push(endpointTypeDevice)
   }
 
   // Insert into endpoint_type_device
   await dbApi.dbMultiInsert(
     db,
-    'INSERT INTO ENDPOINT_TYPE_DEVICE (ENDPOINT_TYPE_REF, DEVICE_TYPE_REF, DEVICE_TYPE_ORDER) VALUES (?, ?, ?)',
+    'INSERT INTO ENDPOINT_TYPE_DEVICE (ENDPOINT_TYPE_REF, DEVICE_TYPE_REF, DEVICE_IDENTIFIER, DEVICE_VERSION, DEVICE_TYPE_ORDER) VALUES (?, ?, ?, ?, ?)',
     newEndpointTypeIdDeviceCombination
   )
 
@@ -578,7 +592,11 @@ async function duplicateEndpointType(db, endpointTypeId) {
     db,
     `
     SELECT
-      ENDPOINT_TYPE.SESSION_REF, ENDPOINT_TYPE.NAME, ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_REF
+      ENDPOINT_TYPE.SESSION_REF,
+      ENDPOINT_TYPE.NAME,
+      ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_REF,
+      ENDPOINT_TYPE_DEVICE.DEVICE_IDENTIFIER,
+      ENDPOINT_TYPE_DEVICE.DEVICE_VERSION
     FROM
       ENDPOINT_TYPE
     INNER JOIN
@@ -607,6 +625,8 @@ async function duplicateEndpointType(db, endpointTypeId) {
       endpointTypeDeviceInfoValues.push([
         newEndpointTypeId,
         dt.DEVICE_TYPE_REF,
+        dt.DEVICE_IDENTIFIER,
+        dt.DEVICE_VERSION,
         index,
       ])
     )
@@ -614,9 +634,9 @@ async function duplicateEndpointType(db, endpointTypeId) {
       db,
       `
       INSERT INTO
-        ENDPOINT_TYPE_DEVICE (ENDPOINT_TYPE_REF, DEVICE_TYPE_REF, DEVICE_TYPE_ORDER)
+        ENDPOINT_TYPE_DEVICE (ENDPOINT_TYPE_REF, DEVICE_TYPE_REF, DEVICE_IDENTIFIER, DEVICE_VERSION, DEVICE_TYPE_ORDER)
       VALUES
-        (?, ?, ?)`,
+        (?, ?, ?, ?, ?)`,
       endpointTypeDeviceInfoValues
     )
   }

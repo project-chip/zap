@@ -36,16 +36,21 @@ async function selectAllEndpoints(db, sessionId) {
     db,
     `
 SELECT
-  ENDPOINT_ID,
-  SESSION_REF,
-  ENDPOINT_TYPE_REF,
-  PROFILE,
-  ENDPOINT_IDENTIFIER,
-  NETWORK_IDENTIFIER,
-  DEVICE_VERSION,
-  DEVICE_IDENTIFIER
-FROM ENDPOINT
-WHERE SESSION_REF = ?
+  ENDPOINT.ENDPOINT_ID,
+  ENDPOINT.SESSION_REF,
+  ENDPOINT.ENDPOINT_TYPE_REF,
+  ENDPOINT.PROFILE,
+  ENDPOINT.ENDPOINT_IDENTIFIER,
+  ENDPOINT.NETWORK_IDENTIFIER,
+  ENDPOINT_TYPE_DEVICE.DEVICE_VERSION,
+  ENDPOINT_TYPE_DEVICE.DEVICE_IDENTIFIER
+FROM
+  ENDPOINT
+LEFT JOIN
+  ENDPOINT_TYPE_DEVICE
+ON
+  ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF = ENDPOINT.ENDPOINT_TYPE_REF
+WHERE ENDPOINT.SESSION_REF = ?
 ORDER BY ENDPOINT_IDENTIFIER
     `,
     [sessionId]
@@ -335,7 +340,6 @@ async function insertEndpoint(
   endpointTypeRef,
   networkIdentifier,
   profileIdentifier,
-  endpointVersion,
   deviceIdentifier
 ) {
   let primaryDeviceIdentifierForEndpoint = Array.isArray(deviceIdentifier)
@@ -350,17 +354,13 @@ INTO ENDPOINT (
   ENDPOINT_IDENTIFIER,
   ENDPOINT_TYPE_REF,
   NETWORK_IDENTIFIER,
-  DEVICE_VERSION,
-  DEVICE_IDENTIFIER,
   PROFILE
-) VALUES ( ?, ?, ?, ?, ?, ?, ?)`,
+) VALUES ( ?, ?, ?, ?, ?)`,
     [
       sessionId,
       endpointIdentifier,
       endpointTypeRef,
       networkIdentifier,
-      endpointVersion,
-      primaryDeviceIdentifierForEndpoint,
       profileIdentifier,
     ]
   )
@@ -377,10 +377,24 @@ async function duplicateEndpoint(db, id, endpointIdentifier, endpointTypeId) {
   return dbApi.dbInsert(
     db,
     `
-    insert into ENDPOINT (SESSION_REF,ENDPOINT_IDENTIFIER,ENDPOINT_TYPE_REF,NETWORK_IDENTIFIER,DEVICE_VERSION,DEVICE_IDENTIFIER,PROFILE)
-    select SESSION_REF, ? , ? ,NETWORK_IDENTIFIER,DEVICE_VERSION,DEVICE_IDENTIFIER,PROFILE
-    from ENDPOINT
-    where ENDPOINT_ID = ?`,
+    INSERT INTO
+      ENDPOINT (
+        SESSION_REF,
+        ENDPOINT_IDENTIFIER,
+        ENDPOINT_TYPE_REF,
+        NETWORK_IDENTIFIER,
+        PROFILE
+      )
+    SELECT 
+      SESSION_REF,
+      ?,
+      ?,
+      NETWORK_IDENTIFIER,
+      PROFILE
+    FROM
+      ENDPOINT
+    WHERE
+      ENDPOINT_ID = ?`,
     [endpointIdentifier, endpointTypeId, id]
   )
 }
@@ -399,16 +413,20 @@ async function selectEndpoint(db, endpointId) {
       db,
       `
 SELECT
-  ENDPOINT_ID,
-  SESSION_REF,
-  ENDPOINT_IDENTIFIER,
-  ENDPOINT_TYPE_REF,
-  PROFILE,
-  NETWORK_IDENTIFIER,
-  DEVICE_VERSION,
-  DEVICE_IDENTIFIER
+  ENDPOINT.ENDPOINT_ID,
+  ENDPOINT.SESSION_REF,
+  ENDPOINT.ENDPOINT_IDENTIFIER,
+  ENDPOINT.ENDPOINT_TYPE_REF,
+  ENDPOINT.PROFILE,
+  ENDPOINT.NETWORK_IDENTIFIER,
+  ENDPOINT_TYPE_DEVICE.DEVICE_VERSION,
+  ENDPOINT_TYPE_DEVICE.DEVICE_IDENTIFIER
 FROM
   ENDPOINT
+LEFT JOIN
+  ENDPOINT_TYPE_DEVICE
+ON
+  ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF = ENDPOINT.ENDPOINT_TYPE_REF
 WHERE
   ENDPOINT_ID = ?`,
       [endpointId]

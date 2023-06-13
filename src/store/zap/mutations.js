@@ -223,7 +223,9 @@ export function addEndpointType(state, endpointType) {
   vue3Set(
     state.endpointTypeView.deviceTypeRef,
     endpointType.id,
-    endpointType.deviceTypeRef
+    endpointType.deviceTypeRef,
+    endpointType.deviceIdentifier,
+    endpointType.deviceVersion
   )
 }
 
