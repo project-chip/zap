@@ -381,7 +381,6 @@ function deprecatedHelper(fn, explanation) {
     ) {
       this.global.deprecationWarnings[fn.name] = true
       env.logWarning(`${this.global.templatePath} : ${msg}`)
-      notification.setNotification(this.global.db, "WARNING", `${this.global.templatePath} : ${msg}`, this.global.sessionId, 1, 0)
     }
     return fn.apply(this, arguments)
   }

@@ -69,6 +69,23 @@ function httpGetNotifications(db) {
 }
 
 /**
+ * HTTP DELETE: session delete notifications
+ *
+ * @param {*} db
+ * @returns callback for the express uri registration
+ */
+function httpDeleteNotification(db) {
+  return async (request, response) => {
+    console.log(request.query)
+    let order = request.query.order
+    let resp = await queryNotification.deleteNotification(db, order)
+    response.status(StatusCodes.OK).json(resp)
+  }
+}
+
+
+
+/**
  * HTTP POST: save session key value
  *
  * @param {*} db
@@ -894,5 +911,9 @@ exports.delete = [
   {
     uri: restApi.uri.sessionPackage,
     callback: httpDeleteSessionPackage,
+  },
+  {
+    uri: restApi.uri.deleteNotification,
+    callback: httpDeleteNotification,
   },
 ]

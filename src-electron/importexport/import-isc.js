@@ -28,7 +28,7 @@ const util = require('../util/util')
 const dbEnum = require('../../src-shared/db-enum')
 const restApi = require('../../src-shared/rest-api')
 const env = require('../util/env')
-const notification = require('../db/query-notification.js')
+const queryNotification = require('../db/query-notification.js')
 
 /**
  * Locates or adds an attribute, and returns it.
@@ -641,7 +641,7 @@ async function loadSessionKeyValues(db, sessionId, keyValues) {
 async function iscDataLoader(db, state, sessionId) {
   let endpointTypes = state.endpointTypes
   let promises = []
-  await notification.setNotification(
+  await queryNotification.setNotification(
     db,
     'UPGRADE',
     'ISC FILE UPGRADED TO ZAP FILE. PLEASE SAVE AS TO SAVE OFF NEWLY CREATED ZAP FILE.',
@@ -674,6 +674,7 @@ async function iscDataLoader(db, state, sessionId) {
   let genPackageId = null
   if (genPackages.length == 0) {
     env.logWarning('No gen packages, missing the extensions matching.')
+    queryNotification.setNotification(db, "WARNING", 'No gen packages, missing the extensions matching.', 2, 0)
   } else {
     genPackageId = genPackages[0].id
   }

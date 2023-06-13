@@ -41,7 +41,7 @@ const op_remove = '/rest/clic/component/remove/project/'
 let ucComponentStateReportId: NodeJS.Timeout
 let studioHttpPort: number
 
-const notification = require('../db/query-notification.js')
+const queryNotification = require('../db/query-notification.js')
 
 function projectPath(db: dbTypes.DbType, sessionId: number) {
   return querySession.getSessionKeyValue(
@@ -109,14 +109,14 @@ async function getProjectInfo(
       })
       .catch((err) => {
         env.logError(`StudioUC(${name}): ERR: ${err}`)
-        notification.setNotification(db, 'ERROR', `StudioUC(${name}): ERR: ${err}`, sessionId, 2, 0)
+        queryNotification.setNotification(db, 'ERROR', `StudioUC(${name}): ERR: ${err}`, sessionId, 2, 0)
         return { data: [] }
       })
   } else {
     env.logError(
       `StudioUC(): Invalid Studio path project. Failed to retrieve project info.`
     )
-    notification.setNotification(db, 'ERROR', `StudioUC(): Invalid Studio path project. Failed to retrieve project info.`, sessionId, 2, 0)
+    queryNotification.setNotification(db, 'ERROR', `StudioUC(): Invalid Studio path project. Failed to retrieve project info.`, sessionId, 2, 0)
     return { data: [] }
   }
 }
@@ -146,7 +146,7 @@ async function updateComponentByClusterIdAndComponentId(
     env.logWarning(
       `StudioUC(): Failed to update component due to invalid Studio project path.`
     )
-    notification.setNotification(db, "WARNING", `StudioUC(): Failed to update component due to invalid Studio project path.`, sessionId, 1, 0)
+    queryNotification.setNotification(db, "WARNING", `StudioUC(): Failed to update component due to invalid Studio project path.`, sessionId, 1, 0)
     return Promise.resolve({ componentIds: [], added: add })
   }
 

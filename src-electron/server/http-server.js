@@ -233,7 +233,9 @@ function userSessionHandler(db, options) {
           }
           studio.sendSessionCreationErrorStatus(db, resp, zapSessionId)
           env.logError(resp)
-          notification.setNotification(db, 'ERROR', resp, result.sessionId, 2, 0)
+          if(req.sessionId) {
+            notification.setNotification(db, 'ERROR', resp, req.sessionId, 2, 0)
+          }
         })
     }
   }

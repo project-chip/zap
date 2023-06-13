@@ -54,7 +54,6 @@ async function setNotification(
     'SELECT SESSION_KEY FROM SESSION WHERE SESSION_ID = ?',
     [sessionId]
   )
-  console.log(rows)
   if(rows && rows.length > 0) {
     let sessionKey = rows[0].SESSION_KEY
     let socket = wsServer.clientSocket(sessionKey)
@@ -67,8 +66,10 @@ async function setNotification(
       display: display,
       message: status.toString()
     }
-    wsServer.sendWebSocketData(socket, dbEnum.wsCategory.notificationInfo, obj)
-    wsServer.sendWebSocketData(socket, dbEnum.wsCategory.notificationCount, notificationCount)
+    if(socket) {
+      wsServer.sendWebSocketData(socket, dbEnum.wsCategory.notificationInfo, obj)
+      wsServer.sendWebSocketData(socket, dbEnum.wsCategory.notificationCount, notificationCount)
+    }
   }
   else {
     console.log("No session found with given sessionId, cannot initalize websocket")
@@ -85,11 +86,11 @@ async function setNotification(
  * @param {*} type
  * @param {*} message
  */
-async function deleteNotification(db, sessionId, type, message) {
+async function deleteNotification(db, order) {
   return dbApi.dbUpdate(
     db,
-    'DELETE FROM SESSION_NOTICE WHERE ( SESSION_REF, NOTICE_TYPE, NOTICE_MESSAGE ) = ( ?, ?, ? )',
-    [sessionId, type, message]
+    'DELETE FROM SESSION_NOTICE WHERE ( NOTICE_ORDER ) = ( ? )',
+    [order]
   )
 }
 /**
