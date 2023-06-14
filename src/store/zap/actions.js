@@ -322,7 +322,6 @@ export function addEndpoint(context, newEndpointContext) {
           networkId: arg.networkId,
           profileId: arg.profileId,
           deviceIdentifier: arg.deviceId, // TODO this should be array too
-          endpointVersion: arg.endpointVersion,
           endpointIdValidationIssues: arg.validationIssues.endpointId,
           networkIdValidationIssues: arg.validationIssues.networkId,
         })
@@ -339,6 +338,8 @@ export function addEndpointType(context, endpointTypeData) {
         id: res.data.id,
         name: res.data.name,
         deviceTypeRef: res.data.deviceTypeRef,
+        deviceIdentifier: res.data.deviceIdentifier,
+        deviceVersion: res.data.deviceVersion,
       })
       return res.data
     })

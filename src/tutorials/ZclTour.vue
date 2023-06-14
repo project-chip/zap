@@ -72,7 +72,11 @@ export default {
           return dt[a].description.localeCompare(dt[b].description)
         })
         return keys.map((item) => {
-          return { deviceTypeRef: item, deviceIdentifier: dt[item].code }
+          return {
+            deviceTypeRef: item,
+            deviceIdentifier: dt[item].code,
+            deviceVersion: dt[item].version,
+          }
         })
       },
     },
@@ -88,6 +92,8 @@ export default {
           .dispatch(`zap/addEndpointType`, {
             name: 'Anonymous Endpoint Type',
             deviceTypeRef: this.zclDeviceTypeOptions[0].deviceTypeRef,
+            deviceIdentifier: this.zclDeviceTypeOptions[0].deviceIdentifier,
+            deviceVersion: this.zclDeviceTypeOptions[0].deviceVersion,
           })
           .then((response) => {
             let profileId = this.asHex(
