@@ -15,9 +15,9 @@ limitations under the License.
 -->
 <template>
   <div>
-    <q-card>
+    <q-card style="min-width: 450px">
       <q-card-section>
-        <div class="text-h6 text-align:left">
+        <div class="text-h6 text-align:left q-mb-sm">
           {{ this.endpointReference ? 'Edit Endpoint' : 'Create New Endpoint' }}
         </div>
         <q-form>
@@ -26,7 +26,7 @@ limitations under the License.
             type="number"
             v-model="shownEndpoint.endpointIdentifier"
             ref="endpoint"
-            filled
+            outlined
             class="col v-step-1"
             :rules="[reqInteger, reqPosInt, reqUniqueEndpoint]"
             min="0"
@@ -37,7 +37,6 @@ limitations under the License.
             v-model="computedProfileId"
             ref="profile"
             outlined
-            filled
             class="col"
             :rules="[reqInteger, reqPosInt]"
             @update:model-value="setProfileId"
@@ -45,7 +44,7 @@ limitations under the License.
           <q-select
             label="Device"
             ref="device"
-            filled
+            outlined
             class="col v-step-2"
             use-input
             :multiple="enableMultipleDevice"
@@ -64,7 +63,6 @@ limitations under the License.
             label="Primary Device"
             ref="primary-device"
             outlined
-            filled
             class="col v-step-2"
             use-input
             hide-selected
@@ -76,6 +74,51 @@ limitations under the License.
             @filter="filterDeviceTypes"
             data-test="endpoint-primary-device"
           />
+          <!-- Multi device version -->
+          <q-markup-table
+            v-if="enableMultipleDevice"
+            flat
+            bordered
+            dense
+            wrap-cells
+            class="q-mb-md"
+          >
+            <thead>
+              <tr>
+                <th scope="col" style="text-align: left">Device</th>
+                <th scope="col" style="width: 100px">Version</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-if="
+                  !deviceType ||
+                  !Array.isArray(deviceType) ||
+                  deviceType?.length == 0
+                "
+              >
+                <td col="2"></td>
+              </tr>
+              <template v-else>
+                <tr v-for="(dt, index) in deviceType" :key="index">
+                  <td style="text-align: left">
+                    {{ getDeviceOptionLabel(dt) }}
+                  </td>
+                  <td>
+                    <q-input
+                      type="number"
+                      v-model.number="dt.deviceVersion"
+                      ref="version"
+                      outlined
+                      dense
+                      @beforeinput="nonnegativeIntegersOnlyInput"
+                    />
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </q-markup-table>
+
           <div class="q-gutter-md row">
             <q-input
               label="Network"
@@ -83,21 +126,19 @@ limitations under the License.
               v-model="shownEndpoint.networkIdentifier"
               ref="network"
               outlined
-              filled
               class="col v-step-3"
               stack-label
               :rules="[reqInteger, reqPosInt]"
               min="0"
             >
             </q-input>
-
             <q-input
+              v-if="!enableMultipleDevice"
               label="Version"
               type="number"
               v-model="shownEndpoint.deviceVersion"
               ref="version"
               outlined
-              filled
               stack-label
               :rules="[reqInteger, reqPosInt]"
               min="0"
@@ -286,6 +327,13 @@ export default {
         // New temporary variable
         this.deviceTypeTmp = value
 
+        // Create default device version if not exists
+        for (const dt of value) {
+          if (dt.deviceVersion === undefined) {
+            dt.deviceVersion = 1
+          }
+        }
+
         // Existing logic
         this.setDeviceTypeCallback(value)
 
@@ -368,7 +416,8 @@ export default {
         this.$refs.endpoint.validate() &&
         this.$refs.device.validate() &&
         this.$refs.network.validate() &&
-        this.$refs.version.validate() &&
+        (this.$refs.version?.validate?.() ??
+          !this.$refs.version?.includes((v) => !(v >= 0))) &&
         profile
       ) {
         this.$emit('saveOrCreateValidated')
@@ -388,6 +437,11 @@ export default {
     },
     reqPosInt(value) {
       return parseInt(value) >= 0 || '* Positive integer required'
+    },
+    nonnegativeIntegersOnlyInput(e) {
+      if (e.data != null && !(parseInt(e.data) >= 0)) {
+        e.preventDefault()
+      }
     },
     reqUniqueEndpoint(value) {
       return (

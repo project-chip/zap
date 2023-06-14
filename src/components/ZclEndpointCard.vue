@@ -84,18 +84,39 @@ limitations under the License.
           />
         </div>
       </div>
-      <q-list dense bordered v-if="getEndpointInformation">
-        <br />
-        <q-item class="row">
-          <div v-if="isDeviceTypeArray" class="col">
-            <strong>Device</strong>
-            <li v-for="dev in deviceType" :key="dev.id">
-              <strong>{{
-                `${dev.description} (${asHex(dev.code, 4)})`
-              }}</strong>
-            </li>
-          </div>
-          <div v-else class="col row">
+      <q-slide-transition>
+        <q-list class="cursor-pointer" dense v-if="getEndpointInformation">
+          <q-item class="row">
+            <div v-if="isDeviceTypeArray" class="col">
+              <strong>Device</strong>
+              <li
+                v-for="dev in deviceType"
+                :key="dev.id"
+                class="q-pl-md"
+                style="list-style-type: none"
+              >
+                <strong>{{
+                  `${dev.description} (${asHex(dev.code, 4)}) v${
+                    endpointVersion[endpointReference]
+                  }`
+                }}</strong>
+              </li>
+            </div>
+            <div v-else class="col row">
+              <div class="col-6">
+                <strong>Device</strong>
+              </div>
+              <div class="col-6">
+                <strong>{{
+                  `${deviceType[0]?.description} (${asHex(
+                    deviceType[0]?.code,
+                    4
+                  )})`
+                }}</strong>
+              </div>
+            </div>
+          </q-item>
+          <q-item class="row" v-if="isDeviceTypeArray">
             <div class="col-6">
               <strong>Device</strong>
             </div>
@@ -107,41 +128,33 @@ limitations under the License.
                 )})`
               }}</strong>
             </div>
-          </div>
-        </q-item>
-        <q-item class="row" v-if="isDeviceTypeArray">
-          <div class="col-6">
-            <strong>Primary Device</strong>
-          </div>
-          <div class="col-6">
-            <strong>{{ getPrimaryDeviceOptionLabel }}</strong>
-          </div>
-        </q-item>
-        <q-item class="row">
-          <div class="col-6">
-            <strong>Network</strong>
-          </div>
-          <div class="col-6">
-            <strong>{{ networkId[endpointReference] }}</strong>
-          </div>
-        </q-item>
-        <q-item class="row" v-if="$store.state.zap.isProfileIdShown">
-          <div class="col-6">
-            <strong>Profile ID</strong>
-          </div>
-          <div class="col-6">
-            <strong>{{ asHex(profileId[endpointReference], 4) }}</strong>
-          </div>
-        </q-item>
-        <q-item class="row">
-          <div class="col-6">
-            <strong>Version</strong>
-          </div>
-          <div class="col-6">
-            <strong>{{ endpointVersion[endpointReference] }}</strong>
-          </div>
-        </q-item>
-      </q-list>
+          </q-item>
+          <q-item class="row">
+            <div class="col-6">
+              <strong>Network</strong>
+            </div>
+            <div class="col-6">
+              <strong>{{ networkId[endpointReference] }}</strong>
+            </div>
+          </q-item>
+          <q-item class="row" v-if="$store.state.zap.isProfileIdShown">
+            <div class="col-6">
+              <strong>Profile ID</strong>
+            </div>
+            <div class="col-6">
+              <strong>{{ asHex(profileId[endpointReference], 4) }}</strong>
+            </div>
+          </q-item>
+          <q-item v-if="!isDeviceTypeArray" class="row">
+            <div class="col-6">
+              <strong>Version</strong>
+            </div>
+            <div class="col-6">
+              <strong>{{ endpointVersion[endpointReference] }}</strong>
+            </div>
+          </q-item>
+        </q-list>
+      </q-slide-transition>
     </q-card>
     <q-dialog
       v-model="modifyEndpointDialog"
