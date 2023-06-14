@@ -96,7 +96,9 @@ limitations under the License.
                 style="list-style-type: none"
               >
                 <strong>{{
-                  `${dev.description} (${asHex(dev.code, 4)})`
+                  `${dev.description} (${asHex(dev.code, 4)}) v${
+                    endpointVersion[endpointReference]
+                  }`
                 }}</strong>
               </li>
             </div>
@@ -143,7 +145,7 @@ limitations under the License.
               <strong>{{ asHex(profileId[endpointReference], 4) }}</strong>
             </div>
           </q-item>
-          <q-item class="row">
+          <q-item v-if="!isDeviceTypeArray" class="row">
             <div class="col-6">
               <strong>Version</strong>
             </div>
