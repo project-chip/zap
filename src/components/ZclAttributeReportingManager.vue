@@ -247,6 +247,9 @@ export default {
       },
     },
   },
+  created() {
+    this.updateSelectedReporting()
+  },
   data() {
     return {
       pagination: {
@@ -331,6 +334,7 @@ export default {
           field: 'reportable',
         },
       ],
+      initialization: true,
     }
   },
   methods: {
@@ -407,6 +411,16 @@ export default {
       }
       return data
     },
+    updateSelectedReporting() {
+      this.attributeData.forEach((attribute) => {
+        if(attribute.reportingPolicy == "mandatory" || attribute.reportingPolicy == "suggested") {
+          let hashValue = this.hashAttributeIdClusterId(attribute.id, this.selectedCluster.id)
+          if(!this.selectedReporting.includes(hashValue)) {
+            this.selectedReporting.push(hashValue)
+          }
+        }
+      })
+    }
   },
 }
 </script>
