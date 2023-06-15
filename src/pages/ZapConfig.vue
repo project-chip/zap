@@ -314,7 +314,6 @@ export default {
           let data = {
             zclProperties: this.selectedZclPropertiesData,
             genTemplate: this.selectedZclGenData,
-            appPath: this.path,
           }
           this.$serverPost(restApi.uri.sessionCreate, data).then((result) => {
             this.$store.commit('zap/selectZapConfig', {
@@ -357,7 +356,9 @@ export default {
         // since we simply assume that they are selected and move on.
         this.selectedZclGenData[0] = this.zclGenRow[0].path
         this.customConfig = 'passthrough'
-        this.submitForm()
+        setTimeout(() => {
+          this.submitForm()
+        }, 5000)
       } else {
         this.customConfig = 'select'
       }
