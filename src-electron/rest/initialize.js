@@ -117,17 +117,13 @@ function sessionCreate(db) {
           return result
         })
         .then((result) => {
-          if (result.newSession) {
-            console.table(genTemplate)
-            //console.log(options)
-            return util.ensurePackagesAndPopulateSessionOptions(
-              db,
-              result.sessionId,
-              null,
-              pkgArray,
-              genTemplate
-            )
-          }
+          return util.ensurePackagesAndPopulateSessionOptions(
+            db,
+            result.sessionId,
+            null,
+            pkgArray,
+            genTemplate
+          )
         })
     }
     return res.send({

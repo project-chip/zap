@@ -279,6 +279,7 @@ export default {
       newSessionCol: generateNewSessionCol,
       loadPreSessionCol: loadPreSessionCol,
       zclGenRow: [],
+      newConfig: false,
       path: window.location,
       filePath: '',
       loadPreSessionData: [],
@@ -322,15 +323,23 @@ export default {
         })
         console.log(this.filePath)
         let file = this.filePath
-
-        this.$serverPost(restApi.ide.open, this.path)
-          .then((result) => this.$serverPost(restApi.uri.sessionCreate, data))
-          .then(() => {
+        if (!this.newConfig) {
+          this.$serverPost(restApi.ide.open, this.path)
+            .then((result) => this.$serverPost(restApi.uri.sessionCreate, data))
+            .then(() => {
+              this.$store.commit('zap/selectZapConfig', {
+                zclProperties: this.selectedZclPropertiesData,
+                genTemplate: this.selectedZclGenData,
+              })
+            })
+        } else {
+          this.$serverPost(restApi.uri.sessionCreate, data).then(() => {
             this.$store.commit('zap/selectZapConfig', {
               zclProperties: this.selectedZclPropertiesData,
               genTemplate: this.selectedZclGenData,
             })
           })
+        }
       } else {
         this.$serverPost(restApi.uri.reloadSession, {
           sessionId: this.selectedZclSessionData.id,
@@ -349,6 +358,9 @@ export default {
       this.selectedZclPropertiesData = result.data.zclProperties[0]
       this.zclGenRow = result.data.zclGenTemplates
       this.filePath = result.data.filePath
+      if (window.location.search.includes('newConfig=true')) {
+        this.newConfig = true
+      }
       if (this.zclPropertiesRow.length == 1 && this.zclGenRow.length == 1) {
         // We shortcut this page, if there is exactly one of each,
         // since we simply assume that they are selected and move on.
