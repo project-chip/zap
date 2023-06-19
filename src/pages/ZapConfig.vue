@@ -309,22 +309,6 @@ export default {
   methods: {
     submitForm() {
       if (this.customConfig === 'select') {
-        if (
-          this.selectedZclPropertiesData != null &&
-          this.selectedZclGenData.length != 0
-        ) {
-          let data = {
-            zclProperties: this.selectedZclPropertiesData,
-            genTemplate: this.selectedZclGenData,
-          }
-          this.$serverPost(restApi.uri.sessionCreate, data).then((result) => {
-            this.$store.commit('zap/selectZapConfig', {
-              zclProperties: this.selectedZclPropertiesData,
-              genTemplate: this.selectedZclGenData,
-            })
-          })
-        }
-      } else if (this.customConfig === 'passthrough') {
         let data = {
           zclProperties: this.selectedZclPropertiesData,
           genTemplate: this.selectedZclGenData,
@@ -369,7 +353,7 @@ export default {
         // We shortcut this page, if there is exactly one of each,
         // since we simply assume that they are selected and move on.
         this.selectedZclGenData[0] = this.zclGenRow[0].path
-        this.customConfig = 'passthrough'
+        this.customConfig = 'select'
         this.submitForm()
       } else {
         this.customConfig = 'select'
