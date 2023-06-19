@@ -80,8 +80,7 @@ function sessionAttempt(db) {
 
 function sessionCreate(db) {
   return async (req, res) => {
-    let { zclProperties, genTemplate, appPath } = req.body
-
+    let { zclProperties, genTemplate } = req.body
     let sessionUuid = req.query[restApi.param.sessionId]
     let userKey = req.session.id
 

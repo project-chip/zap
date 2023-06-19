@@ -132,7 +132,7 @@
                     <q-td key="select" :props="props">
                       <q-checkbox
                         v-model="selectedZclGenData"
-                        :val="props.row.path"
+                        :val="props.row.id"
                         data-test="gen-template"
                       />
                     </q-td>

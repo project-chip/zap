@@ -40,8 +40,6 @@ const studio = require('../ide-integration/studio-rest-api')
  */
 function httpPostFileOpen(db) {
   return async (req, res) => {
-    console.log(req.body)
-    console.log('SPAGHETTI')
     let ideProjectPath = '//Applications//SimplicityStudio'
     let zapFilePath = req.body.search.split('filePath=')
     zapFilePath = zapFilePath[1].replaceAll('%2F', '//').trim()
