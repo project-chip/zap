@@ -40,7 +40,13 @@ const studio = require('../ide-integration/studio-rest-api')
  */
 function httpPostFileOpen(db) {
   return async (req, res) => {
-    let { zapFilePath, ideProjectPath } = req.body
+    console.log(req.body)
+    console.log('SPAGHETTI')
+    let ideProjectPath = '//Applications//SimplicityStudio'
+    let zapFilePath = req.body.search.split('filePath=')
+    zapFilePath = zapFilePath[1].replaceAll('%2F', '//').trim()
+    console.log(zapFilePath)
+    // let { ideProjectPath } = req.body
     let name = ''
     //console.log(zapFilePath)
     if (zapFilePath) {
@@ -56,16 +62,15 @@ function httpPostFileOpen(db) {
 
       try {
         // set path before importDataFromFile() to avoid triggering DIRTY flag
-        if (ideProjectPath) {
-          env.logInfo(`IDE: setting project path(${name}) to ${ideProjectPath}`)
-          // store studio project path
-          await querySession.updateSessionKeyValue(
-            db,
-            req.zapSessionId,
-            dbEnum.sessionKey.ideProjectPath,
-            ideProjectPath
-          )
-        }
+        //  if (ideProjectPath) {
+        //env.logInfo(`IDE: setting project path(${name}) to ${ideProjectPath}`)
+        // store studio project path
+        await querySession.updateSessionKeyValue(
+          db,
+          req.zapSessionId,
+          dbEnum.sessionKey.ideProjectPath,
+          ideProjectPath
+        )
 
         let importResult = await importJs.importDataFromFile(db, zapFilePath, {
           sessionId: req.zapSessionId,

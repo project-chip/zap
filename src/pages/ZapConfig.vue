@@ -214,6 +214,7 @@
 
 <script>
 import restApi from '../../src-shared/rest-api.js'
+import { QSpinnerGears } from 'quasar'
 import { setCssVar } from 'quasar'
 
 const generateNewSessionCol = [
@@ -279,6 +280,7 @@ export default {
       loadPreSessionCol: loadPreSessionCol,
       zclGenRow: [],
       path: window.location,
+      filePath: '',
       loadPreSessionData: [],
       pagination: {
         rowsPerPage: 10,
@@ -327,13 +329,24 @@ export default {
           zclProperties: this.selectedZclPropertiesData,
           genTemplate: this.selectedZclGenData,
         }
-
-        this.$serverPost(restApi.uri.sessionCreate, data).then((result) => {
-          this.$store.commit('zap/selectZapConfig', {
-            zclProperties: this.selectedZclPropertiesData,
-            genTemplate: this.selectedZclGenData,
-          })
+        this.$router.push({ path: '/' })
+        this.$q.loading.show({
+          spinner: QSpinnerGears,
+          messageColor: 'white',
+          message: 'Please wait while zap is loading...',
+          spinnerSize: 300,
         })
+        console.log(this.filePath)
+        let file = this.filePath
+
+        this.$serverPost(restApi.ide.open, this.path)
+          .then((result) => this.$serverPost(restApi.uri.sessionCreate, data))
+          .then(() => {
+            this.$store.commit('zap/selectZapConfig', {
+              zclProperties: this.selectedZclPropertiesData,
+              genTemplate: this.selectedZclGenData,
+            })
+          })
       } else {
         this.$serverPost(restApi.uri.reloadSession, {
           sessionId: this.selectedZclSessionData.id,
@@ -351,14 +364,13 @@ export default {
       this.zclPropertiesRow = result.data.zclProperties
       this.selectedZclPropertiesData = result.data.zclProperties[0]
       this.zclGenRow = result.data.zclGenTemplates
+      this.filePath = result.data.filePath
       if (this.zclPropertiesRow.length == 1 && this.zclGenRow.length == 1) {
         // We shortcut this page, if there is exactly one of each,
         // since we simply assume that they are selected and move on.
         this.selectedZclGenData[0] = this.zclGenRow[0].path
         this.customConfig = 'passthrough'
-        setTimeout(() => {
-          this.submitForm()
-        }, 5000)
+        this.submitForm()
       } else {
         this.customConfig = 'select'
       }

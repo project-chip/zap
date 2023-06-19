@@ -35,16 +35,12 @@ const fsp = fs.promises
  */
 function sessionAttempt(db) {
   return async (req, res) => {
-    console.log('ATTEMPT')
-    console.log(req.body.search)
     if (req.body.search.includes('filePath=%2F')) {
       let filePath = req.body.search.split('filePath=')
       filePath = filePath[1].replaceAll('%2F', '//').trim()
-      console.log('TEST!!!')
+      console.log(filePath)
       let data = await fsp.readFile(filePath)
       let obj = JSON.parse(data)
-      console.log(obj)
-      console.log(obj.package[0].category)
       let category = obj.package[0].category
       const zclProperties = await queryPackage.getPackagesByCategoryAndType(
         db,
@@ -61,6 +57,7 @@ function sessionAttempt(db) {
         zclGenTemplates,
         zclProperties,
         sessions,
+        filePath,
       })
     } else {
       const zclProperties = await queryPackage.getPackagesByType(
@@ -87,24 +84,20 @@ function sessionCreate(db) {
 
     let sessionUuid = req.query[restApi.param.sessionId]
     let userKey = req.session.id
-    console.log('2')
 
     if (sessionUuid == null || userKey == null) {
-      console.log('placeholder')
+      console.log('empty')
     } else {
       let zapUserId = req.session.zapUserId
       let zapSessionId
       console.log(req.session)
       if (`zapSessionId` in req.session) {
-        console.log('3')
         zapSessionId = req.session.zapSessionId[sessionUuid]
       } else {
-        console.log('4')
         req.session.zapSessionId = {}
         zapSessionId = null
       }
       let tpk = zclProperties
-      console.log(zclProperties)
       let pkgArray = null
       if (tpk) {
         pkgArray = tpk
@@ -121,7 +114,6 @@ function sessionCreate(db) {
           req.session.zapUserId = result.userId
           req.session.zapSessionId[sessionUuid] = result.sessionId
           req.zapSessionId = result.sessionId
-          console.table(result.sessionId)
           return result
         })
         .then((result) => {

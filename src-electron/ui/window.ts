@@ -140,11 +140,7 @@ export function windowCreate(port: number, args?: WindowCreateArgs) {
 
   // @ts-ignore
   w.isDirty = false
-  w.loadURL(`http://localhost:${port}/` + queryString).then(async () => {
-    if (args?.filePath != null) {
-      browserApi.execFileOpen(w, args?.filePath)
-    }
-  })
+  w.loadURL(`http://localhost:${port}/` + queryString)
 
   w.on('page-title-updated', (e) => {
     e.preventDefault()
