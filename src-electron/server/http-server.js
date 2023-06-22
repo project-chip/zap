@@ -200,14 +200,13 @@ function userSessionHandler(db, options) {
       }
 
       querySession
-        .ensureZapUserAndSession(db, userKey, sessionUuid, {
-          sessionId: zapSessionId,
-          userId: zapUserId,
-        })
+        .getSessionInfoFromSessionKey(db, sessionUuid)
         .then((result) => {
-          req.session.zapUserId = result.userId
-          req.session.zapSessionId[sessionUuid] = result.sessionId
-          req.zapSessionId = result.sessionId
+          if (result) {
+            req.session.zapSessionId[sessionUuid] = result.sessionId
+            req.zapSessionId = result.sessionId
+            req.session.zapUserId = result.userRef
+          }
           return result
         })
         .then(() => {

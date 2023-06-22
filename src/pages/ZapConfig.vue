@@ -324,12 +324,13 @@ export default {
         console.log(this.filePath)
         let file = this.filePath
         if (!this.newConfig) {
-          this.$serverPost(restApi.ide.open, this.path)
-            .then((result) => this.$serverPost(restApi.uri.sessionCreate, data))
+          this.$serverPost(restApi.uri.sessionCreate, data)
+            .then(() => this.$serverPost(restApi.ide.open, this.path))
             .then(() => {
               this.$store.commit('zap/selectZapConfig', {
                 zclProperties: this.selectedZclPropertiesData,
                 genTemplate: this.selectedZclGenData,
+                newConfig: false,
               })
             })
         } else {
@@ -337,6 +338,7 @@ export default {
             this.$store.commit('zap/selectZapConfig', {
               zclProperties: this.selectedZclPropertiesData,
               genTemplate: this.selectedZclGenData,
+              newConfig: true,
             })
           })
         }
