@@ -20,7 +20,6 @@ const queryEndpointType = require('../db/query-endpoint-type.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const env = require('../util/env')
 const _ = require('lodash')
-const notification = require('../db/query-notification.js')
 
 /**
  * @module JS API: generator logic

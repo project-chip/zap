@@ -25,7 +25,8 @@ const queryZcl = require('../db/query-zcl.js')
 const queryAttribute = require('../db/query-attribute.js')
 const queryCommand = require('../db/query-command.js')
 const queryConfig = require('../db/query-config.js')
-const queryNotification = require('../db/query-notification.js')
+const querySessionNotification = require('../db/query-session-notification.js')
+const queryPackageNotification = require('../db/query-package-notification')
 const queryEndpointType = require('../db/query-endpoint-type.js')
 const queryEndpoint = require('../db/query-endpoint.js')
 const querySession = require('../db/query-session.js')
@@ -60,10 +61,10 @@ function httpGetSessionKeyValues(db) {
  * @param {*} db
  * @returns callback for the express uri registration
  */
-function httpGetNotifications(db) {
+function httpGetSessionNotifications(db) {
   return async (request, response) => {
     let sessionId = request.zapSessionId
-    let notifications = await queryNotification.getNotification(db, sessionId)
+    let notifications = await querySessionNotification.getNotification(db, sessionId)
     response.status(StatusCodes.OK).json(notifications)
   }
 }
@@ -74,11 +75,40 @@ function httpGetNotifications(db) {
  * @param {*} db
  * @returns callback for the express uri registration
  */
-function httpDeleteNotification(db) {
+function httpDeleteSessionNotification(db) {
   return async (request, response) => {
     console.log(request.query)
     let order = request.query.order
-    let resp = await queryNotification.deleteNotification(db, order)
+    let resp = await querySessionNotification.deleteNotification(db, order)
+    response.status(StatusCodes.OK).json(resp)
+  }
+}
+
+/**
+ * HTTP GET: package get notifications
+ *
+ * @param {*} db
+ * @returns callback for the express uri registration
+ */
+function httpGetPackageNotifications(db) {
+  return async (request, response) => {
+    let sessionId = request.zapSessionId
+    let notifications = await queryPackageNotification.getNotification(db, sessionId)
+    response.status(StatusCodes.OK).json(notifications)
+  }
+}
+
+/**
+ * HTTP DELETE: session delete notifications
+ *
+ * @param {*} db
+ * @returns callback for the express uri registration
+ */
+function httpDeletePackageNotification(db) {
+  return async (request, response) => {
+    console.log(request.query)
+    let order = request.query.order
+    let resp = await queryPackageNotification.deleteNotification(db, order)
     response.status(StatusCodes.OK).json(resp)
   }
 }
@@ -882,8 +912,12 @@ exports.get = [
     callback: httpGetSessionKeyValues,
   },
   {
-    uri: restApi.uri.notification,
-    callback: httpGetNotifications,
+    uri: restApi.uri.sessionNotification,
+    callback: httpGetSessionNotifications,
+  },
+  {
+    uri: restApi.uri.packageNotification,
+    callback: httpGetPackageNotifications,
   },
   {
     uri: restApi.uri.initialState,
@@ -913,7 +947,11 @@ exports.delete = [
     callback: httpDeleteSessionPackage,
   },
   {
-    uri: restApi.uri.deleteNotification,
-    callback: httpDeleteNotification,
+    uri: restApi.uri.deleteSessionNotification,
+    callback: httpDeleteSessionNotification,
+  },
+  {
+    uri: restApi.uri.deletePackageNotification,
+    callback: httpDeletePackageNotification,
   },
 ]

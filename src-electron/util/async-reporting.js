@@ -29,7 +29,7 @@ const env = require('./env')
 const wsServer = require('../server/ws-server')
 const querySession = require('../db/query-session')
 const dbEnum = require('../../src-shared/db-enum')
-const notification = require('../db/query-notification')
+const notification = require('../db/query-session-notification')
 
 // This object contains all the async reports.
 let asyncReports = {

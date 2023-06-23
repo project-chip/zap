@@ -16,7 +16,7 @@
  *    limitations under the License.
  */
 /**
- * This module provides notification related queries.
+ * This module provides session notification related queries.
  *
  * @module DB API: session related queries.
  */
@@ -44,8 +44,8 @@ async function setNotification(
 ) {
   let updateResp =  dbApi.dbUpdate(
     db,
-    'INSERT INTO SESSION_NOTICE ( SESSION_REF, NOTICE_TYPE, NOTICE_MESSAGE, NOTICE_SEVERITY, DISPLAY) VALUES ( ?, ?, ?, ?, ?)',
-    [sessionId, type, status, severity, display]
+    'INSERT INTO SESSION_NOTICE ( SESSION_REF, NOTICE_TYPE, NOTICE_MESSAGE, NOTICE_SEVERITY, DISPLAY, SEEN) VALUES ( ?, ?, ?, ?, ?, ?)',
+    [sessionId, type, status, severity, display, 0]
   )
 
   let rows = []
@@ -106,10 +106,10 @@ async function getNotification(db, sessionId) {
     'SELECT * FROM SESSION_NOTICE WHERE SESSION_REF = ?',
     [sessionId]
   )
-  return rows.map(dbMapping.map.notifications)
+  return rows.map(dbMapping.map.sessionNotifications)
 }
 // exports
 exports.setNotification = setNotification
 exports.deleteNotification = deleteNotification
 exports.getNotification = getNotification
-//# sourceMappingURL=query-notification.js.map
+//# sourceMappingURL=query-session-notification.js.map

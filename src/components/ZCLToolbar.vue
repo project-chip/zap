@@ -250,7 +250,7 @@ export default {
       this.doGeneration(currentPath)
     },
     getNotifications() {
-      this.$serverGet(restApi.uri.notification)
+      this.$serverGet(restApi.uri.sessionNotification)
         .then((resp) => {
           let notificationCount = resp.data.length
           this.$store.commit('zap/updateNotificationCount', notificationCount)
