@@ -37,7 +37,7 @@ const { v4: uuidv4 } = require('uuid')
 const xml2js = require('xml2js')
 const singleInstance = require('single-instance')
 const string = require('./string')
-const queryNotification = require('../db/query-notification.js')
+const queryNotification = require('../db/query-session-notification.js')
 
 /**
  * Returns the CRC of the data that is passed.

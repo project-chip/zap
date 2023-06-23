@@ -31,7 +31,7 @@ const restApi = require('../../src-shared/rest-api')
 const util = require('../util/util')
 const env = require('../util/env')
 const { StatusCodes } = require('http-status-codes')
-const queryNotification = require('../db/query-notification.js')
+const queryNotification = require('../db/query-session-notification.js')
 
 
 // This function builds a function that has the following skeleton.

@@ -4,7 +4,7 @@ The purpose of this document is to provide ZAP developers with simple instructio
 
 ## Adding a Notification:
 
-In order to add a notification, call the setNotification function in zap/src-electron/query-notification.js. setNotification takes the following arguments:
+In order to add a notification, call the setNotification function in zap/src-electron/query-session-notification.js. setNotification takes the following arguments:
 
 - db => database object (object)
 - type => the type of notification you wish to define (string)

@@ -28,7 +28,7 @@ const exportJs = require('../importexport/export.js')
 const path = require('path')
 const { StatusCodes } = require('http-status-codes')
 const querySession = require('../db/query-session.js')
-const queryNotification = require('../db/query-notification.js')
+const queryNotification = require('../db/query-session-notification.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const studio = require('../ide-integration/studio-rest-api')
 

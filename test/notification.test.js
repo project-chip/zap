@@ -24,8 +24,11 @@ const path = require('path')
 const testUtil = require('./test-util')
 const env = require('../src-electron/util/env')
 const dbApi = require('../src-electron/db/db-api')
-const notification = require('../src-electron/db/query-notification.js')
-const querySession = require('../src-electron/db/query-session.js')
+const sessionNotification = require('../src-electron/db/query-session-notification')
+const packageNotification = require('../src-electron/db/query-package-notification')
+const querySession = require('../src-electron/db/query-session')
+const queryPackage = require('../src-electron/db/query-package')
+const zclLoader = require('../src-electron/zcl/zcl-loader')
 
 let db = null
 
@@ -42,7 +45,7 @@ beforeAll(async () => {
 afterAll(() => dbApi.closeDatabase(db), testUtil.timeout.short())
 
 test(
-  'Notification: set, get, delete notification',
+  'Notification: set, get, delete session notification',
   async () => {
     let type = 'UPGRADE'
     let message = 'ISC FILE UPGRADED TO ZAP FILE. PLEASE SAVE AS TO SAVE OFF NEWLY CREATED ZAP FILE.'
@@ -50,7 +53,7 @@ test(
     let severity = 1
     let display = 1
 
-    await notification.setNotification(
+    await sessionNotification.setNotification(
       db,
       type,
       message,
@@ -59,7 +62,7 @@ test(
       display
     )
 
-    let notifications = await notification.getNotification(db, sessionId)
+    let notifications = await sessionNotification.getNotification(db, sessionId)
 
     let order = 0
 
@@ -81,9 +84,9 @@ test(
 
 
     // delete the notification we just created
-    await notification.deleteNotification(db, order)
+    await sessionNotification.deleteNotification(db, order)
 
-    notifications = await notification.getNotification(db, sessionId)
+    notifications = await sessionNotification.getNotification(db, sessionId)
 
     // check if the notification was successfully deleted
     let isNotificationDeleted = true;
@@ -91,6 +94,74 @@ test(
         if (notifications[i].type === type && 
             notifications[i].message === message && 
             notifications[i].ref === sessionId && 
+            notifications[i].severity === severity && 
+            notifications[i].display === display)
+          {
+            isNotificationDeleted = false;
+            break;
+          }
+    }
+    expect(isNotificationDeleted).toBeTruthy()
+  },
+  testUtil.timeout.long()
+)
+
+
+test(
+  'Notification: set, get, delete package notification',
+  async () => {
+    let type = 'UPGRADE'
+    let message = 'ISC FILE UPGRADED TO ZAP FILE. PLEASE SAVE AS TO SAVE OFF NEWLY CREATED ZAP FILE.'
+    let severity = 1
+    let display = 1
+
+    let sessionId = await querySession.createBlankSession(db)
+    let ctx = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
+    let packageId = ctx.packageId
+
+    queryPackage.insertSessionPackage(db, sessionId, packageId)
+
+    await packageNotification.setNotification(
+      db,
+      type,
+      message,
+      packageId,
+      severity,
+      display
+    )
+
+    let notifications = await packageNotification.getNotification(db, sessionId)
+
+    let order = 0
+
+    // check if the returned notifications include the one we just set
+    let isNotificationSet = false;
+    for(let i = 0; i < notifications.length; i++) {
+        if (notifications[i].type === type && 
+            notifications[i].message === message && 
+            notifications[i].ref === packageId && 
+            notifications[i].severity === severity && 
+            notifications[i].display === display)
+          {
+            isNotificationSet = true;
+            order = notifications[i].order
+            break;
+          }
+    }
+    expect(isNotificationSet).toBeTruthy()
+
+
+    // delete the notification we just created
+    await packageNotification.deleteNotification(db, order)
+
+    notifications = await packageNotification.getNotification(db, packageId)
+
+    // check if the notification was successfully deleted
+    let isNotificationDeleted = true;
+    for(let i = 0; i < notifications.length; i++) {
+        if (notifications[i].type === type && 
+            notifications[i].message === message && 
+            notifications[i].ref === packageId && 
             notifications[i].severity === severity && 
             notifications[i].display === display)
           {

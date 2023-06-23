@@ -27,7 +27,7 @@
             <div>{{ props.row.severity }}</div>
           </q-td>
           <q-td> 
-            <q-btn icon="delete" @click="deleteNotification(props.row.order)"/>
+            <q-btn flat icon="delete" @click="deleteNotification(props.row.order)"/>
           </q-td>
         </q-tr>
       </template>
@@ -45,7 +45,7 @@ export default {
   },
   methods: {
     getNotifications() {
-      this.$serverGet(restApi.uri.notification)
+      this.$serverGet(restApi.uri.sessionNotification)
         .then((resp) => {
           for (let i = 0; i < resp.data.length; i++) {
             this.notis.push(resp.data[i])
@@ -56,9 +56,21 @@ export default {
         .catch((err) => {
           console.log(err)
         })
+        console.log(this.notis)
+      
+        this.$serverGet(restApi.uri.packageNotification)
+        .then((resp) => {
+          for (let i = 0; i < resp.data.length; i++) {
+            this.notis.push(resp.data[i])
+          }
+          let notificationCount = resp.data.length
+          //this.$store.commit('zap/updateNotificationCount', notificationCount)
+        })
+        .catch((err) => {
+          console.log(err)
+        })
     },
     deleteNotification(data) {
-      console.log(data)
       let parameters = {
         order: data,
       }

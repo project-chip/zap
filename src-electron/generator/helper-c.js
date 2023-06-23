@@ -24,7 +24,7 @@ const string = require('../util/string')
 const _ = require('lodash')
 const dbEnum = require('../../src-shared/db-enum.js')
 const envConfig = require('../util/env')
-const notification = require('../db/query-notification.js')
+const notification = require('../db/query-session-notification.js')
 
 
 /**

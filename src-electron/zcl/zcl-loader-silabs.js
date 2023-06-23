@@ -30,7 +30,8 @@ const util = require('../util/util')
 const dbEnum = require('../../src-shared/db-enum')
 const zclLoader = require('./zcl-loader')
 const _ = require('lodash')
-const queryNotification = require('../db/query-notification')
+const querySessionNotification = require('../db/query-session-notification')
+const queryPackageNotification = require('../db/query-package-notification')
 
 /**
  * Promises to read the JSON file and resolve all the data.
@@ -1195,7 +1196,7 @@ async function processEnumAtomic(db, filePath, packageId, knownPackages, data) {
  * @param {*} dataType
  * @returns An Object
  */
-function prepareEnumOrBitmap(a, dataType, typeMap) {
+function prepareEnumOrBitmap(db, packageId, a, dataType, typeMap) {
   // Taking care of a typo for backwards compatibility
   // for eg <enum name="Status" type="INT8U" i.e. an enum defined as int8u
   let enumIndex = typeMap.get(dbEnum.zclType.enum)
@@ -1204,12 +1205,10 @@ function prepareEnumOrBitmap(a, dataType, typeMap) {
     (a.$.type.toLowerCase().includes('int') ||
       a.$.type.toLowerCase().includes(dbEnum.zclType.bitmap))
   ) {
-    env.logWarning(
-      'Check type contradiction in XML metadata for ' +
-        a.$.name +
-        ' with type ' +
-        a.$.type
-    )
+    let message = 'Check type contradiction in XML metadata for ' +
+    a.$.name + ' with type ' + a.$.type
+    env.logWarning(message)
+    queryPackageNotification.setNotification(db, "WARNING", message, packageId, 1, 0)
     a.$.type = 'enum' + a.$.type.toLowerCase().match(/\d+/g).join('')
   }
   return {
@@ -1237,7 +1236,7 @@ async function processEnum(db, filePath, packageId, knownPackages, data) {
     db,
     knownPackages,
     data.map((x) =>
-      prepareEnumOrBitmap(x, typeMap.get(dbEnum.zclType.enum), typeMap)
+      prepareEnumOrBitmap(db, packageId, x, typeMap.get(dbEnum.zclType.enum), typeMap)
     )
   )
 }
@@ -1324,7 +1323,7 @@ async function processBitmap(db, filePath, packageId, knownPackages, data) {
     db,
     knownPackages,
     data.map((x) =>
-      prepareEnumOrBitmap(x, typeMap.get(dbEnum.zclType.bitmap), typeMap)
+      prepareEnumOrBitmap(db, packageId, x, typeMap.get(dbEnum.zclType.bitmap), typeMap)
     )
   )
 }
@@ -2160,7 +2159,7 @@ async function loadIndividualSilabsFile(db, filePath, sessionId) {
     return { succeeded: true, packageId: pkgId }
   } catch (err) {
     env.logError(`Error reading xml file: ${filePath}\n` + err.message)
-    queryNotification.setNotification(db, "ERROR", `Error reading xml file: ${filePath}\n` + err.message, sessionId, 2, 0)
+    querySessionNotification.setNotification(db, "ERROR", `Error reading xml file: ${filePath}\n` + err.message, sessionId, 2, 0)
     return { succeeded: false, err: err }
   }
 }

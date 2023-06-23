@@ -20,7 +20,7 @@ const os = require('os')
 import fs from 'fs'
 const pino = require('pino')
 const zapBaseUrl = 'http://localhost:'
-const notification = require('../db/query-notification.js')
+const notification = require('../db/query-session-notification.js')
 
 import { VersionType, ErrorType } from '../types/env-types'
 

@@ -25,7 +25,7 @@ const appHelper = require('../../../app/zap-templates/templates/app/helper.js');
 const dbEnum = require('../../../../../../src-shared/db-enum');
 const queryZcl = require(zapPath + 'db/query-zcl');
 const zclUtil = require(zapPath + 'util/zcl-util.js');
-const notification = require(zapPath + 'db/query-notification.js')
+const notification = require(zapPath + 'db/query-session-notification.js')
 
 const characterStringTypes = ['CHAR_STRING', 'LONG_CHAR_STRING'];
 const octetStringTypes = ['OCTET_STRING', 'LONG_OCTET_STRING'];

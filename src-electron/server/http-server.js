@@ -33,7 +33,7 @@ const dbEnum = require('../../src-shared/db-enum.js')
 const watchdog = require('../main-process/watchdog')
 const initialize = require('../rest/initialize')
 const dirtyFlag = require('../util/async-reporting')
-const notification = require('../db/query-notification.js')
+const notification = require('../db/query-session-notification.js')
 
 
 const restApiModules = [
