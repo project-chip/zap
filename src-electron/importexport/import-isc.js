@@ -366,6 +366,8 @@ async function loadEndpointType(db, sessionId, packageId, endpointType) {
     sessionId,
     endpointType.typeName,
     dev.id,
+    dev.code,
+    1,
     false
   )
 }

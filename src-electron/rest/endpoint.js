@@ -169,21 +169,28 @@ function httpPostEndpointType(db) {
  */
 function httpPatchEndpointType(db) {
   return async (request, response) => {
-    let { endpointTypeId, updatedKey, updatedValue } = request.body
+    let context = request.body
     let sessionId = request.zapSessionId
+    // Changes may include device type refs, versions or identifiers
+    let changes = context.changes.map((data) => {
+      let paramType = ''
+      return {
+        key: data.updatedKey,
+        value: data.value,
+        type: paramType,
+      }
+    })
 
     await queryConfig.updateEndpointType(
       db,
       sessionId,
-      endpointTypeId,
-      updatedKey,
-      updatedValue
+      context.endpointTypeId,
+      changes
     )
 
     response.status(StatusCodes.OK).json({
-      endpointTypeId: endpointTypeId,
-      updatedKey: updatedKey,
-      updatedValue: updatedValue,
+      endpointTypeId: context.endpointTypeId,
+      changes: context.changes,
     })
   }
 }

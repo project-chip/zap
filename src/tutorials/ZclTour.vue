@@ -107,7 +107,7 @@ export default {
                 networkId: 0,
                 profileId: parseInt(profileId),
                 endpointType: response.id,
-                endpointVersion: 1,
+                deviceVersion: 1,
                 deviceIdentifier: this.zclDeviceTypeOptions[0].deviceIdentifier,
               })
               .then((res) => {

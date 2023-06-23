@@ -331,6 +331,7 @@ async function deleteEndpoint(db, id) {
  * @param {*} endpointIdentifier
  * @param {*} endpointTypeRef
  * @param {*} networkIdentifier
+ * @param {*} profileIdentifier
  * @returns Promise to update endpoints.
  */
 async function insertEndpoint(
@@ -339,12 +340,8 @@ async function insertEndpoint(
   endpointIdentifier,
   endpointTypeRef,
   networkIdentifier,
-  profileIdentifier,
-  deviceIdentifier
+  profileIdentifier
 ) {
-  let primaryDeviceIdentifierForEndpoint = Array.isArray(deviceIdentifier)
-    ? deviceIdentifier[0]
-    : deviceIdentifier
   return dbApi.dbInsert(
     db,
     `
