@@ -321,8 +321,7 @@ export default {
           message: 'Please wait while zap is loading...',
           spinnerSize: 300,
         })
-        console.log(this.filePath)
-        let file = this.filePath
+
         if (!this.newConfig) {
           this.$serverPost(restApi.uri.sessionCreate, data)
             .then(() => this.$serverPost(restApi.ide.open, this.path))

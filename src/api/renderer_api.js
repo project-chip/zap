@@ -47,16 +47,6 @@ export function renderer_api_info() {
   }
 }
 
-function fnOpen(zapFilePath, ideProjectPath) {
-  // Make a request for a user with a given ID
-  window
-    .serverPost(`${restApi.ide.open}`, {
-      zapFilePath: zapFilePath,
-      ideProjectPath: ideProjectPath,
-    })
-    .catch((err) => console.log(err))
-}
-
 function fnSave(zap_file) {
   let data = {}
   if (zap_file != null) data.path = zap_file
@@ -77,9 +67,6 @@ function fnIsDirty() {
 export function renderer_api_execute(id, ...args) {
   let ret = null
   switch (id) {
-    case rendApi.id.open:
-      ret = fnOpen.apply(null, args)
-      break
     case rendApi.id.save:
       ret = fnSave.apply(null, args)
       break

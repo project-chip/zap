@@ -41,8 +41,8 @@ const studio = require('../ide-integration/studio-rest-api')
 function httpPostFileOpen(db) {
   return async (req, res) => {
     let ideProjectPath = dbEnum.sessionKey.ideProjectPath
-    let zapFilePath = req.body.search.split('filePath=')
-    zapFilePath = zapFilePath[1].replaceAll('%2F', '//').trim()
+    let zapFilePath = req.body.search?.split('filePath=')
+    zapFilePath = zapFilePath[1]?.replaceAll('%2F', '//').trim()
     console.log(zapFilePath)
     // let { ideProjectPath } = req.body
     let name = ''

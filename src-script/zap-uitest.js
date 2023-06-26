@@ -67,7 +67,7 @@ let svr = scriptUtil.executeCmd(null, 'npm', ['run', svrCmd])
 let cyp = scriptUtil.executeCmd(null, 'npx', [
   'start-test',
   'quasar dev',
-  'http-get://localhost:9070',
+  'http-get://localhost:8080/?restPort=9070#',
   `npx cypress ${cypressMode} --browser ${browserToUse} ${fixturesConfig}`,
 ])
 

@@ -35,7 +35,7 @@ const fsp = fs.promises
  */
 function sessionAttempt(db) {
   return async (req, res) => {
-    if (req.body.search.includes('filePath=%2F')) {
+    if (req.body.search?.includes('filePath=%2F')) {
       let filePath = req.body.search.split('filePath=')
       filePath = filePath[1].replaceAll('%2F', '//').trim()
       console.log(filePath)
