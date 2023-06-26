@@ -77,7 +77,6 @@ function httpGetSessionNotifications(db) {
  */
 function httpDeleteSessionNotification(db) {
   return async (request, response) => {
-    console.log(request.query)
     let order = request.query.order
     let resp = await querySessionNotification.deleteNotification(db, order)
     response.status(StatusCodes.OK).json(resp)
