@@ -56,26 +56,13 @@ export default {
         .catch((err) => {
           console.log(err)
         })
-        console.log(this.notis)
-      
-        this.$serverGet(restApi.uri.packageNotification)
-        .then((resp) => {
-          for (let i = 0; i < resp.data.length; i++) {
-            this.notis.push(resp.data[i])
-          }
-          let notificationCount = resp.data.length
-          //this.$store.commit('zap/updateNotificationCount', notificationCount)
-        })
-        .catch((err) => {
-          console.log(err)
-        })
     },
     deleteNotification(data) {
       let parameters = {
         order: data,
       }
       let config = {params: parameters}
-      this.$serverDelete(restApi.uri.deleteNotification, config)
+      this.$serverDelete(restApi.uri.deleteSessionNotification, config)
         .then((resp) => {
            this.notis = []
            this.getNotifications()
