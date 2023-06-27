@@ -281,6 +281,7 @@ export default {
       zclGenRow: [],
       newConfig: false,
       path: window.location,
+      open: true,
       filePath: '',
       loadPreSessionData: [],
       pagination: {
@@ -322,7 +323,7 @@ export default {
           spinnerSize: 300,
         })
 
-        if (!this.newConfig) {
+        if (this.open) {
           this.$serverPost(restApi.uri.sessionCreate, data)
             .then(() => this.$serverPost(restApi.ide.open, this.path))
             .then(() => {
@@ -359,9 +360,7 @@ export default {
       this.selectedZclPropertiesData = result.data.zclProperties[0]
       this.zclGenRow = result.data.zclGenTemplates
       this.filePath = result.data.filePath
-      if (window.location.search.includes('newConfig=true')) {
-        this.newConfig = true
-      }
+      this.open = result.data.open
       if (this.zclPropertiesRow.length == 1 && this.zclGenRow.length == 1) {
         // We shortcut this page, if there is exactly one of each,
         // since we simply assume that they are selected and move on.
