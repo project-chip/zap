@@ -280,6 +280,7 @@ export default {
       loadPreSessionCol: loadPreSessionCol,
       zclGenRow: [],
       newConfig: false,
+      path: window.location,
       filePath: '',
       loadPreSessionData: [],
       pagination: {
@@ -353,9 +354,7 @@ export default {
     },
   },
   created() {
-    const querystring = require('querystring')
-    let search = global.location.search
-    this.$serverPost(restApi.uri.sessionAttempt, search).then((result) => {
+    this.$serverPost(restApi.uri.sessionAttempt, this.path).then((result) => {
       this.zclPropertiesRow = result.data.zclProperties
       this.selectedZclPropertiesData = result.data.zclProperties[0]
       this.zclGenRow = result.data.zclGenTemplates
