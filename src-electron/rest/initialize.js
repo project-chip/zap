@@ -39,28 +39,51 @@ function sessionAttempt(db) {
       let filePath = req.body.search.split('filePath=')
       filePath = filePath[1].replaceAll('%2F', '//').trim()
       console.log(filePath)
-      let data = await fsp.readFile(filePath)
-      let obj = JSON.parse(data)
-      let category = obj.package[0].category
-      let open = true
-      const zclProperties = await queryPackage.getPackagesByCategoryAndType(
-        db,
-        dbEnum.packageType.zclProperties,
-        category
-      )
-      const zclGenTemplates = await queryPackage.getPackagesByCategoryAndType(
-        db,
-        dbEnum.packageType.genTemplatesJson,
-        category
-      )
-      const sessions = await querySession.getDirtySessionsWithPackages(db)
-      return res.send({
-        zclGenTemplates,
-        zclProperties,
-        sessions,
-        filePath,
-        open,
-      })
+      if (filePath.includes('.zap')) {
+        let data = await fsp.readFile(filePath)
+        console.log('ISCC!!!!')
+        let obj = JSON.parse(data)
+        let category = obj.package[0].category
+        let open = true
+        const zclProperties = await queryPackage.getPackagesByCategoryAndType(
+          db,
+          dbEnum.packageType.zclProperties,
+          category
+        )
+        console.log(dbEnum.packageType.zclProperties)
+        const zclGenTemplates = await queryPackage.getPackagesByCategoryAndType(
+          db,
+          dbEnum.packageType.genTemplatesJson,
+          category
+        )
+        console.log(zclGenTemplates)
+        const sessions = await querySession.getDirtySessionsWithPackages(db)
+        console.log(sessions)
+        return res.send({
+          zclGenTemplates,
+          zclProperties,
+          sessions,
+          filePath,
+          open,
+        })
+      } else {
+        let open = false
+        const zclProperties = await queryPackage.getPackagesByType(
+          db,
+          dbEnum.packageType.zclProperties
+        )
+        const zclGenTemplates = await queryPackage.getPackagesByType(
+          db,
+          dbEnum.packageType.genTemplatesJson
+        )
+        const sessions = await querySession.getDirtySessionsWithPackages(db)
+        return res.send({
+          zclGenTemplates,
+          zclProperties,
+          sessions,
+          open,
+        })
+      }
     } else {
       let open = false
       const zclProperties = await queryPackage.getPackagesByType(
