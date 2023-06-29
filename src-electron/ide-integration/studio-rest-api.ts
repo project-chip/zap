@@ -98,11 +98,11 @@ async function getProjectInfo(
   if (studioProjectPath) {
     let name = await projectName(studioProjectPath)
     let path = localhost + studioHttpPort + op_tree + studioProjectPath
-    env.logDebug(`StudioUC(${name}): GET: ${path}`)
+    env.logInfo(`StudioUC(${name}): GET: ${path}`)
     return axios
       .get(path)
       .then((resp) => {
-        env.logDebug(`StudioUC(${name}): RESP: ${resp.status}`)
+        env.logInfo(`StudioUC(${name}): RESP: ${resp.status}`)
         return resp
       })
       .catch((err) => {
@@ -295,13 +295,17 @@ async function sendUcComponentStateReport(db: dbTypes.DbType) {
  * Notify front-end that current session failed to load.
  * @param {} err
  */
-function sendSessionCreationErrorStatus(db: dbTypes.DbType, err: string, sessionId: number) {
+function sendSessionCreationErrorStatus(
+  db: dbTypes.DbType,
+  err: string,
+  sessionId: number
+) {
   // TODO: delegate type declaration to actual function
   querySession
     .getAllSessions(db)
     .then((sessions: dbMappingTypes.SessionType[]) =>
       sessions.forEach((session) => {
-        if(session.sessionId == sessionId){
+        if (session.sessionId == sessionId) {
           let socket = wsServer.clientSocket(session.sessionKey)
           if (socket) {
             wsServer.sendWebSocketMessage(socket, {
