@@ -568,7 +568,6 @@ async function insertEndpointType(
     'INSERT INTO ENDPOINT_TYPE_DEVICE (ENDPOINT_TYPE_REF, DEVICE_TYPE_REF, DEVICE_IDENTIFIER, DEVICE_VERSION, DEVICE_TYPE_ORDER) VALUES (?, ?, ?, ?, ?)',
     newEndpointTypeIdDeviceCombination
   )
-  console.log('Bharat Test etd: ' + JSON.stringify(etd))
 
   // Resolve endpointDefaults based on device type order.
   for (const dtRef of deviceTypeRefs) {

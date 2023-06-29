@@ -191,12 +191,13 @@ async function selectEndpointType(db, id) {
     .then(dbMapping.map.endpointType)
 
   // Device types for endpoint
-  endpointType.deviceTypes = await dbApi
-    .dbAll(
-      db,
-      `
+  let rows = await dbApi.dbAll(
+    db,
+    `
     SELECT
-      DEVICE_TYPE.DEVICE_TYPE_ID
+      DEVICE_TYPE.DEVICE_TYPE_ID,
+      ENDPOINT_TYPE_DEVICE.DEVICE_VERSION,
+      ENDPOINT_TYPE_DEVICE.DEVICE_IDENTIFIER
     FROM
       DEVICE_TYPE
     LEFT JOIN
@@ -209,9 +210,12 @@ async function selectEndpointType(db, id) {
       DEVICE_TYPE.NAME,
       DEVICE_TYPE.CODE,
       DEVICE_TYPE.PROFILE_ID`,
-      [id]
-    )
-    .then((rows) => rows.map((row) => row.DEVICE_TYPE_ID))
+    [id]
+  )
+
+  endpointType.deviceTypes = rows.map((row) => row.DEVICE_TYPE_ID)
+  endpointType.deviceVersions = rows.map((row) => row.DEVICE_VERSION)
+  endpointType.deviceIdentifiers = rows.map((row) => row.DEVICE_IDENTIFIER)
 
   // Loading endpointTypeRef as primary endpointType for backwards compatibility
   endpointType.deviceTypeRef = endpointType.deviceTypes[0]

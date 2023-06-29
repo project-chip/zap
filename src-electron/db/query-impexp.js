@@ -219,6 +219,8 @@ async function importEndpointType(db, sessionId, packageIds, endpointType) {
 
   // Process device types
   let deviceTypes = []
+  let deviceVersions = endpointType.deviceVersion
+  let deviceIdentifiers = endpointType.deviceIdentifier
   if (endpointType.deviceTypes) {
     deviceTypes = endpointType.deviceTypes
   } else {
@@ -230,6 +232,7 @@ async function importEndpointType(db, sessionId, packageIds, endpointType) {
       },
     ]
   }
+
   let promises = []
   for (let i = 0; i < deviceTypes.length; i++) {
     // Get deviceType IDs
@@ -248,8 +251,14 @@ async function importEndpointType(db, sessionId, packageIds, endpointType) {
       promises.push(
         dbApi.dbInsert(
           db,
-          'INSERT OR REPLACE INTO ENDPOINT_TYPE_DEVICE(ENDPOINT_TYPE_REF, DEVICE_TYPE_REF, DEVICE_TYPE_ORDER) VALUES(?, ?, ?)',
-          [endpointTypeId, row.DEVICE_TYPE_ID, i]
+          'INSERT OR REPLACE INTO ENDPOINT_TYPE_DEVICE(ENDPOINT_TYPE_REF, DEVICE_TYPE_REF, DEVICE_TYPE_ORDER, DEVICE_VERSION, DEVICE_IDENTIFIER) VALUES(?, ?, ?, ?, ?)',
+          [
+            endpointTypeId,
+            row.DEVICE_TYPE_ID,
+            i,
+            deviceVersions,
+            deviceIdentifiers,
+          ]
         )
       )
     }
