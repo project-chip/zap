@@ -47,13 +47,20 @@ async function setNotification(
     'INSERT INTO SESSION_NOTICE ( SESSION_REF, NOTICE_TYPE, NOTICE_MESSAGE, NOTICE_SEVERITY, DISPLAY, SEEN) VALUES ( ?, ?, ?, ?, ?, ?)',
     [sessionId, type, status, severity, display, 0]
   )
+  return updateResp
 
   let rows = []
-  rows = await dbApi.dbAll(
-    db,
-    'SELECT SESSION_KEY FROM SESSION WHERE SESSION_ID = ?',
-    [sessionId]
-  )
+  // if(sessionId) {
+  //   console.log(sessionId)
+  //   console.log('there is sessionid')
+  // } else {
+  //   console.log('no valid session id here')
+  // }
+   rows = await dbApi.dbAll(
+     db,
+     'SELECT SESSION_KEY FROM SESSION WHERE SESSION_ID = ?',
+     [sessionId]
+   )
   if(rows && rows.length > 0) {
     let sessionKey = rows[0].SESSION_KEY
     let socket = wsServer.clientSocket(sessionKey)
