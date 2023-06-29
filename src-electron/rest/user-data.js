@@ -91,8 +91,7 @@ function httpDeleteSessionNotification(db) {
  */
 function httpGetPackageNotifications(db) {
   return async (request, response) => {
-    let sessionId = request.zapSessionId
-    let notifications = await queryPackageNotification.getNotification(db, sessionId)
+    let notifications = await queryPackageNotification.getAllNotification(db)
     response.status(StatusCodes.OK).json(notifications)
   }
 }
@@ -105,7 +104,6 @@ function httpGetPackageNotifications(db) {
  */
 function httpDeletePackageNotification(db) {
   return async (request, response) => {
-    console.log(request.query)
     let order = request.query.order
     let resp = await queryPackageNotification.deleteNotification(db, order)
     response.status(StatusCodes.OK).json(resp)

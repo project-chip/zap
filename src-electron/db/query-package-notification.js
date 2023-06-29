@@ -64,7 +64,7 @@ async function deleteNotification(db, order) {
   )
 }
 /**
- * Retrieves a notification from the PACKAGE_NOTICE table
+ * Retrieves notifications from the PACKAGE_NOTICE table related to a sessionId
  *
  * @export
  * @param {*} db
@@ -79,8 +79,22 @@ async function getNotification(db, sessionId) {
   )
   return rows.map(dbMapping.map.packageNotification)
 }
+
+
+async function getAllNotification(db) {
+  let rows = []
+  rows = await dbApi.dbAll(
+    db,
+    'SELECT DISTINCT PACKAGE_REF AS packageId, NOTICE_MESSAGE AS message FROM PACKAGE_NOTICE'
+  )
+  if(rows == null) return undefined
+  return rows
+}
+
+
 // exports
 exports.setNotification = setNotification
 exports.deleteNotification = deleteNotification
 exports.getNotification = getNotification
+exports.getAllNotification = getAllNotification
 //# sourceMappingURL=query-package-notification.js.map
