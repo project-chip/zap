@@ -69,7 +69,12 @@ async function ensurePackagesAndPopulateSessionOptions(
   // This is the desired ZCL properties file. Because it is possible
   // that an array is passed from the command line, we are simply taking
   // the first one, if we pass multiple ones.
-  let zclFile = selectedZclPropertyPackage.path
+  let zclFile
+  if (options) {
+    zclFile = options.zcl
+  } else {
+    zclFile = selectedZclPropertyPackage.path
+  }
   // 0. Read current packages.
   let currentPackages =
     await queryPackage.getPackageSessionPackagePairBySessionId(db, sessionId)

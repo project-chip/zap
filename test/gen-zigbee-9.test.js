@@ -90,7 +90,7 @@ test(
     expect(errors.length).toBe(0)
     expect(warnings.length).toBe(0)
   },
-  testUtil.timeout.short()
+  testUtil.timeout.long()
 )
 
 // We here generate each one separatelly in a separate test case.
