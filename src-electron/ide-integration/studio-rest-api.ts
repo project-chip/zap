@@ -98,11 +98,11 @@ async function getProjectInfo(
   if (studioProjectPath) {
     let name = await projectName(studioProjectPath)
     let path = localhost + studioHttpPort + op_tree + studioProjectPath
-    env.logInfo(`StudioUC(${name}): GET: ${path}`)
+    env.logDebug(`StudioUC(${name}): GET: ${path}`)
     return axios
       .get(path)
       .then((resp) => {
-        env.logInfo(`StudioUC(${name}): RESP: ${resp.status}`)
+        env.logDebug(`StudioUC(${name}): RESP: ${resp.status}`)
         return resp
       })
       .catch((err) => {
