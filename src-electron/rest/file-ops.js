@@ -44,7 +44,14 @@ function httpPostFileOpen(db) {
     let name = ''
 
     if (zapFilePath) {
-      name = path.posix.basename(zapFilePath)
+      if (studio.integrationEnabled(db, req.zapSessionId)) {
+        name = path.posix.dirname(
+          path.posix.dirname(path.posix.dirname(zapFilePath))
+        )
+      } else {
+        name = path.posix.basename(zapFilePath)
+      }
+
       env.logInfo(`Loading project(${name})`)
 
       try {
