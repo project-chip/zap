@@ -81,8 +81,6 @@ async function exportEndpoints(db, sessionId, endpointTypes) {
       profileId: x.PROFILE,
       endpointId: x.ENDPOINT_IDENTIFIER,
       networkId: x.NETWORK_IDENTIFIER,
-      endpointVersion: x.DEVICE_VERSION,
-      deviceIdentifier: x.DEVICE_IDENTIFIER,
     }
   }
   return dbApi
@@ -94,19 +92,13 @@ SELECT
   E.ENDPOINT_TYPE_REF,
   E.PROFILE,
   E.ENDPOINT_IDENTIFIER,
-  E.NETWORK_IDENTIFIER,
-  ETD.DEVICE_VERSION,
-  ETD.DEVICE_IDENTIFIER
+  E.NETWORK_IDENTIFIER
 FROM
   ENDPOINT AS E
 LEFT JOIN
-  ENDPOINT_TYPE_DEVICE AS ETD
-ON
-  E.ENDPOINT_TYPE_REF = ETD.ENDPOINT_TYPE_REF
-INNER JOIN
   ENDPOINT_TYPE AS ET
 ON
-  ET.ENDPOINT_TYPE_ID = ETD.ENDPOINT_TYPE_REF
+  E.ENDPOINT_TYPE_REF = ET.ENDPOINT_TYPE_ID
 WHERE
   E.SESSION_REF = ?
 ORDER BY E.ENDPOINT_IDENTIFIER
@@ -150,35 +142,40 @@ ORDER BY
 
   //Associate each endpoint type to the device types
   for (let i = 0; i < endpointTypes.length; i++) {
-    endpointTypes[i].deviceTypes = await dbApi
-      .dbAll(
-        db,
-        `
-        SELECT
-          DEVICE_TYPE.DEVICE_TYPE_ID,
-          DEVICE_TYPE.CODE,
-          DEVICE_TYPE.NAME,
-          DEVICE_TYPE.PROFILE_ID
-        FROM 
-          DEVICE_TYPE
-        LEFT JOIN
-          ENDPOINT_TYPE_DEVICE
-        ON
-          ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_REF = DEVICE_TYPE.DEVICE_TYPE_ID
-        INNER JOIN
-          ENDPOINT_TYPE
-        ON
-          ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF
-        WHERE
-          ENDPOINT_TYPE.SESSION_REF = ?
-          AND ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF = ?
-        ORDER BY
-          DEVICE_TYPE.NAME,
-          DEVICE_TYPE.CODE,
-          DEVICE_TYPE.PROFILE_ID`,
-        [sessionId, endpointTypes[i].endpointTypeId]
-      )
-      .then((rows) => rows.map(dbMapping.map.deviceType))
+    let rows = await dbApi.dbAll(
+      db,
+      `
+      SELECT
+        DEVICE_TYPE.DEVICE_TYPE_ID,
+        DEVICE_TYPE.CODE,
+        DEVICE_TYPE.NAME,
+        DEVICE_TYPE.PROFILE_ID,
+        ENDPOINT_TYPE_DEVICE.DEVICE_VERSION
+      FROM 
+        DEVICE_TYPE
+      LEFT JOIN
+        ENDPOINT_TYPE_DEVICE
+      ON
+        ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_REF = DEVICE_TYPE.DEVICE_TYPE_ID
+      INNER JOIN
+        ENDPOINT_TYPE
+      ON
+        ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF
+      WHERE
+        ENDPOINT_TYPE.SESSION_REF = ?
+        AND ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF = ?
+      ORDER BY
+        DEVICE_TYPE.NAME,
+        DEVICE_TYPE.CODE,
+        DEVICE_TYPE.PROFILE_ID`,
+      [sessionId, endpointTypes[i].endpointTypeId]
+    )
+
+    // Updating the device type info for the endpoint
+    endpointTypes[i].deviceTypeRefs = rows.map((x) => x.DEVICE_TYPE_ID)
+    endpointTypes[i].deviceVersions = rows.map((x) => x.DEVICE_VERSION)
+    endpointTypes[i].deviceIdentifiers = rows.map((x) => x.CODE)
+    endpointTypes[i].deviceTypes = rows.map(dbMapping.map.deviceType)
 
     // Loading endpointTypeRef as primary endpointType for backwards compatibility
     endpointTypes[i].deviceTypeRef = endpointTypes[i].deviceTypes[0]
@@ -219,8 +216,12 @@ async function importEndpointType(db, sessionId, packageIds, endpointType) {
 
   // Process device types
   let deviceTypes = []
-  let deviceVersions = endpointType.deviceVersion
-  let deviceIdentifiers = endpointType.deviceIdentifier
+  let deviceVersions = endpointType.deviceVersions
+    ? endpointType.deviceVersions
+    : [endpointType.deviceVersion]
+  let deviceIdentifiers = endpointType.deviceIdentifiers
+    ? endpointType.deviceIdentifiers
+    : [endpointType.deviceIdentifier]
   if (endpointType.deviceTypes) {
     deviceTypes = endpointType.deviceTypes
   } else {
@@ -256,8 +257,8 @@ async function importEndpointType(db, sessionId, packageIds, endpointType) {
             endpointTypeId,
             row.DEVICE_TYPE_ID,
             i,
-            deviceVersions,
-            deviceIdentifiers,
+            deviceVersions[i],
+            deviceIdentifiers[i],
           ]
         )
       )
