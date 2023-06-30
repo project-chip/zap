@@ -20,21 +20,20 @@ describe('Testing enabled clusters amount', () => {
       })
       cy.get('[data-test="endpoint-enabled-clusters-amount"]').then(($div) => {
         const num1 = parseFloat($div.text())
-        cy.fixture('data').then((data) => {
-          cy.get('.q-page-container > div')
+
+        cy.get('div').contains('General').click({ force: true })
+        cy.get('div')
           .children()
-          .should('contain', data.cluster1)
-        })
-        cy.get('div').contains('General').click({force: true})
-        cy.get('div').children().contains('Server').its('length').then(res=>{
-          if(res > 0){
-            cy.get('div').children().contains('Not Enabled').first().click()
-            cy.get('.q-virtual-scroll__content > :nth-child(3)')
-              .contains('Server')
-              .click()
-          }
-      });
-        
+          .contains('Server')
+          .its('length')
+          .then((res) => {
+            if (res > 0) {
+              cy.get('div').children().contains('Not Enabled').first().click()
+              cy.get('.q-virtual-scroll__content > :nth-child(3)')
+                .contains('Server')
+                .click()
+            }
+          })
       })
     }
   )
@@ -43,12 +42,13 @@ describe('Testing enabled clusters amount', () => {
     { retries: { runMode: 2, openMode: 2 } },
     () => {
       cy.fixture('data').then((data) => {
-        cy.get('[data-test="endpoint-enabled-clusters-amount"]').then(($div2) => {
-          const num2 = parseFloat($div2.text())
-          expect(num2).to.eq(Number(data.availableClusters1))
-        })
+        cy.get('[data-test="endpoint-enabled-clusters-amount"]').then(
+          ($div2) => {
+            const num2 = parseFloat($div2.text())
+            expect(num2).to.eq(Number(data.availableClusters1))
+          }
+        )
       })
-     
     }
   )
 })

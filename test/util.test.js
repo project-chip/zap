@@ -18,8 +18,9 @@
  * @jest-environment jsdom
  */
 
-const util = require('../src/util/util.js')
-const { timeout } = require('./test-util.js')
+const util = require('../src/util/util')
+const util2 = require('../src-electron/util/util')
+const { timeout } = require('./test-util')
 
 test(
   'Clean symbol',
@@ -29,6 +30,30 @@ test(
     expect(util.asHex('123', 4)).toEqual('0x007B')
     expect(util.asHex('0x123', 4)).toEqual('0x0123')
     expect(util.asHex(123, 4)).toEqual('0x007B')
+  },
+  timeout.short()
+)
+
+test(
+  'Pattern format',
+  () => {
+    expect(util2.patternFormat('{a}{b}', { a: 1, b: 2 })).toEqual('12')
+    expect(util2.patternFormat('{a}{b}', { a: 10, b: 2 })).toEqual('102')
+    expect(util2.patternFormat('{a:hexuppercase}{b}', { a: 10, b: 2 })).toEqual(
+      'A2'
+    )
+    expect(util2.patternFormat('{a:hexlowercase}{b}', { a: 10, b: 2 })).toEqual(
+      'a2'
+    )
+    expect(
+      util2.patternFormat(
+        '{a:tocamelcase} {b:tosnakecase} {b:tosnakecaseallcaps}',
+        {
+          a: 'some string',
+          b: 'another string',
+        }
+      )
+    ).toEqual('someString another_string ANOTHER_STRING')
   },
   timeout.short()
 )

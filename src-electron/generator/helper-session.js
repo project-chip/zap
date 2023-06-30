@@ -446,13 +446,18 @@ async function all_cli_commands_for_user_enabled_clusters(options) {
  * @returns Promise of the resolved blocks iterating over cluster commands.
  */
 async function all_user_clusters(options) {
+  let side = null
+  if (options && options.hash) {
+    side = options.hash.side
+  }
+
   let endpointTypes = await templateUtil.ensureEndpointTypeIds(this)
 
   let clusters =
     await queryEndpointType.selectAllClustersDetailsFromEndpointTypes(
       this.global.db,
       endpointTypes,
-      options
+      side
     )
 
   return templateUtil.collectBlocks(clusters, options, this)
@@ -1499,12 +1504,16 @@ async function generated_attribute_min_max_index(
  *
  */
 async function if_enabled_clusters(options) {
+  let side = null
+  if (options && options.hash) {
+    side = options.hash.side
+  }
   let endpointTypes = await templateUtil.ensureEndpointTypeIds(this)
   let clusters =
     await queryEndpointType.selectAllClustersDetailsFromEndpointTypes(
       this.global.db,
       endpointTypes,
-      options
+      side
     )
   if (clusters.length > 0) {
     return options.fn(this)

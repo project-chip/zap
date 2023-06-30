@@ -16,7 +16,9 @@ limitations under the License.
 
 <template>
   <div>
-    <q-layout view="hHh Lpr lFf" :dense="$q.screen.lt.md">
+    <q-page>
+      <!--
+        OLD
       <q-header bordered height-hint="500" class="zclConfiguratorLayoutHeader">
         <q-toolbar class="row">
           <q-toolbar-title
@@ -52,9 +54,7 @@ limitations under the License.
             id="global_options"
           >
             <Transition name="bounce">
-              <div v-if="displayButton" class="q-ml-xs">
-                ZCL Global Options…
-              </div>
+              <div v-if="displayButton" class="q-ml-xs">Options</div>
             </Transition>
           </q-btn>
           <q-btn
@@ -69,7 +69,7 @@ limitations under the License.
           >
             <Transition name="bounce">
               <div v-if="displayButton" class="text-align q-ml-xs">
-                ZCL Extensions…
+                Extensions
               </div></Transition
             >
           </q-btn>
@@ -95,7 +95,9 @@ limitations under the License.
           <ZclGeneralOptionsBar />
         </q-dialog>
       </q-header>
+    -->
       <!-- Not using mobile mode, so breakpoint is set at 0 -->
+      <!-- OLD
       <q-drawer
         v-if="!showPreviewTab"
         v-model="leftDrawerOpen"
@@ -105,16 +107,15 @@ limitations under the License.
       >
         <zcl-endpoint-manager />
       </q-drawer>
-      <q-page-container>
-        <q-scroll-area style="height: 75vh; max-width: 200vh">
-          <initial-content
-            v-if="isSelectedEndpoint"
-            :ui-theme="uiThemeCategory"
-          />
-          <zcl-cluster-manager />
-        </q-scroll-area>
-      </q-page-container>
-    </q-layout>
+    -->
+      <q-scroll-area style="height: 75vh; max-width: 200vh">
+        <initial-content
+          v-if="isSelectedEndpoint"
+          :ui-theme="uiThemeCategory"
+        />
+        <zcl-cluster-manager />
+      </q-scroll-area>
+    </q-page>
     <q-dialog v-model="zclExtensionDialog" style="width: 800px">
       <ZclExtensionDialog />
     </q-dialog>
@@ -122,8 +123,8 @@ limitations under the License.
 </template>
 
 <script>
-import ZclGeneralOptionsBar from '../components/ZclGeneralOptionsBar.vue'
-import ZclEndpointManager from '../components/ZclEndpointManager.vue'
+//import ZclGeneralOptionsBar from '../components/ZclGeneralOptionsBar.vue'
+//import ZclEndpointManager from '../components/ZclEndpointManager.vue'
 import ZclClusterManager from '../components/ZclClusterManager.vue'
 import InitialContent from '../components/InitialContent.vue'
 import ZclExtensionDialog from '../components/ZclCustomZclView.vue'
@@ -139,13 +140,13 @@ export default {
         this.miniState = true
       }
     },
-    setSelectedEndpoint(value) {
-      this.$store.dispatch('zap/updateSelectedEndpointType', {
-        endpointType: this.endpointType[value],
-        deviceTypeRef: this.endpointDeviceTypeRef[this.endpointType[value]],
-      })
-      this.$store.dispatch('zap/updateSelectedEndpoint', value)
-    },
+    // setSelectedEndpoint(value) {
+    //   this.$store.dispatch('zap/updateSelectedEndpointType', {
+    //     endpointType: this.endpointType[value],
+    //     deviceTypeRef: this.endpointDeviceTypeRef[this.endpointType[value]],
+    //   })
+    //   this.$store.dispatch('zap/updateSelectedEndpoint', value)
+    // },
     openDocumentation() {
       window.open(commonUrl.documentationUrl, '_blank')
     },
@@ -271,8 +272,8 @@ export default {
   },
 
   components: {
-    ZclGeneralOptionsBar,
-    ZclEndpointManager,
+    //ZclGeneralOptionsBar,
+    // ZclEndpointManager,
     ZclClusterManager,
     InitialContent,
     ZclExtensionDialog,

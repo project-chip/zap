@@ -20,10 +20,10 @@ describe('Testing cluster filters', () => {
     'filter enabled clusters and check clusters',
     { retries: { runMode: 2, openMode: 2 } },
     () => {
-      cy.get(
-        '[data-test="filter-input"]'
-      ).click()
-      cy.get('.q-virtual-scroll__content > :nth-child(3)').click({force: true})
+      cy.get('[data-test="filter-input"]').click()
+      cy.get('.q-virtual-scroll__content > :nth-child(3)').click({
+        force: true,
+      })
       cy.fixture('data').then((data) => {
         cy.get('tbody').children().contains(data.cluster2).should('not.exist')
       })
@@ -33,16 +33,14 @@ describe('Testing cluster filters', () => {
     'enable power configuration cluster',
     { retries: { runMode: 2, openMode: 2 } },
     () => {
-      cy.get(
-        '[data-test="filter-input"]'
-      ).click({force:true})
+      cy.get('[data-test="filter-input"]').click({ force: true })
       cy.get('.q-virtual-scroll__content > :nth-child(1)').click()
       cy.fixture('data').then((data) => {
         cy.get('tbody').children().should('contain', data.cluster2)
       })
-      cy.get('#General').click({force: true})
+      cy.get('#General').click({ force: true })
       cy.get(
-        '#General > .q-expansion-item__container > .q-expansion-item__content > :nth-child(1) > .q-table__container > .q-table__middle > .q-table > tbody > :nth-child(2) > :nth-child(6) > .q-field > .q-field__inner > .q-field__control'
+        '#General > .q-expansion-item__container > .q-expansion-item__content > .q-card > .q-card__section > .row >  .q-table__container > .q-table__middle > .q-table > tbody > :nth-child(2) > :nth-child(6) > .q-field > .q-field__inner > .q-field__control'
       ).click({ force: true })
       cy.fixture('data').then((data) => {
         cy.get('.q-virtual-scroll__content > :nth-child(3)')
@@ -50,7 +48,7 @@ describe('Testing cluster filters', () => {
           .click()
       })
       cy.get(
-        '.bar > :nth-child(1) > :nth-child(2) > .q-field > .q-field__inner > .q-field__control'
+        '.v-step-7 > .q-field > .q-field__inner > .q-field__control'
       ).click({ force: true })
     }
   )
@@ -58,7 +56,9 @@ describe('Testing cluster filters', () => {
     'checks if power configuration exists',
     { retries: { runMode: 2, openMode: 2 } },
     () => {
-      cy.get('.q-virtual-scroll__content > :nth-child(2)').click({force: true})
+      cy.get('.q-virtual-scroll__content > :nth-child(2)').click({
+        force: true,
+      })
       cy.fixture('data').then((data) => {
         cy.get('tbody').children().should('contain', data.cluster2)
       })

@@ -2,9 +2,7 @@
 
 # ZCL Advanced Platform
 
-![Generation and back-end tests](https://github.com/project-chip/zap/workflows/Generation%20and%20back-end%20tests/badge.svg)
-![Cypress UI tests](https://github.com/project-chip/zap/workflows/Cypress%20UI%20tests/badge.svg)
-![Build and release](https://github.com/project-chip/zap/workflows/Build%20&%20Release/badge.svg)
+[![Build and release packages](https://github.com/project-chip/zap/actions/workflows/release.yml/badge.svg)](https://github.com/project-chip/zap/actions/workflows/release.yml)
 
 ## What is ZAP?
 
@@ -56,3 +54,4 @@ This software is licensed under [Apache 2.0 license](LICENSE.txt).
 - [API](docs/api.md)
 - [Coding standard](docs/coding-standard.md)
 - [Notifications](docs/notifications.md)
+- [Install ZAP from source on Windows](docs/ZAP-on-Windows.md)

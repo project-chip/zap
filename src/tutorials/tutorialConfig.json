@@ -38,7 +38,7 @@
     {
       "target": ".v-step-5",
       "title": "Modifying an Endpoint",
-      "content": "To modify an endpoint, click on the endpoint configuration on the left side of the Zigbee Cluster Configurator. A <strong>blue border</strong> corresponds to the endpoint being modified.",
+      "content": "To modify an endpoint, click on the endpoint configuration on the left side of the Zigbee Cluster Configurator. A <strong>blue background</strong> corresponds to the endpoint being modified.",
       "before": "generateEndpointCard",
       "placement": "bottom"
     },

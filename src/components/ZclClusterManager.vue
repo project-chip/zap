@@ -15,91 +15,94 @@ limitations under the License.
 -->
 
 <template>
-  <div v-if="selectedEndpointTypeId.length != 0" class="window-height">
-    <div class="row">
-      <q-toolbar>
-        <q-toolbar-title style="font-weight: bolder">
-          <span class="v-step-6"
-            >Endpoint
-            {{ this.endpointId[this.selectedEndpointId] }} Clusters</span
-          >
-        </q-toolbar-title>
-      </q-toolbar>
-    </div>
-    <div class="row bar align=left section-header">
-      <div class="row">
-        <div
-          style="
-            vertical-align: middle;
-            text-align: center;
-            padding: 10px 0 0 0;
-          "
+  <div v-if="selectedEndpointTypeId.length != 0">
+    <div class="row justify-between q-py-md">
+      <div
+        v-on:click.ctrl="showVersion"
+        v-if="showPreviewTab && this.endpointId[this.selectedEndpointId]"
+      >
+        <q-select
+          class=""
+          outlined
+          :options="endpoints"
+          :model-value="selectedEndpointId"
+          dense
+          emit-value
+          map-options
+          @update:model-value="setSelectedEndpointType($event)"
+        />
+      </div>
+      <div v-else class="text-h4">
+        <span class="v-step-6"
+          >Endpoint
+          {{ this.endpointId[this.selectedEndpointId] }} Clusters</span
         >
-          Show
-        </div>
-        &nbsp; &nbsp;
-
+      </div>
+      <div class="row">
         <div class="v-step-7">
           <q-select
             outlined
             :model-value="filter"
             :options="filterOptions"
             dense
-            class="col-2"
             @update:model-value="changeDomainFilter($event)"
             data-test="filter-input"
           />
         </div>
-        &nbsp;
+
+        <div class="q-mx-sm">
+          <q-input
+            dense
+            outlined
+            clearable
+            placeholder="Search Clusters"
+            @update:model-value="changeFilterString($event)"
+            @clear="changeFilterString('')"
+            :model-value="filterString"
+            data-test="search-clusters"
+          >
+            <template v-slot:prepend>
+              <q-icon name="search" />
+            </template>
+          </q-input>
+        </div>
         <div v-for="actionOption in actionOptions" :key="actionOption.label">
           <q-btn
             class="full-height"
-            outline
+            flat
+            rounded
             @click="doActionFilter(actionOption)"
             :label="actionOption.label"
+            color="primary"
           />
         </div>
       </div>
-      <q-space />
-      <q-input
-        dense
-        outlined
-        clearable
-        class="col-4"
-        placeholder="Search Clusters"
-        @update:model-value="changeFilterString($event)"
-        @clear="changeFilterString('')"
-        :model-value="filterString"
-        data-test="search-clusters"
-      >
-        <template v-slot:prepend>
-          <q-icon name="search" />
-        </template>
-      </q-input>
     </div>
-    <q-scroll-area style="" class="fit q-px-md">
-      <q-list style="padding-bottom: 250px">
-        <div v-for="(domainName, index) in domainNames" :key="domainName.id">
-          <div v-show="clusterDomains(domainName).length > 0">
-            <q-expansion-item
-              :id="domainName"
-              switch-toggle-side
-              :label="domainName"
-              :ref="domainName + index"
-              @update:model-value="setOpenDomain(domainName, $event)"
-              :model-value="getDomainOpenState(domainName)"
-              data-test="Cluster"
-            >
-              <zcl-domain-cluster-view
-                :domainName="domainName"
-                :clusters="clusterDomains(domainName)"
-              />
-            </q-expansion-item>
-            <q-separator />
-          </div>
+
+    <q-list class="cluster-list">
+      <div v-for="(domainName, index) in domainNames" :key="domainName.id">
+        <div v-show="clusterDomains(domainName).length > 0">
+          <q-expansion-item
+            :id="domainName"
+            :label="domainName"
+            :ref="domainName + index"
+            @update:model-value="setOpenDomain(domainName, $event)"
+            :model-value="getDomainOpenState(domainName)"
+            data-test="Cluster"
+            header-class="bg-white text-primary"
+          >
+            <q-card>
+              <q-card-section>
+                <zcl-domain-cluster-view
+                  :domainName="domainName"
+                  :clusters="clusterDomains(domainName)"
+                />
+              </q-card-section>
+            </q-card>
+          </q-expansion-item>
         </div>
-      </q-list>
-    </q-scroll-area>
+      </div>
+    </q-list>
   </div>
 </template>
 <script>
@@ -127,6 +130,11 @@ export default {
     },
   },
   computed: {
+    showPreviewTab: {
+      get() {
+        return this.$store.state.zap.showPreviewTab
+      },
+    },
     domainNames: {
       get() {
         return this.$store.state.zap.domains
@@ -195,6 +203,21 @@ export default {
         return this.$store.state.zap.expanded
       },
     },
+
+    endpoints: {
+      get() {
+        const endpoints = []
+        for (let id in this.endpointId) {
+          if (this.endpointId[id]) {
+            endpoints.push({
+              label: `Endpoint - ${this.endpointId[id]}`,
+              value: id,
+            })
+          }
+        }
+        return endpoints
+      },
+    },
   },
   methods: {
     scrollToElementById(tag) {
@@ -229,6 +252,17 @@ export default {
       this.$store.dispatch('zap/setOpenDomain', {
         domainName: domainName,
         value: event,
+      })
+    },
+    showVersion() {
+      this.$serverGet(restApi.uri.version).then((result) => {
+        let msg = `ZAP Version Information
+
+ - version: ${result.data.version}
+ - feature level: ${result.data.featureLevel}
+ - date of relese commit: ${result.data.date}
+ - hash of release commit: ${result.data.hash}`
+        alert(msg)
       })
     },
     getDomainOpenState(domainName) {

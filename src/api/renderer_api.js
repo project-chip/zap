@@ -109,21 +109,29 @@ export function renderer_api_execute(id, ...args) {
       observable.setObservableAttribute(rendApi.observable.debugNavBar, false)
       break
     case rendApi.id.setDarkTheme:
-      if (_.isBoolean(args[0])) {
-        Dark.set(args[0])
-        storage.setItem(rendApi.storageKey.isDarkThemeActive, args[0])
-        renderer_api_notify(rendApi.id.setDarkTheme, args[0])
+      {
+        const useDarkTheme =
+          typeof args[0] === 'string' ? args[0] === 'true' : !!args[0]
+        if (_.isBoolean(useDarkTheme)) {
+          Dark.set(useDarkTheme)
+          storage.setItem(rendApi.storageKey.isDarkThemeActive, useDarkTheme)
+          if (window.electronAPI) {
+            // light theme value
+            let titleBarOverlay = {
+              color: '#F4F4F4',
+              symbolColor: '#67696D',
+            }
+            if (useDarkTheme) {
+              titleBarOverlay = {
+                color: '#1B1B1B',
+                symbolColor: '#67696D',
+              }
+            }
+            window.electronAPI.setTitleBarOverlay(titleBarOverlay)
+          }
+          renderer_api_notify(rendApi.id.setDarkTheme, useDarkTheme)
+        }
       }
-
-      if (_.isString(args[0])) {
-        Dark.set(args[0] === 'true')
-        storage.setItem(
-          rendApi.storageKey.isDarkThemeActive,
-          args[0] === 'true'
-        )
-        renderer_api_notify(rendApi.id.setDarkTheme, args[0] === 'true')
-      }
-
       break
 
     case rendApi.id.isDirty:

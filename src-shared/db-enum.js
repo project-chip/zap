@@ -43,6 +43,17 @@ exports.packageOptionCategory = {
   helperCategories: 'helperCategories',
   helperAliases: 'helperAliases',
   resources: 'resources',
+  outputOptions: 'outputOptions',
+}
+
+// these are allowed values for the value of "iterator" for
+// the individual template in a templates.json file.
+// Note: if you add more of these, add the documentation to sdk-integration.md
+exports.iteratorValues = {
+  availableCluster: 'availableCluster',
+  selectedCluster: 'selectedCluster',
+  selectedClientCluster: 'selectedClientCluster',
+  selectedServerCluster: 'selectedServerCluster',
 }
 
 exports.side = {
