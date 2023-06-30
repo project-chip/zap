@@ -44,7 +44,14 @@ function httpPostFileOpen(db) {
     let name = ''
 
     if (zapFilePath) {
-      name = path.posix.basename(zapFilePath)
+      if (studio.integrationEnabled(db, req.zapSessionId)) {
+        name = path.posix.dirname(
+          path.posix.dirname(path.posix.dirname(zapFilePath))
+        )
+      } else {
+        name = path.posix.basename(zapFilePath)
+      }
+
       env.logInfo(`Loading project(${name})`)
 
       try {
@@ -82,8 +89,18 @@ function httpPostFileOpen(db) {
           message: e.message,
           stack: e.stack,
         }
-        queryNotification.setNotification(db, "ERROR", errMsg.message, req.zapSessionId, 1)
-        studio.sendSessionCreationErrorStatus(db, errMsg.message, req.zapSessionId)
+        queryNotification.setNotification(
+          db,
+          'ERROR',
+          errMsg.message,
+          req.zapSessionId,
+          1
+        )
+        studio.sendSessionCreationErrorStatus(
+          db,
+          errMsg.message,
+          req.zapSessionId
+        )
         env.logError(e.message)
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(errMsg)
       }
