@@ -76,6 +76,25 @@ async function selectDeviceTypeByCodeAndName(db, packageId, code, name) {
     .then(dbMapping.map.deviceType)
 }
 
+/**
+ * Retrieves the device type by the package, code and name.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} code
+ * @param {*} name
+ * @returns Device type
+ */
+async function selectDeviceTypeByCode(db, packageId, code) {
+  return dbApi
+    .dbGet(
+      db,
+      'SELECT DEVICE_TYPE_ID, DOMAIN, CODE, PROFILE_ID, NAME, DESCRIPTION FROM DEVICE_TYPE WHERE CODE = ? AND PACKAGE_REF = ? ',
+      [code, packageId]
+    )
+    .then(dbMapping.map.deviceType)
+}
+
 async function selectDeviceTypeClustersByDeviceTypeRef(db, deviceTypeRef) {
   let rows = await dbApi.dbAll(
     db,
@@ -312,7 +331,7 @@ async function updateDeviceTypeEntityReferences(db, packageId) {
 exports.selectAllDeviceTypes = selectAllDeviceTypes
 exports.selectDeviceTypeById = selectDeviceTypeById
 exports.selectDeviceTypeByCodeAndName = selectDeviceTypeByCodeAndName
-
+exports.selectDeviceTypeByCode = selectDeviceTypeByCode
 exports.selectDeviceTypeClustersByDeviceTypeRef =
   selectDeviceTypeClustersByDeviceTypeRef
 exports.selectDeviceTypeClusterByDeviceTypeClusterId =

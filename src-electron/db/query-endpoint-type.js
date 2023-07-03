@@ -64,35 +64,38 @@ WHERE SESSION_REF = ? ORDER BY NAME`,
 
   // Select deviceTypes for each endpointType
   for (let et of endpointTypes) {
-    et.deviceTypeRef = await dbApi
-      .dbAll(
-        db,
-        `
-        SELECT
-          DEVICE_TYPE.DEVICE_TYPE_ID,
-          DEVICE_TYPE.CODE,
-          DEVICE_TYPE.NAME,
-          DEVICE_TYPE.PROFILE_ID
-        FROM
-          DEVICE_TYPE
-        LEFT JOIN
-          ENDPOINT_TYPE_DEVICE
-        ON
-          ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_REF = DEVICE_TYPE.DEVICE_TYPE_ID
-        INNER JOIN
-          ENDPOINT_TYPE
-        ON
-          ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF
-        WHERE
-          ENDPOINT_TYPE.SESSION_REF = ?
-          AND ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF = ?
-        ORDER BY
-          DEVICE_TYPE.NAME,
-          DEVICE_TYPE.CODE,
-          DEVICE_TYPE.PROFILE_ID`,
-        [sessionId, et.endpointTypeId]
-      )
-      .then((rows) => rows.map((x) => x.DEVICE_TYPE_ID))
+    let rows = await dbApi.dbAll(
+      db,
+      `
+      SELECT
+        DEVICE_TYPE.DEVICE_TYPE_ID,
+        DEVICE_TYPE.CODE,
+        DEVICE_TYPE.NAME,
+        DEVICE_TYPE.PROFILE_ID,
+        ENDPOINT_TYPE_DEVICE.DEVICE_VERSION
+      FROM
+        DEVICE_TYPE
+      LEFT JOIN
+        ENDPOINT_TYPE_DEVICE
+      ON
+        ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_REF = DEVICE_TYPE.DEVICE_TYPE_ID
+      INNER JOIN
+        ENDPOINT_TYPE
+      ON
+        ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF
+      WHERE
+        ENDPOINT_TYPE.SESSION_REF = ?
+        AND ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF = ?
+      ORDER BY
+        DEVICE_TYPE.NAME,
+        DEVICE_TYPE.CODE,
+        DEVICE_TYPE.PROFILE_ID`,
+      [sessionId, et.endpointTypeId]
+    )
+    // Updating the device type info for the endpoint
+    et.deviceTypeRef = rows.map((x) => x.DEVICE_TYPE_ID)
+    et.deviceVersion = rows.map((x) => x.DEVICE_VERSION)
+    et.deviceIdentifier = rows.map((x) => x.CODE)
   }
   return endpointTypes
 }
@@ -188,12 +191,13 @@ async function selectEndpointType(db, id) {
     .then(dbMapping.map.endpointType)
 
   // Device types for endpoint
-  endpointType.deviceTypes = await dbApi
-    .dbAll(
-      db,
-      `
+  let rows = await dbApi.dbAll(
+    db,
+    `
     SELECT
-      DEVICE_TYPE.DEVICE_TYPE_ID
+      DEVICE_TYPE.DEVICE_TYPE_ID,
+      ENDPOINT_TYPE_DEVICE.DEVICE_VERSION,
+      ENDPOINT_TYPE_DEVICE.DEVICE_IDENTIFIER
     FROM
       DEVICE_TYPE
     LEFT JOIN
@@ -206,9 +210,12 @@ async function selectEndpointType(db, id) {
       DEVICE_TYPE.NAME,
       DEVICE_TYPE.CODE,
       DEVICE_TYPE.PROFILE_ID`,
-      [id]
-    )
-    .then((rows) => rows.map((row) => row.DEVICE_TYPE_ID))
+    [id]
+  )
+
+  endpointType.deviceTypes = rows.map((row) => row.DEVICE_TYPE_ID)
+  endpointType.deviceVersions = rows.map((row) => row.DEVICE_VERSION)
+  endpointType.deviceIdentifiers = rows.map((row) => row.DEVICE_IDENTIFIER)
 
   // Loading endpointTypeRef as primary endpointType for backwards compatibility
   endpointType.deviceTypeRef = endpointType.deviceTypes[0]
@@ -338,7 +345,7 @@ SELECT * FROM (
         ELSE ATOMIC.ATOMIC_SIZE
     END AS ATOMIC_SIZE,
     ROW_NUMBER() OVER (PARTITION BY ENDPOINT.ENDPOINT_IDENTIFIER) ENDPOINT_INDEX,
-    (DENSE_RANK() over (PARTITION BY ENDPOINT.ENDPOINT_IDENTIFIER ORDER BY CLUSTER.MANUFACTURER_CODE, CLUSTER.NAME, ENDPOINT_TYPE_CLUSTER.SIDE) + DENSE_RANK() OVER (PARTITION BY ENDPOINT_TYPE.ENDPOINT_TYPE_ID ORDER BY CLUSTER.MANUFACTURER_CODE DESC, CLUSTER.NAME DESC, ENDPOINT_TYPE_CLUSTER.SIDE DESC) - 1) AS CLUSTER_COUNT,
+    (DENSE_RANK() over (PARTITION BY ENDPOINT.ENDPOINT_IDENTIFIER ORDER BY CLUSTER.MANUFACTURER_CODE, CLUSTER.NAME, ENDPOINT_TYPE_CLUSTER.SIDE) + DENSE_RANK() OVER (PARTITION BY ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF ORDER BY CLUSTER.MANUFACTURER_CODE DESC, CLUSTER.NAME DESC, ENDPOINT_TYPE_CLUSTER.SIDE DESC) - 1) AS CLUSTER_COUNT,
     SUM(CASE
           WHEN
             (ENDPOINT_TYPE_ATTRIBUTE.SINGLETON != 1 AND ENDPOINT_TYPE_ATTRIBUTE.STORAGE_OPTION != "External")

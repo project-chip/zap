@@ -40,12 +40,8 @@ INSERT INTO ENDPOINT (
   ENDPOINT_TYPE_REF,
   PROFILE,
   ENDPOINT_IDENTIFIER,
-  NETWORK_IDENTIFIER,
-  DEVICE_VERSION,
-  DEVICE_IDENTIFIER
+  NETWORK_IDENTIFIER
 ) VALUES (
-  ?,
-  ?,
   ?,
   ?,
   ?,
@@ -59,8 +55,6 @@ INSERT INTO ENDPOINT (
       endpoint.profileId,
       endpoint.endpointId,
       endpoint.networkId,
-      endpoint.endpointVersion,
-      endpoint.deviceIdentifier,
     ]
   )
 }
@@ -87,8 +81,6 @@ async function exportEndpoints(db, sessionId, endpointTypes) {
       profileId: x.PROFILE,
       endpointId: x.ENDPOINT_IDENTIFIER,
       networkId: x.NETWORK_IDENTIFIER,
-      endpointVersion: x.DEVICE_VERSION,
-      deviceIdentifier: x.DEVICE_IDENTIFIER,
     }
   }
   return dbApi
@@ -100,9 +92,7 @@ SELECT
   E.ENDPOINT_TYPE_REF,
   E.PROFILE,
   E.ENDPOINT_IDENTIFIER,
-  E.NETWORK_IDENTIFIER,
-  E.DEVICE_VERSION,
-  E.DEVICE_IDENTIFIER
+  E.NETWORK_IDENTIFIER
 FROM
   ENDPOINT AS E
 LEFT JOIN
@@ -152,35 +142,40 @@ ORDER BY
 
   //Associate each endpoint type to the device types
   for (let i = 0; i < endpointTypes.length; i++) {
-    endpointTypes[i].deviceTypes = await dbApi
-      .dbAll(
-        db,
-        `
-        SELECT
-          DEVICE_TYPE.DEVICE_TYPE_ID,
-          DEVICE_TYPE.CODE,
-          DEVICE_TYPE.NAME,
-          DEVICE_TYPE.PROFILE_ID
-        FROM 
-          DEVICE_TYPE
-        LEFT JOIN
-          ENDPOINT_TYPE_DEVICE
-        ON
-          ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_REF = DEVICE_TYPE.DEVICE_TYPE_ID
-        INNER JOIN
-          ENDPOINT_TYPE
-        ON
-          ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF
-        WHERE
-          ENDPOINT_TYPE.SESSION_REF = ?
-          AND ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF = ?
-        ORDER BY
-          DEVICE_TYPE.NAME,
-          DEVICE_TYPE.CODE,
-          DEVICE_TYPE.PROFILE_ID`,
-        [sessionId, endpointTypes[i].endpointTypeId]
-      )
-      .then((rows) => rows.map(dbMapping.map.deviceType))
+    let rows = await dbApi.dbAll(
+      db,
+      `
+      SELECT
+        DEVICE_TYPE.DEVICE_TYPE_ID,
+        DEVICE_TYPE.CODE,
+        DEVICE_TYPE.NAME,
+        DEVICE_TYPE.PROFILE_ID,
+        ENDPOINT_TYPE_DEVICE.DEVICE_VERSION
+      FROM 
+        DEVICE_TYPE
+      LEFT JOIN
+        ENDPOINT_TYPE_DEVICE
+      ON
+        ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_REF = DEVICE_TYPE.DEVICE_TYPE_ID
+      INNER JOIN
+        ENDPOINT_TYPE
+      ON
+        ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF
+      WHERE
+        ENDPOINT_TYPE.SESSION_REF = ?
+        AND ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF = ?
+      ORDER BY
+        DEVICE_TYPE.NAME,
+        DEVICE_TYPE.CODE,
+        DEVICE_TYPE.PROFILE_ID`,
+      [sessionId, endpointTypes[i].endpointTypeId]
+    )
+
+    // Updating the device type info for the endpoint
+    endpointTypes[i].deviceTypeRefs = rows.map((x) => x.DEVICE_TYPE_ID)
+    endpointTypes[i].deviceVersions = rows.map((x) => x.DEVICE_VERSION)
+    endpointTypes[i].deviceIdentifiers = rows.map((x) => x.CODE)
+    endpointTypes[i].deviceTypes = rows.map(dbMapping.map.deviceType)
 
     // Loading endpointTypeRef as primary endpointType for backwards compatibility
     endpointTypes[i].deviceTypeRef = endpointTypes[i].deviceTypes[0]
@@ -221,6 +216,12 @@ async function importEndpointType(db, sessionId, packageIds, endpointType) {
 
   // Process device types
   let deviceTypes = []
+  let deviceVersions = endpointType.deviceVersions
+    ? endpointType.deviceVersions
+    : [endpointType.deviceVersion]
+  let deviceIdentifiers = endpointType.deviceIdentifiers
+    ? endpointType.deviceIdentifiers
+    : [endpointType.deviceIdentifier]
   if (endpointType.deviceTypes) {
     deviceTypes = endpointType.deviceTypes
   } else {
@@ -232,6 +233,7 @@ async function importEndpointType(db, sessionId, packageIds, endpointType) {
       },
     ]
   }
+
   let promises = []
   for (let i = 0; i < deviceTypes.length; i++) {
     // Get deviceType IDs
@@ -250,8 +252,14 @@ async function importEndpointType(db, sessionId, packageIds, endpointType) {
       promises.push(
         dbApi.dbInsert(
           db,
-          'INSERT OR REPLACE INTO ENDPOINT_TYPE_DEVICE(ENDPOINT_TYPE_REF, DEVICE_TYPE_REF, DEVICE_TYPE_ORDER) VALUES(?, ?, ?)',
-          [endpointTypeId, row.DEVICE_TYPE_ID, i]
+          'INSERT OR REPLACE INTO ENDPOINT_TYPE_DEVICE(ENDPOINT_TYPE_REF, DEVICE_TYPE_REF, DEVICE_TYPE_ORDER, DEVICE_VERSION, DEVICE_IDENTIFIER) VALUES(?, ?, ?, ?, ?)',
+          [
+            endpointTypeId,
+            row.DEVICE_TYPE_ID,
+            i,
+            deviceVersions[i],
+            deviceIdentifiers[i],
+          ]
         )
       )
     }

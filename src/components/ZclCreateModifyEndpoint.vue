@@ -192,10 +192,9 @@ export default {
         parseInt(this.profileId[this.endpointReference]),
         4
       )
-      this.shownEndpoint.deviceVersion = parseInt(
-        this.endpointVersion[this.endpointReference]
-      )
 
+      const deviceVersion =
+        this.deviceVersion[this.endpointType[this.endpointReference]]
       const deviceTypeRefs =
         this.endpointDeviceTypeRef[this.endpointType[this.endpointReference]]
       const deviceTypes = []
@@ -204,12 +203,14 @@ export default {
           deviceTypes.push({
             deviceTypeRef: deviceTypeRefs[i],
             deviceIdentifier: this.zclDeviceTypes[deviceTypeRefs[i]].code,
+            deviceVersion: deviceVersion[i],
           })
         }
       } else {
         deviceTypes.push({
           deviceTypeRef: deviceTypeRefs,
           deviceIdentifier: this.zclDeviceTypes[deviceTypeRefs].code,
+          deviceVersion: deviceVersion,
         })
       }
 
@@ -278,9 +279,9 @@ export default {
         return val
       },
     },
-    endpointVersion: {
+    deviceVersion: {
       get() {
-        return this.$store.state.zap.endpointView.endpointVersion
+        return this.$store.state.zap.endpointTypeView.deviceVersion
       },
     },
     endpointDeviceTypeRef: {
@@ -290,7 +291,7 @@ export default {
     },
     endpointDeviceId: {
       get() {
-        return this.$store.state.zap.endpointView.deviceId
+        return this.$store.state.zap.endpointTypeView.deviceIdentifier
       },
     },
     computedProfileId: {
@@ -455,7 +456,7 @@ export default {
       const deviceTypeRef = []
       const deviceIdentifier = []
       const deviceVersion = []
-      this.deviceTypeTmp.forEach((dt) => {
+      this.deviceTypeTmp.forEach((dt, index) => {
         deviceTypeRef.push(dt.deviceTypeRef)
         deviceIdentifier.push(dt.deviceIdentifier)
         deviceVersion.push(dt.deviceVersion)
@@ -478,8 +479,6 @@ export default {
               networkId: this.shownEndpoint.networkIdentifier,
               profileId: parseInt(this.shownEndpoint.profileIdentifier),
               endpointType: response.id,
-              endpointVersion: this.shownEndpoint.deviceVersion,
-              deviceIdentifier,
             })
             .then((res) => {
               if (this.shareClusterStatesAcrossEndpoints()) {
@@ -520,16 +519,30 @@ export default {
 
       const deviceTypeRef = []
       const deviceIdentifier = []
+      const deviceVersion = []
 
       this.deviceTypeTmp.forEach((dt) => {
         deviceTypeRef.push(dt.deviceTypeRef)
         deviceIdentifier.push(parseInt(dt.deviceIdentifier))
+        deviceVersion.push(parseInt(dt.deviceVersion))
       })
 
       this.$store.dispatch('zap/updateEndpointType', {
         endpointTypeId: endpointTypeReference,
-        updatedKey: RestApi.updateKey.deviceTypeRef,
-        updatedValue: deviceTypeRef,
+        changes: [
+          {
+            updatedKey: RestApi.updateKey.deviceTypeRef,
+            value: deviceTypeRef,
+          },
+          {
+            updatedKey: RestApi.updateKey.deviceVersion,
+            value: deviceVersion,
+          },
+          {
+            updatedKey: RestApi.updateKey.deviceId,
+            value: deviceIdentifier,
+          },
+        ],
       })
 
       this.$store.dispatch('zap/updateEndpoint', {
@@ -546,14 +559,6 @@ export default {
           {
             updatedKey: RestApi.updateKey.profileId,
             value: parseInt(shownEndpoint.profileIdentifier),
-          },
-          {
-            updatedKey: RestApi.updateKey.endpointVersion,
-            value: shownEndpoint.deviceVersion,
-          },
-          {
-            updatedKey: RestApi.updateKey.deviceId,
-            value: deviceIdentifier,
           },
         ],
       })

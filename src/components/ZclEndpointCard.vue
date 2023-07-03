@@ -90,14 +90,14 @@ limitations under the License.
             <div v-if="isDeviceTypeArray" class="col">
               <strong>Device</strong>
               <li
-                v-for="dev in deviceType"
+                v-for="(dev, index) in deviceType"
                 :key="dev.id"
                 class="q-pl-md"
                 style="list-style-type: none"
               >
                 <strong>{{
                   `${dev.description} (${asHex(dev.code, 4)}) v${
-                    endpointVersion[endpointReference]
+                    deviceVersion[index]
                   }`
                 }}</strong>
               </li>
@@ -150,7 +150,7 @@ limitations under the License.
               <strong>Version</strong>
             </div>
             <div class="col-6">
-              <strong>{{ endpointVersion[endpointReference] }}</strong>
+              <strong>{{ deviceVersion[0] }}</strong>
             </div>
           </q-item>
         </q-list>
@@ -413,12 +413,18 @@ export default {
     },
     deviceId: {
       get() {
-        return this.$store.state.zap.endpointView.deviceId
+        return this.$store.state.zap.endpointTypeView.deviceIdentifier
       },
     },
-    endpointVersion: {
+    deviceVersion: {
       get() {
-        return this.$store.state.zap.endpointView.endpointVersion
+        let versions =
+          this.endpointDeviceVersion[this.endpointType[this.endpointReference]]
+        if (versions?.length > 0) {
+          return versions
+        } else {
+          return [versions]
+        }
       },
     },
     endpointTypeName: {

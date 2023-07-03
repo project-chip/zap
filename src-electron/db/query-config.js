@@ -312,7 +312,11 @@ function convertRestKeyToDbColumn(key) {
       return 'PROFILE'
     case restApi.updateKey.deviceId:
       return 'DEVICE_IDENTIFIER'
+    case restApi.updateKey.deviceIdentifier:
+      return 'DEVICE_IDENTIFIER'
     case restApi.updateKey.endpointVersion:
+      return 'DEVICE_VERSION'
+    case restApi.updateKey.deviceVersion:
       return 'DEVICE_VERSION'
     case restApi.updateKey.deviceTypeRef:
       return 'DEVICE_TYPE_REF'
@@ -559,7 +563,7 @@ async function insertEndpointType(
   }
 
   // Insert into endpoint_type_device
-  await dbApi.dbMultiInsert(
+  let etd = await dbApi.dbMultiInsert(
     db,
     'INSERT INTO ENDPOINT_TYPE_DEVICE (ENDPOINT_TYPE_REF, DEVICE_TYPE_REF, DEVICE_IDENTIFIER, DEVICE_VERSION, DEVICE_TYPE_ORDER) VALUES (?, ?, ?, ?, ?)',
     newEndpointTypeIdDeviceCombination
@@ -645,81 +649,101 @@ async function duplicateEndpointType(db, endpointTypeId) {
 }
 
 /**
- * Promise to update a an endpoint type.
+ * Promise to update an endpoint type.
  * @param {*} db
  * @param {*} sessionId
  * @param {*} endpointTypeId
- * @param {*} param
- * @param {*} updatedValue
+ * @param {*} changesArray
  */
-async function updateEndpointType(
-  db,
-  sessionId,
-  endpointTypeId,
-  updateKey,
-  updatedValue
-) {
-  let param = convertRestKeyToDbColumn(updateKey)
-  let existingDeviceTypes = await dbApi.dbAll(
+async function updateEndpointType(db, sessionId, endpointTypeId, changesArray) {
+  // Extract all changes from the changesArray in the form of
+  // keys(endpoint_type columns) and its values
+  let updatedKeys = []
+  let updatedValues = []
+  changesArray.forEach((c) => updatedKeys.push(c.key))
+  changesArray.forEach((c) => updatedValues.push(c.value))
+
+  // Retrieve existing values to the endpoint_type
+  let existingDeviceTypeInfo = await dbApi.dbAll(
     db,
     `
     SELECT
-      ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_REF
+      ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_REF,
+      ENDPOINT_TYPE_DEVICE.DEVICE_VERSION,
+      ENDPOINT_TYPE_DEVICE.DEVICE_IDENTIFIER
     FROM
       ENDPOINT_TYPE
     INNER JOIN
       ENDPOINT_TYPE_DEVICE
     ON ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF
     WHERE
-      ENDPOINT_TYPE_ID = ? AND SESSION_REF = ?`,
+      ENDPOINT_TYPE_ID = ? AND SESSION_REF = ?
+    ORDER BY
+      ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_ORDER`,
     [endpointTypeId, sessionId]
   )
-  let newEndpointId = endpointTypeId
-  if (param != 'DEVICE_TYPE_REF') {
-    newEndpointId = await dbApi.dbUpdate(
-      db, // Check for update with schema change
-      `UPDATE ENDPOINT_TYPE SET ${param} = ? WHERE ENDPOINT_TYPE_ID = ? AND SESSION_REF = ?`,
-      [updatedValue, endpointTypeId, sessionId]
-    )
-  }
-
-  existingDeviceTypes = existingDeviceTypes.map((dt) => dt[param])
-  // Delete the endpoint_type_device references based on endpoint_type_id
-  await dbApi.dbRemove(
-    db,
-    'DELETE FROM ENDPOINT_TYPE_DEVICE WHERE ENDPOINT_TYPE_REF = ?',
-    endpointTypeId
+  let existingDeviceTypeRefs = existingDeviceTypeInfo.map(
+    (dt) => dt.DEVICE_TYPE_REF
   )
-
-  //Re-insert endpoint_type_device references with the new references to device types
-  let endpointTypeDeviceInfoValues = []
-  updatedValue.forEach((dt, index) =>
-    endpointTypeDeviceInfoValues.push([endpointTypeId, dt, index])
+  let existingDeviceVersions = existingDeviceTypeInfo.map(
+    (dt) => dt.DEVICE_VERSION
   )
-
-  await dbApi.dbMultiInsert(
-    db,
-    `
-    INSERT INTO
-      ENDPOINT_TYPE_DEVICE (ENDPOINT_TYPE_REF, DEVICE_TYPE_REF, DEVICE_TYPE_ORDER)
-    VALUES
-      (?, ?, ?)`,
-    endpointTypeDeviceInfoValues
-  )
-
+  let updatedDeviceTypeRefs = updatedValues[0]
+  let updatedDeviceVersions = updatedValues[1]
   let isDeviceTypeRefsUpdated =
-    existingDeviceTypes.length !== updatedValue.length ||
-    existingDeviceTypes.every((value, index) => value != updatedValue[index])
+    existingDeviceTypeRefs.length != updatedDeviceTypeRefs.length ||
+    !existingDeviceTypeRefs.every(
+      (dtRef, index) => dtRef == updatedDeviceTypeRefs[index]
+    )
 
-  // When updating the zcl device types, overwrite on top of existing configuration
-  // Note: Here the existing selections are not removed. For eg: the clusters which
-  // came from a removed zcl device type continue to exist.
-  if (param === 'DEVICE_TYPE_REF' && isDeviceTypeRefsUpdated) {
-    for (const dtRef of updatedValue) {
-      await setEndpointDefaults(db, sessionId, endpointTypeId, dtRef)
+  let isDeviceVersionsUpdated =
+    existingDeviceVersions.length != updatedDeviceVersions.length ||
+    !existingDeviceVersions.every(
+      (version, index) => version == updatedDeviceVersions[index]
+    )
+
+  // Make changes if device type refs or versions have been updated
+  if (isDeviceTypeRefsUpdated || isDeviceVersionsUpdated) {
+    // Delete the endpoint_type_device references based on endpoint_type_id
+    await dbApi.dbRemove(
+      db,
+      'DELETE FROM ENDPOINT_TYPE_DEVICE WHERE ENDPOINT_TYPE_REF = ?',
+      endpointTypeId
+    )
+
+    // Re-insert endpoint_type_device references with the new references to device types
+    let endpointTypeDeviceInfoValues = []
+    for (let i = 0; i < updatedValues[0].length; i++) {
+      endpointTypeDeviceInfoValues.push([
+        endpointTypeId,
+        updatedValues[0][i],
+        updatedValues[1][i],
+        updatedValues[2][i],
+        i,
+      ])
+    }
+
+    await dbApi.dbMultiInsert(
+      db,
+      `
+      INSERT INTO
+        ENDPOINT_TYPE_DEVICE (ENDPOINT_TYPE_REF, DEVICE_TYPE_REF, DEVICE_VERSION, DEVICE_IDENTIFIER, DEVICE_TYPE_ORDER)
+      VALUES
+        (?, ?, ?, ?, ?)`,
+      endpointTypeDeviceInfoValues
+    )
+
+    // When updating the zcl device types, overwrite on top of existing configuration
+    // Note: Here the existing selections are not removed. For eg: the clusters which
+    // came from a removed zcl device type continue to exist.
+    if (isDeviceTypeRefsUpdated) {
+      for (const dtRef of updatedDeviceTypeRefs) {
+        await setEndpointDefaults(db, sessionId, endpointTypeId, dtRef)
+      }
     }
   }
-  return newEndpointId
+
+  return endpointTypeId
 }
 
 /**

@@ -313,7 +313,7 @@ function endpoint_attribute_list(options) {
           items.push(mask)
           break
         default:
-          throw new Error(`Unknown token '${tok}' in order optional argument`);
+          throw new Error(`Unknown token '${tok}' in order optional argument`)
       }
     })
 
@@ -526,7 +526,7 @@ function endpoint_reporting_config_defaults(options) {
           items.push(`{{ ${minmax} }}`)
           break
         default:
-          throw new Error(`Unknown token '${tok}' in order optional argument`);
+          throw new Error(`Unknown token '${tok}' in order optional argument`)
       }
     })
 
@@ -660,7 +660,7 @@ async function collectAttributes(endpointTypes, options) {
 
     let device = {
       deviceId: ept.deviceIdentifier,
-      deviceVersion: ept.endpointVersion,
+      deviceVersion: ept.deviceVersion,
     }
     endpointAttributeSize = 0
     deviceList.push(device)
@@ -1111,7 +1111,7 @@ function endpoint_config(options) {
       endpoints.forEach((ep) => {
         endpointTypeIds.push({
           deviceIdentifier: ep.deviceIdentifier,
-          endpointVersion: ep.endpointVersion,
+          deviceVersion: ep.deviceVersion,
           endpointTypeId: ep.endpointTypeRef,
           endpointIdentifier: ep.endpointId,
         })
@@ -1126,7 +1126,7 @@ function endpoint_config(options) {
             .selectEndpointType(db, eptId.endpointTypeId)
             .then((ept) => {
               ept.endpointId = eptId.endpointIdentifier
-              ept.endpointVersion = eptId.endpointVersion
+              ept.deviceVersion = eptId.deviceVersion
               ept.deviceIdentifier = eptId.deviceIdentifier
               return ept
             })
