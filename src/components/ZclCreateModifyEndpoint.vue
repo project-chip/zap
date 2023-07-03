@@ -17,7 +17,7 @@ limitations under the License.
   <div>
     <q-card style="min-width: 450px">
       <q-card-section>
-        <div class="text-h6 text-align:left q-mb-sm">
+        <div class="text-h6 text-align:left q-mb-sm" data-test="endpoint-title">
           {{ this.endpointReference ? 'Edit Endpoint' : 'Create New Endpoint' }}
         </div>
         <q-form>
