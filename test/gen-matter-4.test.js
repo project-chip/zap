@@ -26,6 +26,11 @@ const querySession = require('../src-electron/db/query-session')
 const zclLoader = require('../src-electron/zcl/zcl-loader')
 const importJs = require('../src-electron/importexport/import')
 const testUtil = require('./test-util')
+const queryEndpoint = require('../src-electron/db/query-endpoint.js')
+const queryEndpointType = require('../src-electron/db/query-endpoint-type.js')
+const queryConfig = require('../src-electron/db/query-config')
+const queryDeviceType = require('../src-electron/db/query-device-type')
+const util = require('../src-electron/util/util')
 
 let db
 let templateContext
@@ -275,6 +280,97 @@ test(
     expect(ept).toContain(
       'TargetStruct item 4 from Binding cluster: FabricIndex'
     )
+  },
+  testUtil.timeout.long()
+)
+
+test(
+  `Zap file generation for multiple zcl device types per endpoint: ${path.relative(
+    __dirname,
+    testFile
+  )}`,
+  async () => {
+    // Creating a session with matter specific session packages
+    let userSession = await querySession.ensureZapUserAndSession(
+      db,
+      'USER',
+      'SESSION'
+    )
+    let sid = userSession.sessionId
+    await util.ensurePackagesAndPopulateSessionOptions(
+      db,
+      sid,
+      {
+        zcl: env.builtinMatterZclMetafile(),
+        template: testUtil.testTemplate.matter3,
+      },
+      null,
+      [templateContext.packageId]
+    )
+
+    // Extract device types for insertion into an endpoint
+    let allDeviceTypes = await queryDeviceType.selectAllDeviceTypes(
+      db,
+      zclPackageId
+    )
+    let matterLightDevices = allDeviceTypes.filter(
+      (data) =>
+        data.label === 'MA-onofflight' || data.label === 'MA-dimmablelight'
+    )
+    let matterLightDeviceRefs = matterLightDevices.map((dt) => dt.id)
+    let matterLightDeviceIds = matterLightDevices.map((dt) => dt.code)
+
+    // insert the device types above into an endpoint type
+    await queryConfig.insertEndpointType(
+      db,
+      sid,
+      'testEndpointType',
+      matterLightDeviceRefs,
+      matterLightDeviceIds,
+      [1, 2] //device type version
+    )
+
+    // Getting the endpoint cluster information and making sure clusters from both
+    // device types are added.
+    let epts = await queryEndpointType.selectAllEndpointTypes(db, sid)
+    expect(epts[0].deviceTypeRef.length).toEqual(2)
+    let clusters = await queryEndpoint.selectEndpointClusters(db, epts[0].id)
+    let clusterNames = clusters.map((cl) => cl.name)
+    expect(clusterNames.length).toEqual(6)
+    expect(clusterNames.includes('Identify')).toEqual(true)
+    expect(clusterNames.includes('Groups')).toEqual(true)
+    expect(clusterNames.includes('Scenes')).toEqual(true)
+    expect(clusterNames.includes('On/Off')).toEqual(true)
+    expect(clusterNames.includes('Descriptor')).toEqual(true)
+
+    // Cluster coming from just MA-dimmablelight and not MA-onofflight
+    expect(clusterNames.includes('Level Control')).toEqual(true)
+
+    // Edit the endpoint type and add another device type and test the update
+    let additionalMatterLightDevice = allDeviceTypes.filter(
+      (data) => data.label === 'MA-colortemperaturelight'
+    )
+
+    let matterLightDevicesExtended = matterLightDeviceRefs.concat(
+      additionalMatterLightDevice.map((dt) => dt.id)
+    )
+    let matterLightDeviceIdsExtended = matterLightDeviceIds.concat(
+      additionalMatterLightDevice.map((dt) => dt.code)
+    )
+    let changesArray = [
+      { key: 'deviceTypeRef', value: matterLightDevicesExtended },
+      { key: 'deviceVersion', value: [1, 1, 1] },
+      { key: 'deviceId', value: matterLightDeviceIdsExtended },
+    ]
+    await queryConfig.updateEndpointType(db, sid, epts[0].id, changesArray)
+
+    epts = await queryEndpointType.selectAllEndpointTypes(db, sid)
+    expect(epts[0].deviceTypeRef.length).toEqual(3)
+    clusters = await queryEndpoint.selectEndpointClusters(db, epts[0].id)
+    clusterNames = clusters.map((cl) => cl.name)
+    expect(clusterNames.length).toEqual(7)
+    // Cluster coming from just MA-colortemperaturelight
+    expect(clusterNames.includes('Color Control')).toEqual(true)
   },
   testUtil.timeout.long()
 )
