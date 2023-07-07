@@ -54,6 +54,7 @@ limitations under the License.
             :rules="[
               (val) => !(val == null || val?.length == 0) || '* Required',
             ]"
+            option-value="deviceTypeRef"
             :option-label="getDeviceOptionLabel"
             @filter="filterDeviceTypes"
             data-test="select-endpoint-input"
@@ -251,7 +252,10 @@ export default {
           return dt[a].description.localeCompare(dt[b].description)
         })
         return keys.map((item) => {
-          return { deviceTypeRef: item, deviceIdentifier: dt[item].code }
+          return {
+            deviceTypeRef: parseInt(item),
+            deviceIdentifier: dt[item].code,
+          }
         })
       },
     },
@@ -330,7 +334,7 @@ export default {
 
         // Create default device version if not exists
         for (const dt of value) {
-          if (dt.deviceVersion === undefined) {
+          if (dt && dt.deviceVersion === undefined) {
             dt.deviceVersion = 1
           }
         }
