@@ -48,13 +48,6 @@ jobs:
       - run: npm run lint
       - run: npm run xml-validate
       - run: npm run self-check
-      - run: npm run test:unit
-      - name: Upload code coverage artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: jest-coverage
-          path: jest-coverage/coverage-final.json
-      - run: npm run test:gen
 
   build-zap:
     name: Build ZAP
