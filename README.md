@@ -3,6 +3,8 @@
 # ZCL Advanced Platform
 
 [![Build and release packages](https://github.com/project-chip/zap/actions/workflows/release.yml/badge.svg)](https://github.com/project-chip/zap/actions/workflows/release.yml)
+[![Zigbee code regeneration](https://github.com/project-chip/zap/actions/workflows/zigbee.yml/badge.svg)](https://github.com/project-chip/zap/actions/workflows/zigbee.yml)
+[![Matter code regeneration](https://github.com/project-chip/zap/actions/workflows/matter.yml/badge.svg)](https://github.com/project-chip/zap/actions/workflows/matter.yml)
 
 ## What is ZAP?
 

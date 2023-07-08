@@ -1,0 +1,202 @@
+name: Zigbee code generation
+
+permissions:
+  contents: write
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+env:
+  ZAP_TEST_TIMEOUT: 3600000
+  ZAP_TEMPSTATE: 1
+  BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
+  P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
+  TRUSTED_CERTIFICATE_BASE64: ${{ secrets.TRUSTED_CERTIFICATE_BASE64 }}
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  KEYCHAIN_PASSWORD: silabs
+
+jobs:
+  prepare-zap:
+    name: Prepare zap for Zigbee generation
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        node-version: [18.x]
+        os: [ubuntu-22.04]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3.0.0
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      - run: sudo ./src-script/install-packages-ubuntu
+      - run: sudo apt-get install --fix-missing libxml2-utils
+      - run: node --version
+      - run: npm --version
+      - run: npm ci
+      - run: npm run metafile-check
+      - run: npm run version-stamp
+      - run: npm rebuild canvas --update-binary
+      - run: npm rebuild libxmljs --update-binary
+      - run: npm run lic
+      - run: npm run build-spa
+      - run: npm run lint
+      - run: npm run xml-validate
+      - run: npm run self-check
+
+  build-zap:
+    name: Build ZAP
+    needs: [prepare-zap]
+    runs-on: ${{ matrix.os }}
+
+    # Platforms to build on/for
+    strategy:
+      matrix:
+        os: [ubuntu-22.04]
+      fail-fast: false
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v3
+
+      - name: Install Node.js, NPM and Yarn
+        uses: actions/setup-node@v3.0.0
+        with:
+          node-version: 18.x
+          cache: 'npm'
+
+      - name: Prepare Linux build environment
+        if: startsWith(matrix.os, 'ubuntu')
+        run: |
+          sudo ./src-script/install-packages-ubuntu
+
+      - name: Initialize...
+        run: |
+          npm rebuild canvas --update-binary
+          npm rebuild libxmljs --update-binary
+          npm ci
+          npm run version-stamp
+
+      - name: Building frontend / backend
+        run: |
+          npm run build
+
+      - name: Build & Release for Linux
+        if: startsWith(matrix.os, 'ubuntu')
+        run: |
+          npm run pack:linux
+          npm run pkg:linux
+          ls ./dist/
+          npm run pack:cli:linux
+
+          mv dist/zap-linux-amd64.deb dist/zap-linux-x64.deb
+          mv dist/zap-linux-x86_64.rpm dist/zap-linux-x64.rpm
+
+        env:
+          GH_TOKEN: ${{ secrets.github_token }}
+          # macOS notarization API key
+          # CSC_LINK: ${{ secrets.api_key_id }}
+          # CSC_KEY_PASSWORD: ${{ secrets.api_key_issuer_id }}
+
+      - name: Verify zap-cli exists in Linux x64 .zip package
+        if: startsWith(matrix.os, 'ubuntu')
+        run: |
+          output=$(./node_modules/7zip-bin/linux/x64/7za l ./dist/zap-linux-x64.zip)
+          expression=zap-cli
+          if [[ $output == *"$expression"* ]]; then
+            echo "Output contains $expression"
+          else
+            echo "Output does not contain $expression"
+            exit 1
+          fi
+      - name: Verify zap-cli exists in Linux arm64 .zip package
+        if: startsWith(matrix.os, 'ubuntu')
+        run: |
+          output=$(./node_modules/7zip-bin/linux/x64/7za l ./dist/zap-linux-arm64.zip)
+          expression=zap-cli
+          if [[ $output == *"$expression"* ]]; then
+            echo "Output contains $expression"
+          else
+            echo "Output does not contain $expression"
+            exit 1
+          fi
+      - name: ZAP binary check (Linux) - unzip
+        if: startsWith(matrix.os, 'ubuntu')
+        run: unzip dist/zap-linux-x64.zip -d dist/zap-linux
+      - name: ZAP binary check (Linux) - check version is set
+        if: startsWith(matrix.os, 'ubuntu')
+        uses: GuillaumeFalourd/assert-command-line-output@v2.1
+        with:
+          command_line: ./dist/zap-linux/zap --version
+          contains: '0.0.0'
+          expected_result: FAILED
+      - name: ZAP binary check (Linux) - check version is set via CLI
+        if: startsWith(matrix.os, 'ubuntu')
+        uses: GuillaumeFalourd/assert-command-line-output@v2.1
+        with:
+          command_line: ./dist/zap-linux/zap-cli --version
+          contains: '0.0.0'
+          expected_result: FAILED
+      - name: ZAP binary check (Linux) - unzip cleanup
+        if: startsWith(matrix.os, 'ubuntu')
+        run: rm -rf dist/zap-linux
+      - name: Verify apack.json exists in package's base directory
+        if: startsWith(matrix.os, 'ubuntu')
+        uses: GuillaumeFalourd/assert-command-line-output@v2.1
+        with:
+          command_line: ./node_modules/7zip-bin/linux/x64/7za l ./dist/zap-linux-x64.zip | grep apack.json
+          contains: 'apack.json'
+      - name: Verify apack.json exists in package's app.asar archive
+        if: startsWith(matrix.os, 'ubuntu')
+        uses: GuillaumeFalourd/assert-command-line-output@v2.1
+        with:
+          command_line: npx asar l ./dist/linux-unpacked/resources/app.asar | grep apack.json
+          contains: 'apack.json'
+      - name: Archive Linux (x64) .zip file
+        uses: actions/upload-artifact@v3
+        if: startsWith(matrix.os, 'ubuntu')
+        with:
+          name: zap-linux-x64-zip
+          path: dist/zap-linux-x64.zip
+      - name: Archive Linux (arm64) .zip file
+        uses: actions/upload-artifact@v3
+        if: startsWith(matrix.os, 'ubuntu')
+        with:
+          name: zap-linux-arm64-zip
+          path: dist/zap-linux-arm64.zip
+      - name: Archive Linux .rpm file
+        uses: actions/upload-artifact@v3
+        if: startsWith(matrix.os, 'ubuntu')
+        with:
+          name: zap-linux-x64-rpm
+          path: dist/zap-linux-x64.rpm
+      - name: Archive Linux x64 .deb file
+        uses: actions/upload-artifact@v3
+        if: startsWith(matrix.os, 'ubuntu')
+        with:
+          name: zap-linux-x64-deb
+          path: dist/zap-linux-x64.deb
+  zigbee-sdk-codegen:
+    name: Test gecko sdk Zigbee codegen changes
+    needs: [build-zap]
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3.0.0
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      - run: sudo ./src-script/install-packages-ubuntu
+      - run: sudo apt-get install --fix-missing libxml2-utils
+      - run: npm ci
+      - run: node ./src-script/gsdk-public-regen.js ./gecko_sdk/ ./tmp
