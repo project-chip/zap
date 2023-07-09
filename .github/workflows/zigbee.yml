@@ -47,7 +47,17 @@ jobs:
       - run: npm run self-check
       - name: Clone the public GSDK
         run: git clone https://github.com/SiliconLabs/gecko_sdk.git gecko_sdk
-      - name: Create the temp regen directory
-        run: mkdir tmp
-      - name: Run the zigbee regen with the cloned gsdk.
-        run: node ./src-script/gsdk-public-regen.js ./gecko_sdk/ ./tmp
+      - name: Create the temp regen directory for this PR.
+        run: mkdir regen-pr
+      - name: Run the zigbee regen with the cloned gsdk, using latest.
+        run: node ./src-script/gsdk-public-regen.js ./gecko_sdk/ ./regen-pr
+      - name: Create the temp regen directory for master.
+        run: mkdir regen-master
+      - name: Switch to master
+        run: git checkout master
+      - name: Rebuild with master
+        run: npm run build
+      - name: Run the zigbee regen with the cloned gsdk, using master.
+        run: node ./src-script/gsdk-public-regen.js ./gecko_sdk/ ./regen-master
+      - name: Diff
+        run: diff -r ./regen-pr ./regen-master
