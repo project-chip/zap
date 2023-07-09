@@ -18,8 +18,8 @@ env:
   KEYCHAIN_PASSWORD: silabs
 
 jobs:
-  prepare-zap:
-    name: Prepare zap for Zigbee generation
+  prepare-zap-and-regenerate-zigbee:
+    name: Prepare Zap and regenerate Zigbee
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -43,30 +43,8 @@ jobs:
       - run: npm run version-stamp
       - run: npm rebuild canvas --update-binary
       - run: npm rebuild libxmljs --update-binary
-      - run: npm run lic
       - run: npm run build-spa
-      - run: npm run lint
-      - run: npm run xml-validate
       - run: npm run self-check
-
-  zigbee-sdk-codegen:
-    name: Test gecko sdk Zigbee codegen changes
-    needs: [prepare-zap]
-    runs-on: ubuntu-22.04
-    strategy:
-      matrix:
-        node-version: [18.x]
-
-    steps:
-      - uses: actions/checkout@v3
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3.0.0
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-      - run: sudo ./src-script/install-packages-ubuntu
-      - run: sudo apt-get install --fix-missing libxml2-utils
-      - run: npm ci
       - name: Clone the public GSDK
         run: git clone https://github.com/SiliconLabs/gecko_sdk.git gecko_sdk
       - name: Create the temp regen directory

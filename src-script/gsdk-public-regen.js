@@ -21,7 +21,7 @@
 const path = require('path')
 const fs = require('fs')
 const scriptUtil = require('./script-util')
-const process = requrie('process')
+const process = require('process')
 
 async function run(argv) {
   let gsdkDir = argv[0]
