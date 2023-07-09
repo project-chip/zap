@@ -79,7 +79,6 @@ async function run(argv) {
     '--unhandled-rejections=strict',
   ]
 
-  cmdArgs.push('--genResultFile')
   cmdArgs.push('-o')
   cmdArgs.push(outputDir + '/{index}/')
   cmdArgs.push('--gen')
