@@ -67,7 +67,7 @@ function sessionAttempt(db) {
           open,
         })
       } else {
-        let open = false
+        let open = true
         const zclProperties = await queryPackage.getPackagesByType(
           db,
           dbEnum.packageType.zclProperties

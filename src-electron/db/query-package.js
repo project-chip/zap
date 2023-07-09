@@ -146,7 +146,7 @@ async function getPackagesByType(db, type) {
  * @param {*} type
  * @returns A promise that resolves into the rows array of packages.
  */
-async function getPackagesByCategoryAndType(db, type, category) {
+async function getPackagesByCategoryAndType(db, type, category = '') {
   return dbApi
     .dbAll(db, `${querySelectFromPackage} WHERE TYPE = ? AND CATEGORY = ?`, [
       type,

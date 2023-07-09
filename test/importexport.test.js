@@ -83,7 +83,18 @@ test(
 test(
   path.basename(testFile1) + ' - import',
   async () => {
+    await utilJs.ensurePackagesAndPopulateSessionOptions(
+      templateContext.db,
+      templateContext.sessionId,
+      {
+        zcl: env.builtinSilabsZclMetafile(),
+        template: env.builtinTemplateMetafile(),
+      },
+      null,
+      [templatePkgId]
+    )
     let importResult = await importJs.importDataFromFile(db, testFile1)
+
     let sid = importResult.sessionId
 
     let x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE')
