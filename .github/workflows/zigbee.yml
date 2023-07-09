@@ -39,10 +39,10 @@ jobs:
       - run: node --version
       - run: npm --version
       - run: npm ci
-      - run: npm run metafile-check
-      - run: npm run version-stamp
       - run: npm rebuild canvas --update-binary
       - run: npm rebuild libxmljs --update-binary
+      - run: npm run metafile-check
+      - run: npm run version-stamp
       - run: npm run build-spa
       - run: npm run self-check
       - name: Clone the public GSDK
@@ -56,6 +56,9 @@ jobs:
       - uses: actions/checkout@v3
         with:
           ref: master
+      - run: npm ci
+      - run: npm rebuild canvas --update-binary
+      - run: npm rebuild libxmljs --update-binary
       - name: Rebuild with master
         run: npm run build
       - name: Run the zigbee regen with the cloned gsdk, using master.
