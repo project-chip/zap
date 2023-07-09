@@ -20,8 +20,8 @@
 // public Silicon Labs GSDK at: https://github.com/SiliconLabs/gecko_sdk
 const path = require('path')
 const fs = require('fs')
-const fsp = fs.promises
 const scriptUtil = require('./script-util')
+const process = requrie('process')
 
 async function run(argv) {
   let gsdkDir = argv[0]
@@ -98,4 +98,5 @@ run(process.argv.slice(2))
   .catch((err) => {
     console.log(`⛔ Error: ${err.message}\n========\n`)
     console.log(err)
+    process.exit(1)
   })
