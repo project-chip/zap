@@ -23,7 +23,7 @@
 const fs = require('fs')
 const path = require('path')
 
-const expectedLockfileVersion = 2
+const expectedLockfileVersion = 3
 const expectedVersion = '0.0.0'
 
 let packageLockJson = path.join(__dirname, '../package-lock.json')

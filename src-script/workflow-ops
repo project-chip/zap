@@ -3,6 +3,7 @@
 # This script helps with deleting old workflows on github.
 
 OP=$1
+REPO=repos/project-chip/zap
 
 if [ -z "$OP" ]; then
     echo "Usage: workflow-ops [ list [xxxxx] | delete xxxxx ]"
@@ -19,9 +20,9 @@ fi
 if [ "$OP" == "list" ]; then
     ID=$2
     if [ -z "$ID" ]; then
-        gh api repos/project-chip/zap/actions/workflows | jq -cM '.workflows[] | [.id, .name, .path]'
+        gh api $REPO/actions/workflows | jq -cM '.workflows[] | [.id, .name, .path]'
     else
-        gh api repos/project-chip/zap/actions/workflows/$ID/runs --paginate | jq '.workflow_runs[] | .id'
+        gh api $REPO/actions/workflows/$ID/runs --paginate | jq '.workflow_runs[] | .id'
     fi
     elif [ "$OP" == "delete" ]; then
     ID=$2
@@ -30,7 +31,7 @@ if [ "$OP" == "list" ]; then
         exit
     fi
     echo "Deleting workflow runs for workflow $ID. Please wait. This might take a while...."
-    gh api repos/project-chip/zap/actions/workflows/$ID/runs --paginate | jq '.workflow_runs[] | .id' | xargs -n1 -I% gh api repos/project-chip/zap/actions/runs/% -X DELETE
+    gh api $REPO/actions/workflows/$ID/runs --paginate | jq '.workflow_runs[] | .id' | xargs -n1 -I% gh api $REPO/actions/runs/% -X DELETE
 else
     echo "Unknown command: $OP"
 fi
