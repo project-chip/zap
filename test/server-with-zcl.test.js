@@ -31,6 +31,7 @@ const { StatusCodes } = require('http-status-codes')
 
 let db
 let axiosInstance = null
+let sessionUuid = util.createUuid()
 
 beforeAll(async () => {
   const { port, baseUrl } = testUtil.testServer(__filename)
@@ -44,6 +45,8 @@ beforeAll(async () => {
   )
   await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
   await httpServer.initHttpServer(db, port)
+  axiosInstance
+        .post(`${restApi.uri.sessionCreate}?sessionId=${sessionUuid}`)
 }, testUtil.timeout.long())
 
 afterAll(
@@ -67,7 +70,6 @@ test(
 )
 
 describe('Miscelaneous REST API tests', () => {
-  let sessionUuid = util.createUuid()
   test(
     'test manufacturer codes',
     () =>
