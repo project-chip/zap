@@ -53,6 +53,8 @@ beforeAll(async () => {
     env.schemaFile(),
     env.zapVersion()
   )
+  axiosInstance
+        .post(`${restApi.uri.sessionCreate}?sessionId=${uuid}`)
 }, testUtil.timeout.medium())
 
 afterAll(

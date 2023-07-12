@@ -52,6 +52,9 @@ let haCombinedInterfaceIsc = path.join(
 // we introduce this flag to bypass those attributes when testing import/export.
 let bypassGlobalAttributes = false
 
+let templateContext
+let templatePkgId
+
 beforeAll(() => {
   env.setDevelopmentEnv()
   let file = env.sqliteTestFile('importexport')
@@ -74,8 +77,10 @@ test(
       db,
       testUtil.testTemplate.zigbee
     )
+    templatePkgId = context.packageId
     expect(context.crc).not.toBeNull()
     expect(context.templateData).not.toBeNull()
+    templateContext = context
   },
   testUtil.timeout.short()
 )
@@ -83,7 +88,7 @@ test(
 test(
   path.basename(testFile1) + ' - import',
   async () => {
-    await utilJs.ensurePackagesAndPopulateSessionOptions(
+    await util.ensurePackagesAndPopulateSessionOptions(
       templateContext.db,
       templateContext.sessionId,
       {
