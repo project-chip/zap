@@ -292,6 +292,9 @@ function doSaveAs(browserWindow) {
     })
     .then((result) => {
       if (!result.canceled) {
+        if (process.platform == 'win32') {
+          result.filePath = result.filePath.replace(/\\/g, '\\\\')
+        }
         fileSave(browserWindow, result.filePath)
         return result.filePath
       } else {
