@@ -32,24 +32,7 @@ beforeAll(async () => {
 
 test(
   'startup: start generation',
-  async () => {
-    let dbFile = env.sqliteFile('generate')
-    let db = await dbApi.initDatabaseAndLoadSchema(
-      dbFile,
-      env.schemaFile(),
-      env.zapVersion()
-    )
-    let sid = await querySession.createBlankSession(db)
-
-    await util.ensurePackagesAndPopulateSessionOptions(
-      db,
-      sid,
-      {
-        zcl: env.builtinSilabsZclMetafile(),
-        template: env.builtinTemplateMetafile(),
-      }, null, null
-    )
-
+  () => {
     let testGenDir = path.join(path.join(__dirname, '.zap/'), 'test-gen')
     if (!fs.existsSync(testGenDir))
       fs.mkdirSync(testGenDir, { recursive: true })
@@ -64,7 +47,6 @@ test(
       {
         quitFunction: null,
         logger: (msg) => {},
-        sessionId: sid,
       }
     )
   },
@@ -86,7 +68,7 @@ test(
 
 test(
   'startup: convert',
-  async () => {
+  () => {
     let files = []
     files.push(path.join(__dirname, 'resource/isc/test-light.isc'))
     let output = '{basename}.conversion'
@@ -97,23 +79,6 @@ test(
     let testConversionResults = path.join(
       __dirname,
       'resource/isc/test-light.conversion.results.yaml'
-    )
-
-    let dbFile = env.sqliteFile('convert')
-    let db = await dbApi.initDatabaseAndLoadSchema(
-      dbFile,
-      env.schemaFile(),
-      env.zapVersion()
-    )
-    let sid = await querySession.createBlankSession(db)
-
-    await util.ensurePackagesAndPopulateSessionOptions(
-      db,
-      sid,
-      {
-        zcl: env.builtinSilabsZclMetafile(),
-        template: env.builtinTemplateMetafile(),
-      }, null, null
     )
 
     return startup
@@ -128,7 +93,6 @@ test(
         {
           quitFunction: null,
           logger: (msg) => {},
-          sessionId: sid,
         }
       )
       .then(() => {
@@ -144,24 +108,7 @@ test(
 
 test(
   'startup: analyze',
-  async () => {
-    let dbFile = env.sqliteFile('analysis')
-    let db = await dbApi.initDatabaseAndLoadSchema(
-      dbFile,
-      env.schemaFile(),
-      env.zapVersion()
-    )
-    let sid = await querySession.createBlankSession(db)
-
-    await util.ensurePackagesAndPopulateSessionOptions(
-      db,
-      sid,
-      {
-        zcl: env.builtinSilabsZclMetafile(),
-        template: env.builtinTemplateMetafile(),
-      }, null, null
-    )
-
+  () => {
     let files = []
     files.push(path.join(__dirname, 'resource/isc/test-light.isc'))
     return startup.startAnalyze(
@@ -173,7 +120,6 @@ test(
         quitFunction: null,
         cleanDb: false,
         logger: (msg) => {},
-        sessionId: sid
       }
     )
   },

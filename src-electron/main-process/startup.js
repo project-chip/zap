@@ -230,7 +230,6 @@ async function startConvert(argv, options) {
 
   await util.executePromisesSequentially(files, async (singlePath, index) => {
     let importResult = await importJs.importDataFromFile(db, singlePath, {
-      sessionId: options.sessionId,
       defaultZclMetafile: argv.zclProperties,
       postImportScript: argv.postImportScript,
       packageMatch: argv.packageMatch,
@@ -407,7 +406,6 @@ async function startAnalyze(argv, options) {
   await util.executePromisesSequentially(paths, (singlePath) =>
     importJs
       .importDataFromFile(db, singlePath, {
-        sessionId: options.sessionId,
         defaultZclMetafile: argv.zclProperties,
         postImportScript: argv.postImportScript,
         packageMatch: argv.packageMatch,
@@ -538,7 +536,6 @@ async function generateSingleFile(
     postImportScript: null,
     packageMatch: dbEnum.packageMatch.fuzzy,
     generationLog: null,
-    sessionId: null,
   }
 ) {
   let hrstart = process.hrtime.bigint()
@@ -546,11 +543,15 @@ async function generateSingleFile(
   let output
   if (zapFile === BLANK_SESSION) {
     options.logger(`👉 using empty configuration`)
-    if(options.sessionId) {
-      sessionId = options.sessionId
-    } else {
-      sessionId = await querySession.createBlankSession(db)
-    }
+    sessionId = await querySession.createBlankSession(db)
+    await util.ensurePackagesAndPopulateSessionOptions(
+      db,
+      sessionId,
+      {
+        zcl: env.builtinSilabsZclMetafile(),
+        template: env.builtinTemplateMetafile(),
+      }, null, null
+    )  
     output = outputPattern
   } else {
     options.logger(`👉 using input file: ${zapFile}`)
