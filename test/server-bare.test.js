@@ -53,8 +53,6 @@ beforeAll(async () => {
     env.schemaFile(),
     env.zapVersion()
   )
-  axiosInstance
-        .post(`${restApi.uri.sessionCreate}?sessionId=${uuid}`)
 }, testUtil.timeout.medium())
 
 afterAll(
@@ -74,7 +72,11 @@ describe('Session specific tests', () => {
 
   test(
     'http server initialization',
-    () => httpServer.initHttpServer(db, port),
+    async () => {
+      await httpServer.initHttpServer(db, port)
+      axiosInstance
+        .post(`${restApi.uri.sessionCreate}?sessionId=${uuid}`)
+    },
     testUtil.timeout.medium()
   )
 

@@ -113,9 +113,17 @@ test(
   path.basename(haCombinedIsc) + ' - conversion',
   async () => {
     sid = await querySession.createBlankSession(db)
+    await util.ensurePackagesAndPopulateSessionOptions(
+      db,
+      sid,
+      {
+        zcl: env.builtinSilabsZclMetafile(),
+        template: env.builtinTemplateMetafile(),
+      },
+      null,
+    )
     await importJs.importDataFromFile(db, haCombinedIsc, { sessionId: sid })
     expect(sid).not.toBeUndefined()
-
     // validate packageId
     let pkgs = await queryPackage.getSessionPackagesByType(
       db,

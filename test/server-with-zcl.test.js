@@ -28,6 +28,7 @@ const testUtil = require('./test-util.js')
 const path = require('path')
 const util = require('../src-electron/util/util.js')
 const { StatusCodes } = require('http-status-codes')
+const testQuery = require('./test-query.js')
 
 let db
 let axiosInstance = null
@@ -45,8 +46,13 @@ beforeAll(async () => {
   )
   await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
   await httpServer.initHttpServer(db, port)
-  axiosInstance
-        .post(`${restApi.uri.sessionCreate}?sessionId=${sessionUuid}`)
+  await testQuery.createSession(
+    db,
+    'USER',
+    sessionUuid,
+    env.builtinSilabsZclMetafile(),
+    env.builtinTemplateMetafile()
+  )
 }, testUtil.timeout.long())
 
 afterAll(

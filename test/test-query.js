@@ -163,7 +163,8 @@ async function createSession(db, user, sessionUuid, zclFile, genTemplatesFile) {
     {
       zcl: zclFile,
       template: genTemplatesFile,
-    }
+    },
+    null,
   )
   return userSession.sessionId
 }

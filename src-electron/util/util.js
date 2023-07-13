@@ -135,7 +135,7 @@ async function ensurePackagesAndPopulateSessionOptions(
       .getPackagesByType(db, dbEnum.packageType.genTemplatesJson)
       .then((rows) => {
         let packageId
-        if (selectedGenTemplatePackages.length > 0) {
+        if (selectedGenTemplatePackages?.length > 0) {
           selectedGenTemplatePackages.forEach((gen) => {
             if (gen) {
               packageId = gen

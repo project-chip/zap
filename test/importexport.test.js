@@ -200,6 +200,16 @@ test(
   path.basename(sleepyGenericIsc) + ' - import',
   async () => {
     let sid = await querySession.createBlankSession(db)
+    await util.ensurePackagesAndPopulateSessionOptions(
+      templateContext.db,
+      sid,
+      {
+        zcl: env.builtinSilabsZclMetafile(),
+        template: env.builtinTemplateMetafile(),
+      },
+      null,
+      [templatePkgId]
+    )
     await importJs.importDataFromFile(db, sleepyGenericIsc, { sessionId: sid })
     let endpoints = await queryEndpoint.selectAllEndpoints(db, sid)
     expect(endpoints.length).toBe(1)
@@ -228,6 +238,16 @@ test(
   path.basename(testLightIsc) + ' - import',
   async () => {
     let sid = await querySession.createBlankSession(db)
+    await util.ensurePackagesAndPopulateSessionOptions(
+      templateContext.db,
+      sid,
+      {
+        zcl: env.builtinSilabsZclMetafile(),
+        template: env.builtinTemplateMetafile(),
+      },
+      null,
+      [templatePkgId]
+    )
     await importJs.importDataFromFile(db, testLightIsc, { sessionId: sid })
     expect(sid).not.toBeUndefined()
     let endpointTypes = await queryEndpointType.selectAllEndpointTypes(db, sid)
@@ -251,6 +271,16 @@ test(
   path.basename(testDoorLockIsc) + ' - import',
   async () => {
     sid = await querySession.createBlankSession(db)
+    await util.ensurePackagesAndPopulateSessionOptions(
+      templateContext.db,
+      sid,
+      {
+        zcl: env.builtinSilabsZclMetafile(),
+        template: env.builtinTemplateMetafile(),
+      },
+      null,
+      [templatePkgId]
+    )
     await importJs.importDataFromFile(db, testDoorLockIsc, { sessionId: sid })
     expect(sid).not.toBeUndefined()
     let endpointTypes = await queryEndpointType.selectAllEndpointTypes(db, sid)
@@ -278,6 +308,16 @@ test(
   path.basename(haLightIsc) + ' - import',
   async () => {
     sid = await querySession.createBlankSession(db)
+    await util.ensurePackagesAndPopulateSessionOptions(
+      templateContext.db,
+      sid,
+      {
+        zcl: env.builtinSilabsZclMetafile(),
+        template: env.builtinTemplateMetafile(),
+      },
+      null,
+      [templatePkgId]
+    )
     await importJs.importDataFromFile(db, haLightIsc, { sessionId: sid })
     expect(sid).not.toBeUndefined()
     let endpointTypes = await queryEndpointType.selectAllEndpointTypes(db, sid)
@@ -316,6 +356,16 @@ test(
   path.basename(haCombinedInterfaceIsc) + ' - import',
   async () => {
     sid = await querySession.createBlankSession(db)
+    await util.ensurePackagesAndPopulateSessionOptions(
+      templateContext.db,
+      sid,
+      {
+        zcl: env.builtinSilabsZclMetafile(),
+        template: env.builtinTemplateMetafile(),
+      },
+      null,
+      [templatePkgId]
+    )
     await importJs.importDataFromFile(db, haCombinedInterfaceIsc, {
       sessionId: sid,
     })
