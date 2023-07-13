@@ -38,8 +38,10 @@ function sessionAttempt(db) {
     if (req.body.search?.includes('filePath=%2F')) {
       let filePath = req.body.search.split('filePath=')
       filePath = filePath[1].replaceAll('%2F', '//').trim()
+      console.log(filePath)
       if (filePath.includes('.zap')) {
         let data = await fsp.readFile(filePath)
+        console.log('ISCC!!!!')
         let obj = JSON.parse(data)
         let category = obj.package[0].category
         let open = true
@@ -48,12 +50,15 @@ function sessionAttempt(db) {
           dbEnum.packageType.zclProperties,
           category
         )
+        console.log(dbEnum.packageType.zclProperties)
         const zclGenTemplates = await queryPackage.getPackagesByCategoryAndType(
           db,
           dbEnum.packageType.genTemplatesJson,
           category
         )
+        console.log(zclGenTemplates)
         const sessions = await querySession.getDirtySessionsWithPackages(db)
+        console.log(sessions)
         return res.send({
           zclGenTemplates,
           zclProperties,
@@ -99,12 +104,6 @@ function sessionAttempt(db) {
     }
   }
 }
-/**
- * This function creates a new session with its packages according to selected Properties and Templates
- * @param {*} db
- * @param {*} options: object containing 'zcl' and 'template'
- * @returns A success message.
- */
 
 function sessionCreate(db) {
   return async (req, res) => {
@@ -117,6 +116,7 @@ function sessionCreate(db) {
     } else {
       let zapUserId = req.session.zapUserId
       let zapSessionId
+      console.log(req.session)
       if (`zapSessionId` in req.session) {
         zapSessionId = req.session.zapSessionId[sessionUuid]
       } else {
@@ -158,6 +158,27 @@ function sessionCreate(db) {
   }
 }
 
+/**
+ * This function creates a new session with its packages according to selected Properties and Templates
+ * @param {*} db
+ * @param {*} options: object containing 'zcl' and 'template'
+ * @returns A success message.
+ */
+function initializeSession(db) {
+  return async (req, res) => {
+    console.log(req.body.sessionId)
+    await util.ensurePackagesAndPopulateSessionOptions(
+      db,
+      req.body.sessionId,
+      {},
+      req.body.zclProperties,
+      req.body.genTemplate
+    )
+    return res.send({
+      message: 'Session created successfully',
+    })
+  }
+}
 
 /**
  * This function reloads previous session by user selected session's id

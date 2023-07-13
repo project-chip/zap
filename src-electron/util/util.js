@@ -116,6 +116,8 @@ async function ensurePackagesAndPopulateSessionOptions(
           )
         }
         if (packageId != null) {
+          console.log('PACKAGEID-zcl')
+          console.log(packageId)
           return queryPackage.insertSessionPackage(
             db,
             sessionId,
@@ -166,6 +168,8 @@ async function ensurePackagesAndPopulateSessionOptions(
               }
             }
             if (packageId != null) {
+              console.log('PACKAGEID-gen')
+              console.log(packageId)
               return queryPackage.insertSessionPackage(
                 db,
                 sessionId,
