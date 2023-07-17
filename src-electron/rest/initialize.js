@@ -107,7 +107,7 @@ function sessionCreate(db) {
     let userKey = req.session.id
 
     if (sessionUuid == null || userKey == null) {
-      console.log('empty')
+      return
     } else {
       let zapUserId = req.session.zapUserId
       let zapSessionId
