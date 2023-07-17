@@ -45,13 +45,9 @@ function httpPostFileOpen(db) {
       ideProjectPath = dbEnum.sessionKey.ideProjectPath
       zapFilePath = req.body.search?.split('filePath=')
       zapFilePath = zapFilePath[1]?.replaceAll('%2F', '//').trim()
-      console.log('NOTICE ME!!!')
-      console.log(zapFilePath)
     }
 
-    // let { ideProjectPath } = req.body
     let name = ''
-    //console.log(zapFilePath)
     if (zapFilePath) {
       if (studio.integrationEnabled(db, req.zapSessionId)) {
         name = path.posix.dirname(

@@ -38,10 +38,8 @@ function sessionAttempt(db) {
     if (req.body.search?.includes('filePath=%2F')) {
       let filePath = req.body.search.split('filePath=')
       filePath = filePath[1].replaceAll('%2F', '//').trim()
-      console.log(filePath)
       if (filePath.includes('.zap')) {
         let data = await fsp.readFile(filePath)
-        console.log('ISCC!!!!')
         let obj = JSON.parse(data)
         let category = obj.package[0].category
         let open = true
@@ -50,15 +48,12 @@ function sessionAttempt(db) {
           dbEnum.packageType.zclProperties,
           category
         )
-        console.log(dbEnum.packageType.zclProperties)
         const zclGenTemplates = await queryPackage.getPackagesByCategoryAndType(
           db,
           dbEnum.packageType.genTemplatesJson,
           category
         )
-        console.log(zclGenTemplates)
         const sessions = await querySession.getDirtySessionsWithPackages(db)
-        console.log(sessions)
         return res.send({
           zclGenTemplates,
           zclProperties,
@@ -116,7 +111,6 @@ function sessionCreate(db) {
     } else {
       let zapUserId = req.session.zapUserId
       let zapSessionId
-      console.log(req.session)
       if (`zapSessionId` in req.session) {
         zapSessionId = req.session.zapSessionId[sessionUuid]
       } else {
@@ -166,7 +160,6 @@ function sessionCreate(db) {
  */
 function initializeSession(db) {
   return async (req, res) => {
-    console.log(req.body.sessionId)
     await util.ensurePackagesAndPopulateSessionOptions(
       db,
       req.body.sessionId,
