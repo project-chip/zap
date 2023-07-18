@@ -61,8 +61,9 @@ function httpPostFileOpen(db) {
 
       try {
         // set path before importDataFromFile() to avoid triggering DIRTY flag
-        //  if (ideProjectPath) {
-        //env.logInfo(`IDE: setting project path(${name}) to ${ideProjectPath}`)
+        if (ideProjectPath) {
+          env.logInfo(`IDE: setting project path(${name}) to ${ideProjectPath}`)
+        }
         // store studio project path
         await querySession.updateSessionKeyValue(
           db,
