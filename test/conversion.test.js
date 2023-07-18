@@ -113,19 +113,26 @@ test(
   path.basename(haCombinedIsc) + ' - conversion',
   async () => {
     sid = await querySession.createBlankSession(db)
-    //await importJs.importDataFromFile(db, haCombinedIsc, { sessionId: sid })
+    await util.ensurePackagesAndPopulateSessionOptions(
+      db,
+      sid,
+      {
+        zcl: env.builtinSilabsZclMetafile(),
+        template: env.builtinTemplateMetafile(),
+      },
+      null,
+    )
+    await importJs.importDataFromFile(db, haCombinedIsc, { sessionId: sid })
     expect(sid).not.toBeUndefined()
-
-    // // validate packageId
-    // let pkgs = await queryPackage.getSessionPackagesByType(
-    //   db,
-    //   sid,
-    //   dbEnum.packageType.zclProperties
-    // )
-    // expect(pkgs.length).toBe(1)
-    // expect(pkgs[0].description).toBe('ZigbeePro test data')
-    // expect(pkgs[0].category).toBe('zigbee')
-
+    // validate packageId
+    let pkgs = await queryPackage.getSessionPackagesByType(
+      db,
+      sid,
+      dbEnum.packageType.zclProperties
+    )
+    expect(pkgs.length).toBe(1)
+    expect(pkgs[0].description).toBe('ZigbeePro test data')
+    expect(pkgs[0].category).toBe('zigbee')
     // let dump = await util.sessionDump(db, sid)
 
     // expect(dump.endpointTypes.length).toBe(1)

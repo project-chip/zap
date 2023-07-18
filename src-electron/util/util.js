@@ -62,18 +62,20 @@ function checksum(data) {
 async function ensurePackagesAndPopulateSessionOptions(
   db,
   sessionId,
-  options,
-  selectedZclPropertyPackage = null,
+  options = null,
+  selectedZclPropertyPackage = [],
   selectedGenTemplatePackages = []
 ) {
   let promises = []
-
   // This is the desired ZCL properties file. Because it is possible
   // that an array is passed from the command line, we are simply taking
   // the first one, if we pass multiple ones.
-  let zclFile = options.zcl
-  if (Array.isArray(zclFile)) zclFile = options.zcl[0]
-
+  let zclFile
+  if (options) {
+    zclFile = options.zcl
+  } else {
+    zclFile = selectedZclPropertyPackage.path
+  }
   // 0. Read current packages.
   let currentPackages =
     await queryPackage.getPackageSessionPackagePairBySessionId(db, sessionId)
@@ -95,7 +97,7 @@ async function ensurePackagesAndPopulateSessionOptions(
       .then((rows) => {
         let packageId
         if (selectedZclPropertyPackage) {
-          packageId = selectedZclPropertyPackage
+          packageId = selectedZclPropertyPackage.id
         } else if (rows.length == 1) {
           packageId = rows[0].id
           env.logDebug(
@@ -135,7 +137,7 @@ async function ensurePackagesAndPopulateSessionOptions(
       .getPackagesByType(db, dbEnum.packageType.genTemplatesJson)
       .then((rows) => {
         let packageId
-        if (selectedGenTemplatePackages.length > 0) {
+        if (selectedGenTemplatePackages?.length > 0) {
           selectedGenTemplatePackages.forEach((gen) => {
             if (gen) {
               packageId = gen
@@ -150,8 +152,8 @@ async function ensurePackagesAndPopulateSessionOptions(
             } else {
               rows.forEach((p) => {
                 if (
-                  options.template != null &&
-                  path.resolve(options.template) === p.path
+                  selectedGenTemplatePackages != null &&
+                  path.resolve(selectedGenTemplatePackages) === p.path
                 ) {
                   packageId = p.id
                 }
@@ -199,12 +201,10 @@ async function ensurePackagesAndPopulateSessionOptions(
 
   // We read all the packages.
   let packages = await queryPackage.getSessionPackagesWithTypes(db, sessionId)
-
   // Now we create promises with the queries that populate the
   // session key/value pairs from package options.
 
   await populateSessionPackageOptions(db, sessionId, packages)
-
   return packages
 }
 

@@ -28,6 +28,7 @@ const env = require('../util/env')
 const script = require('../util/script')
 const dbEnum = require('../../src-shared/db-enum')
 const ff = require('./file-format.js')
+const util = require('../util/util.js')
 
 /**
  * Reads the data from the file and resolves with the state object if all is good.
@@ -95,6 +96,14 @@ async function importDataFromFile(
     let sid
     if (options.sessionId == null) {
       sid = await querySession.createBlankSession(db)
+      await util.ensurePackagesAndPopulateSessionOptions(
+        db,
+        sid,
+        {
+          zcl: env.builtinSilabsZclMetafile(),
+          template: env.builtinTemplateMetafile(),
+        }, null, null
+      )  
     } else {
       sid = options.sessionId
     }

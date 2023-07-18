@@ -41,8 +41,13 @@ const studio = require('../ide-integration/studio-rest-api')
 function httpPostFileOpen(db) {
   return async (req, res) => {
     let { zapFilePath, ideProjectPath } = req.body
-    let name = ''
+    if (req.body.search?.includes('filePath=%2F')) {
+      ideProjectPath = dbEnum.sessionKey.ideProjectPath
+      zapFilePath = req.body.search?.split('filePath=')
+      zapFilePath = zapFilePath[1]?.replaceAll('%2F', '//').trim()
+    }
 
+    let name = ''
     if (zapFilePath) {
       if (studio.integrationEnabled(db, req.zapSessionId)) {
         name = path.posix.dirname(
@@ -58,14 +63,14 @@ function httpPostFileOpen(db) {
         // set path before importDataFromFile() to avoid triggering DIRTY flag
         if (ideProjectPath) {
           env.logInfo(`IDE: setting project path(${name}) to ${ideProjectPath}`)
-          // store studio project path
-          await querySession.updateSessionKeyValue(
-            db,
-            req.zapSessionId,
-            dbEnum.sessionKey.ideProjectPath,
-            ideProjectPath
-          )
         }
+        // store studio project path
+        await querySession.updateSessionKeyValue(
+          db,
+          req.zapSessionId,
+          dbEnum.sessionKey.ideProjectPath,
+          ideProjectPath
+        )
 
         let importResult = await importJs.importDataFromFile(db, zapFilePath, {
           sessionId: req.zapSessionId,

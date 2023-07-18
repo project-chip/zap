@@ -28,9 +28,11 @@ const testUtil = require('./test-util.js')
 const path = require('path')
 const util = require('../src-electron/util/util.js')
 const { StatusCodes } = require('http-status-codes')
+const testQuery = require('./test-query.js')
 
 let db
 let axiosInstance = null
+let sessionUuid = util.createUuid()
 
 beforeAll(async () => {
   const { port, baseUrl } = testUtil.testServer(__filename)
@@ -44,7 +46,14 @@ beforeAll(async () => {
   )
   await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
   await httpServer.initHttpServer(db, port)
-}, testUtil.timeout.medium())
+  await testQuery.createSession(
+    db,
+    'USER',
+    sessionUuid,
+    env.builtinSilabsZclMetafile(),
+    env.builtinTemplateMetafile()
+  )
+}, testUtil.timeout.long())
 
 afterAll(
   () => httpServer.shutdownHttpServer().then(() => dbApi.closeDatabase(db)),
@@ -63,11 +72,10 @@ test(
         )
       ).toBeTruthy()
     }),
-  testUtil.timeout.medium()
+  testUtil.timeout.long()
 )
 
 describe('Miscelaneous REST API tests', () => {
-  let sessionUuid = util.createUuid()
   test(
     'test manufacturer codes',
     () =>
@@ -76,7 +84,7 @@ describe('Miscelaneous REST API tests', () => {
         .then((response) => {
           expect(response.data.length).toBeGreaterThan(100)
         }),
-    testUtil.timeout.medium()
+    testUtil.timeout.long()
   )
 
   test(
@@ -89,7 +97,7 @@ describe('Miscelaneous REST API tests', () => {
         .then((response) => {
           expect(response.status).toBe(StatusCodes.OK)
         }),
-    testUtil.timeout.medium()
+    testUtil.timeout.long()
   )
 
   test(
@@ -107,7 +115,7 @@ describe('Miscelaneous REST API tests', () => {
           expect(data.filePath).toContain('three-endpoint-device.zap')
           expect(data.manufacturerCodes).toEqual('0x1002')
         }),
-    testUtil.timeout.medium()
+    testUtil.timeout.long()
   )
 
   test(
@@ -134,7 +142,7 @@ describe('Miscelaneous REST API tests', () => {
           expect(data.manufacturerCodes).toEqual('0x1002')
           expect(data.testKey).toEqual('testValue')
         }),
-    testUtil.timeout.medium()
+    testUtil.timeout.long()
   )
 
   test(
@@ -147,7 +155,7 @@ describe('Miscelaneous REST API tests', () => {
             testUtil.totalClusterCount
           )
         }),
-    testUtil.timeout.medium()
+    testUtil.timeout.long()
   )
 
   test(
@@ -193,7 +201,7 @@ describe('Miscelaneous REST API tests', () => {
       )
       expect(commands.data.length).toBe(32)
     },
-    testUtil.timeout.medium()
+    testUtil.timeout.long()
   )
 
   test(
@@ -204,7 +212,7 @@ describe('Miscelaneous REST API tests', () => {
         .then((response) => {
           expect(response.data.length).toBe(testUtil.totalDomainCount)
         }),
-    testUtil.timeout.short()
+    testUtil.timeout.long()
   )
 
   test(
@@ -215,7 +223,7 @@ describe('Miscelaneous REST API tests', () => {
         .then((response) => {
           expect(response.data.length).toBe(129)
         }),
-    testUtil.timeout.short()
+    testUtil.timeout.long()
   )
 
   test(
