@@ -33,7 +33,6 @@ const env = require('../util/env')
 const { StatusCodes } = require('http-status-codes')
 const queryNotification = require('../db/query-session-notification.js')
 
-
 // This function builds a function that has the following skeleton.
 // This is used to simplify all the logic where we have selectAll and selectById for
 // each of the different ZCL entities.

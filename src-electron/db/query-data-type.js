@@ -27,7 +27,6 @@ const dbEnum = require('../../src-shared/db-enum.js')
 const dbCache = require('./db-cache')
 const notification = require('./query-session-notification.js')
 
-
 /**
  * Gathers the data type information of an entry based on data type id along
  * with its actual type from disciminator table.

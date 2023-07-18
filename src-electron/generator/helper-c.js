@@ -26,7 +26,6 @@ const dbEnum = require('../../src-shared/db-enum.js')
 const envConfig = require('../util/env')
 const notification = require('../db/query-session-notification.js')
 
-
 /**
  * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
  *

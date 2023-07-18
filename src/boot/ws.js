@@ -20,7 +20,6 @@ import restApi from '../../src-shared/rest-api.js'
 import rendApi from '../../src-shared/rend-api.js'
 import { Notify } from 'quasar'
 import * as Util from '../util/util.js'
-import store from '../store'
 
 const tickInterval = 15000 // 15 seconds tick interval for server watchdog.
 

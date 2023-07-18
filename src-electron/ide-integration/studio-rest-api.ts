@@ -26,6 +26,7 @@ import axios, { AxiosPromise, AxiosResponse } from 'axios'
 import * as env from '../util/env'
 import * as dbTypes from '../../src-shared/types/db-types'
 import * as querySession from '../db/query-session.js'
+const queryNotification = require('../db/query-session-notification.js')
 const wsServer = require('../server/ws-server.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 import * as ucTypes from '../../src-shared/types/uc-component-types'
@@ -40,8 +41,6 @@ const op_remove = '/rest/clic/component/remove/project/'
 
 let ucComponentStateReportId: NodeJS.Timeout
 let studioHttpPort: number
-
-const queryNotification = require('../db/query-session-notification.js')
 
 function projectPath(db: dbTypes.DbType, sessionId: number) {
   return querySession.getSessionKeyValue(

@@ -27,7 +27,6 @@ const dbEnum = require('../../src-shared/db-enum')
 const env = require('./env')
 const types = require('./types')
 
-
 /**
  * Comparator for sorting clusters.
  *
