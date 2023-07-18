@@ -91,10 +91,17 @@
       <div class="text-center">
         <q-icon name="o_assignment_late" />
         <div>
-        Notifications
-        <q-badge style="top: 5px; right: 5px" color="red" floating>{{ this.$store.state.zap.notificationCount }}</q-badge>
+          Notifications
+          <q-badge
+            style="top: 5px; right: 5px"
+            color="red"
+            floating
+            v-if="this.$store.state.zap.notificationCount > 0"
+          >
+            {{ this.$store.state.zap.notificationCount }}
+          </q-badge>
         </div>
-      </div>   
+      </div>
     </q-btn>
     <q-btn
       v-if="showDebugNavItems"
@@ -250,10 +257,9 @@ export default {
       this.doGeneration(currentPath)
     },
     getNotifications() {
-      this.$serverGet(restApi.uri.sessionNotification)
+      this.$serverGet(restApi.uri.unseenNotificationCount)
         .then((resp) => {
-          let notificationCount = resp.data.length
-          this.$store.commit('zap/updateNotificationCount', notificationCount)
+          this.$store.commit('zap/updateNotificationCount', resp.data)
         })
         .catch((err) => {
           console.log(err)
@@ -266,9 +272,12 @@ export default {
     }
   },
   mounted() {
-    this.$onWebSocket(dbEnum.wsCategory.notificationCount, (notificationCount) => { 
-      this.$store.commit('zap/updateNotificationCount', notificationCount)
-    })
+    this.$onWebSocket(
+      dbEnum.wsCategory.notificationCount,
+      (notificationCount) => {
+        this.$store.commit('zap/updateNotificationCount', notificationCount)
+      }
+    )
 
     observable.observeAttribute(rendApi.observable.reported_files, (value) => {
       if (value.context == 'generateDir') {

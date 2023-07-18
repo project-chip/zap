@@ -18,7 +18,6 @@
  * @jest-environment node
  */
 
-
 const fs = require('fs')
 const path = require('path')
 const testUtil = require('./test-util')
@@ -48,7 +47,8 @@ test(
   'Notification: set, get, delete session notification',
   async () => {
     let type = 'UPGRADE'
-    let message = 'ISC FILE UPGRADED TO ZAP FILE. PLEASE SAVE AS TO SAVE OFF NEWLY CREATED ZAP FILE.'
+    let message =
+      'ISC FILE UPGRADED TO ZAP FILE. PLEASE SAVE AS TO SAVE OFF NEWLY CREATED ZAP FILE.'
     let sessionId = await querySession.createBlankSession(db)
     let severity = 1
     let display = 1
@@ -67,21 +67,21 @@ test(
     let order = 0
 
     // check if the returned notifications include the one we just set
-    let isNotificationSet = false;
-    for(let i = 0; i < notifications.length; i++) {
-        if (notifications[i].type === type && 
-            notifications[i].message === message && 
-            notifications[i].ref === sessionId && 
-            notifications[i].severity === severity && 
-            notifications[i].display === display)
-          {
-            isNotificationSet = true;
-            order = notifications[i].order
-            break;
-          }
+    let isNotificationSet = false
+    for (let i = 0; i < notifications.length; i++) {
+      if (
+        notifications[i].type === type &&
+        notifications[i].message === message &&
+        notifications[i].ref === sessionId &&
+        notifications[i].severity === severity &&
+        notifications[i].display === display
+      ) {
+        isNotificationSet = true
+        order = notifications[i].order
+        break
+      }
     }
     expect(isNotificationSet).toBeTruthy()
-
 
     // delete the notification we just created
     await sessionNotification.deleteNotification(db, order)
@@ -89,29 +89,66 @@ test(
     notifications = await sessionNotification.getNotification(db, sessionId)
 
     // check if the notification was successfully deleted
-    let isNotificationDeleted = true;
-    for(let i = 0; i < notifications.length; i++) {
-        if (notifications[i].type === type && 
-            notifications[i].message === message && 
-            notifications[i].ref === sessionId && 
-            notifications[i].severity === severity && 
-            notifications[i].display === display)
-          {
-            isNotificationDeleted = false;
-            break;
-          }
+    let isNotificationDeleted = true
+    for (let i = 0; i < notifications.length; i++) {
+      if (notifications[i].order === order) {
+        isNotificationDeleted = false
+        break
+      }
     }
     expect(isNotificationDeleted).toBeTruthy()
   },
   testUtil.timeout.long()
 )
 
+test('Notification: mark notification as seen and get unseen count', async () => {
+  // set a new notification and get its order
+  let type = 'UPGRADE'
+  let message =
+    'ISC FILE UPGRADED TO ZAP FILE. PLEASE SAVE AS TO SAVE OFF NEWLY CREATED ZAP FILE.'
+  let sessionId = await querySession.createBlankSession(db)
+  let severity = 1
+  let display = 1
+
+  await sessionNotification.setNotification(
+    db,
+    type,
+    message,
+    sessionId,
+    severity,
+    display
+  )
+
+  let notifications = await sessionNotification.getNotification(db, sessionId)
+  expect(notifications.length > 0).toBeTruthy()
+  let order = notifications[0].order
+  let unseenIds = [order]
+
+  // should have 1 unseen notification
+  let unseenCount = await sessionNotification.getUnseenNotificationCount(
+    db,
+    sessionId
+  )
+  expect(unseenCount).toBe(1)
+
+  // set the unseen notification to seen
+  await sessionNotification.markNotificationsAsSeen(db, unseenIds)
+
+  // should have 0 unseen now
+  unseenCount = await sessionNotification.getUnseenNotificationCount(
+    db,
+    sessionId
+  )
+  expect(unseenCount).toBe(0)
+  console.log(unseenCount)
+})
 
 test(
   'Notification: set, get, delete package notification',
   async () => {
     let type = 'UPGRADE'
-    let message = 'ISC FILE UPGRADED TO ZAP FILE. PLEASE SAVE AS TO SAVE OFF NEWLY CREATED ZAP FILE.'
+    let message =
+      'ISC FILE UPGRADED TO ZAP FILE. PLEASE SAVE AS TO SAVE OFF NEWLY CREATED ZAP FILE.'
     let severity = 1
     let display = 1
 
@@ -135,21 +172,21 @@ test(
     let order = 0
 
     // check if the returned notifications include the one we just set
-    let isNotificationSet = false;
-    for(let i = 0; i < notifications.length; i++) {
-        if (notifications[i].type === type && 
-            notifications[i].message === message && 
-            notifications[i].ref === packageId && 
-            notifications[i].severity === severity && 
-            notifications[i].display === display)
-          {
-            isNotificationSet = true;
-            order = notifications[i].order
-            break;
-          }
+    let isNotificationSet = false
+    for (let i = 0; i < notifications.length; i++) {
+      if (
+        notifications[i].type === type &&
+        notifications[i].message === message &&
+        notifications[i].ref === packageId &&
+        notifications[i].severity === severity &&
+        notifications[i].display === display
+      ) {
+        isNotificationSet = true
+        order = notifications[i].order
+        break
+      }
     }
     expect(isNotificationSet).toBeTruthy()
-
 
     // delete the notification we just created
     await packageNotification.deleteNotification(db, order)
@@ -157,17 +194,12 @@ test(
     notifications = await packageNotification.getNotification(db, packageId)
 
     // check if the notification was successfully deleted
-    let isNotificationDeleted = true;
-    for(let i = 0; i < notifications.length; i++) {
-        if (notifications[i].type === type && 
-            notifications[i].message === message && 
-            notifications[i].ref === packageId && 
-            notifications[i].severity === severity && 
-            notifications[i].display === display)
-          {
-            isNotificationDeleted = false;
-            break;
-          }
+    let isNotificationDeleted = true
+    for (let i = 0; i < notifications.length; i++) {
+      if (notifications[i].order === order) {
+        isNotificationDeleted = false
+        break
+      }
     }
     expect(isNotificationDeleted).toBeTruthy()
   },

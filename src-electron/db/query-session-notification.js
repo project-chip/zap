@@ -58,11 +58,7 @@ async function setNotification(
 
     let sessionKey = rows[0].SESSION_KEY
     let socket = wsServer.clientSocket(sessionKey)
-    let notifications = await getNotification(db, sessionId)
-    let notificationCount = 0
-    if (notifications) {
-      notificationCount = notifications.length
-    }
+    let notificationCount = await getUnseenNotificationCount(db, sessionId)
     let obj = {
       display: display,
       message: status.toString(),
@@ -108,6 +104,7 @@ async function deleteNotification(db, order) {
  *
  * @export
  * @param {*} db
+ * @param {*} sessionId
  */
 async function getNotification(db, sessionId) {
   let rows = []
@@ -118,8 +115,45 @@ async function getNotification(db, sessionId) {
   )
   return rows.map(dbMapping.map.sessionNotifications)
 }
+
+/**
+ * Retrieves count of unseen notifications from the SESSION_NOTICE table
+ *
+ * @export
+ * @param {*} db
+ * @param {*} sessionId
+ */
+async function getUnseenNotificationCount(db, sessionId) {
+  let rows = await dbApi.dbAll(
+    db,
+    'SELECT COUNT(*) as unseenCount FROM SESSION_NOTICE WHERE SESSION_REF = ? AND SEEN = 0',
+    [sessionId]
+  )
+  return rows[0].unseenCount
+}
+
+/**
+ * update SEEN column to 1 for all notifications from the SESSION_NOTICE table with NOTIC_ORDER inside given input array unseenIds
+ *
+ * @export
+ * @param {*} db
+ * @param {*} sessionId
+ */
+async function markNotificationsAsSeen(db, unseenIds) {
+  if (unseenIds && unseenIds.length > 0) {
+    let placeholders = unseenIds.map(() => '?').join(',')
+    await dbApi.dbUpdate(
+      db,
+      `UPDATE SESSION_NOTICE SET SEEN = 1 WHERE NOTICE_ORDER IN (${placeholders})`,
+      unseenIds
+    )
+  }
+}
+
 // exports
 exports.setNotification = setNotification
 exports.deleteNotification = deleteNotification
 exports.getNotification = getNotification
+exports.getUnseenNotificationCount = getUnseenNotificationCount
+exports.markNotificationsAsSeen = markNotificationsAsSeen
 //# sourceMappingURL=query-session-notification.js.map

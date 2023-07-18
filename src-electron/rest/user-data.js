@@ -64,7 +64,10 @@ function httpGetSessionKeyValues(db) {
 function httpGetSessionNotifications(db) {
   return async (request, response) => {
     let sessionId = request.zapSessionId
-    let notifications = await querySessionNotification.getNotification(db, sessionId)
+    let notifications = await querySessionNotification.getNotification(
+      db,
+      sessionId
+    )
     response.status(StatusCodes.OK).json(notifications)
   }
 }
@@ -110,7 +113,31 @@ function httpDeletePackageNotification(db) {
   }
 }
 
+/**
+ * HTTP GET: session get unseen notification count
+ *
+ * @param {*} db
+ * @returns callback for the express uri registration
+ */
+function httpGetUnseenNotificationCount(db) {
+  return async (request, response) => {
+    let sessionId = request.zapSessionId
+    let notificationCount =
+      await querySessionNotification.getUnseenNotificationCount(db, sessionId)
+    response.status(StatusCodes.OK).json(notificationCount)
+  }
+}
 
+function httpGetUnseenNotificationAndUpdate(db) {
+  return async (request, response) => {
+    let unseenIds = request.query.unseenIds
+    let resp = await querySessionNotification.markNotificationsAsSeen(
+      db,
+      unseenIds
+    )
+    response.status(StatusCodes.OK).json(resp)
+  }
+}
 
 /**
  * HTTP POST: save session key value
@@ -915,6 +942,14 @@ exports.get = [
   {
     uri: restApi.uri.packageNotification,
     callback: httpGetPackageNotifications,
+  },
+  {
+    uri: restApi.uri.unseenNotificationCount,
+    callback: httpGetUnseenNotificationCount,
+  },
+  {
+    uri: restApi.uri.updateNotificationToSeen,
+    callback: httpGetUnseenNotificationAndUpdate,
   },
   {
     uri: restApi.uri.initialState,
