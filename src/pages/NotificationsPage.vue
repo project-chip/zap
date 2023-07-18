@@ -11,23 +11,27 @@
       </template>
       <template v-slot:body="props">
         <q-tr :props="props" class="table_body">
-          <q-td style="display: none;" key="order" :props="props">
+          <q-td style="display: none" key="order" :props="props">
             <div>{{ props.row.order }}</div>
           </q-td>
-          <q-td key="ref" :props="props">
+          <!-- <q-td key="ref" :props="props">
             <div>{{ props.row.ref }}</div>
-          </q-td>
+          </q-td> -->
           <q-td key="type" :props="props">
             <div>{{ props.row.type }}</div>
           </q-td>
           <q-td key="message" :props="props">
             <div>{{ props.row.message }}</div>
           </q-td>
-          <q-td key="severity" :props="props">
+          <!-- <q-td key="severity" :props="props">
             <div>{{ props.row.severity }}</div>
-          </q-td>
-          <q-td> 
-            <q-btn flat icon="delete" @click="deleteNotification(props.row.order)"/>
+          </q-td> -->
+          <q-td>
+            <q-btn
+              flat
+              icon="delete"
+              @click="deleteNotification(props.row.order)"
+            />
           </q-td>
         </q-tr>
       </template>
@@ -44,41 +48,67 @@ export default {
     PreferencePageLayout,
   },
   methods: {
-    getNotifications() {
+    getNotificationsAndUpdateSeen() {
       this.$serverGet(restApi.uri.sessionNotification)
         .then((resp) => {
+          let unseenIds = []
           for (let i = 0; i < resp.data.length; i++) {
-            this.notis.push(resp.data[i])
+            let notification = resp.data[i]
+            this.notis.push(notification)
+            if (notification.seen == 0) {
+              unseenIds.push(notification.order)
+            }
           }
-          let notificationCount = resp.data.length
-          this.$store.commit('zap/updateNotificationCount', notificationCount)
+          if (unseenIds && unseenIds.length > 0) {
+            let parameters = {
+              unseenIds: unseenIds,
+            }
+            let config = { params: parameters }
+            this.$serverGet(restApi.uri.updateNotificationToSeen, config)
+              .then((resp) => {
+                // clear notification count when enter notification page
+                this.$store.commit('zap/updateNotificationCount', 0)
+              })
+              .catch((err) => {
+                console.log(err)
+              })
+          }
         })
         .catch((err) => {
           console.log(err)
         })
     },
-    deleteNotification(data) {
-      let parameters = {
-        order: data,
-      }
-      let config = {params: parameters}
-      this.$serverDelete(restApi.uri.deleteSessionNotification, config)
+    getUnseenNotificationCount() {
+      this.$serverGet(restApi.uri.unseenNotificationCount)
         .then((resp) => {
-           this.notis = []
-           this.getNotifications()
+          this.$store.commit('zap/updateNotificationCount', resp.data)
         })
-    }
-
+        .catch((err) => {
+          console.log(err)
+        })
+    },
+    deleteNotification(order) {
+      let parameters = {
+        order: order,
+      }
+      let config = { params: parameters }
+      this.$serverDelete(restApi.uri.deleteSessionNotification, config).then(
+        (resp) => {
+          this.notis = this.notis.filter((row) => row.order !== order)
+          this.getUnseenNotificationCount()
+        }
+      )
+    },
   },
   data() {
     return {
       columns: [
-        {
-          name: 'ref',
-          align: 'center',
-          label: 'ref',
-          field: 'ref',
-        },
+        // {
+        //   name: 'ref',
+        //   align: 'center',
+        //   label: 'ref',
+        //   field: 'ref',
+        // },
         { name: 'type', align: 'center', label: 'type', field: 'type' },
         {
           name: 'message',
@@ -86,18 +116,18 @@ export default {
           label: 'message',
           field: 'message',
         },
-        {
-          name: 'severity',
-          align: 'center',
-          label: 'severity',
-          field: 'severity',
-        },
+        // {
+        //   name: 'severity',
+        //   align: 'center',
+        //   label: 'severity',
+        //   field: 'severity',
+        // },
         {
           name: 'delete',
           align: 'center',
           label: 'delete',
           field: 'delete',
-        }
+        },
       ],
       notis: [],
     }
@@ -105,7 +135,7 @@ export default {
   created() {
     if (this.$serverGet != null) {
       this.notis = []
-      this.getNotifications()
+      this.getNotificationsAndUpdateSeen()
     }
   },
 }
