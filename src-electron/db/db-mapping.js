@@ -611,6 +611,7 @@ exports.map = {
       sessionKey: x.SESSION_KEY,
       creationTime: x.CREATION_TIME,
       packageRef: x.PACKAGE_REF,
+      userRef: x.USER_REF,
       dirty: x.DIRTY == 1,
     }
   },

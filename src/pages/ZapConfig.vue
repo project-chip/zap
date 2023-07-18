@@ -30,7 +30,7 @@
                 v-model="customConfig"
                 checked-icon="task_alt"
                 unchecked-icon="panorama_fish_eye"
-                val="generate"
+                val="select"
                 label="Generate New Session"
               />
               <q-radio
@@ -45,7 +45,7 @@
             </div>
             <p
               class="text-center"
-              v-if="isMultiplePackage && customConfig === 'generate'"
+              v-if="isMultiplePackage && customConfig === 'select'"
             >
               There are multiple packages of ZCL metadata loaded. Please select
               the one you wish to use with this configuration.
@@ -56,7 +56,7 @@
               the configuration.
             </p>
 
-            <template v-if="customConfig === 'generate'">
+            <template v-if="customConfig === 'select'">
               <q-table
                 title="Zigbee Cluster Library metadata"
                 :rows="zclPropertiesRow"
@@ -214,6 +214,7 @@
 
 <script>
 import restApi from '../../src-shared/rest-api.js'
+import { QSpinnerGears } from 'quasar'
 import { setCssVar } from 'quasar'
 
 const generateNewSessionCol = [
@@ -269,7 +270,7 @@ export default {
   name: 'ZapConfig',
   data() {
     return {
-      customConfig: 'generate',
+      customConfig: 'select',
       selected: [],
       selectedZclPropertiesData: null,
       selectedZclGenData: [],
@@ -278,6 +279,10 @@ export default {
       newSessionCol: generateNewSessionCol,
       loadPreSessionCol: loadPreSessionCol,
       zclGenRow: [],
+      newConfig: false,
+      path: window.location,
+      open: true,
+      filePath: '',
       loadPreSessionData: [],
       pagination: {
         rowsPerPage: 10,
@@ -289,7 +294,7 @@ export default {
   },
   computed: {
     disableSubmitButton: function () {
-      if (this.customConfig === 'generate')
+      if (this.customConfig === 'select')
         return (
           this.selectedZclPropertiesData == null ||
           this.selectedZclGenData.length == 0
@@ -305,35 +310,38 @@ export default {
   },
   methods: {
     submitForm() {
-      if (this.customConfig === 'generate') {
-        if (
-          this.selectedZclPropertiesData != null &&
-          this.selectedZclGenData.length != 0
-        ) {
-          let data = {
-            zclProperties: this.selectedZclPropertiesData.id,
-            genTemplate: this.selectedZclGenData,
-          }
-          this.$serverPost(restApi.uri.initializeSession, data).then(
-            (result) => {
+      if (this.customConfig === 'select') {
+        let data = {
+          zclProperties: this.selectedZclPropertiesData,
+          genTemplate: this.selectedZclGenData,
+        }
+        this.$router.push({ path: '/' })
+        this.$q.loading.show({
+          spinner: QSpinnerGears,
+          messageColor: 'white',
+          message: 'Please wait while zap is loading...',
+          spinnerSize: 300,
+        })
+
+        if (this.open) {
+          this.$serverPost(restApi.uri.sessionCreate, data)
+            .then(() => this.$serverPost(restApi.ide.open, this.path))
+            .then(() => {
               this.$store.commit('zap/selectZapConfig', {
                 zclProperties: this.selectedZclPropertiesData,
                 genTemplate: this.selectedZclGenData,
+                newConfig: false,
               })
-            }
-          )
-        }
-      } else if (this.customConfig === 'passthrough') {
-        let data = {
-          newConfiguration: true,
-        }
-
-        this.$serverPost(restApi.uri.initializeSession, data).then((result) => {
-          this.$store.commit('zap/selectZapConfig', {
-            zclProperties: this.selectedZclPropertiesData,
-            genTemplate: this.selectedZclGenData,
+            })
+        } else {
+          this.$serverPost(restApi.uri.sessionCreate, data).then(() => {
+            this.$store.commit('zap/selectZapConfig', {
+              zclProperties: this.selectedZclPropertiesData,
+              genTemplate: this.selectedZclGenData,
+              newConfig: true,
+            })
           })
-        })
+        }
       } else {
         this.$serverPost(restApi.uri.reloadSession, {
           sessionId: this.selectedZclSessionData.id,
@@ -346,25 +354,21 @@ export default {
       }
     },
   },
-  beforeCreate() {
-    // setCssVar('primary', '#33F')
-    this.$serverGet(restApi.uri.initialPackagesSessions).then((result) => {
+  created() {
+    this.$serverPost(restApi.uri.sessionAttempt, this.path).then((result) => {
       this.zclPropertiesRow = result.data.zclProperties
       this.selectedZclPropertiesData = result.data.zclProperties[0]
       this.zclGenRow = result.data.zclGenTemplates
-
-      if (!window.location.search.includes('newConfig=true')) {
-        this.customConfig = 'passthrough'
-        this.submitForm()
-      } else if (
-        this.zclPropertiesRow.length == 1 &&
-        this.zclGenRow.length == 1
-      ) {
+      this.filePath = result.data.filePath
+      this.open = result.data.open
+      if (this.zclPropertiesRow.length == 1 && this.zclGenRow.length == 1) {
         // We shortcut this page, if there is exactly one of each,
         // since we simply assume that they are selected and move on.
-        this.selectedZclGenData[0] = this.zclGenRow[0].id
-        this.customConfig = 'generate'
+        this.selectedZclGenData[0] = this.zclGenRow[0].path
+        this.customConfig = 'select'
         this.submitForm()
+      } else {
+        this.customConfig = 'select'
       }
 
       result.data.sessions.forEach((item) => {

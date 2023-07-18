@@ -544,6 +544,14 @@ async function generateSingleFile(
   if (zapFile === BLANK_SESSION) {
     options.logger(`👉 using empty configuration`)
     sessionId = await querySession.createBlankSession(db)
+    await util.ensurePackagesAndPopulateSessionOptions(
+      db,
+      sessionId,
+      {
+        zcl: env.builtinSilabsZclMetafile(),
+        template: env.builtinTemplateMetafile(),
+      }, null, null
+    )  
     output = outputPattern
   } else {
     options.logger(`👉 using input file: ${zapFile}`)

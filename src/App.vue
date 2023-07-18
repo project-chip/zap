@@ -44,36 +44,48 @@ const observable = require('./util/observable.js')
 const dbEnum = require(`../src-shared/db-enum.js`)
 const storage = require('./util/storage.js')
 
-async function initializeSession() {
-  return this.serverPost(restApi.uri.init)
-}
-
 async function initLoad(store) {
-  await initializeSession()
   let promises = []
   promises.push(store.dispatch('zap/loadInitialData'))
-  promises.push(store.dispatch('zap/loadOptions', {
-    key: 'defaultResponsePolicy',
-    type: 'string',
-  }))
-  promises.push(store.dispatch(('zap/loadOptions', {
-    key: 'manufacturerCodes',
-    type: 'object',
-  })))
-  promises.push(store.dispatch(('zap/loadOptions', {
-    key: 'profileCodes',
-    type: 'object',
-  })))
-  promises.push(store.dispatch(('zap/loadOptions', {
-    key: 'generator',
-    type: 'object',
-  })))
-  promises.push(store.dispatch(('zap/loadSessionKeyValues')))
+  promises.push(
+    store.dispatch('zap/loadOptions', {
+      key: 'defaultResponsePolicy',
+      type: 'string',
+    })
+  )
+  promises.push(
+    store.dispatch(
+      ('zap/loadOptions',
+      {
+        key: 'manufacturerCodes',
+        type: 'object',
+      })
+    )
+  )
+  promises.push(
+    store.dispatch(
+      ('zap/loadOptions',
+      {
+        key: 'profileCodes',
+        type: 'object',
+      })
+    )
+  )
+  promises.push(
+    store.dispatch(
+      ('zap/loadOptions',
+      {
+        key: 'generator',
+        type: 'object',
+      })
+    )
+  )
+  promises.push(store.dispatch('zap/loadSessionKeyValues'))
 
   if (
     localStorage.getItem('showDevTools') &&
     localStorage.getItem('showDevTools') == 'true'
-  ){
+  ) {
     promises.push(store.dispatch('zap/updateShowDevTools'))
   }
   promises.push(store.dispatch('zap/updateClusters'))
@@ -131,13 +143,6 @@ export default defineComponent({
           )
         })
       }
-
-      this.$q.loading.show({
-        spinner: QSpinnerGears,
-        messageColor: 'white',
-        message: 'Please wait while zap is loading...',
-        spinnerSize: 300,
-      })
 
       // Parse the query string into the front end.
       const querystring = require('querystring')
