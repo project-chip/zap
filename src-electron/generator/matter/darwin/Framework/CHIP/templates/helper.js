@@ -746,12 +746,24 @@ async function availability(clusterName, options) {
     }
   }
 
+  let swiftUnavailableRelease = findReleaseForPath(
+    data,
+    ['swiftUnavailable', ...path],
+    options
+  );
+  let swiftUnavailable;
+  if (swiftUnavailableRelease == undefined) {
+    swiftUnavailable = '';
+  } else {
+    swiftUnavailable = ` NS_SWIFT_UNAVAILABLE("${options.hash.deprecationMessage}")`;
+  }
+
   let availabilityStrings = Object.entries(introducedVersions).map(
     ([os, version]) => `${os}(${version}, ${deprecatedVersions[os]})`
   );
   return `MTR_DEPRECATED("${
     options.hash.deprecationMessage
-  }", ${availabilityStrings.join(', ')})`;
+  }", ${availabilityStrings.join(', ')})${swiftUnavailable}`;
 }
 
 /**
