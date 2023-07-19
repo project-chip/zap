@@ -28,6 +28,7 @@ const exportJs = require('../importexport/export.js')
 const path = require('path')
 const { StatusCodes } = require('http-status-codes')
 const querySession = require('../db/query-session.js')
+const querystring = require('querystring')
 const queryNotification = require('../db/query-notification.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const studio = require('../ide-integration/studio-rest-api')
@@ -40,11 +41,15 @@ const studio = require('../ide-integration/studio-rest-api')
  */
 function httpPostFileOpen(db) {
   return async (req, res) => {
-    let { zapFilePath, ideProjectPath } = req.body
-    if (req.body.search?.includes('filePath=%2F')) {
-      ideProjectPath = dbEnum.sessionKey.ideProjectPath
-      zapFilePath = req.body.search?.split('filePath=')
-      zapFilePath = zapFilePath[1]?.replaceAll('%2F', '//').trim()
+    let { ideProjectPath } = req.body
+    let search = req.body.search
+    let zapFilePath
+    if (search[0] === '?') {
+      search = search.substring(1)
+    }
+    let query = querystring.parse(search)
+    if (query.filePath) {
+      zapFilePath = query.filePath
     }
 
     let name = ''
