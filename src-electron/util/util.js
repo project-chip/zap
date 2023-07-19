@@ -105,7 +105,7 @@ async function ensurePackagesAndPopulateSessionOptions(
           )
         } else if (rows.length == 0) {
           env.logError(`No zcl.properties found for session.`)
-          queryNotification.setNotification(db, "WARNING", `No zcl.properties found for session.`, 2, 0)
+          queryNotification.setNotification(db, "WARNING", `No zcl.properties found for session.`, sessionId, 2, 0)
           packageId = null
         } else {
           rows.forEach((p) => {

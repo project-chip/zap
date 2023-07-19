@@ -31,6 +31,7 @@ const templateEngine = require('./template-engine.js')
 const dbApi = require('../db/db-api.js')
 const dbCache = require('../db/db-cache.js')
 const e = require('express')
+const queryNotification = require('../db/query-package-notification.js')
 
 /**
  * Given a path, it will read generation template object into memory.
@@ -449,6 +450,8 @@ async function loadZclExtensions(db, packageId, zclExt, defaultsPath) {
               env.logWarning(
                 `Invalid file! Failed to load defaults from: ${prop.defaults}`
               )
+              queryNotification.setNotification(db, "WARNING",
+                `Invalid file! Failed to load defaults from: ${prop.defaults}`, packageId, 1, 0)
             })
 
           if (data) {
@@ -456,6 +459,8 @@ async function loadZclExtensions(db, packageId, zclExt, defaultsPath) {
               env.logWarning(
                 `Invalid file format! Failed to load defaults from: ${prop.defaults}`
               )
+              queryNotification.setNotification(db, "WARNING",
+              `Invalid file format! Failed to load defaults from: ${prop.defaults}`, packageId, 1, 0)
             } else {
               defaultArrayOfArrays.push(
                 data.map((x) => decodePackageExtensionEntity(entity, x))

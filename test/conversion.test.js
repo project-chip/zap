@@ -134,10 +134,10 @@ test(
     expect(pkgs[0].description).toBe('ZigbeePro test data')
     expect(pkgs[0].category).toBe('zigbee')
 
-    // let dump = await util.sessionDump(db, sid)
+    let dump = await util.sessionDump(db, sid)
 
-    // expect(dump.endpointTypes.length).toBe(1)
-    // expect(dump.endpoints.length).toBe(1)
+    expect(dump.endpointTypes.length).toBe(1)
+    expect(dump.endpoints.length).toBe(1)
   },
   testUtil.timeout.long()
 )

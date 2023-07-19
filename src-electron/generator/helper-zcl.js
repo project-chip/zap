@@ -1105,7 +1105,7 @@ function command_arguments_total_length(commandId) {
       })
     )
     .catch((err) =>
-      env.logError('Unable to get the length of the command arguments: ' + err),
+      env.logError('Unable to get the length of the command arguments: ' + err)
     )
 }
 

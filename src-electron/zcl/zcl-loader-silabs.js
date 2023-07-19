@@ -1041,6 +1041,8 @@ async function processDataType(
     env.logError(
       'Could not find the discriminator for the data type: ' + dataType
     )
+    queryPackageNotification.setNotification(dnb, "ERROR", 
+      'Could not find the discriminator for the data type: ' + dataType, packageId, 2, 0)
   }
 }
 
@@ -2301,6 +2303,7 @@ async function loadSilabsZcl(db, metafile, isJson = false) {
     }
   } catch (err) {
     env.logError(err)
+    queryPackageNotification.setNotification(db, "ERROR", err, ctx.packageId, 2, 0)
     throw err
   } finally {
     if (!isTransactionAlreadyExisting) await dbApi.dbCommit(db)

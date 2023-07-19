@@ -266,11 +266,6 @@ export default {
         })
     },
   },
-  created() {
-    if (this.$serverGet != null) {
-      this.getNotifications()
-    }
-  },
   mounted() {
     this.$onWebSocket(
       dbEnum.wsCategory.notificationCount,
@@ -278,6 +273,10 @@ export default {
         this.$store.commit('zap/updateNotificationCount', notificationCount)
       }
     )
+
+    if (this.$serverGet != null) {
+      this.getNotifications()
+    }
 
     observable.observeAttribute(rendApi.observable.reported_files, (value) => {
       if (value.context == 'generateDir') {
