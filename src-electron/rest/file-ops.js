@@ -43,14 +43,8 @@ function httpPostFileOpen(db) {
   return async (req, res) => {
     let { ideProjectPath } = req.body
     let search = req.body.search
-    let zapFilePath
-    if (search[0] === '?') {
-      search = search.substring(1)
-    }
-    let query = querystring.parse(search)
-    if (query.filePath) {
-      zapFilePath = query.filePath
-    }
+    const query = new URLSearchParams(search)
+    let zapFilePath = query.get('filePath')
 
     let name = ''
     if (zapFilePath) {

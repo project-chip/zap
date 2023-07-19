@@ -37,14 +37,10 @@ const fsp = fs.promises
 function sessionAttempt(db) {
   return async (req, res) => {
     let search = req.body.search
-    let filePath
-    if (search[0] === '?') {
-      search = search.substring(1)
-    }
-    let query = querystring.parse(search)
-    if (query.filePath) {
-      filePath = query.filePath
 
+    const query = new URLSearchParams(search)
+    let filePath = query.get('filePath')
+    if (filePath) {
       if (filePath.includes('.zap')) {
         let data = await fsp.readFile(filePath)
         let obj = JSON.parse(data)
