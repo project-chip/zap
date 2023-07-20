@@ -195,8 +195,7 @@ function isSubstringInString(sub_string, string) {
 
 function asCleanSymbol(label) {
   let l = label.trim()
-  l = l.replace(' ', '_')
-  l = l.replace(' ', '_')
+  l = l.replace(/ /g, '_')
   l = l.replace(/[:/-]/g, '_')
   l = l.replace(/__+/g, '_').toLowerCase()
   return l
