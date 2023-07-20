@@ -140,7 +140,6 @@ test('Notification: mark notification as seen and get unseen count', async () =>
     sessionId
   )
   expect(unseenCount).toBe(0)
-  console.log(unseenCount)
 })
 
 test(
