@@ -106,13 +106,9 @@ async function getProjectInfo(
         return resp
       })
       .catch((err) => {
-        env.logError(`StudioUC(${name}): ERR: ${err}`)
         return { data: [] }
       })
   } else {
-    env.logError(
-      `StudioUC(): Invalid Studio path project. Failed to retrieve project info.`
-    )
     return { data: [] }
   }
 }
