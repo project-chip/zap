@@ -100,7 +100,7 @@ async function deleteNotification(db, order) {
   )
 }
 /**
- * Retrieves a notification from the SESSION_NOTICE table
+ * Retrieves a notification from the SESSION_NOTICE table, reverse result so latest notifications are in the front
  *
  * @export
  * @param {*} db
@@ -113,7 +113,8 @@ async function getNotification(db, sessionId) {
     'SELECT * FROM SESSION_NOTICE WHERE SESSION_REF = ?',
     [sessionId]
   )
-  return rows.map(dbMapping.map.sessionNotifications)
+  let notifications = rows.map(dbMapping.map.sessionNotifications)
+  return notifications.reverse()
 }
 
 /**

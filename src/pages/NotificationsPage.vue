@@ -41,6 +41,7 @@
 
 <script>
 import PreferencePageLayout from '../layouts/PreferencePageLayout.vue'
+import dbEnum from '../../src-shared/db-enum'
 
 import restApi from '../../src-shared/rest-api.js'
 export default {
@@ -76,6 +77,14 @@ export default {
         })
         .catch((err) => {
           console.log(err)
+        })
+    },
+    getNotifications() {
+      this.$serverGet(restApi.uri.sessionNotification)
+        .then((resp) => {
+          for (let i = 0; i < resp.data.length; i++) {
+            this.notis.push(resp.data[i])
+          }
         })
     },
     getUnseenNotificationCount() {
@@ -138,5 +147,14 @@ export default {
       this.getNotificationsAndUpdateSeen()
     }
   },
+  mounted() {
+    this.$onWebSocket(
+      dbEnum.wsCategory.notificationCount,
+      (data) => {
+        this.notis = []
+        this.getNotifications()
+      }
+    )
+  }
 }
 </script>
