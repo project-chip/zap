@@ -148,13 +148,15 @@ export default {
     }
   },
   mounted() {
-    this.$onWebSocket(
-      dbEnum.wsCategory.notificationCount,
-      (data) => {
-        this.notis = []
-        this.getNotifications()
-      }
-    )
+    if(this.$onWebSocket) {
+      this.$onWebSocket(
+        dbEnum.wsCategory.notificationCount,
+        (data) => {
+          this.notis = []
+          this.getNotifications()
+        }
+      )
+    }
   }
 }
 </script>

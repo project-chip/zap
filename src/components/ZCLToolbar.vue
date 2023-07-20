@@ -267,12 +267,14 @@ export default {
     },
   },
   mounted() {
-    this.$onWebSocket(
-      dbEnum.wsCategory.notificationCount,
-      (notificationCount) => {
-        this.$store.commit('zap/updateNotificationCount', notificationCount)
-      }
-    )
+    if(this.$onWebSocket) {
+      this.$onWebSocket(
+        dbEnum.wsCategory.notificationCount,
+        (notificationCount) => {
+          this.$store.commit('zap/updateNotificationCount', notificationCount)
+        }
+      )
+    }
 
     if (this.$serverGet != null) {
       this.getNotifications()
