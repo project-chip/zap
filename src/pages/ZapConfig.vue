@@ -198,8 +198,6 @@
 
             <div class="row justify-center q-mt-xl">
               <q-btn
-                :disable="disableSubmitButton"
-                :color="disableSubmitButton ? 'blue-grey' : 'primary'"
                 @click="submitForm"
                 label="Submit"
                 data-test="login-submit"
@@ -361,7 +359,7 @@ export default {
       this.zclGenRow = result.data.zclGenTemplates
       this.filePath = result.data.filePath
       this.open = result.data.open
-      if (this.zclPropertiesRow.length == 1 && this.zclGenRow.length == 1) {
+      if (this.zclPropertiesRow.length == 1) {
         // We shortcut this page, if there is exactly one of each,
         // since we simply assume that they are selected and move on.
         this.selectedZclGenData[0] = this.zclGenRow[0].path
