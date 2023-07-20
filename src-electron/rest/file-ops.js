@@ -45,7 +45,8 @@ function httpPostFileOpen(db) {
     let search = req.body.search
     const query = new URLSearchParams(search)
     let zapFilePath = query.get('filePath')
-
+    console.log(zapFilePath)
+    zapFilePAth = zapFilePath.replaceAll('/', '//')
     let name = ''
     if (zapFilePath) {
       if (studio.integrationEnabled(db, req.zapSessionId)) {
