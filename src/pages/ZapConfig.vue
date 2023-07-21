@@ -362,7 +362,9 @@ export default {
       if (this.zclPropertiesRow.length == 1) {
         // We shortcut this page, if there is exactly one of each,
         // since we simply assume that they are selected and move on.
-        this.selectedZclGenData[0] = this.zclGenRow[0].path
+        if (this.selectedZclGenData[0]) {
+          this.selectedZclGenData[0] = this.zclGenRow[0].path
+        }
         this.customConfig = 'select'
         this.submitForm()
       } else {
