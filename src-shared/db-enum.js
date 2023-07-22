@@ -87,7 +87,7 @@ exports.zclType = {
 
 exports.sessionKey = {
   filePath: 'filePath',
-  ideProjectPath: 'ideProjectPath',
+  ideProjectId: 'ideProjectId',
   informationText: 'informationText',
 }
 

@@ -170,7 +170,7 @@ async function exportDataIntoFile(
   // avoid unncessary Studio integration id from being saved in file.
   if (state.keyValuePairs) {
     state.keyValuePairs = state.keyValuePairs.filter(
-      (x) => x.key != dbEnum.sessionKey.ideProjectPath
+      (x) => x.key != dbEnum.sessionKey.ideProjectId
     )
   }
   state = ff.convertToFile(state)

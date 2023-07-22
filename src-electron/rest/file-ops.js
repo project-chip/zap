@@ -40,37 +40,29 @@ const studio = require('../ide-integration/studio-rest-api')
  */
 function httpPostFileOpen(db) {
   return async (req, res) => {
-    let { zapFilePath, ideProjectPath } = req.body
+    let { zapFilePath, ideProjectId } = req.body
     if (req.body.search?.includes('filePath=%2F')) {
-      ideProjectPath = dbEnum.sessionKey.ideProjectPath
       zapFilePath = req.body.search?.split('filePath=')
       zapFilePath = zapFilePath[1]?.replaceAll('%2F', '//').trim()
     }
 
-    let name = ''
     if (zapFilePath) {
-      if (studio.integrationEnabled(db, req.zapSessionId)) {
-        name = path.posix.dirname(
-          path.posix.dirname(path.posix.dirname(zapFilePath))
-        )
-      } else {
-        name = path.posix.basename(zapFilePath)
-      }
-
-      env.logInfo(`Loading project(${name})`)
+      env.logInfo(`Loading project(${zapFilePath})`)
 
       try {
         // set path before importDataFromFile() to avoid triggering DIRTY flag
-        if (ideProjectPath) {
-          env.logInfo(`IDE: setting project path(${name}) to ${ideProjectPath}`)
+        if (ideProjectId) {
+          env.logInfo(
+            `IDE: setting project path(${zapFilePath}) to ${ideProjectId}`
+          )
+          // store studio project path
+          await querySession.updateSessionKeyValue(
+            db,
+            req.zapSessionId,
+            dbEnum.sessionKey.ideProjectId,
+            ideProjectId
+          )
         }
-        // store studio project path
-        await querySession.updateSessionKeyValue(
-          db,
-          req.zapSessionId,
-          dbEnum.sessionKey.ideProjectPath,
-          ideProjectPath
-        )
 
         let importResult = await importJs.importDataFromFile(db, zapFilePath, {
           sessionId: req.zapSessionId,
@@ -81,7 +73,7 @@ function httpPostFileOpen(db) {
           sessionKey: req.zapSessionId,
         }
         env.logInfo(
-          `Loaded project(${name}) into database. RESP: ${JSON.stringify(
+          `Loaded project(${zapFilePath}) into database. RESP: ${JSON.stringify(
             response
           )}`
         )

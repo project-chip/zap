@@ -41,11 +41,11 @@ const op_remove = '/rest/clic/component/remove/project/'
 let ucComponentStateReportId: NodeJS.Timeout
 let studioHttpPort: number
 
-function projectPath(db: dbTypes.DbType, sessionId: number) {
+async function sessionProjectId(db: dbTypes.DbType, sessionId: number) {
   return querySession.getSessionKeyValue(
     db,
     sessionId,
-    dbEnum.sessionKey.ideProjectPath
+    dbEnum.sessionKey.ideProjectId
   )
 }
 
@@ -59,26 +59,9 @@ async function integrationEnabled(db: dbTypes.DbType, sessionId: number) {
   let path: string = await querySession.getSessionKeyValue(
     db,
     sessionId,
-    dbEnum.sessionKey.ideProjectPath
+    dbEnum.sessionKey.ideProjectId
   )
   return typeof path !== 'undefined'
-}
-
-/**
- *  Extract project name from the Studio project path
- * @param {} db
- * @param {*} sessionId
- * @returns '' if retrival failed
- */
-function projectName(studioProjectPath: string) {
-  const prefix = '_2F'
-  if (studioProjectPath && studioProjectPath.includes(prefix)) {
-    return studioProjectPath.substr(
-      studioProjectPath.lastIndexOf(prefix) + prefix.length
-    )
-  } else {
-    return ''
-  }
 }
 
 /**
@@ -94,18 +77,18 @@ async function getProjectInfo(
   data: string[]
   status?: http.StatusCodes
 }> {
-  let studioProjectPath = await projectPath(db, sessionId)
-  if (studioProjectPath) {
-    let name = await projectName(studioProjectPath)
-    let path = localhost + studioHttpPort + op_tree + studioProjectPath
-    env.logDebug(`StudioUC(${name}): GET: ${path}`)
+  let ideProjectId = await sessionProjectId(db, sessionId)
+  if (ideProjectId) {
+    let path = localhost + studioHttpPort + op_tree + ideProjectId
+    env.logDebug(`StudioUC(${ideProjectId}): GET: ${path}`)
     return axios
       .get(path)
       .then((resp) => {
-        env.logDebug(`StudioUC(${name}): RESP: ${resp.status}`)
+        env.logDebug(`StudioUC(${ideProjectId}): RESP: ${resp.status}`)
         return resp
       })
       .catch((err) => {
+        env.logError(`StudioUC(${ideProjectId}): ERR: ${err}`)
         return { data: [] }
       })
   } else {
@@ -186,19 +169,17 @@ async function updateComponentByComponentIds(
   let promises: Promise<
     AxiosResponse | ucTypes.UcComponentUpdateResponseWrapper
   >[] = []
-  let project = await projectPath(db, sessionId)
-  let name = await projectName(project)
+  let ideProjectId = await sessionProjectId(db, sessionId)
 
   if (Object.keys(componentIds).length) {
     promises = componentIds.map((componentId) =>
-      httpPostComponentUpdate(project, componentId, add)
+      httpPostComponentUpdate(ideProjectId, componentId, add)
     )
   }
 
   return Promise.all(promises).then((responses) =>
     responses.map((resp, index) => {
       return {
-        projectName: name,
         id: componentIds[index],
         status: resp.status,
         data: resp.data,
@@ -207,15 +188,15 @@ async function updateComponentByComponentIds(
   )
 }
 
-function httpPostComponentUpdate(
-  project: string,
+async function httpPostComponentUpdate(
+  ideProjectId: string,
   componentId: string,
   add: boolean
 ) {
   let operation = add ? op_add : op_remove
   let operationText = add ? 'add' : 'remove'
   return axios
-    .post(localhost + studioHttpPort + operation + project, {
+    .post(localhost + studioHttpPort + operation + ideProjectId, {
       componentId: componentId,
     })
     .then((res) => {
@@ -241,9 +222,7 @@ function httpPostComponentUpdate(
         return {
           status: http.StatusCodes.NOT_FOUND,
           id: componentId,
-          data: `StudioUC(${projectName(
-            project
-          )}): Failed to ${operationText} component(${componentId})`,
+          data: `StudioUC(${ideProjectId}): Failed to ${operationText} component(${componentId})`,
         }
       }
     })
@@ -253,10 +232,10 @@ function httpPostComponentUpdate(
  * Start the dirty flag reporting interval.
  *
  */
-function initIdeIntegration(db: dbTypes.DbType, studioPort: number) {
-  studioHttpPort = studioPort
+function initIdeIntegration(db: dbTypes.DbType, idePort: number) {
+  studioHttpPort = idePort
 
-  if (studioPort) {
+  if (idePort) {
     ucComponentStateReportId = setInterval(() => {
       sendUcComponentStateReport(db)
     }, UC_COMPONENT_STATE_REPORTING_INTERVAL_ID)
@@ -291,13 +270,13 @@ async function sendUcComponentStateReport(db: dbTypes.DbType) {
  * Notify front-end that current session failed to load.
  * @param {} err
  */
-function sendSessionCreationErrorStatus(
+async function sendSessionCreationErrorStatus(
   db: dbTypes.DbType,
   err: string,
   sessionId: number
 ) {
   // TODO: delegate type declaration to actual function
-  querySession
+  return querySession
     .getAllSessions(db)
     .then((sessions: dbMappingTypes.SessionType[]) =>
       sessions.forEach((session) => {
@@ -318,12 +297,12 @@ function sendSessionCreationErrorStatus(
  * Notify front-end that current session failed to load.
  * @param {*} err
  */
-function sendComponentUpdateStatus(
+async function sendComponentUpdateStatus(
   db: dbTypes.DbType,
   sessionId: number,
   data: any
 ) {
-  querySession
+  return querySession
     .getAllSessions(db)
     .then((sessions: dbMappingTypes.SessionType[]) =>
       sessions.forEach((session) => {
@@ -341,11 +320,8 @@ function sendComponentUpdateStatus(
 }
 
 exports.getProjectInfo = getProjectInfo
-exports.updateComponentByComponentIds = updateComponentByComponentIds
 exports.updateComponentByClusterIdAndComponentId =
   updateComponentByClusterIdAndComponentId
-exports.projectName = projectName
-exports.integrationEnabled = integrationEnabled
 exports.initIdeIntegration = initIdeIntegration
 exports.deinitIdeIntegration = deinitIdeIntegration
 exports.sendSessionCreationErrorStatus = sendSessionCreationErrorStatus
