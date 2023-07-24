@@ -99,28 +99,31 @@
                     </q-td>
                     <q-td key="status" :props="props">
                       <div v-if="props.row.warning">
-                        <q-icon name="warning" color="orange" size="2.5em" @click="propertyDataDialog[props.row.id] = true">
+                        <q-icon class="cursor-pointer" name="warning" color="orange" size="2.5em" @click="propertyDataDialog[props.row.id] = true">
                         </q-icon>
                         <q-dialog v-model="propertyDataDialog[props.row.id]" persistent>
                           <q-card>
-                            <q-bar>
-                              <q-icon name="warning" color="orange"/>
-                                <div class="text-h6">{{ props.row.description }}</div>
-                              <q-space />
-                              <q-btn dense flat icon="close" v-close-popup>
-                                <q-tooltip>Close</q-tooltip>
-                              </q-btn>
-                            </q-bar>
                             <q-card-section>
-                              <ul>
-                                <li 
-                                  v-for="(notification, index) in props.row.notifications" 
-                                  :key="index"
-                                  style="margin-bottom: 20px"
-                                  >
-                                  {{ notification }}
-                                </li>
-                              </ul>
+                                <div class="row items-center">
+                                  <div class="col-1">
+                                    <q-icon name="warning" color="orange" size="2em"/>
+                                  </div>
+                                  <div class="text-h6 col">{{ props.row.description }} </div>
+                                  <div class="col-1 text-right">
+                                  <q-btn dense flat icon="close" v-close-popup>
+                                    <q-tooltip>Close</q-tooltip>
+                                  </q-btn>
+                                  </div>
+                                </div>
+                                <ul>
+                                  <li 
+                                    v-for="(notification, index) in props.row.notifications" 
+                                    :key="index"
+                                    style="margin-bottom: 20px"
+                                    >
+                                    {{ notification }}
+                                  </li>
+                                </ul>
                             </q-card-section>
                           </q-card>
                         </q-dialog>
