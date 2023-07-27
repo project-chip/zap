@@ -40,7 +40,7 @@ function sessionAttempt(db) {
       filePath = filePath[1].replaceAll('%2F', '//').trim()
       if (filePath.includes('.zap')) {
         let data = await fsp.readFile(filePath)
-        let obj = await JSON.parse(data)
+        let obj = JSON.parse(data)
         let category = obj.package[0].category
         let open = true
         if (category) {
