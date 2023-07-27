@@ -198,6 +198,7 @@
 
             <div class="row justify-center q-mt-xl">
               <q-btn
+                color="primary"
                 @click="submitForm"
                 label="Submit"
                 data-test="login-submit"
@@ -306,7 +307,22 @@ export default {
       return this.selectedZclPropertiesData?.category
     },
   },
+
+  watch: {
+    getuitheme() {
+      this.addClassToBody()
+    },
+  },
   methods: {
+    addClassToBody() {
+      if (this.getuitheme === 'zigbee') {
+        document.body.classList.remove('matter')
+        document.body.classList.add('zigbee')
+      } else {
+        document.body.classList.remove('zigbee')
+        document.body.classList.add('matter')
+      }
+    },
     submitForm() {
       if (this.customConfig === 'select') {
         let data = {
