@@ -42,8 +42,8 @@ function sessionAttempt(db) {
         let data = await fsp.readFile(filePath)
         let obj = JSON.parse(data)
         let category = obj.package[0].category
-        let open = true
         if (category) {
+          let open = true
           const zclProperties = await queryPackage.getPackagesByCategoryAndType(
             db,
             dbEnum.packageType.zclProperties,
