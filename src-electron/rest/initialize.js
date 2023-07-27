@@ -40,27 +40,47 @@ function sessionAttempt(db) {
       filePath = filePath[1].replaceAll('%2F', '//').trim()
       if (filePath.includes('.zap')) {
         let data = await fsp.readFile(filePath)
-        let obj = JSON.parse(data)
+        let obj = await JSON.parse(data)
         let category = obj.package[0].category
         let open = true
-        const zclProperties = await queryPackage.getPackagesByCategoryAndType(
-          db,
-          dbEnum.packageType.zclProperties,
-          category
-        )
-        const zclGenTemplates = await queryPackage.getPackagesByCategoryAndType(
-          db,
-          dbEnum.packageType.genTemplatesJson,
-          category
-        )
-        const sessions = await querySession.getDirtySessionsWithPackages(db)
-        return res.send({
-          zclGenTemplates,
-          zclProperties,
-          sessions,
-          filePath,
-          open,
-        })
+        if (category) {
+          const zclProperties = await queryPackage.getPackagesByCategoryAndType(
+            db,
+            dbEnum.packageType.zclProperties,
+            category
+          )
+          const zclGenTemplates =
+            await queryPackage.getPackagesByCategoryAndType(
+              db,
+              dbEnum.packageType.genTemplatesJson,
+              category
+            )
+          const sessions = await querySession.getDirtySessionsWithPackages(db)
+          return res.send({
+            zclGenTemplates,
+            zclProperties,
+            sessions,
+            filePath,
+            open,
+          })
+        } else {
+          let open = true
+          const zclProperties = await queryPackage.getPackagesByType(
+            db,
+            dbEnum.packageType.zclProperties
+          )
+          const zclGenTemplates = await queryPackage.getPackagesByType(
+            db,
+            dbEnum.packageType.genTemplatesJson
+          )
+          const sessions = await querySession.getDirtySessionsWithPackages(db)
+          return res.send({
+            zclGenTemplates,
+            zclProperties,
+            sessions,
+            open,
+          })
+        }
       } else {
         let open = true
         const zclProperties = await queryPackage.getPackagesByType(
