@@ -15,9 +15,9 @@ limitations under the License.
 -->
 <template>
   <div>
-    <q-card>
+    <q-card style="min-width: 450px">
       <q-card-section>
-        <div class="text-h6 text-align:left">
+        <div class="text-h6 text-align:left q-mb-sm" data-test="endpoint-title">
           {{ this.endpointReference ? 'Edit Endpoint' : 'Create New Endpoint' }}
         </div>
         <q-form>
@@ -26,18 +26,17 @@ limitations under the License.
             type="number"
             v-model="shownEndpoint.endpointIdentifier"
             ref="endpoint"
-            filled
+            outlined
             class="col v-step-1"
             :rules="[reqInteger, reqPosInt, reqUniqueEndpoint]"
             min="0"
           />
           <q-input
-            v-show="$store.state.zap.isProfileIdShown"
+            v-if="$store.state.zap.isProfileIdShown"
             label="Profile ID"
             v-model="computedProfileId"
             ref="profile"
             outlined
-            filled
             class="col"
             :rules="[reqInteger, reqPosInt]"
             @update:model-value="setProfileId"
@@ -46,23 +45,81 @@ limitations under the License.
             label="Device"
             ref="device"
             outlined
-            filled
+            class="col v-step-2"
+            use-input
+            :multiple="enableMultipleDevice"
+            :use-chips="enableMultipleDevice"
+            :options="deviceTypeOptions"
+            v-model="deviceType"
+            :rules="[
+              (val) => !(val == null || val?.length == 0) || '* Required',
+            ]"
+            option-value="deviceTypeRef"
+            :option-label="getDeviceOptionLabel"
+            @filter="filterDeviceTypes"
+            data-test="select-endpoint-input"
+          />
+          <q-select
+            v-if="enablePrimaryDevice"
+            label="Primary Device"
+            ref="primary-device"
+            outlined
             class="col v-step-2"
             use-input
             hide-selected
             fill-input
-            :options="deviceTypeOptions"
-            v-model="devicePair"
+            :options="deviceType"
+            v-model="primaryDeviceType"
             :rules="[(val) => val != null || '* Required']"
             :option-label="getDeviceOptionLabel"
             @filter="filterDeviceTypes"
-            @update:model-value="setDeviceTypeCallback"
-            data-test="select-endpoint-input"
+            data-test="endpoint-primary-device"
+          />
+          <!-- Multi device version -->
+          <q-markup-table
+            v-if="enableMultipleDevice"
+            flat
+            bordered
+            dense
+            wrap-cells
+            class="q-mb-md"
           >
-            <template v-slot:selected>
-              <template> Choose an option </template>
-            </template>
-          </q-select>
+            <thead>
+              <tr>
+                <th scope="col" style="text-align: left">Device</th>
+                <th scope="col" style="width: 100px">Version</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr
+                v-if="
+                  !deviceType ||
+                  !Array.isArray(deviceType) ||
+                  deviceType?.length == 0
+                "
+              >
+                <td col="2"></td>
+              </tr>
+              <template v-else>
+                <tr v-for="(dt, index) in deviceType" :key="index">
+                  <td style="text-align: left">
+                    {{ getDeviceOptionLabel(dt) }}
+                  </td>
+                  <td>
+                    <q-input
+                      type="number"
+                      v-model.number="dt.deviceVersion"
+                      ref="version"
+                      outlined
+                      dense
+                      @beforeinput="nonnegativeIntegersOnlyInput"
+                    />
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </q-markup-table>
+
           <div class="q-gutter-md row">
             <q-input
               label="Network"
@@ -70,21 +127,19 @@ limitations under the License.
               v-model="shownEndpoint.networkIdentifier"
               ref="network"
               outlined
-              filled
               class="col v-step-3"
               stack-label
               :rules="[reqInteger, reqPosInt]"
               min="0"
             >
             </q-input>
-
             <q-input
+              v-if="!enableMultipleDevice"
               label="Version"
               type="number"
               v-model="shownEndpoint.deviceVersion"
               ref="version"
               outlined
-              filled
               stack-label
               :rules="[reqInteger, reqPosInt]"
               min="0"
@@ -119,7 +174,7 @@ const _ = require('lodash')
 export default {
   name: 'ZclCreateModifyEndpoint',
   props: ['endpointReference'],
-  emits: ['saveOrCreateValidated'],
+  emits: ['saveOrCreateValidated', 'updateData'],
   mixins: [CommonMixin],
   watch: {
     deviceTypeRefAndDeviceIdPair(val) {
@@ -138,17 +193,40 @@ export default {
         parseInt(this.profileId[this.endpointReference]),
         4
       )
-      this.shownEndpoint.deviceVersion = parseInt(
-        this.endpointVersion[this.endpointReference]
-      )
-      this.devicePair = {
-        deviceTypeRef:
-          this.endpointDeviceTypeRef[this.endpointType[this.endpointReference]],
-        deviceIdentifier: this.endpointDeviceId[this.endpointReference],
+
+      const deviceVersion =
+        this.deviceVersion[this.endpointType[this.endpointReference]]
+      const deviceTypeRefs =
+        this.endpointDeviceTypeRef[this.endpointType[this.endpointReference]]
+      const deviceTypes = []
+      if (Array.isArray(deviceTypeRefs)) {
+        for (let i = 0; i < deviceTypeRefs.length; i++) {
+          deviceTypes.push({
+            deviceTypeRef: deviceTypeRefs[i],
+            deviceIdentifier: this.zclDeviceTypes[deviceTypeRefs[i]].code,
+            deviceVersion: deviceVersion[i],
+          })
+        }
+      } else {
+        deviceTypes.push({
+          deviceTypeRef: deviceTypeRefs,
+          deviceIdentifier: this.zclDeviceTypes[deviceTypeRefs].code,
+          deviceVersion: deviceVersion,
+        })
       }
+
+      // Set device types only in edit mode
+      this.deviceTypeTmp = deviceTypes
+      this.primaryDeviceTypeTmp = deviceTypes[0] ?? null // First item is the primary device type
     } else {
       this.shownEndpoint.endpointIdentifier = this.getSmallestUnusedEndpointId()
     }
+
+    const enableMultiDeviceFeatures =
+      this.$store.state.zap.selectedZapConfig?.zclProperties?.category ===
+      'matter'
+    this.enableMultipleDevice = enableMultiDeviceFeatures
+    this.enablePrimaryDevice = enableMultiDeviceFeatures
   },
   data() {
     return {
@@ -160,6 +238,10 @@ export default {
         deviceVersion: 1,
       },
       saveOrCreateCloseFlag: false,
+      deviceTypeTmp: [], // Temp store for the selected device types
+      primaryDeviceTypeTmp: null, // Temp store for the selected primary device type
+      enableMultipleDevice: false,
+      enablePrimaryDevice: false,
     }
   },
   computed: {
@@ -170,7 +252,10 @@ export default {
           return dt[a].description.localeCompare(dt[b].description)
         })
         return keys.map((item) => {
-          return { deviceTypeRef: item, deviceIdentifier: dt[item].code }
+          return {
+            deviceTypeRef: parseInt(item),
+            deviceIdentifier: dt[item].code,
+          }
         })
       },
     },
@@ -198,9 +283,9 @@ export default {
         return val
       },
     },
-    endpointVersion: {
+    deviceVersion: {
       get() {
-        return this.$store.state.zap.endpointView.endpointVersion
+        return this.$store.state.zap.endpointTypeView.deviceVersion
       },
     },
     endpointDeviceTypeRef: {
@@ -210,7 +295,7 @@ export default {
     },
     endpointDeviceId: {
       get() {
-        return this.$store.state.zap.endpointView.deviceId
+        return this.$store.state.zap.endpointTypeView.deviceIdentifier
       },
     },
     computedProfileId: {
@@ -234,6 +319,68 @@ export default {
         ]
       },
     },
+    deviceType: {
+      get() {
+        // New temporary variable
+        return this.enableMultipleDevice
+          ? this.deviceTypeTmp
+          : this.deviceTypeTmp[0]
+      },
+      set(newValue) {
+        const value = !Array.isArray(newValue) ? [newValue] : newValue
+
+        // New temporary variable
+        this.deviceTypeTmp = value
+
+        // Create default device version if not exists
+        for (const dt of value) {
+          if (dt && dt.deviceVersion === undefined) {
+            dt.deviceVersion = 1
+          }
+        }
+
+        // Existing logic
+        this.setDeviceTypeCallback(value)
+
+        // Set primary device if necessary
+        const newPrimaryDeviceType =
+          Array.isArray(value) && value.length > 0 ? value[0] : null
+        if (this.enablePrimaryDevice) {
+          if (this.primaryDeviceTypeTmp === null) {
+            this.primaryDeviceTypeTmp = newPrimaryDeviceType
+          } else {
+            if (
+              !value.includes(
+                (deviceType) =>
+                  deviceType.deviceTypeRef ===
+                    this.primaryDeviceTypeTmp.deviceTypeRef &&
+                  deviceType.deviceIdentifier ===
+                    this.primaryDeviceTypeTmp.deviceIdentifier
+              )
+            ) {
+              this.primaryDeviceTypeTmp = newPrimaryDeviceType
+            }
+          }
+        }
+      },
+    },
+    primaryDeviceType: {
+      get() {
+        return this.primaryDeviceTypeTmp
+      },
+      set(value) {
+        if (this.primaryDeviceTypeTmp?.deviceTypeRef == value?.deviceTypeRef) {
+          return
+        }
+        const newPrimaryDevice = value
+        let tempDeviceType = this.deviceType
+        tempDeviceType = tempDeviceType.filter(
+          (d) => d.deviceTypeRef !== newPrimaryDevice.deviceTypeRef
+        )
+        tempDeviceType.unshift(newPrimaryDevice)
+        this.deviceType = tempDeviceType
+      },
+    },
   },
   methods: {
     // This function will close the endpoint modal
@@ -244,21 +391,26 @@ export default {
       this.shownEndpoint.profileIdentifier = value
     },
     setDeviceTypeCallback(value) {
-      let deviceTypeRef = value.deviceTypeRef
-      let profileId = this.shownEndpoint.profileIdentifier
-      // On change of device type, reset the profileId to the current deviceType _unless_ the default profileId is custom
-      if (this.shownEndpoint.profileIdentifier != null) {
-        profileId =
-          this.zclDeviceTypes[deviceTypeRef].profileId ==
-          DbEnum.customDevice.profileId
-            ? this.asHex(profileId, 4)
-            : this.asHex(this.zclDeviceTypes[deviceTypeRef].profileId, 4)
-      } else {
-        profileId = this.asHex(this.zclDeviceTypes[deviceTypeRef].profileId, 4)
+      const firstValue = Array.isArray(value) ? value[0] : value
+      // Check deviceTypreRef truthy - at least 1 item selected
+      if (firstValue) {
+        const { deviceTypeRef } = firstValue
+        let profileId = this.shownEndpoint.profileIdentifier
+        // On change of device type, reset the profileId to the current deviceType _unless_ the default profileId is custom
+        if (this.shownEndpoint.profileIdentifier != null) {
+          profileId =
+            this.zclDeviceTypes[deviceTypeRef].profileId ==
+            DbEnum.customDevice.profileId
+              ? this.asHex(profileId, 4)
+              : this.asHex(this.zclDeviceTypes[deviceTypeRef].profileId, 4)
+        } else {
+          profileId = this.asHex(
+            this.zclDeviceTypes[deviceTypeRef].profileId,
+            4
+          )
+        }
+        this.shownEndpoint.profileIdentifier = profileId
       }
-      this.shownEndpoint.profileIdentifier = profileId
-      this.devicePair.deviceTypeRef = value.deviceTypeRef
-      this.devicePair.deviceIdentifier = value.deviceIdentifier
     },
     saveOrCreateHandler() {
       let profile = this.$store.state.zap.isProfileIdShown
@@ -269,7 +421,8 @@ export default {
         this.$refs.endpoint.validate() &&
         this.$refs.device.validate() &&
         this.$refs.network.validate() &&
-        this.$refs.version.validate() &&
+        (this.$refs.version?.validate?.() ??
+          !this.$refs.version?.includes((v) => !(v >= 0))) &&
         profile
       ) {
         this.$emit('saveOrCreateValidated')
@@ -290,6 +443,11 @@ export default {
     reqPosInt(value) {
       return parseInt(value) >= 0 || '* Positive integer required'
     },
+    nonnegativeIntegersOnlyInput(e) {
+      if (e.data != null && !(parseInt(e.data) >= 0)) {
+        e.preventDefault()
+      }
+    },
     reqUniqueEndpoint(value) {
       return (
         _.isNil(_.findKey(this.endpointId, (a) => a == value)) ||
@@ -299,20 +457,32 @@ export default {
       )
     },
     newEpt() {
+      const deviceTypeRef = []
+      const deviceIdentifier = []
+      const deviceVersion = []
+      this.deviceTypeTmp.forEach((dt, index) => {
+        deviceTypeRef.push(dt.deviceTypeRef)
+        deviceIdentifier.push(dt.deviceIdentifier)
+        deviceVersion.push(dt.deviceVersion)
+      })
       this.$store
         .dispatch(`zap/addEndpointType`, {
           name: 'Anonymous Endpoint Type',
-          deviceTypeRef: this.devicePair.deviceTypeRef,
+          deviceTypeRef,
+          deviceIdentifier,
+          deviceVersion,
         })
         .then((response) => {
+          const deviceIdentifier = []
+          this.deviceTypeTmp.forEach((dt) =>
+            deviceIdentifier.push(dt.deviceIdentifier)
+          )
           this.$store
             .dispatch(`zap/addEndpoint`, {
               endpointId: parseInt(this.shownEndpoint.endpointIdentifier),
               networkId: this.shownEndpoint.networkIdentifier,
               profileId: parseInt(this.shownEndpoint.profileIdentifier),
               endpointType: response.id,
-              endpointVersion: this.shownEndpoint.deviceVersion,
-              deviceIdentifier: this.devicePair.deviceIdentifier,
             })
             .then((res) => {
               if (this.shareClusterStatesAcrossEndpoints()) {
@@ -320,7 +490,6 @@ export default {
                   endpointTypeIdList: this.endpointTypeIdList,
                 })
               }
-
               this.$store.dispatch('zap/updateSelectedEndpointType', {
                 endpointType: this.endpointType[res.id],
                 deviceTypeRef:
@@ -352,10 +521,32 @@ export default {
     editEpt(shownEndpoint, endpointReference) {
       let endpointTypeReference = this.endpointType[this.endpointReference]
 
+      const deviceTypeRef = []
+      const deviceIdentifier = []
+      const deviceVersion = []
+
+      this.deviceTypeTmp.forEach((dt) => {
+        deviceTypeRef.push(dt.deviceTypeRef)
+        deviceIdentifier.push(parseInt(dt.deviceIdentifier))
+        deviceVersion.push(parseInt(dt.deviceVersion))
+      })
+
       this.$store.dispatch('zap/updateEndpointType', {
         endpointTypeId: endpointTypeReference,
-        updatedKey: RestApi.updateKey.deviceTypeRef,
-        updatedValue: this.devicePair.deviceTypeRef,
+        changes: [
+          {
+            updatedKey: RestApi.updateKey.deviceTypeRef,
+            value: deviceTypeRef,
+          },
+          {
+            updatedKey: RestApi.updateKey.deviceVersion,
+            value: deviceVersion,
+          },
+          {
+            updatedKey: RestApi.updateKey.deviceId,
+            value: deviceIdentifier,
+          },
+        ],
       })
 
       this.$store.dispatch('zap/updateEndpoint', {
@@ -372,14 +563,6 @@ export default {
           {
             updatedKey: RestApi.updateKey.profileId,
             value: parseInt(shownEndpoint.profileIdentifier),
-          },
-          {
-            updatedKey: RestApi.updateKey.endpointVersion,
-            value: shownEndpoint.deviceVersion,
-          },
-          {
-            updatedKey: RestApi.updateKey.deviceId,
-            value: parseInt(this.devicePair.deviceIdentifier),
           },
         ],
       })
@@ -403,8 +586,7 @@ export default {
 
       this.$store.dispatch('zap/updateSelectedEndpointType', {
         endpointType: endpointReference,
-        deviceTypeRef:
-          this.endpointDeviceTypeRef[this.endpointType[this.endpointReference]],
+        deviceTypeRef: deviceTypeRef,
       })
       this.$store.dispatch('zap/updateSelectedEndpoint', this.endpointReference)
     },
@@ -422,22 +604,7 @@ export default {
           ')'
         )
       }
-    },
-    createValue(val, done) {
-      try {
-        done(
-          {
-            deviceTypeRef: this.devicePair.deviceTypeRef
-              ? this.devicePair.deviceTypeRef
-              : this.customDeviceIdReference,
-            deviceIdentifier: parseInt(val),
-          },
-          'add-unique'
-        )
-      } catch (err) {
-        //Catch bad inputs.
-        console.log(err)
-      }
+      // }
     },
     filterDeviceTypes(val, update) {
       if (val === '') {

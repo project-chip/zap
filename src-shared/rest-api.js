@@ -97,6 +97,7 @@ const updateKey = {
   endpointId: 'endpointId',
   endpointType: 'endpointType',
   endpointVersion: 'endpointVersion',
+  deviceVersion: 'deviceVersion',
   networkId: 'networkId',
   profileId: 'profileId',
   deviceId: 'deviceId',

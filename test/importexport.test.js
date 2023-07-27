@@ -212,8 +212,9 @@ test(
     )
     await importJs.importDataFromFile(db, sleepyGenericIsc, { sessionId: sid })
     let endpoints = await queryEndpoint.selectAllEndpoints(db, sid)
+    let endpointTypes = await queryEndpointType.selectAllEndpointTypes(db, sid)
     expect(endpoints.length).toBe(1)
-    expect(endpoints[0].deviceIdentifier).toBe(1281)
+    expect(endpointTypes[0].deviceIdentifier[0]).toBe(1281)
   },
   testUtil.timeout.medium()
 )
@@ -287,7 +288,7 @@ test(
     expect(endpointTypes.length).toBe(1)
     let endpoints = await queryEndpoint.selectAllEndpoints(db, sid)
     expect(endpoints.length).toBe(1)
-    expect(endpoints[0].deviceIdentifier).toBe(10)
+    expect(endpointTypes[0].deviceIdentifier[0]).toBe(10)
     let clusterState = await testQuery.getAllEndpointTypeClusterState(
       db,
       endpointTypes[0].id
