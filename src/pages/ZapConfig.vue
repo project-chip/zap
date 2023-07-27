@@ -375,7 +375,7 @@ export default {
       this.zclGenRow = result.data.zclGenTemplates
       this.filePath = result.data.filePath
       this.open = result.data.open
-      if (this.zclPropertiesRow.length == 1) {
+      if (this.zclPropertiesRow.length < 2) {
         // We shortcut this page, if there is exactly one of each,
         // since we simply assume that they are selected and move on.
         if (this.selectedZclGenData[0]) {
