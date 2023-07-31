@@ -39,6 +39,11 @@ export default {
         return this.$store.state.zap.endpointTypeView.deviceTypeRef
       },
     },
+    endpointDeviceVersion: {
+      get() {
+        return this.$store.state.zap.endpointTypeView.deviceVersion
+      },
+    },
     selectedEndpointId: {
       get() {
         return this.$store.state.zap.endpointView.selectedEndpoint

@@ -107,6 +107,28 @@ async function importDataFromFile(
     } else {
       sid = options.sessionId
     }
+
+    // Update endpoint type with device version and device identifier. There
+    // was a schema change where the device version and device identifer was
+    // moved into the endpoint_type_device table instead of keeping it in the
+    // endpoint table.
+    if (state.endpoints) {
+      state.endpoints.forEach((ep) => {
+        state.endpointTypes[ep.endpointTypeIndex].deviceVersion =
+          ep.endpointVersion
+        state.endpointTypes[ep.endpointTypeIndex].deviceIdentifier =
+          ep.deviceIdentifier
+      })
+    } else if (state.endpoint) {
+      // For isc file import
+      state.endpoint.forEach((ep) => {
+        if (ep.deviceId != -1) {
+          state.endpointTypes[ep.endpointType].deviceId = ep.deviceId
+          state.endpointTypes[ep.endpointType].deviceIdentifier = ep.deviceId
+        }
+      })
+    }
+
     let loaderResult = await state.loader(db, state, sid, options.packageMatch)
     if (options.postImportScript != null) {
       await executePostImportScript(

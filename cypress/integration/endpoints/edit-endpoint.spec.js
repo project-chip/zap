@@ -25,6 +25,7 @@ describe('Testing Editing endpoints', () => {
       cy.wait(500)
       cy.get('div').contains(data.endpoint2).click({ force: true })
     })
+    cy.get('[data-test="endpoint-title"]').click() // it makes sure that the previous input field has been unselected
     cy.get('button').contains('Save').click()
   })
   it(

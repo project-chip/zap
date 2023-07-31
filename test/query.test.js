@@ -408,7 +408,14 @@ describe('Endpoint Type Config Queries', () => {
     'Insert Endpoint Type',
     () =>
       queryConfig
-        .insertEndpointType(db, sid, 'testEndpointType', haOnOffDeviceType.id)
+        .insertEndpointType(
+          db,
+          sid,
+          'testEndpointType',
+          haOnOffDeviceType.id,
+          43,
+          22
+        )
         .then((rowId) => {
           endpointTypeIdOnOff = rowId
           return queryEndpointType.selectEndpointType(db, rowId)
@@ -416,6 +423,9 @@ describe('Endpoint Type Config Queries', () => {
         .then((endpointType) => {
           expect(endpointType.deviceTypeRef).toBe(haOnOffDeviceType.id)
           expect(endpointType.name).toBe('testEndpointType')
+          expect(endpointType.deviceTypes[0]).toBe(haOnOffDeviceType.id)
+          expect(endpointType.deviceVersions[0]).toBe(22)
+          expect(endpointType.deviceIdentifiers[0]).toBe(43)
         }),
     testUtil.timeout.medium()
   )
@@ -575,7 +585,7 @@ describe('Endpoint Type Config Queries', () => {
     'Insert Endpoint Test',
     () =>
       queryEndpoint
-        .insertEndpoint(db, sid, 4, endpointTypeIdOnOff, 9, 260, 22, 43)
+        .insertEndpoint(db, sid, 4, endpointTypeIdOnOff, 9, 260)
         .then((rowId) => {
           return queryEndpoint.selectEndpoint(db, rowId)
         })
@@ -583,8 +593,6 @@ describe('Endpoint Type Config Queries', () => {
           expect(endpoint.endpointId).toBe(4)
           expect(endpoint.profileId).toBe(260)
           expect(endpoint.networkId).toBe(9)
-          expect(endpoint.endpointVersion).toBe(22)
-          expect(endpoint.deviceIdentifier).toBe(43)
           expect(endpoint.endpointTypeRef).toBe(endpointTypeIdOnOff)
         }),
     testUtil.timeout.medium()

@@ -87,45 +87,70 @@ limitations under the License.
       <q-slide-transition>
         <q-list class="cursor-pointer" dense v-if="getEndpointInformation">
           <q-item class="row">
-            <div class="col-6">Device</div>
+            <div v-if="isDeviceTypeArray" class="col">
+              <strong>Device</strong>
+              <li
+                v-for="(dev, index) in deviceType"
+                :key="dev.id"
+                class="q-pl-md"
+                style="list-style-type: none"
+              >
+                <strong>{{
+                  `${dev.description} (${asHex(dev.code, 4)}) v${
+                    deviceVersion[index]
+                  }`
+                }}</strong>
+              </li>
+            </div>
+            <div v-else class="col row">
+              <div class="col-6">
+                <strong>Device</strong>
+              </div>
+              <div class="col-6">
+                <strong>{{
+                  `${deviceType[0]?.description} (${asHex(
+                    deviceType[0]?.code,
+                    4
+                  )})`
+                }}</strong>
+              </div>
+            </div>
+          </q-item>
+          <q-item class="row" v-if="isDeviceTypeArray">
             <div class="col-6">
-              <strong>{{ getDeviceOptionLabel() }}</strong>
+              <strong>Device</strong>
+            </div>
+            <div class="col-6">
+              <strong>{{
+                `${deviceType[0]?.description} (${asHex(
+                  deviceType[0]?.code,
+                  4
+                )})`
+              }}</strong>
             </div>
           </q-item>
           <q-item class="row">
-            <div class="col-6">Network</div>
             <div class="col-6">
-              <strong> {{ networkId[endpointReference] }}</strong>
+              <strong>Network</strong>
+            </div>
+            <div class="col-6">
+              <strong>{{ networkId[endpointReference] }}</strong>
             </div>
           </q-item>
           <q-item class="row" v-if="$store.state.zap.isProfileIdShown">
-            <div class="col-6">Profile ID</div>
             <div class="col-6">
-              <strong> {{ asHex(profileId[endpointReference], 4) }}</strong>
+              <strong>Profile ID</strong>
             </div>
-          </q-item>
-          <q-item class="row">
-            <div class="col-6">Version</div>
             <div class="col-6">
-              <strong>{{ endpointVersion[endpointReference] }} </strong>
+              <strong>{{ asHex(profileId[endpointReference], 4) }}</strong>
             </div>
           </q-item>
-          <q-item class="row">
-            <div class="col-6">Enabled Clusters</div>
-            <div class="col-6" data-test="endpoint-enabled-clusters-amount">
-              <strong>{{ selectedServers.length }}</strong>
-            </div>
-          </q-item>
-          <q-item class="row">
-            <div class="col-6">Enabled Attributes</div>
-            <div class="col-6" data-test="endpoint-enabled-attributes-amount">
-              <strong>{{ selectedAttributes.length }}</strong>
-            </div>
-          </q-item>
-          <q-item class="row">
-            <div class="col-6">Enabled Reporting</div>
+          <q-item v-if="!isDeviceTypeArray" class="row">
             <div class="col-6">
-              <strong>{{ selectedReporting.length }}</strong>
+              <strong>Version</strong>
+            </div>
+            <div class="col-6">
+              <strong>{{ deviceVersion[0] }}</strong>
             </div>
           </q-item>
         </q-list>
@@ -258,19 +283,6 @@ export default {
       )
       this.deleteEpt()
     },
-    getDeviceOptionLabel() {
-      if (this.deviceType == null) return ''
-      if (this.deviceId[this.endpointReference] != this.deviceType.code) {
-        return this.asHex(this.deviceId[this.endpointReference], 4)
-      } else {
-        return (
-          this.deviceType.description +
-          ' (' +
-          this.asHex(this.deviceType.code, 4) +
-          ')'
-        )
-      }
-    },
     handleDeletionDialog() {
       if (this.getStorageParam() == 'true') {
         this.deleteEpt()
@@ -349,9 +361,44 @@ export default {
     },
     deviceType: {
       get() {
-        return this.zclDeviceTypes[
+        let refs =
           this.endpointDeviceTypeRef[this.endpointType[this.endpointReference]]
-        ]
+        let deviceTypes = []
+        if (refs?.length > 0) {
+          refs.forEach((ref) => deviceTypes.push(this.zclDeviceTypes[ref]))
+          return deviceTypes
+        } else {
+          return [
+            this.zclDeviceTypes[
+              this.endpointDeviceTypeRef[
+                this.endpointType[this.endpointReference]
+              ]
+            ],
+          ]
+        }
+      },
+    },
+    getPrimaryDeviceOptionLabel() {
+      if (this.deviceType == null) return ''
+      if (Array.isArray(this.deviceType)) {
+        return (
+          this.deviceType[0].description +
+          ' (' +
+          this.asHex(this.deviceType[0].code, 4) +
+          ')'
+        )
+      } else {
+        return (
+          this.deviceType.description +
+          ' (' +
+          this.asHex(this.deviceType.code, 4) +
+          ')'
+        )
+      }
+    },
+    isDeviceTypeArray: {
+      get() {
+        return Array.isArray(this.deviceType) && this.deviceType.length > 1
       },
     },
     networkId: {
@@ -366,12 +413,18 @@ export default {
     },
     deviceId: {
       get() {
-        return this.$store.state.zap.endpointView.deviceId
+        return this.$store.state.zap.endpointTypeView.deviceIdentifier
       },
     },
-    endpointVersion: {
+    deviceVersion: {
       get() {
-        return this.$store.state.zap.endpointView.endpointVersion
+        let versions =
+          this.endpointDeviceVersion[this.endpointType[this.endpointReference]]
+        if (versions?.length > 0) {
+          return versions
+        } else {
+          return [versions]
+        }
       },
     },
     endpointTypeName: {
