@@ -231,8 +231,14 @@ async function importEndpointType(db, sessionId, packageIds, endpointType) {
   } else {
     deviceTypes = [
       {
-        name: endpointType.deviceTypeName,
-        code: endpointType.deviceTypeCode,
+        name:
+          endpointType.deviceTypeName != null
+            ? endpointType.deviceTypeName
+            : endpointType.name, // Else case for backwards compatibility of old zap files
+        code:
+          endpointType.deviceTypeCode != null
+            ? endpointType.deviceTypeCode
+            : endpointType.deviceIdentifier, // Else case for backwards compatibility of old zap files
         profileId: endpointType.deviceTypeProfileId,
       },
     ]
