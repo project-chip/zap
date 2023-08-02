@@ -90,7 +90,17 @@
     >
       <div class="text-center">
         <q-icon name="o_assignment_late" />
-        <div>Notifications</div>
+        <div>
+          Notifications
+          <q-badge
+            style="top: 5px; right: 5px"
+            color="red"
+            floating
+            v-if="this.$store.state.zap.notificationCount > 0"
+          >
+            {{ this.$store.state.zap.notificationCount }}
+          </q-badge>
+        </div>
       </div>
     </q-btn>
     <q-btn
@@ -159,6 +169,7 @@ import { isElectron, isWin } from '../util/platform'
 const rendApi = require(`../../src-shared/rend-api.js`)
 const restApi = require(`../../src-shared/rest-api.js`)
 const observable = require('../util/observable.js')
+const dbEnum = require('../../src-shared/db-enum.js')
 export default {
   name: 'ZCLToolbar',
   components: {
@@ -245,8 +256,30 @@ export default {
     regenerateIntoDirectory(currentPath) {
       this.doGeneration(currentPath)
     },
+    getNotifications() {
+      this.$serverGet(restApi.uri.unseenNotificationCount)
+        .then((resp) => {
+          this.$store.commit('zap/updateNotificationCount', resp.data)
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+    },
   },
   mounted() {
+    if(this.$onWebSocket) {
+      this.$onWebSocket(
+        dbEnum.wsCategory.notificationCount,
+        (notificationCount) => {
+          this.$store.commit('zap/updateNotificationCount', notificationCount)
+        }
+      )
+    }
+
+    if (this.$serverGet != null) {
+      this.getNotifications()
+    }
+
     observable.observeAttribute(rendApi.observable.reported_files, (value) => {
       if (value.context == 'generateDir') {
         this.generationDirectory = value.filePaths[0]

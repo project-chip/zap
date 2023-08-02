@@ -615,3 +615,8 @@ export function toggleShowEndpoint(state, item) {
 export function updateIsClusterOptionChanged(state, value) {
   state.isClusterOptionChanged = value
 }
+
+// Thie function will update the notification count after backend updates from websocket
+export function updateNotificationCount(state, value) {
+  state.notificationCount = value
+}

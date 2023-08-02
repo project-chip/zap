@@ -16,14 +16,14 @@
  *    limitations under the License.
  */
 /**
- * This module provides notification related queries.
+ * This module provides package notification related queries.
  *
  * @module DB API: session related queries.
  */
 const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
 /**
- * Sets a notification in the SESSION_NOTICE table
+ * Sets a notification in the PACKAGE_NOTICE table
  *
  * @export
  * @param {*} db
@@ -36,34 +36,35 @@ async function setNotification(
   db,
   type,
   status,
-  sessionId,
+  packageId,
   severity = 2,
   display = 0
 ) {
   return dbApi.dbUpdate(
     db,
-    'INSERT INTO SESSION_NOTICE ( SESSION_REF, NOTICE_TYPE, NOTICE_MESSAGE, NOTICE_SEVERITY, DISPLAY) VALUES ( ?, ?, ?, ?, ?)',
-    [sessionId, type, status, severity, display]
+    'INSERT INTO PACKAGE_NOTICE ( PACKAGE_REF, NOTICE_TYPE, NOTICE_MESSAGE, NOTICE_SEVERITY, DISPLAY, SEEN) VALUES ( ?, ?, ?, ?, ?, ?)',
+    [packageId, type, status, severity, display, 0]
   )
 }
 
 /**
- * Deletes a notification from the SESSION_NOTICE table
+ * Deletes a notification from the PACKAGE_NOTICE table
  *
  * @export
  * @param {*} db
- * @param {*} upgrade
- * @param {*} status
+ * @param {*} sessionId
+ * @param {*} type
+ * @param {*} message
  */
-async function deleteNotification(db, upgrade, status) {
+async function deleteNotification(db, order) {
   return dbApi.dbUpdate(
     db,
-    'DELETE FROM SESSION_NOTICE WHERE ( SESSION_REF, STATUS ) = ( ?, ? )',
-    [upgrade, status]
+    'DELETE FROM PACKAGE_NOTICE WHERE ( NOTICE_ORDER ) = ( ? )',
+    [order]
   )
 }
 /**
- * Retrieves a notification from the SESSION_NOTICE table
+ * Retrieves notifications from the PACKAGE_NOTICE table related to a sessionId
  *
  * @export
  * @param {*} db
@@ -72,13 +73,28 @@ async function getNotification(db, sessionId) {
   let rows = []
   rows = await dbApi.dbAll(
     db,
-    'SELECT * FROM SESSION_NOTICE WHERE SESSION_REF = ?',
+    'SELECT * FROM PACKAGE_NOTICE WHERE PACKAGE_REF IN' 
+    + '( SELECT PACKAGE_REF FROM SESSION_PACKAGE WHERE SESSION_REF = ( ? ) )',
     [sessionId]
   )
-  return rows.map(dbMapping.map.notifications)
+  return rows.map(dbMapping.map.packageNotification)
 }
+
+
+async function getAllNotification(db) {
+  let rows = []
+  rows = await dbApi.dbAll(
+    db,
+    'SELECT DISTINCT PACKAGE_REF AS packageId, NOTICE_MESSAGE AS message FROM PACKAGE_NOTICE'
+  )
+  if(rows == null) return undefined
+  return rows
+}
+
+
 // exports
 exports.setNotification = setNotification
 exports.deleteNotification = deleteNotification
 exports.getNotification = getNotification
-//# sourceMappingURL=query-notification.js.map
+exports.getAllNotification = getAllNotification
+//# sourceMappingURL=query-package-notification.js.map

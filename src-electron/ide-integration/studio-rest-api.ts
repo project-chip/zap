@@ -26,6 +26,7 @@ import axios, { AxiosPromise, AxiosResponse } from 'axios'
 import * as env from '../util/env'
 import * as dbTypes from '../../src-shared/types/db-types'
 import * as querySession from '../db/query-session.js'
+const queryNotification = require('../db/query-session-notification.js')
 const wsServer = require('../server/ws-server.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 import * as ucTypes from '../../src-shared/types/uc-component-types'
@@ -138,6 +139,7 @@ async function updateComponentByClusterIdAndComponentId(
     env.logWarning(
       `StudioUC(): Failed to update component due to invalid Studio project path.`
     )
+    queryNotification.setNotification(db, "WARNING", `StudioUC(): Failed to update component due to invalid Studio project path.`, sessionId, 1, 0)
     return Promise.resolve({ componentIds: [], added: add })
   }
 

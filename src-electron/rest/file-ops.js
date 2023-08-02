@@ -28,8 +28,8 @@ const exportJs = require('../importexport/export.js')
 const path = require('path')
 const { StatusCodes } = require('http-status-codes')
 const querySession = require('../db/query-session.js')
+const queryNotification = require('../db/query-session-notification.js')
 const querystring = require('querystring')
-const queryNotification = require('../db/query-notification.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const studio = require('../ide-integration/studio-rest-api')
 
@@ -96,24 +96,15 @@ function httpPostFileOpen(db) {
           message: e.message,
           stack: e.stack,
         }
-        queryNotification.setNotification(
-          db,
-          'ERROR',
-          errMsg.message,
-          req.zapSessionId,
-          1
-        )
-        studio.sendSessionCreationErrorStatus(
-          db,
-          errMsg.message,
-          req.zapSessionId
-        )
+        studio.sendSessionCreationErrorStatus(db, errMsg.message, req.zapSessionId)
         env.logError(e.message)
+        queryNotification.setNotification(db, 'ERROR', errMsg.message, req.zapSessionId, 2, 0)
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(errMsg)
       }
     } else {
       let msg = `Opening/Loading project: Missing zap file path.`
       env.logWarning(msg)
+      queryNotification.setNotification(db, 'WARNING', errMsg.message, req.zapSessionId, 2, 0)
       res.status(StatusCodes.BAD_REQUEST).send({ error: msg })
     }
   }
@@ -159,6 +150,7 @@ function httpPostFileSave(db) {
       } catch (err) {
         let msg = `Unable to save project.`
         env.logError(msg, err)
+        queryNotification.setNotification(db, 'ERROR', msg, req.zapSessionId, 2, 0)
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err)
       }
     } else {
