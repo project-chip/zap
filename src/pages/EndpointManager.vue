@@ -43,7 +43,7 @@ export default {
       }
     },
     getNotifications() {
-      this.$serverGet(restApi.uri.notification)
+      this.$serverGet(restApi.uri.sessionNotification)
         .then((resp) => {
           if (resp.data[0] != undefined) {
             this.notification = 'red'

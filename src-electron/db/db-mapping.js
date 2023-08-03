@@ -677,7 +677,7 @@ exports.map = {
       value: x.VALUE,
     }
   },
-  notifications: (x) => {
+  sessionNotifications: (x) => {
     if (x == null) return undefined
     return {
       ref: x.SESSION_REF,
@@ -686,8 +686,21 @@ exports.map = {
       severity: x.NOTICE_SEVERITY,
       order: x.NOTICE_ORDER,
       display: x.DISPLAY,
+      seen: x.SEEN,
     }
   },
+  packageNotification: (x) => {
+    if (x == null) return undefined
+    return {
+      ref: x.PACKAGE_REF,
+      type: x.NOTICE_TYPE,
+      message: x.NOTICE_MESSAGE,
+      severity: x.NOTICE_SEVERITY,
+      order: x.NOTICE_ORDER,
+      display: x.DISPLAY,
+      seen: x.SEEN,
+    }
+  }
 }
 
 exports.reverseMap = {

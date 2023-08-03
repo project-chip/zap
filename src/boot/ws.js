@@ -142,6 +142,27 @@ onWebSocket(dbEnum.wsCategory.componentUpdateStatus, (obj) => {
   Util.notifyComponentUpdateStatus(data, added)
 })
 
+// receive notification data
+onWebSocket(dbEnum.wsCategory.notificationInfo, (data) => {
+  let {display, message} = data
+  if(display != 0) {
+    let html = `<center>
+      <strong>${message}</strong>
+      <br>
+      </center>`
+    Notify.create({
+      message: html,
+      color: 'negative',
+      position: 'top',
+      html: true,
+      timeout: 0,
+      actions: [{ icon: 'close', color: 'white' }],
+    })
+  }
+})
+
+
+
 //commented unnecessary logs and listeners
 
 // onWebSocket(dbEnum.wsCategory.generic, (data) =>

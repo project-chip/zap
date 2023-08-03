@@ -158,5 +158,6 @@ export default function () {
       deviceTypeRef: null,
       deviceIdentifier: null,
     },
+    notificationCount: 0,
   }
 }

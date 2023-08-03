@@ -24,6 +24,7 @@ const queryPackage = require('../db/query-package.js')
 const querySession = require('../db/query-session.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const restApi = require('../../src-shared/rest-api.js')
+const querystring = require('querystring')
 const util = require('../util/util.js')
 const fs = require('fs')
 const fsp = fs.promises
@@ -35,9 +36,11 @@ const fsp = fs.promises
  */
 function sessionAttempt(db) {
   return async (req, res) => {
-    if (req.body.search?.includes('filePath=%2F')) {
-      let filePath = req.body.search.split('filePath=')
-      filePath = filePath[1].replaceAll('%2F', '//').trim()
+    let search = req.body.search
+
+    const query = new URLSearchParams(search)
+    let filePath = query.get('filePath')
+    if (filePath) {
       if (filePath.includes('.zap')) {
         let data = await fsp.readFile(filePath)
         let obj = JSON.parse(data)

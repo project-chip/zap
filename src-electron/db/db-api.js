@@ -250,7 +250,9 @@ async function dbGet(db, query, args, reportError = true) {
   return new Promise((resolve, reject) => {
     db.get(query, args, (err, row) => {
       if (err) {
-        if (reportError) env.logError(`Failed get: ${query}: ${args} : ${err}`)
+        if (reportError) { 
+          env.logError(`Failed get: ${query}: ${args} : ${err}`) 
+        }
         reject(err)
       } else {
         env.logSql('Executed get', query, args)

@@ -86,6 +86,7 @@ limitations under the License.
               </div></Transition
             >
             <q-tooltip> Notifications </q-tooltip>
+            <q-badge color="red" floating>{{ this.$store.state.zap.notificationCount }}</q-badge>
           </q-btn>
         </q-toolbar>
         <q-dialog

@@ -28,7 +28,8 @@ const util = require('../util/util')
 const dbEnum = require('../../src-shared/db-enum')
 const restApi = require('../../src-shared/rest-api')
 const env = require('../util/env')
-const notification = require('../db/query-notification.js')
+const querySessionNotification = require('../db/query-session-notification.js')
+const queryPackageNotification = require('../db/query-package-notification')
 
 /**
  * Locates or adds an attribute, and returns it.
@@ -410,9 +411,9 @@ async function loadSingleAttribute(db, endpointTypeId, packageId, at) {
         at.mfgCode
       )
       if (cluster == null || attribute == null) {
-        env.logWarning(
-          `Could not resolve attribute ${at.clusterCode} / ${at.attributeCode}`
-        )
+        let message = `Could not resolve attribute ${at.clusterCode} / ${at.attributeCode}`
+        env.logWarning(message)
+        queryPackageNotification.setNotification(db, "WARNING", message, packageId, 1, 0)
         return
       }
       let clusterRef = cluster.id
@@ -649,7 +650,7 @@ async function loadSessionKeyValues(db, sessionId, keyValues) {
 async function iscDataLoader(db, state, sessionId) {
   let endpointTypes = state.endpointTypes
   let promises = []
-  await notification.setNotification(
+  await querySessionNotification.setNotification(
     db,
     'UPGRADE',
     'ISC FILE UPGRADED TO ZAP FILE. PLEASE SAVE AS TO SAVE OFF NEWLY CREATED ZAP FILE.',
@@ -682,6 +683,7 @@ async function iscDataLoader(db, state, sessionId) {
   let genPackageId = null
   if (genPackages.length == 0) {
     env.logWarning('No gen packages, missing the extensions matching.')
+    querySessionNotification.setNotification(db, "WARNING", 'No gen packages, missing the extensions matching.', sessionId, 1, 0)
   } else {
     genPackageId = genPackages[0].id
   }

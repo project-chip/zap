@@ -25,6 +25,7 @@ const queryLoader = require('../db/query-loader.js')
 const queryPackage = require('../db/query-package.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const util = require('../util/util.js')
+const queryNotification = require('../db/query-package-notification')
 
 /**
  * Promises to read the properties file, extract all the actual xml files, and resolve with the array of files.
@@ -766,6 +767,8 @@ async function processDataType(db, filePath, packageId, data, dataType) {
     env.logError(
       'Could not find the discriminator for the data type: ' + dataType
     )
+    queryNotification.setNotification(db, "ERROR", 
+    'Could not find the discriminator for the data type: ' + dataType, packageId, 2, 0)
   }
 }
 
@@ -1284,6 +1287,7 @@ async function loadDotdotZcl(db, metafile) {
     await zclLoader.processZclPostLoading(db, ctx.packageId)
   } catch (err) {
     env.logError(err)
+    queryNotification.setNotification(db, "ERROR", err, ctx.packageId, 2, 0)
     throw err
   } finally {
     await dbApi.dbCommit(db)
