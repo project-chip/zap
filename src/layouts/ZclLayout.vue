@@ -106,13 +106,6 @@ limitations under the License.
                 </q-expansion-item>
                 <q-expansion-item
                   expand-separator
-                  label="UC Components"
-                  caption
-                >
-                  <UcComponentSetup />
-                </q-expansion-item>
-                <q-expansion-item
-                  expand-separator
                   label="API Exceptions"
                   caption
                   v-model="isExceptionsExpanded"
@@ -180,7 +173,6 @@ limitations under the License.
 </template>
 
 <script>
-import UcComponentSetup from '../components/UcComponentSetup.vue'
 import Exceptions from '../components/ZclExceptions.vue'
 import ZclInformationSetup from '../components/ZclInformationSetup.vue'
 import ZclConfiguratorLayout from './ZclConfiguratorLayout.vue'
@@ -266,7 +258,6 @@ export default {
     },
   },
   components: {
-    UcComponentSetup,
     ZclInformationSetup,
     ZclConfiguratorLayout,
     SqlQuery,

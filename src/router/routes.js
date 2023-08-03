@@ -133,20 +133,6 @@ const routes = [
     ],
   },
   {
-    path: '/preferences/devtools/uc-components',
-    component: () => import('layouts/MainLayout.vue'),
-    children: [
-      {
-        path: '',
-        components: {
-          default: () =>
-            import('pages/preferences/devtools/UcComponentSetup.vue'),
-          sidebar: () => import('components/SettingsSidebar.vue'),
-        },
-      },
-    ],
-  },
-  {
     path: '/preferences/devtools/api-exceptions',
     component: () => import('layouts/MainLayout.vue'),
     children: [
