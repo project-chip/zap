@@ -27,6 +27,7 @@ const uri = {
   unseenNotificationCount: '/unseenNotificationCount',
   sessionNotification: '/sessionNotification',
   packageNotification: '/packageNotification',
+  packageNotificationById: '/packageNotificationById/:packageId',
   updateNotificationToSeen: '/updateNotificationToSeen',
   deleteSessionNotification: '/deleteSessionNotification',
   deletePackageNotification: 'deletePackageNotification',

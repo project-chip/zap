@@ -413,7 +413,7 @@ async function loadSingleAttribute(db, endpointTypeId, packageId, at) {
       if (cluster == null || attribute == null) {
         let message = `Could not resolve attribute ${at.clusterCode} / ${at.attributeCode}`
         env.logWarning(message)
-        queryPackageNotification.setNotification(db, "WARNING", message, packageId, 1, 0)
+        queryPackageNotification.setNotification(db, "WARNING", message, packageId, 1)
         return
       }
       let clusterRef = cluster.id

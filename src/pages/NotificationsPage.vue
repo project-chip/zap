@@ -11,26 +11,20 @@
       </template>
       <template v-slot:body="props">
         <q-tr :props="props" class="table_body">
-          <q-td style="display: none" key="order" :props="props">
-            <div>{{ props.row.order }}</div>
+          <q-td style="display: none" key="id" :props="props">
+            <div>{{ props.row.id }}</div>
           </q-td>
-          <!-- <q-td key="ref" :props="props">
-            <div>{{ props.row.ref }}</div>
-          </q-td> -->
           <q-td key="type" :props="props">
             <div>{{ props.row.type }}</div>
           </q-td>
           <q-td key="message" :props="props">
             <div>{{ props.row.message }}</div>
           </q-td>
-          <!-- <q-td key="severity" :props="props">
-            <div>{{ props.row.severity }}</div>
-          </q-td> -->
           <q-td>
             <q-btn
               flat
               icon="delete"
-              @click="deleteNotification(props.row.order)"
+              @click="deleteNotification(props.row.id)"
             />
           </q-td>
         </q-tr>
@@ -57,7 +51,7 @@ export default {
             let notification = resp.data[i]
             this.notis.push(notification)
             if (notification.seen == 0) {
-              unseenIds.push(notification.order)
+              unseenIds.push(notification.id)
             }
           }
           if (unseenIds && unseenIds.length > 0) {
@@ -96,14 +90,14 @@ export default {
           console.log(err)
         })
     },
-    deleteNotification(order) {
+    deleteNotification(id) {
       let parameters = {
-        order: order,
+        id: id,
       }
       let config = { params: parameters }
       this.$serverDelete(restApi.uri.deleteSessionNotification, config).then(
         (resp) => {
-          this.notis = this.notis.filter((row) => row.order !== order)
+          this.notis = this.notis.filter((row) => row.id !== id)
           this.getUnseenNotificationCount()
         }
       )
@@ -112,12 +106,6 @@ export default {
   data() {
     return {
       columns: [
-        // {
-        //   name: 'ref',
-        //   align: 'center',
-        //   label: 'ref',
-        //   field: 'ref',
-        // },
         { name: 'type', align: 'center', label: 'type', field: 'type' },
         {
           name: 'message',
@@ -125,12 +113,6 @@ export default {
           label: 'message',
           field: 'message',
         },
-        // {
-        //   name: 'severity',
-        //   align: 'center',
-        //   label: 'severity',
-        //   field: 'severity',
-        // },
         {
           name: 'delete',
           align: 'center',

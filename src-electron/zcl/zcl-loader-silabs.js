@@ -1042,7 +1042,7 @@ async function processDataType(
       'Could not find the discriminator for the data type: ' + dataType
     )
     queryPackageNotification.setNotification(dnb, "ERROR", 
-      'Could not find the discriminator for the data type: ' + dataType, packageId, 2, 0)
+      'Could not find the discriminator for the data type: ' + dataType, packageId, 2)
   }
 }
 
@@ -1210,7 +1210,7 @@ function prepareEnumOrBitmap(db, packageId, a, dataType, typeMap) {
     let message = 'Check type contradiction in XML metadata for ' +
     a.$.name + ' with type ' + a.$.type
     env.logWarning(message)
-    queryPackageNotification.setNotification(db, "WARNING", message, packageId, 1, 0)
+    queryPackageNotification.setNotification(db, "WARNING", message, packageId, 1)
     a.$.type = 'enum' + a.$.type.toLowerCase().match(/\d+/g).join('')
   }
   return {
@@ -2303,7 +2303,7 @@ async function loadSilabsZcl(db, metafile, isJson = false) {
     }
   } catch (err) {
     env.logError(err)
-    queryPackageNotification.setNotification(db, "ERROR", err, ctx.packageId, 2, 0)
+    queryPackageNotification.setNotification(db, "ERROR", err, ctx.packageId, 2)
     throw err
   } finally {
     if (!isTransactionAlreadyExisting) await dbApi.dbCommit(db)

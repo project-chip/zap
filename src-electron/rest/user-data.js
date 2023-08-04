@@ -80,8 +80,8 @@ function httpGetSessionNotifications(db) {
  */
 function httpDeleteSessionNotification(db) {
   return async (request, response) => {
-    let order = request.query.order
-    let resp = await querySessionNotification.deleteNotification(db, order)
+    let id = request.query.id
+    let resp = await querySessionNotification.deleteNotification(db, id)
     response.status(StatusCodes.OK).json(resp)
   }
 }
@@ -100,6 +100,20 @@ function httpGetPackageNotifications(db) {
 }
 
 /**
+ * HTTP GET: package get notifications
+ *
+ * @param {*} db
+ * @returns callback for the express uri registration
+ */
+function httpGetPackageNotificationsByPackageId(db) {
+  return async (request, response) => {
+    let packageId = request.params.packageId
+    let notifications = await queryPackageNotification.getNotificationByPackageId(db, packageId)
+    response.status(StatusCodes.OK).json(notifications)
+  }
+}
+
+/**
  * HTTP DELETE: session delete notifications
  *
  * @param {*} db
@@ -107,14 +121,14 @@ function httpGetPackageNotifications(db) {
  */
 function httpDeletePackageNotification(db) {
   return async (request, response) => {
-    let order = request.query.order
-    let resp = await queryPackageNotification.deleteNotification(db, order)
+    let id = request.query.id
+    let resp = await queryPackageNotification.deleteNotification(db, id)
     response.status(StatusCodes.OK).json(resp)
   }
 }
 
 /**
- * HTTP GET: session get unseen notification count
+ * HTTP GET: session get unseen session notification count
  *
  * @param {*} db
  * @returns callback for the express uri registration
@@ -122,12 +136,17 @@ function httpDeletePackageNotification(db) {
 function httpGetUnseenNotificationCount(db) {
   return async (request, response) => {
     let sessionId = request.zapSessionId
-    let notificationCount =
-      await querySessionNotification.getUnseenNotificationCount(db, sessionId)
+    let notificationCount = await querySessionNotification.getUnseenNotificationCount(db, sessionId)
     response.status(StatusCodes.OK).json(notificationCount)
   }
 }
 
+/**
+ * HTTP GET: session update all session notifications to be SEEN
+ *
+ * @param {*} db
+ * @returns callback for the express uri registration
+ */
 function httpGetUnseenNotificationAndUpdate(db) {
   return async (request, response) => {
     let unseenIds = request.query.unseenIds
@@ -942,6 +961,10 @@ exports.get = [
   {
     uri: restApi.uri.packageNotification,
     callback: httpGetPackageNotifications,
+  },
+  {
+    uri: restApi.uri.packageNotificationById,
+    callback: httpGetPackageNotificationsByPackageId,
   },
   {
     uri: restApi.uri.unseenNotificationCount,

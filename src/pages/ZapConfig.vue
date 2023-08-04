@@ -88,6 +88,7 @@
                       <div>{{ props.row.version }}</div>
                     </q-td>
                     <q-td key="status" :props="props">
+<<<<<<< HEAD
                       <div v-if="props.row.warning">
                         <q-icon
                           class="cursor-pointer"
@@ -115,10 +116,34 @@
                                   {{ props.row.description }}
                                 </div>
                                 <div class="col-1 text-right">
+=======
+                      <div v-if="props.row.hasWarning || props.row.hasError">
+                        <q-icon 
+                          class="cursor-pointer" 
+                          :name="props.row.hasError ? 'error' : 'warning'" 
+                          :color="props.row.hasError ? 'red' : 'orange'" 
+                          size="2.5em" 
+                          @click="propertyDataDialog[props.row.id] = true"
+                        ></q-icon>
+                        <q-dialog v-model="propertyDataDialog[props.row.id]">
+                          <q-card>
+                            <q-card-section>
+                                <div class="row items-center">
+                                  <div class="col-1">
+                                    <q-icon 
+                                      :name="props.row.hasError ? 'error' : 'warning'" 
+                                      :color="props.row.hasError ? 'red' : 'orange'" 
+                                      size="2em" 
+                                    ></q-icon>
+                                  </div>
+                                  <div class="text-h6 col">{{ props.row.description }} </div>
+                                  <div class="col-1 text-right">
+>>>>>>> 67989490 (notification-update-v1)
                                   <q-btn dense flat icon="close" v-close-popup>
                                     <q-tooltip>Close</q-tooltip>
                                   </q-btn>
                                 </div>
+<<<<<<< HEAD
                               </div>
                               <ul>
                                 <li
@@ -130,6 +155,36 @@
                                   {{ notification }}
                                 </li>
                               </ul>
+=======
+                                <div v-if="props.row.hasError">
+                                  <div class="text-h6" style="margin-top: 15px; padding-left: 20px">
+                                    Errors
+                                  </div>
+                                  <ul>
+                                    <li 
+                                      v-for="(error, index) in props.row.errors" 
+                                      :key="'error' + index"
+                                      style="margin-bottom: 10px"
+                                    >
+                                      {{ error }}
+                                    </li>
+                                  </ul>
+                                </div>
+                                <div v-if="props.row.hasWarning">
+                                  <div class="text-h6" style="margin-top: 15px; padding-left: 20px">
+                                    Warnings
+                                  </div>
+                                  <ul>
+                                    <li 
+                                      v-for="(warning, index) in props.row.warnings" 
+                                      :key="index"
+                                      style="margin-bottom: 10px"
+                                      >
+                                      {{ warning }}
+                                    </li>
+                                  </ul>
+                                </div>
+>>>>>>> 67989490 (notification-update-v1)
                             </q-card-section>
                           </q-card>
                         </q-dialog>
@@ -190,6 +245,7 @@
                       <div>{{ props.row.version }}</div>
                     </q-td>
                     <q-td key="status" :props="props">
+<<<<<<< HEAD
                       <div v-if="props.row.warning">
                         <q-icon
                           name="warning"
@@ -224,6 +280,62 @@
                                   {{ notification }}
                                 </li>
                               </ul>
+=======
+                      <div v-if="props.row.hasWarning || props.row.hasError">
+                        <q-icon 
+                          class="cursor-pointer" 
+                          :name="props.row.hasError ? 'error' : 'warning'" 
+                          :color="props.row.hasError ? 'red' : 'orange'" 
+                          size="2.5em" 
+                          @click="genDataDialog[props.row.id] = true"
+                        ></q-icon>
+                        <q-dialog v-model="genDataDialog[props.row.id]">
+                          <q-card>
+                            <q-card-section>
+                                <div class="row items-center">
+                                  <div class="col-1">
+                                    <q-icon 
+                                      :name="props.row.hasError ? 'error' : 'warning'" 
+                                      :color="props.row.hasError ? 'red' : 'orange'" 
+                                      size="2em" 
+                                    ></q-icon>
+                                  </div>
+                                  <div class="text-h6 col">{{ props.row.description }} </div>
+                                  <div class="col-1 text-right">
+                                  <q-btn dense flat icon="close" v-close-popup>
+                                    <q-tooltip>Close</q-tooltip>
+                                  </q-btn>
+                                  </div>
+                                </div>
+                                <div v-if="props.row.hasError">
+                                  <div class="text-h6" style="margin-top: 15px; padding-left: 20px">
+                                    Errors
+                                  </div>
+                                  <ul>
+                                    <li 
+                                      v-for="(error, index) in props.row.errors" 
+                                      :key="'error' + index"
+                                      style="margin-bottom: 10px"
+                                    >
+                                      {{ error }}
+                                    </li>
+                                  </ul>
+                                </div>
+                                <div v-if="props.row.hasWarning">
+                                  <div class="text-h6" style="margin-top: 15px; padding-left: 20px">
+                                    Warnings
+                                  </div>
+                                  <ul>
+                                    <li 
+                                      v-for="(warning, index) in props.row.warnings" 
+                                      :key="index"
+                                      style="margin-bottom: 10px"
+                                      >
+                                      {{ warning }}
+                                    </li>
+                                  </ul>
+                                </div>
+>>>>>>> 67989490 (notification-update-v1)
                             </q-card-section>
                           </q-card>
                         </q-dialog>
@@ -480,6 +592,39 @@ export default {
         })
       }
     },
+    // classify all notifications by type and package ref
+    classifyMessages(data) {
+      return data.reduce((map, row) => {
+        const key = row.type === 'ERROR' ? 'errorMap' : 'warningMap';
+        if (!map[key][row.ref]) {
+          map[key][row.ref] = [];
+        }
+        map[key][row.ref].push(row.message);
+        return map;
+      }, { warningMap: {}, errorMap: {} });
+    },
+    // then assign classfied notifications to proper packages
+    assignWarningsAndErrors(data, warningMap, errorMap) {
+      data.forEach((row) => {
+        if (warningMap[row.id]) {
+          row.hasWarning = true;
+          row.warnings = warningMap[row.id];
+        } else {
+          row.hasWarning = false;
+          row.warnings = [];
+        }
+        if (errorMap[row.id]) {
+          row.hasError = true;
+          row.errors = errorMap[row.id];
+        } else {
+          row.hasError = false;
+          row.errors = [];
+        }
+        // set up var for dialog component of each package
+        this.propertyDataDialog[row.id] = false;
+        this.genDataDialog[row.id] = false;
+      })
+    }
   },
   created() {
     this.$serverPost(restApi.uri.sessionAttempt, this.path).then((result) => {
@@ -516,6 +661,7 @@ export default {
           id: item.sessionId,
         })
       })
+<<<<<<< HEAD
 
       this.$serverGet(restApi.uri.packageNotification)
         .then((resp) => {
@@ -546,6 +692,15 @@ export default {
             }
             this.genDataDialog[row.id] = false
           })
+=======
+      
+      // load package notification data, and assign to both zclProperty & zclGen packages
+      this.$serverGet(restApi.uri.packageNotification)
+        .then((resp) => {
+          const { warningMap, errorMap } = this.classifyMessages(resp.data);
+          this.assignWarningsAndErrors(this.zclPropertiesRow, warningMap, errorMap);
+          this.assignWarningsAndErrors(this.zclGenRow, warningMap, errorMap);
+>>>>>>> 67989490 (notification-update-v1)
         })
         .catch((err) => {
           console.log(err)
