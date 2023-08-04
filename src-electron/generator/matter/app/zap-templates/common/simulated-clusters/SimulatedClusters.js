@@ -23,6 +23,7 @@ const clusterFiles = [
   require('./clusters/CommissionerCommands'),
   require('./clusters/DelayCommands'),
   require('./clusters/DiscoveryCommands'),
+  require('./clusters/EqualityCommands'),
   require('./clusters/LogCommands'),
   require('./clusters/SystemCommands'),
 ];
