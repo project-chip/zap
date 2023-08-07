@@ -164,7 +164,7 @@ test(
       severity,
     )
 
-    let notifications = await packageNotification.getNotification(db, sessionId)
+    let notifications = await packageNotification.getNotificationBySessionId(db, sessionId)
 
     let id = 0
 
@@ -187,7 +187,7 @@ test(
     // delete the notification we just created
     await packageNotification.deleteNotification(db, id)
 
-    notifications = await packageNotification.getNotification(db, packageId)
+    notifications = await packageNotification.getNotificationByPackageId(db, packageId)
 
     // check if the notification was successfully deleted
     let isNotificationDeleted = true
