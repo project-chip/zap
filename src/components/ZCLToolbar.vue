@@ -206,7 +206,7 @@ export default {
             '.svg'
           )
         } else {
-          return ''
+          return '/zap_logo.png'
         }
       },
     },
@@ -267,7 +267,7 @@ export default {
     },
   },
   mounted() {
-    if(this.$onWebSocket) {
+    if (this.$onWebSocket) {
       this.$onWebSocket(
         dbEnum.wsCategory.notificationCount,
         (notificationCount) => {
