@@ -150,15 +150,7 @@ export default {
   mixins: [CommonMixin],
   watch: {
     packages(newPackages) {
-      if(newPackages) {
-        newPackages.forEach((packageFile) => {
-          let packageId = packageFile.pkg.id
-          if(packageId) {
-            this.getPackageNotifications(packageId)
-            this.dialogData[packageId] = false
-          }
-        })
-      }
+      this.loadPackageNotification(newPackages)
     }
   },
   methods: {
@@ -193,6 +185,18 @@ export default {
             })
           }
         })
+    },
+    // load package notification data after global var updates
+    loadPackageNotification(newPackages) {
+      if(newPackages) {
+        newPackages.forEach((packageFile) => {
+          let packageId = packageFile.pkg.id
+          if(packageId) {
+            this.getPackageNotifications(packageId)
+            this.dialogData[packageId] = false
+          }
+        })
+      }
     },
     async deletePackage(packageToDelete) {
       await this.$store.dispatch(
