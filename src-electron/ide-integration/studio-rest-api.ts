@@ -33,7 +33,7 @@ import * as dbMappingTypes from '../types/db-mapping-types'
 import * as http from 'http-status-codes'
 import zcl from './zcl.js'
 
-const localhost = 'http://localhost:'
+const localhost = 'http://127.0.0.1:'
 const op_tree = '/rest/clic/components/all/project/'
 const op_add = '/rest/clic/component/add/project/'
 const op_remove = '/rest/clic/component/remove/project/'
