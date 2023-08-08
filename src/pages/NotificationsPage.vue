@@ -35,7 +35,8 @@
 
     <div class="text-h5">Packages Notifications</div>
     <div v-for="(sessionPackage, index) in packages" :key="index">
-      <div v-if="packageNotis[sessionPackage.pkg.id]?.hasError || packageNotis[sessionPackage.pkg.id]?.hasWarning">
+      <div v-if="packageNotis[sessionPackage.pkg.id]?.hasError 
+              || packageNotis[sessionPackage.pkg.id]?.hasWarning">
       <q-item>
         <q-item-section>
           <q-expansion-item>
@@ -49,12 +50,17 @@
               </q-toolbar>
             </template>   
             <div v-if="packageNotis[sessionPackage.pkg.id]?.hasError">
-              <div class="text-h6" style="margin-top: 15px; padding-left: 20px">
+              <div 
+                class="text-h6" 
+                style="margin-top: 15px; 
+                padding-left: 20px"
+              >
                 Errors
               </div>
               <ul>
                 <li 
-                  v-for="(error, index) in this.packageNotis[sessionPackage.pkg.id]?.errors" 
+                  v-for="(error, index) in 
+                  this.packageNotis[sessionPackage.pkg.id]?.errors" 
                   :key="'error' + index"
                   style="margin-bottom: 10px"
                 >
@@ -63,12 +69,17 @@
               </ul>
             </div>
             <div v-if="packageNotis[sessionPackage.pkg.id]?.hasWarning">
-              <div class="text-h6" style="margin-top: 15px; padding-left: 20px">
+              <div 
+                class="text-h6" 
+                style="margin-top: 15px; 
+                      padding-left: 20px"
+              >
                 Warnings
               </div>
               <ul>
                 <li 
-                  v-for="(warning, index) in this.packageNotis[sessionPackage.pkg.id]?.warnings" 
+                  v-for="(warning, index) in 
+                  this.packageNotis[sessionPackage.pkg.id]?.warnings" 
                   :key="index"
                   style="margin-bottom: 10px"
                   >
@@ -79,12 +90,18 @@
             <br />
           </q-expansion-item>    
         </q-item-section>
-        <q-item-section side style="align-self:flex-start; margin-top: 15px">
+        <q-item-section 
+          side 
+          style="align-self:flex-start; 
+                margin-top: 15px"
+        >
           <q-icon
-            :name="this.packageNotis[sessionPackage.pkg.id]?.hasError ? 'error': 'warning'"
-            :color="this.packageNotis[sessionPackage.pkg.id]?.hasError ? 'red': 'orange'"
+            :name="this.packageNotis[sessionPackage.pkg.id]?.hasError 
+                  ? 'error': 'warning'"
+            :color="this.packageNotis[sessionPackage.pkg.id]?.hasError 
+                  ? 'red': 'orange'"
             size="2em"
-          ></q-icon>    
+          />
         </q-item-section>
       </q-item>
       </div>
@@ -170,10 +187,10 @@ export default {
     },
     // load package notification data after global var updates
     loadPackageNotification(newPackages) {
-      if(newPackages) {
+      if (newPackages) {
         newPackages.forEach((packageFile) => {
           let packageId = packageFile.pkg.id
-          if(packageId) {
+          if (packageId) {
             this.getPackageNotifications(packageId)
           }
         })
@@ -191,7 +208,7 @@ export default {
           errors: [],
         }
         notifications.forEach((notification) => {
-          if(notification.type == "ERROR") {
+          if (notification.type == "ERROR") {
             currentPackage.hasError = true
             currentPackage.errors.push(notification)
           }
@@ -235,7 +252,7 @@ export default {
     }
   },
   mounted() {
-    if(this.$onWebSocket) {
+    if (this.$onWebSocket) {
       this.$onWebSocket(
         dbEnum.wsCategory.notificationCount,
         (data) => {
