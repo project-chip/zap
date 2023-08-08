@@ -456,6 +456,8 @@ exports.map = {
       deviceIdentifier: x.DEVICE_IDENTIFIER,
       deviceId: x.DEVICE_IDENTIFIER,
       deviceVersion: x.DEVICE_VERSION,
+      deviceTypeName: x.NAME,
+      deviceName: x.NAME,
     }
   },
   endpointTypeCluster: (x) => {
@@ -700,7 +702,7 @@ exports.map = {
       display: x.DISPLAY,
       seen: x.SEEN,
     }
-  }
+  },
 }
 
 exports.reverseMap = {

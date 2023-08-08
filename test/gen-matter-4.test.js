@@ -217,12 +217,24 @@ test(
     expect(ept).toContain('#define FIXED_ENDPOINT_TYPES { 0, 1, 2, 3 }')
 
     // Test user_device_types helper within user_endpoints
-    expect(ept).toContain('Endpoint 0, DeviceId: 22, DeviceVersion: 1')
-    expect(ept).toContain('Endpoint 1, DeviceId: 256, DeviceVersion: 1')
-    expect(ept).toContain('Endpoint 1, DeviceId: 257, DeviceVersion: 2')
-    expect(ept).toContain('Endpoint 2, DeviceId: 256, DeviceVersion: 1')
-    expect(ept).toContain('Endpoint 2, DeviceId: 257, DeviceVersion: 1')
-    expect(ept).toContain('Endpoint 65534, DeviceId: 61442, DeviceVersion: 1')
+    expect(ept).toContain(
+      'Endpoint 0, DeviceId: 22, DeviceVersion: 1, DeviceName: MA-rootdevice'
+    )
+    expect(ept).toContain(
+      'Endpoint 1, DeviceId: 256, DeviceVersion: 1, DeviceName: MA-onofflight'
+    )
+    expect(ept).toContain(
+      'Endpoint 1, DeviceId: 257, DeviceVersion: 2, DeviceName: MA-dimmablelight'
+    )
+    expect(ept).toContain(
+      'Endpoint 2, DeviceId: 256, DeviceVersion: 1, DeviceName: MA-onofflight'
+    )
+    expect(ept).toContain(
+      'Endpoint 2, DeviceId: 257, DeviceVersion: 1, DeviceName: MA-dimmablelight'
+    )
+    expect(ept).toContain(
+      'Endpoint 65534, DeviceId: 61442, DeviceVersion: 1, DeviceName: MA-secondary-network-commissioning'
+    )
   },
   testUtil.timeout.long()
 )
