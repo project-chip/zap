@@ -212,7 +212,17 @@ describe('Session specific tests', () => {
 
   test(
     'http server initialization',
-    () => httpServer.initHttpServer(db, port),
+    async () => {
+      await httpServer.initHttpServer(db, port)
+      
+      await testQuery.createSession(
+        db,
+        'USER',
+        uuid,
+        env.builtinSilabsZclMetafile(),
+        env.builtinTemplateMetafile()
+      )
+    },
     testUtil.timeout.medium()
   )
 

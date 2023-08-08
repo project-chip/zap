@@ -26,6 +26,7 @@ const dLoad = require('./zcl-loader-dotdot')
 const queryZcl = require('../db/query-zcl')
 const queryDeviceType = require('../db/query-device-type')
 const env = require('../util/env')
+const queryNotification = require('../db/query-session-notification')
 
 /**
  * Records the toplevel package information and resolves into packageId
@@ -134,6 +135,7 @@ async function loadIndividualFile(db, filePath, sessionId) {
       `Unable to read file: ${filePath}. Expecting an XML file with ZCL clusters.`
     )
     env.logWarning(err)
+    queryNotification.setNotification(db, "WARNING", err, sessionId, 1, 0)
     return { succeeded: false, err }
   }
 }

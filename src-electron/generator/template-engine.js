@@ -24,7 +24,7 @@ const nativeRequire = require('../util/native-require')
 const fsPromise = require('fs').promises
 const promisedHandlebars = require('promised-handlebars')
 const defaultHandlebars = require('handlebars')
-const notification = require('../db/query-notification.js')
+const notification = require('../db/query-session-notification.js')
 const util = require('../util/util')
 const templateIterators = require('./template-iterators')
 

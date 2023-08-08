@@ -16,9 +16,11 @@ describe('Testing Deleting Endpoints', () => {
     })
   })
   it('delete endpoint', { retries: { runMode: 2, openMode: 2 } }, () => {
-    cy.get('[data-test="delete-endpoint"]').click()
-    cy.wait(300)
-    cy.get('#delete_endpoint').click()
+    cy.get('[data-test="delete-endpoint"]').each(() => {
+      cy.get('[data-test="delete-endpoint"]').last().click()
+      cy.wait(300)
+      cy.get('#delete_endpoint').click()
+    })
     cy.wait(300)
     cy.get('#delete_last_endpoint').click()
   })

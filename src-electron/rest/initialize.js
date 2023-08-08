@@ -24,28 +24,153 @@ const queryPackage = require('../db/query-package.js')
 const querySession = require('../db/query-session.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const restApi = require('../../src-shared/rest-api.js')
+const querystring = require('querystring')
 const util = require('../util/util.js')
+const fs = require('fs')
+const fsp = fs.promises
 
 /**
  * This function returns Properties, Templates and Dirty-Sessions
  * @param {*} db
  * @returns Properties, Templates and Dirty-Sessions.
  */
-function packagesAndSessions(db) {
+function sessionAttempt(db) {
   return async (req, res) => {
-    const zclProperties = await queryPackage.getPackagesByType(
-      db,
-      dbEnum.packageType.zclProperties
-    )
-    const zclGenTemplates = await queryPackage.getPackagesByType(
-      db,
-      dbEnum.packageType.genTemplatesJson
-    )
-    const sessions = await querySession.getDirtySessionsWithPackages(db)
+    let search = req.body.search
+
+    const query = new URLSearchParams(search)
+    let filePath = query.get('filePath')
+    if (filePath) {
+      if (filePath.includes('.zap')) {
+        let data = await fsp.readFile(filePath)
+        let obj = JSON.parse(data)
+        let category = obj.package[0].category
+        if (category) {
+          let open = true
+          const zclProperties = await queryPackage.getPackagesByCategoryAndType(
+            db,
+            dbEnum.packageType.zclProperties,
+            category
+          )
+          const zclGenTemplates =
+            await queryPackage.getPackagesByCategoryAndType(
+              db,
+              dbEnum.packageType.genTemplatesJson,
+              category
+            )
+          const sessions = await querySession.getDirtySessionsWithPackages(db)
+          return res.send({
+            zclGenTemplates,
+            zclProperties,
+            sessions,
+            filePath,
+            open,
+          })
+        } else {
+          let open = true
+          const zclProperties = await queryPackage.getPackagesByType(
+            db,
+            dbEnum.packageType.zclProperties
+          )
+          const zclGenTemplates = await queryPackage.getPackagesByType(
+            db,
+            dbEnum.packageType.genTemplatesJson
+          )
+          const sessions = await querySession.getDirtySessionsWithPackages(db)
+          return res.send({
+            zclGenTemplates,
+            zclProperties,
+            sessions,
+            open,
+          })
+        }
+      } else {
+        let open = true
+        const zclProperties = await queryPackage.getPackagesByType(
+          db,
+          dbEnum.packageType.zclProperties
+        )
+        const zclGenTemplates = await queryPackage.getPackagesByType(
+          db,
+          dbEnum.packageType.genTemplatesJson
+        )
+        const sessions = await querySession.getDirtySessionsWithPackages(db)
+        return res.send({
+          zclGenTemplates,
+          zclProperties,
+          sessions,
+          open,
+        })
+      }
+    } else {
+      let open = false
+      const zclProperties = await queryPackage.getPackagesByType(
+        db,
+        dbEnum.packageType.zclProperties
+      )
+      const zclGenTemplates = await queryPackage.getPackagesByType(
+        db,
+        dbEnum.packageType.genTemplatesJson
+      )
+      const sessions = await querySession.getDirtySessionsWithPackages(db)
+      return res.send({
+        zclGenTemplates,
+        zclProperties,
+        sessions,
+        open,
+      })
+    }
+  }
+}
+
+function sessionCreate(db) {
+  return async (req, res) => {
+    let { zclProperties, genTemplate } = req.body
+    let sessionUuid = req.query[restApi.param.sessionId]
+    let userKey = req.session.id
+
+    if (sessionUuid == null || userKey == null) {
+      return
+    } else {
+      let zapUserId = req.session.zapUserId
+      let zapSessionId
+      if (`zapSessionId` in req.session) {
+        zapSessionId = req.session.zapSessionId[sessionUuid]
+      } else {
+        req.session.zapSessionId = {}
+        zapSessionId = null
+      }
+      let tpk = zclProperties
+      let pkgArray = null
+      if (tpk) {
+        pkgArray = tpk
+      } else {
+        pkgArray = []
+      }
+
+      querySession
+        .ensureZapUserAndSession(db, userKey, sessionUuid, {
+          sessionId: zapSessionId,
+          userId: zapUserId,
+        })
+        .then((result) => {
+          req.session.zapUserId = result.userId
+          req.session.zapSessionId[sessionUuid] = result.sessionId
+          req.zapSessionId = result.sessionId
+          return result
+        })
+        .then((result) => {
+          return util.ensurePackagesAndPopulateSessionOptions(
+            db,
+            result.sessionId,
+            null,
+            pkgArray,
+            genTemplate
+          )
+        })
+    }
     return res.send({
-      zclGenTemplates,
-      zclProperties,
-      sessions,
+      message: 'Session created successfully',
     })
   }
 }
@@ -58,20 +183,13 @@ function packagesAndSessions(db) {
  */
 function initializeSession(db) {
   return async (req, res) => {
-    let sessionUuid = req.query[restApi.param.sessionId]
-    let userKey = req.session.id
-    let user = await querySession.ensureUser(db, userKey)
-    let sessionId = await querySession.ensureBlankSession(db, sessionUuid)
-    await querySession.linkSessionToUser(db, sessionId, user.userId)
-    if (!req.body.newConfiguration) {
-      await util.ensurePackagesAndPopulateSessionOptions(
-        db,
-        sessionId,
-        {},
-        req.body.zclProperties,
-        req.body.genTemplate
-      )
-    }
+    await util.ensurePackagesAndPopulateSessionOptions(
+      db,
+      req.body.sessionId,
+      {},
+      req.body.zclProperties,
+      req.body.genTemplate
+    )
     return res.send({
       message: 'Session created successfully',
     })
@@ -113,13 +231,6 @@ function init(db) {
   }
 }
 
-exports.get = [
-  {
-    uri: restApi.uri.initialPackagesSessions,
-    callback: packagesAndSessions,
-  },
-]
-
 exports.post = [
   {
     uri: restApi.uri.reloadSession,
@@ -130,7 +241,15 @@ exports.post = [
     callback: initializeSession,
   },
   {
+    uri: restApi.uri.sessionCreate,
+    callback: sessionCreate,
+  },
+  {
     uri: restApi.uri.init,
     callback: init,
+  },
+  {
+    uri: restApi.uri.sessionAttempt,
+    callback: sessionAttempt,
   },
 ]

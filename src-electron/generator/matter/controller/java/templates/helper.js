@@ -113,14 +113,29 @@ function asJniBasicType(type, useBoxedTypes) {
     return 'jbyteArray';
   } else if (StringHelper.isCharString(type)) {
     return 'jstring';
-  } else {
-    if (useBoxedTypes) {
-      return 'jobject';
-    }
-    return convertBasicCTypeToJniType(
-      ChipTypesHelper.asBasicType(this.chipType)
-    );
+  } else if (useBoxedTypes) {
+    return 'jobject';
   }
+  function fn(pkgId) {
+    const options = { hash: {} };
+    return zclHelper.asUnderlyingZclType
+      .call(this, type, options)
+      .then((zclType) => {
+        return convertBasicCTypeToJniType(
+          ChipTypesHelper.asBasicType(zclType),
+          false
+        );
+      });
+  }
+
+  const promise = templateUtil
+    .ensureZclPackageIds(this)
+    .then(fn.bind(this))
+    .catch((err) => {
+      console.log(err);
+      throw err;
+    });
+  return templateUtil.templatePromise(this.global, promise);
 }
 
 function asJniSignatureBasic(type, useBoxedTypes) {

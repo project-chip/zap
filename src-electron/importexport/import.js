@@ -28,6 +28,7 @@ const env = require('../util/env')
 const script = require('../util/script')
 const dbEnum = require('../../src-shared/db-enum')
 const ff = require('./file-format.js')
+const util = require('../util/util.js')
 
 /**
  * Reads the data from the file and resolves with the state object if all is good.
@@ -95,9 +96,39 @@ async function importDataFromFile(
     let sid
     if (options.sessionId == null) {
       sid = await querySession.createBlankSession(db)
+      await util.ensurePackagesAndPopulateSessionOptions(
+        db,
+        sid,
+        {
+          zcl: env.builtinSilabsZclMetafile(),
+          template: env.builtinTemplateMetafile(),
+        }, null, null
+      )  
     } else {
       sid = options.sessionId
     }
+
+    // Update endpoint type with device version and device identifier. There
+    // was a schema change where the device version and device identifer was
+    // moved into the endpoint_type_device table instead of keeping it in the
+    // endpoint table.
+    if (state.endpoints) {
+      state.endpoints.forEach((ep) => {
+        state.endpointTypes[ep.endpointTypeIndex].deviceVersion =
+          ep.endpointVersion
+        state.endpointTypes[ep.endpointTypeIndex].deviceIdentifier =
+          ep.deviceIdentifier
+      })
+    } else if (state.endpoint) {
+      // For isc file import
+      state.endpoint.forEach((ep) => {
+        if (ep.deviceId != -1) {
+          state.endpointTypes[ep.endpointType].deviceId = ep.deviceId
+          state.endpointTypes[ep.endpointType].deviceIdentifier = ep.deviceId
+        }
+      })
+    }
+
     let loaderResult = await state.loader(db, state, sid, options.packageMatch)
     if (options.postImportScript != null) {
       await executePostImportScript(

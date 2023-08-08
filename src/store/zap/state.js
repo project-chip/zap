@@ -95,8 +95,6 @@ export default function () {
       endpointType: {},
       networkId: {},
       profileId: {},
-      deviceId: {},
-      endpointVersion: {},
       endpointIdValidationIssues: {},
       networkIdValidationIssues: {},
     },
@@ -104,6 +102,8 @@ export default function () {
       selectedEndpointType: [],
       name: {},
       deviceTypeRef: {},
+      deviceVersion: {},
+      deviceIdentifier: {},
     },
     clustersView: {
       selected: [],
@@ -158,5 +158,6 @@ export default function () {
       deviceTypeRef: null,
       deviceIdentifier: null,
     },
+    notificationCount: 0,
   }
 }

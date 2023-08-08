@@ -69,7 +69,7 @@ test.each([
   restApi.uri.uiOptions,
   restApi.uri.packages,
   restApi.uri.initialState,
-  restApi.uri.notification,
+  restApi.uri.sessionNotification,
   restApi.uri.getAllPackages,
   restApi.ide.isDirty,
   restApi.uri.version,

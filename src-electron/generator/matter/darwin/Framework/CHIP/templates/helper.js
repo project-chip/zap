@@ -683,6 +683,10 @@ async function availability(clusterName, options) {
     );
   }
 
+  if (isProvisional.call(this, clusterName, options)) {
+    return 'MTR_PROVISIONALLY_AVAILABLE';
+  }
+
   if (introducedVersions === undefined) {
     console.log(
       `WARNING: Missing "introduced" entry for: '${clusterName}' '${JSON.stringify(
@@ -746,12 +750,24 @@ async function availability(clusterName, options) {
     }
   }
 
+  let swiftUnavailableRelease = findReleaseForPath(
+    data,
+    ['swiftUnavailable', ...path],
+    options
+  );
+  let swiftUnavailable;
+  if (swiftUnavailableRelease == undefined) {
+    swiftUnavailable = '';
+  } else {
+    swiftUnavailable = ` NS_SWIFT_UNAVAILABLE("${options.hash.deprecationMessage}")`;
+  }
+
   let availabilityStrings = Object.entries(introducedVersions).map(
     ([os, version]) => `${os}(${version}, ${deprecatedVersions[os]})`
   );
   return `MTR_DEPRECATED("${
     options.hash.deprecationMessage
-  }", ${availabilityStrings.join(', ')})`;
+  }", ${availabilityStrings.join(', ')})${swiftUnavailable}`;
 }
 
 /**
@@ -875,12 +891,16 @@ function isSupported(cluster, options) {
     }
   }
 
+  return true;
+}
+
+function isProvisional(cluster, options) {
   let provisionalRelease = findReleaseForPathOrAncestorAndSection(this.global, cluster, options, 'provisional');
   if (provisionalRelease === undefined) {
-    // Default to enabled, even if not explicitly introduced.
-    return true;
+    return false;
   }
 
+  let path = makeAvailabilityPath(cluster, options);
   while (path !== undefined) {
     let comparisonStatus = compareIntroductionToReferenceRelease(
       this.global,
@@ -893,9 +913,9 @@ function isSupported(cluster, options) {
     // the provisional thing or narrower, and that introduction comes no earlier
     // than the provisional marking (we allow the same release for cases we
     // unfortunately have where we introduced some parts of a provisional
-    // thing), then this is supported.
+    // thing), then this not considered provisional.
     if (comparisonStatus === 1 || comparisonStatus === 0) {
-      return true;
+      return false;
     }
 
     // If we have walked all the way up to the path to the provisional thing
@@ -907,7 +927,7 @@ function isSupported(cluster, options) {
     path = findPathToContainer(path);
   }
 
-  return false;
+  return true;
 }
 
 function hasRenamedFields(cluster, options) {
@@ -1055,6 +1075,7 @@ exports.availability = availability;
 exports.wasIntroducedBeforeRelease = wasIntroducedBeforeRelease;
 exports.wasRemoved = wasRemoved;
 exports.isSupported = isSupported;
+exports.isProvisional = isProvisional;
 exports.and = and;
 exports.or = or;
 exports.not = not;

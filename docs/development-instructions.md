@@ -13,7 +13,7 @@ npm install
 ```
 
 It is not uncommon to run into native library compilation problems at this point.
-There are various `src-script/install-*` scripts for different platforms. Please refer to [FAQ](docs/faq.md) for additional details of which script to run on different platforms and then rerun `npm install`.
+There are various `src-script/install-*` scripts for different platforms. Please refer to [FAQ](faq.md) for additional details of which script to run on different platforms and then rerun `npm install`.
 
 **Start the application:**
 

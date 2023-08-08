@@ -377,6 +377,7 @@ exports.map = {
       profileId: x.PROFILE_ID,
       domain: x.DOMAIN,
       label: x.NAME,
+      name: x.NAME,
       caption: x.DESCRIPTION,
     }
   },
@@ -428,7 +429,8 @@ exports.map = {
       endpointTypeRef: x.ENDPOINT_TYPE_REF,
       profileId: x.PROFILE,
       networkId: x.NETWORK_IDENTIFIER,
-      endpointVersion: x.DEVICE_VERSION,
+      endpointVersion: x.DEVICE_VERSION, // Left for backwards compatibility
+      deviceVersion: x.DEVICE_VERSION,
       deviceIdentifier: x.DEVICE_IDENTIFIER,
     }
   },
@@ -440,6 +442,20 @@ exports.map = {
       sessionRef: x.SESSION_REF,
       name: x.NAME,
       deviceTypeRef: x.DEVICE_TYPE_REF,
+      deviceTypes: x.deviceTypes, // Populated outside the sql query mapping.
+    }
+  },
+  endpointTypeDevice: (x) => {
+    if (x == null) return undefined
+    return {
+      id: x.ENDPOINT_TYPE_DEVICE_ID,
+      deviceTypeRef: x.DEVICE_TYPE_REF,
+      endpointTypeRef: x.ENDPOINT_TYPE_REF,
+      endpointTypeId: x.ENDPOINT_TYPE_REF,
+      deviceTypeOrder: x.DEVICE_TYPE_ORDER,
+      deviceIdentifier: x.DEVICE_IDENTIFIER,
+      deviceId: x.DEVICE_IDENTIFIER,
+      deviceVersion: x.DEVICE_VERSION,
     }
   },
   endpointTypeCluster: (x) => {
@@ -611,6 +627,7 @@ exports.map = {
       sessionKey: x.SESSION_KEY,
       creationTime: x.CREATION_TIME,
       packageRef: x.PACKAGE_REF,
+      userRef: x.USER_REF,
       dirty: x.DIRTY == 1,
     }
   },
@@ -660,7 +677,7 @@ exports.map = {
       value: x.VALUE,
     }
   },
-  notifications: (x) => {
+  sessionNotifications: (x) => {
     if (x == null) return undefined
     return {
       ref: x.SESSION_REF,
@@ -669,8 +686,21 @@ exports.map = {
       severity: x.NOTICE_SEVERITY,
       order: x.NOTICE_ORDER,
       display: x.DISPLAY,
+      seen: x.SEEN,
     }
   },
+  packageNotification: (x) => {
+    if (x == null) return undefined
+    return {
+      ref: x.PACKAGE_REF,
+      type: x.NOTICE_TYPE,
+      message: x.NOTICE_MESSAGE,
+      severity: x.NOTICE_SEVERITY,
+      order: x.NOTICE_ORDER,
+      display: x.DISPLAY,
+      seen: x.SEEN,
+    }
+  }
 }
 
 exports.reverseMap = {
@@ -682,5 +712,6 @@ exports.reverseMap = {
     profileId: 'PROFILE',
     networkId: 'NETWORK_IDENTIFIER',
     endpointVersion: 'DEVICE_VERSION',
+    deviceVersion: 'DEVICE_VERSION',
   },
 }

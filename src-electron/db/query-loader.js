@@ -22,6 +22,7 @@
  */
 const env = require('../util/env')
 const dbApi = require('./db-api.js')
+const queryNotification = require('../db/query-package-notification')
 
 // Some loading queries that are reused few times.
 
@@ -539,11 +540,11 @@ async function insertClusterExtensions(db, packageId, knownPackages, data) {
           // </clusterExtension>
           // If a cluster with code 0x0000 does not exist then we run into this
           // issue.
-          env.logWarning(
-            `Attempting to insert cluster extension for a cluster which does not
-            exist. Check clusterExtension meta data in xml file.
-            Cluster Code: ${data[i].code}`
-          )
+          let message = `Attempting to insert cluster extension for a cluster which does not
+          exist. Check clusterExtension meta data in xml file.
+          Cluster Code: ${data[i].code}`
+          env.logWarning(message)
+          queryNotification.setNotification(db, "WARNING", message, packageId, 1, 0)
         }
       }
       let pCommand = insertCommands(db, packageId, commands)

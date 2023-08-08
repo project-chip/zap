@@ -149,14 +149,6 @@ export function initializeDefaultEndpoints(state, defaultEndpoints) {
     if (state.endpointView.profileId[endpoint.id] === undefined) {
       vue3Set(state.endpointView.profileId, endpoint.id, endpoint.profileId)
     }
-
-    if (state.endpointView.endpointVersion[endpoint.id] === undefined) {
-      vue3Set(
-        state.endpointView.endpointVersion,
-        endpoint.id,
-        endpoint.endpointVersion
-      )
-    }
   })
 }
 
@@ -169,12 +161,6 @@ export function addEndpoint(state, endpoint) {
   )
   vue3Set(state.endpointView.networkId, endpoint.id, endpoint.networkId)
   vue3Set(state.endpointView.profileId, endpoint.id, endpoint.profileId)
-  vue3Set(state.endpointView.deviceId, endpoint.id, endpoint.deviceIdentifier)
-  vue3Set(
-    state.endpointView.endpointVersion,
-    endpoint.id,
-    endpoint.endpointVersion
-  )
   vue3Set(
     state.endpointView.endpointIdValidationIssues,
     endpoint.id,
@@ -215,6 +201,13 @@ export function initializeDefaultEndpointsTypes(state, defaultEndpointsTypes) {
         endpointType.deviceTypeRef
       )
     }
+    if (state.endpointTypeView.deviceVersion[endpointType.id] === undefined) {
+      vue3Set(
+        state.endpointTypeView.deviceVersion,
+        endpointType.id,
+        endpointType.deviceVersion
+      )
+    }
   })
 }
 
@@ -224,6 +217,16 @@ export function addEndpointType(state, endpointType) {
     state.endpointTypeView.deviceTypeRef,
     endpointType.id,
     endpointType.deviceTypeRef
+  )
+  vue3Set(
+    state.endpointTypeView.deviceIdentifier,
+    endpointType.id,
+    endpointType.deviceIdentifier
+  )
+  vue3Set(
+    state.endpointTypeView.deviceVersion,
+    endpointType.id,
+    endpointType.deviceVersion
   )
 }
 
@@ -279,11 +282,23 @@ export function updateInclusionList(state, selectionContext) {
   state[selectionContext.view][selectionContext.listType] = inclusionList
 }
 
-export function setDeviceTypeReference(state, endpointIdDeviceTypeRefPair) {
+export function setDeviceTypeReference(state, endpointTypeIdDeviceTypeRefPair) {
   vue3Set(
     state.endpointTypeView.deviceTypeRef,
-    endpointIdDeviceTypeRefPair.endpointId,
-    endpointIdDeviceTypeRefPair.deviceTypeRef
+    endpointTypeIdDeviceTypeRefPair.endpointTypeId,
+    endpointTypeIdDeviceTypeRefPair.deviceTypeRef
+  )
+
+  vue3Set(
+    state.endpointTypeView.deviceVersion,
+    endpointTypeIdDeviceTypeRefPair.endpointTypeId,
+    endpointTypeIdDeviceTypeRefPair.deviceVersion
+  )
+
+  vue3Set(
+    state.endpointTypeView.deviceIdentifier,
+    endpointTypeIdDeviceTypeRefPair.endpointTypeId,
+    endpointTypeIdDeviceTypeRefPair.deviceIdentifier
   )
 }
 
@@ -295,6 +310,7 @@ export function removeEndpointType(state, endpointType) {
   state.endpointTypeView.selectedEndpointType = []
   vue3Delete(state.endpointTypeView.name, endpointType.id)
   vue3Delete(state.endpointTypeView.deviceTypeRef, endpointType.id)
+  vue3Delete(state.endpointTypeView.deviceVersion, endpointType.id)
 }
 
 export function deleteEndpoint(state, endpoint) {
@@ -302,7 +318,6 @@ export function deleteEndpoint(state, endpoint) {
   vue3Delete(state.endpointView.endpointId, endpoint.id)
   vue3Delete(state.endpointView.endpointType, endpoint.id)
   vue3Delete(state.endpointView.networkId, endpoint.id)
-  vue3Delete(state.endpointView.endpointVersion, endpoint.id)
 }
 
 export function setClusterList(state, data) {
@@ -534,6 +549,7 @@ export function loadZclClusterToUcComponentDependencyMap(state, map) {
 
 export function selectZapConfig(state, val) {
   state.selectedZapConfig = val
+  return true
 }
 
 export function setAllEndpointsData(state, value) {
@@ -598,4 +614,9 @@ export function toggleShowEndpoint(state, item) {
 // This function will update the cluster stage if cluster changed it will update the endpoint data
 export function updateIsClusterOptionChanged(state, value) {
   state.isClusterOptionChanged = value
+}
+
+// Thie function will update the notification count after backend updates from websocket
+export function updateNotificationCount(state, value) {
+  state.notificationCount = value
 }

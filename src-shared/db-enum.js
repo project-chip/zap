@@ -103,6 +103,8 @@ exports.wsCategory = {
   dirtyFlag: 'dirtyFlag',
   upgrade: 'upgrade',
   validation: 'validation',
+  notificationCount: 'notificationCount',
+  notificationInfo: 'notificationInfo',
   sessionCreationError: 'sessionCreationError',
   componentUpdateStatus: 'componentUpdateStatus',
   ucComponentStateReport: 'ucComponentStateReport',

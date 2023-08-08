@@ -231,33 +231,43 @@ export function updateEndpointType(context, endpointType) {
     .$serverPatch(restApi.uri.endpointType, endpointType)
     .then((res) => {
       let arg = res.data
-      if (arg.updatedKey === 'deviceTypeRef') {
-        setDeviceTypeReference(context, {
-          endpointId: arg.endpointTypeId,
-          deviceTypeRef: arg.updatedValue,
-        })
-      }
+      // Map the changes corresponding to device type ref, device type version
+      // and device type identifier for the front and back end.
+      let changes = arg.changes
+      let deviceTypeRefTmp = changes[0].value
+      let deviceVersionTmp = changes[1].value
+      let deviceIdentifierTmp = changes[2].value
+
+      setDeviceTypeReference(context, {
+        endpointTypeId: arg.endpointTypeId,
+        deviceTypeRef: deviceTypeRefTmp,
+        deviceVersion: deviceVersionTmp,
+        deviceIdentifier: deviceIdentifierTmp,
+      })
     })
 }
 
-export function setDeviceTypeReference(context, endpointIdDeviceTypeRefPair) {
+export function setDeviceTypeReference(
+  context,
+  endpointTypeIdDeviceTypeRefPair
+) {
   axiosRequests
     .$serverGet(
-      `${restApi.uri.deviceTypeClusters}${endpointIdDeviceTypeRefPair.deviceTypeRef}`
+      `${restApi.uri.deviceTypeClusters}${endpointTypeIdDeviceTypeRefPair.deviceTypeRef}`
     )
     .then((res) => {
       setRecommendedClusterList(context, res.data)
     })
   axiosRequests
     .$serverGet(
-      `${restApi.uri.deviceTypeAttributes}${endpointIdDeviceTypeRefPair.deviceTypeRef}`
+      `${restApi.uri.deviceTypeAttributes}${endpointTypeIdDeviceTypeRefPair.deviceTypeRef}`
     )
     .then((res) => {
       setRequiredAttributes(context, res.data)
     })
   axiosRequests
     .$serverGet(
-      `${restApi.uri.deviceTypeCommands}${endpointIdDeviceTypeRefPair.deviceTypeRef}`
+      `${restApi.uri.deviceTypeCommands}${endpointTypeIdDeviceTypeRefPair.deviceTypeRef}`
     )
     .then((res) => {
       setRequiredCommands(context, res.data)
@@ -265,37 +275,38 @@ export function setDeviceTypeReference(context, endpointIdDeviceTypeRefPair) {
 
   axiosRequests
     .$serverGet(
-      `${restApi.uri.endpointTypeClusters}${endpointIdDeviceTypeRefPair.endpointId}`
+      `${restApi.uri.endpointTypeClusters}${endpointTypeIdDeviceTypeRefPair.endpointTypeId}`
     )
     .then((res) => {
       setClusterList(context, res.data)
     })
   axiosRequests
     .$serverGet(
-      `${restApi.uri.endpointTypeAttributes}${endpointIdDeviceTypeRefPair.endpointId}`
+      `${restApi.uri.endpointTypeAttributes}${endpointTypeIdDeviceTypeRefPair.endpointTypeId}`
     )
     .then((res) => {
       setAttributeStateLists(context, res.data || [])
     })
   axiosRequests
     .$serverGet(
-      `${restApi.uri.endpointTypeCommands}${endpointIdDeviceTypeRefPair.endpointId}`
+      `${restApi.uri.endpointTypeCommands}${endpointTypeIdDeviceTypeRefPair.endpointTypeId}`
     )
     .then((res) => {
       setCommandStateLists(context, res.data || [])
     })
   axiosRequests
     .$serverGet(
-      `${restApi.uri.endpointTypeEvents}${endpointIdDeviceTypeRefPair.endpointId}`
+      `${restApi.uri.endpointTypeEvents}${endpointTypeIdDeviceTypeRefPair.endpointTypeId}`
     )
     .then((res) => {
       setEventStateLists(context, res.data || [])
     })
 
-  context.commit('setDeviceTypeReference', endpointIdDeviceTypeRefPair)
+  context.commit('setDeviceTypeReference', endpointTypeIdDeviceTypeRefPair)
 }
 
 export function updateEndpoint(context, endpoint) {
+  // TODO this uri should handle deviceIdentifier as array
   axiosRequests.$serverPatch(restApi.uri.endpoint, endpoint).then((res) => {
     let arg = res.data
     context.commit('updateEndpoint', {
@@ -318,8 +329,6 @@ export function addEndpoint(context, newEndpointContext) {
         endpointTypeRef: arg.endpointType,
         networkId: arg.networkId,
         profileId: arg.profileId,
-        deviceIdentifier: arg.deviceId,
-        endpointVersion: arg.endpointVersion,
         endpointIdValidationIssues: arg.validationIssues.endpointId,
         networkIdValidationIssues: arg.validationIssues.networkId,
       })
@@ -335,6 +344,8 @@ export function addEndpointType(context, endpointTypeData) {
         id: res.data.id,
         name: res.data.name,
         deviceTypeRef: res.data.deviceTypeRef,
+        deviceIdentifier: res.data.deviceTypeIdentifier,
+        deviceVersion: res.data.deviceTypeVersion,
       })
       return res.data
     })

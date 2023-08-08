@@ -1,9 +1,5 @@
 <template>
-  <q-page
-    padding
-    class="row justify-center full-height"
-    :class="{ zigbee: getuitheme === 'zigbee' }"
-  >
+  <q-page padding class="row justify-center full-height" :class="getuitheme">
     <Transition name="slide-up" mode="out-in" appear>
       <q-card flat class="q-mt-lg q-rounded-borders-xl bg-glass col-10 column">
         <q-scroll-area class="col q-px-xl">
@@ -11,16 +7,10 @@
             <Transition name="slide-up" mode="out-in" appear>
               <div class="column">
                 <img
-                  v-if="getuitheme === 'zigbee'"
+                  v-if="getLogo"
                   height="40"
-                  class="mx-auto q-my-lg block"
-                  src="/zigbee_logo.svg"
-                />
-                <img
-                  v-else
-                  height="40"
-                  class="mx-auto q-my-lg block"
-                  src="/matter_logo.svg"
+                  class="q-mx-auto q-my-lg block w-fit-content"
+                  :src="getLogo"
                 />
               </div>
             </Transition>
@@ -30,7 +20,7 @@
                 v-model="customConfig"
                 checked-icon="task_alt"
                 unchecked-icon="panorama_fish_eye"
-                val="generate"
+                val="select"
                 label="Generate New Session"
               />
               <q-radio
@@ -45,7 +35,7 @@
             </div>
             <p
               class="text-center"
-              v-if="isMultiplePackage && customConfig === 'generate'"
+              v-if="isMultiplePackage && customConfig === 'select'"
             >
               There are multiple packages of ZCL metadata loaded. Please select
               the one you wish to use with this configuration.
@@ -56,7 +46,7 @@
               the configuration.
             </p>
 
-            <template v-if="customConfig === 'generate'">
+            <template v-if="customConfig === 'select'">
               <q-table
                 title="Zigbee Cluster Library metadata"
                 :rows="zclPropertiesRow"
@@ -96,6 +86,60 @@
                     </q-td>
                     <q-td key="version" :props="props">
                       <div>{{ props.row.version }}</div>
+                    </q-td>
+                    <q-td key="status" :props="props">
+                      <div v-if="props.row.warning">
+                        <q-icon
+                          class="cursor-pointer"
+                          name="warning"
+                          color="orange"
+                          size="2.5em"
+                          @click="propertyDataDialog[props.row.id] = true"
+                        >
+                        </q-icon>
+                        <q-dialog
+                          v-model="propertyDataDialog[props.row.id]"
+                          persistent
+                        >
+                          <q-card>
+                            <q-card-section>
+                              <div class="row items-center">
+                                <div class="col-1">
+                                  <q-icon
+                                    name="warning"
+                                    color="orange"
+                                    size="2em"
+                                  />
+                                </div>
+                                <div class="text-h6 col">
+                                  {{ props.row.description }}
+                                </div>
+                                <div class="col-1 text-right">
+                                  <q-btn dense flat icon="close" v-close-popup>
+                                    <q-tooltip>Close</q-tooltip>
+                                  </q-btn>
+                                </div>
+                              </div>
+                              <ul>
+                                <li
+                                  v-for="(notification, index) in props.row
+                                    .notifications"
+                                  :key="index"
+                                  style="margin-bottom: 20px"
+                                >
+                                  {{ notification }}
+                                </li>
+                              </ul>
+                            </q-card-section>
+                          </q-card>
+                        </q-dialog>
+                      </div>
+                      <q-icon
+                        v-else
+                        name="check_circle"
+                        color="green"
+                        size="2em"
+                      />
                     </q-td>
                   </q-tr>
                 </template>
@@ -144,6 +188,52 @@
                     </q-td>
                     <q-td key="version" :props="props">
                       <div>{{ props.row.version }}</div>
+                    </q-td>
+                    <q-td key="status" :props="props">
+                      <div v-if="props.row.warning">
+                        <q-icon
+                          name="warning"
+                          color="orange"
+                          size="2.5em"
+                          @click="genDataDialog[props.row.id] = true"
+                        >
+                        </q-icon>
+                        <q-dialog
+                          v-model="genDataDialog[props.row.id]"
+                          persistent
+                        >
+                          <q-card>
+                            <q-bar>
+                              <q-icon name="warning" color="orange" />
+                              <div class="text-h6">
+                                {{ props.row.description }}
+                              </div>
+                              <q-space />
+                              <q-btn dense flat icon="close" v-close-popup>
+                                <q-tooltip>Close</q-tooltip>
+                              </q-btn>
+                            </q-bar>
+                            <q-card-section>
+                              <ul>
+                                <li
+                                  v-for="(notification, index) in props.row
+                                    .notifications"
+                                  :key="index"
+                                  style="margin-bottom: 20px"
+                                >
+                                  {{ notification }}
+                                </li>
+                              </ul>
+                            </q-card-section>
+                          </q-card>
+                        </q-dialog>
+                      </div>
+                      <q-icon
+                        v-else
+                        name="check_circle"
+                        color="green"
+                        size="2em"
+                      />
                     </q-td>
                   </q-tr>
                 </template>
@@ -198,8 +288,7 @@
 
             <div class="row justify-center q-mt-xl">
               <q-btn
-                :disable="disableSubmitButton"
-                :color="disableSubmitButton ? 'blue-grey' : 'primary'"
+                color="primary"
                 @click="submitForm"
                 label="Submit"
                 data-test="login-submit"
@@ -214,6 +303,7 @@
 
 <script>
 import restApi from '../../src-shared/rest-api.js'
+import { QSpinnerGears } from 'quasar'
 import { setCssVar } from 'quasar'
 
 const generateNewSessionCol = [
@@ -221,13 +311,13 @@ const generateNewSessionCol = [
     name: 'select',
     label: '',
     align: 'center',
-    style: 'width: 25%',
+    style: 'width: 20%',
   },
   {
     name: 'category',
     align: 'left',
     label: 'Category',
-    style: 'width: 25%',
+    style: 'width: 20%',
   },
   {
     name: 'description',
@@ -239,7 +329,13 @@ const generateNewSessionCol = [
     name: 'version',
     label: 'version',
     align: 'left',
-    style: 'width: 25%',
+    style: 'width: 20%',
+  },
+  {
+    name: 'status',
+    label: 'status',
+    align: 'left',
+    style: 'width: 15%',
   },
 ]
 const loadPreSessionCol = [
@@ -269,7 +365,7 @@ export default {
   name: 'ZapConfig',
   data() {
     return {
-      customConfig: 'generate',
+      customConfig: 'select',
       selected: [],
       selectedZclPropertiesData: null,
       selectedZclGenData: [],
@@ -278,6 +374,10 @@ export default {
       newSessionCol: generateNewSessionCol,
       loadPreSessionCol: loadPreSessionCol,
       zclGenRow: [],
+      newConfig: false,
+      path: window.location,
+      open: true,
+      filePath: '',
       loadPreSessionData: [],
       pagination: {
         rowsPerPage: 10,
@@ -285,11 +385,13 @@ export default {
       newGenerationPagination: {
         rowsPerPage: 0,
       },
+      propertyDataDialog: {},
+      genDataDialog: {},
     }
   },
   computed: {
     disableSubmitButton: function () {
-      if (this.customConfig === 'generate')
+      if (this.customConfig === 'select')
         return (
           this.selectedZclPropertiesData == null ||
           this.selectedZclGenData.length == 0
@@ -302,38 +404,71 @@ export default {
     getuitheme: function () {
       return this.selectedZclPropertiesData?.category
     },
+    getLogo: {
+      get() {
+        if (this.selectedZclPropertiesData?.category) {
+          return (
+            '/' +
+            this.selectedZclPropertiesData?.category +
+            '_logo' +
+            (this.$q.dark.isActive ? '_white' : '') +
+            '.svg'
+          )
+        } else {
+          return '/zap_logo.png'
+        }
+      },
+    },
+  },
+
+  watch: {
+    getuitheme() {
+      this.addClassToBody()
+    },
   },
   methods: {
+    addClassToBody() {
+      if (this.getuitheme === 'zigbee') {
+        document.body.classList.remove('matter')
+        document.body.classList.add('zigbee')
+      } else {
+        document.body.classList.remove('zigbee')
+        document.body.classList.add('matter')
+      }
+    },
     submitForm() {
-      if (this.customConfig === 'generate') {
-        if (
-          this.selectedZclPropertiesData != null &&
-          this.selectedZclGenData.length != 0
-        ) {
-          let data = {
-            zclProperties: this.selectedZclPropertiesData.id,
-            genTemplate: this.selectedZclGenData,
-          }
-          this.$serverPost(restApi.uri.initializeSession, data).then(
-            (result) => {
+      if (this.customConfig === 'select') {
+        let data = {
+          zclProperties: this.selectedZclPropertiesData,
+          genTemplate: this.selectedZclGenData,
+        }
+        this.$router.push({ path: '/' })
+        this.$q.loading.show({
+          spinner: QSpinnerGears,
+          messageColor: 'white',
+          message: 'Please wait while zap is loading...',
+          spinnerSize: 300,
+        })
+
+        if (this.open) {
+          this.$serverPost(restApi.uri.sessionCreate, data)
+            .then(() => this.$serverPost(restApi.ide.open, this.path))
+            .then(() => {
               this.$store.commit('zap/selectZapConfig', {
                 zclProperties: this.selectedZclPropertiesData,
                 genTemplate: this.selectedZclGenData,
+                newConfig: false,
               })
-            }
-          )
-        }
-      } else if (this.customConfig === 'passthrough') {
-        let data = {
-          newConfiguration: true,
-        }
-
-        this.$serverPost(restApi.uri.initializeSession, data).then((result) => {
-          this.$store.commit('zap/selectZapConfig', {
-            zclProperties: this.selectedZclPropertiesData,
-            genTemplate: this.selectedZclGenData,
+            })
+        } else {
+          this.$serverPost(restApi.uri.sessionCreate, data).then(() => {
+            this.$store.commit('zap/selectZapConfig', {
+              zclProperties: this.selectedZclPropertiesData,
+              genTemplate: this.selectedZclGenData,
+              newConfig: true,
+            })
           })
-        })
+        }
       } else {
         this.$serverPost(restApi.uri.reloadSession, {
           sessionId: this.selectedZclSessionData.id,
@@ -346,25 +481,23 @@ export default {
       }
     },
   },
-  beforeCreate() {
-    // setCssVar('primary', '#33F')
-    this.$serverGet(restApi.uri.initialPackagesSessions).then((result) => {
+  created() {
+    this.$serverPost(restApi.uri.sessionAttempt, this.path).then((result) => {
       this.zclPropertiesRow = result.data.zclProperties
       this.selectedZclPropertiesData = result.data.zclProperties[0]
       this.zclGenRow = result.data.zclGenTemplates
-
-      if (!window.location.search.includes('newConfig=true')) {
-        this.customConfig = 'passthrough'
-        this.submitForm()
-      } else if (
-        this.zclPropertiesRow.length == 1 &&
-        this.zclGenRow.length == 1
-      ) {
+      this.filePath = result.data.filePath
+      this.open = result.data.open
+      if (this.zclPropertiesRow.length == 1) {
         // We shortcut this page, if there is exactly one of each,
         // since we simply assume that they are selected and move on.
-        this.selectedZclGenData[0] = this.zclGenRow[0].id
-        this.customConfig = 'generate'
+        if (this.selectedZclGenData[0]) {
+          this.selectedZclGenData[0] = this.zclGenRow[0].path
+        }
+        this.customConfig = 'select'
         this.submitForm()
+      } else {
+        this.customConfig = 'select'
       }
 
       result.data.sessions.forEach((item) => {
@@ -383,7 +516,40 @@ export default {
           id: item.sessionId,
         })
       })
-      this.selectedZclSessionData = this.loadPreSessionData[0]
+
+      this.$serverGet(restApi.uri.packageNotification)
+        .then((resp) => {
+          let messageMap = {}
+          resp.data.forEach((row) => {
+            if (!(row.packageId in messageMap)) {
+              messageMap[row.packageId] = []
+            }
+            messageMap[row.packageId].push(row.message)
+          })
+          this.zclPropertiesRow.forEach((row) => {
+            if (row.id in messageMap) {
+              row.warning = true
+              row.notifications = messageMap[row.id]
+            } else {
+              row.warning = false
+              row.notifications = []
+            }
+            this.propertyDataDialog[row.id] = false
+          })
+          this.zclGenRow.forEach((row, index) => {
+            if (row.id in messageMap) {
+              row.warning = true
+              row.notifications = messageMap[row.id]
+            } else {
+              row.warning = false
+              row.notifications = []
+            }
+            this.genDataDialog[row.id] = false
+          })
+        })
+        .catch((err) => {
+          console.log(err)
+        })
     })
   },
 }

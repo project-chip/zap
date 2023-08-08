@@ -31,6 +31,7 @@ const restApi = require('../../src-shared/rest-api')
 const util = require('../util/util')
 const env = require('../util/env')
 const { StatusCodes } = require('http-status-codes')
+const queryNotification = require('../db/query-session-notification.js')
 
 // This function builds a function that has the following skeleton.
 // This is used to simplify all the logic where we have selectAll and selectById for
@@ -223,6 +224,7 @@ function httpGetZclExtension(db) {
     if (!sessionId) {
       let err = 'Unable to retrieve zcl extension. Invalid sessionId!'
       env.logError(err)
+      queryNotification.setNotification(db, 'ERROR', err, sessionId, 2, 0)
       return response.status(StatusCodes.NOT_FOUND).send(err)
     }
 
@@ -250,6 +252,7 @@ function httpGetZclExtension(db) {
       })
       .catch((err) => {
         env.logError(err)
+        queryNotification.setNotification(db, 'ERROR', err, sessionId, 2, 0)
         return response.status(StatusCodes.NOT_FOUND).send(err)
       })
   }

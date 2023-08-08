@@ -29,6 +29,7 @@ const env = require('./env')
 const wsServer = require('../server/ws-server')
 const querySession = require('../db/query-session')
 const dbEnum = require('../../src-shared/db-enum')
+const notification = require('../db/query-session-notification')
 
 // This object contains all the async reports.
 let asyncReports = {
@@ -63,6 +64,7 @@ async function sendDirtyFlagStatus(db, session) {
         env.logWarning(
           `Error reading dirty flag status: ${session.sessionKey} => ${err}`
         )
+        notification.setNotification(db, "WARNING", `Error reading dirty flag status: ${session.sessionKey} => ${err}`, session.sessionId, 1, 0)
       }
     }
   }

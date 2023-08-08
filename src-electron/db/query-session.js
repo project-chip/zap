@@ -163,11 +163,7 @@ async function getSessionFromSessionId(db, sessionId) {
  */
 async function getSessionInfoFromSessionKey(db, sessionKey) {
   return dbApi
-    .dbGet(
-      db,
-      'SELECT SESSION_ID, SESSION_KEY, CREATION_TIME FROM SESSION WHERE SESSION_KEY = ?',
-      [sessionKey]
-    )
+    .dbGet(db, 'SELECT * FROM SESSION WHERE SESSION_KEY = ?', [sessionKey])
     .then(dbMapping.map.session)
 }
 
@@ -243,7 +239,6 @@ async function ensureZapUserAndSession(
     userId: null,
   }
 ) {
-
   if (options.sessionId != null && options.userId != null) {
     // if we're passed both IDs, we simply return them back.
     return {
