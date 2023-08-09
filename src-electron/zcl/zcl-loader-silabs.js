@@ -1041,8 +1041,13 @@ async function processDataType(
     env.logError(
       'Could not find the discriminator for the data type: ' + dataType
     )
-    queryPackageNotification.setNotification(dnb, "ERROR", 
-      'Could not find the discriminator for the data type: ' + dataType, packageId, 1)
+    queryPackageNotification.setNotification(
+      dnb,
+      'ERROR',
+      'Could not find the discriminator for the data type: ' + dataType,
+      packageId,
+      1
+    )
   }
 }
 
@@ -1207,10 +1212,19 @@ function prepareEnumOrBitmap(db, packageId, a, dataType, typeMap) {
     (a.$.type.toLowerCase().includes('int') ||
       a.$.type.toLowerCase().includes(dbEnum.zclType.bitmap))
   ) {
-    let message = 'Check type contradiction in XML metadata for ' +
-    a.$.name + ' with type ' + a.$.type
+    let message =
+      'Check type contradiction in XML metadata for ' +
+      a.$.name +
+      ' with type ' +
+      a.$.type
     env.logWarning(message)
-    queryPackageNotification.setNotification(db, "WARNING", message, packageId, 2)
+    queryPackageNotification.setNotification(
+      db,
+      'WARNING',
+      message,
+      packageId,
+      2
+    )
     a.$.type = 'enum' + a.$.type.toLowerCase().match(/\d+/g).join('')
   }
   return {
@@ -1238,7 +1252,13 @@ async function processEnum(db, filePath, packageId, knownPackages, data) {
     db,
     knownPackages,
     data.map((x) =>
-      prepareEnumOrBitmap(db, packageId, x, typeMap.get(dbEnum.zclType.enum), typeMap)
+      prepareEnumOrBitmap(
+        db,
+        packageId,
+        x,
+        typeMap.get(dbEnum.zclType.enum),
+        typeMap
+      )
     )
   )
 }
@@ -1325,7 +1345,13 @@ async function processBitmap(db, filePath, packageId, knownPackages, data) {
     db,
     knownPackages,
     data.map((x) =>
-      prepareEnumOrBitmap(db, packageId, x, typeMap.get(dbEnum.zclType.bitmap), typeMap)
+      prepareEnumOrBitmap(
+        db,
+        packageId,
+        x,
+        typeMap.get(dbEnum.zclType.bitmap),
+        typeMap
+      )
     )
   )
 }
@@ -1486,6 +1512,9 @@ function prepareDeviceType(deviceType) {
     domain: deviceType.domain[0],
     name: deviceType.name[0],
     description: deviceType.typeName[0],
+    class: deviceType.class ? deviceType.class[0] : '',
+    scope: deviceType.scope ? deviceType.scope[0] : '',
+    superset: deviceType.superset ? deviceType.superset[0] : '',
   }
   if ('clusters' in deviceType) {
     ret.clusters = []
@@ -2161,7 +2190,14 @@ async function loadIndividualSilabsFile(db, filePath, sessionId) {
     return { succeeded: true, packageId: pkgId }
   } catch (err) {
     env.logError(`Error reading xml file: ${filePath}\n` + err.message)
-    querySessionNotification.setNotification(db, "ERROR", `Error reading xml file: ${filePath}\n` + err.message, sessionId, 1, 0)
+    querySessionNotification.setNotification(
+      db,
+      'ERROR',
+      `Error reading xml file: ${filePath}\n` + err.message,
+      sessionId,
+      1,
+      0
+    )
     return { succeeded: false, err: err }
   }
 }
@@ -2303,7 +2339,7 @@ async function loadSilabsZcl(db, metafile, isJson = false) {
     }
   } catch (err) {
     env.logError(err)
-    queryPackageNotification.setNotification(db, "ERROR", err, ctx.packageId, 1)
+    queryPackageNotification.setNotification(db, 'ERROR', err, ctx.packageId, 1)
     throw err
   } finally {
     if (!isTransactionAlreadyExisting) await dbApi.dbCommit(db)

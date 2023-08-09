@@ -544,7 +544,13 @@ async function insertClusterExtensions(db, packageId, knownPackages, data) {
           exist. Check clusterExtension meta data in xml file.
           Cluster Code: ${data[i].code}`
           env.logWarning(message)
-          queryNotification.setNotification(db, "WARNING", message, packageId, 2)
+          queryNotification.setNotification(
+            db,
+            'WARNING',
+            message,
+            packageId,
+            2
+          )
         }
       }
       let pCommand = insertCommands(db, packageId, commands)
@@ -831,7 +837,7 @@ async function insertDeviceTypes(db, packageId, data) {
   return dbApi
     .dbMultiInsert(
       db,
-      'INSERT INTO DEVICE_TYPE (PACKAGE_REF, DOMAIN, CODE, PROFILE_ID, NAME, DESCRIPTION) VALUES (?, ?, ?, ?, ?, ?)',
+      'INSERT INTO DEVICE_TYPE (PACKAGE_REF, DOMAIN, CODE, PROFILE_ID, NAME, DESCRIPTION, CLASS, SCOPE, SUPERSET) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
       data.map((dt) => {
         return [
           packageId,
@@ -840,6 +846,9 @@ async function insertDeviceTypes(db, packageId, data) {
           dt.profileId,
           dt.name,
           dt.description,
+          dt.class,
+          dt.scope,
+          dt.superset,
         ]
       })
     )
