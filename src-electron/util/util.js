@@ -117,7 +117,7 @@ async function ensurePackagesAndPopulateSessionOptions(
             `${sessionId}, ${zclFile}: Multiple toplevel zcl.properties found. Using the first one from args: ${packageId}`
           )
           queryNotification.setNotification(db, "WARNING", `${sessionId}, ${zclFile}: Multiple toplevel zcl.properties found. Using the first one from args: ${packageId}`, 
-          sessionId, 1, 0)
+          sessionId, 2, 0)
         }
         if (packageId != null) {
           return queryPackage.insertSessionPackage(
@@ -163,13 +163,13 @@ async function ensurePackagesAndPopulateSessionOptions(
                   `Multiple toplevel generation template metafiles found. Using the one from args: ${packageId}`
                 )
                 queryNotification.setNotification(db, "WARNING", `Multiple toplevel generation template metafiles found. Using the one from args: ${packageId}`, 
-                sessionId, 1, 0)
+                sessionId, 2, 0)
               } else {
                 packageId = rows[0].id
                 env.logWarning(
                   `Multiple toplevel generation template metafiles found. Using the first one.`
                 )
-                queryNotification.setNotification(db, "WARNING", `Multiple toplevel generation template metafiles found. Using the first one.`, sessionId, 1, 0)
+                queryNotification.setNotification(db, "WARNING", `Multiple toplevel generation template metafiles found. Using the first one.`, sessionId, 2, 0)
               }
             }
             if (packageId != null) {

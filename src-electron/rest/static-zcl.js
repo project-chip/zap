@@ -224,7 +224,7 @@ function httpGetZclExtension(db) {
     if (!sessionId) {
       let err = 'Unable to retrieve zcl extension. Invalid sessionId!'
       env.logError(err)
-      queryNotification.setNotification(db, 'ERROR', err, sessionId, 2, 0)
+      queryNotification.setNotification(db, 'ERROR', err, sessionId, 1, 0)
       return response.status(StatusCodes.NOT_FOUND).send(err)
     }
 
@@ -252,7 +252,7 @@ function httpGetZclExtension(db) {
       })
       .catch((err) => {
         env.logError(err)
-        queryNotification.setNotification(db, 'ERROR', err, sessionId, 2, 0)
+        queryNotification.setNotification(db, 'ERROR', err, sessionId, 1, 0)
         return response.status(StatusCodes.NOT_FOUND).send(err)
       })
   }

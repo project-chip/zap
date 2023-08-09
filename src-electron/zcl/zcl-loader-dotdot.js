@@ -768,7 +768,7 @@ async function processDataType(db, filePath, packageId, data, dataType) {
       'Could not find the discriminator for the data type: ' + dataType
     )
     queryNotification.setNotification(db, "ERROR", 
-    'Could not find the discriminator for the data type: ' + dataType, packageId, 2)
+    'Could not find the discriminator for the data type: ' + dataType, packageId, 1)
   }
 }
 
@@ -1287,7 +1287,7 @@ async function loadDotdotZcl(db, metafile) {
     await zclLoader.processZclPostLoading(db, ctx.packageId)
   } catch (err) {
     env.logError(err)
-    queryNotification.setNotification(db, "ERROR", err, ctx.packageId, 2)
+    queryNotification.setNotification(db, "ERROR", err, ctx.packageId, 1)
     throw err
   } finally {
     await dbApi.dbCommit(db)

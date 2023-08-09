@@ -175,7 +175,7 @@ async function produceContent(
         } else {
           notification.setNotification(
             db,
-            'UPGRADE WARNING',
+            'UPGRADE',
             'Resource "${key}" not found among the context resources. Check your template.json file. You may need a Matter SDK upgrade.',
             sessionId,
             1

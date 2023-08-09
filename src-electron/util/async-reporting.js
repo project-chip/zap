@@ -64,7 +64,7 @@ async function sendDirtyFlagStatus(db, session) {
         env.logWarning(
           `Error reading dirty flag status: ${session.sessionKey} => ${err}`
         )
-        notification.setNotification(db, "WARNING", `Error reading dirty flag status: ${session.sessionKey} => ${err}`, session.sessionId, 1, 0)
+        notification.setNotification(db, "WARNING", `Error reading dirty flag status: ${session.sessionKey} => ${err}`, session.sessionId, 2, 0)
       }
     }
   }

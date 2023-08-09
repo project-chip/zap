@@ -544,7 +544,7 @@ async function insertClusterExtensions(db, packageId, knownPackages, data) {
           exist. Check clusterExtension meta data in xml file.
           Cluster Code: ${data[i].code}`
           env.logWarning(message)
-          queryNotification.setNotification(db, "WARNING", message, packageId, 1)
+          queryNotification.setNotification(db, "WARNING", message, packageId, 2)
         }
       }
       let pCommand = insertCommands(db, packageId, commands)
