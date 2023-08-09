@@ -33,7 +33,7 @@ For example,
 async function iscDataLoader(db, state, sessionId) {
   let endpointTypes = state.endpointTypes
   let promises = []
-  await notification.setNotification(
+  await querySessionNotification.setNotification(
     db,
     'UPGRADE',
     'ISC FILE UPGRADED TO ZAP FILE. PLEASE SAVE AS TO SAVE OFF NEWLY CREATED ZAP FILE.',
@@ -75,16 +75,16 @@ setNotification takes the following arguments:
 For example,
 
 ```
-async function iscDataLoader(db, state, sessionId) {
-  let endpointTypes = state.endpointTypes
-  let promises = []
-  await notification.setNotification(
-    db,
-    'UPGRADE',
-    'ISC FILE UPGRADED TO ZAP FILE. PLEASE SAVE AS TO SAVE OFF NEWLY CREATED ZAP FILE.',
-    sessionId,
-    1,
-    0,
+function prepareEnumOrBitmap(db, packageId, a, dataType, typeMap) {
+  let message = 'Check type contradiction in XML metadata for ' +
+  a.$.name + ' with type ' + a.$.type
+  env.logWarning(message)
+  queryPackageNotification.setNotification(
+    db, 
+    "WARNING", 
+    message, 
+    packageId, 
+    2
   )
 }
 ```
