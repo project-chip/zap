@@ -222,7 +222,7 @@ function userSessionHandler(db, options) {
           studio.sendSessionCreationErrorStatus(db, resp, zapSessionId)
           env.logError(resp)
           if(req.sessionId) {
-            notification.setNotification(db, 'ERROR', resp, zapSessionId, 2, 0)
+            notification.setNotification(db, 'ERROR', resp, zapSessionId, 1, 0)
           }
         })
     }

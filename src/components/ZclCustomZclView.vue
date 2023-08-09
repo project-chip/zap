@@ -71,6 +71,80 @@ limitations under the License.
                   <br />
                 </q-expansion-item>
               </q-item-section>
+              <q-item-section side>
+                <q-icon
+                  :class="{'cursor-pointer': 
+                          iconName(sessionPackage.pkg.id) == 'error' 
+                       || iconName(sessionPackage.pkg.id) == 'warning'}"
+                  :name="iconName(sessionPackage.pkg.id)" 
+                  :color="iconColor(sessionPackage.pkg.id)" 
+                  size="2em"
+                  @click="() => handleIconClick(sessionPackage.pkg.id)"
+                />
+              </q-item-section>
+              <q-dialog v-model="dialogData[sessionPackage.pkg.id]">
+                <q-card>
+                  <q-card-section>
+                    <div class="row items-center">
+                      <div class="col-1">
+                        <q-icon
+                          :name="iconName(sessionPackage.pkg.id)" 
+                          :color="iconColor(sessionPackage.pkg.id)" 
+                          size="2em"
+                        ></q-icon>
+                      </div>
+                      <div class="text-h6 col">
+                        {{ sessionPackage.pkg.path }} 
+                      </div>
+                      <div class="col-1 text-right">
+                        <q-btn dense flat icon="close" v-close-popup>
+                          <q-tooltip>Close</q-tooltip>
+                        </q-btn>
+                      </div>
+                    </div>
+                    <div v-if="notisData[sessionPackage.pkg.id]?.hasError">
+                      <div 
+                        class="text-h6" 
+                        style="margin-top: 15px; 
+                              padding-left: 20px"
+                      >
+                        Errors
+                      </div>
+                      <ul>
+                        <li 
+                          v-for="(error, index) in 
+                                populateNotifications(sessionPackage.pkg.id, 
+                                'ERROR')" 
+                          :key="'error' + index"
+                          style="margin-bottom: 10px"
+                        >
+                          {{ error.message }}
+                        </li>
+                      </ul>
+                    </div>
+                    <div v-if="notisData[sessionPackage.pkg.id]?.hasWarning">
+                      <div 
+                        class="text-h6" 
+                        style="margin-top: 15px; 
+                        padding-left: 20px"
+                      >
+                        Warnings
+                      </div>
+                      <ul>
+                        <li 
+                          v-for="(warning, index) in 
+                                populateNotifications(sessionPackage.pkg.id, 
+                                'WARNING')" 
+                          :key="index"
+                          style="margin-bottom: 10px"
+                          >
+                          {{ warning.message }}
+                        </li>
+                      </ul>
+                    </div>
+                  </q-card-section>
+                </q-card>
+              </q-dialog>
             </q-item>
           </div>
         </q-list>
@@ -82,11 +156,18 @@ limitations under the License.
 <script>
 import CommonMixin from '../util/common-mixin'
 import rendApi from '../../src-shared/rend-api.js'
+import restApi from '../../src-shared/rest-api.js'
 const observable = require('../util/observable.js')
 import { Notify } from 'quasar'
+import { rest } from 'underscore'
 
 export default {
   mixins: [CommonMixin],
+  watch: {
+    packages(newPackages) {
+      this.loadPackageNotification(newPackages)
+    }
+  },
   methods: {
     getFileName(path) {
       let fileName = path.match(/[^/]+$/)
@@ -120,6 +201,18 @@ export default {
           }
         })
     },
+    // load package notification data after global var updates
+    loadPackageNotification(newPackages) {
+      if (newPackages) {
+        newPackages.forEach((packageFile) => {
+          let packageId = packageFile.pkg.id
+          if (packageId) {
+            this.getPackageNotifications(packageId)
+            this.dialogData[packageId] = false
+          }
+        })
+      }
+    },
     async deletePackage(packageToDelete) {
       await this.$store.dispatch(
         'zap/deleteSessionPackage',
@@ -128,6 +221,57 @@ export default {
       await this.$store.dispatch('zap/updateClusters')
       await this.$store.dispatch('zap/updateAtomics')
     },
+    async getPackageNotifications(packageId) {
+      this.$serverGet(
+        restApi.uri.packageNotificationById.replace(':packageId', packageId)
+      ).then((res) => {
+        let notifications = res.data || []
+        let currentPackage = {
+          hasWarning: notifications.length > 0,
+          hasError: false,
+          warnings: [],
+          errors: [],
+        }
+        notifications.forEach((notification) => {
+          if (notification.type == "ERROR") {
+            currentPackage.hasError = true
+            currentPackage.errors.push(notification)
+          }
+          else {
+            currentPackage.warnings.push(notification)
+          }
+        })
+        this.notisData[packageId] = currentPackage
+      })
+    },
+    iconName(packageId) {
+      if (this.notisData[packageId]?.hasError) {
+        return 'error'
+      } else if (this.notisData[packageId]?.hasWarning) {
+        return 'warning'
+      } else {
+        return 'check_circle'
+      }
+    },
+    iconColor(packageId) {
+      if (this.notisData[packageId]?.hasError) {
+        return 'red'
+      } else if (this.notisData[packageId]?.hasWarning) {
+        return 'orange'
+      } else {
+        return 'green'
+      }
+    },
+    handleIconClick(packageId) {
+      let iconName = this.iconName(packageId);
+      if (iconName === 'error' || iconName === 'warning') {
+        this.dialogData[packageId] = true;
+      }
+    },
+    populateNotifications(packageId, type) {
+      let key = type == "ERROR" ? "errors" : "warnings"
+      return this.notisData[packageId][key]
+    }
   },
   mounted() {
     if (this.$serverGet != null) {
@@ -143,12 +287,14 @@ export default {
           }
         }
       )
-    }
+    }  
   },
   data() {
     return {
       packageToLoad: '',
       error: null,
+      notisData: {},
+      dialogData: {},
     }
   },
 }

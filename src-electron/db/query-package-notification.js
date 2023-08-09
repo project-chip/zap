@@ -38,12 +38,11 @@ async function setNotification(
   status,
   packageId,
   severity = 2,
-  display = 0
 ) {
   return dbApi.dbUpdate(
     db,
-    'INSERT INTO PACKAGE_NOTICE ( PACKAGE_REF, NOTICE_TYPE, NOTICE_MESSAGE, NOTICE_SEVERITY, DISPLAY, SEEN) VALUES ( ?, ?, ?, ?, ?, ?)',
-    [packageId, type, status, severity, display, 0]
+    'INSERT INTO PACKAGE_NOTICE ( PACKAGE_REF, NOTICE_TYPE, NOTICE_MESSAGE, NOTICE_SEVERITY) VALUES ( ?, ?, ?, ? )',
+    [packageId, type, status, severity]
   )
 }
 
@@ -56,11 +55,11 @@ async function setNotification(
  * @param {*} type
  * @param {*} message
  */
-async function deleteNotification(db, order) {
+async function deleteNotification(db, id) {
   return dbApi.dbUpdate(
     db,
-    'DELETE FROM PACKAGE_NOTICE WHERE ( NOTICE_ORDER ) = ( ? )',
-    [order]
+    'DELETE FROM PACKAGE_NOTICE WHERE ( NOTICE_ID ) = ( ? )',
+    [id]
   )
 }
 /**
@@ -69,7 +68,7 @@ async function deleteNotification(db, order) {
  * @export
  * @param {*} db
  */
-async function getNotification(db, sessionId) {
+async function getNotificationBySessionId(db, sessionId) {
   let rows = []
   rows = await dbApi.dbAll(
     db,
@@ -79,22 +78,42 @@ async function getNotification(db, sessionId) {
   )
   return rows.map(dbMapping.map.packageNotification)
 }
-
-
+/**
+ * Retrieves all package notifications in the database
+ *
+ * @export
+ * @param {*} db
+ */
 async function getAllNotification(db) {
   let rows = []
   rows = await dbApi.dbAll(
     db,
-    'SELECT DISTINCT PACKAGE_REF AS packageId, NOTICE_MESSAGE AS message FROM PACKAGE_NOTICE'
+    'SELECT * FROM PACKAGE_NOTICE'
   )
-  if(rows == null) return undefined
-  return rows
+  return rows.map(dbMapping.map.packageNotification)
+}
+/**
+ * Retrieves package notifications of a specific package given its packageId
+ *
+ * @export
+ * @param {*} db
+ * @param {*} packageId
+ */
+async function getNotificationByPackageId(db, packageId) {
+  let rows = []
+  rows = await dbApi.dbAll(
+    db,
+    'SELECT * FROM PACKAGE_NOTICE WHERE PACKAGE_REF = ( ? )',
+    [packageId]
+  )
+  return rows.map(dbMapping.map.packageNotification)
 }
 
 
 // exports
 exports.setNotification = setNotification
 exports.deleteNotification = deleteNotification
-exports.getNotification = getNotification
+exports.getNotificationByPackageId = getNotificationByPackageId
+exports.getNotificationBySessionId = getNotificationBySessionId
 exports.getAllNotification = getAllNotification
 //# sourceMappingURL=query-package-notification.js.map

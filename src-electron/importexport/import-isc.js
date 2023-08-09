@@ -413,7 +413,7 @@ async function loadSingleAttribute(db, endpointTypeId, packageId, at) {
       if (cluster == null || attribute == null) {
         let message = `Could not resolve attribute ${at.clusterCode} / ${at.attributeCode}`
         env.logWarning(message)
-        queryPackageNotification.setNotification(db, "WARNING", message, packageId, 1, 0)
+        queryPackageNotification.setNotification(db, "WARNING", message, packageId, 2)
         return
       }
       let clusterRef = cluster.id
@@ -655,7 +655,7 @@ async function iscDataLoader(db, state, sessionId) {
     'UPGRADE',
     'ISC FILE UPGRADED TO ZAP FILE. PLEASE SAVE AS TO SAVE OFF NEWLY CREATED ZAP FILE.',
     sessionId,
-    1
+    2
   )
 
   // We don't have the package info inside ISC file, so we
@@ -683,7 +683,7 @@ async function iscDataLoader(db, state, sessionId) {
   let genPackageId = null
   if (genPackages.length == 0) {
     env.logWarning('No gen packages, missing the extensions matching.')
-    querySessionNotification.setNotification(db, "WARNING", 'No gen packages, missing the extensions matching.', sessionId, 1, 0)
+    querySessionNotification.setNotification(db, "WARNING", 'No gen packages, missing the extensions matching.', sessionId, 2, 0)
   } else {
     genPackageId = genPackages[0].id
   }

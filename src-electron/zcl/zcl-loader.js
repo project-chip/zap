@@ -135,7 +135,7 @@ async function loadIndividualFile(db, filePath, sessionId) {
       `Unable to read file: ${filePath}. Expecting an XML file with ZCL clusters.`
     )
     env.logWarning(err)
-    queryNotification.setNotification(db, "WARNING", err, sessionId, 1, 0)
+    queryNotification.setNotification(db, "WARNING", err, sessionId, 2, 0)
     return { succeeded: false, err }
   }
 }

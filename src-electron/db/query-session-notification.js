@@ -75,10 +75,6 @@ async function setNotification(
         notificationCount
       )
     }
-  } else {
-    console.log(
-      'No session found with given sessionId, cannot insert notification adn initalize websocket'
-    )
   }
   return updateResp
 }
@@ -92,11 +88,11 @@ async function setNotification(
  * @param {*} type
  * @param {*} message
  */
-async function deleteNotification(db, order) {
+async function deleteNotification(db, id) {
   return dbApi.dbUpdate(
     db,
-    'DELETE FROM SESSION_NOTICE WHERE ( NOTICE_ORDER ) = ( ? )',
-    [order]
+    'DELETE FROM SESSION_NOTICE WHERE ( NOTICE_ID ) = ( ? )',
+    [id]
   )
 }
 /**
@@ -145,7 +141,7 @@ async function markNotificationsAsSeen(db, unseenIds) {
     let placeholders = unseenIds.map(() => '?').join(',')
     await dbApi.dbUpdate(
       db,
-      `UPDATE SESSION_NOTICE SET SEEN = 1 WHERE NOTICE_ORDER IN (${placeholders})`,
+      `UPDATE SESSION_NOTICE SET SEEN = 1 WHERE NOTICE_ID IN (${placeholders})`,
       unseenIds
     )
   }

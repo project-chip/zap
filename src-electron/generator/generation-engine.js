@@ -451,7 +451,7 @@ async function loadZclExtensions(db, packageId, zclExt, defaultsPath) {
                 `Invalid file! Failed to load defaults from: ${prop.defaults}`
               )
               queryNotification.setNotification(db, "WARNING",
-                `Invalid file! Failed to load defaults from: ${prop.defaults}`, packageId, 1, 0)
+                `Invalid file! Failed to load defaults from: ${prop.defaults}`, packageId, 2)
             })
 
           if (data) {
@@ -460,7 +460,7 @@ async function loadZclExtensions(db, packageId, zclExt, defaultsPath) {
                 `Invalid file format! Failed to load defaults from: ${prop.defaults}`
               )
               queryNotification.setNotification(db, "WARNING",
-              `Invalid file format! Failed to load defaults from: ${prop.defaults}`, packageId, 1, 0)
+              `Invalid file format! Failed to load defaults from: ${prop.defaults}`, packageId, 2)
             } else {
               defaultArrayOfArrays.push(
                 data.map((x) => decodePackageExtensionEntity(entity, x))

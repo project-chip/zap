@@ -1141,7 +1141,7 @@ CREATE TABLE IF NOT EXISTS "SESSION_NOTICE" (
   "NOTICE_TYPE" text,
   "NOTICE_MESSAGE" text,
   "NOTICE_SEVERITY" integer,
-  "NOTICE_ORDER" integer primary key autoincrement,
+  "NOTICE_ID" integer primary key autoincrement,
   "DISPLAY" integer,
   "SEEN" integer,
   foreign key (SESSION_REF) references SESSION(SESSION_ID) on delete cascade
@@ -1155,9 +1155,7 @@ CREATE TABLE IF NOT EXISTS "PACKAGE_NOTICE" (
   "NOTICE_TYPE" text,
   "NOTICE_MESSAGE" text,
   "NOTICE_SEVERITY" integer,
-  "NOTICE_ORDER" integer primary key autoincrement,
-  "DISPLAY" integer,
-  "SEEN" integer,
+  "NOTICE_ID" integer primary key autoincrement,
   foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID) on delete cascade
 );
 /* EO SCHEMA */

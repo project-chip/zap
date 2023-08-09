@@ -11,31 +11,101 @@
       </template>
       <template v-slot:body="props">
         <q-tr :props="props" class="table_body">
-          <q-td style="display: none" key="order" :props="props">
-            <div>{{ props.row.order }}</div>
+          <q-td style="display: none" key="id" :props="props">
+            <div>{{ props.row.id }}</div>
           </q-td>
-          <!-- <q-td key="ref" :props="props">
-            <div>{{ props.row.ref }}</div>
-          </q-td> -->
           <q-td key="type" :props="props">
             <div>{{ props.row.type }}</div>
           </q-td>
           <q-td key="message" :props="props">
             <div>{{ props.row.message }}</div>
           </q-td>
-          <!-- <q-td key="severity" :props="props">
-            <div>{{ props.row.severity }}</div>
-          </q-td> -->
           <q-td>
             <q-btn
               flat
               icon="delete"
-              @click="deleteNotification(props.row.order)"
+              @click="deleteNotification(props.row.id)"
             />
           </q-td>
         </q-tr>
       </template>
     </q-table>
+
+    <br/>
+
+    <div class="text-h5">Packages Notifications</div>
+    <div v-for="(sessionPackage, index) in packages" :key="index">
+      <div v-if="packageNotis[sessionPackage.pkg.id]?.hasError 
+              || packageNotis[sessionPackage.pkg.id]?.hasWarning">
+      <q-item>
+        <q-item-section>
+          <q-expansion-item>
+            <template #header>
+              <q-toolbar>
+                <div>
+                  <strong>{{
+                    sessionPackage.pkg.path
+                  }}</strong>
+                </div>        
+              </q-toolbar>
+            </template>   
+            <div v-if="packageNotis[sessionPackage.pkg.id]?.hasError">
+              <div 
+                class="text-h6" 
+                style="margin-top: 15px; 
+                padding-left: 20px"
+              >
+                Errors
+              </div>
+              <ul>
+                <li 
+                  v-for="(error, index) in 
+                  this.packageNotis[sessionPackage.pkg.id]?.errors" 
+                  :key="'error' + index"
+                  style="margin-bottom: 10px"
+                >
+                  {{ error.message }}
+                </li>
+              </ul>
+            </div>
+            <div v-if="packageNotis[sessionPackage.pkg.id]?.hasWarning">
+              <div 
+                class="text-h6" 
+                style="margin-top: 15px; 
+                      padding-left: 20px"
+              >
+                Warnings
+              </div>
+              <ul>
+                <li 
+                  v-for="(warning, index) in 
+                  this.packageNotis[sessionPackage.pkg.id]?.warnings" 
+                  :key="index"
+                  style="margin-bottom: 10px"
+                  >
+                  {{ warning.message }}
+                </li>
+              </ul>
+            </div>
+            <br />
+          </q-expansion-item>    
+        </q-item-section>
+        <q-item-section 
+          side 
+          style="align-self:flex-start; 
+                margin-top: 15px"
+        >
+          <q-icon
+            :name="this.packageNotis[sessionPackage.pkg.id]?.hasError 
+                  ? 'error': 'warning'"
+            :color="this.packageNotis[sessionPackage.pkg.id]?.hasError 
+                  ? 'red': 'orange'"
+            size="2em"
+          />
+        </q-item-section>
+      </q-item>
+      </div>
+    </div>
   </PreferencePageLayout>
 </template>
 
@@ -44,9 +114,16 @@ import PreferencePageLayout from '../layouts/PreferencePageLayout.vue'
 import dbEnum from '../../src-shared/db-enum'
 
 import restApi from '../../src-shared/rest-api.js'
+import commonMixin from '../util/common-mixin'
 export default {
+  mixins: [commonMixin],
   components: {
     PreferencePageLayout,
+  },
+  watch: {
+    packages(newPackages) {
+      this.loadPackageNotification(newPackages)
+    }
   },
   methods: {
     getNotificationsAndUpdateSeen() {
@@ -57,7 +134,7 @@ export default {
             let notification = resp.data[i]
             this.notis.push(notification)
             if (notification.seen == 0) {
-              unseenIds.push(notification.order)
+              unseenIds.push(notification.id)
             }
           }
           if (unseenIds && unseenIds.length > 0) {
@@ -96,28 +173,59 @@ export default {
           console.log(err)
         })
     },
-    deleteNotification(order) {
+    deleteNotification(id) {
       let parameters = {
-        order: order,
+        id: id,
       }
       let config = { params: parameters }
       this.$serverDelete(restApi.uri.deleteSessionNotification, config).then(
         (resp) => {
-          this.notis = this.notis.filter((row) => row.order !== order)
+          this.notis = this.notis.filter((row) => row.id !== id)
           this.getUnseenNotificationCount()
         }
       )
     },
+    // load package notification data after global var updates
+    loadPackageNotification(newPackages) {
+      if (newPackages) {
+        newPackages.forEach((packageFile) => {
+          let packageId = packageFile.pkg.id
+          if (packageId) {
+            this.getPackageNotifications(packageId)
+          }
+        })
+      }
+    },
+    async getPackageNotifications(packageId) {
+      this.$serverGet(
+        restApi.uri.packageNotificationById.replace(':packageId', packageId)
+      ).then((res) => {
+        let notifications = res.data || []
+        let currentPackage = {
+          hasWarning: notifications.length > 0,
+          hasError: false,
+          warnings: [],
+          errors: [],
+        }
+        notifications.forEach((notification) => {
+          if (notification.type == "ERROR") {
+            currentPackage.hasError = true
+            currentPackage.errors.push(notification)
+          }
+          else {
+            currentPackage.warnings.push(notification)
+          }
+        })
+        this.packageNotis[packageId] = currentPackage
+      })
+    },
+    hasError(packageId) {
+      return this.packageNotis[packageId].hasError
+    }
   },
   data() {
     return {
       columns: [
-        // {
-        //   name: 'ref',
-        //   align: 'center',
-        //   label: 'ref',
-        //   field: 'ref',
-        // },
         { name: 'type', align: 'center', label: 'type', field: 'type' },
         {
           name: 'message',
@@ -125,12 +233,6 @@ export default {
           label: 'message',
           field: 'message',
         },
-        // {
-        //   name: 'severity',
-        //   align: 'center',
-        //   label: 'severity',
-        //   field: 'severity',
-        // },
         {
           name: 'delete',
           align: 'center',
@@ -139,16 +241,18 @@ export default {
         },
       ],
       notis: [],
+      packageNotis: []
     }
   },
   created() {
     if (this.$serverGet != null) {
       this.notis = []
       this.getNotificationsAndUpdateSeen()
+      this.loadPackageNotification(this.packages)
     }
   },
   mounted() {
-    if(this.$onWebSocket) {
+    if (this.$onWebSocket) {
       this.$onWebSocket(
         dbEnum.wsCategory.notificationCount,
         (data) => {

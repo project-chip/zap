@@ -64,7 +64,7 @@ test(
 
     let notifications = await sessionNotification.getNotification(db, sessionId)
 
-    let order = 0
+    let id = 0
 
     // check if the returned notifications include the one we just set
     let isNotificationSet = false
@@ -77,21 +77,21 @@ test(
         notifications[i].display === display
       ) {
         isNotificationSet = true
-        order = notifications[i].order
+        id = notifications[i].id
         break
       }
     }
     expect(isNotificationSet).toBeTruthy()
 
     // delete the notification we just created
-    await sessionNotification.deleteNotification(db, order)
+    await sessionNotification.deleteNotification(db, id)
 
     notifications = await sessionNotification.getNotification(db, sessionId)
 
     // check if the notification was successfully deleted
     let isNotificationDeleted = true
     for (let i = 0; i < notifications.length; i++) {
-      if (notifications[i].order === order) {
+      if (notifications[i].id === id) {
         isNotificationDeleted = false
         break
       }
@@ -102,7 +102,7 @@ test(
 )
 
 test('Notification: mark notification as seen and get unseen count', async () => {
-  // set a new notification and get its order
+  // set a new notification and get its id
   let type = 'UPGRADE'
   let message =
     'ISC FILE UPGRADED TO ZAP FILE. PLEASE SAVE AS TO SAVE OFF NEWLY CREATED ZAP FILE.'
@@ -121,8 +121,8 @@ test('Notification: mark notification as seen and get unseen count', async () =>
 
   let notifications = await sessionNotification.getNotification(db, sessionId)
   expect(notifications.length > 0).toBeTruthy()
-  let order = notifications[0].order
-  let unseenIds = [order]
+  let id = notifications[0].id
+  let unseenIds = [id]
 
   // should have 1 unseen notification
   let unseenCount = await sessionNotification.getUnseenNotificationCount(
@@ -149,7 +149,6 @@ test(
     let message =
       'ISC FILE UPGRADED TO ZAP FILE. PLEASE SAVE AS TO SAVE OFF NEWLY CREATED ZAP FILE.'
     let severity = 1
-    let display = 1
 
     let sessionId = await querySession.createBlankSession(db)
     let ctx = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
@@ -163,12 +162,11 @@ test(
       message,
       packageId,
       severity,
-      display
     )
 
-    let notifications = await packageNotification.getNotification(db, sessionId)
+    let notifications = await packageNotification.getNotificationBySessionId(db, sessionId)
 
-    let order = 0
+    let id = 0
 
     // check if the returned notifications include the one we just set
     let isNotificationSet = false
@@ -177,25 +175,24 @@ test(
         notifications[i].type === type &&
         notifications[i].message === message &&
         notifications[i].ref === packageId &&
-        notifications[i].severity === severity &&
-        notifications[i].display === display
+        notifications[i].severity === severity
       ) {
         isNotificationSet = true
-        order = notifications[i].order
+        id = notifications[i].id
         break
       }
     }
     expect(isNotificationSet).toBeTruthy()
 
     // delete the notification we just created
-    await packageNotification.deleteNotification(db, order)
+    await packageNotification.deleteNotification(db, id)
 
-    notifications = await packageNotification.getNotification(db, packageId)
+    notifications = await packageNotification.getNotificationByPackageId(db, packageId)
 
     // check if the notification was successfully deleted
     let isNotificationDeleted = true
     for (let i = 0; i < notifications.length; i++) {
-      if (notifications[i].order === order) {
+      if (notifications[i].id === id) {
         isNotificationDeleted = false
         break
       }
