@@ -6,7 +6,7 @@ The purpose of this document is to provide ZAP developers with simple instructio
 
 ### Adding a Session Notification
 
-Session notifications are set after a sesion is created. In order to add a session notification, call the setNotification function in zap/src-electron/query-session-notification.js. 
+Session notifications are set after a session is created. To add a session notification, call the setNotification function in zap/src-electron/query-session-notification.js. 
 setNotification takes the following arguments:
 
 - db => database object (object)
@@ -24,8 +24,8 @@ setNotification takes the following arguments:
     - 3 => low
 - display => method to notify the user (integer)
   - options
-    - 1 => notify the user through a pop-up message after adding the notification
-    - 0 => do not show pop-up messages
+    - 1 => display a pop-up message
+    - 0 => do not show a pop-up message
 
 For example,
 
@@ -43,19 +43,18 @@ async function iscDataLoader(db, state, sessionId) {
   )
 }
 ```
-- When calling setNotification function, ensure a valid session id is accessible within the current scope
 
-- For testing you can navigate to **zap/src/NotificationPage.vue** which queries the SESSION_NOTICE table and returns all notifications with the same SESSION_REF.
+- When calling the setNotification function, ensure a valid session Id is accessible within the current scope
 
-For example, the picture below is the result of importing an isc file.
+- For testing you can navigate to **zap/src/pages/NotificationPage.vue**, which queries the SESSION_NOTICE table and returns all notifications with the same SESSION_REF.
+
+For example, the picture below is the result of importing an isc file in the notification page.
 
 ![display notification](display_notification.png)
 
-
-
 ### Adding a Package Notification
 
-Package notifications are set when processing and loading a specific package. In order to add a session notification, call the setNotification function in zap/src-electron/query-package-notification.js. 
+Package notifications are set when processing and loading a specific package. To add a package notification, call the setNotification function in zap/src-electron/query-package-notification.js. 
 setNotification takes the following arguments:
 
 - db => database object (object)
@@ -89,4 +88,16 @@ function prepareEnumOrBitmap(db, packageId, a, dataType, typeMap) {
 }
 ```
 
-- When calling setNotification function, ensure a valid package id is accessible within the current scope
+- When calling the setNotification function, ensure a valid package Id is accessible within the current scope
+
+- For testing you can navigate to **zap/src/pages/ZapConfig.vue** which queries the PACKAGE_NOTICE table and returns all notifications from packages referenced by the current session. 
+
+For example, in the pictures below, clicking the warning icon will lead you to a dialog showing all notifications for that package.
+
+![package notification config page](config-page.png)
+
+![warning dialog](warning-dialog.png)
+
+**zap/src/pages/NotificationPage.vue** will display all notifications from packages chosen or imported by the user, like shown in the picture below
+
+![package notis notification page](package-notification.png)
