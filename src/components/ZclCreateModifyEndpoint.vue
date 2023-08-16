@@ -41,6 +41,7 @@ limitations under the License.
             :rules="[reqInteger, reqPosInt]"
             @update:model-value="setProfileId"
           />
+
           <q-select
             label="Device"
             ref="device"
@@ -58,7 +59,20 @@ limitations under the License.
             :option-label="getDeviceOptionLabel"
             @filter="filterDeviceTypes"
             data-test="select-endpoint-input"
-          />
+          >
+            <template v-slot:after>
+              <q-btn
+                v-if="isDeviceLibraryDocumentationAvailable"
+                dense
+                flat
+                :color="primary"
+                icon="sym_o_quick_reference"
+                title="Device Type Specification"
+                @click="openDeviceLibraryDocumentation"
+              />
+            </template>
+          </q-select>
+
           <q-select
             v-if="enablePrimaryDevice"
             label="Primary Device"
@@ -170,6 +184,7 @@ import * as RestApi from '../../src-shared/rest-api'
 import * as DbEnum from '../../src-shared/db-enum'
 import CommonMixin from '../util/common-mixin'
 const _ = require('lodash')
+import * as dbEnum from '../../src-shared/db-enum.js'
 
 export default {
   name: 'ZclCreateModifyEndpoint',
@@ -245,6 +260,16 @@ export default {
     }
   },
   computed: {
+    isDeviceLibraryDocumentationAvailable() {
+      return (
+        this.$store.state.zap.genericOptions[
+          dbEnum.sessionOption.deviceTypeSpecification
+        ] &&
+        this.$store.state.zap.genericOptions[
+          dbEnum.sessionOption.deviceTypeSpecification
+        ].length > 0
+      )
+    },
     zclDeviceTypeOptions: {
       get() {
         let dt = this.$store.state.zap.zclDeviceTypes
@@ -383,6 +408,20 @@ export default {
     },
   },
   methods: {
+    openDeviceLibraryDocumentation() {
+      if (
+        this.$store.state.zap.genericOptions[
+          dbEnum.sessionOption.deviceTypeSpecification
+        ].length > 0
+      ) {
+        window.open(
+          this.$store.state.zap.genericOptions[
+            dbEnum.sessionOption.deviceTypeSpecification
+          ][0]['optionLabel'],
+          '_blank'
+        )
+      }
+    },
     // This function will close the endpoint modal
     toggleCreateEndpointModal() {
       this.$store.commit('zap/toggleEndpointModal', false)

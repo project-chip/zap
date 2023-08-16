@@ -29,6 +29,7 @@ module.exports = configure(function (ctx) {
       'material-icons-outlined', // optional, you are not bound to it
       // 'ionicons-v4',
       'mdi-v4',
+      'material-symbols-outlined',
       // 'fontawesome-v5',
       // 'eva-icons',
       // 'themify',
