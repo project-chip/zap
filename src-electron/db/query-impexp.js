@@ -687,7 +687,6 @@ WHERE
     attribute.storageOption,
     attribute.singleton,
     attribute.bounded,
-    attribute.defaultValue,
     attribute.reportable,
     attribute.minInterval,
     attribute.maxInterval,
@@ -705,13 +704,12 @@ INSERT INTO ENDPOINT_TYPE_ATTRIBUTE (
   STORAGE_OPTION,
   SINGLETON,
   BOUNDED,
-  DEFAULT_VALUE,
   INCLUDED_REPORTABLE,
   MIN_INTERVAL,
   MAX_INTERVAL,
   REPORTABLE_CHANGE 
 ) VALUES ( 
-  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
 )
   `,
     arg
