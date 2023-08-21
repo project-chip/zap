@@ -35,9 +35,9 @@ import * as http from 'http-status-codes'
 import zcl from './zcl.js'
 
 const localhost = 'http://127.0.0.1:'
-const op_tree = '/rest/clic/components/all/project/'
-const op_add = '/rest/clic/component/add/project/'
-const op_remove = '/rest/clic/component/remove/project/'
+const resGetProjectInfo = '/rest/clic/components/all/project/'
+const resAddComponent = '/rest/clic/component/add/project/'
+const resRemoveComponent = '/rest/clic/component/remove/project/'
 
 let ucComponentStateReportId: NodeJS.Timeout
 let studioHttpPort: number
@@ -95,10 +95,10 @@ async function getProjectInfo(
   data: string[]
   status?: http.StatusCodes
 }> {
-  let studioProjectPath = await projectPath(db, sessionId)
-  if (studioProjectPath) {
-    let name = await projectName(studioProjectPath)
-    let path = localhost + studioHttpPort + op_tree + studioProjectPath
+  let project = await projectPath(db, sessionId)
+  if (project) {
+    let name = projectName(project)
+    let path = localhost + studioHttpPort + resGetProjectInfo + project
     env.logDebug(`StudioUC(${name}): GET: ${path}`)
     return axios
       .get(path)
@@ -110,6 +110,9 @@ async function getProjectInfo(
         return { data: [] }
       })
   } else {
+    env.logDebug(
+      `StudioUC(): Invalid Studio project path specified via project info API!`
+    )
     return { data: [] }
   }
 }
@@ -139,7 +142,14 @@ async function updateComponentByClusterIdAndComponentId(
     env.logWarning(
       `StudioUC(): Failed to update component due to invalid Studio project path.`
     )
-    queryNotification.setNotification(db, "WARNING", `StudioUC(): Failed to update component due to invalid Studio project path.`, sessionId, 2, 0)
+    queryNotification.setNotification(
+      db,
+      'WARNING',
+      `StudioUC(): Failed to update component due to invalid Studio project path.`,
+      sessionId,
+      2,
+      0
+    )
     return Promise.resolve({ componentIds: [], added: add })
   }
 
@@ -214,7 +224,7 @@ function httpPostComponentUpdate(
   componentId: string,
   add: boolean
 ) {
-  let operation = add ? op_add : op_remove
+  let operation = add ? resAddComponent : resRemoveComponent
   let operationText = add ? 'add' : 'remove'
   return axios
     .post(localhost + studioHttpPort + operation + project, {
