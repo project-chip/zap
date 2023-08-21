@@ -535,10 +535,8 @@ export function updateProjectPackages(state, packages) {
 
 export function updateUcComponentState(state, data) {
   if (data != null) {
-    vue3Set(state.studio, 'projectInfoJson', data.projectInfoJson)
     vue3Set(state.studio, 'ucComponents', data.ucComponents)
     vue3Set(state.studio, 'selectedUcComponents', data.selectedUcComponents)
-    vue3Set(state.studio, 'selectedUcComponentIds', data.selectedUcComponentIds)
   }
 }
 

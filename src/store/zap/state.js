@@ -144,10 +144,8 @@ export default function () {
     standalone: false, // flag indicating if ZAP frontend is running outside of Studio.
     showDevTools: false,
     studio: {
-      projectInfoJson: [], // HTTP response from Studio jetty server
-      ucComponents: [],
+      ucComponents: [], // Studio uc component states
       selectedUcComponents: [], // [] of 'studio..' prefixed Studio internal component ids
-      selectedUcComponentIds: [], // [] of 'zigbee_' prefixed component ids
       // a list of dict: { "clusterCode": "$zcl_cluster-$zcl_role", "value": ["$uc_component_id"] }
       zclSdkExtClusterToUcComponentMap: [],
     },

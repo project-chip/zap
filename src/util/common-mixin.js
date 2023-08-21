@@ -222,10 +222,10 @@ export default {
         )
       }
 
-      return requiredList.filter(
-        (id) =>
-          !this.$store.state.zap.studio.selectedUcComponentIds.includes(id)
+      let selectedUcComponentIds = Util.getClusterIdsByUcComponents(
+        this.$store.state.zap.studio.selectedUcComponents
       )
+      return requiredList.filter((id) => !selectedUcComponentIds.includes(id))
     },
 
     ucComponentRequiredByCluster(cluster, role) {
