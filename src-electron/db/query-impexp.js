@@ -89,7 +89,6 @@ async function exportEndpoints(db, sessionId, endpointTypes) {
       `
 SELECT
   ET.NAME,
-  E.ENDPOINT_TYPE_REF,
   E.PROFILE,
   E.ENDPOINT_IDENTIFIER,
   E.NETWORK_IDENTIFIER
@@ -123,7 +122,6 @@ async function exportEndpointTypes(db, sessionId) {
       db,
       `
 SELECT
-  ENDPOINT_TYPE.ENDPOINT_TYPE_ID,
   ENDPOINT_TYPE.NAME
 FROM
   ENDPOINT_TYPE
@@ -146,7 +144,6 @@ ORDER BY
       db,
       `
       SELECT
-        DEVICE_TYPE.DEVICE_TYPE_ID,
         DEVICE_TYPE.CODE,
         DEVICE_TYPE.NAME,
         DEVICE_TYPE.PROFILE_ID,
@@ -172,13 +169,12 @@ ORDER BY
     )
 
     // Updating the device type info for the endpoint
-    endpointTypes[i].deviceTypeRefs = rows.map((x) => x.DEVICE_TYPE_ID)
     endpointTypes[i].deviceVersions = rows.map((x) => x.DEVICE_VERSION)
     endpointTypes[i].deviceIdentifiers = rows.map((x) => x.CODE)
     endpointTypes[i].deviceTypes = rows.map(dbMapping.map.deviceType)
 
     // Loading endpointTypeRef as primary endpointType for backwards compatibility
-    endpointTypes[i].deviceTypeRef = endpointTypes[i].deviceTypes[0]
+
     endpointTypes[i].deviceTypeName = endpointTypes[i].deviceTypeRef
       ? endpointTypes[i].deviceTypeRef.name
       : ''
@@ -678,7 +674,6 @@ WHERE
   if (storagePolicy == dbEnums.storagePolicy.attributeAccessInterface) {
     attribute.storageOption = dbEnums.storageOption.external
   }
-
   let arg = [
     endpointTypeId,
     endpointClusterId,

@@ -138,7 +138,6 @@ exports.sessionOption = {
   clusterSpecification: 'clusterSpecification',
   deviceTypeSpecification: 'deviceTypeSpecification',
 }
-
 const reportingPolicy = {
   mandatory: 'mandatory',
   suggested: 'suggested',
