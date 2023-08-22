@@ -788,7 +788,7 @@ WHERE
   if (storagePolicy == dbEnums.storagePolicy.attributeAccessInterface) {
     attribute.storageOption = dbEnums.storageOption.external
   }
-  if (attributeId == 48 || attributeId == 56) {
+  if (attributeId == 48) {
     attribute.defaultValue = atRow[0].DEFAULT_VALUE
   }
   let arg = [
