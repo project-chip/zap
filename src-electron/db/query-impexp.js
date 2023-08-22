@@ -621,7 +621,7 @@ ORDER BY
  * @param {*} attribute
  * @returns Promise of an attribute insertion.
  */
-async function importAttributeForEndpointType(
+async function importAttributeForEndpointTypeOpen(
   db,
   packageIds,
   endpointTypeId,
@@ -633,6 +633,7 @@ SELECT
   A.ATTRIBUTE_ID,
   A.REPORTING_POLICY,
   A.STORAGE_POLICY
+  A.DEFAULT_VALUE
 FROM
   ATTRIBUTE AS A
 INNER JOIN
@@ -678,6 +679,9 @@ WHERE
   if (storagePolicy == dbEnums.storagePolicy.attributeAccessInterface) {
     attribute.storageOption = dbEnums.storageOption.external
   }
+  if (attributeId == 46 || attributeId == 56) {
+    attribute.defaultValue = atRow[0].DEFAULT_VALUE
+  }
 
   let arg = [
     endpointTypeId,
@@ -710,6 +714,116 @@ INSERT INTO ENDPOINT_TYPE_ATTRIBUTE (
   REPORTABLE_CHANGE 
 ) VALUES ( 
   ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+)
+  `,
+    arg
+  )
+}
+
+/**
+ * Imports an attribute information of an endpoint type.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} endpointTypeId
+ * @param {*} endpointClusterId may be null if global attribute
+ * @param {*} attribute
+ * @returns Promise of an attribute insertion.
+ */
+async function importAttributeForEndpointType(
+  db,
+  packageIds,
+  endpointTypeId,
+  endpointClusterId,
+  attribute
+) {
+  let selectAttributeQuery = `
+SELECT
+  A.ATTRIBUTE_ID,
+  A.REPORTING_POLICY,
+  A.STORAGE_POLICY,
+  A.DEFAULT_VALUE
+FROM
+  ATTRIBUTE AS A
+INNER JOIN
+  ENDPOINT_TYPE_CLUSTER AS ETC
+ON
+  ETC.CLUSTER_REF = A.CLUSTER_REF OR A.CLUSTER_REF IS NULL
+WHERE
+  A.CODE = ?
+  AND A.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
+  AND A.SIDE = ETC.SIDE
+  AND ETC.ENDPOINT_TYPE_CLUSTER_ID = ?
+  AND ${
+    attribute.mfgCode == null
+      ? 'A.MANUFACTURER_CODE IS NULL'
+      : 'A.MANUFACTURER_CODE = ?'
+  }`
+
+  let selectArgs = [attribute.code, endpointClusterId]
+  if (attribute.mfgCode != null) selectArgs.push(attribute.mfgCode)
+
+  let atRow = await dbApi.dbAll(db, selectAttributeQuery, selectArgs)
+  let attributeId
+  let reportingPolicy
+  let storagePolicy
+  if (atRow.length == 0) {
+    attributeId = null
+    reportingPolicy = null
+    storagePolicy = null
+  } else {
+    attributeId = atRow[0].ATTRIBUTE_ID
+    reportingPolicy = atRow[0].REPORTING_POLICY
+    storagePolicy = atRow[0].STORAGE_POLICY
+  }
+
+  // If the spec has meanwhile changed the policies to mandatory or prohibited,
+  // we update the flags in the file to the requirements.
+  if (reportingPolicy == dbEnums.reportingPolicy.mandatory) {
+    attribute.reportable = true
+  } else if (reportingPolicy == dbEnums.reportingPolicy.prohibited) {
+    attribute.reportable = false
+  }
+
+  if (storagePolicy == dbEnums.storagePolicy.attributeAccessInterface) {
+    attribute.storageOption = dbEnums.storageOption.external
+  }
+  if (attributeId == 48 || attributeId == 56) {
+    attribute.defaultValue = atRow[0].DEFAULT_VALUE
+  }
+  let arg = [
+    endpointTypeId,
+    endpointClusterId,
+    attributeId,
+    attribute.included,
+    attribute.storageOption,
+    attribute.singleton,
+    attribute.bounded,
+    attribute.defaultValue,
+    attribute.reportable,
+    attribute.minInterval,
+    attribute.maxInterval,
+    attribute.reportableChange,
+  ]
+
+  return dbApi.dbInsert(
+    db,
+    `
+INSERT INTO ENDPOINT_TYPE_ATTRIBUTE ( 
+  ENDPOINT_TYPE_REF,
+  ENDPOINT_TYPE_CLUSTER_REF,
+  ATTRIBUTE_REF,
+  INCLUDED,
+  STORAGE_OPTION,
+  SINGLETON,
+  BOUNDED,
+  DEFAULT_VALUE,
+  INCLUDED_REPORTABLE,
+  MIN_INTERVAL,
+  MAX_INTERVAL,
+  REPORTABLE_CHANGE 
+) VALUES ( 
+  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
 )
   `,
     arg
@@ -841,6 +955,7 @@ exports.importEndpoint = importEndpoint
 exports.exportAttributesFromEndpointTypeCluster =
   exportAttributesFromEndpointTypeCluster
 exports.importAttributeForEndpointType = importAttributeForEndpointType
+exports.importAttributeForEndpointTypeOpen = importAttributeForEndpointTypeOpen
 
 exports.exportCommandsFromEndpointTypeCluster =
   exportCommandsFromEndpointTypeCluster
