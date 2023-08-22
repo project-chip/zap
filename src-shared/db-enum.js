@@ -135,7 +135,8 @@ exports.sessionOption = {
   manufacturerCodes: 'manufacturerCodes',
   profileCodes: 'profileCodes',
 }
-
+const clusterRevision = '48'
+exports.clusterRevision = clusterRevision
 const reportingPolicy = {
   mandatory: 'mandatory',
   suggested: 'suggested',
