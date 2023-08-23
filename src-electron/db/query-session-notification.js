@@ -33,6 +33,7 @@ const dbEnum = require('../../src-shared/db-enum.js')
  * @param {*} status
  * @param {*} sessionId
  * @param {*} severity
+ * @param {*} display
  */
 async function setNotification(
   db,

@@ -29,6 +29,7 @@ const queryDeviceType = require('./query-device-type')
 const queryCommand = require('./query-command.js')
 const restApi = require('../../src-shared/rest-api.js')
 const _ = require('lodash')
+const notification = require('../db/query-session-notification.js')
 
 /**
  * Promises to update the cluster include/exclude state.
@@ -563,11 +564,35 @@ async function insertEndpointType(
   }
 
   // Insert into endpoint_type_device
-  let etd = await dbApi.dbMultiInsert(
-    db,
-    'INSERT INTO ENDPOINT_TYPE_DEVICE (ENDPOINT_TYPE_REF, DEVICE_TYPE_REF, DEVICE_IDENTIFIER, DEVICE_VERSION, DEVICE_TYPE_ORDER) VALUES (?, ?, ?, ?, ?)',
-    newEndpointTypeIdDeviceCombination
-  )
+  try {
+    let etd = await dbApi.dbMultiInsert(
+      db,
+      'INSERT INTO ENDPOINT_TYPE_DEVICE (ENDPOINT_TYPE_REF, DEVICE_TYPE_REF, DEVICE_IDENTIFIER, DEVICE_VERSION, DEVICE_TYPE_ORDER) VALUES (?, ?, ?, ?, ?)',
+      newEndpointTypeIdDeviceCombination
+    )
+  } catch (err) {
+    // Catching an error from a sql trigger
+    let isErrorStringPresent = err.includes('Error:')
+    notification.setNotification(
+      db,
+      'ERROR',
+      isErrorStringPresent ? err.split('Error:')[1] : err,
+      sessionId,
+      1,
+      1
+    )
+    await dbApi.dbMultiInsert(
+      db,
+      'DELETE FROM ENDPOINT_TYPE_DEVICE WHERE ENDPOINT_TYPE_REF = ? AND DEVICE_TYPE_REF = ? AND DEVICE_IDENTIFIER = ? AND DEVICE_VERSION =? AND DEVICE_TYPE_ORDER = ?',
+      newEndpointTypeIdDeviceCombination
+    )
+    await dbApi.dbRemove(
+      db,
+      'DELETE FROM ENDPOINT_TYPE WHERE ENDPOINT_TYPE_ID = ?',
+      newEndpointTypeId
+    )
+    throw new Error(err)
+  }
 
   // Resolve endpointDefaults based on device type order.
   for (const dtRef of deviceTypeRefs) {
@@ -688,6 +713,17 @@ async function updateEndpointType(db, sessionId, endpointTypeId, changesArray) {
   let existingDeviceVersions = existingDeviceTypeInfo.map(
     (dt) => dt.DEVICE_VERSION
   )
+
+  let existingEndpointTypeDeviceInfoValues = []
+  for (let j = 0; j < existingDeviceTypeInfo.length; j++) {
+    existingEndpointTypeDeviceInfoValues.push([
+      endpointTypeId,
+      existingDeviceTypeInfo[j]['DEVICE_TYPE_REF'],
+      existingDeviceTypeInfo[j]['DEVICE_VERSION'],
+      existingDeviceTypeInfo[j]['DEVICE_IDENTIFIER'],
+      j,
+    ])
+  }
   let updatedDeviceTypeRefs = updatedValues[0]
   let updatedDeviceVersions = updatedValues[1]
   let isDeviceTypeRefsUpdated =
@@ -723,15 +759,46 @@ async function updateEndpointType(db, sessionId, endpointTypeId, changesArray) {
       ])
     }
 
-    await dbApi.dbMultiInsert(
-      db,
-      `
-      INSERT INTO
-        ENDPOINT_TYPE_DEVICE (ENDPOINT_TYPE_REF, DEVICE_TYPE_REF, DEVICE_VERSION, DEVICE_IDENTIFIER, DEVICE_TYPE_ORDER)
-      VALUES
-        (?, ?, ?, ?, ?)`,
-      endpointTypeDeviceInfoValues
-    )
+    try {
+      await dbApi.dbMultiInsert(
+        db,
+        `
+        INSERT INTO
+          ENDPOINT_TYPE_DEVICE (ENDPOINT_TYPE_REF, DEVICE_TYPE_REF, DEVICE_VERSION, DEVICE_IDENTIFIER, DEVICE_TYPE_ORDER)
+        VALUES
+          (?, ?, ?, ?, ?)`,
+        endpointTypeDeviceInfoValues
+      )
+    } catch (err) {
+      // Catching an error from a sql trigger
+      let isErrorStringPresent = err.includes('Error:')
+      notification.setNotification(
+        db,
+        'ERROR',
+        isErrorStringPresent ? err.split('Error:')[1] : err,
+        sessionId,
+        1,
+        1
+      )
+      // Delete endpoint type devices with the latest updates
+      let test = await dbApi.dbMultiInsert(
+        db,
+        'DELETE FROM ENDPOINT_TYPE_DEVICE WHERE ENDPOINT_TYPE_REF = ? AND DEVICE_TYPE_REF = ? AND DEVICE_VERSION =? AND DEVICE_IDENTIFIER = ? AND DEVICE_TYPE_ORDER = ?',
+        endpointTypeDeviceInfoValues
+      )
+
+      // Re add the old device types on the endpoint before the update
+      await dbApi.dbMultiInsert(
+        db,
+        `
+        INSERT INTO
+          ENDPOINT_TYPE_DEVICE (ENDPOINT_TYPE_REF, DEVICE_TYPE_REF, DEVICE_VERSION, DEVICE_IDENTIFIER, DEVICE_TYPE_ORDER)
+        VALUES
+          (?, ?, ?, ?, ?)`,
+        existingEndpointTypeDeviceInfoValues
+      )
+      throw new Error(err)
+    }
 
     // When updating the zcl device types, overwrite on top of existing configuration
     // Note: Here the existing selections are not removed. For eg: the clusters which
