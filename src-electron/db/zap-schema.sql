@@ -331,6 +331,9 @@ CREATE TABLE IF NOT EXISTS "DEVICE_TYPE" (
   "PROFILE_ID" integer,
   "NAME" text,
   "DESCRIPTION" text,
+  "CLASS" text,
+  "SCOPE" text,
+  "SUPERSET" text,
   foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID) on delete cascade
 );
 /*
@@ -735,6 +738,83 @@ CREATE TABLE IF NOT EXISTS "ENDPOINT_TYPE_DEVICE" (
   set NULL,
   UNIQUE("ENDPOINT_TYPE_REF", "DEVICE_TYPE_REF")
 );
+
+/**
+SQL Trigger for device type triggers per endpoint.
+From Matter Data Model Spec 9.2 Endpoint Composition
+Each simple endpoint SHALL support only one Application device type with these exceptions:
+- The endpoint MAY support additional device types which are subsets of the Application
+device type (the superset).
+- The endpoint MAY support additional device types (application, utility or node device types)
+as defined by each additional device type.
+*/
+CREATE TRIGGER ENDPOINT_TYPE_SIMPLE_DEVICE_CHECK
+BEFORE
+  INSERT ON ENDPOINT_TYPE_DEVICE
+WHEN
+  (SELECT
+    CLASS
+  FROM
+    DEVICE_TYPE
+  WHERE
+    DEVICE_TYPE.DEVICE_TYPE_ID = NEW.DEVICE_TYPE_REF) = "Simple"
+  AND
+    ((SELECT
+      CLASS
+    FROM
+      DEVICE_TYPE
+    WHERE
+      DEVICE_TYPE.DEVICE_TYPE_ID = NEW.DEVICE_TYPE_REF)
+    IN
+      (SELECT
+        CLASS
+      FROM
+        DEVICE_TYPE
+      INNER JOIN
+        ENDPOINT_TYPE_DEVICE
+      ON
+        DEVICE_TYPE.DEVICE_TYPE_ID = ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_REF
+      WHERE
+        ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF = NEW.ENDPOINT_TYPE_REF))
+  AND
+    ((SELECT
+      SUPERSET
+    FROM
+      DEVICE_TYPE
+    WHERE
+      DEVICE_TYPE.DEVICE_TYPE_ID = NEW.DEVICE_TYPE_REF)
+    NOT IN
+      (SELECT
+        DESCRIPTION
+      FROM
+        DEVICE_TYPE
+      INNER JOIN
+        ENDPOINT_TYPE_DEVICE
+      ON
+        DEVICE_TYPE.DEVICE_TYPE_ID = ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_REF
+      WHERE
+        ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF = NEW.ENDPOINT_TYPE_REF))
+  AND
+    ((SELECT
+      DESCRIPTION
+    FROM
+      DEVICE_TYPE
+    WHERE
+      DEVICE_TYPE.DEVICE_TYPE_ID = NEW.DEVICE_TYPE_REF)
+    NOT IN
+      (SELECT
+        SUPERSET
+      FROM
+        DEVICE_TYPE
+      INNER JOIN
+        ENDPOINT_TYPE_DEVICE
+      ON
+        DEVICE_TYPE.DEVICE_TYPE_ID = ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_REF
+      WHERE
+        ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF = NEW.ENDPOINT_TYPE_REF))
+BEGIN
+  SELECT RAISE(ROLLBACK, 'Simple endpoint cannot have more than one application device type');
+END;
 
 /*
  ENDPOINT table contains the toplevel configured endpoints.
