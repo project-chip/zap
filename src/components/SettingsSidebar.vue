@@ -81,12 +81,6 @@ export default {
           separator: false,
         },
         {
-          icon: 'o_linear_scale',
-          label: 'UC Components',
-          link: '/preferences/devtools/uc-components',
-          separator: false,
-        },
-        {
           icon: 'o_api',
           label: 'API Exceptions',
           link: '/preferences/devtools/api-exceptions',

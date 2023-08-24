@@ -41,7 +41,6 @@ import PreferenceGeneration from '../src/pages/preferences/PreferenceGeneration.
 import PreferenceUser from '../src/pages/preferences/PreferenceUser.vue'
 import PreferencePackage from '../src/pages/preferences/PreferencePackage.vue'
 import ZclSettings from '../src/pages/ZclSettings.vue'
-import UcComponentSetup from '../src/components/UcComponentSetup.vue'
 import ZclCustomZclView from '../src/components/ZclCustomZclView.vue'
 import About from '../src/pages/preferences/AboutPage.vue'
 import MainLayout from '../src/layouts/MainLayout.vue'
@@ -298,18 +297,6 @@ describe('Component mounting test', () => {
     'ZclSettings',
     () => {
       const wrapper = shallowMount(ZclSettings, {
-        global: {
-          plugins: [ZapStore()],
-        },
-      })
-      expect(wrapper.html().length).toBeGreaterThan(50)
-    },
-    timeout.short()
-  )
-  test(
-    'UcComponentSetup',
-    () => {
-      const wrapper = shallowMount(UcComponentSetup, {
         global: {
           plugins: [ZapStore()],
         },
