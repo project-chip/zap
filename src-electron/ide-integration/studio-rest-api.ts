@@ -35,9 +35,12 @@ import * as http from 'http-status-codes'
 import zcl from './zcl.js'
 
 const localhost = 'http://127.0.0.1:'
-const resGetProjectInfo = '/rest/clic/components/all/project/'
-const resAddComponent = '/rest/clic/component/add/project/'
-const resRemoveComponent = '/rest/clic/component/remove/project/'
+
+enum StudioRestAPI {
+  GetProjectInfo = '/rest/clic/components/all/project/',
+  AddComponent = '/rest/clic/component/add/project/',
+  RemoveComponent = '/rest/clic/component/remove/project/',
+}
 
 let ucComponentStateReportId: NodeJS.Timeout
 let studioHttpPort: number
@@ -82,6 +85,10 @@ function projectName(studioProjectPath: string) {
   }
 }
 
+function restApiUrl(api: StudioRestAPI, project: string) {
+  return localhost + studioHttpPort + api + project
+}
+
 /**
  * Send HTTP GET request to Studio Jetty server for project information.
  * @param {} db
@@ -98,7 +105,7 @@ async function getProjectInfo(
   let project = await projectPath(db, sessionId)
   if (project) {
     let name = projectName(project)
-    let path = localhost + studioHttpPort + resGetProjectInfo + project
+    let path = restApiUrl(StudioRestAPI.GetProjectInfo, project)
     env.logDebug(`StudioUC(${name}): GET: ${path}`)
     return axios
       .get(path)
@@ -199,7 +206,7 @@ async function updateComponentByComponentIds(
     AxiosResponse | ucTypes.UcComponentUpdateResponseWrapper
   >[] = []
   let project = await projectPath(db, sessionId)
-  let name = await projectName(project)
+  let name = projectName(project)
 
   if (Object.keys(componentIds).length) {
     promises = componentIds.map((componentId) =>
@@ -224,10 +231,15 @@ function httpPostComponentUpdate(
   componentId: string,
   add: boolean
 ) {
-  let operation = add ? resAddComponent : resRemoveComponent
+  let operation = add
+    ? StudioRestAPI.AddComponent
+    : StudioRestAPI.RemoveComponent
   let operationText = add ? 'add' : 'remove'
+  let name = projectName(project)
+  let path = restApiUrl(operation, project)
+  env.logDebug(`StudioUC(${name}): POST: ${path}, ${componentId}`)
   return axios
-    .post(localhost + studioHttpPort + operation + project, {
+    .post(path, {
       componentId: componentId,
     })
     .then((res) => {
@@ -253,9 +265,7 @@ function httpPostComponentUpdate(
         return {
           status: http.StatusCodes.NOT_FOUND,
           id: componentId,
-          data: `StudioUC(${projectName(
-            project
-          )}): Failed to ${operationText} component(${componentId})`,
+          data: `StudioUC(${name}): Failed to ${operationText} component(${componentId})`,
         }
       }
     })
