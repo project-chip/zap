@@ -64,7 +64,9 @@ function httpPostFileOpen(db) {
       try {
         // set path before importDataFromFile() to avoid triggering DIRTY flag
         if (ideProjectPath) {
-          env.logInfo(`IDE: setting project path(${name}) to ${ideProjectPath}`)
+          env.logInfo(
+            `StudioUC(${name}): Setting project path to ${ideProjectPath}`
+          )
         }
         // store studio project path
         await querySession.updateSessionKeyValue(
@@ -96,15 +98,33 @@ function httpPostFileOpen(db) {
           message: e.message,
           stack: e.stack,
         }
-        studio.sendSessionCreationErrorStatus(db, errMsg.message, req.zapSessionId)
+        studio.sendSessionCreationErrorStatus(
+          db,
+          errMsg.message,
+          req.zapSessionId
+        )
         env.logError(e.message)
-        queryNotification.setNotification(db, 'ERROR', errMsg.message, req.zapSessionId, 1, 0)
+        queryNotification.setNotification(
+          db,
+          'ERROR',
+          errMsg.message,
+          req.zapSessionId,
+          1,
+          0
+        )
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(errMsg)
       }
     } else {
       let msg = `Opening/Loading project: Missing zap file path.`
       env.logWarning(msg)
-      queryNotification.setNotification(db, 'WARNING', errMsg.message, req.zapSessionId, 2, 0)
+      queryNotification.setNotification(
+        db,
+        'WARNING',
+        errMsg.message,
+        req.zapSessionId,
+        2,
+        0
+      )
       res.status(StatusCodes.BAD_REQUEST).send({ error: msg })
     }
   }
@@ -150,7 +170,14 @@ function httpPostFileSave(db) {
       } catch (err) {
         let msg = `Unable to save project.`
         env.logError(msg, err)
-        queryNotification.setNotification(db, 'ERROR', msg, req.zapSessionId, 1, 0)
+        queryNotification.setNotification(
+          db,
+          'ERROR',
+          msg,
+          req.zapSessionId,
+          1,
+          0
+        )
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err)
       }
     } else {

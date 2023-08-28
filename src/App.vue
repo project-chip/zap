@@ -187,6 +187,10 @@ export default defineComponent({
         this.$q.loading.hide()
       })
 
+      // load initial UC component state
+      this.$store.dispatch(`zap/loadUcComponentState`)
+
+      // handles UC component state change events
       this.$onWebSocket(dbEnum.wsCategory.ucComponentStateReport, (resp) => {
         this.$store.dispatch('zap/updateUcComponentState', resp)
       })

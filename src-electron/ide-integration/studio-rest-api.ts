@@ -103,21 +103,29 @@ async function getProjectInfo(
   status?: http.StatusCodes
 }> {
   let project = await projectPath(db, sessionId)
+  let studioIntegration = await integrationEnabled(db, sessionId)
+
   if (project) {
     let name = projectName(project)
-    let path = restApiUrl(StudioRestAPI.GetProjectInfo, project)
-    env.logDebug(`StudioUC(${name}): GET: ${path}`)
-    return axios
-      .get(path)
-      .then((resp) => {
-        env.logDebug(`StudioUC(${name}): RESP: ${resp.status}`)
-        return resp
-      })
-      .catch((err) => {
-        return { data: [] }
-      })
+    if (studioIntegration) {
+      let path = restApiUrl(StudioRestAPI.GetProjectInfo, project)
+      env.logInfo(`StudioUC(${name}): GET: ${path}`)
+      return axios
+        .get(path)
+        .then((resp) => {
+          env.logInfo(`StudioUC(${name}): RESP: ${resp.status}`)
+          return resp
+        })
+        .catch((err) => {
+          env.logInfo(`StudioUC(${name}): ERR: ${err.message}`)
+          return { data: [] }
+        })
+    } else {
+      env.logInfo(`StudioUC(${name}): Studio integration is not enabled!`)
+      return { data: [] }
+    }
   } else {
-    env.logDebug(
+    env.logInfo(
       `StudioUC(): Invalid Studio project path specified via project info API!`
     )
     return { data: [] }
@@ -237,7 +245,7 @@ function httpPostComponentUpdate(
   let operationText = add ? 'add' : 'remove'
   let name = projectName(project)
   let path = restApiUrl(operation, project)
-  env.logDebug(`StudioUC(${name}): POST: ${path}, ${componentId}`)
+  env.logInfo(`StudioUC(${name}): POST: ${path}, ${componentId}`)
   return axios
     .post(path, {
       componentId: componentId,

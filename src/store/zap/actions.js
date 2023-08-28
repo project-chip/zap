@@ -772,6 +772,11 @@ export function clearLastSelectedDomain(context) {
   context.commit('clearLastSelectedDomain')
 }
 
+export async function loadUcComponentState(context) {
+  let resp = await axiosRequests.$serverGet(restApi.uc.componentTree)
+  updateUcComponentState(context, resp.data)
+}
+
 export function updateUcComponentState(context, projectInfo) {
   let ucComponents = Util.getUcComponents(projectInfo)
   let selectedUcComponents = Util.getSelectedUcComponents(ucComponents)
