@@ -34,8 +34,19 @@ limitations under the License.
               <q-breadcrumbs-el>{{ selectedCluster.label }}</q-breadcrumbs-el>
             </q-breadcrumbs>
           </div>
-          <div class="col-auto">
-            <q-btn to="/" flat rounded icon="close" />
+          <div class="col-auto q-gutter-x-md items-start">
+            <q-btn
+              v-if="isClusterDocumentationAvailable"
+              flat
+              class="documentation"
+              color="grey"
+              dense
+              icon="sym_o_quick_reference"
+              @click="openClusterDocumentation"
+            >
+              <q-tooltip> Cluster Specification </q-tooltip>
+            </q-btn>
+            <q-btn to="/" flat dense icon="close" />
           </div>
         </div>
         <div class="row items-center no-wrap q-py-lg">
@@ -109,11 +120,22 @@ import ZclAttributeReportingManager from './ZclAttributeReportingManager.vue'
 import ZclCommandManager from './ZclCommandManager.vue'
 import ZclEventManager from './ZclEventManager.vue'
 import EditableAttributesMixin from '../util/editable-attributes-mixin'
+import * as dbEnum from '../../src-shared/db-enum.js'
 
 export default {
   name: 'ZclClusterView',
   mixins: [EditableAttributesMixin],
   computed: {
+    isClusterDocumentationAvailable() {
+      return (
+        this.$store.state.zap.genericOptions[
+          dbEnum.sessionOption.clusterSpecification
+        ] &&
+        this.$store.state.zap.genericOptions[
+          dbEnum.sessionOption.clusterSpecification
+        ].length > 0
+      )
+    },
     enabledMessage: {
       get() {
         if (
@@ -162,6 +184,20 @@ export default {
     window.removeEventListener('resize', this.calculateTableSize)
   },
   methods: {
+    openClusterDocumentation() {
+      if (
+        this.$store.state.zap.genericOptions[
+          dbEnum.sessionOption.clusterSpecification
+        ].length > 0
+      ) {
+        window.open(
+          this.$store.state.zap.genericOptions[
+            dbEnum.sessionOption.clusterSpecification
+          ][0]['optionLabel'],
+          '_blank'
+        )
+      }
+    },
     setIndividualClusterFilterString(filterString) {
       this.$store.dispatch('zap/setIndividualClusterFilterString', filterString)
     },

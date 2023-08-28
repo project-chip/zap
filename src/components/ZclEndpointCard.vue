@@ -86,9 +86,22 @@ limitations under the License.
       </div>
       <q-slide-transition>
         <q-list class="cursor-pointer" dense v-if="getEndpointInformation">
-          <q-item class="row">
+          <q-item class="row justify-between">
             <div v-if="isDeviceTypeArray" class="col">
-              <strong>Device</strong>
+              <strong
+                >Device
+                <q-btn
+                  v-if="isDeviceLibraryDocumentationAvailable"
+                  flat
+                  :color="primary"
+                  dense
+                  icon="sym_o_quick_reference"
+                  size="sm"
+                  @click="openDeviceLibraryDocumentation"
+                >
+                  <q-tooltip> Device Type Specification </q-tooltip>
+                </q-btn>
+              </strong>
               <li
                 v-for="(dev, index) in deviceType"
                 :key="dev.id"
@@ -102,9 +115,22 @@ limitations under the License.
                 }}</strong>
               </li>
             </div>
-            <div v-else class="col row">
+            <div v-else class="col row justify-between">
               <div class="col-6">
-                <strong>Device</strong>
+                <strong
+                  >Device
+                  <q-btn
+                    v-if="isDeviceLibraryDocumentationAvailable"
+                    flat
+                    :color="primary"
+                    dense
+                    icon="sym_o_quick_reference"
+                    size="sm"
+                    @click="openDeviceLibraryDocumentation"
+                  >
+                    <q-tooltip> Device Type Specification </q-tooltip>
+                  </q-btn>
+                </strong>
               </div>
               <div class="col-6">
                 <strong>{{
@@ -118,7 +144,7 @@ limitations under the License.
           </q-item>
           <q-item class="row" v-if="isDeviceTypeArray">
             <div class="col-6">
-              <strong>Device</strong>
+              <strong>Primary Device</strong>
             </div>
             <div class="col-6">
               <strong>{{
@@ -234,6 +260,7 @@ import CommonMixin from '../util/common-mixin'
 import * as Storage from '../util/storage'
 import restApi from '../../src-shared/rest-api'
 import * as Util from '../util/util'
+import * as dbEnum from '../../src-shared/db-enum.js'
 
 export default {
   name: 'ZclEndpointCard',
@@ -253,6 +280,20 @@ export default {
     }
   },
   methods: {
+    openDeviceLibraryDocumentation() {
+      if (
+        this.$store.state.zap.genericOptions[
+          dbEnum.sessionOption.deviceTypeSpecification
+        ].length > 0
+      ) {
+        window.open(
+          this.$store.state.zap.genericOptions[
+            dbEnum.sessionOption.deviceTypeSpecification
+          ][0]['optionLabel'],
+          '_blank'
+        )
+      }
+    },
     duplicateEndpoint() {
       this.$store
         .dispatch('zap/duplicateEndpointType', {
@@ -352,6 +393,16 @@ export default {
     },
   },
   computed: {
+    isDeviceLibraryDocumentationAvailable() {
+      return (
+        this.$store.state.zap.genericOptions[
+          dbEnum.sessionOption.deviceTypeSpecification
+        ] &&
+        this.$store.state.zap.genericOptions[
+          dbEnum.sessionOption.deviceTypeSpecification
+        ].length > 0
+      )
+    },
     endpoints: {
       get() {
         return Array.from(this.endpointIdListSorted.keys()).map((id) => ({

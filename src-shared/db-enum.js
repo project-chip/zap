@@ -134,6 +134,9 @@ exports.sessionOption = {
   defaultResponsePolicy: 'defaultResponsePolicy',
   manufacturerCodes: 'manufacturerCodes',
   profileCodes: 'profileCodes',
+  coreSpecification: 'coreSpecification',
+  clusterSpecification: 'clusterSpecification',
+  deviceTypeSpecification: 'deviceTypeSpecification',
 }
 
 const reportingPolicy = {
