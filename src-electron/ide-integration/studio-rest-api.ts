@@ -85,8 +85,8 @@ function projectName(studioProjectPath: string) {
   }
 }
 
-function restApiUrl(api: StudioRestAPI, project: string) {
-  return localhost + studioHttpPort + api + project
+function restApiUrl(api: StudioRestAPI, studioProjectPath: string) {
+  return localhost + studioHttpPort + api + studioProjectPath
 }
 
 /**
