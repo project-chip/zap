@@ -21,7 +21,7 @@
  * @module Templating API: user-data specific helpers
  */
 const templateUtil = require('./template-util.js')
-const queryImpexp = require('../db/query-impexp.js')
+const queryEndpoint = require('../db/query-endpoint.js')
 const queryCluster = require('../db/query-cluster.js')
 const queryEndpointType = require('../db/query-endpoint-type.js')
 const queryCommand = require('../db/query-command.js')
@@ -40,11 +40,14 @@ const queryDeviceType = require('../db/query-device-type.js')
  */
 function user_endpoints(options) {
   let promise = Promise.all([
-    queryImpexp.exportEndpointTypes(this.global.db, this.global.sessionId),
+    queryEndpointType.selectAllEndpointTypes(
+      this.global.db,
+      this.global.sessionId
+    ),
     templateUtil
       .ensureEndpointTypeIds(this)
       .then((endpointTypes) =>
-        queryImpexp.exportEndpoints(
+        queryEndpoint.getEndpoints(
           this.global.db,
           this.global.sessionId,
           endpointTypes
@@ -107,8 +110,8 @@ async function user_device_types(options) {
  * @param {*} options
  */
 function user_endpoint_types(options) {
-  let promise = queryImpexp
-    .exportEndpointTypes(this.global.db, this.global.sessionId)
+  let promise = queryEndpointType
+    .selectAllEndpointTypes(this.global.db, this.global.sessionId)
     .then((endpointTypes) =>
       templateUtil.collectBlocks(endpointTypes, options, this)
     )
@@ -122,8 +125,8 @@ function user_endpoint_types(options) {
  * @param {*} options
  */
 function user_clusters(options) {
-  let promise = queryImpexp
-    .exportClustersFromEndpointType(this.global.db, this.endpointTypeId)
+  let promise = queryEndpointType
+    .selectAllEndpointTypes(this.global.db, this.endpointTypeId)
     .then((endpointClusters) =>
       templateUtil.collectBlocks(endpointClusters, options, this)
     )

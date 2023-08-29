@@ -197,6 +197,55 @@ ORDER BY A.MANUFACTURER_CODE, A.CODE
 }
 
 /**
+ * Gets endpoints.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ */
+async function getEndpoints(db, sessionId, endpointTypes) {
+  let endpointTypeIndexFunction = (epts, endpointTypeRef) => {
+    return epts.findIndex((value) => value.endpointTypeId == endpointTypeRef)
+  }
+
+  let mapFunction = (x) => {
+    return {
+      endpointTypeName: x.NAME,
+      endpointTypeIndex: endpointTypeIndexFunction(
+        endpointTypes,
+        x.ENDPOINT_TYPE_REF
+      ),
+      endpointTypeRef: x.ENDPOINT_TYPE_REF,
+      profileId: x.PROFILE,
+      endpointId: x.ENDPOINT_IDENTIFIER,
+      networkId: x.NETWORK_IDENTIFIER,
+    }
+  }
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  ET.NAME,
+  E.ENDPOINT_TYPE_REF,
+  E.PROFILE,
+  E.ENDPOINT_IDENTIFIER,
+  E.NETWORK_IDENTIFIER
+FROM
+  ENDPOINT AS E
+LEFT JOIN
+  ENDPOINT_TYPE AS ET
+ON
+  E.ENDPOINT_TYPE_REF = ET.ENDPOINT_TYPE_ID
+WHERE
+  E.SESSION_REF = ?
+ORDER BY E.ENDPOINT_IDENTIFIER
+    `,
+      [sessionId]
+    )
+    .then((rows) => rows.map(mapFunction))
+}
+
+/**
  * Retrieves endpoint cluster commands.
  *
  * @param {*} db
@@ -434,3 +483,4 @@ exports.deleteEndpoint = deleteEndpoint
 exports.selectEndpoint = selectEndpoint
 exports.duplicateEndpoint = duplicateEndpoint
 exports.selectAllEndpoints = selectAllEndpoints
+exports.getEndpoints = getEndpoints

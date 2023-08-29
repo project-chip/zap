@@ -89,6 +89,7 @@ async function exportEndpoints(db, sessionId, endpointTypes) {
       `
 SELECT
   ET.NAME,
+  E.ENDPOINT_TYPE_REF,
   E.PROFILE,
   E.ENDPOINT_IDENTIFIER,
   E.NETWORK_IDENTIFIER
@@ -174,7 +175,6 @@ ORDER BY
     endpointTypes[i].deviceTypes = rows.map(dbMapping.map.deviceType)
 
     // Loading endpointTypeRef as primary endpointType for backwards compatibility
-
     endpointTypes[i].deviceTypeName = endpointTypes[i].deviceTypeRef
       ? endpointTypes[i].deviceTypeRef.name
       : ''
