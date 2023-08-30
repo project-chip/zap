@@ -382,6 +382,16 @@ exports.map = {
     }
   },
 
+  deviceTypeExport: (x) => {
+    if (x == null) return undefined
+    return {
+      code: x.CODE,
+      profileId: x.PROFILE_ID,
+      label: x.NAME,
+      name: x.NAME,
+    }
+  },
+
   deviceTypeCluster: (x) => {
     if (x == null) return undefined
     return {
@@ -440,6 +450,16 @@ exports.map = {
       id: x.ENDPOINT_TYPE_ID,
       endpointTypeId: x.ENDPOINT_TYPE_ID,
       sessionRef: x.SESSION_REF,
+      name: x.NAME,
+      deviceTypeRef: x.DEVICE_TYPE_REF,
+      deviceTypes: x.deviceTypes, // Populated outside the sql query mapping.
+    }
+  },
+  endpointTypeExport: (x) => {
+    if (x == null) return undefined
+    return {
+      id: x.ENDPOINT_TYPE_INDEX, // Index of endpoint type from list of endpoints types based on endpoint identifier
+      endpointTypeId: x.ENDPOINT_TYPE_ID,
       name: x.NAME,
       deviceTypeRef: x.DEVICE_TYPE_REF,
       deviceTypes: x.deviceTypes, // Populated outside the sql query mapping.
@@ -698,7 +718,7 @@ exports.map = {
       severity: x.NOTICE_SEVERITY,
       id: x.NOTICE_ID,
     }
-  }
+  },
 }
 
 exports.reverseMap = {
