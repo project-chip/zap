@@ -124,7 +124,8 @@ async function exportEndpointTypes(db, sessionId) {
       `
 SELECT
   ENDPOINT_TYPE.ENDPOINT_TYPE_ID,
-  ENDPOINT_TYPE.NAME
+  ENDPOINT_TYPE.NAME,
+  ROW_NUMBER() OVER(ORDER BY ENDPOINT.ENDPOINT_IDENTIFIER) AS ENDPOINT_TYPE_INDEX
 FROM
   ENDPOINT_TYPE
 LEFT JOIN
@@ -138,7 +139,7 @@ ORDER BY
   ENDPOINT_TYPE.NAME`,
       [sessionId]
     )
-    .then((rows) => rows.map(dbMapping.map.endpointType))
+    .then((rows) => rows.map(dbMapping.map.endpointTypeExport))
 
   //Associate each endpoint type to the device types
   for (let i = 0; i < endpointTypes.length; i++) {
@@ -172,10 +173,9 @@ ORDER BY
     )
 
     // Updating the device type info for the endpoint
-    endpointTypes[i].deviceTypeRefs = rows.map((x) => x.DEVICE_TYPE_ID)
     endpointTypes[i].deviceVersions = rows.map((x) => x.DEVICE_VERSION)
     endpointTypes[i].deviceIdentifiers = rows.map((x) => x.CODE)
-    endpointTypes[i].deviceTypes = rows.map(dbMapping.map.deviceType)
+    endpointTypes[i].deviceTypes = rows.map(dbMapping.map.deviceTypeExport)
 
     // Loading endpointTypeRef as primary endpointType for backwards compatibility
     endpointTypes[i].deviceTypeRef = endpointTypes[i].deviceTypes[0]
