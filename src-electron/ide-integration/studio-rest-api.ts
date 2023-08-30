@@ -21,8 +21,7 @@
  */
 
 // dirty flag reporting interval
-const UC_COMPONENT_STATE_REPORTING_INTERVAL_ID = 6000
-import axios, { AxiosPromise, AxiosResponse } from 'axios'
+import axios, { AxiosResponse } from 'axios'
 import * as env from '../util/env'
 import * as dbTypes from '../../src-shared/types/db-types'
 import * as querySession from '../db/query-session.js'
@@ -31,21 +30,38 @@ const wsServer = require('../server/ws-server.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 import * as ucTypes from '../../src-shared/types/uc-component-types'
 import * as dbMappingTypes from '../types/db-mapping-types'
-import * as http from 'http-status-codes'
+import { StatusCodes } from 'http-status-codes'
 import zcl from './zcl.js'
+import WebSocket from 'ws'
 
+const UC_COMPONENT_STATE_REPORTING_INTERVAL = 6000
 const localhost = 'http://127.0.0.1:'
+const wsLocalhost = 'ws://127.0.0.1:'
 
 enum StudioRestAPI {
   GetProjectInfo = '/rest/clic/components/all/project/',
   AddComponent = '/rest/clic/component/add/project/',
   RemoveComponent = '/rest/clic/component/remove/project/',
+  DependsComponent = '/rest/clic/component/depends/project/',
 }
+
+enum StudioWsAPI {
+  WsServerNotification = '/ws/clic/server/notifications/project/',
+}
+
+type StudioProjectPath = string
+type StudioQueryParams = { [key: string]: string }
+type StudioWsMessage = (message: string) => void
+type StudioWsConnection = { [key: number]: WebSocket | null }
 
 let ucComponentStateReportId: NodeJS.Timeout
 let studioHttpPort: number
+let studioWsConnections: StudioWsConnection = {}
 
-function projectPath(db: dbTypes.DbType, sessionId: number) {
+async function projectPath(
+  db: dbTypes.DbType,
+  sessionId: number
+): Promise<StudioProjectPath> {
   return querySession.getSessionKeyValue(
     db,
     sessionId,
@@ -74,19 +90,51 @@ async function integrationEnabled(db: dbTypes.DbType, sessionId: number) {
  * @param {*} sessionId
  * @returns '' if retrival failed
  */
-function projectName(studioProjectPath: string) {
+function projectName(studioProjectPath: StudioProjectPath) {
   const prefix = '_2F'
-  if (studioProjectPath && studioProjectPath.includes(prefix)) {
-    return studioProjectPath.substr(
-      studioProjectPath.lastIndexOf(prefix) + prefix.length
-    )
+  const prefixIndex = studioProjectPath?.lastIndexOf(prefix)
+  if (studioProjectPath && prefixIndex) {
+    return studioProjectPath.substring(prefixIndex + prefix.length)
   } else {
     return ''
   }
 }
 
-function restApiUrl(api: StudioRestAPI, studioProjectPath: string) {
-  return localhost + studioHttpPort + api + studioProjectPath
+/**
+ * Studio REST API path helper/generator
+ * @param api
+ * @param path
+ * @param queryParams
+ * @returns
+ */
+function restApiUrl(
+  api: StudioRestAPI,
+  path: StudioProjectPath,
+  queryParams: StudioQueryParams = {}
+) {
+  let base = localhost + studioHttpPort + api + path
+  let params = Object.entries(queryParams)
+  if (params.length) {
+    let queries = new URLSearchParams()
+    params.forEach(([key, value]) => {
+      queries.set(key, value)
+    })
+
+    return `${base}?${queries.toString()}`
+  } else {
+    return base
+  }
+}
+
+/**
+ * Studio WebSocket API path helper/generator
+ * @param api
+ * @param path
+ * @param queryParams
+ * @returns
+ */
+function wsApiUrl(api: StudioWsAPI, path: StudioProjectPath) {
+  return wsLocalhost + studioHttpPort + api + path
 }
 
 /**
@@ -100,7 +148,7 @@ async function getProjectInfo(
   sessionId: number
 ): Promise<{
   data: string[]
-  status?: http.StatusCodes
+  status?: StatusCodes
 }> {
   let project = await projectPath(db, sessionId)
   let studioIntegration = await integrationEnabled(db, sessionId)
@@ -271,7 +319,7 @@ function httpPostComponentUpdate(
       } else {
         // Actual fail.
         return {
-          status: http.StatusCodes.NOT_FOUND,
+          status: StatusCodes.NOT_FOUND,
           id: componentId,
           data: `StudioUC(${name}): Failed to ${operationText} component(${componentId})`,
         }
@@ -287,10 +335,138 @@ function initIdeIntegration(db: dbTypes.DbType, studioPort: number) {
   studioHttpPort = studioPort
 
   if (studioPort) {
-    ucComponentStateReportId = setInterval(() => {
-      sendUcComponentStateReport(db)
-    }, UC_COMPONENT_STATE_REPORTING_INTERVAL_ID)
+    ucComponentStateReportId = setInterval(async () => {
+      let sessions = await querySession.getAllSessions(db)
+      for (const session of sessions) {
+        let name = projectName(await projectPath(db, session))
+        await verifyWsConnection(
+          db,
+          session.sessionId,
+          function handler(message) {
+            try {
+              let resp = JSON.parse(message)
+              if (resp.msgType == 'updateComponents') {
+                env.logInfo(
+                  `StudioUC${name}: Received WebSocket message: ${resp.delta}`
+                )
+                let tree = JSON.parse(resp.tree)
+                sendUcComponentStateReport(db, session, tree)
+              }
+            } catch (error) {
+              env.logError(
+                `StudioUC${name}: Failed to process WebSocket notification message.`
+              )
+            }
+          }
+        )
+      }
+    }, UC_COMPONENT_STATE_REPORTING_INTERVAL)
   }
+}
+
+/**
+ * Check WebSocket connections between backend and Studio jetty server.
+ * If project is opened, verify connection is open.
+ * If project is closed, close ws connection as well.
+ *
+ * @param db
+ * @param sessionId
+ */
+async function verifyWsConnection(
+  db: dbTypes.DbType,
+  sessionId: number,
+  messageHandler: StudioWsMessage
+) {
+  try {
+    let path = await projectPath(db, sessionId)
+    if (path && (await isProjectActive(path))) {
+      await wsConnect(sessionId, path, messageHandler)
+    } else {
+      let name = projectName(path)
+      wsDisconnect(sessionId, name)
+    }
+  } catch (error: any) {
+    env.logInfo(error.toString())
+  }
+}
+
+/**
+ * Utility function for making websocket connection to Studio server
+ * @param sessionId
+ * @param path
+ * @returns
+ */
+async function wsConnect(
+  sessionId: number,
+  path: StudioProjectPath,
+  handler: StudioWsMessage
+) {
+  let ws = studioWsConnections[sessionId]
+  if (ws && ws.readyState == WebSocket.OPEN) {
+    return ws
+  } else {
+    ws?.terminate()
+
+    let wsPath = wsApiUrl(StudioWsAPI.WsServerNotification, path)
+    let name = projectName(path)
+    ws = new WebSocket(wsPath)
+    env.logInfo(`StudioUC(${name}): WS connecting to ${wsPath}`)
+
+    ws.on('error', function () {
+      studioWsConnections[sessionId] = null
+      return null
+    })
+
+    ws.on('open', function () {
+      studioWsConnections[sessionId] = ws
+      env.logInfo(`StudioUC(${name}): WS connected.`)
+      return ws
+    })
+
+    ws.on('message', function (data) {
+      handler(data.toString())
+    })
+  }
+}
+
+async function wsDisconnect(sessionId: number, name: string) {
+  env.logInfo(`StudioUC(${name}): WS disconnected.`)
+  studioWsConnections[sessionId]?.close()
+  studioWsConnections[sessionId] = null
+}
+
+/**
+ * Check if a specific Studio project (.slcp) file has been opened or not.
+ *
+ * Context: To get proper WebSocket notification for change in project states,
+ *          that specific project needs to be opened already. Otherwise, no notification
+ *          will happen.
+ *
+ *          DependsComponent API used as a quick way to check if the project is opened or not
+ *          If project is open/valid, the API will respond with "Component not found in project"
+ *          Otherwise, "Project does not exists"
+ *
+ * @param path
+ */
+async function isProjectActive(path: StudioProjectPath): Promise<boolean> {
+  if (!path) {
+    return false
+  }
+
+  let url = restApiUrl(StudioRestAPI.DependsComponent, path)
+  return axios
+    .get(url)
+    .then((resp) => {
+      return true
+    })
+    .catch((err) => {
+      let { response } = err
+      if (response.status == StatusCodes.BAD_REQUEST && response.data) {
+        return !response.data.includes('Project does not exists')
+      }
+
+      return false
+    })
 }
 
 /**
@@ -300,20 +476,18 @@ function deinitIdeIntegration() {
   if (ucComponentStateReportId) clearInterval(ucComponentStateReportId)
 }
 
-async function sendUcComponentStateReport(db: dbTypes.DbType) {
-  let sessions = await querySession.getAllSessions(db)
-  for (const session of sessions) {
-    let socket = wsServer.clientSocket(session.sessionKey)
-    let studioIntegration = await integrationEnabled(db, session.sessionId)
-    if (socket && studioIntegration) {
-      getProjectInfo(db, session.sessionId).then((resp) => {
-        if (resp.status == http.StatusCodes.OK)
-          wsServer.sendWebSocketMessage(socket, {
-            category: dbEnum.wsCategory.ucComponentStateReport,
-            payload: resp.data,
-          })
-      })
-    }
+async function sendUcComponentStateReport(
+  db: dbTypes.DbType,
+  session: any,
+  ucComponentStates: string
+) {
+  let socket = wsServer.clientSocket(session.sessionKey)
+  let studioIntegration = await integrationEnabled(db, session.sessionId)
+  if (socket && studioIntegration) {
+    wsServer.sendWebSocketMessage(socket, {
+      category: dbEnum.wsCategory.ucComponentStateReport,
+      payload: ucComponentStates,
+    })
   }
 }
 
