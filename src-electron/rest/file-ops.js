@@ -29,9 +29,9 @@ const path = require('path')
 const { StatusCodes } = require('http-status-codes')
 const querySession = require('../db/query-session.js')
 const queryNotification = require('../db/query-session-notification.js')
-const querystring = require('querystring')
 const dbEnum = require('../../src-shared/db-enum.js')
 const studio = require('../ide-integration/studio-rest-api')
+import { projectName } from '../util/studio-util'
 
 /**
  * HTTP POST: IDE open
@@ -49,15 +49,16 @@ function httpPostFileOpen(db) {
       zapFilePath = file
       ideProjectPath = query.get('studioProject')
     }
-    let name = ''
     if (zapFilePath) {
+      let p
       if (studio.integrationEnabled(db, req.zapSessionId)) {
-        name = path.posix.dirname(
+        p = path.posix.dirname(
           path.posix.dirname(path.posix.dirname(zapFilePath))
         )
       } else {
-        name = path.posix.basename(zapFilePath)
+        p = path.posix.basename(zapFilePath)
       }
+      let name = projectName(p)
 
       env.logInfo(`Loading project(${name})`)
 

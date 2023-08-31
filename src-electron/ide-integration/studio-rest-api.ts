@@ -33,26 +33,19 @@ import * as dbMappingTypes from '../types/db-mapping-types'
 import { StatusCodes } from 'http-status-codes'
 import zcl from './zcl.js'
 import WebSocket from 'ws'
+import {
+  StudioRestAPI,
+  StudioWsConnection,
+  StudioProjectPath,
+  StudioQueryParams,
+  StudioWsAPI,
+  StudioWsMessage,
+} from './studio-types'
+import { projectName } from '../../src-electron/util/studio-util'
 
-const UC_COMPONENT_STATE_REPORTING_INTERVAL = 6000
+const ucComponentStateReportingInterval = 6000
 const localhost = 'http://127.0.0.1:'
 const wsLocalhost = 'ws://127.0.0.1:'
-
-enum StudioRestAPI {
-  GetProjectInfo = '/rest/clic/components/all/project/',
-  AddComponent = '/rest/clic/component/add/project/',
-  RemoveComponent = '/rest/clic/component/remove/project/',
-  DependsComponent = '/rest/clic/component/depends/project/',
-}
-
-enum StudioWsAPI {
-  WsServerNotification = '/ws/clic/server/notifications/project/',
-}
-
-type StudioProjectPath = string
-type StudioQueryParams = { [key: string]: string }
-type StudioWsMessage = (message: string) => void
-type StudioWsConnection = { [key: number]: WebSocket | null }
 
 let ucComponentStateReportId: NodeJS.Timeout
 let studioHttpPort: number
@@ -82,22 +75,6 @@ async function integrationEnabled(db: dbTypes.DbType, sessionId: number) {
     dbEnum.sessionKey.ideProjectPath
   )
   return typeof path !== 'undefined'
-}
-
-/**
- *  Extract project name from the Studio project path
- * @param {} db
- * @param {*} sessionId
- * @returns '' if retrival failed
- */
-function projectName(studioProjectPath: StudioProjectPath) {
-  const prefix = '_2F'
-  const prefixIndex = studioProjectPath?.lastIndexOf(prefix)
-  if (studioProjectPath && prefixIndex) {
-    return studioProjectPath.substring(prefixIndex + prefix.length)
-  } else {
-    return ''
-  }
 }
 
 /**
@@ -360,7 +337,7 @@ function initIdeIntegration(db: dbTypes.DbType, studioPort: number) {
           }
         )
       }
-    }, UC_COMPONENT_STATE_REPORTING_INTERVAL)
+    }, ucComponentStateReportingInterval)
   }
 }
 
@@ -379,11 +356,13 @@ async function verifyWsConnection(
 ) {
   try {
     let path = await projectPath(db, sessionId)
-    if (path && (await isProjectActive(path))) {
-      await wsConnect(sessionId, path, messageHandler)
-    } else {
-      let name = projectName(path)
-      wsDisconnect(sessionId, name)
+    if (path) {
+      let active = await isProjectActive(path)
+      if (active) {
+        await wsConnect(sessionId, path, messageHandler)
+      } else {
+        wsDisconnect(sessionId, path)
+      }
     }
   } catch (error: any) {
     env.logInfo(error.toString())
@@ -429,10 +408,12 @@ async function wsConnect(
   }
 }
 
-async function wsDisconnect(sessionId: number, name: string) {
-  env.logInfo(`StudioUC(${name}): WS disconnected.`)
-  studioWsConnections[sessionId]?.close()
-  studioWsConnections[sessionId] = null
+async function wsDisconnect(sessionId: number, path: StudioProjectPath) {
+  if (studioWsConnections[sessionId]) {
+    env.logInfo(`StudioUC(${projectName(path)}): WS disconnected.`)
+    studioWsConnections[sessionId]?.close()
+    studioWsConnections[sessionId] = null
+  }
 }
 
 /**
