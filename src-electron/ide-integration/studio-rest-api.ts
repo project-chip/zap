@@ -27,7 +27,7 @@ import * as dbTypes from '../../src-shared/types/db-types'
 import * as querySession from '../db/query-session.js'
 const queryNotification = require('../db/query-session-notification.js')
 const wsServer = require('../server/ws-server.js')
-const dbEnum = require('../../src-shared/db-enum.js')
+import * as dbEnum from '../../src-shared/db-enum.js'
 import * as ucTypes from '../../src-shared/types/uc-component-types'
 import * as dbMappingTypes from '../types/db-mapping-types'
 import { StatusCodes } from 'http-status-codes'
@@ -43,11 +43,12 @@ import {
 } from './studio-types'
 import { projectName } from '../../src-electron/util/studio-util'
 
-const ucComponentStateReportingInterval = 6000
 const localhost = 'http://127.0.0.1:'
 const wsLocalhost = 'ws://127.0.0.1:'
 
-let ucComponentStateReportId: NodeJS.Timeout
+// a periodic heartbeat for checking in on Studio server to maintain WS connections
+let heartbeatId: NodeJS.Timeout
+const heartbeatDelay = 6000
 let studioHttpPort: number
 let studioWsConnections: StudioWsConnection = {}
 
@@ -305,6 +306,36 @@ function httpPostComponentUpdate(
 }
 
 /**
+ * Handles WebSocket messages from Studio server
+ * @param db
+ * @param session
+ * @param message
+ */
+async function wsMessageHandler(
+  db: dbTypes.DbType,
+  session: any,
+  message: string
+) {
+  let { sessionId } = session
+  let name = projectName(await projectPath(db, sessionId))
+  try {
+    let resp = JSON.parse(message)
+    if (resp.msgType == 'updateComponents') {
+      env.logInfo(
+        `StudioUC(${name}): Received WebSocket message: ${JSON.stringify(
+          resp.delta
+        )}`
+      )
+      sendSelectedUcComponents(db, session, JSON.parse(resp.tree))
+    }
+  } catch (error) {
+    env.logError(
+      `StudioUC(${name}): Failed to process WebSocket notification message.`
+    )
+  }
+}
+
+/**
  * Start the dirty flag reporting interval.
  *
  */
@@ -312,32 +343,12 @@ function initIdeIntegration(db: dbTypes.DbType, studioPort: number) {
   studioHttpPort = studioPort
 
   if (studioPort) {
-    ucComponentStateReportId = setInterval(async () => {
+    heartbeatId = setInterval(async () => {
       let sessions = await querySession.getAllSessions(db)
       for (const session of sessions) {
-        let name = projectName(await projectPath(db, session))
-        await verifyWsConnection(
-          db,
-          session.sessionId,
-          function handler(message) {
-            try {
-              let resp = JSON.parse(message)
-              if (resp.msgType == 'updateComponents') {
-                env.logInfo(
-                  `StudioUC${name}: Received WebSocket message: ${resp.delta}`
-                )
-                let tree = JSON.parse(resp.tree)
-                sendUcComponentStateReport(db, session, tree)
-              }
-            } catch (error) {
-              env.logError(
-                `StudioUC${name}: Failed to process WebSocket notification message.`
-              )
-            }
-          }
-        )
+        await verifyWsConnection(db, session, wsMessageHandler)
       }
-    }, ucComponentStateReportingInterval)
+    }, heartbeatDelay)
   }
 }
 
@@ -351,17 +362,17 @@ function initIdeIntegration(db: dbTypes.DbType, studioPort: number) {
  */
 async function verifyWsConnection(
   db: dbTypes.DbType,
-  sessionId: number,
+  session: any,
   messageHandler: StudioWsMessage
 ) {
   try {
+    let { sessionId } = session
     let path = await projectPath(db, sessionId)
     if (path) {
-      let active = await isProjectActive(path)
-      if (active) {
-        await wsConnect(sessionId, path, messageHandler)
+      if (await isProjectActive(path)) {
+        await wsConnect(db, session, path, messageHandler)
       } else {
-        wsDisconnect(sessionId, path)
+        wsDisconnect(db, session, path)
       }
     }
   } catch (error: any) {
@@ -376,10 +387,12 @@ async function verifyWsConnection(
  * @returns
  */
 async function wsConnect(
-  sessionId: number,
+  db: dbTypes.DbType,
+  session: any,
   path: StudioProjectPath,
   handler: StudioWsMessage
 ) {
+  let { sessionId } = session
   let ws = studioWsConnections[sessionId]
   if (ws && ws.readyState == WebSocket.OPEN) {
     return ws
@@ -403,12 +416,17 @@ async function wsConnect(
     })
 
     ws.on('message', function (data) {
-      handler(data.toString())
+      handler(db, session, data.toString())
     })
   }
 }
 
-async function wsDisconnect(sessionId: number, path: StudioProjectPath) {
+async function wsDisconnect(
+  db: dbTypes.DbType,
+  session: any,
+  path: StudioProjectPath
+) {
+  let { sessionId } = session
   if (studioWsConnections[sessionId]) {
     env.logInfo(`StudioUC(${projectName(path)}): WS disconnected.`)
     studioWsConnections[sessionId]?.close()
@@ -454,10 +472,10 @@ async function isProjectActive(path: StudioProjectPath): Promise<boolean> {
  * Clears up the reporting interval.
  */
 function deinitIdeIntegration() {
-  if (ucComponentStateReportId) clearInterval(ucComponentStateReportId)
+  if (heartbeatId) clearInterval(heartbeatId)
 }
 
-async function sendUcComponentStateReport(
+async function sendSelectedUcComponents(
   db: dbTypes.DbType,
   session: any,
   ucComponentStates: string
@@ -466,7 +484,7 @@ async function sendUcComponentStateReport(
   let studioIntegration = await integrationEnabled(db, session.sessionId)
   if (socket && studioIntegration) {
     wsServer.sendWebSocketMessage(socket, {
-      category: dbEnum.wsCategory.ucComponentStateReport,
+      category: dbEnum.wsCategory.updateSelectedUcComponents,
       payload: ucComponentStates,
     })
   }

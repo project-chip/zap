@@ -204,28 +204,32 @@ export default {
      * @param {*} params
      */
     missingUcComponentDependencies(cluster) {
+      let requiredComponentIdList = []
+      let roles = []
       let hasClient = this.selectionClients.includes(cluster.id)
-      let hasServer = this.selectionServers.includes(cluster.id)
-
-      let requiredList = []
       if (hasClient) {
-        let compList = this.ucComponentRequiredByCluster(cluster, 'client')
-        requiredList = requiredList.concat(
-          compList.map((x) => this.sdkExtUcComponentId(x))
-        )
+        roles.push('client')
       }
 
+      let hasServer = this.selectionServers.includes(cluster.id)
       if (hasServer) {
-        let compList = this.ucComponentRequiredByCluster(cluster, 'server')
-        requiredList = requiredList.concat(
-          compList.map((x) => this.sdkExtUcComponentId(x))
+        roles.push('server')
+      }
+
+      for (const role of roles) {
+        let components = this.ucComponentRequiredByCluster(cluster, role)
+        requiredComponentIdList.push(
+          ...components.map((c) => this.sdkExtUcComponentId(c))
         )
       }
 
       let selectedUcComponentIds = Util.getClusterIdsByUcComponents(
         this.$store.state.zap.studio.selectedUcComponents
       )
-      return requiredList.filter((id) => !selectedUcComponentIds.includes(id))
+
+      return requiredComponentIdList.filter(
+        (id) => !selectedUcComponentIds.includes(id)
+      )
     },
 
     ucComponentRequiredByCluster(cluster, role) {

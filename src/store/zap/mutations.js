@@ -540,6 +540,12 @@ export function updateUcComponentState(state, data) {
   }
 }
 
+export function updateSelectedUcComponentState(state, data) {
+  if (data != null) {
+    vue3Set(state.studio, 'selectedUcComponents', data.selectedUcComponents)
+  }
+}
+
 export function loadZclClusterToUcComponentDependencyMap(state, map) {
   if (map != null)
     vue3Set(state.studio, 'zclSdkExtClusterToUcComponentMap', map)

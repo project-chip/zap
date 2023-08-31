@@ -107,7 +107,7 @@ exports.wsCategory = {
   notificationInfo: 'notificationInfo',
   sessionCreationError: 'sessionCreationError',
   componentUpdateStatus: 'componentUpdateStatus',
-  ucComponentStateReport: 'ucComponentStateReport',
+  updateSelectedUcComponents: 'updateSelectedUcComponents',
   init: 'init',
   tick: 'tick',
 }

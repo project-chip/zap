@@ -1,4 +1,5 @@
 import WebSocket from 'ws'
+import { DbType } from '../../src-shared/types/db-types'
 
 export enum StudioRestAPI {
   GetProjectInfo = '/rest/clic/components/all/project/',
@@ -13,5 +14,9 @@ export enum StudioWsAPI {
 
 export type StudioProjectPath = string
 export type StudioQueryParams = { [key: string]: string }
-export type StudioWsMessage = (message: string) => void
+export type StudioWsMessage = (
+  db: DbType,
+  session: any,
+  message: string
+) => void
 export type StudioWsConnection = { [key: number]: WebSocket | null }
