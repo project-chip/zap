@@ -37,12 +37,21 @@ const DEFAULT_COMMIT_LATEST = 'commit_latest'
 const DEFAULT_BRANCH = 'master'
 const DEFAULT_OWNER = 'SiliconLabs'
 const DEFAULT_REPO = 'zap'
-const ARTIFACTORY_SERVER = 'https://artifactory.silabs.net'
+const ARTIFACTORY_URL_DOMAIN_DEFAULT = 'artifactory.silabs.net'
 const ARTIFACTORY_REPO_NAME = 'zap-release-package'
-const nexusCachedBranches = ['master', 'rel']
+const cachedBranches = ['master', 'rel']
+
+const enum DownloadSources {
+  GITHUB = 'github',
+  ARTIFACTORY = 'artifactory',
+}
 
 // cheap and secure
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0'
+
+function artifactoryServerUrl(opts: DlOptions) {
+  return `https://${opts.artifactoryUrl}`
+}
 
 async function artifactoryGetLatestFolder(
   opt: DlOptions
@@ -90,7 +99,11 @@ async function artifactoryStorageGet(
   dlOptions: DlOptions,
   uri: string = ''
 ): Promise<any> {
-  const url = `${ARTIFACTORY_SERVER}/artifactory/api/storage/gsdk-generic-production/${ARTIFACTORY_REPO_NAME}/${dlOptions.owner}/${dlOptions.repo}/${dlOptions.branch}/${uri}`
+  const url = `${artifactoryServerUrl(
+    dlOptions
+  )}/artifactory/api/storage/gsdk-generic-production/${ARTIFACTORY_REPO_NAME}/${
+    dlOptions.owner
+  }/${dlOptions.repo}/${dlOptions.branch}/${uri}`
   return httpGet(url)
 }
 
@@ -334,9 +347,13 @@ async function artifactoryDownloadArtifacts(
     let artifacts = files.filter((x) => !x.toLowerCase().endsWith('.json'))
 
     if (json && artifacts && artifacts.length > 0) {
-      const baseUri = latest.paths.join('').replace('/api/storage', '')
-      const jsonContent = await httpGet(baseUri + json)
+      let baseUri = latest.paths.join('').replace('/api/storage', '')
+      baseUri = baseUri.replace(
+        ARTIFACTORY_URL_DOMAIN_DEFAULT,
+        dlOptions.artifactoryUrl
+      )
       console.log(`Repo: ${baseUri}`)
+      const jsonContent = await httpGet(baseUri + json)
       console.log(
         `Commit: ${jsonContent.workflow_run.head_sha.substring(0, 7)}`
       )
@@ -355,7 +372,6 @@ async function artifactoryDownloadArtifacts(
         ) {
           continue
         }
-
         await download(downloadUrl, outputDir, undefined, artifact)
       }
     }
@@ -499,8 +515,13 @@ function configureBuildCommand() {
     .option('src', {
       description: `URL source for obtaining ZAP binaries`,
       type: 'string',
-      default: 'nexus',
-      choices: ['github', 'nexus'],
+      default: DownloadSources.ARTIFACTORY,
+      choices: [DownloadSources.GITHUB, DownloadSources.ARTIFACTORY],
+    })
+    .option('artifactoryUrl', {
+      description: `Specify Artifactory URL domain used for downloading binaries from the artifact repo`,
+      type: 'string',
+      default: ARTIFACTORY_URL_DOMAIN_DEFAULT,
     })
     .help('h')
     .alias('h', 'help')
@@ -523,6 +544,7 @@ interface DlOptions {
   src: string
   mirror: boolean
   nameOnly: boolean
+  artifactoryUrl: string
 }
 
 async function main() {
@@ -541,26 +563,31 @@ async function main() {
     src: y.argv.src,
     mirror: y.argv.mirror,
     nameOnly: y.argv.nameOnly,
+    artifactoryUrl: y.argv.artifactoryUrl,
   }
 
   let githubBranches = await getExistingGithubBranches(dlOptions)
 
   // evaluate artifact source
-  if (dlOptions.src === 'nexus') {
-    if (!(await isReachable(ARTIFACTORY_SERVER, { timeout: 10000 }))) {
+  if (dlOptions.src === DownloadSources.ARTIFACTORY) {
+    if (
+      !(await isReachable(artifactoryServerUrl(dlOptions), { timeout: 10000 }))
+    ) {
       console.log(
-        `Unable to reach Artifactory server (${ARTIFACTORY_SERVER}). Defaulting to Github instead.`
+        `Unable to reach Artifactory server (${artifactoryServerUrl(
+          dlOptions
+        )}). Defaulting to Github instead.`
       )
-      dlOptions.src = 'github'
+      dlOptions.src = DownloadSources.GITHUB
     } else if (
       githubBranches.includes(dlOptions.branch) &&
-      !nexusCachedBranches.includes(dlOptions.branch)
+      !cachedBranches.includes(dlOptions.branch)
     ) {
       console.log(
         `Branch ${dlOptions.branch} is not cached on Artifactory. Defaulting to Github instead.`
       )
-      dlOptions.src = 'github'
-    } else if (!nexusCachedBranches.includes(dlOptions.branch)) {
+      dlOptions.src = DownloadSources.GITHUB
+    } else if (!cachedBranches.includes(dlOptions.branch)) {
       console.log(
         `Branch ${dlOptions.branch} is not cached on Artifactory. Defaulting to master branch instead.`
       )
@@ -569,7 +596,7 @@ async function main() {
   }
 
   // Download site sources: Artifactory, Github
-  if (dlOptions.src === 'nexus') {
+  if (dlOptions.src === DownloadSources.ARTIFACTORY) {
     let latest = await artifactoryGetLatestFolder(dlOptions)
     await artifactoryDownloadArtifacts(
       latest,
