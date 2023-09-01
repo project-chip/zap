@@ -52,13 +52,10 @@ function canHaveSimpleAccessors(attr) {
 async function accessorGetterType(attr) {
   let type;
   let mayNeedPointer = false;
-  let mayNeedReference = false;
   if (StringHelper.isCharString(attr.type)) {
     type = 'chip::MutableCharSpan';
-    mayNeedReference = true;
   } else if (StringHelper.isOctetString(attr.type)) {
     type = 'chip::MutableByteSpan';
-    mayNeedReference = true;
   } else {
     mayNeedPointer = true;
     const options = {
@@ -79,7 +76,7 @@ async function accessorGetterType(attr) {
     type = `DataModel::Nullable<${type}> &`;
   } else if (mayNeedPointer) {
     type = `${type} *`;
-  } else if (mayNeedReference) {
+  } else {
     type = `${type} &`;
   }
 
