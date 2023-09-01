@@ -39,7 +39,12 @@ const DEFAULT_OWNER = 'SiliconLabs'
 const DEFAULT_REPO = 'zap'
 const ARTIFACTORY_URL_DOMAIN_DEFAULT = 'artifactory.silabs.net'
 const ARTIFACTORY_REPO_NAME = 'zap-release-package'
-const nexusCachedBranches = ['master', 'rel']
+const cachedBranches = ['master', 'rel']
+
+const enum DownloadSources {
+  GITHUB = 'github',
+  ARTIFACTORY = 'artifactory',
+}
 
 // cheap and secure
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0'
@@ -510,8 +515,8 @@ function configureBuildCommand() {
     .option('src', {
       description: `URL source for obtaining ZAP binaries`,
       type: 'string',
-      default: 'nexus',
-      choices: ['github', 'nexus'],
+      default: DownloadSources.ARTIFACTORY,
+      choices: [DownloadSources.GITHUB, DownloadSources.ARTIFACTORY],
     })
     .option('artifactoryUrl', {
       description: `Specify Artifactory URL domain used for downloading binaries from the artifact repo`,
@@ -564,7 +569,7 @@ async function main() {
   let githubBranches = await getExistingGithubBranches(dlOptions)
 
   // evaluate artifact source
-  if (dlOptions.src === 'nexus') {
+  if (dlOptions.src === DownloadSources.ARTIFACTORY) {
     if (
       !(await isReachable(artifactoryServerUrl(dlOptions), { timeout: 10000 }))
     ) {
@@ -573,16 +578,16 @@ async function main() {
           dlOptions
         )}). Defaulting to Github instead.`
       )
-      dlOptions.src = 'github'
+      dlOptions.src = DownloadSources.GITHUB
     } else if (
       githubBranches.includes(dlOptions.branch) &&
-      !nexusCachedBranches.includes(dlOptions.branch)
+      !cachedBranches.includes(dlOptions.branch)
     ) {
       console.log(
         `Branch ${dlOptions.branch} is not cached on Artifactory. Defaulting to Github instead.`
       )
-      dlOptions.src = 'github'
-    } else if (!nexusCachedBranches.includes(dlOptions.branch)) {
+      dlOptions.src = DownloadSources.GITHUB
+    } else if (!cachedBranches.includes(dlOptions.branch)) {
       console.log(
         `Branch ${dlOptions.branch} is not cached on Artifactory. Defaulting to master branch instead.`
       )
@@ -591,7 +596,7 @@ async function main() {
   }
 
   // Download site sources: Artifactory, Github
-  if (dlOptions.src === 'nexus') {
+  if (dlOptions.src === DownloadSources.ARTIFACTORY) {
     let latest = await artifactoryGetLatestFolder(dlOptions)
     await artifactoryDownloadArtifacts(
       latest,
