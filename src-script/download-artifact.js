@@ -187,11 +187,14 @@ var DEFAULT_COMMIT_LATEST = 'commit_latest'
 var DEFAULT_BRANCH = 'master'
 var DEFAULT_OWNER = 'SiliconLabs'
 var DEFAULT_REPO = 'zap'
-var ARTIFACTORY_SERVER = 'https://artifactory.silabs.net'
+var ARTIFACTORY_URL_DOMAIN_DEFAULT = 'artifactory.silabs.net'
 var ARTIFACTORY_REPO_NAME = 'zap-release-package'
-var nexusCachedBranches = ['master', 'rel']
+var cachedBranches = ['master', 'rel']
 // cheap and secure
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = '0'
+function artifactoryServerUrl(opts) {
+  return 'https://'.concat(opts.artifactoryUrl)
+}
 function artifactoryGetLatestFolder(opt) {
   return __awaiter(this, void 0, void 0, function () {
     var _a, folders, paths, folder
@@ -271,7 +274,7 @@ function artifactoryStorageGet(dlOptions, uri) {
     return __generator(this, function (_a) {
       url = ''
         .concat(
-          ARTIFACTORY_SERVER,
+          artifactoryServerUrl(dlOptions),
           '/artifactory/api/storage/gsdk-generic-production/'
         )
         .concat(ARTIFACTORY_REPO_NAME, '/')
@@ -650,10 +653,14 @@ function artifactoryDownloadArtifacts(
           if (!(json && artifacts && artifacts.length > 0))
             return [3 /*break*/, 6]
           baseUri = latest.paths.join('').replace('/api/storage', '')
+          baseUri = baseUri.replace(
+            ARTIFACTORY_URL_DOMAIN_DEFAULT,
+            dlOptions.artifactoryUrl
+          )
+          console.log('Repo: '.concat(baseUri))
           return [4 /*yield*/, httpGet(baseUri + json)]
         case 2:
           jsonContent = _c.sent()
-          console.log('Repo: '.concat(baseUri))
           console.log(
             'Commit: '.concat(jsonContent.workflow_run.head_sha.substring(0, 7))
           )
@@ -885,8 +892,14 @@ function configureBuildCommand() {
     .option('src', {
       description: 'URL source for obtaining ZAP binaries',
       type: 'string',
-      default: 'nexus',
-      choices: ['github', 'nexus'],
+      default: 'artifactory' /* ARTIFACTORY */,
+      choices: ['github' /* GITHUB */, 'artifactory' /* ARTIFACTORY */],
+    })
+    .option('artifactoryUrl', {
+      description:
+        'Specify Artifactory URL domain used for downloading binaries from the artifact repo',
+      type: 'string',
+      default: ARTIFACTORY_URL_DOMAIN_DEFAULT,
     })
     .help('h')
     .alias('h', 'help')
@@ -912,6 +925,7 @@ function main() {
             src: y.argv.src,
             mirror: y.argv.mirror,
             nameOnly: y.argv.nameOnly,
+            artifactoryUrl: y.argv.artifactoryUrl,
           }
           return [
             4 /*yield*/,
@@ -920,10 +934,11 @@ function main() {
           ]
         case 1:
           githubBranches = _a.sent()
-          if (!(dlOptions.src === 'nexus')) return [3 /*break*/, 3]
+          if (!((dlOptions.src === 'artifactory') /* ARTIFACTORY */))
+            return [3 /*break*/, 3]
           return [
             4 /*yield*/,
-            (0, is_reachable_1['default'])(ARTIFACTORY_SERVER, {
+            (0, is_reachable_1['default'])(artifactoryServerUrl(dlOptions), {
               timeout: 10000,
             }),
           ]
@@ -931,14 +946,14 @@ function main() {
           if (!_a.sent()) {
             console.log(
               'Unable to reach Artifactory server ('.concat(
-                ARTIFACTORY_SERVER,
+                artifactoryServerUrl(dlOptions),
                 '). Defaulting to Github instead.'
               )
             )
-            dlOptions.src = 'github'
+            dlOptions.src = 'github' /* GITHUB */
           } else if (
             githubBranches.includes(dlOptions.branch) &&
-            !nexusCachedBranches.includes(dlOptions.branch)
+            !cachedBranches.includes(dlOptions.branch)
           ) {
             console.log(
               'Branch '.concat(
@@ -946,8 +961,8 @@ function main() {
                 ' is not cached on Artifactory. Defaulting to Github instead.'
               )
             )
-            dlOptions.src = 'github'
-          } else if (!nexusCachedBranches.includes(dlOptions.branch)) {
+            dlOptions.src = 'github' /* GITHUB */
+          } else if (!cachedBranches.includes(dlOptions.branch)) {
             console.log(
               'Branch '.concat(
                 dlOptions.branch,
@@ -958,7 +973,8 @@ function main() {
           }
           _a.label = 3
         case 3:
-          if (!(dlOptions.src === 'nexus')) return [3 /*break*/, 6]
+          if (!((dlOptions.src === 'artifactory') /* ARTIFACTORY */))
+            return [3 /*break*/, 6]
           return [4 /*yield*/, artifactoryGetLatestFolder(dlOptions)]
         case 4:
           latest = _a.sent()
