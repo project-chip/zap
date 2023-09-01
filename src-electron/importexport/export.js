@@ -28,6 +28,7 @@ const querySession = require('../db/query-session.js')
 const queryImpExp = require('../db/query-impexp.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const ff = require('./file-format')
+const ffenabledOnly = require('./enabled-only-file-format')
 
 async function exportEndpointType(db, endpointType) {
   let data = await queryImpExp.exportClustersFromEndpointType(
@@ -173,7 +174,11 @@ async function exportDataIntoFile(
       (x) => x.key != dbEnum.sessionKey.ideProjectPath
     )
   }
-  state = ff.convertToFile(state)
+  if (state.fileFormat === 1) {
+    state = ff.convertToFile(state)
+  } else {
+    state = ffenabledOnly.convertToFile(state)
+  }
 
   if (options.removeLog) delete state.log
 

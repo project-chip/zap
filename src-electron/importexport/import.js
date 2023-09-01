@@ -28,6 +28,7 @@ const env = require('../util/env')
 const script = require('../util/script')
 const dbEnum = require('../../src-shared/db-enum')
 const ff = require('./file-format.js')
+const ffenabledOnly = require('./enabled-only-file-format')
 const util = require('../util/util.js')
 
 /**
@@ -90,7 +91,12 @@ async function importDataFromFile(
   }
 ) {
   let state = await readDataFromFile(filePath, options.defaultZclMetafile)
-  state = ff.convertFromFile(state)
+  if (state.fileFormat === 1) {
+    state = ff.convertFromFile(state)
+  } else {
+    state = ffenabledOnly.convertFromFile(state)
+  }
+
   try {
     await dbApi.dbBeginTransaction(db)
     let sid
@@ -102,8 +108,10 @@ async function importDataFromFile(
         {
           zcl: env.builtinSilabsZclMetafile(),
           template: env.builtinTemplateMetafile(),
-        }, null, null
-      )  
+        },
+        null,
+        null
+      )
     } else {
       sid = options.sessionId
     }
