@@ -39,19 +39,19 @@
       </div>
     </q-btn>
     <q-btn
-      v-if="showDebugNavItems"
-      id="regenerate"
-      color="grey"
+      v-if="isCoreDocumentationAvailable"
+      id="documentation"
       flat
+      class="documentation-cursor"
+      color="grey"
       push
       no-caps
-      class="cursor-pointer"
-      v-bind:disable="generationDirectory == ''"
-      @click="regenerateIntoDirectory(generationDirectory)"
+      title="Core Specification"
+      @click="openDocumentation"
     >
       <div class="text-center">
-        <q-icon name="repartition" />
-        <div>Regenerate</div>
+        <q-icon name="sym_o_quick_reference" />
+        <div>Documentation</div>
       </div>
     </q-btn>
     <q-btn
@@ -165,11 +165,12 @@ import ZclGeneralOptionsBar from '../components/ZclGeneralOptionsBar.vue'
 import ZclExtensionDialog from '../components/ZclCustomZclView.vue'
 import { startTour } from '../boot/tour'
 import { isElectron, isWin } from '../util/platform'
+import * as dbEnum from '../../src-shared/db-enum.js'
 
 const rendApi = require(`../../src-shared/rend-api.js`)
 const restApi = require(`../../src-shared/rest-api.js`)
 const observable = require('../util/observable.js')
-const dbEnum = require('../../src-shared/db-enum.js')
+
 export default {
   name: 'ZCLToolbar',
   components: {
@@ -177,6 +178,13 @@ export default {
     ZclExtensionDialog,
   },
   computed: {
+    isCoreDocumentationAvailable() {
+      return (
+        this.$store.state.zap.genericOptions[
+          dbEnum.sessionOption.coreSpecification
+        ].length > 0
+      )
+    },
     showPreviewTab: {
       get() {
         return this.$store.state.zap.showPreviewTab
@@ -228,6 +236,20 @@ export default {
     }
   },
   methods: {
+    openDocumentation() {
+      if (
+        this.$store.state.zap.genericOptions[
+          dbEnum.sessionOption.coreSpecification
+        ].length > 0
+      ) {
+        window.open(
+          this.$store.state.zap.genericOptions[
+            dbEnum.sessionOption.coreSpecification
+          ][0]['optionLabel'],
+          '_blank'
+        )
+      }
+    },
     // This function will start vue tour steps
     startTour,
     togglePreviewTab() {

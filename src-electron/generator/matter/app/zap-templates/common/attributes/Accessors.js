@@ -76,6 +76,8 @@ async function accessorGetterType(attr) {
     type = `DataModel::Nullable<${type}> &`;
   } else if (mayNeedPointer) {
     type = `${type} *`;
+  } else {
+    type = `${type} &`;
   }
 
   return type;

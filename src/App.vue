@@ -49,6 +49,24 @@ async function initLoad(store) {
   promises.push(store.dispatch('zap/loadInitialData'))
   promises.push(
     store.dispatch('zap/loadOptions', {
+      key: 'coreSpecification',
+      type: 'string',
+    })
+  )
+  promises.push(
+    store.dispatch('zap/loadOptions', {
+      key: 'clusterSpecification',
+      type: 'string',
+    })
+  )
+  promises.push(
+    store.dispatch('zap/loadOptions', {
+      key: 'deviceTypeSpecification',
+      type: 'string',
+    })
+  )
+  promises.push(
+    store.dispatch('zap/loadOptions', {
       key: 'defaultResponsePolicy',
       type: 'string',
     })

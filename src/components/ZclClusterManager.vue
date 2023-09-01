@@ -38,7 +38,17 @@ limitations under the License.
           {{ this.endpointId[this.selectedEndpointId] }} Clusters</span
         >
       </div>
-      <div class="row">
+      <div class="row q-gutter-x-sm">
+        <q-btn
+          v-if="isClusterDocumentationAvailable"
+          flat
+          color="grey"
+          dense
+          icon="sym_o_quick_reference"
+          @click="openClusterDocumentation"
+        >
+          <q-tooltip> Cluster Specification </q-tooltip>
+        </q-btn>
         <div class="v-step-7">
           <q-select
             outlined
@@ -50,7 +60,7 @@ limitations under the License.
           />
         </div>
 
-        <div class="q-mx-sm">
+        <div>
           <q-input
             dense
             outlined
@@ -110,6 +120,7 @@ import ZclDomainClusterView from './ZclDomainClusterView.vue'
 import CommonMixin from '../util/common-mixin'
 import { scroll } from 'quasar'
 const { getScrollTarget, setVerticalScrollPosition } = scroll
+import * as dbEnum from '../../src-shared/db-enum.js'
 
 export default {
   name: 'ZclClusterManager',
@@ -130,6 +141,16 @@ export default {
     },
   },
   computed: {
+    isClusterDocumentationAvailable() {
+      return (
+        this.$store.state.zap.genericOptions[
+          dbEnum.sessionOption.clusterSpecification
+        ] &&
+        this.$store.state.zap.genericOptions[
+          dbEnum.sessionOption.clusterSpecification
+        ].length > 0
+      )
+    },
     showPreviewTab: {
       get() {
         return this.$store.state.zap.showPreviewTab
@@ -220,6 +241,20 @@ export default {
     },
   },
   methods: {
+    openClusterDocumentation() {
+      if (
+        this.$store.state.zap.genericOptions[
+          dbEnum.sessionOption.clusterSpecification
+        ].length > 0
+      ) {
+        window.open(
+          this.$store.state.zap.genericOptions[
+            dbEnum.sessionOption.clusterSpecification
+          ][0]['optionLabel'],
+          '_blank'
+        )
+      }
+    },
     scrollToElementById(tag) {
       const el = document.getElementById(tag)
       const target = getScrollTarget(el)

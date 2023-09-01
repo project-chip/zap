@@ -4,7 +4,7 @@
   "description": "Graphical configuration tool for application and libraries based on Zigbee Cluster Library.",
   "path": [".", "node_modules/.bin/", "ZAP.app/Contents/MacOS"],
   "requiredFeatureLevel": "apack.core:9",
-  "featureLevel": 97,
+  "featureLevel": 98,
   "uc.triggerExtension": "zap",
   "executable": {
     "zap:win32.x86_64": {
