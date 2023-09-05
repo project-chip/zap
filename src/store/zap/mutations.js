@@ -379,6 +379,9 @@ export function setCommandLists(state, data) {
   vue3Set(state.commandView, 'selectedIn', data.incoming)
   vue3Set(state.commandView, 'selectedOut', data.outgoing)
 }
+export function setEventLists(state, data) {
+  vue3Set(state.eventView, 'selectedEvents', data)
+}
 
 export function setRecommendedClusterList(state, data) {
   vue3Set(state.clustersView, 'recommendedClients', data.recommendedClients)
