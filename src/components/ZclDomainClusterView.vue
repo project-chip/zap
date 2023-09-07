@@ -83,7 +83,20 @@ limitations under the License.
                     <q-btn
                       unelevated
                       text-color="primary"
-                      @click="enableRequiredComponents(props.row.id)"
+                      @click="
+                        updateUcComponentsByClusterSelection(props.row.id, [
+                          {
+                            state: this.selectionClients.includes(id),
+                            role: ZclClusterRole.client,
+                            action: ZclClusterRoleAction.Add,
+                          },
+                          {
+                            state: this.selectionServers.includes(id),
+                            role: ZclClusterRole.server,
+                            action: ZclClusterRoleAction.Add,
+                          },
+                        ])
+                      "
                       >Install</q-btn
                     >
                   </div>
@@ -205,6 +218,14 @@ limitations under the License.
 </template>
 <script>
 import CommonMixin from '../util/common-mixin'
+import restApi from '../../src-shared/rest-api'
+
+let ZclClusterRoleAction = {
+  Add: 'add',
+  Remove: 'remove',
+  NoAction: 'NoAction',
+}
+let ZclClusterRole = { server: 'server', client: 'client' }
 
 export default {
   name: 'ZclDomainClusterView',
@@ -243,12 +264,19 @@ export default {
   },
   methods: {
     enableAllClusters() {
-      this.clusters.forEach((singleCluster) => {
-        this.handleClusterSelection(singleCluster.id, {
-          label: 'Client & Server',
-          client: true,
-          server: true,
-        })
+      this.clusters.forEach(async (singleCluster) => {
+        await this.updateZclRolesByClusterSelection(singleCluster.id, [
+          {
+            state: true,
+            role: ZclClusterRole.client,
+            action: ZclClusterRoleAction.Add,
+          },
+          {
+            state: true,
+            role: ZclClusterRole.server,
+            action: ZclClusterRoleAction.Add,
+          },
+        ])
       })
     },
     toggleStatus: function () {
@@ -316,9 +344,11 @@ export default {
       if (
         missingRequiredClusterPair.missingClient ||
         missingRequiredClusterPair.missingServer
-      )
+      ) {
         return true
-      return false
+      } else {
+        return false
+      }
     },
     doesClusterHaveAnyWarnings(clusterData) {
       let id = clusterData.id
@@ -337,15 +367,55 @@ export default {
     isServerEnabled(id) {
       return this.selectionServers.includes(id)
     },
-    handleClusterSelection(id, event) {
-      let clientSelected = event.client
-      let serverSelected = event.server
+    processZclSelectionEvent(id, event) {
+      return [
+        {
+          role: ZclClusterRole.client,
+          action: this.zclClusterRoleAction(
+            this.selectionClients.includes(id),
+            event.client
+          ),
+          state: event.client,
+        },
+        {
+          role: ZclClusterRole.server,
+          action: this.zclClusterRoleAction(
+            this.selectionServers.includes(id),
+            event.server
+          ),
+          state: event.server,
+        },
+      ]
+    },
+    zclClusterRoleAction(before, after) {
+      if (before == true && after == false) {
+        return ZclClusterRoleAction.Remove
+      } else if (before == false && after == true) {
+        return ZclClusterRoleAction.Add
+      } else {
+        return ZclClusterRoleAction.NoAction
+      }
+    },
+    async handleClusterSelection(id, event) {
+      let selectionEvents = this.processZclSelectionEvent(id, event)
 
-      this.$store
+      // find out the delta
+      await this.updateZclRolesByClusterSelection(id, selectionEvents)
+      if (this.shareClusterStatesAcrossEndpoints()) {
+        await this.$store.dispatch('zap/shareClusterStatesAcrossEndpoints', {
+          endpointTypeIdList: this.endpointTypeIdList,
+        })
+      }
+      await this.updateUcComponentsByClusterSelection(id, selectionEvents)
+    },
+    async updateZclRolesByClusterSelection(id, event) {
+      let client = event.find((x) => x.role == ZclClusterRole.client)
+      let server = event.find((x) => x.role == ZclClusterRole.server)
+      await this.$store
         .dispatch('zap/updateSelectedClients', {
           endpointTypeId: this.selectedEndpointTypeId,
           id: id,
-          added: clientSelected,
+          added: client.state,
           listType: 'selectedClients',
           view: 'clustersView',
         })
@@ -353,41 +423,62 @@ export default {
           this.$store.dispatch('zap/updateSelectedServers', {
             endpointTypeId: this.selectedEndpointTypeId,
             id: id,
-            added: serverSelected,
+            added: server.state,
             listType: 'selectedServers',
             view: 'clustersView',
           })
         )
-        .then(() => {
-          if (this.shareClusterStatesAcrossEndpoints()) {
-            this.$store.dispatch('zap/shareClusterStatesAcrossEndpoints', {
-              endpointTypeIdList: this.endpointTypeIdList,
-            })
-          }
 
-          this.enableRequiredComponents(id)
-        })
-        .then(() => {
-          this.$store.commit('zap/updateIsClusterOptionChanged', true)
-        })
+      this.$store.commit('zap/updateIsClusterOptionChanged', true)
     },
-    enableRequiredComponents(id) {
-      let hasClient = this.selectionClients.includes(id)
-      let hasServer = this.selectionServers.includes(id)
+    async updateUcComponentsByClusterSelection(id, selectionEvents) {
+      // adding
+      let addRoles = selectionEvents
+        .filter((x) => x.action == ZclClusterRoleAction.Add)
+        .map((x) => x.role)
+      let removeRoles = selectionEvents
+        .filter((x) => x.action == ZclClusterRoleAction.Remove)
+        .map((x) => x.role)
 
-      let side = []
-      if (hasClient) {
-        side.push('client')
-      }
-      if (hasServer) {
-        side.push('server')
+      if (addRoles.length) {
+        let args = {
+          clusterId: id,
+          side: addRoles,
+          added: true,
+        }
+        console.log(`adding uc component: ${JSON.stringify(args)}`)
+        this.updateSelectedComponentRequest(args)
       }
 
-      this.updateSelectedComponentRequest({
-        clusterId: id,
-        side: side,
-        added: true,
-      })
+      if (removeRoles.length) {
+        // send Uc Comp Remove Req if no other endpoints have specific cluster/role enabled.
+        let endpointsClusterInfo = await Promise.all(
+          Object.keys(this.endpointId).map((id) =>
+            this.$serverGet(`${restApi.uri.endpointTypeClusters}${id}`).then(
+              (res) => res.data
+            )
+          )
+        )
+        endpointsClusterInfo = endpointsClusterInfo.flat()
+
+        if (endpointsClusterInfo?.length) {
+          for (const role of removeRoles) {
+            let endpoints = endpointsClusterInfo.filter(
+              (x) => x.clusterRef == id && x.side == role && x.enabled
+            )
+
+            if (endpoints.length == 0) {
+              let args = {
+                clusterId: id,
+                side: [role],
+                added: false,
+              }
+              console.log(`removing uc component: ${JSON.stringify(args)}`)
+              this.updateSelectedComponentRequest(args)
+            }
+          }
+        }
+      }
     },
     selectCluster(cluster) {
       this.$store.dispatch('zap/updateSelectedCluster', cluster).then(() => {
@@ -408,8 +499,11 @@ export default {
       return this.missingUcComponentDependencies(cluster)
     },
   },
+
   data() {
     return {
+      ZclClusterRoleAction,
+      ZclClusterRole,
       showEnableAllClustersDialog: false,
       uc_label: 'uc label',
       clusterSelectionOptions: [
@@ -494,18 +588,22 @@ export default {
   background-color: $grey-4;
   padding: 15px 15px 15px 15px;
 }
+
 .q-table th,
 .q-table td {
   padding: 5px;
   background-color: inherit;
   text-align: center;
 }
+
 .q-table thead th {
   border-color: rgba(173, 173, 173, 1);
 }
+
 .q-table tbody td {
   border-style: dashed !important;
 }
+
 .disabled-cluster {
   opacity: 0.3 !important;
 }
