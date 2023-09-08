@@ -473,6 +473,9 @@ async function isProjectActive(path: StudioProjectPath): Promise<boolean> {
  */
 function deinitIdeIntegration() {
   if (heartbeatId) clearInterval(heartbeatId)
+  Object.entries(studioWsConnections).forEach(([sessionId, connection]) => {
+    connection?.terminate()
+  })
 }
 
 async function sendSelectedUcComponents(

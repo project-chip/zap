@@ -47,7 +47,6 @@ export function asHex(input, padding) {
 export function notifyComponentUpdateStatus(componentIdStates, added) {
   let components = []
   let updated = false
-  console.log(JSON.stringify(componentIdStates))
   if (componentIdStates.length) {
     let success = componentIdStates.filter(
       (x) => x.status == http.StatusCodes.OK

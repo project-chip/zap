@@ -19,4 +19,4 @@ export type StudioWsMessage = (
   session: any,
   message: string
 ) => void
-export type StudioWsConnection = { [key: number]: WebSocket | null }
+export type StudioWsConnection = { [sessionId: number]: WebSocket | null }
