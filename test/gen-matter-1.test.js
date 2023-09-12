@@ -25,10 +25,12 @@ const dbApi = require('../src-electron/db/db-api')
 const queryAttribute = require('../src-electron/db/query-attribute')
 const querySession = require('../src-electron/db/query-session')
 const queryZcl = require('../src-electron/db/query-zcl')
+const queryPackage = require('../src-electron/db/query-package')
 const zclLoader = require('../src-electron/zcl/zcl-loader')
 const importJs = require('../src-electron/importexport/import')
 const testUtil = require('./test-util')
 const testQuery = require('./test-query')
+const dbEnum = require('../src-shared/db-enum')
 
 let db
 let templateContext
@@ -93,6 +95,28 @@ test(
     expect(templateContext.packageId).not.toBeNull()
   },
   testUtil.timeout.medium()
+)
+
+test(
+  'Verify specific generator setting for session is present.',
+  () =>
+    queryPackage
+      .getPackagesByType(db, dbEnum.packageType.genTemplatesJson)
+      .then((packages) => {
+        expect(packages.length).toBe(1)
+        let pkgId = packages.shift().id
+
+        queryPackage
+          .selectAllOptionsValues(db, pkgId, 'generator')
+          .then((generatorConfigurations) => {
+            expect(generatorConfigurations.length).toBe(1)
+            expect(generatorConfigurations[0].optionCode).toBe(
+              'disableUcComponentOnZclClusterUpdate'
+            )
+            expect(generatorConfigurations[0].optionLabel).toBe('true')
+          })
+      }),
+  testUtil.timeout.short()
 )
 
 test(

@@ -455,7 +455,7 @@ export default {
         this.updateSelectedComponentRequest(args)
       }
 
-      if (removeRoles.length) {
+      if (removeRoles.length && this.disableUcComponentOnZclClusterUpdate()) {
         // send Uc Comp Remove Req if no other endpoints have specific cluster/role enabled.
         let endpointsClusterInfo = await Promise.all(
           Object.keys(this.endpointId).map((id) =>

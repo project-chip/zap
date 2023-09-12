@@ -128,6 +128,7 @@ exports.generatorOptions = {
   postProcessConditionalFile: 'postProcessConditionalFile',
   enabled: 'enabled',
   shareClusterStatesAcrossEndpoints: 'shareClusterStatesAcrossEndpoints',
+  disableUcComponentOnZclClusterUpdate: 'disableUcComponentOnZclClusterUpdate',
 }
 
 exports.sessionOption = {
