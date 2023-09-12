@@ -73,11 +73,13 @@ limitations under the License.
               </q-item-section>
               <q-item-section side>
                 <q-icon
-                  :class="{'cursor-pointer': 
-                          iconName(sessionPackage.pkg.id) == 'error' 
-                       || iconName(sessionPackage.pkg.id) == 'warning'}"
-                  :name="iconName(sessionPackage.pkg.id)" 
-                  :color="iconColor(sessionPackage.pkg.id)" 
+                  :class="{
+                    'cursor-pointer':
+                      iconName(sessionPackage.pkg.id) == 'error' ||
+                      iconName(sessionPackage.pkg.id) == 'warning',
+                  }"
+                  :name="iconName(sessionPackage.pkg.id)"
+                  :color="iconColor(sessionPackage.pkg.id)"
                   size="2em"
                   @click="() => handleIconClick(sessionPackage.pkg.id)"
                 />
@@ -88,13 +90,13 @@ limitations under the License.
                     <div class="row items-center">
                       <div class="col-1">
                         <q-icon
-                          :name="iconName(sessionPackage.pkg.id)" 
-                          :color="iconColor(sessionPackage.pkg.id)" 
+                          :name="iconName(sessionPackage.pkg.id)"
+                          :color="iconColor(sessionPackage.pkg.id)"
                           size="2em"
                         ></q-icon>
                       </div>
                       <div class="text-h6 col">
-                        {{ sessionPackage.pkg.path }} 
+                        {{ sessionPackage.pkg.path }}
                       </div>
                       <div class="col-1 text-right">
                         <q-btn dense flat icon="close" v-close-popup>
@@ -103,18 +105,18 @@ limitations under the License.
                       </div>
                     </div>
                     <div v-if="notisData[sessionPackage.pkg.id]?.hasError">
-                      <div 
-                        class="text-h6" 
-                        style="margin-top: 15px; 
-                              padding-left: 20px"
+                      <div
+                        class="text-h6"
+                        style="margin-top: 15px; padding-left: 20px"
                       >
                         Errors
                       </div>
                       <ul>
-                        <li 
-                          v-for="(error, index) in 
-                                populateNotifications(sessionPackage.pkg.id, 
-                                'ERROR')" 
+                        <li
+                          v-for="(error, index) in populateNotifications(
+                            sessionPackage.pkg.id,
+                            'ERROR'
+                          )"
                           :key="'error' + index"
                           style="margin-bottom: 10px"
                         >
@@ -123,21 +125,21 @@ limitations under the License.
                       </ul>
                     </div>
                     <div v-if="notisData[sessionPackage.pkg.id]?.hasWarning">
-                      <div 
-                        class="text-h6" 
-                        style="margin-top: 15px; 
-                        padding-left: 20px"
+                      <div
+                        class="text-h6"
+                        style="margin-top: 15px; padding-left: 20px"
                       >
                         Warnings
                       </div>
                       <ul>
-                        <li 
-                          v-for="(warning, index) in 
-                                populateNotifications(sessionPackage.pkg.id, 
-                                'WARNING')" 
+                        <li
+                          v-for="(warning, index) in populateNotifications(
+                            sessionPackage.pkg.id,
+                            'WARNING'
+                          )"
                           :key="index"
                           style="margin-bottom: 10px"
-                          >
+                        >
                           {{ warning.message }}
                         </li>
                       </ul>
@@ -166,7 +168,7 @@ export default {
   watch: {
     packages(newPackages) {
       this.loadPackageNotification(newPackages)
-    }
+    },
   },
   methods: {
     getFileName(path) {
@@ -194,7 +196,8 @@ export default {
             this.error = packageStatus.err
             Notify.create({
               message: this.error,
-              color: 'negative',
+              type: 'warning',
+              classes: 'custom-notification notification-warning',
               position: 'top',
               html: true,
             })
@@ -233,11 +236,10 @@ export default {
           errors: [],
         }
         notifications.forEach((notification) => {
-          if (notification.type == "ERROR") {
+          if (notification.type == 'ERROR') {
             currentPackage.hasError = true
             currentPackage.errors.push(notification)
-          }
-          else {
+          } else {
             currentPackage.warnings.push(notification)
           }
         })
@@ -263,15 +265,15 @@ export default {
       }
     },
     handleIconClick(packageId) {
-      let iconName = this.iconName(packageId);
+      let iconName = this.iconName(packageId)
       if (iconName === 'error' || iconName === 'warning') {
-        this.dialogData[packageId] = true;
+        this.dialogData[packageId] = true
       }
     },
     populateNotifications(packageId, type) {
-      let key = type == "ERROR" ? "errors" : "warnings"
+      let key = type == 'ERROR' ? 'errors' : 'warnings'
       return this.notisData[packageId][key]
-    }
+    },
   },
   mounted() {
     if (this.$serverGet != null) {
@@ -287,7 +289,7 @@ export default {
           }
         }
       )
-    }  
+    }
   },
   data() {
     return {
