@@ -897,7 +897,25 @@ function isSupported(cluster, options) {
 function isProvisional(cluster, options) {
   let provisionalRelease = findReleaseForPathOrAncestorAndSection(this.global, cluster, options, 'provisional');
   if (provisionalRelease === undefined) {
-    return false;
+    // For attributes, also check whether this is a provisional global
+    // attribute.
+    let attrName = options.hash.attribute;
+    if (attrName) {
+      provisionalRelease = findReleaseForPathOrAncestorAndSection(
+        this.global,
+        /* cluster does not apply to global attributes */
+        "",
+        /*
+         * Keep our options (e.g. in terms of isForIds bits), but replace
+         * attribute with globalAttribute.
+         */
+        { hash: { ...options.hash, attribute: undefined, globalAttribute: attrName } },
+        'provisional'
+      );
+    }
+    if (provisionalRelease === undefined) {
+      return false;
+    }
   }
 
   let path = makeAvailabilityPath(cluster, options);
