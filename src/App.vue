@@ -72,31 +72,22 @@ async function initLoad(store) {
     })
   )
   promises.push(
-    store.dispatch(
-      ('zap/loadOptions',
-      {
-        key: 'manufacturerCodes',
-        type: 'object',
-      })
-    )
+    store.dispatch('zap/loadOptions', {
+      key: 'manufacturerCodes',
+      type: 'object',
+    })
   )
   promises.push(
-    store.dispatch(
-      ('zap/loadOptions',
-      {
-        key: 'profileCodes',
-        type: 'object',
-      })
-    )
+    store.dispatch('zap/loadOptions', {
+      key: 'profileCodes',
+      type: 'object',
+    })
   )
   promises.push(
-    store.dispatch(
-      ('zap/loadOptions',
-      {
-        key: 'generator',
-        type: 'object',
-      })
-    )
+    store.dispatch('zap/loadOptions', {
+      key: 'generator',
+      type: 'object',
+    })
   )
   promises.push(store.dispatch('zap/loadSessionKeyValues'))
 

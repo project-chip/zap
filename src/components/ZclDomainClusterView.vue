@@ -351,6 +351,11 @@ export default {
       }
     },
     doesClusterHaveAnyWarnings(clusterData) {
+      // check if UC component data have been loaded or not.
+      if (this.$store.state.zap.studio.ucComponents.length == 0) {
+        return false
+      }
+
       let id = clusterData.id
       if (this.isRequiredClusterMissingForId(id)) return true
       if (this.missingRequiredUcComponents(clusterData).length) return true
@@ -450,7 +455,7 @@ export default {
         this.updateSelectedComponentRequest(args)
       }
 
-      if (removeRoles.length) {
+      if (removeRoles.length && this.disableUcComponentOnZclClusterUpdate()) {
         // send Uc Comp Remove Req if no other endpoints have specific cluster/role enabled.
         let endpointsClusterInfo = await Promise.all(
           Object.keys(this.endpointId).map((id) =>

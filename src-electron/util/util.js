@@ -105,7 +105,14 @@ async function ensurePackagesAndPopulateSessionOptions(
           )
         } else if (rows.length == 0) {
           env.logError(`No zcl.properties found for session.`)
-          queryNotification.setNotification(db, "WARNING", `No zcl.properties found for session.`, sessionId, 2, 0)
+          queryNotification.setNotification(
+            db,
+            'WARNING',
+            `No zcl.properties found for session.`,
+            sessionId,
+            2,
+            0
+          )
           packageId = null
         } else {
           rows.forEach((p) => {
@@ -116,8 +123,14 @@ async function ensurePackagesAndPopulateSessionOptions(
           env.logWarning(
             `${sessionId}, ${zclFile}: Multiple toplevel zcl.properties found. Using the first one from args: ${packageId}`
           )
-          queryNotification.setNotification(db, "WARNING", `${sessionId}, ${zclFile}: Multiple toplevel zcl.properties found. Using the first one from args: ${packageId}`, 
-          sessionId, 2, 0)
+          queryNotification.setNotification(
+            db,
+            'WARNING',
+            `${sessionId}, ${zclFile}: Multiple toplevel zcl.properties found. Using the first one from args: ${packageId}`,
+            sessionId,
+            2,
+            0
+          )
         }
         if (packageId != null) {
           return queryPackage.insertSessionPackage(
@@ -162,14 +175,27 @@ async function ensurePackagesAndPopulateSessionOptions(
                 env.logWarning(
                   `Multiple toplevel generation template metafiles found. Using the one from args: ${packageId}`
                 )
-                queryNotification.setNotification(db, "WARNING", `Multiple toplevel generation template metafiles found. Using the one from args: ${packageId}`, 
-                sessionId, 2, 0)
+                queryNotification.setNotification(
+                  db,
+                  'WARNING',
+                  `Multiple toplevel generation template metafiles found. Using the one from args: ${packageId}`,
+                  sessionId,
+                  2,
+                  0
+                )
               } else {
                 packageId = rows[0].id
                 env.logWarning(
                   `Multiple toplevel generation template metafiles found. Using the first one.`
                 )
-                queryNotification.setNotification(db, "WARNING", `Multiple toplevel generation template metafiles found. Using the first one.`, sessionId, 2, 0)
+                queryNotification.setNotification(
+                  db,
+                  'WARNING',
+                  `Multiple toplevel generation template metafiles found. Using the first one.`,
+                  sessionId,
+                  2,
+                  0
+                )
               }
             }
             if (packageId != null) {
@@ -183,9 +209,19 @@ async function ensurePackagesAndPopulateSessionOptions(
           })
         }
         if (packageId == null && rows.length > 0) {
-          // If package id is not resolved and there are gen-template packages available
-          // then pick the first one available
-          packageId = rows[0].id
+          // If package id is not resolved and there are gen-template packages available,
+          // find one with matching category. if nothing is found, blindly pick the first one available
+
+          let packageId
+          if (selectedZclPropertyPackage) {
+            const matchBySelectedCategory = rows.find(
+              (r) => r?.category === selectedZclPropertyPackage.category
+            );
+            packageId = matchBySelectedCategory?.id || rows[0].id;
+          } else {
+            packageId = rows[0].id
+          }
+
           return queryPackage.insertSessionPackage(
             db,
             sessionId,

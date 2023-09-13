@@ -11,7 +11,10 @@
       "code5": "label5"
     },
     "externalOption": "externalOptions.json",
-    "cli": "cli.json"
+    "cli": "cli.json",
+    "generator": {
+      "disableUcComponentOnZclClusterUpdate": "true"
+    }
   },
   "zcl": {
     "event": {

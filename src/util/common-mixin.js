@@ -184,6 +184,33 @@ export default {
     },
 
     /**
+     * While running in Studio / ZAP integration mode,
+     * this flag determines whether disabling a ZCL cluster (server / client) triggers disabling of a
+     * corresponding UC component. The disabling will only be issued if
+     *
+     * e.g.
+     * If an SDK config has 1 endpoint, disabling a ZCL cluster will cause
+     * the corresponding UC component to be disabled.
+     *
+     * If an SDK config has 2 or more endpoints, disabling the last enabled cluster
+     * across all endpoints will trigger the corresponding UC component to be
+     * disabled.
+     */
+    disableUcComponentOnZclClusterUpdate() {
+      let res = this.$store.state.zap.genericOptions?.generator?.filter(
+        (x) =>
+          x.optionCode ==
+          DbEnum.generatorOptions.disableUcComponentOnZclClusterUpdate
+      )
+
+      if (res?.length) {
+        return res[0].optionLabel === 'true'
+      } else {
+        return false
+      }
+    },
+
+    /**
      * Enable components by pinging backend, which pings Studio jetty server.
      * @param {*} params
      */
