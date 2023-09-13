@@ -213,11 +213,11 @@ async function ensurePackagesAndPopulateSessionOptions(
           // find one with matching category. if nothing is found, blindly pick the first one available
 
           let packageId
-          let matchBySelectedCategory = rows.filter(
-            (r) => r?.category == selectedZclPropertyPackage.category
-          )
-          if (selectedZclPropertyPackage && matchBySelectedCategory.length) {
-            packageId = matchBySelectedCategory[0].id
+          if (selectedZclPropertyPackage) {
+            const matchBySelectedCategory = rows.find(
+              (r) => r?.category === selectedZclPropertyPackage.category
+            );
+            packageId = matchBySelectedCategory?.id || rows[0].id;
           } else {
             packageId = rows[0].id
           }
