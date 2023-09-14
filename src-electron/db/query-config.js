@@ -245,7 +245,7 @@ INTO ENDPOINT_TYPE_ATTRIBUTE (
       cluster.endpointTypeClusterId,
       attributeId,
       staticAttribute.defaultValue ? staticAttribute.defaultValue : '',
-      staticAttribute.storagePolicy,
+      dbEnum.storageOption.ram,
       clusterRef,
       reportMinInterval,
       reportMaxInterval,
