@@ -556,7 +556,7 @@ function prepareCluster(cluster, context, isExtension = false) {
           attribute.$.reportingPolicy
         )
       }
-      let storagePolicy = dbEnum.storageOption.ram
+      let storagePolicy = dbEnum.storageOption.any
       if (
         context.listsUseAttributeAccessInterface &&
         context.attributeAccessInterfaceAttributes &&
