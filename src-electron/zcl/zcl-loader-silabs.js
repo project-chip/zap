@@ -556,16 +556,16 @@ function prepareCluster(cluster, context, isExtension = false) {
           attribute.$.reportingPolicy
         )
       }
-      let storagePolicy = dbEnum.storageOption.ram
+      let storagePolicy = dbEnum.storagePolicy.any
       if (context.listsUseAttributeAccessInterface && attribute.$.entryType) {
-        storagePolicy = dbEnum.storageOption.external
+        storagePolicy = dbEnum.storagePolicy.attributeAccessInterface
       } else if (
         context.listsUseAttributeAccessInterface &&
         context.attributeAccessInterfaceAttributes &&
         context.attributeAccessInterfaceAttributes[cluster.name] &&
         context.attributeAccessInterfaceAttributes[cluster.name].includes(name)
       ) {
-        storagePolicy = dbEnum.storageOption.external
+        storagePolicy = dbEnum.storagePolicy.attributeAccessInterface
       }
       let att = {
         code: parseInt(attribute.$.code),

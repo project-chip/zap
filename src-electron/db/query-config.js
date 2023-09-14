@@ -211,6 +211,11 @@ async function insertOrUpdateAttributeState(
       attributeId,
       clusterRef
     )
+  if (staticAttribute.storagePolicy == 'attributeAccessInterface') {
+    staticAttribute.storagePolicy = dbEnum.storageOption.external
+  } else {
+    staticAttribute.storagePolicy = dbEnum.storageOption.ram
+  }
 
   if (staticAttribute == null) {
     throw new Error(`COULD NOT LOCATE ATTRIBUTE: ${attributeId} `)
