@@ -557,9 +557,8 @@ function prepareCluster(cluster, context, isExtension = false) {
         )
       }
       let storagePolicy = dbEnum.storageOption.ram
-      if (context.listsUseAttributeAccessInterface && attribute.$.entryType) {
-        storagePolicy = dbEnum.storageOption.external
-      } else if (
+      if (
+        context.listsUseAttributeAccessInterface &&
         context.attributeAccessInterfaceAttributes &&
         context.attributeAccessInterfaceAttributes[cluster.name] &&
         context.attributeAccessInterfaceAttributes[cluster.name].includes(name)
