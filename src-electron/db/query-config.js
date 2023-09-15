@@ -211,6 +211,14 @@ async function insertOrUpdateAttributeState(
       attributeId,
       clusterRef
     )
+  if (
+    staticAttribute.storagePolicy ==
+    dbEnum.storagePolicy.attributeAccessInterface
+  ) {
+    staticAttribute.storagePolicy = dbEnum.storageOption.external
+  } else {
+    staticAttribute.storagePolicy = dbEnum.storageOption.ram
+  }
 
   if (staticAttribute == null) {
     throw new Error(`COULD NOT LOCATE ATTRIBUTE: ${attributeId} `)
@@ -245,7 +253,7 @@ INTO ENDPOINT_TYPE_ATTRIBUTE (
       cluster.endpointTypeClusterId,
       attributeId,
       staticAttribute.defaultValue ? staticAttribute.defaultValue : '',
-      dbEnum.storageOption.ram,
+      staticAttribute.storagePolicy,
       clusterRef,
       reportMinInterval,
       reportMaxInterval,
