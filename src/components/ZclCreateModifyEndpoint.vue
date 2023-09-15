@@ -536,21 +536,24 @@ export default {
               })
 
               // collect all cluster id from new endpoint
-              this.selectionClients.forEach((id) => {
-                this.updateSelectedComponentRequest({
-                  clusterId: id,
-                  side: ['client'],
-                  added: true,
-                })
-              })
+              let roleList = {
+                client: this.selectionClients,
+                server: this.selectionServers,
+              }
 
-              this.selectionServers.forEach((id) => {
-                this.updateSelectedComponentRequest({
-                  clusterId: id,
-                  side: ['server'],
-                  added: true,
+              for (const [role, selectionList] of Object.entries(roleList)) {
+                selectionList.forEach((id) => {
+                  // TODO: skip already enabled clusters
+                  const arg = {
+                    side: [role],
+                    clusterId: id,
+                    added: true,
+                  }
+
+                  console.log(`Enabling UC component ${JSON.stringify(arg)}`)
+                  this.updateSelectedComponentRequest(arg)
                 })
-              })
+              }
 
               this.$store.dispatch('zap/updateSelectedEndpoint', res.id)
               this.$store.commit('zap/toggleEndpointModal', false)
