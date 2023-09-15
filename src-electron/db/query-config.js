@@ -211,7 +211,10 @@ async function insertOrUpdateAttributeState(
       attributeId,
       clusterRef
     )
-  if (staticAttribute.storagePolicy == 'attributeAccessInterface') {
+  if (
+    staticAttribute.storagePolicy ==
+    dbEnum.storagePolicy.attributeAccessInterface
+  ) {
     staticAttribute.storagePolicy = dbEnum.storageOption.external
   } else {
     staticAttribute.storagePolicy = dbEnum.storageOption.ram
