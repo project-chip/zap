@@ -305,57 +305,6 @@ async function processAtomics(db, filePath, packageId, data) {
   )
 }
 
-/**
- * Prepares global attribute data.
- *
- * @param {*} cluster
- * @returns Object containing the data from XML.
- */
-function prepareClusterGlobalAttribute(cluster) {
-  if ('globalAttribute' in cluster) {
-    let ret = {}
-
-    ret.code = parseInt(cluster.code[0], 16)
-    if ('$' in cluster) {
-      let mfgCode = cluster['$'].manufacturerCode
-      if (mfgCode != null) ret.manufacturerCode = mfgCode
-    }
-
-    ret.globalAttribute = []
-    cluster.globalAttribute.forEach((ga) => {
-      let at = {
-        code: parseInt(ga.$.code),
-        value: ga.$.value,
-      }
-
-      if ('featureBit' in ga) {
-        at.featureBit = ga.featureBit.map((fb) => {
-          let content = fb._ != null ? fb._.toLowerCase() : null
-          return {
-            tag: fb.$.tag,
-            bit: parseInt(fb.$.bit),
-            value: content == '1' || content == 'true',
-          }
-        })
-      }
-
-      if (ga.$.side == dbEnum.side.either) {
-        ret.globalAttribute.push(
-          Object.assign({ side: dbEnum.side.client }, at)
-        )
-        ret.globalAttribute.push(
-          Object.assign({ side: dbEnum.side.server }, at)
-        )
-      } else {
-        ret.globalAttribute.push(Object.assign({ side: ga.$.side }, at))
-      }
-    })
-    return ret
-  } else {
-    return null
-  }
-}
-
 function extractAccessTag(ac) {
   let e = {
     op: ac.$.op,
@@ -669,28 +618,6 @@ async function processClusters(db, filePath, packageId, data, context) {
     packageId,
     data.map((x) => prepareCluster(x, context))
   )
-}
-
-/**
- * Processes global attributes for insertion into the database.
- *
- * @param {*} db
- * @param {*} filePath
- * @param {*} packageId
- * @param {*} data
- * @returns Promise of inserted data.
- */
-function processClusterGlobalAttributes(db, filePath, packageId, data) {
-  let objs = []
-  data.forEach((x) => {
-    let p = prepareClusterGlobalAttribute(x)
-    if (p != null) objs.push(p)
-  })
-  if (objs.length > 0) {
-    return queryLoader.insertGlobalAttributeDefault(db, packageId, objs)
-  } else {
-    return null
-  }
 }
 
 /**
@@ -1788,16 +1715,6 @@ async function processParsedZclData(
     //   promises that have already started, but functions that return promises.
     let delayedPromises = []
 
-    if ('cluster' in toplevel) {
-      delayedPromises.push(() =>
-        processClusterGlobalAttributes(
-          db,
-          filePath,
-          packageId,
-          toplevel.cluster
-        )
-      )
-    }
     if ('clusterExtension' in toplevel) {
       delayedPromises.push(() =>
         processClusterExtensions(

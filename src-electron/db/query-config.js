@@ -25,11 +25,15 @@ const dbMapping = require('./db-mapping.js')
 const queryPackage = require('./query-package.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const queryZcl = require('./query-zcl.js')
+const queryCluster = require('./query-cluster.js')
+const queryAttribute = require('./query-attribute.js')
 const queryDeviceType = require('./query-device-type')
 const queryCommand = require('./query-command.js')
 const restApi = require('../../src-shared/rest-api.js')
 const _ = require('lodash')
 const notification = require('../db/query-session-notification.js')
+const fs = require('fs')
+const fsp = fs.promises
 
 /**
  * Promises to update the cluster include/exclude state.
@@ -161,6 +165,10 @@ async function insertClusterDefaults(db, endpointTypeId, packageId, cluster) {
   return Promise.all(promises)
 }
 
+async function queryMetaFile(db) {
+  return dbApi.dbAll(db, 'SELECT PATH FROM PACKAGE WHERE PACKAGE_ID = 31')
+}
+
 /**
  * Promise to update the attribute state.
  * If the attribute entry [as defined uniquely by endpointTypeId and id], is not there, then create a default entry
@@ -217,7 +225,23 @@ async function insertOrUpdateAttributeState(
   ) {
     staticAttribute.storagePolicy = dbEnum.storageOption.external
   } else {
-    staticAttribute.storagePolicy = dbEnum.storageOption.ram
+    staticAttribute.storagePolicy = dbEnum.storageOption.any
+  }
+  let zcl = await queryMetaFile(db)
+  let obj = await fsp.readFile(zcl[0].PATH)
+  let data = JSON.parse(obj)
+
+  let clusterName = await queryCluster.selectClusterName(db, clusterRef)
+  let attributeName = await queryAttribute.selectAttributeName(db, attributeId)
+  let forcedExternal = data.attributeAccessInterfaceAttributes
+  clusterName = clusterName[0].NAME
+  attributeName = attributeName[0].NAME
+  if (
+    forcedExternal &&
+    forcedExternal[clusterName] &&
+    forcedExternal[clusterName].includes(attributeName)
+  ) {
+    staticAttribute.storagePolicy = dbEnum.storageOption.external
   }
 
   if (staticAttribute == null) {

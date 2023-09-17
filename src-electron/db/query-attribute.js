@@ -24,6 +24,12 @@ const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
 const dbCache = require('./db-cache')
 
+async function selectAttributeName(db, attributeId) {
+  return dbApi.dbAll(db, 'SELECT NAME FROM ATTRIBUTE WHERE ATTRIBUTE_ID = ?', [
+    attributeId,
+  ])
+}
+
 /**
  * Promises to select all endpoint type attributes filtered by EndpointTypeRef and ClusterRef.
  *
@@ -1151,7 +1157,7 @@ AND
 
   return rows.map(dbMapping.map.endpointTypeAttributeExtended)
 }
-
+exports.selectAttributeName = selectAttributeName
 exports.selectAllAttributeDetailsFromEnabledClusters = dbCache.cacheQuery(
   selectAllAttributeDetailsFromEnabledClusters
 )

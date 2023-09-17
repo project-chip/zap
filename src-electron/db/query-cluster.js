@@ -23,6 +23,12 @@
 const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
 
+async function selectClusterName(db, clusterRef) {
+  return dbApi.dbAll(db, 'SELECT NAME FROM CLUSTER WHERE CLUSTER_ID = ?', [
+    clusterRef,
+  ])
+}
+
 /**
  * All cluster details along with their attribute details per endpoint.
  * @param db
@@ -279,7 +285,7 @@ async function selectTokenAttributeClustersForEndpoint(
   )
   return rows.map(dbMapping.map.cluster)
 }
-
+exports.selectClusterName = selectClusterName
 exports.selectClusterDetailsFromEnabledClusters =
   selectClusterDetailsFromEnabledClusters
 exports.selectAllUserClustersWithTokenAttributes =
