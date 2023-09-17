@@ -23,7 +23,7 @@
 const dbApi = require('./db-api')
 const dbEnums = require('../../src-shared/db-enum')
 const dbMapping = require('./db-mapping.js')
-
+const queryUpgrade = require('../upgrade/upgrade.js')
 /**
  * Imports a single endpoint
  * @param {} db
@@ -619,6 +619,7 @@ ORDER BY
  * @param {*} endpointTypeId
  * @param {*} endpointClusterId may be null if global attribute
  * @param {*} attribute
+ * @param {*} cluster
  * @returns Promise of an attribute insertion.
  */
 async function importAttributeForEndpointType(
@@ -626,13 +627,15 @@ async function importAttributeForEndpointType(
   packageIds,
   endpointTypeId,
   endpointClusterId,
-  attribute
+  attribute,
+  cluster
 ) {
   let selectAttributeQuery = `
 SELECT
   A.ATTRIBUTE_ID,
   A.REPORTING_POLICY,
-  A.STORAGE_POLICY
+  A.STORAGE_POLICY,
+  A.NAME
 FROM
   ATTRIBUTE AS A
 INNER JOIN
@@ -657,14 +660,18 @@ WHERE
   let attributeId
   let reportingPolicy
   let storagePolicy
+  let forcedExternal
+  let attributeName
   if (atRow.length == 0) {
     attributeId = null
     reportingPolicy = null
     storagePolicy = null
+    attributeName = null
   } else {
     attributeId = atRow[0].ATTRIBUTE_ID
     reportingPolicy = atRow[0].REPORTING_POLICY
     storagePolicy = atRow[0].STORAGE_POLICY
+    attributeName = atRow[0].NAME
   }
 
   // If the spec has meanwhile changed the policies to mandatory or prohibited,
@@ -674,7 +681,19 @@ WHERE
   } else if (reportingPolicy == dbEnums.reportingPolicy.prohibited) {
     attribute.reportable = false
   }
-
+  if (attributeId) {
+    forcedExternal = await queryUpgrade.getForcedExternalStorage(
+      db,
+      attributeId
+    )
+    storagePolicy = await queryUpgrade.computeStorageImport(
+      db,
+      cluster.name,
+      storagePolicy,
+      forcedExternal,
+      attributeName
+    )
+  }
   if (storagePolicy == dbEnums.storagePolicy.attributeAccessInterface) {
     attribute.storageOption = dbEnums.storageOption.external
   }

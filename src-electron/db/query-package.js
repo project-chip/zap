@@ -187,6 +187,22 @@ async function getPackageByPackageId(db, packageId) {
 }
 
 /**
+ * Returns a package ref from the attribute ID
+ *
+ * @param db
+ * @param attributeId
+ * @returns package ref
+ */
+async function getPackageRefByAttributeId(db, attributeId) {
+  let package_ref = await dbApi.dbAll(
+    db,
+    'SELECT PACKAGE_REF FROM ATTRIBUTE WHERE ATTRIBUTE_ID = ?',
+    [attributeId]
+  )
+  return package_ref[0].PACKAGE_REF
+}
+
+/**
  * Resolves with a CRC or null for a given path.
  *
  * @export
@@ -979,6 +995,7 @@ async function insertSessionKeyValuesFromPackageDefaults(db, sessionId) {
 }
 
 // exports
+exports.getPackageRefByAttributeId = getPackageRefByAttributeId
 exports.getPackageByPathAndParent = getPackageByPathAndParent
 exports.getPackageByPackageId = getPackageByPackageId
 exports.getPackagesByType = getPackagesByType

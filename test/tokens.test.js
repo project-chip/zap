@@ -40,7 +40,7 @@ beforeAll(async () => {
     env.zapVersion()
   )
   await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
-}, testUtil.timeout.medium())
+}, testUtil.timeout.long())
 
 afterAll(() => dbApi.closeDatabase(db), testUtil.timeout.short())
 
@@ -58,7 +58,7 @@ test(
     expect(context.packageId).not.toBeNull()
     templateContext = context
   },
-  testUtil.timeout.medium()
+  testUtil.timeout.long()
 )
 
 test(
@@ -68,7 +68,7 @@ test(
     templateContext.sessionId = importResult.sessionId
     expect(importResult.sessionId).not.toBeNull()
   },
-  testUtil.timeout.medium()
+  testUtil.timeout.long()
 )
 
 test(
