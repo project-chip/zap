@@ -535,25 +535,34 @@ export default {
                   this.endpointDeviceTypeRef[this.endpointType[res.id]],
               })
 
-              // collect all cluster id from new endpoint
-              let roleList = {
-                client: this.selectionClients,
-                server: this.selectionServers,
-              }
+              this.$store
+                .dispatch(
+                  `zap/endpointTypeClustersInfo`,
+                  this.endpointType[res.id]
+                )
+                .then((res) => {
+                  if (res?.data) {
+                    const clusterStates = res.data
+                    const enabledClusterStates = clusterStates.filter(
+                      (x) => x.enabled
+                    )
+                    for (const states of enabledClusterStates) {
+                      const { endpointTypeRef, clusterRef, side, enabled } =
+                        states
 
-              for (const [role, selectionList] of Object.entries(roleList)) {
-                selectionList.forEach((id) => {
-                  // TODO: skip already enabled clusters
-                  const arg = {
-                    side: [role],
-                    clusterId: id,
-                    added: true,
+                      const arg = {
+                        side: [side],
+                        clusterId: clusterRef,
+                        added: enabled,
+                      }
+
+                      console.log(
+                        `Enabling UC component ${JSON.stringify(arg)}`
+                      )
+                      this.updateSelectedComponentRequest(arg)
+                    }
                   }
-
-                  console.log(`Enabling UC component ${JSON.stringify(arg)}`)
-                  this.updateSelectedComponentRequest(arg)
                 })
-              }
 
               this.$store.dispatch('zap/updateSelectedEndpoint', res.id)
               this.$store.commit('zap/toggleEndpointModal', false)

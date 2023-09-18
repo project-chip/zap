@@ -56,10 +56,10 @@ export function notifyComponentUpdateStatus(componentIdStates, added) {
     )
 
     if (failure.length) {
-      components = failure.map((x) => x.id)
-      // updated stays false
+      components = failure
+      updated = false
     } else {
-      components = success.map((x) => x.id)
+      components = success
       updated = true
     }
 
@@ -71,7 +71,8 @@ export function notifyComponentUpdateStatus(componentIdStates, added) {
       let msg = `<div><strong>The following components ${verb} ${action}.</strong></div>`
       msg += `<div><span style="text-transform: capitalize"><ul>`
       msg += components
-        .map((id) => {
+        .map((component) => {
+          let { id } = component
           if (id.lastIndexOf('%') != -1) {
             id = id.substring(id.lastIndexOf('%') + 1)
           }
@@ -80,6 +81,21 @@ export function notifyComponentUpdateStatus(componentIdStates, added) {
         })
         .join(' ')
       msg += `</ul></span></div>`
+
+      if (!updated) {
+        msg += `<div><strong>Errors:</strong></div>`
+        msg += `<div><span><ul>`
+
+        components.forEach((component) => {
+          if (component?.data?.errors) {
+            component.data.errors?.forEach((error) => {
+              msg += `<li>${error.basicMessage}</li>`
+            })
+          }
+        })
+
+        msg += `</ul></span></div>`
+      }
 
       // notify ui
       Notify.create({
