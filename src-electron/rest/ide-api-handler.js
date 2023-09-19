@@ -53,7 +53,7 @@ async function httpPostComponentUpdateHandler(db, request, response, add) {
       add,
       side
     )
-    studio.sendComponentUpdateStatus(db, request.zapSessionId, {
+    await studio.sendComponentUpdateStatus(db, request.zapSessionId, {
       data: res,
       added: add,
     })

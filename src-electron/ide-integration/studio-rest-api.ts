@@ -524,26 +524,29 @@ function sendSessionCreationErrorStatus(
  * Notify front-end that current session failed to load.
  * @param {*} err
  */
-function sendComponentUpdateStatus(
+async function sendComponentUpdateStatus(
   db: dbTypes.DbType,
   sessionId: number,
   data: any
 ) {
-  querySession
-    .getAllSessions(db)
-    .then((sessions: dbMappingTypes.SessionType[]) =>
-      sessions.forEach((session) => {
-        if (session.sessionId == sessionId) {
-          let socket = wsServer.clientSocket(session.sessionKey)
-          if (socket) {
-            wsServer.sendWebSocketMessage(socket, {
-              category: dbEnum.wsCategory.componentUpdateStatus,
-              payload: data,
-            })
-          }
-        }
-      })
-    )
+  try {
+    let sessions: dbMappingTypes.SessionType[] =
+      await querySession.getAllSessions(db)
+    let session = sessions.find((s) => s.sessionId == sessionId)
+    if (session) {
+      let socket = wsServer.clientSocket(session.sessionKey)
+      if (socket) {
+        wsServer.sendWebSocketMessage(socket, {
+          category: dbEnum.wsCategory.componentUpdateStatus,
+          payload: data,
+        })
+      }
+    } else {
+      throw new Error(`Unable to find session with id ${sessionId}`)
+    }
+  } catch (error) {
+    console.error('Error sending component update status:', error)
+  }
 }
 
 exports.getProjectInfo = getProjectInfo

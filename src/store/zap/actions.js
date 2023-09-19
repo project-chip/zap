@@ -414,66 +414,89 @@ export function refreshEndpointTypeCluster(context, endpointType) {
     })
 }
 
-export function updateSelectedEndpointType(
+export async function endpointTypeClustersInfo(context, endpointTypeId) {
+  return axiosRequests.$serverGet(
+    `${restApi.uri.endpointTypeClusters}${endpointTypeId}`
+  )
+}
+
+export async function updateSelectedEndpointType(
   context,
   endpointTypeDeviceTypeRefPair
 ) {
-  if (endpointTypeDeviceTypeRefPair != null) {
-    axiosRequests
-      .$serverGet(
-        `${restApi.uri.endpointTypeClusters}${endpointTypeDeviceTypeRefPair.endpointType}`
-      )
-      .then((res) => {
-        setClusterList(context, res.data)
-      })
-    axiosRequests
-      .$serverGet(
-        `${restApi.uri.endpointTypeAttributes}${endpointTypeDeviceTypeRefPair.endpointType}`
-      )
-      .then((res) => {
-        setAttributeStateLists(context, res.data || [])
-      })
-    axiosRequests
-      .$serverGet(
-        `${restApi.uri.endpointTypeCommands}${endpointTypeDeviceTypeRefPair.endpointType}`
-      )
-      .then((res) => {
-        setCommandStateLists(context, res.data || [])
-      })
-    axiosRequests
-      .$serverGet(
-        `${restApi.uri.endpointTypeEvents}${endpointTypeDeviceTypeRefPair.endpointType}`
-      )
-      .then((res) => {
-        setEventStateLists(context, res.data || [])
-      })
+  const p = []
 
-    axiosRequests
-      .$serverGet(
-        `${restApi.uri.deviceTypeClusters}${endpointTypeDeviceTypeRefPair.deviceTypeRef}`
-      )
-      .then((res) => {
-        setRecommendedClusterList(context, res.data)
-      })
-    axiosRequests
-      .$serverGet(
-        `${restApi.uri.deviceTypeAttributes}${endpointTypeDeviceTypeRefPair.deviceTypeRef}`
-      )
-      .then((res) => {
-        setRequiredAttributes(context, res.data)
-      })
-    axiosRequests
-      .$serverGet(
-        `${restApi.uri.deviceTypeCommands}${endpointTypeDeviceTypeRefPair.deviceTypeRef}`
-      )
-      .then((res) => {
-        setRequiredCommands(context, res.data)
-      })
+  if (endpointTypeDeviceTypeRefPair != null) {
+    p.push(
+      axiosRequests
+        .$serverGet(
+          `${restApi.uri.endpointTypeClusters}${endpointTypeDeviceTypeRefPair.endpointType}`
+        )
+        .then((res) => {
+          setClusterList(context, res.data)
+        })
+    )
+    p.push(
+      axiosRequests
+        .$serverGet(
+          `${restApi.uri.endpointTypeAttributes}${endpointTypeDeviceTypeRefPair.endpointType}`
+        )
+        .then((res) => {
+          setAttributeStateLists(context, res.data || [])
+        })
+    )
+    p.push(
+      axiosRequests
+        .$serverGet(
+          `${restApi.uri.endpointTypeCommands}${endpointTypeDeviceTypeRefPair.endpointType}`
+        )
+        .then((res) => {
+          setCommandStateLists(context, res.data || [])
+        })
+    )
+    p.push(
+      axiosRequests
+        .$serverGet(
+          `${restApi.uri.endpointTypeEvents}${endpointTypeDeviceTypeRefPair.endpointType}`
+        )
+        .then((res) => {
+          setEventStateLists(context, res.data || [])
+        })
+    )
+
+    p.push(
+      axiosRequests
+        .$serverGet(
+          `${restApi.uri.deviceTypeClusters}${endpointTypeDeviceTypeRefPair.deviceTypeRef}`
+        )
+        .then((res) => {
+          setRecommendedClusterList(context, res.data)
+        })
+    )
+    p.push(
+      axiosRequests
+        .$serverGet(
+          `${restApi.uri.deviceTypeAttributes}${endpointTypeDeviceTypeRefPair.deviceTypeRef}`
+        )
+        .then((res) => {
+          setRequiredAttributes(context, res.data)
+        })
+    )
+    p.push(
+      axiosRequests
+        .$serverGet(
+          `${restApi.uri.deviceTypeCommands}${endpointTypeDeviceTypeRefPair.deviceTypeRef}`
+        )
+        .then((res) => {
+          setRequiredCommands(context, res.data)
+        })
+    )
     context.commit(
       'updateSelectedEndpointType',
       endpointTypeDeviceTypeRefPair.endpointType
     )
   }
+  return await Promise.all(p)
 }
 
 export function setClusterList(context, selectionContext) {
