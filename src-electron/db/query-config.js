@@ -181,23 +181,41 @@ async function queryPackages(db, attributeId) {
   return package_ref[0].PACKAGE_REF
 }
 
-async function checkGlobals(db, attributeId, clusterRef, staticAttribute) {
+async function checkGlobals(db, attributeId) {
   let pkgs = await queryPackages(db, attributeId)
   let zcl = await queryMetaFile(db, pkgs)
   let obj = await fsp.readFile(zcl)
   let data = JSON.parse(obj)
+  let forcedExternal = data.attributeAccessInterfaceAttributes
+  return forcedExternal
+}
 
+async function checkStorage(
+  db,
+  staticAttribute,
+  forcedExternal,
+  clusterRef,
+  attributeId
+) {
+  let storageOption
   let clusterName = await queryCluster.selectClusterName(db, clusterRef)
   let attributeName = await queryAttribute.selectAttributeName(db, attributeId)
-  let forcedExternal = data.attributeAccessInterfaceAttributes
+  if (
+    staticAttribute.storagePolicy ==
+    dbEnum.storagePolicy.attributeAccessInterface
+  ) {
+    storageOption = dbEnum.storageOption.external
+  } else if (staticAttribute.storagePolicy == dbEnum.storagePolicy.any) {
+    storageOption = dbEnum.storageOption.ram
+  }
   if (
     forcedExternal &&
     forcedExternal[clusterName] &&
     forcedExternal[clusterName].includes(attributeName)
   ) {
-    staticAttribute.storagePolicy = dbEnum.storageOption.external
+    storageOption = dbEnum.storageOption.external
   }
-  return staticAttribute
+  return storageOption
 }
 
 /**
@@ -250,22 +268,19 @@ async function insertOrUpdateAttributeState(
       attributeId,
       clusterRef
     )
-  let storageOption
-  if (
-    staticAttribute.storagePolicy ==
-    dbEnum.storagePolicy.attributeAccessInterface
-  ) {
-    storageOption = dbEnum.storageOption.external
-  } else if (staticAttribute.storagePolicy == dbEnum.storagePolicy.any) {
-    storageOption = dbEnum.storageOption.ram
-  }
-  staticAttribute = await checkGlobals(
+  let forcedExternal = await checkGlobals(
     db,
     attributeId,
     clusterRef,
     staticAttribute
   )
-
+  let storageOption = await checkStorage(
+    db,
+    staticAttribute,
+    forcedExternal,
+    clusterRef,
+    attributeId
+  )
   if (staticAttribute == null) {
     throw new Error(`COULD NOT LOCATE ATTRIBUTE: ${attributeId} `)
   }
