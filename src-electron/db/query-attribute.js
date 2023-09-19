@@ -25,9 +25,12 @@ const dbMapping = require('./db-mapping.js')
 const dbCache = require('./db-cache')
 
 async function selectAttributeName(db, attributeId) {
-  return dbApi.dbAll(db, 'SELECT NAME FROM ATTRIBUTE WHERE ATTRIBUTE_ID = ?', [
-    attributeId,
-  ])
+  let attributeName = await dbApi.dbAll(
+    db,
+    'SELECT NAME FROM ATTRIBUTE WHERE ATTRIBUTE_ID = ?',
+    [attributeId]
+  )
+  return attributeName[0].NAME
 }
 
 /**

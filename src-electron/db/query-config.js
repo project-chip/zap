@@ -165,16 +165,39 @@ async function insertClusterDefaults(db, endpointTypeId, packageId, cluster) {
   return Promise.all(promises)
 }
 async function queryMetaFile(db, packageId) {
-  return dbApi.dbAll(db, 'SELECT PATH FROM PACKAGE WHERE PACKAGE_ID = ?', [
-    packageId,
-  ])
+  let path = await dbApi.dbAll(
+    db,
+    'SELECT PATH FROM PACKAGE WHERE PACKAGE_ID = ?',
+    [packageId]
+  )
+  return path[0].PATH
 }
 async function queryPackages(db, attributeId) {
-  return dbApi.dbAll(
+  let package_ref = await dbApi.dbAll(
     db,
     'SELECT PACKAGE_REF FROM ATTRIBUTE WHERE ATTRIBUTE_ID = ?',
     [attributeId]
   )
+  return package_ref[0].PACKAGE_REF
+}
+
+async function checkGlobals(db, attributeId, clusterRef, staticAttribute) {
+  let pkgs = await queryPackages(db, attributeId)
+  let zcl = await queryMetaFile(db, pkgs)
+  let obj = await fsp.readFile(zcl)
+  let data = JSON.parse(obj)
+
+  let clusterName = await queryCluster.selectClusterName(db, clusterRef)
+  let attributeName = await queryAttribute.selectAttributeName(db, attributeId)
+  let forcedExternal = data.attributeAccessInterfaceAttributes
+  if (
+    forcedExternal &&
+    forcedExternal[clusterName] &&
+    forcedExternal[clusterName].includes(attributeName)
+  ) {
+    staticAttribute.storagePolicy = dbEnum.storageOption.external
+  }
+  return staticAttribute
 }
 
 /**
@@ -227,31 +250,21 @@ async function insertOrUpdateAttributeState(
       attributeId,
       clusterRef
     )
+  let storageOption
   if (
     staticAttribute.storagePolicy ==
     dbEnum.storagePolicy.attributeAccessInterface
   ) {
-    staticAttribute.storagePolicy = dbEnum.storageOption.external
-  } else {
-    staticAttribute.storagePolicy = dbEnum.storageOption.ram
+    storageOption = dbEnum.storageOption.external
+  } else if (staticAttribute.storagePolicy == dbEnum.storagePolicy.any) {
+    storageOption = dbEnum.storageOption.ram
   }
-  let pkgs = await queryPackages(db, attributeId)
-  let zcl = await queryMetaFile(db, pkgs[0].PACKAGE_REF)
-  let obj = await fsp.readFile(zcl[0].PATH)
-  let data = JSON.parse(obj)
-
-  let clusterName = await queryCluster.selectClusterName(db, clusterRef)
-  let attributeName = await queryAttribute.selectAttributeName(db, attributeId)
-  let forcedExternal = data.attributeAccessInterfaceAttributes
-  clusterName = clusterName[0].NAME
-  attributeName = attributeName[0].NAME
-  if (
-    forcedExternal &&
-    forcedExternal[clusterName] &&
-    forcedExternal[clusterName].includes(attributeName)
-  ) {
-    staticAttribute.storagePolicy = dbEnum.storageOption.external
-  }
+  staticAttribute = await checkGlobals(
+    db,
+    attributeId,
+    clusterRef,
+    staticAttribute
+  )
 
   if (staticAttribute == null) {
     throw new Error(`COULD NOT LOCATE ATTRIBUTE: ${attributeId} `)
@@ -286,7 +299,7 @@ INTO ENDPOINT_TYPE_ATTRIBUTE (
       cluster.endpointTypeClusterId,
       attributeId,
       staticAttribute.defaultValue ? staticAttribute.defaultValue : '',
-      staticAttribute.storagePolicy,
+      storageOption,
       clusterRef,
       reportMinInterval,
       reportMaxInterval,
