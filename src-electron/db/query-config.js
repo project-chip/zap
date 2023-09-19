@@ -164,9 +164,17 @@ async function insertClusterDefaults(db, endpointTypeId, packageId, cluster) {
   )
   return Promise.all(promises)
 }
-
-async function queryMetaFile(db) {
-  return dbApi.dbAll(db, 'SELECT PATH FROM PACKAGE WHERE PACKAGE_ID = 31')
+async function queryMetaFile(db, packageId) {
+  return dbApi.dbAll(db, 'SELECT PATH FROM PACKAGE WHERE PACKAGE_ID = ?', [
+    packageId,
+  ])
+}
+async function queryPackages(db, attributeId) {
+  return dbApi.dbAll(
+    db,
+    'SELECT PACKAGE_REF FROM ATTRIBUTE WHERE ATTRIBUTE_ID = ?',
+    [attributeId]
+  )
 }
 
 /**
@@ -225,9 +233,10 @@ async function insertOrUpdateAttributeState(
   ) {
     staticAttribute.storagePolicy = dbEnum.storageOption.external
   } else {
-    staticAttribute.storagePolicy = dbEnum.storageOption.any
+    staticAttribute.storagePolicy = dbEnum.storageOption.ram
   }
-  let zcl = await queryMetaFile(db)
+  let pkgs = await queryPackages(db, attributeId)
+  let zcl = await queryMetaFile(db, pkgs[0].PACKAGE_REF)
   let obj = await fsp.readFile(zcl[0].PATH)
   let data = JSON.parse(obj)
 
