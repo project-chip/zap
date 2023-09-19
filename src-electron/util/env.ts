@@ -111,6 +111,7 @@ const pinoOptions = {
     trace: 10,
     all: 1,
   },
+  timestamp: pino.stdTimeFunctions.isoTime,
 }
 
 // Basic environment tie-ins
