@@ -24,7 +24,6 @@ const dbApi = require('./db-api')
 const dbEnums = require('../../src-shared/db-enum')
 const dbMapping = require('./db-mapping.js')
 const queryUpgrade = require('./query-upgrade.js')
-
 /**
  * Imports a single endpoint
  * @param {} db
@@ -660,7 +659,6 @@ WHERE
   let reportingPolicy
   let storagePolicy
   let forcedExternal
-  let storageOption
   if (atRow.length == 0) {
     attributeId = null
     reportingPolicy = null
@@ -678,19 +676,22 @@ WHERE
   } else if (reportingPolicy == dbEnums.reportingPolicy.prohibited) {
     attribute.reportable = false
   }
+
   if (attributeId) {
-    forcedExternal = await queryUpgrade.checkGlobals(db, attributeId)
-    storageOption = await queryUpgrade.checkStorage(
+    forcedExternal = queryUpgrade.checkGlobals(db, attributeId)
+    storageOption = queryUpgrade.checkStorage(
       db,
       cluster.name,
       null,
       storagePolicy,
-      forcedExternal,
-      attributeId
+      forcedExternal.attributeId
     )
   }
-  if (storageOption) {
-    attribute.storageOption = storageOption
+  if (
+    storagePolicy == dbEnums.storagePolicy.attributeAccessInterface ||
+    storageOption == dbEnums.storageOption.external
+  ) {
+    attribute.storageOption = dbEnums.storageOption.external
   }
 
   let arg = [

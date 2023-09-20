@@ -103,7 +103,9 @@ async function checkStorage(
       storageOption = dbEnum.storageOption.ram
     }
   }
-  attributeName = await selectAttributeName(db, attributeId)
+  if (attributeId) {
+    attributeName = await selectAttributeName(db, attributeId)
+  }
   if (
     forcedExternal &&
     forcedExternal[clusterName] &&
