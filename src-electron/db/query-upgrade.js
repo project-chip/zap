@@ -104,9 +104,6 @@ async function checkStorage(
     }
   }
   if (attributeId) {
-    if (clusterName == 'Group Key Management') {
-      console.log(attributeId)
-    }
     attributeName = await selectAttributeName(db, attributeId)
   }
   if (
@@ -114,7 +111,6 @@ async function checkStorage(
     forcedExternal[clusterName] &&
     forcedExternal[clusterName].includes(attributeName)
   ) {
-    console.log(clusterName)
     storageOption = dbEnum.storageOption.external
   }
   return storageOption
