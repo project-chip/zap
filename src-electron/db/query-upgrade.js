@@ -97,13 +97,13 @@ async function checkStorage(
   let attributeName
   if (!clusterName) {
     clusterName = await selectClusterName(db, clusterRef)
+    if (storagePolicy == dbEnum.storagePolicy.attributeAccessInterface) {
+      storageOption = dbEnum.storageOption.external
+    } else if (storagePolicy == dbEnum.storagePolicy.any) {
+      storageOption = dbEnum.storageOption.ram
+    }
   }
   attributeName = await selectAttributeName(db, attributeId)
-  if (storagePolicy == dbEnum.storagePolicy.attributeAccessInterface) {
-    storageOption = dbEnum.storageOption.external
-  } else if (storagePolicy == dbEnum.storagePolicy.any) {
-    storageOption = dbEnum.storageOption.ram
-  }
   if (
     forcedExternal &&
     forcedExternal[clusterName] &&

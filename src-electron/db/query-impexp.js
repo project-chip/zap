@@ -689,13 +689,16 @@ WHERE
       attributeId
     )
   }
+  if (storageOption) {
+    attribute.storageOption = storageOption
+  }
 
   let arg = [
     endpointTypeId,
     endpointClusterId,
     attributeId,
     attribute.included,
-    storageOption,
+    attribute.storageOption,
     attribute.singleton,
     attribute.bounded,
     attribute.defaultValue,
