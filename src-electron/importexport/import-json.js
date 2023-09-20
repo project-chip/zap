@@ -336,7 +336,8 @@ async function importEndpointTypes(
                             allZclPackageIds,
                             endpointId,
                             endpointClusterId,
-                            attribute
+                            attribute,
+                            cluster
                           )
                         )
                       })

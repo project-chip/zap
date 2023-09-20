@@ -25,8 +25,7 @@ const dbMapping = require('./db-mapping.js')
 const queryPackage = require('./query-package.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const queryZcl = require('./query-zcl.js')
-const queryCluster = require('./query-cluster.js')
-const queryAttribute = require('./query-attribute.js')
+const queryUpgrade = require('./query-upgrade.js')
 const queryDeviceType = require('./query-device-type')
 const queryCommand = require('./query-command.js')
 const restApi = require('../../src-shared/rest-api.js')
@@ -164,59 +163,6 @@ async function insertClusterDefaults(db, endpointTypeId, packageId, cluster) {
   )
   return Promise.all(promises)
 }
-async function queryMetaFile(db, packageId) {
-  let path = await dbApi.dbAll(
-    db,
-    'SELECT PATH FROM PACKAGE WHERE PACKAGE_ID = ?',
-    [packageId]
-  )
-  return path[0].PATH
-}
-async function queryPackages(db, attributeId) {
-  let package_ref = await dbApi.dbAll(
-    db,
-    'SELECT PACKAGE_REF FROM ATTRIBUTE WHERE ATTRIBUTE_ID = ?',
-    [attributeId]
-  )
-  return package_ref[0].PACKAGE_REF
-}
-
-async function checkGlobals(db, attributeId) {
-  let pkgs = await queryPackages(db, attributeId)
-  let zcl = await queryMetaFile(db, pkgs)
-  let obj = await fsp.readFile(zcl)
-  let data = JSON.parse(obj)
-  let forcedExternal = data.attributeAccessInterfaceAttributes
-  return forcedExternal
-}
-
-async function checkStorage(
-  db,
-  staticAttribute,
-  forcedExternal,
-  clusterRef,
-  attributeId
-) {
-  let storageOption
-  let clusterName = await queryCluster.selectClusterName(db, clusterRef)
-  let attributeName = await queryAttribute.selectAttributeName(db, attributeId)
-  if (
-    staticAttribute.storagePolicy ==
-    dbEnum.storagePolicy.attributeAccessInterface
-  ) {
-    storageOption = dbEnum.storageOption.external
-  } else if (staticAttribute.storagePolicy == dbEnum.storagePolicy.any) {
-    storageOption = dbEnum.storageOption.ram
-  }
-  if (
-    forcedExternal &&
-    forcedExternal[clusterName] &&
-    forcedExternal[clusterName].includes(attributeName)
-  ) {
-    storageOption = dbEnum.storageOption.external
-  }
-  return storageOption
-}
 
 /**
  * Promise to update the attribute state.
@@ -268,17 +214,11 @@ async function insertOrUpdateAttributeState(
       attributeId,
       clusterRef
     )
-  let forcedExternal = await checkGlobals(
+  let forcedExternal = await queryUpgrade.checkGlobals(db, attributeId)
+  let storageOption = await queryUpgrade.checkStorage(
     db,
-    attributeId,
-    clusterRef,
-    staticAttribute
-  )
-  let storageOption = await checkStorage(
-    db,
-    staticAttribute,
+    staticAttribute.storagePolicy,
     forcedExternal,
-    clusterRef,
     attributeId
   )
   if (staticAttribute == null) {

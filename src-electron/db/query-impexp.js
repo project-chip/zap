@@ -23,6 +23,7 @@
 const dbApi = require('./db-api')
 const dbEnums = require('../../src-shared/db-enum')
 const dbMapping = require('./db-mapping.js')
+const queryUpgrade = require('./query-upgrade.js')
 
 /**
  * Imports a single endpoint
@@ -626,7 +627,8 @@ async function importAttributeForEndpointType(
   packageIds,
   endpointTypeId,
   endpointClusterId,
-  attribute
+  attribute,
+  cluster
 ) {
   let selectAttributeQuery = `
 SELECT
@@ -657,6 +659,8 @@ WHERE
   let attributeId
   let reportingPolicy
   let storagePolicy
+  let forcedExternal
+  let storageOption
   if (atRow.length == 0) {
     attributeId = null
     reportingPolicy = null
@@ -674,9 +678,15 @@ WHERE
   } else if (reportingPolicy == dbEnums.reportingPolicy.prohibited) {
     attribute.reportable = false
   }
-
-  if (storagePolicy == dbEnums.storagePolicy.attributeAccessInterface) {
-    attribute.storageOption = dbEnums.storageOption.external
+  if (attributeId) {
+    forcedExternal = await queryUpgrade.checkGlobals(db, attributeId)
+    storageOption = await queryUpgrade.checkStorage(
+      db,
+      cluster.name,
+      storagePolicy,
+      forcedExternal,
+      attributeId
+    )
   }
 
   let arg = [
@@ -684,7 +694,7 @@ WHERE
     endpointClusterId,
     attributeId,
     attribute.included,
-    attribute.storageOption,
+    storageOption,
     attribute.singleton,
     attribute.bounded,
     attribute.defaultValue,
