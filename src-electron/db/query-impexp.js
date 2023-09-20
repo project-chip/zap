@@ -677,15 +677,18 @@ WHERE
   } else if (reportingPolicy == dbEnums.reportingPolicy.prohibited) {
     attribute.reportable = false
   }
-
   if (attributeId) {
-    forcedExternal = queryUpgrade.checkGlobals(db, attributeId)
-    storageOption = queryUpgrade.checkStorage(
+    if (cluster.name == 'Group Key Management') {
+      console.log(attributeId)
+    }
+    forcedExternal = await queryUpgrade.checkGlobals(db, attributeId)
+    storageOption = await queryUpgrade.checkStorage(
       db,
       cluster.name,
       null,
       storagePolicy,
-      forcedExternal.attributeId
+      forcedExternal,
+      attributeId
     )
   }
   if (
