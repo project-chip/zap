@@ -683,6 +683,7 @@ WHERE
     storageOption = await queryUpgrade.checkStorage(
       db,
       cluster.name,
+      null,
       storagePolicy,
       forcedExternal,
       attributeId

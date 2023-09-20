@@ -20,15 +20,6 @@ const dbEnum = require('../../src-shared/db-enum.js')
 const fs = require('fs')
 const fsp = fs.promises
 
-async function getClusterIdFromAttributeId(db, attributeId) {
-  let clusterId = await dbApi.dbAll(
-    db,
-    'SELECT CLUSTER_REF FROM ATTRIBUTE WHERE ATTRIBUTE_ID = ?',
-    [attributeId]
-  )
-  return clusterId[0].CLUSTER_REF
-}
-
 async function selectClusterName(db, clusterRef) {
   let clusterName = await dbApi.dbAll(
     db,
@@ -96,7 +87,8 @@ async function checkGlobals(db, attributeId) {
 
 async function checkStorage(
   db,
-  clusterName = null,
+  clusterName,
+  clusterRef,
   storagePolicy,
   forcedExternal,
   attributeId
@@ -104,7 +96,6 @@ async function checkStorage(
   let storageOption
   let attributeName
   if (!clusterName) {
-    clusterRef = await getClusterIdFromAttributeId(db, attributeId)
     clusterName = await selectClusterName(db, clusterRef)
   }
   attributeName = await selectAttributeName(db, attributeId)

@@ -217,6 +217,8 @@ async function insertOrUpdateAttributeState(
   let forcedExternal = await queryUpgrade.checkGlobals(db, attributeId)
   let storageOption = await queryUpgrade.checkStorage(
     db,
+    null,
+    clusterRef,
     staticAttribute.storagePolicy,
     forcedExternal,
     attributeId
