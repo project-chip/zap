@@ -93,9 +93,6 @@ async function checkStorage(
   forcedExternal,
   attributeId
 ) {
-  if (clusterName == 'Group Key Management') {
-    console.log(attributeId)
-  }
   let storageOption
   let attributeName
   if (!clusterName) {

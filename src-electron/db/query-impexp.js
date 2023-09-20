@@ -678,9 +678,6 @@ WHERE
     attribute.reportable = false
   }
   if (attributeId) {
-    if (cluster.name == 'Group Key Management') {
-      console.log(attributeId)
-    }
     forcedExternal = await queryUpgrade.checkGlobals(db, attributeId)
     storageOption = await queryUpgrade.checkStorage(
       db,
