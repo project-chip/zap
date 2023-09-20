@@ -64,9 +64,10 @@ export function notifyComponentUpdateStatus(componentIdStates, added) {
     }
 
     if (Array.isArray(components) && components.length) {
-      let color = updated ? 'positive' : 'negative'
+      let type = updated ? 'positive' : 'negative'
       let verb = updated ? 'were' : "couldn't be"
       let action = added ? 'added' : 'removed'
+      let classes = `custom-notification notification-${type}`
 
       let msg = `<div><strong>The following components ${verb} ${action}.</strong></div>`
       msg += `<div><span style="text-transform: capitalize"><ul>`
@@ -100,7 +101,8 @@ export function notifyComponentUpdateStatus(componentIdStates, added) {
       // notify ui
       Notify.create({
         message: msg,
-        color,
+        type: type,
+        classes: classes,
         position: 'top',
         html: true,
       })

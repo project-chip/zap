@@ -47,8 +47,8 @@ limitations under the License.
               :cover="false"
               :offset="[0, -54]"
               v-model="uc_label"
-              class="bg-white text-black"
-              style="overflow-wrap: break-word; padding: 0px"
+              class="custom-notification notification-warning q-p-lg"
+              style="overflow-wrap: break-word"
             >
               <div v-show="missingRequiredUcComponents(props.row).length">
                 <div class="row items-center" items-center style="padding: 0px">
@@ -57,18 +57,13 @@ limitations under the License.
                     class="text-amber q-mr-sm"
                     style="font-size: 1.5rem"
                   ></q-icon>
-                  <div class="vertical-middle text-subtitle2">
-                    Required SLC Component not installed
-                  </div>
-                </div>
-
-                <div class="row no-wrap">
-                  Install following components to continue endpoint
-                  configuration.
-                </div>
-
-                <div class="row no-wrap">
-                  <div class="col justify-start">
+                  <div>
+                    <strong class="vertical-middle text-subtitle2">
+                      Required SLC Component not installed
+                    </strong>
+                    <br />
+                    Install following components to continue endpoint
+                    configuration.
                     <ul style="list-style-type: none; padding-left: 0px">
                       <li
                         v-for="id in missingRequiredUcComponents(props.row)"
@@ -78,8 +73,10 @@ limitations under the License.
                       </li>
                     </ul>
                   </div>
+                </div>
 
-                  <div class="justify-end">
+                <div class="row no-wrap justify-end">
+                  <div class="col-2">
                     <q-btn
                       unelevated
                       text-color="primary"
