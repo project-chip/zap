@@ -64,11 +64,6 @@ limitations under the License.
                     <br />
                     Install following components to continue endpoint
                     configuration.
-                  </div>
-                </div>
-
-                <div class="row no-wrap">
-                  <div class="col justify-start">
                     <ul style="list-style-type: none; padding-left: 0px">
                       <li
                         v-for="id in missingRequiredUcComponents(props.row)"
@@ -78,8 +73,10 @@ limitations under the License.
                       </li>
                     </ul>
                   </div>
+                </div>
 
-                  <div class="justify-end">
+                <div class="row no-wrap justify-end">
+                  <div class="col-2">
                     <q-btn
                       unelevated
                       text-color="primary"
