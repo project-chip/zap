@@ -118,7 +118,6 @@ async function checkStorage(
     forcedExternal[clusterName] &&
     forcedExternal[clusterName].includes(attributeName)
   ) {
-    console.log(attributeName)
     storageOption = dbEnum.storageOption.external
   }
   return storageOption
