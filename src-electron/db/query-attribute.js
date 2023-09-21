@@ -1151,6 +1151,7 @@ AND
 
   return rows.map(dbMapping.map.endpointTypeAttributeExtended)
 }
+
 exports.selectAllAttributeDetailsFromEnabledClusters = dbCache.cacheQuery(
   selectAllAttributeDetailsFromEnabledClusters
 )
