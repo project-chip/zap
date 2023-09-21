@@ -35,8 +35,12 @@ if (process.argv.length > 3) {
   testsType = process.argv[3]
 }
 
+if (process.argv.length > 4) {
+  browserToUse = process.argv[4]
+}
+
 function printUsage() {
-  console.log(`Usage: zap-uitest.js [ MODE | -? ] [matter|zigbee]
+  console.log(`Usage: zap-uitest.js [ MODE | -? ] [matter|zigbee] [browser]
 
 This program executes the Cypress unit tests.
 Valid modes:

@@ -33,6 +33,11 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
+      - uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: 1160321
+        id: chrome-116
+      - run: echo ${{steps.chrome-116.outputs.chrome-path }}
       - run: sudo ./src-script/install-packages-ubuntu
       - run: sudo apt-get install --fix-missing xvfb
       - run: npm ci
@@ -40,7 +45,7 @@ jobs:
       - run: npm rebuild canvas --update-binary
       - run: npm rebuild libxmljs --update-binary
       - run: npm run build-spa
-      - run: npm run test:e2e-ci
+      - run: npm run test:e2e-ci -- ${{steps.chrome-116.outputs.chrome-path }}
 
   cypress-matter:
     name: Cypress UI tests with Matter data
@@ -57,6 +62,10 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
+      - uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: 1160321
+        id: chrome-116
       - run: sudo ./src-script/install-packages-ubuntu
       - run: sudo apt-get install --fix-missing xvfb
       - run: npm ci
@@ -64,7 +73,7 @@ jobs:
       - run: npm rebuild canvas --update-binary
       - run: npm rebuild libxmljs --update-binary
       - run: npm run build-spa
-      - run: npm run test:e2e-matter-ci
+      - run: npm run test:e2e-matter-ci -- ${{steps.chrome-116.outputs.chrome-path }}
 
   generate-and-backend-tests:
     name: Generation and back-end tests
