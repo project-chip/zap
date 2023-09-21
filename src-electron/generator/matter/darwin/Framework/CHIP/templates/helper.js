@@ -704,7 +704,7 @@ async function availability(clusterName, options) {
     let availabilityStrings = Object.entries(introducedVersions).map(
       ([os, version]) => `${os}(${version})`
     );
-    return `API_AVAILABLE(${availabilityStrings.join(', ')})`;
+    return `MTR_AVAILABLE(${availabilityStrings.join(', ')})`;
   }
 
   if (!options.hash.deprecationMessage) {
@@ -719,7 +719,7 @@ async function availability(clusterName, options) {
     let availabilityStrings = Object.entries(introducedVersions).map(
       ([os, version]) => `${os}(${version})`
     );
-    return `API_AVAILABLE(${availabilityStrings.join(
+    return `MTR_AVAILABLE(${availabilityStrings.join(
       ', '
     )})\nMTR_NEWLY_DEPRECATED("${options.hash.deprecationMessage}")`;
   }
