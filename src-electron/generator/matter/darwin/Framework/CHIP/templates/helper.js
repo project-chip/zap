@@ -695,11 +695,13 @@ async function availability(clusterName, options) {
 
   if (introducedVersions === undefined) {
     console.log(
-      `WARNING: Missing "introduced" entry for: '${clusterName}' '${JSON.stringify(
+      `WARNING: Missing "introduced" or "provisional" entry for: '${clusterName}' '${JSON.stringify(
         options.hash
       )}'`
     );
-    introducedVersions = 'future';
+    // Default to provisinal status until we decide otherwise, so we don't
+    // accidentally ship things as unconditionally available.
+    return 'MTR_PROVISIONALLY_AVAILABLE';
   }
 
   if (introducedVersions === 'future') {
