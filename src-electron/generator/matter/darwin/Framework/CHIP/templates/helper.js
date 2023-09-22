@@ -220,6 +220,11 @@ async function asObjectiveCClass(type, cluster, options) {
     (this.isArray || this.entryType || options.hash.forceList) &&
     !options.hash.forceNotList
   ) {
+    if (options.hash.stronglyTypedArrays) {
+      let innerType = await asObjectiveCClass.call(this, type, cluster, { hash: { ...options.hash, forceNotList: true }});
+      return `NSArray<${innerType} *>`;
+    }
+
     return 'NSArray';
   }
 
