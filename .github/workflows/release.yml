@@ -421,6 +421,12 @@ jobs:
         with:
           name: zap-mac-x64-zip
           path: dist/zap-mac-x64.zip
+      - name: Archive macOS arm64 .zip file
+        uses: actions/upload-artifact@v3
+        if: startsWith(matrix.os, 'macos')
+        with:
+          name: zap-mac-arm64-zip
+          path: dist/zap-mac-arm64.zip
       - name: Archive Linux (x64) .zip file
         uses: actions/upload-artifact@v3
         if: startsWith(matrix.os, 'ubuntu')
@@ -460,4 +466,4 @@ jobs:
         with:
           generateReleaseNotes: true
           prerelease: ${{ endsWith(github.ref, 'nightly') }}
-          artifacts: 'zap-linux-x64-deb/zap-linux-x64.deb, zap-linux-x64-rpm/zap-linux-x64.rpm, zap-linux-x64-zip/zap-linux-x64.zip, zap-linux-arm64-zip/zap-linux-arm64.zip, zap-mac-x64-zip/zap-mac-x64.zip, zap-win-x64-zip/zap-win-x64.zip, zap-win-arm64-zip/zap-win-arm64.zip'
+          artifacts: 'zap-linux-x64-deb/zap-linux-x64.deb, zap-linux-x64-rpm/zap-linux-x64.rpm, zap-linux-x64-zip/zap-linux-x64.zip, zap-linux-arm64-zip/zap-linux-arm64.zip, zap-mac-x64-zip/zap-mac-x64.zip, zap-mac-arm64-zip/zap-mac-arm64.zip, zap-win-x64-zip/zap-win-x64.zip, zap-win-arm64-zip/zap-win-arm64.zip'
