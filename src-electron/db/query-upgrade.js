@@ -109,7 +109,6 @@ async function checkStorage(
   if (attributeId) {
     attributeName = await selectAttributeName(db, attributeId)
     if (forcedExternal.lists == true && attribute.type == 'array') {
-      console.log(attribute)
       storageOption = dbEnum.storageOption.external
     }
     if (
