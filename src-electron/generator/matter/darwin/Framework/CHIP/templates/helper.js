@@ -110,14 +110,15 @@ function asObjectiveCNumberType(label, type, asLowerCased) {
             return 'Float';
           case 'double':
             return 'Double';
-          default:
-            error =
+          default: {
+            let error =
               label +
               ': Unhandled underlying type ' +
               zclType +
               ' for original type ' +
               type;
             throw error;
+          }
         }
       })
       .then((typeName) =>
