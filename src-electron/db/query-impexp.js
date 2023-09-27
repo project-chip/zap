@@ -685,7 +685,8 @@ WHERE
       null,
       storagePolicy,
       forcedExternal,
-      attributeId
+      attributeId,
+      attribute
     )
   }
   if (

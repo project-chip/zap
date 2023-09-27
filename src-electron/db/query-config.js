@@ -221,7 +221,8 @@ async function insertOrUpdateAttributeState(
     clusterRef,
     staticAttribute.storagePolicy,
     forcedExternal,
-    attributeId
+    attributeId,
+    null
   )
   if (staticAttribute == null) {
     throw new Error(`COULD NOT LOCATE ATTRIBUTE: ${attributeId} `)

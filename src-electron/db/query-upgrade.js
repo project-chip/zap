@@ -69,7 +69,9 @@ async function checkGlobals(db, attributeId) {
   let zcl = await queryMetaFile(db, pkgs)
   let obj = await fsp.readFile(zcl)
   let data = JSON.parse(obj)
-  let forcedExternal = data.attributeAccessInterfaceAttributes
+  let externals = data.attributeAccessInterfaceAttributes
+  let lists = data.listsUseAttributeAccessInterface
+  let forcedExternal = { externals, lists }
   return forcedExternal
 }
 
@@ -91,7 +93,8 @@ async function checkStorage(
   clusterRef,
   storagePolicy,
   forcedExternal,
-  attributeId
+  attributeId,
+  attribute
 ) {
   let storageOption
   let attributeName
@@ -105,13 +108,17 @@ async function checkStorage(
   }
   if (attributeId) {
     attributeName = await selectAttributeName(db, attributeId)
-  }
-  if (
-    forcedExternal &&
-    forcedExternal[clusterName] &&
-    forcedExternal[clusterName].includes(attributeName)
-  ) {
-    storageOption = dbEnum.storageOption.external
+    if (forcedExternal.lists == true && attribute.type == 'array') {
+      console.log(attribute)
+      storageOption = dbEnum.storageOption.external
+    }
+    if (
+      forcedExternal.externals &&
+      forcedExternal.externals[clusterName] &&
+      forcedExternal.externals[clusterName].includes(attributeName)
+    ) {
+      storageOption = dbEnum.storageOption.external
+    }
   }
   return storageOption
 }
