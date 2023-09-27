@@ -154,7 +154,7 @@ test(
         cmdSums[l] = 1
       }
     })
-    expect(cmdSums[0]).toBe(15)
+    expect(cmdSums[0]).toBe(16)
   },
   testUtil.timeout.medium()
 )

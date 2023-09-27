@@ -107,7 +107,7 @@ test(
     x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE_CLUSTER')
     expect(x).toBe(11)
     x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE_COMMAND')
-    expect(x).toBe(7)
+    expect(x).toBe(8) // increased by one because reset to factory default is enabled for incoming and outgoing and has 2 entries instead of one with the schema change.
     x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE_ATTRIBUTE')
     expect(x).toBe(21)
 
@@ -121,7 +121,7 @@ test(
       commandCount += c.commands ? c.commands.length : 0
       attributeCount += c.attributes ? c.attributes.length : 0
     })
-    expect(commandCount).toBe(7)
+    expect(commandCount).toBe(8) // increased by one because reset to factory default is enabled for incoming and outgoing and has 2 entries instead of one with the schema change.
     // This flag exists for this test due to planned global attribute rework.
     expect(attributeCount).toBe(bypassGlobalAttributes ? 15 : 21)
 
@@ -143,7 +143,7 @@ test(
     expect(x).toBe(19)
 
     x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE_COMMAND')
-    expect(x).toBe(24)
+    expect(x).toBe(27) // increased by 3 because Identify, IdentifyQuery and EzModeInvoke are enabled for incoming and outgoing and has 2 entries instead of one with the schema change.
 
     x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE_ATTRIBUTE')
     expect(x).toBe(28)
@@ -157,7 +157,7 @@ test(
       commandCount += c.commands ? c.commands.length : 0
       attributeCount += c.attributes ? c.attributes.length : 0
     })
-    expect(commandCount).toBe(24)
+    expect(commandCount).toBe(27) // increased by 3 because Identify, IdentifyQuery and EzModeInvoke are enabled for incoming and outgoing and has 2 entries instead of one with the schema change.
     // This flag exists for this test due to planned global attribute rework.
     expect(attributeCount).toBe(bypassGlobalAttributes ? 16 : 28)
   },
@@ -175,13 +175,13 @@ test(
     x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE_CLUSTER')
     expect(x).toBe(27)
     x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE_COMMAND')
-    expect(x).toBe(26)
+    expect(x).toBe(29)
     x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE_ATTRIBUTE')
     expect(x).toBe(66)
     x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE_EVENT')
     expect(x).toBe(3)
   },
-  testUtil.timeout.medium()
+  testUtil.timeout.long()
 )
 
 test(
@@ -292,7 +292,7 @@ test(
       db,
       endpointTypes[0].id
     )
-    expect(clusterState.length).toBe(107)
+    expect(clusterState.length).toBe(106) // Reduced by one because Key Establishment had 3 entries with one entry showing up as either side even though it had the client and server side entries {"endpointTypeClusterId":2176,"clusterName":"Key Establishment","clusterCode":2048,"side":"either","enabled":false}
 
     let drp = await querySession.getSessionKeyValue(
       db,

@@ -549,8 +549,8 @@ async function selectCommandDetailsFromAllEndpointTypeCluster(
       name: x.NAME,
       code: x.CODE,
       mfgCode: x.MANUFACTURER_CODE,
-      incoming: x.INCOMING,
-      outgoing: x.OUTGOING,
+      isIncoming: x.IS_INCOMING,
+      isEnabled: x.IS_ENABLED,
       description: x.DESCRIPTION,
     }
   }
@@ -563,8 +563,8 @@ async function selectCommandDetailsFromAllEndpointTypeCluster(
     COMMAND.NAME,
     COMMAND.CODE,
     COMMAND.MANUFACTURER_CODE,
-    ENDPOINT_TYPE_COMMAND.INCOMING,
-    ENDPOINT_TYPE_COMMAND.OUTGOING,
+    ENDPOINT_TYPE_COMMAND.IS_INCOMING,
+    ENDPOINT_TYPE_COMMAND.IS_ENABLED,
     COMMAND.DESCRIPTION
   FROM COMMAND
   INNER JOIN ENDPOINT_TYPE_COMMAND

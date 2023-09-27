@@ -590,6 +590,8 @@ exports.map = {
       commandRef: x.COMMAND_REF,
       incoming: dbApi.fromDbBool(x.INCOMING),
       outgoing: dbApi.fromDbBool(x.OUTGOING),
+      isIncoming: dbApi.fromDbBool(x.IS_INCOMING),
+      isEnabled: dbApi.fromDbBool(x.IS_ENABLED),
     }
   },
 

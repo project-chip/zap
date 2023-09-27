@@ -736,8 +736,8 @@ async function exportCommandsFromEndpointTypeCluster(
       code: x.CODE,
       mfgCode: x.MANUFACTURER_CODE,
       source: x.SOURCE,
-      incoming: x.INCOMING,
-      outgoing: x.OUTGOING,
+      isIncoming: x.IS_INCOMING,
+      isEnabled: x.IS_ENABLED,
     }
   }
   return dbApi
@@ -749,8 +749,8 @@ SELECT
   C.CODE,
   C.MANUFACTURER_CODE,
   C.SOURCE,
-  ETC.INCOMING,
-  ETC.OUTGOING
+  ETC.IS_INCOMING,
+  ETC.IS_ENABLED
 FROM
   COMMAND AS C
 INNER JOIN
@@ -810,18 +810,21 @@ async function importCommandForEndpointType(
     endpointTypeId,
     endpointClusterId,
     matchedCmdId,
-    command.incoming,
-    command.outgoing,
+    command.isIncoming,
+    command.isEnabled,
   ]
+
+  // The reason there is an ignore here is because some .zap files have been hand editted
+  // where there are multiple entries of the same command within a cluster.
   return dbApi.dbInsert(
     db,
     `
-INSERT INTO ENDPOINT_TYPE_COMMAND
+INSERT OR IGNORE INTO ENDPOINT_TYPE_COMMAND
 ( ENDPOINT_TYPE_REF,
   ENDPOINT_TYPE_CLUSTER_REF,
   COMMAND_REF,
-  INCOMING,
-  OUTGOING )
+  IS_INCOMING,
+  IS_ENABLED )
 VALUES
   (?, ?, ?, ?, ?)
   `,

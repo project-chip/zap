@@ -400,11 +400,21 @@ async function insertOrUpdateCommandState(
   value,
   isIncoming
 ) {
+  /*
+  Retrieve the cluster side and command source and based on that add incoming/outgoing, incoming is 1 and outgoing is 0
+  Once that is done put the value into enabled clause. See the schema changes.
+  For backwards compatibility. The existing inserts into the db should continue to work the same way.
+  */
+
   let cluster = await insertOrSelectDefaultEndpointTypeCluster(
     db,
     endpointTypeId,
     clusterRef,
-    side
+    !isIncoming
+      ? side
+      : dbEnum.source.client == side
+      ? dbEnum.source.server
+      : dbEnum.source.client
   )
 
   await dbApi.dbInsert(
@@ -414,20 +424,33 @@ INSERT OR IGNORE
 INTO ENDPOINT_TYPE_COMMAND (
   ENDPOINT_TYPE_REF,
   ENDPOINT_TYPE_CLUSTER_REF,
-  COMMAND_REF
-) VALUES( ?, ?, ? )
+  COMMAND_REF,
+  IS_INCOMING
+) VALUES( ?, ?, ?, ? )
 `,
-    [endpointTypeId, cluster.endpointTypeClusterId, commandId]
+    [
+      endpointTypeId,
+      cluster.endpointTypeClusterId,
+      commandId,
+      dbApi.toDbBool(isIncoming),
+    ]
   )
   return dbApi.dbUpdate(
     db,
     `
 UPDATE ENDPOINT_TYPE_COMMAND
-SET ${isIncoming ? 'INCOMING' : 'OUTGOING'} = ? 
+SET IS_ENABLED = ?
 WHERE ENDPOINT_TYPE_REF = ?
   AND ENDPOINT_TYPE_CLUSTER_REF = ?
-  AND COMMAND_REF = ? `,
-    [value, endpointTypeId, cluster.endpointTypeClusterId, commandId]
+  AND COMMAND_REF = ?
+  AND IS_INCOMING = ? `,
+    [
+      value,
+      endpointTypeId,
+      cluster.endpointTypeClusterId,
+      commandId,
+      dbApi.toDbBool(isIncoming),
+    ]
   )
 }
 
