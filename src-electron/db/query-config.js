@@ -212,7 +212,7 @@ async function insertOrUpdateAttributeState(
       attributeId,
       clusterRef
     )
-  let forcedExternal = await queryUpgrade.getForcedExternalStorages(
+  let forcedExternal = await queryUpgrade.getForcedExternalStorage(
     db,
     attributeId
   )
