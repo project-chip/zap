@@ -16,45 +16,12 @@
  */
 
 const dbApi = require('./db-api.js')
+const queryPackage = require('./query-package.js')
+const queryAttribute = require('./query-attribute.js')
+const queryCluster = require('./query-cluster.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const fs = require('fs')
-const { default: cluster } = require('cluster')
 const fsp = fs.promises
-
-async function selectClusterName(db, clusterRef) {
-  let clusterName = await dbApi.dbAll(
-    db,
-    'SELECT NAME FROM CLUSTER WHERE CLUSTER_ID = ?',
-    [clusterRef]
-  )
-  return clusterName[0].NAME
-}
-
-async function selectAttributeName(db, attributeId) {
-  let attributeName = await dbApi.dbAll(
-    db,
-    'SELECT NAME FROM ATTRIBUTE WHERE ATTRIBUTE_ID = ?',
-    [attributeId]
-  )
-  return attributeName[0].NAME
-}
-
-async function queryMetaFile(db, packageId) {
-  let path = await dbApi.dbAll(
-    db,
-    'SELECT PATH FROM PACKAGE WHERE PACKAGE_ID = ?',
-    [packageId]
-  )
-  return path[0].PATH
-}
-async function queryPackages(db, attributeId) {
-  let package_ref = await dbApi.dbAll(
-    db,
-    'SELECT PACKAGE_REF FROM ATTRIBUTE WHERE ATTRIBUTE_ID = ?',
-    [attributeId]
-  )
-  return package_ref[0].PACKAGE_REF
-}
 
 /**
  * Returns an array of objects containing global attributes that should be forced external.
@@ -66,8 +33,8 @@ async function queryPackages(db, attributeId) {
  */
 
 async function getForcedExternalStorage(db, attributeId) {
-  let pkgs = await queryPackages(db, attributeId)
-  let zcl = await queryMetaFile(db, pkgs)
+  let pkgs = await queryPackage.getPackageRefByAttributeId(db, attributeId)
+  let zcl = await queryPackage.getMetaFile(db, pkgs)
   let obj = await fsp.readFile(zcl)
   let data = JSON.parse(obj)
   let externals = data.attributeAccessInterfaceAttributes
@@ -81,9 +48,10 @@ async function getForcedExternalStorage(db, attributeId) {
  *
  * @export
  * @param {*} db
- * @param {*} staticAttribute
- * @param {*} forcedExternal
+ * @param {*} clusterName
  * @param {*} clusterRef
+ * @param {*} storagePolicy
+ * @param {*} forcedExternal
  * @param {*} attributeId
  * @returns A flag.
  */
@@ -99,14 +67,14 @@ async function computeStorage(
   let storageOption
   let attributeName
   if (!clusterName) {
-    clusterName = await selectClusterName(db, clusterRef)
+    clusterName = await queryCluster.selectClusterName(db, clusterRef)
     if (storagePolicy == dbEnum.storagePolicy.attributeAccessInterface) {
       storageOption = dbEnum.storageOption.external
     } else if (storagePolicy == dbEnum.storagePolicy.any) {
       storageOption = dbEnum.storageOption.ram
     }
   }
-  attributeName = await selectAttributeName(db, attributeId)
+  attributeName = await queryAttribute.selectAttributeName(db, attributeId)
   if (
     forcedExternal.externals &&
     forcedExternal.externals[clusterName] &&
