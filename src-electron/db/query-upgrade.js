@@ -65,7 +65,7 @@ async function queryPackages(db, attributeId) {
  * @returns An array of objects
  */
 
-async function checkGlobals(db, attributeId) {
+async function getForcedExternalStorage(db, attributeId) {
   let pkgs = await queryPackages(db, attributeId)
   let zcl = await queryMetaFile(db, pkgs)
   let obj = await fsp.readFile(zcl)
@@ -88,14 +88,13 @@ async function checkGlobals(db, attributeId) {
  * @returns A flag.
  */
 
-async function checkStorage(
+async function computeStorage(
   db,
   clusterName,
   clusterRef,
   storagePolicy,
   forcedExternal,
-  attributeId,
-  attribute
+  attributeId
 ) {
   let storageOption
   let attributeName
@@ -118,5 +117,5 @@ async function checkStorage(
   return storageOption
 }
 
-exports.checkGlobals = checkGlobals
-exports.checkStorage = checkStorage
+exports.getForcedExternalStorage = getForcedExternalStorage
+exports.computeStorage = computeStorage

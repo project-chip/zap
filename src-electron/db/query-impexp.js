@@ -678,15 +678,17 @@ WHERE
     attribute.reportable = false
   }
   if (attributeId) {
-    forcedExternal = await queryUpgrade.checkGlobals(db, attributeId)
-    storageOption = await queryUpgrade.checkStorage(
+    forcedExternal = await queryUpgrade.getForcedExternalStorage(
+      db,
+      attributeId
+    )
+    storageOption = await queryUpgrade.computeStorage(
       db,
       cluster.name,
       null,
       storagePolicy,
       forcedExternal,
-      attributeId,
-      attribute
+      attributeId
     )
   }
   if (

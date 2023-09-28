@@ -279,6 +279,7 @@ async function selectTokenAttributeClustersForEndpoint(
   )
   return rows.map(dbMapping.map.cluster)
 }
+
 exports.selectClusterDetailsFromEnabledClusters =
   selectClusterDetailsFromEnabledClusters
 exports.selectAllUserClustersWithTokenAttributes =

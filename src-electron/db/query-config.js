@@ -31,8 +31,6 @@ const queryCommand = require('./query-command.js')
 const restApi = require('../../src-shared/rest-api.js')
 const _ = require('lodash')
 const notification = require('../db/query-session-notification.js')
-const fs = require('fs')
-const fsp = fs.promises
 
 /**
  * Promises to update the cluster include/exclude state.
@@ -214,15 +212,17 @@ async function insertOrUpdateAttributeState(
       attributeId,
       clusterRef
     )
-  let forcedExternal = await queryUpgrade.checkGlobals(db, attributeId)
-  let storageOption = await queryUpgrade.checkStorage(
+  let forcedExternal = await queryUpgrade.getForcedExternalStorages(
+    db,
+    attributeId
+  )
+  let storageOption = await queryUpgrade.computeStorage(
     db,
     null,
     clusterRef,
     staticAttribute.storagePolicy,
     forcedExternal,
-    attributeId,
-    null
+    attributeId
   )
   if (staticAttribute == null) {
     throw new Error(`COULD NOT LOCATE ATTRIBUTE: ${attributeId} `)
