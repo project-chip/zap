@@ -203,22 +203,6 @@ async function getPackageRefByAttributeId(db, attributeId) {
 }
 
 /**
- * Returns path to the meta file from the package Id
- *
- * @param db
- * @param packageId
- * @returns Meta file path
- */
-async function getMetaFile(db, packageId) {
-  let path = await dbApi.dbAll(
-    db,
-    'SELECT PATH FROM PACKAGE WHERE PACKAGE_ID = ?',
-    [packageId]
-  )
-  return path[0].PATH
-}
-
-/**
  * Resolves with a CRC or null for a given path.
  *
  * @export
@@ -1011,7 +995,6 @@ async function insertSessionKeyValuesFromPackageDefaults(db, sessionId) {
 }
 
 // exports
-exports.getMetaFile = getMetaFile
 exports.getPackageRefByAttributeId = getPackageRefByAttributeId
 exports.getPackageByPathAndParent = getPackageByPathAndParent
 exports.getPackageByPackageId = getPackageByPackageId

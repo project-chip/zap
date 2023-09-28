@@ -34,7 +34,8 @@ const fsp = fs.promises
 
 async function getForcedExternalStorage(db, attributeId) {
   let pkgs = await queryPackage.getPackageRefByAttributeId(db, attributeId)
-  let zcl = await queryPackage.getMetaFile(db, pkgs)
+  let zcl = await queryPackage.getPackageByPackageId(db, pkgs)
+  zcl = zcl.path
   let obj = await fsp.readFile(zcl)
   let data = JSON.parse(obj)
   let externals = data?.attributeAccessInterfaceAttributes

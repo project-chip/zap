@@ -619,6 +619,7 @@ ORDER BY
  * @param {*} endpointTypeId
  * @param {*} endpointClusterId may be null if global attribute
  * @param {*} attribute
+ * @param {*} cluster
  * @returns Promise of an attribute insertion.
  */
 async function importAttributeForEndpointType(
