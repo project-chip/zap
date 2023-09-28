@@ -27,7 +27,7 @@ const dbMapping = require('./db-mapping.js')
  * Returns a cluster name from the cluster ref
  *
  * @param db
- * @param attributeId
+ * @param clusterRef
  * @returns Cluster name
  */
 async function selectClusterName(db, clusterRef) {

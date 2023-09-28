@@ -37,8 +37,8 @@ async function getForcedExternalStorage(db, attributeId) {
   let zcl = await queryPackage.getMetaFile(db, pkgs)
   let obj = await fsp.readFile(zcl)
   let data = JSON.parse(obj)
-  let externals = data.attributeAccessInterfaceAttributes
-  let lists = data.listsUseAttributeAccessInterface
+  let externals = data?.attributeAccessInterfaceAttributes
+  let lists = data?.listsUseAttributeAccessInterface
   let forcedExternal = { externals, lists }
   return forcedExternal
 }
@@ -72,6 +72,8 @@ async function computeStorage(
       storageOption = dbEnum.storageOption.external
     } else if (storagePolicy == dbEnum.storagePolicy.any) {
       storageOption = dbEnum.storageOption.ram
+    } else {
+      throw 'check storage policy'
     }
   }
   attributeName = await queryAttribute.selectAttributeName(db, attributeId)
