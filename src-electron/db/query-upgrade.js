@@ -18,6 +18,7 @@
 const dbApi = require('./db-api.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const fs = require('fs')
+const { default: cluster } = require('cluster')
 const fsp = fs.promises
 
 async function selectClusterName(db, clusterRef) {
@@ -106,18 +107,18 @@ async function checkStorage(
       storageOption = dbEnum.storageOption.ram
     }
   }
-  if (attributeId) {
-    attributeName = await selectAttributeName(db, attributeId)
+  attributeName = await selectAttributeName(db, attributeId)
+  if (attribute.type) {
     if (forcedExternal.lists == true && attribute.type == 'array') {
       storageOption = dbEnum.storageOption.external
     }
-    if (
-      forcedExternal.externals &&
-      forcedExternal.externals[clusterName] &&
-      forcedExternal.externals[clusterName].includes(attributeName)
-    ) {
-      storageOption = dbEnum.storageOption.external
-    }
+  }
+  if (
+    forcedExternal.externals &&
+    forcedExternal.externals[clusterName] &&
+    forcedExternal.externals[clusterName].includes(attributeName)
+  ) {
+    storageOption = dbEnum.storageOption.external
   }
   return storageOption
 }
