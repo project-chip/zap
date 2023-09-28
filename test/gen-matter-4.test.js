@@ -149,6 +149,7 @@ test(
     expect(ept).toContain('#define GENERATED_CLUSTER_COUNT 81')
     expect(ept).toContain('#define ZAP_FIXED_ENDPOINT_DATA_VERSION_COUNT 79')
     expect(ept).toContain('#define ATTRIBUTE_SINGLETONS_SIZE (37)')
+    expect(ept).toContain('#define ATTRIBUTE_MAX_SIZE (3988)')
     expect(ept).toContain('#define FIXED_ENDPOINT_COUNT (4)')
     expect(ept).toContain(
       '#define FIXED_ENDPOINT_ARRAY { 0x0000, 0x0001, 0x0002, 0xFFFE }'
