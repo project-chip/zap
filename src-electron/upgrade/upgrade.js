@@ -15,10 +15,10 @@
  *    limitations under the License.
  */
 
-const dbApi = require('./db-api.js')
-const queryPackage = require('./query-package.js')
-const queryAttribute = require('./query-attribute.js')
-const queryCluster = require('./query-cluster.js')
+const dbApi = require('../db/db-api.js')
+const queryPackage = require('../db/query-package.js')
+const queryAttribute = require('../db/query-attribute.js')
+const queryCluster = require('../db/query-cluster.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const fs = require('fs')
 const fsp = fs.promises
@@ -54,7 +54,7 @@ async function getForcedExternalStorage(db, attributeId) {
  * @param {*} storagePolicy
  * @param {*} forcedExternal
  * @param {*} attributeId
- * @returns A flag.
+ * @returns Storage Option
  */
 
 async function computeStorageNewConfig(
@@ -94,7 +94,7 @@ async function computeStorageNewConfig(
  * @param {*} clusterName
  * @param {*} forcedExternal
  * @param {*} attributeId
- * @returns A flag.
+ * @returns Storage Policy
  */
 
 async function computeStorageImport(

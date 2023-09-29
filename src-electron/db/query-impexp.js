@@ -23,7 +23,7 @@
 const dbApi = require('./db-api')
 const dbEnums = require('../../src-shared/db-enum')
 const dbMapping = require('./db-mapping.js')
-const queryUpgrade = require('./query-upgrade.js')
+const queryUpgrade = require('../upgrade/upgrade.js')
 /**
  * Imports a single endpoint
  * @param {} db
