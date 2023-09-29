@@ -683,11 +683,9 @@ WHERE
       db,
       attributeId
     )
-    storageOption = await queryUpgrade.computeStorage(
+    storageOption = await queryUpgrade.computeStorageImport(
       db,
       cluster.name,
-      null,
-      storagePolicy,
       forcedExternal,
       attributeId
     )

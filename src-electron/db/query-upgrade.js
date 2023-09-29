@@ -57,9 +57,8 @@ async function getForcedExternalStorage(db, attributeId) {
  * @returns A flag.
  */
 
-async function computeStorage(
+async function computeStorageNewConfig(
   db,
-  clusterName,
   clusterRef,
   storagePolicy,
   forcedExternal,
@@ -67,15 +66,14 @@ async function computeStorage(
 ) {
   let storageOption
   let attributeName
-  if (!clusterName) {
-    clusterName = await queryCluster.selectClusterName(db, clusterRef)
-    if (storagePolicy == dbEnum.storagePolicy.attributeAccessInterface) {
-      storageOption = dbEnum.storageOption.external
-    } else if (storagePolicy == dbEnum.storagePolicy.any) {
-      storageOption = dbEnum.storageOption.ram
-    } else {
-      throw 'check storage policy'
-    }
+  let clusterName
+  clusterName = await queryCluster.selectClusterName(db, clusterRef)
+  if (storagePolicy == dbEnum.storagePolicy.attributeAccessInterface) {
+    storageOption = dbEnum.storageOption.external
+  } else if (storagePolicy == dbEnum.storagePolicy.any) {
+    storageOption = dbEnum.storageOption.ram
+  } else {
+    throw 'check storage policy'
   }
   attributeName = await queryAttribute.selectAttributeName(db, attributeId)
   if (
@@ -88,5 +86,36 @@ async function computeStorage(
   return storageOption
 }
 
+/**
+ * Returns a flag stating which type of storage option the attribute is categorized to be.
+ *
+ * @export
+ * @param {*} db
+ * @param {*} clusterName
+ * @param {*} forcedExternal
+ * @param {*} attributeId
+ * @returns A flag.
+ */
+
+async function computeStorageImport(
+  db,
+  clusterName,
+  forcedExternal,
+  attributeId
+) {
+  let storageOption
+  let attributeName
+  attributeName = await queryAttribute.selectAttributeName(db, attributeId)
+  if (
+    forcedExternal.externals &&
+    forcedExternal.externals[clusterName] &&
+    forcedExternal.externals[clusterName].includes(attributeName)
+  ) {
+    storageOption = dbEnum.storageOption.external
+  }
+  return storageOption
+}
+
 exports.getForcedExternalStorage = getForcedExternalStorage
-exports.computeStorage = computeStorage
+exports.computeStorageImport = computeStorageImport
+exports.computeStorageNewConfig = computeStorageNewConfig

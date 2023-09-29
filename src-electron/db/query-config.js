@@ -216,9 +216,8 @@ async function insertOrUpdateAttributeState(
     db,
     attributeId
   )
-  let storageOption = await queryUpgrade.computeStorage(
+  let storageOption = await queryUpgrade.computeStorageNewConfig(
     db,
-    null,
     clusterRef,
     staticAttribute.storagePolicy,
     forcedExternal,
