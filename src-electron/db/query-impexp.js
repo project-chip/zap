@@ -683,17 +683,14 @@ WHERE
       db,
       attributeId
     )
-    storageOption = await queryUpgrade.computeStorageImport(
+    storagePolicy = await queryUpgrade.computeStorageImport(
       db,
       cluster.name,
       forcedExternal,
       attributeId
     )
   }
-  if (
-    storagePolicy == dbEnums.storagePolicy.attributeAccessInterface ||
-    storageOption == dbEnums.storageOption.external
-  ) {
+  if (storagePolicy == dbEnums.storagePolicy.attributeAccessInterface) {
     attribute.storageOption = dbEnums.storageOption.external
   }
 

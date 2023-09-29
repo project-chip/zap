@@ -103,7 +103,7 @@ async function computeStorageImport(
   forcedExternal,
   attributeId
 ) {
-  let storageOption
+  let storagePolicy
   let attributeName
   attributeName = await queryAttribute.selectAttributeName(db, attributeId)
   if (
@@ -111,9 +111,9 @@ async function computeStorageImport(
     forcedExternal.externals[clusterName] &&
     forcedExternal.externals[clusterName].includes(attributeName)
   ) {
-    storageOption = dbEnum.storageOption.external
+    storagePolicy = dbEnum.storagePolicy.attributeAccessInterface
   }
-  return storageOption
+  return storagePolicy
 }
 
 exports.getForcedExternalStorage = getForcedExternalStorage
