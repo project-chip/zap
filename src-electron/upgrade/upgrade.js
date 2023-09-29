@@ -24,6 +24,11 @@ const fs = require('fs')
 const fsp = fs.promises
 
 /**
+ * This file implements upgrade rules which are used to upgrade .zap files and xml files
+ * to be in sync with the spec
+ */
+
+/**
  * Returns an array of objects containing global attributes that should be forced external.
  *
  * @export
@@ -38,9 +43,9 @@ async function getForcedExternalStorage(db, attributeId) {
   zcl = zcl.path
   let obj = await fsp.readFile(zcl)
   let data = JSON.parse(obj)
-  let externals = data?.attributeAccessInterfaceAttributes
+  let byName = data?.attributeAccessInterfaceAttributes
   let lists = data?.listsUseAttributeAccessInterface
-  let forcedExternal = { externals, lists }
+  let forcedExternal = { byName, lists }
   return forcedExternal
 }
 
@@ -77,9 +82,9 @@ async function computeStorageNewConfig(
   }
   attributeName = await queryAttribute.selectAttributeName(db, attributeId)
   if (
-    forcedExternal.externals &&
-    forcedExternal.externals[clusterName] &&
-    forcedExternal.externals[clusterName].includes(attributeName)
+    forcedExternal.byName &&
+    forcedExternal.byName[clusterName] &&
+    forcedExternal.byName[clusterName].includes(attributeName)
   ) {
     storageOption = dbEnum.storageOption.external
   }
@@ -107,9 +112,9 @@ async function computeStorageImport(
   let attributeName
   attributeName = await queryAttribute.selectAttributeName(db, attributeId)
   if (
-    forcedExternal.externals &&
-    forcedExternal.externals[clusterName] &&
-    forcedExternal.externals[clusterName].includes(attributeName)
+    forcedExternal.byName &&
+    forcedExternal.byName[clusterName] &&
+    forcedExternal.byName[clusterName].includes(attributeName)
   ) {
     storagePolicy = dbEnum.storagePolicy.attributeAccessInterface
   }
