@@ -289,7 +289,7 @@ function asStructPropertyName(prop) {
   }
 
   // If prop starts with a sequence of capital letters (which can happen for
-  // output of asLowerCamelCase if the original string started that way,
+  // output of asLowerCamelCase if the original string started that way),
   // lowercase all but the last one.
   return prop.replace(/^([A-Z]+)([A-Z])/, (match, p1, p2) => {
     return p1.toLowerCase() + p2;
@@ -302,6 +302,24 @@ function asGetterName(prop) {
     return 'get' + appHelper.asUpperCamelCase(prop);
   }
   return propName;
+}
+
+function asMethodName(name) {
+  // Note: we do not use preserveAcronyms
+  name = appHelper.asLowerCamelCase(name, { hash: { preserveAcronyms: true } });
+
+  // If after preserving acronyms we ended up all-uppercase, go ahead and
+  // convert to all-lowercase.
+  if (name == name.toUpperCase()) {
+    name = name.toLowerCase();
+  }
+
+  // If name starts with a sequence of capital letters (which can happen for
+  // output of asLowerCamelCase if the original string started that way),
+  // lowercase all but the last one.
+  return name.replace(/^([A-Z]+)([A-Z])/, (match, p1, p2) => {
+    return p1.toLowerCase() + p2;
+  });
 }
 
 function commandHasRequiredField(command) {
@@ -1090,6 +1108,7 @@ exports.asObjectiveCType = asObjectiveCType;
 exports.asStructPropertyName = asStructPropertyName;
 exports.asTypedExpressionFromObjectiveC = asTypedExpressionFromObjectiveC;
 exports.asGetterName = asGetterName;
+exports.asMethodName = asMethodName;
 exports.commandHasRequiredField = commandHasRequiredField;
 exports.objCEnumName = objCEnumName;
 exports.objCEnumItemLabel = objCEnumItemLabel;
