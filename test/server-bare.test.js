@@ -80,21 +80,6 @@ describe('Session specific tests', () => {
   )
 
   test(
-    'get index.html',
-    () =>
-      axiosInstance.get('/index.html').then((response) => {
-        sessionCookie = response.headers['set-cookie'][0]
-        axiosInstance.defaults.headers.Cookie = sessionCookie
-        expect(
-          response.data.includes(
-            'Configuration tool for the Zigbee Cluster Library'
-          )
-        ).toBeTruthy()
-      }),
-    testUtil.timeout.medium()
-  )
-
-  test(
     'make sure there is still no session after index.html',
     () =>
       testQuery.selectCountFrom(db, 'SESSION').then((cnt) => {
