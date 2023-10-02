@@ -69,6 +69,7 @@ describe('Session specific tests', () => {
       }),
     testUtil.timeout.short()
   )
+
   test(
     'http server initialization',
     async () => {
@@ -91,6 +92,7 @@ describe('Session specific tests', () => {
       }),
     testUtil.timeout.medium()
   )
+
   test(
     'make sure there is still no session after index.html',
     () =>
