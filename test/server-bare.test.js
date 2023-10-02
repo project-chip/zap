@@ -99,8 +99,10 @@ describe('Session specific tests', () => {
         .then((cnt) => {
           expect(cnt).toBe(0)
         })
-        .then(() => {
-          axiosInstance.post(`${restApi.uri.sessionCreate}?sessionId=${uuid}`)
+        .then(async () => {
+          await axiosInstance.post(
+            `${restApi.uri.sessionCreate}?sessionId=${uuid}`
+          )
         }),
     testUtil.timeout.short()
   )
@@ -113,6 +115,15 @@ describe('Session specific tests', () => {
         .then((response) => {
           expect(response.data.clusterData.length).toBe(0)
         }),
+    testUtil.timeout.medium()
+  )
+
+  test(
+    'make sure there is 1 session after previous call',
+    async () =>
+      testQuery.selectCountFrom(db, 'SESSION').then((cnt) => {
+        expect(cnt).toBe(1)
+      }),
     testUtil.timeout.medium()
   )
 
@@ -136,15 +147,6 @@ describe('Session specific tests', () => {
         .then(() =>
           queryPackage.insertSessionPackage(db, sessionId, packageId)
         ),
-    testUtil.timeout.medium()
-  )
-
-  test(
-    'make sure there is 1 session after previous call',
-    () =>
-      testQuery.selectCountFrom(db, 'SESSION').then((cnt) => {
-        expect(cnt).toBe(1)
-      }),
     testUtil.timeout.medium()
   )
 
