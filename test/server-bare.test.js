@@ -67,7 +67,7 @@ describe('Session specific tests', () => {
       testQuery.selectCountFrom(db, 'SESSION').then((cnt) => {
         expect(cnt).toBe(0)
       }),
-    testUtil.timeout.long()
+    testUtil.timeout.short()
   )
 
   test(
@@ -93,18 +93,14 @@ describe('Session specific tests', () => {
       }),
     testUtil.timeout.medium()
   )
+
   test(
     'make sure there is still no session after index.html',
     () =>
-      testQuery
-        .selectCountFrom(db, 'SESSION')
-        .then((cnt) => {
-          expect(cnt).toBe(0)
-        })
-        .then(() => {
-          axiosInstance.post(`${restApi.uri.sessionCreate}?sessionId=${uuid}`)
-        }),
-    testUtil.timeout.long()
+      testQuery.selectCountFrom(db, 'SESSION').then((cnt) => {
+        expect(cnt).toBe(0)
+      }),
+    testUtil.timeout.medium()
   )
 
   test(
