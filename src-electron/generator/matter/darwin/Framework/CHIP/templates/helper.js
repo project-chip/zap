@@ -305,7 +305,6 @@ function asGetterName(prop) {
 }
 
 function asMethodName(name) {
-  // Note: we do not use preserveAcronyms
   name = appHelper.asLowerCamelCase(name, { hash: { preserveAcronyms: true } });
 
   // If after preserving acronyms we ended up all-uppercase, go ahead and
