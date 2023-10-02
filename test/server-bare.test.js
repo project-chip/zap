@@ -74,6 +74,7 @@ describe('Session specific tests', () => {
     'http server initialization',
     async () => {
       await httpServer.initHttpServer(db, port)
+      axiosInstance.post(`${restApi.uri.sessionCreate}?sessionId=${uuid}`)
     },
     testUtil.timeout.medium()
   )
@@ -82,6 +83,8 @@ describe('Session specific tests', () => {
     'get index.html',
     () =>
       axiosInstance.get('/index.html').then((response) => {
+        sessionCookie = response.headers['set-cookie'][0]
+        axiosInstance.defaults.headers.Cookie = sessionCookie
         expect(
           response.data.includes(
             'Configuration tool for the Zigbee Cluster Library'
