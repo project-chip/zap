@@ -634,7 +634,7 @@ async function importAttributeForEndpointType(
 SELECT
   A.ATTRIBUTE_ID,
   A.REPORTING_POLICY,
-  A.STORAGE_POLICY
+  A.STORAGE_POLICY,
   A.NAME
 FROM
   ATTRIBUTE AS A
@@ -661,11 +661,11 @@ WHERE
   let reportingPolicy
   let storagePolicy
   let forcedExternal
-  let storageOption
   if (atRow.length == 0) {
     attributeId = null
     reportingPolicy = null
     storagePolicy = null
+    attributeName = null
   } else {
     attributeId = atRow[0].ATTRIBUTE_ID
     reportingPolicy = atRow[0].REPORTING_POLICY
