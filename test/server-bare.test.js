@@ -74,7 +74,6 @@ describe('Session specific tests', () => {
     'http server initialization',
     async () => {
       await httpServer.initHttpServer(db, port)
-      axiosInstance.post(`${restApi.uri.sessionCreate}?sessionId=${uuid}`)
     },
     testUtil.timeout.medium()
   )
@@ -97,10 +96,17 @@ describe('Session specific tests', () => {
   test(
     'make sure there is still no session after index.html',
     () =>
-      testQuery.selectCountFrom(db, 'SESSION').then((cnt) => {
-        expect(cnt).toBe(0)
-      }),
-    testUtil.timeout.medium()
+      testQuery
+        .selectCountFrom(db, 'SESSION')
+        .then((cnt) => {
+          expect(cnt).toBe(0)
+        })
+        .then(async () => {
+          await axiosInstance.post(
+            `${restApi.uri.sessionCreate}?sessionId=${uuid}`
+          )
+        }),
+    testUtil.timeout.short()
   )
 
   test(
