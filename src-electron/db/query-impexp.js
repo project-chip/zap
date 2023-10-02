@@ -635,6 +635,7 @@ SELECT
   A.ATTRIBUTE_ID,
   A.REPORTING_POLICY,
   A.STORAGE_POLICY
+  A.NAME
 FROM
   ATTRIBUTE AS A
 INNER JOIN
@@ -669,6 +670,7 @@ WHERE
     attributeId = atRow[0].ATTRIBUTE_ID
     reportingPolicy = atRow[0].REPORTING_POLICY
     storagePolicy = atRow[0].STORAGE_POLICY
+    attributeName = atRow[0].NAME
   }
 
   // If the spec has meanwhile changed the policies to mandatory or prohibited,
@@ -687,7 +689,7 @@ WHERE
       db,
       cluster.name,
       forcedExternal,
-      attributeId
+      attributeName
     )
   }
   if (storagePolicy == dbEnums.storagePolicy.attributeAccessInterface) {

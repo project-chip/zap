@@ -106,11 +106,9 @@ async function computeStorageImport(
   db,
   clusterName,
   forcedExternal,
-  attributeId
+  attributeName
 ) {
   let storagePolicy
-  let attributeName
-  attributeName = await queryAttribute.selectAttributeName(db, attributeId)
   if (
     forcedExternal.byName &&
     forcedExternal.byName[clusterName] &&
