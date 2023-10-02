@@ -17,7 +17,6 @@
 
 const dbApi = require('../db/db-api.js')
 const queryPackage = require('../db/query-package.js')
-const queryAttribute = require('../db/query-attribute.js')
 const queryCluster = require('../db/query-cluster.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const fs = require('fs')
@@ -67,10 +66,9 @@ async function computeStorageNewConfig(
   clusterRef,
   storagePolicy,
   forcedExternal,
-  attributeId
+  attributeName
 ) {
   let storageOption
-  let attributeName
   let clusterName
   clusterName = await queryCluster.selectClusterName(db, clusterRef)
   if (storagePolicy == dbEnum.storagePolicy.attributeAccessInterface) {
@@ -80,7 +78,6 @@ async function computeStorageNewConfig(
   } else {
     throw 'check storage policy'
   }
-  attributeName = await queryAttribute.selectAttributeName(db, attributeId)
   if (
     forcedExternal.byName &&
     forcedExternal.byName[clusterName] &&

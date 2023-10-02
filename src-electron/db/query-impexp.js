@@ -661,6 +661,7 @@ WHERE
   let reportingPolicy
   let storagePolicy
   let forcedExternal
+  let attributeName
   if (atRow.length == 0) {
     attributeId = null
     reportingPolicy = null
