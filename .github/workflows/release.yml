@@ -45,9 +45,6 @@ jobs:
       - run: npm rebuild canvas --update-binary
       - run: npm rebuild libxmljs --update-binary
       - run: npm run build-spa
-
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
       - run: npm run test:e2e-ci -- ${{steps.chrome-116.outputs.chrome-path }}
 
   cypress-matter:
