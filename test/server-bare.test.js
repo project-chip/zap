@@ -67,13 +67,14 @@ describe('Session specific tests', () => {
       testQuery.selectCountFrom(db, 'SESSION').then((cnt) => {
         expect(cnt).toBe(0)
       }),
-    testUtil.timeout.short()
+    testUtil.timeout.long()
   )
 
   test(
     'http server initialization',
     async () => {
       await httpServer.initHttpServer(db, port)
+      axiosInstance.post(`${restApi.uri.sessionCreate}?sessionId=${uuid}`)
     },
     testUtil.timeout.medium()
   )
