@@ -74,7 +74,6 @@ describe('Session specific tests', () => {
     'http server initialization',
     async () => {
       await httpServer.initHttpServer(db, port)
-      axiosInstance.post(`${restApi.uri.sessionCreate}?sessionId=${uuid}`)
     },
     testUtil.timeout.medium()
   )
@@ -83,8 +82,6 @@ describe('Session specific tests', () => {
     'get index.html',
     () =>
       axiosInstance.get('/index.html').then((response) => {
-        sessionCookie = response.headers['set-cookie'][0]
-        axiosInstance.defaults.headers.Cookie = sessionCookie
         expect(
           response.data.includes(
             'Configuration tool for the Zigbee Cluster Library'
@@ -93,13 +90,17 @@ describe('Session specific tests', () => {
       }),
     testUtil.timeout.medium()
   )
-
   test(
     'make sure there is still no session after index.html',
     () =>
-      testQuery.selectCountFrom(db, 'SESSION').then((cnt) => {
-        expect(cnt).toBe(0)
-      }),
+      testQuery
+        .selectCountFrom(db, 'SESSION')
+        .then((cnt) => {
+          expect(cnt).toBe(0)
+        })
+        .then(() => {
+          axiosInstance.post(`${restApi.uri.sessionCreate}?sessionId=${uuid}`)
+        }),
     testUtil.timeout.long()
   )
 
