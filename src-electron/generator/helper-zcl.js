@@ -768,8 +768,13 @@ function zcl_attributes_client(options) {
   // when used at the cluster level, 'this' is a cluster
   let promise = templateUtil
     .ensureZclPackageIds(this)
-    .then((packageIds) => {
+    .then(async (packageIds) => {
       if ('id' in this) {
+        await upgrade.computeStorageTemplate(
+          this.global.db,
+          this.id,
+          attributes
+        )
         return queryZcl.selectAttributesByClusterIdAndSideIncludingGlobal(
           this.global.db,
           this.id,
@@ -784,9 +789,11 @@ function zcl_attributes_client(options) {
         )
       }
     })
-    .then((attributes) =>
-      upgrade.computeStorageTemplate(this.global.db, this.id, attributes)
-    )
+    .then((attributes) => {
+      if ('id' in this) {
+        upgrade.computeStorageTemplate(this.global.db, this.id, attributes)
+      }
+    })
     .then((atts) => templateUtil.collectBlocks(atts, options, this))
   return templateUtil.templatePromise(this.global, promise)
 }
