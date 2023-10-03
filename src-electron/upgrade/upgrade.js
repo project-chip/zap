@@ -72,7 +72,6 @@ async function computeStorageTemplate(db, clusterRef, attributes) {
       forcedExternal.byName[clusterName].includes(attribute.name)
     ) {
       attribute.storagePolicy = dbEnum.storagePolicy.attributeAccessInterface
-      console.log(attribute)
     }
   })
   return attributes
