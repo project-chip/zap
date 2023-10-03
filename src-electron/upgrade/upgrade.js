@@ -40,7 +40,6 @@ async function getForcedExternalStorage(db, attributeId) {
   let pkgs = await queryPackage.getPackageRefByAttributeId(db, attributeId)
   let zcl = await queryPackage.getPackageByPackageId(db, pkgs)
   let obj = await fsp.readFile(zcl.path)
-  obj = JSON.stringify(obj)
   let data = JSON.parse(obj)
   let byName = data?.attributeAccessInterfaceAttributes
   let lists = data?.listsUseAttributeAccessInterface
@@ -66,15 +65,14 @@ async function computeStorageTemplate(db, clusterRef, attributes) {
   let forcedExternal
   clusterName = await queryCluster.selectClusterName(db, clusterRef)
   attributes.forEach(async (attribute) => {
-    if (attribute.id) {
-      forcedExternal = await getForcedExternalStorage(db, attribute.id)
-    }
+    forcedExternal = await getForcedExternalStorage(db, attribute.id)
     if (
       forcedExternal.byName &&
       forcedExternal.byName[clusterName] &&
       forcedExternal.byName[clusterName].includes(attribute.name)
     ) {
       attribute.storagePolicy = dbEnum.storagePolicy.attributeAccessInterface
+      console.log(attribute)
     }
   })
   return attributes

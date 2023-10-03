@@ -748,9 +748,11 @@ function zcl_attributes(options) {
         return queryZcl.selectAllAttributes(this.global.db, packageIds)
       }
     })
-    .then((attributes) =>
-      upgrade.computeStorageTemplate(this.global.db, this.id, attributes)
-    )
+    .then((attributes) => {
+      if ('id' in this) {
+        upgrade.computeStorageTemplate(this.global.db, this.id, attributes)
+      }
+    })
     .then((atts) => templateUtil.collectBlocks(atts, options, this))
   return templateUtil.templatePromise(this.global, promise)
 }
@@ -770,11 +772,6 @@ function zcl_attributes_client(options) {
     .ensureZclPackageIds(this)
     .then(async (packageIds) => {
       if ('id' in this) {
-        await upgrade.computeStorageTemplate(
-          this.global.db,
-          this.id,
-          attributes
-        )
         return queryZcl.selectAttributesByClusterIdAndSideIncludingGlobal(
           this.global.db,
           this.id,
@@ -823,6 +820,11 @@ async function zcl_attributes_server(options) {
         packageIds,
         dbEnum.side.server
       )
+    serverAttributes = await upgrade.computeStorageTemplate(
+      this.global.db,
+      this.id,
+      serverAttributes
+    )
   } else {
     serverAttributes = await queryZcl.selectAllAttributesBySide(
       this.global.db,
@@ -830,12 +832,6 @@ async function zcl_attributes_server(options) {
       packageIds
     )
   }
-
-  serverAttributes = await upgrade.computeStorageTemplate(
-    this.global.db,
-    this.id,
-    serverAttributes
-  )
 
   if ('removeKeys' in options.hash) {
     let keys = options.hash.removeKeys.split(',')
