@@ -72,6 +72,7 @@ async function computeStorageTemplate(db, clusterRef, attributes) {
       forcedExternal.byName[clusterName].includes(attribute.name)
     ) {
       attribute.storagePolicy = dbEnum.storagePolicy.attributeAccessInterface
+      console.log(attribute)
     }
   })
   return attributes
@@ -131,10 +132,10 @@ async function computeStorageNewConfig(
 async function computeStorageImport(
   db,
   clusterName,
+  storagePolicy,
   forcedExternal,
   attributeName
 ) {
-  let storagePolicy
   if (
     forcedExternal.byName &&
     forcedExternal.byName[clusterName] &&

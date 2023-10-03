@@ -689,6 +689,7 @@ WHERE
     storagePolicy = await queryUpgrade.computeStorageImport(
       db,
       cluster.name,
+      storagePolicy,
       forcedExternal,
       attributeName
     )
