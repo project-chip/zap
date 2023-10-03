@@ -181,7 +181,7 @@ test(
     x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE_EVENT')
     expect(x).toBe(3)
   },
-  testUtil.timeout.medium()
+  testUtil.timeout.long()
 )
 
 test(

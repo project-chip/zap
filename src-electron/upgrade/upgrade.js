@@ -39,13 +39,42 @@ const fsp = fs.promises
 async function getForcedExternalStorage(db, attributeId) {
   let pkgs = await queryPackage.getPackageRefByAttributeId(db, attributeId)
   let zcl = await queryPackage.getPackageByPackageId(db, pkgs)
-  zcl = zcl.path
-  let obj = await fsp.readFile(zcl)
+  let obj = await fsp.readFile(zcl.path)
   let data = JSON.parse(obj)
   let byName = data?.attributeAccessInterfaceAttributes
   let lists = data?.listsUseAttributeAccessInterface
   let forcedExternal = { byName, lists }
   return forcedExternal
+}
+
+/**
+ * Returns a flag stating which type of storage option the attribute is categorized to be.
+ *
+ * @export
+ * @param {*} db
+ * @param {*} clusterName
+ * @param {*} clusterRef
+ * @param {*} storagePolicy
+ * @param {*} forcedExternal
+ * @param {*} attributeId
+ * @returns Storage Option
+ */
+
+async function computeStorageTemplate(db, clusterRef, attributes) {
+  let clusterName
+  let forcedExternal
+  clusterName = await queryCluster.selectClusterName(db, clusterRef)
+  attributes.forEach(async (attribute) => {
+    forcedExternal = await getForcedExternalStorage(db, attribute.id)
+    if (
+      forcedExternal.byName &&
+      forcedExternal.byName[clusterName] &&
+      forcedExternal.byName[clusterName].includes(attribute.name)
+    ) {
+      attribute.storagePolicy = dbEnum.storagePolicy.attributeAccessInterface
+    }
+  })
+  return attributes
 }
 
 /**
@@ -119,3 +148,4 @@ async function computeStorageImport(
 exports.getForcedExternalStorage = getForcedExternalStorage
 exports.computeStorageImport = computeStorageImport
 exports.computeStorageNewConfig = computeStorageNewConfig
+exports.computeStorageTemplate = computeStorageTemplate

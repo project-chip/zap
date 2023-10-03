@@ -19,6 +19,7 @@ const queryZcl = require('../db/query-zcl')
 const queryDeviceType = require('../db/query-device-type')
 const queryCommand = require('../db/query-command')
 const queryEvent = require('../db/query-event')
+const upgrade = require('../upgrade/upgrade.js')
 const dbEnum = require('../../src-shared/db-enum')
 const templateUtil = require('./template-util')
 const helperC = require('./helper-c')
@@ -747,6 +748,9 @@ function zcl_attributes(options) {
         return queryZcl.selectAllAttributes(this.global.db, packageIds)
       }
     })
+    .then((attributes) =>
+      upgrade.computeStorageTemplate(this.global.db, this.id, attributes)
+    )
     .then((atts) => templateUtil.collectBlocks(atts, options, this))
   return templateUtil.templatePromise(this.global, promise)
 }
@@ -780,6 +784,9 @@ function zcl_attributes_client(options) {
         )
       }
     })
+    .then((attributes) =>
+      upgrade.computeStorageTemplate(this.global.db, this.id, attributes)
+    )
     .then((atts) => templateUtil.collectBlocks(atts, options, this))
   return templateUtil.templatePromise(this.global, promise)
 }
@@ -816,6 +823,13 @@ async function zcl_attributes_server(options) {
       packageIds
     )
   }
+
+  serverAttributes = await upgrade.computeStorageTemplate(
+    this.global.db,
+    this.id,
+    serverAttributes
+  )
+
   if ('removeKeys' in options.hash) {
     let keys = options.hash.removeKeys.split(',')
     keys.forEach((k) => serverAttributes.map((attr) => delete attr[k.trim()]))
