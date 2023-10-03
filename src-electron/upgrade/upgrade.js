@@ -40,7 +40,7 @@ async function getForcedExternalStorage(db, attributeId) {
   let pkgs = await queryPackage.getPackageRefByAttributeId(db, attributeId)
   let zcl = await queryPackage.getPackageByPackageId(db, pkgs)
   let obj = await fsp.readFile(zcl.path)
-  let data = JSON.parse(obj)
+  let data = JSON.parse(JSON.stringify(obj))
   let byName = data?.attributeAccessInterfaceAttributes
   let lists = data?.listsUseAttributeAccessInterface
   let forcedExternal = { byName, lists }

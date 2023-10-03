@@ -748,9 +748,13 @@ function zcl_attributes(options) {
         return queryZcl.selectAllAttributes(this.global.db, packageIds)
       }
     })
-    .then((attributes) => {
+    .then(async (attributes) => {
       if ('id' in this) {
-        upgrade.computeStorageTemplate(this.global.db, this.id, attributes)
+        await upgrade.computeStorageTemplate(
+          this.global.db,
+          this.id,
+          attributes
+        )
       }
     })
     .then((atts) => templateUtil.collectBlocks(atts, options, this))
@@ -786,9 +790,13 @@ function zcl_attributes_client(options) {
         )
       }
     })
-    .then((attributes) => {
+    .then(async (attributes) => {
       if ('id' in this) {
-        upgrade.computeStorageTemplate(this.global.db, this.id, attributes)
+        await upgrade.computeStorageTemplate(
+          this.global.db,
+          this.id,
+          attributes
+        )
       }
     })
     .then((atts) => templateUtil.collectBlocks(atts, options, this))
