@@ -25,6 +25,7 @@ const dbMapping = require('./db-mapping.js')
 const queryPackage = require('./query-package.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const queryZcl = require('./query-zcl.js')
+const queryUpgrade = require('../upgrade/upgrade.js')
 const queryDeviceType = require('./query-device-type')
 const queryCommand = require('./query-command.js')
 const restApi = require('../../src-shared/rest-api.js')
@@ -211,15 +212,17 @@ async function insertOrUpdateAttributeState(
       attributeId,
       clusterRef
     )
-  if (
-    staticAttribute.storagePolicy ==
-    dbEnum.storagePolicy.attributeAccessInterface
-  ) {
-    staticAttribute.storagePolicy = dbEnum.storageOption.external
-  } else {
-    staticAttribute.storagePolicy = dbEnum.storageOption.ram
-  }
-
+  let forcedExternal = await queryUpgrade.getForcedExternalStorage(
+    db,
+    attributeId
+  )
+  let storageOption = await queryUpgrade.computeStorageNewConfig(
+    db,
+    clusterRef,
+    staticAttribute.storagePolicy,
+    forcedExternal,
+    staticAttribute.name
+  )
   if (staticAttribute == null) {
     throw new Error(`COULD NOT LOCATE ATTRIBUTE: ${attributeId} `)
   }
@@ -253,7 +256,7 @@ INTO ENDPOINT_TYPE_ATTRIBUTE (
       cluster.endpointTypeClusterId,
       attributeId,
       staticAttribute.defaultValue ? staticAttribute.defaultValue : '',
-      staticAttribute.storagePolicy,
+      storageOption,
       clusterRef,
       reportMinInterval,
       reportMaxInterval,
