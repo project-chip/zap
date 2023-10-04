@@ -34,6 +34,11 @@ async function main() {
     await rename(`${file}`, cli)
     await addToZip(`zap-mac-x64.zip`, cli)
 
+    // NOTE: `pkg` build tool does not officially support building for mac arch64 yet.
+    //       until official support is out, x86 version will be packaged as
+    //       Apple Rosetta will kick in.
+    await addToZip(`zap-mac-arm64.zip`, cli)
+
     // NOTE: pkg support for macos-arm64 is experimental
     // await rename(`${file}-arm64`, cli)
     // await addToZip(`${file}-arm64.zip`, cli)
