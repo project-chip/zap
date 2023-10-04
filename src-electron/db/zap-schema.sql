@@ -885,15 +885,16 @@ CREATE TABLE IF NOT EXISTS "ENDPOINT_TYPE_COMMAND" (
   "ENDPOINT_TYPE_REF" integer,
   "ENDPOINT_TYPE_CLUSTER_REF" integer,
   "COMMAND_REF" integer,
-  "INCOMING" integer default false,
-  "OUTGOING" integer default false,
+  "IS_INCOMING" integer default false,
+  "IS_ENABLED" integer default false,
   foreign key (ENDPOINT_TYPE_REF) references ENDPOINT_TYPE(ENDPOINT_TYPE_ID) on delete cascade,
   foreign key (ENDPOINT_TYPE_CLUSTER_REF) references ENDPOINT_TYPE_CLUSTER(ENDPOINT_TYPE_CLUSTER_ID),
   foreign key (COMMAND_REF) references COMMAND(COMMAND_ID),
   UNIQUE(
     ENDPOINT_TYPE_REF,
     COMMAND_REF,
-    ENDPOINT_TYPE_CLUSTER_REF
+    ENDPOINT_TYPE_CLUSTER_REF,
+    IS_INCOMING
   )
 );
 /*

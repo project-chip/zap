@@ -121,6 +121,10 @@ exports.matterTestFile = {
   matterTest: path.join(__dirname, 'resource/matter-test.zap'),
   switch: path.join(__dirname, 'resource/matter-switch.zap'),
   allClusters: path.join(__dirname, 'resource/matter-all-clusters.zap'),
+  allClustersFileFormat2: path.join(
+    __dirname,
+    'resource/matter-all-clusters-file-format-2.zap'
+  ),
   multipleDeviceTypesPerEndpoint: path.join(
     __dirname,
     'resource/multiple-device-types-per-endpoint.zap'

@@ -197,7 +197,7 @@ function uncleanseCluster(c) {
  * @param {*} fileFormat
  */
 function convertToFile(state) {
-  if (state.fileFormat && state.fileFormat > 0) {
+  if (state.fileFormat && state.fileFormat === 1) {
     // Convert key value pairs
     if (state.keyValuePairs) {
       state.keyValuePairs = packKeyValuePairs(state.keyValuePairs)
@@ -240,9 +240,84 @@ function convertToFile(state) {
     }
 
     return state
+  } else if (state.fileFormat && state.fileFormat === 2) {
+    for (let ept of state.endpointTypes) {
+      let enabledClusters = ept.clusters.filter((c) => c.enabled)
+      ept.clusters = enabledClusters
+      for (let c of enabledClusters) {
+        let enabledAttributes = c.attributes
+          ? c.attributes.filter((a) => a.included)
+          : null
+        if (enabledAttributes) {
+          c.attributes = enabledAttributes
+        }
+
+        // ... and commands...
+        let enabledCommands = c.commands
+          ? c.commands.filter((c) => c.isEnabled)
+          : null
+        if (enabledCommands) {
+          c.commands = enabledCommands
+        }
+
+        // ... and events.
+        let enabledEvents = c.events ? c.events.filter((e) => e.included) : null
+        if (enabledEvents) {
+          c.events = enabledEvents
+        }
+      }
+    }
+    return state
   } else {
     return state
   }
+}
+
+/**
+ * Updates the clusters with the new command format where there is isIncoming
+ * and isEnabled instead of incoming and outgoing
+ * @param {*} cluster
+ * @param {*} clusterToCommandMap
+ * @returns state or null
+ */
+function updateCommands(cluster, clusterToCommandMap) {
+  if (cluster.commands) {
+    for (let cmd of cluster.commands) {
+      // Returning the state since the .zap file has already been updated
+      // to the new format based on the schema correction for
+      // endpoint_type_command
+      if ('isIncoming' in cmd) {
+        return true
+      }
+      // Create the cmd in the new format where there is no incoming and outgoing
+      let tempCmdOutgoing = { ...cmd }
+      let tempCmdIncoming = { ...cmd }
+      if (tempCmdOutgoing.outgoing) {
+        tempCmdOutgoing.isIncoming = 0
+        tempCmdOutgoing.isEnabled = cmd.outgoing
+        if (cluster.side in clusterToCommandMap[cluster.name]) {
+          clusterToCommandMap[cluster.name][cluster.side].push(tempCmdOutgoing)
+        } else {
+          clusterToCommandMap[cluster.name][cluster.side] = [tempCmdOutgoing]
+        }
+      }
+      if (tempCmdIncoming.incoming) {
+        tempCmdIncoming.isIncoming = 1
+        tempCmdIncoming.isEnabled = cmd.incoming
+        let clusterSide = cmd.source == 'client' ? 'server' : 'client'
+        if (clusterSide in clusterToCommandMap[cluster.name]) {
+          clusterToCommandMap[cluster.name][clusterSide].push(tempCmdIncoming)
+        } else {
+          clusterToCommandMap[cluster.name][clusterSide] = [tempCmdIncoming]
+        }
+      }
+      delete tempCmdOutgoing.incoming
+      delete tempCmdOutgoing.outgoing
+      delete tempCmdIncoming.incoming
+      delete tempCmdIncoming.outgoing
+    }
+  }
+  return false
 }
 
 /**
@@ -256,9 +331,13 @@ function convertFromFile(state) {
     }
 
     for (let ept of state.endpointTypes) {
+      let clusterToCommandMap = {}
       // Now uncleanse the clusters
       for (let c of ept.clusters) {
         uncleanseCluster(c)
+        if (!(c.name in clusterToCommandMap)) {
+          clusterToCommandMap[c.name] = {}
+        }
 
         // Now we convert all the attributes...
         if (c.attributes) {
@@ -286,6 +365,11 @@ function convertFromFile(state) {
           c.commands = cmds
         }
 
+        let updateCommandRes = updateCommands(c, clusterToCommandMap)
+        if (updateCommandRes) {
+          return state
+        }
+
         // ... and events.
         if (c.events) {
           let evs = []
@@ -299,10 +383,56 @@ function convertFromFile(state) {
           c.events = evs
         }
       }
+
+      // Use the above map to update the commands within all clusters
+      for (let c of ept.clusters) {
+        if (clusterToCommandMap[c.name][c.side]) {
+          c.commands = clusterToCommandMap[c.name][c.side]
+        } else {
+          c.commands = []
+        }
+      }
     }
     return state
   } else {
-    return state
+    // Convert key value pairs
+    if ('endpointTypes' in state) {
+      if (!Array.isArray(state.endpointTypes)) {
+        return state
+      }
+      for (let ept of state.endpointTypes) {
+        // Create a cluster to command map. Update the map correctly such that
+        // the right commands are stored under the right side of the cluster
+        // i.e. if cluster side is the same as command source then command is
+        // stored under the cluster side as outgoing command and if cluster side
+        // is not the same as command source then command is stored on the
+        // opposite cluster side as an incoming command.
+        // Note: The map is just needed for fixing the old .zap file. This is
+        // not needed once the .zap file is updated and saved.
+        let clusterToCommandMap = {}
+        for (let c of ept.clusters) {
+          if (!(c.name in clusterToCommandMap)) {
+            clusterToCommandMap[c.name] = {}
+          }
+          let updateCommandRes = updateCommands(c, clusterToCommandMap)
+          if (updateCommandRes) {
+            return state
+          }
+        }
+
+        // Use the above map to update the commands within all clusters
+        for (let c of ept.clusters) {
+          if (clusterToCommandMap[c.name][c.side]) {
+            c.commands = clusterToCommandMap[c.name][c.side]
+          } else {
+            c.commands = []
+          }
+        }
+      }
+      return state
+    } else {
+      return state
+    }
   }
 }
 

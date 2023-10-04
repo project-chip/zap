@@ -94,15 +94,15 @@ async function getEndpointTypeCommands(db, endpointTypeId) {
   return dbApi
     .dbAll(
       db,
-      'SELECT COMMAND_REF, INCOMING, OUTGOING FROM ENDPOINT_TYPE_COMMAND WHERE ENDPOINT_TYPE_REF = ?',
+      'SELECT COMMAND_REF, IS_INCOMING, IS_ENABLED FROM ENDPOINT_TYPE_COMMAND WHERE ENDPOINT_TYPE_REF = ? GROUP BY COMMAND_REF',
       [endpointTypeId]
     )
     .then((rows) =>
       rows.map((row) => {
         return {
           commandID: row.COMMAND_REF,
-          isIncoming: row.INCOMING,
-          isOutgoing: row.OUTGOING,
+          isIncoming: row.IS_INCOMING,
+          isEnabled: row.IS_ENABLED,
         }
       })
     )
@@ -164,7 +164,7 @@ async function createSession(db, user, sessionUuid, zclFile, genTemplatesFile) {
       zcl: zclFile,
       template: genTemplatesFile,
     },
-    null,
+    null
   )
   return userSession.sessionId
 }
