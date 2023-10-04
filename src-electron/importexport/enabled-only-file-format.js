@@ -27,10 +27,10 @@ function unpackAttribute(a) {
     data = a
   }
   let toks = data.split(' | ').map((x) => x.trim())
-  if (toks.length != 12) throw new Error(`Invalid format: ${a}`)
+  if (toks.length != 11) throw new Error(`Invalid format: ${a}`)
 
   let attr = {}
-  attr.included = toks[0] === '+' ? 1 : 0
+  attr.included = 1
   attr.code = types.hexStringToInt(toks[1])
   if (toks[2].length == 0) {
     attr.mfgCode = null
@@ -52,18 +52,25 @@ function unpackAttribute(a) {
 // Converts attribute object for internal representation.
 function packAttribute(a) {
   let data = [
-    a.included === 1 ? '+' : '-',
-    types.intToHexString(a.code, 2),
-    a.mfgCode != null ? types.intToHexString(a.mfgCode, 2) : '      ',
+    types.intToHexString(a.code, 2).padStart(10, ' '),
+    a.mfgCode != null ? types.intToHexString(a.mfgCode, 2) : '       ',
     a.side,
-    a.storageOption === 'External' ? 'Ext' : a.storageOption,
+    a.storageOption === 'External'
+      ? 'Ext'.padStart(13, ' ')
+      : a.storageOption.padStart(13, ' '),
     a.singleton ? 'singleton' : '         ',
-    a.bounded ? 'bound' : '     ',
-    a.defaultValue.padStart(20, ' '),
-    a.reportable,
-    a.minInterval,
-    a.maxInterval,
-    a.reportableChange,
+    a.bounded ? 'bound'.padStart(2, ' ') : '       ',
+    a.defaultValue ? a.defaultValue.padStart(20, ' ') : ' '.padStart(20, ' '),
+    a.reportable ? String(a.reportable).padStart(10, ' ') : '          ',
+    a.minInterval
+      ? String(a.minInterval).padStart(19, ' ')
+      : ' '.padStart(19, ' '),
+    a.maxInterval
+      ? String(a.maxInterval).padStart(19, ' ')
+      : ' '.padStart(19, ' '),
+    a.reportableChange
+      ? String(a.reportableChange).padStart(19, ' ')
+      : ' '.padStart(19, ' '),
   ].join(' | ')
   return `${data} => ${a.name} [${a.type}]`
 }
@@ -96,10 +103,10 @@ function unpackCommand(c) {
 function packCommand(cmd) {
   let data = [
     types.intToHexString(cmd.code, 2),
-    cmd.mfgCode != null ? types.intToHexString(cmd.mfgCode, 2) : '      ',
+    cmd.mfgCode != null ? types.intToHexString(cmd.mfgCode, 2) : '       ',
     cmd.source,
-    cmd.incoming,
-    cmd.outgoing,
+    String(cmd.incoming).padStart(8, ' '),
+    String(cmd.outgoing).padStart(7, ' '),
   ].join(' | ')
   return `${data} => ${cmd.name}`
 }
@@ -113,10 +120,9 @@ function unpackEvent(ev) {
     data = ev
   }
   let toks = data.split(' | ').map((x) => x.trim())
-  if (toks.length != 4) throw new Error(`Invalid format: ${a}`)
+  if (toks.length != 3) throw new Error(`Invalid format: ${a}`)
 
   let evnt = {}
-  evnt.included = toks[0] === '+' ? 1 : 0
   evnt.code = types.hexStringToInt(toks[1])
   if (toks[2].length == 0) {
     evnt.mfgCode = null
@@ -131,9 +137,8 @@ function unpackEvent(ev) {
 // Converts event object for file representation
 function packEvent(ev) {
   let data = [
-    ev.included === 1 ? '+' : '-',
     types.intToHexString(ev.code, 2),
-    ev.mfgCode != null ? types.intToHexString(ev.mfgCode, 2) : '      ',
+    ev.mfgCode != null ? types.intToHexString(ev.mfgCode, 2) : '       ',
     ev.side,
   ].join(' | ')
   return `${data} => ${ev.name}`
@@ -197,7 +202,7 @@ function uncleanseCluster(c) {
  * @param {*} fileFormat
  */
 function convertToFile(state) {
-  if (state.fileFormat && state.fileFormat === 1) {
+  if (state.fileFormat && state.fileFormat === 2) {
     // Convert key value pairs
     if (state.keyValuePairs) {
       state.keyValuePairs = packKeyValuePairs(state.keyValuePairs)
@@ -205,33 +210,44 @@ function convertToFile(state) {
 
     for (let ept of state.endpointTypes) {
       // Now cleanse the clusters
-      for (let c of ept.clusters) {
+      let enabledClusters = ept.clusters.filter((c) => c.enabled)
+      ept.clusters = enabledClusters
+      for (let c of enabledClusters) {
         cleanseCluster(c)
       }
 
-      for (let c of ept.clusters) {
+      for (let c of enabledClusters) {
         // Now we convert all the attributes...
-        if (c.attributes) {
-          let atts = []
-          for (let a of c.attributes) {
+        let enabledAttributes = c.attributes
+          ? c.attributes.filter((a) => a.included)
+          : null
+        if (enabledAttributes) {
+          let atts = [
+            '   code    | mfgCode |  side  | storageOption | singleton | bounded |     defaultValue     | reportable |     minInterval     |     maxInterval     |   reportableChange',
+          ]
+          for (let a of enabledAttributes) {
             atts.push(packAttribute(a))
           }
           c.attributes = atts
         }
 
         // ... and commands...
-        if (c.commands) {
-          let cmds = []
-          for (let cmd of c.commands) {
+        let enabledCommands = c.commands
+          ? c.commands.filter((c) => c.incoming || c.outgoing)
+          : null
+        if (enabledCommands) {
+          let cmds = [' code  | mfgCode | source | incoming | outgoing']
+          for (let cmd of enabledCommands) {
             cmds.push(packCommand(cmd))
           }
           c.commands = cmds
         }
 
         // ... and events.
-        if (c.events) {
-          let evs = []
-          for (let ev of c.events) {
+        let enabledEvents = c.events ? c.events.filter((e) => e.included) : null
+        if (enabledEvents) {
+          let evs = [' code  | mfgCode | side']
+          for (let ev of enabledEvents) {
             evs.push(packEvent(ev))
           }
           c.events = evs
@@ -249,7 +265,7 @@ function convertToFile(state) {
  * This function gets the JSON from the file, and converts it to the correct database state
  */
 function convertFromFile(state) {
-  if (state.fileFormat && state.fileFormat > 0) {
+  if (state.fileFormat && state.fileFormat === 2) {
     // Convert key value pairs
     if (state.keyValuePairs) {
       state.keyValuePairs = unpackKeyValuePairs(state.keyValuePairs)
@@ -263,7 +279,10 @@ function convertFromFile(state) {
         // Now we convert all the attributes...
         if (c.attributes) {
           let atts = []
-          for (let a of c.attributes) {
+          for (let [i, a] of c.attributes.entries()) {
+            if (i === 0) {
+              continue
+            }
             if (_.isString(a)) {
               atts.push(unpackAttribute(a))
             } else {
@@ -276,7 +295,10 @@ function convertFromFile(state) {
         // ... and commands.
         if (c.commands) {
           let cmds = []
-          for (let cmd of c.commands) {
+          for (let [i, cmd] of c.commands.entries()) {
+            if (i === 0) {
+              continue
+            }
             if (_.isString(cmd)) {
               cmds.push(unpackCommand(cmd))
             } else {
@@ -289,7 +311,10 @@ function convertFromFile(state) {
         // ... and events.
         if (c.events) {
           let evs = []
-          for (let ev of c.events) {
+          for (let [i, ev] of c.events.entries()) {
+            if (i === 0) {
+              continue
+            }
             if (_.isString(ev)) {
               evs.push(unpackEvent(ev))
             } else {
