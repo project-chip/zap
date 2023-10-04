@@ -736,20 +736,23 @@ function zcl_attributes(options) {
   // when used at the cluster level, 'this' is a cluster
   let promise = templateUtil
     .ensureZclPackageIds(this)
-    .then((packageIds) => {
+    .then(async (packageIds) => {
       if ('id' in this) {
-        // We're functioning inside a nested context with an id, so we will only query for this cluster.
-        return queryZcl.selectAttributesByClusterIdIncludingGlobal(
+        let attributes =
+          await queryZcl.selectAttributesByClusterIdAndSideIncludingGlobal(
+            this.global.db,
+            this.id,
+            packageIds,
+            dbEnum.side.client
+          )
+        return await upgrade.computeStorageTemplate(
           this.global.db,
           this.id,
-          packageIds
+          attributes
         )
       } else {
         return queryZcl.selectAllAttributes(this.global.db, packageIds)
       }
-    })
-    .then((attributes) => {
-      return upgrade.computeStorageTemplate(this.global.db, this.id, attributes)
     })
     .then((atts) => templateUtil.collectBlocks(atts, options, this))
   return templateUtil.templatePromise(this.global, promise)
@@ -770,11 +773,17 @@ function zcl_attributes_client(options) {
     .ensureZclPackageIds(this)
     .then(async (packageIds) => {
       if ('id' in this) {
-        return queryZcl.selectAttributesByClusterIdAndSideIncludingGlobal(
+        let attributes =
+          await queryZcl.selectAttributesByClusterIdAndSideIncludingGlobal(
+            this.global.db,
+            this.id,
+            packageIds,
+            dbEnum.side.client
+          )
+        return await upgrade.computeStorageTemplate(
           this.global.db,
           this.id,
-          packageIds,
-          dbEnum.side.client
+          attributes
         )
       } else {
         return queryZcl.selectAllAttributesBySide(
@@ -783,9 +792,6 @@ function zcl_attributes_client(options) {
           packageIds
         )
       }
-    })
-    .then((attributes) => {
-      return upgrade.computeStorageTemplate(this.global.db, this.id, attributes)
     })
     .then((atts) => templateUtil.collectBlocks(atts, options, this))
   return templateUtil.templatePromise(this.global, promise)
