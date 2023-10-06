@@ -31,7 +31,7 @@ let db
 let templateContext
 let zclPackageId
 
-const testFile = testUtil.matterTestFile.matterTest
+const testFile = testUtil.matterTestFile.apiMaturityTest
 const templateCount = testUtil.testTemplate.matterApiMaturityCount
 
 beforeAll(async () => {
@@ -89,8 +89,9 @@ test(
     // Content-based test to validate what we find expected things
     let ept = genResult.content['codegen_test.txt']
 
-    expect(ept).toContain('server cluster Identify = 3 {')
-    expect(ept).toContain('client cluster OccupancySensing = 1030 {')
+    // Expect that the maturity test cluster is tagged as internal
+    expect(ept).toContain('client cluster ApiMaturityTest = 43981 (internal) {')
+    expect(ept).toContain('server cluster ApiMaturityTest = 43981 (internal) {')
 
     expect(ept).toContain('MUST FAIL SO I SEE THE OUTPUT!!!')
   },
