@@ -412,6 +412,7 @@ function prepareCluster(cluster, context, isExtension = false) {
       }
       ret.introducedIn = cluster.$.introducedIn
       ret.removedIn = cluster.$.removedIn
+      ret.apiMaturity = cluster.$.apiMaturity
     }
   }
 
