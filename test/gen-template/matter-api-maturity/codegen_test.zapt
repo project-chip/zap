@@ -1,0 +1,13 @@
+Here are all clusters:
+
+{{#all_user_clusters}}
+
+{{#if (is_client side)}}client {{else}}server {{/if~}}
+
+cluster {{asUpperCamelCase name}} = {{code}}
+  {{~#if apiMaturity}}({{apiMaturity}}){{/if}} {{!~}}
+{
+   // TODO: add attributes, structures and any other things needed here
+}
+
+{{~/all_user_clusters}}
