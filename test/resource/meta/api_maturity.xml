@@ -26,7 +26,6 @@ limitations under the License.
     <server tick="false" init="false">true</server>
 
     <struct name="StableStruct">
-      <description>A Test struct</description>
        <cluster code="0x1122"/>
        <item fieldId="0" name="Cluster" type="cluster_id" isNullable="true"/>
        <item fieldId="1" name="Endpoint" type="endpoint_no" isNullable="true"/>
