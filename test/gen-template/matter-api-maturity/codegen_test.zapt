@@ -5,7 +5,7 @@ Here are all clusters:
 {{#if (is_client side)}}client {{else}}server {{/if~}}
 
 cluster {{asUpperCamelCase name}} = {{code}}
-  {{~#if apiMaturity}}({{apiMaturity}}){{/if}} {{!~}}
+  {{~#if apiMaturity}} ({{apiMaturity}}){{/if}} {{!~}}
 {
    // TODO: add attributes, structures and any other things needed here
 }

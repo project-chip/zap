@@ -89,11 +89,13 @@ test(
     // Content-based test to validate what we find expected things
     let ept = genResult.content['codegen_test.txt']
 
-    // Expect that the maturity test cluster is tagged as internal
-    expect(ept).toContain('client cluster ApiMaturityTest = 43981 (internal) {')
-    expect(ept).toContain('server cluster ApiMaturityTest = 43981 (internal) {')
+    // general clusters without maturity tags
+    expect(ept).toContain('client cluster Test1 = 43981 {')
+    expect(ept).toContain('server cluster Test2 = 43982 {')
 
-    expect(ept).toContain('MUST FAIL SO I SEE THE OUTPUT!!!')
+    // Expect that the maturity test cluster is tagged as internal
+    expect(ept).toContain('client cluster ApiMaturityTest = 4386 (internal) {')
+    expect(ept).toContain('server cluster ApiMaturityTest = 4386 (internal) {')
   },
   testUtil.timeout.long()
 )

@@ -62,7 +62,7 @@
       "clusters": [
         {
           "name": "Api Maturity Test",
-          "code": 43981,
+          "code": 4386,
           "mfgCode": null,
           "define": "API_MATURITY_TEST",
           "side": "client",
@@ -89,7 +89,7 @@
         },
         {
           "name": "Api Maturity Test",
-          "code": 43981,
+          "code": 4386,
           "mfgCode": null,
           "define": "API_MATURITY_TEST",
           "side": "server",
@@ -112,14 +112,41 @@
               "isIncoming": 0,
               "isEnabled": 1
             }
-          ],
-          "events": [
+          ]
+        },
+        {
+          "name": "Test 1",
+          "code": 43981,
+          "mfgCode": null,
+          "define": "TEST_1",
+          "side": "client",
+          "enabled": 1,
+          "commands": [
             {
-              "name": "StableEvent",
+              "name": "TestCommand1",
               "code": 1,
               "mfgCode": null,
-              "side": "server",
-              "included": 1
+              "source": "client",
+              "isIncoming": 0,
+              "isEnabled": 1
+            }
+          ]
+        },
+        {
+          "name": "Test 2",
+          "code": 43982,
+          "mfgCode": null,
+          "define": "TEST_2",
+          "side": "server",
+          "enabled": 1,
+          "commands": [
+            {
+              "name": "TestCommand1",
+              "code": 1,
+              "mfgCode": null,
+              "source": "client",
+              "isIncoming": 1,
+              "isEnabled": 1
             }
           ]
         }

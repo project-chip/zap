@@ -20,14 +20,14 @@ limitations under the License.
     <name>Api Maturity Test</name>
     <domain>Test</domain>
     <description>A Test for API maturity tags</description>
-    <code>0xABCD</code>
+    <code>0x1122</code>
     <define>API_MATURITY_TEST</define>
     <client tick="false" init="false">false</client>
     <server tick="false" init="false">true</server>
 
     <struct name="StableStruct">
       <description>A Test struct</description>
-       <cluster code="0xABCD"/>
+       <cluster code="0x1122"/>
        <item fieldId="0" name="Cluster" type="cluster_id" isNullable="true"/>
        <item fieldId="1" name="Endpoint" type="endpoint_no" isNullable="true"/>
     </struct>
