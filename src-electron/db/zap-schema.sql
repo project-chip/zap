@@ -149,6 +149,7 @@ CREATE TABLE IF NOT EXISTS "CLUSTER" (
   "REVISION" integer,
   "INTRODUCED_IN_REF" integer,
   "REMOVED_IN_REF" integer,
+  "API_MATURITY" text,
   foreign key (INTRODUCED_IN_REF) references SPEC(SPEC_ID),
   foreign key (REMOVED_IN_REF) references SPEC(SPEC_ID),
   foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID) on delete cascade

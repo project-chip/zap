@@ -38,11 +38,13 @@ INSERT INTO CLUSTER (
   IS_SINGLETON,
   REVISION,
   INTRODUCED_IN_REF,
-  REMOVED_IN_REF
+  REMOVED_IN_REF,
+  API_MATURITY
 ) VALUES (
   ?, ?, ?, ?, ?, ?, ?, ?, ?,
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
-  (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
+  (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
+  ?
 )
 `
 
@@ -590,6 +592,7 @@ async function insertClusters(db, packageId, data) {
           packageId,
           cluster.removedIn,
           packageId,
+          cluster.apiMaturity,
         ]
       })
     )

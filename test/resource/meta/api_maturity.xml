@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<!--
+Copyright (c) 2023 Project CHIP Authors
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<configurator>
+  <domain name="Test" spec="test-0.0"/>
+  <cluster apiMaturity="internal">
+    <name>Api Maturity Test</name>
+    <domain>Test</domain>
+    <description>A Test for API maturity tags</description>
+    <code>0x1122</code>
+    <define>API_MATURITY_TEST</define>
+    <client tick="false" init="false">false</client>
+    <server tick="false" init="false">true</server>
+
+    <struct name="StableStruct">
+       <cluster code="0x1122"/>
+       <item fieldId="0" name="Cluster" type="cluster_id" isNullable="true"/>
+       <item fieldId="1" name="Endpoint" type="endpoint_no" isNullable="true"/>
+    </struct>
+
+    <command source="client" code="0x00" name="StableCommand" response="StableCommandResponse" optional="false" >
+      <description>A Test command</description>
+      <access op="invoke" privilege="administer"/>
+      <arg name="First" type="INT16U"/>
+      <arg name="Second" type="INT64U"/>
+    </command>
+
+    <command source="server" code="0x01" name="StableCommandResponse" optional="false">
+      <description>A Test command reply</description>
+      <arg name="FirstReply" type="INT16U"/>
+      <arg name="SecondReply" type="CHAR_STRING"/>
+    </command>
+
+    <event code="0x0001" name="StableEvent" priority="info" side="server">
+      <description>A Test event</description>
+      <field id="1" name="arg1" type="INT8U" isNullable="true"/>
+      <field id="2" name="arg2" type="INT32U" array="true"/>
+    </event>
+  </cluster>
+</configurator>

@@ -305,6 +305,7 @@ This schema describes the format of the XML files, that describe the ZCL specifi
       <xs:attribute name="introducedIn" type="xs:string"/>
       <xs:attribute name="manufacturerCode" type="zclCode"/>
       <xs:attribute name="singleton" type="xs:boolean"/>
+      <xs:attribute name="apiMaturity" type="zclApiMaturity"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="code" type="zclCode"/>
@@ -498,6 +499,13 @@ This schema describes the format of the XML files, that describe the ZCL specifi
   </xs:simpleType>
   <xs:simpleType name="zclCode">
     <xs:restriction base="xs:string"/>
+  </xs:simpleType>
+  <xs:simpleType name="zclApiMaturity">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="provisional"/>
+      <xs:enumeration value="internal"/>
+      <xs:enumeration value="deprecated"/>
+    </xs:restriction>
   </xs:simpleType>
   <xs:simpleType name="zclSide">
     <xs:restriction base="xs:string">

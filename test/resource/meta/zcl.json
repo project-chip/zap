@@ -2,7 +2,7 @@
   "description": "Unit Test Meta-data",
   "version": 1,
   "xmlRoot": ".",
-  "xmlFile": ["types.xml", "test1.xml", "access.xml"],
+  "xmlFile": ["types.xml", "test1.xml", "access.xml", "api_maturity.xml"],
   "zclSchema": "../../../zcl-builtin/shared/schema/zcl.xsd",
   "supportCustomZclDevice": true,
   "manufacturersXml": "../../../zcl-builtin/shared/manufacturers.xml",
