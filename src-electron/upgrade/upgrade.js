@@ -22,7 +22,7 @@ const dbEnum = require('../../src-shared/db-enum.js')
 const fs = require('fs')
 const fsp = fs.promises
 
-async function parseJson(json) {
+function parseJson(json) {
   try {
     return JSON.parse(json)
   } catch (err) {
@@ -48,7 +48,7 @@ async function getForcedExternalStorage(db, attributeId) {
   let zcl = await queryPackage.getPackageByPackageId(db, pkgs)
   zcl = zcl?.path
   let obj = await fsp.readFile(zcl, 'utf-8')
-  let data = await parseJson(obj)
+  let data = parseJson(obj)
   let byName = data?.attributeAccessInterfaceAttributes
   let lists = data?.listsUseAttributeAccessInterface
   let forcedExternal = { byName, lists }
