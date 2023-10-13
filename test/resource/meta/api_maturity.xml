@@ -25,6 +25,9 @@ limitations under the License.
     <client tick="false" init="false">false</client>
     <server tick="false" init="false">true</server>
 
+    <!-- Note the large attribute codes to make sure sorting in gen-meta.test passes. -->
+    <attribute side="server" code="0x0000" define="STABLE_ATTRIBUTE" type="INT8U" writable="true" optional="true">StableAttribute</attribute>
+
     <struct name="StableStruct">
        <cluster code="0x1122"/>
        <item fieldId="0" name="Cluster" type="cluster_id" isNullable="true"/>
