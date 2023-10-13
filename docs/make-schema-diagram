@@ -10,7 +10,11 @@
 # It also has only ever been tested on Linux.
 #
 
-SC_HOME=~/schemacrawler/latest
+# You can set env variables such as:
+#   SC_HOME=/opt/schemacrawler
+if [ -z "$SC_HOME" ]; then
+  SC_HOME=~/schemacrawler/latest
+fi
 SC_BIN=${SC_HOME}/_schemacrawler/bin/schemacrawler.sh
 
 SQLITE=~/.zap/self-check.sqlite

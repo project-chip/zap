@@ -566,7 +566,7 @@ async function exportAttributesFromEndpointTypeCluster(
   endpointClusterId
 ) {
   let mapFunction = (x) => {
-    return {
+    let result = {
       name: x.NAME,
       code: x.CODE,
       mfgCode: x.MANUFACTURER_CODE,
@@ -582,6 +582,11 @@ async function exportAttributesFromEndpointTypeCluster(
       maxInterval: x.MAX_INTERVAL,
       reportableChange: x.REPORTABLE_CHANGE,
     }
+    if (x.API_MATURITY) {
+      result.apiMaturity = x.API_MATURITY
+    }
+
+    return result
   }
   return dbApi
     .dbAll(

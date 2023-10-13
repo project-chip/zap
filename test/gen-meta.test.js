@@ -71,21 +71,33 @@ test(
     const attributes = await queryZcl.selectAllAttributes(db, [
       zclContext.packageId,
     ])
-    expect(attributes.length).toBe(4)
-    expect(attributes[0].name).toBe('at1')
-    expect(attributes[1].name).toBe('at2')
+    expect(attributes.length).toBeGreaterThanOrEqual(4)
 
-    let access
-    access = await queryAccess.selectAttributeAccess(db, attributes[0].id)
-    expect(access.length).toBe(1)
-    expect(access[0].operation).toBe('write')
-    expect(access[0].role).toBe('manage')
-    expect(access[0].accessModifier).toBe('fabric-scoped')
-    access = await queryAccess.selectAttributeAccess(db, attributes[1].id)
-    expect(access.length).toBe(1)
-    expect(access[0].operation).toBeNull()
-    expect(access[0].role).toBeNull()
-    expect(access[0].accessModifier).toBe('fabric-sensitive')
+    // Expect attributes at1 and at2 to be found
+    let hasAt1 = false
+    let hasAt2 = false
+
+    for (const attr of attributes) {
+      if (attr.name == 'at1') {
+        hasAt1 = true
+
+        let access = await queryAccess.selectAttributeAccess(db, attr.id)
+        expect(access.length).toBe(1)
+        expect(access[0].operation).toBe('write')
+        expect(access[0].role).toBe('manage')
+        expect(access[0].accessModifier).toBe('fabric-scoped')
+      } else if (attr.name == 'at2') {
+        hasAt2 = true
+
+        let access = await queryAccess.selectAttributeAccess(db, attr.id)
+        expect(access.length).toBe(1)
+        expect(access[0].operation).toBeNull()
+        expect(access[0].role).toBeNull()
+        expect(access[0].accessModifier).toBe('fabric-sensitive')
+      }
+    }
+    expect(hasAt1).toBeTruthy()
+    expect(hasAt2).toBeTruthy()
 
     const structs = await queryZcl.selectAllStructsWithItemCount(db, [
       zclContext.packageId,

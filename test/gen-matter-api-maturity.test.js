@@ -96,6 +96,12 @@ test(
     // Expect that the maturity test cluster is tagged as internal
     expect(ept).toContain('client cluster ApiMaturityTest = 4386 (internal) {')
     expect(ept).toContain('server cluster ApiMaturityTest = 4386 (internal) {')
+
+    // attribute tagging
+    expect(ept).toContain('optional int8u attribute stableAttribute = 0;')
+    expect(ept).toContain(
+      'optional int8u attribute provisionalAttribute = 1 (provisional);'
+    )
   },
   testUtil.timeout.long()
 )

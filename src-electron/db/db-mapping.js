@@ -124,6 +124,7 @@ exports.map = {
       entryType: x.ARRAY_TYPE,
       isArray: x.ARRAY_TYPE ? 1 : 0,
       mustUseTimedWrite: dbApi.fromDbBool(x.MUST_USE_TIMED_WRITE),
+      apiMaturity: x.API_MATURITY,
     }
   },
 
@@ -519,6 +520,7 @@ exports.map = {
       minInterval: x.MIN_INTERVAL,
       maxInterval: x.MAX_INTERVAL,
       reportableChange: x.REPORTABLE_CHANGE,
+      apiMaturity: x.API_MATURITY,
     }
   },
 
@@ -580,6 +582,7 @@ exports.map = {
       storageOption: x.STORAGE_OPTION,
       tokenId: x.TOKEN_ID, // Endpoint type attribute's token id
       type: x.TYPE != 'array' ? x.TYPE : x.ARRAY_TYPE, // Attribute type
+      apiMaturity: x.API_MATURITY,
     }
   },
 

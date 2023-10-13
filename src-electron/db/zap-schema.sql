@@ -279,6 +279,7 @@ CREATE TABLE IF NOT EXISTS "ATTRIBUTE" (
   "MUST_USE_TIMED_WRITE" integer,
   "INTRODUCED_IN_REF" integer,
   "REMOVED_IN_REF" integer,
+  "API_MATURITY" text,
   foreign key (INTRODUCED_IN_REF) references SPEC(SPEC_ID),
   foreign key (REMOVED_IN_REF) references SPEC(SPEC_ID),
   foreign key (CLUSTER_REF) references CLUSTER(CLUSTER_ID),
