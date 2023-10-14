@@ -648,7 +648,7 @@ function findDeprecationRelease(global, path, options) {
   return deprecatedRelease;
 }
 
-async function availability(clusterName, options) {
+async function availabilityHelper(clusterName, language, options) {
   const data = fetchAvailabilityData(this.global);
   const path = makeAvailabilityPath(clusterName, options);
 
@@ -706,8 +706,29 @@ async function availability(clusterName, options) {
     );
   }
 
+  const provisionalAvailability = (() => {
+    if (language == "ObjC") {
+      return 'MTR_PROVISIONALLY_AVAILABLE';
+    }
+
+    if (language == "Swift") {
+      // For now, we are stuck with Swift versions in Matter CI that do not
+      // support wrapping attributes in conditional compilation.
+      return '@available(iOS, unavailable) @available(macOS, unavailable) @available(tvOS, unavailable) @available(watchOS, unavailable)'
+      /*
+      return `#if MTR_ENABLE_PROVISIONAL
+#else
+@available(iOS, unavailable) @available(macOS, unavailable) @available(tvOS, unavailable) @available(watchOS, unavailable)
+#endif
+`;
+*/
+    }
+
+    throw new Error(`Unknown language ${language}; cannot determine availability syntax.`);
+  })();
+
   if (isProvisional.call(this, clusterName, options)) {
-    return 'MTR_PROVISIONALLY_AVAILABLE';
+    return provisionalAvailability;
   }
 
   if (introducedVersions === undefined) {
@@ -718,18 +739,56 @@ async function availability(clusterName, options) {
     );
     // Default to provisinal status until we decide otherwise, so we don't
     // accidentally ship things as unconditionally available.
-    return 'MTR_PROVISIONALLY_AVAILABLE';
+    return provisionalAvailability;
   }
 
+  const futureAvailability = (() => {
+    if (language == "ObjC") {
+      return 'MTR_NEWLY_AVAILABLE';
+    }
+
+    return ''
+  })();
+
   if (introducedVersions === 'future') {
-    return 'MTR_NEWLY_AVAILABLE';
+    if (language == "ObjC") {
+      return futureAvailability;
+    }
+
+    // For Swift, for now just claim the last version we have actual version
+    // numbers for, because not listing anything makes it impossible to call the
+    // underlying APIs that actually have availability attached.
+    introducedRelease = data[data.indexOf(introducedRelease) - 1];
+    introducedVersions = introducedRelease?.versions;
   }
 
   if (deprecatedVersions === undefined) {
-    let availabilityStrings = Object.entries(introducedVersions).map(
-      ([os, version]) => `${os}(${version})`
-    );
-    return `MTR_AVAILABLE(${availabilityStrings.join(', ')})`;
+    if (language == "ObjC") {
+      let availabilityStrings = Object.entries(introducedVersions).map(
+        ([os, version]) => `${os.toLowerCase()}(${version})`
+      );
+      return `MTR_AVAILABLE(${availabilityStrings.join(', ')})`;
+    }
+
+    if (language == "Swift") {
+      let availabilityStrings = Object.entries(introducedVersions).map(
+        ([os, version]) => `${os} ${version}`
+      );
+      // For now, we are stuck with Swift versions in Matter CI that do not
+      // support wrapping attributes in conditional compilation.
+      return `@available(${availabilityStrings.join(', ')}, *)`
+/*
+      return `#if MTR_NO_AVAILABILITY
+#else
+@available(${availabilityStrings.join(', ')}, *)
+#endif
+`;
+*/
+    }
+  }
+
+  if (language != "ObjC") {
+    throw new Error(`Deprecation not supported for native Swift APIs yet.`);
   }
 
   if (!options.hash.deprecationMessage) {
@@ -742,7 +801,7 @@ async function availability(clusterName, options) {
 
   if (deprecatedVersions === 'future') {
     let availabilityStrings = Object.entries(introducedVersions).map(
-      ([os, version]) => `${os}(${version})`
+      ([os, version]) => `${os.toLowerCase()}(${version})`
     );
     return `MTR_AVAILABLE(${availabilityStrings.join(
       ', '
@@ -788,11 +847,19 @@ async function availability(clusterName, options) {
   }
 
   let availabilityStrings = Object.entries(introducedVersions).map(
-    ([os, version]) => `${os}(${version}, ${deprecatedVersions[os]})`
+    ([os, version]) => `${os.toLowerCase()}(${version}, ${deprecatedVersions[os]})`
   );
   return `MTR_DEPRECATED("${
     options.hash.deprecationMessage
   }", ${availabilityStrings.join(', ')})${swiftUnavailable}`;
+}
+
+async function availability(clusterName, options) {
+  return availabilityHelper.call(this, clusterName, "ObjC", options);
+}
+
+async function swiftAvailability(clusterName, options) {
+  return availabilityHelper.call(this, clusterName, "Swift", options);
 }
 
 /**
@@ -1116,6 +1183,7 @@ exports.compatClusterNameRemapping = compatClusterNameRemapping;
 exports.compatAttributeNameRemapping = compatAttributeNameRemapping;
 exports.compatCommandNameRemapping = compatCommandNameRemapping;
 exports.availability = availability;
+exports.swiftAvailability = swiftAvailability;
 exports.wasIntroducedBeforeRelease = wasIntroducedBeforeRelease;
 exports.wasRemoved = wasRemoved;
 exports.isSupported = isSupported;
