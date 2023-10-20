@@ -16,6 +16,16 @@ limitations under the License.
 
 <template>
   <div class="row justify-center">
+    <q-btn
+      v-if="showEnableAllClustersButton"
+      @click="showEnableAllClustersDialog = true"
+      label="Enable All Clusters"
+      color="primary"
+      class="full-height"
+      flat
+      rounded
+    />
+
     <q-table
       :rows="clusters"
       :columns="columns"
@@ -180,14 +190,7 @@ limitations under the License.
         </q-tr>
       </template>
     </q-table>
-    <q-btn
-      v-if="this.$store.state.zap.showDevTools"
-      @click="showEnableAllClustersDialog = true"
-      label="Enable All Clusters"
-      color="primary"
-      class="col-3"
-      rounded
-    />
+
     <q-dialog
       v-model="showEnableAllClustersDialog"
       class="background-color:transparent"
@@ -257,6 +260,17 @@ export default {
         names.splice(i, 1)
       }
       return names
+    },
+    showEnableAllClustersButton: function () {
+      let hasNotEnabled = false
+      this.clusters.forEach((singleCluster) => {
+        if (!this.isClusterEnabled(singleCluster.id)) {
+          hasNotEnabled = true
+          return
+        }
+      })
+
+      return hasNotEnabled && this.$store.state.zap.showDevTools
     },
   },
   methods: {
