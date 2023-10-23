@@ -60,6 +60,9 @@ sed -i 's/rankdir="RL"/rankdir="RL"\n    bgcolor="transparent"/g' zap-schema.dot
 # Make edges black and bold
 sed -i 's/edge \[/edge\[\n    color="black"\n    style="bold"/g' zap-schema.dot
 
+# Remove the weird arrow labels
+sed -i 's/label=<SCHCRWLR_.*>//g' zap-schema.dot
+
 # Remove the date stamp, so we don't create unnecessary commits
 sed -i '/.*td align=.left..202.*/d' zap-schema.dot
 sed -i 's/>generated on/ colspan=\"2\">ZAP schema, Copyright (c) 2020 Silicon Labs, released under Apache 2.0 license./g' zap-schema.dot
