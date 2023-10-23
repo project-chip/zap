@@ -236,6 +236,11 @@ export function processCommandLineArguments(argv: string[]) {
       choices: ['fuzzy', 'strict', 'ignore'],
       default: 'ignore',
     })
+    .option('shareClusterStatesAcrossEndpoints', {
+      desc: 'Specific to Zigbee, this flag enables the cluster attribute / command state to sync across endpoints before project generation in headless / CLI mode. This is used when an user edits the .zap manually and causes configurations to be out of sync across endpoints.',
+      type: 'boolean',
+      default: false,
+    })
     .option('results', {
       desc: 'Specifying the output YAML file to capture convert results.',
       type: 'string',
