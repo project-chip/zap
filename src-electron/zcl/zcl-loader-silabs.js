@@ -598,6 +598,7 @@ function prepareCluster(cluster, context, isExtension = false) {
         isNullable: attribute.$.isNullable == 'true' ? true : false,
         entryType: attribute.$.entryType,
         mustUseTimedWrite: attribute.$.mustUseTimedWrite == 'true',
+        apiMaturity: attribute.$.apiMaturity,
       }
       att.access = extractAccessIntoArray(attribute)
       if (att.manufacturerCode == null) {

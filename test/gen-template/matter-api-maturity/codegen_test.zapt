@@ -7,7 +7,65 @@ Here are all clusters:
 cluster {{asUpperCamelCase name}} = {{code}}
   {{~#if apiMaturity}} ({{apiMaturity}}){{/if}} {{!~}}
 {
-   // TODO: add attributes, structures and any other things needed here
+  {{#zcl_enums}}
+  enum {{asUpperCamelCase name preserveAcronyms=true}} : ENUM{{multiply size 8}};
+
+  {{/zcl_enums}}
+  {{#zcl_bitmaps}}
+  bitmap {{asUpperCamelCase name preserveAcronyms=true}} : BITMAP{{multiply size 8}};
+
+  {{/zcl_bitmaps}}
+  {{#zcl_events}}
+  {{priority}} event {{asUpperCamelCase name preserveAcronyms=true}} = {{code}} {
+    {{#zcl_event_fields}}
+    {{#if isOptional~}}optional {{/if~}}
+    {{~#if isNullable~}}nullable {{/if~}}
+    {{~#if isFabricSensitive~}}fabric_sensitive {{/if~}}
+    {{type}} {{asLowerCamelCase name~}}
+    {{~#if isArray~}} [] {{~/if}} = {{fieldIdentifier}};
+    {{/zcl_event_fields}}
+  }
+
+  {{/zcl_events}}
+  {{#zcl_structs}}
+  struct {{name}} {
+    {{#zcl_struct_items}}
+    {{#if isOptional~}}optional {{/if~}}
+    {{~#if isNullable~}}nullable {{/if~}}
+    {{~#if isFabricSensitive~}}fabric_sensitive {{/if~}}
+    {{type}} {{asLowerCamelCase label~}}
+    {{~#if isArray~}} [] {{~/if}} = {{fieldIdentifier}};
+    {{/zcl_struct_items}}
+  }
+
+  {{/zcl_structs}}
+
+  {{#zcl_attributes_server}}
+      {{#unless isGlobalAttribute}}
+  {{! ensure indent ~}}
+      {{#if isOptional~}} optional {{/if~}}
+      {{~#unless isWritableAttribute~}} readonly {{/unless~}}
+      {{~#if isNullable~}} nullable {{/if~}} 
+      {{type}} attribute {{asLowerCamelCase name~}} {{~#if isArray~}} [] {{~/if}} = {{code~}}
+      {{~#if apiMaturity}} ({{apiMaturity}}) {{~/if~}};
+      {{/unless}}
+
+  {{/zcl_attributes_server}}
+
+  {{#zcl_commands}}
+  command {{asUpperCamelCase commandName}} = {{code}} {
+  {{#zcl_command_arguments}}
+    {{#if isOptional~}}optional {{/if~}}
+    {{~#if isNullable~}}nullable {{/if~}}
+    {{~#if isFabricSensitive~}}fabric_sensitive {{/if~}}
+    {{type}} {{asLowerCamelCase label~}}
+    {{~#if isArray~}} [] {{~/if}} = {{fieldIdentifier}};
+  {{/zcl_command_arguments}}
+  }
+
+  {{/zcl_commands}}
 }
 
 {{~/all_user_clusters}}
+
+

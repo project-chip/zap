@@ -159,11 +159,13 @@ INSERT INTO ATTRIBUTE (
   MUST_USE_TIMED_WRITE,
   MANUFACTURER_CODE,
   INTRODUCED_IN_REF,
-  REMOVED_IN_REF
+  REMOVED_IN_REF,
+  API_MATURITY
 ) VALUES (
   ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
-  (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
+  (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
+  ?
 )`
 
 const SELECT_CLUSTER_SPECIFIC_DATA_TYPE = `
@@ -224,6 +226,7 @@ function attributeMap(clusterId, packageId, attributes) {
     packageId,
     attribute.removedIn,
     packageId,
+    attribute.apiMaturity,
   ])
 }
 
