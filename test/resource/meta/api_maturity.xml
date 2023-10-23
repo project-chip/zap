@@ -30,7 +30,8 @@ limitations under the License.
        <item fieldId="0" name="Cluster" type="cluster_id" isNullable="true"/>
        <item fieldId="1" name="Endpoint" type="endpoint_no" isNullable="true"/>
     </struct>
-
+    <attribute side="server" code="0x0000" define="STABLE_ATTRIBUTE" type="INT8U" writable="true" optional="true">StableAttribute</attribute>
+    <attribute apiMaturity="provisional" side="server" code="0x0001" define="PROVISIONAL_ATTRIBUTE" type="INT8U" writable="true" optional="true">ProvisionalAttribute</attribute>
     <attribute side="server" code="0x0000" define="STABLE_ATTRIBUTE" type="INT8U" writable="true" optional="true">StableAttribute</attribute>
 
     <command source="client" code="0x00" name="StableCommand" response="StableCommandResponse" optional="false" >
