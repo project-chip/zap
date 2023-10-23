@@ -381,6 +381,7 @@ exports.map = {
       label: x.NAME,
       name: x.NAME,
       caption: x.DESCRIPTION,
+      class: x.CLASS,
     }
   },
 
