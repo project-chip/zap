@@ -270,7 +270,7 @@ export default {
     },
     checkForcedExternal(name) {
       if (
-        this.forcedExternal.byName?.[this.selectedCluster.name]?.includes(name)
+        this.forcedExternal.byName?.[this.selectedCluster.label]?.includes(name)
       ) {
         return true
       } else {
@@ -278,9 +278,10 @@ export default {
       }
     },
     isDisabled(id, name, selectedClusterId, selectedCluster) {
-      return !this.selection.includes(
-        this.hashAttributeIdClusterId(id, selectedClusterId) ||
-          this.checkForcedExternal(name)
+      return (
+        !this.selection.includes(
+          this.hashAttributeIdClusterId(id, selectedClusterId)
+        ) || this.checkForcedExternal(name)
       )
     },
     setToNull(row, selectedClusterId) {
