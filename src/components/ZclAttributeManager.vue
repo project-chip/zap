@@ -102,7 +102,14 @@ limitations under the License.
                   hashAttributeIdClusterId(props.row.id, selectedCluster.id)
                 ]
               "
-              :disable="isDisabled(props.row.id, selectedCluster.id)"
+              :disable="
+                isDisabled(
+                  props.row.id,
+                  props.row.label,
+                  selectedCluster.id,
+                  selectedCluster.label
+                )
+              "
               class="col"
               :options="storageOptions"
               dense
@@ -123,7 +130,14 @@ limitations under the License.
               :model-value="selectionSingleton"
               :val="hashAttributeIdClusterId(props.row.id, selectedCluster.id)"
               indeterminate-value="false"
-              :disable="isDisabled(props.row.id, selectedCluster.id)"
+              :disable="
+                isDisabled(
+                  props.row.id,
+                  props.row.label,
+                  selectedCluster.id,
+                  selectedCluster.label
+                )
+              "
               @update:model-value="
                 handleLocalSelection(
                   $event,
@@ -140,7 +154,14 @@ limitations under the License.
               :model-value="selectionBounded"
               :val="hashAttributeIdClusterId(props.row.id, selectedCluster.id)"
               indeterminate-value="false"
-              :disable="isDisabled(props.row.id, selectedCluster.id)"
+              :disable="
+                isDisabled(
+                  props.row.id,
+                  props.row.label,
+                  selectedCluster.id,
+                  selectedCluster.label
+                )
+              "
               @update:model-value="
                 handleLocalSelection(
                   $event,
@@ -167,7 +188,14 @@ limitations under the License.
                   ? 'grey'
                   : ''
               "
-              :disable="isDisabled(props.row.id, selectedCluster.id)"
+              :disable="
+                isDisabled(
+                  props.row.id,
+                  props.row.label,
+                  selectedCluster.id,
+                  selectedCluster.label
+                )
+              "
               :model-value="
                 selectionDefault[
                   hashAttributeIdClusterId(props.row.id, selectedCluster.id)
@@ -223,6 +251,7 @@ limitations under the License.
 
 <script>
 import * as DbEnum from '../../src-shared/db-enum'
+import restApi from '../../src-shared/rest-api.js'
 
 //This mixin derives from common-mixin.
 import EditableAttributeMixin from '../util/editable-attributes-mixin'
@@ -231,9 +260,27 @@ export default {
   name: 'ZclAttributeManager',
   mixins: [EditableAttributeMixin],
   methods: {
-    isDisabled(id, selectedClusterId) {
+    loadForcedExternal(packages) {
+      if (packages) {
+        this.$serverPost(restApi.uri.forcedExternal, packages).then((resp) => {
+          console.log(resp.data.forcedExternal)
+          this.forcedExternal = resp.data.forcedExternal
+        })
+      }
+    },
+    checkForcedExternal(name) {
+      if (
+        this.forcedExternal.byName?.[this.selectedCluster.name]?.includes(name)
+      ) {
+        return true
+      } else {
+        return false
+      }
+    },
+    isDisabled(id, name, selectedClusterId, selectedCluster) {
       return !this.selection.includes(
-        this.hashAttributeIdClusterId(id, selectedClusterId)
+        this.hashAttributeIdClusterId(id, selectedClusterId) ||
+          this.checkForcedExternal(name)
       )
     },
     setToNull(row, selectedClusterId) {
@@ -447,6 +494,13 @@ export default {
           headerStyle: 'min-width: 180px',
         },
       ],
+      forcedExternal: [],
+    }
+  },
+  created() {
+    if (this.$serverGet != null) {
+      this.forcedExternal = []
+      this.loadForcedExternal(this.packages)
     }
   },
 }

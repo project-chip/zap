@@ -25,6 +25,7 @@ const queryZcl = require('../db/query-zcl.js')
 const queryAttribute = require('../db/query-attribute.js')
 const queryCommand = require('../db/query-command.js')
 const queryConfig = require('../db/query-config.js')
+const upgrade = require('../upgrade/upgrade.js')
 const querySessionNotification = require('../db/query-session-notification.js')
 const queryPackageNotification = require('../db/query-package-notification')
 const queryEndpointType = require('../db/query-endpoint-type.js')
@@ -108,7 +109,8 @@ function httpGetPackageNotifications(db) {
 function httpGetPackageNotificationsByPackageId(db) {
   return async (request, response) => {
     let packageId = request.params.packageId
-    let notifications = await queryPackageNotification.getNotificationByPackageId(db, packageId)
+    let notifications =
+      await queryPackageNotification.getNotificationByPackageId(db, packageId)
     response.status(StatusCodes.OK).json(notifications)
   }
 }
@@ -136,7 +138,8 @@ function httpDeletePackageNotification(db) {
 function httpGetUnseenNotificationCount(db) {
   return async (request, response) => {
     let sessionId = request.zapSessionId
-    let notificationCount = await querySessionNotification.getUnseenNotificationCount(db, sessionId)
+    let notificationCount =
+      await querySessionNotification.getUnseenNotificationCount(db, sessionId)
     response.status(StatusCodes.OK).json(notificationCount)
   }
 }
@@ -234,6 +237,14 @@ function httpPostCluster(db) {
         .status(StatusCodes.INTERNAL_SERVER_ERROR)
         .json({ message: err.message, stack: err.stack })
     }
+  }
+}
+function httpPostForcedExternal(db) {
+  return async (request, response) => {
+    console.log(request.body)
+    let zcl = request.body[0].pkg.path
+    let forcedExternal = await upgrade.getDisabledStorage(db, zcl)
+    return response.send({ forcedExternal })
   }
 }
 /**
@@ -911,6 +922,10 @@ async function duplicateEndpointTypeClusters(
 }
 
 exports.post = [
+  {
+    uri: restApi.uri.forcedExternal,
+    callback: httpPostForcedExternal,
+  },
   {
     uri: restApi.uri.cluster,
     callback: httpPostCluster,

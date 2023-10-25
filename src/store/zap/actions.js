@@ -491,6 +491,7 @@ export async function updateSelectedEndpointType(
           setRequiredCommands(context, res.data)
         })
     )
+
     context.commit(
       'updateSelectedEndpointType',
       endpointTypeDeviceTypeRefPair.endpointType

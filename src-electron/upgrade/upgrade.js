@@ -18,6 +18,7 @@
 const dbApi = require('../db/db-api.js')
 const queryPackage = require('../db/query-package.js')
 const queryCluster = require('../db/query-cluster.js')
+const queryAttribute = require('../db/query-attribute.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const fs = require('fs')
 const fsp = fs.promises
@@ -29,11 +30,19 @@ function parseJson(json) {
     return undefined
   }
 }
+
 /**
  * This file implements upgrade rules which are used to upgrade .zap files and xml files
  * to be in sync with the spec
  */
-
+async function getForcedExternalStorageList(db, zcl) {
+  let obj = await fsp.readFile(zcl, 'utf-8')
+  let data = parseJson(obj)
+  let byName = data?.attributeAccessInterfaceAttributes
+  let lists = data?.listsUseAttributeAccessInterface
+  let forcedExternal = { byName, lists }
+  return forcedExternal
+}
 /**
  * Returns an array of objects containing global attributes that should be forced external.
  *
@@ -91,6 +100,9 @@ async function computeStoragePolicyForGlobalAttributes(
       return attribute
     })
   )
+}
+async function getDisabledStorage(db, zcl) {
+  return await getForcedExternalStorageList(db, zcl)
 }
 
 /**
@@ -162,6 +174,7 @@ async function computeStorageImport(
 }
 
 exports.getForcedExternalStorage = getForcedExternalStorage
+exports.getDisabledStorage = getDisabledStorage
 exports.computeStorageImport = computeStorageImport
 exports.computeStorageNewConfig = computeStorageNewConfig
 exports.computeStoragePolicyForGlobalAttributes =
