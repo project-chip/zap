@@ -263,7 +263,6 @@ export default {
     loadForcedExternal(packages) {
       if (packages) {
         this.$serverPost(restApi.uri.forcedExternal, packages).then((resp) => {
-          console.log(resp.data.forcedExternal)
           this.forcedExternal = resp.data.forcedExternal
         })
       }
