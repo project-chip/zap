@@ -361,7 +361,7 @@ async function endpoint_fixed_device_type_array(options) {
       ret +=
         '{' +
         '0x' +
-        bin.int16ToHex(deviceList[i].deviceId) +
+        bin.int32ToHex(deviceList[i].deviceId) +
         ',' +
         deviceList[i].deviceVersion.toString() +
         endpointIdentifier +
