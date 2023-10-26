@@ -83,6 +83,15 @@ or
 npm run electron-build
 ```
 
+**Build the CLI app for production:**
+
+```
+npm run version-stamp
+npm run pkg:linux # for linux
+npm run pkg:win # for windows
+npm run pkg:mac # for mac
+```
+
 **Run the unit tests:**
 
 ```bash
