@@ -263,12 +263,14 @@ export default {
     },
     showEnableAllClustersButton: function () {
       let hasNotEnabled = false
-      this.clusters.forEach((singleCluster) => {
-        if (!this.isClusterEnabled(singleCluster.id)) {
-          hasNotEnabled = true
-          return
-        }
-      })
+      if (this.clusters && this.clusters.length > 0) {
+        this.clusters.forEach((singleCluster) => {
+          if (!this.isClusterEnabled(singleCluster.id)) {
+            hasNotEnabled = true
+            return
+          }
+        })
+      }
 
       return hasNotEnabled && this.$store.state.zap.showDevTools
     },
