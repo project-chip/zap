@@ -72,6 +72,11 @@ $warning: #f2c037;
             border: 2px solid transparent;
             border-radius: 14px;
             padding: 7px 14px;
+            &__section {
+              &--avatar {
+                min-width: 40px;
+              }
+            }
             &__label {
               transition: all 0.1s ease-in-out;
               width: fit-content;
@@ -115,6 +120,9 @@ $warning: #f2c037;
             padding: 7px 14px;
             &__section {
               margin-bottom: -10px;
+              &--avatar {
+                min-width: 40px;
+              }
             }
             &__label {
               transition: all 0.1s ease-in-out;
@@ -125,6 +133,10 @@ $warning: #f2c037;
               padding: 2px 16px;
               width: fit-content;
               border-radius: 5px 5px 0 0;
+              &__popup {
+                margin-bottom: -10px;
+                padding: 9px 16px;
+              }
             }
           }
           .q-expansion-item__content {
@@ -211,6 +223,10 @@ $warning: #f2c037;
                 padding: 2px 16px;
                 width: fit-content;
                 border-radius: 5px 5px 0 0;
+                &__popup {
+                  margin-bottom: -10px;
+                  padding: 9px 16px;
+                }
               }
             }
             .q-expansion-item__content {
@@ -306,6 +322,11 @@ $warning: #f2c037;
             border: 2px solid transparent;
             border-radius: 14px;
             padding: 7px 14px;
+            &__section {
+              &--avatar {
+                min-width: 40px;
+              }
+            }
             &__label {
               transition: all 0.1s ease-in-out;
               width: fit-content;
@@ -351,6 +372,9 @@ $warning: #f2c037;
             padding: 7px 14px;
             &__section {
               margin-bottom: -10px;
+              &--avatar {
+                min-width: 40px;
+              }
             }
             &__label {
               transition: all 0.1s ease-in-out;
@@ -361,6 +385,10 @@ $warning: #f2c037;
               padding: 2px 16px;
               width: fit-content;
               border-radius: 5px 5px 0 0;
+              &__popup {
+                margin-bottom: -10px;
+                padding: 9px 16px;
+              }
             }
           }
           .q-expansion-item__content {
@@ -450,6 +478,10 @@ $warning: #f2c037;
                 padding: 2px 16px;
                 width: fit-content;
                 border-radius: 5px 5px 0 0;
+                &__popup {
+                  margin-bottom: -10px;
+                  padding: 9px 16px;
+                }
               }
             }
             .q-expansion-item__content {
