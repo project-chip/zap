@@ -15,74 +15,90 @@ limitations under the License.
 -->
 <template>
   <div style="width: 800px; max-width: 80vw">
-    <q-card>
+    <q-card dense>
       <q-card-section>
-        <div class="text-h5">Add Custom ZCL</div>
         <div class="row items-center">
-          <div>
+          <div class="text-h6 col">Add Custom ZCL</div>
+          <div class="col-1 text-right">
+            <q-btn dense flat icon="close" v-close-popup>
+              <q-tooltip>Close</q-tooltip>
+            </q-btn>
+          </div>
+        </div>
+        <div class="column">
+          <div class="col">
             You can use this functionality to add custom ZCL clusters or
             commands to the Zigbee Clusters Configurator
           </div>
-          <q-space />
           <q-btn
             color="primary"
             icon="add"
-            class="v-step-17"
+            class="v-step-17 col q-mx-auto q-mt-md"
             @click="browseForFile()"
+            rounded
+            label="Browse file"
           />
         </div>
       </q-card-section>
-      <q-card-section>
-        <q-list bordered separator>
+      <q-card-section class="q-pt-none">
+        <div class="row items-center">
+          <strong>Added files</strong>
+        </div>
+        <q-list class="cluster-list">
           <div v-for="(sessionPackage, index) in packages" :key="index">
-            <q-item>
+            <q-item dense class="q-px-none">
               <q-item-section>
                 <q-expansion-item>
                   <template #header>
-                    <q-toolbar>
-                      <div>
-                        <strong>{{
-                          getFileName(sessionPackage.pkg.path)
-                        }}</strong>
-                      </div>
-                      <q-space />
-                      <q-btn
-                        label="Delete"
-                        icon="delete"
-                        flat
-                        @click.stop="deletePackage(sessionPackage)"
-                        :disable="sessionPackage.sessionPackage.required == 1"
+                    <q-item-section avatar class="q-pr-none">
+                      <q-icon
+                        :class="{
+                          'cursor-pointer':
+                            iconName(sessionPackage.pkg.id) == 'error' ||
+                            iconName(sessionPackage.pkg.id) == 'warning',
+                        }"
+                        :name="iconName(sessionPackage.pkg.id)"
+                        :color="iconColor(sessionPackage.pkg.id)"
+                        size="1.5em"
+                        @click="() => handleIconClick(sessionPackage.pkg.id)"
                       />
-                      <q-btn
-                        label="Relative to..."
-                        outlined
-                        v-show="false"
-                        @click.stop
-                      />
-                    </q-toolbar>
+                    </q-item-section>
+                    <div class="q-my-auto q-item__label q-item__label__popup">
+                      <strong>{{
+                        getFileName(sessionPackage.pkg.path)
+                      }}</strong>
+                    </div>
+                    <q-space />
+                    <q-btn
+                      v-if="!sessionPackage.sessionPackage.required"
+                      class="q-mx-xl"
+                      label="Delete"
+                      icon="delete"
+                      flat
+                      dense
+                      @click.stop="deletePackage(sessionPackage)"
+                      :disable="sessionPackage.sessionPackage.required"
+                    />
                   </template>
-                  Full File path: {{ sessionPackage.pkg.path }} <br />
-                  Package Type: {{ sessionPackage.pkg.type }} <br />
-                  Version: {{ sessionPackage.pkg.version }} <br />
-                  Required:
-                  {{
-                    sessionPackage.sessionPackage.required ? 'True' : 'False'
-                  }}
-                  <br />
+                  <q-card>
+                    <q-card-section>
+                      <div class="q-mx-lg q-px-lg">
+                        <strong> Full File path:</strong>
+                        {{ sessionPackage.pkg.path }} <br />
+                        <strong> Package Type:</strong>
+                        {{ sessionPackage.pkg.type }} <br />
+                        <strong> Version: </strong
+                        >{{ sessionPackage.pkg.version }} <br />
+                        <strong> Required:</strong>
+                        {{
+                          sessionPackage.sessionPackage.required
+                            ? 'True'
+                            : 'False'
+                        }}
+                      </div>
+                    </q-card-section>
+                  </q-card>
                 </q-expansion-item>
-              </q-item-section>
-              <q-item-section side>
-                <q-icon
-                  :class="{
-                    'cursor-pointer':
-                      iconName(sessionPackage.pkg.id) == 'error' ||
-                      iconName(sessionPackage.pkg.id) == 'warning',
-                  }"
-                  :name="iconName(sessionPackage.pkg.id)"
-                  :color="iconColor(sessionPackage.pkg.id)"
-                  size="2em"
-                  @click="() => handleIconClick(sessionPackage.pkg.id)"
-                />
               </q-item-section>
               <q-dialog v-model="dialogData[sessionPackage.pkg.id]">
                 <q-card>

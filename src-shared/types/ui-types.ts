@@ -22,5 +22,5 @@ export interface UiFileBrowseOptionsType {
   title: string
   defaultPath: string
   buttonLabel: string
+  filters: object
 }
-

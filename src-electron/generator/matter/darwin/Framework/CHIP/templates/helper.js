@@ -706,6 +706,17 @@ async function availabilityHelper(clusterName, language, options) {
     );
   }
 
+  if (introducedVersions === undefined) {
+    const provisionalRelease = findProvisionalRelease(this.global, clusterName, options, 'provisional');
+    if (!provisionalRelease) {
+      console.log(
+        `WARNING: Missing "introduced" or "provisional" entry for: '${clusterName}' '${JSON.stringify(
+          options.hash
+        )}'`
+      );
+    }
+  }
+
   const provisionalAvailability = (() => {
     if (language == "ObjC") {
       return 'MTR_PROVISIONALLY_AVAILABLE';
@@ -728,17 +739,6 @@ async function availabilityHelper(clusterName, language, options) {
   })();
 
   if (isProvisional.call(this, clusterName, options)) {
-    return provisionalAvailability;
-  }
-
-  if (introducedVersions === undefined) {
-    console.log(
-      `WARNING: Missing "introduced" or "provisional" entry for: '${clusterName}' '${JSON.stringify(
-        options.hash
-      )}'`
-    );
-    // Default to provisinal status until we decide otherwise, so we don't
-    // accidentally ship things as unconditionally available.
     return provisionalAvailability;
   }
 
@@ -986,31 +986,51 @@ function isSupported(cluster, options) {
   return true;
 }
 
-function isProvisional(cluster, options) {
-  let provisionalRelease = findReleaseForPathOrAncestorAndSection(this.global, cluster, options, 'provisional');
-  if (provisionalRelease === undefined) {
-    // For attributes, also check whether this is a provisional global
-    // attribute.
-    let attrName = options.hash.attribute;
-    if (attrName) {
-      provisionalRelease = findReleaseForPathOrAncestorAndSection(
-        this.global,
-        /* cluster does not apply to global attributes */
-        "",
-        /*
-         * Keep our options (e.g. in terms of isForIds bits), but replace
-         * attribute with globalAttribute.
-         */
-        { hash: { ...options.hash, attribute: undefined, globalAttribute: attrName } },
-        'provisional'
-      );
-    }
-    if (provisionalRelease === undefined) {
-      return false;
-    }
+function findProvisionalRelease(global, cluster, options) {
+  let provisionalRelease = findReleaseForPathOrAncestorAndSection(global, cluster, options, 'provisional');
+  if (provisionalRelease !== undefined) {
+    return provisionalRelease;
   }
 
+  // For attributes, also check whether this is a provisional global
+  // attribute.
+  let attrName = options.hash.attribute;
+  if (!attrName) {
+    return undefined;
+  }
+
+  return findReleaseForPathOrAncestorAndSection(
+    global,
+    /* cluster does not apply to global attributes */
+    "",
+    /*
+     * Keep our options (e.g. in terms of isForIds bits), but replace
+     * attribute with globalAttribute.
+     */
+    { hash: { ...options.hash, attribute: undefined, globalAttribute: attrName } },
+    'provisional'
+  );
+}
+
+function isProvisional(cluster, options) {
+  // Things that have no "introduced" are always provisional.
+  const data = fetchAvailabilityData(this.global);
   let path = makeAvailabilityPath(cluster, options);
+  let introducedRelease = findReleaseForPath(
+    data,
+    ['introduced', ...path],
+    options);
+
+  if (introducedRelease == undefined) {
+    // If it's not introduced, default to provisional.
+    return true;
+  }
+
+  let provisionalRelease = findProvisionalRelease(this.global, cluster, options);
+  if (provisionalRelease === undefined) {
+    return false;
+  }
+
   while (path !== undefined) {
     let comparisonStatus = compareIntroductionToReferenceRelease(
       this.global,
