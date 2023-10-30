@@ -25,8 +25,8 @@ const tray = require('./tray.js')
 const browserApi = require('./browser-api.js')
 const querystringUtil = require('querystring')
 const httpServer = require('../server/http-server.js')
-import { showHidden } from 'yargs'
 import { WindowCreateArgs } from '../types/window-types'
+const os = require('node:os')
 
 let windowCounter = 0
 
@@ -127,7 +127,9 @@ export function windowCreate(port: number, args?: WindowCreateArgs) {
   })
 
   ipcMain.on('set-title-bar-overlay', (_event, value) => {
-    w.setTitleBarOverlay(value)
+    if (os.platform() == 'win32') {
+      w.setTitleBarOverlay(value)
+    }
   })
 
   let queryString = createQueryString(
