@@ -87,6 +87,8 @@ exports.testTemplate = {
   matter2Count: 1,
   matter3: './test/gen-template/matter3/t.json',
   matter3Count: 18,
+  matterApiMaturity: './test/gen-template/matter-api-maturity/templates.json',
+  matterApiMaturityCount: 1,
   dotdot: './test/gen-template/dotdot/dotdot-templates.json',
   dotdotCount: 5,
   unittest: './test/gen-template/test/gen-test.json',
@@ -128,6 +130,10 @@ exports.matterTestFile = {
   multipleDeviceTypesPerEndpoint: path.join(
     __dirname,
     'resource/multiple-device-types-per-endpoint.zap'
+  ),
+  apiMaturityTest: path.join(
+    __dirname,
+    'resource/matter-api-maturity-test.zap'
   ),
 }
 

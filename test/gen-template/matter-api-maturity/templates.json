@@ -1,0 +1,17 @@
+{
+  "name": "CHIP Tests templates",
+  "version": "matter-matter-api-maturity",
+  "helpers": [
+    "common/StringHelper.js",
+    "templates/app/helper.js",
+    "templates/chip/helper.js",
+    "common/ClusterTestGeneration.js"
+  ],
+  "templates": [
+    {
+      "path": "codegen_test.zapt",
+      "name": "Code generation test",
+      "output": "codegen_test.txt"
+    }
+  ]
+}

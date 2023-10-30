@@ -412,6 +412,7 @@ function prepareCluster(cluster, context, isExtension = false) {
       }
       ret.introducedIn = cluster.$.introducedIn
       ret.removedIn = cluster.$.removedIn
+      ret.apiMaturity = cluster.$.apiMaturity
     }
   }
 
@@ -597,6 +598,7 @@ function prepareCluster(cluster, context, isExtension = false) {
         isNullable: attribute.$.isNullable == 'true' ? true : false,
         entryType: attribute.$.entryType,
         mustUseTimedWrite: attribute.$.mustUseTimedWrite == 'true',
+        apiMaturity: attribute.$.apiMaturity,
       }
       att.access = extractAccessIntoArray(attribute)
       if (att.manufacturerCode == null) {

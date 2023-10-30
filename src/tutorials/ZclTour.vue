@@ -60,6 +60,7 @@ export default {
         }))
       },
     },
+
     tourCluster: {
       get() {
         return this.$store.state.zap.clusterDataForTutorial
@@ -87,71 +88,83 @@ export default {
     },
     // This function will create a endpoint for tutorial
     createNewEndpointForTour(resolve) {
-      if (this.endpoints.length < 1) {
-        this.$store
-          .dispatch(`zap/addEndpointType`, {
-            name: 'Anonymous Endpoint Type',
-            deviceTypeRef: this.zclDeviceTypeOptions[0].deviceTypeRef,
-            deviceIdentifier: this.zclDeviceTypeOptions[0].deviceIdentifier,
-            deviceVersion: this.zclDeviceTypeOptions[0].deviceVersion,
-          })
-          .then((response) => {
-            let profileId = this.asHex(
-              this.zclDeviceTypes[this.zclDeviceTypeOptions[0].deviceTypeRef]
-                .profileId,
-              4
-            )
-            this.$store
-              .dispatch(`zap/addEndpoint`, {
-                endpointId: parseInt(this.getSmallestUnusedEndpointId()),
-                networkId: 0,
-                profileId: parseInt(profileId),
-                endpointType: response.id,
-                deviceVersion: 1,
-                deviceIdentifier: this.zclDeviceTypeOptions[0].deviceIdentifier,
-              })
-              .then((res) => {
-                if (this.shareClusterStatesAcrossEndpoints()) {
-                  this.$store.dispatch(
-                    'zap/shareClusterStatesAcrossEndpoints',
-                    {
-                      endpointTypeIdList: this.endpointTypeIdList,
-                    }
-                  )
-                }
-                this.$store.dispatch('zap/updateSelectedEndpointType', {
-                  endpointType: this.endpointType[res.id],
-                  deviceTypeRef:
-                    this.endpointDeviceTypeRef[this.endpointType[res.id]],
-                })
-                // collect all cluster id from new endpoint
-                this.selectionClients.forEach((id) => {
-                  this.updateSelectedComponentRequest({
-                    clusterId: id,
-                    side: ['client'],
-                    added: true,
-                  })
-                })
-                this.selectionServers.forEach((id) => {
-                  this.updateSelectedComponentRequest({
-                    clusterId: id,
-                    side: ['server'],
-                    added: true,
-                  })
-                })
-                this.$store.dispatch('zap/updateSelectedEndpoint', res.id)
-                resolve()
-              })
-          })
-      } else {
-        this.$store.dispatch('zap/updateSelectedEndpointType', {
-          endpointType: this.endpointType[this.endpoints[0].id],
-          deviceTypeRef:
-            this.endpointDeviceTypeRef[this.endpointType[this.endpoints[0].id]],
+      const deviceTypeRef = []
+      const deviceIdentifier = []
+      const deviceVersion = []
+      deviceTypeRef.push(this.zclDeviceTypeOptions[0].deviceTypeRef)
+      deviceIdentifier.push(this.zclDeviceTypeOptions[0].deviceIdentifier)
+      deviceVersion.push(
+        this.zclDeviceTypeOptions[0].deviceVersion
+          ? this.zclDeviceTypeOptions[0].deviceVersion
+          : 1
+      )
+      // if (this.endpoints.length < 1) {
+      this.$store
+        .dispatch(`zap/addEndpointType`, {
+          name: 'Anonymous Endpoint Type',
+          deviceTypeRef: deviceTypeRef,
+          deviceIdentifier: deviceIdentifier,
+          deviceVersion: deviceVersion,
         })
-        this.$store.dispatch('zap/updateSelectedEndpoint', this.endpoints[0].id)
-        resolve()
-      }
+        .then((response) => {
+          let profileId = this.asHex(
+            this.zclDeviceTypes[this.zclDeviceTypeOptions[0].deviceTypeRef]
+              .profileId,
+            4
+          )
+          this.tourEndpointType = response.id
+
+          this.$store
+            .dispatch(`zap/addEndpoint`, {
+              endpointId: parseInt(this.getSmallestUnusedEndpointId()),
+              networkId: 0,
+              profileId: parseInt(profileId),
+              endpointType: response.id,
+            })
+            .then((res) => {
+              this.tourEndpointId = res.id
+              if (this.shareClusterStatesAcrossEndpoints()) {
+                this.$store.dispatch('zap/shareClusterStatesAcrossEndpoints', {
+                  endpointTypeIdList: this.endpointTypeIdList,
+                })
+              }
+              this.$store.dispatch('zap/updateSelectedEndpointType', {
+                endpointType: this.endpointType[res.id],
+                deviceTypeRef:
+                  this.endpointDeviceTypeRef[this.endpointType[res.id]],
+              })
+              this.$store
+                .dispatch(
+                  `zap/endpointTypeClustersInfo`,
+                  this.endpointType[res.id]
+                )
+                .then((res) => {
+                  if (res?.data) {
+                    const clusterStates = res.data
+                    const enabledClusterStates = clusterStates.filter(
+                      (x) => x.enabled
+                    )
+                    for (const states of enabledClusterStates) {
+                      const { endpointTypeRef, clusterRef, side, enabled } =
+                        states
+
+                      const arg = {
+                        side: [side],
+                        clusterId: clusterRef,
+                        added: enabled,
+                      }
+
+                      console.log(
+                        `Enabling UC component ${JSON.stringify(arg)}`
+                      )
+                      this.updateSelectedComponentRequest(arg)
+                    }
+                  }
+                })
+              this.$store.dispatch('zap/updateSelectedEndpoint', res.id)
+              resolve()
+            })
+        })
     },
     // This function will show the delete modal to the user
     handleDeletionDialog() {
@@ -162,30 +175,38 @@ export default {
     // This function will delete the endpoint that tutorial created for you
     deleteEndpoint() {
       this.$store
-        .dispatch('zap/deleteEndpoint', this.endpoints[0].id)
+        .dispatch('zap/deleteEndpoint', this.tourEndpointId)
         .then(() => {
-          this.$store.dispatch(
-            'zap/deleteEndpointType',
-            this.endpointType[this.endpoints[0].id]
-          )
+          this.$store
+            .dispatch(
+              'zap/deleteEndpointType',
+              this.endpointType[this.tourEndpointId]
+            )
+            .then(() => {
+              this.deletingTutorialEndpoint = false
+              this.deleteEndpointDialog = false
+              this.tourEndpointId = null
+              this.tourEndpointType = null
+              this.$store.commit(
+                'zap/openZclExtensionsDialogForTutorial',
+                false
+              )
+            })
         })
-      this.deletingTutorialEndpoint = false
-      this.deleteEndpointDialog = false
-      this.$store.commit('zap/openZclExtensionsDialogForTutorial', false)
     },
     // This function will disable tutorial
     disableTutorial() {
       if (this.$route.path === '/') {
         this.$store.commit('zap/toggleTutorial', false)
         this.$store.commit('zap/triggerExpanded', false)
-        this.endpoints.length > 0 ? this.handleDeletionDialog() : ''
+        this.tourEndpointId ? this.handleDeletionDialog() : ''
         this.$store.commit('zap/toggleEndpointModal', false)
       } else {
         this.$router
           .push('/')
           .then(() => {})
           .then(() => {
-            this.endpoints.length > 0 ? this.handleDeletionDialog() : ''
+            this.tourEndpointId ? this.handleDeletionDialog() : ''
           })
       }
     },
@@ -358,6 +379,8 @@ export default {
       tutorialSteps: [],
       deletingTutorialEndpoint: false,
       deleteEndpointDialog: false,
+      tourEndpointType: null,
+      tourEndpointId: null,
     }
   },
   mounted() {

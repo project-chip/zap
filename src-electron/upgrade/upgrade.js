@@ -22,6 +22,13 @@ const dbEnum = require('../../src-shared/db-enum.js')
 const fs = require('fs')
 const fsp = fs.promises
 
+function parseJson(json) {
+  try {
+    return JSON.parse(json)
+  } catch (err) {
+    return undefined
+  }
+}
 /**
  * This file implements upgrade rules which are used to upgrade .zap files and xml files
  * to be in sync with the spec
@@ -39,13 +46,51 @@ const fsp = fs.promises
 async function getForcedExternalStorage(db, attributeId) {
   let pkgs = await queryPackage.getPackageRefByAttributeId(db, attributeId)
   let zcl = await queryPackage.getPackageByPackageId(db, pkgs)
-  zcl = zcl.path
-  let obj = await fsp.readFile(zcl)
-  let data = JSON.parse(obj)
+  zcl = zcl?.path
+  let obj = await fsp.readFile(zcl, 'utf-8')
+  let data = parseJson(obj)
   let byName = data?.attributeAccessInterfaceAttributes
   let lists = data?.listsUseAttributeAccessInterface
   let forcedExternal = { byName, lists }
   return forcedExternal
+}
+
+/**
+ * This function takes a clusterId (the database ID, not the specification-defined ID) and an array of attributes (associated with the database defined clusterID)
+ * and changes the global attributes (attributes with specification defined clusterId = null) to represent storage policy
+ * based on the cluster/attribute pair in zcl.json
+ *
+ * Although the specification defined clusterID of the attriibute is null indicating it is a global attribute, we know what the database defined clusterID is by what is passed in as a parameter.
+ *
+ * That database defined clusterID is used to query the name of the cluster which is in turn used to compute the storage policy for that cluster/attribute pair.
+ *
+ * @export
+ * @param {*} db
+ * @param {*} clusterId (database defined) the clusterId representing a cluster from the database being used in the application
+ * @param {*} attributes an array of objects representing the attributes associated with the cluster
+ * @returns an array of objects representing attributes in the database
+ */
+
+async function computeStoragePolicyForGlobalAttributes(
+  db,
+  clusterId,
+  attributes
+) {
+  let clusterName
+  let forcedExternal
+  clusterName = await queryCluster.selectClusterName(db, clusterId)
+  return Promise.all(
+    attributes.map(async (attribute) => {
+      if (attribute.clusterId == null) {
+        forcedExternal = await getForcedExternalStorage(db, attribute.id)
+        if (forcedExternal.byName?.[clusterName]?.includes(attribute.name)) {
+          attribute.storagePolicy =
+            dbEnum.storagePolicy.attributeAccessInterface
+        }
+      }
+      return attribute
+    })
+  )
 }
 
 /**
@@ -119,3 +164,5 @@ async function computeStorageImport(
 exports.getForcedExternalStorage = getForcedExternalStorage
 exports.computeStorageImport = computeStorageImport
 exports.computeStorageNewConfig = computeStorageNewConfig
+exports.computeStoragePolicyForGlobalAttributes =
+  computeStoragePolicyForGlobalAttributes

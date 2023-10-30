@@ -25,6 +25,7 @@ const helperC = require('./helper-c')
 const env = require('../util/env')
 const types = require('../util/types')
 const zclUtil = require('../util/zcl-util')
+const upgrade = require('../upgrade/upgrade.js')
 const _ = require('lodash')
 
 const characterStringTypes = ['CHAR_STRING', 'LONG_CHAR_STRING']
@@ -730,24 +731,27 @@ function zcl_global_commands(options) {
  * @param {*} options
  * @returns Promise of attribute iteration.
  */
-function zcl_attributes(options) {
+async function zcl_attributes(options) {
   // If used at the toplevel, 'this' is the toplevel context object.
   // when used at the cluster level, 'this' is a cluster
-  let promise = templateUtil
-    .ensureZclPackageIds(this)
-    .then((packageIds) => {
-      if ('id' in this) {
-        // We're functioning inside a nested context with an id, so we will only query for this cluster.
-        return queryZcl.selectAttributesByClusterIdIncludingGlobal(
-          this.global.db,
-          this.id,
-          packageIds
-        )
-      } else {
-        return queryZcl.selectAllAttributes(this.global.db, packageIds)
-      }
-    })
-    .then((atts) => templateUtil.collectBlocks(atts, options, this))
+  let packageIds = await templateUtil.ensureZclPackageIds(this)
+  let attributes = ''
+  if ('id' in this) {
+    // We're functioning inside a nested context with an id, so we will only query for this cluster.
+    attributes = await queryZcl.selectAttributesByClusterIdIncludingGlobal(
+      this.global.db,
+      this.id,
+      packageIds
+    )
+    attributes = await upgrade.computeStoragePolicyForGlobalAttributes(
+      this.global.db,
+      this.id,
+      attributes
+    )
+  } else {
+    attributes = await queryZcl.selectAllAttributes(this.global.db, packageIds)
+  }
+  let promise = templateUtil.collectBlocks(attributes, options, this)
   return templateUtil.templatePromise(this.global, promise)
 }
 
@@ -759,28 +763,33 @@ function zcl_attributes(options) {
  * @param {*} options
  * @returns Promise of attribute iteration.
  */
-function zcl_attributes_client(options) {
+async function zcl_attributes_client(options) {
   // If used at the toplevel, 'this' is the toplevel context object.
   // when used at the cluster level, 'this' is a cluster
-  let promise = templateUtil
-    .ensureZclPackageIds(this)
-    .then((packageIds) => {
-      if ('id' in this) {
-        return queryZcl.selectAttributesByClusterIdAndSideIncludingGlobal(
-          this.global.db,
-          this.id,
-          packageIds,
-          dbEnum.side.client
-        )
-      } else {
-        return queryZcl.selectAllAttributesBySide(
-          this.global.db,
-          dbEnum.side.client,
-          packageIds
-        )
-      }
-    })
-    .then((atts) => templateUtil.collectBlocks(atts, options, this))
+  let packageIds = await templateUtil.ensureZclPackageIds(this)
+  let clientAttributes = ''
+  if ('id' in this) {
+    // We're functioning inside a nested context with an id, so we will only query for this cluster.
+    clientAttributes =
+      await queryZcl.selectAttributesByClusterIdAndSideIncludingGlobal(
+        this.global.db,
+        this.id,
+        packageIds,
+        dbEnum.side.client
+      )
+    clientAttributes = await upgrade.computeStoragePolicyForGlobalAttributes(
+      this.global.db,
+      this.id,
+      clientAttributes
+    )
+  } else {
+    clientAttributes = await queryZcl.selectAllAttributesBySide(
+      this.global.db,
+      dbEnum.side.client,
+      packageIds
+    )
+  }
+  let promise = templateUtil.collectBlocks(clientAttributes, options, this)
   return templateUtil.templatePromise(this.global, promise)
 }
 
@@ -809,6 +818,11 @@ async function zcl_attributes_server(options) {
         packageIds,
         dbEnum.side.server
       )
+    serverAttributes = await upgrade.computeStoragePolicyForGlobalAttributes(
+      this.global.db,
+      this.id,
+      serverAttributes
+    )
   } else {
     serverAttributes = await queryZcl.selectAllAttributesBySide(
       this.global.db,

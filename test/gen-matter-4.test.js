@@ -159,10 +159,10 @@ test(
       '#define FIXED_PROFILE_IDS { 0x0103, 0x0103, 0x0103, 0x0103 }'
     )
     expect(ept).toContain(
-      '#define FIXED_DEVICE_TYPES {{0x0016,1},{0x0100,1},{0x0100,1},{0xF002,1}}'
+      '#define FIXED_DEVICE_TYPES {{0x00000016,1},{0x00000100,1},{0x00000100,1},{0x0000F002,1}}'
     )
     expect(ept).toContain(
-      '#define FIXED_DEVICE_TYPES_WITH_ENDPOINT {{0x0016,1,0},{0x0100,1,1},{0x0100,1,2},{0xF002,1,65534}}'
+      '#define FIXED_DEVICE_TYPES_WITH_ENDPOINT {{0x00000016,1,0},{0x00000100,1,1},{0x00000100,1,2},{0x0000F002,1,65534}}'
     )
     expect(ept).toContain('#define FIXED_DEVICE_TYPE_OFFSETS { 0,1,2,3}')
     expect(ept).toContain('#define FIXED_DEVICE_TYPE_LENGTHS { 1,1,1,1}')
@@ -265,10 +265,10 @@ test(
       '#define FIXED_PROFILE_IDS { 0x0103, 0x0103, 0x0103, 0x0103 }'
     )
     expect(ept).toContain(
-      '#define FIXED_DEVICE_TYPES {{0x0016,1},{0x0100,1},{0x0100,1},{0xF002,1}}'
+      '#define FIXED_DEVICE_TYPES {{0x00000016,1},{0x00000100,1},{0x00000100,1},{0x0000F002,1}}'
     )
     expect(ept).toContain(
-      '#define FIXED_DEVICE_TYPES_WITH_ENDPOINT {{0x0016,1,0},{0x0100,1,1},{0x0100,1,2},{0xF002,1,65534}}'
+      '#define FIXED_DEVICE_TYPES_WITH_ENDPOINT {{0x00000016,1,0},{0x00000100,1,1},{0x00000100,1,2},{0x0000F002,1,65534}}'
     )
     expect(ept).toContain('#define FIXED_DEVICE_TYPE_OFFSETS { 0,1,2,3}')
     expect(ept).toContain('#define FIXED_DEVICE_TYPE_LENGTHS { 1,1,1,1}')
@@ -314,10 +314,10 @@ test(
     let ept = genResult.content['endpoint_config.h']
 
     expect(ept).toContain(
-      '#define FIXED_DEVICE_TYPES {{0x0016,1},{0x0101,2},{0x0100,1},{0x0101,1},{0x0100,1},{0xF002,1}}'
+      '#define FIXED_DEVICE_TYPES {{0x00000016,1},{0x00000101,2},{0x00000100,1},{0x00000101,1},{0x00000100,1},{0x0000F002,1}}'
     )
     expect(ept).toContain(
-      '#define FIXED_DEVICE_TYPES_WITH_ENDPOINT {{0x0016,1,0},{0x0101,2,1},{0x0100,1,1},{0x0101,1,2},{0x0100,1,2},{0xF002,1,65534}}'
+      '#define FIXED_DEVICE_TYPES_WITH_ENDPOINT {{0x00000016,1,0},{0x00000101,2,1},{0x00000100,1,1},{0x00000101,1,2},{0x00000100,1,2},{0x0000F002,1,65534}}'
     )
     expect(ept).toContain('#define FIXED_DEVICE_TYPE_OFFSETS { 0,1,3,5}')
     expect(ept).toContain('#define FIXED_DEVICE_TYPE_LENGTHS { 1,2,2,1}')

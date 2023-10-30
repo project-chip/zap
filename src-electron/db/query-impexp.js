@@ -335,7 +335,7 @@ WHERE SESSION_PACKAGE.SESSION_REF = ? AND SESSION_PACKAGE.ENABLED = 1`,
  */
 async function exportClustersFromEndpointType(db, endpointTypeId) {
   let mapFunction = (x) => {
-    return {
+    let result = {
       name: x.NAME,
       code: x.CODE,
       mfgCode: x.MANUFACTURER_CODE,
@@ -344,6 +344,13 @@ async function exportClustersFromEndpointType(db, endpointTypeId) {
       enabled: x.ENABLED,
       endpointClusterId: x.ENDPOINT_TYPE_CLUSTER_ID,
     }
+
+    // Separate out check so that JSON dump does not contain empty keys
+    if (x.API_MATURITY) {
+      result.apiMaturity = x.API_MATURITY
+    }
+
+    return result
   }
 
   return dbApi
@@ -357,7 +364,8 @@ SELECT
   CLUSTER.DEFINE,
   ENDPOINT_TYPE_CLUSTER.SIDE,
   ENDPOINT_TYPE_CLUSTER.ENABLED,
-  ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
+  ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID,
+  CLUSTER.API_MATURITY
 FROM CLUSTER
 INNER JOIN ENDPOINT_TYPE_CLUSTER
 ON CLUSTER.CLUSTER_ID = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
@@ -558,7 +566,7 @@ async function exportAttributesFromEndpointTypeCluster(
   endpointClusterId
 ) {
   let mapFunction = (x) => {
-    return {
+    let result = {
       name: x.NAME,
       code: x.CODE,
       mfgCode: x.MANUFACTURER_CODE,
@@ -574,6 +582,11 @@ async function exportAttributesFromEndpointTypeCluster(
       maxInterval: x.MAX_INTERVAL,
       reportableChange: x.REPORTABLE_CHANGE,
     }
+    if (x.API_MATURITY) {
+      result.apiMaturity = x.API_MATURITY
+    }
+
+    return result
   }
   return dbApi
     .dbAll(

@@ -258,6 +258,7 @@ async function selectAllClustersDetailsFromEndpointTypes(
       enabled: x.ENABLED,
       endpointClusterId: x.ENDPOINT_TYPE_CLUSTER_ID,
       endpointCount: x['COUNT(*)'],
+      apiMaturity: x.API_MATURITY,
     }
   }
 
@@ -273,6 +274,7 @@ SELECT
   CLUSTER.MANUFACTURER_CODE,
   CLUSTER.NAME,
   CLUSTER.DEFINE,
+  CLUSTER.API_MATURITY,
   ENDPOINT_TYPE_CLUSTER.SIDE,
   ENDPOINT_TYPE_CLUSTER.ENABLED,
   ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID,
