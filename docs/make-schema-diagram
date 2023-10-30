@@ -10,7 +10,11 @@
 # It also has only ever been tested on Linux.
 #
 
-SC_HOME=~/schemacrawler/latest
+# You can set env variables such as:
+#   SC_HOME=/opt/schemacrawler
+if [ -z "$SC_HOME" ]; then
+  SC_HOME=~/schemacrawler/latest
+fi
 SC_BIN=${SC_HOME}/_schemacrawler/bin/schemacrawler.sh
 
 SQLITE=~/.zap/self-check.sqlite
@@ -55,6 +59,9 @@ sed -i 's/rankdir="RL"/rankdir="RL"\n    bgcolor="transparent"/g' zap-schema.dot
 
 # Make edges black and bold
 sed -i 's/edge \[/edge\[\n    color="black"\n    style="bold"/g' zap-schema.dot
+
+# Remove the weird arrow labels
+sed -i 's/label=<SCHCRWLR_.*>//g' zap-schema.dot
 
 # Remove the date stamp, so we don't create unnecessary commits
 sed -i '/.*td align=.left..202.*/d' zap-schema.dot

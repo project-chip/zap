@@ -108,6 +108,10 @@ function openFileDialogAndReportResult(
 ) {
   let p: Electron.OpenDialogOptions = {
     buttonLabel: 'Generate',
+    filters: [
+      { name: 'ZCL File Type', extensions: ['json', 'xml'] },
+      { name: 'All Files', extensions: ['*'] },
+    ],
   }
 
   if (options.buttonLabel) {
