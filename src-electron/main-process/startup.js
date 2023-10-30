@@ -31,12 +31,13 @@ const ipcServer = require('../server/ipc-server')
 const ipcClient = require('../client/ipc-client')
 const generatorEngine = require('../generator/generation-engine.js')
 const querySession = require('../db/query-session.js')
+const queryEndpoint = require('../db/query-endpoint.js')
 const util = require('../util/util.js')
 const importJs = require('../importexport/import.js')
 const exportJs = require('../importexport/export.js')
 const watchdog = require('./watchdog')
 const sdkUtil = require('../util/sdk-util')
-const { argv } = require('process')
+const clusterSync = require('../upgrade/cluster-sync.js')
 
 // This file contains various startup modes.
 
@@ -536,6 +537,7 @@ async function generateSingleFile(
     postImportScript: null,
     packageMatch: dbEnum.packageMatch.fuzzy,
     generationLog: null,
+    shareClusterStatesAcrossEndpoints: false,
   }
 ) {
   let hrstart = process.hrtime.bigint()
@@ -550,8 +552,10 @@ async function generateSingleFile(
       {
         zcl: env.builtinSilabsZclMetafile(),
         template: env.builtinTemplateMetafile(),
-      }, null, null
-    )  
+      },
+      null,
+      null
+    )
     output = outputPattern
   } else {
     options.logger(`👉 using input file: ${zapFile}`)
@@ -564,6 +568,19 @@ async function generateSingleFile(
     output = outputFile(zapFile, outputPattern, index)
   }
   options.logger(`👉 using output destination: ${output}`)
+
+  if (options.shareClusterStatesAcrossEndpoints) {
+    options.logger(
+      `👉 Syncing cluster attribute and command states across all endpoints`
+    )
+    let endpointTypeIdList = await queryEndpoint.selectAllEndpoints(
+      db,
+      sessionId
+    )
+    endpointTypeIdList = endpointTypeIdList.map((x) => x.id)
+
+    clusterSync.clusterSync(db, sessionId, endpointTypeIdList)
+  }
 
   let sessPkg = await util.ensurePackagesAndPopulateSessionOptions(
     db,
@@ -610,6 +627,7 @@ async function startGeneration(argv, options) {
   let zclProperties = argv.zclProperties
   let genResultFile = argv.genResultFile
   let skipPostGeneration = argv.skipPostGeneration
+  let shareClusterStatesAcrossEndpoints = argv.shareClusterStatesAcrossEndpoints
 
   let hrstart = process.hrtime.bigint()
   options.logger(
@@ -656,6 +674,8 @@ async function startGeneration(argv, options) {
   options.appendGenerationSubdirectory = argv.appendGenerationSubdirectory
   options.packageMatch = argv.packageMatch
   options.generationLog = argv.generationLog
+  options.shareClusterStatesAcrossEndpoints =
+    argv.shareClusterStatesAcrossEndpoints
 
   let nsDuration = process.hrtime.bigint() - hrstart
   options.logger(`🕐 Setup time: ${util.duration(nsDuration)} `)
