@@ -23,6 +23,7 @@
 const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
 const util = require('../util/util.js')
+const queryPackage = require('./query-package.js')
 
 /**
  * Returns a promise that resolves into an array of objects containing 'sessionId', 'sessionKey' and 'creationTime'.
@@ -249,6 +250,7 @@ async function ensureZapUserAndSession(
   } else if (options.sessionId != null) {
     // we have a session, but not the user, so we create
     // the user and link the session with it.
+    await queryPackage.deleteAllSessionPackages(db, sessionId)
     let user = await ensureUser(db, userKey)
     await linkSessionToUser(db, options.sessionId, user.userId)
     return {
