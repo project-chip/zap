@@ -517,16 +517,7 @@ async function processClusters(db, filePath, packageId, data, context) {
  * @returns Promise of inserted data.
  */
 function processClusterGlobalAttributes(db, filePath, packageId, data) {
-  let objs = []
-  data.forEach((x) => {
-    let p = prepareClusterGlobalAttribute(x)
-    if (p != null) objs.push(p)
-  })
-  if (objs.length > 0) {
-    return queryLoader.insertGlobalAttributeDefault(db, packageId, objs)
-  } else {
-    return null
-  }
+  return null
 }
 
 /**

@@ -29,9 +29,9 @@ const queryNotification = require('../db/query-package-notification')
 const INSERT_CLUSTER_QUERY = `
 INSERT INTO CLUSTER (
   NAME,
-  REVISION,
+  REVISION
 ) VALUES (
-  ?, ?, 
+  ?, ?
 )
 `
 
@@ -568,7 +568,7 @@ async function insertClusters(db, packageId, data) {
     .dbMultiInsert(
       db,
       INSERT_CLUSTER_QUERY,
-      data.map((cluster) => {
+      data.cluster.map((cluster) => {
         return [packageId, cluster.name]
       })
     )
