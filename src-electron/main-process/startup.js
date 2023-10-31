@@ -550,8 +550,10 @@ async function generateSingleFile(
       {
         zcl: env.builtinSilabsZclMetafile(),
         template: env.builtinTemplateMetafile(),
-      }, null, null
-    )  
+      },
+      null,
+      null
+    )
     output = outputPattern
   } else {
     options.logger(`👉 using input file: ${zapFile}`)
@@ -791,10 +793,7 @@ async function startUpMainInstance(argv, callbacks) {
     dbCache.disable()
   }
 
-  // For now delete the DB file. There is some weird constraint we run into.
-  if (argv.clearDb != null) {
-    clearDatabaseFile(env.sqliteFile())
-  }
+  clearDatabaseFile(env.sqliteFile())
 
   if (argv._.includes('status')) {
     console.log('⛔ Server is not running.')

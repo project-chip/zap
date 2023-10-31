@@ -250,7 +250,6 @@ async function ensureZapUserAndSession(
   } else if (options.sessionId != null) {
     // we have a session, but not the user, so we create
     // the user and link the session with it.
-    await queryPackage.deleteAllSessionPackages(db, sessionId)
     let user = await ensureUser(db, userKey)
     await linkSessionToUser(db, options.sessionId, user.userId)
     return {
