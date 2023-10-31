@@ -389,159 +389,28 @@ function prepareCluster(cluster, context, isExtension = false) {
   let ret = {
     isExtension: isExtension,
   }
-
-  if (isExtension) {
-    if ('$' in cluster && 'code' in cluster.$) {
-      ret.code = parseInt(cluster.$.code)
-    }
-  } else {
-    ret.code = parseInt(cluster.code[0])
-    ret.name = cluster.name[0]
-    ret.description = cluster.description[0].trim()
-    ret.define = cluster.define[0]
-    ret.domain = cluster.domain[0]
-    ret.isSingleton = false
-    if ('$' in cluster) {
-      if (cluster.$.manufacturerCode == null) {
-        ret.manufacturerCode = null
-      } else {
-        ret.manufacturerCode = parseInt(cluster.$.manufacturerCode)
-      }
-      if (cluster.$.singleton == 'true') {
-        ret.isSingleton = true
-      }
-      ret.introducedIn = cluster.$.introducedIn
-      ret.removedIn = cluster.$.removedIn
-      ret.apiMaturity = cluster.$.apiMaturity
-    }
-  }
+  ret.name = cluster.$.name
+  ret.id = cluster.$.id
+  ret.revision = cluster.$.revision
 
   if ('tag' in cluster) {
     ret.tags = cluster.tag.map((tag) => prepareTag(tag))
   }
 
-  if ('command' in cluster) {
+  if ('commands' in cluster) {
     ret.commands = []
-    cluster.commands.command.forEach((command) => {
+    cluster.commands[0].command.forEach((command) => {
+      console.log(command)
       let cmd = {
-        code: parseInt(command.$.code),
-        manufacturerCode: command.$.manufacturerCode,
         name: command.$.name,
-        description: command.description[0].trim(),
-        source: command.$.source,
-        isOptional: command.$.optional == 'true' ? true : false,
-        mustUseTimedInvoke: command.$.mustUseTimedInvoke == 'true',
-        introducedIn: command.$.introducedIn,
-        removedIn: command.$.removedIn,
-        responseName: command.$.response == null ? null : command.$.response,
-        isDefaultResponseEnabled:
-          command.$.disableDefaultResponse == 'true' ? false : true,
-        isFabricScoped: command.$.isFabricScoped == 'true',
-      }
-      cmd.access = extractAccessIntoArray(command)
-      if (cmd.manufacturerCode == null) {
-        cmd.manufacturerCode = ret.manufacturerCode
-      } else {
-        cmd.manufacturerCode = parseInt(cmd.manufacturerCode)
-      }
-      if ('arg' in command) {
-        cmd.args = []
-        let lastFieldId = -1
-        command.arg.forEach((arg) => {
-          let defaultFieldId = lastFieldId + 1
-          lastFieldId = arg.$.fieldId ? parseInt(arg.$.fieldId) : defaultFieldId
-          // We are only including ones that are NOT removedIn
-          if (arg.$.removedIn == null)
-            cmd.args.push({
-              name: arg.$.name,
-              type: arg.$.type,
-              min: arg.$.min,
-              max: arg.$.max,
-              minLength: 0,
-              maxLength: arg.$.length ? arg.$.length : null,
-              isArray: arg.$.array == 'true' ? 1 : 0,
-              presentIf: arg.$.presentIf,
-              isNullable: arg.$.isNullable == 'true' ? true : false,
-              isOptional:
-                arg.$.optional == 'true' || arg.$.optional == '1'
-                  ? true
-                  : false,
-              countArg: arg.$.countArg,
-              fieldIdentifier: lastFieldId,
-              introducedIn: arg.$.introducedIn,
-              removedIn: arg.$.removedIn,
-            })
-        })
+        id: command.$.id,
       }
       ret.commands.push(cmd)
     })
   }
-  if ('event' in cluster) {
-    ret.events = []
-    cluster.events.event.forEach((event) => {
-      let ev = {
-        code: parseInt(event.$.code),
-        manufacturerCode: event.$.manufacturerCode,
-        name: event.$.name,
-        side: event.$.side,
-        priority: event.$.priority,
-        description: event.description[0].trim(),
-        isOptional: event.$.optional == 'true',
-        isFabricSensitive: event.$.isFabricSensitive == 'true',
-      }
-      ev.access = extractAccessIntoArray(event)
-      if (ev.manufacturerCode == null) {
-        ev.manufacturerCode = ret.manufacturerCode
-      } else {
-        ev.manufacturerCode = parseInt(ev.manufacturerCode)
-      }
-      if ('field' in event) {
-        ev.fields = []
-        let lastFieldId = -1
-        event.field.forEach((field) => {
-          let defaultFieldId = lastFieldId + 1
-          lastFieldId = field.$.id ? parseInt(field.$.id) : defaultFieldId
-          if (field.$.removedIn == null) {
-            ev.fields.push({
-              name: field.$.name,
-              type: field.$.type,
-              isArray: field.$.array == 'true' ? 1 : 0,
-              isNullable: field.$.isNullable == 'true' ? true : false,
-              isOptional: field.$.optional == 'true' ? true : false,
-              fieldIdentifier: lastFieldId,
-              introducedIn: field.$.introducedIn,
-              removedIn: field.$.removedIn,
-            })
-          }
-        })
-      }
-      if (
-        context.fabricHandling &&
-        context.fabricHandling.automaticallyCreateFields &&
-        ev.isFabricSensitive
-      ) {
-        if (!ev.fields) {
-          ev.fields = []
-        }
-        ev.fields.push({
-          name: context.fabricHandling.indexFieldName,
-          type: context.fabricHandling.indexType,
-          isArray: false,
-          isNullable: false,
-          isOptional: false,
-          fieldIdentifier: context.fabricHandling.indexFieldId,
-          introducedIn: null,
-          removedIn: null,
-        })
-      }
-
-      // We only add event if it does not have removedIn
-      if (ev.removedIn == null) ret.events.push(ev)
-    })
-  }
-  if ('feature' in cluster) {
+  if ('features' in cluster) {
     ret.features = []
-    cluster.features.feature.forEach((feature) => {
+    cluster.features[0].feature.forEach((feature) => {
       let ev = {
         bit: feature.$.bit,
         featureCode: feature.$.code,
@@ -553,73 +422,23 @@ function prepareCluster(cluster, context, isExtension = false) {
       if (ev.removedIn == null) ret.features.push(ev)
     })
   }
-
   if ('attributes' in cluster) {
     ret.attributes = []
-    cluster.attributes.attribute.forEach((attribute) => {
+    cluster.attributes[0].attribute.forEach((attribute) => {
       let name = attribute._
       if ('description' in attribute && name == null) {
         name = attribute.description.join('')
       }
-      let reportingPolicy = context.defaultReportingPolicy
-      if (attribute.$.reportable == 'true') {
-        reportingPolicy = dbEnum.reportingPolicy.suggested
-      } else if (attribute.$.reportable == 'false') {
-        reportingPolicy = dbEnum.reportingPolicy.optional
-      } else if (attribute.$.reportingPolicy != null) {
-        reportingPolicy = dbEnum.reportingPolicy.resolve(
-          attribute.$.reportingPolicy
-        )
-      }
-      let storagePolicy = dbEnum.storagePolicy.any
-      if (context.listsUseAttributeAccessInterface && attribute.$.entryType) {
-        storagePolicy = dbEnum.storagePolicy.attributeAccessInterface
-      } else if (
-        context.attributeAccessInterfaceAttributes &&
-        context.attributeAccessInterfaceAttributes[cluster.name] &&
-        context.attributeAccessInterfaceAttributes[cluster.name].includes(name)
-      ) {
-        storagePolicy = dbEnum.storagePolicy.attributeAccessInterface
-      }
       let att = {
-        code: parseInt(attribute.$.code),
-        manufacturerCode: attribute.$.manufacturerCode,
         name: name,
         type:
           attribute.$.type.toUpperCase() == attribute.$.type
             ? attribute.$.type.toLowerCase()
             : attribute.$.type,
-        side: attribute.$.side,
-        define: attribute.$.define,
-        min: attribute.$.min,
-        max: attribute.$.max,
-        minLength: 0,
-        maxLength: attribute.$.length ? attribute.$.length : null,
-        reportMinInterval: attribute.$.reportMinInterval,
-        reportMaxInterval: attribute.$.reportMaxInterval,
-        reportableChange: attribute.$.reportableChange,
-        reportableChangeLength: attribute.$.reportableChangeLength
-          ? attribute.$.reportableChangeLength
-          : null,
-        isWritable: attribute.$.writable == 'true',
-        defaultValue: attribute.$.default,
-        isOptional: attribute.$.optional == 'true',
-        reportingPolicy: reportingPolicy,
-        storagePolicy: storagePolicy,
-        isSceneRequired: attribute.$.sceneRequired == 'true',
-        introducedIn: attribute.$.introducedIn,
-        removedIn: attribute.$.removedIn,
-        isNullable: attribute.$.isNullable == 'true' ? true : false,
-        entryType: attribute.$.entryType,
-        mustUseTimedWrite: attribute.$.mustUseTimedWrite == 'true',
-        apiMaturity: attribute.$.apiMaturity,
+        default: attribute.$.default,
+        id: attribute.$.id,
       }
       att.access = extractAccessIntoArray(attribute)
-      if (att.manufacturerCode == null) {
-        att.manufacturerCode = ret.manufacturerCode
-      } else {
-        att.manufacturerCode = parseInt(att.manufacturerCode)
-      }
       // Setting max length for string type attributes when not specified by
       // the xml.
       if (
@@ -679,10 +498,11 @@ function prepareCluster(cluster, context, isExtension = false) {
  */
 async function processClusters(db, filePath, packageId, data, context) {
   env.logDebug(`${filePath}, ${packageId}: ${data.length} clusters.`)
+  console.log(data)
   return queryLoader.insertClusters(
     db,
     packageId,
-    data.map((x) => prepareCluster(x, context))
+    prepareCluster(data, context)
   )
 }
 
@@ -1607,6 +1427,9 @@ async function processParsedZclData(
 
     if ('configurator' in data) {
       toplevel = data.configurator
+    }
+    if ('cluster' in data) {
+      toplevel = data
     }
     if ('zap' in data) {
       toplevel = data.zap
