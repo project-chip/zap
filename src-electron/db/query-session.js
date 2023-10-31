@@ -23,7 +23,6 @@
 const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
 const util = require('../util/util.js')
-const queryPackage = require('./query-package.js')
 
 /**
  * Returns a promise that resolves into an array of objects containing 'sessionId', 'sessionKey' and 'creationTime'.
