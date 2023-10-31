@@ -422,7 +422,7 @@ function prepareCluster(cluster, context, isExtension = false) {
 
   if ('command' in cluster) {
     ret.commands = []
-    cluster.command.forEach((command) => {
+    cluster.commands.command.forEach((command) => {
       let cmd = {
         code: parseInt(command.$.code),
         manufacturerCode: command.$.manufacturerCode,
@@ -478,7 +478,7 @@ function prepareCluster(cluster, context, isExtension = false) {
   }
   if ('event' in cluster) {
     ret.events = []
-    cluster.event.forEach((event) => {
+    cluster.events.event.forEach((event) => {
       let ev = {
         code: parseInt(event.$.code),
         manufacturerCode: event.$.manufacturerCode,
@@ -539,10 +539,24 @@ function prepareCluster(cluster, context, isExtension = false) {
       if (ev.removedIn == null) ret.events.push(ev)
     })
   }
+  if ('feature' in cluster) {
+    ret.features = []
+    cluster.features.feature.forEach((feature) => {
+      let ev = {
+        bit: feature.$.bit,
+        featureCode: feature.$.code,
+        name: feature.$.name,
+        summary: feature.$.summary,
+      }
+      ev.access = extractAccessIntoArray(feature)
+      // We only add event if it does not have removedIn
+      if (ev.removedIn == null) ret.features.push(ev)
+    })
+  }
 
-  if ('attribute' in cluster) {
+  if ('attributes' in cluster) {
     ret.attributes = []
-    cluster.attribute.forEach((attribute) => {
+    cluster.attributes.attribute.forEach((attribute) => {
       let name = attribute._
       if ('description' in attribute && name == null) {
         name = attribute.description.join('')
