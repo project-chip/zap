@@ -389,9 +389,10 @@ function prepareCluster(cluster, context, isExtension = false) {
   let ret = {
     isExtension: isExtension,
   }
-  ret.name = cluster.$.name
-  ret.id = cluster.$.id
-  ret.revision = cluster.$.revision
+  ret.cluster = []
+  ret.cluster.name = cluster.$.name
+  ret.cluster.id = cluster.$.id
+  ret.cluster.revision = cluster.$.revision
 
   if ('tag' in cluster) {
     ret.tags = cluster.tag.map((tag) => prepareTag(tag))

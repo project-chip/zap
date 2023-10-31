@@ -31,10 +31,7 @@ INSERT INTO CLUSTER (
   NAME,
   REVISION,
 ) VALUES (
-  ?, ?, ?, ?, ?, ?, ?, ?, ?,
-  (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
-  (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
-  ?
+  ?, ?, 
 )
 `
 
