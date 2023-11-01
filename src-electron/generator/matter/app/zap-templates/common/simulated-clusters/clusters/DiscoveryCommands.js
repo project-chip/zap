@@ -69,6 +69,18 @@ const kDefaultResponse = {
       chipType: 'uint32_t',
       isOptional: true,
     }, //
+    {
+      name: 'mrpRetryActiveThreshold',
+      type: 'INT16U',
+      chipType: 'uint16_t',
+      isOptional: true,
+    }, //
+    {
+      name: 'ICDOperatesAsLIT',
+      type: 'BOOLEAN',
+      chipType: 'bool',
+      isOptional: true,
+    }, //
   ],
 };
 
