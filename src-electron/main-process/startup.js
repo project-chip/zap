@@ -471,7 +471,6 @@ async function startSelfCheck(
   argv,
   options = {
     quitFunction: null,
-    cleanDb: true,
     logger: console.log,
   }
 ) {
@@ -550,8 +549,10 @@ async function generateSingleFile(
       {
         zcl: env.builtinSilabsZclMetafile(),
         template: env.builtinTemplateMetafile(),
-      }, null, null
-    )  
+      },
+      null,
+      null
+    )
     output = outputPattern
   } else {
     options.logger(`👉 using input file: ${zapFile}`)
@@ -613,7 +614,7 @@ async function startGeneration(argv, options) {
 
   let hrstart = process.hrtime.bigint()
   options.logger(
-    `🤖 ZAP generation started: 
+    `🤖 ZAP generation started:
     🔍 input files: ${zapFiles}
     🔍 output pattern: ${output}
     🔍 using templates: ${templateMetafile}
@@ -803,7 +804,6 @@ async function startUpMainInstance(argv, callbacks) {
   } else if (argv._.includes('selfCheck')) {
     let options = {
       quitFunction: quitFunction,
-      cleanDb: true,
       logger: console.log,
     }
     return startSelfCheck(argv, options)
@@ -812,7 +812,6 @@ async function startUpMainInstance(argv, callbacks) {
       throw 'You need to specify at least one zap file.'
     let options = {
       quitFunction: quitFunction,
-      cleanDb: true,
       logger: console.log,
     }
     return startAnalyze(argv, options)
@@ -838,7 +837,6 @@ async function startUpMainInstance(argv, callbacks) {
   } else if (argv._.includes('generate')) {
     let options = {
       quitFunction: quitFunction,
-      cleanDb: true,
       logger: console.log,
     }
     return startGeneration(argv, options).catch((err) => {

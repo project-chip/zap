@@ -1,17 +1,17 @@
 /*
- * 
- * $$$$$$$\                     $$\                                              
- * $$  __$$\                    $$ |                                             
- * $$ |  $$ |$$$$$$\   $$$$$$$\ $$ |  $$\ $$$$$$\   $$$$$$\   $$$$$$\   $$$$$$$\ 
+ *
+ * $$$$$$$\                     $$\
+ * $$  __$$\                    $$ |
+ * $$ |  $$ |$$$$$$\   $$$$$$$\ $$ |  $$\ $$$$$$\   $$$$$$\   $$$$$$\   $$$$$$$\
  * $$$$$$$  |\____$$\ $$  _____|$$ | $$  |\____$$\ $$  __$$\ $$  __$$\ $$  _____|
- * $$  ____/ $$$$$$$ |$$ /      $$$$$$  / $$$$$$$ |$$ /  $$ |$$$$$$$$ |\$$$$$$\  
- * $$ |     $$  __$$ |$$ |      $$  _$$< $$  __$$ |$$ |  $$ |$$   ____| \____$$\ 
+ * $$  ____/ $$$$$$$ |$$ /      $$$$$$  / $$$$$$$ |$$ /  $$ |$$$$$$$$ |\$$$$$$\
+ * $$ |     $$  __$$ |$$ |      $$  _$$< $$  __$$ |$$ |  $$ |$$   ____| \____$$\
  * $$ |     \$$$$$$$ |\$$$$$$$\ $$ | \$$\\$$$$$$$ |\$$$$$$$ |\$$$$$$$\ $$$$$$$  |
- * \__|      \_______| \_______|\__|  \__|\_______| \____$$ | \_______|\_______/ 
- *                                                 $$\   $$ |                    
- *                                                 \$$$$$$  |                    
- *                                                  \______/                     
- * 
+ * \__|      \_______| \_______|\__|  \__|\_______| \____$$ | \_______|\_______/
+ *                                                 $$\   $$ |
+ *                                                 \$$$$$$  |
+ *                                                  \______/
+ *
  * You can create these giant separators via:
  * http://patorjk.com/software/taag/#p=display&f=Big%20Money-nw
  */
@@ -22,7 +22,7 @@ PRAGMA foreign_keys = ON;
 /*
  PACKAGE table contains the "packages" that are the sources for the
  loading of the other data. They may be individual files, or
- collection of files.
+ collection of files, which then contain subpackages.
  
  Table records the CRC of the toplevel file at the time loading.
  */
@@ -39,7 +39,7 @@ CREATE TABLE "PACKAGE" (
   foreign key (PARENT_PACKAGE_REF) references PACKAGE(PACKAGE_ID)
 );
 /*
- PACKAGE_OPTION table contains generic 'options' that are encoded from within each packages. 
+ PACKAGE_OPTION table contains generic 'options' that are encoded from within each packages.
  */
 DROP TABLE IF EXISTS "PACKAGE_OPTION";
 CREATE TABLE "PACKAGE_OPTION" (
@@ -51,7 +51,7 @@ CREATE TABLE "PACKAGE_OPTION" (
   foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID) on delete cascade,
   UNIQUE(PACKAGE_REF, OPTION_CATEGORY, OPTION_CODE)
 );
-/* 
+/*
  PACKAGE_OPTION_DEFAULT table contains a link to a specified 'default value' for an options
  */
 DROP TABLE IF EXISTS "PACKAGE_OPTION_DEFAULT";
@@ -97,14 +97,14 @@ CREATE TABLE "PACKAGE_EXTENSION_DEFAULT" (
 );
 /*
  *
- * $$$$$$$$\          $$\       $$\      $$\                 $$\           $$\ 
+ * $$$$$$$$\          $$\       $$\      $$\                 $$\           $$\
  * \____$$  |         $$ |      $$$\    $$$ |                $$ |          $$ |
  *     $$  / $$$$$$$\ $$ |      $$$$\  $$$$ | $$$$$$\   $$$$$$$ | $$$$$$\  $$ |
  *    $$  / $$  _____|$$ |      $$\$$\$$/$$ |$$  __$$\ $$  __$$ |$$  __$$\ $$ |
  *   $$  /  $$ /      $$ |      $$ \$$$ .$$ |$$ /  $$ |$$ /  $$ |$$$$$$$$ |$$ |
  *  $$  /   $$ |      $$ |      $$ |\$  /$$ |$$ |  $$ |$$ |  $$ |$$   ____|$$ |
  * $$$$$$$$\\$$$$$$$\ $$ |      $$ | \_/ $$ |\$$$$$$  |\$$$$$$$ |\$$$$$$$\ $$ |
- * \________|\_______|\__|      \__|     \__| \______/  \_______| \_______|\__|                                                                                                                                                                                                                                    
+ * \________|\_______|\__|      \__|     \__| \______/  \_______| \_______|\__|
  */
 /*
  SPEC table contains the spec information.
@@ -206,7 +206,7 @@ CREATE TABLE IF NOT EXISTS "COMMAND_ARG" (
   foreign key (COMMAND_REF) references COMMAND(COMMAND_ID) on delete cascade
 );
 /*
- EVENT table contains events for a given cluster. 
+ EVENT table contains events for a given cluster.
  */
 DROP TABLE IF EXISTS "EVENT";
 CREATE TABLE IF NOT EXISTS "EVENT" (
@@ -229,7 +229,7 @@ CREATE TABLE IF NOT EXISTS "EVENT" (
   foreign key (REMOVED_IN_REF) references SPEC(SPEC_ID)
 );
 /*
- EVENT_FIELD table contains events for a given cluster. 
+ EVENT_FIELD table contains events for a given cluster.
  */
 DROP TABLE IF EXISTS "EVENT_FIELD";
 CREATE TABLE IF NOT EXISTS "EVENT_FIELD" (
@@ -305,7 +305,7 @@ CREATE TABLE IF NOT EXISTS "GLOBAL_ATTRIBUTE_DEFAULT" (
   foreign key(ATTRIBUTE_REF) references ATTRIBUTE(ATTRIBUTE_ID) on delete cascade
 );
 /*
- GLOBAL_ATTRIBUTE_BIT is carrying information about the mappings of a 
+ GLOBAL_ATTRIBUTE_BIT is carrying information about the mappings of a
  bit for a given global attribute value. Example are FeatureMap global
  attributes in Matter implementation. For that case, the value
  of global attribute carries both the value, as well as the meaning
@@ -355,7 +355,7 @@ CREATE TABLE IF NOT EXISTS "DEVICE_TYPE_CLUSTER" (
   foreign key (CLUSTER_REF) references CLUSTER(CLUSTER_ID)
 );
 /*
- DEVICE_TYPE_ATTRIBUTE contains attribuets that belong to a device type cluster. 
+ DEVICE_TYPE_ATTRIBUTE contains attribuets that belong to a device type cluster.
  */
 DROP TABLE IF EXISTS "DEVICE_TYPE_ATTRIBUTE";
 CREATE TABLE IF NOT EXISTS "DEVICE_TYPE_ATTRIBUTE" (
@@ -366,7 +366,7 @@ CREATE TABLE IF NOT EXISTS "DEVICE_TYPE_ATTRIBUTE" (
   foreign key (ATTRIBUTE_REF) references ATTRIBUTE(ATTRIBUTE_ID) on delete cascade
 );
 /*
- DEVICE_TYPE_COMMAND contains attributes that belong to a device type cluster. 
+ DEVICE_TYPE_COMMAND contains attributes that belong to a device type cluster.
  */
 DROP TABLE IF EXISTS "DEVICE_TYPE_COMMAND";
 CREATE TABLE IF NOT EXISTS "DEVICE_TYPE_COMMAND" (
@@ -391,17 +391,17 @@ CREATE TABLE IF NOT EXISTS "TAG" (
 );
 /*
  *
- * $$$$$$$$\                                      
- * \__$$  __|                                     
- *    $$ |$$\   $$\  $$$$$$\   $$$$$$\   $$$$$$$\ 
+ * $$$$$$$$\
+ * \__$$  __|
+ *    $$ |$$\   $$\  $$$$$$\   $$$$$$\   $$$$$$$\
  *    $$ |$$ |  $$ |$$  __$$\ $$  __$$\ $$  _____|
- *    $$ |$$ |  $$ |$$ /  $$ |$$$$$$$$ |\$$$$$$\  
- *    $$ |$$ |  $$ |$$ |  $$ |$$   ____| \____$$\ 
+ *    $$ |$$ |  $$ |$$ /  $$ |$$$$$$$$ |\$$$$$$\
+ *    $$ |$$ |  $$ |$$ |  $$ |$$   ____| \____$$\
  *    $$ |\$$$$$$$ |$$$$$$$  |\$$$$$$$\ $$$$$$$  |
- *    \__| \____$$ |$$  ____/  \_______|\_______/ 
- *        $$\   $$ |$$ |                          
- *        \$$$$$$  |$$ |                          
- *         \______/ \__|                          
+ *    \__| \____$$ |$$  ____/  \_______|\_______/
+ *        $$\   $$ |$$ |
+ *        \$$$$$$  |$$ |
+ *         \______/ \__|
  */
 /*
  DISCRIMINATOR table contains the data types loaded from packages
@@ -559,14 +559,14 @@ CREATE TABLE IF NOT EXISTS STRUCT_ITEM (
   FOREIGN KEY (DATA_TYPE_REF) REFERENCES DATA_TYPE(DATA_TYPE_ID) ON DELETE CASCADE ON UPDATE CASCADE
 );
 /*
- *  $$$$$$\                                                    
- * $$  __$$\                                                   
- * $$ /  $$ | $$$$$$$\  $$$$$$$\  $$$$$$\   $$$$$$$\  $$$$$$$\ 
+ *  $$$$$$\
+ * $$  __$$\
+ * $$ /  $$ | $$$$$$$\  $$$$$$$\  $$$$$$\   $$$$$$$\  $$$$$$$\
  * $$$$$$$$ |$$  _____|$$  _____|$$  __$$\ $$  _____|$$  _____|
- * $$  __$$ |$$ /      $$ /      $$$$$$$$ |\$$$$$$\  \$$$$$$\  
- * $$ |  $$ |$$ |      $$ |      $$   ____| \____$$\  \____$$\ 
+ * $$  __$$ |$$ /      $$ /      $$$$$$$$ |\$$$$$$\  \$$$$$$\
+ * $$ |  $$ |$$ |      $$ |      $$   ____| \____$$\  \____$$\
  * $$ |  $$ |\$$$$$$$\ \$$$$$$$\ \$$$$$$$\ $$$$$$$  |$$$$$$$  |
- * \__|  \__| \_______| \_______| \_______|\_______/ \_______/ 
+ * \__|  \__| \_______| \_______| \_______|\_______/ \_______/
  */
 DROP TABLE IF EXISTS "OPERATION";
 CREATE TABLE IF NOT EXISTS "OPERATION" (
@@ -641,17 +641,17 @@ CREATE TABLE IF NOT EXISTS "DEFAULT_ACCESS" (
 );
 /*
  *
- *  $$$$$$\                                $$\                                 $$\            $$\               
- * $$  __$$\                               \__|                                $$ |           $$ |              
- * $$ /  \__| $$$$$$\   $$$$$$$\  $$$$$$$\ $$\  $$$$$$\  $$$$$$$\         $$$$$$$ | $$$$$$\ $$$$$$\    $$$$$$\  
- * \$$$$$$\  $$  __$$\ $$  _____|$$  _____|$$ |$$  __$$\ $$  __$$\       $$  __$$ | \____$$\\_$$  _|   \____$$\ 
+ *  $$$$$$\                                $$\                                 $$\            $$\
+ * $$  __$$\                               \__|                                $$ |           $$ |
+ * $$ /  \__| $$$$$$\   $$$$$$$\  $$$$$$$\ $$\  $$$$$$\  $$$$$$$\         $$$$$$$ | $$$$$$\ $$$$$$\    $$$$$$\
+ * \$$$$$$\  $$  __$$\ $$  _____|$$  _____|$$ |$$  __$$\ $$  __$$\       $$  __$$ | \____$$\\_$$  _|   \____$$\
  *  \____$$\ $$$$$$$$ |\$$$$$$\  \$$$$$$\  $$ |$$ /  $$ |$$ |  $$ |      $$ /  $$ | $$$$$$$ | $$ |     $$$$$$$ |
  * $$\   $$ |$$   ____| \____$$\  \____$$\ $$ |$$ |  $$ |$$ |  $$ |      $$ |  $$ |$$  __$$ | $$ |$$\ $$  __$$ |
  * \$$$$$$  |\$$$$$$$\ $$$$$$$  |$$$$$$$  |$$ |\$$$$$$  |$$ |  $$ |      \$$$$$$$ |\$$$$$$$ | \$$$$  |\$$$$$$$ |
  *  \______/  \_______|\_______/ \_______/ \__| \______/ \__|  \__|       \_______| \_______|  \____/  \_______|
  */
 /*
- USER table contains a reference to a single "user", which really refers to a given cookie on the 
+ USER table contains a reference to a single "user", which really refers to a given cookie on the
  browser side. There is no login management here, so this just refers to a unique browser instance.
  */
 DROP TABLE IF EXISTS "USER";
@@ -722,7 +722,6 @@ CREATE TABLE IF NOT EXISTS "ENDPOINT_TYPE" (
   "NAME" text,
   foreign key (SESSION_REF) references SESSION(SESSION_ID) on delete cascade
 );
-
 /*
  ENDPOINT_TYPE_DEVICE: many-to-many relationship between endpoint type and
  device type.
@@ -738,86 +737,65 @@ CREATE TABLE IF NOT EXISTS "ENDPOINT_TYPE_DEVICE" (
   foreign key(DEVICE_TYPE_REF) references DEVICE_TYPE(DEVICE_TYPE_ID) on delete cascade,
   foreign key (ENDPOINT_TYPE_REF) references ENDPOINT_TYPE(ENDPOINT_TYPE_ID) on delete
   set NULL,
-  UNIQUE("ENDPOINT_TYPE_REF", "DEVICE_TYPE_REF")
+    UNIQUE("ENDPOINT_TYPE_REF", "DEVICE_TYPE_REF")
 );
-
 /**
-SQL Trigger for device type triggers per endpoint.
-From Matter Data Model Spec 9.2 Endpoint Composition
-Each simple endpoint SHALL support only one Application device type with these exceptions:
-- The endpoint MAY support additional device types which are subsets of the Application
-device type (the superset).
-- The endpoint MAY support additional device types (application, utility or node device types)
-as defined by each additional device type.
-*/
-CREATE TRIGGER ENDPOINT_TYPE_SIMPLE_DEVICE_CHECK
-BEFORE
-  INSERT ON ENDPOINT_TYPE_DEVICE
-WHEN
-  (SELECT
-    CLASS
-  FROM
-    DEVICE_TYPE
-  WHERE
-    DEVICE_TYPE.DEVICE_TYPE_ID = NEW.DEVICE_TYPE_REF) = "Simple"
-  AND
-    ((SELECT
-      CLASS
-    FROM
-      DEVICE_TYPE
-    WHERE
-      DEVICE_TYPE.DEVICE_TYPE_ID = NEW.DEVICE_TYPE_REF)
-    IN
-      (SELECT
-        CLASS
-      FROM
-        DEVICE_TYPE
-      INNER JOIN
-        ENDPOINT_TYPE_DEVICE
-      ON
-        DEVICE_TYPE.DEVICE_TYPE_ID = ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_REF
-      WHERE
-        ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF = NEW.ENDPOINT_TYPE_REF))
-  AND
-    ((SELECT
-      SUPERSET
-    FROM
-      DEVICE_TYPE
-    WHERE
-      DEVICE_TYPE.DEVICE_TYPE_ID = NEW.DEVICE_TYPE_REF)
-    NOT IN
-      (SELECT
-        DESCRIPTION
-      FROM
-        DEVICE_TYPE
-      INNER JOIN
-        ENDPOINT_TYPE_DEVICE
-      ON
-        DEVICE_TYPE.DEVICE_TYPE_ID = ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_REF
-      WHERE
-        ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF = NEW.ENDPOINT_TYPE_REF))
-  AND
-    ((SELECT
-      DESCRIPTION
-    FROM
-      DEVICE_TYPE
-    WHERE
-      DEVICE_TYPE.DEVICE_TYPE_ID = NEW.DEVICE_TYPE_REF)
-    NOT IN
-      (SELECT
-        SUPERSET
-      FROM
-        DEVICE_TYPE
-      INNER JOIN
-        ENDPOINT_TYPE_DEVICE
-      ON
-        DEVICE_TYPE.DEVICE_TYPE_ID = ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_REF
-      WHERE
-        ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF = NEW.ENDPOINT_TYPE_REF))
-BEGIN
-  SELECT RAISE(ROLLBACK, 'Simple endpoint cannot have more than one application device type');
+ SQL Trigger for device type triggers per endpoint.
+ From Matter Data Model Spec 9.2 Endpoint Composition
+ Each simple endpoint SHALL support only one Application device type with these exceptions:
+ - The endpoint MAY support additional device types which are subsets of the Application
+ device type (the superset).
+ - The endpoint MAY support additional device types (application, utility or node device types)
+ as defined by each additional device type.
+ */
+CREATE TRIGGER ENDPOINT_TYPE_SIMPLE_DEVICE_CHECK BEFORE
+INSERT ON ENDPOINT_TYPE_DEVICE
+  WHEN (
+    SELECT CLASS
+    FROM DEVICE_TYPE
+    WHERE DEVICE_TYPE.DEVICE_TYPE_ID = NEW.DEVICE_TYPE_REF
+  ) = "Simple"
+  AND (
+    (
+      SELECT CLASS
+      FROM DEVICE_TYPE
+      WHERE DEVICE_TYPE.DEVICE_TYPE_ID = NEW.DEVICE_TYPE_REF
+    ) IN (
+      SELECT CLASS
+      FROM DEVICE_TYPE
+        INNER JOIN ENDPOINT_TYPE_DEVICE ON DEVICE_TYPE.DEVICE_TYPE_ID = ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_REF
+      WHERE ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF = NEW.ENDPOINT_TYPE_REF
+    )
+  )
+  AND (
+    (
+      SELECT SUPERSET
+      FROM DEVICE_TYPE
+      WHERE DEVICE_TYPE.DEVICE_TYPE_ID = NEW.DEVICE_TYPE_REF
+    ) NOT IN (
+      SELECT DESCRIPTION
+      FROM DEVICE_TYPE
+        INNER JOIN ENDPOINT_TYPE_DEVICE ON DEVICE_TYPE.DEVICE_TYPE_ID = ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_REF
+      WHERE ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF = NEW.ENDPOINT_TYPE_REF
+    )
+  )
+  AND (
+    (
+      SELECT DESCRIPTION
+      FROM DEVICE_TYPE
+      WHERE DEVICE_TYPE.DEVICE_TYPE_ID = NEW.DEVICE_TYPE_REF
+    ) NOT IN (
+      SELECT SUPERSET
+      FROM DEVICE_TYPE
+        INNER JOIN ENDPOINT_TYPE_DEVICE ON DEVICE_TYPE.DEVICE_TYPE_ID = ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_REF
+      WHERE ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF = NEW.ENDPOINT_TYPE_REF
+    )
+  ) BEGIN
+SELECT RAISE(
+    ROLLBACK,
+    'Simple endpoint cannot have more than one application device type'
+  );
 END;
-
 /*
  ENDPOINT table contains the toplevel configured endpoints.
  */
@@ -941,18 +919,18 @@ CREATE TABLE IF NOT EXISTS "PACKAGE_EXTENSION_VALUE" (
   )
 );
 /*
- * 
- * $$$$$$$$\        $$\                                                   
- * \__$$  __|       \__|                                                  
- *    $$ | $$$$$$\  $$\  $$$$$$\   $$$$$$\   $$$$$$\   $$$$$$\   $$$$$$$\ 
+ *
+ * $$$$$$$$\        $$\
+ * \__$$  __|       \__|
+ *    $$ | $$$$$$\  $$\  $$$$$$\   $$$$$$\   $$$$$$\   $$$$$$\   $$$$$$$\
  *    $$ |$$  __$$\ $$ |$$  __$$\ $$  __$$\ $$  __$$\ $$  __$$\ $$  _____|
- *    $$ |$$ |  \__|$$ |$$ /  $$ |$$ /  $$ |$$$$$$$$ |$$ |  \__|\$$$$$$\  
- *    $$ |$$ |      $$ |$$ |  $$ |$$ |  $$ |$$   ____|$$ |       \____$$\ 
+ *    $$ |$$ |  \__|$$ |$$ /  $$ |$$ /  $$ |$$$$$$$$ |$$ |  \__|\$$$$$$\
+ *    $$ |$$ |      $$ |$$ |  $$ |$$ |  $$ |$$   ____|$$ |       \____$$\
  *    $$ |$$ |      $$ |\$$$$$$$ |\$$$$$$$ |\$$$$$$$\ $$ |      $$$$$$$  |
- *    \__|\__|      \__| \____$$ | \____$$ | \_______|\__|      \_______/ 
- *                      $$\   $$ |$$\   $$ |                              
- *                      \$$$$$$  |\$$$$$$  |                              
- *                       \______/  \______/                               
+ *    \__|\__|      \__| \____$$ | \____$$ | \_______|\__|      \_______/
+ *                      $$\   $$ |$$\   $$ |
+ *                      \$$$$$$  |\$$$$$$  |
+ *                       \______/  \______/
  */
 CREATE TRIGGER IF NOT EXISTS "INSERT_TRIGGER_SESSION_KEY_VALUE"
 AFTER
@@ -1197,11 +1175,11 @@ SET DIRTY = 1
 WHERE SESSION_ID = OLD.SESSION_REF;
 END;
 /*
- * 
- *  $$$$$$\  $$\           $$\                 $$\             $$\            $$\               
- * $$  __$$\ $$ |          $$ |                $$ |            $$ |           $$ |              
- * $$ /  \__|$$ | $$$$$$\  $$$$$$$\   $$$$$$\  $$ |       $$$$$$$ | $$$$$$\ $$$$$$\    $$$$$$\  
- * $$ |$$$$\ $$ |$$  __$$\ $$  __$$\  \____$$\ $$ |      $$  __$$ | \____$$\\_$$  _|   \____$$\ 
+ *
+ *  $$$$$$\  $$\           $$\                 $$\             $$\            $$\
+ * $$  __$$\ $$ |          $$ |                $$ |            $$ |           $$ |
+ * $$ /  \__|$$ | $$$$$$\  $$$$$$$\   $$$$$$\  $$ |       $$$$$$$ | $$$$$$\ $$$$$$\    $$$$$$\
+ * $$ |$$$$\ $$ |$$  __$$\ $$  __$$\  \____$$\ $$ |      $$  __$$ | \____$$\\_$$  _|   \____$$\
  * $$ |\_$$ |$$ |$$ /  $$ |$$ |  $$ | $$$$$$$ |$$ |      $$ /  $$ | $$$$$$$ | $$ |     $$$$$$$ |
  * $$ |  $$ |$$ |$$ |  $$ |$$ |  $$ |$$  __$$ |$$ |      $$ |  $$ |$$  __$$ | $$ |$$\ $$  __$$ |
  * \$$$$$$  |$$ |\$$$$$$  |$$$$$$$  |\$$$$$$$ |$$ |      \$$$$$$$ |\$$$$$$$ | \$$$$  |\$$$$$$$ |
@@ -1229,7 +1207,6 @@ CREATE TABLE IF NOT EXISTS "SESSION_NOTICE" (
   "SEEN" integer,
   foreign key (SESSION_REF) references SESSION(SESSION_ID) on delete cascade
 );
-
 /*
  Package Notification table
  */

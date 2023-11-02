@@ -17,7 +17,7 @@
 
 const path = require('path')
 const os = require('os')
-import fs from 'fs'
+const fs = require('fs')
 const pino = require('pino')
 const zapBaseUrl = 'http://localhost:'
 
@@ -25,7 +25,7 @@ import { VersionType, ErrorType } from '../types/env-types'
 
 let saveFileFormat = 2 // This is the enabled only .zap file format
 
-export function setSaveFileFormat(n: number) {
+export function setSaveFileFormat(n) {
   saveFileFormat = n
 }
 
@@ -119,8 +119,8 @@ let pino_logger = pino(pinoOptions)
 
 let explicit_logger_set = false
 let httpStaticContentPath = path.join(__dirname, '../../../spa')
-let versionObject: VersionType | null = null
-let applicationStateDirectory: string | null = null
+let versionObject = null
+let applicationStateDirectory = null
 
 export function setDevelopmentEnv() {
   // @ts-ignore
@@ -166,7 +166,7 @@ export function logInitLogFile() {
  *
  * @param {*} path Absolute path. Typically '~/.zap'.
  */
-export function setAppDirectory(directoryPath: string): string | null {
+export function setAppDirectory(directoryPath) {
   let appDir
   if (directoryPath.startsWith('~/')) {
     appDir = path.join(os.homedir(), directoryPath.substring(2))
@@ -211,7 +211,7 @@ export function sqliteFile(filename = 'zap') {
   return path.join(appDirectory(), `${filename}.sqlite`)
 }
 
-export function sqliteTestFile(id: string, deleteExistingFile = true) {
+export function sqliteTestFile(id, deleteExistingFile = true) {
   let dir = path.join(__dirname, '../../test/.zap')
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir)
@@ -239,9 +239,9 @@ export function zapVersionAsString() {
  * things are copied into the dist/ directory.
  *
  * @param filePath
- * @returns
+ * @returns located project resource
  */
-export function locateProjectResource(filePath: string): string {
+export function locateProjectResource(filePath) {
   if (fs.existsSync(path.join(__dirname, '../../zcl-builtin/'))) {
     return path.join(__dirname, '../../', filePath)
   } else if (fs.existsSync(path.join(__dirname, '../../../zcl-builtin/'))) {
@@ -307,7 +307,7 @@ export function baseUrl() {
  * Prints the data to stderr, without much fuss.
  * @param msg
  */
-export function printToStderr(msg: string): void {
+export function printToStderr(msg) {
   console.error(msg)
 }
 
@@ -318,8 +318,8 @@ export function printToStderr(msg: string): void {
  * @param {*} msg
  * @param {*} err
  */
-export function log(level: string, msg: string, err = null) {
-  let objectToLog: ErrorType = {
+export function log(level, msg, err = null) {
+  let objectToLog = {
     msg: msg,
   }
   if (err != null) {
@@ -336,7 +336,7 @@ export function log(level: string, msg: string, err = null) {
  * @param {*} msg
  * @param {*} err
  */
-export function logInfo(msg: string, err = null) {
+export function logInfo(msg, err = null) {
   log('info', msg, err)
 }
 
@@ -346,7 +346,7 @@ export function logInfo(msg: string, err = null) {
  * @param {*} msg
  * @param {*} err
  */
-export function logError(msg: string, err = null) {
+export function logError(msg, err = null) {
   log('error', msg, err)
 }
 
@@ -356,7 +356,7 @@ export function logError(msg: string, err = null) {
  * @param {*} msg
  * @param {*} err
  */
-export function logWarning(msg: string, err = null) {
+export function logWarning(msg, err = null) {
   log('warn', msg, err)
 }
 
@@ -366,7 +366,7 @@ export function logWarning(msg: string, err = null) {
  * @param {*} msg
  * @param {*} err
  */
-export function logSql(msg: string, query: string | null, args: string | null) {
+export function logSql(msg, query, args) {
   if (query == null) {
     log('sql', msg)
   } else {
@@ -385,7 +385,7 @@ export function logSql(msg: string, query: string | null, args: string | null) {
  * @param {*} msg
  * @param {*} err
  */
-export function logBrowser(msg: string, err = null) {
+export function logBrowser(msg, err = null) {
   log('browser', msg, err)
 }
 
@@ -395,7 +395,7 @@ export function logBrowser(msg: string, err = null) {
  * @param {*} msg
  * @param {*} err
  */
-export function logIpc(msg: string, err = null) {
+export function logIpc(msg, err = null) {
   log('ipc', msg, err)
 }
 
@@ -405,15 +405,12 @@ export function logIpc(msg: string, err = null) {
  * @param {*} msg
  * @param {*} err
  */
-export function logDebug(msg: string, err = null) {
+export function logDebug(msg, err = null) {
   log('debug', msg, err)
 }
 
 // Returns true if major or minor component of versions is different.
-export function isMatchingVersion(
-  versionsArray: string[],
-  providedVersion: string
-) {
+export function isMatchingVersion(versionsArray, providedVersion) {
   let ret = false
   let v2 = providedVersion.split('.')
   versionsArray.forEach((element) => {

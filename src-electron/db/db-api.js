@@ -22,7 +22,8 @@
  */
 
 const sqlite = require('sqlite3')
-const fsp = require('fs').promises
+const fs = require('fs')
+const fsp = fs.promises
 const env = require('../util/env')
 const util = require('../util/util.js')
 const dbEnum = require('../../src-shared/db-enum.js')
@@ -451,36 +452,45 @@ async function selectSettings(db) {
   return rows.map(dbMapping.map.settings)
 }
 
-async function determineIfSchemaShouldLoad(db, context) {
+/**
+ * Checks the state of schema.
+ *
+ * @param {*} db
+ * @param {*} context
+ * @returns object containing "mustLoad" and "hasSchema" elements.
+ */
+async function determineIfSchemaShouldLoad(db, filePath, crc) {
+  let result = {
+    mustLoad: true,
+    hasSchema: false,
+  }
   try {
     let row = await dbGet(
       db,
       'SELECT CRC FROM PACKAGE WHERE PATH = ?',
-      [context.filePath],
+      [filePath],
       false
     )
     if (row == null) {
-      context.mustLoad = true
+      result.mustLoad = true
     } else {
-      context.mustLoad = row.CRC != context.crc
+      result.mustLoad = row.CRC != crc
     }
-    context.hasSchema = true
-    return context
+    result.hasSchema = true
   } catch (err) {
     // Fall through, do nothing
-    context.mustLoad = true
-    context.hasSchema = false
-    return context
+    result.mustLoad = true
+    result.hasSchema = false
   }
+  return result
 }
 
-async function updateCurrentSchemaCrc(db, context) {
-  await dbInsert(
+async function updateCurrentSchemaCrc(db, filePath, crc) {
+  return dbInsert(
     db,
     'INSERT OR REPLACE INTO PACKAGE (PATH, CRC, TYPE) VALUES ( ?, ?, ? )',
-    [context.filePath, context.crc, dbEnum.packageType.sqlSchema]
+    [filePath, crc, dbEnum.packageType.sqlSchema]
   )
-  return context
 }
 
 async function performSchemaLoad(db, schemaContent) {
@@ -516,22 +526,26 @@ async function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
     data: schemaFileContent,
     crc: util.checksum(schemaFileContent),
   }
-  await determineIfSchemaShouldLoad(db, context)
-  if (context.mustLoad && context.hasSchema) {
+  let schemaStatus = await determineIfSchemaShouldLoad(
+    db,
+    context.filePath,
+    context.crc
+  )
+  if (schemaStatus.mustLoad && schemaStatus.hasSchema) {
     rows = await selectSettings(db)
     await closeDatabase(db)
     if (sqliteFile != null) util.createBackupFile(sqliteFile)
   }
-  if (context.mustLoad && context.hasSchema) {
+  if (schemaStatus.mustLoad && schemaStatus.hasSchema) {
     if (sqliteFile == null) {
       db = await initRamDatabase()
     } else {
       db = await initDatabase(sqliteFile)
     }
   }
-  if (context.mustLoad) {
+  if (schemaStatus.mustLoad) {
     await performSchemaLoad(db, context.data)
-    await updateCurrentSchemaCrc(db, context)
+    await updateCurrentSchemaCrc(db, context.filePath, context.crc)
     await updateSetting(db, rows)
   }
 
@@ -554,6 +568,8 @@ async function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
  * @returns Promise that resolves into the database object.
  */
 async function initDatabaseAndLoadSchema(sqliteFile, schemaFile, zapVersion) {
+  let hasFile = fs.existsSync(sqliteFile)
+
   let db = await initDatabase(sqliteFile)
   return loadSchema(db, schemaFile, zapVersion, sqliteFile)
 }

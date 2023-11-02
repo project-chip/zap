@@ -26,7 +26,7 @@
  * @parem {*} firstLower if True the it starts with lowecase.
  * @returns a spaced out string in lowercase
  */
-function toCamelCase(label: string, firstLower = true) {
+function toCamelCase(label, firstLower = true) {
   let str = label.replace(/[+()&]/g, '').split(/ |_|-|\//)
   let res = ''
   for (let i = 0; i < str.length; i++) {
@@ -45,7 +45,7 @@ function toCamelCase(label: string, firstLower = true) {
   return res
 }
 
-function toSpacedLowercase(str: string) {
+function toSpacedLowercase(str) {
   let res = str
     .replace(/[+()&]/g, '')
     .replace(/\.?([A-Z][a-z])/g, function (x, y) {
@@ -60,7 +60,7 @@ function toSpacedLowercase(str: string) {
  *    VerySimpleLabel will turn into VERY_SIMPLE_LABEL
  * @param {*} label
  */
-function toSnakeCaseAllCaps(label: string) {
+function toSnakeCaseAllCaps(label) {
   let ret = ''
   if (label == null) return ret
   label = label
@@ -92,7 +92,7 @@ function toSnakeCaseAllCaps(label: string) {
   return toCleanMacro(ret)
 }
 
-function toSnakeCase(str: string) {
+function toSnakeCase(str) {
   return toSnakeCaseAllCaps(str).toLowerCase()
 }
 
@@ -100,7 +100,7 @@ function toSnakeCase(str: string) {
  * returns a string after converting ':' and '-' into '_'
  * @param {*} label
  */
-function toCleanSymbol(label: string) {
+function toCleanSymbol(label) {
   let l = label.trim()
   l = l.replace(/ /g, '_')
   l = l.replace(/[:/-]/g, '_')
@@ -112,7 +112,7 @@ function toCleanSymbol(label: string) {
  * returns a string after converting ':' and '_' into '-'
  * @param {*} label
  */
-function toCleanSymbolAsKebabCase(label: string) {
+function toCleanSymbolAsKebabCase(label) {
   let l = label.trim()
   l = l.replace(/ /g, '-')
   l = l.replace(/[:/_]/g, '-')
@@ -127,7 +127,7 @@ function toCleanSymbolAsKebabCase(label: string) {
  * @param {*} label
  * @returns Label formatted as C macro.
  */
-function toCleanMacro(label: string) {
+function toCleanMacro(label) {
   let l = label.toUpperCase().replace(/ /g, '_')
   l = l.replace(/[:/-]/g, '_')
   while (l.includes('__')) {
