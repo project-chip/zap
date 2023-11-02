@@ -18,8 +18,8 @@
  * @jest-environment node
  */
 
-const string = require('../src-electron/util/string.ts')
-const { timeout } = require('./test-util.js')
+const string = require('../src-electron/util/string')
+const { timeout } = require('./test-util')
 
 test(
   'Clean symbol',

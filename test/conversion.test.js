@@ -19,15 +19,15 @@
  */
 const path = require('path')
 const fs = require('fs')
-const importJs = require('../src-electron/importexport/import.js')
-const dbEnum = require('../src-shared/db-enum.js')
-const dbApi = require('../src-electron/db/db-api.js')
-const env = require('../src-electron/util/env.ts')
-const zclLoader = require('../src-electron/zcl/zcl-loader.js')
-const querySession = require('../src-electron/db/query-session.js')
-const testUtil = require('./test-util.js')
-const queryPackage = require('../src-electron/db/query-package.js')
-const util = require('../src-electron/util/util.js')
+const importJs = require('../src-electron/importexport/import')
+const dbEnum = require('../src-shared/db-enum')
+const dbApi = require('../src-electron/db/db-api')
+const env = require('../src-electron/util/env')
+const zclLoader = require('../src-electron/zcl/zcl-loader')
+const querySession = require('../src-electron/db/query-session')
+const testUtil = require('./test-util')
+const queryPackage = require('../src-electron/db/query-package')
+const util = require('../src-electron/util/util')
 
 let db
 let haLightIsc = path.join(__dirname, 'resource/isc/ha-light.isc')
@@ -120,7 +120,7 @@ test(
         zcl: env.builtinSilabsZclMetafile(),
         template: env.builtinTemplateMetafile(),
       },
-      null,
+      null
     )
     await importJs.importDataFromFile(db, haCombinedIsc, { sessionId: sid })
     expect(sid).not.toBeUndefined()
