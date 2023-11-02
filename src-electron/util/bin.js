@@ -17,14 +17,15 @@
 
 // Binary utilities to deal with hex numbers and such.
 
-import byteBuffer from 'bytebuffer'
+const byteBuffer = require('bytebuffer')
+
 /**
  * Takes an int8 value and turns it into a hex.
  *
  * @param {*} value
  * @returns hex string, 2 characters long without '0x'
  */
-function int8ToHex(value: number, littleEndian = false) {
+function int8ToHex(value, littleEndian = false) {
   let bb = new byteBuffer(1, littleEndian, byteBuffer.DEFAULT_NOASSERT)
   bb.writeInt8(value)
   bb.flip()
@@ -37,7 +38,7 @@ function int8ToHex(value: number, littleEndian = false) {
  * @param {*} value
  * @returns hex string, 4 characters long without '0x'
  */
-function int16ToHex(value: number, littleEndian = false) {
+function int16ToHex(value, littleEndian = false) {
   let bb = new byteBuffer(2, littleEndian, byteBuffer.DEFAULT_NOASSERT)
   bb.writeInt16(value)
   bb.flip()
@@ -50,7 +51,7 @@ function int16ToHex(value: number, littleEndian = false) {
  * @param {*} value
  * @returns hex string, 8 characters long without '0x'
  */
-function int32ToHex(value: number, littleEndian = false) {
+function int32ToHex(value, littleEndian = false) {
   let bb = new byteBuffer(4, littleEndian, byteBuffer.DEFAULT_NOASSERT)
   bb.writeInt32(value)
   bb.flip()
@@ -63,7 +64,7 @@ function int32ToHex(value: number, littleEndian = false) {
  * @param {*} value
  * @returns hex string, value.length * 2 + 2 characters long. It appends the terminating NULL, so 0x00 is at the end.
  */
-function stringToHex(value: string) {
+function stringToHex(value) {
   let bb = new byteBuffer(value.length, false, byteBuffer.DEFAULT_NOASSERT)
   bb.writeCString(value)
   bb.flip()
@@ -76,7 +77,7 @@ function stringToHex(value: string) {
  * @param {*} n
  * @returns number of bits set.
  */
-function bitCount(n: number) {
+function bitCount(n) {
   n = n - ((n >> 1) & 0x55555555)
   n = (n & 0x33333333) + ((n >> 2) & 0x33333333)
   return (((n + (n >> 4)) & 0xf0f0f0f) * 0x1010101) >> 24
@@ -90,7 +91,7 @@ function bitCount(n: number) {
  * @param {*} value
  * @returns C byte array
  */
-function hexToCBytes(value: string) {
+function hexToCBytes(value) {
   let out = ''
   let infix = ''
   for (let i = 0; i < value.length; i += 2) {
@@ -105,7 +106,7 @@ function hexToCBytes(value: string) {
  * Getting a binary string ("0001101010010") it returns the number of zero bits at the end.
  * @param {*} binary
  */
-function bitOffset(binary: string) {
+function bitOffset(binary) {
   let lastIndex = binary.lastIndexOf('1')
   return binary.length - lastIndex - 1
 }
@@ -117,7 +118,7 @@ function bitOffset(binary: string) {
  *
  * @param {*} hex
  */
-function hexToBinary(hex: string) {
+function hexToBinary(hex) {
   let cleansedHex = hex
   if (cleansedHex.startsWith('0x') || cleansedHex.startsWith('0X'))
     cleansedHex = cleansedHex.slice(2)
@@ -141,11 +142,7 @@ function hexToBinary(hex: string) {
  * @returns Object containing 'length' and 'content', where length
  * is number of bytes used and content is actual content in C format.
  */
-function stringToOneByteLengthPrefixCBytes(
-  value: string,
-  maxLength: number,
-  pad = true
-) {
+function stringToOneByteLengthPrefixCBytes(value, maxLength, pad = true) {
   let len = value.length
   let ret = `${len}, `
   for (let i = 0; i < len; i++) {
@@ -175,11 +172,7 @@ function stringToOneByteLengthPrefixCBytes(
  * @returns Object containing 'length' and 'content', where length
  * is number of bytes used and content is actual content in C format.
  */
-function stringToTwoByteLengthPrefixCBytes(
-  value: string,
-  maxLength: number,
-  pad = true
-) {
+function stringToTwoByteLengthPrefixCBytes(value, maxLength, pad = true) {
   let len = value.length
   let ret = `${len & 0xff}, `
   ret = ret.concat(`${(len >> 8) & 0xff}, `)

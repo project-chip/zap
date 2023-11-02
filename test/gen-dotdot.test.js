@@ -19,13 +19,13 @@
  */
 
 const path = require('path')
-const genEngine = require('../src-electron/generator/generation-engine.js')
-const env = require('../src-electron/util/env.ts')
-const dbApi = require('../src-electron/db/db-api.js')
-const zclLoader = require('../src-electron/zcl/zcl-loader.js')
-const importJs = require('../src-electron/importexport/import.js')
-const testUtil = require('./test-util.js')
-const queryPackage = require('../src-electron/db/query-package.js')
+const genEngine = require('../src-electron/generator/generation-engine')
+const env = require('../src-electron/util/env')
+const dbApi = require('../src-electron/db/db-api')
+const zclLoader = require('../src-electron/zcl/zcl-loader')
+const importJs = require('../src-electron/importexport/import')
+const testUtil = require('./test-util')
+const queryPackage = require('../src-electron/db/query-package')
 
 let db
 const testFile = testUtil.zigbeeTestFile.threeEp

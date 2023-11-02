@@ -18,9 +18,9 @@
  * @jest-environment node
  */
 
-import bin from '../src-electron/util/bin.ts'
-const { timeout } = require('./test-util.js')
-const env = require('../src-electron/util/env.ts')
+const bin = require('../src-electron/util/bin')
+const env = require('../src-electron/util/env')
+const { timeout } = require('./test-util')
 
 beforeAll(() => {
   env.setDevelopmentEnv()

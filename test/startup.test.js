@@ -19,12 +19,12 @@
  */
 const path = require('path')
 const fs = require('fs')
-const startup = require('../src-electron/main-process/startup.js')
-const env = require('../src-electron/util/env.ts')
-const testUtil = require('./test-util.js')
+const startup = require('../src-electron/main-process/startup')
+const env = require('../src-electron/util/env')
+const testUtil = require('./test-util')
 const dbApi = require('../src-electron/db/db-api')
 const querySession = require('../src-electron/db/query-session')
-const util = require('../src-electron/util/util.js')
+const util = require('../src-electron/util/util')
 
 beforeAll(async () => {
   env.setDevelopmentEnv()

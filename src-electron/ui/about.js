@@ -15,15 +15,14 @@
  *    limitations under the License.
  */
 
-import { BrowserWindow } from 'electron'
-
+const { BrowserWindow } = require('electron')
 const path = require('path')
 const env = require('../util/env')
 
-let window: BrowserWindow | null
+let window = null
 
-function createAboutWindow(parentWindow: BrowserWindow, port: number) {
-  let webPreferences: Electron.WebPreferences = {
+function createAboutWindow(parentWindow, port) {
+  let webPreferences = {
     nodeIntegration: false,
   }
   if (parentWindow != null && 'webContents' in parentWindow) {
@@ -55,7 +54,7 @@ function createAboutWindow(parentWindow: BrowserWindow, port: number) {
  * @export
  * @param {*} port
  */
-function createOrShowAboutWindow(parentWindow: BrowserWindow, port: number) {
+function createOrShowAboutWindow(parentWindow, port) {
   if (window == null) {
     createAboutWindow(parentWindow, port)
   } else {

@@ -14,7 +14,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-const env = require('../src-electron/util/env.ts')
+const env = require('../src-electron/util/env')
 
 module.exports = async () => {
   env.logDebug('Global setup.')
