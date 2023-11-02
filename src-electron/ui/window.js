@@ -15,8 +15,6 @@
  *    limitations under the License.
  */
 
-export {}
-
 const { BrowserWindow, dialog, ipcMain } = require('electron')
 const path = require('path')
 const env = require('../util/env')
@@ -25,8 +23,6 @@ const tray = require('./tray.js')
 const browserApi = require('./browser-api.js')
 const querystringUtil = require('querystring')
 const httpServer = require('../server/http-server.js')
-import { showHidden } from 'yargs'
-import { WindowCreateArgs } from '../types/window-types'
 
 let windowCounter = 0
 
@@ -40,24 +36,18 @@ let windowCounter = 0
  *
  * @param {*} port
  */
-export function initializeElectronUi(port: number) {
+export function initializeElectronUi(port) {
   menu.initMenu(port)
   tray.initTray(port)
 }
 
-export function windowCreateIfNotThere(port: number) {
+export function windowCreateIfNotThere(port) {
   if (BrowserWindow.getAllWindows().length == 0) {
     windowCreate(port)
   }
 }
 
-function createQueryString(
-  uiMode?: string | undefined,
-  standalone?: boolean | undefined,
-  isNew?: boolean | undefined,
-  filePath?: string | null | undefined,
-  restPort?: number
-) {
+function createQueryString(uiMode, standalone, isNew, filePath, restPort) {
   const params = new Map()
 
   if (!arguments.length) {
@@ -100,7 +90,7 @@ function createQueryString(
  * @param {*} [uiMode=null]
  * @returns BrowserWindow that got created
  */
-export function windowCreate(port: number, args?: WindowCreateArgs) {
+export function windowCreate(port, args) {
   let webPreferences = {
     nodeIntegration: false,
     worldSafeExecuteJavaScript: true,

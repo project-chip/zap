@@ -14,12 +14,10 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-import { dialog } from 'electron'
-import * as window from './window'
-import browserApi from './browser-api.js'
-import * as uiTypes from '../../src-shared/types/ui-types'
-import { WindowCreateArgs } from 'types/window-types'
-import * as util from '../util/util'
+const { dialog } = require('electron')
+const window = require('./window')
+const browserApi = require('./browser-api')
+const util = require('../util/util')
 
 /**
  * Simple dialog to show error messages from electron renderer scope.
@@ -27,7 +25,7 @@ import * as util from '../util/util'
  * @param {*} title
  * @param {*} err
  */
-function showErrorMessage(title: string, err: Error | string) {
+function showErrorMessage(title, err) {
   let msg
   if (err instanceof Error) {
     msg = err.toString() + '\n\nStack trace:\n' + err.stack
@@ -45,11 +43,7 @@ function showErrorMessage(title: string, err: Error | string) {
  * @param {*} filePath
  * @param {*} httpPort Server port for the URL that will be constructed.
  */
-function openFileConfiguration(
-  filePath: string,
-  httpPort: number,
-  standalone: boolean = false
-) {
+function openFileConfiguration(filePath, httpPort, standalone = false) {
   window.windowCreate(httpPort, {
     filePath,
     standalone,
@@ -62,10 +56,7 @@ function openFileConfiguration(
  * @param {*} httpPort
  * @param {*} options: uiMode, debugNavBar
  */
-async function openNewConfiguration(
-  httpPort: number,
-  options?: WindowCreateArgs
-) {
+async function openNewConfiguration(httpPort, options) {
   if (options == null) {
     options = { filePath: null, new: true }
   } else {
@@ -80,10 +71,7 @@ async function openNewConfiguration(
  * @param {*} browserWindow window to affect
  * @param {*} dirty true if this windows is now dirty, false if otherwise
  */
-function toggleDirtyFlag(
-  browserWindow: Electron.BrowserWindow,
-  dirty: boolean
-) {
+function toggleDirtyFlag(browserWindow, dirty) {
   let title = browserWindow.getTitle()
   // @ts-ignore TODO: type 'isDirty' somehow.
   browserWindow.isDirty = dirty
@@ -102,11 +90,8 @@ function toggleDirtyFlag(
  * @param {*} browserWindow
  * @param {*} options 'key', 'title', 'mode', 'defaultPath'
  */
-function openFileDialogAndReportResult(
-  browserWindow: Electron.BrowserWindow,
-  options: uiTypes.UiFileBrowseOptionsType
-) {
-  let p: Electron.OpenDialogOptions = {
+function openFileDialogAndReportResult(browserWindow, options) {
+  let p = {
     buttonLabel: 'Generate',
     filters: [
       { name: 'ZCL File Type', extensions: ['json', 'xml'] },
@@ -126,7 +111,7 @@ function openFileDialogAndReportResult(
   p.defaultPath = options.defaultPath
   dialog.showOpenDialog(browserWindow, p).then((result) => {
     if (!result.canceled) {
-      let paths: string[] = []
+      let paths = []
       // check if application is running on Windows standalone mode, then replace the backward slashs with forward slash
       // otherwise it will throw a JSON syntax error
       if (process.platform == 'win32') {
@@ -146,12 +131,7 @@ function openFileDialogAndReportResult(
   })
 }
 
-function enableUi(
-  port: number,
-  zapFiles: string[],
-  uiMode: string,
-  standalone: boolean
-) {
+function enableUi(port, zapFiles, uiMode, standalone) {
   window.initializeElectronUi(port)
   if (zapFiles.length == 0) {
     return openNewConfiguration(port, {
@@ -160,7 +140,7 @@ function enableUi(
       filePath: null,
     })
   } else {
-    return util.executePromisesSequentially(zapFiles, (f: string) =>
+    return util.executePromisesSequentially(zapFiles, (f) =>
       openFileConfiguration(f, port)
     )
   }
