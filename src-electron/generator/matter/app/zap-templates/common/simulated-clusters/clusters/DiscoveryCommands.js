@@ -76,7 +76,7 @@ const kDefaultResponse = {
       isOptional: true,
     }, //
     {
-      name: 'ICDOperatesAsLIT',
+      name: 'isICDOperatingAsLIT',
       type: 'BOOLEAN',
       chipType: 'bool',
       isOptional: true,
