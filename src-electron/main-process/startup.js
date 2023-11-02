@@ -471,7 +471,7 @@ async function startSelfCheck(
   argv,
   options = {
     quitFunction: null,
-    cleanDb: true,
+    cleanDb: false,
     logger: console.log,
   }
 ) {
@@ -793,7 +793,10 @@ async function startUpMainInstance(argv, callbacks) {
     dbCache.disable()
   }
 
-  clearDatabaseFile(env.sqliteFile())
+  // For now delete the DB file. There is some weird constraint we run into.
+  if (argv.clearDb != null) {
+    clearDatabaseFile(env.sqliteFile())
+  }
 
   if (argv._.includes('status')) {
     console.log('⛔ Server is not running.')
@@ -802,7 +805,7 @@ async function startUpMainInstance(argv, callbacks) {
   } else if (argv._.includes('selfCheck')) {
     let options = {
       quitFunction: quitFunction,
-      cleanDb: true,
+      cleanDb: false,
       logger: console.log,
     }
     return startSelfCheck(argv, options)
@@ -811,7 +814,7 @@ async function startUpMainInstance(argv, callbacks) {
       throw 'You need to specify at least one zap file.'
     let options = {
       quitFunction: quitFunction,
-      cleanDb: true,
+      cleanDb: false,
       logger: console.log,
     }
     return startAnalyze(argv, options)
@@ -837,7 +840,7 @@ async function startUpMainInstance(argv, callbacks) {
   } else if (argv._.includes('generate')) {
     let options = {
       quitFunction: quitFunction,
-      cleanDb: true,
+      cleanDb: false,
       logger: console.log,
     }
     return startGeneration(argv, options).catch((err) => {
