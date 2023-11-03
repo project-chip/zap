@@ -198,6 +198,7 @@ jobs:
 
       - name: Initialize...
         run: |
+          brew install pkg-config cairo pango libpng jpeg giflib librsvg
           npm rebuild canvas --update-binary
           npm rebuild libxmljs --update-binary
           npm ci
