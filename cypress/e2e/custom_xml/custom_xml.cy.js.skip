@@ -1,7 +1,7 @@
 /// <reference types="cypress" />
 
 const { find } = require('underscore')
-const rendApi = require('../../../src-shared/rend-api.js')
+const restApi = require('../../../src-shared/rest-api.js')
 const path = require('path')
 
 Cypress.on('uncaught:exception', (err, runnable) => {
@@ -17,7 +17,7 @@ describe('Check ZCL Extension functionalities', () => {
     cy.window()
       .then(function (window) {
         window[rendApi.GLOBAL_SYMBOL_EXECUTE](
-          rendApi.id.open,
+          restApi.ide.open,
           path.join(__dirname, 'custom_xml.zap')
         )
       })

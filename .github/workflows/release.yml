@@ -160,6 +160,8 @@ jobs:
         with:
           node-version: 18.x
           cache: 'npm'
+      - name: pip
+        run: pip install setuptools
 
       - name: Prepare Linux build environment
         if: startsWith(matrix.os, 'ubuntu')

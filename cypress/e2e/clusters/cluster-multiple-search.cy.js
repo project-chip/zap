@@ -49,10 +49,8 @@ describe('Add multiple clusters and search', () => {
   })
   it('Search action', () => {
     cy.fixture('data').then((data) => {
-      cy.get(
-        '[data-test="search-clusters"]'
-      )
-        .clear({force: true})
+      cy.get('[data-test="search-clusters"]')
+        .clear({ force: true })
         .type(data.searchString2)
     })
   })
