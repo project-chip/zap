@@ -23,7 +23,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        node-version: [18.x]
+        node-version: [20.x]
         os: [ubuntu-22.04]
 
     steps:
@@ -52,7 +52,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        node-version: [18.x]
+        node-version: [20.x]
         os: [ubuntu-22.04]
 
     steps:
@@ -81,7 +81,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x]
+        node-version: [20.x]
         os: [ubuntu-22.04]
 
     steps:
@@ -120,7 +120,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x]
+        node-version: [20.x]
         os: [ubuntu-22.04]
 
     steps:
@@ -198,7 +198,6 @@ jobs:
 
       - name: Initialize...
         run: |
-          brew install pkg-config cairo pango libpng jpeg giflib librsvg
           npm rebuild canvas --update-binary
           npm rebuild libxmljs --update-binary
           npm ci
