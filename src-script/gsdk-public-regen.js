@@ -79,6 +79,7 @@ async function run(argv) {
     '--unhandled-rejections=strict',
   ]
 
+  cmdArgs.push('--tempState')
   cmdArgs.push('-o')
   cmdArgs.push(outputDir + '/{index}/')
   cmdArgs.push('--gen')
