@@ -19,7 +19,8 @@
 require('source-map-support').install()
 
 const { app } = require('electron')
-const args = require('../util/args')
+
+import * as args from '../util/args'
 const env = require('../util/env')
 const windowJs = require('./window')
 const startup = require('../main-process/startup')
@@ -29,7 +30,7 @@ const util = require('../util/util')
 env.versionsCheck()
 env.setProductionEnv()
 
-function hookSecondInstanceEvents(argv) {
+function hookSecondInstanceEvents(argv: args.Arguments) {
   app
     .whenReady()
     .then(() =>
@@ -40,7 +41,7 @@ function hookSecondInstanceEvents(argv) {
 /**
  * Hook up all the events for the electron app object.
  */
-function hookMainInstanceEvents(argv) {
+function hookMainInstanceEvents(argv: args.Arguments) {
   app
     .whenReady()
     .then(() =>
@@ -70,9 +71,12 @@ function hookMainInstanceEvents(argv) {
     startup.shutdown()
   })
 
-  app.on('second-instance', (event, commandLine, workingDirectory) => {
-    env.logInfo(`Zap instance started with command line: ${commandLine}`)
-  })
+  app.on(
+    'second-instance',
+    (event: Event, commandLine: string[], workingDirectory: string) => {
+      env.logInfo(`Zap instance started with command line: ${commandLine}`)
+    }
+  )
 }
 
 let argv = args.processCommandLineArguments(process.argv)

@@ -19,16 +19,16 @@
  */
 
 const axios = require('axios')
-const dbApi = require('../src-electron/db/db-api')
-const httpServer = require('../src-electron/server/http-server')
-const env = require('../src-electron/util/env')
-const restApi = require('../src-shared/rest-api')
-const zclLoader = require('../src-electron/zcl/zcl-loader')
-const testUtil = require('./test-util')
+const dbApi = require('../src-electron/db/db-api.js')
+const httpServer = require('../src-electron/server/http-server.js')
+const env = require('../src-electron/util/env.ts')
+const restApi = require('../src-shared/rest-api.js')
+const zclLoader = require('../src-electron/zcl/zcl-loader.js')
+const testUtil = require('./test-util.js')
 const path = require('path')
-const util = require('../src-electron/util/util')
+const util = require('../src-electron/util/util.js')
 const { StatusCodes } = require('http-status-codes')
-const testQuery = require('./test-query')
+const testQuery = require('./test-query.js')
 
 let db
 let axiosInstance = null

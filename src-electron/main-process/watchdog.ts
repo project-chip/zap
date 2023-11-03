@@ -1,6 +1,6 @@
 /**
  *
- *    Copyright (c) 2023 Silicon Labs
+ *    Copyright (c) 2020 Silicon Labs
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -14,20 +14,26 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-const path = require('path')
+
+let watchDogId: NodeJS.Timeout
 
 /**
- *  Extract project name from the Studio project path
- * @param {} db
- * @param {*} sessionId
- * @returns '' if parsing fails
+ * Starts a zap watchdog.
+ *
+ * @param {*} expirationInterval
+ * @param {*} triggerFunction
  */
-export function projectName(studioProjectPath) {
-  // undo the manual trickery from the Studio side.
-  try {
-    let p = path.parse(decodeURIComponent(studioProjectPath.replace(/_/g, '%')))
-    return p.name
-  } catch (error) {
-    return ''
-  }
+function start(expirationInterval: number, triggerFunction: () => void) {
+  watchDogId = setTimeout(triggerFunction, expirationInterval)
+  watchDogId.unref()
 }
+
+/**
+ * Resets a zap watchdog.
+ */
+function reset() {
+  if (watchDogId != null) watchDogId.refresh()
+}
+
+exports.start = start
+exports.reset = reset

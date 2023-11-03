@@ -16,18 +16,19 @@
  */
 export {}
 
-const ipc = require('node-ipc')
-const env = require('../util/env')
+import ipc from 'node-ipc'
+import * as env from '../util/env'
+import * as ipcTypes from '../../src-shared/types/ipc-types'
 const path = require('path')
 const os = require('os')
 const util = require('../util/util.js')
 const watchdog = require('../main-process/watchdog')
-const httpServer = require('./http-server.js')
+const httpServer = require('../server/http-server.js')
 const startup = require('../main-process/startup.js')
 const queryPackage = require('../db/query-package.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 
-const eventType = {
+const eventType: { [key: string]: string } = {
   ping: 'ping', // Receiver responds with pong, returning the object.
   pong: 'pong', // Return of the ping data, no response required.
   over: 'over', // Sent from server to client as an intermediate printout.
@@ -38,7 +39,7 @@ const eventType = {
   stop: 'stop', // Sent from client to ask for server to shut down
 }
 
-const server = {
+const server: ipcTypes.Server = {
   ipc: new ipc.IPC(),
   serverStarted: false,
 }
@@ -54,31 +55,31 @@ function socketPath() {
   return defaultSocketPath
 }
 
-function log(msg) {
+function log(msg: string) {
   env.logIpc(`Ipc server: ${msg}`)
 }
 
-function handlerPing(context, data) {
+function handlerPing(context: ipcTypes.IpcEventHandlerContext, data: any) {
   server.ipc.server.emit(context.socket, eventType.pong, data)
 }
 
-function handlerServerStatus(context) {
+function handlerServerStatus(context: ipcTypes.IpcEventHandlerContext) {
   let svr = httpServer.httpServerStartupMessage()
   svr.zapServerStatus = 'running'
   server.ipc.server.emit(context.socket, eventType.overAndOut, svr)
 }
 
-function handlerConvert(context, data) {
+function handlerConvert(context: ipcTypes.IpcEventHandlerContext, data: any) {
   let zapFiles = data.files
 
   server.ipc.server.emit(context.socket, eventType.over, 'Convert')
-  zapFiles.forEach((element) => {
+  zapFiles.forEach((element: string) => {
     server.ipc.server.emit(context.socket, eventType.over, `File: ${element}`)
   })
   server.ipc.server.emit(context.socket, eventType.overAndOut, 'Done.')
 }
 
-function handlerStop(context, data) {
+function handlerStop(context: ipcTypes.IpcEventHandlerContext, data: any) {
   console.log('Shutting down because of remote client request.')
   server.ipc.server.emit(
     context.socket,
@@ -90,8 +91,11 @@ function handlerStop(context, data) {
 }
 
 // Data contains: zapFileArray, outputPattern, zcl, template
-async function handlerGenerate(context, data) {
-  let ps = []
+async function handlerGenerate(
+  context: ipcTypes.IpcEventHandlerContext,
+  data: { zapFileArray: string[]; outputPattern: string }
+) {
+  let ps: Promise<void>[] = []
   let packages = await queryPackage.getPackagesByType(
     context.db,
     dbEnum.packageType.genTemplatesJson
@@ -107,7 +111,7 @@ async function handlerGenerate(context, data) {
         data.outputPattern,
         index,
         {
-          logger: (x) =>
+          logger: (x: any) =>
             server.ipc.server.emit(context.socket, eventType.over, x),
           zcl: env.builtinSilabsZclMetafile(),
           template: env.builtinTemplateMetafile(),
@@ -160,7 +164,7 @@ function preHandler() {
  * @parem {*} isServer 'true' if this is a server, 'false' for client.
  * @param {*} options
  */
-async function initServer(db = null, httpPort = 0) {
+async function initServer(db = null, httpPort: number = 0) {
   return new Promise((resolve, reject) => {
     server.ipc.config.logger = log
     server.ipc.config.id = 'main'

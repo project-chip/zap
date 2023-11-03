@@ -19,18 +19,18 @@
  */
 
 const path = require('path')
-const genEngine = require('../src-electron/generator/generation-engine')
-const env = require('../src-electron/util/env')
-const dbApi = require('../src-electron/db/db-api')
-const zclLoader = require('../src-electron/zcl/zcl-loader')
-const importJs = require('../src-electron/importexport/import')
-const testUtil = require('./test-util')
-const queryEndpoint = require('../src-electron/db/query-endpoint')
-const queryEndpointType = require('../src-electron/db/query-endpoint-type')
-const queryConfig = require('../src-electron/db/query-config')
-const queryPackage = require('../src-electron/db/query-package')
-const types = require('../src-electron/util/types')
-const bin = require('../src-electron/util/bin')
+const genEngine = require('../src-electron/generator/generation-engine.js')
+const env = require('../src-electron/util/env.ts')
+const dbApi = require('../src-electron/db/db-api.js')
+const zclLoader = require('../src-electron/zcl/zcl-loader.js')
+const importJs = require('../src-electron/importexport/import.js')
+const testUtil = require('./test-util.js')
+const queryEndpoint = require('../src-electron/db/query-endpoint.js')
+const queryEndpointType = require('../src-electron/db/query-endpoint-type.js')
+const queryConfig = require('../src-electron/db/query-config.js')
+const queryPackage = require('../src-electron/db/query-package.js')
+const types = require('../src-electron/util/types.js')
+const bin = require('../src-electron/util/bin.ts')
 
 let db
 const templateCount = testUtil.testTemplate.zigbeeCount

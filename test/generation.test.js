@@ -19,16 +19,16 @@
  */
 
 const axios = require('axios')
-const dbApi = require('../src-electron/db/db-api')
-const queryPackage = require('../src-electron/db/query-package')
-const dbEnum = require('../src-shared/db-enum')
-const env = require('../src-electron/util/env')
-const zclLoader = require('../src-electron/zcl/zcl-loader')
-const httpServer = require('../src-electron/server/http-server')
-const generationEngine = require('../src-electron/generator/generation-engine')
-const testUtil = require('./test-util')
-const testQuery = require('./test-query')
-const util = require('../src-electron/util/util')
+const dbApi = require('../src-electron/db/db-api.js')
+const queryPackage = require('../src-electron/db/query-package.js')
+const dbEnum = require('../src-shared/db-enum.js')
+const env = require('../src-electron/util/env.ts')
+const zclLoader = require('../src-electron/zcl/zcl-loader.js')
+const httpServer = require('../src-electron/server/http-server.js')
+const generationEngine = require('../src-electron/generator/generation-engine.js')
+const testUtil = require('./test-util.js')
+const testQuery = require('./test-query.js')
+const util = require('../src-electron/util/util.js')
 
 let db
 const { port, baseUrl } = testUtil.testServer(__filename)
@@ -214,7 +214,7 @@ describe('Session specific tests', () => {
     'http server initialization',
     async () => {
       await httpServer.initHttpServer(db, port)
-
+      
       await testQuery.createSession(
         db,
         'USER',

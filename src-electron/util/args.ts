@@ -15,13 +15,15 @@
  *    limitations under the License.
  */
 
+export {}
+
 const yargs = require('yargs')
 const path = require('path')
 const os = require('os')
 const fs = require('fs')
 const restApi = require('../../src-shared/rest-api.js')
 const commonUrl = require('../../src-shared/common-url.js')
-const env = require('./env.js')
+const env = require('./env')
 
 function environmentVariablesDescription() {
   let vars = env.environmentVariable
@@ -32,6 +34,33 @@ function environmentVariablesDescription() {
   return desc
 }
 
+export interface Arguments {
+  [x: string]: unknown
+  httpPort: number
+  studioHttpPort: number
+  zapFile: string | undefined
+  zclProperties: string | undefined
+  generationTemplate: string | undefined
+  uiMode: string | undefined
+  debugNavBar: boolean
+  noUi: boolean
+  noServer: boolean
+  genResultFile: boolean
+  showUrl: boolean
+  output: string | undefined
+  clearDb: string | undefined
+  stateDirectory: string | undefined
+  tempState: boolean
+  skipPostGeneration: boolean
+  noZapFileLog: boolean
+  reuseZapInstance: boolean
+  watchdogTimer: number
+  allowCors: boolean
+  postImportScript: string | undefined
+  _: string[]
+  $0: string
+}
+
 /**
  * Process the command line arguments and resets the state in this file
  * to the specified values.
@@ -40,7 +69,7 @@ function environmentVariablesDescription() {
  * @param {*} argv
  * @returns parsed argv object
  */
-export function processCommandLineArguments(argv) {
+export function processCommandLineArguments(argv: string[]) {
   let zapVersion = env.zapVersion()
   let commands = new Map([
     ['generate', 'Generate ZCL artifacts.'],
@@ -256,7 +285,7 @@ For more information, see ${commonUrl.projectUrl}`
   env.setSaveFileFormat(ret.saveFileFormat)
 
   // Collect files that are passed as loose arguments
-  let allFiles = ret._.filter((arg, index) => {
+  let allFiles = ret._.filter((arg: string | number, index: number) => {
     if (index == 0) return false
     if (typeof arg == 'number') return false
     if (arg.endsWith('.js')) return false

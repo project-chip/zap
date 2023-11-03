@@ -18,14 +18,14 @@
  * @jest-environment node
  */
 
-const env = require('../src-electron/util/env')
-const util = require('../src-electron/util/util')
-const browserApi = require('../src-electron/ui/browser-api')
+const env = require('../src-electron/util/env.ts')
+const util = require('../src-electron/util/util.js')
+const browserApi = require('../src-electron/ui/browser-api.js')
 const fs = require('fs')
 const os = require('os')
-const dbEnum = require('../src-shared/db-enum')
+const dbEnum = require('../src-shared/db-enum.js')
 const path = require('path')
-const { timeout } = require('./test-util')
+const { timeout } = require('./test-util.js')
 
 describe(
   'Util Tests',

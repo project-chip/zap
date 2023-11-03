@@ -21,7 +21,7 @@
 const yargs = require('yargs')
 const args = require('../src-electron/util/args')
 const { timeout } = require('./test-util.js')
-const env = require('../src-electron/util/env')
+const env = require('../src-electron/util/env.ts')
 
 function x(arg = 'blah') {
   return arg
@@ -39,6 +39,7 @@ function y(
 beforeAll(async () => {
   env.setDevelopmentEnv()
 })
+
 
 test(
   'Test basic command line processing',

@@ -17,7 +17,7 @@
 
 const path = require('path')
 const scriptApi = require('./script-api.js')
-const nativeRequire = require('./native-require.js')
+const nativeRequire = require('../util/native-require')
 
 /**
  * Executes a named function from a given script.
@@ -30,7 +30,7 @@ const nativeRequire = require('./native-require.js')
  * @param {*} sessionId
  * @param {*} script
  */
-async function executeScriptFunction(functionName, context, script) {
+async function executeScriptFunction(functionName: string, context:any, script:string) {
   let resolvedPath = path.resolve(script)
   let loadedScript = nativeRequire(resolvedPath)
   if (loadedScript[functionName]) {

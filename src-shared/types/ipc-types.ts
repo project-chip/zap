@@ -15,25 +15,22 @@
  *    limitations under the License.
  */
 
-let watchDogId = null
+import ipc from 'node-ipc'
+import * as db from './db-types'
 
-/**
- * Starts a zap watchdog.
- *
- * @param {*} expirationInterval
- * @param {*} triggerFunction
- */
-function start(expirationInterval, triggerFunction) {
-  watchDogId = setTimeout(triggerFunction, expirationInterval)
-  watchDogId.unref()
+export interface Server {
+  ipc: InstanceType<typeof ipc.IPC>
+  serverStarted: boolean
 }
 
-/**
- * Resets a zap watchdog.
- */
-function reset() {
-  if (watchDogId != null) watchDogId.refresh()
+export interface IpcEventHandlerContext {
+  db: db.DbType | null
+  socket?: any
+  httpPort: number
 }
 
-exports.start = start
-exports.reset = reset
+export interface Client {
+  ipc: InstanceType<typeof ipc.IPC>
+  uuid: string
+  connected: boolean
+}

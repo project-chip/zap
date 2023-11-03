@@ -19,14 +19,14 @@
  */
 
 const cHelper = require('../src-electron/generator/helper-c')
-const env = require('../src-electron/util/env')
-const dbApi = require('../src-electron/db/db-api')
-const genEngine = require('../src-electron/generator/generation-engine')
-const testUtil = require('./test-util')
-const zclLoader = require('../src-electron/zcl/zcl-loader')
-const zclHelper = require('../src-electron/generator/helper-zcl')
-const dbEnum = require('../src-shared/db-enum')
-const zapHelper = require('../src-electron/generator/helper-zap')
+const env = require('../src-electron/util/env.ts')
+const dbApi = require('../src-electron/db/db-api.js')
+const genEngine = require('../src-electron/generator/generation-engine.js')
+const testUtil = require('./test-util.js')
+const zclLoader = require('../src-electron/zcl/zcl-loader.js')
+const zclHelper = require('../src-electron/generator/helper-zcl.js')
+const dbEnum = require('../src-shared/db-enum.js')
+const zapHelper = require('../src-electron/generator/helper-zap.js')
 
 let db
 let zclContext

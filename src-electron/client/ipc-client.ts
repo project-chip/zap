@@ -15,20 +15,21 @@
  *    limitations under the License.
  */
 
+import * as ipcTypes from '../../src-shared/types/ipc-types'
 const env = require('../util/env')
 const ipcServer = require('../server/ipc-server')
 const util = require('../util/util.js')
-const ipc = require('node-ipc')
+import ipc from 'node-ipc'
 
-const client = {
+const client: ipcTypes.Client = {
   ipc: new ipc.IPC(),
   uuid: util.createUuid(),
   connected: false,
 }
 
-let lastPong = ''
+let lastPong: string = ''
 
-function log(msg) {
+function log(msg: string) {
   env.logIpc(`Ipc client: ${msg}`)
 }
 
@@ -73,7 +74,7 @@ function initAndConnectClient() {
  * @param {*} eventType
  * @param {*} handler
  */
-function on(eventType, handler) {
+function on(eventType: string, handler: any) {
   client.ipc.of[client.uuid].on(eventType, handler)
 }
 
@@ -109,7 +110,7 @@ function disconnectClient() {
  * @param {*} key
  * @param {*} object
  */
-async function emit(key, object) {
+async function emit(key: string, object?: any) {
   client.ipc.of[client.uuid].emit(key, object)
 }
 

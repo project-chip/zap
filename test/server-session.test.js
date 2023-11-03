@@ -19,14 +19,14 @@
  */
 
 const axios = require('axios')
-const dbApi = require('../src-electron/db/db-api')
-const httpServer = require('../src-electron/server/http-server')
-const env = require('../src-electron/util/env')
-const zclLoader = require('../src-electron/zcl/zcl-loader')
-const testUtil = require('./test-util')
-const restApi = require('../src-shared/rest-api')
-const queryZcl = require('../src-electron/db/query-zcl')
-const util = require('../src-electron/util/util')
+const dbApi = require('../src-electron/db/db-api.js')
+const httpServer = require('../src-electron/server/http-server.js')
+const env = require('../src-electron/util/env.ts')
+const zclLoader = require('../src-electron/zcl/zcl-loader.js')
+const testUtil = require('./test-util.js')
+const restApi = require('../src-shared/rest-api.js')
+const queryZcl = require('../src-electron/db/query-zcl.js')
+const util = require('../src-electron/util/util.js')
 
 let db
 let axiosInstance = null

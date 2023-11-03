@@ -18,7 +18,7 @@
 // enable stack trace to be mapped back to the correct line number in TypeScript source files.
 require('source-map-support').install()
 
-const args = require('../util/args')
+import * as args from '../util/args'
 const env = require('../util/env')
 const util = require('../util/util')
 const startup = require('./startup')
