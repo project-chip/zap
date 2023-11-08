@@ -223,7 +223,10 @@ async function insertOrUpdateAttributeState(
     forcedExternal,
     staticAttribute.name
   )
-  if (storageOption == dbEnum.storageOption.external) {
+  if (
+    staticAttribute.storagePolicy ==
+    dbEnum.storagePolicy.attributeAccessInterface
+  ) {
     staticAttribute.defaultValue = null
   }
   if (staticAttribute == null) {
