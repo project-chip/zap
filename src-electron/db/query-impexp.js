@@ -709,6 +709,7 @@ WHERE
   }
   if (storagePolicy == dbEnums.storagePolicy.attributeAccessInterface) {
     attribute.storageOption = dbEnums.storageOption.external
+    attribute.defaultValue = null
   }
 
   let arg = [

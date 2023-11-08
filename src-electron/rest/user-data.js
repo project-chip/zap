@@ -241,7 +241,6 @@ function httpPostCluster(db) {
 }
 function httpPostForcedExternal(db) {
   return async (request, response) => {
-    console.log(request.body)
     let zcl = request.body[0].pkg.path
     let forcedExternal = await upgrade.getDisabledStorage(db, zcl)
     return response.send({ forcedExternal })

@@ -223,6 +223,9 @@ async function insertOrUpdateAttributeState(
     forcedExternal,
     staticAttribute.name
   )
+  if (storageOption == dbEnum.storageOption.external) {
+    staticAttribute.defaultValue = null
+  }
   if (staticAttribute == null) {
     throw new Error(`COULD NOT LOCATE ATTRIBUTE: ${attributeId} `)
   }
