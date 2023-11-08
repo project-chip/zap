@@ -27,9 +27,7 @@ describe('Testing cluster search', () => {
   })
   it('Search for power', () => {
     cy.fixture('data').then((data) => {
-      cy.get(
-        '[data-test="search-clusters"]'
-      )
+      cy.get('[data-test="search-clusters"]')
         .clear({ force: true })
         .type(data.searchString2)
     })
