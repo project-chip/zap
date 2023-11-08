@@ -25,7 +25,7 @@ const helperC = require('./helper-c')
 const env = require('../util/env')
 const types = require('../util/types')
 const zclUtil = require('../util/zcl-util')
-const upgrade = require('../upgrade/upgrade.js')
+const upgrade = require('../matter/matter.js')
 const _ = require('lodash')
 
 const characterStringTypes = ['CHAR_STRING', 'LONG_CHAR_STRING']
