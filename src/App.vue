@@ -222,7 +222,6 @@ export default defineComponent({
       rendApi.id.setDarkTheme,
       storage.getItem(rendApi.storageKey.isDarkThemeActive)
     )
-    console.log(window.location.hash)
     if (val != true && window.location.hash != '#/preferences/about') {
       this.$router.push({ path: '/config' })
     } else if (window.location.hash == '#/preferences/about') {
@@ -244,7 +243,6 @@ export default defineComponent({
   },
   watch: {
     isZapConfigSelected(val) {
-      console.log(window.location.hash)
       if (val != true && window.location.hash != '#/preferences/about') {
         this.$router.push({ path: '/config' })
       } else if (window.location.hash == '#/preferences/about') {
