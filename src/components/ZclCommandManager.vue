@@ -223,7 +223,8 @@ export default {
   data() {
     return {
       noCommandsMessage: 'No commands available for this cluster.',
-      validationErrorMessage: '',
+      validationErrorMessage:
+        'This command is mandatory for the cluster and device type configuration you have enabled',
       pagination: {
         rowsPerPage: 0,
       },
