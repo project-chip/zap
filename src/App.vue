@@ -222,10 +222,10 @@ export default defineComponent({
       rendApi.id.setDarkTheme,
       storage.getItem(rendApi.storageKey.isDarkThemeActive)
     )
-    if (val != true && window.location.hash != '#/preferences/about') {
-      this.$router.push({ path: '/config' })
-    } else if (window.location.hash == '#/preferences/about') {
+    if (window.location.hash == '#/preferences/about') {
       this.$router.push({ path: '/preferences/about' })
+    } else if (this.isZapConfigSelected != true) {
+      this.$router.push({ path: '/config' })
     } else {
       this.$router.push({ path: '/' })
       this.getAppData()
@@ -243,10 +243,10 @@ export default defineComponent({
   },
   watch: {
     isZapConfigSelected(val) {
-      if (val != true && window.location.hash != '#/preferences/about') {
-        this.$router.push({ path: '/config' })
-      } else if (window.location.hash == '#/preferences/about') {
+      if (window.location.hash == '#/preferences/about') {
         this.$router.push({ path: '/preferences/about' })
+      } else if (val != true) {
+        this.$router.push({ path: '/config' })
       } else {
         this.$router.push({ path: '/' })
         this.getAppData()
