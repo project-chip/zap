@@ -50,8 +50,6 @@
     "build": "npm run build-spa && npm run build-backend",
     "build-spa": "node src-script/build-spa.js",
     "build-backend": "node src-script/build-backend.js",
-    "regen-ts-type": "node src-script/regen-ts-type.js",
-    "renderer-api-regen": "node src-script/renderer-api-regen.js",
     "doc": "jsdoc src-electron src-shared -r -u docs -d ./generated-html/ README.md",
     "apidoc": "jsdoc2md src-shared/**/*.js src-electron/**/*.js > docs/api.md",
     "format-code": "pretty-quick",
