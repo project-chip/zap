@@ -14,8 +14,6 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-export {}
-
 const ipc = require('node-ipc')
 const env = require('../util/env')
 const path = require('path')
@@ -50,7 +48,7 @@ function socketPath() {
   let defaultSocketPath =
     process.platform == 'win32'
       ? 'zap-ipc-sock'
-      : path.join(os.tmpdir(), 'zap-ipc' + '.sock')
+      : path.join(os.tmpdir(), 'zap-ipc.sock')
   return defaultSocketPath
 }
 

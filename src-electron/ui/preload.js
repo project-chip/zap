@@ -1,6 +1,6 @@
 /**
  *
- *    Copyright (c) 2020 Silicon Labs
+ *    Copyright (c) 2023 Silicon Labs
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -14,12 +14,9 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+const { contextBridge, ipcRenderer } = require('electron')
 
-// This file is generated via ./src-script/regen-ts-type.js.  Do not hand edit this file!
-
-export interface SessionType {
-  sessionId: number
-  sessionKey: string
-  creationTime: number
-  dirty: boolean
-}
+contextBridge.exposeInMainWorld('electronAPI', {
+  setTitleBarOverlay: (titleBarOverlay) =>
+    ipcRenderer.send('set-title-bar-overlay', titleBarOverlay),
+})

@@ -18,39 +18,41 @@
 /**
  * This module provides the APIs for initializing timers specifically
  * for sessions.
- * 
+ *
  */
- import * as env from '../util/env'
- import * as SessionType from '../types/db-mapping-types'
- import * as SessionTimersTypes from '../types/session-timers-types'
 
- let ASYNC_DEFAULT_TIMER_INTERVAL_MS = 6000
- 
- let sessionTimerIdArrayMap = {}
- 
+let ASYNC_DEFAULT_TIMER_INTERVAL_MS = 6000
+
+let sessionTimerIdArrayMap = {}
+
 /**
  * Start session specific validation.
  *
  */
 function initSessionTimers(db, session, sessionTimersSetupArray) {
-    if (!sessionTimerIdArrayMap[session.sessionId]) {
-        sessionTimerIdArrayMap[session.sessionId] = []
-    }
-    sessionTimersSetupArray.forEach((setup) => {
-        sessionTimerIdArrayMap[session.sessionId]
-            .push(setInterval(setup.func,
-                              setup.timerInterval || ASYNC_DEFAULT_TIMER_INTERVAL_MS))
-    })
+  if (!sessionTimerIdArrayMap[session.sessionId]) {
+    sessionTimerIdArrayMap[session.sessionId] = []
+  }
+  sessionTimersSetupArray.forEach((setup) => {
+    sessionTimerIdArrayMap[session.sessionId].push(
+      setInterval(
+        setup.func,
+        setup.timerInterval || ASYNC_DEFAULT_TIMER_INTERVAL_MS
+      )
+    )
+  })
 }
 
 /**
- * Deinitalize all validation timers associated with a specific session. 
- * @param db 
- * @param session 
+ * Deinitalize all validation timers associated with a specific session.
+ * @param db
+ * @param session
  */
 function deinitSessionTimers(session) {
-    let asyncIdArray = sessionTimerIdArrayMap[session.sessionId]
-    Object.keys(asyncIdArray).forEach(timer => clearInterval(asyncIdArray[timer]))
+  let asyncIdArray = sessionTimerIdArrayMap[session.sessionId]
+  Object.keys(asyncIdArray).forEach((timer) =>
+    clearInterval(asyncIdArray[timer])
+  )
 }
 
 exports.initSessionTimers = initSessionTimers

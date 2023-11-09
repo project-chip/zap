@@ -22,7 +22,7 @@ const path = require('path')
  * @param {*} sessionId
  * @returns '' if parsing fails
  */
-export function projectName(studioProjectPath) {
+function projectName(studioProjectPath) {
   // undo the manual trickery from the Studio side.
   try {
     let p = path.parse(decodeURIComponent(studioProjectPath.replace(/_/g, '%')))
@@ -31,3 +31,5 @@ export function projectName(studioProjectPath) {
     return ''
   }
 }
+
+exports.projectName = projectName
