@@ -66,5 +66,8 @@ jobs:
         run: node ./src-script/gsdk-public-regen.js ./gecko_sdk/ ./regen-master
       - name: Remove genResult files just in case.
         run: find ./regen-master -name genResult.json -exec rm -f {} \;
+      - uses: actions/checkout@v3
+        with:
+          clean: false
       - name: Diff
         run: node ./src-script/run-conditionally.js regenTest.zigbee.failOnDiff==true diff -r ./regen-pr ./regen-master
