@@ -48,8 +48,6 @@ function isConditionMet(condition) {
 }
 
 async function runConditionally(condition, command) {
-  console.log(`Condition: ${condition}`)
-  console.log(command)
   if (isConditionMet(condition)) {
     return scriptUtil.executeCmd(null, command[0], command.slice(1))
   } else {
@@ -63,8 +61,10 @@ async function runConditionally(condition, command) {
 runConditionally(condition, command)
   .then(() => {
     console.log('Success.')
+    process.exit
   })
   .catch((err) => {
-    console.log('Failure to run command.')
+    console.log('Failure to run command. Return value:')
     console.log(err)
+    process.exit(1)
   })
