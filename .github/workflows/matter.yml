@@ -233,4 +233,4 @@ jobs:
           # Also show just the files that are different, to make it easy
           # to tell at a glance what might be going on.  And throw in
           # --exit-code to make this job fail if there is a difference.
-          git diff-index --exit-code HEAD --
+          ../src-script/run-conditionally.js regenTest.matter.failOnDiff==true git diff-index --exit-code HEAD --

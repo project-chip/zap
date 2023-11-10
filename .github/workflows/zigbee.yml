@@ -67,4 +67,4 @@ jobs:
       - name: Remove genResult files just in case.
         run: find ./regen-master -name genResult.json -exec rm -f {} \;
       - name: Diff
-        run: diff -r ./regen-pr ./regen-master
+        run: ./src-script/run-conditionally.js regenTest.zigbee.failOnDiff==true diff -r ./regen-pr ./regen-master

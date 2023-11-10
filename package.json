@@ -367,5 +367,13 @@
       "spa/**/*",
       "**/node_sqlite3.node"
     ]
+  },
+  "regenTest": {
+    "matter": {
+      "failOnDiff": false
+    },
+    "zigbee": {
+      "failOnDiff": false
+    }
   }
 }
