@@ -155,7 +155,7 @@ export default defineComponent({
 
       // Parse the query string into the front end.
       const querystring = require('querystring')
-      let search = global.location.search
+      let search = window.location.search
 
       if (search[0] === '?') {
         search = search.substring(1)
@@ -222,7 +222,9 @@ export default defineComponent({
       rendApi.id.setDarkTheme,
       storage.getItem(rendApi.storageKey.isDarkThemeActive)
     )
-    if (this.isZapConfigSelected != true) {
+    if (window.location.hash == '#/preferences/about') {
+      this.$router.push({ path: '/preferences/about' })
+    } else if (this.isZapConfigSelected != true) {
       this.$router.push({ path: '/config' })
     } else {
       this.$router.push({ path: '/' })
@@ -241,7 +243,9 @@ export default defineComponent({
   },
   watch: {
     isZapConfigSelected(val) {
-      if (val != true) {
+      if (window.location.hash == '#/preferences/about') {
+        this.$router.push({ path: '/preferences/about' })
+      } else if (val != true) {
         this.$router.push({ path: '/config' })
       } else {
         this.$router.push({ path: '/' })

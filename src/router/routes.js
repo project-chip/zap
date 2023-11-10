@@ -94,6 +94,7 @@ const routes = [
   },
   {
     path: '/preferences/about',
+    name: 'about',
     component: () => import('layouts/MainLayout.vue'),
     children: [
       {
