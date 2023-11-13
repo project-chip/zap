@@ -382,8 +382,10 @@ function prepareClusterNewXML(cluster, context, isExtension = false) {
   let ret = {
     isExtension: isExtension,
   }
+  console.log(cluster.$.name)
   ret.cluster = []
   ret.cluster.name = cluster.$.name
+  console.log('NOTICE ME!!!')
   ret.cluster.id = cluster.$.id
   ret.cluster.revision = cluster.$.revision
   if ('tag' in cluster) {
@@ -415,7 +417,7 @@ function prepareClusterNewXML(cluster, context, isExtension = false) {
     ret.attributes = []
     cluster.attributes[0].attribute.forEach((attribute) => {
       let att = {
-        name: name,
+        name: attribute.$.name,
         type:
           attribute.$.type.toUpperCase() == attribute.$.type
             ? attribute.$.type.toLowerCase()
@@ -729,8 +731,7 @@ async function processNewXMLClusters(db, filePath, packageId, data, context) {
   return queryLoader.insertClusters(
     db,
     packageId,
-    data.map((x) => prepareClusterNewXML(x, context)),
-    prepareCluster(data, context)
+    prepareClusterNewXML(data, context)
   )
 }
 
@@ -1658,6 +1659,7 @@ async function processParsedZclData(
       toplevel = data.configurator
     }
     if ('cluster' in data) {
+      console.log('true')
       toplevel = data
       newXML = true
     }
@@ -1699,13 +1701,22 @@ async function processParsedZclData(
         processGlobals(db, filePath, packageId, toplevel.global, context)
       )
     }
-    if ('cluster' in toplevel) {
+    if ('cluster' in toplevel && newXML == false) {
       batch2.push(
         processClusters(db, filePath, packageId, toplevel.cluster, context)
       )
     }
     if (newXML == true) {
-      batch2.push(processClusters(db, filePath, packageId, toplevel, context))
+      console.log('AHHHHHH')
+      batch2.push(
+        processNewXMLClusters(
+          db,
+          filePath,
+          packageId,
+          toplevel.cluster,
+          context
+        )
+      )
     }
     await Promise.all(batch2)
     // Batch 3: Load the data type table which lists all data types

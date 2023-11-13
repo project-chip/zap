@@ -28,23 +28,10 @@ const queryNotification = require('../db/query-package-notification')
 
 const INSERT_CLUSTER_QUERY = `
 INSERT INTO CLUSTER (
-  PACKAGE_REF,
-  CODE,
-  MANUFACTURER_CODE,
   NAME,
-  DESCRIPTION,
-  DEFINE,
-  DOMAIN_NAME,
-  IS_SINGLETON,
-  REVISION,
-  INTRODUCED_IN_REF,
-  REMOVED_IN_REF,
-  API_MATURITY
+  REVISION
 ) VALUES (
-  ?, ?, ?, ?, ?, ?, ?, ?, ?,
-  (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
-  (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
-  ?
+  ?, ?
 )
 `
 
@@ -576,27 +563,13 @@ async function insertClusterExtensions(db, packageId, knownPackages, data) {
 async function insertClusters(db, packageId, data) {
   // If data is extension, we only have code there and we need to simply add commands and clusters.
   // But if it's not an extension, we need to insert the cluster and then run with
+  console.log(data)
   return dbApi
     .dbMultiInsert(
       db,
       INSERT_CLUSTER_QUERY,
-      data.map((cluster) => {
-        return [
-          packageId,
-          cluster.code,
-          cluster.manufacturerCode,
-          cluster.name,
-          cluster.description,
-          cluster.define,
-          cluster.domain,
-          cluster.isSingleton,
-          cluster.revision,
-          cluster.introducedIn,
-          packageId,
-          cluster.removedIn,
-          packageId,
-          cluster.apiMaturity,
-        ]
+      data.cluster.map((cluster) => {
+        return [packageId, cluster.name]
       })
     )
     .then((lastIdsArray) => {
