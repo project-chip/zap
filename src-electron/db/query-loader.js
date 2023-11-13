@@ -576,36 +576,31 @@ async function insertClusterExtensions(db, packageId, knownPackages, data) {
 async function insertClustersNewXML(db, packageId, data) {
   // If data is extension, we only have code there and we need to simply add commands and clusters.
   // But if it's not an extension, we need to insert the cluster and then run with
-  console.log(data)
   return dbApi
-    .dbMultiInsert(
-      db,
-      INSERT_CLUSTER_QUERY,
-      data.cluster.map((cluster) => {
-        return [
-          packageId,
-          cluster.code,
-          cluster.manufacturerCode,
-          cluster.name,
-          cluster.description,
-          cluster.define,
-          cluster.domain,
-          cluster.isSingleton,
-          cluster.revision,
-          cluster.introducedIn,
-          packageId,
-          cluster.removedIn,
-          packageId,
-          cluster.apiMaturity,
-        ]
-      })
-    )
+    .dbMultiInsert(db, INSERT_CLUSTER_QUERY, [
+      packageId,
+      data.cluster.code,
+      data.cluster.manufacturerCode,
+      data.cluster.name,
+      data.cluster.description,
+      data.cluster.define,
+      data.cluster.domain,
+      data.cluster.isSingleton,
+      data.cluster.revision,
+      data.cluster.introducedIn,
+      packageId,
+      data.cluster.removedIn,
+      packageId,
+      data.cluster.apiMaturity,
+    ])
     .then((lastIdsArray) => {
       let commands = {
         data: [],
         args: [],
         access: [],
       }
+      console.log('testing')
+      console.log(data)
       let events = {
         data: [],
         fields: [],
@@ -620,25 +615,25 @@ async function insertClustersNewXML(db, packageId, data) {
       let i
       for (i = 0; i < lastIdsArray.length; i++) {
         let lastId = lastIdsArray[i]
-        if ('commands' in data[i]) {
-          let cmds = data[i].commands
+        if ('commands' in data) {
+          let cmds = data.commands
           commands.data.push(...commandMap(lastId, packageId, cmds))
           commands.args.push(...cmds.map((command) => command.args))
           commands.access.push(...cmds.map((command) => command.access))
         }
-        if ('attributes' in data[i]) {
-          let atts = data[i].attributes
+        if ('attributes' in data) {
+          let atts = data.attributes
           attributes.data.push(...attributeMap(lastId, packageId, atts))
           attributes.access.push(...atts.map((at) => at.access))
         }
-        if ('events' in data[i]) {
-          let evs = data[i].events
+        if ('events' in data) {
+          let evs = data.events
           events.data.push(...eventMap(lastId, packageId, evs))
           events.fields.push(...evs.map((event) => event.fields))
           events.access.push(...evs.map((event) => event.access))
         }
-        if ('tags' in data[i]) {
-          pTags = insertTags(db, packageId, data[i].tags, lastId)
+        if ('tags' in data) {
+          pTags = insertTags(db, packageId, data.tags, lastId)
         }
       }
       let pCommand = insertCommands(db, packageId, commands)
