@@ -1,3 +1,4 @@
+'use strict'
 /**
  *
  *    Copyright (c) 2020 Silicon Labs
@@ -14,7 +15,6 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-
 const fs = require('fs')
 const fsp = fs.promises
 const path = require('path')
@@ -32,7 +32,6 @@ const zclLoader = require('./zcl-loader')
 const _ = require('lodash')
 const querySessionNotification = require('../db/query-session-notification')
 const queryPackageNotification = require('../db/query-package-notification')
-
 /**
  * Promises to read the JSON file and resolve all the data.
  * @param {*} ctx  Context containing information about the file
@@ -43,7 +42,6 @@ async function collectDataFromJsonFile(metadataFile, data) {
   let obj = JSON.parse(data)
   let f
   let returnObject = {}
-
   let fileLocations
   if (Array.isArray(obj.xmlRoot)) {
     fileLocations = obj.xmlRoot.map((p) =>
@@ -57,21 +55,16 @@ async function collectDataFromJsonFile(metadataFile, data) {
     f = util.locateRelativeFilePath(fileLocations, xmlF)
     if (f != null) zclFiles.push(f)
   })
-
   returnObject.zclFiles = zclFiles
-
   // Manufacturers XML file.
   f = util.locateRelativeFilePath(fileLocations, obj.manufacturersXml)
   if (f != null) returnObject.manufacturersXml = f
-
   // Profiles XML File
   f = util.locateRelativeFilePath(fileLocations, obj.profilesXml)
   if (f != null) returnObject.profilesXml = f
-
   // Zcl XSD file
   f = util.locateRelativeFilePath(fileLocations, obj.zclSchema)
   if (f != null) returnObject.zclSchema = f
-
   // General options
   // Note that these values when put into OPTION_CODE will generally be converted to lowercase.
   if (obj.options) {
@@ -81,12 +74,10 @@ async function collectDataFromJsonFile(metadataFile, data) {
   if (obj.defaults) {
     returnObject.defaults = obj.defaults
   }
-
   // Feature Flags
   if (obj.featureFlags) {
     returnObject.featureFlags = obj.featureFlags
   }
-
   if (obj.uiOptions) {
     returnObject.uiOptions = obj.uiOptions
   }
@@ -95,7 +86,6 @@ async function collectDataFromJsonFile(metadataFile, data) {
   // We still honor it.
   returnObject.defaultReportingPolicy =
     dbEnum.reportingPolicy.defaultReportingPolicy
-
   if ('defaultReportable' in obj) {
     returnObject.defaultReportingPolicy = obj.defaultReportable
       ? dbEnum.reportingPolicy.suggested
@@ -112,17 +102,14 @@ async function collectDataFromJsonFile(metadataFile, data) {
   returnObject.category = obj.category
   returnObject.description = obj.description
   returnObject.supportCustomZclDevice = obj.supportCustomZclDevice
-
   if ('listsUseAttributeAccessInterface' in obj) {
     returnObject.listsUseAttributeAccessInterface =
       obj.listsUseAttributeAccessInterface
   }
-
   if ('attributeAccessInterfaceAttributes' in obj) {
     returnObject.attributeAccessInterfaceAttributes =
       obj.attributeAccessInterfaceAttributes
   }
-
   if ('ZCLDataTypes' in obj) {
     returnObject.ZCLDataTypes = obj.ZCLDataTypes
   } else {
@@ -135,7 +122,6 @@ async function collectDataFromJsonFile(metadataFile, data) {
       'STRUCT',
     ]
   }
-
   // zcl.json can contain 'fabricHandling' toplevel key. It is expected
   // to look like this:
   //  "fabricHandling": {
@@ -161,10 +147,8 @@ async function collectDataFromJsonFile(metadataFile, data) {
   env.logDebug(
     `Resolving: ${returnObject.zclFiles}, version: ${returnObject.version}`
   )
-
   return returnObject
 }
-
 /**
  * Promises to read the properties file, extract all the actual xml files, and resolve with the array of files.
  *
@@ -174,9 +158,7 @@ async function collectDataFromJsonFile(metadataFile, data) {
 async function collectDataFromPropertiesFile(metadataFile, data) {
   return new Promise((resolve, reject) => {
     env.logDebug(`Collecting ZCL files from properties file: ${metadataFile}`)
-
     let returnObject = {}
-
     properties.parse(data, { namespaces: true }, (err, zclProps) => {
       if (err) {
         env.logError(`Could not read file: ${metadataFile}`)
@@ -187,7 +169,6 @@ async function collectDataFromPropertiesFile(metadataFile, data) {
           .map((p) => path.join(path.dirname(metadataFile), p))
         let zclFiles = []
         let f
-
         // Iterate over all XML files in the properties file, and check
         // if they exist in one or the other directory listed in xmlRoot
         zclProps.xmlFile.split(',').forEach((singleXmlFile) => {
@@ -197,7 +178,6 @@ async function collectDataFromPropertiesFile(metadataFile, data) {
           )
           if (fullPath != null) zclFiles.push(fullPath)
         })
-
         returnObject.zclFiles = zclFiles
         // Manufacturers XML file.
         f = util.locateRelativeFilePath(
@@ -205,15 +185,12 @@ async function collectDataFromPropertiesFile(metadataFile, data) {
           zclProps.manufacturersXml
         )
         if (f != null) returnObject.manufacturersXml = f
-
         // Profiles XML file.
         f = util.locateRelativeFilePath(fileLocations, zclProps.profilesXml)
         if (f != null) returnObject.profilesXml = f
-
         // Zcl XSD file
         f = util.locateRelativeFilePath(fileLocations, zclProps.zclSchema)
         if (f != null) returnObject.zclSchema = f
-
         // General options
         // Note that these values when put into OPTION_CODE will generally be converted to lowercase.
         if (zclProps.options) {
@@ -223,12 +200,10 @@ async function collectDataFromPropertiesFile(metadataFile, data) {
         if (zclProps.defaults) {
           returnObject.defaults = zclProps.defaults
         }
-
         // Feature Flags
         if (zclProps.featureFlags) {
           returnObject.featureFlags = zclProps.featureFlags
         }
-
         returnObject.supportCustomZclDevice = zclProps.supportCustomZclDevice
         returnObject.version = zclProps.version
         returnObject.description = zclProps.description
@@ -246,7 +221,6 @@ async function collectDataFromPropertiesFile(metadataFile, data) {
     })
   })
 }
-
 /**
  * Silabs XML does not carry types with bitmap fields, but dotdot does, so they are in the schema.
  * Just to put some data in, we differentiate between "bool" and "enum" types here.
@@ -267,7 +241,6 @@ function maskToType(mask) {
     return 'enum32'
   }
 }
-
 /**
  * Prepare atomic to db insertion.
  *
@@ -304,7 +277,6 @@ async function processAtomics(db, filePath, packageId, data) {
     types.map((x) => prepareAtomic(x))
   )
 }
-
 /**
  * Prepares global attribute data.
  *
@@ -314,20 +286,17 @@ async function processAtomics(db, filePath, packageId, data) {
 function prepareClusterGlobalAttribute(cluster) {
   if ('globalAttribute' in cluster) {
     let ret = {}
-
     ret.code = parseInt(cluster.code[0], 16)
     if ('$' in cluster) {
       let mfgCode = cluster['$'].manufacturerCode
       if (mfgCode != null) ret.manufacturerCode = mfgCode
     }
-
     ret.globalAttribute = []
     cluster.globalAttribute.forEach((ga) => {
       let at = {
         code: parseInt(ga.$.code),
         value: ga.$.value,
       }
-
       if ('featureBit' in ga) {
         at.featureBit = ga.featureBit.map((fb) => {
           let content = fb._ != null ? fb._.toLowerCase() : null
@@ -338,7 +307,6 @@ function prepareClusterGlobalAttribute(cluster) {
           }
         })
       }
-
       if (ga.$.side == dbEnum.side.either) {
         ret.globalAttribute.push(
           Object.assign({ side: dbEnum.side.client }, at)
@@ -355,7 +323,6 @@ function prepareClusterGlobalAttribute(cluster) {
     return null
   }
 }
-
 function extractAccessTag(ac) {
   let e = {
     op: ac.$.op,
@@ -367,7 +334,6 @@ function extractAccessTag(ac) {
   }
   return e
 }
-
 function extractAccessIntoArray(xmlElement) {
   let accessArray = []
   if ('access' in xmlElement) {
@@ -377,7 +343,6 @@ function extractAccessIntoArray(xmlElement) {
   }
   return accessArray
 }
-
 /**
  * Prepare XML cluster for insertion into the database.
  * This method can also prepare clusterExtensions.
@@ -393,11 +358,9 @@ function prepareCluster(cluster, context, isExtension = false) {
   ret.cluster.name = cluster.$.name
   ret.cluster.id = cluster.$.id
   ret.cluster.revision = cluster.$.revision
-
   if ('tag' in cluster) {
     ret.tags = cluster.tag.map((tag) => prepareTag(tag))
   }
-
   if ('commands' in cluster) {
     ret.commands = []
     cluster.commands[0].command.forEach((command) => {
@@ -484,10 +447,8 @@ function prepareCluster(cluster, context, isExtension = false) {
       if (att.removedIn == null) ret.attributes.push(att)
     })
   }
-
   return ret
 }
-
 /**
  * Process clusters for insertion into the database.
  *
@@ -506,7 +467,6 @@ async function processClusters(db, filePath, packageId, data, context) {
     prepareCluster(data, context)
   )
 }
-
 /**
  * Processes global attributes for insertion into the database.
  *
@@ -519,7 +479,6 @@ async function processClusters(db, filePath, packageId, data, context) {
 function processClusterGlobalAttributes(db, filePath, packageId, data) {
   return null
 }
-
 /**
  * Cluster Extension contains attributes and commands in a same way as regular cluster,
  * and it has an attribute code="0xXYZ" where code is a cluster code.
@@ -548,7 +507,6 @@ async function processClusterExtensions(
     data.map((x) => prepareCluster(x, context, true))
   )
 }
-
 /**
  * Processes the globals in the XML files. The `global` tag contains
  * attributes and commands in a same way as cluster or clusterExtension
@@ -567,14 +525,12 @@ async function processGlobals(db, filePath, packageId, data, context) {
     data.map((x) => prepareCluster(x, context, true))
   )
 }
-
 function prepareTag(tag) {
   return {
     name: tag.$.name,
     description: tag.$.description,
   }
 }
-
 /**
  * Process defaultAccess tag in the XML.
  * @param {*} db
@@ -601,7 +557,6 @@ async function processDefaultAccess(
   }
   return Promise.all(p)
 }
-
 /**
  * Process accessControl tag in the XML.
  * @param {*} db
@@ -618,7 +573,6 @@ async function processAccessControl(
   let operations = []
   let roles = []
   let accessModifiers = []
-
   for (const ac of accessControlList) {
     if ('operation' in ac) {
       for (const op of ac.operation) {
@@ -655,14 +609,12 @@ async function processAccessControl(
       }
     }
   }
-
   let p = []
   p.push(queryLoader.insertAccessRoles(db, packageId, roles))
   p.push(queryLoader.insertAccessOperations(db, packageId, operations))
   p.push(queryLoader.insertAccessModifiers(db, packageId, accessModifiers))
   return Promise.all(p)
 }
-
 /**
  * Processes the tags in the XML.
  * @param {*} db
@@ -676,7 +628,6 @@ async function processTags(db, filePath, packageId, tags) {
   let preparedTags = tags.map((x) => prepareTag(x))
   return queryLoader.insertTags(db, packageId, preparedTags, null)
 }
-
 /**
  * Convert domain from XMl to domain for DB.
  *
@@ -701,7 +652,6 @@ function prepareDomain(domain) {
   }
   return d
 }
-
 /**
  * Process domains for insertion.
  *
@@ -724,7 +674,6 @@ async function processDomains(db, filePath, packageId, data) {
   }
   return queryLoader.insertDomains(db, packageId, preparedDomains)
 }
-
 /**
  * Prepare Data Type Discriminator for database table insertion.
  *
@@ -737,7 +686,6 @@ function prepareDataTypeDiscriminator(a) {
     id: a.id,
   }
 }
-
 /**
  * Processes Data Type Discriminator.
  *
@@ -759,7 +707,6 @@ async function processDataTypeDiscriminator(db, packageId, zclDataTypes) {
     types.map((x) => prepareDataTypeDiscriminator(x))
   )
 }
-
 /**
  * Prepare Data Types for database table insertion.
  *
@@ -799,7 +746,6 @@ function prepareDataType(a, dataType, typeMap) {
     cluster_code: a.cluster ? a.cluster : null,
   }
 }
-
 /**
  * Processes Data Type.
  *
@@ -820,7 +766,6 @@ async function processDataType(
   dataType
 ) {
   let typeMap = await zclLoader.getDiscriminatorMap(db, knownPackages)
-
   if (dataType == dbEnum.zclType.atomic) {
     let types = data[0].type
     env.logDebug(`${filePath}, ${packageId}: ${data.length} Atomic Data Types.`)
@@ -878,7 +823,6 @@ async function processDataType(
     )
   }
 }
-
 /**
  * Prepare numbers for database table insertion.
  *
@@ -910,7 +854,6 @@ function prepareNumber(a, dataType) {
     discriminator_ref: dataType,
   }
 }
-
 /**
  * Processes Numbers.
  *
@@ -938,7 +881,6 @@ async function processNumber(db, filePath, packageId, knownPackages, data) {
     numbers.map((x) => prepareNumber(x, typeMap.get(dbEnum.zclType.number)))
   )
 }
-
 /**
  * Prepare strings for database table insertion.
  *
@@ -956,7 +898,6 @@ function prepareString(a, dataType) {
     discriminator_ref: dataType,
   }
 }
-
 /**
  * Processes Strings.
  *
@@ -982,7 +923,6 @@ async function processString(db, filePath, packageId, knownPackages, data) {
     strings.map((x) => prepareString(x, typeMap.get(dbEnum.zclType.string)))
   )
 }
-
 /**
  * Prepare enums or bitmaps for database table insertion.
  *
@@ -998,7 +938,6 @@ function prepareEnumOrBitmapAtomic(a, dataType) {
     discriminator_ref: dataType,
   }
 }
-
 /**
  * Processes the enums.
  *
@@ -1023,7 +962,6 @@ async function processEnumAtomic(db, filePath, packageId, knownPackages, data) {
     )
   )
 }
-
 /**
  * Prepare enums or bitmaps for database table insertion.
  *
@@ -1062,7 +1000,6 @@ function prepareEnumOrBitmap(db, packageId, a, dataType, typeMap) {
     discriminator_ref: dataType,
   }
 }
-
 /**
  * Processes the enums.
  *
@@ -1090,7 +1027,6 @@ async function processEnum(db, filePath, packageId, knownPackages, data) {
     )
   )
 }
-
 /**
  * Processes the enum Items.
  *
@@ -1122,7 +1058,6 @@ async function processEnumItems(db, filePath, packageId, knownPackages, data) {
   })
   return queryLoader.insertEnumItems(db, packageId, knownPackages, enumItems)
 }
-
 /**
  * Processes the bitmaps.
  *
@@ -1155,7 +1090,6 @@ async function processBitmapAtomic(
     )
   )
 }
-
 /**
  * Processes the bitmaps.
  *
@@ -1183,7 +1117,6 @@ async function processBitmap(db, filePath, packageId, knownPackages, data) {
     )
   )
 }
-
 /**
  * Processes the bitmap fields.
  *
@@ -1226,7 +1159,6 @@ async function processBitmapFields(
     bitmapFields
   )
 }
-
 /**
  * Prepare structs for database table insertion.
  *
@@ -1242,7 +1174,6 @@ function prepareStruct(a, dataType) {
     isFabricScoped: a.$.isFabricScoped == 'true',
   }
 }
-
 /**
  * Processes the structs.
  *
@@ -1262,7 +1193,6 @@ async function processStruct(db, filePath, packageId, knownPackages, data) {
     data.map((x) => prepareStruct(x, typeMap.get(dbEnum.zclType.struct)))
   )
 }
-
 /**
  * Processes the struct Items.
  *
@@ -1301,7 +1231,6 @@ async function processStructItems(db, filePath, packageIds, data, context) {
         })
       })
     }
-
     if (
       context.fabricHandling &&
       context.fabricHandling.automaticallyCreateFields &&
@@ -1326,7 +1255,6 @@ async function processStructItems(db, filePath, packageIds, data, context) {
   })
   return queryLoader.insertStructItems(db, packageIds, structItems)
 }
-
 /**
  * Preparation step for the device types.
  *
@@ -1373,7 +1301,6 @@ function prepareDeviceType(deviceType) {
   }
   return ret
 }
-
 /**
  * Process all device types.
  *
@@ -1391,7 +1318,6 @@ async function processDeviceTypes(db, filePath, packageId, data) {
     data.map((x) => prepareDeviceType(x))
   )
 }
-
 /**
  * After XML parser is done with the barebones parsing, this function
  * branches the individual toplevel tags.
@@ -1411,12 +1337,10 @@ async function processParsedZclData(
   let packageId = argument.packageId
   previouslyKnownPackages.add(packageId)
   let knownPackages = Array.from(previouslyKnownPackages)
-
   if (!('result' in argument)) {
     return []
   } else {
     let toplevel = null
-
     if ('configurator' in data) {
       toplevel = data.configurator
     }
@@ -1426,14 +1350,11 @@ async function processParsedZclData(
     if ('zap' in data) {
       toplevel = data.zap
     }
-
     if (toplevel == null) return []
-
     // We load in multiple batches, since each batch needs to resolve
     // before the next batch can be loaded, as later data depends on
     // previous data. Final batch is delayed, meaning that
     // the promises there can't start yet, until all files are loaded.
-
     // Batch 1: load accessControl, tag and domain
     let batch1 = []
     if ('accessControl' in toplevel) {
@@ -1448,7 +1369,6 @@ async function processParsedZclData(
       batch1.push(processDomains(db, filePath, packageId, toplevel.domain))
     }
     await Promise.all(batch1)
-
     // Batch 2: device types, globals, clusters
     let batch2 = []
     if ('deviceType' in toplevel) {
@@ -1481,7 +1401,6 @@ async function processParsedZclData(
         )
       )
     }
-
     if (dbEnum.zclType.bitmap in toplevel) {
       batch3.push(
         processDataType(
@@ -1519,7 +1438,6 @@ async function processParsedZclData(
       )
     }
     await Promise.all(batch3)
-
     // Batch4 and Batch5: Loads the inidividual tables per data type from
     // atomics/baseline types to inherited types
     let Batch4 = []
@@ -1550,7 +1468,6 @@ async function processParsedZclData(
       )
     }
     await Promise.all(Batch4)
-
     let Batch5 = []
     if (dbEnum.zclType.enum in toplevel) {
       Batch5.push(
@@ -1568,7 +1485,6 @@ async function processParsedZclData(
       )
     }
     await Promise.all(Batch5)
-
     // Batch7: Loads the items within a bitmap, struct and enum data types
     let batch6 = []
     if (dbEnum.zclType.enum in toplevel) {
@@ -1599,7 +1515,6 @@ async function processParsedZclData(
       )
     }
     await Promise.all(batch6)
-
     // Batch7: Loads the defaultAccess
     let Batch7 = []
     if ('defaultAccess' in toplevel) {
@@ -1612,12 +1527,10 @@ async function processParsedZclData(
     }
     await Promise.all(Batch7)
     //}
-
     // Batch 8: cluster extensions and global attributes
     //   These don't start right away, but are delayed. So we don't return
     //   promises that have already started, but functions that return promises.
     let delayedPromises = []
-
     if ('cluster' in toplevel) {
       delayedPromises.push(() =>
         processClusterGlobalAttributes(
@@ -1643,7 +1556,6 @@ async function processParsedZclData(
     return Promise.all(delayedPromises)
   }
 }
-
 /**
  * This function is used for parsing each individual ZCL file at a grouped zcl file package level.
  * This should _not_ be used for custom XML addition due to custom xmls potentially relying on existing packges.
@@ -1677,7 +1589,6 @@ async function parseSingleZclFile(db, packageId, file, context) {
     throw err
   }
 }
-
 /**
  *
  * Promises to iterate over all the XML files and returns an aggregate promise
@@ -1694,7 +1605,6 @@ async function parseZclFiles(db, packageId, zclFiles, context) {
   // Populate the Data Type Discriminator
   if (context.ZCLDataTypes)
     await processDataTypeDiscriminator(db, packageId, context.ZCLDataTypes)
-
   // Load the Types File first such the atomic types are loaded and can be
   //referenced by other types
   let typesFiles = zclFiles.filter((file) => file.includes('types.xml'))
@@ -1702,7 +1612,6 @@ async function parseZclFiles(db, packageId, zclFiles, context) {
     parseSingleZclFile(db, packageId, file, context)
   )
   await Promise.all(typeFilePromise)
-
   // Load everything apart from atomic data types
   let nonTypesFiles = zclFiles.filter((file) => !file.includes('types.xml'))
   let individualFilePromise = nonTypesFiles.map((file) =>
@@ -1711,11 +1620,9 @@ async function parseZclFiles(db, packageId, zclFiles, context) {
   let individualResults = await Promise.all(individualFilePromise)
   let laterPromises = individualResults.flat(2)
   await Promise.all(laterPromises.map((promise) => promise()))
-
   // Load some missing content which was not possible before the above was done
   return zclLoader.processZclPostLoading(db, packageId)
 }
-
 /**
  * Parses the manufacturers xml.
  *
@@ -1725,9 +1632,7 @@ async function parseZclFiles(db, packageId, zclFiles, context) {
  */
 async function parseManufacturerData(db, packageId, manufacturersXml) {
   let data = await fsp.readFile(manufacturersXml)
-
   let manufacturerMap = await util.parseXml(data)
-
   return queryPackage.insertOptionsKeyValues(
     db,
     packageId,
@@ -1738,7 +1643,6 @@ async function parseManufacturerData(db, packageId, manufacturersXml) {
     })
   )
 }
-
 /**
  * Parses the profiles xml.
  *
@@ -1748,9 +1652,7 @@ async function parseManufacturerData(db, packageId, manufacturersXml) {
  */
 async function parseProfilesData(db, packageId, profilesXml) {
   let data = await fsp.readFile(profilesXml)
-
   let profilesMap = await util.parseXml(data)
-
   return queryPackage.insertOptionsKeyValues(
     db,
     packageId,
@@ -1761,7 +1663,6 @@ async function parseProfilesData(db, packageId, profilesXml) {
     })
   )
 }
-
 /**
  * Inside the `zcl.json` can be a `featureFlags` key, which is
  * a general purpose object. It contains keys, that map to objects.
@@ -1790,7 +1691,6 @@ async function parseFeatureFlags(db, packageId, featureFlags) {
     })
   )
 }
-
 /**
  * Inside the `zcl.json` can be a `featureFlags` key, which is
  * a general purpose object. It contains keys, that map to objects.
@@ -1829,7 +1729,6 @@ async function parseOptions(db, packageId, options) {
   promises.push(parseBoolOptions(db, packageId, options.bool))
   return Promise.all(promises)
 }
-
 /**
  * Parses the text options.
  *
@@ -1859,7 +1758,6 @@ async function parseTextOptions(db, pkgRef, textOptions) {
   })
   return Promise.all(promises)
 }
-
 /**
  * Parses the boolean options.
  *
@@ -1889,7 +1787,6 @@ async function parseBoolOptions(db, pkgRef, booleanCategories) {
   })
   return Promise.all(promises)
 }
-
 /**
  * Parses the default values inside the options.
  *
@@ -1903,10 +1800,8 @@ async function parseDefaults(db, packageId, defaults) {
   promises.push(parseBoolDefaults(db, packageId, defaults.bool))
   return Promise.all(promises)
 }
-
 async function parseTextDefaults(db, pkgRef, textDefaults) {
   if (!textDefaults) return Promise.resolve()
-
   let promises = []
   for (let optionCategory of Object.keys(textDefaults)) {
     let txt = textDefaults[optionCategory]
@@ -1944,10 +1839,8 @@ async function parseTextDefaults(db, pkgRef, textDefaults) {
   }
   return Promise.all(promises)
 }
-
 async function parseBoolDefaults(db, pkgRef, booleanCategories) {
   if (!booleanCategories) return Promise.resolve()
-
   let promises = []
   for (let optionCategory of Object.keys(booleanCategories)) {
     promises.push(
@@ -1970,7 +1863,6 @@ async function parseBoolDefaults(db, pkgRef, booleanCategories) {
   }
   return Promise.all(promises)
 }
-
 /**
  * Parses a single file. This function is used specifically
  * for adding a package through an existing session because of its reliance
@@ -1989,7 +1881,6 @@ async function loadIndividualSilabsFile(db, filePath, sessionId) {
       data: fileContent,
       crc: util.checksum(fileContent),
     }
-
     let result = await zclLoader.qualifyZclFile(
       db,
       data,
@@ -2032,7 +1923,6 @@ async function loadIndividualSilabsFile(db, filePath, sessionId) {
     return { succeeded: false, err: err }
   }
 }
-
 /**
  * If custom device is supported, then this method creates it.
  *
@@ -2059,7 +1949,6 @@ async function processCustomZclDeviceType(db, packageId) {
   if (existingCustomDevice == null)
     await queryLoader.insertDeviceTypes(db, packageId, customDeviceTypes)
 }
-
 /**
  * Toplevel function that loads the toplevel metafile
  * and orchestrates the promise chain.
@@ -2079,9 +1968,7 @@ async function loadSilabsZcl(db, metafile, isJson = false) {
   if (!fs.existsSync(metafile)) {
     throw new Error(`Can't locate: ${metafile}`)
   }
-
   if (!isTransactionAlreadyExisting) await dbApi.dbBeginTransaction(db)
-
   try {
     Object.assign(ctx, await util.readFileContentAndCrc(ctx.metadataFile))
     ctx.packageId = await zclLoader.recordToplevelPackage(
@@ -2128,7 +2015,6 @@ async function loadSilabsZcl(db, metafile, isJson = false) {
             `\n\nUnknown cluster "${clusterName}" in attributeAccessInterfaceAttributes\n\n`
           )
         }
-
         let known_cluster_attributes =
           await queryZcl.selectAttributesByClusterIdIncludingGlobal(
             db,
@@ -2146,7 +2032,6 @@ async function loadSilabsZcl(db, metafile, isJson = false) {
         }
       }
     }
-
     if (ctx.manufacturersXml) {
       await parseManufacturerData(db, ctx.packageId, ctx.manufacturersXml)
     }
@@ -2177,6 +2062,5 @@ async function loadSilabsZcl(db, metafile, isJson = false) {
   }
   return ctx
 }
-
 exports.loadSilabsZcl = loadSilabsZcl
 exports.loadIndividualSilabsFile = loadIndividualSilabsFile
