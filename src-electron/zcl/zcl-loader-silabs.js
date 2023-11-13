@@ -425,7 +425,7 @@ function prepareClusterNewXML(cluster, context, isExtension = false) {
         default: attribute.$.default,
         id: attribute.$.id,
       }
-      att.access = extractAccessIntoArray(attribute)
+      ret.attributes.push(att)
     })
   }
   return ret
@@ -728,7 +728,7 @@ async function processClusters(db, filePath, packageId, data, context) {
 async function processNewXMLClusters(db, filePath, packageId, data, context) {
   env.logDebug(`${filePath}, ${packageId}: ${data.length} clusters.`)
   console.log(data)
-  return queryLoader.insertClusters(
+  return queryLoader.insertClustersNewXML(
     db,
     packageId,
     prepareClusterNewXML(data, context)
@@ -1870,7 +1870,7 @@ async function processParsedZclData(
     //   promises that have already started, but functions that return promises.
     let delayedPromises = []
 
-    if ('cluster' in toplevel) {
+    if ('cluster' in toplevel && newXML == false) {
       delayedPromises.push(() =>
         processClusterGlobalAttributes(
           db,

@@ -573,6 +573,92 @@ async function insertClusterExtensions(db, packageId, knownPackages, data) {
  * @param {*} data an array of objects that must contain: code, name, description, define. It also contains commands: and attributes:
  * @returns Promise of cluster insertion.
  */
+async function insertClustersNewXML(db, packageId, data) {
+  // If data is extension, we only have code there and we need to simply add commands and clusters.
+  // But if it's not an extension, we need to insert the cluster and then run with
+  console.log(data)
+  return dbApi
+    .dbMultiInsert(
+      db,
+      INSERT_CLUSTER_QUERY,
+      data.cluster.map((cluster) => {
+        return [
+          packageId,
+          cluster.code,
+          cluster.manufacturerCode,
+          cluster.name,
+          cluster.description,
+          cluster.define,
+          cluster.domain,
+          cluster.isSingleton,
+          cluster.revision,
+          cluster.introducedIn,
+          packageId,
+          cluster.removedIn,
+          packageId,
+          cluster.apiMaturity,
+        ]
+      })
+    )
+    .then((lastIdsArray) => {
+      let commands = {
+        data: [],
+        args: [],
+        access: [],
+      }
+      let events = {
+        data: [],
+        fields: [],
+        access: [],
+      }
+      let attributes = {
+        data: [],
+        access: [],
+      }
+      let pTags = null
+
+      let i
+      for (i = 0; i < lastIdsArray.length; i++) {
+        let lastId = lastIdsArray[i]
+        if ('commands' in data[i]) {
+          let cmds = data[i].commands
+          commands.data.push(...commandMap(lastId, packageId, cmds))
+          commands.args.push(...cmds.map((command) => command.args))
+          commands.access.push(...cmds.map((command) => command.access))
+        }
+        if ('attributes' in data[i]) {
+          let atts = data[i].attributes
+          attributes.data.push(...attributeMap(lastId, packageId, atts))
+          attributes.access.push(...atts.map((at) => at.access))
+        }
+        if ('events' in data[i]) {
+          let evs = data[i].events
+          events.data.push(...eventMap(lastId, packageId, evs))
+          events.fields.push(...evs.map((event) => event.fields))
+          events.access.push(...evs.map((event) => event.access))
+        }
+        if ('tags' in data[i]) {
+          pTags = insertTags(db, packageId, data[i].tags, lastId)
+        }
+      }
+      let pCommand = insertCommands(db, packageId, commands)
+      let pAttribute = insertAttributes(db, packageId, attributes)
+      let pEvent = insertEvents(db, packageId, events)
+      let pArray = [pCommand, pAttribute, pEvent]
+      if (pTags != null) pArray.push(pTags)
+      return Promise.all(pArray)
+    })
+}
+
+/**
+ * Inserts clusters into the database.
+ *
+ * @export
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} data an array of objects that must contain: code, name, description, define. It also contains commands: and attributes:
+ * @returns Promise of cluster insertion.
+ */
 async function insertClusters(db, packageId, data) {
   // If data is extension, we only have code there and we need to simply add commands and clusters.
   // But if it's not an extension, we need to insert the cluster and then run with
@@ -1848,6 +1934,7 @@ async function insertStructItems(db, packageIds, data) {
   )
 }
 
+exports.insertClustersNewXML = insertClustersNewXML
 exports.insertGlobals = insertGlobals
 exports.insertClusterExtensions = insertClusterExtensions
 exports.insertClusters = insertClusters
