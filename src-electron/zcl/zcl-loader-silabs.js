@@ -1705,9 +1705,7 @@ async function processParsedZclData(
       )
     }
     if (newXML == true) {
-      batch2.push(
-        processClusters(db, filePath, packageId, toplevel.cluster, context)
-      )
+      batch2.push(processClusters(db, filePath, packageId, toplevel, context))
     }
     await Promise.all(batch2)
     // Batch 3: Load the data type table which lists all data types
