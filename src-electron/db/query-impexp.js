@@ -23,7 +23,7 @@
 const dbApi = require('./db-api')
 const dbEnums = require('../../src-shared/db-enum')
 const dbMapping = require('./db-mapping.js')
-const queryUpgrade = require('../upgrade/upgrade.js')
+const queryUpgrade = require('../matter/matter.js')
 /**
  * Imports a single endpoint
  * @param {} db
@@ -709,6 +709,7 @@ WHERE
   }
   if (storagePolicy == dbEnums.storagePolicy.attributeAccessInterface) {
     attribute.storageOption = dbEnums.storageOption.external
+    attribute.defaultValue = null
   }
 
   let arg = [

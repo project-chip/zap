@@ -71,6 +71,7 @@ const uri = {
   sessionCreate: '/zcl/sessionCreate',
   reloadSession: '/zcl/reloadSession',
   init: '/init',
+  forcedExternal: '/zcl/forcedExternal',
 }
 
 const uiMode = {
