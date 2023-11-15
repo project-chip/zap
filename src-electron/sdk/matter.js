@@ -135,11 +135,7 @@ async function computeStorageNewConfig(
   } else {
     throw 'check storage policy'
   }
-  if (
-    forcedExternal.byName &&
-    forcedExternal.byName[clusterName] &&
-    forcedExternal.byName[clusterName].includes(attributeName)
-  ) {
+  if (forcedExternal.byName?.[clusterName]?.includes(attributeName)) {
     storageOption = dbEnum.storageOption.external
   }
   return storageOption
@@ -163,11 +159,7 @@ async function computeStorageImport(
   forcedExternal,
   attributeName
 ) {
-  if (
-    forcedExternal.byName &&
-    forcedExternal.byName[clusterName] &&
-    forcedExternal.byName[clusterName].includes(attributeName)
-  ) {
+  if (forcedExternal.byName?.[clusterName]?.includes(attributeName)) {
     storagePolicy = dbEnum.storagePolicy.attributeAccessInterface
   }
   return storagePolicy
