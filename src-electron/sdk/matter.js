@@ -23,6 +23,11 @@ const dbEnum = require('../../src-shared/db-enum.js')
 const fs = require('fs')
 const fsp = fs.promises
 
+/**
+ * This file implements SDK rules which are used to upgrade .zap files and xml files
+ * to be in sync with the Matter SDK and spec
+ */
+
 function parseJson(json) {
   try {
     return JSON.parse(json)
@@ -31,10 +36,6 @@ function parseJson(json) {
   }
 }
 
-/**
- * This file implements upgrade rules which are used to upgrade .zap files and xml files
- * to be in sync with the spec
- */
 async function getForcedExternalStorageList(db, zcl) {
   let obj = await fsp.readFile(zcl, 'utf-8')
   let data = parseJson(obj)
@@ -101,6 +102,7 @@ async function computeStoragePolicyForGlobalAttributes(
     })
   )
 }
+
 async function getDisabledStorage(db, zcl) {
   return await getForcedExternalStorageList(db, zcl)
 }
