@@ -104,7 +104,7 @@ async function computeStoragePolicyForGlobalAttributes(
 }
 
 async function getDisabledStorage(db, zcl) {
-  return await getForcedExternalStorageList(db, zcl)
+  return getForcedExternalStorageList(db, zcl)
 }
 
 /**

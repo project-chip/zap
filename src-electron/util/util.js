@@ -71,6 +71,7 @@ async function ensurePackagesAndPopulateSessionOptions(
   // that an array is passed from the command line, we are simply taking
   // the first one, if we pass multiple ones.
   let zclFile
+  console.log(options.zcl)
   if (options) {
     zclFile = options.zcl
   } else {
