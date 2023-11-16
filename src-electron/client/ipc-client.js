@@ -37,7 +37,7 @@ function log(msg) {
  *
  * @returns a promise which resolves when client connects
  */
-function initAndConnectClient() {
+async function initAndConnectClient() {
   client.ipc.config.logger = log
   client.ipc.config.id = 'main'
 

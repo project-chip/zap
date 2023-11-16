@@ -216,8 +216,8 @@ async function ensurePackagesAndPopulateSessionOptions(
           if (selectedZclPropertyPackage) {
             const matchBySelectedCategory = rows.find(
               (r) => r?.category === selectedZclPropertyPackage.category
-            );
-            packageId = matchBySelectedCategory?.id || rows[0].id;
+            )
+            packageId = matchBySelectedCategory?.id || rows[0].id
           } else {
             packageId = rows[0].id
           }

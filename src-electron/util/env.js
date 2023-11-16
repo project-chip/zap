@@ -21,8 +21,6 @@ const fs = require('fs')
 const pino = require('pino')
 const zapBaseUrl = 'http://localhost:'
 
-import { VersionType, ErrorType } from '../types/env-types'
-
 let saveFileFormat = 2 // This is the enabled only .zap file format
 
 export function setSaveFileFormat(n) {

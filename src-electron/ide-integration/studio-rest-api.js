@@ -21,41 +21,27 @@
  */
 
 // dirty flag reporting interval
-import axios, { AxiosResponse } from 'axios'
-import * as env from '../util/env'
-import * as dbTypes from '../../src-shared/types/db-types'
-import * as querySession from '../db/query-session.js'
+const axios = require('axios')
+const env = require('../util/env')
+const querySession = require('../db/query-session.js')
 const queryNotification = require('../db/query-session-notification.js')
 const wsServer = require('../server/ws-server.js')
-import * as dbEnum from '../../src-shared/db-enum.js'
-import * as ucTypes from '../../src-shared/types/uc-component-types'
-import * as dbMappingTypes from '../types/db-mapping-types'
-import { StatusCodes } from 'http-status-codes'
-import zcl from './zcl.js'
+const dbEnum = require('../../src-shared/db-enum.js')
+const { StatusCodes } = require('http-status-codes')
+const zcl = require('./zcl.js')
 import WebSocket from 'ws'
-import {
-  StudioRestAPI,
-  StudioWsConnection,
-  StudioProjectPath,
-  StudioQueryParams,
-  StudioWsAPI,
-  StudioWsMessage,
-} from './studio-types'
-import { projectName } from '../../src-electron/util/studio-util'
+import { projectName } from '../util/studio-util'
 
 const localhost = 'http://127.0.0.1:'
 const wsLocalhost = 'ws://127.0.0.1:'
 
 // a periodic heartbeat for checking in on Studio server to maintain WS connections
-let heartbeatId: NodeJS.Timeout
+let heartbeatId = null
 const heartbeatDelay = 6000
-let studioHttpPort: number
-let studioWsConnections: StudioWsConnection = {}
+let studioHttpPort
+let studioWsConnections = {}
 
-async function projectPath(
-  db: dbTypes.DbType,
-  sessionId: number
-): Promise<StudioProjectPath> {
+async function projectPath(db, sessionId) {
   return querySession.getSessionKeyValue(
     db,
     sessionId,
@@ -67,10 +53,10 @@ async function projectPath(
  * Boolean deciding whether Studio integration logic should be enabled
  * @param {*} db
  * @param {*} sessionId
- * @returns - Promise to studio project path
+ * @returns Promise to studio project path
  */
-async function integrationEnabled(db: dbTypes.DbType, sessionId: number) {
-  let path: string = await querySession.getSessionKeyValue(
+async function integrationEnabled(db, sessionId) {
+  let path = await querySession.getSessionKeyValue(
     db,
     sessionId,
     dbEnum.sessionKey.ideProjectPath
@@ -83,13 +69,9 @@ async function integrationEnabled(db: dbTypes.DbType, sessionId: number) {
  * @param api
  * @param path
  * @param queryParams
- * @returns
+ * @returns URL for rest api.
  */
-function restApiUrl(
-  api: StudioRestAPI,
-  path: StudioProjectPath,
-  queryParams: StudioQueryParams = {}
-) {
+function restApiUrl(api, path, queryParams = {}) {
   let base = localhost + studioHttpPort + api + path
   let params = Object.entries(queryParams)
   if (params.length) {
@@ -109,9 +91,9 @@ function restApiUrl(
  * @param api
  * @param path
  * @param queryParams
- * @returns
+ * @returns URL for WS
  */
-function wsApiUrl(api: StudioWsAPI, path: StudioProjectPath) {
+function wsApiUrl(api, path) {
   return wsLocalhost + studioHttpPort + api + path
 }
 
@@ -121,13 +103,7 @@ function wsApiUrl(api: StudioWsAPI, path: StudioProjectPath) {
  * @param {*} sessionId
  * @returns - HTTP RESP with project info in JSON form
  */
-async function getProjectInfo(
-  db: dbTypes.DbType,
-  sessionId: number
-): Promise<{
-  data: string[]
-  status?: StatusCodes
-}> {
+async function getProjectInfo(db, sessionId) {
   let project = await projectPath(db, sessionId)
   let studioIntegration = await integrationEnabled(db, sessionId)
 
@@ -172,12 +148,12 @@ async function getProjectInfo(
  *                data - HTTP response data field
  */
 async function updateComponentByClusterIdAndComponentId(
-  db: dbTypes.DbType,
-  sessionId: number,
-  componentIds: string[],
-  clusterId: number,
-  add: boolean,
-  side: string
+  db,
+  sessionId,
+  componentIds,
+  clusterId,
+  add,
+  side
 ) {
   if (!integrationEnabled(db, sessionId)) {
     env.logWarning(
@@ -199,9 +175,7 @@ async function updateComponentByClusterIdAndComponentId(
   if (clusterId) {
     let ids = zcl
       .getComponentIdsByCluster(db, sessionId, clusterId, side)
-      .then((response: ucTypes.UcComponentIds) =>
-        Promise.resolve(response.componentIds)
-      )
+      .then((response) => Promise.resolve(response.componentIds))
     promises.push(ids)
   }
 
@@ -229,16 +203,9 @@ async function updateComponentByClusterIdAndComponentId(
  *                status - boolean. true if HTTP REQ status code is OK,
  *                data - HTTP response data field
  */
-async function updateComponentByComponentIds(
-  db: dbTypes.DbType,
-  sessionId: number,
-  componentIds: string[],
-  add: boolean
-) {
+async function updateComponentByComponentIds(db, sessionId, componentIds, add) {
   componentIds = componentIds.filter((x) => x)
-  let promises: Promise<
-    AxiosResponse | ucTypes.UcComponentUpdateResponseWrapper
-  >[] = []
+  let promises = []
   let project = await projectPath(db, sessionId)
   let name = projectName(project)
 
@@ -260,11 +227,7 @@ async function updateComponentByComponentIds(
   )
 }
 
-function httpPostComponentUpdate(
-  project: string,
-  componentId: string,
-  add: boolean
-) {
+function httpPostComponentUpdate(project, componentId, add) {
   let operation = add
     ? StudioRestAPI.AddComponent
     : StudioRestAPI.RemoveComponent
@@ -311,11 +274,7 @@ function httpPostComponentUpdate(
  * @param session
  * @param message
  */
-async function wsMessageHandler(
-  db: dbTypes.DbType,
-  session: any,
-  message: string
-) {
+async function wsMessageHandler(db, session, message) {
   let { sessionId } = session
   let name = projectName(await projectPath(db, sessionId))
   try {
@@ -339,7 +298,7 @@ async function wsMessageHandler(
  * Start the dirty flag reporting interval.
  *
  */
-function initIdeIntegration(db: dbTypes.DbType, studioPort: number) {
+function initIdeIntegration(db, studioPort) {
   studioHttpPort = studioPort
 
   if (studioPort) {
@@ -360,11 +319,7 @@ function initIdeIntegration(db: dbTypes.DbType, studioPort: number) {
  * @param db
  * @param sessionId
  */
-async function verifyWsConnection(
-  db: dbTypes.DbType,
-  session: any,
-  messageHandler: StudioWsMessage
-) {
+async function verifyWsConnection(db, session, messageHandler) {
   try {
     let { sessionId } = session
     let path = await projectPath(db, sessionId)
@@ -375,7 +330,7 @@ async function verifyWsConnection(
         wsDisconnect(db, session, path)
       }
     }
-  } catch (error: any) {
+  } catch (error) {
     env.logInfo(error.toString())
   }
 }
@@ -384,14 +339,9 @@ async function verifyWsConnection(
  * Utility function for making websocket connection to Studio server
  * @param sessionId
  * @param path
- * @returns
+ * @returns websocket
  */
-async function wsConnect(
-  db: dbTypes.DbType,
-  session: any,
-  path: StudioProjectPath,
-  handler: StudioWsMessage
-) {
+async function wsConnect(db, session, path, handler) {
   let { sessionId } = session
   let ws = studioWsConnections[sessionId]
   if (ws && ws.readyState == WebSocket.OPEN) {
@@ -421,11 +371,7 @@ async function wsConnect(
   }
 }
 
-async function wsDisconnect(
-  db: dbTypes.DbType,
-  session: any,
-  path: StudioProjectPath
-) {
+async function wsDisconnect(db, session, path) {
   let { sessionId } = session
   if (studioWsConnections[sessionId]) {
     env.logInfo(`StudioUC(${projectName(path)}): WS disconnected.`)
@@ -447,7 +393,7 @@ async function wsDisconnect(
  *
  * @param path
  */
-async function isProjectActive(path: StudioProjectPath): Promise<boolean> {
+async function isProjectActive(path) {
   if (!path) {
     return false
   }
@@ -478,11 +424,7 @@ function deinitIdeIntegration() {
   })
 }
 
-async function sendSelectedUcComponents(
-  db: dbTypes.DbType,
-  session: any,
-  ucComponentStates: string
-) {
+async function sendSelectedUcComponents(db, session, ucComponentStates) {
   let socket = wsServer.clientSocket(session.sessionKey)
   let studioIntegration = await integrationEnabled(db, session.sessionId)
   if (socket && studioIntegration) {
@@ -497,41 +439,30 @@ async function sendSelectedUcComponents(
  * Notify front-end that current session failed to load.
  * @param {} err
  */
-function sendSessionCreationErrorStatus(
-  db: dbTypes.DbType,
-  err: string,
-  sessionId: number
-) {
+function sendSessionCreationErrorStatus(db, err, sessionId) {
   // TODO: delegate type declaration to actual function
-  querySession
-    .getAllSessions(db)
-    .then((sessions: dbMappingTypes.SessionType[]) =>
-      sessions.forEach((session) => {
-        if (session.sessionId == sessionId) {
-          let socket = wsServer.clientSocket(session.sessionKey)
-          if (socket) {
-            wsServer.sendWebSocketMessage(socket, {
-              category: dbEnum.wsCategory.sessionCreationError,
-              payload: err,
-            })
-          }
+  querySession.getAllSessions(db).then((sessions) =>
+    sessions.forEach((session) => {
+      if (session.sessionId == sessionId) {
+        let socket = wsServer.clientSocket(session.sessionKey)
+        if (socket) {
+          wsServer.sendWebSocketMessage(socket, {
+            category: dbEnum.wsCategory.sessionCreationError,
+            payload: err,
+          })
         }
-      })
-    )
+      }
+    })
+  )
 }
 
 /**
  * Notify front-end that current session failed to load.
  * @param {*} err
  */
-async function sendComponentUpdateStatus(
-  db: dbTypes.DbType,
-  sessionId: number,
-  data: any
-) {
+async function sendComponentUpdateStatus(db, sessionId, data) {
   try {
-    let sessions: dbMappingTypes.SessionType[] =
-      await querySession.getAllSessions(db)
+    let sessions = await querySession.getAllSessions(db)
     let session = sessions.find((s) => s.sessionId == sessionId)
     if (session) {
       let socket = wsServer.clientSocket(session.sessionKey)
