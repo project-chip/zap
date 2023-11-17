@@ -255,6 +255,7 @@ export default {
       }
     },
     checkForcedExternal(name, selectedCluster) {
+      let forcedExternal
       this.forcedExternal.map((option) => {
         console.log(selectedCluster)
         if (
