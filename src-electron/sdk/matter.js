@@ -54,6 +54,11 @@ async function getForcedExternalStorageList(db, zcl) {
  */
 
 async function getForcedExternalStorage(db, attributeId) {
+  let forcedExternal2 = await queryPackage.getAttributeAccessInterface(
+    db,
+    '999999'
+  )
+  console.log(forcedExternal2)
   let pkgs = await queryPackage.getPackageRefByAttributeId(db, attributeId)
   let zcl = await queryPackage.getPackageByPackageId(db, pkgs)
   zcl = zcl?.path

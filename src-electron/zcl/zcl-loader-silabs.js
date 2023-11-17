@@ -2102,7 +2102,6 @@ async function parseattributeAccessInterfaceAttributes(
 ) {
   Object.keys(attributeAccessInterfaceAttributes).map((cluster) => {
     let val = attributeAccessInterfaceAttributes[cluster]
-    console.log(val)
     return queryPackage.insertOptionsKeyValues(
       db,
       pkgRef,
