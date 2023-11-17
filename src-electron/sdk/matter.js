@@ -105,16 +105,8 @@ async function getDisabledStorage(db) {
  * @returns Storage Option
  */
 
-async function computeStorageNewConfig(
-  db,
-  clusterRef,
-  storagePolicy,
-  forcedExternal,
-  attributeName
-) {
+async function computeStorageOptionNewConfig(storagePolicy) {
   let storageOption
-  let clusterName
-  clusterName = await queryCluster.selectClusterName(db, clusterRef)
   if (storagePolicy == dbEnum.storagePolicy.attributeAccessInterface) {
     storageOption = dbEnum.storageOption.external
   } else if (storagePolicy == dbEnum.storagePolicy.any) {
@@ -122,15 +114,27 @@ async function computeStorageNewConfig(
   } else {
     throw 'check storage policy'
   }
+  return storageOption
+}
+
+async function computeStoragePolicyNewConfig(
+  db,
+  clusterRef,
+  storagePolicy,
+  forcedExternal,
+  attributeName
+) {
+  let clusterName
+  clusterName = await queryCluster.selectClusterName(db, clusterRef)
   forcedExternal.map((option) => {
     if (
       option.optionCategory == clusterName &&
       option.optionLabel == attributeName
     ) {
-      storageOption = dbEnum.storageOption.external
+      storagePolicy = dbEnum.storagePolicy.attributeAccessInterface
     }
   })
-  return storageOption
+  return storagePolicy
 }
 
 /**
@@ -165,6 +169,7 @@ async function computeStorageImport(
 exports.getForcedExternalStorage = getForcedExternalStorage
 exports.getDisabledStorage = getDisabledStorage
 exports.computeStorageImport = computeStorageImport
-exports.computeStorageNewConfig = computeStorageNewConfig
+exports.computeStoragePolicyNewConfig = computeStoragePolicyNewConfig
+exports.computeStorageOptionNewConfig = computeStorageOptionNewConfig
 exports.computeStoragePolicyForGlobalAttributes =
   computeStoragePolicyForGlobalAttributes
