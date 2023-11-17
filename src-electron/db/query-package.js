@@ -658,7 +658,7 @@ async function insertOptionsKeyValues(
        VALUES 
         (?, ?, ?, ?)
        ON CONFLICT
-        (PACKAGE_REF, OPTION_CATEGORY, OPTION_CODE)
+        (PACKAGE_REF, OPTION_CATEGORY, OPTION_CODE, OPTION_LABEL)
        DO NOTHING`,
     optionCodeLabels.map((optionValue) => {
       return [packageId, optionCategory, optionValue.code, optionValue.label]
@@ -1037,6 +1037,7 @@ async function insertSessionKeyValuesFromPackageDefaults(db, sessionId) {
 }
 
 // exports
+exports.insertAttributeOptionsKeyValues = insertAttributeOptionsKeyValues
 exports.getPackageRefByAttributeId = getPackageRefByAttributeId
 exports.getPackageByPathAndParent = getPackageByPathAndParent
 exports.getPackageByPackageId = getPackageByPackageId
