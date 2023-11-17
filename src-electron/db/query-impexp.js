@@ -738,10 +738,7 @@ WHERE
     attribute.reportable = false
   }
   if (attributeId) {
-    forcedExternal = await queryUpgrade.getForcedExternalStorage(
-      db,
-      attributeId
-    )
+    forcedExternal = await queryUpgrade.getForcedExternalStorage(db)
     storagePolicy = await queryUpgrade.computeStorageImport(
       db,
       cluster.name,
@@ -752,6 +749,9 @@ WHERE
   }
   if (storagePolicy == dbEnums.storagePolicy.attributeAccessInterface) {
     attribute.storageOption = dbEnums.storageOption.external
+    attribute.defaultValue = null
+  }
+  if ((attribute.storageOption = dbEnums.storageOption.external)) {
     attribute.defaultValue = null
   }
 

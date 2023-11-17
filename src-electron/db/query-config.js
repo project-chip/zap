@@ -214,7 +214,6 @@ async function insertOrUpdateAttributeState(
       clusterRef
     )
   let forcedExternal = await queryUpgrade.getForcedExternalStorage(db)
-  console.log(forcedExternal)
   let storageOption = await queryUpgrade.computeStorageNewConfig(
     db,
     clusterRef,
@@ -222,10 +221,7 @@ async function insertOrUpdateAttributeState(
     forcedExternal,
     staticAttribute.name
   )
-  if (
-    staticAttribute.storagePolicy ==
-    dbEnum.storagePolicy.attributeAccessInterface
-  ) {
+  if (storageOption == dbEnum.storageOption.external) {
     staticAttribute.defaultValue = null
   }
   if (staticAttribute == null) {
