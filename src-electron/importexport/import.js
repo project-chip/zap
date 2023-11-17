@@ -108,7 +108,6 @@ async function importDataFromFile(
   try {
     await dbApi.dbBeginTransaction(db)
     let sid
-    console.log(options)
     if (options.sessionId == null) {
       sid = await querySession.createBlankSession(db)
       await util.ensurePackagesAndPopulateSessionOptions(
@@ -123,7 +122,6 @@ async function importDataFromFile(
       )
     } else {
       sid = options.sessionId
-      console.log(options)
     }
 
     // Update endpoint type with device version and device identifier. There

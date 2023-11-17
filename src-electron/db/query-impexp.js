@@ -751,9 +751,6 @@ WHERE
     attribute.storageOption = dbEnums.storageOption.external
     attribute.defaultValue = null
   }
-  if ((attribute.storageOption = dbEnums.storageOption.external)) {
-    attribute.defaultValue = null
-  }
 
   let arg = [
     endpointTypeId,
