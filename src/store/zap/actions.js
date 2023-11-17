@@ -752,6 +752,10 @@ export function setDebugNavBar(context, debugNavBar) {
   context.commit('setDebugNavBar', debugNavBar)
 }
 
+export function setSaveButtonVisible(context, saveButtonVisible) {
+  context.commit('setSaveButtonVisible', saveButtonVisible)
+}
+
 export function setStandalone(context, standalone) {
   context.commit('setStandalone', standalone)
 }
@@ -816,6 +820,10 @@ export function updateSelectedUcComponentState(context, projectInfo) {
   context.commit('updateSelectedUcComponentState', {
     selectedUcComponents,
   })
+}
+
+export function setDirtyState(context, isDirty) {
+  context.commit('setDirtyState', isDirty)
 }
 
 export function loadZclClusterToUcComponentDependencyMap(context) {

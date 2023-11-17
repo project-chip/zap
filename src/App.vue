@@ -34,15 +34,29 @@ limitations under the License.
 import { defineComponent } from 'vue'
 import { QSpinnerGears } from 'quasar'
 import ZclTour from './tutorials/ZclTour.vue'
-
-// import VueTour from './tutorials/VueTour.vue'
-
 import CommonMixin from './util/common-mixin'
+
 const rendApi = require(`../src-shared/rend-api.js`)
 const restApi = require(`../src-shared/rest-api.js`)
 const observable = require('./util/observable.js')
 const dbEnum = require(`../src-shared/db-enum.js`)
 const storage = require('./util/storage.js')
+
+window.addEventListener('message', (event) => {
+    const eventData = event?.data?.eventData
+    switch (event?.data?.eventId) {
+      case 'theme':
+        window[rendApi.GLOBAL_SYMBOL_EXECUTE](rendApi.id.setDarkTheme, eventData.theme === 'dark')
+        break
+      case 'save':
+        if (eventData.shouldSave) {
+          window[rendApi.GLOBAL_SYMBOL_EXECUTE](rendApi.id.save)
+        }
+        break
+    }
+  }, 
+  false
+)
 
 async function initLoad(store) {
   let promises = []
@@ -180,6 +194,16 @@ export default defineComponent({
         this.$store.dispatch('zap/setStandalone', query['standalone'])
       }
 
+      if (`setSaveButtonVisible` in query) {
+        this.$store.dispatch(
+          'zap/setSaveButtonVisible',
+          query[`setSaveButtonVisible`] === 'true'
+        )
+      } else {
+        // If we don't specify it, default is off.
+        this.$store.dispatch('zap/setSaveButtonVisible', false)
+      }
+
       this.zclDialogTitle = 'ZCL tab!'
       this.zclDialogText =
         'Welcome to ZCL tab. This is just a test of a dialog.'
@@ -204,6 +228,13 @@ export default defineComponent({
         dbEnum.wsCategory.updateSelectedUcComponents,
         (resp) => {
           this.$store.dispatch('zap/updateSelectedUcComponentState', resp)
+        }
+      )
+
+      this.$onWebSocket(
+        dbEnum.wsCategory.dirtyFlag,
+        (resp) => {
+          this.$store.dispatch('zap/setDirtyState', resp)
         }
       )
     },
@@ -233,6 +264,13 @@ export default defineComponent({
   },
   mounted() {
     this.addClassToBody()
+    window?.parent?.postMessage({
+        eventId: 'mounted',
+        eventData: {
+          hasMounted: true
+        }
+      },
+      '*')
   },
   unmounted() {
     if (this.uiThemeCategory === 'zigbee') {

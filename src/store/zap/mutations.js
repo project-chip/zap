@@ -452,6 +452,10 @@ export function setDebugNavBar(state, debugNavBar) {
   state.debugNavBar = debugNavBar
 }
 
+export function setSaveButtonVisible(state, saveButtonVisible) {
+  state.saveButtonVisible = saveButtonVisible
+}
+
 export function setStandalone(state, standalone) {
   state.standalone = standalone
 }
@@ -627,3 +631,10 @@ export function updateIsClusterOptionChanged(state, value) {
 export function updateNotificationCount(state, value) {
   state.notificationCount = value
 }
+
+export function setDirtyState(state, isDirty) {
+  if (state.isDirty != isDirty) {
+    state.isDirty = isDirty;
+    window.parent?.postMessage({eventId: 'dirty', eventData: { isDirty: isDirty }}, '*')
+  }
+} 

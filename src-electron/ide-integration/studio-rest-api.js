@@ -72,7 +72,7 @@ async function integrationEnabled(db, sessionId) {
  * @returns URL for rest api.
  */
 function restApiUrl(api, path, queryParams = {}) {
-  let base = localhost + studioHttpPort + api + path
+  let base = localhost + studioHttpPort + api + encodeURIComponent(path)
   let params = Object.entries(queryParams)
   if (params.length) {
     let queries = new URLSearchParams()
