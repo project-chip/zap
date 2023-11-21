@@ -181,7 +181,8 @@ async function selectDeviceTypeCommandsByDeviceTypeRef(db, deviceTypeRef) {
     CMD.COMMAND_REF,
     COMMAND.CODE,
     COMMAND.NAME,
-    COMMAND.MANUFACTURER_CODE
+    COMMAND.MANUFACTURER_CODE,
+    COMMAND.SOURCE
   FROM
     DEVICE_TYPE_COMMAND AS CMD
   INNER JOIN

@@ -21,6 +21,9 @@ const env = require('../util/env')
 const queryPackage = require('../db/query-package.js')
 const queryImpexp = require('../db/query-impexp.js')
 const querySession = require('../db/query-session.js')
+const queryZcl = require('../db/query-zcl.js')
+const querySessionNotice = require('../db/query-session-notification.js')
+const queryDeviceType = require('../db/query-device-type.js')
 const zclLoader = require('../zcl/zcl-loader.js')
 const generationEngine = require('../generator/generation-engine')
 
@@ -387,88 +390,403 @@ async function importEndpointTypes(
 
   if (endpointTypes != null) {
     env.logDebug(`Loading ${endpointTypes.length} endpoint types`)
-    endpointTypes.forEach((et, index) => {
-      allQueries.push(
-        queryImpexp
-          .importEndpointType(db, sessionId, allZclPackageIds, et)
-          .then((endpointId) => {
-            // Now we need to import commands, attributes and clusters.
-            let promises = []
-            if (sortedEndpoints[index]) {
-              sortedEndpoints[index].forEach((endpoint) => {
-                promises.push(
-                  queryImpexp.importEndpoint(
-                    db,
-                    sessionId,
-                    endpoint,
-                    endpointId
-                  )
-                )
-              })
-            }
-            // et.clusters
-            et.clusters.forEach((cluster) => {
-              // code, mfgCode, side
-              promises.push(
-                queryImpexp
-                  .importClusterForEndpointType(
-                    db,
-                    allZclPackageIds,
-                    endpointId,
-                    cluster
-                  )
-                  .then((endpointClusterId) => {
-                    let ps = []
-
-                    if ('commands' in cluster)
-                      cluster.commands.forEach((command) => {
-                        ps.push(
-                          queryImpexp.importCommandForEndpointType(
-                            db,
-                            allZclPackageIds,
-                            endpointId,
-                            endpointClusterId,
-                            command
-                          )
-                        )
-                      })
-
-                    if ('attributes' in cluster)
-                      cluster.attributes.forEach((attribute) => {
-                        ps.push(
-                          queryImpexp.importAttributeForEndpointType(
-                            db,
-                            allZclPackageIds,
-                            endpointId,
-                            endpointClusterId,
-                            attribute,
-                            cluster
-                          )
-                        )
-                      })
-
-                    if ('events' in cluster)
-                      cluster.events.forEach((event) => {
-                        ps.push(
-                          queryImpexp.importEventForEndpointType(
-                            db,
-                            allZclPackageIds,
-                            endpointId,
-                            endpointClusterId,
-                            event
-                          )
-                        )
-                      })
-                    return Promise.all(ps)
-                  })
-              )
-            })
-            return Promise.all(promises)
-          })
+    for (let i = 0; i < endpointTypes.length; i++) {
+      let endpointTypeId = await queryImpexp.importEndpointType(
+        db,
+        sessionId,
+        allZclPackageIds,
+        endpointTypes[i]
       )
-    })
+      let endpointId = ''
+      if (sortedEndpoints[i]) {
+        for (let j = 0; j < sortedEndpoints[i].length; j++) {
+          endpointId = sortedEndpoints[i][j].endpointId
+          let endpoint = await queryImpexp.importEndpoint(
+            db,
+            sessionId,
+            sortedEndpoints[i][j],
+            endpointTypeId
+          )
+        }
+      }
+      let clusters = endpointTypes[i].clusters
+      if (clusters) {
+        for (let k = 0; k < clusters.length; k++) {
+          let endpointClusterId =
+            await queryImpexp.importClusterForEndpointType(
+              db,
+              allZclPackageIds,
+              endpointTypeId,
+              clusters[k]
+            )
+
+          if ('commands' in clusters[k]) {
+            for (let l = 0; l < clusters[k].commands.length; l++) {
+              await queryImpexp.importCommandForEndpointType(
+                db,
+                allZclPackageIds,
+                endpointTypeId,
+                endpointClusterId,
+                clusters[k].commands[l]
+              )
+            }
+          }
+
+          if ('attributes' in clusters[k]) {
+            for (let m = 0; m < clusters[k].attributes.length; m++) {
+              await queryImpexp.importAttributeForEndpointType(
+                db,
+                allZclPackageIds,
+                endpointTypeId,
+                endpointClusterId,
+                clusters[k].attributes[m],
+                clusters[k]
+              )
+            }
+          }
+
+          if ('events' in clusters[k]) {
+            for (let n = 0; n < clusters[k].events.length; n++) {
+              await queryImpexp.importEventForEndpointType(
+                db,
+                allZclPackageIds,
+                endpointTypeId,
+                endpointClusterId,
+                clusters[k].events[n]
+              )
+            }
+          }
+        }
+      }
+      /**
+       * The following code looks into the spec conformance coming from the xml
+       * loading. This involves compliance of between device types, clusters,
+       * commands and attributes on an endpoint.
+       */
+      // Clusters on an endpoint type
+      let endpointTypeClusters =
+        await queryZcl.selectEndpointTypeClustersByEndpointTypeId(
+          db,
+          endpointTypeId
+        )
+      let endpointTypeClusterRefMap = {}
+      for (let len = 0; len < endpointTypeClusters.length; len++) {
+        let epc = endpointTypeClusters[len]
+        endpointTypeClusterRefMap[epc.clusterRef] =
+          endpointTypeClusterRefMap[epc.clusterRef] || {}
+        endpointTypeClusterRefMap[epc.clusterRef][epc.side] = epc.enabled
+      }
+
+      // Attributes on an endpoint type
+      let endpointTypeAttributes =
+        await queryZcl.selectEndpointTypeAttributesByEndpointId(
+          db,
+          endpointTypeId
+        )
+      let endpointTypeAttributeRefMap = {}
+      for (let len = 0; len < endpointTypeAttributes.length; len++) {
+        let epa = endpointTypeAttributes[len]
+        endpointTypeAttributeRefMap[epa.attributeRef] = epa.included
+      }
+
+      // Commands on an endpoint type
+      let endpointTypeCommands =
+        await queryZcl.selectEndpointTypeCommandsByEndpointId(
+          db,
+          endpointTypeId
+        )
+      let endpointTypeCommandRefMap = {}
+      for (let len = 0; len < endpointTypeCommands.length; len++) {
+        let epc = endpointTypeCommands[len]
+        endpointTypeCommandRefMap[epc.commandRef] =
+          endpointTypeCommandRefMap[epc.commandRef] || {}
+        endpointTypeCommandRefMap[epc.commandRef]['incoming'] = epc.incoming
+        endpointTypeCommandRefMap[epc.commandRef]['outgoing'] = epc.outgoing
+      }
+
+      // Device types on an endpoint type
+      let endpointTypeDeviceTypes =
+        await queryDeviceType.selectDeviceTypesByEndpointTypeId(
+          db,
+          endpointTypeId
+        )
+
+      // Clusters associated with device types on an endpoint type
+      let deviceTypeClustersOnEndpointType = []
+
+      // Attributes associated with device types on an endpoint type
+      let deviceTypeAttributesOnEndpointType = []
+
+      // Commands associated with device types on an endpoint type
+      let deviceTypeCommandsOnEndpointType = []
+
+      // Initialize the device type clusters, attributes and commands based on
+      // device types on an endpoint
+      for (
+        let eptDtIndex = 0;
+        eptDtIndex < endpointTypeDeviceTypes.length;
+        eptDtIndex++
+      ) {
+        let deviceTypeClusters =
+          await queryDeviceType.selectDeviceTypeClustersByDeviceTypeRef(
+            db,
+            endpointTypeDeviceTypes[eptDtIndex].deviceTypeRef
+          )
+        deviceTypeClustersOnEndpointType =
+          deviceTypeClustersOnEndpointType.concat(deviceTypeClusters)
+        let deviceTypeAttributes =
+          await queryDeviceType.selectDeviceTypeAttributesByDeviceTypeRef(
+            db,
+            endpointTypeDeviceTypes[eptDtIndex].deviceTypeRef
+          )
+        deviceTypeAttributesOnEndpointType =
+          deviceTypeAttributesOnEndpointType.concat(deviceTypeAttributes)
+        let deviceTypeCommands =
+          await queryDeviceType.selectDeviceTypeCommandsByDeviceTypeRef(
+            db,
+            endpointTypeDeviceTypes[eptDtIndex].deviceTypeRef
+          )
+        deviceTypeCommandsOnEndpointType =
+          deviceTypeCommandsOnEndpointType.concat(deviceTypeCommands)
+      }
+
+      // Cluster compliance as per the spec. Checking if a device type requires
+      // a cluster that is not enabled on an endpoint type
+      for (let dtc = 0; dtc < deviceTypeClustersOnEndpointType.length; dtc++) {
+        let isDeviceTypeClientClusterFound =
+          endpointTypeClusterRefMap?.[
+            deviceTypeClustersOnEndpointType[dtc].clusterRef
+          ]?.['client']
+        let isDeviceTypeServerClusterFound =
+          endpointTypeClusterRefMap?.[
+            deviceTypeClustersOnEndpointType[dtc].clusterRef
+          ]?.['server']
+        let clusterSpecComplianceMessage = ''
+        if (
+          deviceTypeClustersOnEndpointType[dtc].includeClient &&
+          !isDeviceTypeClientClusterFound
+        ) {
+          let deviceType = await queryDeviceType.selectDeviceTypeById(
+            db,
+            deviceTypeClustersOnEndpointType[dtc].deviceTypeRef
+          )
+          clusterSpecComplianceMessage =
+            '⚠ Check Spec Compliance on endpoint: ' +
+            endpointId +
+            ', device type: ' +
+            deviceType.name +
+            ', cluster: ' +
+            deviceTypeClustersOnEndpointType[dtc].clusterName +
+            ' client needs to be enabled'
+          console.log(clusterSpecComplianceMessage)
+          querySessionNotice.setNotification(
+            db,
+            'WARNING',
+            clusterSpecComplianceMessage,
+            sessionId,
+            1,
+            0
+          )
+        }
+        if (
+          deviceTypeClustersOnEndpointType[dtc].includeServer &&
+          !isDeviceTypeServerClusterFound
+        ) {
+          let deviceType = await queryDeviceType.selectDeviceTypeById(
+            db,
+            deviceTypeClustersOnEndpointType[dtc].deviceTypeRef
+          )
+          clusterSpecComplianceMessage =
+            '⚠ Check Spec Compliance on endpoint: ' +
+            endpointId +
+            ', device type: ' +
+            deviceType.name +
+            ', cluster: ' +
+            deviceTypeClustersOnEndpointType[dtc].clusterName +
+            ' server needs to be enabled'
+          console.log(clusterSpecComplianceMessage)
+          querySessionNotice.setNotification(
+            db,
+            'WARNING',
+            clusterSpecComplianceMessage,
+            sessionId,
+            1,
+            0
+          )
+        }
+      }
+
+      // Attribute compliance as per the spec. Checking if a device type requires
+      // an attribute that is not enabled on an endpoint type
+      for (
+        let dta = 0;
+        dta < deviceTypeAttributesOnEndpointType.length;
+        dta++
+      ) {
+        let isAttributeFound =
+          endpointTypeAttributeRefMap?.[
+            deviceTypeAttributesOnEndpointType[dta].attributeRef
+          ]
+        if (!isAttributeFound) {
+          let queryDeviceTypeClusterInfo =
+            await queryDeviceType.selectDeviceTypeClusterByDeviceTypeClusterId(
+              db,
+              deviceTypeAttributesOnEndpointType[dta].deviceTypeClusterRef
+            )
+          if (
+            queryDeviceTypeClusterInfo.includeClient ||
+            queryDeviceTypeClusterInfo.includeServer
+          ) {
+            let cluster = await queryZcl.selectClusterById(
+              db,
+              queryDeviceTypeClusterInfo.clusterRef
+            )
+            if (deviceTypeAttributesOnEndpointType[dta].attributeRef != null) {
+              // Leaving out global attributes
+              let attributeSpecComplianceMessage =
+                '⚠ Check Spec Compliance on endpoint: ' +
+                endpointId +
+                ', cluster: ' +
+                cluster.name +
+                ', attribute: ' +
+                deviceTypeAttributesOnEndpointType[dta].name +
+                ' needs to be enabled'
+              console.log(attributeSpecComplianceMessage)
+              querySessionNotice.setNotification(
+                db,
+                'WARNING',
+                attributeSpecComplianceMessage,
+                sessionId,
+                1,
+                0
+              )
+            }
+          }
+        }
+      }
+
+      // Command compliance as per the spec. Checking if a device type requires
+      // a command that is not enabled on an endpoint type
+      for (let dtc = 0; dtc < deviceTypeCommandsOnEndpointType.length; dtc++) {
+        let isCommandIncomingFound =
+          endpointTypeCommandRefMap?.[
+            deviceTypeCommandsOnEndpointType[dtc].commandRef
+          ]?.['incoming']
+        let isCommandOutgoingFound =
+          endpointTypeCommandRefMap?.[
+            deviceTypeCommandsOnEndpointType[dtc].commandRef
+          ]?.['outgoing']
+        if (!(isCommandIncomingFound && isCommandOutgoingFound)) {
+          let commandSource = deviceTypeCommandsOnEndpointType[dtc].source
+          let queryDeviceTypeClusterInfo =
+            await queryDeviceType.selectDeviceTypeClusterByDeviceTypeClusterId(
+              db,
+              deviceTypeCommandsOnEndpointType[dtc].deviceTypeClusterRef
+            )
+          let cluster = await queryZcl.selectClusterById(
+            db,
+            queryDeviceTypeClusterInfo.clusterRef
+          )
+          let commandSpecComplianceMessage = ''
+          if (
+            queryDeviceTypeClusterInfo.includeClient &&
+            commandSource == 'client' &&
+            !isCommandOutgoingFound
+          ) {
+            commandSpecComplianceMessage =
+              '⚠ Check Spec Compliance on endpoint: ' +
+              endpointId +
+              ', cluster: ' +
+              cluster.name +
+              ' client, command: ' +
+              deviceTypeCommandsOnEndpointType[dtc].name +
+              ' outgoing needs to be enabled'
+            console.log(commandSpecComplianceMessage)
+            querySessionNotice.setNotification(
+              db,
+              'WARNING',
+              commandSpecComplianceMessage,
+              sessionId,
+              1,
+              0
+            )
+          }
+
+          if (
+            queryDeviceTypeClusterInfo.includeClient &&
+            commandSource == 'server' &&
+            !isCommandIncomingFound
+          ) {
+            commandSpecComplianceMessage =
+              '⚠ Check Spec Compliance on endpoint: ' +
+              endpointId +
+              ', cluster: ' +
+              cluster.name +
+              ' client, command: ' +
+              deviceTypeCommandsOnEndpointType[dtc].name +
+              ' incoming needs to be enabled'
+            console.log(commandSpecComplianceMessage)
+            querySessionNotice.setNotification(
+              db,
+              'WARNING',
+              commandSpecComplianceMessage,
+              sessionId,
+              1,
+              0
+            )
+          }
+
+          if (
+            queryDeviceTypeClusterInfo.includeServer &&
+            commandSource == 'client' &&
+            !isCommandIncomingFound
+          ) {
+            commandSpecComplianceMessage =
+              '⚠ Check Spec Compliance on endpoint: ' +
+              endpointId +
+              ', cluster: ' +
+              cluster.name +
+              ' server, command: ' +
+              deviceTypeCommandsOnEndpointType[dtc].name +
+              ' incoming needs to be enabled'
+            console.log(commandSpecComplianceMessage)
+            querySessionNotice.setNotification(
+              db,
+              'WARNING',
+              commandSpecComplianceMessage,
+              sessionId,
+              1,
+              0
+            )
+          }
+
+          if (
+            queryDeviceTypeClusterInfo.includeServer &&
+            commandSource == 'server' &&
+            !isCommandOutgoingFound
+          ) {
+            commandSpecComplianceMessage =
+              '⚠ Check Spec Compliance on endpoint: ' +
+              endpointId +
+              ', cluster: ' +
+              cluster.name +
+              ' server, command: ' +
+              deviceTypeCommandsOnEndpointType[dtc].name +
+              ' outgoing needs to be enabled'
+            console.log(commandSpecComplianceMessage)
+            querySessionNotice.setNotification(
+              db,
+              'WARNING',
+              commandSpecComplianceMessage,
+              sessionId,
+              1,
+              0
+            )
+          }
+        }
+      }
+    }
   }
-  return Promise.all(allQueries)
 }
 
 /**

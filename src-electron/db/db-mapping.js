@@ -428,6 +428,7 @@ exports.map = {
       name: x.NAME,
       code: x.CODE,
       manufacturerCode: x.MANUFACTURER_CODE,
+      source: x.SOURCE,
     }
   },
 
