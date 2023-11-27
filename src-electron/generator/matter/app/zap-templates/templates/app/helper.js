@@ -676,7 +676,7 @@ async function zapTypeToClusterObjectType(type, isDecodable, options) {
       if (s) {
         return 'uint' + s[1] + '_t';
       }
-      return ns + type;
+      return ns + asUpperCamelCase.call(this, type, options);
     }
 
     if (types.isBitmap) {
@@ -685,7 +685,9 @@ async function zapTypeToClusterObjectType(type, isDecodable, options) {
       if (s) {
         return 'uint' + s[1] + '_t';
       }
-      return 'chip::BitMask<' + ns + type + '>';
+      return (
+        'chip::BitMask<' + ns + asUpperCamelCase.call(this, type, options) + '>'
+      );
     }
 
     if (types.isStruct) {
@@ -693,7 +695,7 @@ async function zapTypeToClusterObjectType(type, isDecodable, options) {
       return (
         ns +
         'Structs::' +
-        type +
+        asUpperCamelCase.call(this, type, options) +
         '::' +
         (isDecodable ? 'DecodableType' : 'Type')
       );
@@ -702,7 +704,11 @@ async function zapTypeToClusterObjectType(type, isDecodable, options) {
     if (types.isEvent) {
       passByReference = true;
       return (
-        ns + 'Events::' + type + '::' + (isDecodable ? 'DecodableType' : 'Type')
+        ns +
+        'Events::' +
+        asUpperCamelCase.call(this, type, options) +
+        '::' +
+        (isDecodable ? 'DecodableType' : 'Type')
       );
     }
 
