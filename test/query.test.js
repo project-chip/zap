@@ -436,7 +436,7 @@ describe('Endpoint Type Config Queries', () => {
       testQuery
         .getAllEndpointTypeClusterState(db, endpointTypeIdOnOff)
         .then((clusters) => {
-          expect(clusters.length).toBe(6)
+          expect(clusters.length).toBe(4)
         })
         .then(() => queryZcl.selectAllClusters(db, pkgId))
         .then((allClusters) => {
@@ -458,7 +458,7 @@ describe('Endpoint Type Config Queries', () => {
           testQuery.getAllEndpointTypeClusterState(db, endpointTypeIdOnOff)
         )
         .then((clusters) => {
-          expect(clusters.length).toBe(7)
+          expect(clusters.length).toBe(5)
         }),
     testUtil.timeout.medium()
   )
@@ -469,7 +469,7 @@ describe('Endpoint Type Config Queries', () => {
       testQuery
         .getEndpointTypeAttributes(db, endpointTypeIdOnOff)
         .then((attributes) => {
-          expect(attributes.length).toBe(10)
+          expect(attributes.length).toBe(7)
         }),
     testUtil.timeout.medium()
   )
@@ -494,7 +494,7 @@ describe('Endpoint Type Config Queries', () => {
         db,
         endpointTypeIdOnOff
       )
-      expect(x.length).toBe(7)
+      expect(x.length).toBe(5)
       x.forEach((element) => {
         if (element.side == 'server' && clusterRef == 0) {
           clusterRef = element.clusterRef
@@ -507,7 +507,7 @@ describe('Endpoint Type Config Queries', () => {
         endpointTypeIdOnOff
       )
 
-      expect(x.length).toBe(10)
+      expect(x.length).toBe(7)
       x.forEach((element) => {
         if (element.clusterRef == clusterRef && attributeRef == 0) {
           attributeRef = element.attributeRef
@@ -574,7 +574,7 @@ describe('Endpoint Type Config Queries', () => {
           testQuery
             .getEndpointTypeAttributes(db, endpointTypeIdOnOff)
             .then((attributes) => {
-              expect(attributes.length).toBe(13)
+              expect(attributes.length).toBe(7)
             })
         )
     },

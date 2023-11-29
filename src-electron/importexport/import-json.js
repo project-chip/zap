@@ -378,7 +378,6 @@ async function importEndpointTypes(
   endpointTypes,
   endpoints
 ) {
-  let allQueries = []
   let sortedEndpoints = {}
   if (endpoints != null) {
     endpoints.forEach((ep) => {
@@ -390,6 +389,12 @@ async function importEndpointTypes(
 
   if (endpointTypes != null) {
     env.logDebug(`Loading ${endpointTypes.length} endpoint types`)
+    let specCheckComplianceMessage = ''
+    const specMessageIndent = '\n  - '
+    const dottedLine =
+      '\n\n🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨\n\n'
+    const specCheckComplianceFailureTitle =
+      'Application is failing the Specification as follows: \n'
     for (let i = 0; i < endpointTypes.length; i++) {
       let endpointTypeId = await queryImpexp.importEndpointType(
         db,
@@ -578,7 +583,10 @@ async function importEndpointTypes(
             ', cluster: ' +
             deviceTypeClustersOnEndpointType[dtc].clusterName +
             ' client needs to be enabled'
-          console.log(clusterSpecComplianceMessage)
+          specCheckComplianceMessage = specCheckComplianceMessage.concat(
+            specMessageIndent,
+            clusterSpecComplianceMessage
+          )
           querySessionNotice.setNotification(
             db,
             'WARNING',
@@ -604,7 +612,10 @@ async function importEndpointTypes(
             ', cluster: ' +
             deviceTypeClustersOnEndpointType[dtc].clusterName +
             ' server needs to be enabled'
-          console.log(clusterSpecComplianceMessage)
+          specCheckComplianceMessage = specCheckComplianceMessage.concat(
+            specMessageIndent,
+            clusterSpecComplianceMessage
+          )
           querySessionNotice.setNotification(
             db,
             'WARNING',
@@ -651,7 +662,10 @@ async function importEndpointTypes(
                 ', attribute: ' +
                 deviceTypeAttributesOnEndpointType[dta].name +
                 ' needs to be enabled'
-              console.log(attributeSpecComplianceMessage)
+              specCheckComplianceMessage = specCheckComplianceMessage.concat(
+                specMessageIndent,
+                attributeSpecComplianceMessage
+              )
               querySessionNotice.setNotification(
                 db,
                 'WARNING',
@@ -701,7 +715,10 @@ async function importEndpointTypes(
               ' client, command: ' +
               deviceTypeCommandsOnEndpointType[dtc].name +
               ' outgoing needs to be enabled'
-            console.log(commandSpecComplianceMessage)
+            specCheckComplianceMessage = specCheckComplianceMessage.concat(
+              specMessageIndent,
+              commandSpecComplianceMessage
+            )
             querySessionNotice.setNotification(
               db,
               'WARNING',
@@ -725,7 +742,10 @@ async function importEndpointTypes(
               ' client, command: ' +
               deviceTypeCommandsOnEndpointType[dtc].name +
               ' incoming needs to be enabled'
-            console.log(commandSpecComplianceMessage)
+            specCheckComplianceMessage = specCheckComplianceMessage.concat(
+              specMessageIndent,
+              commandSpecComplianceMessage
+            )
             querySessionNotice.setNotification(
               db,
               'WARNING',
@@ -749,7 +769,10 @@ async function importEndpointTypes(
               ' server, command: ' +
               deviceTypeCommandsOnEndpointType[dtc].name +
               ' incoming needs to be enabled'
-            console.log(commandSpecComplianceMessage)
+            specCheckComplianceMessage = specCheckComplianceMessage.concat(
+              specMessageIndent,
+              commandSpecComplianceMessage
+            )
             querySessionNotice.setNotification(
               db,
               'WARNING',
@@ -773,7 +796,10 @@ async function importEndpointTypes(
               ' server, command: ' +
               deviceTypeCommandsOnEndpointType[dtc].name +
               ' outgoing needs to be enabled'
-            console.log(commandSpecComplianceMessage)
+            specCheckComplianceMessage = specCheckComplianceMessage.concat(
+              specMessageIndent,
+              commandSpecComplianceMessage
+            )
             querySessionNotice.setNotification(
               db,
               'WARNING',
@@ -785,6 +811,14 @@ async function importEndpointTypes(
           }
         }
       }
+    }
+    if (specCheckComplianceMessage.length > 0) {
+      specCheckComplianceMessage = dottedLine.concat(
+        specCheckComplianceFailureTitle,
+        specCheckComplianceMessage,
+        dottedLine
+      )
+      console.log(specCheckComplianceMessage)
     }
   }
 }
