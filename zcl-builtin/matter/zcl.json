@@ -9,6 +9,7 @@
     "./data-model/silabs/"
   ],
   "_comment": "Ensure access-control-definitions.xml is first in xmlFile array",
+  "newXmlFile": [],
   "xmlFile": [
     "access-control-definitions.xml",
     "chip-types.xml",

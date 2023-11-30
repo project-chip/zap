@@ -767,8 +767,13 @@ async function processDataType(db, filePath, packageId, data, dataType) {
     env.logError(
       'Could not find the discriminator for the data type: ' + dataType
     )
-    queryNotification.setNotification(db, "ERROR", 
-    'Could not find the discriminator for the data type: ' + dataType, packageId, 1)
+    queryNotification.setNotification(
+      db,
+      'ERROR',
+      'Could not find the discriminator for the data type: ' + dataType,
+      packageId,
+      1
+    )
   }
 }
 
@@ -1255,7 +1260,7 @@ async function loadIndividualDotDotFile(db, filePath) {
  * @param {*} ctx Context of loading.
  * @returns a Promise that resolves with the db.
  */
-async function loadDotdotZcl(db, metafile) {
+async function loadToplevelXmlFile(db, metafile) {
   let ctx = {
     metadataFile: metafile,
     db: db,
@@ -1287,7 +1292,7 @@ async function loadDotdotZcl(db, metafile) {
     await zclLoader.processZclPostLoading(db, ctx.packageId)
   } catch (err) {
     env.logError(err)
-    queryNotification.setNotification(db, "ERROR", err, ctx.packageId, 1)
+    queryNotification.setNotification(db, 'ERROR', err, ctx.packageId, 1)
     throw err
   } finally {
     await dbApi.dbCommit(db)
@@ -1295,5 +1300,5 @@ async function loadDotdotZcl(db, metafile) {
   return ctx
 }
 
-exports.loadDotdotZcl = loadDotdotZcl
+exports.loadToplevelXmlFile = loadToplevelXmlFile
 exports.loadIndividualDotDotFile = loadIndividualDotDotFile

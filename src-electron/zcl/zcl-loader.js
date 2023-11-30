@@ -109,11 +109,11 @@ async function loadZcl(db, metadataFile) {
   let resolvedMetafile = path.resolve(metadataFile)
 
   if (ext == '.xml') {
-    return dLoad.loadDotdotZcl(db, resolvedMetafile)
+    return dLoad.loadToplevelXmlFile(db, resolvedMetafile)
   } else if (ext == '.properties') {
-    return sLoad.loadSilabsZcl(db, resolvedMetafile, false)
+    return sLoad.loadZclProperties(db, resolvedMetafile)
   } else if (ext == '.json') {
-    return sLoad.loadSilabsZcl(db, resolvedMetafile, true)
+    return sLoad.loadZclJson(db, resolvedMetafile)
   } else {
     throw new Error(`Unknown zcl metafile type: ${metadataFile}`)
   }
@@ -135,7 +135,7 @@ async function loadIndividualFile(db, filePath, sessionId) {
       `Unable to read file: ${filePath}. Expecting an XML file with ZCL clusters.`
     )
     env.logWarning(err)
-    queryNotification.setNotification(db, "WARNING", err, sessionId, 2, 0)
+    queryNotification.setNotification(db, 'WARNING', err, sessionId, 2, 0)
     return { succeeded: false, err }
   }
 }
