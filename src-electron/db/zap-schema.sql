@@ -673,6 +673,7 @@ CREATE TABLE IF NOT EXISTS "SESSION" (
   "SESSION_KEY" text,
   "CREATION_TIME" integer,
   "DIRTY" integer default 1,
+  "NEW_NOTIFICATION" integer default 0,
   foreign key (USER_REF) references USER(USER_ID),
   UNIQUE(SESSION_KEY)
 );
@@ -2227,6 +2228,26 @@ WHEN
   NEW.NOTICE_MESSAGE IS NULL
 BEGIN
   DELETE FROM SESSION_NOTICE WHERE NOTICE_ID = new.NOTICE_ID;
+END;
+
+/*
+Trigger to set new notification flag in session table when there is a new
+notification in the session notice table that has not been seen.
+*/
+CREATE TRIGGER
+  INSERT_SESSION_NOTICE_TRIGGER
+AFTER INSERT ON
+  SESSION_NOTICE
+WHEN
+  (SELECT
+    COUNT()
+  FROM
+    SESSION_NOTICE
+  WHERE
+    SESSION_REF = new.SESSION_REF
+    AND SEEN = 0) > 0
+BEGIN
+  UPDATE SESSION SET NEW_NOTIFICATION = 1 WHERE SESSION_ID = new.SESSION_REF;
 END;
 
 /*

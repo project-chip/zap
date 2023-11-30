@@ -38,6 +38,11 @@ let asyncReports = {
     intervalMs: 1000,
     sessionBased: true,
   },
+  notificationFlag: {
+    fn: sendNotificationUpdate,
+    interval: 1000,
+    sessionBased: true,
+  },
 }
 
 /**
@@ -64,8 +69,42 @@ async function sendDirtyFlagStatus(db, session) {
         env.logWarning(
           `Error reading dirty flag status: ${session.sessionKey} => ${err}`
         )
-        notification.setNotification(db, "WARNING", `Error reading dirty flag status: ${session.sessionKey} => ${err}`, session.sessionId, 2, 0)
+        notification.setNotification(
+          db,
+          'WARNING',
+          `Error reading dirty flag status: ${session.sessionKey} => ${err}`,
+          session.sessionId,
+          2,
+          0
+        )
       }
+    }
+  }
+}
+
+/**
+ * Sends a dirty flag status for a single session.
+ * @param {*} db
+ * @param {*} session
+ */
+async function sendNotificationUpdate(db, session) {
+  let socket = wsServer.clientSocket(session.sessionKey)
+  if (socket) {
+    let currentSession = await querySession.getSessionFromSessionId(
+      db,
+      session.sessionId
+    )
+    if (currentSession.newNotification) {
+      let notificationCount = await notification.getUnseenNotificationCount(
+        db,
+        session.sessionId
+      )
+      wsServer.sendWebSocketData(
+        socket,
+        dbEnum.wsCategory.notificationCount,
+        notificationCount
+      )
+      await querySession.setSessionNewNotificationClean(db, session.sessionId)
     }
   }
 }
