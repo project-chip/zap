@@ -74,7 +74,7 @@ test(
 )
 
 test(
-  'Check for Spec check failures in the zap file through the session notification table',
+  'Check for Device Type check failures in the zap file through the session notification table',
   async () => {
     await util.ensurePackagesAndPopulateSessionOptions(
       templateContext.db,
@@ -102,47 +102,47 @@ test(
     )
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Spec Compliance on endpoint: 0, device type: MA-rootdevice, cluster: Descriptor server needs to be enabled'
+        '⚠ Check Device Type Compliance on endpoint: 0, device type: MA-rootdevice, cluster: Descriptor server needs to be enabled'
       )
     ).toBeTruthy()
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Spec Compliance on endpoint: 0, device type: MA-powersource, cluster: Descriptor server needs to be enabled'
+        '⚠ Check Device Type Compliance on endpoint: 0, device type: MA-powersource, cluster: Descriptor server needs to be enabled'
       )
     ).toBeTruthy()
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Spec Compliance on endpoint: 0, device type: MA-rootdevice, cluster: Descriptor, attribute: ServerList needs to be enabled'
+        '⚠ Check Device Type Compliance on endpoint: 0, device type: MA-rootdevice, cluster: Descriptor, attribute: ServerList needs to be enabled'
       )
     ).toBeTruthy()
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Spec Compliance on endpoint: 0, device type: MA-powersource, cluster: Descriptor, attribute: ServerList needs to be enabled'
+        '⚠ Check Device Type Compliance on endpoint: 0, device type: MA-powersource, cluster: Descriptor, attribute: ServerList needs to be enabled'
       )
     ).toBeTruthy()
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Spec Compliance on endpoint: 0, device type: MA-rootdevice, cluster: Descriptor, attribute: ClientList needs to be enabled'
+        '⚠ Check Device Type Compliance on endpoint: 0, device type: MA-rootdevice, cluster: Descriptor, attribute: ClientList needs to be enabled'
       )
     ).toBeTruthy()
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Spec Compliance on endpoint: 0, device type: MA-powersource, cluster: Descriptor, attribute: ClientList needs to be enabled'
+        '⚠ Check Device Type Compliance on endpoint: 0, device type: MA-powersource, cluster: Descriptor, attribute: ClientList needs to be enabled'
       )
     ).toBeTruthy()
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Spec Compliance on endpoint: 0, device type: MA-powersource, cluster: Descriptor, attribute: PartsList needs to be enabled'
+        '⚠ Check Device Type Compliance on endpoint: 0, device type: MA-powersource, cluster: Descriptor, attribute: PartsList needs to be enabled'
       )
     ).toBeTruthy()
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Spec Compliance on endpoint: 0, device type: MA-powersource, cluster: Descriptor, attribute: ServerList needs to be enabled'
+        '⚠ Check Device Type Compliance on endpoint: 0, device type: MA-powersource, cluster: Descriptor, attribute: ServerList needs to be enabled'
       )
     ).toBeTruthy()
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Spec Compliance on endpoint: 1, device type: MA-onofflight, cluster: Identify, attribute: IdentifyTime needs to be enabled'
+        '⚠ Check Device Type Compliance on endpoint: 1, device type: MA-onofflight, cluster: Identify, attribute: IdentifyTime needs to be enabled'
       )
     ).toBeTruthy()
 
@@ -150,8 +150,12 @@ test(
     let endpoint0 = endpointTypes.find(
       (ep) => ep.name === 'MA-rootdevice' && ep.deviceIdentifier.length === 2
     )
+    let endpoint1 = endpointTypes.find(
+      (ep) => ep.name === 'MA-onofflight' && ep.deviceIdentifier.length === 2
+    )
     let allClusters = await testQuery.getAllSessionClusters(db, sid)
     let descriptorCluster = allClusters.find((c) => c.code === 0x001d) // Finding the descriptor cluster by code
+    let identifyCluster = allClusters.find((c) => c.code === 0x0003) // Finding the identify cluster by code
 
     // Insert the descriptor cluster and check for session notice warnings again
     await queryConfig.insertOrReplaceClusterState(
@@ -167,27 +171,33 @@ test(
 
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Spec Compliance on endpoint: 0, device type: MA-rootdevice, cluster: Descriptor server needs to be enabled'
+        '⚠ Check Device Type Compliance on endpoint: 0, device type: MA-rootdevice, cluster: Descriptor server needs to be enabled'
       )
     ).toBeFalsy()
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Spec Compliance on endpoint: 0, device type: MA-powersource, cluster: Descriptor server needs to be enabled'
+        '⚠ Check Device Type Compliance on endpoint: 0, device type: MA-powersource, cluster: Descriptor server needs to be enabled'
       )
     ).toBeFalsy()
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Spec Compliance on endpoint: 0, device type: MA-powersource, cluster: Descriptor, attribute: ServerList needs to be enabled'
+        '⚠ Check Device Type Compliance on endpoint: 0, device type: MA-powersource, cluster: Descriptor, attribute: ServerList needs to be enabled'
       )
     ).toBeTruthy()
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Spec Compliance on endpoint: 0, device type: MA-powersource, cluster: Descriptor, attribute: ClientList needs to be enabled'
+        '⚠ Check Device Type Compliance on endpoint: 0, device type: MA-powersource, cluster: Descriptor, attribute: ClientList needs to be enabled'
       )
     ).toBeTruthy()
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Spec Compliance on endpoint: 1, device type: MA-onofflight, cluster: Identify, attribute: IdentifyTime needs to be enabled'
+        '⚠ Check Device Type Compliance on endpoint: 1, device type: MA-onofflight, cluster: Identify, attribute: IdentifyTime needs to be enabled'
+      )
+    ).toBeTruthy()
+
+    expect(
+      sessionNotificationMessages.includes(
+        '⚠ Check Cluster Compliance on endpoint: 1, cluster: Identify, mandatory attribute: IdentifyTime needs to be enabled'
       )
     ).toBeTruthy()
 
@@ -206,6 +216,18 @@ test(
     )
     let clientListAttribute = descriptorClusterAttributes.find(
       (dca) => dca.name === 'ClientList'
+    )
+
+    let identifyClusterAttributes =
+      await queryZcl.selectAttributesByClusterIdAndSideIncludingGlobal(
+        db,
+        identifyCluster.id,
+        sessionPackageIds,
+        'server'
+      )
+
+    let identifyTimeAttribute = identifyClusterAttributes.find(
+      (ica) => ica.name === 'IdentifyTime'
     )
 
     await queryConfig.insertOrUpdateAttributeState(
@@ -241,24 +263,48 @@ test(
       null,
       null
     )
+
+    await queryConfig.insertOrUpdateAttributeState(
+      db,
+      endpoint1.endpointTypeId,
+      identifyTimeAttribute.clusterRef,
+      'server',
+      identifyTimeAttribute.id,
+      [
+        {
+          key: restApi.updateKey.attributeSelected,
+          value: 1,
+        },
+      ],
+      null,
+      null,
+      null
+    )
+
     sessionNotifications = await testQuery.getAllSessionNotifications(db, sid)
     sessionNotificationMessages = sessionNotifications.map((sn) => sn.message)
 
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Spec Compliance on endpoint: 0, device type: MA-powersource, cluster: Descriptor, attribute: ServerList needs to be enabled'
+        '⚠ Check Device Type Compliance on endpoint: 0, device type: MA-powersource, cluster: Descriptor, attribute: ServerList needs to be enabled'
       )
     ).toBeFalsy()
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Spec Compliance on endpoint: 0, device type: MA-powersource, cluster: Descriptor, attribute: ClientList needs to be enabled'
+        '⚠ Check Device Type Compliance on endpoint: 0, device type: MA-powersource, cluster: Descriptor, attribute: ClientList needs to be enabled'
       )
     ).toBeFalsy()
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Spec Compliance on endpoint: 1, device type: MA-onofflight, cluster: Identify, attribute: IdentifyTime needs to be enabled'
+        '⚠ Check Device Type Compliance on endpoint: 1, device type: MA-onofflight, cluster: Identify, attribute: IdentifyTime needs to be enabled'
       )
-    ).toBeTruthy()
+    ).toBeFalsy()
+
+    expect(
+      sessionNotificationMessages.includes(
+        '⚠ Check Cluster Compliance on endpoint: 1, cluster: Identify, mandatory attribute: IdentifyTime needs to be enabled'
+      )
+    ).toBeFalsy()
 
     // Disabling a cluster and attribute to check if the notification messages come back up
     await queryConfig.insertOrReplaceClusterState(
@@ -284,21 +330,51 @@ test(
       null,
       null
     )
+
+    await queryConfig.insertOrUpdateAttributeState(
+      db,
+      endpoint1.endpointTypeId,
+      identifyTimeAttribute.clusterRef,
+      'server',
+      identifyTimeAttribute.id,
+      [
+        {
+          key: restApi.updateKey.attributeSelected,
+          value: 0,
+        },
+      ],
+      null,
+      null,
+      null
+    )
+
     sessionNotifications = await testQuery.getAllSessionNotifications(db, sid)
     sessionNotificationMessages = sessionNotifications.map((sn) => sn.message)
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Spec Compliance on endpoint: 0, cluster: Descriptor, attribute: ServerList needs to be enabled'
+        '⚠ Check Device Type Compliance on endpoint: 0, cluster: Descriptor, attribute: ServerList needs to be enabled'
       )
     ).toBeFalsy()
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Spec Compliance on endpoint: 0, cluster: Descriptor, attribute: ClientList needs to be enabled'
+        '⚠ Check Device Type Compliance on endpoint: 0, cluster: Descriptor, attribute: ClientList needs to be enabled'
       )
     ).toBeTruthy()
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Spec Compliance on endpoint: 0, cluster: Descriptor server needs to be enabled'
+        '⚠ Check Device Type Compliance on endpoint: 0, cluster: Descriptor server needs to be enabled'
+      )
+    ).toBeTruthy()
+
+    expect(
+      sessionNotificationMessages.includes(
+        '⚠ Check Device Type Compliance on endpoint: 1, cluster: Identify, attribute: IdentifyTime needs to be enabled'
+      )
+    ).toBeTruthy()
+
+    expect(
+      sessionNotificationMessages.includes(
+        '⚠ Check Cluster Compliance on endpoint: 1, cluster: Identify, mandatory attribute: IdentifyTime needs to be enabled'
       )
     ).toBeTruthy()
   },

@@ -24,6 +24,7 @@ const querySession = require('../db/query-session.js')
 const queryZcl = require('../db/query-zcl.js')
 const querySessionNotice = require('../db/query-session-notification.js')
 const queryDeviceType = require('../db/query-device-type.js')
+const queryCommand = require('../db/query-command.js')
 const zclLoader = require('../zcl/zcl-loader.js')
 const generationEngine = require('../generator/generation-engine')
 
@@ -389,12 +390,15 @@ async function importEndpointTypes(
 
   if (endpointTypes != null) {
     env.logDebug(`Loading ${endpointTypes.length} endpoint types`)
-    let specCheckComplianceMessage = ''
+    let deviceTypeSpecCheckComplianceMessage = ''
+    let clusterSpecCheckComplianceMessage = ''
     const specMessageIndent = '\n  - '
     const dottedLine =
       '\n\n🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨🚨\n\n'
-    const specCheckComplianceFailureTitle =
-      'Application is failing the Specification as follows: \n'
+    const deviceTypeSpecCheckComplianceFailureTitle =
+      'Application is failing the Device Type Specification as follows: \n'
+    const clusterSpecCheckComplianceFailureTitle =
+      '\n\nApplication is failing the Cluster Specification as follows: \n'
     for (let i = 0; i < endpointTypes.length; i++) {
       let endpointTypeId = await queryImpexp.importEndpointType(
         db,
@@ -475,11 +479,51 @@ async function importEndpointTypes(
           endpointTypeId
         )
       let endpointTypeClusterRefMap = {}
+      let allMandatoryAttributes = []
+      let allMandatoryCommands = []
       for (let len = 0; len < endpointTypeClusters.length; len++) {
         let epc = endpointTypeClusters[len]
         endpointTypeClusterRefMap[epc.clusterRef] =
           endpointTypeClusterRefMap[epc.clusterRef] || {}
         endpointTypeClusterRefMap[epc.clusterRef][epc.side] = epc.enabled
+        let cluster = await queryZcl.selectClusterById(db, epc.clusterRef)
+
+        // Mandatory Cluster Attributes
+        let clusterAttributes =
+          await queryZcl.selectAttributesByClusterIdAndSideIncludingGlobal(
+            db,
+            epc.clusterRef,
+            allZclPackageIds,
+            epc.side
+          )
+        let mandatoryClusterAttributes = clusterAttributes.filter(
+          (ca) => !ca.isOptional && ca.clusterRef != null
+        ) // ignoring global attributes
+        mandatoryClusterAttributes.forEach(
+          (ma) => (ma.clusterName = cluster.name)
+        )
+        allMandatoryAttributes = allMandatoryAttributes.concat(
+          mandatoryClusterAttributes
+        )
+
+        // Mandatory Cluster Commands
+        let clusterCommands = await queryCommand.selectCommandsByClusterId(
+          db,
+          epc.clusterRef,
+          allZclPackageIds
+        )
+        let mandatoryClusterCommands = clusterCommands.filter(
+          (cc) => !cc.isOptional
+        )
+        for (let i = 0; i < mandatoryClusterCommands.length; i++) {
+          mandatoryClusterCommands[i].clusterName = cluster.name
+          mandatoryClusterCommands[i].clusterSide = epc.side
+          mandatoryClusterCommands[i].isIncoming =
+            mandatoryClusterCommands[i].source != epc.side
+        }
+        allMandatoryCommands = allMandatoryCommands.concat(
+          mandatoryClusterCommands
+        )
       }
 
       // Attributes on an endpoint type
@@ -488,6 +532,39 @@ async function importEndpointTypes(
           db,
           endpointTypeId
         )
+
+      // Adding cluster compliance messages for attributes
+      let endpointTypeAttributeIds = endpointTypeAttributes.map(
+        (eta) => eta.attributeRef
+      )
+      let mandatoryAttributesNotEnabled = allMandatoryAttributes.filter(
+        (ma) => !endpointTypeAttributeIds.includes(ma.id)
+      )
+      for (let i = 0; i < mandatoryAttributesNotEnabled.length; i++) {
+        let clusterSpecComplianceMessageForAttributes =
+          '⚠ Check Cluster Compliance on endpoint: ' +
+          endpointId +
+          ', cluster: ' +
+          mandatoryAttributesNotEnabled[i].clusterName +
+          ', mandatory attribute: ' +
+          mandatoryAttributesNotEnabled[i].name +
+          ' needs to be enabled'
+
+        clusterSpecCheckComplianceMessage =
+          clusterSpecCheckComplianceMessage.concat(
+            specMessageIndent,
+            clusterSpecComplianceMessageForAttributes
+          )
+
+        querySessionNotice.setNotification(
+          db,
+          'WARNING',
+          clusterSpecComplianceMessageForAttributes,
+          sessionId,
+          1,
+          0
+        )
+      }
       let endpointTypeAttributeRefMap = {}
       for (let len = 0; len < endpointTypeAttributes.length; len++) {
         let epa = endpointTypeAttributes[len]
@@ -500,6 +577,79 @@ async function importEndpointTypes(
           db,
           endpointTypeId
         )
+
+      // Adding cluster compliance messages for commands
+      for (let i = 0; i < allMandatoryCommands.length; i++) {
+        let isIncoming = allMandatoryCommands[i].isIncoming
+        let isCommandEnabled = false
+        for (let j = 0; j < endpointTypeCommands.length; j++) {
+          if (
+            allMandatoryCommands[i].id == endpointTypeCommands[j].commandRef
+          ) {
+            if (isIncoming && endpointTypeCommands[j].incoming == 1) {
+              isCommandEnabled = true
+            }
+            if (!isIncoming && endpointTypeCommands[j].outgoing == 1) {
+              isCommandEnabled = true
+            }
+          }
+        }
+        if (isIncoming && !isCommandEnabled) {
+          let clusterSpecComplianceMessageForCommands =
+            '⚠ Check Cluster Compliance on endpoint: ' +
+            endpointId +
+            ', cluster: ' +
+            allMandatoryCommands[i].clusterName +
+            ' ' +
+            allMandatoryCommands[i].clusterSide +
+            ', mandatory command: ' +
+            allMandatoryCommands[i].name +
+            ' incoming needs to be enabled'
+
+          clusterSpecCheckComplianceMessage =
+            clusterSpecCheckComplianceMessage.concat(
+              specMessageIndent,
+              clusterSpecComplianceMessageForCommands
+            )
+
+          querySessionNotice.setNotification(
+            db,
+            'WARNING',
+            clusterSpecComplianceMessageForCommands,
+            sessionId,
+            1,
+            0
+          )
+        }
+        if (!isIncoming && !isCommandEnabled) {
+          let clusterSpecComplianceMessageForCommands =
+            '⚠ Check Cluster Compliance on endpoint: ' +
+            endpointId +
+            ', cluster: ' +
+            allMandatoryCommands[i].clusterName +
+            ' ' +
+            allMandatoryCommands[i].clusterSide +
+            ', mandatory command: ' +
+            allMandatoryCommands[i].name +
+            ' outgoing needs to be enabled'
+
+          clusterSpecCheckComplianceMessage =
+            clusterSpecCheckComplianceMessage.concat(
+              specMessageIndent,
+              clusterSpecComplianceMessageForCommands
+            )
+
+          querySessionNotice.setNotification(
+            db,
+            'WARNING',
+            clusterSpecComplianceMessageForCommands,
+            sessionId,
+            1,
+            0
+          )
+        }
+      }
+
       let endpointTypeCommandRefMap = {}
       for (let len = 0; len < endpointTypeCommands.length; len++) {
         let epc = endpointTypeCommands[len]
@@ -586,17 +736,18 @@ async function importEndpointTypes(
             deviceTypeClustersOnEndpointType[dtc].deviceTypeRef
           )
           clusterSpecComplianceMessage =
-            '⚠ Check Spec Compliance on endpoint: ' +
+            '⚠ Check Device Type Compliance on endpoint: ' +
             endpointId +
             ', device type: ' +
             deviceType.name +
             ', cluster: ' +
             deviceTypeClustersOnEndpointType[dtc].clusterName +
             ' client needs to be enabled'
-          specCheckComplianceMessage = specCheckComplianceMessage.concat(
-            specMessageIndent,
-            clusterSpecComplianceMessage
-          )
+          deviceTypeSpecCheckComplianceMessage =
+            deviceTypeSpecCheckComplianceMessage.concat(
+              specMessageIndent,
+              clusterSpecComplianceMessage
+            )
           querySessionNotice.setNotification(
             db,
             'WARNING',
@@ -615,17 +766,18 @@ async function importEndpointTypes(
             deviceTypeClustersOnEndpointType[dtc].deviceTypeRef
           )
           clusterSpecComplianceMessage =
-            '⚠ Check Spec Compliance on endpoint: ' +
+            '⚠ Check Device Type Compliance on endpoint: ' +
             endpointId +
             ', device type: ' +
             deviceType.name +
             ', cluster: ' +
             deviceTypeClustersOnEndpointType[dtc].clusterName +
             ' server needs to be enabled'
-          specCheckComplianceMessage = specCheckComplianceMessage.concat(
-            specMessageIndent,
-            clusterSpecComplianceMessage
-          )
+          deviceTypeSpecCheckComplianceMessage =
+            deviceTypeSpecCheckComplianceMessage.concat(
+              specMessageIndent,
+              clusterSpecComplianceMessage
+            )
           querySessionNotice.setNotification(
             db,
             'WARNING',
@@ -669,7 +821,7 @@ async function importEndpointTypes(
               )
               // Leaving out global attributes
               let attributeSpecComplianceMessage =
-                '⚠ Check Spec Compliance on endpoint: ' +
+                '⚠ Check Device Type Compliance on endpoint: ' +
                 endpointId +
                 ', device type: ' +
                 deviceType.name +
@@ -678,10 +830,11 @@ async function importEndpointTypes(
                 ', attribute: ' +
                 deviceTypeAttributesOnEndpointType[dta].name +
                 ' needs to be enabled'
-              specCheckComplianceMessage = specCheckComplianceMessage.concat(
-                specMessageIndent,
-                attributeSpecComplianceMessage
-              )
+              deviceTypeSpecCheckComplianceMessage =
+                deviceTypeSpecCheckComplianceMessage.concat(
+                  specMessageIndent,
+                  attributeSpecComplianceMessage
+                )
               querySessionNotice.setNotification(
                 db,
                 'WARNING',
@@ -728,7 +881,7 @@ async function importEndpointTypes(
             !isCommandOutgoingFound
           ) {
             commandSpecComplianceMessage =
-              '⚠ Check Spec Compliance on endpoint: ' +
+              '⚠ Check Device Type Compliance on endpoint: ' +
               endpointId +
               ', device type: ' +
               deviceType.name +
@@ -737,10 +890,11 @@ async function importEndpointTypes(
               ' client, command: ' +
               deviceTypeCommandsOnEndpointType[dtc].name +
               ' outgoing needs to be enabled'
-            specCheckComplianceMessage = specCheckComplianceMessage.concat(
-              specMessageIndent,
-              commandSpecComplianceMessage
-            )
+            deviceTypeSpecCheckComplianceMessage =
+              deviceTypeSpecCheckComplianceMessage.concat(
+                specMessageIndent,
+                commandSpecComplianceMessage
+              )
             querySessionNotice.setNotification(
               db,
               'WARNING',
@@ -757,7 +911,7 @@ async function importEndpointTypes(
             !isCommandIncomingFound
           ) {
             commandSpecComplianceMessage =
-              '⚠ Check Spec Compliance on endpoint: ' +
+              '⚠ Check Device Type Compliance on endpoint: ' +
               endpointId +
               ', device type: ' +
               deviceType.name +
@@ -766,10 +920,11 @@ async function importEndpointTypes(
               ' client, command: ' +
               deviceTypeCommandsOnEndpointType[dtc].name +
               ' incoming needs to be enabled'
-            specCheckComplianceMessage = specCheckComplianceMessage.concat(
-              specMessageIndent,
-              commandSpecComplianceMessage
-            )
+            deviceTypeSpecCheckComplianceMessage =
+              deviceTypeSpecCheckComplianceMessage.concat(
+                specMessageIndent,
+                commandSpecComplianceMessage
+              )
             querySessionNotice.setNotification(
               db,
               'WARNING',
@@ -786,7 +941,7 @@ async function importEndpointTypes(
             !isCommandIncomingFound
           ) {
             commandSpecComplianceMessage =
-              '⚠ Check Spec Compliance on endpoint: ' +
+              '⚠ Check Device Type Compliance on endpoint: ' +
               endpointId +
               ', device type: ' +
               deviceType.name +
@@ -795,10 +950,11 @@ async function importEndpointTypes(
               ' server, command: ' +
               deviceTypeCommandsOnEndpointType[dtc].name +
               ' incoming needs to be enabled'
-            specCheckComplianceMessage = specCheckComplianceMessage.concat(
-              specMessageIndent,
-              commandSpecComplianceMessage
-            )
+            deviceTypeSpecCheckComplianceMessage =
+              deviceTypeSpecCheckComplianceMessage.concat(
+                specMessageIndent,
+                commandSpecComplianceMessage
+              )
             querySessionNotice.setNotification(
               db,
               'WARNING',
@@ -815,7 +971,7 @@ async function importEndpointTypes(
             !isCommandOutgoingFound
           ) {
             commandSpecComplianceMessage =
-              '⚠ Check Spec Compliance on endpoint: ' +
+              '⚠ Check Device Type Compliance on endpoint: ' +
               endpointId +
               ', device type: ' +
               deviceType.name +
@@ -824,10 +980,11 @@ async function importEndpointTypes(
               ' server, command: ' +
               deviceTypeCommandsOnEndpointType[dtc].name +
               ' outgoing needs to be enabled'
-            specCheckComplianceMessage = specCheckComplianceMessage.concat(
-              specMessageIndent,
-              commandSpecComplianceMessage
-            )
+            deviceTypeSpecCheckComplianceMessage =
+              deviceTypeSpecCheckComplianceMessage.concat(
+                specMessageIndent,
+                commandSpecComplianceMessage
+              )
             querySessionNotice.setNotification(
               db,
               'WARNING',
@@ -840,13 +997,15 @@ async function importEndpointTypes(
         }
       }
     }
-    if (specCheckComplianceMessage.length > 0) {
-      specCheckComplianceMessage = dottedLine.concat(
-        specCheckComplianceFailureTitle,
-        specCheckComplianceMessage,
+    if (deviceTypeSpecCheckComplianceMessage.length > 0) {
+      deviceTypeSpecCheckComplianceMessage = dottedLine.concat(
+        deviceTypeSpecCheckComplianceFailureTitle,
+        deviceTypeSpecCheckComplianceMessage,
+        clusterSpecCheckComplianceFailureTitle,
+        clusterSpecCheckComplianceMessage,
         dottedLine
       )
-      console.log(specCheckComplianceMessage)
+      console.log(deviceTypeSpecCheckComplianceMessage)
     }
   }
 }
