@@ -544,6 +544,11 @@ async function importEndpointTypes(
             db,
             endpointTypeDeviceTypes[eptDtIndex].deviceTypeRef
           )
+        deviceTypeAttributes.forEach(
+          (da) =>
+            (da.deviceTypeRef =
+              endpointTypeDeviceTypes[eptDtIndex].deviceTypeRef)
+        )
         deviceTypeAttributesOnEndpointType =
           deviceTypeAttributesOnEndpointType.concat(deviceTypeAttributes)
         let deviceTypeCommands =
@@ -551,6 +556,11 @@ async function importEndpointTypes(
             db,
             endpointTypeDeviceTypes[eptDtIndex].deviceTypeRef
           )
+        deviceTypeCommands.forEach(
+          (dc) =>
+            (dc.deviceTypeRef =
+              endpointTypeDeviceTypes[eptDtIndex].deviceTypeRef)
+        )
         deviceTypeCommandsOnEndpointType =
           deviceTypeCommandsOnEndpointType.concat(deviceTypeCommands)
       }
@@ -648,15 +658,21 @@ async function importEndpointTypes(
             queryDeviceTypeClusterInfo.includeClient ||
             queryDeviceTypeClusterInfo.includeServer
           ) {
-            let cluster = await queryZcl.selectClusterById(
-              db,
-              queryDeviceTypeClusterInfo.clusterRef
-            )
             if (deviceTypeAttributesOnEndpointType[dta].attributeRef != null) {
+              let cluster = await queryZcl.selectClusterById(
+                db,
+                queryDeviceTypeClusterInfo.clusterRef
+              )
+              let deviceType = await queryDeviceType.selectDeviceTypeById(
+                db,
+                deviceTypeAttributesOnEndpointType[dta].deviceTypeRef
+              )
               // Leaving out global attributes
               let attributeSpecComplianceMessage =
                 '⚠ Check Spec Compliance on endpoint: ' +
                 endpointId +
+                ', device type: ' +
+                deviceType.name +
                 ', cluster: ' +
                 cluster.name +
                 ', attribute: ' +
@@ -701,6 +717,10 @@ async function importEndpointTypes(
             db,
             queryDeviceTypeClusterInfo.clusterRef
           )
+          let deviceType = await queryDeviceType.selectDeviceTypeById(
+            db,
+            deviceTypeCommandsOnEndpointType[dtc].deviceTypeRef
+          )
           let commandSpecComplianceMessage = ''
           if (
             queryDeviceTypeClusterInfo.includeClient &&
@@ -710,6 +730,8 @@ async function importEndpointTypes(
             commandSpecComplianceMessage =
               '⚠ Check Spec Compliance on endpoint: ' +
               endpointId +
+              ', device type: ' +
+              deviceType.name +
               ', cluster: ' +
               cluster.name +
               ' client, command: ' +
@@ -737,6 +759,8 @@ async function importEndpointTypes(
             commandSpecComplianceMessage =
               '⚠ Check Spec Compliance on endpoint: ' +
               endpointId +
+              ', device type: ' +
+              deviceType.name +
               ', cluster: ' +
               cluster.name +
               ' client, command: ' +
@@ -764,6 +788,8 @@ async function importEndpointTypes(
             commandSpecComplianceMessage =
               '⚠ Check Spec Compliance on endpoint: ' +
               endpointId +
+              ', device type: ' +
+              deviceType.name +
               ', cluster: ' +
               cluster.name +
               ' server, command: ' +
@@ -791,6 +817,8 @@ async function importEndpointTypes(
             commandSpecComplianceMessage =
               '⚠ Check Spec Compliance on endpoint: ' +
               endpointId +
+              ', device type: ' +
+              deviceType.name +
               ', cluster: ' +
               cluster.name +
               ' server, command: ' +

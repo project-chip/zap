@@ -1326,7 +1326,7 @@ BEGIN
     AND
       NOTICE_TYPE="WARNING"
     AND 
-      NOTICE_MESSAGE = 
+      NOTICE_MESSAGE LIKE 
       (
         "⚠ Check Spec Compliance on endpoint: "
       ||
@@ -1347,7 +1347,7 @@ BEGIN
           ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_ATTRIBUTE_ID = new.ENDPOINT_TYPE_ATTRIBUTE_ID
       )
       ||
-      ", cluster: "
+      "%, cluster: "
       ||
         (
           SELECT
@@ -1443,7 +1443,7 @@ BEGIN
     AND
       NOTICE_TYPE="WARNING"
     AND 
-      NOTICE_MESSAGE = 
+      NOTICE_MESSAGE LIKE 
       (
         "⚠ Check Spec Compliance on endpoint: "
       ||
@@ -1464,7 +1464,7 @@ BEGIN
           ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_ATTRIBUTE_ID = new.ENDPOINT_TYPE_ATTRIBUTE_ID
       )
       ||
-      ", cluster: "
+      "%, cluster: "
       ||
         (
           SELECT
@@ -1708,7 +1708,7 @@ BEGIN
     AND
       NOTICE_TYPE="WARNING"
     AND 
-      NOTICE_MESSAGE = 
+      NOTICE_MESSAGE LIKE 
       (
         "⚠ Check Spec Compliance on endpoint: "
         ||
@@ -1729,7 +1729,7 @@ BEGIN
             ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_COMMAND_ID = new.ENDPOINT_TYPE_COMMAND_ID
         )
         ||
-        ", cluster: "
+        "%, cluster: "
         || 
         (
           SELECT
@@ -1834,7 +1834,7 @@ BEGIN
     AND
       NOTICE_TYPE="WARNING"
     AND 
-      NOTICE_MESSAGE =
+      NOTICE_MESSAGE LIKE
       (
         "⚠ Check Spec Compliance on endpoint: "
         ||
@@ -1855,7 +1855,7 @@ BEGIN
             ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_COMMAND_ID = new.ENDPOINT_TYPE_COMMAND_ID
         )
         ||
-        ", cluster: "
+        "%, cluster: "
         || 
         (
           SELECT
