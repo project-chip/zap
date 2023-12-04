@@ -32,6 +32,7 @@ const zclLoader = require('./zcl-loader')
 const _ = require('lodash')
 const querySessionNotification = require('../db/query-session-notification')
 const queryPackageNotification = require('../db/query-package-notification')
+const newDataModel = require('./zcl-loader-new-data-model')
 
 /**
  * Promises to read the JSON file and resolve all the data.
@@ -158,6 +159,15 @@ async function collectDataFromJsonFile(metadataFile, data) {
       automaticallyCreateFields: false,
     }
   }
+
+  if ('newXmlFile' in obj) {
+    returnObject.newXmlFile = obj.newXmlFile.map((f) =>
+      path.join(path.dirname(metadataFile), f)
+    )
+  } else {
+    returnObject.newXmlFile = []
+  }
+
   env.logDebug(
     `Resolving: ${returnObject.zclFiles}, version: ${returnObject.version}`
   )
@@ -665,11 +675,26 @@ function prepareCluster(cluster, context, isExtension = false) {
  */
 async function processClusters(db, filePath, packageId, data, context) {
   env.logDebug(`${filePath}, ${packageId}: ${data.length} clusters.`)
-  return queryLoader.insertClusters(
-    db,
-    packageId,
-    data.map((x) => prepareCluster(x, context))
-  )
+
+  // We prepare clusters, but we ignore the ones that have already been loaded.
+  let preparedClusters = data
+    .map((x) => prepareCluster(x, context))
+    .filter((cluster) => {
+      if (
+        context.clustersLoadedFromNewFiles &&
+        context.clustersLoadedFromNewFiles.includes(cluster.code)
+      ) {
+        env.logDebug(
+          `Bypassing loading of cluster ${cluster.code} from old files.`
+        )
+        return false
+      } else {
+        return true
+      }
+    })
+
+  // and then run the DB process.
+  return queryLoader.insertClusters(db, packageId, preparedClusters)
 }
 
 /**
@@ -1867,7 +1892,7 @@ async function parseZclFiles(db, packageId, zclFiles, context) {
     await processDataTypeDiscriminator(db, packageId, context.ZCLDataTypes)
 
   // Load the Types File first such the atomic types are loaded and can be
-  //referenced by other types
+  // referenced by other types
   let typesFiles = zclFiles.filter((file) => file.includes('types.xml'))
   let typeFilePromise = typesFiles.map((file) =>
     parseSingleZclFile(db, packageId, file, context)
@@ -2195,7 +2220,7 @@ async function loadIndividualSilabsFile(db, filePath, sessionId) {
     querySessionNotification.setNotification(
       db,
       'ERROR',
-      `Error reading xml file: ${filePath}\n` + err.message,
+      `Error reading xml file: ${filePath}, Error Message: ` + err.message,
       sessionId,
       1,
       0
@@ -2231,6 +2256,14 @@ async function processCustomZclDeviceType(db, packageId) {
     await queryLoader.insertDeviceTypes(db, packageId, customDeviceTypes)
 }
 
+async function loadZclJson(db, metafile) {
+  return loadZclJsonOrProperties(db, metafile, true)
+}
+
+async function loadZclProperties(db, metafile) {
+  return loadZclJsonOrProperties(db, metafile, false)
+}
+
 /**
  * Toplevel function that loads the toplevel metafile
  * and orchestrates the promise chain.
@@ -2240,7 +2273,7 @@ async function processCustomZclDeviceType(db, packageId) {
  * @param {*} ctx The context of loading.
  * @returns a Promise that resolves with the db.
  */
-async function loadSilabsZcl(db, metafile, isJson = false) {
+async function loadZclJsonOrProperties(db, metafile, isJson = false) {
   let ctx = {
     metadataFile: metafile,
     db: db,
@@ -2280,6 +2313,15 @@ async function loadSilabsZcl(db, metafile, isJson = false) {
         ctx.description
       )
     }
+
+    // Load the new XML files and collect which clusters were already loaded,
+    // so that they can be ommited while loading the old files.
+    let newFileResult = await newDataModel.parseNewXmlFiles(
+      db,
+      ctx.packageId,
+      ctx.newXmlFile
+    )
+    ctx.clustersLoadedFromNewFiles = newFileResult.clusterIdsLoaded
     await parseZclFiles(db, ctx.packageId, ctx.zclFiles, ctx)
     // Validate that our attributeAccessInterfaceAttributes, if present, is
     // sane.
@@ -2349,5 +2391,6 @@ async function loadSilabsZcl(db, metafile, isJson = false) {
   return ctx
 }
 
-exports.loadSilabsZcl = loadSilabsZcl
 exports.loadIndividualSilabsFile = loadIndividualSilabsFile
+exports.loadZclJson = loadZclJson
+exports.loadZclProperties = loadZclProperties

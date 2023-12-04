@@ -29,16 +29,10 @@ const dbMapping = require('./db-mapping.js')
  * @param {*} db
  * @param {*} type
  * @param {*} status
- * @param {*} sessionId
+ * @param {*} packageId
  * @param {*} severity
  */
-async function setNotification(
-  db,
-  type,
-  status,
-  packageId,
-  severity = 2,
-) {
+async function setNotification(db, type, status, packageId, severity = 2) {
   return dbApi.dbUpdate(
     db,
     'INSERT INTO PACKAGE_NOTICE ( PACKAGE_REF, NOTICE_TYPE, NOTICE_MESSAGE, NOTICE_SEVERITY) VALUES ( ?, ?, ?, ? )',
@@ -72,8 +66,8 @@ async function getNotificationBySessionId(db, sessionId) {
   let rows = []
   rows = await dbApi.dbAll(
     db,
-    'SELECT * FROM PACKAGE_NOTICE WHERE PACKAGE_REF IN' 
-    + '( SELECT PACKAGE_REF FROM SESSION_PACKAGE WHERE SESSION_REF = ( ? ) )',
+    'SELECT * FROM PACKAGE_NOTICE WHERE PACKAGE_REF IN' +
+      '( SELECT PACKAGE_REF FROM SESSION_PACKAGE WHERE SESSION_REF = ( ? ) )',
     [sessionId]
   )
   return rows.map(dbMapping.map.packageNotification)
@@ -86,10 +80,7 @@ async function getNotificationBySessionId(db, sessionId) {
  */
 async function getAllNotification(db) {
   let rows = []
-  rows = await dbApi.dbAll(
-    db,
-    'SELECT * FROM PACKAGE_NOTICE'
-  )
+  rows = await dbApi.dbAll(db, 'SELECT * FROM PACKAGE_NOTICE')
   return rows.map(dbMapping.map.packageNotification)
 }
 /**
@@ -108,7 +99,6 @@ async function getNotificationByPackageId(db, packageId) {
   )
   return rows.map(dbMapping.map.packageNotification)
 }
-
 
 // exports
 exports.setNotification = setNotification
