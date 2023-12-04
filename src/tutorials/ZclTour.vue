@@ -31,13 +31,17 @@ limitations under the License.
           Do you want to delete the endpoint used for the tutorial?
         </q-card-section>
         <q-card-actions>
-          <q-btn label="Cancel" v-close-popup class="col" />
+          <q-btn
+            label="Cancel"
+            v-close-popup
+            class="col"
+            @click="setDefaultTourState"
+          />
           <q-btn
             :label="'Delete'"
             color="primary"
             class="col"
-            v-close-popup="deleteEndpointDialog"
-            @click="deleteEndpoint()"
+            @click="deleteEndpoint"
             id="delete_last_endpoint"
           />
         </q-card-actions>
@@ -173,26 +177,20 @@ export default {
     },
     //  ----------  Vue Tour Functions ----------  //
     // This function will delete the endpoint that tutorial created for you
-    deleteEndpoint() {
-      this.$store
-        .dispatch('zap/deleteEndpoint', this.tourEndpointId)
-        .then(() => {
-          this.$store
-            .dispatch(
-              'zap/deleteEndpointType',
-              this.endpointType[this.tourEndpointId]
-            )
-            .then(() => {
-              this.deletingTutorialEndpoint = false
-              this.deleteEndpointDialog = false
-              this.tourEndpointId = null
-              this.tourEndpointType = null
-              this.$store.commit(
-                'zap/openZclExtensionsDialogForTutorial',
-                false
-              )
-            })
-        })
+    async deleteEndpoint() {
+      await this.$store.dispatch('zap/deleteEndpoint', this.tourEndpointId)
+      await this.$store.dispatch(
+        'zap/deleteEndpointType',
+        this.endpointType[this.tourEndpointId]
+      )
+      this.setDefaultTourState()
+    },
+    setDefaultTourState() {
+      this.deletingTutorialEndpoint = false
+      this.deleteEndpointDialog = false
+      this.tourEndpointId = null
+      this.tourEndpointType = null
+      this.$store.commit('zap/openZclExtensionsDialogForTutorial', false)
     },
     // This function will disable tutorial
     disableTutorial() {
