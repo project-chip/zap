@@ -2220,7 +2220,7 @@ async function loadIndividualSilabsFile(db, filePath, sessionId) {
     querySessionNotification.setNotification(
       db,
       'ERROR',
-      `Error reading xml file: ${filePath}\n` + err.message,
+      `Error reading xml file: ${filePath}, Error Message: ` + err.message,
       sessionId,
       1,
       0
