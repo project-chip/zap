@@ -136,7 +136,8 @@ async function importSinglePackage(db, pkg, zapFilePath, packageMatch) {
       env.logDebug(`No packages of type ${pkg.type} found in the database.`)
       return null
     } else {
-      throw new Error(`No packages of type ${pkg.type} found in the database.`)
+      env.logError(`No packages of type ${pkg.type} found in the database.`)
+      return null
     }
   } else if (packages.length == 1) {
     env.logDebug(
