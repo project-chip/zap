@@ -32,6 +32,17 @@ const zclComponents = require('./zcl-components.js')
 import WebSocket from 'ws'
 import { projectName } from '../util/studio-util'
 
+const StudioRestAPI = {
+  GetProjectInfo: '/rest/clic/components/all/project/',
+  AddComponent: '/rest/clic/component/add/project/',
+  RemoveComponent: '/rest/clic/component/remove/project/',
+  DependsComponent: '/rest/clic/component/depends/project/',
+}
+
+const StudioWsAPI = {
+  WsServerNotification: '/ws/clic/server/notifications/project/',
+}
+
 const localhost = 'http://127.0.0.1:'
 const wsLocalhost = 'ws://127.0.0.1:'
 
