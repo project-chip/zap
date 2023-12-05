@@ -34,7 +34,7 @@ const util = require('../util/util.js')
  * @param {*} side
  * @returns {*} - {componentIds, clusterId, clusterLabel, side}
  */
-function getComponentIdsByCluster(db, sessionId, clusterId, side) {
+async function getComponentIdsByCluster(db, sessionId, clusterId, side) {
   // enable components
   let extensions = undefined
   return queryPackage

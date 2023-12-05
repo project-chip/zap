@@ -28,7 +28,7 @@ const queryNotification = require('../db/query-session-notification.js')
 const wsServer = require('../server/ws-server.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const { StatusCodes } = require('http-status-codes')
-const zcl = require('./zcl.js')
+const zclComponents = require('./zcl-components.js')
 import WebSocket from 'ws'
 import { projectName } from '../util/studio-util'
 
@@ -198,7 +198,7 @@ async function updateComponentByClusterIdAndComponentId(
   // retrieve components to enable
   let promises = []
   if (clusterId) {
-    let ids = zcl
+    let ids = zclComponents
       .getComponentIdsByCluster(db, sessionId, clusterId, side)
       .then((response) => Promise.resolve(response.componentIds))
     promises.push(ids)
