@@ -527,3 +527,4 @@ exports.initIdeIntegration = initIdeIntegration
 exports.deinitIdeIntegration = deinitIdeIntegration
 exports.sendSessionCreationErrorStatus = sendSessionCreationErrorStatus
 exports.sendComponentUpdateStatus = sendComponentUpdateStatus
+exports.isComponentTogglingDisabled = isComponentTogglingDisabled
