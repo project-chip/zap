@@ -89,6 +89,7 @@ exports.sessionKey = {
   filePath: 'filePath',
   ideProjectPath: 'ideProjectPath',
   informationText: 'informationText',
+  disableComponentToggling: 'disableComponentToggling',
 }
 
 exports.pathRelativity = {
