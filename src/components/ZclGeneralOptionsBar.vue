@@ -73,7 +73,23 @@ limitations under the License.
                 handleOptionChange('commandDiscovery', $event)
               "
             >
-              <q-tooltip> Enable Command Discovery for your project </q-tooltip>
+              <q-tooltip> Enable Command Discovery for your project</q-tooltip>
+            </q-toggle>
+          </div>
+          <div class="col-md q-mb-md col-sm-12">
+            <q-toggle
+              :model-value="disableComponentToggling == 1 ? false : true"
+              label="Enable Component Toggling in IDE"
+              dense
+              left-label
+              @update:model-value="
+                handleOptionChange('disableComponentToggling', !$event)
+              "
+            >
+              <q-tooltip
+                >Enable automatic toggling of components in an IDE for your
+                project</q-tooltip
+              >
             </q-toggle>
           </div>
         </div>
@@ -148,6 +164,13 @@ export default {
         return this.$store.state.zap.selectedGenericOptions['commandDiscovery']
       },
     },
+    disableComponentToggling: {
+      get() {
+        return this.$store.state.zap.selectedGenericOptions[
+          'disableComponentToggling'
+        ]
+      },
+    },
   },
   data() {
     return {
@@ -155,6 +178,7 @@ export default {
     }
   },
   beforeMount() {
+    this.$store.dispatch('zap/loadSessionKeyValues')
     this.mfgOptions = this.defaultManufacturerCodes
   },
   methods: {
@@ -165,7 +189,6 @@ export default {
       })
     },
     handleOptionChange(option, value) {
-      console.log(value)
       this.$store.dispatch('zap/setSelectedGenericKey', {
         key: option,
         value: value,

@@ -28,9 +28,20 @@ const queryNotification = require('../db/query-session-notification.js')
 const wsServer = require('../server/ws-server.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const { StatusCodes } = require('http-status-codes')
-const zcl = require('./zcl.js')
+const zclComponents = require('./zcl-components.js')
 import WebSocket from 'ws'
 import { projectName } from '../util/studio-util'
+
+const StudioRestAPI = {
+  GetProjectInfo: '/rest/clic/components/all/project/',
+  AddComponent: '/rest/clic/component/add/project/',
+  RemoveComponent: '/rest/clic/component/remove/project/',
+  DependsComponent: '/rest/clic/component/depends/project/',
+}
+
+const StudioWsAPI = {
+  WsServerNotification: '/ws/clic/server/notifications/project/',
+}
 
 const localhost = 'http://127.0.0.1:'
 const wsLocalhost = 'ws://127.0.0.1:'
@@ -62,6 +73,26 @@ async function integrationEnabled(db, sessionId) {
     dbEnum.sessionKey.ideProjectPath
   )
   return typeof path !== 'undefined'
+}
+
+/**
+ * Resolves into true if user has actively disabled the component toggling.
+ * By default this row doesn't even exist in the DB, but if user toggles
+ * the toggle to turn this off, then the "disableComponentToggling" will
+ * be set so '1' in the database.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @returns promise that resolves into a true or false, depending on whether the component toggling has been disabled manually.
+ */
+async function isComponentTogglingDisabled(db, sessionId) {
+  let disableComponentToggling = await querySession.getSessionKeyValue(
+    db,
+    sessionId,
+    dbEnum.sessionKey.disableComponentToggling
+  )
+  // We may have an empty row or a 0 or a 1. Only 1 means that this is disabled.
+  return disableComponentToggling === 1
 }
 
 /**
@@ -106,30 +137,32 @@ function wsApiUrl(api, path) {
 async function getProjectInfo(db, sessionId) {
   let project = await projectPath(db, sessionId)
   let studioIntegration = await integrationEnabled(db, sessionId)
-
+  let isUserDisabled = await isComponentTogglingDisabled(db, sessionId)
   if (project) {
     let name = projectName(project)
-    if (studioIntegration) {
+    if (studioIntegration && !isUserDisabled) {
       let path = restApiUrl(StudioRestAPI.GetProjectInfo, project)
-      env.logInfo(`StudioUC(${name}): GET: ${path}`)
+      env.logDebug(`StudioUC(${name}): GET: ${path}`)
       return axios
         .get(path)
         .then((resp) => {
-          env.logInfo(`StudioUC(${name}): RESP: ${resp.status}`)
+          env.logDebug(`StudioUC(${name}): RESP: ${resp.status}`)
           return resp
         })
         .catch((err) => {
-          env.logInfo(`StudioUC(${name}): ERR: ${err.message}`)
+          env.logWarning(`StudioUC(${name}): ERR: ${err.message}`)
           return { data: [] }
         })
     } else {
-      env.logInfo(`StudioUC(${name}): Studio integration is not enabled!`)
+      if (!isUserDisabled)
+        env.logWarning(`StudioUC(${name}): Studio integration is now enabled!`)
       return { data: [] }
     }
   } else {
-    env.logInfo(
-      `StudioUC(): Invalid Studio project path specified via project info API!`
-    )
+    if (!isUserDisabled)
+      env.logWarning(
+        `StudioUC(): Invalid Studio project path specified via project info API!`
+      )
     return { data: [] }
   }
 }
@@ -156,24 +189,27 @@ async function updateComponentByClusterIdAndComponentId(
   side
 ) {
   if (!integrationEnabled(db, sessionId)) {
-    env.logWarning(
-      `StudioUC(): Failed to update component due to invalid Studio project path.`
-    )
-    queryNotification.setNotification(
-      db,
-      'WARNING',
-      `StudioUC(): Failed to update component due to invalid Studio project path.`,
-      sessionId,
-      2,
-      0
-    )
+    let isUserDisabled = await isComponentTogglingDisabled(db, sessionId)
+    if (!isUserDisabled) {
+      env.logWarning(
+        `StudioUC(): Failed to update component due to invalid Studio project path.`
+      )
+      queryNotification.setNotification(
+        db,
+        'WARNING',
+        `StudioUC(): Failed to update component due to invalid Studio project path.`,
+        sessionId,
+        2,
+        0
+      )
+    }
     return Promise.resolve({ componentIds: [], added: add })
   }
 
   // retrieve components to enable
   let promises = []
   if (clusterId) {
-    let ids = zcl
+    let ids = zclComponents
       .getComponentIdsByCluster(db, sessionId, clusterId, side)
       .then((response) => Promise.resolve(response.componentIds))
     promises.push(ids)
@@ -427,7 +463,8 @@ function deinitIdeIntegration() {
 async function sendSelectedUcComponents(db, session, ucComponentStates) {
   let socket = wsServer.clientSocket(session.sessionKey)
   let studioIntegration = await integrationEnabled(db, session.sessionId)
-  if (socket && studioIntegration) {
+  let isUserDisabled = await isComponentTogglingDisabled(db, session.sessionId)
+  if (socket && studioIntegration && !isUserDisabled) {
     wsServer.sendWebSocketMessage(socket, {
       category: dbEnum.wsCategory.updateSelectedUcComponents,
       payload: ucComponentStates,
@@ -490,3 +527,4 @@ exports.initIdeIntegration = initIdeIntegration
 exports.deinitIdeIntegration = deinitIdeIntegration
 exports.sendSessionCreationErrorStatus = sendSessionCreationErrorStatus
 exports.sendComponentUpdateStatus = sendComponentUpdateStatus
+exports.isComponentTogglingDisabled = isComponentTogglingDisabled
