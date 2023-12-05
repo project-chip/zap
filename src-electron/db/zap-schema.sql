@@ -52,7 +52,7 @@ CREATE TABLE "PACKAGE_OPTION" (
   UNIQUE(PACKAGE_REF, OPTION_CATEGORY, OPTION_CODE)
 );
 /*
- PACKAGE_OPTION_DEFAULT table contains a link to a specified 'default value' for an options
+ PACKAGE_OPTION_DEFAULT table contains a link to a specified 'default value' for options
  */
 DROP TABLE IF EXISTS "PACKAGE_OPTION_DEFAULT";
 CREATE TABLE "PACKAGE_OPTION_DEFAULT" (
