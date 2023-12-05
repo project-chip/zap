@@ -21,10 +21,11 @@
  * @module REST API: user data
  */
 
-const queryPackage = require('../db/query-package.js')
-const queryZcl = require('../db/query-zcl.js')
-const dbEnum = require('../../src-shared/db-enum.js')
-const util = require('../util/util.js')
+const queryPackage = require('../db/query-package')
+const queryZcl = require('../db/query-zcl')
+const dbEnum = require('../../src-shared/db-enum')
+const util = require('../util/util')
+const env = require('../util/env')
 
 /**
  * Promise that return a list of component Ids required by a specific cluster
@@ -36,25 +37,27 @@ const util = require('../util/util.js')
  */
 async function getComponentIdsByCluster(db, sessionId, clusterId, side) {
   // enable components
-  let extensions = undefined
-  return queryPackage
-    .getSessionPackagesByType(
-      db,
-      sessionId,
-      dbEnum.packageType.genTemplatesJson
-    )
-    .then((pkgs) => (pkgs.length == 0 ? null : pkgs[0].id))
-    .then((id) => {
-      return queryPackage.selectPackageExtension(
-        db,
-        id,
-        dbEnum.packageExtensionEntity.cluster
-      )
-    })
-    .then((ext) => {
-      extensions = ext
-      return queryZcl.selectClusterById(db, clusterId)
-    })
+  let pkgs = await queryPackage.getSessionPackagesByType(
+    db,
+    sessionId,
+    dbEnum.packageType.genTemplatesJson
+  )
+  let id = pkgs.length == 0 ? null : pkgs[0].id
+  if (id == null) {
+    return {
+      componentIds: [],
+      clusterId,
+      side,
+    }
+  }
+
+  let extensions = await queryPackage.selectPackageExtension(
+    db,
+    id,
+    dbEnum.packageExtensionEntity.cluster
+  )
+  return queryZcl
+    .selectClusterById(db, clusterId)
     .then((cluster) => {
       let componentIds = []
       if (cluster) {
@@ -71,27 +74,29 @@ async function getComponentIdsByCluster(db, sessionId, clusterId, side) {
           }
         })
       } else {
-        console.log(`Failed to retrieve cluster via clusterId(${clusterId}).`)
+        env.logWarning(
+          `Failed to retrieve cluster via clusterId(${clusterId}).`
+        )
       }
 
-      return Promise.resolve({
+      return {
         componentIds,
         clusterId,
         clusterLabel: cluster.label.toLowerCase(),
         side,
-      })
+      }
     })
     .catch((err) => {
-      console.log(
+      env.logWarning(
         `Failed to retrieve component ids required by clusterId(${clusterId}) from cluster extension mapping.`,
         err
       )
 
-      return Promise.resolve({
+      return {
         componentIds: [],
         clusterId,
         side,
-      })
+      }
     })
 }
 
