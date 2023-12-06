@@ -427,7 +427,9 @@ function asChipCallback(item) {
 }
 
 function getAtomic(atomics, type) {
-  return atomics.find((atomic) => atomic.name == type.toLowerCase());
+  return atomics.find(
+    (atomic) => atomic.name.toLowerCase() == type.toLowerCase()
+  );
 }
 
 function getBitmap(bitmaps, type) {
@@ -593,7 +595,8 @@ function enhancedCommands(commands, types) {
       // `enhancedItem`, so instead of using the one from ZAP, retrieve the enhanced version.
       const clusterName = command.clusterName;
       command.response = commands.find(
-        (command) => command.name == responseName && command.clusterName == clusterName
+        (command) =>
+          command.name == responseName && command.clusterName == clusterName
       );
       // We might have failed to find a response if our configuration is weird
       // in some way.
@@ -789,7 +792,11 @@ Clusters._computeUsedStructureNames = async function (structs) {
  * If includeAll is true, all events/commands/attributes will be included, not
  * just the ones enabled in the ZAP configuration.
  */
-Clusters.init = async function (context, includeAllClusterConstructs, includeAllClusters) {
+Clusters.init = async function (
+  context,
+  includeAllClusterConstructs,
+  includeAllClusters
+) {
   try {
     if (this.ready.running) {
       return this.ready;
@@ -823,7 +830,10 @@ Clusters.init = async function (context, includeAllClusterConstructs, includeAll
         ? loadAllAttributes.call(context, packageIds)
         : loadAttributes.call(context),
       loadGlobalAttributes.call(context, packageIds),
-      (includeAllClusterConstructs ? loadAllEvents : loadEvents).call(context, packageIds),
+      (includeAllClusterConstructs ? loadAllEvents : loadEvents).call(
+        context,
+        packageIds
+      ),
     ];
 
     let [
@@ -865,7 +875,11 @@ function asBlocks(promise, options) {
   );
 }
 
-function ensureClusters(context, includeAllClusterConstructs = false, includeAllClusters = false) {
+function ensureClusters(
+  context,
+  includeAllClusterConstructs = false,
+  includeAllClusters = false
+) {
   // Kick off Clusters initialization.  This is async, but that's fine: all the
   // getters on Clusters wait on that initialziation to complete.
   ensureState(context, "Don't have a context");
