@@ -1,12 +1,8 @@
 {
   "name": "Meta test templates",
   "version": "meta-test",
-  "helpers": [
-    "meta-helper"
-  ],
-  "categories": [
-    "meta"
-  ],
+  "helpers": ["meta-helper"],
+  "categories": ["meta"],
   "options": {
     "generator": {
       "appendDirectory": "zap-generated"
@@ -44,5 +40,17 @@
       "output": "cluster_out_{define:tolowercase}.out",
       "iterator": "selectedCluster"
     }
-  ]
+  ],
+  "zcl": {
+    "cluster": {
+      "component": {
+        "type": "text",
+        "configurability": "hidden",
+        "globalDefault": null,
+        "label": "Cluster to Component dependency mapping",
+        "defaults": "cluster-components.json",
+        "autoEnableComponents": true
+      }
+    }
+  }
 }

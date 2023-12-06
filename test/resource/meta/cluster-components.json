@@ -1,0 +1,10 @@
+[
+  {
+    "clusterCode": "test 1-server",
+    "value": ["test-1-component"]
+  },
+  {
+    "clusterCode": "test 2-server",
+    "value": ["test-2-component"]
+  }
+]
