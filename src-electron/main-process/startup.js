@@ -560,6 +560,7 @@ async function generateSingleFile(
       defaultZclMetafile: options.zcl,
       postImportScript: options.postImportScript,
       packageMatch: options.packageMatch,
+      defaultTemplateFile: options.template,
     })
     sessionId = importResult.sessionId
     output = outputFile(zapFile, outputPattern, index)
