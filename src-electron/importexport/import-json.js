@@ -213,11 +213,30 @@ async function importSinglePackage(db, pkg, zapFilePath, packageMatch) {
       packageType: pkg.type,
     }
   } else {
-    // None exists, so use the first one from 'packages'.
     let p = packages[0]
-    env.logWarning(
-      `None of packages exist, so using first one overall: ${p.id}.`
+    let pkgPaths = packages.map((p) => p.path)
+    //eslint-disable-next-line
+    let filePathToSearch = pkg.path.split(/.*[\/|\\]/).pop()
+    let packageNameMatch = packages.find(
+      (p) => p.path.includes(filePathToSearch) && fs.existsSync(p.path)
     )
+    if (packageMatch) {
+      p = packageNameMatch
+      env.logError(
+        `None of packages exist for ${
+          pkg.path
+        }, so using one which matches the file name: ${
+          p.path
+        } from ${JSON.stringify(pkgPaths)}.`
+      )
+    } else {
+      // None exists, so use the first one from 'packages'.
+      env.logError(
+        `None of packages exist for ${pkg.path}, so using first one overall: ${
+          p.path
+        } from ${JSON.stringify(pkgPaths)}.`
+      )
+    }
     return {
       packageId: p.id,
       packageType: pkg.type,
