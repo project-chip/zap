@@ -90,10 +90,26 @@ async function autoLoadPackage(db, pkg, absPath) {
   }
 }
 
-// Resolves into a { packageId:, packageType:}
-// object, pkg has`path`, `version`, `type`. It can ALSO have pathRelativity. If pathRelativity is missing
-// path is considered absolute.
-async function importSinglePackage(db, pkg, zapFilePath, packageMatch) {
+/**
+ * Resolves into a { packageId:, packageType:}
+ * object, pkg has`path`, `version`, `type`. It can ALSO have pathRelativity. If pathRelativity is missing
+ * path is considered absolute.
+ * @param {*} db
+ * @param {*} pkg
+ * @param {*} zapFilePath
+ * @param {*} packageMatch
+ * @param {*} defaultZclMetafile
+ * @param {*} defaultTemplateFile
+ * @returns pkg information based on a match
+ */
+async function importSinglePackage(
+  db,
+  pkg,
+  zapFilePath,
+  packageMatch,
+  defaultZclMetafile = null,
+  defaultTemplateFile = null
+) {
   let autoloading = true
   let absPath = getPkgPath(pkg, zapFilePath)
   let pkgId = await queryPackage.getPackageIdByPathAndTypeAndVersion(
@@ -105,6 +121,58 @@ async function importSinglePackage(db, pkg, zapFilePath, packageMatch) {
 
   if (pkgId != null) {
     // Perfect match found, return it and be done.
+    return {
+      packageId: pkgId,
+      packageType: pkg.type,
+    }
+  }
+
+  // Look under defaultZclMetafile and defaultTemplateFile when match is not
+  // found.
+  //eslint-disable-next-line
+  let filePathToSearch = pkg.path.split(/.*[\/|\\]/).pop()
+  let zclFile = Array.isArray(defaultZclMetafile)
+    ? defaultZclMetafile.find((f) => f != null && f.includes(filePathToSearch))
+    : typeof defaultZclMetafile === 'string' &&
+      defaultZclMetafile.includes(filePathToSearch)
+    ? defaultZclMetafile
+    : null
+  let templateFile = Array.isArray(defaultTemplateFile)
+    ? defaultTemplateFile.find((f) => f != null && f.includes(filePathToSearch))
+    : typeof defaultTemplateFile === 'string' &&
+      defaultTemplateFile.includes(filePathToSearch)
+    ? defaultTemplateFile
+    : null
+
+  if (zclFile != null) {
+    // removing any double / since that can fail the search
+    //eslint-disable-next-line
+    zclFile = zclFile.replace(/\/+/g, '/')
+    pkgId = await queryPackage.getPackageIdByPathAndTypeAndVersion(
+      db,
+      zclFile,
+      pkg.type,
+      pkg.version
+    )
+  } else if (templateFile != null) {
+    // removing any double / since that can fail the search
+    //eslint-disable-next-line
+    templateFile = templateFile.replace(/\/+/g, '/')
+    pkgId = await queryPackage.getPackageIdByPathAndTypeAndVersion(
+      db,
+      templateFile,
+      pkg.type,
+      pkg.version
+    )
+  }
+
+  if (pkgId != null) {
+    // Argument match found, return it and be done.
+    env.logError(
+      `Package match found for ${pkg.path} from the passed arguments: ${
+        zclFile ? zclFile : templateFile
+      }`
+    )
     return {
       packageId: pkgId,
       packageType: pkg.type,
@@ -213,11 +281,22 @@ async function importSinglePackage(db, pkg, zapFilePath, packageMatch) {
       packageType: pkg.type,
     }
   } else {
-    // None exists, so use the first one from 'packages'.
     let p = packages[0]
-    env.logWarning(
-      `None of packages exist, so using first one overall: ${p.id}.`
+    let pkgPaths = packages.map((p) => p.path)
+    let packageNameMatch = packages.find(
+      (p) => p.path.includes(filePathToSearch) && fs.existsSync(p.path)
     )
+    if (packageMatch) {
+      p = packageNameMatch
+      env.logError(
+        `None of packages exist for ${pkg.path}, so using one which matches the file name: ${p.path} from ${pkgPaths}.`
+      )
+    } else {
+      // None exists, so use the first one from 'packages'.
+      env.logError(
+        `None of packages exist for ${pkg.path}, so using first one overall: ${p.path} from ${pkgPaths}.`
+      )
+    }
     return {
       packageId: p.id,
       packageType: pkg.type,
@@ -251,13 +330,38 @@ function convertPackageResult(data) {
   return ret
 }
 
-// Returns a promise that resolves into an object containing: packageId and otherIds
-async function importPackages(db, packages, zapFilePath, packageMatch) {
+/**
+ *
+ * @param {*} db
+ * @param {*} packages
+ * @param {*} zapFilePath
+ * @param {*} packageMatch
+ * @param {*} defaultZclMetafile
+ * @param {*} defaultTemplateFile
+ * @returns a promise that resolves into an object containing: packageId and otherIds
+ */
+async function importPackages(
+  db,
+  packages,
+  zapFilePath,
+  packageMatch,
+  defaultZclMetafile = null,
+  defaultTemplateFile = null
+) {
   let allQueries = []
   if (packages != null) {
     env.logDebug(`Loading ${packages.length} packages`)
     packages.forEach((p) => {
-      allQueries.push(importSinglePackage(db, p, zapFilePath, packageMatch))
+      allQueries.push(
+        importSinglePackage(
+          db,
+          p,
+          zapFilePath,
+          packageMatch,
+          defaultZclMetafile,
+          defaultTemplateFile
+        )
+      )
     })
   }
   let data = await Promise.all(allQueries)
@@ -371,16 +475,24 @@ async function importEndpointTypes(
  * Given a state object, this method returns a promise that resolves
  * with the succesfull writing into the database.
  *
- * @export
  * @param {*} db
  * @param {*} state
  * @param {*} sessionId If null, then new session will get
  *              created, otherwise it loads the data into an
  *              existing session. Previous session data is not deleted.
  * @param {*} packageMatch One of the package match strategies. See dbEnum.packageMatch
+ * @param {*} defaultZclMetafile
+ * @param {*} defaultTemplateFile
  * @returns a promise that resolves into a sessionId that was created.
  */
-async function jsonDataLoader(db, state, sessionId, packageMatch) {
+async function jsonDataLoader(
+  db,
+  state,
+  sessionId,
+  packageMatch,
+  defaultZclMetafile,
+  defaultTemplateFile
+) {
   // Initially clean up all the packages from the session.
 
   // Loading all packages before custom xml to make sure clusterExtensions are
@@ -394,7 +506,9 @@ async function jsonDataLoader(db, state, sessionId, packageMatch) {
     db,
     topLevelPackages,
     state.filePath,
-    packageMatch
+    packageMatch,
+    defaultZclMetafile,
+    defaultTemplateFile
   )
   mainPackageData.sessionId = sessionId
 
@@ -597,9 +711,16 @@ function cleanJsonState(state) {
  *
  * @param {*} filePath
  * @param {*} data
+ * @param {*} defaultZclMetafile
+ * @param {*} defaultTemplateFile
  * @returns Promise of parsed JSON object
  */
-async function readJsonData(filePath, data) {
+async function readJsonData(
+  filePath,
+  data,
+  defaultZclMetafile,
+  defaultTemplateFile
+) {
   let state = JSON.parse(data)
 
   cleanJsonState(state)
