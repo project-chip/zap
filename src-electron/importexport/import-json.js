@@ -289,18 +289,12 @@ async function importSinglePackage(
     if (packageMatch) {
       p = packageNameMatch
       env.logError(
-        `None of packages exist for ${
-          pkg.path
-        }, so using one which matches the file name: ${
-          p.path
-        } from ${JSON.stringify(pkgPaths)}.`
+        `None of packages exist for ${pkg.path}, so using one which matches the file name: ${p.path} from ${pkgPaths}.`
       )
     } else {
       // None exists, so use the first one from 'packages'.
       env.logError(
-        `None of packages exist for ${pkg.path}, so using first one overall: ${
-          p.path
-        } from ${JSON.stringify(pkgPaths)}.`
+        `None of packages exist for ${pkg.path}, so using first one overall: ${p.path} from ${pkgPaths}.`
       )
     }
     return {
