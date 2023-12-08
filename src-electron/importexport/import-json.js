@@ -132,13 +132,13 @@ async function importSinglePackage(
   //eslint-disable-next-line
   let filePathToSearch = pkg.path.split(/.*[\/|\\]/).pop()
   let zclFile = Array.isArray(defaultZclMetafile)
-    ? defaultZclMetafile.find((f) => f.includes(filePathToSearch))
+    ? defaultZclMetafile.find((f) => f != null && f.includes(filePathToSearch))
     : typeof defaultZclMetafile === 'string' &&
       defaultZclMetafile.includes(filePathToSearch)
     ? defaultZclMetafile
     : null
   let templateFile = Array.isArray(defaultTemplateFile)
-    ? defaultTemplateFile.find((f) => f.includes(filePathToSearch))
+    ? defaultTemplateFile.find((f) => f != null && f.includes(filePathToSearch))
     : typeof defaultTemplateFile === 'string' &&
       defaultTemplateFile.includes(filePathToSearch)
     ? defaultTemplateFile
