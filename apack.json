@@ -19,7 +19,7 @@
       "exe": "zap.app/Contents/MacOS/zap",
       "optional": true
     },
-    "zap:macosx.ARM64": {
+    "zap:macosx.aarch64": {
       "exe": "zap.app/Contents/MacOS/zap",
       "optional": true
     },
@@ -40,7 +40,7 @@
       "exe": "zap-cli",
       "optional": true
     },
-    "zap-cli:macosx.ARM64": {
+    "zap-cli:macosx.aarch64": {
       "exe": "zap-cli",
       "optional": true
     },
