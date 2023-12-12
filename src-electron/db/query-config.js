@@ -1118,9 +1118,12 @@ async function resolveDefaultAttributes(
 ) {
   let endpointClustersPromises = endpointClusters.map((cluster) =>
     queryZcl
-      .selectAttributesByClusterIdIncludingGlobal(db, cluster.clusterRef, [
-        packageId,
-      ])
+      .selectAttributesByClusterIdAndSideIncludingGlobal(
+        db,
+        cluster.clusterRef,
+        [packageId],
+        cluster.side
+      )
       .then((attributes) => {
         let promiseArray = []
         promiseArray.push(

@@ -169,8 +169,58 @@ async function createSession(db, user, sessionUuid, zclFile, genTemplatesFile) {
   return userSession.sessionId
 }
 
+/**
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @returns all the notifications in the session notice table based on session id
+ */
+async function getAllSessionNotifications(db, sessionId) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  *
+FROM
+  SESSION_NOTICE
+WHERE
+  SESSION_REF = ?`,
+      [sessionId]
+    )
+    .then((rows) => rows.map(dbMapping.map.sessionNotifications))
+}
+
+/**
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @returns all the available clusters in a session
+ */
+async function getAllSessionClusters(db, sessionId) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  *
+FROM
+  CLUSTER
+INNER JOIN
+  SESSION_PACKAGE
+ON
+  CLUSTER.PACKAGE_REF = SESSION_PACKAGE.PACKAGE_REF
+WHERE
+  SESSION_PACKAGE.SESSION_REF = ?`,
+      [sessionId]
+    )
+    .then((rows) => rows.map(dbMapping.map.cluster))
+}
+
 exports.getAllEndpointTypeClusterState = getAllEndpointTypeClusterState
 exports.selectCountFrom = selectCountFrom
 exports.getEndpointTypeAttributes = getEndpointTypeAttributes
 exports.getEndpointTypeCommands = getEndpointTypeCommands
 exports.createSession = createSession
+exports.getAllSessionNotifications = getAllSessionNotifications
+exports.getAllSessionClusters = getAllSessionClusters

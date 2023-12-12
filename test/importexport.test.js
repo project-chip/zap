@@ -18,7 +18,6 @@
  * @jest-environment node
  */
 const path = require('path')
-const fs = require('fs')
 const importJs = require('../src-electron/importexport/import')
 const exportJs = require('../src-electron/importexport/export')
 const dbEnum = require('../src-shared/db-enum')
@@ -27,7 +26,6 @@ const env = require('../src-electron/util/env')
 const zclLoader = require('../src-electron/zcl/zcl-loader')
 const generationEngine = require('../src-electron/generator/generation-engine')
 const querySession = require('../src-electron/db/query-session')
-const queryPackage = require('../src-electron/db/query-package')
 const testUtil = require('./test-util')
 const testQuery = require('./test-query')
 const queryEndpointType = require('../src-electron/db/query-endpoint-type')
@@ -333,7 +331,7 @@ test(
     let attributes = await Promise.all(ps)
 
     let attributeCounts = attributes.map((atArray) => atArray.length)
-    expect(attributeCounts).toStrictEqual([39, 16])
+    expect(attributeCounts).toStrictEqual([28, 14])
 
     let reportableCounts = attributes.map((atArray) =>
       atArray.reduce((ac, at) => ac + (at.includedReportable ? 1 : 0), 0)
@@ -347,7 +345,7 @@ test(
     let singletonCounts = attributes.map((atArray) =>
       atArray.reduce((ac, at) => ac + (at.singleton ? 1 : 0), 0)
     )
-    expect(singletonCounts).toStrictEqual([9, 13])
+    expect(singletonCounts).toStrictEqual([8, 11])
   },
   testUtil.timeout.medium()
 )
@@ -382,12 +380,12 @@ test(
     let attributes = await Promise.all(ps)
 
     let attributeCounts = attributes.map((atArray) => atArray.length)
-    expect(attributeCounts).toStrictEqual([12])
+    expect(attributeCounts).toStrictEqual([9])
 
     let reportableCounts = attributes.map((atArray) =>
       atArray.reduce((ac, at) => ac + (at.includedReportable ? 1 : 0), 0)
     )
-    expect(reportableCounts).toStrictEqual([1])
+    expect(reportableCounts).toStrictEqual([0])
 
     let boundedCounts = attributes.map((atArray) =>
       atArray.reduce((ac, at) => ac + (at.bounded ? 1 : 0), 0)
@@ -396,7 +394,7 @@ test(
     let singletonCounts = attributes.map((atArray) =>
       atArray.reduce((ac, at) => ac + (at.singleton ? 1 : 0), 0)
     )
-    expect(singletonCounts).toStrictEqual([6])
+    expect(singletonCounts).toStrictEqual([5])
 
     let sessionDump = await util.sessionDump(db, sid)
     expect(sessionDump.usedPackages.length).toBe(1)
