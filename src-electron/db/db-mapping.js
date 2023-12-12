@@ -428,6 +428,7 @@ exports.map = {
       name: x.NAME,
       code: x.CODE,
       manufacturerCode: x.MANUFACTURER_CODE,
+      source: x.SOURCE,
     }
   },
 
@@ -656,6 +657,7 @@ exports.map = {
       packageRef: x.PACKAGE_REF,
       userRef: x.USER_REF,
       dirty: x.DIRTY == 1,
+      newNotification: x.NEW_NOTIFICATION == 1,
     }
   },
   user: (x) => {

@@ -673,6 +673,7 @@ CREATE TABLE IF NOT EXISTS "SESSION" (
   "SESSION_KEY" text,
   "CREATION_TIME" integer,
   "DIRTY" integer default 1,
+  "NEW_NOTIFICATION" integer default 0,
   foreign key (USER_REF) references USER(USER_ID),
   UNIQUE(SESSION_KEY)
 );
@@ -827,6 +828,302 @@ CREATE TABLE IF NOT EXISTS "ENDPOINT_TYPE_CLUSTER" (
   foreign key (CLUSTER_REF) references CLUSTER(CLUSTER_ID),
   UNIQUE(ENDPOINT_TYPE_REF, CLUSTER_REF, SIDE)
 );
+
+/*
+SQL Trigger for Device Type cluster Compliance.
+This trigger is used to add a warning to the notification table regarding a
+cluster not enabled as per the device type specification.
+*/
+CREATE TRIGGER
+  UPDATE_TRIGGER_DEVICE_TYPE_CLUSTER_SPEC_COMPLIANCE_MESSAGE
+AFTER
+  UPDATE ON ENDPOINT_TYPE_CLUSTER
+WHEN
+  (
+    SELECT
+      COUNT()
+    FROM
+      ENDPOINT_TYPE_CLUSTER
+    INNER JOIN
+      ENDPOINT_TYPE_DEVICE
+    ON
+      ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF
+    INNER JOIN
+      DEVICE_TYPE_CLUSTER
+    ON
+      DEVICE_TYPE_CLUSTER.DEVICE_TYPE_REF = ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_REF
+    WHERE
+      ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = new.CLUSTER_REF
+    AND 
+      ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = new.ENDPOINT_TYPE_REF
+    AND
+      ENDPOINT_TYPE_CLUSTER.SIDE = new.SIDE
+    AND
+      ENDPOINT_TYPE_CLUSTER.ENABLED != 1
+    AND
+      ((DEVICE_TYPE_CLUSTER.INCLUDE_CLIENT = 1 AND LOWER(new.SIDE) = 'client')
+        OR (LOWER(new.SIDE) = 'client' AND DEVICE_TYPE_CLUSTER.LOCK_CLIENT=0 )
+        OR (DEVICE_TYPE_CLUSTER.INCLUDE_SERVER = 1 AND LOWER(new.SIDE) = 'SERVER')
+        OR (LOWER(new.SIDE) = 'server' AND DEVICE_TYPE_CLUSTER.LOCK_SERVER=0 ))
+  ) > 0
+BEGIN
+  INSERT INTO
+    SESSION_NOTICE(SESSION_REF, NOTICE_TYPE, NOTICE_MESSAGE, NOTICE_SEVERITY, DISPLAY, SEEN)
+  VALUES
+    (
+      (
+        SELECT
+          SESSION_REF
+        FROM
+          ENDPOINT_TYPE
+        INNER JOIN
+          ENDPOINT_TYPE_CLUSTER
+        ON
+          ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF
+        WHERE
+          ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = new.ENDPOINT_TYPE_CLUSTER_ID
+      ),
+      "WARNING", 
+      "⚠ Check Device Type Compliance on endpoint: "
+      ||
+      (
+        SELECT
+          ENDPOINT.ENDPOINT_IDENTIFIER
+        FROM
+          ENDPOINT
+        INNER JOIN
+          ENDPOINT_TYPE
+        ON
+          ENDPOINT.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+        INNER JOIN
+          ENDPOINT_TYPE_CLUSTER
+        ON
+          ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+        WHERE
+          ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = new.ENDPOINT_TYPE_CLUSTER_ID
+      )
+      ||
+      ", cluster: "
+      || 
+      (
+        SELECT
+          CLUSTER.NAME || " " || ENDPOINT_TYPE_CLUSTER.SIDE
+        FROM
+          CLUSTER
+        INNER JOIN
+          ENDPOINT_TYPE_CLUSTER
+        ON
+          ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = CLUSTER.CLUSTER_ID
+        WHERE
+          ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = new.ENDPOINT_TYPE_CLUSTER_ID AND
+          ENDPOINT_TYPE_CLUSTER.ENABLED = new.ENABLED
+      )
+      ||
+      " needs to be enabled",
+      1,
+      1,
+      0
+    );
+END;
+
+/*
+SQL update trigger for Device Type Cluster Compliance.
+This trigger is used to remove a warning from the notification table since
+cluster is enabled as per the device type specification.
+Note: An update happens when the cluster is already in the
+endpoint_type_cluster table
+*/
+CREATE TRIGGER
+  UPDATE_TRIGGER_DEVICE_TYPE_CLUSTER_SPEC_COMPLIANCE_MESSAGE_REMOVAL
+AFTER
+  UPDATE ON ENDPOINT_TYPE_CLUSTER
+WHEN
+  (
+    SELECT
+      COUNT()
+    FROM
+      ENDPOINT_TYPE_CLUSTER
+    INNER JOIN
+      ENDPOINT_TYPE_DEVICE
+    ON
+      ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF
+    INNER JOIN
+      DEVICE_TYPE_CLUSTER
+    ON
+      DEVICE_TYPE_CLUSTER.DEVICE_TYPE_REF = ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_REF
+    WHERE
+      ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = new.CLUSTER_REF
+    AND 
+      ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = new.ENDPOINT_TYPE_REF
+    AND
+      ENDPOINT_TYPE_CLUSTER.SIDE = new.SIDE
+    AND
+      ENDPOINT_TYPE_CLUSTER.ENABLED = 1
+    AND
+      ((DEVICE_TYPE_CLUSTER.INCLUDE_CLIENT = 1 AND LOWER(new.SIDE) = 'client')
+        OR (LOWER(new.SIDE) = 'client' AND DEVICE_TYPE_CLUSTER.LOCK_CLIENT=0 )
+        OR (DEVICE_TYPE_CLUSTER.INCLUDE_SERVER = 1 AND LOWER(new.SIDE) = 'SERVER')
+        OR (LOWER(new.SIDE) = 'server' AND DEVICE_TYPE_CLUSTER.LOCK_SERVER=0 ))
+  ) > 0
+BEGIN
+  DELETE FROM
+    SESSION_NOTICE
+  WHERE
+    SESSION_REF = (
+      SELECT 
+        SESSION_REF
+      FROM
+        ENDPOINT_TYPE
+      INNER JOIN
+        ENDPOINT_TYPE_CLUSTER
+      ON
+        ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF
+      WHERE
+        ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = new.ENDPOINT_TYPE_CLUSTER_ID
+    )
+    AND
+      NOTICE_TYPE="WARNING"
+    AND 
+      NOTICE_MESSAGE LIKE 
+      (
+        "⚠ Check Device Type Compliance on endpoint: "
+        ||
+        (
+          SELECT
+            ENDPOINT.ENDPOINT_IDENTIFIER
+          FROM
+            ENDPOINT
+          INNER JOIN
+            ENDPOINT_TYPE
+          ON
+            ENDPOINT.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+          INNER JOIN
+            ENDPOINT_TYPE_CLUSTER
+          ON
+            ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+          WHERE
+            ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = new.ENDPOINT_TYPE_CLUSTER_ID
+        )
+        ||
+        "%, cluster: "
+        || 
+        (
+          SELECT
+            CLUSTER.NAME || " " || ENDPOINT_TYPE_CLUSTER.SIDE
+          FROM
+            CLUSTER
+          INNER JOIN
+            ENDPOINT_TYPE_CLUSTER
+          ON
+            ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = CLUSTER.CLUSTER_ID
+          WHERE
+            ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = new.ENDPOINT_TYPE_CLUSTER_ID AND
+            ENDPOINT_TYPE_CLUSTER.ENABLED = new.ENABLED
+        )
+        ||
+        " needs to be enabled"
+      );
+END;
+
+/*
+SQL Insert Trigger for Device Type Cluster Compliance.
+This trigger is used to remove a warning from the notification table since
+cluster is enabled as per the device type specification.
+Note: An insert happens when the cluster is not already in the
+endpoint_type_cluster table
+*/
+CREATE TRIGGER
+  INSERT_TRIGGER_DEVICE_TYPE_CLUSTER_SPEC_COMPLIANCE_MESSAGE_REMOVAL
+AFTER
+  INSERT ON ENDPOINT_TYPE_CLUSTER
+WHEN
+  (
+    SELECT
+      COUNT()
+    FROM
+      ENDPOINT_TYPE_CLUSTER
+    INNER JOIN
+      ENDPOINT_TYPE_DEVICE
+    ON
+      ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF
+    INNER JOIN
+      DEVICE_TYPE_CLUSTER
+    ON
+      DEVICE_TYPE_CLUSTER.DEVICE_TYPE_REF = ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_REF
+    WHERE
+      ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = new.CLUSTER_REF
+    AND 
+      ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = new.ENDPOINT_TYPE_REF
+    AND
+      ENDPOINT_TYPE_CLUSTER.SIDE = new.SIDE
+    AND
+      ENDPOINT_TYPE_CLUSTER.ENABLED = 1
+    AND
+      ((DEVICE_TYPE_CLUSTER.INCLUDE_CLIENT = 1 AND LOWER(new.SIDE) = 'client')
+        OR (LOWER(new.SIDE) = 'client' AND DEVICE_TYPE_CLUSTER.LOCK_CLIENT=0 )
+        OR (DEVICE_TYPE_CLUSTER.INCLUDE_SERVER = 1 AND LOWER(new.SIDE) = 'SERVER')
+        OR (LOWER(new.SIDE) = 'server' AND DEVICE_TYPE_CLUSTER.LOCK_SERVER=0 ))
+) > 0
+BEGIN
+  DELETE FROM
+    SESSION_NOTICE
+  WHERE
+    SESSION_REF = (
+      SELECT 
+        SESSION_REF
+      FROM
+        ENDPOINT_TYPE
+      INNER JOIN
+        ENDPOINT_TYPE_CLUSTER
+      ON
+        ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF
+      WHERE
+        ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = new.ENDPOINT_TYPE_CLUSTER_ID
+    )
+    AND
+      NOTICE_TYPE="WARNING"
+    AND 
+      NOTICE_MESSAGE LIKE 
+      (
+        "⚠ Check Device Type Compliance on endpoint: "
+        ||
+        (
+          SELECT
+            ENDPOINT.ENDPOINT_IDENTIFIER
+          FROM
+            ENDPOINT
+          INNER JOIN
+            ENDPOINT_TYPE
+          ON
+            ENDPOINT.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+          INNER JOIN
+            ENDPOINT_TYPE_CLUSTER
+          ON
+            ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+          WHERE
+            ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = new.ENDPOINT_TYPE_CLUSTER_ID
+        )
+        ||
+        "%, cluster: "
+        || 
+        (
+          SELECT
+            CLUSTER.NAME || " " || ENDPOINT_TYPE_CLUSTER.SIDE
+          FROM
+            CLUSTER
+          INNER JOIN
+            ENDPOINT_TYPE_CLUSTER
+          ON
+            ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = CLUSTER.CLUSTER_ID
+          WHERE
+            ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = new.ENDPOINT_TYPE_CLUSTER_ID AND
+            ENDPOINT_TYPE_CLUSTER.ENABLED = new.ENABLED
+        )
+        ||
+        " needs to be enabled"
+      );
+END;
+
 /*
  ENDPOINT_TYPE_ATTRIBUTE table contains the user data configuration for the various parameters that exist
  for an attribute on an endpoint. This essentially lets you determine if something should be included or not.
@@ -855,6 +1152,669 @@ CREATE TABLE IF NOT EXISTS "ENDPOINT_TYPE_ATTRIBUTE" (
     ENDPOINT_TYPE_CLUSTER_REF
   )
 );
+
+/*
+SQL Trigger for Device Type attribute Compliance.
+This trigger is used to add a warning to the notification table when an
+attribute is not enabled as per the device type specification.
+*/
+CREATE TRIGGER
+  UPDATE_TRIGGER_DEVICE_TYPE_ATTRIBUTE_SPEC_COMPLIANCE_MESSAGE
+AFTER
+  UPDATE ON ENDPOINT_TYPE_ATTRIBUTE
+WHEN
+(
+    SELECT
+      COUNT()
+    FROM
+      ENDPOINT_TYPE_ATTRIBUTE
+    INNER JOIN
+      DEVICE_TYPE_ATTRIBUTE
+    ON
+      ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF = DEVICE_TYPE_ATTRIBUTE.ATTRIBUTE_REF
+    INNER JOIN
+      DEVICE_TYPE_CLUSTER
+    ON
+      DEVICE_TYPE_CLUSTER.DEVICE_TYPE_CLUSTER_ID = DEVICE_TYPE_ATTRIBUTE.DEVICE_TYPE_CLUSTER_REF
+    INNER JOIN
+      ENDPOINT_TYPE_DEVICE
+    ON
+      ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_REF = DEVICE_TYPE_CLUSTER.DEVICE_TYPE_REF
+    WHERE
+      ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF = new.ATTRIBUTE_REF
+    AND 
+      ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF = new.ENDPOINT_TYPE_REF
+    AND 
+      ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF = new.ENDPOINT_TYPE_REF
+    AND
+      ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF = new.ENDPOINT_TYPE_CLUSTER_REF
+    AND
+      ENDPOINT_TYPE_ATTRIBUTE.INCLUDED = 0) > 0
+BEGIN
+  INSERT INTO
+    SESSION_NOTICE(SESSION_REF, NOTICE_TYPE, NOTICE_MESSAGE, NOTICE_SEVERITY, DISPLAY, SEEN)
+  VALUES
+    (
+      (
+        SELECT
+          SESSION_REF
+        FROM
+          ENDPOINT_TYPE
+        INNER JOIN
+          ENDPOINT_TYPE_ATTRIBUTE
+        ON
+          ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF
+        WHERE
+          ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_ATTRIBUTE_ID = new.ENDPOINT_TYPE_ATTRIBUTE_ID
+      ),
+      "WARNING", 
+      "⚠ Check Device Type Compliance on endpoint: "
+      ||
+      (
+        SELECT
+          ENDPOINT.ENDPOINT_IDENTIFIER
+        FROM
+          ENDPOINT
+        INNER JOIN
+          ENDPOINT_TYPE
+        ON
+          ENDPOINT.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+        INNER JOIN
+          ENDPOINT_TYPE_ATTRIBUTE
+        ON
+          ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+        WHERE
+          ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_ATTRIBUTE_ID = new.ENDPOINT_TYPE_ATTRIBUTE_ID
+      )
+      ||
+      ", cluster: "
+      ||
+      (
+        SELECT
+          CLUSTER.NAME
+        FROM
+          CLUSTER
+        INNER JOIN 
+          ATTRIBUTE
+        ON
+          ATTRIBUTE.CLUSTER_REF = CLUSTER.CLUSTER_ID
+        INNER JOIN
+          ENDPOINT_TYPE_ATTRIBUTE
+        ON
+          ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF = ATTRIBUTE.ATTRIBUTE_ID
+        WHERE
+          ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_ATTRIBUTE_ID = new.ENDPOINT_TYPE_ATTRIBUTE_ID
+      )
+      ||
+      ", attribute: "
+      || 
+      (
+        SELECT
+          ATTRIBUTE.NAME
+        FROM
+          ATTRIBUTE
+        INNER JOIN
+          ENDPOINT_TYPE_ATTRIBUTE
+        ON
+          ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF = ATTRIBUTE.ATTRIBUTE_ID
+        WHERE
+          ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_ATTRIBUTE_ID = new.ENDPOINT_TYPE_ATTRIBUTE_ID
+      )
+      ||
+      " needs to be enabled",
+      1,
+      1,
+      0
+    );
+END;
+
+
+/*
+SQL Trigger for Cluster's attribute Compliance.
+This trigger is used to add a warning to the notification table when an
+attribute is not enabled as per the cluster specification.
+*/
+CREATE TRIGGER
+  UPDATE_TRIGGER_CLUSTER_ATTRIBUTE_SPEC_COMPLIANCE_MESSAGE
+AFTER
+  UPDATE ON ENDPOINT_TYPE_ATTRIBUTE
+WHEN
+  (
+    (
+      SELECT
+        ATTRIBUTE.IS_OPTIONAL
+      FROM
+        ATTRIBUTE
+      INNER JOIN
+        ENDPOINT_TYPE_ATTRIBUTE
+      ON
+        ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF = ATTRIBUTE.ATTRIBUTE_ID
+      WHERE
+        ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_ATTRIBUTE_ID = new.ENDPOINT_TYPE_ATTRIBUTE_ID) == 0
+    AND
+      new.INCLUDED = 0
+  )
+BEGIN
+  INSERT INTO
+    SESSION_NOTICE(SESSION_REF, NOTICE_TYPE, NOTICE_MESSAGE, NOTICE_SEVERITY, DISPLAY, SEEN)
+  VALUES
+    (
+      (
+        SELECT
+          SESSION_REF
+        FROM
+          ENDPOINT_TYPE
+        INNER JOIN
+          ENDPOINT_TYPE_ATTRIBUTE
+        ON
+          ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF
+        WHERE
+          ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_ATTRIBUTE_ID = new.ENDPOINT_TYPE_ATTRIBUTE_ID
+      ),
+      "WARNING", 
+      "⚠ Check Cluster Compliance on endpoint: "
+      ||
+      (
+        SELECT
+          ENDPOINT.ENDPOINT_IDENTIFIER
+        FROM
+          ENDPOINT
+        INNER JOIN
+          ENDPOINT_TYPE
+        ON
+          ENDPOINT.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+        INNER JOIN
+          ENDPOINT_TYPE_ATTRIBUTE
+        ON
+          ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+        WHERE
+          ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_ATTRIBUTE_ID = new.ENDPOINT_TYPE_ATTRIBUTE_ID
+      )
+      ||
+      ", cluster: "
+      ||
+      (
+        SELECT
+          CLUSTER.NAME
+        FROM
+          CLUSTER
+        INNER JOIN 
+          ATTRIBUTE
+        ON
+          ATTRIBUTE.CLUSTER_REF = CLUSTER.CLUSTER_ID
+        INNER JOIN
+          ENDPOINT_TYPE_ATTRIBUTE
+        ON
+          ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF = ATTRIBUTE.ATTRIBUTE_ID
+        WHERE
+          ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_ATTRIBUTE_ID = new.ENDPOINT_TYPE_ATTRIBUTE_ID
+      )
+      ||
+      ", mandatory attribute: "
+      || 
+      (
+        SELECT
+          ATTRIBUTE.NAME
+        FROM
+          ATTRIBUTE
+        INNER JOIN
+          ENDPOINT_TYPE_ATTRIBUTE
+        ON
+          ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF = ATTRIBUTE.ATTRIBUTE_ID
+        WHERE
+          ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_ATTRIBUTE_ID = new.ENDPOINT_TYPE_ATTRIBUTE_ID
+      )
+      ||
+      " needs to be enabled",
+      1,
+      1,
+      0
+    );
+END;
+    
+
+/*
+SQL Update Trigger for Device Type attribute Compliance.
+This trigger is used to remove a warning from the notification table when an
+attribute is enabled as per the device type specification.
+Note: An update to the endpoint type attribute table happens when the attribute
+is already present in the table.
+*/
+CREATE TRIGGER
+  UPDATE_TRIGGER_DEVICE_TYPE_ATTRIBUTE_SPEC_COMPLIANCE_MESSAGE_REMOVAL
+AFTER
+  UPDATE ON ENDPOINT_TYPE_ATTRIBUTE
+WHEN
+  (
+    SELECT
+      COUNT()
+    FROM
+      ENDPOINT_TYPE_ATTRIBUTE
+    INNER JOIN
+      DEVICE_TYPE_ATTRIBUTE
+    ON
+      ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF = DEVICE_TYPE_ATTRIBUTE.ATTRIBUTE_REF
+    INNER JOIN
+      DEVICE_TYPE_CLUSTER
+    ON
+      DEVICE_TYPE_CLUSTER.DEVICE_TYPE_CLUSTER_ID = DEVICE_TYPE_ATTRIBUTE.DEVICE_TYPE_CLUSTER_REF
+    INNER JOIN
+      ENDPOINT_TYPE_DEVICE
+    ON
+      ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_REF = DEVICE_TYPE_CLUSTER.DEVICE_TYPE_REF
+    WHERE
+      ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF = new.ATTRIBUTE_REF
+    AND 
+      ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF = new.ENDPOINT_TYPE_REF
+    AND 
+      ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF = new.ENDPOINT_TYPE_REF
+    AND
+      ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF = new.ENDPOINT_TYPE_CLUSTER_REF
+    AND
+      ENDPOINT_TYPE_ATTRIBUTE.INCLUDED = 1) > 0
+BEGIN
+  DELETE FROM
+    SESSION_NOTICE
+  WHERE
+    SESSION_REF = (
+      SELECT 
+        SESSION_REF
+      FROM
+        ENDPOINT_TYPE
+      INNER JOIN
+        ENDPOINT_TYPE_ATTRIBUTE
+      ON
+        ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF
+      WHERE
+        ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_ATTRIBUTE_ID = new.ENDPOINT_TYPE_ATTRIBUTE_ID
+    )
+    AND
+      NOTICE_TYPE="WARNING"
+    AND 
+      NOTICE_MESSAGE LIKE 
+      (
+        "⚠ Check Device Type Compliance on endpoint: "
+      ||
+      (
+        SELECT
+          ENDPOINT.ENDPOINT_IDENTIFIER
+        FROM
+          ENDPOINT
+        INNER JOIN
+          ENDPOINT_TYPE
+        ON
+          ENDPOINT.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+        INNER JOIN
+          ENDPOINT_TYPE_ATTRIBUTE
+        ON
+          ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+        WHERE
+          ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_ATTRIBUTE_ID = new.ENDPOINT_TYPE_ATTRIBUTE_ID
+      )
+      ||
+      "%, cluster: "
+      ||
+        (
+          SELECT
+            CLUSTER.NAME
+          FROM
+            CLUSTER
+          INNER JOIN
+            ATTRIBUTE
+          ON
+            ATTRIBUTE.CLUSTER_REF = CLUSTER.CLUSTER_ID
+          INNER JOIN
+            ENDPOINT_TYPE_ATTRIBUTE
+          ON
+            ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF = ATTRIBUTE.ATTRIBUTE_ID
+          WHERE
+            ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_ATTRIBUTE_ID = new.ENDPOINT_TYPE_ATTRIBUTE_ID
+        )
+        ||
+        ", attribute: "
+        || 
+        (
+          SELECT
+            ATTRIBUTE.NAME
+          FROM
+            ATTRIBUTE
+          INNER JOIN
+            ENDPOINT_TYPE_ATTRIBUTE
+          ON
+            ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF = ATTRIBUTE.ATTRIBUTE_ID
+          WHERE
+            ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_ATTRIBUTE_ID = new.ENDPOINT_TYPE_ATTRIBUTE_ID
+        )
+        ||
+        " needs to be enabled"
+      );
+END;
+
+/*
+SQL Trigger for Cluster's attribute Compliance.
+This trigger is used to remove a warning to the notification table when an
+attribute is enabled as per the cluster specification.
+*/
+CREATE TRIGGER
+  UPDATE_TRIGGER_CLUSTER_ATTRIBUTE_SPEC_COMPLIANCE_MESSAGE_REMOVAL
+AFTER
+  UPDATE ON ENDPOINT_TYPE_ATTRIBUTE
+WHEN
+  (
+    (
+      SELECT
+        ATTRIBUTE.IS_OPTIONAL
+      FROM
+        ATTRIBUTE
+      INNER JOIN
+        ENDPOINT_TYPE_ATTRIBUTE
+      ON
+        ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF = ATTRIBUTE.ATTRIBUTE_ID
+      WHERE
+        ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_ATTRIBUTE_ID = new.ENDPOINT_TYPE_ATTRIBUTE_ID) == 0
+    AND
+      new.INCLUDED = 1
+  )
+BEGIN
+DELETE FROM
+    SESSION_NOTICE
+  WHERE
+    SESSION_REF = (
+      SELECT 
+        SESSION_REF
+      FROM
+        ENDPOINT_TYPE
+      INNER JOIN
+        ENDPOINT_TYPE_ATTRIBUTE
+      ON
+        ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF
+      WHERE
+        ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_ATTRIBUTE_ID = new.ENDPOINT_TYPE_ATTRIBUTE_ID
+    )
+    AND
+      NOTICE_TYPE="WARNING"
+    AND 
+      NOTICE_MESSAGE LIKE 
+      (
+        "⚠ Check Cluster Compliance on endpoint: "
+      ||
+      (
+        SELECT
+          ENDPOINT.ENDPOINT_IDENTIFIER
+        FROM
+          ENDPOINT
+        INNER JOIN
+          ENDPOINT_TYPE
+        ON
+          ENDPOINT.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+        INNER JOIN
+          ENDPOINT_TYPE_ATTRIBUTE
+        ON
+          ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+        WHERE
+          ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_ATTRIBUTE_ID = new.ENDPOINT_TYPE_ATTRIBUTE_ID
+      )
+      ||
+      ", cluster: "
+      ||
+        (
+          SELECT
+            CLUSTER.NAME
+          FROM
+            CLUSTER
+          INNER JOIN
+            ATTRIBUTE
+          ON
+            ATTRIBUTE.CLUSTER_REF = CLUSTER.CLUSTER_ID
+          INNER JOIN
+            ENDPOINT_TYPE_ATTRIBUTE
+          ON
+            ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF = ATTRIBUTE.ATTRIBUTE_ID
+          WHERE
+            ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_ATTRIBUTE_ID = new.ENDPOINT_TYPE_ATTRIBUTE_ID
+        )
+        ||
+        ", mandatory attribute: "
+        || 
+        (
+          SELECT
+            ATTRIBUTE.NAME
+          FROM
+            ATTRIBUTE
+          INNER JOIN
+            ENDPOINT_TYPE_ATTRIBUTE
+          ON
+            ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF = ATTRIBUTE.ATTRIBUTE_ID
+          WHERE
+            ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_ATTRIBUTE_ID = new.ENDPOINT_TYPE_ATTRIBUTE_ID
+        )
+        ||
+        " needs to be enabled"
+      );
+END;
+
+/*
+SQL Insert Trigger for Device Type attribute Compliance.
+This trigger is used to remove a warning from the notification table when an
+attribute is enabled as per the device type specification.
+Note: An insert to the endpoint type attribute table happens when the attribute
+is not present in the table.
+*/
+CREATE TRIGGER
+  INSERT_TRIGGER_DEVICE_TYPE_ATTRIBUTE_SPEC_COMPLIANCE_MESSAGE_REMOVAL
+AFTER
+  INSERT ON ENDPOINT_TYPE_ATTRIBUTE
+WHEN
+  (
+    SELECT
+      COUNT()
+    FROM
+      ENDPOINT_TYPE_ATTRIBUTE
+    INNER JOIN
+      DEVICE_TYPE_ATTRIBUTE
+    ON
+      ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF = DEVICE_TYPE_ATTRIBUTE.ATTRIBUTE_REF
+    INNER JOIN
+      DEVICE_TYPE_CLUSTER
+    ON
+      DEVICE_TYPE_CLUSTER.DEVICE_TYPE_CLUSTER_ID = DEVICE_TYPE_ATTRIBUTE.DEVICE_TYPE_CLUSTER_REF
+    INNER JOIN
+      ENDPOINT_TYPE_DEVICE
+    ON
+      ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_REF = DEVICE_TYPE_CLUSTER.DEVICE_TYPE_REF
+    WHERE
+      ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF = new.ATTRIBUTE_REF
+    AND 
+      ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF = new.ENDPOINT_TYPE_REF
+    AND 
+      ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF = new.ENDPOINT_TYPE_REF
+    AND
+      ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF = new.ENDPOINT_TYPE_CLUSTER_REF
+    AND
+      ENDPOINT_TYPE_ATTRIBUTE.INCLUDED = 1) > 0
+BEGIN
+  DELETE FROM
+    SESSION_NOTICE
+  WHERE
+    SESSION_REF = (
+      SELECT 
+        SESSION_REF
+      FROM
+        ENDPOINT_TYPE
+      INNER JOIN
+        ENDPOINT_TYPE_ATTRIBUTE
+      ON
+        ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF
+      WHERE
+        ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_ATTRIBUTE_ID = new.ENDPOINT_TYPE_ATTRIBUTE_ID
+    )
+    AND
+      NOTICE_TYPE="WARNING"
+    AND 
+      NOTICE_MESSAGE LIKE 
+      (
+        "⚠ Check Device Type Compliance on endpoint: "
+      ||
+      (
+        SELECT
+          ENDPOINT.ENDPOINT_IDENTIFIER
+        FROM
+          ENDPOINT
+        INNER JOIN
+          ENDPOINT_TYPE
+        ON
+          ENDPOINT.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+        INNER JOIN
+          ENDPOINT_TYPE_ATTRIBUTE
+        ON
+          ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+        WHERE
+          ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_ATTRIBUTE_ID = new.ENDPOINT_TYPE_ATTRIBUTE_ID
+      )
+      ||
+      "%, cluster: "
+      ||
+        (
+          SELECT
+            CLUSTER.NAME
+          FROM
+            CLUSTER
+          INNER JOIN
+            ATTRIBUTE
+          ON
+            ATTRIBUTE.CLUSTER_REF = CLUSTER.CLUSTER_ID
+          INNER JOIN
+            ENDPOINT_TYPE_ATTRIBUTE
+          ON
+            ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF = ATTRIBUTE.ATTRIBUTE_ID
+          WHERE
+            ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_ATTRIBUTE_ID = new.ENDPOINT_TYPE_ATTRIBUTE_ID
+        )
+        ||
+        ", attribute: "
+        || 
+        (
+          SELECT
+            ATTRIBUTE.NAME
+          FROM
+            ATTRIBUTE
+          INNER JOIN
+            ENDPOINT_TYPE_ATTRIBUTE
+          ON
+            ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF = ATTRIBUTE.ATTRIBUTE_ID
+          WHERE
+            ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_ATTRIBUTE_ID = new.ENDPOINT_TYPE_ATTRIBUTE_ID
+        )
+        ||
+        " needs to be enabled"
+      );
+END;
+
+/*
+SQL Trigger for Cluster's attribute Compliance.
+This trigger is used to remove a warning to the notification table when an
+attribute is enabled as per the cluster specification.
+Note: An insert to the endpoint type attribute table happens when the attribute
+is not present in the table.
+*/
+CREATE TRIGGER
+  INSERT_TRIGGER_CLUSTER_ATTRIBUTE_SPEC_COMPLIANCE_MESSAGE_REMOVAL
+AFTER
+  INSERT ON ENDPOINT_TYPE_ATTRIBUTE
+WHEN
+  (
+    (
+      SELECT
+        ATTRIBUTE.IS_OPTIONAL
+      FROM
+        ATTRIBUTE
+      INNER JOIN
+        ENDPOINT_TYPE_ATTRIBUTE
+      ON
+        ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF = ATTRIBUTE.ATTRIBUTE_ID
+      WHERE
+        ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_ATTRIBUTE_ID = new.ENDPOINT_TYPE_ATTRIBUTE_ID) == 0
+    AND
+      new.INCLUDED = 1
+  )
+BEGIN
+DELETE FROM
+    SESSION_NOTICE
+  WHERE
+    SESSION_REF = (
+      SELECT 
+        SESSION_REF
+      FROM
+        ENDPOINT_TYPE
+      INNER JOIN
+        ENDPOINT_TYPE_ATTRIBUTE
+      ON
+        ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF
+      WHERE
+        ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_ATTRIBUTE_ID = new.ENDPOINT_TYPE_ATTRIBUTE_ID
+    )
+    AND
+      NOTICE_TYPE="WARNING"
+    AND 
+      NOTICE_MESSAGE LIKE 
+      (
+        "⚠ Check Cluster Compliance on endpoint: "
+      ||
+      (
+        SELECT
+          ENDPOINT.ENDPOINT_IDENTIFIER
+        FROM
+          ENDPOINT
+        INNER JOIN
+          ENDPOINT_TYPE
+        ON
+          ENDPOINT.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+        INNER JOIN
+          ENDPOINT_TYPE_ATTRIBUTE
+        ON
+          ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+        WHERE
+          ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_ATTRIBUTE_ID = new.ENDPOINT_TYPE_ATTRIBUTE_ID
+      )
+      ||
+      ", cluster: "
+      ||
+        (
+          SELECT
+            CLUSTER.NAME
+          FROM
+            CLUSTER
+          INNER JOIN
+            ATTRIBUTE
+          ON
+            ATTRIBUTE.CLUSTER_REF = CLUSTER.CLUSTER_ID
+          INNER JOIN
+            ENDPOINT_TYPE_ATTRIBUTE
+          ON
+            ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF = ATTRIBUTE.ATTRIBUTE_ID
+          WHERE
+            ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_ATTRIBUTE_ID = new.ENDPOINT_TYPE_ATTRIBUTE_ID
+        )
+        ||
+        ", mandatory attribute: "
+        || 
+        (
+          SELECT
+            ATTRIBUTE.NAME
+          FROM
+            ATTRIBUTE
+          INNER JOIN
+            ENDPOINT_TYPE_ATTRIBUTE
+          ON
+            ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF = ATTRIBUTE.ATTRIBUTE_ID
+          WHERE
+            ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_ATTRIBUTE_ID = new.ENDPOINT_TYPE_ATTRIBUTE_ID
+        )
+        ||
+        " needs to be enabled"
+      );
+END;
+
 /*
  ENDPOINT_TYPE_COMMAND table contains the user data configuration for the various parameters that exist
  for commands on an endpoint. This essentially lets you determine if something should be included or not.
@@ -877,6 +1837,711 @@ CREATE TABLE IF NOT EXISTS "ENDPOINT_TYPE_COMMAND" (
     IS_INCOMING
   )
 );
+
+/*
+SQL Update Trigger for Device Type command Compliance.
+This trigger is used to add a warning to the notification table when a
+command not enabled as per the device type specification.
+*/
+CREATE TRIGGER
+  UPDATE_TRIGGER_DEVICE_TYPE_COMMAND_SPEC_COMPLIANCE_MESSAGE
+AFTER
+  UPDATE ON ENDPOINT_TYPE_COMMAND
+WHEN
+  (
+    SELECT
+      COUNT()
+    FROM
+      ENDPOINT_TYPE_COMMAND
+    INNER JOIN
+      DEVICE_TYPE_COMMAND
+    ON
+      ENDPOINT_TYPE_COMMAND.COMMAND_REF = DEVICE_TYPE_COMMAND.COMMAND_REF
+    INNER JOIN
+      DEVICE_TYPE_CLUSTER
+    ON
+      DEVICE_TYPE_CLUSTER.DEVICE_TYPE_CLUSTER_ID = DEVICE_TYPE_COMMAND.DEVICE_TYPE_CLUSTER_REF
+    INNER JOIN
+      ENDPOINT_TYPE_DEVICE
+    ON
+      ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_REF = DEVICE_TYPE_CLUSTER.DEVICE_TYPE_REF
+    WHERE
+      ENDPOINT_TYPE_COMMAND.COMMAND_REF = new.COMMAND_REF
+    AND
+      ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF = new.ENDPOINT_TYPE_REF
+    AND 
+      ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF = new.ENDPOINT_TYPE_REF
+    AND
+      ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_CLUSTER_REF = new.ENDPOINT_TYPE_CLUSTER_REF
+    AND
+      ENDPOINT_TYPE_COMMAND.IS_INCOMING = new.IS_INCOMING
+    AND
+      ENDPOINT_TYPE_COMMAND.IS_ENABLED = 0) > 0
+BEGIN
+  INSERT INTO
+    SESSION_NOTICE(SESSION_REF, NOTICE_TYPE, NOTICE_MESSAGE, NOTICE_SEVERITY, DISPLAY, SEEN)
+  VALUES
+    (
+      (
+        SELECT
+          SESSION_REF
+        FROM
+          ENDPOINT_TYPE
+        INNER JOIN
+          ENDPOINT_TYPE_COMMAND
+        ON
+          ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF
+        WHERE
+          ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_COMMAND_ID = new.ENDPOINT_TYPE_COMMAND_ID
+      ),
+      "WARNING", 
+      "⚠ Check Device Type Compliance on endpoint: "
+      ||
+      (
+        SELECT
+          ENDPOINT.ENDPOINT_IDENTIFIER
+        FROM
+          ENDPOINT
+        INNER JOIN
+          ENDPOINT_TYPE
+        ON
+          ENDPOINT.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+        INNER JOIN
+          ENDPOINT_TYPE_COMMAND
+        ON
+          ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+        WHERE
+          ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_COMMAND_ID = new.ENDPOINT_TYPE_COMMAND_ID
+      )
+      ||
+      ", cluster: "
+      || 
+      (
+        SELECT
+          CLUSTER.NAME || " " || ENDPOINT_TYPE_CLUSTER.SIDE
+        FROM
+          CLUSTER
+        INNER JOIN 
+          COMMAND
+        ON
+          COMMAND.CLUSTER_REF = CLUSTER.CLUSTER_ID
+        INNER JOIN
+          ENDPOINT_TYPE_COMMAND
+        ON
+          ENDPOINT_TYPE_COMMAND.COMMAND_REF = COMMAND.COMMAND_ID
+        INNER JOIN
+          ENDPOINT_TYPE_CLUSTER
+        ON
+          ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_CLUSTER_REF = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
+        WHERE
+          ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_COMMAND_ID = new.ENDPOINT_TYPE_COMMAND_ID AND
+          ENDPOINT_TYPE_COMMAND.IS_INCOMING = new.IS_INCOMING
+      )
+      ||
+      ", command: "
+      || 
+      (
+        SELECT
+          COMMAND.NAME || " " || CASE WHEN ENDPOINT_TYPE_COMMAND.IS_INCOMING THEN "incoming" ELSE "outgoing" END
+        FROM
+          COMMAND
+        INNER JOIN
+          ENDPOINT_TYPE_COMMAND
+        ON
+          ENDPOINT_TYPE_COMMAND.COMMAND_REF = COMMAND.COMMAND_ID
+        WHERE
+          ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_COMMAND_ID = new.ENDPOINT_TYPE_COMMAND_ID AND
+          ENDPOINT_TYPE_COMMAND.IS_INCOMING = new.IS_INCOMING
+      )
+      ||
+      " needs to be enabled",
+      1,
+      1,
+      0
+    );
+END;
+
+/*
+SQL Trigger for Cluster's command Compliance.
+This trigger is used to add a warning to the notification table when an
+command is not enabled as per the cluster specification.
+*/
+CREATE TRIGGER
+  UPDATE_TRIGGER_CLUSTER_COMMAND_SPEC_COMPLIANCE_MESSAGE
+AFTER
+  UPDATE ON ENDPOINT_TYPE_COMMAND
+WHEN
+  (
+    (
+      SELECT
+        COMMAND.IS_OPTIONAL
+      FROM
+        COMMAND
+      INNER JOIN
+        ENDPOINT_TYPE_COMMAND
+      ON
+        ENDPOINT_TYPE_COMMAND.COMMAND_REF = COMMAND.COMMAND_ID
+      WHERE
+        ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_COMMAND_ID = new.ENDPOINT_TYPE_COMMAND_ID) == 0
+    AND
+      new.IS_ENABLED = 0
+  )
+BEGIN
+  INSERT INTO
+    SESSION_NOTICE(SESSION_REF, NOTICE_TYPE, NOTICE_MESSAGE, NOTICE_SEVERITY, DISPLAY, SEEN)
+  VALUES
+    (
+      (
+        SELECT
+          SESSION_REF
+        FROM
+          ENDPOINT_TYPE
+        INNER JOIN
+          ENDPOINT_TYPE_COMMAND
+        ON
+          ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF
+        WHERE
+          ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_COMMAND_ID = new.ENDPOINT_TYPE_COMMAND_ID
+      ),
+      "WARNING", 
+      "⚠ Check Cluster Compliance on endpoint: "
+      ||
+      (
+        SELECT
+          ENDPOINT.ENDPOINT_IDENTIFIER
+        FROM
+          ENDPOINT
+        INNER JOIN
+          ENDPOINT_TYPE
+        ON
+          ENDPOINT.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+        INNER JOIN
+          ENDPOINT_TYPE_COMMAND
+        ON
+          ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+        WHERE
+          ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_COMMAND_ID = new.ENDPOINT_TYPE_COMMAND_ID
+      )
+      ||
+      ", cluster: "
+      || 
+      (
+        SELECT
+          CLUSTER.NAME || " " || ENDPOINT_TYPE_CLUSTER.SIDE
+        FROM
+          CLUSTER
+        INNER JOIN 
+          COMMAND
+        ON
+          COMMAND.CLUSTER_REF = CLUSTER.CLUSTER_ID
+        INNER JOIN
+          ENDPOINT_TYPE_COMMAND
+        ON
+          ENDPOINT_TYPE_COMMAND.COMMAND_REF = COMMAND.COMMAND_ID
+        INNER JOIN
+          ENDPOINT_TYPE_CLUSTER
+        ON
+          ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_CLUSTER_REF = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
+        WHERE
+          ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_COMMAND_ID = new.ENDPOINT_TYPE_COMMAND_ID AND
+          ENDPOINT_TYPE_COMMAND.IS_INCOMING = new.IS_INCOMING
+      )
+      ||
+      ", mandatory command: "
+      || 
+      (
+        SELECT
+          COMMAND.NAME || " " || CASE WHEN ENDPOINT_TYPE_COMMAND.IS_INCOMING THEN "incoming" ELSE "outgoing" END
+        FROM
+          COMMAND
+        INNER JOIN
+          ENDPOINT_TYPE_COMMAND
+        ON
+          ENDPOINT_TYPE_COMMAND.COMMAND_REF = COMMAND.COMMAND_ID
+        WHERE
+          ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_COMMAND_ID = new.ENDPOINT_TYPE_COMMAND_ID AND
+          ENDPOINT_TYPE_COMMAND.IS_INCOMING = new.IS_INCOMING
+      )
+      ||
+      " needs to be enabled",
+      1,
+      1,
+      0
+    );
+END;
+
+
+/*
+SQL Update Trigger for Device Type command Compliance.
+This trigger is used to remove a warning from the notification table when a
+command is enabled as per the device type specification.
+Note: An update happens when the command is already present in the
+endpoint_type_command table
+*/
+CREATE TRIGGER
+  UPDATE_TRIGGER_DEVICE_TYPE_COMMAND_SPEC_COMPLIANCE_MESSAGE_REMOVAL
+AFTER
+  UPDATE ON ENDPOINT_TYPE_COMMAND
+WHEN
+  (
+    SELECT
+      COUNT()
+    FROM
+      ENDPOINT_TYPE_COMMAND
+    INNER JOIN
+      DEVICE_TYPE_COMMAND
+    ON
+      ENDPOINT_TYPE_COMMAND.COMMAND_REF = DEVICE_TYPE_COMMAND.COMMAND_REF
+    INNER JOIN
+      DEVICE_TYPE_CLUSTER
+    ON
+      DEVICE_TYPE_CLUSTER.DEVICE_TYPE_CLUSTER_ID = DEVICE_TYPE_COMMAND.DEVICE_TYPE_CLUSTER_REF
+    INNER JOIN
+      ENDPOINT_TYPE_DEVICE
+    ON
+      ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_REF = DEVICE_TYPE_CLUSTER.DEVICE_TYPE_REF
+    WHERE
+      ENDPOINT_TYPE_COMMAND.COMMAND_REF = new.COMMAND_REF
+    AND
+      ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF = new.ENDPOINT_TYPE_REF
+    AND 
+      ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF = new.ENDPOINT_TYPE_REF
+    AND
+      ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_CLUSTER_REF = new.ENDPOINT_TYPE_CLUSTER_REF
+    AND
+      ENDPOINT_TYPE_COMMAND.IS_INCOMING = new.IS_INCOMING
+    AND
+      ENDPOINT_TYPE_COMMAND.IS_ENABLED = 1) > 0
+BEGIN
+  DELETE FROM
+    SESSION_NOTICE
+  WHERE
+    SESSION_REF = (
+      SELECT 
+        SESSION_REF
+      FROM
+        ENDPOINT_TYPE
+      INNER JOIN
+        ENDPOINT_TYPE_COMMAND
+      ON
+        ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF
+      WHERE
+        ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_COMMAND_ID = new.ENDPOINT_TYPE_COMMAND_ID
+    )
+    AND
+      NOTICE_TYPE="WARNING"
+    AND 
+      NOTICE_MESSAGE LIKE 
+      (
+        "⚠ Check Device Type Compliance on endpoint: "
+        ||
+        (
+          SELECT
+            ENDPOINT.ENDPOINT_IDENTIFIER
+          FROM
+            ENDPOINT
+          INNER JOIN
+            ENDPOINT_TYPE
+          ON
+            ENDPOINT.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+          INNER JOIN
+            ENDPOINT_TYPE_COMMAND
+          ON
+            ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+          WHERE
+            ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_COMMAND_ID = new.ENDPOINT_TYPE_COMMAND_ID
+        )
+        ||
+        "%, cluster: "
+        || 
+        (
+          SELECT
+            CLUSTER.NAME || " " || ENDPOINT_TYPE_CLUSTER.SIDE
+          FROM
+            CLUSTER
+          INNER JOIN 
+            COMMAND
+          ON
+            COMMAND.CLUSTER_REF = CLUSTER.CLUSTER_ID
+          INNER JOIN
+            ENDPOINT_TYPE_COMMAND
+          ON
+            ENDPOINT_TYPE_COMMAND.COMMAND_REF = COMMAND.COMMAND_ID
+          INNER JOIN
+            ENDPOINT_TYPE_CLUSTER
+          ON
+            ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_CLUSTER_REF = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
+          WHERE
+            ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_COMMAND_ID = new.ENDPOINT_TYPE_COMMAND_ID AND
+            ENDPOINT_TYPE_COMMAND.IS_INCOMING = new.IS_INCOMING
+        )
+        ||
+        ", command: "
+        || 
+        (
+          SELECT
+            COMMAND.NAME || " " || CASE WHEN ENDPOINT_TYPE_COMMAND.IS_INCOMING THEN "incoming" ELSE "outgoing" END
+          FROM
+            COMMAND
+          INNER JOIN
+            ENDPOINT_TYPE_COMMAND
+          ON
+            ENDPOINT_TYPE_COMMAND.COMMAND_REF = COMMAND.COMMAND_ID
+          WHERE
+            ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_COMMAND_ID = new.ENDPOINT_TYPE_COMMAND_ID AND
+            ENDPOINT_TYPE_COMMAND.IS_INCOMING = new.IS_INCOMING
+        )
+        ||
+        " needs to be enabled"
+      );
+END;
+
+/*
+SQL Trigger for Cluster's command Compliance.
+This trigger is used to remove a warning to the notification table when a
+command is enabled as per the cluster specification.
+*/
+CREATE TRIGGER
+  UPDATE_TRIGGER_CLUSTER_COMMAND_SPEC_COMPLIANCE_MESSAGE_REMOVAL
+AFTER
+  UPDATE ON ENDPOINT_TYPE_COMMAND
+WHEN
+  (
+    (
+      SELECT
+        COMMAND.IS_OPTIONAL
+      FROM
+        COMMAND
+      INNER JOIN
+        ENDPOINT_TYPE_COMMAND
+      ON
+        ENDPOINT_TYPE_COMMAND.COMMAND_REF = COMMAND.COMMAND_ID
+      WHERE
+        ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_COMMAND_ID = new.ENDPOINT_TYPE_COMMAND_ID) == 0
+    AND
+      new.IS_ENABLED = 1
+  )
+BEGIN
+  DELETE FROM
+    SESSION_NOTICE
+  WHERE
+    SESSION_REF = (
+      SELECT 
+        SESSION_REF
+      FROM
+        ENDPOINT_TYPE
+      INNER JOIN
+        ENDPOINT_TYPE_COMMAND
+      ON
+        ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF
+      WHERE
+        ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_COMMAND_ID = new.ENDPOINT_TYPE_COMMAND_ID
+    )
+    AND
+      NOTICE_TYPE="WARNING"
+    AND 
+      NOTICE_MESSAGE LIKE 
+      (
+        "⚠ Check Cluster Compliance on endpoint: "
+        ||
+        (
+          SELECT
+            ENDPOINT.ENDPOINT_IDENTIFIER
+          FROM
+            ENDPOINT
+          INNER JOIN
+            ENDPOINT_TYPE
+          ON
+            ENDPOINT.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+          INNER JOIN
+            ENDPOINT_TYPE_COMMAND
+          ON
+            ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+          WHERE
+            ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_COMMAND_ID = new.ENDPOINT_TYPE_COMMAND_ID
+        )
+        ||
+        "%, cluster: "
+        || 
+        (
+          SELECT
+            CLUSTER.NAME || " " || ENDPOINT_TYPE_CLUSTER.SIDE
+          FROM
+            CLUSTER
+          INNER JOIN 
+            COMMAND
+          ON
+            COMMAND.CLUSTER_REF = CLUSTER.CLUSTER_ID
+          INNER JOIN
+            ENDPOINT_TYPE_COMMAND
+          ON
+            ENDPOINT_TYPE_COMMAND.COMMAND_REF = COMMAND.COMMAND_ID
+          INNER JOIN
+            ENDPOINT_TYPE_CLUSTER
+          ON
+            ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_CLUSTER_REF = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
+          WHERE
+            ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_COMMAND_ID = new.ENDPOINT_TYPE_COMMAND_ID AND
+            ENDPOINT_TYPE_COMMAND.IS_INCOMING = new.IS_INCOMING
+        )
+        ||
+        ", mandatory command: "
+        || 
+        (
+          SELECT
+            COMMAND.NAME || " " || CASE WHEN ENDPOINT_TYPE_COMMAND.IS_INCOMING THEN "incoming" ELSE "outgoing" END
+          FROM
+            COMMAND
+          INNER JOIN
+            ENDPOINT_TYPE_COMMAND
+          ON
+            ENDPOINT_TYPE_COMMAND.COMMAND_REF = COMMAND.COMMAND_ID
+          WHERE
+            ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_COMMAND_ID = new.ENDPOINT_TYPE_COMMAND_ID AND
+            ENDPOINT_TYPE_COMMAND.IS_INCOMING = new.IS_INCOMING
+        )
+        ||
+        " needs to be enabled"
+      );
+END;
+
+
+/*
+SQL Insert Trigger for Device Type command Compliance.
+This trigger is used to remove a warning from the notification table when a
+command is enabled as per the device type specification.
+Note: An insert happens when the command is not already present in the
+endpoint_type_command table
+*/
+CREATE TRIGGER
+  INSERT_TRIGGER_DEVICE_TYPE_COMMAND_SPEC_COMPLIANCE_MESSAGE_REMOVAL
+AFTER
+  INSERT ON ENDPOINT_TYPE_COMMAND
+WHEN
+  (
+    SELECT
+      COUNT()
+    FROM
+      ENDPOINT_TYPE_COMMAND
+    INNER JOIN
+      DEVICE_TYPE_COMMAND
+    ON
+      ENDPOINT_TYPE_COMMAND.COMMAND_REF = DEVICE_TYPE_COMMAND.COMMAND_REF
+    INNER JOIN
+      DEVICE_TYPE_CLUSTER
+    ON
+      DEVICE_TYPE_CLUSTER.DEVICE_TYPE_CLUSTER_ID = DEVICE_TYPE_COMMAND.DEVICE_TYPE_CLUSTER_REF
+    INNER JOIN
+      ENDPOINT_TYPE_DEVICE
+    ON
+      ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_REF = DEVICE_TYPE_CLUSTER.DEVICE_TYPE_REF
+    WHERE
+      ENDPOINT_TYPE_COMMAND.COMMAND_REF = new.COMMAND_REF
+    AND
+      ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF = new.ENDPOINT_TYPE_REF
+    AND 
+      ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF = new.ENDPOINT_TYPE_REF
+    AND
+      ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_CLUSTER_REF = new.ENDPOINT_TYPE_CLUSTER_REF
+    AND
+      ENDPOINT_TYPE_COMMAND.IS_INCOMING = new.IS_INCOMING
+    AND
+      ENDPOINT_TYPE_COMMAND.IS_ENABLED = 1) > 0
+BEGIN
+  DELETE FROM
+    SESSION_NOTICE
+  WHERE
+    SESSION_REF = (
+      SELECT 
+        SESSION_REF
+      FROM
+        ENDPOINT_TYPE
+      INNER JOIN
+        ENDPOINT_TYPE_COMMAND
+      ON
+        ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF
+      WHERE
+        ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_COMMAND_ID = new.ENDPOINT_TYPE_COMMAND_ID
+    )
+    AND
+      NOTICE_TYPE="WARNING"
+    AND 
+      NOTICE_MESSAGE LIKE
+      (
+        "⚠ Check Device Type Compliance on endpoint: "
+        ||
+        (
+          SELECT
+            ENDPOINT.ENDPOINT_IDENTIFIER
+          FROM
+            ENDPOINT
+          INNER JOIN
+            ENDPOINT_TYPE
+          ON
+            ENDPOINT.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+          INNER JOIN
+            ENDPOINT_TYPE_COMMAND
+          ON
+            ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+          WHERE
+            ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_COMMAND_ID = new.ENDPOINT_TYPE_COMMAND_ID
+        )
+        ||
+        "%, cluster: "
+        || 
+        (
+          SELECT
+            CLUSTER.NAME || " " || ENDPOINT_TYPE_CLUSTER.SIDE
+          FROM
+            CLUSTER
+          INNER JOIN 
+            COMMAND
+          ON
+            COMMAND.CLUSTER_REF = CLUSTER.CLUSTER_ID
+          INNER JOIN
+            ENDPOINT_TYPE_COMMAND
+          ON
+            ENDPOINT_TYPE_COMMAND.COMMAND_REF = COMMAND.COMMAND_ID
+          INNER JOIN
+            ENDPOINT_TYPE_CLUSTER
+          ON
+            ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_CLUSTER_REF = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
+          WHERE
+            ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_COMMAND_ID = new.ENDPOINT_TYPE_COMMAND_ID AND
+            ENDPOINT_TYPE_COMMAND.IS_INCOMING = new.IS_INCOMING
+        )
+        ||
+        ", command: "
+        || 
+        (
+          SELECT
+            COMMAND.NAME || " " || CASE WHEN ENDPOINT_TYPE_COMMAND.IS_INCOMING THEN "incoming" ELSE "outgoing" END
+          FROM
+            COMMAND
+          INNER JOIN
+            ENDPOINT_TYPE_COMMAND
+          ON
+            ENDPOINT_TYPE_COMMAND.COMMAND_REF = COMMAND.COMMAND_ID
+          WHERE
+            ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_COMMAND_ID = new.ENDPOINT_TYPE_COMMAND_ID AND
+            ENDPOINT_TYPE_COMMAND.IS_INCOMING = new.IS_INCOMING
+        )
+        ||
+        " needs to be enabled"
+      );
+END;
+
+/*
+SQL Trigger for Cluster's command Compliance.
+This trigger is used to remove a warning to the notification table when a
+command is enabled as per the cluster specification.
+Note: An insert to the endpoint type command table happens when the command
+is not present in the table.
+*/
+CREATE TRIGGER
+  INSERT_TRIGGER_CLUSTER_COMMAND_SPEC_COMPLIANCE_MESSAGE_REMOVAL
+AFTER
+  INSERT ON ENDPOINT_TYPE_COMMAND
+WHEN
+  (
+    (
+      SELECT
+        COMMAND.IS_OPTIONAL
+      FROM
+        COMMAND
+      INNER JOIN
+        ENDPOINT_TYPE_COMMAND
+      ON
+        ENDPOINT_TYPE_COMMAND.COMMAND_REF = COMMAND.COMMAND_ID
+      WHERE
+        ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_COMMAND_ID = new.ENDPOINT_TYPE_COMMAND_ID) == 0
+    AND
+      new.IS_ENABLED = 1
+  )
+BEGIN
+  DELETE FROM
+    SESSION_NOTICE
+  WHERE
+    SESSION_REF = (
+      SELECT 
+        SESSION_REF
+      FROM
+        ENDPOINT_TYPE
+      INNER JOIN
+        ENDPOINT_TYPE_COMMAND
+      ON
+        ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF
+      WHERE
+        ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_COMMAND_ID = new.ENDPOINT_TYPE_COMMAND_ID
+    )
+    AND
+      NOTICE_TYPE="WARNING"
+    AND 
+      NOTICE_MESSAGE LIKE 
+      (
+        "⚠ Check Cluster Compliance on endpoint: "
+        ||
+        (
+          SELECT
+            ENDPOINT.ENDPOINT_IDENTIFIER
+          FROM
+            ENDPOINT
+          INNER JOIN
+            ENDPOINT_TYPE
+          ON
+            ENDPOINT.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+          INNER JOIN
+            ENDPOINT_TYPE_COMMAND
+          ON
+            ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+          WHERE
+            ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_COMMAND_ID = new.ENDPOINT_TYPE_COMMAND_ID
+        )
+        ||
+        "%, cluster: "
+        || 
+        (
+          SELECT
+            CLUSTER.NAME || " " || ENDPOINT_TYPE_CLUSTER.SIDE
+          FROM
+            CLUSTER
+          INNER JOIN 
+            COMMAND
+          ON
+            COMMAND.CLUSTER_REF = CLUSTER.CLUSTER_ID
+          INNER JOIN
+            ENDPOINT_TYPE_COMMAND
+          ON
+            ENDPOINT_TYPE_COMMAND.COMMAND_REF = COMMAND.COMMAND_ID
+          INNER JOIN
+            ENDPOINT_TYPE_CLUSTER
+          ON
+            ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_CLUSTER_REF = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
+          WHERE
+            ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_COMMAND_ID = new.ENDPOINT_TYPE_COMMAND_ID AND
+            ENDPOINT_TYPE_COMMAND.IS_INCOMING = new.IS_INCOMING
+        )
+        ||
+        ", mandatory command: "
+        || 
+        (
+          SELECT
+            COMMAND.NAME || " " || CASE WHEN ENDPOINT_TYPE_COMMAND.IS_INCOMING THEN "incoming" ELSE "outgoing" END
+          FROM
+            COMMAND
+          INNER JOIN
+            ENDPOINT_TYPE_COMMAND
+          ON
+            ENDPOINT_TYPE_COMMAND.COMMAND_REF = COMMAND.COMMAND_ID
+          WHERE
+            ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_COMMAND_ID = new.ENDPOINT_TYPE_COMMAND_ID AND
+            ENDPOINT_TYPE_COMMAND.IS_INCOMING = new.IS_INCOMING
+        )
+        ||
+        " needs to be enabled"
+      );
+END;
+
 /*
  ENDPOINT_TYPE_EVENT table contains the user data configuration for the various parameters that exist
  for events on an endpoint. This essentially lets you determine if something should be included or not.
@@ -1207,6 +2872,59 @@ CREATE TABLE IF NOT EXISTS "SESSION_NOTICE" (
   "SEEN" integer,
   foreign key (SESSION_REF) references SESSION(SESSION_ID) on delete cascade
 );
+/*
+Trigger to prevent any null message entries into the session notice table during endpoint creation.
+*/
+CREATE TRIGGER
+  DELETE_SESSION_NOTICE_ON_NULL
+AFTER INSERT ON
+  SESSION_NOTICE
+WHEN
+  NEW.NOTICE_MESSAGE IS NULL
+BEGIN
+  DELETE FROM SESSION_NOTICE WHERE NOTICE_ID = new.NOTICE_ID;
+END;
+
+/*
+Trigger to set new notification flag in session table when there is a new
+notification in the session notice table that has not been seen.
+*/
+CREATE TRIGGER
+  INSERT_SESSION_NOTICE_TRIGGER
+AFTER INSERT ON
+  SESSION_NOTICE
+WHEN
+  (SELECT
+    COUNT()
+  FROM
+    SESSION_NOTICE
+  WHERE
+    SESSION_REF = new.SESSION_REF
+    AND SEEN = 0) > 0
+BEGIN
+  UPDATE SESSION SET NEW_NOTIFICATION = 1 WHERE SESSION_ID = new.SESSION_REF;
+END;
+
+/*
+Trigger to set new notification flag in session table when session
+notifications are removed but there are unseen session notifications.
+*/
+CREATE TRIGGER
+  DELETE_SESSION_NOTICE_TRIGGER
+AFTER DELETE ON
+  SESSION_NOTICE
+WHEN
+  (SELECT
+    COUNT()
+  FROM
+    SESSION_NOTICE
+  WHERE
+    SESSION_REF = old.SESSION_REF
+    AND SEEN = 0) > 0
+BEGIN
+  UPDATE SESSION SET NEW_NOTIFICATION = 1 WHERE SESSION_ID = old.SESSION_REF;
+END;
+
 /*
  Package Notification table
  */

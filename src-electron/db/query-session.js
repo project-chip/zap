@@ -115,6 +115,23 @@ async function setSessionClean(db, sessionId) {
     [0, sessionId]
   )
 }
+
+/**
+ * Sets the session new notification flag to false.
+ *
+ * @export
+ * @param {*} db
+ * @param {*} sessionId
+ * @returns A promise that resolves the new notification in the session table.
+ */
+async function setSessionNewNotificationClean(db, sessionId) {
+  return dbApi.dbUpdate(
+    db,
+    'UPDATE SESSION SET NEW_NOTIFICATION = ? WHERE SESSION_ID = ?',
+    [0, sessionId]
+  )
+}
+
 /**
  * Resolves with true or false, depending whether this session is dirty.
  *
@@ -147,7 +164,7 @@ async function getSessionFromSessionId(db, sessionId) {
   return dbApi
     .dbGet(
       db,
-      'SELECT SESSION_ID, SESSION_KEY, CREATION_TIME FROM SESSION WHERE SESSION_ID = ?',
+      'SELECT SESSION_ID, SESSION_KEY, CREATION_TIME, NEW_NOTIFICATION FROM SESSION WHERE SESSION_ID = ?',
       [sessionId]
     )
     .then(dbMapping.map.session)
@@ -573,3 +590,4 @@ exports.ensureUser = ensureUser
 exports.getUserSessionsById = getUserSessionsById
 exports.getUsers = getUsers
 exports.getUsersSessions = getUsersSessions
+exports.setSessionNewNotificationClean = setSessionNewNotificationClean

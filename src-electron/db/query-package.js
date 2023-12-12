@@ -534,7 +534,6 @@ WHERE
 /**
  * Returns all packages associated w/ a given sessionId
  * @param {*} db
- * @param {*} packageId
  * @param {*} sessionId
  */
 async function getPackageSessionPackagePairBySessionId(db, sessionId) {
