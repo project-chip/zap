@@ -175,7 +175,11 @@ async function exportDataIntoFile(
   }
   state = ff.convertToFile(state)
 
-  if (options.removeLog) delete state.log
+  if (options.removeLog) {
+    delete state.log
+  } else if (state.log != null && state.log.length == 0) {
+    delete state.log
+  }
 
   if (fs.existsSync(filePath)) {
     fs.copyFileSync(filePath, filePath + '~')
