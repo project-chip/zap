@@ -46,6 +46,7 @@ async function selectClusterBitmaps(db, packageId, clusterId) {
 SELECT
   B.BITMAP_ID,
   DT.NAME,
+  (SELECT COUNT(1) FROM DATA_TYPE_CLUSTER WHERE DATA_TYPE_CLUSTER.DATA_TYPE_REF = B.BITMAP_ID) AS BITMAP_CLUSTER_COUNT,
   B.SIZE
 FROM
   BITMAP AS B
@@ -230,9 +231,9 @@ ORDER BY C.CODE
 }
 
 /**
- * Returns an array of clusters that enum belongs to.
+ * Returns an array of clusters that bitmap belongs to.
  * @param {*} db
- * @param {*} enumId
+ * @param {*} bitmapId
  * @returns clusters
  */
 async function selectBitmapClusters(db, bitmapId) {

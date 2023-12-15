@@ -61,6 +61,12 @@ async function zcl_bitmaps(options) {
       )
     ).then((x) => x.flat())
   }
+  ens.forEach((en) => {
+    en.has_no_clusters = en.bitmapClusterCount < 1
+    en.has_one_cluster = en.bitmapClusterCount == 1
+    en.has_more_than_one_cluster =
+      en.bitmapClusterCount > 1 && en.name != 'Feature' // The various flavors of Feature bitmaps get reused everywhere, but can't be shared
+  })
   let promise = templateUtil.collectBlocks(ens, options, this)
   return templateUtil.templatePromise(this.global, promise)
 }
@@ -102,6 +108,11 @@ async function zcl_enums(options) {
       )
     ).then((x) => x.flat())
   }
+  ens.forEach((en) => {
+    en.has_no_clusters = en.enumClusterCount < 1
+    en.has_one_cluster = en.enumClusterCount == 1
+    en.has_more_than_one_cluster = en.enumClusterCount > 1
+  })
   let promise = templateUtil.collectBlocks(ens, options, this)
   return templateUtil.templatePromise(this.global, promise)
 }
@@ -2713,9 +2724,9 @@ async function as_zcl_type_size(type, options) {
 
 /**
  * An if helper for comparisons
- * @param {*} leftValue 
- * @param {*} rightValue 
- * @param {*} options 
+ * @param {*} leftValue
+ * @param {*} rightValue
+ * @param {*} options
  * @returns Promise of content
  * example: checking if (4 < 5)
  * (if_compare 4 5 operator='<')
