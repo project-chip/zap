@@ -6,7 +6,7 @@
 [![Zigbee code regeneration](https://github.com/project-chip/zap/actions/workflows/zigbee.yml/badge.svg)](https://github.com/project-chip/zap/actions/workflows/zigbee.yml)
 [![Matter code regeneration](https://github.com/project-chip/zap/actions/workflows/matter.yml/badge.svg)](https://github.com/project-chip/zap/actions/workflows/matter.yml)
 
-## What is ZAP?
+## [What is ZAP?](https://docs.silabs.com/zap-tool/1.0.0/zap-start/)
 
 ZAP is a generic generation engine and user interface for applications and libraries based on Zigbee Cluster Library, the specification developed by the [Connectivity Standards Alliance](https://csa-iot.org/).
 
@@ -20,20 +20,7 @@ ZAP is a generic templating engine. Examples are provided for how to generate ar
 
 ## Quick setup
 
-### Node Version
-
-- Node LTS: 18.16.0
-
-### Prebuilt binaries
-
-On the [release page](https://github.com/project-chip/zap/releases), there are two flavors of prebuilt binaries.
-
-- Official release:
-  Verified builds with dedicated Zigbee test suites.
-  The release name format is `vYYYY.DD.MM`
-- Pre-release:
-  Builds with the latest features and are NOT verified with dedicated Zigbee test suites.
-  The release name format is `vYYYY.DD.MM-nightly`
+Refer to [Setup Instructions](https://docs.silabs.com/zap-tool/1.0.0/zap-getting-started/zap-installation)
 
 ### Source code
 
@@ -43,7 +30,12 @@ Refer to [development instructions](docs/development-instructions.md) for more d
 
 This software is licensed under [Apache 2.0 license](LICENSE.txt).
 
-## Detailed Documentation
+## Usage Documentation
+
+- [ZAP Fundamentals](https://docs.silabs.com/zap-tool/1.0.0/zap-fundamentals/)
+- [ZAP User's Guide](https://docs.silabs.com/zap-tool/1.0.0/zap-users-guide/)
+
+## Detailed Developer Documentation
 
 - [FAQ](docs/faq.md)
 - [Release instructions](docs/release.md)
@@ -51,9 +43,6 @@ This software is licensed under [Apache 2.0 license](LICENSE.txt).
 - [Design](docs/design.md)
 - [Template tutorial](docs/template-tutorial.md)
 - [SDK integration guideline](docs/sdk-integration.md)
-- [Access control features](docs/access.md)
 - [Custom ZCL entities design](docs/custom-zcl.md)
 - [API](docs/api.md)
 - [Coding standard](docs/coding-standard.md)
-- [Notifications](docs/notifications.md)
-- [Install ZAP from source on Windows](docs/ZAP-on-Windows.md)
