@@ -156,6 +156,40 @@ test(
     let allClusters = await testQuery.getAllSessionClusters(db, sid)
     let descriptorCluster = allClusters.find((c) => c.code === 0x001d) // Finding the descriptor cluster by code
     let identifyCluster = allClusters.find((c) => c.code === 0x0003) // Finding the identify cluster by code
+    let onOffCluster = allClusters.find((c) => c.code === 0x0006) // Find the on/off cluster by code
+
+    // Negative test: Adding on/off cluster to endpoint 0 and then disabling it.
+    // Note that on/off cluster is not a required cluster based on the device types
+    // enabled on endpoint 0 so there should be no additional session warnings when
+    // enabling or disabling the on/off cluster.
+    let sessionNotificationCountBeforeOnOffEnabled = sessionNotifications.length
+    // Enable on off server cluster
+    await queryConfig.insertOrReplaceClusterState(
+      db,
+      endpoint0.endpointTypeId,
+      onOffCluster.id,
+      'SERVER',
+      true
+    )
+    sessionNotifications = await testQuery.getAllSessionNotifications(db, sid)
+    let sessionNotificationCountAfterOnOffEnabled = sessionNotifications.length
+    expect(sessionNotificationCountBeforeOnOffEnabled).toEqual(
+      sessionNotificationCountAfterOnOffEnabled
+    )
+
+    // Disable on off server cluster
+    await queryConfig.insertOrReplaceClusterState(
+      db,
+      endpoint0.endpointTypeId,
+      onOffCluster.id,
+      'SERVER',
+      false
+    )
+    sessionNotifications = await testQuery.getAllSessionNotifications(db, sid)
+    let sessionNotificationCountAfterOnOffDisabled = sessionNotifications.length
+    expect(sessionNotificationCountBeforeOnOffEnabled).toEqual(
+      sessionNotificationCountAfterOnOffDisabled
+    )
 
     // Insert the descriptor cluster and check for session notice warnings again
     await queryConfig.insertOrReplaceClusterState(
