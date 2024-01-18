@@ -103,7 +103,7 @@ limitations under the License.
                 ]
               "
               :disable="
-                isDisabled(
+                isDisabledStorage(
                   props.row.id,
                   props.row.label,
                   selectedCluster.id,
@@ -279,22 +279,29 @@ export default {
         return false
       }
     },
+    //disabling default field if Storage is External
     isDisabledDefault(id, name, selectedClusterId) {
       return (
         !this.selection.includes(
           this.hashAttributeIdClusterId(id, selectedClusterId)
         ) ||
-        this.checkForcedExternal(name) ||
         this.selectionStorageOption[
           this.hashAttributeIdClusterId(id, selectedClusterId)
         ] == 'External'
       )
     },
-    isDisabled(id, name, selectedClusterId) {
+    //disabling Storage if forced External
+    isDisabledStorage(id, name, selectedClusterId) {
       return (
         !this.selection.includes(
           this.hashAttributeIdClusterId(id, selectedClusterId)
         ) || this.checkForcedExternal(name)
+      )
+    },
+    //disable if attribute is not enabled
+    isDisabled(id, selectedClusterId) {
+      return !this.selection.includes(
+        this.hashAttributeIdClusterId(id, selectedClusterId)
       )
     },
     defaultValueCheck(id, name, selectedClusterId) {
