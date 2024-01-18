@@ -197,9 +197,12 @@ limitations under the License.
                 )
               "
               :model-value="
-                selectionDefault[
-                  hashAttributeIdClusterId(props.row.id, selectedCluster.id)
-                ]
+                defaultValueCheck(
+                  props.row.id,
+                  props.row.label,
+                  selectedCluster.id,
+                  selectedCluster.label
+                )
               "
               :error="
                 !isDefaultValueValid(
@@ -276,7 +279,7 @@ export default {
         return false
       }
     },
-    isDisabledDefault(id, name, selectedClusterId, selectedCluster) {
+    isDisabledDefault(id, name, selectedClusterId) {
       return (
         !this.selection.includes(
           this.hashAttributeIdClusterId(id, selectedClusterId)
@@ -287,12 +290,21 @@ export default {
         ] == 'External'
       )
     },
-    isDisabled(id, name, selectedClusterId, selectedCluster) {
+    isDisabled(id, name, selectedClusterId) {
       return (
         !this.selection.includes(
           this.hashAttributeIdClusterId(id, selectedClusterId)
         ) || this.checkForcedExternal(name)
       )
+    },
+    defaultValueCheck(id, name, selectedClusterId) {
+      if (this.isDisabledDefault(id, name, selectedClusterId)) {
+        return null
+      } else {
+        return this.selectionDefault[
+          this.hashAttributeIdClusterId(id, selectedClusterId)
+        ]
+      }
     },
     setToNull(row, selectedClusterId) {
       this.handleLocalChange(null, 'defaultValue', row, selectedClusterId)
