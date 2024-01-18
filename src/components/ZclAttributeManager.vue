@@ -279,7 +279,7 @@ export default {
         return false
       }
     },
-    //disabling default field if Storage is External
+    //disabling default field if Storage is External AND if attribute is not enabled
     isDisabledDefault(id, name, selectedClusterId) {
       return (
         !this.selection.includes(
@@ -290,7 +290,7 @@ export default {
         ] == 'External'
       )
     },
-    //disabling Storage if forced External
+    //disabling Storage if forced External AND if attribute is not enabled
     isDisabledStorage(id, name, selectedClusterId) {
       return (
         !this.selection.includes(
@@ -298,7 +298,7 @@ export default {
         ) || this.checkForcedExternal(name)
       )
     },
-    //disable if attribute is not enabled
+    //disabling if attribute is not enabled
     isDisabled(id, selectedClusterId) {
       return !this.selection.includes(
         this.hashAttributeIdClusterId(id, selectedClusterId)
