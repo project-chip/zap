@@ -189,7 +189,7 @@ limitations under the License.
                   : ''
               "
               :disable="
-                isDisabled(
+                isDisabledDefault(
                   props.row.id,
                   props.row.label,
                   selectedCluster.id,
@@ -275,6 +275,17 @@ export default {
       } else {
         return false
       }
+    },
+    isDisabledDefault(id, name, selectedClusterId, selectedCluster) {
+      return (
+        !this.selection.includes(
+          this.hashAttributeIdClusterId(id, selectedClusterId)
+        ) ||
+        this.checkForcedExternal(name) ||
+        this.selectionStorageOption[
+          this.hashAttributeIdClusterId(id, selectedClusterId)
+        ] == 'External'
+      )
     },
     isDisabled(id, name, selectedClusterId, selectedCluster) {
       return (
