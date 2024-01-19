@@ -241,6 +241,7 @@ export default {
   name: 'ZclAttributeManager',
   mixins: [EditableAttributeMixin],
   methods: {
+    //retrieve list of cluster and attribute pairs that should be forced External Storage
     loadForcedExternal(packages) {
       if (packages) {
         this.$serverPost(restApi.uri.forcedExternal, packages).then((resp) => {
@@ -248,6 +249,7 @@ export default {
         })
       }
     },
+    //check if cluster and attribute pairing should be forced External Storage
     checkForcedExternal(name) {
       if (
         this.forcedExternal.byName?.[this.selectedCluster.label]?.includes(name)
