@@ -178,8 +178,7 @@ limitations under the License.
                 defaultValueCheck(
                   props.row.id,
                   props.row.label,
-                  selectedCluster.id,
-                  selectedCluster.label
+                  selectedCluster.id
                 )
               "
               :error="
