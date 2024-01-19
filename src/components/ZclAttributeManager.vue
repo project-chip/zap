@@ -103,11 +103,10 @@ limitations under the License.
                 ]
               "
               :disable="
-                isDisabled(
+                isDisabledStorage(
                   props.row.id,
                   props.row.label,
-                  selectedCluster.id,
-                  selectedCluster.label
+                  selectedCluster.id
                 )
               "
               class="col"
@@ -130,14 +129,7 @@ limitations under the License.
               :model-value="selectionSingleton"
               :val="hashAttributeIdClusterId(props.row.id, selectedCluster.id)"
               indeterminate-value="false"
-              :disable="
-                isDisabled(
-                  props.row.id,
-                  props.row.label,
-                  selectedCluster.id,
-                  selectedCluster.label
-                )
-              "
+              :disable="isDisabled(props.row.id, selectedCluster.id)"
               @update:model-value="
                 handleLocalSelection(
                   $event,
@@ -154,14 +146,7 @@ limitations under the License.
               :model-value="selectionBounded"
               :val="hashAttributeIdClusterId(props.row.id, selectedCluster.id)"
               indeterminate-value="false"
-              :disable="
-                isDisabled(
-                  props.row.id,
-                  props.row.label,
-                  selectedCluster.id,
-                  selectedCluster.label
-                )
-              "
+              :disable="isDisabled(props.row.id, selectedCluster.id)"
               @update:model-value="
                 handleLocalSelection(
                   $event,
@@ -188,18 +173,13 @@ limitations under the License.
                   ? 'grey'
                   : ''
               "
-              :disable="
-                isDisabled(
+              :disable="isDisabledDefault(props.row.id, selectedCluster.id)"
+              :model-value="
+                defaultValueCheck(
                   props.row.id,
                   props.row.label,
-                  selectedCluster.id,
-                  selectedCluster.label
+                  selectedCluster.id
                 )
-              "
-              :model-value="
-                selectionDefault[
-                  hashAttributeIdClusterId(props.row.id, selectedCluster.id)
-                ]
               "
               :error="
                 !isDefaultValueValid(
@@ -260,6 +240,7 @@ export default {
   name: 'ZclAttributeManager',
   mixins: [EditableAttributeMixin],
   methods: {
+    //retrieve list of cluster and attribute pairs that should be forced External Storage
     loadForcedExternal(packages) {
       if (packages) {
         this.$serverPost(restApi.uri.forcedExternal, packages).then((resp) => {
@@ -267,6 +248,7 @@ export default {
         })
       }
     },
+    //return true if cluster and attribute pairing should be forced External Storage
     checkForcedExternal(name) {
       if (
         this.forcedExternal.byName?.[this.selectedCluster.label]?.includes(name)
@@ -276,12 +258,40 @@ export default {
         return false
       }
     },
-    isDisabled(id, name, selectedClusterId, selectedCluster) {
+    //return true and disable default field if Storage is External AND if attribute is not enabled
+    isDisabledDefault(id, selectedClusterId) {
+      return (
+        !this.selection.includes(
+          this.hashAttributeIdClusterId(id, selectedClusterId)
+        ) ||
+        this.selectionStorageOption[
+          this.hashAttributeIdClusterId(id, selectedClusterId)
+        ] == 'External'
+      )
+    },
+    //return true and disable Storage if forced External AND if attribute is not enabled
+    isDisabledStorage(id, name, selectedClusterId) {
       return (
         !this.selection.includes(
           this.hashAttributeIdClusterId(id, selectedClusterId)
         ) || this.checkForcedExternal(name)
       )
+    },
+    //return true and disable if attribute is not enabled
+    isDisabled(id, selectedClusterId) {
+      return !this.selection.includes(
+        this.hashAttributeIdClusterId(id, selectedClusterId)
+      )
+    },
+    //if disabled return null to be set as the default value
+    defaultValueCheck(id, name, selectedClusterId) {
+      if (this.isDisabledDefault(id, name, selectedClusterId)) {
+        return null
+      } else {
+        return this.selectionDefault[
+          this.hashAttributeIdClusterId(id, selectedClusterId)
+        ]
+      }
     },
     setToNull(row, selectedClusterId) {
       this.handleLocalChange(null, 'defaultValue', row, selectedClusterId)
