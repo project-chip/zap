@@ -106,8 +106,7 @@ limitations under the License.
                 isDisabledStorage(
                   props.row.id,
                   props.row.label,
-                  selectedCluster.id,
-                  selectedCluster.label
+                  selectedCluster.id
                 )
               "
               class="col"
@@ -130,14 +129,7 @@ limitations under the License.
               :model-value="selectionSingleton"
               :val="hashAttributeIdClusterId(props.row.id, selectedCluster.id)"
               indeterminate-value="false"
-              :disable="
-                isDisabled(
-                  props.row.id,
-                  props.row.label,
-                  selectedCluster.id,
-                  selectedCluster.label
-                )
-              "
+              :disable="isDisabled(props.row.id, selectedCluster.id)"
               @update:model-value="
                 handleLocalSelection(
                   $event,
@@ -154,14 +146,7 @@ limitations under the License.
               :model-value="selectionBounded"
               :val="hashAttributeIdClusterId(props.row.id, selectedCluster.id)"
               indeterminate-value="false"
-              :disable="
-                isDisabled(
-                  props.row.id,
-                  props.row.label,
-                  selectedCluster.id,
-                  selectedCluster.label
-                )
-              "
+              :disable="isDisabled(props.row.id, selectedCluster.id)"
               @update:model-value="
                 handleLocalSelection(
                   $event,
@@ -188,14 +173,7 @@ limitations under the License.
                   ? 'grey'
                   : ''
               "
-              :disable="
-                isDisabledDefault(
-                  props.row.id,
-                  props.row.label,
-                  selectedCluster.id,
-                  selectedCluster.label
-                )
-              "
+              :disable="isDisabledDefault(props.row.id, selectedCluster.id)"
               :model-value="
                 defaultValueCheck(
                   props.row.id,
@@ -280,7 +258,7 @@ export default {
       }
     },
     //disabling default field if Storage is External AND if attribute is not enabled
-    isDisabledDefault(id, name, selectedClusterId) {
+    isDisabledDefault(id, selectedClusterId) {
       return (
         !this.selection.includes(
           this.hashAttributeIdClusterId(id, selectedClusterId)
@@ -304,6 +282,7 @@ export default {
         this.hashAttributeIdClusterId(id, selectedClusterId)
       )
     },
+    //if disabled set null
     defaultValueCheck(id, name, selectedClusterId) {
       if (this.isDisabledDefault(id, name, selectedClusterId)) {
         return null
