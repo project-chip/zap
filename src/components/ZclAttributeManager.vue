@@ -248,7 +248,7 @@ export default {
         })
       }
     },
-    //check if cluster and attribute pairing should be forced External Storage
+    //return true if cluster and attribute pairing should be forced External Storage
     checkForcedExternal(name) {
       if (
         this.forcedExternal.byName?.[this.selectedCluster.label]?.includes(name)
@@ -258,7 +258,7 @@ export default {
         return false
       }
     },
-    //disabling default field if Storage is External AND if attribute is not enabled
+    //return true and disable default field if Storage is External AND if attribute is not enabled
     isDisabledDefault(id, selectedClusterId) {
       return (
         !this.selection.includes(
@@ -269,7 +269,7 @@ export default {
         ] == 'External'
       )
     },
-    //disabling Storage if forced External AND if attribute is not enabled
+    //return true and disable Storage if forced External AND if attribute is not enabled
     isDisabledStorage(id, name, selectedClusterId) {
       return (
         !this.selection.includes(
@@ -277,13 +277,13 @@ export default {
         ) || this.checkForcedExternal(name)
       )
     },
-    //disabling if attribute is not enabled
+    //return true and disable if attribute is not enabled
     isDisabled(id, selectedClusterId) {
       return !this.selection.includes(
         this.hashAttributeIdClusterId(id, selectedClusterId)
       )
     },
-    //if disabled set null
+    //if disabled return null to be set as the default value
     defaultValueCheck(id, name, selectedClusterId) {
       if (this.isDisabledDefault(id, name, selectedClusterId)) {
         return null
