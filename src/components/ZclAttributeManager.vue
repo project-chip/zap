@@ -174,13 +174,7 @@ limitations under the License.
                   : ''
               "
               :disable="isDisabledDefault(props.row.id, selectedCluster.id)"
-              :model-value="
-                defaultValueCheck(
-                  props.row.id,
-                  props.row.label,
-                  selectedCluster.id
-                )
-              "
+              :model-value="defaultValueCheck(props.row.id, selectedCluster.id)"
               :error="
                 !isDefaultValueValid(
                   hashAttributeIdClusterId(props.row.id, selectedCluster.id)
@@ -284,8 +278,9 @@ export default {
       )
     },
     //if disabled return null to be set as the default value
-    defaultValueCheck(id, name, selectedClusterId) {
-      if (this.isDisabledDefault(id, name, selectedClusterId)) {
+    defaultValueCheck(id, selectedClusterId) {
+      if (this.isDisabledDefault(id, selectedClusterId)) {
+        setToNull(id, selectedClusterId)
         return null
       } else {
         return this.selectionDefault[
