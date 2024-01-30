@@ -265,7 +265,7 @@ export default {
       shownEndpoint: {
         endpointIdentifier: 1,
         profileIdentifier: null,
-        parentReference: 0,
+        parentReference: null,
         networkIdentifier: 0,
         deviceVersion: 1,
       },
