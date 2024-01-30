@@ -145,6 +145,9 @@ export function initializeDefaultEndpoints(state, defaultEndpoints) {
     if (state.endpointView.networkId[endpoint.id] === undefined) {
       vue3Set(state.endpointView.networkId, endpoint.id, endpoint.networkId)
     }
+    if (state.endpointView.parentRef[endpoint.id] === undefined) {
+      vue3Set(state.endpointView.parentRef, endpoint.id, endpoint.parentRef)
+    }
 
     if (state.endpointView.profileId[endpoint.id] === undefined) {
       vue3Set(state.endpointView.profileId, endpoint.id, endpoint.profileId)
@@ -160,6 +163,7 @@ export function addEndpoint(state, endpoint) {
     endpoint.endpointTypeRef
   )
   vue3Set(state.endpointView.networkId, endpoint.id, endpoint.networkId)
+  vue3Set(state.endpointView.parentRef, endpoint.id, endpoint.parentRef)
   vue3Set(state.endpointView.profileId, endpoint.id, endpoint.profileId)
   vue3Set(
     state.endpointView.endpointIdValidationIssues,
@@ -318,6 +322,7 @@ export function deleteEndpoint(state, endpoint) {
   vue3Delete(state.endpointView.endpointId, endpoint.id)
   vue3Delete(state.endpointView.endpointType, endpoint.id)
   vue3Delete(state.endpointView.networkId, endpoint.id)
+  vue3Delete(state.endpointView.parentRef, endpoint.id)
 }
 
 export function setClusterList(state, data) {
@@ -631,10 +636,17 @@ export function updateIsClusterOptionChanged(state, value) {
 export function updateNotificationCount(state, value) {
   state.notificationCount = value
 }
+// Thie function will update the notification count after backend updates from websocket
+export function updateParentRef(state, value) {
+  state.parentRef = value
+}
 
 export function setDirtyState(state, isDirty) {
   if (state.isDirty != isDirty) {
-    state.isDirty = isDirty;
-    window.parent?.postMessage({eventId: 'dirty', eventData: { isDirty: isDirty }}, '*')
+    state.isDirty = isDirty
+    window.parent?.postMessage(
+      { eventId: 'dirty', eventData: { isDirty: isDirty } },
+      '*'
+    )
   }
-} 
+}

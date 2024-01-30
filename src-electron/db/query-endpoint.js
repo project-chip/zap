@@ -353,7 +353,8 @@ async function insertEndpoint(
   endpointIdentifier,
   endpointTypeRef,
   networkIdentifier,
-  profileIdentifier
+  profileIdentifier,
+  parentRef
 ) {
   return dbApi.dbInsert(
     db,
@@ -364,14 +365,16 @@ INTO ENDPOINT (
   ENDPOINT_IDENTIFIER,
   ENDPOINT_TYPE_REF,
   NETWORK_IDENTIFIER,
-  PROFILE
-) VALUES ( ?, ?, ?, ?, ?)`,
+  PROFILE,
+  PARENT
+) VALUES ( ?, ?, ?, ?, ?, ?)`,
     [
       sessionId,
       endpointIdentifier,
       endpointTypeRef,
       networkIdentifier,
       profileIdentifier,
+      parentRef,
     ]
   )
 }
@@ -383,7 +386,13 @@ INTO ENDPOINT (
  * @param {*} endpointIdentifier
  * @returns Promise to duplicate an endpoint.
  */
-async function duplicateEndpoint(db, id, endpointIdentifier, endpointTypeId) {
+async function duplicateEndpoint(
+  db,
+  id,
+  endpointIdentifier,
+  endpointTypeId,
+  parentRef
+) {
   return dbApi.dbInsert(
     db,
     `

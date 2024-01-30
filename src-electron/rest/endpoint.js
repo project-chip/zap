@@ -70,8 +70,14 @@ function httpDeleteEndpointType(db) {
  */
 function httpPostEndpoint(db) {
   return async (request, response) => {
-    let { endpointId, networkId, profileId, endpointType, deviceIdentifier } =
-      request.body
+    let {
+      endpointId,
+      networkId,
+      profileId,
+      endpointType,
+      deviceIdentifier,
+      parentRef,
+    } = request.body
     let sessionId = request.zapSessionId
     let newId = await queryEndpoint.insertEndpoint(
       db,
@@ -80,7 +86,7 @@ function httpPostEndpoint(db) {
       endpointType,
       networkId,
       profileId,
-      deviceIdentifier
+      parentRef
     )
     try {
       let validationData = await validation.validateEndpoint(db, newId)
@@ -90,6 +96,7 @@ function httpPostEndpoint(db) {
         endpointId: endpointId,
         endpointType: endpointType,
         networkId: networkId,
+        parentRef: parentRef,
         deviceId: deviceIdentifier,
         profileId: profileId,
         validationIssues: validationData,
