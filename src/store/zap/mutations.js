@@ -646,10 +646,6 @@ export function updateIsClusterOptionChanged(state, value) {
 export function updateNotificationCount(state, value) {
   state.notificationCount = value
 }
-// Thie function will update the notification count after backend updates from websocket
-export function updateParentRef(state, value) {
-  state.parentEndpointIdentifier = value
-}
 
 export function setDirtyState(state, isDirty) {
   if (state.isDirty != isDirty) {
