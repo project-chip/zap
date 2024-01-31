@@ -25,6 +25,7 @@ const queryEndpoint = require('../db/query-endpoint.js')
 const queryConfig = require('../db/query-config.js')
 const validation = require('../validation/validation.js')
 const restApi = require('../../src-shared/rest-api.js')
+const notification = require('../db/query-session-notification.js')
 const { StatusCodes } = require('http-status-codes')
 
 /**
@@ -95,6 +96,14 @@ function httpPostEndpoint(db) {
     )
     if (parentEndpointRef == null) {
       parentRef = null
+      notification.setNotification(
+        db,
+        'ERROR',
+        'Could not set Parent Endpoint because no Endpoint was found',
+        sessionId,
+        1,
+        1
+      )
     }
     try {
       let validationData = await validation.validateEndpoint(db, newId)
