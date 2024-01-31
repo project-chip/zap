@@ -164,10 +164,10 @@ limitations under the License.
             </div>
           </q-item>
           <q-item class="row">
-            <div class="col-6">
+            <div class="col-6" v-if="enableParentEndpoint">
               <strong>Parent Endpoint</strong>
             </div>
-            <div class="col-6">
+            <div class="col-6" v-if="enableParentEndpoint">
               <strong>{{ parentEndpointIdentifier[endpointReference] }}</strong>
             </div>
           </q-item>
@@ -551,6 +551,10 @@ export default {
       this.selectedAttributes = []
       this.selectedReporting = []
       this.getEndpointCardData()
+      const enableMatterFeatures =
+        this.$store.state.zap.selectedZapConfig?.zclProperties?.category ===
+        'matter'
+      this.enableParentEndpoint = enableMatterFeatures
     }
   },
 }
