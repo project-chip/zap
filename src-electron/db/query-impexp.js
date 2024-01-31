@@ -84,7 +84,7 @@ async function exportEndpoints(db, sessionId, endpointTypes) {
       profileId: x.PROFILE,
       endpointId: x.ENDPOINT_IDENTIFIER,
       networkId: x.NETWORK_IDENTIFIER,
-      parentRef: x.PARENT,
+      parentRef: x.PARENT_ENDPOINT_REF,
     }
   }
   return dbApi
