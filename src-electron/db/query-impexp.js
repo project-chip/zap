@@ -31,7 +31,13 @@ const queryUpgrade = require('../matter/matter.js')
  * @param {*} endpoint
  * @param {*} endpointTypeRef
  */
-async function importEndpoint(db, sessionId, endpoint, endpointTypeRef) {
+async function importEndpoint(
+  db,
+  sessionId,
+  endpoint,
+  endpointTypeRef,
+  parentRef
+) {
   return dbApi.dbInsert(
     db,
     `
@@ -41,8 +47,10 @@ INSERT INTO ENDPOINT (
   PROFILE,
   ENDPOINT_IDENTIFIER,
   NETWORK_IDENTIFIER,
-  PARENT_ENDPOINT_REF
+  PARENT_ENDPOINT_REF,
+  PARENT_ENDPOINT_IDENTIFIER
 ) VALUES (
+  ?,
   ?,
   ?,
   ?,
@@ -57,7 +65,8 @@ INSERT INTO ENDPOINT (
       endpoint.profileId,
       endpoint.endpointId,
       endpoint.networkId,
-      endpoint.parent,
+      parentRef,
+      endpoint.parentEndpointIdentifier,
     ]
   )
 }
@@ -85,6 +94,7 @@ async function exportEndpoints(db, sessionId, endpointTypes) {
       endpointId: x.ENDPOINT_IDENTIFIER,
       networkId: x.NETWORK_IDENTIFIER,
       parentRef: x.PARENT_ENDPOINT_REF,
+      parentEndpointIdentifier: x.PARENT_ENDPOINT_IDENTIFIER,
     }
   }
   return dbApi
@@ -97,7 +107,8 @@ SELECT
   E.PROFILE,
   E.ENDPOINT_IDENTIFIER,
   E.NETWORK_IDENTIFIER,
-  E.PARENT_ENDPOINT_REF
+  E.PARENT_ENDPOINT_REF,
+  E.PARENT_ENDPOINT_IDENTIFIER
 FROM
   ENDPOINT AS E
 LEFT JOIN

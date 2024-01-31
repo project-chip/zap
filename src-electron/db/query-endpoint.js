@@ -348,6 +348,19 @@ async function getParentEndpointRef(db, parentRef, sessionId) {
   }
 }
 
+async function getParentEndpointIdentifier(db, parentEndpointRef, sessionId) {
+  let parentEndpointIdentifier = await dbApi.dbAll(
+    db,
+    'SELECT ENDPOINT_IDENTIFIER FROM ENDPOINT WHERE ENDPOINT_ID = ? AND SESSION_REF = ?',
+    [parentRef, sessionId]
+  )
+  if (parentEndpointIdentifier[0]) {
+    return parentEndpointIdentifier[0].ENDPOINT_ID
+  } else {
+    return null
+  }
+}
+
 /**
  * Promises to add an endpoint.
  *
@@ -367,7 +380,8 @@ async function insertEndpoint(
   endpointTypeRef,
   networkIdentifier,
   profileIdentifier,
-  parentRef
+  parentRef,
+  parentEndpointIdentifier
 ) {
   return dbApi.dbInsert(
     db,
@@ -379,8 +393,9 @@ INTO ENDPOINT (
   ENDPOINT_TYPE_REF,
   NETWORK_IDENTIFIER,
   PROFILE,
-  PARENT_ENDPOINT_REF
-) VALUES ( ?, ?, ?, ?, ?, ?)`,
+  PARENT_ENDPOINT_REF,
+  PARENT_ENDPOINT_IDENTIFIER
+) VALUES ( ?, ?, ?, ?, ?, ?, ?)`,
     [
       sessionId,
       endpointIdentifier,
@@ -388,6 +403,7 @@ INTO ENDPOINT (
       networkIdentifier,
       profileIdentifier,
       parentRef,
+      parentEndpointIdentifier,
     ]
   )
 }
@@ -471,3 +487,4 @@ exports.selectEndpoint = selectEndpoint
 exports.duplicateEndpoint = duplicateEndpoint
 exports.selectAllEndpoints = selectAllEndpoints
 exports.getParentEndpointRef = getParentEndpointRef
+exports.getParentEndpointIdentifier = getParentEndpointIdentifier

@@ -21,6 +21,7 @@ const env = require('../util/env')
 const queryPackage = require('../db/query-package.js')
 const queryImpexp = require('../db/query-impexp.js')
 const querySession = require('../db/query-session.js')
+const queryEndpoint = require('../db/query-endpoint.js')
 const queryZcl = require('../db/query-zcl.js')
 const querySessionNotice = require('../db/query-session-notification.js')
 const queryDeviceType = require('../db/query-device-type.js')
@@ -1170,14 +1171,22 @@ async function importEndpointTypes(
         endpointTypes[i]
       )
       let endpointId = ''
+      let parentRef
       if (sortedEndpoints[i]) {
         for (let j = 0; j < sortedEndpoints[i].length; j++) {
           endpointId = sortedEndpoints[i][j].endpointId
+          parentRef = await queryEndpoint.getParentEndpointRef(
+            db,
+            sortedEndpoints[i][j].parentEndpointIdentifier,
+            sessionId
+          )
+          console.log(sortedEndpoints[i][j])
           await queryImpexp.importEndpoint(
             db,
             sessionId,
             sortedEndpoints[i][j],
-            endpointTypeId
+            endpointTypeId,
+            parentRef
           )
         }
       }

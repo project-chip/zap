@@ -94,13 +94,17 @@ function endpoint_fixed_profile_id_array(options) {
 }
 
 /**
- * Creates array of parentRef (endpointId of Parent Endpoint) fields on endpoints
+ * Creates array of parent endpoint identifier fields on endpoints
  *
  *
  * @returns C array including the { } brackets
  */
 function endpoint_fixed_parent_id_array() {
-  return '{ ' + this.endpoints.map((ep) => ep.parentRef).join(', ') + ' }'
+  return (
+    '{ ' +
+    this.endpoints.map((ep) => ep.parentEndpointIdentifier).join(', ') +
+    ' }'
+  )
 }
 
 /**

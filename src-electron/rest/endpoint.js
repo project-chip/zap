@@ -85,16 +85,7 @@ function httpPostEndpoint(db) {
       parentRef,
       sessionId
     )
-    let newId = await queryEndpoint.insertEndpoint(
-      db,
-      sessionId,
-      endpointId,
-      endpointType,
-      networkId,
-      profileId,
-      parentEndpointRef
-    )
-    if (parentEndpointRef == null) {
+    if (parentEndpointRef == null && parentRef != null) {
       parentRef = null
       notification.setNotification(
         db,
@@ -105,9 +96,18 @@ function httpPostEndpoint(db) {
         1
       )
     }
+    let newId = await queryEndpoint.insertEndpoint(
+      db,
+      sessionId,
+      endpointId,
+      endpointType,
+      networkId,
+      profileId,
+      parentEndpointRef,
+      parentRef
+    )
     try {
       let validationData = await validation.validateEndpoint(db, newId)
-
       response.status(StatusCodes.OK).json({
         id: newId,
         endpointId: endpointId,

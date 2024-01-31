@@ -98,6 +98,7 @@ async function exportEndpointTypes(db, sessionId) {
     delete ept.endpointTypeId
   })
   endpoints.forEach((ep) => {
+    delete ep.parentRef
     delete ep.endpointTypeRef
   })
   return { endpointTypes: endpointTypes, endpoints: endpoints }
