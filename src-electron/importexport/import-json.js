@@ -1180,7 +1180,6 @@ async function importEndpointTypes(
             sortedEndpoints[i][j].parentEndpointIdentifier,
             sessionId
           )
-          console.log(sortedEndpoints[i][j])
           await queryImpexp.importEndpoint(
             db,
             sessionId,

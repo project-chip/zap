@@ -337,11 +337,11 @@ async function deleteEndpoint(db, id) {
   return dbApi.dbRemove(db, 'DELETE FROM ENDPOINT WHERE ENDPOINT_ID = ?', [id])
 }
 
-async function getParentEndpointRef(db, parentRef, sessionId) {
+async function getParentEndpointRef(db, parentEndpointIdentifier, sessionId) {
   let parentEndpointRef = await dbApi.dbAll(
     db,
     'SELECT ENDPOINT_ID FROM ENDPOINT WHERE ENDPOINT_IDENTIFIER = ? AND SESSION_REF = ?',
-    [parentRef, sessionId]
+    [parentEndpointIdentifier, sessionId]
   )
   if (parentEndpointRef[0]) {
     return parentEndpointRef[0].ENDPOINT_ID

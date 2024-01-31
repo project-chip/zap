@@ -168,7 +168,7 @@ limitations under the License.
               <strong>Parent Endpoint</strong>
             </div>
             <div class="col-6">
-              <strong>{{ parentRef[endpointReference] }}</strong>
+              <strong>{{ parentEndpointIdentifier[endpointReference] }}</strong>
             </div>
           </q-item>
           <q-item class="row" v-if="$store.state.zap.isProfileIdShown">
@@ -465,9 +465,9 @@ export default {
         return this.$store.state.zap.endpointView.networkId
       },
     },
-    parentRef: {
+    parentEndpointIdentifier: {
       get() {
-        return this.$store.state.zap.endpointView.parentRef
+        return this.$store.state.zap.endpointView.parentEndpointIdentifier
       },
     },
     profileId: {

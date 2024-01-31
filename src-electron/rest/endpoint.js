@@ -77,16 +77,16 @@ function httpPostEndpoint(db) {
       profileId,
       endpointType,
       deviceIdentifier,
-      parentRef,
+      parentEndpointIdentifier,
     } = request.body
     let sessionId = request.zapSessionId
     let parentEndpointRef = await queryEndpoint.getParentEndpointRef(
       db,
-      parentRef,
+      parentEndpointIdentifier,
       sessionId
     )
-    if (parentEndpointRef == null && parentRef != null) {
-      parentRef = null
+    if (parentEndpointRef == null && parentEndpointIdentifier != null) {
+      parentEndpointIdentifier = null
       notification.setNotification(
         db,
         'ERROR',
@@ -104,7 +104,7 @@ function httpPostEndpoint(db) {
       networkId,
       profileId,
       parentEndpointRef,
-      parentRef
+      parentEndpointIdentifier
     )
     try {
       let validationData = await validation.validateEndpoint(db, newId)
@@ -113,7 +113,7 @@ function httpPostEndpoint(db) {
         endpointId: endpointId,
         endpointType: endpointType,
         networkId: networkId,
-        parentRef: parentRef,
+        parentEndpointIdentifier: parentEndpointIdentifier,
         deviceId: deviceIdentifier,
         profileId: profileId,
         validationIssues: validationData,

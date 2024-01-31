@@ -326,7 +326,7 @@ export function addEndpoint(context, newEndpointContext) {
       context.commit('addEndpoint', {
         id: arg.id,
         endpointId: arg.endpointId,
-        parentRef: arg.parentRef,
+        parentEndpointIdentifier: arg.parentEndpointIdentifier,
         endpointTypeRef: arg.endpointType,
         networkId: arg.networkId,
         profileId: arg.profileId,

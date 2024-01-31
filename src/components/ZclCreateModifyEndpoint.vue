@@ -217,7 +217,7 @@ export default {
         this.networkId[this.endpointReference]
       )
       this.shownEndpoint.parentReference = parseInt(
-        this.parentRef[this.endpointReference]
+        this.parentEndpointIdentifier[this.endpointReference]
       )
       this.shownEndpoint.profileIdentifier = this.asHex(
         parseInt(this.profileId[this.endpointReference]),
@@ -317,9 +317,9 @@ export default {
         return this.$store.state.zap.endpointView.profileId
       },
     },
-    parentRef: {
+    parentEndpointIdentifier: {
       get() {
-        return this.$store.state.zap.endpointView.parentRef
+        return this.$store.state.zap.endpointView.parentEndpointIdentifier
       },
     },
     customDeviceIdReference: {
@@ -544,7 +544,7 @@ export default {
               endpointId: parseInt(this.shownEndpoint.endpointIdentifier),
               networkId: this.shownEndpoint.networkIdentifier,
               profileId: parseInt(this.shownEndpoint.profileIdentifier),
-              parentRef: this.shownEndpoint.parentReference,
+              parentEndpointIdentifier: this.shownEndpoint.parentReference,
               endpointType: response.id,
             })
             .then((res) => {
@@ -640,7 +640,7 @@ export default {
             value: parseInt(shownEndpoint.profileIdentifier),
           },
           {
-            updatedKey: RestApi.updateKey.parentRef,
+            updatedKey: RestApi.updateKey.parentEndpointIdentifier,
             value: parseInt(shownEndpoint.parentReference),
           },
         ],

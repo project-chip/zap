@@ -328,7 +328,7 @@ function convertRestKeyToDbColumn(key) {
       return 'NETWORK_IDENTIFIER'
     case restApi.updateKey.profileId:
       return 'PROFILE'
-    case restApi.updateKey.parentRef:
+    case restApi.updateKey.parentEndpointIdentifier:
       return 'PARENT_ENDPOINT_IDENTIFIER'
     case restApi.updateKey.deviceId:
       return 'DEVICE_IDENTIFIER'
