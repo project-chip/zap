@@ -79,6 +79,11 @@ function httpPostEndpoint(db) {
       parentRef,
     } = request.body
     let sessionId = request.zapSessionId
+    let parentEndpointRef = await queryEndpoint.getParentEndpointRef(
+      db,
+      parentRef,
+      sessionId
+    )
     let newId = await queryEndpoint.insertEndpoint(
       db,
       sessionId,
@@ -86,8 +91,11 @@ function httpPostEndpoint(db) {
       endpointType,
       networkId,
       profileId,
-      parentRef
+      parentEndpointRef
     )
+    if (parentEndpointRef == null) {
+      parentRef = null
+    }
     try {
       let validationData = await validation.validateEndpoint(db, newId)
 

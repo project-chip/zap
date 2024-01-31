@@ -448,7 +448,7 @@ exports.map = {
       endpointVersion: x.DEVICE_VERSION, // Left for backwards compatibility
       deviceVersion: x.DEVICE_VERSION,
       deviceIdentifier: x.DEVICE_IDENTIFIER,
-      parentRef: x.PARENT,
+      parentRef: x.PARENT_ENDPOINT_REF,
     }
   },
   endpointType: (x) => {
@@ -741,7 +741,7 @@ exports.reverseMap = {
     endpointTypeRef: 'ENDPOINT_TYPE_REF',
     profileId: 'PROFILE',
     networkId: 'NETWORK_IDENTIFIER',
-    parentRef: 'PARENT',
+    parentRef: 'PARENT_ENDPOINT_REF',
     endpointVersion: 'DEVICE_VERSION',
     deviceVersion: 'DEVICE_VERSION',
   },

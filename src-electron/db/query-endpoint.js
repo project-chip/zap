@@ -335,6 +335,19 @@ async function deleteEndpoint(db, id) {
   return dbApi.dbRemove(db, 'DELETE FROM ENDPOINT WHERE ENDPOINT_ID = ?', [id])
 }
 
+async function getParentEndpointRef(db, parentRef, sessionId) {
+  let parentEndpointRef = await dbApi.dbAll(
+    db,
+    'SELECT ENDPOINT_ID FROM ENDPOINT WHERE ENDPOINT_IDENTIFIER = ? AND SESSION_REF = ?',
+    [parentRef, sessionId]
+  )
+  if (parentEndpointRef[0]) {
+    return parentEndpointRef[0].ENDPOINT_ID
+  } else {
+    return null
+  }
+}
+
 /**
  * Promises to add an endpoint.
  *
@@ -366,7 +379,7 @@ INTO ENDPOINT (
   ENDPOINT_TYPE_REF,
   NETWORK_IDENTIFIER,
   PROFILE,
-  PARENT
+  PARENT_ENDPOINT_REF
 ) VALUES ( ?, ?, ?, ?, ?, ?)`,
     [
       sessionId,
@@ -386,13 +399,7 @@ INTO ENDPOINT (
  * @param {*} endpointIdentifier
  * @returns Promise to duplicate an endpoint.
  */
-async function duplicateEndpoint(
-  db,
-  id,
-  endpointIdentifier,
-  endpointTypeId,
-  parentRef
-) {
+async function duplicateEndpoint(db, id, endpointIdentifier, endpointTypeId) {
   return dbApi.dbInsert(
     db,
     `
@@ -438,7 +445,7 @@ SELECT
   ENDPOINT.ENDPOINT_TYPE_REF,
   ENDPOINT.PROFILE,
   ENDPOINT.NETWORK_IDENTIFIER,
-  ENDPOINT.PARENT,
+  ENDPOINT.PARENT_ENDPOINT_REF,
   ENDPOINT_TYPE_DEVICE.DEVICE_VERSION,
   ENDPOINT_TYPE_DEVICE.DEVICE_IDENTIFIER
 FROM
@@ -463,3 +470,4 @@ exports.deleteEndpoint = deleteEndpoint
 exports.selectEndpoint = selectEndpoint
 exports.duplicateEndpoint = duplicateEndpoint
 exports.selectAllEndpoints = selectAllEndpoints
+exports.getParentEndpointRef = getParentEndpointRef

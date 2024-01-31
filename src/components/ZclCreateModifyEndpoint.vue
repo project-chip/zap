@@ -431,9 +431,6 @@ export default {
     },
   },
   methods: {
-    setParentRef(value) {
-      this.shownEndpoint.parentReference = value
-    },
     openDeviceLibraryDocumentation() {
       if (
         this.$store.state.zap.genericOptions[
