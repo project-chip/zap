@@ -103,8 +103,7 @@ function httpPostEndpoint(db) {
       endpointType,
       networkId,
       profileId,
-      parentEndpointRef,
-      parentEndpointIdentifier
+      parentEndpointRef
     )
     try {
       let validationData = await validation.validateEndpoint(db, newId)

@@ -47,10 +47,8 @@ INSERT INTO ENDPOINT (
   PROFILE,
   ENDPOINT_IDENTIFIER,
   NETWORK_IDENTIFIER,
-  PARENT_ENDPOINT_REF,
-  PARENT_ENDPOINT_IDENTIFIER
+  PARENT_ENDPOINT_REF
 ) VALUES (
-  ?,
   ?,
   ?,
   ?,
@@ -66,7 +64,6 @@ INSERT INTO ENDPOINT (
       endpoint.endpointId,
       endpoint.networkId,
       parentRef,
-      endpoint.parentEndpointIdentifier,
     ]
   )
 }
