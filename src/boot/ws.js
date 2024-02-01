@@ -129,7 +129,6 @@ onWebSocket(dbEnum.wsCategory.sessionCreationError, (data) => {
     position: 'top',
     html: true,
     timeout: 5000,
-    actions: [{ icon: 'close', color: 'white' }],
   })
 
   console.log(`sessionCreationError: ${JSON.stringify(data)}`)
@@ -156,7 +155,6 @@ onWebSocket(dbEnum.wsCategory.notificationInfo, (data) => {
       position: 'top',
       html: true,
       timeout: 5000,
-      actions: [{ icon: 'close', color: 'white' }],
     })
   }
 })

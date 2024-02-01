@@ -386,7 +386,7 @@ async function insertEndpoint(
   endpointTypeRef,
   networkIdentifier,
   profileIdentifier,
-  parentRef
+  parentRef = null
 ) {
   return dbApi.dbInsert(
     db,
