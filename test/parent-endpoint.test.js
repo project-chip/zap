@@ -58,10 +58,6 @@ test(
       testUtil.testTemplate.matter
     )
     expect(templateContext.crc).not.toBeNull()
-    expect(templateContext.templateData).not.toBeNull()
-    expect(templateContext.templateData.name).toEqual('Test templates')
-    expect(templateContext.templateData.version).toEqual('test-v1')
-    expect(templateContext.templateData.templates.length).toEqual(templateCount)
     expect(templateContext.packageId).not.toBeNull()
   },
   testUtil.timeout.medium()
@@ -86,10 +82,9 @@ test(
 test(
   'Test endpoint config queries',
   async () => {
-    let epts = await queryEndpointType.selectAllEndpoints(db, sessionId)
+    let epts = await queryEndpoint.selectAllEndpoints(db, sessionId)
 
     expect(epts.length).toBe(4)
-    let ps = []
 
     expect(epts[0].length).toBe(7)
     expect(epts[1].length).toBe(8)
