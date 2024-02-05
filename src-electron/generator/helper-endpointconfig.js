@@ -94,12 +94,12 @@ function endpoint_fixed_profile_id_array(options) {
 }
 
 /**
- * Creates array of parent endpoint identifier fields on endpoints
+ * Creates array of parent endpoint identifier fields on endpoints with a NULL placeholder for Endpoints without a Parent Endpoint configuration
  *
  *
  * @returns C array including the { } brackets
  */
-function endpoint_fixed_parent_id_array() {
+function endpoint_fixed_parent_id_array(options) {
   return (
     '{ ' +
     this.endpoints.map((ep) => ep.parentEndpointIdentifier).join(', ') +

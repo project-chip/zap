@@ -341,6 +341,15 @@ async function deleteEndpoint(db, id) {
   return dbApi.dbRemove(db, 'DELETE FROM ENDPOINT WHERE ENDPOINT_ID = ?', [id])
 }
 
+/**
+ * Returns ENDPOINT_ID of the Endpoint's Parent Endpoint
+ *
+ * @export
+ * @param {*} db
+ * @param {*} parentEndpointIdentifier
+ * @param {*} sessionId
+ * @returns Promise to select ENDPOINT_ID of an ENDPOINT in the SESSION with the ENDPOINT_IDENTIFIER which was input
+ */
 async function getParentEndpointRef(db, parentEndpointIdentifier, sessionId) {
   let parentEndpointRef = await dbApi.dbAll(
     db,
@@ -353,8 +362,16 @@ async function getParentEndpointRef(db, parentEndpointIdentifier, sessionId) {
     return null
   }
 }
-
-async function getParentEndpointIdentifier(db, parentEndpointRef, sessionId) {
+/**
+ * Returns ENDPOINT_IDENTIFIER of the Endpoints' Parent Endpoint
+ *
+ * @export
+ * @param {*} db
+ * @param {*} parentRef
+ * @param {*} sessionId
+ * @returns Promise to select ENDPOINT_IDENTIFIER of an ENDPOINT in the SESSION from an ENDPOINT_ID
+ */
+async function getParentEndpointIdentifier(db, parentRef, sessionId) {
   let parentEndpointIdentifier = await dbApi.dbAll(
     db,
     'SELECT ENDPOINT_IDENTIFIER FROM ENDPOINT WHERE ENDPOINT_ID = ? AND SESSION_REF = ?',
