@@ -102,8 +102,14 @@ function endpoint_fixed_profile_id_array(options) {
 function endpoint_fixed_parent_id_array(options) {
   return (
     '{ ' +
-    this.endpoints.map((ep) => ep.parentEndpointIdentifier).join(', ') +
-    ' }'
+    this.endpoints.map((ep) => {
+      if (!ep.parentEndpointIdentifier) {
+        ep.parentEndpointIdentifier = 'NULL'
+        return ep.parentEndpointIdentifier.join(', ') + ' }'
+      } else {
+        return ep.parentEndpointIdentifier.join(', ') + ' }'
+      }
+    })
   )
 }
 
