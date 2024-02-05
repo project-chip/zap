@@ -94,6 +94,20 @@ function endpoint_fixed_profile_id_array(options) {
 }
 
 /**
+ * Creates array of parent endpoint identifier fields on endpoints with a NULL placeholder for Endpoints without a Parent Endpoint configuration
+ *
+ *
+ * @returns C array including the { } brackets
+ */
+function endpoint_fixed_parent_id_array(options) {
+  return (
+    '{ ' +
+    this.endpoints.map((ep) => ep.parentEndpointIdentifier).join(', ') +
+    ' }'
+  )
+}
+
+/**
  * Creates array of networkId fields on endpoints
  *
  * @param {*} options
@@ -1286,6 +1300,7 @@ exports.endpoint_fixed_device_type_array_offsets =
 exports.endpoint_fixed_device_type_array_lengths =
   endpoint_fixed_device_type_array_lengths
 exports.endpoint_fixed_profile_id_array = endpoint_fixed_profile_id_array
+exports.endpoint_fixed_parent_id_array = endpoint_fixed_parent_id_array
 exports.endpoint_fixed_network_array = endpoint_fixed_network_array
 exports.endpoint_command_list = endpoint_command_list
 exports.endpoint_command_count = endpoint_command_count

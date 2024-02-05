@@ -25,6 +25,7 @@ const queryEndpoint = require('../db/query-endpoint.js')
 const queryConfig = require('../db/query-config.js')
 const validation = require('../validation/validation.js')
 const restApi = require('../../src-shared/rest-api.js')
+const notification = require('../db/query-session-notification.js')
 const { StatusCodes } = require('http-status-codes')
 
 /**
@@ -70,9 +71,31 @@ function httpDeleteEndpointType(db) {
  */
 function httpPostEndpoint(db) {
   return async (request, response) => {
-    let { endpointId, networkId, profileId, endpointType, deviceIdentifier } =
-      request.body
+    let {
+      endpointId,
+      networkId,
+      profileId,
+      endpointType,
+      deviceIdentifier,
+      parentEndpointIdentifier,
+    } = request.body
     let sessionId = request.zapSessionId
+    let parentEndpointRef = await queryEndpoint.getParentEndpointRef(
+      db,
+      parentEndpointIdentifier,
+      sessionId
+    )
+    if (parentEndpointRef == null && parentEndpointIdentifier != null) {
+      parentEndpointIdentifier = null
+      notification.setNotification(
+        db,
+        'ERROR',
+        'Could not set Parent Endpoint because no Endpoint was found',
+        sessionId,
+        1,
+        1
+      )
+    }
     let newId = await queryEndpoint.insertEndpoint(
       db,
       sessionId,
@@ -80,16 +103,16 @@ function httpPostEndpoint(db) {
       endpointType,
       networkId,
       profileId,
-      deviceIdentifier
+      parentEndpointRef
     )
     try {
       let validationData = await validation.validateEndpoint(db, newId)
-
       response.status(StatusCodes.OK).json({
         id: newId,
         endpointId: endpointId,
         endpointType: endpointType,
         networkId: networkId,
+        parentEndpointIdentifier: parentEndpointIdentifier,
         deviceId: deviceIdentifier,
         profileId: profileId,
         validationIssues: validationData,

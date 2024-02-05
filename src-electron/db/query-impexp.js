@@ -30,8 +30,15 @@ const queryUpgrade = require('../matter/matter.js')
  * @param {*} sessionId
  * @param {*} endpoint
  * @param {*} endpointTypeRef
+ * @param {*} parentRef
  */
-async function importEndpoint(db, sessionId, endpoint, endpointTypeRef) {
+async function importEndpoint(
+  db,
+  sessionId,
+  endpoint,
+  endpointTypeRef,
+  parentRef
+) {
   return dbApi.dbInsert(
     db,
     `
@@ -40,8 +47,10 @@ INSERT INTO ENDPOINT (
   ENDPOINT_TYPE_REF,
   PROFILE,
   ENDPOINT_IDENTIFIER,
-  NETWORK_IDENTIFIER
+  NETWORK_IDENTIFIER,
+  PARENT_ENDPOINT_REF
 ) VALUES (
+  ?,
   ?,
   ?,
   ?,
@@ -55,6 +64,7 @@ INSERT INTO ENDPOINT (
       endpoint.profileId,
       endpoint.endpointId,
       endpoint.networkId,
+      parentRef,
     ]
   )
 }
@@ -81,6 +91,8 @@ async function exportEndpoints(db, sessionId, endpointTypes) {
       profileId: x.PROFILE,
       endpointId: x.ENDPOINT_IDENTIFIER,
       networkId: x.NETWORK_IDENTIFIER,
+      parentRef: x.PARENT_ENDPOINT_REF,
+      parentEndpointIdentifier: x.PARENT_ENDPOINT_IDENTIFIER,
     }
   }
   return dbApi
@@ -92,13 +104,19 @@ SELECT
   E.ENDPOINT_TYPE_REF,
   E.PROFILE,
   E.ENDPOINT_IDENTIFIER,
-  E.NETWORK_IDENTIFIER
+  E.NETWORK_IDENTIFIER,
+  E2.ENDPOINT_ID AS PARENT_ENDPOINT_REF,
+  E2.ENDPOINT_IDENTIFIER AS PARENT_ENDPOINT_IDENTIFIER
 FROM
   ENDPOINT AS E
 LEFT JOIN
   ENDPOINT_TYPE AS ET
 ON
   E.ENDPOINT_TYPE_REF = ET.ENDPOINT_TYPE_ID
+LEFT JOIN
+  ENDPOINT AS E2
+ON
+  E2.ENDPOINT_ID = E.PARENT_ENDPOINT_REF
 WHERE
   E.SESSION_REF = ?
 ORDER BY E.ENDPOINT_IDENTIFIER

@@ -148,6 +148,18 @@ limitations under the License.
             >
             </q-input>
             <q-input
+              v-if="enableParentEndpoint"
+              label="Parent Endpoint"
+              type="number"
+              v-model="shownEndpoint.parentReference"
+              ref="parent"
+              outlined
+              class="col v-step-3"
+              stack-label
+              min="0"
+            >
+            </q-input>
+            <q-input
               v-if="!enableMultipleDevice"
               label="Version"
               type="number"
@@ -204,6 +216,9 @@ export default {
       this.shownEndpoint.networkIdentifier = parseInt(
         this.networkId[this.endpointReference]
       )
+      this.shownEndpoint.parentReference = parseInt(
+        this.parentEndpointIdentifier[this.endpointReference]
+      )
       this.shownEndpoint.profileIdentifier = this.asHex(
         parseInt(this.profileId[this.endpointReference]),
         4
@@ -237,11 +252,12 @@ export default {
       this.shownEndpoint.endpointIdentifier = this.getSmallestUnusedEndpointId()
     }
 
-    const enableMultiDeviceFeatures =
+    const enableMatterFeatures =
       this.$store.state.zap.selectedZapConfig?.zclProperties?.category ===
       'matter'
-    this.enableMultipleDevice = enableMultiDeviceFeatures
-    this.enablePrimaryDevice = enableMultiDeviceFeatures
+    this.enableMultipleDevice = enableMatterFeatures
+    this.enablePrimaryDevice = enableMatterFeatures
+    this.enableParentEndpoint = enableMatterFeatures
   },
   data() {
     return {
@@ -249,6 +265,7 @@ export default {
       shownEndpoint: {
         endpointIdentifier: 1,
         profileIdentifier: null,
+        parentReference: null,
         networkIdentifier: 0,
         deviceVersion: 1,
       },
@@ -257,6 +274,7 @@ export default {
       primaryDeviceTypeTmp: null, // Temp store for the selected primary device type
       enableMultipleDevice: false,
       enablePrimaryDevice: false,
+      enableParentEndpoint: false,
     }
   },
   computed: {
@@ -297,6 +315,11 @@ export default {
     profileId: {
       get() {
         return this.$store.state.zap.endpointView.profileId
+      },
+    },
+    parentEndpointIdentifier: {
+      get() {
+        return this.$store.state.zap.endpointView.parentEndpointIdentifier
       },
     },
     customDeviceIdReference: {
@@ -521,6 +544,7 @@ export default {
               endpointId: parseInt(this.shownEndpoint.endpointIdentifier),
               networkId: this.shownEndpoint.networkIdentifier,
               profileId: parseInt(this.shownEndpoint.profileIdentifier),
+              parentEndpointIdentifier: this.shownEndpoint.parentReference,
               endpointType: response.id,
             })
             .then((res) => {
@@ -614,6 +638,10 @@ export default {
           {
             updatedKey: RestApi.updateKey.profileId,
             value: parseInt(shownEndpoint.profileIdentifier),
+          },
+          {
+            updatedKey: RestApi.updateKey.parentEndpointIdentifier,
+            value: parseInt(shownEndpoint.parentReference),
           },
         ],
       })

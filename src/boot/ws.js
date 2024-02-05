@@ -128,8 +128,7 @@ onWebSocket(dbEnum.wsCategory.sessionCreationError, (data) => {
     color: 'negative',
     position: 'top',
     html: true,
-    timeout: 0,
-    actions: [{ icon: 'close', color: 'white' }],
+    timeout: 5000,
   })
 
   console.log(`sessionCreationError: ${JSON.stringify(data)}`)
@@ -144,8 +143,8 @@ onWebSocket(dbEnum.wsCategory.componentUpdateStatus, (obj) => {
 
 // receive notification data
 onWebSocket(dbEnum.wsCategory.notificationInfo, (data) => {
-  let {display, message} = data
-  if(display != 0) {
+  let { display, message } = data
+  if (display != 0) {
     let html = `<center>
       <strong>${message}</strong>
       <br>
@@ -155,13 +154,10 @@ onWebSocket(dbEnum.wsCategory.notificationInfo, (data) => {
       color: 'negative',
       position: 'top',
       html: true,
-      timeout: 0,
-      actions: [{ icon: 'close', color: 'white' }],
+      timeout: 5000,
     })
   }
 })
-
-
 
 //commented unnecessary logs and listeners
 

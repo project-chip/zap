@@ -413,7 +413,13 @@ async function loadSingleAttribute(db, endpointTypeId, packageId, at) {
       if (cluster == null || attribute == null) {
         let message = `Could not resolve attribute ${at.clusterCode} / ${at.attributeCode}`
         env.logWarning(message)
-        queryPackageNotification.setNotification(db, "WARNING", message, packageId, 2)
+        queryPackageNotification.setNotification(
+          db,
+          'WARNING',
+          message,
+          packageId,
+          2
+        )
         return
       }
       let clusterRef = cluster.id
@@ -683,7 +689,14 @@ async function iscDataLoader(db, state, sessionId) {
   let genPackageId = null
   if (genPackages.length == 0) {
     env.logWarning('No gen packages, missing the extensions matching.')
-    querySessionNotification.setNotification(db, "WARNING", 'No gen packages, missing the extensions matching.', sessionId, 2, 0)
+    querySessionNotification.setNotification(
+      db,
+      'WARNING',
+      'No gen packages, missing the extensions matching.',
+      sessionId,
+      2,
+      0
+    )
   } else {
     genPackageId = genPackages[0].id
   }
@@ -763,9 +776,7 @@ async function iscDataLoader(db, state, sessionId) {
               ep.endpoint,
               endpointTypeId,
               ep.network,
-              ep.profileId,
-              ep.deviceVersion,
-              ep.deviceId
+              ep.profileId
             )
             .then(() => endpointTypeId)
         )

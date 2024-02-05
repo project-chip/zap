@@ -36,16 +36,22 @@ async function selectAllEndpoints(db, sessionId) {
     db,
     `
 SELECT
-  ENDPOINT.ENDPOINT_ID,
-  ENDPOINT.SESSION_REF,
-  ENDPOINT.ENDPOINT_TYPE_REF,
-  ENDPOINT.PROFILE,
-  ENDPOINT.ENDPOINT_IDENTIFIER,
-  ENDPOINT.NETWORK_IDENTIFIER
+  E1.ENDPOINT_ID,
+  E1.SESSION_REF,
+  E1.ENDPOINT_TYPE_REF,
+  E1.PROFILE,
+  E1.ENDPOINT_IDENTIFIER,
+  E1.NETWORK_IDENTIFIER,
+  E2.ENDPOINT_ID AS PARENT_ENDPOINT_REF,
+  E2.ENDPOINT_IDENTIFIER AS PARENT_ENDPOINT_IDENTIFIER
 FROM
-  ENDPOINT
-WHERE ENDPOINT.SESSION_REF = ?
-ORDER BY ENDPOINT_IDENTIFIER
+  ENDPOINT AS E1
+LEFT JOIN
+  ENDPOINT AS E2
+ON 
+  E2.ENDPOINT_ID = E1.PARENT_ENDPOINT_REF
+WHERE E1.SESSION_REF = ?
+ORDER BY E1.ENDPOINT_IDENTIFIER
     `,
     [sessionId]
   )
@@ -336,6 +342,49 @@ async function deleteEndpoint(db, id) {
 }
 
 /**
+ * Returns ENDPOINT_ID of the Endpoint's Parent Endpoint
+ *
+ * @export
+ * @param {*} db
+ * @param {*} parentEndpointIdentifier
+ * @param {*} sessionId
+ * @returns Promise to select ENDPOINT_ID of an ENDPOINT in the SESSION with the ENDPOINT_IDENTIFIER which was input
+ */
+async function getParentEndpointRef(db, parentEndpointIdentifier, sessionId) {
+  let parentEndpointRef = await dbApi.dbAll(
+    db,
+    'SELECT ENDPOINT_ID FROM ENDPOINT WHERE ENDPOINT_IDENTIFIER = ? AND SESSION_REF = ?',
+    [parentEndpointIdentifier, sessionId]
+  )
+  if (parentEndpointRef[0]) {
+    return parentEndpointRef[0].ENDPOINT_ID
+  } else {
+    return null
+  }
+}
+/**
+ * Returns ENDPOINT_IDENTIFIER of the Endpoints' Parent Endpoint
+ *
+ * @export
+ * @param {*} db
+ * @param {*} parentRef
+ * @param {*} sessionId
+ * @returns Promise to select ENDPOINT_IDENTIFIER of an ENDPOINT in the SESSION from an ENDPOINT_ID
+ */
+async function getParentEndpointIdentifier(db, parentRef, sessionId) {
+  let parentEndpointIdentifier = await dbApi.dbAll(
+    db,
+    'SELECT ENDPOINT_IDENTIFIER FROM ENDPOINT WHERE ENDPOINT_ID = ? AND SESSION_REF = ?',
+    [parentRef, sessionId]
+  )
+  if (parentEndpointIdentifier[0]) {
+    return parentEndpointIdentifier[0].ENDPOINT_ID
+  } else {
+    return null
+  }
+}
+
+/**
  * Promises to add an endpoint.
  *
  * @export
@@ -353,7 +402,8 @@ async function insertEndpoint(
   endpointIdentifier,
   endpointTypeRef,
   networkIdentifier,
-  profileIdentifier
+  profileIdentifier,
+  parentRef = null
 ) {
   return dbApi.dbInsert(
     db,
@@ -364,14 +414,16 @@ INTO ENDPOINT (
   ENDPOINT_IDENTIFIER,
   ENDPOINT_TYPE_REF,
   NETWORK_IDENTIFIER,
-  PROFILE
-) VALUES ( ?, ?, ?, ?, ?)`,
+  PROFILE,
+  PARENT_ENDPOINT_REF
+) VALUES ( ?, ?, ?, ?, ?, ?)`,
     [
       sessionId,
       endpointIdentifier,
       endpointTypeRef,
       networkIdentifier,
       profileIdentifier,
+      parentRef,
     ]
   )
 }
@@ -423,22 +475,28 @@ async function selectEndpoint(db, endpointId) {
       db,
       `
 SELECT
-  ENDPOINT.ENDPOINT_ID,
-  ENDPOINT.SESSION_REF,
-  ENDPOINT.ENDPOINT_IDENTIFIER,
-  ENDPOINT.ENDPOINT_TYPE_REF,
-  ENDPOINT.PROFILE,
-  ENDPOINT.NETWORK_IDENTIFIER,
+  E1.ENDPOINT_ID,
+  E1.SESSION_REF,
+  E1.ENDPOINT_IDENTIFIER,
+  E1.ENDPOINT_TYPE_REF,
+  E1.PROFILE,
+  E1.NETWORK_IDENTIFIER,
+  E2.ENDPOINT_ID AS PARENT_ENDPOINT_REF,
+  E2.ENDPOINT_IDENTIFIER AS PARENT_ENDPOINT_IDENTIFIER,
   ENDPOINT_TYPE_DEVICE.DEVICE_VERSION,
   ENDPOINT_TYPE_DEVICE.DEVICE_IDENTIFIER
 FROM
-  ENDPOINT
+  ENDPOINT AS E1
 LEFT JOIN
   ENDPOINT_TYPE_DEVICE
 ON
-  ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF = ENDPOINT.ENDPOINT_TYPE_REF
+  ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF = E1.ENDPOINT_TYPE_REF
+LEFT JOIN
+  ENDPOINT AS E2
+ON 
+  E2.ENDPOINT_ID = E1.PARENT_ENDPOINT_REF
 WHERE
-  ENDPOINT_ID = ?`,
+  E1.ENDPOINT_ID = ?`,
       [endpointId]
     )
     .then(dbMapping.map.endpoint)
@@ -453,3 +511,5 @@ exports.deleteEndpoint = deleteEndpoint
 exports.selectEndpoint = selectEndpoint
 exports.duplicateEndpoint = duplicateEndpoint
 exports.selectAllEndpoints = selectAllEndpoints
+exports.getParentEndpointRef = getParentEndpointRef
+exports.getParentEndpointIdentifier = getParentEndpointIdentifier

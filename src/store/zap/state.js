@@ -99,6 +99,7 @@ export default function () {
       profileId: {},
       endpointIdValidationIssues: {},
       networkIdValidationIssues: {},
+      parentEndpointIdentifier: {},
     },
     endpointTypeView: {
       selectedEndpointType: [],

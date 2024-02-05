@@ -163,6 +163,14 @@ limitations under the License.
               <strong>{{ networkId[endpointReference] }}</strong>
             </div>
           </q-item>
+          <q-item class="row">
+            <div class="col-6" v-if="enableParentEndpoint">
+              <strong>Parent Endpoint</strong>
+            </div>
+            <div class="col-6" v-if="enableParentEndpoint">
+              <strong>{{ parentEndpointIdentifier[endpointReference] }}</strong>
+            </div>
+          </q-item>
           <q-item class="row" v-if="$store.state.zap.isProfileIdShown">
             <div class="col-6">
               <strong>Profile ID</strong>
@@ -457,6 +465,11 @@ export default {
         return this.$store.state.zap.endpointView.networkId
       },
     },
+    parentEndpointIdentifier: {
+      get() {
+        return this.$store.state.zap.endpointView.parentEndpointIdentifier
+      },
+    },
     profileId: {
       get() {
         return this.$store.state.zap.endpointView.profileId
@@ -538,6 +551,11 @@ export default {
       this.selectedAttributes = []
       this.selectedReporting = []
       this.getEndpointCardData()
+      //only show Matter features if Matter is selected
+      const enableMatterFeatures =
+        this.$store.state.zap.selectedZapConfig?.zclProperties?.category ===
+        'matter'
+      this.enableParentEndpoint = enableMatterFeatures
     }
   },
 }

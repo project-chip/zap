@@ -808,7 +808,9 @@ CREATE TABLE IF NOT EXISTS "ENDPOINT" (
   "PROFILE" integer,
   "ENDPOINT_IDENTIFIER" integer,
   "NETWORK_IDENTIFIER" integer,
+  "PARENT_ENDPOINT_REF" integer NULL,
   foreign key (SESSION_REF) references SESSION(SESSION_ID) on delete cascade,
+  foreign key (PARENT_ENDPOINT_REF) references ENDPOINT(ENDPOINT_ID) on delete set NULL,
   foreign key (ENDPOINT_TYPE_REF) references ENDPOINT_TYPE(ENDPOINT_TYPE_ID) on delete
   set NULL
 );
