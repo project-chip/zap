@@ -147,6 +147,13 @@
 {{/generated_endpoint_type_details}}
 }
 
+// Array of parent ids
+#define FIXED_PARENT_IDS { {{backslash}}
+{{#generated_endpoint_type_details}}
+	{{~indent 1}}{{profileId}}{{#not_last}},{{/not_last}} {{backslash}}
+{{/generated_endpoint_type_details}}
+}
+
 // Array of device ids
 #define FIXED_DEVICE_IDS { {{backslash}}
 {{#generated_endpoint_type_details}}

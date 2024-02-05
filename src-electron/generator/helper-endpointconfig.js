@@ -100,17 +100,15 @@ function endpoint_fixed_profile_id_array(options) {
  * @returns C array including the { } brackets
  */
 function endpoint_fixed_parent_id_array(options) {
-  return (
-    '{ ' +
-    this.endpoints.map((ep) => {
-      if (!ep.parentEndpointIdentifier) {
-        ep.parentEndpointIdentifier = 'NULL'
-        return ep.parentEndpointIdentifier.join(', ') + ' }'
-      } else {
-        return ep.parentEndpointIdentifier.join(', ') + ' }'
-      }
-    })
-  )
+  let parentIds = []
+  this.endpoints.forEach((ep) => {
+    if (ep.parentEndpointIdentifier == null) {
+      parentIds.push('NULL')
+    } else {
+      parentIds.push(ep.parentEndpointIdentifier)
+    }
+  })
+  return '{ ' + parentIds.join(', ') + ' }'
 }
 
 /**

@@ -56,6 +56,9 @@
 // Array of profile ids
 #define FIXED_PROFILE_IDS {{endpoint_fixed_profile_id_array}}
 
+// Array of parent ids
+#define FIXED_PARENT_IDS {{endpoint_fixed_parent_id_array}}
+
 // Array of device ids
 #define FIXED_DEVICE_IDS {{endpoint_fixed_device_id_array}}
 
