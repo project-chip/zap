@@ -54,6 +54,13 @@ test(
   async () => {
     let context = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
     pkgId = context.packageId
+    sid = await testQuery.createSession(
+      db,
+      'USER',
+      'SESSION',
+      env.builtinSilabsZclMetafile(),
+      env.builtinTemplateMetafile()
+    )
   },
   timeout.medium()
 )
@@ -96,9 +103,85 @@ test(
     //float
     expect(validation.extractFloatValue('0.53') == 0.53).toBeTruthy()
     expect(validation.extractFloatValue('.53') == 0.53).toBeTruthy()
+    // big
+    expect(
+      validation.extractBigIntegerValue('0x7FFFFFFFFFFFFF') ==
+        36028797018963967n
+    ).toBeTruthy()
   },
   timeout.medium()
 )
+
+test('getIntegerFromAttribute function', () => {
+  //Decimal over hex
+  //expect(validation.getIntegerFromAttribute(''))
+  //Convert hex
+})
+
+test('Test hex unsigned to signed conversion', () => {
+  // testing the available bit representation extreme values
+
+  //8 bits
+  expect(validation.unsignedToSignedInteger(0x80, 8) == -128).toBeTruthy()
+  expect(validation.unsignedToSignedInteger(0x7f, 8) == 127).toBeTruthy()
+
+  // 16 bits
+  expect(validation.unsignedToSignedInteger(0x8000, 16) == -32768).toBeTruthy()
+  expect(validation.unsignedToSignedInteger(0x7fff, 16) == 32767).toBeTruthy()
+
+  // 24 bits
+  expect(
+    validation.unsignedToSignedInteger(0x800000, 24) == -8388608
+  ).toBeTruthy()
+  expect(
+    validation.unsignedToSignedInteger(0x7fffff, 24) == 8388607
+  ).toBeTruthy()
+
+  // 32 bits
+  expect(
+    validation.unsignedToSignedInteger(0x80000000n, 32) == -2147483648n
+  ).toBeTruthy()
+  expect(
+    validation.unsignedToSignedInteger(0x7fffffffn, 32) == 2147483647n
+  ).toBeTruthy()
+
+  // 40 bits
+  expect(
+    validation.unsignedToSignedInteger(0x8000000000n, 40) == -549755813888n
+  ).toBeTruthy()
+  expect(
+    validation.unsignedToSignedInteger(0x7fffffffffn, 40) == 549755813887n
+  ).toBeTruthy()
+
+  // 48 bits
+  expect(
+    validation.unsignedToSignedInteger(0x800000000000n, 48) == -140737488355328n
+  ).toBeTruthy()
+  expect(
+    validation.unsignedToSignedInteger(0x7fffffffffffn, 48) == 140737488355327n
+  ).toBeTruthy()
+
+  // 54 bits
+  expect(
+    validation.unsignedToSignedInteger(0x80000000000000n, 56) ==
+      -36028797018963968n
+  ).toBeTruthy()
+
+  expect(
+    validation.unsignedToSignedInteger(0x7fffffffffffffn, 56) ==
+      36028797018963967n
+  ).toBeTruthy()
+
+  // 64 bits
+  expect(
+    validation.unsignedToSignedInteger(0x8000000000000000n, 64) ==
+      -9223372036854775808n
+  ).toBeTruthy()
+  expect(
+    validation.unsignedToSignedInteger(0x7fffffffffffffffn, 64) ==
+      9223372036854775807n
+  ).toBeTruthy()
+})
 
 test(
   'Test int bounds',
@@ -110,6 +193,7 @@ test(
     expect(!validation.checkBoundsInteger(30, 'avaa', 2)).toBeTruthy()
     expect(!validation.checkBoundsInteger(30, 45, 50)).toBeTruthy()
     expect(validation.checkBoundsInteger('asdfa', 40, 50)).toBeFalsy()
+    expect(validation.checkBoundsInteger(-32, -128, 127)).toBeTruthy()
 
     //Float
     expect(validation.checkBoundsFloat(35.0, 25, 50.0))
@@ -140,56 +224,96 @@ test(
 
 test(
   'Integer Test',
-  () =>
-    queryZcl
-      .selectAttributesByClusterCodeAndManufacturerCode(db, pkgId, 3, null)
-      .then((attribute) => {
-        attribute = attribute.filter((e) => {
-          return e.code === 0
-        })[0]
+  async () => {
+    let attribute =
+      await queryZcl.selectAttributesByClusterCodeAndManufacturerCode(
+        db,
+        pkgId,
+        3,
+        null
+      )
+    attribute = attribute.filter((e) => {
+      return e.code === 0
+    })[0]
 
-        //Test Constraints
-        let minMax = validation.getBoundsInteger(attribute)
-        expect(minMax.min == 0).toBeTruthy()
-        expect(minMax.max === 0xffff).toBeTruthy()
-      }),
+    const { size, isSigned } = await validation.getIntegerAttributeSize(
+      db,
+      sid,
+      3,
+      attribute.type
+    )
+    //Test Constraints
+    let minMax = await validation.getBoundsInteger(attribute, size, isSigned)
+    expect(minMax.min == 0).toBeTruthy()
+    expect(minMax.max === 0xffff).toBeTruthy()
+  },
   timeout.medium()
 )
 
 test(
   'validate Attribute Test',
-  () => {
+  async () => {
     let fakeEndpointAttribute = {
       defaultValue: '30',
     }
 
     let fakeAttribute = {
-      type: 'UINT16',
+      type: 'int16u',
       min: '0x0010',
       max: '50',
     }
 
     expect(
-      validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
-        .defaultValue.length == 0
+      (
+        await validation.validateSpecificAttribute(
+          fakeEndpointAttribute,
+          fakeAttribute,
+          db,
+          sid,
+          3
+        )
+      ).defaultValue.length == 0
     ).toBeTruthy()
+
     // Check for if attribute is out of bounds.
     fakeEndpointAttribute.defaultValue = '60'
     expect(
-      validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
-        .defaultValue.length == 0
+      (
+        await validation.validateSpecificAttribute(
+          fakeEndpointAttribute,
+          fakeAttribute,
+          db,
+          sid,
+          3
+        )
+      ).defaultValue.length == 0
     ).toBeFalsy()
+
     fakeEndpointAttribute.defaultValue = '5'
     expect(
-      validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
-        .defaultValue.length == 0
+      (
+        await validation.validateSpecificAttribute(
+          fakeEndpointAttribute,
+          fakeAttribute,
+          db,
+          sid,
+          3
+        )
+      ).defaultValue.length == 0
     ).toBeFalsy()
 
     //Check if attribute is actually a number
     fakeEndpointAttribute.defaultValue = 'xxxxxx'
     expect(
-      validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
-        .defaultValue.length == 0
+      (
+        await validation.validateSpecificAttribute(
+          fakeEndpointAttribute,
+          fakeAttribute,
+          db,
+          sid,
+          3
+        )
+      ).defaultValue.length == 0
     ).toBeFalsy()
 
     fakeAttribute = {
@@ -202,30 +326,58 @@ test(
       defaultValue: '1.5',
     }
     expect(
-      validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
-        .defaultValue.length == 0
+      (
+        await validation.validateSpecificAttribute(
+          fakeEndpointAttribute,
+          fakeAttribute,
+          db,
+          sid,
+          3
+        )
+      ).defaultValue.length == 0
     ).toBeTruthy()
     //Check out of bounds.
     fakeEndpointAttribute = {
       defaultValue: '4.5',
     }
     expect(
-      validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
-        .defaultValue.length == 0
+      (
+        await validation.validateSpecificAttribute(
+          fakeEndpointAttribute,
+          fakeAttribute,
+          db,
+          sid,
+          3
+        )
+      ).defaultValue.length == 0
     ).toBeFalsy()
     fakeEndpointAttribute = {
       defaultValue: '.25',
     }
     expect(
-      validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
-        .defaultValue.length == 0
+      (
+        await validation.validateSpecificAttribute(
+          fakeEndpointAttribute,
+          fakeAttribute,
+          db,
+          sid,
+          3
+        )
+      ).defaultValue.length == 0
     ).toBeFalsy()
 
     //Check if attribute is actually a number
     fakeEndpointAttribute.defaultValue = 'xxxxxx'
     expect(
-      validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
-        .defaultValue.length == 0
+      (
+        await validation.validateSpecificAttribute(
+          fakeEndpointAttribute,
+          fakeAttribute,
+          db,
+          sid,
+          3
+        )
+      ).defaultValue.length == 0
     ).toBeFalsy()
 
     // Expect no issues with strings.
@@ -236,9 +388,51 @@ test(
       defaultValue: '30adfadf',
     }
     expect(
-      validation.validateSpecificAttribute(fakeEndpointAttribute, fakeAttribute)
-        .defaultValue.length == 0
+      (
+        await validation.validateSpecificAttribute(
+          fakeEndpointAttribute,
+          fakeAttribute,
+          db,
+          sid,
+          3
+        )
+      ).defaultValue.length == 0
     ).toBeTruthy()
+
+    // check if handle signed numbers
+    let fakeEndpointAttributeInvalid = {
+      defaultValue: '549755813887',
+    }
+    let fakeEndpointAttributeValid = {
+      defaultValue: '549755813885',
+    }
+    let fakeSignedAttribute = {
+      type: 'int40s',
+      min: '0x8000000000',
+      max: '0x7FFFFFFFFE',
+    }
+    expect(
+      (
+        await validation.validateSpecificAttribute(
+          fakeEndpointAttributeValid,
+          fakeSignedAttribute,
+          db,
+          sid,
+          3
+        )
+      ).defaultValue.length == 0
+    ).toBeTruthy()
+    expect(
+      (
+        await validation.validateSpecificAttribute(
+          fakeEndpointAttributeInvalid,
+          fakeSignedAttribute,
+          db,
+          sid,
+          3
+        )
+      ).defaultValue.length == 0
+    ).toBeFalsy()
   },
   timeout.medium()
 )
