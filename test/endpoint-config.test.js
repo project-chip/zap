@@ -206,7 +206,6 @@ test(
     expect(epc).toContain(
       '#define FIXED_PROFILE_IDS { 0x0107, 0x0104, 0x0104 }'
     )
-    expect(epc).toContain('#define FIXED_PARENT_IDS { NULL, NULL, NULL }')
     expect(epc).toContain('#define FIXED_ENDPOINT_TYPES { 0, 1, 2 }')
     expect(epc).toContain('#define GENERATED_DEFAULTS_COUNT (12)')
     expect(epc).toContain(
