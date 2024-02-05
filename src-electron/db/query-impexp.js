@@ -30,6 +30,7 @@ const queryUpgrade = require('../matter/matter.js')
  * @param {*} sessionId
  * @param {*} endpoint
  * @param {*} endpointTypeRef
+ * @param {*} parentRef
  */
 async function importEndpoint(
   db,
