@@ -83,10 +83,9 @@ test(
   'Test endpoint config queries',
   async () => {
     let epts = await queryEndpoint.selectAllEndpoints(db, sessionId)
-
     expect(epts.length).toBe(4)
-    expect(epts[1].parentIdentifier).toBe('0')
-    expect(epts[2].parentIdentifier).toBe('1')
+    expect(epts[1].parentEndpointIdentifier).toBe(0)
+    expect(epts[2].parentEndpointIdentifier).toBe(1)
   },
   testUtil.timeout.long()
 )

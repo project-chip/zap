@@ -3736,7 +3736,7 @@
       "networkId": 0,
       "endpointVersion": 1,
       "deviceIdentifier": 256,
-      "parentIdentifier": 0
+      "parentEndpointIdentifier": 0
     },
     {
       "endpointTypeName": "MA-onofflight",
@@ -3746,7 +3746,7 @@
       "networkId": 0,
       "endpointVersion": 1,
       "deviceIdentifier": 256,
-      "parentIdentifier": 1
+      "parentEndpointIdentifier": 1
     },
     {
       "endpointTypeName": "Anonymous Endpoint Type",
