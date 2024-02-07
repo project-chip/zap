@@ -539,8 +539,8 @@ async function updateEndpoint(db, sessionId, endpointId, changesArray) {
  * @param {*} db
  * @param {*} sessionId
  * @param {*} endpointId
- * @param {*} changesArray
- * @returns Promise to update the endpoint
+ * @param {*} parentRef
+ * @returns Promise to update the endpoint's parent ref
  */
 async function updateParentEndpoint(db, sessionId, endpointId, parentRef) {
   return dbApi.dbUpdate(
