@@ -311,6 +311,7 @@ export function updateEndpoint(context, endpoint) {
     let arg = res.data
     context.commit('updateEndpoint', {
       id: arg.endpointId,
+      parentEndpointIdentifier: arg.parentEndpointIdentifier,
       changes: arg.changes,
       endpointIdValidationIssues: arg.validationIssues.endpointId,
       networkIdValidationIssues: arg.validationIssues.networkId,

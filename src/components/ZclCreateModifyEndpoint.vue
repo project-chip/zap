@@ -626,6 +626,7 @@ export default {
 
       this.$store.dispatch('zap/updateEndpoint', {
         id: endpointReference,
+        parentEndpointIdentifier: this.shownEndpoint.parentReference,
         changes: [
           {
             updatedKey: RestApi.updateKey.endpointId,
@@ -638,10 +639,6 @@ export default {
           {
             updatedKey: RestApi.updateKey.profileId,
             value: parseInt(shownEndpoint.profileIdentifier),
-          },
-          {
-            updatedKey: RestApi.updateKey.parentEndpointIdentifier,
-            value: parseInt(shownEndpoint.parentReference),
           },
         ],
       })
