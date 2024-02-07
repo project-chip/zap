@@ -94,7 +94,7 @@ function endpoint_fixed_profile_id_array(options) {
 }
 
 /**
- * Creates array of parent endpoint identifier fields on endpoints with a NULL placeholder for Endpoints without a Parent Endpoint configuration
+ * Creates Integer Array of parent endpoint identifier fields on endpoints. If the Parent Endpoint is not set then it will default to 0.
  *
  *
  * @returns C array including the { } brackets
@@ -103,7 +103,7 @@ function endpoint_fixed_parent_id_array(options) {
   let parentIds = []
   this.endpoints.forEach((ep) => {
     if (ep.parentEndpointIdentifier == null) {
-      parentIds.push('NULL')
+      parentIds.push(0)
     } else {
       parentIds.push(ep.parentEndpointIdentifier)
     }
