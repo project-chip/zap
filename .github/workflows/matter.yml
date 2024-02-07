@@ -217,7 +217,6 @@ jobs:
         run: |
           cd chip_repo
           ./scripts/checkout_submodules.py --allow-changing-global-git-config --shallow --platform linux
-          ZAP_INSTALL_PATH=$(pwd)/../zap-release scripts/run_in_build_env.sh "scripts/tools/zap_regen_all.py --type tests"
           ZAP_INSTALL_PATH=$(pwd)/../zap-release scripts/run_in_build_env.sh "scripts/tools/zap_regen_all.py --type global"
           ZAP_INSTALL_PATH=$(pwd)/../zap-release scripts/run_in_build_env.sh "scripts/tools/zap_regen_all.py --type specific"
 
