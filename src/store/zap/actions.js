@@ -338,8 +338,8 @@ export function addEndpoint(context, newEndpointContext) {
     })
 }
 
-export function getEndpointIds() {
-  return axiosRequests.$serverGet(restApi.uri.endpointIds)
+export async function getEndpointIds() {
+  return await axiosRequests.$serverGet(restApi.uri.endpointIds)
 }
 
 export function addEndpointType(context, endpointTypeData) {
@@ -719,7 +719,7 @@ export async function loadSessionKeyValues(context) {
   let response = await axiosRequests.$serverGet(
     restApi.uri.getAllSessionKeyValues
   )
-  context.commit('loadSessionKeyValues', response.data)
+  context.commit('loadSessionKeyValues', response)
 }
 
 /**
