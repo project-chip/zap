@@ -147,18 +147,21 @@ limitations under the License.
               min="0"
             >
             </q-input>
-            <q-input
+            <q-select
               v-if="enableParentEndpoint"
               label="Parent Endpoint"
-              type="number"
               v-model="shownEndpoint.parentReference"
               ref="parent"
+              :options="endpointIds"
+              use-input
+              hide-selected
+              fill-input
               outlined
               class="col v-step-3"
               stack-label
               min="0"
             >
-            </q-input>
+            </q-select>
             <q-input
               v-if="!enableMultipleDevice"
               label="Version"
@@ -275,6 +278,7 @@ export default {
       enableMultipleDevice: false,
       enablePrimaryDevice: false,
       enableParentEndpoint: false,
+      endpointIds: [],
     }
   },
   computed: {
@@ -444,6 +448,11 @@ export default {
           '_blank'
         )
       }
+    },
+    getEndpointIds() {
+      this.$store.dispatch('zap/getEndpointIds').then((res) => {
+        this.endpointIds = res
+      })
     },
     // This function will close the endpoint modal
     toggleCreateEndpointModal() {
@@ -698,6 +707,9 @@ export default {
         })
       })
     },
+  },
+  created() {
+    this.getEndpointIds()
   },
   beforeMount() {
     this.deviceTypeOptions = this.zclDeviceTypeOptions

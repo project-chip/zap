@@ -87,14 +87,6 @@ function httpPostEndpoint(db) {
     )
     if (parentEndpointRef == null && parentEndpointIdentifier != null) {
       parentEndpointIdentifier = null
-      notification.setNotification(
-        db,
-        'ERROR',
-        'Could not set Parent Endpoint because no Endpoint was found',
-        sessionId,
-        1,
-        1
-      )
     }
     let newId = await queryEndpoint.insertEndpoint(
       db,
@@ -141,14 +133,6 @@ function httpPatchEndpoint(db) {
     )
     if (parentEndpointRef == null && parentEndpointIdentifier != null) {
       parentEndpointIdentifier = null
-      notification.setNotification(
-        db,
-        'ERROR',
-        'Could not set Parent Endpoint because no Endpoint was found',
-        sessionIdexport,
-        1,
-        1
-      )
     }
     await queryConfig.updateParentEndpoint(
       db,

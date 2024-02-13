@@ -18,6 +18,7 @@
 const uri = {
   zclEntity: '/zcl/:entity/:id',
   saveSessionKeyValue: '/save',
+  endpointIds: '/endpointIds',
   getAllSessionKeyValues: '/allKeyValues',
   shareClusterStatesAcrossEndpoints: '/shareClusterStatesAcrossEndpoints',
   generate: '/generate',
