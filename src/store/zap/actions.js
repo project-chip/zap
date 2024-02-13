@@ -311,6 +311,7 @@ export function updateEndpoint(context, endpoint) {
     let arg = res.data
     context.commit('updateEndpoint', {
       id: arg.endpointId,
+      parentEndpointIdentifier: arg.parentEndpointIdentifier,
       changes: arg.changes,
       endpointIdValidationIssues: arg.validationIssues.endpointId,
       networkIdValidationIssues: arg.validationIssues.networkId,
@@ -335,6 +336,10 @@ export function addEndpoint(context, newEndpointContext) {
       })
       return arg
     })
+}
+
+export async function getEndpointIds() {
+  return await axiosRequests.$serverGet(restApi.uri.endpointIds)
 }
 
 export function addEndpointType(context, endpointTypeData) {
@@ -714,7 +719,7 @@ export async function loadSessionKeyValues(context) {
   let response = await axiosRequests.$serverGet(
     restApi.uri.getAllSessionKeyValues
   )
-  context.commit('loadSessionKeyValues', response.data)
+  context.commit('loadSessionKeyValues', response)
 }
 
 /**

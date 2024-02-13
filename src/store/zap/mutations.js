@@ -188,6 +188,11 @@ export function addEndpoint(state, endpoint) {
 }
 
 export function updateEndpoint(state, context) {
+  vue3Set(
+    state.endpointView.parentEndpointIdentifier,
+    context.id,
+    context.parentEndpointIdentifier
+  )
   context.changes.forEach((data) => {
     vue3Set(state.endpointView[data.updatedKey], context.id, data.value)
   })
@@ -454,7 +459,7 @@ export function setSelectedGenericOption(state, keyValue) {
 }
 
 export function loadSessionKeyValues(state, sessionKeyValues) {
-  sessionKeyValues.map((keyValue) => {
+  sessionKeyValues?.data.map((keyValue) => {
     vue3Set(state.selectedGenericOptions, keyValue.key, keyValue.value)
   })
 }

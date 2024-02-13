@@ -328,8 +328,6 @@ function convertRestKeyToDbColumn(key) {
       return 'NETWORK_IDENTIFIER'
     case restApi.updateKey.profileId:
       return 'PROFILE'
-    case restApi.updateKey.parentEndpointIdentifier:
-      return 'PARENT_ENDPOINT_REF'
     case restApi.updateKey.deviceId:
       return 'DEVICE_IDENTIFIER'
     case restApi.updateKey.deviceIdentifier:
@@ -532,6 +530,23 @@ async function updateEndpoint(db, sessionId, endpointId, changesArray) {
       getAllParamValuePairArrayClauses(changesArray) +
       `WHERE ENDPOINT_ID = ? AND SESSION_REF = ?`,
     [endpointId, sessionId]
+  )
+}
+
+/**
+ * Returns a promise to update the parent endpoint of the endpoint
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} endpointId
+ * @param {*} parentRef
+ * @returns Promise to update the endpoint's parent ref
+ */
+async function updateParentEndpoint(db, sessionId, endpointId, parentRef) {
+  return dbApi.dbUpdate(
+    db,
+    `UPDATE ENDPOINT SET PARENT_ENDPOINT_REF = ? WHERE ENDPOINT_ID = ? AND SESSION_REF = ?`,
+    [parentRef, endpointId, sessionId]
   )
 }
 
@@ -1475,6 +1490,7 @@ exports.duplicateEndpointType = duplicateEndpointType
 exports.selectEndpointClusters = selectEndpointClusters
 
 exports.updateEndpoint = updateEndpoint
+exports.updateParentEndpoint = updateParentEndpoint
 
 exports.insertEndpointType = insertEndpointType
 exports.updateEndpointType = updateEndpointType

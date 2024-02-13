@@ -55,7 +55,23 @@ function httpGetSessionKeyValues(db) {
     response.status(StatusCodes.OK).json(sessionKeyValues)
   }
 }
-
+/**
+ * HTTP GET: endpoint ids of endpoints within a specified session
+ *
+ * @param {*} db
+ * @returns callback for the express uri registration
+ */
+function httpGetEndpointIds(db) {
+  return async (request, response) => {
+    let sessionId = request.zapSessionId
+    let endpoints = await queryEndpoint.selectAllEndpoints(db, sessionId)
+    let endpointIds = []
+    endpoints.forEach((endpoint) => {
+      endpointIds.push(endpoint.endpointIdentifier)
+    })
+    response.status(StatusCodes.OK).json(endpointIds)
+  }
+}
 /**
  * HTTP GET: session get notifications
  *
@@ -964,6 +980,10 @@ exports.post = [
 ]
 
 exports.get = [
+  {
+    uri: restApi.uri.endpointIds,
+    callback: httpGetEndpointIds,
+  },
   {
     uri: restApi.uri.getAllSessionKeyValues,
     callback: httpGetSessionKeyValues,
