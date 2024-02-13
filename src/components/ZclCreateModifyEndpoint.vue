@@ -451,7 +451,7 @@ export default {
     },
     getEndpointIds() {
       this.$store.dispatch('zap/getEndpointIds').then((res) => {
-        this.endpointIds = res
+        this.endpointIds = res.data
       })
     },
     // This function will close the endpoint modal
