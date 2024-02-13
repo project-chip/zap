@@ -340,12 +340,7 @@ export function addEndpoint(context, newEndpointContext) {
 
 export function getEndpointIds() {
   return axiosRequests.$serverGet(restApi.uri.endpointIds).then((res) => {
-    let endpoints = res.data
-    let endpointIds = []
-    endpoints.forEach((endpoint) => {
-      endpointIds.push(endpoint.endpointIdentifier)
-    })
-    return endpointIds
+    return res.data
   })
 }
 
