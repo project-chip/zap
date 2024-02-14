@@ -59,6 +59,13 @@ INSERT INTO ENDPOINT (
   )
 }
 
+/**
+ * Imports the parent endpoint
+ * @param {} db
+ * @param {*} sessionId
+ * @param {*} endpointId
+ * @param {*} parentRef
+ */
 async function importParentEndpoint(db, sessionRef, endpointId, parentRef) {
   return dbApi.dbAll(
     db,
