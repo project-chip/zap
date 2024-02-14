@@ -1369,8 +1369,6 @@ async function importEndpointTypes(
   }
 }
 
-async function importParentEndpoints() {}
-
 /**
  * Given a state object, this method returns a promise that resolves
  * with the succesfull writing into the database.
