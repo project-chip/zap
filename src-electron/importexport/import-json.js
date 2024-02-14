@@ -1336,7 +1336,8 @@ async function importEndpointTypes(
           specMessageIndent
         )
     }
-    //post process import parent endpoints
+
+    //post processing - import parent endpoints
     for (let i = 0; i < endpointTypes.length; i++) {
       if (sortedEndpoints[i]) {
         for (let j = 0; j < sortedEndpoints[i].length; j++) {
