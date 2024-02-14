@@ -30,15 +30,8 @@ const queryUpgrade = require('../matter/matter.js')
  * @param {*} sessionId
  * @param {*} endpoint
  * @param {*} endpointTypeRef
- * @param {*} parentRef
  */
-async function importEndpoint(
-  db,
-  sessionId,
-  endpoint,
-  endpointTypeRef,
-  parentRef
-) {
+async function importEndpoint(db, sessionId, endpoint, endpointTypeRef) {
   return dbApi.dbInsert(
     db,
     `
@@ -47,10 +40,8 @@ INSERT INTO ENDPOINT (
   ENDPOINT_TYPE_REF,
   PROFILE,
   ENDPOINT_IDENTIFIER,
-  NETWORK_IDENTIFIER,
-  PARENT_ENDPOINT_REF
+  NETWORK_IDENTIFIER
 ) VALUES (
-  ?,
   ?,
   ?,
   ?,
@@ -64,8 +55,26 @@ INSERT INTO ENDPOINT (
       endpoint.profileId,
       endpoint.endpointId,
       endpoint.networkId,
-      parentRef,
     ]
+  )
+}
+
+/**
+ * Imports the parent endpoint
+ * @param {} db
+ * @param {*} sessionId
+ * @param {*} endpointId
+ * @param {*} parentRef
+ */
+async function importParentEndpoint(db, sessionRef, endpointId, parentRef) {
+  return dbApi.dbAll(
+    db,
+    `
+  UPDATE ENDPOINT
+  SET PARENT_ENDPOINT_REF = ?
+  WHERE ENDPOINT_IDENTIFIER = ? AND SESSION_REF = ?
+  `,
+    [parentRef, endpointId, sessionRef]
   )
 }
 
@@ -885,6 +894,7 @@ VALUES
 
 exports.exportEndpointTypes = exportEndpointTypes
 exports.importEndpointType = importEndpointType
+exports.importParentEndpoint = importParentEndpoint
 
 exports.exportClustersFromEndpointType = exportClustersFromEndpointType
 exports.importClusterForEndpointType = importClusterForEndpointType
