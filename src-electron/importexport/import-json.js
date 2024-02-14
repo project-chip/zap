@@ -1153,6 +1153,7 @@ async function importEndpointTypes(
   const sortedEndpoints = sortEndpoints(endpoints)
 
   if (endpointTypes != null) {
+    let parentRef
     env.logDebug(`Loading ${endpointTypes.length} endpoint types`)
     let deviceTypeSpecCheckComplianceMessage = ''
     let clusterSpecCheckComplianceMessage = ''
@@ -1171,21 +1172,14 @@ async function importEndpointTypes(
         endpointTypes[i]
       )
       let endpointId = ''
-      let parentRef
       if (sortedEndpoints[i]) {
         for (let j = 0; j < sortedEndpoints[i].length; j++) {
           endpointId = sortedEndpoints[i][j].endpointId
-          parentRef = await queryEndpoint.getParentEndpointRef(
-            db,
-            sortedEndpoints[i][j].parentEndpointIdentifier,
-            sessionId
-          )
           await queryImpexp.importEndpoint(
             db,
             sessionId,
             sortedEndpoints[i][j],
-            endpointTypeId,
-            parentRef
+            endpointTypeId
           )
         }
       }
@@ -1342,6 +1336,24 @@ async function importEndpointTypes(
           specMessageIndent
         )
     }
+    for (let i = 0; i < endpointTypes.length; i++) {
+      if (sortedEndpoints[i]) {
+        for (let j = 0; j < sortedEndpoints[i].length; j++) {
+          parentRef = await queryEndpoint.getParentEndpointRef(
+            db,
+            sortedEndpoints[i][j].parentEndpointIdentifier,
+            sessionId
+          )
+          await queryImpexp.importParentEndpoint(
+            db,
+            sessionId,
+            sortedEndpoints[i][j].endpointId,
+            parentRef
+          )
+        }
+      }
+    }
+
     if (deviceTypeSpecCheckComplianceMessage.length > 0) {
       deviceTypeSpecCheckComplianceMessage = dottedLine.concat(
         deviceTypeSpecCheckComplianceFailureTitle,
@@ -1354,6 +1366,8 @@ async function importEndpointTypes(
     }
   }
 }
+
+async function importParentEndpoints() {}
 
 /**
  * Given a state object, this method returns a promise that resolves
