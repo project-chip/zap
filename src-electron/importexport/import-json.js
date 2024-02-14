@@ -378,7 +378,7 @@ async function importPackages(
  * @param {*} endpoints
  * @returns list or sorted endpoints based on endpoint type index
  */
-function sortEndpoints(endpoints) {
+async function sortEndpoints(endpoints) {
   const sortedEndpoints = {}
   if (endpoints != null) {
     endpoints.forEach((ep) => {
@@ -1150,7 +1150,7 @@ async function importEndpointTypes(
   endpointTypes,
   endpoints
 ) {
-  const sortedEndpoints = sortEndpoints(endpoints)
+  const sortedEndpoints = await sortEndpoints(endpoints)
 
   if (endpointTypes != null) {
     env.logDebug(`Loading ${endpointTypes.length} endpoint types`)
