@@ -264,14 +264,8 @@ async function asObjectiveCClass(type, cluster, options) {
         hash: { preserveAcronyms: preserveAcronyms },
       });
     }
-    // Use a custom prefix if specified.
-    if (options.hash.structTypePrefix) {
-      return (
-        options.hash.structTypePrefix +
-        `${cluster}Cluster${appHelper.asUpperCamelCase(type)}`
-      );
-    }
-    return `MTR${cluster}Cluster${appHelper.asUpperCamelCase(type)}`;
+    // Use a custom prefix if specified, otherwise default to "MTR" for backwards compat.
+    return `${options.hash.structTypePrefix || "MTR"}${cluster}Cluster${appHelper.asUpperCamelCase(type)}`;
   }
 
   return 'NSNumber';
