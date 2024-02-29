@@ -222,7 +222,9 @@ async function asObjectiveCClass(type, cluster, options) {
     !options.hash.forceNotList
   ) {
     if (options.hash.stronglyTypedArrays) {
-      let innerType = await asObjectiveCClass.call(this, type, cluster, { hash: { ...options.hash, forceNotList: true }});
+      let innerType = await asObjectiveCClass.call(this, type, cluster, {
+        hash: { ...options.hash, forceNotList: true },
+      });
       return `NSArray<${innerType} *>`;
     }
 
@@ -262,7 +264,8 @@ async function asObjectiveCClass(type, cluster, options) {
         hash: { preserveAcronyms: preserveAcronyms },
       });
     }
-    return `MTR${cluster}Cluster${appHelper.asUpperCamelCase(type)}`;
+    // Use a custom prefix if specified, otherwise default to "MTR" for backwards compat.
+    return `${options.hash.structTypePrefix || "MTR"}${cluster}Cluster${appHelper.asUpperCamelCase(type)}`;
   }
 
   return 'NSNumber';
@@ -707,7 +710,12 @@ async function availabilityHelper(clusterName, language, options) {
   }
 
   if (introducedVersions === undefined) {
-    const provisionalRelease = findProvisionalRelease(this.global, clusterName, options, 'provisional');
+    const provisionalRelease = findProvisionalRelease(
+      this.global,
+      clusterName,
+      options,
+      'provisional'
+    );
     if (!provisionalRelease) {
       console.log(
         `WARNING: Missing "introduced" or "provisional" entry for: '${clusterName}' '${JSON.stringify(
@@ -718,14 +726,14 @@ async function availabilityHelper(clusterName, language, options) {
   }
 
   const provisionalAvailability = (() => {
-    if (language == "ObjC") {
+    if (language == 'ObjC') {
       return 'MTR_PROVISIONALLY_AVAILABLE';
     }
 
-    if (language == "Swift") {
+    if (language == 'Swift') {
       // For now, we are stuck with Swift versions in Matter CI that do not
       // support wrapping attributes in conditional compilation.
-      return '@available(iOS, unavailable) @available(macOS, unavailable) @available(tvOS, unavailable) @available(watchOS, unavailable)'
+      return '@available(iOS, unavailable) @available(macOS, unavailable) @available(tvOS, unavailable) @available(watchOS, unavailable)';
       /*
       return `#if MTR_ENABLE_PROVISIONAL
 #else
@@ -735,7 +743,9 @@ async function availabilityHelper(clusterName, language, options) {
 */
     }
 
-    throw new Error(`Unknown language ${language}; cannot determine availability syntax.`);
+    throw new Error(
+      `Unknown language ${language}; cannot determine availability syntax.`
+    );
   })();
 
   if (isProvisional.call(this, clusterName, options)) {
@@ -743,15 +753,15 @@ async function availabilityHelper(clusterName, language, options) {
   }
 
   const futureAvailability = (() => {
-    if (language == "ObjC") {
+    if (language == 'ObjC') {
       return 'MTR_NEWLY_AVAILABLE';
     }
 
-    return ''
+    return '';
   })();
 
   if (introducedVersions === 'future') {
-    if (language == "ObjC") {
+    if (language == 'ObjC') {
       return futureAvailability;
     }
 
@@ -763,21 +773,21 @@ async function availabilityHelper(clusterName, language, options) {
   }
 
   if (deprecatedVersions === undefined) {
-    if (language == "ObjC") {
+    if (language == 'ObjC') {
       let availabilityStrings = Object.entries(introducedVersions).map(
         ([os, version]) => `${os.toLowerCase()}(${version})`
       );
       return `MTR_AVAILABLE(${availabilityStrings.join(', ')})`;
     }
 
-    if (language == "Swift") {
+    if (language == 'Swift') {
       let availabilityStrings = Object.entries(introducedVersions).map(
         ([os, version]) => `${os} ${version}`
       );
       // For now, we are stuck with Swift versions in Matter CI that do not
       // support wrapping attributes in conditional compilation.
-      return `@available(${availabilityStrings.join(', ')}, *)`
-/*
+      return `@available(${availabilityStrings.join(', ')}, *)`;
+      /*
       return `#if MTR_NO_AVAILABILITY
 #else
 @available(${availabilityStrings.join(', ')}, *)
@@ -787,7 +797,7 @@ async function availabilityHelper(clusterName, language, options) {
     }
   }
 
-  if (language != "ObjC") {
+  if (language != 'ObjC') {
     throw new Error(`Deprecation not supported for native Swift APIs yet.`);
   }
 
@@ -847,7 +857,8 @@ async function availabilityHelper(clusterName, language, options) {
   }
 
   let availabilityStrings = Object.entries(introducedVersions).map(
-    ([os, version]) => `${os.toLowerCase()}(${version}, ${deprecatedVersions[os]})`
+    ([os, version]) =>
+      `${os.toLowerCase()}(${version}, ${deprecatedVersions[os]})`
   );
   return `MTR_DEPRECATED("${
     options.hash.deprecationMessage
@@ -855,11 +866,11 @@ async function availabilityHelper(clusterName, language, options) {
 }
 
 async function availability(clusterName, options) {
-  return availabilityHelper.call(this, clusterName, "ObjC", options);
+  return availabilityHelper.call(this, clusterName, 'ObjC', options);
 }
 
 async function swiftAvailability(clusterName, options) {
-  return availabilityHelper.call(this, clusterName, "Swift", options);
+  return availabilityHelper.call(this, clusterName, 'Swift', options);
 }
 
 /**
@@ -871,7 +882,12 @@ async function swiftAvailability(clusterName, options) {
  *
  * Throws if referenceRelease is not defined.
  */
-function compareIntroductionToReferenceRelease(global, path, options, referenceRelease) {
+function compareIntroductionToReferenceRelease(
+  global,
+  path,
+  options,
+  referenceRelease
+) {
   if (referenceRelease === undefined) {
     throw new Error("Can't compare to non-existent release");
   }
@@ -912,7 +928,8 @@ function wasIntroducedBeforeRelease(releaseName, clusterName, options) {
   let comparisonStatus = compareIntroductionToReferenceRelease(
     this.global,
     makeAvailabilityPath(clusterName, options),
-    options, referenceRelease
+    options,
+    referenceRelease
   );
   if (comparisonStatus === undefined) {
     // Not introduced yet, so not introduced before anything in particular.
@@ -928,16 +945,17 @@ function wasIntroducedBeforeRelease(releaseName, clusterName, options) {
  * the release and the path that ended up being found, or undefined if nothing
  * was found.
  */
-function findReleaseForPathOrAncestorAndSection(global, cluster, options, section) {
+function findReleaseForPathOrAncestorAndSection(
+  global,
+  cluster,
+  options,
+  section
+) {
   const data = fetchAvailabilityData(global);
   let path = makeAvailabilityPath(cluster, options);
 
   while (path !== undefined) {
-    let foundRelease = findReleaseForPath(
-      data,
-      [section, ...path],
-      options
-    );
+    let foundRelease = findReleaseForPath(data, [section, ...path], options);
     if (foundRelease !== undefined) {
       return { release: foundRelease, path: path };
     }
@@ -947,7 +965,14 @@ function findReleaseForPathOrAncestorAndSection(global, cluster, options, sectio
 }
 
 function wasRemoved(cluster, options) {
-  return findReleaseForPathOrAncestorAndSection(this.global, cluster, options, 'removed') !== undefined;
+  return (
+    findReleaseForPathOrAncestorAndSection(
+      this.global,
+      cluster,
+      options,
+      'removed'
+    ) !== undefined
+  );
 }
 
 function pathsEqual(path1, path2) {
@@ -973,9 +998,18 @@ function isSupported(cluster, options) {
   // Things that have a deprecated container and were not introduced before the
   // deprecation are not supported.
   let path = makeAvailabilityPath(cluster, options);
-  let deprecationRelease = findDeprecationRelease(this.global, findPathToContainer(path), options);
+  let deprecationRelease = findDeprecationRelease(
+    this.global,
+    findPathToContainer(path),
+    options
+  );
   if (deprecationRelease !== undefined) {
-    let comparisonStatus = compareIntroductionToReferenceRelease(this.global, path, options, deprecationRelease);
+    let comparisonStatus = compareIntroductionToReferenceRelease(
+      this.global,
+      path,
+      options,
+      deprecationRelease
+    );
     // The only case where we might be supported is if we have an explicit
     // introduction and the introduction comes before the ancestor deprecation.
     if (comparisonStatus != -1) {
@@ -987,7 +1021,12 @@ function isSupported(cluster, options) {
 }
 
 function findProvisionalRelease(global, cluster, options) {
-  let provisionalRelease = findReleaseForPathOrAncestorAndSection(global, cluster, options, 'provisional');
+  let provisionalRelease = findReleaseForPathOrAncestorAndSection(
+    global,
+    cluster,
+    options,
+    'provisional'
+  );
   if (provisionalRelease !== undefined) {
     return provisionalRelease;
   }
@@ -1002,12 +1041,18 @@ function findProvisionalRelease(global, cluster, options) {
   return findReleaseForPathOrAncestorAndSection(
     global,
     /* cluster does not apply to global attributes */
-    "",
+    '',
     /*
      * Keep our options (e.g. in terms of isForIds bits), but replace
      * attribute with globalAttribute.
      */
-    { hash: { ...options.hash, attribute: undefined, globalAttribute: attrName } },
+    {
+      hash: {
+        ...options.hash,
+        attribute: undefined,
+        globalAttribute: attrName,
+      },
+    },
     'provisional'
   );
 }
@@ -1019,14 +1064,19 @@ function isProvisional(cluster, options) {
   let introducedRelease = findReleaseForPath(
     data,
     ['introduced', ...path],
-    options);
+    options
+  );
 
   if (introducedRelease == undefined) {
     // If it's not introduced, default to provisional.
     return true;
   }
 
-  let provisionalRelease = findProvisionalRelease(this.global, cluster, options);
+  let provisionalRelease = findProvisionalRelease(
+    this.global,
+    cluster,
+    options
+  );
   if (provisionalRelease === undefined) {
     return false;
   }
