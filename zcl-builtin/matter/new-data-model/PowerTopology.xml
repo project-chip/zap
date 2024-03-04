@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-Copyright (C) Connectivity Standards Alliance (2021). All rights reserved.
+Copyright (C) Connectivity Standards Alliance (2023). All rights reserved.
 The information within this document is the property of the Connectivity
 Standards Alliance and its use and disclosure are restricted, except as
 expressly set forth herein.
@@ -54,29 +54,51 @@ This notice and disclaimer must be included on all copies of this document.
 Connectivity Standards Alliance
 508 Second Street, Suite 206
 Davis, CA 95616, USA
+
+:xrefstyle: short
 -->
-<cluster xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="types types.xsd cluster cluster.xsd" id="" name="Label" revision="1">
+<cluster xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="types types.xsd cluster cluster.xsd" id="0x009C" name="Power Topology" revision="1">
   <revisionHistory>
     <revision revision="1" summary="Initial Release"/>
   </revisionHistory>
-  <classification hierarchy="base" role="utility" picsCode="LABEL" scope="Endpoint"/>
-  <dataTypes>
-    <struct name="LabelStruct">
-      <field id="0" name="Label" type="string" default="empty">
-        <mandatoryConform/>
-        <constraint type="maxLength" value="16"/>
-      </field>
-      <field id="1" name="Value" type="string" default="empty">
-        <mandatoryConform/>
-        <constraint type="maxLength" value="16"/>
-      </field>
-    </struct>
-  </dataTypes>
+  <clusterIds>
+    <clusterId id="0x009C" name="Power Topology"/>
+  </clusterIds>
+  <classification hierarchy="base" role="application" picsCode="PWRTL" scope="Endpoint"/>
+  <features>
+    <feature bit="0" code="NODE" name="NodeTopology" summary="This endpoint provides or consumes power to/from the entire node">
+      <optionalConform choice="a"/>
+    </feature>
+    <feature bit="1" code="TREE" name="TreeTopology" summary="This endpoint provides or consumes power to/from itself and its child endpoints">
+      <optionalConform choice="a"/>
+    </feature>
+    <feature bit="2" code="SET" name="SetTopology" summary="This endpoint provides or consumes power to/from a specified set of endpoints">
+      <optionalConform choice="a"/>
+    </feature>
+    <feature bit="3" code="DYPF" name="DynamicPowerFlow" summary="The specified set of endpoints may change">
+      <optionalConform>
+        <feature name="SET"/>
+      </optionalConform>
+    </feature>
+  </features>
   <attributes>
-    <attribute id="0x0000" name="LabelList" type="list[LabelStruct Type]" default="empty">
-      <quality changeOmitted="false" nullable="false" scene="false" persistence="volatile" reportable="false"/>
-      <mandatoryConform/>
-      <constraint type="allowed" value="derived"/>
+    <attribute id="0x0000" name="AvailableEndpoints" type="list">
+      <entry type="endpoint-no"/>
+      <access read="true" readPrivilege="view"/>
+      <quality changeOmitted="false" nullable="false" scene="false" persistence="fixed" reportable="false"/>
+      <mandatoryConform>
+        <feature name="SET"/>
+      </mandatoryConform>
+      <constraint type="maxCount" value="20"/>
+    </attribute>
+    <attribute id="0x0001" name="ActiveEndpoints" type="list">
+      <entry type="endpoint-no"/>
+      <access read="true" readPrivilege="view"/>
+      <quality changeOmitted="false" nullable="false" scene="false" persistence="nonVolatile" reportable="false"/>
+      <mandatoryConform>
+        <feature name="DYPF"/>
+      </mandatoryConform>
+      <constraint type="maxCount" value="20"/>
     </attribute>
   </attributes>
 </cluster>
