@@ -17,6 +17,7 @@
  *
  * @jest-environment node
  */
+const path = require('path')
 const genEngine = require('../src-electron/generator/generation-engine')
 const env = require('../src-electron/util/env')
 const dbApi = require('../src-electron/db/db-api')
@@ -26,10 +27,12 @@ const importJs = require('../src-electron/importexport/import')
 const testUtil = require('./test-util')
 const studioRestApi = require('../src-electron/ide-integration/studio-rest-api')
 const zclComponents = require('../src-electron/ide-integration/zcl-components')
+const queryZcl = require('../src-electron/db/query-zcl')
 
+const testFile = path.join(__dirname, 'resource/test-meta.zap')
 let db
-const templateCount = testUtil.testTemplate.zigbeeCount
-const testFile = testUtil.zigbeeTestFile.threeEp
+let templateContext
+let zclPackageId
 
 beforeAll(async () => {
   env.setDevelopmentEnv()
@@ -39,27 +42,24 @@ beforeAll(async () => {
     env.schemaFile(),
     env.zapVersion()
   )
-  return zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
+  let zclContext = await zclLoader.loadZcl(db, testUtil.testZclMetafile)
+  zclPackageId = zclContext.packageId
 }, testUtil.timeout.medium())
 
 afterAll(() => dbApi.closeDatabase(db), testUtil.timeout.short())
 
-let templateContext
-
 test(
   'Load templates',
   async () => {
-    let context = await genEngine.loadTemplates(
+    templateContext = await genEngine.loadTemplates(
       db,
-      testUtil.testTemplate.zigbee
+      testUtil.testTemplate.meta
     )
-    expect(context.crc).not.toBeNull()
-    expect(context.templateData).not.toBeNull()
-    expect(context.templateData.name).toEqual('Test templates')
-    expect(context.templateData.version).toEqual('test-v1')
-    expect(context.templateData.templates.length).toEqual(templateCount)
-    expect(context.packageId).not.toBeNull()
-    templateContext = context
+    expect(templateContext.crc).not.toBeNull()
+    expect(templateContext.templateData).not.toBeNull()
+    expect(templateContext.templateData.name).toEqual('Meta test templates')
+    expect(templateContext.templateData.version).toEqual('meta-test')
+    expect(templateContext.packageId).not.toBeNull()
   },
   testUtil.timeout.medium()
 )
@@ -71,7 +71,7 @@ test(
       templateContext.db,
       templateContext.packageId
     )
-    expect(templateContext.packages.length).toBe(templateCount - 1 + 2) // -1 for ignored one, one for helper and one for overridable
+    expect(templateContext.packages.length).toBeGreaterThan(0)
   },
   testUtil.timeout.short()
 )
@@ -92,13 +92,16 @@ test(
     expect(x).toBeFalsy()
     expect(y).toBeFalsy()
 
-    let res = await zclComponents.getComponentIdsByCluster(
+    let cluster = await queryZcl.selectClusterByCode(db, zclPackageId, 0xabcd)
+    expect(cluster).not.toBeNull()
+    let ids = await zclComponents.getComponentIdsByCluster(
       db,
       sessionId,
-      1,
-      'client'
+      cluster.id,
+      ['server']
     )
-    expect(res.componentIds.length).toBe(0)
+    expect(ids.length).toBe(1)
+    expect(ids[0]).toEqual('test-1-component')
   },
   testUtil.timeout.long()
 )

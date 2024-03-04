@@ -33,7 +33,7 @@ const env = require('../util/env')
  * @param {*} sessionId
  * @param {*} clusterId
  * @param {*} side
- * @returns {*} - {componentIds, clusterId, clusterLabel, side}
+ * @returns {*} array of componentIds
  */
 async function getComponentIdsByCluster(db, sessionId, clusterId, side) {
   // enable components
@@ -44,11 +44,7 @@ async function getComponentIdsByCluster(db, sessionId, clusterId, side) {
   )
   let id = pkgs.length == 0 ? null : pkgs[0].id
   if (id == null) {
-    return {
-      componentIds: [],
-      clusterId,
-      side,
-    }
+    return []
   }
 
   let extensions = await queryPackage.selectPackageExtension(
@@ -56,48 +52,34 @@ async function getComponentIdsByCluster(db, sessionId, clusterId, side) {
     id,
     dbEnum.packageExtensionEntity.cluster
   )
-  return queryZcl
-    .selectClusterById(db, clusterId)
-    .then((cluster) => {
-      let componentIds = []
-      if (cluster) {
-        side.forEach((zclRole) => {
-          let clusterKey = `${cluster.label.toLowerCase()}-${zclRole}`
-          let ids = util.getClusterExtensionDefault(
-            extensions,
-            'component',
-            clusterKey
-          )
-          if (ids) {
-            ids = ids.split(',').map((x) => x.trim())
-            componentIds = componentIds.concat(ids)
-          }
-        })
-      } else {
-        env.logWarning(
-          `Failed to retrieve cluster via clusterId(${clusterId}).`
+  try {
+    let cluster = await queryZcl.selectClusterById(db, clusterId)
+    let componentIds = []
+    if (cluster) {
+      side.forEach((zclRole) => {
+        let clusterKey = `${cluster.label.toLowerCase()}-${zclRole}`
+        let ids = util.getClusterExtensionDefault(
+          extensions,
+          'component',
+          clusterKey
         )
-      }
+        if (ids) {
+          ids = ids.split(',').map((x) => x.trim())
+          componentIds = componentIds.concat(ids)
+        }
+      })
+    } else {
+      env.logWarning(`Failed to retrieve cluster via clusterId(${clusterId}).`)
+    }
 
-      return {
-        componentIds,
-        clusterId,
-        clusterLabel: cluster.label.toLowerCase(),
-        side,
-      }
-    })
-    .catch((err) => {
-      env.logWarning(
-        `Failed to retrieve component ids required by clusterId(${clusterId}) from cluster extension mapping.`,
-        err
-      )
-
-      return {
-        componentIds: [],
-        clusterId,
-        side,
-      }
-    })
+    return componentIds
+  } catch (err) {
+    env.logWarning(
+      `Failed to retrieve component ids required by clusterId(${clusterId}) from cluster extension mapping.`,
+      err
+    )
+    return []
+  }
 }
 
 exports.getComponentIdsByCluster = getComponentIdsByCluster

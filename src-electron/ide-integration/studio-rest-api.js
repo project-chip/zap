@@ -209,10 +209,14 @@ async function updateComponentByClusterIdAndComponentId(
   // retrieve components to enable
   let promises = []
   if (clusterId) {
-    let ids = zclComponents
-      .getComponentIdsByCluster(db, sessionId, clusterId, side)
-      .then((response) => Promise.resolve(response.componentIds))
-    promises.push(ids)
+    let ids = await zclComponents.getComponentIdsByCluster(
+      db,
+      sessionId,
+      clusterId,
+      side
+    )
+
+    promises.push(...ids.map((x) => Promise.resolve(x)))
   }
 
   // enabling components via Studio
