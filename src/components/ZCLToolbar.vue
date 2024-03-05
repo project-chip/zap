@@ -45,7 +45,9 @@
       no-caps
       class="cursor-pointer"
       @click="saveChanges"
-      v-if="this.$store.state.zap.saveButtonVisible && this.$store.state.zap.isDirty"
+      v-if="
+        this.$store.state.zap.saveButtonVisible && this.$store.state.zap.isDirty
+      "
     >
       <div class="text-center">
         <q-icon name="o_save" />
@@ -143,6 +145,7 @@
       color="grey"
       class="cursor-pointer"
       @click="startTour"
+      data-cy="btn-tutorial"
     >
       <div class="text-center">
         <q-icon name="o_psychology_alt" />
@@ -265,9 +268,7 @@ export default {
       }
     },
     saveChanges() {
-      window[rendApi.GLOBAL_SYMBOL_EXECUTE] (
-        rendApi.id.save
-      )
+      window[rendApi.GLOBAL_SYMBOL_EXECUTE](rendApi.id.save)
     },
     // This function will start vue tour steps
     startTour,
