@@ -486,6 +486,12 @@ async function all_cli_commands_for_user_enabled_clusters(options) {
  * Creates cluster iterator for all endpoints.
  *
  * @param {*} options
+ *   side may be:
+ *      `client` - only client clusters shown
+ *      `server` - only server clusters shown
+ *      missing  - select both client and server clusters
+ *      `merge`  - IGNORES the side and merges into one (as "merged")
+ *
  * @returns Promise of the resolved blocks iterating over cluster commands.
  */
 async function all_user_clusters(options) {
