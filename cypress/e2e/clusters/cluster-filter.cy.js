@@ -58,10 +58,17 @@ describe('Testing cluster filters', () => {
     () => {
       cy.get('.q-virtual-scroll__content > :nth-child(2)').click({
         force: true,
+        multiple: true,
       })
       cy.fixture('data').then((data) => {
         cy.get('tbody').children().should('contain', data.cluster2)
       })
     }
   )
+  it('Close all the clusters', () => {
+    cy.dataCy('cluster-btn-closeall').click()
+    cy.get('[data-test=Cluster').each(($row) => {
+      cy.wrap($row).should('have.class', 'q-expansion-item--collapsed')
+    })
+  })
 })
