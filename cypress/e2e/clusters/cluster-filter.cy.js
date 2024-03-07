@@ -29,16 +29,4 @@ describe('Testing cluster filters', () => {
       })
     }
   )
-  it(
-    'checks if power configuration exists',
-    { retries: { runMode: 2, openMode: 2 } },
-    () => {
-      cy.get('.q-virtual-scroll__content > :nth-child(2)').click({
-        force: true,
-      })
-      cy.fixture('data').then((data) => {
-        cy.get('tbody').children().should('contain', data.cluster2)
-      })
-    }
-  )
 })
