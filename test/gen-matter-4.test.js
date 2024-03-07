@@ -158,7 +158,9 @@ test(
     expect(ept).toContain(
       '#define FIXED_PROFILE_IDS { 0x0103, 0x0103, 0x0103, 0x0103 }'
     )
-    expect(ept).toContain('#define FIXED_PARENT_IDS { 0, 0, 1, 0 }')
+    expect(ept).toContain(
+      '#define FIXED_PARENT_IDS { kInvalidEndpointId, 0, 1, kInvalidEndpointId }'
+    )
     expect(ept).toContain(
       '#define FIXED_DEVICE_TYPES {{0x00000016,1},{0x00000100,1},{0x00000100,1},{0x0000F002,1}}'
     )
@@ -265,7 +267,9 @@ test(
     expect(ept).toContain(
       '#define FIXED_PROFILE_IDS { 0x0103, 0x0103, 0x0103, 0x0103 }'
     )
-    expect(ept).toContain('#define FIXED_PARENT_IDS { 0, 0, 0, 0 }')
+    expect(ept).toContain(
+      '#define FIXED_PARENT_IDS { kInvalidEndpointId, kInvalidEndpointId, kInvalidEndpointId, kInvalidEndpointId }'
+    )
     expect(ept).toContain(
       '#define FIXED_DEVICE_TYPES {{0x00000016,1},{0x00000100,1},{0x00000100,1},{0x0000F002,1}}'
     )
