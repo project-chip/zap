@@ -19,6 +19,7 @@ limitations under the License.
       ref="zcl-tour"
       :steps="tutorialSteps"
       @onTourEnd="disableTutorial"
+      data-cy="tour-window"
     />
     <q-dialog
       v-model="deletingTutorialEndpoint"
@@ -36,6 +37,7 @@ limitations under the License.
             v-close-popup
             class="col"
             @click="setDefaultTourState"
+            data-cy="cancel-end-tour-endpoint"
           />
           <q-btn
             :label="'Delete'"
@@ -43,6 +45,7 @@ limitations under the License.
             class="col"
             @click="deleteEndpoint"
             id="delete_last_endpoint"
+            data-cy="delete-end-tour-endpoint"
           />
         </q-card-actions>
       </q-card>

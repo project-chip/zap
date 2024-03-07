@@ -65,3 +65,7 @@ Cypress.Commands.add('setZclProperties', () => {
     }*/
   })
 })
+
+Cypress.Commands.add('dataCy', (selector) => {
+  cy.get(`[data-cy=${selector}]`)
+})
