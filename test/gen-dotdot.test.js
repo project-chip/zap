@@ -26,6 +26,7 @@ const zclLoader = require('../src-electron/zcl/zcl-loader')
 const importJs = require('../src-electron/importexport/import')
 const testUtil = require('./test-util')
 const queryPackage = require('../src-electron/db/query-package')
+const querySession = require('../src-electron/db/query-session')
 
 let db
 const testFile = testUtil.zigbeeTestFile.threeEp
@@ -79,7 +80,13 @@ test(
     let importResult = await importJs.importDataFromFile(db, testFile)
     sessionId = importResult.sessionId
     expect(sessionId).not.toBeNull()
-    await queryPackage.insertSessionPackage(db, sessionId, zclContext.packageId)
+    let sessionPartitionInfo =
+      await querySession.getAllSessionPartitionInfoForSession(db, sessionId)
+    await queryPackage.insertSessionPackage(
+      db,
+      sessionPartitionInfo[0].sessionPartitionId,
+      zclContext.packageId
+    )
   },
   testUtil.timeout.medium()
 )

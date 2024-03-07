@@ -318,14 +318,14 @@ async function importSinglePackage(
  */
 function convertPackageResult(data) {
   let ret = {
-    zclPackageId: null,
+    zclPackageIds: [],
     templateIds: [],
     optionalIds: [],
   }
   data.forEach((obj) => {
     if (obj == null) return null
     if (obj.packageType == dbEnum.packageType.zclProperties) {
-      ret.zclPackageId = obj.packageId
+      ret.zclPackageIds.push(obj.packageId)
     } else if (obj.packageType == dbEnum.packageType.genTemplatesJson) {
       ret.templateIds.push(obj.packageId)
     } else {
@@ -399,18 +399,31 @@ function sortEndpoints(endpoints) {
  * @param {*} clusters
  */
 async function importClusters(db, allZclPackageIds, endpointTypeId, clusters) {
+  let relevantZclPackageIds = allZclPackageIds
+  let endpointTypeDeviceTypesInfo =
+    await queryDeviceType.selectDeviceTypesByEndpointTypeId(db, endpointTypeId)
+  let deviceTypeRefs = endpointTypeDeviceTypesInfo.map(
+    (etd) => etd.deviceTypeRef
+  )
+  if (deviceTypeRefs.length > 0) {
+    let deviceTypeInfo = await queryDeviceType.selectDeviceTypeById(
+      db,
+      deviceTypeRefs[0]
+    )
+    relevantZclPackageIds = deviceTypeInfo.packageRef
+  }
   if (clusters) {
     for (let k = 0; k < clusters.length; k++) {
       const endpointClusterId = await queryImpexp.importClusterForEndpointType(
         db,
-        allZclPackageIds,
+        relevantZclPackageIds,
         endpointTypeId,
         clusters[k]
       )
 
       await importCommands(
         db,
-        allZclPackageIds,
+        relevantZclPackageIds,
         endpointTypeId,
         endpointClusterId,
         clusters[k].commands
@@ -418,7 +431,7 @@ async function importClusters(db, allZclPackageIds, endpointTypeId, clusters) {
 
       await importAttributes(
         db,
-        allZclPackageIds,
+        relevantZclPackageIds,
         endpointTypeId,
         endpointClusterId,
         clusters[k].attributes,
@@ -427,7 +440,7 @@ async function importClusters(db, allZclPackageIds, endpointTypeId, clusters) {
 
       await importEvents(
         db,
-        allZclPackageIds,
+        relevantZclPackageIds,
         endpointTypeId,
         endpointClusterId,
         clusters[k].events
@@ -1164,10 +1177,16 @@ async function importEndpointTypes(
       'Application is failing the Device Type Specification as follows: \n'
     const clusterSpecCheckComplianceFailureTitle =
       '\n\nApplication is failing the Cluster Specification as follows: \n'
+    let sessionPartitionInfo =
+      await querySession.selectSessionPartitionInfoFromPackageId(
+        db,
+        sessionId,
+        allZclPackageIds
+      )
     for (let i = 0; i < endpointTypes.length; i++) {
       let endpointTypeId = await queryImpexp.importEndpointType(
         db,
-        sessionId,
+        sessionPartitionInfo[0].sessionPartitionId,
         allZclPackageIds,
         endpointTypes[i]
       )
@@ -1392,6 +1411,18 @@ async function jsonDataLoader(
   defaultTemplateFile
 ) {
   // Initially clean up all the packages from the session.
+  let sessionPartitions =
+    await querySession.getAllSessionPartitionInfoForSession(db, sessionId)
+  let sessionPartitionIds = sessionPartitions.map((sp) => sp.sessionPartitionId)
+  await queryPackage.deleteAllSessionPackages(db, sessionPartitionIds)
+  let sessionPartitionIndex = 0
+
+  let allPartitionPackages = state.package.filter(
+    (pkg) =>
+      pkg.type == dbEnum.packageType.zclProperties ||
+      pkg.type == dbEnum.packageType.genTemplatesJson ||
+      pkg.type == dbEnum.packageType.zclXmlStandalone
+  )
 
   // Loading all packages before custom xml to make sure clusterExtensions are
   // handled properly
@@ -1408,31 +1439,56 @@ async function jsonDataLoader(
     defaultZclMetafile,
     defaultTemplateFile
   )
+
+  await querySession.insertSessionPartitions(
+    db,
+    sessionId,
+    allPartitionPackages.length
+  )
+  let sessionPartitionInfo = await querySession.getSessionPartitionInfo(
+    db,
+    sessionId,
+    allPartitionPackages.length
+  )
+
   mainPackageData.sessionId = sessionId
 
   let mainPackagePromise = []
-  mainPackagePromise.push(
-    queryPackage.insertSessionPackage(
-      db,
-      sessionId,
-      mainPackageData.zclPackageId
+  for (let i = 0; i < mainPackageData.zclPackageIds.length; i++) {
+    mainPackagePromise.push(
+      queryPackage.insertSessionPackage(
+        db,
+        sessionPartitionInfo[sessionPartitionIndex].sessionPartitionId,
+        mainPackageData.zclPackageIds[i]
+      )
     )
-  )
+    sessionPartitionIndex++
+  }
 
   if (mainPackageData.templateIds.length > 0) {
     mainPackageData.templateIds.forEach((templateId) => {
       mainPackagePromise.push(
-        queryPackage.insertSessionPackage(db, sessionId, templateId)
+        queryPackage.insertSessionPackage(
+          db,
+          sessionPartitionInfo[sessionPartitionIndex].sessionPartitionId,
+          templateId
+        )
       )
+      sessionPartitionIndex++
     })
   }
 
   if (mainPackageData.optionalIds.length > 0) {
-    mainPackageData.optionalIds.forEach((optionalId) =>
+    mainPackageData.optionalIds.forEach((optionalId) => {
       mainPackagePromise.push(
-        queryPackage.insertSessionPackage(db, sessionId, optionalId)
+        queryPackage.insertSessionPackage(
+          db,
+          sessionPartitionInfo[sessionPartitionIndex].sessionPartitionId,
+          optionalId
+        )
       )
-    )
+      sessionPartitionIndex++
+    })
   }
   await Promise.all(mainPackagePromise)
 
@@ -1506,11 +1562,16 @@ async function jsonDataLoader(
   // packageData: { sessionId, packageId, otherIds, optionalIds}
   let optionalPackagePromises = []
   if (standAlonePackageData.optionalIds.length > 0) {
-    standAlonePackageData.optionalIds.forEach((optionalId) =>
+    standAlonePackageData.optionalIds.forEach((optionalId) => {
       optionalPackagePromises.push(
-        queryPackage.insertSessionPackage(db, sessionId, optionalId)
+        queryPackage.insertSessionPackage(
+          db,
+          sessionPartitionInfo[sessionPartitionIndex].sessionPartitionId,
+          optionalId
+        )
       )
-    )
+      sessionPartitionIndex++
+    })
   }
   await Promise.all(optionalPackagePromises)
 
@@ -1525,7 +1586,7 @@ async function jsonDataLoader(
 
   if ('endpointTypes' in state) {
     const allZclPackageIds = []
-    allZclPackageIds.push(mainPackageData.zclPackageId)
+    allZclPackageIds.push(mainPackageData.zclPackageIds)
     allZclPackageIds.push(...existingCustomXmlPackageIds)
     allZclPackageIds.push(...newlyLoadedCustomPackageIds)
     promisesStage1.push(
@@ -1564,24 +1625,34 @@ async function jsonDataLoader(
             pkg.version
           )
 
-        if (validSessionPkgId != null && invalidSessionPkgs.length) {
-          await Promise.all(
-            invalidSessionPkgs.map((y) => {
-              env.logDebug(
-                `Disabling/removing invalid session package. sessionId(${sessionId}), packageId(${y.id}), path(${y.path})`
+        if (validSessionPkgId != null && invalidSessionPkgs.length > 0) {
+          for (let i = 0; i < invalidSessionPkgs.length; i++) {
+            let sessionPartitionInfoCurrent =
+              await querySession.selectSessionPartitionInfoFromPackageId(
+                db,
+                sessionId,
+                invalidSessionPkgs[i].id
               )
-              return queryPackage.deleteSessionPackage(db, sessionId, y.id)
-            })
-          )
+            env.logDebug(
+              `Disabling/removing invalid session package. sessionId(${sessionId}), packageId(${invalidSessionPkgs[i].id}), path(${invalidSessionPkgs[i].path})`
+            )
+            await queryPackage.deleteSessionPackage(
+              db,
+              sessionPartitionInfoCurrent[0].sessionPartitionId,
+              invalidSessionPkgs[i].id
+            )
+            sessionPartitionIndex--
+          }
 
           env.logDebug(
             `Enabling session package. sessionId(${sessionId}), packageId(${validSessionPkgId})`
           )
           await queryPackage.insertSessionPackage(
             db,
-            sessionId,
+            sessionPartitionInfo[sessionPartitionIndex].sessionPartitionId,
             validSessionPkgId
           )
+          sessionPartitionIndex++
         }
       })
     )
@@ -1589,7 +1660,7 @@ async function jsonDataLoader(
 
   return {
     sessionId: mainPackageData.sessionId,
-    zclPackageId: mainPackageData.zclPackageId,
+    zclPackageId: mainPackageData.zclPackageIds,
     templateIds: mainPackageData.templateIds,
     errors: [],
     warnings: [],

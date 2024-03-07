@@ -450,8 +450,13 @@ async function loadZclExtensions(db, packageId, zclExt, defaultsPath) {
               env.logWarning(
                 `Invalid file! Failed to load defaults from: ${prop.defaults}`
               )
-              queryNotification.setNotification(db, "WARNING",
-                `Invalid file! Failed to load defaults from: ${prop.defaults}`, packageId, 2)
+              queryNotification.setNotification(
+                db,
+                'WARNING',
+                `Invalid file! Failed to load defaults from: ${prop.defaults}`,
+                packageId,
+                2
+              )
             })
 
           if (data) {
@@ -459,8 +464,13 @@ async function loadZclExtensions(db, packageId, zclExt, defaultsPath) {
               env.logWarning(
                 `Invalid file format! Failed to load defaults from: ${prop.defaults}`
               )
-              queryNotification.setNotification(db, "WARNING",
-              `Invalid file format! Failed to load defaults from: ${prop.defaults}`, packageId, 2)
+              queryNotification.setNotification(
+                db,
+                'WARNING',
+                `Invalid file format! Failed to load defaults from: ${prop.defaults}`,
+                packageId,
+                2
+              )
             } else {
               defaultArrayOfArrays.push(
                 data.map((x) => decodePackageExtensionEntity(entity, x))
@@ -507,6 +517,7 @@ async function loadTemplates(
     let globalCtx = {
       packageIds: [],
       packageId: null,
+      templateData: [],
     }
     if (genTemplatesJsonArray != null && genTemplatesJsonArray.length > 0) {
       for (let jsonFile of genTemplatesJsonArray) {
@@ -518,6 +529,7 @@ async function loadTemplates(
           if (globalCtx.packageId == null) {
             globalCtx.packageId = ctx.packageId
           }
+          globalCtx.templateData.push(ctx.templateData)
           globalCtx.packageIds.push(ctx.packageId)
         }
       }
@@ -773,7 +785,11 @@ async function generateSingleTemplate(
  * Main API async function to generate stuff.
  *
  * @param {*} db Database
- * @param {*} packageId packageId Template package id. It can be either single template or gen template json.
+ * @param {*} sessionId
+ * @param {*} templatePackageId packageId Template package id. It can be either single template or gen template json.
+ * @returns Promise that resolves into a generation result.
+ * @param {*} templateGeneratorOptions
+ * @param {*} options
  * @returns Promise that resolves into a generation result.
  */
 async function generate(

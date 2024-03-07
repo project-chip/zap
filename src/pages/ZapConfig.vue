@@ -33,12 +33,37 @@
                 label="Restore Unsaved Session"
               />
             </div>
+            <p class="text-center" v-if="isPackageSelected" style="color: red">
+              Warning: Please select atleast one package each from ZCL metadata
+              and Templates. If a package is not selected then internal packages
+              used for testing will be loaded automatically.
+            </p>
+            <p
+              class="text-center"
+              v-if="isMultiProtocolConfiguration"
+              style="color: red"
+            >
+              Warning: More than one ZCL packages with different categories have
+              been selected. You are initiating a ZAP configuration for
+              multi-protocol.
+            </p>
+            <p
+              class="text-center"
+              v-if="isMissalignedZclAndTemplateConfig"
+              style="color: red"
+            >
+              Warning: Corresponding ZCL and Template packages are not enabled
+              based on the same category.
+            </p>
             <p
               class="text-center"
               v-if="isMultiplePackage && customConfig === 'select'"
             >
               There are multiple packages of ZCL metadata loaded. Please select
-              the one you wish to use with this configuration.
+              the one you wish to use with this configuration. Packages within
+              an existing .zap file will come pre-selected when available.
+              However please update the packages in case of a SDK upgrade such
+              that you are using the latest version of the packages.
             </p>
             <p class="text-center" v-else-if="customConfig === 'load'">
               These are sessions found in the database that were not saved into
@@ -71,11 +96,9 @@
                 <template v-slot:body="props">
                   <q-tr :props="props" class="table_body">
                     <q-td key="select" :props="props">
-                      <q-radio
-                        v-model="selectedZclPropertiesData"
-                        checked-icon="task_alt"
-                        unchecked-icon="panorama_fish_eye"
-                        :val="props.row"
+                      <q-checkbox
+                        v-model="selectedZclPropertiesDataIds"
+                        :val="props.row.id"
                       />
                     </q-td>
                     <q-td key="category" :props="props">
@@ -373,6 +396,7 @@
 
 <script>
 import restApi from '../../src-shared/rest-api.js'
+import dbEnum from '../../src-shared/db-enum.js'
 import { QSpinnerGears } from 'quasar'
 import { setCssVar } from 'quasar'
 
@@ -437,8 +461,10 @@ export default {
     return {
       customConfig: 'select',
       selected: [],
-      selectedZclPropertiesData: null,
+      selectedZclPropertiesDataIds: [],
+      selectedZclPropertiesData: [],
       selectedZclGenData: [],
+      selectZclGenInfo: [],
       selectedZclSessionData: null,
       zclPropertiesRow: [],
       newSessionCol: generateNewSessionCol,
@@ -457,16 +483,60 @@ export default {
       },
       propertyDataDialog: {},
       genDataDialog: {},
+      currentZapFilePackages: [],
     }
   },
   computed: {
-    disableSubmitButton: function () {
+    // Checks if atleast one zcl and template packages have been selected
+    isPackageSelected: function () {
       if (this.customConfig === 'select')
         return (
-          this.selectedZclPropertiesData == null ||
+          this.selectedZclPropertiesData.length == 0 ||
           this.selectedZclGenData.length == 0
         )
       else return this.selectedZclSessionData == null
+    },
+    // Checks if package selection is leading to a multi-protocol configuration
+    isMultiProtocolConfiguration: function () {
+      let categorySet = []
+      this.selectedZclPropertiesData.forEach((prop) => {
+        if (!categorySet.includes(prop.category)) {
+          categorySet.push(prop.category)
+        }
+      })
+      if (this.customConfig === 'select') return categorySet.length > 1
+      else return this.selectedZclSessionData == null
+    },
+    // Checks for missaligned zcl and template package selection
+    isMissalignedZclAndTemplateConfig: function () {
+      if (this.customConfig === 'select') {
+        let zclCategorySet = []
+        let templateCategorySet = []
+        this.selectedZclPropertiesData.forEach((prop) => {
+          if (!zclCategorySet.includes(prop.category)) {
+            zclCategorySet.push(prop.category)
+          }
+        })
+        this.selectZclGenInfo.forEach((prop) => {
+          if (!templateCategorySet.includes(prop.category)) {
+            templateCategorySet.push(prop.category)
+          }
+        })
+        if (zclCategorySet.length !== templateCategorySet.length) {
+          return true
+        }
+        zclCategorySet.sort()
+        templateCategorySet.sort()
+
+        for (let i = 0; i < zclCategorySet.length; i++) {
+          if (zclCategorySet[i] != templateCategorySet[i]) {
+            return true
+          }
+        }
+        return false
+      } else {
+        return this.selectedZclSessionData == null
+      }
     },
     isMultiplePackage: function () {
       return this.zclPropertiesRow.length > 1
@@ -495,6 +565,18 @@ export default {
     getuitheme() {
       this.addClassToBody()
     },
+    // Updating this.selectedZclPropertiesData based on UI selections
+    selectedZclPropertiesDataIds() {
+      this.selectedZclPropertiesData = this.zclPropertiesRow.filter((zpr) =>
+        this.selectedZclPropertiesDataIds.includes(zpr.id)
+      )
+    },
+    // Updating this.selectZclGenInfo based on UI selections
+    selectedZclGenData() {
+      this.selectZclGenInfo = this.zclGenRow.filter((zgr) =>
+        this.selectedZclGenData.includes(zgr.id)
+      )
+    },
   },
   methods: {
     addClassToBody() {
@@ -512,6 +594,7 @@ export default {
           zclProperties: this.selectedZclPropertiesData,
           genTemplate: this.selectedZclGenData,
         }
+
         this.$router.push({ path: '/' })
         this.$q.loading.show({
           spinner: QSpinnerGears,
@@ -586,14 +669,48 @@ export default {
         this.genDataDialog[row.id] = false
       })
     },
+    // Create an absolute path for relative paths of the packages
+    createAbsolutePath(basePath, relativePath) {
+      let lastIndex = basePath.lastIndexOf('/')
+      basePath = basePath.substring(0, lastIndex)
+      let relativePathSegment = relativePath.split('/')
+      while (relativePathSegment[0] === '..') {
+        basePath = basePath.split('/')
+        basePath.pop()
+        basePath = basePath.join('/')
+        relativePathSegment.shift()
+      }
+      let absolutePath = basePath + '/' + relativePathSegment.join('/')
+      return absolutePath
+    },
   },
   created() {
     this.$serverPost(restApi.uri.sessionAttempt, this.path).then((result) => {
       this.zclPropertiesRow = result.data.zclProperties
-      this.selectedZclPropertiesData = result.data.zclProperties[0]
       this.zclGenRow = result.data.zclGenTemplates
       this.filePath = result.data.filePath
       this.open = result.data.open
+      this.currentZapFilePackages = result.data.zapFilePackages
+      let currentZapFileZclPacakges = []
+      let currentZapFileTemplatePacakges = []
+      let currentZclPackagesAbsolutePaths = []
+      let currentTemplatePackagesAbsolutePaths = []
+      if (this.currentZapFilePackages) {
+        currentZapFileZclPacakges = this.currentZapFilePackages.filter(
+          (zfp) => zfp.type == dbEnum.packageType.zclProperties
+        )
+        currentZapFileTemplatePacakges = this.currentZapFilePackages.filter(
+          (zfp) => zfp.type == dbEnum.packageType.genTemplatesJson
+        )
+        currentZclPackagesAbsolutePaths = currentZapFileZclPacakges.map((zfp) =>
+          this.createAbsolutePath(this.filePath, zfp.path)
+        )
+        currentTemplatePackagesAbsolutePaths =
+          currentZapFileTemplatePacakges.map((zfp) =>
+            this.createAbsolutePath(this.filePath, zfp.path)
+          )
+      }
+
       if (this.zclPropertiesRow.length == 1) {
         // We shortcut this page, if there is exactly one of each,
         // since we simply assume that they are selected and move on.
@@ -602,7 +719,32 @@ export default {
         }
         this.customConfig = 'select'
         this.submitForm()
+      } else if (
+        this.zclPropertiesRow.length == currentZapFileZclPacakges.length
+      ) {
+        // We shortcut this page, if the number of packages in the zap file
+        // and the number of packages loaded in the backend are the same.
+        if (this.zclGenRow.length == currentZapFileTemplatePacakges.length) {
+          this.selectedZclPropertiesDataIds = this.zclPropertiesRow.map(
+            (zpr) => zpr.id
+          )
+          this.selectedZclPropertiesData = this.zclPropertiesRow
+          this.selectedZclGenData = this.zclGenRow.map((zgr) => zgr.id)
+        }
+        this.customConfig = 'select'
+        this.submitForm()
       } else {
+        let selectableZclPackages = this.zclPropertiesRow.filter((zp) =>
+          currentZclPackagesAbsolutePaths.includes(zp.path)
+        )
+        let selectableTemplatePackages = this.zclGenRow.filter((zt) =>
+          currentTemplatePackagesAbsolutePaths.includes(zt.path)
+        )
+        this.selectedZclPropertiesDataIds = selectableZclPackages.map(
+          (zp) => zp.id
+        )
+        this.selectedZclPropertiesData = selectableTemplatePackages
+        this.selectedZclGenData = selectableTemplatePackages.map((zt) => zt.id)
         this.customConfig = 'select'
       }
 

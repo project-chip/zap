@@ -23,6 +23,7 @@
 const queryEndpointType = require('../db/query-endpoint-type.js')
 const queryEndpoint = require('../db/query-endpoint.js')
 const queryConfig = require('../db/query-config.js')
+const querySession = require('../db/query-session.js')
 const validation = require('../validation/validation.js')
 const restApi = require('../../src-shared/rest-api.js')
 const notification = require('../db/query-session-notification.js')
@@ -169,10 +170,17 @@ function httpPostEndpointType(db) {
   return async (request, response) => {
     let { name, deviceTypeRef, deviceIdentifier, deviceVersion } = request.body
     let sessionId = request.zapSessionId
+    // Get session partition given the device type reference
+    let sessionPartitionInfo =
+      await querySession.selectSessionPartitionInfoFromDeviceType(
+        db,
+        sessionId,
+        deviceTypeRef
+      )
     try {
       let newId = await queryConfig.insertEndpointType(
         db,
-        sessionId,
+        sessionPartitionInfo[0],
         name,
         deviceTypeRef,
         deviceIdentifier,
