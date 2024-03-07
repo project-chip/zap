@@ -32,7 +32,7 @@ limitations under the License.
             min="0"
           />
           <q-input
-            v-if="$store.state.zap.isProfileIdShown"
+            v-if="enableProfileId"
             label="Profile ID"
             v-model="computedProfileId"
             ref="profile"
@@ -136,6 +136,7 @@ limitations under the License.
 
           <div class="q-gutter-md row">
             <q-input
+              v-if="enableNetworkId"
               label="Network"
               type="number"
               v-model="shownEndpoint.networkIdentifier"
@@ -254,7 +255,11 @@ export default {
     } else {
       this.shownEndpoint.endpointIdentifier = this.getSmallestUnusedEndpointId()
     }
-
+    const enableZigbeeFeatures =
+      this.$store.state.zap.selectedZapConfig?.zclProperties?.category ===
+      'zigbee'
+    this.enableProfileId = enableZigbeeFeatures
+    this.enableNetworkId = enableZigbeeFeatures
     const enableMatterFeatures =
       this.$store.state.zap.selectedZapConfig?.zclProperties?.category ===
       'matter'
@@ -278,6 +283,8 @@ export default {
       enableMultipleDevice: false,
       enablePrimaryDevice: false,
       enableParentEndpoint: false,
+      enableProfileId: false,
+      enableNetworkId: false,
       endpointIds: [],
     }
   },
@@ -484,14 +491,10 @@ export default {
       }
     },
     saveOrCreateHandler() {
-      let profile = this.$store.state.zap.isProfileIdShown
-        ? this.$refs.profile.validate()
-        : true
-
+      let profile = this.enableProfileId ? this.$refs.profile.validate() : true
       if (
         this.$refs.endpoint.validate() &&
         this.$refs.device.validate() &&
-        this.$refs.network.validate() &&
         (this.$refs.version?.validate?.() ??
           !this.$refs.version?.includes((v) => !(v >= 0))) &&
         profile
