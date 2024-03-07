@@ -103,7 +103,7 @@ function endpoint_fixed_parent_id_array(options) {
   let parentIds = []
   this.endpoints.forEach((ep) => {
     if (ep.parentEndpointIdentifier == null) {
-      parentIds.push(0)
+      parentIds.push('kInvalidEndpointId')
     } else {
       parentIds.push(ep.parentEndpointIdentifier)
     }
