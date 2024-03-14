@@ -57,6 +57,7 @@ limitations under the License.
             dense
             @update:model-value="changeDomainFilter($event)"
             data-test="filter-input"
+            data-cy="cluster-domain-filter"
           />
         </div>
 
@@ -70,6 +71,7 @@ limitations under the License.
             @clear="changeFilterString('')"
             :model-value="filterString"
             data-test="search-clusters"
+            data-cy="cluster-text-filter"
           >
             <template v-slot:prepend>
               <q-icon name="search" />
@@ -83,7 +85,11 @@ limitations under the License.
             rounded
             @click="doActionFilter(actionOption)"
             :label="actionOption.label"
-            color="primary"
+            color="secondary"
+            :data-cy="
+              'cluster-btn-' +
+              actionOption.label.replace(/\s/g, '').toLowerCase()
+            "
           />
         </div>
       </div>
@@ -99,6 +105,7 @@ limitations under the License.
             @update:model-value="setOpenDomain(domainName, $event)"
             :model-value="getDomainOpenState(domainName)"
             data-test="Cluster"
+            :data-cy="'cluster-' + domainName.replace(/\s/g, '').toLowerCase()"
             header-class="bg-white text-primary"
           >
             <q-card>
@@ -301,7 +308,7 @@ export default {
       })
     },
     getDomainOpenState(domainName) {
-      return this.openDomains[domainName] || this.filterString != ''
+      return this.openDomains[domainName]
     },
     changeDomainFilter(filter) {
       this.$store.dispatch('zap/setDomainFilter', {
