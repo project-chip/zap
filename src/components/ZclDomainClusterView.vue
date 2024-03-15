@@ -219,6 +219,7 @@ limitations under the License.
 <script>
 import CommonMixin from '../util/common-mixin'
 import restApi from '../../src-shared/rest-api'
+import uiOptions from '../util/ui-options'
 
 let ZclClusterRoleAction = {
   Add: 'add',
@@ -230,13 +231,10 @@ let ZclClusterRole = { server: 'server', client: 'client' }
 export default {
   name: 'ZclDomainClusterView',
   props: ['domainName', 'clusters'],
-  mixins: [CommonMixin],
+  mixins: [CommonMixin, uiOptions],
   computed: {
     clusterSelectionOptions() {
-      if (
-        this.$store.state.zap.selectedZapConfig?.zclProperties?.category ===
-        'matter'
-      ) {
+      if (this.enableServerOnly) {
         return [
           { label: 'Not Enabled', client: false, server: false },
           { label: 'Server', client: false, server: true },

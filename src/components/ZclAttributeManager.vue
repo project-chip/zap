@@ -424,11 +424,6 @@ export default {
     }
   },
   mounted() {
-    const enableZigbeeFeatures =
-      this.$store.state.zap.selectedZapConfig?.zclProperties?.category ===
-      'zigbee'
-    this.enableSingleton = enableZigbeeFeatures
-    this.enableBounded = enableZigbeeFeatures
     this.columns = [
       {
         name: 'status',

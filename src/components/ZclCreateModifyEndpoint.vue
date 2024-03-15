@@ -199,6 +199,7 @@ limitations under the License.
 import * as RestApi from '../../src-shared/rest-api'
 import * as DbEnum from '../../src-shared/db-enum'
 import CommonMixin from '../util/common-mixin'
+import uiOptions from '../util/ui-options'
 const _ = require('lodash')
 import * as dbEnum from '../../src-shared/db-enum.js'
 
@@ -206,7 +207,7 @@ export default {
   name: 'ZclCreateModifyEndpoint',
   props: ['endpointReference'],
   emits: ['saveOrCreateValidated', 'updateData'],
-  mixins: [CommonMixin],
+  mixins: [CommonMixin, uiOptions],
   watch: {
     deviceTypeRefAndDeviceIdPair(val) {
       this.setDeviceTypeCallback(val)
@@ -255,17 +256,6 @@ export default {
     } else {
       this.shownEndpoint.endpointIdentifier = this.getSmallestUnusedEndpointId()
     }
-    const enableZigbeeFeatures =
-      this.$store.state.zap.selectedZapConfig?.zclProperties?.category ===
-      'zigbee'
-    this.enableProfileId = enableZigbeeFeatures
-    this.enableNetworkId = enableZigbeeFeatures
-    const enableMatterFeatures =
-      this.$store.state.zap.selectedZapConfig?.zclProperties?.category ===
-      'matter'
-    this.enableMultipleDevice = enableMatterFeatures
-    this.enablePrimaryDevice = enableMatterFeatures
-    this.enableParentEndpoint = enableMatterFeatures
   },
   data() {
     return {
@@ -280,11 +270,6 @@ export default {
       saveOrCreateCloseFlag: false,
       deviceTypeTmp: [], // Temp store for the selected device types
       primaryDeviceTypeTmp: null, // Temp store for the selected primary device type
-      enableMultipleDevice: false,
-      enablePrimaryDevice: false,
-      enableParentEndpoint: false,
-      enableProfileId: false,
-      enableNetworkId: false,
       endpointIds: [],
     }
   },
