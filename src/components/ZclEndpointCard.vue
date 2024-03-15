@@ -265,6 +265,7 @@ limitations under the License.
 <script>
 import ZclCreateModifyEndpoint from './ZclCreateModifyEndpoint.vue'
 import CommonMixin from '../util/common-mixin'
+import uiOptions from '../util/ui-options'
 import * as Storage from '../util/storage'
 import restApi from '../../src-shared/rest-api'
 import * as Util from '../util/util'
@@ -273,7 +274,7 @@ import * as dbEnum from '../../src-shared/db-enum.js'
 export default {
   name: 'ZclEndpointCard',
   props: ['endpointReference'],
-  mixins: [CommonMixin],
+  mixins: [CommonMixin, uiOptions],
   components: { ZclCreateModifyEndpoint },
   data() {
     return {
@@ -552,10 +553,6 @@ export default {
       this.selectedReporting = []
       this.getEndpointCardData()
       //only show Matter features if Matter is selected
-      const enableMatterFeatures =
-        this.$store.state.zap.selectedZapConfig?.zclProperties?.category ===
-        'matter'
-      this.enableParentEndpoint = enableMatterFeatures
     }
   },
 }

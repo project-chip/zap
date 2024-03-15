@@ -32,7 +32,7 @@ limitations under the License.
             min="0"
           />
           <q-input
-            v-if="$store.state.zap.isProfileIdShown"
+            v-if="enableProfileId"
             label="Profile ID"
             v-model="computedProfileId"
             ref="profile"
@@ -136,6 +136,7 @@ limitations under the License.
 
           <div class="q-gutter-md row">
             <q-input
+              v-if="enableNetworkId"
               label="Network"
               type="number"
               v-model="shownEndpoint.networkIdentifier"
@@ -198,6 +199,7 @@ limitations under the License.
 import * as RestApi from '../../src-shared/rest-api'
 import * as DbEnum from '../../src-shared/db-enum'
 import CommonMixin from '../util/common-mixin'
+import uiOptions from '../util/ui-options'
 const _ = require('lodash')
 import * as dbEnum from '../../src-shared/db-enum.js'
 
@@ -205,7 +207,7 @@ export default {
   name: 'ZclCreateModifyEndpoint',
   props: ['endpointReference'],
   emits: ['saveOrCreateValidated', 'updateData'],
-  mixins: [CommonMixin],
+  mixins: [CommonMixin, uiOptions],
   watch: {
     deviceTypeRefAndDeviceIdPair(val) {
       this.setDeviceTypeCallback(val)
@@ -254,13 +256,6 @@ export default {
     } else {
       this.shownEndpoint.endpointIdentifier = this.getSmallestUnusedEndpointId()
     }
-
-    const enableMatterFeatures =
-      this.$store.state.zap.selectedZapConfig?.zclProperties?.category ===
-      'matter'
-    this.enableMultipleDevice = enableMatterFeatures
-    this.enablePrimaryDevice = enableMatterFeatures
-    this.enableParentEndpoint = enableMatterFeatures
   },
   data() {
     return {
@@ -275,9 +270,6 @@ export default {
       saveOrCreateCloseFlag: false,
       deviceTypeTmp: [], // Temp store for the selected device types
       primaryDeviceTypeTmp: null, // Temp store for the selected primary device type
-      enableMultipleDevice: false,
-      enablePrimaryDevice: false,
-      enableParentEndpoint: false,
       endpointIds: [],
     }
   },
@@ -484,14 +476,10 @@ export default {
       }
     },
     saveOrCreateHandler() {
-      let profile = this.$store.state.zap.isProfileIdShown
-        ? this.$refs.profile.validate()
-        : true
-
+      let profile = this.enableProfileId ? this.$refs.profile.validate() : true
       if (
         this.$refs.endpoint.validate() &&
         this.$refs.device.validate() &&
-        this.$refs.network.validate() &&
         (this.$refs.version?.validate?.() ??
           !this.$refs.version?.includes((v) => !(v >= 0))) &&
         profile

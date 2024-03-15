@@ -219,6 +219,7 @@ limitations under the License.
 <script>
 import CommonMixin from '../util/common-mixin'
 import restApi from '../../src-shared/rest-api'
+import uiOptions from '../util/ui-options'
 
 let ZclClusterRoleAction = {
   Add: 'add',
@@ -230,8 +231,23 @@ let ZclClusterRole = { server: 'server', client: 'client' }
 export default {
   name: 'ZclDomainClusterView',
   props: ['domainName', 'clusters'],
-  mixins: [CommonMixin],
+  mixins: [CommonMixin, uiOptions],
   computed: {
+    clusterSelectionOptions() {
+      if (this.enableServerOnly) {
+        return [
+          { label: 'Not Enabled', client: false, server: false },
+          { label: 'Server', client: false, server: true },
+        ]
+      } else {
+        return [
+          { label: 'Not Enabled', client: false, server: false },
+          { label: 'Client', client: true, server: false },
+          { label: 'Server', client: false, server: true },
+          { label: 'Client & Server', client: true, server: true },
+        ]
+      }
+    },
     showStatus: {
       get() {
         return !this.$store.state.zap.standalone
@@ -524,12 +540,6 @@ export default {
       ZclClusterRole,
       showEnableAllClustersDialog: false,
       uc_label: 'uc label',
-      clusterSelectionOptions: [
-        { label: 'Not Enabled', client: false, server: false },
-        { label: 'Client', client: true, server: false },
-        { label: 'Server', client: false, server: true },
-        { label: 'Client & Server', client: true, server: true },
-      ],
       columns: [
         {
           name: 'status',

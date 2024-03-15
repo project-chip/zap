@@ -123,8 +123,14 @@ limitations under the License.
               "
             />
           </q-td>
-          <q-td key="singleton" :props="props" auto-width>
+          <q-td
+            key="singleton"
+            v-if="enableSingleton"
+            :props="props"
+            auto-width
+          >
             <q-checkbox
+              v-if="enableSingleton"
               class="q-mt-xs"
               :model-value="selectionSingleton"
               :val="hashAttributeIdClusterId(props.row.id, selectedCluster.id)"
@@ -140,8 +146,9 @@ limitations under the License.
               "
             />
           </q-td>
-          <q-td key="bounded" :props="props" auto-width>
+          <q-td key="bounded" v-if="enableBounded" :props="props" auto-width>
             <q-checkbox
+              v-if="enableBounded"
               class="q-mt-xs"
               :model-value="selectionBounded"
               :val="hashAttributeIdClusterId(props.row.id, selectedCluster.id)"
@@ -410,96 +417,109 @@ export default {
         rowsPerPage: 0,
         sortBy: 'clientServer',
       },
-      columns: [
-        {
-          name: 'status',
-          required: false,
-          label: '',
-          align: 'left',
-          style: 'width:1%',
-        },
-        {
-          name: 'included',
-          label: 'Enabled',
-          field: 'included',
-          align: 'left',
-        },
-        {
-          name: 'attrID',
-          align: 'left',
-          label: 'Attribute ID',
-          field: 'attrID',
-          sortable: true,
-          style: 'max-width: 90px',
-          headerStyle: 'max-width: 90px',
-        },
-        {
-          name: 'attrName',
-          label: 'Attribute',
-          field: 'attrName',
-          align: 'left',
-          sortable: true,
-        },
-        {
-          name: 'required',
-          label: 'Required',
-          field: 'required',
-          align: 'left',
-          sortable: true,
-        },
-        {
-          name: 'clientServer',
-          label: 'Client/Server',
-          field: 'clientServer',
-          align: 'left',
-          sortable: true,
-        },
-        {
-          name: 'mfgID',
-          label: 'Mfg Code',
-          align: 'left',
-          field: 'mfgID',
-          sortable: true,
-        },
-        {
-          name: 'storageOption',
-          label: 'Storage Option',
-          align: 'left',
-          field: 'storageOption',
-          sortable: true,
-        },
-        {
-          name: 'singleton',
-          align: 'left',
-          label: 'Singleton',
-          field: 'singleton',
-          sortable: true,
-        },
-        {
-          name: 'bounded',
-          align: 'left',
-          label: 'Bounded',
-          field: 'bounded',
-          sortable: true,
-        },
-        {
-          name: 'type',
-          align: 'left',
-          label: 'Type',
-          field: 'type',
-          sortable: true,
-        },
-        {
-          name: 'default',
-          align: 'left',
-          label: 'Default',
-          field: 'default',
-          style: 'min-width: 180px',
-          headerStyle: 'min-width: 180px',
-        },
-      ],
+      columns: [],
       forcedExternal: [],
+      enableSingleton: false,
+      enableBounded: false,
     }
+  },
+  mounted() {
+    this.columns = [
+      {
+        name: 'status',
+        required: false,
+        label: '',
+        align: 'left',
+        style: 'width:1%',
+      },
+      {
+        name: 'included',
+        label: 'Enabled',
+        field: 'included',
+        align: 'left',
+      },
+      {
+        name: 'attrID',
+        align: 'left',
+        label: 'Attribute ID',
+        field: 'attrID',
+        sortable: true,
+        style: 'max-width: 90px',
+        headerStyle: 'max-width: 90px',
+      },
+      {
+        name: 'attrName',
+        label: 'Attribute',
+        field: 'attrName',
+        align: 'left',
+        sortable: true,
+      },
+      {
+        name: 'required',
+        label: 'Required',
+        field: 'required',
+        align: 'left',
+        sortable: true,
+      },
+      {
+        name: 'clientServer',
+        label: 'Client/Server',
+        field: 'clientServer',
+        align: 'left',
+        sortable: true,
+      },
+      {
+        name: 'mfgID',
+        label: 'Mfg Code',
+        align: 'left',
+        field: 'mfgID',
+        sortable: true,
+      },
+      {
+        name: 'storageOption',
+        label: 'Storage Option',
+        align: 'left',
+        field: 'storageOption',
+        sortable: true,
+      },
+      ...(this.enableSingleton
+        ? [
+            {
+              name: 'singleton',
+              align: 'left',
+              label: 'Singleton',
+              field: 'singleton',
+              sortable: true,
+            },
+          ]
+        : []),
+      ...(this.enableBounded
+        ? [
+            {
+              name: 'bounded',
+              align: 'left',
+              label: 'Bounded',
+              field: 'bounded',
+              sortable: true,
+            },
+          ]
+        : []),
+      {
+        name: 'type',
+        align: 'left',
+        label: 'Type',
+        field: 'type',
+        sortable: true,
+      },
+      {
+        name: 'default',
+        align: 'left',
+        label: 'Default',
+        field: 'default',
+        style: 'min-width: 180px',
+        headerStyle: 'min-width: 180px',
+      },
+    ]
   },
   created() {
     if (this.$serverGet != null) {
