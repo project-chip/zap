@@ -41,4 +41,23 @@ describe('Testing cluster search', () => {
       cy.get('tbody').children().should('contain', data.cluster2)
     })
   })
+  it('check individual cluster closing and opening', () => {
+    cy.get('[data-test=Cluster').each(($row) => {
+      cy.wrap($row).should('have.class', 'q-expansion-item--expanded')
+    })
+    cy.dataCy('cluster-general').children().children().eq(0).click()
+    cy.dataCy('cluster-general').should(
+      'have.class',
+      'q-expansion-item--collapsed'
+    )
+    cy.dataCy('cluster-general').children().children().eq(0).click()
+    cy.dataCy('cluster-general').should(
+      'have.class',
+      'q-expansion-item--expanded'
+    )
+    cy.dataCy('cluster-btn-closeall').click()
+    cy.get('[data-test=Cluster').each(($row) => {
+      cy.wrap($row).should('have.class', 'q-expansion-item--collapsed')
+    })
+  })
 })

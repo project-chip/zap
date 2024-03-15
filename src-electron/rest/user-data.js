@@ -333,7 +333,8 @@ function httpPostAttributeUpdate(db) {
       db,
       endpointTypeIdList[0],
       id,
-      clusterRef
+      clusterRef,
+      request.zapSessionId
     )
 
     response.status(StatusCodes.OK).json({

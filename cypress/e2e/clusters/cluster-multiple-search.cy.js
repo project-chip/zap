@@ -60,4 +60,10 @@ describe('Add multiple clusters and search', () => {
       cy.get('tbody').children().should('contain', data.cluster2)
     })
   })
+  it('Close all the clusters', () => {
+    cy.dataCy('cluster-btn-closeall').click()
+    cy.get('[data-test=Cluster').each(($row) => {
+      cy.wrap($row).should('have.class', 'q-expansion-item--collapsed')
+    })
+  })
 })
