@@ -34,6 +34,8 @@ limitations under the License.
     <attribute apiMaturity="provisional" side="server" code="0x0001" define="PROVISIONAL_ATTRIBUTE" type="INT8U" writable="true" optional="true">ProvisionalAttribute</attribute>
     <attribute side="server" code="0x0000" define="STABLE_ATTRIBUTE" type="INT8U" writable="true" optional="true">StableAttribute</attribute>
 
+    <attribute side="server" code="0x0000" define="STABLE_ATTRIBUTE" type="INT8U" writable="true" optional="true">StableAttribute</attribute>
+
     <command source="client" code="0x00" name="StableCommand" response="StableCommandResponse" optional="false" >
       <description>A Test command</description>
       <access op="invoke" privilege="administer"/>
