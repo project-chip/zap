@@ -36,7 +36,11 @@ limitations under the License.
       separator="horizontal"
     >
       <template v-slot:body="props">
-        <q-tr :props="props" class="table_body">
+        <q-tr
+          :props="props"
+          class="table_body"
+          v-if="!globalLists.includes(props.row.label)"
+        >
           <q-td
             key="status"
             :props="props"
@@ -236,10 +240,11 @@ import restApi from '../../src-shared/rest-api.js'
 
 //This mixin derives from common-mixin.
 import EditableAttributeMixin from '../util/editable-attributes-mixin'
+import uiOptions from '../util/ui-options'
 
 export default {
   name: 'ZclAttributeManager',
-  mixins: [EditableAttributeMixin],
+  mixins: [EditableAttributeMixin, uiOptions],
   methods: {
     //retrieve list of cluster and attribute pairs that should be forced External Storage
     loadForcedExternal(packages) {
