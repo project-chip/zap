@@ -48,6 +48,10 @@ async function parseNewXmlFiles(db, packageId, files, context) {
       env.logWarning(
         `Invalid XML file: ${f}, missing toplevel 'cluster' element.`
       )
+    } else if (Number.isNaN(cluster.code)) {
+      env.logWarning(
+        `Invalid XML file: ${f}, missing or invalid 'id' attribute in 'cluster' element.`
+      )
     } else {
       clusters.push(cluster)
     }
