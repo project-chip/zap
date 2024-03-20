@@ -14,6 +14,7 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+const _ = require('lodash')
 const util = require('../util/util')
 const fs = require('fs')
 const fsp = fs.promises
@@ -102,22 +103,34 @@ async function parseSingleNewXmlFile(f) {
   data.name = xmlObject.cluster.$.name
   data.revision = xmlObject.cluster.$.revision
 
-  if (xmlObject.cluster.features) {
+  if (
+    xmlObject.cluster.features &&
+    _.isArray(xmlObject.cluster.features[0].feature)
+  ) {
     for (let feature of xmlObject.cluster.features[0].feature) {
       data.features.push(prepXmlFeature(feature))
     }
   }
-  if (xmlObject.cluster.attributes) {
+  if (
+    xmlObject.cluster.attributes &&
+    _.isArray(xmlObject.cluster.attributes[0].attribute)
+  ) {
     for (let attribute of xmlObject.cluster.attributes[0].attribute) {
       data.attributes.push(prepXmlAttribute(attribute))
     }
   }
-  if (xmlObject.cluster.commands) {
+  if (
+    xmlObject.cluster.commands &&
+    _.isArray(xmlObject.cluster.commands[0].command)
+  ) {
     for (let command of xmlObject.cluster.commands[0].command) {
       data.commands.push(prepXmlCommand(command))
     }
   }
-  if (xmlObject.cluster.events) {
+  if (
+    xmlObject.cluster.events &&
+    _.isArray(xmlObject.cluster.events[0].event)
+  ) {
     for (let event of xmlObject.cluster.events[0].event) {
       data.events.push(prepXmlEvent(event))
     }
