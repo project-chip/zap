@@ -36,6 +36,7 @@ const queryLoader = require('../db/query-loader')
 async function parseNewXmlFiles(db, packageId, files, context) {
   let ret = {
     clusterIdsLoaded: [],
+    errorFiles: [],
   }
   if (files == null || files.length == 0) {
     return ret
@@ -48,10 +49,12 @@ async function parseNewXmlFiles(db, packageId, files, context) {
       env.logWarning(
         `Invalid XML file: ${f}, missing toplevel 'cluster' element.`
       )
+      ret.errorFiles.push({ file: f, error: 'missing cluster element' })
     } else if (Number.isNaN(cluster.code)) {
       env.logWarning(
         `Invalid XML file: ${f}, missing or invalid 'id' attribute in 'cluster' element.`
       )
+      ret.errorFiles.push({ file: f, error: 'missing id attribute' })
     } else {
       clusters.push(cluster)
     }

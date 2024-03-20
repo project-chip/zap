@@ -2322,6 +2322,7 @@ async function loadZclJsonOrProperties(db, metafile, isJson = false) {
       ctx.newXmlFile
     )
     ctx.clustersLoadedFromNewFiles = newFileResult.clusterIdsLoaded
+    ctx.newFileErrors = newFileResult.errorFiles
     await parseZclFiles(db, ctx.packageId, ctx.zclFiles, ctx)
     // Validate that our attributeAccessInterfaceAttributes, if present, is
     // sane.

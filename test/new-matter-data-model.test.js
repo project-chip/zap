@@ -48,6 +48,14 @@ test(
   async () => {
     zclContext = await zclLoader.loadZcl(db, env.builtinNewMatterZclMetafile())
 
+    if (zclContext.newFileErrors.length > 0) {
+      console.log('Unit test report from loading new Matter XML files:')
+      for (let nfe of zclContext.newFileErrors) {
+        console.log(`${nfe.file} => ${nfe.error}`)
+      }
+      console.log('Note the unit test does not fail because of this.')
+    }
+
     const attributes = await queryZcl.selectAllAttributes(db, [
       zclContext.packageId,
     ])
