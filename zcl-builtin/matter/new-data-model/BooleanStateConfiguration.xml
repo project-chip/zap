@@ -54,12 +54,17 @@ This notice and disclaimer must be included on all copies of this document.
 Connectivity Standards Alliance
 508 Second Street, Suite 206
 Davis, CA 95616, USA
+
+:xrefstyle: basic
 -->
-<cluster xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="types types.xsd cluster cluster.xsd" id="0x0080" name="Boolean Sensor Configuration" revision="1">
+<cluster xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="types types.xsd cluster cluster.xsd" id="0x0080" name="Boolean State Configuration" revision="1">
   <revisionHistory>
     <revision revision="1" summary="Initial Release"/>
   </revisionHistory>
-  <classification hierarchy="base" role="application" picsCode="BSENCFG" scope="Endpoint"/>
+  <clusterIds>
+    <clusterId id="0x0080" name="Boolean State Configuration"/>
+  </clusterIds>
+  <classification hierarchy="base" role="application" picsCode="BOOLCFG" scope="Endpoint"/>
   <features>
     <feature bit="0" code="VIS" name="Visual" summary="Supports visual alarms">
       <optionalConform/>
@@ -68,30 +73,18 @@ Davis, CA 95616, USA
       <optionalConform/>
     </feature>
     <feature bit="2" code="SPRS" name="AlarmSuppress" summary="Supports ability to suppress or acknowledge alarms">
-      <optionalConform/>
+      <optionalConform>
+        <orTerm>
+          <feature name="VIS"/>
+          <feature name="AUD"/>
+        </orTerm>
+      </optionalConform>
     </feature>
-    <feature bit="3" code="SENSLVL" name="SensitivityLevel" summary="Supports ability to set level of threshold detection sensitivity">
+    <feature bit="3" code="SENSLVL" name="SensitivityLevel" summary="Supports ability to set sensor sensitivity">
       <optionalConform/>
     </feature>
   </features>
   <dataTypes>
-    <enum name="SensitivityEnum">
-      <item value="0" name="High" summary="High sensitivity">
-        <mandatoryConform>
-          <feature name="SENSLVL"/>
-        </mandatoryConform>
-      </item>
-      <item value="1" name="Standard" summary="Standard Sensitivity">
-        <mandatoryConform>
-          <feature name="SENSLVL"/>
-        </mandatoryConform>
-      </item>
-      <item value="2" name="Low" summary="Low sensitivity">
-        <mandatoryConform>
-          <feature name="SENSLVL"/>
-        </mandatoryConform>
-      </item>
-    </enum>
     <bitmap name="AlarmModeBitmap">
       <bitfield name="Visual" bit="0" summary="Visual alarming">
         <mandatoryConform>
@@ -104,18 +97,39 @@ Davis, CA 95616, USA
         </mandatoryConform>
       </bitfield>
     </bitmap>
+    <bitmap name="SensorFaultBitmap">
+      <bitfield name="GeneralFault" bit="0" summary="Unspecified fault detected">
+        <mandatoryConform/>
+      </bitfield>
+    </bitmap>
   </dataTypes>
   <attributes>
-    <attribute id="0x0000" name="SensitivityLevel" type="SensitivityEnum" default="Standard">
+    <attribute id="0x0000" name="CurrentSensitivityLevel" type="uint8">
       <access read="true" write="true" readPrivilege="view" writePrivilege="operate"/>
       <quality changeOmitted="false" nullable="false" scene="false" persistence="nonVolatile" reportable="false"/>
       <mandatoryConform>
         <feature name="SENSLVL"/>
       </mandatoryConform>
+      <constraint type="max" value="SupportedSensitivityLevels - 1"/>
     </attribute>
-    <attribute id="0x0001" name="AlarmsActive" type="AlarmModeBitmap">
+    <attribute id="0x0001" name="SupportedSensitivityLevels" type="uint8">
       <access read="true" readPrivilege="view"/>
-      <quality changeOmitted="false" nullable="false" scene="false" persistence="nonVolatile" reportable="false"/>
+      <quality changeOmitted="false" nullable="false" scene="false" persistence="fixed" reportable="false"/>
+      <mandatoryConform>
+        <feature name="SENSLVL"/>
+      </mandatoryConform>
+      <constraint type="between" from="2" to="10"/>
+    </attribute>
+    <attribute id="0x0002" name="DefaultSensitivityLevel" type="uint8">
+      <access read="true" readPrivilege="view"/>
+      <quality changeOmitted="false" nullable="false" scene="false" persistence="fixed" reportable="false"/>
+      <optionalConform>
+        <feature name="SENSLVL"/>
+      </optionalConform>
+      <constraint type="max" value="SupportedSensitivityLevels - 1"/>
+    </attribute>
+    <attribute id="0x0003" name="AlarmsActive" type="AlarmModeBitmap">
+      <access read="true" readPrivilege="view"/>
       <mandatoryConform>
         <orTerm>
           <feature name="VIS"/>
@@ -123,37 +137,56 @@ Davis, CA 95616, USA
         </orTerm>
       </mandatoryConform>
     </attribute>
-    <attribute id="0x0002" name="AlarmsSuppressed" type="AlarmModeBitmap">
+    <attribute id="0x0004" name="AlarmsSuppressed" type="AlarmModeBitmap">
       <access read="true" readPrivilege="view"/>
-      <quality changeOmitted="false" nullable="false" scene="false" persistence="nonVolatile" reportable="false"/>
       <mandatoryConform>
-        <andTerm>
-          <orTerm>
-            <feature name="VIS"/>
-            <feature name="AUD"/>
-          </orTerm>
-          <feature name="SPRS"/>
-        </andTerm>
+        <feature name="SPRS"/>
       </mandatoryConform>
     </attribute>
-    <attribute id="0x0003" name="AlarmsEnabled" type="AlarmModeBitmap">
-      <access read="true" write="true" readPrivilege="view" writePrivilege="operate"/>
+    <attribute id="0x0005" name="AlarmsEnabled" type="AlarmModeBitmap">
+      <access read="true" readPrivilege="view"/>
       <quality changeOmitted="false" nullable="false" scene="false" persistence="nonVolatile" reportable="false"/>
+      <optionalConform>
+        <orTerm>
+          <feature name="VIS"/>
+          <feature name="AUD"/>
+        </orTerm>
+      </optionalConform>
+    </attribute>
+    <attribute id="0x0006" name="AlarmsSupported" type="AlarmModeBitmap">
+      <access read="true" readPrivilege="view"/>
+      <quality changeOmitted="false" nullable="false" scene="false" persistence="fixed" reportable="false"/>
       <mandatoryConform>
         <orTerm>
           <feature name="VIS"/>
           <feature name="AUD"/>
         </orTerm>
       </mandatoryConform>
+    </attribute>
+    <attribute id="0x0007" name="SensorFault" type="SensorFaultBitmap" default="0">
+      <access read="true" readPrivilege="view"/>
+      <optionalConform/>
     </attribute>
   </attributes>
   <commands>
-    <command id="0x00" name="SuppressRequest" response="Y">
+    <command id="0x00" name="SuppressAlarm" direction="commandToServer" response="Y">
       <access invokePrivilege="operate"/>
       <mandatoryConform>
         <feature name="SPRS"/>
       </mandatoryConform>
       <field id="0" name="AlarmsToSuppress" type="AlarmModeBitmap">
+        <mandatoryConform/>
+      </field>
+    </command>
+    <command id="0x01" name="EnableDisableAlarm" direction="commandToServer" response="Y">
+      <access invokePrivilege="operate"/>
+      <mandatoryConform>
+        <orTerm>
+          <feature name="VIS"/>
+          <feature name="AUD"/>
+        </orTerm>
+      </mandatoryConform>
+      <field id="0" name="AlarmsToEnableDisable" type="AlarmModeBitmap">
         <mandatoryConform/>
       </field>
     </command>
@@ -179,6 +212,9 @@ Davis, CA 95616, USA
     <event id="0x01" name="SensorFault" priority="info">
       <access readPrivilege="view"/>
       <optionalConform/>
+      <field id="0" name="SensorFault" type="SensorFaultBitmap">
+        <mandatoryConform/>
+      </field>
     </event>
   </events>
 </cluster>

@@ -138,7 +138,6 @@ exports.matterTestFile = {
 }
 
 exports.testZclMetafile = path.join(__dirname, './resource/meta/zcl.json')
-
 exports.testServer = testServer
 
 exports.testCustomXml = './test/resource/custom-cluster/test-custom.xml'

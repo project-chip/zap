@@ -39,6 +39,10 @@ export function builtinMatterZclMetafile() {
   return locateProjectResource('./zcl-builtin/matter/zcl.json')
 }
 
+export function builtinNewMatterZclMetafile() {
+  return locateProjectResource('./zcl-builtin/matter/zcl-new-data-model.json')
+}
+
 export function builtinDotdotZclMetafile() {
   return locateProjectResource('./zcl-builtin/dotdot/library.xml')
 }
