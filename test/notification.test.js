@@ -22,6 +22,7 @@ const fs = require('fs')
 const path = require('path')
 const testUtil = require('./test-util')
 const env = require('../src-electron/util/env')
+const util = require('../src-electron/util/util')
 const dbApi = require('../src-electron/db/db-api')
 const sessionNotification = require('../src-electron/db/query-session-notification')
 const packageNotification = require('../src-electron/db/query-package-notification')
@@ -153,18 +154,39 @@ test(
     let sessionId = await querySession.createBlankSession(db)
     let ctx = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
     let packageId = ctx.packageId
-
-    queryPackage.insertSessionPackage(db, sessionId, packageId)
+    await util.ensurePackagesAndPopulateSessionOptions(
+      db,
+      sessionId,
+      {
+        zcl: env.builtinSilabsZclMetafile(),
+        template: env.builtinTemplateMetafile(),
+      },
+      packageId,
+      null
+    )
+    let sessionPartitionInfo = await querySession.getSessionPartitionInfo(
+      db,
+      sessionId,
+      2
+    )
+    await queryPackage.insertSessionPackage(
+      db,
+      sessionPartitionInfo[0].sessionPartitionId,
+      packageId
+    )
 
     await packageNotification.setNotification(
       db,
       type,
       message,
       packageId,
-      severity,
+      severity
     )
 
-    let notifications = await packageNotification.getNotificationBySessionId(db, sessionId)
+    let notifications = await packageNotification.getNotificationBySessionId(
+      db,
+      sessionId
+    )
 
     let id = 0
 
@@ -187,7 +209,10 @@ test(
     // delete the notification we just created
     await packageNotification.deleteNotification(db, id)
 
-    notifications = await packageNotification.getNotificationByPackageId(db, packageId)
+    notifications = await packageNotification.getNotificationByPackageId(
+      db,
+      packageId
+    )
 
     // check if the notification was successfully deleted
     let isNotificationDeleted = true

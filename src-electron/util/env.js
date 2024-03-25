@@ -47,6 +47,12 @@ export function builtinDotdotZclMetafile() {
   return locateProjectResource('./zcl-builtin/dotdot/library.xml')
 }
 
+export function builtinMatterZclMetafile2() {
+  return locateProjectResource(
+    './zcl-builtin/matter/zcl-with-test-extensions.json'
+  )
+}
+
 export function builtinTemplateMetafile() {
   return null // No default.
 }

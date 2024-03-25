@@ -30,6 +30,14 @@ limitations under the License.
             You can use this functionality to add custom ZCL clusters or
             commands to the Zigbee Clusters Configurator
           </div>
+          <p
+            class="text-center"
+            v-if="enableExtensionsWarning()"
+            style="color: red"
+          >
+            Warning: Custom xml is currently not supported for multi-protocol
+            configurations.
+          </p>
           <q-btn
             color="primary"
             icon="add"
@@ -289,6 +297,15 @@ export default {
     populateNotifications(packageId, type) {
       let key = type == 'ERROR' ? 'errors' : 'warnings'
       return this.notisData[packageId][key]
+    },
+    // Custom xml currently not supported for multi-protocol
+    enableExtensionsWarning() {
+      let categories =
+        this.$store.state.zap.selectedZapConfig?.zclProperties.map(
+          (zclProp) => zclProp.category
+        )
+      // Showing extensions when the zcl packages have less than 1 category
+      return categories.length > 1
     },
   },
   mounted() {

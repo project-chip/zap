@@ -140,6 +140,7 @@ export default {
                 deviceTypeRef:
                   this.endpointDeviceTypeRef[this.endpointType[res.id]],
               })
+              this.$store.dispatch('zap/updateClusters')
               this.$store
                 .dispatch(
                   `zap/endpointTypeClustersInfo`,

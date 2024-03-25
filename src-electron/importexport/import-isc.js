@@ -368,9 +368,16 @@ async function loadEndpointType(db, sessionId, packageId, endpointType) {
 
   if (dev == null)
     throw new Error(`Unknown device type: ${deviceName} / ${deviceCode}`)
+  // Get session partition given the device type reference
+  let sessionPartitionInfo =
+    await querySession.selectSessionPartitionInfoFromDeviceType(
+      db,
+      sessionId,
+      dev.id
+    )
   return queryConfig.insertEndpointType(
     db,
-    sessionId,
+    sessionPartitionInfo[0],
     endpointType.typeName,
     dev.id,
     dev.code,

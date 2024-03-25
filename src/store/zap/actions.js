@@ -42,9 +42,13 @@ export function updateInformationText(context, text) {
     })
 }
 
-export function updateClusters(context) {
+export async function updateClusters(context) {
+  let deviceTypes = await axiosRequests.$serverGet(
+    restApi.uri.zclDeviceType + 'all'
+  )
   axiosRequests.$serverGet(restApi.uri.zclCluster + 'all').then((response) => {
-    context.commit('updateClusters', response.data.clusterData)
+    response.data.deviceTypes = deviceTypes
+    context.commit('updateClusters', response.data)
   })
 }
 
@@ -355,6 +359,7 @@ export function addEndpointType(context, endpointTypeData) {
       })
       return res.data
     })
+    .catch((e) => console.log('Error in addEndpointType: ' + e.message))
 }
 
 export function duplicateEndpointType(context, { endpointTypeId }) {

@@ -27,6 +27,7 @@ const dbEnum = require('../../src-shared/db-enum.js')
 const queryZcl = require('./query-zcl.js')
 const queryUpgrade = require('../matter/matter.js')
 const queryDeviceType = require('./query-device-type')
+const querySession = require('./query-session')
 const queryCommand = require('./query-command.js')
 const restApi = require('../../src-shared/rest-api.js')
 const _ = require('lodash')
@@ -575,16 +576,18 @@ async function selectCountOfEndpointsWithGivenEndpointIdentifier(
 /**
  * Promises to add an endpoint type.
  *
- * @export
  * @param {*} db
- * @param {*} sessionId
+ * @param {*} sessionPartitionInfo
  * @param {*} name
  * @param {*} deviceTypeRef
+ * @param {*} deviceTypeIdentifier
+ * @param {*} deviceTypeVersion
+ * @param {*} doTransaction
  * @returns Promise to update endpoints.
  */
 async function insertEndpointType(
   db,
-  sessionId,
+  sessionPartitionInfo,
   name,
   deviceTypeRef,
   deviceTypeIdentifier,
@@ -603,8 +606,8 @@ async function insertEndpointType(
   // Insert endpoint type
   let newEndpointTypeId = await dbApi.dbInsert(
     db,
-    'INSERT OR REPLACE INTO ENDPOINT_TYPE ( SESSION_REF, NAME ) VALUES ( ?, ?)',
-    [sessionId, name]
+    'INSERT OR REPLACE INTO ENDPOINT_TYPE ( SESSION_PARTITION_REF, NAME ) VALUES ( ?, ?)',
+    [sessionPartitionInfo.sessionPartitionId, name]
   )
 
   // Creating endpoint type and device type ref combinations along with order of insertion
@@ -634,7 +637,7 @@ async function insertEndpointType(
       db,
       'ERROR',
       isErrorStringPresent ? err.split('Error:')[1] : err,
-      sessionId,
+      sessionPartitionInfo.sessionRef,
       1,
       1
     )
@@ -655,7 +658,7 @@ async function insertEndpointType(
   for (const dtRef of deviceTypeRefs) {
     await setEndpointDefaults(
       db,
-      sessionId,
+      sessionPartitionInfo.sessionRef,
       newEndpointTypeId,
       dtRef,
       doTransaction
@@ -678,7 +681,8 @@ async function duplicateEndpointType(db, endpointTypeId) {
     db,
     `
     SELECT
-      ENDPOINT_TYPE.SESSION_REF,
+      SESSION_PARTITION.SESSION_REF,
+      SESSION_PARTITION.SESSION_PARTITION_ID,
       ENDPOINT_TYPE.NAME,
       ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_REF,
       ENDPOINT_TYPE_DEVICE.DEVICE_IDENTIFIER,
@@ -689,6 +693,10 @@ async function duplicateEndpointType(db, endpointTypeId) {
       ENDPOINT_TYPE_DEVICE
     ON
       ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF
+    INNER JOIN
+      SESSION_PARTITION
+    ON
+      ENDPOINT_TYPE.SESSION_PARTITION_REF = SESSION_PARTITION.SESSION_PARTITION_ID
     WHERE
       ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF = ?`,
     [endpointTypeId]
@@ -699,9 +707,12 @@ async function duplicateEndpointType(db, endpointTypeId) {
     // Enter into the endpoint_type table
     newEndpointTypeId = await dbApi.dbInsert(
       db,
-      `INSERT INTO ENDPOINT_TYPE (SESSION_REF, NAME)
+      `INSERT INTO ENDPOINT_TYPE (SESSION_PARTITION_REF, NAME)
       VALUES (?, ?)`,
-      [endpointTypeDeviceInfo[0].SESSION_REF, endpointTypeDeviceInfo[0].NAME]
+      [
+        endpointTypeDeviceInfo[0].SESSION_PARTITION_REF,
+        endpointTypeDeviceInfo[0].NAME,
+      ]
     )
 
     // Enter into the endpoint_type_device table to establish the endpoint_type
@@ -758,8 +769,12 @@ async function updateEndpointType(db, sessionId, endpointTypeId, changesArray) {
     INNER JOIN
       ENDPOINT_TYPE_DEVICE
     ON ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF
+    INNER JOIN
+      SESSION_PARTITION
+    ON
+      ENDPOINT_TYPE.SESSION_PARTITION_REF = SESSION_PARTITION.SESSION_PARTITION_ID
     WHERE
-      ENDPOINT_TYPE_ID = ? AND SESSION_REF = ?
+      ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ? AND SESSION_PARTITION.SESSION_REF = ?
     ORDER BY
       ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_ORDER`,
     [endpointTypeId, sessionId]
@@ -873,7 +888,10 @@ async function updateEndpointType(db, sessionId, endpointTypeId, changesArray) {
 /**
  * Promise to set the default attributes and clusters for a endpoint type.
  * @param {*} db
+ * @param {*} sessionId
  * @param {*} endpointTypeId
+ * @param {*} deviceTypeRef
+ * @param {*} doTransaction
  */
 async function setEndpointDefaults(
   db,
@@ -893,7 +911,20 @@ async function setEndpointDefaults(
   if (pkgs == null || pkgs.length < 1)
     throw new Error('Could not locate package id for a given session.')
 
+  let deviceTypeInfo =
+    await querySession.selectDeviceTypePackageInfoFromDeviceTypeId(
+      db,
+      deviceTypeRef
+    )
+  let endpointTypeCategory =
+    deviceTypeInfo.length > 0 ? deviceTypeInfo[0].category : null
   let packageId = pkgs[0].id
+  for (let i = 0; i < pkgs.length; i++) {
+    if (pkgs[i].category == endpointTypeCategory) {
+      packageId = pkgs[i].id
+      break
+    }
+  }
   let clusters = await queryDeviceType.selectDeviceTypeClustersByDeviceTypeRef(
     db,
     deviceTypeRef
@@ -1216,7 +1247,16 @@ async function resolveNonOptionalAndReportableAttributes(
 async function selectEndpointTypeCount(db, sessionId) {
   let x = await dbApi.dbGet(
     db,
-    'SELECT COUNT(ENDPOINT_TYPE_ID) AS CNT FROM ENDPOINT_TYPE WHERE SESSION_REF = ?',
+    `SELECT
+      COUNT(ENDPOINT_TYPE_ID) AS CNT
+    FROM
+      ENDPOINT_TYPE
+    INNER JOIN
+      SESSION_PARTITION
+    ON
+      SESSION_PARTITION.SESSION_PARTITION_ID = ENDPOINT_TYPE.SESSION_PARTITION_REF
+    WHERE
+      SESSION_PARTITION.SESSION_REF = ?`,
     [sessionId]
   )
   return x['CNT']
@@ -1243,7 +1283,11 @@ SELECT
   COUNT(ENDPOINT_TYPE_ID)
 FROM
   ENDPOINT_TYPE
-WHERE SESSION_REF = ?
+INNER JOIN
+  SESSION_PARTITION
+ON
+  SESSION_PARTITION.SESSION_PARTITION_ID = ENDPOINT_TYPE.SESSION_PARTITION_REF
+WHERE SESSION_PARTITION.SESSION_REF = ?
   AND ENDPOINT_TYPE_ID IN
       (SELECT ENDPOINT_TYPE_REF
        FROM ENDPOINT_TYPE_CLUSTER
@@ -1404,8 +1448,12 @@ JOIN
   ATTRIBUTE AS A ON ETA.ATTRIBUTE_REF = A.ATTRIBUTE_ID
 JOIN
   ENDPOINT_TYPE AS ET ON ETA.ENDPOINT_TYPE_REF = ET.ENDPOINT_TYPE_ID
+INNER JOIN
+  SESSION_PARTITION
+ON
+  ET.SESSION_PARTITION_REF = SESSION_PARTITION.SESSION_PARTITION_ID
 WHERE
-  ET.SESSION_REF = ? AND ETA.INCLUDED = 1
+  SESSION_PARTITION.SESSION_REF = ? AND ETA.INCLUDED = 1
 ORDER BY
   CLUSTER_CODE, ATTRIBUTE_CODE
   `,
