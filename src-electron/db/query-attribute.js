@@ -54,8 +54,7 @@ async function selectEndpointTypeAttributesByEndpointTypeRefAndClusterRef(
       INCLUDED_REPORTABLE,
       MIN_INTERVAL,
       MAX_INTERVAL,
-      REPORTABLE_CHANGE,
-      API_MATURITY
+      REPORTABLE_CHANGE
     from 
       ENDPOINT_TYPE_ATTRIBUTE
     where
