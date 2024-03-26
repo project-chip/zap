@@ -701,7 +701,6 @@ async function duplicateEndpointType(db, endpointTypeId) {
       ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF = ?`,
     [endpointTypeId]
   )
-
   let newEndpointTypeId = 0
   if (endpointTypeDeviceInfo && endpointTypeDeviceInfo.length > 0) {
     // Enter into the endpoint_type table
@@ -710,7 +709,7 @@ async function duplicateEndpointType(db, endpointTypeId) {
       `INSERT INTO ENDPOINT_TYPE (SESSION_PARTITION_REF, NAME)
       VALUES (?, ?)`,
       [
-        endpointTypeDeviceInfo[0].SESSION_PARTITION_REF,
+        endpointTypeDeviceInfo[0].SESSION_PARTITION_ID,
         endpointTypeDeviceInfo[0].NAME,
       ]
     )
