@@ -51,6 +51,10 @@ limitations under the License.
     <!-- Derived Data Types -->
     <type id="0x42" description="Character String"         name="char_string"                 composite="true"/>
     <type id="0x44" description="Long Character String"    name="long_char_string"            composite="true"/>
+    <type id="0xD9" description="Power milliwatts"         name="power_mW"          size="8"  analog="true"   />
+    <type id="0xDA" description="Amperage milliamps"       name="amperage_mA"       size="8"  analog="true"   />
+    <type id="0xDB" description="Voltage millivolts"       name="voltage_mV"        size="8"  analog="true"   />
+    <type id="0xDC" description="Energy milliwatt-hours"   name="energy_mWh"        size="8"  analog="true"   />
     <type id="0xE0" description="Time of day"              name="tod"               size="4"  analog="true"   />
     <type id="0xE1" description="Date"                     name="date"              size="4"  analog="true"   />
     <type id="0xE3" description="Epoch Microseconds"       name="epoch_us"          size="8"  analog="true"   />
