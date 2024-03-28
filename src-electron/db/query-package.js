@@ -649,7 +649,8 @@ async function getAttributeAccessInterface(db, code) {
        FROM 
         PACKAGE_OPTION
        WHERE
-        OPTION_CODE = 999999`
+        OPTION_CODE = ?`,
+      [code]
     )
     .then((rows) => rows.map(dbMapping.map.options))
 }

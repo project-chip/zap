@@ -40,7 +40,7 @@ const fsp = fs.promises
 async function getForcedExternalStorage(db) {
   let forcedExternal = await queryPackage.getAttributeAccessInterface(
     db,
-    '999999'
+    dbEnum.storagePolicy.attributeAccessInterface
   )
   return forcedExternal
 }

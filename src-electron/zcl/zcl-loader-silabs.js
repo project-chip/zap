@@ -2107,7 +2107,10 @@ async function parseattributeAccessInterfaceAttributes(
       pkgRef,
       cluster,
       val.map((optionValue) => {
-        return { code: '999999', label: optionValue }
+        return {
+          code: dbEnum.storagePolicy.attributeAccessInterface,
+          label: optionValue,
+        }
       })
     )
   })
