@@ -127,7 +127,6 @@ async function recordTemplatesPackage(context) {
     context.templateData.category,
     context.templateData.description
   )
-
   context.packageId = topLevel.id
   if (topLevel.existedPreviously) return context
 

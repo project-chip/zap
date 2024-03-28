@@ -25,7 +25,7 @@ const dbMapping = require('./db-mapping.js')
 const queryPackage = require('./query-package.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const queryZcl = require('./query-zcl.js')
-const queryUpgrade = require('../matter/matter.js')
+const queryUpgrade = require('../sdk/matter.js')
 const queryDeviceType = require('./query-device-type')
 const querySession = require('./query-session')
 const queryCommand = require('./query-command.js')
@@ -213,16 +213,17 @@ async function insertOrUpdateAttributeState(
       attributeId,
       clusterRef
     )
-  let forcedExternal = await queryUpgrade.getForcedExternalStorage(
-    db,
-    attributeId
-  )
-  let storageOption = await queryUpgrade.computeStorageNewConfig(
-    db,
-    clusterRef,
-    staticAttribute.storagePolicy,
-    forcedExternal,
-    staticAttribute.name
+  let forcedExternal = await queryUpgrade.getForcedExternalStorage(db)
+  staticAttribute.storagePolicy =
+    await queryUpgrade.computeStoragePolicyNewConfig(
+      db,
+      clusterRef,
+      staticAttribute.storagePolicy,
+      forcedExternal,
+      staticAttribute.name
+    )
+  let storageOption = await queryUpgrade.computeStorageOptionNewConfig(
+    staticAttribute.storagePolicy
   )
   if (
     staticAttribute.storagePolicy ==

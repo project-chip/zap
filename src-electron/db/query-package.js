@@ -637,6 +637,24 @@ async function getAllPackages(db) {
     .then((rows) => rows.map(dbMapping.map.package))
 }
 
+async function getAttributeAccessInterface(db, code) {
+  return dbApi
+    .dbAll(
+      db,
+      `SELECT 
+        PACKAGE_REF, 
+        OPTION_CATEGORY, 
+        OPTION_CODE, 
+        OPTION_LABEL
+       FROM 
+        PACKAGE_OPTION
+       WHERE
+        OPTION_CODE = ?`,
+      [code]
+    )
+    .then((rows) => rows.map(dbMapping.map.options))
+}
+
 /**
  * This async function inserts an option and its values into the DB.
  *
@@ -658,7 +676,7 @@ async function insertOptionsKeyValues(
        VALUES 
         (?, ?, ?, ?)
        ON CONFLICT
-        (PACKAGE_REF, OPTION_CATEGORY, OPTION_CODE)
+        (PACKAGE_REF, OPTION_CATEGORY, OPTION_CODE, OPTION_LABEL)
        DO NOTHING`,
     optionCodeLabels.map((optionValue) => {
       return [packageId, optionCategory, optionValue.code, optionValue.label]
@@ -1037,6 +1055,7 @@ async function insertSessionKeyValuesFromPackageDefaults(db, sessionId) {
 }
 
 // exports
+exports.getAttributeAccessInterface = getAttributeAccessInterface
 exports.getPackageRefByAttributeId = getPackageRefByAttributeId
 exports.getPackageByPathAndParent = getPackageByPathAndParent
 exports.getPackageByPackageId = getPackageByPackageId

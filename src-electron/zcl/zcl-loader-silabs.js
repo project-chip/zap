@@ -2088,6 +2088,35 @@ async function parseBoolOptions(db, pkgRef, booleanCategories) {
 }
 
 /**
+ * Parses the attributeAccessInterfaceAttributes values inside the options.
+ *
+ * @param {*} db
+ * @param {*} ctx
+ * @returns Promised of parsed attributeAccessInterfaceAttributes.
+ */
+
+async function parseattributeAccessInterfaceAttributes(
+  db,
+  pkgRef,
+  attributeAccessInterfaceAttributes
+) {
+  Object.keys(attributeAccessInterfaceAttributes).map((cluster) => {
+    let val = attributeAccessInterfaceAttributes[cluster]
+    return queryPackage.insertOptionsKeyValues(
+      db,
+      pkgRef,
+      cluster,
+      val.map((optionValue) => {
+        return {
+          code: dbEnum.storagePolicy.attributeAccessInterface,
+          label: optionValue,
+        }
+      })
+    )
+  })
+}
+
+/**
  * Parses the default values inside the options.
  *
  * @param {*} db
@@ -2400,6 +2429,13 @@ async function loadZclJsonOrProperties(db, metafile, isJson = false) {
     }
     if (ctx.defaults) {
       await parseDefaults(db, ctx.packageId, ctx.defaults)
+    }
+    if (ctx.attributeAccessInterfaceAttributes) {
+      await parseattributeAccessInterfaceAttributes(
+        db,
+        ctx.packageId,
+        ctx.attributeAccessInterfaceAttributes
+      )
     }
     if (ctx.featureFlags) {
       await parseFeatureFlags(db, ctx.packageId, ctx.featureFlags)
