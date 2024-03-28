@@ -258,7 +258,8 @@ function httpPostCluster(db) {
 function httpPostForcedExternal(db) {
   return async (request, response) => {
     let forcedExternal = await upgrade.getDisabledStorage(db)
-    return response.send({ forcedExternal })
+    console.log(forcedExternal)
+    response.status(StatusCodes.OK).json(forcedExternal)
   }
 }
 /**

@@ -112,12 +112,6 @@
     }
   },
   "listsUseAttributeAccessInterface": true,
-  "attributeLists": [
-    "GeneratedCommandList",
-    "AcceptedCommandList",
-    "EventList",
-    "AttributeList"
-  ],
   "attributeAccessInterfaceAttributes": {
     "Access Control": [
       "ClusterRevision",

@@ -247,23 +247,17 @@ export default {
   mixins: [EditableAttributeMixin, uiOptions],
   methods: {
     //retrieve list of cluster and attribute pairs that should be forced External Storage
-    loadForcedExternal(packages) {
-      if (packages) {
-        this.$serverPost(restApi.uri.forcedExternal, packages).then((resp) => {
-          this.forcedExternal = resp.data.forcedExternal
-        })
-      }
+    loadForcedExternal() {
+      this.$serverPost(restApi.uri.forcedExternal).then((resp) => {
+        this.forcedExternal = resp.data
+      })
     },
-    checkForcedExternal(name, selectedCluster) {
-      let forcedExternal
-      this.forcedExternal.map((option) => {
-        console.log(selectedCluster)
-        if (
-          option.optionCategory == selectedCluster &&
+    checkForcedExternal(name) {
+      return this.forcedExternal.some((option) => {
+        return (
+          option.optionCategory == this.selectedCluster.label &&
           option.optionLabel == name
-        ) {
-          return true
-        }
+        )
       })
     },
     //return true and disable default field if Storage is External AND if attribute is not enabled
@@ -282,7 +276,7 @@ export default {
       return (
         !this.selection.includes(
           this.hashAttributeIdClusterId(id, selectedClusterId)
-        ) || this.checkForcedExternal(name, selectedCluster)
+        ) || this.checkForcedExternal(name)
       )
     },
     //return true and disable if attribute is not enabled
@@ -531,7 +525,7 @@ export default {
   created() {
     if (this.$serverGet != null) {
       this.forcedExternal = []
-      this.loadForcedExternal(this.packages)
+      this.loadForcedExternal()
     }
   },
 }
