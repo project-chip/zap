@@ -87,11 +87,6 @@ async function computeStoragePolicyForGlobalAttributes(
     })
   )
 }
-
-async function getDisabledStorage(db) {
-  return getForcedExternalStorage(db)
-}
-
 /**
  * Returns a flag stating which type of storage option the attribute is categorized to be.
  *
@@ -155,7 +150,7 @@ async function computeStorageImport(
   forcedExternal,
   attributeName
 ) {
-  forcedExternal.map((option) => {
+  forcedExternal.forEach((option) => {
     if (
       option.optionCategory == clusterName &&
       option.optionLabel == attributeName
@@ -167,7 +162,6 @@ async function computeStorageImport(
 }
 
 exports.getForcedExternalStorage = getForcedExternalStorage
-exports.getDisabledStorage = getDisabledStorage
 exports.computeStorageImport = computeStorageImport
 exports.computeStoragePolicyNewConfig = computeStoragePolicyNewConfig
 exports.computeStorageOptionNewConfig = computeStorageOptionNewConfig
