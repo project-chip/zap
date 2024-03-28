@@ -66,9 +66,8 @@ async function computeStoragePolicyForGlobalAttributes(
   clusterId,
   attributes
 ) {
-  let clusterName
   let forcedExternal
-  clusterName = await queryCluster.selectClusterName(db, clusterId)
+  let clusterName = await queryCluster.selectClusterName(db, clusterId)
   return Promise.all(
     attributes.map(async (attribute) => {
       if (attribute.clusterId == null) {
@@ -150,15 +149,18 @@ async function computeStorageImport(
   forcedExternal,
   attributeName
 ) {
-  forcedExternal.forEach((option) => {
+  let updatedStoragePolicy = storagePolicy
+  forcedExternal.some((option) => {
     if (
       option.optionCategory == clusterName &&
       option.optionLabel == attributeName
     ) {
-      storagePolicy = dbEnum.storagePolicy.attributeAccessInterface
+      updatedStoragePolicy = dbEnum.storagePolicy.attributeAccessInterface
+      return true
     }
+    return false
   })
-  return storagePolicy
+  return updatedStoragePolicy
 }
 
 exports.getForcedExternalStorage = getForcedExternalStorage
