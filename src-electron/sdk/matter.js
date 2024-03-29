@@ -74,6 +74,7 @@ async function computeStoragePolicyForGlobalAttributes(
           ) {
             attribute.storagePolicy =
               dbEnum.storagePolicy.attributeAccessInterface
+            return true
           }
         })
       }
@@ -132,6 +133,7 @@ async function computeStoragePolicyNewConfig(
       option.optionLabel == attributeName
     ) {
       storagePolicy = dbEnum.storagePolicy.attributeAccessInterface
+      return true
     }
   })
   return storagePolicy
