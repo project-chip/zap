@@ -259,6 +259,9 @@ export default defineComponent({
       search = search.substring(1)
     }
     let query = querystring.parse(search)
+    if (window.sessionStorage.getItem('session_uuid') == null) {
+      window.sessionStorage.setItem('session_uuid', uuidv4())
+    }
     if (query[`stsApplicationId`]) {
       // Get the current value of 'session_uuid'
       let currentSessionUuid =
