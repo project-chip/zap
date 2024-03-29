@@ -20,25 +20,20 @@ const queryPackage = require('../db/query-package.js')
 const queryCluster = require('../db/query-cluster.js')
 const queryAttribute = require('../db/query-attribute.js')
 const dbEnum = require('../../src-shared/db-enum.js')
-const fs = require('fs')
-const fsp = fs.promises
 
 /**
- * This file implements SDK rules which are used to upgrade .zap files and xml files
- * to be in sync with the Matter SDK and spec
- */
-
-/**
- * Returns an array of objects containing global attributes that should be forced external.
+ * This asynchronous function retrieves and returns the forced external storage options.
  *
- * @export
- * @param {*} db
- * @param {*} attributeId
- * @returns An array of objects
+ * @param {Object} db - The database instance.
+ *
+ * The function calls the 'getAttributeAccessInterface' method from 'queryPackage' with
+ * the database instance and 'attributeAccessInterface' from 'storagePolicy' as parameters.
+ * The result is assigned to 'forcedExternal'.
+ * Finally, it returns the 'forcedExternal' options.
  */
 
 async function getForcedExternalStorage(db) {
-  let forcedExternal = await queryPackage.getAttributeAccessInterface(
+  let forcedExternal = queryPackage.getAttributeAccessInterface(
     db,
     dbEnum.storagePolicy.attributeAccessInterface
   )
@@ -72,13 +67,14 @@ async function computeStoragePolicyForGlobalAttributes(
     attributes.map(async (attribute) => {
       if (attribute.clusterId == null) {
         forcedExternal = await getForcedExternalStorage(db, attribute.id)
-        forcedExternal.map((option) => {
+        forcedExternal.some((option) => {
           if (
             option.optionCategory == clusterName &&
             option.optionLabel == attribute.name
           ) {
             attribute.storagePolicy =
               dbEnum.storagePolicy.attributeAccessInterface
+            return true
           }
         })
       }
@@ -87,16 +83,15 @@ async function computeStoragePolicyForGlobalAttributes(
   )
 }
 /**
- * Returns a flag stating which type of storage option the attribute is categorized to be.
+ * This asynchronous function computes and returns the new configuration for a storage option.
  *
- * @export
- * @param {*} db
- * @param {*} clusterName
- * @param {*} clusterRef
- * @param {*} storagePolicy
- * @param {*} forcedExternal
- * @param {*} attributeId
- * @returns Storage Option
+ * @param {String} storagePolicy - The current storage policy.
+ *
+ * The function first initializes the storageOption. Then it checks the storagePolicy:
+ * - If it's 'attributeAccessInterface', it sets the storageOption to 'external'.
+ * - If it's 'any', it sets the storageOption to 'ram'.
+ * If the storagePolicy is neither of these, it throws an error 'check storage policy'.
+ * Finally, it returns the updated storage option.
  */
 
 async function computeStorageOptionNewConfig(storagePolicy) {
@@ -110,7 +105,20 @@ async function computeStorageOptionNewConfig(storagePolicy) {
   }
   return storageOption
 }
-
+/**
+ * This asynchronous function computes and returns the new configuration for a storage policy.
+ *
+ * @param {Object} db - The database instance.
+ * @param {Number} clusterRef - The reference to the cluster.
+ * @param {String} storagePolicy - The current storage policy.
+ * @param {Array} forcedExternal - An array of external options.
+ * @param {String} attributeName - The name of the attribute.
+ *
+ * The function first queries to get the cluster name using the cluster reference.
+ * Then it iterates over each option in the forcedExternal array. If the option's category
+ * matches the cluster name and the option's label matches the attribute name, it updates
+ * the storage policy to attributeAccessInterface. Finally, it returns the updated storage policy.
+ */
 async function computeStoragePolicyNewConfig(
   db,
   clusterRef,
@@ -118,28 +126,33 @@ async function computeStoragePolicyNewConfig(
   forcedExternal,
   attributeName
 ) {
-  let clusterName
-  clusterName = await queryCluster.selectClusterName(db, clusterRef)
-  forcedExternal.map((option) => {
+  let clusterName = await queryCluster.selectClusterName(db, clusterRef)
+  forcedExternal.some((option) => {
     if (
       option.optionCategory == clusterName &&
       option.optionLabel == attributeName
     ) {
       storagePolicy = dbEnum.storagePolicy.attributeAccessInterface
+      return true
     }
   })
   return storagePolicy
 }
 
 /**
- * Returns a flag stating which type of storage option the attribute is categorized to be.
+ * This asynchronous function computes and returns the updated storage import policy.
  *
- * @export
- * @param {*} db
- * @param {*} clusterName
- * @param {*} forcedExternal
- * @param {*} attributeId
- * @returns Storage Policy
+ * @param {Object} db - The database instance.
+ * @param {String} clusterName - The name of the cluster.
+ * @param {String} storagePolicy - The current storage policy.
+ * @param {Array} forcedExternal - An array of external options.
+ * @param {String} attributeName - The name of the attribute.
+ *
+ * The function first initializes the updatedStoragePolicy with the current storage policy.
+ * Then it iterates over each option in the forcedExternal array. If the option's category
+ * matches the cluster name and the option's label matches the attribute name, it updates
+ * the updatedStoragePolicy to attributeAccessInterface and stops the iteration.
+ * Finally, it returns the updated storage policy.
  */
 
 async function computeStorageImport(
