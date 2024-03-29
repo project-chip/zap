@@ -141,6 +141,46 @@ export default defineComponent({
     },
   },
   methods: {
+    parseQueryString() {
+      const querystring = require('querystring')
+      let search = window.location.search
+
+      if (search[0] === '?') {
+        search = search.substring(1)
+      }
+      this.query = querystring.parse(search)
+    },
+
+    setSessionUuid() {
+      if (window.sessionStorage.getItem('session_uuid') == null) {
+        window.sessionStorage.setItem('session_uuid', uuidv4())
+      }
+      if (this.query[`stsApplicationId`]) {
+        let currentSessionUuid =
+          window.sessionStorage.getItem('session_uuid') || ''
+        let updatedSessionUuid =
+          this.query[`stsApplicationId`] + currentSessionUuid
+        window.sessionStorage.setItem('session_uuid', updatedSessionUuid)
+      }
+    },
+
+    setTheme() {
+      window[rendApi.GLOBAL_SYMBOL_EXECUTE](
+        rendApi.id.setDarkTheme,
+        storage.getItem(rendApi.storageKey.isDarkThemeActive)
+      )
+    },
+
+    routePage() {
+      if (window.location.hash == '#/preferences/about') {
+        this.$router.push({ path: '/preferences/about' })
+      } else if (this.isZapConfigSelected != true) {
+        this.$router.push({ path: '/config' })
+      } else {
+        this.$router.push({ path: '/' })
+        this.getAppData()
+      }
+    },
     setGenerationInProgress(progressMessage) {
       if (progressMessage != null && progressMessage.length > 0) {
         this.$q.loading.show({
@@ -251,40 +291,10 @@ export default defineComponent({
     },
   },
   created() {
-    // Parse the query string into the front end.
-    const querystring = require('querystring')
-    let search = window.location.search
-
-    if (search[0] === '?') {
-      search = search.substring(1)
-    }
-    let query = querystring.parse(search)
-    if (window.sessionStorage.getItem('session_uuid') == null) {
-      window.sessionStorage.setItem('session_uuid', uuidv4())
-    }
-    if (query[`stsApplicationId`]) {
-      // Get the current value of 'session_uuid'
-      let currentSessionUuid =
-        window.sessionStorage.getItem('session_uuid') || ''
-
-      // Prepend the 'stsApplicationId' to the current value
-      let updatedSessionUuid = query[`stsApplicationId`] + currentSessionUuid
-
-      // Set the updated value back to the session storage
-      window.sessionStorage.setItem('session_uuid', updatedSessionUuid)
-    }
-    window[rendApi.GLOBAL_SYMBOL_EXECUTE](
-      rendApi.id.setDarkTheme,
-      storage.getItem(rendApi.storageKey.isDarkThemeActive)
-    )
-    if (window.location.hash == '#/preferences/about') {
-      this.$router.push({ path: '/preferences/about' })
-    } else if (this.isZapConfigSelected != true) {
-      this.$router.push({ path: '/config' })
-    } else {
-      this.$router.push({ path: '/' })
-      this.getAppData()
-    }
+    this.parseQueryString()
+    this.setSessionUuid()
+    this.setTheme()
+    this.routePage()
   },
   mounted() {
     this.addClassToBody()
