@@ -260,7 +260,15 @@ export default defineComponent({
     }
     let query = querystring.parse(search)
     if (query[`stsApplicationId`]) {
-      window.sessionStorage.setItem('session_uuid', query[`stsApplicationId`])
+      // Get the current value of 'session_uuid'
+      let currentSessionUuid =
+        window.sessionStorage.getItem('session_uuid') || ''
+
+      // Prepend the 'stsApplicationId' to the current value
+      let updatedSessionUuid = query[`stsApplicationId`] + currentSessionUuid
+
+      // Set the updated value back to the session storage
+      window.sessionStorage.setItem('session_uuid', updatedSessionUuid)
     }
     window[rendApi.GLOBAL_SYMBOL_EXECUTE](
       rendApi.id.setDarkTheme,
