@@ -42,11 +42,16 @@ const observable = require('./util/observable.js')
 const dbEnum = require(`../src-shared/db-enum.js`)
 const storage = require('./util/storage.js')
 
-window.addEventListener('message', (event) => {
+window.addEventListener(
+  'message',
+  (event) => {
     const eventData = event?.data?.eventData
     switch (event?.data?.eventId) {
       case 'theme':
-        window[rendApi.GLOBAL_SYMBOL_EXECUTE](rendApi.id.setDarkTheme, eventData.theme === 'dark')
+        window[rendApi.GLOBAL_SYMBOL_EXECUTE](
+          rendApi.id.setDarkTheme,
+          eventData.theme === 'dark'
+        )
         break
       case 'save':
         if (eventData.shouldSave) {
@@ -54,71 +59,65 @@ window.addEventListener('message', (event) => {
         }
         break
     }
-  }, 
+  },
   false
 )
 
-async function initLoad(store) {
-  let promises = []
-  promises.push(store.dispatch('zap/loadInitialData'))
-  promises.push(
-    store.dispatch('zap/loadOptions', {
-      key: 'coreSpecification',
-      type: 'string',
-    })
-  )
-  promises.push(
-    store.dispatch('zap/loadOptions', {
-      key: 'clusterSpecification',
-      type: 'string',
-    })
-  )
-  promises.push(
-    store.dispatch('zap/loadOptions', {
-      key: 'deviceTypeSpecification',
-      type: 'string',
-    })
-  )
-  promises.push(
-    store.dispatch('zap/loadOptions', {
-      key: 'defaultResponsePolicy',
-      type: 'string',
-    })
-  )
-  promises.push(
-    store.dispatch('zap/loadOptions', {
-      key: 'manufacturerCodes',
-      type: 'object',
-    })
-  )
-  promises.push(
-    store.dispatch('zap/loadOptions', {
-      key: 'profileCodes',
-      type: 'object',
-    })
-  )
-  promises.push(
-    store.dispatch('zap/loadOptions', {
-      key: 'generator',
-      type: 'object',
-    })
-  )
-  promises.push(store.dispatch('zap/loadSessionKeyValues'))
+async function loadInitialData(store) {
+  return store.dispatch('zap/loadInitialData')
+}
 
+async function loadOptions(store, options) {
+  let promises = options.map((option) => {
+    return store.dispatch('zap/loadOptions', option)
+  })
+  return Promise.all(promises)
+}
+
+async function loadSessionKeyValues(store) {
+  return store.dispatch('zap/loadSessionKeyValues')
+}
+async function updateShowDevTools(store) {
   if (
     localStorage.getItem('showDevTools') &&
     localStorage.getItem('showDevTools') == 'true'
   ) {
-    promises.push(store.dispatch('zap/updateShowDevTools'))
+    return store.dispatch('zap/updateShowDevTools')
   }
-  promises.push(store.dispatch('zap/updateClusters'))
-  promises.push(store.dispatch('zap/updateAtomics'))
-  promises.push(store.dispatch('zap/updateZclDeviceTypes'))
-  promises.push(store.dispatch(`zap/getProjectPackages`))
-  promises.push(store.dispatch(`zap/loadZclClusterToUcComponentDependencyMap`))
+}
+
+async function updateData(store) {
+  let promises = [
+    store.dispatch('zap/updateClusters'),
+    store.dispatch('zap/updateAtomics'),
+    store.dispatch('zap/updateZclDeviceTypes'),
+    store.dispatch(`zap/getProjectPackages`),
+    store.dispatch(`zap/loadZclClusterToUcComponentDependencyMap`),
+  ]
   return Promise.all(promises)
 }
 
+async function initLoad(store) {
+  let options = [
+    { key: 'coreSpecification', type: 'string' },
+    { key: 'clusterSpecification', type: 'string' },
+    { key: 'deviceTypeSpecification', type: 'string' },
+    { key: 'defaultResponsePolicy', type: 'string' },
+    { key: 'manufacturerCodes', type: 'object' },
+    { key: 'profileCodes', type: 'object' },
+    { key: 'generator', type: 'object' },
+  ]
+
+  let promises = [
+    loadInitialData(store),
+    loadOptions(store, options),
+    loadSessionKeyValues(store),
+    updateShowDevTools(store),
+    updateData(store),
+  ]
+
+  return Promise.all(promises)
+}
 export default defineComponent({
   name: 'App',
   components: {
@@ -136,28 +135,24 @@ export default defineComponent({
     },
   },
   methods: {
-    setGenerationInProgress(progressMessage) {
-      if (progressMessage != null && progressMessage.length > 0) {
-        this.$q.loading.show({
-          spinner: QSpinnerGears,
-          messageColor: 'white',
-          message: progressMessage,
-          spinnerSize: 300,
-        })
+    setTheme() {
+      window[rendApi.GLOBAL_SYMBOL_EXECUTE](
+        rendApi.id.setDarkTheme,
+        storage.getItem(rendApi.storageKey.isDarkThemeActive)
+      )
+    },
+
+    navigateToPage() {
+      if (window.location.hash == '#/preferences/about') {
+        this.$router.push({ path: '/preferences/about' })
+      } else if (this.isZapConfigSelected != true) {
+        this.$router.push({ path: '/config' })
       } else {
-        this.$q.loading.hide()
+        this.$router.push({ path: '/' })
+        this.getAppData()
       }
     },
-    viewExceptions() {
-      this.$router.push('/')
-      if (!this.$store.state.zap.showDevTools)
-        this.$store.dispatch('zap/updateShowDevTools')
-      if (!this.$store.state.zap.isExceptionsExpanded)
-        this.$store.commit('zap/expandedExceptionsToggle')
-      this.$store.dispatch('zap/setDefaultUiMode', 'general')
-      this.$store.commit('zap/toggleShowExceptionIcon', false)
-    },
-    getAppData() {
+    updateProfileId() {
       if (this.$serverGet != null) {
         this.$serverGet(restApi.uri.uiOptions).then((res) => {
           this.$store.commit(
@@ -166,8 +161,9 @@ export default defineComponent({
           )
         })
       }
+    },
 
-      // Parse the query string into the front end.
+    parseQueryString() {
       const querystring = require('querystring')
       let search = window.location.search
 
@@ -175,102 +171,107 @@ export default defineComponent({
         search = search.substring(1)
       }
 
-      let query = querystring.parse(search)
-      if (query[`uiMode`]) {
-        this.$store.dispatch('zap/setDefaultUiMode', query[`uiMode`])
-      }
+      this.query = querystring.parse(search)
+    },
 
-      if (`debugNavBar` in query) {
+    updateUiMode() {
+      if (this.query[`uiMode`]) {
+        this.$store.dispatch('zap/setDefaultUiMode', this.query[`uiMode`])
+      }
+    },
+
+    updateDebugNavBar() {
+      if (`debugNavBar` in this.query) {
         this.$store.dispatch(
           'zap/setDebugNavBar',
-          query[`debugNavBar`] === 'true'
+          this.query[`debugNavBar`] === 'true'
         )
       } else {
-        // If we don't specify it, default is on.
         this.$store.dispatch('zap/setDebugNavBar', true)
       }
+    },
 
-      if ('standalone' in query) {
-        this.$store.dispatch('zap/setStandalone', query['standalone'])
+    updateStandalone() {
+      if ('standalone' in this.query) {
+        this.$store.dispatch('zap/setStandalone', this.query['standalone'])
       }
-
-      if (`setSaveButtonVisible` in query) {
+    },
+    updateSaveButtonVisible() {
+      if (`setSaveButtonVisible` in this.query) {
         this.$store.dispatch(
           'zap/setSaveButtonVisible',
-          query[`setSaveButtonVisible`] === 'true'
+          this.query[`setSaveButtonVisible`] === 'true'
         )
       } else {
-        // If we don't specify it, default is off.
         this.$store.dispatch('zap/setSaveButtonVisible', false)
       }
+    },
 
+    setZclDialog() {
       this.zclDialogTitle = 'ZCL tab!'
       this.zclDialogText =
         'Welcome to ZCL tab. This is just a test of a dialog.'
       this.zclDialogFlag = false
+    },
 
+    observeProgressAttribute() {
       observable.observeAttribute(
         rendApi.observable.progress_attribute,
         (message) => {
           this.setGenerationInProgress(message)
         }
       )
+    },
 
+    loadInitialUcComponentState() {
       initLoad(this.$store).then(() => {
         this.$q.loading.hide()
       })
 
-      // load initial UC component state
       this.$store.dispatch(`zap/loadUcComponentState`)
+    },
 
-      // handles UC component state change events
+    handleUcComponentStateChange() {
       this.$onWebSocket(
         dbEnum.wsCategory.updateSelectedUcComponents,
         (resp) => {
           this.$store.dispatch('zap/updateSelectedUcComponentState', resp)
         }
       )
-
-      this.$onWebSocket(
-        dbEnum.wsCategory.dirtyFlag,
-        (resp) => {
-          this.$store.dispatch('zap/setDirtyState', resp)
-        }
-      )
     },
-    addClassToBody() {
-      if (this.uiThemeCategory === 'zigbee') {
-        document.body.classList.remove('matter')
-        document.body.classList.add('zigbee')
-      } else {
-        document.body.classList.remove('zigbee')
-        document.body.classList.add('matter')
-      }
+
+    handleDirtyFlag() {
+      this.$onWebSocket(dbEnum.wsCategory.dirtyFlag, (resp) => {
+        this.$store.dispatch('zap/setDirtyState', resp)
+      })
     },
   },
   created() {
-    window[rendApi.GLOBAL_SYMBOL_EXECUTE](
-      rendApi.id.setDarkTheme,
-      storage.getItem(rendApi.storageKey.isDarkThemeActive)
-    )
-    if (window.location.hash == '#/preferences/about') {
-      this.$router.push({ path: '/preferences/about' })
-    } else if (this.isZapConfigSelected != true) {
-      this.$router.push({ path: '/config' })
-    } else {
-      this.$router.push({ path: '/' })
-      this.getAppData()
-    }
+    this.setTheme()
+    this.navigateToPage()
+    this.updateProfileId()
+    this.parseQueryString()
+    this.updateUiMode()
+    this.updateDebugNavBar()
+    this.updateStandalone()
+    this.updateSaveButtonVisible()
+    this.setZclDialog()
+    this.observeProgressAttribute()
+    this.loadInitialUcComponentState()
+    this.handleUcComponentStateChange()
+    this.handleDirtyFlag()
   },
   mounted() {
     this.addClassToBody()
-    window?.parent?.postMessage({
+    window?.parent?.postMessage(
+      {
         eventId: 'mounted',
         eventData: {
-          hasMounted: true
-        }
+          hasMounted: true,
+        },
       },
-      '*')
+      '*'
+    )
   },
   unmounted() {
     if (this.uiThemeCategory === 'zigbee') {
