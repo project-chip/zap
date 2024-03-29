@@ -711,16 +711,9 @@ export default {
           )
       }
 
-      if (this.zclPropertiesRow.length == 1) {
-        // We shortcut this page, if there is exactly one of each,
-        // since we simply assume that they are selected and move on.
-        if (this.selectedZclGenData[0]) {
-          this.selectedZclGenData[0] = this.zclGenRow[0].path
-        }
-        this.customConfig = 'select'
-        this.submitForm()
-      } else if (
-        this.zclPropertiesRow.length == currentZapFileZclPacakges.length
+      if (
+        this.zclPropertiesRow.length == currentZapFileZclPacakges.length ||
+        this.zclPropertiesRow.length == 1
       ) {
         // We shortcut this page, if the number of packages in the zap file
         // and the number of packages loaded in the backend are the same.
