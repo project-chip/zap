@@ -20,8 +20,6 @@ const queryPackage = require('../db/query-package.js')
 const queryCluster = require('../db/query-cluster.js')
 const queryAttribute = require('../db/query-attribute.js')
 const dbEnum = require('../../src-shared/db-enum.js')
-const fs = require('fs')
-const fsp = fs.promises
 
 /**
  * This asynchronous function retrieves and returns the forced external storage options.
@@ -69,7 +67,7 @@ async function computeStoragePolicyForGlobalAttributes(
     attributes.map(async (attribute) => {
       if (attribute.clusterId == null) {
         forcedExternal = await getForcedExternalStorage(db, attribute.id)
-        forcedExternal.map((option) => {
+        forcedExternal.some((option) => {
           if (
             option.optionCategory == clusterName &&
             option.optionLabel == attribute.name
@@ -110,7 +108,7 @@ async function computeStorageOptionNewConfig(storagePolicy) {
  * This asynchronous function computes and returns the new configuration for a storage policy.
  *
  * @param {Object} db - The database instance.
- * @param {Object} clusterRef - The reference to the cluster.
+ * @param {Number} clusterRef - The reference to the cluster.
  * @param {String} storagePolicy - The current storage policy.
  * @param {Array} forcedExternal - An array of external options.
  * @param {String} attributeName - The name of the attribute.
