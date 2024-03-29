@@ -66,10 +66,10 @@ async function computeStoragePolicyForGlobalAttributes(
   let forcedExternal
   let clusterName = await queryCluster.selectClusterName(db, clusterId)
   return Promise.all(
-    attributes.forEach(async (attribute) => {
+    attributes.map(async (attribute) => {
       if (attribute.clusterId == null) {
         forcedExternal = await getForcedExternalStorage(db, attribute.id)
-        forcedExternal.forEach((option) => {
+        forcedExternal.map((option) => {
           if (
             option.optionCategory == clusterName &&
             option.optionLabel == attribute.name
