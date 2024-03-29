@@ -49,7 +49,7 @@ CREATE TABLE "PACKAGE_OPTION" (
   "OPTION_CODE" text,
   "OPTION_LABEL" text,
   foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID) on delete cascade,
-  UNIQUE(PACKAGE_REF, OPTION_CATEGORY, OPTION_CODE)
+  UNIQUE(PACKAGE_REF, OPTION_CATEGORY, OPTION_CODE, OPTION_LABEL)
 );
 /*
  PACKAGE_OPTION_DEFAULT table contains a link to a specified 'default value' for options

@@ -23,8 +23,7 @@
 const dbApi = require('./db-api')
 const dbEnums = require('../../src-shared/db-enum')
 const dbMapping = require('./db-mapping.js')
-const queryUpgrade = require('../matter/matter.js')
-const queryDeviceType = require('./query-device-type')
+const queryUpgrade = require('../sdk/matter.js')
 /**
  * Imports a single endpoint
  * @param {} db
@@ -739,10 +738,7 @@ WHERE
     attribute.reportable = false
   }
   if (attributeId) {
-    forcedExternal = await queryUpgrade.getForcedExternalStorage(
-      db,
-      attributeId
-    )
+    forcedExternal = await queryUpgrade.getForcedExternalStorage(db)
     storagePolicy = await queryUpgrade.computeStorageImport(
       db,
       cluster.name,

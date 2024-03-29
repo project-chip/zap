@@ -25,7 +25,7 @@ const queryZcl = require('../db/query-zcl.js')
 const queryAttribute = require('../db/query-attribute.js')
 const queryCommand = require('../db/query-command.js')
 const queryConfig = require('../db/query-config.js')
-const upgrade = require('../matter/matter.js')
+const upgrade = require('../sdk/matter.js')
 const querySessionNotification = require('../db/query-session-notification.js')
 const queryPackageNotification = require('../db/query-package-notification')
 const queryEndpointType = require('../db/query-endpoint-type.js')
@@ -257,9 +257,8 @@ function httpPostCluster(db) {
 }
 function httpPostForcedExternal(db) {
   return async (request, response) => {
-    let zcl = request.body[0].pkg.path
-    let forcedExternal = await upgrade.getDisabledStorage(db, zcl)
-    return response.send({ forcedExternal })
+    let forcedExternal = await upgrade.getForcedExternalStorage(db)
+    response.status(StatusCodes.OK).json(forcedExternal)
   }
 }
 /**

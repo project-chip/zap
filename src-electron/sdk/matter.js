@@ -23,26 +23,11 @@ const dbEnum = require('../../src-shared/db-enum.js')
 const fs = require('fs')
 const fsp = fs.promises
 
-function parseJson(json) {
-  try {
-    return JSON.parse(json)
-  } catch (err) {
-    return undefined
-  }
-}
-
 /**
- * This file implements upgrade rules which are used to upgrade .zap files and xml files
- * to be in sync with the spec
+ * This file implements SDK rules which are used to upgrade .zap files and xml files
+ * to be in sync with the Matter SDK and spec
  */
-async function getForcedExternalStorageList(db, zcl) {
-  let obj = await fsp.readFile(zcl, 'utf-8')
-  let data = parseJson(obj)
-  let byName = data?.attributeAccessInterfaceAttributes
-  let lists = data?.listsUseAttributeAccessInterface
-  let forcedExternal = { byName, lists }
-  return forcedExternal
-}
+
 /**
  * Returns an array of objects containing global attributes that should be forced external.
  *
@@ -52,15 +37,11 @@ async function getForcedExternalStorageList(db, zcl) {
  * @returns An array of objects
  */
 
-async function getForcedExternalStorage(db, attributeId) {
-  let pkgs = await queryPackage.getPackageRefByAttributeId(db, attributeId)
-  let zcl = await queryPackage.getPackageByPackageId(db, pkgs)
-  zcl = zcl?.path
-  let obj = await fsp.readFile(zcl, 'utf-8')
-  let data = parseJson(obj)
-  let byName = data?.attributeAccessInterfaceAttributes
-  let lists = data?.listsUseAttributeAccessInterface
-  let forcedExternal = { byName, lists }
+async function getForcedExternalStorage(db) {
+  let forcedExternal = await queryPackage.getAttributeAccessInterface(
+    db,
+    dbEnum.storagePolicy.attributeAccessInterface
+  )
   return forcedExternal
 }
 
@@ -85,26 +66,26 @@ async function computeStoragePolicyForGlobalAttributes(
   clusterId,
   attributes
 ) {
-  let clusterName
   let forcedExternal
-  clusterName = await queryCluster.selectClusterName(db, clusterId)
+  let clusterName = await queryCluster.selectClusterName(db, clusterId)
   return Promise.all(
     attributes.map(async (attribute) => {
       if (attribute.clusterId == null) {
         forcedExternal = await getForcedExternalStorage(db, attribute.id)
-        if (forcedExternal.byName?.[clusterName]?.includes(attribute.name)) {
-          attribute.storagePolicy =
-            dbEnum.storagePolicy.attributeAccessInterface
-        }
+        forcedExternal.map((option) => {
+          if (
+            option.optionCategory == clusterName &&
+            option.optionLabel == attribute.name
+          ) {
+            attribute.storagePolicy =
+              dbEnum.storagePolicy.attributeAccessInterface
+          }
+        })
       }
       return attribute
     })
   )
 }
-async function getDisabledStorage(db, zcl) {
-  return await getForcedExternalStorageList(db, zcl)
-}
-
 /**
  * Returns a flag stating which type of storage option the attribute is categorized to be.
  *
@@ -118,16 +99,8 @@ async function getDisabledStorage(db, zcl) {
  * @returns Storage Option
  */
 
-async function computeStorageNewConfig(
-  db,
-  clusterRef,
-  storagePolicy,
-  forcedExternal,
-  attributeName
-) {
+async function computeStorageOptionNewConfig(storagePolicy) {
   let storageOption
-  let clusterName
-  clusterName = await queryCluster.selectClusterName(db, clusterRef)
   if (storagePolicy == dbEnum.storagePolicy.attributeAccessInterface) {
     storageOption = dbEnum.storageOption.external
   } else if (storagePolicy == dbEnum.storagePolicy.any) {
@@ -135,14 +108,27 @@ async function computeStorageNewConfig(
   } else {
     throw 'check storage policy'
   }
-  if (
-    forcedExternal.byName &&
-    forcedExternal.byName[clusterName] &&
-    forcedExternal.byName[clusterName].includes(attributeName)
-  ) {
-    storageOption = dbEnum.storageOption.external
-  }
   return storageOption
+}
+
+async function computeStoragePolicyNewConfig(
+  db,
+  clusterRef,
+  storagePolicy,
+  forcedExternal,
+  attributeName
+) {
+  let clusterName
+  clusterName = await queryCluster.selectClusterName(db, clusterRef)
+  forcedExternal.map((option) => {
+    if (
+      option.optionCategory == clusterName &&
+      option.optionLabel == attributeName
+    ) {
+      storagePolicy = dbEnum.storagePolicy.attributeAccessInterface
+    }
+  })
+  return storagePolicy
 }
 
 /**
@@ -163,19 +149,23 @@ async function computeStorageImport(
   forcedExternal,
   attributeName
 ) {
-  if (
-    forcedExternal.byName &&
-    forcedExternal.byName[clusterName] &&
-    forcedExternal.byName[clusterName].includes(attributeName)
-  ) {
-    storagePolicy = dbEnum.storagePolicy.attributeAccessInterface
-  }
-  return storagePolicy
+  let updatedStoragePolicy = storagePolicy
+  forcedExternal.some((option) => {
+    if (
+      option.optionCategory == clusterName &&
+      option.optionLabel == attributeName
+    ) {
+      updatedStoragePolicy = dbEnum.storagePolicy.attributeAccessInterface
+      return true
+    }
+    return false
+  })
+  return updatedStoragePolicy
 }
 
 exports.getForcedExternalStorage = getForcedExternalStorage
-exports.getDisabledStorage = getDisabledStorage
 exports.computeStorageImport = computeStorageImport
-exports.computeStorageNewConfig = computeStorageNewConfig
+exports.computeStoragePolicyNewConfig = computeStoragePolicyNewConfig
+exports.computeStorageOptionNewConfig = computeStorageOptionNewConfig
 exports.computeStoragePolicyForGlobalAttributes =
   computeStoragePolicyForGlobalAttributes
