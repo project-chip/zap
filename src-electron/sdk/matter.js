@@ -72,7 +72,7 @@ async function computeStoragePolicyForGlobalAttributes(
     attributes.map(async (attribute) => {
       if (attribute.clusterId == null) {
         forcedExternal = await getForcedExternalStorage(db, attribute.id)
-        forcedExternal.map((option) => {
+        forcedExternal.some((option) => {
           if (
             option.optionCategory == clusterName &&
             option.optionLabel == attribute.name
