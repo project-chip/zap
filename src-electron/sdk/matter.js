@@ -33,7 +33,7 @@ const dbEnum = require('../../src-shared/db-enum.js')
  */
 
 async function getForcedExternalStorage(db) {
-  let forcedExternal = await queryPackage.getAttributeAccessInterface(
+  let forcedExternal = queryPackage.getAttributeAccessInterface(
     db,
     dbEnum.storagePolicy.attributeAccessInterface
   )
