@@ -52,6 +52,20 @@ limitations under the License.
     <client tick="false" init="false">true</client>
     <server tick="false" init="false">true</server>
 
+    <features>
+      <feature bit="0" code="OO" name="OnOff" default="1" summary="Dependency with the On/Off cluster">
+        <optionalConform/>
+      </feature>
+      <feature bit="1" code="LT" name="Lighting" default="0" summary="Behavior that supports lighting applications">
+        <optionalConform/>
+      </feature>
+      <feature bit="2" code="FQ" name="Frequency" default="0" summary="Supports frequency attributes and behavior.
+                                        The Pulse Width Modulation cluster was created
+                                        for frequency control.">
+        <provisionalConform/>
+      </feature>
+    </features>
+
     <globalAttribute side="either" code="0xFFFD" value="5"/>
 
     <attribute side="server" code="0x0000" define="CURRENT_LEVEL"                 type="INT8U"                isNullable="true"           writable="false" default="0x00"   optional="false">CurrentLevel</attribute>

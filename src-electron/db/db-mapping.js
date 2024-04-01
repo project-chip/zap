@@ -522,6 +522,24 @@ exports.map = {
       deviceVersion: x.DEVICE_VERSION,
     }
   },
+  endpointTypeDeviceExtended: (x) => {
+    if (x == null) return undefined
+    return {
+      id: x.ENDPOINT_TYPE_DEVICE_ID,
+      deviceTypeRef: x.DEVICE_TYPE_REF,
+      endpointTypeRef: x.ENDPOINT_TYPE_REF,
+      endpointTypeId: x.ENDPOINT_TYPE_REF,
+      deviceTypeOrder: x.DEVICE_TYPE_ORDER,
+      deviceIdentifier: x.DEVICE_IDENTIFIER,
+      deviceId: x.DEVICE_IDENTIFIER,
+      deviceVersion: x.DEVICE_VERSION,
+      featureId: x.FEATURE_ID,
+      featureCode: x.FEATURE_CODE,
+      featureName: x.FEATURE_NAME,
+      featureBit: x.FEATURE_BIT,
+      clusterId: x.CLUSTER_REF,
+    }
+  },
   endpointTypeCluster: (x) => {
     if (x == null) return undefined
     return {

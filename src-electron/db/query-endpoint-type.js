@@ -643,6 +643,53 @@ WHERE
   return rows.map(mapFunction)
 }
 
+/**
+ * Given the endpoint type cluster id and attribute code, extract the value
+ * endpoint type attribute information for that attribute within the endpoint
+ * type cluster.
+ * @param {*} db
+ * @param {*} endpointTypeClusterId
+ * @param {*} attributeCode
+ * @param {*} attributeMfgCode
+ */
+async function selectEndpointTypeAttributeFromEndpointTypeClusterId(
+  db,
+  endpointTypeClusterId,
+  attributeCode,
+  attributeMfgCode
+) {
+  let eta = await dbApi.dbGet(
+    db,
+    `
+    SELECT
+      ETC.ENDPOINT_TYPE_REF,
+      ETC.CLUSTER_REF,
+      ETA.INCLUDED,
+      ETA.STORAGE_OPTION,
+      ETA.SINGLETON,
+      ETA.DEFAULT_VALUE
+    FROM
+      ATTRIBUTE AS A
+    INNER JOIN
+      ENDPOINT_TYPE_ATTRIBUTE AS ETA
+    ON
+      ETA.ATTRIBUTE_REF = A.ATTRIBUTE_ID
+    INNER JOIN
+      ENDPOINT_TYPE_CLUSTER AS ETC
+    ON
+      ETA.ENDPOINT_TYPE_CLUSTER_REF = ETC.ENDPOINT_TYPE_CLUSTER_ID
+    WHERE
+      ETC.ENDPOINT_TYPE_CLUSTER_ID = ${endpointTypeClusterId} 
+    AND
+      A.CODE = ${attributeCode}
+    ` +
+      (attributeMfgCode
+        ? ` AND A.MANUFACTURER_CODE = ${attributeMfgCode}`
+        : ` AND A.MANUFACTURER_CODE IS NULL`)
+  )
+  return dbMapping.map.endpointTypeAttribute(eta)
+}
+
 exports.deleteEndpointType = deleteEndpointType
 exports.selectAllEndpointTypes = selectAllEndpointTypes
 exports.selectEndpointTypeIds = selectEndpointTypeIds
@@ -652,13 +699,13 @@ exports.selectAllClustersDetailsFromEndpointTypes =
   selectAllClustersDetailsFromEndpointTypes
 exports.selectEndpointDetailsFromAddedEndpoints =
   selectEndpointDetailsFromAddedEndpoints
-
 exports.selectAllClustersNamesFromEndpointTypes =
   selectAllClustersNamesFromEndpointTypes
 exports.selectAllClustersDetailsIrrespectiveOfSideFromEndpointTypes =
   selectAllClustersDetailsIrrespectiveOfSideFromEndpointTypes
 exports.selectCommandDetailsFromAllEndpointTypeCluster =
   selectCommandDetailsFromAllEndpointTypeCluster
-
 exports.selectClustersAndEndpointDetailsFromEndpointTypes =
   selectClustersAndEndpointDetailsFromEndpointTypes
+exports.selectEndpointTypeAttributeFromEndpointTypeClusterId =
+  selectEndpointTypeAttributeFromEndpointTypeClusterId

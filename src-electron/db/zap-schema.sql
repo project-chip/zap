@@ -355,6 +355,39 @@ CREATE TABLE IF NOT EXISTS "DEVICE_TYPE_CLUSTER" (
   foreign key (DEVICE_TYPE_REF) references DEVICE_TYPE(DEVICE_TYPE_ID) on delete cascade,
   foreign key (CLUSTER_REF) references CLUSTER(CLUSTER_ID)
 );
+
+/*
+ DEVICE_TYPE_FEATURE is the junction table between device type and feature
+ tables.
+ */
+DROP TABLE IF EXISTS "DEVICE_TYPE_FEATURE";
+CREATE TABLE IF NOT EXISTS "DEVICE_TYPE_FEATURE" (
+  "DEVICE_TYPE_CLUSTER_REF" integer,
+  "FEATURE_REF" integer,
+  "FEATURE_CODE" text,
+  foreign key (DEVICE_TYPE_CLUSTER_REF) references DEVICE_TYPE_CLUSTER(DEVICE_TYPE_CLUSTER_ID) on delete cascade,
+  foreign key (FEATURE_REF) references FEATURE(FEATURE_ID) on delete cascade
+);
+
+
+/*
+ FEATURE contains feature information
+ */
+DROP TABLE IF EXISTS "FEATURE";
+CREATE TABLE IF NOT EXISTS "FEATURE" (
+  "FEATURE_ID" integer primary key autoincrement,
+  "NAME" text,
+  "CODE" text,
+  "BIT" integer, 
+  "DEFAULT_VALUE" integer,
+  "DESCRIPTION" text,
+  "CONFORMANCE" text,
+  "PACKAGE_REF" integer,
+  "CLUSTER_REF" integer,
+  foreign key(PACKAGE_REF) references PACKAGE(PACKAGE_ID) on delete cascade,
+  foreign key(CLUSTER_REF) references CLUSTER(CLUSTER_ID) on delete cascade
+);
+
 /*
  DEVICE_TYPE_ATTRIBUTE contains attribuets that belong to a device type cluster.
  */

@@ -313,6 +313,45 @@ WHERE
 }
 
 /**
+ * After loading up device type feature table with the names,
+ * this method links the refererence to actual feature reference.
+ *
+ * @param {*} db
+ * @returns promise of completion
+ */
+async function updateFeatureReferencesForDeviceTypeReferences(db, packageId) {
+  return dbApi.dbUpdate(
+    db,
+    `
+UPDATE
+  DEVICE_TYPE_FEATURE
+SET
+  FEATURE_REF =
+  ( SELECT
+      FEATURE.FEATURE_ID
+    FROM
+      FEATURE
+    WHERE
+      upper(FEATURE.CODE) = upper(DEVICE_TYPE_FEATURE.FEATURE_CODE)
+    AND
+      FEATURE.CLUSTER_REF = (
+        SELECT
+          DEVICE_TYPE_CLUSTER.CLUSTER_REF
+        FROM
+          DEVICE_TYPE_CLUSTER
+        WHERE
+          DEVICE_TYPE_CLUSTER_ID = DEVICE_TYPE_FEATURE.DEVICE_TYPE_CLUSTER_REF
+      )
+    AND
+      FEATURE.PACKAGE_REF = ?
+  )
+WHERE
+  DEVICE_TYPE_FEATURE.FEATURE_REF IS NULL`,
+    [packageId]
+  )
+}
+
+/**
  * This method returns the promise of linking the device type clusters
  * commands and attributes to the correct IDs in the cluster, attribute
  * and command tables.
@@ -326,7 +365,8 @@ WHERE
 async function updateDeviceTypeEntityReferences(db, packageId) {
   await updateClusterReferencesForDeviceTypeClusters(db, packageId)
   await updateAttributeReferencesForDeviceTypeReferences(db, packageId)
-  return updateCommandReferencesForDeviceTypeReferences(db, packageId)
+  await updateCommandReferencesForDeviceTypeReferences(db, packageId)
+  return updateFeatureReferencesForDeviceTypeReferences(db, packageId)
 }
 
 /**
@@ -355,6 +395,62 @@ async function selectDeviceTypesByEndpointTypeId(db, endpointTypeId) {
   return rows.map(dbMapping.map.endpointTypeDevice)
 }
 
+/**
+ * Retrieves the device type features associated to an endpoint type id and cluster id
+ * Note: Use clusterId as 'all' to get all features for an endpoint type id.
+ * @param {*} db
+ * @param {*} endpointTypeId
+ * @param {*} clusterId
+ * @returns promise with zcl device type feature information based on endpoint type id and cluster id
+ */
+async function selectDeviceTypeFeaturesByEndpointTypeIdAndClusterId(
+  db,
+  endpointTypeId,
+  clusterId
+) {
+  let rows = await dbApi.dbAll(
+    db,
+    `
+  SELECT
+    ETD.ENDPOINT_TYPE_DEVICE_ID,
+    ETD.DEVICE_TYPE_REF,
+    ETD.ENDPOINT_TYPE_REF,
+    ETD.DEVICE_TYPE_ORDER,
+    ETD.DEVICE_IDENTIFIER,
+    ETD.DEVICE_VERSION,
+    FEATURE.FEATURE_ID,
+    FEATURE.NAME AS FEATURE_NAME,
+    FEATURE.CODE AS FEATURE_CODE,
+    FEATURE.BIT AS FEATURE_BIT,
+    DEVICE_TYPE_CLUSTER.CLUSTER_REF
+  FROM
+    ENDPOINT_TYPE_DEVICE AS ETD
+  INNER JOIN
+    DEVICE_TYPE
+  ON
+    ETD.DEVICE_TYPE_REF = DEVICE_TYPE.DEVICE_TYPE_ID
+  INNER JOIN
+    DEVICE_TYPE_CLUSTER
+  ON
+    DEVICE_TYPE_CLUSTER.DEVICE_TYPE_REF = DEVICE_TYPE.DEVICE_TYPE_ID
+  INNER JOIN
+    DEVICE_TYPE_FEATURE
+  ON
+    DEVICE_TYPE_FEATURE.DEVICE_TYPE_CLUSTER_REF = DEVICE_TYPE_CLUSTER.DEVICE_TYPE_CLUSTER_ID
+  INNER JOIN
+    FEATURE
+  ON
+    FEATURE.FEATURE_ID = DEVICE_TYPE_FEATURE.FEATURE_REF
+  WHERE
+    ETD.ENDPOINT_TYPE_REF = ${endpointTypeId}` +
+      (clusterId != 'all'
+        ? ` AND
+        DEVICE_TYPE_CLUSTER.CLUSTER_REF = ${clusterId}`
+        : ``)
+  )
+  return rows.map(dbMapping.map.endpointTypeDeviceExtended)
+}
+
 exports.selectAllDeviceTypes = selectAllDeviceTypes
 exports.selectDeviceTypeById = selectDeviceTypeById
 exports.selectDeviceTypeByCodeAndName = selectDeviceTypeByCodeAndName
@@ -369,3 +465,5 @@ exports.selectDeviceTypeCommandsByDeviceTypeRef =
   selectDeviceTypeCommandsByDeviceTypeRef
 exports.updateDeviceTypeEntityReferences = updateDeviceTypeEntityReferences
 exports.selectDeviceTypesByEndpointTypeId = selectDeviceTypesByEndpointTypeId
+exports.selectDeviceTypeFeaturesByEndpointTypeIdAndClusterId =
+  selectDeviceTypeFeaturesByEndpointTypeIdAndClusterId

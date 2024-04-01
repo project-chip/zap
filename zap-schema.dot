@@ -29,7 +29,7 @@ digraph "SchemaCrawler_Diagram" {
 	</tr>
 	<tr>
 		<td align='right'>generated on</td>
-		<td align='left'>2023-11-30 15:16:08</td>
+		<td align='left'>2024-04-15 15:19:11</td>
 	</tr>
       </table>
     >
@@ -545,6 +545,7 @@ digraph "SchemaCrawler_Diagram" {
   "data_type_cluster_8d9f2ca9":"cluster_ref_62a2f505.start":w -> "cluster_5ec71239":"cluster_id_a557fe87.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
   "device_type_cluster_7298b97d":"cluster_ref_1cdb02b1.start":w -> "cluster_5ec71239":"cluster_id_a557fe87.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
   "endpoint_type_cluster_c12e3c9e":"cluster_ref_a0f5e3b0.start":w -> "cluster_5ec71239":"cluster_id_a557fe87.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
+  "feature_f06e7b35":"cluster_ref_59bd77f9.start":w -> "cluster_5ec71239":"cluster_id_a557fe87.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
   "global_attribute_default_73c65a21":"cluster_ref_4161768d.start":w -> "cluster_5ec71239":"cluster_id_a557fe87.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
   "tag_1b7d9":"cluster_ref_3c91cfd5.start":w -> "cluster_5ec71239":"cluster_id_a557fe87.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
   "attribute_a6e02edb":"cluster_ref_71823913.start":w -> "cluster_5ec71239":"cluster_id_a557fe87.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
@@ -1071,6 +1072,7 @@ digraph "SchemaCrawler_Diagram" {
 
   "device_type_attribute_ce5151f":"device_type_cluster_ref_c47e8093.start":w -> "device_type_cluster_7298b97d":"device_type_cluster_id_665321ff.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
   "device_type_command_774386ce":"device_type_cluster_ref_a5ee44c4.start":w -> "device_type_cluster_7298b97d":"device_type_cluster_id_665321ff.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
+  "device_type_feature_4402279":"device_type_cluster_ref_b8851e79.start":w -> "device_type_cluster_7298b97d":"device_type_cluster_id_665321ff.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
 
 
   /* DEVICE_TYPE_COMMAND -=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -1095,6 +1097,35 @@ digraph "SchemaCrawler_Diagram" {
 		<td port='command_name_71a65611.start' align='left'>COMMAND_NAME</td>
 		<td align='left'> </td>
 		<td port='command_name_71a65611.end' align='left'>TEXT</td>
+	</tr>
+      </table>
+    >
+  ];
+
+
+
+  /* DEVICE_TYPE_FEATURE -=-=-=-=-=-=-=-=-=-=-=-=-=- */
+  "device_type_feature_4402279" [
+    label=<
+      <table border="1" cellborder="0" cellspacing="0" color="#888888">
+	<tr>
+		<td colspan='2' bgcolor='#F2E6C2' align='left'><b><i>DEVICE_TYPE_FEATURE</i></b></td>
+		<td bgcolor='#F2E6C2' align='right'>[table]</td>
+	</tr>
+	<tr>
+		<td port='device_type_cluster_ref_b8851e79.start' align='left'>DEVICE_TYPE_CLUSTER_REF</td>
+		<td align='left'> </td>
+		<td port='device_type_cluster_ref_b8851e79.end' align='left'>INTEGER</td>
+	</tr>
+	<tr>
+		<td port='feature_ref_edb34431.start' align='left'>FEATURE_REF</td>
+		<td align='left'> </td>
+		<td port='feature_ref_edb34431.end' align='left'>INTEGER</td>
+	</tr>
+	<tr>
+		<td port='feature_code_57b15a5d.start' align='left'>FEATURE_CODE</td>
+		<td align='left'> </td>
+		<td port='feature_code_57b15a5d.end' align='left'>TEXT</td>
 	</tr>
       </table>
     >
@@ -1219,10 +1250,16 @@ digraph "SchemaCrawler_Diagram" {
 		<td align='left'> </td>
 		<td port='network_identifier_beb21006.end' align='left'>INTEGER</td>
 	</tr>
+	<tr>
+		<td port='parent_endpoint_ref_600434ca.start' align='left'>PARENT_ENDPOINT_REF</td>
+		<td align='left'> </td>
+		<td port='parent_endpoint_ref_600434ca.end' align='left'>INTEGER</td>
+	</tr>
       </table>
     >
   ];
 
+  "endpoint_966d81f4":"parent_endpoint_ref_600434ca.start":w -> "endpoint_966d81f4":"endpoint_id_73e3b891.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
 
 
   /* ENDPOINT_TYPE -=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -1244,9 +1281,9 @@ digraph "SchemaCrawler_Diagram" {
 		<td align='left'>auto-incremented</td>
 	</tr>
 	<tr>
-		<td port='session_ref_f1b3f387.start' align='left'>SESSION_REF</td>
+		<td port='session_partition_ref_83bb17d2.start' align='left'>SESSION_PARTITION_REF</td>
 		<td align='left'> </td>
-		<td port='session_ref_f1b3f387.end' align='left'>INTEGER</td>
+		<td port='session_partition_ref_83bb17d2.end' align='left'>INTEGER</td>
 	</tr>
 	<tr>
 		<td port='name_72c816e8.start' align='left'>NAME</td>
@@ -1257,9 +1294,9 @@ digraph "SchemaCrawler_Diagram" {
     >
   ];
 
-  "endpoint_966d81f4":"endpoint_type_ref_80c21de4.start":w -> "endpoint_type_9857dc03":"endpoint_type_id_960ad7f3.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
   "endpoint_type_cluster_c12e3c9e":"endpoint_type_ref_ae18b87a.start":w -> "endpoint_type_9857dc03":"endpoint_type_id_960ad7f3.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
   "endpoint_type_device_e685fbb0":"endpoint_type_ref_33b8dba8.start":w -> "endpoint_type_9857dc03":"endpoint_type_id_960ad7f3.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
+  "endpoint_966d81f4":"endpoint_type_ref_80c21de4.start":w -> "endpoint_type_9857dc03":"endpoint_type_id_960ad7f3.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
   "endpoint_type_attribute_c265400":"endpoint_type_ref_c2238d58.start":w -> "endpoint_type_9857dc03":"endpoint_type_id_960ad7f3.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
   "endpoint_type_command_c5d909ef":"endpoint_type_ref_3ec79549.start":w -> "endpoint_type_9857dc03":"endpoint_type_id_960ad7f3.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
   "endpoint_type_event_e67d6e7e":"endpoint_type_ref_32afc29a.start":w -> "endpoint_type_9857dc03":"endpoint_type_id_960ad7f3.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
@@ -1782,6 +1819,71 @@ digraph "SchemaCrawler_Diagram" {
 
 
 
+  /* FEATURE -=-=-=-=-=-=-=-=-=-=-=-=-=- */
+  "feature_f06e7b35" [
+    label=<
+      <table border="1" cellborder="0" cellspacing="0" color="#888888">
+	<tr>
+		<td colspan='2' bgcolor='#F2E6C2' align='left'><b><i>FEATURE</i></b></td>
+		<td bgcolor='#F2E6C2' align='right'>[table]</td>
+	</tr>
+	<tr>
+		<td port='feature_id_314fda8f.start' align='left'><b><i>FEATURE_ID</i></b></td>
+		<td align='left'> </td>
+		<td port='feature_id_314fda8f.end' align='left'>INTEGER</td>
+	</tr>
+	<tr>
+		<td align='left'></td>
+		<td align='left'> </td>
+		<td align='left'>auto-incremented</td>
+	</tr>
+	<tr>
+		<td port='name_1d855df6.start' align='left'>NAME</td>
+		<td align='left'> </td>
+		<td port='name_1d855df6.end' align='left'>TEXT</td>
+	</tr>
+	<tr>
+		<td port='code_1d809158.start' align='left'>CODE</td>
+		<td align='left'> </td>
+		<td port='code_1d809158.end' align='left'>TEXT</td>
+	</tr>
+	<tr>
+		<td port='bit_1d61ec58.start' align='left'>BIT</td>
+		<td align='left'> </td>
+		<td port='bit_1d61ec58.end' align='left'>INTEGER</td>
+	</tr>
+	<tr>
+		<td port='default_value_5c536d1e.start' align='left'>DEFAULT_VALUE</td>
+		<td align='left'> </td>
+		<td port='default_value_5c536d1e.end' align='left'>INTEGER</td>
+	</tr>
+	<tr>
+		<td port='description_36ea0347.start' align='left'>DESCRIPTION</td>
+		<td align='left'> </td>
+		<td port='description_36ea0347.end' align='left'>TEXT</td>
+	</tr>
+	<tr>
+		<td port='conformance_efa72ae0.start' align='left'>CONFORMANCE</td>
+		<td align='left'> </td>
+		<td port='conformance_efa72ae0.end' align='left'>TEXT</td>
+	</tr>
+	<tr>
+		<td port='package_ref_d3f59445.start' align='left'>PACKAGE_REF</td>
+		<td align='left'> </td>
+		<td port='package_ref_d3f59445.end' align='left'>INTEGER</td>
+	</tr>
+	<tr>
+		<td port='cluster_ref_59bd77f9.start' align='left'>CLUSTER_REF</td>
+		<td align='left'> </td>
+		<td port='cluster_ref_59bd77f9.end' align='left'>INTEGER</td>
+	</tr>
+      </table>
+    >
+  ];
+
+  "device_type_feature_4402279":"feature_ref_edb34431.start":w -> "feature_f06e7b35":"feature_id_314fda8f.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
+
+
   /* GLOBAL_ATTRIBUTE_BIT -=-=-=-=-=-=-=-=-=-=-=-=-=- */
   "global_attribute_bit_e934f16d" [
     label=<
@@ -1996,6 +2098,7 @@ digraph "SchemaCrawler_Diagram" {
   "data_type_9233070e":"package_ref_6ac2838c.start":w -> "package_fab13485":"package_id_7a1f4fef.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
   "default_access_7ba041a1":"package_ref_aefc9b59.start":w -> "package_fab13485":"package_id_7a1f4fef.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
   "domain_78873d23":"package_ref_4ef51017.start":w -> "package_fab13485":"package_id_7a1f4fef.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
+  "feature_f06e7b35":"package_ref_d3f59445.start":w -> "package_fab13485":"package_id_7a1f4fef.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
   "package_option_default_64a251ef":"package_ref_e63c94cb.start":w -> "package_fab13485":"package_id_7a1f4fef.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
   "session_package_61fa13bc":"package_ref_93dd0c9e.start":w -> "package_fab13485":"package_id_7a1f4fef.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
   "tag_1b7d9":"package_ref_b6c9ec21.start":w -> "package_fab13485":"package_id_7a1f4fef.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
@@ -2379,13 +2482,12 @@ digraph "SchemaCrawler_Diagram" {
     >
   ];
 
-  "endpoint_type_9857dc03":"session_ref_f1b3f387.start":w -> "session_a11c82d5":"session_id_26c1b4f.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
   "session_key_value_334d9527":"session_ref_b5755ee3.start":w -> "session_a11c82d5":"session_id_26c1b4f.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
   "session_log_7f10ae3a":"session_ref_e2156830.start":w -> "session_a11c82d5":"session_id_26c1b4f.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
   "session_notice_84addd20":"session_ref_901e160a.start":w -> "session_a11c82d5":"session_id_26c1b4f.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
-  "endpoint_966d81f4":"session_ref_b6530bb6.start":w -> "session_a11c82d5":"session_id_26c1b4f.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
+  "session_partition_f35f84a0":"session_ref_f7a15e8a.start":w -> "session_a11c82d5":"session_id_26c1b4f.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
   "package_extension_value_8e65d377":"session_ref_bd64ea93.start":w -> "session_a11c82d5":"session_id_26c1b4f.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
-  "session_package_61fa13bc":"session_ref_5c58b2ee.start":w -> "session_a11c82d5":"session_id_26c1b4f.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
+  "endpoint_966d81f4":"session_ref_b6530bb6.start":w -> "session_a11c82d5":"session_id_26c1b4f.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
 
 
   /* SESSION_KEY_VALUE -=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -2509,9 +2611,9 @@ digraph "SchemaCrawler_Diagram" {
 		<td bgcolor='#F2E6C2' align='right'>[table]</td>
 	</tr>
 	<tr>
-		<td port='session_ref_5c58b2ee.start' align='left'>SESSION_REF</td>
+		<td port='session_partition_ref_ee5fd739.start' align='left'>SESSION_PARTITION_REF</td>
 		<td align='left'> </td>
-		<td port='session_ref_5c58b2ee.end' align='left'>INTEGER</td>
+		<td port='session_partition_ref_ee5fd739.end' align='left'>INTEGER</td>
 	</tr>
 	<tr>
 		<td port='package_ref_93dd0c9e.start' align='left'>PACKAGE_REF</td>
@@ -2532,6 +2634,42 @@ digraph "SchemaCrawler_Diagram" {
     >
   ];
 
+
+
+  /* SESSION_PARTITION -=-=-=-=-=-=-=-=-=-=-=-=-=- */
+  "session_partition_f35f84a0" [
+    label=<
+      <table border="1" cellborder="0" cellspacing="0" color="#888888">
+	<tr>
+		<td colspan='2' bgcolor='#F2E6C2' align='left'><b><i>SESSION_PARTITION</i></b></td>
+		<td bgcolor='#F2E6C2' align='right'>[table]</td>
+	</tr>
+	<tr>
+		<td port='session_partition_id_dc36f939.start' align='left'><b><i>SESSION_PARTITION_ID</i></b></td>
+		<td align='left'> </td>
+		<td port='session_partition_id_dc36f939.end' align='left'>INTEGER</td>
+	</tr>
+	<tr>
+		<td align='left'></td>
+		<td align='left'> </td>
+		<td align='left'>auto-incremented</td>
+	</tr>
+	<tr>
+		<td port='session_partition_number_6aa83067.start' align='left'>SESSION_PARTITION_NUMBER</td>
+		<td align='left'> </td>
+		<td port='session_partition_number_6aa83067.end' align='left'>INTEGER</td>
+	</tr>
+	<tr>
+		<td port='session_ref_f7a15e8a.start' align='left'>SESSION_REF</td>
+		<td align='left'> </td>
+		<td port='session_ref_f7a15e8a.end' align='left'>INTEGER</td>
+	</tr>
+      </table>
+    >
+  ];
+
+  "endpoint_type_9857dc03":"session_partition_ref_83bb17d2.start":w -> "session_partition_f35f84a0":"session_partition_id_dc36f939.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
+  "session_package_61fa13bc":"session_partition_ref_ee5fd739.start":w -> "session_partition_f35f84a0":"session_partition_id_dc36f939.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
 
 
   /* SETTING -=-=-=-=-=-=-=-=-=-=-=-=-=- */
