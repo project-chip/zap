@@ -181,7 +181,7 @@ async function ensurePackagesAndPopulateSessionOptions(
             } else {
               sessionPartitionIndex++
               return querySession
-                .getSessionPartitionInfo(db, sessionId, options.partitions)
+                .getAllSessionPartitionInfoForSession(db, sessionId)
                 .then((sessionPartitionInfo) =>
                   queryPackage.insertSessionPackage(
                     db,
@@ -221,7 +221,10 @@ async function ensurePackagesAndPopulateSessionOptions(
         .getPackagesByType(db, dbEnum.packageType.genTemplatesJson)
         .then((rows) => {
           let packageId
-          if (selectedGenTemplatePackages?.length > 0) {
+          if (
+            selectedGenTemplatePackages &&
+            selectedGenTemplatePackages.length > 0
+          ) {
             selectedGenTemplatePackages.forEach((gen) => {
               if (gen) {
                 packageId = gen
@@ -291,7 +294,7 @@ async function ensurePackagesAndPopulateSessionOptions(
                 } else {
                   sessionPartitionIndex++
                   return querySession
-                    .getSessionPartitionInfo(db, sessionId, options.partitions)
+                    .getAllSessionPartitionInfoForSession(db, sessionId)
                     .then((sessionPartitionInfo) =>
                       queryPackage.insertSessionPackage(
                         db,
@@ -341,7 +344,7 @@ async function ensurePackagesAndPopulateSessionOptions(
             } else {
               sessionPartitionIndex++
               return querySession
-                .getSessionPartitionInfo(db, sessionId, options.partitions)
+                .getAllSessionPartitionInfoForSession(db, sessionId)
                 .then((sessionPartitionInfo) =>
                   queryPackage.insertSessionPackage(
                     db,
@@ -359,11 +362,6 @@ async function ensurePackagesAndPopulateSessionOptions(
   }
 
   if (promises.length > 0) await Promise.all(promises)
-  sessionPartitionInfo = await querySession.getSessionPartitionInfo(
-    db,
-    sessionId,
-    options.partitions
-  )
   // We read all the packages.
   let packages = await queryPackage.getSessionPackagesWithTypes(db, sessionId)
   // Now we create promises with the queries that populate the
