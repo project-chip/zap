@@ -42,11 +42,16 @@ const observable = require('./util/observable.js')
 const dbEnum = require(`../src-shared/db-enum.js`)
 const storage = require('./util/storage.js')
 
-window.addEventListener('message', (event) => {
+window.addEventListener(
+  'message',
+  (event) => {
     const eventData = event?.data?.eventData
     switch (event?.data?.eventId) {
       case 'theme':
-        window[rendApi.GLOBAL_SYMBOL_EXECUTE](rendApi.id.setDarkTheme, eventData.theme === 'dark')
+        window[rendApi.GLOBAL_SYMBOL_EXECUTE](
+          rendApi.id.setDarkTheme,
+          eventData.theme === 'dark'
+        )
         break
       case 'save':
         if (eventData.shouldSave) {
@@ -54,7 +59,7 @@ window.addEventListener('message', (event) => {
         }
         break
     }
-  }, 
+  },
   false
 )
 
@@ -131,7 +136,13 @@ export default defineComponent({
     },
     uiThemeCategory: {
       get() {
-        return this.$store.state.zap.selectedZapConfig?.zclProperties.category
+        let zclProps = this.$store.state.zap.selectedZapConfig?.zclProperties
+        // Picking the first category in the case of multi-protocol(zigbee/matter)
+        if (Array.isArray(zclProps) && zclProps.length > 0) {
+          return zclProps[0].category
+        } else {
+          return this.$store.state.zap.selectedZapConfig?.zclProperties.category
+        }
       },
     },
   },
@@ -231,12 +242,9 @@ export default defineComponent({
         }
       )
 
-      this.$onWebSocket(
-        dbEnum.wsCategory.dirtyFlag,
-        (resp) => {
-          this.$store.dispatch('zap/setDirtyState', resp)
-        }
-      )
+      this.$onWebSocket(dbEnum.wsCategory.dirtyFlag, (resp) => {
+        this.$store.dispatch('zap/setDirtyState', resp)
+      })
     },
     addClassToBody() {
       if (this.uiThemeCategory === 'zigbee') {
@@ -264,13 +272,15 @@ export default defineComponent({
   },
   mounted() {
     this.addClassToBody()
-    window?.parent?.postMessage({
+    window?.parent?.postMessage(
+      {
         eventId: 'mounted',
         eventData: {
-          hasMounted: true
-        }
+          hasMounted: true,
+        },
       },
-      '*')
+      '*'
+    )
   },
   unmounted() {
     if (this.uiThemeCategory === 'zigbee') {
