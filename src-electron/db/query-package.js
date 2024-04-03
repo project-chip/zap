@@ -148,11 +148,10 @@ async function getPackagesByType(db, type) {
  */
 async function getPackagesByCategoryAndType(db, type, category = '') {
   return dbApi
-    .dbAll(
-      db,
-      `${querySelectFromPackage} WHERE TYPE = ? AND (CATEGORY IN (${category}) OR CATEGORY IS NULL)`,
-      [type]
-    )
+    .dbAll(db, `${querySelectFromPackage} WHERE TYPE = ? AND CATEGORY = ?`, [
+      type,
+      category,
+    ])
     .then((rows) => rows.map(dbMapping.map.package))
 }
 
@@ -328,56 +327,48 @@ async function updatePathCrc(db, path, crc, parentId) {
  * Inserts a mapping between session and package.
  *
  * @param {*} db
- * @param {*} sessionPartitionId
+ * @param {*} sessionId
  * @param {*} packageId
- * @param {*} required
  * @returns Promise of an insert.
  */
 async function insertSessionPackage(
   db,
-  sessionPartitionId,
+  sessionId,
   packageId,
   required = false
 ) {
   return dbApi.dbInsert(
     db,
-    'INSERT OR REPLACE INTO SESSION_PACKAGE (SESSION_PARTITION_REF, PACKAGE_REF, REQUIRED, ENABLED) VALUES (?,?,?,1)',
-    [sessionPartitionId, packageId, required]
+    'INSERT OR REPLACE INTO SESSION_PACKAGE (SESSION_REF, PACKAGE_REF, REQUIRED, ENABLED) VALUES (?,?,?,1)',
+    [sessionId, packageId, required]
   )
 }
 
 /**
  * @param {*} db
- * @param {*} sessionPartitionId
+ * @param {*} sessionId
  * @param {*} packageType
  */
-async function deleteSessionPackage(db, sessionPartitionId, packageId) {
+async function deleteSessionPackage(db, sessionId, packageId) {
   return dbApi.dbRemove(
     db,
-    `UPDATE SESSION_PACKAGE SET ENABLED = 0 WHERE SESSION_PARTITION_REF = ? AND PACKAGE_REF = ?`,
-    [sessionPartitionId, packageId]
+    `UPDATE SESSION_PACKAGE SET ENABLED = 0 WHERE SESSION_REF = ? AND PACKAGE_REF = ?`,
+    [sessionId, packageId]
   )
 }
 
 /**
- * Deletes all session packages based on sessionPartitionIds.
+ * Deletes all session packages.
  *
  * @param {*} db
- * @param {*} sessionPartitionIds
+ * @param {*} sessionId
  * @returns promise
  */
-async function deleteAllSessionPackages(db, sessionPartitionIds) {
-  await dbApi.dbRemove(
-    db,
-    `DELETE FROM SESSION_PACKAGE WHERE SESSION_PARTITION_REF IN (${dbApi.toInClause(
-      sessionPartitionIds
-    )})`
-  )
+async function deleteAllSessionPackages(db, sessionId) {
   return dbApi.dbRemove(
     db,
-    `DELETE FROM SESSION_PARTITION WHERE SESSION_PARTITION_ID IN (${dbApi.toInClause(
-      sessionPartitionIds
-    )})`
+    `DELETE FROM SESSION_PACKAGE WHERE SESSION_REF = ?`,
+    [sessionId]
   )
 }
 
@@ -405,11 +396,7 @@ SELECT
 FROM PACKAGE
 INNER JOIN SESSION_PACKAGE
   ON PACKAGE.PACKAGE_ID = SESSION_PACKAGE.PACKAGE_REF
-INNER JOIN
-  SESSION_PARTITION
-ON
-  SESSION_PACKAGE.SESSION_PARTITION_REF= SESSION_PARTITION.SESSION_PARTITION_ID
-WHERE SESSION_PARTITION.SESSION_REF = ? 
+WHERE SESSION_PACKAGE.SESSION_REF = ? 
   AND PACKAGE.TYPE = ? 
   AND SESSION_PACKAGE.ENABLED = 1`,
       [sessionId, packageType]
@@ -446,11 +433,7 @@ async function getSessionGenTemplates(db, sessionId) {
     FROM PACKAGE
     INNER JOIN SESSION_PACKAGE
       ON PACKAGE.PACKAGE_ID = SESSION_PACKAGE.PACKAGE_REF
-    INNER JOIN
-      SESSION_PARTITION
-    ON
-      SESSION_PACKAGE.SESSION_PARTITION_REF= SESSION_PARTITION.SESSION_PARTITION_ID
-    WHERE SESSION_PARTITION.SESSION_REF = ? 
+    WHERE SESSION_PACKAGE.SESSION_REF = ? 
       AND PACKAGE.TYPE = ?
       AND SESSION_PACKAGE.ENABLED = 1)
       ORDER BY PACKAGE.PATH ASC`,
@@ -476,22 +459,16 @@ async function getSessionZclPackages(db, sessionId) {
       `
 SELECT 
   SP.PACKAGE_REF,
-  SESSION_PARTITION.SESSION_REF,
-  SESSION_PARTITION.SESSION_PARTITION_ID,
-  SP.REQUIRED,
-  P.CATEGORY
-FROM
-  SESSION_PARTITION
-INNER JOIN
+  SP.SESSION_REF,
+  SP.REQUIRED
+FROM 
   SESSION_PACKAGE AS SP
-ON
-  SP.SESSION_PARTITION_REF= SESSION_PARTITION.SESSION_PARTITION_ID
 INNER JOIN 
   PACKAGE AS P
 ON 
   SP.PACKAGE_REF = P.PACKAGE_ID
 WHERE
-  SESSION_PARTITION.SESSION_REF = ? AND SP.ENABLED = 1 AND P.TYPE IN ${inList}
+  SP.SESSION_REF = ? AND SP.ENABLED = 1 AND P.TYPE IN ${inList}
 `,
       [sessionId]
     )
@@ -519,19 +496,7 @@ async function getSessionPackages(db, sessionId) {
   return dbApi
     .dbAll(
       db,
-      `
-      SELECT 
-        SESSION_PACKAGE.PACKAGE_REF,
-        SESSION_PARTITION.SESSION_REF,
-        SESSION_PACKAGE.REQUIRED
-      FROM
-        SESSION_PACKAGE
-      INNER JOIN
-        SESSION_PARTITION
-      ON
-        SESSION_PACKAGE.SESSION_PARTITION_REF= SESSION_PARTITION.SESSION_PARTITION_ID
-      WHERE
-        SESSION_PARTITION.SESSION_REF = ? AND SESSION_PACKAGE.ENABLED = 1`,
+      'SELECT PACKAGE_REF, SESSION_REF, REQUIRED FROM SESSION_PACKAGE WHERE SESSION_REF = ? AND ENABLED = 1',
       [sessionId]
     )
     .then((rows) => rows.map(dbMapping.map.sessionPackage))
@@ -550,21 +515,17 @@ async function getSessionPackagesWithTypes(db, sessionId) {
       `
 SELECT 
   SP.PACKAGE_REF,
-  SESSION_PARTITION.SESSION_REF,
+  SP.SESSION_REF,
   SP.REQUIRED,
   P.TYPE
 FROM 
-  SESSION_PARTITION
-INNER JOIN
   SESSION_PACKAGE AS SP
-ON
-  SP.SESSION_PARTITION_REF= SESSION_PARTITION.SESSION_PARTITION_ID
 INNER JOIN 
   PACKAGE AS P
 ON 
   SP.PACKAGE_REF = P.PACKAGE_ID
 WHERE 
-  SESSION_PARTITION.SESSION_REF = ? AND SP.ENABLED = 1`,
+  SP.SESSION_REF = ? AND SP.ENABLED = 1`,
       [sessionId]
     )
     .then((rows) => rows.map(dbMapping.map.sessionPackage))
@@ -589,7 +550,7 @@ SELECT
   P.DESCRIPTION, 
   P.PARENT_PACKAGE_REF,
   SP.PACKAGE_REF,
-  SESSION_PARTITION.SESSION_REF,
+  SP.SESSION_REF,
   SP.REQUIRED
 FROM 
   PACKAGE AS P
@@ -597,12 +558,8 @@ INNER JOIN
   SESSION_PACKAGE AS SP
 ON
   P.PACKAGE_ID = SP.PACKAGE_REF
-INNER JOIN 
-  SESSION_PARTITION
-ON
-  SP.SESSION_PARTITION_REF= SESSION_PARTITION.SESSION_PARTITION_ID
 WHERE 
-  SESSION_PARTITION.SESSION_REF = ?
+  SP.SESSION_REF = ?
   AND SP.ENABLED = 1`,
     [sessionId]
   )
@@ -1065,6 +1022,7 @@ exports.getPackageIdByPathAndTypeAndVersion =
   getPackageIdByPathAndTypeAndVersion
 exports.getPackageSessionPackagePairBySessionId =
   getPackageSessionPackagePairBySessionId
+
 exports.getPathCrc = getPathCrc
 exports.getZclPropertiesPackage = getZclPropertiesPackage
 exports.insertPathCrc = insertPathCrc
@@ -1087,6 +1045,7 @@ exports.getSessionZclPackages = getSessionZclPackages
 exports.getSessionZclPackageIds = getSessionZclPackageIds
 exports.getAllPackages = getAllPackages
 exports.deleteAllSessionPackages = deleteAllSessionPackages
+
 exports.insertPackageExtension = insertPackageExtension
 exports.selectPackageExtension = selectPackageExtension
 exports.selectPackageExtensionByPropertyAndEntity =

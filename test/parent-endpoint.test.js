@@ -18,6 +18,7 @@
  * @jest-environment node
  */
 
+const path = require('path')
 const genEngine = require('../src-electron/generator/generation-engine')
 const env = require('../src-electron/util/env')
 const dbApi = require('../src-electron/db/db-api')
@@ -25,8 +26,11 @@ const zclLoader = require('../src-electron/zcl/zcl-loader')
 const importJs = require('../src-electron/importexport/import')
 const testUtil = require('./test-util')
 const queryEndpoint = require('../src-electron/db/query-endpoint')
+const queryEndpointType = require('../src-electron/db/query-endpoint-type')
+const queryConfig = require('../src-electron/db/query-config')
 const queryPackage = require('../src-electron/db/query-package')
-const querySession = require('../src-electron/db/query-session')
+const types = require('../src-electron/util/types')
+const bin = require('../src-electron/util/bin')
 
 let db
 const testFile = testUtil.matterTestFile.allClusters
@@ -71,17 +75,7 @@ test(
     let importResult = await importJs.importDataFromFile(db, testFile)
     sessionId = importResult.sessionId
     expect(sessionId).not.toBeNull()
-    let sessionPartitionInfo =
-      await querySession.selectSessionPartitionInfoFromPackageId(
-        db,
-        sessionId,
-        zclContext.packageId
-      )
-    await queryPackage.insertSessionPackage(
-      db,
-      sessionPartitionInfo[0].sessionPartitionId,
-      zclContext.packageId
-    )
+    await queryPackage.insertSessionPackage(db, sessionId, zclContext.packageId)
   },
   testUtil.timeout.medium()
 )

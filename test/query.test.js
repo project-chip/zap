@@ -271,24 +271,11 @@ describe('Session specific queries', () => {
     async () => {
       let result = await querySession.getSessionDirtyFlag(db, sid)
       expect(result).toBeFalsy()
-      let ctx = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
-      pkgId = ctx.packageId
-      let dts = await queryDeviceType.selectAllDeviceTypes(db, pkgId)
-      let haOnOffDeviceTypeArray = dts.filter(
-        (data) => data.label === 'HA-onoff'
-      )
-      let haOnOffDeviceType = haOnOffDeviceTypeArray[0]
-      let deviceTypeId = haOnOffDeviceType.id
-      let allSessionPartitions =
-        await querySession.getAllSessionPartitionInfoForSession(db, sid)
+
       let endpointTypeId = await queryConfig.insertEndpointType(
         db,
-        allSessionPartitions[0],
-        'Test endpoint',
-        deviceTypeId,
-        haOnOffDeviceType.code,
-        0,
-        true
+        sid,
+        'Test endpoint'
       )
       result = await querySession.getSessionDirtyFlag(db, sid)
       expect(result).toBeTruthy()
@@ -316,28 +303,10 @@ describe('Session specific queries', () => {
 
   test(
     'Test state creation',
-    async () => {
+    () => {
       let endpointTypeId
-      let ctx = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
-      pkgId = ctx.packageId
-      let dts = await queryDeviceType.selectAllDeviceTypes(db, pkgId)
-      let haOnOffDeviceTypeArray = dts.filter(
-        (data) => data.label === 'HA-onoff'
-      )
-      let haOnOffDeviceType = haOnOffDeviceTypeArray[0]
-      let deviceTypeId = haOnOffDeviceType.id
-      let allSessionPartitions =
-        await querySession.getAllSessionPartitionInfoForSession(db, sid)
       return queryConfig
-        .insertEndpointType(
-          db,
-          allSessionPartitions[0],
-          'Test endpoint',
-          deviceTypeId,
-          haOnOffDeviceType.code,
-          0,
-          true
-        )
+        .insertEndpointType(db, sid, 'Test endpoint')
         .then((id) => {
           endpointTypeId = id
         })
@@ -357,7 +326,7 @@ describe('Session specific queries', () => {
           expect(state.keyValuePairs[4].value).toBe('testValue')
           expect(state.endpointTypes.length).toBe(1)
           expect(state.endpointTypes[0].name).toBe('Test endpoint')
-          expect(state.endpointTypes[0].clusters.length).toBe(4) // clusters exist for the endpoint type after inserting endpoint
+          expect(state.endpointTypes[0].clusters.length).toBe(0)
           expect(state.package.length).toBe(2)
           let zclIndex
           let genIndex
@@ -438,18 +407,14 @@ describe('Endpoint Type Config Queries', () => {
   test(
     'Insert Endpoint Type',
     () =>
-      querySession
-        .selectSessionPartitionInfoFromDeviceType(db, sid, haOnOffDeviceType.id)
-        .then((sessionPartitionInfo) =>
-          queryConfig.insertEndpointType(
-            db,
-            sessionPartitionInfo[0],
-            'testEndpointType',
-            haOnOffDeviceType.id,
-            43,
-            22,
-            true
-          )
+      queryConfig
+        .insertEndpointType(
+          db,
+          sid,
+          'testEndpointType',
+          haOnOffDeviceType.id,
+          43,
+          22
         )
         .then((rowId) => {
           endpointTypeIdOnOff = rowId

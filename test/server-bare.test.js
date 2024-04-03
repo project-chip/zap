@@ -145,34 +145,9 @@ describe('Session specific tests', () => {
         .insertPathCrc(db, 'PATH', 32, dbEnum.packageType.zclProperties)
         .then((pkg) => {
           packageId = pkg
-          return packageId
         })
         .then(() =>
-          util.ensurePackagesAndPopulateSessionOptions(
-            db,
-            sessionId,
-            {
-              zcl: env.builtinSilabsZclMetafile(),
-              template: env.builtinTemplateMetafile(),
-              partitions: 2,
-            },
-            null,
-            null
-          )
-        )
-        .then(() =>
-          querySession.selectSessionPartitionInfoFromPackageId(
-            db,
-            sessionId,
-            packageId
-          )
-        )
-        .then((sessionPartitionInfo) =>
-          queryPackage.insertSessionPackage(
-            db,
-            sessionPartitionInfo[0].sessionPartitionId,
-            packageId
-          )
+          queryPackage.insertSessionPackage(db, sessionId, packageId)
         ),
     testUtil.timeout.medium()
   )

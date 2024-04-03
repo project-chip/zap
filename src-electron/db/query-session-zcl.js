@@ -31,8 +31,6 @@ const dbEnum = require('../../src-shared/db-enum.js')
  *
  * @param {*} db
  * @param {*} sessionId
- * @param {*} code
- * @param {*} mfgCode
  * @returns all the cluster objects for a given session.
  */
 async function selectSessionClusterByCode(db, sessionId, code, mfgCode) {
@@ -60,12 +58,8 @@ INNER JOIN
   SESSION_PACKAGE AS SP
 ON
   C.PACKAGE_REF = SP.PACKAGE_REF
-INNER JOIN
-  SESSION_PARTITION
-ON
-  SESSION_PARTITION.SESSION_PARTITION_ID = SP.SESSION_PARTITION_REF
 WHERE
-  SESSION_PARTITION.SESSION_REF = ? AND C.CODE = ? AND ${
+  SP.SESSION_REF = ? AND C.CODE = ? AND ${
     mfgCode == 0 || mfgCode == null
       ? 'C.MANUFACTURER_CODE IS NULL'
       : 'C.MANUFACTURER_CODE = ?'
@@ -105,12 +99,8 @@ INNER JOIN
   SESSION_PACKAGE AS SP
 ON
   C.PACKAGE_REF = SP.PACKAGE_REF
-INNER JOIN
-  SESSION_PARTITION
-ON
-  SESSION_PARTITION.SESSION_PARTITION_ID = SP.SESSION_PARTITION_REF
 WHERE
-  SESSION_PARTITION.SESSION_REF = ?
+  SP.SESSION_REF = ?
 `,
       [sessionId]
     )
@@ -122,10 +112,6 @@ WHERE
  *
  * @param {*} db
  * @param {*} sessionId
- * @param {*} clusterCode
- * @param {*} side
- * @param {*} attributeCode
- * @param {*} mfgCode
  * @returns the session attribute
  */
 async function selectSessionAttributeByCode(
@@ -165,12 +151,8 @@ SELECT
   ATTRIBUTE.MUST_USE_TIMED_WRITE
 FROM
   ATTRIBUTE, CLUSTER, SESSION_PACKAGE
-INNER JOIN
-  SESSION_PARTITION
-ON
-  SESSION_PACKAGE.SESSION_PARTITION_REF= SESSION_PARTITION.SESSION_PARTITION_ID
 WHERE
-  SESSION_PARTITION.SESSION_REF = ? AND
+  SESSION_PACKAGE.SESSION_REF = ? AND
   ATTRIBUTE.PACKAGE_REF = SESSION_PACKAGE.PACKAGE_REF AND ATTRIBUTE.CODE = ? AND
   ((ATTRIBUTE.CLUSTER_REF = CLUSTER.CLUSTER_ID AND CLUSTER.CODE = ?) OR 
   (ATTRIBUTE.CLUSTER_REF IS NULL)) AND ATTRIBUTE.SIDE = ?
@@ -185,9 +167,6 @@ WHERE
  *
  * @param {*} db
  * @param {*} sessionId
- * @param {*} clusterCode
- * @param {*} commandCode
- * @param {*} source
  * @returns the session attribute
  */
 async function selectSessionCommandByCode(
@@ -224,12 +203,8 @@ INNER JOIN
   SESSION_PACKAGE AS SP
 ON
   C.PACKAGE_REF = SP.PACKAGE_REF
-INNER JOIN
-  SESSION_PARTITION
-ON
-  SESSION_PARTITION.SESSION_PARTITION_ID = SP.SESSION_PARTITION_REF
 WHERE
-  SESSION_PARTITION.SESSION_REF = ? AND C.CODE = ? AND CMD.CODE = ? AND CMD.SOURCE = ?
+  SP.SESSION_REF = ? AND C.CODE = ? AND CMD.CODE = ? AND CMD.SOURCE = ?
 `,
       [sessionId, clusterCode, commandCode, source]
     )

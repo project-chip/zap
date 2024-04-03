@@ -67,16 +67,7 @@ async function getNotificationBySessionId(db, sessionId) {
   rows = await dbApi.dbAll(
     db,
     'SELECT * FROM PACKAGE_NOTICE WHERE PACKAGE_REF IN' +
-      `(  SELECT
-            SESSION_PACKAGE.PACKAGE_REF
-          FROM
-            SESSION_PACKAGE
-          INNER JOIN
-            SESSION_PARTITION
-          ON
-            SESSION_PACKAGE.SESSION_PARTITION_REF= SESSION_PARTITION.SESSION_PARTITION_ID
-          WHERE
-            SESSION_PARTITION.SESSION_REF = ( ? ) )`,
+      '( SELECT PACKAGE_REF FROM SESSION_PACKAGE WHERE SESSION_REF = ( ? ) )',
     [sessionId]
   )
   return rows.map(dbMapping.map.packageNotification)

@@ -201,7 +201,7 @@ async function qualifyZclFile(
       return {
         filePath: filePath,
         data: data,
-        packageId: parentPackageId == null ? pkg.id : parentPackageId, // Changing from package to pkg.id since package is not defined
+        packageId: parentPackageId == null ? packageId : parentPackageId,
       }
     }
   }

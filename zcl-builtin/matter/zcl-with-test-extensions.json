@@ -1,5 +1,5 @@
 {
-  "description": "Matter Test SDK ZCL data with some extensions",
+  "description": "Matter SDK ZCL data with some extensions",
   "category": "matter",
   "version": 1,
   "xmlRoot": [
@@ -89,6 +89,7 @@
     "window-covering.xml",
     "matter-devices.xml",
     "ha-devices.xml",
+    "lo-devices.xml",
     "zll-devices.xml",
     "types/color-control.xml",
     "types/door-lock.xml",

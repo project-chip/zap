@@ -44,15 +44,8 @@ function sessionAttempt(db) {
       if (filePath.includes('.zap')) {
         let data = await fsp.readFile(filePath)
         let obj = JSON.parse(data)
-        let category = []
-        let zapFilePackages = obj.package
-        zapFilePackages.forEach((pkg) => {
-          let pkgCategory = "'" + pkg.category + "'"
-          if (!category.includes(pkgCategory)) {
-            category.push(pkgCategory)
-          }
-        })
-        if (category.length > 0) {
+        let category = obj.package[0].category
+        if (category) {
           let open = true
           const zclProperties = await queryPackage.getPackagesByCategoryAndType(
             db,
@@ -71,7 +64,6 @@ function sessionAttempt(db) {
             zclProperties,
             sessions,
             filePath,
-            zapFilePackages,
             open,
           })
         } else {
@@ -155,27 +147,23 @@ function sessionCreate(db) {
       } else {
         pkgArray = []
       }
-      let partitionsLength =
-        (zclProperties && zclProperties.length ? zclProperties.length : 0) +
-        (genTemplate && genTemplate.length ? genTemplate.length : 0)
-      await querySession
+
+      querySession
         .ensureZapUserAndSession(db, userKey, sessionUuid, {
           sessionId: zapSessionId,
           userId: zapUserId,
-          partitions: partitionsLength,
         })
         .then((result) => {
           req.session.zapUserId = result.userId
           req.session.zapSessionId[sessionUuid] = result.sessionId
           req.zapSessionId = result.sessionId
-          req.zapSessionPartitions = result.partitions
           return result
         })
         .then((result) => {
           return util.ensurePackagesAndPopulateSessionOptions(
             db,
             result.sessionId,
-            { partitions: result.partitions },
+            null,
             pkgArray,
             genTemplate
           )

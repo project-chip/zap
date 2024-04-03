@@ -469,7 +469,6 @@ test(
       {
         zcl: env.builtinMatterZclMetafile(),
         template: testUtil.testTemplate.matter3,
-        partitions: 2,
       },
       null,
       [templateContext.packageId]
@@ -488,20 +487,13 @@ test(
     let matterLightDeviceIds = matterLightDevices.map((dt) => dt.code)
 
     // insert the device types above into an endpoint type
-    let sessionPartitionInfo =
-      await querySession.selectSessionPartitionInfoFromDeviceType(
-        db,
-        sid,
-        matterLightDeviceRefs[0]
-      )
     await queryConfig.insertEndpointType(
       db,
-      sessionPartitionInfo[0],
+      sid,
       'testEndpointType',
       matterLightDeviceRefs,
       matterLightDeviceIds,
-      [1, 2], //device type version
-      true
+      [1, 2] //device type version
     )
 
     // Getting the endpoint cluster information and making sure clusters from both

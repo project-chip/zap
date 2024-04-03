@@ -19,7 +19,6 @@ const cHelper = require('./helper-c.js')
 const templateUtil = require('./template-util')
 const queryEndpoint = require('../db/query-endpoint.js')
 const queryEndpointType = require('../db/query-endpoint-type.js')
-const queryPackage = require('../db/query-package.js')
 const bin = require('../util/bin')
 const types = require('../util/types.js')
 const zclUtil = require('../util/zcl-util.js')
@@ -1163,21 +1162,7 @@ function endpoint_config(options) {
   }
   let promise = templateUtil
     .ensureZclPackageIds(newContext)
-    .then(() =>
-      queryPackage.getPackageByPackageId(
-        newContext.global.db,
-        newContext.global.genTemplatePackageId
-      )
-    )
-    .then((templatePackage) =>
-      templatePackage && templatePackage.category
-        ? queryEndpoint.selectAllEndpointsBasedOnTemplateCategory(
-            db,
-            sessionId,
-            templatePackage.category
-          )
-        : queryEndpoint.selectAllEndpoints(db, sessionId)
-    )
+    .then(() => queryEndpoint.selectAllEndpoints(db, sessionId))
     .then((endpoints) => {
       newContext.endpoints = endpoints
       let endpointTypeIds = []
@@ -1275,9 +1260,6 @@ function endpoint_config(options) {
       Object.assign(newContext, collection)
     })
     .then(() => options.fn(newContext))
-    .catch((err) =>
-      console.log('Error in endpoint_config helper: ' + err.message)
-    )
   return templateUtil.templatePromise(this.global, promise)
 }
 

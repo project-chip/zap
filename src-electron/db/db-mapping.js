@@ -384,23 +384,6 @@ exports.map = {
       name: x.NAME,
       caption: x.DESCRIPTION,
       class: x.CLASS,
-      packageRef: x.PACKAGE_REF,
-    }
-  },
-
-  deviceTypeExtended: (x) => {
-    if (x == null) return undefined
-    return {
-      id: x.DEVICE_TYPE_ID,
-      code: x.CODE,
-      profileId: x.PROFILE_ID,
-      domain: x.DOMAIN,
-      label: x.NAME,
-      name: x.NAME,
-      caption: x.DESCRIPTION,
-      class: x.CLASS,
-      packageRef: x.PACKAGE_REF,
-      category: x.CATEGORY,
     }
   },
 
@@ -467,25 +450,6 @@ exports.map = {
       deviceIdentifier: x.DEVICE_IDENTIFIER,
       parentRef: x.PARENT_ENDPOINT_REF,
       parentEndpointIdentifier: x.PARENT_ENDPOINT_IDENTIFIER,
-    }
-  },
-  endpointExtended: (x) => {
-    if (x == null) return undefined
-    return {
-      id: x.ENDPOINT_ID,
-      endpointRef: x.ENDPOINT_ID,
-      sessionRef: x.SESSION_REF,
-      endpointIdentifier: x.ENDPOINT_IDENTIFIER,
-      endpointId: x.ENDPOINT_IDENTIFIER,
-      endpointTypeRef: x.ENDPOINT_TYPE_REF,
-      profileId: x.PROFILE,
-      networkId: x.NETWORK_IDENTIFIER,
-      endpointVersion: x.DEVICE_VERSION, // Left for backwards compatibility
-      deviceVersion: x.DEVICE_VERSION,
-      deviceIdentifier: x.DEVICE_IDENTIFIER,
-      parentRef: x.PARENT_ENDPOINT_REF,
-      parentEndpointIdentifier: x.PARENT_ENDPOINT_IDENTIFIER,
-      category: x.CATEGORY, // Category of the device type coming from the zcl package it belongs to.
     }
   },
   endpointType: (x) => {
@@ -679,8 +643,6 @@ exports.map = {
       sessionRef: x.SESSION_REF,
       required: x.REQUIRED,
       type: x.TYPE,
-      sessionPartitionId: x.SESSION_PARTITION_ID,
-      category: x.CATEGORY,
     }
   },
   sessionLog: (x) => {
@@ -702,16 +664,6 @@ exports.map = {
       newNotification: x.NEW_NOTIFICATION == 1,
     }
   },
-
-  sessionPartition: (x) => {
-    if (x == null) return undefined
-    return {
-      sessionPartitionId: x.SESSION_PARTITION_ID,
-      sessionRef: x.SESSION_REF,
-      sessionPartitionNumber: x.SESSION_PARTITION_NUMBER,
-    }
-  },
-
   user: (x) => {
     if (x == null) return undefined
     return {

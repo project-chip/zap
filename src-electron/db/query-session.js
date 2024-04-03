@@ -59,8 +59,7 @@ async function reloadSession(db, sessionId, userRef, sessionKey) {
 }
 
 /**
- * Returns a promise that resolves into an array of objects containing
- * 'sessionId', 'sessionKey' and 'creationTime' and assigned packages.
+ * Returns a promise that resolves into an array of objects containing 'sessionId', 'sessionKey' and 'creationTime' and assigned packages.
  * Dirty Sessions are the sessions which are created in the past and not saved
  *
  * @export
@@ -76,16 +75,11 @@ SELECT
   SESSION.SESSION_KEY,
   SESSION.CREATION_TIME,
   SESSION.DIRTY,
-  SESSION_PARTITION.SESSION_REF,
+  SESSION_PACKAGE.SESSION_REF,
   SESSION_PACKAGE.PACKAGE_REF
   FROM SESSION
-  INNER JOIN
-    SESSION_PARTITION
-  ON SESSION.SESSION_ID = SESSION_PARTITION.SESSION_REF
-  INNER JOIN
-    SESSION_PACKAGE
-  ON
-    SESSION_PACKAGE.SESSION_PARTITION_REF= SESSION_PARTITION.SESSION_PARTITION_ID
+  INNER JOIN SESSION_PACKAGE
+  ON SESSION.SESSION_ID = SESSION_PACKAGE.SESSION_REF
   WHERE SESSION.DIRTY = 1`,
     []
   )
@@ -260,7 +254,6 @@ async function ensureZapUserAndSession(
   options = {
     sessionId: null,
     userId: null,
-    partitions: null,
   }
 ) {
   if (options.sessionId != null && options.userId != null) {
@@ -269,7 +262,6 @@ async function ensureZapUserAndSession(
       sessionId: options.sessionId,
       userId: options.userId,
       newSession: false,
-      partitions: options.partitions,
     }
   } else if (options.sessionId != null) {
     // we have a session, but not the user, so we create
@@ -280,279 +272,38 @@ async function ensureZapUserAndSession(
       sessionId: options.sessionId,
       userId: user.userId,
       newSession: false,
-      partitions: options.partitions,
     }
   } else if (options.userId != null) {
     // we have the user, but not the session, so we create the session,
     // and link it to the user.
-    let sessionId = await ensureBlankSession(
-      db,
-      sessionUuid,
-      options.partitions
-    )
+    let sessionId = await ensureBlankSession(db, sessionUuid)
     await linkSessionToUser(db, sessionId, options.userId)
     return {
       sessionId: sessionId,
       userId: options.userId,
       newSession: true,
-      partitions: options.partitions,
     }
   } else {
     // we have nothing, create both the user and the session.
     let user = await ensureUser(db, userKey)
-    let sessionId = await ensureBlankSession(
-      db,
-      sessionUuid,
-      options.partitions
-    )
+    let sessionId = await ensureBlankSession(db, sessionUuid)
     await linkSessionToUser(db, sessionId, user.userId)
     return {
       sessionId: sessionId,
       userId: user.userId,
       newSession: true,
-      partitions: options.partitions,
     }
   }
 }
 
-/**
- * Create a blank session with a new session id and its session partitions.
- *
- * @param {*} db
- * @param {*} uuid
- * @param {*} partitions
- * @returns session Id
- */
-async function ensureBlankSession(db, uuid, partitions) {
-  let sessionId = await dbApi.dbInsert(
+async function ensureBlankSession(db, uuid) {
+  await dbApi.dbInsert(
     db,
     'INSERT OR IGNORE INTO SESSION (SESSION_KEY, CREATION_TIME, DIRTY) VALUES (?,?,?)',
     [uuid, Date.now(), 0]
   )
-  // An ignore in the above insert command can lead to false session Ids. Hence the additional check.
-  let sessionIdInserted = await dbApi.dbGet(
-    db,
-    `SELECT SESSION_ID FROM SESSION WHERE SESSION_ID = ?`,
-    [sessionId]
-  )
-  if (sessionIdInserted) {
-    let sessionPartitionPromises = []
-    for (let i = 0; i < partitions; i++) {
-      sessionPartitionPromises.push(
-        dbApi.dbInsert(
-          db,
-          'INSERT OR IGNORE INTO SESSION_PARTITION (SESSION_REF, SESSION_PARTITION_NUMBER) VALUES (?,?)',
-          [sessionId, i + 1]
-        )
-      )
-    }
-    await Promise.all(sessionPartitionPromises)
-  }
-
   const session = await getSessionInfoFromSessionKey(db, uuid)
   return session.sessionId
-}
-
-/**
- * Populate the session partition table based on session partitions
- * @param {*} db
- * @param {*} sessionId
- * @param {*} partitions
- * @returns sessionPartition Ids
- */
-async function insertSessionPartitions(db, sessionId, partitions) {
-  let sessionPartitionPromises = []
-  for (let i = 0; i < partitions; i++) {
-    sessionPartitionPromises.push(
-      dbApi.dbInsert(
-        db,
-        'INSERT OR IGNORE INTO SESSION_PARTITION (SESSION_REF, SESSION_PARTITION_NUMBER) VALUES (?,?)',
-        [sessionId, i + 1]
-      )
-    )
-  }
-  let sessionPartitions = await Promise.all(sessionPartitionPromises)
-  return sessionPartitions
-}
-
-/**
- *
- * @param {*} db
- * @param {*} sessionId
- * @param {*} partitionNumber
- * @returns inserted sessionPartitionId
- */
-async function insertSessionPartition(db, sessionId, partitionNumber) {
-  let sessionPartition = await dbApi.dbInsert(
-    db,
-    'INSERT OR IGNORE INTO SESSION_PARTITION (SESSION_REF, SESSION_PARTITION_NUMBER) VALUES (?,?)',
-    [sessionId, partitionNumber]
-  )
-  return sessionPartition
-}
-
-/**
- * Retrieve session partition info from sessionId and partition number.
- *
- * @param {*} db
- * @param {*} sessionId
- * @param {*} partitionNumber
- * @returns session partition info
- */
-async function getSessionPartitionInfo(db, sessionId, partitionNumber) {
-  let rows = await dbApi.dbAll(
-    db,
-    `
-    SELECT
-      SESSION_PARTITION_ID,
-      SESSION_PARTITION_NUMBER,
-      SESSION_REF
-    FROM
-      SESSION_PARTITION
-    WHERE
-      SESSION_REF = ?
-    AND
-      SESSION_PARTITION_NUMBER <= ?`,
-    [sessionId, partitionNumber]
-  )
-  return rows.map(dbMapping.map.sessionPartition)
-}
-
-/**
- * Retrieve session partition info for a given session.
- *
- * @param {*} db
- * @param {*} sessionId
- * @returns session partition info for a session
- */
-async function getAllSessionPartitionInfoForSession(db, sessionId) {
-  let rows = await dbApi.dbAll(
-    db,
-    `
-    SELECT
-      SESSION_PARTITION_ID,
-      SESSION_PARTITION_NUMBER,
-      SESSION_REF
-    FROM
-      SESSION_PARTITION
-    WHERE
-      SESSION_REF = ?`,
-    [sessionId]
-  )
-  return rows.map(dbMapping.map.sessionPartition)
-}
-
-/**
- * Retrieve session partition info from session id and device type id
- * @param {*} db
- * @param {*} sessionId
- * @param {*} deviceTypeIds
- * @returns session partition info
- */
-async function selectSessionPartitionInfoFromDeviceType(
-  db,
-  sessionId,
-  deviceTypeIds
-) {
-  let rows = await dbApi.dbAll(
-    db,
-    `
-    SELECT
-      SESSION_PARTITION.SESSION_PARTITION_ID,
-      SESSION_PARTITION.SESSION_PARTITION_NUMBER,
-      SESSION_PARTITION.SESSION_REF
-    FROM
-      DEVICE_TYPE
-    INNER JOIN
-      SESSION_PACKAGE
-    ON
-      DEVICE_TYPE.PACKAGE_REF = SESSION_PACKAGE.PACKAGE_REF
-    INNER JOIN
-      SESSION_PARTITION
-    ON
-      SESSION_PARTITION.SESSION_PARTITION_ID = SESSION_PACKAGE.SESSION_PARTITION_REF
-    INNER JOIN
-      SESSION
-    ON
-      SESSION.SESSION_ID = SESSION_PARTITION.SESSION_REF
-    WHERE
-      SESSION.SESSION_ID = ?
-    AND
-      DEVICE_TYPE.DEVICE_TYPE_ID IN (${dbApi.toInClause(deviceTypeIds)})
-    AND
-      SESSION_PACKAGE.ENABLED=1`,
-    [sessionId]
-  )
-  return rows.map(dbMapping.map.sessionPartition)
-}
-
-/**
- * Retrieve session partition infor from session id and package id.
- * @param {*} db
- * @param {*} sessionId
- * @param {*} packageIds
- * @returns session partition info
- */
-async function selectSessionPartitionInfoFromPackageId(
-  db,
-  sessionId,
-  packageIds
-) {
-  let rows = await dbApi.dbAll(
-    db,
-    `
-    SELECT
-      SESSION_PARTITION.SESSION_PARTITION_ID,
-      SESSION_PARTITION.SESSION_PARTITION_NUMBER,
-      SESSION_PARTITION.SESSION_REF
-    FROM
-      SESSION_PACKAGE
-    INNER JOIN
-      SESSION_PARTITION
-    ON
-      SESSION_PACKAGE.SESSION_PARTITION_REF = SESSION_PARTITION.SESSION_PARTITION_ID
-    INNER JOIN
-      SESSION
-    ON
-      SESSION_PARTITION.SESSION_REF = SESSION.SESSION_ID
-    WHERE
-      SESSION_PARTITION.SESSION_REF = ?
-    AND
-      SESSION_PACKAGE.PACKAGE_REF IN (${packageIds})
-    AND
-      SESSION_PACKAGE.ENABLED=1`,
-    [sessionId]
-  )
-  return rows.map(dbMapping.map.sessionPartition)
-}
-
-/**
- * Retrieve session partition infor from deviceTypeId.
- * @param {*} db
- * @param {*} deviceTypeId
- * @returns session partition info
- */
-async function selectDeviceTypePackageInfoFromDeviceTypeId(db, deviceTypeIds) {
-  let rows = await dbApi.dbAll(
-    db,
-    `
-    SELECT
-      DEVICE_TYPE.DEVICE_TYPE_ID,
-      DEVICE_TYPE.CODE,
-      DEVICE_TYPE.NAME,
-      DEVICE_TYPE.NAME,
-      DEVICE_TYPE.PACKAGE_REF,
-      PACKAGE.CATEGORY
-    FROM
-      DEVICE_TYPE
-    INNER JOIN
-      PACKAGE
-    ON
-      PACKAGE.PACKAGE_ID = DEVICE_TYPE.PACKAGE_REF
-    WHERE
-      DEVICE_TYPE.DEVICE_TYPE_ID IN (${dbApi.toInClause(deviceTypeIds)})`
-  )
-  return rows.map(dbMapping.map.deviceTypeExtended)
 }
 
 /**
@@ -840,14 +591,3 @@ exports.getUserSessionsById = getUserSessionsById
 exports.getUsers = getUsers
 exports.getUsersSessions = getUsersSessions
 exports.setSessionNewNotificationClean = setSessionNewNotificationClean
-exports.getSessionPartitionInfo = getSessionPartitionInfo
-exports.selectSessionPartitionInfoFromDeviceType =
-  selectSessionPartitionInfoFromDeviceType
-exports.insertSessionPartitions = insertSessionPartitions
-exports.selectSessionPartitionInfoFromPackageId =
-  selectSessionPartitionInfoFromPackageId
-exports.insertSessionPartition = insertSessionPartition
-exports.getAllSessionPartitionInfoForSession =
-  getAllSessionPartitionInfoForSession
-exports.selectDeviceTypePackageInfoFromDeviceTypeId =
-  selectDeviceTypePackageInfoFromDeviceTypeId

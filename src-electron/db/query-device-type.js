@@ -26,15 +26,15 @@ const dbMapping = require('./db-mapping')
 /**
  * Retrieves all the device types in the database.
  *
+ * @export
  * @param {*} db
- * @param {*} packageId
  * @returns Promise that resolves with the rows of device types.
  */
 async function selectAllDeviceTypes(db, packageId) {
   return dbApi
     .dbAll(
       db,
-      'SELECT DEVICE_TYPE_ID, DOMAIN, CODE, PROFILE_ID, NAME, DESCRIPTION, CLASS, PACKAGE_REF FROM DEVICE_TYPE WHERE PACKAGE_REF = ? ORDER BY DOMAIN, CODE',
+      'SELECT DEVICE_TYPE_ID, DOMAIN, CODE, PROFILE_ID, NAME, DESCRIPTION, CLASS FROM DEVICE_TYPE WHERE PACKAGE_REF = ? ORDER BY DOMAIN, CODE',
       [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.deviceType))
@@ -51,7 +51,7 @@ async function selectDeviceTypeById(db, id) {
   return dbApi
     .dbGet(
       db,
-      'SELECT DEVICE_TYPE_ID, DOMAIN, CODE, PROFILE_ID, NAME, DESCRIPTION, CLASS, PACKAGE_REF FROM DEVICE_TYPE WHERE DEVICE_TYPE_ID = ?',
+      'SELECT DEVICE_TYPE_ID, DOMAIN, CODE, PROFILE_ID, NAME, DESCRIPTION, CLASS FROM DEVICE_TYPE WHERE DEVICE_TYPE_ID = ?',
       [id]
     )
     .then(dbMapping.map.deviceType)

@@ -223,27 +223,13 @@ export default {
     },
     uiThemeCategory: {
       get() {
-        let zclProps = this.$store.state.zap.selectedZapConfig?.zclProperties
-        // Picking the first category in the case of multi-protocol(zigbee/matter)
-        if (Array.isArray(zclProps) && zclProps.length > 0) {
-          return zclProps[0].category
-        } else {
-          return this.$store.state.zap.selectedZapConfig?.zclProperties.category
-        }
+        return this.$store.state.zap.selectedZapConfig?.zclProperties.category
       },
     },
     description: {
       get() {
-        // Picking the first description in the case of multi-protocol(zigbee/matter)
-        if (
-          Array.isArray(this.$store.state.zap.selectedZapConfig?.zclProperties)
-        ) {
-          return this.$store.state.zap.selectedZapConfig?.zclProperties[0]
-            .description
-        } else {
-          return this.$store.state.zap.selectedZapConfig?.zclProperties
-            .description
-        }
+        return this.$store.state.zap.selectedZapConfig?.zclProperties
+          .description
       },
     },
     miniState: {
