@@ -174,17 +174,36 @@ async function getPackagesByParentAndType(db, parentId, type) {
 }
 
 /**
- * Checks if the package with a given path exists and executes appropriate action.
- * Returns the promise that resolves the the package or null if nothing was found.
+ * Checks if the package with a given package id exists and executes appropriate action.
+ * Returns the promise that resolves the package or null if nothing was found.
  *
  * @export
  * @param {*} db
- * @param {*} path Path of a file to check.
+ * @param {*} packageId
  */
 async function getPackageByPackageId(db, packageId) {
   return dbApi
     .dbGet(db, `${querySelectFromPackage} WHERE PACKAGE_ID = ?`, [packageId])
     .then(dbMapping.map.package)
+}
+
+/**
+ * Checks if packages with given package ids exist and executes appropriate action.
+ * Returns the promise that resolves the packages or null if nothing was found.
+ *
+ * @export
+ * @param {*} db
+ * @param {*} packageIds
+ */
+async function getPackagesByPackageIds(db, packageIds) {
+  return dbApi
+    .dbAll(
+      db,
+      `${querySelectFromPackage} WHERE PACKAGE_ID IN (${dbApi.toInClause(
+        packageIds
+      )})`
+    )
+    .then((rows) => rows.map(dbMapping.map.package))
 }
 
 /**
@@ -1096,3 +1115,4 @@ exports.selectAllUiOptions = selectAllUiOptions
 exports.insertSessionKeyValuesFromPackageDefaults =
   insertSessionKeyValuesFromPackageDefaults
 exports.getPackagesByCategoryAndType = getPackagesByCategoryAndType
+exports.getPackagesByPackageIds = getPackagesByPackageIds

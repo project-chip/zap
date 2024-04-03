@@ -284,6 +284,7 @@ CREATE TABLE IF NOT EXISTS "ATTRIBUTE" (
   foreign key (REMOVED_IN_REF) references SPEC(SPEC_ID),
   foreign key (CLUSTER_REF) references CLUSTER(CLUSTER_ID),
   foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID) on delete cascade
+  UNIQUE("CLUSTER_REF", "PACKAGE_REF", "CODE", "MANUFACTURER_CODE")
 );
 /*
  GLOBAL_ATTRIBUTE_DEFAULT table contains default values of attributes per cluster.

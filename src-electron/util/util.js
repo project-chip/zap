@@ -165,11 +165,7 @@ async function ensurePackagesAndPopulateSessionOptions(
             if (sessionPartitionInfo.length == 0) {
               sessionPartitionIndex++
               return querySession
-                .insertSessionPartition(
-                  db,
-                  sessionId,
-                  sessionPartitionIndex - 1
-                )
+                .insertSessionPartition(db, sessionId, sessionPartitionIndex)
                 .then((sessionPartitionId) =>
                   queryPackage.insertSessionPackage(
                     db,
@@ -281,7 +277,7 @@ async function ensurePackagesAndPopulateSessionOptions(
                     .insertSessionPartition(
                       db,
                       sessionId,
-                      sessionPartitionIndex - 1
+                      sessionPartitionIndex
                     )
                     .then((sessionPartitionId) =>
                       queryPackage.insertSessionPackage(
@@ -328,11 +324,7 @@ async function ensurePackagesAndPopulateSessionOptions(
             if (sessionPartitionInfo.length == 0) {
               sessionPartitionIndex++
               return querySession
-                .insertSessionPartition(
-                  db,
-                  sessionId,
-                  sessionPartitionIndex - 1
-                )
+                .insertSessionPartition(db, sessionId, sessionPartitionIndex)
                 .then((sessionPartitionId) =>
                   queryPackage.insertSessionPackage(
                     db,

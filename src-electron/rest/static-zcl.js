@@ -108,6 +108,16 @@ function reduceAndConcatenateZclEntity(
 }
 
 async function parseForZclData(db, entity, id, packageIdArray) {
+  // Retrieve all the standalone custom xml packages
+  let packageData = await queryPackage.getPackagesByPackageIds(
+    db,
+    packageIdArray
+  )
+  let standalonePackages = packageData.filter(
+    (pd) => pd.type === dbEnum.packageType.zclXmlStandalone
+  )
+  let standAlonePackageIds = standalonePackages.map((sp) => sp.id)
+
   switch (entity) {
     case 'atomics':
       return reduceAndConcatenateZclEntity(
@@ -140,7 +150,9 @@ async function parseForZclData(db, entity, id, packageIdArray) {
             : reduceAndConcatenateZclEntity(
                 db,
                 id,
-                [clusterInfo.packageRef],
+                standAlonePackageIds.includes(clusterInfo.packageRef) // Use packageId array if cluster belongs to standalone xml(custom cluster) else use just the package from the cluster.
+                  ? packageIdArray
+                  : [...standAlonePackageIds, clusterInfo.packageRef], // Taking cluster package and custom xml into account. Using a set since a cluster may sometimes be a custom one as well thus duplicating this array.
                 returnZclEntitiesForClusterId,
                 mergeZclClusterAttributeCommandEventData,
                 {

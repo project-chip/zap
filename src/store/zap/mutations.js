@@ -45,6 +45,19 @@ export function updateClusters(state, responseData) {
   let selectedDeviceTypeRefs =
     state.endpointTypeView.deviceTypeRef[selectedEndpointTypeTemp]
   let packageRefs = []
+  // Add custom xml packages to the list of packageRefs
+  let sessionPackages = state.packages
+  if (sessionPackages && sessionPackages.length > 0) {
+    for (let i = 0; i < sessionPackages.length; i++) {
+      if (
+        sessionPackages[i].pkg &&
+        sessionPackages[i].pkg.type == 'zcl-xml-standalone'
+      ) {
+        packageRefs.push(sessionPackages[i].pkg.id)
+      }
+    }
+  }
+
   if (selectedDeviceTypeRefs) {
     for (let i = 0; i < selectedDeviceTypeRefs.length; i++) {
       for (let j = 0; j < responseData.deviceTypes.data.length; j++) {

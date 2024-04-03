@@ -559,7 +559,7 @@ function httpPostAddNewPackage(db) {
           let sessionPartitionId = await querySession.insertSessionPartition(
             db,
             sessionId,
-            sessionPartitionInfo.length
+            sessionPartitionInfo.length + 1
           )
           await queryPackage.insertSessionPackage(
             db,

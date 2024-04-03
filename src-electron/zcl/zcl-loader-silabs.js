@@ -2230,6 +2230,28 @@ async function loadIndividualSilabsFile(db, filePath, sessionId) {
     if (result.data) {
       result.result = await util.parseXml(result.data)
       delete result.data
+      // Just adding the cluster attribute and command extensions for a cluster
+      // because they can be related to any top level package in the .zap config
+      if (
+        result.customXmlReload &&
+        result.result.configurator &&
+        result.result.configurator.clusterExtension
+      ) {
+        result.result = {
+          configurator: {
+            clusterExtension: result.result.configurator.clusterExtension,
+          },
+        }
+      } else if (
+        result.customXmlReload &&
+        result.result.configurator &&
+        !result.result.configurator.clusterExtension
+      ) {
+        env.logDebug(
+          `CRC match for file ${result.filePath} (${result.crc}), skipping parsing.`
+        )
+        delete result.result
+      }
     }
     let sessionPackages = await queryPackage.getSessionZclPackages(
       db,
@@ -2259,7 +2281,7 @@ async function loadIndividualSilabsFile(db, filePath, sessionId) {
       let sessionPartitionId = await querySession.insertSessionPartition(
         db,
         sessionId,
-        sessionPartitionInfo.length
+        sessionPartitionInfo.length + 1
       )
       await queryPackage.insertSessionPackage(
         db,

@@ -78,7 +78,10 @@ limitations under the License.
                     </div>
                     <q-space />
                     <q-btn
-                      v-if="!sessionPackage.sessionPackage.required"
+                      v-if="
+                        sessionPackage.sessionPackage.type ==
+                        'zcl-xml-standalone'
+                      "
                       class="q-mx-xl"
                       label="Delete"
                       icon="delete"
@@ -192,6 +195,11 @@ export default {
   watch: {
     packages(newPackages) {
       this.loadPackageNotification(newPackages)
+    },
+    packageToLoad() {
+      this.loadNewPackage().then(() => {
+        this.$store.dispatch('zap/updateZclDeviceTypes')
+      })
     },
   },
   methods: {
@@ -316,9 +324,6 @@ export default {
         (value) => {
           if (value.context == 'customXml') {
             this.packageToLoad = value.filePaths[0]
-            this.loadNewPackage().then(() => {
-              this.$store.dispatch('zap/updateZclDeviceTypes')
-            })
           }
         }
       )

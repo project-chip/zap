@@ -1561,17 +1561,30 @@ async function jsonDataLoader(
 
   // packageData: { sessionId, packageId, otherIds, optionalIds}
   let optionalPackagePromises = []
-  if (standAlonePackageData.optionalIds.length > 0) {
-    standAlonePackageData.optionalIds.forEach((optionalId) => {
-      optionalPackagePromises.push(
-        queryPackage.insertSessionPackage(
+  if (
+    standAlonePackageData.optionalIds &&
+    standAlonePackageData.optionalIds.length > 0
+  ) {
+    let optionalIds = standAlonePackageData.optionalIds
+    for (let i = 0; i < optionalIds.length; i++) {
+      let sessionPartitionInfoForNewPackage =
+        await querySession.selectSessionPartitionInfoFromPackageId(
           db,
-          sessionPartitionInfo[sessionPartitionIndex].sessionPartitionId,
-          optionalId
+          sessionId,
+          optionalIds[i]
         )
-      )
-      sessionPartitionIndex++
-    })
+      // Loading only those packages which have not been loaded
+      if (sessionPartitionInfoForNewPackage.length == 0) {
+        optionalPackagePromises.push(
+          queryPackage.insertSessionPackage(
+            db,
+            sessionPartitionInfo[sessionPartitionIndex].sessionPartitionId,
+            optionalIds[i]
+          )
+        )
+        sessionPartitionIndex++
+      }
+    }
   }
   await Promise.all(optionalPackagePromises)
 

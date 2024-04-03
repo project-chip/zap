@@ -204,6 +204,9 @@ export default {
       return (
         this.$store.state.zap.genericOptions[
           dbEnum.sessionOption.coreSpecification
+        ] &&
+        this.$store.state.zap.genericOptions[
+          dbEnum.sessionOption.coreSpecification
         ].length > 0
       )
     },
@@ -227,8 +230,9 @@ export default {
     },
     getLogos: {
       get() {
-        let zclProperties =
-          this.$store.state.zap.selectedZapConfig?.zclProperties
+        let zclProperties = this.$store.state.zap.selectedZapConfig
+          ? this.$store.state.zap.selectedZapConfig.zclProperties
+          : null
         let logos = []
         if (Array.isArray(zclProperties)) {
           for (let i = 0; i < zclProperties.length; i++) {
@@ -245,7 +249,7 @@ export default {
             }
           }
         } else {
-          if (zclProperties.category) {
+          if (zclProperties && zclProperties.category) {
             logos.push(
               '/' +
                 this.$store.state.zap.selectedZapConfig?.zclProperties[0]
