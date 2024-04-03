@@ -155,10 +155,7 @@ async function createSession(db, user, sessionUuid, zclFile, genTemplatesFile) {
   let userSession = await querySession.ensureZapUserAndSession(
     db,
     user,
-    sessionUuid,
-    {
-      partitions: 2,
-    }
+    sessionUuid
   )
   await util.ensurePackagesAndPopulateSessionOptions(
     db,
@@ -166,7 +163,6 @@ async function createSession(db, user, sessionUuid, zclFile, genTemplatesFile) {
     {
       zcl: zclFile,
       template: genTemplatesFile,
-      partitions: 2,
     },
     null
   )
@@ -214,12 +210,8 @@ INNER JOIN
   SESSION_PACKAGE
 ON
   CLUSTER.PACKAGE_REF = SESSION_PACKAGE.PACKAGE_REF
-INNER JOIN
-  SESSION_PARTITION
-ON
-  SESSION_PACKAGE.SESSION_PARTITION_REF = SESSION_PARTITION.SESSION_PARTITION_ID
 WHERE
-  SESSION_PARTITION.SESSION_REF = ?`,
+  SESSION_PACKAGE.SESSION_REF = ?`,
       [sessionId]
     )
     .then((rows) => rows.map(dbMapping.map.cluster))

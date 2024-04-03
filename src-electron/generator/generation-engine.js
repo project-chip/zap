@@ -516,7 +516,6 @@ async function loadTemplates(
     let globalCtx = {
       packageIds: [],
       packageId: null,
-      templateData: [],
     }
     if (genTemplatesJsonArray != null && genTemplatesJsonArray.length > 0) {
       for (let jsonFile of genTemplatesJsonArray) {
@@ -528,7 +527,6 @@ async function loadTemplates(
           if (globalCtx.packageId == null) {
             globalCtx.packageId = ctx.packageId
           }
-          globalCtx.templateData.push(ctx.templateData)
           globalCtx.packageIds.push(ctx.packageId)
         }
       }
@@ -784,11 +782,7 @@ async function generateSingleTemplate(
  * Main API async function to generate stuff.
  *
  * @param {*} db Database
- * @param {*} sessionId
- * @param {*} templatePackageId packageId Template package id. It can be either single template or gen template json.
- * @returns Promise that resolves into a generation result.
- * @param {*} templateGeneratorOptions
- * @param {*} options
+ * @param {*} packageId packageId Template package id. It can be either single template or gen template json.
  * @returns Promise that resolves into a generation result.
  */
 async function generate(

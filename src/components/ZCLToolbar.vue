@@ -9,12 +9,7 @@
     >
       <Transition mode="out-in" name="slide-up">
         <div v-if="$route.fullPath === '/'">
-          <img
-            v-for="(image, index) in getLogos"
-            :key="index"
-            :src="image"
-            class="image-space"
-          />
+          <img v-if="getLogo" class="my-auto block logo" :src="getLogo" />
         </div>
 
         <q-btn
@@ -225,40 +220,19 @@ export default {
         return this.$store.state.zap.debugNavBar
       },
     },
-    getLogos: {
+    getLogo: {
       get() {
-        let zclProperties =
-          this.$store.state.zap.selectedZapConfig?.zclProperties
-        let logos = []
-        if (Array.isArray(zclProperties)) {
-          for (let i = 0; i < zclProperties.length; i++) {
-            if (zclProperties[i].category) {
-              logos.push(
-                '/' +
-                  zclProperties[i].category +
-                  '_logo' +
-                  (this.$q.dark.isActive ? '_white' : '') +
-                  '.svg'
-              )
-            } else {
-              logos.push('/zap_logo.png')
-            }
-          }
+        if (this.$store.state.zap.selectedZapConfig?.zclProperties.category) {
+          return (
+            '/' +
+            this.$store.state.zap.selectedZapConfig?.zclProperties.category +
+            '_logo' +
+            (this.$q.dark.isActive ? '_white' : '') +
+            '.svg'
+          )
         } else {
-          if (zclProperties.category) {
-            logos.push(
-              '/' +
-                this.$store.state.zap.selectedZapConfig?.zclProperties[0]
-                  .category +
-                '_logo' +
-                (this.$q.dark.isActive ? '_white' : '') +
-                '.svg'
-            )
-          } else {
-            logos.push('/zap_logo.png')
-          }
+          return '/zap_logo.png'
         }
-        return logos
       },
     },
   },
@@ -396,9 +370,5 @@ export default {
 
 .window-button-padding-right {
   padding-right: calc(100vw - env(titlebar-area-width, 100vw) + 2px);
-}
-
-.image-space {
-  margin-right: 15px;
 }
 </style>

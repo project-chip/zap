@@ -117,7 +117,6 @@ exports.zigbeeTestFile = {
   ),
   customXml: path.join(__dirname, 'resource/zap-file-with-custom-xml.zap'),
   fullTh: path.join(__dirname, 'resource/full-th.zap'),
-  multiProtocol: path.join(__dirname, 'resource/multi-protocol.zap'),
 }
 
 exports.matterTestFile = {

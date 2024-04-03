@@ -107,7 +107,7 @@ function reduceAndConcatenateZclEntity(
   )
 }
 
-async function parseForZclData(db, entity, id, packageIdArray) {
+function parseForZclData(db, entity, id, packageIdArray) {
   switch (entity) {
     case 'atomics':
       return reduceAndConcatenateZclEntity(
@@ -117,48 +117,21 @@ async function parseForZclData(db, entity, id, packageIdArray) {
         zclEntityQuery(queryZcl.selectAllAtomics, queryZcl.selectAtomicById)
       )
     case 'cluster':
-      // Making sure that global attributes are being collected from packages
-      // related to the cluster package when querying by clusterId.
-      // eg: do not need matter global attributes for a zigbee cluster
-      return queryZcl
-        .selectClusterById(db, id)
-        .then((clusterInfo) =>
-          id == 'all'
-            ? reduceAndConcatenateZclEntity(
-                db,
-                id,
-                packageIdArray,
-                returnZclEntitiesForClusterId,
-                mergeZclClusterAttributeCommandEventData,
-                {
-                  clusterData: [],
-                  attributeData: [],
-                  commandData: [],
-                  eventData: [],
-                }
-              )
-            : reduceAndConcatenateZclEntity(
-                db,
-                id,
-                [clusterInfo.packageRef],
-                returnZclEntitiesForClusterId,
-                mergeZclClusterAttributeCommandEventData,
-                {
-                  clusterData: [],
-                  attributeData: [],
-                  commandData: [],
-                  eventData: [],
-                }
-              )
-        )
-        .then((data) => {
-          return {
-            clusterData: data.clusterData,
-            attributeData: data.attributeData,
-            commandData: data.commandData,
-            eventData: data.eventData,
-          }
-        })
+      return reduceAndConcatenateZclEntity(
+        db,
+        id,
+        packageIdArray,
+        returnZclEntitiesForClusterId,
+        mergeZclClusterAttributeCommandEventData,
+        { clusterData: [], attributeData: [], commandData: [], eventData: [] }
+      ).then((data) => {
+        return {
+          clusterData: data.clusterData,
+          attributeData: data.attributeData,
+          commandData: data.commandData,
+          eventData: data.eventData,
+        }
+      })
     case 'domain':
       return reduceAndConcatenateZclEntity(
         db,

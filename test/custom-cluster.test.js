@@ -26,7 +26,6 @@ const testQuery = require('./test-query')
 const queryPackage = require('../src-electron/db/query-package')
 const queryConfig = require('../src-electron/db/query-config')
 const queryDeviceType = require('../src-electron/db/query-device-type')
-const querySession = require('../src-electron/db/query-session')
 
 let db
 let sid
@@ -94,18 +93,7 @@ test(
     expect(result.packageId).not.toBeUndefined()
 
     customPackageId = result.packageId
-    let sessionPartitionInfo =
-      await querySession.selectSessionPartitionInfoFromPackageId(
-        db,
-        sid,
-        result.packageId
-      )
-    await queryPackage.insertSessionPackage(
-      db,
-      sessionPartitionInfo[0].sessionPartitionId,
-      result.packageId,
-      false
-    )
+    await queryPackage.insertSessionPackage(db, sid, result.packageId, false)
   },
   testUtil.timeout.medium()
 )
@@ -151,20 +139,12 @@ test(
       'ZLL-onofflight'
     )
     expect(onOffDevice).not.toBeNull()
-    let sessionPartitionInfo =
-      await querySession.selectSessionPartitionInfoFromDeviceType(
-        db,
-        sid,
-        onOffDevice.id
-      )
+
     let eptId = await queryConfig.insertEndpointType(
       db,
-      sessionPartitionInfo[0],
+      sid,
       'EPT',
-      onOffDevice.id,
-      onOffDevice.code,
-      0,
-      true
+      onOffDevice.id
     )
     expect(eptId).not.toBeNull()
   },

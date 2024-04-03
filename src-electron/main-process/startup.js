@@ -572,10 +572,10 @@ async function generateSingleFile(
     sessionId,
     options
   )
-  let usedTemplatePackageIds = []
+  let usedTemplatePackageId = templatePackageId
   for (let pkg of sessPkg) {
     if (pkg.type === dbEnum.packageType.genTemplatesJson) {
-      usedTemplatePackageIds.push(pkg.packageRef)
+      usedTemplatePackageId = pkg.packageRef
     }
   }
 
@@ -584,27 +584,20 @@ async function generateSingleFile(
 
   options.fileLoadTime = nsDuration
 
-  if (usedTemplatePackageIds.length === 0) {
-    usedTemplatePackageIds = [templatePackageId]
-  }
-  let genResults = []
-  for (let i = 0; i < usedTemplatePackageIds.length; i++) {
-    let genResult = await generatorEngine.generateAndWriteFiles(
-      db,
-      sessionId,
-      usedTemplatePackageIds[i],
-      output,
-      options
-    )
+  let genResult = await generatorEngine.generateAndWriteFiles(
+    db,
+    sessionId,
+    usedTemplatePackageId,
+    output,
+    options
+  )
 
-    if (genResult.hasErrors) {
-      console.log(JSON.stringify(genResult.errors))
-      throw new Error(`Generation failed: ${zapFile}`)
-    }
-    genResults.push(genResult)
+  if (genResult.hasErrors) {
+    console.log(JSON.stringify(genResult.errors))
+    throw new Error(`Generation failed: ${zapFile}`)
   }
 
-  return genResults
+  return genResult
 }
 
 /**

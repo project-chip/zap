@@ -22,7 +22,6 @@ const genEngine = require('../src-electron/generator/generation-engine')
 const env = require('../src-electron/util/env')
 const dbApi = require('../src-electron/db/db-api')
 const queryPackage = require('../src-electron/db/query-package')
-const querySession = require('../src-electron/db/query-session')
 const zclLoader = require('../src-electron/zcl/zcl-loader')
 const importJs = require('../src-electron/importexport/import')
 const testUtil = require('./test-util')
@@ -158,22 +157,9 @@ test(
       (sessionPackages) =>
         sessionPackages.filter((pkg) => pkg.type == 'zcl-xml-standalone')
     )
-    let xmlPackageRemovalPromises = []
-    for (let i = 0; i < zclCustomXmlPackages.length; i++) {
-      let sessionPartitionInfo =
-        await querySession.selectSessionPartitionInfoFromPackageId(
-          db,
-          sessionId,
-          zclCustomXmlPackages[i].id
-        )
-      xmlPackageRemovalPromises.push(
-        queryPackage.deleteSessionPackage(
-          db,
-          sessionPartitionInfo[0].sessionPartitionId,
-          zclCustomXmlPackages[i].id
-        )
-      )
-    }
+    let xmlPackageRemovalPromises = zclCustomXmlPackages.map((pkg) =>
+      queryPackage.deleteSessionPackage(db, sessionId, pkg.id)
+    )
     await Promise.all(xmlPackageRemovalPromises)
 
     allSessionPackages = await queryPackage.getSessionPackages(db, sessionId)

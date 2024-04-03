@@ -35,27 +35,16 @@ export default {
     }
   },
   mounted() {
-    const zclProperties = this.$store.state.zap.selectedZapConfig?.zclProperties
-    let multiDeviceCategories = []
-    let enableMatterFeatures = false
-    let enableZigbeeFeatures = false
-    if (Array.isArray(zclProperties) && zclProperties.length > 0) {
-      multiDeviceCategories = zclProperties.map((zclProp) => zclProp.category)
-      enableMatterFeatures = multiDeviceCategories.includes('matter')
-      enableZigbeeFeatures = multiDeviceCategories.includes('zigbee')
-    } else {
-      multiDeviceCategories =
-        this.$store.state.zap.selectedZapConfig?.zclProperties?.category
-      enableMatterFeatures = multiDeviceCategories == 'matter'
-      // Showing zigbee UI by default when category is not defined
-      enableZigbeeFeatures =
-        multiDeviceCategories == 'zigbee' || !multiDeviceCategories
-    }
-
+    const enableZigbeeFeatures =
+      this.$store.state.zap.selectedZapConfig?.zclProperties?.category ===
+      'zigbee'
     this.enableProfileId = enableZigbeeFeatures
     this.enableNetworkId = enableZigbeeFeatures
     this.enableSingleton = enableZigbeeFeatures
     this.enableBounded = enableZigbeeFeatures
+    const enableMatterFeatures =
+      this.$store.state.zap.selectedZapConfig?.zclProperties?.category ===
+      'matter'
     this.enableMultipleDevice = enableMatterFeatures
     this.enablePrimaryDevice = enableMatterFeatures
     this.enableParentEndpoint = enableMatterFeatures
