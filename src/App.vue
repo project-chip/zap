@@ -41,6 +41,7 @@ const restApi = require(`../src-shared/rest-api.js`)
 const observable = require('./util/observable.js')
 const dbEnum = require(`../src-shared/db-enum.js`)
 const storage = require('./util/storage.js')
+const querystring = require('querystring')
 
 window.addEventListener(
   'message',
@@ -142,7 +143,6 @@ export default defineComponent({
   },
   methods: {
     parseQueryString() {
-      const querystring = require('querystring')
       let search = window.location.search
 
       if (search[0] === '?') {
@@ -213,7 +213,6 @@ export default defineComponent({
       }
 
       // Parse the query string into the front end.
-      const querystring = require('querystring')
       let search = window.location.search
 
       if (search[0] === '?') {
