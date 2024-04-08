@@ -107,7 +107,17 @@ function reduceAndConcatenateZclEntity(
   )
 }
 
-function parseForZclData(db, entity, id, packageIdArray) {
+async function parseForZclData(db, entity, id, packageIdArray) {
+  // Retrieve all the standalone custom xml packages
+  let packageData = await queryPackage.getPackagesByPackageIds(
+    db,
+    packageIdArray
+  )
+  let standalonePackages = packageData.filter(
+    (pd) => pd.type === dbEnum.packageType.zclXmlStandalone
+  )
+  let standAlonePackageIds = standalonePackages.map((sp) => sp.id)
+
   switch (entity) {
     case 'atomics':
       return reduceAndConcatenateZclEntity(
@@ -117,21 +127,50 @@ function parseForZclData(db, entity, id, packageIdArray) {
         zclEntityQuery(queryZcl.selectAllAtomics, queryZcl.selectAtomicById)
       )
     case 'cluster':
-      return reduceAndConcatenateZclEntity(
-        db,
-        id,
-        packageIdArray,
-        returnZclEntitiesForClusterId,
-        mergeZclClusterAttributeCommandEventData,
-        { clusterData: [], attributeData: [], commandData: [], eventData: [] }
-      ).then((data) => {
-        return {
-          clusterData: data.clusterData,
-          attributeData: data.attributeData,
-          commandData: data.commandData,
-          eventData: data.eventData,
-        }
-      })
+      // Making sure that global attributes are being collected from packages
+      // related to the cluster package when querying by clusterId.
+      // eg: do not need matter global attributes for a zigbee cluster
+      return queryZcl
+        .selectClusterById(db, id)
+        .then((clusterInfo) =>
+          id == 'all'
+            ? reduceAndConcatenateZclEntity(
+                db,
+                id,
+                packageIdArray,
+                returnZclEntitiesForClusterId,
+                mergeZclClusterAttributeCommandEventData,
+                {
+                  clusterData: [],
+                  attributeData: [],
+                  commandData: [],
+                  eventData: [],
+                }
+              )
+            : reduceAndConcatenateZclEntity(
+                db,
+                id,
+                standAlonePackageIds.includes(clusterInfo.packageRef) // Use packageId array if cluster belongs to standalone xml(custom cluster) else use just the package from the cluster.
+                  ? packageIdArray
+                  : [...standAlonePackageIds, clusterInfo.packageRef], // Taking cluster package and custom xml into account. Using a set since a cluster may sometimes be a custom one as well thus duplicating this array.
+                returnZclEntitiesForClusterId,
+                mergeZclClusterAttributeCommandEventData,
+                {
+                  clusterData: [],
+                  attributeData: [],
+                  commandData: [],
+                  eventData: [],
+                }
+              )
+        )
+        .then((data) => {
+          return {
+            clusterData: data.clusterData,
+            attributeData: data.attributeData,
+            commandData: data.commandData,
+            eventData: data.eventData,
+          }
+        })
     case 'domain':
       return reduceAndConcatenateZclEntity(
         db,

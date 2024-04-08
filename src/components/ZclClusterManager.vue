@@ -185,13 +185,23 @@ export default {
     },
     relevantClusters: {
       get() {
-        return this.clusters.filter((cluster) =>
-          this.filterString == ''
-            ? true
-            : cluster.label
-                .toLowerCase()
-                .includes(this.filterString.toLowerCase())
-        )
+        if (this.clusters.clusterData) {
+          return this.clusters.clusterData.filter((cluster) =>
+            this.filterString == ''
+              ? true
+              : cluster.label
+                  .toLowerCase()
+                  .includes(this.filterString.toLowerCase())
+          )
+        } else {
+          return this.clusters.filter((cluster) =>
+            this.filterString == ''
+              ? true
+              : cluster.label
+                  .toLowerCase()
+                  .includes(this.filterString.toLowerCase())
+          )
+        }
       },
     },
     enabledClusters: {

@@ -17,6 +17,7 @@
 
 const queryPackage = require('../db/query-package.js')
 const queryEndpointType = require('../db/query-endpoint-type.js')
+const queryDeviceType = require('../db/query-device-type.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const env = require('../util/env')
 const _ = require('lodash')
@@ -141,16 +142,58 @@ async function ensureZclPackageId(context) {
  * @returns promise that resolves with a list of package id.
  */
 async function ensureZclPackageIds(context) {
+  // Get category of templates.json
+  let pkg = await queryPackage.getPackageByPackageId(
+    context.global.db,
+    context.global.genTemplatePackageId
+  )
+  let packageCategory = pkg ? pkg.category : null
+  let resPkgIds = []
   if ('zclPackageIds' in context.global) {
-    return context.global.zclPackageIds
+    let pkgIds = context.global.zclPackageIds
+    if (!packageCategory) {
+      return pkgIds
+    } else {
+      for (let i = 0; i < pkgIds.length; i++) {
+        let zclPkg = await queryPackage.getPackageByPackageId(
+          context.global.db,
+          pkgIds[i]
+        )
+        // Checking for category match or custom xml
+        if (
+          zclPkg.category == packageCategory ||
+          zclPkg.type == dbEnum.packageType.zclXmlStandalone
+        ) {
+          resPkgIds.push(pkgIds[i])
+        }
+      }
+      return resPkgIds
+    }
   } else {
     let pkgs = await queryPackage.getSessionZclPackageIds(
       context.global.db,
       context.global.sessionId
     )
-    context.global.zclPackageIds = pkgs
-
-    return pkgs
+    if (!packageCategory) {
+      context.global.zclPackageIds = pkgs
+      return pkgs
+    } else {
+      for (let i = 0; i < pkgs.length; i++) {
+        let zclPkg = await queryPackage.getPackageByPackageId(
+          context.global.db,
+          pkgs[i]
+        )
+        // Checking for category match or custom xml
+        if (
+          zclPkg.category == packageCategory ||
+          zclPkg.type == dbEnum.packageType.zclXmlStandalone
+        ) {
+          resPkgIds.push(pkgs[i])
+        }
+      }
+      context.global.zclPackageIds = pkgs
+      return resPkgIds
+    }
   }
 }
 
@@ -184,15 +227,88 @@ async function ensureTemplatePackageId(context) {
  * @returns endpoint type ids
  */
 async function ensureEndpointTypeIds(context) {
+  let pkg = await queryPackage.getPackageByPackageId(
+    context.global.db,
+    context.global.genTemplatePackageId
+  )
+  let packageCategory = pkg.category
+  let resEptIds = []
+
   if ('endpointTypeIds' in context.global) {
-    return context.global.endpointTypeIds
+    let eptIds = context.global.endpointTypeIds
+    if (!packageCategory) {
+      return eptIds
+    } else {
+      for (let i = 0; i < eptIds.length; i++) {
+        // Get endpoint type device info
+        let deviceTypes =
+          await queryDeviceType.selectDeviceTypesByEndpointTypeId(
+            context.global.db,
+            eptIds[i].endpointTypeId
+          )
+        // Sometimes a device type cannot be found for an endpoint type(undefined)
+        if (deviceTypes.length == 0) {
+          return context.global.endpointTypeIds
+        }
+        for (let j = 0; j < deviceTypes.length; j++) {
+          // Get device info
+          let deviceType = await queryDeviceType.selectDeviceTypeById(
+            context.global.db,
+            deviceTypes[j].deviceTypeRef
+          )
+          // Get package information to see the category of the device type
+          let packageInfo = await queryPackage.getPackageByPackageId(
+            context.global.db,
+            deviceType.packageRef
+          )
+          // Check for package category match based on gen template category and add it to relevant endpoint types
+          if (packageInfo.category == packageCategory || !packageCategory) {
+            resEptIds.push(eptIds[i])
+            break
+          }
+        }
+      }
+      return resEptIds
+    }
   } else {
-    let epts = await queryEndpointType.selectEndpointTypeIds(
+    let eptIds = await queryEndpointType.selectEndpointTypeIds(
       context.global.db,
       context.global.sessionId
     )
-    context.global.endpointTypeIds = epts
-    return epts
+    if (!packageCategory) {
+      context.global.endpointTypeIds = eptIds
+      return eptIds
+    } else {
+      for (let i = 0; i < eptIds.length; i++) {
+        let deviceTypes =
+          await queryDeviceType.selectDeviceTypesByEndpointTypeId(
+            context.global.db,
+            eptIds[i].endpointTypeId
+          )
+        // Sometimes a device type cannot be found for an endpoint type(undefined)
+        if (deviceTypes.length == 0) {
+          context.global.endpointTypeIds = eptIds
+          return eptIds
+        }
+        for (let j = 0; j < deviceTypes.length; j++) {
+          let deviceType = await queryDeviceType.selectDeviceTypeById(
+            context.global.db,
+            deviceTypes[j].deviceTypeRef
+          )
+          let packageInfo = await queryPackage.getPackageByPackageId(
+            context.global.db,
+            deviceType.packageRef
+          )
+          if (packageInfo.category == packageCategory) {
+            resEptIds.push(eptIds[i])
+            break
+          }
+        }
+      }
+
+      context.global.endpointTypeIds = eptIds
+      return resEptIds
+    }
   }
 }
 

@@ -30,6 +30,14 @@ limitations under the License.
             You can use this functionality to add custom ZCL clusters or
             commands to the Zigbee Clusters Configurator
           </div>
+          <p
+            class="text-center"
+            v-if="enableExtensionsWarning()"
+            style="color: red"
+          >
+            Warning: Custom xml is currently not supported for multi-protocol
+            configurations.
+          </p>
           <q-btn
             color="primary"
             icon="add"
@@ -70,7 +78,10 @@ limitations under the License.
                     </div>
                     <q-space />
                     <q-btn
-                      v-if="!sessionPackage.sessionPackage.required"
+                      v-if="
+                        sessionPackage.sessionPackage.type ==
+                        'zcl-xml-standalone'
+                      "
                       class="q-mx-xl"
                       label="Delete"
                       icon="delete"
@@ -185,6 +196,11 @@ export default {
     packages(newPackages) {
       this.loadPackageNotification(newPackages)
     },
+    packageToLoad() {
+      this.loadNewPackage().then(() => {
+        this.$store.dispatch('zap/updateZclDeviceTypes')
+      })
+    },
   },
   methods: {
     getFileName(path) {
@@ -290,6 +306,15 @@ export default {
       let key = type == 'ERROR' ? 'errors' : 'warnings'
       return this.notisData[packageId][key]
     },
+    // Custom xml currently not supported for multi-protocol
+    enableExtensionsWarning() {
+      let categories =
+        this.$store.state.zap.selectedZapConfig?.zclProperties.map(
+          (zclProp) => zclProp.category
+        )
+      // Showing extensions when the zcl packages have less than 1 category
+      return categories.length > 1
+    },
   },
   mounted() {
     if (this.$serverGet != null) {
@@ -299,9 +324,6 @@ export default {
         (value) => {
           if (value.context == 'customXml') {
             this.packageToLoad = value.filePaths[0]
-            this.loadNewPackage().then(() => {
-              this.$store.dispatch('zap/updateZclDeviceTypes')
-            })
           }
         }
       )

@@ -9,7 +9,12 @@
     >
       <Transition mode="out-in" name="slide-up">
         <div v-if="$route.fullPath === '/'">
-          <img v-if="getLogo" class="my-auto block logo" :src="getLogo" />
+          <img
+            v-for="(image, index) in getLogos"
+            :key="index"
+            :src="image"
+            class="my-auto logo image-space"
+          />
         </div>
 
         <q-btn
@@ -199,6 +204,9 @@ export default {
       return (
         this.$store.state.zap.genericOptions[
           dbEnum.sessionOption.coreSpecification
+        ] &&
+        this.$store.state.zap.genericOptions[
+          dbEnum.sessionOption.coreSpecification
         ].length > 0
       )
     },
@@ -220,19 +228,41 @@ export default {
         return this.$store.state.zap.debugNavBar
       },
     },
-    getLogo: {
+    getLogos: {
       get() {
-        if (this.$store.state.zap.selectedZapConfig?.zclProperties.category) {
-          return (
-            '/' +
-            this.$store.state.zap.selectedZapConfig?.zclProperties.category +
-            '_logo' +
-            (this.$q.dark.isActive ? '_white' : '') +
-            '.svg'
-          )
+        let zclProperties = this.$store.state.zap.selectedZapConfig
+          ? this.$store.state.zap.selectedZapConfig.zclProperties
+          : null
+        let logos = []
+        if (Array.isArray(zclProperties)) {
+          for (let i = 0; i < zclProperties.length; i++) {
+            if (zclProperties[i].category) {
+              logos.push(
+                '/' +
+                  zclProperties[i].category +
+                  '_logo' +
+                  (this.$q.dark.isActive ? '_white' : '') +
+                  '.svg'
+              )
+            } else {
+              logos.push('/zap_logo.png')
+            }
+          }
         } else {
-          return '/zap_logo.png'
+          if (zclProperties && zclProperties.category) {
+            logos.push(
+              '/' +
+                this.$store.state.zap.selectedZapConfig?.zclProperties[0]
+                  .category +
+                '_logo' +
+                (this.$q.dark.isActive ? '_white' : '') +
+                '.svg'
+            )
+          } else {
+            logos.push('/zap_logo.png')
+          }
         }
+        return logos
       },
     },
   },
@@ -370,5 +400,9 @@ export default {
 
 .window-button-padding-right {
   padding-right: calc(100vw - env(titlebar-area-width, 100vw) + 2px);
+}
+
+.image-space {
+  margin-right: 15px;
 }
 </style>

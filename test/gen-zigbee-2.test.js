@@ -22,6 +22,7 @@ const genEngine = require('../src-electron/generator/generation-engine')
 const env = require('../src-electron/util/env')
 const dbApi = require('../src-electron/db/db-api')
 const queryPackage = require('../src-electron/db/query-package')
+const querySession = require('../src-electron/db/query-session')
 const zclLoader = require('../src-electron/zcl/zcl-loader')
 const importJs = require('../src-electron/importexport/import')
 const testUtil = require('./test-util')
@@ -132,9 +133,15 @@ test(
     expect(result.succeeded).toBeTruthy()
 
     // Add the packageId from above into the session
+    let sessionPartitionInfo =
+      await querySession.selectSessionPartitionInfoFromPackageId(
+        db,
+        sessionId,
+        result.packageId
+      )
     await queryPackage.insertSessionPackage(
       db,
-      sessionId,
+      sessionPartitionInfo[0].sessionPartitionId,
       result.packageId,
       false
     )
@@ -214,7 +221,17 @@ test(
     )
 
     // Delete the custom xml packageId from the existing session and test generation again
-    await queryPackage.deleteSessionPackage(db, sessionId, result.packageId)
+    sessionPartitionInfo =
+      await querySession.selectSessionPartitionInfoFromPackageId(
+        db,
+        sessionId,
+        result.packageId
+      )
+    await queryPackage.deleteSessionPackage(
+      db,
+      sessionPartitionInfo[0].sessionPartitionId,
+      result.packageId
+    )
 
     // Generate again after removing a custom xml file
     genResult = await genEngine.generate(

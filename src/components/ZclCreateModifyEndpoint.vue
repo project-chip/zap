@@ -28,7 +28,7 @@ limitations under the License.
             ref="endpoint"
             outlined
             class="col v-step-1"
-            :rules="[reqInteger, reqPosInt, reqUniqueEndpoint]"
+            :rules="[reqInteger, reqPosInt]"
             min="0"
           />
           <q-input
@@ -555,6 +555,7 @@ export default {
                 deviceTypeRef:
                   this.endpointDeviceTypeRef[this.endpointType[res.id]],
               })
+              this.$store.dispatch('zap/updateClusters')
 
               this.$store
                 .dispatch(
@@ -589,6 +590,7 @@ export default {
               this.$store.commit('zap/toggleEndpointModal', false)
             })
         })
+        .catch((err) => console.log('Error in newEpt: ' + err.message))
     },
     editEpt(shownEndpoint, endpointReference) {
       let endpointTypeReference = this.endpointType[this.endpointReference]
@@ -662,6 +664,7 @@ export default {
         deviceTypeRef: deviceTypeRef,
       })
       this.$store.dispatch('zap/updateSelectedEndpoint', this.endpointReference)
+      this.$store.dispatch('zap/updateClusters')
     },
     getDeviceOptionLabel(item) {
       if (item == null || item.deviceTypeRef == null) return ''

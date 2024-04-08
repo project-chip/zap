@@ -186,6 +186,16 @@ async function qualifyZclFile(
   } else {
     // This is executed if CRC is found in the database.
     if (pkg.crc == actualCrc) {
+      // Sending data back when it is a custom xml
+      if (parentPackageId == null) {
+        return {
+          filePath: filePath,
+          data: data,
+          packageId: pkg.id,
+          customXmlReload: true,
+          crc: actualCrc,
+        }
+      }
       env.logDebug(
         `CRC match for file ${pkg.path} (${pkg.crc}), skipping parsing.`
       )
@@ -201,7 +211,7 @@ async function qualifyZclFile(
       return {
         filePath: filePath,
         data: data,
-        packageId: parentPackageId == null ? packageId : parentPackageId,
+        packageId: parentPackageId == null ? pkg.id : parentPackageId, // Changing from package to pkg.id since package is not defined
       }
     }
   }

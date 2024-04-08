@@ -155,12 +155,16 @@ SELECT
   ROW_NUMBER() OVER(ORDER BY ENDPOINT.ENDPOINT_IDENTIFIER) AS ENDPOINT_TYPE_INDEX
 FROM
   ENDPOINT_TYPE
+INNER JOIN
+  SESSION_PARTITION
+ON
+  ENDPOINT_TYPE.SESSION_PARTITION_REF = SESSION_PARTITION.SESSION_PARTITION_ID
 LEFT JOIN
   ENDPOINT
 ON
   ENDPOINT.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
 WHERE
-  ENDPOINT_TYPE.SESSION_REF = ?
+  SESSION_PARTITION.SESSION_REF = ?
 ORDER BY
   ENDPOINT.ENDPOINT_IDENTIFIER,
   ENDPOINT_TYPE.NAME`,
@@ -189,8 +193,12 @@ ORDER BY
         ENDPOINT_TYPE
       ON
         ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF
+      INNER JOIN
+        SESSION_PARTITION
+      ON
+        ENDPOINT_TYPE.SESSION_PARTITION_REF = SESSION_PARTITION.SESSION_PARTITION_ID
       WHERE
-        ENDPOINT_TYPE.SESSION_REF = ?
+        SESSION_PARTITION.SESSION_REF = ?
         AND ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF = ?
       ORDER BY
         DEVICE_TYPE.NAME,
@@ -223,22 +231,27 @@ ORDER BY
  * Imports an endpoint type, resolving other data along the way.
  *
  * @param {*} db
- * @param {*} sessionId
+ * @param {*} sessionPartitionId
  * @param {*} packageId
  * @param {*} endpointType
  * @returns Promise of endpoint insertion.
  */
-async function importEndpointType(db, sessionId, packageIds, endpointType) {
+async function importEndpointType(
+  db,
+  sessionPartitionId,
+  packageIds,
+  endpointType
+) {
   // Insert endpoint type
   let endpointTypeId = await dbApi.dbInsert(
     db,
     `
   INSERT INTO
     ENDPOINT_TYPE (
-      SESSION_REF,
+      SESSION_PARTITION_REF,
       NAME
     ) VALUES (?, ?)`,
-    [sessionId, endpointType.name]
+    [sessionPartitionId, endpointType.name]
   )
 
   // Process device types
@@ -347,7 +360,11 @@ SELECT
 FROM PACKAGE
 INNER JOIN SESSION_PACKAGE
 ON PACKAGE.PACKAGE_ID = SESSION_PACKAGE.PACKAGE_REF
-WHERE SESSION_PACKAGE.SESSION_REF = ? AND SESSION_PACKAGE.ENABLED = 1`,
+INNER JOIN
+  SESSION_PARTITION
+ON
+  SESSION_PACKAGE.SESSION_PARTITION_REF= SESSION_PARTITION.SESSION_PARTITION_ID
+WHERE SESSION_PARTITION.SESSION_REF = ? AND SESSION_PACKAGE.ENABLED = 1`,
       [sessionId]
     )
     .then((rows) => rows.map(mapFunction))
@@ -430,7 +447,6 @@ async function importClusterForEndpointType(
       cluster.mfgCode == null ? [cluster.code] : [cluster.code, cluster.mfgCode]
     )
     .then((matchedPackageIds) => matchedPackageIds.shift()?.PACKAGE_REF)
-
   return dbApi.dbInsert(
     db,
     `

@@ -149,6 +149,7 @@ export default {
           this.endpointDeviceTypeRef[this.endpointType[endpointReference]],
       })
       this.$store.dispatch('zap/updateSelectedEndpoint', endpointReference)
+      this.$store.dispatch('zap/updateClusters')
     },
     sdkExtClusterCode(extEntry) {
       return extEntry ? extEntry.entityCode : ''
