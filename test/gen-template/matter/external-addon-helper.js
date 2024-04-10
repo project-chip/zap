@@ -22,7 +22,7 @@ function test_external_addon_helper() {
 function initialize_helpers(api, context) {
   api.registerHelpers(
     'test_external_addon_helper',
-    test_external_addon_helper,
+    test_external_addon_helper.bind(null, api, context),
     context
   )
 }

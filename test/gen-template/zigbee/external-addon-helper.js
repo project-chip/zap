@@ -16,13 +16,13 @@
  */
 // This is an example of an addon helper for templates.
 
-function test_external_addon_helper() {
+function test_external_addon_helper(api, context) {
   return 'This is example of test external addon helper.'
 }
 function initialize_helpers(api, context) {
   api.registerHelpers(
     'test_external_addon_helper',
-    test_external_addon_helper,
+    test_external_addon_helper.bind(null, api, context),
     context
   )
 }
