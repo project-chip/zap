@@ -19,8 +19,8 @@
 function test_external_addon_helper() {
   return 'This is example of test external addon helper.'
 }
-async function initialize_helpers(api, context) {
-  await api.registerHelpers(
+function initialize_helpers(api, context) {
+  api.registerHelpers(
     'test_external_addon_helper',
     test_external_addon_helper,
     context
