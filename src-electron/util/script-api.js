@@ -523,42 +523,6 @@ async function enableOutgoingCommand(
     true
   )
 }
-function helperWrapper(wrappedHelper) {
-  return function w(...args) {
-    let helperName = wrappedHelper.name
-    if (wrappedHelper.originalHelper != null) {
-      helperName = wrappedHelper.originalHelper
-    }
-    let isDeprecated = false
-    if (wrappedHelper.isDeprecated) {
-      isDeprecated = true
-    }
-    if (helperName in this.global.stats) {
-      this.global.stats[helperName].useCount++
-    } else {
-      this.global.stats[helperName] = {
-        useCount: 1,
-        isDeprecated: isDeprecated,
-      }
-    }
-    try {
-      return wrappedHelper.call(this, ...args)
-    } catch (err) {
-      let thrownObject
-      let opts = args[args.length - 1]
-      if ('loc' in opts) {
-        let locMsg = ` [line: ${opts.loc.start.line}, column: ${opts.loc.start.column}, file: ${this.global.templatePath} ]`
-        if (_.isString(err)) {
-          thrownObject = new Error(err + locMsg)
-        } else {
-          thrownObject = err
-          thrownObject.message = err.message + locMsg
-        }
-      }
-      throw thrownObject
-    }
-  }
-}
 async function registerHelpers(singleHelper, registerHelper, hb) {
   hb.registerHelper(singleHelper, registerHelper)
 }
