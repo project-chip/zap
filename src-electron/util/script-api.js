@@ -523,8 +523,8 @@ async function enableOutgoingCommand(
     true
   )
 }
-function registerHelpers(singleHelper, registerHelper, hb) {
-  hb.registerHelper(singleHelper, registerHelper)
+function registerHelpers(singleHelper, registerHelper, context) {
+  context.hb.registerHelper(singleHelper, registerHelper)
 }
 
 exports.registerHelpers = registerHelpers

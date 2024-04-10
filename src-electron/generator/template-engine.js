@@ -304,14 +304,14 @@ function helperWrapper(wrappedHelper) {
  *                      this is required to force webpack to resolve the included files
  *                      as path will be difference after being packed for production.
  */
-function loadHelper(hb, helpers) {
+function loadHelper(hb, helpers, context = null) {
   // helper
   // when template path are passed via CLI
   // Other paths are 'required()' to workaround webpack path issue.
   if (_.isString(helpers)) {
     script.executeHelperFunction(
       script.functions.initialize_helpers,
-      hb,
+      context,
       helpers
     )
     helpers = nativeRequire(helpers)

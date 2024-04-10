@@ -16,7 +16,8 @@
  */
 // This is an example of an external addon helper for templates.
 
-function test_external_addon_helper() {
+async function test_external_addon_helper(api, context) {
+  //add queries here
   return 'This is example of test external addon helper.'
 }
 function initialize_helpers(api, context) {
