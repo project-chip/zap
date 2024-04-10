@@ -78,7 +78,7 @@ exports.timeout = {
 
 exports.testTemplate = {
   zigbee: './test/gen-template/zigbee/gen-templates.json',
-  zigbeeCount: 29,
+  zigbeeCount: 30,
   zigbee2: './test/gen-template/zigbee2/gen-templates.json',
   zigbee2Count: 13,
   matter: './test/gen-template/matter/gen-test.json',

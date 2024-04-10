@@ -26,6 +26,7 @@ const promisedHandlebars = require('promised-handlebars')
 const defaultHandlebars = require('handlebars')
 const notification = require('../db/query-session-notification.js')
 const util = require('../util/util')
+const script = require('../util/script')
 const templateIterators = require('./template-iterators')
 
 const includedHelpers = [
@@ -308,6 +309,11 @@ function loadHelper(hb, helpers) {
   // when template path are passed via CLI
   // Other paths are 'required()' to workaround webpack path issue.
   if (_.isString(helpers)) {
+    script.executeHelperFunction(
+      script.functions.initialize_helpers,
+      hb,
+      helpers
+    )
     helpers = nativeRequire(helpers)
   }
 

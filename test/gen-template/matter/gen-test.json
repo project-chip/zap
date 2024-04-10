@@ -33,7 +33,7 @@
       }
     }
   },
-  "helpers": ["helper-chip.js"],
+  "helpers": ["helper-chip.js", "external-addon-helper.js"],
   "templates": [
     {
       "path": "simple-test.zapt",

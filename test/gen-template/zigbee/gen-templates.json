@@ -135,7 +135,7 @@
     }
   },
   "override": "addon-override.js",
-  "helpers": ["addon-helper.js"],
+  "helpers": ["addon-helper.js", "external-addon-helper.js"],
   "templates": [
     {
       "path": "simple-test.zapt",

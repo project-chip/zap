@@ -38,8 +38,29 @@ async function executeScriptFunction(functionName, context, script) {
   }
 }
 
+/**
+ * Executes a named function from a given script.
+ * Arguments passed to the function are:
+ *   api: which is the result of require('script-api.js')
+ *   context: which contains 'db', 'sessionId', etc.
+ *
+ * @param {*} functionName
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} script
+ */
+async function executeHelperFunction(functionName, context, script) {
+  let resolvedPath = path.resolve(script)
+  let loadedScript = nativeRequire(resolvedPath)
+  if (loadedScript[functionName]) {
+    return loadedScript[functionName](scriptApi, context)
+  }
+}
+
 exports.executeScriptFunction = executeScriptFunction
+exports.executeHelperFunction = executeHelperFunction
 
 exports.functions = {
   postLoad: 'postLoad',
+  initialize_helpers: 'initialize_helpers',
 }

@@ -151,7 +151,9 @@ test(
     expect(simpleTest).toContain(
       'Cluster Name : OnOff+Command Name : OnWithRecallGlobalScene'
     )
-
+    expect(simpleTest).toContain(
+      'ExternalAddon : This is example of test external addon helper.'
+    )
     let deviceType = genResult.content['device-types.txt']
     expect(deviceType).toContain(
       '// device type: CHIP / 0x0105 => MA-colordimmerswitch // extension: '

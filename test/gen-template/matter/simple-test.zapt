@@ -13,4 +13,5 @@ Cluster Name : {{asCamelCased parent.name false}}+Command Name : {{asCamelCased 
 {{/all_user_cluster_commands}}
 {{/if}}
 {{/all_user_clusters}}
+ExternalAddon : {{test_external_addon_helper}}
 
