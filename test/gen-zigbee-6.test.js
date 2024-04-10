@@ -72,7 +72,7 @@ test(
       templateContext.db,
       templateContext.packageId
     )
-    expect(templateContext.packages.length).toBe(templateCount - 1 + 2) // -1 for ignored one, one for helper and one for overridable
+    expect(templateContext.packages.length).toBe(templateCount - 1 + 3) // -1 for ignored one, two for helpers and one for overridable
   },
   testUtil.timeout.short()
 )
@@ -183,7 +183,10 @@ test(
     let zapOutgoingCommands = genResult.content['zap-outgoing-command.out']
     // In windows, if the generated string has multiple lines (with \n inside), it will include a trailing space at the end of each line
     // so we need to remove the trailing space if it exists to clean up the string
-    zapOutgoingCommands = zapOutgoingCommands.split('\n').map(s => s.trim()).join('\n');
+    zapOutgoingCommands = zapOutgoingCommands
+      .split('\n')
+      .map((s) => s.trim())
+      .join('\n')
     expect(zapOutgoingCommands).not.toBeNull()
     expect(zapOutgoingCommands).toContain(
       'Groups client Cluster Outgoing commands\nOutgoing Command: AddGroup\nOutgoing Command: ViewGroup\nOutgoing Command: GetGroupMembership\nOutgoing Command: RemoveGroup\nOutgoing Command: RemoveAllGroups\nOutgoing Command: AddGroupIfIdentifying\nGroups server Cluster Outgoing commands\nOutgoing Command: AddGroupResponse\nOutgoing Command: ViewGroupResponse\nOutgoing Command: GetGroupMembershipResponse\nOutgoing Command: RemoveGroupResponse\nIdentify client Cluster Outgoing commands\nOutgoing Command: Identify\nOutgoing Command: IdentifyQuery\nIdentify server Cluster Outgoing commands\nOutgoing Command: IdentifyQueryResponse\nLevel Control client Cluster Outgoing commands\nOutgoing Command: MoveToLevel\nOutgoing Command: Move\nOutgoing Command: Step\nOutgoing Command: Stop\nOutgoing Command: MoveToLevelWithOnOff\nOutgoing Command: MoveWithOnOff\nOutgoing Command: StepWithOnOff\nOutgoing Command: StopWithOnOff\nOn/off client Cluster Outgoing commands\nOutgoing Command: Off\nOutgoing Command: On\nOutgoing Command: Toggle\nScenes server Cluster Outgoing commands\nOutgoing Command: AddSceneResponse\nOutgoing Command: ViewSceneResponse\nOutgoing Command: RemoveSceneResponse\nOutgoing Command: RemoveAllScenesResponse\nOutgoing Command: StoreSceneResponse\nOutgoing Command: GetSceneMembershipResponse\nZLL Commissioning client Cluster Outgoing commands\nOutgoing Command: ScanRequest\nOutgoing Command: DeviceInformationRequest\nOutgoing Command: IdentifyRequest\nOutgoing Command: ResetToFactoryNewRequest\nOutgoing Command: NetworkStartRequest\nOutgoing Command: NetworkJoinRouterRequest\nOutgoing Command: NetworkJoinEndDeviceRequest\nOutgoing Command: NetworkUpdateRequest\nZLL Commissioning server Cluster Outgoing commands\nOutgoing Command: ScanResponse\nOutgoing Command: DeviceInformationResponse\nOutgoing Command: NetworkStartResponse\nOutgoing Command: NetworkJoinRouterResponse\nOutgoing Command: NetworkJoinEndDeviceResponse\nOutgoing Command: EndpointInformation\nOutgoing Command: GetGroupIdentifiersResponse\nOutgoing Command: GetEndpointListResponse'
