@@ -73,7 +73,7 @@ test(
       templateContext.db,
       templateContext.packageId
     )
-    expect(templateContext.packages.length).toBe(templateCount - 1 + 2) // -1 for ignored one, one for helper and one for overridable
+    expect(templateContext.packages.length).toBe(templateCount - 1 + 3) // -1 for ignored one, two for helpers and one for overridable
   },
   testUtil.timeout.short()
 )
