@@ -508,11 +508,20 @@ describe('Validate endpoint for duplicate endpointIds', () => {
     )
     let haOnOffDeviceType = haOnOffDeviceTypeArray[0]
     let deviceTypeId = haOnOffDeviceType.id
+    let sessionPartitionInfo =
+      await querySession.selectSessionPartitionInfoFromDeviceType(
+        db,
+        sid,
+        deviceTypeId
+      )
     let rowId = await queryConfig.insertEndpointType(
       db,
-      sid,
+      sessionPartitionInfo[0],
       'testEndpointType',
-      deviceTypeId
+      deviceTypeId,
+      haOnOffDeviceType.code,
+      0,
+      true
     )
     endpointTypeIdOnOff = rowId
     let endpointType = await queryEndpointType.selectEndpointType(db, rowId)

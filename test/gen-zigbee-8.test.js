@@ -22,6 +22,7 @@ const genEngine = require('../src-electron/generator/generation-engine')
 const env = require('../src-electron/util/env')
 const dbApi = require('../src-electron/db/db-api')
 const queryPackage = require('../src-electron/db/query-package')
+const querySession = require('../src-electron/db/query-session')
 const zclLoader = require('../src-electron/zcl/zcl-loader')
 const importJs = require('../src-electron/importexport/import')
 const testUtil = require('./test-util')
@@ -139,6 +140,28 @@ test(
     expect(ids).toContain('#define ZCL_C15_COMMAND_ID (0x03)')
     expect(ids).toContain('#define ZCL_A8_ATTRIBUTE_ID (0x0301)')
     expect(ids).toContain('#define ZCL_C11_COMMAND_ID (0x0A)')
+    expect(ids).toContain('#define ZCL_CUSTOM_CLUSTER_ID (0xFCA7)')
+
+    // Check for duplicate cluster, attribute and command defines
+    let commandCount = (ids.match(/#define ZCL_C15_COMMAND_ID \(0x03\)/g) || [])
+      .length
+    let attributeCount = (
+      ids.match(/#define ZCL_A8_ATTRIBUTE_ID \(0x0301\)/g) || []
+    ).length
+    let clusterCount = (
+      ids.match(/#define ZCL_CUSTOM_CLUSTER_ID \(0xFCA7\)/g) || []
+    ).length
+    expect(commandCount).toEqual(1)
+    expect(attributeCount).toEqual(1)
+    expect(clusterCount).toEqual(1)
+
+    // Check for global attributes being present in custom clusters
+    let splitIds = ids.split('#define ZCL_A8_ATTRIBUTE_ID (0x0301)')
+    expect(
+      splitIds[1]
+        .trimStart()
+        .startsWith('#define ZCL_CLUSTER_REVISION_SERVER_ATTRIBUTE_ID (0xFFFD)')
+    ).toBeTruthy()
 
     // Test custom attributes coming from standard cluster extensions(identify cluster extension)
     expect(ids).toContain(
@@ -157,9 +180,22 @@ test(
       (sessionPackages) =>
         sessionPackages.filter((pkg) => pkg.type == 'zcl-xml-standalone')
     )
-    let xmlPackageRemovalPromises = zclCustomXmlPackages.map((pkg) =>
-      queryPackage.deleteSessionPackage(db, sessionId, pkg.id)
-    )
+    let xmlPackageRemovalPromises = []
+    for (let i = 0; i < zclCustomXmlPackages.length; i++) {
+      let sessionPartitionInfo =
+        await querySession.selectSessionPartitionInfoFromPackageId(
+          db,
+          sessionId,
+          zclCustomXmlPackages[i].id
+        )
+      xmlPackageRemovalPromises.push(
+        queryPackage.deleteSessionPackage(
+          db,
+          sessionPartitionInfo[0].sessionPartitionId,
+          zclCustomXmlPackages[i].id
+        )
+      )
+    }
     await Promise.all(xmlPackageRemovalPromises)
 
     allSessionPackages = await queryPackage.getSessionPackages(db, sessionId)

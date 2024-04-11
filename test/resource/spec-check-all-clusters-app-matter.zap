@@ -29,7 +29,7 @@
       "type": "zcl-properties",
       "category": "matter",
       "version": 1,
-      "description": "Matter SDK ZCL data with some extensions"
+      "description": "Matter Test SDK ZCL data with some extensions"
     }
   ],
   "endpointTypes": [

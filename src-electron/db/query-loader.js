@@ -131,8 +131,11 @@ INSERT INTO COMMAND_ARG (
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
 )`
 
+// Replace here is used to prevent custom cluster extensions from being re-loaded again.
+// Attribute table needs to be unique based on:
+// UNIQUE("CLUSTER_REF", "PACKAGE_REF", "CODE", "MANUFACTURER_CODE")
 const INSERT_ATTRIBUTE_QUERY = `
-INSERT INTO ATTRIBUTE (
+INSERT OR REPLACE INTO ATTRIBUTE (
   CLUSTER_REF,
   PACKAGE_REF,
   CODE,

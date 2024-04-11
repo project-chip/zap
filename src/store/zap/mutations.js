@@ -40,9 +40,48 @@ export function setAllPackages(state, packages) {
   state.allPackages = packages
 }
 
-export function updateClusters(state, clusters) {
-  state.clusters = clusters
-  state.domains = [...new Set(state.clusters.map((a) => a.domainName))]
+export function updateClusters(state, responseData) {
+  let selectedEndpointTypeTemp = state.endpointTypeView.selectedEndpointType
+  let selectedDeviceTypeRefs =
+    state.endpointTypeView.deviceTypeRef[selectedEndpointTypeTemp]
+  let packageRefs = []
+  // Add custom xml packages to the list of packageRefs
+  let sessionPackages = state.packages
+  if (sessionPackages && sessionPackages.length > 0) {
+    for (let i = 0; i < sessionPackages.length; i++) {
+      if (
+        sessionPackages[i].pkg &&
+        sessionPackages[i].pkg.type == 'zcl-xml-standalone'
+      ) {
+        packageRefs.push(sessionPackages[i].pkg.id)
+      }
+    }
+  }
+
+  if (selectedDeviceTypeRefs) {
+    for (let i = 0; i < selectedDeviceTypeRefs.length; i++) {
+      for (let j = 0; j < responseData.deviceTypes.data.length; j++) {
+        if (selectedDeviceTypeRefs[i] == responseData.deviceTypes.data[j].id) {
+          packageRefs.push(responseData.deviceTypes.data[j].packageRef)
+        }
+      }
+    }
+  } else {
+    // When endpoint types do not have an associated device type(undefined)
+    if (responseData.clusterData) {
+      state.clusters = responseData.clusterData
+    } else {
+      state.clusters = responseData
+    }
+    state.domains = [...new Set(state.clusters.map((a) => a.domainName))]
+  }
+
+  if (responseData.clusterData) {
+    state.clusters = responseData.clusterData.filter((c) =>
+      packageRefs.includes(c.packageRef)
+    )
+    state.domains = [...new Set(state.clusters.map((a) => a.domainName))]
+  }
 }
 
 export function updateAtomics(state, atomics) {

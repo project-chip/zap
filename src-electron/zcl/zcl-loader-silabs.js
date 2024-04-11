@@ -21,6 +21,7 @@ const path = require('path')
 const properties = require('properties')
 const dbApi = require('../db/db-api')
 const queryPackage = require('../db/query-package')
+const querySession = require('../db/query-session')
 const queryDeviceType = require('../db/query-device-type')
 const queryLoader = require('../db/query-loader')
 const queryZcl = require('../db/query-zcl')
@@ -2155,7 +2156,10 @@ async function parseTextDefaults(db, pkgRef, textDefaults) {
         })
         .then((specificValue) => {
           if (specificValue == null) {
-            throw `Default value for: ${optionCategory}/${txt} does not match an option.`
+            env.logWarning(
+              'Default value for: ${optionCategory}/${txt} does not match an option for packageId: ' +
+                pkgRef
+            )
           } else {
             return queryPackage.insertDefaultOptionValue(
               db,
@@ -2226,6 +2230,28 @@ async function loadIndividualSilabsFile(db, filePath, sessionId) {
     if (result.data) {
       result.result = await util.parseXml(result.data)
       delete result.data
+      // Just adding the cluster attribute and command extensions for a cluster
+      // because they can be related to any top level package in the .zap config
+      if (
+        result.customXmlReload &&
+        result.result.configurator &&
+        result.result.configurator.clusterExtension
+      ) {
+        result.result = {
+          configurator: {
+            clusterExtension: result.result.configurator.clusterExtension,
+          },
+        }
+      } else if (
+        result.customXmlReload &&
+        result.result.configurator &&
+        !result.result.configurator.clusterExtension
+      ) {
+        env.logDebug(
+          `CRC match for file ${result.filePath} (${result.crc}), skipping parsing.`
+        )
+        delete result.result
+      }
     }
     let sessionPackages = await queryPackage.getSessionZclPackages(
       db,
@@ -2242,6 +2268,28 @@ async function loadIndividualSilabsFile(db, filePath, sessionId) {
         if (promise != null && promise != undefined) return promise()
       })
     )
+    // Check if session partition for package exists. If not then add it.
+    let sessionPartitionInfoForNewPackage =
+      await querySession.selectSessionPartitionInfoFromPackageId(
+        db,
+        sessionId,
+        pkgId
+      )
+    if (sessionPartitionInfoForNewPackage.length == 0) {
+      let sessionPartitionInfo =
+        await querySession.getAllSessionPartitionInfoForSession(db, sessionId)
+      let sessionPartitionId = await querySession.insertSessionPartition(
+        db,
+        sessionId,
+        sessionPartitionInfo.length + 1
+      )
+      await queryPackage.insertSessionPackage(
+        db,
+        sessionPartitionId,
+        pkgId,
+        true
+      )
+    }
     await zclLoader.processZclPostLoading(db, pkgId)
     return { succeeded: true, packageId: pkgId }
   } catch (err) {
@@ -2371,7 +2419,6 @@ async function loadZclJsonOrProperties(db, metafile, isJson = false) {
             `\n\nUnknown cluster "${clusterName}" in attributeAccessInterfaceAttributes\n\n`
           )
         }
-
         let known_cluster_attributes =
           await queryZcl.selectAttributesByClusterIdIncludingGlobal(
             db,

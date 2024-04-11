@@ -59,6 +59,75 @@ ORDER BY E1.ENDPOINT_IDENTIFIER
 }
 
 /**
+ * Returns a promise resolving into all endpoints based on the template
+ * category(eg zigbee/matter).
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} templateCategory
+ * @returns Promise that resolves to endpoints.
+ */
+async function selectAllEndpointsBasedOnTemplateCategory(
+  db,
+  sessionId,
+  templateCategory
+) {
+  let rows = await dbApi.dbAll(
+    db,
+    `
+SELECT
+  E1.ENDPOINT_ID,
+  E1.SESSION_REF,
+  E1.ENDPOINT_TYPE_REF,
+  E1.PROFILE,
+  E1.ENDPOINT_IDENTIFIER,
+  E1.NETWORK_IDENTIFIER,
+  PACKAGE.CATEGORY,
+  E2.ENDPOINT_ID AS PARENT_ENDPOINT_REF,
+  E2.ENDPOINT_IDENTIFIER AS PARENT_ENDPOINT_IDENTIFIER
+FROM
+  ENDPOINT AS E1
+LEFT JOIN
+  ENDPOINT AS E2
+ON 
+  E2.ENDPOINT_ID = E1.PARENT_ENDPOINT_REF
+INNER JOIN
+  ENDPOINT_TYPE
+ON
+  E1.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+INNER JOIN
+  ENDPOINT_TYPE_DEVICE
+ON
+  ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+INNER JOIN
+  DEVICE_TYPE
+ON
+  ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_REF = DEVICE_TYPE.DEVICE_TYPE_ID
+INNER JOIN
+  PACKAGE
+ON
+  PACKAGE.PACKAGE_ID = DEVICE_TYPE.PACKAGE_REF
+WHERE
+  E1.SESSION_REF = ?
+AND
+  PACKAGE.CATEGORY = ?
+GROUP BY
+  E1.ENDPOINT_IDENTIFIER
+ORDER BY E1.ENDPOINT_IDENTIFIER
+    `,
+    [sessionId, templateCategory]
+  )
+
+  // if now rows are found then return all endpoints in the session. This can
+  // happen if an endpoint has an undefined endponit type device
+  if (rows.length == 0) {
+    return selectAllEndpoints(db, sessionId)
+  } else {
+    return rows.map(dbMapping.map.endpointExtended)
+  }
+}
+
+/**
  * Retrieves clusters on an endpoint.
  *
  * @param {*} db
@@ -90,7 +159,6 @@ ORDER BY C.CODE
 `,
     [endpointTypeId]
   )
-
   return rows.map((row) => {
     return {
       clusterId: row['CLUSTER_ID'],
@@ -394,6 +462,7 @@ async function getParentEndpointIdentifier(db, parentRef, sessionId) {
  * @param {*} endpointTypeRef
  * @param {*} networkIdentifier
  * @param {*} profileIdentifier
+ * @param {*} parentRef
  * @returns Promise to update endpoints.
  */
 async function insertEndpoint(
@@ -513,3 +582,5 @@ exports.duplicateEndpoint = duplicateEndpoint
 exports.selectAllEndpoints = selectAllEndpoints
 exports.getParentEndpointRef = getParentEndpointRef
 exports.getParentEndpointIdentifier = getParentEndpointIdentifier
+exports.selectAllEndpointsBasedOnTemplateCategory =
+  selectAllEndpointsBasedOnTemplateCategory

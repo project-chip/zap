@@ -543,12 +543,31 @@ function httpPostAddNewPackage(db) {
           err: data.err.message,
         }
       } else {
-        await queryPackage.insertSessionPackage(
-          db,
-          sessionId,
-          data.packageId,
-          false
-        )
+        // Check if session partition for package exists. If not then add it.
+        let sessionPartitionInfoForNewPackage =
+          await querySession.selectSessionPartitionInfoFromPackageId(
+            db,
+            sessionId,
+            data.packageId
+          )
+        if (sessionPartitionInfoForNewPackage.length == 0) {
+          let sessionPartitionInfo =
+            await querySession.getAllSessionPartitionInfoForSession(
+              db,
+              sessionId
+            )
+          let sessionPartitionId = await querySession.insertSessionPartition(
+            db,
+            sessionId,
+            sessionPartitionInfo.length + 1
+          )
+          await queryPackage.insertSessionPackage(
+            db,
+            sessionPartitionId,
+            data.packageId,
+            true
+          )
+        }
         status = {
           isValid: true,
           sessionId: sessionId,
@@ -840,9 +859,15 @@ function attributeEquals(a, b) {
 function httpDeleteSessionPackage(db) {
   return async (request, response) => {
     let { sessionRef, packageRef } = request.query
+    let sessionPartitionInfo =
+      await querySession.selectSessionPartitionInfoFromPackageId(
+        db,
+        sessionRef,
+        packageRef
+      )
     let removed = await queryPackage.deleteSessionPackage(
       db,
-      sessionRef,
+      sessionPartitionInfo[0].sessionPartitionId,
       packageRef
     )
 
