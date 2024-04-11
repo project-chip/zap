@@ -239,8 +239,12 @@ function isBigInteger(bits) {
 
 async function getBoundsInteger(attribute, typeSize, isSigned) {
   return {
-    min: await getIntegerFromAttribute(attribute.min, typeSize, isSigned),
-    max: await getIntegerFromAttribute(attribute.max, typeSize, isSigned),
+    min: attribute.min
+      ? await getIntegerFromAttribute(attribute.min, typeSize, isSigned)
+      : null,
+    max: attribute.max
+      ? await getIntegerFromAttribute(attribute.max, typeSize, isSigned)
+      : null,
   }
 }
 
