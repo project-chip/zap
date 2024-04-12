@@ -15,7 +15,11 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
-
+const queryZcl = require('../db/query-zcl.js')
+const queryPackage = require('../db/query-package.js')
+const queryCommand = require('../db/query-command.js')
+const queryEvent = require('../db/query-event.js')
+const querySessionZcl = require('../db/query-session-zcl.js')
 /**
  * Returns all available clusters.
  *
@@ -80,3 +84,8 @@ async function availableAttributes(context) {
   )
   return attributes
 }
+
+exports.availableEvents = availableEvents
+exports.availableCommands = availableCommands
+exports.availableAttributes = availableAttributes
+exports.availableClusters = availableClusters

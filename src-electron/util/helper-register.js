@@ -15,7 +15,7 @@
  *    limitations under the License.
  */
 // Import the helper API
-const api = require('helper-api.js')
+const api = require('./helper-api.js')
 
 /**
  * Wraps a helper function to add usage tracking and error handling.
