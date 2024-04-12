@@ -26,6 +26,7 @@ const promisedHandlebars = require('promised-handlebars')
 const defaultHandlebars = require('handlebars')
 const notification = require('../db/query-session-notification.js')
 const util = require('../util/util')
+const helper = require('../util/external-helper')
 const templateIterators = require('./template-iterators')
 
 const includedHelpers = [
@@ -303,11 +304,16 @@ function helperWrapper(wrappedHelper) {
  *                      this is required to force webpack to resolve the included files
  *                      as path will be difference after being packed for production.
  */
-function loadHelper(hb, helpers) {
+function loadHelper(hb, helpers, context = null) {
   // helper
   // when template path are passed via CLI
   // Other paths are 'required()' to workaround webpack path issue.
   if (_.isString(helpers)) {
+    helper.executeHelperFunction(
+      helper.functions.initialize_helpers,
+      context,
+      helpers
+    )
     helpers = nativeRequire(helpers)
   }
 

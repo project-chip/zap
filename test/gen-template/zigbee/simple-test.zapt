@@ -6,4 +6,6 @@ SessionId: {{global.sessionId}}
 
 Addon: {{test_addon_helper}}
 
+External Addon: {{test_external_addon_helper}}
+
 Strange type: {{asUnderlyingType "bacnet_oid"}}

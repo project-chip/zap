@@ -16,7 +16,7 @@
  */
 
 const path = require('path')
-const scriptApi = require('./script-api.js')
+const scriptApi = require('./post-import-api.js')
 const nativeRequire = require('./native-require.js')
 
 /**

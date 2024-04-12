@@ -73,7 +73,7 @@ test(
       templateContext.db,
       templateContext.packageId
     )
-    expect(templateContext.packages.length).toBe(templateCount - 1 + 2) // -1 for ignored one, one for helper and one for overridable
+    expect(templateContext.packages.length).toBe(templateCount - 1 + 3) // -1 for ignored one, two for helpers and one for overridable
   },
   testUtil.timeout.short()
 )
@@ -127,11 +127,17 @@ test(
     expect(simpleTest).toContain(helperZap.zap_header())
     expect(simpleTest).toContain(`SessionId: ${genResult.sessionId}`)
     expect(simpleTest).toContain('Addon: This is example of test addon helper')
+    expect(simpleTest).toContain(
+      'External Addon: This is example of test external addon helper'
+    )
 
     let zclId = genResult.content['zcl-test.out']
     // In windows, if the generated string has multiple lines (with \n inside), it will include a trailing space at the end of each line
     // so we need to remove the trailing space if it exists to clean up the string
-    zclId = zclId.split('\n').map(s => s.trim()).join('\n');
+    zclId = zclId
+      .split('\n')
+      .map((s) => s.trim())
+      .join('\n')
     //expect(zclId).toEqual('random placeholder')
     expect(zclId).toContain(
       `// ${testUtil.totalNonAtomicEnumCount - 1}/${

@@ -647,6 +647,11 @@ async function generateAllTemplates(
   let overridePath = null
 
   let hb = templateEngine.hbInstance()
+  let context = {
+    db: genResult.db,
+    sessionId: genResult.sessionId,
+    hb: hb,
+  }
 
   for (let pkg of packages) {
     let outputOptions = await queryPackage.selectAllOptionsValues(
@@ -691,7 +696,9 @@ async function generateAllTemplates(
   // Next load the addon helpers which were not yet initialized earlier.
   packages.forEach((singlePkg) => {
     if (singlePkg.type == dbEnum.packageType.genHelper) {
-      helperPromises.push(templateEngine.loadHelper(hb, singlePkg.path))
+      helperPromises.push(
+        templateEngine.loadHelper(hb, singlePkg.path, context)
+      )
     }
   })
 

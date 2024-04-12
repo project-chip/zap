@@ -24,9 +24,7 @@
 const queryEndpoint = require('../db/query-endpoint.js')
 const queryConfig = require('../db/query-config.js')
 const dbEnum = require('../../src-shared/db-enum.js')
-const queryPackage = require('../db/query-package.js')
 const querySessionZcl = require('../db/query-session-zcl.js')
-const queryZcl = require('../db/query-zcl.js')
 const restApi = require('../../src-shared/rest-api.js')
 
 /**
