@@ -142,7 +142,7 @@ function dbEnums() {
  * @returns all available clusters
  */
 async function availableClusters(context) {
-  let clusters = await querySessionZcl.selectAllSessionClusters(
+  let clusters = querySessionZcl.selectAllSessionClusters(
     context.global.db,
     context.global.sessionId
   )
