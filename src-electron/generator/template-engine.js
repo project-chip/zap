@@ -26,7 +26,7 @@ const promisedHandlebars = require('promised-handlebars')
 const defaultHandlebars = require('handlebars')
 const notification = require('../db/query-session-notification.js')
 const util = require('../util/util')
-const helper = require('../util/helper')
+const helper = require('../util/external-helper')
 const templateIterators = require('./template-iterators')
 
 const includedHelpers = [

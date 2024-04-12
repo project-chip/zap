@@ -15,7 +15,7 @@
  *    limitations under the License.
  */
 const path = require('path')
-const helperRegister = require('./helper-register.js')
+const helperRegister = require('./external-helper-register.js')
 const nativeRequire = require('./native-require.js')
 
 /**
