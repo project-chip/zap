@@ -15,16 +15,59 @@
  *    limitations under the License.
  */
 // This is an example of an external addon helper for templates.
-
-async function test_external_addon_helper(api, context) {
-  //add queries here
+async function test_external_addon_helper() {
   return 'This is example of test external addon helper.'
 }
-function initialize_helpers(api, context) {
-  api.registerHelpers(
+async function test_external_addon_all_events_helper(api) {
+  let events = await api.availableEvents(this)
+  let totalEvents = events.length
+  return totalEvents
+}
+async function test_external_addon_all_attributes_helper(api) {
+  let attributes = await api.availableAttributes(this)
+  let totalAttributes = attributes.length
+  return totalAttributes
+}
+async function test_external_addon_all_commands_helper(api) {
+  let commands = await api.availableCommands(this)
+  let totalCommands = commands.length
+  return totalCommands
+}
+async function test_external_addon_all_clusters_helper(api) {
+  let clusters = await api.availableClusters(this)
+  let totalClusters = clusters.length
+  return totalClusters
+}
+async function initialize_helpers(api, context) {
+  await api.registerHelpers(
     'test_external_addon_helper',
-    test_external_addon_helper.bind(null, api, context),
-    context
+    test_external_addon_helper,
+    context,
+    api
+  )
+  api.registerHelpers(
+    'test_external_addon_all_events_helper',
+    test_external_addon_all_events_helper,
+    context,
+    api
+  )
+  api.registerHelpers(
+    'test_external_addon_all_attributes_helper',
+    test_external_addon_all_attributes_helper,
+    context,
+    api
+  )
+  api.registerHelpers(
+    'test_external_addon_all_commands_helper',
+    test_external_addon_all_commands_helper,
+    context,
+    api
+  )
+  api.registerHelpers(
+    'test_external_addon_all_clusters_helper',
+    test_external_addon_all_clusters_helper,
+    context,
+    api
   )
 }
 

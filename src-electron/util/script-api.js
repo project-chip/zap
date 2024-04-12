@@ -28,6 +28,8 @@ const queryPackage = require('../db/query-package.js')
 const querySessionZcl = require('../db/query-session-zcl.js')
 const queryZcl = require('../db/query-zcl.js')
 const restApi = require('../../src-shared/rest-api.js')
+const queryCommand = require('../db/query-command.js')
+const queryEvent = require('../db/query-event.js')
 
 /**
  * Prints a text to console.
@@ -140,7 +142,62 @@ function dbEnums() {
  * @returns all available clusters
  */
 async function availableClusters(context) {
-  return querySessionZcl.selectAllSessionClusters(context.db, context.sessionId)
+  let clusters = await querySessionZcl.selectAllSessionClusters(
+    context.global.db,
+    context.global.sessionId
+  )
+  return clusters
+}
+
+/**
+ * Returns all available events.
+ *
+ * @param {*} context
+ * @returns all available events
+ */
+async function availableEvents(context) {
+  let packageIds = await queryPackage.getSessionZclPackageIds(
+    context.global.db,
+    context.global.sessionId
+  )
+  let events = await queryEvent.selectAllEvents(context.global.db, packageIds)
+  return events
+}
+
+/**
+ * Returns all available commands.
+ *
+ * @param {*} context
+ * @returns all available ccommands
+ */
+async function availableCommands(context) {
+  let packageIds = await queryPackage.getSessionZclPackageIds(
+    context.global.db,
+    context.global.sessionId
+  )
+  let commands = await queryCommand.selectAllCommands(
+    context.global.db,
+    packageIds
+  )
+  return commands
+}
+
+/**
+ * Returns all available attributes.
+ *
+ * @param {*} context
+ * @returns all available attributes
+ */
+async function availableAttributes(context) {
+  let packageIds = await queryPackage.getSessionZclPackageIds(
+    context.global.db,
+    context.global.sessionId
+  )
+  let attributes = await queryZcl.selectAllAttributes(
+    context.global.db,
+    packageIds
+  )
+  return attributes
 }
 
 // Finds the cluster database primary key from code,manufacturing code, and context.
@@ -523,8 +580,45 @@ async function enableOutgoingCommand(
     true
   )
 }
-function registerHelpers(singleHelper, registerHelper, context) {
-  context.hb.registerHelper(singleHelper, registerHelper)
+function helperWrapper(wrappedHelper, api) {
+  return function w(...args) {
+    let helperName = wrappedHelper.name
+    if (wrappedHelper.originalHelper != null) {
+      helperName = wrappedHelper.originalHelper
+    }
+    let isDeprecated = false
+    if (wrappedHelper.isDeprecated) {
+      isDeprecated = true
+    }
+    if (helperName in this.global.stats) {
+      this.global.stats[helperName].useCount++
+    } else {
+      this.global.stats[helperName] = {
+        useCount: 1,
+        isDeprecated: isDeprecated,
+      }
+    }
+    try {
+      return wrappedHelper.call(this, api, ...args)
+    } catch (err) {
+      let thrownObject
+      let opts = args[args.length - 1]
+      if ('loc' in opts) {
+        let locMsg = ` [line: ${opts.loc.start.line}, column: ${opts.loc.start.column}, file: ${this.global.templatePath} ]`
+        if (_.isString(err)) {
+          thrownObject = new Error(err + locMsg)
+        } else {
+          thrownObject = err
+          thrownObject.message = err.message + locMsg
+        }
+      }
+      throw thrownObject
+    }
+  }
+}
+
+function registerHelpers(singleHelper, registerHelper, context, api) {
+  context.hb.registerHelper(singleHelper, helperWrapper(registerHelper, api))
 }
 
 exports.registerHelpers = registerHelpers
@@ -563,6 +657,11 @@ exports.disableIncomingCommand = disableIncomingCommand
 exports.enableIncomingCommand = enableIncomingCommand
 exports.disableOutgoingCommand = disableOutgoingCommand
 exports.enableOutgoingCommand = enableOutgoingCommand
+
+exports.availableEvents = availableEvents
+exports.availableCommands = availableCommands
+exports.availableAttributes = availableAttributes
+exports.availableClusters = availableClusters
 
 // Constants that are used a lot
 exports.client = dbEnum.source.client

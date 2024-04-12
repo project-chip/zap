@@ -151,6 +151,10 @@ test(
     expect(simpleTest).toContain(
       'Cluster Name : OnOff+Command Name : OnWithRecallGlobalScene'
     )
+    expect(simpleTest).toContain('ExternalAddon : 72')
+    expect(simpleTest).toContain('ExternalAddon : 784')
+    expect(simpleTest).toContain('ExternalAddon : 248')
+    expect(simpleTest).toContain('ExternalAddon : 60')
     expect(simpleTest).toContain(
       'ExternalAddon : This is example of test external addon helper.'
     )
