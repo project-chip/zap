@@ -1,7 +1,7 @@
 /**
  *
  *
- *    Copyright (c) 2021 Silicon Labs
+ *    Copyright (c) 2024 Silicon Labs
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -28,8 +28,8 @@ const querySessionZcl = require('../db/query-session-zcl.js')
  */
 async function availableClusters(context) {
   let clusters = querySessionZcl.selectAllSessionClusters(
-    context.global.db,
-    context.global.sessionId
+    context.db,
+    context.sessionId
   )
   return clusters
 }
@@ -42,10 +42,10 @@ async function availableClusters(context) {
  */
 async function availableEvents(context) {
   let packageIds = await queryPackage.getSessionZclPackageIds(
-    context.global.db,
-    context.global.sessionId
+    context.db,
+    context.sessionId
   )
-  let events = await queryEvent.selectAllEvents(context.global.db, packageIds)
+  let events = await queryEvent.selectAllEvents(context.db, packageIds)
   return events
 }
 
@@ -57,13 +57,10 @@ async function availableEvents(context) {
  */
 async function availableCommands(context) {
   let packageIds = await queryPackage.getSessionZclPackageIds(
-    context.global.db,
-    context.global.sessionId
+    context.db,
+    context.sessionId
   )
-  let commands = await queryCommand.selectAllCommands(
-    context.global.db,
-    packageIds
-  )
+  let commands = await queryCommand.selectAllCommands(context.db, packageIds)
   return commands
 }
 
@@ -75,13 +72,10 @@ async function availableCommands(context) {
  */
 async function availableAttributes(context) {
   let packageIds = await queryPackage.getSessionZclPackageIds(
-    context.global.db,
-    context.global.sessionId
+    context.db,
+    context.sessionId
   )
-  let attributes = await queryZcl.selectAllAttributes(
-    context.global.db,
-    packageIds
-  )
+  let attributes = await queryZcl.selectAllAttributes(context.db, packageIds)
   return attributes
 }
 

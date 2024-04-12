@@ -1,6 +1,6 @@
 /**
  *
- *    Copyright (c) 2021 Silicon Labs
+ *    Copyright (c) 2024 Silicon Labs
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ const api = require('./external-helper-api.js')
  * @param {Function} wrappedHelper - The helper function to wrap.
  * @returns {Function} - The wrapped helper function.
  */
-function helperWrapper(wrappedHelper) {
+function helperWrapper(wrappedHelper, context) {
   return function w(...args) {
     // Get the name of the helper function
     let helperName = wrappedHelper.name
@@ -49,7 +49,7 @@ function helperWrapper(wrappedHelper) {
 
     // Call the helper function and handle any errors
     try {
-      return wrappedHelper.call(this, api, ...args)
+      return wrappedHelper.call(context, api, ...args)
     } catch (err) {
       let thrownObject
       let opts = args[args.length - 1]
@@ -76,7 +76,10 @@ function helperWrapper(wrappedHelper) {
  */
 function registerHelpers(singleHelper, registerHelper, context) {
   // Register the helper function with Handlebars
-  context.hb.registerHelper(singleHelper, helperWrapper(registerHelper))
+  context.hb.registerHelper(
+    singleHelper,
+    helperWrapper(registerHelper, context)
+  )
 }
 
 // Export the registerHelpers function
