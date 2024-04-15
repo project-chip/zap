@@ -520,6 +520,19 @@ test(
     // Cluster coming from just MA-dimmablelight and not MA-onofflight
     expect(clusterNames.includes('Level Control')).toEqual(true)
 
+    // Test to make sure the featureMap attribute value for level control cluster
+    // is set correctly when a device type is added as per its device type cluster
+    // feature compliance
+    let levelControlCluster = clusters.find((cl) => cl.name == 'Level Control')
+    let levelControlClusterFeatureMapAttribute =
+      await queryEndpointType.selectEndpointTypeAttributeFromEndpointTypeClusterId(
+        db,
+        levelControlCluster.endpointTypeClusterId,
+        '0xFFFC',
+        null
+      )
+    expect(levelControlClusterFeatureMapAttribute.defaultValue).toEqual('3')
+
     // Edit the endpoint type and add another device type and test the update
     let additionalMatterLightDevice = allDeviceTypes.filter(
       (data) => data.label === 'MA-colortemperaturelight'

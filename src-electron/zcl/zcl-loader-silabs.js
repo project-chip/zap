@@ -662,6 +662,22 @@ function prepareCluster(cluster, context, isExtension = false) {
     })
   }
 
+  if ('features' in cluster) {
+    ret.features = []
+    cluster.features[0].feature.forEach((feature) => {
+      let f = {
+        name: feature.$.name,
+        code: feature.$.code,
+        bit: feature.$.bit,
+        defaultValue: feature.$.default,
+        description: feature.$.summary,
+        conformance: feature.$.conformance,
+      }
+
+      ret.features.push(f)
+    })
+  }
+
   return ret
 }
 
@@ -996,7 +1012,11 @@ function prepareDataType(a, dataType, typeMap) {
     id: parseInt(a.$.id),
     description: a.$.description ? a.$.description : a.$.name,
     discriminator_ref: dataType ? dataType : dataTypeRef,
-    cluster_code: a.cluster ? a.cluster : null,
+    cluster_code: a.cluster
+      ? a.cluster
+      : a.$.cluster_code
+      ? [{ $: { code: a.$.cluster_code[0] } }]
+      : null, // else case: Treating features in a cluster as a bitmap
   }
 }
 
@@ -1258,7 +1278,11 @@ function prepareEnumOrBitmap(db, packageId, a, dataType, typeMap) {
   return {
     name: a.$.name,
     type: a.$.type.toLowerCase(),
-    cluster_code: a.cluster ? a.cluster : null,
+    cluster_code: a.cluster
+      ? a.cluster
+      : a.$.cluster_code
+      ? [{ $: { code: a.$.cluster_code[0] } }]
+      : null, // else case: Treating features in a cluster as a bitmap
     discriminator_ref: dataType,
   }
 }
@@ -1404,21 +1428,40 @@ async function processBitmapFields(
   env.logDebug(`${filePath}, ${packageId}: ${data.length} Bitmap Fields.`)
   let bitmapFields = []
   let lastFieldId = -1
-  data.forEach((bm) => {
-    if ('field' in bm) {
-      bm.field.forEach((item) => {
-        let defaultFieldId = lastFieldId + 1
-        lastFieldId = item.$.fieldId ? parseInt(item.$.fieldId) : defaultFieldId
-        bitmapFields.push({
-          bitmapName: bm.$.name,
-          bitmapClusterCode: bm.cluster ? bm.cluster : null,
-          name: item.$.name,
-          mask: parseInt(item.$.mask),
-          fieldIdentifier: lastFieldId,
+  if (!('features' in data)) {
+    data.forEach((bm) => {
+      if ('field' in bm) {
+        bm.field.forEach((item) => {
+          let defaultFieldId = lastFieldId + 1
+          lastFieldId = item.$.fieldId
+            ? parseInt(item.$.fieldId)
+            : defaultFieldId
+          bitmapFields.push({
+            bitmapName: bm.$.name,
+            bitmapClusterCode: bm.cluster ? bm.cluster : null,
+            name: item.$.name,
+            mask: parseInt(item.$.mask),
+            fieldIdentifier: lastFieldId,
+          })
         })
+      }
+    })
+    // Treating features in a cluster as a bitmap
+  } else if (
+    'features' in data &&
+    data.features.length == 1 &&
+    'feature' in data.features[0]
+  ) {
+    data.features[0].feature.forEach((item) => {
+      bitmapFields.push({
+        bitmapName: 'Feature',
+        bitmapClusterCode: [{ $: { code: data.code[0] } }],
+        name: item.$.name,
+        mask: 1 << item.$.bit,
+        fieldIdentifier: item.$.bit,
       })
-    }
-  })
+    })
+  }
   return queryLoader.insertBitmapFields(
     db,
     packageId,
@@ -1551,11 +1594,20 @@ function prepareDeviceType(deviceType) {
         cluster.include.forEach((include) => {
           let attributes = []
           let commands = []
+          let features = []
           if ('requireAttribute' in include) {
             attributes = include.requireAttribute
           }
           if ('requireCommand' in include) {
             commands = include.requireCommand
+          }
+          if ('features' in include) {
+            include.features[0].feature.forEach((f) => {
+              // Only adding madatory features for now
+              if (f.mandatoryConform && f.mandatoryConform[0] === '') {
+                features.push(f.$.name)
+              }
+            })
           }
           ret.clusters.push({
             client: 'true' == include.$.client,
@@ -1566,6 +1618,7 @@ function prepareDeviceType(deviceType) {
               include.$.cluster != undefined ? include.$.cluster : include._,
             requiredAttributes: attributes,
             requiredCommands: commands,
+            features: features,
           })
         })
       }
@@ -1611,6 +1664,7 @@ async function processParsedZclData(
   let packageId = argument.packageId
   previouslyKnownPackages.add(packageId)
   let knownPackages = Array.from(previouslyKnownPackages)
+  let featureClusters = []
 
   if (!('result' in argument)) {
     return []
@@ -1659,6 +1713,7 @@ async function processParsedZclData(
       )
     }
     if ('cluster' in toplevel) {
+      featureClusters = toplevel.cluster.filter((c) => 'features' in c)
       batch2.push(
         processClusters(db, filePath, packageId, toplevel.cluster, context)
       )
@@ -1691,6 +1746,31 @@ async function processParsedZclData(
         )
       )
     }
+
+    // Treating features in a cluster as a bitmap
+    if (featureClusters.length > 0) {
+      featureClusters.forEach((fc) => {
+        batch3.push(
+          processDataType(
+            db,
+            filePath,
+            packageId,
+            knownPackages,
+            [
+              {
+                $: {
+                  name: 'Feature',
+                  type: 'BITMAP32',
+                  cluster_code: [fc.code[0]],
+                },
+              },
+            ],
+            dbEnum.zclType.bitmap
+          )
+        )
+      })
+    }
+
     if (dbEnum.zclType.enum in toplevel) {
       batch3.push(
         processDataType(
@@ -1759,6 +1839,22 @@ async function processParsedZclData(
         processBitmap(db, filePath, packageId, knownPackages, toplevel.bitmap)
       )
     }
+    // Treating features in a cluster as a bitmap
+    if (featureClusters.length > 0) {
+      featureClusters.forEach((fc) => {
+        Batch5.push(
+          processBitmap(db, filePath, packageId, knownPackages, [
+            {
+              $: {
+                name: 'Feature',
+                type: 'BITMAP32',
+                cluster_code: [fc.code[0]],
+              },
+            },
+          ])
+        )
+      })
+    }
     if (dbEnum.zclType.struct in toplevel) {
       Batch5.push(
         processStruct(db, filePath, packageId, knownPackages, toplevel.struct)
@@ -1783,6 +1879,14 @@ async function processParsedZclData(
           toplevel.bitmap
         )
       )
+    }
+    // Treating features in a cluster as a bitmap
+    if (featureClusters.length > 0) {
+      featureClusters.forEach((fc) => {
+        batch6.push(
+          processBitmapFields(db, filePath, packageId, knownPackages, fc)
+        )
+      })
     }
     if (dbEnum.zclType.struct in toplevel) {
       batch6.push(

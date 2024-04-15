@@ -213,6 +213,28 @@ async function insertOrUpdateAttributeState(
       attributeId,
       clusterRef
     )
+  // Looking for the feature map attribute in matter and setting it as per
+  // the device types if default value is 0
+  if (
+    staticAttribute.code == 0xfffc &&
+    staticAttribute.name == 'FeatureMap' &&
+    staticAttribute.defaultValue == 0
+  ) {
+    let featureMapDefaultValue = staticAttribute.defaultValue
+    let mandatoryFeaturesOnEndpointTypeAndCluster =
+      await queryDeviceType.selectDeviceTypeFeaturesByEndpointTypeIdAndClusterId(
+        db,
+        endpointTypeId,
+        clusterRef
+      )
+    let featureMapBitsToBeEnabled =
+      mandatoryFeaturesOnEndpointTypeAndCluster.map((f) => f.featureBit)
+    featureMapBitsToBeEnabled.forEach(
+      (featureBit) =>
+        (featureMapDefaultValue = featureMapDefaultValue | (1 << featureBit))
+    )
+    staticAttribute.defaultValue = featureMapDefaultValue
+  }
   let forcedExternal = await queryUpgrade.getForcedExternalStorage(db)
   staticAttribute.storagePolicy =
     await queryUpgrade.computeStoragePolicyNewConfig(
@@ -314,7 +336,7 @@ async function updateEndpointTypeAttribute(db, id, keyValuePairs) {
   })
   args.push(id)
 
-  let query = `UPDATE ENDPOINT_TYPE_ATTRIBUTE SET 
+  let query = `UPDATE ENDPOINT_TYPE_ATTRIBUTE SET
   ${columns}
 WHERE ENDPOINT_TYPE_ATTRIBUTE_ID = ?`
   return dbApi.dbUpdate(db, query, args)
@@ -508,7 +530,7 @@ INTO ENDPOINT_TYPE_EVENT (
     db,
     `
 UPDATE ENDPOINT_TYPE_EVENT
-SET INCLUDED = ? 
+SET INCLUDED = ?
 WHERE ENDPOINT_TYPE_REF = ?
   AND ENDPOINT_TYPE_CLUSTER_REF = ?
   AND EVENT_REF = ? `,
@@ -1372,17 +1394,17 @@ async function selectEndpointTypeAttributeId(
   let rows = await dbApi.dbAll(
     db,
     `
-SELECT 
+SELECT
   ENDPOINT_TYPE_ATTRIBUTE_ID
-FROM 
+FROM
   ENDPOINT_TYPE_ATTRIBUTE AS ETA
 INNER JOIN
   ATTRIBUTE AS A
 ON
-  ETA.ATTRIBUTE_REF = A.ATTRIBUTE_ID 
+  ETA.ATTRIBUTE_REF = A.ATTRIBUTE_ID
 INNER JOIN
   CLUSTER AS C
-ON 
+ON
   C.CLUSTER_ID = A.CLUSTER_REF
 WHERE
   ETA.ENDPOINT_TYPE_REF = ?

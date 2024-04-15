@@ -35,7 +35,8 @@ export default {
     }
   },
   mounted() {
-    const zclProperties = this.$store.state.zap.selectedZapConfig?.zclProperties
+    const zapState = this.$store.state.zap
+    const zclProperties = zapState.selectedZapConfig?.zclProperties
     let multiDeviceCategories = []
     let enableMatterFeatures = false
     let enableZigbeeFeatures = false
@@ -44,8 +45,20 @@ export default {
       enableMatterFeatures = multiDeviceCategories.includes('matter')
       enableZigbeeFeatures = multiDeviceCategories.includes('zigbee')
     } else {
-      multiDeviceCategories =
-        this.$store.state.zap.selectedZapConfig?.zclProperties?.category
+      let selectedZapConfig = zapState.selectedZapConfig
+      multiDeviceCategories = selectedZapConfig?.zclProperties?.category
+      // the use case when there is only one zcl and template package and user
+      // does not have any packages to select from.
+      if (
+        !multiDeviceCategories &&
+        selectedZapConfig &&
+        selectedZapConfig.zclProperties &&
+        selectedZapConfig.zclProperties.length == 0 &&
+        zapState.packages &&
+        zapState.packages.length > 0
+      ) {
+        multiDeviceCategories = zapState.packages[0]?.sessionPackage?.category
+      }
       enableMatterFeatures = multiDeviceCategories == 'matter'
       // Showing zigbee UI by default when category is not defined
       enableZigbeeFeatures =

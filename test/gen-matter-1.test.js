@@ -79,6 +79,34 @@ test('Validate loading', async () => {
   expect(cluster.name).toBe('OTA Software Update Provider')
 })
 
+test('Validate loading of features as bitmap', async () => {
+  /* See level-control-cluster.xml which has the following:
+  <features>
+      <feature bit="0" code="OO" name="OnOff" default="1" summary="Dependency with the On/Off cluster">
+        <optionalConform/>
+      </feature>
+      <feature bit="1" code="LT" name="Lighting" default="0" summary="Behavior that supports lighting applications">
+        <optionalConform/>
+      </feature>
+      <feature bit="2" code="FQ" name="Frequency" default="0" summary="Supports frequency attributes and behavior.
+                                        The Pulse Width Modulation cluster was created
+                                        for frequency control.">
+        <provisionalConform/>
+      </feature>
+    </features>
+  */
+  let clusterInfo = await queryZcl.selectClusterByCode(db, zclPackageId, 0x0008)
+
+  let dataType = await queryZcl.selectDataTypeByNameAndClusterId(
+    db,
+    'Feature',
+    clusterInfo.id,
+    [zclPackageId]
+  )
+  expect(dataType).not.toBeNull()
+  expect(dataType.name).toEqual('Feature')
+})
+
 test(
   'Basic gen template parsing and generation',
   async () => {

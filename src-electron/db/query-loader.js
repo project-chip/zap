@@ -618,6 +618,7 @@ async function insertClusters(db, packageId, data) {
         access: [],
       }
       let pTags = null
+      let pFeatures = null
 
       let i
       for (i = 0; i < lastIdsArray.length; i++) {
@@ -642,14 +643,43 @@ async function insertClusters(db, packageId, data) {
         if ('tags' in data[i]) {
           pTags = insertTags(db, packageId, data[i].tags, lastId)
         }
+
+        if ('features' in data[i]) {
+          pFeatures = insertFeatures(db, packageId, data[i].features, lastId)
+        }
       }
       let pCommand = insertCommands(db, packageId, commands)
       let pAttribute = insertAttributes(db, packageId, attributes)
       let pEvent = insertEvents(db, packageId, events)
       let pArray = [pCommand, pAttribute, pEvent]
       if (pTags != null) pArray.push(pTags)
+      if (pFeatures != null) pArray.push(pFeatures)
       return Promise.all(pArray)
     })
+}
+
+/**
+ * Inserts features into the database.
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} data
+ * @returns A promise that resolves with array of rowids.
+ */
+async function insertFeatures(db, packageId, data, clusterId) {
+  return dbApi.dbMultiInsert(
+    db,
+    'INSERT INTO FEATURE (PACKAGE_REF, NAME, CODE, BIT, DEFAULT_VALUE, DESCRIPTION, CONFORMANCE, CLUSTER_REF) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+    data.map((feature) => [
+      packageId,
+      feature.name,
+      feature.code,
+      feature.bit,
+      feature.defaultValue,
+      feature.description,
+      feature.conformance,
+      clusterId,
+    ])
+  )
 }
 
 /**
@@ -895,12 +925,37 @@ async function insertDeviceTypes(db, packageId, data) {
             let promises = []
             promises.push(insertDeviceTypeAttributes(db, dtClusterRefDataPairs))
             promises.push(insertDeviceTypeCommands(db, dtClusterRefDataPairs))
+            promises.push(insertDeviceTypeFeatures(db, dtClusterRefDataPairs))
             return Promise.all(promises)
           })
         }
       }
       return zclIdsPromises
     })
+}
+
+/**
+ * This handles the loading of device type feature requirements into the database.
+ * There is a need to post-process to attach the actual feature ref after the fact
+ * @param {*} db
+ * @param {*} dtClusterRefDataPairs
+ */
+async function insertDeviceTypeFeatures(db, dtClusterRefDataPairs) {
+  let features = []
+  dtClusterRefDataPairs.map((dtClusterRefDataPair) => {
+    let dtClusterRef = dtClusterRefDataPair.dtClusterRef
+    let clusterData = dtClusterRefDataPair.clusterData
+    if ('features' in clusterData && clusterData.features.length > 0) {
+      clusterData.features.forEach((featureCode) => {
+        features.push([dtClusterRef, featureCode])
+      })
+    }
+  })
+  return dbApi.dbMultiInsert(
+    db,
+    'INSERT INTO DEVICE_TYPE_FEATURE (DEVICE_TYPE_CLUSTER_REF, FEATURE_CODE) VALUES (?, ?)',
+    features
+  )
 }
 
 /**
