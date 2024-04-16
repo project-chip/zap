@@ -3,7 +3,7 @@
     {
       "target": ".v-step-0",
       "title": "Adding Endpoints",
-      "content": "A Zigbee application can have multiple endpoints. Each endpoint contains a device configuration made up of Clusters on that endpoint. Add a new endpoint to your application by clicking <strong>ADD NEW ENDPOINT</strong> in the top left corner of the Zigbee Cluster Configurator interface.",
+      "content": "A Zigbee application can have multiple endpoints. Each endpoint contains a device configuration made up of Clusters on that endpoint. Add a new endpoint to your application by clicking <strong>ADD NEW ENDPOINT</strong> in the top left corner of the ZCL Advanced Platform (ZAP) interface.",
       "before": "startTutorialAndCloseTheEndpointModal",
       "placement": "bottom"
     },
@@ -38,14 +38,14 @@
     {
       "target": ".v-step-5",
       "title": "Modifying an Endpoint",
-      "content": "To modify an endpoint, click on the endpoint configuration on the left side of the Zigbee Cluster Configurator. A <strong>blue background</strong> corresponds to the endpoint being modified.",
+      "content": "To modify an endpoint, click on the endpoint configuration on the left side of the ZCL Advanced Platform (ZAP). A <strong>blue background</strong> corresponds to the endpoint being modified.",
       "before": "generateEndpointCard",
       "placement": "bottom"
     },
     {
       "target": ".v-step-6",
       "title": "",
-      "content": "The clusters of the highlighted endpoint can be modified on the right side of the Zigbee Cluster Configurator.",
+      "content": "The clusters of the highlighted endpoint can be modified on the right side of the ZCL Advanced Platform (ZAP).",
       "before": null,
       "placement": "right"
     },
@@ -108,7 +108,7 @@
     {
       "target": ".v-step-15",
       "title": "",
-      "content": "For instance, in the following example, Endpoint 1 only implements the Server side of the On/Off cluster. Therefore, it is only possible for the cluster to receive the Off command ‘In’, which is in fact enabled for that cluster. With this setting enabled, the Zigbee Cluster Configurator automatically generates command handling code for handling the On/Off cluster’s ‘Off’ command. This will ensure that, when an ‘Off’ command is received, it will be routed to the correct command handling callback.",
+      "content": "For instance, in the following example, Endpoint 1 only implements the Server side of the On/Off cluster. Therefore, it is only possible for the cluster to receive the Off command ‘In’, which is in fact enabled for that cluster. With this setting enabled, the ZCL Advanced Platform (ZAP) automatically generates command handling code for handling the On/Off cluster’s ‘Off’ command. This will ensure that, when an ‘Off’ command is received, it will be routed to the correct command handling callback.",
       "before": "openCommandsTabInCluster",
       "placement": "bottom"
     },
@@ -122,7 +122,7 @@
     {
       "target": ".v-step-17",
       "title": "",
-      "content": "Clicking <strong>ZCL EXTENSIONS…</strong> opens the Custom ZCL page in the Zigbee Cluster Configurator. Click <strong>Add</strong> to add your custom ZCL XML to the project. Browse to the location of the custom ZCL XML, select a file, and click <strong>Open</strong>. Once the custom ZCL XML has been read into the Zigbee Cluster Configurator, your custom clusters, attributes, commands, and so on are accessible to the configuration of your application.",
+      "content": "Clicking <strong>ZCL EXTENSIONS…</strong> opens the Custom ZCL page in the ZCL Advanced Platform (ZAP). Click <strong>Add</strong> to add your custom ZCL XML to the project. Browse to the location of the custom ZCL XML, select a file, and click <strong>Open</strong>. Once the custom ZCL XML has been read into the ZCL Advanced Platform (ZAP), your custom clusters, attributes, commands, and so on are accessible to the configuration of your application.",
       "before": "openZclExtensionDialog",
       "placement": "right"
     }
