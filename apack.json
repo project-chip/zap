@@ -1,6 +1,6 @@
 {
   "id": "zclConfigurator",
-  "label": "Zigbee Cluster Configurator",
+  "label": "ZCL Advanced Platform (ZAP)",
   "description": "Graphical configuration tool for application and libraries based on Zigbee Cluster Library.",
   "path": [".", "node_modules/.bin/", "ZAP.app/Contents/MacOS"],
   "requiredFeatureLevel": "apack.core:9",

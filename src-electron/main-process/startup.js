@@ -293,7 +293,7 @@ async function writeConversionResultsFile(file) {
       upgrade_results: [
         {
           message:
-            'Zigbee Cluster Configurator configuration has been successfully upgraded.',
+            'ZCL Advanced Platform (ZAP) configuration has been successfully upgraded.',
           status: 'automatic',
         },
       ],
