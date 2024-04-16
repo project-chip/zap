@@ -28,7 +28,7 @@ limitations under the License.
         <div class="column">
           <div class="col">
             You can use this functionality to add custom ZCL clusters or
-            commands to the Zigbee Clusters Configurator
+            commands to the ZCL Advanced Platform (ZAP)
           </div>
           <p
             class="text-center"
