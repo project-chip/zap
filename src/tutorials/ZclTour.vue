@@ -194,7 +194,6 @@ export default {
       this.deleteEndpointDialog = false
       this.tourEndpointId = null
       this.tourEndpointType = null
-      this.$store.commit('zap/openZclExtensionsDialogForTutorial', false)
     },
     // This function will disable tutorial
     disableTutorial() {
@@ -360,18 +359,16 @@ export default {
             resolve()
           })
         } else {
-          this.$store.commit('zap/openZclExtensionsDialogForTutorial', false)
           resolve()
         }
       })
     },
     // This function will open extension modal
-    openZclExtensionDialog() {
+    openZclExtensionTab() {
       return new Promise((resolve) => {
-        this.$store.commit('zap/openZclExtensionsDialogForTutorial', true)
-        setTimeout(() => {
+        this.$router.push('/extensions').then(() => {
           resolve()
-        }, 300)
+        })
       })
     },
   },

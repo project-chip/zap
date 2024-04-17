@@ -120,11 +120,11 @@
       "placement": "bottom"
     },
     {
-      "target": ".v-step-17",
+      "target": ".v-step-16",
       "title": "",
       "content": "Clicking <strong>ZCL EXTENSIONS…</strong> opens the Custom ZCL page in the ZCL Advanced Platform (ZAP). Click <strong>Add</strong> to add your custom ZCL XML to the project. Browse to the location of the custom ZCL XML, select a file, and click <strong>Open</strong>. Once the custom ZCL XML has been read into the ZCL Advanced Platform (ZAP), your custom clusters, attributes, commands, and so on are accessible to the configuration of your application.",
-      "before": "openZclExtensionDialog",
-      "placement": "right"
+      "before": "openZclExtensionTab",
+      "placement": "bottom"
     }
   ]
 }

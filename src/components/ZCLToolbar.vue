@@ -81,7 +81,7 @@
       flat
       no-caps
       class="cursor-pointer"
-      @click="globalOptionsDialog = !globalOptionsDialog"
+      to="/options"
     >
       <div class="text-center">
         <q-icon name="o_tune" />
@@ -94,7 +94,7 @@
       flat
       no-caps
       color="grey"
-      @click="zclExtensionDialog = true"
+      to="/extensions"
     >
       <div class="text-center">
         <q-icon name="o_extension" />
@@ -171,20 +171,9 @@
         <div>Settings</div>
       </div>
     </q-btn>
-    <q-dialog
-      v-model="globalOptionsDialog"
-      class="background-color:transparent"
-    >
-      <ZclGeneralOptionsBar />
-    </q-dialog>
-    <q-dialog v-model="zclExtensionDialog">
-      <ZclExtensionDialog />
-    </q-dialog>
   </q-toolbar>
 </template>
 <script>
-import ZclGeneralOptionsBar from '../components/ZclGeneralOptionsBar.vue'
-import ZclExtensionDialog from '../components/ZclCustomZclView.vue'
 import { startTour } from '../boot/tour'
 import { isElectron, isWin } from '../util/platform'
 import * as dbEnum from '../../src-shared/db-enum.js'
@@ -195,10 +184,6 @@ const observable = require('../util/observable.js')
 
 export default {
   name: 'ZCLToolbar',
-  components: {
-    ZclGeneralOptionsBar,
-    ZclExtensionDialog,
-  },
   computed: {
     isCoreDocumentationAvailable() {
       return (
@@ -216,11 +201,6 @@ export default {
       },
       set() {
         return this.$store.dispatch('zap/togglePreviewTab')
-      },
-    },
-    zclExtensionDialogInTutorial: {
-      get() {
-        return this.$store.state.zap.openZclExtensionsDialog
       },
     },
     showDebugNavItems: {
@@ -266,18 +246,12 @@ export default {
       },
     },
   },
-  watch: {
-    zclExtensionDialogInTutorial(val) {
-      this.zclExtensionDialog = val
-    },
-  },
   data() {
     return {
       isElectron,
       isWin,
       isExpanded: false,
       globalOptionsDialog: false,
-      zclExtensionDialog: false,
       notification: '',
       generationDirectory: '',
     }

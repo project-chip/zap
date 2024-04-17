@@ -650,11 +650,6 @@ export function openReportTabInCluster(state, value) {
   state.showReportTabInCluster = value
 }
 
-// This function will open the extension modal ( this function used for vue tour )
-export function openZclExtensionsDialogForTutorial(state, value) {
-  state.openZclExtensionsDialog = value
-}
-
 // This function will set data of the endpoint that you created for showing clusters
 export function setClusterDataForTutorial(state, value) {
   state.clusterDataForTutorial = value

@@ -50,10 +50,6 @@ const routes = [
     ],
   },
   {
-    path: '/customZcl',
-    component: () => import('components/ZclCustomZclView.vue'),
-  },
-  {
     path: '/preferences/user',
     component: () => import('layouts/MainLayout.vue'),
     children: [
@@ -155,6 +151,34 @@ const routes = [
         path: '',
         components: {
           default: () => import('pages/NotificationsPage.vue'),
+          sidebar: () => import('components/ZclEndpointManager.vue'),
+        },
+      },
+    ],
+  },
+  {
+    path: '/options',
+    name: 'options',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [
+      {
+        path: '',
+        components: {
+          default: () => import('pages/OptionsPage.vue'),
+          sidebar: () => import('components/ZclEndpointManager.vue'),
+        },
+      },
+    ],
+  },
+  {
+    path: '/extensions',
+    name: 'extensions',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [
+      {
+        path: '',
+        components: {
+          default: () => import('pages/ExtensionsPage.vue'),
           sidebar: () => import('components/ZclEndpointManager.vue'),
         },
       },

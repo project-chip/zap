@@ -134,9 +134,9 @@
 <script>
 import PreferencePageLayout from '../layouts/PreferencePageLayout.vue'
 import dbEnum from '../../src-shared/db-enum'
-
 import restApi from '../../src-shared/rest-api.js'
 import commonMixin from '../util/common-mixin'
+
 export default {
   mixins: [commonMixin],
   components: {

@@ -22,7 +22,6 @@ export default function () {
     isProfileIdShown: null,
     clusterDataForTutorial: [],
     isTutorialRunning: false,
-    openZclExtensionsDialog: false,
     showReportTabInCluster: '',
     expanded: false,
     showCreateModifyEndpoint: false,

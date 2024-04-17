@@ -117,9 +117,6 @@ limitations under the License.
         <zcl-cluster-manager />
       </q-scroll-area>
     </q-page>
-    <q-dialog v-model="zclExtensionDialog" style="width: 800px">
-      <ZclExtensionDialog />
-    </q-dialog>
   </div>
 </template>
 
@@ -128,7 +125,6 @@ limitations under the License.
 //import ZclEndpointManager from '../components/ZclEndpointManager.vue'
 import ZclClusterManager from '../components/ZclClusterManager.vue'
 import InitialContent from '../components/InitialContent.vue'
-import ZclExtensionDialog from '../components/ZclCustomZclView.vue'
 
 const restApi = require('../../src-shared/rest-api.js')
 const commonUrl = require('../../src-shared/common-url.js')
@@ -266,32 +262,18 @@ export default {
         )
       },
     },
-    zclExtensionDialogInTutorial: {
-      get() {
-        return this.$store.state.zap.openZclExtensionsDialog
-      },
-    },
-  },
-  watch: {
-    zclExtensionDialogInTutorial(val) {
-      this.zclExtensionDialog = val
-    },
   },
   data() {
     return {
       isExpanded: false,
       globalOptionsDialog: false,
-      zclExtensionDialog: false,
       notification: '',
     }
   },
 
   components: {
-    //ZclGeneralOptionsBar,
-    // ZclEndpointManager,
     ZclClusterManager,
     InitialContent,
-    ZclExtensionDialog,
   },
 }
 </script>
