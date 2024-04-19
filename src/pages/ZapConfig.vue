@@ -692,10 +692,14 @@ export default {
       this.open = result.data.open
       this.currentZapFilePackages = result.data.zapFilePackages
       let currentZapFileZclPacakges = []
+      let currentTopLevelZapFilePacakges = []
       let currentZapFileTemplatePacakges = []
       let currentZclPackagesAbsolutePaths = []
       let currentTemplatePackagesAbsolutePaths = []
       if (this.currentZapFilePackages) {
+        currentTopLevelZapFilePacakges = this.currentZapFilePackages.filter(
+          (zfp) => zfp.type != dbEnum.packageType.zclXmlStandalone
+        )
         currentZapFileZclPacakges = this.currentZapFilePackages.filter(
           (zfp) => zfp.type == dbEnum.packageType.zclProperties
         )
@@ -739,6 +743,18 @@ export default {
         this.selectedZclPropertiesData = selectableTemplatePackages
         this.selectedZclGenData = selectableTemplatePackages.map((zt) => zt.id)
         this.customConfig = 'select'
+        // Do not show the config page when the packages from the .zap file are found
+        if (
+          this.selectedZclPropertiesData &&
+          this.selectedZclPropertiesData.length > 0 &&
+          this.selectedZclGenData &&
+          this.selectedZclGenData.length > 0 &&
+          this.selectedZclPropertiesData.length +
+            this.selectedZclGenData.length ==
+            currentTopLevelZapFilePacakges.length
+        ) {
+          this.submitForm()
+        }
       }
 
       result.data.sessions.forEach((item) => {
