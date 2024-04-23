@@ -338,10 +338,6 @@ export default defineComponent({
           this.$store.dispatch('zap/updateSelectedUcComponentState', resp)
         }
       )
-
-      this.$onWebSocket(dbEnum.wsCategory.dirtyFlag, (resp) => {
-        this.$store.dispatch('zap/setDirtyState', resp)
-      })
     },
     addClassToBody() {
       document.body.classList.remove('matter', 'zigbee', 'multiprotocol')
@@ -365,6 +361,11 @@ export default defineComponent({
       },
       '*'
     )
+    if (this.$onWebSocket) {
+      this.$onWebSocket(dbEnum.wsCategory.dirtyFlag, (resp) => {
+        this.$store.dispatch('zap/setDirtyState')
+      })
+    }
   },
   unmounted() {
     document.body.classList.remove('matter', 'zigbee', 'multiprotocol')
