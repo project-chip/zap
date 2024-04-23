@@ -91,6 +91,7 @@ export default {
   },
   methods: {
     startTour() {
+      this.$store.commit('zap/toggleTutorial', true)
       this.$refs['zcl-tour'].resetTour()
     },
     // This function will create a endpoint for tutorial
@@ -203,16 +204,16 @@ export default {
         this.tourEndpointId ? this.handleDeletionDialog() : ''
         this.$store.commit('zap/toggleEndpointModal', false)
       } else {
-        this.$router
-          .push('/')
-          .then(() => {})
-          .then(() => {
-            this.tourEndpointId ? this.handleDeletionDialog() : ''
-          })
+        this.$router.push('/').then(() => {
+          this.tourEndpointId ? this.handleDeletionDialog() : ''
+          this.$store.commit('zap/toggleTutorial', false)
+          this.$store.commit('zap/toggleEndpointModal', false)
+        })
       }
     },
     // This function will set isTutorialRunning to true
     startTutorialAndCloseTheEndpointModal() {
+      // Although its set to be called before the 0th step, its only getting called when coming back from the next step
       return new Promise((resolve) => {
         this.$store.commit('zap/toggleEndpointModal', false)
         this.$store.commit('zap/toggleTutorial', true)

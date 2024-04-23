@@ -32,10 +32,10 @@
       v-if="showDebugNavItems"
       id="generate"
       color="grey"
+      class="navmenu-item"
       flat
       push
       no-caps
-      class="cursor-pointer"
       @click="generateIntoDirectory(generationDirectory)"
     >
       <div class="text-center">
@@ -48,7 +48,6 @@
       color="grey"
       flat
       no-caps
-      class="cursor-pointer"
       @click="saveChanges"
       v-if="
         this.$store.state.zap.saveButtonVisible && this.$store.state.zap.isDirty
@@ -75,62 +74,69 @@
         <div>Documentation</div>
       </div>
     </q-btn>
-    <q-btn
-      id="global_options"
-      color="grey"
-      flat
-      no-caps
-      class="cursor-pointer"
-      to="/options"
-    >
-      <div class="text-center">
-        <q-icon name="o_tune" />
-        <div>Options</div>
-      </div>
-    </q-btn>
-
-    <q-btn
-      class="cursor-pointer q-py-sm v-step-16"
-      flat
-      no-caps
-      color="grey"
-      to="/extensions"
-    >
-      <div class="text-center">
-        <q-icon name="o_extension" />
-        <div>Extensions</div>
-      </div>
-    </q-btn>
-    <q-btn
-      class="cursor-pointer"
-      flat
-      no-caps
-      to="/notifications"
-      id="Notifications"
-      color="grey"
-    >
-      <div class="text-center">
-        <q-icon name="o_assignment_late" />
-        <div>
-          Notifications
-          <q-badge
-            style="top: 5px; right: 5px"
-            color="red"
-            floating
-            v-if="this.$store.state.zap.notificationCount > 0"
-          >
-            {{ this.$store.state.zap.notificationCount }}
-          </q-badge>
+    <router-link v-slot="{ isActive, navigate }" to="/options">
+      <q-btn
+        id="global_options"
+        class="navmenu-item"
+        :class="{ 'navmenu-item--active': isActive }"
+        color="grey"
+        flat
+        no-caps
+        @click="navigate"
+      >
+        <div class="text-center">
+          <q-icon name="o_tune" />
+          <div>Options</div>
         </div>
-      </div>
-    </q-btn>
+      </q-btn>
+    </router-link>
+
+    <router-link v-slot="{ isActive, navigate }" to="/extensions">
+      <q-btn
+        class="navmenu-item q-py-sm v-step-16"
+        :class="{ 'navmenu-item--active': isActive }"
+        flat
+        no-caps
+        @click="navigate"
+      >
+        <div class="text-center">
+          <q-icon name="o_extension" />
+          <div>Extensions</div>
+        </div>
+      </q-btn>
+    </router-link>
+    <router-link v-slot="{ isActive, navigate }" to="/notifications">
+      <q-btn
+        class="navmenu-item"
+        :class="{ 'navmenu-item--active': isActive }"
+        flat
+        no-caps
+        id="Notifications"
+        @click="navigate"
+      >
+        <div class="text-center">
+          <q-icon name="o_assignment_late" />
+          <div>
+            Notifications
+            <q-badge
+              style="top: 5px; right: 5px"
+              color="red"
+              floating
+              v-if="this.$store.state.zap.notificationCount > 0"
+            >
+              {{ this.$store.state.zap.notificationCount }}
+            </q-badge>
+          </div>
+        </div>
+      </q-btn>
+    </router-link>
     <q-btn
       v-if="showDebugNavItems"
-      class="cursor-pointer"
+      class="navmenu-item"
+      :class="{ 'navmenu-item--active': showPreviewTab }"
       flat
       no-caps
       id="Preview"
-      color="grey"
       @click="
         () => {
           togglePreviewTab()
@@ -147,8 +153,8 @@
       flat
       push
       no-caps
-      color="grey"
-      class="cursor-pointer"
+      class="navmenu-item"
+      :class="{ 'navmenu-item--active': isTutorialRunning }"
       @click="startTour"
       data-cy="btn-tutorial"
     >
@@ -157,20 +163,22 @@
         <div>Tutorial</div>
       </div>
     </q-btn>
-    <q-btn
-      v-if="showDebugNavItems"
-      class="cursor-pointer"
-      flat
-      no-caps
-      to="/preferences/user"
-      id="Settings"
-      color="grey"
-    >
-      <div class="text-center">
-        <q-icon name="o_settings" />
-        <div>Settings</div>
-      </div>
-    </q-btn>
+    <router-link v-slot="{ isActive, navigate }" to="/preferences/user">
+      <q-btn
+        v-if="showDebugNavItems"
+        class="navmenu-item"
+        :class="{ 'navmenu-item--active': isActive }"
+        flat
+        no-caps
+        id="Settings"
+        @click="navigate"
+      >
+        <div class="text-center">
+          <q-icon name="o_settings" />
+          <div>Settings</div>
+        </div>
+      </q-btn>
+    </router-link>
   </q-toolbar>
 </template>
 <script>
@@ -194,6 +202,12 @@ export default {
           dbEnum.sessionOption.coreSpecification
         ].length > 0
       )
+    },
+    isTutorialRunning: {
+      get() {
+        console.log('firebrava')
+        return this.$store.state.zap.isTutorialRunning
+      },
     },
     showPreviewTab: {
       get() {
@@ -342,6 +356,20 @@ export default {
 .logo-margin {
   margin-left: 75px;
 }
+.navmenu-item {
+  font-size: 10px;
+  padding: 15px 20px;
+  font-weight: 400;
+  color: $grey !important;
+}
+
+.navmenu-item:hover {
+  color: $primary !important;
+}
+.navmenu-item--active {
+  color: $primary !important;
+  background-color: $grey-4;
+}
 
 .q-btn {
   font-size: 10px;
@@ -352,9 +380,6 @@ export default {
   }
   &.disabled {
     opacity: 0.3 !important;
-  }
-  &.q-btn--active {
-    color: var(--q-primary) !important;
   }
 }
 .slide-up-enter-active,
