@@ -34,7 +34,7 @@ const uri = {
   deletePackageNotification: 'deletePackageNotification',
   duplicateEndpoint: '/duplicateEndpoint',
   duplicateEndpointType: '/duplicateEndpointType',
-  dirtyFlag: '/dirtyFlag',
+  getDirtyFlag: '/getDirtyFlag',
   option: '/option',
   uiOptions: '/uiOptions',
   commandUpdate: '/command/update',

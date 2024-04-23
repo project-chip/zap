@@ -487,6 +487,17 @@ function httpGetOption(db) {
     response.status(StatusCodes.OK).json(data)
   }
 }
+function httpGetDirtyFlag(db) {
+  return async (request, response) => {
+    let sessionUuid = request.query[restApi.param.sessionId]
+    let zapSessionId
+    if (`zapSessionId` in request.session) {
+      zapSessionId = request.session.zapSessionId[sessionUuid]
+    }
+    let dirtyFlag = await querySession.getSessionDirtyFlag(db, zapSessionId)
+    response.status(StatusCodes.OK).json(dirtyFlag)
+  }
+}
 
 /**
  * HTTP GET: ui_options
@@ -1005,6 +1016,10 @@ exports.post = [
 ]
 
 exports.get = [
+  {
+    uri: restApi.uri.getDirtyFlag,
+    callback: httpGetDirtyFlag,
+  },
   {
     uri: restApi.uri.endpointIds,
     callback: httpGetEndpointIds,
