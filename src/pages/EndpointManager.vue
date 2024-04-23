@@ -130,7 +130,6 @@ export default {
     return {
       isExpanded: false,
       globalOptionsDialog: false,
-      zclExtensionDialog: false,
       notification: '',
     }
   },

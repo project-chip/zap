@@ -30,18 +30,18 @@ import ZclCreateModifyEndpoint from '../src/components/ZclCreateModifyEndpoint.v
 import ZclDomainClusterView from '../src/components/ZclDomainClusterView.vue'
 import ZclEndpointCard from '../src/components/ZclEndpointCard.vue'
 import ZclEndpointManager from '../src/components/ZclEndpointManager.vue'
-import ZclGeneralOptionsBar from '../src/components/ZclGeneralOptionsBar.vue'
 import ZclInformationSetup from '../src/components/ZclInformationSetup.vue'
 import ZclClusterLayout from '../src/layouts/ZclClusterLayout.vue'
 import ZclConfiguratorLayout from '../src/layouts/ZclConfiguratorLayout.vue'
 import Error404 from '../src/pages/ErrorPage404.vue'
 import Preference from '../src/pages/PreferencePage.vue'
 import Notifications from '../src/pages/NotificationsPage.vue'
+import Options from '../src/pages/OptionsPage.vue'
+import Extensions from '../src/pages/ExtensionsPage'
 import PreferenceGeneration from '../src/pages/preferences/PreferenceGeneration.vue'
 import PreferenceUser from '../src/pages/preferences/PreferenceUser.vue'
 import PreferencePackage from '../src/pages/preferences/PreferencePackage.vue'
 import ZclSettings from '../src/pages/ZclSettings.vue'
-import ZclCustomZclView from '../src/components/ZclCustomZclView.vue'
 import About from '../src/pages/preferences/AboutPage.vue'
 import MainLayout from '../src/layouts/MainLayout.vue'
 
@@ -162,14 +162,14 @@ describe('Component mounting test', () => {
     timeout.short()
   )
   test(
-    'ZclGeneralOptionsBar',
+    'Options',
     () => {
-      const wrapper = shallowMount(ZclGeneralOptionsBar, {
+      const wrapper = shallowMount(Options, {
         global: {
           plugins: [ZapStore()],
         },
       })
-      expect(wrapper.html().length).toBeGreaterThan(100)
+      expect(wrapper.html().length).toBeGreaterThan(50)
     },
     timeout.short()
   )
@@ -217,7 +217,7 @@ describe('Component mounting test', () => {
           plugins: [ZapStore()],
         },
       })
-      expect(wrapper.html().length).toBeGreaterThan(100)
+      expect(wrapper.html().length).toBeGreaterThan(50)
     },
     timeout.short()
   )
@@ -306,9 +306,9 @@ describe('Component mounting test', () => {
     timeout.short()
   )
   test(
-    'ZclCustomZclView',
+    'Extensions',
     () => {
-      const wrapper = shallowMount(ZclCustomZclView, {
+      const wrapper = shallowMount(Extensions, {
         global: {
           plugins: [ZapStore()],
         },

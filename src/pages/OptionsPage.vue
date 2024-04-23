@@ -15,97 +15,96 @@ limitations under the License.
 -->
 
 <template>
-  <div style="width: 800px; max-width: 800px">
-    <q-card bordered>
-      <q-card-section>
-        <div class="text-h6">Global Options</div>
-      </q-card-section>
-      <q-separator inset />
-      <q-card-section>
-        <div>
-          <div class="q-mb-xs">Product Manufacturer</div>
-          <q-select
-            use-input
-            hide-selected
-            fill-input
-            input-debounce="0"
-            :options="mfgOptions"
-            :option-label="(item) => getMfgOptionLabel(item)"
-            @new-value="createValue"
-            @update:model-value="
-              handleOptionChange(DbEnum.sessionOption.manufacturerCodes, $event)
-            "
-            v-model="selectedManufacturerCode"
-            @filter="filterMfgCode"
-            outlined
-            dense
-            data-cy="manufacturer-name-or-code"
-            class="q-mb-sm"
-          />
+  <PreferencePageLayout>
+    <template #title>Options</template>
+    <q-card-section>
+      <div class="text-h6">Global Options</div>
+    </q-card-section>
+    <q-separator inset />
+    <q-card-section>
+      <div>
+        <div class="q-mb-xs">Product Manufacturer</div>
+        <q-select
+          use-input
+          hide-selected
+          fill-input
+          input-debounce="0"
+          :options="mfgOptions"
+          :option-label="(item) => getMfgOptionLabel(item)"
+          @new-value="createValue"
+          @update:model-value="
+            handleOptionChange(DbEnum.sessionOption.manufacturerCodes, $event)
+          "
+          v-model="selectedManufacturerCode"
+          @filter="filterMfgCode"
+          outlined
+          dense
+          data-cy="manufacturer-name-or-code"
+          class="q-mb-sm"
+        />
 
-          <div class="q-mb-xs">Default Response Policy</div>
-          <q-select
-            :options="defaultResponsePolicyOptions"
-            v-model="selectedDefaultResponsePolicy"
-            :option-label="
-              (item) => (item === null ? 'NULL' : item.optionLabel)
-            "
-            @update:model-value="
-              handleEnumeratedOptionChange(
-                DbEnum.sessionOption.defaultResponsePolicy,
-                $event
-              )
-            "
-            outlined
+        <div class="q-mb-xs">Default Response Policy</div>
+        <q-select
+          :options="defaultResponsePolicyOptions"
+          v-model="selectedDefaultResponsePolicy"
+          :option-label="(item) => (item === null ? 'NULL' : item.optionLabel)"
+          @update:model-value="
+            handleEnumeratedOptionChange(
+              DbEnum.sessionOption.defaultResponsePolicy,
+              $event
+            )
+          "
+          outlined
+          dense
+          data-cy="default-response-policy"
+          class="q-mb-sm"
+        />
+      </div>
+      <div class="row">
+        <div class="col-md q-mb-md col-sm-12">
+          <q-toggle
+            :model-value="commandDiscoverySetting == 1 ? true : false"
+            label="Enable Command Discovery"
             dense
-            data-cy="default-response-policy"
-            class="q-mb-sm"
-          />
+            left-label
+            @update:model-value="handleOptionChange('commandDiscovery', $event)"
+          >
+            <q-tooltip> Enable Command Discovery for your project</q-tooltip>
+          </q-toggle>
         </div>
-        <div class="row">
-          <div class="col-md q-mb-md col-sm-12">
-            <q-toggle
-              :model-value="commandDiscoverySetting == 1 ? true : false"
-              label="Enable Command Discovery"
-              dense
-              left-label
-              @update:model-value="
-                handleOptionChange('commandDiscovery', $event)
-              "
+        <div class="col-md q-mb-md col-sm-12">
+          <q-toggle
+            :model-value="disableComponentToggling == 1 ? false : true"
+            label="Enable Component Toggling in IDE"
+            dense
+            left-label
+            @update:model-value="
+              handleOptionChange('disableComponentToggling', !$event)
+            "
+          >
+            <q-tooltip
+              >Enable automatic toggling of components in an IDE for your
+              project</q-tooltip
             >
-              <q-tooltip> Enable Command Discovery for your project</q-tooltip>
-            </q-toggle>
-          </div>
-          <div class="col-md q-mb-md col-sm-12">
-            <q-toggle
-              :model-value="disableComponentToggling == 1 ? false : true"
-              label="Enable Component Toggling in IDE"
-              dense
-              left-label
-              @update:model-value="
-                handleOptionChange('disableComponentToggling', !$event)
-              "
-            >
-              <q-tooltip
-                >Enable automatic toggling of components in an IDE for your
-                project</q-tooltip
-              >
-            </q-toggle>
-          </div>
+          </q-toggle>
         </div>
-      </q-card-section>
-    </q-card>
-  </div>
+      </div>
+    </q-card-section>
+  </PreferencePageLayout>
 </template>
 
 <script>
 import * as DbEnum from '../../src-shared/db-enum'
 import CommonMixin from '../util/common-mixin'
+import PreferencePageLayout from '../layouts/PreferencePageLayout.vue'
 import * as Util from '../util/util'
 
 export default {
-  name: 'ZclGeneralOptionsBar',
+  name: 'OptionsPage',
   mixins: [CommonMixin],
+  components: {
+    PreferencePageLayout,
+  },
   computed: {
     DbEnum: {
       get() {

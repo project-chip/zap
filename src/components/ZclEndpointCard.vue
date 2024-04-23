@@ -540,7 +540,6 @@ export default {
     },
     $route(to, from) {
       if (from.fullPath === '/cluster' && to.fullPath === '/') {
-        console.log('most')
         this.getEndpointCardData()
       }
     },
