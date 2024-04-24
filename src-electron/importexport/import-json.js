@@ -325,11 +325,21 @@ function convertPackageResult(data) {
   }
   data.forEach((obj) => {
     if (obj == null) return null
-    if (obj.packageType == dbEnum.packageType.zclProperties) {
+    if (
+      obj.packageType == dbEnum.packageType.zclProperties &&
+      !ret.zclPackageIds.includes(obj.packageId)
+    ) {
       ret.zclPackageIds.push(obj.packageId)
-    } else if (obj.packageType == dbEnum.packageType.genTemplatesJson) {
+    } else if (
+      obj.packageType == dbEnum.packageType.genTemplatesJson &&
+      !ret.templateIds.includes(obj.packageId)
+    ) {
       ret.templateIds.push(obj.packageId)
-    } else {
+    } else if (
+      obj.packageType != dbEnum.packageType.zclProperties &&
+      obj.packageType != dbEnum.packageType.genTemplatesJson &&
+      !ret.optionalIds.includes(obj.packageId)
+    ) {
       ret.optionalIds.push(obj.packageId)
     }
   })
