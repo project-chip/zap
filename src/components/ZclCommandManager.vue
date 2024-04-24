@@ -35,7 +35,10 @@ limitations under the License.
           </q-tr>
         </template>
         <template v-slot:body="props">
-          <q-tr :props="props">
+          <q-tr
+            :props="props"
+            v-if="props.row.source === 'server' || !enableServerOnly"
+          >
             <q-td key="status" :props="props" class="q-px-none">
               <q-icon
                 v-show="displayCommandWarning(props.row)"
@@ -136,10 +139,11 @@ limitations under the License.
 <script>
 import * as Util from '../util/util.js'
 import EditableAttributesMixin from '../util/editable-attributes-mixin.js'
+import uiOptions from '../util/ui-options'
 
 export default {
   name: 'ZclCommandManager',
-  mixins: [EditableAttributesMixin],
+  mixins: [EditableAttributesMixin, uiOptions],
   computed: {
     commandData: {
       get() {

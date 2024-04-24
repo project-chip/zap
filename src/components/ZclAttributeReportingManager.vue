@@ -29,7 +29,10 @@ limitations under the License.
       data-cy="Attributes Reporting"
     >
       <template v-slot:body="props">
-        <q-tr :props="props">
+        <q-tr
+          :props="props"
+          v-if="props.row.side === 'server' || !enableServerOnly"
+        >
           <q-td key="status" :props="props" class="q-px-none">
             <q-icon
               v-show="displayAttrWarning(props.row)"
@@ -186,10 +189,11 @@ limitations under the License.
 <script>
 //This mixin derives from common-mixin.
 import EditableAttributeMixin from '../util/editable-attributes-mixin'
+import uiOptions from '../util/ui-options'
 
 export default {
   name: 'ZclAttributeReportingManager',
-  mixins: [EditableAttributeMixin],
+  mixins: [EditableAttributeMixin, uiOptions],
   computed: {
     atomics: {
       get() {
@@ -413,14 +417,20 @@ export default {
     },
     updateSelectedReporting() {
       this.attributeData.forEach((attribute) => {
-        if(attribute.reportingPolicy == "mandatory" || attribute.reportingPolicy == "suggested") {
-          let hashValue = this.hashAttributeIdClusterId(attribute.id, this.selectedCluster.id)
-          if(!this.selectedReporting.includes(hashValue)) {
+        if (
+          attribute.reportingPolicy == 'mandatory' ||
+          attribute.reportingPolicy == 'suggested'
+        ) {
+          let hashValue = this.hashAttributeIdClusterId(
+            attribute.id,
+            this.selectedCluster.id
+          )
+          if (!this.selectedReporting.includes(hashValue)) {
             this.selectedReporting.push(hashValue)
           }
         }
       })
-    }
+    },
   },
 }
 </script>
