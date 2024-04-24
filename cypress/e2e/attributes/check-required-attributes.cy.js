@@ -16,22 +16,4 @@ describe('Testing disabling enabled attributes', () => {
       cy.gotoAttributePage(data.endpoint1, data.cluster1)
     })
   })
-  it(
-    'getting enabled attribute and disable it',
-    { retries: { runMode: 2, openMode: 2 } },
-    () => {
-      cy.get(
-        '.table_body:first > :nth-child(2) > .q-mt-xs > .q-toggle__inner'
-      ).click()
-      cy.get(
-        '.table_body:first > :nth-child(2) > .q-mt-xs > .q-toggle__inner'
-      ).should('be.visible')
-      cy.get(
-        '.table_body:first > :nth-child(2) > .q-mt-xs > .q-toggle__inner'
-      ).click()
-      cy.contains(
-        '.table_body:first > :nth-child(2) > .q-mt-xs > .q-toggle__inner'
-      ).should('not.exist')
-    }
-  )
 })

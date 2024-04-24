@@ -31,7 +31,7 @@ limitations under the License.
       <template v-slot:body="props">
         <q-tr
           :props="props"
-          v-if="props.row.side === 'server' || !enableServerOnly"
+          v-show="props.row.side === 'server' || !enableServerOnly"
         >
           <q-td key="status" :props="props" class="q-px-none">
             <q-icon

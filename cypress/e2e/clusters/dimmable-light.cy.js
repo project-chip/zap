@@ -25,5 +25,21 @@ describe(
           .type(data.cluster4)
       })
     })
+    it('Enabling Client & Server', () => {
+      cy.get(
+        ':nth-child(6) > .q-field > .q-field__inner > .q-field__control'
+      ).click({ force: true })
+      cy.fixture('data').then((data) => {
+        cy.get('.q-menu').contains(data.server2).click()
+      })
+    })
+    it('Check Configuration page', () => {
+      cy.get(':nth-child(7) > .q-btn > .q-btn__content > .notranslate').click({
+        force: true,
+      })
+      cy.fixture('data').then((data) => {
+        cy.get('tr.table_body').contains(data.attribute3).should('be.visible')
+      })
+    })
   }
 )

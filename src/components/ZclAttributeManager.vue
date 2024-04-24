@@ -39,7 +39,7 @@ limitations under the License.
         <q-tr
           :props="props"
           class="table_body"
-          v-if="
+          v-show="
             (!globalLists.includes(props.row.label) &&
               props.row.side === 'server') ||
             !enableServerOnly
