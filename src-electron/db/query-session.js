@@ -681,18 +681,6 @@ async function deleteSession(db, sessionId) {
 }
 
 /**
- * Promises to delete sessions from the database when the DIRTY flag is disabled, including all the rows that have the session as a foreign key.
- *
- * @export
- * @param {*} db
- * @param {*} sessionId
- * @returns A promise of a removal of sessions.
- */
-async function deleteCleanSessions(db) {
-  return dbApi.dbRemove(db, 'DELETE FROM SESSION WHERE DIRTY = 0')
-}
-
-/**
  * Write logs to the session log.
  *
  * @param {*} db database connection

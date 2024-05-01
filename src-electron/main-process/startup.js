@@ -93,7 +93,6 @@ async function startNormal(quitFunction, argv) {
       // NOTE: this is parsed/used by Studio as the default landing page.
       console.log(httpServer.httpServerStartupMessage())
     }
-    await querySession.deleteCleanSessions(db)
     return port
   } catch (err) {
     env.logError(err)
