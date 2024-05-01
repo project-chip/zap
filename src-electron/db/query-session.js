@@ -851,4 +851,3 @@ exports.getAllSessionPartitionInfoForSession =
   getAllSessionPartitionInfoForSession
 exports.selectDeviceTypePackageInfoFromDeviceTypeId =
   selectDeviceTypePackageInfoFromDeviceTypeId
-exports.deleteCleanSessions = deleteCleanSessions

@@ -22,7 +22,6 @@ const _ = require('lodash')
 const YAML = require('yaml')
 
 const dbApi = require('../db/db-api.js')
-const querySession = require('../db/query-session')
 const dbCache = require('../db/db-cache.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const env = require('../util/env')
@@ -31,6 +30,7 @@ const httpServer = require('../server/http-server.js')
 const ipcServer = require('../server/ipc-server')
 const ipcClient = require('../client/ipc-client')
 const generatorEngine = require('../generator/generation-engine.js')
+const querySession = require('../db/query-session.js')
 const util = require('../util/util.js')
 const importJs = require('../importexport/import.js')
 const exportJs = require('../importexport/export.js')
@@ -93,6 +93,7 @@ async function startNormal(quitFunction, argv) {
       // NOTE: this is parsed/used by Studio as the default landing page.
       console.log(httpServer.httpServerStartupMessage())
     }
+
     return port
   } catch (err) {
     env.logError(err)
