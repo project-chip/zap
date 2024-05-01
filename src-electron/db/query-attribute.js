@@ -1161,6 +1161,60 @@ AND
   return rows.map(dbMapping.map.endpointTypeAttributeExtended)
 }
 
+/**
+ * Get all attributes which are related to each other and belong to certain set of packageIds
+ * @param {*} db
+ * @param {*} packageIds
+ * @returns all attributes which are related to each other and belong to certain set of packageIds
+ */
+async function selectAttributeMappingsByPackageIds(db, packageIds) {
+  let rows = await dbApi.dbAll(
+    db,
+    `
+    SELECT
+      ATTRIBUTE_MAPPING.ATTRIBUTE_MAPPING_ID,
+      ATTRIBUTE_MAPPING.ATTRIBUTE_LEFT_REF,
+      ATTRIBUTE_MAPPING.ATTRIBUTE_RIGHT_REF,
+      A1.CODE AS A1_CODE,
+      COALESCE(A1.MANUFACTURER_CODE, 0) AS A1_MANUFACTURER_CODE,
+      A2.CODE AS A2_CODE,
+      COALESCE(A2.MANUFACTURER_CODE, 0) AS A2_MANUFACTURER_CODE,
+      A1.NAME AS A1_NAME,
+      A2.NAME AS A2_NAME,
+      C1.CODE AS C1_CODE,
+      COALESCE(C1.MANUFACTURER_CODE, 0) AS C1_MANUFACTURER_CODE,
+      C1.NAME AS C1_NAME,
+      C2.CODE AS C2_CODE,
+      COALESCE(C2.MANUFACTURER_CODE, 0) AS C2_MANUFACTURER_CODE,
+      C2.NAME AS C2_NAME
+    FROM
+      ATTRIBUTE_MAPPING
+    INNER JOIN
+      ATTRIBUTE A1
+    ON
+      ATTRIBUTE_MAPPING.ATTRIBUTE_LEFT_REF = A1.ATTRIBUTE_ID
+    INNER JOIN
+      ATTRIBUTE A2
+    ON
+      ATTRIBUTE_MAPPING.ATTRIBUTE_RIGHT_REF = A2.ATTRIBUTE_ID
+    INNER JOIN
+      CLUSTER C1
+    ON
+      C1.CLUSTER_ID = A1.CLUSTER_REF
+    INNER JOIN
+      CLUSTER C2
+    ON
+      C2.CLUSTER_ID = A2.CLUSTER_REF
+    WHERE
+      A1.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
+    OR
+      A2.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
+
+    `
+  )
+  return rows.map(dbMapping.map.attributeMapping)
+}
+
 exports.selectAllAttributeDetailsFromEnabledClusters = dbCache.cacheQuery(
   selectAllAttributeDetailsFromEnabledClusters
 )
@@ -1185,3 +1239,5 @@ exports.selectEndpointTypeAttributesByEndpointTypeRefAndClusterRef =
   selectEndpointTypeAttributesByEndpointTypeRefAndClusterRef
 exports.selectTokenAttributesForEndpoint = selectTokenAttributesForEndpoint
 exports.selectAllUserTokenAttributes = selectAllUserTokenAttributes
+exports.selectAttributeMappingsByPackageIds =
+  selectAttributeMappingsByPackageIds

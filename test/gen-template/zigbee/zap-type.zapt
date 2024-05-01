@@ -58,4 +58,22 @@ typedef uint8_t {{asType parent.label}};
 {{/zcl_struct_items}}
 {{/zcl_structs}}
 
+{{#if_multi_protocol_attributes_enabled}}
+/**
+ * @brief Each attribute has its metadata stored in the struct.
+ *
+ * There is only one of these per attribute association across all endpoints.
+ */
+typedef struct {
+  sl_zigbee_af_cluster_id_t matterClusterId;
+  sl_zigbee_af_cluster_id_t matterMfgClusterId;
+  sl_matter_af_cluster_id_t zigbeeClusterId;
+  sl_matter_af_cluster_id_t zigbeeMfgClusterId; 
+  sl_matter_af_attribute_id_t matterAttributeId;
+  sl_matter_af_attribute_id_t matterMfgAttributeId;
+  sl_zigbee_af_attribute_id_t zigbeeAttributeId;
+  sl_zigbee_af_attribute_id_t zigbeeMfgAttributeId;
+} sl_zigbee_matter_af_multi_protocol_attribute_metadata_t;
+{{/if_multi_protocol_attributes_enabled}}
+
 #endif

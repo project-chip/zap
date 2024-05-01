@@ -934,6 +934,7 @@ async function deviceTypeComplianceForClusters(
           )
         for (let i = 0; i < deviceTypeClusterFeatureBitsInfo.length; i++) {
           if (
+            endpointTypeClusterFeatureMapValue &&
             endpointTypeClusterFeatureMapValue.storageOption !=
               dbEnum.storageOption.external &&
             !(
@@ -1015,6 +1016,7 @@ async function deviceTypeComplianceForClusters(
           )
         for (let i = 0; i < deviceTypeClusterFeatureBitsInfo.length; i++) {
           if (
+            endpointTypeClusterFeatureMapValue &&
             endpointTypeClusterFeatureMapValue.storageOption !=
               dbEnum.storageOption.external &&
             !(

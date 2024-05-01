@@ -138,6 +138,10 @@ async function collectDataFromJsonFile(metadataFile, data) {
     ]
   }
 
+  if ('zcl' in obj) {
+    returnObject.zcl = obj.zcl
+  }
+
   // zcl.json can contain 'fabricHandling' toplevel key. It is expected
   // to look like this:
   //  "fabricHandling": {

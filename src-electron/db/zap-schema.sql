@@ -23,7 +23,7 @@ PRAGMA foreign_keys = ON;
  PACKAGE table contains the "packages" that are the sources for the
  loading of the other data. They may be individual files, or
  collection of files, which then contain subpackages.
- 
+
  Table records the CRC of the toplevel file at the time loading.
  */
 DROP TABLE IF EXISTS "PACKAGE";
@@ -286,13 +286,26 @@ CREATE TABLE IF NOT EXISTS "ATTRIBUTE" (
   foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID) on delete cascade
   UNIQUE("CLUSTER_REF", "PACKAGE_REF", "CODE", "MANUFACTURER_CODE")
 );
+
+/*
+ATTRIBUTE MAPPING table contains associated attribute references.
+*/
+DROP TABLE IF EXISTS "ATTRIBUTE_MAPPING";
+CREATE TABLE IF NOT EXISTS "ATTRIBUTE_MAPPING" (
+  "ATTRIBUTE_MAPPING_ID" integer primary key autoincrement,
+  "ATTRIBUTE_LEFT_REF" integer,
+  "ATTRIBUTE_RIGHT_REF" integer,
+  foreign key (ATTRIBUTE_LEFT_REF) references ATTRIBUTE(ATTRIBUTE_ID) on delete cascade,
+  foreign key (ATTRIBUTE_RIGHT_REF) references ATTRIBUTE(ATTRIBUTE_ID) on delete cascade
+  UNIQUE("ATTRIBUTE_LEFT_REF", "ATTRIBUTE_RIGHT_REF")
+);
 /*
  GLOBAL_ATTRIBUTE_DEFAULT table contains default values of attributes per cluster.
  Note that for the regular attribute defaults are already provided in DEFAULT_VALUE
  column in ATTRIBUTE table. The only place where this is needed is for the global
  attributes, which have CLUSTER_REF set to null in attribute table, so you need
  a per-cluster space for different default values.
- 
+
  If a certain cluster/attribute combination does not exist in this table, the value
  should be table from ATTRIBUTE table directly.
  */
@@ -378,7 +391,7 @@ CREATE TABLE IF NOT EXISTS "FEATURE" (
   "FEATURE_ID" integer primary key autoincrement,
   "NAME" text,
   "CODE" text,
-  "BIT" integer, 
+  "BIT" integer,
   "DEFAULT_VALUE" integer,
   "DESCRIPTION" text,
   "CONFORMANCE" text,
@@ -899,7 +912,7 @@ WHEN
       DEVICE_TYPE_CLUSTER.DEVICE_TYPE_REF = ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_REF
     WHERE
       ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = new.CLUSTER_REF
-    AND 
+    AND
       ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = new.ENDPOINT_TYPE_REF
     AND
       ENDPOINT_TYPE_CLUSTER.SIDE = new.SIDE
@@ -934,7 +947,7 @@ BEGIN
         WHERE
           ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = new.ENDPOINT_TYPE_CLUSTER_ID
       ),
-      "WARNING", 
+      "WARNING",
       "⚠ Check Device Type Compliance on endpoint: "
       ||
       (
@@ -955,7 +968,7 @@ BEGIN
       )
       ||
       ", cluster: "
-      || 
+      ||
       (
         SELECT
           CLUSTER.NAME || " " || ENDPOINT_TYPE_CLUSTER.SIDE
@@ -1004,7 +1017,7 @@ WHEN
       DEVICE_TYPE_CLUSTER.DEVICE_TYPE_REF = ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_REF
     WHERE
       ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = new.CLUSTER_REF
-    AND 
+    AND
       ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = new.ENDPOINT_TYPE_REF
     AND
       ENDPOINT_TYPE_CLUSTER.SIDE = new.SIDE
@@ -1023,7 +1036,7 @@ BEGIN
     SESSION_NOTICE
   WHERE
     SESSION_REF = (
-      SELECT 
+      SELECT
         SESSION_REF
       FROM
         ENDPOINT_TYPE
@@ -1036,8 +1049,8 @@ BEGIN
     )
     AND
       NOTICE_TYPE="WARNING"
-    AND 
-      NOTICE_MESSAGE LIKE 
+    AND
+      NOTICE_MESSAGE LIKE
       (
         "⚠ Check Device Type Compliance on endpoint: "
         ||
@@ -1059,7 +1072,7 @@ BEGIN
         )
         ||
         "%, cluster: "
-        || 
+        ||
         (
           SELECT
             CLUSTER.NAME || " " || ENDPOINT_TYPE_CLUSTER.SIDE
@@ -1105,7 +1118,7 @@ WHEN
       DEVICE_TYPE_CLUSTER.DEVICE_TYPE_REF = ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_REF
     WHERE
       ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = new.CLUSTER_REF
-    AND 
+    AND
       ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = new.ENDPOINT_TYPE_REF
     AND
       ENDPOINT_TYPE_CLUSTER.SIDE = new.SIDE
@@ -1124,7 +1137,7 @@ BEGIN
     SESSION_NOTICE
   WHERE
     SESSION_REF = (
-      SELECT 
+      SELECT
         SESSION_REF
       FROM
         ENDPOINT_TYPE
@@ -1137,8 +1150,8 @@ BEGIN
     )
     AND
       NOTICE_TYPE="WARNING"
-    AND 
-      NOTICE_MESSAGE LIKE 
+    AND
+      NOTICE_MESSAGE LIKE
       (
         "⚠ Check Device Type Compliance on endpoint: "
         ||
@@ -1160,7 +1173,7 @@ BEGIN
         )
         ||
         "%, cluster: "
-        || 
+        ||
         (
           SELECT
             CLUSTER.NAME || " " || ENDPOINT_TYPE_CLUSTER.SIDE
@@ -1237,9 +1250,9 @@ WHEN
       ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_REF = DEVICE_TYPE_CLUSTER.DEVICE_TYPE_REF
     WHERE
       ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF = new.ATTRIBUTE_REF
-    AND 
+    AND
       ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF = new.ENDPOINT_TYPE_REF
-    AND 
+    AND
       ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF = new.ENDPOINT_TYPE_REF
     AND
       ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF = new.ENDPOINT_TYPE_CLUSTER_REF
@@ -1266,7 +1279,7 @@ BEGIN
         WHERE
           ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_ATTRIBUTE_ID = new.ENDPOINT_TYPE_ATTRIBUTE_ID
       ),
-      "WARNING", 
+      "WARNING",
       "⚠ Check Device Type Compliance on endpoint: "
       ||
       (
@@ -1293,7 +1306,7 @@ BEGIN
           CLUSTER.NAME
         FROM
           CLUSTER
-        INNER JOIN 
+        INNER JOIN
           ATTRIBUTE
         ON
           ATTRIBUTE.CLUSTER_REF = CLUSTER.CLUSTER_ID
@@ -1306,7 +1319,7 @@ BEGIN
       )
       ||
       ", attribute: "
-      || 
+      ||
       (
         SELECT
           ATTRIBUTE.NAME
@@ -1374,7 +1387,7 @@ BEGIN
         WHERE
           ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_ATTRIBUTE_ID = new.ENDPOINT_TYPE_ATTRIBUTE_ID
       ),
-      "WARNING", 
+      "WARNING",
       "⚠ Check Cluster Compliance on endpoint: "
       ||
       (
@@ -1401,7 +1414,7 @@ BEGIN
           CLUSTER.NAME
         FROM
           CLUSTER
-        INNER JOIN 
+        INNER JOIN
           ATTRIBUTE
         ON
           ATTRIBUTE.CLUSTER_REF = CLUSTER.CLUSTER_ID
@@ -1414,7 +1427,7 @@ BEGIN
       )
       ||
       ", mandatory attribute: "
-      || 
+      ||
       (
         SELECT
           ATTRIBUTE.NAME
@@ -1434,7 +1447,7 @@ BEGIN
       0
     );
 END;
-    
+
 
 /*
 SQL Update Trigger for Device Type attribute Compliance.
@@ -1467,9 +1480,9 @@ WHEN
       ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_REF = DEVICE_TYPE_CLUSTER.DEVICE_TYPE_REF
     WHERE
       ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF = new.ATTRIBUTE_REF
-    AND 
+    AND
       ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF = new.ENDPOINT_TYPE_REF
-    AND 
+    AND
       ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF = new.ENDPOINT_TYPE_REF
     AND
       ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF = new.ENDPOINT_TYPE_CLUSTER_REF
@@ -1480,7 +1493,7 @@ BEGIN
     SESSION_NOTICE
   WHERE
     SESSION_REF = (
-      SELECT 
+      SELECT
         SESSION_REF
       FROM
         ENDPOINT_TYPE
@@ -1493,8 +1506,8 @@ BEGIN
     )
     AND
       NOTICE_TYPE="WARNING"
-    AND 
-      NOTICE_MESSAGE LIKE 
+    AND
+      NOTICE_MESSAGE LIKE
       (
         "⚠ Check Device Type Compliance on endpoint: "
       ||
@@ -1535,7 +1548,7 @@ BEGIN
         )
         ||
         ", attribute: "
-        || 
+        ||
         (
           SELECT
             ATTRIBUTE.NAME
@@ -1583,7 +1596,7 @@ DELETE FROM
     SESSION_NOTICE
   WHERE
     SESSION_REF = (
-      SELECT 
+      SELECT
         SESSION_REF
       FROM
         ENDPOINT_TYPE
@@ -1596,8 +1609,8 @@ DELETE FROM
     )
     AND
       NOTICE_TYPE="WARNING"
-    AND 
-      NOTICE_MESSAGE LIKE 
+    AND
+      NOTICE_MESSAGE LIKE
       (
         "⚠ Check Cluster Compliance on endpoint: "
       ||
@@ -1638,7 +1651,7 @@ DELETE FROM
         )
         ||
         ", mandatory attribute: "
-        || 
+        ||
         (
           SELECT
             ATTRIBUTE.NAME
@@ -1687,9 +1700,9 @@ WHEN
       ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_REF = DEVICE_TYPE_CLUSTER.DEVICE_TYPE_REF
     WHERE
       ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF = new.ATTRIBUTE_REF
-    AND 
+    AND
       ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF = new.ENDPOINT_TYPE_REF
-    AND 
+    AND
       ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_REF = new.ENDPOINT_TYPE_REF
     AND
       ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF = new.ENDPOINT_TYPE_CLUSTER_REF
@@ -1700,7 +1713,7 @@ BEGIN
     SESSION_NOTICE
   WHERE
     SESSION_REF = (
-      SELECT 
+      SELECT
         SESSION_REF
       FROM
         ENDPOINT_TYPE
@@ -1713,8 +1726,8 @@ BEGIN
     )
     AND
       NOTICE_TYPE="WARNING"
-    AND 
-      NOTICE_MESSAGE LIKE 
+    AND
+      NOTICE_MESSAGE LIKE
       (
         "⚠ Check Device Type Compliance on endpoint: "
       ||
@@ -1755,7 +1768,7 @@ BEGIN
         )
         ||
         ", attribute: "
-        || 
+        ||
         (
           SELECT
             ATTRIBUTE.NAME
@@ -1805,7 +1818,7 @@ DELETE FROM
     SESSION_NOTICE
   WHERE
     SESSION_REF = (
-      SELECT 
+      SELECT
         SESSION_REF
       FROM
         ENDPOINT_TYPE
@@ -1818,8 +1831,8 @@ DELETE FROM
     )
     AND
       NOTICE_TYPE="WARNING"
-    AND 
-      NOTICE_MESSAGE LIKE 
+    AND
+      NOTICE_MESSAGE LIKE
       (
         "⚠ Check Cluster Compliance on endpoint: "
       ||
@@ -1860,7 +1873,7 @@ DELETE FROM
         )
         ||
         ", mandatory attribute: "
-        || 
+        ||
         (
           SELECT
             ATTRIBUTE.NAME
@@ -1936,7 +1949,7 @@ WHEN
       ENDPOINT_TYPE_COMMAND.COMMAND_REF = new.COMMAND_REF
     AND
       ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF = new.ENDPOINT_TYPE_REF
-    AND 
+    AND
       ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF = new.ENDPOINT_TYPE_REF
     AND
       ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_CLUSTER_REF = new.ENDPOINT_TYPE_CLUSTER_REF
@@ -1967,7 +1980,7 @@ BEGIN
         WHERE
           ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_COMMAND_ID = new.ENDPOINT_TYPE_COMMAND_ID
       ),
-      "WARNING", 
+      "WARNING",
       "⚠ Check Device Type Compliance on endpoint: "
       ||
       (
@@ -1988,13 +2001,13 @@ BEGIN
       )
       ||
       ", cluster: "
-      || 
+      ||
       (
         SELECT
           CLUSTER.NAME || " " || ENDPOINT_TYPE_CLUSTER.SIDE
         FROM
           CLUSTER
-        INNER JOIN 
+        INNER JOIN
           COMMAND
         ON
           COMMAND.CLUSTER_REF = CLUSTER.CLUSTER_ID
@@ -2012,7 +2025,7 @@ BEGIN
       )
       ||
       ", command: "
-      || 
+      ||
       (
         SELECT
           COMMAND.NAME || " " || CASE WHEN ENDPOINT_TYPE_COMMAND.IS_INCOMING THEN "incoming" ELSE "outgoing" END
@@ -2086,7 +2099,7 @@ BEGIN
         WHERE
           ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_COMMAND_ID = new.ENDPOINT_TYPE_COMMAND_ID
       ),
-      "WARNING", 
+      "WARNING",
       "⚠ Check Cluster Compliance on endpoint: "
       ||
       (
@@ -2107,13 +2120,13 @@ BEGIN
       )
       ||
       ", cluster: "
-      || 
+      ||
       (
         SELECT
           CLUSTER.NAME || " " || ENDPOINT_TYPE_CLUSTER.SIDE
         FROM
           CLUSTER
-        INNER JOIN 
+        INNER JOIN
           COMMAND
         ON
           COMMAND.CLUSTER_REF = CLUSTER.CLUSTER_ID
@@ -2131,7 +2144,7 @@ BEGIN
       )
       ||
       ", mandatory command: "
-      || 
+      ||
       (
         SELECT
           COMMAND.NAME || " " || CASE WHEN ENDPOINT_TYPE_COMMAND.IS_INCOMING THEN "incoming" ELSE "outgoing" END
@@ -2187,7 +2200,7 @@ WHEN
       ENDPOINT_TYPE_COMMAND.COMMAND_REF = new.COMMAND_REF
     AND
       ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF = new.ENDPOINT_TYPE_REF
-    AND 
+    AND
       ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF = new.ENDPOINT_TYPE_REF
     AND
       ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_CLUSTER_REF = new.ENDPOINT_TYPE_CLUSTER_REF
@@ -2200,7 +2213,7 @@ BEGIN
     SESSION_NOTICE
   WHERE
     SESSION_REF = (
-      SELECT 
+      SELECT
         SESSION_REF
       FROM
         ENDPOINT_TYPE
@@ -2213,8 +2226,8 @@ BEGIN
     )
     AND
       NOTICE_TYPE="WARNING"
-    AND 
-      NOTICE_MESSAGE LIKE 
+    AND
+      NOTICE_MESSAGE LIKE
       (
         "⚠ Check Device Type Compliance on endpoint: "
         ||
@@ -2236,13 +2249,13 @@ BEGIN
         )
         ||
         "%, cluster: "
-        || 
+        ||
         (
           SELECT
             CLUSTER.NAME || " " || ENDPOINT_TYPE_CLUSTER.SIDE
           FROM
             CLUSTER
-          INNER JOIN 
+          INNER JOIN
             COMMAND
           ON
             COMMAND.CLUSTER_REF = CLUSTER.CLUSTER_ID
@@ -2260,7 +2273,7 @@ BEGIN
         )
         ||
         ", command: "
-        || 
+        ||
         (
           SELECT
             COMMAND.NAME || " " || CASE WHEN ENDPOINT_TYPE_COMMAND.IS_INCOMING THEN "incoming" ELSE "outgoing" END
@@ -2309,7 +2322,7 @@ BEGIN
     SESSION_NOTICE
   WHERE
     SESSION_REF = (
-      SELECT 
+      SELECT
         SESSION_REF
       FROM
         ENDPOINT_TYPE
@@ -2322,8 +2335,8 @@ BEGIN
     )
     AND
       NOTICE_TYPE="WARNING"
-    AND 
-      NOTICE_MESSAGE LIKE 
+    AND
+      NOTICE_MESSAGE LIKE
       (
         "⚠ Check Cluster Compliance on endpoint: "
         ||
@@ -2345,13 +2358,13 @@ BEGIN
         )
         ||
         "%, cluster: "
-        || 
+        ||
         (
           SELECT
             CLUSTER.NAME || " " || ENDPOINT_TYPE_CLUSTER.SIDE
           FROM
             CLUSTER
-          INNER JOIN 
+          INNER JOIN
             COMMAND
           ON
             COMMAND.CLUSTER_REF = CLUSTER.CLUSTER_ID
@@ -2369,7 +2382,7 @@ BEGIN
         )
         ||
         ", mandatory command: "
-        || 
+        ||
         (
           SELECT
             COMMAND.NAME || " " || CASE WHEN ENDPOINT_TYPE_COMMAND.IS_INCOMING THEN "incoming" ELSE "outgoing" END
@@ -2422,7 +2435,7 @@ WHEN
       ENDPOINT_TYPE_COMMAND.COMMAND_REF = new.COMMAND_REF
     AND
       ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF = new.ENDPOINT_TYPE_REF
-    AND 
+    AND
       ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_REF = new.ENDPOINT_TYPE_REF
     AND
       ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_CLUSTER_REF = new.ENDPOINT_TYPE_CLUSTER_REF
@@ -2435,7 +2448,7 @@ BEGIN
     SESSION_NOTICE
   WHERE
     SESSION_REF = (
-      SELECT 
+      SELECT
         SESSION_REF
       FROM
         ENDPOINT_TYPE
@@ -2448,7 +2461,7 @@ BEGIN
     )
     AND
       NOTICE_TYPE="WARNING"
-    AND 
+    AND
       NOTICE_MESSAGE LIKE
       (
         "⚠ Check Device Type Compliance on endpoint: "
@@ -2471,13 +2484,13 @@ BEGIN
         )
         ||
         "%, cluster: "
-        || 
+        ||
         (
           SELECT
             CLUSTER.NAME || " " || ENDPOINT_TYPE_CLUSTER.SIDE
           FROM
             CLUSTER
-          INNER JOIN 
+          INNER JOIN
             COMMAND
           ON
             COMMAND.CLUSTER_REF = CLUSTER.CLUSTER_ID
@@ -2495,7 +2508,7 @@ BEGIN
         )
         ||
         ", command: "
-        || 
+        ||
         (
           SELECT
             COMMAND.NAME || " " || CASE WHEN ENDPOINT_TYPE_COMMAND.IS_INCOMING THEN "incoming" ELSE "outgoing" END
@@ -2546,7 +2559,7 @@ BEGIN
     SESSION_NOTICE
   WHERE
     SESSION_REF = (
-      SELECT 
+      SELECT
         SESSION_REF
       FROM
         ENDPOINT_TYPE
@@ -2559,8 +2572,8 @@ BEGIN
     )
     AND
       NOTICE_TYPE="WARNING"
-    AND 
-      NOTICE_MESSAGE LIKE 
+    AND
+      NOTICE_MESSAGE LIKE
       (
         "⚠ Check Cluster Compliance on endpoint: "
         ||
@@ -2582,13 +2595,13 @@ BEGIN
         )
         ||
         "%, cluster: "
-        || 
+        ||
         (
           SELECT
             CLUSTER.NAME || " " || ENDPOINT_TYPE_CLUSTER.SIDE
           FROM
             CLUSTER
-          INNER JOIN 
+          INNER JOIN
             COMMAND
           ON
             COMMAND.CLUSTER_REF = CLUSTER.CLUSTER_ID
@@ -2606,7 +2619,7 @@ BEGIN
         )
         ||
         ", mandatory command: "
-        || 
+        ||
         (
           SELECT
             COMMAND.NAME || " " || CASE WHEN ENDPOINT_TYPE_COMMAND.IS_INCOMING THEN "incoming" ELSE "outgoing" END

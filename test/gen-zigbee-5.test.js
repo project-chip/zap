@@ -192,6 +192,14 @@ test(
     expect(cfgVer3).toContain('{ 46, 0x1002 },')
     expect(cfgVer3).toContain('{ 51, 0x1049 },')
     expect(cfgVer3).toContain('{ 52, 0x1049 },')
+
+    // Making sure that the multi-protocol config is not generated for zigbee only generation
+    expect(cfgVer3).not.toContain(
+      '#define GENERATED_MULTI_PROTOCOL_ATTRIBUTE_MAPPING'
+    )
+    expect(cfgVer3).not.toContain('{ 6, 0, 6, 0, 0, 0, 0, 0 },')
+    expect(cfgVer3).not.toContain('{ 8, 0, 8, 0, 0, 0, 0, 0 },')
+    expect(cfgVer3).not.toContain('{ 8, 0, 8, 0, 1, 0, 1, 0 },')
   },
   testUtil.timeout.long()
 )

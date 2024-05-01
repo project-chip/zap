@@ -154,6 +154,14 @@ test(
       '{ 0x0000FFFD, ZAP_TYPE(INT16U), 2, ZAP_ATTRIBUTE_MASK(EXTERNAL_STORAGE), ZAP_EMPTY_DEFAULT() }, /* ClusterRevision */'
     )
 
+    // Test Multi-protocol attribute mapping generation
+    expect(zigbeeEndpointConfigGen).toContain(
+      '#define GENERATED_MULTI_PROTOCOL_ATTRIBUTE_MAPPING'
+    )
+    expect(zigbeeEndpointConfigGen).toContain('{ 6, 0, 6, 0, 0, 0, 0, 0 },')
+    expect(zigbeeEndpointConfigGen).toContain('{ 8, 0, 8, 0, 0, 0, 0, 0 },')
+    expect(zigbeeEndpointConfigGen).toContain('{ 8, 0, 8, 0, 1, 0, 1, 0 },')
+
     // Notifications test when opening multi-protocol zap file
     let sessionNotifications = await querySessionNotice.getNotification(
       db,
