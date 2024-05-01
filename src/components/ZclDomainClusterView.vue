@@ -180,7 +180,11 @@ limitations under the License.
               class="v-step-9"
               :color="isClusterEnabled(props.row.id) ? 'primary' : 'grey'"
               dense
-              :disable="!isClusterEnabled(props.row.id)"
+              :disable="
+                !isClusterEnabled(props.row.id) ||
+                (this.enableServerOnly &&
+                  this.getClusterEnabledStatus(props.row.id) === 'Client')
+              "
               icon="o_settings"
               @click="selectCluster(props.row)"
               to="/cluster"
@@ -233,21 +237,6 @@ export default {
   props: ['domainName', 'clusters'],
   mixins: [CommonMixin, uiOptions],
   computed: {
-    clusterSelectionOptions() {
-      if (this.enableServerOnly) {
-        return [
-          { label: 'Not Enabled', client: false, server: false },
-          { label: 'Server', client: false, server: true },
-        ]
-      } else {
-        return [
-          { label: 'Not Enabled', client: false, server: false },
-          { label: 'Client', client: true, server: false },
-          { label: 'Server', client: false, server: true },
-          { label: 'Client & Server', client: true, server: true },
-        ]
-      }
-    },
     showStatus: {
       get() {
         return !this.$store.state.zap.standalone
@@ -540,6 +529,12 @@ export default {
       ZclClusterRole,
       showEnableAllClustersDialog: false,
       uc_label: 'uc label',
+      clusterSelectionOptions: [
+        { label: 'Not Enabled', client: false, server: false },
+        { label: 'Client', client: true, server: false },
+        { label: 'Server', client: false, server: true },
+        { label: 'Client & Server', client: true, server: true },
+      ],
       columns: [
         {
           name: 'status',
