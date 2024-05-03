@@ -128,6 +128,27 @@ exports.map = {
     }
   },
 
+  attributeMapping: (x) => {
+    if (x == null) return undefined
+    return {
+      attributeMappingId: x.ATTRIBUTE_MAPPING_ID,
+      attributeRef1: x.ATTRIBUTE_LEFT_REF,
+      attributeRef2: x.ATTRIBUTE_RIGHT_REF,
+      attributeCode1: x.A1_CODE,
+      attributeMfgCode1: x.A1_MANUFACTURER_CODE,
+      attributeCode2: x.A2_CODE,
+      attributeMfgCode2: x.A2_MANUFACTURER_CODE,
+      attributeName1: x.A1_NAME,
+      attributeName2: x.A2_NAME,
+      clusterCode1: x.C1_CODE,
+      clusterMfgCode1: x.C1_MANUFACTURER_CODE,
+      clusterCode2: x.C2_CODE,
+      clusterMfgCode2: x.C2_MANUFACTURER_CODE,
+      clusterName1: x.C1_NAME,
+      clusterName2: x.C2_NAME,
+    }
+  },
+
   eventField: (x) => {
     if (x == null) return undefined
     return {

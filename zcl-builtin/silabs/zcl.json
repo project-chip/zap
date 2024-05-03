@@ -57,5 +57,15 @@
   "ZCLDataTypes": ["ARRAY", "BITMAP", "ENUM", "NUMBER", "STRING", "STRUCT"],
   "uiOptions": {
     "showProfileId": true
+  },
+  "zcl": {
+    "multiProtocol": {
+      "category": ["zigbee", "matter"],
+      "type": "boolean",
+      "configurability": "hidden",
+      "globalDefault": false,
+      "label": "List of clusters and attributes associated across protocols",
+      "defaults": "multi-protocol.json"
+    }
   }
 }

@@ -383,6 +383,49 @@ async function insertAttributes(db, packageId, attributes) {
   }
 }
 
+/**
+ * Load the attribute mapping table with associated attributes
+ * @param {*} db
+ * @param {*} data
+ * @returns attribute mapping ids of the associated attributes
+ */
+async function insertAttributeMappings(db, data) {
+  let selectAttributeIdQuery = `
+  (SELECT
+    ATTRIBUTE_ID
+  FROM
+    ATTRIBUTE
+  INNER JOIN
+    CLUSTER
+  ON
+    ATTRIBUTE.CLUSTER_REF = CLUSTER.CLUSTER_ID
+  WHERE
+    ATTRIBUTE.CODE = ?
+  AND
+    (ATTRIBUTE.MANUFACTURER_CODE = ? OR ATTRIBUTE.MANUFACTURER_CODE IS NULL)
+  AND
+    CLUSTER.CODE = ?
+  AND
+    (CLUSTER.MANUFACTURER_CODE = ? OR CLUSTER.MANUFACTURER_CODE IS NULL)
+  AND
+    ATTRIBUTE.PACKAGE_REF = ?
+  AND
+    CLUSTER.PACKAGE_REF = ?)
+  `
+
+  // Using insert or replace to cover the use case for updated attribute mappings in a file
+  return dbApi.dbMultiInsert(
+    db,
+    `
+    INSERT OR REPLACE INTO
+      ATTRIBUTE_MAPPING (ATTRIBUTE_LEFT_REF, ATTRIBUTE_RIGHT_REF)
+    VALUES
+      (${selectAttributeIdQuery}, ${selectAttributeIdQuery})
+    `,
+    data
+  )
+}
+
 async function insertEvents(db, packageId, events) {
   let data = events.data
   let fieldData = events.fields
@@ -1932,3 +1975,4 @@ exports.insertBitmapFields = insertBitmapFields
 exports.insertStruct = insertStruct
 exports.insertStructItems = insertStructItems
 exports.updateDataTypeClusterReferences = updateDataTypeClusterReferences
+exports.insertAttributeMappings = insertAttributeMappings
