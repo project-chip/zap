@@ -64,7 +64,7 @@ function backslash() {
  * @param {*} category
  * @param {*} options
  */
-function template_options(options) {
+async function template_options(options) {
   return templateUtil
     .ensureTemplatePackageId(this)
     .then((packageId) =>
@@ -161,7 +161,7 @@ function middle(options) {
  * @param {*} options
  * @param {*} key
  */
-function template_option_with_code(options, key) {
+async function template_option_with_code(options, key) {
   return templateUtil
     .ensureTemplatePackageId(this)
     .then((packageId) =>
