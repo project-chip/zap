@@ -39,9 +39,18 @@ const queryDeviceType = require('../db/query-device-type.js')
  *
  * @param {*} options
  */
-function user_endpoints(options) {
+async function user_endpoints(options) {
+  let packageInfo = await templateUtil
+    .ensureTemplatePackageId(this)
+    .then((packageId) =>
+      queryPackage.getPackageByPackageId(this.global.db, packageId)
+    )
+  let packageInfoCategory = packageInfo.category
   let promise = Promise.all([
-    queryImpexp.exportEndpointTypes(this.global.db, this.global.sessionId),
+    queryEndpointType.selectAllEndpointTypes(
+      this.global.db,
+      this.global.sessionId
+    ),
     templateUtil
       .ensureEndpointTypeIds(this)
       .then((endpointTypes) =>
@@ -61,8 +70,9 @@ function user_endpoints(options) {
           endpointTypes.forEach(
             (ept) =>
               (endpointTypeMap[ept.endpointTypeId] = {
-                deviceVersions: ept.deviceVersions,
-                deviceIdentifiers: ept.deviceIdentifiers,
+                deviceVersions: ept.deviceVersion,
+                deviceIdentifiers: ept.deviceIdentifier,
+                deviceCategories: ept.deviceCategory,
               })
           )
           // Adding device Identifiers and versions to endpoints from endpoint types
@@ -71,9 +81,21 @@ function user_endpoints(options) {
               endpointTypeMap[ep.endpointTypeRef].deviceIdentifiers
             ep.endpointVersion =
               endpointTypeMap[ep.endpointTypeRef].deviceVersions
+            ep.endpointCategories =
+              endpointTypeMap[ep.endpointTypeRef].deviceCategories
           })
           resolve(endpoints)
         })
+    )
+    .then((endpoints) =>
+      packageInfoCategory
+        ? endpoints.filter(
+            (ep) =>
+              ep.endpointCategories.includes(packageInfoCategory) ||
+              ep.endpointCategories.includes(undefined) ||
+              ep.endpointCategories.includes(null)
+          )
+        : endpoints
     )
     .then((endpoints) =>
       endpoints.map((x) => {
@@ -108,8 +130,8 @@ async function user_device_types(options) {
  * @param {*} options
  */
 function user_endpoint_types(options) {
-  let promise = queryImpexp
-    .exportEndpointTypes(this.global.db, this.global.sessionId)
+  let promise = queryEndpointType
+    .selectAllEndpointTypes(this.global.db, this.global.sessionId)
     .then((endpointTypes) =>
       templateUtil.collectBlocks(endpointTypes, options, this)
     )
