@@ -76,9 +76,15 @@ WHERE SESSION_PARTITION.SESSION_REF = ? ORDER BY NAME`,
         DEVICE_TYPE.CODE,
         DEVICE_TYPE.NAME,
         DEVICE_TYPE.PROFILE_ID,
-        ENDPOINT_TYPE_DEVICE.DEVICE_VERSION
+        ENDPOINT_TYPE_DEVICE.DEVICE_VERSION,
+        PACKAGE.CATEGORY,
+        PACKAGE.PACKAGE_ID
       FROM
+        PACKAGE
+      INNER JOIN
         DEVICE_TYPE
+      ON
+        DEVICE_TYPE.PACKAGE_REF = PACKAGE.PACKAGE_ID
       LEFT JOIN
         ENDPOINT_TYPE_DEVICE
       ON
@@ -104,6 +110,10 @@ WHERE SESSION_PARTITION.SESSION_REF = ? ORDER BY NAME`,
     et.deviceTypeRef = rows.map((x) => x.DEVICE_TYPE_ID)
     et.deviceVersion = rows.map((x) => x.DEVICE_VERSION)
     et.deviceIdentifier = rows.map((x) => x.CODE)
+    et.deviceCategory = rows.map((x) => x.CATEGORY)
+    et.devicePackageRef = rows.map((x) => x.PACKAGE_ID)
+    et.deviceTypeName = rows && rows.length > 0 ? rows[0].NAME : undefined // Getting the first one for backwards compatibility
+    et.deviceTypeCode = rows && rows.length > 0 ? rows[0].CODE : undefined // Getting the first one for backwards compatibility
   }
   return endpointTypes
 }

@@ -16,6 +16,7 @@
  */
 
 const fs = require('fs')
+const fsPromise = fs.promises
 const path = require('path')
 const queryPackage = require('../db/query-package')
 const queryCommand = require('../db/query-command')
@@ -26,6 +27,8 @@ const dLoad = require('./zcl-loader-dotdot')
 const queryZcl = require('../db/query-zcl')
 const queryDeviceType = require('../db/query-device-type')
 const env = require('../util/env')
+const types = require('../util/types')
+const util = require('../util/util')
 const queryNotification = require('../db/query-session-notification')
 
 /**
@@ -62,6 +65,115 @@ async function recordVersion(db, packageId, version, category, description) {
 }
 
 /**
+ * Retrieve zcl package information
+ * @param {*} db
+ * @param {*} metadataFile
+ * @param {*} options
+ * @returns package zcl package information
+ */
+async function loadZclMetaFilesCommon(db, metadataFile, options) {
+  try {
+    let ctx = await loadZcl(db, metadataFile)
+    return {
+      packageId: ctx.packageId,
+      multiProtocolInfo: ctx.zcl ? ctx.zcl.multiProtocol : null,
+      category: ctx.category,
+      parentFile: metadataFile,
+    }
+  } catch (err) {
+    if (options.failOnLoadingError) throw err
+  }
+}
+
+/**
+ * Load attribute mapping table if there is multi-protocol information from a json file.
+ * @param {*} db
+ * @param {*} multiProtcolInfo
+ * @param {*} categoryToPackageIdMap
+ */
+async function loadAttributeMappingForMultiProtocol(
+  db,
+  multiProtcolInfo,
+  categoryToPackageIdMap
+) {
+  let attributeMapRes = []
+  for (const mi of multiProtcolInfo) {
+    let resolvedMetafile = path.resolve(mi.parentFile)
+    let metaDataDir = path.dirname(resolvedMetafile)
+    let multiProtocolFileName = path.join(
+      metaDataDir,
+      mi.multiProtocolInfo.defaults
+    )
+    // Check if this package exists in the db. Add it to package table if it does not exist
+    let pkgInfo = await queryPackage.getPackageByPathAndType(
+      db,
+      multiProtocolFileName,
+      dbEnum.packageType.jsonExtension
+    )
+    let multiProtocolData = await fsPromise.readFile(
+      multiProtocolFileName,
+      'utf8'
+    )
+    let actualMultiProtocolFileCrc = util.checksum(multiProtocolData)
+    if (!pkgInfo) {
+      await queryPackage.insertPathCrc(
+        db,
+        multiProtocolFileName,
+        actualMultiProtocolFileCrc,
+        dbEnum.packageType.jsonExtension,
+        mi.packageId,
+        null,
+        mi.category
+      )
+    } else if (pkgInfo.crc == actualMultiProtocolFileCrc) {
+      // No need to load the file again if already loaded once
+      continue
+    }
+    let multiProtocolJsonInfo = JSON.parse(multiProtocolData)
+    let jsonFileCategories = multiProtocolJsonInfo.categories
+    let clusterInfo = multiProtocolJsonInfo.clusters
+    if (clusterInfo && clusterInfo.length > 0) {
+      for (const ci of clusterInfo) {
+        let attributeInfo = ci.attributes
+        if (attributeInfo && attributeInfo.length > 0) {
+          for (const ai of attributeInfo) {
+            let attributeMapEntry = []
+            for (const category of jsonFileCategories) {
+              if (ai[category]) {
+                attributeMapEntry.push(
+                  ai[category].code
+                    ? types.hexStringToInt(ai[category].code)
+                    : null
+                )
+                attributeMapEntry.push(
+                  ai[category].manufacturerCode
+                    ? types.hexStringToInt(ai[category].manufacturerCode)
+                    : null
+                )
+                attributeMapEntry.push(
+                  ci[category].code
+                    ? types.hexStringToInt(ci[category].code)
+                    : null
+                )
+                attributeMapEntry.push(
+                  ci[category].manufacturerCode
+                    ? types.hexStringToInt(ci[category].manufacturerCode)
+                    : null
+                )
+                attributeMapEntry.push(categoryToPackageIdMap[category])
+                attributeMapEntry.push(categoryToPackageIdMap[category])
+              }
+            }
+            attributeMapRes.push(attributeMapEntry)
+          }
+        }
+      }
+    }
+  }
+  await queryLoader.insertAttributeMappings(db, attributeMapRes)
+}
+
+/**
  * Toplevel function that loads the zcl file and passes it off to the correct zcl loader.
  *
  * @export
@@ -77,22 +189,29 @@ async function loadZclMetafiles(
   }
 ) {
   let packageIds = []
+  let multiProtcolInfo = []
+  let categoryToPackageIdMap = {}
   if (Array.isArray(metadataFiles)) {
     for (let f of metadataFiles) {
-      try {
-        let ctx = await loadZcl(db, f)
-        packageIds.push(ctx.packageId)
-      } catch (err) {
-        if (options.failOnLoadingError) throw err
+      let metaInfo = await loadZclMetaFilesCommon(db, f, options)
+      categoryToPackageIdMap[metaInfo.category] = metaInfo.packageId
+      packageIds.push(metaInfo.packageId)
+      if (metaInfo.multiProtocolInfo) {
+        multiProtcolInfo.push(metaInfo)
       }
     }
   } else {
-    try {
-      let ctx = await loadZcl(db, metadataFiles)
-      packageIds.push(ctx.packageId)
-    } catch (err) {
-      if (options.failOnLoadingError) throw err
-    }
+    let metaInfo = await loadZclMetaFilesCommon(db, metadataFiles, options)
+    packageIds.push(metaInfo.packageId)
+  }
+
+  // Check for attributeMapping for multi-protocol use case.
+  if (multiProtcolInfo.length > 0) {
+    await loadAttributeMappingForMultiProtocol(
+      db,
+      multiProtcolInfo,
+      categoryToPackageIdMap
+    )
   }
   return packageIds
 }

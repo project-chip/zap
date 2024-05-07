@@ -294,5 +294,13 @@
 #define EMBER_AF_SUPPORT_COMMAND_DISCOVERY
 {{/if_command_discovery_enabled}}
 
+{{#if_multi_protocol_attributes_enabled}}
+#define GENERATED_MULTI_PROTOCOL_ATTRIBUTE_MAPPING
+{
+  {{#all_multi_protocol_attributes}}
+  { {{clusterCode1}}, {{clusterMfgCode1}}, {{clusterCode2}}, {{clusterMfgCode2}}, {{attributeCode1}}, {{attributeMfgCode1}}, {{attributeCode2}}, {{attributeMfgCode2}} },
+  {{/all_multi_protocol_attributes}}
+}
+{{/if_multi_protocol_attributes_enabled}}
 
 #endif // SILABS_AF_ENDPOINT_CONFIG

@@ -1116,3 +1116,4 @@ exports.insertSessionKeyValuesFromPackageDefaults =
   insertSessionKeyValuesFromPackageDefaults
 exports.getPackagesByCategoryAndType = getPackagesByCategoryAndType
 exports.getPackagesByPackageIds = getPackagesByPackageIds
+exports.getPackageByPathAndType = getPackageByPathAndType

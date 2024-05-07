@@ -206,6 +206,8 @@ async function ensureZclPackageIds(context) {
 async function ensureTemplatePackageId(context) {
   if ('templatePackageId' in context.global) {
     return context.global.templatePackageId
+  } else if ('genTemplatePackageId' in context.global) {
+    return context.global.genTemplatePackageId
   } else {
     let pkgs = await queryPackage.getSessionPackagesByType(
       context.global.db,

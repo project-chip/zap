@@ -72,6 +72,6 @@ export default {
     this.enableMultipleDevice = enableMatterFeatures
     this.enablePrimaryDevice = enableMatterFeatures
     this.enableParentEndpoint = enableMatterFeatures
-    this.enableServerOnly = enableMatterFeatures
+    this.enableServerOnly = enableMatterFeatures & !enableZigbeeFeatures
   },
 }

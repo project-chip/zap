@@ -4,7 +4,7 @@
   "description": "Graphical configuration tool for application and libraries based on Zigbee Cluster Library.",
   "path": [".", "node_modules/.bin/", "ZAP.app/Contents/MacOS"],
   "requiredFeatureLevel": "apack.core:9",
-  "featureLevel": 102,
+  "featureLevel": 103,
   "uc.triggerExtension": "zap",
   "executable": {
     "zap:win32.x86_64": {
@@ -61,7 +61,7 @@
       "cmd": "$(zap-cli) --version"
     },
     "uc_generate": {
-      "cmd": "$(zap-cli) generate --noUi --noServer -o ${generationOutput} --packageMatch fuzzy --zcl ${sdkRoot}/app/zcl/zcl-zap.json --zcl ${sdkRoot}/extension/matter_extension/src/app/zap-templates/zcl/zcl.json --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json --generationTemplate ${sdkRoot}/extension/matter_extension/src/app/zap-templates/app-templates.json --in ${contentFolder} --noLoadingFailure --appendGenerationSubdirectory"
+      "cmd": "$(zap-cli) generate --noUi --noServer -o ${generationOutput} --packageMatch fuzzy --zcl ${sdkRoot}/app/zcl/zcl-zap.json --zcl ${sdkRoot}/extension/matter_extension/src/app/zap-templates/zcl/zcl.json --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json --generationTemplate ${sdkRoot}/extension/matter_extension/src/app/zap-templates/app-templates.json --in ${contentFolder} --noLoadingFailure --appendGenerationSubdirectory --tempState"
     },
     "uc_upgrade": {
       "cmd": "$(zap-cli) convert  --results ${results} --noop"

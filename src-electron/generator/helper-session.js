@@ -28,6 +28,7 @@ const queryCommand = require('../db/query-command.js')
 const queryAttribute = require('../db/query-attribute.js')
 const queryConfig = require('../db/query-config.js')
 const querySession = require('../db/query-session.js')
+const queryPackage = require('../db/query-package.js')
 const helperZcl = require('./helper-zcl.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const iteratorUtil = require('../util/iterator-util.js')
@@ -38,9 +39,18 @@ const queryDeviceType = require('../db/query-device-type.js')
  *
  * @param {*} options
  */
-function user_endpoints(options) {
+async function user_endpoints(options) {
+  let packageInfo = await templateUtil
+    .ensureTemplatePackageId(this)
+    .then((packageId) =>
+      queryPackage.getPackageByPackageId(this.global.db, packageId)
+    )
+  let packageInfoCategory = packageInfo.category
   let promise = Promise.all([
-    queryImpexp.exportEndpointTypes(this.global.db, this.global.sessionId),
+    queryEndpointType.selectAllEndpointTypes(
+      this.global.db,
+      this.global.sessionId
+    ),
     templateUtil
       .ensureEndpointTypeIds(this)
       .then((endpointTypes) =>
@@ -60,8 +70,9 @@ function user_endpoints(options) {
           endpointTypes.forEach(
             (ept) =>
               (endpointTypeMap[ept.endpointTypeId] = {
-                deviceVersions: ept.deviceVersions,
-                deviceIdentifiers: ept.deviceIdentifiers,
+                deviceVersions: ept.deviceVersion,
+                deviceIdentifiers: ept.deviceIdentifier,
+                deviceCategories: ept.deviceCategory,
               })
           )
           // Adding device Identifiers and versions to endpoints from endpoint types
@@ -70,9 +81,21 @@ function user_endpoints(options) {
               endpointTypeMap[ep.endpointTypeRef].deviceIdentifiers
             ep.endpointVersion =
               endpointTypeMap[ep.endpointTypeRef].deviceVersions
+            ep.endpointCategories =
+              endpointTypeMap[ep.endpointTypeRef].deviceCategories
           })
           resolve(endpoints)
         })
+    )
+    .then((endpoints) =>
+      packageInfoCategory
+        ? endpoints.filter(
+            (ep) =>
+              ep.endpointCategories.includes(packageInfoCategory) ||
+              ep.endpointCategories.includes(undefined) ||
+              ep.endpointCategories.includes(null)
+          )
+        : endpoints
     )
     .then((endpoints) =>
       endpoints.map((x) => {
@@ -107,8 +130,8 @@ async function user_device_types(options) {
  * @param {*} options
  */
 function user_endpoint_types(options) {
-  let promise = queryImpexp
-    .exportEndpointTypes(this.global.db, this.global.sessionId)
+  let promise = queryEndpointType
+    .selectAllEndpointTypes(this.global.db, this.global.sessionId)
     .then((endpointTypes) =>
       templateUtil.collectBlocks(endpointTypes, options, this)
     )
@@ -1565,6 +1588,48 @@ async function if_enabled_clusters(options) {
   }
 }
 
+/**
+ * Check if multi-protocol is enabled for the application.
+ * @param {*} options
+ * @returns boolean based on existence of attribute-attribute associations.
+ */
+async function if_multi_protocol_attributes_enabled(options) {
+  let sessionPackageIds = await queryPackage.getSessionZclPackageIds(
+    this.global.db,
+    this.global.sessionId
+  )
+  // Get all attribute mappings which have both attributes belonging to one of the sessionPackages
+  let attributeMappings =
+    await queryAttribute.selectAttributeMappingsByPackageIds(
+      this.global.db,
+      sessionPackageIds
+    )
+  if (attributeMappings.length > 0) {
+    return options.fn(this)
+  } else {
+    return options.inverse(this)
+  }
+}
+
+/**
+ * Retrieve all the attribute-attribute associations for the current session.
+ * @param {*} options
+ * @returns attribute-attribute mapping entries
+ */
+async function all_multi_protocol_attributes(options) {
+  let sessionPackageIds = await queryPackage.getSessionZclPackageIds(
+    this.global.db,
+    this.global.sessionId
+  )
+  // Get all attribute mappings which have both attributes belonging to one of the sessionPackages
+  let attributeMappings =
+    await queryAttribute.selectAttributeMappingsByPackageIds(
+      this.global.db,
+      sessionPackageIds
+    )
+  return templateUtil.collectBlocks(attributeMappings, options, this)
+}
+
 const dep = templateUtil.deprecatedHelper
 
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
@@ -1670,3 +1735,6 @@ exports.is_command_default_response_disabled =
   is_command_default_response_disabled
 exports.if_enabled_clusters = if_enabled_clusters
 exports.user_device_types = user_device_types
+exports.if_multi_protocol_attributes_enabled =
+  if_multi_protocol_attributes_enabled
+exports.all_multi_protocol_attributes = all_multi_protocol_attributes

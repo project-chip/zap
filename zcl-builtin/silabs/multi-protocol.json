@@ -1,0 +1,64 @@
+{
+  "categories": ["zigbee", "matter"],
+  "clusters": [
+    {
+      "id": 1,
+      "matter": {
+        "code": "0x006",
+        "manufacturerCode": null
+      },
+      "zigbee": {
+        "code": "0x006",
+        "manufacturerCode": null
+      },
+      "attributes": [
+        {
+          "id": 1,
+          "matter": {
+            "code": "0x0000",
+            "manufacturerCode": null
+          },
+          "zigbee": {
+            "code": "0x0000",
+            "manufacturerCode": null
+          }
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "matter": {
+        "code": "0x0008",
+        "manufacturerCode": null
+      },
+      "zigbee": {
+        "code": "0x0008",
+        "manufacturerCode": null
+      },
+      "attributes": [
+        {
+          "id": 1,
+          "matter": {
+            "code": "0x00",
+            "manufacturerCode": null
+          },
+          "zigbee": {
+            "code": "0x00",
+            "manufacturerCode": null
+          }
+        },
+        {
+          "id": 2,
+          "matter": {
+            "code": "0x01",
+            "manufacturerCode": null
+          },
+          "zigbee": {
+            "code": "0x01",
+            "manufacturerCode": null
+          }
+        }
+      ]
+    }
+  ]
+}

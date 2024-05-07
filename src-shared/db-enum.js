@@ -31,6 +31,7 @@ exports.packageType = {
   genHelper: 'gen-helper',
   genOverride: 'gen-override',
   genPartial: 'gen-partial',
+  jsonExtension: 'json-extension',
 }
 
 exports.packageOptionCategory = {
