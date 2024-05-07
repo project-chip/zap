@@ -142,10 +142,8 @@ export function renderer_api_notify(key, value) {
   )
   window?.parent?.postMessage(
     {
-      eventId: 'notify',
-      eventData: {
-        [key]: value,
-      },
+      eventId: key,
+      eventData: value,
     },
     '*'
   )
