@@ -74,3 +74,14 @@
 	{{/user_clusters}}
 {{/user_endpoints}}
 
+{{#user_endpoints}}
+  {{~addToAccumulator "event_size" 1~}}
+{{/user_endpoints}}
+
+
+{{#after}}
+	{{#iterateAccumulator accumulator="event_size"}}
+#define SL_ZIGBEE_AF_GENERATED_UC_EVENT_CONTEXT_COUNT {{sum}}
+	{{/iterateAccumulator}}
+{{/after}}
+
