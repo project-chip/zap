@@ -97,7 +97,7 @@ test(
       importRes.templateIds[0],
       {},
       {
-        generateOnly: 'zap-config-version-3.h',
+        generateOnly: ['zap-config-version-3.h', 'zap-event.h'],
         disableDeprecationWarnings: true,
       }
     )
@@ -199,6 +199,12 @@ test(
     // Just one notification regarding multiple top level zcl propertoes and 4
     // notifications regarding feature map attribute not set correctly
     expect(sessionNotifications.length).toEqual(5)
+
+    // Test Accumulators in templates
+    let zigbeeEndpointEvents = genResultZigbee.content['zap-event.h']
+    expect(zigbeeEndpointEvents).toContain(
+      '#define SL_ZIGBEE_AF_GENERATED_UC_EVENT_CONTEXT_COUNT 1'
+    )
   },
   testUtil.timeout.long()
 )

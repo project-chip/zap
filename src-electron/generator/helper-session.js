@@ -39,71 +39,75 @@ const queryDeviceType = require('../db/query-device-type.js')
  *
  * @param {*} options
  */
-async function user_endpoints(options) {
-  let packageInfo = await templateUtil
+function user_endpoints(options) {
+  let promise = templateUtil
     .ensureTemplatePackageId(this)
     .then((packageId) =>
       queryPackage.getPackageByPackageId(this.global.db, packageId)
     )
-  let packageInfoCategory = packageInfo.category
-  let promise = Promise.all([
-    queryEndpointType.selectAllEndpointTypes(
-      this.global.db,
-      this.global.sessionId
-    ),
-    templateUtil
-      .ensureEndpointTypeIds(this)
-      .then((endpointTypes) =>
-        queryImpexp.exportEndpoints(
+    .then((packageInfo) => packageInfo.category)
+    .then((packageInfoCategory) =>
+      Promise.all([
+        queryEndpointType.selectAllEndpointTypes(
           this.global.db,
-          this.global.sessionId,
-          endpointTypes
-        )
-      ),
-  ])
-    .then(
-      (EptEp) =>
-        new Promise((resolve, reject) => {
-          let endpointTypeMap = {}
-          let endpointTypes = EptEp[0]
-          let endpoints = EptEp[1]
-          endpointTypes.forEach(
-            (ept) =>
-              (endpointTypeMap[ept.endpointTypeId] = {
-                deviceVersions: ept.deviceVersion,
-                deviceIdentifiers: ept.deviceIdentifier,
-                deviceCategories: ept.deviceCategory,
+          this.global.sessionId
+        ),
+        templateUtil
+          .ensureEndpointTypeIds(this)
+          .then((endpointTypes) =>
+            queryImpexp.exportEndpoints(
+              this.global.db,
+              this.global.sessionId,
+              endpointTypes
+            )
+          ),
+      ])
+        .then(
+          (EptEp) =>
+            new Promise((resolve, reject) => {
+              let endpointTypeMap = {}
+              let endpointTypes = EptEp[0]
+              let endpoints = EptEp[1]
+              endpointTypes.forEach(
+                (ept) =>
+                  (endpointTypeMap[ept.endpointTypeId] = {
+                    deviceVersions: ept.deviceVersion,
+                    deviceIdentifiers: ept.deviceIdentifier,
+                    deviceCategories: ept.deviceCategory,
+                  })
+              )
+              // Adding device Identifiers and versions to endpoints from endpoint types
+              endpoints.forEach((ep) => {
+                ep.deviceIdentifier =
+                  endpointTypeMap[ep.endpointTypeRef].deviceIdentifiers
+                ep.endpointVersion =
+                  endpointTypeMap[ep.endpointTypeRef].deviceVersions
+                ep.endpointCategories =
+                  endpointTypeMap[ep.endpointTypeRef].deviceCategories
               })
-          )
-          // Adding device Identifiers and versions to endpoints from endpoint types
-          endpoints.forEach((ep) => {
-            ep.deviceIdentifier =
-              endpointTypeMap[ep.endpointTypeRef].deviceIdentifiers
-            ep.endpointVersion =
-              endpointTypeMap[ep.endpointTypeRef].deviceVersions
-            ep.endpointCategories =
-              endpointTypeMap[ep.endpointTypeRef].deviceCategories
+              resolve(endpoints)
+            })
+        )
+        .then((endpoints) =>
+          packageInfoCategory
+            ? endpoints.filter(
+                (ep) =>
+                  ep.endpointCategories.includes(packageInfoCategory) ||
+                  ep.endpointCategories.includes(undefined) ||
+                  ep.endpointCategories.includes(null)
+              )
+            : endpoints
+        )
+        .then((endpoints) =>
+          endpoints.map((x) => {
+            x.endpointTypeId = x.endpointTypeRef
+            return x
           })
-          resolve(endpoints)
-        })
+        )
+        .then((endpoints) =>
+          templateUtil.collectBlocks(endpoints, options, this)
+        )
     )
-    .then((endpoints) =>
-      packageInfoCategory
-        ? endpoints.filter(
-            (ep) =>
-              ep.endpointCategories.includes(packageInfoCategory) ||
-              ep.endpointCategories.includes(undefined) ||
-              ep.endpointCategories.includes(null)
-          )
-        : endpoints
-    )
-    .then((endpoints) =>
-      endpoints.map((x) => {
-        x.endpointTypeId = x.endpointTypeRef
-        return x
-      })
-    )
-    .then((endpoints) => templateUtil.collectBlocks(endpoints, options, this))
 
   return templateUtil.templatePromise(this.global, promise)
 }
