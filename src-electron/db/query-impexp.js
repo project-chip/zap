@@ -24,6 +24,8 @@ const dbApi = require('./db-api')
 const dbEnums = require('../../src-shared/db-enum')
 const dbMapping = require('./db-mapping.js')
 const queryUpgrade = require('../sdk/matter.js')
+const sessionNotification = require('./query-session-notification')
+
 /**
  * Imports a single endpoint
  * @param {} db
@@ -234,13 +236,15 @@ ORDER BY
  * @param {*} sessionPartitionId
  * @param {*} packageId
  * @param {*} endpointType
+ * @param {*} sessionId
  * @returns Promise of endpoint insertion.
  */
 async function importEndpointType(
   db,
   sessionPartitionId,
   packageIds,
-  endpointType
+  endpointType,
+  sessionId
 ) {
   // Insert endpoint type
   let endpointTypeId = await dbApi.dbInsert(
@@ -305,6 +309,18 @@ async function importEndpointType(
         deviceTypes[i].name,
       ]
     )
+
+    // Log an error message into the session notice table when device types being imported are not found
+    if (!rows || rows.length == 0) {
+      sessionNotification.setNotification(
+        db,
+        'ERROR',
+        'Device Types could not be found in the ZCL extensions linked to this project. Please make sure the zcl and template json files listed in your zap file exist.',
+        sessionId,
+        1,
+        1
+      )
+    }
 
     // Associate deviceTypes with the endpointType
     for (let row of rows) {
