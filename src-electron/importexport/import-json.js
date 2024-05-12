@@ -1343,7 +1343,8 @@ async function importEndpointTypes(
         db,
         sessionPartitionInfo[0].sessionPartitionId,
         allZclPackageIds,
-        endpointTypes[i]
+        endpointTypes[i],
+        sessionId
       )
       let endpointId = ''
       if (sortedEndpoints[i]) {

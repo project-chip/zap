@@ -194,10 +194,12 @@ async function loadZclMetafiles(
   if (Array.isArray(metadataFiles)) {
     for (let f of metadataFiles) {
       let metaInfo = await loadZclMetaFilesCommon(db, f, options)
-      categoryToPackageIdMap[metaInfo.category] = metaInfo.packageId
-      packageIds.push(metaInfo.packageId)
-      if (metaInfo.multiProtocolInfo) {
-        multiProtcolInfo.push(metaInfo)
+      if (metaInfo) {
+        categoryToPackageIdMap[metaInfo.category] = metaInfo.packageId
+        packageIds.push(metaInfo.packageId)
+        if (metaInfo.multiProtocolInfo) {
+          multiProtcolInfo.push(metaInfo)
+        }
       }
     }
   } else {
