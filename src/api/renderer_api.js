@@ -140,4 +140,11 @@ export function renderer_api_notify(key, value) {
   console.log(
     `${rendApi.jsonPrefix}${JSON.stringify({ key: key, value: value })}`
   )
+  window?.parent?.postMessage(
+    {
+      eventId: key,
+      eventData: value,
+    },
+    '*'
+  )
 }

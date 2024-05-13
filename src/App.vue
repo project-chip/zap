@@ -59,6 +59,9 @@ window.addEventListener(
           window[rendApi.GLOBAL_SYMBOL_EXECUTE](rendApi.id.save)
         }
         break
+      case 'open-file':
+        observable.setObservableAttribute(rendApi.observable.reported_files, eventData)
+        break;
     }
   },
   false
