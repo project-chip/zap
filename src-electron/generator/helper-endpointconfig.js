@@ -649,7 +649,8 @@ function determineAttributeDefaultValue(
   specifiedDefault,
   type,
   typeSize,
-  isNullable
+  isNullable,
+  atomicType
 ) {
   if (specifiedDefault !== null || !isNullable) {
     return specifiedDefault
@@ -659,8 +660,7 @@ function determineAttributeDefaultValue(
     // Handled elsewhere.
     return null
   }
-
-  if (types.isSignedInteger(type)) {
+  if (types.isSignedInteger(atomicType)) {
     return '0x80' + '00'.repeat(typeSize - 1)
   }
 
@@ -765,7 +765,8 @@ async function collectAttributes(endpointTypes, options) {
           a.defaultValue,
           a.type,
           typeSize,
-          a.isNullable
+          a.isNullable,
+          a.typeInfo.atomicType
         )
         // Various types store the length of the actual content in bytes.
         // For those, we can size the default storage to be just big enough for
