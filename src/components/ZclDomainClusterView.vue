@@ -128,7 +128,11 @@ limitations under the License.
             key="label"
             :props="props"
             auto-width
-            :class="isClusterEnabled(props.row.id) ? '' : ' disabled-cluster'"
+            :class="
+              isClusterEnabled(props.row.id)
+                ? ' w-step-8'
+                : ' disabled-cluster w-step-8'
+            "
           >
             {{ props.row.label }}
           </q-td>

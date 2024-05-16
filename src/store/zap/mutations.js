@@ -630,14 +630,32 @@ export function setAllEndpointsData(state, value) {
   })
 }
 
+export function setMultiConfig(state, value) {
+  state.isMultiConfig = value
+}
+
 // This function change state of showCreateModifyEndpoint and will show or hide create endpoint modal
 export function toggleEndpointModal(state, value) {
   state.showCreateModifyEndpoint = value
 }
 
+export function toggleCmpTutorial(state, value) {
+  state.isCmpTutorialSelected = value
+  state.isEndpointTutorialSelected = !value
+}
+
+export function toggleEndpointTutorial(state, value) {
+  state.isEndpointTutorialSelected = value
+  state.isCmpTutorialSelected = !value
+}
+
 // This function will show you is tutorial step running or not
 export function toggleTutorial(state, value) {
   state.isTutorialRunning = value
+  if (!value) {
+    state.isEndpointTutorialSelected = false
+    state.isCmpTutorialSelected = false
+  }
 }
 
 // This function will expand the cluster so you can see data in it ( this function used for vue tour )
@@ -693,4 +711,8 @@ export function setDirtyState(state, isDirty) {
       '*'
     )
   }
+}
+
+export function setEnabledClusters(state, clusters) {
+  state.enabledClusters = clusters
 }

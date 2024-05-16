@@ -1,0 +1,116 @@
+{
+  "tutorialSteps": [
+    {
+      "target": ".v-step-0",
+      "title": "Multiprotocol application",
+      "content": "A multiprotocol application is able to mix both Matter and Zigbee endpoints into a single application. These endpoints are the same as the usual ones you encountered in a single protocol application. If you are not familiar with them, I suggest to try the <strong>Endpoints tutorial </strong> first",
+      "before": "startTutorialAndCloseTheEndpointModal",
+      "placement": "bottom"
+    },
+    {
+      "target": ".v-step-0",
+      "title": "Multiprotocol application",
+      "content": "Let's start with adding a new endpoint to your application by clicking <strong> ADD NEW ENDPOINT </strong> in the top left corner of the ZCL Advanced Platform (ZAP) interface.",
+      "before": null,
+      "placement": "bottom"
+    },
+    {
+      "target": ".v-step-1",
+      "title": "Creating a root node",
+      "content": "Setting the endpoint to 0.",
+      "before": "openEndpointModal",
+      "placement": "left"
+    },
+    {
+      "target": ".v-step-2",
+      "title": "Creating a root node",
+      "content": "Selecting the <strong>Matter root node</strong> from the list.",
+      "before": null,
+      "placement": "left"
+    },
+    {
+      "target": ".w-step-3",
+      "title": "Creating a root node",
+      "content": "Once you have configured the endpoint, click <strong>CREATE</strong> to add the endpoint to your configuration.",
+      "before": null,
+      "placement": "right"
+    },
+    {
+      "target": ".v-step-0",
+      "title": "Adding a matter endpoint",
+      "content": "Now let's add a matter endpoint.",
+      "before": "createMockRootNodeEndpoint",
+      "placement": "bottom"
+    },
+    {
+      "target": ".v-step-1",
+      "title": "Adding a matter endpoint",
+      "content": "Setting the endpoint to 1.",
+      "before": "openEndpointModal",
+      "placement": "left"
+    },
+    {
+      "target": ".v-step-2",
+      "title": "Adding a matter endpoint",
+      "content": "Selecting a <strong>Matter</strong> device from the list.",
+      "before": null,
+      "placement": "left"
+    },
+    {
+      "target": ".w-step-3",
+      "title": "Adding a matter endpoint",
+      "content": "Once you have configured the endpoint, click <strong>CREATE</strong> to add the endpoint to your configuration.",
+      "before": null,
+      "placement": "right"
+    },
+    {
+      "target": ".v-step-0",
+      "title": "Adding a zigbee endpoint",
+      "content": "Now let's add a zigbee endpoint.",
+      "before": "createMockMatterEndpoint",
+      "placement": "bottom"
+    },
+    {
+      "target": ".v-step-1",
+      "title": "Adding a zigbee endpoint",
+      "content": "Its important to set this device to the same <strong> Device ID </strong> as the matter one (1 in this case).",
+      "before": "openEndpointModal",
+      "placement": "left"
+    },
+    {
+      "target": ".v-step-2",
+      "title": "Adding a zigbee endpoint",
+      "content": "Selecting a <strong>Zigbee</strong> device from the list.",
+      "before": null,
+      "placement": "left"
+    },
+    {
+      "target": ".v-step-3",
+      "title": "Adding a zigbee endpoint",
+      "content": "Once you have configured the endpoint, click <strong>CREATE</strong> to add the endpoint to your configuration.",
+      "before": null,
+      "placement": "right"
+    },
+    {
+      "target": ".v-step-6",
+      "title": "",
+      "content": "Now we can check the endpoints attributes where we can find mixed from both type.",
+      "before": "createMockZigbeeEndpoint",
+      "placement": "right"
+    },
+    {
+      "target": ".v-step-7",
+      "title": "",
+      "content": "The Show dropdown shows all the available clusters for a certain endpoint. Selecting the <strong>Enabled Clusters</strong> option will display only clusters enabled on the endpoint which going to be both Matter and Zigbee in this case.",
+      "before": "showFilter",
+      "placement": "right"
+    },
+    {
+      "target": ".w-step-8",
+      "title": "",
+      "content": "There you can find the <strong>Basic</strong> attribute on this zigbee endpoint which should be matter only.",
+      "before": null,
+      "placement": "right"
+    }
+  ]
+}

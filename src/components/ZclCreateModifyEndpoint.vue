@@ -187,7 +187,7 @@ limitations under the License.
         <q-btn
           :label="endpointReference ? 'Save' : 'Create'"
           color="primary"
-          class="col v-step-4"
+          class="col v-step-4 w-step-3"
           @click="saveOrCreateHandler()"
         />
       </q-card-actions>
