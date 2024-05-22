@@ -645,12 +645,12 @@ function asMEI(manufacturerCode, code) {
 
 // The representation of null depends on the type, so we can't use a single
 // macro that's defined elsewhere for "null value".
-function determineAttributeDefaultValue(
+async function determineAttributeDefaultValue(
   specifiedDefault,
   type,
   typeSize,
   isNullable,
-  atomicType
+  db
 ) {
   if (specifiedDefault !== null || !isNullable) {
     return specifiedDefault
@@ -660,7 +660,7 @@ function determineAttributeDefaultValue(
     // Handled elsewhere.
     return null
   }
-  if (types.isSignedInteger(atomicType)) {
+  if (await types.isSignedInteger(db, type)) {
     return '0x80' + '00'.repeat(typeSize - 1)
   }
 
@@ -682,6 +682,7 @@ function determineAttributeDefaultValue(
  *    3.) If server is included on at least one endpoint add server atts.
  */
 async function collectAttributes(endpointTypes, options) {
+  let db = this.global.db
   let commandMfgCodes = [] // Array of { index, mfgCode } objects
   let clusterMfgCodes = [] // Array of { index, mfgCode } objects
   let attributeMfgCodes = [] // Array of { index, mfgCode } objects
@@ -766,7 +767,7 @@ async function collectAttributes(endpointTypes, options) {
           a.type,
           typeSize,
           a.isNullable,
-          a.typeInfo.atomicType
+          db
         )
         // Various types store the length of the actual content in bytes.
         // For those, we can size the default storage to be just big enough for

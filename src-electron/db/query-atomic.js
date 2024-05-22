@@ -82,6 +82,21 @@ async function selectAtomicById(db, id) {
     .then((rows) => rows.map(dbMapping.map.atomic))
 }
 
+/**
+ * Checks if atomic type by a given name is signed.
+ * @param {*} db
+ * @param {*} name
+ */
+async function isAtomicSignedByName(db, name) {
+  const rows = await dbApi.dbAll(
+    db,
+    `SELECT isSigned FROM Atomic WHERE name = ?`,
+    [name]
+  )
+  return rows.length > 0 ? rows[0].isSigned === 1 : false
+}
+
 exports.selectAllAtomics = selectAllAtomics
 exports.selectAtomicType = dbCache.cacheQuery(selectAtomicType)
 exports.selectAtomicById = selectAtomicById
+exports.isAtomicSignedByName = isAtomicSignedByName

@@ -16,6 +16,7 @@
  */
 
 const queryZcl = require('../db/query-zcl.js')
+const queryAtomic = require('../db/query-atomic.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const bin = require('./bin')
 const env = require('./env')
@@ -276,20 +277,8 @@ function isFloat(type) {
  * @param {*} type
  * @returns true if type is signed integer, false otherwise
  */
-function isSignedInteger(type) {
-  switch (type) {
-    case 'int8s':
-    case 'int16s':
-    case 'int24s':
-    case 'int32s':
-    case 'int40s':
-    case 'int48s':
-    case 'int56s':
-    case 'int64s':
-      return true
-    default:
-      return false
-  }
+function isSignedInteger(db, type) {
+  return queryAtomic.isAtomicSignedByName(db, type)
 }
 
 /**
