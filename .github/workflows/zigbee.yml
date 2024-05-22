@@ -52,6 +52,8 @@ jobs:
       - name: Run the zigbee regen with the cloned gsdk, using latest.
         run: node ./src-script/gsdk-public-regen.js ./gecko_sdk/ ./regen-pr
       - name: Create the temp regen directory for master.
+        env:
+          GIT_CLONE_PROTECTION_ACTIVE: false
         run: mkdir regen-master
       - uses: actions/checkout@v3
         with:
