@@ -2291,7 +2291,7 @@
             "0x0000 |        | server | 1 | 0 => GetWeeklyScheduleResponse"
           ],
           "attributes": [
-            "+ | 0x0000 |        | server | RAM |           |       |                      | 1 | 0 | 65344 | 0 => LocalTemperature [int16s]",
+            "+ | 0x0000 |        | server | RAM |           |       |                      | 1 | 0 | 65344 | 0 => LocalTemperature [temperature]",
             "+ | 0x0003 |        | server | RAM |           |       |               0x02BC | 1 | 0 | 65344 | 0 => AbsMinHeatSetpointLimit [int16s]",
             "+ | 0x0004 |        | server | RAM |           |       |               0x0BB8 | 1 | 0 | 65344 | 0 => AbsMaxHeatSetpointLimit [int16s]",
             "+ | 0x0005 |        | server | RAM |           |       |               0x0640 | 1 | 0 | 65344 | 0 => AbsMinCoolSetpointLimit [int16s]",

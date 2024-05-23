@@ -82,5 +82,6 @@ limitations under the License.
     <type id="0xFD" description="IPv6 Prefix"              name="ipv6pre"                     composite="true"/>
     <type id="0xFE" description="Hardware Address"         name="hwadr"                       composite="true"/>
     <type id="0xFF" description="Unknown"                  name="unknown"           size="0"                  />
+    <type id="0xD8" description="Temperature"              name="temperature"       size="2"  analog="true"     signed="true" />
   </atomic>
 </configurator>
