@@ -149,7 +149,23 @@
         <div class="">Preview</div>
       </div>
     </q-btn>
+    <q-btn
+      v-if="!isMultiProtocolTutorialAvailable"
+      flat
+      push
+      no-caps
+      class="navmenu-item"
+      :class="{ 'navmenu-item--active': isTutorialRunning }"
+      @click="openEndpointTour"
+      data-cy="btn-tutorial"
+    >
+      <div class="text-center">
+        <q-icon name="o_psychology_alt" />
+        <div>Tutorial</div>
+      </div>
+    </q-btn>
     <q-btn-dropdown
+      v-else
       flat
       push
       no-caps
@@ -173,7 +189,6 @@
           Endpoint tutorial
         </q-btn>
         <q-btn
-          v-if="isMultiProtocolTutorialAvailable"
           flat
           no-caps
           class="navmenu-item"
