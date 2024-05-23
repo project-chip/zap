@@ -87,16 +87,18 @@ async function selectAtomicById(db, id) {
  * @param {*} db
  * @param {*} name
  */
-async function isAtomicSignedByName(db, name) {
+async function isAtomicSignedByNameAndPackage(db, name, sessionPackages) {
+  const sessionPackage = sessionPackages[0].packageRef
   const rows = await dbApi.dbAll(
     db,
-    `SELECT IS_SIGNED FROM ATOMIC WHERE NAME = ?`,
-    [name]
+    `SELECT IS_SIGNED FROM ATOMIC WHERE NAME = ? AND PACKAGE_REF = ?`,
+    [name, sessionPackage]
   )
-  return rows.length > 0 ? rows[0].isSigned === 1 : false
+
+  return rows.length > 0 ? rows[0].IS_SIGNED === 1 : false
 }
 
 exports.selectAllAtomics = selectAllAtomics
 exports.selectAtomicType = dbCache.cacheQuery(selectAtomicType)
 exports.selectAtomicById = selectAtomicById
-exports.isAtomicSignedByName = isAtomicSignedByName
+exports.isAtomicSignedByNameAndPackage = isAtomicSignedByNameAndPackage

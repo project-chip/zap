@@ -279,8 +279,12 @@ function isFloat(type) {
  * @returns true if type is signed integer, false otherwise
  */
 async function isSignedInteger(db, sessionId, type) {
-  sessionPackages = await queryPackages.getSessionPackages(db, sessionId)
-  return await queryAtomic.isAtomicSignedByName(db, type)
+  let sessionPackages = await queryPackages.getSessionPackages(db, sessionId)
+  return await queryAtomic.isAtomicSignedByNameAndPackage(
+    db,
+    type,
+    sessionPackages
+  )
 }
 
 /**

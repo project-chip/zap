@@ -653,7 +653,7 @@ async function determineAttributeDefaultValue(
   db,
   sessionId
 ) {
-  if (specifiedDefault !== null || !isNullable) {
+  if (specifiedDefault && (specifiedDefault !== null || !isNullable)) {
     return specifiedDefault
   }
 
