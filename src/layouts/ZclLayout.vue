@@ -179,7 +179,6 @@ import ZclConfiguratorLayout from './ZclConfiguratorLayout.vue'
 import SqlQuery from '../components/SqlQuery.vue'
 import About from '../pages/preferences/AboutPage.vue'
 import CommonMixin from '../util/common-mixin'
-import { startTour } from '../boot/tour'
 
 const restApi = require(`../../src-shared/rest-api.js`)
 const rendApi = require(`../../src-shared/rend-api.js`)
@@ -190,7 +189,6 @@ export default {
   mixins: [CommonMixin],
   methods: {
     // This function will start vue tour steps
-    startTour,
     togglePreviewTab() {
       this.$store.commit('zap/togglePreviewTab')
     },

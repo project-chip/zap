@@ -206,9 +206,11 @@ export default {
     },
     enabledClusters: {
       get() {
-        return this.relevantClusters.filter((cluster) => {
+        const clusters = this.relevantClusters.filter((cluster) => {
           return this.isClusterEnabled(cluster.id)
         })
+        this.$store.commit('zap/setEnabledClusters', clusters)
+        return clusters
       },
     },
     filterOptions: {

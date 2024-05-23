@@ -504,8 +504,13 @@ export default {
           categorySet.push(prop.category)
         }
       })
-      if (this.customConfig === 'select') return categorySet.length > 1
-      else return this.selectedZclSessionData == null
+      let result = false
+      result =
+        this.customConfig === 'select'
+          ? categorySet.length > 1
+          : this.selectedZclSessionData == null
+      this.$store.commit('zap/setMultiConfig', result)
+      return result
     },
     // Checks for missaligned zcl and template package selection
     isMissalignedZclAndTemplateConfig: function () {

@@ -19,8 +19,11 @@ const restApi = require('../../../src-shared/rest-api.js')
 export default function () {
   return {
     selectedZapConfig: null,
+    isMultiConfig: false,
     isProfileIdShown: null,
     clusterDataForTutorial: [],
+    isCmpTutorialSelected: false,
+    isEndpointTutorialSelected: false,
     isTutorialRunning: false,
     showReportTabInCluster: '',
     expanded: false,
@@ -159,5 +162,6 @@ export default function () {
       deviceIdentifier: null,
     },
     notificationCount: 0,
+    enabledClusters: [],
   }
 }

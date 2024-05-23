@@ -150,12 +150,13 @@
       </div>
     </q-btn>
     <q-btn
+      v-if="!isMultiProtocolTutorialAvailable"
       flat
       push
       no-caps
       class="navmenu-item"
       :class="{ 'navmenu-item--active': isTutorialRunning }"
-      @click="startTour"
+      @click="openEndpointTour"
       data-cy="btn-tutorial"
     >
       <div class="text-center">
@@ -163,6 +164,41 @@
         <div>Tutorial</div>
       </div>
     </q-btn>
+    <q-btn-dropdown
+      v-else
+      flat
+      push
+      no-caps
+      class="navmenu-item"
+      data-cy="btn-tutorial-dropdown"
+    >
+      <template v-slot:label>
+        <div class="text-center">
+          <q-icon name="o_psychology_alt" />
+          <div>Tutorial</div>
+        </div>
+      </template>
+      <div class="column q-ma-sm">
+        <q-btn
+          flat
+          no-caps
+          class="navmenu-item"
+          @click="openEndpointTour"
+          data-cy="btn-tutorial-endpoint"
+        >
+          Endpoint tutorial
+        </q-btn>
+        <q-btn
+          flat
+          no-caps
+          class="navmenu-item"
+          @click="openCmpTour"
+          data-cy="btn-tutorial-cmp"
+        >
+          CMP tutorial
+        </q-btn>
+      </div>
+    </q-btn-dropdown>
     <router-link v-slot="{ isActive, navigate }" to="/preferences/user">
       <q-btn
         v-if="showDebugNavItems"
@@ -182,7 +218,6 @@
   </q-toolbar>
 </template>
 <script>
-import { startTour } from '../boot/tour'
 import { isElectron, isWin } from '../util/platform'
 import * as dbEnum from '../../src-shared/db-enum.js'
 
@@ -205,7 +240,6 @@ export default {
     },
     isTutorialRunning: {
       get() {
-        console.log('firebrava')
         return this.$store.state.zap.isTutorialRunning
       },
     },
@@ -215,6 +249,11 @@ export default {
       },
       set() {
         return this.$store.dispatch('zap/togglePreviewTab')
+      },
+    },
+    isMultiProtocolTutorialAvailable: {
+      get() {
+        return this.$store.state.zap.isMultiConfig
       },
     },
     showDebugNavItems: {
@@ -271,6 +310,12 @@ export default {
     }
   },
   methods: {
+    openCmpTour() {
+      this.$store.commit('zap/toggleCmpTutorial', true)
+    },
+    openEndpointTour() {
+      this.$store.commit('zap/toggleEndpointTutorial', true)
+    },
     openDocumentation() {
       if (
         this.$store.state.zap.genericOptions[
@@ -288,8 +333,6 @@ export default {
     saveChanges() {
       window[rendApi.GLOBAL_SYMBOL_EXECUTE](rendApi.id.save)
     },
-    // This function will start vue tour steps
-    startTour,
     togglePreviewTab() {
       this.$store.commit('zap/togglePreviewTab')
     },
