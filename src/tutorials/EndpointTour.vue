@@ -36,7 +36,7 @@ limitations under the License.
             label="Cancel"
             v-close-popup
             class="col"
-            @click="setDefaultTourState"
+            @click="exitTour"
             data-cy="cancel-end-tour-endpoint"
           />
           <q-btn
@@ -187,26 +187,29 @@ export default {
         'zap/deleteEndpointType',
         this.endpointType[this.tourEndpointId]
       )
-      this.setDefaultTourState()
+      this.exitTour()
     },
-    setDefaultTourState() {
+    exitTour() {
       this.deletingTutorialEndpoint = false
       this.deleteEndpointDialog = false
       this.tourEndpointId = null
       this.tourEndpointType = null
+      this.$store.commit('zap/toggleTutorial', false)
     },
     // This function will disable tutorial
     disableTutorial() {
       if (this.$route.path === '/') {
-        this.$store.commit('zap/toggleTutorial', false)
         this.$store.commit('zap/triggerExpanded', false)
-        this.tourEndpointId ? this.handleDeletionDialog() : ''
         this.$store.commit('zap/toggleEndpointModal', false)
+        this.tourEndpointId
+          ? this.handleDeletionDialog()
+          : this.$store.commit('zap/toggleTutorial', false)
       } else {
         this.$router.push('/').then(() => {
-          this.tourEndpointId ? this.handleDeletionDialog() : ''
-          this.$store.commit('zap/toggleTutorial', false)
           this.$store.commit('zap/toggleEndpointModal', false)
+          this.tourEndpointId
+            ? this.handleDeletionDialog()
+            : this.$store.commit('zap/toggleTutorial', false)
         })
       }
     },
