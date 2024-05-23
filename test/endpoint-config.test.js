@@ -216,7 +216,7 @@ test(
       '#define FIXED_PROFILE_IDS { 0x0107, 0x0104, 0x0104 }'
     )
     expect(epc).toContain('#define FIXED_ENDPOINT_TYPES { 0, 1, 2 }')
-    expect(epc).toContain('#define GENERATED_DEFAULTS_COUNT (12)')
+    expect(epc).toContain('#define GENERATED_DEFAULTS_COUNT (13)')
     expect(epc).toContain(
       `17, 'T', 'e', 's', 't', ' ', 'm', 'a', 'n', 'u', 'f', 'a', 'c', 't', 'u', 'r', 'e', 'r',`
     )
