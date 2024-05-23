@@ -90,7 +90,7 @@ async function selectAtomicById(db, id) {
 async function isAtomicSignedByName(db, name) {
   const rows = await dbApi.dbAll(
     db,
-    `SELECT isSigned FROM Atomic WHERE name = ?`,
+    `SELECT IS_SIGNED FROM ATOMIC WHERE NAME = ?`,
     [name]
   )
   return rows.length > 0 ? rows[0].isSigned === 1 : false

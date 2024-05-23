@@ -650,7 +650,8 @@ async function determineAttributeDefaultValue(
   type,
   typeSize,
   isNullable,
-  db
+  db,
+  sessionId
 ) {
   if (specifiedDefault !== null || !isNullable) {
     return specifiedDefault
@@ -660,7 +661,7 @@ async function determineAttributeDefaultValue(
     // Handled elsewhere.
     return null
   }
-  if (await types.isSignedInteger(db, type)) {
+  if (await types.isSignedInteger(db, sessionId, type)) {
     return '0x80' + '00'.repeat(typeSize - 1)
   }
 
@@ -681,8 +682,7 @@ async function determineAttributeDefaultValue(
  *    2.) If client is included on at least one endpoint add client atts.
  *    3.) If server is included on at least one endpoint add server atts.
  */
-async function collectAttributes(endpointTypes, options) {
-  let db = this.global.db
+async function collectAttributes(db, sessionId, endpointTypes, options) {
   let commandMfgCodes = [] // Array of { index, mfgCode } objects
   let clusterMfgCodes = [] // Array of { index, mfgCode } objects
   let attributeMfgCodes = [] // Array of { index, mfgCode } objects
@@ -767,7 +767,8 @@ async function collectAttributes(endpointTypes, options) {
           a.type,
           typeSize,
           a.isNullable,
-          db
+          db,
+          sessionId
         )
         // Various types store the length of the actual content in bytes.
         // For those, we can size the default storage to be just big enough for
@@ -1271,7 +1272,7 @@ function endpoint_config(options) {
       collectAttributeSizes(db, this.global.zclPackageIds, endpointTypes)
     )
     .then((endpointTypes) =>
-      collectAttributes(endpointTypes, collectAttributesOptions)
+      collectAttributes(db, sessionId, endpointTypes, collectAttributesOptions)
     )
     .then((collection) => {
       Object.assign(newContext, collection)
