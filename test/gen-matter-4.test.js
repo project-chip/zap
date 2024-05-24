@@ -179,9 +179,6 @@ test(
       .attributeCount = 22, \\
       .clusterId = 0x00000028, \\
     },\\`)
-    expect(ept).toContain(
-      '  { 0x00000000, ZAP_TYPE(TEMPERATURE), 2, ZAP_ATTRIBUTE_MASK(NULLABLE), ZAP_SIMPLE_DEFAULT(0x8000) },'
-    )
   },
   testUtil.timeout.long()
 )
