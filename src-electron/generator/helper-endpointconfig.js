@@ -651,7 +651,7 @@ function determineAttributeDefaultValue(
   typeSize,
   isNullable
 ) {
-  if (specifiedDefault && (specifiedDefault !== null || !isNullable)) {
+  if (specifiedDefault !== null || !isNullable) {
     return specifiedDefault
   }
 
@@ -659,6 +659,7 @@ function determineAttributeDefaultValue(
     // Handled elsewhere.
     return null
   }
+
   if (types.isSignedInteger(type)) {
     return '0x80' + '00'.repeat(typeSize - 1)
   }

@@ -286,7 +286,6 @@ function isSignedInteger(type) {
     case 'int48s':
     case 'int56s':
     case 'int64s':
-    case 'temperature':
       return true
     default:
       return false
