@@ -16,6 +16,7 @@
  */
 
 const queryZcl = require('../db/query-zcl.js')
+const queryPackages = require('../db/query-package.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const bin = require('./bin')
 const env = require('./env')
@@ -272,24 +273,16 @@ function isFloat(type) {
 }
 
 /**
- * Returns true if a given ZCL type is a signed integer.
- * @param {*} type
- * @returns true if type is signed integer, false otherwise
+ * Checks if a given ZCL type is a signed integer.
+ *
+ * @param {object} db - The database connection object.
+ * @param {string} sessionId - The session ID.
+ * @param {string} type - The name of the ZCL type.
+ * @returns {Promise<boolean>} - A promise that resolves to true if the type is a signed integer, false otherwise.
  */
-function isSignedInteger(type) {
-  switch (type) {
-    case 'int8s':
-    case 'int16s':
-    case 'int24s':
-    case 'int32s':
-    case 'int40s':
-    case 'int48s':
-    case 'int56s':
-    case 'int64s':
-      return true
-    default:
-      return false
-  }
+async function isSignedInteger(db, sessionId, type) {
+  let sessionPackages = await queryPackages.getSessionPackages(db, sessionId)
+  return await queryZcl.isTypeSignedByNameAndPackage(db, type, sessionPackages)
 }
 
 /**
@@ -328,7 +321,7 @@ function isTwoBytePrefixedString(type) {
  * the size in bits which will be 8. If not mentioned then it will return the size
  * in bytes i.e. 1 in this case.
  */
-async function getSignAndSizeOfZclType(db, type, packageIds, options) {
+async function getSignAndSizeOfZclType(db, type, packageIds, options = null) {
   let isTypeSigned = false
   let dataTypesize = 0
   let sizeMultiple = 1

@@ -434,7 +434,7 @@ test(
       ).defaultValue.length == 0
     ).toBeFalsy()
   },
-  timeout.medium()
+  timeout.long()
 )
 
 test(
