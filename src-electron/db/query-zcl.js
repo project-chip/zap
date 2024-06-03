@@ -1145,6 +1145,7 @@ ORDER BY
   return rows.map(dbMapping.map.endpointTypeEvent)
 }
 
+//exports
 exports.selectClusterBitmaps = selectClusterBitmaps
 exports.selectAllBitmapFields = selectAllBitmapFields
 exports.selectAllBitmapFieldsById = selectAllBitmapFieldsById
