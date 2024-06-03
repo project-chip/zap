@@ -1146,10 +1146,10 @@ ORDER BY
 }
 
 /**
- * Checks if an atomic type by a given name is signed.
+ * Checks if a type by a given name is signed.
  *
  * @param {object} db - The database connection object.
- * @param {string} name - The name of the atomic type.
+ * @param {string} name - The name of the type.
  * @param {Array} sessionPackages - An array of session packages.
  * @returns {Promise<boolean>} - A promise that resolves to true if the atomic type is signed, false otherwise.
  */
