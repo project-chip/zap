@@ -326,7 +326,7 @@ function isTwoBytePrefixedString(type) {
  * the size in bits which will be 8. If not mentioned then it will return the size
  * in bytes i.e. 1 in this case.
  */
-async function getSignAndSizeOfZclType(db, type, packageIds, options = null) {
+async function getSignAndSizeOfZclType(db, type, packageIds, options) {
   let isTypeSigned = false
   let dataTypesize = 0
   let sizeMultiple = 1
