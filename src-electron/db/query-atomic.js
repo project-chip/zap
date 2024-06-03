@@ -92,13 +92,13 @@ async function selectAtomicById(db, id) {
  */
 async function isTypeSignedByNameAndPackage(db, name, sessionPackages) {
   const sessionPackage = sessionPackages[0].packageRef
-  const rows = await dbApi.dbAll(
+  const row = await dbApi.dbGet(
     db,
     `SELECT IS_SIGNED FROM ATOMIC WHERE NAME = ? AND PACKAGE_REF = ?`,
     [name, sessionPackage]
   )
 
-  return rows.length > 0 ? rows[0].IS_SIGNED === 1 : false
+  return row ? row.IS_SIGNED === 1 : false
 }
 
 // exports
