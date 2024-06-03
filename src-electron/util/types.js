@@ -16,6 +16,7 @@
  */
 
 const queryZcl = require('../db/query-zcl.js')
+const queryAtomic = require('../db/query-atomic.js')
 const queryPackages = require('../db/query-package.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const bin = require('./bin')
@@ -282,7 +283,11 @@ function isFloat(type) {
  */
 async function isSignedInteger(db, sessionId, type) {
   let sessionPackages = await queryPackages.getSessionPackages(db, sessionId)
-  return await queryZcl.isTypeSignedByNameAndPackage(db, type, sessionPackages)
+  return await queryAtomic.isTypeSignedByNameAndPackage(
+    db,
+    type,
+    sessionPackages
+  )
 }
 
 /**
