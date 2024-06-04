@@ -411,6 +411,14 @@ function sortEndpoints(endpoints) {
  */
 async function importClusters(db, allZclPackageIds, endpointTypeId, clusters) {
   let relevantZclPackageIds = allZclPackageIds
+  // Get all custom xml packages since they will be relevant packages as well.
+  let packageInfo = await queryPackage.getPackagesByPackageIds(
+    db,
+    allZclPackageIds
+  )
+  let customPackageInfo = packageInfo.filter(
+    (pkg) => pkg.type === dbEnum.packageType.zclXmlStandalone
+  )
   let endpointTypeDeviceTypesInfo =
     await queryDeviceType.selectDeviceTypesByEndpointTypeId(db, endpointTypeId)
   let deviceTypeRefs = endpointTypeDeviceTypesInfo.map(
@@ -421,7 +429,13 @@ async function importClusters(db, allZclPackageIds, endpointTypeId, clusters) {
       db,
       deviceTypeRefs[0]
     )
-    relevantZclPackageIds = deviceTypeInfo.packageRef
+    relevantZclPackageIds = [deviceTypeInfo.packageRef]
+
+    // If custom packages exist then account for them during import.
+    if (customPackageInfo && customPackageInfo.length > 0) {
+      let customPackageInfoIds = customPackageInfo.map((cp) => cp.id)
+      relevantZclPackageIds = relevantZclPackageIds.concat(customPackageInfoIds)
+    }
   }
   if (clusters) {
     for (let k = 0; k < clusters.length; k++) {
@@ -1762,7 +1776,7 @@ async function jsonDataLoader(
 
   if ('endpointTypes' in state) {
     const allZclPackageIds = []
-    allZclPackageIds.push(mainPackageData.zclPackageIds)
+    allZclPackageIds.push(...mainPackageData.zclPackageIds)
     allZclPackageIds.push(...existingCustomXmlPackageIds)
     allZclPackageIds.push(...newlyLoadedCustomPackageIds)
     promisesStage1.push(
