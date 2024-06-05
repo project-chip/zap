@@ -239,7 +239,6 @@ test(
     const { size, isSigned } = await validation.getIntegerAttributeSize(
       db,
       sid,
-      3,
       attribute.type
     )
     //Test Constraints
@@ -269,8 +268,7 @@ test(
           fakeEndpointAttribute,
           fakeAttribute,
           db,
-          sid,
-          3
+          sid
         )
       ).defaultValue.length == 0
     ).toBeTruthy()
@@ -283,8 +281,7 @@ test(
           fakeEndpointAttribute,
           fakeAttribute,
           db,
-          sid,
-          3
+          sid
         )
       ).defaultValue.length == 0
     ).toBeFalsy()
@@ -296,8 +293,7 @@ test(
           fakeEndpointAttribute,
           fakeAttribute,
           db,
-          sid,
-          3
+          sid
         )
       ).defaultValue.length == 0
     ).toBeFalsy()
@@ -310,8 +306,7 @@ test(
           fakeEndpointAttribute,
           fakeAttribute,
           db,
-          sid,
-          3
+          sid
         )
       ).defaultValue.length == 0
     ).toBeFalsy()
@@ -331,8 +326,7 @@ test(
           fakeEndpointAttribute,
           fakeAttribute,
           db,
-          sid,
-          3
+          sid
         )
       ).defaultValue.length == 0
     ).toBeTruthy()
@@ -346,8 +340,7 @@ test(
           fakeEndpointAttribute,
           fakeAttribute,
           db,
-          sid,
-          3
+          sid
         )
       ).defaultValue.length == 0
     ).toBeFalsy()
@@ -360,8 +353,7 @@ test(
           fakeEndpointAttribute,
           fakeAttribute,
           db,
-          sid,
-          3
+          sid
         )
       ).defaultValue.length == 0
     ).toBeFalsy()
@@ -374,8 +366,7 @@ test(
           fakeEndpointAttribute,
           fakeAttribute,
           db,
-          sid,
-          3
+          sid
         )
       ).defaultValue.length == 0
     ).toBeFalsy()
@@ -393,23 +384,22 @@ test(
           fakeEndpointAttribute,
           fakeAttribute,
           db,
-          sid,
-          3
+          sid
         )
       ).defaultValue.length == 0
     ).toBeTruthy()
 
     // check if handle signed numbers
-    let fakeEndpointAttributeInvalid = {
+    let fakeEndpointAttributeValid = {
       defaultValue: '549755813887',
     }
-    let fakeEndpointAttributeValid = {
+    let fakeEndpointAttributeInvalid = {
       defaultValue: '549755813885',
     }
     let fakeSignedAttribute = {
       type: 'int40s',
-      min: '0x8000000000',
-      max: '0x7FFFFFFFFE',
+      min: '0x7FFFFFFFFE',
+      max: '0x8000000000',
     }
     expect(
       (
@@ -417,8 +407,7 @@ test(
           fakeEndpointAttributeValid,
           fakeSignedAttribute,
           db,
-          sid,
-          3
+          sid
         )
       ).defaultValue.length == 0
     ).toBeTruthy()
@@ -428,8 +417,7 @@ test(
           fakeEndpointAttributeInvalid,
           fakeSignedAttribute,
           db,
-          sid,
-          3
+          sid
         )
       ).defaultValue.length == 0
     ).toBeFalsy()

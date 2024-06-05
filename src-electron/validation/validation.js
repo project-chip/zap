@@ -56,8 +56,7 @@ async function validateAttribute(
     endpointAttribute,
     attribute,
     db,
-    zapSessionId,
-    clusterRef
+    zapSessionId
   )
 }
 
@@ -95,15 +94,13 @@ async function validateNoDuplicateEndpoints(
  * @param {*} attribute
  * @param {*} db
  * @param {*} zapSessionId
- * @param {*} clusterRef
  * @returns List of issues wrapped in an object
  */
 async function validateSpecificAttribute(
   endpointAttribute,
   attribute,
   db,
-  zapSessionId,
-  clusterRef
+  zapSessionId
 ) {
   let defaultAttributeIssues = []
   if (attribute.isNullable && endpointAttribute.defaultValue == null) {
@@ -116,31 +113,29 @@ async function validateSpecificAttribute(
       if (!checkAttributeBoundsFloat(attribute, endpointAttribute))
         defaultAttributeIssues.push('Out of range')
     } else if (await types.isSignedInteger(db, zapSessionId, attribute.type)) {
+      // we shouldn't check boundaries for an invalid number string
       if (!isValidSignedNumberString(endpointAttribute.defaultValue)) {
         defaultAttributeIssues.push('Invalid Integer')
       } else if (
-        //we shouldn't check boundaries for an invalid number string
         !(await checkAttributeBoundsInteger(
           attribute,
           endpointAttribute,
           db,
-          zapSessionId,
-          clusterRef
+          zapSessionId
         ))
       ) {
         defaultAttributeIssues.push('Out of range')
       }
     } else {
+      // we shouldn't check boundaries for an invalid number string
       if (!isValidNumberString(endpointAttribute.defaultValue)) {
         defaultAttributeIssues.push('Invalid Integer')
       } else if (
-        // we shouldn't check boundaries for an invalid number string
         !(await checkAttributeBoundsInteger(
           attribute,
           endpointAttribute,
           db,
-          zapSessionId,
-          clusterRef
+          zapSessionId
         ))
       ) {
         defaultAttributeIssues.push('Out of range')
@@ -291,26 +286,24 @@ async function getIntegerFromAttribute(attribute, typeSize, isSigned) {
  * Returns information about an integer type.
  * @param {*} db
  * @param {*} zapSessionId
- * @param {*} clusterRef
  * @param {*} attribType
  * @returns {*} { size: bit representation , isSigned: is signed type }
  */
-async function getIntegerAttributeSize(
-  db,
-  zapSessionId,
-  clusterRef,
-  attribType
-) {
+async function getIntegerAttributeSize(db, zapSessionId, attribType) {
   let packageIds = await queryPackage.getSessionZclPackageIds(db, zapSessionId)
-  let attribData = await queryZcl.selectNumberByNameAndClusterId(
+  const attribData = await types.getSignAndSizeOfZclType(
     db,
     attribType,
-    clusterRef,
     packageIds
   )
-  return attribData
-    ? { size: attribData.size * 8, isSigned: attribData.isSigned }
-    : { size: undefined, isSigned: undefined }
+  if (attribData) {
+    return {
+      size: attribData.dataTypesize * 8,
+      isSigned: attribData.isTypeSigned,
+    }
+  } else {
+    return { size: undefined, isSigned: undefined }
+  }
 }
 
 /**
@@ -319,20 +312,17 @@ async function getIntegerAttributeSize(
  * @param {*} endpointAttribute
  * @param {*} db
  * @param {*} zapSessionId
- * @param {*} clusterRef
  * @returns boolean
  */
 async function checkAttributeBoundsInteger(
   attribute,
   endpointAttribute,
   db,
-  zapSessionId,
-  clusterRef
+  zapSessionId
 ) {
   const { size, isSigned } = await getIntegerAttributeSize(
     db,
     zapSessionId,
-    clusterRef,
     attribute.type
   )
   if (size === undefined || isSigned === undefined) {
@@ -348,8 +338,8 @@ async function checkAttributeBoundsInteger(
 }
 
 function checkBoundsInteger(defaultValue, min, max) {
-  if (Number.isNaN(min)) min = Number.MIN_SAFE_INTEGER
-  if (Number.isNaN(max)) max = Number.MAX_SAFE_INTEGER
+  if (min == null || Number.isNaN(min)) min = Number.MIN_SAFE_INTEGER
+  if (max == null || Number.isNaN(max)) max = Number.MAX_SAFE_INTEGER
   return defaultValue >= min && defaultValue <= max
 }
 
