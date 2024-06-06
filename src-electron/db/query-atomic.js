@@ -82,6 +82,27 @@ async function selectAtomicById(db, id) {
     .then((rows) => rows.map(dbMapping.map.atomic))
 }
 
+/**
+ * Checks if a type by a given name is signed.
+ *
+ * @param {object} db - The database connection object.
+ * @param {string} name - The name of the type.
+ * @param {Array} sessionPackages - An array of session packages.
+ * @returns {Promise<boolean>} - A promise that resolves to true if the type is signed, false otherwise.
+ */
+async function isTypeSignedByNameAndPackage(db, name, sessionPackages) {
+  const sessionPackage = sessionPackages[0].packageRef
+  const row = await dbApi.dbGet(
+    db,
+    `SELECT IS_SIGNED FROM ATOMIC WHERE NAME = ? AND PACKAGE_REF = ?`,
+    [name, sessionPackage]
+  )
+
+  return row ? row.IS_SIGNED === 1 : false
+}
+
+// exports
+exports.isTypeSignedByNameAndPackage = isTypeSignedByNameAndPackage
 exports.selectAllAtomics = selectAllAtomics
 exports.selectAtomicType = dbCache.cacheQuery(selectAtomicType)
 exports.selectAtomicById = selectAtomicById

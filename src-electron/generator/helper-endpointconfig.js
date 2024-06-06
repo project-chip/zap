@@ -645,11 +645,13 @@ function asMEI(manufacturerCode, code) {
 
 // The representation of null depends on the type, so we can't use a single
 // macro that's defined elsewhere for "null value".
-function determineAttributeDefaultValue(
+async function determineAttributeDefaultValue(
   specifiedDefault,
   type,
   typeSize,
-  isNullable
+  isNullable,
+  db,
+  sessionId
 ) {
   if (specifiedDefault !== null || !isNullable) {
     return specifiedDefault
@@ -660,7 +662,7 @@ function determineAttributeDefaultValue(
     return null
   }
 
-  if (types.isSignedInteger(type)) {
+  if (await types.isSignedInteger(db, sessionId, type)) {
     return '0x80' + '00'.repeat(typeSize - 1)
   }
 
@@ -681,7 +683,7 @@ function determineAttributeDefaultValue(
  *    2.) If client is included on at least one endpoint add client atts.
  *    3.) If server is included on at least one endpoint add server atts.
  */
-async function collectAttributes(endpointTypes, options) {
+async function collectAttributes(db, sessionId, endpointTypes, options) {
   let commandMfgCodes = [] // Array of { index, mfgCode } objects
   let clusterMfgCodes = [] // Array of { index, mfgCode } objects
   let attributeMfgCodes = [] // Array of { index, mfgCode } objects
@@ -710,7 +712,7 @@ async function collectAttributes(endpointTypes, options) {
       ? options.spaceForDefaultValue
       : 2
 
-  endpointTypes.forEach((ept) => {
+  for (let ept of endpointTypes) {
     let endpoint = {
       clusterIndex: clusterIndex,
       clusterCount: ept.clusters.length,
@@ -728,7 +730,7 @@ async function collectAttributes(endpointTypes, options) {
 
     ept.clusters.sort(zclUtil.clusterComparator)
 
-    ept.clusters.forEach((c) => {
+    for (let c of ept.clusters) {
       let cluster = {
         endpointId: ept.endpointId,
         clusterId: asMEI(c.manufacturerCode, c.code),
@@ -754,18 +756,20 @@ async function collectAttributes(endpointTypes, options) {
       c.attributes.sort(zclUtil.attributeComparator)
 
       // Go over all the attributes in the endpoint and add them to the list.
-      c.attributes.forEach((a) => {
+      for (let a of c.attributes) {
         // typeSize is the size of a buffer needed to hold the attribute, if
         // that's known.
         let typeSize = a.typeSize
         // defaultSize is the size of the attribute in the readonly defaults
         // store.
         let defaultSize = typeSize
-        let attributeDefaultValue = determineAttributeDefaultValue(
+        let attributeDefaultValue = await determineAttributeDefaultValue(
           a.defaultValue,
           a.type,
           typeSize,
-          a.isNullable
+          a.isNullable,
+          db,
+          sessionId
         )
         // Various types store the length of the actual content in bytes.
         // For those, we can size the default storage to be just big enough for
@@ -963,7 +967,7 @@ async function collectAttributes(endpointTypes, options) {
           }
           attributeMfgCodes.push(att)
         }
-      })
+      }
 
       // Go over the commands
       c.commands.sort(zclUtil.commandComparator)
@@ -1051,10 +1055,10 @@ async function collectAttributes(endpointTypes, options) {
         }
         clusterMfgCodes.push(clt)
       }
-    })
+    }
     endpoint.attributeSize = endpointAttributeSize
     endpointList.push(endpoint)
-  })
+  }
 
   return {
     endpointList: endpointList,
@@ -1269,7 +1273,7 @@ function endpoint_config(options) {
       collectAttributeSizes(db, this.global.zclPackageIds, endpointTypes)
     )
     .then((endpointTypes) =>
-      collectAttributes(endpointTypes, collectAttributesOptions)
+      collectAttributes(db, sessionId, endpointTypes, collectAttributesOptions)
     )
     .then((collection) => {
       Object.assign(newContext, collection)

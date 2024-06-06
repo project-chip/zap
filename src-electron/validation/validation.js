@@ -115,7 +115,7 @@ async function validateSpecificAttribute(
       //Interpreting float values
       if (!checkAttributeBoundsFloat(attribute, endpointAttribute))
         defaultAttributeIssues.push('Out of range')
-    } else if (types.isSignedInteger(attribute.type)) {
+    } else if (await types.isSignedInteger(db, zapSessionId, attribute.type)) {
       if (!isValidSignedNumberString(endpointAttribute.defaultValue)) {
         defaultAttributeIssues.push('Invalid Integer')
       } else if (
