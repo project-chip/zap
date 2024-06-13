@@ -846,8 +846,12 @@ INNER JOIN
   ENDPOINT_TYPE_COMMAND AS ETC
 ON
   C.COMMAND_ID = ETC.COMMAND_REF
+INNER JOIN
+  ENDPOINT_TYPE_CLUSTER AS ETCL
+ON
+  ETC.ENDPOINT_TYPE_CLUSTER_REF = ETCL.ENDPOINT_TYPE_CLUSTER_ID
 WHERE
-  ETC.ENDPOINT_TYPE_REF = ?
+  ETCL.ENDPOINT_TYPE_REF = ?
   AND ETC.ENDPOINT_TYPE_CLUSTER_REF = ?
 ORDER BY
   C.MANUFACTURER_CODE, C.CODE
@@ -896,7 +900,6 @@ async function importCommandForEndpointType(
     .then((matchedCmdIds) => matchedCmdIds.shift()?.COMMAND_ID)
 
   let arg = [
-    endpointTypeId,
     endpointClusterId,
     matchedCmdId,
     command.isIncoming,
@@ -909,13 +912,12 @@ async function importCommandForEndpointType(
     db,
     `
 INSERT OR IGNORE INTO ENDPOINT_TYPE_COMMAND
-( ENDPOINT_TYPE_REF,
-  ENDPOINT_TYPE_CLUSTER_REF,
+( ENDPOINT_TYPE_CLUSTER_REF,
   COMMAND_REF,
   IS_INCOMING,
   IS_ENABLED )
 VALUES
-  (?, ?, ?, ?, ?)
+  (?, ?, ?, ?)
   `,
     arg
   )
