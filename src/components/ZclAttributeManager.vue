@@ -185,7 +185,12 @@ limitations under the License.
                   : ''
               "
               :disable="isDisabledDefault(props.row.id, selectedCluster.id)"
-              :model-value="defaultValueCheck(props.row.id, selectedCluster.id)"
+              :model-value="
+                props.row.isNullable &&
+                defaultValueCheck(props.row.id, selectedCluster.id) === null
+                  ? 'NULL'
+                  : defaultValueCheck(props.row.id, selectedCluster.id)
+              "
               :error="
                 !isDefaultValueValid(
                   hashAttributeIdClusterId(props.row.id, selectedCluster.id)
@@ -211,11 +216,6 @@ limitations under the License.
                   color="secondary"
                   label="Null"
                   size="sm"
-                  :disabled="
-                    nullValues[
-                      hashAttributeIdClusterId(props.row.id, selectedCluster.id)
-                    ]
-                  "
                   @click="
                     handleLocalChange(
                       null,
