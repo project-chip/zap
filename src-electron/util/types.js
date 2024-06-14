@@ -246,11 +246,11 @@ function convertToCliType(str) {
  * @returns true if type is string, false otherwise
  */
 function isString(type) {
-  switch (type.toUpperCase()) {
-    case 'CHAR_STRING':
-    case 'OCTET_STRING':
-    case 'LONG_CHAR_STRING':
-    case 'LONG_OCTET_STRING':
+  switch (type.toLowerCase()) {
+    case 'char_string':
+    case 'octet_string':
+    case 'long_char_string':
+    case 'long_octet_string':
       return true
     default:
       return false
@@ -263,10 +263,10 @@ function isString(type) {
  * @returns true if type is float, false otherwise
  */
 function isFloat(type) {
-  switch (type) {
-    case 'FLOAT_SEMI':
-    case 'FLOAT_SINGLE':
-    case 'FLOAT_DOUBLE':
+  switch (type.toLowerCase()) {
+    case 'float_semi':
+    case 'float_single':
+    case 'float_double':
       return true
     default:
       return false
