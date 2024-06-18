@@ -266,5 +266,27 @@ export default {
         (x) => this.sdkExtClusterCode(x) === clusterRoleName
       )
     },
+    getLogos(selectedZapConfig) {
+      let logos = []
+      if (selectedZapConfig.length) {
+        for (let i = 0; i < selectedZapConfig.length; i++) {
+          if (selectedZapConfig[i].category) {
+            logos.push(
+              (this.$store.state.zap.isMultiConfig ? '/logo/tiny/' : '/logo/') +
+                selectedZapConfig[i].category +
+                '_logo' +
+                (this.$q.dark.isActive ? '_white' : '') +
+                '.svg'
+            )
+          } else {
+            logos.push('/logo/zap_logo.png')
+          }
+        }
+      } else {
+        logos.push('/logo/zap_logo.png')
+      }
+
+      return logos
+    },
   },
 }
