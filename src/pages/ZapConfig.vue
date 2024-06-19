@@ -5,16 +5,23 @@
         <q-scroll-area class="col q-px-xl">
           <div class="q-py-lg">
             <Transition name="slide-up" mode="out-in" appear>
-              <div class="column">
+              <div class="row justify-center q-col-gutter-sm text-center">
                 <img
-                  v-if="getLogo"
+                  v-for="(image, index) in getLogos(selectedZclPropertiesData)"
+                  :key="index"
+                  :src="image"
                   height="40"
-                  class="q-mx-auto q-my-lg block w-fit-content"
-                  :src="getLogo"
+                  class="q-mt-md w-fit-content"
                 />
               </div>
             </Transition>
-            <div class="row justify-center">
+            <div
+              v-if="isMultiProtocolConfiguration"
+              class="q-mx-auto w-fit-content text-primary"
+            >
+              Multiprotocol
+            </div>
+            <div class="row justify-center q-mt-md">
               <q-radio
                 v-if="loadPreSessionData.length"
                 v-model="customConfig"
@@ -399,7 +406,7 @@ import restApi from '../../src-shared/rest-api.js'
 import dbEnum from '../../src-shared/db-enum.js'
 import { QSpinnerGears } from 'quasar'
 import { setCssVar } from 'quasar'
-
+import CommonMixin from '../util/common-mixin'
 const generateNewSessionCol = [
   {
     name: 'select',
@@ -457,6 +464,7 @@ const loadPreSessionCol = [
 
 export default {
   name: 'ZapConfig',
+  mixins: [CommonMixin],
   data() {
     return {
       customConfig: 'select',
@@ -547,22 +555,11 @@ export default {
       return this.zclPropertiesRow.length > 1
     },
     getuitheme: function () {
-      return this.selectedZclPropertiesData?.category
-    },
-    getLogo: {
-      get() {
-        if (this.selectedZclPropertiesData?.category) {
-          return (
-            '/' +
-            this.selectedZclPropertiesData?.category +
-            '_logo' +
-            (this.$q.dark.isActive ? '_white' : '') +
-            '.svg'
-          )
-        } else {
-          return '/zap_logo.png'
-        }
-      },
+      if (this.isMultiProtocolConfiguration) {
+        return 'multiprotocol'
+      } else {
+        return this.selectedZclPropertiesData[0]?.category
+      }
     },
   },
 
@@ -585,11 +582,17 @@ export default {
   },
   methods: {
     addClassToBody() {
-      if (this.getuitheme === 'zigbee') {
+      if (this.isMultiProtocolConfiguration) {
         document.body.classList.remove('matter')
+        document.body.classList.remove('zigbee')
+        document.body.classList.add('multiprotocol')
+      } else if (this.getuitheme === 'zigbee') {
+        document.body.classList.remove('matter')
+        document.body.classList.remove('multiprotocol')
         document.body.classList.add('zigbee')
       } else {
         document.body.classList.remove('zigbee')
+        document.body.classList.remove('multiprotocol')
         document.body.classList.add('matter')
       }
     },

@@ -8,13 +8,21 @@
       style="width: 180px"
     >
       <Transition mode="out-in" name="slide-up">
-        <div v-if="$route.fullPath === '/'">
+        <div
+          v-if="$route.fullPath === '/'"
+          class="text-center text-primary text-caption fit-content"
+        >
           <img
-            v-for="(image, index) in getLogos"
+            v-for="(image, index) in getLogos(
+              $store.state.zap.selectedZapConfig
+                ? $store.state.zap.selectedZapConfig.zclProperties
+                : null
+            )"
             :key="index"
             :src="image"
             class="my-auto logo image-space"
           />
+          <div v-if="$store.state.zap.isMultiConfig">Multiprotocol</div>
         </div>
 
         <q-btn
@@ -224,9 +232,10 @@ import * as dbEnum from '../../src-shared/db-enum.js'
 const rendApi = require(`../../src-shared/rend-api.js`)
 const restApi = require(`../../src-shared/rest-api.js`)
 const observable = require('../util/observable.js')
-
+import CommonMixin from '../util/common-mixin'
 export default {
   name: 'ZCLToolbar',
+  mixins: [CommonMixin],
   computed: {
     isCoreDocumentationAvailable() {
       return (
@@ -259,43 +268,6 @@ export default {
     showDebugNavItems: {
       get() {
         return this.$store.state.zap.debugNavBar
-      },
-    },
-    getLogos: {
-      get() {
-        let zclProperties = this.$store.state.zap.selectedZapConfig
-          ? this.$store.state.zap.selectedZapConfig.zclProperties
-          : null
-        let logos = []
-        if (Array.isArray(zclProperties)) {
-          for (let i = 0; i < zclProperties.length; i++) {
-            if (zclProperties[i].category) {
-              logos.push(
-                '/' +
-                  zclProperties[i].category +
-                  '_logo' +
-                  (this.$q.dark.isActive ? '_white' : '') +
-                  '.svg'
-              )
-            } else {
-              logos.push('/zap_logo.png')
-            }
-          }
-        } else {
-          if (zclProperties && zclProperties.category) {
-            logos.push(
-              '/' +
-                this.$store.state.zap.selectedZapConfig?.zclProperties[0]
-                  .category +
-                '_logo' +
-                (this.$q.dark.isActive ? '_white' : '') +
-                '.svg'
-            )
-          } else {
-            logos.push('/zap_logo.png')
-          }
-        }
-        return logos
       },
     },
   },
@@ -444,7 +416,7 @@ export default {
   padding-right: calc(100vw - env(titlebar-area-width, 100vw) + 2px);
 }
 
-.image-space {
+.image-space:not(:last-of-type) {
   margin-right: 15px;
 }
 </style>
