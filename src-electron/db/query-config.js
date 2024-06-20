@@ -455,31 +455,23 @@ async function insertOrUpdateCommandState(
     `
 INSERT OR IGNORE
 INTO ENDPOINT_TYPE_COMMAND (
-  ENDPOINT_TYPE_REF,
   ENDPOINT_TYPE_CLUSTER_REF,
   COMMAND_REF,
   IS_INCOMING
-) VALUES( ?, ?, ?, ? )
+) VALUES( ?, ?, ? )
 `,
-    [
-      endpointTypeId,
-      cluster.endpointTypeClusterId,
-      commandId,
-      dbApi.toDbBool(isIncoming),
-    ]
+    [cluster.endpointTypeClusterId, commandId, dbApi.toDbBool(isIncoming)]
   )
   return dbApi.dbUpdate(
     db,
     `
 UPDATE ENDPOINT_TYPE_COMMAND
 SET IS_ENABLED = ?
-WHERE ENDPOINT_TYPE_REF = ?
-  AND ENDPOINT_TYPE_CLUSTER_REF = ?
+WHERE ENDPOINT_TYPE_CLUSTER_REF = ?
   AND COMMAND_REF = ?
   AND IS_INCOMING = ? `,
     [
       value,
-      endpointTypeId,
       cluster.endpointTypeClusterId,
       commandId,
       dbApi.toDbBool(isIncoming),
