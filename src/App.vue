@@ -60,8 +60,11 @@ window.addEventListener(
         }
         break
       case 'open-file':
-        observable.setObservableAttribute(rendApi.observable.reported_files, eventData)
-        break;
+        observable.setObservableAttribute(
+          rendApi.observable.reported_files,
+          eventData
+        )
+        break
     }
   },
   false
@@ -140,12 +143,11 @@ export default defineComponent({
     },
     uiThemeCategory: {
       get() {
-        let zclProps = this.$store.state.zap.selectedZapConfig?.zclProperties
-        // Picking the first category in the case of multi-protocol(zigbee/matter)
-        if (Array.isArray(zclProps) && zclProps.length > 0) {
-          return zclProps[0].category
+        if (this.$store.state.zap.isMultiConfig) {
+          return 'multiprotocol'
         } else {
-          return this.$store.state.zap.selectedZapConfig?.zclProperties.category
+          return this.$store.state.zap.selectedZapConfig?.zclProperties[0]
+            .category
         }
       },
     },
@@ -289,13 +291,8 @@ export default defineComponent({
       })
     },
     addClassToBody() {
-      if (this.uiThemeCategory === 'zigbee') {
-        document.body.classList.remove('matter')
-        document.body.classList.add('zigbee')
-      } else {
-        document.body.classList.remove('zigbee')
-        document.body.classList.add('matter')
-      }
+      document.body.classList.remove('matter', 'zigbee', 'multiprotocol')
+      document.body.classList.add(this.uiThemeCategory)
     },
   },
   created() {
@@ -317,11 +314,7 @@ export default defineComponent({
     )
   },
   unmounted() {
-    if (this.uiThemeCategory === 'zigbee') {
-      document.body.classList.remove('zigbee')
-    } else {
-      document.body.classList.remove('matter')
-    }
+    document.body.classList.remove('matter', 'zigbee', 'multiprotocol')
   },
   watch: {
     isZapConfigSelected(val) {

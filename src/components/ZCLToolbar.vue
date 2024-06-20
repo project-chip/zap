@@ -10,7 +10,7 @@
       <Transition mode="out-in" name="slide-up">
         <div
           v-if="$route.fullPath === '/'"
-          class="text-center text-primary text-caption fit-content"
+          class="text-center text-primary text-caption w-fit-content"
         >
           <img
             v-for="(image, index) in getLogos(
@@ -379,10 +379,10 @@ export default {
 }
 
 .navmenu-item:hover {
-  color: $primary !important;
+  color: var(--q-color-primary) !important;
 }
 .navmenu-item--active {
-  color: $primary !important;
+  color: var(--q-color-primary) !important;
   background-color: $grey-4;
 }
 

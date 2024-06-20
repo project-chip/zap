@@ -16,11 +16,10 @@ limitations under the License.
 
 <template>
   <div class="q-px-lg">
-    <div v-if="uiTheme === 'matter'">
-      <h3 id="zcl-advanced-platform">Welcome to Matter</h3>
-    </div>
-    <div v-else-if="uiTheme === 'zigbee'">
-      <h3 id="zcl-advanced-platform">Welcome to Zigbee</h3>
+    <div>
+      <h3 id="zcl-advanced-platform">
+        Welcome to <span class="text-capitalize">{{ uiTheme }}</span>
+      </h3>
     </div>
   </div>
 </template>
