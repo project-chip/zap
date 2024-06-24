@@ -73,6 +73,7 @@ apack_zap.package
 # Cypress screenshots and videos
 cypress/screenshots/**
 cypress/videos/**
+cypress/downloads/**
 
 # Cypress / Jest code coverage files
 jest-coverage
