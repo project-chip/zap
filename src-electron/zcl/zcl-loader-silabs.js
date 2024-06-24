@@ -1984,6 +1984,55 @@ async function parseSingleZclFile(db, packageId, file, context) {
 }
 
 /**
+ * Checks if there is a crc mismatch on any xml file. This can be used to
+ * decide if there is a need to reload all the xml files. Also check if the
+ * package is not loaded before.
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} files
+ * @returns the status of crc mismatch and whether a package is present in an
+ * object
+ */
+async function isCrcMismatchOrPackageDoesNotExist(db, packageId, files) {
+  let packagesNotFound = 0
+  let packagesFound = 0
+  let result = { isCrcMismatch: false, areSomePackagesNotLoaded: false }
+  for (let file of files) {
+    let fileContent = await fsp.readFile(file)
+    let filePath = file
+    let actualCrc = util.checksum(fileContent)
+
+    let pkg = await queryPackage.getPackageByPathAndParent(
+      db,
+      filePath,
+      packageId,
+      false
+    )
+
+    if (pkg != null && pkg.crc != actualCrc) {
+      env.logDebug(
+        `CRC missmatch for file ${pkg.path}, (${pkg.crc} vs ${actualCrc}) package id ${pkg.id}, parsing.
+        Mismatch with package id: ${packageId}`
+      )
+      result.isCrcMismatch = true
+      return result
+    } else if (pkg == null) {
+      // This is executed if there is no CRC in the database.
+      packagesNotFound++
+      env.logDebug(
+        `No CRC in the database for file ${filePath}. Package needs to be loaded`
+      )
+    } else if (pkg != null && pkg.crc == actualCrc) {
+      packagesFound++
+    }
+  }
+  result.areSomePackagesNotLoaded = !(
+    packagesNotFound == files.length || packagesFound == files.length
+  )
+  return result
+}
+
+/**
  *
  * Promises to iterate over all the XML files and returns an aggregate promise
  * that will be resolved when all the XML files are done, or rejected if at least one fails.
@@ -2473,11 +2522,6 @@ async function loadZclJsonOrProperties(db, metafile, isJson = false) {
 
   try {
     Object.assign(ctx, await util.readFileContentAndCrc(ctx.metadataFile))
-    ctx.packageId = await zclLoader.recordToplevelPackage(
-      db,
-      ctx.metadataFile,
-      ctx.crc
-    )
     let ret
     if (isJson) {
       ret = await collectDataFromJsonFile(ctx.metadataFile, ctx.data)
@@ -2485,6 +2529,27 @@ async function loadZclJsonOrProperties(db, metafile, isJson = false) {
       ret = await collectDataFromPropertiesFile(ctx.metadataFile, ctx.data)
     }
     Object.assign(ctx, ret)
+    ctx.packageId = await zclLoader.recordToplevelPackage(
+      db,
+      ctx.metadataFile,
+      ctx.crc,
+      true
+    )
+    let packageStatus = await isCrcMismatchOrPackageDoesNotExist(
+      db,
+      ctx.packageId,
+      ctx.zclFiles
+    )
+    if (packageStatus.isCrcMismatch || packageStatus.areSomePackagesNotLoaded) {
+      await queryPackage.updatePackageIsInSync(db, ctx.packageId, 0)
+      ctx.packageId = await zclLoader.recordToplevelPackage(
+        db,
+        ctx.metadataFile,
+        ctx.crc,
+        false
+      )
+    }
+
     if (
       ctx.version != null ||
       ctx.category != null ||
