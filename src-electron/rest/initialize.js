@@ -24,15 +24,14 @@ const queryPackage = require('../db/query-package.js')
 const querySession = require('../db/query-session.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const restApi = require('../../src-shared/rest-api.js')
-const querystring = require('querystring')
 const util = require('../util/util.js')
 const fs = require('fs')
 const fsp = fs.promises
 
 /**
  * This function returns Properties, Templates and Dirty-Sessions
- * @param {*} db
- * @returns Properties, Templates and Dirty-Sessions.
+ * @param {*} db - The database connection object
+ * @returns An async function that handles HTTP requests
  */
 function sessionAttempt(db) {
   return async (req, res) => {
@@ -131,6 +130,12 @@ function sessionAttempt(db) {
   }
 }
 
+/**
+ * This function creates a new session.
+ * @param {*} db - The database connection object
+ * @returns An async function that handles HTTP requests. The function extracts session parameters from the request,
+ * ensures the user and session exist in the database, and populates the session options with the provided packages.
+ */
 function sessionCreate(db) {
   return async (req, res) => {
     let { zclProperties, genTemplate } = req.body
