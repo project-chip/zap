@@ -30,7 +30,6 @@ const env = require('../util/env')
 const templateEngine = require('./template-engine.js')
 const dbApi = require('../db/db-api.js')
 const dbCache = require('../db/db-cache.js')
-const e = require('express')
 const queryNotification = require('../db/query-package-notification.js')
 
 /**
@@ -752,6 +751,7 @@ async function generateSingleTemplate(
     disableDeprecationWarnings: false,
   }
 ) {
+  env.logInfo(`Start generating from template: ${genTemplateJsonPackage?.path}`)
   let genFunction
   if (singleTemplatePkg.iterator != null) {
     genFunction = templateEngine.produceIterativeContent
@@ -773,6 +773,9 @@ async function generateSingleTemplate(
       genResult.stats[result.key] = result.stats
     }
     genResult.partial = true
+    env.logInfo(
+      `Finish generating from template: ${genTemplateJsonPackage?.path}`
+    )
     return genResult
   } catch (err) {
     genResult.errors[singleTemplatePkg.category] = err

@@ -153,10 +153,19 @@ async function ensureZclPackageIds(context) {
       return pkgIds
     } else {
       for (let i = 0; i < pkgIds.length; i++) {
-        let zclPkg = await queryPackage.getPackageByPackageId(
-          context.global.db,
-          pkgIds[i]
-        )
+        if (context.global.packageCache == null) {
+          context.global.packageCache = new Map()
+        }
+
+        let zclPkg = context.global.packageCache.get(pkgIds[i])
+        if (zclPkg == null) {
+          zclPkg = await queryPackage.getPackageByPackageId(
+            context.global.db,
+            pkgIds[i]
+          )
+          context.global.packageCache.set(pkgIds[i], zclPkg)
+        }
+
         // Checking for category match or custom xml
         if (
           zclPkg.category == packageCategory ||
@@ -192,6 +201,20 @@ async function ensureZclPackageIds(context) {
       context.global.zclPackageIds = pkgs
       return resPkgIds
     }
+  }
+}
+
+async function ensureTemplatePackageCategory(context) {
+  if (`templatePackageCategory` in context.global) {
+    return context.global.templatePackageCategory
+  } else if ('genTemplatePackage' in context.global) {
+    return context.global.genTemplatePackage.category
+  } else {
+    let id = await ensureTemplatePackageId(context)
+    if (id == null) return null
+    let pkg = await queryPackage.getPackageByPackageId(context.global.db, id)
+    context.global.templatePackageCategory = pkg?.category
+    return pkg?.category
   }
 }
 
@@ -508,6 +531,7 @@ exports.collectBlocks = collectBlocks
 exports.ensureZclPackageId = ensureZclPackageId
 exports.ensureZclPackageIds = ensureZclPackageIds
 exports.ensureTemplatePackageId = ensureTemplatePackageId
+exports.ensureTemplatePackageCategory = ensureTemplatePackageCategory
 exports.ensureZclClusterSdkExtensions = ensureZclClusterSdkExtensions
 exports.ensureZclAttributeSdkExtensions = ensureZclAttributeSdkExtensions
 exports.ensureZclAttributeTypeSdkExtensions =
