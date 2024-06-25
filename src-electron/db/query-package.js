@@ -26,7 +26,7 @@ const dbEnum = require('../../src-shared/db-enum.js')
 const querySession = require('./query-session')
 
 const querySelectFromPackage = `
-SELECT 
+SELECT
   PACKAGE_ID,
   PATH,
   TYPE,
@@ -308,8 +308,8 @@ async function registerTopLevelPackage(
     let id = await dbApi.dbInsert(
       db,
       `
-INSERT INTO PACKAGE ( 
-  PATH, CRC, TYPE, PARENT_PACKAGE_REF, VERSION, CATEGORY, DESCRIPTION 
+INSERT INTO PACKAGE (
+  PATH, CRC, TYPE, PARENT_PACKAGE_REF, VERSION, CATEGORY, DESCRIPTION
 ) VALUES (?,?,?,?,?,?,?)`,
       [path, crc, type, null, version, category, description]
     )
@@ -413,13 +413,13 @@ async function getSessionPackagesByType(db, sessionId, packageType) {
     .dbAll(
       db,
       `
-SELECT 
+SELECT
   PACKAGE.PACKAGE_ID,
   PACKAGE.PATH,
   PACKAGE.TYPE,
   PACKAGE.CRC,
   PACKAGE.VERSION,
-  PACKAGE.CATEGORY, 
+  PACKAGE.CATEGORY,
   PACKAGE.DESCRIPTION
 FROM PACKAGE
 INNER JOIN SESSION_PACKAGE
@@ -428,8 +428,8 @@ INNER JOIN
   SESSION_PARTITION
 ON
   SESSION_PACKAGE.SESSION_PARTITION_REF= SESSION_PARTITION.SESSION_PARTITION_ID
-WHERE SESSION_PARTITION.SESSION_REF = ? 
-  AND PACKAGE.TYPE = ? 
+WHERE SESSION_PARTITION.SESSION_REF = ?
+  AND PACKAGE.TYPE = ?
   AND SESSION_PACKAGE.ENABLED = 1`,
       [sessionId, packageType]
     )
@@ -448,7 +448,7 @@ async function getSessionGenTemplates(db, sessionId) {
     .dbAll(
       db,
       `
-      SELECT 
+      SELECT
       PACKAGE.PACKAGE_ID,
       PACKAGE.PATH,
       PACKAGE.TYPE,
@@ -457,10 +457,10 @@ async function getSessionGenTemplates(db, sessionId) {
       PACKAGE.CATEGORY,
       PACKAGE.DESCRIPTION
     FROM PACKAGE
-    WHERE 
+    WHERE
     PACKAGE.TYPE = ? AND
-    PACKAGE.PARENT_PACKAGE_REF = 
-    (SELECT 
+    PACKAGE.PARENT_PACKAGE_REF =
+    (SELECT
       PACKAGE.PACKAGE_ID
     FROM PACKAGE
     INNER JOIN SESSION_PACKAGE
@@ -469,7 +469,7 @@ async function getSessionGenTemplates(db, sessionId) {
       SESSION_PARTITION
     ON
       SESSION_PACKAGE.SESSION_PARTITION_REF= SESSION_PARTITION.SESSION_PARTITION_ID
-    WHERE SESSION_PARTITION.SESSION_REF = ? 
+    WHERE SESSION_PARTITION.SESSION_REF = ?
       AND PACKAGE.TYPE = ?
       AND SESSION_PACKAGE.ENABLED = 1)
       ORDER BY PACKAGE.PATH ASC`,
@@ -493,7 +493,7 @@ async function getSessionZclPackages(db, sessionId) {
     .dbAll(
       db,
       `
-SELECT 
+SELECT
   SP.PACKAGE_REF,
   SESSION_PARTITION.SESSION_REF,
   SESSION_PARTITION.SESSION_PARTITION_ID,
@@ -505,9 +505,9 @@ INNER JOIN
   SESSION_PACKAGE AS SP
 ON
   SP.SESSION_PARTITION_REF= SESSION_PARTITION.SESSION_PARTITION_ID
-INNER JOIN 
+INNER JOIN
   PACKAGE AS P
-ON 
+ON
   SP.PACKAGE_REF = P.PACKAGE_ID
 WHERE
   SESSION_PARTITION.SESSION_REF = ? AND SP.ENABLED = 1 AND P.TYPE IN ${inList}
@@ -539,7 +539,7 @@ async function getSessionPackages(db, sessionId) {
     .dbAll(
       db,
       `
-      SELECT 
+      SELECT
         SESSION_PACKAGE.PACKAGE_REF,
         SESSION_PARTITION.SESSION_REF,
         SESSION_PACKAGE.REQUIRED
@@ -567,22 +567,22 @@ async function getSessionPackagesWithTypes(db, sessionId) {
     .dbAll(
       db,
       `
-SELECT 
+SELECT
   SP.PACKAGE_REF,
   SESSION_PARTITION.SESSION_REF,
   SP.REQUIRED,
   P.TYPE
-FROM 
+FROM
   SESSION_PARTITION
 INNER JOIN
   SESSION_PACKAGE AS SP
 ON
   SP.SESSION_PARTITION_REF= SESSION_PARTITION.SESSION_PARTITION_ID
-INNER JOIN 
+INNER JOIN
   PACKAGE AS P
-ON 
+ON
   SP.PACKAGE_REF = P.PACKAGE_ID
-WHERE 
+WHERE
   SESSION_PARTITION.SESSION_REF = ? AND SP.ENABLED = 1`,
       [sessionId]
     )
@@ -598,29 +598,29 @@ async function getPackageSessionPackagePairBySessionId(db, sessionId) {
   let rows = await dbApi.dbAll(
     db,
     `
-SELECT 
-  P.PACKAGE_ID, 
-  P.PATH, 
-  P.TYPE, 
-  P.CRC, 
-  P.VERSION, 
-  P.CATEGORY, 
-  P.DESCRIPTION, 
+SELECT
+  P.PACKAGE_ID,
+  P.PATH,
+  P.TYPE,
+  P.CRC,
+  P.VERSION,
+  P.CATEGORY,
+  P.DESCRIPTION,
   P.PARENT_PACKAGE_REF,
   SP.PACKAGE_REF,
   SESSION_PARTITION.SESSION_REF,
   SP.REQUIRED
-FROM 
+FROM
   PACKAGE AS P
 INNER JOIN
   SESSION_PACKAGE AS SP
 ON
   P.PACKAGE_ID = SP.PACKAGE_REF
-INNER JOIN 
+INNER JOIN
   SESSION_PARTITION
 ON
   SP.SESSION_PARTITION_REF= SESSION_PARTITION.SESSION_PARTITION_ID
-WHERE 
+WHERE
   SESSION_PARTITION.SESSION_REF = ?
   AND SP.ENABLED = 1`,
     [sessionId]
@@ -641,16 +641,16 @@ async function getAllPackages(db) {
   return dbApi
     .dbAll(
       db,
-      `SELECT 
-        PACKAGE_ID, 
-        PATH, 
-        TYPE, 
-        CRC, 
-        VERSION, 
+      `SELECT
+        PACKAGE_ID,
+        PATH,
+        TYPE,
+        CRC,
+        VERSION,
         CATEGORY,
         DESCRIPTION,
         PARENT_PACKAGE_REF
-       FROM 
+       FROM
         PACKAGE`
     )
     .then((rows) => rows.map(dbMapping.map.package))
@@ -660,12 +660,12 @@ async function getAttributeAccessInterface(db, code) {
   return dbApi
     .dbAll(
       db,
-      `SELECT 
-        PACKAGE_REF, 
-        OPTION_CATEGORY, 
-        OPTION_CODE, 
+      `SELECT
+        PACKAGE_REF,
+        OPTION_CATEGORY,
+        OPTION_CODE,
         OPTION_LABEL
-       FROM 
+       FROM
         PACKAGE_OPTION
        WHERE
         OPTION_CODE = ?`,
@@ -691,8 +691,8 @@ async function insertOptionsKeyValues(
   return dbApi.dbMultiInsert(
     db,
     `INSERT INTO PACKAGE_OPTION
-        (PACKAGE_REF, OPTION_CATEGORY, OPTION_CODE, OPTION_LABEL) 
-       VALUES 
+        (PACKAGE_REF, OPTION_CATEGORY, OPTION_CODE, OPTION_LABEL)
+       VALUES
         (?, ?, ?, ?)
        ON CONFLICT
         (PACKAGE_REF, OPTION_CATEGORY, OPTION_CODE, OPTION_LABEL)
@@ -832,12 +832,12 @@ async function insertPackageExtensionDefault(
     db,
     `
 INSERT INTO PACKAGE_EXTENSION_DEFAULT (
-  PACKAGE_EXTENSION_REF, 
-  ENTITY_CODE, 
-  ENTITY_QUALIFIER, 
-  PARENT_CODE, 
-  MANUFACTURER_CODE, 
-  VALUE 
+  PACKAGE_EXTENSION_REF,
+  ENTITY_CODE,
+  ENTITY_QUALIFIER,
+  PARENT_CODE,
+  MANUFACTURER_CODE,
+  VALUE
 ) VALUES ( ?, ?, ?, ?, ?, ? )
 ON CONFLICT DO NOTHING
     `,
@@ -873,13 +873,13 @@ async function insertPackageExtension(
     .dbMultiInsert(
       db,
       `
-INSERT INTO PACKAGE_EXTENSION ( 
-  PACKAGE_REF, 
-  ENTITY, 
-  PROPERTY, 
-  TYPE, 
-  CONFIGURABILITY, 
-  LABEL, 
+INSERT INTO PACKAGE_EXTENSION (
+  PACKAGE_REF,
+  ENTITY,
+  PROPERTY,
+  TYPE,
+  CONFIGURABILITY,
+  LABEL,
   GLOBAL_DEFAULT
 ) VALUES (?, ?, ?, ?, ?, ?, ?)
 ON CONFLICT DO NOTHING`,
@@ -939,7 +939,7 @@ SELECT
   PED.PARENT_CODE,
   PED.MANUFACTURER_CODE,
   PED.VALUE
-FROM 
+FROM
   PACKAGE_EXTENSION AS PE
 LEFT OUTER JOIN
   PACKAGE_EXTENSION_DEFAULT AS PED
@@ -1004,7 +1004,7 @@ SELECT
   PED.PARENT_CODE,
   PED.MANUFACTURER_CODE,
   PED.VALUE
-FROM 
+FROM
   PACKAGE_EXTENSION AS PE
 LEFT OUTER JOIN
   PACKAGE_EXTENSION_DEFAULT AS PED

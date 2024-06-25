@@ -91,3 +91,7 @@ artifacts
 **/zap-*.zip
 **/zap-*zip.json
 **/zap-*.zip.download
+
+# Usual test names
+test-regen
+test-output/

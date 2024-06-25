@@ -142,12 +142,10 @@ async function ensureZclPackageId(context) {
  * @returns promise that resolves with a list of package id.
  */
 async function ensureZclPackageIds(context) {
-  // Get category of templates.json
-  let pkg = await queryPackage.getPackageByPackageId(
-    context.global.db,
-    context.global.genTemplatePackageId
-  )
-  let packageCategory = pkg ? pkg.category : null
+  let packageCategory = null
+  if (context.global.genTemplatePackage != null) {
+    packageCategory = context.global.genTemplatePackage.category
+  }
   let resPkgIds = []
   if ('zclPackageIds' in context.global) {
     let pkgIds = context.global.zclPackageIds
@@ -229,11 +227,10 @@ async function ensureTemplatePackageId(context) {
  * @returns endpoint type ids
  */
 async function ensureEndpointTypeIds(context) {
-  let pkg = await queryPackage.getPackageByPackageId(
-    context.global.db,
-    context.global.genTemplatePackageId
-  )
-  let packageCategory = pkg.category
+  let packageCategory = null
+  if (context.global.genTemplatePackage != null) {
+    packageCategory = context.global.genTemplatePackage.category
+  }
   let resEptIds = []
 
   if ('endpointTypeIds' in context.global) {

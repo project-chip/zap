@@ -724,17 +724,10 @@ async function generateAllTemplates(
   await Promise.all(helperPromises)
   await Promise.all(partialPromises)
   let templates = generationTemplates.map((pkg) =>
-    generateSingleTemplate(
-      hb,
-      metaInfo,
-      genResult,
-      pkg,
-      genTemplateJsonPkg.id,
-      {
-        overridePath: overridePath,
-        disableDeprecationWarnings: options.disableDeprecationWarnings,
-      }
-    )
+    generateSingleTemplate(hb, metaInfo, genResult, pkg, genTemplateJsonPkg, {
+      overridePath: overridePath,
+      disableDeprecationWarnings: options.disableDeprecationWarnings,
+    })
   )
   await Promise.all(templates)
   genResult.partial = false
@@ -753,7 +746,7 @@ async function generateSingleTemplate(
   metaInfo,
   genResult,
   singleTemplatePkg,
-  genTemplateJsonPackageId,
+  genTemplateJsonPackage,
   options = {
     overridePath: null,
     disableDeprecationWarnings: false,
@@ -772,7 +765,7 @@ async function generateSingleTemplate(
       genResult.db,
       genResult.sessionId,
       singleTemplatePkg,
-      genTemplateJsonPackageId,
+      genTemplateJsonPackage,
       options
     )
     for (let result of resultArray) {

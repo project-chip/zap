@@ -95,7 +95,7 @@ async function produceCompiledTemplate(hb, singleTemplatePkg) {
  * @param {*} db
  * @param {*} sessionId
  * @param {*} singleTemplatePkg
- * @param {*} genTemplateJsonPackageId
+ * @param {*} genTemplateJsonPackage
  * @param {*} options
  * @returns Promise that resolves into an array of key/content/stats objects.
  */
@@ -105,7 +105,7 @@ async function produceIterativeContent(
   db,
   sessionId,
   singleTemplatePkg,
-  genTemplateJsonPackageId,
+  genTemplateJsonPackage,
   options = {
     overridePath: null,
     disableDeprecationWarnings: false,
@@ -126,7 +126,7 @@ async function produceIterativeContent(
       db,
       sessionId,
       singleTemplatePkg,
-      genTemplateJsonPackageId,
+      genTemplateJsonPackage,
       options
     )
     res.push(...r)
@@ -151,7 +151,7 @@ async function produceContent(
   db,
   sessionId,
   singleTemplatePkg,
-  genTemplateJsonPackageId,
+  genTemplateJsonPackage,
   options = {
     overridePath: null,
     overrideKey: null,
@@ -168,7 +168,8 @@ async function produceContent(
       sessionId: sessionId,
       templatePath: singleTemplatePkg.path,
       promises: [],
-      genTemplatePackageId: genTemplateJsonPackageId,
+      genTemplatePackageId: genTemplateJsonPackage?.id, // We put this one here for backwards compatibility
+      genTemplatePackage: genTemplateJsonPackage, // We add the whole data here so it can be reused instead of queried for.
       overridable: loadOverridable(options.overridePath),
       resource: (key) => {
         if (key in metaInfo.resources) {
@@ -224,7 +225,7 @@ function wrapOverridable(originalFn, overrideFn) {
 /**
  * This function is responsible to load the overridable function container.
  *
- * @param {*} genTemplatePackageId
+ * @param {*} path of the override file
  */
 function loadOverridable(overridePath) {
   let originals = require('./overridable.js')
