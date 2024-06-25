@@ -30,7 +30,6 @@ const env = require('../util/env')
 const templateEngine = require('./template-engine.js')
 const dbApi = require('../db/db-api.js')
 const dbCache = require('../db/db-cache.js')
-const e = require('express')
 const queryNotification = require('../db/query-package-notification.js')
 
 /**
@@ -724,17 +723,10 @@ async function generateAllTemplates(
   await Promise.all(helperPromises)
   await Promise.all(partialPromises)
   let templates = generationTemplates.map((pkg) =>
-    generateSingleTemplate(
-      hb,
-      metaInfo,
-      genResult,
-      pkg,
-      genTemplateJsonPkg.id,
-      {
-        overridePath: overridePath,
-        disableDeprecationWarnings: options.disableDeprecationWarnings,
-      }
-    )
+    generateSingleTemplate(hb, metaInfo, genResult, pkg, genTemplateJsonPkg, {
+      overridePath: overridePath,
+      disableDeprecationWarnings: options.disableDeprecationWarnings,
+    })
   )
   await Promise.all(templates)
   genResult.partial = false
@@ -753,12 +745,13 @@ async function generateSingleTemplate(
   metaInfo,
   genResult,
   singleTemplatePkg,
-  genTemplateJsonPackageId,
+  genTemplateJsonPackage,
   options = {
     overridePath: null,
     disableDeprecationWarnings: false,
   }
 ) {
+  env.logInfo(`Start generating from template: ${genTemplateJsonPackage?.path}`)
   let genFunction
   if (singleTemplatePkg.iterator != null) {
     genFunction = templateEngine.produceIterativeContent
@@ -772,7 +765,7 @@ async function generateSingleTemplate(
       genResult.db,
       genResult.sessionId,
       singleTemplatePkg,
-      genTemplateJsonPackageId,
+      genTemplateJsonPackage,
       options
     )
     for (let result of resultArray) {
@@ -780,6 +773,9 @@ async function generateSingleTemplate(
       genResult.stats[result.key] = result.stats
     }
     genResult.partial = true
+    env.logInfo(
+      `Finish generating from template: ${genTemplateJsonPackage?.path}`
+    )
     return genResult
   } catch (err) {
     genResult.errors[singleTemplatePkg.category] = err

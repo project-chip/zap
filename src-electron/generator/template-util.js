@@ -142,12 +142,10 @@ async function ensureZclPackageId(context) {
  * @returns promise that resolves with a list of package id.
  */
 async function ensureZclPackageIds(context) {
-  // Get category of templates.json
-  let pkg = await queryPackage.getPackageByPackageId(
-    context.global.db,
-    context.global.genTemplatePackageId
-  )
-  let packageCategory = pkg ? pkg.category : null
+  let packageCategory = null
+  if (context.global.genTemplatePackage != null) {
+    packageCategory = context.global.genTemplatePackage.category
+  }
   let resPkgIds = []
   if ('zclPackageIds' in context.global) {
     let pkgIds = context.global.zclPackageIds
@@ -155,10 +153,19 @@ async function ensureZclPackageIds(context) {
       return pkgIds
     } else {
       for (let i = 0; i < pkgIds.length; i++) {
-        let zclPkg = await queryPackage.getPackageByPackageId(
-          context.global.db,
-          pkgIds[i]
-        )
+        if (context.global.packageCache == null) {
+          context.global.packageCache = new Map()
+        }
+
+        let zclPkg = context.global.packageCache.get(pkgIds[i])
+        if (zclPkg == null) {
+          zclPkg = await queryPackage.getPackageByPackageId(
+            context.global.db,
+            pkgIds[i]
+          )
+          context.global.packageCache.set(pkgIds[i], zclPkg)
+        }
+
         // Checking for category match or custom xml
         if (
           zclPkg.category == packageCategory ||
@@ -198,6 +205,26 @@ async function ensureZclPackageIds(context) {
 }
 
 /**
+ * Returns a package category of the toplevel template package from context.
+ *
+ * @param {*} context
+ * @returns proimise that resolves into a package category
+ */
+async function ensureTemplatePackageCategory(context) {
+  if (`templatePackageCategory` in context.global) {
+    return context.global.templatePackageCategory
+  } else if ('genTemplatePackage' in context.global) {
+    return context.global.genTemplatePackage.category
+  } else {
+    let id = await ensureTemplatePackageId(context)
+    if (id == null) return null
+    let pkg = await queryPackage.getPackageByPackageId(context.global.db, id)
+    context.global.templatePackageCategory = pkg?.category
+    return pkg?.category
+  }
+}
+
+/**
  * Returns the promise that resolves with the ZCL properties package id.
  *
  * @param {*} context
@@ -229,11 +256,10 @@ async function ensureTemplatePackageId(context) {
  * @returns endpoint type ids
  */
 async function ensureEndpointTypeIds(context) {
-  let pkg = await queryPackage.getPackageByPackageId(
-    context.global.db,
-    context.global.genTemplatePackageId
-  )
-  let packageCategory = pkg.category
+  let packageCategory = null
+  if (context.global.genTemplatePackage != null) {
+    packageCategory = context.global.genTemplatePackage.category
+  }
   let resEptIds = []
 
   if ('endpointTypeIds' in context.global) {
@@ -511,6 +537,7 @@ exports.collectBlocks = collectBlocks
 exports.ensureZclPackageId = ensureZclPackageId
 exports.ensureZclPackageIds = ensureZclPackageIds
 exports.ensureTemplatePackageId = ensureTemplatePackageId
+exports.ensureTemplatePackageCategory = ensureTemplatePackageCategory
 exports.ensureZclClusterSdkExtensions = ensureZclClusterSdkExtensions
 exports.ensureZclAttributeSdkExtensions = ensureZclAttributeSdkExtensions
 exports.ensureZclAttributeTypeSdkExtensions =

@@ -41,11 +41,7 @@ const queryDeviceType = require('../db/query-device-type.js')
  */
 function user_endpoints(options) {
   let promise = templateUtil
-    .ensureTemplatePackageId(this)
-    .then((packageId) =>
-      queryPackage.getPackageByPackageId(this.global.db, packageId)
-    )
-    .then((packageInfo) => packageInfo.category)
+    .ensureTemplatePackageCategory(this)
     .then((packageInfoCategory) =>
       Promise.all([
         queryEndpointType.selectAllEndpointTypes(
