@@ -204,6 +204,12 @@ async function ensureZclPackageIds(context) {
   }
 }
 
+/**
+ * Returns a package category of the toplevel template package from context.
+ *
+ * @param {*} context
+ * @returns proimise that resolves into a package category
+ */
 async function ensureTemplatePackageCategory(context) {
   if (`templatePackageCategory` in context.global) {
     return context.global.templatePackageCategory
