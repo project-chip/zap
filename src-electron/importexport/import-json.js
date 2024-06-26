@@ -524,7 +524,6 @@ async function importAttributes(
       await queryImpexp.importAttributeForEndpointType(
         db,
         allZclPackageIds,
-        endpointTypeId,
         endpointClusterId,
         attributes[m],
         cluster

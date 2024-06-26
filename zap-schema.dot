@@ -29,7 +29,7 @@ digraph "SchemaCrawler_Diagram" {
 	</tr>
 	<tr>
 		<td align='right'>generated on</td>
-		<td align='left'>2024-06-14 15:34:01</td>
+		<td align='left'>2024-06-26 19:28:05</td>
 	</tr>
       </table>
     >
@@ -359,8 +359,8 @@ digraph "SchemaCrawler_Diagram" {
   "attribute_mapping_caf33e4a":"attribute_left_ref_81c4b594.start":w -> "attribute_a6e02edb":"attribute_id_82ad7e43.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="teeodot"];
   "attribute_mapping_caf33e4a":"attribute_right_ref_a8202ca3.start":w -> "attribute_a6e02edb":"attribute_id_82ad7e43.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="teeodot"];
   "device_type_attribute_ce5151f":"attribute_ref_f33016f1.start":w -> "attribute_a6e02edb":"attribute_id_82ad7e43.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
+  "endpoint_type_attribute_c265400":"attribute_ref_dc16b430.start":w -> "attribute_a6e02edb":"attribute_id_82ad7e43.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="teeodot"];
   "global_attribute_default_73c65a21":"attribute_ref_6877722f.start":w -> "attribute_a6e02edb":"attribute_id_82ad7e43.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
-  "endpoint_type_attribute_c265400":"attribute_ref_dc16b430.start":w -> "attribute_a6e02edb":"attribute_id_82ad7e43.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
 
 
   /* ATTRIBUTE_ACCESS -=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -1333,7 +1333,6 @@ digraph "SchemaCrawler_Diagram" {
   "endpoint_type_cluster_c12e3c9e":"endpoint_type_ref_ae18b87a.start":w -> "endpoint_type_9857dc03":"endpoint_type_id_960ad7f3.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
   "endpoint_type_device_e685fbb0":"endpoint_type_ref_33b8dba8.start":w -> "endpoint_type_9857dc03":"endpoint_type_id_960ad7f3.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
   "endpoint_966d81f4":"endpoint_type_ref_80c21de4.start":w -> "endpoint_type_9857dc03":"endpoint_type_id_960ad7f3.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
-  "endpoint_type_attribute_c265400":"endpoint_type_ref_c2238d58.start":w -> "endpoint_type_9857dc03":"endpoint_type_id_960ad7f3.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
   "endpoint_type_event_e67d6e7e":"endpoint_type_ref_32afc29a.start":w -> "endpoint_type_9857dc03":"endpoint_type_id_960ad7f3.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
 
 
@@ -1354,11 +1353,6 @@ digraph "SchemaCrawler_Diagram" {
 		<td align='left'></td>
 		<td align='left'> </td>
 		<td align='left'>auto-incremented</td>
-	</tr>
-	<tr>
-		<td port='endpoint_type_ref_c2238d58.start' align='left'>ENDPOINT_TYPE_REF</td>
-		<td align='left'> </td>
-		<td port='endpoint_type_ref_c2238d58.end' align='left'>INTEGER</td>
 	</tr>
 	<tr>
 		<td port='endpoint_type_cluster_ref_e1522873.start' align='left'>ENDPOINT_TYPE_CLUSTER_REF</td>
@@ -1463,8 +1457,8 @@ digraph "SchemaCrawler_Diagram" {
     >
   ];
 
+  "endpoint_type_attribute_c265400":"endpoint_type_cluster_ref_e1522873.start":w -> "endpoint_type_cluster_c12e3c9e":"endpoint_type_cluster_id_d354a03d.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="teeodot"];
   "endpoint_type_command_c5d909ef":"endpoint_type_cluster_ref_5df63064.start":w -> "endpoint_type_cluster_c12e3c9e":"endpoint_type_cluster_id_d354a03d.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
-  "endpoint_type_attribute_c265400":"endpoint_type_cluster_ref_e1522873.start":w -> "endpoint_type_cluster_c12e3c9e":"endpoint_type_cluster_id_d354a03d.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
   "endpoint_type_event_e67d6e7e":"endpoint_type_cluster_ref_51de5db5.start":w -> "endpoint_type_cluster_c12e3c9e":"endpoint_type_cluster_id_d354a03d.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
 
 
@@ -2109,6 +2103,11 @@ digraph "SchemaCrawler_Diagram" {
 		<td port='description_74fe73f7.start' align='left'>DESCRIPTION</td>
 		<td align='left'> </td>
 		<td port='description_74fe73f7.end' align='left'>TEXT</td>
+	</tr>
+	<tr>
+		<td port='is_in_sync_4348f37b.start' align='left'>IS_IN_SYNC</td>
+		<td align='left'> </td>
+		<td port='is_in_sync_4348f37b.end' align='left'>BOOLEAN</td>
 	</tr>
       </table>
     >

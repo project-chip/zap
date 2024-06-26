@@ -228,13 +228,13 @@ ON
 WHERE
   (A.CLUSTER_REF = ? OR A.CLUSTER_REF IS NULL)
   AND A.SIDE = ?
-  AND (EA.ENDPOINT_TYPE_REF = ? AND (EA.ENDPOINT_TYPE_CLUSTER_REF =
+  AND ((EA.ENDPOINT_TYPE_CLUSTER_REF =
     (SELECT ENDPOINT_TYPE_CLUSTER_ID
      FROM ENDPOINT_TYPE_CLUSTER
      WHERE CLUSTER_REF = ? AND SIDE = ? AND ENDPOINT_TYPE_REF = ?) ))
 ORDER BY A.MANUFACTURER_CODE, A.CODE
     `,
-    [clusterId, side, endpointTypeId, clusterId, side, endpointTypeId]
+    [clusterId, side, clusterId, side, endpointTypeId]
   )
 
   return rows.map((row) => {

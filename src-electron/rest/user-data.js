@@ -953,7 +953,6 @@ async function duplicateEndpointTypeClusters(
     oldAttributes.forEach(async (attrubute) => {
       await queryAttribute.duplicateEndpointTypeAttribute(
         db,
-        newEndpointTypeId,
         newEndpointTypeClusterId,
         attrubute
       )

@@ -52,7 +52,6 @@ async function exportEndpointType(db, endpointType) {
     endpointCluster.attributes =
       await queryImpExp.exportAttributesFromEndpointTypeCluster(
         db,
-        endpointType.endpointTypeId,
         endpointClusterId
       )
     if (endpointCluster.attributes.length == 0) {
