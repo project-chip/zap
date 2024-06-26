@@ -106,8 +106,14 @@ export default {
         if (this.$store.state.zap.isMultiConfig) {
           return 'multiprotocol'
         } else {
-          return this.$store.state.zap.selectedZapConfig?.zclProperties[0]
-            .category
+          let zclProps = this.$store.state.zap.selectedZapConfig?.zclProperties
+          // Picking the first category in the case of multi-protocol(zigbee/matter)
+          if (Array.isArray(zclProps) && zclProps.length > 0) {
+            return zclProps[0].category
+          } else {
+            return this.$store.state.zap.selectedZapConfig?.zclProperties
+              .category
+          }
         }
       },
     },
