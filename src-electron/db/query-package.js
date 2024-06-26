@@ -100,10 +100,11 @@ async function getZclPropertiesPackage(db, packages) {
  */
 async function getPackageByPathAndType(db, path, type) {
   return dbApi
-    .dbGet(db, `${querySelectFromPackage} WHERE PATH = ? AND TYPE = ?`, [
-      path,
-      type,
-    ])
+    .dbGet(
+      db,
+      `${querySelectFromPackage} WHERE PATH = ? AND TYPE = ? AND IS_IN_SYNC = 1`,
+      [path, type]
+    )
     .then(dbMapping.map.package)
 }
 
@@ -119,8 +120,18 @@ async function getPackageByPathAndType(db, path, type) {
 async function getPackageIdByPathAndTypeAndVersion(db, path, type, version) {
   // Version can be null for custom xml
   let packageQuery =
-    `SELECT PACKAGE_ID FROM PACKAGE WHERE PATH = '${path}' AND TYPE = '${type}' AND ` +
-    (version ? `VERSION = '${version}'` : `VERSION IS NULL`)
+    `
+    SELECT
+      PACKAGE_ID
+    FROM
+      PACKAGE
+    WHERE
+      IS_IN_SYNC = 1
+    AND
+      PATH = '${path}'
+    AND
+      TYPE = '${type}'
+    AND ` + (version ? `VERSION = '${version}'` : `VERSION IS NULL`)
   return dbApi.dbGet(db, packageQuery).then((row) => {
     if (row == null) return null
     else return row.PACKAGE_ID
@@ -136,7 +147,9 @@ async function getPackageIdByPathAndTypeAndVersion(db, path, type, version) {
  */
 async function getPackagesByType(db, type) {
   return dbApi
-    .dbAll(db, `${querySelectFromPackage} WHERE TYPE = ?`, [type])
+    .dbAll(db, `${querySelectFromPackage} WHERE TYPE = ? AND IS_IN_SYNC = 1`, [
+      type,
+    ])
     .then((rows) => rows.map(dbMapping.map.package))
 }
 /**
@@ -150,7 +163,7 @@ async function getPackagesByCategoryAndType(db, type, category = '') {
   return dbApi
     .dbAll(
       db,
-      `${querySelectFromPackage} WHERE TYPE = ? AND (CATEGORY IN (${category}) OR CATEGORY IS NULL)`,
+      `${querySelectFromPackage} WHERE IS_IN_SYNC = 1 AND TYPE = ? AND (CATEGORY IN (${category}) OR CATEGORY IS NULL)`,
       [type]
     )
     .then((rows) => rows.map(dbMapping.map.package))
@@ -231,16 +244,20 @@ async function getPackageRefByAttributeId(db, attributeId) {
  * @returns Promise resolving with a CRC or null.
  */
 async function getPathCrc(db, path) {
-  return dbApi.dbGet(db, 'SELECT CRC FROM PACKAGE WHERE PATH = ?', [path]).then(
-    (row) =>
-      new Promise((resolve, reject) => {
-        if (row == null) {
-          resolve(null)
-        } else {
-          resolve(row.CRC)
-        }
-      })
-  )
+  return dbApi
+    .dbGet(db, 'SELECT CRC FROM PACKAGE WHERE PATH = ? AND IS_IN_SYNC = 1', [
+      path,
+    ])
+    .then(
+      (row) =>
+        new Promise((resolve, reject) => {
+          if (row == null) {
+            resolve(null)
+          } else {
+            resolve(row.CRC)
+          }
+        })
+    )
 }
 
 /**
@@ -300,10 +317,11 @@ async function registerTopLevelPackage(
   type,
   version = null,
   category = null,
-  description = null
+  description = null,
+  isTopLevelPackageInSync = true
 ) {
   let row = await getPackageByPathAndType(db, path, type)
-  if (row == null) {
+  if (row == null || !isTopLevelPackageInSync) {
     // Doesn't exist. We have to add it.
     let id = await dbApi.dbInsert(
       db,
@@ -339,7 +357,22 @@ async function updatePathCrc(db, path, crc, parentId) {
   return dbApi.dbUpdate(
     db,
     'UPDATE PACKAGE SET CRC = ? WHERE PATH = ? AND PARENT_PACKAGE_REF = ?',
-    [path, crc, parentId]
+    [crc, path, parentId]
+  )
+}
+
+/**
+ * Updates a is in sync in the package table.
+ * @param {*} db
+ * @param {*} packageRef
+ * @param {*} isInSync
+ * @returns Promise of an update.
+ */
+async function updatePackageIsInSync(db, packageRef, isInSync) {
+  return dbApi.dbUpdate(
+    db,
+    'UPDATE PACKAGE SET IS_IN_SYNC = ? WHERE PACKAGE_ID = ?',
+    [dbApi.toDbBool(isInSync), packageRef]
   )
 }
 
@@ -650,8 +683,10 @@ async function getAllPackages(db) {
         CATEGORY,
         DESCRIPTION,
         PARENT_PACKAGE_REF
-       FROM
-        PACKAGE`
+       FROM 
+        PACKAGE
+       WHERE
+        IS_IN_SYNC = 1`
     )
     .then((rows) => rows.map(dbMapping.map.package))
 }
@@ -1117,3 +1152,4 @@ exports.insertSessionKeyValuesFromPackageDefaults =
 exports.getPackagesByCategoryAndType = getPackagesByCategoryAndType
 exports.getPackagesByPackageIds = getPackagesByPackageIds
 exports.getPackageByPathAndType = getPackageByPathAndType
+exports.updatePackageIsInSync = updatePackageIsInSync

@@ -36,14 +36,24 @@ const queryNotification = require('../db/query-session-notification')
  * @param {*} db
  * @param {*} metadataFile
  * @param {*} crc
+ * @param {*} isTopLevelPackageInSync
  * @returns packageId
  */
-async function recordToplevelPackage(db, metadataFile, crc) {
+async function recordToplevelPackage(
+  db,
+  metadataFile,
+  crc,
+  isTopLevelPackageInSync
+) {
   let topLevel = await queryPackage.registerTopLevelPackage(
     db,
     metadataFile,
     crc,
-    dbEnum.packageType.zclProperties
+    dbEnum.packageType.zclProperties,
+    null,
+    null,
+    null,
+    isTopLevelPackageInSync
   )
   return topLevel.id
 }
@@ -269,6 +279,7 @@ async function loadIndividualFile(db, filePath, sessionId) {
  * @param {*} db
  * @param {*} info
  * @param {*} parentPackageId
+ * @param {*} isCustom
  * @returns Promise that resolves int he object of data.
  */
 async function qualifyZclFile(

@@ -35,6 +35,14 @@ export function builtinSilabsZclMetafile() {
   return locateProjectResource('./zcl-builtin/silabs/zcl.json')
 }
 
+/**
+ *
+ * @returns path to general.xml file
+ */
+export function builtinSilabsZclGeneralXmlFile() {
+  return locateProjectResource('./zcl-builtin/silabs/general.xml')
+}
+
 export function builtinMatterZclMetafile() {
   return locateProjectResource('./zcl-builtin/matter/zcl.json')
 }

@@ -36,6 +36,7 @@ CREATE TABLE "PACKAGE" (
   "VERSION" integer,
   "CATEGORY" text,
   "DESCRIPTION" text,
+  "IS_IN_SYNC" boolean default 1,
   foreign key (PARENT_PACKAGE_REF) references PACKAGE(PACKAGE_ID) ON DELETE CASCADE ON UPDATE CASCADE
 );
 /*

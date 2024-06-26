@@ -124,7 +124,8 @@ async function recordTemplatesPackage(context) {
     dbEnum.packageType.genTemplatesJson,
     context.templateData.version,
     context.templateData.category,
-    context.templateData.description
+    context.templateData.description,
+    true
   )
   context.packageId = topLevel.id
   if (topLevel.existedPreviously) return context
