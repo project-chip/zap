@@ -1,0 +1,54 @@
+{
+  "name": "Matter 3 test templates",
+  "version": "matter-3",
+  "category": "matter",
+  "helpers": [
+    "common/ChipTypesHelper.js",
+    "common/ListHelper.js",
+    "common/StringHelper.js",
+    "partials/helper.js",
+    "templates/app/helper.js",
+    "templates/chip/helper.js",
+    "controller/java/templates/helper.js",
+    "controller/python/templates/helper.js",
+    "darwin/Framework/CHIP/templates/helper.js"
+  ],
+  "partials": [
+    {
+      "name": "header",
+      "path": "partials/header.zapt"
+    },
+    {
+      "name": "clusters_header",
+      "path": "partials/clusters_header.zapt"
+    },
+    {
+      "name": "cluster_header",
+      "path": "partials/cluster_header.zapt"
+    },
+    {
+      "name": "cluster_objects_attribute_typeinfo",
+      "path": "partials/cluster-objects-attribute-typeinfo.zapt"
+    },
+    {
+      "name": "cluster_objects_struct",
+      "path": "partials/cluster-objects-struct.zapt"
+    },
+    {
+      "name": "cluster_objects_field_init",
+      "path": "partials/cluster-objects-field-init.zapt"
+    }
+  ],
+  "resources": {
+    "pics-metafile": "../matter2/yaml/x.yaml",
+    "certification-metadir": "../matter2/yaml/",
+    "test-metadir": "../matter2/yaml/"
+  },
+  "templates": [
+    {
+      "path": "cluster-objects.zapt",
+      "name": "Cluster objects",
+      "output": "cluster-objects.out"
+    }
+  ]
+}
