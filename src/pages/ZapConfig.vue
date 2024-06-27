@@ -582,19 +582,8 @@ export default {
   },
   methods: {
     addClassToBody() {
-      if (this.isMultiProtocolConfiguration) {
-        document.body.classList.remove('matter')
-        document.body.classList.remove('zigbee')
-        document.body.classList.add('multiprotocol')
-      } else if (this.getuitheme === 'zigbee') {
-        document.body.classList.remove('matter')
-        document.body.classList.remove('multiprotocol')
-        document.body.classList.add('zigbee')
-      } else {
-        document.body.classList.remove('zigbee')
-        document.body.classList.remove('multiprotocol')
-        document.body.classList.add('matter')
-      }
+      document.body.classList.remove('matter', 'zigbee', 'multiprotocol')
+      document.body.classList.add(this.getuitheme)
     },
     submitForm() {
       if (this.customConfig === 'select') {
@@ -803,20 +792,14 @@ export default {
 <style lang="scss" scoped>
 .q-page {
   background: url('/bg-matter.jpg');
-  // background: @image, -moz-linear-gradient(top, @startColor, @endColor); // FF 3.6+
-  //     background: @image, -webkit-gradient(linear, 0 0, 0 100%, from(@startColor), to(@endColor)); // Safari 4+, Chrome 2+
-  //     background: @image, -webkit-linear-gradient(top, @startColor, @endColor); // Safari 5.1+, Chrome 10+
-  //     background: @image, -o-linear-gradient(top, @startColor, @endColor); // Opera 11.10
-  //     background: @image, linear-gradient(to bottom, @startColor, @endColor); // Standard, IE10
-  //background-attachment: fixed;
   background-size: cover;
   transition: 2s;
 
   &.zigbee {
     background: url('/bg-zigbee.jpg');
-    //  background-attachment: fixed;
-    background-size: cover;
-    transition: 2s;
+  }
+  &.multiprotocol {
+    background: url('/bg-multiprotocol.jpg');
   }
 }
 .slide-up-enter-active,

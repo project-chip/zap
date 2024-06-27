@@ -103,12 +103,17 @@ export default {
     },
     uiThemeCategory: {
       get() {
-        let zclProps = this.$store.state.zap.selectedZapConfig?.zclProperties
-        // Picking the first category in the case of multi-protocol(zigbee/matter)
-        if (Array.isArray(zclProps) && zclProps.length > 0) {
-          return zclProps[0].category
+        if (this.$store.state.zap.isMultiConfig) {
+          return 'multiprotocol'
         } else {
-          return this.$store.state.zap.selectedZapConfig?.zclProperties.category
+          let zclProps = this.$store.state.zap.selectedZapConfig?.zclProperties
+          // Picking the first category in the case user has chosen more than 2 options of the same protocols
+          if (Array.isArray(zclProps) && zclProps.length > 0) {
+            return zclProps[0].category
+          } else {
+            return this.$store.state.zap.selectedZapConfig?.zclProperties
+              .category
+          }
         }
       },
     },
