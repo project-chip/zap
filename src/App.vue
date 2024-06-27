@@ -147,7 +147,7 @@ export default defineComponent({
           return 'multiprotocol'
         } else {
           let zclProps = this.$store.state.zap.selectedZapConfig?.zclProperties
-          // Picking the first category in the case of multi-protocol(zigbee/matter)
+          // Picking the first category in the case user has chosen more than 2 options of the same protocols
           if (Array.isArray(zclProps) && zclProps.length > 0) {
             return zclProps[0].category
           } else {
