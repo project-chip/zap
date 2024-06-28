@@ -1,6 +1,6 @@
 {
-  "name": "Matter 3 test templates",
-  "version": "matter-3",
+  "name": "Matter 4 test templates",
+  "version": "matter-4",
   "category": "matter",
   "helpers": [
     "common/ChipTypesHelper.js",
