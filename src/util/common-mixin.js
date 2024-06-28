@@ -266,17 +266,30 @@ export default {
         (x) => this.sdkExtClusterCode(x) === clusterRoleName
       )
     },
+    createLogoSrc(isTiny, category, isSelected = false) {
+      return (
+        (isTiny ? '/logo/tiny/' : '/logo/') +
+        category +
+        '_logo' +
+        (isSelected || this.$q.dark.isActive ? '_white' : '') +
+        '.svg'
+      )
+    },
     getLogos(selectedZapConfig) {
       let logos = []
-      if (selectedZapConfig.length) {
+      if (selectedZapConfig?.length) {
         for (let i = 0; i < selectedZapConfig.length; i++) {
           if (selectedZapConfig[i].category) {
             logos.push(
-              (this.$store.state.zap.isMultiConfig ? '/logo/tiny/' : '/logo/') +
-                selectedZapConfig[i].category +
-                '_logo' +
-                (this.$q.dark.isActive ? '_white' : '') +
-                '.svg'
+              this.createLogoSrc(
+                this.$store.state.zap.isMultiConfig,
+                selectedZapConfig[i].category
+              )
+              // (this.$store.state.zap.isMultiConfig ? '/logo/tiny/' : '/logo/') +
+              //   selectedZapConfig[i].category +
+              //   '_logo' +
+              //   (this.$q.dark.isActive ? '_white' : '') +
+              //   '.svg'
             )
           } else {
             logos.push('/logo/zap_logo.png')
