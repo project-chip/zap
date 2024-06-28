@@ -164,7 +164,6 @@ function user_cluster_attributes(options) {
   let promise = queryImpexp
     .exportAttributesFromEndpointTypeCluster(
       this.global.db,
-      this.parent.endpointTypeId,
       this.endpointClusterId
     )
     .then((endpointAttributes) =>

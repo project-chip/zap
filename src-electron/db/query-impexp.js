@@ -615,15 +615,10 @@ INSERT INTO ENDPOINT_TYPE_EVENT (
  * Returns a promise of data for attributes inside an endpoint type.
  *
  * @param {*} db
- * @param {*} endpointTypeId
  * @param {*} endpointClusterId
  * @returns Promise that resolves with the attribute data.
  */
-async function exportAttributesFromEndpointTypeCluster(
-  db,
-  endpointTypeId,
-  endpointClusterId
-) {
+async function exportAttributesFromEndpointTypeCluster(db, endpointClusterId) {
   let mapFunction = (x) => {
     let result = {
       name: x.NAME,
@@ -673,12 +668,11 @@ INNER JOIN
 ON
   A.ATTRIBUTE_ID = ETA.ATTRIBUTE_REF
 WHERE
-  ETA.ENDPOINT_TYPE_REF = ?
-  AND ETA.ENDPOINT_TYPE_CLUSTER_REF = ?
+  ETA.ENDPOINT_TYPE_CLUSTER_REF = ?
 ORDER BY
   A.CODE, A.MANUFACTURER_CODE
     `,
-      [endpointTypeId, endpointClusterId]
+      [endpointClusterId]
     )
     .then((rows) => rows.map(mapFunction))
 }
@@ -688,7 +682,6 @@ ORDER BY
  *
  * @param {*} db
  * @param {*} packageId
- * @param {*} endpointTypeId
  * @param {*} endpointClusterId may be null if global attribute
  * @param {*} attribute
  * @param {*} cluster
@@ -697,7 +690,6 @@ ORDER BY
 async function importAttributeForEndpointType(
   db,
   packageIds,
-  endpointTypeId,
   endpointClusterId,
   attribute,
   cluster
@@ -769,7 +761,6 @@ WHERE
   }
 
   let arg = [
-    endpointTypeId,
     endpointClusterId,
     attributeId,
     attribute.included,
@@ -787,7 +778,6 @@ WHERE
     db,
     `
 INSERT INTO ENDPOINT_TYPE_ATTRIBUTE ( 
-  ENDPOINT_TYPE_REF,
   ENDPOINT_TYPE_CLUSTER_REF,
   ATTRIBUTE_REF,
   INCLUDED,
@@ -800,7 +790,7 @@ INSERT INTO ENDPOINT_TYPE_ATTRIBUTE (
   MAX_INTERVAL,
   REPORTABLE_CHANGE 
 ) VALUES ( 
-  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
 )
   `,
     arg
