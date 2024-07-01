@@ -466,7 +466,6 @@ async function importClusters(db, allZclPackageIds, endpointTypeId, clusters) {
       await importEvents(
         db,
         relevantZclPackageIds,
-        endpointTypeId,
         endpointClusterId,
         clusters[k].events
       )
@@ -536,23 +535,15 @@ async function importAttributes(
  * Imports the list of events from a cluster
  * @param {*} db
  * @param {*} allZclPackageIds
- * @param {*} endpointTypeId
  * @param {*} endpointClusterId
  * @param {*} events
  */
-async function importEvents(
-  db,
-  allZclPackageIds,
-  endpointTypeId,
-  endpointClusterId,
-  events
-) {
+async function importEvents(db, allZclPackageIds, endpointClusterId, events) {
   if (events) {
     for (let n = 0; n < events.length; n++) {
       await queryImpexp.importEventForEndpointType(
         db,
         allZclPackageIds,
-        endpointTypeId,
         endpointClusterId,
         events[n]
       )
