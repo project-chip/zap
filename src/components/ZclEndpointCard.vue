@@ -300,11 +300,15 @@ export default {
     }
   },
   methods: {
+    // Calculate readable category string
     getDeviceCategory(packageRef) {
       let category = ''
       this.$store.state.zap.selectedZapConfig.zclProperties.forEach((item) => {
         if (item.id === packageRef) {
-          category = item.category
+          if (item.category) {
+            category = item.category
+            return
+          }
         }
       })
       return category

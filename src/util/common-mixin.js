@@ -266,10 +266,25 @@ export default {
         (x) => this.sdkExtClusterCode(x) === clusterRoleName
       )
     },
+    /**
+     *  Specifies the path to the logo image
+     *
+     * @param {*} isTiny -
+     *                   if value "true", it's used as a tiny logo
+     *                   if value "false", it's used as a normal logo
+     * @param {*} category -
+     *                   if value "zigbee", it's used as a zigbee logo
+     *                   if value "matter", it's used as a matter logo
+     *                   if value "multiprotocol", it's used as a multiprotocol logo
+     * @param {*} isSelected -
+     *                   if value "true", it's used as a dark / selected version
+     *                   if value "false", it's used as a light version
+     * @returns Returns a string value for the src image property
+     */
     createLogoSrc(isTiny, category, isSelected = false) {
       return (
         (isTiny ? '/logo/tiny/' : '/logo/') +
-        category +
+        (category ? category : 'default') +
         '_logo' +
         (isSelected || this.$q.dark.isActive ? '_white' : '') +
         '.svg'
@@ -285,11 +300,6 @@ export default {
                 this.$store.state.zap.isMultiConfig,
                 selectedZapConfig[i].category
               )
-              // (this.$store.state.zap.isMultiConfig ? '/logo/tiny/' : '/logo/') +
-              //   selectedZapConfig[i].category +
-              //   '_logo' +
-              //   (this.$q.dark.isActive ? '_white' : '') +
-              //   '.svg'
             )
           } else {
             logos.push('/logo/zap_logo.png')
