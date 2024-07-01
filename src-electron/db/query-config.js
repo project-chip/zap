@@ -507,22 +507,20 @@ async function insertOrUpdateEventState(
     `
 INSERT OR IGNORE
 INTO ENDPOINT_TYPE_EVENT (
-  ENDPOINT_TYPE_REF,
   ENDPOINT_TYPE_CLUSTER_REF,
   EVENT_REF
-) VALUES( ?, ?, ? )
+) VALUES( ?, ? )
 `,
-    [endpointTypeId, cluster.endpointTypeClusterId, eventId]
+    [cluster.endpointTypeClusterId, eventId]
   )
   return dbApi.dbUpdate(
     db,
     `
 UPDATE ENDPOINT_TYPE_EVENT
 SET INCLUDED = ?
-WHERE ENDPOINT_TYPE_REF = ?
-  AND ENDPOINT_TYPE_CLUSTER_REF = ?
+WHERE ENDPOINT_TYPE_CLUSTER_REF = ?
   AND EVENT_REF = ? `,
-    [value, endpointTypeId, cluster.endpointTypeClusterId, eventId]
+    [value, cluster.endpointTypeClusterId, eventId]
   )
 }
 
