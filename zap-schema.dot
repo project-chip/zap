@@ -29,7 +29,7 @@ digraph "SchemaCrawler_Diagram" {
 	</tr>
 	<tr>
 		<td align='right'>generated on</td>
-		<td align='left'>2024-06-26 19:28:05</td>
+		<td align='left'>2024-07-01 18:22:19</td>
 	</tr>
       </table>
     >
@@ -1333,7 +1333,6 @@ digraph "SchemaCrawler_Diagram" {
   "endpoint_type_cluster_c12e3c9e":"endpoint_type_ref_ae18b87a.start":w -> "endpoint_type_9857dc03":"endpoint_type_id_960ad7f3.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
   "endpoint_type_device_e685fbb0":"endpoint_type_ref_33b8dba8.start":w -> "endpoint_type_9857dc03":"endpoint_type_id_960ad7f3.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
   "endpoint_966d81f4":"endpoint_type_ref_80c21de4.start":w -> "endpoint_type_9857dc03":"endpoint_type_id_960ad7f3.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
-  "endpoint_type_event_e67d6e7e":"endpoint_type_ref_32afc29a.start":w -> "endpoint_type_9857dc03":"endpoint_type_id_960ad7f3.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
 
 
   /* ENDPOINT_TYPE_ATTRIBUTE -=-=-=-=-=-=-=-=-=-=-=-=-=- */
@@ -1574,11 +1573,6 @@ digraph "SchemaCrawler_Diagram" {
 		<td align='left'>auto-incremented</td>
 	</tr>
 	<tr>
-		<td port='endpoint_type_ref_32afc29a.start' align='left'>ENDPOINT_TYPE_REF</td>
-		<td align='left'> </td>
-		<td port='endpoint_type_ref_32afc29a.end' align='left'>INTEGER</td>
-	</tr>
-	<tr>
 		<td port='endpoint_type_cluster_ref_51de5db5.start' align='left'>ENDPOINT_TYPE_CLUSTER_REF</td>
 		<td align='left'> </td>
 		<td port='endpoint_type_cluster_ref_51de5db5.end' align='left'>INTEGER</td>
@@ -1755,8 +1749,8 @@ digraph "SchemaCrawler_Diagram" {
     >
   ];
 
-  "event_access_4668c328":"event_ref_2ebabb06.start":w -> "event_3f4eed9":"event_id_b9e31547.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
   "endpoint_type_event_e67d6e7e":"event_ref_913b7a70.start":w -> "event_3f4eed9":"event_id_b9e31547.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
+  "event_access_4668c328":"event_ref_2ebabb06.start":w -> "event_3f4eed9":"event_id_b9e31547.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
   "event_field_d102b734":"event_ref_f75f487a.start":w -> "event_3f4eed9":"event_id_b9e31547.end":e [label=<> style="solid" dir="both" arrowhead="teetee" arrowtail="crowodot"];
 
 

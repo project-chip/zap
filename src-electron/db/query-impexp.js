@@ -500,15 +500,10 @@ VALUES
  * Returns a promise of data for events inside an endpoint type.
  *
  * @param {*} db
- * @param {*} endpointTypeId
  * @param {*} endpointClusterId
  * @returns Promise that resolves with the events data.
  */
-async function exportEventsFromEndpointTypeCluster(
-  db,
-  endpointTypeId,
-  endpointClusterId
-) {
+async function exportEventsFromEndpointTypeCluster(db, endpointClusterId) {
   let mapFunction = (x) => {
     return {
       name: x.NAME,
@@ -535,12 +530,11 @@ INNER JOIN
 ON
   E.EVENT_ID = ETE.EVENT_REF
 WHERE
-  ETE.ENDPOINT_TYPE_REF = ?
-  AND ETE.ENDPOINT_TYPE_CLUSTER_REF = ?
+  ETE.ENDPOINT_TYPE_CLUSTER_REF = ?
 ORDER BY
   E.CODE, E.MANUFACTURER_CODE
   `,
-      [endpointTypeId, endpointClusterId]
+      [endpointClusterId]
     )
     .then((rows) => rows.map(mapFunction))
 }
@@ -550,7 +544,6 @@ ORDER BY
  *
  * @param {*} db
  * @param {*} packageId
- * @param {*} endpointTypeId
  * @param {*} endpointClusterId
  * @param {*} event
  * @returns Promise of an event insertion.
@@ -558,7 +551,6 @@ ORDER BY
 async function importEventForEndpointType(
   db,
   packageIds,
-  endpointTypeId,
   endpointClusterId,
   event
 ) {
@@ -594,17 +586,16 @@ WHERE
   }
 
   // We got the ids, now we update ENDPOINT_TYPE_EVENT
-  let arg = [endpointTypeId, endpointClusterId, eventId, event.included]
+  let arg = [endpointClusterId, eventId, event.included]
   return dbApi.dbInsert(
     db,
     `
 INSERT INTO ENDPOINT_TYPE_EVENT (
-  ENDPOINT_TYPE_REF,
   ENDPOINT_TYPE_CLUSTER_REF,
   EVENT_REF,
   INCLUDED
 ) VALUES (
-  ?,?,?,?
+  ?,?,?
 )
 `,
     arg
