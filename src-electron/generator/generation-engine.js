@@ -635,6 +635,7 @@ async function generateAllTemplates(
   options = {
     generateOnly: null,
     disableDeprecationWarnings: false,
+    generateSequentially: false,
   }
 ) {
   let packages = await queryPackage.getPackageByParent(
@@ -723,13 +724,24 @@ async function generateAllTemplates(
   // And finally go over the actual templates.
   await Promise.all(helperPromises)
   await Promise.all(partialPromises)
-  let templates = generationTemplates.map((pkg) =>
-    generateSingleTemplate(hb, metaInfo, genResult, pkg, genTemplateJsonPkg, {
-      overridePath: overridePath,
-      disableDeprecationWarnings: options.disableDeprecationWarnings,
-    })
-  )
-  await Promise.all(templates)
+
+  if (options.generateSequentially) {
+    await util.executePromisesSequentially(generationTemplates, (t) =>
+      generateSingleTemplate(hb, metaInfo, genResult, t, genTemplateJsonPkg, {
+        overridePath: overridePath,
+        disableDeprecationWarnings: options.disableDeprecationWarnings,
+      })
+    )
+  } else {
+    let templates = generationTemplates.map((pkg) =>
+      generateSingleTemplate(hb, metaInfo, genResult, pkg, genTemplateJsonPkg, {
+        overridePath: overridePath,
+        disableDeprecationWarnings: options.disableDeprecationWarnings,
+      })
+    )
+    await Promise.all(templates)
+  }
+
   genResult.partial = false
   return genResult
 }
@@ -752,7 +764,9 @@ async function generateSingleTemplate(
     disableDeprecationWarnings: false,
   }
 ) {
-  env.logInfo(`Start generating from template: ${genTemplateJsonPackage?.path}`)
+  let genStart = process.hrtime.bigint()
+  //console.log(`Start generating from template: ${singleTemplatePkg?.path}`)
+  env.logInfo(`Start generating from template: ${singleTemplatePkg?.path}`)
   let genFunction
   if (singleTemplatePkg.iterator != null) {
     genFunction = templateEngine.produceIterativeContent
@@ -774,8 +788,12 @@ async function generateSingleTemplate(
       genResult.stats[result.key] = result.stats
     }
     genResult.partial = true
+    let nsDuration = process.hrtime.bigint() - genStart
+    //console.log(`Finish generating from template: ${singleTemplatePkg?.path}: ${util.duration(nsDuration)}`)
     env.logInfo(
-      `Finish generating from template: ${genTemplateJsonPackage?.path}`
+      `Finish generating from template: ${
+        singleTemplatePkg?.path
+      }: ${util.duration(nsDuration)}`
     )
     return genResult
   } catch (err) {

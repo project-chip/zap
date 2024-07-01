@@ -585,7 +585,7 @@ async function sessionDump(db, sessionId) {
  * @param {*} arrayOfData
  * @param {*} promiseCreator
  */
-function executePromisesSequentially(arrayOfData, promiseCreator) {
+async function executePromisesSequentially(arrayOfData, promiseCreator) {
   return arrayOfData.reduce((prev, nextData, currentIndex) => {
     return prev.then(() => promiseCreator(nextData, currentIndex))
   }, Promise.resolve())
