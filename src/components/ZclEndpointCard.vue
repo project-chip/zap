@@ -300,17 +300,21 @@ export default {
     }
   },
   methods: {
-    // Calculate readable category string
+    /**
+     *  Calculate readable category
+     *
+     * @param {*} packageRef
+     * @returns Returns a string value for category
+     */
     getDeviceCategory(packageRef) {
       let category = ''
-      this.$store.state.zap.selectedZapConfig.zclProperties.forEach((item) => {
-        if (item.id === packageRef) {
-          if (item.category) {
-            category = item.category
-            return
-          }
-        }
-      })
+      let zclProperty =
+        this.$store.state.zap.selectedZapConfig.zclProperties.find(
+          (item) => item.id === packageRef && item.category
+        )
+      if (zclProperty) {
+        category = zclProperty.category
+      }
       return category
     },
     openDeviceLibraryDocumentation() {
