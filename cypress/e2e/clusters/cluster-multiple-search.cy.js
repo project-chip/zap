@@ -15,17 +15,11 @@ describe('Add multiple clusters and search', () => {
     cy.fixture('data').then((data) => {
       cy.addEndpoint(data.endpoint4, data.cluster1)
     })
-    cy.get('.vertical-align\\:middle > strong').should(
-      'contain',
-      'Endpoint - 1'
-    )
+    cy.get('.flex  > strong').should('contain', 'Endpoint - 1')
     cy.fixture('data').then((data) => {
       cy.addEndpoint(data.endpoint3, data.cluster1)
     })
-    cy.get('.vertical-align\\:middle > strong').should(
-      'contain',
-      'Endpoint - 2'
-    )
+    cy.get('.flex > strong').should('contain', 'Endpoint - 2')
     cy.fixture('data').then((data) => {
       cy.get('tbody')
         .children()
@@ -33,10 +27,7 @@ describe('Add multiple clusters and search', () => {
         .and('contain', data.cluster6)
       cy.addEndpoint(data.endpoint5, data.cluster1)
     })
-    cy.get('.vertical-align\\:middle > strong').should(
-      'contain',
-      'Endpoint - 3'
-    )
+    cy.get('.flex > strong').should('contain', 'Endpoint - 3')
     cy.fixture('data').then((data) => {
       cy.get('#General > .q-expansion-item__container > .q-item').click({
         force: true,

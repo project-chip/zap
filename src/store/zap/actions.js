@@ -93,6 +93,7 @@ export function updateZclDeviceTypes(context) {
           label: deviceType.label,
           description: deviceType.caption,
           domain: deviceType.domain,
+          packageRef: deviceType.packageRef,
         }
       })
       context.commit('updateZclDeviceTypes', deviceTypeObjects)
