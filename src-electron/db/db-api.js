@@ -532,7 +532,6 @@ async function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
     context.crc
   )
   if (schemaStatus.mustLoad && schemaStatus.hasSchema) {
-    rows = await selectSettings(db)
     await closeDatabase(db)
     if (sqliteFile != null) util.createBackupFile(sqliteFile)
   }
@@ -546,6 +545,7 @@ async function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
   if (schemaStatus.mustLoad) {
     await performSchemaLoad(db, context.data)
     await updateCurrentSchemaCrc(db, context.filePath, context.crc)
+    rows = await selectSettings(db)
     await updateSetting(db, rows)
   }
 
