@@ -545,7 +545,9 @@ async function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
   if (schemaStatus.mustLoad) {
     await performSchemaLoad(db, context.data)
     await updateCurrentSchemaCrc(db, context.filePath, context.crc)
-    rows = await selectSettings(db)
+    if (schemaStatus.hasSchema) {
+      rows = await selectSettings(db)
+    }
     await updateSetting(db, rows)
   }
 
