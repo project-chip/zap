@@ -111,6 +111,12 @@ test(
       } else if (s.name == 'StructWithArray') {
         expect(clusters.length).toBe(1)
         expect(clusters[0].code).toBe(0xabcd)
+      } else if (s.name == 'StableStruct') {
+        expect(clusters.length).toBe(1)
+        expect(clusters[0].code).toBe(0x1122)
+      } else if (s.name == 'ProvisionalStruct') {
+        expect(clusters.length).toBe(1)
+        expect(clusters[0].code).toBe(0x1122)
       } else {
         expect(clusters.length).toBe(0)
       }
