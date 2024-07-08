@@ -25,6 +25,12 @@ limitations under the License.
     <client tick="false" init="false">false</client>
     <server tick="false" init="false">true</server>
 
+    <struct name="ProvisionalStruct" apiMaturity="provisional">
+       <cluster code="0x1122"/>
+       <item fieldId="0" name="Cluster" type="cluster_id" isNullable="true"/>
+       <item fieldId="1" name="Endpoint" type="endpoint_no" isNullable="true"/>
+    </struct>
+
     <struct name="StableStruct">
        <cluster code="0x1122"/>
        <item fieldId="0" name="Cluster" type="cluster_id" isNullable="true"/>
