@@ -104,8 +104,8 @@ test(
     )
 
     // Maturity for structures should be correct
-    expect(ept).toContain('struct StableStruct ')
-    expect(ept).toContain('provisional struct ProvisionalStruct ')
+    expect(ept).toContain('struct StableStruct {')
+    expect(ept).toContain('struct ProvisionalStruct (provisional) {')
   },
   testUtil.timeout.long()
 )

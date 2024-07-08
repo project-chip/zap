@@ -330,6 +330,7 @@ exports.map = {
       caption: `Struct, named ${x.NAME}`,
       structClusterCount: x.STRUCT_CLUSTER_COUNT,
       clusterName: x.CLUSTER_NAME,
+      apiMaturity: x.API_MATURITY,
     }
   },
 
