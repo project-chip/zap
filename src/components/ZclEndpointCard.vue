@@ -182,7 +182,10 @@ limitations under the License.
               <strong>{{ parentEndpointIdentifier[endpointReference] }}</strong>
             </div>
           </q-item>
-          <q-item class="row" v-if="$store.state.zap.isProfileIdShown">
+          <q-item
+            class="row"
+            v-if="$store.state.zap.isProfileIdShown && enableProfileId"
+          >
             <div class="col-6">
               <strong>Profile ID</strong>
             </div>
