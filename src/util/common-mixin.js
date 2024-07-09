@@ -318,15 +318,19 @@ export default {
      * @returns Returns a string value for category
      */
     getDeviceCategory(packageRef) {
-      let category = ''
-      let zclProperty =
-        this.$store.state.zap.selectedZapConfig.zclProperties.find(
-          (item) => item.id === packageRef && item.category
+      let zclProperty = ''
+      if (this.$store.state.zap.isMultiConfig) {
+        zclProperty =
+          this.$store.state.zap.selectedZapConfig.zclProperties.find(
+            (item) => item.id === packageRef && item.category
+          )
+        return zclProperty.category
+      } else {
+        zclProperty = this.$store.state.zap.packages.find(
+          (item) => item.pkg.id === packageRef && item.pkg.category
         )
-      if (zclProperty) {
-        category = zclProperty.category
+        return zclProperty.pkg?.category
       }
-      return category
     },
   },
 }

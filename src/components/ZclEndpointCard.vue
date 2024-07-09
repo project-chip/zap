@@ -182,10 +182,7 @@ limitations under the License.
               <strong>{{ parentEndpointIdentifier[endpointReference] }}</strong>
             </div>
           </q-item>
-          <q-item
-            class="row"
-            v-if="$store.state.zap.isProfileIdShown && enableProfileId"
-          >
+          <q-item class="row" v-if="showProfileId">
             <div class="col-6">
               <strong>Profile ID</strong>
             </div>
@@ -488,6 +485,17 @@ export default {
     profileId: {
       get() {
         return this.$store.state.zap.endpointView.profileId
+      },
+    },
+    showProfileId: {
+      get() {
+        if (
+          this.getDeviceCategory(this.deviceType[0]?.packageRef) !== 'matter' &&
+          this.$store.state.zap.isProfileIdShown &&
+          this.enableProfileId
+        ) {
+          return true
+        } else return false
       },
     },
     deviceId: {
