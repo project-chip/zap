@@ -562,6 +562,11 @@ async function insertClusterExtensions(db, packageId, knownPackages, data) {
         args: [],
         access: [],
       }
+      let events = {
+        data: [],
+        fields: [],
+        access: [],
+      }
       let attributes = {
         data: [],
         access: [],
@@ -571,14 +576,23 @@ async function insertClusterExtensions(db, packageId, knownPackages, data) {
         let row = rows[i]
         if (row != null) {
           lastId = row.CLUSTER_ID
+          // NOTE: This code must stay in sync with insertClusters
           if ('commands' in data[i]) {
             let cmds = data[i].commands
             commands.data.push(...commandMap(lastId, packageId, cmds))
             commands.args.push(...cmds.map((command) => command.args))
+            commands.access.push(...cmds.map((command) => command.access))
           }
           if ('attributes' in data[i]) {
             let atts = data[i].attributes
             attributes.data.push(...attributeMap(lastId, packageId, atts))
+            attributes.access.push(...atts.map((at) => at.access))
+          }
+          if ('events' in data[i]) {
+            let evs = data[i].events
+            events.data.push(...eventMap(lastId, packageId, evs))
+            events.fields.push(...evs.map((event) => event.fields))
+            events.access.push(...evs.map((event) => event.access))
           }
         } else {
           // DANGER: We got here because we are adding a cluster extension for a
@@ -606,7 +620,8 @@ async function insertClusterExtensions(db, packageId, knownPackages, data) {
       }
       let pCommand = insertCommands(db, packageId, commands)
       let pAttribute = insertAttributes(db, packageId, attributes)
-      return Promise.all([pCommand, pAttribute])
+      let pEvent = insertEvents(db, packageId, events)
+      return Promise.all([pCommand, pAttribute, pEvent])
     })
 }
 
@@ -666,6 +681,7 @@ async function insertClusters(db, packageId, data) {
       let i
       for (i = 0; i < lastIdsArray.length; i++) {
         let lastId = lastIdsArray[i]
+        // NOTE: This code must stay in sync with insertClusterExtensionsx
         if ('commands' in data[i]) {
           let cmds = data[i].commands
           commands.data.push(...commandMap(lastId, packageId, cmds))
