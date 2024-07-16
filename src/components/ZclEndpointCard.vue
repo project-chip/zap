@@ -490,7 +490,7 @@ export default {
     showProfileId: {
       get() {
         if (
-          this.getDeviceCategory(this.deviceType[0]?.packageRef) !== 'matter' &&
+          this.getDeviceCategory(this.deviceType[0].packageRef) === 'zigbee' &&
           this.$store.state.zap.isProfileIdShown &&
           this.enableProfileId
         ) {
