@@ -64,6 +64,7 @@
     "zapmeta": "node src-script/zap-start.js --logToStdout --zcl ./test/resource/meta/zcl.json --gen ./test/resource/meta/gen-test.json --in ./test/resource/test-meta.zap",
     "zaphelp": "node src-script/zap-start.js --help",
     "zap-dotdot": "node src-script/zap-start.js --logToStdout --zcl ./zcl-builtin/dotdot/library.xml -g ./test/gen-template/dotdot/dotdot-templates.json",
+    "zap-devserver": "node src-script/zap-start.js server --stateDirectory ~/.zap/zigbee-server/ --allowCors --logToStdout --gen ./test/gen-template/zigbee/gen-templates.json --reuseZapInstance",
     "zigbeezap-devserver": "node src-script/zap-start.js server --stateDirectory ~/.zap/zigbee-server/ --allowCors --logToStdout --gen ./test/gen-template/zigbee/gen-templates.json --reuseZapInstance",
     "matterzap-devserver": "node src-script/zap-start.js server --stateDirectory ~/.zap/matter-server/ --allowCors --logToStdout --zcl ./zcl-builtin/matter/zcl.json --gen ./test/resource/meta/gen-test.json --reuseZapInstance",
     "matterzap-devserver2": "node src-script/zap-start.js server --stateDirectory --zcl ./zcl-builtin/matter/zcl.json --allowCors --logToStdout --gen ./test/gen-template/matter3/t.json --reuseZapInstance",
