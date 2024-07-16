@@ -290,7 +290,12 @@ async function ensureEndpointTypeIds(context) {
             deviceType.packageRef
           )
           // Check for package category match based on gen template category and add it to relevant endpoint types
-          if (packageInfo.category == packageCategory || !packageCategory) {
+          if (
+            packageInfo.category == packageCategory ||
+            !packageCategory ||
+            (!packageInfo.category &&
+              packageInfo.type === dbEnum.packageType.zclXmlStandalone)
+          ) {
             resEptIds.push(eptIds[i])
             break
           }
@@ -327,7 +332,11 @@ async function ensureEndpointTypeIds(context) {
             context.global.db,
             deviceType.packageRef
           )
-          if (packageInfo.category == packageCategory) {
+          if (
+            packageInfo.category == packageCategory ||
+            (!packageInfo.category &&
+              packageInfo.type === dbEnum.packageType.zclXmlStandalone)
+          ) {
             resEptIds.push(eptIds[i])
             break
           }

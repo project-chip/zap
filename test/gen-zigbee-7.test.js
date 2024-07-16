@@ -22,6 +22,7 @@ const genEngine = require('../src-electron/generator/generation-engine')
 const env = require('../src-electron/util/env')
 const dbApi = require('../src-electron/db/db-api')
 const queryPackage = require('../src-electron/db/query-package')
+const queryDeviceType = require('../src-electron/db/query-device-type')
 const zclLoader = require('../src-electron/zcl/zcl-loader')
 const importJs = require('../src-electron/importexport/import')
 const testUtil = require('./test-util')
@@ -119,6 +120,35 @@ test(
     expect(pv4).toContain(
       'result = emberAfMfglibClusterClusterServerCommandParse(cmd);'
     )
+
+    // Load a custom xml with device types
+    result = await zclLoader.loadIndividualFile(
+      db,
+      testUtil.testCustomXmlDeviceType,
+      sessionId
+    )
+    if (!result.succeeded) {
+      console.log(result)
+    }
+    expect(result.succeeded).toBeTruthy()
+
+    // Check if device type is loaded into the database
+    let customDeviceType = await queryDeviceType.selectDeviceTypeByCodeAndName(
+      db,
+      result.packageId,
+      0x0002,
+      'DUT-Server'
+    )
+    expect(customDeviceType).not.toBeNull()
+    expect(customDeviceType.name).toBe('DUT-Server')
+
+    // Check device type clusters for device type
+    let deviceTypeClusters =
+      await queryDeviceType.selectDeviceTypeClustersByDeviceTypeRef(
+        db,
+        customDeviceType.id
+      )
+    expect(deviceTypeClusters.length).toBe(2) // 2 device type clusters associated with this device type.
   },
   testUtil.timeout.long()
 )

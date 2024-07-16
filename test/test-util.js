@@ -145,6 +145,8 @@ exports.testServer = testServer
 
 exports.testCustomXml = './test/resource/custom-cluster/test-custom.xml'
 exports.testCustomXml2 = './test/resource/custom-cluster/custom-dut.xml'
+exports.testCustomXmlDeviceType =
+  './test/resource/custom-cluster/custom-device-type.xml'
 exports.customClusterXml =
   './test/resource/custom-cluster/custom-bead-cluster.xml'
 exports.badTestCustomXml = './test/resource/custom-cluster/bad-test-custom.xml'

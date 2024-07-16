@@ -1718,6 +1718,8 @@ async function jsonDataLoader(
     .filter((p) => p.succeeded)
     .map((p) => p.packageId)
 
+  sessionPartitionIndex += newlyLoadedCustomPackageIds.length
+
   let standAlonePackageData = await importPackages(
     db,
     zclXmlStandAlonePackages,
@@ -1795,7 +1797,9 @@ async function jsonDataLoader(
           pkg.type
         )
         let invalidSessionPkgs = sessionPkgs.filter(
-          (x) => x.path !== pkgFilePath
+          (x) =>
+            x.path !== pkgFilePath &&
+            !newlyLoadedCustomPackageIds.includes(x.id) // newly added packages are already verified.
         )
         let validSessionPkgId =
           await queryPackage.getPackageIdByPathAndTypeAndVersion(
@@ -1816,12 +1820,14 @@ async function jsonDataLoader(
             env.logDebug(
               `Disabling/removing invalid session package. sessionId(${sessionId}), packageId(${invalidSessionPkgs[i].id}), path(${invalidSessionPkgs[i].path})`
             )
-            await queryPackage.deleteSessionPackage(
-              db,
-              sessionPartitionInfoCurrent[0].sessionPartitionId,
-              invalidSessionPkgs[i].id
-            )
-            sessionPartitionIndex--
+            if (sessionPartitionInfoCurrent.length > 0) {
+              await queryPackage.deleteSessionPackage(
+                db,
+                sessionPartitionInfoCurrent[0].sessionPartitionId,
+                invalidSessionPkgs[i].id
+              )
+              sessionPartitionIndex--
+            }
           }
 
           env.logDebug(
