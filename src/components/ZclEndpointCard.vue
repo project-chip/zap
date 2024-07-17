@@ -489,13 +489,11 @@ export default {
     },
     showProfileId: {
       get() {
-        if (
+        return (
           this.getDeviceCategory(this.deviceType[0].packageRef) === 'zigbee' &&
           this.$store.state.zap.isProfileIdShown &&
           this.enableProfileId
-        ) {
-          return true
-        } else return false
+        )
       },
     },
     deviceId: {
