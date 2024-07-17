@@ -379,7 +379,7 @@ export default {
         // Get first item package reference
         const packageRefTmp =
           this.zclDeviceTypes[this.deviceTypeTmp[0].deviceTypeRef]?.packageRef
-        console.log(packageRefTmp)
+
         // Get readable device category by packageRef
         const categoryTmp = this.getDeviceCategory(packageRefTmp)
 
