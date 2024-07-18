@@ -182,7 +182,7 @@ limitations under the License.
               <strong>{{ parentEndpointIdentifier[endpointReference] }}</strong>
             </div>
           </q-item>
-          <q-item class="row" v-if="$store.state.zap.isProfileIdShown">
+          <q-item class="row" v-if="showProfileId">
             <div class="col-6">
               <strong>Profile ID</strong>
             </div>
@@ -300,23 +300,6 @@ export default {
     }
   },
   methods: {
-    /**
-     *  Calculate readable category
-     *
-     * @param {*} packageRef
-     * @returns Returns a string value for category
-     */
-    getDeviceCategory(packageRef) {
-      let category = ''
-      let zclProperty =
-        this.$store.state.zap.selectedZapConfig.zclProperties.find(
-          (item) => item.id === packageRef && item.category
-        )
-      if (zclProperty) {
-        category = zclProperty.category
-      }
-      return category
-    },
     openDeviceLibraryDocumentation() {
       if (
         this.$store.state.zap.genericOptions[
@@ -502,6 +485,15 @@ export default {
     profileId: {
       get() {
         return this.$store.state.zap.endpointView.profileId
+      },
+    },
+    showProfileId: {
+      get() {
+        return (
+          this.getDeviceCategory(this.deviceType[0].packageRef) === 'zigbee' &&
+          this.$store.state.zap.isProfileIdShown &&
+          this.enableProfileId
+        )
       },
     },
     deviceId: {

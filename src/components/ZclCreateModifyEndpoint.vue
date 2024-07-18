@@ -376,6 +376,27 @@ export default {
         // New temporary variable
         this.deviceTypeTmp = value
 
+        // Get first item package reference
+        const packageRefTmp =
+          this.zclDeviceTypes[this.deviceTypeTmp[0].deviceTypeRef]?.packageRef
+
+        // Get readable device category by packageRef
+        const categoryTmp = this.getDeviceCategory(packageRefTmp)
+
+        // Set / unset multiple device option in mcp
+        if (this.$store.state.zap.isMultiConfig) {
+          if (categoryTmp === 'zigbee') {
+            this.enableMultipleDevice = false
+            this.enableParentEndpoint = false
+            this.enablePrimaryDevice = false
+            this.enableProfileId = true
+          } else {
+            this.enableMultipleDevice = true
+            this.enableParentEndpoint = true
+            this.enablePrimaryDevice = true
+            this.enableProfileId = false
+          }
+        }
         // Create default device version if not exists
         for (const dt of value) {
           if (dt && dt.deviceVersion === undefined) {

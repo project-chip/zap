@@ -311,5 +311,26 @@ export default {
 
       return logos
     },
+    /**
+     *  Calculate readable category
+     *
+     * @param {*} packageRef
+     * @returns Returns a string value for category
+     */
+    getDeviceCategory(packageRef) {
+      let zclProperty = ''
+      if (this.$store.state.zap.isMultiConfig) {
+        zclProperty =
+          this.$store.state.zap.selectedZapConfig.zclProperties.find(
+            (item) => item.id === packageRef && item.category
+          )
+        return zclProperty.category
+      } else {
+        zclProperty = this.$store.state.zap.packages.find(
+          (item) => item.pkg.id === packageRef && item.pkg.category
+        )
+        return zclProperty.pkg?.category
+      }
+    },
   },
 }
