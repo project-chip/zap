@@ -138,6 +138,10 @@ exports.matterTestFile = {
     __dirname,
     'resource/matter-api-maturity-test.zap'
   ),
+  endpointComposition: path.join(
+    __dirname,
+    'resource/matter-endpointComposition.zap'
+  ),
 }
 
 exports.testZclMetafile = path.join(__dirname, './resource/meta/zcl.json')
@@ -169,7 +173,7 @@ exports.totalDotDotEnums = 106
 exports.totalDotDotEnumItems = 637
 
 exports.totalMatterClusters = 72
-exports.totalMatterDeviceTypes = 117
+exports.totalMatterDeviceTypes = 119
 exports.totalMatterCommandArgs = 595
 exports.totalMatterCommands = 248
 exports.totalMatterAttributes = 784

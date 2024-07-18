@@ -41,6 +41,7 @@ const testFile2 = testUtil.matterTestFile.allClustersFileFormat2
 const multipleDeviceTypePerEndpointTestFile =
   testUtil.matterTestFile.multipleDeviceTypesPerEndpoint
 const templateCount = testUtil.testTemplate.matter3Count
+const endpointComposition = testUtil.matterTestFile.endpointComposition
 
 beforeAll(async () => {
   env.setDevelopmentEnv()
@@ -564,3 +565,35 @@ test(
   },
   testUtil.timeout.long()
 )
+test(`Zap file generation: ${path.relative(
+  __dirname,
+  endpointComposition
+)}`, async () => {
+  let sessionId = await querySession.createBlankSession(db)
+
+  await importJs.importDataFromFile(db, endpointComposition, {
+    sessionId: sessionId,
+  })
+
+  let genResult = await genEngine.generate(
+    db,
+    sessionId,
+    templateContext.packageId,
+    {},
+    { disableDeprecationWarnings: true }
+  )
+  expect(genResult.hasErrors).toEqual(false)
+
+  // Note: A lot of these tests here are for sake of backwards
+  // compatibility. Latest ZAP must be able to generate content for
+  // the old SDKs, so if you changed something that generates
+  // endpoint_config differently, please be very very careful and
+  // make sure you can answer positively the following question:
+  //   after my changes, will zap still be able to generate content
+  //   that works with an older SDK.
+  //
+  let ept = genResult.content['endpoint_config.h']
+  expect(ept).toContain(
+    'Endpoint 1, DeviceId: 112, DeviceVersion: 1, Composition: tree'
+  )
+})
