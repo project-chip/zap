@@ -381,7 +381,7 @@ function prepareCluster(cluster, types, isExtension = false) {
     //ret.description = '' // TODO: no description in dotdot zcl
     ret.define = cluster.$.name // TODO: no define in dotdot zcl
     ret.domain = cluster.classification[0].$.role
-    //ret.manufacturerCode = '' // TODO: no manufacturer code in dotdot zcl
+    ret.manufacturerCode = parseInt(normalizeHexValue(cluster.$.manufacturer))
     ret.revision = cluster.$.revision
     ret.isSingleton = false // TODO: dotdot is not supporting singletons
   }
@@ -535,6 +535,7 @@ function prepareStruct(type) {
           name: field.$.name,
           type: field.$.type,
           fieldIdentifier: index + 1,
+          array: field.$.array,
         })
       })
     })
