@@ -333,27 +333,23 @@ describe('DOM tests', () => {
   test(
     'Observables',
     async () => {
-      const wrapper = shallowMount(About, { store: ZapStore() })
       observable.setObservableAttribute('x', 'value0')
       expect(observable.getObservableAttribute('x')).toEqual('value0')
-      observable.observeAttribute('x', (value) => {
-        observedValue = value
+
+      const valuePromise = new Promise((resolve) => {
+        observable.observeAttribute('x', (value) => {
+          observedValue = value
+          resolve(value)
+        })
       })
+
       expect(observedValue).toBe(null)
-      return new Promise((resolve, reject) => {
-        observable.setObservableAttribute('x', 'value1')
-        resolve()
-      })
-        .then(() => {
-          return new Promise((resolve, reject) => {
-            setTimeout(() => {
-              resolve(observedValue)
-            }, 10) // Wait for 10 ms. It should settle by then.
-          })
-        })
-        .then((value) => {
-          expect(value).toEqual('value1')
-        })
+
+      observable.setObservableAttribute('x', 'value1')
+
+      const value = await valuePromise
+
+      expect(value).toEqual('value1')
     },
     timeout.short()
   )
