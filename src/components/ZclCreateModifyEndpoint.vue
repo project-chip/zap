@@ -349,11 +349,10 @@ export default {
     zclDeviceTypeOptions: {
       get() {
         let dt = this.$store.state.zap.zclDeviceTypes
-        console.log('dt ' + dt)
         let keys = Object.keys(dt).sort((a, b) => {
           return dt[a].description.localeCompare(dt[b].description)
         })
-        console.log('keys ' + keys)
+
         return keys.map((item) => {
           return {
             deviceTypeRef: parseInt(item),
@@ -801,19 +800,34 @@ export default {
         })
       })
     },
+    /**
+     *  Create an options array for device types selection in MCP
+     *
+     * @param {*} tmpDeviceTypeOptions
+     * @returns Returns an object value for separated device types
+     */
+
     createDeviceOptions(tmpDeviceTypeOptions) {
       let tmpZigbeeDevices = []
       let tmpMatterDevices = []
 
       tmpDeviceTypeOptions.forEach((item) => {
-        if (item.category === 'zigbee') tmpZigbeeDevices.push(item)
-        else if (item.category === 'matter') tmpMatterDevices.push(item)
+        if (item.category === dbEnum.helperCategory.zigbee)
+          tmpZigbeeDevices.push(item)
+        else if (item.category === dbEnum.helperCategory.matter)
+          tmpMatterDevices.push(item)
         else console.log('Error: unknown category')
       })
 
       return [
-        { label: 'zigbee', children: [...tmpZigbeeDevices] },
-        { label: 'matter', children: [...tmpMatterDevices] },
+        {
+          label: dbEnum.helperCategory.zigbee,
+          children: [...tmpZigbeeDevices],
+        },
+        {
+          label: dbEnum.helperCategory.matter,
+          children: [...tmpMatterDevices],
+        },
       ]
     },
   },
