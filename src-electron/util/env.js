@@ -31,8 +31,20 @@ export function defaultFileFormat() {
   return saveFileFormat
 }
 
+/**
+ *
+ * @returns path to zcl.json file
+ */
 export function builtinSilabsZclMetafile() {
   return locateProjectResource('./zcl-builtin/silabs/zcl.json')
+}
+
+/**
+ *
+ * @returns path to zcl-special.json file used by zcl-loader-reload.test.js
+ */
+export function builtinSilabsZclSpecialMetafile() {
+  return locateProjectResource('./zcl-builtin/silabs/zcl-special.json')
 }
 
 /**
@@ -41,6 +53,14 @@ export function builtinSilabsZclMetafile() {
  */
 export function builtinSilabsZclGeneralXmlFile() {
   return locateProjectResource('./zcl-builtin/silabs/general.xml')
+}
+
+/**
+ *
+ * @returns path to general-special.xml file used by zcl-loader-reload.test.js
+ */
+export function builtinSilabsSpecialZclGeneralSpecialXmlFile() {
+  return locateProjectResource('./zcl-builtin/silabs/general-special.xml')
 }
 
 export function builtinMatterZclMetafile() {
