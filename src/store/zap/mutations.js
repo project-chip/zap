@@ -47,6 +47,7 @@ export function updateClusters(state, responseData) {
   let packageRefs = []
   // Add custom xml packages to the list of packageRefs
   let sessionPackages = state.packages
+  let customXmlPackagesCount = 0
   if (sessionPackages && sessionPackages.length > 0) {
     for (let i = 0; i < sessionPackages.length; i++) {
       if (
@@ -57,12 +58,26 @@ export function updateClusters(state, responseData) {
       }
     }
   }
+  customXmlPackagesCount = packageRefs.length
 
   if (selectedDeviceTypeRefs) {
     for (let i = 0; i < selectedDeviceTypeRefs.length; i++) {
       for (let j = 0; j < responseData.deviceTypes.data.length; j++) {
-        if (selectedDeviceTypeRefs[i] == responseData.deviceTypes.data[j].id) {
+        if (
+          selectedDeviceTypeRefs[i] == responseData.deviceTypes.data[j].id &&
+          !packageRefs.includes(responseData.deviceTypes.data[j].packageRef)
+        ) {
           packageRefs.push(responseData.deviceTypes.data[j].packageRef)
+        }
+      }
+    }
+    // Check if all package refs are standalone(Handles the custom device type use case from xml)
+    if (customXmlPackagesCount === packageRefs.length) {
+      // if all packages are custom then add the first standard zcl package to the list of package refs.
+      for (let i = 0; i < sessionPackages.length; i++) {
+        if (sessionPackages[i].pkg.type == 'zcl-properties') {
+          packageRefs.push(sessionPackages[i].pkg.id)
+          break
         }
       }
     }

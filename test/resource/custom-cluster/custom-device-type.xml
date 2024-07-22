@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<configurator>
+  <deviceType>
+    <name>DUT-Client</name>
+    <domain>CUSTOM_DUT</domain>
+    <typeName>D.U.T. Client</typeName>
+    <zigbeeType>Coordinator</zigbeeType>
+    <profileId editable="false">0xC001</profileId>
+    <deviceId editable="false">0x0001</deviceId>
+    <clusters lockOthers="true">
+      <include client="true" server="false"  clientLocked="true"  serverLocked="true" >Test Cluster</include>
+      <include cluster="Basic" client="true" server="false" clientLocked="true" serverLocked="true"></include>
+	</clusters>
+  </deviceType>
+  <deviceType>
+    <name>DUT-Server</name>
+    <domain>CUSTOM_DUT</domain>
+    <typeName>D.U.T. Server</typeName>
+    <zigbeeType>End Device</zigbeeType>
+    <profileId editable="false">0xC001</profileId>
+    <deviceId editable="false">0x0002</deviceId>
+    <clusters lockOthers="true">
+      <include client="false" server="true"  clientLocked="true"  serverLocked="true" >Test Cluster</include>
+      <include cluster="Basic" client="false" server="true" clientLocked="true" serverLocked="true"></include>
+	</clusters>
+  </deviceType>  
+</configurator>
