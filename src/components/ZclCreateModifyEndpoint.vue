@@ -77,6 +77,7 @@ limitations under the License.
           <!-- Multi config version -->
           <q-select
             v-else
+            ref="device"
             use-input
             v-model="deviceType"
             :options="createDeviceOptions(deviceTypeOptions)"
