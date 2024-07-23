@@ -189,11 +189,30 @@ test(
           `Found Non Unique Enum in Silabs XML: ${c.NAME} ${c.TYPE} ${c.PACKAGE_REF}`
         )
       })
+    } finally {
+      await dbApi.closeDatabase(db)
+    }
+  },
+  testUtil.timeout.long()
+)
+
+test(
+  'test changing xml file reloads all zcl packages',
+  async () => {
+    let db = await dbApi.initRamDatabase()
+    try {
+      await dbApi.loadSchema(db, env.schemaFile(), env.zapVersion())
+
+      let ctx = await zclLoader.loadZcl(
+        db,
+        env.builtinSilabsZclSpecialMetafile()
+      )
+      let packageId = ctx.packageId
 
       // Test Reloading of the zcl packages when an xml file changes
       // (Simulating a gsdk upgrade from one branch to another which can change xml files)
       // Step 1: Modify one of the xml files
-      let xmlFilePath = env.builtinSilabsZclGeneralXmlFile()
+      let xmlFilePath = env.builtinSilabsSpecialZclGeneralSpecialXmlFile()
       let originalString =
         '<attribute side="server" code="0x0001" define="APPLICATION_VERSION" type="INT8U" min="0x00" max="0xFF" writable="false" default="0x00" optional="true">application version</attribute>'
       let editString =
@@ -209,7 +228,7 @@ test(
       // children to be reloaded. Check for 2 top level packages with same path now.
       // Count packages belonging to each top level package to make sure all packages
       // are reloaded
-      ctx = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
+      ctx = await zclLoader.loadZcl(db, env.builtinSilabsZclSpecialMetafile())
       let newPackageId = ctx.packageId
       // Making sure the top level packages do not have the same packageId
       expect(packageId).not.toEqual(newPackageId)
