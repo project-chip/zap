@@ -17,7 +17,15 @@ limitations under the License.
   <div>
     <q-card style="min-width: 450px">
       <q-card-section>
-        <div class="text-h6 text-align:left q-mb-sm" data-test="endpoint-title">
+        <div
+          class="text-h6 flex text-align:left q-mb-sm"
+          data-test="endpoint-title"
+        >
+          <img
+            class="q-my-auto q-mr-sm"
+            v-if="deviceTypeTmp[0]"
+            :src="createLogoSrc(true, deviceTypeTmp[0].category)"
+          />
           {{ this.endpointReference ? 'Edit Endpoint' : 'Create New Endpoint' }}
         </div>
         <q-form>
@@ -43,6 +51,7 @@ limitations under the License.
           />
 
           <q-select
+            v-if="!$store.state.zap.isMultiConfig"
             label="Device"
             ref="device"
             outlined
@@ -73,6 +82,67 @@ limitations under the License.
             </template>
           </q-select>
 
+          <!-- Multi config version -->
+          <q-select
+            v-else
+            ref="device"
+            use-input
+            v-model="deviceType"
+            :options="createDeviceOptions(deviceTypeOptions)"
+            :option-label="getDeviceOptionLabel"
+            option-value="deviceTypeRef"
+            label="Device"
+            style="min-width: 100px"
+            :multiple="enableMultipleDevice"
+            use-chips
+            @filter="filterDeviceTypes"
+            outlined
+            class="col v-step-2 q-pb-md"
+            data-test="select-endpoint-input"
+          >
+            <template v-slot:option="scope">
+              <q-item
+                :clickable="scope.opt.children.length !== 0"
+                :disable="scope.opt.children.length == 0"
+                dense
+                expand-separator
+                group="somegroup"
+                header-class="text-weight-bold"
+                :label="scope.opt.label"
+              >
+                <q-item-section>
+                  {{ scope.opt.label }} ({{ scope.opt.children.length }})
+                </q-item-section>
+                <q-item-section side>
+                  <q-icon name="keyboard_arrow_right" />
+                </q-item-section>
+                <q-menu max-height="200px" :offset="[-100, -30]">
+                  <q-list style="min-width: 100px">
+                    <template
+                      v-for="child in scope.opt.children"
+                      :key="child.deviceTypeRef"
+                    >
+                      <q-item
+                        dense
+                        clickable
+                        v-ripple
+                        v-close-popup
+                        @click="setSelectOption(child)"
+                        :class="{ 'bg-light-blue-1': false }"
+                      >
+                        <q-item-section>
+                          <q-item-label class="q-ml-md">{{
+                            getDeviceOptionLabel(child)
+                          }}</q-item-label>
+                        </q-item-section>
+                      </q-item>
+                    </template>
+                  </q-list>
+                </q-menu>
+              </q-item>
+            </template>
+          </q-select>
+          <!-- end-->
           <q-select
             v-if="enablePrimaryDevice"
             label="Primary Device"
@@ -271,6 +341,7 @@ export default {
       deviceTypeTmp: [], // Temp store for the selected device types
       primaryDeviceTypeTmp: null, // Temp store for the selected primary device type
       endpointIds: [],
+      tmpSelectedOptions: [],
     }
   },
   computed: {
@@ -290,10 +361,12 @@ export default {
         let keys = Object.keys(dt).sort((a, b) => {
           return dt[a].description.localeCompare(dt[b].description)
         })
+
         return keys.map((item) => {
           return {
             deviceTypeRef: parseInt(item),
             deviceIdentifier: dt[item].code,
+            category: this.getDeviceCategory(dt[item].packageRef),
           }
         })
       },
@@ -448,6 +521,23 @@ export default {
     },
   },
   methods: {
+    setSelectOption(val) {
+      const i = this.tmpSelectedOptions.findIndex(
+        (e) => e.deviceTypeRef === val.deviceTypeRef
+      )
+      if (i > -1) {
+        this.tmpSelectedOptions.splice(i, 1)
+      } else {
+        if (val.category === 'matter' && this.enableMultipleDevice) {
+          this.tmpSelectedOptions.push(val)
+        } else {
+          this.tmpSelectedOptions = []
+          this.tmpSelectedOptions.push(val)
+        }
+      }
+      this.deviceType = [...this.tmpSelectedOptions]
+    },
+
     openDeviceLibraryDocumentation() {
       if (
         this.$store.state.zap.genericOptions[
@@ -718,6 +808,36 @@ export default {
           )
         })
       })
+    },
+    /**
+     *  Create an options array for device types selection in MCP
+     *
+     * @param {*} tmpDeviceTypeOptions
+     * @returns Returns an object value for separated device types
+     */
+
+    createDeviceOptions(tmpDeviceTypeOptions) {
+      let tmpZigbeeDevices = []
+      let tmpMatterDevices = []
+
+      tmpDeviceTypeOptions.forEach((item) => {
+        if (item.category === dbEnum.helperCategory.zigbee)
+          tmpZigbeeDevices.push(item)
+        else if (item.category === dbEnum.helperCategory.matter)
+          tmpMatterDevices.push(item)
+        else console.log('Error: unknown category')
+      })
+
+      return [
+        {
+          label: dbEnum.helperCategory.zigbee,
+          children: [...tmpZigbeeDevices],
+        },
+        {
+          label: dbEnum.helperCategory.matter,
+          children: [...tmpMatterDevices],
+        },
+      ]
     },
   },
   created() {
