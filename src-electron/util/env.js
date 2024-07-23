@@ -40,14 +40,16 @@ export function builtinSilabsZclMetafile() {
 }
 
 /**
+ * Used to retrive zcl-special.json by zcl reload test in zcl-loader.test.js
  *
- * @returns path to zcl-special.json file used by zcl-loader-reload.test.js
+ * @returns path to zcl-special.json file used by zcl-loader.test.js
  */
 export function builtinSilabsZclSpecialMetafile() {
   return locateProjectResource('./zcl-builtin/silabs/zcl-special.json')
 }
 
 /**
+ *
  *
  * @returns path to general.xml file
  */
@@ -56,8 +58,9 @@ export function builtinSilabsZclGeneralXmlFile() {
 }
 
 /**
+ * Used to retrive general-special.xml by zcl reload test in zcl-loader.test.js
  *
- * @returns path to general-special.xml file used by zcl-loader-reload.test.js
+ * @returns path to general-special.xml file used by zcl-loader.test.js
  */
 export function builtinSilabsSpecialZclGeneralSpecialXmlFile() {
   return locateProjectResource('./zcl-builtin/silabs/general-special.xml')
