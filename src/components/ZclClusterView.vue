@@ -20,7 +20,7 @@ limitations under the License.
         <div class="row no-wrap">
           <div class="col">
             <div class="text-h4">
-              {{ selectedCluster.label }}
+              {{ selectedCluster.label }} {{ category }}
             </div>
 
             <q-breadcrumbs active-color="grey">
@@ -88,9 +88,14 @@ limitations under the License.
             name="reporting"
             label="Attribute Reporting"
             class="v-step-11"
+            v-show="category !== dbh.matter"
           />
           <q-tab name="commands" label="Commands" class="v-step-12" />
-          <q-tab name="events" label="Events" v-show="events.length > 0" />
+          <q-tab
+            name="events"
+            label="Events"
+            v-show="category !== dbh.zigbee"
+          />
         </q-tabs>
         <div
           class="col column linear-border-wrap"
@@ -120,11 +125,13 @@ import ZclAttributeReportingManager from './ZclAttributeReportingManager.vue'
 import ZclCommandManager from './ZclCommandManager.vue'
 import ZclEventManager from './ZclEventManager.vue'
 import EditableAttributesMixin from '../util/editable-attributes-mixin'
+import CommonMixin from '../util/common-mixin'
+
 import * as dbEnum from '../../src-shared/db-enum.js'
 
 export default {
   name: 'ZclClusterView',
-  mixins: [EditableAttributesMixin],
+  mixins: [CommonMixin, EditableAttributesMixin],
   computed: {
     isClusterDocumentationAvailable() {
       return (
@@ -169,6 +176,20 @@ export default {
     tutorialTab: {
       get() {
         return this.$store.state.zap.showReportTabInCluster
+      },
+    },
+    category: {
+      get() {
+        return this.getDeviceCategory(
+          this.zclDeviceTypes[
+            this.endpointDeviceTypeRef[this.selectedEndpointId][0]
+          ].packageRef
+        )
+      },
+    },
+    dbh: {
+      get() {
+        return dbEnum.helperCategory
       },
     },
   },

@@ -14,72 +14,79 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <template>
-  <div v-show="eventData.length > 0">
-    <q-table
-      class="my-sticky-header-table"
-      :rows="eventData"
-      :columns="columns"
-      row-key="<b>name</b>"
-      dense
-      virtual-scroll
-      flat
-      binary-state-sort
-      v-model:pagination="pagination"
-    >
-      <template v-slot:header="props">
-        <q-tr :props="props">
-          <q-th v-for="col in props.cols" :key="col.name" :props="props">
-            {{ col.label }}
-          </q-th>
-        </q-tr>
-      </template>
-      <template v-slot:body="props">
-        <q-tr :props="props" class="table_body">
-          <q-td key="included" :props="props" auto-width>
-            <q-toggle
-              class="q-mt-xs"
-              v-model="selectedEvents"
-              :val="hashEventIdClusterId(props.row.id, selectedCluster.id)"
-              indeterminate-value="false"
-              keep-color
-              @update:model-value="
-                handleEventSelection(
-                  selectedEvents,
-                  'selectedEvents',
-                  props.row,
-                  selectedCluster.id
-                )
-              "
-            />
-          </q-td>
-          <q-td key="eventId" :props="props" auto-width>{{
-            asHex(props.row.code, 2)
-          }}</q-td>
-          <q-td key="mfgId" :props="props" auto-width
-            >{{
-              selectedCluster.manufacturerCode
-                ? asHex(selectedCluster.manufacturerCode, 4)
-                : props.row.manufacturerCode
-                ? asHex(props.row.manufacturerCode, 4)
-                : '-'
-            }}
-          </q-td>
-          <q-td key="name" :props="props" auto-width>{{ props.row.name }}</q-td>
-          <q-td key="side" :props="props" auto-width>{{
-            props.row.side === 'client' ? 'Client ➞ Server' : 'Server ➞ Client'
-          }}</q-td>
-          <q-td key="priority" :props="props" auto-width>{{
-            props.row.priority
-          }}</q-td>
-          <q-td key="required" :props="props" auto-width>{{
-            props.row.isOptional ? '' : 'Yes'
-          }}</q-td>
-          <q-td key="description" :props="props" auto-width>{{
-            props.row.description
-          }}</q-td>
-        </q-tr>
-      </template>
-    </q-table>
+  <div>
+    <div v-if="eventData.length > 0">
+      <q-table
+        class="my-sticky-header-table"
+        :rows="eventData"
+        :columns="columns"
+        row-key="<b>name</b>"
+        dense
+        virtual-scroll
+        flat
+        binary-state-sort
+        v-model:pagination="pagination"
+      >
+        <template v-slot:header="props">
+          <q-tr :props="props">
+            <q-th v-for="col in props.cols" :key="col.name" :props="props">
+              {{ col.label }}
+            </q-th>
+          </q-tr>
+        </template>
+        <template v-slot:body="props">
+          <q-tr :props="props" class="table_body">
+            <q-td key="included" :props="props" auto-width>
+              <q-toggle
+                class="q-mt-xs"
+                v-model="selectedEvents"
+                :val="hashEventIdClusterId(props.row.id, selectedCluster.id)"
+                indeterminate-value="false"
+                keep-color
+                @update:model-value="
+                  handleEventSelection(
+                    selectedEvents,
+                    'selectedEvents',
+                    props.row,
+                    selectedCluster.id
+                  )
+                "
+              />
+            </q-td>
+            <q-td key="eventId" :props="props" auto-width>{{
+              asHex(props.row.code, 2)
+            }}</q-td>
+            <q-td key="mfgId" :props="props" auto-width
+              >{{
+                selectedCluster.manufacturerCode
+                  ? asHex(selectedCluster.manufacturerCode, 4)
+                  : props.row.manufacturerCode
+                  ? asHex(props.row.manufacturerCode, 4)
+                  : '-'
+              }}
+            </q-td>
+            <q-td key="name" :props="props" auto-width>{{
+              props.row.name
+            }}</q-td>
+            <q-td key="side" :props="props" auto-width>{{
+              props.row.side === 'client'
+                ? 'Client ➞ Server'
+                : 'Server ➞ Client'
+            }}</q-td>
+            <q-td key="priority" :props="props" auto-width>{{
+              props.row.priority
+            }}</q-td>
+            <q-td key="required" :props="props" auto-width>{{
+              props.row.isOptional ? '' : 'Yes'
+            }}</q-td>
+            <q-td key="description" :props="props" auto-width>{{
+              props.row.description
+            }}</q-td>
+          </q-tr>
+        </template>
+      </q-table>
+    </div>
+    <div v-else><br />{{ noEventsMessage }}</div>
   </div>
 </template>
 
@@ -139,6 +146,7 @@ export default {
   },
   data() {
     return {
+      noEventsMessage: 'No events available for this cluster.',
       pagination: {
         rowsPerPage: 0,
       },
