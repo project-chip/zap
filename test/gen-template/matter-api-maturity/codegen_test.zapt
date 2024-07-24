@@ -28,7 +28,7 @@ cluster {{asUpperCamelCase name}} = {{code}}
 
   {{/zcl_events}}
   {{#zcl_structs}}
-  struct {{name}} {
+  struct {{name}} {{#if apiMaturity}}({{apiMaturity}}) {{/if}}{
     {{#zcl_struct_items}}
     {{#if isOptional~}}optional {{/if~}}
     {{~#if isNullable~}}nullable {{/if~}}

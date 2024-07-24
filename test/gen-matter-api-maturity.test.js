@@ -102,6 +102,10 @@ test(
     expect(ept).toContain(
       'optional int8u attribute provisionalAttribute = 1 (provisional);'
     )
+
+    // Maturity for structures should be correct
+    expect(ept).toContain('struct StableStruct {')
+    expect(ept).toContain('struct ProvisionalStruct (provisional) {')
   },
   testUtil.timeout.long()
 )

@@ -172,7 +172,7 @@ INSERT OR REPLACE INTO ATTRIBUTE (
 )`
 
 const SELECT_CLUSTER_SPECIFIC_DATA_TYPE = `
-SELECT 
+SELECT
   DATA_TYPE.DATA_TYPE_ID
 FROM
   DATA_TYPE
@@ -189,7 +189,7 @@ AND
 
 // Data types which are not associated to any cluster specifically
 const SELECT_GENERIC_DATA_TYPE = `
-SELECT 
+SELECT
   DATA_TYPE.DATA_TYPE_ID
 FROM
   DATA_TYPE
@@ -1340,7 +1340,7 @@ INSERT INTO
 VALUES (
   (SELECT
     CASE
-      WHEN 
+      WHEN
         (${SELECT_CLUSTER_SPECIFIC_DATA_TYPE} AND PACKAGE_REF IN (${dbApi.toInClause(
       packageIds
     )}))
@@ -1436,9 +1436,9 @@ ON
   ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID
 INNER JOIN
   DATA_TYPE_CLUSTER
-ON 
+ON
   DATA_TYPE.DATA_TYPE_ID = DATA_TYPE_CLUSTER.DATA_TYPE_REF
-WHERE 
+WHERE
   DATA_TYPE.PACKAGE_REF = ?
 AND
   DATA_TYPE.NAME = ?
@@ -1449,7 +1449,7 @@ AND
                                   DISCRIMINATOR
                                 WHERE
                                   NAME = "ENUM"
-                                AND 
+                                AND
                                   PACKAGE_REF
                                 IN
                                   (${dbApi.toInClause(knownPackages)}))
@@ -1466,7 +1466,7 @@ INNER JOIN
   DATA_TYPE
 ON
   ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID
-WHERE 
+WHERE
   DATA_TYPE.PACKAGE_REF = ?
 AND
   DATA_TYPE.NAME = ?
@@ -1477,7 +1477,7 @@ AND
                                   DISCRIMINATOR
                                 WHERE
                                   NAME = "ENUM"
-                                AND 
+                                AND
                                   PACKAGE_REF
                                 IN
                                   (${dbApi.toInClause(knownPackages)}))
@@ -1491,7 +1491,7 @@ AND
   VALUES (
     (SELECT
       CASE
-        WHEN 
+        WHEN
           (${SELECT_CLUSTER_SPECIFIC_ENUM})
         IS
           NULL
@@ -1562,7 +1562,7 @@ async function insertBitmap(db, packageIds, data) {
   VALUES (
     (SELECT
       CASE
-        WHEN 
+        WHEN
           (${SELECT_CLUSTER_SPECIFIC_DATA_TYPE} AND PACKAGE_REF IN (${dbApi.toInClause(
       packageIds
     )}))
@@ -1661,16 +1661,16 @@ async function insertBitmapFields(db, packageId, knownPackages, data) {
        DATA_TYPE.DATA_TYPE_ID = DATA_TYPE_CLUSTER.DATA_TYPE_REF
      WHERE
        DATA_TYPE.PACKAGE_REF = ?
-     AND 
+     AND
        DATA_TYPE.NAME = ?
-     AND 
+     AND
        DATA_TYPE.DISCRIMINATOR_REF = (SELECT
                                         DISCRIMINATOR_ID
                                       FROM
                                         DISCRIMINATOR
                                       WHERE
                                         NAME = "BITMAP"
-                                      AND 
+                                      AND
                                         PACKAGE_REF
                                       IN (${dbApi.toInClause(knownPackages)}))
      AND
@@ -1688,16 +1688,16 @@ async function insertBitmapFields(db, packageId, knownPackages, data) {
        BITMAP.BITMAP_ID = DATA_TYPE.DATA_TYPE_ID
      WHERE
        DATA_TYPE.PACKAGE_REF = ?
-     AND 
+     AND
        DATA_TYPE.NAME = ?
-     AND 
+     AND
        DATA_TYPE.DISCRIMINATOR_REF = (SELECT
                                         DISCRIMINATOR_ID
                                       FROM
                                         DISCRIMINATOR
                                       WHERE
                                         NAME = "BITMAP"
-                                      AND 
+                                      AND
                                         PACKAGE_REF
                                       IN (${dbApi.toInClause(knownPackages)}))
   `
@@ -1710,7 +1710,7 @@ async function insertBitmapFields(db, packageId, knownPackages, data) {
   VALUES (
     (SELECT
       CASE
-        WHEN 
+        WHEN
           (${SELECT_CLUSTER_SPECIFIC_BITMAP})
         IS
           NULL
@@ -1756,11 +1756,11 @@ async function insertStruct(db, packageIds, data) {
     db,
     `
 INSERT INTO
-  STRUCT (STRUCT_ID, SIZE, IS_FABRIC_SCOPED)
+  STRUCT (STRUCT_ID, SIZE, IS_FABRIC_SCOPED, API_MATURITY)
 VALUES (
   (SELECT
     CASE
-      WHEN 
+      WHEN
         (${SELECT_CLUSTER_SPECIFIC_DATA_TYPE} AND PACKAGE_REF IN (${dbApi.toInClause(
       packageIds
     )}))
@@ -1817,7 +1817,7 @@ VALUES (
           AND DATA_TYPE.NAME = ?
           AND
           DATA_TYPE.DISCRIMINATOR_REF = ?)
-    END AS SIZE), ?)`,
+    END AS SIZE), ?, ?)`,
     data.map((at) => [
       at.name,
       at.discriminator_ref,
@@ -1833,6 +1833,7 @@ VALUES (
       at.type,
       at.discriminator_ref,
       dbApi.toDbBool(at.isFabricScoped),
+      at.apiMaturity,
     ])
   )
 }
@@ -1860,9 +1861,9 @@ async function insertStructItems(db, packageIds, data) {
        DATA_TYPE.PACKAGE_REF
      IN
        (${dbApi.toInClause(packageIds)})
-     AND 
+     AND
        DATA_TYPE.NAME = ?
-     AND 
+     AND
        DATA_TYPE.DISCRIMINATOR_REF = (SELECT
                                         DISCRIMINATOR_ID
                                       FROM
@@ -1889,9 +1890,9 @@ async function insertStructItems(db, packageIds, data) {
        DATA_TYPE.PACKAGE_REF
      IN
        (${dbApi.toInClause(packageIds)})
-     AND 
+     AND
        DATA_TYPE.NAME = ?
-     AND 
+     AND
        DATA_TYPE.DISCRIMINATOR_REF = (SELECT
                                         DISCRIMINATOR_ID
                                       FROM
@@ -1912,7 +1913,7 @@ async function insertStructItems(db, packageIds, data) {
   VALUES (
     (SELECT
       CASE
-        WHEN 
+        WHEN
           (${SELECT_CLUSTER_SPECIFIC_STRUCT})
         IS
           NULL

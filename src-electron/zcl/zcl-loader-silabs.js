@@ -1487,6 +1487,7 @@ function prepareStruct(a, dataType) {
     cluster_code: a.cluster ? a.cluster : null,
     discriminator_ref: dataType,
     isFabricScoped: a.$.isFabricScoped == 'true',
+    apiMaturity: a.$.apiMaturity,
   }
 }
 

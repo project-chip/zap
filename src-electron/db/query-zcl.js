@@ -127,6 +127,7 @@ async function selectAllStructsWithItemCount(db, packageIds) {
 SELECT
   STRUCT.STRUCT_ID,
   STRUCT.IS_FABRIC_SCOPED,
+  STRUCT.API_MATURITY,
   DATA_TYPE.NAME,
   DATA_TYPE.DISCRIMINATOR_REF,
   COUNT(ITEM.NAME) AS ITEM_COUNT
@@ -300,6 +301,7 @@ async function selectStructsWithItemsImpl(db, packageIds, clusterId) {
     SELECT
       S.STRUCT_ID AS STRUCT_ID,
       S.IS_FABRIC_SCOPED AS IS_FABRIC_SCOPED,
+      S.API_MATURITY AS API_MATURITY,
       DT.NAME AS STRUCT_NAME,
       (SELECT COUNT(1) FROM DATA_TYPE_CLUSTER WHERE DATA_TYPE_CLUSTER.DATA_TYPE_REF = S.STRUCT_ID) AS STRUCT_CLUSTER_COUNT,
       SI.NAME AS ITEM_NAME,
@@ -331,6 +333,7 @@ async function selectStructsWithItemsImpl(db, packageIds, clusterId) {
     SELECT
       S.STRUCT_ID AS STRUCT_ID,
       S.IS_FABRIC_SCOPED AS IS_FABRIC_SCOPED,
+      S.API_MATURITY AS API_MATURITY,
       DT.NAME AS STRUCT_NAME,
       (SELECT COUNT(1) FROM DATA_TYPE_CLUSTER WHERE DATA_TYPE_CLUSTER.DATA_TYPE_REF = S.STRUCT_ID) AS STRUCT_CLUSTER_COUNT,
       SI.NAME AS ITEM_NAME,
@@ -375,6 +378,7 @@ async function selectStructsWithItemsImpl(db, packageIds, clusterId) {
         id: value.STRUCT_ID,
         name: value.STRUCT_NAME,
         isFabricScoped: dbApi.fromDbBool(value.IS_FABRIC_SCOPED),
+        apiMaturity: value.API_MATURITY,
         label: value.STRUCT_NAME,
         struct_cluster_count: value.STRUCT_CLUSTER_COUNT,
         items: [],
