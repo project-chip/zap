@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <template>
-  <div class="popup-wrap row">
+  <div class="popup-wrap row" id="ZclClusterView">
     <q-card flat class="col column q-pa-lg">
       <div>
         <div class="row no-wrap">
@@ -88,14 +88,10 @@ limitations under the License.
             name="reporting"
             label="Attribute Reporting"
             class="v-step-11"
-            v-show="category !== dbh.matter"
+            v-show="enableAttributeReportingTab"
           />
           <q-tab name="commands" label="Commands" class="v-step-12" />
-          <q-tab
-            name="events"
-            label="Events"
-            v-show="category !== dbh.zigbee"
-          />
+          <q-tab name="events" label="Events" v-show="enableEventsTab" />
         </q-tabs>
         <div
           class="col column linear-border-wrap"
@@ -183,13 +179,18 @@ export default {
         return this.getDeviceCategory(
           this.zclDeviceTypes[
             this.endpointDeviceTypeRef[this.selectedEndpointId][0]
-          ].packageRef
+          ]?.packageRef
         )
       },
     },
-    dbh: {
+    enableEventsTab: {
       get() {
-        return dbEnum.helperCategory
+        return this.category !== dbEnum.helperCategory.zigbee
+      },
+    },
+    enableAttributeReportingTab: {
+      get() {
+        return this.category !== dbEnum.helperCategory.matter
       },
     },
   },

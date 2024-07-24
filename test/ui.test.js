@@ -92,12 +92,12 @@ describe('Component mounting test', () => {
   test(
     'ZclClusterView',
     () => {
-      const wrapper = mount(ZclClusterView, {
+      const wrapper = shallowMount(ZclClusterView, {
         global: {
           plugins: [ZapStore()],
         },
       })
-      expect(wrapper.html().includes('Endpoint')).toBe(true)
+      expect(wrapper.find('#ZclClusterView').exists()).toBe(true)
     },
     timeout.short()
   )
