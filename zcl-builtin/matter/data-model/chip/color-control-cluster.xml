@@ -140,7 +140,10 @@ limitations under the License.
     <!-- COMPENSATION_TEXT -->
     <attribute side="server" code="0x0007" define="COLOR_CONTROL_COLOR_TEMPERATURE" type="INT16U" min="0x0000" max="0xFEFF" writable="false" reportable="true" default="0x00FA" optional="true">ColorTemperatureMireds</attribute>
     <!-- COLOR_TEMPERATURE -->
-    <attribute side="server" code="0x0008" define="COLOR_CONTROL_COLOR_MODE" type="ENUM8" min="0x00" max="0x02" writable="false" default="0x01">ColorMode</attribute>
+        <attribute side="server" code="0x0008" define="COLOR_CONTROL_COLOR_MODE" type="enum8" min="0x00" max="0x02" writable="false" default="0x01">
+        <description>ColorMode</description>
+        <quality changeOmitted= "false" nullable= "false" scene= "false" persistence= "nonVolatile" reportable= "false"/>
+    </attribute>
     <!-- COLOR_MODE -->
     <attribute side="server" code="0x000F" define="COLOR_CONTROL_OPTIONS" type="BITMAP8" writable="true" default="0x00">Options</attribute>
     <!-- COLOR_CONTROL_OPTIONS -->
@@ -374,7 +377,10 @@ limitations under the License.
 
   <clusterExtension code="0x0300">
     <attribute side="server" code="0x4000" define="COLOR_CONTROL_ENHANCED_CURRENT_HUE" type="INT16U" min="0x0000" max="0xFFFF" writable="false" default="0x0000" optional="true">EnhancedCurrentHue</attribute>
-    <attribute side="server" code="0x4001" define="COLOR_CONTROL_ENHANCED_COLOR_MODE" type="ENUM8" min="0x00" max="0xFF" writable="false" default="0x01">EnhancedColorMode</attribute>
+        <attribute side="server" code="0x4001" define="COLOR_CONTROL_ENHANCED_COLOR_MODE" type="enum8" min="0x00" max="0xFF" writable="false" default="0x01">
+        <description>EnhancedColorMode</description>
+        <quality changeOmitted= "false" nullable= "false" scene= "true" persistence= "nonVolatile" reportable= "false"/>
+    </attribute>
     <attribute side="server" code="0x4002" define="COLOR_CONTROL_COLOR_LOOP_ACTIVE" type="INT8U" min="0x00" max="0xFF" writable="false" default="0x00" optional="true">ColorLoopActive</attribute>
     <attribute side="server" code="0x4003" define="COLOR_CONTROL_COLOR_LOOP_DIRECTION" type="INT8U" min="0x00" max="0xFF" writable="false" default="0x00" optional="true">ColorLoopDirection</attribute>
     <attribute side="server" code="0x4004" define="COLOR_CONTROL_COLOR_LOOP_TIME" type="INT16U" min="0x0000" max="0xFFFF" writable="false" default="0x0019" optional="true">ColorLoopTime</attribute>

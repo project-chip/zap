@@ -204,6 +204,13 @@ test(
     expect(chipToolHelper).toContain(
       '0,UINT0_MAX// actual type: ThermostatScheduleTransition'
     )
+
+    // Testing attribute's scene loading
+    expect(
+      sdkExt.includes(
+        "// attribute: 0x0300 / 0x4001 => EnhancedColorMode, extensions: '', '', scene: true"
+      )
+    )
   },
   testUtil.timeout.long()
 )

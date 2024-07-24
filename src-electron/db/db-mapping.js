@@ -125,6 +125,8 @@ exports.map = {
       isArray: x.ARRAY_TYPE ? 1 : 0,
       mustUseTimedWrite: dbApi.fromDbBool(x.MUST_USE_TIMED_WRITE),
       apiMaturity: x.API_MATURITY,
+      isChangeComitted: dbApi.fromDbBool(x.IS_CHANGE_COMITTED),
+      persistence: x.PERSISTENCE,
     }
   },
 
@@ -665,6 +667,8 @@ exports.map = {
       tokenId: x.TOKEN_ID, // Endpoint type attribute's token id
       type: x.TYPE != 'array' ? x.TYPE : x.ARRAY_TYPE, // Attribute type
       apiMaturity: x.API_MATURITY,
+      isChangeComitted: x.IS_CHANGE_COMITTED,
+      persistence: x.PERSISTENCE,
     }
   },
 
