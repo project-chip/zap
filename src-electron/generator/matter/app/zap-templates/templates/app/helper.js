@@ -613,12 +613,31 @@ function asMEI(prefix, suffix) {
 }
 
 // Not to be exported.
-function nsValueToNamespace(ns) {
+function nsValueToNamespace(ns, clusterCount) {
+  if (ns === undefined) {
+    // This use is happening within a specific cluster namespace already, so
+    // usually there is no need for more prefixing.  But for globals, we need to
+    // prefix them with "Globals::", because they are not in fact in the cluster
+    // namespace.
+    if (clusterCount == 0) {
+      return 'Globals::';
+    }
+
+    return '';
+  }
+
   if (ns == 'detail') {
     return ns;
   }
 
-  return asUpperCamelCase(ns);
+  const prefix = 'chip::app::Clusters::';
+  const postfix = '::';
+
+  if (clusterCount == 0) {
+    return `${prefix}Globals${postfix}`;
+  }
+
+  return `${prefix}${asUpperCamelCase(ns)}${postfix}`;
 }
 
 /*
@@ -644,9 +663,6 @@ async function zapTypeToClusterObjectType(type, isDecodable, options) {
 
   let passByReference = false;
   async function fn(pkgId) {
-    const ns = options.hash.ns
-      ? 'chip::app::Clusters::' + nsValueToNamespace(options.hash.ns) + '::'
-      : '';
     const typeChecker = async (method) =>
       zclHelper[method](this.global.db, type, pkgId).then(
         (zclType) => zclType != 'unknown'
@@ -676,6 +692,13 @@ async function zapTypeToClusterObjectType(type, isDecodable, options) {
       if (s) {
         return 'uint' + s[1] + '_t';
       }
+
+      const enumObj = await zclQuery.selectEnumByName(
+        this.global.db,
+        type,
+        pkgId
+      );
+      const ns = nsValueToNamespace(options.hash.ns, enumObj.enumClusterCount);
       return ns + asUpperCamelCase.call(this, type, options);
     }
 
@@ -685,6 +708,16 @@ async function zapTypeToClusterObjectType(type, isDecodable, options) {
       if (s) {
         return 'uint' + s[1] + '_t';
       }
+
+      const bitmapObj = await zclQuery.selectBitmapByName(
+        this.global.db,
+        pkgId,
+        type
+      );
+      const ns = nsValueToNamespace(
+        options.hash.ns,
+        bitmapObj.bitmapClusterCount
+      );
       return (
         'chip::BitMask<' + ns + asUpperCamelCase.call(this, type, options) + '>'
       );
@@ -692,6 +725,15 @@ async function zapTypeToClusterObjectType(type, isDecodable, options) {
 
     if (types.isStruct) {
       passByReference = true;
+      const structObj = await zclQuery.selectStructByName(
+        this.global.db,
+        type,
+        pkgId
+      );
+      const ns = nsValueToNamespace(
+        options.hash.ns,
+        structObj.structClusterCount
+      );
       return (
         ns +
         'Structs::' +
@@ -703,6 +745,8 @@ async function zapTypeToClusterObjectType(type, isDecodable, options) {
 
     if (types.isEvent) {
       passByReference = true;
+      // There are no global events, so just pass 1 for cluster count.
+      const ns = nsValueToNamespace(options.hash.ns, 1);
       return (
         ns +
         'Events::' +
