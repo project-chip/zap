@@ -213,143 +213,136 @@ async function ensurePackagesAndPopulateSessionOptions(
         sessionPartitionIndex++
       }
     } else {
-      let genTemplateJsonPromise = queryPackage
-        .getPackagesByType(db, dbEnum.packageType.genTemplatesJson)
-        .then((rows) => {
-          let packageId
-          if (
-            selectedGenTemplatePackages &&
-            selectedGenTemplatePackages.length > 0
-          ) {
-            selectedGenTemplatePackages.forEach((gen) => {
-              if (gen) {
-                packageId = gen
-              } else if (rows.length == 1) {
-                packageId = rows[0].id
-                env.logDebug(
-                  `Single generation template metafile found, using it for the session: ${packageId}`
-                )
-              } else if (rows.length == 0) {
-                env.logInfo(
-                  `No generation template metafile found for session.`
-                )
-                packageId = null
-              } else {
-                rows.forEach((p) => {
-                  if (
-                    selectedGenTemplatePackages != null &&
-                    path.resolve(selectedGenTemplatePackages) === p.path
-                  ) {
-                    packageId = p.id
-                  }
-                })
-                if (packageId != null) {
-                  env.logWarning(
-                    `Multiple toplevel generation template metafiles found. Using the one from args: ${packageId}`
-                  )
-                  queryNotification.setNotification(
-                    db,
-                    'WARNING',
-                    `Multiple toplevel generation template metafiles found. Using the one from args: ${packageId}`,
-                    sessionId,
-                    2,
-                    0
-                  )
-                } else {
-                  packageId = rows[0].id
-                  env.logWarning(
-                    `Multiple toplevel generation template metafiles found. Using the first one.`
-                  )
-                  queryNotification.setNotification(
-                    db,
-                    'WARNING',
-                    `Multiple toplevel generation template metafiles found. Using the first one.`,
-                    sessionId,
-                    2,
-                    0
-                  )
-                }
-              }
-              if (packageId != null) {
-                if (sessionPartitionInfo.length == 0) {
-                  sessionPartitionIndex++
-                  return querySession
-                    .insertSessionPartition(
-                      db,
-                      sessionId,
-                      sessionPartitionIndex
-                    )
-                    .then((sessionPartitionId) =>
-                      queryPackage.insertSessionPackage(
-                        db,
-                        sessionPartitionId,
-                        packageId,
-                        true
-                      )
-                    )
-                } else {
-                  sessionPartitionIndex++
-                  return querySession
-                    .getAllSessionPartitionInfoForSession(db, sessionId)
-                    .then((sessionPartitionInfo) =>
-                      queryPackage.insertSessionPackage(
-                        db,
-                        sessionPartitionInfo[sessionPartitionIndex - 1]
-                          .sessionPartitionId,
-                        packageId,
-                        true
-                      )
-                    )
-                }
+      let rows = await queryPackage.getPackagesByType(
+        db,
+        dbEnum.packageType.genTemplatesJson
+      )
+      let packageId
+      if (
+        selectedGenTemplatePackages &&
+        selectedGenTemplatePackages.length > 0
+      ) {
+        for (const gen of selectedGenTemplatePackages) {
+          if (gen) {
+            packageId = gen
+          } else if (rows.length == 1) {
+            packageId = rows[0].id
+            env.logDebug(
+              `Single generation template metafile found, using it for the session: ${packageId}`
+            )
+          } else if (rows.length == 0) {
+            env.logDebug(`No generation template metafile found for session.`)
+            packageId = null
+          } else {
+            rows.forEach((p) => {
+              if (
+                selectedGenTemplatePackages != null &&
+                path.resolve(selectedGenTemplatePackages) === p.path
+              ) {
+                packageId = p.id
               }
             })
-          }
-          if (packageId == null && rows.length > 0) {
-            // If package id is not resolved and there are gen-template packages available,
-            // find one with matching category. if nothing is found, blindly pick the first one available
-
-            let packageId
-            if (
-              selectedZclPropertyPackage &&
-              selectedZclPropertyPackage.length > 0
-            ) {
-              const matchBySelectedCategory = rows.find(
-                (r) => r?.category === selectedZclPropertyPackage[0].category
+            if (packageId != null) {
+              env.logWarning(
+                `Multiple toplevel generation template metafiles found. Using the one from args: ${packageId}`
               )
-              packageId = matchBySelectedCategory?.id || rows[0].id
+              queryNotification.setNotification(
+                db,
+                'WARNING',
+                `Multiple toplevel generation template metafiles found. Using the one from args: ${packageId}`,
+                sessionId,
+                2,
+                0
+              )
             } else {
               packageId = rows[0].id
-            }
-
-            if (sessionPartitionInfo.length == 0) {
-              sessionPartitionIndex++
-              return querySession
-                .insertSessionPartition(db, sessionId, sessionPartitionIndex)
-                .then((sessionPartitionId) =>
-                  queryPackage.insertSessionPackage(
-                    db,
-                    sessionPartitionId,
-                    packageId,
-                    true
-                  )
-                )
-            } else {
-              sessionPartitionIndex++
-              return querySession
-                .getAllSessionPartitionInfoForSession(db, sessionId)
-                .then((sessionPartitionInfo) =>
-                  queryPackage.insertSessionPackage(
-                    db,
-                    sessionPartitionInfo[sessionPartitionIndex - 1]
-                      .sessionPartitionId,
-                    packageId,
-                    true
-                  )
-                )
+              env.logWarning(
+                `Multiple toplevel generation template metafiles found. Using the first one.`
+              )
+              queryNotification.setNotification(
+                db,
+                'WARNING',
+                `Multiple toplevel generation template metafiles found. Using the first one.`,
+                sessionId,
+                2,
+                0
+              )
             }
           }
-        })
-      promises.push(genTemplateJsonPromise)
+          if (packageId != null) {
+            if (sessionPartitionInfo.length === 0) {
+              sessionPartitionIndex++
+              const sessionPartitionId =
+                await querySession.insertSessionPartition(
+                  db,
+                  sessionId,
+                  sessionPartitionIndex
+                )
+              await queryPackage.insertSessionPackage(
+                db,
+                sessionPartitionId,
+                packageId,
+                true
+              )
+            } else {
+              sessionPartitionIndex++
+              const sessionPartitionInfo =
+                await querySession.getAllSessionPartitionInfoForSession(
+                  db,
+                  sessionId
+                )
+              await queryPackage.insertSessionPackage(
+                db,
+                sessionPartitionInfo[sessionPartitionIndex - 1]
+                  .sessionPartitionId,
+                packageId,
+                true
+              )
+            }
+          }
+        }
+      }
+      if (packageId == null && rows.length > 0) {
+        // If package id is not resolved and there are gen-template packages available,
+        // find one with matching category. if nothing is found, blindly pick the first one available
+
+        let packageId
+        if (
+          selectedZclPropertyPackage &&
+          selectedZclPropertyPackage.length > 0
+        ) {
+          const matchBySelectedCategory = rows.find(
+            (r) => r?.category === selectedZclPropertyPackage[0].category
+          )
+          packageId = matchBySelectedCategory?.id || rows[0].id
+        } else {
+          packageId = rows[0].id
+        }
+
+        if (sessionPartitionInfo.length == 0) {
+          sessionPartitionIndex++
+          const sessionPartitionId = await querySession.insertSessionPartition(
+            db,
+            sessionId,
+            sessionPartitionIndex
+          )
+          await queryPackage.insertSessionPackage(
+            db,
+            sessionPartitionId,
+            packageId,
+            true
+          )
+        } else {
+          sessionPartitionIndex++
+          await querySession.getAllSessionPartitionInfoForSession(db, sessionId)
+          await queryPackage.insertSessionPackage(
+            db,
+            sessionPartitionInfo[sessionPartitionIndex - 1].sessionPartitionId,
+            packageId,
+            true
+          )
+        }
+      }
     }
   }
 
