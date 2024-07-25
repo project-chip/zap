@@ -310,7 +310,10 @@ async function zcl_struct_items_by_struct_name(name, options) {
 
 /**
  * Block helper iterating over all struct items given the struct name and
- * cluster name.
+ * cluster name.  The items iterated will be those that correspond to that
+ * struct name being used within the given cluster.  That means the struct name
+ * must be either a global struct (in which case the cluster name is just
+ * ignored), or a struct associated with the given cluster.
  *
  * @param name
  * @param clusterName
@@ -323,6 +326,17 @@ async function zcl_struct_items_by_struct_and_cluster_name(
   options
 ) {
   let packageIds = await templateUtil.ensureZclPackageIds(this)
+  // Check for a global struct first.
+  const structObj = await queryZcl.selectStructByName(
+    this.global.db,
+    name,
+    packageIds
+  )
+  if (structObj.structClusterCount == 0) {
+    // Just ignore the cluster name.
+    return zcl_struct_items_by_struct_name.call(this, name, options)
+  }
+
   let promise = queryZcl
     .selectAllStructItemsByStructName(
       this.global.db,
