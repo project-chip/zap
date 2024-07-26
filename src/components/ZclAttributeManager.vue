@@ -28,7 +28,6 @@ limitations under the License.
       row-key="<b>name</b>"
       dense
       flat
-      virtual-scroll
       binary-state-sort
       v-model:pagination="pagination"
       :sort-method="customAttributeSort"
