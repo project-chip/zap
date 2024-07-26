@@ -240,6 +240,18 @@ async function asObjectiveCClass(type, cluster, options) {
   }
 
   if (isStruct) {
+    const structObj = await zclQuery.selectStructByName(
+      this.global.db,
+      type,
+      pkgIds
+    );
+    if (structObj.structClusterCount == 0) {
+      // This is a global struct.
+      return `${
+        options.hash.structTypePrefix || 'MTR'
+      }DataType${appHelper.asUpperCamelCase(type)}`;
+    }
+
     if (options.hash.compatRemapClusterName) {
       cluster = compatClusterNameRemapping.call(this, cluster, { hash: {} });
       // If we are generating the "use the old name" API, here, and using the
@@ -265,7 +277,9 @@ async function asObjectiveCClass(type, cluster, options) {
       });
     }
     // Use a custom prefix if specified, otherwise default to "MTR" for backwards compat.
-    return `${options.hash.structTypePrefix || "MTR"}${cluster}Cluster${appHelper.asUpperCamelCase(type)}`;
+    return `${
+      options.hash.structTypePrefix || 'MTR'
+    }${cluster}Cluster${appHelper.asUpperCamelCase(type)}`;
   }
 
   return 'NSNumber';
@@ -339,6 +353,12 @@ function commandHasRequiredField(command) {
  * "Enum" bits on the enum names while we're here.
  */
 function objCEnumName(clusterName, enumLabel, options) {
+  if (clusterName == 'Globals') {
+    // For global enums, just use "MTRDataType" followed by the label, without
+    // stripping "Enum" off the end or doing any other processing.
+    return 'MTRDataType' + enumLabel;
+  }
+
   clusterName = appHelper.asUpperCamelCase(clusterName, {
     hash: { preserveAcronyms: options.hash.preserveAcronyms },
   });
