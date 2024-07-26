@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <template>
-  <div class="popup-wrap row">
+  <div class="popup-wrap row" id="ZclClusterView">
     <q-card flat class="col column q-pa-lg">
       <div>
         <div class="row no-wrap">
@@ -22,7 +22,6 @@ limitations under the License.
             <div class="text-h4">
               {{ selectedCluster.label }}
             </div>
-
             <q-breadcrumbs active-color="grey">
               <!-- this needs to be updated depending on how the pages will work -->
               <q-breadcrumbs-el>
@@ -88,9 +87,10 @@ limitations under the License.
             name="reporting"
             label="Attribute Reporting"
             class="v-step-11"
+            v-show="enableAttributeReportingTab"
           />
           <q-tab name="commands" label="Commands" class="v-step-12" />
-          <q-tab name="events" label="Events" v-show="events.length > 0" />
+          <q-tab name="events" label="Events" v-show="enableEventsTab" />
         </q-tabs>
         <div
           class="col column linear-border-wrap"
@@ -120,11 +120,13 @@ import ZclAttributeReportingManager from './ZclAttributeReportingManager.vue'
 import ZclCommandManager from './ZclCommandManager.vue'
 import ZclEventManager from './ZclEventManager.vue'
 import EditableAttributesMixin from '../util/editable-attributes-mixin'
+import CommonMixin from '../util/common-mixin'
+
 import * as dbEnum from '../../src-shared/db-enum.js'
 
 export default {
   name: 'ZclClusterView',
-  mixins: [EditableAttributesMixin],
+  mixins: [CommonMixin, EditableAttributesMixin],
   computed: {
     isClusterDocumentationAvailable() {
       return (
@@ -169,6 +171,25 @@ export default {
     tutorialTab: {
       get() {
         return this.$store.state.zap.showReportTabInCluster
+      },
+    },
+    category: {
+      get() {
+        return this.getDeviceCategory(
+          this.zclDeviceTypes[
+            this.endpointDeviceTypeRef[this.selectedEndpointId][0]
+          ]?.packageRef
+        )
+      },
+    },
+    enableEventsTab: {
+      get() {
+        return this.category === dbEnum.helperCategory.matter
+      },
+    },
+    enableAttributeReportingTab: {
+      get() {
+        return this.category === dbEnum.helperCategory.zigbee
       },
     },
   },
