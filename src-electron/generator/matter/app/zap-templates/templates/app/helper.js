@@ -820,6 +820,18 @@ async function _zapTypeToPythonClusterObjectType(type, options) {
       if (type.toLowerCase().match(/^enum\d+$/g)) {
         return 'uint';
       }
+
+      const enumObj = await zclQuery.selectEnumByName(
+        this.global.db,
+        type,
+        pkgId
+      );
+
+      if (enumObj.enumClusterCount == 0) {
+        // This is a global enum.
+        return `Globals.Enums.${type}`;
+      }
+
       return ns + '.Enums.' + type;
     }
 
@@ -828,6 +840,17 @@ async function _zapTypeToPythonClusterObjectType(type, options) {
     }
 
     if (await typeChecker('isStruct')) {
+      const structObj = await zclQuery.selectStructByName(
+        this.global.db,
+        type,
+        pkgId
+      );
+
+      if (structObj.structClusterCount == 0) {
+        // This is a global struct.
+        return `Globals.Structs.${type}`;
+      }
+
       return ns + '.Structs.' + type;
     }
 
