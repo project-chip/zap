@@ -163,15 +163,15 @@ limitations under the License.
             }}
           </q-td>
           <q-td key="enable" :props="props">
-            <q-select
+            <q-option-group
               class="v-step-8"
-              :v-model="getClusterEnabledStatus(props.row.id)"
-              :model-value="getClusterEnabledStatus(props.row.id)"
-              :display-value="`${getClusterEnabledStatus(props.row.id)}`"
-              :options="clusterSelectionOptions"
-              dense
-              outlined
+              :v-model="getClusterEnabledStatusForCheckboxes(props.row.id)"
+              :model-value="getClusterEnabledStatusForCheckboxes(props.row.id)"
+              :options="optionsForCheckboxes"
+              color="primary"
+              type="checkbox"
               @update:model-value="handleClusterSelection(props.row.id, $event)"
+              inline
             />
           </q-td>
           <q-td
@@ -339,6 +339,20 @@ export default {
       if (hasServer) return 'Server'
       return 'Not Enabled'
     },
+    /**
+     *  Get cluster enabled status for checkboxes group
+     *
+     * @param {*} id
+     * @returns Returns an array for checkboxes group
+     */
+    getClusterEnabledStatusForCheckboxes(id) {
+      let tmp = []
+      let hasClient = this.selectionClients.includes(id)
+      let hasServer = this.selectionServers.includes(id)
+      if (hasClient) tmp.push('client')
+      if (hasServer) tmp.push('server')
+      return tmp
+    },
     isAnyRequiredClusterNotEnabled() {
       let lackingRequiredCluster = false
       this.recommendedClients.forEach((id) => {
@@ -423,8 +437,35 @@ export default {
         return ZclClusterRoleAction.NoAction
       }
     },
+    /**
+     *  Modify checkbox's event to selection event
+     *
+     * @param {*} checkboxevent
+     * @returns Returns an object value for selection event
+     */
+    parseCheckboxEventToSelectionEvent(event) {
+      let tmpEvent = {}
+
+      if (event.length) {
+        if (event.length === 2) {
+          // Client AND Server
+          tmpEvent = this.clusterSelectionOptions[3]
+        } else {
+          // Client OR Server
+          tmpEvent = this.clusterSelectionOptions.find((item) => {
+            return item.label.toLowerCase() === event[0]
+          })
+        }
+      } else {
+        // Not enabled
+        tmpEvent = this.clusterSelectionOptions[0]
+      }
+
+      return tmpEvent
+    },
     async handleClusterSelection(id, event) {
-      let selectionEvents = this.processZclSelectionEvent(id, event)
+      let modifiedEvent = this.parseCheckboxEventToSelectionEvent(event)
+      let selectionEvents = this.processZclSelectionEvent(id, modifiedEvent)
 
       // find out the delta
       await this.updateZclRolesByClusterSelection(id, selectionEvents)
@@ -538,6 +579,16 @@ export default {
         { label: 'Client', client: true, server: false },
         { label: 'Server', client: false, server: true },
         { label: 'Client & Server', client: true, server: true },
+      ],
+      optionsForCheckboxes: [
+        {
+          label: 'Client',
+          value: 'client',
+        },
+        {
+          label: 'Server',
+          value: 'server',
+        },
       ],
       columns: [
         {
