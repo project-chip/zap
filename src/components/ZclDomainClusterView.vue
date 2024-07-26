@@ -339,6 +339,12 @@ export default {
       if (hasServer) return 'Server'
       return 'Not Enabled'
     },
+    /**
+     *  Get cluster enabled status for checkboxes group
+     *
+     * @param {*} id
+     * @returns Returns an array for checkboxes group
+     */
     getClusterEnabledStatusForCheckboxes(id) {
       let tmp = []
       let hasClient = this.selectionClients.includes(id)
@@ -431,6 +437,12 @@ export default {
         return ZclClusterRoleAction.NoAction
       }
     },
+    /**
+     *  Modify checkbox's event to selection event
+     *
+     * @param {*} checkboxevent
+     * @returns Returns an object value for selection event
+     */
     parseCheckboxEventToSelectionEvent(event) {
       let tmpEvent = {}
 
