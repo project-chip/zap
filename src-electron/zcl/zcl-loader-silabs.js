@@ -559,8 +559,12 @@ function prepareCluster(cluster, context, isExtension = false) {
     ret.attributes = []
     cluster.attribute.forEach((attribute) => {
       let name = attribute._
+      let quality = null
       if ('description' in attribute && name == null) {
         name = attribute.description.join('')
+      }
+      if ('quality' in attribute) {
+        quality = attribute.quality[0].$
       }
       let reportingPolicy = context.defaultReportingPolicy
       if (attribute.$.reportable == 'true') {
@@ -607,13 +611,17 @@ function prepareCluster(cluster, context, isExtension = false) {
         isOptional: attribute.$.optional == 'true',
         reportingPolicy: reportingPolicy,
         storagePolicy: storagePolicy,
-        isSceneRequired: attribute.$.sceneRequired == 'true',
+        isSceneRequired:
+          attribute.$.sceneRequired == 'true' ||
+          (quality != null && quality.scene == 'true'),
         introducedIn: attribute.$.introducedIn,
         removedIn: attribute.$.removedIn,
         isNullable: attribute.$.isNullable == 'true' ? true : false,
         entryType: attribute.$.entryType,
         mustUseTimedWrite: attribute.$.mustUseTimedWrite == 'true',
         apiMaturity: attribute.$.apiMaturity,
+        changeOmitted: quality ? quality.changeOmitted == 'true' : false,
+        persistence: quality ? quality.persistence : null,
       }
       att.access = extractAccessIntoArray(attribute)
       if (att.manufacturerCode == null) {

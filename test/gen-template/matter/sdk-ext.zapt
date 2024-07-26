@@ -21,7 +21,7 @@ property="testCommandExtension"}}'
 ------------------- Attributes -------------------
 {{#zcl_attributes}}
 // attribute: {{asHex clusterCode 4}} / {{asHex code 4}} => {{label}}, extensions: '{{attribute_extension
-property="testAttributeExtension1"}}', '{{attribute_extension property="testAttributeExtension2"}}'
+property="testAttributeExtension1"}}', '{{attribute_extension property="testAttributeExtension2"}}', scene: {{isSceneRequired}}
 {{/zcl_attributes}}
 
 -------------------- Events -----------------------

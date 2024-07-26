@@ -29,7 +29,7 @@ digraph "SchemaCrawler_Diagram" {
 	</tr>
 	<tr>
 		<td align='right'>generated on</td>
-		<td align='left'>2024-07-01 18:22:19</td>
+		<td align='left'>2024-07-24 18:16:40</td>
 	</tr>
       </table>
     >
@@ -350,6 +350,16 @@ digraph "SchemaCrawler_Diagram" {
 		<td port='api_maturity_a069c8bb.start' align='left'>API_MATURITY</td>
 		<td align='left'> </td>
 		<td port='api_maturity_a069c8bb.end' align='left'>TEXT</td>
+	</tr>
+	<tr>
+		<td port='change_comitted_5a82d25b.start' align='left'>CHANGE_COMITTED</td>
+		<td align='left'> </td>
+		<td port='change_comitted_5a82d25b.end' align='left'>INTEGER</td>
+	</tr>
+	<tr>
+		<td port='persistence_685f8304.start' align='left'>PERSISTENCE</td>
+		<td align='left'> </td>
+		<td port='persistence_685f8304.end' align='left'>TEXT</td>
 	</tr>
       </table>
     >
@@ -2837,6 +2847,11 @@ digraph "SchemaCrawler_Diagram" {
 		<td port='size_badc6a4d.start' align='left'>SIZE</td>
 		<td align='left'> </td>
 		<td port='size_badc6a4d.end' align='left'>INTEGER</td>
+	</tr>
+	<tr>
+		<td port='api_maturity_25f9ae82.start' align='left'>API_MATURITY</td>
+		<td align='left'> </td>
+		<td port='api_maturity_25f9ae82.end' align='left'>TEXT</td>
 	</tr>
       </table>
     >
