@@ -22,7 +22,6 @@ limitations under the License.
             <div class="text-h4">
               {{ selectedCluster.label }}
             </div>
-
             <q-breadcrumbs active-color="grey">
               <!-- this needs to be updated depending on how the pages will work -->
               <q-breadcrumbs-el>
@@ -185,12 +184,12 @@ export default {
     },
     enableEventsTab: {
       get() {
-        return this.category !== dbEnum.helperCategory.zigbee
+        return this.category === dbEnum.helperCategory.matter
       },
     },
     enableAttributeReportingTab: {
       get() {
-        return this.category !== dbEnum.helperCategory.matter
+        return this.category === dbEnum.helperCategory.zigbee
       },
     },
   },
