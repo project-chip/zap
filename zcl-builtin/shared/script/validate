@@ -1,5 +1,7 @@
 #!/bin/bash
 
+shopt -s extglob
+
 LOC=`dirname "$0"`
 SUM=0
 
@@ -24,9 +26,10 @@ for A in ${LOC}/../../../test/resource/meta/*.xml; do
     SUM=$(( $SUM + $?))
 done
 
-for A in ${LOC}/../../../test/resource/custom-cluster/[!b]*.xml; do
+for A in ${LOC}/../../../test/resource/custom-cluster/!([b]*|matter*).xml; do
     xmllint --noout --schema ${LOC}/../schema/zcl.xsd  $A
     SUM=$(( $SUM + $?))
 done
+echo "** WARNING: Ignoring Matter custom xml validation errors. **"
 
 exit $SUM

@@ -1,0 +1,24 @@
+<configurator>
+<domain name="CHIP"/>  
+
+  <enum name="testbadEnum" type="BITMAP8"> // intentional error - using bitmap8 for enum
+    <cluster code="0x0300"/>
+    <item name="testItem1" value="0x0"/>
+    <item name="testItem2" value="0x01"/>
+  </enum>
+
+  <!-- Use the cluster extension Extend the on/off cluster -->
+<clusterExtension code="0x0006">
+    <attribute side="server" code="0xFFF10000" define="SAMPLE_MFG_SPECIFIC_TRANSITION_TIME_6" type="INT8U" min="0x0000" max="0xFFFF" writable="true" default="0x0000" optional="true">Sample Mfg Specific Attribute 6</attribute>
+    <attribute side="server" code="0xFFF20001" define="SAMPLE_MFG_SPECIFIC_TRANSITION_TIME_8" type="INT16U" min="0x0000" max="0xFFFF" writable="true" default="0x0000" optional="true">Sample Mfg Specific Attribute 8</attribute>
+    <command source="client" code="0xFFF20001" name="SampleMfgSpecificOnWithTransition2" optional="true">
+        <description>Client command that turns the device on with a transition given
+        by the transition time in the Ember Sample transition time attribute.</description>
+    </command>
+    <command source="client" code="0xFFF20002" name="SampleMfgSpecificToggleWithTransition2" optional="true">
+        <description>Client command that toggles the device with a transition given
+        by the transition time in the Ember Sample transition time attribute.</description>
+    </command>
+</clusterExtension>
+
+</configurator>
