@@ -1670,6 +1670,7 @@ function prepareDeviceType(deviceType) {
  */
 async function processDeviceTypes(db, filePath, packageId, data, context) {
   env.logDebug(`${filePath}, ${packageId}: ${data.length} deviceTypes.`)
+  console.log(context.mandatoryDeviceTypes)
   let deviceTypes = data.map((x) => prepareDeviceType(x))
   for (let deviceType of deviceTypes) {
     if (deviceType.compositionType != null) {
