@@ -312,6 +312,31 @@ function isTwoBytePrefixedString(type) {
 }
 
 /**
+ * Generates a default value for a null string based on its type.
+ * This function is designed to abstract away the specific null representation
+ * of strings from the longTypeDefaultValue function, ensuring that the latter
+ * does not need to be aware of these details.
+ *
+ * @param {string} type - The type of the string, which determines its null representation.
+ * @returns {string} The default value for a null string of the specified type.
+ * @throws {Error} Throws an error if the string type is unknown.
+ */
+
+function nullStringDefaultValue(type) {
+  // We don't want to make longTypeDefaultValue know about our null
+  // string representation.
+  let def
+  if (isOneBytePrefixedString(type)) {
+    def = '0xFF,'
+  } else if (isTwoBytePrefixedString(type)) {
+    def = '0xFF, 0xFF,'
+  } else {
+    throw new Error(`Unknown string type: ${type}`)
+  }
+  return def
+}
+
+/**
  * Given a zcl device type returns its sign, size and zcl data type info stored
  * in the database table.
  * Note: Enums and Bitmaps are considered to be unsigned.
@@ -420,3 +445,4 @@ exports.convertFloatToBigEndian = convertFloatToBigEndian
 exports.getSignAndSizeOfZclType = getSignAndSizeOfZclType
 exports.intToHexString = intToHexString
 exports.hexStringToInt = hexStringToInt
+exports.nullStringDefaultValue = nullStringDefaultValue
