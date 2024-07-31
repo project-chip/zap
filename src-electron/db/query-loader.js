@@ -23,6 +23,7 @@
 const env = require('../util/env')
 const dbApi = require('./db-api.js')
 const queryNotification = require('../db/query-package-notification')
+const dbEnum = require('../../src-shared/db-enum.js')
 
 // Some loading queries that are reused few times.
 
@@ -927,19 +928,31 @@ async function insertAtomics(db, packageId, data) {
 }
 
 /**
- * Inserts a new endpoint composition into the database.
+ * Inserts endpoint composition data into the database based on the context's mandatory device type.
+ * This function checks if the context's mandatory device type matches the composition code.
+ * If they match, it performs an insert operation with a specific type from `dbEnum.mandatoryDeviceType`.
+ * If they do not match, it performs an insert with the composition's type.
  *
- * @param {Object} db - The database connection object.
- * @param {number} packageId - The ID of the package to which this endpoint composition belongs.
- * @param {Object} composition - An object containing the 'type' and 'code' of the endpoint composition.
- * @returns {Promise} A promise that resolves with the result of the database insertion operation.
+ * @param {*} db - The database connection object.
+ * @param {*} packageId - The package ID to associate with the endpoint composition.
+ * @param {*} composition - The composition data to be inserted.
+ * @param {*} context - The context containing the mandatory device type to check against.
+ * @returns A promise resolved with the result of the database insert operation.
  */
-function insertEndpointComposition(db, packageId, composition) {
-  return dbApi.dbInsert(
-    db,
-    'INSERT INTO ENDPOINT_COMPOSITION (PACKAGE_REF, TYPE, CODE) VALUES (?, ?, ?)',
-    [packageId, composition.compositionType, composition.code]
-  )
+function insertEndpointComposition(db, packageId, composition, context) {
+  if (context.mandatoryDeviceType === composition.code) {
+    return dbApi.dbInsert(
+      db,
+      'INSERT INTO ENDPOINT_COMPOSITION (PACKAGE_REF, TYPE, CODE) VALUES (?, ?, ?)',
+      [packageId, dbEnum.mandatoryDeviceType, composition.code, 1]
+    )
+  } else {
+    return dbApi.dbInsert(
+      db,
+      'INSERT INTO ENDPOINT_COMPOSITION (PACKAGE_REF, TYPE, CODE) VALUES (?, ?, ?)',
+      [packageId, composition.compositionType, composition.code]
+    )
+  }
 }
 
 /**

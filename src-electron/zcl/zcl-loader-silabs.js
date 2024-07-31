@@ -124,6 +124,9 @@ async function collectDataFromJsonFile(metadataFile, data) {
     returnObject.attributeAccessInterfaceAttributes =
       obj.attributeAccessInterfaceAttributes
   }
+  if ('mandatoryDeviceTypes' in obj) {
+    returnObject.mandatoryDeviceTypes = obj.mandatoryDeviceTypes
+  }
 
   if ('ZCLDataTypes' in obj) {
     returnObject.ZCLDataTypes = obj.ZCLDataTypes
@@ -1651,20 +1654,31 @@ function prepareDeviceType(deviceType) {
 }
 
 /**
- * Process all device types.
+ * Processes and inserts device types into the database.
+ * This function logs the number of device types being processed for debugging purposes.
+ * It maps over the provided data to prepare each device type and then iterates over each prepared device type.
+ * If a device type has a compositionType, it inserts the endpoint composition into the database,
+ * retrieves the endpoint composition ID, and then inserts the device composition.
+ * Finally, it inserts all prepared device types into the database.
  *
- * @param {*} db
- * @param {*} filePath
- * @param {*} packageId
- * @param {*} data
- * @returns Promise of a resolved device types.
+ * @param {*} db - The database connection object.
+ * @param {string} filePath - The file path from which the device types are being processed.
+ * @param {*} packageId - The package ID associated with the device types.
+ * @param {Array} data - The array of device types to be processed.
+ * @param {*} context - Additional context that might be required for processing.
+ * @returns {Promise} A promise that resolves after all device types have been inserted into the database.
  */
-async function processDeviceTypes(db, filePath, packageId, data) {
+async function processDeviceTypes(db, filePath, packageId, data, context) {
   env.logDebug(`${filePath}, ${packageId}: ${data.length} deviceTypes.`)
   let deviceTypes = data.map((x) => prepareDeviceType(x))
   for (let deviceType of deviceTypes) {
     if (deviceType.compositionType != null) {
-      await queryLoader.insertEndpointComposition(db, packageId, deviceType)
+      await queryLoader.insertEndpointComposition(
+        db,
+        packageId,
+        deviceType,
+        context
+      )
       let endpointCompositionId =
         await queryLoader.getEndpointCompositionIdByCode(
           db,
@@ -1741,7 +1755,13 @@ async function processParsedZclData(
     let batch2 = []
     if ('deviceType' in toplevel) {
       batch2.push(
-        processDeviceTypes(db, filePath, packageId, toplevel.deviceType)
+        processDeviceTypes(
+          db,
+          filePath,
+          packageId,
+          toplevel.deviceType,
+          context
+        )
       )
     }
     if ('global' in toplevel) {
@@ -2278,11 +2298,16 @@ async function parseBoolOptions(db, pkgRef, booleanCategories) {
 }
 
 /**
- * Parses the attributeAccessInterfaceAttributes values inside the options.
+ * Asynchronously parses and inserts attribute access interface attributes into the database.
+ * This function iterates over the attributeAccessInterfaceAttributes object, processing each cluster
+ * by mapping its values to a specific structure and then inserting them into the database using
+ * the insertOptionsKeyValues function.
  *
- * @param {*} db
- * @param {*} ctx
- * @returns Promised of parsed attributeAccessInterfaceAttributes.
+ * @param {*} db - The database connection object.
+ * @param {*} pkgRef - The package reference id for which the attributes are being parsed.
+ * @param {*} attributeAccessInterfaceAttributes - An object containing the attribute access interface attributes,
+ *                                                  structured by cluster.
+ * @returns {Promise<void>} A promise that resolves when all attributes have been processed and inserted.
  */
 
 async function parseattributeAccessInterfaceAttributes(
@@ -2290,19 +2315,25 @@ async function parseattributeAccessInterfaceAttributes(
   pkgRef,
   attributeAccessInterfaceAttributes
 ) {
-  Object.keys(attributeAccessInterfaceAttributes).map((cluster) => {
-    let val = attributeAccessInterfaceAttributes[cluster]
-    return queryPackage.insertOptionsKeyValues(
-      db,
-      pkgRef,
-      cluster,
-      val.map((optionValue) => {
-        return {
-          code: dbEnum.storagePolicy.attributeAccessInterface,
-          label: optionValue,
-        }
-      })
-    )
+  // Use forEach for side effects without expecting a return value
+  Object.keys(attributeAccessInterfaceAttributes).forEach(async (cluster) => {
+    const values = attributeAccessInterfaceAttributes[cluster]
+    // Prepare the data for insertion
+    const optionsKeyValues = values.map((optionValue) => ({
+      code: dbEnum.storagePolicy.attributeAccessInterface,
+      label: optionValue,
+    }))
+    // Insert the data into the database
+    try {
+      await queryPackage.insertOptionsKeyValues(
+        db,
+        pkgRef,
+        cluster,
+        optionsKeyValues
+      )
+    } catch (error) {
+      console.error(`Error inserting attributes for cluster ${cluster}:`, error)
+    }
   })
 }
 
