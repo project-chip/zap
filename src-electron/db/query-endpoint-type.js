@@ -711,6 +711,63 @@ async function selectEndpointTypeAttributeFromEndpointTypeClusterId(
   return dbMapping.map.endpointTypeAttribute(eta)
 }
 
+/**
+ * Given a sessionId, endpoint identifier and attribute reference,
+ * return the associated endpoint type cluster from the given information
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} endpointIdentifier
+ * @param {*} attributeRef
+ * @returns Promise that resolves with the data that contains endpoin type cluster details
+ */
+async function selectEndpointTypeClusterFromEndpointIdentifierAndAttributeRef(
+  db,
+  sessionId,
+  endpointIdentifier,
+  attributeRef
+) {
+  let etc = await dbApi.dbGet(
+    db,
+    `
+    SELECT
+      ETC.ENDPOINT_TYPE_REF,
+      ETC.CLUSTER_REF,
+      ETC.ENABLED,
+      ETC.SIDE
+    FROM
+      ATTRIBUTE AS A
+    INNER JOIN
+      CLUSTER AS C
+    ON
+      A.CLUSTER_REF = C.CLUSTER_ID
+    INNER JOIN
+      ENDPOINT_TYPE_CLUSTER AS ETC
+    ON
+      ETC.CLUSTER_REF = C.CLUSTER_ID
+    INNER JOIN
+      ENDPOINT_TYPE AS ET
+    ON
+      ET.ENDPOINT_TYPE_ID = ETC.ENDPOINT_TYPE_REF
+    INNER JOIN
+      ENDPOINT AS E
+    ON
+      E.ENDPOINT_TYPE_REF = ET.ENDPOINT_TYPE_ID
+    INNER JOIN
+      SESSION
+    ON
+      SESSION.SESSION_ID = E.SESSION_REF
+    WHERE
+      A.ATTRIBUTE_ID = ${attributeRef}
+    AND
+      SESSION.SESSION_ID = ${sessionId}
+    AND
+      E.ENDPOINT_IDENTIFIER = ${endpointIdentifier}
+    AND
+      ETC.SIDE = A.SIDE`
+  )
+  return dbMapping.map.endpointTypeCluster(etc)
+}
+
 exports.deleteEndpointType = deleteEndpointType
 exports.selectAllEndpointTypes = selectAllEndpointTypes
 exports.selectEndpointTypeIds = selectEndpointTypeIds
@@ -730,3 +787,5 @@ exports.selectClustersAndEndpointDetailsFromEndpointTypes =
   selectClustersAndEndpointDetailsFromEndpointTypes
 exports.selectEndpointTypeAttributeFromEndpointTypeClusterId =
   selectEndpointTypeAttributeFromEndpointTypeClusterId
+exports.selectEndpointTypeClusterFromEndpointIdentifierAndAttributeRef =
+  selectEndpointTypeClusterFromEndpointIdentifierAndAttributeRef

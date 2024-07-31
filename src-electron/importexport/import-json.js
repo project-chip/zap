@@ -27,6 +27,7 @@ const queryZcl = require('../db/query-zcl.js')
 const querySessionNotice = require('../db/query-session-notification.js')
 const queryDeviceType = require('../db/query-device-type.js')
 const queryCommand = require('../db/query-command.js')
+const queryConfig = require('../db/query-config.js')
 const zclLoader = require('../zcl/zcl-loader.js')
 const generationEngine = require('../generator/generation-engine')
 
@@ -894,7 +895,8 @@ async function deviceTypeComplianceForClusters(
     )
     if (
       deviceTypeClustersOnEndpointType[dtc].includeClient &&
-      !isDeviceTypeClientClusterFound
+      !isDeviceTypeClientClusterFound &&
+      deviceTypeClustersOnEndpointType[dtc].lockClient
     ) {
       clusterSpecComplianceMessage =
         '⚠ Check Device Type Compliance on endpoint: ' +
@@ -975,7 +977,8 @@ async function deviceTypeComplianceForClusters(
     }
     if (
       deviceTypeClustersOnEndpointType[dtc].includeServer &&
-      !isDeviceTypeServerClusterFound
+      !isDeviceTypeServerClusterFound &&
+      deviceTypeClustersOnEndpointType[dtc].lockServer
     ) {
       clusterSpecComplianceMessage =
         '⚠ Check Device Type Compliance on endpoint: ' +
@@ -1105,6 +1108,29 @@ async function deviceTypeComplianceForAttributes(
             db,
             deviceTypeAttributesOnEndpointType[dta].deviceTypeRef
           )
+          // Not throwing attribute warnings for an optional cluster's attributes when it is not enabled
+          if (endpointId) {
+            // This check is kept for a backwards compatibility reason where endpoint types and endpoints are not in sync
+            let endpointTypeCluster =
+              await queryEndpointType.selectEndpointTypeClusterFromEndpointIdentifierAndAttributeRef(
+                db,
+                sessionId,
+                endpointId,
+                deviceTypeAttributesOnEndpointType[dta].attributeRef
+              )
+            if (
+              !(endpointTypeCluster?.enabled == true) &&
+              ((!queryDeviceTypeClusterInfo.lockClient &&
+                (endpointTypeCluster == undefined ||
+                  endpointTypeCluster?.side == dbEnum.side.client)) ||
+                (!queryDeviceTypeClusterInfo.lockServer &&
+                  (endpointTypeCluster == undefined ||
+                    endpointTypeCluster?.side == dbEnum.side.server)))
+            ) {
+              continue
+            }
+          }
+
           // Leaving out global attributes
           let attributeSpecComplianceMessage =
             '⚠ Check Device Type Compliance on endpoint: ' +

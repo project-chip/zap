@@ -411,6 +411,90 @@ test(
         '⚠ Check Cluster Compliance on endpoint: 1, cluster: Identify, mandatory attribute: IdentifyTime needs to be enabled'
       )
     ).toBeTruthy()
+
+    // Testing the compliance warnings for optional clusters of the device type.
+    // When attribute of an enabled optional cluster to a device type is disabled then throw a warning
+    let localConfigCluster = allClusters.find((c) => c.code === 0x002b) // Find the Localization Configuration cluster by code
+    let localConfigClusterAttributes =
+      await queryZcl.selectAttributesByClusterIdAndSideIncludingGlobal(
+        db,
+        localConfigCluster.id,
+        sessionPackageIds,
+        'server'
+      )
+    let activeLocaleAttribute = localConfigClusterAttributes.find(
+      (ica) => ica.name === 'ActiveLocale'
+    )
+    // Disable active Local attribute of an optional cluster to a device type
+    await queryConfig.insertOrUpdateAttributeState(
+      db,
+      endpoint0.endpointTypeId,
+      activeLocaleAttribute.clusterRef,
+      'server',
+      activeLocaleAttribute.id,
+      [
+        {
+          key: restApi.updateKey.attributeSelected,
+          value: 0,
+        },
+      ],
+      null,
+      null,
+      null
+    )
+
+    sessionNotifications = await testQuery.getAllSessionNotifications(db, sid)
+    sessionNotificationMessages = sessionNotifications.map((sn) => sn.message)
+    expect(
+      sessionNotificationMessages.includes(
+        '⚠ Check Device Type Compliance on endpoint: 0, cluster: Localization Configuration, attribute: ActiveLocale needs to be enabled'
+      )
+    ).toBeTruthy()
+
+    // Enable active Local attribute of an optional cluster to a device type
+    await queryConfig.insertOrUpdateAttributeState(
+      db,
+      endpoint0.endpointTypeId,
+      activeLocaleAttribute.clusterRef,
+      'server',
+      activeLocaleAttribute.id,
+      [
+        {
+          key: restApi.updateKey.attributeSelected,
+          value: 1,
+        },
+      ],
+      null,
+      null,
+      null
+    )
+    sessionNotifications = await testQuery.getAllSessionNotifications(db, sid)
+    sessionNotificationMessages = sessionNotifications.map((sn) => sn.message)
+
+    expect(
+      sessionNotificationMessages.includes(
+        '⚠ Check Device Type Compliance on endpoint: 0, cluster: Localization Configuration, attribute: ActiveLocale needs to be enabled'
+      )
+    ).toBeFalsy()
+
+    // Disable the optional cluster to a device type and none of the optional cluster or its attribute warnings should show up.
+    await queryConfig.insertOrReplaceClusterState(
+      db,
+      endpoint0.endpointTypeId,
+      localConfigCluster.id,
+      'SERVER',
+      false
+    )
+    expect(
+      sessionNotificationMessages.includes(
+        '⚠ Check Device Type Compliance on endpoint: 0, cluster: Localization Configuration server needs to be enabled'
+      )
+    ).toBeFalsy()
+    expect(
+      sessionNotificationMessages.includes(
+        '⚠ Check Device Type Compliance on endpoint: 0, cluster: Localization Configuration, attribute: ActiveLocale needs to be enabled'
+      )
+    ).toBeFalsy()
   },
   testUtil.timeout.medium()
 )
