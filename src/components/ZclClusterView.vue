@@ -14,10 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <template>
-  <div class="popup-wrap row" id="ZclClusterView">
-    <q-card flat class="col column q-pa-lg">
+  <div class="row" id="ZclClusterView">
+    <div class="col column q-pa-lg">
       <div>
-        <div class="row no-wrap">
+        <div class="row">
           <div class="col">
             <div class="text-h4">
               {{ selectedCluster.label }}
@@ -45,7 +45,6 @@ limitations under the License.
             >
               <q-tooltip> Cluster Specification </q-tooltip>
             </q-btn>
-            <q-btn to="/" flat dense icon="close" />
           </div>
         </div>
         <div class="row items-center no-wrap q-py-lg">
@@ -110,8 +109,7 @@ limitations under the License.
           </div>
         </div>
       </div>
-    </q-card>
-    <q-resize-observer @resize="onResize" />
+    </div>
   </div>
 </template>
 <script>
@@ -198,12 +196,7 @@ export default {
       this.tab = val
     },
   },
-  mounted() {
-    window.addEventListener('resize', this.calculateTableSize)
-  },
-  unmounted() {
-    window.removeEventListener('resize', this.calculateTableSize)
-  },
+
   methods: {
     openClusterDocumentation() {
       if (
@@ -222,20 +215,10 @@ export default {
     setIndividualClusterFilterString(filterString) {
       this.$store.dispatch('zap/setIndividualClusterFilterString', filterString)
     },
-    onResize(size) {
-      this.tableHeight = size.height - 380 + 'px'
-      this.tableWidth = size.width - 80 + 'px'
-    },
-    calculateTableSize() {
-      this.tableHeight = '30px'
-      this.tableWidth = '500px'
-    },
   },
   data() {
     return {
       tab: 'attributes',
-      tableHeight: '30px',
-      tableWidth: '500px',
     }
   },
 
@@ -296,7 +279,6 @@ export default {
   padding: 2px 5px;
 }
 .my-sticky-header-table {
-  width: v-bind(tableWidth);
-  height: v-bind(tableHeight);
+  height: fit-content;
 }
 </style>
