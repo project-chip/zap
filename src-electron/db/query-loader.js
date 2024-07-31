@@ -944,7 +944,7 @@ function insertEndpointComposition(db, packageId, composition, context) {
     return dbApi.dbInsert(
       db,
       'INSERT INTO ENDPOINT_COMPOSITION (PACKAGE_REF, TYPE, CODE) VALUES (?, ?, ?)',
-      [packageId, dbEnum.mandatoryDeviceType, composition.code, 1]
+      [packageId, dbEnum.mandatoryDeviceType, composition.code]
     )
   } else {
     return dbApi.dbInsert(
