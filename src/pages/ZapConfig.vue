@@ -700,6 +700,7 @@ export default {
         currentZapFileZclPacakges = this.currentZapFilePackages.filter(
           (zfp) => zfp.type == dbEnum.packageType.zclProperties
         )
+
         currentZapFileTemplatePacakges = this.currentZapFilePackages.filter(
           (zfp) => zfp.type == dbEnum.packageType.genTemplatesJson
         )
@@ -716,16 +717,13 @@ export default {
         this.zclPropertiesRow.length == currentZapFileZclPacakges.length ||
         this.zclPropertiesRow.length == 1
       ) {
-        // We shortcut this page, if the number of packages in the zap file
-        // and the number of packages loaded in the backend are the same.
-        if (this.zclGenRow.length == currentZapFileTemplatePacakges.length) {
-          this.selectedZclPropertiesDataIds = this.zclPropertiesRow.map(
-            (zpr) => zpr.id
-          )
-          this.selectedZclPropertiesData = this.zclPropertiesRow
-          this.selectedZclGenData = this.zclGenRow.map((zgr) => zgr.id)
-        }
-        this.customConfig = 'select'
+        //   if (this.zclGenRow.length == currentZapFileTemplatePacakges.length) {
+        this.selectedZclGenData = this.zclGenRow.map((zgr) => zgr.id)
+        this.selectedZclPropertiesDataIds = this.zclPropertiesRow.map(
+          (zpr) => zpr.id
+        )
+        this.selectedZclPropertiesData = this.zclPropertiesRow
+
         this.submitForm()
       } else {
         let selectableZclPackages = this.zclPropertiesRow.filter((zp) =>
