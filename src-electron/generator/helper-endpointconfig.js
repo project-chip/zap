@@ -836,9 +836,9 @@ async function collectAttributes(db, sessionId, endpointTypes, options) {
             // We don't want to make longTypeDefaultValue know about our null
             // string representation.
             if (types.isOneBytePrefixedString(a.type)) {
-              def = ['0xFF']
+              def = '0xFF,'
             } else if (types.isTwoBytePrefixedString(a.type)) {
-              def = ['0xFF', '0xFF']
+              def = '0xFF, 0xFF,'
             } else {
               throw new Error(`Unknown string type: ${type}`)
             }
