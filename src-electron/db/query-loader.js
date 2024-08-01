@@ -940,11 +940,11 @@ async function insertAtomics(db, packageId, data) {
  * @returns A promise resolved with the result of the database insert operation.
  */
 function insertEndpointComposition(db, packageId, composition, context) {
-  if (context.mandatoryDeviceTypes === composition.code) {
+  if (parseInt(context.mandatoryDeviceTypes, 16) === composition.code) {
     return dbApi.dbInsert(
       db,
       'INSERT INTO ENDPOINT_COMPOSITION (PACKAGE_REF, TYPE, CODE) VALUES (?, ?, ?)',
-      [packageId, dbEnum.mandatoryDeviceType, composition.code]
+      [packageId, dbEnum.composition.rootNode, composition.code]
     )
   } else {
     return dbApi.dbInsert(
