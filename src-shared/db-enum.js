@@ -74,6 +74,12 @@ exports.storageOption = {
   external: 'External',
 }
 
+exports.composition = {
+  fullFamily: 'fullFamily',
+  tree: 'tree',
+  mandatoryEndpoint: 'mandatoryEndpoint',
+}
+
 exports.zclType = {
   struct: 'struct',
   enum: 'enum',

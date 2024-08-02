@@ -562,6 +562,7 @@ exports.map = {
       featureName: x.FEATURE_NAME,
       featureBit: x.FEATURE_BIT,
       clusterId: x.CLUSTER_REF,
+      composition: x.TYPE,
     }
   },
   endpointTypeCluster: (x) => {

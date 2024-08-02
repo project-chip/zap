@@ -115,11 +115,13 @@ function user_endpoints(options) {
  */
 async function user_device_types(options) {
   let promise = queryDeviceType
-    .selectDeviceTypesByEndpointTypeId(this.global.db, this.endpointTypeId)
+    .selectDeviceTypesWithCompositionByEndpointTypeId(
+      this.global.db,
+      this.endpointTypeId
+    )
     .then((deviceTypes) =>
       templateUtil.collectBlocks(deviceTypes, options, this)
     )
-
   return templateUtil.templatePromise(this.global, promise)
 }
 

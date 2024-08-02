@@ -356,6 +356,53 @@ CREATE TABLE IF NOT EXISTS "DEVICE_TYPE" (
   foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID) ON DELETE CASCADE ON UPDATE CASCADE
 );
 /*
+ This table stores information about endpoint compositions.
+ Each record represents a composition associated with a specific device type.
+ 
+ Columns:
+ ENDPOINT_COMPOSITION_ID: The primary key of the table, auto-incremented for each new record.
+ DEVICE_TYPE_REF: A foreign key linking to the DEVICE_TYPE table, indicating the device type associated with this composition.
+ TYPE: A text field describing the type of the endpoint composition.
+ CODE: An integer representing a unique code for the endpoint composition.
+ 
+ Foreign Key Constraints:
+ The DEVICE_TYPE_REF column references the DEVICE_TYPE_ID column of the DEVICE_TYPE table.
+ On deletion of a referenced device type, corresponding records in this table are deleted (CASCADE).
+*/
+CREATE TABLE IF NOT EXISTS "ENDPOINT_COMPOSITION" (
+  "ENDPOINT_COMPOSITION_ID" integer PRIMARY KEY AUTOINCREMENT,
+  "DEVICE_TYPE_REF" integer, 
+  "TYPE" text,
+  "CODE" integer,
+  FOREIGN KEY ("DEVICE_TYPE_REF") REFERENCES "DEVICE_TYPE"("DEVICE_TYPE_ID") ON DELETE CASCADE
+);
+/*
+ This table defines the composition of devices within the system.
+ It links devices to their types and endpoint compositions, specifying their conformance and constraints.
+ 
+ Columns:
+ DEVICE_COMPOSITION_ID: The primary key of the table, auto-incremented for each new record.
+ DEVICE_TYPE_REF: An integer that acts as a foreign key to reference a specific device type.
+ ENDPOINT_COMPOSITION_REF: A foreign key linking to the ENDPOINT_COMPOSITION table to specify the endpoint composition associated with this device.
+ CONFORMANCE: A text field describing the conformance level of the device composition.
+ CONSTRAINT: An integer representing any constraints applied to the device composition.
+ 
+ Foreign Key Constraints:
+ The DEVICE_TYPE_REF column references the DEVICE_TYPE_ID column of the DEVICE_TYPE table. On deletion of a device type, corresponding records in this table are deleted (CASCADE).
+ The ENDPOINT_COMPOSITION_REF column references the ENDPOINT_COMPOSITION_ID column of the ENDPOINT_COMPOSITION table. On deletion of an endpoint composition, corresponding records in this table are deleted (CASCADE).
+*/
+CREATE TABLE IF NOT EXISTS "DEVICE_COMPOSITION" (
+  "DEVICE_COMPOSITION_ID" integer PRIMARY KEY AUTOINCREMENT,
+  "CODE" integer,
+  "DEVICE_TYPE_REF" integer,
+  "ENDPOINT_COMPOSITION_REF" integer,
+  "CONFORMANCE" text,
+  "CONSTRAINT" integer,
+  FOREIGN KEY ("ENDPOINT_COMPOSITION_REF") REFERENCES "ENDPOINT_COMPOSITION"("ENDPOINT_COMPOSITION_ID") ON DELETE CASCADE
+  FOREIGN KEY ("DEVICE_TYPE_REF") REFERENCES "DEVICE_TYPE"("DEVICE_TYPE_ID") ON DELETE CASCADE
+);
+
+/*
  DEVICE_TYPE_CLUSTER contains clusters that belong to the device type.
  */
 DROP TABLE IF EXISTS "DEVICE_TYPE_CLUSTER";
