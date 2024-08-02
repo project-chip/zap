@@ -200,9 +200,9 @@ export default {
         this.maxIndex > this.index
       ) {
         this.index = this.index + 1
-        this.$serverGet(
+        let filePreview =
           restApi.uri.preview + this.currentFile + '/' + this.index
-        )
+        this.$serverGet(filePreview)
           .then((result) => {
             this.generationData = this.generationData + result.data['result']
           })
