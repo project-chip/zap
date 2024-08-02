@@ -713,12 +713,12 @@ export default {
       }
 
       if (
-        this.zclPropertiesRow.length == currentZapFileZclPackages.length ||
+        this.zclPropertiesRow.length == currentZapFileZclPacakges.length ||
         this.zclPropertiesRow.length == 1
       ) {
         // We shortcut this page, if the number of packages in the zap file
         // and the number of packages loaded in the backend are the same.
-        if (this.zclGenRow.length == currentZapFileTemplatePackages.length) {
+        if (this.zclGenRow.length == currentZapFileTemplatePacakges.length) {
           this.selectedZclPropertiesDataIds = this.zclPropertiesRow.map(
             (zpr) => zpr.id
           )
