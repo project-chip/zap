@@ -980,7 +980,7 @@ async function getEndpointCompositionIdByCode(db, deviceType) {
 function insertDeviceComposition(db, deviceType, endpointCompositionId) {
   const insertQuery = `
     INSERT INTO DEVICE_COMPOSITION (CODE, ENDPOINT_COMPOSITION_REF)
-    VALUES (?, ?, ?)
+    VALUES (?, ?)
   `
   return dbApi.dbInsert(db, insertQuery, [
     parseInt(deviceType.childDeviceId, 16),
