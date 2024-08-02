@@ -77,7 +77,7 @@ exports.storageOption = {
 exports.composition = {
   fullFamily: 'fullFamily',
   tree: 'tree',
-  rootNode: 'rootNode',
+  mandatoryEndpoint: 'mandatoryEndpoint',
 }
 
 exports.zclType = {

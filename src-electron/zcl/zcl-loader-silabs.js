@@ -1674,26 +1674,18 @@ async function processDeviceTypes(db, filePath, packageId, data, context) {
   for (let deviceType of deviceTypes) {
     if (
       deviceType.compositionType != null ||
-      deviceType.code === parseInt(context.mandatoryDeviceTypes, 16)
+      deviceType.code == parseInt(context.mandatoryDeviceTypes, 16)
     ) {
-      await queryLoader.insertEndpointComposition(
-        db,
-        packageId,
-        deviceType,
-        context
-      )
-      let endpointCompositionId =
-        await queryLoader.getEndpointCompositionIdByCode(
+      await queryLoader.insertEndpointComposition(db, deviceType, context)
+      if (deviceType.code !== parseInt(context.mandatoryDeviceTypes, 16)) {
+        let endpointCompositionId =
+          await queryLoader.getEndpointCompositionIdByCode(db, deviceType)
+        await queryLoader.insertDeviceComposition(
           db,
           deviceType,
-          packageId
+          endpointCompositionId
         )
-      await queryLoader.insertDeviceComposition(
-        db,
-        packageId,
-        deviceType,
-        endpointCompositionId
-      )
+      }
     }
   }
   return queryLoader.insertDeviceTypes(db, packageId, deviceTypes)

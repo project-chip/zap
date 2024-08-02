@@ -934,39 +934,37 @@ async function insertAtomics(db, packageId, data) {
  * If they do not match, it performs an insert with the composition's type.
  *
  * @param {*} db - The database connection object.
- * @param {*} packageId - The package ID to associate with the endpoint composition.
  * @param {*} composition - The composition data to be inserted.
  * @param {*} context - The context containing the mandatory device type to check against.
  * @returns A promise resolved with the result of the database insert operation.
  */
-function insertEndpointComposition(db, packageId, composition, context) {
+function insertEndpointComposition(db, composition, context) {
   if (parseInt(context.mandatoryDeviceTypes, 16) === composition.code) {
     return dbApi.dbInsert(
       db,
-      'INSERT INTO ENDPOINT_COMPOSITION (PACKAGE_REF, TYPE, CODE) VALUES (?, ?, ?)',
-      [packageId, dbEnum.composition.rootNode, composition.code]
+      'INSERT INTO ENDPOINT_COMPOSITION (TYPE, CODE) VALUES (?, ?)',
+      [dbEnum.composition.mandatoryEndpoint, composition.code]
     )
   } else {
     return dbApi.dbInsert(
       db,
-      'INSERT INTO ENDPOINT_COMPOSITION (PACKAGE_REF, TYPE, CODE) VALUES (?, ?, ?)',
-      [packageId, composition.compositionType, composition.code]
+      'INSERT INTO ENDPOINT_COMPOSITION (TYPE, CODE) VALUES (?, ?)',
+      [composition.compositionType, composition.code]
     )
   }
 }
 
 /**
- * Asynchronously retrieves the ID of an endpoint composition based on its code and associated package ID.
+ * Asynchronously retrieves the ID of an endpoint composition based on its code.
  *
  * @param {Object} db - The database connection object.
  * @param {Object} deviceType - An object representing the device type, which contains the 'code' property.
- * @param {number} packageId - The ID of the package associated with the endpoint composition.
  * @returns {Promise<number|null>} A promise that resolves with the ID of the endpoint composition if found, or null otherwise.
  */
-async function getEndpointCompositionIdByCode(db, deviceType, packageId) {
+async function getEndpointCompositionIdByCode(db, deviceType) {
   const query =
-    'SELECT ENDPOINT_COMPOSITION_ID FROM ENDPOINT_COMPOSITION WHERE CODE = ? AND PACKAGE_REF = ?'
-  const result = await dbApi.dbGet(db, query, [deviceType.code, packageId])
+    'SELECT ENDPOINT_COMPOSITION_ID FROM ENDPOINT_COMPOSITION WHERE CODE = ?'
+  const result = await dbApi.dbGet(db, query, [deviceType.code])
   return result ? result.ENDPOINT_COMPOSITION_ID : null
 }
 
@@ -974,25 +972,18 @@ async function getEndpointCompositionIdByCode(db, deviceType, packageId) {
  * Inserts a new device composition record into the database.
  *
  * @param {Object} db - The database connection object.
- * @param {number} packageId - The ID of the package associated with this device composition.
  * @param {Object} deviceType - An object representing the device type, which contains the 'childDeviceId' property.
  * @param {number} endpointCompositionId - The ID of the endpoint composition associated with this device composition.
  * @returns {Promise} A promise that resolves with the result of the database insertion operation.
  */
 
-function insertDeviceComposition(
-  db,
-  packageId,
-  deviceType,
-  endpointCompositionId
-) {
+function insertDeviceComposition(db, deviceType, endpointCompositionId) {
   const insertQuery = `
-    INSERT INTO DEVICE_COMPOSITION (PACKAGE_REF, CODE, ENDPOINT_COMPOSITION_REF)
+    INSERT INTO DEVICE_COMPOSITION (CODE, ENDPOINT_COMPOSITION_REF)
     VALUES (?, ?, ?)
   `
   return dbApi.dbInsert(db, insertQuery, [
-    packageId,
-    deviceType.childDeviceId,
+    parseInt(deviceType.childDeviceId, 16),
     endpointCompositionId,
   ])
 }
@@ -1055,13 +1046,40 @@ async function insertDeviceTypes(db, packageId, data) {
                   }
                 })
             )
-          ).then((dtClusterRefDataPairs) => {
-            let promises = []
-            promises.push(insertDeviceTypeAttributes(db, dtClusterRefDataPairs))
-            promises.push(insertDeviceTypeCommands(db, dtClusterRefDataPairs))
-            promises.push(insertDeviceTypeFeatures(db, dtClusterRefDataPairs))
-            return Promise.all(promises)
-          })
+          )
+            .then((dtClusterRefDataPairs) => {
+              let promises = []
+              promises.push(
+                insertDeviceTypeAttributes(db, dtClusterRefDataPairs)
+              )
+              promises.push(insertDeviceTypeCommands(db, dtClusterRefDataPairs))
+              promises.push(insertDeviceTypeFeatures(db, dtClusterRefDataPairs))
+              return Promise.all(promises)
+            })
+            .then(() => {
+              // Update ENDPOINT_COMPOSITION with DEVICE_TYPE_REF
+              const updateEndpointComposition = `
+              UPDATE ENDPOINT_COMPOSITION
+              SET DEVICE_TYPE_REF = (
+                SELECT DEVICE_TYPE_ID
+                FROM DEVICE_TYPE
+                WHERE DEVICE_TYPE.CODE = ENDPOINT_COMPOSITION.CODE
+              )
+            `
+              return dbApi.dbAll(db, updateEndpointComposition)
+            })
+            .then(() => {
+              // Update DEVICE_COMPOSITION with DEVICE_TYPE_REF
+              const updateDeviceComposition = `
+              UPDATE DEVICE_COMPOSITION
+              SET DEVICE_TYPE_REF = (
+                SELECT DEVICE_TYPE_ID
+                FROM DEVICE_TYPE
+                WHERE DEVICE_TYPE.CODE = DEVICE_COMPOSITION.CODE
+              )
+            `
+              return dbApi.dbAll(db, updateDeviceComposition)
+            })
         }
       }
       return zclIdsPromises
