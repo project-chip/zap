@@ -688,7 +688,6 @@ export default {
       this.filePath = result.data.filePath
       this.open = result.data.open
       this.currentZapFilePackages = result.data.zapFilePackages
-      console.log(result.data.zapFilePackages)
       let currentZapFileZclPackages = []
       let currentTopLevelZapFilePackages = []
       let currentZapFileTemplatePackages = []
@@ -698,18 +697,18 @@ export default {
         currentTopLevelZapFilePackages = this.currentZapFilePackages.filter(
           (zfp) => zfp.type != dbEnum.packageType.zclXmlStandalone
         )
-        currentZapFileZclPacakges = this.currentZapFilePackages.filter(
+        currentZapFileZclPackages = this.currentZapFilePackages.filter(
           (zfp) => zfp.type == dbEnum.packageType.zclProperties
         )
 
-        currentZapFileTemplatePacakges = this.currentZapFilePackages.filter(
+        currentZapFileTemplatePackages = this.currentZapFilePackages.filter(
           (zfp) => zfp.type == dbEnum.packageType.genTemplatesJson
         )
-        currentZclPackagesAbsolutePaths = currentZapFileZclPacakges.map((zfp) =>
+        currentZclPackagesAbsolutePaths = currentZapFileZclPackages.map((zfp) =>
           this.createAbsolutePath(this.filePath, zfp.path)
         )
         currentTemplatePackagesAbsolutePaths =
-          currentZapFileTemplatePacakges.map((zfp) =>
+          currentZapFileTemplatePackages.map((zfp) =>
             this.createAbsolutePath(this.filePath, zfp.path)
           )
       }
@@ -751,7 +750,7 @@ export default {
           this.selectedZclGenData.length > 0 &&
           this.selectedZclPropertiesData.length +
             this.selectedZclGenData.length ==
-            currentTopLevelZapFilePacakges.length
+            currentTopLevelZapFilePackages.length
         ) {
           this.submitForm()
         }
