@@ -688,13 +688,14 @@ export default {
       this.filePath = result.data.filePath
       this.open = result.data.open
       this.currentZapFilePackages = result.data.zapFilePackages
-      let currentZapFileZclPacakges = []
-      let currentTopLevelZapFilePacakges = []
-      let currentZapFileTemplatePacakges = []
+      console.log(result.data.zapFilePackages)
+      let currentZapFileZclPackages = []
+      let currentTopLevelZapFilePackages = []
+      let currentZapFileTemplatePackages = []
       let currentZclPackagesAbsolutePaths = []
       let currentTemplatePackagesAbsolutePaths = []
       if (this.currentZapFilePackages) {
-        currentTopLevelZapFilePacakges = this.currentZapFilePackages.filter(
+        currentTopLevelZapFilePackages = this.currentZapFilePackages.filter(
           (zfp) => zfp.type != dbEnum.packageType.zclXmlStandalone
         )
         currentZapFileZclPacakges = this.currentZapFilePackages.filter(
@@ -714,16 +715,20 @@ export default {
       }
 
       if (
-        this.zclPropertiesRow.length == currentZapFileZclPacakges.length ||
+        this.zclPropertiesRow.length == currentZapFileZclPackages.length ||
         this.zclPropertiesRow.length == 1
       ) {
-        //   if (this.zclGenRow.length == currentZapFileTemplatePacakges.length) {
-        this.selectedZclGenData = this.zclGenRow.map((zgr) => zgr.id)
-        this.selectedZclPropertiesDataIds = this.zclPropertiesRow.map(
-          (zpr) => zpr.id
-        )
-        this.selectedZclPropertiesData = this.zclPropertiesRow
-
+        if (
+          this.zclGenRow.length == currentZapFileTemplatePackages.length ||
+          this.zclGenRow.length == 1
+        ) {
+          this.selectedZclGenData = this.zclGenRow.map((zgr) => zgr.id)
+          this.selectedZclPropertiesDataIds = this.zclPropertiesRow.map(
+            (zpr) => zpr.id
+          )
+          this.selectedZclPropertiesData = this.zclPropertiesRow
+        }
+        this.customConfig = 'select'
         this.submitForm()
       } else {
         let selectableZclPackages = this.zclPropertiesRow.filter((zp) =>
