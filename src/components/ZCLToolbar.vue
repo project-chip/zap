@@ -31,6 +31,7 @@
           icon="arrow_back_ios"
           to="/"
           label="Back"
+          id="Back"
           color="grey"
           data-test="go-back-button"
         />
