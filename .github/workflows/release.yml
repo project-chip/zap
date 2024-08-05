@@ -18,6 +18,34 @@ env:
   KEYCHAIN_PASSWORD: silabs
 
 jobs:
+  npm-module-dependency-check:
+    name: Run npm-check to analyze package dependencies for the project
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        node-version: [18.x]
+        os: [ubuntu-22.04]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3.0.0
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      - run: npm ci
+      - run: |
+          npm install depcheck -g
+      - run: |
+          depcheck --ignores 'jest-junit,@quasar/extras' --json > npm-dependency-output.json
+      - name: Check npm dependency output
+        run: |
+          if [ "$(jq '.dependencies | length' npm-dependency-output.json)" -gt 0 ]; then
+            echo "depcheck found unused packages"
+            exit 1
+          fi
+          echo "npm package dependency check passed"
+
   cypress-zigbee:
     name: Cypress UI tests with Zigbee data
     runs-on: ${{ matrix.os }}
