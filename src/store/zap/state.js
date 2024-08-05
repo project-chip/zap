@@ -29,6 +29,7 @@ export default function () {
     expanded: false,
     showCreateModifyEndpoint: false,
     showPreviewTab: false,
+    showNotificationTab: false,
     isExceptionsExpanded: false,
     exceptions: [],
     showExceptionIcon: false,

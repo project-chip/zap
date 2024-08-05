@@ -3,10 +3,7 @@
     class="bg-glass q-electron-drag"
     :class="{ 'window-button-padding-right': isElectron && isWin }"
   >
-    <q-toolbar-title
-      :class="{ 'logo-margin': showPreviewTab }"
-      style="width: 180px"
-    >
+    <q-toolbar-title style="width: 180px">
       <Transition mode="out-in" name="slide-up">
         <div
           v-if="$route.fullPath === '/'"
@@ -114,31 +111,35 @@
         </div>
       </q-btn>
     </router-link>
-    <router-link v-slot="{ isActive, navigate }" to="/notifications">
-      <q-btn
-        class="navmenu-item"
-        :class="{ 'navmenu-item--active': isActive }"
-        flat
-        no-caps
-        id="Notifications"
-        @click="navigate"
-      >
-        <div class="text-center">
-          <q-icon name="o_assignment_late" />
-          <div>
-            Notifications
-            <q-badge
-              style="top: 5px; right: 5px"
-              color="red"
-              floating
-              v-if="this.$store.state.zap.notificationCount > 0"
-            >
-              {{ this.$store.state.zap.notificationCount }}
-            </q-badge>
-          </div>
+
+    <q-btn
+      class="navmenu-item"
+      :class="{ 'navmenu-item--active': showNotificationTab }"
+      flat
+      no-caps
+      id="Notifications"
+      @click="
+        () => {
+          toggleNotificationTab()
+        }
+      "
+    >
+      <div class="text-center">
+        <q-icon name="o_assignment_late" />
+        <div>
+          Notifications
+          <q-badge
+            style="top: 5px; right: 5px"
+            color="red"
+            floating
+            v-if="this.$store.state.zap.notificationCount > 0"
+          >
+            {{ this.$store.state.zap.notificationCount }}
+          </q-badge>
         </div>
-      </q-btn>
-    </router-link>
+      </div>
+    </q-btn>
+
     <q-btn
       v-if="showDebugNavItems"
       class="navmenu-item"
@@ -261,6 +262,14 @@ export default {
         return this.$store.dispatch('zap/togglePreviewTab')
       },
     },
+    showNotificationTab: {
+      get() {
+        return this.$store.state.zap.showNotificationTab
+      },
+      set() {
+        return this.$store.dispatch('zap/toggleNotificationTab')
+      },
+    },
     isMultiProtocolTutorialAvailable: {
       get() {
         return this.$store.state.zap.isMultiConfig
@@ -307,7 +316,16 @@ export default {
       window[rendApi.GLOBAL_SYMBOL_EXECUTE](rendApi.id.save)
     },
     togglePreviewTab() {
+      if (this.showNotificationTab) {
+        this.$store.commit('zap/toggleNotificationTab')
+      }
       this.$store.commit('zap/togglePreviewTab')
+    },
+    toggleNotificationTab() {
+      if (this.showPreviewTab) {
+        this.$store.commit('zap/togglePreviewTab')
+      }
+      this.$store.commit('zap/toggleNotificationTab')
     },
     generateIntoDirectory(currentPath) {
       window[rendApi.GLOBAL_SYMBOL_NOTIFY](rendApi.notifyKey.fileBrowse, {
@@ -369,9 +387,6 @@ export default {
 }
 </script>
 <style lang="scss" scoped>
-.logo-margin {
-  margin-left: 75px;
-}
 .navmenu-item {
   font-size: 10px;
   padding: 15px 20px;
