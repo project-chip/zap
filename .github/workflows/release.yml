@@ -33,12 +33,12 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
+      - run: npm install -g depcheck
       - run: npm ci
-      - run: |
-          npm install depcheck -g
-      - run: |
+      - name: Run depcheck
+        run: |
           depcheck --ignores 'jest-junit,@quasar/extras' --json > npm-dependency-output.json
-      - name: Check npm dependency output
+      - name: Check for unused dependencies
         run: |
           if [ "$(jq '.dependencies | length' npm-dependency-output.json)" -gt 0 ]; then
             echo "depcheck found unused packages"
