@@ -32,10 +32,8 @@ limitations under the License.
 import ZclClusterManager from '../components/ZclClusterManager.vue'
 import InitialContent from '../components/InitialContent.vue'
 const restApi = require('../../src-shared/rest-api.js')
-const commonUrl = require('../../src-shared/common-url.js')
 
 export default {
-  name: 'ZclConfiguratorLayout',
   methods: {
     collapseOnResize(e) {
       if (e.currentTarget.innerWidth < 750) {
