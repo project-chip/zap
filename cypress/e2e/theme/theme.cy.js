@@ -40,4 +40,11 @@ describe('Check theme functionality', () => {
     cy.rendererApi(rendApi.id.setDarkTheme, 'false')
     cy.get('body').should('have.class', 'body--light')
   })
+  it('Zigbee mode', () => {
+    cy.fixture('data').then((data) => {
+      cy.get('#Back').click()
+      cy.wait(500)
+      cy.get('#zcl-advanced-platform').contains(data.mode)
+    })
+  })
 })

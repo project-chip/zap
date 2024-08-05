@@ -32,5 +32,6 @@
   "int8clusterpath": "0",
   "booleanclusterpath": "0",
   "booleaninputpath": "15",
-  "bitmapinputpath": "16"
+  "bitmapinputpath": "16",
+  "mode": "zigbee"
 }

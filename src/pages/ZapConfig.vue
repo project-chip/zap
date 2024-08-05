@@ -688,42 +688,44 @@ export default {
       this.filePath = result.data.filePath
       this.open = result.data.open
       this.currentZapFilePackages = result.data.zapFilePackages
-      let currentZapFileZclPacakges = []
-      let currentTopLevelZapFilePacakges = []
-      let currentZapFileTemplatePacakges = []
+      let currentZapFileZclPackages = []
+      let currentTopLevelZapFilePackages = []
+      let currentZapFileTemplatePackages = []
       let currentZclPackagesAbsolutePaths = []
       let currentTemplatePackagesAbsolutePaths = []
       if (this.currentZapFilePackages) {
-        currentTopLevelZapFilePacakges = this.currentZapFilePackages.filter(
+        currentTopLevelZapFilePackages = this.currentZapFilePackages.filter(
           (zfp) => zfp.type != dbEnum.packageType.zclXmlStandalone
         )
-        currentZapFileZclPacakges = this.currentZapFilePackages.filter(
+        currentZapFileZclPackages = this.currentZapFilePackages.filter(
           (zfp) => zfp.type == dbEnum.packageType.zclProperties
         )
-        currentZapFileTemplatePacakges = this.currentZapFilePackages.filter(
+
+        currentZapFileTemplatePackages = this.currentZapFilePackages.filter(
           (zfp) => zfp.type == dbEnum.packageType.genTemplatesJson
         )
-        currentZclPackagesAbsolutePaths = currentZapFileZclPacakges.map((zfp) =>
+        currentZclPackagesAbsolutePaths = currentZapFileZclPackages.map((zfp) =>
           this.createAbsolutePath(this.filePath, zfp.path)
         )
         currentTemplatePackagesAbsolutePaths =
-          currentZapFileTemplatePacakges.map((zfp) =>
+          currentZapFileTemplatePackages.map((zfp) =>
             this.createAbsolutePath(this.filePath, zfp.path)
           )
       }
 
       if (
-        this.zclPropertiesRow.length == currentZapFileZclPacakges.length ||
+        this.zclPropertiesRow.length == currentZapFileZclPackages.length ||
         this.zclPropertiesRow.length == 1
       ) {
-        // We shortcut this page, if the number of packages in the zap file
-        // and the number of packages loaded in the backend are the same.
-        if (this.zclGenRow.length == currentZapFileTemplatePacakges.length) {
+        if (
+          this.zclGenRow.length == currentZapFileTemplatePackages.length ||
+          this.zclGenRow.length == 1
+        ) {
+          this.selectedZclGenData = this.zclGenRow.map((zgr) => zgr.id)
           this.selectedZclPropertiesDataIds = this.zclPropertiesRow.map(
             (zpr) => zpr.id
           )
           this.selectedZclPropertiesData = this.zclPropertiesRow
-          this.selectedZclGenData = this.zclGenRow.map((zgr) => zgr.id)
         }
         this.customConfig = 'select'
         this.submitForm()
@@ -748,7 +750,7 @@ export default {
           this.selectedZclGenData.length > 0 &&
           this.selectedZclPropertiesData.length +
             this.selectedZclGenData.length ==
-            currentTopLevelZapFilePacakges.length
+            currentTopLevelZapFilePackages.length
         ) {
           this.submitForm()
         }
