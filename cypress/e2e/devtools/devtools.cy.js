@@ -1,7 +1,5 @@
 /// <reference types="cypress" />
 
-const { contains } = require('underscore')
-
 Cypress.on('uncaught:exception', (err, runnable) => {
   // returning false here prevents Cypress from
   // failing the test

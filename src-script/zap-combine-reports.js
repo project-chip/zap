@@ -17,12 +17,10 @@
  */
 
 const scriptUtil = require('./script-util.js')
-const fs = require('fs')
 const fsExtra = require('fs-extra')
 
 //workaround: executeCmd()/spawn() fails silently without complaining about missing path to electron
 process.env.PATH = process.env.PATH + ':/usr/local/bin/'
-
 
 async function executeScript() {
   try {
@@ -30,16 +28,24 @@ async function executeScript() {
     await fsExtra.ensureDir('reports')
 
     if (fsExtra.existsSync('cypress-coverage/coverage-final.json')) {
-      await fsExtra.copy('cypress-coverage/coverage-final.json', 'reports/from-cypress.json')
+      await fsExtra.copy(
+        'cypress-coverage/coverage-final.json',
+        'reports/from-cypress.json'
+      )
     }
 
     if (fsExtra.existsSync('jest-coverage/coverage-final.json')) {
-      await fsExtra.copy('jest-coverage/coverage-final.json', 'reports/from-jest.json')
+      await fsExtra.copy(
+        'jest-coverage/coverage-final.json',
+        'reports/from-jest.json'
+      )
     }
 
     scriptUtil.executeCmd({}, 'npx', ['nyc', 'merge', 'reports'])
 
-    await fsExtra.move('coverage.json', '.nyc_output/out.json', { overwrite: true });
+    await fsExtra.move('coverage.json', '.nyc_output/out.json', {
+      overwrite: true,
+    })
 
     scriptUtil.executeCmd(
       {},
@@ -52,9 +58,11 @@ async function executeScript() {
     console.log(
       `✅ Please find the combined report (Jest & Cypress) at ./coverage/lcov-report/index.html`
     )
-
   } catch (err) {
-    console.log("Error in generating reports at zap-combine-reports.js file and executeScript function: " + err)
+    console.log(
+      'Error in generating reports at zap-combine-reports.js file and executeScript function: ' +
+        err
+    )
   }
 }
 

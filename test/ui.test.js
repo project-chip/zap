@@ -17,7 +17,6 @@
  *
  * @jest-environment jsdom
  */
-import { describe, expect, it } from '@jest/globals'
 import { installQuasarPlugin } from '@quasar/quasar-app-extension-testing-unit-jest'
 import { shallowMount, mount } from '@vue/test-utils'
 
