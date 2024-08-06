@@ -95,6 +95,7 @@
       side="right"
       :breakpoint="0"
       class="bg-glass column"
+      id="NotificationPanel"
     >
       <NotificationPage />
     </q-drawer>
