@@ -14,10 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <template>
-  <q-page class="row">
+  <q-page class="row" id="ZclClusterView">
     <div class="col">
       <q-scroll-area class="q-px-md fit">
-        <div class="row" id="ZclClusterView">
+        <div class="row">
           <div class="col column q-pa-lg">
             <div>
               <div class="row">
