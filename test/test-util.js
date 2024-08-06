@@ -155,6 +155,19 @@ exports.customClusterXml =
   './test/resource/custom-cluster/custom-bead-cluster.xml'
 exports.badTestCustomXml = './test/resource/custom-cluster/bad-test-custom.xml'
 
+exports.testMattterCustomXml =
+  './test/resource/custom-cluster/matter-custom.xml'
+exports.testMattterCustomXml2 =
+  './test/resource/custom-cluster/matter-custom2.xml'
+exports.testBadMattterCustomXml =
+  './test/resource/custom-cluster/matter-bad-custom.xml'
+exports.testMatterConflict =
+  './test/resource/custom-cluster/matter-conflict.xml'
+exports.testMatterMissingCustomZap =
+  './test/resource/custom-cluster/matterMissingCustomXml.zap'
+exports.testMatterCustomZap =
+  './test/resource/custom-cluster/matterCustomXml.zap'
+
 exports.totalClusterCount = 111
 exports.totalDomainCount = 20
 exports.totalCommandArgsCount = 1786
