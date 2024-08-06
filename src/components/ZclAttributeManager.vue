@@ -414,7 +414,7 @@ export default {
   data() {
     return {
       pagination: {
-        rowsPerPage: 0,
+        rowsPerPage: 50,
         sortBy: 'clientServer',
       },
       columns: [],
