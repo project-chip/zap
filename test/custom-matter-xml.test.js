@@ -524,12 +524,20 @@ test(
 test(
   'loading zap file with custom xml and generating',
   async () => {
+    // creating a new database to test for edge case where custom xml path is valid but hasn't been loaded into the db yet
+    let newDb = await dbApi.initRamDatabase()
+    await dbApi.loadSchema(newDb, env.schemaFile(), env.zapVersion())
+    let newTemplateContext = await genEngine.loadTemplates(
+      newDb,
+      testUtil.testTemplate.matter
+    )
+
     // creating a new session
-    let newSid = await querySession.createBlankSession(db)
+    let newSid = await querySession.createBlankSession(newDb)
 
     // importing a zap file with custom xml
     let importResult = await importJs.importDataFromFile(
-      db,
+      newDb,
       testUtil.testMatterCustomZap,
       {
         sessionId: newSid,
@@ -538,9 +546,9 @@ test(
 
     // generating
     let genResult = await genEngine.generate(
-      db,
+      newDb,
       newSid,
-      templateContext.packageId,
+      newTemplateContext.packageId,
       {},
       { disableDeprecationWarnings: true }
     )
