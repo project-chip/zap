@@ -1,12 +1,11 @@
 {
   "@quasar/testing": {
-    "harnesses": []
+    "harnesses": ["unit-jest@beta"]
   },
   "@quasar/testing-unit-jest": {
     "options": ["scripts"]
   },
   "@quasar/testing-e2e-cypress": {
-    "port": 8080,
-    "options": ["code-coverage"]
+    "options": ["scripts", "typescript", "code-coverage"]
   }
 }
