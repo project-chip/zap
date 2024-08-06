@@ -28,7 +28,6 @@ limitations under the License.
       row-key="<b>name</b>"
       dense
       flat
-      virtual-scroll
       binary-state-sort
       v-model:pagination="pagination"
       :sort-method="customAttributeSort"
@@ -415,7 +414,7 @@ export default {
   data() {
     return {
       pagination: {
-        rowsPerPage: 0,
+        rowsPerPage: 50,
         sortBy: 'clientServer',
       },
       columns: [],
