@@ -1,6 +1,6 @@
 <template>
-  <div>
-    Notifications
+  <div class="q-pa-sm">
+    <div class="text-h5 q-pb-sm">Notifications</div>
     <q-table :rows="notis" :columns="columns" row-key="ref" flat>
       <template v-slot:header="props">
         <q-tr :props="props">

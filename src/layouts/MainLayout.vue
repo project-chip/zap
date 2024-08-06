@@ -97,12 +97,6 @@
       class="bg-glass column"
     >
       <NotificationPage />
-      <div class="col column q-mx-sm">
-        <q-scroll-area class="fit" ref="generationScroll">
-          <pre class="q-ma-sm">{{ generationData }}</pre>
-          <q-scroll-observer @scroll="onScroll" />
-        </q-scroll-area>
-      </div>
     </q-drawer>
 
     <q-page-container>

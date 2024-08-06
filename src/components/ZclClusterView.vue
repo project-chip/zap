@@ -14,103 +14,114 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <template>
-  <div class="row" id="ZclClusterView">
-    <div class="col column q-pa-lg">
-      <div>
-        <div class="row">
-          <div class="col">
-            <div class="text-h4">
-              {{ selectedCluster.label }}
-            </div>
-            <q-breadcrumbs active-color="grey">
-              <!-- this needs to be updated depending on how the pages will work -->
-              <q-breadcrumbs-el>
-                Endpoint {{ this.endpointId[this.selectedEndpointId] }}
-              </q-breadcrumbs-el>
-              <q-breadcrumbs-el>
-                {{ selectedCluster.domainName }}
-              </q-breadcrumbs-el>
-              <q-breadcrumbs-el>{{ selectedCluster.label }}</q-breadcrumbs-el>
-            </q-breadcrumbs>
-          </div>
-          <div class="col-auto q-gutter-x-md items-start">
-            <q-btn
-              v-if="isClusterDocumentationAvailable"
-              flat
-              class="documentation"
-              color="grey"
-              dense
-              icon="sym_o_quick_reference"
-              @click="openClusterDocumentation"
-            >
-              <q-tooltip> Cluster Specification </q-tooltip>
-            </q-btn>
-          </div>
-        </div>
-        <div class="row items-center no-wrap q-py-lg">
-          <div class="col">
-            {{ selectedCluster.caption }}
+  <q-page class="row">
+    <div class="col">
+      <q-scroll-area class="q-px-md fit">
+        <div class="row" id="ZclClusterView">
+          <div class="col column q-pa-lg">
             <div>
-              Cluster ID: {{ asHex(selectedCluster.code, 4) }}, Enabled for
-              <strong> {{ enabledMessage }} </strong>
+              <div class="row">
+                <div class="col">
+                  <div class="text-h4">
+                    {{ selectedCluster.label }}
+                  </div>
+                  <q-breadcrumbs active-color="grey">
+                    <!-- this needs to be updated depending on how the pages will work -->
+                    <q-breadcrumbs-el>
+                      Endpoint {{ this.endpointId[this.selectedEndpointId] }}
+                    </q-breadcrumbs-el>
+                    <q-breadcrumbs-el>
+                      {{ selectedCluster.domainName }}
+                    </q-breadcrumbs-el>
+                    <q-breadcrumbs-el>{{
+                      selectedCluster.label
+                    }}</q-breadcrumbs-el>
+                  </q-breadcrumbs>
+                </div>
+                <div class="col-auto q-gutter-x-md items-start">
+                  <q-btn
+                    v-if="isClusterDocumentationAvailable"
+                    flat
+                    class="documentation"
+                    color="grey"
+                    dense
+                    icon="sym_o_quick_reference"
+                    @click="openClusterDocumentation"
+                  >
+                    <q-tooltip> Cluster Specification </q-tooltip>
+                  </q-btn>
+                </div>
+              </div>
+              <div class="row items-center no-wrap q-py-lg">
+                <div class="col">
+                  {{ selectedCluster.caption }}
+                  <div>
+                    Cluster ID: {{ asHex(selectedCluster.code, 4) }}, Enabled
+                    for
+                    <strong> {{ enabledMessage }} </strong>
+                  </div>
+                </div>
+                <div class="col-auto">
+                  <q-input
+                    dense
+                    outlined
+                    clearable
+                    :placeholder="placeHolderText"
+                    @update:model-value="
+                      setIndividualClusterFilterString($event)
+                    "
+                    @clear="setIndividualClusterFilterString('')"
+                    :model-value="individualClusterFilterString"
+                  >
+                    <template v-slot:prepend>
+                      <q-icon name="search" />
+                    </template>
+                  </q-input>
+                </div>
+              </div>
+            </div>
+            <div class="col column">
+              <q-tabs
+                v-model="tab"
+                dense
+                align="left"
+                active-bg-color="primary"
+                indicator-color="primary"
+                class="q-pl-lg"
+              >
+                <q-tab name="attributes" label="Attributes" class="v-step-10" />
+                <q-tab
+                  name="reporting"
+                  label="Attribute Reporting"
+                  class="v-step-11"
+                  v-show="enableAttributeReportingTab"
+                />
+                <q-tab name="commands" label="Commands" class="v-step-12" />
+                <q-tab name="events" label="Events" v-show="enableEventsTab" />
+              </q-tabs>
+              <div
+                class="col column linear-border-wrap"
+                v-show="Object.keys(selectedCluster).length > 0"
+              >
+                <div class="" v-show="tab == 'attributes'">
+                  <ZclAttributeManager />
+                </div>
+                <div class="col column" v-show="tab == 'commands'">
+                  <ZclCommandManager />
+                </div>
+                <div class="col column" v-show="tab == 'reporting'">
+                  <ZclAttributeReportingManager />
+                </div>
+                <div class="col column" v-show="tab == 'events'">
+                  <ZclEventManager />
+                </div>
+              </div>
             </div>
           </div>
-          <div class="col-auto">
-            <q-input
-              dense
-              outlined
-              clearable
-              :placeholder="placeHolderText"
-              @update:model-value="setIndividualClusterFilterString($event)"
-              @clear="setIndividualClusterFilterString('')"
-              :model-value="individualClusterFilterString"
-            >
-              <template v-slot:prepend>
-                <q-icon name="search" />
-              </template>
-            </q-input>
-          </div>
         </div>
-      </div>
-      <div class="col column">
-        <q-tabs
-          v-model="tab"
-          dense
-          align="left"
-          active-bg-color="primary"
-          indicator-color="primary"
-          class="q-pl-lg"
-        >
-          <q-tab name="attributes" label="Attributes" class="v-step-10" />
-          <q-tab
-            name="reporting"
-            label="Attribute Reporting"
-            class="v-step-11"
-            v-show="enableAttributeReportingTab"
-          />
-          <q-tab name="commands" label="Commands" class="v-step-12" />
-          <q-tab name="events" label="Events" v-show="enableEventsTab" />
-        </q-tabs>
-        <div
-          class="col column linear-border-wrap"
-          v-show="Object.keys(selectedCluster).length > 0"
-        >
-          <div class="" v-show="tab == 'attributes'">
-            <ZclAttributeManager />
-          </div>
-          <div class="col column" v-show="tab == 'commands'">
-            <ZclCommandManager />
-          </div>
-          <div class="col column" v-show="tab == 'reporting'">
-            <ZclAttributeReportingManager />
-          </div>
-          <div class="col column" v-show="tab == 'events'">
-            <ZclEventManager />
-          </div>
-        </div>
-      </div>
+      </q-scroll-area>
     </div>
-  </div>
+  </q-page>
 </template>
 <script>
 import ZclAttributeManager from './ZclAttributeManager.vue'

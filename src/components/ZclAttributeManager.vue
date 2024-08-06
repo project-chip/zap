@@ -33,11 +33,12 @@ limitations under the License.
       :sort-method="customAttributeSort"
       data-cy="Attributes"
       separator="horizontal"
+      id="ZclAttributeManager"
     >
       <template v-slot:body="props">
         <q-tr
           :props="props"
-          class="table_body"
+          class="table_body attribute_table_body"
           v-if="!globalLists.includes(props.row.label)"
         >
           <q-td
