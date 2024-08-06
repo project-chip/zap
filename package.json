@@ -135,7 +135,7 @@
     "http-status-codes": "^2.1.4",
     "lodash": "^4.17.21",
     "node-cache": "^5.1.2",
-    "node-ipc": "^11.1.0",
+    "node-ipc": "^9.2.1",
     "pino": "^9.3.2",
     "promised-handlebars": "^2.0.1",
     "properties": "^1.2.1",
