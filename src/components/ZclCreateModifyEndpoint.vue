@@ -58,7 +58,7 @@ limitations under the License.
             class="col v-step-2"
             use-input
             :multiple="enableMultipleDevice"
-            :use-chips="enableMultipleDevice"
+            use-chips
             :options="deviceTypeOptions"
             v-model="deviceType"
             :rules="[
