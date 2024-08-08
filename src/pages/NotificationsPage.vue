@@ -1,7 +1,14 @@
 <template>
   <div class="q-pa-sm">
     <div class="text-h5 q-pb-sm">Notifications</div>
-    <q-table :rows="notis" :columns="columns" row-key="ref" flat>
+    <q-table
+      :rows="notis"
+      :columns="columns"
+      row-key="ref"
+      flat
+      dense
+      wrap-cells
+    >
       <template v-slot:header="props">
         <q-tr :props="props">
           <q-th v-for="col in props.cols" :key="col.name" :props="props">
