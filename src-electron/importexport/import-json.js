@@ -1576,7 +1576,9 @@ async function importEndpointTypes(
         clusterSpecCheckComplianceMessage,
         dottedLine
       )
-      console.log(deviceTypeSpecCheckComplianceMessage)
+      if (!process.env.TEST) {
+        console.log(deviceTypeSpecCheckComplianceMessage)
+      }
     }
   }
 }

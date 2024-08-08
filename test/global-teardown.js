@@ -17,5 +17,6 @@
 const env = require('../src-electron/util/env')
 
 module.exports = async () => {
+  delete process.env.TEST
   env.logDebug('Global teardown.')
 }
