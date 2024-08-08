@@ -3,7 +3,10 @@
     class="bg-glass q-electron-drag"
     :class="{ 'window-button-padding-right': isElectron && isWin }"
   >
-    <q-toolbar-title style="width: 180px">
+    <q-toolbar-title
+      :class="{ 'logo-margin': showPreviewTab || showNotificationTab }"
+      style="width: 180px"
+    >
       <Transition mode="out-in" name="slide-up">
         <div
           v-if="$route.fullPath === '/'"
@@ -434,5 +437,8 @@ export default {
 
 .image-space:not(:last-of-type) {
   margin-right: 15px;
+}
+.logo-margin {
+  margin-left: 75px;
 }
 </style>
