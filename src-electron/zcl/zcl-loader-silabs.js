@@ -2310,13 +2310,14 @@ async function parseattributeAccessInterfaceAttributes(
   pkgRef,
   attributeAccessInterfaceAttributes
 ) {
-  // Use forEach for side effects without expecting a return value
-  Object.keys(attributeAccessInterfaceAttributes).forEach(async (cluster) => {
+  const clusters = Object.keys(attributeAccessInterfaceAttributes)
+  for (let i = 0; i < clusters.length; i++) {
+    const cluster = clusters[i]
     const values = attributeAccessInterfaceAttributes[cluster]
     // Prepare the data for insertion
-    const optionsKeyValues = values.map((optionValue) => ({
+    const optionsKeyValues = values.map((attribute) => ({
       code: dbEnum.storagePolicy.attributeAccessInterface,
-      label: optionValue,
+      label: attribute,
     }))
     // Insert the data into the database
     try {
@@ -2329,7 +2330,7 @@ async function parseattributeAccessInterfaceAttributes(
     } catch (error) {
       console.error(`Error inserting attributes for cluster ${cluster}:`, error)
     }
-  })
+  }
 }
 
 /**
