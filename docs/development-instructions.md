@@ -98,3 +98,27 @@ npm run apidoc
 **Customize the configuration:**
 
 See [Configuring quasar.conf.js](https://quasar.dev/quasar-cli/quasar-conf-js).
+
+**Build & Release for Windows / Mac universal binary on macOS:**
+
+```npm run pack:win
+   npm run pkg:win
+   ls ./dist/
+   npm run pack:cli:win
+
+   npm run pack:mac
+   npm run pkg:mac
+   ls ./dist/
+   npm run pack:cli:mac
+```
+
+**Build & Release for Linux:**
+
+```npm run pack:linux
+   npm run pkg:linux
+   ls ./dist/
+   npm run pack:cli:linux
+
+   mv dist/zap-linux-amd64.deb dist/zap-linux-x64.deb
+   mv dist/zap-linux-x86_64.rpm dist/zap-linux-x64.rpm
+```
