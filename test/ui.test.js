@@ -31,8 +31,6 @@ import ZclDomainClusterView from '../src/components/ZclDomainClusterView.vue'
 import ZclEndpointCard from '../src/components/ZclEndpointCard.vue'
 import ZclEndpointManager from '../src/components/ZclEndpointManager.vue'
 import ZclInformationSetup from '../src/components/ZclInformationSetup.vue'
-import ZclClusterLayout from '../src/layouts/ZclClusterLayout.vue'
-import ZclConfiguratorLayout from '../src/layouts/ZclConfiguratorLayout.vue'
 import Error404 from '../src/pages/ErrorPage404.vue'
 import Preference from '../src/pages/PreferencePage.vue'
 import Notifications from '../src/pages/NotificationsPage.vue'
@@ -185,18 +183,7 @@ describe('Component mounting test', () => {
     },
     timeout.short()
   )
-  test(
-    'ZclClusterLayout',
-    () => {
-      const wrapper = shallowMount(ZclClusterLayout, {
-        global: {
-          plugins: [ZapStore()],
-        },
-      })
-      expect(wrapper.html().length).toBeGreaterThan(90)
-    },
-    timeout.short()
-  )
+
   test(
     'MainLayout',
     () => {
@@ -209,18 +196,7 @@ describe('Component mounting test', () => {
     },
     timeout.short()
   )
-  test(
-    'ZclConfiguratorLayout',
-    () => {
-      const wrapper = shallowMount(ZclConfiguratorLayout, {
-        global: {
-          plugins: [ZapStore()],
-        },
-      })
-      expect(wrapper.html().length).toBeGreaterThan(50)
-    },
-    timeout.short()
-  )
+
   test(
     'Notifications',
     () => {

@@ -1,7 +1,14 @@
 <template>
-  <PreferencePageLayout>
-    <template #title>Notifications </template>
-    <q-table :rows="notis" :columns="columns" row-key="ref" flat>
+  <div class="q-pa-sm">
+    <div class="text-h5 q-pb-sm">Notifications</div>
+    <q-table
+      :rows="notis"
+      :columns="columns"
+      row-key="ref"
+      flat
+      dense
+      wrap-cells
+    >
       <template v-slot:header="props">
         <q-tr :props="props">
           <q-th v-for="col in props.cols" :key="col.name" :props="props">
@@ -128,20 +135,17 @@
         </q-item>
       </div>
     </div>
-  </PreferencePageLayout>
+  </div>
 </template>
 
 <script>
-import PreferencePageLayout from '../layouts/PreferencePageLayout.vue'
 import dbEnum from '../../src-shared/db-enum'
 import restApi from '../../src-shared/rest-api.js'
 import commonMixin from '../util/common-mixin'
 
 export default {
   mixins: [commonMixin],
-  components: {
-    PreferencePageLayout,
-  },
+
   watch: {
     packages(newPackages) {
       this.loadPackageNotification(newPackages)

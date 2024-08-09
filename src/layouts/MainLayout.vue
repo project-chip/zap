@@ -4,7 +4,7 @@
       <ZCLToolbar />
     </q-header>
     <q-drawer
-      v-if="!showPreviewTab"
+      v-if="!showPreviewTab && !showNotificationTab"
       class="bg-glass"
       v-model="leftDrawerOpen"
       show-if-above
@@ -88,6 +88,17 @@
         </q-scroll-area>
       </div>
     </q-drawer>
+    <q-drawer
+      :width="$q.screen.width * 0.4"
+      bordered
+      v-model="showNotificationTab"
+      side="right"
+      :breakpoint="0"
+      class="bg-glass column"
+      id="NotificationPanel"
+    >
+      <NotificationPage />
+    </q-drawer>
 
     <q-page-container>
       <router-view v-slot="{ Component }">
@@ -100,12 +111,14 @@
 </template>
 <script>
 import ZCLToolbar from '../components/ZCLToolbar.vue'
+import NotificationPage from '../pages/NotificationsPage.vue'
 import { isElectron, isMac } from '../util/platform'
 const restApi = require(`../../src-shared/rest-api.js`)
 
 export default {
   components: {
     ZCLToolbar,
+    NotificationPage,
   },
   name: 'MainLayout',
   data() {
@@ -133,6 +146,14 @@ export default {
       },
       set() {
         return this.$store.dispatch('zap/togglePreviewTab')
+      },
+    },
+    showNotificationTab: {
+      get() {
+        return this.$store.state.zap.showNotificationTab
+      },
+      set() {
+        return this.$store.dispatch('zap/showNotificationTab')
       },
     },
     leftDrawerOpen: {
