@@ -703,7 +703,7 @@ async function getAttributeAccessInterface(db, code) {
     WHERE
         po.OPTION_CODE = ?
 
-    UNION ALL
+    UNION 
 
     SELECT
         a.PACKAGE_REF,
