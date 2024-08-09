@@ -2298,6 +2298,9 @@ async function parseBoolOptions(db, pkgRef, booleanCategories) {
  * by mapping its values to a specific structure and then inserting them into the database using
  * the insertOptionsKeyValues function.
  *
+ * The main purpose of this function is to store cluster/attribute pairs to include global attributes and their cluster pair
+ * The ATTRIBUTE table has cluster_ref as null for global attributes so this second method was necessary
+ *
  * @param {*} db - The database connection object.
  * @param {*} pkgRef - The package reference id for which the attributes are being parsed.
  * @param {*} attributeAccessInterfaceAttributes - An object containing the attribute access interface attributes,
