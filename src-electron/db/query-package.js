@@ -692,20 +692,38 @@ async function getAllPackages(db) {
 }
 
 async function getAttributeAccessInterface(db, code) {
+  const extendedQuery = `
+    SELECT
+        po.PACKAGE_REF,
+        po.OPTION_CATEGORY,
+        po.OPTION_CODE,
+        po.OPTION_LABEL
+    FROM
+        PACKAGE_OPTION po
+    WHERE
+        po.OPTION_CODE = ?
+
+    UNION ALL
+
+    SELECT
+        a.PACKAGE_REF,
+        c.NAME AS OPTION_CATEGORY,
+        a.STORAGE_POLICY AS OPTION_CODE,
+        a.NAME AS OPTION_LABEL
+    FROM
+        ATTRIBUTE a
+    LEFT JOIN CLUSTER c ON a.CLUSTER_REF = c.CLUSTER_ID
+    WHERE
+        a.STORAGE_POLICY = ?
+        AND NOT EXISTS (
+            SELECT 1
+            FROM PACKAGE_OPTION po
+            WHERE po.OPTION_LABEL = a.NAME
+        )
+  `
+
   return dbApi
-    .dbAll(
-      db,
-      `SELECT
-        PACKAGE_REF,
-        OPTION_CATEGORY,
-        OPTION_CODE,
-        OPTION_LABEL
-       FROM
-        PACKAGE_OPTION
-       WHERE
-        OPTION_CODE = ?`,
-      [code]
-    )
+    .dbAll(db, extendedQuery, [code, code]) // Note the [code, code] to match both placeholders
     .then((rows) => rows.map(dbMapping.map.options))
 }
 

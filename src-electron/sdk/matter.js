@@ -18,7 +18,6 @@
 const dbApi = require('../db/db-api.js')
 const queryPackage = require('../db/query-package.js')
 const queryCluster = require('../db/query-cluster.js')
-const queryAttribute = require('../db/query-attribute.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 
 /**
@@ -33,7 +32,7 @@ const dbEnum = require('../../src-shared/db-enum.js')
  */
 
 async function getForcedExternalStorage(db) {
-  let forcedExternal = queryPackage.getAttributeAccessInterface(
+  let forcedExternal = await queryPackage.getAttributeAccessInterface(
     db,
     dbEnum.storagePolicy.attributeAccessInterface
   )
