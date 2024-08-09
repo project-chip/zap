@@ -21,16 +21,16 @@ describe('Testing disabling enabled attributes', () => {
     { retries: { runMode: 2, openMode: 2 } },
     () => {
       cy.get(
-        '.attribute_table_body:first > :nth-child(2)  > .q-mt-xs > .q-toggle__inner '
+        '.attribute_table_body:first > :nth-child(2) > .q-mt-xs > .q-toggle__inner '
       ).click()
       cy.get(
-        '.attribute_table_body:first > :nth-child(2)  > .q-mt-xs > .q-toggle__inner'
+        '.attribute_table_body:first > :nth-child(2) > .q-mt-xs > .q-toggle__inner'
       ).should('be.visible')
       cy.get(
-        '.attribute_table_body:first > :nth-child(2)  > .q-mt-xs > .q-toggle__inner'
+        '.attribute_table_body:first > :nth-child(2) > .q-mt-xs > .q-toggle__inner'
       ).click()
       cy.contains(
-        '.attribute_table_body:first > :nth-child(2)  > .q-mt-xs > .q-toggle__inner'
+        '.attribute_table_body:first > :nth-child(2) > .q-mt-xs > .q-toggle__inner'
       ).should('not.exist')
     }
   )
