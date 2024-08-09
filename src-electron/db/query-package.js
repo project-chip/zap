@@ -690,7 +690,17 @@ async function getAllPackages(db) {
     )
     .then((rows) => rows.map(dbMapping.map.package))
 }
-
+/**
+ * Retrieves attribute access interface options from the database.
+ * This function executes a query that combines results from the PACKAGE_OPTION and ATTRIBUTE tables,
+ * filtering by a specific code. It uses UNION to ensure no duplicate rows are returned, even if the same
+ * code exists in both tables. The results are then mapped to a standard format using dbMapping.map.options.
+ *
+ * @param {Object} db - The database connection object.
+ * @param {string} code - The code used to filter the results from both PACKAGE_OPTION and ATTRIBUTE tables.
+ * @returns {Promise<Array>} A promise that resolves to an array of objects, each representing an option
+ *                           with properties: PACKAGE_REF, OPTION_CATEGORY, OPTION_CODE, and OPTION_LABEL.
+ */
 async function getAttributeAccessInterface(db, code) {
   const extendedQuery = `
     SELECT
