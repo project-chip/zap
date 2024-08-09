@@ -715,11 +715,7 @@ async function getAttributeAccessInterface(db, code) {
     LEFT JOIN CLUSTER c ON a.CLUSTER_REF = c.CLUSTER_ID
     WHERE
         a.STORAGE_POLICY = ?
-        AND NOT EXISTS (
-            SELECT 1
-            FROM PACKAGE_OPTION po
-            WHERE po.OPTION_LABEL = a.NAME
-        )
+
   `
 
   return dbApi
