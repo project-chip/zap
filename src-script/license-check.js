@@ -19,7 +19,8 @@
 
 let fs = require('fs')
 let path = require('path')
-let checker = require('../node_modules/license-checker/lib/index')
+let checker = require('license-checker')
+// The following line is needs to be looked at. We should not be extracting from under node modules.
 let args = require('../node_modules/license-checker/lib/args').parse()
 let whiteList = fs
   .readFileSync(path.join(__dirname, 'license-whitelist.txt'))
