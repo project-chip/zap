@@ -4,8 +4,6 @@ const env = require('../src-electron/util/env')
 const dbApi = require('../src-electron/db/db-api')
 const zclLoader = require('../src-electron/zcl/zcl-loader')
 
-const testFile = testUtil.matterTestFile.matterTest
-
 beforeAll(async () => {
   env.setDevelopmentEnv()
   let file = env.sqliteTestFile('gen-matter-1')

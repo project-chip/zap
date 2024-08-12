@@ -255,6 +255,17 @@ function httpPostCluster(db) {
     }
   }
 }
+
+/**
+ * Handles a POST request to retrieve forced external storage options.
+ *
+ * This function is designed to be used as a middleware in an Express.js route. It extracts the session ID from the request,
+ * queries the database for package information associated with that session, and then retrieves forced external storage
+ * options for the identified package. The results are sent back to the client as a JSON response.
+ *
+ * @param {Object} db - The database connection object.
+ * @returns {Function} An asynchronous function that takes Express.js request and response objects.
+ */
 function httpPostForcedExternal(db) {
   return async (request, response) => {
     let sessionId = request.zapSessionId
@@ -267,6 +278,7 @@ function httpPostForcedExternal(db) {
     response.status(StatusCodes.OK).json(forcedExternal)
   }
 }
+
 /**
  * HTTP POST attribute update
  *
