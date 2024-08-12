@@ -34,7 +34,6 @@ const queryEndpoint = require('../src-electron/db/query-endpoint')
 const util = require('../src-electron/util/util')
 const { queuePostFlushCb } = require('vue')
 const restApi = require('../src-shared/rest-api.js')
-
 const genEngine = require('../src-electron/generator/generation-engine')
 const importJs = require('../src-electron/importexport/import')
 const exp = require('constants')
@@ -56,10 +55,11 @@ beforeAll(async () => {
   )
   ctx = await zclLoader.loadZcl(db, env.builtinMatterZclMetafile())
   mainPackageId = ctx.packageId
+  let uuid = util.createUuid()
   sid = await testQuery.createSession(
     db,
     'USER',
-    'SESSION',
+    uuid,
     env.builtinMatterZclMetafile()
   )
   // loading templates
@@ -456,12 +456,15 @@ test(
 test(
   'Add 2 custom files with code collisions',
   async () => {
+    // creating a new session with new uuid
+    let uuid = util.createUuid()
     conflictSid = await testQuery.createSession(
       db,
       'USER',
-      'SESSION',
+      uuid,
       env.builtinMatterZclMetafile()
     )
+
     let result = await zclLoader.loadIndividualFile(
       db,
       testUtil.testMattterCustomXml,
@@ -469,20 +472,64 @@ test(
     )
     expect(result.succeeded).toBeTruthy()
 
-    try {
-      result = await zclLoader.loadIndividualFile(
-        db,
-        testUtil.testMatterConflict,
-        conflictSid
-      )
-      // currently the code collision is not handled, to be fixed in PR #1352
-      // expect(result.succeeded).not.toBeTruthy()
-    } catch (err) {
-      expect(err).toBeInstanceOf(Error)
-    }
+    result = await zclLoader.loadIndividualFile(
+      db,
+      testUtil.testMatterConflict,
+      conflictSid
+    )
+    expect(result.succeeded).toBeTruthy()
+    let conflictPackageId = result.packageId
 
-    // currently the package for the second xml with the conflict is being added and so is the custom cluster associated with it
-    // This should be fixed in PR #1352
+    let sessionNotif = await querySessionNotification.getNotification(
+      db,
+      conflictSid
+    )
+    expect(
+      sessionNotif.some(
+        (notif) =>
+          notif.type === 'ERROR' &&
+          notif.message.includes('Cluster code conflict') &&
+          notif.message.includes('matter-custom.xml') &&
+          notif.message.includes('matter-conflict.xml')
+      )
+    ).toBeTruthy()
+    expect(
+      sessionNotif.some(
+        (notif) =>
+          notif.type === 'ERROR' &&
+          notif.message.includes('Command code conflict') &&
+          notif.message.includes('matter-custom.xml') &&
+          notif.message.includes('matter-conflict.xml')
+      )
+    ).toBeTruthy()
+    expect(
+      sessionNotif.some(
+        (notif) =>
+          notif.type === 'ERROR' &&
+          notif.message.includes('Attribute code conflict') &&
+          notif.message.includes('matter-custom.xml') &&
+          notif.message.includes('matter-conflict.xml')
+      )
+    ).toBeTruthy()
+
+    // delete the conflicting package and verify that the notifications are removed
+    let sessionPartitionInfo =
+      await querySession.selectSessionPartitionInfoFromPackageId(
+        db,
+        conflictSid,
+        conflictPackageId
+      )
+    await queryPackage.deleteSessionPackage(
+      db,
+      sessionPartitionInfo[0].sessionPartitionId,
+      conflictPackageId
+    )
+
+    sessionNotif = await querySessionNotification.getNotification(
+      db,
+      conflictSid
+    )
+    expect(sessionNotif.length).toEqual(0)
   },
   testUtil.timeout.medium()
 )
@@ -490,11 +537,11 @@ test(
 test(
   'loading zap file with custom xml that does not exist',
   async () => {
-    // creating a new session
+    // creating a new session with a new uuid
     let newSid = await testQuery.createSession(
       db,
-      'SESSION',
       'USER',
+      'SESSION3',
       env.builtinMatterZclMetafile()
     )
 
