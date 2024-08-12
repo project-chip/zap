@@ -692,19 +692,20 @@ async function getAllPackages(db) {
 }
 /**
  * Retrieves attribute access interface options from the database.
- * This function executes a query that combines results from the PACKAGE_OPTION and ATTRIBUTE tables,
- * filtering by a specific code. It uses UNION to ensure no duplicate rows are returned, even if the same
- * code exists in both tables. The results are then mapped to a standard format using dbMapping.map.options.
+ *
+ * This function performs a complex query to fetch options related to a specific code and package ID. It combines results from
+ * the PACKAGE_OPTION table with those from ATTRIBUTE and CLUSTER tables using a UNION. The purpose is to gather a comprehensive
+ * list of options that include both direct package options and those inferred from attributes' storage policies and their associated
+ * clusters.
  *
  * @param {Object} db - The database connection object.
- * @param {string} code - The code used to filter the results from both PACKAGE_OPTION and ATTRIBUTE tables.
- * @returns {Promise<Array>} A promise that resolves to an array of objects, each representing an option
- *                           with properties: PACKAGE_REF, OPTION_CATEGORY, OPTION_CODE, and OPTION_LABEL.
+ * @param {string} code - The option code or storage policy code to query for.
+ * @param {number} packageId - The ID of the package to which the options are related.
+ * @returns {Promise<Array>} A promise that resolves to an array of option objects, each containing the option category, code, and label.
  */
 async function getAttributeAccessInterface(db, code, packageId) {
   const extendedQuery = `
     SELECT
-        po.PACKAGE_REF,
         po.OPTION_CATEGORY,
         po.OPTION_CODE,
         po.OPTION_LABEL
@@ -717,7 +718,6 @@ async function getAttributeAccessInterface(db, code, packageId) {
     UNION 
 
     SELECT
-        a.PACKAGE_REF,
         c.NAME AS OPTION_CATEGORY,
         a.STORAGE_POLICY AS OPTION_CODE,
         a.NAME AS OPTION_LABEL
@@ -729,7 +729,6 @@ async function getAttributeAccessInterface(db, code, packageId) {
         AND a.PACKAGE_REF = ?
 
   `
-
   return dbApi
     .dbAll(db, extendedQuery, [code, packageId, code, packageId]) // Note the [code, code] to match both placeholders
     .then((rows) => rows.map(dbMapping.map.options))
