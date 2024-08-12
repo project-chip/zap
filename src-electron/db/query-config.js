@@ -235,7 +235,10 @@ async function insertOrUpdateAttributeState(
     )
     staticAttribute.defaultValue = featureMapDefaultValue
   }
-  let forcedExternal = await queryUpgrade.getForcedExternalStorage(db)
+  let forcedExternal = await queryUpgrade.getForcedExternalStorage(
+    db,
+    staticAttribute.packageRef
+  )
   staticAttribute.storagePolicy =
     await queryUpgrade.computeStoragePolicyNewConfig(
       db,

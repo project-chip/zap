@@ -21,20 +21,20 @@ const queryCluster = require('../db/query-cluster.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 
 /**
- * This asynchronous function retrieves and returns the forced external storage options.
+ * Fetches forced external storage settings based on the given package ID.
+ * Utilizes the attribute access interface to query storage policies
+ * associated with the specified package ID.
  *
- * @param {Object} db - The database instance.
- *
- * The function calls the 'getAttributeAccessInterface' method from 'queryPackage' with
- * the database instance and 'attributeAccessInterface' from 'storagePolicy' as parameters.
- * The result is assigned to 'forcedExternal'.
- * Finally, it returns the 'forcedExternal' options.
+ * @param {Object} db - Database connection object.
+ * @param {Number} packageId - The ID of the package to query.
+ * @returns {Promise<Array>} A promise that resolves to an array of forced external storage settings.
  */
 
-async function getForcedExternalStorage(db) {
+async function getForcedExternalStorage(db, packageId) {
   let forcedExternal = await queryPackage.getAttributeAccessInterface(
     db,
-    dbEnum.storagePolicy.attributeAccessInterface
+    dbEnum.storagePolicy.attributeAccessInterface,
+    packageId
   )
   return forcedExternal
 }

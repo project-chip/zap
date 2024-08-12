@@ -737,7 +737,10 @@ WHERE
     attribute.reportable = false
   }
   if (attributeId) {
-    forcedExternal = await queryUpgrade.getForcedExternalStorage(db)
+    forcedExternal = await queryUpgrade.getForcedExternalStorage(
+      db,
+      packageIds[0]
+    )
     storagePolicy = await queryUpgrade.computeStorageImport(
       db,
       cluster.name,

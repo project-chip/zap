@@ -701,7 +701,7 @@ async function getAllPackages(db) {
  * @returns {Promise<Array>} A promise that resolves to an array of objects, each representing an option
  *                           with properties: PACKAGE_REF, OPTION_CATEGORY, OPTION_CODE, and OPTION_LABEL.
  */
-async function getAttributeAccessInterface(db, code) {
+async function getAttributeAccessInterface(db, code, packageId) {
   const extendedQuery = `
     SELECT
         po.PACKAGE_REF,
@@ -712,6 +712,7 @@ async function getAttributeAccessInterface(db, code) {
         PACKAGE_OPTION po
     WHERE
         po.OPTION_CODE = ?
+        AND po.PACKAGE_REF = ?
 
     UNION 
 
@@ -725,11 +726,12 @@ async function getAttributeAccessInterface(db, code) {
     LEFT JOIN CLUSTER c ON a.CLUSTER_REF = c.CLUSTER_ID
     WHERE
         a.STORAGE_POLICY = ?
+        AND a.PACKAGE_REF = ?
 
   `
 
   return dbApi
-    .dbAll(db, extendedQuery, [code, code]) // Note the [code, code] to match both placeholders
+    .dbAll(db, extendedQuery, [code, packageId, code, packageId]) // Note the [code, code] to match both placeholders
     .then((rows) => rows.map(dbMapping.map.options))
 }
 

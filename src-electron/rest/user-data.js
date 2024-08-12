@@ -257,7 +257,13 @@ function httpPostCluster(db) {
 }
 function httpPostForcedExternal(db) {
   return async (request, response) => {
-    let forcedExternal = await upgrade.getForcedExternalStorage(db)
+    let sessionId = request.zapSessionId
+    let packages = await queryPackage.getPackageSessionPackagePairBySessionId(
+      db,
+      sessionId
+    )
+    let packageId = packages[0].pkg.id
+    let forcedExternal = await upgrade.getForcedExternalStorage(db, packageId)
     response.status(StatusCodes.OK).json(forcedExternal)
   }
 }
