@@ -36,11 +36,7 @@ limitations under the License.
       id="ZclAttributeManager"
     >
       <template v-slot:body="props">
-        <q-tr
-          :props="props"
-          class="table_body attribute_table_body"
-          v-if="!globalLists.includes(props.row.label)"
-        >
+        <q-tr :props="props" class="table_body attribute_table_body">
           <q-td
             key="status"
             :props="props"

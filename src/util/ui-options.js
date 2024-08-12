@@ -26,12 +26,6 @@ export default {
       enableServerOnly: false,
       enableSingleton: false,
       enableBounded: false,
-      globalLists: [
-        'EventList',
-        'AttributeList',
-        'GeneratedCommandList',
-        'AcceptedCommandList',
-      ],
     }
   },
   mounted() {

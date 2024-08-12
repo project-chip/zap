@@ -40,6 +40,15 @@ export default {
                   .toLowerCase()
                   .includes(this.individualClusterFilterString.toLowerCase())
           })
+          .filter((attribute) => {
+            const globalLists = [
+              'EventList',
+              'AttributeList',
+              'GeneratedCommandList',
+              'AcceptedCommandList',
+            ]
+            return !globalLists.includes(attribute.label)
+          })
       },
     },
     selection: {
