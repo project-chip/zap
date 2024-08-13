@@ -704,34 +704,38 @@ async function getAllPackages(db) {
  * @returns {Promise<Array>} A promise that resolves to an array of option objects, each containing the option category, code, and label.
  */
 async function getAttributeAccessInterface(db, code, packageId) {
-  const extendedQuery = `
-    SELECT
-        po.OPTION_CATEGORY,
-        po.OPTION_CODE,
-        po.OPTION_LABEL
-    FROM
-        PACKAGE_OPTION po
-    WHERE
-        po.OPTION_CODE = ?
-        AND po.PACKAGE_REF = ?
+  try {
+    const extendedQuery = `
+      SELECT
+          po.OPTION_CATEGORY,
+          po.OPTION_CODE,
+          po.OPTION_LABEL
+      FROM
+          PACKAGE_OPTION po
+      WHERE
+          po.OPTION_CODE = ?
+          AND po.PACKAGE_REF = ?
 
-    UNION 
+      UNION 
 
-    SELECT
-        c.NAME AS OPTION_CATEGORY,
-        a.STORAGE_POLICY AS OPTION_CODE,
-        a.NAME AS OPTION_LABEL
-    FROM
-        ATTRIBUTE a
-    LEFT JOIN CLUSTER c ON a.CLUSTER_REF = c.CLUSTER_ID
-    WHERE
-        a.STORAGE_POLICY = ?
-        AND a.PACKAGE_REF = ?
-
-  `
-  return dbApi
-    .dbAll(db, extendedQuery, [code, packageId, code, packageId]) // Note the [code, code] to match both placeholders
-    .then((rows) => rows.map(dbMapping.map.options))
+      SELECT
+          c.NAME AS OPTION_CATEGORY,
+          a.STORAGE_POLICY AS OPTION_CODE,
+          a.NAME AS OPTION_LABEL
+      FROM
+          ATTRIBUTE a
+      LEFT JOIN CLUSTER c ON a.CLUSTER_REF = c.CLUSTER_ID
+      WHERE
+          a.STORAGE_POLICY = ?
+          AND a.PACKAGE_REF = ?
+    `
+    return dbApi
+      .dbAll(db, extendedQuery, [code, packageId, code, packageId]) // Note the [code, packageId, code, packageId] to match both placeholders
+      .then((rows) => rows.map(dbMapping.map.options))
+  } catch (error) {
+    console.error('Error fetching attribute access interface:', error)
+    throw error // Rethrow the error for further handling if necessary
+  }
 }
 
 /**
