@@ -26,7 +26,7 @@ const dbEnum = require('../../src-shared/db-enum.js')
  * associated with the specified package ID.
  *
  * @param {Object} db - Database connection object.
- * @param {Number} packageId - The ID of the package to query.
+ * @param {Number} packageIds - The ID of the packages to query.
  * @returns {Promise<Array>} A promise that resolves to an array of forced external storage settings.
  */
 
