@@ -1124,14 +1124,14 @@ async function insertDeviceTypeFeatures(db, dtClusterRefDataPairs) {
     let dtClusterRef = dtClusterRefDataPair.dtClusterRef
     let clusterData = dtClusterRefDataPair.clusterData
     if ('features' in clusterData && clusterData.features.length > 0) {
-      clusterData.features.forEach((featureCode) => {
-        features.push([dtClusterRef, featureCode])
+      clusterData.features.forEach((feature) => {
+        features.push([dtClusterRef, feature.name, feature.conformance])
       })
     }
   })
   return dbApi.dbMultiInsert(
     db,
-    'INSERT INTO DEVICE_TYPE_FEATURE (DEVICE_TYPE_CLUSTER_REF, FEATURE_CODE) VALUES (?, ?)',
+    'INSERT INTO DEVICE_TYPE_FEATURE (DEVICE_TYPE_CLUSTER_REF, FEATURE_CODE, DEVICE_TYPE_CLUSTER_CONFORMANCE) VALUES (?, ?, ?)',
     features
   )
 }

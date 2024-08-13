@@ -686,7 +686,7 @@ function prepareCluster(cluster, context, isExtension = false) {
         bit: feature.$.bit,
         defaultValue: feature.$.default,
         description: feature.$.summary,
-        conformance: feature.$.conformance
+        conformance: parseFeatureConformance(feature)
       }
 
       ret.features.push(f)
@@ -1638,10 +1638,14 @@ function prepareDeviceType(deviceType) {
           }
           if ('features' in include) {
             include.features[0].feature.forEach((f) => {
+              let conformance = parseFeatureConformance(f)
               // Only adding madatory features for now
-              if (f.mandatoryConform && f.mandatoryConform[0] === '') {
-                features.push(f.$.name)
-              }
+              // if (f.mandatoryConform && f.mandatoryConform[0] === '') {
+              features.push({
+                name: f.$.name,
+                conformance: conformance,
+              })
+              // }
             })
           }
           ret.clusters.push({
@@ -2200,6 +2204,21 @@ async function parseFeatureFlags(db, packageId, featureFlags) {
       )
     })
   )
+}
+
+/**
+ * Parses the feature conformance into spec expression from xml.
+ * @param {*} feature
+ * @returns Promise of parsed feature conformance.
+ */
+async function parseFeatureConformance(feature) {
+  if (feature.mandatoryConform && feature.mandatoryConform[0] === '') {
+    return 'M'
+  } else if (feature.optionalConform && feature.optionalConform[0] === '') {
+    return 'O'
+  } else {
+    return ''
+  }
 }
 
 /**
