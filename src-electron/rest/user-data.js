@@ -273,8 +273,8 @@ function httpPostForcedExternal(db) {
       db,
       sessionId
     )
-    let packageId = packages[0].pkg.id
-    let forcedExternal = await upgrade.getForcedExternalStorage(db, packageId)
+    let packageIds = packages.map((pkg) => pkg.id)
+    let forcedExternal = await upgrade.getForcedExternalStorage(db, packageIds)
     response.status(StatusCodes.OK).json(forcedExternal)
   }
 }
