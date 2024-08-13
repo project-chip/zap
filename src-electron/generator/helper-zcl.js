@@ -772,7 +772,7 @@ async function zcl_attributes(options) {
       this.global.db,
       this.id,
       attributes,
-      packageIds[0]
+      packageIds
     )
   } else {
     attributes = await queryZcl.selectAllAttributes(this.global.db, packageIds)
@@ -807,7 +807,7 @@ async function zcl_attributes_client(options) {
       this.global.db,
       this.id,
       clientAttributes,
-      packageIds[0]
+      packageIds
     )
   } else {
     clientAttributes = await queryZcl.selectAllAttributesBySide(
@@ -849,7 +849,7 @@ async function zcl_attributes_server(options) {
       this.global.db,
       this.id,
       serverAttributes,
-      packageIds[0]
+      packageIds
     )
   } else {
     serverAttributes = await queryZcl.selectAllAttributesBySide(

@@ -30,12 +30,12 @@ const dbEnum = require('../../src-shared/db-enum.js')
  * @returns {Promise<Array>} A promise that resolves to an array of forced external storage settings.
  */
 
-async function getForcedExternalStorage(db, packageId) {
+async function getForcedExternalStorage(db, packageIds) {
   try {
     let forcedExternal = await queryPackage.getAttributeAccessInterface(
       db,
       dbEnum.storagePolicy.attributeAccessInterface,
-      packageId
+      packageIds
     )
     return forcedExternal
   } catch (error) {
@@ -65,7 +65,7 @@ async function computeStoragePolicyForGlobalAttributes(
   db,
   clusterId,
   attributes,
-  packageId
+  packageIds
 ) {
   try {
     let forcedExternal
@@ -73,7 +73,7 @@ async function computeStoragePolicyForGlobalAttributes(
     return Promise.all(
       attributes.map(async (attribute) => {
         if (attribute.clusterId == null) {
-          forcedExternal = await getForcedExternalStorage(db, packageId)
+          forcedExternal = await getForcedExternalStorage(db, packageIds)
           forcedExternal.some((option) => {
             if (
               option.optionCategory == clusterName &&

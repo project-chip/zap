@@ -703,8 +703,21 @@ async function getAllPackages(db) {
  * @param {number} packageId - The ID of the package to which the options are related.
  * @returns {Promise<Array>} A promise that resolves to an array of option objects, each containing the option category, code, and label.
  */
-async function getAttributeAccessInterface(db, code, packageId) {
+async function getAttributeAccessInterface(db, code, packageIds) {
   try {
+    let packageRefCondition = `po.PACKAGE_REF = ?`
+    let attributePackageRefCondition = `a.PACKAGE_REF = ?`
+    let queryParams = [code, packageIds, code, packageIds]
+
+    // Check if packageIds is an array and adjust the query and parameters accordingly
+    if (Array.isArray(packageIds)) {
+      const placeholders = packageIds.map(() => '?').join(', ')
+      packageRefCondition = `po.PACKAGE_REF IN (${placeholders})`
+      attributePackageRefCondition = `a.PACKAGE_REF IN (${placeholders})`
+      // Adjust queryParams for the IN clause
+      queryParams = [code, ...packageIds, code, ...packageIds]
+    }
+
     const extendedQuery = `
       SELECT
           po.OPTION_CATEGORY,
@@ -714,7 +727,7 @@ async function getAttributeAccessInterface(db, code, packageId) {
           PACKAGE_OPTION po
       WHERE
           po.OPTION_CODE = ?
-          AND po.PACKAGE_REF = ?
+          AND ${packageRefCondition}
 
       UNION 
 
@@ -727,10 +740,11 @@ async function getAttributeAccessInterface(db, code, packageId) {
       LEFT JOIN CLUSTER c ON a.CLUSTER_REF = c.CLUSTER_ID
       WHERE
           a.STORAGE_POLICY = ?
-          AND a.PACKAGE_REF = ?
+          AND ${attributePackageRefCondition}
     `
+
     return dbApi
-      .dbAll(db, extendedQuery, [code, packageId, code, packageId]) // Note the [code, packageId, code, packageId] to match both placeholders
+      .dbAll(db, extendedQuery, queryParams)
       .then((rows) => rows.map(dbMapping.map.options))
   } catch (error) {
     console.error('Error fetching attribute access interface:', error)
