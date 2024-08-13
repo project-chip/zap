@@ -706,19 +706,14 @@ async function getAllPackages(db) {
  */
 async function getAttributeAccessInterface(db, code, packageIds) {
   try {
-    // Ensure packageIds is always an array
-    if (!Array.isArray(packageIds)) {
-      packageIds = [packageIds]
-    }
-
     let packageRefCondition = `po.PACKAGE_REF = ?`
     let attributePackageRefCondition = `a.PACKAGE_REF = ?`
     let queryParams = [code, ...packageIds, code, ...packageIds]
 
-    // Since packageIds is now always an array, adjust the query and parameters accordingly
-    const placeholders = packageIds.map(() => '?').join(', ')
-    packageRefCondition = `po.PACKAGE_REF IN (${placeholders})`
-    attributePackageRefCondition = `a.PACKAGE_REF IN (${placeholders})`
+    // Use dbApi.toInClause to automatically create the placeholders for the IN clause
+    const inClause = dbApi.toInClause(packageIds)
+    packageRefCondition = `po.PACKAGE_REF IN (${inClause})`
+    attributePackageRefCondition = `a.PACKAGE_REF IN (${inClause})`
 
     const extendedQuery = `
       SELECT

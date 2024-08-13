@@ -32,10 +32,15 @@ const dbEnum = require('../../src-shared/db-enum.js')
 
 async function getForcedExternalStorage(db, packageIds) {
   try {
+    // Ensure packageIds is an array
+    const packageIdsArray = Array.isArray(packageIds)
+      ? packageIds
+      : [packageIds]
+
     let forcedExternal = await queryPackage.getAttributeAccessInterface(
       db,
       dbEnum.storagePolicy.attributeAccessInterface,
-      packageIds
+      packageIdsArray
     )
     return forcedExternal
   } catch (error) {
