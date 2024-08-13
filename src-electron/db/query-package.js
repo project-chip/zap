@@ -699,23 +699,26 @@ async function getAllPackages(db) {
  * clusters. It supports querying for multiple package IDs by ensuring the packageIds parameter is treated as an array, allowing
  * for more flexible queries.
  *
- * The ATTRIBUTES table is spec only data so PACKAGE_OPTION was used to add SDK data without interfering with the spec data
- *
  * @param {Object} db - The database connection object.
  * @param {string} code - The option code or storage policy code to query for.
- * @param {Array<number>} packageIds - The ID(s) of the package(s) to which the options are related. Can be a single ID or an array of IDs.
+ * @param {number|Array<number>} packageIds - The ID(s) of the package(s) to which the options are related. Can be a single ID or an array of IDs.
  * @returns {Promise<Array>} A promise that resolves to an array of option objects, each containing the option category, code, and label.
  */
 async function getAttributeAccessInterface(db, code, packageIds) {
   try {
+    // Ensure packageIds is always an array
+    if (!Array.isArray(packageIds)) {
+      packageIds = [packageIds]
+    }
+
     let packageRefCondition = `po.PACKAGE_REF = ?`
     let attributePackageRefCondition = `a.PACKAGE_REF = ?`
     let queryParams = [code, ...packageIds, code, ...packageIds]
 
-    // Use dbApi.toInClause to automatically create the placeholders for the IN clause
-    const inClause = dbApi.toInClause(packageIds)
-    packageRefCondition = `po.PACKAGE_REF IN (${inClause})`
-    attributePackageRefCondition = `a.PACKAGE_REF IN (${inClause})`
+    // Since packageIds is now always an array, adjust the query and parameters accordingly
+    const placeholders = packageIds.map(() => '?').join(', ')
+    packageRefCondition = `po.PACKAGE_REF IN (${placeholders})`
+    attributePackageRefCondition = `a.PACKAGE_REF IN (${placeholders})`
 
     const extendedQuery = `
       SELECT
