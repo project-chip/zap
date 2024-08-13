@@ -40,6 +40,9 @@ export default {
                   .toLowerCase()
                   .includes(this.individualClusterFilterString.toLowerCase())
           })
+          .filter((attribute) => {
+            return !this.globalLists.includes(attribute.label)
+          })
       },
     },
     selection: {
