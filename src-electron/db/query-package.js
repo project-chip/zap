@@ -699,9 +699,11 @@ async function getAllPackages(db) {
  * clusters. It supports querying for multiple package IDs by ensuring the packageIds parameter is treated as an array, allowing
  * for more flexible queries.
  *
+ * The ATTRIBUTES table is spec only data so PACKAGE_OPTION was used to add SDK data without interfering with the spec data
+ *
  * @param {Object} db - The database connection object.
  * @param {string} code - The option code or storage policy code to query for.
- * @param {number|Array<number>} packageIds - The ID(s) of the package(s) to which the options are related. Can be a single ID or an array of IDs.
+ * @param {Array<number>} packageIds - The ID(s) of the package(s) to which the options are related. Can be a single ID or an array of IDs.
  * @returns {Promise<Array>} A promise that resolves to an array of option objects, each containing the option category, code, and label.
  */
 async function getAttributeAccessInterface(db, code, packageIds) {
