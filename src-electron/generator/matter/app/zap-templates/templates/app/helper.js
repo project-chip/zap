@@ -640,6 +640,14 @@ function nsValueToNamespace(ns, clusterCount) {
   return `${prefix}${asUpperCamelCase(ns)}${postfix}`;
 }
 
+// Not to be exported.
+function nsValueToPythonNamespace(ns, clusterCount) {
+  if (clusterCount == 0) {
+    return 'Globals';
+  }
+  return ns;
+}
+
 /*
  * @brief
  *
@@ -809,7 +817,6 @@ function zapTypeToDecodableClusterObjectType(type, options) {
 
 async function _zapTypeToPythonClusterObjectType(type, options) {
   async function fn(pkgId) {
-    const ns = options.hash.ns;
     const typeChecker = async (method) =>
       zclHelper[method](this.global.db, type, pkgId).then(
         (zclType) => zclType != 'unknown'
@@ -827,10 +834,10 @@ async function _zapTypeToPythonClusterObjectType(type, options) {
         pkgId
       );
 
-      if (enumObj.enumClusterCount == 0) {
-        // This is a global enum.
-        return `Globals.Enums.${type}`;
-      }
+      const ns = nsValueToPythonNamespace(
+        options.hash.ns,
+        enumObj.enumClusterCount
+      );
 
       return ns + '.Enums.' + type;
     }
@@ -846,10 +853,10 @@ async function _zapTypeToPythonClusterObjectType(type, options) {
         pkgId
       );
 
-      if (structObj.structClusterCount == 0) {
-        // This is a global struct.
-        return `Globals.Structs.${type}`;
-      }
+      const ns = nsValueToPythonNamespace(
+        options.hash.ns,
+        structObj.structClusterCount
+      );
 
       return ns + '.Structs.' + type;
     }
@@ -926,7 +933,6 @@ function zapTypeToPythonClusterObjectType(type, options) {
 
 async function _getPythonFieldDefault(type, options) {
   async function fn(pkgId) {
-    const ns = options.hash.ns;
     const typeChecker = async (method) =>
       zclHelper[method](this.global.db, type, pkgId).then(
         (zclType) => zclType != 'unknown'
@@ -941,6 +947,17 @@ async function _getPythonFieldDefault(type, options) {
     }
 
     if (await typeChecker('isStruct')) {
+      const structObj = await zclQuery.selectStructByName(
+        this.global.db,
+        type,
+        pkgId
+      );
+
+      const ns = nsValueToPythonNamespace(
+        options.hash.ns,
+        structObj.structClusterCount
+      );
+
       return 'field(default_factory=lambda: ' + ns + '.Structs.' + type + '())';
     }
 
