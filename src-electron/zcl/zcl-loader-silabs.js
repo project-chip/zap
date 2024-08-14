@@ -415,7 +415,7 @@ function prepareCluster(cluster, context, isExtension = false) {
   } else {
     ret.code = parseInt(cluster.code[0])
     ret.name = cluster.name[0]
-    ret.description = cluster.description[0].trim()
+    ret.description = cluster.description ? cluster.description[0].trim() : ''
     ret.define = cluster.define[0]
     ret.domain = cluster.domain[0]
     ret.isSingleton = false
@@ -445,7 +445,7 @@ function prepareCluster(cluster, context, isExtension = false) {
         code: parseInt(command.$.code),
         manufacturerCode: command.$.manufacturerCode,
         name: command.$.name,
-        description: command.description[0].trim(),
+        description: command.description ? command.description[0].trim() : '',
         source: command.$.source,
         isOptional: command.$.optional == 'true' ? true : false,
         mustUseTimedInvoke: command.$.mustUseTimedInvoke == 'true',
@@ -503,7 +503,7 @@ function prepareCluster(cluster, context, isExtension = false) {
         name: event.$.name,
         side: event.$.side,
         priority: event.$.priority,
-        description: event.description[0].trim(),
+        description: event.description ? event.description[0].trim() : '',
         isOptional: event.$.optional == 'true',
         isFabricSensitive: event.$.isFabricSensitive == 'true',
       }
