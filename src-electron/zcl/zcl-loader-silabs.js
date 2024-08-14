@@ -1639,13 +1639,10 @@ function prepareDeviceType(deviceType) {
           if ('features' in include) {
             include.features[0].feature.forEach((f) => {
               let conformance = parseFeatureConformance(f)
-              // Only adding madatory features for now
-              // if (f.mandatoryConform && f.mandatoryConform[0] === '') {
               features.push({
                 name: f.$.name,
                 conformance: conformance,
               })
-              // }
             })
           }
           ret.clusters.push({
@@ -2207,18 +2204,70 @@ async function parseFeatureFlags(db, packageId, featureFlags) {
 }
 
 /**
- * Parses the feature conformance into spec expression from xml.
- * @param {*} feature
- * @returns Promise of parsed feature conformance.
+ * Parses feature conformance or an operand in feature conformance recursively from xml data.
+ * @param {*} operand
+ * @returns feature conformance string
  */
-async function parseFeatureConformance(feature) {
-  if (feature.mandatoryConform && feature.mandatoryConform[0] === '') {
-    return 'M'
-  } else if (feature.optionalConform && feature.optionalConform[0] === '') {
-    return 'O'
+function parseFeatureConformance(operand) {
+  if (operand.mandatoryConform) {
+    return operand.mandatoryConform[0]
+      ? parseFeatureConformance(operand.mandatoryConform[0])
+      : 'M'
+  } else if (operand.optionalConform) {
+    return operand.optionalConform[0]
+      ? `[${parseFeatureConformance(operand.optionalConform[0])}]`
+      : 'O'
+  } else if (operand.provisionalConform) {
+    return 'P'
+  } else if (operand.disallowConform) {
+    return 'X'
+  } else if (operand.deprecateConform) {
+    return 'D'
+  } else if (operand.feature) {
+    return operand.feature[0].$.name
+  } else if (operand.condition) {
+    return operand.condition[0].$.name
+  } else if (operand.otherwiseConform) {
+    return Object.entries(operand.otherwiseConform[0])
+      .map(([key, value]) => parseFeatureConformance({ [key]: value }))
+      .join(', ')
+  } else if (operand.notTerm && operand.notTerm[0]) {
+    let notTerms = parseFeatureConformance(operand.notTerm[0])
+    return notTerms.includes('&') || notTerms.includes('|')
+      ? `!(${notTerms})`
+      : `!${notTerms}`
+  } else if (operand.andTerm) {
+    return parseAndOrConformanceTerms(operand.andTerm, '&')
+  } else if (operand.orTerm) {
+    return parseAndOrConformanceTerms(operand.orTerm, '|')
   } else {
     return ''
   }
+}
+
+/**
+ * Helper function to parse andTerm or orTerm from xml data
+ * @param {*} operand
+ * @param {*} joinChar
+ * @returns feature conformance string
+ */
+function parseAndOrConformanceTerms(operand, joinChar) {
+  let oppositeChar = joinChar === '&' ? '|' : '&'
+  let oppositeTerm = joinChar === '&' ? 'orTerm' : 'andTerm'
+
+  return Object.entries(operand[0])
+    .map(([key, value]) => {
+      console.log(key, value)
+      if (key == 'feature' || key == 'condition') {
+        return value.map((operand) => operand.$.name).join(` ${joinChar} `)
+      } else if (key == oppositeTerm) {
+        let terms = parseFeatureConformance({ [key]: value })
+        return terms.includes(oppositeChar) ? `(${terms})` : terms
+      } else {
+        return ''
+      }
+    })
+    .join(` ${joinChar} `)
 }
 
 /**
