@@ -2298,6 +2298,9 @@ async function parseBoolOptions(db, pkgRef, booleanCategories) {
  * by mapping its values to a specific structure and then inserting them into the database using
  * the insertOptionsKeyValues function.
  *
+ * The main purpose of this function is to store cluster/attribute pairs including global attributes and their cluster pair
+ * The ATTRIBUTE table has cluster_ref as null for global attributes so this second method was necessary
+ *
  * @param {*} db - The database connection object.
  * @param {*} pkgRef - The package reference id for which the attributes are being parsed.
  * @param {*} attributeAccessInterfaceAttributes - An object containing the attribute access interface attributes,
@@ -2310,13 +2313,14 @@ async function parseattributeAccessInterfaceAttributes(
   pkgRef,
   attributeAccessInterfaceAttributes
 ) {
-  // Use forEach for side effects without expecting a return value
-  Object.keys(attributeAccessInterfaceAttributes).forEach(async (cluster) => {
+  const clusters = Object.keys(attributeAccessInterfaceAttributes)
+  for (let i = 0; i < clusters.length; i++) {
+    const cluster = clusters[i]
     const values = attributeAccessInterfaceAttributes[cluster]
     // Prepare the data for insertion
-    const optionsKeyValues = values.map((optionValue) => ({
+    const optionsKeyValues = values.map((attribute) => ({
       code: dbEnum.storagePolicy.attributeAccessInterface,
-      label: optionValue,
+      label: attribute,
     }))
     // Insert the data into the database
     try {
@@ -2329,7 +2333,7 @@ async function parseattributeAccessInterfaceAttributes(
     } catch (error) {
       console.error(`Error inserting attributes for cluster ${cluster}:`, error)
     }
-  })
+  }
 }
 
 /**

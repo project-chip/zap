@@ -690,23 +690,68 @@ async function getAllPackages(db) {
     )
     .then((rows) => rows.map(dbMapping.map.package))
 }
+/**
+ * Retrieves attribute access interface options from the database.
+ *
+ * This function performs a complex query to fetch options related to a specific code and package IDs. It combines results from
+ * the PACKAGE_OPTION table with those from ATTRIBUTE and CLUSTER tables using a UNION. The purpose is to gather a comprehensive
+ * list of options that include both direct package options and those inferred from attributes' storage policies and their associated
+ * clusters. It supports querying for multiple package IDs by ensuring the packageIds parameter is treated as an array, allowing
+ * for more flexible queries.
+ *
+ * @param {Object} db - The database connection object.
+ * @param {string} code - The option code or storage policy code to query for.
+ * @param {number|Array<number>} packageIds - The ID(s) of the package(s) to which the options are related. Can be a single ID or an array of IDs.
+ * @returns {Promise<Array>} A promise that resolves to an array of option objects, each containing the option category, code, and label.
+ */
+async function getAttributeAccessInterface(db, code, packageIds) {
+  try {
+    // Ensure packageIds is always an array
+    if (!Array.isArray(packageIds)) {
+      packageIds = [packageIds]
+    }
 
-async function getAttributeAccessInterface(db, code) {
-  return dbApi
-    .dbAll(
-      db,
-      `SELECT
-        PACKAGE_REF,
-        OPTION_CATEGORY,
-        OPTION_CODE,
-        OPTION_LABEL
-       FROM
-        PACKAGE_OPTION
-       WHERE
-        OPTION_CODE = ?`,
-      [code]
-    )
-    .then((rows) => rows.map(dbMapping.map.options))
+    let packageRefCondition = `po.PACKAGE_REF = ?`
+    let attributePackageRefCondition = `a.PACKAGE_REF = ?`
+    let queryParams = [code, ...packageIds, code, ...packageIds]
+
+    // Since packageIds is now always an array, adjust the query and parameters accordingly
+    const placeholders = packageIds.map(() => '?').join(', ')
+    packageRefCondition = `po.PACKAGE_REF IN (${placeholders})`
+    attributePackageRefCondition = `a.PACKAGE_REF IN (${placeholders})`
+
+    const extendedQuery = `
+      SELECT
+          po.OPTION_CATEGORY,
+          po.OPTION_CODE,
+          po.OPTION_LABEL
+      FROM
+          PACKAGE_OPTION po
+      WHERE
+          po.OPTION_CODE = ?
+          AND ${packageRefCondition}
+
+      UNION 
+
+      SELECT
+          c.NAME AS OPTION_CATEGORY,
+          a.STORAGE_POLICY AS OPTION_CODE,
+          a.NAME AS OPTION_LABEL
+      FROM
+          ATTRIBUTE a
+      LEFT JOIN CLUSTER c ON a.CLUSTER_REF = c.CLUSTER_ID
+      WHERE
+          a.STORAGE_POLICY = ?
+          AND ${attributePackageRefCondition}
+    `
+
+    return dbApi
+      .dbAll(db, extendedQuery, queryParams)
+      .then((rows) => rows.map(dbMapping.map.options))
+  } catch (error) {
+    console.error('Error fetching attribute access interface:', error)
+    throw error // Rethrow the error for further handling if necessary
+  }
 }
 
 /**

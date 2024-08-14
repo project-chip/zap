@@ -771,7 +771,8 @@ async function zcl_attributes(options) {
     attributes = await upgrade.computeStoragePolicyForGlobalAttributes(
       this.global.db,
       this.id,
-      attributes
+      attributes,
+      packageIds
     )
   } else {
     attributes = await queryZcl.selectAllAttributes(this.global.db, packageIds)
@@ -805,7 +806,8 @@ async function zcl_attributes_client(options) {
     clientAttributes = await upgrade.computeStoragePolicyForGlobalAttributes(
       this.global.db,
       this.id,
-      clientAttributes
+      clientAttributes,
+      packageIds
     )
   } else {
     clientAttributes = await queryZcl.selectAllAttributesBySide(
@@ -846,7 +848,8 @@ async function zcl_attributes_server(options) {
     serverAttributes = await upgrade.computeStoragePolicyForGlobalAttributes(
       this.global.db,
       this.id,
-      serverAttributes
+      serverAttributes,
+      packageIds
     )
   } else {
     serverAttributes = await queryZcl.selectAllAttributesBySide(

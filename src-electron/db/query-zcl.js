@@ -866,6 +866,7 @@ async function selectAttributeByAttributeIdAndClusterRef(
       `
 SELECT
   A.ATTRIBUTE_ID,
+  A.PACKAGE_REF,
   A.CLUSTER_REF,
   A.CODE,
   A.MANUFACTURER_CODE,
