@@ -850,6 +850,7 @@ CREATE TABLE IF NOT EXISTS "SESSION_PACKAGE" (
   foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID) ON DELETE CASCADE ON UPDATE CASCADE,
   UNIQUE(SESSION_PARTITION_REF, PACKAGE_REF)
 );
+
 /*
  ENDPOINT_TYPE contains the bulk of the configuration: clusters, attributes, etc.
  */
@@ -3236,6 +3237,556 @@ UPDATE SESSION
 SET DIRTY = 1
 WHERE SESSION_ID = OLD.SESSION_REF;
 END;
+
+/* Triggers that deal with code conflicts in custom xml */
+
+/* Trigger that deals with code conflicts in clusters when new session package is inserted */
+CREATE TRIGGER CLUSTER_CODE_CONFLICT_MESSAGE_ON_INSERT
+AFTER INSERT ON SESSION_PACKAGE
+WHEN
+  EXISTS(
+    SELECT 
+      1
+    FROM 
+      SESSION_PACKAGE spk
+    JOIN 
+      PACKAGE p 
+    ON 
+      spk.PACKAGE_REF = p.PACKAGE_ID
+    WHERE 
+      p.TYPE = 'zcl-xml-standalone'
+    AND 
+      spk.package_ref = NEW.package_ref
+    AND 
+      NEW.ENABLED = true
+  )
+BEGIN
+  INSERT INTO SESSION_NOTICE(
+    SESSION_REF, 
+    NOTICE_TYPE, 
+    NOTICE_MESSAGE, 
+    NOTICE_SEVERITY, 
+    DISPLAY, 
+    SEEN
+  )
+  SELECT 
+    spt.SESSION_REF,
+    'ERROR', 
+    'Cluster code conflict in ' || p.PATH || ' and ' || p2.PATH || ' for ' || c.CODE, 
+    2, 
+    1, 
+    0
+  FROM 
+    CLUSTER c
+  INNER JOIN 
+    PACKAGE p 
+  ON 
+    c.PACKAGE_REF = p.PACKAGE_ID 
+  INNER JOIN 
+    SESSION_PACKAGE spk
+  ON 
+   	p.PACKAGE_ID = spk.PACKAGE_REF
+  INNER JOIN
+    SESSION_PARTITION spt 
+  ON 
+    spk.SESSION_PARTITION_REF = spt.SESSION_PARTITION_ID
+  INNER JOIN
+    SESSION_PARTITION spt2
+  ON
+    spt.SESSION_REF = spt2.SESSION_REF
+  INNER JOIN 
+    SESSION_PACKAGE spk2 
+  ON 
+    spt2.SESSION_PARTITION_ID = spk2.SESSION_PARTITION_REF
+  INNER JOIN 
+    PACKAGE p2
+  ON 
+    spk2.PACKAGE_REF = p2.PACKAGE_ID
+  INNER JOIN
+    CLUSTER c2 
+  ON 
+    p2.PACKAGE_ID = c2.PACKAGE_REF
+  WHERE 
+    spk.SESSION_PARTITION_REF = NEW.SESSION_PARTITION_REF
+  AND 
+    spk.PACKAGE_REF = NEW.PACKAGE_REF
+  AND 
+    spk2.ENABLED = true
+  AND
+    ((c.CODE = c2.CODE AND c.MANUFACTURER_CODE = c2.MANUFACTURER_CODE)
+    OR 
+    (c.CODE = c2.CODE AND (c.MANUFACTURER_CODE IS NULL OR c.MANUFACTURER_CODE=0) AND (c2.MANUFACTURER_CODE IS NULL OR c2.MANUFACTURER_CODE=0)))
+  AND 
+    p.PACKAGE_ID <> p2.PACKAGE_ID;
+END;
+
+/* Trigger that deals with code conflicts in clusters when a session package is re-enabled */
+CREATE TRIGGER CLUSTER_CODE_CONFLICT_MESSAGE_ON_UPDATE
+AFTER UPDATE ON SESSION_PACKAGE
+WHEN
+  EXISTS(
+    SELECT 
+      1
+    FROM 
+      SESSION_PACKAGE spk
+    JOIN 
+      PACKAGE p 
+    ON 
+      spk.PACKAGE_REF = p.PACKAGE_ID
+    WHERE 
+      p.TYPE = 'zcl-xml-standalone'
+    AND 
+      spk.package_ref = NEW.package_ref
+    AND 
+      OLD.ENABLED = false
+    AND 
+      NEW.ENABLED = true
+  )
+BEGIN
+  INSERT INTO SESSION_NOTICE(
+    SESSION_REF, 
+    NOTICE_TYPE, 
+    NOTICE_MESSAGE, 
+    NOTICE_SEVERITY, 
+    DISPLAY, 
+    SEEN
+  )
+  SELECT 
+    spt.SESSION_REF,
+    'ERROR', 
+    'Cluster code conflict in ' || p.PATH || ' and ' || p2.PATH || ' for ' || c.CODE, 
+    2, 
+    1, 
+    0
+  FROM 
+    CLUSTER c
+  INNER JOIN 
+    PACKAGE p 
+  ON 
+    c.PACKAGE_REF = p.PACKAGE_ID 
+  INNER JOIN 
+  	SESSION_PACKAGE spk
+  ON 
+   	p.PACKAGE_ID = spk.PACKAGE_REF
+  INNER JOIN
+    SESSION_PARTITION spt 
+  ON 
+    spk.SESSION_PARTITION_REF = spt.SESSION_PARTITION_ID
+  INNER JOIN
+    SESSION_PARTITION spt2
+  ON
+    spt.SESSION_REF = spt2.SESSION_REF
+  INNER JOIN 
+    SESSION_PACKAGE spk2 
+  ON 
+    spt2.SESSION_PARTITION_ID = spk2.SESSION_PARTITION_REF
+  INNER JOIN 
+    PACKAGE p2
+  ON 
+    spk2.PACKAGE_REF = p2.PACKAGE_ID
+  INNER JOIN
+    CLUSTER c2 
+  ON 
+    p2.PACKAGE_ID = c2.PACKAGE_REF
+  WHERE 
+    spk.SESSION_PARTITION_REF = NEW.SESSION_PARTITION_REF
+  AND 
+    spk.PACKAGE_REF = NEW.PACKAGE_REF
+  AND 
+    spk2.ENABLED = true
+  AND 
+    ((c.CODE = c2.CODE AND c.MANUFACTURER_CODE = c2.MANUFACTURER_CODE)
+    OR 
+    (c.CODE = c2.CODE AND (c.MANUFACTURER_CODE IS NULL OR c.MANUFACTURER_CODE=0) AND (c2.MANUFACTURER_CODE IS NULL OR c2.MANUFACTURER_CODE=0)))
+  AND 
+    p.PACKAGE_ID <> p2.PACKAGE_ID;
+END;
+
+
+/* Trigger that deals wuth code conflicts in attributes when a session package is inserted */
+CREATE TRIGGER ATTRIBUTE_CODE_CONFLICT_MESSAGE_ON_INSERT
+AFTER INSERT ON SESSION_PACKAGE
+WHEN
+  EXISTS(
+    SELECT 
+      1
+    FROM 
+      SESSION_PACKAGE spk
+    JOIN 
+      PACKAGE p 
+    ON 
+      spk.PACKAGE_REF = p.PACKAGE_ID
+    WHERE 
+      p.TYPE = 'zcl-xml-standalone'
+    AND 
+      spk.package_ref = NEW.package_ref
+    AND 
+      NEW.ENABLED = true
+  )
+BEGIN
+  INSERT INTO SESSION_NOTICE(
+    SESSION_REF, 
+    NOTICE_TYPE, 
+    NOTICE_MESSAGE, 
+    NOTICE_SEVERITY, 
+    DISPLAY, 
+    SEEN
+  )
+  SELECT 
+    spt.SESSION_REF, 
+    'ERROR', 
+    'Attribute code conflict in ' || p.PATH || ' and ' || p2.PATH || ' in attribute=' || a.CODE || ' cluster=' || a.CLUSTER_REF,
+    2, 
+    1, 
+    0
+  FROM 
+    ATTRIBUTE a
+  INNER JOIN
+    PACKAGE p 
+  ON 
+    a.PACKAGE_REF = p.PACKAGE_ID 
+  INNER JOIN 
+    SESSION_PACKAGE spk
+  ON 
+    p.PACKAGE_ID = spk.PACKAGE_REF
+  INNER JOIN 
+    SESSION_PARTITION spt
+  ON 
+    spk.SESSION_PARTITION_REF = spt.SESSION_PARTITION_ID   
+  INNER JOIN 
+    SESSION_PARTITION spt2
+  ON 
+    spt.SESSION_REF = spt2.SESSION_REF
+  INNER JOIN 
+    SESSION_PACKAGE spk2 
+  ON 
+    spt2.SESSION_PARTITION_ID = spk2.SESSION_PARTITION_REF
+  INNER JOIN 
+    PACKAGE p2 
+  ON 
+    spk2.PACKAGE_REF = p2.PACKAGE_ID
+  INNER JOIN 
+    ATTRIBUTE a2 
+  ON 
+    p2.PACKAGE_ID = a2.PACKAGE_REF
+  WHERE 
+    spk.SESSION_PARTITION_REF = NEW.SESSION_PARTITION_REF
+  AND 
+    spk.PACKAGE_REF = NEW.PACKAGE_REF
+  AND 
+    spk2.ENABLED = true
+  AND 
+    a.CLUSTER_REF = a2.CLUSTER_REF
+  AND 
+    ((a.CODE = a2.CODE AND a.MANUFACTURER_CODE = a2.MANUFACTURER_CODE)
+      OR 
+     (a.CODE = a2.CODE AND (a.MANUFACTURER_CODE IS NULL OR a.MANUFACTURER_CODE=0) AND (a2.MANUFACTURER_CODE IS NULL OR a2.MANUFACTURER_CODE=0)))
+  AND 
+    p.PACKAGE_ID <> p2.PACKAGE_ID;
+END;
+
+/* Trigger that deals with code conflicts in attributes when a session package is re-enabled */
+CREATE TRIGGER ATTRIBUTE_CODE_CONFLICT_MESSAGE_ON_UPDATE
+AFTER UPDATE ON SESSION_PACKAGE
+WHEN
+  EXISTS(
+    SELECT 
+      1
+    FROM 
+      SESSION_PACKAGE spk
+    JOIN 
+      PACKAGE p 
+    ON 
+      spk.PACKAGE_REF = p.PACKAGE_ID
+    WHERE 
+      p.TYPE = 'zcl-xml-standalone'
+    AND 
+      spk.package_ref = NEW.package_ref
+    AND 
+      OLD.ENABLED = false
+    AND 
+      NEW.ENABLED = true
+  )
+BEGIN
+  INSERT INTO SESSION_NOTICE(
+    SESSION_REF, 
+    NOTICE_TYPE, 
+    NOTICE_MESSAGE, 
+    NOTICE_SEVERITY, 
+    DISPLAY, 
+    SEEN
+  )
+  SELECT 
+    spt.SESSION_REF, 
+    'ERROR', 
+    'Attribute code conflict in ' || p.PATH || ' and ' || p2.PATH || ' in attribute=' || a.CODE || ' cluster=' || a.CLUSTER_REF,
+    2, 
+    1, 
+    0
+  FROM 
+    ATTRIBUTE a
+  INNER JOIN
+    PACKAGE p 
+  ON 
+    a.PACKAGE_REF = p.PACKAGE_ID 
+  INNER JOIN 
+    SESSION_PACKAGE spk
+  ON 
+    p.PACKAGE_ID = spk.PACKAGE_REF
+  INNER JOIN 
+    SESSION_PARTITION spt
+  ON 
+    spk.SESSION_PARTITION_REF = spt.SESSION_PARTITION_ID   
+  INNER JOIN 
+    SESSION_PARTITION spt2
+  ON 
+    spt.SESSION_REF = spt2.SESSION_REF
+  INNER JOIN 
+    SESSION_PACKAGE spk2 
+  ON 
+    spt2.SESSION_PARTITION_ID = spk2.SESSION_PARTITION_REF
+  INNER JOIN 
+    PACKAGE p2 
+  ON 
+    spk2.PACKAGE_REF = p2.PACKAGE_ID
+  INNER JOIN 
+    ATTRIBUTE a2 
+  ON 
+    p2.PACKAGE_ID = a2.PACKAGE_REF
+  WHERE 
+    spk.SESSION_PARTITION_REF = NEW.SESSION_PARTITION_REF
+  AND 
+    spk.PACKAGE_REF = NEW.PACKAGE_REF
+  AND 
+    spk2.ENABLED = true
+  AND 
+    a.CLUSTER_REF = a2.CLUSTER_REF
+  AND 
+    ((a.CODE = a2.CODE AND a.MANUFACTURER_CODE = a2.MANUFACTURER_CODE)
+      OR 
+    (a.CODE = a2.CODE AND (a.MANUFACTURER_CODE IS NULL OR a.MANUFACTURER_CODE=0) AND (a2.MANUFACTURER_CODE IS NULL OR a2.MANUFACTURER_CODE=0)))
+  AND 
+    p.PACKAGE_ID <> p2.PACKAGE_ID;
+END;
+
+
+/* Trigger that deals with code conflicts in commands when a session package is inserted */
+CREATE TRIGGER COMMAND_CODE_CONFLICT_MESSAGE_ON_INSERT
+AFTER INSERT ON SESSION_PACKAGE
+WHEN
+  EXISTS(
+    SELECT 
+      1
+    FROM 
+      SESSION_PACKAGE spk
+    JOIN 
+      PACKAGE p 
+    ON 
+      spk.PACKAGE_REF = p.PACKAGE_ID
+    WHERE 
+      p.TYPE = 'zcl-xml-standalone'
+    AND 
+      spk.package_ref = NEW.package_ref
+    AND 
+      NEW.ENABLED = true
+  )
+BEGIN
+  INSERT INTO SESSION_NOTICE(
+    SESSION_REF, 
+    NOTICE_TYPE, 
+    NOTICE_MESSAGE, 
+    NOTICE_SEVERITY, 
+    DISPLAY, 
+    SEEN
+  )
+  SELECT 
+    spt.SESSION_REF, 
+    'ERROR', 
+    'Command code conflict in ' || p.PATH || ' and ' || p2.PATH || ' in command=' || c.CODE || ' cluster=' || c.CLUSTER_REF, 
+    2, 
+    1, 
+    0
+  FROM 
+    COMMAND c
+  INNER JOIN 
+    PACKAGE p 
+  ON c.PACKAGE_REF = p.PACKAGE_ID 
+  INNER JOIN
+   SESSION_PACKAGE spk
+  ON 
+    p.PACKAGE_ID = spk.PACKAGE_REF
+  INNER JOIN 
+    SESSION_PARTITION spt
+  ON 
+    spk.SESSION_PARTITION_REF = spt.SESSION_PARTITION_ID
+  INNER JOIN 
+    SESSION_PARTITION spt2
+  ON 
+    spt.SESSION_REF = spt2.SESSION_REF
+  INNER JOIN 
+    SESSION_PACKAGE spk2 
+  ON 
+    spt2.SESSION_PARTITION_ID = spk2.SESSION_PARTITION_REF
+  INNER JOIN 
+    PACKAGE p2 
+  ON 
+    spk2.PACKAGE_REF = p2.PACKAGE_ID
+  INNER JOIN 
+    COMMAND c2 
+  ON 
+    p2.PACKAGE_ID = c2.PACKAGE_REF
+  WHERE 
+    spk.SESSION_PARTITION_REF = NEW.SESSION_PARTITION_REF
+  AND 
+    spk.PACKAGE_REF = NEW.PACKAGE_REF
+  AND 
+    spk2.ENABLED = true
+  AND 
+    c.CLUSTER_REF = c2.CLUSTER_REF
+  AND 
+    ((c.CODE = c2.CODE AND c.MANUFACTURER_CODE = c2.MANUFACTURER_CODE)
+    OR 
+    (c.CODE = c2.CODE AND (c.MANUFACTURER_CODE IS NULL OR c.MANUFACTURER_CODE=0) AND (c2.MANUFACTURER_CODE IS NULL OR c2.MANUFACTURER_CODE=0)))
+  AND 
+    p.PACKAGE_ID <> p2.PACKAGE_ID;
+END;
+
+/* Trigger that deals with code conflicts in commands when a session package is re-enabled */
+CREATE TRIGGER COMMAND_CODE_CONFLICT_MESSAGE_ON_UPDATE
+AFTER UPDATE ON SESSION_PACKAGE
+WHEN
+  EXISTS(
+    SELECT 
+      1
+    FROM 
+      SESSION_PACKAGE spk
+    JOIN 
+      PACKAGE p 
+    ON 
+      spk.PACKAGE_REF = p.PACKAGE_ID
+    WHERE 
+      p.TYPE = 'zcl-xml-standalone'
+    AND 
+      spk.package_ref = NEW.package_ref
+    AND 
+      OLD.ENABLED = false
+    AND 
+      NEW.ENABLED = true
+  )
+BEGIN
+  INSERT INTO SESSION_NOTICE(
+    SESSION_REF, 
+    NOTICE_TYPE, 
+    NOTICE_MESSAGE, 
+    NOTICE_SEVERITY, 
+    DISPLAY, 
+    SEEN
+  )
+  SELECT 
+    spt.SESSION_REF, 
+    'ERROR', 
+    'Command code conflict in ' || p.PATH || ' and ' || p2.PATH || ' in command=' || c.CODE || ' cluster=' || c.CLUSTER_REF, 
+    2, 
+    1, 
+    0
+  FROM 
+    COMMAND c
+  INNER JOIN 
+    PACKAGE p 
+  ON c.PACKAGE_REF = p.PACKAGE_ID 
+  INNER JOIN
+   SESSION_PACKAGE spk
+  ON 
+    p.PACKAGE_ID = spk.PACKAGE_REF
+  INNER JOIN 
+    SESSION_PARTITION spt
+  ON 
+    spk.SESSION_PARTITION_REF = spt.SESSION_PARTITION_ID
+  INNER JOIN 
+    SESSION_PARTITION spt2
+  ON 
+    spt.SESSION_REF = spt2.SESSION_REF
+  INNER JOIN 
+    SESSION_PACKAGE spk2 
+  ON 
+    spt2.SESSION_PARTITION_ID = spk2.SESSION_PARTITION_REF
+  INNER JOIN 
+    PACKAGE p2 
+  ON 
+    spk2.PACKAGE_REF = p2.PACKAGE_ID
+  INNER JOIN 
+    COMMAND c2 
+  ON 
+    p2.PACKAGE_ID = c2.PACKAGE_REF
+  WHERE 
+    spk.SESSION_PARTITION_REF = NEW.SESSION_PARTITION_REF
+  AND 
+    spk.PACKAGE_REF = NEW.PACKAGE_REF
+  AND 
+    spk2.ENABLED = true
+  AND 
+    c.CLUSTER_REF = c2.CLUSTER_REF
+  AND 
+    ((c.CODE = c2.CODE AND c.MANUFACTURER_CODE = c2.MANUFACTURER_CODE)
+    OR 
+    (c.CODE = c2.CODE AND (c.MANUFACTURER_CODE IS NULL OR c.MANUFACTURER_CODE=0) AND (c2.MANUFACTURER_CODE IS NULL OR c2.MANUFACTURER_CODE=0)))
+  AND 
+    p.PACKAGE_ID <> p2.PACKAGE_ID;
+END;
+
+/* Trigger that deletes relevant code conflict session_notice entries when a session package is disabled */
+CREATE TRIGGER CODE_CONFLICT_DELETE_ON_DISABLE
+AFTER UPDATE ON SESSION_PACKAGE
+WHEN 
+    OLD.ENABLED = 1 
+  AND 
+    NEW.ENABLED = 0
+BEGIN
+  DELETE FROM 
+    SESSION_NOTICE
+  WHERE 
+    SESSION_REF = (
+      SELECT 
+        spt.SESSION_REF
+      FROM 
+        SESSION_PARTITION spt
+      WHERE 
+        spt.SESSION_PARTITION_ID = OLD.SESSION_PARTITION_REF
+    )
+  AND 
+    NOTICE_TYPE = "ERROR"
+  AND 
+    NOTICE_MESSAGE LIKE '%code conflict%'
+  AND 
+    NOTICE_MESSAGE LIKE '%' || (SELECT p.PATH FROM PACKAGE p WHERE p.PACKAGE_ID = OLD.PACKAGE_REF) || '%';
+END;
+
+/* Trigger that deletes relevant code conflict session_notice entries when a session package is deleted */
+CREATE TRIGGER CODE_CONFLICT_DELETE
+AFTER DELETE ON SESSION_PACKAGE
+BEGIN
+  DELETE FROM 
+    SESSION_NOTICE
+  WHERE 
+    SESSION_REF = (
+      SELECT 
+        spt.SESSION_REF
+      FROM 
+        SESSION_PARTITION spt
+      WHERE 
+        spt.SESSION_PARTITION_ID = OLD.SESSION_PARTITION_REF
+    )
+  AND 
+    NOTICE_TYPE = 'ERROR'
+  AND 
+    NOTICE_MESSAGE LIKE '%code conflict%'
+  AND 
+    NOTICE_MESSAGE LIKE '%' || (SELECT p.PATH FROM PACKAGE p WHERE p.PACKAGE_ID = OLD.PACKAGE_REF) || '%';
+END;
+
+
+
+
 /*
  *
  *  $$$$$$\  $$\           $$\                 $$\             $$\            $$\
