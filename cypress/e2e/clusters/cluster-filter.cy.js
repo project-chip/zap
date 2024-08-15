@@ -27,6 +27,6 @@ describe('Testing cluster filters', () => {
       cy.fixture('data').then((data) => {
         cy.get('tbody').children().contains(data.cluster2).should('not.exist')
       })
-    }
+    },
   )
 })

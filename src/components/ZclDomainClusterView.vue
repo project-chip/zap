@@ -309,7 +309,7 @@ export default {
     },
     missingClusterMessage(clusterData) {
       let missingRequiredClusterPair = this.getMissingRequiredClusterPair(
-        clusterData.id
+        clusterData.id,
       )
       let msg = ''
       if (
@@ -414,7 +414,7 @@ export default {
           role: ZclClusterRole.client,
           action: this.zclClusterRoleAction(
             this.selectionClients.includes(id),
-            event.client
+            event.client,
           ),
           state: event.client,
         },
@@ -422,7 +422,7 @@ export default {
           role: ZclClusterRole.server,
           action: this.zclClusterRoleAction(
             this.selectionServers.includes(id),
-            event.server
+            event.server,
           ),
           state: event.server,
         },
@@ -494,7 +494,7 @@ export default {
             added: server.state,
             listType: 'selectedServers',
             view: 'clustersView',
-          })
+          }),
         )
 
       this.$store.commit('zap/updateIsClusterOptionChanged', true)
@@ -523,16 +523,16 @@ export default {
         let endpointsClusterInfo = await Promise.all(
           Object.keys(this.endpointId).map((id) =>
             this.$serverGet(`${restApi.uri.endpointTypeClusters}${id}`).then(
-              (res) => res.data
-            )
-          )
+              (res) => res.data,
+            ),
+          ),
         )
         endpointsClusterInfo = endpointsClusterInfo.flat()
 
         if (endpointsClusterInfo?.length) {
           for (const role of removeRoles) {
             let endpoints = endpointsClusterInfo.filter(
-              (x) => x.clusterRef == id && x.side == role && x.enabled
+              (x) => x.clusterRef == id && x.side == role && x.enabled,
             )
 
             if (endpoints.length == 0) {
@@ -552,14 +552,14 @@ export default {
       this.$store.dispatch('zap/updateSelectedCluster', cluster).then(() => {
         this.$store.dispatch(
           'zap/refreshEndpointTypeCluster',
-          this.selectedEndpointTypeId
+          this.selectedEndpointTypeId,
         )
         this.$store.dispatch('zap/setLastSelectedDomain', this.domainName)
       })
     },
     ucLabel(id) {
       let list = this.$store.state.zap.studio.ucComponents.filter(
-        (x) => x.name === id
+        (x) => x.name === id,
       )
       return list && list.length ? list[0].label : ''
     },

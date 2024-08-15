@@ -34,7 +34,7 @@ async function selectClusterName(db, clusterRef) {
   let clusterName = await dbApi.dbAll(
     db,
     'SELECT NAME FROM CLUSTER WHERE CLUSTER_ID = ?',
-    [clusterRef]
+    [clusterRef],
   )
   return clusterName[0].NAME
 }
@@ -49,7 +49,7 @@ async function selectClusterName(db, clusterRef) {
 async function selectClusterDetailsFromEnabledClusters(
   db,
   endpointsAndClusters,
-  packageIds
+  packageIds,
 ) {
   let endpointClusterIds = endpointsAndClusters
     .map((ep) => ep.endpointClusterId)
@@ -171,7 +171,7 @@ WHERE
   CLUSTER_INDEX = 1
 ORDER BY
   ENDPOINT_IDENTIFIER, CLUSTER_CODE, CLUSTER_SIDE
-        `
+        `,
     )
     .then((rows) => rows.map(mapFunction))
 }
@@ -189,7 +189,7 @@ async function selectAllUserClustersWithTokenAttributes(
   db,
   sessionId,
   packageIds,
-  options
+  options,
 ) {
   let singletonQuery =
     'isSingleton' in options.hash
@@ -236,7 +236,7 @@ async function selectAllUserClustersWithTokenAttributes(
   GROUP BY
     CLUSTER.CODE, CLUSTER.MANUFACTURER_CODE
     `,
-    sessionId
+    sessionId,
   )
 
   return rows.map(dbMapping.map.endpointTypeClusterExtended)
@@ -256,7 +256,7 @@ async function selectTokenAttributeClustersForEndpoint(
   db,
   packageIds,
   endpointTypeRef,
-  options
+  options,
 ) {
   let singletonQuery =
     'isSingleton' in options.hash
@@ -296,7 +296,7 @@ async function selectTokenAttributeClustersForEndpoint(
   GROUP BY
     CLUSTER.CODE, CLUSTER.MANUFACTURER_CODE
     `,
-    endpointTypeRef
+    endpointTypeRef,
   )
   return rows.map(dbMapping.map.cluster)
 }

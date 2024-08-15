@@ -23,16 +23,14 @@
  */
 
 const kEqualityResponse = {
-  arguments: [
-    { name: 'Equals', type: 'BOOLEAN' },
-  ],
+  arguments: [{ name: 'Equals', type: 'BOOLEAN' }],
 };
 
 const BooleanEquals = {
   name: 'BooleanEquals',
   arguments: [
-    { name: "Value1", type: 'BOOLEAN' },
-    { name: "Value2", type: 'BOOLEAN' },
+    { name: 'Value1', type: 'BOOLEAN' },
+    { name: 'Value2', type: 'BOOLEAN' },
   ],
   responseName: 'EqualityResponse',
   response: kEqualityResponse,
@@ -41,8 +39,8 @@ const BooleanEquals = {
 const SignedNumberEquals = {
   name: 'SignedNumberEquals',
   arguments: [
-    { name: "Value1", type: 'INT64S' },
-    { name: "Value2", type: 'INT64S' },
+    { name: 'Value1', type: 'INT64S' },
+    { name: 'Value2', type: 'INT64S' },
   ],
   responseName: 'EqualityResponse',
   response: kEqualityResponse,
@@ -51,8 +49,8 @@ const SignedNumberEquals = {
 const UnsignedNumberEquals = {
   name: 'UnsignedNumberEquals',
   arguments: [
-    { name: "Value1", type: 'INT64U' },
-    { name: "Value2", type: 'INT64U' },
+    { name: 'Value1', type: 'INT64U' },
+    { name: 'Value2', type: 'INT64U' },
   ],
   responseName: 'EqualityResponse',
   response: kEqualityResponse,
@@ -61,7 +59,7 @@ const UnsignedNumberEquals = {
 const EqualityCommands = {
   name: 'EqualityCommands',
   commands: [BooleanEquals, SignedNumberEquals, UnsignedNumberEquals],
-}
+};
 
 //
 // Module exports

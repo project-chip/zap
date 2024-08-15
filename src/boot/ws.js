@@ -99,7 +99,7 @@ client.onmessage = (event) => {
 }
 
 onWebSocket(dbEnum.wsCategory.init, (data) =>
-  console.log(`Init message received: ${data}`)
+  console.log(`Init message received: ${data}`),
 )
 
 //commented unnecessary logs and listeners

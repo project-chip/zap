@@ -31,7 +31,7 @@ const { timeout } = require('./test-util')
 
 const zclTestPropertiesFile = path.join(
   __dirname,
-  '../zcl-builtin/silabs/zcl-test.properties'
+  '../zcl-builtin/silabs/zcl-test.properties',
 )
 
 beforeAll(() => {
@@ -50,7 +50,7 @@ test(
       expect(p.version).toEqual('ZCL Test Data')
       let x = await queryPackage.getPackagesByType(
         db,
-        dbEnum.packageType.zclProperties
+        dbEnum.packageType.zclProperties,
       )
       expect(x.length).toEqual(1)
 
@@ -81,25 +81,25 @@ test(
       x = await dbApi.dbAll(
         db,
         'SELECT MANUFACTURER_CODE FROM CLUSTER WHERE MANUFACTURER_CODE NOT NULL',
-        []
+        [],
       )
       expect(x.length).toEqual(0)
       x = await dbApi.dbAll(
         db,
         'SELECT MANUFACTURER_CODE FROM COMMAND WHERE MANUFACTURER_CODE NOT NULL',
-        []
+        [],
       )
       expect(x.length).toEqual(0)
       x = await dbApi.dbAll(
         db,
         'SELECT MANUFACTURER_CODE FROM ATTRIBUTE WHERE MANUFACTURER_CODE NOT NULL',
-        []
+        [],
       )
       expect(x.length).toEqual(0)
       let rows = await dbApi.dbMultiSelect(
         db,
         'SELECT CLUSTER_ID FROM CLUSTER WHERE CODE = ?',
-        [[0], [6]]
+        [[0], [6]],
       )
       expect(rows.length).toBe(2)
       expect(rows[0]).not.toBeUndefined()
@@ -110,7 +110,7 @@ test(
       rows = await queryPackage.selectAllOptionsValues(
         db,
         packageId,
-        dbEnum.sessionOption.defaultResponsePolicy
+        dbEnum.sessionOption.defaultResponsePolicy,
       )
 
       expect(rows.length).toBe(3)
@@ -118,5 +118,5 @@ test(
       await dbApi.closeDatabase(db)
     }
   },
-  timeout.medium()
+  timeout.medium(),
 )

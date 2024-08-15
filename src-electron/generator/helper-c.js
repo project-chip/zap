@@ -90,7 +90,7 @@ async function asUnderlyingTypeHelper(dataType, context, packageIds) {
       let bt = await queryZcl.selectBitmapByName(
         context.global.db,
         packageIds,
-        dataType.name
+        dataType.name,
       )
       return context.global.overridable.bitmapType(bt.size)
     } else if (
@@ -100,7 +100,7 @@ async function asUnderlyingTypeHelper(dataType, context, packageIds) {
       let et = await queryZcl.selectEnumByName(
         context.global.db,
         dataType.name,
-        packageIds
+        packageIds,
       )
       return context.global.overridable.enumType(et.size, et.name)
     } else if (
@@ -110,12 +110,12 @@ async function asUnderlyingTypeHelper(dataType, context, packageIds) {
       let nt = await queryZcl.selectNumberByName(
         context.global.db,
         packageIds,
-        dataType.name
+        dataType.name,
       )
       return context.global.overridable.numberType(
         nt.size,
         nt.isSigned,
-        nt.name
+        nt.name,
       )
     } else if (
       dataType &&
@@ -132,7 +132,7 @@ async function asUnderlyingTypeHelper(dataType, context, packageIds) {
     }
   } catch (err) {
     envConfig.logError(
-      'Could not find the underlying type for ' + dataType.name + ' : ' + err
+      'Could not find the underlying type for ' + dataType.name + ' : ' + err,
     )
   }
 }
@@ -153,7 +153,7 @@ async function asUnderlyingType(value) {
     dataType = await queryZcl.selectDataTypeByName(
       this.global.db,
       value,
-      packageIds
+      packageIds,
     )
   }
 
@@ -163,7 +163,7 @@ async function asUnderlyingType(value) {
       this.global.db,
       this.global.genTemplatePackageId,
       'types',
-      dataType.name
+      dataType.name,
     )
     if (typeOverride) {
       return typeOverride.optionLabel
@@ -241,7 +241,7 @@ async function asBytes(value, type) {
     return templateUtil
       .ensureZclPackageIds(this)
       .then((packageIds) =>
-        queryZcl.selectSizeFromType(this.global.db, packageIds, type)
+        queryZcl.selectSizeFromType(this.global.db, packageIds, type),
       )
       .then((x) => {
         if (x == null) {

@@ -47,7 +47,7 @@ test('Conversion of format 0 to format 1', async () => {
 
 test('Read format 1', async () => {
   let state = await importJs.readDataFromFile(
-    testUtil.otherTestFile.fileFormat1
+    testUtil.otherTestFile.fileFormat1,
   )
   expect(state).not.toBeNull()
   expect(state.endpointTypes.length).toEqual(1)

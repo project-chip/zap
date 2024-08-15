@@ -63,7 +63,7 @@ test(
     expect(endpoints.length).toBe(2)
     expect(endpoints[0].endpointIdentifier).toBe(42)
   },
-  testUtil.timeout.medium()
+  testUtil.timeout.medium(),
 )
 
 test(
@@ -79,12 +79,12 @@ test(
     // get clusters on first endpoint
     let clusters = await queryEndpoint.selectEndpointClusters(
       db,
-      endpoints[0].endpointTypeRef
+      endpoints[0].endpointTypeRef,
     )
     // Script 3 is supposed to remove that cluster client with code
     // 2 so verify that this in fact happened.
     let deviceTemps = clusters.filter(
-      (cl) => cl.code == 2 && cl.side == dbEnum.side.client
+      (cl) => cl.code == 2 && cl.side == dbEnum.side.client,
     )
     expect(deviceTemps.length).toBe(0)
 
@@ -96,11 +96,11 @@ test(
       db,
       basicCluster.clusterId,
       dbEnum.side.server,
-      endpoints[0].endpointTypeRef
+      endpoints[0].endpointTypeRef,
     )
     expect(basicAttributes.length).toBe(5)
     let manufName = basicAttributes.filter(
-      (at) => at.code == 4 && at.isIncluded == 1
+      (at) => at.code == 4 && at.isIncluded == 1,
     )
     expect(manufName.length).toBe(0)
 
@@ -108,11 +108,11 @@ test(
     let groupsCommands = await queryEndpoint.selectEndpointClusterCommands(
       db,
       groupsCluster.clusterId,
-      endpoints[0].endpointTypeRef
+      endpoints[0].endpointTypeRef,
     )
     expect(groupsCommands.length).toBe(10)
   },
-  testUtil.timeout.medium()
+  testUtil.timeout.medium(),
 )
 
 test(
@@ -130,5 +130,5 @@ test(
     expect(endpoints.length).toBe(3)
     expect(endpoints[0].endpointIdentifier).toBe(41)
   },
-  testUtil.timeout.medium()
+  testUtil.timeout.medium(),
 )

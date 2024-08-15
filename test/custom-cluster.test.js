@@ -40,7 +40,7 @@ beforeAll(async () => {
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
     env.schemaFile(),
-    env.zapVersion()
+    env.zapVersion(),
   )
   await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
   sid = await testQuery.createSession(
@@ -48,7 +48,7 @@ beforeAll(async () => {
     'USER',
     'SESSION',
     env.builtinSilabsZclMetafile(),
-    env.builtinTemplateMetafile()
+    env.builtinTemplateMetafile(),
   )
 }, testUtil.timeout.medium())
 
@@ -60,25 +60,25 @@ test(
     x = await dbApi.dbAll(
       db,
       'SELECT * FROM CLUSTER WHERE MANUFACTURER_CODE = ?',
-      [mfgCode]
+      [mfgCode],
     )
     expect(x.length).toEqual(0)
 
     x = await dbApi.dbAll(
       db,
       'SELECT * FROM ATTRIBUTE WHERE MANUFACTURER_CODE = ?',
-      [mfgCode]
+      [mfgCode],
     )
     expect(x.length).toEqual(0)
 
     x = await dbApi.dbAll(
       db,
       'SELECT * FROM COMMAND WHERE MANUFACTURER_CODE = ?',
-      [mfgCode]
+      [mfgCode],
     )
     expect(x.length).toEqual(0)
   },
-  testUtil.timeout.medium()
+  testUtil.timeout.medium(),
 )
 
 test(
@@ -87,7 +87,7 @@ test(
     let result = await zclLoader.loadIndividualFile(
       db,
       testUtil.customClusterXml,
-      sid
+      sid,
     )
     expect(result.succeeded).toBeTruthy()
     expect(result.packageId).not.toBeNull()
@@ -98,16 +98,16 @@ test(
       await querySession.selectSessionPartitionInfoFromPackageId(
         db,
         sid,
-        result.packageId
+        result.packageId,
       )
     await queryPackage.insertSessionPackage(
       db,
       sessionPartitionInfo[0].sessionPartitionId,
       result.packageId,
-      false
+      false,
     )
   },
-  testUtil.timeout.medium()
+  testUtil.timeout.medium(),
 )
 
 test(
@@ -116,21 +116,21 @@ test(
     x = await dbApi.dbAll(
       db,
       'SELECT * FROM CLUSTER WHERE MANUFACTURER_CODE = ?',
-      [mfgCode]
+      [mfgCode],
     )
     expect(x.length).toEqual(1)
 
     x = await dbApi.dbAll(
       db,
       'SELECT * FROM ATTRIBUTE WHERE MANUFACTURER_CODE = ?',
-      [mfgCode]
+      [mfgCode],
     )
     expect(x.length).toEqual(2)
 
     x = await dbApi.dbAll(
       db,
       'SELECT * FROM COMMAND WHERE MANUFACTURER_CODE = ?',
-      [mfgCode]
+      [mfgCode],
     )
     expect(x.length).toEqual(1)
 
@@ -138,7 +138,7 @@ test(
     expect(x.length).toEqual(2)
 
     expect(
-      x[0].packageRef == customPackageId || x[1].packageRef == customPackageId
+      x[0].packageRef == customPackageId || x[1].packageRef == customPackageId,
     ).toBeTruthy()
 
     if (x[0].packageRef == customPackageId) mainPackageId = x[1].packageRef
@@ -148,14 +148,14 @@ test(
       db,
       mainPackageId,
       0x0000,
-      'ZLL-onofflight'
+      'ZLL-onofflight',
     )
     expect(onOffDevice).not.toBeNull()
     let sessionPartitionInfo =
       await querySession.selectSessionPartitionInfoFromDeviceType(
         db,
         sid,
-        onOffDevice.id
+        onOffDevice.id,
       )
     let eptId = await queryConfig.insertEndpointType(
       db,
@@ -164,9 +164,9 @@ test(
       onOffDevice.id,
       onOffDevice.code,
       0,
-      true
+      true,
     )
     expect(eptId).not.toBeNull()
   },
-  testUtil.timeout.medium()
+  testUtil.timeout.medium(),
 )

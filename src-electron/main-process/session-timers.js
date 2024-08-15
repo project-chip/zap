@@ -37,8 +37,8 @@ function initSessionTimers(db, session, sessionTimersSetupArray) {
     sessionTimerIdArrayMap[session.sessionId].push(
       setInterval(
         setup.func,
-        setup.timerInterval || ASYNC_DEFAULT_TIMER_INTERVAL_MS
-      )
+        setup.timerInterval || ASYNC_DEFAULT_TIMER_INTERVAL_MS,
+      ),
     )
   })
 }
@@ -51,7 +51,7 @@ function initSessionTimers(db, session, sessionTimersSetupArray) {
 function deinitSessionTimers(session) {
   let asyncIdArray = sessionTimerIdArrayMap[session.sessionId]
   Object.keys(asyncIdArray).forEach((timer) =>
-    clearInterval(asyncIdArray[timer])
+    clearInterval(asyncIdArray[timer]),
   )
 }
 

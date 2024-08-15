@@ -33,7 +33,7 @@ let db
 let haLightIsc = path.join(__dirname, 'resource/isc/ha-light.isc')
 let haCombinedIsc = path.join(
   __dirname,
-  'resource/isc/ha-combined-interface.isc'
+  'resource/isc/ha-combined-interface.isc',
 )
 
 beforeAll(async () => {
@@ -42,7 +42,7 @@ beforeAll(async () => {
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
     env.schemaFile(),
-    env.zapVersion()
+    env.zapVersion(),
   )
   await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
   await zclLoader.loadZcl(db, env.builtinDotdotZclMetafile())
@@ -61,7 +61,7 @@ test.skip(
     let pkgs = await queryPackage.getSessionPackagesByType(
       db,
       sid,
-      dbEnum.packageType.zclProperties
+      dbEnum.packageType.zclProperties,
     )
     expect(pkgs.length).toBe(1)
     expect(pkgs[0].description).toBe('ZigbeePro test data')
@@ -81,32 +81,35 @@ test.skip(
     expect(attributeCounts).toStrictEqual([26, 11])
 
     let reportableCounts = dump.endpointTypes.map((ept) =>
-      ept.attributes.reduce((ac, at) => ac + (at.includedReportable ? 1 : 0), 0)
+      ept.attributes.reduce(
+        (ac, at) => ac + (at.includedReportable ? 1 : 0),
+        0,
+      ),
     )
     expect(reportableCounts).toStrictEqual([2, 0])
 
     let boundedCounts = dump.endpointTypes.map((ept) =>
-      ept.attributes.reduce((ac, at) => ac + (at.isBound ? 1 : 0), 0)
+      ept.attributes.reduce((ac, at) => ac + (at.isBound ? 1 : 0), 0),
     )
     expect(boundedCounts).toStrictEqual([11, 2])
 
     let singletonCounts = dump.endpointTypes.map((ept) =>
-      ept.attributes.reduce((ac, at) => ac + (at.isSingleton ? 1 : 0), 0)
+      ept.attributes.reduce((ac, at) => ac + (at.isSingleton ? 1 : 0), 0),
     )
     expect(singletonCounts).toStrictEqual([7, 11])
 
     let serverAttributesCount = dump.attributes.reduce(
       (ac, at) => (ac += at.side == dbEnum.side.server ? 1 : 0),
-      0
+      0,
     )
     expect(serverAttributesCount).toBe(35)
     let clientAttributesCount = dump.attributes.reduce(
       (ac, at) => (ac += at.side == dbEnum.side.client ? 1 : 0),
-      0
+      0,
     )
     expect(clientAttributesCount).toBe(2)
   },
-  testUtil.timeout.long()
+  testUtil.timeout.long(),
 )
 
 test(
@@ -120,7 +123,7 @@ test(
         zcl: env.builtinSilabsZclMetafile(),
         template: env.builtinTemplateMetafile(),
       },
-      null
+      null,
     )
     await importJs.importDataFromFile(db, haCombinedIsc, { sessionId: sid })
     expect(sid).not.toBeUndefined()
@@ -128,7 +131,7 @@ test(
     let pkgs = await queryPackage.getSessionPackagesByType(
       db,
       sid,
-      dbEnum.packageType.zclProperties
+      dbEnum.packageType.zclProperties,
     )
     expect(pkgs.length).toBe(1)
     expect(pkgs[0].description).toBe('ZigbeePro test data')
@@ -139,5 +142,5 @@ test(
     expect(dump.endpointTypes.length).toBe(1)
     expect(dump.endpoints.length).toBe(1)
   },
-  testUtil.timeout.long()
+  testUtil.timeout.long(),
 )

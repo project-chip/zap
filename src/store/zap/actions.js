@@ -44,7 +44,7 @@ export function updateInformationText(context, text) {
 
 export async function updateClusters(context) {
   let deviceTypes = await axiosRequests.$serverGet(
-    restApi.uri.zclDeviceType + 'all'
+    restApi.uri.zclDeviceType + 'all',
   )
   axiosRequests.$serverGet(restApi.uri.zclCluster + 'all').then((response) => {
     response.data.deviceTypes = deviceTypes
@@ -60,7 +60,7 @@ export function updateAtomics(context) {
 
 export async function updateSelectedCluster(context, cluster) {
   let res = await axiosRequests.$serverGet(
-    restApi.uri.zclCluster + `${cluster.id}`
+    restApi.uri.zclCluster + `${cluster.id}`,
   )
   context.commit('updateSelectedCluster', [cluster])
   updateAttributes(context, res.data.attributeData || [])
@@ -150,7 +150,7 @@ export function updateSelectedAttribute(context, selectionContext) {
 export async function updateSelectedCommands(context, selectionContext) {
   let res = await axiosRequests.$serverPost(
     restApi.uri.commandUpdate,
-    selectionContext
+    selectionContext,
   )
   let arg = res.data
   if (arg.action === 'boolean') {
@@ -222,7 +222,7 @@ export function initializeDefaultEndpoints(context, defaultEndpoints) {
 }
 export function initializeDefaultEndpointsTypes(
   context,
-  defaultEndpointsTypes
+  defaultEndpointsTypes,
 ) {
   context.commit('initializeDefaultEndpointsTypes', defaultEndpointsTypes)
 }
@@ -254,25 +254,25 @@ export function updateEndpointType(context, endpointType) {
 
 export function setDeviceTypeReference(
   context,
-  endpointTypeIdDeviceTypeRefPair
+  endpointTypeIdDeviceTypeRefPair,
 ) {
   axiosRequests
     .$serverGet(
-      `${restApi.uri.deviceTypeClusters}${endpointTypeIdDeviceTypeRefPair.deviceTypeRef}`
+      `${restApi.uri.deviceTypeClusters}${endpointTypeIdDeviceTypeRefPair.deviceTypeRef}`,
     )
     .then((res) => {
       setRecommendedClusterList(context, res.data)
     })
   axiosRequests
     .$serverGet(
-      `${restApi.uri.deviceTypeAttributes}${endpointTypeIdDeviceTypeRefPair.deviceTypeRef}`
+      `${restApi.uri.deviceTypeAttributes}${endpointTypeIdDeviceTypeRefPair.deviceTypeRef}`,
     )
     .then((res) => {
       setRequiredAttributes(context, res.data)
     })
   axiosRequests
     .$serverGet(
-      `${restApi.uri.deviceTypeCommands}${endpointTypeIdDeviceTypeRefPair.deviceTypeRef}`
+      `${restApi.uri.deviceTypeCommands}${endpointTypeIdDeviceTypeRefPair.deviceTypeRef}`,
     )
     .then((res) => {
       setRequiredCommands(context, res.data)
@@ -280,28 +280,28 @@ export function setDeviceTypeReference(
 
   axiosRequests
     .$serverGet(
-      `${restApi.uri.endpointTypeClusters}${endpointTypeIdDeviceTypeRefPair.endpointTypeId}`
+      `${restApi.uri.endpointTypeClusters}${endpointTypeIdDeviceTypeRefPair.endpointTypeId}`,
     )
     .then((res) => {
       setClusterList(context, res.data)
     })
   axiosRequests
     .$serverGet(
-      `${restApi.uri.endpointTypeAttributes}${endpointTypeIdDeviceTypeRefPair.endpointTypeId}`
+      `${restApi.uri.endpointTypeAttributes}${endpointTypeIdDeviceTypeRefPair.endpointTypeId}`,
     )
     .then((res) => {
       setAttributeStateLists(context, res.data || [])
     })
   axiosRequests
     .$serverGet(
-      `${restApi.uri.endpointTypeCommands}${endpointTypeIdDeviceTypeRefPair.endpointTypeId}`
+      `${restApi.uri.endpointTypeCommands}${endpointTypeIdDeviceTypeRefPair.endpointTypeId}`,
     )
     .then((res) => {
       setCommandStateLists(context, res.data || [])
     })
   axiosRequests
     .$serverGet(
-      `${restApi.uri.endpointTypeEvents}${endpointTypeIdDeviceTypeRefPair.endpointTypeId}`
+      `${restApi.uri.endpointTypeEvents}${endpointTypeIdDeviceTypeRefPair.endpointTypeId}`,
     )
     .then((res) => {
       setEventStateLists(context, res.data || [])
@@ -383,7 +383,7 @@ export function deleteEndpoint(context, endpointId) {
 
 export function duplicateEndpoint(
   context,
-  { endpointId, endpointIdentifier, endpointTypeId }
+  { endpointId, endpointIdentifier, endpointTypeId },
 ) {
   return axiosRequests
     .$serverPost(restApi.uri.duplicateEndpoint, {
@@ -428,13 +428,13 @@ export function refreshEndpointTypeCluster(context, endpointType) {
 
 export async function endpointTypeClustersInfo(context, endpointTypeId) {
   return axiosRequests.$serverGet(
-    `${restApi.uri.endpointTypeClusters}${endpointTypeId}`
+    `${restApi.uri.endpointTypeClusters}${endpointTypeId}`,
   )
 }
 
 export async function updateSelectedEndpointType(
   context,
-  endpointTypeDeviceTypeRefPair
+  endpointTypeDeviceTypeRefPair,
 ) {
   const p = []
 
@@ -442,71 +442,71 @@ export async function updateSelectedEndpointType(
     p.push(
       axiosRequests
         .$serverGet(
-          `${restApi.uri.endpointTypeClusters}${endpointTypeDeviceTypeRefPair.endpointType}`
+          `${restApi.uri.endpointTypeClusters}${endpointTypeDeviceTypeRefPair.endpointType}`,
         )
         .then((res) => {
           setClusterList(context, res.data)
-        })
+        }),
     )
     p.push(
       axiosRequests
         .$serverGet(
-          `${restApi.uri.endpointTypeAttributes}${endpointTypeDeviceTypeRefPair.endpointType}`
+          `${restApi.uri.endpointTypeAttributes}${endpointTypeDeviceTypeRefPair.endpointType}`,
         )
         .then((res) => {
           setAttributeStateLists(context, res.data || [])
-        })
+        }),
     )
     p.push(
       axiosRequests
         .$serverGet(
-          `${restApi.uri.endpointTypeCommands}${endpointTypeDeviceTypeRefPair.endpointType}`
+          `${restApi.uri.endpointTypeCommands}${endpointTypeDeviceTypeRefPair.endpointType}`,
         )
         .then((res) => {
           setCommandStateLists(context, res.data || [])
-        })
+        }),
     )
     p.push(
       axiosRequests
         .$serverGet(
-          `${restApi.uri.endpointTypeEvents}${endpointTypeDeviceTypeRefPair.endpointType}`
+          `${restApi.uri.endpointTypeEvents}${endpointTypeDeviceTypeRefPair.endpointType}`,
         )
         .then((res) => {
           setEventStateLists(context, res.data || [])
-        })
+        }),
     )
 
     p.push(
       axiosRequests
         .$serverGet(
-          `${restApi.uri.deviceTypeClusters}${endpointTypeDeviceTypeRefPair.deviceTypeRef}`
+          `${restApi.uri.deviceTypeClusters}${endpointTypeDeviceTypeRefPair.deviceTypeRef}`,
         )
         .then((res) => {
           setRecommendedClusterList(context, res.data)
-        })
+        }),
     )
     p.push(
       axiosRequests
         .$serverGet(
-          `${restApi.uri.deviceTypeAttributes}${endpointTypeDeviceTypeRefPair.deviceTypeRef}`
+          `${restApi.uri.deviceTypeAttributes}${endpointTypeDeviceTypeRefPair.deviceTypeRef}`,
         )
         .then((res) => {
           setRequiredAttributes(context, res.data)
-        })
+        }),
     )
     p.push(
       axiosRequests
         .$serverGet(
-          `${restApi.uri.deviceTypeCommands}${endpointTypeDeviceTypeRefPair.deviceTypeRef}`
+          `${restApi.uri.deviceTypeCommands}${endpointTypeDeviceTypeRefPair.deviceTypeRef}`,
         )
         .then((res) => {
           setRequiredCommands(context, res.data)
-        })
+        }),
     )
 
     context.commit(
       'updateSelectedEndpointType',
-      endpointTypeDeviceTypeRefPair.endpointType
+      endpointTypeDeviceTypeRefPair.endpointType,
     )
   }
   return await Promise.all(p)
@@ -532,7 +532,7 @@ export function setClusterList(context, selectionContext) {
 export function setAttributeState(context, selectionContext) {
   let resolvedReference = Util.cantorPair(
     selectionContext.attributeRef,
-    selectionContext.clusterRef
+    selectionContext.clusterRef,
   )
   context.commit('setEndpointTypeAttribute', {
     id: resolvedReference,
@@ -563,7 +563,7 @@ export function setAttributeStateLists(context, selectionContext) {
   selectionContext.forEach((record) => {
     let resolvedReference = Util.cantorPair(
       record.attributeRef,
-      record.clusterRef
+      record.clusterRef,
     )
     if (record.included) includedAttributes.push(resolvedReference)
     if (record.singleton) singletonAttributes.push(resolvedReference)
@@ -606,7 +606,7 @@ export function setCommandStateLists(context, selectionContext) {
   selectionContext.forEach((record) => {
     let resolvedReference = Util.cantorPair(
       record.commandRef,
-      record.clusterRef
+      record.clusterRef,
     )
     if (record.incoming) incoming.push(resolvedReference)
     if (record.outgoing) outgoing.push(resolvedReference)
@@ -681,7 +681,7 @@ export function loadInitialData(context, data) {
     if ('sessionKeyValues' in initialState) {
       context.commit(
         'initializeSessionKeyValues',
-        initialState.sessionKeyValues
+        initialState.sessionKeyValues,
       )
     }
   })
@@ -716,14 +716,14 @@ export function loadOptions(context, option) {
 export async function setSelectedGenericKey(context, data) {
   let response = await axiosRequests.$serverPost(
     restApi.uri.saveSessionKeyValue,
-    data
+    data,
   )
   context.commit('setSelectedGenericOption', response.data)
 }
 
 export async function loadSessionKeyValues(context) {
   let response = await axiosRequests.$serverGet(
-    restApi.uri.getAllSessionKeyValues
+    restApi.uri.getAllSessionKeyValues,
   )
   context.commit('loadSessionKeyValues', response)
 }
@@ -844,7 +844,7 @@ export function loadZclClusterToUcComponentDependencyMap(context) {
     .then((response) => {
       context.commit(
         'loadZclClusterToUcComponentDependencyMap',
-        response?.data?.defaults
+        response?.data?.defaults,
       )
     })
 }
@@ -887,7 +887,7 @@ export function generateAllEndpointsData(context, endpointData) {
       res.data.forEach((record) => {
         let resolvedReference = Util.cantorPair(
           record.attributeRef,
-          record.clusterRef
+          record.clusterRef,
         )
         if (record.included) {
           attr.push(resolvedReference)

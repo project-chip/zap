@@ -44,7 +44,7 @@ function throwError(test, errorStr) {
       test.filename +
       '.yaml for test with label: "' +
       test.label +
-      '"\n'
+      '"\n',
   );
   console.error(errorStr);
   throw new Error();
@@ -53,13 +53,13 @@ function throwError(test, errorStr) {
 async function getItems(test, promise, itemName) {
   return promise.then((items) => {
     const item = items.find(
-      (item) => item.name.toLowerCase() == itemName.toLowerCase()
+      (item) => item.name.toLowerCase() == itemName.toLowerCase(),
     );
     if (!item) {
       const names = items.map((item) => item.name);
       throwError(
         test,
-        'Missing ' + itemName + '" in: \n\t* ' + names.join('\n\t* ')
+        'Missing ' + itemName + '" in: \n\t* ' + names.join('\n\t* '),
       );
     }
 
@@ -71,10 +71,10 @@ async function getCommandInformationsFor(context, test, argumentName) {
   const command = await getItems(
     test,
     getCommands(context, test.cluster),
-    test.command
+    test.command,
   );
   const argument = command.response.arguments.find(
-    (item) => item.name.toLowerCase() == argumentName.toLowerCase()
+    (item) => item.name.toLowerCase() == argumentName.toLowerCase(),
   );
   return {
     type: argument.type,
@@ -87,7 +87,7 @@ async function getAttributeInformationsFor(context, test, attributeName) {
   const attribute = await getItems(
     test,
     getAttributes(context, test.cluster),
-    attributeName
+    attributeName,
   );
   return {
     type: attribute.type,
@@ -119,7 +119,7 @@ async function extractVariablesFromConfig(context, suite) {
 
     if (!isKnownVariable && !('defaultValue' in target)) {
       throw new Error(
-        `${suite.filename}: No default value defined for config '${key}'`
+        `${suite.filename}: No default value defined for config '${key}'`,
       );
     }
 
@@ -131,13 +131,13 @@ async function extractVariablesFromConfig(context, suite) {
       !Number.isSafeInteger(value.defaultValue)
     ) {
       throw new Error(
-        `${suite.filename}: Default value defined for config '${key}' is too large to represent exactly as an integer in YAML.  Put quotes around it to treat it as a string.`
+        `${suite.filename}: Default value defined for config '${key}' is too large to represent exactly as an integer in YAML.  Put quotes around it to treat it as a string.`,
       );
     }
     value.chipType = await zclHelper.asUnderlyingZclType.call(
       context,
       value.type,
-      { hash: {} }
+      { hash: {} },
     );
     value.name = key;
     variables.push(value);
@@ -157,14 +157,14 @@ async function extractVariablesFromTests(context, suite) {
           if (key in variables) {
             throwError(
               test,
-              `Variable with name: ${key} is already registered.`
+              `Variable with name: ${key} is already registered.`,
             );
           }
 
           if (!test.isCommand && !test.isAttribute) {
             throwError(
               test,
-              `Variable support for step ${test} is not supported. Only commands and attributes are supported.`
+              `Variable support for step ${test} is not supported. Only commands and attributes are supported.`,
             );
           }
 

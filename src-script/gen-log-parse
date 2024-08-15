@@ -111,13 +111,13 @@ async function read() {
   for (let one of allParsed) {
     let out = one.output
     let input = Object.keys(final.zapFiles).find(
-      (key) => final.zapFiles[key] === one.input
+      (key) => final.zapFiles[key] === one.input,
     )
 
     let zcl = Object.keys(final.zcl).find((key) => final.zcl[key] === one.zcl)
 
     let template = Object.keys(final.templates).find(
-      (key) => final.templates[key] === one.gen
+      (key) => final.templates[key] === one.gen,
     )
 
     let thisOne = {

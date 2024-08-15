@@ -49,8 +49,8 @@ async function importSessionKeyValues(db, sessionId, keyValuePairs) {
           db,
           sessionId,
           element.key,
-          element.value
-        )
+          element.value,
+        ),
       )
     })
   }
@@ -92,7 +92,7 @@ async function autoLoadPackage(db, pkg, absPath) {
     }
   } else {
     throw new Error(
-      `Auto-loading of package type "${pkg.type}" is not implemented.`
+      `Auto-loading of package type "${pkg.type}" is not implemented.`,
     )
   }
 }
@@ -115,7 +115,7 @@ async function importSinglePackage(
   zapFilePath,
   packageMatch,
   defaultZclMetafile = null,
-  defaultTemplateFile = null
+  defaultTemplateFile = null,
 ) {
   let autoloading = true
   let absPath = getPkgPath(pkg, zapFilePath)
@@ -123,7 +123,7 @@ async function importSinglePackage(
     db,
     absPath,
     pkg.type,
-    pkg.version
+    pkg.version,
   )
 
   if (pkgId != null) {
@@ -141,15 +141,15 @@ async function importSinglePackage(
   let zclFile = Array.isArray(defaultZclMetafile)
     ? defaultZclMetafile.find((f) => f != null && f.includes(filePathToSearch))
     : typeof defaultZclMetafile === 'string' &&
-      defaultZclMetafile.includes(filePathToSearch)
-    ? defaultZclMetafile
-    : null
+        defaultZclMetafile.includes(filePathToSearch)
+      ? defaultZclMetafile
+      : null
   let templateFile = Array.isArray(defaultTemplateFile)
     ? defaultTemplateFile.find((f) => f != null && f.includes(filePathToSearch))
     : typeof defaultTemplateFile === 'string' &&
-      defaultTemplateFile.includes(filePathToSearch)
-    ? defaultTemplateFile
-    : null
+        defaultTemplateFile.includes(filePathToSearch)
+      ? defaultTemplateFile
+      : null
 
   if (zclFile != null) {
     // removing any double / since that can fail the search
@@ -159,7 +159,7 @@ async function importSinglePackage(
       db,
       zclFile,
       pkg.type,
-      pkg.version
+      pkg.version,
     )
   } else if (templateFile != null) {
     // removing any double / since that can fail the search
@@ -169,7 +169,7 @@ async function importSinglePackage(
       db,
       templateFile,
       pkg.type,
-      pkg.version
+      pkg.version,
     )
   }
 
@@ -178,7 +178,7 @@ async function importSinglePackage(
     env.logError(
       `Package match found for ${pkg.path} from the passed arguments: ${
         zclFile ? zclFile : templateFile
-      }`
+      }`,
     )
     return {
       packageId: pkgId,
@@ -200,7 +200,7 @@ async function importSinglePackage(
 
   // Now we have to perform the guessing logic.
   env.logDebug(
-    'Packages from the file did not match loaded packages making best bet.'
+    'Packages from the file did not match loaded packages making best bet.',
   )
   let packages = await queryPackage.getPackagesByType(db, pkg.type)
 
@@ -216,7 +216,7 @@ async function importSinglePackage(
     }
   } else if (packages.length == 1) {
     env.logDebug(
-      `Only one package of given type ${pkg.type} present. Using it.`
+      `Only one package of given type ${pkg.type} present. Using it.`,
     )
     return {
       packageId: packages[0].id,
@@ -232,7 +232,7 @@ async function importSinglePackage(
   let categoryMatch = packages.filter((p) => p.category == pkg.category)
   if (categoryMatch.length == 1) {
     env.logDebug(
-      `Only one package of given type ${pkg.type} and category ${pkg.category} present. Using it.`
+      `Only one package of given type ${pkg.type} and category ${pkg.category} present. Using it.`,
     )
     return {
       packageId: categoryMatch[0].id,
@@ -254,7 +254,7 @@ async function importSinglePackage(
     }
   } else if (versionMatch.length == 1) {
     env.logDebug(
-      `Only one package of given type ${pkg.type} and version ${pkg.version} present. Using it.`
+      `Only one package of given type ${pkg.type} and version ${pkg.version} present. Using it.`,
     )
     return {
       packageId: versionMatch[0].id,
@@ -266,7 +266,7 @@ async function importSinglePackage(
 
   // We now know we have more than 1 matching package. Find best bet.
   let existingPackages = packages.filter(
-    (p) => fs.existsSync(p.path) && p.path === absPath
+    (p) => fs.existsSync(p.path) && p.path === absPath,
   )
 
   if (existingPackages.length == 1) {
@@ -281,7 +281,7 @@ async function importSinglePackage(
     // More than one exists. Use the first one.
     let p = existingPackages[0]
     env.logWarning(
-      `Using first package that exists out of ${existingPackages.length}: ${p.id}.`
+      `Using first package that exists out of ${existingPackages.length}: ${p.id}.`,
     )
     return {
       packageId: p.id,
@@ -291,17 +291,17 @@ async function importSinglePackage(
     let p = packages[0]
     let pkgPaths = packages.map((p) => p.path)
     let packageNameMatch = packages.find(
-      (p) => p.path.includes(filePathToSearch) && fs.existsSync(p.path)
+      (p) => p.path.includes(filePathToSearch) && fs.existsSync(p.path),
     )
     if (packageMatch) {
       p = packageNameMatch
       env.logError(
-        `None of packages exist for ${pkg.path}, so using one which matches the file name: ${p.path} from ${pkgPaths}.`
+        `None of packages exist for ${pkg.path}, so using one which matches the file name: ${p.path} from ${pkgPaths}.`,
       )
     } else {
       // None exists, so use the first one from 'packages'.
       env.logError(
-        `None of packages exist for ${pkg.path}, so using first one overall: ${p.path} from ${pkgPaths}.`
+        `None of packages exist for ${pkg.path}, so using first one overall: ${p.path} from ${pkgPaths}.`,
       )
     }
     return {
@@ -363,7 +363,7 @@ async function importPackages(
   zapFilePath,
   packageMatch,
   defaultZclMetafile = null,
-  defaultTemplateFile = null
+  defaultTemplateFile = null,
 ) {
   let allQueries = []
   if (packages != null) {
@@ -376,8 +376,8 @@ async function importPackages(
           zapFilePath,
           packageMatch,
           defaultZclMetafile,
-          defaultTemplateFile
-        )
+          defaultTemplateFile,
+        ),
       )
     })
   }
@@ -415,20 +415,20 @@ async function importClusters(db, allZclPackageIds, endpointTypeId, clusters) {
   // Get all custom xml packages since they will be relevant packages as well.
   let packageInfo = await queryPackage.getPackagesByPackageIds(
     db,
-    allZclPackageIds
+    allZclPackageIds,
   )
   let customPackageInfo = packageInfo.filter(
-    (pkg) => pkg.type === dbEnum.packageType.zclXmlStandalone
+    (pkg) => pkg.type === dbEnum.packageType.zclXmlStandalone,
   )
   let endpointTypeDeviceTypesInfo =
     await queryDeviceType.selectDeviceTypesByEndpointTypeId(db, endpointTypeId)
   let deviceTypeRefs = endpointTypeDeviceTypesInfo.map(
-    (etd) => etd.deviceTypeRef
+    (etd) => etd.deviceTypeRef,
   )
   if (deviceTypeRefs.length > 0) {
     let deviceTypeInfo = await queryDeviceType.selectDeviceTypeById(
       db,
-      deviceTypeRefs[0]
+      deviceTypeRefs[0],
     )
     relevantZclPackageIds = [deviceTypeInfo.packageRef]
 
@@ -444,7 +444,7 @@ async function importClusters(db, allZclPackageIds, endpointTypeId, clusters) {
         db,
         relevantZclPackageIds,
         endpointTypeId,
-        clusters[k]
+        clusters[k],
       )
 
       await importCommands(
@@ -452,7 +452,7 @@ async function importClusters(db, allZclPackageIds, endpointTypeId, clusters) {
         relevantZclPackageIds,
         endpointTypeId,
         endpointClusterId,
-        clusters[k].commands
+        clusters[k].commands,
       )
 
       await importAttributes(
@@ -461,14 +461,14 @@ async function importClusters(db, allZclPackageIds, endpointTypeId, clusters) {
         endpointTypeId,
         endpointClusterId,
         clusters[k].attributes,
-        clusters[k]
+        clusters[k],
       )
 
       await importEvents(
         db,
         relevantZclPackageIds,
         endpointClusterId,
-        clusters[k].events
+        clusters[k].events,
       )
     }
   }
@@ -487,7 +487,7 @@ async function importCommands(
   allZclPackageIds,
   endpointTypeId,
   endpointClusterId,
-  commands
+  commands,
 ) {
   if (commands) {
     for (let l = 0; l < commands.length; l++) {
@@ -496,7 +496,7 @@ async function importCommands(
         allZclPackageIds,
         endpointTypeId,
         endpointClusterId,
-        commands[l]
+        commands[l],
       )
     }
   }
@@ -517,7 +517,7 @@ async function importAttributes(
   endpointTypeId,
   endpointClusterId,
   attributes,
-  cluster
+  cluster,
 ) {
   if (attributes) {
     for (let m = 0; m < attributes.length; m++) {
@@ -526,7 +526,7 @@ async function importAttributes(
         allZclPackageIds,
         endpointClusterId,
         attributes[m],
-        cluster
+        cluster,
       )
     }
   }
@@ -546,7 +546,7 @@ async function importEvents(db, allZclPackageIds, endpointClusterId, events) {
         db,
         allZclPackageIds,
         endpointClusterId,
-        events[n]
+        events[n],
       )
     }
   }
@@ -564,17 +564,17 @@ async function getMandatoryClusterAttributes(
   db,
   epc,
   cluster,
-  allZclPackageIds
+  allZclPackageIds,
 ) {
   let clusterAttributes =
     await queryZcl.selectAttributesByClusterIdAndSideIncludingGlobal(
       db,
       epc.clusterRef,
       allZclPackageIds,
-      epc.side
+      epc.side,
     )
   let mandatoryClusterAttributes = clusterAttributes.filter(
-    (ca) => !ca.isOptional && ca.clusterRef != null
+    (ca) => !ca.isOptional && ca.clusterRef != null,
   ) // ignoring global attributes
   mandatoryClusterAttributes.forEach((ma) => (ma.clusterName = cluster.name))
   return mandatoryClusterAttributes
@@ -592,7 +592,7 @@ async function getMandatoryClusterCommands(db, epc, cluster, allZclPackageIds) {
   let clusterCommands = await queryCommand.selectCommandsByClusterId(
     db,
     epc.clusterRef,
-    allZclPackageIds
+    allZclPackageIds,
   )
   let mandatoryClusterCommands = clusterCommands.filter((cc) => !cc.isOptional)
   for (let i = 0; i < mandatoryClusterCommands.length; i++) {
@@ -624,13 +624,13 @@ function clusterComplianceForAttributes(
   allMandatoryAttributes,
   endpointId,
   clusterSpecCheckComplianceMessage,
-  specMessageIndent
+  specMessageIndent,
 ) {
   let endpointTypeAttributeIds = endpointTypeAttributes.map(
-    (eta) => eta.attributeRef
+    (eta) => eta.attributeRef,
   )
   let mandatoryAttributesNotEnabled = allMandatoryAttributes.filter(
-    (ma) => !endpointTypeAttributeIds.includes(ma.id)
+    (ma) => !endpointTypeAttributeIds.includes(ma.id),
   )
   for (let i = 0; i < mandatoryAttributesNotEnabled.length; i++) {
     let clusterSpecComplianceMessageForAttributes =
@@ -645,7 +645,7 @@ function clusterComplianceForAttributes(
     clusterSpecCheckComplianceMessage =
       clusterSpecCheckComplianceMessage.concat(
         specMessageIndent,
-        clusterSpecComplianceMessageForAttributes
+        clusterSpecComplianceMessageForAttributes,
       )
 
     querySessionNotice.setNotification(
@@ -654,7 +654,7 @@ function clusterComplianceForAttributes(
       clusterSpecComplianceMessageForAttributes,
       sessionId,
       1,
-      0
+      0,
     )
   }
 
@@ -681,7 +681,7 @@ function clusterComplianceForCommands(
   allMandatoryCommands,
   endpointId,
   clusterSpecCheckComplianceMessage,
-  specMessageIndent
+  specMessageIndent,
 ) {
   for (let i = 0; i < allMandatoryCommands.length; i++) {
     let isIncoming = allMandatoryCommands[i].isIncoming
@@ -711,7 +711,7 @@ function clusterComplianceForCommands(
       clusterSpecCheckComplianceMessage =
         clusterSpecCheckComplianceMessage.concat(
           specMessageIndent,
-          clusterSpecComplianceMessageForCommands
+          clusterSpecComplianceMessageForCommands,
         )
 
       querySessionNotice.setNotification(
@@ -720,7 +720,7 @@ function clusterComplianceForCommands(
         clusterSpecComplianceMessageForCommands,
         sessionId,
         1,
-        0
+        0,
       )
     }
     if (!isIncoming && !isCommandEnabled) {
@@ -738,7 +738,7 @@ function clusterComplianceForCommands(
       clusterSpecCheckComplianceMessage =
         clusterSpecCheckComplianceMessage.concat(
           specMessageIndent,
-          clusterSpecComplianceMessageForCommands
+          clusterSpecComplianceMessageForCommands,
         )
 
       querySessionNotice.setNotification(
@@ -747,7 +747,7 @@ function clusterComplianceForCommands(
         clusterSpecComplianceMessageForCommands,
         sessionId,
         1,
-        0
+        0,
       )
     }
   }
@@ -781,7 +781,7 @@ async function deviceTypeClustersAttributesAndCommands(db, endpointTypeId) {
     await queryDeviceType.selectDeviceTypeFeaturesByEndpointTypeIdAndClusterId(
       db,
       endpointTypeId,
-      'all'
+      'all',
     )
 
   // Initialize the device type clusters, attributes and commands based on
@@ -794,29 +794,29 @@ async function deviceTypeClustersAttributesAndCommands(db, endpointTypeId) {
     let deviceTypeClusters =
       await queryDeviceType.selectDeviceTypeClustersByDeviceTypeRef(
         db,
-        endpointTypeDeviceTypes[eptDtIndex].deviceTypeRef
+        endpointTypeDeviceTypes[eptDtIndex].deviceTypeRef,
       )
     deviceTypeClustersOnEndpointType =
       deviceTypeClustersOnEndpointType.concat(deviceTypeClusters)
     let deviceTypeAttributes =
       await queryDeviceType.selectDeviceTypeAttributesByDeviceTypeRef(
         db,
-        endpointTypeDeviceTypes[eptDtIndex].deviceTypeRef
+        endpointTypeDeviceTypes[eptDtIndex].deviceTypeRef,
       )
     deviceTypeAttributes.forEach(
       (da) =>
-        (da.deviceTypeRef = endpointTypeDeviceTypes[eptDtIndex].deviceTypeRef)
+        (da.deviceTypeRef = endpointTypeDeviceTypes[eptDtIndex].deviceTypeRef),
     )
     deviceTypeAttributesOnEndpointType =
       deviceTypeAttributesOnEndpointType.concat(deviceTypeAttributes)
     let deviceTypeCommands =
       await queryDeviceType.selectDeviceTypeCommandsByDeviceTypeRef(
         db,
-        endpointTypeDeviceTypes[eptDtIndex].deviceTypeRef
+        endpointTypeDeviceTypes[eptDtIndex].deviceTypeRef,
       )
     deviceTypeCommands.forEach(
       (dc) =>
-        (dc.deviceTypeRef = endpointTypeDeviceTypes[eptDtIndex].deviceTypeRef)
+        (dc.deviceTypeRef = endpointTypeDeviceTypes[eptDtIndex].deviceTypeRef),
     )
     deviceTypeCommandsOnEndpointType =
       deviceTypeCommandsOnEndpointType.concat(deviceTypeCommands)
@@ -840,7 +840,7 @@ function deviceTypeClusterToFeatureBits(deviceTypeFeaturesOnEndpointType) {
     let clusterId = deviceTypeFeaturesOnEndpointType[i].clusterId
     if (clusterId in deviceTypeClustersToFeatureBitMap) {
       deviceTypeClustersToFeatureBitMap[clusterId].push(
-        deviceTypeFeaturesOnEndpointType[i]
+        deviceTypeFeaturesOnEndpointType[i],
       )
     } else {
       deviceTypeClustersToFeatureBitMap[clusterId] = [
@@ -873,11 +873,11 @@ async function deviceTypeComplianceForClusters(
   endpointTypeClusterRefMap,
   endpointTypeClusterRefMapDetailed,
   deviceTypeSpecCheckComplianceMessage,
-  specMessageIndent
+  specMessageIndent,
 ) {
   // Create a map keyed by device type cluster associated to device type cluster feature Bits
   let deviceTypeClustersToFeatureBitMap = deviceTypeClusterToFeatureBits(
-    deviceTypeFeaturesOnEndpointType
+    deviceTypeFeaturesOnEndpointType,
   )
   for (let dtc = 0; dtc < deviceTypeClustersOnEndpointType.length; dtc++) {
     let isDeviceTypeClientClusterFound =
@@ -891,7 +891,7 @@ async function deviceTypeComplianceForClusters(
     let clusterSpecComplianceMessage = ''
     let deviceType = await queryDeviceType.selectDeviceTypeById(
       db,
-      deviceTypeClustersOnEndpointType[dtc].deviceTypeRef
+      deviceTypeClustersOnEndpointType[dtc].deviceTypeRef,
     )
     if (
       deviceTypeClustersOnEndpointType[dtc].includeClient &&
@@ -909,7 +909,7 @@ async function deviceTypeComplianceForClusters(
       deviceTypeSpecCheckComplianceMessage =
         deviceTypeSpecCheckComplianceMessage.concat(
           specMessageIndent,
-          clusterSpecComplianceMessage
+          clusterSpecComplianceMessage,
         )
       querySessionNotice.setNotification(
         db,
@@ -917,7 +917,7 @@ async function deviceTypeComplianceForClusters(
         clusterSpecComplianceMessage,
         sessionId,
         1,
-        0
+        0,
       )
     }
     if (
@@ -936,7 +936,7 @@ async function deviceTypeComplianceForClusters(
               deviceTypeClustersOnEndpointType[dtc].clusterRef
             ]['client'].endpointTypeClusterId,
             '0xFFFC',
-            null
+            null,
           )
         for (let i = 0; i < deviceTypeClusterFeatureBitsInfo.length; i++) {
           if (
@@ -961,7 +961,7 @@ async function deviceTypeComplianceForClusters(
             deviceTypeSpecCheckComplianceMessage =
               deviceTypeSpecCheckComplianceMessage.concat(
                 specMessageIndent,
-                featureMapComplianceMessage
+                featureMapComplianceMessage,
               )
             querySessionNotice.setNotification(
               db,
@@ -969,7 +969,7 @@ async function deviceTypeComplianceForClusters(
               featureMapComplianceMessage,
               sessionId,
               1,
-              0
+              0,
             )
           }
         }
@@ -991,7 +991,7 @@ async function deviceTypeComplianceForClusters(
       deviceTypeSpecCheckComplianceMessage =
         deviceTypeSpecCheckComplianceMessage.concat(
           specMessageIndent,
-          clusterSpecComplianceMessage
+          clusterSpecComplianceMessage,
         )
       querySessionNotice.setNotification(
         db,
@@ -999,7 +999,7 @@ async function deviceTypeComplianceForClusters(
         clusterSpecComplianceMessage,
         sessionId,
         1,
-        0
+        0,
       )
     }
 
@@ -1019,7 +1019,7 @@ async function deviceTypeComplianceForClusters(
               deviceTypeClustersOnEndpointType[dtc].clusterRef
             ]['server'].endpointTypeClusterId,
             '0xFFFC',
-            null
+            null,
           )
         for (let i = 0; i < deviceTypeClusterFeatureBitsInfo.length; i++) {
           if (
@@ -1044,7 +1044,7 @@ async function deviceTypeComplianceForClusters(
             deviceTypeSpecCheckComplianceMessage =
               deviceTypeSpecCheckComplianceMessage.concat(
                 specMessageIndent,
-                featureMapComplianceMessage
+                featureMapComplianceMessage,
               )
             querySessionNotice.setNotification(
               db,
@@ -1052,7 +1052,7 @@ async function deviceTypeComplianceForClusters(
               featureMapComplianceMessage,
               sessionId,
               1,
-              0
+              0,
             )
           }
         }
@@ -1082,7 +1082,7 @@ async function deviceTypeComplianceForAttributes(
   deviceTypeAttributesOnEndpointType,
   endpointTypeAttributeRefMap,
   deviceTypeSpecCheckComplianceMessage,
-  specMessageIndent
+  specMessageIndent,
 ) {
   for (let dta = 0; dta < deviceTypeAttributesOnEndpointType.length; dta++) {
     let isAttributeFound =
@@ -1093,7 +1093,7 @@ async function deviceTypeComplianceForAttributes(
       let queryDeviceTypeClusterInfo =
         await queryDeviceType.selectDeviceTypeClusterByDeviceTypeClusterId(
           db,
-          deviceTypeAttributesOnEndpointType[dta].deviceTypeClusterRef
+          deviceTypeAttributesOnEndpointType[dta].deviceTypeClusterRef,
         )
       if (
         queryDeviceTypeClusterInfo.includeClient ||
@@ -1102,11 +1102,11 @@ async function deviceTypeComplianceForAttributes(
         if (deviceTypeAttributesOnEndpointType[dta].attributeRef != null) {
           let cluster = await queryZcl.selectClusterById(
             db,
-            queryDeviceTypeClusterInfo.clusterRef
+            queryDeviceTypeClusterInfo.clusterRef,
           )
           let deviceType = await queryDeviceType.selectDeviceTypeById(
             db,
-            deviceTypeAttributesOnEndpointType[dta].deviceTypeRef
+            deviceTypeAttributesOnEndpointType[dta].deviceTypeRef,
           )
           // Not throwing attribute warnings for an optional cluster's attributes when it is not enabled
           if (endpointId) {
@@ -1116,7 +1116,7 @@ async function deviceTypeComplianceForAttributes(
                 db,
                 sessionId,
                 endpointId,
-                deviceTypeAttributesOnEndpointType[dta].attributeRef
+                deviceTypeAttributesOnEndpointType[dta].attributeRef,
               )
             if (
               !(endpointTypeCluster?.enabled == true) &&
@@ -1145,7 +1145,7 @@ async function deviceTypeComplianceForAttributes(
           deviceTypeSpecCheckComplianceMessage =
             deviceTypeSpecCheckComplianceMessage.concat(
               specMessageIndent,
-              attributeSpecComplianceMessage
+              attributeSpecComplianceMessage,
             )
           querySessionNotice.setNotification(
             db,
@@ -1153,7 +1153,7 @@ async function deviceTypeComplianceForAttributes(
             attributeSpecComplianceMessage,
             sessionId,
             1,
-            0
+            0,
           )
         }
       }
@@ -1182,7 +1182,7 @@ async function deviceTypeComplianceForCommands(
   deviceTypeCommandsOnEndpointType,
   endpointTypeCommandRefMap,
   deviceTypeSpecCheckComplianceMessage,
-  specMessageIndent
+  specMessageIndent,
 ) {
   for (let dtc = 0; dtc < deviceTypeCommandsOnEndpointType.length; dtc++) {
     let isCommandIncomingFound =
@@ -1198,15 +1198,15 @@ async function deviceTypeComplianceForCommands(
       let queryDeviceTypeClusterInfo =
         await queryDeviceType.selectDeviceTypeClusterByDeviceTypeClusterId(
           db,
-          deviceTypeCommandsOnEndpointType[dtc].deviceTypeClusterRef
+          deviceTypeCommandsOnEndpointType[dtc].deviceTypeClusterRef,
         )
       let cluster = await queryZcl.selectClusterById(
         db,
-        queryDeviceTypeClusterInfo.clusterRef
+        queryDeviceTypeClusterInfo.clusterRef,
       )
       let deviceType = await queryDeviceType.selectDeviceTypeById(
         db,
-        deviceTypeCommandsOnEndpointType[dtc].deviceTypeRef
+        deviceTypeCommandsOnEndpointType[dtc].deviceTypeRef,
       )
       let commandSpecComplianceMessage = ''
       if (
@@ -1227,7 +1227,7 @@ async function deviceTypeComplianceForCommands(
         deviceTypeSpecCheckComplianceMessage =
           deviceTypeSpecCheckComplianceMessage.concat(
             specMessageIndent,
-            commandSpecComplianceMessage
+            commandSpecComplianceMessage,
           )
         querySessionNotice.setNotification(
           db,
@@ -1235,7 +1235,7 @@ async function deviceTypeComplianceForCommands(
           commandSpecComplianceMessage,
           sessionId,
           1,
-          0
+          0,
         )
       }
 
@@ -1257,7 +1257,7 @@ async function deviceTypeComplianceForCommands(
         deviceTypeSpecCheckComplianceMessage =
           deviceTypeSpecCheckComplianceMessage.concat(
             specMessageIndent,
-            commandSpecComplianceMessage
+            commandSpecComplianceMessage,
           )
         querySessionNotice.setNotification(
           db,
@@ -1265,7 +1265,7 @@ async function deviceTypeComplianceForCommands(
           commandSpecComplianceMessage,
           sessionId,
           1,
-          0
+          0,
         )
       }
 
@@ -1287,7 +1287,7 @@ async function deviceTypeComplianceForCommands(
         deviceTypeSpecCheckComplianceMessage =
           deviceTypeSpecCheckComplianceMessage.concat(
             specMessageIndent,
-            commandSpecComplianceMessage
+            commandSpecComplianceMessage,
           )
         querySessionNotice.setNotification(
           db,
@@ -1295,7 +1295,7 @@ async function deviceTypeComplianceForCommands(
           commandSpecComplianceMessage,
           sessionId,
           1,
-          0
+          0,
         )
       }
 
@@ -1317,7 +1317,7 @@ async function deviceTypeComplianceForCommands(
         deviceTypeSpecCheckComplianceMessage =
           deviceTypeSpecCheckComplianceMessage.concat(
             specMessageIndent,
-            commandSpecComplianceMessage
+            commandSpecComplianceMessage,
           )
         querySessionNotice.setNotification(
           db,
@@ -1325,7 +1325,7 @@ async function deviceTypeComplianceForCommands(
           commandSpecComplianceMessage,
           sessionId,
           1,
-          0
+          0,
         )
       }
     }
@@ -1346,7 +1346,7 @@ async function importEndpointTypes(
   sessionId,
   allZclPackageIds,
   endpointTypes,
-  endpoints
+  endpoints,
 ) {
   const sortedEndpoints = sortEndpoints(endpoints)
 
@@ -1366,7 +1366,7 @@ async function importEndpointTypes(
       await querySession.selectSessionPartitionInfoFromPackageId(
         db,
         sessionId,
-        allZclPackageIds
+        allZclPackageIds,
       )
     for (let i = 0; i < endpointTypes.length; i++) {
       let endpointTypeId = await queryImpexp.importEndpointType(
@@ -1374,7 +1374,7 @@ async function importEndpointTypes(
         sessionPartitionInfo[0].sessionPartitionId,
         allZclPackageIds,
         endpointTypes[i],
-        sessionId
+        sessionId,
       )
       let endpointId = ''
       if (sortedEndpoints[i]) {
@@ -1384,7 +1384,7 @@ async function importEndpointTypes(
             db,
             sessionId,
             sortedEndpoints[i][j],
-            endpointTypeId
+            endpointTypeId,
           )
         }
       }
@@ -1393,7 +1393,7 @@ async function importEndpointTypes(
         db,
         allZclPackageIds,
         endpointTypeId,
-        endpointTypes[i].clusters
+        endpointTypes[i].clusters,
       )
 
       /**
@@ -1405,7 +1405,7 @@ async function importEndpointTypes(
       let endpointTypeClusters =
         await queryZcl.selectEndpointTypeClustersByEndpointTypeId(
           db,
-          endpointTypeId
+          endpointTypeId,
         )
       let endpointTypeClusterRefMap = {}
       let endpointTypeClusterRefMapDetailed = {}
@@ -1426,10 +1426,10 @@ async function importEndpointTypes(
           db,
           epc,
           cluster,
-          allZclPackageIds
+          allZclPackageIds,
         )
         allMandatoryAttributes = allMandatoryAttributes.concat(
-          mandatoryClusterAttributes
+          mandatoryClusterAttributes,
         )
 
         // Mandatory Cluster Commands
@@ -1437,10 +1437,10 @@ async function importEndpointTypes(
           db,
           epc,
           cluster,
-          allZclPackageIds
+          allZclPackageIds,
         )
         allMandatoryCommands = allMandatoryCommands.concat(
-          mandatoryClusterCommands
+          mandatoryClusterCommands,
         )
       }
 
@@ -1448,14 +1448,14 @@ async function importEndpointTypes(
       let endpointTypeAttributes =
         await queryZcl.selectEndpointTypeAttributesByEndpointId(
           db,
-          endpointTypeId
+          endpointTypeId,
         )
 
       // Commands on an endpoint type
       let endpointTypeCommands =
         await queryZcl.selectEndpointTypeCommandsByEndpointId(
           db,
-          endpointTypeId
+          endpointTypeId,
         )
 
       // Adding cluster compliance messages for attributes
@@ -1466,7 +1466,7 @@ async function importEndpointTypes(
         allMandatoryAttributes,
         endpointId,
         clusterSpecCheckComplianceMessage,
-        specMessageIndent
+        specMessageIndent,
       )
 
       // Adding cluster compliance messages for commands
@@ -1477,7 +1477,7 @@ async function importEndpointTypes(
         allMandatoryCommands,
         endpointId,
         clusterSpecCheckComplianceMessage,
-        specMessageIndent
+        specMessageIndent,
       )
 
       // Having a map of attributeIds and enabled value
@@ -1519,7 +1519,7 @@ async function importEndpointTypes(
           endpointTypeClusterRefMap,
           endpointTypeClusterRefMapDetailed,
           deviceTypeSpecCheckComplianceMessage,
-          specMessageIndent
+          specMessageIndent,
         )
 
       // Attribute compliance as per the spec. Checking if a device type requires
@@ -1532,7 +1532,7 @@ async function importEndpointTypes(
           deviceTypeAttributesOnEndpointType,
           endpointTypeAttributeRefMap,
           deviceTypeSpecCheckComplianceMessage,
-          specMessageIndent
+          specMessageIndent,
         )
 
       // Command compliance as per the spec. Checking if a device type requires
@@ -1545,7 +1545,7 @@ async function importEndpointTypes(
           deviceTypeCommandsOnEndpointType,
           endpointTypeCommandRefMap,
           deviceTypeSpecCheckComplianceMessage,
-          specMessageIndent
+          specMessageIndent,
         )
     }
 
@@ -1556,13 +1556,13 @@ async function importEndpointTypes(
           parentRef = await queryEndpoint.getParentEndpointRef(
             db,
             sortedEndpoints[i][j].parentEndpointIdentifier,
-            sessionId
+            sessionId,
           )
           await queryImpexp.importParentEndpoint(
             db,
             sessionId,
             sortedEndpoints[i][j].endpointId,
-            parentRef
+            parentRef,
           )
         }
       }
@@ -1574,7 +1574,7 @@ async function importEndpointTypes(
         deviceTypeSpecCheckComplianceMessage,
         clusterSpecCheckComplianceFailureTitle,
         clusterSpecCheckComplianceMessage,
-        dottedLine
+        dottedLine,
       )
       if (!process.env.TEST) {
         console.log(deviceTypeSpecCheckComplianceMessage)
@@ -1603,7 +1603,7 @@ async function jsonDataLoader(
   sessionId,
   packageMatch,
   defaultZclMetafile,
-  defaultTemplateFile
+  defaultTemplateFile,
 ) {
   // Initially clean up all the packages from the session.
   let sessionPartitions =
@@ -1616,7 +1616,7 @@ async function jsonDataLoader(
     (pkg) =>
       pkg.type == dbEnum.packageType.zclProperties ||
       pkg.type == dbEnum.packageType.genTemplatesJson ||
-      pkg.type == dbEnum.packageType.zclXmlStandalone
+      pkg.type == dbEnum.packageType.zclXmlStandalone,
   )
 
   // Loading all packages before custom xml to make sure clusterExtensions are
@@ -1624,7 +1624,7 @@ async function jsonDataLoader(
   let topLevelPackages = state.package.filter(
     (pkg) =>
       pkg.type == dbEnum.packageType.zclProperties ||
-      pkg.type == dbEnum.packageType.genTemplatesJson
+      pkg.type == dbEnum.packageType.genTemplatesJson,
   )
   let mainPackageData = await importPackages(
     db,
@@ -1632,18 +1632,18 @@ async function jsonDataLoader(
     state.filePath,
     packageMatch,
     defaultZclMetafile,
-    defaultTemplateFile
+    defaultTemplateFile,
   )
 
   await querySession.insertSessionPartitions(
     db,
     sessionId,
-    allPartitionPackages.length
+    allPartitionPackages.length,
   )
   let sessionPartitionInfo = await querySession.getSessionPartitionInfo(
     db,
     sessionId,
-    allPartitionPackages.length
+    allPartitionPackages.length,
   )
 
   mainPackageData.sessionId = sessionId
@@ -1654,8 +1654,8 @@ async function jsonDataLoader(
       queryPackage.insertSessionPackage(
         db,
         sessionPartitionInfo[sessionPartitionIndex].sessionPartitionId,
-        mainPackageData.zclPackageIds[i]
-      )
+        mainPackageData.zclPackageIds[i],
+      ),
     )
     sessionPartitionIndex++
   }
@@ -1666,8 +1666,8 @@ async function jsonDataLoader(
         queryPackage.insertSessionPackage(
           db,
           sessionPartitionInfo[sessionPartitionIndex].sessionPartitionId,
-          templateId
-        )
+          templateId,
+        ),
       )
       sessionPartitionIndex++
     })
@@ -1679,8 +1679,8 @@ async function jsonDataLoader(
         queryPackage.insertSessionPackage(
           db,
           sessionPartitionInfo[sessionPartitionIndex].sessionPartitionId,
-          optionalId
-        )
+          optionalId,
+        ),
       )
       sessionPartitionIndex++
     })
@@ -1690,7 +1690,7 @@ async function jsonDataLoader(
   // Loading custom xml after the basic xml packages have been loaded
 
   let zclXmlStandAlonePackages = state.package.filter(
-    (pkg) => pkg.type == dbEnum.packageType.zclXmlStandalone
+    (pkg) => pkg.type == dbEnum.packageType.zclXmlStandalone,
   )
 
   // First gather all package Ids...
@@ -1700,13 +1700,13 @@ async function jsonDataLoader(
         db,
         getPkgPath(pkg, state.filePath),
         pkg.type,
-        pkg.version
+        pkg.version,
       )
       return {
         packageId: packageId,
         packageType: pkg.type,
       }
-    })
+    }),
   )
 
   // ... some are null, which means that they need to be loaded, some are not null.
@@ -1726,7 +1726,7 @@ async function jsonDataLoader(
     .filter(
       (p) =>
         p.packageType === dbEnum.packageType.zclXmlStandalone &&
-        p.packageId != null
+        p.packageId != null,
     )
     .map((p) => p.packageId)
 
@@ -1740,7 +1740,7 @@ async function jsonDataLoader(
         } else {
           return {}
         }
-      })
+      }),
     )
   )
     .filter((p) => p.succeeded)
@@ -1752,7 +1752,7 @@ async function jsonDataLoader(
     db,
     zclXmlStandAlonePackages,
     state.filePath,
-    packageMatch
+    packageMatch,
   )
   standAlonePackageData.sessionId = sessionId
 
@@ -1768,7 +1768,7 @@ async function jsonDataLoader(
         await querySession.selectSessionPartitionInfoFromPackageId(
           db,
           sessionId,
-          optionalIds[i]
+          optionalIds[i],
         )
       // Loading only those packages which have not been loaded
       if (sessionPartitionInfoForNewPackage.length == 0) {
@@ -1776,8 +1776,8 @@ async function jsonDataLoader(
           queryPackage.insertSessionPackage(
             db,
             sessionPartitionInfo[sessionPartitionIndex].sessionPartitionId,
-            optionalIds[i]
-          )
+            optionalIds[i],
+          ),
         )
         sessionPartitionIndex++
       }
@@ -1790,7 +1790,7 @@ async function jsonDataLoader(
 
   if ('keyValuePairs' in state) {
     promisesStage1.push(
-      importSessionKeyValues(db, sessionId, state.keyValuePairs)
+      importSessionKeyValues(db, sessionId, state.keyValuePairs),
     )
   }
 
@@ -1805,8 +1805,8 @@ async function jsonDataLoader(
         sessionId,
         allZclPackageIds,
         state.endpointTypes,
-        state.endpoints
-      )
+        state.endpoints,
+      ),
     )
   }
 
@@ -1822,19 +1822,19 @@ async function jsonDataLoader(
         let sessionPkgs = await queryPackage.getSessionPackagesByType(
           db,
           sessionId,
-          pkg.type
+          pkg.type,
         )
         let invalidSessionPkgs = sessionPkgs.filter(
           (x) =>
             x.path !== pkgFilePath &&
-            !newlyLoadedCustomPackageIds.includes(x.id) // newly added packages are already verified.
+            !newlyLoadedCustomPackageIds.includes(x.id), // newly added packages are already verified.
         )
         let validSessionPkgId =
           await queryPackage.getPackageIdByPathAndTypeAndVersion(
             db,
             pkgFilePath,
             pkg.type,
-            pkg.version
+            pkg.version,
           )
 
         if (validSessionPkgId != null && invalidSessionPkgs.length > 0) {
@@ -1843,32 +1843,32 @@ async function jsonDataLoader(
               await querySession.selectSessionPartitionInfoFromPackageId(
                 db,
                 sessionId,
-                invalidSessionPkgs[i].id
+                invalidSessionPkgs[i].id,
               )
             env.logDebug(
-              `Disabling/removing invalid session package. sessionId(${sessionId}), packageId(${invalidSessionPkgs[i].id}), path(${invalidSessionPkgs[i].path})`
+              `Disabling/removing invalid session package. sessionId(${sessionId}), packageId(${invalidSessionPkgs[i].id}), path(${invalidSessionPkgs[i].path})`,
             )
             if (sessionPartitionInfoCurrent.length > 0) {
               await queryPackage.deleteSessionPackage(
                 db,
                 sessionPartitionInfoCurrent[0].sessionPartitionId,
-                invalidSessionPkgs[i].id
+                invalidSessionPkgs[i].id,
               )
               sessionPartitionIndex--
             }
           }
 
           env.logDebug(
-            `Enabling session package. sessionId(${sessionId}), packageId(${validSessionPkgId})`
+            `Enabling session package. sessionId(${sessionId}), packageId(${validSessionPkgId})`,
           )
           await queryPackage.insertSessionPackage(
             db,
             sessionPartitionInfo[sessionPartitionIndex].sessionPartitionId,
-            validSessionPkgId
+            validSessionPkgId,
           )
           sessionPartitionIndex++
         }
-      })
+      }),
     )
   }
 
@@ -1902,7 +1902,7 @@ async function readJsonData(
   filePath,
   data,
   defaultZclMetafile,
-  defaultTemplateFile
+  defaultTemplateFile,
 ) {
   let state = JSON.parse(data)
 

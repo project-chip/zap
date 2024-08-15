@@ -71,8 +71,8 @@ async function template_options(options) {
       queryPackage.selectAllOptionsValues(
         this.global.db,
         packageId,
-        options.hash.category
-      )
+        options.hash.category,
+      ),
     )
     .then((ens) => templateUtil.collectBlocks(ens, options, this))
 }
@@ -169,8 +169,8 @@ async function template_option_with_code(options, key) {
         this.global.db,
         packageId,
         options,
-        key
-      )
+        key,
+      ),
     )
 }
 
@@ -307,7 +307,7 @@ function waitForSynchronousPromise(pollInterval, promise, resolve, reject) {
   } else {
     setTimeout(
       () => waitForSynchronousPromise(pollInterval, promise, resolve, reject),
-      pollInterval
+      pollInterval,
     )
   }
 }
@@ -319,7 +319,7 @@ async function promiseToResolveAllPreviousPromises(globalPromises) {
       promises.push(
         new Promise((resolve, reject) => {
           waitForSynchronousPromise(100, promise, resolve, reject)
-        })
+        }),
       )
     })
     await Promise.all(promises)

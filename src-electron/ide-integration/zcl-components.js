@@ -40,7 +40,7 @@ async function getComponentIdsByCluster(db, sessionId, clusterId, side) {
   let pkgs = await queryPackage.getSessionPackagesByType(
     db,
     sessionId,
-    dbEnum.packageType.genTemplatesJson
+    dbEnum.packageType.genTemplatesJson,
   )
   let id = pkgs.length == 0 ? null : pkgs[0].id
   if (id == null) {
@@ -50,7 +50,7 @@ async function getComponentIdsByCluster(db, sessionId, clusterId, side) {
   let extensions = await queryPackage.selectPackageExtension(
     db,
     id,
-    dbEnum.packageExtensionEntity.cluster
+    dbEnum.packageExtensionEntity.cluster,
   )
   try {
     let cluster = await queryZcl.selectClusterById(db, clusterId)
@@ -61,7 +61,7 @@ async function getComponentIdsByCluster(db, sessionId, clusterId, side) {
         let ids = util.getClusterExtensionDefault(
           extensions,
           'component',
-          clusterKey
+          clusterKey,
         )
         if (ids) {
           ids = ids.split(',').map((x) => x.trim())
@@ -76,7 +76,7 @@ async function getComponentIdsByCluster(db, sessionId, clusterId, side) {
   } catch (err) {
     env.logWarning(
       `Failed to retrieve component ids required by clusterId(${clusterId}) from cluster extension mapping.`,
-      err
+      err,
     )
     return []
   }

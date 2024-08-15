@@ -40,7 +40,7 @@ async function getForcedExternalStorage(db, packageIds) {
     let forcedExternal = await queryPackage.getAttributeAccessInterface(
       db,
       dbEnum.storagePolicy.attributeAccessInterface,
-      packageIdsArray
+      packageIdsArray,
     )
     return forcedExternal
   } catch (error) {
@@ -70,7 +70,7 @@ async function computeStoragePolicyForGlobalAttributes(
   db,
   clusterId,
   attributes,
-  packageIds
+  packageIds,
 ) {
   try {
     let forcedExternal
@@ -91,12 +91,12 @@ async function computeStoragePolicyForGlobalAttributes(
           })
         }
         return attribute
-      })
+      }),
     )
   } catch (error) {
     console.error(
       'Failed to compute storage policy for global attributes:',
-      error
+      error,
     )
     throw error // Rethrow the error if you want to handle it further up the call stack
   }
@@ -148,7 +148,7 @@ async function computeStoragePolicyNewConfig(
   clusterRef,
   storagePolicy,
   forcedExternal,
-  attributeName
+  attributeName,
 ) {
   try {
     let clusterName = await queryCluster.selectClusterName(db, clusterRef)
@@ -189,7 +189,7 @@ async function computeStorageImport(
   clusterName,
   storagePolicy,
   forcedExternal,
-  attributeName
+  attributeName,
 ) {
   try {
     let updatedStoragePolicy = storagePolicy

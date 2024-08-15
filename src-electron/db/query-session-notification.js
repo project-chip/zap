@@ -41,20 +41,20 @@ async function setNotification(
   status,
   sessionId,
   severity = 2,
-  display = 0
+  display = 0,
 ) {
   let rows = []
   let updateResp = Promise.resolve(true)
   rows = await dbApi.dbAll(
     db,
     'SELECT SESSION_KEY FROM SESSION WHERE SESSION_ID = ?',
-    [sessionId]
+    [sessionId],
   )
   if (rows && rows.length > 0) {
     updateResp = dbApi.dbUpdate(
       db,
       'INSERT INTO SESSION_NOTICE ( SESSION_REF, NOTICE_TYPE, NOTICE_MESSAGE, NOTICE_SEVERITY, DISPLAY, SEEN) VALUES ( ?, ?, ?, ?, ?, ?)',
-      [sessionId, type, status, severity, display, 0]
+      [sessionId, type, status, severity, display, 0],
     )
 
     let sessionKey = rows[0].SESSION_KEY
@@ -68,12 +68,12 @@ async function setNotification(
       wsServer.sendWebSocketData(
         socket,
         dbEnum.wsCategory.notificationInfo,
-        obj
+        obj,
       )
       wsServer.sendWebSocketData(
         socket,
         dbEnum.wsCategory.notificationCount,
-        notificationCount
+        notificationCount,
       )
     }
   }
@@ -93,7 +93,7 @@ async function deleteNotification(db, id) {
   return dbApi.dbUpdate(
     db,
     'DELETE FROM SESSION_NOTICE WHERE ( NOTICE_ID ) = ( ? )',
-    [id]
+    [id],
   )
 }
 /**
@@ -108,7 +108,7 @@ async function getNotification(db, sessionId) {
   rows = await dbApi.dbAll(
     db,
     'SELECT * FROM SESSION_NOTICE WHERE SESSION_REF = ?',
-    [sessionId]
+    [sessionId],
   )
   let notifications = rows.map(dbMapping.map.sessionNotifications)
   return notifications.reverse()
@@ -125,7 +125,7 @@ async function getUnseenNotificationCount(db, sessionId) {
   let rows = await dbApi.dbAll(
     db,
     'SELECT COUNT(*) as unseenCount FROM SESSION_NOTICE WHERE SESSION_REF = ? AND SEEN = 0',
-    [sessionId]
+    [sessionId],
   )
   return rows[0].unseenCount
 }
@@ -143,7 +143,7 @@ async function markNotificationsAsSeen(db, unseenIds) {
     await dbApi.dbUpdate(
       db,
       `UPDATE SESSION_NOTICE SET SEEN = 1 WHERE NOTICE_ID IN (${placeholders})`,
-      unseenIds
+      unseenIds,
     )
   }
 }

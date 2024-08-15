@@ -125,7 +125,7 @@ export function windowCreate(port, args) {
     args?.standalone,
     args?.new,
     args?.filePath,
-    httpServer.httpServerPort()
+    httpServer.httpServerPort(),
   )
 
   // @ts-ignore
@@ -162,7 +162,7 @@ export function windowCreate(port, args) {
       if (!browserApi.processRendererNotify(w, message)) {
         env.logBrowser(message)
       }
-    }
+    },
   )
   w.webContents.on('before-input-event', (e, input) => {
     if (input.type === 'keyUp' && input.key.toLowerCase() === 'alt') {

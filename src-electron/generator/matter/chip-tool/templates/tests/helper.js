@@ -73,7 +73,7 @@ async function asEncodableType() {
 
   if (isTestOnlyCluster(this.cluster) || 'commandObject' in this) {
     return `chip::app::Clusters::${asUpperCamelCase(
-      this.cluster
+      this.cluster,
     )}::Commands::${asUpperCamelCase(type)}::Type`;
   }
 
@@ -101,7 +101,7 @@ async function asDecodableType() {
 
   if (isTestOnlyCluster(this.cluster) || 'commandObject' in this) {
     return `chip::app::Clusters::${asUpperCamelCase(
-      this.cluster
+      this.cluster,
     )}::Commands::${asUpperCamelCase(type)}::DecodableType`;
   }
 

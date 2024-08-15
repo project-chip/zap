@@ -35,14 +35,14 @@ async function all_user_cluster_commands_helper(options) {
   let endpointsAndClusters =
     await queryEndpointType.selectClustersAndEndpointDetailsFromEndpointTypes(
       this.global.db,
-      endpointTypes
+      endpointTypes,
     )
 
   return queryCommand.selectCommandDetailsFromAllEndpointTypesAndClusters(
     this.global.db,
     endpointsAndClusters,
     true,
-    packageIds
+    packageIds,
   )
 }
 

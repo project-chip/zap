@@ -33,7 +33,7 @@ test(
     expect(bin.int32ToHex(xN)).toEqual('1234ABCD')
     expect(bin.int32ToHex(xN, true)).toEqual('CDAB3412')
   },
-  timeout.short()
+  timeout.short(),
 )
 
 test(
@@ -43,7 +43,7 @@ test(
     expect(bin.int16ToHex(xN)).toEqual('ABCD')
     expect(bin.int16ToHex(xN, true)).toEqual('CDAB')
   },
-  timeout.short()
+  timeout.short(),
 )
 
 test(
@@ -53,7 +53,7 @@ test(
     expect(bin.int8ToHex(xN)).toEqual('AB')
     expect(bin.int8ToHex(xN, true)).toEqual('AB')
   },
-  timeout.short()
+  timeout.short(),
 )
 
 test(
@@ -61,7 +61,7 @@ test(
   () => {
     expect(bin.hexToCBytes('1234abcd')).toEqual('0x12, 0x34, 0xAB, 0xCD')
   },
-  timeout.short()
+  timeout.short(),
 )
 
 test(
@@ -71,12 +71,12 @@ test(
     let xS = bin.stringToHex(xN)
     expect(xS).toEqual('616263644142434400')
     expect(bin.hexToCBytes(xS)).toEqual(
-      '0x61, 0x62, 0x63, 0x64, 0x41, 0x42, 0x43, 0x44, 0x00'
+      '0x61, 0x62, 0x63, 0x64, 0x41, 0x42, 0x43, 0x44, 0x00',
     )
     expect(bin.stringToHex('')).toEqual('00')
     expect(bin.hexToCBytes('00')).toEqual('0x00')
   },
-  timeout.short()
+  timeout.short(),
 )
 
 test(
@@ -92,7 +92,7 @@ test(
     expect(bin.hexToBinary('ABCD')).toBe('1010101111001101')
     expect(bin.hexToBinary('AB CD')).toBe('1010101111001101')
   },
-  timeout.short()
+  timeout.short(),
 )
 
 test(
@@ -103,7 +103,7 @@ test(
     expect(bin.bitOffset(bin.hexToBinary(bin.int8ToHex(2)))).toBe(1)
     expect(bin.bitOffset(bin.hexToBinary(bin.int8ToHex(4)))).toBe(2)
   },
-  timeout.short()
+  timeout.short(),
 )
 
 test(
@@ -113,24 +113,24 @@ test(
 
     r = bin.stringToOneByteLengthPrefixCBytes('Test string')
     expect(r.content).toBe(
-      "11, 'T', 'e', 's', 't', ' ', 's', 't', 'r', 'i', 'n', 'g', "
+      "11, 'T', 'e', 's', 't', ' ', 's', 't', 'r', 'i', 'n', 'g', ",
     )
 
     r = bin.stringToTwoByteLengthPrefixCBytes('Test string')
     expect(r.content).toContain(
-      "11, 0, 'T', 'e', 's', 't', ' ', 's', 't', 'r', 'i', 'n', 'g',"
+      "11, 0, 'T', 'e', 's', 't', ' ', 's', 't', 'r', 'i', 'n', 'g',",
     )
     expect(r.length).toBe(13)
 
     r = bin.stringToTwoByteLengthPrefixCBytes('x'.repeat(300), 400, false)
     expect(r.content).toContain(
-      "44, 1, 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x',"
+      "44, 1, 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x', 'x',",
     )
     expect(r.length).toBe(302)
 
     r = bin.stringToOneByteLengthPrefixCBytes('Test', 10, true)
     expect(r.content).toBe(
-      "4, 'T', 'e', 's', 't', 0x00, 0x00, 0x00, 0x00, 0x00, "
+      "4, 'T', 'e', 's', 't', 0x00, 0x00, 0x00, 0x00, 0x00, ",
     )
     expect(r.length).toBe(10)
 
@@ -138,7 +138,7 @@ test(
     expect(r.content).toBe("4, 'T', 'e', 's', 't', ")
     expect(r.length).toBe(5)
   },
-  timeout.short()
+  timeout.short(),
 )
 
 test(
@@ -151,5 +151,5 @@ test(
     expect(bin.bitCount(0x4210)).toBe(3)
     expect(bin.bitCount(0xf0f0)).toBe(8)
   },
-  timeout.short()
+  timeout.short(),
 )

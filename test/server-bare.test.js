@@ -51,13 +51,13 @@ beforeAll(async () => {
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
     env.schemaFile(),
-    env.zapVersion()
+    env.zapVersion(),
   )
 }, testUtil.timeout.medium())
 
 afterAll(
   () => httpServer.shutdownHttpServer().then(() => dbApi.closeDatabase(db)),
-  testUtil.timeout.medium()
+  testUtil.timeout.medium(),
 )
 
 describe('Session specific tests', () => {
@@ -67,7 +67,7 @@ describe('Session specific tests', () => {
       testQuery.selectCountFrom(db, 'SESSION').then((cnt) => {
         expect(cnt).toBe(0)
       }),
-    testUtil.timeout.short()
+    testUtil.timeout.short(),
   )
 
   test(
@@ -75,7 +75,7 @@ describe('Session specific tests', () => {
     async () => {
       await httpServer.initHttpServer(db, port)
     },
-    testUtil.timeout.medium()
+    testUtil.timeout.medium(),
   )
 
   test(
@@ -86,11 +86,11 @@ describe('Session specific tests', () => {
         axiosInstance.defaults.headers.Cookie = sessionCookie
         expect(
           response.data.includes(
-            'Configuration tool for the Zigbee Cluster Library'
-          )
+            'Configuration tool for the Zigbee Cluster Library',
+          ),
         ).toBeTruthy()
       }),
-    testUtil.timeout.medium()
+    testUtil.timeout.medium(),
   )
 
   test(
@@ -103,10 +103,10 @@ describe('Session specific tests', () => {
         })
         .then(async () => {
           await axiosInstance.post(
-            `${restApi.uri.sessionCreate}?sessionId=${uuid}`
+            `${restApi.uri.sessionCreate}?sessionId=${uuid}`,
           )
         }),
-    testUtil.timeout.short()
+    testUtil.timeout.short(),
   )
 
   test(
@@ -117,7 +117,7 @@ describe('Session specific tests', () => {
         .then((response) => {
           expect(response.data.clusterData.length).toBe(0)
         }),
-    testUtil.timeout.medium()
+    testUtil.timeout.medium(),
   )
 
   test(
@@ -126,7 +126,7 @@ describe('Session specific tests', () => {
       testQuery.selectCountFrom(db, 'SESSION').then((cnt) => {
         expect(cnt).toBe(1)
       }),
-    testUtil.timeout.medium()
+    testUtil.timeout.medium(),
   )
 
   test(
@@ -135,7 +135,7 @@ describe('Session specific tests', () => {
       querySession.getAllSessions(db).then((results) => {
         sessionId = results[0].sessionId
       }),
-    testUtil.timeout.medium()
+    testUtil.timeout.medium(),
   )
 
   test(
@@ -157,24 +157,24 @@ describe('Session specific tests', () => {
               partitions: 2,
             },
             null,
-            null
-          )
+            null,
+          ),
         )
         .then(() =>
           querySession.selectSessionPartitionInfoFromPackageId(
             db,
             sessionId,
-            packageId
-          )
+            packageId,
+          ),
         )
         .then((sessionPartitionInfo) =>
           queryPackage.insertSessionPackage(
             db,
             sessionPartitionInfo[0].sessionPartitionId,
-            packageId
-          )
+            packageId,
+          ),
         ),
-    testUtil.timeout.medium()
+    testUtil.timeout.medium(),
   )
 
   test(
@@ -194,7 +194,7 @@ describe('Session specific tests', () => {
           define: 'TWO',
         },
       ]),
-    testUtil.timeout.medium()
+    testUtil.timeout.medium(),
   )
 
   test(
@@ -205,7 +205,7 @@ describe('Session specific tests', () => {
         .then((response) => {
           expect(response.data.clusterData.length).toBe(2)
         }),
-    testUtil.timeout.medium()
+    testUtil.timeout.medium(),
   )
 
   test(
@@ -214,7 +214,7 @@ describe('Session specific tests', () => {
       testQuery.selectCountFrom(db, 'SESSION').then((cnt) => {
         expect(cnt).toBe(1)
       }),
-    testUtil.timeout.medium()
+    testUtil.timeout.medium(),
   )
 
   test(
@@ -226,7 +226,7 @@ describe('Session specific tests', () => {
         { name: 'three' },
         { name: 'four' },
       ]),
-    testUtil.timeout.medium()
+    testUtil.timeout.medium(),
   )
 
   test(
@@ -237,7 +237,7 @@ describe('Session specific tests', () => {
         .then((response) => {
           expect(response.data.length).toBe(4)
         }),
-    testUtil.timeout.medium()
+    testUtil.timeout.medium(),
   )
 
   // We save and then load, which creates a new session.
@@ -255,7 +255,7 @@ describe('Session specific tests', () => {
       secondSessionId = importResult.sessionId
       fs.unlinkSync(f)
     },
-    testUtil.timeout.medium()
+    testUtil.timeout.medium(),
   )
 
   // After a new file is loaded a new session will be created.
@@ -266,7 +266,7 @@ describe('Session specific tests', () => {
       testQuery.selectCountFrom(db, 'SESSION').then((cnt) => {
         expect(cnt).toBe(2)
       }),
-    testUtil.timeout.medium()
+    testUtil.timeout.medium(),
   )
 
   test(
@@ -278,7 +278,7 @@ describe('Session specific tests', () => {
         .then((cnt) => {
           expect(cnt).toBe(1)
         }),
-    testUtil.timeout.medium()
+    testUtil.timeout.medium(),
   )
 
   test(
@@ -290,7 +290,7 @@ describe('Session specific tests', () => {
         .then((cnt) => {
           expect(cnt).toBe(0)
         }),
-    testUtil.timeout.medium()
+    testUtil.timeout.medium(),
   )
 })
 
@@ -304,7 +304,7 @@ describe('Miscelaneous REST API tests', () => {
         expect('endpointTypes' in response.data).toBeTruthy()
         expect('sessionKeyValues' in response.data).toBeTruthy()
       }),
-    testUtil.timeout.medium()
+    testUtil.timeout.medium(),
   )
 })
 
@@ -319,7 +319,7 @@ describe('Admin tests', () => {
           expect(response.data.result).not.toBeNull()
           expect(response.data.result.length).toBeGreaterThan(1)
         }),
-    testUtil.timeout.medium()
+    testUtil.timeout.medium(),
   )
   test(
     'test version interface',
@@ -327,7 +327,7 @@ describe('Admin tests', () => {
       axiosInstance.get('version').then((response) => {
         expect(response.data).toEqual(env.zapVersion())
       }),
-    testUtil.timeout.medium()
+    testUtil.timeout.medium(),
   )
 })
 
@@ -341,7 +341,7 @@ describe('User and session tests', () => {
       let userSession = await querySession.ensureZapUserAndSession(
         db,
         'user1',
-        'session1'
+        'session1',
       )
       userId = userSession.userId
       sessionId = userSession.sessionId
@@ -350,7 +350,7 @@ describe('User and session tests', () => {
       let sessions = await querySession.getUserSessionsById(db, userId)
       expect(sessions.length).toBe(1)
     },
-    testUtil.timeout.medium()
+    testUtil.timeout.medium(),
   )
 
   test(
@@ -362,7 +362,7 @@ describe('User and session tests', () => {
         'session2',
         {
           userId: userId,
-        }
+        },
       )
       expect(userSession.userId).toEqual(userId)
       expect(userSession.sessionId).not.toBeNull()
@@ -370,7 +370,7 @@ describe('User and session tests', () => {
       let sessions = await querySession.getUserSessionsById(db, userId)
       expect(sessions.length).toBe(2)
     },
-    testUtil.timeout.medium()
+    testUtil.timeout.medium(),
   )
 
   test(
@@ -382,7 +382,7 @@ describe('User and session tests', () => {
         'session1',
         {
           sessionId: sessionId,
-        }
+        },
       )
       expect(userSession.userId).not.toBeNull()
       expect(userSession.userId).not.toEqual(userId)
@@ -392,7 +392,7 @@ describe('User and session tests', () => {
       sessions = await querySession.getUserSessionsById(db, userSession.userId)
       expect(sessions.length).toBe(1)
     },
-    testUtil.timeout.medium()
+    testUtil.timeout.medium(),
   )
 
   test(
@@ -405,14 +405,14 @@ describe('User and session tests', () => {
         {
           sessionId: sessionId,
           userId: userId,
-        }
+        },
       )
       expect(userSession.userId).toEqual(userId)
       expect(userSession.sessionId).toEqual(sessionId)
       let sessions = await querySession.getUserSessionsById(db, userId)
       expect(sessions.length).toBe(1)
     },
-    testUtil.timeout.medium()
+    testUtil.timeout.medium(),
   )
 
   test(
@@ -426,21 +426,21 @@ describe('User and session tests', () => {
 
       let usersSessions = await querySession.getUsersSessions(db)
       let user1Rows = usersSessions.filter(
-        (userSession) => userSession.userKey === 'user1'
+        (userSession) => userSession.userKey === 'user1',
       )
       expect(user1Rows.length).toBeGreaterThan(0)
       expect(user1Rows[0].sessions.map((s) => s.sessionKey)).toContain(
-        'session2'
+        'session2',
       )
 
       let user2Rows = usersSessions.filter(
-        (userSession) => userSession.userKey === 'user2'
+        (userSession) => userSession.userKey === 'user2',
       )
       expect(user2Rows.length).toBeGreaterThan(0)
       expect(user2Rows[0].sessions.map((s) => s.sessionKey)).toContain(
-        'session1'
+        'session1',
       )
     },
-    testUtil.timeout.medium()
+    testUtil.timeout.medium(),
   )
 })

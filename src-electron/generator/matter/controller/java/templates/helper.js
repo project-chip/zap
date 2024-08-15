@@ -97,7 +97,7 @@ function asJavaBoxedType(type, zclType) {
   } else {
     try {
       return convertBasicCTypeToJavaBoxedType(
-        ChipTypesHelper.asBasicType(zclType)
+        ChipTypesHelper.asBasicType(zclType),
       );
     } catch (error) {
       // Unknown type, default to Object.
@@ -123,7 +123,7 @@ function asJniBasicType(type, useBoxedTypes) {
       .then((zclType) => {
         return convertBasicCTypeToJniType(
           ChipTypesHelper.asBasicType(zclType),
-          false
+          false,
         );
       });
   }
@@ -146,7 +146,7 @@ function asJniSignatureBasic(type, useBoxedTypes) {
       .then((zclType) => {
         return convertCTypeToJniSignature(
           ChipTypesHelper.asBasicType(zclType),
-          useBoxedTypes
+          useBoxedTypes,
         );
       });
   }
@@ -224,7 +224,7 @@ async function as_underlying_java_zcl_type_util(
   type,
   clusterId,
   options,
-  context
+  context,
 ) {
   let hash = options.hash;
   // Overwrite any type with the one coming from the template options
@@ -240,7 +240,7 @@ async function as_underlying_java_zcl_type_util(
     context.global.db,
     type,
     clusterId,
-    packageIds
+    packageIds,
   );
 
   if (!dataType) {
@@ -266,7 +266,7 @@ async function as_underlying_java_zcl_type_util(
         dataType,
         clusterId,
         packageIds,
-        context
+        context,
       );
       if (sizeAndSign.size >= 3) {
         return 'Long';
@@ -329,7 +329,7 @@ async function asJavaType(type, zclType, cluster, options) {
     classType += 'String';
   } else if (isStruct) {
     classType += `ChipStructs.${appHelper.asUpperCamelCase(
-      cluster
+      cluster,
     )}Cluster${appHelper.asUpperCamelCase(type)}`;
   } else {
     let javaBoxedType = asJavaBoxedType(type, zclType);
@@ -338,7 +338,7 @@ async function asJavaType(type, zclType, cluster, options) {
         type,
         options.hash.clusterId,
         options,
-        this
+        this,
       );
     }
     classType += javaBoxedType;
@@ -431,7 +431,7 @@ async function asJniHelper(type, zclType, cluster, options) {
 
   if (isStruct) {
     const signature = `Lchip/devicecontroller/ChipStructs$${appHelper.asUpperCamelCase(
-      cluster
+      cluster,
     )}Cluster${appHelper.asUpperCamelCase(type)};`;
     return {
       jniType: 'jobject',
@@ -455,7 +455,7 @@ async function asJniHelper(type, zclType, cluster, options) {
   // Example: Ljava/lang/Integer; -> java/lang/Integer, needed for JNI class lookup
   let jniClassName = jniBoxedSignature.substring(
     1,
-    jniBoxedSignature.length - 1
+    jniBoxedSignature.length - 1,
   );
   return {
     jniType: asJniBasicType(type, true),
@@ -497,7 +497,7 @@ async function if_basic_attribute(type, clusterId, options) {
       this.global.db,
       type,
       clusterId,
-      packageIds
+      packageIds,
     );
     if (struct) {
       return options.inverse(this);
@@ -524,7 +524,7 @@ async function if_unsupported_attribute_callback(
   type,
   isArray,
   clusterId,
-  options
+  options,
 ) {
   let struct = null;
   if (isArray) {
@@ -535,7 +535,7 @@ async function if_unsupported_attribute_callback(
       this.global.db,
       type,
       clusterId,
-      packageIds
+      packageIds,
     );
     if (struct) {
       return options.fn(this);
@@ -565,7 +565,7 @@ exports.convertCTypeToJniSignature = convertCTypeToJniSignature;
 exports.convertBasicCTypeToJavaBoxedType = convertBasicCTypeToJavaBoxedType;
 exports.convertAttributeCallbackTypeToJavaName = dep(
   convertAttributeCallbackTypeToJavaName,
-  { to: 'as_underlying_java_zcl_type' }
+  { to: 'as_underlying_java_zcl_type' },
 );
 exports.incrementDepth = incrementDepth;
 

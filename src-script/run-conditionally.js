@@ -52,7 +52,7 @@ async function runConditionally(condition, command) {
     return scriptUtil.executeCmd(null, command[0], command.slice(1))
   } else {
     console.log(
-      `Condition is not met: ${condition}. Skipping the execution of: ${command}`
+      `Condition is not met: ${condition}. Skipping the execution of: ${command}`,
     )
     return true
   }

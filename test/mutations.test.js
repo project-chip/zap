@@ -31,7 +31,7 @@ test(
     mutations.updateInformationText(state, text)
     expect(state.informationText).toEqual(text)
   },
-  timeout.short()
+  timeout.short(),
 )
 
 test(
@@ -47,7 +47,7 @@ test(
     expect(state.clusters).toEqual(clusters)
     expect(state.domains).toEqual(domains)
   },
-  timeout.short()
+  timeout.short(),
 )
 
 test(
@@ -58,7 +58,7 @@ test(
     mutations.updateSelectedCluster(state, cluster)
     expect(state.clustersView.selected).toEqual(cluster)
   },
-  timeout.short()
+  timeout.short(),
 )
 
 test(
@@ -73,13 +73,13 @@ test(
     let state = ZapState()
     mutations.updateAttributeDefaults(state, selectionContext)
     expect(state.attributeView.defaultValue[selectionContext.id]).toEqual(
-      selectionContext.newDefaultValue
+      selectionContext.newDefaultValue,
     )
     expect(
-      state.attributeView.defaultValueValidationIssues[selectionContext.id]
+      state.attributeView.defaultValueValidationIssues[selectionContext.id],
     ).toEqual(selectionContext.defaultValueValidationIssues)
   },
-  timeout.short()
+  timeout.short(),
 )
 
 test(
@@ -90,7 +90,7 @@ test(
     mutations.updateSelectedEndpoint(state, endpoint)
     expect(state.endpointView.selectedEndpoint).toEqual(endpoint)
   },
-  timeout.short()
+  timeout.short(),
 )
 
 test(
@@ -101,7 +101,7 @@ test(
     mutations.updateAttributes(state, attributes)
     expect(state.attributes).toEqual(attributes)
   },
-  timeout.short()
+  timeout.short(),
 )
 
 test(
@@ -112,7 +112,7 @@ test(
     mutations.updateCommands(state, commands)
     expect(state.commands).toEqual(commands)
   },
-  timeout.short()
+  timeout.short(),
 )
 
 test(
@@ -124,7 +124,7 @@ test(
     expect(state.commandView.selectedIn).toEqual(data.incoming)
     expect(state.commandView.selectedOut).toEqual(data.outgoing)
   },
-  timeout.short()
+  timeout.short(),
 )
 
 test(
@@ -135,7 +135,7 @@ test(
     mutations.initializeDefaultEndpoints(state, endpoints)
     expect(state.endpointView.endpointId[0]).toEqual(1)
   },
-  timeout.short()
+  timeout.short(),
 )
 
 test(
@@ -146,7 +146,7 @@ test(
     mutations.addEndpoint(state, endpoints)
     expect(state.endpointView.endpointType[0]).toEqual('foo')
   },
-  timeout.short()
+  timeout.short(),
 )
 
 test(
@@ -162,7 +162,7 @@ test(
     mutations.updateEndpoint(state, context)
     expect(state.endpointView['endpointType'][0]).toEqual('bar')
   },
-  timeout.short()
+  timeout.short(),
 )
 
 test(
@@ -175,7 +175,7 @@ test(
     mutations.initializeDefaultEndpointsTypes(state, endpointTypes)
     expect(state.endpointTypeView.name[0]).toEqual(endpointTypes[0].name)
   },
-  timeout.short()
+  timeout.short(),
 )
 
 test(
@@ -186,7 +186,7 @@ test(
     mutations.addEndpointType(state, endpointType)
     expect(state.endpointTypeView.name[0]).toEqual('foo')
   },
-  timeout.short()
+  timeout.short(),
 )
 
 test(
@@ -201,7 +201,7 @@ test(
     expect(state.clusterManager.filter.label).toEqual(restApi.noFilter)
     expect(Object.keys(state.clusterManager.openDomains).length).toBe(0)
   },
-  timeout.short()
+  timeout.short(),
 )
 
 test(
@@ -222,16 +222,16 @@ test(
     }
     mutations.setEndpointTypeAttribute(state, eptAttr)
     expect(
-      state.attributeView.selectedAttributes.find((a) => a == eptAttr.id)
+      state.attributeView.selectedAttributes.find((a) => a == eptAttr.id),
     ).toBe(5)
     expect(
-      state.attributeView.selectedSingleton.find((a) => a == eptAttr.id)
+      state.attributeView.selectedSingleton.find((a) => a == eptAttr.id),
     ).toBe(5)
     expect(
-      state.attributeView.selectedBounded.find((a) => a == eptAttr.id)
+      state.attributeView.selectedBounded.find((a) => a == eptAttr.id),
     ).toBeUndefined()
     expect(
-      state.attributeView.selectedReporting.find((a) => a == eptAttr.id)
+      state.attributeView.selectedReporting.find((a) => a == eptAttr.id),
     ).toBe(5)
     expect(state.attributeView.defaultValue[eptAttr.id]).toBe('423')
     expect(state.attributeView.storageOption[eptAttr.id]).toBe('ram')
@@ -239,5 +239,5 @@ test(
     expect(state.attributeView.reportingMax[eptAttr.id]).toBe(532)
     expect(state.attributeView.reportableChange[eptAttr.id]).toBe(40)
   },
-  timeout.short()
+  timeout.short(),
 )

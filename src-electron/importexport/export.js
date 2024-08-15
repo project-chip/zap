@@ -32,7 +32,7 @@ const ff = require('./file-format')
 async function exportEndpointType(db, endpointType) {
   let data = await queryImpExp.exportClustersFromEndpointType(
     db,
-    endpointType.endpointTypeId
+    endpointType.endpointTypeId,
   )
 
   endpointType.clusters = data
@@ -44,7 +44,7 @@ async function exportEndpointType(db, endpointType) {
       await queryImpExp.exportCommandsFromEndpointTypeCluster(
         db,
         endpointType.endpointTypeId,
-        endpointClusterId
+        endpointClusterId,
       )
     if (endpointCluster.commands.length == 0) {
       delete endpointCluster.commands
@@ -52,7 +52,7 @@ async function exportEndpointType(db, endpointType) {
     endpointCluster.attributes =
       await queryImpExp.exportAttributesFromEndpointTypeCluster(
         db,
-        endpointClusterId
+        endpointClusterId,
       )
     if (endpointCluster.attributes.length == 0) {
       delete endpointCluster.attributes
@@ -60,7 +60,7 @@ async function exportEndpointType(db, endpointType) {
     endpointCluster.events =
       await queryImpExp.exportEventsFromEndpointTypeCluster(
         db,
-        endpointClusterId
+        endpointClusterId,
       )
     if (endpointCluster.events.length == 0) {
       delete endpointCluster.events
@@ -81,7 +81,7 @@ async function exportEndpointTypes(db, sessionId) {
   let endpointTypes = await queryImpExp.exportEndpointTypes(db, sessionId)
 
   let promises = endpointTypes.map((endpointType) =>
-    exportEndpointType(db, endpointType)
+    exportEndpointType(db, endpointType),
   )
 
   await Promise.all(promises)
@@ -89,7 +89,7 @@ async function exportEndpointTypes(db, sessionId) {
   let endpoints = await queryImpExp.exportEndpoints(
     db,
     sessionId,
-    endpointTypes
+    endpointTypes,
   )
 
   endpointTypes.forEach((ept) => {
@@ -155,7 +155,7 @@ async function exportDataIntoFile(
   options = {
     removeLog: false,
     createBackup: false,
-  }
+  },
 ) {
   let fileFormat = env.defaultFileFormat()
 
@@ -169,7 +169,7 @@ async function exportDataIntoFile(
   // avoid unncessary Studio integration id from being saved in file.
   if (state.keyValuePairs) {
     state.keyValuePairs = state.keyValuePairs.filter(
-      (x) => x.key != dbEnum.sessionKey.ideProjectPath
+      (x) => x.key != dbEnum.sessionKey.ideProjectPath,
     )
   }
   state = ff.convertToFile(state)
@@ -195,7 +195,7 @@ async function getSessionKeyValues(db, sessionId, excludedKeys) {
   env.logDebug(`Retrieved session keys: ${keyValues.length}`)
   let zapFilePath = null
   let storedKeyValuePairs = keyValues.filter(
-    (datum) => !excludedKeys.includes(datum.key)
+    (datum) => !excludedKeys.includes(datum.key),
   )
   let x = keyValues.filter((datum) => datum.key == dbEnum.sessionKey.filePath)
   if (x.length > 0) zapFilePath = x[0].value
@@ -209,7 +209,7 @@ async function getSessionKeyValues(db, sessionId, excludedKeys) {
   let d = await exportSessionPackages(
     db,
     sessionId,
-    exportedKeyValues.zapFilePath
+    exportedKeyValues.zapFilePath,
   )
 
   return [exportedKeyValues, { key: 'package', data: d }]

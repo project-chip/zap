@@ -22,7 +22,7 @@ describe('Check notification panel functionality', () => {
       cy.get('#NotificationPanel')
         .parent()
         .should('not.have.class', '  q-layout--prevent-focus')
-    }
+    },
   )
   it('Check active status on navbar', () => {
     cy.get('#Notifications').should('have.class', 'navmenu-item--active')
@@ -36,7 +36,7 @@ describe('Check notification panel functionality', () => {
       cy.get('#NotificationPanel')
         .parent()
         .should('have.class', 'q-layout--prevent-focus')
-    }
+    },
   )
   it(
     'Open notification panel and open preview panel',
@@ -51,6 +51,6 @@ describe('Check notification panel functionality', () => {
       cy.get('#NotificationPanel')
         .parent()
         .should('have.class', 'q-layout--prevent-focus')
-    }
+    },
   )
 })

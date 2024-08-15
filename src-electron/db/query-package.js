@@ -51,7 +51,7 @@ async function getPackageByPathAndParent(db, path, parentId, isCustom) {
       `${querySelectFromPackage} WHERE PATH = ? AND ${
         isCustom ? 'PARENT_PACKAGE_REF IS NULL' : '(PARENT_PACKAGE_REF = ?)'
       }`,
-      isCustom ? [path] : [path, parentId]
+      isCustom ? [path] : [path, parentId],
     )
     .then(dbMapping.map.package)
 }
@@ -84,8 +84,8 @@ async function getZclPropertiesPackage(db, packages) {
     .dbAll(
       db,
       `${querySelectFromPackage} WHERE TYPE = 'zcl-properties' AND PACKAGE_ID in (${packageIds.join(
-        ','
-      )})`
+        ',',
+      )})`,
     )
     .then((rows) => rows.map(dbMapping.map.package))
 }
@@ -103,7 +103,7 @@ async function getPackageByPathAndType(db, path, type) {
     .dbGet(
       db,
       `${querySelectFromPackage} WHERE PATH = ? AND TYPE = ? AND IS_IN_SYNC = 1`,
-      [path, type]
+      [path, type],
     )
     .then(dbMapping.map.package)
 }
@@ -164,7 +164,7 @@ async function getPackagesByCategoryAndType(db, type, category = '') {
     .dbAll(
       db,
       `${querySelectFromPackage} WHERE IS_IN_SYNC = 1 AND TYPE = ? AND (CATEGORY IN (${category}) OR CATEGORY IS NULL)`,
-      [type]
+      [type],
     )
     .then((rows) => rows.map(dbMapping.map.package))
 }
@@ -181,7 +181,7 @@ async function getPackagesByParentAndType(db, parentId, type) {
     .dbAll(
       db,
       `${querySelectFromPackage} WHERE TYPE = ? AND PARENT_PACKAGE_REF = ?`,
-      [type, parentId]
+      [type, parentId],
     )
     .then((rows) => rows.map(dbMapping.map.package))
 }
@@ -213,8 +213,8 @@ async function getPackagesByPackageIds(db, packageIds) {
     .dbAll(
       db,
       `${querySelectFromPackage} WHERE PACKAGE_ID IN (${dbApi.toInClause(
-        packageIds
-      )})`
+        packageIds,
+      )})`,
     )
     .then((rows) => rows.map(dbMapping.map.package))
 }
@@ -230,7 +230,7 @@ async function getPackageRefByAttributeId(db, attributeId) {
   let package_ref = await dbApi.dbAll(
     db,
     'SELECT PACKAGE_REF FROM ATTRIBUTE WHERE ATTRIBUTE_ID = ?',
-    [attributeId]
+    [attributeId],
   )
   return package_ref[0].PACKAGE_REF
 }
@@ -256,7 +256,7 @@ async function getPathCrc(db, path) {
           } else {
             resolve(row.CRC)
           }
-        })
+        }),
     )
 }
 
@@ -272,7 +272,7 @@ async function updateVersion(db, packageId, version, category, description) {
   return dbApi.dbUpdate(
     db,
     'UPDATE PACKAGE SET VERSION = ?, CATEGORY = ?, DESCRIPTION = ? WHERE PACKAGE_ID = ?',
-    [version, category, description, packageId]
+    [version, category, description, packageId],
   )
 }
 
@@ -292,12 +292,12 @@ async function insertPathCrc(
   parentId = null,
   version = null,
   category = null,
-  description = null
+  description = null,
 ) {
   return dbApi.dbInsert(
     db,
     'INSERT INTO PACKAGE ( PATH, CRC, TYPE, PARENT_PACKAGE_REF, VERSION, CATEGORY, DESCRIPTION ) VALUES (?, ?, ?, ?, ?, ?, ?)',
-    [path, crc, type, parentId, version, category, description]
+    [path, crc, type, parentId, version, category, description],
   )
 }
 /**
@@ -318,7 +318,7 @@ async function registerTopLevelPackage(
   version = null,
   category = null,
   description = null,
-  isTopLevelPackageInSync = true
+  isTopLevelPackageInSync = true,
 ) {
   let row = await getPackageByPathAndType(db, path, type)
   if (row == null || !isTopLevelPackageInSync) {
@@ -329,7 +329,7 @@ async function registerTopLevelPackage(
 INSERT INTO PACKAGE (
   PATH, CRC, TYPE, PARENT_PACKAGE_REF, VERSION, CATEGORY, DESCRIPTION
 ) VALUES (?,?,?,?,?,?,?)`,
-      [path, crc, type, null, version, category, description]
+      [path, crc, type, null, version, category, description],
     )
     return {
       id: id,
@@ -357,7 +357,7 @@ async function updatePathCrc(db, path, crc, parentId) {
   return dbApi.dbUpdate(
     db,
     'UPDATE PACKAGE SET CRC = ? WHERE PATH = ? AND PARENT_PACKAGE_REF = ?',
-    [crc, path, parentId]
+    [crc, path, parentId],
   )
 }
 
@@ -372,7 +372,7 @@ async function updatePackageIsInSync(db, packageRef, isInSync) {
   return dbApi.dbUpdate(
     db,
     'UPDATE PACKAGE SET IS_IN_SYNC = ? WHERE PACKAGE_ID = ?',
-    [dbApi.toDbBool(isInSync), packageRef]
+    [dbApi.toDbBool(isInSync), packageRef],
   )
 }
 
@@ -389,12 +389,12 @@ async function insertSessionPackage(
   db,
   sessionPartitionId,
   packageId,
-  required = false
+  required = false,
 ) {
   return dbApi.dbInsert(
     db,
     'INSERT OR REPLACE INTO SESSION_PACKAGE (SESSION_PARTITION_REF, PACKAGE_REF, REQUIRED, ENABLED) VALUES (?,?,?,1)',
-    [sessionPartitionId, packageId, required]
+    [sessionPartitionId, packageId, required],
   )
 }
 
@@ -407,7 +407,7 @@ async function deleteSessionPackage(db, sessionPartitionId, packageId) {
   return dbApi.dbRemove(
     db,
     `UPDATE SESSION_PACKAGE SET ENABLED = 0 WHERE SESSION_PARTITION_REF = ? AND PACKAGE_REF = ?`,
-    [sessionPartitionId, packageId]
+    [sessionPartitionId, packageId],
   )
 }
 
@@ -422,14 +422,14 @@ async function deleteAllSessionPackages(db, sessionPartitionIds) {
   await dbApi.dbRemove(
     db,
     `DELETE FROM SESSION_PACKAGE WHERE SESSION_PARTITION_REF IN (${dbApi.toInClause(
-      sessionPartitionIds
-    )})`
+      sessionPartitionIds,
+    )})`,
   )
   return dbApi.dbRemove(
     db,
     `DELETE FROM SESSION_PARTITION WHERE SESSION_PARTITION_ID IN (${dbApi.toInClause(
-      sessionPartitionIds
-    )})`
+      sessionPartitionIds,
+    )})`,
   )
 }
 
@@ -464,7 +464,7 @@ ON
 WHERE SESSION_PARTITION.SESSION_REF = ?
   AND PACKAGE.TYPE = ?
   AND SESSION_PACKAGE.ENABLED = 1`,
-      [sessionId, packageType]
+      [sessionId, packageType],
     )
     .then((rows) => rows.map(dbMapping.map.package))
 }
@@ -510,7 +510,7 @@ async function getSessionGenTemplates(db, sessionId) {
         dbEnum.packageType.genSingleTemplate,
         sessionId,
         dbEnum.packageType.genTemplatesJson,
-      ]
+      ],
     )
     .then((rows) => rows.map(dbMapping.map.package))
 }
@@ -545,7 +545,7 @@ ON
 WHERE
   SESSION_PARTITION.SESSION_REF = ? AND SP.ENABLED = 1 AND P.TYPE IN ${inList}
 `,
-      [sessionId]
+      [sessionId],
     )
     .then((rows) => rows.map(dbMapping.map.sessionPackage))
 }
@@ -557,7 +557,7 @@ WHERE
  */
 async function getSessionZclPackageIds(db, sessionId) {
   return getSessionZclPackages(db, sessionId).then((rows) =>
-    rows.map((r) => r.packageRef)
+    rows.map((r) => r.packageRef),
   )
 }
 
@@ -584,7 +584,7 @@ async function getSessionPackages(db, sessionId) {
         SESSION_PACKAGE.SESSION_PARTITION_REF= SESSION_PARTITION.SESSION_PARTITION_ID
       WHERE
         SESSION_PARTITION.SESSION_REF = ? AND SESSION_PACKAGE.ENABLED = 1`,
-      [sessionId]
+      [sessionId],
     )
     .then((rows) => rows.map(dbMapping.map.sessionPackage))
 }
@@ -617,7 +617,7 @@ ON
   SP.PACKAGE_REF = P.PACKAGE_ID
 WHERE
   SESSION_PARTITION.SESSION_REF = ? AND SP.ENABLED = 1`,
-      [sessionId]
+      [sessionId],
     )
     .then((rows) => rows.map(dbMapping.map.sessionPackage))
 }
@@ -656,7 +656,7 @@ ON
 WHERE
   SESSION_PARTITION.SESSION_REF = ?
   AND SP.ENABLED = 1`,
-    [sessionId]
+    [sessionId],
   )
   return rows.map((x) => {
     return {
@@ -686,7 +686,7 @@ async function getAllPackages(db) {
        FROM 
         PACKAGE
        WHERE
-        IS_IN_SYNC = 1`
+        IS_IN_SYNC = 1`,
     )
     .then((rows) => rows.map(dbMapping.map.package))
 }
@@ -766,7 +766,7 @@ async function insertOptionsKeyValues(
   db,
   packageId,
   optionCategory,
-  optionCodeLabels
+  optionCodeLabels,
 ) {
   return dbApi.dbMultiInsert(
     db,
@@ -779,7 +779,7 @@ async function insertOptionsKeyValues(
        DO NOTHING`,
     optionCodeLabels.map((optionValue) => {
       return [packageId, optionCategory, optionValue.code, optionValue.label]
-    })
+    }),
   )
 }
 
@@ -793,7 +793,7 @@ async function selectAllUiOptions(db, packageId) {
   let rows = await selectAllOptionsValues(
     db,
     packageId,
-    dbEnum.packageOptionCategory.ui
+    dbEnum.packageOptionCategory.ui,
   )
   let obj = rows.reduce((prev, cur) => {
     prev[cur.optionCode] = cur.optionLabel
@@ -814,7 +814,7 @@ async function selectAllOptionsValues(db, packageId, optionCategory) {
     .dbAll(
       db,
       `SELECT OPTION_ID, PACKAGE_REF, OPTION_CATEGORY, OPTION_CODE, OPTION_LABEL FROM PACKAGE_OPTION WHERE PACKAGE_REF = ? AND OPTION_CATEGORY = ?`,
-      [packageId, optionCategory]
+      [packageId, optionCategory],
     )
     .then((rows) => rows.map(dbMapping.map.options))
 }
@@ -832,13 +832,13 @@ async function selectSpecificOptionValue(
   db,
   packageId,
   optionCategory,
-  optionCode
+  optionCode,
 ) {
   return dbApi
     .dbGet(
       db,
       `SELECT OPTION_ID, PACKAGE_REF, OPTION_CATEGORY, OPTION_CODE, OPTION_LABEL FROM PACKAGE_OPTION WHERE PACKAGE_REF = ? AND OPTION_CATEGORY = ? AND OPTION_CODE = ?`,
-      [packageId, optionCategory, optionCode]
+      [packageId, optionCategory, optionCode],
     )
     .then(dbMapping.map.options)
 }
@@ -853,7 +853,7 @@ async function selectOptionValueByOptionDefaultId(db, optionDefaultId) {
     .dbGet(
       db,
       `SELECT OPTION_ID, PACKAGE_REF, OPTION_CATEGORY, OPTION_CODE, OPTION_LABEL FROM PACKAGE_OPTION WHERE OPTION_ID = ?`,
-      [optionDefaultId]
+      [optionDefaultId],
     )
     .then(dbMapping.map.options)
 }
@@ -871,12 +871,12 @@ async function insertDefaultOptionValue(
   db,
   packageId,
   optionCategory,
-  optionRef
+  optionRef,
 ) {
   return dbApi.dbInsert(
     db,
     'INSERT INTO PACKAGE_OPTION_DEFAULT ( PACKAGE_REF, OPTION_CATEGORY, OPTION_REF) VALUES (?, ?, ?) ON CONFLICT DO NOTHING',
-    [packageId, optionCategory, optionRef]
+    [packageId, optionCategory, optionRef],
   )
 }
 
@@ -890,7 +890,7 @@ async function selectAllDefaultOptions(db, packageId) {
     .dbAll(
       db,
       `SELECT OPTION_DEFAULT_ID, PACKAGE_REF, OPTION_CATEGORY, OPTION_REF FROM PACKAGE_OPTION_DEFAULT WHERE PACKAGE_REF = ?`,
-      [packageId]
+      [packageId],
     )
     .then((rows) => rows.map(dbMapping.map.optionDefaults))
 }
@@ -906,7 +906,7 @@ async function selectAllDefaultOptions(db, packageId) {
 async function insertPackageExtensionDefault(
   db,
   packageExtensionId,
-  defaultArray
+  defaultArray,
 ) {
   return dbApi.dbMultiInsert(
     db,
@@ -930,7 +930,7 @@ ON CONFLICT DO NOTHING
         d.manufacturerCode,
         d.value,
       ]
-    })
+    }),
   )
 }
 
@@ -947,7 +947,7 @@ async function insertPackageExtension(
   packageId,
   entity,
   propertyArray,
-  defaultsArrayOfArrays
+  defaultsArrayOfArrays,
 ) {
   return dbApi
     .dbMultiInsert(
@@ -973,7 +973,7 @@ ON CONFLICT DO NOTHING`,
           p.label,
           p.globalDefault,
         ]
-      })
+      }),
     )
     .then((rowIds) => {
       let promises = []
@@ -984,7 +984,7 @@ ON CONFLICT DO NOTHING`,
           let defaultsArray = defaultsArrayOfArrays[i]
           if (defaultsArray != null) {
             promises.push(
-              insertPackageExtensionDefault(db, rowId, defaultsArray)
+              insertPackageExtensionDefault(db, rowId, defaultsArray),
             )
           }
         }
@@ -1004,7 +1004,7 @@ async function selectPackageExtensionByPropertyAndEntity(
   db,
   packageId,
   property,
-  entity
+  entity,
 ) {
   let rows = await dbApi.dbAll(
     db,
@@ -1033,7 +1033,7 @@ ORDER BY
   PE.PROPERTY,
   PED.PARENT_CODE,
   PED.ENTITY_CODE`,
-    [packageId, entity, property]
+    [packageId, entity, property],
   )
   if (rows != null && rows.length > 0) {
     let res = {
@@ -1097,7 +1097,7 @@ ORDER BY
   PE.PROPERTY,
   PED.PARENT_CODE,
   PED.ENTITY_CODE`,
-      [packageId, entity]
+      [packageId, entity],
     )
     .then((rows) =>
       rows.reduce((a, x) => {
@@ -1119,7 +1119,7 @@ ORDER BY
 
         prop.defaults.push(dbMapping.map.packageExtensionDefault(x))
         return a
-      }, acc)
+      }, acc),
     )
 }
 
@@ -1138,13 +1138,13 @@ async function insertSessionKeyValuesFromPackageDefaults(db, sessionId) {
     let promises = optionDefaultsArray.map(async (optionDefault) => {
       let option = await selectOptionValueByOptionDefaultId(
         db,
-        optionDefault.optionRef
+        optionDefault.optionRef,
       )
       return querySession.insertSessionKeyValue(
         db,
         sessionId,
         option.optionCategory,
-        option.optionCode
+        option.optionCode,
       )
     })
     return Promise.all(promises)

@@ -62,7 +62,7 @@ export default {
     // initialize ZclClusterManager with first endpoint info.
     if (this.endpointIdListSorted.size && !this.selectedEndpointId) {
       this.setSelectedEndpointType(
-        this.endpointIdListSorted.keys().next().value
+        this.endpointIdListSorted.keys().next().value,
       )
     }
   },

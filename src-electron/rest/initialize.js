@@ -56,13 +56,13 @@ function sessionAttempt(db) {
           const zclProperties = await queryPackage.getPackagesByCategoryAndType(
             db,
             dbEnum.packageType.zclProperties,
-            category
+            category,
           )
           const zclGenTemplates =
             await queryPackage.getPackagesByCategoryAndType(
               db,
               dbEnum.packageType.genTemplatesJson,
-              category
+              category,
             )
           const sessions = await querySession.getDirtySessionsWithPackages(db)
           return res.send({
@@ -77,11 +77,11 @@ function sessionAttempt(db) {
           let open = true
           const zclProperties = await queryPackage.getPackagesByType(
             db,
-            dbEnum.packageType.zclProperties
+            dbEnum.packageType.zclProperties,
           )
           const zclGenTemplates = await queryPackage.getPackagesByType(
             db,
-            dbEnum.packageType.genTemplatesJson
+            dbEnum.packageType.genTemplatesJson,
           )
           const sessions = await querySession.getDirtySessionsWithPackages(db)
           return res.send({
@@ -95,11 +95,11 @@ function sessionAttempt(db) {
         let open = true
         const zclProperties = await queryPackage.getPackagesByType(
           db,
-          dbEnum.packageType.zclProperties
+          dbEnum.packageType.zclProperties,
         )
         const zclGenTemplates = await queryPackage.getPackagesByType(
           db,
-          dbEnum.packageType.genTemplatesJson
+          dbEnum.packageType.genTemplatesJson,
         )
         const sessions = await querySession.getDirtySessionsWithPackages(db)
         return res.send({
@@ -113,11 +113,11 @@ function sessionAttempt(db) {
       let open = false
       const zclProperties = await queryPackage.getPackagesByType(
         db,
-        dbEnum.packageType.zclProperties
+        dbEnum.packageType.zclProperties,
       )
       const zclGenTemplates = await queryPackage.getPackagesByType(
         db,
-        dbEnum.packageType.genTemplatesJson
+        dbEnum.packageType.genTemplatesJson,
       )
       const sessions = await querySession.getDirtySessionsWithPackages(db)
       return res.send({
@@ -182,7 +182,7 @@ function sessionCreate(db) {
             result.sessionId,
             { partitions: result.partitions },
             pkgArray,
-            genTemplate
+            genTemplate,
           )
         })
     }
@@ -205,7 +205,7 @@ function initializeSession(db) {
       req.body.sessionId,
       {},
       req.body.zclProperties,
-      req.body.genTemplate
+      req.body.genTemplate,
     )
     return res.send({
       message: 'Session created successfully',
@@ -227,7 +227,7 @@ function loadPreviousSessions(db) {
       db,
       req.body.sessionId,
       user.userId,
-      sessionUuid
+      sessionUuid,
     )
     return res.send({
       message: 'Session reloaded successfully',

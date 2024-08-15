@@ -25,14 +25,14 @@ test(
   'hashAttributeIdClusterId test',
   () => {
     expect(CommonMixin.default.methods.hashAttributeIdClusterId(50, 50)).toBe(
-      5100
+      5100,
     )
     expect(CommonMixin.default.methods.hashAttributeIdClusterId(50, 35)).toBe(
-      3690
+      3690,
     )
     expect(CommonMixin.default.methods.hashAttributeIdClusterId(17, 9)).toBe(
-      360
+      360,
     )
   },
-  timeout.short()
+  timeout.short(),
 )

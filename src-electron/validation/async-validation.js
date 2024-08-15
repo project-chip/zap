@@ -40,8 +40,8 @@ export async function initAsyncValidation(db, session) {
         queryPackage.selectAllOptionsValues(
           db,
           pkg.packageRef,
-          dbEnum.packageOptionCategory.validationTimersFlags
-        )
+          dbEnum.packageOptionCategory.validationTimersFlags,
+        ),
       )
       return Promise.all(p).then((data) => data.flat(1))
     })

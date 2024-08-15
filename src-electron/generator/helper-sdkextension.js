@@ -29,10 +29,10 @@ async function clusterExtension(context, prop, clusterCode, role) {
   return templateUtil
     .ensureTemplatePackageId(context)
     .then((packageId) =>
-      templateUtil.ensureZclClusterSdkExtensions(context, packageId)
+      templateUtil.ensureZclClusterSdkExtensions(context, packageId),
     )
     .then((extensions) =>
-      util.getClusterExtensionDefault(extensions, prop, clusterCode, role)
+      util.getClusterExtensionDefault(extensions, prop, clusterCode, role),
     )
 }
 
@@ -73,7 +73,7 @@ async function device_type_extension(options) {
   let packageId = await templateUtil.ensureTemplatePackageId(this)
   let extensions = await templateUtil.ensureZclDeviceTypeSdkExtensions(
     this,
-    packageId
+    packageId,
   )
 
   let f = extensions.filter((x) => x.property == prop)
@@ -106,7 +106,7 @@ async function attribute_type_extension(options) {
   let packageId = await templateUtil.ensureTemplatePackageId(this)
   let extensions = await templateUtil.ensureZclAttributeTypeSdkExtensions(
     this,
-    packageId
+    packageId,
   )
   let f = extensions.filter((x) => x.property == prop)
   if (f.length == 0) {
@@ -131,17 +131,17 @@ async function subentityExtension(context, prop, entityType) {
   if (entityType == dbEnum.packageExtensionEntity.attribute) {
     extensions = await templateUtil.ensureZclAttributeSdkExtensions(
       context,
-      packageId
+      packageId,
     )
   } else if (entityType == dbEnum.packageExtensionEntity.command) {
     extensions = await templateUtil.ensureZclCommandSdkExtensions(
       context,
-      packageId
+      packageId,
     )
   } else if (entityType == dbEnum.packageExtensionEntity.event) {
     extensions = await templateUtil.ensureZclEventSdkExtensions(
       context,
-      packageId
+      packageId,
     )
   } else {
     throw new Error(`Invalid subentity: ${entityType}`)
@@ -193,7 +193,7 @@ function if_command_extension_true(options) {
   return subentityExtension(
     this,
     prop,
-    dbEnum.packageExtensionEntity.command
+    dbEnum.packageExtensionEntity.command,
   ).then((val) => {
     if (val == true || val == 1) {
       return options.fn(this)
@@ -210,7 +210,7 @@ function if_command_extension_false(options) {
   return subentityExtension(
     this,
     prop,
-    dbEnum.packageExtensionEntity.command
+    dbEnum.packageExtensionEntity.command,
   ).then((val) => {
     if (val == false || val == 0) {
       return options.fn(this)

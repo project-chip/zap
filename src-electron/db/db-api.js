@@ -321,7 +321,7 @@ async function dbMultiInsert(db, sql, arrayOfArrays) {
                 ', values: ' +
                 singleArray +
                 ', ' +
-                err2
+                err2,
             )
           lastIds.push(this.lastID)
         })
@@ -419,7 +419,7 @@ async function insertOrReplaceSetting(db, category, key, value) {
   return dbInsert(
     db,
     'INSERT OR REPLACE INTO SETTING ( CATEGORY, KEY, VALUE ) VALUES ( ?, ?, ? )',
-    [category, key, value]
+    [category, key, value],
   )
 }
 
@@ -435,7 +435,7 @@ async function updateSetting(db, rows) {
     dbInsert(
       db,
       'INSERT OR REPLACE INTO SETTING ( CATEGORY, KEY, VALUE ) VALUES ( ?, ?, ? )',
-      [rows[i].category, rows[i].key, rows[i].value]
+      [rows[i].category, rows[i].key, rows[i].value],
     )
   }
 }
@@ -469,7 +469,7 @@ async function determineIfSchemaShouldLoad(db, filePath, crc) {
       db,
       'SELECT CRC FROM PACKAGE WHERE PATH = ?',
       [filePath],
-      false
+      false,
     )
     if (row == null) {
       result.mustLoad = true
@@ -489,7 +489,7 @@ async function updateCurrentSchemaCrc(db, filePath, crc) {
   return dbInsert(
     db,
     'INSERT OR REPLACE INTO PACKAGE (PATH, CRC, TYPE) VALUES ( ?, ?, ? )',
-    [filePath, crc, dbEnum.packageType.sqlSchema]
+    [filePath, crc, dbEnum.packageType.sqlSchema],
   )
 }
 
@@ -529,7 +529,7 @@ async function loadSchema(db, schemaPath, zapVersion, sqliteFile = null) {
   let schemaStatus = await determineIfSchemaShouldLoad(
     db,
     context.filePath,
-    context.crc
+    context.crc,
   )
   if (schemaStatus.mustLoad && schemaStatus.hasSchema) {
     await closeDatabase(db)

@@ -37,7 +37,7 @@ beforeAll(async () => {
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
     env.schemaFile(),
-    env.zapVersion()
+    env.zapVersion(),
   )
   return zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
 }, testUtil.timeout.medium())
@@ -52,7 +52,7 @@ test(
   async () => {
     let context = await genEngine.loadTemplates(
       db,
-      testUtil.testTemplate.zigbee
+      testUtil.testTemplate.zigbee,
     )
     templatePkgId = context.packageId
     expect(context.crc).not.toBeNull()
@@ -63,7 +63,7 @@ test(
     expect(context.packageId).not.toBeNull()
     templateContext = context
   },
-  testUtil.timeout.medium()
+  testUtil.timeout.medium(),
 )
 
 test(
@@ -71,11 +71,11 @@ test(
   async () => {
     templateContext.packages = await queryPackage.getPackageByParent(
       templateContext.db,
-      templateContext.packageId
+      templateContext.packageId,
     )
     expect(templateContext.packages.length).toBe(templateCount - 1 + 3) // -1 for ignored one, two for helpers and one for overridable
   },
-  testUtil.timeout.short()
+  testUtil.timeout.short(),
 )
 
 test(
@@ -85,7 +85,7 @@ test(
     expect(sessionId).not.toBeNull()
     templateContext.sessionId = sessionId
   },
-  testUtil.timeout.short()
+  testUtil.timeout.short(),
 )
 
 test(
@@ -99,12 +99,12 @@ test(
         template: env.builtinTemplateMetafile(),
       },
       null,
-      [templatePkgId]
+      [templatePkgId],
     )
 
     expect(packages.length).toBe(2)
   },
-  testUtil.timeout.short()
+  testUtil.timeout.short(),
 )
 
 test(
@@ -115,7 +115,7 @@ test(
       templateContext.sessionId,
       templateContext.packageId,
       {},
-      { disableDeprecationWarnings: true }
+      { disableDeprecationWarnings: true },
     )
 
     expect(genResult).not.toBeNull()
@@ -128,7 +128,7 @@ test(
     expect(simpleTest).toContain(`SessionId: ${genResult.sessionId}`)
     expect(simpleTest).toContain('Addon: This is example of test addon helper')
     expect(simpleTest).toContain(
-      'External Addon: This is example of test external addon helper'
+      'External Addon: This is example of test external addon helper',
     )
 
     let zclId = genResult.content['zcl-test.out']
@@ -142,14 +142,14 @@ test(
     expect(zclId).toContain(
       `// ${testUtil.totalNonAtomicEnumCount - 1}/${
         testUtil.totalNonAtomicEnumCount
-      }: label=>ZllStatus caption=>Enum of size 1 byte`
+      }: label=>ZllStatus caption=>Enum of size 1 byte`,
     )
     expect(zclId).toContain(`Label count: ${testUtil.totalNonAtomicEnumCount}`)
     expect(zclId).toContain(
-      `// 129/${testUtil.totalNonAtomicEnumCount}: label=>MeteringBlockEnumerations caption=>Enum of size 1 byte`
+      `// 129/${testUtil.totalNonAtomicEnumCount}: label=>MeteringBlockEnumerations caption=>Enum of size 1 byte`,
     )
     expect(zclId).toContain(
-      '// struct: ReadReportingConfigurationAttributeRecord'
+      '// struct: ReadReportingConfigurationAttributeRecord',
     )
     expect(zclId).toContain('cluster: 0x0700 Price')
     expect(zclId).toContain('cmd: 0x0A GetUserStatusResponse')
@@ -173,44 +173,44 @@ test(
     let zapCommand = genResult.content['zap-command.h']
     expect(zapCommand).not.toBeNull()
     expect(zapCommand).toContain(
-      '#define emberAfFillCommandGlobalReadAttributesResponse(clusterId,'
+      '#define emberAfFillCommandGlobalReadAttributesResponse(clusterId,',
     )
 
     let zapPrint = genResult.content['zap-print.h']
     expect(zapPrint).toContain(
-      '#define SILABS_PRINTCLUSTER_POWER_CONFIG_CLUSTER {ZCL_POWER_CONFIG_CLUSTER_ID, 0x0000, "Power Configuration" },'
+      '#define SILABS_PRINTCLUSTER_POWER_CONFIG_CLUSTER {ZCL_POWER_CONFIG_CLUSTER_ID, 0x0000, "Power Configuration" },',
     )
 
     let sdkExtension = genResult.content['sdk-extension.out']
     expect(sdkExtension).toContain(
-      "// cluster: 0x0000 Basic, text extension: 'Extension to basic cluster'"
+      "// cluster: 0x0000 Basic, text extension: 'Extension to basic cluster'",
     )
     expect(sdkExtension).toContain(
-      "// cluster: 0x0002 Device Temperature Configuration, text extension: 'Extension to temperature config cluster'"
+      "// cluster: 0x0002 Device Temperature Configuration, text extension: 'Extension to temperature config cluster'",
     )
     expect(sdkExtension).toContain(
-      "// server cluster: 0x0001 Power Configuration, text extension: 'Extension to power cluster'"
+      "// server cluster: 0x0001 Power Configuration, text extension: 'Extension to power cluster'",
     )
     expect(sdkExtension).toContain(
-      "// client cluster: 0x0001 Power Configuration, text extension: ''"
+      "// client cluster: 0x0001 Power Configuration, text extension: ''",
     )
     expect(sdkExtension).toContain(
-      "// attribute: 0x0000 / 0x0000 => ZCL version, extensions: '42', '99'"
+      "// attribute: 0x0000 / 0x0000 => ZCL version, extensions: '42', '99'",
     )
     expect(sdkExtension).toContain(
-      "attribute: 0x0015 / 0x0015 => network key sequence number, extensions: '0', '1', [int8u:666]"
+      "attribute: 0x0015 / 0x0015 => network key sequence number, extensions: '0', '1', [int8u:666]",
     )
     expect(sdkExtension).toContain(
-      "// cluster: 0x0003 Identify, text extension: ''"
+      "// cluster: 0x0003 Identify, text extension: ''",
     )
     expect(sdkExtension).toContain(
-      "// command: 0x0000 / 0x00 => ResetToFactoryDefaults, test extension: '1'"
+      "// command: 0x0000 / 0x00 => ResetToFactoryDefaults, test extension: '1'",
     )
     expect(sdkExtension).toContain(
-      "// device type: HA / 0x0006 => HA-remote // extension: 'path/to/remote.c'"
+      "// device type: HA / 0x0006 => HA-remote // extension: 'path/to/remote.c'",
     )
     expect(sdkExtension).toContain(
-      'IMPLEMENTED_COMMANDS>ResetToFactoryDefaults,IdentifyQueryResponse,IdentifyQuery,EZModeInvoke,UpdateCommissionState,<END'
+      'IMPLEMENTED_COMMANDS>ResetToFactoryDefaults,IdentifyQueryResponse,IdentifyQuery,EZModeInvoke,UpdateCommissionState,<END',
     )
     // Testing {{#if_is_struct}} helper
     expect(zclId).toContain(`attributeIds is not struct`)
@@ -225,25 +225,25 @@ test(
 
     expect(zapId).toContain('// Definitions for cluster: Basic')
     expect(zapId).toContain(
-      '#define ZCL_GET_PROFILE_RESPONSE_COMMAND_ID (0x00)'
+      '#define ZCL_GET_PROFILE_RESPONSE_COMMAND_ID (0x00)',
     )
     // Testing {{#zcl_commands_source_client}} helper
     expect(zapId).toContain(
-      '#define ZCL_IDENTIFY_C_TO_S_IDENTIFY_QUERY_COMMAND_ID (0x01)'
+      '#define ZCL_IDENTIFY_C_TO_S_IDENTIFY_QUERY_COMMAND_ID (0x01)',
     )
     // Testing {{#zcl_commands_source_server}} helper
     expect(zapId).toContain(
-      '#define ZCL_IDENTIFY_S_TO_C_IDENTIFY_QUERY_RESPONSE_COMMAND_ID (0x00)'
+      '#define ZCL_IDENTIFY_S_TO_C_IDENTIFY_QUERY_RESPONSE_COMMAND_ID (0x00)',
     )
     expect(zapId).toContain(
-      '// Client attributes for cluster: Fluoride Concentration Measurement'
+      '// Client attributes for cluster: Fluoride Concentration Measurement',
     )
     expect(zapId).toContain(
-      '#define ZCL_NUMBER_OF_RESETS_ATTRIBUTE_ID (0x0000)'
+      '#define ZCL_NUMBER_OF_RESETS_ATTRIBUTE_ID (0x0000)',
     )
     let zapTypes = genResult.content['zap-type.h']
     expect(zapTypes).toContain(
-      'ZCL_INT16U_ATTRIBUTE_TYPE = 0x21, // Unsigned 16-bit integer'
+      'ZCL_INT16U_ATTRIBUTE_TYPE = 0x21, // Unsigned 16-bit integer',
     )
     expect(zapTypes).toContain('uint32_t snapshotCause')
     expect(zapTypes).toContain('typedef uint8_t EphemeralData;')
@@ -251,8 +251,8 @@ test(
     let zapCommandParser = genResult.content['zap-command-parser.c']
     expect(zapCommandParser).not.toBeNull()
     expect(zapCommandParser).toContain(
-      'EmberAfStatus emberAfClusterSpecificCommandParse(EmberAfClusterCommand * cmd)'
+      'EmberAfStatus emberAfClusterSpecificCommandParse(EmberAfClusterCommand * cmd)',
     )
   },
-  testUtil.timeout.long()
+  testUtil.timeout.long(),
 )

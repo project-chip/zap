@@ -78,7 +78,7 @@ function registerHelpers(singleHelper, registerHelper, context) {
   // Register the helper function with Handlebars
   context.hb.registerHelper(
     singleHelper,
-    helperWrapper(registerHelper, context)
+    helperWrapper(registerHelper, context),
   )
 }
 

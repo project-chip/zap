@@ -40,7 +40,7 @@ async function selectAllDiscriminators(db, packageIds) {
       DISCRIMINATOR
     WHERE
       PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
-      `
+      `,
     )
     .then((rows) => rows.map(dbMapping.map.discriminator))
 }

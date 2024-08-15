@@ -71,7 +71,7 @@ WHERE
       : 'C.MANUFACTURER_CODE = ?'
   }
 `,
-      args
+      args,
     )
     .then(dbMapping.map.cluster)
 }
@@ -112,7 +112,7 @@ ON
 WHERE
   SESSION_PARTITION.SESSION_REF = ?
 `,
-      [sessionId]
+      [sessionId],
     )
     .then((rows) => rows.map(dbMapping.map.cluster))
 }
@@ -134,7 +134,7 @@ async function selectSessionAttributeByCode(
   clusterCode,
   side,
   attributeCode,
-  mfgCode
+  mfgCode,
 ) {
   return dbApi
     .dbGet(
@@ -177,7 +177,7 @@ WHERE
   ((ATTRIBUTE.CLUSTER_REF = CLUSTER.CLUSTER_ID AND CLUSTER.CODE = ?) OR 
   (ATTRIBUTE.CLUSTER_REF IS NULL)) AND ATTRIBUTE.SIDE = ?
 `,
-      [sessionId, attributeCode, clusterCode, side]
+      [sessionId, attributeCode, clusterCode, side],
     )
     .then(dbMapping.map.attribute)
 }
@@ -197,7 +197,7 @@ async function selectSessionCommandByCode(
   sessionId,
   clusterCode,
   commandCode,
-  source
+  source,
 ) {
   return dbApi
     .dbGet(
@@ -233,7 +233,7 @@ ON
 WHERE
   SESSION_PARTITION.SESSION_REF = ? AND C.CODE = ? AND CMD.CODE = ? AND CMD.SOURCE = ?
 `,
-      [sessionId, clusterCode, commandCode, source]
+      [sessionId, clusterCode, commandCode, source],
     )
     .then(dbMapping.map.command)
 }

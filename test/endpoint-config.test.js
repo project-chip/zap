@@ -44,7 +44,7 @@ beforeAll(async () => {
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
     env.schemaFile(),
-    env.zapVersion()
+    env.zapVersion(),
   )
 }, testUtil.timeout.medium())
 
@@ -55,7 +55,7 @@ test(
   async () => {
     templateContext = await genEngine.loadTemplates(
       db,
-      testUtil.testTemplate.zigbee
+      testUtil.testTemplate.zigbee,
     )
     expect(templateContext.crc).not.toBeNull()
     expect(templateContext.templateData).not.toBeNull()
@@ -64,7 +64,7 @@ test(
     expect(templateContext.templateData.templates.length).toEqual(templateCount)
     expect(templateContext.packageId).not.toBeNull()
   },
-  testUtil.timeout.medium()
+  testUtil.timeout.medium(),
 )
 
 test(
@@ -72,7 +72,7 @@ test(
   async () => {
     zclContext = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
   },
-  testUtil.timeout.medium()
+  testUtil.timeout.medium(),
 )
 
 test(
@@ -85,15 +85,15 @@ test(
       await querySession.selectSessionPartitionInfoFromPackageId(
         db,
         sessionId,
-        zclContext.packageId
+        zclContext.packageId,
       )
     await queryPackage.insertSessionPackage(
       db,
       sessionPartitionInfo[0].sessionPartitionId,
-      zclContext.packageId
+      zclContext.packageId,
     )
   },
-  testUtil.timeout.medium()
+  testUtil.timeout.medium(),
 )
 
 test(
@@ -121,15 +121,15 @@ test(
             db,
             cluster.clusterId,
             cluster.side,
-            cluster.endpointTypeId
-          )
+            cluster.endpointTypeId,
+          ),
         )
         promiseCommands.push(
           queryEndpoint.selectEndpointClusterCommands(
             db,
             cluster.clusterId,
-            cluster.endpointTypeId
-          )
+            cluster.endpointTypeId,
+          ),
         )
       })
     })
@@ -165,7 +165,7 @@ test(
     })
     expect(cmdSums[0]).toBe(16)
   },
-  testUtil.timeout.medium()
+  testUtil.timeout.medium(),
 )
 
 test(
@@ -174,7 +174,7 @@ test(
     let size = await types.typeSize(db, zclContext.packageId, 'bitmap8')
     expect(size).toBe(1)
   },
-  testUtil.timeout.medium()
+  testUtil.timeout.medium(),
 )
 
 test(
@@ -185,7 +185,7 @@ test(
       sessionId,
       templateContext.packageId,
       {},
-      { disableDeprecationWarnings: true }
+      { disableDeprecationWarnings: true },
     )
 
     expect(genResult).not.toBeNull()
@@ -199,26 +199,26 @@ test(
     let epc = genResult.content['zap-config.h']
     let epcLines = epc.split(/\r?\n/)
     expect(epc).toContain(
-      '#define FIXED_ENDPOINT_ARRAY { 0x0029, 0x002A, 0x002B }'
+      '#define FIXED_ENDPOINT_ARRAY { 0x0029, 0x002A, 0x002B }',
     )
     expect(epc).toContain(
-      "17, 'V', 'e', 'r', 'y', ' ', 'l', 'o', 'n', 'g', ' ', 'u', 's', 'e', 'r', ' ', 'i', 'd',"
+      "17, 'V', 'e', 'r', 'y', ' ', 'l', 'o', 'n', 'g', ' ', 'u', 's', 'e', 'r', ' ', 'i', 'd',",
     )
     expect(epc).toContain(
-      '{ ZAP_REPORT_DIRECTION(REPORTED), 0x0029, 0x00000101, 0x00000000, ZAP_CLUSTER_MASK(SERVER), 0x0000, {{ 0, 65534, 0 }} }, /* lock state */'
+      '{ ZAP_REPORT_DIRECTION(REPORTED), 0x0029, 0x00000101, 0x00000000, ZAP_CLUSTER_MASK(SERVER), 0x0000, {{ 0, 65534, 0 }} }, /* lock state */',
     )
     expect(epc).toContain(
-      '{ 0x00000004, ZAP_TYPE(CHAR_STRING), 33, ZAP_ATTRIBUTE_MASK(TOKENIZE), ZAP_LONG_DEFAULTS_INDEX(0) }'
+      '{ 0x00000004, ZAP_TYPE(CHAR_STRING), 33, ZAP_ATTRIBUTE_MASK(TOKENIZE), ZAP_LONG_DEFAULTS_INDEX(0) }',
     )
     expect(epc.includes(bin.hexToCBytes(bin.stringToHex('Very long user id'))))
     expect(epc).toContain('#define FIXED_NETWORKS { 1, 1, 2 }')
     expect(epc).toContain(
-      '#define FIXED_PROFILE_IDS { 0x0107, 0x0104, 0x0104 }'
+      '#define FIXED_PROFILE_IDS { 0x0107, 0x0104, 0x0104 }',
     )
     expect(epc).toContain('#define FIXED_ENDPOINT_TYPES { 0, 1, 2 }')
     expect(epc).toContain('#define GENERATED_DEFAULTS_COUNT (12)')
     expect(epc).toContain(
-      `17, 'T', 'e', 's', 't', ' ', 'm', 'a', 'n', 'u', 'f', 'a', 'c', 't', 'u', 'r', 'e', 'r',`
+      `17, 'T', 'e', 's', 't', ' ', 'm', 'a', 'n', 'u', 'f', 'a', 'c', 't', 'u', 'r', 'e', 'r',`,
     )
     expect(epcLines.length).toBeGreaterThan(100)
     let cnt = 0
@@ -232,5 +232,5 @@ test(
     expect(epc).toContain('#define EMBER_AF_MANUFACTURER_CODE 0x1002')
     expect(epc).toContain('#define EMBER_AF_DEFAULT_RESPONSE_POLICY_ALWAYS')
   },
-  testUtil.timeout.long()
+  testUtil.timeout.long(),
 )

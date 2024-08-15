@@ -141,7 +141,7 @@ function enableUi(port, zapFiles, uiMode, standalone) {
     })
   } else {
     return util.executePromisesSequentially(zapFiles, (f) =>
-      openFileConfiguration(f, port)
+      openFileConfiguration(f, port),
     )
   }
 }

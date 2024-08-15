@@ -46,7 +46,7 @@ FROM BITMAP
 INNER JOIN DATA_TYPE ON
   BITMAP.BITMAP_ID = DATA_TYPE.DATA_TYPE_ID
 WHERE PACKAGE_REF = ? ORDER BY NAME`,
-    [packageId]
+    [packageId],
   )
   return rows.map(dbMapping.map.bitmap)
 }
@@ -64,9 +64,9 @@ SELECT
 FROM BITMAP
 INNER JOIN DATA_TYPE ON BITMAP.BITMAP_ID = DATA_TYPE.DATA_TYPE_ID
 WHERE (DATA_TYPE.NAME = ? OR DATA_TYPE.NAME = ?) AND DATA_TYPE.PACKAGE_REF IN (${dbApi.toInClause(
-        packageIds
+        packageIds,
       )})`,
-      [name, name.toLowerCase()]
+      [name, name.toLowerCase()],
     )
     .then(dbMapping.map.bitmap)
 }
@@ -83,12 +83,12 @@ async function selectBitmapByNameAndClusterId(db, name, clusterId, packageIds) {
   let queryWithoutClusterId = queryUtil.sqlQueryForDataTypeByNameAndClusterId(
     'bitmap',
     null,
-    packageIds
+    packageIds,
   )
   let queryWithClusterId = queryUtil.sqlQueryForDataTypeByNameAndClusterId(
     'bitmap',
     clusterId,
-    packageIds
+    packageIds,
   )
 
   let res = await dbApi
@@ -116,7 +116,7 @@ SELECT
 FROM BITMAP
 INNER JOIN DATA_TYPE ON BITMAP.BITMAP_ID = DATA_TYPE.DATA_TYPE_ID
 WHERE BITMAP_ID = ?`,
-      [id]
+      [id],
     )
     .then(dbMapping.map.bitmap)
 }
@@ -125,5 +125,5 @@ exports.selectBitmapById = selectBitmapById
 exports.selectAllBitmaps = selectAllBitmaps
 exports.selectBitmapByName = dbCache.cacheQuery(selectBitmapByName)
 exports.selectBitmapByNameAndClusterId = dbCache.cacheQuery(
-  selectBitmapByNameAndClusterId
+  selectBitmapByNameAndClusterId,
 )

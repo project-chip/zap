@@ -22,7 +22,7 @@ const { exec, execSync, execFile } = require('child_process')
 const path = require('node:path')
 const download_artifact_script = path.join(
   __dirname,
-  '../src-script/download-artifact.js'
+  '../src-script/download-artifact.js',
 )
 
 beforeAll(() => {
@@ -46,7 +46,7 @@ test('Downloading from Github', async () => {
 
 test('Default back to master branch if unknown branch is specified', async () => {
   let output = execSync(
-    `${download_artifact_script} -b random_unknown_branch_name`
+    `${download_artifact_script} -b random_unknown_branch_name`,
   )
   console.log(output.toString())
   expect(output.toString()).toMatch(/.Defaulting to master branch instead.*/)
@@ -56,6 +56,6 @@ test('Download from Github if specified branch is available on Github but not Ne
   let output = execSync(`${download_artifact_script} -b unit_test_branch`)
   console.log(output.toString())
   expect(output.toString()).toMatch(
-    /.*Defaulting to master branch on Github instead.*/
+    /.*Defaulting to master branch on Github instead.*/,
   )
 })

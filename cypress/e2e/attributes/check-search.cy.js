@@ -26,12 +26,12 @@ describe('Testing attribute search', () => {
           .should('contain', data.attribute1)
           .and('contain', data.attribute2)
       })
-    }
+    },
   )
   it('Search for application', () => {
     cy.fixture('data').then((data) => {
       cy.get(
-        '.col-auto > .q-field > .q-field__inner > .q-field__control > .q-field__control-container > input'
+        '.col-auto > .q-field > .q-field__inner > .q-field__control > .q-field__control-container > input',
       )
         .clear({ force: true })
         .type(data.searchString1, { force: true })

@@ -73,7 +73,7 @@ function deleteEndpoint(context, endpoint) {
 function clusters(context, endpoint) {
   return queryEndpoint.selectEndpointClusters(
     context.db,
-    endpoint.endpointTypeRef
+    endpoint.endpointTypeRef,
   )
 }
 
@@ -90,7 +90,7 @@ function attributes(context, endpoint, cluster) {
     context.db,
     cluster.clusterId,
     cluster.side,
-    endpoint.endpointTypeRef
+    endpoint.endpointTypeRef,
   )
 }
 
@@ -106,7 +106,7 @@ function commands(context, endpoint, cluster) {
   return queryEndpoint.selectEndpointClusterCommands(
     context.db,
     cluster.clusterId,
-    endpoint.endpointTypeRef
+    endpoint.endpointTypeRef,
   )
 }
 
@@ -149,7 +149,7 @@ async function findCluster(context, code, mfgCode = null) {
     context.db,
     context.sessionId,
     code,
-    mfgCode
+    mfgCode,
   )
 }
 
@@ -158,7 +158,7 @@ async function findAttribute(
   clusterCode,
   side,
   attributeCode,
-  mfgCode = null
+  mfgCode = null,
 ) {
   return querySessionZcl.selectSessionAttributeByCode(
     context.db,
@@ -166,7 +166,7 @@ async function findAttribute(
     clusterCode,
     side,
     attributeCode,
-    mfgCode
+    mfgCode,
   )
 }
 
@@ -176,7 +176,7 @@ async function findCommand(context, clusterCode, commandCode, source) {
     context.sessionId,
     clusterCode,
     commandCode,
-    source
+    source,
   )
 }
 
@@ -192,7 +192,7 @@ async function modifyCluster(context, endpoint, code, side, enabled) {
     endpoint.endpointTypeRef,
     cluster.id,
     side,
-    enabled
+    enabled,
   )
 }
 
@@ -203,7 +203,7 @@ async function modifyAttribute(
   clusterCode,
   attributeCode,
   side,
-  enable
+  enable,
 ) {
   let cluster = await findCluster(context, clusterCode)
   if (cluster == null) {
@@ -214,8 +214,8 @@ async function modifyAttribute(
   if (attribute == null) {
     printError(
       `Attribute 0x${attributeCode.toString(
-        16
-      )} in cluster 0x${clusterCode.toString(16)} does not exist.`
+        16,
+      )} in cluster 0x${clusterCode.toString(16)} does not exist.`,
     )
     return null
   }
@@ -235,7 +235,7 @@ async function modifyAttribute(
     params,
     attribute.reportMinInterval,
     attribute.reportMaxInterval,
-    attribute.reportableChange
+    attribute.reportableChange,
   )
 }
 
@@ -247,7 +247,7 @@ async function modifyCommand(
   commandCode,
   source,
   isIncoming,
-  enable
+  enable,
 ) {
   let cluster = await findCluster(context, clusterCode)
   if (cluster == null) {
@@ -258,8 +258,8 @@ async function modifyCommand(
   if (command == null) {
     printError(
       `Command 0x${commandCode.toString(
-        16
-      )} in cluster 0x${clusterCode.toString(16)} does not exist.`
+        16,
+      )} in cluster 0x${clusterCode.toString(16)} does not exist.`,
     )
     return null
   }
@@ -270,7 +270,7 @@ async function modifyCommand(
     command.source,
     command.id,
     enable ? 1 : 0,
-    isIncoming
+    isIncoming,
   )
 }
 
@@ -326,7 +326,7 @@ async function disableClientAttribute(
   context,
   endpoint,
   clusterCode,
-  attributeCode
+  attributeCode,
 ) {
   return modifyAttribute(
     context,
@@ -334,7 +334,7 @@ async function disableClientAttribute(
     clusterCode,
     attributeCode,
     dbEnum.side.client,
-    false
+    false,
   )
 }
 
@@ -350,7 +350,7 @@ async function enableClientAttribute(
   context,
   endpoint,
   clusterCode,
-  attributeCode
+  attributeCode,
 ) {
   return modifyAttribute(
     context,
@@ -358,7 +358,7 @@ async function enableClientAttribute(
     clusterCode,
     attributeCode,
     dbEnum.side.client,
-    true
+    true,
   )
 }
 
@@ -374,7 +374,7 @@ async function disableServerAttribute(
   context,
   endpoint,
   clusterCode,
-  attributeCode
+  attributeCode,
 ) {
   return modifyAttribute(
     context,
@@ -382,7 +382,7 @@ async function disableServerAttribute(
     clusterCode,
     attributeCode,
     dbEnum.side.server,
-    false
+    false,
   )
 }
 
@@ -398,7 +398,7 @@ async function enableServerAttribute(
   context,
   endpoint,
   clusterCode,
-  attributeCode
+  attributeCode,
 ) {
   return modifyAttribute(
     context,
@@ -406,7 +406,7 @@ async function enableServerAttribute(
     clusterCode,
     attributeCode,
     dbEnum.side.server,
-    true
+    true,
   )
 }
 
@@ -425,7 +425,7 @@ async function disableIncomingCommand(
   endpoint,
   clusterCode,
   commandCode,
-  source
+  source,
 ) {
   return modifyCommand(
     context,
@@ -434,7 +434,7 @@ async function disableIncomingCommand(
     commandCode,
     source,
     true,
-    false
+    false,
   )
 }
 
@@ -453,7 +453,7 @@ async function enableIncomingCommand(
   endpoint,
   clusterCode,
   commandCode,
-  source
+  source,
 ) {
   return modifyCommand(
     context,
@@ -462,7 +462,7 @@ async function enableIncomingCommand(
     commandCode,
     source,
     true,
-    true
+    true,
   )
 }
 
@@ -481,7 +481,7 @@ async function disableOutgoingCommand(
   endpoint,
   clusterCode,
   commandCode,
-  source
+  source,
 ) {
   return modifyCommand(
     context,
@@ -490,7 +490,7 @@ async function disableOutgoingCommand(
     commandCode,
     source,
     false,
-    false
+    false,
   )
 }
 
@@ -509,7 +509,7 @@ async function enableOutgoingCommand(
   endpoint,
   clusterCode,
   commandCode,
-  source
+  source,
 ) {
   return modifyCommand(
     context,
@@ -518,7 +518,7 @@ async function enableOutgoingCommand(
     commandCode,
     source,
     false,
-    true
+    true,
   )
 }
 

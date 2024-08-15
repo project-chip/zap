@@ -39,7 +39,7 @@ function httpGetPreviewNameIndex(db) {
     let previewObject = await generationEngine.generateSingleFileForPreview(
       db,
       sessionId,
-      request.params.name
+      request.params.name,
     )
 
     if (request.params.index in previewObject) {
@@ -65,7 +65,7 @@ function httpGetPreviewName(db) {
     let previewObject = await generationEngine.generateSingleFileForPreview(
       db,
       sessionId,
-      request.params.name
+      request.params.name,
     )
     response.status(StatusCodes.OK).json(previewObject)
   }
@@ -98,7 +98,7 @@ function httpPutGenerate(db) {
     let pkgs = await queryPackage.getSessionPackagesByType(
       db,
       sessionId,
-      dbEnum.packageType.genTemplatesJson
+      dbEnum.packageType.genTemplatesJson,
     )
 
     let promises = []
@@ -108,8 +108,8 @@ function httpPutGenerate(db) {
           db,
           sessionId,
           pkg.id,
-          generationDirectory
-        )
+          generationDirectory,
+        ),
       )
     })
     await Promise.all(promises)

@@ -40,7 +40,7 @@ beforeAll(async () => {
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
     env.schemaFile(),
-    env.zapVersion()
+    env.zapVersion(),
   )
 }, testUtil.timeout.medium())
 
@@ -51,19 +51,19 @@ test(
   async () => {
     templateContext = await genEngine.loadTemplates(
       db,
-      testUtil.testTemplate.matter
+      testUtil.testTemplate.matter,
     )
     expect(templateContext.crc).not.toBeNull()
     expect(templateContext.packageId).not.toBeNull()
   },
-  testUtil.timeout.medium()
+  testUtil.timeout.medium(),
 )
 test(
   'Load ZCL stuff',
   async () => {
     zclContext = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
   },
-  testUtil.timeout.medium()
+  testUtil.timeout.medium(),
 )
 test(
   'Test file import',
@@ -75,15 +75,15 @@ test(
       await querySession.selectSessionPartitionInfoFromPackageId(
         db,
         sessionId,
-        zclContext.packageId
+        zclContext.packageId,
       )
     await queryPackage.insertSessionPackage(
       db,
       sessionPartitionInfo[0].sessionPartitionId,
-      zclContext.packageId
+      zclContext.packageId,
     )
   },
-  testUtil.timeout.medium()
+  testUtil.timeout.medium(),
 )
 test(
   'Test endpoint config queries',
@@ -93,5 +93,5 @@ test(
     expect(epts[1].parentEndpointIdentifier).toBe(0)
     expect(epts[2].parentEndpointIdentifier).toBe(1)
   },
-  testUtil.timeout.long()
+  testUtil.timeout.long(),
 )

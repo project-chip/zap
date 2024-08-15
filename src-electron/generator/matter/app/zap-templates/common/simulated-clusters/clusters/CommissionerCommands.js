@@ -44,9 +44,9 @@ const GetCommissionerNodeId = {
   response: {
     arguments: [
       { name: 'nodeId', type: 'NODE_ID' }, //
-    ]
-  }
-}
+    ],
+  },
+};
 
 const name = 'CommissionerCommands';
 const commands = [PairWithCode, Unpair, GetCommissionerNodeId];

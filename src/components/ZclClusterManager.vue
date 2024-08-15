@@ -191,7 +191,7 @@ export default {
               ? true
               : cluster.label
                   .toLowerCase()
-                  .includes(this.filterString.toLowerCase())
+                  .includes(this.filterString.toLowerCase()),
           )
         } else {
           return this.clusters.filter((cluster) =>
@@ -199,7 +199,7 @@ export default {
               ? true
               : cluster.label
                   .toLowerCase()
-                  .includes(this.filterString.toLowerCase())
+                  .includes(this.filterString.toLowerCase()),
           )
         }
       },
@@ -270,7 +270,7 @@ export default {
           this.$store.state.zap.genericOptions[
             dbEnum.sessionOption.clusterSpecification
           ][0]['optionLabel'],
-          '_blank'
+          '_blank',
         )
       }
     },

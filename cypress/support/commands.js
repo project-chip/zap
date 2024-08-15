@@ -18,7 +18,7 @@ Cypress.Commands.add('gotoAttributePage', (endpoint, cluster, nth = 0) => {
   cy.get('div').contains(cluster).click({ force: true })
   cy.wait(1000)
   cy.get(
-    `#${cluster} > .q-expansion-item__container > .q-expansion-item__content  >  .q-card > .q-card__section > .row > .q-table__container > .q-table__middle > .q-table > tbody > :nth-child(1) > :nth-child(7)  >  .q-btn `
+    `#${cluster} > .q-expansion-item__container > .q-expansion-item__content  >  .q-card > .q-card__section > .row > .q-table__container > .q-table__middle > .q-table > tbody > :nth-child(1) > :nth-child(7)  >  .q-btn `,
   )
     .eq(nth)
     .click({ force: true })

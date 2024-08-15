@@ -67,7 +67,7 @@ async function sendDirtyFlagStatus(db, session) {
       let msg = err.toString()
       if (!msg.includes('SQLITE_MISUSE')) {
         env.logWarning(
-          `Error reading dirty flag status: ${session.sessionKey} => ${err}`
+          `Error reading dirty flag status: ${session.sessionKey} => ${err}`,
         )
         notification.setNotification(
           db,
@@ -75,7 +75,7 @@ async function sendDirtyFlagStatus(db, session) {
           `Error reading dirty flag status: ${session.sessionKey} => ${err}`,
           session.sessionId,
           2,
-          0
+          0,
         )
       }
     }
@@ -92,17 +92,17 @@ async function sendNotificationUpdate(db, session) {
   if (socket) {
     let currentSession = await querySession.getSessionFromSessionId(
       db,
-      session.sessionId
+      session.sessionId,
     )
     if (currentSession.newNotification) {
       let notificationCount = await notification.getUnseenNotificationCount(
         db,
-        session.sessionId
+        session.sessionId,
       )
       wsServer.sendWebSocketData(
         socket,
         dbEnum.wsCategory.notificationCount,
-        notificationCount
+        notificationCount,
       )
       await querySession.setSessionNewNotificationClean(db, session.sessionId)
     }

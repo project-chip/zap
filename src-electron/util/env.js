@@ -80,7 +80,7 @@ export function builtinDotdotZclMetafile() {
 
 export function builtinMatterZclMetafile2() {
   return locateProjectResource(
-    './zcl-builtin/matter/zcl-with-test-extensions.json'
+    './zcl-builtin/matter/zcl-with-test-extensions.json',
   )
 }
 
@@ -192,7 +192,7 @@ export function logInitLogFile() {
   if (!explicit_logger_set) {
     pino_logger = pino(
       pinoOptions,
-      pino.destination(path.join(appDirectory(), 'zap.log'))
+      pino.destination(path.join(appDirectory(), 'zap.log')),
     )
     explicit_logger_set = true
   }
@@ -287,7 +287,7 @@ export function locateProjectResource(filePath) {
     return path.join(__dirname, '../../../', filePath)
   } else {
     throw new Error(
-      `Zap integrity error: can not locate resource: ${filePath}.`
+      `Zap integrity error: can not locate resource: ${filePath}.`,
     )
   }
 }
@@ -484,7 +484,7 @@ export function versionsCheck() {
     console.log(`Expected node versions: ${expectedNodeVersion}`)
     console.log(`Provided node version: ${nodeVersion}`)
     console.log(
-      'WARNING: you are using different node version than recommended.'
+      'WARNING: you are using different node version than recommended.',
     )
   }
   if (
@@ -495,7 +495,7 @@ export function versionsCheck() {
     console.log(`Expected electron version: ${expectedElectronVersion}`)
     console.log(`Provided electron version: ${electronVersion}`)
     console.log(
-      'WARNING: you are using different electron version that recommended.'
+      'WARNING: you are using different electron version that recommended.',
     )
   }
   return ret

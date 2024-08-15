@@ -32,7 +32,7 @@ limitations under the License.
               createLogoSrc(
                 true,
                 getDeviceCategory(deviceType[0]?.packageRef),
-                isSelectedEndpoint
+                isSelectedEndpoint,
               )
             "
             alt=""
@@ -147,7 +147,7 @@ limitations under the License.
                 <strong>{{
                   `${deviceType[0]?.description} (${asHex(
                     deviceType[0]?.code,
-                    4
+                    4,
                   )})`
                 }}</strong>
               </div>
@@ -161,7 +161,7 @@ limitations under the License.
               <strong>{{
                 `${deviceType[0]?.description} (${asHex(
                   deviceType[0]?.code,
-                  4
+                  4,
                 )})`
               }}</strong>
             </div>
@@ -310,7 +310,7 @@ export default {
           this.$store.state.zap.genericOptions[
             dbEnum.sessionOption.deviceTypeSpecification
           ][0]['optionLabel'],
-          '_blank'
+          '_blank',
         )
       }
     },
@@ -340,7 +340,7 @@ export default {
     updateDialogStateAndDeleteEndpoint() {
       Storage.setItem(
         'confirmDeleteEndpointDialog',
-        this.confirmDeleteEndpointDialog
+        this.confirmDeleteEndpointDialog,
       )
       this.deleteEpt()
     },
@@ -363,7 +363,7 @@ export default {
       this.$store.dispatch('zap/deleteEndpoint', endpointReference).then(() => {
         this.$store.dispatch(
           'zap/deleteEndpointType',
-          this.endpointType[endpointReference]
+          this.endpointType[endpointReference],
         )
       })
     },
@@ -377,7 +377,7 @@ export default {
       this.$serverGet(
         `${restApi.uri.endpointTypeClusters}${
           this.endpointType[this.endpointReference]
-        }`
+        }`,
       ).then((res) => {
         let enabledClients = []
         let enabledServers = []
@@ -396,14 +396,14 @@ export default {
       this.$serverGet(
         `${restApi.uri.endpointTypeAttributes}${
           this.endpointType[this.endpointReference]
-        }`
+        }`,
       ).then((res) => {
         this.selectedAttributes = []
         this.selectedReporting = []
         res.data.forEach((record) => {
           let resolvedReference = Util.cantorPair(
             record.attributeRef,
-            record.clusterRef
+            record.clusterRef,
           )
           if (record.included) this.selectedAttributes.push(resolvedReference)
           if (record.includedReportable)

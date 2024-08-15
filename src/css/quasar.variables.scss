@@ -141,7 +141,8 @@ $warning: #f2c037;
     background: url('/bg-layout.png');
   }
   .linear-border-wrap {
-    background: linear-gradient(#fff, #fff) padding-box,
+    background:
+      linear-gradient(#fff, #fff) padding-box,
       linear-gradient(90deg, var(--q-primary), var(--q-secondary)) border-box !important;
   }
   .cluster-list {
@@ -149,14 +150,16 @@ $warning: #f2c037;
       &.q-expansion-item--collapsed {
         .q-expansion-item__container {
           .q-item {
-            background: linear-gradient(#fff, #fff) padding-box,
+            background:
+              linear-gradient(#fff, #fff) padding-box,
               linear-gradient(90deg, var(--q-primary), var(--q-secondary))
                 border-box !important;
           }
         }
       }
       .q-expansion-item__content {
-        background: linear-gradient(#fff, #fff) padding-box,
+        background:
+          linear-gradient(#fff, #fff) padding-box,
           linear-gradient(90deg, var(--q-primary), var(--q-secondary))
             border-box !important;
       }
@@ -181,7 +184,8 @@ $warning: #f2c037;
     background: #202020;
   }
   .linear-border-wrap {
-    background: linear-gradient(#000, #000) padding-box,
+    background:
+      linear-gradient(#000, #000) padding-box,
       linear-gradient(90deg, var(--q-primary), var(--q-secondary)) border-box !important;
   }
   .cluster-list {
@@ -189,8 +193,8 @@ $warning: #f2c037;
       &.q-expansion-item--collapsed {
         .q-expansion-item__container {
           .q-item {
-            background: linear-gradient(var(--q-dark), var(--q-dark))
-                padding-box,
+            background:
+              linear-gradient(var(--q-dark), var(--q-dark)) padding-box,
               linear-gradient(90deg, var(--q-color-primary), var(--q-secondary))
                 border-box !important;
 
@@ -201,7 +205,8 @@ $warning: #f2c037;
         }
       }
       .q-expansion-item__content {
-        background: linear-gradient(var(--q-dark), var(--q-dark)) padding-box,
+        background:
+          linear-gradient(var(--q-dark), var(--q-dark)) padding-box,
           linear-gradient(90deg, var(--q-color-primary), var(--q-secondary))
             border-box !important;
       }

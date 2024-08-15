@@ -46,7 +46,7 @@ beforeAll(async () => {
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
     env.schemaFile(),
-    env.zapVersion()
+    env.zapVersion(),
   )
   let ctx = await zclLoader.loadZcl(db, env.builtinMatterZclMetafile())
   zclPackageId = ctx.packageId
@@ -65,7 +65,7 @@ test('Validate loading', async () => {
     zclPackageId,
     null,
     0xfffc,
-    null
+    null,
   )
   expect(attr).not.toBe(null)
 
@@ -73,7 +73,7 @@ test('Validate loading', async () => {
     db,
     zclPackageId,
     0x0029,
-    null
+    null,
   )
   expect(cluster).not.toBe(null)
   expect(cluster.name).toBe('OTA Software Update Provider')
@@ -101,7 +101,7 @@ test('Validate loading of features as bitmap', async () => {
     db,
     'Feature',
     clusterInfo.id,
-    [zclPackageId]
+    [zclPackageId],
   )
   expect(dataType).not.toBeNull()
   expect(dataType.name).toEqual('Feature')
@@ -112,7 +112,7 @@ test(
   async () => {
     templateContext = await genEngine.loadTemplates(
       db,
-      testUtil.testTemplate.matter
+      testUtil.testTemplate.matter,
     )
 
     expect(templateContext.crc).not.toBeNull()
@@ -122,7 +122,7 @@ test(
     expect(templateContext.templateData.templates.length).toEqual(templateCount)
     expect(templateContext.packageId).not.toBeNull()
   },
-  testUtil.timeout.medium()
+  testUtil.timeout.medium(),
 )
 
 test(
@@ -139,12 +139,12 @@ test(
           .then((generatorConfigurations) => {
             expect(generatorConfigurations.length).toBe(1)
             expect(generatorConfigurations[0].optionCode).toBe(
-              'disableUcComponentOnZclClusterUpdate'
+              'disableUcComponentOnZclClusterUpdate',
             )
             expect(generatorConfigurations[0].optionLabel).toBe('true')
           })
       }),
-  testUtil.timeout.short()
+  testUtil.timeout.short(),
 )
 
 test(
@@ -161,7 +161,7 @@ test(
       sessionId,
       templateContext.packageId,
       {},
-      { disableDeprecationWarnings: true }
+      { disableDeprecationWarnings: true },
     )
 
     expect(genResult).not.toBeNull()
@@ -171,24 +171,24 @@ test(
     expect(sdkExt).not.toBeNull()
     expect(
       sdkExt.includes(
-        "// cluster: 0x0029 OTA Software Update Provider, text extension: ''"
-      )
+        "// cluster: 0x0029 OTA Software Update Provider, text extension: ''",
+      ),
     ).toBeTruthy()
 
     let simpleTest = genResult.content['simple-test.h']
     expect(simpleTest).toContain(
-      'Cluster Name : OnOff+Command Name : OnWithRecallGlobalScene'
+      'Cluster Name : OnOff+Command Name : OnWithRecallGlobalScene',
     )
     expect(simpleTest).toContain('ExternalAddon : 72')
     expect(simpleTest).toContain('ExternalAddon : 784')
     expect(simpleTest).toContain('ExternalAddon : 248')
     expect(simpleTest).toContain('ExternalAddon : 60')
     expect(simpleTest).toContain(
-      'ExternalAddon : This is example of test external addon helper.'
+      'ExternalAddon : This is example of test external addon helper.',
     )
     let deviceType = genResult.content['device-types.txt']
     expect(deviceType).toContain(
-      '// device type: CHIP / 0x0105 => MA-colordimmerswitch // extension: '
+      '// device type: CHIP / 0x0105 => MA-colordimmerswitch // extension: ',
     )
     expect(deviceType).toContain('>> Attribute: StartUpCurrentLevel [16384]')
     expect(deviceType).toContain('>> Command: MoveToLevelWithOnOff [4]')
@@ -202,17 +202,17 @@ test(
     expect(chipToolHelper).toContain('0,1// actual type: BOOLEAN')
     expect(chipToolHelper).toContain('0,UINT16_MAX// actual type: INT16U')
     expect(chipToolHelper).toContain(
-      '0,UINT0_MAX// actual type: ThermostatScheduleTransition'
+      '0,UINT0_MAX// actual type: ThermostatScheduleTransition',
     )
 
     // Testing attribute's scene loading
     expect(
       sdkExt.includes(
-        "// attribute: 0x0300 / 0x4001 => EnhancedColorMode, extensions: '', '', scene: true"
-      )
+        "// attribute: 0x0300 / 0x4001 => EnhancedColorMode, extensions: '', '', scene: true",
+      ),
     )
   },
-  testUtil.timeout.long()
+  testUtil.timeout.long(),
 )
 
 test(
@@ -229,7 +229,7 @@ test(
       sessionId,
       templateContext.packageId,
       {},
-      { disableDeprecationWarnings: true }
+      { disableDeprecationWarnings: true },
     )
 
     expect(genResult).not.toBeNull()
@@ -243,5 +243,5 @@ test(
     expect(endpoints).toContain('- ShortRelease: 1')
     expect(endpoints).toContain('- MultiPressOngoing: 1')
   },
-  testUtil.timeout.long()
+  testUtil.timeout.long(),
 )

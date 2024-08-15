@@ -37,7 +37,7 @@ util.mainOrSecondaryInstance(
   },
   () => {
     startup.startUpSecondaryInstance(argv, { quitFunction: null })
-  }
+  },
 )
 
 // If the code is executed via 'node' and not via 'electron', then this

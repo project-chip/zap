@@ -48,7 +48,7 @@ beforeAll(async () => {
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
     env.schemaFile(),
-    env.zapVersion()
+    env.zapVersion(),
   )
   let ctx = await zclLoader.loadZcl(db, env.builtinMatterZclMetafile())
   zclPackageId = ctx.packageId
@@ -61,7 +61,7 @@ test(
   async () => {
     templateContext = await genEngine.loadTemplates(
       db,
-      testUtil.testTemplate.matter4
+      testUtil.testTemplate.matter4,
     )
 
     expect(templateContext.crc).not.toBeNull()
@@ -71,7 +71,7 @@ test(
     expect(templateContext.templateData.templates.length).toEqual(templateCount)
     expect(templateContext.packageId).not.toBeNull()
   },
-  testUtil.timeout.medium()
+  testUtil.timeout.medium(),
 )
 
 test(
@@ -88,12 +88,12 @@ test(
       sessionId,
       templateContext.packageId,
       {},
-      { disableDeprecationWarnings: true }
+      { disableDeprecationWarnings: true },
     )
     expect(genResult.hasErrors).toEqual(false)
 
     let content = genResult.content['cluster-objects.out']
     expect(content.length).toBeGreaterThan(2000)
   },
-  testUtil.timeout.long()
+  testUtil.timeout.long(),
 )

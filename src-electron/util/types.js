@@ -54,7 +54,7 @@ async function typeSizeAttribute(db, zclPackageIds, at, defaultValue = null) {
     if (!at.typeInfo.atomicType && !at.typeInfo.size) {
       if (at.storage != dbEnum.storageOption.external) {
         throw new Error(
-          `ERROR: Unknown size for non-external attribute: ${at.name} / ${at.code}`
+          `ERROR: Unknown size for non-external attribute: ${at.name} / ${at.code}`,
         )
       }
       return 0
@@ -74,7 +74,7 @@ async function typeSizeAttribute(db, zclPackageIds, at, defaultValue = null) {
       return defaultValue
     } else {
       throw new Error(
-        `ERROR: Unknown size for attribute: ${at.label} / ${at.code}`
+        `ERROR: Unknown size for attribute: ${at.label} / ${at.code}`,
       )
     }
   }
@@ -286,7 +286,7 @@ async function isSignedInteger(db, sessionId, type) {
   return await queryAtomic.isTypeSignedByNameAndPackage(
     db,
     type,
-    sessionPackages
+    sessionPackages,
   )
 }
 
@@ -372,7 +372,7 @@ async function getSignAndSizeOfZclType(db, type, packageIds, options) {
     let number = await queryZcl.selectNumberByName(
       db,
       packageIds,
-      dataType.name
+      dataType.name,
     )
     if (number.isSigned) {
       isTypeSigned = true
@@ -385,7 +385,7 @@ async function getSignAndSizeOfZclType(db, type, packageIds, options) {
       let bitmap = await queryZcl.selectBitmapByName(
         db,
         packageIds,
-        dataType.name
+        dataType.name,
       )
       dataTypesize = Math.pow(2, Math.ceil(Math.log2(bitmap.size)))
     } else if (
@@ -399,7 +399,7 @@ async function getSignAndSizeOfZclType(db, type, packageIds, options) {
       let number = await queryZcl.selectNumberByName(
         db,
         packageIds,
-        dataType.name
+        dataType.name,
       )
       dataTypesize = Math.pow(2, Math.ceil(Math.log2(number.size)))
     }

@@ -18,7 +18,7 @@ exports.default = async function (buildResult) {
         {
           $progress: true,
           $bin: pathTo7zip,
-        }
+        },
       )
       // myStream.on('end', function () {
       //   console.log(myStream.info)

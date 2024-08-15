@@ -27,7 +27,7 @@ let args = process.argv.slice(2);
 
 if (args[0] == null) {
   console.log(
-    'Usage: node copy-from-sdk.js <MATTER_SDK_ROOT> [all|examples|src]'
+    'Usage: node copy-from-sdk.js <MATTER_SDK_ROOT> [all|examples|src]',
   );
   process.exit(1);
 }

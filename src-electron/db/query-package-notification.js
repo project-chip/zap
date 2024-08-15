@@ -36,7 +36,7 @@ async function setNotification(db, type, status, packageId, severity = 2) {
   return dbApi.dbUpdate(
     db,
     'INSERT INTO PACKAGE_NOTICE ( PACKAGE_REF, NOTICE_TYPE, NOTICE_MESSAGE, NOTICE_SEVERITY) VALUES ( ?, ?, ?, ? )',
-    [packageId, type, status, severity]
+    [packageId, type, status, severity],
   )
 }
 
@@ -53,7 +53,7 @@ async function deleteNotification(db, id) {
   return dbApi.dbUpdate(
     db,
     'DELETE FROM PACKAGE_NOTICE WHERE ( NOTICE_ID ) = ( ? )',
-    [id]
+    [id],
   )
 }
 /**
@@ -77,7 +77,7 @@ async function getNotificationBySessionId(db, sessionId) {
             SESSION_PACKAGE.SESSION_PARTITION_REF= SESSION_PARTITION.SESSION_PARTITION_ID
           WHERE
             SESSION_PARTITION.SESSION_REF = ( ? ) )`,
-    [sessionId]
+    [sessionId],
   )
   return rows.map(dbMapping.map.packageNotification)
 }
@@ -104,7 +104,7 @@ async function getNotificationByPackageId(db, packageId) {
   rows = await dbApi.dbAll(
     db,
     'SELECT * FROM PACKAGE_NOTICE WHERE PACKAGE_REF = ( ? )',
-    [packageId]
+    [packageId],
   )
   return rows.map(dbMapping.map.packageNotification)
 }
