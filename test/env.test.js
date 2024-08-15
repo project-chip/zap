@@ -226,7 +226,7 @@ describe('Environment Tests', () => {
     } catch (e) {
       // Test that the stack trace is coming from
       // line of 218 in this file.
-      expect(e.stack.includes('env.test.js:222')).toBeTruthy()
+      expect(e.stack.includes('env.test.js:225')).toBeTruthy()
     }
   })
 })
