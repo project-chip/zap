@@ -184,11 +184,14 @@ export default {
     },
     category: {
       get() {
-        return this.getDeviceCategory(
-          this.zclDeviceTypes[
-            this.endpointDeviceTypeRef[this.selectedEndpointId][0]
-          ]?.packageRef
-        )
+        if (this.selectedEndpointId) {
+          return this.getDeviceCategory(
+            this.zclDeviceTypes[
+              this.endpointDeviceTypeRef[this.selectedEndpointId][0]
+            ]?.packageRef,
+          )
+        }
+        return ''
       },
     },
     enableEventsTab: {
@@ -219,7 +222,7 @@ export default {
           this.$store.state.zap.genericOptions[
             dbEnum.sessionOption.clusterSpecification
           ][0]['optionLabel'],
-          '_blank'
+          '_blank',
         )
       }
     },

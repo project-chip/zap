@@ -17,7 +17,6 @@
  *
  * @jest-environment jsdom
  */
-import { describe, expect, it } from '@jest/globals'
 import { installQuasarPlugin } from '@quasar/quasar-app-extension-testing-unit-jest'
 import { shallowMount, mount } from '@vue/test-utils'
 
@@ -42,9 +41,16 @@ import PreferencePackage from '../src/pages/preferences/PreferencePackage.vue'
 import ZclSettings from '../src/pages/ZclSettings.vue'
 import About from '../src/pages/preferences/AboutPage.vue'
 import MainLayout from '../src/layouts/MainLayout.vue'
+import routes from '../src/router/routes.js'
+import { createRouter, createWebHistory } from 'vue-router'
 
 import { timeout } from './test-util.js'
 import ZapStore from '../src/store/index.js'
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes,
+})
 
 installQuasarPlugin()
 const observable = require('../src/util/observable.js')
@@ -60,7 +66,7 @@ describe('Component mounting test', () => {
       })
       expect(wrapper.html().length).toBeGreaterThan(100)
     },
-    timeout.short()
+    timeout.short(),
   )
   test(
     'ZclAttributeReportingManager',
@@ -73,7 +79,7 @@ describe('Component mounting test', () => {
       expect(ZclAttributeReportingManager.data()).not.toBe(null)
       expect(wrapper.html().length).toBeGreaterThan(100)
     },
-    timeout.short()
+    timeout.short(),
   )
   test(
     'ZclClusterManager',
@@ -85,7 +91,7 @@ describe('Component mounting test', () => {
       })
       expect(wrapper.html().length).toBeGreaterThan(10)
     },
-    timeout.short()
+    timeout.short(),
   )
   test(
     'ZclClusterView',
@@ -97,7 +103,7 @@ describe('Component mounting test', () => {
       })
       expect(wrapper.find('#ZclClusterView').exists()).toBe(true)
     },
-    timeout.short()
+    timeout.short(),
   )
   test(
     'ZclCommandManager',
@@ -109,7 +115,7 @@ describe('Component mounting test', () => {
       })
       expect(wrapper.html().length).toBeGreaterThan(60)
     },
-    timeout.short()
+    timeout.short(),
   )
   test(
     'ZclCreateModifyEndpoint',
@@ -121,7 +127,7 @@ describe('Component mounting test', () => {
       })
       expect(wrapper.html().length).toBeGreaterThan(100)
     },
-    timeout.short()
+    timeout.short(),
   )
   test(
     'ZclDomainClusterView',
@@ -133,7 +139,7 @@ describe('Component mounting test', () => {
       })
       expect(wrapper.html().length).toBeGreaterThan(100)
     },
-    timeout.short()
+    timeout.short(),
   )
   test(
     'ZclEndpointCard',
@@ -145,7 +151,7 @@ describe('Component mounting test', () => {
       })
       expect(wrapper.html().length).toBeGreaterThan(100)
     },
-    timeout.short()
+    timeout.short(),
   )
   test(
     'ZclEndpointManager',
@@ -157,7 +163,7 @@ describe('Component mounting test', () => {
       })
       expect(wrapper.html().length).toBeGreaterThan(100)
     },
-    timeout.short()
+    timeout.short(),
   )
   test(
     'Options',
@@ -169,7 +175,7 @@ describe('Component mounting test', () => {
       })
       expect(wrapper.html().length).toBeGreaterThan(50)
     },
-    timeout.short()
+    timeout.short(),
   )
   test(
     'ZclInformationSetup',
@@ -181,7 +187,7 @@ describe('Component mounting test', () => {
       })
       expect(wrapper.html().length).toBeGreaterThan(100)
     },
-    timeout.short()
+    timeout.short(),
   )
 
   test(
@@ -189,12 +195,13 @@ describe('Component mounting test', () => {
     () => {
       const wrapper = shallowMount(MainLayout, {
         global: {
-          plugins: [ZapStore()],
+          plugins: [ZapStore(), router],
         },
+        router,
       })
       expect(wrapper.html().length).toBeGreaterThan(60)
     },
-    timeout.short()
+    timeout.short(),
   )
 
   test(
@@ -207,7 +214,7 @@ describe('Component mounting test', () => {
       })
       expect(wrapper.html().length).toBeGreaterThan(50)
     },
-    timeout.short()
+    timeout.short(),
   )
   test(
     'Error404',
@@ -219,7 +226,7 @@ describe('Component mounting test', () => {
       })
       expect(wrapper.html().length).toBeGreaterThan(50)
     },
-    timeout.short()
+    timeout.short(),
   )
   test(
     'Preference',
@@ -231,7 +238,7 @@ describe('Component mounting test', () => {
       })
       expect(wrapper.html().length).toBeGreaterThan(50)
     },
-    timeout.short()
+    timeout.short(),
   )
   test(
     'PreferenceGeneration',
@@ -243,7 +250,7 @@ describe('Component mounting test', () => {
       })
       expect(wrapper.html().length).toBeGreaterThan(50)
     },
-    timeout.short()
+    timeout.short(),
   )
   test(
     'PreferenceUser',
@@ -255,7 +262,7 @@ describe('Component mounting test', () => {
       })
       expect(wrapper.html().length).toBeGreaterThan(50)
     },
-    timeout.short()
+    timeout.short(),
   )
   test(
     'PreferencePackage',
@@ -267,7 +274,7 @@ describe('Component mounting test', () => {
       })
       expect(wrapper.html().length).toBeGreaterThan(50)
     },
-    timeout.short()
+    timeout.short(),
   )
   test(
     'ZclSettings',
@@ -279,7 +286,7 @@ describe('Component mounting test', () => {
       })
       expect(wrapper.html().length).toBeGreaterThan(50)
     },
-    timeout.short()
+    timeout.short(),
   )
   test(
     'Extensions',
@@ -291,7 +298,7 @@ describe('Component mounting test', () => {
       })
       expect(wrapper.html().length).toBeGreaterThan(50)
     },
-    timeout.short()
+    timeout.short(),
   )
   test(
     'About',
@@ -299,7 +306,7 @@ describe('Component mounting test', () => {
       const wrapper = shallowMount(About, { store: ZapStore() })
       expect(wrapper.html().length).toBeGreaterThan(50)
     },
-    timeout.short()
+    timeout.short(),
   )
 })
 
@@ -327,6 +334,6 @@ describe('DOM tests', () => {
 
       expect(value).toEqual('value1')
     },
-    timeout.short()
+    timeout.short(),
   )
 })
