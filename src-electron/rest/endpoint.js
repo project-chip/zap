@@ -84,7 +84,7 @@ function httpPostEndpoint(db) {
     let parentEndpointRef = await queryEndpoint.getParentEndpointRef(
       db,
       parentEndpointIdentifier,
-      sessionId
+      sessionId,
     )
     if (parentEndpointRef == null && parentEndpointIdentifier != null) {
       parentEndpointIdentifier = null
@@ -96,7 +96,7 @@ function httpPostEndpoint(db) {
       endpointType,
       networkId,
       profileId,
-      parentEndpointRef
+      parentEndpointRef,
     )
     try {
       let validationData = await validation.validateEndpoint(db, newId)
@@ -130,7 +130,7 @@ function httpPatchEndpoint(db) {
     let parentEndpointRef = await queryEndpoint.getParentEndpointRef(
       db,
       parentEndpointIdentifier,
-      sessionIdexport
+      sessionIdexport,
     )
     if (parentEndpointRef == null && parentEndpointIdentifier != null) {
       parentEndpointIdentifier = null
@@ -139,7 +139,7 @@ function httpPatchEndpoint(db) {
       db,
       sessionIdexport,
       context.id,
-      parentEndpointRef
+      parentEndpointRef,
     )
     let changes = context.changes.map((data) => {
       let paramType = ''
@@ -175,7 +175,7 @@ function httpPostEndpointType(db) {
       await querySession.selectSessionPartitionInfoFromDeviceType(
         db,
         sessionId,
-        deviceTypeRef
+        deviceTypeRef,
       )
     try {
       let newId = await queryConfig.insertEndpointType(
@@ -184,7 +184,7 @@ function httpPostEndpointType(db) {
         name,
         deviceTypeRef,
         deviceIdentifier,
-        deviceVersion
+        deviceVersion,
       )
 
       response.status(StatusCodes.OK).json({
@@ -224,7 +224,7 @@ function httpPatchEndpointType(db) {
       db,
       sessionId,
       context.endpointTypeId,
-      changes
+      changes,
     )
 
     response.status(StatusCodes.OK).json({

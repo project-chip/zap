@@ -45,7 +45,7 @@ beforeAll(async () => {
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
     env.schemaFile(),
-    env.zapVersion()
+    env.zapVersion(),
   )
   await zclLoader.loadZcl(db, env.builtinMatterZclMetafile())
   await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
@@ -59,14 +59,14 @@ test('Validate loaded packages', async () => {
   expect(
     await testQuery.selectCountFrom(
       db,
-      "PACKAGE WHERE PACKAGE.TYPE = 'zcl-properties'"
-    )
+      "PACKAGE WHERE PACKAGE.TYPE = 'zcl-properties'",
+    ),
   ).toBe(2)
   expect(
     await testQuery.selectCountFrom(
       db,
-      "PACKAGE WHERE PACKAGE.TYPE = 'gen-templates-json'"
-    )
+      "PACKAGE WHERE PACKAGE.TYPE = 'gen-templates-json'",
+    ),
   ).toBe(2)
 })
 

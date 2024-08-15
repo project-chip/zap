@@ -134,7 +134,7 @@ limitations under the License.
                       <li
                         v-for="(error, index) in populateNotifications(
                           sessionPackage.pkg.id,
-                          'ERROR'
+                          'ERROR',
                         )"
                         :key="'error' + index"
                         style="margin-bottom: 10px"
@@ -154,7 +154,7 @@ limitations under the License.
                       <li
                         v-for="(warning, index) in populateNotifications(
                           sessionPackage.pkg.id,
-                          'WARNING'
+                          'WARNING',
                         )"
                         :key="index"
                         style="margin-bottom: 10px"
@@ -245,14 +245,14 @@ export default {
     async deletePackage(packageToDelete) {
       await this.$store.dispatch(
         'zap/deleteSessionPackage',
-        packageToDelete.sessionPackage
+        packageToDelete.sessionPackage,
       )
       await this.$store.dispatch('zap/updateClusters')
       await this.$store.dispatch('zap/updateAtomics')
     },
     async getPackageNotifications(packageId) {
       this.$serverGet(
-        restApi.uri.packageNotificationById.replace(':packageId', packageId)
+        restApi.uri.packageNotificationById.replace(':packageId', packageId),
       ).then((res) => {
         let notifications = res.data || []
         let currentPackage = {
@@ -304,7 +304,7 @@ export default {
     enableExtensionsWarning() {
       let categories =
         this.$store.state.zap.selectedZapConfig?.zclProperties.map(
-          (zclProp) => zclProp.category
+          (zclProp) => zclProp.category,
         )
       // Showing extensions when the zcl packages have less than 1 category
       return categories.length > 1
@@ -319,7 +319,7 @@ export default {
           if (value.context == 'customXml') {
             this.packageToLoad = value.filePaths[0]
           }
-        }
+        },
       )
     }
   },

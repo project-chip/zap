@@ -78,7 +78,7 @@ function checkIsChipType(context, name) {
 function getCommands(methodName) {
   const { clusterName, clusterSide } = checkIsInsideClusterBlock(
     this,
-    methodName
+    methodName,
   );
   return clusterSide == 'client'
     ? ensureClusters(this).getClientCommands(clusterName)
@@ -88,7 +88,7 @@ function getCommands(methodName) {
 function getAttributes(methodName) {
   const { clusterName, clusterSide } = checkIsInsideClusterBlock(
     this,
-    methodName
+    methodName,
   );
   return ensureClusters(this).getAttributesByClusterName(clusterName);
 }
@@ -96,7 +96,7 @@ function getAttributes(methodName) {
 function getResponses(methodName) {
   const { clusterName, clusterSide } = checkIsInsideClusterBlock(
     this,
-    methodName
+    methodName,
   );
   return clusterSide == 'client'
     ? ensureClusters(this).getClientResponses(clusterName)
@@ -112,7 +112,7 @@ function chip_server_clusters(options) {
   return asBlocks.call(
     this,
     ensureClusters(this, options.hash.includeAll).getServerClusters(),
-    options
+    options,
   );
 }
 
@@ -135,7 +135,7 @@ function chip_client_clusters(options) {
   return asBlocks.call(
     this,
     ensureClusters(this, options.hash.includeAll).getClientClusters(),
-    options
+    options,
   );
 }
 
@@ -158,7 +158,7 @@ function chip_clusters(options) {
   return asBlocks.call(
     this,
     ensureClusters(this, options.hash.includeAll).getClusters(),
-    options
+    options,
   );
 }
 
@@ -190,7 +190,7 @@ async function if_basic_global_response(options) {
     attribute.isStruct ||
     attribute.isArray;
   const responseTypeExists = globalResponses.find(
-    (item) => item.chipType == attribute.chipType
+    (item) => item.chipType == attribute.chipType,
   );
 
   if (!complexType && responseTypeExists) {
@@ -277,18 +277,18 @@ function chip_cluster_responses(options) {
 function chip_cluster_command_arguments(options) {
   const commandId = checkIsInsideCommandBlock(
     this,
-    'chip_cluster_command_arguments'
+    'chip_cluster_command_arguments',
   );
   const commands = getCommands.call(
     this.parent,
-    'chip_cluster_commands_argments'
+    'chip_cluster_commands_argments',
   );
 
   const filter = (command) => command.id == commandId;
   return asBlocks.call(
     this,
     commands.then((items) => items.find(filter).arguments),
-    options
+    options,
   );
 }
 
@@ -314,11 +314,11 @@ function chip_cluster_command_arguments(options) {
 function chip_cluster_command_arguments_with_structs_expanded(options) {
   const commandId = checkIsInsideCommandBlock(
     this,
-    'chip_cluster_command_arguments'
+    'chip_cluster_command_arguments',
   );
   const commands = getCommands.call(
     this.parent,
-    'chip_cluster_command_arguments_with_structs_expanded'
+    'chip_cluster_command_arguments_with_structs_expanded',
   );
 
   const filter = (command) => command.id == commandId;
@@ -331,7 +331,7 @@ function chip_cluster_command_arguments_with_structs_expanded(options) {
       }
       return item.expandedArguments || item.arguments;
     }),
-    options
+    options,
   );
 }
 
@@ -346,18 +346,18 @@ function chip_cluster_command_arguments_with_structs_expanded(options) {
 function chip_cluster_response_arguments(options) {
   const commandId = checkIsInsideCommandBlock(
     this,
-    'chip_cluster_response_arguments'
+    'chip_cluster_response_arguments',
   );
   const responses = getResponses.call(
     this.parent,
-    'chip_cluster_responses_argments'
+    'chip_cluster_responses_argments',
   );
 
   const filter = (command) => command.id == commandId;
   return asBlocks.call(
     this,
     responses.then((items) => items.find(filter).arguments),
-    options
+    options,
   );
 }
 
@@ -372,7 +372,7 @@ function chip_cluster_response_arguments(options) {
 function chip_server_has_list_attributes(options) {
   const { clusterName } = checkIsInsideClusterBlock(
     this,
-    'chip_server_has_list_attributes'
+    'chip_server_has_list_attributes',
   );
   const attributes = ensureClusters(this).getServerAttributes(clusterName);
 
@@ -391,7 +391,7 @@ function chip_server_has_list_attributes(options) {
 function chip_client_has_list_attributes(options) {
   const { clusterName } = checkIsInsideClusterBlock(
     this,
-    'chip_client_has_list_attributes'
+    'chip_client_has_list_attributes',
   );
   const attributes = ensureClusters(this).getClientAttributes(clusterName);
 
@@ -410,7 +410,7 @@ function chip_client_has_list_attributes(options) {
 function chip_server_has_reportable_attributes(options) {
   const { clusterName } = checkIsInsideClusterBlock(
     this,
-    'chip_server_has_reportable_attributes'
+    'chip_server_has_reportable_attributes',
   );
   const attributes = ensureClusters(this).getServerAttributes(clusterName);
 
@@ -430,7 +430,7 @@ function chip_server_has_reportable_attributes(options) {
 function chip_server_cluster_attributes(options) {
   const { clusterName } = checkIsInsideClusterBlock(
     this,
-    'chip_server_cluster_attributes'
+    'chip_server_cluster_attributes',
   );
   const attributes = ensureClusters(this).getServerAttributes(clusterName);
 
@@ -449,7 +449,7 @@ function chip_server_cluster_attributes(options) {
 function chip_server_cluster_events(options) {
   const { clusterName } = checkIsInsideClusterBlock(
     this,
-    'chip_server_cluster_events'
+    'chip_server_cluster_events',
   );
   const events = ensureClusters(this).getServerEvents(clusterName);
 
@@ -471,7 +471,7 @@ function chip_attribute_list_entryTypes(options) {
 function chip_available_cluster_commands(options) {
   const { clusterName, clusterSide } = checkIsInsideClusterBlock(
     this,
-    'chip_available_cluster_commands'
+    'chip_available_cluster_commands',
   );
   let promise = iteratorUtil.all_user_cluster_commands_helper
     .call(this, options)
@@ -484,14 +484,14 @@ function chip_available_cluster_commands(options) {
             command.incoming,
             command.outgoing,
             command.commandSource,
-            command.name
+            command.name,
           ) &&
           /* exclude MfgSpecificPing */ !command.mfgCode
         );
-      })
+      }),
     )
     .then((filteredCommands) =>
-      templateUtil.collectBlocks(filteredCommands, options, this)
+      templateUtil.collectBlocks(filteredCommands, options, this),
     );
   return promise;
 }
@@ -502,12 +502,11 @@ function chip_available_cluster_commands(options) {
 async function chip_cluster_specific_structs(options) {
   const { clusterName, clusterSide } = checkIsInsideClusterBlock(
     this,
-    'chip_cluster_specific_structs'
+    'chip_cluster_specific_structs',
   );
 
-  const structs = await ensureClusters(this).getStructuresByClusterName(
-    clusterName
-  );
+  const structs =
+    await ensureClusters(this).getStructuresByClusterName(clusterName);
 
   return templateUtil.collectBlocks(structs, options, this);
 }
@@ -551,7 +550,7 @@ async function if_is_strongly_typed_bitmap(type, options) {
     bitmap = await queryZcl.selectBitmapByName(
       this.global.db,
       packageIds,
-      type
+      type,
     );
   } else {
     bitmap = await queryZcl.selectBitmapById(this.global.db, type);
@@ -561,7 +560,7 @@ async function if_is_strongly_typed_bitmap(type, options) {
     let a = await queryZcl.selectAtomicType(
       this.global.db,
       packageIds,
-      bitmap.name
+      bitmap.name,
     );
     if (a) {
       // If this is an atomic type, it's a generic, weakly typed, bitmap.
@@ -600,7 +599,7 @@ async function if_is_strongly_typed_chip_enum(type, options) {
       enumRes = await queryZcl.selectEnumByName(
         this.global.db,
         type,
-        packageIds
+        packageIds,
       );
     } else {
       enumRes = await queryZcl.selectEnumById(this.global.db, type);
@@ -612,7 +611,7 @@ async function if_is_strongly_typed_chip_enum(type, options) {
       let a = await queryZcl.selectAtomicType(
         this.global.db,
         packageIds,
-        enumRes.name
+        enumRes.name,
       );
       if (a) {
         // if an enum has an atomic type that means it's a weakly-typed enum.
@@ -677,7 +676,7 @@ async function chip_access_elements(options) {
 
   if (entityType == null) {
     throw new Error(
-      'Access helper requires entityType, either from context, or from the entity="<entityType>" option.'
+      'Access helper requires entityType, either from context, or from the entity="<entityType>" option.',
     );
   }
 
@@ -698,7 +697,7 @@ async function chip_access_elements(options) {
     case 'attribute':
       accessList = await queryAccess.selectAttributeAccess(
         this.global.db,
-        this.id
+        this.id,
       );
       accessDefaults.set('read', 'view');
       accessDefaults.set('write', 'operate');
@@ -706,7 +705,7 @@ async function chip_access_elements(options) {
     case 'command':
       accessList = await queryAccess.selectCommandAccess(
         this.global.db,
-        this.id
+        this.id,
       );
       accessDefaults.set('invoke', 'operate');
       break;
@@ -716,7 +715,7 @@ async function chip_access_elements(options) {
       break;
     default:
       throw new Error(
-        `Entity type ${entityType} not supported. Requires: attribute/command/event.`
+        `Entity type ${entityType} not supported. Requires: attribute/command/event.`,
       );
   }
 
@@ -752,39 +751,39 @@ const dep = templateUtil.deprecatedHelper;
 //
 exports.chip_clusters = dep(
   chip_clusters,
-  'chip_clusters has been deprecated. Use all_user_clusters.'
+  'chip_clusters has been deprecated. Use all_user_clusters.',
 );
 exports.chip_has_clusters = dep(
   chip_has_clusters,
-  'Use first/last block helper within all_user_clusters.'
+  'Use first/last block helper within all_user_clusters.',
 );
 exports.chip_client_clusters = dep(
   chip_client_clusters,
   'chip_client_clusters has been deprecated. Use all_user_clusters with the \
-  side option as client.'
+  side option as client.',
 );
 exports.chip_has_client_clusters = dep(
   chip_has_client_clusters,
-  'chip_has_client_clusters has been deprecated. Use if_enabled_clusters with side option as client.'
+  'chip_has_client_clusters has been deprecated. Use if_enabled_clusters with side option as client.',
 );
 exports.chip_server_clusters = dep(
   chip_server_clusters,
-  'chip_server_clusters has been deprecated. Use all_user_clusters with the side option as server.'
+  'chip_server_clusters has been deprecated. Use all_user_clusters with the side option as server.',
 );
 exports.chip_has_server_clusters = dep(
   chip_has_server_clusters,
-  'chip_has_server_clusters has been deprecated. Use if_enabled_clusters with side option as server.'
+  'chip_has_server_clusters has been deprecated. Use if_enabled_clusters with side option as server.',
 );
 exports.chip_cluster_commands = dep(
   chip_cluster_commands,
-  'chip_cluster_commands has been deprecated. Use zcl_commands with source attribute as client.'
+  'chip_cluster_commands has been deprecated. Use zcl_commands with source attribute as client.',
 );
 exports.chip_cluster_command_arguments = dep(chip_cluster_command_arguments, {
   to: 'zcl_command_arguments',
 });
 exports.chip_cluster_command_arguments_with_structs_expanded = dep(
   chip_cluster_command_arguments_with_structs_expanded,
-  'chip_cluster_command_arguments_with_structs_expanded has been deprecated. Use if_is_struct and zcl_struct_items_by_struct_name to expand the structs.'
+  'chip_cluster_command_arguments_with_structs_expanded has been deprecated. Use if_is_struct and zcl_struct_items_by_struct_name to expand the structs.',
 );
 exports.chip_server_global_responses = chip_server_global_responses;
 exports.chip_cluster_responses = dep(chip_cluster_responses, {
@@ -792,38 +791,38 @@ exports.chip_cluster_responses = dep(chip_cluster_responses, {
 });
 exports.chip_cluster_response_arguments = dep(
   chip_cluster_response_arguments,
-  'chip_cluster_response_arguments has been deprecated. Use zcl_command_arguments.'
+  'chip_cluster_response_arguments has been deprecated. Use zcl_command_arguments.',
 );
 exports.chip_attribute_list_entryTypes = chip_attribute_list_entryTypes;
 exports.chip_server_cluster_attributes = dep(
   chip_server_cluster_attributes,
   'chip_server_cluster_attributes has been deprecated. Use \
   enabled_attributes_for_cluster_and_side and \
-  zcl_attributes_server to get enabled and all server attributes respectively.'
+  zcl_attributes_server to get enabled and all server attributes respectively.',
 );
 exports.chip_server_cluster_events = dep(
   chip_server_cluster_events,
-  'chip_server_cluster_events has been deprecated. Use zcl_events.'
+  'chip_server_cluster_events has been deprecated. Use zcl_events.',
 );
 exports.chip_server_has_list_attributes = dep(
   chip_server_has_list_attributes,
-  'chip_server_has_list_attributes has been deprecated. Use isArray option to fiter array type attributes and use first/last blocks for one time checks.'
+  'chip_server_has_list_attributes has been deprecated. Use isArray option to fiter array type attributes and use first/last blocks for one time checks.',
 );
 exports.chip_server_has_reportable_attributes = dep(
   chip_server_has_reportable_attributes,
-  'chip_server_has_reportable_attributes has been deprecated. Use isReportableAttribute option to fiter reportable attributes and use first/last blocks for one time checks.'
+  'chip_server_has_reportable_attributes has been deprecated. Use isReportableAttribute option to fiter reportable attributes and use first/last blocks for one time checks.',
 );
 exports.chip_available_cluster_commands = dep(
   chip_available_cluster_commands,
-  'chip_available_cluster_commands has been deprecated. Use zcl_commands or all_user_cluster_generated_commands.'
+  'chip_available_cluster_commands has been deprecated. Use zcl_commands or all_user_cluster_generated_commands.',
 );
 exports.chip_endpoints = dep(
   chip_endpoints,
-  'chip_endpoints has been deprecated. Use user_endpoints.'
+  'chip_endpoints has been deprecated. Use user_endpoints.',
 );
 exports.chip_endpoint_clusters = dep(
   chip_endpoint_clusters,
-  'chip_endpoint_clusters has been deprecated. Use user_clusters or all_user_clusters.'
+  'chip_endpoint_clusters has been deprecated. Use user_clusters or all_user_clusters.',
 );
 exports.if_chip_enum = if_chip_enum;
 exports.if_chip_complex = if_chip_complex;
@@ -832,11 +831,11 @@ exports.if_basic_global_response = dep(if_basic_global_response, {
 });
 exports.chip_cluster_specific_structs = dep(
   chip_cluster_specific_structs,
-  'chip_cluster_specific_structs has been deprecated. Use zcl_structs.'
+  'chip_cluster_specific_structs has been deprecated. Use zcl_structs.',
 );
 exports.chip_shared_structs = dep(
   chip_shared_structs,
-  'chip_shared_structs has been deprecated. Use zcl_structs along with has_more_than_one_cluster attribute.'
+  'chip_shared_structs has been deprecated. Use zcl_structs along with has_more_than_one_cluster attribute.',
 );
 exports.chip_access_elements = chip_access_elements;
 exports.if_is_strongly_typed_chip_enum = if_is_strongly_typed_chip_enum;

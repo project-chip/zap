@@ -35,7 +35,6 @@ const initialize = require('../rest/initialize')
 const dirtyFlag = require('../util/async-reporting')
 const notification = require('../db/query-session-notification.js')
 
-
 const restApiModules = [
   require('../rest/admin.js'),
   require('../rest/static-zcl.js'),
@@ -114,7 +113,7 @@ async function initHttpServer(
     allowCors: false,
     zcl: env.builtinSilabsZclMetafile(),
     template: env.builtinTemplateMetafile(),
-  }
+  },
 ) {
   return new Promise((resolve, reject) => {
     const app = express()
@@ -125,11 +124,11 @@ async function initHttpServer(
         res.setHeader('Access-Control-Allow-Origin', '*')
         res.setHeader(
           'Access-Control-Allow-Methods',
-          'GET,POST,PUT,PATCH,DELETE,OPTIONS'
+          'GET,POST,PUT,PATCH,DELETE,OPTIONS',
         )
         res.setHeader(
           'Access-Control-Allow-Headers',
-          'Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With'
+          'Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With',
         )
         next()
       })
@@ -142,7 +141,7 @@ async function initHttpServer(
         secret: 'Zap@Watt@SiliconLabs',
         resave: true,
         saveUninitialized: true,
-      })
+      }),
     )
     app.use(userSessionHandler(db, options))
 
@@ -221,7 +220,7 @@ function userSessionHandler(db, options) {
           }
           studio.sendSessionCreationErrorStatus(db, resp, zapSessionId)
           env.logError(resp)
-          if(req.sessionId) {
+          if (req.sessionId) {
             notification.setNotification(db, 'ERROR', resp, zapSessionId, 1, 0)
           }
         })

@@ -70,7 +70,7 @@ limitations under the License.
                   selectedReporting,
                   'selectedReporting',
                   props.row,
-                  selectedCluster.id
+                  selectedCluster.id,
                 )
               "
             />
@@ -91,8 +91,8 @@ limitations under the License.
             selectedCluster.manufacturerCode
               ? asHex(selectedCluster.manufacturerCode, 4)
               : props.row.manufacturerCode
-              ? asHex(props.row.manufacturerCode, 4)
-              : ''
+                ? asHex(props.row.manufacturerCode, 4)
+                : ''
           }}</q-td>
           <q-td key="min" :props="props" auto-width>
             <q-input
@@ -109,7 +109,7 @@ limitations under the License.
                   $event,
                   'reportingMin',
                   props.row,
-                  selectedCluster.id
+                  selectedCluster.id,
                 )
               "
             />
@@ -129,7 +129,7 @@ limitations under the License.
                   $event,
                   'reportingMax',
                   props.row,
-                  selectedCluster.id
+                  selectedCluster.id,
                 )
               "
             />
@@ -152,12 +152,12 @@ limitations under the License.
               "
               :error="
                 !isDefaultValueValid(
-                  hashAttributeIdClusterId(props.row.id, selectedCluster.id)
+                  hashAttributeIdClusterId(props.row.id, selectedCluster.id),
                 )
               "
               :error-message="
                 getDefaultValueErrorMessage(
-                  hashAttributeIdClusterId(props.row.id, selectedCluster.id)
+                  hashAttributeIdClusterId(props.row.id, selectedCluster.id),
                 )
               "
               @update:model-value="
@@ -165,7 +165,7 @@ limitations under the License.
                   $event,
                   'reportableChange',
                   props.row,
-                  selectedCluster.id
+                  selectedCluster.id,
                 )
               "
               type="number"
@@ -203,8 +203,8 @@ export default {
             return this.$store.state.zap.attributeView.selectedAttributes.includes(
               this.hashAttributeIdClusterId(
                 attribute.id,
-                this.selectedCluster.id
-              )
+                this.selectedCluster.id,
+              ),
             )
           })
           .filter((a) => {
@@ -234,14 +234,14 @@ export default {
           this.relevantAttributeData.filter(
             (attribute) =>
               !attribute.isOptional ||
-              this.requiredDeviceTypeAttributes.includes(attribute.id)
-          )
+              this.requiredDeviceTypeAttributes.includes(attribute.id),
+          ),
         )
         return this.relevantAttributeData
           .filter(
             (attribute) =>
               !attribute.isOptional ||
-              this.requiredDeviceTypeAttributes.includes(attribute.id)
+              this.requiredDeviceTypeAttributes.includes(attribute.id),
           )
           .map((attribute) => attribute.id)
       },
@@ -353,7 +353,7 @@ export default {
     },
     displayAttrWarning(row) {
       let indexOfValue = this.selectedReporting.indexOf(
-        this.hashAttributeIdClusterId(row.id, this.selectedCluster.id)
+        this.hashAttributeIdClusterId(row.id, this.selectedCluster.id),
       )
       let isDisabled
       if (indexOfValue === -1) {
@@ -394,7 +394,7 @@ export default {
               a,
               b,
               this.selectedReporting,
-              this.sortByClusterAndManufacturerCode
+              this.sortByClusterAndManufacturerCode,
             )
           } else if (sortBy === 'attrName') {
             return this.sortByText(x['label'], y['label'], a, b)
@@ -404,7 +404,7 @@ export default {
               y['side'],
               a,
               b,
-              this.sortByClusterAndManufacturerCode
+              this.sortByClusterAndManufacturerCode,
             )
           }
         })
@@ -413,14 +413,20 @@ export default {
     },
     updateSelectedReporting() {
       this.attributeData.forEach((attribute) => {
-        if(attribute.reportingPolicy == "mandatory" || attribute.reportingPolicy == "suggested") {
-          let hashValue = this.hashAttributeIdClusterId(attribute.id, this.selectedCluster.id)
-          if(!this.selectedReporting.includes(hashValue)) {
+        if (
+          attribute.reportingPolicy == 'mandatory' ||
+          attribute.reportingPolicy == 'suggested'
+        ) {
+          let hashValue = this.hashAttributeIdClusterId(
+            attribute.id,
+            this.selectedCluster.id,
+          )
+          if (!this.selectedReporting.includes(hashValue)) {
             this.selectedReporting.push(hashValue)
           }
         }
       })
-    }
+    },
   },
 }
 </script>

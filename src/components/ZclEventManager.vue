@@ -48,7 +48,7 @@ limitations under the License.
                     selectedEvents,
                     'selectedEvents',
                     props.row,
-                    selectedCluster.id
+                    selectedCluster.id,
                   )
                 "
               />
@@ -61,8 +61,8 @@ limitations under the License.
                 selectedCluster.manufacturerCode
                   ? asHex(selectedCluster.manufacturerCode, 4)
                   : props.row.manufacturerCode
-                  ? asHex(props.row.manufacturerCode, 4)
-                  : '-'
+                    ? asHex(props.row.manufacturerCode, 4)
+                    : '-'
               }}
             </q-td>
             <q-td key="name" :props="props" auto-width>{{
@@ -120,7 +120,7 @@ export default {
       // We determine the ID that we need to toggle within the list.
       // This ID comes from hashing the base event ID and cluster data.
       let indexOfValue = list.indexOf(
-        this.hashEventIdClusterId(eventData.id, clusterId)
+        this.hashEventIdClusterId(eventData.id, clusterId),
       )
 
       let addedValue

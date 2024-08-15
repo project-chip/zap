@@ -36,7 +36,7 @@ console.log(`Lockfile version: ${packageLock.lockfileVersion}`)
 if (packageLock.lockfileVersion != expectedLockfileVersion) {
   console.error(
     `package-lock.json is expected to have lockfileVersion ${expectedLockfileVersion}. Found: ${packageLock.lockfileVersion}.
-Check your npm version.`
+Check your npm version.`,
   )
   process.exit(1)
 }
@@ -44,7 +44,7 @@ Check your npm version.`
 console.log(`Application version: ${packageLock.version}`)
 if (packageLock.version != expectedVersion) {
   console.error(
-    `package-lock.json is expected to have version ${expectedVersion}. Found: ${packageLock.version}`
+    `package-lock.json is expected to have version ${expectedVersion}. Found: ${packageLock.version}`,
   )
   process.exit(1)
 }

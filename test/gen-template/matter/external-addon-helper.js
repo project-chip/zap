@@ -59,35 +59,35 @@ function initialize_helpers(helperRegister, context) {
   helperRegister.registerHelpers(
     'test_external_addon_helper',
     test_external_addon_helper,
-    context
+    context,
   )
 
   // Register the 'test_external_addon_all_events_helper' function
   helperRegister.registerHelpers(
     'test_external_addon_all_events_helper',
     test_external_addon_all_events_helper,
-    context
+    context,
   )
 
   // Register the 'test_external_addon_all_attributes_helper' function
   helperRegister.registerHelpers(
     'test_external_addon_all_attributes_helper',
     test_external_addon_all_attributes_helper,
-    context
+    context,
   )
 
   // Register the 'test_external_addon_all_commands_helper' function
   helperRegister.registerHelpers(
     'test_external_addon_all_commands_helper',
     test_external_addon_all_commands_helper,
-    context
+    context,
   )
 
   // Register the 'test_external_addon_all_clusters_helper' function
   helperRegister.registerHelpers(
     'test_external_addon_all_clusters_helper',
     test_external_addon_all_clusters_helper,
-    context
+    context,
   )
 }
 

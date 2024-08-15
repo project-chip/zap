@@ -38,7 +38,7 @@ beforeAll(async () => {
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
     env.schemaFile(),
-    env.zapVersion()
+    env.zapVersion(),
   )
   return zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
 }, testUtil.timeout.medium())
@@ -52,7 +52,7 @@ test(
   async () => {
     let context = await genEngine.loadTemplates(
       db,
-      testUtil.testTemplate.zigbee
+      testUtil.testTemplate.zigbee,
     )
     expect(context.crc).not.toBeNull()
     expect(context.templateData).not.toBeNull()
@@ -62,7 +62,7 @@ test(
     expect(context.packageId).not.toBeNull()
     templateContext = context
   },
-  testUtil.timeout.medium()
+  testUtil.timeout.medium(),
 )
 
 test(
@@ -70,11 +70,11 @@ test(
   async () => {
     templateContext.packages = await queryPackage.getPackageByParent(
       templateContext.db,
-      templateContext.packageId
+      templateContext.packageId,
     )
     expect(templateContext.packages.length).toBe(templateCount - 1 + 3) // -1 for ignored one, two for helpers and one for overridable
   },
-  testUtil.timeout.short()
+  testUtil.timeout.short(),
 )
 
 test(
@@ -82,7 +82,7 @@ test(
   async () => {
     let { sessionId, errors, warnings } = await importJs.importDataFromFile(
       db,
-      testFile
+      testFile,
     )
     expect(errors.length).toBe(0)
     expect(warnings.length).toBe(0)
@@ -95,7 +95,7 @@ test(
       {
         generateOnly: 'sdk-extension.out',
         disableDeprecationWarnings: true,
-      }
+      },
     )
 
     expect(genResult.hasErrors).toBeFalsy()
@@ -106,11 +106,11 @@ test(
     expect(sdkExtension).not.toBeNull()
     expect(
       sdkExtension.includes(
-        'IMPLEMENTED_COMMANDS2>IdentifyQueryResponse,IdentifyQuery,<END2'
-      )
+        'IMPLEMENTED_COMMANDS2>IdentifyQueryResponse,IdentifyQuery,<END2',
+      ),
     ).toBeTruthy()
   },
-  testUtil.timeout.long()
+  testUtil.timeout.long(),
 )
 
 test(
@@ -119,7 +119,7 @@ test(
     // Import a zap file
     let { sessionId, errors, warnings } = await importJs.importDataFromFile(
       db,
-      testFile
+      testFile,
     )
     expect(errors.length).toBe(0)
     expect(warnings.length).toBe(0)
@@ -128,7 +128,7 @@ test(
     let result = await zclLoader.loadIndividualFile(
       db,
       testUtil.testCustomXml2,
-      sessionId
+      sessionId,
     )
     expect(result.succeeded).toBeTruthy()
 
@@ -137,13 +137,13 @@ test(
       await querySession.selectSessionPartitionInfoFromPackageId(
         db,
         sessionId,
-        result.packageId
+        result.packageId,
       )
     await queryPackage.insertSessionPackage(
       db,
       sessionPartitionInfo[0].sessionPartitionId,
       result.packageId,
-      false
+      false,
     )
 
     // Generate code using templates
@@ -161,7 +161,7 @@ test(
           'zap-id.h',
         ],
         disableDeprecationWarnings: true,
-      }
+      },
     )
 
     expect(genResult.hasErrors).toBeFalsy()
@@ -174,8 +174,8 @@ test(
     expect(sdkExtension).not.toBeNull()
     expect(
       sdkExtension.includes(
-        'IMPLEMENTED_COMMANDS2>IdentifyQueryResponse,IdentifyQuery,<END2'
-      )
+        'IMPLEMENTED_COMMANDS2>IdentifyQueryResponse,IdentifyQuery,<END2',
+      ),
     ).toBeTruthy()
 
     // Check if the types are generated correctly
@@ -199,13 +199,13 @@ test(
 
     // Test custom command coming from standard cluster extensions(identify cluster extension)
     expect(commands).toContain(
-      '#define emberAfFillCommandIdentifyClusterSampleMfgSpecificIdentifyCommand1'
+      '#define emberAfFillCommandIdentifyClusterSampleMfgSpecificIdentifyCommand1',
     )
 
     // Test command structs genereted
     let structs = genResult.content['zap-command-structs.h']
     expect(structs).toContain(
-      'typedef struct __zcl_custom_cluster_cluster_c14_command'
+      'typedef struct __zcl_custom_cluster_cluster_c14_command',
     )
     expect(structs).toContain('sl_zcl_custom_cluster_cluster_c5_command_t;')
 
@@ -217,7 +217,7 @@ test(
 
     // Test custom attributes coming from standard cluster extensions(identify cluster extension)
     expect(ids).toContain(
-      '#define ZCL_SAMPLE_MFG_SPECIFIC_IDENTIFY_1_ATTRIBUTE_ID (0x0000)'
+      '#define ZCL_SAMPLE_MFG_SPECIFIC_IDENTIFY_1_ATTRIBUTE_ID (0x0000)',
     )
 
     // Delete the custom xml packageId from the existing session and test generation again
@@ -225,12 +225,12 @@ test(
       await querySession.selectSessionPartitionInfoFromPackageId(
         db,
         sessionId,
-        result.packageId
+        result.packageId,
       )
     await queryPackage.deleteSessionPackage(
       db,
       sessionPartitionInfo[0].sessionPartitionId,
-      result.packageId
+      result.packageId,
     )
 
     // Generate again after removing a custom xml file
@@ -242,20 +242,20 @@ test(
       {
         generateOnly: ['zap-id.h', 'zap-command-ver-2.h'],
         disableDeprecationWarnings: true,
-      }
+      },
     )
     ids = genResult.content['zap-id.h']
     commands = genResult.content['zap-command-ver-2.h']
 
     // Test custom attributes removal coming from standard cluster extensions(identify cluster extension)
     expect(ids).not.toContain(
-      '#define ZCL_SAMPLE_MFG_SPECIFIC_IDENTIFY_1_ATTRIBUTE_ID (0x0000)'
+      '#define ZCL_SAMPLE_MFG_SPECIFIC_IDENTIFY_1_ATTRIBUTE_ID (0x0000)',
     )
 
     // Test custom command removal coming from standard cluster extensions(identify cluster extension)
     expect(commands).not.toContain(
-      '#define emberAfFillCommandIdentifyClusterSampleMfgSpecificIdentifyCommand1'
+      '#define emberAfFillCommandIdentifyClusterSampleMfgSpecificIdentifyCommand1',
     )
   },
-  testUtil.timeout.long() * 2
+  testUtil.timeout.long() * 2,
 )

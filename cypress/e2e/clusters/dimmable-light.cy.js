@@ -25,5 +25,5 @@ describe(
           .type(data.cluster4)
       })
     })
-  }
+  },
 )

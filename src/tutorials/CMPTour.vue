@@ -110,7 +110,7 @@ export default {
       return new Promise((resolve) => {
         document
           .getElementsByClassName(
-            ' q-icon material-icons q-select__dropdown-icon'
+            ' q-icon material-icons q-select__dropdown-icon',
           )[0]
           .click()
         this.$store.dispatch('zap/setDomainFilter', {
@@ -136,7 +136,7 @@ export default {
       deviceTypeRef.push(selectedDevice.deviceTypeRef)
       deviceIdentifier.push(selectedDevice.deviceIdentifier)
       deviceVersion.push(
-        selectedDevice.deviceVersion ? selectedDevice.deviceVersion : 1
+        selectedDevice.deviceVersion ? selectedDevice.deviceVersion : 1,
       )
       this.$store
         .dispatch(`zap/addEndpointType`, {
@@ -149,7 +149,7 @@ export default {
           let profileId = this.asHex(
             this.zclDeviceTypes[this.zclDeviceTypeOptions[0].deviceTypeRef]
               .profileId,
-            4
+            4,
           )
           this.tourEndpointType = response.id
 
@@ -176,13 +176,13 @@ export default {
               this.$store
                 .dispatch(
                   `zap/endpointTypeClustersInfo`,
-                  this.endpointType[res.id]
+                  this.endpointType[res.id],
                 )
                 .then((res) => {
                   if (res?.data) {
                     const clusterStates = res.data
                     const enabledClusterStates = clusterStates.filter(
-                      (x) => x.enabled
+                      (x) => x.enabled,
                     )
                     for (const states of enabledClusterStates) {
                       const { endpointTypeRef, clusterRef, side, enabled } =
@@ -195,7 +195,7 @@ export default {
                       }
 
                       console.log(
-                        `Enabling UC component ${JSON.stringify(arg)}`
+                        `Enabling UC component ${JSON.stringify(arg)}`,
                       )
                       this.updateSelectedComponentRequest(arg)
                     }
@@ -208,7 +208,7 @@ export default {
     },
     filteredZclDeviceTypes(deviceId, index) {
       const possibleDevices = this.zclDeviceTypeOptions.filter(
-        (endpoint) => endpoint.deviceIdentifier === deviceId
+        (endpoint) => endpoint.deviceIdentifier === deviceId,
       )
       const selectedDevice = possibleDevices[index ? index : 0]
       return selectedDevice

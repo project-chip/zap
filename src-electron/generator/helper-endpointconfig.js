@@ -207,7 +207,7 @@ function endpoint_types_list(options) {
   let ret = '{ \\\n'
   this.endpointList.forEach((ep) => {
     ret = ret.concat(
-      `  { ZAP_CLUSTER_INDEX(${ep.clusterIndex}), ${ep.clusterCount}, ${ep.attributeSize} }, \\\n`
+      `  { ZAP_CLUSTER_INDEX(${ep.clusterIndex}), ${ep.clusterCount}, ${ep.attributeSize} }, \\\n`,
     )
   })
   return ret.concat('}\n')
@@ -229,7 +229,7 @@ function endpoint_cluster_list(options) {
         .join(' | ')
     }
     ret = ret.concat(
-      `  { ${c.clusterId}, ZAP_ATTRIBUTE_INDEX(${c.attributeIndex}), ${c.attributeCount}, ${c.attributeSize}, ${mask}, ${c.functions} }, /* ${c.comment} */ \\\n`
+      `  { ${c.clusterId}, ZAP_ATTRIBUTE_INDEX(${c.attributeIndex}), ${c.attributeCount}, ${c.attributeSize}, ${mask}, ${c.functions} }, /* ${c.comment} */ \\\n`,
     )
   })
   return ret.concat('}\n')
@@ -353,8 +353,8 @@ async function device_list(context, options) {
         endpointIdentifier: ept.endpointId,
         deviceId: dId,
         deviceVersion: ept.deviceVersions[index],
-      })
-    )
+      }),
+    ),
   )
   return deviceList
 }
@@ -462,7 +462,7 @@ function endpoint_attribute_min_max_list(options) {
   this.minMaxList.forEach((mm, index) => {
     if (mm.typeSize > 2) {
       throw new Error(
-        `Can't have min/max for attributes larger than 2 bytes like '${mm.name}'`
+        `Can't have min/max for attributes larger than 2 bytes like '${mm.name}'`,
       )
     }
     if (mm.comment != comment) {
@@ -651,7 +651,7 @@ async function determineAttributeDefaultValue(
   typeSize,
   isNullable,
   db,
-  sessionId
+  sessionId,
 ) {
   if (specifiedDefault !== null || !isNullable) {
     return specifiedDefault
@@ -669,7 +669,7 @@ async function determineAttributeDefaultValue(
   if (types.isFloat(type)) {
     // Not supported yet.
     throw new Error(
-      "Don't know how to output a null default value for a float type"
+      "Don't know how to output a null default value for a float type",
     )
   }
 
@@ -769,7 +769,7 @@ async function collectAttributes(db, sessionId, endpointTypes, options) {
           typeSize,
           a.isNullable,
           db,
-          sessionId
+          sessionId,
         )
         // Various types store the length of the actual content in bytes.
         // For those, we can size the default storage to be just big enough for
@@ -838,7 +838,7 @@ async function collectAttributes(db, sessionId, endpointTypes, options) {
             def = types.longTypeDefaultValue(
               defaultSize,
               a.type,
-              attributeDefaultValue
+              attributeDefaultValue,
             )
           }
           let longDef = {
@@ -920,7 +920,7 @@ async function collectAttributes(db, sessionId, endpointTypes, options) {
                 dbEnum.storageOption.ram,
               ]
                 .map((s) => `"${s}"`)
-                .join(', ')}`
+                .join(', ')}`,
             )
         }
         if (a.isSingleton) mask.push('singleton')
@@ -1092,11 +1092,11 @@ async function collectAttributeSizes(db, zclPackageIds, endpointTypes) {
               db,
               zclPackageIds,
               at,
-              `ERROR: ${at.name}, invalid size, ${at.type}`
+              `ERROR: ${at.name}, invalid size, ${at.type}`,
             )
             .then((size) => {
               at.typeSize = size
-            })
+            }),
         )
       })
     })
@@ -1121,7 +1121,7 @@ async function collectAttributeTypeInfo(db, zclPackageIds, endpointTypes) {
         ps.push(
           zclUtil.determineType(db, at.type, zclPackageIds).then((typeInfo) => {
             at.typeInfo = typeInfo
-          })
+          }),
         )
       })
     })
@@ -1162,17 +1162,17 @@ function endpoint_config(options) {
     .then(() =>
       queryPackage.getPackageByPackageId(
         newContext.global.db,
-        newContext.global.genTemplatePackageId
-      )
+        newContext.global.genTemplatePackageId,
+      ),
     )
     .then((templatePackage) =>
       templatePackage && templatePackage.category
         ? queryEndpoint.selectAllEndpointsBasedOnTemplateCategory(
             db,
             sessionId,
-            templatePackage.category
+            templatePackage.category,
           )
-        : queryEndpoint.selectAllEndpoints(db, sessionId)
+        : queryEndpoint.selectAllEndpoints(db, sessionId),
     )
     .then((endpoints) => {
       newContext.endpoints = endpoints
@@ -1198,7 +1198,7 @@ function endpoint_config(options) {
               ept.deviceVersion = eptId.deviceVersion
               ept.deviceIdentifier = eptId.deviceIdentifier
               return ept
-            })
+            }),
         )
       })
       return Promise.all(endpointTypePromises)
@@ -1226,53 +1226,53 @@ function endpoint_config(options) {
                     db,
                     cl.clusterId,
                     cl.side,
-                    ept.id
+                    ept.id,
                   )
                   .then((attributes) => {
                     // Keep only the enabled attributes, and not the global ones
                     // we exclude from metadata.
                     cl.attributes = attributes.filter(
                       (a) =>
-                        a.isIncluded && !isGlobalAttrExcludedFromMetadata(a)
+                        a.isIncluded && !isGlobalAttrExcludedFromMetadata(a),
                     )
-                  })
+                  }),
               )
               ps.push(
                 queryEndpoint
                   .selectEndpointClusterCommands(db, cl.clusterId, ept.id)
                   .then((commands) => {
                     cl.commands = commands
-                  })
+                  }),
               )
               ps.push(
                 queryEndpoint
                   .selectEndpointClusterEvents(db, cl.clusterId, ept.id)
                   .then((events) => {
                     cl.events = events
-                  })
+                  }),
               )
             })
             return Promise.all(ps)
-          })
+          }),
         )
       })
       return Promise.all(promises).then(() => endpointTypes)
     })
     .then((endpointTypes) =>
-      collectAttributeTypeInfo(db, this.global.zclPackageIds, endpointTypes)
+      collectAttributeTypeInfo(db, this.global.zclPackageIds, endpointTypes),
     )
     .then((endpointTypes) =>
-      collectAttributeSizes(db, this.global.zclPackageIds, endpointTypes)
+      collectAttributeSizes(db, this.global.zclPackageIds, endpointTypes),
     )
     .then((endpointTypes) =>
-      collectAttributes(db, sessionId, endpointTypes, collectAttributesOptions)
+      collectAttributes(db, sessionId, endpointTypes, collectAttributesOptions),
     )
     .then((collection) => {
       Object.assign(newContext, collection)
     })
     .then(() => options.fn(newContext))
     .catch((err) =>
-      console.log('Error in endpoint_config helper: ' + err.message)
+      console.log('Error in endpoint_config helper: ' + err.message),
     )
   return templateUtil.templatePromise(this.global, promise)
 }

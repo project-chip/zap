@@ -51,7 +51,7 @@ INNER JOIN DATA_TYPE ON
 WHERE
   DATA_TYPE.PACKAGE_REF = ?
 ORDER BY DATA_TYPE.NAME`,
-      [packageId]
+      [packageId],
     )
     .then((rows) => rows.map(dbMapping.map.enum))
 }
@@ -89,7 +89,7 @@ WHERE
   DT.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
   AND DATA_TYPE_CLUSTER.CLUSTER_REF = ?
 ORDER BY DT.NAME`,
-      [clusterId]
+      [clusterId],
     )
     .then((rows) => rows.map(dbMapping.map.enum))
 }
@@ -113,7 +113,7 @@ FROM
 WHERE
   ENUM_REF = ?
 ORDER BY FIELD_IDENTIFIER`,
-      [id]
+      [id],
     )
     .then((rows) => rows.map(dbMapping.map.enumItem))
 }
@@ -147,7 +147,7 @@ ON
 WHERE
   DT.PACKAGE_REF = ?
 ORDER BY EI.ENUM_REF, EI.FIELD_IDENTIFIER`,
-      [packageId]
+      [packageId],
     )
     .then((rows) => rows.map(dbMapping.map.enumItem))
 }
@@ -175,7 +175,7 @@ ON
   ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID
 WHERE
   ENUM_ID = ?`,
-      [id]
+      [id],
     )
     .then(dbMapping.map.enum)
 }
@@ -206,10 +206,10 @@ ON
   ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID
 WHERE
   (DATA_TYPE.NAME = ? OR DATA_TYPE.NAME = ?)AND PACKAGE_REF IN (${dbApi.toInClause(
-    packageIds
+    packageIds,
   )})
 ORDER BY NAME`,
-      [name, name.toLowerCase()]
+      [name, name.toLowerCase()],
     )
     .then(dbMapping.map.enum)
 }
@@ -227,12 +227,12 @@ async function selectEnumByNameAndClusterId(db, name, clusterId, packageIds) {
   let queryWithoutClusterId = queryUtil.sqlQueryForDataTypeByNameAndClusterId(
     'enum',
     null,
-    packageIds
+    packageIds,
   )
   let queryWithClusterId = queryUtil.sqlQueryForDataTypeByNameAndClusterId(
     'enum',
     clusterId,
-    packageIds
+    packageIds,
   )
   let res = await dbApi
     .dbAll(db, queryWithoutClusterId, [name, name.toLowerCase()])
@@ -251,7 +251,7 @@ async function selectEnumByNameAndClusterId(db, name, clusterId, packageIds) {
 exports.selectAllEnums = selectAllEnums
 exports.selectEnumByName = dbCache.cacheQuery(selectEnumByName)
 exports.selectEnumByNameAndClusterId = dbCache.cacheQuery(
-  selectEnumByNameAndClusterId
+  selectEnumByNameAndClusterId,
 )
 exports.selectEnumById = selectEnumById
 exports.selectClusterEnums = selectClusterEnums

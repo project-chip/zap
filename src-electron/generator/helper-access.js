@@ -30,7 +30,7 @@ async function collectDefaultAccessList(ctx, entityType) {
   let defaultAccess = await queryAccess.selectDefaultAccess(
     ctx.global.db,
     packageIds,
-    entityType
+    entityType,
   )
   return defaultAccess
 }
@@ -51,7 +51,7 @@ async function collectAccesslist(ctx, options) {
 
   if (entityType == null) {
     throw new Error(
-      'Access helper requires entityType, either from context, or from the entity="<entityType>" option.'
+      'Access helper requires entityType, either from context, or from the entity="<entityType>" option.',
     )
   }
 
@@ -61,7 +61,7 @@ async function collectAccesslist(ctx, options) {
     case 'attribute':
       accessList = await queryAccess.selectAttributeAccess(
         ctx.global.db,
-        ctx.id
+        ctx.id,
       )
       break
     case 'command':
@@ -72,7 +72,7 @@ async function collectAccesslist(ctx, options) {
       break
     default:
       throw new Error(
-        `Entity type ${entityType} not supported. Requires: attribute/command/event.`
+        `Entity type ${entityType} not supported. Requires: attribute/command/event.`,
       )
   }
 
@@ -101,11 +101,11 @@ async function access_aggregate(options) {
 
   let allOps = await queryAccess.selectAccessOperations(
     this.global.db,
-    packageIds
+    packageIds,
   )
   let allMods = await queryAccess.selectAccessModifiers(
     this.global.db,
-    packageIds
+    packageIds,
   )
   let allRoles = await queryAccess.selectAccessRoles(this.global.db, packageIds)
   let roleLevels = {}
@@ -196,7 +196,7 @@ async function default_access(options) {
 
   if (entityType == null) {
     throw new Error(
-      'Access helper requires entityType, either from context, or from the entity="<entityType>" option.'
+      'Access helper requires entityType, either from context, or from the entity="<entityType>" option.',
     )
   }
 

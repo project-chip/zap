@@ -59,10 +59,10 @@ test(
       'USER',
       'SESSION',
       env.builtinSilabsZclMetafile(),
-      env.builtinTemplateMetafile()
+      env.builtinTemplateMetafile(),
     )
   },
-  timeout.medium()
+  timeout.medium(),
 )
 
 test(
@@ -90,7 +90,7 @@ test(
     expect(validation.isValidFloat('0x000G')).toBeFalsy()
     expect(validation.isValidFloat('5.6....')).toBeFalsy()
   },
-  timeout.medium()
+  timeout.medium(),
 )
 
 test(
@@ -106,10 +106,10 @@ test(
     // big
     expect(
       validation.extractBigIntegerValue('0x7FFFFFFFFFFFFF') ==
-        36028797018963967n
+        36028797018963967n,
     ).toBeTruthy()
   },
-  timeout.medium()
+  timeout.medium(),
 )
 
 test('getIntegerFromAttribute function', () => {
@@ -131,55 +131,56 @@ test('Test hex unsigned to signed conversion', () => {
 
   // 24 bits
   expect(
-    validation.unsignedToSignedInteger(0x800000, 24) == -8388608
+    validation.unsignedToSignedInteger(0x800000, 24) == -8388608,
   ).toBeTruthy()
   expect(
-    validation.unsignedToSignedInteger(0x7fffff, 24) == 8388607
+    validation.unsignedToSignedInteger(0x7fffff, 24) == 8388607,
   ).toBeTruthy()
 
   // 32 bits
   expect(
-    validation.unsignedToSignedInteger(0x80000000n, 32) == -2147483648n
+    validation.unsignedToSignedInteger(0x80000000n, 32) == -2147483648n,
   ).toBeTruthy()
   expect(
-    validation.unsignedToSignedInteger(0x7fffffffn, 32) == 2147483647n
+    validation.unsignedToSignedInteger(0x7fffffffn, 32) == 2147483647n,
   ).toBeTruthy()
 
   // 40 bits
   expect(
-    validation.unsignedToSignedInteger(0x8000000000n, 40) == -549755813888n
+    validation.unsignedToSignedInteger(0x8000000000n, 40) == -549755813888n,
   ).toBeTruthy()
   expect(
-    validation.unsignedToSignedInteger(0x7fffffffffn, 40) == 549755813887n
+    validation.unsignedToSignedInteger(0x7fffffffffn, 40) == 549755813887n,
   ).toBeTruthy()
 
   // 48 bits
   expect(
-    validation.unsignedToSignedInteger(0x800000000000n, 48) == -140737488355328n
+    validation.unsignedToSignedInteger(0x800000000000n, 48) ==
+      -140737488355328n,
   ).toBeTruthy()
   expect(
-    validation.unsignedToSignedInteger(0x7fffffffffffn, 48) == 140737488355327n
+    validation.unsignedToSignedInteger(0x7fffffffffffn, 48) == 140737488355327n,
   ).toBeTruthy()
 
   // 54 bits
   expect(
     validation.unsignedToSignedInteger(0x80000000000000n, 56) ==
-      -36028797018963968n
+      -36028797018963968n,
   ).toBeTruthy()
 
   expect(
     validation.unsignedToSignedInteger(0x7fffffffffffffn, 56) ==
-      36028797018963967n
+      36028797018963967n,
   ).toBeTruthy()
 
   // 64 bits
   expect(
     validation.unsignedToSignedInteger(0x8000000000000000n, 64) ==
-      -9223372036854775808n
+      -9223372036854775808n,
   ).toBeTruthy()
   expect(
     validation.unsignedToSignedInteger(0x7fffffffffffffffn, 64) ==
-      9223372036854775807n
+      9223372036854775807n,
   ).toBeTruthy()
 })
 
@@ -200,7 +201,7 @@ test(
     expect(!validation.checkBoundsFloat(351.0, 25, 50.0))
     expect(!validation.checkBoundsFloat(351.0, 355, 5650.0))
   },
-  timeout.medium()
+  timeout.medium(),
 )
 
 test(
@@ -219,7 +220,7 @@ test(
     expect(types.isFloat('FLOAT_DOUBLE'))
     expect(!types.isFloat('LONG_OCTET_STRING'))
   },
-  timeout.medium()
+  timeout.medium(),
 )
 
 test(
@@ -230,7 +231,7 @@ test(
         db,
         pkgId,
         3,
-        null
+        null,
       )
     attribute = attribute.filter((e) => {
       return e.code === 0
@@ -239,14 +240,14 @@ test(
     const { size, isSigned } = await validation.getIntegerAttributeSize(
       db,
       sid,
-      attribute.type
+      attribute.type,
     )
     //Test Constraints
     let minMax = await validation.getBoundsInteger(attribute, size, isSigned)
     expect(minMax.min == 0).toBeTruthy()
     expect(minMax.max === 0xffff).toBeTruthy()
   },
-  timeout.medium()
+  timeout.medium(),
 )
 
 test(
@@ -268,9 +269,9 @@ test(
           fakeEndpointAttribute,
           fakeAttribute,
           db,
-          sid
+          sid,
         )
-      ).defaultValue.length == 0
+      ).defaultValue.length == 0,
     ).toBeTruthy()
 
     // Check for if attribute is out of bounds.
@@ -281,9 +282,9 @@ test(
           fakeEndpointAttribute,
           fakeAttribute,
           db,
-          sid
+          sid,
         )
-      ).defaultValue.length == 0
+      ).defaultValue.length == 0,
     ).toBeFalsy()
 
     fakeEndpointAttribute.defaultValue = '5'
@@ -293,9 +294,9 @@ test(
           fakeEndpointAttribute,
           fakeAttribute,
           db,
-          sid
+          sid,
         )
-      ).defaultValue.length == 0
+      ).defaultValue.length == 0,
     ).toBeFalsy()
 
     //Check if attribute is actually a number
@@ -306,9 +307,9 @@ test(
           fakeEndpointAttribute,
           fakeAttribute,
           db,
-          sid
+          sid,
         )
-      ).defaultValue.length == 0
+      ).defaultValue.length == 0,
     ).toBeFalsy()
 
     fakeAttribute = {
@@ -326,9 +327,9 @@ test(
           fakeEndpointAttribute,
           fakeAttribute,
           db,
-          sid
+          sid,
         )
-      ).defaultValue.length == 0
+      ).defaultValue.length == 0,
     ).toBeTruthy()
     //Check out of bounds.
     fakeEndpointAttribute = {
@@ -340,9 +341,9 @@ test(
           fakeEndpointAttribute,
           fakeAttribute,
           db,
-          sid
+          sid,
         )
-      ).defaultValue.length == 0
+      ).defaultValue.length == 0,
     ).toBeFalsy()
     fakeEndpointAttribute = {
       defaultValue: '.25',
@@ -353,9 +354,9 @@ test(
           fakeEndpointAttribute,
           fakeAttribute,
           db,
-          sid
+          sid,
         )
-      ).defaultValue.length == 0
+      ).defaultValue.length == 0,
     ).toBeFalsy()
 
     //Check if attribute is actually a number
@@ -366,9 +367,9 @@ test(
           fakeEndpointAttribute,
           fakeAttribute,
           db,
-          sid
+          sid,
         )
-      ).defaultValue.length == 0
+      ).defaultValue.length == 0,
     ).toBeFalsy()
 
     // Expect no issues with strings.
@@ -384,9 +385,9 @@ test(
           fakeEndpointAttribute,
           fakeAttribute,
           db,
-          sid
+          sid,
         )
-      ).defaultValue.length == 0
+      ).defaultValue.length == 0,
     ).toBeTruthy()
 
     // check if handle signed numbers
@@ -407,9 +408,9 @@ test(
           fakeEndpointAttributeValid,
           fakeSignedAttribute,
           db,
-          sid
+          sid,
         )
-      ).defaultValue.length == 0
+      ).defaultValue.length == 0,
     ).toBeTruthy()
     expect(
       (
@@ -417,12 +418,12 @@ test(
           fakeEndpointAttributeInvalid,
           fakeSignedAttribute,
           db,
-          sid
+          sid,
         )
-      ).defaultValue.length == 0
+      ).defaultValue.length == 0,
     ).toBeFalsy()
   },
-  timeout.medium()
+  timeout.medium(),
 )
 
 test(
@@ -434,10 +435,10 @@ test(
       networkId: '0',
     }
     expect(
-      validation.validateSpecificEndpoint(endpoint).endpointId.length == 0
+      validation.validateSpecificEndpoint(endpoint).endpointId.length == 0,
     ).toBeTruthy()
     expect(
-      validation.validateSpecificEndpoint(endpoint).networkId.length == 0
+      validation.validateSpecificEndpoint(endpoint).networkId.length == 0,
     ).toBeTruthy()
 
     //Validate not a number
@@ -446,10 +447,10 @@ test(
       networkId: 'blah',
     }
     expect(
-      validation.validateSpecificEndpoint(endpoint).endpointId.length == 0
+      validation.validateSpecificEndpoint(endpoint).endpointId.length == 0,
     ).toBeFalsy()
     expect(
-      validation.validateSpecificEndpoint(endpoint).networkId.length == 0
+      validation.validateSpecificEndpoint(endpoint).networkId.length == 0,
     ).toBeFalsy()
 
     //Validate 0 not being valid Endpoint ID
@@ -458,7 +459,7 @@ test(
       networkId: 'blah',
     }
     expect(
-      validation.validateSpecificEndpoint(endpoint).endpointId.length == 0
+      validation.validateSpecificEndpoint(endpoint).endpointId.length == 0,
     ).toBeFalsy()
 
     //Validate out of bounds on endpointId
@@ -467,10 +468,10 @@ test(
       networkId: 'blah',
     }
     expect(
-      validation.validateSpecificEndpoint(endpoint).endpointId.length == 0
+      validation.validateSpecificEndpoint(endpoint).endpointId.length == 0,
     ).toBeFalsy()
   },
-  timeout.medium()
+  timeout.medium(),
 )
 
 describe('Validate endpoint for duplicate endpointIds', () => {
@@ -487,12 +488,12 @@ describe('Validate endpoint for duplicate endpointIds', () => {
       'USER',
       'SESSION',
       env.builtinSilabsZclMetafile(),
-      env.builtinTemplateMetafile()
+      env.builtinTemplateMetafile(),
     )
 
     let rows = await queryDeviceType.selectAllDeviceTypes(db, pkgId)
     let haOnOffDeviceTypeArray = rows.filter(
-      (data) => data.label === 'HA-onoff'
+      (data) => data.label === 'HA-onoff',
     )
     let haOnOffDeviceType = haOnOffDeviceTypeArray[0]
     let deviceTypeId = haOnOffDeviceType.id
@@ -500,7 +501,7 @@ describe('Validate endpoint for duplicate endpointIds', () => {
       await querySession.selectSessionPartitionInfoFromDeviceType(
         db,
         sid,
-        deviceTypeId
+        deviceTypeId,
       )
     let rowId = await queryConfig.insertEndpointType(
       db,
@@ -509,7 +510,7 @@ describe('Validate endpoint for duplicate endpointIds', () => {
       deviceTypeId,
       haOnOffDeviceType.code,
       0,
-      true
+      true,
     )
     endpointTypeIdOnOff = rowId
     let endpointType = await queryEndpointType.selectEndpointType(db, rowId)
@@ -519,7 +520,7 @@ describe('Validate endpoint for duplicate endpointIds', () => {
       1,
       endpointType.endpointTypeId,
       1,
-      23
+      23,
     )
     eptId = await queryEndpoint.insertEndpoint(
       db,
@@ -527,7 +528,7 @@ describe('Validate endpoint for duplicate endpointIds', () => {
       1,
       endpointType.endpointTypeId,
       1,
-      23
+      23,
     )
   }, timeout.long())
   test(
@@ -539,6 +540,6 @@ describe('Validate endpoint for duplicate endpointIds', () => {
         .then((hasNoDuplicates) => {
           expect(hasNoDuplicates).toBeFalsy()
         }),
-    timeout.medium()
+    timeout.medium(),
   )
 })

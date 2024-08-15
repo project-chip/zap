@@ -226,7 +226,7 @@ export function processCommandLineArguments(argv) {
         zapVersion.featureLevel
       }\nHash: ${zapVersion.hash}\nDate: ${zapVersion.date}${
         zapVersion.source ? '\nMode: source' : '\nMode: binary'
-      }${zapVersion.source ? '' : `\nExecutable: ${process.argv0}`} `
+      }${zapVersion.source ? '' : `\nExecutable: ${process.argv0}`} `,
     )
     .help()
     .alias({
@@ -235,7 +235,7 @@ export function processCommandLineArguments(argv) {
     .epilogue(
       `Environment variables:
 ${environmentVariablesDescription()}
-For more information, see ${commonUrl.projectUrl}`
+For more information, see ${commonUrl.projectUrl}`,
     )
     .wrap(null)
     .parse(argv)
@@ -243,7 +243,7 @@ For more information, see ${commonUrl.projectUrl}`
   // Apply Jenkins logic.
   if (ret.jenkins) {
     console.log(
-      '🔧 Detected Jenkins environment. Making necessary adjustments.'
+      '🔧 Detected Jenkins environment. Making necessary adjustments.',
     )
     if (process.env[env.environmentVariable.skipPostGen.name] == null) {
       ret.skipPostGen = true
@@ -269,11 +269,11 @@ For more information, see ${commonUrl.projectUrl}`
   if (ret.tempState) {
     let tempDir = fs.mkdtempSync(`${os.tmpdir()}${path.sep}zap.`)
     console.log(
-      `🔧 Using temporary state directory: ${env.setAppDirectory(tempDir)}`
+      `🔧 Using temporary state directory: ${env.setAppDirectory(tempDir)}`,
     )
   } else {
     console.log(
-      `🔧 Using state directory: ${env.setAppDirectory(ret.stateDirectory)}`
+      `🔧 Using state directory: ${env.setAppDirectory(ret.stateDirectory)}`,
     )
   }
 

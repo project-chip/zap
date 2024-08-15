@@ -114,7 +114,7 @@ export default {
         localChanges,
         listType,
         attributeData,
-        clusterId
+        clusterId,
       )
     },
     handleLocalSelection(selectedList, listType, attributeData, clusterId) {
@@ -124,7 +124,7 @@ export default {
         selectedList.includes(hash),
         listType,
         attributeData,
-        clusterId
+        clusterId,
       )
     },
     setAttributeSelection(enable, listType, attributeData, clusterId) {
@@ -153,14 +153,14 @@ export default {
             (validationIssueString, currentVal) => {
               return validationIssueString + '\n' + currentVal
             },
-            ''
+            '',
           )
         : ''
     },
     initializeBooleanEditableList(
       originatingList,
       editableList,
-      attrClusterHash
+      attrClusterHash,
     ) {
       if (originatingList.includes(attrClusterHash)) {
         if (!editableList.includes(attrClusterHash)) {
@@ -191,7 +191,7 @@ export default {
       // We determine the ID that we need to toggle within the list.
       // This ID comes from hashing the base ZCL attribute and cluster data.
       let indexOfValue = list.indexOf(
-        this.hashAttributeIdClusterId(attributeData.id, clusterId)
+        this.hashAttributeIdClusterId(attributeData.id, clusterId),
       )
       let addedValue
       if (indexOfValue === -1) {
@@ -272,8 +272,8 @@ export default {
       return x.toLowerCase() > y.toLowerCase()
         ? 1
         : x.toLowerCase() < y.toLowerCase()
-        ? -1
-        : callback(ascendingA, ascendingB)
+          ? -1
+          : callback(ascendingA, ascendingB)
     },
     sortByBoolean(
       x,
@@ -281,7 +281,7 @@ export default {
       ascendingA,
       ascendingB,
       singletonList,
-      callback = (i, j) => 0
+      callback = (i, j) => 0,
     ) {
       let i = this.hashAttributeIdClusterId(x.id, this.selectedCluster.id)
       let j = this.hashAttributeIdClusterId(y.id, this.selectedCluster.id)
@@ -301,8 +301,8 @@ export default {
         return x['manufacturerCode'] > y['manufacturerCode']
           ? 1
           : x['manufacturerCode'] < y['manufacturerCode']
-          ? -1
-          : 0
+            ? -1
+            : 0
       }
     },
   },

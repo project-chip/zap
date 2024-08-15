@@ -70,7 +70,7 @@ export default {
     packages: {
       get() {
         return this.$store.state.zap.allPackages.filter(
-          (singlePackage) => singlePackage.TYPE == 'gen-template'
+          (singlePackage) => singlePackage.TYPE == 'gen-template',
         )
       },
     },

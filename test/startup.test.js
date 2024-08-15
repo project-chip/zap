@@ -47,10 +47,10 @@ test(
       {
         quitFunction: null,
         logger: (msg) => {},
-      }
+      },
     )
   },
-  testUtil.timeout.long()
+  testUtil.timeout.long(),
 )
 
 test(
@@ -60,10 +60,10 @@ test(
       {
         zclProperties: env.builtinSilabsZclMetafile(),
       },
-      { logger: (msg) => {}, quit: false }
+      { logger: (msg) => {}, quit: false },
     )
   },
-  testUtil.timeout.long()
+  testUtil.timeout.long(),
 )
 
 test(
@@ -74,11 +74,11 @@ test(
     let output = '{basename}.conversion'
     let testOutputFile = path.join(
       __dirname,
-      'resource/isc/test-light.conversion'
+      'resource/isc/test-light.conversion',
     )
     let testConversionResults = path.join(
       __dirname,
-      'resource/isc/test-light.conversion.results.yaml'
+      'resource/isc/test-light.conversion.results.yaml',
     )
 
     return startup
@@ -93,7 +93,7 @@ test(
         {
           quitFunction: null,
           logger: (msg) => {},
-        }
+        },
       )
       .then(() => {
         expect(fs.existsSync(testOutputFile)).toBeTruthy()
@@ -103,7 +103,7 @@ test(
         fs.unlinkSync(testConversionResults)
       })
   },
-  testUtil.timeout.long()
+  testUtil.timeout.long(),
 )
 
 test(
@@ -120,8 +120,8 @@ test(
         quitFunction: null,
         cleanDb: false,
         logger: (msg) => {},
-      }
+      },
     )
   },
-  testUtil.timeout.long()
+  testUtil.timeout.long(),
 )

@@ -22,7 +22,7 @@ describe('Check theme functionality', () => {
       cy.wait(500)
       cy.get('#darkTheme').find('input').uncheck({ force: true })
       cy.get('body').should('have.class', 'body--light')
-    }
+    },
   )
 
   it(
@@ -33,7 +33,7 @@ describe('Check theme functionality', () => {
       cy.wait(500)
       cy.get('#darkTheme').find('input').check({ force: true })
       cy.get('body').should('have.class', 'body--dark')
-    }
+    },
   )
 
   it('RendererApi: set light theme', () => {

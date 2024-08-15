@@ -53,7 +53,7 @@ async function selectDataTypeById(db, id) {
     DATA_TYPE.DISCRIMINATOR_REF = DISCRIMINATOR.DISCRIMINATOR_ID
   WHERE
     DATA_TYPE_ID = ?`,
-      [id]
+      [id],
     )
     .then(dbMapping.map.dataType)
 }
@@ -87,9 +87,9 @@ async function selectDataTypeByName(db, name, packageIds) {
     DATA_TYPE.DISCRIMINATOR_REF = DISCRIMINATOR.DISCRIMINATOR_ID
   WHERE
     (DATA_TYPE.NAME = ? OR DATA_TYPE.NAME = ?) AND DATA_TYPE.PACKAGE_REF IN (${dbApi.toInClause(
-      packageIds
+      packageIds,
     )})`,
-      [name, smallCaseName]
+      [name, smallCaseName],
     )
     .then(dbMapping.map.dataType)
 }
@@ -107,7 +107,7 @@ async function selectDataTypeByNameAndClusterId(
   db,
   name,
   clusterId,
-  packageIds
+  packageIds,
 ) {
   let selectQueryString = `
   SELECT
@@ -184,7 +184,7 @@ async function selectAllDataTypes(db, packageId) {
   ON
     DATA_TYPE.DISCRIMINATOR_REF = DISCRIMINATOR.DISCRIMINATOR_ID
   WHERE DATA_TYPE.PACKAGE_REF = ?`,
-      [packageId]
+      [packageId],
     )
     .then((rows) => rows.map(dbMapping.map.dataType))
 }
@@ -242,7 +242,7 @@ async function selectSizeFromType(db, packageIds, value) {
     }
   } catch (err) {
     envConfig.logError(
-      'Could not find the size of type: ' + dataType.name + ' : ' + err
+      'Could not find the size of type: ' + dataType.name + ' : ' + err,
     )
   }
 }
@@ -252,5 +252,5 @@ exports.selectDataTypeByName = dbCache.cacheQuery(selectDataTypeByName)
 exports.selectAllDataTypes = selectAllDataTypes
 exports.selectSizeFromType = selectSizeFromType
 exports.selectDataTypeByNameAndClusterId = dbCache.cacheQuery(
-  selectDataTypeByNameAndClusterId
+  selectDataTypeByNameAndClusterId,
 )

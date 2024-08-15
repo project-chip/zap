@@ -570,13 +570,13 @@ export default {
     // Updating this.selectedZclPropertiesData based on UI selections
     selectedZclPropertiesDataIds() {
       this.selectedZclPropertiesData = this.zclPropertiesRow.filter((zpr) =>
-        this.selectedZclPropertiesDataIds.includes(zpr.id)
+        this.selectedZclPropertiesDataIds.includes(zpr.id),
       )
     },
     // Updating this.selectZclGenInfo based on UI selections
     selectedZclGenData() {
       this.selectZclGenInfo = this.zclGenRow.filter((zgr) =>
-        this.selectedZclGenData.includes(zgr.id)
+        this.selectedZclGenData.includes(zgr.id),
       )
     },
   },
@@ -641,7 +641,7 @@ export default {
           map[key][row.ref].push(row.message)
           return map
         },
-        { warningMap: {}, errorMap: {} }
+        { warningMap: {}, errorMap: {} },
       )
     },
     // then assign classfied notifications to proper packages
@@ -695,21 +695,21 @@ export default {
       let currentTemplatePackagesAbsolutePaths = []
       if (this.currentZapFilePackages) {
         currentTopLevelZapFilePackages = this.currentZapFilePackages.filter(
-          (zfp) => zfp.type != dbEnum.packageType.zclXmlStandalone
+          (zfp) => zfp.type != dbEnum.packageType.zclXmlStandalone,
         )
         currentZapFileZclPackages = this.currentZapFilePackages.filter(
-          (zfp) => zfp.type == dbEnum.packageType.zclProperties
+          (zfp) => zfp.type == dbEnum.packageType.zclProperties,
         )
 
         currentZapFileTemplatePackages = this.currentZapFilePackages.filter(
-          (zfp) => zfp.type == dbEnum.packageType.genTemplatesJson
+          (zfp) => zfp.type == dbEnum.packageType.genTemplatesJson,
         )
         currentZclPackagesAbsolutePaths = currentZapFileZclPackages.map((zfp) =>
-          this.createAbsolutePath(this.filePath, zfp.path)
+          this.createAbsolutePath(this.filePath, zfp.path),
         )
         currentTemplatePackagesAbsolutePaths =
           currentZapFileTemplatePackages.map((zfp) =>
-            this.createAbsolutePath(this.filePath, zfp.path)
+            this.createAbsolutePath(this.filePath, zfp.path),
           )
       }
 
@@ -723,7 +723,7 @@ export default {
         ) {
           this.selectedZclGenData = this.zclGenRow.map((zgr) => zgr.id)
           this.selectedZclPropertiesDataIds = this.zclPropertiesRow.map(
-            (zpr) => zpr.id
+            (zpr) => zpr.id,
           )
           this.selectedZclPropertiesData = this.zclPropertiesRow
         }
@@ -731,13 +731,13 @@ export default {
         this.submitForm()
       } else {
         let selectableZclPackages = this.zclPropertiesRow.filter((zp) =>
-          currentZclPackagesAbsolutePaths.includes(zp.path)
+          currentZclPackagesAbsolutePaths.includes(zp.path),
         )
         let selectableTemplatePackages = this.zclGenRow.filter((zt) =>
-          currentTemplatePackagesAbsolutePaths.includes(zt.path)
+          currentTemplatePackagesAbsolutePaths.includes(zt.path),
         )
         this.selectedZclPropertiesDataIds = selectableZclPackages.map(
-          (zp) => zp.id
+          (zp) => zp.id,
         )
         this.selectedZclPropertiesData = selectableTemplatePackages
         this.selectedZclGenData = selectableTemplatePackages.map((zt) => zt.id)
@@ -780,7 +780,7 @@ export default {
           this.assignWarningsAndErrors(
             this.zclPropertiesRow,
             warningMap,
-            errorMap
+            errorMap,
           )
           this.assignWarningsAndErrors(this.zclGenRow, warningMap, errorMap)
         })

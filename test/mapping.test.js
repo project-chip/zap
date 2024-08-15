@@ -28,5 +28,5 @@ test(
       dbMapping.map[k]({ a: 1 })
     })
   },
-  timeout.short()
+  timeout.short(),
 )

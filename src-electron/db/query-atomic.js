@@ -47,7 +47,7 @@ async function selectAllAtomics(db, packageId) {
   let rows = await dbApi.dbAll(
     db,
     `${ATOMIC_QUERY} WHERE PACKAGE_REF = ? ORDER BY ATOMIC_IDENTIFIER`,
-    [packageId]
+    [packageId],
   )
   return rows.map(dbMapping.map.atomic)
 }
@@ -64,9 +64,9 @@ async function selectAtomicType(db, packageIds, name) {
     .dbGet(
       db,
       `${ATOMIC_QUERY} WHERE PACKAGE_REF IN (${dbApi.toInClause(
-        packageIds
+        packageIds,
       )}) AND UPPER(NAME) = ?`,
-      [name == null ? name : name.toUpperCase()]
+      [name == null ? name : name.toUpperCase()],
     )
     .then(dbMapping.map.atomic)
 }
@@ -95,7 +95,7 @@ async function isTypeSignedByNameAndPackage(db, name, sessionPackages) {
   const row = await dbApi.dbGet(
     db,
     `SELECT IS_SIGNED FROM ATOMIC WHERE NAME = ? AND PACKAGE_REF = ?`,
-    [name, sessionPackage]
+    [name, sessionPackage],
   )
 
   return row ? row.IS_SIGNED === 1 : false

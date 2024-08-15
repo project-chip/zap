@@ -96,7 +96,7 @@ export function updateClusters(state, responseData) {
 
   if (responseData.clusterData) {
     state.clusters = responseData.clusterData.filter((c) =>
-      packageRefs.includes(c.packageRef)
+      packageRefs.includes(c.packageRef),
     )
     state.domains = [...new Set(state.clusters.map((a) => a.domainName))]
   }
@@ -120,14 +120,14 @@ export function updateAttributes(state, attributes) {
       vue3Set(
         state.attributeView.defaultValue,
         attribute.id,
-        attribute.defaultValue
+        attribute.defaultValue,
       )
     }
     if (state.attributeView.reportingMin[attribute.id] === undefined) {
       vue3Set(
         state.attributeView.reportingMin,
         attribute.id,
-        reportingMinDefault
+        reportingMinDefault,
       )
     }
     if (state.attributeView.reportingMax[attribute.id] === undefined) {
@@ -171,19 +171,19 @@ export function setEndpointTypeAttribute(state, endpointTypeAttribute) {
   vue3Set(
     state.attributeView.defaultValue,
     attribute.id,
-    attribute.defaultValue
+    attribute.defaultValue,
   )
   vue3Set(
     state.attributeView.storageOption,
     attribute.id,
-    attribute.storageOption
+    attribute.storageOption,
   )
   vue3Set(state.attributeView.reportingMin, attribute.id, attribute.minInterval)
   vue3Set(state.attributeView.reportingMax, attribute.id, attribute.maxInterval)
   vue3Set(
     state.attributeView.reportableChange,
     attribute.id,
-    attribute.reportableChange
+    attribute.reportableChange,
   )
 }
 
@@ -196,7 +196,7 @@ export function initializeDefaultEndpoints(state, defaultEndpoints) {
       vue3Set(
         state.endpointView.endpointType,
         endpoint.id,
-        endpoint.endpointTypeRef
+        endpoint.endpointTypeRef,
       )
     }
     if (state.endpointView.networkId[endpoint.id] === undefined) {
@@ -208,7 +208,7 @@ export function initializeDefaultEndpoints(state, defaultEndpoints) {
       vue3Set(
         state.endpointView.parentEndpointIdentifier,
         endpoint.id,
-        endpoint.parentEndpointIdentifier
+        endpoint.parentEndpointIdentifier,
       )
     }
 
@@ -223,24 +223,24 @@ export function addEndpoint(state, endpoint) {
   vue3Set(
     state.endpointView.endpointType,
     endpoint.id,
-    endpoint.endpointTypeRef
+    endpoint.endpointTypeRef,
   )
   vue3Set(state.endpointView.networkId, endpoint.id, endpoint.networkId)
   vue3Set(
     state.endpointView.parentEndpointIdentifier,
     endpoint.id,
-    endpoint.parentEndpointIdentifier
+    endpoint.parentEndpointIdentifier,
   )
   vue3Set(state.endpointView.profileId, endpoint.id, endpoint.profileId)
   vue3Set(
     state.endpointView.endpointIdValidationIssues,
     endpoint.id,
-    endpoint.endpointIdValidationIssues
+    endpoint.endpointIdValidationIssues,
   )
   vue3Set(
     state.endpointView.networkIdValidationIssues,
     endpoint.id,
-    endpoint.networkIdValidationIssues
+    endpoint.networkIdValidationIssues,
   )
 }
 
@@ -248,7 +248,7 @@ export function updateEndpoint(state, context) {
   vue3Set(
     state.endpointView.parentEndpointIdentifier,
     context.id,
-    context.parentEndpointIdentifier
+    context.parentEndpointIdentifier,
   )
   context.changes.forEach((data) => {
     vue3Set(state.endpointView[data.updatedKey], context.id, data.value)
@@ -256,12 +256,12 @@ export function updateEndpoint(state, context) {
   vue3Set(
     state.endpointView.endpointIdValidationIssues,
     context.id,
-    context.endpointIdValidationIssues
+    context.endpointIdValidationIssues,
   )
   vue3Set(
     state.endpointView.networkIdValidationIssues,
     context.id,
-    context.networkIdValidationIssues
+    context.networkIdValidationIssues,
   )
 }
 
@@ -274,14 +274,14 @@ export function initializeDefaultEndpointsTypes(state, defaultEndpointsTypes) {
       vue3Set(
         state.endpointTypeView.deviceTypeRef,
         endpointType.id,
-        endpointType.deviceTypeRef
+        endpointType.deviceTypeRef,
       )
     }
     if (state.endpointTypeView.deviceVersion[endpointType.id] === undefined) {
       vue3Set(
         state.endpointTypeView.deviceVersion,
         endpointType.id,
-        endpointType.deviceVersion
+        endpointType.deviceVersion,
       )
     }
   })
@@ -292,17 +292,17 @@ export function addEndpointType(state, endpointType) {
   vue3Set(
     state.endpointTypeView.deviceTypeRef,
     endpointType.id,
-    endpointType.deviceTypeRef
+    endpointType.deviceTypeRef,
   )
   vue3Set(
     state.endpointTypeView.deviceIdentifier,
     endpointType.id,
-    endpointType.deviceIdentifier
+    endpointType.deviceIdentifier,
   )
   vue3Set(
     state.endpointTypeView.deviceVersion,
     endpointType.id,
-    endpointType.deviceVersion
+    endpointType.deviceVersion,
   )
 }
 
@@ -310,17 +310,17 @@ export function updateAttributeDefaults(state, selectionContext) {
   vue3Set(
     state.attributeView[selectionContext.listType],
     selectionContext.id,
-    selectionContext.newDefaultValue
+    selectionContext.newDefaultValue,
   )
   vue3Set(
     state.attributeView.defaultValueValidationIssues,
     selectionContext.id,
-    selectionContext.defaultValueValidationIssues
+    selectionContext.defaultValueValidationIssues,
   )
   vue3Set(
     state.attributeView.nullValues,
     selectionContext.id,
-    selectionContext.isNull
+    selectionContext.isNull,
   )
 }
 
@@ -362,19 +362,19 @@ export function setDeviceTypeReference(state, endpointTypeIdDeviceTypeRefPair) {
   vue3Set(
     state.endpointTypeView.deviceTypeRef,
     endpointTypeIdDeviceTypeRefPair.endpointTypeId,
-    endpointTypeIdDeviceTypeRefPair.deviceTypeRef
+    endpointTypeIdDeviceTypeRefPair.deviceTypeRef,
   )
 
   vue3Set(
     state.endpointTypeView.deviceVersion,
     endpointTypeIdDeviceTypeRefPair.endpointTypeId,
-    endpointTypeIdDeviceTypeRefPair.deviceVersion
+    endpointTypeIdDeviceTypeRefPair.deviceVersion,
   )
 
   vue3Set(
     state.endpointTypeView.deviceIdentifier,
     endpointTypeIdDeviceTypeRefPair.endpointTypeId,
-    endpointTypeIdDeviceTypeRefPair.deviceIdentifier
+    endpointTypeIdDeviceTypeRefPair.deviceIdentifier,
   )
 }
 
@@ -413,7 +413,7 @@ export function resetAttributeDefaults(state) {
     vue3Set(
       state.attributeView.defaultValue,
       attribute.id,
-      attribute.defaultValue
+      attribute.defaultValue,
     )
     vue3Set(state.attributeView.storageOption, attribute.id, 'ram')
     vue3Set(state.attributeView.reportingMin, attribute.id, reportingMinDefault)
@@ -435,7 +435,7 @@ export function setAttributeLists(state, data) {
   Object.entries(data.storageOption).forEach(
     ([attributeRef, storageOption]) => {
       vue3Set(state.attributeView.storageOption, attributeRef, storageOption)
-    }
+    },
   )
 
   Object.entries(data.minInterval).forEach(([attributeRef, defaultVal]) => {
@@ -448,7 +448,7 @@ export function setAttributeLists(state, data) {
   Object.entries(data.reportableChange).forEach(
     ([attributeRef, defaultVal]) => {
       vue3Set(state.attributeView.reportableChange, attributeRef, defaultVal)
-    }
+    },
   )
 }
 
@@ -506,7 +506,7 @@ export function setOptions(state, data) {
         .filter((d) => d.optionCategory === data.option)
         .map((d) => {
           return { optionCode: d.optionCode, optionLabel: d.optionLabel }
-        })
+        }),
     ),
   ])
 }
@@ -569,7 +569,7 @@ export function doActionFilter(state, filterEnabledClusterPair) {
         state.clusterManager.openDomains,
         {
           enabledClusters: filterEnabledClusterPair.enabledClusters,
-        }
+        },
       ),
     })
   })
@@ -726,7 +726,7 @@ export function setDirtyState(state, isDirty) {
     state.isDirty = isDirty
     window.parent?.postMessage(
       { eventId: 'dirty', eventData: { isDirty: isDirty } },
-      '*'
+      '*',
     )
   }
 }

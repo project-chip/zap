@@ -91,7 +91,7 @@ svr.then(() => {
     process.exit(0)
   } else if (ignoreErrorCode) {
     console.log(
-      '⚠️ There was an error code, but will be ignored. Please check logs.'
+      '⚠️ There was an error code, but will be ignored. Please check logs.',
     )
     process.exit(0)
   } else {

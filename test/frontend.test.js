@@ -37,7 +37,7 @@ test(
     expect(window[rendApi.GLOBAL_SYMBOL_INFO]).not.toBeNull()
     expect(window[rendApi.GLOBAL_SYMBOL_NOTIFY]).not.toBeNull()
   },
-  timeout.short()
+  timeout.short(),
 )
 
 test(
@@ -45,7 +45,7 @@ test(
   () => {
     expect(window.sessionStorage.getItem('session_uuid')).not.toBeNull()
   },
-  timeout.short()
+  timeout.short(),
 )
 
 test(
@@ -53,7 +53,7 @@ test(
   () => {
     expect(app.config.globalProperties.$onWebSocket).not.toBeNull()
   },
-  timeout.short()
+  timeout.short(),
 )
 
 test(
@@ -63,5 +63,5 @@ test(
     let router = index()
     expect(router).not.toBeNull()
   },
-  timeout.short()
+  timeout.short(),
 )

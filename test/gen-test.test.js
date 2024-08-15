@@ -40,7 +40,7 @@ beforeAll(async () => {
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
     env.schemaFile(),
-    env.zapVersion()
+    env.zapVersion(),
   )
 }, testUtil.timeout.medium())
 
@@ -51,18 +51,18 @@ test(
   async () => {
     templateContext = await genEngine.loadTemplates(
       db,
-      testUtil.testTemplate.unittest
+      testUtil.testTemplate.unittest,
     )
     expect(templateContext.crc).not.toBeNull()
     expect(templateContext.templateData).not.toBeNull()
     expect(templateContext.templateData.name).toEqual('Unit test templates')
     expect(templateContext.templateData.version).toEqual('unit-test')
     expect(templateContext.templateData.templates.length).toEqual(
-      testUtil.testTemplate.testCount
+      testUtil.testTemplate.testCount,
     )
     expect(templateContext.packageId).not.toBeNull()
   },
-  testUtil.timeout.medium()
+  testUtil.timeout.medium(),
 )
 
 test(
@@ -70,7 +70,7 @@ test(
   async () => {
     zclContext = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
   },
-  testUtil.timeout.medium()
+  testUtil.timeout.medium(),
 )
 
 test(
@@ -83,15 +83,15 @@ test(
       await querySession.selectSessionPartitionInfoFromPackageId(
         db,
         sessionId,
-        zclContext.packageId
+        zclContext.packageId,
       )
     await queryPackage.insertSessionPackage(
       db,
       sessionPartitionInfo[0].sesssionPartitionId,
-      zclContext.packageId
+      zclContext.packageId,
     )
   },
-  testUtil.timeout.medium()
+  testUtil.timeout.medium(),
 )
 
 test(
@@ -104,7 +104,7 @@ test(
       {},
       {
         disableDeprecationWarnings: true,
-      }
+      },
     )
 
     expect(genResult).not.toBeNull()
@@ -131,5 +131,5 @@ test(
     expect(testFutures).toContain('x=1')
     expect(testFutures).not.toContain('y=1')
   },
-  testUtil.timeout.medium()
+  testUtil.timeout.medium(),
 )

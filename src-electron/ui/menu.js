@@ -84,7 +84,7 @@ const template = (httpPort) => [
           browserApi.execRendererApi(
             browserWindow,
             rendApi.id.setDarkTheme,
-            true
+            true,
           )
         },
       },
@@ -94,7 +94,7 @@ const template = (httpPort) => [
           browserApi.execRendererApi(
             browserWindow,
             rendApi.id.setDarkTheme,
-            false
+            false,
           )
         },
       },
@@ -169,7 +169,7 @@ const template = (httpPort) => [
           browserApi.execRendererApi(
             browserWindow,
             rendApi.id.progressStart,
-            'Test progress indication.'
+            'Test progress indication.',
           )
         },
       },
@@ -204,9 +204,8 @@ const template = (httpPort) => [
 
 async function getUserSessionInfoMessage(browserWindow) {
   let userKey = await browserApi.getUserKeyFromBrowserWindow(browserWindow)
-  let sessionUuid = await browserApi.getSessionUuidFromBrowserWindow(
-    browserWindow
-  )
+  let sessionUuid =
+    await browserApi.getSessionUuidFromBrowserWindow(browserWindow)
   return `
   Browser session UUID: ${sessionUuid}
   Browser user key: ${userKey}
@@ -225,7 +224,7 @@ function doOpen(browserWindow, httpPort) {
     .execRendererApi(
       browserWindow,
       rendApi.id.getStorageItem,
-      rendApi.storageKey.fileSave
+      rendApi.storageKey.fileSave,
     )
     .then((filePath) => {
       let opts = {
@@ -244,7 +243,7 @@ function doOpen(browserWindow, httpPort) {
           browserWindow,
           rendApi.id.setStorageItem,
           rendApi.storageKey.fileSave,
-          result.filePaths[0]
+          result.filePaths[0],
         )
       }
     })
@@ -276,7 +275,7 @@ function doSaveAs(browserWindow) {
     .execRendererApi(
       browserWindow,
       rendApi.id.getStorageItem,
-      rendApi.storageKey.fileSave
+      rendApi.storageKey.fileSave,
     )
     .then((filePath) => {
       let opts = {
@@ -308,7 +307,7 @@ function doSaveAs(browserWindow) {
           browserWindow,
           rendApi.id.setStorageItem,
           rendApi.storageKey.fileSave,
-          filePath
+          filePath,
         )
       }
     })

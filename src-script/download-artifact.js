@@ -89,8 +89,8 @@ var __generator =
                 op[0] & 2
                   ? y['return']
                   : op[0]
-                  ? y['throw'] || ((t = y['return']) && t.call(y), 0)
-                  : y.next) &&
+                    ? y['throw'] || ((t = y['return']) && t.call(y), 0)
+                    : y.next) &&
               !(t = t.call(y, op[1])).done)
           )
             return t
@@ -172,7 +172,7 @@ exports.__esModule = true
 var octokit_1 = require('octokit')
 var http_status_codes_1 = require('http-status-codes')
 var nodejs_file_downloader_1 = __importDefault(
-  require('nodejs-file-downloader')
+  require('nodejs-file-downloader'),
 )
 var yargs_1 = __importDefault(require('yargs'))
 var node_os_1 = __importDefault(require('node:os'))
@@ -275,7 +275,7 @@ function artifactoryStorageGet(dlOptions, uri) {
       url = ''
         .concat(
           artifactoryServerUrl(dlOptions),
-          '/artifactory/api/storage/gsdk-generic-production/'
+          '/artifactory/api/storage/gsdk-generic-production/',
         )
         .concat(ARTIFACTORY_REPO_NAME, '/')
         .concat(dlOptions.owner, '/')
@@ -344,7 +344,7 @@ function verifyPlatformAndFormat(name, platforms, formats) {
 function githubDownloadArtifacts(
   artifacts,
   dlOptions,
-  verifyPlatformAndFormat
+  verifyPlatformAndFormat,
 ) {
   return __awaiter(this, void 0, void 0, function () {
     var outputDir,
@@ -380,7 +380,7 @@ function githubDownloadArtifacts(
             'Repo: https://github.com/'
               .concat(owner, '/')
               .concat(repo, '/tree/')
-              .concat(branch)
+              .concat(branch),
           )
           console.log(
             'Commit: https://github.com/'
@@ -389,8 +389,8 @@ function githubDownloadArtifacts(
               .concat(
                 commit === null || commit === void 0
                   ? void 0
-                  : commit.substring(0, 7)
-              )
+                  : commit.substring(0, 7),
+              ),
           )
           if (!artifacts.length) return [3 /*break*/, 4]
           if (dlOptions.mirror) {
@@ -398,7 +398,7 @@ function githubDownloadArtifacts(
               outputDir,
               'artifacts',
               dlOptions.branch,
-              artifacts[0].created_at
+              artifacts[0].created_at,
             )
           }
           console.log('Output directory: '.concat(outputDir))
@@ -420,7 +420,7 @@ function githubDownloadArtifacts(
               archive_download_url,
               outputDir,
               githubToken,
-              ''.concat(name_1, '.zip')
+              ''.concat(name_1, '.zip'),
             ),
             // download metadata file.
           ]
@@ -430,7 +430,7 @@ function githubDownloadArtifacts(
           try {
             fs_1['default'].writeFileSync(
               path_1['default'].join(outputDir, ''.concat(name_1, '.json')),
-              JSON.stringify(artifact, null, 4)
+              JSON.stringify(artifact, null, 4),
             )
           } catch (err) {
             console.error(err)
@@ -480,19 +480,19 @@ function githubListArtifacts(artifacts, dlOptions, verifyPlatformAndFormat) {
           artifactPath = path_1['default'].join(
             branch,
             artifacts[0].created_at,
-            ''.concat(name_2, '.zip')
+            ''.concat(name_2, '.zip'),
           )
           if (DEBUG) console.log(''.concat(artifactPath))
           artifactsList.push(artifactPath)
         }
         try {
           dir = path_1['default'].dirname(
-            path_1['default'].join(outputDir, ''.concat(branch, '.txt'))
+            path_1['default'].join(outputDir, ''.concat(branch, '.txt')),
           )
           fs_1['default'].mkdirSync(dir, { recursive: true })
           fs_1['default'].writeFileSync(
             path_1['default'].join(outputDir, ''.concat(branch, '.txt')),
-            artifactsList.join('\n')
+            artifactsList.join('\n'),
           )
         } catch (err) {
           console.error(err)
@@ -531,7 +531,7 @@ function download(archive_download_url, outDir, githubToken, name) {
         case 1:
           _a.trys.push([1, 3, , 4])
           process.stdout.write(
-            'Downloading '.concat(path_1['default'].basename(name), '...')
+            'Downloading '.concat(path_1['default'].basename(name), '...'),
           )
           return [4 /*yield*/, downloader.download()] //Downloader.download() returns a promise.
         case 2:
@@ -609,7 +609,7 @@ function getExistingGithubBranches(options) {
 function artifactoryDownloadArtifacts(
   latest,
   dlOptions,
-  verifyPlatformAndFormat
+  verifyPlatformAndFormat,
 ) {
   var _a
   return __awaiter(this, void 0, void 0, function () {
@@ -655,14 +655,16 @@ function artifactoryDownloadArtifacts(
           baseUri = latest.paths.join('').replace('/api/storage', '')
           baseUri = baseUri.replace(
             ARTIFACTORY_URL_DOMAIN_DEFAULT,
-            dlOptions.artifactoryUrl
+            dlOptions.artifactoryUrl,
           )
           console.log('Repo: '.concat(baseUri))
           return [4 /*yield*/, httpGet(baseUri + json)]
         case 2:
           jsonContent = _c.sent()
           console.log(
-            'Commit: '.concat(jsonContent.workflow_run.head_sha.substring(0, 7))
+            'Commit: '.concat(
+              jsonContent.workflow_run.head_sha.substring(0, 7),
+            ),
           )
           console.log('Output directory: '.concat(outputDir))
           ;(_i = 0), (_b = __spreadArray([json], artifacts, true))
@@ -678,7 +680,7 @@ function artifactoryDownloadArtifacts(
               null,
               artifact,
               platforms,
-              __spreadArray(__spreadArray([], formats, true), ['.json'], false)
+              __spreadArray(__spreadArray([], formats, true), ['.json'], false),
             )
           ) {
             return [3 /*break*/, 5]
@@ -750,7 +752,7 @@ function githubGetArtifacts(options) {
           res = _g.sent()
           if (res.status != http_status_codes_1.StatusCodes.OK) {
             console.error(
-              'Failed to query Github Artifacts API to download artifacts'
+              'Failed to query Github Artifacts API to download artifacts',
             )
             return [2 /*return*/, []]
           }
@@ -795,7 +797,7 @@ function githubGetArtifacts(options) {
                   ? void 0
                   : artifacts.filter(function (artifact) {
                       return artifact.workflow_run.head_sha.startsWith(
-                        refCommit
+                        refCommit,
                       )
                     })
               // multiple builds can correspond to the same commit id
@@ -947,8 +949,8 @@ function main() {
             console.log(
               'Unable to reach Artifactory server ('.concat(
                 artifactoryServerUrl(dlOptions),
-                '). Defaulting to Github instead.'
-              )
+                '). Defaulting to Github instead.',
+              ),
             )
             dlOptions.src = 'github' /* GITHUB */
           } else if (
@@ -958,16 +960,16 @@ function main() {
             console.log(
               'Branch '.concat(
                 dlOptions.branch,
-                ' is not cached on Artifactory. Defaulting to Github instead.'
-              )
+                ' is not cached on Artifactory. Defaulting to Github instead.',
+              ),
             )
             dlOptions.src = 'github' /* GITHUB */
           } else if (!cachedBranches.includes(dlOptions.branch)) {
             console.log(
               'Branch '.concat(
                 dlOptions.branch,
-                ' is not cached on Artifactory. Defaulting to master branch instead.'
-              )
+                ' is not cached on Artifactory. Defaulting to master branch instead.',
+              ),
             )
             dlOptions.branch = 'master'
           }
@@ -983,7 +985,7 @@ function main() {
             artifactoryDownloadArtifacts(
               latest,
               dlOptions,
-              verifyPlatformAndFormat
+              verifyPlatformAndFormat,
             ),
           ]
         case 5:
@@ -994,7 +996,7 @@ function main() {
             return [
               2 /*return*/,
               console.error(
-                'Missing GITHUB_TOKEN env variable for Github.com access!\nFind more information at https://docs.github.com/en/actions/security-guides/automatic-token-authentication#about-the-github_token-secret'
+                'Missing GITHUB_TOKEN env variable for Github.com access!\nFind more information at https://docs.github.com/en/actions/security-guides/automatic-token-authentication#about-the-github_token-secret',
               ),
             ]
           }
@@ -1015,7 +1017,7 @@ function main() {
             githubDownloadArtifacts(
               artifacts,
               dlOptions,
-              verifyPlatformAndFormat
+              verifyPlatformAndFormat,
             ),
           ]
         case 10:

@@ -56,13 +56,13 @@ export default {
         // NOTE: a Map is returned to maintain the order of the keys.
         //       coversion to an Object will reshuffle the entries.
         const endpointIds = new Map(
-          Object.entries(this.$store.state.zap.endpointView.endpointId)
+          Object.entries(this.$store.state.zap.endpointView.endpointId),
         )
 
         return new Map(
           [...endpointIds.entries()].sort((a, b) => {
             return parseInt(a[1], 16) - parseInt(b[1], 16)
-          })
+          }),
         )
       },
     },
@@ -124,8 +124,8 @@ export default {
           _.isNil(
             _.find(
               Object.values(this.endpointId),
-              (existingEndpointId) => id == existingEndpointId
-            )
+              (existingEndpointId) => id == existingEndpointId,
+            ),
           )
         ) {
           return id
@@ -174,7 +174,7 @@ export default {
       let res = this.$store.state.zap.genericOptions?.generator?.filter(
         (x) =>
           x.optionCode ==
-          DbEnum.generatorOptions.shareClusterStatesAcrossEndpoints
+          DbEnum.generatorOptions.shareClusterStatesAcrossEndpoints,
       )
 
       if (res?.length) {
@@ -201,7 +201,7 @@ export default {
       let res = this.$store.state.zap.genericOptions?.generator?.filter(
         (x) =>
           x.optionCode ==
-          DbEnum.generatorOptions.disableUcComponentOnZclClusterUpdate
+          DbEnum.generatorOptions.disableUcComponentOnZclClusterUpdate,
       )
 
       if (res?.length) {
@@ -247,23 +247,23 @@ export default {
       for (const role of roles) {
         let components = this.ucComponentRequiredByCluster(cluster, role)
         requiredComponentIdList.push(
-          ...components.map((c) => this.sdkExtUcComponentId(c))
+          ...components.map((c) => this.sdkExtUcComponentId(c)),
         )
       }
 
       let selectedUcComponentIds = Util.getClusterIdsByUcComponents(
-        this.$store.state.zap.studio.selectedUcComponents
+        this.$store.state.zap.studio.selectedUcComponents,
       )
 
       return requiredComponentIdList.filter(
-        (id) => !selectedUcComponentIds.includes(id)
+        (id) => !selectedUcComponentIds.includes(id),
       )
     },
 
     ucComponentRequiredByCluster(cluster, role) {
       let clusterRoleName = cluster.label.toLowerCase() + '-' + role
       return this.$store.state.zap.studio.zclSdkExtClusterToUcComponentMap.filter(
-        (x) => this.sdkExtClusterCode(x) === clusterRoleName
+        (x) => this.sdkExtClusterCode(x) === clusterRoleName,
       )
     },
     /**
@@ -298,8 +298,8 @@ export default {
             logos.push(
               this.createLogoSrc(
                 this.$store.state.zap.isMultiConfig,
-                selectedZapConfig[i].category
-              )
+                selectedZapConfig[i].category,
+              ),
             )
           } else {
             logos.push('/logo/zap_logo.png')
@@ -322,12 +322,12 @@ export default {
       if (this.$store.state.zap.isMultiConfig) {
         zclProperty =
           this.$store.state.zap.selectedZapConfig.zclProperties.find(
-            (item) => item.id === packageRef && item.category
+            (item) => item.id === packageRef && item.category,
           )
         return zclProperty.category
       } else {
         zclProperty = this.$store.state.zap.packages.find(
-          (item) => item.pkg.id === packageRef && item.pkg.category
+          (item) => item.pkg.id === packageRef && item.pkg.category,
         )
         return zclProperty.pkg?.category
       }

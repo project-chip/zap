@@ -21,15 +21,15 @@ describe('Testing INT8U type validation', () => {
     { retries: { runMode: 2, openMode: 2 } },
     () => {
       cy.get(
-        ':nth-child(1) > [style="min-width: 180px;"] > .q-field > .q-field__inner > .q-field__control > .q-field__control-container > input'
+        ':nth-child(1) > [style="min-width: 180px;"] > .q-field > .q-field__inner > .q-field__control > .q-field__control-container > input',
       )
         .clear({ force: true })
         .type('test', { force: true })
-    }
+    },
   )
   it('check if validation works properly', () => {
     cy.get(
-      ':nth-child(1) > [style="min-width: 180px;"] > .q-field > .q-field__inner > .q-field__bottom > .q-field__messages > div'
+      ':nth-child(1) > [style="min-width: 180px;"] > .q-field > .q-field__inner > .q-field__bottom > .q-field__messages > div',
     ).should('exist')
   })
 })

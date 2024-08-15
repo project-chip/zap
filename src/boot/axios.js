@@ -136,7 +136,7 @@ function serverPost(url, data, config = null) {
       zapUpdateExceptions(
         data,
         error.response.status,
-        error.response.data.message
+        error.response.data.message,
       )
     })
 }

@@ -57,7 +57,7 @@ INSERT INTO ENDPOINT (
       endpoint.profileId,
       endpoint.endpointId,
       endpoint.networkId,
-    ]
+    ],
   )
 }
 
@@ -76,7 +76,7 @@ async function importParentEndpoint(db, sessionRef, endpointId, parentRef) {
   SET PARENT_ENDPOINT_REF = ?
   WHERE ENDPOINT_IDENTIFIER = ? AND SESSION_REF = ?
   `,
-    [parentRef, endpointId, sessionRef]
+    [parentRef, endpointId, sessionRef],
   )
 }
 
@@ -96,7 +96,7 @@ async function exportEndpoints(db, sessionId, endpointTypes) {
       endpointTypeName: x.NAME,
       endpointTypeIndex: endpointTypeIndexFunction(
         endpointTypes,
-        x.ENDPOINT_TYPE_REF
+        x.ENDPOINT_TYPE_REF,
       ),
       endpointTypeRef: x.ENDPOINT_TYPE_REF,
       profileId: x.PROFILE,
@@ -132,7 +132,7 @@ WHERE
   E.SESSION_REF = ?
 ORDER BY E.ENDPOINT_IDENTIFIER
     `,
-      [sessionId]
+      [sessionId],
     )
     .then((rows) => rows.map(mapFunction))
 }
@@ -170,7 +170,7 @@ WHERE
 ORDER BY
   ENDPOINT.ENDPOINT_IDENTIFIER,
   ENDPOINT_TYPE.NAME`,
-      [sessionId]
+      [sessionId],
     )
     .then((rows) => rows.map(dbMapping.map.endpointTypeExport))
 
@@ -206,7 +206,7 @@ ORDER BY
         DEVICE_TYPE.NAME,
         DEVICE_TYPE.CODE,
         DEVICE_TYPE.PROFILE_ID`,
-      [sessionId, endpointTypes[i].endpointTypeId]
+      [sessionId, endpointTypes[i].endpointTypeId],
     )
 
     // Updating the device type info for the endpoint
@@ -244,7 +244,7 @@ async function importEndpointType(
   sessionPartitionId,
   packageIds,
   endpointType,
-  sessionId
+  sessionId,
 ) {
   // Insert endpoint type
   let endpointTypeId = await dbApi.dbInsert(
@@ -255,7 +255,7 @@ async function importEndpointType(
       SESSION_PARTITION_REF,
       NAME
     ) VALUES (?, ?)`,
-    [sessionPartitionId, endpointType.name]
+    [sessionPartitionId, endpointType.name],
   )
 
   // Process device types
@@ -295,7 +295,7 @@ async function importEndpointType(
       let profileId = await dbApi.dbGet(
         db,
         `SELECT PROFILE_ID FROM DEVICE_TYPE WHERE CODE = ? AND NAME = ? AND PACKAGE_REF IN (${packageIds})`,
-        [parseInt(deviceTypes[i].code), deviceTypes[i].name]
+        [parseInt(deviceTypes[i].code), deviceTypes[i].name],
       )
       deviceTypes[i].profileId = profileId ? profileId.PROFILE_ID : ''
     }
@@ -307,7 +307,7 @@ async function importEndpointType(
         parseInt(deviceTypes[i].code),
         parseInt(deviceTypes[i].profileId),
         deviceTypes[i].name,
-      ]
+      ],
     )
 
     // Log an error message into the session notice table when device types being imported are not found
@@ -318,7 +318,7 @@ async function importEndpointType(
         'Device Types could not be found in the ZCL extensions linked to this project. Please make sure the zcl and template json files listed in your zap file exist.',
         sessionId,
         1,
-        1
+        1,
       )
     }
 
@@ -334,8 +334,8 @@ async function importEndpointType(
             i,
             deviceVersions[i] ? deviceVersions[i] : 0,
             deviceIdentifiers[i],
-          ]
-        )
+          ],
+        ),
       )
     }
   }
@@ -381,7 +381,7 @@ INNER JOIN
 ON
   SESSION_PACKAGE.SESSION_PARTITION_REF= SESSION_PARTITION.SESSION_PARTITION_ID
 WHERE SESSION_PARTITION.SESSION_REF = ? AND SESSION_PACKAGE.ENABLED = 1`,
-      [sessionId]
+      [sessionId],
     )
     .then((rows) => rows.map(mapFunction))
 }
@@ -431,7 +431,7 @@ INNER JOIN ENDPOINT_TYPE_CLUSTER
 ON CLUSTER.CLUSTER_ID = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
 WHERE ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = ?
 ORDER BY CLUSTER.CODE, CLUSTER.NAME`,
-      [endpointTypeId]
+      [endpointTypeId],
     )
     .then((rows) => rows.map(mapFunction))
 }
@@ -448,19 +448,21 @@ async function importClusterForEndpointType(
   db,
   packageIds,
   endpointTypeId,
-  cluster
+  cluster,
 ) {
   let matchedPackageId = await dbApi
     .dbAll(
       db,
       `SELECT CLUSTER_ID, PACKAGE_REF FROM CLUSTER WHERE PACKAGE_REF IN (${dbApi.toInClause(
-        packageIds
+        packageIds,
       )}) AND CODE = ? AND ${
         cluster.mfgCode == null
           ? 'MANUFACTURER_CODE IS NULL'
           : 'MANUFACTURER_CODE = ?'
       }`,
-      cluster.mfgCode == null ? [cluster.code] : [cluster.code, cluster.mfgCode]
+      cluster.mfgCode == null
+        ? [cluster.code]
+        : [cluster.code, cluster.mfgCode],
     )
     .then((matchedPackageIds) => matchedPackageIds.shift()?.PACKAGE_REF)
   return dbApi.dbInsert(
@@ -492,7 +494,7 @@ VALUES
           cluster.mfgCode,
           cluster.side,
           cluster.enabled,
-        ]
+        ],
   )
 }
 
@@ -534,7 +536,7 @@ WHERE
 ORDER BY
   E.CODE, E.MANUFACTURER_CODE
   `,
-      [endpointClusterId]
+      [endpointClusterId],
     )
     .then((rows) => rows.map(mapFunction))
 }
@@ -552,7 +554,7 @@ async function importEventForEndpointType(
   db,
   packageIds,
   endpointClusterId,
-  event
+  event,
 ) {
   let selectEventQuery = `
 SELECT
@@ -598,7 +600,7 @@ INSERT INTO ENDPOINT_TYPE_EVENT (
   ?,?,?
 )
 `,
-    arg
+    arg,
   )
 }
 
@@ -663,7 +665,7 @@ WHERE
 ORDER BY
   A.CODE, A.MANUFACTURER_CODE
     `,
-      [endpointClusterId]
+      [endpointClusterId],
     )
     .then((rows) => rows.map(mapFunction))
 }
@@ -683,7 +685,7 @@ async function importAttributeForEndpointType(
   packageIds,
   endpointClusterId,
   attribute,
-  cluster
+  cluster,
 ) {
   let selectAttributeQuery = `
 SELECT
@@ -743,7 +745,7 @@ WHERE
       cluster.name,
       storagePolicy,
       forcedExternal,
-      attributeName
+      attributeName,
     )
   }
   if (storagePolicy == dbEnums.storagePolicy.attributeAccessInterface) {
@@ -784,7 +786,7 @@ INSERT INTO ENDPOINT_TYPE_ATTRIBUTE (
   ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
 )
   `,
-    arg
+    arg,
   )
 }
 
@@ -798,7 +800,7 @@ INSERT INTO ENDPOINT_TYPE_ATTRIBUTE (
 async function exportCommandsFromEndpointTypeCluster(
   db,
   endpointTypeId,
-  endpointClusterId
+  endpointClusterId,
 ) {
   let mapFunction = (x) => {
     return {
@@ -837,7 +839,7 @@ WHERE
 ORDER BY
   C.MANUFACTURER_CODE, C.CODE
         `,
-      [endpointTypeId, endpointClusterId]
+      [endpointTypeId, endpointClusterId],
     )
     .then((rows) => rows.map(mapFunction))
 }
@@ -857,7 +859,7 @@ async function importCommandForEndpointType(
   packageIds,
   endpointTypeId,
   endpointClusterId,
-  command
+  command,
 ) {
   let matchedCmdId = await dbApi
     .dbAll(
@@ -876,7 +878,7 @@ async function importCommandForEndpointType(
         }`,
       command.mfgCode == null
         ? [command.code, command.source, endpointClusterId]
-        : [command.code, command.source, endpointClusterId, command.mfgCode]
+        : [command.code, command.source, endpointClusterId, command.mfgCode],
     )
     .then((matchedCmdIds) => matchedCmdIds.shift()?.COMMAND_ID)
 
@@ -900,7 +902,7 @@ INSERT OR IGNORE INTO ENDPOINT_TYPE_COMMAND
 VALUES
   (?, ?, ?, ?)
   `,
-    arg
+    arg,
   )
 }
 

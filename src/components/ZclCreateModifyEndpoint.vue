@@ -286,17 +286,17 @@ export default {
   mounted() {
     if (this.endpointReference != null) {
       this.shownEndpoint.endpointIdentifier = parseInt(
-        this.endpointId[this.endpointReference]
+        this.endpointId[this.endpointReference],
       )
       this.shownEndpoint.networkIdentifier = parseInt(
-        this.networkId[this.endpointReference]
+        this.networkId[this.endpointReference],
       )
       this.shownEndpoint.parentReference = parseInt(
-        this.parentEndpointIdentifier[this.endpointReference]
+        this.parentEndpointIdentifier[this.endpointReference],
       )
       this.shownEndpoint.profileIdentifier = this.asHex(
         parseInt(this.profileId[this.endpointReference]),
-        4
+        4,
       )
 
       const deviceVersion =
@@ -421,7 +421,7 @@ export default {
           this.profileCodesOptions == null
             ? null
             : this.profileCodesOptions.find(
-                (o) => o.optionCode === this.shownEndpoint.profileIdentifier
+                (o) => o.optionCode === this.shownEndpoint.profileIdentifier,
               )
 
         return profileOption
@@ -493,7 +493,7 @@ export default {
                   deviceType.deviceTypeRef ===
                     this.primaryDeviceTypeTmp.deviceTypeRef &&
                   deviceType.deviceIdentifier ===
-                    this.primaryDeviceTypeTmp.deviceIdentifier
+                    this.primaryDeviceTypeTmp.deviceIdentifier,
               )
             ) {
               this.primaryDeviceTypeTmp = newPrimaryDeviceType
@@ -513,7 +513,7 @@ export default {
         const newPrimaryDevice = value
         let tempDeviceType = this.deviceType
         tempDeviceType = tempDeviceType.filter(
-          (d) => d.deviceTypeRef !== newPrimaryDevice.deviceTypeRef
+          (d) => d.deviceTypeRef !== newPrimaryDevice.deviceTypeRef,
         )
         tempDeviceType.unshift(newPrimaryDevice)
         this.deviceType = tempDeviceType
@@ -523,7 +523,7 @@ export default {
   methods: {
     setSelectOption(val) {
       const i = this.tmpSelectedOptions.findIndex(
-        (e) => e.deviceTypeRef === val.deviceTypeRef
+        (e) => e.deviceTypeRef === val.deviceTypeRef,
       )
       if (i > -1) {
         this.tmpSelectedOptions.splice(i, 1)
@@ -548,7 +548,7 @@ export default {
           this.$store.state.zap.genericOptions[
             dbEnum.sessionOption.deviceTypeSpecification
           ][0]['optionLabel'],
-          '_blank'
+          '_blank',
         )
       }
     },
@@ -580,7 +580,7 @@ export default {
         } else {
           profileId = this.asHex(
             this.zclDeviceTypes[deviceTypeRef].profileId,
-            4
+            4,
           )
         }
         this.shownEndpoint.profileIdentifier = profileId
@@ -645,7 +645,7 @@ export default {
         .then((response) => {
           const deviceIdentifier = []
           this.deviceTypeTmp.forEach((dt) =>
-            deviceIdentifier.push(dt.deviceIdentifier)
+            deviceIdentifier.push(dt.deviceIdentifier),
           )
           this.$store
             .dispatch(`zap/addEndpoint`, {
@@ -671,13 +671,13 @@ export default {
               this.$store
                 .dispatch(
                   `zap/endpointTypeClustersInfo`,
-                  this.endpointType[res.id]
+                  this.endpointType[res.id],
                 )
                 .then((res) => {
                   if (res?.data) {
                     const clusterStates = res.data
                     const enabledClusterStates = clusterStates.filter(
-                      (x) => x.enabled
+                      (x) => x.enabled,
                     )
                     for (const states of enabledClusterStates) {
                       const { endpointTypeRef, clusterRef, side, enabled } =
@@ -690,7 +690,7 @@ export default {
                       }
 
                       console.log(
-                        `Enabling UC component ${JSON.stringify(arg)}`
+                        `Enabling UC component ${JSON.stringify(arg)}`,
                       )
                       this.updateSelectedComponentRequest(arg)
                     }

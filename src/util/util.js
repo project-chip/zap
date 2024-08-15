@@ -49,10 +49,10 @@ export function notifyComponentUpdateStatus(componentIdStates, added) {
   let updated = false
   if (componentIdStates.length) {
     let success = componentIdStates.filter(
-      (x) => x.status == http.StatusCodes.OK
+      (x) => x.status == http.StatusCodes.OK,
     )
     let failure = componentIdStates.filter(
-      (x) => x.status != http.StatusCodes.OK
+      (x) => x.status != http.StatusCodes.OK,
     )
 
     if (failure.length) {

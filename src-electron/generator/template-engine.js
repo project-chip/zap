@@ -109,12 +109,12 @@ async function produceIterativeContent(
   options = {
     overridePath: null,
     disableDeprecationWarnings: false,
-  }
+  },
 ) {
   let iterationArray = await templateIterators.getIterativeObject(
     singleTemplatePkg.iterator,
     db,
-    sessionId
+    sessionId,
   )
   let res = []
   for (let it of iterationArray) {
@@ -127,7 +127,7 @@ async function produceIterativeContent(
       sessionId,
       singleTemplatePkg,
       genTemplateJsonPackage,
-      options
+      options,
     )
     res.push(...r)
   }
@@ -157,7 +157,7 @@ async function produceContent(
     overrideKey: null,
     disableDeprecationWarnings: false,
     initialContext: null,
-  }
+  },
 ) {
   let template = await produceCompiledTemplate(hb, singleTemplatePkg)
   let context = {
@@ -180,7 +180,7 @@ async function produceContent(
             'UPGRADE',
             'Resource "${key}" not found among the context resources. Check your template.json file. You may need a Matter SDK upgrade.',
             sessionId,
-            1
+            1,
           )
           return null
         }
@@ -313,7 +313,7 @@ function loadHelper(hb, helpers, context = null) {
     helper.executeHelperFunction(
       helper.functions.initialize_helpers,
       context,
-      helpers
+      helpers,
     )
     helpers = nativeRequire(helpers)
   }
@@ -400,7 +400,7 @@ function initializeBuiltInHelpersForPackage(
   included = {
     aliases: [],
     categories: [],
-  }
+  },
 ) {
   includedHelpers.forEach((helperPkg) => {
     let hasMatchingCategory = false
@@ -413,7 +413,7 @@ function initializeBuiltInHelpersForPackage(
       // Let's check if category matches.
       if (helperPkg.meta.category != null) {
         hasMatchingCategory = included.categories.includes(
-          helperPkg.meta.category
+          helperPkg.meta.category,
         )
       }
       if (helperPkg.meta.alias != null && helperPkg.meta.alias.length > 0) {

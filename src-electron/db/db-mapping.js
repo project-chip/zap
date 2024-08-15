@@ -636,7 +636,7 @@ exports.map = {
       isGlobalAttribute: x.IS_GLOBAL_ATTRIBUTE, // Is attribute global
       isIncluded: dbApi.fromDbBool(x.INCLUDED), // Is endpoint type attribute included
       isManufacturingSpecific: dbApi.toDbBool(
-        x.MANUFACTURER_CODE | x.CLUSTER_MANUFACTURER_CODE
+        x.MANUFACTURER_CODE | x.CLUSTER_MANUFACTURER_CODE,
       ), // Is Attribute mfg specific or not
       isNullable: dbApi.fromDbBool(x.IS_NULLABLE), // Is attribute nullable
       isOptionalAttribute: dbApi.fromDbBool(x.IS_OPTIONAL),

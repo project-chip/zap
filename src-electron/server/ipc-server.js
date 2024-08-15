@@ -81,7 +81,7 @@ function handlerStop(context, data) {
   server.ipc.server.emit(
     context.socket,
     eventType.overAndOut,
-    'Shutting down server.'
+    'Shutting down server.',
   )
   startup.shutdown()
   util.waitFor(1000).then(() => startup.quit())
@@ -92,7 +92,7 @@ async function handlerGenerate(context, data) {
   let ps = []
   let packages = await queryPackage.getPackagesByType(
     context.db,
-    dbEnum.packageType.genTemplatesJson
+    dbEnum.packageType.genTemplatesJson,
   )
   let templatePackageId = packages[0].id
 
@@ -109,15 +109,15 @@ async function handlerGenerate(context, data) {
             server.ipc.server.emit(context.socket, eventType.over, x),
           zcl: env.builtinSilabsZclMetafile(),
           template: env.builtinTemplateMetafile(),
-        }
-      )
+        },
+      ),
     )
   })
   return Promise.all(ps).then(() => {
     server.ipc.server.emit(
       context.socket,
       eventType.overAndOut,
-      'Generation done.'
+      'Generation done.',
     )
   })
 }
@@ -189,7 +189,7 @@ async function initServer(db = null, httpPort = 0) {
               socket: socket,
               httpPort: httpPort,
             },
-            data
+            data,
           )
         })
       })

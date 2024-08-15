@@ -327,7 +327,7 @@ async function insertAttributeAccessData(db, packageId, accessData) {
   return dbApi.dbMultiInsert(
     db,
     `INSERT INTO ATTRIBUTE_ACCESS (ATTRIBUTE_REF, ACCESS_REF) VALUES (?,?)`,
-    insertData
+    insertData,
   )
 }
 
@@ -342,7 +342,7 @@ async function insertCommandAccessData(db, packageId, accessData) {
   return dbApi.dbMultiInsert(
     db,
     `INSERT INTO COMMAND_ACCESS (COMMAND_REF, ACCESS_REF) VALUES (?,?)`,
-    insertData
+    insertData,
   )
 }
 // access data is array of objects, containing id/op/role/modifier
@@ -356,7 +356,7 @@ async function insertEventAccessData(db, packageId, accessData) {
   return dbApi.dbMultiInsert(
     db,
     `INSERT INTO EVENT_ACCESS (EVENT_REF, ACCESS_REF) VALUES (?,?)`,
-    insertData
+    insertData,
   )
 }
 
@@ -427,7 +427,7 @@ async function insertAttributeMappings(db, data) {
     VALUES
       (${selectAttributeIdQuery}, ${selectAttributeIdQuery})
     `,
-    data
+    data,
   )
 }
 
@@ -557,9 +557,9 @@ async function insertClusterExtensions(db, packageId, knownPackages, data) {
     .dbMultiSelect(
       db,
       `SELECT CLUSTER_ID FROM CLUSTER WHERE PACKAGE_REF IN (${dbApi.toInClause(
-        knownPackages
+        knownPackages,
       )}) AND CODE = ?`,
-      data.map((cluster) => [cluster.code])
+      data.map((cluster) => [cluster.code]),
     )
     .then((rows) => {
       let commands = {
@@ -619,7 +619,7 @@ async function insertClusterExtensions(db, packageId, knownPackages, data) {
             'WARNING',
             message,
             packageId,
-            2
+            2,
           )
         }
       }
@@ -663,7 +663,7 @@ async function insertClusters(db, packageId, data) {
           packageId,
           cluster.apiMaturity,
         ]
-      })
+      }),
     )
     .then((lastIdsArray) => {
       let commands = {
@@ -742,7 +742,7 @@ async function insertFeatures(db, packageId, data, clusterId) {
       feature.description,
       feature.conformance,
       clusterId,
-    ])
+    ]),
   )
 }
 
@@ -758,7 +758,7 @@ async function insertTags(db, packageId, data, clusterRef) {
   return dbApi.dbMultiInsert(
     db,
     'INSERT INTO TAG (PACKAGE_REF, CLUSTER_REF, NAME, DESCRIPTION) VALUES (?, ?, ?, ?)',
-    data.map((tag) => [packageId, clusterRef, tag.name, tag.description])
+    data.map((tag) => [packageId, clusterRef, tag.name, tag.description]),
   )
 }
 
@@ -777,7 +777,7 @@ async function insertDomains(db, packageId, data) {
   return dbApi.dbMultiInsert(
     db,
     'INSERT OR IGNORE INTO DOMAIN (PACKAGE_REF, NAME, LATEST_SPEC_REF) VALUES (?, ?, (SELECT SPEC_ID FROM SPEC WHERE PACKAGE_REF = ? AND CODE = ? ))',
-    data.map((domain) => [packageId, domain.name, packageId, domain.specCode])
+    data.map((domain) => [packageId, domain.name, packageId, domain.specCode]),
   )
 }
 
@@ -805,7 +805,7 @@ async function insertSpecs(db, packageId, data) {
         older.specCode,
         older.specDescription,
         older.specCertifiable ? 1 : 0,
-      ])
+      ]),
     )
   }
   return dbApi.dbMultiInsert(
@@ -816,7 +816,7 @@ async function insertSpecs(db, packageId, data) {
       domain.specCode,
       domain.specDescription,
       domain.specCertifiable ? 1 : 0,
-    ])
+    ]),
   )
 }
 
@@ -853,7 +853,7 @@ async function insertGlobalAttributeDefault(db, packageId, clusterData) {
       ( SELECT ATTRIBUTE_ID FROM ATTRIBUTE WHERE PACKAGE_REF = ? AND CODE = ? AND SIDE = ? ),
       ?)
       `,
-        args
+        args,
       )
       .then((individualGaIds) => {
         let featureBitArgs = []
@@ -890,7 +890,7 @@ INSERT OR IGNORE INTO GLOBAL_ATTRIBUTE_BIT (
   (SELECT TAG_ID FROM TAG WHERE PACKAGE_REF = ? AND NAME = ?)
 )
         `,
-            featureBitArgs
+            featureBitArgs,
           )
         }
       })
@@ -923,7 +923,7 @@ async function insertAtomics(db, packageId, data) {
       at.isString,
       at.isLong,
       at.isChar,
-    ])
+    ]),
   )
 }
 
@@ -943,13 +943,13 @@ function insertEndpointComposition(db, composition, context) {
     return dbApi.dbInsert(
       db,
       'INSERT INTO ENDPOINT_COMPOSITION (TYPE, CODE) VALUES (?, ?)',
-      [dbEnum.composition.mandatoryEndpoint, composition.code]
+      [dbEnum.composition.mandatoryEndpoint, composition.code],
     )
   } else {
     return dbApi.dbInsert(
       db,
       'INSERT INTO ENDPOINT_COMPOSITION (TYPE, CODE) VALUES (?, ?)',
-      [composition.compositionType, composition.code]
+      [composition.compositionType, composition.code],
     )
   }
 }
@@ -1014,7 +1014,7 @@ async function insertDeviceTypes(db, packageId, data) {
           dt.scope,
           dt.superset,
         ]
-      })
+      }),
     )
     .then((lastIdsArray) => {
       let zclIdsPromises = []
@@ -1037,20 +1037,20 @@ async function insertDeviceTypes(db, packageId, data) {
                     cluster.clientLocked,
                     cluster.serverLocked,
                   ],
-                  true
+                  true,
                 )
                 .then((deviceTypeClusterRef) => {
                   return {
                     dtClusterRef: deviceTypeClusterRef,
                     clusterData: cluster,
                   }
-                })
-            )
+                }),
+            ),
           )
             .then((dtClusterRefDataPairs) => {
               let promises = []
               promises.push(
-                insertDeviceTypeAttributes(db, dtClusterRefDataPairs)
+                insertDeviceTypeAttributes(db, dtClusterRefDataPairs),
               )
               promises.push(insertDeviceTypeCommands(db, dtClusterRefDataPairs))
               promises.push(insertDeviceTypeFeatures(db, dtClusterRefDataPairs))
@@ -1106,7 +1106,7 @@ async function insertDeviceTypeFeatures(db, dtClusterRefDataPairs) {
   return dbApi.dbMultiInsert(
     db,
     'INSERT INTO DEVICE_TYPE_FEATURE (DEVICE_TYPE_CLUSTER_REF, FEATURE_CODE) VALUES (?, ?)',
-    features
+    features,
   )
 }
 
@@ -1130,7 +1130,7 @@ async function insertDeviceTypeAttributes(db, dtClusterRefDataPairs) {
   return dbApi.dbMultiInsert(
     db,
     'INSERT INTO DEVICE_TYPE_ATTRIBUTE (DEVICE_TYPE_CLUSTER_REF, ATTRIBUTE_NAME) VALUES (?, ?)',
-    attributes
+    attributes,
   )
 }
 
@@ -1154,7 +1154,7 @@ async function insertDeviceTypeCommands(db, dtClusterRefDataPairs) {
   return dbApi.dbMultiInsert(
     db,
     'INSERT INTO DEVICE_TYPE_COMMAND (DEVICE_TYPE_CLUSTER_REF, COMMAND_NAME) VALUES (?, ?)',
-    commands
+    commands,
   )
 }
 
@@ -1168,7 +1168,7 @@ INSERT INTO OPERATION
 VALUES
   (?, ?, ?)
 `,
-    data
+    data,
   )
 }
 
@@ -1182,7 +1182,7 @@ INSERT INTO ROLE
 VALUES
   (?, ?, ?, ?)
 `,
-    data
+    data,
   )
 }
 
@@ -1196,7 +1196,7 @@ INSERT INTO ACCESS_MODIFIER
 VALUES
   (?, ?, ?)
 `,
-    data
+    data,
   )
 }
 
@@ -1218,7 +1218,14 @@ VALUES (
   (SELECT ACCESS_MODIFIER_ID FROM ACCESS_MODIFIER WHERE NAME = ? AND PACKAGE_REF = ?)
 )
     `,
-    data.map((x) => [x.op, packageId, x.role, packageId, x.modifier, packageId])
+    data.map((x) => [
+      x.op,
+      packageId,
+      x.role,
+      packageId,
+      x.modifier,
+      packageId,
+    ]),
   )
 }
 
@@ -1234,7 +1241,7 @@ async function insertDefaultAccess(db, packageId, defaultAccess) {
   return dbApi.dbMultiInsert(
     db,
     `INSERT INTO DEFAULT_ACCESS ( PACKAGE_REF, ENTITY_TYPE, ACCESS_REF) VALUES (?, ?, ?)`,
-    ids.map((id) => [packageId, defaultAccess.type, id])
+    ids.map((id) => [packageId, defaultAccess.type, id]),
   )
 }
 
@@ -1270,7 +1277,7 @@ WHERE
   ) = ?
 
 `,
-    [packageId, packageId]
+    [packageId, packageId],
   )
 }
 
@@ -1291,7 +1298,7 @@ async function insertDataTypeDiscriminator(db, packageId, data) {
   return dbApi.dbMultiInsert(
     db,
     'INSERT OR IGNORE INTO DISCRIMINATOR (PACKAGE_REF, NAME) VALUES (?, ?)',
-    data.map((at) => [packageId, at.name])
+    data.map((at) => [packageId, at.name]),
   )
 }
 
@@ -1309,7 +1316,12 @@ async function insertDataType(db, packageId, data) {
   const lastIdsArray = await dbApi.dbMultiInsert(
     db,
     'INSERT INTO DATA_TYPE (PACKAGE_REF, NAME, DESCRIPTION, DISCRIMINATOR_REF) VALUES ( ?, ?, ?, ?)',
-    data.map((at) => [packageId, at.name, at.description, at.discriminator_ref])
+    data.map((at) => [
+      packageId,
+      at.name,
+      at.description,
+      at.discriminator_ref,
+    ]),
   )
 
   let clustersToLoad = []
@@ -1325,7 +1337,7 @@ async function insertDataType(db, packageId, data) {
     return dbApi.dbMultiInsert(
       db,
       `INSERT INTO DATA_TYPE_CLUSTER (DATA_TYPE_REF, CLUSTER_CODE) VALUES (?, ?)`,
-      clustersToLoad
+      clustersToLoad,
     )
   return lastIdsArray
 }
@@ -1356,7 +1368,7 @@ VALUES (
       at.discriminator_ref,
       at.size,
       at.is_signed,
-    ])
+    ]),
   )
 }
 
@@ -1388,7 +1400,7 @@ VALUES (
       at.is_long,
       at.size,
       at.is_char,
-    ])
+    ]),
   )
 }
 
@@ -1411,7 +1423,7 @@ VALUES (
     AND NAME = ?
     AND DISCRIMINATOR_REF = ?),
   ?)`,
-    data.map((at) => [packageId, at.name, at.discriminator_ref, at.size])
+    data.map((at) => [packageId, at.name, at.discriminator_ref, at.size]),
   )
 }
 
@@ -1435,18 +1447,18 @@ VALUES (
     CASE
       WHEN
         (${SELECT_CLUSTER_SPECIFIC_DATA_TYPE} AND PACKAGE_REF IN (${dbApi.toInClause(
-      packageIds
-    )}))
+          packageIds,
+        )}))
       IS
         NULL
       THEN
         (${SELECT_GENERIC_DATA_TYPE} AND PACKAGE_REF IN (${dbApi.toInClause(
-      packageIds
-    )}))
+          packageIds,
+        )}))
       ELSE
         (${SELECT_CLUSTER_SPECIFIC_DATA_TYPE} AND PACKAGE_REF IN (${dbApi.toInClause(
-      packageIds
-    )}))
+          packageIds,
+        )}))
       END AS DATA_TYPE_ID),
   (SELECT
     CASE
@@ -1475,7 +1487,7 @@ VALUES (
             ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID
           WHERE
             DATA_TYPE.PACKAGE_REF IN (${dbApi.toInClause(
-              packageIds
+              packageIds,
             )}) AND DATA_TYPE.NAME = ?)
       ELSE
         (SELECT
@@ -1505,7 +1517,7 @@ VALUES (
       at.type,
       at.type,
       at.discriminator_ref,
-    ])
+    ]),
   )
 }
 
@@ -1608,7 +1620,7 @@ AND
       at.name,
       at.value,
       at.fieldIdentifier,
-    ])
+    ]),
   )
 }
 
@@ -1634,7 +1646,7 @@ VALUES (
     DATA_TYPE
    WHERE PACKAGE_REF = ? AND NAME = ? AND DISCRIMINATOR_REF = ?),
   ?)`,
-    data.map((at) => [packageId, at.name, at.discriminator_ref, at.size])
+    data.map((at) => [packageId, at.name, at.discriminator_ref, at.size]),
   )
 }
 
@@ -1657,18 +1669,18 @@ async function insertBitmap(db, packageIds, data) {
       CASE
         WHEN
           (${SELECT_CLUSTER_SPECIFIC_DATA_TYPE} AND PACKAGE_REF IN (${dbApi.toInClause(
-      packageIds
-    )}))
+            packageIds,
+          )}))
         IS
           NULL
         THEN
           (${SELECT_GENERIC_DATA_TYPE} AND PACKAGE_REF IN (${dbApi.toInClause(
-      packageIds
-    )}))
+            packageIds,
+          )}))
         ELSE
           (${SELECT_CLUSTER_SPECIFIC_DATA_TYPE} AND PACKAGE_REF IN (${dbApi.toInClause(
-      packageIds
-    )}))
+            packageIds,
+          )}))
         END AS DATA_TYPE_ID),
     (SELECT
       CASE
@@ -1726,7 +1738,7 @@ async function insertBitmap(db, packageIds, data) {
       at.type,
       at.type,
       at.discriminator_ref,
-    ])
+    ]),
   )
 }
 
@@ -1833,7 +1845,7 @@ async function insertBitmapFields(db, packageId, knownPackages, data) {
       at.mask,
       at.fieldIdentifier,
       at.type,
-    ])
+    ]),
   )
 }
 
@@ -1855,18 +1867,18 @@ VALUES (
     CASE
       WHEN
         (${SELECT_CLUSTER_SPECIFIC_DATA_TYPE} AND PACKAGE_REF IN (${dbApi.toInClause(
-      packageIds
-    )}))
+          packageIds,
+        )}))
       IS
         NULL
       THEN
         (${SELECT_GENERIC_DATA_TYPE} AND PACKAGE_REF IN (${dbApi.toInClause(
-      packageIds
-    )}))
+          packageIds,
+        )}))
       ELSE
         (${SELECT_CLUSTER_SPECIFIC_DATA_TYPE} AND PACKAGE_REF IN (${dbApi.toInClause(
-      packageIds
-    )}))
+          packageIds,
+        )}))
       END AS DATA_TYPE_ID),
   (SELECT
     CASE
@@ -1927,7 +1939,7 @@ VALUES (
       at.discriminator_ref,
       dbApi.toDbBool(at.isFabricScoped),
       at.apiMaturity,
-    ])
+    ]),
   )
 }
 
@@ -2055,7 +2067,7 @@ async function insertStructItems(db, packageIds, data) {
       at.isFabricSensitive,
       at.size,
       at.type,
-    ])
+    ]),
   )
 }
 

@@ -53,7 +53,7 @@ ON
 WHERE E1.SESSION_REF = ?
 ORDER BY E1.ENDPOINT_IDENTIFIER
     `,
-    [sessionId]
+    [sessionId],
   )
   return rows.map(dbMapping.map.endpoint)
 }
@@ -70,7 +70,7 @@ ORDER BY E1.ENDPOINT_IDENTIFIER
 async function selectAllEndpointsBasedOnTemplateCategory(
   db,
   sessionId,
-  templateCategory
+  templateCategory,
 ) {
   let rows = await dbApi.dbAll(
     db,
@@ -115,7 +115,7 @@ GROUP BY
   E1.ENDPOINT_IDENTIFIER
 ORDER BY E1.ENDPOINT_IDENTIFIER
     `,
-    [sessionId, templateCategory]
+    [sessionId, templateCategory],
   )
 
   // if now rows are found then return all endpoints in the session. This can
@@ -157,7 +157,7 @@ WHERE
   AND EC.ENDPOINT_TYPE_REF = ?
 ORDER BY C.CODE
 `,
-    [endpointTypeId]
+    [endpointTypeId],
   )
   return rows.map((row) => {
     return {
@@ -186,7 +186,7 @@ async function selectEndpointClusterAttributes(
   db,
   clusterId,
   side,
-  endpointTypeId
+  endpointTypeId,
 ) {
   let rows = await dbApi.dbAll(
     db,
@@ -234,7 +234,7 @@ WHERE
      WHERE CLUSTER_REF = ? AND SIDE = ? AND ENDPOINT_TYPE_REF = ?) ))
 ORDER BY A.MANUFACTURER_CODE, A.CODE
     `,
-    [clusterId, side, clusterId, side, endpointTypeId]
+    [clusterId, side, clusterId, side, endpointTypeId],
   )
 
   return rows.map((row) => {
@@ -336,7 +336,7 @@ GROUP BY
   COMMAND_ID
 ORDER BY CODE
   `,
-    [clusterId, endpointTypeId]
+    [clusterId, endpointTypeId],
   )
 
   return rows.map((row) => {
@@ -400,7 +400,7 @@ WHERE
   AND ETC.ENDPOINT_TYPE_REF = ?
 ORDER BY E.MANUFACTURER_CODE, E.CODE
   `,
-      [clusterId, endpointTypeId]
+      [clusterId, endpointTypeId],
     )
     .then((rows) => rows.map(dbMapping.map.event))
 }
@@ -430,7 +430,7 @@ async function getParentEndpointRef(db, parentEndpointIdentifier, sessionId) {
   let parentEndpointRef = await dbApi.dbAll(
     db,
     'SELECT ENDPOINT_ID FROM ENDPOINT WHERE ENDPOINT_IDENTIFIER = ? AND SESSION_REF = ?',
-    [parentEndpointIdentifier, sessionId]
+    [parentEndpointIdentifier, sessionId],
   )
   if (parentEndpointRef[0]) {
     return parentEndpointRef[0].ENDPOINT_ID
@@ -451,7 +451,7 @@ async function getParentEndpointIdentifier(db, parentRef, sessionId) {
   let parentEndpointIdentifier = await dbApi.dbAll(
     db,
     'SELECT ENDPOINT_IDENTIFIER FROM ENDPOINT WHERE ENDPOINT_ID = ? AND SESSION_REF = ?',
-    [parentRef, sessionId]
+    [parentRef, sessionId],
   )
   if (parentEndpointIdentifier[0]) {
     return parentEndpointIdentifier[0].ENDPOINT_ID
@@ -480,7 +480,7 @@ async function insertEndpoint(
   endpointTypeRef,
   networkIdentifier,
   profileIdentifier,
-  parentRef = null
+  parentRef = null,
 ) {
   return dbApi.dbInsert(
     db,
@@ -501,7 +501,7 @@ INTO ENDPOINT (
       networkIdentifier,
       profileIdentifier,
       parentRef,
-    ]
+    ],
   )
 }
 
@@ -534,7 +534,7 @@ async function duplicateEndpoint(db, id, endpointIdentifier, endpointTypeId) {
       ENDPOINT
     WHERE
       ENDPOINT_ID = ?`,
-    [endpointIdentifier, endpointTypeId, id]
+    [endpointIdentifier, endpointTypeId, id],
   )
 }
 
@@ -574,7 +574,7 @@ ON
   E2.ENDPOINT_ID = E1.PARENT_ENDPOINT_REF
 WHERE
   E1.ENDPOINT_ID = ?`,
-      [endpointId]
+      [endpointId],
     )
     .then(dbMapping.map.endpoint)
 }

@@ -33,7 +33,7 @@ function hookSecondInstanceEvents(argv) {
   app
     .whenReady()
     .then(() =>
-      startup.startUpSecondaryInstance(argv, { quitFunction: app.quit })
+      startup.startUpSecondaryInstance(argv, { quitFunction: app.quit }),
     )
 }
 
@@ -47,7 +47,7 @@ function hookMainInstanceEvents(argv) {
       startup.startUpMainInstance(argv, {
         quitFunction: app.quit,
         uiEnableFunction: uiUtil.enableUi,
-      })
+      }),
     )
     .catch((err) => {
       console.log(err)
@@ -80,5 +80,5 @@ let argv = args.processCommandLineArguments(process.argv)
 util.mainOrSecondaryInstance(
   argv.reuseZapInstance,
   () => hookMainInstanceEvents(argv),
-  () => hookSecondInstanceEvents(argv)
+  () => hookSecondInstanceEvents(argv),
 )

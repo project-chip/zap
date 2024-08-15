@@ -51,7 +51,7 @@ function makeSynchronizablePromise(promise) {
       isRejected = true
       isPending = false
       throw rejectionError
-    }
+    },
   )
 
   // Inject check functions.
@@ -98,7 +98,7 @@ async function collectBlocks(resultArray, options, context) {
       options.inverse({
         global: context.global,
         parent: context,
-      })
+      }),
     )
   }
 
@@ -124,7 +124,7 @@ async function ensureZclPackageId(context) {
     let pkgs = await queryPackage.getSessionPackagesByType(
       context.global.db,
       context.global.sessionId,
-      dbEnum.packageType.zclProperties
+      dbEnum.packageType.zclProperties,
     )
     if (pkgs.length == 0) {
       return null
@@ -161,7 +161,7 @@ async function ensureZclPackageIds(context) {
         if (zclPkg == null) {
           zclPkg = await queryPackage.getPackageByPackageId(
             context.global.db,
-            pkgIds[i]
+            pkgIds[i],
           )
           context.global.packageCache.set(pkgIds[i], zclPkg)
         }
@@ -179,7 +179,7 @@ async function ensureZclPackageIds(context) {
   } else {
     let pkgs = await queryPackage.getSessionZclPackageIds(
       context.global.db,
-      context.global.sessionId
+      context.global.sessionId,
     )
     if (!packageCategory) {
       context.global.zclPackageIds = pkgs
@@ -188,7 +188,7 @@ async function ensureZclPackageIds(context) {
       for (let i = 0; i < pkgs.length; i++) {
         let zclPkg = await queryPackage.getPackageByPackageId(
           context.global.db,
-          pkgs[i]
+          pkgs[i],
         )
         // Checking for category match or custom xml
         if (
@@ -239,7 +239,7 @@ async function ensureTemplatePackageId(context) {
     let pkgs = await queryPackage.getSessionPackagesByType(
       context.global.db,
       context.global.sessionId,
-      dbEnum.packageType.genTemplatesJson
+      dbEnum.packageType.genTemplatesJson,
     )
     if (pkgs.length == 0) {
       return null
@@ -272,7 +272,7 @@ async function ensureEndpointTypeIds(context) {
         let deviceTypes =
           await queryDeviceType.selectDeviceTypesByEndpointTypeId(
             context.global.db,
-            eptIds[i].endpointTypeId
+            eptIds[i].endpointTypeId,
           )
         // Sometimes a device type cannot be found for an endpoint type(undefined)
         if (deviceTypes.length == 0) {
@@ -282,12 +282,12 @@ async function ensureEndpointTypeIds(context) {
           // Get device info
           let deviceType = await queryDeviceType.selectDeviceTypeById(
             context.global.db,
-            deviceTypes[j].deviceTypeRef
+            deviceTypes[j].deviceTypeRef,
           )
           // Get package information to see the category of the device type
           let packageInfo = await queryPackage.getPackageByPackageId(
             context.global.db,
-            deviceType.packageRef
+            deviceType.packageRef,
           )
           // Check for package category match based on gen template category and add it to relevant endpoint types
           if (
@@ -306,7 +306,7 @@ async function ensureEndpointTypeIds(context) {
   } else {
     let eptIds = await queryEndpointType.selectEndpointTypeIds(
       context.global.db,
-      context.global.sessionId
+      context.global.sessionId,
     )
     if (!packageCategory) {
       context.global.endpointTypeIds = eptIds
@@ -316,7 +316,7 @@ async function ensureEndpointTypeIds(context) {
         let deviceTypes =
           await queryDeviceType.selectDeviceTypesByEndpointTypeId(
             context.global.db,
-            eptIds[i].endpointTypeId
+            eptIds[i].endpointTypeId,
           )
         // Sometimes a device type cannot be found for an endpoint type(undefined)
         if (deviceTypes.length == 0) {
@@ -326,11 +326,11 @@ async function ensureEndpointTypeIds(context) {
         for (let j = 0; j < deviceTypes.length; j++) {
           let deviceType = await queryDeviceType.selectDeviceTypeById(
             context.global.db,
-            deviceTypes[j].deviceTypeRef
+            deviceTypes[j].deviceTypeRef,
           )
           let packageInfo = await queryPackage.getPackageByPackageId(
             context.global.db,
-            deviceType.packageRef
+            deviceType.packageRef,
           )
           if (
             packageInfo.category == packageCategory ||
@@ -364,7 +364,7 @@ async function ensureZclClusterSdkExtensions(context, templatePackageId) {
     let extensions = await queryPackage.selectPackageExtension(
       context.global.db,
       templatePackageId,
-      dbEnum.packageExtensionEntity.cluster
+      dbEnum.packageExtensionEntity.cluster,
     )
     context.global.zclClusterSdkExtension = extensions
     return extensions
@@ -386,7 +386,7 @@ async function ensureZclDeviceTypeSdkExtensions(context, templatePackageId) {
     let extensions = await queryPackage.selectPackageExtension(
       context.global.db,
       templatePackageId,
-      dbEnum.packageExtensionEntity.deviceType
+      dbEnum.packageExtensionEntity.deviceType,
     )
     context.global.zclDeviceTypeExtension = extensions
     return extensions
@@ -408,7 +408,7 @@ async function ensureZclAttributeSdkExtensions(context, templatePackageId) {
     let extensions = await queryPackage.selectPackageExtension(
       context.global.db,
       templatePackageId,
-      dbEnum.packageExtensionEntity.attribute
+      dbEnum.packageExtensionEntity.attribute,
     )
     context.global.zclAttributeSdkExtension = extensions
     return extensions
@@ -430,7 +430,7 @@ async function ensureZclAttributeTypeSdkExtensions(context, templatePackageId) {
     let extensions = await queryPackage.selectPackageExtension(
       context.global.db,
       templatePackageId,
-      dbEnum.packageExtensionEntity.attributeType
+      dbEnum.packageExtensionEntity.attributeType,
     )
     context.global.zclAttributeTypeSdkExtension = extensions
     return extensions
@@ -452,7 +452,7 @@ async function ensureZclCommandSdkExtensions(context, templatePackageId) {
     let extensions = await queryPackage.selectPackageExtension(
       context.global.db,
       templatePackageId,
-      dbEnum.packageExtensionEntity.command
+      dbEnum.packageExtensionEntity.command,
     )
     context.global.zclCommandSdkExtension = extensions
     return extensions
@@ -474,7 +474,7 @@ async function ensureZclEventSdkExtensions(context, templatePackageId) {
     let extensions = await queryPackage.selectPackageExtension(
       context.global.db,
       templatePackageId,
-      dbEnum.packageExtensionEntity.event
+      dbEnum.packageExtensionEntity.event,
     )
     context.global.zclEventSdkExtension = extensions
     return extensions

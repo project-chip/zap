@@ -71,7 +71,7 @@ limitations under the License.
                   selection,
                   'selectedAttributes',
                   props.row,
-                  selectedCluster.id
+                  selectedCluster.id,
                 )
               "
             />
@@ -92,8 +92,8 @@ limitations under the License.
             selectedCluster.manufacturerCode
               ? asHex(selectedCluster.manufacturerCode, 4)
               : props.row.manufacturerCode
-              ? asHex(props.row.manufacturerCode, 4)
-              : ''
+                ? asHex(props.row.manufacturerCode, 4)
+                : ''
           }}</q-td>
           <q-td key="storageOption" :props="props" auto-width>
             <q-select
@@ -106,7 +106,7 @@ limitations under the License.
                 isDisabledStorage(
                   props.row.id,
                   props.row.label,
-                  selectedCluster.id
+                  selectedCluster.id,
                 )
               "
               class="col"
@@ -118,7 +118,7 @@ limitations under the License.
                   $event,
                   'storageOption',
                   props.row,
-                  selectedCluster.id
+                  selectedCluster.id,
                 )
               "
             />
@@ -141,7 +141,7 @@ limitations under the License.
                   $event,
                   'selectedSingleton',
                   props.row,
-                  selectedCluster.id
+                  selectedCluster.id,
                 )
               "
             />
@@ -159,7 +159,7 @@ limitations under the License.
                   $event,
                   'selectedBounded',
                   props.row,
-                  selectedCluster.id
+                  selectedCluster.id,
                 )
               "
             />
@@ -189,12 +189,12 @@ limitations under the License.
               "
               :error="
                 !isDefaultValueValid(
-                  hashAttributeIdClusterId(props.row.id, selectedCluster.id)
+                  hashAttributeIdClusterId(props.row.id, selectedCluster.id),
                 )
               "
               :error-message="
                 getDefaultValueErrorMessage(
-                  hashAttributeIdClusterId(props.row.id, selectedCluster.id)
+                  hashAttributeIdClusterId(props.row.id, selectedCluster.id),
                 )
               "
               @update:model-value="
@@ -202,7 +202,7 @@ limitations under the License.
                   $event,
                   'defaultValue',
                   props.row,
-                  selectedCluster.id
+                  selectedCluster.id,
                 )
               "
             >
@@ -217,7 +217,7 @@ limitations under the License.
                       null,
                       'defaultValue',
                       props.row,
-                      selectedCluster.id
+                      selectedCluster.id,
                     )
                   "
                 />
@@ -260,7 +260,7 @@ export default {
     isDisabledDefault(id, selectedClusterId) {
       return (
         !this.selection.includes(
-          this.hashAttributeIdClusterId(id, selectedClusterId)
+          this.hashAttributeIdClusterId(id, selectedClusterId),
         ) ||
         this.selectionStorageOption[
           this.hashAttributeIdClusterId(id, selectedClusterId)
@@ -271,14 +271,14 @@ export default {
     isDisabledStorage(id, name, selectedClusterId) {
       return (
         !this.selection.includes(
-          this.hashAttributeIdClusterId(id, selectedClusterId)
+          this.hashAttributeIdClusterId(id, selectedClusterId),
         ) || this.checkForcedExternal(name)
       )
     },
     //return true and disable if attribute is not enabled
     isDisabled(id, selectedClusterId) {
       return !this.selection.includes(
-        this.hashAttributeIdClusterId(id, selectedClusterId)
+        this.hashAttributeIdClusterId(id, selectedClusterId),
       )
     },
     //if disabled return null to be set as the default value
@@ -301,7 +301,7 @@ export default {
       return (
         this.isAttributeRequired(row) &&
         !this.selection.includes(
-          this.hashAttributeIdClusterId(row.id, this.selectedCluster.id)
+          this.hashAttributeIdClusterId(row.id, this.selectedCluster.id),
         )
       )
     },
@@ -334,7 +334,7 @@ export default {
                 y['side'],
                 a,
                 b,
-                this.sortByClusterAndManufacturerCode
+                this.sortByClusterAndManufacturerCode,
               )
             case 'storageOption': {
               let i =
@@ -352,7 +352,7 @@ export default {
                 j,
                 a,
                 b,
-                this.sortByClusterAndManufacturerCode
+                this.sortByClusterAndManufacturerCode,
               )
             }
             case 'singleton':
@@ -362,7 +362,7 @@ export default {
                 a,
                 b,
                 this.selectionSingleton,
-                this.sortByClusterAndManufacturerCode
+                this.sortByClusterAndManufacturerCode,
               )
             case 'bounded':
               return this.sortByBoolean(
@@ -371,7 +371,7 @@ export default {
                 a,
                 b,
                 this.selectionBounded,
-                this.sortByClusterAndManufacturerCode
+                this.sortByClusterAndManufacturerCode,
               )
             case 'type':
               return this.sortByText(
@@ -379,7 +379,7 @@ export default {
                 y['type'],
                 a,
                 b,
-                this.sortByClusterAndManufacturerCode
+                this.sortByClusterAndManufacturerCode,
               )
             case 'default':
               return 0
@@ -399,7 +399,7 @@ export default {
         .filter(
           (attribute) =>
             !attribute.isOptional ||
-            this.requiredDeviceTypeAttributes.includes(attribute.id)
+            this.requiredDeviceTypeAttributes.includes(attribute.id),
         )
         .map((attribute) => attribute.id)
     },

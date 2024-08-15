@@ -42,7 +42,7 @@ beforeAll(async () => {
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
     env.schemaFile(),
-    env.zapVersion()
+    env.zapVersion(),
   )
   await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
   await httpServer.initHttpServer(db, port)
@@ -51,13 +51,13 @@ beforeAll(async () => {
     'USER',
     sessionUuid,
     env.builtinSilabsZclMetafile(),
-    env.builtinTemplateMetafile()
+    env.builtinTemplateMetafile(),
   )
 }, testUtil.timeout.long())
 
 afterAll(
   () => httpServer.shutdownHttpServer().then(() => dbApi.closeDatabase(db)),
-  testUtil.timeout.medium()
+  testUtil.timeout.medium(),
 )
 
 test(
@@ -68,11 +68,11 @@ test(
       axiosInstance.defaults.headers.Cookie = sessionCookie
       expect(
         response.data.includes(
-          'Configuration tool for the Zigbee Cluster Library'
-        )
+          'Configuration tool for the Zigbee Cluster Library',
+        ),
       ).toBeTruthy()
     }),
-  testUtil.timeout.long()
+  testUtil.timeout.long(),
 )
 
 describe('Miscelaneous REST API tests', () => {
@@ -84,7 +84,7 @@ describe('Miscelaneous REST API tests', () => {
         .then((response) => {
           expect(response.data.length).toBeGreaterThan(100)
         }),
-    testUtil.timeout.long()
+    testUtil.timeout.long(),
   )
 
   test(
@@ -97,7 +97,7 @@ describe('Miscelaneous REST API tests', () => {
         .then((response) => {
           expect(response.status).toBe(StatusCodes.OK)
         }),
-    testUtil.timeout.long()
+    testUtil.timeout.long(),
   )
 
   test(
@@ -115,7 +115,7 @@ describe('Miscelaneous REST API tests', () => {
           expect(data.filePath).toContain('three-endpoint-device.zap')
           expect(data.manufacturerCodes).toEqual('0x1002')
         }),
-    testUtil.timeout.long()
+    testUtil.timeout.long(),
   )
 
   test(
@@ -128,8 +128,8 @@ describe('Miscelaneous REST API tests', () => {
         })
         .then(() =>
           axiosInstance.get(
-            `${restApi.uri.getAllSessionKeyValues}?sessionId=${sessionUuid}`
-          )
+            `${restApi.uri.getAllSessionKeyValues}?sessionId=${sessionUuid}`,
+          ),
         )
         .then((response) => {
           let data = response.data.reduce((accumulator, current) => {
@@ -142,7 +142,7 @@ describe('Miscelaneous REST API tests', () => {
           expect(data.manufacturerCodes).toEqual('0x1002')
           expect(data.testKey).toEqual('testValue')
         }),
-    testUtil.timeout.long()
+    testUtil.timeout.long(),
   )
 
   test(
@@ -152,17 +152,17 @@ describe('Miscelaneous REST API tests', () => {
         .get(`${restApi.uri.zclCluster}all?sessionId=${sessionUuid}`)
         .then((response) => {
           expect(response.data.clusterData.length).toBe(
-            testUtil.totalClusterCount
+            testUtil.totalClusterCount,
           )
         }),
-    testUtil.timeout.long()
+    testUtil.timeout.long(),
   )
 
   test(
     'all device types',
     async () => {
       let response = await axiosInstance.get(
-        `${restApi.uri.zclDeviceType}all?sessionId=${sessionUuid}`
+        `${restApi.uri.zclDeviceType}all?sessionId=${sessionUuid}`,
       )
       expect(response.data.length).toBe(175)
 
@@ -171,37 +171,37 @@ describe('Miscelaneous REST API tests', () => {
       expect(haOnOff).not.toBeNull()
 
       let clusters = await axiosInstance.get(
-        `${restApi.uri.deviceTypeClusters}${haOnOff.id}`
+        `${restApi.uri.deviceTypeClusters}${haOnOff.id}`,
       )
       expect(clusters.data.length).toBe(14)
       let attributes = await axiosInstance.get(
-        `${restApi.uri.deviceTypeAttributes}${haOnOff.id}`
+        `${restApi.uri.deviceTypeAttributes}${haOnOff.id}`,
       )
       expect(attributes.data.length).toBe(0)
       let commands = await axiosInstance.get(
-        `${restApi.uri.deviceTypeCommands}${haOnOff.id}`
+        `${restApi.uri.deviceTypeCommands}${haOnOff.id}`,
       )
       expect(commands.data.length).toBe(0)
 
       let zllNcsr = response.data.find(
-        (d) => d.label == 'ZLL-noncolorsceneremote'
+        (d) => d.label == 'ZLL-noncolorsceneremote',
       )
       expect(zllNcsr).not.toBeNull()
 
       clusters = await axiosInstance.get(
-        `${restApi.uri.deviceTypeClusters}${zllNcsr.id}`
+        `${restApi.uri.deviceTypeClusters}${zllNcsr.id}`,
       )
       expect(clusters.data.length).toBe(8)
       attributes = await axiosInstance.get(
-        `${restApi.uri.deviceTypeAttributes}${zllNcsr.id}`
+        `${restApi.uri.deviceTypeAttributes}${zllNcsr.id}`,
       )
       expect(attributes.data.length).toBe(9)
       commands = await axiosInstance.get(
-        `${restApi.uri.deviceTypeCommands}${zllNcsr.id}`
+        `${restApi.uri.deviceTypeCommands}${zllNcsr.id}`,
       )
       expect(commands.data.length).toBe(32)
     },
-    testUtil.timeout.long()
+    testUtil.timeout.long(),
   )
 
   test(
@@ -212,7 +212,7 @@ describe('Miscelaneous REST API tests', () => {
         .then((response) => {
           expect(response.data.length).toBe(testUtil.totalDomainCount)
         }),
-    testUtil.timeout.long()
+    testUtil.timeout.long(),
   )
 
   test(
@@ -223,7 +223,7 @@ describe('Miscelaneous REST API tests', () => {
         .then((response) => {
           expect(response.data.length).toBe(129)
         }),
-    testUtil.timeout.long()
+    testUtil.timeout.long(),
   )
 
   test(
@@ -234,7 +234,7 @@ describe('Miscelaneous REST API tests', () => {
         .then((response) => {
           expect(response.data.length).toBe(testUtil.totalEnumCount)
         }),
-    testUtil.timeout.short()
+    testUtil.timeout.short(),
   )
 
   test(
@@ -245,6 +245,6 @@ describe('Miscelaneous REST API tests', () => {
         .then((response) => {
           expect(response.data.length).toBe(54)
         }),
-    testUtil.timeout.short()
+    testUtil.timeout.short(),
   )
 })

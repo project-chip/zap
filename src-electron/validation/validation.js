@@ -43,20 +43,20 @@ async function validateAttribute(
   endpointTypeId,
   attributeRef,
   clusterRef,
-  zapSessionId
+  zapSessionId,
 ) {
   let endpointAttribute = await queryZcl.selectEndpointTypeAttribute(
     db,
     endpointTypeId,
     attributeRef,
-    clusterRef
+    clusterRef,
   )
   let attribute = await queryZcl.selectAttributeById(db, attributeRef)
   return validateSpecificAttribute(
     endpointAttribute,
     attribute,
     db,
-    zapSessionId
+    zapSessionId,
   )
 }
 
@@ -66,7 +66,7 @@ async function validateEndpoint(db, endpointId) {
   let noDuplicates = await validateNoDuplicateEndpoints(
     db,
     endpoint.endpointId,
-    endpoint.sessionRef
+    endpoint.sessionRef,
   )
   if (!noDuplicates) {
     currentIssues.endpointId.push('Duplicate EndpointIds Exist')
@@ -77,13 +77,13 @@ async function validateEndpoint(db, endpointId) {
 async function validateNoDuplicateEndpoints(
   db,
   endpointIdentifier,
-  sessionRef
+  sessionRef,
 ) {
   let count =
     await queryConfig.selectCountOfEndpointsWithGivenEndpointIdentifier(
       db,
       endpointIdentifier,
-      sessionRef
+      sessionRef,
     )
   return count.length <= 1
 }
@@ -100,7 +100,7 @@ async function validateSpecificAttribute(
   endpointAttribute,
   attribute,
   db,
-  zapSessionId
+  zapSessionId,
 ) {
   let defaultAttributeIssues = []
   if (attribute.isNullable && endpointAttribute.defaultValue == null) {
@@ -121,7 +121,7 @@ async function validateSpecificAttribute(
           attribute,
           endpointAttribute,
           db,
-          zapSessionId
+          zapSessionId,
         ))
       ) {
         defaultAttributeIssues.push('Out of range')
@@ -135,7 +135,7 @@ async function validateSpecificAttribute(
           attribute,
           endpointAttribute,
           db,
-          zapSessionId
+          zapSessionId,
         ))
       ) {
         defaultAttributeIssues.push('Out of range')
@@ -294,7 +294,7 @@ async function getIntegerAttributeSize(db, zapSessionId, attribType) {
   const attribData = await types.getSignAndSizeOfZclType(
     db,
     attribType,
-    packageIds
+    packageIds,
   )
   if (attribData) {
     return {
@@ -318,12 +318,12 @@ async function checkAttributeBoundsInteger(
   attribute,
   endpointAttribute,
   db,
-  zapSessionId
+  zapSessionId,
 ) {
   const { size, isSigned } = await getIntegerAttributeSize(
     db,
     zapSessionId,
-    attribute.type
+    attribute.type,
   )
   if (size === undefined || isSigned === undefined) {
     return false
@@ -332,7 +332,7 @@ async function checkAttributeBoundsInteger(
   let defaultValue = await getIntegerFromAttribute(
     endpointAttribute.defaultValue,
     size,
-    isSigned
+    isSigned,
   )
   return checkBoundsInteger(defaultValue, min, max)
 }

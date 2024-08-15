@@ -48,12 +48,12 @@ describe('Testing cluster search', () => {
     cy.dataCy('cluster-general').children().children().eq(0).click()
     cy.dataCy('cluster-general').should(
       'have.class',
-      'q-expansion-item--collapsed'
+      'q-expansion-item--collapsed',
     )
     cy.dataCy('cluster-general').children().children().eq(0).click()
     cy.dataCy('cluster-general').should(
       'have.class',
-      'q-expansion-item--expanded'
+      'q-expansion-item--expanded',
     )
     cy.dataCy('cluster-btn-closeall').click()
     cy.get('[data-test=Cluster').each(($row) => {

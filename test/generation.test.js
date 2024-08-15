@@ -41,7 +41,7 @@ beforeAll(async () => {
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
     env.schemaFile(),
-    env.zapVersion()
+    env.zapVersion(),
   )
 }, testUtil.timeout.medium())
 
@@ -57,7 +57,7 @@ describe('Content indexer', () => {
       let preview = await generationEngine.contentIndexer('Short example')
       expect(preview['1']).toBe('Short example\n')
     },
-    testUtil.timeout.short()
+    testUtil.timeout.short(),
   )
 
   test(
@@ -65,13 +65,13 @@ describe('Content indexer', () => {
     async () => {
       let preview = await generationEngine.contentIndexer(
         'Short example\nwith three\nlines of text',
-        1
+        1,
       )
       expect(preview['1']).toBe('Short example\n')
       expect(preview['2']).toBe('with three\n')
       expect(preview['3']).toBe('lines of text\n')
     },
-    testUtil.timeout.short()
+    testUtil.timeout.short(),
   )
 
   test(
@@ -88,7 +88,7 @@ describe('Content indexer', () => {
       expect(preview['3'].startsWith('line 100')).toBeTruthy()
       expect(preview['20'].startsWith('line 950')).toBeTruthy()
     },
-    testUtil.timeout.short()
+    testUtil.timeout.short(),
   )
 })
 
@@ -99,13 +99,13 @@ describe('Session specific tests', () => {
       let cnt = await testQuery.selectCountFrom(db, 'SESSION')
       expect(cnt).toBe(0)
     },
-    testUtil.timeout.short()
+    testUtil.timeout.short(),
   )
 
   test(
     'Now actually load the static data.',
     () => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile()),
-    testUtil.timeout.medium()
+    testUtil.timeout.medium(),
   )
 
   test(
@@ -113,7 +113,7 @@ describe('Session specific tests', () => {
     async () => {
       let context = await generationEngine.loadTemplates(
         db,
-        testUtil.testTemplate.zigbee
+        testUtil.testTemplate.zigbee,
       )
       let packageId = context.packageId
       templatePkgId = packageId
@@ -124,7 +124,7 @@ describe('Session specific tests', () => {
       let extensions = await queryPackage.selectPackageExtension(
         db,
         packageId,
-        dbEnum.packageExtensionEntity.cluster
+        dbEnum.packageExtensionEntity.cluster,
       )
 
       expect(extensions.length).toBe(2)
@@ -136,26 +136,26 @@ describe('Session specific tests', () => {
       expect(extensions[0].globalDefault).toBe(null)
       expect(extensions[0].defaults.length).toBe(3)
       expect(extensions[1].label).toBe(
-        'Test cluster extension with external defaults values'
+        'Test cluster extension with external defaults values',
       )
       expect(extensions[1].globalDefault).toBe(null)
       expect(extensions[1].defaults.length).toBe(2)
       expect(extensions[1].defaults[0].value).toBe(
-        'Extension value loaded via external default JSON file.'
+        'Extension value loaded via external default JSON file.',
       )
 
       // Test for command package extensions
       extensions = await queryPackage.selectPackageExtension(
         db,
         packageId,
-        dbEnum.packageExtensionEntity.command
+        dbEnum.packageExtensionEntity.command,
       )
 
       expect(extensions.length).toBe(2)
       let tcIndex = 1
       let icIndex = 0
       expect(extensions[tcIndex].entity).toBe(
-        dbEnum.packageExtensionEntity.command
+        dbEnum.packageExtensionEntity.command,
       )
       expect(extensions[tcIndex].property).toBe('testCommandExtension')
       expect(extensions[tcIndex].type).toBe('boolean')
@@ -168,7 +168,7 @@ describe('Session specific tests', () => {
       extensions = await queryPackage.selectPackageExtension(
         db,
         packageId,
-        dbEnum.packageExtensionEntity.attribute
+        dbEnum.packageExtensionEntity.attribute,
       )
 
       expect(extensions.length).toBe(2)
@@ -192,7 +192,7 @@ describe('Session specific tests', () => {
       extensions = await queryPackage.selectPackageExtension(
         db,
         packageId,
-        dbEnum.packageExtensionEntity.attributeType
+        dbEnum.packageExtensionEntity.attributeType,
       )
       expect(extensions.length).toBe(1)
 
@@ -201,13 +201,13 @@ describe('Session specific tests', () => {
         db,
         packageId,
         'implementedCommands',
-        dbEnum.packageExtensionEntity.command
+        dbEnum.packageExtensionEntity.command,
       )
       expect(extensions.type).toBe('boolean')
       expect(extensions.globalDefault).toBe('0')
       expect(extensions.defaults.length).toBe(5)
     },
-    testUtil.timeout.medium()
+    testUtil.timeout.medium(),
   )
 
   test(
@@ -220,10 +220,10 @@ describe('Session specific tests', () => {
         'USER',
         uuid,
         env.builtinSilabsZclMetafile(),
-        env.builtinTemplateMetafile()
+        env.builtinTemplateMetafile(),
       )
     },
-    testUtil.timeout.medium()
+    testUtil.timeout.medium(),
   )
 
   let templateCount = 0
@@ -231,42 +231,42 @@ describe('Session specific tests', () => {
     'test retrieval of all preview template files',
     async () => {
       let response = await axios.get(
-        `${baseUrl}/preview/?sessionId=${uuid}&templatePackageId=${templatePkgId}`
+        `${baseUrl}/preview/?sessionId=${uuid}&templatePackageId=${templatePkgId}`,
       )
       templateCount = response.data['length']
       for (let i = 0; i < response.data['length']; i++) {
         expect(response.data[i]['version']).toBeDefined()
       }
     },
-    testUtil.timeout.short()
+    testUtil.timeout.short(),
   )
 
   test(
     'test that zcl extension is loaded and exists',
     async () => {
       let response = await axios.get(
-        `${baseUrl}/zclExtension/cluster/testClusterExtension1?sessionId=${uuid}`
+        `${baseUrl}/zclExtension/cluster/testClusterExtension1?sessionId=${uuid}`,
       )
       expect(response.data.entity).toBe('cluster')
       expect(response.data.property).toBe('testClusterExtension1')
       expect(response.data.label).toBe(
-        'Test cluster extension with external defaults values'
+        'Test cluster extension with external defaults values',
       )
       expect(response.data.defaults[0].entityCode).toBe('0x0003')
       expect(response.data.defaults[0].value).toBe(
-        'Extension value loaded via external default JSON file.'
+        'Extension value loaded via external default JSON file.',
       )
       expect(response.data.defaults[1].entityCode).toBe(
-        'clusterCode mixed with strings'
+        'clusterCode mixed with strings',
       )
     },
-    testUtil.timeout.medium()
+    testUtil.timeout.medium(),
   )
 
   test(
     'Load a second set of templates.',
     () => generationEngine.loadTemplates(db, testUtil.testTemplate.matter),
-    testUtil.timeout.medium()
+    testUtil.timeout.medium(),
   )
 
   // Make sure all templates are loaded
@@ -275,11 +275,11 @@ describe('Session specific tests', () => {
     async () => {
       let pkgs = await queryPackage.getPackagesByType(
         db,
-        dbEnum.packageType.genSingleTemplate
+        dbEnum.packageType.genSingleTemplate,
       )
       expect(templateCount).toBeLessThan(pkgs.length)
     },
-    testUtil.timeout.medium()
+    testUtil.timeout.medium(),
   )
 
   test(
@@ -288,39 +288,39 @@ describe('Session specific tests', () => {
       let response = await axios.get(`${baseUrl}/preview/?sessionId=${uuid}`)
       expect(templateCount).toEqual(response.data['length'])
     },
-    testUtil.timeout.short()
+    testUtil.timeout.short(),
   )
 
   test(
     'test that there is generation data in the simple-test.out preview file. Index 1',
     async () => {
       let response = await axios.get(
-        `${baseUrl}/preview/simple-test.out/1?sessionId=${uuid}`
+        `${baseUrl}/preview/simple-test.out/1?sessionId=${uuid}`,
       )
       expect(response.data['result']).toMatch('Test template file.')
     },
-    testUtil.timeout.short()
+    testUtil.timeout.short(),
   )
 
   test(
     'No generation test, incorrect file name',
     async () => {
       let response = await axios.get(
-        `${baseUrl}/preview/no-file?sessionId=${uuid}`
+        `${baseUrl}/preview/no-file?sessionId=${uuid}`,
       )
       expect(response.data['result']).toBeUndefined()
     },
-    testUtil.timeout.short()
+    testUtil.timeout.short(),
   )
 
   test(
     'No generation test, incorrect file name and incorrect index',
     async () => {
       let response = await axios.get(
-        `${baseUrl}/preview/no-file/1?sessionId=${uuid}`
+        `${baseUrl}/preview/no-file/1?sessionId=${uuid}`,
       )
       expect(response.data['result']).toBeUndefined()
     },
-    testUtil.timeout.short()
+    testUtil.timeout.short(),
   )
 })

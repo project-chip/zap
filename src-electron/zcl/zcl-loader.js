@@ -43,7 +43,7 @@ async function recordToplevelPackage(
   db,
   metadataFile,
   crc,
-  isTopLevelPackageInSync
+  isTopLevelPackageInSync,
 ) {
   let topLevel = await queryPackage.registerTopLevelPackage(
     db,
@@ -53,7 +53,7 @@ async function recordToplevelPackage(
     null,
     null,
     null,
-    isTopLevelPackageInSync
+    isTopLevelPackageInSync,
   )
   return topLevel.id
 }
@@ -70,7 +70,7 @@ async function recordVersion(db, packageId, version, category, description) {
     packageId,
     version,
     category,
-    description
+    description,
   )
 }
 
@@ -104,7 +104,7 @@ async function loadZclMetaFilesCommon(db, metadataFile, options) {
 async function loadAttributeMappingForMultiProtocol(
   db,
   multiProtcolInfo,
-  categoryToPackageIdMap
+  categoryToPackageIdMap,
 ) {
   let attributeMapRes = []
   for (const mi of multiProtcolInfo) {
@@ -112,17 +112,17 @@ async function loadAttributeMappingForMultiProtocol(
     let metaDataDir = path.dirname(resolvedMetafile)
     let multiProtocolFileName = path.join(
       metaDataDir,
-      mi.multiProtocolInfo.defaults
+      mi.multiProtocolInfo.defaults,
     )
     // Check if this package exists in the db. Add it to package table if it does not exist
     let pkgInfo = await queryPackage.getPackageByPathAndType(
       db,
       multiProtocolFileName,
-      dbEnum.packageType.jsonExtension
+      dbEnum.packageType.jsonExtension,
     )
     let multiProtocolData = await fsPromise.readFile(
       multiProtocolFileName,
-      'utf8'
+      'utf8',
     )
     let actualMultiProtocolFileCrc = util.checksum(multiProtocolData)
     if (!pkgInfo) {
@@ -133,7 +133,7 @@ async function loadAttributeMappingForMultiProtocol(
         dbEnum.packageType.jsonExtension,
         mi.packageId,
         null,
-        mi.category
+        mi.category,
       )
     } else if (pkgInfo.crc == actualMultiProtocolFileCrc) {
       // No need to load the file again if already loaded once
@@ -153,22 +153,22 @@ async function loadAttributeMappingForMultiProtocol(
                 attributeMapEntry.push(
                   ai[category].code
                     ? types.hexStringToInt(ai[category].code)
-                    : null
+                    : null,
                 )
                 attributeMapEntry.push(
                   ai[category].manufacturerCode
                     ? types.hexStringToInt(ai[category].manufacturerCode)
-                    : null
+                    : null,
                 )
                 attributeMapEntry.push(
                   ci[category].code
                     ? types.hexStringToInt(ci[category].code)
-                    : null
+                    : null,
                 )
                 attributeMapEntry.push(
                   ci[category].manufacturerCode
                     ? types.hexStringToInt(ci[category].manufacturerCode)
-                    : null
+                    : null,
                 )
                 attributeMapEntry.push(categoryToPackageIdMap[category])
                 attributeMapEntry.push(categoryToPackageIdMap[category])
@@ -196,7 +196,7 @@ async function loadZclMetafiles(
   metadataFiles,
   options = {
     failOnLoadingError: true,
-  }
+  },
 ) {
   let packageIds = []
   let multiProtcolInfo = []
@@ -222,7 +222,7 @@ async function loadZclMetafiles(
     await loadAttributeMappingForMultiProtocol(
       db,
       multiProtcolInfo,
-      categoryToPackageIdMap
+      categoryToPackageIdMap,
     )
   }
   return packageIds
@@ -263,7 +263,7 @@ async function loadIndividualFile(db, filePath, sessionId) {
     return sLoad.loadIndividualSilabsFile(db, filePath, sessionId)
   } else {
     let err = new Error(
-      `Unable to read file: ${filePath}. Expecting an XML file with ZCL clusters.`
+      `Unable to read file: ${filePath}. Expecting an XML file with ZCL clusters.`,
     )
     env.logWarning(err)
     queryNotification.setNotification(db, 'WARNING', err, sessionId, 2, 0)
@@ -287,7 +287,7 @@ async function qualifyZclFile(
   info,
   parentPackageId,
   packageType,
-  isCustom
+  isCustom,
 ) {
   let filePath = info.filePath
   let data = info.data
@@ -297,7 +297,7 @@ async function qualifyZclFile(
     db,
     filePath,
     parentPackageId,
-    isCustom
+    isCustom,
   )
 
   if (pkg == null) {
@@ -308,7 +308,7 @@ async function qualifyZclFile(
       filePath,
       actualCrc,
       packageType,
-      parentPackageId
+      parentPackageId,
     )
     return {
       filePath: filePath,
@@ -329,7 +329,7 @@ async function qualifyZclFile(
         }
       }
       env.logDebug(
-        `CRC match for file ${pkg.path} (${pkg.crc}), skipping parsing.`
+        `CRC match for file ${pkg.path} (${pkg.crc}), skipping parsing.`,
       )
       return {
         error: `${pkg.path} skipped`,
@@ -337,7 +337,7 @@ async function qualifyZclFile(
       }
     } else {
       env.logDebug(
-        `CRC missmatch for file ${pkg.path}, (${pkg.crc} vs ${actualCrc}) package id ${pkg.id}, parsing.`
+        `CRC missmatch for file ${pkg.path}, (${pkg.crc} vs ${actualCrc}) package id ${pkg.id}, parsing.`,
       )
       await queryPackage.updatePathCrc(db, filePath, actualCrc, parentPackageId)
       return {

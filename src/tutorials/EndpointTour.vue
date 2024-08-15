@@ -103,7 +103,7 @@ export default {
       deviceVersion.push(
         this.zclDeviceTypeOptions[0].deviceVersion
           ? this.zclDeviceTypeOptions[0].deviceVersion
-          : 1
+          : 1,
       )
       // if (this.endpoints.length < 1) {
       this.$store
@@ -117,7 +117,7 @@ export default {
           let profileId = this.asHex(
             this.zclDeviceTypes[this.zclDeviceTypeOptions[0].deviceTypeRef]
               .profileId,
-            4
+            4,
           )
           this.tourEndpointType = response.id
 
@@ -144,13 +144,13 @@ export default {
               this.$store
                 .dispatch(
                   `zap/endpointTypeClustersInfo`,
-                  this.endpointType[res.id]
+                  this.endpointType[res.id],
                 )
                 .then((res) => {
                   if (res?.data) {
                     const clusterStates = res.data
                     const enabledClusterStates = clusterStates.filter(
-                      (x) => x.enabled
+                      (x) => x.enabled,
                     )
                     for (const states of enabledClusterStates) {
                       const { endpointTypeRef, clusterRef, side, enabled } =
@@ -163,7 +163,7 @@ export default {
                       }
 
                       console.log(
-                        `Enabling UC component ${JSON.stringify(arg)}`
+                        `Enabling UC component ${JSON.stringify(arg)}`,
                       )
                       this.updateSelectedComponentRequest(arg)
                     }
@@ -185,7 +185,7 @@ export default {
       await this.$store.dispatch('zap/deleteEndpoint', this.tourEndpointId)
       await this.$store.dispatch(
         'zap/deleteEndpointType',
-        this.endpointType[this.tourEndpointId]
+        this.endpointType[this.tourEndpointId],
       )
       this.exitTour()
     },
@@ -263,7 +263,7 @@ export default {
         this.$store.commit('zap/triggerExpanded', true)
         document
           .getElementsByClassName(
-            ' q-icon notranslate material-icons q-expansion-item__toggle-icon'
+            ' q-icon notranslate material-icons q-expansion-item__toggle-icon',
           )[1]
           .click()
         resolve()
@@ -273,7 +273,7 @@ export default {
       return new Promise((resolve) => {
         document
           .getElementsByClassName(
-            ' q-icon material-icons q-select__dropdown-icon'
+            ' q-icon material-icons q-select__dropdown-icon',
           )[0]
           .click()
         resolve()
@@ -304,11 +304,11 @@ export default {
             .then(() => {
               this.$store.dispatch(
                 'zap/refreshEndpointTypeCluster',
-                this.selectedEndpointTypeId
+                this.selectedEndpointTypeId,
               )
               this.$store.dispatch(
                 'zap/setLastSelectedDomain',
-                this.$store.state.zap.domains[0]
+                this.$store.state.zap.domains[0],
               )
             })
           this.$router.push('/cluster').then(() => {

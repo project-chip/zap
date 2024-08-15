@@ -40,7 +40,7 @@ beforeAll(async () => {
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
     env.schemaFile(),
-    env.zapVersion()
+    env.zapVersion(),
   )
   return zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
 }, testUtil.timeout.medium())
@@ -52,7 +52,7 @@ test(
   async () => {
     let context = await genEngine.loadTemplates(
       db,
-      testUtil.testTemplate.zigbee2
+      testUtil.testTemplate.zigbee2,
     )
     expect(context.crc).not.toBeNull()
     expect(context.templateData).not.toBeNull()
@@ -62,7 +62,7 @@ test(
     expect(context.packageId).not.toBeNull()
     templateContext = context
   },
-  testUtil.timeout.medium()
+  testUtil.timeout.medium(),
 )
 
 test(
@@ -70,11 +70,11 @@ test(
   async () => {
     templateContext.packages = await queryPackage.getPackageByParent(
       templateContext.db,
-      templateContext.packageId
+      templateContext.packageId,
     )
     expect(templateContext.packages.length).toBe(templateCount) // -1 for ignored one, one for helper and one for overridable
   },
-  testUtil.timeout.short()
+  testUtil.timeout.short(),
 )
 
 test(
@@ -85,12 +85,12 @@ test(
     let { sid, errors, warnings } = await importJs.importDataFromFile(
       db,
       testFile,
-      { sessionId: sessionId }
+      { sessionId: sessionId },
     )
     expect(errors.length).toBe(0)
     expect(warnings.length).toBe(0)
   },
-  testUtil.timeout.long()
+  testUtil.timeout.long(),
 )
 
 // We here generate each one separatelly in a separate test case.
@@ -120,10 +120,10 @@ test.each([
       {
         generateOnly: item,
         disableDeprecationWarnings: true,
-      }
+      },
     )
 
     expect(genResult.hasErrors).not.toBeTruthy()
   },
-  testUtil.timeout.long()
+  testUtil.timeout.long(),
 )

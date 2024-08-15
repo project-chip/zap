@@ -44,7 +44,7 @@ async function attributeDefault(options) {
     packageIds,
     this.id,
     code,
-    this.mfgCode
+    this.mfgCode,
   )
   if (attr == null) {
     // Check if it's global attribute
@@ -53,13 +53,13 @@ async function attributeDefault(options) {
       packageIds,
       null,
       code,
-      this.mfgCode
+      this.mfgCode,
     )
   }
   let defs = await queryAttribute.selectGlobalAttributeDefaults(
     this.global.db,
     this.id,
-    attr.id
+    attr.id,
   )
   let p = templateUtil.collectBlocks([defs], options, this)
   return templateUtil.templatePromise(this.global, p)

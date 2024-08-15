@@ -41,7 +41,7 @@ test(
     let db = await dbApi.initRamDatabase()
     await dbApi.closeDatabase(db)
   },
-  testUtil.timeout.medium()
+  testUtil.timeout.medium(),
 )
 
 test(
@@ -51,7 +51,7 @@ test(
     await dbApi.loadSchema(db, env.schemaFile(), env.zapVersion())
     await dbApi.closeDatabase(db)
   },
-  testUtil.timeout.medium()
+  testUtil.timeout.medium(),
 )
 
 test(
@@ -70,7 +70,7 @@ test(
       expect(p.category).toEqual('zigbee')
       let x = await queryPackage.getPackagesByType(
         db,
-        dbEnum.packageType.zclProperties
+        dbEnum.packageType.zclProperties,
       )
 
       expect(x.length).toEqual(1)
@@ -113,7 +113,7 @@ test(
       x = await dbApi.dbAll(
         db,
         'SELECT MANUFACTURER_CODE FROM CLUSTER WHERE MANUFACTURER_CODE NOT NULL',
-        []
+        [],
       )
 
       expect(x.length).toEqual(5)
@@ -121,14 +121,14 @@ test(
       x = await dbApi.dbAll(
         db,
         'SELECT MANUFACTURER_CODE FROM COMMAND WHERE MANUFACTURER_CODE NOT NULL',
-        []
+        [],
       )
 
       expect(x.length).toEqual(58)
       x = await dbApi.dbAll(
         db,
         'SELECT MANUFACTURER_CODE FROM ATTRIBUTE WHERE MANUFACTURER_CODE NOT NULL',
-        []
+        [],
       )
 
       expect(x.length).toEqual(30)
@@ -136,7 +136,7 @@ test(
       let rows = await dbApi.dbMultiSelect(
         db,
         'SELECT CLUSTER_ID FROM CLUSTER WHERE CODE = ?',
-        [[0], [6]]
+        [[0], [6]],
       )
 
       expect(rows.length).toBe(2)
@@ -147,7 +147,7 @@ test(
       rows = await queryPackage.selectAllOptionsValues(
         db,
         packageId,
-        dbEnum.sessionOption.defaultResponsePolicy
+        dbEnum.sessionOption.defaultResponsePolicy,
       )
 
       expect(rows.length).toBe(3)
@@ -162,12 +162,12 @@ test(
       x = await dbApi.dbAll(
         db,
         'SELECT DATA_TYPE.NAME AS NAME, BITMAP.BITMAP_ID, DATA_TYPE.PACKAGE_REF FROM BITMAP INNER JOIN DATA_TYPE ON BITMAP.BITMAP_ID = DATA_TYPE.DATA_TYPE_ID WHERE NAME IN (SELECT DATA_TYPE.NAME AS NAME FROM BITMAP INNER JOIN DATA_TYPE ON BITMAP.BITMAP_ID = DATA_TYPE.DATA_TYPE_ID GROUP BY NAME HAVING COUNT(*)>1)',
-        []
+        [],
       )
 
       x.forEach((c) => {
         env.logWarning(
-          `Found Non Unique Bitmap in Silabs XML: ${c.NAME} ${c.TYPE} ${c.PACKAGE_REF}`
+          `Found Non Unique Bitmap in Silabs XML: ${c.NAME} ${c.TYPE} ${c.PACKAGE_REF}`,
         )
       })
 
@@ -181,19 +181,19 @@ test(
       x = await dbApi.dbAll(
         db,
         'SELECT DATA_TYPE.NAME, ENUM.ENUM_ID, DATA_TYPE.PACKAGE_REF FROM ENUM INNER JOIN DATA_TYPE ON ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID WHERE NAME IN (SELECT DATA_TYPE.NAME FROM ENUM INNER JOIN DATA_TYPE ON ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID GROUP BY DATA_TYPE.NAME HAVING COUNT(*)>1)',
-        []
+        [],
       )
 
       x.forEach((c) => {
         env.logWarning(
-          `Found Non Unique Enum in Silabs XML: ${c.NAME} ${c.TYPE} ${c.PACKAGE_REF}`
+          `Found Non Unique Enum in Silabs XML: ${c.NAME} ${c.TYPE} ${c.PACKAGE_REF}`,
         )
       })
     } finally {
       await dbApi.closeDatabase(db)
     }
   },
-  testUtil.timeout.long()
+  testUtil.timeout.long(),
 )
 
 test(
@@ -205,7 +205,7 @@ test(
 
       let ctx = await zclLoader.loadZcl(
         db,
-        env.builtinSilabsZclSpecialMetafile()
+        env.builtinSilabsZclSpecialMetafile(),
       )
       let packageId = ctx.packageId
 
@@ -220,7 +220,7 @@ test(
       let generalXmlFileOriginalContent = fs.readFileSync(xmlFilePath, 'utf8')
       let generalXmlFileUpdatedContent = generalXmlFileOriginalContent.replace(
         originalString,
-        editString
+        editString,
       )
       fs.writeFileSync(xmlFilePath, generalXmlFileUpdatedContent, 'utf8')
 
@@ -234,18 +234,18 @@ test(
       expect(packageId).not.toEqual(newPackageId)
       let oldPackages = await dbApi.dbAll(
         db,
-        `SELECT * FROM PACKAGE WHERE PARENT_PACKAGE_REF = ${packageId}`
+        `SELECT * FROM PACKAGE WHERE PARENT_PACKAGE_REF = ${packageId}`,
       )
       let newPackages = await dbApi.dbAll(
         db,
-        `SELECT * FROM PACKAGE WHERE PARENT_PACKAGE_REF = ${newPackageId}`
+        `SELECT * FROM PACKAGE WHERE PARENT_PACKAGE_REF = ${newPackageId}`,
       )
       // Making sure all packages are loaded again
       expect(oldPackages.length).toEqual(newPackages.length)
 
       let topLevelZclPackages = await dbApi.dbAll(
         db,
-        `SELECT * FROM PACKAGE WHERE TYPE = '${dbEnum.packageType.zclProperties}' ORDER BY PACKAGE_ID`
+        `SELECT * FROM PACKAGE WHERE TYPE = '${dbEnum.packageType.zclProperties}' ORDER BY PACKAGE_ID`,
       )
       expect(topLevelZclPackages[0].IS_IN_SYNC).toEqual(0)
       expect(topLevelZclPackages[1].IS_IN_SYNC).toEqual(1)
@@ -256,7 +256,7 @@ test(
       await dbApi.closeDatabase(db)
     }
   },
-  testUtil.timeout.long()
+  testUtil.timeout.long(),
 )
 
 test(
@@ -275,7 +275,7 @@ test(
 
       let x = await queryPackage.getPackagesByType(
         db,
-        dbEnum.packageType.zclProperties
+        dbEnum.packageType.zclProperties,
       )
       expect(x.length).toEqual(1)
 
@@ -312,20 +312,20 @@ test(
             dc.forEach((dcr) => {
               if (!dcr.clusterRef) {
                 unmatched.push(
-                  `for ${d.caption} failed to match dcr ${dcr.clusterName}`
+                  `for ${d.caption} failed to match dcr ${dcr.clusterName}`,
                 )
               } else {
                 queryDeviceType
                   .selectDeviceTypeAttributesByDeviceTypeRef(
                     db,
-                    dcr.deviceTypeRef
+                    dcr.deviceTypeRef,
                   )
                   .then((dcas) => {
                     if (dcas.length > 0) {
                       dcas.forEach((dca) => {
                         if (!dca.attributeRef) {
                           nullAttribute.push(
-                            `attributeRef for ${dca.attributeName} is NULL`
+                            `attributeRef for ${dca.attributeName} is NULL`,
                           )
                         }
                       })
@@ -339,12 +339,12 @@ test(
       x = await dbApi.dbAll(
         db,
         'SELECT DATA_TYPE.NAME, ENUM.ENUM_ID, DATA_TYPE.PACKAGE_REF FROM ENUM INNER JOIN DATA_TYPE ON ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID WHERE NAME IN (SELECT DATA_TYPE.NAME FROM ENUM INNER JOIN DATA_TYPE ON ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID GROUP BY DATA_TYPE.NAME HAVING COUNT(*)>1)',
-        []
+        [],
       )
 
       x.forEach((c) => {
         nonUniqueEnum.push(
-          `Found Non Unique Enum in Dotdot XML: ${c.NAME} ${c.TYPE} ${c.PACKAGE_REF}`
+          `Found Non Unique Enum in Dotdot XML: ${c.NAME} ${c.TYPE} ${c.PACKAGE_REF}`,
         )
       })
 
@@ -355,7 +355,7 @@ test(
       await dbApi.closeDatabase(db)
     }
   },
-  testUtil.timeout.long()
+  testUtil.timeout.long(),
 )
 
 test(
@@ -372,7 +372,7 @@ test(
 
       let rows = await queryPackage.getPackagesByType(
         db,
-        dbEnum.packageType.zclProperties
+        dbEnum.packageType.zclProperties,
       )
       expect(rows.length).toEqual(1)
 
@@ -383,34 +383,34 @@ test(
       expect(p.version).toEqual(1)
       rows = await queryPackage.getPackagesByType(
         db,
-        dbEnum.packageType.zclProperties
+        dbEnum.packageType.zclProperties,
       )
       expect(rows.length).toEqual(2)
 
       let x = await dbApi.dbAll(
         db,
         'SELECT NAME, CODE, PACKAGE_REF FROM CLUSTER WHERE CODE IN (SELECT CODE FROM CLUSTER GROUP BY CODE HAVING COUNT(CODE)=1)',
-        []
+        [],
       )
       expect(x.length).toBeGreaterThan(0)
 
       x = await dbApi.dbAll(
         db,
         'SELECT NAME, ATOMIC_IDENTIFIER, PACKAGE_REF FROM ATOMIC WHERE ATOMIC_IDENTIFIER IN (SELECT ATOMIC_IDENTIFIER FROM ATOMIC GROUP BY ATOMIC_IDENTIFIER HAVING COUNT(ATOMIC_IDENTIFIER)=1)',
-        []
+        [],
       )
       expect(x.length).toBeGreaterThan(0)
       x = await dbApi.dbAll(
         db,
         'SELECT DATA_TYPE.NAME AS NAME, BITMAP.BITMAP_ID, DATA_TYPE.PACKAGE_REF FROM BITMAP INNER JOIN DATA_TYPE ON BITMAP.BITMAP_ID = DATA_TYPE.DATA_TYPE_ID WHERE NAME IN (SELECT DATA_TYPE.NAME AS NAME FROM BITMAP INNER JOIN DATA_TYPE ON BITMAP.BITMAP_ID = DATA_TYPE.DATA_TYPE_ID GROUP BY NAME HAVING COUNT(NAME)=1)',
-        []
+        [],
       )
       expect(x.length).toBeGreaterThan(0)
     } finally {
       await dbApi.closeDatabase(db)
     }
   },
-  testUtil.timeout.long()
+  testUtil.timeout.long(),
 )
 
 test(
@@ -426,7 +426,7 @@ test(
 
       let x = await queryPackage.getPackagesByType(
         db,
-        dbEnum.packageType.zclProperties
+        dbEnum.packageType.zclProperties,
       )
       expect(x.length).toEqual(1)
 
@@ -452,5 +452,5 @@ test(
       await dbApi.closeDatabase(db)
     }
   },
-  testUtil.timeout.long()
+  testUtil.timeout.long(),
 )

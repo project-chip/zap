@@ -29,13 +29,13 @@ async function run(argv) {
 
   if (gsdkDir == null) {
     throw Error(
-      `Missing argument. Usage: gsdk-public-regen <SDK directory> <output directory>`
+      `Missing argument. Usage: gsdk-public-regen <SDK directory> <output directory>`,
     )
   }
 
   if (outputDir == null) {
     throw Error(
-      `Missing argument. Usage: gsdk-public-regen <SDK directory> <output directory>`
+      `Missing argument. Usage: gsdk-public-regen <SDK directory> <output directory>`,
     )
   }
   fs.mkdirSync(outputDir, { recursive: true })
@@ -43,7 +43,7 @@ async function run(argv) {
   console.log(`👉 Detecting GSDK at directory ${gsdkDir} ...`)
   if (!fs.existsSync(path.join(gsdkDir, 'gecko_sdk.slcs'))) {
     throw Error(
-      `Invalid location. Directory ${gsdkDir} does not look like a gecko sdk.`
+      `Invalid location. Directory ${gsdkDir} does not look like a gecko sdk.`,
     )
   }
   console.log(`👍 Gecko SDK detected.`)
@@ -57,7 +57,7 @@ async function run(argv) {
 
   let templateJson = path.join(
     gsdkDir,
-    'protocol/zigbee/app/framework/gen-template/gen-templates.json'
+    'protocol/zigbee/app/framework/gen-template/gen-templates.json',
   )
   if (!fs.existsSync(templateJson)) {
     throw Error(`Invalid template.json. File ${templateJson} does not exist.`)

@@ -59,10 +59,13 @@
 <dd><p>This module provides queries for ZCL loading</p>
 </dd>
 <dt><a href="#module_DB API_ session related queries.">DB API: session related queries.</a></dt>
-<dd><p>This module provides notification related queries.</p>
+<dd><p>This module provides package notification related queries.</p>
 </dd>
 <dt><a href="#module_DB API_ package-based queries.">DB API: package-based queries.</a></dt>
 <dd><p>This module provides queries related to packages.</p>
+</dd>
+<dt><a href="#module_DB API_ session related queries.">DB API: session related queries.</a></dt>
+<dd><p>This module provides session notification related queries.</p>
 </dd>
 <dt><a href="#module_DB API_ zcl database access">DB API: zcl database access</a></dt>
 <dd><p>This module provides queries for ZCL static entities
@@ -74,6 +77,10 @@ inside a single session. Things like:
 </dd>
 <dt><a href="#module_DB API_ zcl database access">DB API: zcl database access</a></dt>
 <dd><p>This module provides queries for enums.</p>
+</dd>
+<dt><a href="#module_DB API_ zcl database access">DB API: zcl database access</a></dt>
+<dd><p>This module provides a place for creating generic queries which are common
+across different query files.</p>
 </dd>
 <dt><a href="#module_DB API_ zcl database access">DB API: zcl database access</a></dt>
 <dd><p>This module provides queries for ZCL static queries.</p>
@@ -102,6 +109,8 @@ inside a single session. Things like:
 <dd><p>This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}</p>
 </dd>
 <dt><a href="#module_JS API_ generator logic">JS API: generator logic</a></dt>
+<dd></dd>
+<dt><a href="#module_JS API_ template iterators.">JS API: template iterators.</a></dt>
 <dd></dd>
 <dt><a href="#module_JS API_ generator logic">JS API: generator logic</a></dt>
 <dd></dd>
@@ -154,6 +163,8 @@ scripting functionality.</p>
 </dd>
 <dt><a href="#module_JS API_ SDK utilities">JS API: SDK utilities</a></dt>
 <dd></dd>
+<dt><a href="#module_JS API_ string utilities">JS API: string utilities</a></dt>
+<dd></dd>
 <dt><a href="#module_JS API_ type related utilities">JS API: type related utilities</a></dt>
 <dd></dd>
 <dt><a href="#module_JS API_ random utilities">JS API: random utilities</a></dt>
@@ -188,12 +199,42 @@ scripting functionality.</p>
 <dt><a href="#GLOBAL_SYMBOL_NOTIFY">GLOBAL_SYMBOL_NOTIFY</a></dt>
 <dd><p>Global function that can be overloaded by jxbrowser for notifications</p>
 </dd>
+<dt><a href="#ASYNC_DEFAULT_TIMER_INTERVAL_MS">ASYNC_DEFAULT_TIMER_INTERVAL_MS</a></dt>
+<dd><p>This module provides the APIs for initializing timers specifically
+for sessions.</p>
+</dd>
+<dt><a href="#watchDogId">watchDogId</a></dt>
+<dd><p>Copyright (c) 2020 Silicon Labs</p>
+<p>   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at</p>
+<pre><code>   http://www.apache.org/licenses/LICENSE-2.0
+</code></pre>
+<p>   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.</p>
+</dd>
 </dl>
 
 ## Constants
 
 <dl>
 <dt><a href="#uri">uri</a></dt>
+<dd><p>Copyright (c) 2020 Silicon Labs</p>
+<p>   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at</p>
+<pre><code>   http://www.apache.org/licenses/LICENSE-2.0
+</code></pre>
+<p>   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.</p>
+</dd>
+<dt><a href="#env">env</a></dt>
 <dd><p>Copyright (c) 2020 Silicon Labs</p>
 <p>   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
    you may not use this file except in compliance with the License.
@@ -361,8 +402,34 @@ scripting functionality.</p>
    See the License for the specific language governing permissions and
    limitations under the License.</p>
 </dd>
+<dt><a href="#dbEnums">dbEnums</a></dt>
+<dd><p>Copyright (c) 2023 Silicon Labs</p>
+<p>   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at</p>
+<pre><code>   http://www.apache.org/licenses/LICENSE-2.0
+</code></pre>
+<p>   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.</p>
+</dd>
 <dt><a href="#queryPackage">queryPackage</a></dt>
 <dd><p>Copyright (c) 2020 Silicon Labs</p>
+<p>   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at</p>
+<pre><code>   http://www.apache.org/licenses/LICENSE-2.0
+</code></pre>
+<p>   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.</p>
+</dd>
+<dt><a href="#_">_</a></dt>
+<dd><p>Copyright (c) 2023 Silicon Labs</p>
 <p>   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at</p>
@@ -426,6 +493,32 @@ scripting functionality.</p>
    See the License for the specific language governing permissions and
    limitations under the License.</p>
 </dd>
+<dt><a href="#dbApi">dbApi</a></dt>
+<dd><p>Copyright (c) 2020 Silicon Labs</p>
+<p>   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at</p>
+<pre><code>   http://www.apache.org/licenses/LICENSE-2.0
+</code></pre>
+<p>   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.</p>
+</dd>
+<dt><a href="#ipc">ipc</a></dt>
+<dd><p>Copyright (c) 2020 Silicon Labs</p>
+<p>   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at</p>
+<pre><code>   http://www.apache.org/licenses/LICENSE-2.0
+</code></pre>
+<p>   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.</p>
+</dd>
 <dt><a href="#rendApi">rendApi</a></dt>
 <dd><p>Copyright (c) 2020 Silicon Labs</p>
 <p>   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -445,9 +538,74 @@ scripting functionality.</p>
  modify this file, but it can be used to extend your development
  environment.</p>
 </dd>
+<dt><a href="#yargs">yargs</a></dt>
+<dd><p>Copyright (c) 2020 Silicon Labs</p>
+<p>   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at</p>
+<pre><code>   http://www.apache.org/licenses/LICENSE-2.0
+</code></pre>
+<p>   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.</p>
+</dd>
+<dt><a href="#path">path</a></dt>
+<dd><p>Copyright (c) 2020 Silicon Labs</p>
+<p>   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at</p>
+<pre><code>   http://www.apache.org/licenses/LICENSE-2.0
+</code></pre>
+<p>   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.</p>
+</dd>
+<dt><a href="#queryZcl">queryZcl</a></dt>
+<dd><p>Copyright (c) 2024 Silicon Labs</p>
+<p>   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at</p>
+<pre><code>   http://www.apache.org/licenses/LICENSE-2.0
+</code></pre>
+<p>   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.</p>
+</dd>
+<dt><a href="#path">path</a></dt>
+<dd><p>Copyright (c) 2024 Silicon Labs</p>
+<p>   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at</p>
+<pre><code>   http://www.apache.org/licenses/LICENSE-2.0
+</code></pre>
+<p>   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.</p>
+</dd>
 <dt><a href="#templateUtil">templateUtil</a></dt>
 <dd><p>This module provides API to access various iterator utilities that can then
 be used to build iterator helpers.</p>
+</dd>
+<dt><a href="#path">path</a></dt>
+<dd><p>Copyright (c) 2021 Silicon Labs</p>
+<p>   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at</p>
+<pre><code>   http://www.apache.org/licenses/LICENSE-2.0
+</code></pre>
+<p>   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.</p>
 </dd>
 <dt><a href="#fs">fs</a></dt>
 <dd><p>Copyright (c) 2022 Silicon Labs</p>
@@ -462,6 +620,19 @@ be used to build iterator helpers.</p>
    See the License for the specific language governing permissions and
    limitations under the License.</p>
 </dd>
+<dt><a href="#path">path</a></dt>
+<dd><p>Copyright (c) 2023 Silicon Labs</p>
+<p>   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at</p>
+<pre><code>   http://www.apache.org/licenses/LICENSE-2.0
+</code></pre>
+<p>   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.</p>
+</dd>
 <dt><a href="#queryZcl">queryZcl</a></dt>
 <dd><p>Copyright (c) 2020 Silicon Labs</p>
 <p>   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
@@ -475,12 +646,29 @@ be used to build iterator helpers.</p>
    See the License for the specific language governing permissions and
    limitations under the License.</p>
 </dd>
+<dt><a href="#queryPackage">queryPackage</a></dt>
+<dd><p>This module provides the APIs for validating inputs to the database, and returning flags indicating if
+things were successful or not.</p>
+</dd>
 <dt><a href="#queryZcl">queryZcl</a></dt>
 <dd><p>This module provides the APIs for validating inputs to the database, and returning flags indicating if
 things were successful or not.</p>
 </dd>
 <dt><a href="#fs">fs</a></dt>
 <dd><p>Copyright (c) 2020 Silicon Labs</p>
+<p>   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at</p>
+<pre><code>   http://www.apache.org/licenses/LICENSE-2.0
+</code></pre>
+<p>   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.</p>
+</dd>
+<dt><a href="#_">_</a></dt>
+<dd><p>Copyright (c) 2023 Silicon Labs</p>
 <p>   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
    you may not use this file except in compliance with the License.
    You may obtain a copy of the License at</p>
@@ -523,6 +711,24 @@ things were successful or not.</p>
 ## Functions
 
 <dl>
+<dt><a href="#initAndConnectClient">initAndConnectClient()</a> ⇒</dt>
+<dd><p>Initializes and connects a client.</p>
+</dd>
+<dt><a href="#on">on(eventType, handler)</a></dt>
+<dd><p>Register a handler for the event type.</p>
+</dd>
+<dt><a href="#lastPongData">lastPongData()</a> ⇒</dt>
+<dd><p>Get the last pong data.</p>
+</dd>
+<dt><a href="#isClientConnected">isClientConnected()</a> ⇒</dt>
+<dd><p>Returns true if client is connected.</p>
+</dd>
+<dt><a href="#disconnectClient">disconnectClient()</a></dt>
+<dd><p>Disconnects a client asynchronously.</p>
+</dd>
+<dt><a href="#emit">emit(key, object)</a></dt>
+<dd><p>Sends a message to server.</p>
+</dd>
 <dt><a href="#selectAllDiscriminators">selectAllDiscriminators(db, packageIds)</a> ⇒</dt>
 <dd></dd>
 <dt><a href="#selectDataTypeById">selectDataTypeById(db, id)</a> ⇒</dt>
@@ -659,6 +865,9 @@ created by ZAP.</p>
 <dt><a href="#endpoint_fixed_profile_id_array">endpoint_fixed_profile_id_array(options)</a> ⇒</dt>
 <dd><p>Creates array of profileId fields on endpoints</p>
 </dd>
+<dt><a href="#endpoint_fixed_parent_id_array">endpoint_fixed_parent_id_array()</a> ⇒</dt>
+<dd><p>Creates Integer Array of parent endpoint identifier fields on endpoints. If the Parent Endpoint is not set then it will default to 0.</p>
+</dd>
 <dt><a href="#endpoint_fixed_network_array">endpoint_fixed_network_array(options)</a> ⇒</dt>
 <dd><p>Creates array of networkId fields on endpoints</p>
 </dd>
@@ -766,6 +975,63 @@ or non-singleton.</li>
 <dt><a href="#zcl_command_argument_type_to_zcl_cli_data_type">zcl_command_argument_type_to_zcl_cli_data_type(typeName, options)</a></dt>
 <dd><p>Helper that deals with the type of the argument.</p>
 </dd>
+<dt><a href="#integrationEnabled">integrationEnabled(db, sessionId)</a> ⇒</dt>
+<dd><p>Boolean deciding whether Studio integration logic should be enabled</p>
+</dd>
+<dt><a href="#isComponentTogglingDisabled">isComponentTogglingDisabled(db, sessionId)</a> ⇒</dt>
+<dd><p>Resolves into true if user has actively disabled the component toggling.
+By default this row doesn&#39;t even exist in the DB, but if user toggles
+the toggle to turn this off, then the &quot;disableComponentToggling&quot; will
+be set so &#39;1&#39; in the database.</p>
+</dd>
+<dt><a href="#restApiUrl">restApiUrl(api, path, queryParams)</a> ⇒</dt>
+<dd><p>Studio REST API path helper/generator</p>
+</dd>
+<dt><a href="#wsApiUrl">wsApiUrl(api, path, queryParams)</a> ⇒</dt>
+<dd><p>Studio WebSocket API path helper/generator</p>
+</dd>
+<dt><a href="#getProjectInfo">getProjectInfo(db, sessionId)</a> ⇒</dt>
+<dd><p>Send HTTP GET request to Studio Jetty server for project information.</p>
+</dd>
+<dt><a href="#updateComponentByClusterIdAndComponentId">updateComponentByClusterIdAndComponentId(project, componentIds, add, db, sessionId, side)</a> ⇒ <code>*</code></dt>
+<dd><p>Send HTTP Post to update UC component state in Studio</p>
+</dd>
+<dt><a href="#updateComponentByComponentIds">updateComponentByComponentIds(project, componentIds, add)</a> ⇒ <code>*</code></dt>
+<dd><p>Send HTTP Post to update UC component state in Studio</p>
+</dd>
+<dt><a href="#wsMessageHandler">wsMessageHandler(db, session, message)</a></dt>
+<dd><p>Handles WebSocket messages from Studio server</p>
+</dd>
+<dt><a href="#initIdeIntegration">initIdeIntegration()</a></dt>
+<dd><p>Start the dirty flag reporting interval.</p>
+</dd>
+<dt><a href="#verifyWsConnection">verifyWsConnection(db, sessionId)</a></dt>
+<dd><p>Check WebSocket connections between backend and Studio jetty server.
+If project is opened, verify connection is open.
+If project is closed, close ws connection as well.</p>
+</dd>
+<dt><a href="#wsConnect">wsConnect(sessionId, path)</a> ⇒</dt>
+<dd><p>Utility function for making websocket connection to Studio server</p>
+</dd>
+<dt><a href="#isProjectActive">isProjectActive(path)</a></dt>
+<dd><p>Check if a specific Studio project (.slcp) file has been opened or not.</p>
+<p>Context: To get proper WebSocket notification for change in project states,
+         that specific project needs to be opened already. Otherwise, no notification
+         will happen.</p>
+<pre><code>     DependsComponent API used as a quick way to check if the project is opened or not
+     If project is open/valid, the API will respond with &quot;Component not found in project&quot;
+     Otherwise, &quot;Project does not exists&quot;
+</code></pre>
+</dd>
+<dt><a href="#deinitIdeIntegration">deinitIdeIntegration()</a></dt>
+<dd><p>Clears up the reporting interval.</p>
+</dd>
+<dt><a href="#sendSessionCreationErrorStatus">sendSessionCreationErrorStatus(err)</a></dt>
+<dd><p>Notify front-end that current session failed to load.</p>
+</dd>
+<dt><a href="#sendComponentUpdateStatus">sendComponentUpdateStatus(err)</a></dt>
+<dd><p>Notify front-end that current session failed to load.</p>
+</dd>
 <dt><a href="#exportEndpointTypes">exportEndpointTypes(db, sessionId)</a> ⇒</dt>
 <dd><p>Resolves to an array of endpoint types.</p>
 </dd>
@@ -778,6 +1044,16 @@ or non-singleton.</li>
 <dt><a href="#createStateFromDatabase">createStateFromDatabase(db, sessionId)</a> ⇒</dt>
 <dd><p>Given a database and a session id, this method returns a promise that
 resolves with a state object that needs to be saved into a file.</p>
+</dd>
+<dt><a href="#convertToFile">convertToFile(state, fileFormat)</a></dt>
+<dd><p>This function gets the state from database and converts it for a given file format.</p>
+</dd>
+<dt><a href="#updateCommands">updateCommands(cluster, clusterToCommandMap)</a> ⇒</dt>
+<dd><p>Updates the clusters with the new command format where there is isIncoming
+and isEnabled instead of incoming and outgoing</p>
+</dd>
+<dt><a href="#convertFromFile">convertFromFile()</a></dt>
+<dd><p>This function gets the JSON from the file, and converts it to the correct database state</p>
 </dd>
 <dt><a href="#locateAttribute">locateAttribute(state)</a></dt>
 <dd><p>Locates or adds an attribute, and returns it.
@@ -830,18 +1106,76 @@ Session at this point is blank, and has no packages.</p>
 <dd><p>Auto-load package. If succesful it returns an object.
 Otherwise it throws an exception.</p>
 </dd>
+<dt><a href="#importSinglePackage">importSinglePackage(db, pkg, zapFilePath, packageMatch, defaultZclMetafile, defaultTemplateFile)</a> ⇒</dt>
+<dd><p>Resolves into a { packageId:, packageType:}
+object, pkg has<code>path</code>, <code>version</code>, <code>type</code>. It can ALSO have pathRelativity. If pathRelativity is missing
+path is considered absolute.</p>
+</dd>
 <dt><a href="#convertPackageResult">convertPackageResult(data)</a> ⇒</dt>
 <dd><p>Convert the array of results into a more palatable value.
 Resolves an array of { packageId:, packageType:} objects into { zclPackageId: id, templateIds: [] }</p>
 </dd>
-<dt><a href="#jsonDataLoader">jsonDataLoader(db, state, sessionId, packageMatch)</a> ⇒</dt>
+<dt><a href="#importPackages">importPackages(db, packages, zapFilePath, packageMatch, defaultZclMetafile, defaultTemplateFile)</a> ⇒</dt>
+<dd></dd>
+<dt><a href="#sortEndpoints">sortEndpoints(endpoints)</a> ⇒</dt>
+<dd><p>Sorts the list of endpoints</p>
+</dd>
+<dt><a href="#importClusters">importClusters(db, allZclPackageIds, endpointTypeId, clusters)</a></dt>
+<dd><p>Imports the clusters for an endpoint type along with attributes, commands
+and events</p>
+</dd>
+<dt><a href="#importCommands">importCommands(db, allZclPackageIds, endpointTypeId, endpointClusterId, commands)</a></dt>
+<dd><p>Imports the list of commands from a cluster</p>
+</dd>
+<dt><a href="#importAttributes">importAttributes(db, allZclPackageIds, endpointTypeId, endpointClusterId, attributes, cluster)</a></dt>
+<dd><p>Imports the list of attributes from a cluster</p>
+</dd>
+<dt><a href="#importEvents">importEvents(db, allZclPackageIds, endpointClusterId, events)</a></dt>
+<dd><p>Imports the list of events from a cluster</p>
+</dd>
+<dt><a href="#getMandatoryClusterAttributes">getMandatoryClusterAttributes(db, epc, cluster, allZclPackageIds)</a> ⇒</dt>
+<dd><p>Retrieves the mandatory attributes of a cluster</p>
+</dd>
+<dt><a href="#getMandatoryClusterCommands">getMandatoryClusterCommands(db, epc, cluster, allZclPackageIds)</a> ⇒</dt>
+<dd><p>Retrieves the mandatory commands of a cluster</p>
+</dd>
+<dt><a href="#clusterComplianceForAttributes">clusterComplianceForAttributes(db, sessionId, endpointTypeAttributes, allMandatoryAttributes, endpointId, clusterSpecCheckComplianceMessage, specMessageIndent)</a> ⇒</dt>
+<dd><p>Adds cluster compliance warnings for attributes to the console and the
+session notification table</p>
+</dd>
+<dt><a href="#clusterComplianceForCommands">clusterComplianceForCommands(db, sessionId, endpointTypeCommands, allMandatoryCommands, endpointId, clusterSpecCheckComplianceMessage, specMessageIndent)</a> ⇒</dt>
+<dd><p>Adds cluster compliance warnings for commands to the console and the
+session notification table</p>
+</dd>
+<dt><a href="#deviceTypeClustersAttributesAndCommands">deviceTypeClustersAttributesAndCommands(db, endpointTypeId)</a> ⇒</dt>
+<dd><p>Retrieves deviceTypeClustersOnEndpointType, deviceTypeAttributesOnEndpointType
+and deviceTypeCommandsOnEndpointType for an endpoint type</p>
+</dd>
+<dt><a href="#deviceTypeClusterToFeatureBits">deviceTypeClusterToFeatureBits(deviceTypeFeaturesOnEndpointType)</a> ⇒</dt>
+<dd></dd>
+<dt><a href="#deviceTypeComplianceForClusters">deviceTypeComplianceForClusters(db, endpointId, sessionId, deviceTypeClustersOnEndpointType, endpointTypeClusterRefMap, deviceTypeSpecCheckComplianceMessage, specMessageIndent)</a> ⇒</dt>
+<dd><p>Adds device type compliance warnings for clusters to the console and the
+session notification table</p>
+</dd>
+<dt><a href="#deviceTypeComplianceForAttributes">deviceTypeComplianceForAttributes(db, endpointId, sessionId, deviceTypeAttributesOnEndpointType, endpointTypeAttributeRefMap, deviceTypeSpecCheckComplianceMessage, specMessageIndent)</a> ⇒</dt>
+<dd><p>Adds device type compliance warnings for attributes to the console and the
+session notification table</p>
+</dd>
+<dt><a href="#deviceTypeComplianceForCommands">deviceTypeComplianceForCommands(db, endpointId, sessionId, deviceTypeCommandsOnEndpointType, endpointTypeCommandRefMap, deviceTypeSpecCheckComplianceMessage, specMessageIndent)</a> ⇒</dt>
+<dd><p>Adds device type compliance warnings for commands to the console and the
+session notification table</p>
+</dd>
+<dt><a href="#importEndpointTypes">importEndpointTypes(db, sessionId, allZclPackageIds, endpointTypes, endpoints)</a></dt>
+<dd><p>Import endpointTypes</p>
+</dd>
+<dt><a href="#jsonDataLoader">jsonDataLoader(db, state, sessionId, packageMatch, defaultZclMetafile, defaultTemplateFile)</a> ⇒</dt>
 <dd><p>Given a state object, this method returns a promise that resolves
 with the succesfull writing into the database.</p>
 </dd>
-<dt><a href="#readJsonData">readJsonData(filePath, data)</a> ⇒</dt>
+<dt><a href="#readJsonData">readJsonData(filePath, data, defaultZclMetafile, defaultTemplateFile)</a> ⇒</dt>
 <dd><p>Parses JSON file and creates a state object out of it, which is passed further down the chain.</p>
 </dd>
-<dt><a href="#readDataFromFile">readDataFromFile(filePath)</a> ⇒</dt>
+<dt><a href="#readDataFromFile">readDataFromFile(filePath, defaultZclMetafile, defaultTemplateFile)</a> ⇒</dt>
 <dd><p>Reads the data from the file and resolves with the state object if all is good.</p>
 </dd>
 <dt><a href="#importDataFromFile">importDataFromFile(db, filePath)</a> ⇒</dt>
@@ -893,6 +1227,54 @@ NOTE: This function does NOT initialize session packages.</p>
 <dt><a href="#startUpMainInstance">startUpMainInstance(quitFunction, argv)</a></dt>
 <dd><p>Default startup method.</p>
 </dd>
+<dt><a href="#start">start(expirationInterval, triggerFunction)</a></dt>
+<dd><p>Starts a zap watchdog.</p>
+</dd>
+<dt><a href="#reset">reset()</a></dt>
+<dd><p>Resets a zap watchdog.</p>
+</dd>
+<dt><a href="#getForcedExternalStorage">getForcedExternalStorage(db, packageIds)</a> ⇒ <code>Promise.&lt;Array&gt;</code></dt>
+<dd><p>Fetches forced external storage settings based on the given package ID.
+Utilizes the attribute access interface to query storage policies
+associated with the specified package ID.</p>
+</dd>
+<dt><a href="#computeStoragePolicyForGlobalAttributes">computeStoragePolicyForGlobalAttributes(db, clusterId, attributes, packageId)</a> ⇒</dt>
+<dd><p>This function takes a clusterId (the database ID, not the specification-defined ID), an array of attributes (associated with the database defined clusterID),
+and a packageId to identify the specific package the attributes belong to. It changes the global attributes (attributes with specification defined clusterId = null) to represent storage policy
+based on the cluster/attribute pair in zcl.json.</p>
+<p>Although the specification defined clusterID of the attribute is null indicating it is a global attribute, we know what the database defined clusterID is by what is passed in as a parameter.</p>
+<p>That database defined clusterID is used to query the name of the cluster which is in turn used to compute the storage policy for that cluster/attribute pair based on the packageId.</p>
+</dd>
+<dt><a href="#computeStorageOptionNewConfig">computeStorageOptionNewConfig(storagePolicy)</a></dt>
+<dd><p>This asynchronous function computes and returns the new configuration for a storage option.</p>
+</dd>
+<dt><a href="#computeStoragePolicyNewConfig">computeStoragePolicyNewConfig(db, clusterRef, storagePolicy, forcedExternal, attributeName)</a></dt>
+<dd><p>This asynchronous function computes and returns the new configuration for a storage policy.</p>
+</dd>
+<dt><a href="#computeStorageImport">computeStorageImport(db, clusterName, storagePolicy, forcedExternal, attributeName)</a></dt>
+<dd><p>This asynchronous function computes and returns the updated storage import policy.</p>
+</dd>
+<dt><a href="#socketPath">socketPath()</a></dt>
+<dd><p>Returns the socket path for the IPC.</p>
+</dd>
+<dt><a href="#preHandler">preHandler()</a></dt>
+<dd><p>Runs just before every time IPC request is processed.</p>
+</dd>
+<dt><a href="#initServer">initServer(options)</a></dt>
+<dd><p>IPC initialization.</p>
+</dd>
+<dt><a href="#isServerRunning">isServerRunning()</a> ⇒</dt>
+<dd><p>Returns true if server is running.</p>
+</dd>
+<dt><a href="#shutdownServerSync">shutdownServerSync(isServer)</a></dt>
+<dd><p>Shuts down the IPC server.</p>
+</dd>
+<dt><a href="#createOrShowAboutWindow">createOrShowAboutWindow(port)</a></dt>
+<dd><p>Call this function to create a new or show an existing preference window.</p>
+</dd>
+<dt><a href="#hookMainInstanceEvents">hookMainInstanceEvents()</a></dt>
+<dd><p>Hook up all the events for the electron app object.</p>
+</dd>
 <dt><a href="#doOpen">doOpen(menuItem, browserWindow, event)</a></dt>
 <dd><p>Perform a file-&gt;open operation.</p>
 </dd>
@@ -914,13 +1296,206 @@ NOTE: This function does NOT initialize session packages.</p>
 <dt><a href="#initMenu">initMenu(httpPort)</a></dt>
 <dd><p>Initial menu show.</p>
 </dd>
+<dt><a href="#showErrorMessage">showErrorMessage(title, err)</a></dt>
+<dd><p>Simple dialog to show error messages from electron renderer scope.</p>
+</dd>
+<dt><a href="#openFileConfiguration">openFileConfiguration(db, filePath, httpPort)</a></dt>
+<dd><p>Process a single file, parsing it in as JSON and then possibly opening
+a new window if all is good.</p>
+</dd>
+<dt><a href="#openNewConfiguration">openNewConfiguration(httpPort, options:)</a></dt>
+<dd><p>Creates a new window with a blank configuration.</p>
+</dd>
+<dt><a href="#toggleDirtyFlag">toggleDirtyFlag(browserWindow, dirty)</a></dt>
+<dd><p>Toggles the dirty flag.</p>
+</dd>
+<dt><a href="#openFileDialogAndReportResult">openFileDialogAndReportResult(browserWindow, options)</a></dt>
+<dd><p>This function should be invoked as a result of the fileBrowse
+notification via the renderer API. It pops the open dialog and
+reports result back through the API.</p>
+</dd>
+<dt><a href="#initializeElectronUi">initializeElectronUi(port)</a></dt>
+<dd><p>Electron UI initialization.</p>
+<p>Note: You might be tempted to pass <code>db</code> to this function. Don&#39;t.
+That was done before and it&#39;s just a lazy way to cut through the
+layers between UI and back-end. Should not be done. Any information
+UI needs from the database should be retrieved via renderer API.</p>
+</dd>
+<dt><a href="#windowCreate">windowCreate(port, filePath, [uiMode])</a> ⇒</dt>
+<dd><p>Create a window, possibly with a given file path.</p>
+</dd>
+<dt><a href="#processCommandLineArguments">processCommandLineArguments(argv)</a> ⇒</dt>
+<dd><p>Process the command line arguments and resets the state in this file
+to the specified values.</p>
+</dd>
+<dt><a href="#int8ToHex">int8ToHex(value)</a> ⇒</dt>
+<dd><p>Takes an int8 value and turns it into a hex.</p>
+</dd>
+<dt><a href="#int16ToHex">int16ToHex(value)</a> ⇒</dt>
+<dd><p>Takes an int16 value and turns it into a hex.</p>
+</dd>
+<dt><a href="#int32ToHex">int32ToHex(value)</a> ⇒</dt>
+<dd><p>Takes an int32 value and turns it into a hex.</p>
+</dd>
+<dt><a href="#stringToHex">stringToHex(value)</a> ⇒</dt>
+<dd><p>Converts a string to the hex value.</p>
+</dd>
+<dt><a href="#bitCount">bitCount(n)</a> ⇒</dt>
+<dd><p>Given a number, this function returns the number of bits set in the number</p>
+</dd>
+<dt><a href="#hexToCBytes">hexToCBytes(value)</a> ⇒</dt>
+<dd><p>Takes the raw hex string, such as <code>abcd</code> and
+converts it into a C constant array, such as
+<code>0xAB, 0xCD</code>.</p>
+</dd>
+<dt><a href="#bitOffset">bitOffset(binary)</a></dt>
+<dd><p>Getting a binary string (&quot;0001101010010&quot;) it returns the number of zero bits at the end.</p>
+</dd>
+<dt><a href="#hexToBinary">hexToBinary(hex)</a></dt>
+<dd><p>Convert a hex number to a binary. Hex has to be in a format
+as obtained by intToHex methods above: no &#39;0x&#39; prefix and upper-case
+letters, as in &quot;12AB&quot;.</p>
+</dd>
+<dt><a href="#stringToOneByteLengthPrefixCBytes">stringToOneByteLengthPrefixCBytes(value, maxLength, pad)</a> ⇒</dt>
+<dd><p>Returns string as C bytes, prefixed with one-byte length.
+If maxLength is greater than length of value, then
+the resulting array is padded with 0x00.</p>
+</dd>
+<dt><a href="#stringToTwoByteLengthPrefixCBytes">stringToTwoByteLengthPrefixCBytes(value, maxLength, pad)</a> ⇒</dt>
+<dd><p>Returns string as C bytes, prefixed with two-byte length
+If maxLength is greater than length of value, then
+the resulting array is padded with 0x00.</p>
+</dd>
+<dt><a href="#builtinSilabsZclMetafile">builtinSilabsZclMetafile()</a> ⇒</dt>
+<dd></dd>
+<dt><a href="#builtinSilabsZclSpecialMetafile">builtinSilabsZclSpecialMetafile()</a> ⇒</dt>
+<dd><p>Used to retrive zcl-special.json by zcl reload test in zcl-loader.test.js</p>
+</dd>
+<dt><a href="#builtinSilabsZclGeneralXmlFile">builtinSilabsZclGeneralXmlFile()</a> ⇒</dt>
+<dd></dd>
+<dt><a href="#builtinSilabsSpecialZclGeneralSpecialXmlFile">builtinSilabsSpecialZclGeneralSpecialXmlFile()</a> ⇒</dt>
+<dd><p>Used to retrive general-special.xml by zcl reload test in zcl-loader.test.js</p>
+</dd>
+<dt><a href="#setAppDirectory">setAppDirectory(path)</a></dt>
+<dd><p>Set the state directory. This method is intended to be called
+only at the application startup, when CLI args are being parsed.
+This method honors &#39;~/&#39; being the first characters in its argument.</p>
+</dd>
+<dt><a href="#appDirectory">appDirectory()</a> ⇒</dt>
+<dd><p>Returns an app directory. It creates it, if it doesn&#39;t exist</p>
+</dd>
+<dt><a href="#zapVersionAsString">zapVersionAsString()</a></dt>
+<dd><p>Returns a version as a single on-line string.</p>
+</dd>
+<dt><a href="#locateProjectResource">locateProjectResource(filePath)</a> ⇒</dt>
+<dd><p>This function locates a resource in the project, such as various
+JSON files and zcl-builtin stuff.</p>
+<p>It needs to adapt to a change in path that can occur when
+things are copied into the dist/ directory.</p>
+</dd>
+<dt><a href="#zapVersion">zapVersion()</a> ⇒</dt>
+<dd><p>Returns the zap version.</p>
+</dd>
+<dt><a href="#printToStderr">printToStderr(msg)</a></dt>
+<dd><p>Prints the data to stderr, without much fuss.</p>
+</dd>
+<dt><a href="#log">log(level, msg, err)</a></dt>
+<dd><p>Base level common logger.</p>
+</dd>
+<dt><a href="#logInfo">logInfo(msg, err)</a></dt>
+<dd><p>Info level message.</p>
+</dd>
+<dt><a href="#logError">logError(msg, err)</a></dt>
+<dd><p>Error level message.</p>
+</dd>
+<dt><a href="#logWarning">logWarning(msg, err)</a></dt>
+<dd><p>Warning level message.</p>
+</dd>
+<dt><a href="#logSql">logSql(msg, err)</a></dt>
+<dd><p>Sql level message.</p>
+</dd>
+<dt><a href="#logBrowser">logBrowser(msg, err)</a></dt>
+<dd><p>Browser level message.</p>
+</dd>
+<dt><a href="#logIpc">logIpc(msg, err)</a></dt>
+<dd><p>IPC level message.</p>
+</dd>
+<dt><a href="#logDebug">logDebug(msg, err)</a></dt>
+<dd><p>Debug level message.</p>
+</dd>
+<dt><a href="#versionsCheck">versionsCheck()</a> ⇒</dt>
+<dd><p>Returns true if versions of node and electron are matching.
+If versions are not matching, it  prints out a warhing
+and returns false.</p>
+</dd>
+<dt><a href="#httpStaticContent">httpStaticContent()</a> ⇒</dt>
+<dd><p>Returns path to HTTP static content while taking into account DEV / PROD modes.</p>
+</dd>
+<dt><a href="#availableClusters">availableClusters(context)</a> ⇒</dt>
+<dd><p>Returns all available clusters.</p>
+</dd>
+<dt><a href="#availableEvents">availableEvents(context)</a> ⇒</dt>
+<dd><p>Returns all available events.</p>
+</dd>
+<dt><a href="#availableCommands">availableCommands(context)</a> ⇒</dt>
+<dd><p>Returns all available commands.</p>
+</dd>
+<dt><a href="#availableAttributes">availableAttributes(context)</a> ⇒</dt>
+<dd><p>Returns all available attributes.</p>
+</dd>
+<dt><a href="#helperWrapper">helperWrapper(wrappedHelper)</a> ⇒ <code>function</code></dt>
+<dd><p>Wraps a helper function to add usage tracking and error handling.</p>
+</dd>
+<dt><a href="#registerHelpers">registerHelpers(singleHelper, registerHelper, context)</a></dt>
+<dd><p>Registers a helper function.</p>
+</dd>
+<dt><a href="#executeHelperFunction">executeHelperFunction(functionName, context, helper)</a> ⇒ <code>Promise</code></dt>
+<dd><p>Executes a helper function from a script file.</p>
+</dd>
 <dt><a href="#all_user_cluster_commands_helper">all_user_cluster_commands_helper()</a></dt>
 <dd><p>Helper for add_user_cluster_commands that does all the work except the
 collectBlocks.  This allows other iterators to further filter the list
 before doing collectBlocks.</p>
 </dd>
+<dt><a href="#executeScriptFunction">executeScriptFunction(functionName, db, sessionId, script)</a></dt>
+<dd><p>Executes a named function from a given script.
+Arguments passed to the function are:
+  api: which is the result of require(&#39;script-api.js&#39;)
+  context: which contains &#39;db&#39;, &#39;sessionId&#39;, etc.</p>
+</dd>
+<dt><a href="#projectName">projectName(db, sessionId)</a> ⇒</dt>
+<dd><p>Extract project name from the Studio project path</p>
+</dd>
 <dt><a href="#initAsyncValidation">initAsyncValidation()</a></dt>
 <dd><p>Start session specific validation.</p>
+</dd>
+<dt><a href="#validateAttribute">validateAttribute(db, endpointTypeId, attributeRef, clusterRef, zapSessionId)</a> ⇒</dt>
+<dd><p>Main attribute validation function.
+Returns a promise of an object which stores a list of validational issues.
+Such issues as &quot;Invalid type&quot; or &quot;Out of Range&quot;.</p>
+</dd>
+<dt><a href="#validateSpecificAttribute">validateSpecificAttribute(endpointAttribute, attribute, db, zapSessionId)</a> ⇒</dt>
+<dd><p>Checks the attributes type then validates the incoming input string.</p>
+</dd>
+<dt><a href="#extractIntegerValue">extractIntegerValue(value)</a> ⇒</dt>
+<dd><p>Expects a number string , parse it back on a default base 10 if its a decimal.
+If its a hexadecimal or anything else , parse it back on base 16.
+Loses precision after javascripts Number.MAX_SAFE_INTEGER range.</p>
+</dd>
+<dt><a href="#unsignedToSignedInteger">unsignedToSignedInteger(value, typeSize)</a> ⇒</dt>
+<dd><p>Converts an unsigned integer to its signed value. Returns the same integer if its not a signed type.
+Works for both BigInts and regular numbers.</p>
+</dd>
+<dt><a href="#getIntegerFromAttribute">getIntegerFromAttribute(attribute, typeSize, isSigned)</a> ⇒</dt>
+<dd><p>Converts an attribute (number string) into a decimal number without losing precision.
+Accepts both decimal and hexadecimal strings (former has priority) in any bit representation.
+Shifts signed hexadecimals to their correct value.</p>
+</dd>
+<dt><a href="#getIntegerAttributeSize">getIntegerAttributeSize(db, zapSessionId, attribType)</a> ⇒ <code>*</code></dt>
+<dd><p>Returns information about an integer type.</p>
+</dd>
+<dt><a href="#checkAttributeBoundsInteger">checkAttributeBoundsInteger(attribute, endpointAttribute, db, zapSessionId)</a> ⇒</dt>
+<dd><p>Checks if the incoming integer is within it&#39;s attributes bound while handling signed and unsigned cases.</p>
 </dd>
 <dt><a href="#collectDataFromLibraryXml">collectDataFromLibraryXml(ctx)</a> ⇒</dt>
 <dd><p>Promises to read the properties file, extract all the actual xml files, and resolve with the array of files.</p>
@@ -1034,9 +1609,14 @@ that will be resolved when all the XML files are done, or rejected if at least o
 <dt><a href="#loadIndividualDotDotFile">loadIndividualDotDotFile(db, filePath)</a> ⇒ <code>*</code></dt>
 <dd><p>TODO This is not supported at this time.</p>
 </dd>
-<dt><a href="#loadDotdotZcl">loadDotdotZcl(db, ctx)</a> ⇒</dt>
+<dt><a href="#loadToplevelXmlFile">loadToplevelXmlFile(db, ctx)</a> ⇒</dt>
 <dd><p>Toplevel function that loads the xml library file
 and orchestrates the promise chain.</p>
+</dd>
+<dt><a href="#parseNewXmlFiles">parseNewXmlFiles(db, packageId, files, context)</a> ⇒</dt>
+<dd><p>Parses the new XML files. Returns an object containing
+loaded data:
+   clusterIdsLoaded: array of cluster ids that were loaded</p>
 </dd>
 <dt><a href="#collectDataFromJsonFile">collectDataFromJsonFile(ctx)</a> ⇒</dt>
 <dd><p>Promises to read the JSON file and resolve all the data.</p>
@@ -1150,8 +1730,13 @@ attributes and commands in a same way as cluster or clusterExtension</p>
 <dt><a href="#prepareDeviceType">prepareDeviceType(deviceType)</a> ⇒</dt>
 <dd><p>Preparation step for the device types.</p>
 </dd>
-<dt><a href="#processDeviceTypes">processDeviceTypes(db, filePath, packageId, data)</a> ⇒</dt>
-<dd><p>Process all device types.</p>
+<dt><a href="#processDeviceTypes">processDeviceTypes(db, filePath, packageId, data, context)</a> ⇒ <code>Promise</code></dt>
+<dd><p>Processes and inserts device types into the database.
+This function logs the number of device types being processed for debugging purposes.
+It maps over the provided data to prepare each device type and then iterates over each prepared device type.
+If a device type has a compositionType, it inserts the endpoint composition into the database,
+retrieves the endpoint composition ID, and then inserts the device composition.
+Finally, it inserts all prepared device types into the database.</p>
 </dd>
 <dt><a href="#processParsedZclData">processParsedZclData(db, argument)</a> ⇒</dt>
 <dd><p>After XML parser is done with the barebones parsing, this function
@@ -1160,6 +1745,11 @@ branches the individual toplevel tags.</p>
 <dt><a href="#parseSingleZclFile">parseSingleZclFile(db, packageId, file)</a> ⇒</dt>
 <dd><p>This function is used for parsing each individual ZCL file at a grouped zcl file package level.
 This should <em>not</em> be used for custom XML addition due to custom xmls potentially relying on existing packges.</p>
+</dd>
+<dt><a href="#isCrcMismatchOrPackageDoesNotExist">isCrcMismatchOrPackageDoesNotExist(db, packageId, files)</a> ⇒</dt>
+<dd><p>Checks if there is a crc mismatch on any xml file. This can be used to
+decide if there is a need to reload all the xml files. Also check if the
+package is not loaded before.</p>
 </dd>
 <dt><a href="#parseZclFiles">parseZclFiles(db, packageId, zclFiles, context)</a> ⇒</dt>
 <dd><p>Promises to iterate over all the XML files and returns an aggregate promise
@@ -1192,6 +1782,14 @@ Key/velues of the object itself, end up in CODE/LABEL combinations.</p>
 <dt><a href="#parseBoolOptions">parseBoolOptions(db, pkgRef, booleanCategories)</a> ⇒</dt>
 <dd><p>Parses the boolean options.</p>
 </dd>
+<dt><a href="#parseattributeAccessInterfaceAttributes">parseattributeAccessInterfaceAttributes(db, pkgRef, attributeAccessInterfaceAttributes)</a> ⇒ <code>Promise.&lt;void&gt;</code></dt>
+<dd><p>Asynchronously parses and inserts attribute access interface attributes into the database.
+This function iterates over the attributeAccessInterfaceAttributes object, processing each cluster
+by mapping its values to a specific structure and then inserting them into the database using
+the insertOptionsKeyValues function.</p>
+<p>The main purpose of this function is to store cluster/attribute pairs including global attributes and their cluster pair
+The ATTRIBUTE table has cluster_ref as null for global attributes so this second method was necessary</p>
+</dd>
 <dt><a href="#parseDefaults">parseDefaults(db, ctx)</a> ⇒</dt>
 <dd><p>Parses the default values inside the options.</p>
 </dd>
@@ -1204,15 +1802,21 @@ e.g. for ClusterExtensions.</p>
 <dt><a href="#processCustomZclDeviceType">processCustomZclDeviceType(db, ctx)</a> ⇒</dt>
 <dd><p>If custom device is supported, then this method creates it.</p>
 </dd>
-<dt><a href="#loadSilabsZcl">loadSilabsZcl(db, ctx)</a> ⇒</dt>
+<dt><a href="#loadZclJsonOrProperties">loadZclJsonOrProperties(db, ctx)</a> ⇒</dt>
 <dd><p>Toplevel function that loads the toplevel metafile
 and orchestrates the promise chain.</p>
 </dd>
-<dt><a href="#recordToplevelPackage">recordToplevelPackage(db, metadataFile, crc)</a> ⇒</dt>
+<dt><a href="#recordToplevelPackage">recordToplevelPackage(db, metadataFile, crc, isTopLevelPackageInSync)</a> ⇒</dt>
 <dd><p>Records the toplevel package information and resolves into packageId</p>
 </dd>
 <dt><a href="#recordVersion">recordVersion(db, ctx)</a></dt>
 <dd><p>Records the version into the database.</p>
+</dd>
+<dt><a href="#loadZclMetaFilesCommon">loadZclMetaFilesCommon(db, metadataFile, options)</a> ⇒</dt>
+<dd><p>Retrieve zcl package information</p>
+</dd>
+<dt><a href="#loadAttributeMappingForMultiProtocol">loadAttributeMappingForMultiProtocol(db, multiProtcolInfo, categoryToPackageIdMap)</a></dt>
+<dd><p>Load attribute mapping table if there is multi-protocol information from a json file.</p>
 </dd>
 <dt><a href="#loadZclMetafiles">loadZclMetafiles(db, metadataFile)</a> ⇒</dt>
 <dd><p>Toplevel function that loads the zcl file and passes it off to the correct zcl loader.</p>
@@ -1223,7 +1827,7 @@ and orchestrates the promise chain.</p>
 <dt><a href="#loadIndividualFile">loadIndividualFile(db, filePath, sessionId)</a></dt>
 <dd><p>Load individual custom XML files.</p>
 </dd>
-<dt><a href="#qualifyZclFile">qualifyZclFile(db, info, parentPackageId)</a> ⇒</dt>
+<dt><a href="#qualifyZclFile">qualifyZclFile(db, info, parentPackageId, isCustom)</a> ⇒</dt>
 <dd><p>Promises to qualify whether zcl file needs to be reloaded.
 If yes, the it will resolve with {filePath, data, packageId}
 If not, then it will resolve with {error}</p>
@@ -1272,6 +1876,7 @@ This module provides generic DB functions for performing SQL queries.
   - [~insertOrReplaceSetting(db, version)](#module*JS API* low level database access..insertOrReplaceSetting) ⇒
   - [~updateSetting(db, rows)](#module*JS API* low level database access..updateSetting) ⇒
   - [~selectSettings(db)](#module*JS API* low level database access..selectSettings) ⇒
+  - [~determineIfSchemaShouldLoad(db, context)](#module*JS API* low level database access..determineIfSchemaShouldLoad) ⇒
   - [~loadSchema(db, schemaPath, zapVersion)](#module*JS API* low level database access..loadSchema) ⇒
   - [~initDatabaseAndLoadSchema(sqliteFile, schemaFile, zapVersion)](#module*JS API* low level database access..initDatabaseAndLoadSchema) ⇒
   - [~toDbBool(value)](#module*JS API* low level database access..toDbBool) ⇒
@@ -1529,6 +2134,20 @@ Returns a promise resolving the entire SETTING table
 | ----- | --------------- |
 | db    | <code>\*</code> |
 
+<a name="module_JS API_ low level database access..determineIfSchemaShouldLoad"></a>
+
+### JS API: low level database access~determineIfSchemaShouldLoad(db, context) ⇒
+
+Checks the state of schema.
+
+**Kind**: inner method of [<code>JS API: low level database access</code>](#module*JS API* low level database access)  
+**Returns**: object containing "mustLoad" and "hasSchema" elements.
+
+| Param   | Type            |
+| ------- | --------------- |
+| db      | <code>\*</code> |
+| context | <code>\*</code> |
+
 <a name="module_JS API_ low level database access..loadSchema"></a>
 
 ### JS API: low level database access~loadSchema(db, schemaPath, zapVersion) ⇒
@@ -1613,6 +2232,7 @@ This module provides cache for commonly used static database queries.
   - [~disable()](#module*DB API* zcl database access..disable)
   - [~selectAtomicType(db, packageId, typeName)](#module*DB API* zcl database access..selectAtomicType)
   - [~selectAtomicById(db, packageId)](#module*DB API* zcl database access..selectAtomicById)
+  - [~isTypeSignedByNameAndPackage(db, name, sessionPackages)](#module*DB API* zcl database access..isTypeSignedByNameAndPackage) ⇒ <code>Promise.&lt;boolean&gt;</code>
   - [~selectAllBitmaps(db)](#module*DB API* zcl database access..selectAllBitmaps) ⇒
   - [~selectBitmapByNameAndClusterId(db, name, clusterId, packageIds)](#module*DB API* zcl database access..selectBitmapByNameAndClusterId) ⇒
   - [~selectAllEnums(db, packageId)](#module*DB API* zcl database access..selectAllEnums) ⇒
@@ -1622,10 +2242,10 @@ This module provides cache for commonly used static database queries.
   - [~selectEnumById(db, id)](#module*DB API* zcl database access..selectEnumById) ⇒
   - [~selectEnumByName(db, name, packageIds)](#module*DB API* zcl database access..selectEnumByName) ⇒
   - [~selectEnumByNameAndClusterId(db, name, clusterId, packageIds)](#module*DB API* zcl database access..selectEnumByNameAndClusterId) ⇒
-  - [~selectSessionClusterByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionClusterByCode) ⇒
+  - [~selectSessionClusterByCode(db, sessionId, code, mfgCode)](#module*DB API* zcl database access..selectSessionClusterByCode) ⇒
   - [~selectAllSessionClusters(db, sessionId)](#module*DB API* zcl database access..selectAllSessionClusters) ⇒
-  - [~selectSessionAttributeByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionAttributeByCode) ⇒
-  - [~selectSessionCommandByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionCommandByCode) ⇒
+  - [~selectSessionAttributeByCode(db, sessionId, clusterCode, side, attributeCode, mfgCode)](#module*DB API* zcl database access..selectSessionAttributeByCode) ⇒
+  - [~selectSessionCommandByCode(db, sessionId, clusterCode, commandCode, source)](#module*DB API* zcl database access..selectSessionCommandByCode) ⇒
   - [~selectStructByNameAndClusterId(db, name, clusterId, packageIds)](#module*DB API* zcl database access..selectStructByNameAndClusterId) ⇒
   - [~selectStructsWithClusterAssociation(db, packageIds, groupByStructName)](#module*DB API* zcl database access..selectStructsWithClusterAssociation) ⇒
   - [~selectClusterBitmaps(db, packageId, clusterId)](#module*DB API* zcl database access..selectClusterBitmaps) ⇒
@@ -1633,10 +2253,10 @@ This module provides cache for commonly used static database queries.
   - [~selectAllStructsWithItemCount(db, packageIds)](#module*DB API* zcl database access..selectAllStructsWithItemCount) ⇒
   - [~selectStructClusters(db, structId)](#module*DB API* zcl database access..selectStructClusters) ⇒
   - [~selectEnumClusters(db, enumId)](#module*DB API* zcl database access..selectEnumClusters) ⇒
-  - [~selectBitmapClusters(db, enumId)](#module*DB API* zcl database access..selectBitmapClusters) ⇒
+  - [~selectBitmapClusters(db, bitmapId)](#module*DB API* zcl database access..selectBitmapClusters) ⇒
   - [~selectClusterStructsWithItems(db)](#module*DB API* zcl database access..selectClusterStructsWithItems) ⇒
   - [~selectAllStructsWithItems(db)](#module*DB API* zcl database access..selectAllStructsWithItems) ⇒
-  - [~selectAllStructItemsByStructName(db, name)](#module*DB API* zcl database access..selectAllStructItemsByStructName) ⇒
+  - [~selectAllStructItemsByStructName(db, name, packageIds, clusterName)](#module*DB API* zcl database access..selectAllStructItemsByStructName) ⇒
   - [~selectAllClusters(db)](#module*DB API* zcl database access..selectAllClusters) ⇒
   - [~selectClusterByCode(db, packageId, clusterCode, mfgCode)](#module*DB API* zcl database access..selectClusterByCode) ⇒
   - [~selectClusterById(db, clusterId, packageId)](#module*DB API* zcl database access..selectClusterById) ⇒
@@ -1761,6 +2381,21 @@ Retrieves atomic type by a given Id.
 | --------- | --------------- |
 | db        | <code>\*</code> |
 | packageId | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..isTypeSignedByNameAndPackage"></a>
+
+### DB API: zcl database access~isTypeSignedByNameAndPackage(db, name, sessionPackages) ⇒ <code>Promise.&lt;boolean&gt;</code>
+
+Checks if a type by a given name is signed.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: <code>Promise.&lt;boolean&gt;</code> - - A promise that resolves to true if the type is signed, false otherwise.
+
+| Param           | Type                | Description                     |
+| --------------- | ------------------- | ------------------------------- |
+| db              | <code>object</code> | The database connection object. |
+| name            | <code>string</code> | The name of the type.           |
+| sessionPackages | <code>Array</code>  | An array of session packages.   |
 
 <a name="module_DB API_ zcl database access..selectAllBitmaps"></a>
 
@@ -1895,7 +2530,7 @@ Select an enum matched by name and clusterId.
 
 <a name="module_DB API_ zcl database access..selectSessionClusterByCode"></a>
 
-### DB API: zcl database access~selectSessionClusterByCode(db, sessionId) ⇒
+### DB API: zcl database access~selectSessionClusterByCode(db, sessionId, code, mfgCode) ⇒
 
 Returns the cluster available to this session by the code.
 
@@ -1906,6 +2541,8 @@ Returns the cluster available to this session by the code.
 | --------- | --------------- |
 | db        | <code>\*</code> |
 | sessionId | <code>\*</code> |
+| code      | <code>\*</code> |
+| mfgCode   | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectAllSessionClusters"></a>
 
@@ -1923,31 +2560,38 @@ Returns all the clusters visible for a given session.
 
 <a name="module_DB API_ zcl database access..selectSessionAttributeByCode"></a>
 
-### DB API: zcl database access~selectSessionAttributeByCode(db, sessionId) ⇒
+### DB API: zcl database access~selectSessionAttributeByCode(db, sessionId, clusterCode, side, attributeCode, mfgCode) ⇒
 
 Returns the attribute available to this session by the code.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 **Returns**: the session attribute
 
-| Param     | Type            |
-| --------- | --------------- |
-| db        | <code>\*</code> |
-| sessionId | <code>\*</code> |
+| Param         | Type            |
+| ------------- | --------------- |
+| db            | <code>\*</code> |
+| sessionId     | <code>\*</code> |
+| clusterCode   | <code>\*</code> |
+| side          | <code>\*</code> |
+| attributeCode | <code>\*</code> |
+| mfgCode       | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectSessionCommandByCode"></a>
 
-### DB API: zcl database access~selectSessionCommandByCode(db, sessionId) ⇒
+### DB API: zcl database access~selectSessionCommandByCode(db, sessionId, clusterCode, commandCode, source) ⇒
 
 Returns the command available to this session by the code.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 **Returns**: the session attribute
 
-| Param     | Type            |
-| --------- | --------------- |
-| db        | <code>\*</code> |
-| sessionId | <code>\*</code> |
+| Param       | Type            |
+| ----------- | --------------- |
+| db          | <code>\*</code> |
+| sessionId   | <code>\*</code> |
+| clusterCode | <code>\*</code> |
+| commandCode | <code>\*</code> |
+| source      | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectStructByNameAndClusterId"></a>
 
@@ -2055,17 +2699,17 @@ Returns an array of clusters that enum belongs to.
 
 <a name="module_DB API_ zcl database access..selectBitmapClusters"></a>
 
-### DB API: zcl database access~selectBitmapClusters(db, enumId) ⇒
+### DB API: zcl database access~selectBitmapClusters(db, bitmapId) ⇒
 
-Returns an array of clusters that enum belongs to.
+Returns an array of clusters that bitmap belongs to.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 **Returns**: clusters
 
-| Param  | Type            |
-| ------ | --------------- |
-| db     | <code>\*</code> |
-| enumId | <code>\*</code> |
+| Param    | Type            |
+| -------- | --------------- |
+| db       | <code>\*</code> |
+| bitmapId | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectClusterStructsWithItems"></a>
 
@@ -2095,15 +2739,20 @@ Retrieves all the structs in the database with the items.
 
 <a name="module_DB API_ zcl database access..selectAllStructItemsByStructName"></a>
 
-### DB API: zcl database access~selectAllStructItemsByStructName(db, name) ⇒
+### DB API: zcl database access~selectAllStructItemsByStructName(db, name, packageIds, clusterName) ⇒
+
+Retrieves the struct items based on struct and cluster name.
+Note: By default clusterName is null.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
-**Returns**: the details of the struct items given the name of the struct
+**Returns**: the details of the struct items
 
-| Param |
-| ----- |
-| db    |
-| name  |
+| Param       | Default       |
+| ----------- | ------------- |
+| db          |               |
+| name        |               |
+| packageIds  |               |
+| clusterName | <code></code> |
 
 <a name="module_DB API_ zcl database access..selectAllClusters"></a>
 
@@ -2245,6 +2894,7 @@ This module provides queries for atomic type queries.
   - [~disable()](#module*DB API* zcl database access..disable)
   - [~selectAtomicType(db, packageId, typeName)](#module*DB API* zcl database access..selectAtomicType)
   - [~selectAtomicById(db, packageId)](#module*DB API* zcl database access..selectAtomicById)
+  - [~isTypeSignedByNameAndPackage(db, name, sessionPackages)](#module*DB API* zcl database access..isTypeSignedByNameAndPackage) ⇒ <code>Promise.&lt;boolean&gt;</code>
   - [~selectAllBitmaps(db)](#module*DB API* zcl database access..selectAllBitmaps) ⇒
   - [~selectBitmapByNameAndClusterId(db, name, clusterId, packageIds)](#module*DB API* zcl database access..selectBitmapByNameAndClusterId) ⇒
   - [~selectAllEnums(db, packageId)](#module*DB API* zcl database access..selectAllEnums) ⇒
@@ -2254,10 +2904,10 @@ This module provides queries for atomic type queries.
   - [~selectEnumById(db, id)](#module*DB API* zcl database access..selectEnumById) ⇒
   - [~selectEnumByName(db, name, packageIds)](#module*DB API* zcl database access..selectEnumByName) ⇒
   - [~selectEnumByNameAndClusterId(db, name, clusterId, packageIds)](#module*DB API* zcl database access..selectEnumByNameAndClusterId) ⇒
-  - [~selectSessionClusterByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionClusterByCode) ⇒
+  - [~selectSessionClusterByCode(db, sessionId, code, mfgCode)](#module*DB API* zcl database access..selectSessionClusterByCode) ⇒
   - [~selectAllSessionClusters(db, sessionId)](#module*DB API* zcl database access..selectAllSessionClusters) ⇒
-  - [~selectSessionAttributeByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionAttributeByCode) ⇒
-  - [~selectSessionCommandByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionCommandByCode) ⇒
+  - [~selectSessionAttributeByCode(db, sessionId, clusterCode, side, attributeCode, mfgCode)](#module*DB API* zcl database access..selectSessionAttributeByCode) ⇒
+  - [~selectSessionCommandByCode(db, sessionId, clusterCode, commandCode, source)](#module*DB API* zcl database access..selectSessionCommandByCode) ⇒
   - [~selectStructByNameAndClusterId(db, name, clusterId, packageIds)](#module*DB API* zcl database access..selectStructByNameAndClusterId) ⇒
   - [~selectStructsWithClusterAssociation(db, packageIds, groupByStructName)](#module*DB API* zcl database access..selectStructsWithClusterAssociation) ⇒
   - [~selectClusterBitmaps(db, packageId, clusterId)](#module*DB API* zcl database access..selectClusterBitmaps) ⇒
@@ -2265,10 +2915,10 @@ This module provides queries for atomic type queries.
   - [~selectAllStructsWithItemCount(db, packageIds)](#module*DB API* zcl database access..selectAllStructsWithItemCount) ⇒
   - [~selectStructClusters(db, structId)](#module*DB API* zcl database access..selectStructClusters) ⇒
   - [~selectEnumClusters(db, enumId)](#module*DB API* zcl database access..selectEnumClusters) ⇒
-  - [~selectBitmapClusters(db, enumId)](#module*DB API* zcl database access..selectBitmapClusters) ⇒
+  - [~selectBitmapClusters(db, bitmapId)](#module*DB API* zcl database access..selectBitmapClusters) ⇒
   - [~selectClusterStructsWithItems(db)](#module*DB API* zcl database access..selectClusterStructsWithItems) ⇒
   - [~selectAllStructsWithItems(db)](#module*DB API* zcl database access..selectAllStructsWithItems) ⇒
-  - [~selectAllStructItemsByStructName(db, name)](#module*DB API* zcl database access..selectAllStructItemsByStructName) ⇒
+  - [~selectAllStructItemsByStructName(db, name, packageIds, clusterName)](#module*DB API* zcl database access..selectAllStructItemsByStructName) ⇒
   - [~selectAllClusters(db)](#module*DB API* zcl database access..selectAllClusters) ⇒
   - [~selectClusterByCode(db, packageId, clusterCode, mfgCode)](#module*DB API* zcl database access..selectClusterByCode) ⇒
   - [~selectClusterById(db, clusterId, packageId)](#module*DB API* zcl database access..selectClusterById) ⇒
@@ -2393,6 +3043,21 @@ Retrieves atomic type by a given Id.
 | --------- | --------------- |
 | db        | <code>\*</code> |
 | packageId | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..isTypeSignedByNameAndPackage"></a>
+
+### DB API: zcl database access~isTypeSignedByNameAndPackage(db, name, sessionPackages) ⇒ <code>Promise.&lt;boolean&gt;</code>
+
+Checks if a type by a given name is signed.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: <code>Promise.&lt;boolean&gt;</code> - - A promise that resolves to true if the type is signed, false otherwise.
+
+| Param           | Type                | Description                     |
+| --------------- | ------------------- | ------------------------------- |
+| db              | <code>object</code> | The database connection object. |
+| name            | <code>string</code> | The name of the type.           |
+| sessionPackages | <code>Array</code>  | An array of session packages.   |
 
 <a name="module_DB API_ zcl database access..selectAllBitmaps"></a>
 
@@ -2527,7 +3192,7 @@ Select an enum matched by name and clusterId.
 
 <a name="module_DB API_ zcl database access..selectSessionClusterByCode"></a>
 
-### DB API: zcl database access~selectSessionClusterByCode(db, sessionId) ⇒
+### DB API: zcl database access~selectSessionClusterByCode(db, sessionId, code, mfgCode) ⇒
 
 Returns the cluster available to this session by the code.
 
@@ -2538,6 +3203,8 @@ Returns the cluster available to this session by the code.
 | --------- | --------------- |
 | db        | <code>\*</code> |
 | sessionId | <code>\*</code> |
+| code      | <code>\*</code> |
+| mfgCode   | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectAllSessionClusters"></a>
 
@@ -2555,31 +3222,38 @@ Returns all the clusters visible for a given session.
 
 <a name="module_DB API_ zcl database access..selectSessionAttributeByCode"></a>
 
-### DB API: zcl database access~selectSessionAttributeByCode(db, sessionId) ⇒
+### DB API: zcl database access~selectSessionAttributeByCode(db, sessionId, clusterCode, side, attributeCode, mfgCode) ⇒
 
 Returns the attribute available to this session by the code.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 **Returns**: the session attribute
 
-| Param     | Type            |
-| --------- | --------------- |
-| db        | <code>\*</code> |
-| sessionId | <code>\*</code> |
+| Param         | Type            |
+| ------------- | --------------- |
+| db            | <code>\*</code> |
+| sessionId     | <code>\*</code> |
+| clusterCode   | <code>\*</code> |
+| side          | <code>\*</code> |
+| attributeCode | <code>\*</code> |
+| mfgCode       | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectSessionCommandByCode"></a>
 
-### DB API: zcl database access~selectSessionCommandByCode(db, sessionId) ⇒
+### DB API: zcl database access~selectSessionCommandByCode(db, sessionId, clusterCode, commandCode, source) ⇒
 
 Returns the command available to this session by the code.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 **Returns**: the session attribute
 
-| Param     | Type            |
-| --------- | --------------- |
-| db        | <code>\*</code> |
-| sessionId | <code>\*</code> |
+| Param       | Type            |
+| ----------- | --------------- |
+| db          | <code>\*</code> |
+| sessionId   | <code>\*</code> |
+| clusterCode | <code>\*</code> |
+| commandCode | <code>\*</code> |
+| source      | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectStructByNameAndClusterId"></a>
 
@@ -2687,17 +3361,17 @@ Returns an array of clusters that enum belongs to.
 
 <a name="module_DB API_ zcl database access..selectBitmapClusters"></a>
 
-### DB API: zcl database access~selectBitmapClusters(db, enumId) ⇒
+### DB API: zcl database access~selectBitmapClusters(db, bitmapId) ⇒
 
-Returns an array of clusters that enum belongs to.
+Returns an array of clusters that bitmap belongs to.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 **Returns**: clusters
 
-| Param  | Type            |
-| ------ | --------------- |
-| db     | <code>\*</code> |
-| enumId | <code>\*</code> |
+| Param    | Type            |
+| -------- | --------------- |
+| db       | <code>\*</code> |
+| bitmapId | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectClusterStructsWithItems"></a>
 
@@ -2727,15 +3401,20 @@ Retrieves all the structs in the database with the items.
 
 <a name="module_DB API_ zcl database access..selectAllStructItemsByStructName"></a>
 
-### DB API: zcl database access~selectAllStructItemsByStructName(db, name) ⇒
+### DB API: zcl database access~selectAllStructItemsByStructName(db, name, packageIds, clusterName) ⇒
+
+Retrieves the struct items based on struct and cluster name.
+Note: By default clusterName is null.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
-**Returns**: the details of the struct items given the name of the struct
+**Returns**: the details of the struct items
 
-| Param |
-| ----- |
-| db    |
-| name  |
+| Param       | Default       |
+| ----------- | ------------- |
+| db          |               |
+| name        |               |
+| packageIds  |               |
+| clusterName | <code></code> |
 
 <a name="module_DB API_ zcl database access..selectAllClusters"></a>
 
@@ -2871,6 +3550,7 @@ This module provides queries for enums.
   - [~disable()](#module*DB API* zcl database access..disable)
   - [~selectAtomicType(db, packageId, typeName)](#module*DB API* zcl database access..selectAtomicType)
   - [~selectAtomicById(db, packageId)](#module*DB API* zcl database access..selectAtomicById)
+  - [~isTypeSignedByNameAndPackage(db, name, sessionPackages)](#module*DB API* zcl database access..isTypeSignedByNameAndPackage) ⇒ <code>Promise.&lt;boolean&gt;</code>
   - [~selectAllBitmaps(db)](#module*DB API* zcl database access..selectAllBitmaps) ⇒
   - [~selectBitmapByNameAndClusterId(db, name, clusterId, packageIds)](#module*DB API* zcl database access..selectBitmapByNameAndClusterId) ⇒
   - [~selectAllEnums(db, packageId)](#module*DB API* zcl database access..selectAllEnums) ⇒
@@ -2880,10 +3560,10 @@ This module provides queries for enums.
   - [~selectEnumById(db, id)](#module*DB API* zcl database access..selectEnumById) ⇒
   - [~selectEnumByName(db, name, packageIds)](#module*DB API* zcl database access..selectEnumByName) ⇒
   - [~selectEnumByNameAndClusterId(db, name, clusterId, packageIds)](#module*DB API* zcl database access..selectEnumByNameAndClusterId) ⇒
-  - [~selectSessionClusterByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionClusterByCode) ⇒
+  - [~selectSessionClusterByCode(db, sessionId, code, mfgCode)](#module*DB API* zcl database access..selectSessionClusterByCode) ⇒
   - [~selectAllSessionClusters(db, sessionId)](#module*DB API* zcl database access..selectAllSessionClusters) ⇒
-  - [~selectSessionAttributeByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionAttributeByCode) ⇒
-  - [~selectSessionCommandByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionCommandByCode) ⇒
+  - [~selectSessionAttributeByCode(db, sessionId, clusterCode, side, attributeCode, mfgCode)](#module*DB API* zcl database access..selectSessionAttributeByCode) ⇒
+  - [~selectSessionCommandByCode(db, sessionId, clusterCode, commandCode, source)](#module*DB API* zcl database access..selectSessionCommandByCode) ⇒
   - [~selectStructByNameAndClusterId(db, name, clusterId, packageIds)](#module*DB API* zcl database access..selectStructByNameAndClusterId) ⇒
   - [~selectStructsWithClusterAssociation(db, packageIds, groupByStructName)](#module*DB API* zcl database access..selectStructsWithClusterAssociation) ⇒
   - [~selectClusterBitmaps(db, packageId, clusterId)](#module*DB API* zcl database access..selectClusterBitmaps) ⇒
@@ -2891,10 +3571,10 @@ This module provides queries for enums.
   - [~selectAllStructsWithItemCount(db, packageIds)](#module*DB API* zcl database access..selectAllStructsWithItemCount) ⇒
   - [~selectStructClusters(db, structId)](#module*DB API* zcl database access..selectStructClusters) ⇒
   - [~selectEnumClusters(db, enumId)](#module*DB API* zcl database access..selectEnumClusters) ⇒
-  - [~selectBitmapClusters(db, enumId)](#module*DB API* zcl database access..selectBitmapClusters) ⇒
+  - [~selectBitmapClusters(db, bitmapId)](#module*DB API* zcl database access..selectBitmapClusters) ⇒
   - [~selectClusterStructsWithItems(db)](#module*DB API* zcl database access..selectClusterStructsWithItems) ⇒
   - [~selectAllStructsWithItems(db)](#module*DB API* zcl database access..selectAllStructsWithItems) ⇒
-  - [~selectAllStructItemsByStructName(db, name)](#module*DB API* zcl database access..selectAllStructItemsByStructName) ⇒
+  - [~selectAllStructItemsByStructName(db, name, packageIds, clusterName)](#module*DB API* zcl database access..selectAllStructItemsByStructName) ⇒
   - [~selectAllClusters(db)](#module*DB API* zcl database access..selectAllClusters) ⇒
   - [~selectClusterByCode(db, packageId, clusterCode, mfgCode)](#module*DB API* zcl database access..selectClusterByCode) ⇒
   - [~selectClusterById(db, clusterId, packageId)](#module*DB API* zcl database access..selectClusterById) ⇒
@@ -3019,6 +3699,21 @@ Retrieves atomic type by a given Id.
 | --------- | --------------- |
 | db        | <code>\*</code> |
 | packageId | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..isTypeSignedByNameAndPackage"></a>
+
+### DB API: zcl database access~isTypeSignedByNameAndPackage(db, name, sessionPackages) ⇒ <code>Promise.&lt;boolean&gt;</code>
+
+Checks if a type by a given name is signed.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: <code>Promise.&lt;boolean&gt;</code> - - A promise that resolves to true if the type is signed, false otherwise.
+
+| Param           | Type                | Description                     |
+| --------------- | ------------------- | ------------------------------- |
+| db              | <code>object</code> | The database connection object. |
+| name            | <code>string</code> | The name of the type.           |
+| sessionPackages | <code>Array</code>  | An array of session packages.   |
 
 <a name="module_DB API_ zcl database access..selectAllBitmaps"></a>
 
@@ -3153,7 +3848,7 @@ Select an enum matched by name and clusterId.
 
 <a name="module_DB API_ zcl database access..selectSessionClusterByCode"></a>
 
-### DB API: zcl database access~selectSessionClusterByCode(db, sessionId) ⇒
+### DB API: zcl database access~selectSessionClusterByCode(db, sessionId, code, mfgCode) ⇒
 
 Returns the cluster available to this session by the code.
 
@@ -3164,6 +3859,8 @@ Returns the cluster available to this session by the code.
 | --------- | --------------- |
 | db        | <code>\*</code> |
 | sessionId | <code>\*</code> |
+| code      | <code>\*</code> |
+| mfgCode   | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectAllSessionClusters"></a>
 
@@ -3181,31 +3878,38 @@ Returns all the clusters visible for a given session.
 
 <a name="module_DB API_ zcl database access..selectSessionAttributeByCode"></a>
 
-### DB API: zcl database access~selectSessionAttributeByCode(db, sessionId) ⇒
+### DB API: zcl database access~selectSessionAttributeByCode(db, sessionId, clusterCode, side, attributeCode, mfgCode) ⇒
 
 Returns the attribute available to this session by the code.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 **Returns**: the session attribute
 
-| Param     | Type            |
-| --------- | --------------- |
-| db        | <code>\*</code> |
-| sessionId | <code>\*</code> |
+| Param         | Type            |
+| ------------- | --------------- |
+| db            | <code>\*</code> |
+| sessionId     | <code>\*</code> |
+| clusterCode   | <code>\*</code> |
+| side          | <code>\*</code> |
+| attributeCode | <code>\*</code> |
+| mfgCode       | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectSessionCommandByCode"></a>
 
-### DB API: zcl database access~selectSessionCommandByCode(db, sessionId) ⇒
+### DB API: zcl database access~selectSessionCommandByCode(db, sessionId, clusterCode, commandCode, source) ⇒
 
 Returns the command available to this session by the code.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 **Returns**: the session attribute
 
-| Param     | Type            |
-| --------- | --------------- |
-| db        | <code>\*</code> |
-| sessionId | <code>\*</code> |
+| Param       | Type            |
+| ----------- | --------------- |
+| db          | <code>\*</code> |
+| sessionId   | <code>\*</code> |
+| clusterCode | <code>\*</code> |
+| commandCode | <code>\*</code> |
+| source      | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectStructByNameAndClusterId"></a>
 
@@ -3313,17 +4017,17 @@ Returns an array of clusters that enum belongs to.
 
 <a name="module_DB API_ zcl database access..selectBitmapClusters"></a>
 
-### DB API: zcl database access~selectBitmapClusters(db, enumId) ⇒
+### DB API: zcl database access~selectBitmapClusters(db, bitmapId) ⇒
 
-Returns an array of clusters that enum belongs to.
+Returns an array of clusters that bitmap belongs to.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 **Returns**: clusters
 
-| Param  | Type            |
-| ------ | --------------- |
-| db     | <code>\*</code> |
-| enumId | <code>\*</code> |
+| Param    | Type            |
+| -------- | --------------- |
+| db       | <code>\*</code> |
+| bitmapId | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectClusterStructsWithItems"></a>
 
@@ -3353,15 +4057,20 @@ Retrieves all the structs in the database with the items.
 
 <a name="module_DB API_ zcl database access..selectAllStructItemsByStructName"></a>
 
-### DB API: zcl database access~selectAllStructItemsByStructName(db, name) ⇒
+### DB API: zcl database access~selectAllStructItemsByStructName(db, name, packageIds, clusterName) ⇒
+
+Retrieves the struct items based on struct and cluster name.
+Note: By default clusterName is null.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
-**Returns**: the details of the struct items given the name of the struct
+**Returns**: the details of the struct items
 
-| Param |
-| ----- |
-| db    |
-| name  |
+| Param       | Default       |
+| ----------- | ------------- |
+| db          |               |
+| name        |               |
+| packageIds  |               |
+| clusterName | <code></code> |
 
 <a name="module_DB API_ zcl database access..selectAllClusters"></a>
 
@@ -3499,26 +4208,32 @@ This module provides queries for user configuration.
 This module provides queries for device types.
 
 - [DB API: device type database access](#module*DB API* device type database access)
-  - [~selectAllDeviceTypes(db)](#module*DB API* device type database access..selectAllDeviceTypes) ⇒
+  - [~selectAllDeviceTypes(db, packageId)](#module*DB API* device type database access..selectAllDeviceTypes) ⇒
   - [~selectDeviceTypeById(db, id)](#module*DB API* device type database access..selectDeviceTypeById) ⇒
   - [~selectDeviceTypeByCodeAndName(db, packageId, code, name)](#module*DB API* device type database access..selectDeviceTypeByCodeAndName) ⇒
+  - [~selectDeviceTypeByCode(db, packageId, code, name)](#module*DB API* device type database access..selectDeviceTypeByCode) ⇒
   - [~updateClusterReferencesForDeviceTypeClusters(db)](#module*DB API* device type database access..updateClusterReferencesForDeviceTypeClusters) ⇒
   - [~updateAttributeReferencesForDeviceTypeReferences(db)](#module*DB API* device type database access..updateAttributeReferencesForDeviceTypeReferences) ⇒
   - [~updateCommandReferencesForDeviceTypeReferences(db)](#module*DB API* device type database access..updateCommandReferencesForDeviceTypeReferences) ⇒
+  - [~updateFeatureReferencesForDeviceTypeReferences(db)](#module*DB API* device type database access..updateFeatureReferencesForDeviceTypeReferences) ⇒
   - [~updateDeviceTypeEntityReferences(db)](#module*DB API* device type database access..updateDeviceTypeEntityReferences) ⇒
+  - [~selectDeviceTypesWithCompositionByEndpointTypeId(db, endpointTypeId)](#module*DB API* device type database access..selectDeviceTypesWithCompositionByEndpointTypeId) ⇒ <code>Promise.&lt;Array&gt;</code>
+  - [~selectDeviceTypesByEndpointTypeId(db, endpointTypeId)](#module*DB API* device type database access..selectDeviceTypesByEndpointTypeId) ⇒
+  - [~selectDeviceTypeFeaturesByEndpointTypeIdAndClusterId(db, endpointTypeId, clusterId)](#module*DB API* device type database access..selectDeviceTypeFeaturesByEndpointTypeIdAndClusterId) ⇒
 
 <a name="module_DB API_ device type database access..selectAllDeviceTypes"></a>
 
-### DB API: device type database access~selectAllDeviceTypes(db) ⇒
+### DB API: device type database access~selectAllDeviceTypes(db, packageId) ⇒
 
 Retrieves all the device types in the database.
 
 **Kind**: inner method of [<code>DB API: device type database access</code>](#module*DB API* device type database access)  
 **Returns**: Promise that resolves with the rows of device types.
 
-| Param | Type            |
-| ----- | --------------- |
-| db    | <code>\*</code> |
+| Param     | Type            |
+| --------- | --------------- |
+| db        | <code>\*</code> |
+| packageId | <code>\*</code> |
 
 <a name="module_DB API_ device type database access..selectDeviceTypeById"></a>
 
@@ -3537,6 +4252,22 @@ Retrieves the device type by its id.
 <a name="module_DB API_ device type database access..selectDeviceTypeByCodeAndName"></a>
 
 ### DB API: device type database access~selectDeviceTypeByCodeAndName(db, packageId, code, name) ⇒
+
+Retrieves the device type by the package, code and name.
+
+**Kind**: inner method of [<code>DB API: device type database access</code>](#module*DB API* device type database access)  
+**Returns**: Device type
+
+| Param     | Type            |
+| --------- | --------------- |
+| db        | <code>\*</code> |
+| packageId | <code>\*</code> |
+| code      | <code>\*</code> |
+| name      | <code>\*</code> |
+
+<a name="module_DB API_ device type database access..selectDeviceTypeByCode"></a>
+
+### DB API: device type database access~selectDeviceTypeByCode(db, packageId, code, name) ⇒
 
 Retrieves the device type by the package, code and name.
 
@@ -3592,6 +4323,20 @@ this method links the refererence to actual command reference.
 | ----- | --------------- |
 | db    | <code>\*</code> |
 
+<a name="module_DB API_ device type database access..updateFeatureReferencesForDeviceTypeReferences"></a>
+
+### DB API: device type database access~updateFeatureReferencesForDeviceTypeReferences(db) ⇒
+
+After loading up device type feature table with the names,
+this method links the refererence to actual feature reference.
+
+**Kind**: inner method of [<code>DB API: device type database access</code>](#module*DB API* device type database access)  
+**Returns**: promise of completion
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+
 <a name="module_DB API_ device type database access..updateDeviceTypeEntityReferences"></a>
 
 ### DB API: device type database access~updateDeviceTypeEntityReferences(db) ⇒
@@ -3609,6 +4354,53 @@ we have to link the foreign keys.
 | Param | Type            |
 | ----- | --------------- |
 | db    | <code>\*</code> |
+
+<a name="module_DB API_ device type database access..selectDeviceTypesWithCompositionByEndpointTypeId"></a>
+
+### DB API: device type database access~selectDeviceTypesWithCompositionByEndpointTypeId(db, endpointTypeId) ⇒ <code>Promise.&lt;Array&gt;</code>
+
+Asynchronously selects device types with their compositions by a specific endpoint type ID.
+
+This function queries the database for device types associated with a given endpoint type ID,
+including details about the device type and any endpoint compositions linked to it.
+
+**Kind**: inner method of [<code>DB API: device type database access</code>](#module*DB API* device type database access)  
+**Returns**: <code>Promise.&lt;Array&gt;</code> - A promise that resolves with an array of device types and their compositions.
+
+| Param          | Type                | Description                                                  |
+| -------------- | ------------------- | ------------------------------------------------------------ |
+| db             | <code>Object</code> | The database connection object.                              |
+| endpointTypeId | <code>number</code> | The ID of the endpoint type used to filter the device types. |
+
+<a name="module_DB API_ device type database access..selectDeviceTypesByEndpointTypeId"></a>
+
+### DB API: device type database access~selectDeviceTypesByEndpointTypeId(db, endpointTypeId) ⇒
+
+Retrieves the zcl device type information based on an endpoint type id
+
+**Kind**: inner method of [<code>DB API: device type database access</code>](#module*DB API* device type database access)  
+**Returns**: promise with zcl device type information based on endpoint type id
+
+| Param          | Type            |
+| -------------- | --------------- |
+| db             | <code>\*</code> |
+| endpointTypeId | <code>\*</code> |
+
+<a name="module_DB API_ device type database access..selectDeviceTypeFeaturesByEndpointTypeIdAndClusterId"></a>
+
+### DB API: device type database access~selectDeviceTypeFeaturesByEndpointTypeIdAndClusterId(db, endpointTypeId, clusterId) ⇒
+
+Retrieves the device type features associated to an endpoint type id and cluster id
+Note: Use clusterId as 'all' to get all features for an endpoint type id.
+
+**Kind**: inner method of [<code>DB API: device type database access</code>](#module*DB API* device type database access)  
+**Returns**: promise with zcl device type feature information based on endpoint type id and cluster id
+
+| Param          | Type            |
+| -------------- | --------------- |
+| db             | <code>\*</code> |
+| endpointTypeId | <code>\*</code> |
+| clusterId      | <code>\*</code> |
 
 <a name="module_DB API_ endpoint type queries against the database."></a>
 
@@ -3639,6 +4431,7 @@ This module provides queries for enums.
   - [~disable()](#module*DB API* zcl database access..disable)
   - [~selectAtomicType(db, packageId, typeName)](#module*DB API* zcl database access..selectAtomicType)
   - [~selectAtomicById(db, packageId)](#module*DB API* zcl database access..selectAtomicById)
+  - [~isTypeSignedByNameAndPackage(db, name, sessionPackages)](#module*DB API* zcl database access..isTypeSignedByNameAndPackage) ⇒ <code>Promise.&lt;boolean&gt;</code>
   - [~selectAllBitmaps(db)](#module*DB API* zcl database access..selectAllBitmaps) ⇒
   - [~selectBitmapByNameAndClusterId(db, name, clusterId, packageIds)](#module*DB API* zcl database access..selectBitmapByNameAndClusterId) ⇒
   - [~selectAllEnums(db, packageId)](#module*DB API* zcl database access..selectAllEnums) ⇒
@@ -3648,10 +4441,10 @@ This module provides queries for enums.
   - [~selectEnumById(db, id)](#module*DB API* zcl database access..selectEnumById) ⇒
   - [~selectEnumByName(db, name, packageIds)](#module*DB API* zcl database access..selectEnumByName) ⇒
   - [~selectEnumByNameAndClusterId(db, name, clusterId, packageIds)](#module*DB API* zcl database access..selectEnumByNameAndClusterId) ⇒
-  - [~selectSessionClusterByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionClusterByCode) ⇒
+  - [~selectSessionClusterByCode(db, sessionId, code, mfgCode)](#module*DB API* zcl database access..selectSessionClusterByCode) ⇒
   - [~selectAllSessionClusters(db, sessionId)](#module*DB API* zcl database access..selectAllSessionClusters) ⇒
-  - [~selectSessionAttributeByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionAttributeByCode) ⇒
-  - [~selectSessionCommandByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionCommandByCode) ⇒
+  - [~selectSessionAttributeByCode(db, sessionId, clusterCode, side, attributeCode, mfgCode)](#module*DB API* zcl database access..selectSessionAttributeByCode) ⇒
+  - [~selectSessionCommandByCode(db, sessionId, clusterCode, commandCode, source)](#module*DB API* zcl database access..selectSessionCommandByCode) ⇒
   - [~selectStructByNameAndClusterId(db, name, clusterId, packageIds)](#module*DB API* zcl database access..selectStructByNameAndClusterId) ⇒
   - [~selectStructsWithClusterAssociation(db, packageIds, groupByStructName)](#module*DB API* zcl database access..selectStructsWithClusterAssociation) ⇒
   - [~selectClusterBitmaps(db, packageId, clusterId)](#module*DB API* zcl database access..selectClusterBitmaps) ⇒
@@ -3659,10 +4452,10 @@ This module provides queries for enums.
   - [~selectAllStructsWithItemCount(db, packageIds)](#module*DB API* zcl database access..selectAllStructsWithItemCount) ⇒
   - [~selectStructClusters(db, structId)](#module*DB API* zcl database access..selectStructClusters) ⇒
   - [~selectEnumClusters(db, enumId)](#module*DB API* zcl database access..selectEnumClusters) ⇒
-  - [~selectBitmapClusters(db, enumId)](#module*DB API* zcl database access..selectBitmapClusters) ⇒
+  - [~selectBitmapClusters(db, bitmapId)](#module*DB API* zcl database access..selectBitmapClusters) ⇒
   - [~selectClusterStructsWithItems(db)](#module*DB API* zcl database access..selectClusterStructsWithItems) ⇒
   - [~selectAllStructsWithItems(db)](#module*DB API* zcl database access..selectAllStructsWithItems) ⇒
-  - [~selectAllStructItemsByStructName(db, name)](#module*DB API* zcl database access..selectAllStructItemsByStructName) ⇒
+  - [~selectAllStructItemsByStructName(db, name, packageIds, clusterName)](#module*DB API* zcl database access..selectAllStructItemsByStructName) ⇒
   - [~selectAllClusters(db)](#module*DB API* zcl database access..selectAllClusters) ⇒
   - [~selectClusterByCode(db, packageId, clusterCode, mfgCode)](#module*DB API* zcl database access..selectClusterByCode) ⇒
   - [~selectClusterById(db, clusterId, packageId)](#module*DB API* zcl database access..selectClusterById) ⇒
@@ -3787,6 +4580,21 @@ Retrieves atomic type by a given Id.
 | --------- | --------------- |
 | db        | <code>\*</code> |
 | packageId | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..isTypeSignedByNameAndPackage"></a>
+
+### DB API: zcl database access~isTypeSignedByNameAndPackage(db, name, sessionPackages) ⇒ <code>Promise.&lt;boolean&gt;</code>
+
+Checks if a type by a given name is signed.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: <code>Promise.&lt;boolean&gt;</code> - - A promise that resolves to true if the type is signed, false otherwise.
+
+| Param           | Type                | Description                     |
+| --------------- | ------------------- | ------------------------------- |
+| db              | <code>object</code> | The database connection object. |
+| name            | <code>string</code> | The name of the type.           |
+| sessionPackages | <code>Array</code>  | An array of session packages.   |
 
 <a name="module_DB API_ zcl database access..selectAllBitmaps"></a>
 
@@ -3921,7 +4729,7 @@ Select an enum matched by name and clusterId.
 
 <a name="module_DB API_ zcl database access..selectSessionClusterByCode"></a>
 
-### DB API: zcl database access~selectSessionClusterByCode(db, sessionId) ⇒
+### DB API: zcl database access~selectSessionClusterByCode(db, sessionId, code, mfgCode) ⇒
 
 Returns the cluster available to this session by the code.
 
@@ -3932,6 +4740,8 @@ Returns the cluster available to this session by the code.
 | --------- | --------------- |
 | db        | <code>\*</code> |
 | sessionId | <code>\*</code> |
+| code      | <code>\*</code> |
+| mfgCode   | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectAllSessionClusters"></a>
 
@@ -3949,31 +4759,38 @@ Returns all the clusters visible for a given session.
 
 <a name="module_DB API_ zcl database access..selectSessionAttributeByCode"></a>
 
-### DB API: zcl database access~selectSessionAttributeByCode(db, sessionId) ⇒
+### DB API: zcl database access~selectSessionAttributeByCode(db, sessionId, clusterCode, side, attributeCode, mfgCode) ⇒
 
 Returns the attribute available to this session by the code.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 **Returns**: the session attribute
 
-| Param     | Type            |
-| --------- | --------------- |
-| db        | <code>\*</code> |
-| sessionId | <code>\*</code> |
+| Param         | Type            |
+| ------------- | --------------- |
+| db            | <code>\*</code> |
+| sessionId     | <code>\*</code> |
+| clusterCode   | <code>\*</code> |
+| side          | <code>\*</code> |
+| attributeCode | <code>\*</code> |
+| mfgCode       | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectSessionCommandByCode"></a>
 
-### DB API: zcl database access~selectSessionCommandByCode(db, sessionId) ⇒
+### DB API: zcl database access~selectSessionCommandByCode(db, sessionId, clusterCode, commandCode, source) ⇒
 
 Returns the command available to this session by the code.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 **Returns**: the session attribute
 
-| Param     | Type            |
-| --------- | --------------- |
-| db        | <code>\*</code> |
-| sessionId | <code>\*</code> |
+| Param       | Type            |
+| ----------- | --------------- |
+| db          | <code>\*</code> |
+| sessionId   | <code>\*</code> |
+| clusterCode | <code>\*</code> |
+| commandCode | <code>\*</code> |
+| source      | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectStructByNameAndClusterId"></a>
 
@@ -4081,17 +4898,17 @@ Returns an array of clusters that enum belongs to.
 
 <a name="module_DB API_ zcl database access..selectBitmapClusters"></a>
 
-### DB API: zcl database access~selectBitmapClusters(db, enumId) ⇒
+### DB API: zcl database access~selectBitmapClusters(db, bitmapId) ⇒
 
-Returns an array of clusters that enum belongs to.
+Returns an array of clusters that bitmap belongs to.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 **Returns**: clusters
 
-| Param  | Type            |
-| ------ | --------------- |
-| db     | <code>\*</code> |
-| enumId | <code>\*</code> |
+| Param    | Type            |
+| -------- | --------------- |
+| db       | <code>\*</code> |
+| bitmapId | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectClusterStructsWithItems"></a>
 
@@ -4121,15 +4938,20 @@ Retrieves all the structs in the database with the items.
 
 <a name="module_DB API_ zcl database access..selectAllStructItemsByStructName"></a>
 
-### DB API: zcl database access~selectAllStructItemsByStructName(db, name) ⇒
+### DB API: zcl database access~selectAllStructItemsByStructName(db, name, packageIds, clusterName) ⇒
+
+Retrieves the struct items based on struct and cluster name.
+Note: By default clusterName is null.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
-**Returns**: the details of the struct items given the name of the struct
+**Returns**: the details of the struct items
 
-| Param |
-| ----- |
-| db    |
-| name  |
+| Param       | Default       |
+| ----------- | ------------- |
+| db          |               |
+| name        |               |
+| packageIds  |               |
+| clusterName | <code></code> |
 
 <a name="module_DB API_ zcl database access..selectAllClusters"></a>
 
@@ -4261,15 +5083,21 @@ This module provides queries related to imports and exports of files.
 This module provides queries for ZCL loading
 
 - [DB API: zcl loading queries](#module*DB API* zcl loading queries)
+  - [~insertAttributeMappings(db, data)](#module*DB API* zcl loading queries..insertAttributeMappings) ⇒
   - [~insertGlobals(db, packageId, data)](#module*DB API* zcl loading queries..insertGlobals) ⇒
   - [~insertClusterExtensions(db, packageId, data)](#module*DB API* zcl loading queries..insertClusterExtensions) ⇒
   - [~insertClusters(db, packageId, data)](#module*DB API* zcl loading queries..insertClusters) ⇒
+  - [~insertFeatures(db, packageId, data)](#module*DB API* zcl loading queries..insertFeatures) ⇒
   - [~insertTags(db, packageId, data)](#module*DB API* zcl loading queries..insertTags) ⇒
   - [~insertDomains(db, packageId, data)](#module*DB API* zcl loading queries..insertDomains) ⇒
   - [~insertSpecs(db, packageId, data)](#module*DB API* zcl loading queries..insertSpecs) ⇒
   - [~insertGlobalAttributeDefault(db, packageId, clusterData)](#module*DB API* zcl loading queries..insertGlobalAttributeDefault) ⇒
   - [~insertAtomics(db, packageId, data)](#module*DB API* zcl loading queries..insertAtomics)
+  - [~insertEndpointComposition(db, composition, context)](#module*DB API* zcl loading queries..insertEndpointComposition) ⇒
+  - [~getEndpointCompositionIdByCode(db, deviceType)](#module*DB API* zcl loading queries..getEndpointCompositionIdByCode) ⇒ <code>Promise.&lt;(number\|null)&gt;</code>
+  - [~insertDeviceComposition(db, deviceType, endpointCompositionId)](#module*DB API* zcl loading queries..insertDeviceComposition) ⇒ <code>Promise</code>
   - [~insertDeviceTypes(db, packageId, data)](#module*DB API* zcl loading queries..insertDeviceTypes) ⇒
+  - [~insertDeviceTypeFeatures(db, dtClusterRefDataPairs)](#module*DB API* zcl loading queries..insertDeviceTypeFeatures)
   - [~insertDeviceTypeAttributes(db, dtClusterRefDataPairs)](#module*DB API* zcl loading queries..insertDeviceTypeAttributes)
   - [~insertDeviceTypeCommands(db, dtClusterRefDataPairs)](#module*DB API* zcl loading queries..insertDeviceTypeCommands)
   - [~createAccessRows(db, packageId, data)](#module*DB API* zcl loading queries..createAccessRows)
@@ -4287,6 +5115,20 @@ This module provides queries for ZCL loading
   - [~insertBitmapFields(db, packageId, knownPackages, data)](#module*DB API* zcl loading queries..insertBitmapFields)
   - [~insertStruct(db, packageIds, data)](#module*DB API* zcl loading queries..insertStruct)
   - [~insertStructItems(db, packageIds, data)](#module*DB API* zcl loading queries..insertStructItems)
+
+<a name="module_DB API_ zcl loading queries..insertAttributeMappings"></a>
+
+### DB API: zcl loading queries~insertAttributeMappings(db, data) ⇒
+
+Load the attribute mapping table with associated attributes
+
+**Kind**: inner method of [<code>DB API: zcl loading queries</code>](#module*DB API* zcl loading queries)  
+**Returns**: attribute mapping ids of the associated attributes
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+| data  | <code>\*</code> |
 
 <a name="module_DB API_ zcl loading queries..insertGlobals"></a>
 
@@ -4332,6 +5174,21 @@ Inserts clusters into the database.
 | db        | <code>\*</code> |                                                                                                                    |
 | packageId | <code>\*</code> |                                                                                                                    |
 | data      | <code>\*</code> | an array of objects that must contain: code, name, description, define. It also contains commands: and attributes: |
+
+<a name="module_DB API_ zcl loading queries..insertFeatures"></a>
+
+### DB API: zcl loading queries~insertFeatures(db, packageId, data) ⇒
+
+Inserts features into the database.
+
+**Kind**: inner method of [<code>DB API: zcl loading queries</code>](#module*DB API* zcl loading queries)  
+**Returns**: A promise that resolves with array of rowids.
+
+| Param     | Type            |
+| --------- | --------------- |
+| db        | <code>\*</code> |
+| packageId | <code>\*</code> |
+| data      | <code>\*</code> |
 
 <a name="module_DB API_ zcl loading queries..insertTags"></a>
 
@@ -4411,6 +5268,53 @@ Object might also contain 'size', but possibly not.
 | packageId | <code>\*</code> |
 | data      | <code>\*</code> |
 
+<a name="module_DB API_ zcl loading queries..insertEndpointComposition"></a>
+
+### DB API: zcl loading queries~insertEndpointComposition(db, composition, context) ⇒
+
+Inserts endpoint composition data into the database based on the context's mandatory device type.
+This function checks if the context's mandatory device type matches the composition code.
+If they match, it performs an insert operation with a specific type from `dbEnum.mandatoryDeviceType`.
+If they do not match, it performs an insert with the composition's type.
+
+**Kind**: inner method of [<code>DB API: zcl loading queries</code>](#module*DB API* zcl loading queries)  
+**Returns**: A promise resolved with the result of the database insert operation.
+
+| Param       | Type            | Description                                                        |
+| ----------- | --------------- | ------------------------------------------------------------------ |
+| db          | <code>\*</code> | The database connection object.                                    |
+| composition | <code>\*</code> | The composition data to be inserted.                               |
+| context     | <code>\*</code> | The context containing the mandatory device type to check against. |
+
+<a name="module_DB API_ zcl loading queries..getEndpointCompositionIdByCode"></a>
+
+### DB API: zcl loading queries~getEndpointCompositionIdByCode(db, deviceType) ⇒ <code>Promise.&lt;(number\|null)&gt;</code>
+
+Asynchronously retrieves the ID of an endpoint composition based on its code.
+
+**Kind**: inner method of [<code>DB API: zcl loading queries</code>](#module*DB API* zcl loading queries)  
+**Returns**: <code>Promise.&lt;(number\|null)&gt;</code> - A promise that resolves with the ID of the endpoint composition if found, or null otherwise.
+
+| Param      | Type                | Description                                                                 |
+| ---------- | ------------------- | --------------------------------------------------------------------------- |
+| db         | <code>Object</code> | The database connection object.                                             |
+| deviceType | <code>Object</code> | An object representing the device type, which contains the 'code' property. |
+
+<a name="module_DB API_ zcl loading queries..insertDeviceComposition"></a>
+
+### DB API: zcl loading queries~insertDeviceComposition(db, deviceType, endpointCompositionId) ⇒ <code>Promise</code>
+
+Inserts a new device composition record into the database.
+
+**Kind**: inner method of [<code>DB API: zcl loading queries</code>](#module*DB API* zcl loading queries)  
+**Returns**: <code>Promise</code> - A promise that resolves with the result of the database insertion operation.
+
+| Param                 | Type                | Description                                                                          |
+| --------------------- | ------------------- | ------------------------------------------------------------------------------------ |
+| db                    | <code>Object</code> | The database connection object.                                                      |
+| deviceType            | <code>Object</code> | An object representing the device type, which contains the 'childDeviceId' property. |
+| endpointCompositionId | <code>number</code> | The ID of the endpoint composition associated with this device composition.          |
+
 <a name="module_DB API_ zcl loading queries..insertDeviceTypes"></a>
 
 ### DB API: zcl loading queries~insertDeviceTypes(db, packageId, data) ⇒
@@ -4425,6 +5329,20 @@ Inserts device types into the database.
 | db        | <code>\*</code> |                                                                                   |
 | packageId | <code>\*</code> |                                                                                   |
 | data      | <code>\*</code> | an array of objects that must contain: domain, code, profileId, name, description |
+
+<a name="module_DB API_ zcl loading queries..insertDeviceTypeFeatures"></a>
+
+### DB API: zcl loading queries~insertDeviceTypeFeatures(db, dtClusterRefDataPairs)
+
+This handles the loading of device type feature requirements into the database.
+There is a need to post-process to attach the actual feature ref after the fact
+
+**Kind**: inner method of [<code>DB API: zcl loading queries</code>](#module*DB API* zcl loading queries)
+
+| Param                 | Type            |
+| --------------------- | --------------- |
+| db                    | <code>\*</code> |
+| dtClusterRefDataPairs | <code>\*</code> |
 
 <a name="module_DB API_ zcl loading queries..insertDeviceTypeAttributes"></a>
 
@@ -4687,13 +5605,19 @@ Insert all Struct items into the Struct Item Table.
 
 ## DB API: session related queries.
 
-This module provides notification related queries.
+This module provides package notification related queries.
 
 <a name="module_DB API_ package-based queries."></a>
 
 ## DB API: package-based queries.
 
 This module provides queries related to packages.
+
+<a name="module_DB API_ session related queries."></a>
+
+## DB API: session related queries.
+
+This module provides session notification related queries.
 
 <a name="module_DB API_ zcl database access"></a>
 
@@ -4714,6 +5638,7 @@ all visible clusters, etc.
   - [~disable()](#module*DB API* zcl database access..disable)
   - [~selectAtomicType(db, packageId, typeName)](#module*DB API* zcl database access..selectAtomicType)
   - [~selectAtomicById(db, packageId)](#module*DB API* zcl database access..selectAtomicById)
+  - [~isTypeSignedByNameAndPackage(db, name, sessionPackages)](#module*DB API* zcl database access..isTypeSignedByNameAndPackage) ⇒ <code>Promise.&lt;boolean&gt;</code>
   - [~selectAllBitmaps(db)](#module*DB API* zcl database access..selectAllBitmaps) ⇒
   - [~selectBitmapByNameAndClusterId(db, name, clusterId, packageIds)](#module*DB API* zcl database access..selectBitmapByNameAndClusterId) ⇒
   - [~selectAllEnums(db, packageId)](#module*DB API* zcl database access..selectAllEnums) ⇒
@@ -4723,10 +5648,10 @@ all visible clusters, etc.
   - [~selectEnumById(db, id)](#module*DB API* zcl database access..selectEnumById) ⇒
   - [~selectEnumByName(db, name, packageIds)](#module*DB API* zcl database access..selectEnumByName) ⇒
   - [~selectEnumByNameAndClusterId(db, name, clusterId, packageIds)](#module*DB API* zcl database access..selectEnumByNameAndClusterId) ⇒
-  - [~selectSessionClusterByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionClusterByCode) ⇒
+  - [~selectSessionClusterByCode(db, sessionId, code, mfgCode)](#module*DB API* zcl database access..selectSessionClusterByCode) ⇒
   - [~selectAllSessionClusters(db, sessionId)](#module*DB API* zcl database access..selectAllSessionClusters) ⇒
-  - [~selectSessionAttributeByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionAttributeByCode) ⇒
-  - [~selectSessionCommandByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionCommandByCode) ⇒
+  - [~selectSessionAttributeByCode(db, sessionId, clusterCode, side, attributeCode, mfgCode)](#module*DB API* zcl database access..selectSessionAttributeByCode) ⇒
+  - [~selectSessionCommandByCode(db, sessionId, clusterCode, commandCode, source)](#module*DB API* zcl database access..selectSessionCommandByCode) ⇒
   - [~selectStructByNameAndClusterId(db, name, clusterId, packageIds)](#module*DB API* zcl database access..selectStructByNameAndClusterId) ⇒
   - [~selectStructsWithClusterAssociation(db, packageIds, groupByStructName)](#module*DB API* zcl database access..selectStructsWithClusterAssociation) ⇒
   - [~selectClusterBitmaps(db, packageId, clusterId)](#module*DB API* zcl database access..selectClusterBitmaps) ⇒
@@ -4734,10 +5659,10 @@ all visible clusters, etc.
   - [~selectAllStructsWithItemCount(db, packageIds)](#module*DB API* zcl database access..selectAllStructsWithItemCount) ⇒
   - [~selectStructClusters(db, structId)](#module*DB API* zcl database access..selectStructClusters) ⇒
   - [~selectEnumClusters(db, enumId)](#module*DB API* zcl database access..selectEnumClusters) ⇒
-  - [~selectBitmapClusters(db, enumId)](#module*DB API* zcl database access..selectBitmapClusters) ⇒
+  - [~selectBitmapClusters(db, bitmapId)](#module*DB API* zcl database access..selectBitmapClusters) ⇒
   - [~selectClusterStructsWithItems(db)](#module*DB API* zcl database access..selectClusterStructsWithItems) ⇒
   - [~selectAllStructsWithItems(db)](#module*DB API* zcl database access..selectAllStructsWithItems) ⇒
-  - [~selectAllStructItemsByStructName(db, name)](#module*DB API* zcl database access..selectAllStructItemsByStructName) ⇒
+  - [~selectAllStructItemsByStructName(db, name, packageIds, clusterName)](#module*DB API* zcl database access..selectAllStructItemsByStructName) ⇒
   - [~selectAllClusters(db)](#module*DB API* zcl database access..selectAllClusters) ⇒
   - [~selectClusterByCode(db, packageId, clusterCode, mfgCode)](#module*DB API* zcl database access..selectClusterByCode) ⇒
   - [~selectClusterById(db, clusterId, packageId)](#module*DB API* zcl database access..selectClusterById) ⇒
@@ -4862,6 +5787,21 @@ Retrieves atomic type by a given Id.
 | --------- | --------------- |
 | db        | <code>\*</code> |
 | packageId | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..isTypeSignedByNameAndPackage"></a>
+
+### DB API: zcl database access~isTypeSignedByNameAndPackage(db, name, sessionPackages) ⇒ <code>Promise.&lt;boolean&gt;</code>
+
+Checks if a type by a given name is signed.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: <code>Promise.&lt;boolean&gt;</code> - - A promise that resolves to true if the type is signed, false otherwise.
+
+| Param           | Type                | Description                     |
+| --------------- | ------------------- | ------------------------------- |
+| db              | <code>object</code> | The database connection object. |
+| name            | <code>string</code> | The name of the type.           |
+| sessionPackages | <code>Array</code>  | An array of session packages.   |
 
 <a name="module_DB API_ zcl database access..selectAllBitmaps"></a>
 
@@ -4996,7 +5936,7 @@ Select an enum matched by name and clusterId.
 
 <a name="module_DB API_ zcl database access..selectSessionClusterByCode"></a>
 
-### DB API: zcl database access~selectSessionClusterByCode(db, sessionId) ⇒
+### DB API: zcl database access~selectSessionClusterByCode(db, sessionId, code, mfgCode) ⇒
 
 Returns the cluster available to this session by the code.
 
@@ -5007,6 +5947,8 @@ Returns the cluster available to this session by the code.
 | --------- | --------------- |
 | db        | <code>\*</code> |
 | sessionId | <code>\*</code> |
+| code      | <code>\*</code> |
+| mfgCode   | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectAllSessionClusters"></a>
 
@@ -5024,31 +5966,38 @@ Returns all the clusters visible for a given session.
 
 <a name="module_DB API_ zcl database access..selectSessionAttributeByCode"></a>
 
-### DB API: zcl database access~selectSessionAttributeByCode(db, sessionId) ⇒
+### DB API: zcl database access~selectSessionAttributeByCode(db, sessionId, clusterCode, side, attributeCode, mfgCode) ⇒
 
 Returns the attribute available to this session by the code.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 **Returns**: the session attribute
 
-| Param     | Type            |
-| --------- | --------------- |
-| db        | <code>\*</code> |
-| sessionId | <code>\*</code> |
+| Param         | Type            |
+| ------------- | --------------- |
+| db            | <code>\*</code> |
+| sessionId     | <code>\*</code> |
+| clusterCode   | <code>\*</code> |
+| side          | <code>\*</code> |
+| attributeCode | <code>\*</code> |
+| mfgCode       | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectSessionCommandByCode"></a>
 
-### DB API: zcl database access~selectSessionCommandByCode(db, sessionId) ⇒
+### DB API: zcl database access~selectSessionCommandByCode(db, sessionId, clusterCode, commandCode, source) ⇒
 
 Returns the command available to this session by the code.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 **Returns**: the session attribute
 
-| Param     | Type            |
-| --------- | --------------- |
-| db        | <code>\*</code> |
-| sessionId | <code>\*</code> |
+| Param       | Type            |
+| ----------- | --------------- |
+| db          | <code>\*</code> |
+| sessionId   | <code>\*</code> |
+| clusterCode | <code>\*</code> |
+| commandCode | <code>\*</code> |
+| source      | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectStructByNameAndClusterId"></a>
 
@@ -5156,17 +6105,17 @@ Returns an array of clusters that enum belongs to.
 
 <a name="module_DB API_ zcl database access..selectBitmapClusters"></a>
 
-### DB API: zcl database access~selectBitmapClusters(db, enumId) ⇒
+### DB API: zcl database access~selectBitmapClusters(db, bitmapId) ⇒
 
-Returns an array of clusters that enum belongs to.
+Returns an array of clusters that bitmap belongs to.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 **Returns**: clusters
 
-| Param  | Type            |
-| ------ | --------------- |
-| db     | <code>\*</code> |
-| enumId | <code>\*</code> |
+| Param    | Type            |
+| -------- | --------------- |
+| db       | <code>\*</code> |
+| bitmapId | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectClusterStructsWithItems"></a>
 
@@ -5196,15 +6145,20 @@ Retrieves all the structs in the database with the items.
 
 <a name="module_DB API_ zcl database access..selectAllStructItemsByStructName"></a>
 
-### DB API: zcl database access~selectAllStructItemsByStructName(db, name) ⇒
+### DB API: zcl database access~selectAllStructItemsByStructName(db, name, packageIds, clusterName) ⇒
+
+Retrieves the struct items based on struct and cluster name.
+Note: By default clusterName is null.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
-**Returns**: the details of the struct items given the name of the struct
+**Returns**: the details of the struct items
 
-| Param |
-| ----- |
-| db    |
-| name  |
+| Param       | Default       |
+| ----------- | ------------- |
+| db          |               |
+| name        |               |
+| packageIds  |               |
+| clusterName | <code></code> |
 
 <a name="module_DB API_ zcl database access..selectAllClusters"></a>
 
@@ -5340,6 +6294,7 @@ This module provides queries for enums.
   - [~disable()](#module*DB API* zcl database access..disable)
   - [~selectAtomicType(db, packageId, typeName)](#module*DB API* zcl database access..selectAtomicType)
   - [~selectAtomicById(db, packageId)](#module*DB API* zcl database access..selectAtomicById)
+  - [~isTypeSignedByNameAndPackage(db, name, sessionPackages)](#module*DB API* zcl database access..isTypeSignedByNameAndPackage) ⇒ <code>Promise.&lt;boolean&gt;</code>
   - [~selectAllBitmaps(db)](#module*DB API* zcl database access..selectAllBitmaps) ⇒
   - [~selectBitmapByNameAndClusterId(db, name, clusterId, packageIds)](#module*DB API* zcl database access..selectBitmapByNameAndClusterId) ⇒
   - [~selectAllEnums(db, packageId)](#module*DB API* zcl database access..selectAllEnums) ⇒
@@ -5349,10 +6304,10 @@ This module provides queries for enums.
   - [~selectEnumById(db, id)](#module*DB API* zcl database access..selectEnumById) ⇒
   - [~selectEnumByName(db, name, packageIds)](#module*DB API* zcl database access..selectEnumByName) ⇒
   - [~selectEnumByNameAndClusterId(db, name, clusterId, packageIds)](#module*DB API* zcl database access..selectEnumByNameAndClusterId) ⇒
-  - [~selectSessionClusterByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionClusterByCode) ⇒
+  - [~selectSessionClusterByCode(db, sessionId, code, mfgCode)](#module*DB API* zcl database access..selectSessionClusterByCode) ⇒
   - [~selectAllSessionClusters(db, sessionId)](#module*DB API* zcl database access..selectAllSessionClusters) ⇒
-  - [~selectSessionAttributeByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionAttributeByCode) ⇒
-  - [~selectSessionCommandByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionCommandByCode) ⇒
+  - [~selectSessionAttributeByCode(db, sessionId, clusterCode, side, attributeCode, mfgCode)](#module*DB API* zcl database access..selectSessionAttributeByCode) ⇒
+  - [~selectSessionCommandByCode(db, sessionId, clusterCode, commandCode, source)](#module*DB API* zcl database access..selectSessionCommandByCode) ⇒
   - [~selectStructByNameAndClusterId(db, name, clusterId, packageIds)](#module*DB API* zcl database access..selectStructByNameAndClusterId) ⇒
   - [~selectStructsWithClusterAssociation(db, packageIds, groupByStructName)](#module*DB API* zcl database access..selectStructsWithClusterAssociation) ⇒
   - [~selectClusterBitmaps(db, packageId, clusterId)](#module*DB API* zcl database access..selectClusterBitmaps) ⇒
@@ -5360,10 +6315,10 @@ This module provides queries for enums.
   - [~selectAllStructsWithItemCount(db, packageIds)](#module*DB API* zcl database access..selectAllStructsWithItemCount) ⇒
   - [~selectStructClusters(db, structId)](#module*DB API* zcl database access..selectStructClusters) ⇒
   - [~selectEnumClusters(db, enumId)](#module*DB API* zcl database access..selectEnumClusters) ⇒
-  - [~selectBitmapClusters(db, enumId)](#module*DB API* zcl database access..selectBitmapClusters) ⇒
+  - [~selectBitmapClusters(db, bitmapId)](#module*DB API* zcl database access..selectBitmapClusters) ⇒
   - [~selectClusterStructsWithItems(db)](#module*DB API* zcl database access..selectClusterStructsWithItems) ⇒
   - [~selectAllStructsWithItems(db)](#module*DB API* zcl database access..selectAllStructsWithItems) ⇒
-  - [~selectAllStructItemsByStructName(db, name)](#module*DB API* zcl database access..selectAllStructItemsByStructName) ⇒
+  - [~selectAllStructItemsByStructName(db, name, packageIds, clusterName)](#module*DB API* zcl database access..selectAllStructItemsByStructName) ⇒
   - [~selectAllClusters(db)](#module*DB API* zcl database access..selectAllClusters) ⇒
   - [~selectClusterByCode(db, packageId, clusterCode, mfgCode)](#module*DB API* zcl database access..selectClusterByCode) ⇒
   - [~selectClusterById(db, clusterId, packageId)](#module*DB API* zcl database access..selectClusterById) ⇒
@@ -5488,6 +6443,21 @@ Retrieves atomic type by a given Id.
 | --------- | --------------- |
 | db        | <code>\*</code> |
 | packageId | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..isTypeSignedByNameAndPackage"></a>
+
+### DB API: zcl database access~isTypeSignedByNameAndPackage(db, name, sessionPackages) ⇒ <code>Promise.&lt;boolean&gt;</code>
+
+Checks if a type by a given name is signed.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: <code>Promise.&lt;boolean&gt;</code> - - A promise that resolves to true if the type is signed, false otherwise.
+
+| Param           | Type                | Description                     |
+| --------------- | ------------------- | ------------------------------- |
+| db              | <code>object</code> | The database connection object. |
+| name            | <code>string</code> | The name of the type.           |
+| sessionPackages | <code>Array</code>  | An array of session packages.   |
 
 <a name="module_DB API_ zcl database access..selectAllBitmaps"></a>
 
@@ -5622,7 +6592,7 @@ Select an enum matched by name and clusterId.
 
 <a name="module_DB API_ zcl database access..selectSessionClusterByCode"></a>
 
-### DB API: zcl database access~selectSessionClusterByCode(db, sessionId) ⇒
+### DB API: zcl database access~selectSessionClusterByCode(db, sessionId, code, mfgCode) ⇒
 
 Returns the cluster available to this session by the code.
 
@@ -5633,6 +6603,8 @@ Returns the cluster available to this session by the code.
 | --------- | --------------- |
 | db        | <code>\*</code> |
 | sessionId | <code>\*</code> |
+| code      | <code>\*</code> |
+| mfgCode   | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectAllSessionClusters"></a>
 
@@ -5650,31 +6622,38 @@ Returns all the clusters visible for a given session.
 
 <a name="module_DB API_ zcl database access..selectSessionAttributeByCode"></a>
 
-### DB API: zcl database access~selectSessionAttributeByCode(db, sessionId) ⇒
+### DB API: zcl database access~selectSessionAttributeByCode(db, sessionId, clusterCode, side, attributeCode, mfgCode) ⇒
 
 Returns the attribute available to this session by the code.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 **Returns**: the session attribute
 
-| Param     | Type            |
-| --------- | --------------- |
-| db        | <code>\*</code> |
-| sessionId | <code>\*</code> |
+| Param         | Type            |
+| ------------- | --------------- |
+| db            | <code>\*</code> |
+| sessionId     | <code>\*</code> |
+| clusterCode   | <code>\*</code> |
+| side          | <code>\*</code> |
+| attributeCode | <code>\*</code> |
+| mfgCode       | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectSessionCommandByCode"></a>
 
-### DB API: zcl database access~selectSessionCommandByCode(db, sessionId) ⇒
+### DB API: zcl database access~selectSessionCommandByCode(db, sessionId, clusterCode, commandCode, source) ⇒
 
 Returns the command available to this session by the code.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 **Returns**: the session attribute
 
-| Param     | Type            |
-| --------- | --------------- |
-| db        | <code>\*</code> |
-| sessionId | <code>\*</code> |
+| Param       | Type            |
+| ----------- | --------------- |
+| db          | <code>\*</code> |
+| sessionId   | <code>\*</code> |
+| clusterCode | <code>\*</code> |
+| commandCode | <code>\*</code> |
+| source      | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectStructByNameAndClusterId"></a>
 
@@ -5782,17 +6761,17 @@ Returns an array of clusters that enum belongs to.
 
 <a name="module_DB API_ zcl database access..selectBitmapClusters"></a>
 
-### DB API: zcl database access~selectBitmapClusters(db, enumId) ⇒
+### DB API: zcl database access~selectBitmapClusters(db, bitmapId) ⇒
 
-Returns an array of clusters that enum belongs to.
+Returns an array of clusters that bitmap belongs to.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 **Returns**: clusters
 
-| Param  | Type            |
-| ------ | --------------- |
-| db     | <code>\*</code> |
-| enumId | <code>\*</code> |
+| Param    | Type            |
+| -------- | --------------- |
+| db       | <code>\*</code> |
+| bitmapId | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectClusterStructsWithItems"></a>
 
@@ -5822,15 +6801,671 @@ Retrieves all the structs in the database with the items.
 
 <a name="module_DB API_ zcl database access..selectAllStructItemsByStructName"></a>
 
-### DB API: zcl database access~selectAllStructItemsByStructName(db, name) ⇒
+### DB API: zcl database access~selectAllStructItemsByStructName(db, name, packageIds, clusterName) ⇒
+
+Retrieves the struct items based on struct and cluster name.
+Note: By default clusterName is null.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
-**Returns**: the details of the struct items given the name of the struct
+**Returns**: the details of the struct items
 
-| Param |
-| ----- |
-| db    |
-| name  |
+| Param       | Default       |
+| ----------- | ------------- |
+| db          |               |
+| name        |               |
+| packageIds  |               |
+| clusterName | <code></code> |
+
+<a name="module_DB API_ zcl database access..selectAllClusters"></a>
+
+### DB API: zcl database access~selectAllClusters(db) ⇒
+
+Retrieves all the clusters in the database.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: Promise that resolves with the rows of clusters.
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectClusterByCode"></a>
+
+### DB API: zcl database access~selectClusterByCode(db, packageId, clusterCode, mfgCode) ⇒
+
+Finds cluster by code.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: cluster by code in a single package id.
+
+| Param       | Type            | Default       | Description                           |
+| ----------- | --------------- | ------------- | ------------------------------------- |
+| db          | <code>\*</code> |               |                                       |
+| packageId   | <code>\*</code> |               | Single packageId or an array of them. |
+| clusterCode | <code>\*</code> |               |                                       |
+| mfgCode     | <code>\*</code> | <code></code> |                                       |
+
+<a name="module_DB API_ zcl database access..selectClusterById"></a>
+
+### DB API: zcl database access~selectClusterById(db, clusterId, packageId) ⇒
+
+Returns a promise that resolves into a cluster.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: promise that resolves into a cluster object
+
+| Param     | Type            |
+| --------- | --------------- |
+| db        | <code>\*</code> |
+| clusterId | <code>\*</code> |
+| packageId | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectAttributesByClusterIdIncludingGlobal"></a>
+
+### DB API: zcl database access~selectAttributesByClusterIdIncludingGlobal(db, clusterId, packageIds) ⇒
+
+Returns attributes for a given cluster.
+IMPORTANT:
+packageIds are needed to properly deal with the global attributes.
+
+This method will NOT only return the attributes that link to
+a given cluster, but will ALSO return the attributes that have
+empty clusterRef (which are global attributes), and the check
+in that case will be made via packageId.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: promise of a list of attributes, including global attributes
+
+| Param      | Type            |
+| ---------- | --------------- |
+| db         | <code>\*</code> |
+| clusterId  | <code>\*</code> |
+| packageIds | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectAttributesByClusterCodeAndManufacturerCode"></a>
+
+### DB API: zcl database access~selectAttributesByClusterCodeAndManufacturerCode(db, packageId, clusterCode, manufacturerCode) ⇒
+
+Queries for attributes inside a cluster.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: promise that resolves into attributes.
+
+| Param            | Type            |
+| ---------------- | --------------- |
+| db               | <code>\*</code> |
+| packageId        | <code>\*</code> |
+| clusterCode      | <code>\*</code> |
+| manufacturerCode | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectAttributeByAttributeIdAndClusterRef"></a>
+
+### DB API: zcl database access~selectAttributeByAttributeIdAndClusterRef(db, attributeId, clusterRef)
+
+This async function should be used when you want to get attributes, while also resolving against any global data that may be overridden by a particular cluster.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)
+
+| Param       | Type            |
+| ----------- | --------------- |
+| db          | <code>\*</code> |
+| attributeId | <code>\*</code> |
+| clusterRef  | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectAllAttributesBySide"></a>
+
+### DB API: zcl database access~selectAllAttributesBySide(db, side, packageId) ⇒
+
+Query for attributes by side.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: promise that resolves into attributes.
+
+| Param     | Type            |
+| --------- | --------------- |
+| db        | <code>\*</code> |
+| side      | <code>\*</code> |
+| packageId | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access"></a>
+
+## DB API: zcl database access
+
+This module provides a place for creating generic queries which are common
+across different query files.
+
+- [DB API: zcl database access](#module*DB API* zcl database access)
+  - [~clear()](#module*DB API* zcl database access..clear)
+  - [~put(key, packageId, data)](#module*DB API* zcl database access..put) ⇒
+  - [~get(key, packageId)](#module*DB API* zcl database access..get) ⇒
+  - [~isCached(key, packageId)](#module*DB API* zcl database access..isCached) ⇒
+  - [~cacheQuery(key, packageId)](#module*DB API* zcl database access..cacheQuery) ⇒
+  - [~cacheStats()](#module*DB API* zcl database access..cacheStats)
+  - [~enable()](#module*DB API* zcl database access..enable)
+  - [~disable()](#module*DB API* zcl database access..disable)
+  - [~selectAtomicType(db, packageId, typeName)](#module*DB API* zcl database access..selectAtomicType)
+  - [~selectAtomicById(db, packageId)](#module*DB API* zcl database access..selectAtomicById)
+  - [~isTypeSignedByNameAndPackage(db, name, sessionPackages)](#module*DB API* zcl database access..isTypeSignedByNameAndPackage) ⇒ <code>Promise.&lt;boolean&gt;</code>
+  - [~selectAllBitmaps(db)](#module*DB API* zcl database access..selectAllBitmaps) ⇒
+  - [~selectBitmapByNameAndClusterId(db, name, clusterId, packageIds)](#module*DB API* zcl database access..selectBitmapByNameAndClusterId) ⇒
+  - [~selectAllEnums(db, packageId)](#module*DB API* zcl database access..selectAllEnums) ⇒
+  - [~selectClusterEnums(db, packageId, clusterId)](#module*DB API* zcl database access..selectClusterEnums) ⇒
+  - [~selectAllEnumItemsById(db, id)](#module*DB API* zcl database access..selectAllEnumItemsById) ⇒
+  - [~selectAllEnumItems(db, packageId)](#module*DB API* zcl database access..selectAllEnumItems) ⇒
+  - [~selectEnumById(db, id)](#module*DB API* zcl database access..selectEnumById) ⇒
+  - [~selectEnumByName(db, name, packageIds)](#module*DB API* zcl database access..selectEnumByName) ⇒
+  - [~selectEnumByNameAndClusterId(db, name, clusterId, packageIds)](#module*DB API* zcl database access..selectEnumByNameAndClusterId) ⇒
+  - [~selectSessionClusterByCode(db, sessionId, code, mfgCode)](#module*DB API* zcl database access..selectSessionClusterByCode) ⇒
+  - [~selectAllSessionClusters(db, sessionId)](#module*DB API* zcl database access..selectAllSessionClusters) ⇒
+  - [~selectSessionAttributeByCode(db, sessionId, clusterCode, side, attributeCode, mfgCode)](#module*DB API* zcl database access..selectSessionAttributeByCode) ⇒
+  - [~selectSessionCommandByCode(db, sessionId, clusterCode, commandCode, source)](#module*DB API* zcl database access..selectSessionCommandByCode) ⇒
+  - [~selectStructByNameAndClusterId(db, name, clusterId, packageIds)](#module*DB API* zcl database access..selectStructByNameAndClusterId) ⇒
+  - [~selectStructsWithClusterAssociation(db, packageIds, groupByStructName)](#module*DB API* zcl database access..selectStructsWithClusterAssociation) ⇒
+  - [~selectClusterBitmaps(db, packageId, clusterId)](#module*DB API* zcl database access..selectClusterBitmaps) ⇒
+  - [~selectAllDomains(db)](#module*DB API* zcl database access..selectAllDomains) ⇒
+  - [~selectAllStructsWithItemCount(db, packageIds)](#module*DB API* zcl database access..selectAllStructsWithItemCount) ⇒
+  - [~selectStructClusters(db, structId)](#module*DB API* zcl database access..selectStructClusters) ⇒
+  - [~selectEnumClusters(db, enumId)](#module*DB API* zcl database access..selectEnumClusters) ⇒
+  - [~selectBitmapClusters(db, bitmapId)](#module*DB API* zcl database access..selectBitmapClusters) ⇒
+  - [~selectClusterStructsWithItems(db)](#module*DB API* zcl database access..selectClusterStructsWithItems) ⇒
+  - [~selectAllStructsWithItems(db)](#module*DB API* zcl database access..selectAllStructsWithItems) ⇒
+  - [~selectAllStructItemsByStructName(db, name, packageIds, clusterName)](#module*DB API* zcl database access..selectAllStructItemsByStructName) ⇒
+  - [~selectAllClusters(db)](#module*DB API* zcl database access..selectAllClusters) ⇒
+  - [~selectClusterByCode(db, packageId, clusterCode, mfgCode)](#module*DB API* zcl database access..selectClusterByCode) ⇒
+  - [~selectClusterById(db, clusterId, packageId)](#module*DB API* zcl database access..selectClusterById) ⇒
+  - [~selectAttributesByClusterIdIncludingGlobal(db, clusterId, packageIds)](#module*DB API* zcl database access..selectAttributesByClusterIdIncludingGlobal) ⇒
+  - [~selectAttributesByClusterCodeAndManufacturerCode(db, packageId, clusterCode, manufacturerCode)](#module*DB API* zcl database access..selectAttributesByClusterCodeAndManufacturerCode) ⇒
+  - [~selectAttributeByAttributeIdAndClusterRef(db, attributeId, clusterRef)](#module*DB API* zcl database access..selectAttributeByAttributeIdAndClusterRef)
+  - [~selectAllAttributesBySide(db, side, packageId)](#module*DB API* zcl database access..selectAllAttributesBySide) ⇒
+
+<a name="module_DB API_ zcl database access..clear"></a>
+
+### DB API: zcl database access~clear()
+
+Clears the entire cache.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+<a name="module_DB API_ zcl database access..put"></a>
+
+### DB API: zcl database access~put(key, packageId, data) ⇒
+
+Puts a data object into the cache under a given key/packageId
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: Returns true on success.
+
+| Param     | Type            |
+| --------- | --------------- |
+| key       | <code>\*</code> |
+| packageId | <code>\*</code> |
+| data      | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..get"></a>
+
+### DB API: zcl database access~get(key, packageId) ⇒
+
+Returns a data object under a given key/packageId.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: cached object or undefined if none is present or expired.
+
+| Param     | Type            |
+| --------- | --------------- |
+| key       | <code>\*</code> |
+| packageId | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..isCached"></a>
+
+### DB API: zcl database access~isCached(key, packageId) ⇒
+
+Returns true if a given key/packageId cache exists.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: true or false, depending on whether the cache is present.
+
+| Param     | Type            |
+| --------- | --------------- |
+| key       | <code>\*</code> |
+| packageId | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..cacheQuery"></a>
+
+### DB API: zcl database access~cacheQuery(key, packageId) ⇒
+
+Cache input / output of provided queryFunction
+The queryFunction is assumed to have the following signature:
+
+async function queryFunction(db, ...) {...}
+
+The DB handle is ignored and the remaining arguments are used as the cache key.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: true or false, depending on whether the cache is present.
+
+| Param     | Type            |
+| --------- | --------------- |
+| key       | <code>\*</code> |
+| packageId | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..cacheStats"></a>
+
+### DB API: zcl database access~cacheStats()
+
+Returns the cache statistics.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+<a name="module_DB API_ zcl database access..enable"></a>
+
+### DB API: zcl database access~enable()
+
+Enable the Database Query cache
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+<a name="module_DB API_ zcl database access..disable"></a>
+
+### DB API: zcl database access~disable()
+
+Disable the database cache
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+<a name="module_DB API_ zcl database access..selectAtomicType"></a>
+
+### DB API: zcl database access~selectAtomicType(db, packageId, typeName)
+
+Locates atomic type based on a type name. Query is not case sensitive.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)
+
+| Param     | Type            |
+| --------- | --------------- |
+| db        | <code>\*</code> |
+| packageId | <code>\*</code> |
+| typeName  | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectAtomicById"></a>
+
+### DB API: zcl database access~selectAtomicById(db, packageId)
+
+Retrieves atomic type by a given Id.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)
+
+| Param     | Type            |
+| --------- | --------------- |
+| db        | <code>\*</code> |
+| packageId | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..isTypeSignedByNameAndPackage"></a>
+
+### DB API: zcl database access~isTypeSignedByNameAndPackage(db, name, sessionPackages) ⇒ <code>Promise.&lt;boolean&gt;</code>
+
+Checks if a type by a given name is signed.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: <code>Promise.&lt;boolean&gt;</code> - - A promise that resolves to true if the type is signed, false otherwise.
+
+| Param           | Type                | Description                     |
+| --------------- | ------------------- | ------------------------------- |
+| db              | <code>object</code> | The database connection object. |
+| name            | <code>string</code> | The name of the type.           |
+| sessionPackages | <code>Array</code>  | An array of session packages.   |
+
+<a name="module_DB API_ zcl database access..selectAllBitmaps"></a>
+
+### DB API: zcl database access~selectAllBitmaps(db) ⇒
+
+Retrieves all the bitmaps in the database.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: Promise that resolves with the rows of bitmaps.
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectBitmapByNameAndClusterId"></a>
+
+### DB API: zcl database access~selectBitmapByNameAndClusterId(db, name, clusterId, packageIds) ⇒
+
+Select a bitmap matched by name and clusterId.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: bitmap information or undefined
+
+| Param      | Type            |
+| ---------- | --------------- |
+| db         | <code>\*</code> |
+| name       | <code>\*</code> |
+| clusterId  | <code>\*</code> |
+| packageIds | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectAllEnums"></a>
+
+### DB API: zcl database access~selectAllEnums(db, packageId) ⇒
+
+Retrieves all the enums in the database.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: Promise that resolves with the rows of enums.
+
+| Param     | Type            |
+| --------- | --------------- |
+| db        | <code>\*</code> |
+| packageId | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectClusterEnums"></a>
+
+### DB API: zcl database access~selectClusterEnums(db, packageId, clusterId) ⇒
+
+Retrieves all the enums with cluster references in the database.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: Promise that resolves with the rows of enums.
+
+| Param     | Type            |
+| --------- | --------------- |
+| db        | <code>\*</code> |
+| packageId | <code>\*</code> |
+| clusterId | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectAllEnumItemsById"></a>
+
+### DB API: zcl database access~selectAllEnumItemsById(db, id) ⇒
+
+Returns an enum by ID.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: enum
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+| id    | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectAllEnumItems"></a>
+
+### DB API: zcl database access~selectAllEnumItems(db, packageId) ⇒
+
+Select all enum items in a package.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: list of enum items
+
+| Param     | Type            |
+| --------- | --------------- |
+| db        | <code>\*</code> |
+| packageId | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectEnumById"></a>
+
+### DB API: zcl database access~selectEnumById(db, id) ⇒
+
+Select an enum matched by its primary key.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: an enum or underfined if not found
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+| id    | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectEnumByName"></a>
+
+### DB API: zcl database access~selectEnumByName(db, name, packageIds) ⇒
+
+Select an enum matched by name.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: enum or undefined
+
+| Param      | Type            |
+| ---------- | --------------- |
+| db         | <code>\*</code> |
+| name       | <code>\*</code> |
+| packageIds | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectEnumByNameAndClusterId"></a>
+
+### DB API: zcl database access~selectEnumByNameAndClusterId(db, name, clusterId, packageIds) ⇒
+
+Select an enum matched by name and clusterId.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: enum information or undefined
+
+| Param      | Type            |
+| ---------- | --------------- |
+| db         | <code>\*</code> |
+| name       | <code>\*</code> |
+| clusterId  | <code>\*</code> |
+| packageIds | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectSessionClusterByCode"></a>
+
+### DB API: zcl database access~selectSessionClusterByCode(db, sessionId, code, mfgCode) ⇒
+
+Returns the cluster available to this session by the code.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: all the cluster objects for a given session.
+
+| Param     | Type            |
+| --------- | --------------- |
+| db        | <code>\*</code> |
+| sessionId | <code>\*</code> |
+| code      | <code>\*</code> |
+| mfgCode   | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectAllSessionClusters"></a>
+
+### DB API: zcl database access~selectAllSessionClusters(db, sessionId) ⇒
+
+Returns all the clusters visible for a given session.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: all the cluster objects for a given session.
+
+| Param     | Type            |
+| --------- | --------------- |
+| db        | <code>\*</code> |
+| sessionId | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectSessionAttributeByCode"></a>
+
+### DB API: zcl database access~selectSessionAttributeByCode(db, sessionId, clusterCode, side, attributeCode, mfgCode) ⇒
+
+Returns the attribute available to this session by the code.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: the session attribute
+
+| Param         | Type            |
+| ------------- | --------------- |
+| db            | <code>\*</code> |
+| sessionId     | <code>\*</code> |
+| clusterCode   | <code>\*</code> |
+| side          | <code>\*</code> |
+| attributeCode | <code>\*</code> |
+| mfgCode       | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectSessionCommandByCode"></a>
+
+### DB API: zcl database access~selectSessionCommandByCode(db, sessionId, clusterCode, commandCode, source) ⇒
+
+Returns the command available to this session by the code.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: the session attribute
+
+| Param       | Type            |
+| ----------- | --------------- |
+| db          | <code>\*</code> |
+| sessionId   | <code>\*</code> |
+| clusterCode | <code>\*</code> |
+| commandCode | <code>\*</code> |
+| source      | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectStructByNameAndClusterId"></a>
+
+### DB API: zcl database access~selectStructByNameAndClusterId(db, name, clusterId, packageIds) ⇒
+
+Select a struct matched by name and clusterId
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: struct information or undefined
+
+| Param      | Type            |
+| ---------- | --------------- |
+| db         | <code>\*</code> |
+| name       | <code>\*</code> |
+| clusterId  | <code>\*</code> |
+| packageIds | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectStructsWithClusterAssociation"></a>
+
+### DB API: zcl database access~selectStructsWithClusterAssociation(db, packageIds, groupByStructName) ⇒
+
+Get all structs which have a cluster associated with them. If a struct is
+present in more than one cluster then it can be grouped by struct name to
+avoid additional rows.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: structs which have an association with clusters
+
+| Param             | Type            |
+| ----------------- | --------------- |
+| db                | <code>\*</code> |
+| packageIds        | <code>\*</code> |
+| groupByStructName | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectClusterBitmaps"></a>
+
+### DB API: zcl database access~selectClusterBitmaps(db, packageId, clusterId) ⇒
+
+Retrieves all the bitmaps that are associated with a cluster.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: cluster-related bitmaps
+
+| Param     | Type            |
+| --------- | --------------- |
+| db        | <code>\*</code> |
+| packageId | <code>\*</code> |
+| clusterId | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectAllDomains"></a>
+
+### DB API: zcl database access~selectAllDomains(db) ⇒
+
+Retrieves all the domains in the database.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: Promise that resolves with the rows of domains.
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectAllStructsWithItemCount"></a>
+
+### DB API: zcl database access~selectAllStructsWithItemCount(db, packageIds) ⇒
+
+Retrieves all the structs in the database, including the count
+of items.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: Promise that resolves with the rows of structs.
+
+| Param      | Type            |
+| ---------- | --------------- |
+| db         | <code>\*</code> |
+| packageIds | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectStructClusters"></a>
+
+### DB API: zcl database access~selectStructClusters(db, structId) ⇒
+
+Returns an array of clusters that struct belongs to.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: clusters
+
+| Param    | Type            |
+| -------- | --------------- |
+| db       | <code>\*</code> |
+| structId | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectEnumClusters"></a>
+
+### DB API: zcl database access~selectEnumClusters(db, enumId) ⇒
+
+Returns an array of clusters that enum belongs to.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: clusters
+
+| Param  | Type            |
+| ------ | --------------- |
+| db     | <code>\*</code> |
+| enumId | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectBitmapClusters"></a>
+
+### DB API: zcl database access~selectBitmapClusters(db, bitmapId) ⇒
+
+Returns an array of clusters that bitmap belongs to.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: clusters
+
+| Param    | Type            |
+| -------- | --------------- |
+| db       | <code>\*</code> |
+| bitmapId | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectClusterStructsWithItems"></a>
+
+### DB API: zcl database access~selectClusterStructsWithItems(db) ⇒
+
+Retrieves all the cluster-related structs in the database with the items.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: Promise that resolves with the rows of structs, each one containing items field with rows of items.
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectAllStructsWithItems"></a>
+
+### DB API: zcl database access~selectAllStructsWithItems(db) ⇒
+
+Retrieves all the structs in the database with the items.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: Promise that resolves with the rows of structs, each one containing items field with rows of items.
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..selectAllStructItemsByStructName"></a>
+
+### DB API: zcl database access~selectAllStructItemsByStructName(db, name, packageIds, clusterName) ⇒
+
+Retrieves the struct items based on struct and cluster name.
+Note: By default clusterName is null.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: the details of the struct items
+
+| Param       | Default       |
+| ----------- | ------------- |
+| db          |               |
+| name        |               |
+| packageIds  |               |
+| clusterName | <code></code> |
 
 <a name="module_DB API_ zcl database access..selectAllClusters"></a>
 
@@ -5960,6 +7595,7 @@ This module provides queries for ZCL static queries.
   - [~disable()](#module*DB API* zcl database access..disable)
   - [~selectAtomicType(db, packageId, typeName)](#module*DB API* zcl database access..selectAtomicType)
   - [~selectAtomicById(db, packageId)](#module*DB API* zcl database access..selectAtomicById)
+  - [~isTypeSignedByNameAndPackage(db, name, sessionPackages)](#module*DB API* zcl database access..isTypeSignedByNameAndPackage) ⇒ <code>Promise.&lt;boolean&gt;</code>
   - [~selectAllBitmaps(db)](#module*DB API* zcl database access..selectAllBitmaps) ⇒
   - [~selectBitmapByNameAndClusterId(db, name, clusterId, packageIds)](#module*DB API* zcl database access..selectBitmapByNameAndClusterId) ⇒
   - [~selectAllEnums(db, packageId)](#module*DB API* zcl database access..selectAllEnums) ⇒
@@ -5969,10 +7605,10 @@ This module provides queries for ZCL static queries.
   - [~selectEnumById(db, id)](#module*DB API* zcl database access..selectEnumById) ⇒
   - [~selectEnumByName(db, name, packageIds)](#module*DB API* zcl database access..selectEnumByName) ⇒
   - [~selectEnumByNameAndClusterId(db, name, clusterId, packageIds)](#module*DB API* zcl database access..selectEnumByNameAndClusterId) ⇒
-  - [~selectSessionClusterByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionClusterByCode) ⇒
+  - [~selectSessionClusterByCode(db, sessionId, code, mfgCode)](#module*DB API* zcl database access..selectSessionClusterByCode) ⇒
   - [~selectAllSessionClusters(db, sessionId)](#module*DB API* zcl database access..selectAllSessionClusters) ⇒
-  - [~selectSessionAttributeByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionAttributeByCode) ⇒
-  - [~selectSessionCommandByCode(db, sessionId)](#module*DB API* zcl database access..selectSessionCommandByCode) ⇒
+  - [~selectSessionAttributeByCode(db, sessionId, clusterCode, side, attributeCode, mfgCode)](#module*DB API* zcl database access..selectSessionAttributeByCode) ⇒
+  - [~selectSessionCommandByCode(db, sessionId, clusterCode, commandCode, source)](#module*DB API* zcl database access..selectSessionCommandByCode) ⇒
   - [~selectStructByNameAndClusterId(db, name, clusterId, packageIds)](#module*DB API* zcl database access..selectStructByNameAndClusterId) ⇒
   - [~selectStructsWithClusterAssociation(db, packageIds, groupByStructName)](#module*DB API* zcl database access..selectStructsWithClusterAssociation) ⇒
   - [~selectClusterBitmaps(db, packageId, clusterId)](#module*DB API* zcl database access..selectClusterBitmaps) ⇒
@@ -5980,10 +7616,10 @@ This module provides queries for ZCL static queries.
   - [~selectAllStructsWithItemCount(db, packageIds)](#module*DB API* zcl database access..selectAllStructsWithItemCount) ⇒
   - [~selectStructClusters(db, structId)](#module*DB API* zcl database access..selectStructClusters) ⇒
   - [~selectEnumClusters(db, enumId)](#module*DB API* zcl database access..selectEnumClusters) ⇒
-  - [~selectBitmapClusters(db, enumId)](#module*DB API* zcl database access..selectBitmapClusters) ⇒
+  - [~selectBitmapClusters(db, bitmapId)](#module*DB API* zcl database access..selectBitmapClusters) ⇒
   - [~selectClusterStructsWithItems(db)](#module*DB API* zcl database access..selectClusterStructsWithItems) ⇒
   - [~selectAllStructsWithItems(db)](#module*DB API* zcl database access..selectAllStructsWithItems) ⇒
-  - [~selectAllStructItemsByStructName(db, name)](#module*DB API* zcl database access..selectAllStructItemsByStructName) ⇒
+  - [~selectAllStructItemsByStructName(db, name, packageIds, clusterName)](#module*DB API* zcl database access..selectAllStructItemsByStructName) ⇒
   - [~selectAllClusters(db)](#module*DB API* zcl database access..selectAllClusters) ⇒
   - [~selectClusterByCode(db, packageId, clusterCode, mfgCode)](#module*DB API* zcl database access..selectClusterByCode) ⇒
   - [~selectClusterById(db, clusterId, packageId)](#module*DB API* zcl database access..selectClusterById) ⇒
@@ -6108,6 +7744,21 @@ Retrieves atomic type by a given Id.
 | --------- | --------------- |
 | db        | <code>\*</code> |
 | packageId | <code>\*</code> |
+
+<a name="module_DB API_ zcl database access..isTypeSignedByNameAndPackage"></a>
+
+### DB API: zcl database access~isTypeSignedByNameAndPackage(db, name, sessionPackages) ⇒ <code>Promise.&lt;boolean&gt;</code>
+
+Checks if a type by a given name is signed.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
+**Returns**: <code>Promise.&lt;boolean&gt;</code> - - A promise that resolves to true if the type is signed, false otherwise.
+
+| Param           | Type                | Description                     |
+| --------------- | ------------------- | ------------------------------- |
+| db              | <code>object</code> | The database connection object. |
+| name            | <code>string</code> | The name of the type.           |
+| sessionPackages | <code>Array</code>  | An array of session packages.   |
 
 <a name="module_DB API_ zcl database access..selectAllBitmaps"></a>
 
@@ -6242,7 +7893,7 @@ Select an enum matched by name and clusterId.
 
 <a name="module_DB API_ zcl database access..selectSessionClusterByCode"></a>
 
-### DB API: zcl database access~selectSessionClusterByCode(db, sessionId) ⇒
+### DB API: zcl database access~selectSessionClusterByCode(db, sessionId, code, mfgCode) ⇒
 
 Returns the cluster available to this session by the code.
 
@@ -6253,6 +7904,8 @@ Returns the cluster available to this session by the code.
 | --------- | --------------- |
 | db        | <code>\*</code> |
 | sessionId | <code>\*</code> |
+| code      | <code>\*</code> |
+| mfgCode   | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectAllSessionClusters"></a>
 
@@ -6270,31 +7923,38 @@ Returns all the clusters visible for a given session.
 
 <a name="module_DB API_ zcl database access..selectSessionAttributeByCode"></a>
 
-### DB API: zcl database access~selectSessionAttributeByCode(db, sessionId) ⇒
+### DB API: zcl database access~selectSessionAttributeByCode(db, sessionId, clusterCode, side, attributeCode, mfgCode) ⇒
 
 Returns the attribute available to this session by the code.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 **Returns**: the session attribute
 
-| Param     | Type            |
-| --------- | --------------- |
-| db        | <code>\*</code> |
-| sessionId | <code>\*</code> |
+| Param         | Type            |
+| ------------- | --------------- |
+| db            | <code>\*</code> |
+| sessionId     | <code>\*</code> |
+| clusterCode   | <code>\*</code> |
+| side          | <code>\*</code> |
+| attributeCode | <code>\*</code> |
+| mfgCode       | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectSessionCommandByCode"></a>
 
-### DB API: zcl database access~selectSessionCommandByCode(db, sessionId) ⇒
+### DB API: zcl database access~selectSessionCommandByCode(db, sessionId, clusterCode, commandCode, source) ⇒
 
 Returns the command available to this session by the code.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 **Returns**: the session attribute
 
-| Param     | Type            |
-| --------- | --------------- |
-| db        | <code>\*</code> |
-| sessionId | <code>\*</code> |
+| Param       | Type            |
+| ----------- | --------------- |
+| db          | <code>\*</code> |
+| sessionId   | <code>\*</code> |
+| clusterCode | <code>\*</code> |
+| commandCode | <code>\*</code> |
+| source      | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectStructByNameAndClusterId"></a>
 
@@ -6402,17 +8062,17 @@ Returns an array of clusters that enum belongs to.
 
 <a name="module_DB API_ zcl database access..selectBitmapClusters"></a>
 
-### DB API: zcl database access~selectBitmapClusters(db, enumId) ⇒
+### DB API: zcl database access~selectBitmapClusters(db, bitmapId) ⇒
 
-Returns an array of clusters that enum belongs to.
+Returns an array of clusters that bitmap belongs to.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
 **Returns**: clusters
 
-| Param  | Type            |
-| ------ | --------------- |
-| db     | <code>\*</code> |
-| enumId | <code>\*</code> |
+| Param    | Type            |
+| -------- | --------------- |
+| db       | <code>\*</code> |
+| bitmapId | <code>\*</code> |
 
 <a name="module_DB API_ zcl database access..selectClusterStructsWithItems"></a>
 
@@ -6442,15 +8102,20 @@ Retrieves all the structs in the database with the items.
 
 <a name="module_DB API_ zcl database access..selectAllStructItemsByStructName"></a>
 
-### DB API: zcl database access~selectAllStructItemsByStructName(db, name) ⇒
+### DB API: zcl database access~selectAllStructItemsByStructName(db, name, packageIds, clusterName) ⇒
+
+Retrieves the struct items based on struct and cluster name.
+Note: By default clusterName is null.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module*DB API* zcl database access)  
-**Returns**: the details of the struct items given the name of the struct
+**Returns**: the details of the struct items
 
-| Param |
-| ----- |
-| db    |
-| name  |
+| Param       | Default       |
+| ----------- | ------------- |
+| db          |               |
+| name        |               |
+| packageIds  |               |
+| clusterName | <code></code> |
 
 <a name="module_DB API_ zcl database access..selectAllClusters"></a>
 
@@ -6573,10 +8238,10 @@ Query for attributes by side.
   - [~decodePackageExtensionEntity(entityType, entity)](#module*JS API* generator logic..decodePackageExtensionEntity) ⇒
   - [~loadZclExtensions(zclExt)](#module*JS API* generator logic..loadZclExtensions) ⇒
   - [~loadTemplates(db, genTemplatesJsonArray)](#module*JS API* generator logic..loadTemplates)
-  - [~loadSingleTemplate(db, genTemplatesJson)](#module*JS API* generator logic..loadSingleTemplate) ⇒
+  - [~loadGenTemplatesJsonFile(db, genTemplatesJson)](#module*JS API* generator logic..loadGenTemplatesJsonFile) ⇒
   - [~generateAllTemplates(genResult, genTemplateJsonPkg, generateOnly)](#module*JS API* generator logic..generateAllTemplates) ⇒
   - [~generateSingleTemplate(genResult, singleTemplatePkg)](#module*JS API* generator logic..generateSingleTemplate) ⇒
-  - [~generate(db, packageId)](#module*JS API* generator logic..generate) ⇒
+  - [~generate(db, sessionId, templatePackageId, templateGeneratorOptions, options)](#module*JS API* generator logic..generate) ⇒
   - [~writeFileWithBackup(fileName, content, doBackup)](#module*JS API* generator logic..writeFileWithBackup) ⇒
   - [~generateGenerationContent(genResult)](#module*JS API* generator logic..generateGenerationContent)
   - [~generateAndWriteFiles(db, sessionId, packageId, outputDirectory)](#module*JS API* generator logic..generateAndWriteFiles) ⇒
@@ -6584,9 +8249,10 @@ Query for attributes by side.
   - [~contentIndexer(content)](#module*JS API* generator logic..contentIndexer)
   - [~generateSingleFileForPreview(db, sessionId, fileName)](#module*JS API* generator logic..generateSingleFileForPreview) ⇒
   - [~produceCompiledTemplate(singleTemplatePkg)](#module*JS API* generator logic..produceCompiledTemplate) ⇒
+  - [~produceIterativeContent(hb, metaInfo, db, sessionId, singleTemplatePkg, genTemplateJsonPackage, options)](#module*JS API* generator logic..produceIterativeContent) ⇒
   - [~produceContent(hb, metaInfo, db, sessionId, singlePkg, overridePath:)](#module*JS API* generator logic..produceContent) ⇒
   - [~wrapOverridable(originalFn, overrideFn)](#module*JS API* generator logic..wrapOverridable) ⇒
-  - [~loadOverridable(genTemplatePackageId)](#module*JS API* generator logic..loadOverridable)
+  - [~loadOverridable(path)](#module*JS API* generator logic..loadOverridable)
   - [~loadPartial(path)](#module*JS API* generator logic..loadPartial)
   - [~loadHelper(helpers)](#module*JS API* generator logic..loadHelper)
   - [~allBuiltInHelpers()](#module*JS API* generator logic..allBuiltInHelpers) ⇒
@@ -6597,6 +8263,7 @@ Query for attributes by side.
   - [~collectBlocks(resultArray, options, context)](#module*JS API* generator logic..collectBlocks) ⇒
   - [~ensureZclPackageId(context)](#module*JS API* generator logic..ensureZclPackageId) ⇒
   - [~ensureZclPackageIds(context)](#module*JS API* generator logic..ensureZclPackageIds) ⇒
+  - [~ensureTemplatePackageCategory(context)](#module*JS API* generator logic..ensureTemplatePackageCategory) ⇒
   - [~ensureTemplatePackageId(context)](#module*JS API* generator logic..ensureTemplatePackageId) ⇒
   - [~ensureEndpointTypeIds(context)](#module*JS API* generator logic..ensureEndpointTypeIds) ⇒
   - [~ensureZclClusterSdkExtensions(context, templatePackageId)](#module*JS API* generator logic..ensureZclClusterSdkExtensions) ⇒
@@ -6677,9 +8344,9 @@ you just pass in one String.
 | db                    | <code>\*</code> |
 | genTemplatesJsonArray | <code>\*</code> |
 
-<a name="module_JS API_ generator logic..loadSingleTemplate"></a>
+<a name="module_JS API_ generator logic..loadGenTemplatesJsonFile"></a>
 
-### JS API: generator logic~loadSingleTemplate(db, genTemplatesJson) ⇒
+### JS API: generator logic~loadGenTemplatesJsonFile(db, genTemplatesJson) ⇒
 
 Main API async function to load templates from a gen-template.json file.
 
@@ -6722,17 +8389,20 @@ Function that generates a single package and adds it to the generation result.
 
 <a name="module_JS API_ generator logic..generate"></a>
 
-### JS API: generator logic~generate(db, packageId) ⇒
+### JS API: generator logic~generate(db, sessionId, templatePackageId, templateGeneratorOptions, options) ⇒
 
 Main API async function to generate stuff.
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
-**Returns**: Promise that resolves into a generation result.
+**Returns**: Promise that resolves into a generation result.Promise that resolves into a generation result.
 
-| Param     | Type            | Description                                                                           |
-| --------- | --------------- | ------------------------------------------------------------------------------------- |
-| db        | <code>\*</code> | Database                                                                              |
-| packageId | <code>\*</code> | packageId Template package id. It can be either single template or gen template json. |
+| Param                    | Type            | Description                                                                           |
+| ------------------------ | --------------- | ------------------------------------------------------------------------------------- |
+| db                       | <code>\*</code> | Database                                                                              |
+| sessionId                | <code>\*</code> |                                                                                       |
+| templatePackageId        | <code>\*</code> | packageId Template package id. It can be either single template or gen template json. |
+| templateGeneratorOptions | <code>\*</code> |                                                                                       |
+| options                  | <code>\*</code> |                                                                                       |
 
 <a name="module_JS API_ generator logic..writeFileWithBackup"></a>
 
@@ -6831,6 +8501,26 @@ Resolves into a precompiled template, either from previous precompile or freshly
 | ----------------- | --------------- |
 | singleTemplatePkg | <code>\*</code> |
 
+<a name="module_JS API_ generator logic..produceIterativeContent"></a>
+
+### JS API: generator logic~produceIterativeContent(hb, metaInfo, db, sessionId, singleTemplatePkg, genTemplateJsonPackage, options) ⇒
+
+This function is reached if the template is an "iterative one", meaning
+it has the iterator set to one of the valid options.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+**Returns**: Promise that resolves into an array of key/content/stats objects.
+
+| Param                  | Type            |
+| ---------------------- | --------------- |
+| hb                     | <code>\*</code> |
+| metaInfo               | <code>\*</code> |
+| db                     | <code>\*</code> |
+| sessionId              | <code>\*</code> |
+| singleTemplatePkg      | <code>\*</code> |
+| genTemplateJsonPackage | <code>\*</code> |
+| options                | <code>\*</code> |
+
 <a name="module_JS API_ generator logic..produceContent"></a>
 
 ### JS API: generator logic~produceContent(hb, metaInfo, db, sessionId, singlePkg, overridePath:) ⇒
@@ -6838,7 +8528,7 @@ Resolves into a precompiled template, either from previous precompile or freshly
 Given db connection, session and a single template package, produce the output.
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
-**Returns**: Promise that resolves with the 'utf8' string that contains the generated content.
+**Returns**: Promise that resolves into an array of key/content/stats objects.
 
 | Param         | Type            | Description                                                                             |
 | ------------- | --------------- | --------------------------------------------------------------------------------------- |
@@ -6866,15 +8556,15 @@ throws an exception, it calls the original function.
 
 <a name="module_JS API_ generator logic..loadOverridable"></a>
 
-### JS API: generator logic~loadOverridable(genTemplatePackageId)
+### JS API: generator logic~loadOverridable(path)
 
 This function is responsible to load the overridable function container.
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)
 
-| Param                | Type            |
-| -------------------- | --------------- |
-| genTemplatePackageId | <code>\*</code> |
+| Param | Type            | Description          |
+| ----- | --------------- | -------------------- |
+| path  | <code>\*</code> | of the override file |
 
 <a name="module_JS API_ generator logic..loadPartial"></a>
 
@@ -6993,6 +8683,19 @@ Returns the promise that resolves with all ZCL package id specific to current se
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
 **Returns**: promise that resolves with a list of package id.
+
+| Param   | Type            |
+| ------- | --------------- |
+| context | <code>\*</code> |
+
+<a name="module_JS API_ generator logic..ensureTemplatePackageCategory"></a>
+
+### JS API: generator logic~ensureTemplatePackageCategory(context) ⇒
+
+Returns a package category of the toplevel template package from context.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+**Returns**: proimise that resolves into a package category
 
 | Param   | Type            |
 | ------- | --------------- |
@@ -7967,6 +9670,7 @@ This module contains the API for templating. For more detailed instructions, rea
 
 - [Templating API: user-data specific helpers](#module*Templating API* user-data specific helpers)
   - [~user_endpoints(options)](#module*Templating API* user-data specific helpers..user_endpoints)
+  - [~user_device_types(options)](#module*Templating API* user-data specific helpers..user_device_types)
   - [~user_endpoint_types(options)](#module*Templating API* user-data specific helpers..user_endpoint_types)
   - [~user_clusters(options)](#module*Templating API* user-data specific helpers..user_clusters)
   - [~user_cluster_attributes(options)](#module*Templating API* user-data specific helpers..user_cluster_attributes) ⇒
@@ -8016,12 +9720,28 @@ This module contains the API for templating. For more detailed instructions, rea
   - [~generated_default_index(clusterName, attributeName, attributeSide, attributeValueType, attributeValue, prefixReturn, postFixReturn)](#module*Templating API* user-data specific helpers..generated_default_index) ⇒
   - [~generated_attributes_min_max_index(name, side, options)](#module*Templating API* user-data specific helpers..generated_attributes_min_max_index) ⇒
   - [~generated_attribute_min_max_index(clusterName, attributeName, attributeSide, options)](#module*Templating API* user-data specific helpers..generated_attribute_min_max_index) ⇒
+  - [~if_enabled_clusters(options)](#module*Templating API* user-data specific helpers..if_enabled_clusters) ⇒
+  - [~if_multi_protocol_attributes_enabled(options)](#module*Templating API* user-data specific helpers..if_multi_protocol_attributes_enabled) ⇒
+  - [~all_multi_protocol_attributes(options)](#module*Templating API* user-data specific helpers..all_multi_protocol_attributes) ⇒
 
 <a name="module_Templating API_ user-data specific helpers..user_endpoints"></a>
 
 ### Templating API: user-data specific helpers~user_endpoints(options)
 
 Creates block iterator over the endpoints.
+
+**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module*Templating API* user-data specific helpers)
+
+| Param   | Type            |
+| ------- | --------------- |
+| options | <code>\*</code> |
+
+<a name="module_Templating API_ user-data specific helpers..user_device_types"></a>
+
+### Templating API: user-data specific helpers~user_device_types(options)
+
+Creates device type iterator over an endpoint type id.
+This works inside user_endpoints or user_endpoint_types.
 
 **Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module*Templating API* user-data specific helpers)
 
@@ -8354,7 +10074,7 @@ and non-manufacturing specific cluster commands.
 ### Templating API: user-data specific helpers~enabled_attributes_for_cluster_and_side(name, side, options) ⇒
 
 Creates endpoint type cluster attribute iterator. This fetches all
-manufacturing-specific and standard attributes which have been enabled on
+manufacturer-specific and standard attributes which have been enabled on
 added endpoints based on the name and side of the cluster. When side
 is not mentioned then client and server attributes are returned.
 Available Options:
@@ -8762,6 +10482,49 @@ all_user_cluster_attributes_min_max_defaults
 | attributeSide |
 | options       |
 
+<a name="module_Templating API_ user-data specific helpers..if_enabled_clusters"></a>
+
+### Templating API: user-data specific helpers~if_enabled_clusters(options) ⇒
+
+If helper that checks if there are clusters enabled
+Available options:
+
+- side: side="client/server" can be used to check if there are client or
+  server side clusters are available
+
+**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module*Templating API* user-data specific helpers)  
+**Returns**: Promise of content.
+
+| Param   | Type            |
+| ------- | --------------- |
+| options | <code>\*</code> |
+
+<a name="module_Templating API_ user-data specific helpers..if_multi_protocol_attributes_enabled"></a>
+
+### Templating API: user-data specific helpers~if_multi_protocol_attributes_enabled(options) ⇒
+
+Check if multi-protocol is enabled for the application.
+
+**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module*Templating API* user-data specific helpers)  
+**Returns**: boolean based on existence of attribute-attribute associations.
+
+| Param   | Type            |
+| ------- | --------------- |
+| options | <code>\*</code> |
+
+<a name="module_Templating API_ user-data specific helpers..all_multi_protocol_attributes"></a>
+
+### Templating API: user-data specific helpers~all_multi_protocol_attributes(options) ⇒
+
+Retrieve all the attribute-attribute associations for the current session.
+
+**Kind**: inner method of [<code>Templating API: user-data specific helpers</code>](#module*Templating API* user-data specific helpers)  
+**Returns**: attribute-attribute mapping entries
+
+| Param   | Type            |
+| ------- | --------------- |
+| options | <code>\*</code> |
+
 <a name="module_Templating API_ toplevel utility helpers"></a>
 
 ## Templating API: toplevel utility helpers
@@ -9074,12 +10837,14 @@ This module contains the API for templating. For more detailed instructions, rea
   - [~first_unused_enum_value(options)](#module*Templating API* static zcl helpers..first_unused_enum_value) ⇒
   - [~zcl_struct_items(options)](#module*Templating API* static zcl helpers..zcl_struct_items) ⇒
   - [~zcl_struct_items_by_struct_name(name, options)](#module*Templating API* static zcl helpers..zcl_struct_items_by_struct_name) ⇒
+  - [~zcl_struct_items_by_struct_and_cluster_name(name, clusterName, options)](#module*Templating API* static zcl helpers..zcl_struct_items_by_struct_and_cluster_name) ⇒
   - [~zcl_device_types(options)](#module*Templating API* static zcl helpers..zcl_device_types) ⇒
   - [~zcl_device_type_clusters(options)](#module*Templating API* static zcl helpers..zcl_device_type_clusters) ⇒
   - [~zcl_device_type_cluster_commands(options)](#module*Templating API* static zcl helpers..zcl_device_type_cluster_commands) ⇒
   - [~zcl_device_type_cluster_attributes(options)](#module*Templating API* static zcl helpers..zcl_device_type_cluster_attributes) ⇒
   - [~zcl_clusters(options)](#module*Templating API* static zcl helpers..zcl_clusters) ⇒
   - [~zcl_commands(options)](#module*Templating API* static zcl helpers..zcl_commands) ⇒
+  - [~zcl_command_responses(options)](#module*Templating API* static zcl helpers..zcl_command_responses) ⇒
   - [~zcl_commands_with_cluster_info(options)](#module*Templating API* static zcl helpers..zcl_commands_with_cluster_info) ⇒
   - [~zcl_commands_with_arguments(options)](#module*Templating API* static zcl helpers..zcl_commands_with_arguments)
   - [~zcl_commands_source_client(options)](#module*Templating API* static zcl helpers..zcl_commands_source_client) ⇒
@@ -9254,6 +11019,25 @@ Block helper iterating over all struct items given the struct name.
 | name    |
 | options |
 
+<a name="module_Templating API_ static zcl helpers..zcl_struct_items_by_struct_and_cluster_name"></a>
+
+### Templating API: static zcl helpers~zcl_struct_items_by_struct_and_cluster_name(name, clusterName, options) ⇒
+
+Block helper iterating over all struct items given the struct name and
+cluster name. The items iterated will be those that correspond to that
+struct name being used within the given cluster. That means the struct name
+must be either a global struct (in which case the cluster name is just
+ignored), or a struct associated with the given cluster.
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module*Templating API* static zcl helpers)  
+**Returns**: Promise of content.
+
+| Param       |
+| ----------- |
+| name        |
+| clusterName |
+| options     |
+
 <a name="module_Templating API_ static zcl helpers..zcl_device_types"></a>
 
 ### Templating API: static zcl helpers~zcl_device_types(options) ⇒
@@ -9330,6 +11114,29 @@ when used inside a `zcl_cluster` block helper, it iterates only over the command
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module*Templating API* static zcl helpers)  
 **Returns**: Promise of content.
+
+| Param   | Type            |
+| ------- | --------------- |
+| options | <code>\*</code> |
+
+<a name="module_Templating API_ static zcl helpers..zcl_command_responses"></a>
+
+### Templating API: static zcl helpers~zcl_command_responses(options) ⇒
+
+Returns all commands which are command responses.
+For eg, If the xml has the following:
+<command source="client" code="0x00" name="newCmd" response="newCmdResponse">
+then newCmdResponse will be included in the list of commands returned here.
+
+There are two modes of this helper:
+
+- when used in a global context, it iterates over ALL command responses in
+  the database.
+- when used inside a `zcl_cluster` block helper, it iterates only over the
+  commands responses for that cluster.
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module*Templating API* static zcl helpers)  
+**Returns**: all command responses
 
 | Param   | Type            |
 | ------- | --------------- |
@@ -10328,6 +12135,8 @@ Content when comparison returns false
 
 Check if the given type is signed or not based on the type name and cluster
 id.
+Note: This helper needs to be used under a block helper which has a
+reference to clusterId.
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module*Templating API* static zcl helpers)  
 **Returns**: Promise of content
@@ -10343,9 +12152,12 @@ id.
 ### Templating API: static zcl helpers~as_zcl_data_type_size(type, clusterId, options) ⇒
 
 Fetches the size of the data type based on type name and cluster id given
-Note: size is zero for structs
-Available Options:
+Note:
 
+- Size is zero for structs
+- This helper needs to be used under a block helper which has a
+  reference to clusterId.
+  Available Options:
 - roundUpToPowerOfTwo: Rounds the size up to the nearest power of 2
 - sizeIn: By default size is returned in bytes but it can be returned in bits
   by mentioning sizeIn="bits"
@@ -10375,10 +12187,10 @@ This module contains the API for templating. For more detailed instructions, rea
   - [~decodePackageExtensionEntity(entityType, entity)](#module*JS API* generator logic..decodePackageExtensionEntity) ⇒
   - [~loadZclExtensions(zclExt)](#module*JS API* generator logic..loadZclExtensions) ⇒
   - [~loadTemplates(db, genTemplatesJsonArray)](#module*JS API* generator logic..loadTemplates)
-  - [~loadSingleTemplate(db, genTemplatesJson)](#module*JS API* generator logic..loadSingleTemplate) ⇒
+  - [~loadGenTemplatesJsonFile(db, genTemplatesJson)](#module*JS API* generator logic..loadGenTemplatesJsonFile) ⇒
   - [~generateAllTemplates(genResult, genTemplateJsonPkg, generateOnly)](#module*JS API* generator logic..generateAllTemplates) ⇒
   - [~generateSingleTemplate(genResult, singleTemplatePkg)](#module*JS API* generator logic..generateSingleTemplate) ⇒
-  - [~generate(db, packageId)](#module*JS API* generator logic..generate) ⇒
+  - [~generate(db, sessionId, templatePackageId, templateGeneratorOptions, options)](#module*JS API* generator logic..generate) ⇒
   - [~writeFileWithBackup(fileName, content, doBackup)](#module*JS API* generator logic..writeFileWithBackup) ⇒
   - [~generateGenerationContent(genResult)](#module*JS API* generator logic..generateGenerationContent)
   - [~generateAndWriteFiles(db, sessionId, packageId, outputDirectory)](#module*JS API* generator logic..generateAndWriteFiles) ⇒
@@ -10386,9 +12198,10 @@ This module contains the API for templating. For more detailed instructions, rea
   - [~contentIndexer(content)](#module*JS API* generator logic..contentIndexer)
   - [~generateSingleFileForPreview(db, sessionId, fileName)](#module*JS API* generator logic..generateSingleFileForPreview) ⇒
   - [~produceCompiledTemplate(singleTemplatePkg)](#module*JS API* generator logic..produceCompiledTemplate) ⇒
+  - [~produceIterativeContent(hb, metaInfo, db, sessionId, singleTemplatePkg, genTemplateJsonPackage, options)](#module*JS API* generator logic..produceIterativeContent) ⇒
   - [~produceContent(hb, metaInfo, db, sessionId, singlePkg, overridePath:)](#module*JS API* generator logic..produceContent) ⇒
   - [~wrapOverridable(originalFn, overrideFn)](#module*JS API* generator logic..wrapOverridable) ⇒
-  - [~loadOverridable(genTemplatePackageId)](#module*JS API* generator logic..loadOverridable)
+  - [~loadOverridable(path)](#module*JS API* generator logic..loadOverridable)
   - [~loadPartial(path)](#module*JS API* generator logic..loadPartial)
   - [~loadHelper(helpers)](#module*JS API* generator logic..loadHelper)
   - [~allBuiltInHelpers()](#module*JS API* generator logic..allBuiltInHelpers) ⇒
@@ -10399,6 +12212,7 @@ This module contains the API for templating. For more detailed instructions, rea
   - [~collectBlocks(resultArray, options, context)](#module*JS API* generator logic..collectBlocks) ⇒
   - [~ensureZclPackageId(context)](#module*JS API* generator logic..ensureZclPackageId) ⇒
   - [~ensureZclPackageIds(context)](#module*JS API* generator logic..ensureZclPackageIds) ⇒
+  - [~ensureTemplatePackageCategory(context)](#module*JS API* generator logic..ensureTemplatePackageCategory) ⇒
   - [~ensureTemplatePackageId(context)](#module*JS API* generator logic..ensureTemplatePackageId) ⇒
   - [~ensureEndpointTypeIds(context)](#module*JS API* generator logic..ensureEndpointTypeIds) ⇒
   - [~ensureZclClusterSdkExtensions(context, templatePackageId)](#module*JS API* generator logic..ensureZclClusterSdkExtensions) ⇒
@@ -10479,9 +12293,9 @@ you just pass in one String.
 | db                    | <code>\*</code> |
 | genTemplatesJsonArray | <code>\*</code> |
 
-<a name="module_JS API_ generator logic..loadSingleTemplate"></a>
+<a name="module_JS API_ generator logic..loadGenTemplatesJsonFile"></a>
 
-### JS API: generator logic~loadSingleTemplate(db, genTemplatesJson) ⇒
+### JS API: generator logic~loadGenTemplatesJsonFile(db, genTemplatesJson) ⇒
 
 Main API async function to load templates from a gen-template.json file.
 
@@ -10524,17 +12338,20 @@ Function that generates a single package and adds it to the generation result.
 
 <a name="module_JS API_ generator logic..generate"></a>
 
-### JS API: generator logic~generate(db, packageId) ⇒
+### JS API: generator logic~generate(db, sessionId, templatePackageId, templateGeneratorOptions, options) ⇒
 
 Main API async function to generate stuff.
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
-**Returns**: Promise that resolves into a generation result.
+**Returns**: Promise that resolves into a generation result.Promise that resolves into a generation result.
 
-| Param     | Type            | Description                                                                           |
-| --------- | --------------- | ------------------------------------------------------------------------------------- |
-| db        | <code>\*</code> | Database                                                                              |
-| packageId | <code>\*</code> | packageId Template package id. It can be either single template or gen template json. |
+| Param                    | Type            | Description                                                                           |
+| ------------------------ | --------------- | ------------------------------------------------------------------------------------- |
+| db                       | <code>\*</code> | Database                                                                              |
+| sessionId                | <code>\*</code> |                                                                                       |
+| templatePackageId        | <code>\*</code> | packageId Template package id. It can be either single template or gen template json. |
+| templateGeneratorOptions | <code>\*</code> |                                                                                       |
+| options                  | <code>\*</code> |                                                                                       |
 
 <a name="module_JS API_ generator logic..writeFileWithBackup"></a>
 
@@ -10633,6 +12450,26 @@ Resolves into a precompiled template, either from previous precompile or freshly
 | ----------------- | --------------- |
 | singleTemplatePkg | <code>\*</code> |
 
+<a name="module_JS API_ generator logic..produceIterativeContent"></a>
+
+### JS API: generator logic~produceIterativeContent(hb, metaInfo, db, sessionId, singleTemplatePkg, genTemplateJsonPackage, options) ⇒
+
+This function is reached if the template is an "iterative one", meaning
+it has the iterator set to one of the valid options.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+**Returns**: Promise that resolves into an array of key/content/stats objects.
+
+| Param                  | Type            |
+| ---------------------- | --------------- |
+| hb                     | <code>\*</code> |
+| metaInfo               | <code>\*</code> |
+| db                     | <code>\*</code> |
+| sessionId              | <code>\*</code> |
+| singleTemplatePkg      | <code>\*</code> |
+| genTemplateJsonPackage | <code>\*</code> |
+| options                | <code>\*</code> |
+
 <a name="module_JS API_ generator logic..produceContent"></a>
 
 ### JS API: generator logic~produceContent(hb, metaInfo, db, sessionId, singlePkg, overridePath:) ⇒
@@ -10640,7 +12477,7 @@ Resolves into a precompiled template, either from previous precompile or freshly
 Given db connection, session and a single template package, produce the output.
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
-**Returns**: Promise that resolves with the 'utf8' string that contains the generated content.
+**Returns**: Promise that resolves into an array of key/content/stats objects.
 
 | Param         | Type            | Description                                                                             |
 | ------------- | --------------- | --------------------------------------------------------------------------------------- |
@@ -10668,15 +12505,15 @@ throws an exception, it calls the original function.
 
 <a name="module_JS API_ generator logic..loadOverridable"></a>
 
-### JS API: generator logic~loadOverridable(genTemplatePackageId)
+### JS API: generator logic~loadOverridable(path)
 
 This function is responsible to load the overridable function container.
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)
 
-| Param                | Type            |
-| -------------------- | --------------- |
-| genTemplatePackageId | <code>\*</code> |
+| Param | Type            | Description          |
+| ----- | --------------- | -------------------- |
+| path  | <code>\*</code> | of the override file |
 
 <a name="module_JS API_ generator logic..loadPartial"></a>
 
@@ -10795,6 +12632,19 @@ Returns the promise that resolves with all ZCL package id specific to current se
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
 **Returns**: promise that resolves with a list of package id.
+
+| Param   | Type            |
+| ------- | --------------- |
+| context | <code>\*</code> |
+
+<a name="module_JS API_ generator logic..ensureTemplatePackageCategory"></a>
+
+### JS API: generator logic~ensureTemplatePackageCategory(context) ⇒
+
+Returns a package category of the toplevel template package from context.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+**Returns**: proimise that resolves into a package category
 
 | Param   | Type            |
 | ------- | --------------- |
@@ -10948,6 +12798,10 @@ Function wrapper that can be used when a helper is deprecated.
 | fn          | <code>\*</code> |                                                                         |
 | explanation | <code>\*</code> | can contain `text`, or `from`/`to`, or just be a string message itself. |
 
+<a name="module_JS API_ template iterators."></a>
+
+## JS API: template iterators.
+
 <a name="module_JS API_ generator logic"></a>
 
 ## JS API: generator logic
@@ -10958,10 +12812,10 @@ Function wrapper that can be used when a helper is deprecated.
   - [~decodePackageExtensionEntity(entityType, entity)](#module*JS API* generator logic..decodePackageExtensionEntity) ⇒
   - [~loadZclExtensions(zclExt)](#module*JS API* generator logic..loadZclExtensions) ⇒
   - [~loadTemplates(db, genTemplatesJsonArray)](#module*JS API* generator logic..loadTemplates)
-  - [~loadSingleTemplate(db, genTemplatesJson)](#module*JS API* generator logic..loadSingleTemplate) ⇒
+  - [~loadGenTemplatesJsonFile(db, genTemplatesJson)](#module*JS API* generator logic..loadGenTemplatesJsonFile) ⇒
   - [~generateAllTemplates(genResult, genTemplateJsonPkg, generateOnly)](#module*JS API* generator logic..generateAllTemplates) ⇒
   - [~generateSingleTemplate(genResult, singleTemplatePkg)](#module*JS API* generator logic..generateSingleTemplate) ⇒
-  - [~generate(db, packageId)](#module*JS API* generator logic..generate) ⇒
+  - [~generate(db, sessionId, templatePackageId, templateGeneratorOptions, options)](#module*JS API* generator logic..generate) ⇒
   - [~writeFileWithBackup(fileName, content, doBackup)](#module*JS API* generator logic..writeFileWithBackup) ⇒
   - [~generateGenerationContent(genResult)](#module*JS API* generator logic..generateGenerationContent)
   - [~generateAndWriteFiles(db, sessionId, packageId, outputDirectory)](#module*JS API* generator logic..generateAndWriteFiles) ⇒
@@ -10969,9 +12823,10 @@ Function wrapper that can be used when a helper is deprecated.
   - [~contentIndexer(content)](#module*JS API* generator logic..contentIndexer)
   - [~generateSingleFileForPreview(db, sessionId, fileName)](#module*JS API* generator logic..generateSingleFileForPreview) ⇒
   - [~produceCompiledTemplate(singleTemplatePkg)](#module*JS API* generator logic..produceCompiledTemplate) ⇒
+  - [~produceIterativeContent(hb, metaInfo, db, sessionId, singleTemplatePkg, genTemplateJsonPackage, options)](#module*JS API* generator logic..produceIterativeContent) ⇒
   - [~produceContent(hb, metaInfo, db, sessionId, singlePkg, overridePath:)](#module*JS API* generator logic..produceContent) ⇒
   - [~wrapOverridable(originalFn, overrideFn)](#module*JS API* generator logic..wrapOverridable) ⇒
-  - [~loadOverridable(genTemplatePackageId)](#module*JS API* generator logic..loadOverridable)
+  - [~loadOverridable(path)](#module*JS API* generator logic..loadOverridable)
   - [~loadPartial(path)](#module*JS API* generator logic..loadPartial)
   - [~loadHelper(helpers)](#module*JS API* generator logic..loadHelper)
   - [~allBuiltInHelpers()](#module*JS API* generator logic..allBuiltInHelpers) ⇒
@@ -10982,6 +12837,7 @@ Function wrapper that can be used when a helper is deprecated.
   - [~collectBlocks(resultArray, options, context)](#module*JS API* generator logic..collectBlocks) ⇒
   - [~ensureZclPackageId(context)](#module*JS API* generator logic..ensureZclPackageId) ⇒
   - [~ensureZclPackageIds(context)](#module*JS API* generator logic..ensureZclPackageIds) ⇒
+  - [~ensureTemplatePackageCategory(context)](#module*JS API* generator logic..ensureTemplatePackageCategory) ⇒
   - [~ensureTemplatePackageId(context)](#module*JS API* generator logic..ensureTemplatePackageId) ⇒
   - [~ensureEndpointTypeIds(context)](#module*JS API* generator logic..ensureEndpointTypeIds) ⇒
   - [~ensureZclClusterSdkExtensions(context, templatePackageId)](#module*JS API* generator logic..ensureZclClusterSdkExtensions) ⇒
@@ -11062,9 +12918,9 @@ you just pass in one String.
 | db                    | <code>\*</code> |
 | genTemplatesJsonArray | <code>\*</code> |
 
-<a name="module_JS API_ generator logic..loadSingleTemplate"></a>
+<a name="module_JS API_ generator logic..loadGenTemplatesJsonFile"></a>
 
-### JS API: generator logic~loadSingleTemplate(db, genTemplatesJson) ⇒
+### JS API: generator logic~loadGenTemplatesJsonFile(db, genTemplatesJson) ⇒
 
 Main API async function to load templates from a gen-template.json file.
 
@@ -11107,17 +12963,20 @@ Function that generates a single package and adds it to the generation result.
 
 <a name="module_JS API_ generator logic..generate"></a>
 
-### JS API: generator logic~generate(db, packageId) ⇒
+### JS API: generator logic~generate(db, sessionId, templatePackageId, templateGeneratorOptions, options) ⇒
 
 Main API async function to generate stuff.
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
-**Returns**: Promise that resolves into a generation result.
+**Returns**: Promise that resolves into a generation result.Promise that resolves into a generation result.
 
-| Param     | Type            | Description                                                                           |
-| --------- | --------------- | ------------------------------------------------------------------------------------- |
-| db        | <code>\*</code> | Database                                                                              |
-| packageId | <code>\*</code> | packageId Template package id. It can be either single template or gen template json. |
+| Param                    | Type            | Description                                                                           |
+| ------------------------ | --------------- | ------------------------------------------------------------------------------------- |
+| db                       | <code>\*</code> | Database                                                                              |
+| sessionId                | <code>\*</code> |                                                                                       |
+| templatePackageId        | <code>\*</code> | packageId Template package id. It can be either single template or gen template json. |
+| templateGeneratorOptions | <code>\*</code> |                                                                                       |
+| options                  | <code>\*</code> |                                                                                       |
 
 <a name="module_JS API_ generator logic..writeFileWithBackup"></a>
 
@@ -11216,6 +13075,26 @@ Resolves into a precompiled template, either from previous precompile or freshly
 | ----------------- | --------------- |
 | singleTemplatePkg | <code>\*</code> |
 
+<a name="module_JS API_ generator logic..produceIterativeContent"></a>
+
+### JS API: generator logic~produceIterativeContent(hb, metaInfo, db, sessionId, singleTemplatePkg, genTemplateJsonPackage, options) ⇒
+
+This function is reached if the template is an "iterative one", meaning
+it has the iterator set to one of the valid options.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+**Returns**: Promise that resolves into an array of key/content/stats objects.
+
+| Param                  | Type            |
+| ---------------------- | --------------- |
+| hb                     | <code>\*</code> |
+| metaInfo               | <code>\*</code> |
+| db                     | <code>\*</code> |
+| sessionId              | <code>\*</code> |
+| singleTemplatePkg      | <code>\*</code> |
+| genTemplateJsonPackage | <code>\*</code> |
+| options                | <code>\*</code> |
+
 <a name="module_JS API_ generator logic..produceContent"></a>
 
 ### JS API: generator logic~produceContent(hb, metaInfo, db, sessionId, singlePkg, overridePath:) ⇒
@@ -11223,7 +13102,7 @@ Resolves into a precompiled template, either from previous precompile or freshly
 Given db connection, session and a single template package, produce the output.
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
-**Returns**: Promise that resolves with the 'utf8' string that contains the generated content.
+**Returns**: Promise that resolves into an array of key/content/stats objects.
 
 | Param         | Type            | Description                                                                             |
 | ------------- | --------------- | --------------------------------------------------------------------------------------- |
@@ -11251,15 +13130,15 @@ throws an exception, it calls the original function.
 
 <a name="module_JS API_ generator logic..loadOverridable"></a>
 
-### JS API: generator logic~loadOverridable(genTemplatePackageId)
+### JS API: generator logic~loadOverridable(path)
 
 This function is responsible to load the overridable function container.
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)
 
-| Param                | Type            |
-| -------------------- | --------------- |
-| genTemplatePackageId | <code>\*</code> |
+| Param | Type            | Description          |
+| ----- | --------------- | -------------------- |
+| path  | <code>\*</code> | of the override file |
 
 <a name="module_JS API_ generator logic..loadPartial"></a>
 
@@ -11378,6 +13257,19 @@ Returns the promise that resolves with all ZCL package id specific to current se
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
 **Returns**: promise that resolves with a list of package id.
+
+| Param   | Type            |
+| ------- | --------------- |
+| context | <code>\*</code> |
+
+<a name="module_JS API_ generator logic..ensureTemplatePackageCategory"></a>
+
+### JS API: generator logic~ensureTemplatePackageCategory(context) ⇒
+
+Returns a package category of the toplevel template package from context.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module*JS API* generator logic)  
+**Returns**: proimise that resolves into a package category
 
 | Param   | Type            |
 | ------- | --------------- |
@@ -11540,9 +13432,17 @@ This module provides the API to access zcl specific information.
 - [REST API: user data](#module*REST API* user data)
   - [~getComponentIdsByCluster(db, sessionId, clusterId, side)](#module*REST API* user data..getComponentIdsByCluster) ⇒ <code>\*</code>
   - [~httpGetSessionKeyValues(db)](#module*REST API* user data..httpGetSessionKeyValues) ⇒
-  - [~httpGetNotifications(db)](#module*REST API* user data..httpGetNotifications) ⇒
+  - [~httpGetEndpointIds(db)](#module*REST API* user data..httpGetEndpointIds) ⇒
+  - [~httpGetSessionNotifications(db)](#module*REST API* user data..httpGetSessionNotifications) ⇒
+  - [~httpDeleteSessionNotification(db)](#module*REST API* user data..httpDeleteSessionNotification) ⇒
+  - [~httpGetPackageNotifications(db)](#module*REST API* user data..httpGetPackageNotifications) ⇒
+  - [~httpGetPackageNotificationsByPackageId(db)](#module*REST API* user data..httpGetPackageNotificationsByPackageId) ⇒
+  - [~httpDeletePackageNotification(db)](#module*REST API* user data..httpDeletePackageNotification) ⇒
+  - [~httpGetUnseenNotificationCount(db)](#module*REST API* user data..httpGetUnseenNotificationCount) ⇒
+  - [~httpGetUnseenNotificationAndUpdate(db)](#module*REST API* user data..httpGetUnseenNotificationAndUpdate) ⇒
   - [~httpPostSaveSessionKeyValue(db)](#module*REST API* user data..httpPostSaveSessionKeyValue) ⇒
   - [~httpPostCluster(db)](#module*REST API* user data..httpPostCluster) ⇒
+  - [~httpPostForcedExternal(db)](#module*REST API* user data..httpPostForcedExternal) ⇒ <code>function</code>
   - [~httpPostAttributeUpdate(db)](#module*REST API* user data..httpPostAttributeUpdate) ⇒
   - [~httpPostCommandUpdate(db)](#module*REST API* user data..httpPostCommandUpdate) ⇒
   - [~httpPostEventUpdate(db)](#module*REST API* user data..httpPostEventUpdate) ⇒
@@ -11564,7 +13464,7 @@ This module provides the API to access zcl specific information.
 Promise that return a list of component Ids required by a specific cluster
 
 **Kind**: inner method of [<code>REST API: user data</code>](#module*REST API* user data)  
-**Returns**: <code>\*</code> - - {componentIds, clusterId, clusterLabel, side}
+**Returns**: <code>\*</code> - array of componentIds
 
 | Param     | Type            |
 | --------- | --------------- |
@@ -11586,11 +13486,102 @@ HTTP GET: session key values
 | ----- | --------------- |
 | db    | <code>\*</code> |
 
-<a name="module_REST API_ user data..httpGetNotifications"></a>
+<a name="module_REST API_ user data..httpGetEndpointIds"></a>
 
-### REST API: user data~httpGetNotifications(db) ⇒
+### REST API: user data~httpGetEndpointIds(db) ⇒
+
+HTTP GET: endpoint ids of endpoints within a specified session
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module*REST API* user data)  
+**Returns**: callback for the express uri registration
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+
+<a name="module_REST API_ user data..httpGetSessionNotifications"></a>
+
+### REST API: user data~httpGetSessionNotifications(db) ⇒
 
 HTTP GET: session get notifications
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module*REST API* user data)  
+**Returns**: callback for the express uri registration
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+
+<a name="module_REST API_ user data..httpDeleteSessionNotification"></a>
+
+### REST API: user data~httpDeleteSessionNotification(db) ⇒
+
+HTTP DELETE: session delete notifications
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module*REST API* user data)  
+**Returns**: callback for the express uri registration
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+
+<a name="module_REST API_ user data..httpGetPackageNotifications"></a>
+
+### REST API: user data~httpGetPackageNotifications(db) ⇒
+
+HTTP GET: package get notifications
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module*REST API* user data)  
+**Returns**: callback for the express uri registration
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+
+<a name="module_REST API_ user data..httpGetPackageNotificationsByPackageId"></a>
+
+### REST API: user data~httpGetPackageNotificationsByPackageId(db) ⇒
+
+HTTP GET: package get notifications
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module*REST API* user data)  
+**Returns**: callback for the express uri registration
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+
+<a name="module_REST API_ user data..httpDeletePackageNotification"></a>
+
+### REST API: user data~httpDeletePackageNotification(db) ⇒
+
+HTTP DELETE: session delete notifications
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module*REST API* user data)  
+**Returns**: callback for the express uri registration
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+
+<a name="module_REST API_ user data..httpGetUnseenNotificationCount"></a>
+
+### REST API: user data~httpGetUnseenNotificationCount(db) ⇒
+
+HTTP GET: session get unseen session notification count
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module*REST API* user data)  
+**Returns**: callback for the express uri registration
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+
+<a name="module_REST API_ user data..httpGetUnseenNotificationAndUpdate"></a>
+
+### REST API: user data~httpGetUnseenNotificationAndUpdate(db) ⇒
+
+HTTP GET: session update all session notifications to be SEEN
 
 **Kind**: inner method of [<code>REST API: user data</code>](#module*REST API* user data)  
 **Returns**: callback for the express uri registration
@@ -11624,6 +13615,23 @@ HTTP POST: cluster
 | Param | Type            |
 | ----- | --------------- |
 | db    | <code>\*</code> |
+
+<a name="module_REST API_ user data..httpPostForcedExternal"></a>
+
+### REST API: user data~httpPostForcedExternal(db) ⇒ <code>function</code>
+
+Handles a POST request to retrieve forced external storage options.
+
+This function is designed to be used as a middleware in an Express.js route. It extracts the session ID from the request,
+queries the database for package information associated with that session, and then retrieves forced external storage
+options for the identified package. The results are sent back to the client as a JSON response.
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module*REST API* user data)  
+**Returns**: <code>function</code> - An asynchronous function that takes Express.js request and response objects.
+
+| Param | Type                | Description                     |
+| ----- | ------------------- | ------------------------------- |
+| db    | <code>Object</code> | The database connection object. |
 
 <a name="module_REST API_ user data..httpPostAttributeUpdate"></a>
 
@@ -12127,23 +14135,38 @@ Enable components by 'componentId' or corresponding components specified, via 'd
 This module provides the REST API to the session initialization
 
 - [REST API: initialization functions](#module*REST API* initialization functions)
-  - [~packagesAndSessions(db)](#module*REST API* initialization functions..packagesAndSessions) ⇒
+  - [~sessionAttempt(db)](#module*REST API* initialization functions..sessionAttempt) ⇒
+  - [~sessionCreate(db)](#module*REST API* initialization functions..sessionCreate) ⇒
   - [~initializeSession(db, options:)](#module*REST API* initialization functions..initializeSession) ⇒
   - [~loadPreviousSessions(db)](#module*REST API* initialization functions..loadPreviousSessions) ⇒
   - [~init(db)](#module*REST API* initialization functions..init) ⇒
 
-<a name="module_REST API_ initialization functions..packagesAndSessions"></a>
+<a name="module_REST API_ initialization functions..sessionAttempt"></a>
 
-### REST API: initialization functions~packagesAndSessions(db) ⇒
+### REST API: initialization functions~sessionAttempt(db) ⇒
 
 This function returns Properties, Templates and Dirty-Sessions
 
 **Kind**: inner method of [<code>REST API: initialization functions</code>](#module*REST API* initialization functions)  
-**Returns**: Properties, Templates and Dirty-Sessions.
+**Returns**: An async function that handles HTTP requests
 
-| Param | Type            |
-| ----- | --------------- |
-| db    | <code>\*</code> |
+| Param | Type            | Description                    |
+| ----- | --------------- | ------------------------------ |
+| db    | <code>\*</code> | The database connection object |
+
+<a name="module_REST API_ initialization functions..sessionCreate"></a>
+
+### REST API: initialization functions~sessionCreate(db) ⇒
+
+This function creates a new session.
+
+**Kind**: inner method of [<code>REST API: initialization functions</code>](#module*REST API* initialization functions)  
+**Returns**: An async function that handles HTTP requests. The function extracts session parameters from the request,
+ensures the user and session exist in the database, and populates the session options with the provided packages.
+
+| Param | Type            | Description                    |
+| ----- | --------------- | ------------------------------ |
+| db    | <code>\*</code> | The database connection object |
 
 <a name="module_REST API_ initialization functions..initializeSession"></a>
 
@@ -12229,9 +14252,17 @@ This module provides the REST API to the user specific data.
 - [REST API: user data](#module*REST API* user data)
   - [~getComponentIdsByCluster(db, sessionId, clusterId, side)](#module*REST API* user data..getComponentIdsByCluster) ⇒ <code>\*</code>
   - [~httpGetSessionKeyValues(db)](#module*REST API* user data..httpGetSessionKeyValues) ⇒
-  - [~httpGetNotifications(db)](#module*REST API* user data..httpGetNotifications) ⇒
+  - [~httpGetEndpointIds(db)](#module*REST API* user data..httpGetEndpointIds) ⇒
+  - [~httpGetSessionNotifications(db)](#module*REST API* user data..httpGetSessionNotifications) ⇒
+  - [~httpDeleteSessionNotification(db)](#module*REST API* user data..httpDeleteSessionNotification) ⇒
+  - [~httpGetPackageNotifications(db)](#module*REST API* user data..httpGetPackageNotifications) ⇒
+  - [~httpGetPackageNotificationsByPackageId(db)](#module*REST API* user data..httpGetPackageNotificationsByPackageId) ⇒
+  - [~httpDeletePackageNotification(db)](#module*REST API* user data..httpDeletePackageNotification) ⇒
+  - [~httpGetUnseenNotificationCount(db)](#module*REST API* user data..httpGetUnseenNotificationCount) ⇒
+  - [~httpGetUnseenNotificationAndUpdate(db)](#module*REST API* user data..httpGetUnseenNotificationAndUpdate) ⇒
   - [~httpPostSaveSessionKeyValue(db)](#module*REST API* user data..httpPostSaveSessionKeyValue) ⇒
   - [~httpPostCluster(db)](#module*REST API* user data..httpPostCluster) ⇒
+  - [~httpPostForcedExternal(db)](#module*REST API* user data..httpPostForcedExternal) ⇒ <code>function</code>
   - [~httpPostAttributeUpdate(db)](#module*REST API* user data..httpPostAttributeUpdate) ⇒
   - [~httpPostCommandUpdate(db)](#module*REST API* user data..httpPostCommandUpdate) ⇒
   - [~httpPostEventUpdate(db)](#module*REST API* user data..httpPostEventUpdate) ⇒
@@ -12253,7 +14284,7 @@ This module provides the REST API to the user specific data.
 Promise that return a list of component Ids required by a specific cluster
 
 **Kind**: inner method of [<code>REST API: user data</code>](#module*REST API* user data)  
-**Returns**: <code>\*</code> - - {componentIds, clusterId, clusterLabel, side}
+**Returns**: <code>\*</code> - array of componentIds
 
 | Param     | Type            |
 | --------- | --------------- |
@@ -12275,11 +14306,102 @@ HTTP GET: session key values
 | ----- | --------------- |
 | db    | <code>\*</code> |
 
-<a name="module_REST API_ user data..httpGetNotifications"></a>
+<a name="module_REST API_ user data..httpGetEndpointIds"></a>
 
-### REST API: user data~httpGetNotifications(db) ⇒
+### REST API: user data~httpGetEndpointIds(db) ⇒
+
+HTTP GET: endpoint ids of endpoints within a specified session
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module*REST API* user data)  
+**Returns**: callback for the express uri registration
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+
+<a name="module_REST API_ user data..httpGetSessionNotifications"></a>
+
+### REST API: user data~httpGetSessionNotifications(db) ⇒
 
 HTTP GET: session get notifications
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module*REST API* user data)  
+**Returns**: callback for the express uri registration
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+
+<a name="module_REST API_ user data..httpDeleteSessionNotification"></a>
+
+### REST API: user data~httpDeleteSessionNotification(db) ⇒
+
+HTTP DELETE: session delete notifications
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module*REST API* user data)  
+**Returns**: callback for the express uri registration
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+
+<a name="module_REST API_ user data..httpGetPackageNotifications"></a>
+
+### REST API: user data~httpGetPackageNotifications(db) ⇒
+
+HTTP GET: package get notifications
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module*REST API* user data)  
+**Returns**: callback for the express uri registration
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+
+<a name="module_REST API_ user data..httpGetPackageNotificationsByPackageId"></a>
+
+### REST API: user data~httpGetPackageNotificationsByPackageId(db) ⇒
+
+HTTP GET: package get notifications
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module*REST API* user data)  
+**Returns**: callback for the express uri registration
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+
+<a name="module_REST API_ user data..httpDeletePackageNotification"></a>
+
+### REST API: user data~httpDeletePackageNotification(db) ⇒
+
+HTTP DELETE: session delete notifications
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module*REST API* user data)  
+**Returns**: callback for the express uri registration
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+
+<a name="module_REST API_ user data..httpGetUnseenNotificationCount"></a>
+
+### REST API: user data~httpGetUnseenNotificationCount(db) ⇒
+
+HTTP GET: session get unseen session notification count
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module*REST API* user data)  
+**Returns**: callback for the express uri registration
+
+| Param | Type            |
+| ----- | --------------- |
+| db    | <code>\*</code> |
+
+<a name="module_REST API_ user data..httpGetUnseenNotificationAndUpdate"></a>
+
+### REST API: user data~httpGetUnseenNotificationAndUpdate(db) ⇒
+
+HTTP GET: session update all session notifications to be SEEN
 
 **Kind**: inner method of [<code>REST API: user data</code>](#module*REST API* user data)  
 **Returns**: callback for the express uri registration
@@ -12313,6 +14435,23 @@ HTTP POST: cluster
 | Param | Type            |
 | ----- | --------------- |
 | db    | <code>\*</code> |
+
+<a name="module_REST API_ user data..httpPostForcedExternal"></a>
+
+### REST API: user data~httpPostForcedExternal(db) ⇒ <code>function</code>
+
+Handles a POST request to retrieve forced external storage options.
+
+This function is designed to be used as a middleware in an Express.js route. It extracts the session ID from the request,
+queries the database for package information associated with that session, and then retrieves forced external storage
+options for the identified package. The results are sent back to the client as a JSON response.
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module*REST API* user data)  
+**Returns**: <code>function</code> - An asynchronous function that takes Express.js request and response objects.
+
+| Param | Type                | Description                     |
+| ----- | ------------------- | ------------------------------- |
+| db    | <code>Object</code> | The database connection object. |
 
 <a name="module_REST API_ user data..httpPostAttributeUpdate"></a>
 
@@ -12795,12 +14934,26 @@ This mechanism takes care of:
 
 * [JS API: async reporting](#module*JS API* async reporting)
   - [~sendDirtyFlagStatus(db, session)](#module*JS API* async reporting..sendDirtyFlagStatus)
+  - [~sendNotificationUpdate(db, session)](#module*JS API* async reporting..sendNotificationUpdate)
   - [~startAsyncReporting(db, intervalMs)](#module*JS API* async reporting..startAsyncReporting)
   - [~stopAsyncReporting()](#module*JS API* async reporting..stopAsyncReporting)
 
 <a name="module_JS API_ async reporting..sendDirtyFlagStatus"></a>
 
 ### JS API: async reporting~sendDirtyFlagStatus(db, session)
+
+Sends a dirty flag status for a single session.
+
+**Kind**: inner method of [<code>JS API: async reporting</code>](#module*JS API* async reporting)
+
+| Param   | Type            |
+| ------- | --------------- |
+| db      | <code>\*</code> |
+| session | <code>\*</code> |
+
+<a name="module_JS API_ async reporting..sendNotificationUpdate"></a>
+
+### JS API: async reporting~sendNotificationUpdate(db, session)
 
 Sends a dirty flag status for a single session.
 
@@ -12857,6 +15010,96 @@ logger is used for printouts.
 | sdkPath | <code>\*</code> |
 | logger  | <code>\*</code> |
 
+<a name="module_JS API_ string utilities"></a>
+
+## JS API: string utilities
+
+- [JS API: string utilities](#module*JS API* string utilities)
+  - [~toCamelCase(str)](#module*JS API* string utilities..toCamelCase) ⇒
+  - [~toSnakeCaseAllCaps(label)](#module*JS API* string utilities..toSnakeCaseAllCaps)
+  - [~toCleanSymbol(label)](#module*JS API* string utilities..toCleanSymbol)
+  - [~toCleanSymbolAsKebabCase(label)](#module*JS API* string utilities..toCleanSymbolAsKebabCase)
+  - [~toCleanMacro(label)](#module*JS API* string utilities..toCleanMacro) ⇒
+  - [~isDigit(ch)](#module*JS API* string utilities..isDigit)
+
+<a name="module_JS API_ string utilities..toCamelCase"></a>
+
+### JS API: string utilities~toCamelCase(str) ⇒
+
+Given a string convert it into a camelCased string
+
+**Kind**: inner method of [<code>JS API: string utilities</code>](#module*JS API* string utilities)  
+**Returns**: a spaced out string in lowercase  
+**Parem**: <code>\*</code> firstLower if True the it starts with lowecase.
+
+| Param | Type            |
+| ----- | --------------- |
+| str   | <code>\*</code> |
+
+<a name="module_JS API_ string utilities..toSnakeCaseAllCaps"></a>
+
+### JS API: string utilities~toSnakeCaseAllCaps(label)
+
+Takes a label, and delimits is on camelcasing.
+For example:
+VerySimpleLabel will turn into VERY_SIMPLE_LABEL
+
+**Kind**: inner method of [<code>JS API: string utilities</code>](#module*JS API* string utilities)
+
+| Param | Type            |
+| ----- | --------------- |
+| label | <code>\*</code> |
+
+<a name="module_JS API_ string utilities..toCleanSymbol"></a>
+
+### JS API: string utilities~toCleanSymbol(label)
+
+returns a string after converting ':' and '-' into '\_'
+
+**Kind**: inner method of [<code>JS API: string utilities</code>](#module*JS API* string utilities)
+
+| Param | Type            |
+| ----- | --------------- |
+| label | <code>\*</code> |
+
+<a name="module_JS API_ string utilities..toCleanSymbolAsKebabCase"></a>
+
+### JS API: string utilities~toCleanSymbolAsKebabCase(label)
+
+returns a string after converting ':' and '\_' into '-'
+
+**Kind**: inner method of [<code>JS API: string utilities</code>](#module*JS API* string utilities)
+
+| Param | Type            |
+| ----- | --------------- |
+| label | <code>\*</code> |
+
+<a name="module_JS API_ string utilities..toCleanMacro"></a>
+
+### JS API: string utilities~toCleanMacro(label) ⇒
+
+Formats label as a C macro. This method performs a very simply substition
+of illegal characters, such as ' ', ':' and such into a '\_' character.
+
+**Kind**: inner method of [<code>JS API: string utilities</code>](#module*JS API* string utilities)  
+**Returns**: Label formatted as C macro.
+
+| Param | Type            |
+| ----- | --------------- |
+| label | <code>\*</code> |
+
+<a name="module_JS API_ string utilities..isDigit"></a>
+
+### JS API: string utilities~isDigit(ch)
+
+Returns true if given character is a digit.
+
+**Kind**: inner method of [<code>JS API: string utilities</code>](#module*JS API* string utilities)
+
+| Param | Type            |
+| ----- | --------------- |
+| ch    | <code>\*</code> |
+
 <a name="module_JS API_ type related utilities"></a>
 
 ## JS API: type related utilities
@@ -12870,9 +15113,10 @@ logger is used for printouts.
   - [~convertToCliType(str)](#module*JS API* type related utilities..convertToCliType) ⇒
   - [~isString(type)](#module*JS API* type related utilities..isString) ⇒
   - [~isFloat(type)](#module*JS API* type related utilities..isFloat) ⇒
-  - [~isSignedInteger(type)](#module*JS API* type related utilities..isSignedInteger) ⇒
+  - [~isSignedInteger(db, sessionId, type)](#module*JS API* type related utilities..isSignedInteger) ⇒ <code>Promise.&lt;boolean&gt;</code>
   - [~isOneBytePrefixedString(type)](#module*JS API* type related utilities..isOneBytePrefixedString) ⇒
   - [~isTwoBytePrefixedString(type)](#module*JS API* type related utilities..isTwoBytePrefixedString) ⇒
+  - [~nullStringDefaultValue(type)](#module*JS API* type related utilities..nullStringDefaultValue) ⇒ <code>string</code>
   - [~getSignAndSizeOfZclType(type, context, options)](#module*JS API* type related utilities..getSignAndSizeOfZclType) ⇒
 
 <a name="module_JS API_ type related utilities..typeSize"></a>
@@ -12991,16 +15235,18 @@ Returns true if a given ZCL type is a float type.
 
 <a name="module_JS API_ type related utilities..isSignedInteger"></a>
 
-### JS API: type related utilities~isSignedInteger(type) ⇒
+### JS API: type related utilities~isSignedInteger(db, sessionId, type) ⇒ <code>Promise.&lt;boolean&gt;</code>
 
-Returns true if a given ZCL type is a signed integer.
+Checks if a given ZCL type is a signed integer.
 
 **Kind**: inner method of [<code>JS API: type related utilities</code>](#module*JS API* type related utilities)  
-**Returns**: true if type is signed integer, false otherwise
+**Returns**: <code>Promise.&lt;boolean&gt;</code> - - A promise that resolves to true if the type is a signed integer, false otherwise.
 
-| Param | Type            |
-| ----- | --------------- |
-| type  | <code>\*</code> |
+| Param     | Type                | Description                     |
+| --------- | ------------------- | ------------------------------- |
+| db        | <code>object</code> | The database connection object. |
+| sessionId | <code>string</code> | The session ID.                 |
+| type      | <code>string</code> | The name of the ZCL type.       |
 
 <a name="module_JS API_ type related utilities..isOneBytePrefixedString"></a>
 
@@ -13027,6 +15273,25 @@ Checks if type is a two-byte lengh string.
 | Param | Type            |
 | ----- | --------------- |
 | type  | <code>\*</code> |
+
+<a name="module_JS API_ type related utilities..nullStringDefaultValue"></a>
+
+### JS API: type related utilities~nullStringDefaultValue(type) ⇒ <code>string</code>
+
+Generates a default value for a null string based on its type.
+This function is designed to abstract away the specific null representation
+of strings from the longTypeDefaultValue function, ensuring that the latter
+does not need to be aware of these details.
+
+**Kind**: inner method of [<code>JS API: type related utilities</code>](#module*JS API* type related utilities)  
+**Returns**: <code>string</code> - The default value for a null string of the specified type.  
+**Throws**:
+
+- <code>Error</code> Throws an error if the string type is unknown.
+
+| Param | Type                | Description                                                       |
+| ----- | ------------------- | ----------------------------------------------------------------- |
+| type  | <code>string</code> | The type of the string, which determines its null representation. |
 
 <a name="module_JS API_ type related utilities..getSignAndSizeOfZclType"></a>
 
@@ -13076,6 +15341,7 @@ Available Options:
   - [~duration(nsDifference)](#module*JS API* random utilities..duration) ⇒
   - [~mainOrSecondaryInstance()](#module*JS API* random utilities..mainOrSecondaryInstance)
   - [~collectJsonData(jsonFile)](#module*JS API* random utilities..collectJsonData)
+  - [~patternFormat(pattern, data)](#module*JS API* random utilities..patternFormat)
 
 <a name="module_JS API_ random utilities..checksum"></a>
 
@@ -13340,6 +15606,21 @@ Then it supports following special keys:
 | Param    | Type            |
 | -------- | --------------- |
 | jsonFile | <code>\*</code> |
+
+<a name="module_JS API_ random utilities..patternFormat"></a>
+
+### JS API: random utilities~patternFormat(pattern, data)
+
+This function receives pattern and data, and it formats pattern
+by applyind data to it via it's keys.
+For example, if pattern is "{a}" and data.a is 1, then this prints out "1".
+
+**Kind**: inner method of [<code>JS API: random utilities</code>](#module*JS API* random utilities)
+
+| Param   | Type            |
+| ------- | --------------- |
+| pattern | <code>\*</code> |
+| data    | <code>\*</code> |
 
 <a name="module_REST API_ various zcl utilities"></a>
 
@@ -13667,9 +15948,55 @@ Global function that can execute the APIs.
 Global function that can be overloaded by jxbrowser for notifications
 
 **Kind**: global variable  
+<a name="ASYNC_DEFAULT_TIMER_INTERVAL_MS"></a>
+
+## ASYNC_DEFAULT_TIMER_INTERVAL_MS
+
+This module provides the APIs for initializing timers specifically
+for sessions.
+
+**Kind**: global variable  
+<a name="watchDogId"></a>
+
+## watchDogId
+
+Copyright (c) 2020 Silicon Labs
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+**Kind**: global variable  
 <a name="uri"></a>
 
 ## uri
+
+Copyright (c) 2020 Silicon Labs
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+**Kind**: global constant  
+<a name="env"></a>
+
+## env
 
 Copyright (c) 2020 Silicon Labs
 
@@ -13923,11 +16250,49 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 **Kind**: global constant  
+<a name="dbEnums"></a>
+
+## dbEnums
+
+Copyright (c) 2023 Silicon Labs
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+**Kind**: global constant  
 <a name="queryPackage"></a>
 
 ## queryPackage
 
 Copyright (c) 2020 Silicon Labs
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+**Kind**: global constant  
+<a name="_"></a>
+
+## \_
+
+Copyright (c) 2023 Silicon Labs
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14018,6 +16383,44 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 **Kind**: global constant  
+<a name="dbApi"></a>
+
+## dbApi
+
+Copyright (c) 2020 Silicon Labs
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+**Kind**: global constant  
+<a name="ipc"></a>
+
+## ipc
+
+Copyright (c) 2020 Silicon Labs
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+**Kind**: global constant  
 <a name="rendApi"></a>
 
 ## rendApi
@@ -14047,6 +16450,82 @@ modify this file, but it can be used to extend your development
 environment.
 
 **Kind**: global constant  
+<a name="yargs"></a>
+
+## yargs
+
+Copyright (c) 2020 Silicon Labs
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+**Kind**: global constant  
+<a name="path"></a>
+
+## path
+
+Copyright (c) 2020 Silicon Labs
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+**Kind**: global constant  
+<a name="queryZcl"></a>
+
+## queryZcl
+
+Copyright (c) 2024 Silicon Labs
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+**Kind**: global constant  
+<a name="path"></a>
+
+## path
+
+Copyright (c) 2024 Silicon Labs
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+**Kind**: global constant  
 <a name="templateUtil"></a>
 
 ## templateUtil
@@ -14055,11 +16534,49 @@ This module provides API to access various iterator utilities that can then
 be used to build iterator helpers.
 
 **Kind**: global constant  
+<a name="path"></a>
+
+## path
+
+Copyright (c) 2021 Silicon Labs
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+**Kind**: global constant  
 <a name="fs"></a>
 
 ## fs
 
 Copyright (c) 2022 Silicon Labs
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+**Kind**: global constant  
+<a name="path"></a>
+
+## path
+
+Copyright (c) 2023 Silicon Labs
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14091,6 +16608,14 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+
+**Kind**: global constant  
+<a name="queryPackage"></a>
+
+## queryPackage
+
+This module provides the APIs for validating inputs to the database, and returning flags indicating if
+things were successful or not.
 
 **Kind**: global constant  
 <a name="queryZcl"></a>
@@ -14120,6 +16645,25 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 **Kind**: global constant  
+<a name="_"></a>
+
+## \_
+
+Copyright (c) 2023 Silicon Labs
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+**Kind**: global constant  
 <a name="fs"></a>
 
 ## fs
@@ -14158,6 +16702,63 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 **Kind**: global constant  
+<a name="initAndConnectClient"></a>
+
+## initAndConnectClient() ⇒
+
+Initializes and connects a client.
+
+**Kind**: global function  
+**Returns**: a promise which resolves when client connects  
+<a name="on"></a>
+
+## on(eventType, handler)
+
+Register a handler for the event type.
+
+**Kind**: global function
+
+| Param     | Type            |
+| --------- | --------------- |
+| eventType | <code>\*</code> |
+| handler   | <code>\*</code> |
+
+<a name="lastPongData"></a>
+
+## lastPongData() ⇒
+
+Get the last pong data.
+
+**Kind**: global function  
+**Returns**: last pong data or null if none is available  
+<a name="isClientConnected"></a>
+
+## isClientConnected() ⇒
+
+Returns true if client is connected.
+
+**Kind**: global function  
+**Returns**: true if client is connected  
+<a name="disconnectClient"></a>
+
+## disconnectClient()
+
+Disconnects a client asynchronously.
+
+**Kind**: global function  
+<a name="emit"></a>
+
+## emit(key, object)
+
+Sends a message to server.
+
+**Kind**: global function
+
+| Param  | Type            |
+| ------ | --------------- |
+| key    | <code>\*</code> |
+| object | <code>\*</code> |
+
 <a name="selectAllDiscriminators"></a>
 
 ## selectAllDiscriminators(db, packageIds) ⇒
@@ -14634,6 +17235,14 @@ Creates array of profileId fields on endpoints
 | ------- | --------------- |
 | options | <code>\*</code> |
 
+<a name="endpoint_fixed_parent_id_array"></a>
+
+## endpoint_fixed_parent_id_array() ⇒
+
+Creates Integer Array of parent endpoint identifier fields on endpoints. If the Parent Endpoint is not set then it will default to 0.
+
+**Kind**: global function  
+**Returns**: C array including the brackets  
 <a name="endpoint_fixed_network_array"></a>
 
 ## endpoint_fixed_network_array(options) ⇒
@@ -14953,6 +17562,221 @@ Helper that deals with the type of the argument.
 | typeName | <code>\*</code> |
 | options  | <code>\*</code> |
 
+<a name="integrationEnabled"></a>
+
+## integrationEnabled(db, sessionId) ⇒
+
+Boolean deciding whether Studio integration logic should be enabled
+
+**Kind**: global function  
+**Returns**: Promise to studio project path
+
+| Param     | Type            |
+| --------- | --------------- |
+| db        | <code>\*</code> |
+| sessionId | <code>\*</code> |
+
+<a name="isComponentTogglingDisabled"></a>
+
+## isComponentTogglingDisabled(db, sessionId) ⇒
+
+Resolves into true if user has actively disabled the component toggling.
+By default this row doesn't even exist in the DB, but if user toggles
+the toggle to turn this off, then the "disableComponentToggling" will
+be set so '1' in the database.
+
+**Kind**: global function  
+**Returns**: promise that resolves into a true or false, depending on whether the component toggling has been disabled manually.
+
+| Param     | Type            |
+| --------- | --------------- |
+| db        | <code>\*</code> |
+| sessionId | <code>\*</code> |
+
+<a name="restApiUrl"></a>
+
+## restApiUrl(api, path, queryParams) ⇒
+
+Studio REST API path helper/generator
+
+**Kind**: global function  
+**Returns**: URL for rest api.
+
+| Param       |
+| ----------- |
+| api         |
+| path        |
+| queryParams |
+
+<a name="wsApiUrl"></a>
+
+## wsApiUrl(api, path, queryParams) ⇒
+
+Studio WebSocket API path helper/generator
+
+**Kind**: global function  
+**Returns**: URL for WS
+
+| Param       |
+| ----------- |
+| api         |
+| path        |
+| queryParams |
+
+<a name="getProjectInfo"></a>
+
+## getProjectInfo(db, sessionId) ⇒
+
+Send HTTP GET request to Studio Jetty server for project information.
+
+**Kind**: global function  
+**Returns**: - HTTP RESP with project info in JSON form
+
+| Param     | Type            |
+| --------- | --------------- |
+| db        |                 |
+| sessionId | <code>\*</code> |
+
+<a name="updateComponentByClusterIdAndComponentId"></a>
+
+## updateComponentByClusterIdAndComponentId(project, componentIds, add, db, sessionId, side) ⇒ <code>\*</code>
+
+Send HTTP Post to update UC component state in Studio
+
+**Kind**: global function  
+**Returns**: <code>\*</code> - - [{id, status, data }]
+id - string,
+status - boolean. true if HTTP REQ status code is OK,
+data - HTTP response data field
+
+| Param        | Type            |
+| ------------ | --------------- |
+| project      | <code>\*</code> |
+| componentIds | <code>\*</code> |
+| add          | <code>\*</code> |
+| db           | <code>\*</code> |
+| sessionId    | <code>\*</code> |
+| side         | <code>\*</code> |
+
+<a name="updateComponentByComponentIds"></a>
+
+## updateComponentByComponentIds(project, componentIds, add) ⇒ <code>\*</code>
+
+Send HTTP Post to update UC component state in Studio
+
+**Kind**: global function  
+**Returns**: <code>\*</code> - - [{id, status, data }]
+id - string,
+status - boolean. true if HTTP REQ status code is OK,
+data - HTTP response data field
+
+| Param        | Type            | Description                                  |
+| ------------ | --------------- | -------------------------------------------- |
+| project      | <code>\*</code> | local Studio project path                    |
+| componentIds | <code>\*</code> | a list of component Ids                      |
+| add          | <code>\*</code> | true if adding component, false if removing. |
+
+<a name="wsMessageHandler"></a>
+
+## wsMessageHandler(db, session, message)
+
+Handles WebSocket messages from Studio server
+
+**Kind**: global function
+
+| Param   |
+| ------- |
+| db      |
+| session |
+| message |
+
+<a name="initIdeIntegration"></a>
+
+## initIdeIntegration()
+
+Start the dirty flag reporting interval.
+
+**Kind**: global function  
+<a name="verifyWsConnection"></a>
+
+## verifyWsConnection(db, sessionId)
+
+Check WebSocket connections between backend and Studio jetty server.
+If project is opened, verify connection is open.
+If project is closed, close ws connection as well.
+
+**Kind**: global function
+
+| Param     |
+| --------- |
+| db        |
+| sessionId |
+
+<a name="wsConnect"></a>
+
+## wsConnect(sessionId, path) ⇒
+
+Utility function for making websocket connection to Studio server
+
+**Kind**: global function  
+**Returns**: websocket
+
+| Param     |
+| --------- |
+| sessionId |
+| path      |
+
+<a name="isProjectActive"></a>
+
+## isProjectActive(path)
+
+Check if a specific Studio project (.slcp) file has been opened or not.
+
+Context: To get proper WebSocket notification for change in project states,
+that specific project needs to be opened already. Otherwise, no notification
+will happen.
+
+         DependsComponent API used as a quick way to check if the project is opened or not
+         If project is open/valid, the API will respond with "Component not found in project"
+         Otherwise, "Project does not exists"
+
+**Kind**: global function
+
+| Param |
+| ----- |
+| path  |
+
+<a name="deinitIdeIntegration"></a>
+
+## deinitIdeIntegration()
+
+Clears up the reporting interval.
+
+**Kind**: global function  
+<a name="sendSessionCreationErrorStatus"></a>
+
+## sendSessionCreationErrorStatus(err)
+
+Notify front-end that current session failed to load.
+
+**Kind**: global function
+
+| Param |
+| ----- |
+| err   |
+
+<a name="sendComponentUpdateStatus"></a>
+
+## sendComponentUpdateStatus(err)
+
+Notify front-end that current session failed to load.
+
+**Kind**: global function
+
+| Param | Type            |
+| ----- | --------------- |
+| err   | <code>\*</code> |
+
 <a name="exportEndpointTypes"></a>
 
 ## exportEndpointTypes(db, sessionId) ⇒
@@ -15010,6 +17834,41 @@ resolves with a state object that needs to be saved into a file.
 | db        | <code>\*</code> |
 | sessionId | <code>\*</code> |
 
+<a name="convertToFile"></a>
+
+## convertToFile(state, fileFormat)
+
+This function gets the state from database and converts it for a given file format.
+
+**Kind**: global function
+
+| Param      | Type            |
+| ---------- | --------------- |
+| state      | <code>\*</code> |
+| fileFormat | <code>\*</code> |
+
+<a name="updateCommands"></a>
+
+## updateCommands(cluster, clusterToCommandMap) ⇒
+
+Updates the clusters with the new command format where there is isIncoming
+and isEnabled instead of incoming and outgoing
+
+**Kind**: global function  
+**Returns**: state or null
+
+| Param               | Type            |
+| ------------------- | --------------- |
+| cluster             | <code>\*</code> |
+| clusterToCommandMap | <code>\*</code> |
+
+<a name="convertFromFile"></a>
+
+## convertFromFile()
+
+This function gets the JSON from the file, and converts it to the correct database state
+
+**Kind**: global function  
 <a name="locateAttribute"></a>
 
 ## locateAttribute(state)
@@ -15216,6 +18075,26 @@ Otherwise it throws an exception.
 | pkg     | <code>\*</code> |
 | absPath | <code>\*</code> |
 
+<a name="importSinglePackage"></a>
+
+## importSinglePackage(db, pkg, zapFilePath, packageMatch, defaultZclMetafile, defaultTemplateFile) ⇒
+
+Resolves into a { packageId:, packageType:}
+object, pkg has`path`, `version`, `type`. It can ALSO have pathRelativity. If pathRelativity is missing
+path is considered absolute.
+
+**Kind**: global function  
+**Returns**: pkg information based on a match
+
+| Param               | Type            | Default       |
+| ------------------- | --------------- | ------------- |
+| db                  | <code>\*</code> |               |
+| pkg                 | <code>\*</code> |               |
+| zapFilePath         | <code>\*</code> |               |
+| packageMatch        | <code>\*</code> |               |
+| defaultZclMetafile  | <code>\*</code> | <code></code> |
+| defaultTemplateFile | <code>\*</code> | <code></code> |
+
 <a name="convertPackageResult"></a>
 
 ## convertPackageResult(data) ⇒
@@ -15230,9 +18109,291 @@ Resolves an array of { packageId:, packageType:} objects into { zclPackageId: id
 | ----- | --------------- |
 | data  | <code>\*</code> |
 
+<a name="importPackages"></a>
+
+## importPackages(db, packages, zapFilePath, packageMatch, defaultZclMetafile, defaultTemplateFile) ⇒
+
+**Kind**: global function  
+**Returns**: a promise that resolves into an object containing: packageId and otherIds
+
+| Param               | Type            | Default       |
+| ------------------- | --------------- | ------------- |
+| db                  | <code>\*</code> |               |
+| packages            | <code>\*</code> |               |
+| zapFilePath         | <code>\*</code> |               |
+| packageMatch        | <code>\*</code> |               |
+| defaultZclMetafile  | <code>\*</code> | <code></code> |
+| defaultTemplateFile | <code>\*</code> | <code></code> |
+
+<a name="sortEndpoints"></a>
+
+## sortEndpoints(endpoints) ⇒
+
+Sorts the list of endpoints
+
+**Kind**: global function  
+**Returns**: list or sorted endpoints based on endpoint type index
+
+| Param     | Type            |
+| --------- | --------------- |
+| endpoints | <code>\*</code> |
+
+<a name="importClusters"></a>
+
+## importClusters(db, allZclPackageIds, endpointTypeId, clusters)
+
+Imports the clusters for an endpoint type along with attributes, commands
+and events
+
+**Kind**: global function
+
+| Param            | Type            |
+| ---------------- | --------------- |
+| db               | <code>\*</code> |
+| allZclPackageIds | <code>\*</code> |
+| endpointTypeId   | <code>\*</code> |
+| clusters         | <code>\*</code> |
+
+<a name="importCommands"></a>
+
+## importCommands(db, allZclPackageIds, endpointTypeId, endpointClusterId, commands)
+
+Imports the list of commands from a cluster
+
+**Kind**: global function
+
+| Param             | Type            |
+| ----------------- | --------------- |
+| db                | <code>\*</code> |
+| allZclPackageIds  | <code>\*</code> |
+| endpointTypeId    | <code>\*</code> |
+| endpointClusterId | <code>\*</code> |
+| commands          | <code>\*</code> |
+
+<a name="importAttributes"></a>
+
+## importAttributes(db, allZclPackageIds, endpointTypeId, endpointClusterId, attributes, cluster)
+
+Imports the list of attributes from a cluster
+
+**Kind**: global function
+
+| Param             | Type            |
+| ----------------- | --------------- |
+| db                | <code>\*</code> |
+| allZclPackageIds  | <code>\*</code> |
+| endpointTypeId    | <code>\*</code> |
+| endpointClusterId | <code>\*</code> |
+| attributes        | <code>\*</code> |
+| cluster           | <code>\*</code> |
+
+<a name="importEvents"></a>
+
+## importEvents(db, allZclPackageIds, endpointClusterId, events)
+
+Imports the list of events from a cluster
+
+**Kind**: global function
+
+| Param             | Type            |
+| ----------------- | --------------- |
+| db                | <code>\*</code> |
+| allZclPackageIds  | <code>\*</code> |
+| endpointClusterId | <code>\*</code> |
+| events            | <code>\*</code> |
+
+<a name="getMandatoryClusterAttributes"></a>
+
+## getMandatoryClusterAttributes(db, epc, cluster, allZclPackageIds) ⇒
+
+Retrieves the mandatory attributes of a cluster
+
+**Kind**: global function  
+**Returns**: mandatory attributes of a cluster
+
+| Param            | Type            |
+| ---------------- | --------------- |
+| db               | <code>\*</code> |
+| epc              | <code>\*</code> |
+| cluster          | <code>\*</code> |
+| allZclPackageIds | <code>\*</code> |
+
+<a name="getMandatoryClusterCommands"></a>
+
+## getMandatoryClusterCommands(db, epc, cluster, allZclPackageIds) ⇒
+
+Retrieves the mandatory commands of a cluster
+
+**Kind**: global function  
+**Returns**: mandatory commands of a cluster
+
+| Param            | Type            |
+| ---------------- | --------------- |
+| db               | <code>\*</code> |
+| epc              | <code>\*</code> |
+| cluster          | <code>\*</code> |
+| allZclPackageIds | <code>\*</code> |
+
+<a name="clusterComplianceForAttributes"></a>
+
+## clusterComplianceForAttributes(db, sessionId, endpointTypeAttributes, allMandatoryAttributes, endpointId, clusterSpecCheckComplianceMessage, specMessageIndent) ⇒
+
+Adds cluster compliance warnings for attributes to the console and the
+session notification table
+
+**Kind**: global function  
+**Returns**: clusterSpecCheckComplianceMessage by concatenating all
+clusterSpecComplianceMessageForAttributes
+
+| Param                             | Type            |
+| --------------------------------- | --------------- |
+| db                                | <code>\*</code> |
+| sessionId                         | <code>\*</code> |
+| endpointTypeAttributes            | <code>\*</code> |
+| allMandatoryAttributes            | <code>\*</code> |
+| endpointId                        | <code>\*</code> |
+| clusterSpecCheckComplianceMessage | <code>\*</code> |
+| specMessageIndent                 | <code>\*</code> |
+
+<a name="clusterComplianceForCommands"></a>
+
+## clusterComplianceForCommands(db, sessionId, endpointTypeCommands, allMandatoryCommands, endpointId, clusterSpecCheckComplianceMessage, specMessageIndent) ⇒
+
+Adds cluster compliance warnings for commands to the console and the
+session notification table
+
+**Kind**: global function  
+**Returns**: clusterSpecCheckComplianceMessage by concatenating all
+clusterSpecComplianceMessageForAttributes
+
+| Param                             | Type            |
+| --------------------------------- | --------------- |
+| db                                | <code>\*</code> |
+| sessionId                         | <code>\*</code> |
+| endpointTypeCommands              | <code>\*</code> |
+| allMandatoryCommands              | <code>\*</code> |
+| endpointId                        | <code>\*</code> |
+| clusterSpecCheckComplianceMessage | <code>\*</code> |
+| specMessageIndent                 | <code>\*</code> |
+
+<a name="deviceTypeClustersAttributesAndCommands"></a>
+
+## deviceTypeClustersAttributesAndCommands(db, endpointTypeId) ⇒
+
+Retrieves deviceTypeClustersOnEndpointType, deviceTypeAttributesOnEndpointType
+and deviceTypeCommandsOnEndpointType for an endpoint type
+
+**Kind**: global function  
+**Returns**: deviceTypeClustersOnEndpointType, deviceTypeAttributesOnEndpointType
+and deviceTypeCommandsOnEndpointType for an endpoint type
+
+| Param          | Type            |
+| -------------- | --------------- |
+| db             | <code>\*</code> |
+| endpointTypeId | <code>\*</code> |
+
+<a name="deviceTypeClusterToFeatureBits"></a>
+
+## deviceTypeClusterToFeatureBits(deviceTypeFeaturesOnEndpointType) ⇒
+
+**Kind**: global function  
+**Returns**: a map between device type's cluster id to feature bits for that cluster
+
+| Param                            | Type            |
+| -------------------------------- | --------------- |
+| deviceTypeFeaturesOnEndpointType | <code>\*</code> |
+
+<a name="deviceTypeComplianceForClusters"></a>
+
+## deviceTypeComplianceForClusters(db, endpointId, sessionId, deviceTypeClustersOnEndpointType, endpointTypeClusterRefMap, deviceTypeSpecCheckComplianceMessage, specMessageIndent) ⇒
+
+Adds device type compliance warnings for clusters to the console and the
+session notification table
+
+**Kind**: global function  
+**Returns**: deviceTypeSpecCheckComplianceMessage by concatenating all
+clusterSpecComplianceMessages
+
+| Param                                | Type            |
+| ------------------------------------ | --------------- |
+| db                                   | <code>\*</code> |
+| endpointId                           | <code>\*</code> |
+| sessionId                            | <code>\*</code> |
+| deviceTypeClustersOnEndpointType     | <code>\*</code> |
+| endpointTypeClusterRefMap            | <code>\*</code> |
+| deviceTypeSpecCheckComplianceMessage | <code>\*</code> |
+| specMessageIndent                    | <code>\*</code> |
+
+<a name="deviceTypeComplianceForAttributes"></a>
+
+## deviceTypeComplianceForAttributes(db, endpointId, sessionId, deviceTypeAttributesOnEndpointType, endpointTypeAttributeRefMap, deviceTypeSpecCheckComplianceMessage, specMessageIndent) ⇒
+
+Adds device type compliance warnings for attributes to the console and the
+session notification table
+
+**Kind**: global function  
+**Returns**: deviceTypeSpecCheckComplianceMessage by concatenating all
+attributeSpecComplianceMessages
+
+| Param                                | Type            |
+| ------------------------------------ | --------------- |
+| db                                   | <code>\*</code> |
+| endpointId                           | <code>\*</code> |
+| sessionId                            | <code>\*</code> |
+| deviceTypeAttributesOnEndpointType   | <code>\*</code> |
+| endpointTypeAttributeRefMap          | <code>\*</code> |
+| deviceTypeSpecCheckComplianceMessage | <code>\*</code> |
+| specMessageIndent                    | <code>\*</code> |
+
+<a name="deviceTypeComplianceForCommands"></a>
+
+## deviceTypeComplianceForCommands(db, endpointId, sessionId, deviceTypeCommandsOnEndpointType, endpointTypeCommandRefMap, deviceTypeSpecCheckComplianceMessage, specMessageIndent) ⇒
+
+Adds device type compliance warnings for commands to the console and the
+session notification table
+
+**Kind**: global function  
+**Returns**: deviceTypeSpecCheckComplianceMessage by concatenating all
+commandSpecComplianceMessages
+
+| Param                                | Type            |
+| ------------------------------------ | --------------- |
+| db                                   | <code>\*</code> |
+| endpointId                           | <code>\*</code> |
+| sessionId                            | <code>\*</code> |
+| deviceTypeCommandsOnEndpointType     | <code>\*</code> |
+| endpointTypeCommandRefMap            | <code>\*</code> |
+| deviceTypeSpecCheckComplianceMessage | <code>\*</code> |
+| specMessageIndent                    | <code>\*</code> |
+
+<a name="importEndpointTypes"></a>
+
+## importEndpointTypes(db, sessionId, allZclPackageIds, endpointTypes, endpoints)
+
+Import endpointTypes
+
+**Kind**: global function
+
+| Param            | Type            |
+| ---------------- | --------------- |
+| db               | <code>\*</code> |
+| sessionId        | <code>\*</code> |
+| allZclPackageIds | <code>\*</code> |
+| endpointTypes    | <code>\*</code> |
+| endpoints        | <code>\*</code> |
+
+<a name="importEndpointTypes..endpointTypeClusters"></a>
+
+### importEndpointTypes~endpointTypeClusters
+
+The following code looks into the spec conformance coming from the xml
+loading. This involves compliance of between device types, clusters,
+commands and attributes on an endpoint.
+
+**Kind**: inner property of [<code>importEndpointTypes</code>](#importEndpointTypes)  
 <a name="jsonDataLoader"></a>
 
-## jsonDataLoader(db, state, sessionId, packageMatch) ⇒
+## jsonDataLoader(db, state, sessionId, packageMatch, defaultZclMetafile, defaultTemplateFile) ⇒
 
 Given a state object, this method returns a promise that resolves
 with the succesfull writing into the database.
@@ -15240,39 +18401,45 @@ with the succesfull writing into the database.
 **Kind**: global function  
 **Returns**: a promise that resolves into a sessionId that was created.
 
-| Param        | Type            | Description                                                                                                                             |
-| ------------ | --------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| db           | <code>\*</code> |                                                                                                                                         |
-| state        | <code>\*</code> |                                                                                                                                         |
-| sessionId    | <code>\*</code> | If null, then new session will get created, otherwise it loads the data into an existing session. Previous session data is not deleted. |
-| packageMatch | <code>\*</code> | One of the package match strategies. See dbEnum.packageMatch                                                                            |
+| Param               | Type            | Description                                                                                                                             |
+| ------------------- | --------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| db                  | <code>\*</code> |                                                                                                                                         |
+| state               | <code>\*</code> |                                                                                                                                         |
+| sessionId           | <code>\*</code> | If null, then new session will get created, otherwise it loads the data into an existing session. Previous session data is not deleted. |
+| packageMatch        | <code>\*</code> | One of the package match strategies. See dbEnum.packageMatch                                                                            |
+| defaultZclMetafile  | <code>\*</code> |                                                                                                                                         |
+| defaultTemplateFile | <code>\*</code> |                                                                                                                                         |
 
 <a name="readJsonData"></a>
 
-## readJsonData(filePath, data) ⇒
+## readJsonData(filePath, data, defaultZclMetafile, defaultTemplateFile) ⇒
 
 Parses JSON file and creates a state object out of it, which is passed further down the chain.
 
 **Kind**: global function  
 **Returns**: Promise of parsed JSON object
 
-| Param    | Type            |
-| -------- | --------------- |
-| filePath | <code>\*</code> |
-| data     | <code>\*</code> |
+| Param               | Type            |
+| ------------------- | --------------- |
+| filePath            | <code>\*</code> |
+| data                | <code>\*</code> |
+| defaultZclMetafile  | <code>\*</code> |
+| defaultTemplateFile | <code>\*</code> |
 
 <a name="readDataFromFile"></a>
 
-## readDataFromFile(filePath) ⇒
+## readDataFromFile(filePath, defaultZclMetafile, defaultTemplateFile) ⇒
 
 Reads the data from the file and resolves with the state object if all is good.
 
 **Kind**: global function  
 **Returns**: Promise of file reading.
 
-| Param    | Type            |
-| -------- | --------------- |
-| filePath | <code>\*</code> |
+| Param               | Type            |
+| ------------------- | --------------- |
+| filePath            | <code>\*</code> |
+| defaultZclMetafile  | <code>\*</code> |
+| defaultTemplateFile | <code>\*</code> |
 
 <a name="importDataFromFile"></a>
 
@@ -15462,6 +18629,174 @@ Default startup method.
 | quitFunction | <code>\*</code> |
 | argv         | <code>\*</code> |
 
+<a name="start"></a>
+
+## start(expirationInterval, triggerFunction)
+
+Starts a zap watchdog.
+
+**Kind**: global function
+
+| Param              | Type            |
+| ------------------ | --------------- |
+| expirationInterval | <code>\*</code> |
+| triggerFunction    | <code>\*</code> |
+
+<a name="reset"></a>
+
+## reset()
+
+Resets a zap watchdog.
+
+**Kind**: global function  
+<a name="getForcedExternalStorage"></a>
+
+## getForcedExternalStorage(db, packageIds) ⇒ <code>Promise.&lt;Array&gt;</code>
+
+Fetches forced external storage settings based on the given package ID.
+Utilizes the attribute access interface to query storage policies
+associated with the specified package ID.
+
+**Kind**: global function  
+**Returns**: <code>Promise.&lt;Array&gt;</code> - A promise that resolves to an array of forced external storage settings.
+
+| Param      | Type                | Description                      |
+| ---------- | ------------------- | -------------------------------- |
+| db         | <code>Object</code> | Database connection object.      |
+| packageIds | <code>Number</code> | The ID of the packages to query. |
+
+<a name="computeStoragePolicyForGlobalAttributes"></a>
+
+## computeStoragePolicyForGlobalAttributes(db, clusterId, attributes, packageId) ⇒
+
+This function takes a clusterId (the database ID, not the specification-defined ID), an array of attributes (associated with the database defined clusterID),
+and a packageId to identify the specific package the attributes belong to. It changes the global attributes (attributes with specification defined clusterId = null) to represent storage policy
+based on the cluster/attribute pair in zcl.json.
+
+Although the specification defined clusterID of the attribute is null indicating it is a global attribute, we know what the database defined clusterID is by what is passed in as a parameter.
+
+That database defined clusterID is used to query the name of the cluster which is in turn used to compute the storage policy for that cluster/attribute pair based on the packageId.
+
+**Kind**: global function  
+**Returns**: an array of objects representing attributes in the database
+
+| Param      | Type            | Description                                                                                                      |
+| ---------- | --------------- | ---------------------------------------------------------------------------------------------------------------- |
+| db         | <code>\*</code> |                                                                                                                  |
+| clusterId  | <code>\*</code> | (database defined) the clusterId representing a cluster from the database being used in the application          |
+| attributes | <code>\*</code> | an array of objects representing the attributes associated with the cluster                                      |
+| packageId  | <code>\*</code> | the ID of the package to which the attributes belong, used to determine storage policies specific to the package |
+
+<a name="computeStorageOptionNewConfig"></a>
+
+## computeStorageOptionNewConfig(storagePolicy)
+
+This asynchronous function computes and returns the new configuration for a storage option.
+
+**Kind**: global function
+
+| Param         | Type                | Description                                                                                                                                                                                                                                                                                                                                                                              |
+| ------------- | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| storagePolicy | <code>String</code> | The current storage policy. The function first initializes the storageOption. Then it checks the storagePolicy: - If it's 'attributeAccessInterface', it sets the storageOption to 'external'. - If it's 'any', it sets the storageOption to 'ram'. If the storagePolicy is neither of these, it throws an error 'check storage policy'. Finally, it returns the updated storage option. |
+
+<a name="computeStoragePolicyNewConfig"></a>
+
+## computeStoragePolicyNewConfig(db, clusterRef, storagePolicy, forcedExternal, attributeName)
+
+This asynchronous function computes and returns the new configuration for a storage policy.
+
+**Kind**: global function
+
+| Param          | Type                | Description                                                                                                                                                                                                                                                                                                                                                                               |
+| -------------- | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| db             | <code>Object</code> | The database instance.                                                                                                                                                                                                                                                                                                                                                                    |
+| clusterRef     | <code>Number</code> | The reference to the cluster.                                                                                                                                                                                                                                                                                                                                                             |
+| storagePolicy  | <code>String</code> | The current storage policy.                                                                                                                                                                                                                                                                                                                                                               |
+| forcedExternal | <code>Array</code>  | An array of external options.                                                                                                                                                                                                                                                                                                                                                             |
+| attributeName  | <code>String</code> | The name of the attribute. The function first queries to get the cluster name using the cluster reference. Then it iterates over each option in the forcedExternal array. If the option's category matches the cluster name and the option's label matches the attribute name, it updates the storage policy to attributeAccessInterface. Finally, it returns the updated storage policy. |
+
+<a name="computeStorageImport"></a>
+
+## computeStorageImport(db, clusterName, storagePolicy, forcedExternal, attributeName)
+
+This asynchronous function computes and returns the updated storage import policy.
+
+**Kind**: global function
+
+| Param          | Type                | Description                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| -------------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| db             | <code>Object</code> | The database instance.                                                                                                                                                                                                                                                                                                                                                                                                           |
+| clusterName    | <code>String</code> | The name of the cluster.                                                                                                                                                                                                                                                                                                                                                                                                         |
+| storagePolicy  | <code>String</code> | The current storage policy.                                                                                                                                                                                                                                                                                                                                                                                                      |
+| forcedExternal | <code>Array</code>  | An array of external options.                                                                                                                                                                                                                                                                                                                                                                                                    |
+| attributeName  | <code>String</code> | The name of the attribute. The function first initializes the updatedStoragePolicy with the current storage policy. Then it iterates over each option in the forcedExternal array. If the option's category matches the cluster name and the option's label matches the attribute name, it updates the updatedStoragePolicy to attributeAccessInterface and stops the iteration. Finally, it returns the updated storage policy. |
+
+<a name="socketPath"></a>
+
+## socketPath()
+
+Returns the socket path for the IPC.
+
+**Kind**: global function  
+<a name="preHandler"></a>
+
+## preHandler()
+
+Runs just before every time IPC request is processed.
+
+**Kind**: global function  
+<a name="initServer"></a>
+
+## initServer(options)
+
+IPC initialization.
+
+**Kind**: global function  
+**Parem**: <code>\*</code> isServer 'true' if this is a server, 'false' for client.
+
+| Param   | Type            |
+| ------- | --------------- |
+| options | <code>\*</code> |
+
+<a name="isServerRunning"></a>
+
+## isServerRunning() ⇒
+
+Returns true if server is running.
+
+**Kind**: global function  
+**Returns**: true if server is running.  
+<a name="shutdownServerSync"></a>
+
+## shutdownServerSync(isServer)
+
+Shuts down the IPC server.
+
+**Kind**: global function
+
+| Param    | Type            |
+| -------- | --------------- |
+| isServer | <code>\*</code> |
+
+<a name="createOrShowAboutWindow"></a>
+
+## createOrShowAboutWindow(port)
+
+Call this function to create a new or show an existing preference window.
+
+**Kind**: global function
+
+| Param | Type            |
+| ----- | --------------- |
+| port  | <code>\*</code> |
+
+<a name="hookMainInstanceEvents"></a>
+
+## hookMainInstanceEvents()
+
+Hook up all the events for the electron app object.
+
+**Kind**: global function  
 <a name="doOpen"></a>
 
 ## doOpen(menuItem, browserWindow, event)
@@ -15554,6 +18889,575 @@ Initial menu show.
 | -------- | --------------- |
 | httpPort | <code>\*</code> |
 
+<a name="showErrorMessage"></a>
+
+## showErrorMessage(title, err)
+
+Simple dialog to show error messages from electron renderer scope.
+
+**Kind**: global function
+
+| Param | Type            |
+| ----- | --------------- |
+| title | <code>\*</code> |
+| err   | <code>\*</code> |
+
+<a name="openFileConfiguration"></a>
+
+## openFileConfiguration(db, filePath, httpPort)
+
+Process a single file, parsing it in as JSON and then possibly opening
+a new window if all is good.
+
+**Kind**: global function
+
+| Param    | Type            | Description                                       |
+| -------- | --------------- | ------------------------------------------------- |
+| db       | <code>\*</code> |                                                   |
+| filePath | <code>\*</code> |                                                   |
+| httpPort | <code>\*</code> | Server port for the URL that will be constructed. |
+
+<a name="openNewConfiguration"></a>
+
+## openNewConfiguration(httpPort, options:)
+
+Creates a new window with a blank configuration.
+
+**Kind**: global function
+
+| Param    | Type            | Description         |
+| -------- | --------------- | ------------------- |
+| httpPort | <code>\*</code> |                     |
+| options: | <code>\*</code> | uiMode, debugNavBar |
+
+<a name="toggleDirtyFlag"></a>
+
+## toggleDirtyFlag(browserWindow, dirty)
+
+Toggles the dirty flag.
+
+**Kind**: global function
+
+| Param         | Type            | Description                                           |
+| ------------- | --------------- | ----------------------------------------------------- |
+| browserWindow | <code>\*</code> | window to affect                                      |
+| dirty         | <code>\*</code> | true if this windows is now dirty, false if otherwise |
+
+<a name="openFileDialogAndReportResult"></a>
+
+## openFileDialogAndReportResult(browserWindow, options)
+
+This function should be invoked as a result of the fileBrowse
+notification via the renderer API. It pops the open dialog and
+reports result back through the API.
+
+**Kind**: global function
+
+| Param         | Type            | Description                           |
+| ------------- | --------------- | ------------------------------------- |
+| browserWindow | <code>\*</code> |                                       |
+| options       | <code>\*</code> | 'key', 'title', 'mode', 'defaultPath' |
+
+<a name="initializeElectronUi"></a>
+
+## initializeElectronUi(port)
+
+Electron UI initialization.
+
+Note: You might be tempted to pass `db` to this function. Don't.
+That was done before and it's just a lazy way to cut through the
+layers between UI and back-end. Should not be done. Any information
+UI needs from the database should be retrieved via renderer API.
+
+**Kind**: global function
+
+| Param | Type            |
+| ----- | --------------- |
+| port  | <code>\*</code> |
+
+<a name="windowCreate"></a>
+
+## windowCreate(port, filePath, [uiMode]) ⇒
+
+Create a window, possibly with a given file path.
+
+**Kind**: global function  
+**Returns**: BrowserWindow that got created
+
+| Param    | Type            | Default       |
+| -------- | --------------- | ------------- |
+| port     | <code>\*</code> |               |
+| filePath | <code>\*</code> |               |
+| [uiMode] | <code>\*</code> | <code></code> |
+
+<a name="processCommandLineArguments"></a>
+
+## processCommandLineArguments(argv) ⇒
+
+Process the command line arguments and resets the state in this file
+to the specified values.
+
+**Kind**: global function  
+**Returns**: parsed argv object
+
+| Param | Type            |
+| ----- | --------------- |
+| argv  | <code>\*</code> |
+
+<a name="int8ToHex"></a>
+
+## int8ToHex(value) ⇒
+
+Takes an int8 value and turns it into a hex.
+
+**Kind**: global function  
+**Returns**: hex string, 2 characters long without '0x'
+
+| Param | Type            |
+| ----- | --------------- |
+| value | <code>\*</code> |
+
+<a name="int16ToHex"></a>
+
+## int16ToHex(value) ⇒
+
+Takes an int16 value and turns it into a hex.
+
+**Kind**: global function  
+**Returns**: hex string, 4 characters long without '0x'
+
+| Param | Type            |
+| ----- | --------------- |
+| value | <code>\*</code> |
+
+<a name="int32ToHex"></a>
+
+## int32ToHex(value) ⇒
+
+Takes an int32 value and turns it into a hex.
+
+**Kind**: global function  
+**Returns**: hex string, 8 characters long without '0x'
+
+| Param | Type            |
+| ----- | --------------- |
+| value | <code>\*</code> |
+
+<a name="stringToHex"></a>
+
+## stringToHex(value) ⇒
+
+Converts a string to the hex value.
+
+**Kind**: global function  
+**Returns**: hex string, value.length \* 2 + 2 characters long. It appends the terminating NULL, so 0x00 is at the end.
+
+| Param | Type            |
+| ----- | --------------- |
+| value | <code>\*</code> |
+
+<a name="bitCount"></a>
+
+## bitCount(n) ⇒
+
+Given a number, this function returns the number of bits set in the number
+
+**Kind**: global function  
+**Returns**: number of bits set.
+
+| Param | Type            |
+| ----- | --------------- |
+| n     | <code>\*</code> |
+
+<a name="hexToCBytes"></a>
+
+## hexToCBytes(value) ⇒
+
+Takes the raw hex string, such as `abcd` and
+converts it into a C constant array, such as
+`0xAB, 0xCD`.
+
+**Kind**: global function  
+**Returns**: C byte array
+
+| Param | Type            |
+| ----- | --------------- |
+| value | <code>\*</code> |
+
+<a name="bitOffset"></a>
+
+## bitOffset(binary)
+
+Getting a binary string ("0001101010010") it returns the number of zero bits at the end.
+
+**Kind**: global function
+
+| Param  | Type            |
+| ------ | --------------- |
+| binary | <code>\*</code> |
+
+<a name="hexToBinary"></a>
+
+## hexToBinary(hex)
+
+Convert a hex number to a binary. Hex has to be in a format
+as obtained by intToHex methods above: no '0x' prefix and upper-case
+letters, as in "12AB".
+
+**Kind**: global function
+
+| Param | Type            |
+| ----- | --------------- |
+| hex   | <code>\*</code> |
+
+<a name="stringToOneByteLengthPrefixCBytes"></a>
+
+## stringToOneByteLengthPrefixCBytes(value, maxLength, pad) ⇒
+
+Returns string as C bytes, prefixed with one-byte length.
+If maxLength is greater than length of value, then
+the resulting array is padded with 0x00.
+
+**Kind**: global function  
+**Returns**: Object containing 'length' and 'content', where length
+is number of bytes used and content is actual content in C format.
+
+| Param     | Type            | Default           | Description                                        |
+| --------- | --------------- | ----------------- | -------------------------------------------------- |
+| value     | <code>\*</code> |                   |                                                    |
+| maxLength | <code>\*</code> |                   | the maximum length of the used memory in bytes     |
+| pad       | <code>\*</code> | <code>true</code> | If true, then pad with 0x00 until maxLength bytes. |
+
+<a name="stringToTwoByteLengthPrefixCBytes"></a>
+
+## stringToTwoByteLengthPrefixCBytes(value, maxLength, pad) ⇒
+
+Returns string as C bytes, prefixed with two-byte length
+If maxLength is greater than length of value, then
+the resulting array is padded with 0x00.
+
+**Kind**: global function  
+**Returns**: Object containing 'length' and 'content', where length
+is number of bytes used and content is actual content in C format.
+
+| Param     | Type            | Default           | Description                                        |
+| --------- | --------------- | ----------------- | -------------------------------------------------- |
+| value     | <code>\*</code> |                   |                                                    |
+| maxLength | <code>\*</code> |                   | the maximum length of the used memory in bytes     |
+| pad       | <code>\*</code> | <code>true</code> | If true, then pad with 0x00 until maxLength bytes. |
+
+<a name="builtinSilabsZclMetafile"></a>
+
+## builtinSilabsZclMetafile() ⇒
+
+**Kind**: global function  
+**Returns**: path to zcl.json file  
+<a name="builtinSilabsZclSpecialMetafile"></a>
+
+## builtinSilabsZclSpecialMetafile() ⇒
+
+Used to retrive zcl-special.json by zcl reload test in zcl-loader.test.js
+
+**Kind**: global function  
+**Returns**: path to zcl-special.json file used by zcl-loader.test.js  
+<a name="builtinSilabsZclGeneralXmlFile"></a>
+
+## builtinSilabsZclGeneralXmlFile() ⇒
+
+**Kind**: global function  
+**Returns**: path to general.xml file  
+<a name="builtinSilabsSpecialZclGeneralSpecialXmlFile"></a>
+
+## builtinSilabsSpecialZclGeneralSpecialXmlFile() ⇒
+
+Used to retrive general-special.xml by zcl reload test in zcl-loader.test.js
+
+**Kind**: global function  
+**Returns**: path to general-special.xml file used by zcl-loader.test.js  
+<a name="setAppDirectory"></a>
+
+## setAppDirectory(path)
+
+Set the state directory. This method is intended to be called
+only at the application startup, when CLI args are being parsed.
+This method honors '~/' being the first characters in its argument.
+
+**Kind**: global function
+
+| Param | Type            | Description                        |
+| ----- | --------------- | ---------------------------------- |
+| path  | <code>\*</code> | Absolute path. Typically '~/.zap'. |
+
+<a name="appDirectory"></a>
+
+## appDirectory() ⇒
+
+Returns an app directory. It creates it, if it doesn't exist
+
+**Kind**: global function  
+**Returns**: state directory, which is guaranteed to be already existing  
+<a name="zapVersionAsString"></a>
+
+## zapVersionAsString()
+
+Returns a version as a single on-line string.
+
+**Kind**: global function  
+<a name="locateProjectResource"></a>
+
+## locateProjectResource(filePath) ⇒
+
+This function locates a resource in the project, such as various
+JSON files and zcl-builtin stuff.
+
+It needs to adapt to a change in path that can occur when
+things are copied into the dist/ directory.
+
+**Kind**: global function  
+**Returns**: located project resource
+
+| Param    |
+| -------- |
+| filePath |
+
+<a name="zapVersion"></a>
+
+## zapVersion() ⇒
+
+Returns the zap version.
+
+**Kind**: global function  
+**Returns**: zap version, which is an object that
+contains 'version', 'featureLevel', 'hash', 'timestamp' and 'date'  
+<a name="printToStderr"></a>
+
+## printToStderr(msg)
+
+Prints the data to stderr, without much fuss.
+
+**Kind**: global function
+
+| Param |
+| ----- |
+| msg   |
+
+<a name="log"></a>
+
+## log(level, msg, err)
+
+Base level common logger.
+
+**Kind**: global function
+
+| Param | Type            |
+| ----- | --------------- |
+| level | <code>\*</code> |
+| msg   | <code>\*</code> |
+| err   | <code>\*</code> |
+
+<a name="logInfo"></a>
+
+## logInfo(msg, err)
+
+Info level message.
+
+**Kind**: global function
+
+| Param | Type            |
+| ----- | --------------- |
+| msg   | <code>\*</code> |
+| err   | <code>\*</code> |
+
+<a name="logError"></a>
+
+## logError(msg, err)
+
+Error level message.
+
+**Kind**: global function
+
+| Param | Type            |
+| ----- | --------------- |
+| msg   | <code>\*</code> |
+| err   | <code>\*</code> |
+
+<a name="logWarning"></a>
+
+## logWarning(msg, err)
+
+Warning level message.
+
+**Kind**: global function
+
+| Param | Type            |
+| ----- | --------------- |
+| msg   | <code>\*</code> |
+| err   | <code>\*</code> |
+
+<a name="logSql"></a>
+
+## logSql(msg, err)
+
+Sql level message.
+
+**Kind**: global function
+
+| Param | Type            |
+| ----- | --------------- |
+| msg   | <code>\*</code> |
+| err   | <code>\*</code> |
+
+<a name="logBrowser"></a>
+
+## logBrowser(msg, err)
+
+Browser level message.
+
+**Kind**: global function
+
+| Param | Type            |
+| ----- | --------------- |
+| msg   | <code>\*</code> |
+| err   | <code>\*</code> |
+
+<a name="logIpc"></a>
+
+## logIpc(msg, err)
+
+IPC level message.
+
+**Kind**: global function
+
+| Param | Type            |
+| ----- | --------------- |
+| msg   | <code>\*</code> |
+| err   | <code>\*</code> |
+
+<a name="logDebug"></a>
+
+## logDebug(msg, err)
+
+Debug level message.
+
+**Kind**: global function
+
+| Param | Type            |
+| ----- | --------------- |
+| msg   | <code>\*</code> |
+| err   | <code>\*</code> |
+
+<a name="versionsCheck"></a>
+
+## versionsCheck() ⇒
+
+Returns true if versions of node and electron are matching.
+If versions are not matching, it prints out a warhing
+and returns false.
+
+**Kind**: global function  
+**Returns**: true or false, depending on match  
+<a name="httpStaticContent"></a>
+
+## httpStaticContent() ⇒
+
+Returns path to HTTP static content while taking into account DEV / PROD modes.
+
+**Kind**: global function  
+**Returns**: full path to HTTP static content  
+<a name="availableClusters"></a>
+
+## availableClusters(context) ⇒
+
+Returns all available clusters.
+
+**Kind**: global function  
+**Returns**: all available clusters
+
+| Param   | Type            |
+| ------- | --------------- |
+| context | <code>\*</code> |
+
+<a name="availableEvents"></a>
+
+## availableEvents(context) ⇒
+
+Returns all available events.
+
+**Kind**: global function  
+**Returns**: all available events
+
+| Param   | Type            |
+| ------- | --------------- |
+| context | <code>\*</code> |
+
+<a name="availableCommands"></a>
+
+## availableCommands(context) ⇒
+
+Returns all available commands.
+
+**Kind**: global function  
+**Returns**: all available ccommands
+
+| Param   | Type            |
+| ------- | --------------- |
+| context | <code>\*</code> |
+
+<a name="availableAttributes"></a>
+
+## availableAttributes(context) ⇒
+
+Returns all available attributes.
+
+**Kind**: global function  
+**Returns**: all available attributes
+
+| Param   | Type            |
+| ------- | --------------- |
+| context | <code>\*</code> |
+
+<a name="helperWrapper"></a>
+
+## helperWrapper(wrappedHelper) ⇒ <code>function</code>
+
+Wraps a helper function to add usage tracking and error handling.
+
+**Kind**: global function  
+**Returns**: <code>function</code> - - The wrapped helper function.
+
+| Param         | Type                  | Description                  |
+| ------------- | --------------------- | ---------------------------- |
+| wrappedHelper | <code>function</code> | The helper function to wrap. |
+
+<a name="registerHelpers"></a>
+
+## registerHelpers(singleHelper, registerHelper, context)
+
+Registers a helper function.
+
+**Kind**: global function
+
+| Param          | Type                  | Description                      |
+| -------------- | --------------------- | -------------------------------- |
+| singleHelper   | <code>string</code>   | The name of the helper function. |
+| registerHelper | <code>function</code> | The helper function to register. |
+| context        | <code>Object</code>   | The context object.              |
+
+<a name="executeHelperFunction"></a>
+
+## executeHelperFunction(functionName, context, helper) ⇒ <code>Promise</code>
+
+Executes a helper function from a script file.
+
+**Kind**: global function  
+**Returns**: <code>Promise</code> - - A Promise that resolves with the result of the helper function.
+
+| Param        | Type                | Description                                                  |
+| ------------ | ------------------- | ------------------------------------------------------------ |
+| functionName | <code>string</code> | The name of the helper function to execute.                  |
+| context      | <code>Object</code> | The context object to pass to the helper function.           |
+| helper       | <code>string</code> | The path to the helper file containing the helper functions. |
+
 <a name="all_user_cluster_commands_helper"></a>
 
 ## all_user_cluster_commands_helper()
@@ -15563,6 +19467,38 @@ collectBlocks. This allows other iterators to further filter the list
 before doing collectBlocks.
 
 **Kind**: global function  
+<a name="executeScriptFunction"></a>
+
+## executeScriptFunction(functionName, db, sessionId, script)
+
+Executes a named function from a given script.
+Arguments passed to the function are:
+api: which is the result of require('script-api.js')
+context: which contains 'db', 'sessionId', etc.
+
+**Kind**: global function
+
+| Param        | Type            |
+| ------------ | --------------- |
+| functionName | <code>\*</code> |
+| db           | <code>\*</code> |
+| sessionId    | <code>\*</code> |
+| script       | <code>\*</code> |
+
+<a name="projectName"></a>
+
+## projectName(db, sessionId) ⇒
+
+Extract project name from the Studio project path
+
+**Kind**: global function  
+**Returns**: '' if parsing fails
+
+| Param     | Type            |
+| --------- | --------------- |
+| db        |                 |
+| sessionId | <code>\*</code> |
+
 <a name="initAsyncValidation"></a>
 
 ## initAsyncValidation()
@@ -15570,6 +19506,119 @@ before doing collectBlocks.
 Start session specific validation.
 
 **Kind**: global function  
+<a name="validateAttribute"></a>
+
+## validateAttribute(db, endpointTypeId, attributeRef, clusterRef, zapSessionId) ⇒
+
+Main attribute validation function.
+Returns a promise of an object which stores a list of validational issues.
+Such issues as "Invalid type" or "Out of Range".
+
+**Kind**: global function  
+**Returns**: Promise of the list of issues
+
+| Param          | Type            | Description         |
+| -------------- | --------------- | ------------------- |
+| db             | <code>\*</code> | db reference        |
+| endpointTypeId | <code>\*</code> | endpoint reference  |
+| attributeRef   | <code>\*</code> | attribute reference |
+| clusterRef     | <code>\*</code> | cluster reference   |
+| zapSessionId   | <code>\*</code> | session reference   |
+
+<a name="validateSpecificAttribute"></a>
+
+## validateSpecificAttribute(endpointAttribute, attribute, db, zapSessionId) ⇒
+
+Checks the attributes type then validates the incoming input string.
+
+**Kind**: global function  
+**Returns**: List of issues wrapped in an object
+
+| Param             | Type            |
+| ----------------- | --------------- |
+| endpointAttribute | <code>\*</code> |
+| attribute         | <code>\*</code> |
+| db                | <code>\*</code> |
+| zapSessionId      | <code>\*</code> |
+
+<a name="extractIntegerValue"></a>
+
+## extractIntegerValue(value) ⇒
+
+Expects a number string , parse it back on a default base 10 if its a decimal.
+If its a hexadecimal or anything else , parse it back on base 16.
+Loses precision after javascripts Number.MAX_SAFE_INTEGER range.
+
+**Kind**: global function  
+**Returns**: A decimal number
+
+| Param | Type            |
+| ----- | --------------- |
+| value | <code>\*</code> |
+
+<a name="unsignedToSignedInteger"></a>
+
+## unsignedToSignedInteger(value, typeSize) ⇒
+
+Converts an unsigned integer to its signed value. Returns the same integer if its not a signed type.
+Works for both BigInts and regular numbers.
+
+**Kind**: global function  
+**Returns**: A decimal number
+
+| Param    | Type            | Description        |
+| -------- | --------------- | ------------------ |
+| value    | <code>\*</code> | integer to convert |
+| typeSize | <code>\*</code> | bit representation |
+
+<a name="getIntegerFromAttribute"></a>
+
+## getIntegerFromAttribute(attribute, typeSize, isSigned) ⇒
+
+Converts an attribute (number string) into a decimal number without losing precision.
+Accepts both decimal and hexadecimal strings (former has priority) in any bit representation.
+Shifts signed hexadecimals to their correct value.
+
+**Kind**: global function  
+**Returns**: A decimal number
+
+| Param     | Type            | Description             |
+| --------- | --------------- | ----------------------- |
+| attribute | <code>\*</code> | attribute to convert    |
+| typeSize  | <code>\*</code> | bit representation size |
+| isSigned  | <code>\*</code> | is type is signed       |
+
+<a name="getIntegerAttributeSize"></a>
+
+## getIntegerAttributeSize(db, zapSessionId, attribType) ⇒ <code>\*</code>
+
+Returns information about an integer type.
+
+**Kind**: global function  
+**Returns**: <code>\*</code> - { size: bit representation , isSigned: is signed type }
+
+| Param        | Type            |
+| ------------ | --------------- |
+| db           | <code>\*</code> |
+| zapSessionId | <code>\*</code> |
+| attribType   | <code>\*</code> |
+
+<a name="checkAttributeBoundsInteger"></a>
+
+## checkAttributeBoundsInteger(attribute, endpointAttribute, db, zapSessionId) ⇒
+
+Checks if the incoming integer is within it's attributes bound while handling signed and unsigned cases.
+
+**Kind**: global function  
+**Returns**: boolean
+
+| Param             | Type            |
+| ----------------- | --------------- |
+| attribute         | <code>\*</code> |
+| endpointAttribute | <code>\*</code> |
+| db                | <code>\*</code> |
+| zapSessionId      | <code>\*</code> |
+
 <a name="collectDataFromLibraryXml"></a>
 
 ## collectDataFromLibraryXml(ctx) ⇒
@@ -16087,9 +20136,9 @@ TODO This is not supported at this time.
 | db       | <code>\*</code> |
 | filePath | <code>\*</code> |
 
-<a name="loadDotdotZcl"></a>
+<a name="loadToplevelXmlFile"></a>
 
-## loadDotdotZcl(db, ctx) ⇒
+## loadToplevelXmlFile(db, ctx) ⇒
 
 Toplevel function that loads the xml library file
 and orchestrates the promise chain.
@@ -16101,6 +20150,24 @@ and orchestrates the promise chain.
 | ----- | --------------- | ------------------- |
 | db    | <code>\*</code> |                     |
 | ctx   | <code>\*</code> | Context of loading. |
+
+<a name="parseNewXmlFiles"></a>
+
+## parseNewXmlFiles(db, packageId, files, context) ⇒
+
+Parses the new XML files. Returns an object containing
+loaded data:
+clusterIdsLoaded: array of cluster ids that were loaded
+
+**Kind**: global function  
+**Returns**: Promise that resolves when all the new XML data is loaded.
+
+| Param     | Type            |
+| --------- | --------------- |
+| db        | <code>\*</code> |
+| packageId | <code>\*</code> |
+| files     | <code>\*</code> |
+| context   | <code>\*</code> |
 
 <a name="collectDataFromJsonFile"></a>
 
@@ -16652,19 +20719,25 @@ Preparation step for the device types.
 
 <a name="processDeviceTypes"></a>
 
-## processDeviceTypes(db, filePath, packageId, data) ⇒
+## processDeviceTypes(db, filePath, packageId, data, context) ⇒ <code>Promise</code>
 
-Process all device types.
+Processes and inserts device types into the database.
+This function logs the number of device types being processed for debugging purposes.
+It maps over the provided data to prepare each device type and then iterates over each prepared device type.
+If a device type has a compositionType, it inserts the endpoint composition into the database,
+retrieves the endpoint composition ID, and then inserts the device composition.
+Finally, it inserts all prepared device types into the database.
 
 **Kind**: global function  
-**Returns**: Promise of a resolved device types.
+**Returns**: <code>Promise</code> - A promise that resolves after all device types have been inserted into the database.
 
-| Param     | Type            |
-| --------- | --------------- |
-| db        | <code>\*</code> |
-| filePath  | <code>\*</code> |
-| packageId | <code>\*</code> |
-| data      | <code>\*</code> |
+| Param     | Type                | Description                                                    |
+| --------- | ------------------- | -------------------------------------------------------------- |
+| db        | <code>\*</code>     | The database connection object.                                |
+| filePath  | <code>string</code> | The file path from which the device types are being processed. |
+| packageId | <code>\*</code>     | The package ID associated with the device types.               |
+| data      | <code>Array</code>  | The array of device types to be processed.                     |
+| context   | <code>\*</code>     | Additional context that might be required for processing.      |
 
 <a name="processParsedZclData"></a>
 
@@ -16696,6 +20769,24 @@ This should _not_ be used for custom XML addition due to custom xmls potentially
 | db        | <code>\*</code> |
 | packageId | <code>\*</code> |
 | file      | <code>\*</code> |
+
+<a name="isCrcMismatchOrPackageDoesNotExist"></a>
+
+## isCrcMismatchOrPackageDoesNotExist(db, packageId, files) ⇒
+
+Checks if there is a crc mismatch on any xml file. This can be used to
+decide if there is a need to reload all the xml files. Also check if the
+package is not loaded before.
+
+**Kind**: global function  
+**Returns**: the status of crc mismatch and whether a package is present in an
+object
+
+| Param     | Type            |
+| --------- | --------------- |
+| db        | <code>\*</code> |
+| packageId | <code>\*</code> |
+| files     | <code>\*</code> |
 
 <a name="parseZclFiles"></a>
 
@@ -16821,6 +20912,27 @@ Parses the boolean options.
 | pkgRef            | <code>\*</code> |
 | booleanCategories | <code>\*</code> |
 
+<a name="parseattributeAccessInterfaceAttributes"></a>
+
+## parseattributeAccessInterfaceAttributes(db, pkgRef, attributeAccessInterfaceAttributes) ⇒ <code>Promise.&lt;void&gt;</code>
+
+Asynchronously parses and inserts attribute access interface attributes into the database.
+This function iterates over the attributeAccessInterfaceAttributes object, processing each cluster
+by mapping its values to a specific structure and then inserting them into the database using
+the insertOptionsKeyValues function.
+
+The main purpose of this function is to store cluster/attribute pairs including global attributes and their cluster pair
+The ATTRIBUTE table has cluster_ref as null for global attributes so this second method was necessary
+
+**Kind**: global function  
+**Returns**: <code>Promise.&lt;void&gt;</code> - A promise that resolves when all attributes have been processed and inserted.
+
+| Param                              | Type            | Description                                                                            |
+| ---------------------------------- | --------------- | -------------------------------------------------------------------------------------- |
+| db                                 | <code>\*</code> | The database connection object.                                                        |
+| pkgRef                             | <code>\*</code> | The package reference id for which the attributes are being parsed.                    |
+| attributeAccessInterfaceAttributes | <code>\*</code> | An object containing the attribute access interface attributes, structured by cluster. |
+
 <a name="parseDefaults"></a>
 
 ## parseDefaults(db, ctx) ⇒
@@ -16866,9 +20978,9 @@ If custom device is supported, then this method creates it.
 | db    | <code>\*</code> |
 | ctx   | <code>\*</code> |
 
-<a name="loadSilabsZcl"></a>
+<a name="loadZclJsonOrProperties"></a>
 
-## loadSilabsZcl(db, ctx) ⇒
+## loadZclJsonOrProperties(db, ctx) ⇒
 
 Toplevel function that loads the toplevel metafile
 and orchestrates the promise chain.
@@ -16883,18 +20995,19 @@ and orchestrates the promise chain.
 
 <a name="recordToplevelPackage"></a>
 
-## recordToplevelPackage(db, metadataFile, crc) ⇒
+## recordToplevelPackage(db, metadataFile, crc, isTopLevelPackageInSync) ⇒
 
 Records the toplevel package information and resolves into packageId
 
 **Kind**: global function  
 **Returns**: packageId
 
-| Param        | Type            |
-| ------------ | --------------- |
-| db           | <code>\*</code> |
-| metadataFile | <code>\*</code> |
-| crc          | <code>\*</code> |
+| Param                   | Type            |
+| ----------------------- | --------------- |
+| db                      | <code>\*</code> |
+| metadataFile            | <code>\*</code> |
+| crc                     | <code>\*</code> |
+| isTopLevelPackageInSync | <code>\*</code> |
 
 <a name="recordVersion"></a>
 
@@ -16908,6 +21021,35 @@ Records the version into the database.
 | ----- | --------------- |
 | db    | <code>\*</code> |
 | ctx   | <code>\*</code> |
+
+<a name="loadZclMetaFilesCommon"></a>
+
+## loadZclMetaFilesCommon(db, metadataFile, options) ⇒
+
+Retrieve zcl package information
+
+**Kind**: global function  
+**Returns**: package zcl package information
+
+| Param        | Type            |
+| ------------ | --------------- |
+| db           | <code>\*</code> |
+| metadataFile | <code>\*</code> |
+| options      | <code>\*</code> |
+
+<a name="loadAttributeMappingForMultiProtocol"></a>
+
+## loadAttributeMappingForMultiProtocol(db, multiProtcolInfo, categoryToPackageIdMap)
+
+Load attribute mapping table if there is multi-protocol information from a json file.
+
+**Kind**: global function
+
+| Param                  | Type            |
+| ---------------------- | --------------- |
+| db                     | <code>\*</code> |
+| multiProtcolInfo       | <code>\*</code> |
+| categoryToPackageIdMap | <code>\*</code> |
 
 <a name="loadZclMetafiles"></a>
 
@@ -16953,7 +21095,7 @@ Load individual custom XML files.
 
 <a name="qualifyZclFile"></a>
 
-## qualifyZclFile(db, info, parentPackageId) ⇒
+## qualifyZclFile(db, info, parentPackageId, isCustom) ⇒
 
 Promises to qualify whether zcl file needs to be reloaded.
 If yes, the it will resolve with {filePath, data, packageId}
@@ -16967,6 +21109,7 @@ If not, then it will resolve with {error}
 | db              | <code>\*</code> |
 | info            | <code>\*</code> |
 | parentPackageId | <code>\*</code> |
+| isCustom        | <code>\*</code> |
 
 <a name="processZclPostLoading"></a>
 

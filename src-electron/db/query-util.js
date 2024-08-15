@@ -26,7 +26,7 @@ const dbApi = require('./db-api')
 function sqlQueryForDataTypeByNameAndClusterId(
   typeDiscriminator,
   clusterId = null,
-  packageIds
+  packageIds,
 ) {
   let typeTableName = typeDiscriminator.toUpperCase()
   let numberExtensionString =

@@ -51,7 +51,7 @@ limitations under the License.
           @update:model-value="
             handleEnumeratedOptionChange(
               DbEnum.sessionOption.defaultResponsePolicy,
-              $event
+              $event,
             )
           "
           outlined
@@ -144,7 +144,7 @@ export default {
               o.optionCode ===
               this.$store.state.zap.selectedGenericOptions[
                 DbEnum.sessionOption.defaultResponsePolicy
-              ]
+              ],
           )
         }
       },
@@ -154,7 +154,7 @@ export default {
         return this.getMfgOptionLabel(
           this.$store.state.zap.selectedGenericOptions[
             DbEnum.sessionOption.manufacturerCodes
-          ]
+          ],
         )
       },
     },

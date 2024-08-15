@@ -46,13 +46,13 @@ describe(
       () => {
         let f = util.createAbsolutePath(
           'file',
-          dbEnum.pathRelativity.relativeToUserHome
+          dbEnum.pathRelativity.relativeToUserHome,
         )
         expect(path.resolve(f)).toBe(
-          path.resolve(path.join(os.homedir(), 'file'))
+          path.resolve(path.join(os.homedir(), 'file')),
         )
       },
-      timeout.short()
+      timeout.short(),
     )
 
     test(
@@ -64,7 +64,7 @@ describe(
         expect(x.match).toBeFalsy()
         expect(x.message).not.toBeNull()
       },
-      timeout.short()
+      timeout.short(),
     )
 
     test(
@@ -76,18 +76,18 @@ describe(
             util.createBackupFile(filePath)
             expect(fs.existsSync(backupPath)).toBeTruthy()
             expect(
-              fs.readFileSync(backupPath, { encoding: 'utf8', flag: 'r' })
+              fs.readFileSync(backupPath, { encoding: 'utf8', flag: 'r' }),
             ).toEqual('foo')
             fs.writeFileSync(filePath, 'bar')
             util.createBackupFile(filePath)
             expect(
-              fs.readFileSync(backupPath, { encoding: 'utf8', flag: 'r' })
+              fs.readFileSync(backupPath, { encoding: 'utf8', flag: 'r' }),
             ).toEqual('bar')
             resolve()
           })
         })
       },
-      timeout.short()
+      timeout.short(),
     )
 
     test(
@@ -95,19 +95,19 @@ describe(
       () => {
         let testCookie = { 'connect.sid': 's%3Atest.abra' }
         expect(browserApi.getUserKeyFromBrowserCookie(testCookie)).toEqual(
-          'test'
+          'test',
         )
         expect(browserApi.getUserKeyFromBrowserCookie({})).toBeNull()
         testCookie['connect.sid'] = 'tester.abra'
         expect(browserApi.getUserKeyFromBrowserCookie(testCookie)).toEqual(
-          'tester'
+          'tester',
         )
         testCookie['connect.sid'] = 's%3Aabra'
         expect(browserApi.getUserKeyFromBrowserCookie(testCookie)).toEqual(
-          'abra'
+          'abra',
         )
       },
-      timeout.short()
+      timeout.short(),
     )
 
     let array = []
@@ -117,17 +117,20 @@ describe(
         let args = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
         let fn = (arg) => {
           return new Promise((resolve, reject) => {
-            setTimeout(() => {
-              array.push(arg)
-              resolve()
-            }, 50 - 3 * arg)
+            setTimeout(
+              () => {
+                array.push(arg)
+                resolve()
+              },
+              50 - 3 * arg,
+            )
           })
         }
         return util.executePromisesSequentially(args, fn).then(() => {
           expect(array).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
         })
       },
-      timeout.short()
+      timeout.short(),
     )
 
     test('Type conversion', () => {
@@ -149,7 +152,7 @@ describe(
       expect(x == false).toBeTruthy() // ... unlike comparing to false, which is truthy.
     })
   },
-  timeout.short()
+  timeout.short(),
 )
 
 describe('Environment Tests', () => {
@@ -160,7 +163,7 @@ describe('Environment Tests', () => {
       expect(env.sqliteFile().length).toBeGreaterThan(10)
       expect(env.iconsDirectory().length).toBeGreaterThan(10)
     },
-    timeout.short()
+    timeout.short(),
   )
 
   test(
@@ -174,7 +177,7 @@ describe('Environment Tests', () => {
       env.logIpc('Ipc level test.')
       env.logIpc('Error logging test', new Error('Simple test'))
     },
-    timeout.short()
+    timeout.short(),
   )
 
   test(
@@ -182,7 +185,7 @@ describe('Environment Tests', () => {
     () => {
       expect(env.versionsCheck()).toBeTruthy()
     },
-    timeout.short()
+    timeout.short(),
   )
 
   test(
@@ -190,7 +193,7 @@ describe('Environment Tests', () => {
     () => {
       expect(env.zapVersion().featureLevel).toBeGreaterThan(0)
     },
-    timeout.short()
+    timeout.short(),
   )
 
   test(
@@ -202,7 +205,7 @@ describe('Environment Tests', () => {
       expect('timestamp' in v).toBeTruthy()
       expect('date' in v).toBeTruthy()
     },
-    timeout.short()
+    timeout.short(),
   )
 
   test(
@@ -214,7 +217,7 @@ describe('Environment Tests', () => {
       expect(uuid2).not.toBeNull()
       expect(uuid1).not.toEqual(uuid2)
     },
-    timeout.short()
+    timeout.short(),
   )
 
   test('Stack traces', () => {
@@ -223,7 +226,7 @@ describe('Environment Tests', () => {
     } catch (e) {
       // Test that the stack trace is coming from
       // line of 218 in this file.
-      expect(e.stack.includes('env.test.js:222')).toBeTruthy()
+      expect(e.stack.includes('env.test.js:225')).toBeTruthy()
     }
   })
 })

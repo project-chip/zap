@@ -40,7 +40,7 @@ beforeAll(async () => {
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
     env.schemaFile(),
-    env.zapVersion()
+    env.zapVersion(),
   )
   let ctx = await zclLoader.loadZcl(db, env.builtinMatterZclMetafile())
   zclPackageId = ctx.packageId
@@ -53,19 +53,19 @@ test(
   async () => {
     templateContext = await genEngine.loadTemplates(
       db,
-      testUtil.testTemplate.matterApiMaturity
+      testUtil.testTemplate.matterApiMaturity,
     )
 
     expect(templateContext.crc).not.toBeNull()
     expect(templateContext.templateData).not.toBeNull()
     expect(templateContext.templateData.name).toEqual('CHIP Tests templates')
     expect(templateContext.templateData.version).toEqual(
-      'matter-matter-api-maturity'
+      'matter-matter-api-maturity',
     )
     expect(templateContext.templateData.templates.length).toEqual(templateCount)
     expect(templateContext.packageId).not.toBeNull()
   },
-  testUtil.timeout.medium()
+  testUtil.timeout.medium(),
 )
 
 test(
@@ -82,7 +82,7 @@ test(
       sessionId,
       templateContext.packageId,
       {},
-      { disableDeprecationWarnings: true }
+      { disableDeprecationWarnings: true },
     )
     expect(genResult.hasErrors).toEqual(false)
 
@@ -100,12 +100,12 @@ test(
     // attribute tagging
     expect(ept).toContain('optional int8u attribute stableAttribute = 0;')
     expect(ept).toContain(
-      'optional int8u attribute provisionalAttribute = 1 (provisional);'
+      'optional int8u attribute provisionalAttribute = 1 (provisional);',
     )
 
     // Maturity for structures should be correct
     expect(ept).toContain('struct StableStruct {')
     expect(ept).toContain('struct ProvisionalStruct (provisional) {')
   },
-  testUtil.timeout.long()
+  testUtil.timeout.long(),
 )

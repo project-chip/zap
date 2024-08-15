@@ -49,7 +49,7 @@ FROM
 INNER JOIN CLUSTER
 ON ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = CLUSTER.CLUSTER_ID
 WHERE ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = ?`,
-    [endpointTypeId]
+    [endpointTypeId],
   )
   if (rows == null) return []
 
@@ -108,7 +108,7 @@ async function getEndpointTypeCommands(db, endpointTypeId) {
         ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = ?
       GROUP BY
         COMMAND_REF`,
-      [endpointTypeId]
+      [endpointTypeId],
     )
     .then((rows) =>
       rows.map((row) => {
@@ -117,7 +117,7 @@ async function getEndpointTypeCommands(db, endpointTypeId) {
           isIncoming: row.IS_INCOMING,
           isEnabled: row.IS_ENABLED,
         }
-      })
+      }),
     )
 }
 
@@ -153,7 +153,7 @@ ON
   ETA.ENDPOINT_TYPE_CLUSTER_REF = ETC.ENDPOINT_TYPE_CLUSTER_ID
 WHERE
   ETC.ENDPOINT_TYPE_REF = ?`,
-      [endpointTypeId]
+      [endpointTypeId],
     )
     .then((rows) => rows.map(dbMapping.map.endpointTypeAttribute))
 }
@@ -175,7 +175,7 @@ async function createSession(db, user, sessionUuid, zclFile, genTemplatesFile) {
     sessionUuid,
     {
       partitions: 2,
-    }
+    },
   )
   await util.ensurePackagesAndPopulateSessionOptions(
     db,
@@ -185,7 +185,7 @@ async function createSession(db, user, sessionUuid, zclFile, genTemplatesFile) {
       template: genTemplatesFile,
       partitions: 2,
     },
-    null
+    null,
   )
   return userSession.sessionId
 }
@@ -207,7 +207,7 @@ FROM
   SESSION_NOTICE
 WHERE
   SESSION_REF = ?`,
-      [sessionId]
+      [sessionId],
     )
     .then((rows) => rows.map(dbMapping.map.sessionNotifications))
 }
@@ -237,7 +237,7 @@ ON
   SESSION_PACKAGE.SESSION_PARTITION_REF = SESSION_PARTITION.SESSION_PARTITION_ID
 WHERE
   SESSION_PARTITION.SESSION_REF = ?`,
-      [sessionId]
+      [sessionId],
     )
     .then((rows) => rows.map(dbMapping.map.cluster))
 }

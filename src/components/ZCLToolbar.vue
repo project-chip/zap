@@ -16,7 +16,7 @@
             v-for="(image, index) in getLogos(
               $store.state.zap.selectedZapConfig
                 ? $store.state.zap.selectedZapConfig.zclProperties
-                : null
+                : null,
             )"
             :key="index"
             :src="image"
@@ -311,7 +311,7 @@ export default {
           this.$store.state.zap.genericOptions[
             dbEnum.sessionOption.coreSpecification
           ][0]['optionLabel'],
-          '_blank'
+          '_blank',
         )
       }
     },
@@ -342,7 +342,7 @@ export default {
     doGeneration(path) {
       window[rendApi.GLOBAL_SYMBOL_EXECUTE](
         rendApi.id.progressStart,
-        'Generating files...'
+        'Generating files...',
       )
       this.$serverPut(restApi.uri.generate, {
         generationDirectory: path,
@@ -369,7 +369,7 @@ export default {
         dbEnum.wsCategory.notificationCount,
         (notificationCount) => {
           this.$store.commit('zap/updateNotificationCount', notificationCount)
-        }
+        },
       )
     }
 

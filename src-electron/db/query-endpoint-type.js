@@ -34,7 +34,7 @@ async function deleteEndpointType(db, id) {
   return dbApi.dbRemove(
     db,
     'DELETE FROM ENDPOINT_TYPE WHERE ENDPOINT_TYPE_ID = ?',
-    [id]
+    [id],
   )
 }
 
@@ -62,7 +62,7 @@ async function selectAllEndpointTypes(db, sessionId) {
   ON
   ENDPOINT_TYPE.SESSION_PARTITION_REF = SESSION_PARTITION.SESSION_PARTITION_ID
 WHERE SESSION_PARTITION.SESSION_REF = ? ORDER BY NAME`,
-      [sessionId]
+      [sessionId],
     )
     .then((rows) => rows.map(dbMapping.map.endpointType))
 
@@ -104,7 +104,7 @@ WHERE SESSION_PARTITION.SESSION_REF = ? ORDER BY NAME`,
         DEVICE_TYPE.NAME,
         DEVICE_TYPE.CODE,
         DEVICE_TYPE.PROFILE_ID`,
-      [sessionId, et.endpointTypeId]
+      [sessionId, et.endpointTypeId],
     )
     // Updating the device type info for the endpoint
     et.deviceTypeRef = rows.map((x) => x.DEVICE_TYPE_ID)
@@ -147,7 +147,7 @@ ON
 WHERE
   SESSION_PARTITION.SESSION_REF = ?
 ORDER BY ENDPOINT_TYPE.NAME`,
-      [sessionId]
+      [sessionId],
     )
     .then((rows) => rows.map(mapFunction))
 }
@@ -187,7 +187,7 @@ ON
 WHERE
   SESSION_PARTITION.SESSION_REF = ?
 ORDER BY ENDPOINT_TYPE.NAME`,
-      [sessionId]
+      [sessionId],
     )
     .then((rows) => rows.map(mapFunction))
 }
@@ -216,7 +216,7 @@ async function selectEndpointType(db, id) {
         ENDPOINT_TYPE.SESSION_PARTITION_REF = SESSION_PARTITION.SESSION_PARTITION_ID
       WHERE
         ENDPOINT_TYPE_ID = ?`,
-      [id]
+      [id],
     )
     .then(dbMapping.map.endpointType)
 
@@ -240,7 +240,7 @@ async function selectEndpointType(db, id) {
       DEVICE_TYPE.NAME,
       DEVICE_TYPE.CODE,
       DEVICE_TYPE.PROFILE_ID`,
-    [id]
+    [id],
   )
   endpointType.deviceTypes = rows.map((row) => row.DEVICE_TYPE_ID)
   endpointType.deviceVersions = rows.map((row) => row.DEVICE_VERSION)
@@ -263,7 +263,7 @@ async function selectEndpointType(db, id) {
 async function selectAllClustersDetailsFromEndpointTypes(
   db,
   endpointTypes,
-  side = null // should be null (for either), 'client' or 'server'
+  side = null, // should be null (for either), 'client' or 'server'
 ) {
   let endpointClusterSideFilter
   if (side == null) {
@@ -324,7 +324,7 @@ ${
   doOrderBy
     ? 'ORDER BY CLUSTER.MANUFACTURER_CODE, CLUSTER.CODE, CLUSTER.DEFINE'
     : ''
-}`
+}`,
     )
     .then((rows) => rows.map(mapFunction))
 }
@@ -338,7 +338,7 @@ ${
  */
 async function selectEndpointDetailsFromAddedEndpoints(
   db,
-  endpointsAndClusters
+  endpointsAndClusters,
 ) {
   let endpointClusterIds = endpointsAndClusters
     .map((ep) => ep.endpointClusterId)
@@ -457,7 +457,7 @@ SELECT * FROM (
   WHERE ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF IN (${endpointClusterIds}) AND ENDPOINT_TYPE_CLUSTER.ENABLED=1
   AND ENDPOINT_TYPE_ATTRIBUTE.INCLUDED = 1 AND ENDPOINT_TYPE_CLUSTER.SIDE=ATTRIBUTE.SIDE AND ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_ORDER = 0
   GROUP BY ENDPOINT.ENDPOINT_IDENTIFIER, CLUSTER.MANUFACTURER_CODE, CLUSTER.NAME, ENDPOINT_TYPE_CLUSTER.SIDE, ATTRIBUTE.NAME) WHERE ENDPOINT_INDEX=1 ORDER BY ENDPOINT_IDENTIFIER
-        `
+        `,
     )
     .then((rows) => rows.map(mapFunction))
 }
@@ -505,7 +505,7 @@ WHERE
   ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF IN (${endpointTypeIds})
   AND ENDPOINT_TYPE_CLUSTER.SIDE IS NOT "" AND ENDPOINT_TYPE_CLUSTER.ENABLED = 1
 GROUP BY
-  NAME`
+  NAME`,
     )
     .then((rows) => rows.map(mapFunction))
 }
@@ -519,7 +519,7 @@ GROUP BY
  */
 async function selectAllClustersDetailsIrrespectiveOfSideFromEndpointTypes(
   db,
-  endpointTypes
+  endpointTypes,
 ) {
   let endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
   let mapFunction = (x) => {
@@ -553,7 +553,7 @@ INNER JOIN ENDPOINT_TYPE_CLUSTER
 ON CLUSTER.CLUSTER_ID = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
 WHERE ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF IN (${endpointTypeIds})
 AND ENDPOINT_TYPE_CLUSTER.SIDE IS NOT "" AND ENDPOINT_TYPE_CLUSTER.ENABLED=1
-GROUP BY NAME`
+GROUP BY NAME`,
     )
     .then((rows) => rows.map(mapFunction))
 }
@@ -571,7 +571,7 @@ async function selectCommandDetailsFromAllEndpointTypeCluster(
   db,
   endpointTypes,
   endpointClusterId,
-  packageIds
+  packageIds,
 ) {
   let endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
   let mapFunction = (x) => {
@@ -614,7 +614,7 @@ async function selectCommandDetailsFromAllEndpointTypeCluster(
   AND
     COMMAND.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
         `,
-      [endpointClusterId]
+      [endpointClusterId],
     )
     .then((rows) => rows.map(mapFunction))
 }
@@ -634,7 +634,7 @@ async function selectCommandDetailsFromAllEndpointTypeCluster(
  */
 async function selectClustersAndEndpointDetailsFromEndpointTypes(
   db,
-  endpointTypes
+  endpointTypes,
 ) {
   let endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
   let mapFunction = (x) => {
@@ -659,7 +659,7 @@ INNER JOIN
 ON 
   CLUSTER.CLUSTER_ID = ETC.CLUSTER_REF
 WHERE
-  ETC.ENDPOINT_TYPE_REF IN (${endpointTypeIds})`
+  ETC.ENDPOINT_TYPE_REF IN (${endpointTypeIds})`,
   )
   return rows.map(mapFunction)
 }
@@ -677,7 +677,7 @@ async function selectEndpointTypeAttributeFromEndpointTypeClusterId(
   db,
   endpointTypeClusterId,
   attributeCode,
-  attributeMfgCode
+  attributeMfgCode,
 ) {
   let eta = await dbApi.dbGet(
     db,
@@ -706,7 +706,7 @@ async function selectEndpointTypeAttributeFromEndpointTypeClusterId(
     ` +
       (attributeMfgCode
         ? ` AND A.MANUFACTURER_CODE = ${attributeMfgCode}`
-        : ` AND A.MANUFACTURER_CODE IS NULL`)
+        : ` AND A.MANUFACTURER_CODE IS NULL`),
   )
   return dbMapping.map.endpointTypeAttribute(eta)
 }
@@ -724,7 +724,7 @@ async function selectEndpointTypeClusterFromEndpointIdentifierAndAttributeRef(
   db,
   sessionId,
   endpointIdentifier,
-  attributeRef
+  attributeRef,
 ) {
   let etc = await dbApi.dbGet(
     db,
@@ -763,7 +763,7 @@ async function selectEndpointTypeClusterFromEndpointIdentifierAndAttributeRef(
     AND
       E.ENDPOINT_IDENTIFIER = ${endpointIdentifier}
     AND
-      ETC.SIDE = A.SIDE`
+      ETC.SIDE = A.SIDE`,
   )
   return dbMapping.map.endpointTypeCluster(etc)
 }

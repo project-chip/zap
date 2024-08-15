@@ -38,7 +38,7 @@ beforeAll(async () => {
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
     env.schemaFile(),
-    env.zapVersion()
+    env.zapVersion(),
   )
 }, testUtil.timeout.medium())
 
@@ -60,7 +60,7 @@ test(
       message,
       sessionId,
       severity,
-      display
+      display,
     )
 
     let notifications = await sessionNotification.getNotification(db, sessionId)
@@ -99,7 +99,7 @@ test(
     }
     expect(isNotificationDeleted).toBeTruthy()
   },
-  testUtil.timeout.long()
+  testUtil.timeout.long(),
 )
 
 test('Notification: mark notification as seen and get unseen count', async () => {
@@ -117,7 +117,7 @@ test('Notification: mark notification as seen and get unseen count', async () =>
     message,
     sessionId,
     severity,
-    display
+    display,
   )
 
   let notifications = await sessionNotification.getNotification(db, sessionId)
@@ -128,7 +128,7 @@ test('Notification: mark notification as seen and get unseen count', async () =>
   // should have 1 unseen notification
   let unseenCount = await sessionNotification.getUnseenNotificationCount(
     db,
-    sessionId
+    sessionId,
   )
   expect(unseenCount).toBe(1)
 
@@ -138,7 +138,7 @@ test('Notification: mark notification as seen and get unseen count', async () =>
   // should have 0 unseen now
   unseenCount = await sessionNotification.getUnseenNotificationCount(
     db,
-    sessionId
+    sessionId,
   )
   expect(unseenCount).toBe(0)
 })
@@ -162,17 +162,17 @@ test(
         template: env.builtinTemplateMetafile(),
       },
       packageId,
-      null
+      null,
     )
     let sessionPartitionInfo = await querySession.getSessionPartitionInfo(
       db,
       sessionId,
-      2
+      2,
     )
     await queryPackage.insertSessionPackage(
       db,
       sessionPartitionInfo[0].sessionPartitionId,
-      packageId
+      packageId,
     )
 
     await packageNotification.setNotification(
@@ -180,12 +180,12 @@ test(
       type,
       message,
       packageId,
-      severity
+      severity,
     )
 
     let notifications = await packageNotification.getNotificationBySessionId(
       db,
-      sessionId
+      sessionId,
     )
 
     let id = 0
@@ -211,7 +211,7 @@ test(
 
     notifications = await packageNotification.getNotificationByPackageId(
       db,
-      packageId
+      packageId,
     )
 
     // check if the notification was successfully deleted
@@ -224,5 +224,5 @@ test(
     }
     expect(isNotificationDeleted).toBeTruthy()
   },
-  testUtil.timeout.long()
+  testUtil.timeout.long(),
 )

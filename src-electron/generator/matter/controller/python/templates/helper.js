@@ -77,7 +77,7 @@ async function as_underlying_python_zcl_type(type, clusterId, options) {
     this.global.db,
     type,
     clusterId,
-    packageIds
+    packageIds,
   );
   if (type && type.toLowerCase() == 'boolean') {
     return 'bool';

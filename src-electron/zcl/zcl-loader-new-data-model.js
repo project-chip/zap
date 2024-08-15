@@ -47,12 +47,12 @@ async function parseNewXmlFiles(db, packageId, files, context) {
     let cluster = await parseSingleNewXmlFile(f)
     if (cluster == null) {
       env.logWarning(
-        `Invalid XML file: ${f}, missing toplevel 'cluster' element.`
+        `Invalid XML file: ${f}, missing toplevel 'cluster' element.`,
       )
       ret.errorFiles.push({ file: f, error: 'missing cluster element' })
     } else if (Number.isNaN(cluster.code)) {
       env.logWarning(
-        `Invalid XML file: ${f}, missing or invalid 'id' attribute in 'cluster' element.`
+        `Invalid XML file: ${f}, missing or invalid 'id' attribute in 'cluster' element.`,
       )
       ret.errorFiles.push({ file: f, error: 'missing id attribute' })
     } else {

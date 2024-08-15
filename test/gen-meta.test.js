@@ -41,7 +41,7 @@ beforeAll(async () => {
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
     env.schemaFile(),
-    env.zapVersion()
+    env.zapVersion(),
   )
 }, testUtil.timeout.medium())
 
@@ -52,7 +52,7 @@ test(
   async () => {
     templateContext = await genEngine.loadTemplates(
       db,
-      testUtil.testTemplate.meta
+      testUtil.testTemplate.meta,
     )
     expect(templateContext.crc).not.toBeNull()
     expect(templateContext.templateData).not.toBeNull()
@@ -60,7 +60,7 @@ test(
     expect(templateContext.templateData.version).toEqual('meta-test')
     expect(templateContext.packageId).not.toBeNull()
   },
-  testUtil.timeout.medium()
+  testUtil.timeout.medium(),
 )
 
 test(
@@ -151,14 +151,14 @@ test(
 
     const ops = await queryAccess.selectAccessOperations(
       db,
-      zclContext.packageId
+      zclContext.packageId,
     )
     expect(ops.length).toBe(3)
     const roles = await queryAccess.selectAccessRoles(db, zclContext.packageId)
     expect(roles.length).toBe(4)
     const mods = await queryAccess.selectAccessModifiers(
       db,
-      zclContext.packageId
+      zclContext.packageId,
     )
     expect(mods.length).toBe(2)
 
@@ -167,7 +167,7 @@ test(
     d = await queryAccess.selectDefaultAccess(
       db,
       zclContext.packageId,
-      'command'
+      'command',
     )
     expect(d[0].operation).toBe('invoke')
     expect(d[0].role).toBeNull()
@@ -177,7 +177,7 @@ test(
     d = await queryAccess.selectDefaultAccess(
       db,
       zclContext.packageId,
-      'cluster'
+      'cluster',
     )
     expect(d.length).toBe(2)
     expect(d[0].operation).toBe('read')
@@ -186,7 +186,7 @@ test(
     d = await queryAccess.selectDefaultAccess(
       db,
       zclContext.packageId,
-      'attribute'
+      'attribute',
     )
     expect(d.length).toBe(2)
     expect(d[0].operation).toBe('read')
@@ -194,7 +194,7 @@ test(
     expect(d[0].role).toBe('view')
     expect(d[1].role).toBe('operate')
   },
-  testUtil.timeout.medium()
+  testUtil.timeout.medium(),
 )
 
 test(
@@ -204,7 +204,7 @@ test(
     sessionId = importResult.sessionId
     expect(sessionId).not.toBeNull()
   },
-  testUtil.timeout.medium()
+  testUtil.timeout.medium(),
 )
 
 test(
@@ -217,7 +217,7 @@ test(
       {},
       {
         disableDeprecationWarnings: true,
-      }
+      },
     )
 
     expect(genResult).not.toBeNull()
@@ -250,11 +250,11 @@ test(
     epc = genResult.content['access.out']
     expect(epc).not.toBeNull()
     expect(epc).toContain(
-      '* Op: write / Role: manage / Modifier: fabric-scoped'
+      '* Op: write / Role: manage / Modifier: fabric-scoped',
     )
     expect(epc).toContain('* Op:  / Role:  / Modifier: fabric-sensitive')
     expect(epc).toContain(
-      '* Aggregates [3]: fScope=true/fSensitive=false/read=view/write=[operate - manage]/invoke=NONE'
+      '* Aggregates [3]: fScope=true/fSensitive=false/read=view/write=[operate - manage]/invoke=NONE',
     )
     expect(epc).toContain('HelloEvent is a fabric-sensitive event')
 
@@ -267,7 +267,7 @@ test(
     expect(c).not.toBeNull()
     expect(c).toContain('Cluster desc: Test 2 description')
   },
-  testUtil.timeout.medium()
+  testUtil.timeout.medium(),
 )
 
 test('Package options test', async () => {

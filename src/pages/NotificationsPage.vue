@@ -207,7 +207,7 @@ export default {
         (resp) => {
           this.notis = this.notis.filter((row) => row.id !== id)
           this.getUnseenNotificationCount()
-        }
+        },
       )
     },
     // load package notification data after global var updates
@@ -223,7 +223,7 @@ export default {
     },
     async getPackageNotifications(packageId) {
       this.$serverGet(
-        restApi.uri.packageNotificationById.replace(':packageId', packageId)
+        restApi.uri.packageNotificationById.replace(':packageId', packageId),
       ).then((res) => {
         let notifications = res.data || []
         let currentPackage = {

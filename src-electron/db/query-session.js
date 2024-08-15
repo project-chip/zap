@@ -35,7 +35,7 @@ async function getAllSessions(db) {
   let rows = await dbApi.dbAll(
     db,
     'SELECT SESSION_ID, SESSION_KEY, CREATION_TIME FROM SESSION',
-    []
+    [],
   )
   return rows.map(dbMapping.map.session)
 }
@@ -54,7 +54,7 @@ async function reloadSession(db, sessionId, userRef, sessionKey) {
   return dbApi.dbUpdate(
     db,
     'UPDATE SESSION SET DIRTY = ?, USER_REF = ? , SESSION_KEY = ? WHERE SESSION_ID = ?',
-    [1, userRef, sessionKey, sessionId]
+    [1, userRef, sessionKey, sessionId],
   )
 }
 
@@ -87,7 +87,7 @@ SELECT
   ON
     SESSION_PACKAGE.SESSION_PARTITION_REF= SESSION_PARTITION.SESSION_PARTITION_ID
   WHERE SESSION.DIRTY = 1`,
-    []
+    [],
   )
   let sessions = []
   rows.forEach((row) => {
@@ -118,7 +118,7 @@ async function setSessionClean(db, sessionId) {
   return dbApi.dbUpdate(
     db,
     'UPDATE SESSION SET DIRTY = ? WHERE SESSION_ID = ?',
-    [0, sessionId]
+    [0, sessionId],
   )
 }
 
@@ -134,7 +134,7 @@ async function setSessionNewNotificationClean(db, sessionId) {
   return dbApi.dbUpdate(
     db,
     'UPDATE SESSION SET NEW_NOTIFICATION = ? WHERE SESSION_ID = ?',
-    [0, sessionId]
+    [0, sessionId],
   )
 }
 
@@ -151,7 +151,7 @@ async function getSessionDirtyFlag(db, sessionId) {
     db,
     'SELECT DIRTY FROM SESSION WHERE SESSION_ID = ?',
     [sessionId],
-    false
+    false,
   )
   if (row == null) {
     return undefined
@@ -171,7 +171,7 @@ async function getSessionFromSessionId(db, sessionId) {
     .dbGet(
       db,
       'SELECT SESSION_ID, SESSION_KEY, CREATION_TIME, NEW_NOTIFICATION FROM SESSION WHERE SESSION_ID = ?',
-      [sessionId]
+      [sessionId],
     )
     .then(dbMapping.map.session)
 }
@@ -213,13 +213,13 @@ async function ensureZapSessionId(db, userKey, sessionId = null) {
     let row = await dbApi.dbGet(
       db,
       'SELECT SESSION_ID FROM SESSION WHERE SESSION_KEY = ?',
-      [userKey]
+      [userKey],
     )
     if (row == null) {
       return dbApi.dbInsert(
         db,
         'INSERT INTO SESSION (SESSION_KEY, CREATION_TIME) VALUES (?,?)',
-        [userKey, Date.now()]
+        [userKey, Date.now()],
       )
     } else {
       return row.SESSION_ID
@@ -229,7 +229,7 @@ async function ensureZapSessionId(db, userKey, sessionId = null) {
     await dbApi.dbUpdate(
       db,
       'UPDATE SESSION SET SESSION_KEY = ? WHERE SESSION_ID = ?',
-      [userKey, sessionId]
+      [userKey, sessionId],
     )
     return sessionId
   }
@@ -261,7 +261,7 @@ async function ensureZapUserAndSession(
     sessionId: null,
     userId: null,
     partitions: null,
-  }
+  },
 ) {
   if (options.sessionId != null && options.userId != null) {
     // if we're passed both IDs, we simply return them back.
@@ -288,7 +288,7 @@ async function ensureZapUserAndSession(
     let sessionId = await ensureBlankSession(
       db,
       sessionUuid,
-      options.partitions
+      options.partitions,
     )
     await linkSessionToUser(db, sessionId, options.userId)
     return {
@@ -303,7 +303,7 @@ async function ensureZapUserAndSession(
     let sessionId = await ensureBlankSession(
       db,
       sessionUuid,
-      options.partitions
+      options.partitions,
     )
     await linkSessionToUser(db, sessionId, user.userId)
     return {
@@ -327,13 +327,13 @@ async function ensureBlankSession(db, uuid, partitions) {
   let sessionId = await dbApi.dbInsert(
     db,
     'INSERT OR IGNORE INTO SESSION (SESSION_KEY, CREATION_TIME, DIRTY) VALUES (?,?,?)',
-    [uuid, Date.now(), 0]
+    [uuid, Date.now(), 0],
   )
   // An ignore in the above insert command can lead to false session Ids. Hence the additional check.
   let sessionIdInserted = await dbApi.dbGet(
     db,
     `SELECT SESSION_ID FROM SESSION WHERE SESSION_ID = ?`,
-    [sessionId]
+    [sessionId],
   )
   if (sessionIdInserted) {
     let sessionPartitionPromises = []
@@ -342,8 +342,8 @@ async function ensureBlankSession(db, uuid, partitions) {
         dbApi.dbInsert(
           db,
           'INSERT OR IGNORE INTO SESSION_PARTITION (SESSION_REF, SESSION_PARTITION_NUMBER) VALUES (?,?)',
-          [sessionId, i + 1]
-        )
+          [sessionId, i + 1],
+        ),
       )
     }
     await Promise.all(sessionPartitionPromises)
@@ -367,8 +367,8 @@ async function insertSessionPartitions(db, sessionId, partitions) {
       dbApi.dbInsert(
         db,
         'INSERT OR IGNORE INTO SESSION_PARTITION (SESSION_REF, SESSION_PARTITION_NUMBER) VALUES (?,?)',
-        [sessionId, i + 1]
-      )
+        [sessionId, i + 1],
+      ),
     )
   }
   let sessionPartitions = await Promise.all(sessionPartitionPromises)
@@ -386,7 +386,7 @@ async function insertSessionPartition(db, sessionId, partitionNumber) {
   let sessionPartition = await dbApi.dbInsert(
     db,
     'INSERT OR IGNORE INTO SESSION_PARTITION (SESSION_REF, SESSION_PARTITION_NUMBER) VALUES (?,?)',
-    [sessionId, partitionNumber]
+    [sessionId, partitionNumber],
   )
   return sessionPartition
 }
@@ -413,7 +413,7 @@ async function getSessionPartitionInfo(db, sessionId, partitionNumber) {
       SESSION_REF = ?
     AND
       SESSION_PARTITION_NUMBER <= ?`,
-    [sessionId, partitionNumber]
+    [sessionId, partitionNumber],
   )
   return rows.map(dbMapping.map.sessionPartition)
 }
@@ -437,7 +437,7 @@ async function getAllSessionPartitionInfoForSession(db, sessionId) {
       SESSION_PARTITION
     WHERE
       SESSION_REF = ?`,
-    [sessionId]
+    [sessionId],
   )
   return rows.map(dbMapping.map.sessionPartition)
 }
@@ -452,7 +452,7 @@ async function getAllSessionPartitionInfoForSession(db, sessionId) {
 async function selectSessionPartitionInfoFromDeviceType(
   db,
   sessionId,
-  deviceTypeIds
+  deviceTypeIds,
 ) {
   let rows = await dbApi.dbAll(
     db,
@@ -481,7 +481,7 @@ async function selectSessionPartitionInfoFromDeviceType(
       DEVICE_TYPE.DEVICE_TYPE_ID IN (${dbApi.toInClause(deviceTypeIds)})
     AND
       SESSION_PACKAGE.ENABLED=1`,
-    [sessionId]
+    [sessionId],
   )
   return rows.map(dbMapping.map.sessionPartition)
 }
@@ -496,7 +496,7 @@ async function selectSessionPartitionInfoFromDeviceType(
 async function selectSessionPartitionInfoFromPackageId(
   db,
   sessionId,
-  packageIds
+  packageIds,
 ) {
   let rows = await dbApi.dbAll(
     db,
@@ -521,7 +521,7 @@ async function selectSessionPartitionInfoFromPackageId(
       SESSION_PACKAGE.PACKAGE_REF IN (${packageIds})
     AND
       SESSION_PACKAGE.ENABLED=1`,
-    [sessionId]
+    [sessionId],
   )
   return rows.map(dbMapping.map.sessionPartition)
 }
@@ -550,7 +550,7 @@ async function selectDeviceTypePackageInfoFromDeviceTypeId(db, deviceTypeIds) {
     ON
       PACKAGE.PACKAGE_ID = DEVICE_TYPE.PACKAGE_REF
     WHERE
-      DEVICE_TYPE.DEVICE_TYPE_ID IN (${dbApi.toInClause(deviceTypeIds)})`
+      DEVICE_TYPE.DEVICE_TYPE_ID IN (${dbApi.toInClause(deviceTypeIds)})`,
   )
   return rows.map(dbMapping.map.deviceTypeExtended)
 }
@@ -568,7 +568,7 @@ async function createBlankSession(db, uuid = null) {
   return dbApi.dbInsert(
     db,
     'INSERT INTO SESSION (SESSION_KEY, CREATION_TIME, DIRTY) VALUES (?,?,?)',
-    [newUuid, Date.now(), 0]
+    [newUuid, Date.now(), 0],
   )
 }
 
@@ -594,7 +594,7 @@ async function getUsers(db) {
 async function getUsersSessions(db) {
   let allUsers = await getUsers(db)
   let sessionsPerUser = await Promise.all(
-    allUsers.map((user) => getUserSessionsById(db, user.userId))
+    allUsers.map((user) => getUserSessionsById(db, user.userId)),
   )
   allUsers.forEach((user, i) => {
     user.sessions = sessionsPerUser[i]
@@ -613,7 +613,7 @@ async function getUserSessionsById(db, userId) {
   let rows = await dbApi.dbAll(
     db,
     'SELECT SESSION_ID, SESSION_KEY, CREATION_TIME, DIRTY FROM SESSION WHERE USER_REF = ?',
-    [userId]
+    [userId],
   )
   return rows.map(dbMapping.map.session)
 }
@@ -629,7 +629,7 @@ async function getUserByKey(db, userKey) {
   let row = await dbApi.dbGet(
     db,
     'SELECT USER_ID, USER_KEY, CREATION_TIME FROM USER WHERE USER_KEY = ?',
-    [userKey]
+    [userKey],
   )
   return dbMapping.map.user(row)
 }
@@ -646,7 +646,7 @@ async function ensureUser(db, userKey) {
   await dbApi.dbInsert(
     db,
     'INSERT OR IGNORE INTO USER ( USER_KEY, CREATION_TIME ) VALUES (?,?)',
-    [userKey, Date.now()]
+    [userKey, Date.now()],
   )
   return getUserByKey(db, userKey)
 }
@@ -663,7 +663,7 @@ async function linkSessionToUser(db, sessionId, userId) {
   return dbApi.dbUpdate(
     db,
     `UPDATE SESSION SET USER_REF = ? WHERE SESSION_ID = ?`,
-    [userId, sessionId]
+    [userId, sessionId],
   )
 }
 /**
@@ -694,7 +694,7 @@ async function writeLog(db, sessionId, logArray) {
     'INSERT INTO SESSION_LOG (SESSION_REF, TIMESTAMP, LOG) VALUES (?,?,?)',
     logArray.map((logEntry) => {
       return [sessionId, logEntry.timestamp, logEntry.log]
-    })
+    }),
   )
 }
 
@@ -710,7 +710,7 @@ async function readLog(db, sessionId) {
     .dbAll(
       db,
       'SELECT TIMESTAMP, LOG from SESSION_LOG WHERE SESSION_REF = ? ORDER BY TIMESTAMP',
-      [sessionId]
+      [sessionId],
     )
     .then((rows) => rows.map(dbMapping.map.sessionLog))
 }
@@ -729,7 +729,7 @@ async function updateSessionKeyValue(db, sessionId, key, value) {
   return dbApi.dbInsert(
     db,
     'INSERT OR REPLACE INTO SESSION_KEY_VALUE (SESSION_REF, KEY, VALUE) VALUES (?,?,?)',
-    [sessionId, key, value]
+    [sessionId, key, value],
   )
 }
 
@@ -747,7 +747,7 @@ async function insertSessionKeyValue(db, sessionId, key, value) {
   return dbApi.dbInsert(
     db,
     'INSERT OR IGNORE INTO SESSION_KEY_VALUE (SESSION_REF, KEY, VALUE) VALUES (?,?,?)',
-    [sessionId, key, value]
+    [sessionId, key, value],
   )
 }
 
@@ -768,7 +768,7 @@ async function insertSessionKeyValues(db, sessionId, object) {
   return dbApi.dbMultiInsert(
     db,
     'INSERT OR REPLACE INTO SESSION_KEY_VALUE (SESSION_REF, KEY, VALUE) VALUES (?,?,?)',
-    args
+    args,
   )
 }
 
@@ -783,7 +783,7 @@ async function getSessionKeyValue(db, sessionId, key) {
   let row = await dbApi.dbGet(
     db,
     'SELECT VALUE FROM SESSION_KEY_VALUE WHERE SESSION_REF = ? AND KEY = ?',
-    [sessionId, key]
+    [sessionId, key],
   )
   if (row == null) {
     return undefined
@@ -804,7 +804,7 @@ async function getAllSessionKeyValues(db, sessionId) {
   let rows = await dbApi.dbAll(
     db,
     'SELECT KEY, VALUE FROM SESSION_KEY_VALUE WHERE SESSION_REF = ? ORDER BY KEY',
-    [sessionId]
+    [sessionId],
   )
   return rows.map((row) => {
     return {

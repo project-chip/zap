@@ -35,7 +35,7 @@ const types = require('../util/types.js')
 async function if_command_arguments_exist(
   commandId,
   argument_return,
-  no_argument_return
+  no_argument_return,
 ) {
   let promise = queryCommand
     .selectCommandArgumentsCountByCommandId(this.global.db, commandId)
@@ -68,7 +68,7 @@ async function if_command_arguments_exist(
 async function if_command_args_exist(commandId, options) {
   let res = await queryCommand.selectCommandArgumentsCountByCommandId(
     this.global.db,
-    commandId
+    commandId,
   )
   if (res > 0) {
     return options.fn(this)
@@ -87,7 +87,7 @@ async function if_command_args_exist(commandId, options) {
 function if_ca_always_present_with_presentif(
   commandArg,
   trueReturn,
-  falseReturn
+  falseReturn,
 ) {
   if (
     !(commandArg.introducedInRef || commandArg.removedInRef) &&
@@ -138,11 +138,11 @@ async function if_command_is_not_fixed_length_but_command_argument_is_always_pre
   commandId,
   commandArg,
   trueReturn,
-  falseReturn
+  falseReturn,
 ) {
   let commandArgs = await queryCommand.selectCommandArgumentsByCommandId(
     this.global.db,
-    commandId
+    commandId,
   )
   let isFixedLengthCommand = true
   for (let ca of commandArgs) {
@@ -192,11 +192,11 @@ async function if_command_is_not_fixed_length_but_command_argument_is_always_pre
 async function if_command_not_fixed_length_command_argument_always_present(
   command,
   commandArg,
-  options
+  options,
 ) {
   let commandArgs = await queryCommand.selectCommandArgumentsByCommandId(
     this.global.db,
-    command
+    command,
   )
   let isFixedLengthCommand = true
   for (let ca of commandArgs) {
@@ -238,7 +238,7 @@ async function if_command_not_fixed_length_command_argument_always_present(
 function if_ca_not_always_present_no_presentif(
   commandArg,
   trueReturn,
-  falseReturn
+  falseReturn,
 ) {
   if (
     (commandArg.introducedInRef || commandArg.removedInRef) &&
@@ -286,7 +286,7 @@ function if_command_arg_not_always_present_no_presentif(commandArg, options) {
 function if_ca_not_always_present_with_presentif(
   commandArg,
   trueReturn,
-  falseReturn
+  falseReturn,
 ) {
   if (
     (commandArg.introducedInRef || commandArg.removedInRef) &&
@@ -337,11 +337,11 @@ function if_command_arg_not_always_present_with_presentif(commandArg, options) {
 async function if_command_is_fixed_length(
   commandId,
   fixedLengthReturn,
-  notFixedLengthReturn
+  notFixedLengthReturn,
 ) {
   let commandArgs = await queryCommand.selectCommandArgumentsByCommandId(
     this.global.db,
-    commandId
+    commandId,
   )
 
   let fixedLength = true
@@ -383,7 +383,7 @@ async function if_command_is_fixed_length(
 async function if_command_fixed_length(commandId, options) {
   let commandArgs = await queryCommand.selectCommandArgumentsByCommandId(
     this.global.db,
-    commandId
+    commandId,
   )
   for (let commandArg of commandArgs) {
     if (
@@ -414,7 +414,7 @@ exports.if_command_arguments_exist = dep(if_command_arguments_exist, {
 })
 exports.if_ca_always_present_with_presentif = dep(
   if_ca_always_present_with_presentif,
-  { to: 'if_command_arg_always_present_with_presentif' }
+  { to: 'if_command_arg_always_present_with_presentif' },
 )
 exports.if_command_is_not_fixed_length_but_command_argument_is_always_present =
   dep(if_command_is_not_fixed_length_but_command_argument_is_always_present, {
@@ -422,11 +422,11 @@ exports.if_command_is_not_fixed_length_but_command_argument_is_always_present =
   })
 exports.if_ca_not_always_present_no_presentif = dep(
   if_ca_not_always_present_no_presentif,
-  { to: 'if_command_arg_not_always_present_no_presentif' }
+  { to: 'if_command_arg_not_always_present_no_presentif' },
 )
 exports.if_ca_not_always_present_with_presentif = dep(
   if_ca_not_always_present_with_presentif,
-  { to: 'if_command_arg_not_always_present_with_presentif' }
+  { to: 'if_command_arg_not_always_present_with_presentif' },
 )
 exports.if_command_fixed_length = if_command_fixed_length
 exports.if_command_not_fixed_length_command_argument_always_present =

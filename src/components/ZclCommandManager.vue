@@ -71,7 +71,7 @@ limitations under the License.
                     selectionOut,
                     'selectedOut',
                     props.row,
-                    selectedCluster.id
+                    selectedCluster.id,
                   )
                 "
               />
@@ -95,7 +95,7 @@ limitations under the License.
                     selectionIn,
                     'selectedIn',
                     props.row,
-                    selectedCluster.id
+                    selectedCluster.id,
                   )
                 "
               />
@@ -104,8 +104,8 @@ limitations under the License.
               props.row.source === 'client'
                 ? 'Client ➞ Server'
                 : props.row.source === 'server'
-                ? 'Server ➞ Client'
-                : 'Client ↔ Server'
+                  ? 'Server ➞ Client'
+                  : 'Client ↔ Server'
             }}</q-td>
             <q-td key="commandId" :props="props" auto-width>{{
               asHex(props.row.code, 2)
@@ -121,8 +121,8 @@ limitations under the License.
                 selectedCluster.manufacturerCode
                   ? asHex(selectedCluster.manufacturerCode, 4)
                   : props.row.manufacturerCode
-                  ? asHex(props.row.manufacturerCode, 4)
-                  : '-'
+                    ? asHex(props.row.manufacturerCode, 4)
+                    : '-'
               }}
             </q-td>
           </q-tr>
@@ -177,7 +177,7 @@ export default {
             (this.selectionServers.includes(this.selectedCluster.id) &&
               row.source == 'server')) &&
           !this.selectionOut.includes(
-            this.hashCommandIdClusterId(row.id, this.selectedCluster.id)
+            this.hashCommandIdClusterId(row.id, this.selectedCluster.id),
           )) ||
         (this.isCommandRequired(row) &&
           ((this.selectionClients.includes(this.selectedCluster.id) &&
@@ -185,7 +185,7 @@ export default {
             (this.selectionServers.includes(this.selectedCluster.id) &&
               row.source == 'client')) &&
           !this.selectionIn.includes(
-            this.hashCommandIdClusterId(row.id, this.selectedCluster.id)
+            this.hashCommandIdClusterId(row.id, this.selectedCluster.id),
           ))
       )
     },
@@ -193,7 +193,7 @@ export default {
       // We determine the ID that we need to toggle within the list.
       // This ID comes from hashing the base Command ID and cluster data.
       let indexOfValue = list.indexOf(
-        this.hashCommandIdClusterId(commandData.id, clusterId)
+        this.hashCommandIdClusterId(commandData.id, clusterId),
       )
 
       let addedValue

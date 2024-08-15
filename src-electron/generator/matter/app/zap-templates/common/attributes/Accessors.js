@@ -68,7 +68,7 @@ async function accessorGetterType(attr) {
     type = await appHelper.zapTypeToEncodableClusterObjectType.call(
       this,
       attr.type,
-      options
+      options,
     );
   }
 
@@ -105,7 +105,7 @@ async function accessorTraitType(type) {
   return appHelper.zapTypeToEncodableClusterObjectType.call(
     this,
     type,
-    options
+    options,
   );
 }
 

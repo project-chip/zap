@@ -29,7 +29,7 @@ function testServer(fileName) {
     testPort = 9076
   } else {
     let msg = new Error(
-      `You must manually assign a port for the given test file: ${fileName}`
+      `You must manually assign a port for the given test file: ${fileName}`,
     )
     console.log(msg)
     throw msg
@@ -103,7 +103,7 @@ exports.otherTestFile = {
   fileFormat1: path.join(__dirname, 'resource/file-format/file-format-1.zap'),
   fileFormatFuture: path.join(
     __dirname,
-    'resource/file-format/file-format-future.zap'
+    'resource/file-format/file-format-future.zap',
   ),
 }
 
@@ -115,7 +115,7 @@ exports.zigbeeTestFile = {
   onOff: path.join(__dirname, 'resource/zll-on-off-switch-test.zap'),
   mfgClusters: path.join(
     __dirname,
-    'resource/mfg-specific-clusters-commands.zap'
+    'resource/mfg-specific-clusters-commands.zap',
   ),
   customXml: path.join(__dirname, 'resource/zap-file-with-custom-xml.zap'),
   fullTh: path.join(__dirname, 'resource/full-th.zap'),
@@ -128,19 +128,19 @@ exports.matterTestFile = {
   allClusters: path.join(__dirname, 'resource/matter-all-clusters.zap'),
   allClustersFileFormat2: path.join(
     __dirname,
-    'resource/matter-all-clusters-file-format-2.zap'
+    'resource/matter-all-clusters-file-format-2.zap',
   ),
   multipleDeviceTypesPerEndpoint: path.join(
     __dirname,
-    'resource/multiple-device-types-per-endpoint.zap'
+    'resource/multiple-device-types-per-endpoint.zap',
   ),
   apiMaturityTest: path.join(
     __dirname,
-    'resource/matter-api-maturity-test.zap'
+    'resource/matter-api-maturity-test.zap',
   ),
   endpointComposition: path.join(
     __dirname,
-    'resource/matter-endpointComposition.zap'
+    'resource/matter-endpointComposition.zap',
   ),
 }
 

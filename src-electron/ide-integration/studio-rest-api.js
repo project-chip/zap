@@ -56,7 +56,7 @@ async function projectPath(db, sessionId) {
   return querySession.getSessionKeyValue(
     db,
     sessionId,
-    dbEnum.sessionKey.ideProjectPath
+    dbEnum.sessionKey.ideProjectPath,
   )
 }
 
@@ -70,7 +70,7 @@ async function integrationEnabled(db, sessionId) {
   let path = await querySession.getSessionKeyValue(
     db,
     sessionId,
-    dbEnum.sessionKey.ideProjectPath
+    dbEnum.sessionKey.ideProjectPath,
   )
   return typeof path !== 'undefined'
 }
@@ -89,7 +89,7 @@ async function isComponentTogglingDisabled(db, sessionId) {
   let disableComponentToggling = await querySession.getSessionKeyValue(
     db,
     sessionId,
-    dbEnum.sessionKey.disableComponentToggling
+    dbEnum.sessionKey.disableComponentToggling,
   )
   // We may have an empty row or a 0 or a 1. Only 1 means that this is disabled.
   return disableComponentToggling === 1
@@ -161,7 +161,7 @@ async function getProjectInfo(db, sessionId) {
   } else {
     if (!isUserDisabled)
       env.logWarning(
-        `StudioUC(): Invalid Studio project path specified via project info API!`
+        `StudioUC(): Invalid Studio project path specified via project info API!`,
       )
     return { data: [] }
   }
@@ -186,13 +186,13 @@ async function updateComponentByClusterIdAndComponentId(
   componentIds,
   clusterId,
   add,
-  side
+  side,
 ) {
   if (!integrationEnabled(db, sessionId)) {
     let isUserDisabled = await isComponentTogglingDisabled(db, sessionId)
     if (!isUserDisabled) {
       env.logWarning(
-        `StudioUC(): Failed to update component due to invalid Studio project path.`
+        `StudioUC(): Failed to update component due to invalid Studio project path.`,
       )
       queryNotification.setNotification(
         db,
@@ -200,7 +200,7 @@ async function updateComponentByClusterIdAndComponentId(
         `StudioUC(): Failed to update component due to invalid Studio project path.`,
         sessionId,
         2,
-        0
+        0,
       )
     }
     return Promise.resolve({ componentIds: [], added: add })
@@ -213,7 +213,7 @@ async function updateComponentByClusterIdAndComponentId(
       db,
       sessionId,
       clusterId,
-      side
+      side,
     )
 
     promises.push(...ids.map((x) => Promise.resolve(x)))
@@ -251,7 +251,7 @@ async function updateComponentByComponentIds(db, sessionId, componentIds, add) {
 
   if (Object.keys(componentIds).length) {
     promises = componentIds.map((componentId) =>
-      httpPostComponentUpdate(project, componentId, add)
+      httpPostComponentUpdate(project, componentId, add),
     )
   }
 
@@ -263,7 +263,7 @@ async function updateComponentByComponentIds(db, sessionId, componentIds, add) {
         status: resp.status,
         data: resp.data,
       }
-    })
+    }),
   )
 }
 
@@ -322,14 +322,14 @@ async function wsMessageHandler(db, session, message) {
     if (resp.msgType == 'updateComponents') {
       env.logInfo(
         `StudioUC(${name}): Received WebSocket message: ${JSON.stringify(
-          resp.delta
-        )}`
+          resp.delta,
+        )}`,
       )
       sendSelectedUcComponents(db, session, JSON.parse(resp.tree))
     }
   } catch (error) {
     env.logError(
-      `StudioUC(${name}): Failed to process WebSocket notification message.`
+      `StudioUC(${name}): Failed to process WebSocket notification message.`,
     )
   }
 }
@@ -493,7 +493,7 @@ function sendSessionCreationErrorStatus(db, err, sessionId) {
           })
         }
       }
-    })
+    }),
   )
 }
 

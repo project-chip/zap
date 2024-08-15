@@ -7,9 +7,9 @@ these features to the required and supported access control SDK features. ZAP ge
 
 ZAP access control defines three base terms:
 
-   1. **operation** : it's something that can be done. Example: read, write, invoke.
-   2. **role**: it's a privilege of an actor. Such as "View privilege", "Administrative rol", etc.
-   3. **modifiers**: special access control conditions, such as _fabric sensitive_ data or _fabric scoped_ data.
+1.  **operation** : it's something that can be done. Example: read, write, invoke.
+2.  **role**: it's a privilege of an actor. Such as "View privilege", "Administrative rol", etc.
+3.  **modifiers**: special access control conditions, such as _fabric sensitive_ data or _fabric scoped_ data.
 
 The base terms are defined in the metadata XML under a top tag `<accessControl>`. Example of access control base term definitions:
 
@@ -36,12 +36,14 @@ Each individual access condition can be defined with an access triplet in the XM
 Access triplet is a combination of an _operation_, _role_ and _modifier_. They are optional, so you can only have one of these. A missing part of triplet generally means permissivenes, but that's implementation specific for the given SDK. An entity, that defines it's access can have one or more access triplets.
 
 Example:
+
 ```
     <attribute side="server" code="0x0000" define="AT1" type="INT64U" writable="false" optional="true">
       <description>at1</description>
       <access op="write" role="manage" modifier="fabric-scoped"/>
     </attribute>
 ```
+
 This is a definition of an attribute that has an access triplet, declaring it allows _write_ operation by a _manage_ role, with _fabric-scoped_ modifier applied.
 
 ## Default permissions
@@ -51,6 +53,7 @@ ZCL entities can define their own individual permissions. However, there is also
 Default permissions are declared via a `<defaultAccess>` tag at the toplevel of the XML.
 
 Example:
+
 ```
   <defaultAccess type="command">
     <access op="invoke"/>
@@ -70,10 +73,12 @@ Example:
 
 The basic template helper to use is the `{{#access}} ... {{/access}}` iterator. This iterator iterates over all the given access triplets.
 It supports 2 options:
-   * `entity="attribute/command/event"` - if the entity can't be determined from context, this sets the entity type.
-   * `includeDefault="true/false"` - determines if default values are included or not.
+
+- `entity="attribute/command/event"` - if the entity can't be determined from context, this sets the entity type.
+- `includeDefault="true/false"` - determines if default values are included or not.
 
 Example:
+
 ```
 {{#zcl_clusters}}
 Cluster: {{name}} [{{code}}]

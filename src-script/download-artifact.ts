@@ -54,7 +54,7 @@ function artifactoryServerUrl(opts: DlOptions) {
 }
 
 async function artifactoryGetLatestFolder(
-  opt: DlOptions
+  opt: DlOptions,
 ): Promise<LatestFolder> {
   const { folders, paths } = await artifactoryGetFolders(opt)
   const folder = folders.shift()
@@ -64,7 +64,7 @@ async function artifactoryGetLatestFolder(
 
 async function artifactoryGetFolders(
   opt: DlOptions,
-  uri: string = ''
+  uri: string = '',
 ): Promise<any> {
   const resp = await artifactoryStorageGet(opt, uri)
   const folders = resp?.children
@@ -97,10 +97,10 @@ async function artifactoryGetFolders(
 
 async function artifactoryStorageGet(
   dlOptions: DlOptions,
-  uri: string = ''
+  uri: string = '',
 ): Promise<any> {
   const url = `${artifactoryServerUrl(
-    dlOptions
+    dlOptions,
   )}/artifactory/api/storage/gsdk-generic-production/${ARTIFACTORY_REPO_NAME}/${
     dlOptions.owner
   }/${dlOptions.repo}/${dlOptions.branch}/${uri}`
@@ -127,17 +127,17 @@ async function httpGet(url: string) {
 function verifyPlatformAndFormat(
   name: string,
   platforms: string[],
-  formats: string[]
+  formats: string[],
 ) {
   // verify platform
   const verifyPlatform = platforms.reduce(
     (prev, cur) => prev || name.includes(cur),
-    false
+    false,
   )
 
   const verifyFormat = formats.reduce(
     (prev, cur) => prev || name.endsWith(cur),
-    false
+    false,
   )
 
   if (!verifyPlatform || !verifyFormat) {
@@ -150,7 +150,7 @@ function verifyPlatformAndFormat(
 async function githubDownloadArtifacts(
   artifacts: any,
   dlOptions: DlOptions,
-  verifyPlatformAndFormat: Function
+  verifyPlatformAndFormat: Function,
 ) {
   let {
     outputDir,
@@ -171,8 +171,8 @@ async function githubDownloadArtifacts(
   console.log(
     `Commit: https://github.com/${owner}/${repo}/commit/${commit?.substring(
       0,
-      7
-    )}`
+      7,
+    )}`,
   )
 
   if (artifacts.length) {
@@ -181,7 +181,7 @@ async function githubDownloadArtifacts(
         outputDir,
         'artifacts',
         dlOptions.branch,
-        artifacts[0].created_at
+        artifacts[0].created_at,
       )
     }
 
@@ -196,14 +196,14 @@ async function githubDownloadArtifacts(
         archive_download_url,
         outputDir,
         githubToken,
-        `${name}.zip`
+        `${name}.zip`,
       )
 
       // download metadata file.
       try {
         fs.writeFileSync(
           path.join(outputDir, `${name}.json`),
-          JSON.stringify(artifact, null, 4)
+          JSON.stringify(artifact, null, 4),
         )
       } catch (err) {
         console.error(err)
@@ -215,7 +215,7 @@ async function githubDownloadArtifacts(
 async function githubListArtifacts(
   artifacts: any,
   dlOptions: DlOptions,
-  verifyPlatformAndFormat: Function
+  verifyPlatformAndFormat: Function,
 ) {
   let { branch, outputDir, platforms, formats } = dlOptions
 
@@ -238,7 +238,7 @@ async function githubListArtifacts(
       let artifactPath = path.join(
         branch,
         artifacts[0].created_at,
-        `${name}.zip`
+        `${name}.zip`,
       )
 
       if (DEBUG) console.log(`${artifactPath}`)
@@ -251,7 +251,7 @@ async function githubListArtifacts(
       fs.mkdirSync(dir, { recursive: true })
       fs.writeFileSync(
         path.join(outputDir, `${branch}.txt`),
-        artifactsList.join('\n')
+        artifactsList.join('\n'),
       )
     } catch (err) {
       console.error(err)
@@ -263,7 +263,7 @@ async function download(
   archive_download_url: string,
   outDir: string,
   githubToken: string | undefined,
-  name: string
+  name: string,
 ) {
   let chunkCount = 0
   const chunkSize = 200
@@ -317,7 +317,7 @@ function platforms(argv: any) {
 }
 
 async function getExistingGithubBranches(
-  options: DlOptions
+  options: DlOptions,
 ): Promise<string[]> {
   const url = `https://api.github.com/repos/${options.owner}/${options.repo}/branches`
   let branches = []
@@ -336,7 +336,7 @@ async function getExistingGithubBranches(
 async function artifactoryDownloadArtifacts(
   latest: LatestFolder,
   dlOptions: DlOptions,
-  verifyPlatformAndFormat: Function
+  verifyPlatformAndFormat: Function,
 ) {
   let { owner, repo, branch, outputDir, platforms, formats } = dlOptions
 
@@ -350,12 +350,12 @@ async function artifactoryDownloadArtifacts(
       let baseUri = latest.paths.join('').replace('/api/storage', '')
       baseUri = baseUri.replace(
         ARTIFACTORY_URL_DOMAIN_DEFAULT,
-        dlOptions.artifactoryUrl
+        dlOptions.artifactoryUrl,
       )
       console.log(`Repo: ${baseUri}`)
       const jsonContent = await httpGet(baseUri + json)
       console.log(
-        `Commit: ${jsonContent.workflow_run.head_sha.substring(0, 7)}`
+        `Commit: ${jsonContent.workflow_run.head_sha.substring(0, 7)}`,
       )
       console.log(`Output directory: ${outputDir}`)
 
@@ -402,7 +402,7 @@ async function githubGetArtifacts(options: DlOptions) {
     {
       owner,
       repo,
-    }
+    },
   )
 
   if (res.status != StatusCodes.OK) {
@@ -414,7 +414,7 @@ async function githubGetArtifacts(options: DlOptions) {
 
   // filter all artifact with current branch
   artifacts = artifacts?.filter(
-    (e: any) => e.workflow_run.head_branch === branch
+    (e: any) => e.workflow_run.head_branch === branch,
   )
 
   if (artifacts && artifacts.length) {
@@ -426,13 +426,13 @@ async function githubGetArtifacts(options: DlOptions) {
       return artifacts.filter(
         (artifact: any) =>
           artifact.workflow_run.head_sha === refCommit &&
-          artifact.workflow_run.id === refWorkflowRunId
+          artifact.workflow_run.id === refWorkflowRunId,
       )
     } else {
       refCommit = commit
 
       artifacts = artifacts?.filter((artifact: any) =>
-        artifact.workflow_run.head_sha.startsWith(refCommit)
+        artifact.workflow_run.head_sha.startsWith(refCommit),
       )
 
       // multiple builds can correspond to the same commit id
@@ -440,7 +440,7 @@ async function githubGetArtifacts(options: DlOptions) {
       if (artifacts?.length) {
         refWorkflowRunId = artifacts[0]?.workflow_run?.id
         artifacts = artifacts.filter(
-          (artifact: any) => artifact.workflow_run.id == refWorkflowRunId
+          (artifact: any) => artifact.workflow_run.id == refWorkflowRunId,
         )
       }
 
@@ -575,8 +575,8 @@ async function main() {
     ) {
       console.log(
         `Unable to reach Artifactory server (${artifactoryServerUrl(
-          dlOptions
-        )}). Defaulting to Github instead.`
+          dlOptions,
+        )}). Defaulting to Github instead.`,
       )
       dlOptions.src = DownloadSources.GITHUB
     } else if (
@@ -584,12 +584,12 @@ async function main() {
       !cachedBranches.includes(dlOptions.branch)
     ) {
       console.log(
-        `Branch ${dlOptions.branch} is not cached on Artifactory. Defaulting to Github instead.`
+        `Branch ${dlOptions.branch} is not cached on Artifactory. Defaulting to Github instead.`,
       )
       dlOptions.src = DownloadSources.GITHUB
     } else if (!cachedBranches.includes(dlOptions.branch)) {
       console.log(
-        `Branch ${dlOptions.branch} is not cached on Artifactory. Defaulting to master branch instead.`
+        `Branch ${dlOptions.branch} is not cached on Artifactory. Defaulting to master branch instead.`,
       )
       dlOptions.branch = 'master'
     }
@@ -601,13 +601,13 @@ async function main() {
     await artifactoryDownloadArtifacts(
       latest,
       dlOptions,
-      verifyPlatformAndFormat
+      verifyPlatformAndFormat,
     )
   } else {
     if (!dlOptions.githubToken) {
       return console.error(
         `Missing GITHUB_TOKEN env variable for Github.com access!
-Find more information at https://docs.github.com/en/actions/security-guides/automatic-token-authentication#about-the-github_token-secret`
+Find more information at https://docs.github.com/en/actions/security-guides/automatic-token-authentication#about-the-github_token-secret`,
       )
     }
 
@@ -618,7 +618,7 @@ Find more information at https://docs.github.com/en/actions/security-guides/auto
       await githubDownloadArtifacts(
         artifacts,
         dlOptions,
-        verifyPlatformAndFormat
+        verifyPlatformAndFormat,
       )
     }
   }

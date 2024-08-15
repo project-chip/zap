@@ -73,19 +73,19 @@ export function renderer_api_execute(id, ...args) {
     case rendApi.id.progressStart:
       observable.setObservableAttribute(
         rendApi.observable.progress_attribute,
-        args[0]
+        args[0],
       )
       break
     case rendApi.id.progressEnd:
       observable.setObservableAttribute(
         rendApi.observable.progress_attribute,
-        ''
+        '',
       )
       break
     case rendApi.id.reportFiles:
       observable.setObservableAttribute(
         rendApi.observable.reported_files,
-        JSON.parse(args[0])
+        JSON.parse(args[0]),
       )
       break
     case rendApi.id.debugNavBarOn:
@@ -138,13 +138,13 @@ export function renderer_api_execute(id, ...args) {
  */
 export function renderer_api_notify(key, value) {
   console.log(
-    `${rendApi.jsonPrefix}${JSON.stringify({ key: key, value: value })}`
+    `${rendApi.jsonPrefix}${JSON.stringify({ key: key, value: value })}`,
   )
   window?.parent?.postMessage(
     {
       eventId: key,
       eventData: value,
     },
-    '*'
+    '*',
   )
 }

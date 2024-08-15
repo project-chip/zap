@@ -22,17 +22,17 @@ describe('Testing ENUM8 type validation', () => {
     () => {
       cy.fixture('data').then((data) => {
         cy.get(
-          `:nth-child(${data.enum8inputpath}) > [style="min-width: 180px;"] > .q-field > .q-field__inner > .q-field__control > .q-field__control-container > input`
+          `:nth-child(${data.enum8inputpath}) > [style="min-width: 180px;"] > .q-field > .q-field__inner > .q-field__control > .q-field__control-container > input`,
         )
           .clear({ force: true })
           .type('test', { force: true })
       })
-    }
+    },
   )
   it('check if validation works properly', () => {
     cy.fixture('data').then((data) => {
       cy.get(
-        `:nth-child(${data.enum8inputpath}) > [style="min-width: 180px;"] > .q-field > .q-field__inner > .q-field__bottom > .q-field__messages > div`
+        `:nth-child(${data.enum8inputpath}) > [style="min-width: 180px;"] > .q-field > .q-field__inner > .q-field__bottom > .q-field__messages > div`,
       ).should('exist')
     })
   })

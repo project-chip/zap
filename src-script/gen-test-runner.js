@@ -55,7 +55,7 @@ async function main() {
   if (fs.existsSync(argv.apps) && fs.lstatSync(argv.apps).isDirectory()) {
     let sampleAppsPaths = find.fileSync(/\.zap$/, argv.apps)
     let sampleAppsNames = sampleAppsPaths.map((x) =>
-      getSampleAppNamefromPath(x)
+      getSampleAppNamefromPath(x),
     )
     sampleAppsNames.forEach((name, index) => {
       sampleApps.push({ name, path: sampleAppsPaths[index] })
@@ -89,7 +89,7 @@ async function main() {
 
   if (TEST_RUN_COUNT)
     console.log(
-      `Average generation time: ${totalGenerationTimeSec / TEST_RUN_COUNT}s`
+      `Average generation time: ${totalGenerationTimeSec / TEST_RUN_COUNT}s`,
     )
 }
 
