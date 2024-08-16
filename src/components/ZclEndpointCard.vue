@@ -56,6 +56,16 @@ limitations under the License.
           <q-btn
             flat
             dense
+            icon="list_alt"
+            size="sm"
+            v-close-popup
+            to="/feature"
+          >
+            <q-tooltip> Features </q-tooltip>
+          </q-btn>
+          <q-btn
+            flat
+            dense
             v-close-popup
             size="sm"
             icon="o_content_copy"
@@ -345,6 +355,9 @@ export default {
       this.deleteEpt()
     },
     handleDeletionDialog() {
+      console.log(this.endpointDeviceTypeRef)
+      console.log(this.zclDeviceTypes)
+      console.log(this.selectedEndpointId)
       if (this.getStorageParam() == 'true') {
         this.deleteEpt()
       } else {

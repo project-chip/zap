@@ -181,11 +181,25 @@ const routes = [
         path: '',
         components: {
           default: () => import('../pages/ExtensionsPage.vue'),
-          sidebar: () => import('../components/ZclEndpointManager.vue')
-        }
-      }
-    ]
-  }
+          sidebar: () => import('../components/ZclEndpointManager.vue'),
+        },
+      },
+    ],
+  },
+  {
+    path: '/feature',
+    name: 'feature',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [
+      {
+        path: '',
+        components: {
+          default: () => import('components/ZclFeatureManager.vue'),
+          sidebar: () => import('components/ZclEndpointManager.vue'),
+        },
+      },
+    ],
+  },
 ]
 
 // Always leave this as last one
