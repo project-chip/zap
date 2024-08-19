@@ -23,50 +23,56 @@ limitations under the License.
       >
     </div>
     <div class="col column linear-border-wrap">
-      <q-table
-        :rows="deviceTypeFeatures"
-        :columns="columns"
-        flat
-        v-model:pagination="pagination"
-        separator="horizontal"
-        id="ZclFeatureManager"
-      >
-        <template v-slot:body="props">
-          <q-tr :props="props" class="table_body attribute_table_body">
-            <q-td key="deviceType" :props="props" auto-width>
-              {{ props.row.deviceType }}
-            </q-td>
-            <q-td key="cluster" :props="props" auto-width>
-              {{ props.row.cluster }}
-            </q-td>
-            <q-td key="featureName" :props="props" auto-width>
-              {{ props.row.name }}
-            </q-td>
-            <q-td key="code" :props="props" auto-width>
-              {{ props.row.code }}
-            </q-td>
-            <q-td key="conformance" :props="props" auto-width>
-              {{ props.row.conformance }}
-            </q-td>
-            <q-td key="bit" :props="props" auto-width>
-              {{ props.row.bit }}
-            </q-td>
-            <q-td key="description" :props="props" auto-width>
-              {{ props.row.description }}
-            </q-td>
-          </q-tr>
-        </template>
-      </q-table>
+      <div v-if="deviceTypeFeatures.length > 0">
+        <q-table
+          :rows="deviceTypeFeatures"
+          :columns="columns"
+          flat
+          v-model:pagination="pagination"
+          separator="horizontal"
+          id="ZclDeviceTypeFeatureManager"
+        >
+          <template v-slot:body="props">
+            <q-tr :props="props" class="table_body attribute_table_body">
+              <q-td key="deviceType" :props="props" auto-width>
+                {{ props.row.deviceType }}
+              </q-td>
+              <q-td key="cluster" :props="props" auto-width>
+                {{ props.row.cluster }}
+              </q-td>
+              <q-td key="featureName" :props="props" auto-width>
+                {{ props.row.name }}
+              </q-td>
+              <q-td key="code" :props="props" auto-width>
+                {{ props.row.code }}
+              </q-td>
+              <q-td key="conformance" :props="props" auto-width>
+                {{ props.row.conformance }}
+              </q-td>
+              <q-td key="bit" :props="props" auto-width>
+                {{ props.row.bit }}
+              </q-td>
+              <q-td key="description" :props="props" auto-width>
+                {{ props.row.description }}
+              </q-td>
+            </q-tr>
+          </template>
+        </q-table>
+      </div>
+      <div v-else class="q-pa-md">
+        <div class="text-body1">
+          {{ nodataMessage }}
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import CommonMixin from '../util/common-mixin'
-import restApi from '../../src-shared/rest-api.js'
 
 export default {
-  name: 'ZclFeatureManager',
+  name: 'ZclDeviceTypeFeatureManager',
   mixins: [CommonMixin],
   methods: {},
   computed: {
@@ -76,6 +82,7 @@ export default {
   },
   data() {
     return {
+      nodataMessage: 'No device type features available for this endpoint',
       pagination: {
         rowsPerPage: 10,
       },

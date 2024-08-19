@@ -24,7 +24,7 @@ const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
 
 /**
- * Get all device type features related a list of device type refs
+ * Get all device type features associated with a list of device type refs
  * @param {*} db
  * @param {*} deviceTypeRefs
  * @returns All feature information and device type conformance

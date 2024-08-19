@@ -194,7 +194,7 @@ const routes = [
       {
         path: '',
         components: {
-          default: () => import('components/ZclFeatureManager.vue'),
+          default: () => import('components/ZclDeviceTypeFeatureManager.vue'),
           sidebar: () => import('components/ZclEndpointManager.vue'),
         },
       },
