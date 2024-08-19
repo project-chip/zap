@@ -661,6 +661,24 @@ export function setMiniState(context, data) {
 }
 
 /**
+ * This action updates the device type features after a new endpoint is selected.
+ *
+ * @param {*} context
+ * @param {*} deviceTypeRefs
+ */
+export async function updateSelectedDeviceTypeFeatures(
+  context,
+  deviceTypeRefs
+) {
+  let config = { params: { deviceTypeRefs: deviceTypeRefs } }
+  axiosRequests
+    .$serverGet(restApi.uri.deviceTypeFeatures, config)
+    .then((resp) => {
+      context.commit('updateDeviceTypeFeatures', resp.data)
+    })
+}
+
+/**
  * This action loads the initial data from the database.
  *
  * @export

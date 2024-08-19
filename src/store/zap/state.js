@@ -43,6 +43,7 @@ export default function () {
     commands: [],
     events: [],
     zclDeviceTypes: {},
+    deviceTypeFeatures: [],
     endpoints: [],
     genericOptions: {},
     selectedGenericOptions: {},

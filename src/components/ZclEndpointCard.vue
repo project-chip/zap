@@ -355,9 +355,6 @@ export default {
       this.deleteEpt()
     },
     handleDeletionDialog() {
-      console.log(this.endpointDeviceTypeRef)
-      console.log(this.zclDeviceTypes)
-      console.log(this.selectedEndpointId)
       if (this.getStorageParam() == 'true') {
         this.deleteEpt()
       } else {

@@ -18,7 +18,8 @@ limitations under the License.
   <div class="col q-px-lg">
     <div class="row q-py-md text-h4">
       <span class="v-step-6"
-        >Endpoint {{ this.endpointId[this.selectedEndpointId] }} Features</span
+        >Endpoint {{ this.endpointId[this.selectedEndpointId] }} Device Type
+        Features</span
       >
     </div>
     <div class="col column linear-border-wrap">
@@ -67,20 +68,14 @@ import restApi from '../../src-shared/rest-api.js'
 export default {
   name: 'ZclFeatureManager',
   mixins: [CommonMixin],
-  methods: {
-    getDeviceTypeFeatures() {
-      let deviceTypeRefs = this.endpointDeviceTypeRef[this.selectedEndpointId]
-      let config = { params: { deviceTypeRefs: deviceTypeRefs } }
-      this.$serverGet(restApi.uri.deviceTypeFeatures, config).then((resp) => {
-        this.deviceTypeFeatures = resp.data
-        console.log(this.deviceTypeFeatures)
-      })
+  methods: {},
+  computed: {
+    deviceTypeFeatures() {
+      return this.$store.state.zap.deviceTypeFeatures
     },
   },
-  computed: {},
   data() {
     return {
-      deviceTypeFeatures: [],
       pagination: {
         rowsPerPage: 10,
       },
@@ -128,11 +123,6 @@ export default {
           align: 'left',
         },
       ],
-    }
-  },
-  created() {
-    if (this.$serverGet != null) {
-      this.getDeviceTypeFeatures()
     }
   },
 }
