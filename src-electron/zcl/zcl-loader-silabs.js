@@ -2231,7 +2231,7 @@ function parseFeatureConformance(operand) {
     return Object.entries(operand.otherwiseConform[0])
       .map(([key, value]) => parseFeatureConformance({ [key]: value }))
       .join(', ')
-  } else if (operand.notTerm && operand.notTerm[0]) {
+  } else if (operand.notTerm) {
     let notTerms = parseFeatureConformance(operand.notTerm[0])
     return notTerms.includes('&') || notTerms.includes('|')
       ? `!(${notTerms})`
@@ -2252,12 +2252,13 @@ function parseFeatureConformance(operand) {
  * @returns feature conformance string
  */
 function parseAndOrConformanceTerms(operand, joinChar) {
+  // when joining multiple orTerms inside andTerms, we need to
+  // surround them with '()', vice versa for andTerms inside orTerms
   let oppositeChar = joinChar === '&' ? '|' : '&'
   let oppositeTerm = joinChar === '&' ? 'orTerm' : 'andTerm'
 
   return Object.entries(operand[0])
     .map(([key, value]) => {
-      console.log(key, value)
       if (key == 'feature' || key == 'condition') {
         return value.map((operand) => operand.$.name).join(` ${joinChar} `)
       } else if (key == oppositeTerm) {
