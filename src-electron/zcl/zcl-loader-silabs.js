@@ -49,7 +49,7 @@ async function collectDataFromJsonFile(metadataFile, data) {
   let fileLocations
   if (Array.isArray(obj.xmlRoot)) {
     fileLocations = obj.xmlRoot.map((p) =>
-      path.join(path.dirname(metadataFile), p)
+      path.join(path.dirname(metadataFile), p),
     )
   } else {
     fileLocations = [path.join(path.dirname(metadataFile), obj.xmlRoot)]
@@ -107,7 +107,7 @@ async function collectDataFromJsonFile(metadataFile, data) {
   // If it's missing, 'optional' is a default reporting policy.
   if ('defaultReportingPolicy' in obj) {
     returnObject.defaultReportingPolicy = dbEnum.reportingPolicy.resolve(
-      obj.defaultReportingPolicy
+      obj.defaultReportingPolicy,
     )
   }
   returnObject.version = obj.version
@@ -170,14 +170,14 @@ async function collectDataFromJsonFile(metadataFile, data) {
 
   if ('newXmlFile' in obj) {
     returnObject.newXmlFile = obj.newXmlFile.map((f) =>
-      path.join(path.dirname(metadataFile), f)
+      path.join(path.dirname(metadataFile), f),
     )
   } else {
     returnObject.newXmlFile = []
   }
 
   env.logDebug(
-    `Resolving: ${returnObject.zclFiles}, version: ${returnObject.version}`
+    `Resolving: ${returnObject.zclFiles}, version: ${returnObject.version}`,
   )
 
   return returnObject
@@ -211,7 +211,7 @@ async function collectDataFromPropertiesFile(metadataFile, data) {
         zclProps.xmlFile.split(',').forEach((singleXmlFile) => {
           let fullPath = util.locateRelativeFilePath(
             fileLocations,
-            singleXmlFile
+            singleXmlFile,
           )
           if (fullPath != null) zclFiles.push(fullPath)
         })
@@ -220,7 +220,7 @@ async function collectDataFromPropertiesFile(metadataFile, data) {
         // Manufacturers XML file.
         f = util.locateRelativeFilePath(
           fileLocations,
-          zclProps.manufacturersXml
+          zclProps.manufacturersXml,
         )
         if (f != null) returnObject.manufacturersXml = f
 
@@ -257,7 +257,7 @@ async function collectDataFromPropertiesFile(metadataFile, data) {
           automaticallyCreateFields: false,
         }
         env.logDebug(
-          `Resolving: ${returnObject.zclFiles}, version: ${returnObject.version}`
+          `Resolving: ${returnObject.zclFiles}, version: ${returnObject.version}`,
         )
         resolve(returnObject)
       }
@@ -319,7 +319,7 @@ async function processAtomics(db, filePath, packageId, data) {
   return queryLoader.insertAtomics(
     db,
     packageId,
-    types.map((x) => prepareAtomic(x))
+    types.map((x) => prepareAtomic(x)),
   )
 }
 
@@ -359,10 +359,10 @@ function prepareClusterGlobalAttribute(cluster) {
 
       if (ga.$.side == dbEnum.side.either) {
         ret.globalAttribute.push(
-          Object.assign({ side: dbEnum.side.client }, at)
+          Object.assign({ side: dbEnum.side.client }, at),
         )
         ret.globalAttribute.push(
-          Object.assign({ side: dbEnum.side.server }, at)
+          Object.assign({ side: dbEnum.side.server }, at),
         )
       } else {
         ret.globalAttribute.push(Object.assign({ side: ga.$.side }, at))
@@ -576,7 +576,7 @@ function prepareCluster(cluster, context, isExtension = false) {
         reportingPolicy = dbEnum.reportingPolicy.optional
       } else if (attribute.$.reportingPolicy != null) {
         reportingPolicy = dbEnum.reportingPolicy.resolve(
-          attribute.$.reportingPolicy
+          attribute.$.reportingPolicy,
         )
       }
       let storagePolicy = dbEnum.storagePolicy.any
@@ -648,7 +648,7 @@ function prepareCluster(cluster, context, isExtension = false) {
               att.name +
               ' in xml. \
           Currently defaulting to a max length of 253 for long strings instead of 65534 \
-          for space conservation and no support available for long strings in zigbee pro.'
+          for space conservation and no support available for long strings in zigbee pro.',
           )
           att.maxLength = 253
         } else {
@@ -659,7 +659,7 @@ function prepareCluster(cluster, context, isExtension = false) {
               att.name +
               ' in xml. \
           Currently defaulting to a max length of 1024 for long strings instead of 65534 \
-          for space conservation.'
+          for space conservation.',
           )
           att.maxLength = 1024
         }
@@ -717,7 +717,7 @@ async function processClusters(db, filePath, packageId, data, context) {
         context.clustersLoadedFromNewFiles.includes(cluster.code)
       ) {
         env.logDebug(
-          `Bypassing loading of cluster ${cluster.code} from old files.`
+          `Bypassing loading of cluster ${cluster.code} from old files.`,
         )
         return false
       } else {
@@ -767,16 +767,16 @@ async function processClusterExtensions(
   dataPackageId,
   knownPackages,
   data,
-  context
+  context,
 ) {
   env.logDebug(
-    `${filePath}, ${dataPackageId}: ${data.length} cluster extensions.`
+    `${filePath}, ${dataPackageId}: ${data.length} cluster extensions.`,
   )
   return queryLoader.insertClusterExtensions(
     db,
     dataPackageId,
     knownPackages,
-    data.map((x) => prepareCluster(x, context, true))
+    data.map((x) => prepareCluster(x, context, true)),
   )
 }
 
@@ -795,7 +795,7 @@ async function processGlobals(db, filePath, packageId, data, context) {
   return queryLoader.insertGlobals(
     db,
     packageId,
-    data.map((x) => prepareCluster(x, context, true))
+    data.map((x) => prepareCluster(x, context, true)),
   )
 }
 
@@ -817,7 +817,7 @@ async function processDefaultAccess(
   db,
   filePath,
   packageId,
-  defaultAccessList
+  defaultAccessList,
 ) {
   let p = []
   for (const da of defaultAccessList) {
@@ -844,7 +844,7 @@ async function processAccessControl(
   db,
   filePath,
   packageId,
-  accessControlList
+  accessControlList,
 ) {
   let operations = []
   let roles = []
@@ -987,7 +987,7 @@ async function processDataTypeDiscriminator(db, packageId, zclDataTypes) {
   return queryLoader.insertDataTypeDiscriminator(
     db,
     packageId,
-    types.map((x) => prepareDataTypeDiscriminator(x))
+    types.map((x) => prepareDataTypeDiscriminator(x)),
   )
 }
 
@@ -1030,8 +1030,8 @@ function prepareDataType(a, dataType, typeMap) {
     cluster_code: a.cluster
       ? a.cluster
       : a.$.cluster_code
-      ? [{ $: { code: a.$.cluster_code[0] } }]
-      : null, // else case: Treating features in a cluster as a bitmap
+        ? [{ $: { code: a.$.cluster_code[0] } }]
+        : null, // else case: Treating features in a cluster as a bitmap
   }
 }
 
@@ -1052,7 +1052,7 @@ async function processDataType(
   packageId,
   knownPackages,
   data,
-  dataType
+  dataType,
 ) {
   let typeMap = await zclLoader.getDiscriminatorMap(db, knownPackages)
 
@@ -1062,7 +1062,7 @@ async function processDataType(
     return queryLoader.insertDataType(
       db,
       packageId,
-      types.map((x) => prepareDataType(x, 0, typeMap))
+      types.map((x) => prepareDataType(x, 0, typeMap)),
     )
   } else if (dataType == dbEnum.zclType.enum) {
     env.logDebug(`${filePath}, ${packageId}: ${data.length} Enum Data Types.`)
@@ -1070,8 +1070,8 @@ async function processDataType(
       db,
       packageId,
       data.map((x) =>
-        prepareDataType(x, typeMap.get(dbEnum.zclType.enum), typeMap)
-      )
+        prepareDataType(x, typeMap.get(dbEnum.zclType.enum), typeMap),
+      ),
     )
   } else if (dataType == dbEnum.zclType.bitmap) {
     env.logDebug(`${filePath}, ${packageId}: ${data.length} Bitmap Data Types.`)
@@ -1079,8 +1079,8 @@ async function processDataType(
       db,
       packageId,
       data.map((x) =>
-        prepareDataType(x, typeMap.get(dbEnum.zclType.bitmap), typeMap)
-      )
+        prepareDataType(x, typeMap.get(dbEnum.zclType.bitmap), typeMap),
+      ),
     )
   } else if (dataType == dbEnum.zclType.struct) {
     env.logDebug(`${filePath}, ${packageId}: ${data.length} Struct Data Types.`)
@@ -1088,8 +1088,8 @@ async function processDataType(
       db,
       packageId,
       data.map((x) =>
-        prepareDataType(x, typeMap.get(dbEnum.zclType.struct), typeMap)
-      )
+        prepareDataType(x, typeMap.get(dbEnum.zclType.struct), typeMap),
+      ),
     )
   } else if (dataType == dbEnum.zclType.string) {
     env.logDebug(`${filePath}, ${packageId}: ${data.length} String Data Types.`)
@@ -1097,19 +1097,19 @@ async function processDataType(
       db,
       packageId,
       data.map((x) =>
-        prepareDataType(x, typeMap.get(dbEnum.zclType.string), typeMap)
-      )
+        prepareDataType(x, typeMap.get(dbEnum.zclType.string), typeMap),
+      ),
     )
   } else {
     env.logError(
-      'Could not find the discriminator for the data type: ' + dataType
+      'Could not find the discriminator for the data type: ' + dataType,
     )
     queryPackageNotification.setNotification(
       dnb,
       'ERROR',
       'Could not find the discriminator for the data type: ' + dataType,
       packageId,
-      1
+      1,
     )
   }
 }
@@ -1138,8 +1138,8 @@ function prepareNumber(a, dataType) {
           ? 1
           : 0
         : isSignedException || /^int[0-9]{1,2}s?$/.test(a.$.name)
-        ? 1
-        : 0,
+          ? 1
+          : 0,
     name: a.$.name,
     cluster_code: a.cluster ? a.cluster : null,
     discriminator_ref: dataType,
@@ -1170,7 +1170,7 @@ async function processNumber(db, filePath, packageId, knownPackages, data) {
   return queryLoader.insertNumber(
     db,
     packageId,
-    numbers.map((x) => prepareNumber(x, typeMap.get(dbEnum.zclType.number)))
+    numbers.map((x) => prepareNumber(x, typeMap.get(dbEnum.zclType.number))),
   )
 }
 
@@ -1214,7 +1214,7 @@ async function processString(db, filePath, packageId, knownPackages, data) {
   return queryLoader.insertString(
     db,
     packageId,
-    strings.map((x) => prepareString(x, typeMap.get(dbEnum.zclType.string)))
+    strings.map((x) => prepareString(x, typeMap.get(dbEnum.zclType.string))),
   )
 }
 
@@ -1254,8 +1254,8 @@ async function processEnumAtomic(db, filePath, packageId, knownPackages, data) {
     db,
     packageId,
     enums.map((x) =>
-      prepareEnumOrBitmapAtomic(x, typeMap.get(dbEnum.zclType.enum))
-    )
+      prepareEnumOrBitmapAtomic(x, typeMap.get(dbEnum.zclType.enum)),
+    ),
   )
 }
 
@@ -1286,7 +1286,7 @@ function prepareEnumOrBitmap(db, packageId, a, dataType, typeMap) {
       'WARNING',
       message,
       packageId,
-      2
+      2,
     )
     a.$.type = 'enum' + a.$.type.toLowerCase().match(/\d+/g).join('')
   }
@@ -1296,8 +1296,8 @@ function prepareEnumOrBitmap(db, packageId, a, dataType, typeMap) {
     cluster_code: a.cluster
       ? a.cluster
       : a.$.cluster_code
-      ? [{ $: { code: a.$.cluster_code[0] } }]
-      : null, // else case: Treating features in a cluster as a bitmap
+        ? [{ $: { code: a.$.cluster_code[0] } }]
+        : null, // else case: Treating features in a cluster as a bitmap
     discriminator_ref: dataType,
   }
 }
@@ -1324,9 +1324,9 @@ async function processEnum(db, filePath, packageId, knownPackages, data) {
         packageId,
         x,
         typeMap.get(dbEnum.zclType.enum),
-        typeMap
-      )
-    )
+        typeMap,
+      ),
+    ),
   )
 }
 
@@ -1377,21 +1377,21 @@ async function processBitmapAtomic(
   filePath,
   packageId,
   knownPackages,
-  data
+  data,
 ) {
   let typeMap = await zclLoader.getDiscriminatorMap(db, knownPackages)
   let bitmaps = data[0].type.filter(function (item) {
     return item.$.name.toLowerCase().includes(dbEnum.zclType.bitmap)
   })
   env.logDebug(
-    `${filePath}, ${packageId}: ${data.length} Baseline Bitmap Types.`
+    `${filePath}, ${packageId}: ${data.length} Baseline Bitmap Types.`,
   )
   return queryLoader.insertBitmapAtomic(
     db,
     packageId,
     bitmaps.map((x) =>
-      prepareEnumOrBitmapAtomic(x, typeMap.get(dbEnum.zclType.bitmap))
-    )
+      prepareEnumOrBitmapAtomic(x, typeMap.get(dbEnum.zclType.bitmap)),
+    ),
   )
 }
 
@@ -1417,9 +1417,9 @@ async function processBitmap(db, filePath, packageId, knownPackages, data) {
         packageId,
         x,
         typeMap.get(dbEnum.zclType.bitmap),
-        typeMap
-      )
-    )
+        typeMap,
+      ),
+    ),
   )
 }
 
@@ -1438,7 +1438,7 @@ async function processBitmapFields(
   filePath,
   packageId,
   knownPackages,
-  data
+  data,
 ) {
   env.logDebug(`${filePath}, ${packageId}: ${data.length} Bitmap Fields.`)
   let bitmapFields = []
@@ -1481,7 +1481,7 @@ async function processBitmapFields(
     db,
     packageId,
     knownPackages,
-    bitmapFields
+    bitmapFields,
   )
 }
 
@@ -1518,7 +1518,7 @@ async function processStruct(db, filePath, packageId, knownPackages, data) {
   return queryLoader.insertStruct(
     db,
     knownPackages,
-    data.map((x) => prepareStruct(x, typeMap.get(dbEnum.zclType.struct)))
+    data.map((x) => prepareStruct(x, typeMap.get(dbEnum.zclType.struct))),
   )
 }
 
@@ -1692,7 +1692,7 @@ async function processDeviceTypes(db, filePath, packageId, data, context) {
         await queryLoader.insertDeviceComposition(
           db,
           deviceType,
-          endpointCompositionId
+          endpointCompositionId,
         )
       }
     }
@@ -1712,7 +1712,7 @@ async function processParsedZclData(
   db,
   argument,
   previouslyKnownPackages,
-  context
+  context,
 ) {
   let filePath = argument.filePath
   let data = argument.result
@@ -1744,7 +1744,7 @@ async function processParsedZclData(
     let batch1 = []
     if ('accessControl' in toplevel) {
       batch1.push(
-        processAccessControl(db, filePath, packageId, toplevel.accessControl)
+        processAccessControl(db, filePath, packageId, toplevel.accessControl),
       )
     }
     if ('tag' in toplevel) {
@@ -1764,19 +1764,19 @@ async function processParsedZclData(
           filePath,
           packageId,
           toplevel.deviceType,
-          context
-        )
+          context,
+        ),
       )
     }
     if ('global' in toplevel) {
       batch2.push(
-        processGlobals(db, filePath, packageId, toplevel.global, context)
+        processGlobals(db, filePath, packageId, toplevel.global, context),
       )
     }
     if ('cluster' in toplevel) {
       featureClusters = toplevel.cluster.filter((c) => 'features' in c)
       batch2.push(
-        processClusters(db, filePath, packageId, toplevel.cluster, context)
+        processClusters(db, filePath, packageId, toplevel.cluster, context),
       )
     }
     await Promise.all(batch2)
@@ -1790,8 +1790,8 @@ async function processParsedZclData(
           packageId,
           knownPackages,
           toplevel.atomic,
-          dbEnum.zclType.atomic
-        )
+          dbEnum.zclType.atomic,
+        ),
       )
     }
 
@@ -1803,8 +1803,8 @@ async function processParsedZclData(
           packageId,
           knownPackages,
           toplevel.bitmap,
-          dbEnum.zclType.bitmap
-        )
+          dbEnum.zclType.bitmap,
+        ),
       )
     }
 
@@ -1826,8 +1826,8 @@ async function processParsedZclData(
                 },
               },
             ],
-            dbEnum.zclType.bitmap
-          )
+            dbEnum.zclType.bitmap,
+          ),
         )
       })
     }
@@ -1840,8 +1840,8 @@ async function processParsedZclData(
           packageId,
           knownPackages,
           toplevel.enum,
-          dbEnum.zclType.enum
-        )
+          dbEnum.zclType.enum,
+        ),
       )
     }
     if (dbEnum.zclType.struct in toplevel) {
@@ -1852,8 +1852,8 @@ async function processParsedZclData(
           packageId,
           knownPackages,
           toplevel.struct,
-          dbEnum.zclType.struct
-        )
+          dbEnum.zclType.struct,
+        ),
       )
     }
     await Promise.all(batch3)
@@ -1863,10 +1863,10 @@ async function processParsedZclData(
     let Batch4 = []
     if (dbEnum.zclType.atomic in toplevel) {
       Batch4.push(
-        processNumber(db, filePath, packageId, knownPackages, toplevel.atomic)
+        processNumber(db, filePath, packageId, knownPackages, toplevel.atomic),
       )
       Batch4.push(
-        processString(db, filePath, packageId, knownPackages, toplevel.atomic)
+        processString(db, filePath, packageId, knownPackages, toplevel.atomic),
       )
       Batch4.push(
         processEnumAtomic(
@@ -1874,8 +1874,8 @@ async function processParsedZclData(
           filePath,
           packageId,
           knownPackages,
-          toplevel.atomic
-        )
+          toplevel.atomic,
+        ),
       )
       Batch4.push(
         processBitmapAtomic(
@@ -1883,8 +1883,8 @@ async function processParsedZclData(
           filePath,
           packageId,
           knownPackages,
-          toplevel.atomic
-        )
+          toplevel.atomic,
+        ),
       )
     }
     await Promise.all(Batch4)
@@ -1892,12 +1892,12 @@ async function processParsedZclData(
     let Batch5 = []
     if (dbEnum.zclType.enum in toplevel) {
       Batch5.push(
-        processEnum(db, filePath, packageId, knownPackages, toplevel.enum)
+        processEnum(db, filePath, packageId, knownPackages, toplevel.enum),
       )
     }
     if (dbEnum.zclType.bitmap in toplevel) {
       Batch5.push(
-        processBitmap(db, filePath, packageId, knownPackages, toplevel.bitmap)
+        processBitmap(db, filePath, packageId, knownPackages, toplevel.bitmap),
       )
     }
     // Treating features in a cluster as a bitmap
@@ -1912,13 +1912,13 @@ async function processParsedZclData(
                 cluster_code: [fc.code[0]],
               },
             },
-          ])
+          ]),
         )
       })
     }
     if (dbEnum.zclType.struct in toplevel) {
       Batch5.push(
-        processStruct(db, filePath, packageId, knownPackages, toplevel.struct)
+        processStruct(db, filePath, packageId, knownPackages, toplevel.struct),
       )
     }
     await Promise.all(Batch5)
@@ -1927,7 +1927,7 @@ async function processParsedZclData(
     let batch6 = []
     if (dbEnum.zclType.enum in toplevel) {
       batch6.push(
-        processEnumItems(db, filePath, packageId, knownPackages, toplevel.enum)
+        processEnumItems(db, filePath, packageId, knownPackages, toplevel.enum),
       )
     }
     if (dbEnum.zclType.bitmap in toplevel) {
@@ -1937,15 +1937,15 @@ async function processParsedZclData(
           filePath,
           packageId,
           knownPackages,
-          toplevel.bitmap
-        )
+          toplevel.bitmap,
+        ),
       )
     }
     // Treating features in a cluster as a bitmap
     if (featureClusters.length > 0) {
       featureClusters.forEach((fc) => {
         batch6.push(
-          processBitmapFields(db, filePath, packageId, knownPackages, fc)
+          processBitmapFields(db, filePath, packageId, knownPackages, fc),
         )
       })
     }
@@ -1956,8 +1956,8 @@ async function processParsedZclData(
           filePath,
           knownPackages,
           toplevel.struct,
-          context
-        )
+          context,
+        ),
       )
     }
     await Promise.all(batch6)
@@ -1966,7 +1966,7 @@ async function processParsedZclData(
     let Batch7 = []
     if ('defaultAccess' in toplevel) {
       Batch7.push(
-        processDefaultAccess(db, filePath, packageId, toplevel.defaultAccess)
+        processDefaultAccess(db, filePath, packageId, toplevel.defaultAccess),
       )
     }
     if ('atomic' in toplevel) {
@@ -1986,8 +1986,8 @@ async function processParsedZclData(
           db,
           filePath,
           packageId,
-          toplevel.cluster
-        )
+          toplevel.cluster,
+        ),
       )
     }
     if ('clusterExtension' in toplevel) {
@@ -1998,8 +1998,8 @@ async function processParsedZclData(
           packageId,
           knownPackages,
           toplevel.clusterExtension,
-          context
-        )
+          context,
+        ),
       )
     }
     return Promise.all(delayedPromises)
@@ -2027,7 +2027,7 @@ async function parseSingleZclFile(db, packageId, file, context) {
       data,
       packageId,
       dbEnum.packageType.zclXml,
-      false
+      false,
     )
     if (result.data) {
       result.result = await util.parseXml(fileContent)
@@ -2063,13 +2063,13 @@ async function isCrcMismatchOrPackageDoesNotExist(db, packageId, files) {
       db,
       filePath,
       packageId,
-      false
+      false,
     )
 
     if (pkg != null && pkg.crc != actualCrc) {
       env.logDebug(
         `CRC missmatch for file ${pkg.path}, (${pkg.crc} vs ${actualCrc}) package id ${pkg.id}, parsing.
-        Mismatch with package id: ${packageId}`
+        Mismatch with package id: ${packageId}`,
       )
       result.isCrcMismatch = true
       return result
@@ -2077,7 +2077,7 @@ async function isCrcMismatchOrPackageDoesNotExist(db, packageId, files) {
       // This is executed if there is no CRC in the database.
       packagesNotFound++
       env.logDebug(
-        `No CRC in the database for file ${filePath}. Package needs to be loaded`
+        `No CRC in the database for file ${filePath}. Package needs to be loaded`,
       )
     } else if (pkg != null && pkg.crc == actualCrc) {
       packagesFound++
@@ -2110,14 +2110,14 @@ async function parseZclFiles(db, packageId, zclFiles, context) {
   // referenced by other types
   let typesFiles = zclFiles.filter((file) => file.includes('types.xml'))
   let typeFilePromise = typesFiles.map((file) =>
-    parseSingleZclFile(db, packageId, file, context)
+    parseSingleZclFile(db, packageId, file, context),
   )
   await Promise.all(typeFilePromise)
 
   // Load everything apart from atomic data types
   let nonTypesFiles = zclFiles.filter((file) => !file.includes('types.xml'))
   let individualFilePromise = nonTypesFiles.map((file) =>
-    parseSingleZclFile(db, packageId, file, context)
+    parseSingleZclFile(db, packageId, file, context),
   )
   let individualResults = await Promise.all(individualFilePromise)
   let laterPromises = individualResults.flat(2)
@@ -2146,7 +2146,7 @@ async function parseManufacturerData(db, packageId, manufacturersXml) {
     manufacturerMap.map.mapping.map((datum) => {
       let mfgPair = datum['$']
       return { code: mfgPair['code'], label: mfgPair['translation'] }
-    })
+    }),
   )
 }
 
@@ -2169,7 +2169,7 @@ async function parseProfilesData(db, packageId, profilesXml) {
     profilesMap.map.mapping.map((datum) => {
       let profilePair = datum['$']
       return { code: profilePair['code'], label: profilePair['translation'] }
-    })
+    }),
   )
 }
 
@@ -2196,9 +2196,9 @@ async function parseFeatureFlags(db, packageId, featureFlags) {
             code: data,
             label: featureFlags[featureCategory][data] == '1' ? true : false,
           }
-        })
+        }),
       )
-    })
+    }),
   )
 }
 
@@ -2225,7 +2225,7 @@ async function parseUiOptions(db, packageId, uiOptions) {
     db,
     packageId,
     dbEnum.packageOptionCategory.ui,
-    data
+    data,
   )
 }
 /**
@@ -2265,7 +2265,7 @@ async function parseTextOptions(db, pkgRef, textOptions) {
       optionKey,
       optionValues.map((optionValue) => {
         return { code: optionValue.toLowerCase(), label: optionValue }
-      })
+      }),
     )
   })
   return Promise.all(promises)
@@ -2295,7 +2295,7 @@ async function parseBoolOptions(db, pkgRef, booleanCategories) {
       queryPackage.insertOptionsKeyValues(db, pkgRef, optionCategory, [
         { code: 1, label: 'True' },
         { code: 0, label: 'False' },
-      ])
+      ]),
     )
   })
   return Promise.all(promises)
@@ -2320,7 +2320,7 @@ async function parseBoolOptions(db, pkgRef, booleanCategories) {
 async function parseattributeAccessInterfaceAttributes(
   db,
   pkgRef,
-  attributeAccessInterfaceAttributes
+  attributeAccessInterfaceAttributes,
 ) {
   const clusters = Object.keys(attributeAccessInterfaceAttributes)
   for (let i = 0; i < clusters.length; i++) {
@@ -2337,7 +2337,7 @@ async function parseattributeAccessInterfaceAttributes(
         db,
         pkgRef,
         cluster,
-        optionsKeyValues
+        optionsKeyValues,
       )
     } catch (error) {
       console.error(`Error inserting attributes for cluster ${cluster}:`, error)
@@ -2377,7 +2377,7 @@ async function parseTextDefaults(db, pkgRef, textDefaults) {
               db,
               pkgRef,
               optionCategory,
-              hex
+              hex,
             )
           } else {
             return specificValue
@@ -2387,17 +2387,17 @@ async function parseTextDefaults(db, pkgRef, textDefaults) {
           if (specificValue == null) {
             env.logWarning(
               'Default value for: ${optionCategory}/${txt} does not match an option for packageId: ' +
-                pkgRef
+                pkgRef,
             )
           } else {
             return queryPackage.insertDefaultOptionValue(
               db,
               pkgRef,
               optionCategory,
-              specificValue.id
+              specificValue.id,
             )
           }
-        })
+        }),
     )
   }
   return Promise.all(promises)
@@ -2414,16 +2414,16 @@ async function parseBoolDefaults(db, pkgRef, booleanCategories) {
           db,
           pkgRef,
           optionCategory,
-          booleanCategories[optionCategory] ? 1 : 0
+          booleanCategories[optionCategory] ? 1 : 0,
         )
         .then((specificValue) =>
           queryPackage.insertDefaultOptionValue(
             db,
             pkgRef,
             optionCategory,
-            specificValue.id
-          )
-        )
+            specificValue.id,
+          ),
+        ),
     )
   }
   return Promise.all(promises)
@@ -2453,7 +2453,7 @@ async function loadIndividualSilabsFile(db, filePath, sessionId) {
       data,
       null,
       dbEnum.packageType.zclXmlStandalone,
-      true
+      true,
     )
     let pkgId = result.packageId
     if (result.data) {
@@ -2477,14 +2477,14 @@ async function loadIndividualSilabsFile(db, filePath, sessionId) {
         !result.result.configurator.clusterExtension
       ) {
         env.logDebug(
-          `CRC match for file ${result.filePath} (${result.crc}), skipping parsing.`
+          `CRC match for file ${result.filePath} (${result.crc}), skipping parsing.`,
         )
         delete result.result
       }
     }
     let sessionPackages = await queryPackage.getSessionZclPackages(
       db,
-      sessionId
+      sessionId,
     )
     let packageSet = new Set()
     sessionPackages.map((sessionPackage) => {
@@ -2495,14 +2495,14 @@ async function loadIndividualSilabsFile(db, filePath, sessionId) {
     await Promise.all(
       laterPromises.flat(1).map((promise) => {
         if (promise != null && promise != undefined) return promise()
-      })
+      }),
     )
     // Check if session partition for package exists. If not then add it.
     let sessionPartitionInfoForNewPackage =
       await querySession.selectSessionPartitionInfoFromPackageId(
         db,
         sessionId,
-        pkgId
+        pkgId,
       )
     if (sessionPartitionInfoForNewPackage.length == 0) {
       let sessionPartitionInfo =
@@ -2510,13 +2510,13 @@ async function loadIndividualSilabsFile(db, filePath, sessionId) {
       let sessionPartitionId = await querySession.insertSessionPartition(
         db,
         sessionId,
-        sessionPartitionInfo.length + 1
+        sessionPartitionInfo.length + 1,
       )
       await queryPackage.insertSessionPackage(
         db,
         sessionPartitionId,
         pkgId,
-        true
+        true,
       )
     }
     await zclLoader.processZclPostLoading(db, pkgId)
@@ -2529,7 +2529,7 @@ async function loadIndividualSilabsFile(db, filePath, sessionId) {
       `Error reading xml file: ${filePath}, Error Message: ` + err.message,
       sessionId,
       1,
-      0
+      0,
     )
     return { succeeded: false, err: err }
   }
@@ -2556,7 +2556,7 @@ async function processCustomZclDeviceType(db, packageId) {
       db,
       packageId,
       dbEnum.customDevice.code,
-      dbEnum.customDevice.name
+      dbEnum.customDevice.name,
     )
   if (existingCustomDevice == null)
     await queryLoader.insertDeviceTypes(db, packageId, customDeviceTypes)
@@ -2605,12 +2605,12 @@ async function loadZclJsonOrProperties(db, metafile, isJson = false) {
       db,
       ctx.metadataFile,
       ctx.crc,
-      true
+      true,
     )
     let packageStatus = await isCrcMismatchOrPackageDoesNotExist(
       db,
       ctx.packageId,
-      ctx.zclFiles
+      ctx.zclFiles,
     )
     if (packageStatus.isCrcMismatch || packageStatus.areSomePackagesNotLoaded) {
       await queryPackage.updatePackageIsInSync(db, ctx.packageId, 0)
@@ -2618,7 +2618,7 @@ async function loadZclJsonOrProperties(db, metafile, isJson = false) {
         db,
         ctx.metadataFile,
         ctx.crc,
-        false
+        false,
       )
     }
 
@@ -2632,7 +2632,7 @@ async function loadZclJsonOrProperties(db, metafile, isJson = false) {
         ctx.packageId,
         ctx.version,
         ctx.category,
-        ctx.description
+        ctx.description,
       )
     }
 
@@ -2641,7 +2641,7 @@ async function loadZclJsonOrProperties(db, metafile, isJson = false) {
     let newFileResult = await newDataModel.parseNewXmlFiles(
       db,
       ctx.packageId,
-      ctx.newXmlFile
+      ctx.newXmlFile,
     )
     ctx.clustersLoadedFromNewFiles = newFileResult.clusterIdsLoaded
     ctx.newFileErrors = newFileResult.errorFiles
@@ -2651,31 +2651,31 @@ async function loadZclJsonOrProperties(db, metafile, isJson = false) {
     if (ctx.attributeAccessInterfaceAttributes) {
       let all_known_clusters = await queryZcl.selectAllClusters(
         db,
-        ctx.packageId
+        ctx.packageId,
       )
       for (let clusterName of Object.keys(
-        ctx.attributeAccessInterfaceAttributes
+        ctx.attributeAccessInterfaceAttributes,
       )) {
         let known_cluster = all_known_clusters.find(
-          (c) => c.name == clusterName
+          (c) => c.name == clusterName,
         )
         if (!known_cluster) {
           throw new Error(
-            `\n\nUnknown cluster "${clusterName}" in attributeAccessInterfaceAttributes\n\n`
+            `\n\nUnknown cluster "${clusterName}" in attributeAccessInterfaceAttributes\n\n`,
           )
         }
         let known_cluster_attributes =
           await queryZcl.selectAttributesByClusterIdIncludingGlobal(
             db,
             known_cluster.id,
-            ctx.packageId
+            ctx.packageId,
           )
         for (let attrName of ctx.attributeAccessInterfaceAttributes[
           clusterName
         ]) {
           if (!known_cluster_attributes.find((a) => a.name == attrName)) {
             throw new Error(
-              `\n\nUnknown attribute "${attrName}" in attributeAccessInterfaceAttributes["${clusterName}"]\n\n`
+              `\n\nUnknown attribute "${attrName}" in attributeAccessInterfaceAttributes["${clusterName}"]\n\n`,
             )
           }
         }
@@ -2701,7 +2701,7 @@ async function loadZclJsonOrProperties(db, metafile, isJson = false) {
       await parseattributeAccessInterfaceAttributes(
         db,
         ctx.packageId,
-        ctx.attributeAccessInterfaceAttributes
+        ctx.attributeAccessInterfaceAttributes,
       )
     }
     if (ctx.featureFlags) {
