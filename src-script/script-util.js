@@ -51,7 +51,7 @@ async function executeCmd(ctx, cmd, args) {
           reject(code)
         } else {
           console.log(
-            `👎 Program ${cmd} exited with signal code: ${c.signalCode}`,
+            `👎 Program ${cmd} exited with signal code: ${c.signalCode}`
           )
           reject(c.signalCode)
         }
@@ -106,19 +106,19 @@ async function getStdout(onError, cmd, args) {
 async function rebuildSpaIfNeeded() {
   let srcHash = await folderHash.hashElement(
     path.join(__dirname, '../src'),
-    hashOptions,
+    hashOptions
   )
   console.log(`🔍 Current src hash: ${srcHash.hash}`)
   let srcSharedHash = await folderHash.hashElement(
     path.join(__dirname, '../src-shared'),
-    hashOptions,
+    hashOptions
   )
   console.log(`🔍 Current src-shared hash: ${srcSharedHash.hash}`)
   let ctx = {
     hash: {
       srcHash: srcHash.hash,
-      srcSharedHash: srcSharedHash.hash,
-    },
+      srcSharedHash: srcSharedHash.hash
+    }
   }
   return Promise.resolve(ctx)
     .then(
@@ -133,7 +133,7 @@ async function rebuildSpaIfNeeded() {
               oldHash = JSON.parse(data)
               console.log(`🔍 Previous src hash: ${oldHash.srcHash}`)
               console.log(
-                `🔍 Previous src-shared hash: ${oldHash.srcSharedHash}`,
+                `🔍 Previous src-shared hash: ${oldHash.srcSharedHash}`
               )
               ctx.needsRebuild =
                 oldHash.srcSharedHash != ctx.hash.srcSharedHash ||
@@ -141,16 +141,16 @@ async function rebuildSpaIfNeeded() {
             }
             if (ctx.needsRebuild) {
               console.log(
-                `🐝 Front-end code changed, so we need to rebuild SPA.`,
+                `🐝 Front-end code changed, so we need to rebuild SPA.`
               )
             } else {
               console.log(
-                `👍 There were no changes to front-end code, so we don't have to rebuild the SPA.`,
+                `👍 There were no changes to front-end code, so we don't have to rebuild the SPA.`
               )
             }
             resolve(ctx)
           })
-        }),
+        })
     )
     .then((ctx) => {
       if (ctx.needsRebuild)
@@ -169,7 +169,7 @@ async function rebuildSpaIfNeeded() {
           } else {
             resolve(ctx)
           }
-        }),
+        })
     )
 }
 
@@ -181,8 +181,8 @@ async function rebuildBackendIfNeeded() {
         'copyfiles',
         './src-electron/**/*.sql',
         './src-electron/icons/*',
-        './dist/',
-      ]),
+        './dist/'
+      ])
     )
 }
 
@@ -196,7 +196,7 @@ async function stampVersion() {
     let out = await getStdout('{"hash": null,"date": null}', 'git', [
       'log',
       '-1',
-      '--format={"hash": "%H","timestamp": %ct}',
+      '--format={"hash": "%H","timestamp": %ct}'
     ])
     let version = JSON.parse(out)
     let d = new Date(version.timestamp * 1000) // git gives seconds, Date needs milliseconds
@@ -228,13 +228,13 @@ async function setPackageJsonVersion(date, mode) {
     let cnt = 0
     let result = {
       wasChanged: false,
-      version: null,
+      version: null
     }
 
     const stream = fs.createReadStream(packageJson)
     const rl = readline.createInterface({
       input: stream,
-      crlfDelay: Infinity,
+      crlfDelay: Infinity
     })
 
     rl.on('line', (line) => {

@@ -54,5 +54,5 @@ function asBasicType(type) {
 exports.asBasicType = asBasicType;
 exports.meta = {
   category: dbEnum.helperCategory.matter,
-  alias: ['common/ChipTypesHelper.js', 'matter-chip-types-helper'],
+  alias: ['common/ChipTypesHelper.js', 'matter-chip-types-helper']
 };

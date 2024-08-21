@@ -46,47 +46,47 @@ export default {
           icon: 'o_manage_accounts',
           label: 'User Settings',
           link: '/preferences/user',
-          separator: false,
+          separator: false
         },
         {
           icon: 'mdi-lan',
           label: 'ZCL Packages',
           link: '/preferences/package',
-          separator: false,
+          separator: false
         },
         {
           icon: 'mdi-file-document-edit-outline',
           label: 'Generation',
           link: '/preferences/generation',
-          separator: false,
+          separator: false
         },
         {
           icon: 'o_info',
           label: 'About',
           link: '/preferences/about',
-          separator: false,
-        },
+          separator: false
+        }
       ],
       devToolList: [
         {
           icon: 'o_settings_applications',
           label: 'Information Setup',
           link: '/preferences/devtools/information-setup',
-          separator: false,
+          separator: false
         },
         {
           icon: 'o_schema',
           label: 'SQL Query',
           link: '/preferences/devtools/sql-query',
-          separator: false,
+          separator: false
         },
         {
           icon: 'o_api',
           label: 'API Exceptions',
           link: '/preferences/devtools/api-exceptions',
-          separator: false,
-        },
-      ],
+          separator: false
+        }
+      ]
     }
   },
   methods: {
@@ -106,8 +106,8 @@ export default {
       if (process.env.MODE === 'electron') {
         //
       }
-    },
-  },
+    }
+  }
 }
 </script>
 <style lang="scss" scoped>

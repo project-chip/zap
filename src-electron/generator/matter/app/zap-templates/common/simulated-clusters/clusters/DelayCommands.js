@@ -26,27 +26,27 @@
 
 const WaitForMs = {
   name: 'WaitForMs',
-  arguments: [{ type: 'INT32U', name: 'ms' }],
+  arguments: [{ type: 'INT32U', name: 'ms' }]
 };
 
 const WaitForCommissioning = {
-  name: 'WaitForCommissioning',
+  name: 'WaitForCommissioning'
 };
 
 const WaitForCommissionee = {
   name: 'WaitForCommissionee',
   arguments: [
     { type: 'NODE_ID', name: 'nodeId' },
-    { type: 'BOOLEAN', name: 'expireExistingSession', isOptional: true },
-  ],
+    { type: 'BOOLEAN', name: 'expireExistingSession', isOptional: true }
+  ]
 };
 
 const WaitForMessage = {
   name: 'WaitForMessage',
   arguments: [
     { type: 'CHAR_STRING', name: 'registerKey', isOptional: true },
-    { type: 'CHAR_STRING', name: 'message' },
-  ],
+    { type: 'CHAR_STRING', name: 'message' }
+  ]
 };
 
 const name = 'DelayCommands';
@@ -54,12 +54,12 @@ const commands = [
   WaitForMs,
   WaitForCommissioning,
   WaitForCommissionee,
-  WaitForMessage,
+  WaitForMessage
 ];
 
 const DelayCommands = {
   name,
-  commands,
+  commands
 };
 
 //

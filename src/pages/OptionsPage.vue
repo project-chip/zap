@@ -51,7 +51,7 @@ limitations under the License.
           @update:model-value="
             handleEnumeratedOptionChange(
               DbEnum.sessionOption.defaultResponsePolicy,
-              $event,
+              $event
             )
           "
           outlined
@@ -103,32 +103,32 @@ export default {
   name: 'OptionsPage',
   mixins: [CommonMixin],
   components: {
-    PreferencePageLayout,
+    PreferencePageLayout
   },
   computed: {
     DbEnum: {
       get() {
         return DbEnum
-      },
+      }
     },
     defaultResponsePolicyOptions: {
       get() {
         return this.$store.state.zap.genericOptions[
           DbEnum.sessionOption.defaultResponsePolicy
         ]
-      },
+      }
     },
     manufacturerCodesOptions: {
       get() {
         return this.$store.state.zap.genericOptions[
           DbEnum.sessionOption.manufacturerCodes
         ]
-      },
+      }
     },
     defaultManufacturerCodes: {
       get() {
         return this.manufacturerCodesOptions?.map((option) => option.optionCode)
-      },
+      }
     },
     selectedDefaultResponsePolicy: {
       get() {
@@ -144,36 +144,36 @@ export default {
               o.optionCode ===
               this.$store.state.zap.selectedGenericOptions[
                 DbEnum.sessionOption.defaultResponsePolicy
-              ],
+              ]
           )
         }
-      },
+      }
     },
     selectedManufacturerCode: {
       get() {
         return this.getMfgOptionLabel(
           this.$store.state.zap.selectedGenericOptions[
             DbEnum.sessionOption.manufacturerCodes
-          ],
+          ]
         )
-      },
+      }
     },
     commandDiscoverySetting: {
       get() {
         return this.$store.state.zap.selectedGenericOptions['commandDiscovery']
-      },
+      }
     },
     disableComponentToggling: {
       get() {
         return this.$store.state.zap.selectedGenericOptions[
           'disableComponentToggling'
         ]
-      },
-    },
+      }
+    }
   },
   data() {
     return {
-      mfgOptions: null,
+      mfgOptions: null
     }
   },
   beforeMount() {
@@ -184,13 +184,13 @@ export default {
     handleEnumeratedOptionChange(option, value) {
       this.$store.dispatch('zap/setSelectedGenericKey', {
         key: option,
-        value: value.optionCode,
+        value: value.optionCode
       })
     },
     handleOptionChange(option, value) {
       this.$store.dispatch('zap/setSelectedGenericKey', {
         key: option,
-        value: value,
+        value: value
       })
 
       // reload all setting values to $store/frontend
@@ -227,7 +227,7 @@ export default {
           return this.getMfgOptionLabel(v).toLowerCase().indexOf(needle) > -1
         })
       })
-    },
-  },
+    }
+  }
 }
 </script>

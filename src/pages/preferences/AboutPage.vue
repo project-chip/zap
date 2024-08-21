@@ -43,7 +43,7 @@ const commonUrl = require('../../../src-shared/common-url.js')
 export default {
   name: 'AboutPage',
   components: {
-    PreferencePageLayout,
+    PreferencePageLayout
   },
   mounted() {
     if (this.$serverGet != null) {
@@ -69,13 +69,13 @@ export default {
       version: '',
       featureLevel: '',
       hash: '',
-      date: '',
+      date: ''
     }
   },
   methods: {
     openDocumentation() {
       window.open(commonUrl.documentationUrl, '_blank')
-    },
-  },
+    }
+  }
 }
 </script>

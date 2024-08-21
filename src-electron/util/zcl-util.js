@@ -263,7 +263,7 @@ function calculateBytesForTypes(res, options, db, packageIds) {
       env.logError(
         'Could not find size of the given type in' +
           ' calculateBytesForTypes: ' +
-          err,
+          err
       )
     })
 }
@@ -283,14 +283,14 @@ async function calculateBytesForStructs(res, options, db, packageIds) {
               packageIds,
               item,
               options,
-              item.discriminatorName.toLowerCase(),
-            ),
-          ),
+              item.discriminatorName.toLowerCase()
+            )
+          )
         )
         return Promise.all(promises)
       })
       .then((resolvedPromises) =>
-        resolvedPromises.reduce((acc, cur) => acc + cur, 0),
+        resolvedPromises.reduce((acc, cur) => acc + cur, 0)
       )
       .catch((err) => {
         env.logError(
@@ -298,7 +298,7 @@ async function calculateBytesForStructs(res, options, db, packageIds) {
             res +
             ' in' +
             ' calculate_size_for_structs: ' +
-            err,
+            err
         )
         return 0
       })
@@ -380,7 +380,7 @@ function returnOptionsForTypes(size, res, options) {
     env.logError(
       'Could not find size of the given type in' +
         ' returnOptionsForTypes: ' +
-        err,
+        err
     )
   })
 }
@@ -399,7 +399,7 @@ async function dataTypeCharacterFormatter(
   packageIds,
   type,
   options,
-  resType,
+  resType
 ) {
   switch (resType) {
     case dbEnum.zclType.array:
@@ -540,7 +540,7 @@ function dataTypeHelper(
   packageIds,
   db,
   resolvedType,
-  overridable,
+  overridable
 ) {
   let no_warning = { no_warning: 0 }
   if ('no_warning' in options.hash) {
@@ -552,7 +552,7 @@ function dataTypeHelper(
         return defaultMessageForTypeConversion(
           `${type} array`,
           options.hash.array,
-          options.hash.no_warning,
+          options.hash.no_warning
         )
       } else {
         return queryZcl
@@ -564,7 +564,7 @@ function dataTypeHelper(
         return defaultMessageForTypeConversion(
           `${type}`,
           options.hash.bitmap,
-          options.hash.no_warning,
+          options.hash.no_warning
         )
       } else {
         return queryZcl
@@ -576,7 +576,7 @@ function dataTypeHelper(
         return defaultMessageForTypeConversion(
           `${type}`,
           options.hash.enum,
-          options.hash.no_warning,
+          options.hash.no_warning
         )
       } else {
         return queryZcl
@@ -588,7 +588,7 @@ function dataTypeHelper(
         return defaultMessageForTypeConversion(
           `${type}`,
           options.hash.struct,
-          options.hash.no_warning,
+          options.hash.no_warning
         )
       } else {
         return type
@@ -620,13 +620,13 @@ async function asUnderlyingZclTypeWithPackageId(
   type,
   options,
   packageIds,
-  currentInstance,
+  currentInstance
 ) {
   let actualType = type
   if (typeof type === 'number') {
     let numberType = await queryZcl.selectDataTypeById(
       currentInstance.global.db,
-      type,
+      type
     )
     actualType = numberType.name
   }
@@ -639,7 +639,7 @@ async function asUnderlyingZclTypeWithPackageId(
     }),
     isEnum(currentInstance.global.db, actualType, packageIds),
     isStruct(currentInstance.global.db, actualType, packageIds),
-    isBitmap(currentInstance.global.db, actualType, packageIds),
+    isBitmap(currentInstance.global.db, actualType, packageIds)
   ])
     .then(
       (res) =>
@@ -651,7 +651,7 @@ async function asUnderlyingZclTypeWithPackageId(
             }
           }
           resolve(dbEnum.zclType.unknown)
-        }),
+        })
     )
     .then((resType) => {
       if (dbEnum.zclType.zclCharFormatter in options.hash) {
@@ -660,7 +660,7 @@ async function asUnderlyingZclTypeWithPackageId(
           packageIds,
           actualType,
           options,
-          resType,
+          resType
         )
       } else {
         return dataTypeHelper(
@@ -669,7 +669,7 @@ async function asUnderlyingZclTypeWithPackageId(
           packageIds,
           currentInstance.global.db,
           resType,
-          currentInstance.global.overridable,
+          currentInstance.global.overridable
         )
       }
     })
@@ -694,7 +694,7 @@ async function determineType(db, type, packageIds) {
   if (atomic != null)
     return {
       type: dbEnum.zclType.atomic,
-      atomicType: atomic.name,
+      atomicType: atomic.name
     }
 
   let theEnum = await queryZcl.selectEnumByName(db, type, packageIds)
@@ -708,7 +708,7 @@ async function determineType(db, type, packageIds) {
     return {
       type: dbEnum.zclType.enum,
       atomicType: 'enum' + size * 8,
-      size: theEnum.size,
+      size: theEnum.size
     }
   }
 
@@ -716,7 +716,7 @@ async function determineType(db, type, packageIds) {
   if (struct != null)
     return {
       type: dbEnum.zclType.struct,
-      atomicType: null,
+      atomicType: null
     }
 
   let theBitmap = await queryZcl.selectBitmapByName(db, packageIds, type)
@@ -730,13 +730,13 @@ async function determineType(db, type, packageIds) {
     return {
       type: dbEnum.zclType.bitmap,
       atomicType: 'bitmap' + size * 8,
-      size: theBitmap.size,
+      size: theBitmap.size
     }
   }
 
   return {
     type: dbEnum.zclType.unknown,
-    atomicType: null,
+    atomicType: null
   }
 }
 
@@ -793,7 +793,7 @@ async function createCommandSignature(db, packageId, cmd) {
 
   return {
     signature: sig.toString(),
-    isSimple: isSimple,
+    isSimple: isSimple
   }
 }
 
@@ -811,7 +811,7 @@ async function zcl_data_type_size_and_sign(
   dataType,
   clusterId,
   packageIds,
-  context,
+  context
 ) {
   let result = 0
   let isSigned = false
@@ -820,7 +820,7 @@ async function zcl_data_type_size_and_sign(
       context.global.db,
       dataType.name,
       clusterId,
-      packageIds,
+      packageIds
     )
     result = bitmap.size
   } else if (dataType.discriminatorName.toLowerCase() == dbEnum.zclType.enum) {
@@ -828,7 +828,7 @@ async function zcl_data_type_size_and_sign(
       context.global.db,
       dataType.name,
       clusterId,
-      packageIds,
+      packageIds
     )
     result = en.size
   } else if (
@@ -838,7 +838,7 @@ async function zcl_data_type_size_and_sign(
       context.global.db,
       dataType.name,
       clusterId,
-      packageIds,
+      packageIds
     )
     isSigned = number.isSigned
     result = number.size

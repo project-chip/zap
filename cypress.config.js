@@ -17,7 +17,7 @@ export default defineConfig({
       '**/*.xml',
       '**/*.zap',
       '**/custom_xml.spec.js',
-      '**/check-cluster-attributes-singleton-in-zigbee-mode.spec.js',
-    ],
-  },
+      '**/check-cluster-attributes-singleton-in-zigbee-mode.spec.js'
+    ]
+  }
 })

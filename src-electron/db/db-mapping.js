@@ -36,7 +36,7 @@ exports.map = {
       category: x.CATEGORY,
       description: x.DESCRIPTION,
       version: x.VERSION,
-      parentId: x.PARENT_PACKAGE_REF,
+      parentId: x.PARENT_PACKAGE_REF
     }
   },
   options: (x) => {
@@ -46,7 +46,7 @@ exports.map = {
       packageRef: x.PACKAGE_REF,
       optionCategory: x.OPTION_CATEGORY,
       optionCode: x.OPTION_CODE,
-      optionLabel: x.OPTION_LABEL,
+      optionLabel: x.OPTION_LABEL
     }
   },
   optionDefaults: (x) => {
@@ -55,14 +55,14 @@ exports.map = {
       id: x.OPTION_DEFAULT_ID,
       packageRef: x.PACKAGE_REF,
       optionCategory: x.OPTION_CATEGORY,
-      optionRef: x.OPTION_REF,
+      optionRef: x.OPTION_REF
     }
   },
   trackedFile: (x) => {
     if (x == null) return undefined
     return {
       path: x.PATH,
-      crc: x.CRC,
+      crc: x.CRC
     }
   },
   cluster: (x) => {
@@ -81,7 +81,7 @@ exports.map = {
       isSingleton: dbApi.fromDbBool(x.IS_SINGLETON),
       revision: x.REVISION,
       isManufacturingSpecific: dbApi.toDbBool(x.CLUSTER_MANUFACTURER_CODE),
-      apiMaturity: x.API_MATURITY,
+      apiMaturity: x.API_MATURITY
     }
   },
 
@@ -126,7 +126,7 @@ exports.map = {
       mustUseTimedWrite: dbApi.fromDbBool(x.MUST_USE_TIMED_WRITE),
       apiMaturity: x.API_MATURITY,
       isChangeComitted: dbApi.fromDbBool(x.IS_CHANGE_COMITTED),
-      persistence: x.PERSISTENCE,
+      persistence: x.PERSISTENCE
     }
   },
 
@@ -147,7 +147,7 @@ exports.map = {
       clusterCode2: x.C2_CODE,
       clusterMfgCode2: x.C2_MANUFACTURER_CODE,
       clusterName1: x.C1_NAME,
-      clusterName2: x.C2_NAME,
+      clusterName2: x.C2_NAME
     }
   },
 
@@ -159,7 +159,7 @@ exports.map = {
       type: x.TYPE,
       isArray: dbApi.fromDbBool(x.IS_ARRAY),
       isNullable: dbApi.fromDbBool(x.IS_NULLABLE),
-      isOptional: dbApi.fromDbBool(x.IS_OPTIONAL),
+      isOptional: dbApi.fromDbBool(x.IS_OPTIONAL)
     }
   },
 
@@ -177,7 +177,7 @@ exports.map = {
       side: x.SIDE,
       isOptional: dbApi.fromDbBool(x.IS_OPTIONAL),
       isFabricSensitive: dbApi.fromDbBool(x.IS_FABRIC_SENSITIVE),
-      priority: x.PRIORITY,
+      priority: x.PRIORITY
     }
   },
 
@@ -215,7 +215,7 @@ exports.map = {
       hasSpecificResponse: dbApi.toDbBool(x.RESPONSE_REF),
       isIncoming: x.INCOMING,
       isOutgoing: x.OUTGOING,
-      isDefaultResponseEnabled: x.IS_DEFAULT_RESPONSE_ENABLED,
+      isDefaultResponseEnabled: x.IS_DEFAULT_RESPONSE_ENABLED
     }
   },
 
@@ -241,7 +241,7 @@ exports.map = {
       introducedInRef: x.INTRODUCED_IN_REF,
       removedInRef: x.REMOVED_IN_REF,
       countArg: x.COUNT_ARG,
-      caption: `Command argument of type ${x.TYPE}`,
+      caption: `Command argument of type ${x.TYPE}`
     }
   },
 
@@ -250,7 +250,7 @@ exports.map = {
     return {
       id: x.DOMAIN_ID,
       label: x.NAME,
-      caption: `Domain, named ${x.NAME}`,
+      caption: `Domain, named ${x.NAME}`
     }
   },
 
@@ -263,7 +263,7 @@ exports.map = {
       descriminatorId: x.DISCRIMINATOR_REF,
       packageId: x.PACKAGE_REF,
       discriminatorName: x.DISCRIMINATOR_NAME,
-      clusterCode: x.CLUSTER_CODE,
+      clusterCode: x.CLUSTER_CODE
     }
   },
 
@@ -271,7 +271,7 @@ exports.map = {
     if (x == null) return undefined
     return {
       id: x.DISCRIMINATOR_ID,
-      name: x.NAME,
+      name: x.NAME
     }
   },
 
@@ -283,7 +283,7 @@ exports.map = {
       name: x.NAME,
       isLong: x.IS_LONG,
       isChar: x.IS_CHAR,
-      size: x.SIZE,
+      size: x.SIZE
     }
   },
 
@@ -294,7 +294,7 @@ exports.map = {
       label: x.NAME,
       name: x.NAME,
       isSigned: x.IS_SIGNED,
-      size: x.SIZE,
+      size: x.SIZE
     }
   },
 
@@ -306,7 +306,7 @@ exports.map = {
       name: x.NAME,
       caption: `Enum of size ${x.SIZE} byte`,
       enumClusterCount: x.ENUM_CLUSTER_COUNT,
-      size: x.SIZE,
+      size: x.SIZE
     }
   },
 
@@ -317,7 +317,7 @@ exports.map = {
       label: x.NAME,
       value: x.VALUE,
       enumRef: x.ENUM_REF,
-      caption: `EnumItem, named ${x.NAME}`,
+      caption: `EnumItem, named ${x.NAME}`
     }
   },
 
@@ -332,7 +332,7 @@ exports.map = {
       caption: `Struct, named ${x.NAME}`,
       structClusterCount: x.STRUCT_CLUSTER_COUNT,
       clusterName: x.CLUSTER_NAME,
-      apiMaturity: x.API_MATURITY,
+      apiMaturity: x.API_MATURITY
     }
   },
 
@@ -354,7 +354,7 @@ exports.map = {
       isFabricSensitive: dbApi.fromDbBool(x.IS_FABRIC_SENSITIVE),
       dataTypeReference: x.TYPE,
       dataTypeReferenceName: x.DATA_TYPE_REF_NAME,
-      discriminatorName: x.DISCRIMINATOR_NAME,
+      discriminatorName: x.DISCRIMINATOR_NAME
     }
   },
 
@@ -370,7 +370,7 @@ exports.map = {
       isString: dbApi.fromDbBool(x.IS_STRING),
       isLong: dbApi.fromDbBool(x.IS_LONG),
       isChar: dbApi.fromDbBool(x.IS_CHAR),
-      isSigned: dbApi.fromDbBool(x.IS_SIGNED),
+      isSigned: dbApi.fromDbBool(x.IS_SIGNED)
     }
   },
 
@@ -382,7 +382,7 @@ exports.map = {
       name: x.NAME,
       type: x.TYPE,
       bitmapClusterCount: x.BITMAP_CLUSTER_COUNT,
-      size: x.SIZE,
+      size: x.SIZE
     }
   },
 
@@ -393,7 +393,7 @@ exports.map = {
       mask: x.MASK,
       type: x.TYPE,
       bitmapRef: x.BITMAP_REF,
-      caption: `BitmapField, named ${x.NAME}`,
+      caption: `BitmapField, named ${x.NAME}`
     }
   },
 
@@ -408,7 +408,7 @@ exports.map = {
       name: x.NAME,
       caption: x.DESCRIPTION,
       class: x.CLASS,
-      packageRef: x.PACKAGE_REF,
+      packageRef: x.PACKAGE_REF
     }
   },
 
@@ -424,7 +424,7 @@ exports.map = {
       caption: x.DESCRIPTION,
       class: x.CLASS,
       packageRef: x.PACKAGE_REF,
-      category: x.CATEGORY,
+      category: x.CATEGORY
     }
   },
 
@@ -434,7 +434,7 @@ exports.map = {
       code: x.CODE,
       profileId: x.PROFILE_ID,
       label: x.NAME,
-      name: x.NAME,
+      name: x.NAME
     }
   },
 
@@ -448,7 +448,7 @@ exports.map = {
       includeClient: dbApi.fromDbBool(x.INCLUDE_CLIENT),
       includeServer: dbApi.fromDbBool(x.INCLUDE_SERVER),
       lockClient: dbApi.fromDbBool(x.LOCK_CLIENT),
-      lockServer: dbApi.fromDbBool(x.LOCK_SERVER),
+      lockServer: dbApi.fromDbBool(x.LOCK_SERVER)
     }
   },
 
@@ -459,7 +459,7 @@ exports.map = {
       attributeRef: x.ATTRIBUTE_REF,
       name: x.NAME,
       code: x.CODE,
-      manufacturerCode: x.MANUFACTURER_CODE,
+      manufacturerCode: x.MANUFACTURER_CODE
     }
   },
 
@@ -471,7 +471,7 @@ exports.map = {
       name: x.NAME,
       code: x.CODE,
       manufacturerCode: x.MANUFACTURER_CODE,
-      source: x.SOURCE,
+      source: x.SOURCE
     }
   },
 
@@ -490,7 +490,7 @@ exports.map = {
       deviceVersion: x.DEVICE_VERSION,
       deviceIdentifier: x.DEVICE_IDENTIFIER,
       parentRef: x.PARENT_ENDPOINT_REF,
-      parentEndpointIdentifier: x.PARENT_ENDPOINT_IDENTIFIER,
+      parentEndpointIdentifier: x.PARENT_ENDPOINT_IDENTIFIER
     }
   },
   endpointExtended: (x) => {
@@ -509,7 +509,7 @@ exports.map = {
       deviceIdentifier: x.DEVICE_IDENTIFIER,
       parentRef: x.PARENT_ENDPOINT_REF,
       parentEndpointIdentifier: x.PARENT_ENDPOINT_IDENTIFIER,
-      category: x.CATEGORY, // Category of the device type coming from the zcl package it belongs to.
+      category: x.CATEGORY // Category of the device type coming from the zcl package it belongs to.
     }
   },
   endpointType: (x) => {
@@ -520,7 +520,7 @@ exports.map = {
       sessionRef: x.SESSION_REF,
       name: x.NAME,
       deviceTypeRef: x.DEVICE_TYPE_REF,
-      deviceTypes: x.deviceTypes, // Populated outside the sql query mapping.
+      deviceTypes: x.deviceTypes // Populated outside the sql query mapping.
     }
   },
   endpointTypeExport: (x) => {
@@ -530,7 +530,7 @@ exports.map = {
       endpointTypeId: x.ENDPOINT_TYPE_ID,
       name: x.NAME,
       deviceTypeRef: x.DEVICE_TYPE_REF,
-      deviceTypes: x.deviceTypes, // Populated outside the sql query mapping.
+      deviceTypes: x.deviceTypes // Populated outside the sql query mapping.
     }
   },
   endpointTypeDevice: (x) => {
@@ -543,7 +543,7 @@ exports.map = {
       deviceTypeOrder: x.DEVICE_TYPE_ORDER,
       deviceIdentifier: x.DEVICE_IDENTIFIER,
       deviceId: x.DEVICE_IDENTIFIER,
-      deviceVersion: x.DEVICE_VERSION,
+      deviceVersion: x.DEVICE_VERSION
     }
   },
   endpointTypeDeviceExtended: (x) => {
@@ -562,7 +562,7 @@ exports.map = {
       featureName: x.FEATURE_NAME,
       featureBit: x.FEATURE_BIT,
       clusterId: x.CLUSTER_REF,
-      composition: x.TYPE,
+      composition: x.TYPE
     }
   },
   endpointTypeCluster: (x) => {
@@ -572,7 +572,7 @@ exports.map = {
       endpointTypeRef: x.ENDPOINT_TYPE_REF,
       clusterRef: x.CLUSTER_REF,
       side: x.SIDE,
-      enabled: dbApi.fromDbBool(x.ENABLED),
+      enabled: dbApi.fromDbBool(x.ENABLED)
     }
   },
 
@@ -586,7 +586,7 @@ exports.map = {
       enabled: dbApi.fromDbBool(x.ENABLED),
       name: x.NAME, // Cluster Name
       code: x.CODE, // Cluster Code
-      tokenAttributesCount: x.TOKEN_ATTRIBUTES_COUNT, // Number of Token Attributes within the endpoint type cluster
+      tokenAttributesCount: x.TOKEN_ATTRIBUTES_COUNT // Number of Token Attributes within the endpoint type cluster
     }
   },
 
@@ -605,7 +605,7 @@ exports.map = {
       minInterval: x.MIN_INTERVAL,
       maxInterval: x.MAX_INTERVAL,
       reportableChange: x.REPORTABLE_CHANGE,
-      apiMaturity: x.API_MATURITY,
+      apiMaturity: x.API_MATURITY
     }
   },
 
@@ -636,7 +636,7 @@ exports.map = {
       isGlobalAttribute: x.IS_GLOBAL_ATTRIBUTE, // Is attribute global
       isIncluded: dbApi.fromDbBool(x.INCLUDED), // Is endpoint type attribute included
       isManufacturingSpecific: dbApi.toDbBool(
-        x.MANUFACTURER_CODE | x.CLUSTER_MANUFACTURER_CODE,
+        x.MANUFACTURER_CODE | x.CLUSTER_MANUFACTURER_CODE
       ), // Is Attribute mfg specific or not
       isNullable: dbApi.fromDbBool(x.IS_NULLABLE), // Is attribute nullable
       isOptionalAttribute: dbApi.fromDbBool(x.IS_OPTIONAL),
@@ -669,7 +669,7 @@ exports.map = {
       type: x.TYPE != 'array' ? x.TYPE : x.ARRAY_TYPE, // Attribute type
       apiMaturity: x.API_MATURITY,
       isChangeComitted: x.IS_CHANGE_COMITTED,
-      persistence: x.PERSISTENCE,
+      persistence: x.PERSISTENCE
     }
   },
 
@@ -682,7 +682,7 @@ exports.map = {
       incoming: dbApi.fromDbBool(x.INCOMING),
       outgoing: dbApi.fromDbBool(x.OUTGOING),
       isIncoming: dbApi.fromDbBool(x.IS_INCOMING),
-      isEnabled: dbApi.fromDbBool(x.IS_ENABLED),
+      isEnabled: dbApi.fromDbBool(x.IS_ENABLED)
     }
   },
 
@@ -692,7 +692,7 @@ exports.map = {
       endpointTypeRef: x.ENDPOINT_TYPE_REF,
       clusterRef: x.CLUSTER_REF,
       eventRef: x.EVENT_REF,
-      included: dbApi.fromDbBool(x.INCLUDED),
+      included: dbApi.fromDbBool(x.INCLUDED)
     }
   },
 
@@ -704,7 +704,7 @@ exports.map = {
       type: x.TYPE,
       configurability: x.CONFIGURABILITY,
       label: x.LABEL,
-      globalDefault: x.GLOBAL_DEFAULT,
+      globalDefault: x.GLOBAL_DEFAULT
     }
   },
   packageExtensionDefault: (x) => {
@@ -714,7 +714,7 @@ exports.map = {
       entityQualifier: x.ENTITY_QUALIFIER,
       parentCode: x.PARENT_CODE,
       manufacturerCode: x.MANUFACTURER_CODE,
-      value: x.VALUE,
+      value: x.VALUE
     }
   },
   sessionPackage: (x) => {
@@ -725,14 +725,14 @@ exports.map = {
       required: x.REQUIRED,
       type: x.TYPE,
       sessionPartitionId: x.SESSION_PARTITION_ID,
-      category: x.CATEGORY,
+      category: x.CATEGORY
     }
   },
   sessionLog: (x) => {
     if (x == null) return undefined
     return {
       timestamp: x.TIMESTAMP,
-      log: x.LOG,
+      log: x.LOG
     }
   },
   session: (x) => {
@@ -744,7 +744,7 @@ exports.map = {
       packageRef: x.PACKAGE_REF,
       userRef: x.USER_REF,
       dirty: x.DIRTY == 1,
-      newNotification: x.NEW_NOTIFICATION == 1,
+      newNotification: x.NEW_NOTIFICATION == 1
     }
   },
 
@@ -753,7 +753,7 @@ exports.map = {
     return {
       sessionPartitionId: x.SESSION_PARTITION_ID,
       sessionRef: x.SESSION_REF,
-      sessionPartitionNumber: x.SESSION_PARTITION_NUMBER,
+      sessionPartitionNumber: x.SESSION_PARTITION_NUMBER
     }
   },
 
@@ -762,7 +762,7 @@ exports.map = {
     return {
       userId: x.USER_ID,
       userKey: x.USER_KEY,
-      creationTime: x.CREATION_TIME,
+      creationTime: x.CREATION_TIME
     }
   },
   accessRole: (x) => {
@@ -770,21 +770,21 @@ exports.map = {
     return {
       name: x.NAME,
       description: x.DESCRIPTION,
-      level: x.LEVEL,
+      level: x.LEVEL
     }
   },
   accessOperation: (x) => {
     if (x == null) return undefined
     return {
       name: x.NAME,
-      description: x.DESCRIPTION,
+      description: x.DESCRIPTION
     }
   },
   accessModifier: (x) => {
     if (x == null) return undefined
     return {
       name: x.NAME,
-      description: x.DESCRIPTION,
+      description: x.DESCRIPTION
     }
   },
   access: (x) => {
@@ -792,7 +792,7 @@ exports.map = {
     return {
       operation: x.OP_NAME,
       role: x.ROLE_NAME,
-      accessModifier: x.MODIFIER_NAME,
+      accessModifier: x.MODIFIER_NAME
     }
   },
   settings: (x) => {
@@ -800,7 +800,7 @@ exports.map = {
     return {
       category: x.CATEGORY,
       key: x.KEY,
-      value: x.VALUE,
+      value: x.VALUE
     }
   },
   sessionNotifications: (x) => {
@@ -812,7 +812,7 @@ exports.map = {
       severity: x.NOTICE_SEVERITY,
       id: x.NOTICE_ID,
       display: x.DISPLAY,
-      seen: x.SEEN,
+      seen: x.SEEN
     }
   },
   packageNotification: (x) => {
@@ -822,9 +822,9 @@ exports.map = {
       type: x.NOTICE_TYPE,
       message: x.NOTICE_MESSAGE,
       severity: x.NOTICE_SEVERITY,
-      id: x.NOTICE_ID,
+      id: x.NOTICE_ID
     }
-  },
+  }
 }
 
 exports.reverseMap = {
@@ -838,6 +838,6 @@ exports.reverseMap = {
     parentRef: 'PARENT_ENDPOINT_REF',
     parentEndpointIdentifier: 'PARENT_ENDPOINT_IDENTIFIER',
     endpointVersion: 'DEVICE_VERSION',
-    deviceVersion: 'DEVICE_VERSION',
-  },
+    deviceVersion: 'DEVICE_VERSION'
+  }
 }

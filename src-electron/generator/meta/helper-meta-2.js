@@ -24,5 +24,5 @@ async function meta_category() {
 exports.meta_category = meta_category
 exports.meta = {
   alias: ['meta-helper'],
-  category: dbEnum.helperCategory.meta,
+  category: dbEnum.helperCategory.meta
 }

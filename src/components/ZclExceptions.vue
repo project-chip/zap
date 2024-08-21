@@ -47,7 +47,7 @@ export default {
   computed: {
     exceptions() {
       return this.$store.state.zap.exceptions
-    },
-  },
+    }
+  }
 }
 </script>

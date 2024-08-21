@@ -34,7 +34,7 @@ async function selectCliCommandCountFromEndpointTypeCluster(
   db,
   endpointTypes,
   endpointClusterId,
-  packageIds,
+  packageIds
 ) {
   let endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
   let res = await dbApi.dbAll(
@@ -54,7 +54,7 @@ WHERE ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF IN (${endpointTypeIds})
   AND ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = ?
   AND COMMAND.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
         `,
-    [endpointClusterId],
+    [endpointClusterId]
   )
   return res[0].COUNT
 }
@@ -72,7 +72,7 @@ async function selectCliCommandsFromCluster(db, endpointClusterId, packageIds) {
       name: x.NAME,
       code: x.CODE,
       mfgCode: x.MANUFACTURER_CODE,
-      source: x.SOURCE,
+      source: x.SOURCE
     }
   }
   return dbApi
@@ -95,9 +95,9 @@ INNER JOIN
 ON
   PACKAGE_OPTION.OPTION_CODE = COMMAND.NAME
 WHERE CLUSTER.CLUSTER_ID = ? AND COMMAND.PACKAGE_REF IN (${dbApi.toInClause(
-        packageIds,
+        packageIds
       )})`,
-      [endpointClusterId],
+      [endpointClusterId]
     )
     .then((rows) => rows.map(mapFunction))
 }
@@ -116,7 +116,7 @@ WHERE CLUSTER.CLUSTER_ID = ? AND COMMAND.PACKAGE_REF IN (${dbApi.toInClause(
 async function selectAllAvailableClusterCommandDetailsFromEndpointTypes(
   db,
   endpointTypes,
-  packageIds,
+  packageIds
 ) {
   let endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
   let mapFunction = (x) => {
@@ -144,7 +144,7 @@ async function selectAllAvailableClusterCommandDetailsFromEndpointTypes(
       commandArgCount: x.COMMAND_ARGUMENT_COUNT,
       requiredCommandArgCount: x.REQUIRED_COMMAND_ARGUMENT_COUNT,
       hasArguments: x.COMMAND_ARGUMENT_COUNT > 0,
-      mustUseTimedInvoke: dbApi.fromDbBool(x.MUST_USE_TIMED_INVOKE),
+      mustUseTimedInvoke: dbApi.fromDbBool(x.MUST_USE_TIMED_INVOKE)
     }
   }
 
@@ -226,7 +226,7 @@ GROUP BY
   COMMAND_MANUFACTURER_CODE,
   COMMAND_NAME
 ORDER BY
-  CLUSTER_MANUFACTURER_CODE, CLUSTER_CODE, COMMAND_MANUFACTURER_CODE, COMMAND_CODE`,
+  CLUSTER_MANUFACTURER_CODE, CLUSTER_CODE, COMMAND_MANUFACTURER_CODE, COMMAND_CODE`
     )
     .then((rows) => rows.map(mapFunction))
 }
@@ -253,7 +253,7 @@ async function selectAllClustersWithIncomingOrOutgoingCommands(
   endpointTypes,
   uniqueClusterCodes,
   isIncoming,
-  packageIds,
+  packageIds
 ) {
   let endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
   let sqlGroupBy = uniqueClusterCodes ? 'CLUSTER.CODE' : 'CLUSTER.NAME'
@@ -269,7 +269,7 @@ async function selectAllClustersWithIncomingOrOutgoingCommands(
       clusterMfgCode: x.MANUFACTURER_CODE,
       clusterSide: x.CLUSTER_SIDE,
       clusterEnabled: x.CLUSTER_ENABLED,
-      endpointClusterId: x.ENDPOINT_TYPE_CLUSTER_ID,
+      endpointClusterId: x.ENDPOINT_TYPE_CLUSTER_ID
     }
   }
   return dbApi
@@ -305,7 +305,7 @@ AND ENDPOINT_TYPE_CLUSTER.SIDE IN ("client", "server")
 AND ENDPOINT_TYPE_CLUSTER.ENABLED = 1 AND ${isIncomingOrOutgoingSql}
 AND COMMAND.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
 GROUP BY
-${sqlGroupBy}, ENDPOINT_TYPE_CLUSTER.SIDE ORDER BY CLUSTER.NAME, ENDPOINT_TYPE_CLUSTER.SIDE`,
+${sqlGroupBy}, ENDPOINT_TYPE_CLUSTER.SIDE ORDER BY CLUSTER.NAME, ENDPOINT_TYPE_CLUSTER.SIDE`
     )
     .then((rows) => rows.map(mapFunction))
 }
@@ -328,14 +328,14 @@ async function selectAllClustersWithIncomingCommands(
   db,
   endpointTypes,
   uniqueClusterCodes = false,
-  packageIds,
+  packageIds
 ) {
   return selectAllClustersWithIncomingOrOutgoingCommands(
     db,
     endpointTypes,
     uniqueClusterCodes,
     true,
-    packageIds,
+    packageIds
   )
 }
 /**
@@ -357,14 +357,14 @@ async function selectAllClustersWithOutgoingCommands(
   db,
   endpointTypes,
   uniqueClusterCodes = false,
-  packageIds,
+  packageIds
 ) {
   return selectAllClustersWithIncomingOrOutgoingCommands(
     db,
     endpointTypes,
     uniqueClusterCodes,
     false,
-    packageIds,
+    packageIds
   )
 }
 
@@ -386,7 +386,7 @@ async function selectMfgClustersWithIncomingCommandsForClusterCode(
   db,
   endpointTypes,
   clusterCode,
-  packageIds,
+  packageIds
 ) {
   let endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
   let mapFunction = (x) => {
@@ -398,7 +398,7 @@ async function selectMfgClustersWithIncomingCommandsForClusterCode(
       clusterMfgCode: x.MANUFACTURER_CODE,
       clusterSide: x.CLUSTER_SIDE,
       clusterEnabled: x.CLUSTER_ENABLED,
-      endpointClusterId: x.ENDPOINT_TYPE_CLUSTER_ID,
+      endpointClusterId: x.ENDPOINT_TYPE_CLUSTER_ID
     }
   }
 
@@ -441,7 +441,7 @@ WHERE
 GROUP BY
   CLUSTER.NAME, ENDPOINT_TYPE_CLUSTER.SIDE
 ORDER BY
-  CLUSTER.NAME, ENDPOINT_TYPE_CLUSTER.SIDE`,
+  CLUSTER.NAME, ENDPOINT_TYPE_CLUSTER.SIDE`
     )
     .then((rows) => rows.map(mapFunction))
 }
@@ -461,12 +461,12 @@ ORDER BY
 async function selectAllClustersWithIncomingCommandsCombined(
   db,
   endpointTypes,
-  packageIds,
+  packageIds
 ) {
   let uncombinedClusters = selectAllClustersWithIncomingCommands(
     db,
     endpointTypes,
-    packageIds,
+    packageIds
   )
   let reduceFunction = (combinedClusters, currentValue) => {
     // Find out if current cluster is in combinedClusters, or just use currentValue otherwise.
@@ -490,7 +490,7 @@ async function selectAllClustersWithIncomingCommandsCombined(
   return uncombinedClusters.then((rows) => {
     return Array.from(
       rows.reduce(reduceFunction, new Map()),
-      (value, key) => value[1],
+      (value, key) => value[1]
     )
   })
 }
@@ -514,7 +514,7 @@ async function selectAllIncomingCommandsForClusterCombined(
   clientSideEnabled,
   serverSideEnabled,
   isMfgSpecific,
-  packageIds,
+  packageIds
 ) {
   let client = clientSideEnabled
     ? await selectAllIncomingCommandsForCluster(
@@ -523,7 +523,7 @@ async function selectAllIncomingCommandsForClusterCombined(
         clName,
         'client',
         isMfgSpecific,
-        packageIds,
+        packageIds
       )
     : []
   let server = serverSideEnabled
@@ -533,7 +533,7 @@ async function selectAllIncomingCommandsForClusterCombined(
         clName,
         'server',
         isMfgSpecific,
-        packageIds,
+        packageIds
       )
     : []
   // The assumption here is that, given that this is inside a cluster already; that the command name are unique and sufficient outside of
@@ -549,7 +549,7 @@ async function selectAllIncomingCommandsForClusterCombined(
 
   return Array.from(
     combinedClusters.reduce(reduceFunction, new Map()),
-    (value, key) => value[1],
+    (value, key) => value[1]
   )
 }
 
@@ -571,7 +571,7 @@ async function selectAllIncomingOrOutgoingCommandsForCluster(
   clSide,
   isMfgSpecific,
   isIncoming,
-  packageIds,
+  packageIds
 ) {
   let endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
   let mfgSpecificString =
@@ -604,7 +604,7 @@ async function selectAllIncomingOrOutgoingCommandsForCluster(
       responseRef: x.RESPONSE_REF,
       incoming: x.INCOMING,
       outgoing: x.OUTGOING,
-      mfgCommandCount: x.MANUFACTURING_SPECIFIC_COMMAND_COUNT,
+      mfgCommandCount: x.MANUFACTURING_SPECIFIC_COMMAND_COUNT
     }
   }
   return dbApi
@@ -658,7 +658,7 @@ AND ENDPOINT_TYPE_CLUSTER.SIDE IN ("client", "server") AND ENDPOINT_TYPE_CLUSTER
 AND CLUSTER.NAME = "${clName}" AND ENDPOINT_TYPE_CLUSTER.SIDE = "${clSide}"
 AND COMMAND.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
 ${mfgSpecificString} GROUP BY COMMAND.NAME
-ORDER BY CLUSTER.MANUFACTURER_CODE, CLUSTER.CODE, COMMAND.MANUFACTURER_CODE, COMMAND.CODE`,
+ORDER BY CLUSTER.MANUFACTURER_CODE, CLUSTER.CODE, COMMAND.MANUFACTURER_CODE, COMMAND.CODE`
     )
     .then((rows) => rows.map(mapFunction))
 }
@@ -679,7 +679,7 @@ async function selectAllIncomingCommandsForCluster(
   clName,
   clSide,
   isMfgSpecific,
-  packageIds,
+  packageIds
 ) {
   return selectAllIncomingOrOutgoingCommandsForCluster(
     db,
@@ -688,7 +688,7 @@ async function selectAllIncomingCommandsForCluster(
     clSide,
     isMfgSpecific,
     true,
-    packageIds,
+    packageIds
   )
 }
 
@@ -708,7 +708,7 @@ async function selectAllOutgoingCommandsForCluster(
   clName,
   clSide,
   isMfgSpecific,
-  packageIds,
+  packageIds
 ) {
   return selectAllIncomingOrOutgoingCommandsForCluster(
     db,
@@ -717,7 +717,7 @@ async function selectAllOutgoingCommandsForCluster(
     clSide,
     isMfgSpecific,
     false,
-    packageIds,
+    packageIds
   )
 }
 
@@ -733,7 +733,7 @@ async function selectAllIncomingCommands(
   db,
   endpointTypes,
   isMfgSpecific,
-  packageIds,
+  packageIds
 ) {
   let endpointTypeIds = endpointTypes.map((ep) => ep.endpointTypeId).toString()
   let mfgSpecificString =
@@ -761,7 +761,7 @@ async function selectAllIncomingCommands(
       isFabricScoped: dbApi.fromDbBool(x.IS_FABRIC_SCOPED),
       incoming: x.INCOMING,
       outgoing: x.OUTGOING,
-      mfgCommandCount: x.MANUFACTURING_SPECIFIC_COMMAND_COUNT,
+      mfgCommandCount: x.MANUFACTURING_SPECIFIC_COMMAND_COUNT
     }
   }
 
@@ -822,7 +822,7 @@ WHERE
   AND ENDPOINT_TYPE_COMMAND.IS_INCOMING=1 AND ENDPOINT_TYPE_COMMAND.IS_ENABLED = 1
   AND COMMAND.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
 ${mfgSpecificString} GROUP BY CLUSTER.NAME, COMMAND.NAME
-ORDER BY CLUSTER.NAME, COMMAND.NAME`,
+ORDER BY CLUSTER.NAME, COMMAND.NAME`
     )
     .then((rows) => rows.map(mapFunction))
 }
@@ -832,7 +832,7 @@ async function selectCommandByCode(
   packageId,
   clusterCode,
   commandCode,
-  mfgCode = null,
+  mfgCode = null
 ) {
   if (clusterCode == null) {
     return selectGlobalCommandByCode(db, packageId, commandCode, mfgCode)
@@ -842,7 +842,7 @@ async function selectCommandByCode(
       packageId,
       clusterCode,
       commandCode,
-      mfgCode,
+      mfgCode
     )
   }
 }
@@ -852,7 +852,7 @@ async function selectNonGlobalCommandByCode(
   packageId,
   clusterCode,
   commandCode,
-  mfgCode = null,
+  mfgCode = null
 ) {
   let query = `
   SELECT
@@ -892,7 +892,7 @@ async function selectGlobalCommandByCode(
   db,
   packageId,
   commandCode,
-  mfgCode = null,
+  mfgCode = null
 ) {
   let query = `
   SELECT
@@ -947,7 +947,7 @@ SELECT
   RESPONSE_NAME
 FROM COMMAND
   WHERE COMMAND_ID = ?`,
-      [id],
+      [id]
     )
     .then(dbMapping.map.command)
 }
@@ -991,7 +991,7 @@ WHERE
 GROUP BY
   COMMAND.COMMAND_ID
 ORDER BY CODE`,
-      [clusterId],
+      [clusterId]
     )
     .then((rows) => rows.map(dbMapping.map.command))
 }
@@ -1025,7 +1025,7 @@ async function selectAllCommandsWithArguments(db, packageId) {
       argIsNullable: dbApi.fromDbBool(x.ARG_IS_NULLABLE),
       argCountArg: x.ARG_COUNT_ARG,
       argIntroducedIn: x.INTRODUCED_IN_REF,
-      argRemovedIn: x.REMOVED_IN_REF,
+      argRemovedIn: x.REMOVED_IN_REF
     }
   }
   let rows = await dbApi.dbAll(
@@ -1074,7 +1074,7 @@ WHERE
   CO.PACKAGE_REF = ?
 ORDER BY
   CL.CODE, CO.SOURCE, CO.CODE,  CA.FIELD_IDENTIFIER`,
-    [packageId],
+    [packageId]
   )
   rows = rows.map(mapFunction)
   let reduction = rows.reduce((total, current) => {
@@ -1098,7 +1098,7 @@ ORDER BY
         introducedIn: x.argIntroducedIn,
         removedIn: x.argRemovedIn,
         introducedInRef: x.argIntroducedIn,
-        removedInRef: x.argRemovedIn,
+        removedInRef: x.argRemovedIn
       }
       delete x.argName
       delete x.argType
@@ -1180,7 +1180,7 @@ ON
   CLUSTER.CLUSTER_ID = COMMAND.CLUSTER_REF
 WHERE
   COMMAND.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
-ORDER BY CLUSTER.CODE, COMMAND.CODE`,
+ORDER BY CLUSTER.CODE, COMMAND.CODE`
     )
     .then((rows) => rows.map(dbMapping.map.command))
 }
@@ -1214,7 +1214,7 @@ ON
   WHERE PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
 GROUP BY
   COMMAND.COMMAND_ID
-ORDER BY COMMAND.CODE, COMMAND.NAME`,
+ORDER BY COMMAND.CODE, COMMAND.NAME`
     )
     .then((rows) => rows.map(dbMapping.map.command))
 }
@@ -1243,7 +1243,7 @@ WHERE
   SOURCE = ?
   AND PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
 ORDER BY CODE`,
-      [source],
+      [source]
     )
     .then((rows) => rows.map(dbMapping.map.command))
 }
@@ -1262,7 +1262,7 @@ async function selectCommandsByClusterIdAndSource(
   db,
   clusterId,
   source,
-  packageIds,
+  packageIds
 ) {
   return dbApi
     .dbAll(
@@ -1286,7 +1286,7 @@ WHERE
   AND SOURCE = ?
   AND PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
 ORDER BY CODE`,
-      [clusterId, source],
+      [clusterId, source]
     )
     .then((rows) => rows.map(dbMapping.map.command))
 }
@@ -1323,7 +1323,7 @@ GROUP BY
   COMMAND.COMMAND_ID
 ORDER BY
   CODE`,
-      [],
+      []
     )
     .then((rows) => rows.map(dbMapping.map.command))
 }
@@ -1353,7 +1353,7 @@ WHERE
   AND PACKAGE_REF = ?
 ORDER BY 
   CODE`,
-      [packageId],
+      [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.command))
 }
@@ -1383,7 +1383,7 @@ FROM COMMAND_ARG, COMMAND
 WHERE
   COMMAND_ARG.COMMAND_REF = COMMAND.COMMAND_ID
   AND COMMAND.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
-ORDER BY COMMAND_REF, FIELD_IDENTIFIER`,
+ORDER BY COMMAND_REF, FIELD_IDENTIFIER`
     )
     .then((rows) => rows.map(dbMapping.map.commandArgument))
 }
@@ -1402,7 +1402,7 @@ async function selectCommandArgumentsCountByCommandId(db, commandId) {
       `
 SELECT COUNT(*) AS count
 FROM COMMAND_ARG WHERE COMMAND_REF = ? `,
-      [commandId],
+      [commandId]
     )
     .then((res) => res[0].count)
 }
@@ -1439,7 +1439,7 @@ SELECT
 FROM COMMAND_ARG
 WHERE COMMAND_REF = ?
 ORDER BY FIELD_IDENTIFIER`,
-      [commandId],
+      [commandId]
     )
     .then((rows) => rows.map(dbMapping.map.commandArgument))
 }
@@ -1497,7 +1497,7 @@ LEFT JOIN
 ON
   CMD.COMMAND_ID = CA.COMMAND_REF
 WHERE CMD.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
-ORDER BY CL.CODE, CMD.CODE, CA.FIELD_IDENTIFIER`,
+ORDER BY CL.CODE, CMD.CODE, CA.FIELD_IDENTIFIER`
     )
     .then((rows) => rows.map(dbMapping.map.command))
 }
@@ -1534,7 +1534,7 @@ WHERE
   COMMAND.RESPONSE_NAME IS NOT NULL
   AND COMMAND.PACKAGE_REF = ?
   `,
-    [packageId],
+    [packageId]
   )
 }
 
@@ -1561,7 +1561,7 @@ function commandMapFunction(x) {
     isClusterEnabled: x.ENABLED,
     commandArgCount: x.COMMAND_ARGUMENT_COUNT,
     responseRef: x.RESPONSE_REF,
-    responseName: x.RESPONSE_NAME,
+    responseName: x.RESPONSE_NAME
   }
 }
 
@@ -1576,7 +1576,7 @@ function commandMapFunction(x) {
 async function selectAllCommandDetailsFromEnabledClusters(
   db,
   endpointsAndClusters,
-  packageIds,
+  packageIds
 ) {
   let endpointTypeClusterRef = endpointsAndClusters
     .map((ep) => ep.endpointTypeClusterRef)
@@ -1616,7 +1616,7 @@ async function selectAllCommandDetailsFromEnabledClusters(
     AND COMMAND.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
   GROUP BY 
     COMMAND.NAME
-        `,
+        `
     )
     .then((rows) => rows.map(commandMapFunction))
 }
@@ -1631,7 +1631,7 @@ async function selectAllCommandDetailsFromEnabledClusters(
 async function selectAllCliCommandDetailsFromEnabledClusters(
   db,
   endpointsAndClusters,
-  packageIds,
+  packageIds
 ) {
   let endpointTypeClusterRef = endpointsAndClusters
     .map((ep) => ep.endpointTypeClusterRef)
@@ -1670,7 +1670,7 @@ async function selectAllCliCommandDetailsFromEnabledClusters(
   WHERE ENDPOINT_TYPE_CLUSTER.CLUSTER_REF IN (${endpointTypeClusterRef}) AND ENDPOINT_TYPE_CLUSTER.ENABLED=1
   AND COMMAND.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
   GROUP BY COMMAND.NAME, CLUSTER.NAME
-        `,
+        `
     )
     .then((rows) => rows.map(commandMapFunction))
 }
@@ -1688,7 +1688,7 @@ async function selectCommandDetailsFromAllEndpointTypesAndClusters(
   db,
   endpointsAndClusters,
   doGroupBy,
-  packageIds,
+  packageIds
 ) {
   let endpointTypeIds = endpointsAndClusters
     .map((ep) => ep.endpointId)
@@ -1772,7 +1772,7 @@ async function selectCommandDetailsFromAllEndpointTypesAndClustersUtil(
   db,
   endpointsAndClusters,
   isManufacturingSpecific,
-  packageIds,
+  packageIds
 ) {
   let endpointTypeIds = endpointsAndClusters
     .map((ep) => ep.endpointId)
@@ -1837,7 +1837,7 @@ SELECT * FROM (
     } NULL
     AND COMMAND.PACKAGE_REF IN (${dbApi.toInClause(packageIds)}))
   GROUP BY NAME
-        `,
+        `
     )
     .then((rows) => rows.map(commandMapFunction))
 }
@@ -1853,13 +1853,13 @@ SELECT * FROM (
 async function selectManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters(
   db,
   endpointsAndClusters,
-  packageIds,
+  packageIds
 ) {
   return selectCommandDetailsFromAllEndpointTypesAndClustersUtil(
     db,
     endpointsAndClusters,
     true,
-    packageIds,
+    packageIds
   )
 }
 
@@ -1874,13 +1874,13 @@ async function selectManufacturerSpecificCommandDetailsFromAllEndpointTypesAndCl
 async function selectNonManufacturerSpecificCommandDetailsFromAllEndpointTypesAndClusters(
   db,
   endpointsAndClusters,
-  packageIds,
+  packageIds
 ) {
   return selectCommandDetailsFromAllEndpointTypesAndClustersUtil(
     db,
     endpointsAndClusters,
     false,
-    packageIds,
+    packageIds
   )
 }
 

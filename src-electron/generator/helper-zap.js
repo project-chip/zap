@@ -71,8 +71,8 @@ async function template_options(options) {
       queryPackage.selectAllOptionsValues(
         this.global.db,
         packageId,
-        options.hash.category,
-      ),
+        options.hash.category
+      )
     )
     .then((ens) => templateUtil.collectBlocks(ens, options, this))
 }
@@ -169,8 +169,8 @@ async function template_option_with_code(options, key) {
         this.global.db,
         packageId,
         options,
-        key,
-      ),
+        key
+      )
     )
 }
 
@@ -246,7 +246,7 @@ function iterate(options) {
       global: this.global,
       parent: this,
       index: i,
-      count: hash.count,
+      count: hash.count
     }
     ret = ret.concat(options.fn(newContext))
   }
@@ -261,7 +261,7 @@ function addToAccumulator(accumulator, value) {
     this.global.accumulators[accumulator] = {
       value: [],
       sum: [],
-      currentSum: 0,
+      currentSum: 0
     }
   }
   this.global.accumulators[accumulator].value.push(value)
@@ -291,7 +291,7 @@ function iterateAccumulator(options) {
         index: i,
         count: accumulator.value.length,
         sum: accumulator.sum[i],
-        value: accumulator.value[i],
+        value: accumulator.value[i]
       }
       ret = ret.concat(options.fn(newContext))
     }
@@ -307,7 +307,7 @@ function waitForSynchronousPromise(pollInterval, promise, resolve, reject) {
   } else {
     setTimeout(
       () => waitForSynchronousPromise(pollInterval, promise, resolve, reject),
-      pollInterval,
+      pollInterval
     )
   }
 }
@@ -319,7 +319,7 @@ async function promiseToResolveAllPreviousPromises(globalPromises) {
       promises.push(
         new Promise((resolve, reject) => {
           waitForSynchronousPromise(100, promise, resolve, reject)
-        }),
+        })
       )
     })
     await Promise.all(promises)
@@ -330,7 +330,7 @@ async function after(options) {
   await promiseToResolveAllPreviousPromises(this.global.promises)
   let newContext = {
     global: this.global,
-    parent: this,
+    parent: this
   }
   return options.fn(newContext)
 }
@@ -459,7 +459,7 @@ exports.add_to_accumulator = addToAccumulator
 exports.addToAccumulator = dep(addToAccumulator, { to: 'add_to_accumulator' })
 exports.iterate_accumulator = iterateAccumulator
 exports.iterateAccumulator = dep(iterateAccumulator, {
-  to: 'iterate_accumulator',
+  to: 'iterate_accumulator'
 })
 exports.after = after
 exports.toggle = toggle

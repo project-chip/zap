@@ -117,7 +117,7 @@ async function structs_with_cluster_name(options) {
 
   const structs = await zclQuery.selectAllStructsWithItems(
     this.global.db,
-    packageIds,
+    packageIds
   );
 
   let blocks = [];
@@ -129,13 +129,13 @@ async function structs_with_cluster_name(options) {
     if (s.struct_cluster_count == 1) {
       const clusters = await zclQuery.selectStructClusters(
         this.global.db,
-        s.id,
+        s.id
       );
       blocks.push({
         id: s.id,
         name: s.name,
         struct_fabric_idx_field: s.struct_fabric_idx_field,
-        clusterName: clusters[0].name,
+        clusterName: clusters[0].name
       });
     }
 
@@ -144,7 +144,7 @@ async function structs_with_cluster_name(options) {
         id: s.id,
         name: s.name,
         struct_fabric_idx_field: s.struct_fabric_idx_field,
-        clusterName: 'detail',
+        clusterName: 'detail'
       });
     }
   }
@@ -170,23 +170,23 @@ const dep = templateUtil.deprecatedHelper;
 //
 exports.asDelimitedCommand = dep(
   asDelimitedCommand,
-  'asDelimitedCommand has been deprecated. Use cleanse_label_as_kebab_case instead',
+  'asDelimitedCommand has been deprecated. Use cleanse_label_as_kebab_case instead'
 );
 exports.asTypeMinValue = dep(
   asTypeMinValue,
-  'asTypeMinValue has been deprecated. Use as_type_min_value instead',
+  'asTypeMinValue has been deprecated. Use as_type_min_value instead'
 );
 exports.asTypeMaxValue = dep(
   asTypeMaxValue,
-  'asTypeMaxValue has been deprecated. Use as_type_max_value instead',
+  'asTypeMaxValue has been deprecated. Use as_type_max_value instead'
 );
 exports.structs_with_cluster_name = dep(
   structs_with_cluster_name,
-  'structs_with_cluster_name has been deprecated. Use structs_with_clusters instead',
+  'structs_with_cluster_name has been deprecated. Use structs_with_clusters instead'
 );
 exports.assertSameTestType = assertSameTestType;
 
 exports.meta = {
   category: dbEnum.helperCategory.matter,
-  alias: ['chip-tool/templates/helper.js', 'matter-chip-tool-helper'],
+  alias: ['chip-tool/templates/helper.js', 'matter-chip-tool-helper']
 };

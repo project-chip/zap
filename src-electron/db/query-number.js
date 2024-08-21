@@ -44,7 +44,7 @@ async function selectNumberByName(db, packageIds, name) {
   FROM NUMBER
   INNER JOIN DATA_TYPE ON NUMBER.NUMBER_ID = DATA_TYPE.DATA_TYPE_ID
   WHERE NAME = ? AND PACKAGE_REF IN (${dbApi.toInClause(packageIds)})`,
-      [name],
+      [name]
     )
     .then(dbMapping.map.number)
 }
@@ -61,12 +61,12 @@ async function selectNumberByNameAndClusterId(db, name, clusterId, packageIds) {
   let queryWithoutClusterId = queryUtil.sqlQueryForDataTypeByNameAndClusterId(
     'number',
     null,
-    packageIds,
+    packageIds
   )
   let queryWithClusterId = queryUtil.sqlQueryForDataTypeByNameAndClusterId(
     'number',
     clusterId,
-    packageIds,
+    packageIds
   )
   let res = await dbApi
     .dbAll(db, queryWithoutClusterId, [name])
@@ -101,7 +101,7 @@ async function selectNumberById(db, id) {
   FROM NUMBER
   INNER JOIN DATA_TYPE ON NUMBER.NUMBER_ID = DATA_TYPE.DATA_TYPE_ID
   WHERE NUMBER.NUMBER_ID = ?`,
-      [id],
+      [id]
     )
     .then(dbMapping.map.number)
 }
@@ -126,14 +126,14 @@ async function selectAllNumbers(db, packageId) {
   FROM NUMBER
   INNER JOIN DATA_TYPE ON NUMBER.NUMBER_ID = DATA_TYPE.DATA_TYPE_ID
   WHERE PACKAGE_REF = ?`,
-      [packageId],
+      [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.number))
 }
 
 exports.selectNumberByName = dbCache.cacheQuery(selectNumberByName)
 exports.selectNumberByNameAndClusterId = dbCache.cacheQuery(
-  selectNumberByNameAndClusterId,
+  selectNumberByNameAndClusterId
 )
 exports.selectAllNumbers = selectAllNumbers
 exports.selectNumberById = selectNumberById

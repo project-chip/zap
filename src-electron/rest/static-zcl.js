@@ -51,29 +51,29 @@ async function returnZclEntitiesForClusterId(db, clusterId, packageId) {
   return zclEntityQuery(queryZcl.selectAllClusters, queryZcl.selectClusterById)(
     db,
     clusterId,
-    packageId,
+    packageId
   ).then((x) =>
     zclEntityQuery(
       queryZcl.selectAllAttributes,
-      queryZcl.selectAttributesByClusterIdIncludingGlobal,
+      queryZcl.selectAttributesByClusterIdIncludingGlobal
     )(db, clusterId, [packageId]).then((y) =>
       zclEntityQuery(
         queryCommand.selectAllCommands,
-        queryCommand.selectCommandsByClusterId,
+        queryCommand.selectCommandsByClusterId
       )(db, clusterId, packageId).then((z) =>
         zclEntityQuery(
           queryEvent.selectAllEvents,
-          queryEvent.selectEventsByClusterId,
+          queryEvent.selectEventsByClusterId
         )(db, clusterId, packageId).then((g) => {
           return {
             clusterData: x,
             attributeData: y,
             commandData: z,
-            eventData: g,
+            eventData: g
           }
-        }),
-      ),
-    ),
+        })
+      )
+    )
   )
 }
 
@@ -83,9 +83,9 @@ function mergeZclClusterAttributeCommandEventData(accumulated, currentValue) {
     clusterData: [accumulated.clusterData, currentValue.clusterData].flat(1),
     commandData: [accumulated.commandData, currentValue.commandData].flat(1),
     attributeData: [accumulated.attributeData, currentValue.attributeData].flat(
-      1,
+      1
     ),
-    eventData: [accumulated.eventData, currentValue.eventData].flat(1),
+    eventData: [accumulated.eventData, currentValue.eventData].flat(1)
   }
 }
 //This maps over each packageId, and runs the query callback.
@@ -97,13 +97,13 @@ function reduceAndConcatenateZclEntity(
   mergeFunction = (accumulated, currentValue) => {
     return [accumulated, currentValue].flat(1)
   },
-  defaultValue = [],
+  defaultValue = []
 ) {
   let dataArray = packageIdArray.map((packageId) =>
-    zclQueryCallback(db, id, packageId),
+    zclQueryCallback(db, id, packageId)
   )
   return Promise.all(dataArray).then((x) =>
-    x.reduce(mergeFunction, defaultValue),
+    x.reduce(mergeFunction, defaultValue)
   )
 }
 
@@ -111,10 +111,10 @@ async function parseForZclData(db, entity, id, packageIdArray) {
   // Retrieve all the standalone custom xml packages
   let packageData = await queryPackage.getPackagesByPackageIds(
     db,
-    packageIdArray,
+    packageIdArray
   )
   let standalonePackages = packageData.filter(
-    (pd) => pd.type === dbEnum.packageType.zclXmlStandalone,
+    (pd) => pd.type === dbEnum.packageType.zclXmlStandalone
   )
   let standAlonePackageIds = standalonePackages.map((sp) => sp.id)
 
@@ -124,7 +124,7 @@ async function parseForZclData(db, entity, id, packageIdArray) {
         db,
         id,
         packageIdArray,
-        zclEntityQuery(queryZcl.selectAllAtomics, queryZcl.selectAtomicById),
+        zclEntityQuery(queryZcl.selectAllAtomics, queryZcl.selectAtomicById)
       )
     case 'cluster':
       // Making sure that global attributes are being collected from packages
@@ -144,8 +144,8 @@ async function parseForZclData(db, entity, id, packageIdArray) {
                   clusterData: [],
                   attributeData: [],
                   commandData: [],
-                  eventData: [],
-                },
+                  eventData: []
+                }
               )
             : reduceAndConcatenateZclEntity(
                 db,
@@ -159,16 +159,16 @@ async function parseForZclData(db, entity, id, packageIdArray) {
                   clusterData: [],
                   attributeData: [],
                   commandData: [],
-                  eventData: [],
-                },
-              ),
+                  eventData: []
+                }
+              )
         )
         .then((data) => {
           return {
             clusterData: data.clusterData,
             attributeData: data.attributeData,
             commandData: data.commandData,
-            eventData: data.eventData,
+            eventData: data.eventData
           }
         })
     case 'domain':
@@ -176,21 +176,21 @@ async function parseForZclData(db, entity, id, packageIdArray) {
         db,
         id,
         packageIdArray,
-        zclEntityQuery(queryZcl.selectAllDomains, queryZcl.selectDomainById),
+        zclEntityQuery(queryZcl.selectAllDomains, queryZcl.selectDomainById)
       )
     case 'bitmap':
       return reduceAndConcatenateZclEntity(
         db,
         id,
         packageIdArray,
-        zclEntityQuery(queryZcl.selectAllBitmaps, queryZcl.selectBitmapById),
+        zclEntityQuery(queryZcl.selectAllBitmaps, queryZcl.selectBitmapById)
       )
     case 'enum':
       return reduceAndConcatenateZclEntity(
         db,
         id,
         packageIdArray,
-        zclEntityQuery(queryZcl.selectAllEnums, queryZcl.selectEnumById),
+        zclEntityQuery(queryZcl.selectAllEnums, queryZcl.selectEnumById)
       )
     case 'struct':
       return reduceAndConcatenateZclEntity(
@@ -198,8 +198,8 @@ async function parseForZclData(db, entity, id, packageIdArray) {
         id,
         packageIdArray,
         zclEntityQuery(queryZcl.selectAllStructsWithItemCount, [
-          queryZcl.selectStructById,
-        ]),
+          queryZcl.selectStructById
+        ])
       )
     case 'deviceType':
       return reduceAndConcatenateZclEntity(
@@ -208,8 +208,8 @@ async function parseForZclData(db, entity, id, packageIdArray) {
         packageIdArray,
         zclEntityQuery(
           queryDeviceType.selectAllDeviceTypes,
-          queryDeviceType.selectDeviceTypeById,
-        ),
+          queryDeviceType.selectDeviceTypeById
+        )
       )
     case 'endpointTypeClusters':
       return queryZcl.selectEndpointTypeClustersByEndpointTypeId(db, id)
@@ -244,7 +244,7 @@ function httpGetZclEntity(db) {
 
     let packageIdArray = await queryPackage.getSessionZclPackageIds(
       db,
-      sessionId,
+      sessionId
     )
     let resultData = await parseForZclData(db, entity, id, packageIdArray)
     response.status(StatusCodes.OK).json(resultData)
@@ -272,7 +272,7 @@ function httpGetZclExtension(db) {
       .getSessionPackagesByType(
         db,
         sessionId,
-        dbEnum.packageType.genTemplatesJson,
+        dbEnum.packageType.genTemplatesJson
       )
       .then((pkgs) => (pkgs.length == 0 ? null : pkgs[0].id))
       .then((packageId) => {
@@ -300,10 +300,10 @@ function httpGetZclExtension(db) {
 exports.get = [
   {
     uri: restApi.uri.zclEntity,
-    callback: httpGetZclEntity,
+    callback: httpGetZclEntity
   },
   {
     uri: restApi.uri.zclExtension,
-    callback: httpGetZclExtension,
-  },
+    callback: httpGetZclExtension
+  }
 ]

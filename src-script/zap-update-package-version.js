@@ -47,11 +47,11 @@ scriptUtil
   .then((result) => {
     if (result.wasChanged) {
       console.log(
-        `⛔ Version in package.json was not set correctly. It was automatically updated to ${result.version}. Review and commit again, please.`,
+        `⛔ Version in package.json was not set correctly. It was automatically updated to ${result.version}. Review and commit again, please.`
       )
     } else {
       console.log(
-        `😎 Version in package.json was not changed from ${result.version}.`,
+        `😎 Version in package.json was not changed from ${result.version}.`
       )
     }
     process.exit(result.wasChanged ? 1 : 0)

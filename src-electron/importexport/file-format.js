@@ -63,7 +63,7 @@ function packAttribute(a) {
     a.reportable,
     a.minInterval,
     a.maxInterval,
-    a.reportableChange,
+    a.reportableChange
   ].join(' | ')
   return `${data} => ${a.name} [${a.type}]`
 }
@@ -99,7 +99,7 @@ function packCommand(cmd) {
     cmd.mfgCode != null ? types.intToHexString(cmd.mfgCode, 2) : '      ',
     cmd.source,
     cmd.incoming,
-    cmd.outgoing,
+    cmd.outgoing
   ].join(' | ')
   return `${data} => ${cmd.name}`
 }
@@ -134,7 +134,7 @@ function packEvent(ev) {
     ev.included === 1 ? '+' : '-',
     types.intToHexString(ev.code, 2),
     ev.mfgCode != null ? types.intToHexString(ev.mfgCode, 2) : '      ',
-    ev.side,
+    ev.side
   ].join(' | ')
   return `${data} => ${ev.name}`
 }
@@ -147,7 +147,7 @@ function unpackKeyValuePairs(keyValuePairs) {
       let pair = kvp.split('=').map((x) => x.trim())
       kvps.push({
         key: pair[0],
-        value: pair[1],
+        value: pair[1]
       })
     } else {
       kvps.push(kvp)

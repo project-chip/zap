@@ -48,7 +48,7 @@ test(
 
     await dbApi.closeDatabase(db)
   },
-  testUtil.timeout.long(),
+  testUtil.timeout.long()
 )
 
 test(
@@ -76,7 +76,7 @@ test(
 
       let rows = await queryPackage.getPackagesByType(
         db,
-        dbEnum.packageType.zclProperties,
+        dbEnum.packageType.zclProperties
       )
       expect(rows.length).toEqual(2)
       let x = await queryZcl.selectAllClusters(db, jsonPackageId)
@@ -168,7 +168,7 @@ test(
       x = await queryZcl.selectAllAttributesBySide(
         db,
         'server',
-        dotdotPackageId,
+        dotdotPackageId
       )
       expect(x.length).toBe(615)
 
@@ -184,28 +184,28 @@ test(
       x = await dbApi.dbAll(
         db,
         'SELECT MANUFACTURER_CODE FROM CLUSTER WHERE MANUFACTURER_CODE NOT NULL',
-        [],
+        []
       )
       expect(x.length).toEqual(5)
 
       x = await dbApi.dbAll(
         db,
         'SELECT MANUFACTURER_CODE FROM COMMAND WHERE MANUFACTURER_CODE NOT NULL',
-        [],
+        []
       )
       expect(x.length).toEqual(58)
 
       x = await dbApi.dbAll(
         db,
         'SELECT MANUFACTURER_CODE FROM ATTRIBUTE WHERE MANUFACTURER_CODE NOT NULL',
-        [],
+        []
       )
       expect(x.length).toEqual(30)
 
       rows = await dbApi.dbMultiSelect(
         db,
         'SELECT CLUSTER_ID FROM CLUSTER WHERE CODE = ?',
-        [[0], [6]],
+        [[0], [6]]
       )
       expect(rows.length).toBe(2)
       expect(rows[0]).not.toBeUndefined()
@@ -216,23 +216,23 @@ test(
       rows = await queryPackage.selectAllOptionsValues(
         db,
         jsonPackageId,
-        dbEnum.sessionOption.defaultResponsePolicy,
+        dbEnum.sessionOption.defaultResponsePolicy
       )
       expect(rows.length).toBe(3)
 
       await dbApi.dbAll(
         db,
         'SELECT DATA_TYPE.NAME, BITMAP.BITMAP_ID, DATA_TYPE.PACKAGE_REF FROM BITMAP INNER JOIN DATA_TYPE ON BITMAP.BITMAP_ID = DATA_TYPE.DATA_TYPE_ID WHERE NAME IN (SELECT DATA_TYPE.NAME FROM BITMAP INNER JOIN DATA_TYPE ON BITMAP.BITMAP_ID = DATA_TYPE.DATA_TYPE_ID GROUP BY DATA_TYPE.NAME HAVING COUNT(*)>1)',
-        [],
+        []
       )
       await dbApi.dbAll(
         db,
         'SELECT DATA_TYPE.NAME, ENUM.ENUM_ID, DATA_TYPE.PACKAGE_REF FROM ENUM INNER JOIN DATA_TYPE ON ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID WHERE NAME IN (SELECT DATA_TYPE.NAME FROM ENUM INNER JOIN DATA_TYPE ON ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID GROUP BY DATA_TYPE.NAME HAVING COUNT(*)>1)',
-        [],
+        []
       )
     } finally {
       dbApi.closeDatabase(db)
     }
   },
-  testUtil.timeout.long(),
+  testUtil.timeout.long()
 )

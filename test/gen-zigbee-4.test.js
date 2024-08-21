@@ -39,7 +39,7 @@ beforeAll(async () => {
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
     env.schemaFile(),
-    env.zapVersion(),
+    env.zapVersion()
   )
   return zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
 }, testUtil.timeout.medium())
@@ -54,7 +54,7 @@ test(
   async () => {
     let context = await genEngine.loadTemplates(
       db,
-      testUtil.testTemplate.zigbee,
+      testUtil.testTemplate.zigbee
     )
     templatePkgId = context.packageId
     expect(context.crc).not.toBeNull()
@@ -65,7 +65,7 @@ test(
     expect(context.packageId).not.toBeNull()
     templateContext = context
   },
-  testUtil.timeout.medium(),
+  testUtil.timeout.medium()
 )
 
 test(
@@ -73,11 +73,11 @@ test(
   async () => {
     templateContext.packages = await queryPackage.getPackageByParent(
       templateContext.db,
-      templateContext.packageId,
+      templateContext.packageId
     )
     expect(templateContext.packages.length).toBe(templateCount - 1 + 3) // -1 for ignored one, two for helpers and one for overridable
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -87,7 +87,7 @@ test(
     expect(sessionId).not.toBeNull()
     templateContext.sessionId = sessionId
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -98,15 +98,15 @@ test(
       templateContext.sessionId,
       {
         zcl: env.builtinSilabsZclMetafile(),
-        template: env.builtinTemplateMetafile(),
+        template: env.builtinTemplateMetafile()
       },
       null,
-      [templatePkgId],
+      [templatePkgId]
     )
 
     expect(packages.length).toBe(2)
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -121,8 +121,8 @@ test(
       templateContext.packageId,
       {},
       {
-        disableDeprecationWarnings: true,
-      },
+        disableDeprecationWarnings: true
+      }
     )
 
     expect(genResult).not.toBeNull()
@@ -130,45 +130,45 @@ test(
     expect(genResult.content).not.toBeNull()
     let cfg = genResult.content['zap-config.h']
     expect(cfg).toContain(
-      '{ ZAP_REPORT_DIRECTION(REPORTED), 0x0002, 0x00000000, 0x00000000, ZAP_CLUSTER_MASK(SERVER), 0x0000, {{ 0, 65534, 0 }} }, /* ZCL version */',
+      '{ ZAP_REPORT_DIRECTION(REPORTED), 0x0002, 0x00000000, 0x00000000, ZAP_CLUSTER_MASK(SERVER), 0x0000, {{ 0, 65534, 0 }} }, /* ZCL version */'
     )
     expect(cfg).toContain(
-      '{ ZAP_REPORT_DIRECTION(REPORTED), 0x0001, 0x00000300, 0x00000003, ZAP_CLUSTER_MASK(SERVER), 0x0000, {{ 0, 65534, 0 }} }, /* current x */',
+      '{ ZAP_REPORT_DIRECTION(REPORTED), 0x0001, 0x00000300, 0x00000003, ZAP_CLUSTER_MASK(SERVER), 0x0000, {{ 0, 65534, 0 }} }, /* current x */'
     )
 
     let cfgVer2 = genResult.content['zap-config-version-2.h']
 
     // Test GENERATED_DEFAULTS big endian
     expect(cfgVer2).toContain(
-      '0x0F, 0xAE, 0x2F, /* 0,DEFAULT value for cluster: Green Power, attribute: gps functionality, side: server */',
+      '0x0F, 0xAE, 0x2F, /* 0,DEFAULT value for cluster: Green Power, attribute: gps functionality, side: server */'
     )
 
     // Test GENERATED_DEFAULTS little endian
     expect(cfgVer2).toContain(
-      '0x2F, 0xAE, 0x0F,  /* 0,DEFAULT value for cluster: Green Power, attribute: gps functionality, side: server*/',
+      '0x2F, 0xAE, 0x0F,  /* 0,DEFAULT value for cluster: Green Power, attribute: gps functionality, side: server*/'
     )
 
     // Test GENERATED_DEFAULTS big endian for attribute of size > 8
     expect(cfgVer2).toContain(
-      '0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0F, 0x0F, 0x0F, /* 6,DEFAULT value for cluster: Green Power, attribute: gp link key, side: server */',
+      '0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0F, 0x0F, 0x0F, /* 6,DEFAULT value for cluster: Green Power, attribute: gp link key, side: server */'
     )
 
     // Test GENERATED_DEFAULTS for same attribute name but different side of cluster, compare it to above test
     expect(cfgVer2).toContain(
-      '0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0F, 0x0F, 0x0F, /* 28,DEFAULT value for cluster: Green Power, attribute: gp link key, side: client */',
+      '0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0F, 0x0F, 0x0F, /* 28,DEFAULT value for cluster: Green Power, attribute: gp link key, side: client */'
     )
 
     // Test GENERATED_DEFAULTS little endian for attribute of size > 8 is same as big endian. Bytes are not inverted
     expect(cfgVer2).not.toContain(
-      `0x0F, 0x0F, 0x0F, 0x0D, 0x0C, 0x0B, 0x0A, 0x09, 0x08, 0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x01, /* 12,DEFAULT value for cluster: Green Power, attribute: gp link key, side: client*/`,
+      `0x0F, 0x0F, 0x0F, 0x0D, 0x0C, 0x0B, 0x0A, 0x09, 0x08, 0x07, 0x06, 0x05, 0x04, 0x03, 0x02, 0x01, /* 12,DEFAULT value for cluster: Green Power, attribute: gp link key, side: client*/`
     )
 
     // Testing GENERATED ATTRIBUTES to see that they are refering to the correct generation defaults
     expect(cfgVer2).toContain(
-      `0x0022, ZCL_SECURITY_KEY_ATTRIBUTE_TYPE, 16, (ATTRIBUTE_MASK_WRITABLE| ATTRIBUTE_MASK_CLIENT), { (uint8_t*)&(generatedDefaults[28]) } }, /* 25 Cluster: Green Power, Attribute: gp link key, Side: client*/`,
+      `0x0022, ZCL_SECURITY_KEY_ATTRIBUTE_TYPE, 16, (ATTRIBUTE_MASK_WRITABLE| ATTRIBUTE_MASK_CLIENT), { (uint8_t*)&(generatedDefaults[28]) } }, /* 25 Cluster: Green Power, Attribute: gp link key, Side: client*/`
     )
     expect(cfgVer2).toContain(
-      `0x0022, ZCL_SECURITY_KEY_ATTRIBUTE_TYPE, 16, (ATTRIBUTE_MASK_WRITABLE), { (uint8_t*)&(generatedDefaults[6]) } }, /* 37 Cluster: Green Power, Attribute: gp link key, Side: server*/`,
+      `0x0022, ZCL_SECURITY_KEY_ATTRIBUTE_TYPE, 16, (ATTRIBUTE_MASK_WRITABLE), { (uint8_t*)&(generatedDefaults[6]) } }, /* 37 Cluster: Green Power, Attribute: gp link key, Side: server*/`
     )
 
     // Test EMBER_AF_GENERATED_REPORTING_CONFIG_DEFAULTS to see that it generates reporting for singleton attributes correctly
@@ -176,29 +176,29 @@ test(
     // In this case: Basic Server Cluster, ZCL version is enabled on enpoint 2 and 242
     expect(cfgVer2).toContain(`EMBER_AF_GENERATED_REPORTING_CONFIG_DEFAULTS`)
     expect(cfgVer2).toContain(
-      `{ EMBER_ZCL_REPORTING_DIRECTION_REPORTED, 0x0002, 0x0000, 0x0000, CLUSTER_MASK_SERVER, 0x0000, 0, 65534, 0 }, /* Endpoint Id: 2, Cluster: Basic, Attribute: ZCL version */`,
+      `{ EMBER_ZCL_REPORTING_DIRECTION_REPORTED, 0x0002, 0x0000, 0x0000, CLUSTER_MASK_SERVER, 0x0000, 0, 65534, 0 }, /* Endpoint Id: 2, Cluster: Basic, Attribute: ZCL version */`
     )
     expect(cfgVer2).not.toContain(
-      `{ EMBER_ZCL_REPORTING_DIRECTION_REPORTED, 0x0001, 0x0000, 0x0000, CLUSTER_MASK_SERVER, 0x0000, 0, 65534, 0 }, /* Endpoint Id: 1, Cluster: Basic, Attribute: ZCL version */`,
+      `{ EMBER_ZCL_REPORTING_DIRECTION_REPORTED, 0x0001, 0x0000, 0x0000, CLUSTER_MASK_SERVER, 0x0000, 0, 65534, 0 }, /* Endpoint Id: 1, Cluster: Basic, Attribute: ZCL version */`
     )
     expect(cfgVer2).not.toContain(
-      `{ EMBER_ZCL_REPORTING_DIRECTION_REPORTED, 0x00F2, 0x0000, 0x0000, CLUSTER_MASK_SERVER, 0x0000, 0, 65534, 0 }, /* Endpoint Id: 242, Cluster: Basic, Attribute: ZCL version */`,
+      `{ EMBER_ZCL_REPORTING_DIRECTION_REPORTED, 0x00F2, 0x0000, 0x0000, CLUSTER_MASK_SERVER, 0x0000, 0, 65534, 0 }, /* Endpoint Id: 242, Cluster: Basic, Attribute: ZCL version */`
     )
 
     // Testing zap cli helpers
     expect(genResult.content['zap-cli.c']).toContain(
-      'static const sl_cli_command_entry_t zcl_identify_cluster_command_table[]',
+      'static const sl_cli_command_entry_t zcl_identify_cluster_command_table[]'
     )
 
     expect(genResult.content['zap-cli.c']).toContain(
-      'static const sl_cli_command_info_t cli_cmd_identify_group',
+      'static const sl_cli_command_info_t cli_cmd_identify_group'
     )
     expect(genResult.content['zap-cli.c']).toContain(
-      'SL_CLI_COMMAND_GROUP(zcl_identify_cluster_command_table, "ZCL identify cluster commands");',
+      'SL_CLI_COMMAND_GROUP(zcl_identify_cluster_command_table, "ZCL identify cluster commands");'
     )
     expect(genResult.content['zap-cli.c']).toContain(
-      '{ "identify", &cli_cmd_identify_group, false },',
+      '{ "identify", &cli_cmd_identify_group, false },'
     )
   },
-  testUtil.timeout.long(),
+  testUtil.timeout.long()
 )

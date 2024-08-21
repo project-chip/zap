@@ -71,7 +71,7 @@ limitations under the License.
                   selection,
                   'selectedAttributes',
                   props.row,
-                  selectedCluster.id,
+                  selectedCluster.id
                 )
               "
             />
@@ -106,7 +106,7 @@ limitations under the License.
                 isDisabledStorage(
                   props.row.id,
                   props.row.label,
-                  selectedCluster.id,
+                  selectedCluster.id
                 )
               "
               class="col"
@@ -118,7 +118,7 @@ limitations under the License.
                   $event,
                   'storageOption',
                   props.row,
-                  selectedCluster.id,
+                  selectedCluster.id
                 )
               "
             />
@@ -141,7 +141,7 @@ limitations under the License.
                   $event,
                   'selectedSingleton',
                   props.row,
-                  selectedCluster.id,
+                  selectedCluster.id
                 )
               "
             />
@@ -159,7 +159,7 @@ limitations under the License.
                   $event,
                   'selectedBounded',
                   props.row,
-                  selectedCluster.id,
+                  selectedCluster.id
                 )
               "
             />
@@ -189,12 +189,12 @@ limitations under the License.
               "
               :error="
                 !isDefaultValueValid(
-                  hashAttributeIdClusterId(props.row.id, selectedCluster.id),
+                  hashAttributeIdClusterId(props.row.id, selectedCluster.id)
                 )
               "
               :error-message="
                 getDefaultValueErrorMessage(
-                  hashAttributeIdClusterId(props.row.id, selectedCluster.id),
+                  hashAttributeIdClusterId(props.row.id, selectedCluster.id)
                 )
               "
               @update:model-value="
@@ -202,7 +202,7 @@ limitations under the License.
                   $event,
                   'defaultValue',
                   props.row,
-                  selectedCluster.id,
+                  selectedCluster.id
                 )
               "
             >
@@ -217,7 +217,7 @@ limitations under the License.
                       null,
                       'defaultValue',
                       props.row,
-                      selectedCluster.id,
+                      selectedCluster.id
                     )
                   "
                 />
@@ -260,7 +260,7 @@ export default {
     isDisabledDefault(id, selectedClusterId) {
       return (
         !this.selection.includes(
-          this.hashAttributeIdClusterId(id, selectedClusterId),
+          this.hashAttributeIdClusterId(id, selectedClusterId)
         ) ||
         this.selectionStorageOption[
           this.hashAttributeIdClusterId(id, selectedClusterId)
@@ -271,14 +271,14 @@ export default {
     isDisabledStorage(id, name, selectedClusterId) {
       return (
         !this.selection.includes(
-          this.hashAttributeIdClusterId(id, selectedClusterId),
+          this.hashAttributeIdClusterId(id, selectedClusterId)
         ) || this.checkForcedExternal(name)
       )
     },
     //return true and disable if attribute is not enabled
     isDisabled(id, selectedClusterId) {
       return !this.selection.includes(
-        this.hashAttributeIdClusterId(id, selectedClusterId),
+        this.hashAttributeIdClusterId(id, selectedClusterId)
       )
     },
     //if disabled return null to be set as the default value
@@ -301,7 +301,7 @@ export default {
       return (
         this.isAttributeRequired(row) &&
         !this.selection.includes(
-          this.hashAttributeIdClusterId(row.id, this.selectedCluster.id),
+          this.hashAttributeIdClusterId(row.id, this.selectedCluster.id)
         )
       )
     },
@@ -334,7 +334,7 @@ export default {
                 y['side'],
                 a,
                 b,
-                this.sortByClusterAndManufacturerCode,
+                this.sortByClusterAndManufacturerCode
               )
             case 'storageOption': {
               let i =
@@ -352,7 +352,7 @@ export default {
                 j,
                 a,
                 b,
-                this.sortByClusterAndManufacturerCode,
+                this.sortByClusterAndManufacturerCode
               )
             }
             case 'singleton':
@@ -362,7 +362,7 @@ export default {
                 a,
                 b,
                 this.selectionSingleton,
-                this.sortByClusterAndManufacturerCode,
+                this.sortByClusterAndManufacturerCode
               )
             case 'bounded':
               return this.sortByBoolean(
@@ -371,7 +371,7 @@ export default {
                 a,
                 b,
                 this.selectionBounded,
-                this.sortByClusterAndManufacturerCode,
+                this.sortByClusterAndManufacturerCode
               )
             case 'type':
               return this.sortByText(
@@ -379,7 +379,7 @@ export default {
                 y['type'],
                 a,
                 b,
-                this.sortByClusterAndManufacturerCode,
+                this.sortByClusterAndManufacturerCode
               )
             case 'default':
               return 0
@@ -387,7 +387,7 @@ export default {
         })
       }
       return data
-    },
+    }
   },
 
   computed: {
@@ -399,25 +399,25 @@ export default {
         .filter(
           (attribute) =>
             !attribute.isOptional ||
-            this.requiredDeviceTypeAttributes.includes(attribute.id),
+            this.requiredDeviceTypeAttributes.includes(attribute.id)
         )
         .map((attribute) => attribute.id)
     },
     storageOptions() {
       return Object.values(DbEnum.storageOption)
-    },
+    }
   },
 
   data() {
     return {
       pagination: {
         rowsPerPage: 50,
-        sortBy: 'clientServer',
+        sortBy: 'clientServer'
       },
       columns: [],
       forcedExternal: [],
       enableSingleton: false,
-      enableBounded: false,
+      enableBounded: false
     }
   },
   mounted() {
@@ -427,13 +427,13 @@ export default {
         required: false,
         label: '',
         align: 'left',
-        style: 'width:1%',
+        style: 'width:1%'
       },
       {
         name: 'included',
         label: 'Enabled',
         field: 'included',
-        align: 'left',
+        align: 'left'
       },
       {
         name: 'attrID',
@@ -442,42 +442,42 @@ export default {
         field: 'attrID',
         sortable: true,
         style: 'max-width: 90px',
-        headerStyle: 'max-width: 90px',
+        headerStyle: 'max-width: 90px'
       },
       {
         name: 'attrName',
         label: 'Attribute',
         field: 'attrName',
         align: 'left',
-        sortable: true,
+        sortable: true
       },
       {
         name: 'required',
         label: 'Required',
         field: 'required',
         align: 'left',
-        sortable: true,
+        sortable: true
       },
       {
         name: 'clientServer',
         label: 'Client/Server',
         field: 'clientServer',
         align: 'left',
-        sortable: true,
+        sortable: true
       },
       {
         name: 'mfgID',
         label: 'Mfg Code',
         align: 'left',
         field: 'mfgID',
-        sortable: true,
+        sortable: true
       },
       {
         name: 'storageOption',
         label: 'Storage Option',
         align: 'left',
         field: 'storageOption',
-        sortable: true,
+        sortable: true
       },
       ...(this.enableSingleton
         ? [
@@ -486,8 +486,8 @@ export default {
               align: 'left',
               label: 'Singleton',
               field: 'singleton',
-              sortable: true,
-            },
+              sortable: true
+            }
           ]
         : []),
       ...(this.enableBounded
@@ -497,8 +497,8 @@ export default {
               align: 'left',
               label: 'Bounded',
               field: 'bounded',
-              sortable: true,
-            },
+              sortable: true
+            }
           ]
         : []),
       {
@@ -506,7 +506,7 @@ export default {
         align: 'left',
         label: 'Type',
         field: 'type',
-        sortable: true,
+        sortable: true
       },
       {
         name: 'default',
@@ -514,8 +514,8 @@ export default {
         label: 'Default',
         field: 'default',
         style: 'min-width: 180px',
-        headerStyle: 'min-width: 180px',
-      },
+        headerStyle: 'min-width: 180px'
+      }
     ]
   },
   created() {
@@ -523,6 +523,6 @@ export default {
       this.forcedExternal = []
       this.loadForcedExternal()
     }
-  },
+  }
 }
 </script>

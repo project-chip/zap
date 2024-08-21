@@ -42,7 +42,7 @@ test(
     await ipcServer.initServer()
     expect(ipcServer.isServerRunning()).toBeTruthy()
   },
-  timeout.medium(),
+  timeout.medium()
 )
 
 test('test no client', () => expect(ipcClient.isClientConnected()).toBeFalsy())
@@ -53,7 +53,7 @@ test(
     await ipcClient.initAndConnectClient()
     expect(ipcClient.isClientConnected()).toBeTruthy()
   },
-  timeout.medium(),
+  timeout.medium()
 )
 
 test(
@@ -61,7 +61,7 @@ test(
   () => {
     expect(ipcClient.lastPongData()).toBeFalsy()
   },
-  timeout.medium(),
+  timeout.medium()
 )
 
 test(
@@ -70,14 +70,14 @@ test(
     await ipcClient.emit(ipcServer.eventType.ping, 'hello')
     await util.waitFor(responseWaitPeriod)
   },
-  timeout.medium(),
+  timeout.medium()
 )
 test(
   'pong data received',
   () => {
     expect(ipcClient.lastPongData()).toEqual('hello')
   },
-  timeout.medium(),
+  timeout.medium()
 )
 
 test(
@@ -93,7 +93,7 @@ test(
     let myVersion = env.zapVersion()
     expect(response.hash).toEqual(myVersion.hash)
   },
-  timeout.medium(),
+  timeout.medium()
 )
 
 test('disconnect client', () => ipcClient.disconnectClient(), timeout.short())
@@ -104,5 +104,5 @@ test(
     ipcServer.shutdownServerSync()
     expect(ipcServer.isServerRunning()).toBeFalsy()
   },
-  timeout.medium(),
+  timeout.medium()
 )

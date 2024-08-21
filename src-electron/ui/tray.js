@@ -45,12 +45,12 @@ function initTray(port) {
       httpPort: port,
       click: (item, window, event) => {
         uiUtil.openNewConfiguration(item.httpPort)
-      },
+      }
     },
     {
       label: 'Quit ZAP',
-      role: 'quit',
-    },
+      role: 'quit'
+    }
   ])
 
   // This covers the case of the mac dock

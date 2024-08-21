@@ -80,7 +80,7 @@ export function builtinDotdotZclMetafile() {
 
 export function builtinMatterZclMetafile2() {
   return locateProjectResource(
-    './zcl-builtin/matter/zcl-with-test-extensions.json',
+    './zcl-builtin/matter/zcl-with-test-extensions.json'
   )
 }
 
@@ -91,47 +91,47 @@ export function builtinTemplateMetafile() {
 export const environmentVariable = {
   logLevel: {
     name: 'ZAP_LOGLEVEL',
-    description: 'Sets the log level. If unset, then default is: warn.',
+    description: 'Sets the log level. If unset, then default is: warn.'
   },
   uniqueStateDir: {
     name: 'ZAP_TEMPSTATE',
     description:
-      'If set to 1, then instead of .zap, a unique temporary state directory will be created.',
+      'If set to 1, then instead of .zap, a unique temporary state directory will be created.'
   },
   stateDir: {
     name: 'ZAP_DIR',
     description:
-      'Sets a state directory. Can be overriden by --stateDirectory option. If unset, default is: ~/.zap',
+      'Sets a state directory. Can be overriden by --stateDirectory option. If unset, default is: ~/.zap'
   },
   skipPostGen: {
     name: 'ZAP_SKIP_POST_GENERATION',
     description:
-      'If there is a defined post-generation action for zap, you can set this to variable to 1 to skip it.',
+      'If there is a defined post-generation action for zap, you can set this to variable to 1 to skip it.'
   },
   reuseZapInstance: {
     name: 'ZAP_REUSE_INSTANCE',
     description:
-      'If set to 1, default behavior of zap will be to reuse existing instance.',
+      'If set to 1, default behavior of zap will be to reuse existing instance.'
   },
   cleanupDelay: {
     name: 'ZAP_CLEANUP_DELAY',
     description:
-      'Amount of millisecons zap will wait for cleanups to perform. This is workaround for some SQLite bug. If unset, default is: 1500',
+      'Amount of millisecons zap will wait for cleanups to perform. This is workaround for some SQLite bug. If unset, default is: 1500'
   },
   zapGenerationLog: {
     name: 'ZAP_GENERATION_LOG',
     description:
-      'Points to a JSON file, which will be used to log every generation performed.',
+      'Points to a JSON file, which will be used to log every generation performed.'
   },
   jenkinsHome: {
     name: 'JENKINS_HOME',
     description:
-      'When this env variable is present, zap will assume Jenkins environment. That will assume ZAP_TEMPSTATE and ZAP_SKIP_POST_GENERATION to be 1 by default.',
+      'When this env variable is present, zap will assume Jenkins environment. That will assume ZAP_TEMPSTATE and ZAP_SKIP_POST_GENERATION to be 1 by default.'
   },
   saveFileFormat: {
     name: 'ZAP_SAVE_FILE_FORMAT',
-    description: `Overrides a default saved zap file format, ${defaultFileFormat()}. It should be an integer number 0 or greater. This only affects file saving.`,
-  },
+    description: `Overrides a default saved zap file format, ${defaultFileFormat()}. It should be an integer number 0 or greater. This only affects file saving.`
+  }
 }
 
 // builtin pino levels: trace=10, debug=20, info=30, warn=40
@@ -148,9 +148,9 @@ const pinoOptions = {
     sql: 22,
     debug: 20,
     trace: 10,
-    all: 1,
+    all: 1
   },
-  timestamp: pino.stdTimeFunctions.isoTime,
+  timestamp: pino.stdTimeFunctions.isoTime
 }
 
 // Basic environment tie-ins
@@ -192,7 +192,7 @@ export function logInitLogFile() {
   if (!explicit_logger_set) {
     pino_logger = pino(
       pinoOptions,
-      pino.destination(path.join(appDirectory(), 'zap.log')),
+      pino.destination(path.join(appDirectory(), 'zap.log'))
     )
     explicit_logger_set = true
   }
@@ -287,7 +287,7 @@ export function locateProjectResource(filePath) {
     return path.join(__dirname, '../../../', filePath)
   } else {
     throw new Error(
-      `Zap integrity error: can not locate resource: ${filePath}.`,
+      `Zap integrity error: can not locate resource: ${filePath}.`
     )
   }
 }
@@ -305,7 +305,7 @@ export function zapVersion() {
       hash: 0,
       timestamp: 0,
       date: '',
-      exe: process.argv0,
+      exe: process.argv0
     }
     try {
       let p = require(locateProjectResource('./apack.json'))
@@ -359,7 +359,7 @@ export function printToStderr(msg) {
  */
 export function log(level, msg, err = null) {
   let objectToLog = {
-    msg: msg,
+    msg: msg
   }
   if (err != null) {
     objectToLog.err = err
@@ -484,7 +484,7 @@ export function versionsCheck() {
     console.log(`Expected node versions: ${expectedNodeVersion}`)
     console.log(`Provided node version: ${nodeVersion}`)
     console.log(
-      'WARNING: you are using different node version than recommended.',
+      'WARNING: you are using different node version than recommended.'
     )
   }
   if (
@@ -495,7 +495,7 @@ export function versionsCheck() {
     console.log(`Expected electron version: ${expectedElectronVersion}`)
     console.log(`Provided electron version: ${electronVersion}`)
     console.log(
-      'WARNING: you are using different electron version that recommended.',
+      'WARNING: you are using different electron version that recommended.'
     )
   }
   return ret

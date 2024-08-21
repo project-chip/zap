@@ -63,12 +63,12 @@ async function recordPackageIfNonexistent(
   packageType,
   version,
   category,
-  description,
+  description
 ) {
   let pkg = await queryPackage.getPackageByPathAndParent(
     db,
     packagePath,
-    parentId,
+    parentId
   )
 
   if (pkg == null) {
@@ -81,7 +81,7 @@ async function recordPackageIfNonexistent(
       parentId,
       version,
       category,
-      description,
+      description
     )
   } else {
     // Already exists
@@ -93,7 +93,7 @@ async function loadTemplateOptionsFromJsonFile(
   db,
   packageId,
   category,
-  externalPath,
+  externalPath
 ) {
   let content = await fsPromise.readFile(externalPath, 'utf8')
   let jsonData = JSON.parse(content)
@@ -106,7 +106,7 @@ async function loadTemplateOptionsFromJsonFile(
     db,
     packageId,
     category,
-    codeLabels,
+    codeLabels
   )
 }
 
@@ -125,7 +125,7 @@ async function recordTemplatesPackage(context) {
     context.templateData.version,
     context.templateData.category,
     context.templateData.description,
-    true,
+    true
   )
   context.packageId = topLevel.id
   if (topLevel.existedPreviously) return context
@@ -136,7 +136,7 @@ async function recordTemplatesPackage(context) {
   env.logDebug(`Loading ${allTemplates.length} templates.`)
   allTemplates.forEach((template) => {
     let templatePath = path.resolve(
-      path.join(path.dirname(context.path), template.path),
+      path.join(path.dirname(context.path), template.path)
     )
     if (!template.ignore) {
       promises.push(
@@ -147,7 +147,7 @@ async function recordTemplatesPackage(context) {
           dbEnum.packageType.genSingleTemplate,
           0,
           template.output,
-          template.name,
+          template.name
         ).then((id) => {
           // We loaded the individual file, now we add options
           if (template.iterator) {
@@ -158,12 +158,12 @@ async function recordTemplatesPackage(context) {
               [
                 {
                   code: 'iterator',
-                  label: template.iterator,
-                },
-              ],
+                  label: template.iterator
+                }
+              ]
             )
           }
-        }),
+        })
       )
     }
   })
@@ -176,15 +176,15 @@ async function recordTemplatesPackage(context) {
       if (_.isString(data)) {
         // Data is a string, so we will treat it as a relative path to the JSON file.
         let externalPath = path.resolve(
-          path.join(path.dirname(context.path), data),
+          path.join(path.dirname(context.path), data)
         )
         promises.push(
           loadTemplateOptionsFromJsonFile(
             context.db,
             context.packageId,
             category,
-            externalPath,
-          ),
+            externalPath
+          )
         )
       } else {
         // Treat this data as an object.
@@ -192,7 +192,7 @@ async function recordTemplatesPackage(context) {
         for (const code of Object.keys(data)) {
           codeLabelArray.push({
             code: code,
-            label: data[code],
+            label: data[code]
           })
         }
         promises.push(
@@ -200,8 +200,8 @@ async function recordTemplatesPackage(context) {
             context.db,
             context.packageId,
             category,
-            codeLabelArray,
-          ),
+            codeLabelArray
+          )
         )
       }
     }
@@ -213,7 +213,7 @@ async function recordTemplatesPackage(context) {
     context.templateData.categories.forEach((cat) => {
       helperCategories.push({
         code: cat,
-        label: '',
+        label: ''
       })
     })
   }
@@ -223,8 +223,8 @@ async function recordTemplatesPackage(context) {
         context.db,
         context.packageId,
         dbEnum.packageOptionCategory.helperCategories,
-        helperCategories,
-      ),
+        helperCategories
+      )
     )
   }
 
@@ -239,7 +239,7 @@ async function recordTemplatesPackage(context) {
         // Put it in the array to write into DB later.
         helperAliases.push({
           code: helper,
-          label: '',
+          label: ''
         })
       } else {
         // We don't have an alias by that name, so we assume it's a path.
@@ -252,8 +252,8 @@ async function recordTemplatesPackage(context) {
             dbEnum.packageType.genHelper,
             null,
             null,
-            null,
-          ),
+            null
+          )
         )
       }
     })
@@ -264,8 +264,8 @@ async function recordTemplatesPackage(context) {
         context.db,
         context.packageId,
         dbEnum.packageOptionCategory.helperAliases,
-        helperAliases,
-      ),
+        helperAliases
+      )
     )
   }
 
@@ -275,13 +275,13 @@ async function recordTemplatesPackage(context) {
     for (let key of Object.keys(context.templateData.resources)) {
       let resourcePath = path.join(
         path.dirname(context.path),
-        context.templateData.resources[key],
+        context.templateData.resources[key]
       )
       if (!fs.existsSync(resourcePath))
         throw new Error(`Resource not found: ${resourcePath}`)
       resources.push({
         code: key,
-        label: resourcePath,
+        label: resourcePath
       })
     }
   }
@@ -291,8 +291,8 @@ async function recordTemplatesPackage(context) {
         context.db,
         context.packageId,
         dbEnum.packageOptionCategory.resources,
-        resources,
-      ),
+        resources
+      )
     )
   }
 
@@ -300,7 +300,7 @@ async function recordTemplatesPackage(context) {
   if (context.templateData.override != null) {
     let overridePath = path.join(
       path.dirname(context.path),
-      context.templateData.override,
+      context.templateData.override
     )
     promises.push(
       recordPackageIfNonexistent(
@@ -310,8 +310,8 @@ async function recordTemplatesPackage(context) {
         dbEnum.packageType.genOverride,
         null,
         null,
-        null,
-      ),
+        null
+      )
     )
   }
   // Deal with partials
@@ -327,8 +327,8 @@ async function recordTemplatesPackage(context) {
           context.packageId,
           0,
           partial.name,
-          '',
-        ),
+          ''
+        )
       )
     })
   }
@@ -341,8 +341,8 @@ async function recordTemplatesPackage(context) {
         context.db,
         context.packageId,
         zclExtension,
-        context.path,
-      ),
+        context.path
+      )
     )
   }
   await Promise.all(promises)
@@ -365,7 +365,7 @@ function decodePackageExtensionEntity(entityType, entity) {
         entityQualifier: entity.role,
         manufacturerCode: null,
         parentCode: null,
-        value: entity.value,
+        value: entity.value
       }
     case dbEnum.packageExtensionEntity.command:
       return {
@@ -373,14 +373,14 @@ function decodePackageExtensionEntity(entityType, entity) {
         entityQualifier: entity.source,
         manufacturerCode: null,
         parentCode: parseInt(entity.clusterCode),
-        value: entity.value,
+        value: entity.value
       }
     case dbEnum.packageExtensionEntity.event:
       return {
         entityCode: parseInt(entity.eventCode),
         manufacturerCode: null,
         parentCode: parseInt(entity.clusterCode),
-        value: entity.value,
+        value: entity.value
       }
     case dbEnum.packageExtensionEntity.attribute:
       return {
@@ -388,7 +388,7 @@ function decodePackageExtensionEntity(entityType, entity) {
         entityQualifier: null,
         manufacturerCode: null,
         parentCode: parseInt(entity.clusterCode),
-        value: entity.value,
+        value: entity.value
       }
     case dbEnum.packageExtensionEntity.deviceType:
       return {
@@ -396,7 +396,7 @@ function decodePackageExtensionEntity(entityType, entity) {
         entityQualifier: null,
         manufacturerCode: null,
         parentCode: null,
-        value: entity.value,
+        value: entity.value
       }
     case dbEnum.packageExtensionEntity.attributeType:
       return {
@@ -404,7 +404,7 @@ function decodePackageExtensionEntity(entityType, entity) {
         entityQualifier: entity.type,
         manufacturerCode: null,
         parentCode: null,
-        value: entity.value,
+        value: entity.value
       }
     default:
       // We don't know how to process defaults otherwise
@@ -431,7 +431,7 @@ async function loadZclExtensions(db, packageId, zclExt, defaultsPath) {
         type: prop.type,
         configurability: prop.configurability,
         label: prop.label,
-        globalDefault: prop.globalDefault,
+        globalDefault: prop.globalDefault
       })
       if ('defaults' in prop) {
         if (
@@ -440,45 +440,45 @@ async function loadZclExtensions(db, packageId, zclExt, defaultsPath) {
         ) {
           // Data is a string, so we will treat it as a relative path to the JSON file.
           let externalPath = path.resolve(
-            path.join(path.dirname(defaultsPath), prop.defaults),
+            path.join(path.dirname(defaultsPath), prop.defaults)
           )
           let data = await fsPromise
             .readFile(externalPath, 'utf8')
             .then((content) => JSON.parse(content))
             .catch((err) => {
               env.logWarning(
-                `Invalid file! Failed to load defaults from: ${prop.defaults}`,
+                `Invalid file! Failed to load defaults from: ${prop.defaults}`
               )
               queryNotification.setNotification(
                 db,
                 'WARNING',
                 `Invalid file! Failed to load defaults from: ${prop.defaults}`,
                 packageId,
-                2,
+                2
               )
             })
 
           if (data) {
             if (!Array.isArray(data)) {
               env.logWarning(
-                `Invalid file format! Failed to load defaults from: ${prop.defaults}`,
+                `Invalid file format! Failed to load defaults from: ${prop.defaults}`
               )
               queryNotification.setNotification(
                 db,
                 'WARNING',
                 `Invalid file format! Failed to load defaults from: ${prop.defaults}`,
                 packageId,
-                2,
+                2
               )
             } else {
               defaultArrayOfArrays.push(
-                data.map((x) => decodePackageExtensionEntity(entity, x)),
+                data.map((x) => decodePackageExtensionEntity(entity, x))
               )
             }
           }
         } else {
           defaultArrayOfArrays.push(
-            prop.defaults.map((x) => decodePackageExtensionEntity(entity, x)),
+            prop.defaults.map((x) => decodePackageExtensionEntity(entity, x))
           )
         }
       } else {
@@ -491,8 +491,8 @@ async function loadZclExtensions(db, packageId, zclExt, defaultsPath) {
         packageId,
         entity,
         propertyArray,
-        defaultArrayOfArrays,
-      ),
+        defaultArrayOfArrays
+      )
     )
   }
   return Promise.all(promises)
@@ -509,14 +509,14 @@ async function loadTemplates(
   db,
   genTemplatesJsonArray,
   options = {
-    failOnLoadingError: true,
-  },
+    failOnLoadingError: true
+  }
 ) {
   if (Array.isArray(genTemplatesJsonArray)) {
     let globalCtx = {
       packageIds: [],
       packageId: null,
-      templateData: [],
+      templateData: []
     }
     if (genTemplatesJsonArray != null && genTemplatesJsonArray.length > 0) {
       for (let jsonFile of genTemplatesJsonArray) {
@@ -541,7 +541,7 @@ async function loadTemplates(
   } else {
     // We didn't load anything, we don't return anything.
     return {
-      nop: true,
+      nop: true
     }
   }
 }
@@ -555,7 +555,7 @@ async function loadTemplates(
  */
 async function loadGenTemplatesJsonFile(db, genTemplatesJson) {
   let context = {
-    db: db,
+    db: db
   }
   if (genTemplatesJson == null) {
     context.error = 'No templates file specified.'
@@ -588,13 +588,13 @@ async function retrievePackageMetaInfo(db, genTemplatesPkgId) {
   let metaInfo = {
     aliases: [],
     categories: [],
-    resources: {},
+    resources: {}
   }
 
   let aliases = await queryPackage.selectAllOptionsValues(
     db,
     genTemplatesPkgId,
-    dbEnum.packageOptionCategory.helperAliases,
+    dbEnum.packageOptionCategory.helperAliases
   )
   for (let a of aliases) {
     metaInfo.aliases.push(a.optionCode)
@@ -603,7 +603,7 @@ async function retrievePackageMetaInfo(db, genTemplatesPkgId) {
   let categories = await queryPackage.selectAllOptionsValues(
     db,
     genTemplatesPkgId,
-    dbEnum.packageOptionCategory.helperCategories,
+    dbEnum.packageOptionCategory.helperCategories
   )
   for (let c of categories) {
     metaInfo.categories.push(c.optionCode)
@@ -612,7 +612,7 @@ async function retrievePackageMetaInfo(db, genTemplatesPkgId) {
   let resources = await queryPackage.selectAllOptionsValues(
     db,
     genTemplatesPkgId,
-    dbEnum.packageOptionCategory.resources,
+    dbEnum.packageOptionCategory.resources
   )
   for (let c of resources) {
     metaInfo.resources[c.optionCode] = c.optionLabel
@@ -635,12 +635,12 @@ async function generateAllTemplates(
   options = {
     generateOnly: null,
     disableDeprecationWarnings: false,
-    generateSequentially: false,
-  },
+    generateSequentially: false
+  }
 ) {
   let packages = await queryPackage.getPackageByParent(
     genResult.db,
-    genTemplateJsonPkg.id,
+    genTemplateJsonPkg.id
   )
   let generationTemplates = []
   let helperPromises = []
@@ -651,14 +651,14 @@ async function generateAllTemplates(
   let context = {
     db: genResult.db,
     sessionId: genResult.sessionId,
-    hb: hb,
+    hb: hb
   }
 
   for (let pkg of packages) {
     let outputOptions = await queryPackage.selectAllOptionsValues(
       genResult.db,
       pkg.id,
-      dbEnum.packageOptionCategory.outputOptions,
+      dbEnum.packageOptionCategory.outputOptions
     )
     outputOptions.forEach((opt) => {
       if (opt.optionCode == 'iterator') {
@@ -679,7 +679,7 @@ async function generateAllTemplates(
   packages.forEach((singlePkg) => {
     if (singlePkg.type == dbEnum.packageType.genPartial) {
       partialPromises.push(
-        templateEngine.loadPartial(hb, singlePkg.category, singlePkg.path),
+        templateEngine.loadPartial(hb, singlePkg.category, singlePkg.path)
       )
     }
   })
@@ -687,7 +687,7 @@ async function generateAllTemplates(
   // Let's collect the required list of helpers.
   let metaInfo = await retrievePackageMetaInfo(
     genResult.db,
-    genTemplateJsonPkg.id,
+    genTemplateJsonPkg.id
   )
 
   // Initialize helpers package. This is based on the specific
@@ -698,7 +698,7 @@ async function generateAllTemplates(
   packages.forEach((singlePkg) => {
     if (singlePkg.type == dbEnum.packageType.genHelper) {
       helperPromises.push(
-        templateEngine.loadHelper(hb, singlePkg.path, context),
+        templateEngine.loadHelper(hb, singlePkg.path, context)
       )
     }
   })
@@ -729,15 +729,15 @@ async function generateAllTemplates(
     await util.executePromisesSequentially(generationTemplates, (t) =>
       generateSingleTemplate(hb, metaInfo, genResult, t, genTemplateJsonPkg, {
         overridePath: overridePath,
-        disableDeprecationWarnings: options.disableDeprecationWarnings,
-      }),
+        disableDeprecationWarnings: options.disableDeprecationWarnings
+      })
     )
   } else {
     let templates = generationTemplates.map((pkg) =>
       generateSingleTemplate(hb, metaInfo, genResult, pkg, genTemplateJsonPkg, {
         overridePath: overridePath,
-        disableDeprecationWarnings: options.disableDeprecationWarnings,
-      }),
+        disableDeprecationWarnings: options.disableDeprecationWarnings
+      })
     )
     await Promise.all(templates)
   }
@@ -761,8 +761,8 @@ async function generateSingleTemplate(
   genTemplateJsonPackage,
   options = {
     overridePath: null,
-    disableDeprecationWarnings: false,
-  },
+    disableDeprecationWarnings: false
+  }
 ) {
   let genStart = process.hrtime.bigint()
   //console.log(`Start generating from template: ${singleTemplatePkg?.path}`)
@@ -781,7 +781,7 @@ async function generateSingleTemplate(
       genResult.sessionId,
       singleTemplatePkg,
       genTemplateJsonPackage,
-      options,
+      options
     )
     for (let result of resultArray) {
       genResult.content[result.key] = result.content
@@ -793,7 +793,7 @@ async function generateSingleTemplate(
     env.logInfo(
       `Finish generating from template: ${
         singleTemplatePkg?.path
-      }: ${util.duration(nsDuration)}`,
+      }: ${util.duration(nsDuration)}`
     )
     return genResult
   } catch (err) {
@@ -820,8 +820,8 @@ async function generate(
   templateGeneratorOptions = {},
   options = {
     generateOnly: null,
-    disableDeprecationWarnings: false,
-  },
+    disableDeprecationWarnings: false
+  }
 ) {
   let pkg = await queryPackage.getPackageByPackageId(db, templatePackageId)
   if (pkg == null) throw new Error(`Invalid packageId: ${templatePackageId}`)
@@ -833,7 +833,7 @@ async function generate(
     errors: {},
     hasErrors: false,
     generatorOptions: templateGeneratorOptions,
-    templatePath: path.dirname(pkg.path),
+    templatePath: path.dirname(pkg.path)
   }
   if (pkg.type === dbEnum.packageType.genTemplatesJson) {
     return generateAllTemplates(genResult, pkg, options)
@@ -874,7 +874,7 @@ async function generateGenerationContent(genResult, timing = {}) {
     creator: 'zap',
     content: [],
     timing: timing,
-    stats: {},
+    stats: {}
   }
   for (const f of Object.keys(genResult.content).sort()) {
     out.content.push(f)
@@ -904,8 +904,8 @@ async function generateAndWriteFiles(
     genResultFile: false,
     skipPostGeneration: false,
     appendGenerationSubdirectory: false,
-    generationLog: null,
-  },
+    generationLog: null
+  }
 ) {
   // in case user customization has invalidated the cache
   dbCache.clear()
@@ -914,14 +914,14 @@ async function generateAndWriteFiles(
   if (options.fileLoadTime) {
     timing.fileLoad = {
       nsDuration: Number(options.fileLoadTime),
-      readableDuration: util.duration(options.fileLoadTime),
+      readableDuration: util.duration(options.fileLoadTime)
     }
   }
   let hrstart = process.hrtime.bigint()
   let genOptions = await queryPackage.selectAllOptionsValues(
     db,
     templatePackageId,
-    dbEnum.packageOptionCategory.generator,
+    dbEnum.packageOptionCategory.generator
   )
 
   // Reduce the long array from query into a single object
@@ -934,7 +934,7 @@ async function generateAndWriteFiles(
     db,
     sessionId,
     templatePackageId,
-    templateGeneratorOptions,
+    templateGeneratorOptions
   )
 
   // The path we append, assuming you specify the --appendGenerationSubdirectory, and a
@@ -978,7 +978,7 @@ async function generateAndWriteFiles(
   options.logger(`🕐 Generation time: ${util.duration(nsDuration)} `)
   timing.generation = {
     nsDuration: Number(nsDuration),
-    readableDuration: util.duration(nsDuration),
+    readableDuration: util.duration(nsDuration)
   }
   promises.push(
     generateGenerationContent(genResult, timing).then((generatedContent) => {
@@ -989,7 +989,7 @@ async function generateAndWriteFiles(
       } else {
         return
       }
-    }),
+    })
   )
 
   if (options.generationLog) {
@@ -997,20 +997,20 @@ async function generateAndWriteFiles(
     let filePath = await querySession.getSessionKeyValue(
       db,
       sessionId,
-      dbEnum.sessionKey.filePath,
+      dbEnum.sessionKey.filePath
     )
     let zclPkg = await queryPackage.getSessionPackagesByType(
       db,
       sessionId,
-      dbEnum.packageType.zclProperties,
+      dbEnum.packageType.zclProperties
     )
     promises.push(
       createGenerationLog(options.generationLog, {
         zapFile: filePath,
         output: outputDirectory,
         templatePath: pkg.path,
-        zclPath: zclPkg.path,
-      }),
+        zclPath: zclPkg.path
+      })
     )
   }
 
@@ -1052,7 +1052,7 @@ async function postProcessGeneratedFiles(
   genResult,
   logger = (msg) => {
     // Empty logger is the default.
-  },
+  }
 ) {
   let doExecute = true
   let isEnabledS = genResult.generatorOptions[dbEnum.generatorOptions.enabled]
@@ -1088,8 +1088,8 @@ async function postProcessGeneratedFiles(
       util.executeExternalProgram(cmd, genResult.templatePath, {
         rejectOnFail: false,
         routeErrToOut:
-          genResult.generatorOptions[dbEnum.generatorOptions.routeErrToOut],
-      }),
+          genResult.generatorOptions[dbEnum.generatorOptions.routeErrToOut]
+      })
     )
   }
   if (
@@ -1103,8 +1103,8 @@ async function postProcessGeneratedFiles(
       let singleCmd = cmd + ' ' + fileName
       postProcessPromises.push(
         util.executeExternalProgram(singleCmd, genResult.templatePath, {
-          rejectOnFail: false,
-        }),
+          rejectOnFail: false
+        })
       )
     }
   }
@@ -1155,7 +1155,7 @@ async function generateSingleFileForPreview(db, sessionId, outFileName) {
     .getSessionPackagesByType(
       db,
       sessionId,
-      dbEnum.packageType.genTemplatesJson,
+      dbEnum.packageType.genTemplatesJson
     )
     .then((pkgs) => {
       let promises = []
@@ -1168,9 +1168,9 @@ async function generateSingleFileForPreview(db, sessionId, outFileName) {
             {},
             {
               generateOnly: outFileName,
-              disableDeprecationWarnings: true,
-            },
-          ),
+              disableDeprecationWarnings: true
+            }
+          )
         )
       })
       return Promise.all(promises)

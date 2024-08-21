@@ -20,7 +20,7 @@
 import {
   renderer_api_info,
   renderer_api_execute,
-  renderer_api_notify,
+  renderer_api_notify
 } from '../api/renderer_api.js'
 import rendApi from '../../src-shared/rend-api.js'
 

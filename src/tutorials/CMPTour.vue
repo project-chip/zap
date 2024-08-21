@@ -32,7 +32,7 @@ export default {
   mixins: [CommonMixin],
   data() {
     return {
-      tutorialSteps: [],
+      tutorialSteps: []
     }
   },
   computed: {
@@ -46,11 +46,11 @@ export default {
           return {
             deviceTypeRef: item,
             deviceIdentifier: dt[item].code,
-            deviceVersion: dt[item].version,
+            deviceVersion: dt[item].version
           }
         })
-      },
-    },
+      }
+    }
   },
   methods: {
     startTour() {
@@ -110,7 +110,7 @@ export default {
       return new Promise((resolve) => {
         document
           .getElementsByClassName(
-            ' q-icon material-icons q-select__dropdown-icon',
+            ' q-icon material-icons q-select__dropdown-icon'
           )[0]
           .click()
         this.$store.dispatch('zap/setDomainFilter', {
@@ -120,9 +120,9 @@ export default {
               context.enabledClusters.map((a) => a.domainName).includes(domain),
             clusterFilterFn: (cluster, context) =>
               context.enabledClusters.find((a) => cluster.id == a.id) !=
-              undefined,
+              undefined
           },
-          enabledClusters: this.$store.state.zap.enabledClusters,
+          enabledClusters: this.$store.state.zap.enabledClusters
         })
         resolve()
       })
@@ -136,20 +136,20 @@ export default {
       deviceTypeRef.push(selectedDevice.deviceTypeRef)
       deviceIdentifier.push(selectedDevice.deviceIdentifier)
       deviceVersion.push(
-        selectedDevice.deviceVersion ? selectedDevice.deviceVersion : 1,
+        selectedDevice.deviceVersion ? selectedDevice.deviceVersion : 1
       )
       this.$store
         .dispatch(`zap/addEndpointType`, {
           name: 'Anonymous Endpoint Type',
           deviceTypeRef: deviceTypeRef,
           deviceIdentifier: deviceIdentifier,
-          deviceVersion: deviceVersion,
+          deviceVersion: deviceVersion
         })
         .then((response) => {
           let profileId = this.asHex(
             this.zclDeviceTypes[this.zclDeviceTypeOptions[0].deviceTypeRef]
               .profileId,
-            4,
+            4
           )
           this.tourEndpointType = response.id
 
@@ -158,31 +158,31 @@ export default {
               endpointId: endpointID,
               networkId: 0,
               profileId: parseInt(profileId),
-              endpointType: response.id,
+              endpointType: response.id
             })
             .then((res) => {
               this.tourEndpointId = res.id
               if (this.shareClusterStatesAcrossEndpoints()) {
                 this.$store.dispatch('zap/shareClusterStatesAcrossEndpoints', {
-                  endpointTypeIdList: this.endpointTypeIdList,
+                  endpointTypeIdList: this.endpointTypeIdList
                 })
               }
               this.$store.dispatch('zap/updateSelectedEndpointType', {
                 endpointType: this.endpointType[res.id],
                 deviceTypeRef:
-                  this.endpointDeviceTypeRef[this.endpointType[res.id]],
+                  this.endpointDeviceTypeRef[this.endpointType[res.id]]
               })
               this.$store.dispatch('zap/updateClusters')
               this.$store
                 .dispatch(
                   `zap/endpointTypeClustersInfo`,
-                  this.endpointType[res.id],
+                  this.endpointType[res.id]
                 )
                 .then((res) => {
                   if (res?.data) {
                     const clusterStates = res.data
                     const enabledClusterStates = clusterStates.filter(
-                      (x) => x.enabled,
+                      (x) => x.enabled
                     )
                     for (const states of enabledClusterStates) {
                       const { endpointTypeRef, clusterRef, side, enabled } =
@@ -191,11 +191,11 @@ export default {
                       const arg = {
                         side: [side],
                         clusterId: clusterRef,
-                        added: enabled,
+                        added: enabled
                       }
 
                       console.log(
-                        `Enabling UC component ${JSON.stringify(arg)}`,
+                        `Enabling UC component ${JSON.stringify(arg)}`
                       )
                       this.updateSelectedComponentRequest(arg)
                     }
@@ -208,11 +208,11 @@ export default {
     },
     filteredZclDeviceTypes(deviceId, index) {
       const possibleDevices = this.zclDeviceTypeOptions.filter(
-        (endpoint) => endpoint.deviceIdentifier === deviceId,
+        (endpoint) => endpoint.deviceIdentifier === deviceId
       )
       const selectedDevice = possibleDevices[index ? index : 0]
       return selectedDevice
-    },
+    }
   },
   mounted() {
     this.startTour()
@@ -235,12 +235,12 @@ export default {
         onNext: async () =>
           nextStep !== null ? await this[nextStep]() : void 0,
         onPrev: async () =>
-          prevStep !== null ? await this[prevStep]() : void 0,
+          prevStep !== null ? await this[prevStep]() : void 0
       }
       config.push(element)
     }
 
     this.tutorialSteps = config
-  },
+  }
 }
 </script>

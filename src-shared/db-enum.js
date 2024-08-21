@@ -31,7 +31,7 @@ exports.packageType = {
   genHelper: 'gen-helper',
   genOverride: 'gen-override',
   genPartial: 'gen-partial',
-  jsonExtension: 'json-extension',
+  jsonExtension: 'json-extension'
 }
 
 exports.packageOptionCategory = {
@@ -44,7 +44,7 @@ exports.packageOptionCategory = {
   helperCategories: 'helperCategories',
   helperAliases: 'helperAliases',
   resources: 'resources',
-  outputOptions: 'outputOptions',
+  outputOptions: 'outputOptions'
 }
 
 // these are allowed values for the value of "iterator" for
@@ -54,30 +54,30 @@ exports.iteratorValues = {
   availableCluster: 'availableCluster',
   selectedCluster: 'selectedCluster',
   selectedClientCluster: 'selectedClientCluster',
-  selectedServerCluster: 'selectedServerCluster',
+  selectedServerCluster: 'selectedServerCluster'
 }
 
 exports.side = {
   client: 'client',
   server: 'server',
   either: 'either',
-  both: 'both',
+  both: 'both'
 }
 exports.source = {
   client: 'client',
-  server: 'server',
+  server: 'server'
 }
 
 exports.storageOption = {
   ram: 'RAM',
   nvm: 'NVM',
-  external: 'External',
+  external: 'External'
 }
 
 exports.composition = {
   fullFamily: 'fullFamily',
   tree: 'tree',
-  mandatoryEndpoint: 'mandatoryEndpoint',
+  mandatoryEndpoint: 'mandatoryEndpoint'
 }
 
 exports.zclType = {
@@ -89,21 +89,21 @@ exports.zclType = {
   array: 'array',
   zclCharFormatter: 'zclCharFormatter',
   string: 'string',
-  number: 'number',
+  number: 'number'
 }
 
 exports.sessionKey = {
   filePath: 'filePath',
   ideProjectPath: 'ideProjectPath',
   informationText: 'informationText',
-  disableComponentToggling: 'disableComponentToggling',
+  disableComponentToggling: 'disableComponentToggling'
 }
 
 exports.pathRelativity = {
   relativeToZap: 'relativeToZap',
   relativeToUserHome: 'relativeToHome',
   absolute: 'absolute',
-  resolveEnvVars: 'resolveEnvVars',
+  resolveEnvVars: 'resolveEnvVars'
 }
 
 exports.wsCategory = {
@@ -117,7 +117,7 @@ exports.wsCategory = {
   componentUpdateStatus: 'componentUpdateStatus',
   updateSelectedUcComponents: 'updateSelectedUcComponents',
   init: 'init',
-  tick: 'tick',
+  tick: 'tick'
 }
 
 exports.packageExtensionEntity = {
@@ -126,7 +126,7 @@ exports.packageExtensionEntity = {
   attribute: 'attribute',
   attributeType: 'attributeType',
   deviceType: 'deviceType',
-  event: 'event',
+  event: 'event'
 }
 
 exports.generatorOptions = {
@@ -136,7 +136,7 @@ exports.generatorOptions = {
   postProcessConditionalFile: 'postProcessConditionalFile',
   enabled: 'enabled',
   shareClusterStatesAcrossEndpoints: 'shareClusterStatesAcrossEndpoints',
-  disableUcComponentOnZclClusterUpdate: 'disableUcComponentOnZclClusterUpdate',
+  disableUcComponentOnZclClusterUpdate: 'disableUcComponentOnZclClusterUpdate'
 }
 
 exports.sessionOption = {
@@ -145,7 +145,7 @@ exports.sessionOption = {
   profileCodes: 'profileCodes',
   coreSpecification: 'coreSpecification',
   clusterSpecification: 'clusterSpecification',
-  deviceTypeSpecification: 'deviceTypeSpecification',
+  deviceTypeSpecification: 'deviceTypeSpecification'
 }
 
 const reportingPolicy = {
@@ -165,7 +165,7 @@ const reportingPolicy = {
         // Default
         return reportingPolicy.defaultReportingPolicy
     }
-  },
+  }
 }
 
 exports.reportingPolicy = reportingPolicy
@@ -183,7 +183,7 @@ const storagePolicy = {
       default:
         return storagePolicy.any
     }
-  },
+  }
 }
 
 exports.storagePolicy = storagePolicy
@@ -194,17 +194,17 @@ exports.customDevice = {
   name: 'Custom ZCL Device Type',
   description: 'Custom ZCL device type supports any combination of clusters.',
   code: 0xffff,
-  profileId: 0xffff,
+  profileId: 0xffff
 }
 
 exports.helperCategory = {
   zigbee: 'zigbee',
   matter: 'matter',
-  meta: 'meta',
+  meta: 'meta'
 }
 
 exports.packageMatch = {
   fuzzy: 'fuzzy', // This mechanism will attempt to match the ones from zap file, then give up and do fuzzy match if it fails.
   strict: 'strict', // This mechanism will ONLY use the records of packages in the .zap file.
-  ignore: 'ignore', // This mechanism will completely ignore the use of packages in the .zap file.
+  ignore: 'ignore' // This mechanism will completely ignore the use of packages in the .zap file.
 }

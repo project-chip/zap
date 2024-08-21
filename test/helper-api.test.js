@@ -35,7 +35,7 @@ test(
       }
     }
   },
-  timeout.short(),
+  timeout.short()
 )
 
 test(
@@ -46,14 +46,14 @@ test(
     let dups = api.duplicates.join(', ')
     expect(dups).toBe('')
   },
-  timeout.short(),
+  timeout.short()
 )
 
 test(
   'Compare APIs against the baseline.',
   () => {
     let apiFromFile = JSON.parse(
-      fs.readFileSync(path.join(__dirname, 'helper-api-baseline.json')),
+      fs.readFileSync(path.join(__dirname, 'helper-api-baseline.json'))
     )
     let api = templateEngine.allBuiltInHelpers()
 
@@ -71,5 +71,5 @@ test(
     })
     expect(errorMessage).toEqual('')
   },
-  timeout.short(),
+  timeout.short()
 )

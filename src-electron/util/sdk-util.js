@@ -35,8 +35,8 @@ const fastGlob = require('fast-glob')
 async function readSdkJson(
   sdkPath,
   options = {
-    logger: (msg) => {},
-  },
+    logger: (msg) => {}
+  }
 ) {
   options.logger(`    👈 read in: ${sdkPath}`)
   let data = await fsp.readFile(sdkPath)
@@ -51,7 +51,7 @@ async function readSdkJson(
   options.logger(`    👉 sdk location: ${sdkRoot}`)
   let featureLevelMatch = util.matchFeatureLevel(
     sdk.meta.requiredFeatureLevel,
-    sdk.meta.description,
+    sdk.meta.description
   )
   if (!featureLevelMatch.match) {
     options.logger(`⛔ ${featureLevelMatch.message}`)
@@ -85,12 +85,12 @@ async function readSdkJson(
       let output = gen.output
       output = output.replace(
         '{zapFileBasename}',
-        path.basename(inputFile, '.zap'),
+        path.basename(inputFile, '.zap')
       )
 
       output = output.replace(
         '{zapFileLastDirname}',
-        path.basename(path.dirname(inputFile)),
+        path.basename(path.dirname(inputFile))
       )
 
       output = output.replace('{zapFileGlobIndex}', `${index}`)
@@ -100,7 +100,7 @@ async function readSdkJson(
       sdk.rt.generateCommands.push({
         inputFile: inputFile,
         outputDirectory: outputDirectory,
-        template: gen.template,
+        template: gen.template
       })
     })
   }

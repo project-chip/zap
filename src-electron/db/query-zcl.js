@@ -62,7 +62,7 @@ WHERE
   DT.PACKAGE_REF = ?
   AND DTC.CLUSTER_REF = ?
 ORDER BY DT.NAME`,
-      [packageId, clusterId],
+      [packageId, clusterId]
     )
     .then((rows) => rows.map(dbMapping.map.bitmap))
 }
@@ -72,7 +72,7 @@ async function selectAllBitmapFieldsById(db, id) {
     .dbAll(
       db,
       'SELECT NAME, MASK, TYPE FROM BITMAP_FIELD WHERE BITMAP_REF = ? ORDER BY FIELD_IDENTIFIER',
-      [id],
+      [id]
     )
     .then((rows) => rows.map(dbMapping.map.bitmapField))
 }
@@ -82,7 +82,7 @@ async function selectAllBitmapFields(db, packageId) {
     .dbAll(
       db,
       'SELECT NAME, MASK, BITMAP_REF FROM BITMAP_FIELD  WHERE PACKAGE_REF = ? ORDER BY BITMAP_REF, FIELD_IDENTIFIER',
-      [packageId],
+      [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.bitmapField))
 }
@@ -99,7 +99,7 @@ async function selectAllDomains(db, packageId) {
     .dbAll(
       db,
       'SELECT DOMAIN_ID, NAME FROM DOMAIN WHERE PACKAGE_REF = ? ORDER BY NAME',
-      [packageId],
+      [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.domain))
 }
@@ -144,7 +144,7 @@ ON
 WHERE
   DATA_TYPE.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
 GROUP BY DATA_TYPE.NAME
-ORDER BY DATA_TYPE.NAME`,
+ORDER BY DATA_TYPE.NAME`
     )
     .then((rows) => rows.map(dbMapping.map.struct))
 }
@@ -185,7 +185,7 @@ WHERE
   S.STRUCT_ID = ?
 ORDER BY C.CODE
     `,
-      [structId],
+      [structId]
     )
     .then((rows) => rows.map(dbMapping.map.cluster))
 }
@@ -226,7 +226,7 @@ WHERE
   E.ENUM_ID = ?
 ORDER BY C.CODE
     `,
-      [enumId],
+      [enumId]
     )
     .then((rows) => rows.map(dbMapping.map.cluster))
 }
@@ -266,7 +266,7 @@ ON
 WHERE
   B.BITMAP_ID = ?
 ORDER BY C.CODE    `,
-      [bitmapId],
+      [bitmapId]
     )
     .then((rows) => rows.map(dbMapping.map.cluster))
 }
@@ -382,7 +382,7 @@ async function selectStructsWithItemsImpl(db, packageIds, clusterId) {
         label: value.STRUCT_NAME,
         struct_cluster_count: value.STRUCT_CLUSTER_COUNT,
         items: [],
-        itemCnt: 0,
+        itemCnt: 0
       }
       acc.push(objectToActOn)
     } else {
@@ -400,7 +400,7 @@ async function selectStructsWithItemsImpl(db, packageIds, clusterId) {
       isWritable: dbApi.fromDbBool(value.ITEM_IS_WRITABLE),
       isNullable: dbApi.fromDbBool(value.ITEM_IS_NULLABLE),
       isOptional: dbApi.fromDbBool(value.ITEM_IS_OPTIONAL),
-      isFabricSensitive: dbApi.fromDbBool(value.ITEM_IS_FABRIC_SENSITIVE),
+      isFabricSensitive: dbApi.fromDbBool(value.ITEM_IS_FABRIC_SENSITIVE)
     })
     objectToActOn.itemCnt++
     return acc
@@ -440,7 +440,7 @@ ON
 WHERE STRUCT_REF = ?
 ORDER BY
   FIELD_IDENTIFIER`,
-      [id],
+      [id]
     )
     .then((rows) => rows.map(dbMapping.map.structItem))
 }
@@ -459,7 +459,7 @@ async function selectAllStructItemsByStructName(
   db,
   name,
   packageIds,
-  clusterName = null,
+  clusterName = null
 ) {
   let clusterJoinQuery = ''
   let clusterWhereQuery = ''
@@ -517,7 +517,7 @@ WHERE DT.NAME = ?
   AND DT.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
   ${clusterWhereQuery}
 ORDER BY FIELD_IDENTIFIER`,
-      [name],
+      [name]
     )
     .then((rows) => rows.map(dbMapping.map.structItem))
 }
@@ -550,7 +550,7 @@ FROM CLUSTER
 WHERE
   PACKAGE_REF = ?
 ORDER BY CODE`,
-      [packageId],
+      [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.cluster))
 }
@@ -622,7 +622,7 @@ FROM
   CLUSTER
 WHERE
   CLUSTER_ID = ?`,
-      [clusterId],
+      [clusterId]
     )
     .then(dbMapping.map.cluster)
 }
@@ -645,7 +645,7 @@ WHERE
 async function selectAttributesByClusterIdIncludingGlobal(
   db,
   clusterId,
-  packageIds,
+  packageIds
 ) {
   return dbApi
     .dbAll(
@@ -685,7 +685,7 @@ FROM ATTRIBUTE
 WHERE (CLUSTER_REF = ? OR CLUSTER_REF IS NULL)
   AND PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
 ORDER BY CODE`,
-      [clusterId],
+      [clusterId]
     )
     .then((rows) => rows.map(dbMapping.map.attribute))
 }
@@ -694,7 +694,7 @@ async function selectAttributesByClusterIdAndSideIncludingGlobal(
   db,
   clusterId,
   packageIds,
-  side,
+  side
 ) {
   return dbApi
     .dbAll(
@@ -735,7 +735,7 @@ WHERE
   AND (CLUSTER_REF = ? OR CLUSTER_REF IS NULL)
   AND PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
 ORDER BY CODE`,
-      [side, clusterId],
+      [side, clusterId]
     )
     .then((rows) => rows.map(dbMapping.map.attribute))
 }
@@ -753,7 +753,7 @@ async function selectAttributesByClusterCodeAndManufacturerCode(
   db,
   packageId,
   clusterCode,
-  manufacturerCode,
+  manufacturerCode
 ) {
   let manufacturerString
   if (manufacturerCode == null) {
@@ -803,7 +803,7 @@ WHERE C.CODE = ?
   AND C.CLUSTER_ID = A.CLUSTER_REF
   AND A.PACKAGE_REF = ?
   ${manufacturerString}`,
-      [clusterCode, packageId],
+      [clusterCode, packageId]
     )
     .then((rows) => rows.map(dbMapping.map.attribute))
 }
@@ -845,7 +845,7 @@ SELECT
   PERSISTENCE
 FROM ATTRIBUTE
 WHERE ATTRIBUTE_ID = ?`,
-      [id],
+      [id]
     )
     .then(dbMapping.map.attribute)
 }
@@ -858,7 +858,7 @@ WHERE ATTRIBUTE_ID = ?`,
 async function selectAttributeByAttributeIdAndClusterRef(
   db,
   attributeId,
-  clusterRef,
+  clusterRef
 ) {
   return dbApi
     .dbGet(
@@ -912,7 +912,7 @@ SELECT
   A.PERSISTENCE
 FROM ATTRIBUTE AS A
 WHERE ATTRIBUTE_ID = ?`,
-      [clusterRef, clusterRef, attributeId],
+      [clusterRef, clusterRef, attributeId]
     )
     .then(dbMapping.map.attribute)
 }
@@ -962,7 +962,7 @@ WHERE
   A.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
 ORDER BY
   C.CODE, A.CODE`,
-      [],
+      []
     )
     .then((rows) => rows.map(dbMapping.map.attribute))
 }
@@ -1012,7 +1012,7 @@ FROM ATTRIBUTE
    WHERE SIDE = ?
    AND PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
 ORDER BY CODE`,
-    [side],
+    [side]
   )
   return rows.map(dbMapping.map.attribute)
 }
@@ -1033,7 +1033,7 @@ WHERE
   ENDPOINT_TYPE_REF = ?
 ORDER BY
   CLUSTER_REF`,
-    [endpointTypeId],
+    [endpointTypeId]
   )
   return rows.map(dbMapping.map.endpointTypeCluster)
 }
@@ -1062,7 +1062,7 @@ WHERE
   ETC.ENDPOINT_TYPE_REF = ?
   AND ETA.ENDPOINT_TYPE_CLUSTER_REF = ETC.ENDPOINT_TYPE_CLUSTER_ID
 ORDER BY ATTRIBUTE_REF`,
-    [endpointTypeId],
+    [endpointTypeId]
   )
   return rows.map(dbMapping.map.endpointTypeAttribute)
 }
@@ -1071,7 +1071,7 @@ async function selectEndpointTypeAttribute(
   db,
   endpointTypeId,
   attributeRef,
-  clusterRef,
+  clusterRef
 ) {
   let row = await dbApi.dbGet(
     db,
@@ -1097,7 +1097,7 @@ WHERE
   AND ETA.ATTRIBUTE_REF = ?
   AND ETA.ENDPOINT_TYPE_CLUSTER_REF = ETC.ENDPOINT_TYPE_CLUSTER_ID
   AND ETC.CLUSTER_REF = ?`,
-    [endpointTypeId, attributeRef, clusterRef],
+    [endpointTypeId, attributeRef, clusterRef]
   )
   return dbMapping.map.endpointTypeAttribute(row)
 }
@@ -1137,7 +1137,7 @@ GROUP BY
   CLUSTER_REF, COMMAND_REF
 ORDER BY
   COMMAND_REF`,
-    [endpointTypeId],
+    [endpointTypeId]
   )
   return rows.map(dbMapping.map.endpointTypeCommand)
 }
@@ -1159,7 +1159,7 @@ WHERE
   AND ETE.ENDPOINT_TYPE_CLUSTER_REF = ETC.ENDPOINT_TYPE_CLUSTER_ID
 ORDER BY
   EVENT_REF`,
-    [endpointTypeId],
+    [endpointTypeId]
   )
   return rows.map(dbMapping.map.endpointTypeEvent)
 }

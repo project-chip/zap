@@ -23,7 +23,7 @@ const ipc = require('node-ipc')
 const client = {
   ipc: new ipc.IPC(),
   uuid: util.createUuid(),
-  connected: false,
+  connected: false
 }
 
 let lastPong = ''

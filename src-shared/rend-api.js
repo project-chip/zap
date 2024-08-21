@@ -21,66 +21,66 @@ exports.renderer_api = {
   description: 'Zap Renderer API',
   notifications: {
     dirtyFlag: {
-      arg: 'dirtyState',
+      arg: 'dirtyState'
     },
     notification: {
-      arg: 'notification',
+      arg: 'notification'
     },
     fileBrowse: {
-      arg: 'browseObject',
-    },
+      arg: 'browseObject'
+    }
   },
   functions: {
     debugNavBarOff: {
-      description: 'Hide debug navigation bar...',
+      description: 'Hide debug navigation bar...'
     },
     debugNavBarOn: {
-      description: 'Show debug navigation bar...',
+      description: 'Show debug navigation bar...'
     },
     getFileLocation: {
-      description: 'Get file location.',
+      description: 'Get file location.'
     },
     getItem: {
-      description: 'Get item...',
+      description: 'Get item...'
     },
     getStorageItem: {
-      description: 'Get storage item',
+      description: 'Get storage item'
     },
     open: {
-      description: 'Open file...',
+      description: 'Open file...'
     },
     progressEnd: {
-      description: 'End progress indicator.',
+      description: 'End progress indicator.'
     },
     progressStart: {
-      description: 'Start progress indicator.',
+      description: 'Start progress indicator.'
     },
     removeItem: {
-      description: 'Remove item...',
+      description: 'Remove item...'
     },
     removeStorageItem: {
-      description: 'Remove storage item',
+      description: 'Remove storage item'
     },
     reportFiles: {
-      description: 'Reports files selected by the renderer.',
+      description: 'Reports files selected by the renderer.'
     },
     save: {
-      description: 'Save file...',
+      description: 'Save file...'
     },
     saveFileLocation: {
-      description: 'Save file location',
+      description: 'Save file location'
     },
     setItem: {
-      description: 'Set item...',
+      description: 'Set item...'
     },
     setStorageItem: {
-      description: 'Set storage item...',
+      description: 'Set storage item...'
     },
     setDarkTheme: {
       description: 'Set dark theme...',
-      arg: 'darkTheme',
-    },
-  },
+      arg: 'darkTheme'
+    }
+  }
 }
 
 exports.renderer_api_info = [
@@ -100,7 +100,7 @@ exports.renderer_api_info = [
   { id: 'setItem', description: 'Set item...' },
   { id: 'setStorageItem' },
   { id: 'setDarkTheme', description: 'Set dark theme...', arg: 'darkTheme' },
-  { id: 'isDirty', description: 'Query for session dirty flag' },
+  { id: 'isDirty', description: 'Query for session dirty flag' }
 ]
 
 exports.id = {
@@ -120,13 +120,13 @@ exports.id = {
   setItem: 'setItem',
   setStorageItem: 'setStorageItem',
   setDarkTheme: 'setDarkTheme',
-  isDirty: 'isDirty',
+  isDirty: 'isDirty'
 }
 
 exports.notifyKey = {
   dirtyFlag: 'dirtyFlag',
   fileBrowse: 'fileBrowse',
-  notification: 'notification',
+  notification: 'notification'
 }
 
 exports.jsonPrefix = 'rendererApiJson:'
@@ -134,13 +134,13 @@ exports.jsonPrefix = 'rendererApiJson:'
 exports.observable = {
   debugNavBar: 'debugNavBar',
   progress_attribute: 'progress-message',
-  reported_files: 'reported-files',
+  reported_files: 'reported-files'
 }
 
 exports.storageKey = {
   fileSave: 'lastFileLocation_openFileSave',
   theme: 'ui_theme',
-  isDarkThemeActive: 'isDarkThemeActive',
+  isDarkThemeActive: 'isDarkThemeActive'
 }
 
 /** Global symbol that carries the API info metadata */

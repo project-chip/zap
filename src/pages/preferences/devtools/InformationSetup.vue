@@ -33,7 +33,7 @@ import PreferencePageLayout from '../../../layouts/PreferencePageLayout.vue'
 export default {
   name: 'ZclInformationSetup',
   components: {
-    PreferencePageLayout,
+    PreferencePageLayout
   },
   computed: {
     informationText: {
@@ -42,13 +42,13 @@ export default {
       },
       set(val) {
         this.$store.dispatch('zap/updateInformationText', val)
-      },
+      }
     },
     state: {
       get() {
         return this.$store.state
-      },
-    },
-  },
+      }
+    }
+  }
 }
 </script>

@@ -207,7 +207,7 @@ function endpoint_types_list(options) {
   let ret = '{ \\\n'
   this.endpointList.forEach((ep) => {
     ret = ret.concat(
-      `  { ZAP_CLUSTER_INDEX(${ep.clusterIndex}), ${ep.clusterCount}, ${ep.attributeSize} }, \\\n`,
+      `  { ZAP_CLUSTER_INDEX(${ep.clusterIndex}), ${ep.clusterCount}, ${ep.attributeSize} }, \\\n`
     )
   })
   return ret.concat('}\n')
@@ -229,7 +229,7 @@ function endpoint_cluster_list(options) {
         .join(' | ')
     }
     ret = ret.concat(
-      `  { ${c.clusterId}, ZAP_ATTRIBUTE_INDEX(${c.attributeIndex}), ${c.attributeCount}, ${c.attributeSize}, ${mask}, ${c.functions} }, /* ${c.comment} */ \\\n`,
+      `  { ${c.clusterId}, ZAP_ATTRIBUTE_INDEX(${c.attributeIndex}), ${c.attributeCount}, ${c.attributeSize}, ${mask}, ${c.functions} }, /* ${c.comment} */ \\\n`
     )
   })
   return ret.concat('}\n')
@@ -352,9 +352,9 @@ async function device_list(context, options) {
       deviceList.push({
         endpointIdentifier: ept.endpointId,
         deviceId: dId,
-        deviceVersion: ept.deviceVersions[index],
-      }),
-    ),
+        deviceVersion: ept.deviceVersions[index]
+      })
+    )
   )
   return deviceList
 }
@@ -462,7 +462,7 @@ function endpoint_attribute_min_max_list(options) {
   this.minMaxList.forEach((mm, index) => {
     if (mm.typeSize > 2) {
       throw new Error(
-        `Can't have min/max for attributes larger than 2 bytes like '${mm.name}'`,
+        `Can't have min/max for attributes larger than 2 bytes like '${mm.name}'`
       )
     }
     if (mm.comment != comment) {
@@ -651,7 +651,7 @@ async function determineAttributeDefaultValue(
   typeSize,
   isNullable,
   db,
-  sessionId,
+  sessionId
 ) {
   if (specifiedDefault !== null || !isNullable) {
     return specifiedDefault
@@ -669,7 +669,7 @@ async function determineAttributeDefaultValue(
   if (types.isFloat(type)) {
     // Not supported yet.
     throw new Error(
-      "Don't know how to output a null default value for a float type",
+      "Don't know how to output a null default value for a float type"
     )
   }
 
@@ -716,12 +716,12 @@ async function collectAttributes(db, sessionId, endpointTypes, options) {
     let endpoint = {
       clusterIndex: clusterIndex,
       clusterCount: ept.clusters.length,
-      attributeSize: 0,
+      attributeSize: 0
     }
 
     let device = {
       deviceId: ept.deviceIdentifier,
-      deviceVersion: ept.deviceVersion,
+      deviceVersion: ept.deviceVersion
     }
     endpointAttributeSize = 0
     deviceList.push(device)
@@ -744,7 +744,7 @@ async function collectAttributes(db, sessionId, endpointTypes, options) {
         mask: [],
         commands: [],
         functions: 'NULL',
-        comment: `Endpoint: ${ept.endpointId}, Cluster: ${c.name} (${c.side})`,
+        comment: `Endpoint: ${ept.endpointId}, Cluster: ${c.name} (${c.side})`
       }
       clusterAttributeSize = 0
       cluster.mask.push(c.side)
@@ -769,7 +769,7 @@ async function collectAttributes(db, sessionId, endpointTypes, options) {
           typeSize,
           a.isNullable,
           db,
-          sessionId,
+          sessionId
         )
         // Various types store the length of the actual content in bytes.
         // For those, we can size the default storage to be just big enough for
@@ -838,7 +838,7 @@ async function collectAttributes(db, sessionId, endpointTypes, options) {
             def = types.longTypeDefaultValue(
               defaultSize,
               a.type,
-              attributeDefaultValue,
+              attributeDefaultValue
             )
           }
           let longDef = {
@@ -847,7 +847,7 @@ async function collectAttributes(db, sessionId, endpointTypes, options) {
             index: longDefaultsIndex,
             name: a.name,
             comment: cluster.comment,
-            type: a.type,
+            type: a.type
           }
           attributeDefaultValue = `ZAP_LONG_DEFAULTS_INDEX(${longDefaultsIndex})`
           defaultValueIsMacro = true
@@ -863,7 +863,7 @@ async function collectAttributes(db, sessionId, endpointTypes, options) {
             max: a.max,
             name: a.name,
             comment: cluster.comment,
-            typeSize: typeSize,
+            typeSize: typeSize
           }
           attributeDefaultValue = `ZAP_MIN_MAX_DEFAULTS_INDEX(${minMaxIndex})`
           defaultValueIsMacro = true
@@ -886,7 +886,7 @@ async function collectAttributes(db, sessionId, endpointTypes, options) {
             maxOrEndpoint: a.maxInterval,
             reportableChangeOrTimeout: a.reportableChange,
             name: a.name,
-            comment: cluster.comment,
+            comment: cluster.comment
           }
           reportList.push(rpt)
         }
@@ -917,10 +917,10 @@ async function collectAttributes(db, sessionId, endpointTypes, options) {
               }.  Valid values are: ${[
                 dbEnum.storageOption.nvm,
                 dbEnum.storageOption.external,
-                dbEnum.storageOption.ram,
+                dbEnum.storageOption.ram
               ]
                 .map((s) => `"${s}"`)
-                .join(', ')}`,
+                .join(', ')}`
             )
         }
         if (a.isSingleton) mask.push('singleton')
@@ -948,14 +948,14 @@ async function collectAttributes(db, sessionId, endpointTypes, options) {
           defaultValue: attributeDefaultValue, // default value, pointer to default value, or pointer to min/max/value triplet.
           isMacro: defaultValueIsMacro,
           name: a.name,
-          comment: cluster.comment,
+          comment: cluster.comment
         }
         attributeList.push(attr)
 
         if (a.manufacturerCode) {
           let att = {
             index: attributeList.indexOf(attr),
-            mfgCode: a.manufacturerCode,
+            mfgCode: a.manufacturerCode
           }
           attributeMfgCodes.push(att)
         }
@@ -1010,7 +1010,7 @@ async function collectAttributes(db, sessionId, endpointTypes, options) {
           responseId:
             cmd.responseRef !== null
               ? asMEI(cmd.responseManufacturerCode, cmd.responseCode)
-              : null,
+              : null
         }
         commandList.push(command)
         cluster.commands.push(command)
@@ -1018,7 +1018,7 @@ async function collectAttributes(db, sessionId, endpointTypes, options) {
         if (cmd.manufacturerCode) {
           let mfgCmd = {
             index: commandList.length - 1,
-            mfgCode: cmd.manufacturerCode,
+            mfgCode: cmd.manufacturerCode
           }
           commandMfgCodes.push(mfgCmd)
         }
@@ -1031,7 +1031,7 @@ async function collectAttributes(db, sessionId, endpointTypes, options) {
         let event = {
           eventId: asMEI(ev.manufacturerCode, ev.code),
           name: ev.name,
-          comment: cluster.comment,
+          comment: cluster.comment
         }
         eventList.push(event)
       })
@@ -1043,7 +1043,7 @@ async function collectAttributes(db, sessionId, endpointTypes, options) {
       if (c.manufacturerCode) {
         let clt = {
           index: clusterList.length - 1,
-          mfgCode: c.manufacturerCode,
+          mfgCode: c.manufacturerCode
         }
         clusterMfgCodes.push(clt)
       }
@@ -1068,7 +1068,7 @@ async function collectAttributes(db, sessionId, endpointTypes, options) {
     deviceList: deviceList,
     minMaxList: minMaxList,
     reportList: reportList,
-    longDefaultsList: longDefaultsList,
+    longDefaultsList: longDefaultsList
   }
 }
 
@@ -1092,11 +1092,11 @@ async function collectAttributeSizes(db, zclPackageIds, endpointTypes) {
               db,
               zclPackageIds,
               at,
-              `ERROR: ${at.name}, invalid size, ${at.type}`,
+              `ERROR: ${at.name}, invalid size, ${at.type}`
             )
             .then((size) => {
               at.typeSize = size
-            }),
+            })
         )
       })
     })
@@ -1121,7 +1121,7 @@ async function collectAttributeTypeInfo(db, zclPackageIds, endpointTypes) {
         ps.push(
           zclUtil.determineType(db, at.type, zclPackageIds).then((typeInfo) => {
             at.typeInfo = typeInfo
-          }),
+          })
         )
       })
     })
@@ -1148,31 +1148,31 @@ function isGlobalAttrExcludedFromMetadata(attr) {
 function endpoint_config(options) {
   let newContext = {
     global: this.global,
-    parent: this,
+    parent: this
   }
   let db = this.global.db
   let sessionId = this.global.sessionId
   let collectAttributesOptions = {
     allowUnknownStorageOption:
       options.hash.allowUnknownStorageOption === 'false' ? false : true,
-    spaceForDefaultValue: options.hash.spaceForDefaultValue,
+    spaceForDefaultValue: options.hash.spaceForDefaultValue
   }
   let promise = templateUtil
     .ensureZclPackageIds(newContext)
     .then(() =>
       queryPackage.getPackageByPackageId(
         newContext.global.db,
-        newContext.global.genTemplatePackageId,
-      ),
+        newContext.global.genTemplatePackageId
+      )
     )
     .then((templatePackage) =>
       templatePackage && templatePackage.category
         ? queryEndpoint.selectAllEndpointsBasedOnTemplateCategory(
             db,
             sessionId,
-            templatePackage.category,
+            templatePackage.category
           )
-        : queryEndpoint.selectAllEndpoints(db, sessionId),
+        : queryEndpoint.selectAllEndpoints(db, sessionId)
     )
     .then((endpoints) => {
       newContext.endpoints = endpoints
@@ -1182,7 +1182,7 @@ function endpoint_config(options) {
           deviceIdentifier: ep.deviceIdentifier,
           deviceVersion: ep.deviceVersion,
           endpointTypeId: ep.endpointTypeRef,
-          endpointIdentifier: ep.endpointId,
+          endpointIdentifier: ep.endpointId
         })
       })
       return endpointTypeIds
@@ -1198,7 +1198,7 @@ function endpoint_config(options) {
               ept.deviceVersion = eptId.deviceVersion
               ept.deviceIdentifier = eptId.deviceIdentifier
               return ept
-            }),
+            })
         )
       })
       return Promise.all(endpointTypePromises)
@@ -1226,53 +1226,53 @@ function endpoint_config(options) {
                     db,
                     cl.clusterId,
                     cl.side,
-                    ept.id,
+                    ept.id
                   )
                   .then((attributes) => {
                     // Keep only the enabled attributes, and not the global ones
                     // we exclude from metadata.
                     cl.attributes = attributes.filter(
                       (a) =>
-                        a.isIncluded && !isGlobalAttrExcludedFromMetadata(a),
+                        a.isIncluded && !isGlobalAttrExcludedFromMetadata(a)
                     )
-                  }),
+                  })
               )
               ps.push(
                 queryEndpoint
                   .selectEndpointClusterCommands(db, cl.clusterId, ept.id)
                   .then((commands) => {
                     cl.commands = commands
-                  }),
+                  })
               )
               ps.push(
                 queryEndpoint
                   .selectEndpointClusterEvents(db, cl.clusterId, ept.id)
                   .then((events) => {
                     cl.events = events
-                  }),
+                  })
               )
             })
             return Promise.all(ps)
-          }),
+          })
         )
       })
       return Promise.all(promises).then(() => endpointTypes)
     })
     .then((endpointTypes) =>
-      collectAttributeTypeInfo(db, this.global.zclPackageIds, endpointTypes),
+      collectAttributeTypeInfo(db, this.global.zclPackageIds, endpointTypes)
     )
     .then((endpointTypes) =>
-      collectAttributeSizes(db, this.global.zclPackageIds, endpointTypes),
+      collectAttributeSizes(db, this.global.zclPackageIds, endpointTypes)
     )
     .then((endpointTypes) =>
-      collectAttributes(db, sessionId, endpointTypes, collectAttributesOptions),
+      collectAttributes(db, sessionId, endpointTypes, collectAttributesOptions)
     )
     .then((collection) => {
       Object.assign(newContext, collection)
     })
     .then(() => options.fn(newContext))
     .catch((err) =>
-      console.log('Error in endpoint_config helper: ' + err.message),
+      console.log('Error in endpoint_config helper: ' + err.message)
     )
   return templateUtil.templatePromise(this.global, promise)
 }

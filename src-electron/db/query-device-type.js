@@ -35,7 +35,7 @@ async function selectAllDeviceTypes(db, packageId) {
     .dbAll(
       db,
       'SELECT DEVICE_TYPE_ID, DOMAIN, CODE, PROFILE_ID, NAME, DESCRIPTION, CLASS, PACKAGE_REF FROM DEVICE_TYPE WHERE PACKAGE_REF = ? ORDER BY DOMAIN, CODE',
-      [packageId],
+      [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.deviceType))
 }
@@ -52,7 +52,7 @@ async function selectDeviceTypeById(db, id) {
     .dbGet(
       db,
       'SELECT DEVICE_TYPE_ID, DOMAIN, CODE, PROFILE_ID, NAME, DESCRIPTION, CLASS, PACKAGE_REF FROM DEVICE_TYPE WHERE DEVICE_TYPE_ID = ?',
-      [id],
+      [id]
     )
     .then(dbMapping.map.deviceType)
 }
@@ -71,7 +71,7 @@ async function selectDeviceTypeByCodeAndName(db, packageId, code, name) {
     .dbGet(
       db,
       'SELECT DEVICE_TYPE_ID, DOMAIN, CODE, PROFILE_ID, NAME, DESCRIPTION, CLASS FROM DEVICE_TYPE WHERE CODE = ? AND NAME = ? AND PACKAGE_REF = ? ',
-      [code, name, packageId],
+      [code, name, packageId]
     )
     .then(dbMapping.map.deviceType)
 }
@@ -90,7 +90,7 @@ async function selectDeviceTypeByCode(db, packageId, code) {
     .dbGet(
       db,
       'SELECT DEVICE_TYPE_ID, DOMAIN, CODE, PROFILE_ID, NAME, DESCRIPTION, CLASS FROM DEVICE_TYPE WHERE CODE = ? AND PACKAGE_REF = ? ',
-      [code, packageId],
+      [code, packageId]
     )
     .then(dbMapping.map.deviceType)
 }
@@ -113,14 +113,14 @@ async function selectDeviceTypeClustersByDeviceTypeRef(db, deviceTypeRef) {
   WHERE
     DEVICE_TYPE_REF IN (?)
   ORDER BY CLUSTER_NAME`,
-    [deviceTypeRef],
+    [deviceTypeRef]
   )
   return rows.map(dbMapping.map.deviceTypeCluster)
 }
 
 async function selectDeviceTypeClusterByDeviceTypeClusterId(
   db,
-  deviceTypeClusterId,
+  deviceTypeClusterId
 ) {
   let row = await dbApi.dbGet(
     db,
@@ -138,7 +138,7 @@ async function selectDeviceTypeClusterByDeviceTypeClusterId(
     DEVICE_TYPE_CLUSTER
   WHERE
     DEVICE_TYPE_CLUSTER_ID = ?`,
-    [deviceTypeClusterId],
+    [deviceTypeClusterId]
   )
   return dbMapping.map.deviceTypeCluster(row)
 }
@@ -166,7 +166,7 @@ async function selectDeviceTypeAttributesByDeviceTypeRef(db, deviceTypeRef) {
     AT.ATTRIBUTE_REF = ATTRIBUTE.ATTRIBUTE_ID
   WHERE
     C.DEVICE_TYPE_REF IN (?)`,
-    [deviceTypeRef],
+    [deviceTypeRef]
   )
   return rows.map(dbMapping.map.deviceTypeAttribute)
 }
@@ -195,7 +195,7 @@ async function selectDeviceTypeCommandsByDeviceTypeRef(db, deviceTypeRef) {
     CMD.COMMAND_REF = COMMAND.COMMAND_ID
   WHERE
     C.DEVICE_TYPE_REF IN (?)`,
-    [deviceTypeRef],
+    [deviceTypeRef]
   )
   return rows.map(dbMapping.map.deviceTypeCommand)
 }
@@ -229,7 +229,7 @@ WHERE
     FROM DEVICE_TYPE
     WHERE DEVICE_TYPE_ID = DEVICE_TYPE_CLUSTER.DEVICE_TYPE_REF
   ) = ?`,
-    [packageId, packageId],
+    [packageId, packageId]
   )
 }
 
@@ -269,7 +269,7 @@ SET
 WHERE
   DEVICE_TYPE_ATTRIBUTE.ATTRIBUTE_REF IS NULL
   `,
-    [packageId],
+    [packageId]
   )
 }
 
@@ -308,7 +308,7 @@ SET
   )
 WHERE
   DEVICE_TYPE_COMMAND.COMMAND_REF IS NULL`,
-    [packageId],
+    [packageId]
   )
 }
 
@@ -347,7 +347,7 @@ SET
   )
 WHERE
   DEVICE_TYPE_FEATURE.FEATURE_REF IS NULL`,
-    [packageId],
+    [packageId]
   )
 }
 
@@ -381,7 +381,7 @@ async function updateDeviceTypeEntityReferences(db, packageId) {
  */
 async function selectDeviceTypesWithCompositionByEndpointTypeId(
   db,
-  endpointTypeId,
+  endpointTypeId
 ) {
   let rows = await dbApi.dbAll(
     db,
@@ -402,7 +402,7 @@ async function selectDeviceTypesWithCompositionByEndpointTypeId(
     ENDPOINT_COMPOSITION AS EC ON DT.CODE = EC.CODE
   WHERE
     ETD.ENDPOINT_TYPE_REF = ?`,
-    [endpointTypeId],
+    [endpointTypeId]
   )
   return rows.map(dbMapping.map.endpointTypeDeviceExtended)
 }
@@ -428,7 +428,7 @@ async function selectDeviceTypesByEndpointTypeId(db, endpointTypeId) {
     ENDPOINT_TYPE_DEVICE AS ETD
   WHERE
     ETD.ENDPOINT_TYPE_REF = ?`,
-    [endpointTypeId],
+    [endpointTypeId]
   )
   return rows.map(dbMapping.map.endpointTypeDevice)
 }
@@ -444,7 +444,7 @@ async function selectDeviceTypesByEndpointTypeId(db, endpointTypeId) {
 async function selectDeviceTypeFeaturesByEndpointTypeIdAndClusterId(
   db,
   endpointTypeId,
-  clusterId,
+  clusterId
 ) {
   let rows = await dbApi.dbAll(
     db,
@@ -484,7 +484,7 @@ async function selectDeviceTypeFeaturesByEndpointTypeIdAndClusterId(
       (clusterId != 'all'
         ? ` AND
         DEVICE_TYPE_CLUSTER.CLUSTER_REF = ${clusterId}`
-        : ``),
+        : ``)
   )
   return rows.map(dbMapping.map.endpointTypeDeviceExtended)
 }

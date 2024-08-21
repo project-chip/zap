@@ -62,13 +62,13 @@ async function accessorGetterType(attr) {
       hash: {
         forceNotNullable: true,
         forceNotOptional: true,
-        ns: this.parent.name,
-      },
+        ns: this.parent.name
+      }
     };
     type = await appHelper.zapTypeToEncodableClusterObjectType.call(
       this,
       attr.type,
-      options,
+      options
     );
   }
 
@@ -99,13 +99,13 @@ async function accessorTraitType(type) {
     hash: {
       forceNotNullable: true,
       forceNotOptional: true,
-      ns: this.parent.name,
-    },
+      ns: this.parent.name
+    }
   };
   return appHelper.zapTypeToEncodableClusterObjectType.call(
     this,
     type,
-    options,
+    options
   );
 }
 
@@ -126,5 +126,5 @@ exports.typeAsDelimitedMacro = typeAsDelimitedMacro;
 
 exports.meta = {
   category: dbEnum.helperCategory.matter,
-  alias: ['common/attributes/Accessors.js', 'matter-accessors'],
+  alias: ['common/attributes/Accessors.js', 'matter-accessors']
 };

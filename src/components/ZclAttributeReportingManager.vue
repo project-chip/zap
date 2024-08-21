@@ -70,7 +70,7 @@ limitations under the License.
                   selectedReporting,
                   'selectedReporting',
                   props.row,
-                  selectedCluster.id,
+                  selectedCluster.id
                 )
               "
             />
@@ -109,7 +109,7 @@ limitations under the License.
                   $event,
                   'reportingMin',
                   props.row,
-                  selectedCluster.id,
+                  selectedCluster.id
                 )
               "
             />
@@ -129,7 +129,7 @@ limitations under the License.
                   $event,
                   'reportingMax',
                   props.row,
-                  selectedCluster.id,
+                  selectedCluster.id
                 )
               "
             />
@@ -152,12 +152,12 @@ limitations under the License.
               "
               :error="
                 !isDefaultValueValid(
-                  hashAttributeIdClusterId(props.row.id, selectedCluster.id),
+                  hashAttributeIdClusterId(props.row.id, selectedCluster.id)
                 )
               "
               :error-message="
                 getDefaultValueErrorMessage(
-                  hashAttributeIdClusterId(props.row.id, selectedCluster.id),
+                  hashAttributeIdClusterId(props.row.id, selectedCluster.id)
                 )
               "
               @update:model-value="
@@ -165,7 +165,7 @@ limitations under the License.
                   $event,
                   'reportableChange',
                   props.row,
-                  selectedCluster.id,
+                  selectedCluster.id
                 )
               "
               type="number"
@@ -194,7 +194,7 @@ export default {
     atomics: {
       get() {
         return this.$store.state.zap.atomics
-      },
+      }
     },
     attributeData: {
       get() {
@@ -203,8 +203,8 @@ export default {
             return this.$store.state.zap.attributeView.selectedAttributes.includes(
               this.hashAttributeIdClusterId(
                 attribute.id,
-                this.selectedCluster.id,
-              ),
+                this.selectedCluster.id
+              )
             )
           })
           .filter((a) => {
@@ -221,12 +221,12 @@ export default {
                   .toLowerCase()
                   .includes(this.individualClusterFilterString.toLowerCase())
           })
-      },
+      }
     },
     requiredDeviceTypeAttributes: {
       get() {
         return this.$store.state.zap.attributeView.requiredAttributes
-      },
+      }
     },
     requiredAttributes: {
       get() {
@@ -234,18 +234,18 @@ export default {
           this.relevantAttributeData.filter(
             (attribute) =>
               !attribute.isOptional ||
-              this.requiredDeviceTypeAttributes.includes(attribute.id),
-          ),
+              this.requiredDeviceTypeAttributes.includes(attribute.id)
+          )
         )
         return this.relevantAttributeData
           .filter(
             (attribute) =>
               !attribute.isOptional ||
-              this.requiredDeviceTypeAttributes.includes(attribute.id),
+              this.requiredDeviceTypeAttributes.includes(attribute.id)
           )
           .map((attribute) => attribute.id)
-      },
-    },
+      }
+    }
   },
   created() {
     this.updateSelectedReporting()
@@ -254,7 +254,7 @@ export default {
     return {
       pagination: {
         rowsPerPage: 0,
-        sortBy: 'clientServer',
+        sortBy: 'clientServer'
       },
       columns: [
         {
@@ -262,14 +262,14 @@ export default {
           required: false,
           label: '',
           align: 'left',
-          style: 'width:1%',
+          style: 'width:1%'
         },
         {
           name: 'enabled',
           label: 'Enabled',
           field: 'enabled',
           align: 'left',
-          sortable: true,
+          sortable: true
         },
         {
           name: 'attrID',
@@ -278,63 +278,63 @@ export default {
           field: 'attrID',
           sortable: true,
           style: 'max-width: 90px',
-          headerStyle: 'max-width: 90px',
+          headerStyle: 'max-width: 90px'
         },
         {
           name: 'attrName',
           label: 'Attribute',
           field: 'attrName',
           align: 'left',
-          sortable: true,
+          sortable: true
         },
         {
           name: 'required',
           label: 'Reporting Policy',
           field: 'required',
           align: 'left',
-          sortable: true,
+          sortable: true
         },
         {
           name: 'clientServer',
           label: 'Client/Server',
           field: 'clientServer',
           align: 'left',
-          sortable: true,
+          sortable: true
         },
         {
           name: 'mfgID',
           label: 'Mfg Code',
           align: 'left',
           field: 'mfgID',
-          sortable: true,
+          sortable: true
         },
         {
           name: 'min',
           align: 'left',
           label: 'Min Interval',
-          field: 'min',
+          field: 'min'
         },
         {
           name: 'max',
           align: 'left',
           label: 'Max Interval',
-          field: 'max',
+          field: 'max'
         },
         {
           name: 'type',
           align: 'left',
           label: 'Type',
           field: 'type',
-          sortable: true,
+          sortable: true
         },
         {
           name: 'reportable',
           align: 'left',
           label: 'Reportable Change',
-          field: 'reportable',
-        },
+          field: 'reportable'
+        }
       ],
-      initialization: true,
+      initialization: true
     }
   },
   methods: {
@@ -353,7 +353,7 @@ export default {
     },
     displayAttrWarning(row) {
       let indexOfValue = this.selectedReporting.indexOf(
-        this.hashAttributeIdClusterId(row.id, this.selectedCluster.id),
+        this.hashAttributeIdClusterId(row.id, this.selectedCluster.id)
       )
       let isDisabled
       if (indexOfValue === -1) {
@@ -394,7 +394,7 @@ export default {
               a,
               b,
               this.selectedReporting,
-              this.sortByClusterAndManufacturerCode,
+              this.sortByClusterAndManufacturerCode
             )
           } else if (sortBy === 'attrName') {
             return this.sortByText(x['label'], y['label'], a, b)
@@ -404,7 +404,7 @@ export default {
               y['side'],
               a,
               b,
-              this.sortByClusterAndManufacturerCode,
+              this.sortByClusterAndManufacturerCode
             )
           }
         })
@@ -419,15 +419,15 @@ export default {
         ) {
           let hashValue = this.hashAttributeIdClusterId(
             attribute.id,
-            this.selectedCluster.id,
+            this.selectedCluster.id
           )
           if (!this.selectedReporting.includes(hashValue)) {
             this.selectedReporting.push(hashValue)
           }
         }
       })
-    },
-  },
+    }
+  }
 }
 </script>
 <style>

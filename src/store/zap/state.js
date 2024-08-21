@@ -56,43 +56,41 @@ export default function () {
       filter: {
         label: restApi.noFilter,
         domainFilterFn: (domain, currentOpenDomains, context) =>
-          currentOpenDomains[domain],
+          currentOpenDomains[domain]
       },
       filterOptions: [
         {
           label: restApi.noFilter,
           domainFilterFn: (domain, currentOpenDomains, context) =>
-            currentOpenDomains[domain],
+            currentOpenDomains[domain]
         },
         {
           label: 'All Clusters',
-          domainFilterFn: (domain, currentOpenDomains, context) => true,
+          domainFilterFn: (domain, currentOpenDomains, context) => true
         },
         {
           label: 'Enabled Clusters',
           domainFilterFn: (domain, currentOpenDomains, context) =>
             context.enabledClusters.map((a) => a.domainName).includes(domain),
           clusterFilterFn: (cluster, context) =>
-            context.enabledClusters.find((a) => cluster.id == a.id) !=
-            undefined,
+            context.enabledClusters.find((a) => cluster.id == a.id) != undefined
         },
         {
           label: 'Legal Clusters',
           domainFilterFn: (domain, currentOpenDomains, context) =>
             context.enabledClusters.map((a) => a.domainName).includes(domain),
           clusterFilterFn: (cluster, context) =>
-            context.enabledClusters.find((a) => cluster.id == a.id) !=
-            undefined,
-        },
+            context.enabledClusters.find((a) => cluster.id == a.id) != undefined
+        }
       ],
       actionOptions: [
         {
           label: 'Close All',
-          domainFilterFn: (domain, currentOpenDomains, context) => false,
-        },
+          domainFilterFn: (domain, currentOpenDomains, context) => false
+        }
       ],
       filterString: '',
-      individualClusterFilterString: '',
+      individualClusterFilterString: ''
     },
     endpointView: {
       selectedEndpoint: null,
@@ -102,14 +100,14 @@ export default function () {
       profileId: {},
       endpointIdValidationIssues: {},
       networkIdValidationIssues: {},
-      parentEndpointIdentifier: {},
+      parentEndpointIdentifier: {}
     },
     endpointTypeView: {
       selectedEndpointType: [],
       name: {},
       deviceTypeRef: {},
       deviceVersion: {},
-      deviceIdentifier: {},
+      deviceIdentifier: {}
     },
     clustersView: {
       selected: [],
@@ -117,7 +115,7 @@ export default function () {
       selectedClients: [],
       // These are based off of the selected ZCL Endpoints Device Type
       recommendedClients: [],
-      recommendedServers: [],
+      recommendedServers: []
     },
     attributeView: {
       selectedAttributes: [],
@@ -132,19 +130,19 @@ export default function () {
       reportingMin: {},
       reportingMax: {},
       reportableChange: {},
-      nullValues: {},
+      nullValues: {}
     },
     commandView: {
       selectedIn: [],
       selectedOut: [],
       // These are based off of the selected ZCL Endpoint Device Type
-      requiredCommands: [],
+      requiredCommands: []
     },
     eventView: {
-      selectedEvents: [],
+      selectedEvents: []
     },
     calledArgs: {
-      defaultUiMode: restApi.uiMode.ZIGBEE,
+      defaultUiMode: restApi.uiMode.ZIGBEE
     },
     debugNavBar: false, // default visibility mode for debug navigation bar
     standalone: false, // flag indicating if ZAP frontend is running outside of Studio.
@@ -153,16 +151,16 @@ export default function () {
       ucComponents: [], // Studio uc component states
       selectedUcComponents: [], // [] of 'studio..' prefixed Studio internal component ids
       // a list of dict: { "clusterCode": "$zcl_cluster-$zcl_role", "value": ["$uc_component_id"] }
-      zclSdkExtClusterToUcComponentMap: [],
+      zclSdkExtClusterToUcComponentMap: []
     },
     allEndpointsData: {},
     isClusterOptionChanged: false,
     showEndpointData: {},
     deviceTypeRefAndDeviceIdPair: {
       deviceTypeRef: null,
-      deviceIdentifier: null,
+      deviceIdentifier: null
     },
     notificationCount: 0,
-    enabledClusters: [],
+    enabledClusters: []
   }
 }

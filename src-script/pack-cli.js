@@ -18,7 +18,7 @@ async function addToZip(dst, filename) {
   await scriptUtil.executeCmd({}, zip.path7za, [
     'a',
     `${dist}/${dst}`,
-    `${dist}/${filename}`,
+    `${dist}/${filename}`
   ])
 }
 

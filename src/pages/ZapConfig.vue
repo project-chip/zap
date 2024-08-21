@@ -412,54 +412,54 @@ const generateNewSessionCol = [
     name: 'select',
     label: '',
     align: 'center',
-    style: 'width: 20%',
+    style: 'width: 20%'
   },
   {
     name: 'category',
     align: 'left',
     label: 'Category',
-    style: 'width: 20%',
+    style: 'width: 20%'
   },
   {
     name: 'description',
     label: 'Description',
     align: 'left',
-    style: 'width: 25%',
+    style: 'width: 25%'
   },
   {
     name: 'version',
     label: 'version',
     align: 'left',
-    style: 'width: 20%',
+    style: 'width: 20%'
   },
   {
     name: 'status',
     label: 'status',
     align: 'left',
-    style: 'width: 15%',
-  },
+    style: 'width: 15%'
+  }
 ]
 const loadPreSessionCol = [
   {
     name: 'select',
     label: 'Session',
-    align: 'center',
+    align: 'center'
   },
   {
     name: 'zclproperty',
     label: 'ZCL Property',
-    align: 'center',
+    align: 'center'
   },
   {
     name: 'gen template file',
     align: 'left',
-    label: 'Generation Template File',
+    label: 'Generation Template File'
   },
   {
     name: 'creation time',
     label: 'Creation Time',
-    align: 'left',
-  },
+    align: 'left'
+  }
 ]
 
 export default {
@@ -484,14 +484,14 @@ export default {
       filePath: '',
       loadPreSessionData: [],
       pagination: {
-        rowsPerPage: 10,
+        rowsPerPage: 10
       },
       newGenerationPagination: {
-        rowsPerPage: 0,
+        rowsPerPage: 0
       },
       propertyDataDialog: {},
       genDataDialog: {},
-      currentZapFilePackages: [],
+      currentZapFilePackages: []
     }
   },
   computed: {
@@ -560,7 +560,7 @@ export default {
       } else {
         return this.selectedZclPropertiesData[0]?.category
       }
-    },
+    }
   },
 
   watch: {
@@ -570,15 +570,15 @@ export default {
     // Updating this.selectedZclPropertiesData based on UI selections
     selectedZclPropertiesDataIds() {
       this.selectedZclPropertiesData = this.zclPropertiesRow.filter((zpr) =>
-        this.selectedZclPropertiesDataIds.includes(zpr.id),
+        this.selectedZclPropertiesDataIds.includes(zpr.id)
       )
     },
     // Updating this.selectZclGenInfo based on UI selections
     selectedZclGenData() {
       this.selectZclGenInfo = this.zclGenRow.filter((zgr) =>
-        this.selectedZclGenData.includes(zgr.id),
+        this.selectedZclGenData.includes(zgr.id)
       )
-    },
+    }
   },
   methods: {
     addClassToBody() {
@@ -589,7 +589,7 @@ export default {
       if (this.customConfig === 'select') {
         let data = {
           zclProperties: this.selectedZclPropertiesData,
-          genTemplate: this.selectedZclGenData,
+          genTemplate: this.selectedZclGenData
         }
 
         this.$router.push({ path: '/' })
@@ -597,7 +597,7 @@ export default {
           spinner: QSpinnerGears,
           messageColor: 'white',
           message: 'Please wait while zap is loading...',
-          spinnerSize: 300,
+          spinnerSize: 300
         })
 
         if (this.open) {
@@ -607,7 +607,7 @@ export default {
               this.$store.commit('zap/selectZapConfig', {
                 zclProperties: this.selectedZclPropertiesData,
                 genTemplate: this.selectedZclGenData,
-                newConfig: false,
+                newConfig: false
               })
             })
         } else {
@@ -615,17 +615,17 @@ export default {
             this.$store.commit('zap/selectZapConfig', {
               zclProperties: this.selectedZclPropertiesData,
               genTemplate: this.selectedZclGenData,
-              newConfig: true,
+              newConfig: true
             })
           })
         }
       } else {
         this.$serverPost(restApi.uri.reloadSession, {
-          sessionId: this.selectedZclSessionData.id,
+          sessionId: this.selectedZclSessionData.id
         }).then((result) => {
           this.$store.commit('zap/selectZapConfig', {
             sessionId: this.selectedZclSessionData.id,
-            zclProperties: this.selectedZclSessionData.zclProperty,
+            zclProperties: this.selectedZclSessionData.zclProperty
           })
         })
       }
@@ -641,7 +641,7 @@ export default {
           map[key][row.ref].push(row.message)
           return map
         },
-        { warningMap: {}, errorMap: {} },
+        { warningMap: {}, errorMap: {} }
       )
     },
     // then assign classfied notifications to proper packages
@@ -679,7 +679,7 @@ export default {
       }
       let absolutePath = basePath + '/' + relativePathSegment.join('/')
       return absolutePath
-    },
+    }
   },
   created() {
     this.$serverPost(restApi.uri.sessionAttempt, this.path).then((result) => {
@@ -695,21 +695,21 @@ export default {
       let currentTemplatePackagesAbsolutePaths = []
       if (this.currentZapFilePackages) {
         currentTopLevelZapFilePackages = this.currentZapFilePackages.filter(
-          (zfp) => zfp.type != dbEnum.packageType.zclXmlStandalone,
+          (zfp) => zfp.type != dbEnum.packageType.zclXmlStandalone
         )
         currentZapFileZclPackages = this.currentZapFilePackages.filter(
-          (zfp) => zfp.type == dbEnum.packageType.zclProperties,
+          (zfp) => zfp.type == dbEnum.packageType.zclProperties
         )
 
         currentZapFileTemplatePackages = this.currentZapFilePackages.filter(
-          (zfp) => zfp.type == dbEnum.packageType.genTemplatesJson,
+          (zfp) => zfp.type == dbEnum.packageType.genTemplatesJson
         )
         currentZclPackagesAbsolutePaths = currentZapFileZclPackages.map((zfp) =>
-          this.createAbsolutePath(this.filePath, zfp.path),
+          this.createAbsolutePath(this.filePath, zfp.path)
         )
         currentTemplatePackagesAbsolutePaths =
           currentZapFileTemplatePackages.map((zfp) =>
-            this.createAbsolutePath(this.filePath, zfp.path),
+            this.createAbsolutePath(this.filePath, zfp.path)
           )
       }
 
@@ -723,7 +723,7 @@ export default {
         ) {
           this.selectedZclGenData = this.zclGenRow.map((zgr) => zgr.id)
           this.selectedZclPropertiesDataIds = this.zclPropertiesRow.map(
-            (zpr) => zpr.id,
+            (zpr) => zpr.id
           )
           this.selectedZclPropertiesData = this.zclPropertiesRow
         }
@@ -731,13 +731,13 @@ export default {
         this.submitForm()
       } else {
         let selectableZclPackages = this.zclPropertiesRow.filter((zp) =>
-          currentZclPackagesAbsolutePaths.includes(zp.path),
+          currentZclPackagesAbsolutePaths.includes(zp.path)
         )
         let selectableTemplatePackages = this.zclGenRow.filter((zt) =>
-          currentTemplatePackagesAbsolutePaths.includes(zt.path),
+          currentTemplatePackagesAbsolutePaths.includes(zt.path)
         )
         this.selectedZclPropertiesDataIds = selectableZclPackages.map(
-          (zp) => zp.id,
+          (zp) => zp.id
         )
         this.selectedZclPropertiesData = selectableTemplatePackages
         this.selectedZclGenData = selectableTemplatePackages.map((zt) => zt.id)
@@ -769,7 +769,7 @@ export default {
           zclProperty: atts,
           genTemplateFile: gen,
           creationTime: item.creationTime,
-          id: item.sessionId,
+          id: item.sessionId
         })
       })
 
@@ -780,7 +780,7 @@ export default {
           this.assignWarningsAndErrors(
             this.zclPropertiesRow,
             warningMap,
-            errorMap,
+            errorMap
           )
           this.assignWarningsAndErrors(this.zclGenRow, warningMap, errorMap)
         })
@@ -788,7 +788,7 @@ export default {
           console.log(err)
         })
     })
-  },
+  }
 }
 </script>
 <style lang="scss" scoped>

@@ -40,8 +40,8 @@ export async function initAsyncValidation(db, session) {
         queryPackage.selectAllOptionsValues(
           db,
           pkg.packageRef,
-          dbEnum.packageOptionCategory.validationTimersFlags,
-        ),
+          dbEnum.packageOptionCategory.validationTimersFlags
+        )
       )
       return Promise.all(p).then((data) => data.flat(1))
     })
@@ -64,7 +64,7 @@ function zigbeeEnforceCommonClusterSpecInit(session) {
     func: function () {
       zigbeeEnforceCommonClusterSpecCallback(session)
     },
-    timerInterval: commonClusterSpecEnforceInterval,
+    timerInterval: commonClusterSpecEnforceInterval
   }
   return timerSetup
 }
@@ -74,7 +74,7 @@ function zigbeeEnforceCommonClusterSpecCallback(session) {
   if (socket) {
     wsServer.sendWebSocketMessage(socket, {
       category: dbEnum.wsCategory.validation,
-      payload: 'green',
+      payload: 'green'
     })
   }
 }

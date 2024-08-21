@@ -43,7 +43,7 @@ export function observeAttribute(attributeName, callbackObj) {
       }
     })
   }).observe(html, {
-    attributeFilter: [attributeName],
+    attributeFilter: [attributeName]
   })
 }
 

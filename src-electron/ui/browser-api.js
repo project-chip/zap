@@ -30,7 +30,7 @@ const env = require('../util/env')
  */
 async function getSessionUuidFromBrowserWindow(browserWindow) {
   let sessionUuid = await browserWindow.webContents.executeJavaScript(
-    'window.sessionStorage.getItem("session_uuid")',
+    'window.sessionStorage.getItem("session_uuid")'
   )
   return sessionUuid
 }
@@ -43,7 +43,7 @@ async function getSessionUuidFromBrowserWindow(browserWindow) {
  */
 async function getRendererApiInformation(browserWindow) {
   const info = await browserWindow.webContents.executeJavaScript(
-    `window.${rendApi.GLOBAL_SYMBOL_INFO}`,
+    `window.${rendApi.GLOBAL_SYMBOL_INFO}`
   )
   let msg = `
 Prefix: ${info.prefix}
@@ -53,7 +53,7 @@ Functions:`
     msg = msg.concat(
       `\n  - ${fn.id}: ${fn.description} ${
         'type' in fn ? '[' + fn.type + ']' : ''
-      }`,
+      }`
     )
   })
   return msg
@@ -68,18 +68,18 @@ Functions:`
 
 async function execRendererApi(browserWindow, rendererApiCommand, ...theArgs) {
   const info = await browserWindow?.webContents.executeJavaScript(
-    `window.${rendApi.GLOBAL_SYMBOL_INFO}`,
+    `window.${rendApi.GLOBAL_SYMBOL_INFO}`
   )
 
   let apiFound = info?.functions.filter((x) => x.id === rendererApiCommand)
   if (!apiFound?.length) {
     env.logBrowser(
-      `Unhandled renderer API function id invoked: ${rendererApiCommand}`,
+      `Unhandled renderer API function id invoked: ${rendererApiCommand}`
     )
     return
   } else {
     return browserWindow.webContents.executeJavaScript(
-      `window.${rendApi.GLOBAL_SYMBOL_EXECUTE}('${rendererApiCommand}', "${theArgs}")`,
+      `window.${rendApi.GLOBAL_SYMBOL_EXECUTE}('${rendererApiCommand}', "${theArgs}")`
     )
   }
 }
@@ -129,7 +129,7 @@ function processRendererNotify(browserWindow, message) {
 async function reportFiles(browserWindow, result) {
   let resultJson = JSON.stringify(result)
   await browserWindow.webContents.executeJavaScript(
-    `window.${rendApi.GLOBAL_SYMBOL_EXECUTE}('${rendApi.id.reportFiles}', '${resultJson}')`,
+    `window.${rendApi.GLOBAL_SYMBOL_EXECUTE}('${rendApi.id.reportFiles}', '${resultJson}')`
   )
 }
 

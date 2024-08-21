@@ -30,38 +30,38 @@ async function executeScript() {
     if (fsExtra.existsSync('cypress-coverage/coverage-final.json')) {
       await fsExtra.copy(
         'cypress-coverage/coverage-final.json',
-        'reports/from-cypress.json',
+        'reports/from-cypress.json'
       )
     }
 
     if (fsExtra.existsSync('jest-coverage/coverage-final.json')) {
       await fsExtra.copy(
         'jest-coverage/coverage-final.json',
-        'reports/from-jest.json',
+        'reports/from-jest.json'
       )
     }
 
     scriptUtil.executeCmd({}, 'npx', ['nyc', 'merge', 'reports'])
 
     await fsExtra.move('coverage.json', '.nyc_output/out.json', {
-      overwrite: true,
+      overwrite: true
     })
 
     scriptUtil.executeCmd(
       {},
       'npx',
       'nyc report --reporter lcov --reporter text --report-dir coverage'.split(
-        ' ',
-      ),
+        ' '
+      )
     )
 
     console.log(
-      `✅ Please find the combined report (Jest & Cypress) at ./coverage/lcov-report/index.html`,
+      `✅ Please find the combined report (Jest & Cypress) at ./coverage/lcov-report/index.html`
     )
   } catch (err) {
     console.log(
       'Error in generating reports at zap-combine-reports.js file and executeScript function: ' +
-        err,
+        err
     )
   }
 }

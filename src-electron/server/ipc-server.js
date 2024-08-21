@@ -33,12 +33,12 @@ const eventType = {
   convert: 'convert', // Sent from client to server when requesting to convert files
   generate: 'generate', // Sent from client to server when requesting generation.
   serverStatus: 'serverStatus', // Sent from client to ask for server URL
-  stop: 'stop', // Sent from client to ask for server to shut down
+  stop: 'stop' // Sent from client to ask for server to shut down
 }
 
 const server = {
   ipc: new ipc.IPC(),
-  serverStarted: false,
+  serverStarted: false
 }
 
 /**
@@ -81,7 +81,7 @@ function handlerStop(context, data) {
   server.ipc.server.emit(
     context.socket,
     eventType.overAndOut,
-    'Shutting down server.',
+    'Shutting down server.'
   )
   startup.shutdown()
   util.waitFor(1000).then(() => startup.quit())
@@ -92,7 +92,7 @@ async function handlerGenerate(context, data) {
   let ps = []
   let packages = await queryPackage.getPackagesByType(
     context.db,
-    dbEnum.packageType.genTemplatesJson,
+    dbEnum.packageType.genTemplatesJson
   )
   let templatePackageId = packages[0].id
 
@@ -108,16 +108,16 @@ async function handlerGenerate(context, data) {
           logger: (x) =>
             server.ipc.server.emit(context.socket, eventType.over, x),
           zcl: env.builtinSilabsZclMetafile(),
-          template: env.builtinTemplateMetafile(),
-        },
-      ),
+          template: env.builtinTemplateMetafile()
+        }
+      )
     )
   })
   return Promise.all(ps).then(() => {
     server.ipc.server.emit(
       context.socket,
       eventType.overAndOut,
-      'Generation done.',
+      'Generation done.'
     )
   })
 }
@@ -125,24 +125,24 @@ async function handlerGenerate(context, data) {
 const handlers = [
   {
     eventType: eventType.ping,
-    handler: handlerPing,
+    handler: handlerPing
   },
   {
     eventType: eventType.serverStatus,
-    handler: handlerServerStatus,
+    handler: handlerServerStatus
   },
   {
     eventType: eventType.convert,
-    handler: handlerConvert,
+    handler: handlerConvert
   },
   {
     eventType: eventType.generate,
-    handler: handlerGenerate,
+    handler: handlerGenerate
   },
   {
     eventType: eventType.stop,
-    handler: handlerStop,
-  },
+    handler: handlerStop
+  }
 ]
 
 /**
@@ -187,9 +187,9 @@ async function initServer(db = null, httpPort = 0) {
             {
               db: db,
               socket: socket,
-              httpPort: httpPort,
+              httpPort: httpPort
             },
-            data,
+            data
           )
         })
       })

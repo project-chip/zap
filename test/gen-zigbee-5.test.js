@@ -39,7 +39,7 @@ beforeAll(async () => {
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
     env.schemaFile(),
-    env.zapVersion(),
+    env.zapVersion()
   )
   return zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
 }, testUtil.timeout.medium())
@@ -54,7 +54,7 @@ test(
   async () => {
     let context = await genEngine.loadTemplates(
       db,
-      testUtil.testTemplate.zigbee,
+      testUtil.testTemplate.zigbee
     )
     templatePkgId = context.packageId
     expect(context.crc).not.toBeNull()
@@ -65,7 +65,7 @@ test(
     expect(context.packageId).not.toBeNull()
     templateContext = context
   },
-  testUtil.timeout.medium(),
+  testUtil.timeout.medium()
 )
 
 test(
@@ -73,11 +73,11 @@ test(
   async () => {
     templateContext.packages = await queryPackage.getPackageByParent(
       templateContext.db,
-      templateContext.packageId,
+      templateContext.packageId
     )
     expect(templateContext.packages.length).toBe(templateCount - 1 + 3) // -1 for ignored one, two for helpers and one for overridable
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -87,7 +87,7 @@ test(
     expect(sessionId).not.toBeNull()
     templateContext.sessionId = sessionId
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -98,15 +98,15 @@ test(
       templateContext.sessionId,
       {
         zcl: env.builtinSilabsZclMetafile(),
-        template: env.builtinTemplateMetafile(),
+        template: env.builtinTemplateMetafile()
       },
       null,
-      [templatePkgId],
+      [templatePkgId]
     )
 
     expect(packages.length).toBe(2)
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -122,8 +122,8 @@ test(
       {},
       {
         generateOnly: 'zap-config-version-3.h',
-        disableDeprecationWarnings: true,
-      },
+        disableDeprecationWarnings: true
+      }
     )
 
     expect(genResult).not.toBeNull()
@@ -133,45 +133,45 @@ test(
 
     // Test GENERATED_ATTRIBUTES for the same attribute name but different attribute code
     expect(cfgVer3).toContain(
-      '{ 0x0000, ZCL_INT16U_ATTRIBUTE_TYPE, 2, (ATTRIBUTE_MASK_WRITABLE| ATTRIBUTE_MASK_MANUFACTURER_SPECIFIC), { (uint8_t*)0x0000  } }, /* 51 Cluster: Sample Mfg Specific Cluster 2, Attribute: ember sample attribute 2, Side: server*/',
+      '{ 0x0000, ZCL_INT16U_ATTRIBUTE_TYPE, 2, (ATTRIBUTE_MASK_WRITABLE| ATTRIBUTE_MASK_MANUFACTURER_SPECIFIC), { (uint8_t*)0x0000  } }, /* 51 Cluster: Sample Mfg Specific Cluster 2, Attribute: ember sample attribute 2, Side: server*/'
     )
 
     expect(cfgVer3).toContain(
-      '{ 0x0001, ZCL_INT16U_ATTRIBUTE_TYPE, 2, (ATTRIBUTE_MASK_WRITABLE| ATTRIBUTE_MASK_MANUFACTURER_SPECIFIC), { (uint8_t*)0x0000  } }, /* 52 Cluster: Sample Mfg Specific Cluster 2, Attribute: ember sample attribute 2, Side: server*/',
+      '{ 0x0001, ZCL_INT16U_ATTRIBUTE_TYPE, 2, (ATTRIBUTE_MASK_WRITABLE| ATTRIBUTE_MASK_MANUFACTURER_SPECIFIC), { (uint8_t*)0x0000  } }, /* 52 Cluster: Sample Mfg Specific Cluster 2, Attribute: ember sample attribute 2, Side: server*/'
     )
 
     // Test GENERATED_CLUSTERS for attribute index and size on endpoint 1 and endpoint 2
     expect(cfgVer3).toContain(
-      '{ 0xFC00, (EmberAfAttributeMetadata*)&(generatedAttributes[43]), 2, 3, CLUSTER_MASK_CLIENT, NULL }, /* 9, Endpoint Id: 1, Cluster: Sample Mfg Specific Cluster, Side: client*/',
+      '{ 0xFC00, (EmberAfAttributeMetadata*)&(generatedAttributes[43]), 2, 3, CLUSTER_MASK_CLIENT, NULL }, /* 9, Endpoint Id: 1, Cluster: Sample Mfg Specific Cluster, Side: client*/'
     )
 
     expect(cfgVer3).toContain(
-      '{ 0xFC00, (EmberAfAttributeMetadata*)&(generatedAttributes[45]), 4, 5, CLUSTER_MASK_SERVER, NULL }, /* 10, Endpoint Id: 1, Cluster: Sample Mfg Specific Cluster, Side: server*/',
+      '{ 0xFC00, (EmberAfAttributeMetadata*)&(generatedAttributes[45]), 4, 5, CLUSTER_MASK_SERVER, NULL }, /* 10, Endpoint Id: 1, Cluster: Sample Mfg Specific Cluster, Side: server*/'
     )
 
     expect(cfgVer3).toContain(
-      '{ 0xFC00, (EmberAfAttributeMetadata*)&(generatedAttributes[43]), 2, 3, CLUSTER_MASK_CLIENT, NULL }, /* 15, Endpoint Id: 2, Cluster: Sample Mfg Specific Cluster, Side: client*/',
+      '{ 0xFC00, (EmberAfAttributeMetadata*)&(generatedAttributes[43]), 2, 3, CLUSTER_MASK_CLIENT, NULL }, /* 15, Endpoint Id: 2, Cluster: Sample Mfg Specific Cluster, Side: client*/'
     )
 
     expect(cfgVer3).toContain(
-      '{ 0xFC00, (EmberAfAttributeMetadata*)&(generatedAttributes[49]), 2, 3, CLUSTER_MASK_CLIENT, NULL }, /* 16, Endpoint Id: 2, Cluster: Sample Mfg Specific Cluster 2, Side: client*/',
+      '{ 0xFC00, (EmberAfAttributeMetadata*)&(generatedAttributes[49]), 2, 3, CLUSTER_MASK_CLIENT, NULL }, /* 16, Endpoint Id: 2, Cluster: Sample Mfg Specific Cluster 2, Side: client*/'
     )
 
     expect(cfgVer3).toContain(
-      '{ 0xFC00, (EmberAfAttributeMetadata*)&(generatedAttributes[45]), 4, 5, CLUSTER_MASK_SERVER, NULL }, /* 17, Endpoint Id: 2, Cluster: Sample Mfg Specific Cluster, Side: server*/',
+      '{ 0xFC00, (EmberAfAttributeMetadata*)&(generatedAttributes[45]), 4, 5, CLUSTER_MASK_SERVER, NULL }, /* 17, Endpoint Id: 2, Cluster: Sample Mfg Specific Cluster, Side: server*/'
     )
 
     expect(cfgVer3).toContain(
-      '{ 0xFC00, (EmberAfAttributeMetadata*)&(generatedAttributes[51]), 3, 5, CLUSTER_MASK_SERVER, NULL } /* 18, Endpoint Id: 2, Cluster: Sample Mfg Specific Cluster 2, Side: server*/',
+      '{ 0xFC00, (EmberAfAttributeMetadata*)&(generatedAttributes[51]), 3, 5, CLUSTER_MASK_SERVER, NULL } /* 18, Endpoint Id: 2, Cluster: Sample Mfg Specific Cluster 2, Side: server*/'
     )
 
     // Test GENERATED_COMMANDS and its mask
     expect(cfgVer3).toContain(
-      '{ 0xFC00, 0x00, COMMAND_MASK_INCOMING_SERVER | COMMAND_MASK_OUTGOING_CLIENT | COMMAND_MASK_MANUFACTURER_SPECIFIC }, /* 69, Cluster: Sample Mfg Specific Cluster, Command: CommandOne*/',
+      '{ 0xFC00, 0x00, COMMAND_MASK_INCOMING_SERVER | COMMAND_MASK_OUTGOING_CLIENT | COMMAND_MASK_MANUFACTURER_SPECIFIC }, /* 69, Cluster: Sample Mfg Specific Cluster, Command: CommandOne*/'
     )
 
     expect(cfgVer3).toContain(
-      '{ 0xFC00, 0x00, COMMAND_MASK_INCOMING_SERVER | COMMAND_MASK_OUTGOING_CLIENT | COMMAND_MASK_MANUFACTURER_SPECIFIC }, /* 70, Cluster: Sample Mfg Specific Cluster 2, Command: CommandTwo*/',
+      '{ 0xFC00, 0x00, COMMAND_MASK_INCOMING_SERVER | COMMAND_MASK_OUTGOING_CLIENT | COMMAND_MASK_MANUFACTURER_SPECIFIC }, /* 70, Cluster: Sample Mfg Specific Cluster 2, Command: CommandTwo*/'
     )
 
     // Test GENERATED_COMMAND_MANUFACTURER_CODES
@@ -195,11 +195,11 @@ test(
 
     // Making sure that the multi-protocol config is not generated for zigbee only generation
     expect(cfgVer3).not.toContain(
-      '#define GENERATED_MULTI_PROTOCOL_ATTRIBUTE_MAPPING',
+      '#define GENERATED_MULTI_PROTOCOL_ATTRIBUTE_MAPPING'
     )
     expect(cfgVer3).not.toContain('{ 6, 0, 6, 0, 0, 0, 0, 0 },')
     expect(cfgVer3).not.toContain('{ 8, 0, 8, 0, 0, 0, 0, 0 },')
     expect(cfgVer3).not.toContain('{ 8, 0, 8, 0, 1, 0, 1, 0 },')
   },
-  testUtil.timeout.long(),
+  testUtil.timeout.long()
 )

@@ -49,7 +49,7 @@ async function selectedClientClusterIterator(db, sessionId) {
   return queryEndpointType.selectAllClustersDetailsFromEndpointTypes(
     db,
     epts,
-    dbEnums.side.client,
+    dbEnums.side.client
   )
 }
 
@@ -59,7 +59,7 @@ async function selectedServerClusterIterator(db, sessionId) {
   return queryEndpointType.selectAllClustersDetailsFromEndpointTypes(
     db,
     epts,
-    dbEnums.side.server,
+    dbEnums.side.server
   )
 }
 
@@ -71,7 +71,7 @@ async function getIterativeObject(iteratorName, db, sessionId) {
   } else {
     let validValues = Object.keys(iterators).join(', ')
     throw new Error(
-      `Invalid value for iterator: ${iteratorName}. Valid values: ${validValues}`,
+      `Invalid value for iterator: ${iteratorName}. Valid values: ${validValues}`
     )
   }
 }

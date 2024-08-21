@@ -30,8 +30,8 @@ export default {
         'EventList',
         'AttributeList',
         'GeneratedCommandList',
-        'AcceptedCommandList',
-      ],
+        'AcceptedCommandList'
+      ]
     }
   },
   mounted() {
@@ -73,5 +73,5 @@ export default {
     this.enablePrimaryDevice = enableMatterFeatures
     this.enableParentEndpoint = enableMatterFeatures
     this.enableServerOnly = enableMatterFeatures & !enableZigbeeFeatures
-  },
+  }
 }

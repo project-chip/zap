@@ -58,7 +58,7 @@ limitations under the License.
                       :class="{
                         'cursor-pointer':
                           iconName(sessionPackage.pkg.id) == 'error' ||
-                          iconName(sessionPackage.pkg.id) == 'warning',
+                          iconName(sessionPackage.pkg.id) == 'warning'
                       }"
                       :name="iconName(sessionPackage.pkg.id)"
                       :color="iconColor(sessionPackage.pkg.id)"
@@ -134,7 +134,7 @@ limitations under the License.
                       <li
                         v-for="(error, index) in populateNotifications(
                           sessionPackage.pkg.id,
-                          'ERROR',
+                          'ERROR'
                         )"
                         :key="'error' + index"
                         style="margin-bottom: 10px"
@@ -154,7 +154,7 @@ limitations under the License.
                       <li
                         v-for="(warning, index) in populateNotifications(
                           sessionPackage.pkg.id,
-                          'WARNING',
+                          'WARNING'
                         )"
                         :key="index"
                         style="margin-bottom: 10px"
@@ -184,7 +184,7 @@ import { Notify } from 'quasar'
 export default {
   mixins: [CommonMixin],
   components: {
-    PreferencePageLayout,
+    PreferencePageLayout
   },
   watch: {
     packages(newPackages) {
@@ -194,7 +194,7 @@ export default {
       this.loadNewPackage().then(() => {
         this.$store.dispatch('zap/updateZclDeviceTypes')
       })
-    },
+    }
   },
   methods: {
     getFileName(path) {
@@ -207,7 +207,7 @@ export default {
         title: 'Select an XML file containing custom ZCL objects',
         mode: 'file',
         defaultPath: this.packageToLoad,
-        buttonLabel: 'Open',
+        buttonLabel: 'Open'
       })
     },
     loadNewPackage() {
@@ -225,7 +225,7 @@ export default {
               type: 'warning',
               classes: 'custom-notification notification-warning',
               position: 'top',
-              html: true,
+              html: true
             })
           }
         })
@@ -245,21 +245,21 @@ export default {
     async deletePackage(packageToDelete) {
       await this.$store.dispatch(
         'zap/deleteSessionPackage',
-        packageToDelete.sessionPackage,
+        packageToDelete.sessionPackage
       )
       await this.$store.dispatch('zap/updateClusters')
       await this.$store.dispatch('zap/updateAtomics')
     },
     async getPackageNotifications(packageId) {
       this.$serverGet(
-        restApi.uri.packageNotificationById.replace(':packageId', packageId),
+        restApi.uri.packageNotificationById.replace(':packageId', packageId)
       ).then((res) => {
         let notifications = res.data || []
         let currentPackage = {
           hasWarning: notifications.length > 0,
           hasError: false,
           warnings: [],
-          errors: [],
+          errors: []
         }
         notifications.forEach((notification) => {
           if (notification.type == 'ERROR') {
@@ -304,11 +304,11 @@ export default {
     enableExtensionsWarning() {
       let categories =
         this.$store.state.zap.selectedZapConfig?.zclProperties.map(
-          (zclProp) => zclProp.category,
+          (zclProp) => zclProp.category
         )
       // Showing extensions when the zcl packages have less than 1 category
       return categories.length > 1
-    },
+    }
   },
   mounted() {
     if (this.$serverGet != null) {
@@ -319,7 +319,7 @@ export default {
           if (value.context == 'customXml') {
             this.packageToLoad = value.filePaths[0]
           }
-        },
+        }
       )
     }
   },
@@ -328,8 +328,8 @@ export default {
       packageToLoad: '',
       error: null,
       notisData: {},
-      dialogData: {},
+      dialogData: {}
     }
-  },
+  }
 }
 </script>

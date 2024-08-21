@@ -30,7 +30,7 @@ describe('Add multiple clusters and search', () => {
     cy.get('.flex > strong').should('contain', 'Endpoint - 3')
     cy.fixture('data').then((data) => {
       cy.get('#General > .q-expansion-item__container > .q-item').click({
-        force: true,
+        force: true
       })
       cy.get('tbody')
         .children()

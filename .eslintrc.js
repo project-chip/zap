@@ -4,13 +4,13 @@ module.exports = {
   parserOptions: {
     parser: '@babel/eslint-parser',
     sourceType: 'module',
-    ecmaVersion: 2018,
+    ecmaVersion: 2018
   },
 
   env: {
     node: true,
     browser: true,
-    'vue/setup-compiler-macros': true,
+    'vue/setup-compiler-macros': true
   },
 
   extends: [
@@ -18,7 +18,7 @@ module.exports = {
     // consider switching to `plugin:vue/strongly-recommended` or `plugin:vue/recommended` for stricter rules.
     'plugin:vue/vue3-essential',
     'prettier',
-    'eslint:recommended',
+    'eslint:recommended'
   ],
 
   // required to lint *.vue files
@@ -30,7 +30,7 @@ module.exports = {
     __statics: true,
     process: true,
     Capacitor: true,
-    chrome: true,
+    chrome: true
   },
 
   // add your custom rules here
@@ -62,6 +62,6 @@ module.exports = {
 
     // random rules added
     'no-undef': 'off',
-    'no-unused-vars': 'off',
-  },
+    'no-unused-vars': 'off'
+  }
 }

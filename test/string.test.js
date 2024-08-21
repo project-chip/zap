@@ -28,18 +28,18 @@ test(
     expect(string.toCleanSymbol('a:b-c')).toEqual('a_b_c')
     expect(string.toCleanSymbol('a____:___c')).toEqual('a_c')
   },
-  timeout.short(),
+  timeout.short()
 )
 
 test(
   'Snake case',
   () => {
     expect(string.toSnakeCaseAllCaps('VerySimpleLabel')).toEqual(
-      'VERY_SIMPLE_LABEL',
+      'VERY_SIMPLE_LABEL'
     )
     expect(string.toSnakeCase('My-String')).toEqual('my_string')
   },
-  timeout.short(),
+  timeout.short()
 )
 
 test(
@@ -47,27 +47,27 @@ test(
   () => {
     expect(string.toCamelCase('some random string')).toEqual('someRandomString')
     expect(string.toCamelCase('some random string', false)).toEqual(
-      'SomeRandomString',
+      'SomeRandomString'
     )
     expect(string.toCamelCase('ZLL Commissioning')).toEqual('zllCommissioning')
     expect(string.toCamelCase('AddGroup')).toEqual('addGroup')
     expect(string.toCamelCase('AddGroup', false)).toEqual('AddGroup')
     expect(string.toCamelCase('long string with an ACRONYM inside')).toEqual(
-      'longStringWithAnAcronymInside',
+      'longStringWithAnAcronymInside'
     )
     expect(string.toCamelCase('longStringWithAnAcronymInside')).toEqual(
-      'longStringWithAnAcronymInside',
+      'longStringWithAnAcronymInside'
     )
   },
-  timeout.short(),
+  timeout.short()
 )
 
 test(
   'Kebab case',
   () => {
     expect(string.toCleanSymbolAsKebabCase('Very Simple:Label')).toEqual(
-      'very-simple-label',
+      'very-simple-label'
     )
   },
-  timeout.short(),
+  timeout.short()
 )

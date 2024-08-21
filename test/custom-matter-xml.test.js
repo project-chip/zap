@@ -51,7 +51,7 @@ beforeAll(async () => {
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
     env.schemaFile(),
-    env.zapVersion(),
+    env.zapVersion()
   )
   ctx = await zclLoader.loadZcl(db, env.builtinMatterZclMetafile())
   mainPackageId = ctx.packageId
@@ -60,12 +60,12 @@ beforeAll(async () => {
     db,
     'USER',
     uuid,
-    env.builtinMatterZclMetafile(),
+    env.builtinMatterZclMetafile()
   )
   // loading templates
   templateContext = await genEngine.loadTemplates(
     db,
-    testUtil.testTemplate.matter,
+    testUtil.testTemplate.matter
   )
 }, testUtil.timeout.medium())
 
@@ -83,33 +83,33 @@ test(
   async () => {
     // check inital state
     x = await dbApi.dbAll(db, 'SELECT * FROM CLUSTER WHERE CODE = ?', [
-      testClusterCode,
+      testClusterCode
     ])
     expect(x.length).toEqual(0)
 
     x = await dbApi.dbAll(db, 'SELECT * FROM CLUSTER WHERE CODE = ?', [
-      testExtensionCode,
+      testExtensionCode
     ])
     extendedClusterId = x[0].CLUSTER_ID
 
     x = await dbApi.dbAll(
       db,
       'SELECT * FROM ATTRIBUTE WHERE CLUSTER_REF = ?',
-      extendedClusterId,
+      extendedClusterId
     )
     numAttributes = x.length
 
     x = await dbApi.dbAll(
       db,
       'SELECT * FROM COMMAND WHERE CLUSTER_REF = ?',
-      extendedClusterId,
+      extendedClusterId
     )
     numCommands = x.length
 
     let result = await zclLoader.loadIndividualFile(
       db,
       testUtil.testMattterCustomXml,
-      sid,
+      sid
     )
     if (!result.succeeded) {
       console.log(`Test failure: ${result.err}`)
@@ -119,7 +119,7 @@ test(
 
     // verify custom cluster and cluster extension are loaded correctly
     x = await dbApi.dbAll(db, 'SELECT * FROM CLUSTER WHERE CODE = ?', [
-      testClusterCode,
+      testClusterCode
     ])
     expect(x.length).toEqual(1)
 
@@ -128,7 +128,7 @@ test(
     x = await dbApi.dbAll(
       db,
       'SELECT * FROM ATTRIBUTE WHERE CLUSTER_REF = ?',
-      clusterId,
+      clusterId
     )
     expect(x.length).toEqual(1)
     attrId = x[0].ATTRIBUTE_ID
@@ -136,25 +136,25 @@ test(
     x = await dbApi.dbAll(
       db,
       'SELECT * FROM COMMAND WHERE CLUSTER_REF = ?',
-      clusterId,
+      clusterId
     )
     expect(x.length).toEqual(3)
 
     x = await dbApi.dbAll(
       db,
       'SELECT * FROM ATTRIBUTE WHERE CLUSTER_REF = ?',
-      extendedClusterId,
+      extendedClusterId
     )
     expect(x.length).toEqual(numAttributes + 2)
 
     x = await dbApi.dbAll(
       db,
       'SELECT * FROM COMMAND WHERE CLUSTER_REF = ?',
-      extendedClusterId,
+      extendedClusterId
     )
     expect(x.length).toEqual(numCommands + 2)
   },
-  testUtil.timeout.medium(),
+  testUtil.timeout.medium()
 )
 
 test(
@@ -164,7 +164,7 @@ test(
     let result = await zclLoader.loadIndividualFile(
       db,
       testUtil.testMattterCustomXml2,
-      sid,
+      sid
     )
     if (!result.succeeded) {
       console.log(`Test failure: ${result.err}`)
@@ -176,18 +176,18 @@ test(
     x = await dbApi.dbAll(
       db,
       'SELECT * FROM ATTRIBUTE WHERE CLUSTER_REF = ?',
-      extendedClusterId,
+      extendedClusterId
     )
     expect(x.length).toEqual(numAttributes + 4)
 
     x = await dbApi.dbAll(
       db,
       'SELECT * FROM COMMAND WHERE CLUSTER_REF = ?',
-      extendedClusterId,
+      extendedClusterId
     )
     expect(x.length).toEqual(numCommands + 4)
   },
-  testUtil.timeout.medium(),
+  testUtil.timeout.medium()
 )
 
 test(
@@ -199,7 +199,7 @@ test(
     let result = await zclLoader.loadIndividualFile(
       db,
       testUtil.testMattterCustomXml,
-      sid,
+      sid
     )
 
     //validate that the package is not duplicated
@@ -207,7 +207,7 @@ test(
     sessionPackages = await queryPackage.getSessionPackages(db, sid)
     expect(sessionPackages.length).toEqual(sessionPackagesCount)
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -217,14 +217,14 @@ test(
     let onOffDevice = await queryDeviceType.selectDeviceTypeByCode(
       db,
       mainPackageId,
-      0x0102,
+      0x0102
     )
     expect(onOffDevice).not.toBeNull()
     let sessionPartitionInfo =
       await querySession.selectSessionPartitionInfoFromDeviceType(
         db,
         sid,
-        onOffDevice.id,
+        onOffDevice.id
       )
     let eptTypeId = await queryConfig.insertEndpointType(
       db,
@@ -233,7 +233,7 @@ test(
       onOffDevice.id,
       onOffDevice.code,
       0,
-      true,
+      true
     )
     expect(eptTypeId).not.toBeNull()
 
@@ -242,7 +242,7 @@ test(
       eptTypeId,
       clusterId,
       'server',
-      1,
+      1
     )
     expect(eptTypeClusterId).not.toBeNull()
 
@@ -255,12 +255,12 @@ test(
       [
         {
           key: restApi.updateKey.attributeSelected,
-          value: 1,
-        },
+          value: 1
+        }
       ],
       null,
       null,
-      null,
+      null
     )
     expect(eptAttrId).not.toBeNull()
 
@@ -270,7 +270,7 @@ test(
       1,
       eptTypeId,
       0,
-      0x0102,
+      0x0102
     )
     expect(eptId).not.toBeNull()
 
@@ -280,43 +280,43 @@ test(
       sid,
       templateContext.packageId,
       {},
-      { disableDeprecationWarnings: true },
+      { disableDeprecationWarnings: true }
     )
 
     let sdkExt = genResult.content['sdk-ext.txt']
     expect(sdkExt).not.toBeNull()
     expect(sdkExt).toContain(
-      "// cluster: 0xFFF1FC20 Sample Custom Cluster, text extension: ''",
+      "// cluster: 0xFFF1FC20 Sample Custom Cluster, text extension: ''"
     )
     expect(sdkExt).toContain(
-      "// attribute: 0x0006 / 0xFFF10000 => Sample Mfg Specific Attribute 2, extensions: '', '', scene: false",
+      "// attribute: 0x0006 / 0xFFF10000 => Sample Mfg Specific Attribute 2, extensions: '', '', scene: false"
     )
     expect(sdkExt).toContain(
-      "// attribute: 0x0006 / 0xFFF10001 => Sample Mfg Specific Attribute 4, extensions: '', '', scene: false",
+      "// attribute: 0x0006 / 0xFFF10001 => Sample Mfg Specific Attribute 4, extensions: '', '', scene: false"
     )
     expect(sdkExt).toContain(
-      "// attribute: 0x0006 / 0xFFF20000 => Sample Mfg Specific Attribute 6, extensions: '', '', scene: false",
+      "// attribute: 0x0006 / 0xFFF20000 => Sample Mfg Specific Attribute 6, extensions: '', '', scene: false"
     )
     expect(sdkExt).toContain(
-      "// attribute: 0x0006 / 0xFFF20001 => Sample Mfg Specific Attribute 8, extensions: '', '', scene: false",
+      "// attribute: 0x0006 / 0xFFF20001 => Sample Mfg Specific Attribute 8, extensions: '', '', scene: false"
     )
     expect(sdkExt).toContain(
-      "// command: 0x0006 / 0xFFF100 => SampleMfgSpecificOnWithTransition2, test extension: ''",
+      "// command: 0x0006 / 0xFFF100 => SampleMfgSpecificOnWithTransition2, test extension: ''"
     )
     expect(sdkExt).toContain(
-      "// command: 0x0006 / 0xFFF101 => SampleMfgSpecificToggleWithTransition2, test extension: ''",
+      "// command: 0x0006 / 0xFFF101 => SampleMfgSpecificToggleWithTransition2, test extension: ''"
     )
     expect(sdkExt).toContain(
-      "// command: 0x0006 / 0xFFF200 => SampleMfgSpecificOnWithTransition2, test extension: ''",
+      "// command: 0x0006 / 0xFFF200 => SampleMfgSpecificOnWithTransition2, test extension: ''"
     )
     expect(sdkExt).toContain(
-      "/ command: 0x0006 / 0xFFF201 => SampleMfgSpecificToggleWithTransition2, test extension: ''",
+      "/ command: 0x0006 / 0xFFF201 => SampleMfgSpecificToggleWithTransition2, test extension: ''"
     )
 
     let endpointConfig = genResult.content['endpoint-config.c']
     expect(sdkExt).not.toBeNull()
     expect(endpointConfig).toContain(
-      ' /* Endpoint: 1, Cluster: Sample Custom Cluster (server) */ \\',
+      ' /* Endpoint: 1, Cluster: Sample Custom Cluster (server) */ \\'
     )
 
     // delete custom xml and generate again
@@ -324,12 +324,12 @@ test(
       await querySession.selectSessionPartitionInfoFromPackageId(
         db,
         sid,
-        testPackageId,
+        testPackageId
       )
     await queryPackage.deleteSessionPackage(
       db,
       sessionPartitionInfo[0].sessionPartitionId,
-      testPackageId,
+      testPackageId
     )
 
     // verify first custom xml is deleted
@@ -338,19 +338,19 @@ test(
       sid,
       templateContext.packageId,
       {},
-      { disableDeprecationWarnings: true },
+      { disableDeprecationWarnings: true }
     )
 
     sdkExt = genResult.content['sdk-ext.txt']
     expect(sdkExt).not.toBeNull()
     expect(sdkExt).not.toContain(
-      "// cluster: 0xFFF1FC20 Sample Custom Cluster, text extension: ''",
+      "// cluster: 0xFFF1FC20 Sample Custom Cluster, text extension: ''"
     )
     expect(sdkExt).not.toContain(
-      "// attribute: 0x0006 / 0xFFF10000 => Sample Mfg Specific Attribute 2, extensions: '', '', scene: false",
+      "// attribute: 0x0006 / 0xFFF10000 => Sample Mfg Specific Attribute 2, extensions: '', '', scene: false"
     )
     expect(sdkExt).not.toContain(
-      "// attribute: 0x0006 / 0xFFF10001 => Sample Mfg Specific Attribute 4, extensions: '', '', scene: false",
+      "// attribute: 0x0006 / 0xFFF10001 => Sample Mfg Specific Attribute 4, extensions: '', '', scene: false"
     )
 
     endpointConfig = genResult.content['endpoint-config.c']
@@ -366,14 +366,14 @@ test(
     try {
       const modifiedData = originalData.replace(
         '<name>Sample Custom Cluster</name>',
-        '<name>Sample Custom Changed</name>',
+        '<name>Sample Custom Changed</name>'
       )
       fs.writeFileSync(testUtil.testMattterCustomXml, modifiedData, 'utf8')
 
       const result = await zclLoader.loadIndividualFile(
         db,
         testUtil.testMattterCustomXml,
-        sid,
+        sid
       )
       expect(result.succeeded).toBeTruthy()
 
@@ -383,7 +383,7 @@ test(
         sid,
         templateContext.packageId,
         {},
-        { disableDeprecationWarnings: true },
+        { disableDeprecationWarnings: true }
       )
 
       // verify custom xml is updated
@@ -394,7 +394,7 @@ test(
       expect(endpointConfig).not.toBeNull()
 
       expect(sdkExt).toContain(
-        "// cluster: 0xFFF1FC20 Sample Custom Changed, text extension: ''",
+        "// cluster: 0xFFF1FC20 Sample Custom Changed, text extension: ''"
       )
 
       // Not working as expected possibly due to bug - https://github.com/project-chip/zap/issues/1387
@@ -427,7 +427,7 @@ test(
       fs.writeFileSync(testUtil.testMattterCustomXml, originalData, 'utf8')
     }
   },
-  testUtil.timeout.medium(),
+  testUtil.timeout.medium()
 )
 
 test(
@@ -437,22 +437,20 @@ test(
     let result = await zclLoader.loadIndividualFile(
       db,
       testUtil.testBadMattterCustomXml,
-      sid,
+      sid
     )
     expect(result.succeeded).toBeTruthy()
 
     let packageNotif =
       await queryPackageNotification.getNotificationByPackageId(
         db,
-        result.packageId,
+        result.packageId
       )
     expect(
-      packageNotif.some((notif) =>
-        notif.message.includes('type contradiction'),
-      ),
+      packageNotif.some((notif) => notif.message.includes('type contradiction'))
     ).toBeTruthy() // checks if the correct warning is thrown
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -464,27 +462,27 @@ test(
       db,
       'USER',
       uuid,
-      env.builtinMatterZclMetafile(),
+      env.builtinMatterZclMetafile()
     )
 
     let result = await zclLoader.loadIndividualFile(
       db,
       testUtil.testMattterCustomXml,
-      conflictSid,
+      conflictSid
     )
     expect(result.succeeded).toBeTruthy()
 
     result = await zclLoader.loadIndividualFile(
       db,
       testUtil.testMatterConflict,
-      conflictSid,
+      conflictSid
     )
     expect(result.succeeded).toBeTruthy()
     let conflictPackageId = result.packageId
 
     let sessionNotif = await querySessionNotification.getNotification(
       db,
-      conflictSid,
+      conflictSid
     )
     expect(
       sessionNotif.some(
@@ -492,8 +490,8 @@ test(
           notif.type === 'ERROR' &&
           notif.message.includes('Cluster code conflict') &&
           notif.message.includes('matter-custom.xml') &&
-          notif.message.includes('matter-conflict.xml'),
-      ),
+          notif.message.includes('matter-conflict.xml')
+      )
     ).toBeTruthy()
     expect(
       sessionNotif.some(
@@ -501,8 +499,8 @@ test(
           notif.type === 'ERROR' &&
           notif.message.includes('Command code conflict') &&
           notif.message.includes('matter-custom.xml') &&
-          notif.message.includes('matter-conflict.xml'),
-      ),
+          notif.message.includes('matter-conflict.xml')
+      )
     ).toBeTruthy()
     expect(
       sessionNotif.some(
@@ -510,8 +508,8 @@ test(
           notif.type === 'ERROR' &&
           notif.message.includes('Attribute code conflict') &&
           notif.message.includes('matter-custom.xml') &&
-          notif.message.includes('matter-conflict.xml'),
-      ),
+          notif.message.includes('matter-conflict.xml')
+      )
     ).toBeTruthy()
 
     // delete the conflicting package and verify that the notifications are removed
@@ -519,21 +517,21 @@ test(
       await querySession.selectSessionPartitionInfoFromPackageId(
         db,
         conflictSid,
-        conflictPackageId,
+        conflictPackageId
       )
     await queryPackage.deleteSessionPackage(
       db,
       sessionPartitionInfo[0].sessionPartitionId,
-      conflictPackageId,
+      conflictPackageId
     )
 
     sessionNotif = await querySessionNotification.getNotification(
       db,
-      conflictSid,
+      conflictSid
     )
     expect(sessionNotif.length).toEqual(0)
   },
-  testUtil.timeout.medium(),
+  testUtil.timeout.medium()
 )
 
 test(
@@ -544,7 +542,7 @@ test(
       db,
       'USER',
       'SESSION3',
-      env.builtinMatterZclMetafile(),
+      env.builtinMatterZclMetafile()
     )
 
     // importing a zap file with custom xml that does not exist
@@ -552,8 +550,8 @@ test(
       db,
       testUtil.testMatterMissingCustomZap,
       {
-        sessionId: newSid,
-      },
+        sessionId: newSid
+      }
     )
 
     let allNotif = await querySessionNotification.getNotification(db, newSid)
@@ -563,11 +561,11 @@ test(
 
     expect(
       allNotif.some((notif) =>
-        notif.message.includes('Error reading xml file:'),
-      ),
+        notif.message.includes('Error reading xml file:')
+      )
     ).toBeTruthy()
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -578,7 +576,7 @@ test(
     await dbApi.loadSchema(newDb, env.schemaFile(), env.zapVersion())
     let newTemplateContext = await genEngine.loadTemplates(
       newDb,
-      testUtil.testTemplate.matter,
+      testUtil.testTemplate.matter
     )
 
     // creating a new session
@@ -589,8 +587,8 @@ test(
       newDb,
       testUtil.testMatterCustomZap,
       {
-        sessionId: newSid,
-      },
+        sessionId: newSid
+      }
     )
 
     // generating
@@ -599,33 +597,33 @@ test(
       newSid,
       newTemplateContext.packageId,
       {},
-      { disableDeprecationWarnings: true },
+      { disableDeprecationWarnings: true }
     )
 
     // verifying generated content
     let sdkExt = genResult.content['sdk-ext.txt']
     expect(sdkExt).not.toBeNull()
     expect(sdkExt).toContain(
-      "// cluster: 0xFFF1FC20 Sample Custom Cluster, text extension: ''",
+      "// cluster: 0xFFF1FC20 Sample Custom Cluster, text extension: ''"
     )
     expect(sdkExt).toContain(
-      "// attribute: 0x0006 / 0xFFF10000 => Sample Mfg Specific Attribute 2, extensions: '', '', scene: false",
+      "// attribute: 0x0006 / 0xFFF10000 => Sample Mfg Specific Attribute 2, extensions: '', '', scene: false"
     )
     expect(sdkExt).toContain(
-      "// attribute: 0x0006 / 0xFFF10001 => Sample Mfg Specific Attribute 4, extensions: '', '', scene: false",
+      "// attribute: 0x0006 / 0xFFF10001 => Sample Mfg Specific Attribute 4, extensions: '', '', scene: false"
     )
     expect(sdkExt).toContain(
-      "// command: 0x0006 / 0xFFF100 => SampleMfgSpecificOnWithTransition2, test extension: ''",
+      "// command: 0x0006 / 0xFFF100 => SampleMfgSpecificOnWithTransition2, test extension: ''"
     )
     expect(sdkExt).toContain(
-      "// command: 0x0006 / 0xFFF101 => SampleMfgSpecificToggleWithTransition2, test extension: ''",
+      "// command: 0x0006 / 0xFFF101 => SampleMfgSpecificToggleWithTransition2, test extension: ''"
     )
 
     let endpointConfig = genResult.content['endpoint-config.c']
     expect(sdkExt).not.toBeNull()
     expect(endpointConfig).toContain(
-      ' /* Endpoint: 1, Cluster: Sample Custom Cluster (server) */ \\',
+      ' /* Endpoint: 1, Cluster: Sample Custom Cluster (server) */ \\'
     )
   },
-  testUtil.timeout.medium(),
+  testUtil.timeout.medium()
 )

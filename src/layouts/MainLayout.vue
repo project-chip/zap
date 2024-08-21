@@ -15,7 +15,7 @@
       <div
         class="full-width absolute-top text-h4 q-pt-md q-px-md row q-electron-drag"
         :class="{
-          'justify-end': isElectron && isMac,
+          'justify-end': isElectron && isMac
         }"
         style="height: 53.8px"
       >
@@ -118,7 +118,7 @@ const restApi = require(`../../src-shared/rest-api.js`)
 export default {
   components: {
     ZCLToolbar,
-    NotificationPage,
+    NotificationPage
   },
   name: 'MainLayout',
   data() {
@@ -136,7 +136,7 @@ export default {
       scrollTop: '',
       index: 0,
       maxIndex: 0,
-      generationDirectory: '',
+      generationDirectory: ''
     }
   },
   computed: {
@@ -146,7 +146,7 @@ export default {
       },
       set() {
         return this.$store.dispatch('zap/togglePreviewTab')
-      },
+      }
     },
     showNotificationTab: {
       get() {
@@ -154,7 +154,7 @@ export default {
       },
       set() {
         return this.$store.dispatch('zap/showNotificationTab')
-      },
+      }
     },
     leftDrawerOpen: {
       get() {
@@ -162,8 +162,8 @@ export default {
       },
       set(newLeftDrawerOpenState) {
         this.$store.dispatch('zap/setLeftDrawerState', newLeftDrawerOpenState)
-      },
-    },
+      }
+    }
   },
   created() {
     if (this.$serverGet != null) {
@@ -208,8 +208,8 @@ export default {
           })
           .catch((err) => console.log('Server Get:' + err))
       }
-    },
-  },
+    }
+  }
 }
 </script>
 <style lang="scss">

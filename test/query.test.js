@@ -61,7 +61,7 @@ beforeAll(async () => {
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
     env.schemaFile(),
-    env.zapVersion(),
+    env.zapVersion()
   )
 }, testUtil.timeout.medium())
 
@@ -73,7 +73,7 @@ test(
     let result = await querySession.getSessionDirtyFlag(db, sid)
     expect(result).toBeFalsy()
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -85,7 +85,7 @@ test(
     let c = await queryPackage.getPathCrc(db, path)
     expect(c).toBe(crc)
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -94,14 +94,14 @@ test(
     let rowId = await dbApi.dbInsert(
       db,
       'REPLACE INTO SETTING (CATEGORY, KEY, VALUE) VALUES (?,?,?)',
-      ['cat', 'key', 12],
+      ['cat', 'key', 12]
     )
     expect(rowId).toBeGreaterThan(0)
 
     let result = await dbApi.dbGet(
       db,
       'SELECT VALUE FROM SETTING WHERE CATEGORY = ? AND KEY = ?',
-      ['cat', 'key'],
+      ['cat', 'key']
     )
 
     expect(result.VALUE).toBe('12')
@@ -109,7 +109,7 @@ test(
     rowId = await dbApi.dbInsert(
       db,
       'REPLACE INTO SETTING (CATEGORY, KEY, VALUE) VALUES (?,?,?)',
-      ['cat', 'key', 13],
+      ['cat', 'key', 13]
     )
 
     expect(rowId).toBeGreaterThan(0)
@@ -117,12 +117,12 @@ test(
     result = await dbApi.dbGet(
       db,
       'SELECT VALUE FROM SETTING WHERE CATEGORY = ? AND KEY = ?',
-      ['cat', 'key'],
+      ['cat', 'key']
     )
 
     expect(result.VALUE).toBe('13')
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -137,8 +137,8 @@ test(
         code: 0x1234,
         name: 'Test',
         description: 'Test cluster',
-        define: 'TEST',
-      },
+        define: 'TEST'
+      }
     ])
 
     let rows = await queryZcl.selectAllClusters(db, pkgId)
@@ -152,19 +152,19 @@ test(
     rows = await queryZcl.selectAttributesByClusterIdIncludingGlobal(
       db,
       rowid,
-      pkgId,
+      pkgId
     )
     expect(rows.length).toBe(0)
     rows = await queryCommand.selectCommandsByClusterId(db, rowid, pkgId)
     expect(rows.length).toBe(0)
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
   'Now actually load the static data.',
   () => zclLoader.loadZcl(db, env.builtinSilabsZclMetafile()),
-  testUtil.timeout.medium(),
+  testUtil.timeout.medium()
 )
 
 test(
@@ -172,11 +172,11 @@ test(
   async () => {
     let x = await generationEngine.loadTemplates(
       db,
-      testUtil.testTemplate.zigbee,
+      testUtil.testTemplate.zigbee
     )
     templatePkgId = x.packageId
   },
-  testUtil.timeout.medium(),
+  testUtil.timeout.medium()
 )
 
 describe('Session specific queries', () => {
@@ -184,7 +184,7 @@ describe('Session specific queries', () => {
     let userSession = await querySession.ensureZapUserAndSession(
       db,
       'USER',
-      'SESSION',
+      'SESSION'
     )
     sid = userSession.sessionId
     await util.ensurePackagesAndPopulateSessionOptions(
@@ -192,10 +192,10 @@ describe('Session specific queries', () => {
       sid,
       {
         zcl: env.builtinSilabsZclMetafile(),
-        template: testUtil.testTemplate.zigbee,
+        template: testUtil.testTemplate.zigbee
       },
       null,
-      [templatePkgId],
+      [templatePkgId]
     )
   }, testUtil.timeout.medium())
 
@@ -205,7 +205,7 @@ describe('Session specific queries', () => {
       queryPackage
         .getSessionPackages(db, sid)
         .then((ids) => expect(ids.length).toBe(2)),
-    testUtil.timeout.short(),
+    testUtil.timeout.short()
   ) // One for zclpropertie and one for gen template
 
   test(
@@ -222,12 +222,12 @@ describe('Session specific queries', () => {
             .then((generatorConfigurations) => {
               expect(generatorConfigurations.length).toBe(1)
               expect(generatorConfigurations[0].optionCode).toBe(
-                'shareClusterStatesAcrossEndpoints',
+                'shareClusterStatesAcrossEndpoints'
               )
               expect(generatorConfigurations[0].optionLabel).toBe('true')
             })
         }),
-    testUtil.timeout.short(),
+    testUtil.timeout.short()
   )
 
   test(
@@ -236,7 +236,7 @@ describe('Session specific queries', () => {
       queryPackage
         .getSessionZclPackages(db, sid)
         .then((packages) => expect(packages.length).toBe(1)),
-    testUtil.timeout.short(),
+    testUtil.timeout.short()
   ) // One for zclpropertie
 
   test(
@@ -251,7 +251,7 @@ describe('Session specific queries', () => {
       value = await querySession.getSessionKeyValue(db, sid, 'nonexistent')
       expect(value).toBeUndefined()
     },
-    testUtil.timeout.short(),
+    testUtil.timeout.short()
   )
 
   test(
@@ -263,7 +263,7 @@ describe('Session specific queries', () => {
       result = await querySession.getSessionDirtyFlag(db, sid)
       expect(result).toBeFalsy()
     },
-    testUtil.timeout.short(),
+    testUtil.timeout.short()
   )
 
   test(
@@ -275,7 +275,7 @@ describe('Session specific queries', () => {
       pkgId = ctx.packageId
       let dts = await queryDeviceType.selectAllDeviceTypes(db, pkgId)
       let haOnOffDeviceTypeArray = dts.filter(
-        (data) => data.label === 'HA-onoff',
+        (data) => data.label === 'HA-onoff'
       )
       let haOnOffDeviceType = haOnOffDeviceTypeArray[0]
       let deviceTypeId = haOnOffDeviceType.id
@@ -288,7 +288,7 @@ describe('Session specific queries', () => {
         deviceTypeId,
         haOnOffDeviceType.code,
         0,
-        true,
+        true
       )
       result = await querySession.getSessionDirtyFlag(db, sid)
       expect(result).toBeTruthy()
@@ -301,7 +301,7 @@ describe('Session specific queries', () => {
       result = await querySession.getSessionDirtyFlag(db, sid)
       expect(result).toBeTruthy()
     },
-    testUtil.timeout.medium(),
+    testUtil.timeout.medium()
   )
 
   test(
@@ -311,7 +311,7 @@ describe('Session specific queries', () => {
       let value = await querySession.getSessionKeyValue(db, sid, 'testKey')
       expect(value).toBe('testValue')
     },
-    testUtil.timeout.short(),
+    testUtil.timeout.short()
   )
 
   test(
@@ -322,7 +322,7 @@ describe('Session specific queries', () => {
       pkgId = ctx.packageId
       let dts = await queryDeviceType.selectAllDeviceTypes(db, pkgId)
       let haOnOffDeviceTypeArray = dts.filter(
-        (data) => data.label === 'HA-onoff',
+        (data) => data.label === 'HA-onoff'
       )
       let haOnOffDeviceType = haOnOffDeviceTypeArray[0]
       let deviceTypeId = haOnOffDeviceType.id
@@ -336,7 +336,7 @@ describe('Session specific queries', () => {
           deviceTypeId,
           haOnOffDeviceType.code,
           0,
-          true,
+          true
         )
         .then((id) => {
           endpointTypeId = id
@@ -348,7 +348,7 @@ describe('Session specific queries', () => {
           expect(state.keyValuePairs[0].key).toBe('commandDiscovery')
           expect(state.keyValuePairs[0].value).toBe('1')
           expect(state.keyValuePairs[1].key).toBe(
-            dbEnum.sessionOption.defaultResponsePolicy,
+            dbEnum.sessionOption.defaultResponsePolicy
           )
           expect(state.keyValuePairs[1].value).toBe('always')
           expect(state.keyValuePairs[2].key).toBe('key1')
@@ -369,16 +369,16 @@ describe('Session specific queries', () => {
             genIndex = 0
           }
           expect(state.package[zclIndex].type).toBe(
-            dbEnum.packageType.zclProperties,
+            dbEnum.packageType.zclProperties
           )
           expect(state.package[zclIndex].version).toBe(1)
           expect(state.package[genIndex].type).toBe(
-            dbEnum.packageType.genTemplatesJson,
+            dbEnum.packageType.genTemplatesJson
           )
           expect(state.package[genIndex].version).toBe('test-v1')
         })
     },
-    testUtil.timeout.short(),
+    testUtil.timeout.short()
   )
 
   test(
@@ -387,7 +387,7 @@ describe('Session specific queries', () => {
       queryEndpoint.deleteEndpoint(db, 123).then((data) => {
         expect(data).toBe(0)
       }),
-    testUtil.timeout.short(),
+    testUtil.timeout.short()
   )
 })
 
@@ -403,13 +403,13 @@ describe('Endpoint Type Config Queries', () => {
           queryPackage.getSessionPackagesByType(
             db,
             sid,
-            dbEnum.packageType.zclProperties,
-          ),
+            dbEnum.packageType.zclProperties
+          )
         )
         .then((packages) => {
           pkgId = packages[0].id
         }),
-    testUtil.timeout.medium(),
+    testUtil.timeout.medium()
   )
 
   let endpointTypeIdOnOff
@@ -421,10 +421,10 @@ describe('Endpoint Type Config Queries', () => {
     () =>
       queryDeviceType.selectAllDeviceTypes(db, pkgId).then((rows) => {
         let haOnOffDeviceTypeArray = rows.filter(
-          (data) => data.label === 'HA-onoff',
+          (data) => data.label === 'HA-onoff'
         )
         let zllOnOffLightDeviceTypeArray = rows.filter(
-          (data) => data.label === 'ZLL-onofflight',
+          (data) => data.label === 'ZLL-onofflight'
         )
         expect(haOnOffDeviceTypeArray.length > 0).toBeTruthy()
         expect(zllOnOffLightDeviceTypeArray.length > 0).toBeTruthy()
@@ -433,7 +433,7 @@ describe('Endpoint Type Config Queries', () => {
         expect(typeof haOnOffDeviceType).toBe('object')
         expect(typeof zllOnOffLightDevice).toBe('object')
       }),
-    testUtil.timeout.medium(),
+    testUtil.timeout.medium()
   )
   test(
     'Insert Endpoint Type',
@@ -448,8 +448,8 @@ describe('Endpoint Type Config Queries', () => {
             haOnOffDeviceType.id,
             43,
             22,
-            true,
-          ),
+            true
+          )
         )
         .then((rowId) => {
           endpointTypeIdOnOff = rowId
@@ -462,7 +462,7 @@ describe('Endpoint Type Config Queries', () => {
           expect(endpointType.deviceVersions[0]).toBe(22)
           expect(endpointType.deviceIdentifiers[0]).toBe(43)
         }),
-    testUtil.timeout.medium(),
+    testUtil.timeout.medium()
   )
 
   test(
@@ -483,19 +483,19 @@ describe('Endpoint Type Config Queries', () => {
             endpointTypeIdOnOff,
             levelControlCluster.id,
             'CLIENT',
-            true,
+            true
           )
         })
         .then((rowId) => {
           expect(typeof rowId).toBe('number')
         })
         .then(() =>
-          testQuery.getAllEndpointTypeClusterState(db, endpointTypeIdOnOff),
+          testQuery.getAllEndpointTypeClusterState(db, endpointTypeIdOnOff)
         )
         .then((clusters) => {
           expect(clusters.length).toBe(5)
         }),
-    testUtil.timeout.medium(),
+    testUtil.timeout.medium()
   )
 
   test(
@@ -506,7 +506,7 @@ describe('Endpoint Type Config Queries', () => {
         .then((attributes) => {
           expect(attributes.length).toBe(7)
         }),
-    testUtil.timeout.medium(),
+    testUtil.timeout.medium()
   )
 
   test(
@@ -517,7 +517,7 @@ describe('Endpoint Type Config Queries', () => {
         .then((commands) => {
           expect(commands.length).toBe(6)
         }),
-    testUtil.timeout.medium(),
+    testUtil.timeout.medium()
   )
   test(
     'Test Enpoint ID related query',
@@ -527,7 +527,7 @@ describe('Endpoint Type Config Queries', () => {
       let attributeDefaultValue = 0
       let x = await queryZcl.selectEndpointTypeClustersByEndpointTypeId(
         db,
-        endpointTypeIdOnOff,
+        endpointTypeIdOnOff
       )
       expect(x.length).toBe(5)
       x.forEach((element) => {
@@ -539,7 +539,7 @@ describe('Endpoint Type Config Queries', () => {
 
       x = await queryZcl.selectEndpointTypeAttributesByEndpointId(
         db,
-        endpointTypeIdOnOff,
+        endpointTypeIdOnOff
       )
 
       expect(x.length).toBe(7)
@@ -554,19 +554,19 @@ describe('Endpoint Type Config Queries', () => {
         db,
         endpointTypeIdOnOff,
         attributeRef,
-        clusterRef,
+        clusterRef
       )
 
       expect(x.defaultValue).toBe(attributeDefaultValue)
 
       x = await queryZcl.selectEndpointTypeCommandsByEndpointId(
         db,
-        endpointTypeIdOnOff,
+        endpointTypeIdOnOff
       )
 
       expect(x.length).toBe(6)
     },
-    testUtil.timeout.medium(),
+    testUtil.timeout.medium()
   )
   test(
     'Get all cluster names',
@@ -582,10 +582,10 @@ describe('Endpoint Type Config Queries', () => {
               names.forEach((element) => {
                 expect(expectedNames.includes(element.name)).toBeTruthy()
               })
-            }),
+            })
         )
     },
-    testUtil.timeout.medium(),
+    testUtil.timeout.medium()
   )
 
   test(
@@ -597,23 +597,23 @@ describe('Endpoint Type Config Queries', () => {
           endpointTypeIdOnOff,
           levelControlCluster.id,
           'CLIENT',
-          true,
+          true
         )
         .then(() =>
           queryConfig.insertClusterDefaults(db, endpointTypeIdOnOff, pkgId, {
             clusterRef: levelControlCluster.id,
-            side: 'CLIENT',
-          }),
+            side: 'CLIENT'
+          })
         )
         .then(() =>
           testQuery
             .getEndpointTypeAttributes(db, endpointTypeIdOnOff)
             .then((attributes) => {
               expect(attributes.length).toBe(7)
-            }),
+            })
         )
     },
-    testUtil.timeout.medium(),
+    testUtil.timeout.medium()
   )
 
   test(
@@ -630,7 +630,7 @@ describe('Endpoint Type Config Queries', () => {
           expect(endpoint.networkId).toBe(9)
           expect(endpoint.endpointTypeRef).toBe(endpointTypeIdOnOff)
         }),
-    testUtil.timeout.medium(),
+    testUtil.timeout.medium()
   )
 
   test(
@@ -640,16 +640,16 @@ describe('Endpoint Type Config Queries', () => {
         expect(report.includes('Endpoint: Test endpoint')).toBeTruthy()
         expect(report.includes('0x0000: cluster: Basic (server)')).toBeTruthy()
         expect(
-          report.includes('0x0000: attribute: ZCL version [int8u]'),
+          report.includes('0x0000: attribute: ZCL version [int8u]')
         ).toBeTruthy()
         expect(
-          report.includes('0x0007: attribute: power source [enum8]'),
+          report.includes('0x0007: attribute: power source [enum8]')
         ).toBeTruthy()
         expect(report.includes('0x0006: cluster: On/off (client)')).toBeTruthy()
         expect(report.includes('0x0030: cluster: On/off')).toBeFalsy()
         expect(report.includes('0x00: command: MoveToLevel')).toBeTruthy()
       }),
-    testUtil.timeout.medium(),
+    testUtil.timeout.medium()
   )
 
   test('Test session clusters', async () => {
@@ -669,7 +669,7 @@ describe('Endpoint Type Config Queries', () => {
           expect(clusters.length).toBe(undefined)
           return Promise.resolve()
         }),
-    testUtil.timeout.medium(),
+    testUtil.timeout.medium()
   )
 
   test(
@@ -683,7 +683,7 @@ describe('Endpoint Type Config Queries', () => {
           return queryPackage.insertOptionsKeyValues(db, pkgId, 'test', [
             '1',
             '2',
-            '3',
+            '3'
           ])
         })
         .then(() => queryPackage.selectAllOptionsValues(db, pkgId, 'test'))
@@ -691,7 +691,7 @@ describe('Endpoint Type Config Queries', () => {
           expect(data.length).toBe(3)
         })
     },
-    testUtil.timeout.medium(),
+    testUtil.timeout.medium()
   )
 })
 
@@ -699,62 +699,54 @@ test(
   'Test Rest Key to DB Column Test',
   () => {
     expect(
-      queryConfig.convertRestKeyToDbColumn(restApi.updateKey.endpointId),
+      queryConfig.convertRestKeyToDbColumn(restApi.updateKey.endpointId)
     ).toEqual('ENDPOINT_IDENTIFIER')
     expect(
-      queryConfig.convertRestKeyToDbColumn(restApi.updateKey.endpointType),
+      queryConfig.convertRestKeyToDbColumn(restApi.updateKey.endpointType)
     ).toEqual('ENDPOINT_TYPE_REF')
     expect(
-      queryConfig.convertRestKeyToDbColumn(restApi.updateKey.networkId),
+      queryConfig.convertRestKeyToDbColumn(restApi.updateKey.networkId)
     ).toEqual('NETWORK_IDENTIFIER')
     expect(
-      queryConfig.convertRestKeyToDbColumn(restApi.updateKey.profileId),
+      queryConfig.convertRestKeyToDbColumn(restApi.updateKey.profileId)
     ).toEqual('PROFILE')
     expect(
-      queryConfig.convertRestKeyToDbColumn(restApi.updateKey.deviceTypeRef),
+      queryConfig.convertRestKeyToDbColumn(restApi.updateKey.deviceTypeRef)
     ).toEqual('DEVICE_TYPE_REF')
     expect(
-      queryConfig.convertRestKeyToDbColumn(restApi.updateKey.name),
+      queryConfig.convertRestKeyToDbColumn(restApi.updateKey.name)
     ).toEqual('NAME')
     expect(
-      queryConfig.convertRestKeyToDbColumn(restApi.updateKey.attributeSelected),
+      queryConfig.convertRestKeyToDbColumn(restApi.updateKey.attributeSelected)
     ).toEqual('INCLUDED')
     expect(
-      queryConfig.convertRestKeyToDbColumn(
-        restApi.updateKey.attributeSingleton,
-      ),
+      queryConfig.convertRestKeyToDbColumn(restApi.updateKey.attributeSingleton)
     ).toEqual('SINGLETON')
     expect(
-      queryConfig.convertRestKeyToDbColumn(restApi.updateKey.attributeBounded),
+      queryConfig.convertRestKeyToDbColumn(restApi.updateKey.attributeBounded)
     ).toEqual('BOUNDED')
     expect(
-      queryConfig.convertRestKeyToDbColumn(restApi.updateKey.attributeDefault),
+      queryConfig.convertRestKeyToDbColumn(restApi.updateKey.attributeDefault)
     ).toEqual('DEFAULT_VALUE')
     expect(
-      queryConfig.convertRestKeyToDbColumn(
-        restApi.updateKey.attributeReporting,
-      ),
+      queryConfig.convertRestKeyToDbColumn(restApi.updateKey.attributeReporting)
     ).toEqual('INCLUDED_REPORTABLE')
     expect(
-      queryConfig.convertRestKeyToDbColumn(
-        restApi.updateKey.attributeReportMin,
-      ),
+      queryConfig.convertRestKeyToDbColumn(restApi.updateKey.attributeReportMin)
     ).toEqual('MIN_INTERVAL')
     expect(
-      queryConfig.convertRestKeyToDbColumn(
-        restApi.updateKey.attributeReportMax,
-      ),
+      queryConfig.convertRestKeyToDbColumn(restApi.updateKey.attributeReportMax)
     ).toEqual('MAX_INTERVAL')
     expect(
       queryConfig.convertRestKeyToDbColumn(
-        restApi.updateKey.attributeReportChange,
-      ),
+        restApi.updateKey.attributeReportChange
+      )
     ).toEqual('REPORTABLE_CHANGE')
     expect(
-      queryConfig.convertRestKeyToDbColumn(restApi.updateKey.attributeStorage),
+      queryConfig.convertRestKeyToDbColumn(restApi.updateKey.attributeStorage)
     ).toEqual('STORAGE_OPTION')
   },
-  testUtil.timeout.medium(),
+  testUtil.timeout.medium()
 )
 
 test(
@@ -773,5 +765,5 @@ test(
     type = await zclUtil.determineType(db, 'int8u', pkgId)
     expect(type.type).toEqual(dbEnum.zclType.atomic)
   },
-  testUtil.timeout.medium(),
+  testUtil.timeout.medium()
 )

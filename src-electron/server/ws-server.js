@@ -49,7 +49,7 @@ function initializeWebSocket(httpServer) {
     const indexOf = url.indexOf(token)
     if (indexOf == -1) {
       throw new Error(
-        `WebSockets require a ${restApi.param.sessionId} parameter`,
+        `WebSockets require a ${restApi.param.sessionId} parameter`
       )
     }
 
@@ -88,7 +88,7 @@ function initializeWebSocket(httpServer) {
     sendWebSocketData(
       socket,
       dbEnum.wsCategory.init,
-      'WebSocket initialized handshake response.',
+      'WebSocket initialized handshake response.'
     )
   })
 }
@@ -132,7 +132,7 @@ function doSend(socket, object) {
 function sendWebSocketData(socket, category, payload) {
   let obj = {
     category: category,
-    payload: payload,
+    payload: payload
   }
   doSend(socket, obj)
 }

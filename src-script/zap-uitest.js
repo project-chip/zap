@@ -72,7 +72,7 @@ let cyp = scriptUtil.executeCmd(null, 'npx', [
   'start-test',
   'quasar dev',
   'http-get://localhost:9070',
-  `npx cypress ${cypressMode} --browser ${browserToUse} ${fixturesConfig}`,
+  `npx cypress ${cypressMode} --browser ${browserToUse} ${fixturesConfig}`
 ])
 
 cyp
@@ -91,7 +91,7 @@ svr.then(() => {
     process.exit(0)
   } else if (ignoreErrorCode) {
     console.log(
-      '⚠️ There was an error code, but will be ignored. Please check logs.',
+      '⚠️ There was an error code, but will be ignored. Please check logs.'
     )
     process.exit(0)
   } else {

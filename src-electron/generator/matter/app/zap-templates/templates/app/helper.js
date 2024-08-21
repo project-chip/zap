@@ -41,7 +41,7 @@ const kGlobalAttributes = [
   0xfffa, // EventList
   0xfffb, // AttributeList
   0xfffc, // ClusterRevision
-  0xfffd, // FeatureMap
+  0xfffd // FeatureMap
 ];
 
 let configData = undefined;
@@ -83,7 +83,7 @@ const endpointClusterWithInit = [
   'Scenes',
   'Time Format Localization',
   'Thermostat',
-  'Mode Select',
+  'Mode Select'
 ];
 const endpointClusterWithAttributeChanged = [
   'Bridged Device Basic',
@@ -91,7 +91,7 @@ const endpointClusterWithAttributeChanged = [
   'Identify',
   'Pump Configuration and Control',
   'Window Covering',
-  'Fan Control',
+  'Fan Control'
 ];
 const endpointClusterWithPreAttribute = [
   'Door Lock',
@@ -101,7 +101,7 @@ const endpointClusterWithPreAttribute = [
   'Localization Configuration',
   'Mode Select',
   'Fan Control',
-  'Thermostat',
+  'Thermostat'
 ];
 
 /**
@@ -128,7 +128,7 @@ function chip_endpoint_generated_functions() {
         : endpointClusterWithAttributeChanged.includes(clusterName);
       let isClusterPreAttributeChangedFunctionIncluded = configData
         ? configData.ClustersWithPreAttributeChangeFunctions.includes(
-            clusterName,
+            clusterName
           )
         : endpointClusterWithPreAttribute.includes(clusterName);
       if (isClusterInitFunctionIncluded) {
@@ -136,8 +136,8 @@ function chip_endpoint_generated_functions() {
         functionList = functionList.concat(
           `  (EmberAfGenericClusterFunction) emberAf${cHelper.asCamelCased(
             clusterName,
-            false,
-          )}ClusterServerInitCallback,\\\n`,
+            false
+          )}ClusterServerInitCallback,\\\n`
         );
       }
 
@@ -145,8 +145,8 @@ function chip_endpoint_generated_functions() {
         functionList = functionList.concat(
           `  (EmberAfGenericClusterFunction) Matter${cHelper.asCamelCased(
             clusterName,
-            false,
-          )}ClusterServerAttributeChangedCallback,\\\n`,
+            false
+          )}ClusterServerAttributeChangedCallback,\\\n`
         );
         hasFunctionArray = true;
       }
@@ -160,8 +160,8 @@ function chip_endpoint_generated_functions() {
         functionList = functionList.concat(
           `  (EmberAfGenericClusterFunction) Matter${cHelper.asCamelCased(
             clusterName,
-            false,
-          )}ClusterServerShutdownCallback,\\\n`,
+            false
+          )}ClusterServerShutdownCallback,\\\n`
         );
       }
 
@@ -169,8 +169,8 @@ function chip_endpoint_generated_functions() {
         functionList = functionList.concat(
           `  (EmberAfGenericClusterFunction) Matter${cHelper.asCamelCased(
             clusterName,
-            false,
-          )}ClusterServerPreAttributeChangedCallback,\\\n`,
+            false
+          )}ClusterServerPreAttributeChangedCallback,\\\n`
         );
         hasFunctionArray = true;
       }
@@ -179,8 +179,8 @@ function chip_endpoint_generated_functions() {
         ret = ret.concat(
           `const EmberAfGenericClusterFunction chipFuncArray${cHelper.asCamelCased(
             clusterName,
-            false,
-          )}Server[] = {\\\n`,
+            false
+          )}Server[] = {\\\n`
         );
         ret = ret.concat(functionList);
         ret = ret.concat(`};\\\n`);
@@ -216,8 +216,8 @@ function chip_endpoint_generated_commands_list(options) {
       acceptedCommands.push('chip::kInvalidCommandId /* end of list */');
       ret.push({
         text: `  /*   AcceptedCommandList (index=${index}) */ \\\n  ${acceptedCommands.join(
-          ', \\\n  ',
-        )}, \\`,
+          ', \\\n  '
+        )}, \\`
       });
       index += acceptedCommands.length;
     }
@@ -225,8 +225,8 @@ function chip_endpoint_generated_commands_list(options) {
       generatedCommands.push('chip::kInvalidCommandId /* end of list */');
       ret.push({
         text: `  /*   GeneratedCommandList (index=${index})*/ \\\n  ${generatedCommands.join(
-          ', \\\n  ',
-        )}, \\`,
+          ', \\\n  '
+        )}, \\`
       });
       index += generatedCommands.length;
     }
@@ -367,7 +367,7 @@ function chip_endpoint_cluster_list(options) {
           break;
         case 'attributes':
           individualItems.push(
-            `.attributes = ZAP_ATTRIBUTE_INDEX(${c.attributeIndex})`,
+            `.attributes = ZAP_ATTRIBUTE_INDEX(${c.attributeIndex})`
           );
           break;
         case 'attributeCount':
@@ -384,12 +384,12 @@ function chip_endpoint_cluster_list(options) {
           break;
         case 'acceptedCommandList':
           individualItems.push(
-            `.acceptedCommandList = ${acceptedCommandsListVal}`,
+            `.acceptedCommandList = ${acceptedCommandsListVal}`
           );
           break;
         case 'generatedCommandList':
           individualItems.push(
-            `.generatedCommandList = ${generatedCommandsListVal}`,
+            `.generatedCommandList = ${generatedCommandsListVal}`
           );
           break;
         case 'eventList':
@@ -421,7 +421,7 @@ function chip_endpoint_data_version_count() {
   let serverCount = 0;
   for (const ep of this.endpoints) {
     let epType = this.endpointTypes.find(
-      (type) => type.id == ep.endpointTypeRef,
+      (type) => type.id == ep.endpointTypeRef
     );
     for (const cluster of epType.clusters) {
       if (cluster.side == 'server') {
@@ -673,14 +673,14 @@ async function zapTypeToClusterObjectType(type, isDecodable, options) {
   async function fn(pkgId) {
     const typeChecker = async (method) =>
       zclHelper[method](this.global.db, type, pkgId).then(
-        (zclType) => zclType != 'unknown',
+        (zclType) => zclType != 'unknown'
       );
 
     const types = {
       isEnum: await typeChecker('isEnum'),
       isBitmap: await typeChecker('isBitmap'),
       isEvent: await typeChecker('isEvent'),
-      isStruct: await typeChecker('isStruct'),
+      isStruct: await typeChecker('isStruct')
     };
 
     const typesCount = Object.values(types).filter((isType) => isType).length;
@@ -704,7 +704,7 @@ async function zapTypeToClusterObjectType(type, isDecodable, options) {
       const enumObj = await zclQuery.selectEnumByName(
         this.global.db,
         type,
-        pkgId,
+        pkgId
       );
       const ns = nsValueToNamespace(options.hash.ns, enumObj.enumClusterCount);
       return ns + asUpperCamelCase.call(this, type, options);
@@ -720,11 +720,11 @@ async function zapTypeToClusterObjectType(type, isDecodable, options) {
       const bitmapObj = await zclQuery.selectBitmapByName(
         this.global.db,
         pkgId,
-        type,
+        type
       );
       const ns = nsValueToNamespace(
         options.hash.ns,
-        bitmapObj.bitmapClusterCount,
+        bitmapObj.bitmapClusterCount
       );
       return (
         'chip::BitMask<' + ns + asUpperCamelCase.call(this, type, options) + '>'
@@ -736,11 +736,11 @@ async function zapTypeToClusterObjectType(type, isDecodable, options) {
       const structObj = await zclQuery.selectStructByName(
         this.global.db,
         type,
-        pkgId,
+        pkgId
       );
       const ns = nsValueToNamespace(
         options.hash.ns,
-        structObj.structClusterCount,
+        structObj.structClusterCount
       );
       return (
         ns +
@@ -767,7 +767,7 @@ async function zapTypeToClusterObjectType(type, isDecodable, options) {
     return zclHelper.asUnderlyingZclType.call(
       { global: this.global },
       type,
-      options,
+      options
     );
   }
 
@@ -819,7 +819,7 @@ async function _zapTypeToPythonClusterObjectType(type, options) {
   async function fn(pkgId) {
     const typeChecker = async (method) =>
       zclHelper[method](this.global.db, type, pkgId).then(
-        (zclType) => zclType != 'unknown',
+        (zclType) => zclType != 'unknown'
       );
 
     if (await typeChecker('isEnum')) {
@@ -831,12 +831,12 @@ async function _zapTypeToPythonClusterObjectType(type, options) {
       const enumObj = await zclQuery.selectEnumByName(
         this.global.db,
         type,
-        pkgId,
+        pkgId
       );
 
       const ns = nsValueToPythonNamespace(
         options.hash.ns,
-        enumObj.enumClusterCount,
+        enumObj.enumClusterCount
       );
 
       return ns + '.Enums.' + type;
@@ -850,12 +850,12 @@ async function _zapTypeToPythonClusterObjectType(type, options) {
       const structObj = await zclQuery.selectStructByName(
         this.global.db,
         type,
-        pkgId,
+        pkgId
       );
 
       const ns = nsValueToPythonNamespace(
         options.hash.ns,
-        structObj.structClusterCount,
+        structObj.structClusterCount
       );
 
       return ns + '.Structs.' + type;
@@ -893,7 +893,7 @@ async function _zapTypeToPythonClusterObjectType(type, options) {
     let resolvedType = await zclHelper.asUnderlyingZclType.call(
       { global: this.global },
       type,
-      options,
+      options
     );
     {
       let basicType = ChipTypesHelper.asBasicType(resolvedType);
@@ -916,7 +916,7 @@ async function _zapTypeToPythonClusterObjectType(type, options) {
 
   if (isNull && isOptional) {
     promise = promise.then(
-      (typeStr) => `typing.Union[None, Nullable, ${typeStr}]`,
+      (typeStr) => `typing.Union[None, Nullable, ${typeStr}]`
     );
   } else if (isNull) {
     promise = promise.then((typeStr) => `typing.Union[Nullable, ${typeStr}]`);
@@ -935,7 +935,7 @@ async function _getPythonFieldDefault(type, options) {
   async function fn(pkgId) {
     const typeChecker = async (method) =>
       zclHelper[method](this.global.db, type, pkgId).then(
-        (zclType) => zclType != 'unknown',
+        (zclType) => zclType != 'unknown'
       );
 
     if (await typeChecker('isEnum')) {
@@ -950,12 +950,12 @@ async function _getPythonFieldDefault(type, options) {
       const structObj = await zclQuery.selectStructByName(
         this.global.db,
         type,
-        pkgId,
+        pkgId
       );
 
       const ns = nsValueToPythonNamespace(
         options.hash.ns,
-        structObj.structClusterCount,
+        structObj.structClusterCount
       );
 
       return 'field(default_factory=lambda: ' + ns + '.Structs.' + type + '())';
@@ -989,7 +989,7 @@ async function _getPythonFieldDefault(type, options) {
     let resolvedType = await zclHelper.asUnderlyingZclType.call(
       { global: this.global },
       type,
-      options,
+      options
     );
     {
       let basicType = ChipTypesHelper.asBasicType(resolvedType);
@@ -1072,7 +1072,7 @@ function isWeaklyTypedEnum(label) {
         'StatusCode',
         'StepMode',
         'TemperatureDisplayMode',
-        'WiFiVersionType',
+        'WiFiVersionType'
       ];
     }
   }
@@ -1110,7 +1110,7 @@ async function zcl_events_fields_by_event_name(name, options) {
       fields.map((field) => {
         field.label = field.name;
         return field;
-      }),
+      })
     )
     .then((fields) => templateUtil.collectBlocks(fields, options, this));
   return templateUtil.templatePromise(this.global, promise);
@@ -1123,7 +1123,7 @@ async function zcl_commands_that_need_timed_invoke(options) {
   let commands = await queryCommand.selectCommandsByClusterId(
     db,
     this.id,
-    packageIds,
+    packageIds
   );
   commands = commands.filter((cmd) => cmd.mustUseTimedInvoke);
   return templateUtil.collectBlocks(commands, options, this);
@@ -1207,10 +1207,10 @@ exports.zapTypeToDecodableClusterObjectType =
   zapTypeToDecodableClusterObjectType;
 exports.zapTypeToPythonClusterObjectType = zapTypeToPythonClusterObjectType;
 exports.isWeaklyTypedEnum = dep(isWeaklyTypedEnum, {
-  to: 'isInConfigList',
+  to: 'isInConfigList'
 });
 exports.isLegacyStruct = dep(isLegacyStruct, {
-  to: 'isInConfigList',
+  to: 'isInConfigList'
 });
 exports.isInConfigList = isInConfigList;
 exports.getPythonFieldDefault = getPythonFieldDefault;
@@ -1223,5 +1223,5 @@ exports.if_is_non_zero_default = if_is_non_zero_default;
 
 exports.meta = {
   category: dbEnum.helperCategory.matter,
-  alias: ['templates/app/helper.js', 'matter-app-helper'],
+  alias: ['templates/app/helper.js', 'matter-app-helper']
 };

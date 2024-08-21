@@ -27,7 +27,7 @@ let args = process.argv.slice(2);
 
 if (args[0] == null) {
   console.log(
-    'Usage: node copy-from-sdk.js <MATTER_SDK_ROOT> [all|examples|src]',
+    'Usage: node copy-from-sdk.js <MATTER_SDK_ROOT> [all|examples|src]'
   );
   process.exit(1);
 }
@@ -52,7 +52,7 @@ const srcDirectories = [
   'app/zap-templates/common/simulated-clusters',
   'app/zap-templates/common/simulated-clusters/clusters',
   'app/zap-templates/common/attributes',
-  'app/zap-templates/common/variables',
+  'app/zap-templates/common/variables'
 ];
 
 const examplesDirectories = [
@@ -61,7 +61,7 @@ const examplesDirectories = [
   'chip-tool/templates/tests',
   'chip-tool/templates',
   'placeholder/templates',
-  'placeholder/linux/apps/app1',
+  'placeholder/linux/apps/app1'
 ];
 
 if (what == 'all' || what == 'src')

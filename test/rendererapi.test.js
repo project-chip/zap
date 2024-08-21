@@ -29,5 +29,5 @@ test(
     expect(api.prefix).toEqual('zap')
     expect(api.functions.length).toBeGreaterThanOrEqual(2)
   },
-  timeout.short(),
+  timeout.short()
 )

@@ -36,7 +36,7 @@ const dbCache = require('./db-cache')
 async function selectEndpointTypeAttributesByEndpointTypeRefAndClusterRef(
   db,
   endpointTypeRef,
-  endpointTypeClusterRef,
+  endpointTypeClusterRef
 ) {
   let rows = await dbApi.dbAll(
     db,
@@ -63,7 +63,7 @@ async function selectEndpointTypeAttributesByEndpointTypeRefAndClusterRef(
       ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
     WHERE
       ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = ? and ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF = ?`,
-    [endpointTypeRef, endpointTypeClusterRef],
+    [endpointTypeRef, endpointTypeClusterRef]
   )
   return rows.map(dbMapping.map.endpointTypeAttribute)
 }
@@ -80,7 +80,7 @@ async function selectEndpointTypeAttributesByEndpointTypeRefAndClusterRef(
 async function duplicateEndpointTypeAttribute(
   db,
   newEndpointTypeClusterRef,
-  attribute,
+  attribute
 ) {
   return await dbApi.dbInsert(
     db,
@@ -120,8 +120,8 @@ async function duplicateEndpointTypeAttribute(
       attribute.includedReportable,
       attribute.minInterval,
       attribute.maxInterval,
-      attribute.reportableChange,
-    ],
+      attribute.reportableChange
+    ]
   )
 }
 
@@ -138,7 +138,7 @@ async function selectAllAttributeDetailsFromEnabledClusters(
   db,
   endpointsAndClusters,
   packageIds,
-  side = null,
+  side = null
 ) {
   let sideFilter = ''
   if (side) {
@@ -214,7 +214,7 @@ async function selectAllAttributeDetailsFromEnabledClusters(
    ${sideFilter}
    GROUP BY CLUSTER.MANUFACTURER_CODE, CLUSTER.CODE, ATTRIBUTE.MANUFACTURER_CODE, ATTRIBUTE.CODE, ATTRIBUTE.SIDE
    ORDER BY ATTRIBUTE.CODE
-        `,
+        `
     )
     .then((rows) => rows.map(dbMapping.map.endpointTypeAttributeExtended))
 }
@@ -234,7 +234,7 @@ async function selectAttributeDetailsFromAllEndpointTypesAndClustersUtil(
   db,
   endpointsAndClusters,
   isManufacturingSpecific,
-  packageIds,
+  packageIds
 ) {
   let endpointTypeIds = endpointsAndClusters
     .map((ep) => ep.endpointId)
@@ -280,7 +280,7 @@ async function selectAttributeDetailsFromAllEndpointTypesAndClustersUtil(
     AND ENDPOINT_TYPE_ATTRIBUTE.INCLUDED = 1
     AND ATTRIBUTE.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
   GROUP BY ATTRIBUTE.NAME
-        `,
+        `
     )
     .then((rows) => rows.map(dbMapping.map.endpointTypeAttributeExtended))
 }
@@ -296,13 +296,13 @@ async function selectAttributeDetailsFromAllEndpointTypesAndClustersUtil(
 async function selectManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters(
   db,
   endpointsAndClusters,
-  packageIds,
+  packageIds
 ) {
   return selectAttributeDetailsFromAllEndpointTypesAndClustersUtil(
     db,
     endpointsAndClusters,
     true,
-    packageIds,
+    packageIds
   )
 }
 
@@ -317,13 +317,13 @@ async function selectManufacturerSpecificAttributeDetailsFromAllEndpointTypesAnd
 async function selectNonManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters(
   db,
   endpointsAndClusters,
-  packageIds,
+  packageIds
 ) {
   return selectAttributeDetailsFromAllEndpointTypesAndClustersUtil(
     db,
     endpointsAndClusters,
     false,
-    packageIds,
+    packageIds
   )
 }
 
@@ -339,7 +339,7 @@ async function selectNonManufacturerSpecificAttributeDetailsFromAllEndpointTypes
 async function selectAttributeDetailsWithABoundFromEnabledClusters(
   db,
   endpointsAndClusters,
-  packageIds,
+  packageIds
 ) {
   let endpointClusterIds = endpointsAndClusters
     .map((ep) => ep.endpointClusterId)
@@ -352,7 +352,7 @@ async function selectAttributeDetailsWithABoundFromEnabledClusters(
       clusterName: x.CLUSTER_NAME,
       attributeMinValue: x.MIN,
       attributeMaxValue: x.MAX,
-      defaultValue: x.DEFAULT_VALUE,
+      defaultValue: x.DEFAULT_VALUE
     }
   }
   return dbApi
@@ -390,7 +390,7 @@ WHERE ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF in (${endpointClusterIds
   AND ENDPOINT_TYPE_CLUSTER.ENABLED=1
   AND ATTRIBUTE.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
 GROUP BY CLUSTER.MANUFACTURER_CODE, CLUSTER.CODE, ATTRIBUTE.MANUFACTURER_CODE, ATTRIBUTE.NAME, ATTRIBUTE.SIDE
-        `,
+        `
     )
     .then((rows) => rows.map(mapFunction))
 }
@@ -405,7 +405,7 @@ GROUP BY CLUSTER.MANUFACTURER_CODE, CLUSTER.CODE, ATTRIBUTE.MANUFACTURER_CODE, A
 async function selectAttributeDetailsFromEnabledClusters(
   db,
   endpointsAndClusters,
-  packageIds,
+  packageIds
 ) {
   let endpointClusterIds = endpointsAndClusters
     .map((ep) => ep.endpointClusterId)
@@ -443,8 +443,8 @@ async function selectAttributeDetailsFromEnabledClusters(
       maxTokenAttributeSize: x.MAX_TOKEN_ATTRIBUTE_SIZE,
       isString: x.IS_STRING,
       isManufacturingSpecific: dbApi.toDbBool(
-        x.MANUFACTURER_CODE | x.CLUSTER_MANUFACTURER_CODE,
-      ), // Is Attribute mfg specific or not
+        x.MANUFACTURER_CODE | x.CLUSTER_MANUFACTURER_CODE
+      ) // Is Attribute mfg specific or not
     }
   }
   return dbApi
@@ -548,7 +548,7 @@ async function selectAttributeDetailsFromEnabledClusters(
   AND ATTRIBUTE.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
   GROUP BY CLUSTER.MANUFACTURER_CODE, CLUSTER.CODE, ATTRIBUTE.CODE, ATTRIBUTE.MANUFACTURER_CODE, ATTRIBUTE.SIDE
   ORDER BY CLUSTER.MANUFACTURER_CODE, CLUSTER.CODE, ENDPOINT_TYPE_CLUSTER.SIDE, ATTRIBUTE.CODE, ATTRIBUTE.MANUFACTURER_CODE
-        `,
+        `
     )
     .then((rows) => rows.map(mapFunction))
 }
@@ -569,7 +569,7 @@ async function selectAttributeDetailsFromEnabledClusters(
 async function selectAttributeBoundDetails(
   db,
   endpointsAndClusters,
-  packageIds,
+  packageIds
 ) {
   let endpointClusterIds = endpointsAndClusters
     .map((ep) => ep.endpointClusterId)
@@ -586,7 +586,7 @@ async function selectAttributeBoundDetails(
       attributeValueType: x.ATTRIBUTE_VALUE_TYPE,
       arrayIndex: x.ARRAY_INDEX,
       isString: x.IS_STRING,
-      isSingleton: x.SINGLETON,
+      isSingleton: x.SINGLETON
     }
   }
   return dbApi
@@ -719,7 +719,7 @@ AND (CASE
   END) > 2 AND ENDPOINT_TYPE_ATTRIBUTE.INCLUDED = 1 AND ATT_VALUE IS NOT NULL AND ATT_VALUE != "" AND ENDPOINT_TYPE_ATTRIBUTE.BOUNDED !=0 AND REPLACE(ATT_VALUE, '0', '')!='x' AND REPLACE(ATT_VALUE, '0', '')!=''
   AND ATTRIBUTE.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
 GROUP BY CLUSTER.MANUFACTURER_CODE, CLUSTER.CODE, ATTRIBUTE.CODE, ATTRIBUTE.MANUFACTURER_CODE, ATTRIBUTE.SIDE )
-        `,
+        `
     )
     .then((rows) => rows.map(mapFunction))
 }
@@ -734,7 +734,7 @@ GROUP BY CLUSTER.MANUFACTURER_CODE, CLUSTER.CODE, ATTRIBUTE.CODE, ATTRIBUTE.MANU
 async function selectReportableAttributeDetailsFromEnabledClustersAndEndpoints(
   db,
   endpointsAndClusters,
-  packageIds,
+  packageIds
 ) {
   let endpointClusterIds = endpointsAndClusters
     .map((ep) => ep.endpointClusterId)
@@ -751,7 +751,7 @@ async function selectReportableAttributeDetailsFromEnabledClustersAndEndpoints(
       attributeReportableMinValue: x.MIN_INTERVAL,
       attributeReportableMaxValue: x.MAX_INTERVAL,
       attributeReportableChange: x.REPORTABLE_CHANGE,
-      endpointIdentifier: x.ENDPOINT_IDENTIFIER,
+      endpointIdentifier: x.ENDPOINT_IDENTIFIER
     }
   }
   return dbApi
@@ -788,7 +788,7 @@ async function selectReportableAttributeDetailsFromEnabledClustersAndEndpoints(
   GROUP BY CASE WHEN SINGLETON=0 THEN ENDPOINT.ENDPOINT_IDENTIFIER END, CLUSTER.MANUFACTURER_CODE, CLUSTER.CODE, ATTRIBUTE.CODE, ATTRIBUTE.MANUFACTURER_CODE, ATTRIBUTE.SIDE
   HAVING CASE WHEN SINGLETON=1 THEN ENDPOINT.ENDPOINT_IDENTIFIER = MIN(ENDPOINT.ENDPOINT_IDENTIFIER) ELSE SINGLETON=0 END
   ORDER BY ENDPOINT.ENDPOINT_IDENTIFIER, CLUSTER.MANUFACTURER_CODE, CLUSTER.CODE, ATTRIBUTE.CODE, ATTRIBUTE.MANUFACTURER_CODE
-        `,
+        `
     )
     .then((rows) => rows.map(mapFunction))
 }
@@ -798,14 +798,14 @@ async function selectAttributeByCode(
   packageIds,
   clusterCode,
   attributeCode,
-  manufacturerCode,
+  manufacturerCode
 ) {
   if (clusterCode == null) {
     return selectGlobalAttributeByCode(
       db,
       packageIds,
       attributeCode,
-      manufacturerCode,
+      manufacturerCode
     )
   } else {
     return selectNonGlobalAttributeByCode(
@@ -813,7 +813,7 @@ async function selectAttributeByCode(
       packageIds,
       clusterCode,
       attributeCode,
-      manufacturerCode,
+      manufacturerCode
     )
   }
 }
@@ -823,7 +823,7 @@ async function selectNonGlobalAttributeByCode(
   packageIds,
   clusterCode,
   attributeCode,
-  manufacturerCode,
+  manufacturerCode
 ) {
   let manufacturerCondition
   let arg = [attributeCode, clusterCode]
@@ -873,7 +873,7 @@ WHERE A.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
   AND A.CODE = ?
   AND C.CODE = ?
   AND ${manufacturerCondition}`,
-      arg,
+      arg
     )
     .then(dbMapping.map.attribute)
 }
@@ -882,7 +882,7 @@ async function selectGlobalAttributeByCode(
   db,
   packageIds,
   attributeCode,
-  manufacturerCode,
+  manufacturerCode
 ) {
   let manufacturerCondition
   let arg = [attributeCode]
@@ -929,7 +929,7 @@ FROM ATTRIBUTE AS A
 WHERE A.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
   AND A.CODE = ?
   AND ${manufacturerCondition}`,
-      arg,
+      arg
     )
     .then(dbMapping.map.attribute)
 }
@@ -963,7 +963,7 @@ WHERE
 ORDER BY
   GAD.CLUSTER_REF, GAD.ATTRIBUTE_REF, GAB.BIT
 `,
-      [clusterRef, attributeRef],
+      [clusterRef, attributeRef]
     )
     .then((rows) =>
       rows.reduce((ac, row) => {
@@ -977,7 +977,7 @@ ORDER BY
           ac.featureBits.push({ bit: row.BIT, value: row.VALUE, tag: row.TAG })
         }
         return ac
-      }, {}),
+      }, {})
     )
 }
 
@@ -995,7 +995,7 @@ async function selectTokenAttributesForEndpoint(
   db,
   packageIds,
   endpointTypeRef,
-  options,
+  options
 ) {
   let singletonQuery =
     'isSingleton' in options.hash
@@ -1044,7 +1044,7 @@ async function selectTokenAttributesForEndpoint(
     ATTRIBUTE.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
   ${singletonQuery}
     `,
-    endpointTypeRef,
+    endpointTypeRef
   )
   return rows.map(dbMapping.map.endpointTypeAttributeExtended)
 }
@@ -1062,7 +1062,7 @@ async function selectAllUserTokenAttributes(
   db,
   sessionId,
   packageIds,
-  options,
+  options
 ) {
   const tokenSqlQuery = `SELECT
   ATTRIBUTE.NAME,
@@ -1162,7 +1162,7 @@ AND
       )
     ORDER BY
       TOKEN_ID
-    `,
+    `
   )
 
   return rows.map(dbMapping.map.endpointTypeAttributeExtended)
@@ -1217,13 +1217,13 @@ async function selectAttributeMappingsByPackageIds(db, packageIds) {
     OR
       A2.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
 
-    `,
+    `
   )
   return rows.map(dbMapping.map.attributeMapping)
 }
 
 exports.selectAllAttributeDetailsFromEnabledClusters = dbCache.cacheQuery(
-  selectAllAttributeDetailsFromEnabledClusters,
+  selectAllAttributeDetailsFromEnabledClusters
 )
 exports.selectManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters =
   selectManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClusters
@@ -1232,10 +1232,10 @@ exports.selectNonManufacturerSpecificAttributeDetailsFromAllEndpointTypesAndClus
 exports.selectAttributeDetailsWithABoundFromEnabledClusters =
   dbCache.cacheQuery(selectAttributeDetailsWithABoundFromEnabledClusters)
 exports.selectAttributeDetailsFromEnabledClusters = dbCache.cacheQuery(
-  selectAttributeDetailsFromEnabledClusters,
+  selectAttributeDetailsFromEnabledClusters
 )
 exports.selectAttributeBoundDetails = dbCache.cacheQuery(
-  selectAttributeBoundDetails,
+  selectAttributeBoundDetails
 )
 exports.selectReportableAttributeDetailsFromEnabledClustersAndEndpoints =
   selectReportableAttributeDetailsFromEnabledClustersAndEndpoints

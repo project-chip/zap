@@ -53,7 +53,7 @@ function httpPostFileOpen(db) {
       let p
       if (studio.integrationEnabled(db, req.zapSessionId)) {
         p = path.posix.dirname(
-          path.posix.dirname(path.posix.dirname(zapFilePath)),
+          path.posix.dirname(path.posix.dirname(zapFilePath))
         )
       } else {
         p = path.posix.basename(zapFilePath)
@@ -66,7 +66,7 @@ function httpPostFileOpen(db) {
         // set path before importDataFromFile() to avoid triggering DIRTY flag
         if (ideProjectPath) {
           env.logInfo(
-            `StudioUC(${name}): Setting project path to ${ideProjectPath}`,
+            `StudioUC(${name}): Setting project path to ${ideProjectPath}`
           )
         }
         // store studio project path
@@ -74,21 +74,21 @@ function httpPostFileOpen(db) {
           db,
           req.zapSessionId,
           dbEnum.sessionKey.ideProjectPath,
-          ideProjectPath,
+          ideProjectPath
         )
 
         let importResult = await importJs.importDataFromFile(db, zapFilePath, {
-          sessionId: req.zapSessionId,
+          sessionId: req.zapSessionId
         })
 
         let response = {
           sessionId: importResult.sessionId,
-          sessionKey: req.zapSessionId,
+          sessionKey: req.zapSessionId
         }
         env.logInfo(
           `Loaded project(${name}) into database. RESP: ${JSON.stringify(
-            response,
-          )}`,
+            response
+          )}`
         )
 
         res.status(StatusCodes.OK).json(response)
@@ -97,12 +97,12 @@ function httpPostFileOpen(db) {
         let errMsg = {
           project: e.project,
           message: e.message,
-          stack: e.stack,
+          stack: e.stack
         }
         studio.sendSessionCreationErrorStatus(
           db,
           errMsg.message,
-          req.zapSessionId,
+          req.zapSessionId
         )
         env.logError(e.message)
         queryNotification.setNotification(
@@ -111,7 +111,7 @@ function httpPostFileOpen(db) {
           errMsg.message,
           req.zapSessionId,
           1,
-          0,
+          0
         )
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(errMsg)
       }
@@ -124,7 +124,7 @@ function httpPostFileOpen(db) {
         errMsg.message,
         req.zapSessionId,
         2,
-        0,
+        0
       )
       res.status(StatusCodes.BAD_REQUEST).send({ error: msg })
     }
@@ -147,7 +147,7 @@ function httpPostFileSave(db) {
       actualPath = await querySession.getSessionKeyValue(
         db,
         req.zapSessionId,
-        dbEnum.sessionKey.filePath,
+        dbEnum.sessionKey.filePath
       )
     } else {
       actualPath = await querySession
@@ -155,7 +155,7 @@ function httpPostFileSave(db) {
           db,
           req.zapSessionId,
           dbEnum.sessionKey.filePath,
-          zapPath,
+          zapPath
         )
         .then(() => zapPath)
     }
@@ -165,7 +165,7 @@ function httpPostFileSave(db) {
         let filePath = await exportJs.exportDataIntoFile(
           db,
           req.zapSessionId,
-          actualPath,
+          actualPath
         )
         res.status(StatusCodes.OK).send({ filePath: filePath })
       } catch (err) {
@@ -177,7 +177,7 @@ function httpPostFileSave(db) {
           msg,
           req.zapSessionId,
           1,
-          0,
+          0
         )
         res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err)
       }
@@ -204,17 +204,17 @@ function httpGetFileIsDirty(db) {
 exports.post = [
   {
     uri: restApi.ide.open,
-    callback: httpPostFileOpen,
+    callback: httpPostFileOpen
   },
   {
     uri: restApi.ide.save,
-    callback: httpPostFileSave,
-  },
+    callback: httpPostFileSave
+  }
 ]
 
 exports.get = [
   {
     uri: restApi.ide.isDirty,
-    callback: httpGetFileIsDirty,
-  },
+    callback: httpGetFileIsDirty
+  }
 ]

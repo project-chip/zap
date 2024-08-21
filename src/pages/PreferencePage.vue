@@ -68,13 +68,13 @@ export default {
     PreferencePackage,
     PreferenceGeneration,
     PreferenceUser,
-    About,
+    About
   },
   data() {
     return {
       tab: 'user',
-      splitterModel: 20,
+      splitterModel: 20
     }
-  },
+  }
 }
 </script>

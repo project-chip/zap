@@ -29,7 +29,7 @@ const querySessionZcl = require('../db/query-session-zcl.js')
 async function availableClusters(context) {
   let clusters = querySessionZcl.selectAllSessionClusters(
     context.db,
-    context.sessionId,
+    context.sessionId
   )
   return clusters
 }
@@ -43,7 +43,7 @@ async function availableClusters(context) {
 async function availableEvents(context) {
   let packageIds = await queryPackage.getSessionZclPackageIds(
     context.db,
-    context.sessionId,
+    context.sessionId
   )
   let events = await queryEvent.selectAllEvents(context.db, packageIds)
   return events
@@ -58,7 +58,7 @@ async function availableEvents(context) {
 async function availableCommands(context) {
   let packageIds = await queryPackage.getSessionZclPackageIds(
     context.db,
-    context.sessionId,
+    context.sessionId
   )
   let commands = await queryCommand.selectAllCommands(context.db, packageIds)
   return commands
@@ -73,7 +73,7 @@ async function availableCommands(context) {
 async function availableAttributes(context) {
   let packageIds = await queryPackage.getSessionZclPackageIds(
     context.db,
-    context.sessionId,
+    context.sessionId
   )
   let attributes = await queryZcl.selectAllAttributes(context.db, packageIds)
   return attributes

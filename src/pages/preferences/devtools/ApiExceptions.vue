@@ -46,12 +46,12 @@ import PreferencePageLayout from '../../../layouts/PreferencePageLayout.vue'
 export default {
   name: 'ZclExceptions',
   components: {
-    PreferencePageLayout,
+    PreferencePageLayout
   },
   computed: {
     exceptions() {
       return this.$store.state.zap.exceptions
-    },
-  },
+    }
+  }
 }
 </script>

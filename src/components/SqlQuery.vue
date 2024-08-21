@@ -46,14 +46,14 @@ export default {
           this.items = [error]
         }
       })
-    },
+    }
   },
   data() {
     return {
       text: '',
       resultSummary: '',
-      items: '',
+      items: ''
     }
-  },
+  }
 }
 </script>

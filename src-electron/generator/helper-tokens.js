@@ -30,7 +30,7 @@ function token_cluster_create(config) {
     hasSingletons: false,
     singletons: {},
     hasNonSingletons: false,
-    nonSingletons: {},
+    nonSingletons: {}
   }
 }
 
@@ -65,7 +65,7 @@ async function tokens_context(options) {
     nonSingletons: {},
     dictionary: {},
     maxSize: 1,
-    token_id: 0xb000,
+    token_id: 0xb000
   }
   let promises = []
   let packageIds = await templateUtil.ensureZclPackageIds(this)
@@ -78,7 +78,7 @@ async function tokens_context(options) {
       clusters: {},
       dictionary: {},
       hasNonSingletons: false,
-      nonSingletons: {},
+      nonSingletons: {}
     }
     context.endpoints[ep.id] = ep
     this.endpointTypes.forEach((ept) => {
@@ -139,7 +139,7 @@ async function tokens_context(options) {
                   maxLength: attribute.maxLength,
                   serverSide: 'server' == attribute.side,
                   isSingleton: attribute.isSingleton,
-                  cluster: ep_cl,
+                  cluster: ep_cl
                 }
                 // Register the new attribute
                 if (attr.isSingleton) {
@@ -159,7 +159,7 @@ async function tokens_context(options) {
                       this.global.db,
                       packageIds,
                       attribute,
-                      `ERROR: ${attribute.name}, invalid size, ${attribute.type}`,
+                      `ERROR: ${attribute.name}, invalid size, ${attribute.type}`
                     )
                     .then((size) => {
                       attr.typeSize = size
@@ -167,13 +167,13 @@ async function tokens_context(options) {
                         attr.longDefault = types.longTypeDefaultValue(
                           attr.typeSize,
                           attr.type,
-                          attr.defaultValue,
+                          attr.defaultValue
                         )
                       }
                       if (size > context.maxSize) {
                         context.maxSize = size
                       }
-                    }), // then size
+                    }) // then size
                 ) // push(promise(type))
               } // new attribute
             } // NVM
@@ -212,7 +212,7 @@ async function tokens_context(options) {
 
   return templateUtil.templatePromise(
     this.global,
-    Promise.all(promises).then(() => options.fn(context)),
+    Promise.all(promises).then(() => options.fn(context))
   )
 }
 
@@ -241,7 +241,7 @@ async function token_attribute_util(context, options) {
     context.global.db,
     context.global.sessionId,
     packageIds,
-    options,
+    options
   )
   return res
 }
@@ -269,7 +269,7 @@ async function token_attributes(endpointTypeRef, options) {
         this.global.db,
         packageIds,
         endpointTypeRef,
-        options,
+        options
       )
     return templateUtil.collectBlocks(endpointTokenAttributes, options, this)
   } else {
@@ -302,12 +302,12 @@ async function token_attribute_clusters(endpointTypeRef, options) {
         this.global.db,
         packageIds,
         endpointTypeRef,
-        options,
+        options
       )
     return templateUtil.collectBlocks(
       endpointTokenAttributeClusters,
       options,
-      this,
+      this
     )
   } else {
     // All token attribute clusters available in the configuration
@@ -319,7 +319,7 @@ async function token_attribute_clusters(endpointTypeRef, options) {
         this.global.db,
         this.global.sessionId,
         packageIds,
-        options,
+        options
       )
     return templateUtil.collectBlocks(allTokenAttributeClusters, options, this)
   }
@@ -338,16 +338,16 @@ async function token_attribute_endpoints(options) {
   let allTokenAttributes = await token_attribute_util(this, options)
   if (isSingletonSpecific) {
     allTokenAttributes = allTokenAttributes.filter(
-      (item) => item.isSingleton == options.hash.isSingleton,
+      (item) => item.isSingleton == options.hash.isSingleton
     )
   }
   let uniqueEndpoints = [
     ...new Map(
       allTokenAttributes.map((item) => [
         item['endpointId'],
-        { endpointId: item.endpointId, endpointTypeRef: item.endpointTypeRef },
-      ]),
-    ).values(),
+        { endpointId: item.endpointId, endpointTypeRef: item.endpointTypeRef }
+      ])
+    ).values()
   ]
   uniqueEndpoints.sort((a, b) => (a.endpointId > b.endpointId ? 1 : -1))
   return templateUtil.collectBlocks(uniqueEndpoints, options, this)
@@ -363,11 +363,11 @@ const dep = templateUtil.deprecatedHelper
 
 exports.tokens_context = dep(
   tokens_context,
-  'tokens_context has been deprecated. Use token_attributes, token_attribute_clusters and token_attribute_endpoints instead.',
+  'tokens_context has been deprecated. Use token_attributes, token_attribute_clusters and token_attribute_endpoints instead.'
 )
 exports.token_next = dep(
   token_next,
-  'token_next has been deprecated. Use token_attributes, token_attribute_clusters and token_attribute_endpoints instead.',
+  'token_next has been deprecated. Use token_attributes, token_attribute_clusters and token_attribute_endpoints instead.'
 )
 exports.debug_object = debug_object
 exports.token_attributes = token_attributes

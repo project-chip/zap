@@ -28,7 +28,7 @@ let cmdArgs = [
   'convert',
   '--noUi',
   '--noServer',
-  '--noZapFileLog',
+  '--noZapFileLog'
 ]
 cmdArgs.push(...args)
 

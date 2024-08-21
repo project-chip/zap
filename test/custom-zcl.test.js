@@ -34,7 +34,7 @@ beforeAll(async () => {
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
     env.schemaFile(),
-    env.zapVersion(),
+    env.zapVersion()
   )
   await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
   sid = await testQuery.createSession(
@@ -42,7 +42,7 @@ beforeAll(async () => {
     'USER',
     'SESSION',
     env.builtinSilabsZclMetafile(),
-    env.builtinTemplateMetafile(),
+    env.builtinTemplateMetafile()
   )
 }, testUtil.timeout.medium())
 
@@ -55,27 +55,27 @@ test(
     x = await dbApi.dbAll(
       db,
       'SELECT * FROM CLUSTER WHERE MANUFACTURER_CODE = ?',
-      [testClusterCode],
+      [testClusterCode]
     )
     expect(x.length).toEqual(0)
 
     x = await dbApi.dbAll(
       db,
       'SELECT * FROM ATTRIBUTE WHERE MANUFACTURER_CODE = ?',
-      [testClusterCode],
+      [testClusterCode]
     )
     expect(x.length).toEqual(0)
 
     x = await dbApi.dbAll(
       db,
       'SELECT * FROM COMMAND WHERE MANUFACTURER_CODE = ?',
-      [testClusterCode],
+      [testClusterCode]
     )
     expect(x.length).toEqual(0)
     let result = await zclLoader.loadIndividualFile(
       db,
       testUtil.testCustomXml,
-      sid,
+      sid
     )
     if (!result.succeeded) {
       console.log(`Test failure: ${result.err}`)
@@ -85,23 +85,23 @@ test(
     x = await dbApi.dbAll(
       db,
       'SELECT * FROM CLUSTER WHERE MANUFACTURER_CODE = ?',
-      [testClusterCode],
+      [testClusterCode]
     )
     expect(x.length).toEqual(1)
 
     x = await dbApi.dbAll(
       db,
       'SELECT * FROM ATTRIBUTE WHERE MANUFACTURER_CODE = ?',
-      [testClusterCode],
+      [testClusterCode]
     )
     expect(x.length).toEqual(4)
 
     x = await dbApi.dbAll(
       db,
       'SELECT * FROM COMMAND WHERE MANUFACTURER_CODE = ?',
-      [testClusterCode],
+      [testClusterCode]
     )
     expect(x.length).toEqual(3)
   },
-  testUtil.timeout.medium(),
+  testUtil.timeout.medium()
 )

@@ -31,9 +31,9 @@ export default {
   props: {
     uiTheme: {
       type: String,
-      default: '',
-    },
-  },
+      default: ''
+    }
+  }
 }
 </script>
 

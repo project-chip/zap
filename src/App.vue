@@ -51,7 +51,7 @@ window.addEventListener(
       case 'theme':
         window[rendApi.GLOBAL_SYMBOL_EXECUTE](
           rendApi.id.setDarkTheme,
-          eventData.theme === 'dark',
+          eventData.theme === 'dark'
         )
         break
       case 'save':
@@ -62,12 +62,12 @@ window.addEventListener(
       case 'open-file':
         observable.setObservableAttribute(
           rendApi.observable.reported_files,
-          eventData,
+          eventData
         )
         break
     }
   },
-  false,
+  false
 )
 
 async function initLoad(store) {
@@ -76,44 +76,44 @@ async function initLoad(store) {
   promises.push(
     store.dispatch('zap/loadOptions', {
       key: 'coreSpecification',
-      type: 'string',
-    }),
+      type: 'string'
+    })
   )
   promises.push(
     store.dispatch('zap/loadOptions', {
       key: 'clusterSpecification',
-      type: 'string',
-    }),
+      type: 'string'
+    })
   )
   promises.push(
     store.dispatch('zap/loadOptions', {
       key: 'deviceTypeSpecification',
-      type: 'string',
-    }),
+      type: 'string'
+    })
   )
   promises.push(
     store.dispatch('zap/loadOptions', {
       key: 'defaultResponsePolicy',
-      type: 'string',
-    }),
+      type: 'string'
+    })
   )
   promises.push(
     store.dispatch('zap/loadOptions', {
       key: 'manufacturerCodes',
-      type: 'object',
-    }),
+      type: 'object'
+    })
   )
   promises.push(
     store.dispatch('zap/loadOptions', {
       key: 'profileCodes',
-      type: 'object',
-    }),
+      type: 'object'
+    })
   )
   promises.push(
     store.dispatch('zap/loadOptions', {
       key: 'generator',
-      type: 'object',
-    }),
+      type: 'object'
+    })
   )
   promises.push(store.dispatch('zap/loadSessionKeyValues'))
 
@@ -134,7 +134,7 @@ async function initLoad(store) {
 export default defineComponent({
   name: 'App',
   components: {
-    ZclTour,
+    ZclTour
   },
   mixins: [CommonMixin],
   computed: {
@@ -155,8 +155,8 @@ export default defineComponent({
               .category
           }
         }
-      },
-    },
+      }
+    }
   },
   methods: {
     parseQueryString() {
@@ -184,7 +184,7 @@ export default defineComponent({
     setTheme() {
       window[rendApi.GLOBAL_SYMBOL_EXECUTE](
         rendApi.id.setDarkTheme,
-        storage.getItem(rendApi.storageKey.isDarkThemeActive),
+        storage.getItem(rendApi.storageKey.isDarkThemeActive)
       )
     },
 
@@ -204,7 +204,7 @@ export default defineComponent({
           spinner: QSpinnerGears,
           messageColor: 'white',
           message: progressMessage,
-          spinnerSize: 300,
+          spinnerSize: 300
         })
       } else {
         this.$q.loading.hide()
@@ -224,7 +224,7 @@ export default defineComponent({
         this.$serverGet(restApi.uri.uiOptions).then((res) => {
           this.$store.commit(
             'zap/updateIsProfileIdShown',
-            res.data.showProfileId,
+            res.data.showProfileId
           )
         })
       }
@@ -244,7 +244,7 @@ export default defineComponent({
       if (`debugNavBar` in query) {
         this.$store.dispatch(
           'zap/setDebugNavBar',
-          query[`debugNavBar`] === 'true',
+          query[`debugNavBar`] === 'true'
         )
       } else {
         // If we don't specify it, default is on.
@@ -258,7 +258,7 @@ export default defineComponent({
       if (`setSaveButtonVisible` in query) {
         this.$store.dispatch(
           'zap/setSaveButtonVisible',
-          query[`setSaveButtonVisible`] === 'true',
+          query[`setSaveButtonVisible`] === 'true'
         )
       } else {
         // If we don't specify it, default is off.
@@ -274,7 +274,7 @@ export default defineComponent({
         rendApi.observable.progress_attribute,
         (message) => {
           this.setGenerationInProgress(message)
-        },
+        }
       )
 
       initLoad(this.$store).then(() => {
@@ -289,7 +289,7 @@ export default defineComponent({
         dbEnum.wsCategory.updateSelectedUcComponents,
         (resp) => {
           this.$store.dispatch('zap/updateSelectedUcComponentState', resp)
-        },
+        }
       )
 
       this.$onWebSocket(dbEnum.wsCategory.dirtyFlag, (resp) => {
@@ -299,7 +299,7 @@ export default defineComponent({
     addClassToBody() {
       document.body.classList.remove('matter', 'zigbee', 'multiprotocol')
       document.body.classList.add(this.uiThemeCategory)
-    },
+    }
   },
   created() {
     this.parseQueryString()
@@ -313,10 +313,10 @@ export default defineComponent({
       {
         eventId: 'mounted',
         eventData: {
-          hasMounted: true,
-        },
+          hasMounted: true
+        }
       },
-      '*',
+      '*'
     )
   },
   unmounted() {
@@ -335,8 +335,8 @@ export default defineComponent({
     },
     uiThemeCategory() {
       this.addClassToBody()
-    },
-  },
+    }
+  }
 })
 </script>
 <style lang="scss" scoped>

@@ -29,9 +29,9 @@ async function selectAccessOperations(db, packageIds) {
       db,
       `
 SELECT NAME, DESCRIPTION FROM OPERATION WHERE PACKAGE_REF IN (${dbApi.toInClause(
-        packageIds,
+        packageIds
       )}) ORDER BY NAME
-`,
+`
     )
     .then((rows) => rows.map(dbMapping.map.accessOperation))
 }
@@ -42,9 +42,9 @@ async function selectAccessRoles(db, packageIds) {
       db,
       `
 SELECT NAME, DESCRIPTION, LEVEL FROM ROLE WHERE PACKAGE_REF IN (${dbApi.toInClause(
-        packageIds,
+        packageIds
       )}) ORDER BY NAME
-    `,
+    `
     )
     .then((rows) => rows.map(dbMapping.map.accessRole))
 }
@@ -55,9 +55,9 @@ async function selectAccessModifiers(db, packageIds) {
       db,
       `
 SELECT NAME, DESCRIPTION FROM ACCESS_MODIFIER WHERE PACKAGE_REF IN (${dbApi.toInClause(
-        packageIds,
+        packageIds
       )}) ORDER BY NAME
-    `,
+    `
     )
     .then((rows) => rows.map(dbMapping.map.accessModifier))
 }
@@ -94,7 +94,7 @@ ON A.ACCESS_MODIFIER_REF = ACCESS_MODIFIER.ACCESS_MODIFIER_ID
 WHERE DA.PACKAGE_REF IN (${dbApi.toInClause(packageIds)}) AND DA.ENTITY_TYPE = ?
 ORDER BY OPERATION.NAME, ROLE.NAME, ACCESS_MODIFIER.NAME
 `,
-      [type],
+      [type]
     )
     .then((rows) => rows.map(dbMapping.map.access))
 }
@@ -123,7 +123,7 @@ ON A.ACCESS_MODIFIER_REF = ACCESS_MODIFIER.ACCESS_MODIFIER_ID
 WHERE AA.ATTRIBUTE_REF = ?
 ORDER BY OPERATION.NAME, ROLE.NAME, ACCESS_MODIFIER.NAME
 `,
-      [attributeId],
+      [attributeId]
     )
     .then((rows) => rows.map(dbMapping.map.access))
 }
@@ -152,7 +152,7 @@ ON A.ACCESS_MODIFIER_REF = ACCESS_MODIFIER.ACCESS_MODIFIER_ID
 WHERE CA.COMMAND_REF = ?
 ORDER BY OPERATION.NAME, ROLE.NAME, ACCESS_MODIFIER.NAME
 `,
-      [commandId],
+      [commandId]
     )
     .then((rows) => rows.map(dbMapping.map.access))
 }
@@ -181,7 +181,7 @@ ON A.ACCESS_MODIFIER_REF = ACCESS_MODIFIER.ACCESS_MODIFIER_ID
 WHERE EA.EVENT_REF = ?
 ORDER BY OPERATION.NAME, ROLE.NAME, ACCESS_MODIFIER.NAME
 `,
-      [eventId],
+      [eventId]
     )
     .then((rows) => rows.map(dbMapping.map.access))
 }

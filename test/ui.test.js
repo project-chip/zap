@@ -49,7 +49,7 @@ import ZapStore from '../src/store/index.js'
 
 const router = createRouter({
   history: createWebHistory(),
-  routes,
+  routes
 })
 
 installQuasarPlugin()
@@ -61,133 +61,133 @@ describe('Component mounting test', () => {
     () => {
       const wrapper = shallowMount(ZclAttributeManager, {
         global: {
-          plugins: [ZapStore()],
-        },
+          plugins: [ZapStore()]
+        }
       })
       expect(wrapper.html().length).toBeGreaterThan(100)
     },
-    timeout.short(),
+    timeout.short()
   )
   test(
     'ZclAttributeReportingManager',
     () => {
       const wrapper = shallowMount(ZclAttributeReportingManager, {
         global: {
-          plugins: [ZapStore()],
-        },
+          plugins: [ZapStore()]
+        }
       })
       expect(ZclAttributeReportingManager.data()).not.toBe(null)
       expect(wrapper.html().length).toBeGreaterThan(100)
     },
-    timeout.short(),
+    timeout.short()
   )
   test(
     'ZclClusterManager',
     () => {
       const wrapper = shallowMount(ZclClusterManager, {
         global: {
-          plugins: [ZapStore()],
-        },
+          plugins: [ZapStore()]
+        }
       })
       expect(wrapper.html().length).toBeGreaterThan(10)
     },
-    timeout.short(),
+    timeout.short()
   )
   test(
     'ZclClusterView',
     () => {
       const wrapper = shallowMount(ZclClusterView, {
         global: {
-          plugins: [ZapStore()],
-        },
+          plugins: [ZapStore()]
+        }
       })
       expect(wrapper.find('#ZclClusterView').exists()).toBe(true)
     },
-    timeout.short(),
+    timeout.short()
   )
   test(
     'ZclCommandManager',
     () => {
       const wrapper = shallowMount(ZclCommandManager, {
         global: {
-          plugins: [ZapStore()],
-        },
+          plugins: [ZapStore()]
+        }
       })
       expect(wrapper.html().length).toBeGreaterThan(60)
     },
-    timeout.short(),
+    timeout.short()
   )
   test(
     'ZclCreateModifyEndpoint',
     () => {
       const wrapper = mount(ZclCreateModifyEndpoint, {
         global: {
-          plugins: [ZapStore()],
-        },
+          plugins: [ZapStore()]
+        }
       })
       expect(wrapper.html().length).toBeGreaterThan(100)
     },
-    timeout.short(),
+    timeout.short()
   )
   test(
     'ZclDomainClusterView',
     () => {
       const wrapper = shallowMount(ZclDomainClusterView, {
         global: {
-          plugins: [ZapStore()],
-        },
+          plugins: [ZapStore()]
+        }
       })
       expect(wrapper.html().length).toBeGreaterThan(100)
     },
-    timeout.short(),
+    timeout.short()
   )
   test(
     'ZclEndpointCard',
     () => {
       const wrapper = shallowMount(ZclEndpointCard, {
         global: {
-          plugins: [ZapStore()],
-        },
+          plugins: [ZapStore()]
+        }
       })
       expect(wrapper.html().length).toBeGreaterThan(100)
     },
-    timeout.short(),
+    timeout.short()
   )
   test(
     'ZclEndpointManager',
     () => {
       const wrapper = shallowMount(ZclEndpointManager, {
         global: {
-          plugins: [ZapStore()],
-        },
+          plugins: [ZapStore()]
+        }
       })
       expect(wrapper.html().length).toBeGreaterThan(100)
     },
-    timeout.short(),
+    timeout.short()
   )
   test(
     'Options',
     () => {
       const wrapper = shallowMount(Options, {
         global: {
-          plugins: [ZapStore()],
-        },
+          plugins: [ZapStore()]
+        }
       })
       expect(wrapper.html().length).toBeGreaterThan(50)
     },
-    timeout.short(),
+    timeout.short()
   )
   test(
     'ZclInformationSetup',
     () => {
       const wrapper = shallowMount(ZclInformationSetup, {
         global: {
-          plugins: [ZapStore()],
-        },
+          plugins: [ZapStore()]
+        }
       })
       expect(wrapper.html().length).toBeGreaterThan(100)
     },
-    timeout.short(),
+    timeout.short()
   )
 
   test(
@@ -195,13 +195,13 @@ describe('Component mounting test', () => {
     () => {
       const wrapper = shallowMount(MainLayout, {
         global: {
-          plugins: [ZapStore(), router],
+          plugins: [ZapStore(), router]
         },
-        router,
+        router
       })
       expect(wrapper.html().length).toBeGreaterThan(60)
     },
-    timeout.short(),
+    timeout.short()
   )
 
   test(
@@ -209,96 +209,96 @@ describe('Component mounting test', () => {
     () => {
       const wrapper = shallowMount(Notifications, {
         global: {
-          plugins: [ZapStore()],
-        },
+          plugins: [ZapStore()]
+        }
       })
       expect(wrapper.html().length).toBeGreaterThan(50)
     },
-    timeout.short(),
+    timeout.short()
   )
   test(
     'Error404',
     () => {
       const wrapper = shallowMount(Error404, {
         global: {
-          plugins: [ZapStore()],
-        },
+          plugins: [ZapStore()]
+        }
       })
       expect(wrapper.html().length).toBeGreaterThan(50)
     },
-    timeout.short(),
+    timeout.short()
   )
   test(
     'Preference',
     () => {
       const wrapper = shallowMount(Preference, {
         global: {
-          plugins: [ZapStore()],
-        },
+          plugins: [ZapStore()]
+        }
       })
       expect(wrapper.html().length).toBeGreaterThan(50)
     },
-    timeout.short(),
+    timeout.short()
   )
   test(
     'PreferenceGeneration',
     () => {
       const wrapper = shallowMount(PreferenceGeneration, {
         global: {
-          plugins: [ZapStore()],
-        },
+          plugins: [ZapStore()]
+        }
       })
       expect(wrapper.html().length).toBeGreaterThan(50)
     },
-    timeout.short(),
+    timeout.short()
   )
   test(
     'PreferenceUser',
     () => {
       const wrapper = shallowMount(PreferenceUser, {
         global: {
-          plugins: [ZapStore()],
-        },
+          plugins: [ZapStore()]
+        }
       })
       expect(wrapper.html().length).toBeGreaterThan(50)
     },
-    timeout.short(),
+    timeout.short()
   )
   test(
     'PreferencePackage',
     () => {
       const wrapper = shallowMount(PreferencePackage, {
         global: {
-          plugins: [ZapStore()],
-        },
+          plugins: [ZapStore()]
+        }
       })
       expect(wrapper.html().length).toBeGreaterThan(50)
     },
-    timeout.short(),
+    timeout.short()
   )
   test(
     'ZclSettings',
     () => {
       const wrapper = shallowMount(ZclSettings, {
         global: {
-          plugins: [ZapStore()],
-        },
+          plugins: [ZapStore()]
+        }
       })
       expect(wrapper.html().length).toBeGreaterThan(50)
     },
-    timeout.short(),
+    timeout.short()
   )
   test(
     'Extensions',
     () => {
       const wrapper = shallowMount(Extensions, {
         global: {
-          plugins: [ZapStore()],
-        },
+          plugins: [ZapStore()]
+        }
       })
       expect(wrapper.html().length).toBeGreaterThan(50)
     },
-    timeout.short(),
+    timeout.short()
   )
   test(
     'About',
@@ -306,7 +306,7 @@ describe('Component mounting test', () => {
       const wrapper = shallowMount(About, { store: ZapStore() })
       expect(wrapper.html().length).toBeGreaterThan(50)
     },
-    timeout.short(),
+    timeout.short()
   )
 })
 
@@ -334,6 +334,6 @@ describe('DOM tests', () => {
 
       expect(value).toEqual('value1')
     },
-    timeout.short(),
+    timeout.short()
   )
 })

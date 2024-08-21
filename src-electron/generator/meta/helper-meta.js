@@ -21,5 +21,5 @@ async function meta_stamp() {
 
 exports.meta_stamp = meta_stamp
 exports.meta = {
-  alias: ['meta-helper'],
+  alias: ['meta-helper']
 }

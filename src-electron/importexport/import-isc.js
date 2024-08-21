@@ -132,7 +132,7 @@ function parseZclAfv2Line(state, line) {
     // Create a temporary state.endpointType
     state.endpointType = {
       typeName: line.substring('beginEndpointType:'.length),
-      clusterOverride: [],
+      clusterOverride: []
     }
   } else if (line.startsWith('endEndpointType')) {
     // Stick the endpoint into `state.endpointTypes[endpointType.typeName]'
@@ -152,7 +152,7 @@ function parseZclAfv2Line(state, line) {
     let override = {
       clusterId: parseInt(idOnOff[0]),
       isIncluded: idOnOff[1] == 'yes',
-      side: dbEnum.side.client,
+      side: dbEnum.side.client
     }
     state.endpointType.clusterOverride.push(override)
   } else if (line.startsWith('overrideServerCluster:')) {
@@ -160,7 +160,7 @@ function parseZclAfv2Line(state, line) {
     let override = {
       clusterId: parseInt(idOnOff[0]),
       isIncluded: idOnOff[1] == 'yes',
-      side: dbEnum.side.server,
+      side: dbEnum.side.server
     }
     state.endpointType.clusterOverride.push(override)
   } else if (line.startsWith('intMap:DefaultResponsePolicy = ')) {
@@ -281,12 +281,12 @@ async function readIscData(filePath, data, zclMetafile) {
     attributeType: [],
     zclMetafile: zclMetafile,
     sessionKey: {},
-    networks: [],
+    networks: []
   }
 
   state.log.push({
     timestamp: new Date().toISOString(),
-    log: `Imported from ${path.basename(filePath)}`,
+    log: `Imported from ${path.basename(filePath)}`
   })
   lines.forEach((line) => {
     if (line == '{setupId:zclAfv2') {
@@ -324,7 +324,7 @@ async function readIscData(filePath, data, zclMetafile) {
   delete state.parseState
   if (errorLines.length > 0) {
     throw new Error(
-      'Error while importing the file:\n  - ' + errorLines.join('\n  - '),
+      'Error while importing the file:\n  - ' + errorLines.join('\n  - ')
     )
   } else {
     return state
@@ -355,14 +355,14 @@ async function loadEndpointType(db, sessionId, packageId, endpointType) {
       db,
       packageId,
       dbEnum.customDevice.code,
-      dbEnum.customDevice.name,
+      dbEnum.customDevice.name
     )
   } else {
     dev = await queryDeviceType.selectDeviceTypeByCodeAndName(
       db,
       packageId,
       deviceCode,
-      deviceName,
+      deviceName
     )
   }
 
@@ -373,7 +373,7 @@ async function loadEndpointType(db, sessionId, packageId, endpointType) {
     await querySession.selectSessionPartitionInfoFromDeviceType(
       db,
       sessionId,
-      dev.id,
+      dev.id
     )
   return queryConfig.insertEndpointType(
     db,
@@ -382,7 +382,7 @@ async function loadEndpointType(db, sessionId, packageId, endpointType) {
     dev.id,
     dev.code,
     deviceVersion,
-    false,
+    false
   )
 }
 
@@ -398,7 +398,7 @@ async function loadSingleAttribute(db, endpointTypeId, packageId, at) {
     at.clusterCode,
     at.attributeCode,
     at.side,
-    at.mfgCode,
+    at.mfgCode
   )
 
   if (id == null) {
@@ -408,14 +408,14 @@ async function loadSingleAttribute(db, endpointTypeId, packageId, at) {
         db,
         packageId,
         at.clusterCode,
-        at.mfgCode,
+        at.mfgCode
       )
       let attribute = await queryAttribute.selectAttributeByCode(
         db,
         packageId,
         at.clusterCode,
         at.attributeCode,
-        at.mfgCode,
+        at.mfgCode
       )
       if (cluster == null || attribute == null) {
         let message = `Could not resolve attribute ${at.clusterCode} / ${at.attributeCode}`
@@ -425,7 +425,7 @@ async function loadSingleAttribute(db, endpointTypeId, packageId, at) {
           'WARNING',
           message,
           packageId,
-          2,
+          2
         )
         return
       }
@@ -440,7 +440,7 @@ async function loadSingleAttribute(db, endpointTypeId, packageId, at) {
         [{ key: restApi.updateKey.attributeSelected, value: 1 }],
         attribute.reportMinInterval,
         attribute.reportMaxInterval,
-        attribute.reportableChange,
+        attribute.reportableChange
       )
     } else {
       // This is ok: we are iterating over all endpoint type ids,
@@ -471,7 +471,7 @@ async function loadSingleAttribute(db, endpointTypeId, packageId, at) {
   if ('reportableChange' in at) {
     keyValuePairs.push([
       restApi.updateKey.attributeReportChange,
-      at.reportableChange,
+      at.reportableChange
     ])
     reportable = true
   }
@@ -501,7 +501,7 @@ async function loadImplementedCommandsForEndpoint(
   zclPackageId,
   state,
   commandExtensions,
-  endpointTypeId,
+  endpointTypeId
 ) {
   let codes = {}
   for (const ext of commandExtensions.defaults) {
@@ -520,14 +520,14 @@ async function loadImplementedCommandsForEndpoint(
     let cluster = await queryZcl.selectClusterByCode(
       db,
       zclPackageId,
-      clusterCode,
+      clusterCode
     )
     for (const commandCode of Object.keys(commandIds)) {
       let command = await queryCommand.selectCommandByCode(
         db,
         zclPackageId,
         clusterCode,
-        commandCode,
+        commandCode
       )
       if (cluster != null && command != null) {
         // Inject the corresponding cluster command combo into endpoint
@@ -538,7 +538,7 @@ async function loadImplementedCommandsForEndpoint(
           command.source,
           command.id,
           1,
-          true,
+          true
         )
         insertionPromises.push(p)
       }
@@ -562,7 +562,7 @@ async function loadImplementedCommandsExtensions(
   zclPackageId,
   state,
   commandExtensions,
-  endpointTypeIdArray,
+  endpointTypeIdArray
 ) {
   let promises = []
   for (let endpointTypeId of endpointTypeIdArray) {
@@ -572,8 +572,8 @@ async function loadImplementedCommandsExtensions(
         zclPackageId,
         state,
         commandExtensions,
-        endpointTypeId,
-      ),
+        endpointTypeId
+      )
     )
   }
   return Promise.all(promises)
@@ -592,7 +592,7 @@ async function loadCommands(
   state,
   zclPackageId,
   genPackageId,
-  endpointTypeIdArray,
+  endpointTypeIdArray
 ) {
   if (genPackageId != null) {
     let commandExtensions =
@@ -600,7 +600,7 @@ async function loadCommands(
         db,
         genPackageId,
         'implementedCommands',
-        dbEnum.packageExtensionEntity.command,
+        dbEnum.packageExtensionEntity.command
       )
     if (
       commandExtensions != null &&
@@ -612,7 +612,7 @@ async function loadCommands(
         zclPackageId,
         state,
         commandExtensions,
-        endpointTypeIdArray,
+        endpointTypeIdArray
       )
     }
   }
@@ -668,25 +668,25 @@ async function iscDataLoader(db, state, sessionId) {
     'UPGRADE',
     'ISC FILE UPGRADED TO ZAP FILE. PLEASE SAVE AS TO SAVE OFF NEWLY CREATED ZAP FILE.',
     sessionId,
-    2,
+    2
   )
 
   // We don't have the package info inside ISC file, so we
   // do our best here.
   await util.ensurePackagesAndPopulateSessionOptions(db, sessionId, {
     zcl: state.zclMetafile,
-    template: null,
+    template: null
   })
   let zclPackages = await queryPackage.getSessionPackagesByType(
     db,
     sessionId,
-    dbEnum.packageType.zclProperties,
+    dbEnum.packageType.zclProperties
   )
 
   let genPackages = await queryPackage.getSessionPackagesByType(
     db,
     sessionId,
-    dbEnum.packageType.genTemplatesJson,
+    dbEnum.packageType.genTemplatesJson
   )
 
   if (zclPackages.length == 0) {
@@ -702,7 +702,7 @@ async function iscDataLoader(db, state, sessionId) {
       'No gen packages, missing the extensions matching.',
       sessionId,
       2,
-      0,
+      0
     )
   } else {
     genPackageId = genPackages[0].id
@@ -723,7 +723,7 @@ async function iscDataLoader(db, state, sessionId) {
         .then((newEndpointTypeId) => {
           return {
             endpointTypeId: newEndpointTypeId,
-            endpointType: endpointTypes[key],
+            endpointType: endpointTypes[key]
           }
         })
         .then((endpointTypeIds) => {
@@ -740,14 +740,14 @@ async function iscDataLoader(db, state, sessionId) {
                 endpointTypeIds.endpointTypeId,
                 clusterCode,
                 isIncluded,
-                side,
-              ),
+                side
+              )
             )
           })
           return Promise.all(clusterOverridePromises).then(
-            () => endpointTypeIds,
+            () => endpointTypeIds
           )
-        }),
+        })
     )
   }
 
@@ -783,9 +783,9 @@ async function iscDataLoader(db, state, sessionId) {
               ep.endpoint,
               endpointTypeId,
               ep.network,
-              ep.profileId,
+              ep.profileId
             )
-            .then(() => endpointTypeId),
+            .then(() => endpointTypeId)
         )
       }
     })
@@ -803,7 +803,7 @@ async function iscDataLoader(db, state, sessionId) {
     zclPackageId: zclPackageId,
     templateIds: genPackages,
     errors: [],
-    warnings: [],
+    warnings: []
   }
 }
 

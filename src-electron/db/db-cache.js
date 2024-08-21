@@ -84,7 +84,7 @@ function cacheQuery(queryFunction) {
       // assume queryFunction's first argument is always the DB connection handler
       let key = JSON.stringify([
         queryFunction.name,
-        Array.prototype.slice.call(arguments, 1),
+        Array.prototype.slice.call(arguments, 1)
       ])
 
       // check cache

@@ -46,7 +46,7 @@ function showErrorMessage(title, err) {
 function openFileConfiguration(filePath, httpPort, standalone = false) {
   window.windowCreate(httpPort, {
     filePath,
-    standalone,
+    standalone
   })
 }
 
@@ -95,8 +95,8 @@ function openFileDialogAndReportResult(browserWindow, options) {
     buttonLabel: 'Generate',
     filters: [
       { name: 'ZCL File Type', extensions: ['json', 'xml'] },
-      { name: 'All Files', extensions: ['*'] },
-    ],
+      { name: 'All Files', extensions: ['*'] }
+    ]
   }
 
   if (options.buttonLabel) {
@@ -124,7 +124,7 @@ function openFileDialogAndReportResult(browserWindow, options) {
 
       let output = {
         context: options.context,
-        filePaths: paths,
+        filePaths: paths
       }
       browserApi.reportFiles(browserWindow, output)
     }
@@ -137,11 +137,11 @@ function enableUi(port, zapFiles, uiMode, standalone) {
     return openNewConfiguration(port, {
       uiMode: uiMode,
       standalone: standalone,
-      filePath: null,
+      filePath: null
     })
   } else {
     return util.executePromisesSequentially(zapFiles, (f) =>
-      openFileConfiguration(f, port),
+      openFileConfiguration(f, port)
     )
   }
 }

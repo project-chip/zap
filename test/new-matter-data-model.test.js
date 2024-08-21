@@ -37,7 +37,7 @@ beforeAll(async () => {
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
     env.schemaFile(),
-    env.zapVersion(),
+    env.zapVersion()
   )
 }, testUtil.timeout.medium())
 
@@ -57,9 +57,9 @@ test(
     }
 
     const attributes = await queryZcl.selectAllAttributes(db, [
-      zclContext.packageId,
+      zclContext.packageId
     ])
     expect(attributes.length).toBeGreaterThanOrEqual(4)
   },
-  testUtil.timeout.medium(),
+  testUtil.timeout.medium()
 )

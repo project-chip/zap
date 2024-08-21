@@ -37,7 +37,7 @@ beforeAll(async () => {
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
     env.schemaFile(),
-    env.zapVersion(),
+    env.zapVersion()
   )
   return zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
 }, testUtil.timeout.medium())
@@ -51,7 +51,7 @@ test(
   async () => {
     let context = await genEngine.loadTemplates(
       db,
-      testUtil.testTemplate.zigbee,
+      testUtil.testTemplate.zigbee
     )
     expect(context.crc).not.toBeNull()
     expect(context.templateData).not.toBeNull()
@@ -61,7 +61,7 @@ test(
     expect(context.packageId).not.toBeNull()
     templateContext = context
   },
-  testUtil.timeout.medium(),
+  testUtil.timeout.medium()
 )
 
 test(
@@ -69,11 +69,11 @@ test(
   async () => {
     templateContext.packages = await queryPackage.getPackageByParent(
       templateContext.db,
-      templateContext.packageId,
+      templateContext.packageId
     )
     expect(templateContext.packages.length).toBe(templateCount - 1 + 3) // -1 for ignored one, two for helpers and one for overridable
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -81,7 +81,7 @@ test(
   async () => {
     let { sessionId, errors, warnings } = await importJs.importDataFromFile(
       db,
-      testFile,
+      testFile
     )
     expect(errors.length).toBe(0)
     expect(warnings.length).toBe(0)
@@ -90,7 +90,7 @@ test(
     let result = await zclLoader.loadIndividualFile(
       db,
       testUtil.testCustomXml2,
-      sessionId,
+      sessionId
     )
     if (!result.succeeded) {
       console.log(result)
@@ -104,8 +104,8 @@ test(
       {},
       {
         generateOnly: 'zap-command-parser-ver-4.c',
-        disableDeprecationWarnings: true,
-      },
+        disableDeprecationWarnings: true
+      }
     )
 
     let pv4 = genResult.content['zap-command-parser-ver-4.c']
@@ -113,19 +113,19 @@ test(
     expect(pv4).toContain('case 0xFC57: //Manufacturing Specific cluster')
     expect(pv4).toContain('case 0x1217: // Cluster: SL Works With All Hubs')
     expect(pv4).toContain(
-      'result = emberAfSlWorksWithAllHubsClusterClientCommandParse(cmd);',
+      'result = emberAfSlWorksWithAllHubsClusterClientCommandParse(cmd);'
     )
     expect(pv4).toContain('case 0xFC02: //Manufacturing Specific cluster')
     expect(pv4).toContain('case 0x1002: // Cluster: MFGLIB Cluster')
     expect(pv4).toContain(
-      'result = emberAfMfglibClusterClusterServerCommandParse(cmd);',
+      'result = emberAfMfglibClusterClusterServerCommandParse(cmd);'
     )
 
     // Load a custom xml with device types
     result = await zclLoader.loadIndividualFile(
       db,
       testUtil.testCustomXmlDeviceType,
-      sessionId,
+      sessionId
     )
     if (!result.succeeded) {
       console.log(result)
@@ -137,7 +137,7 @@ test(
       db,
       result.packageId,
       0x0002,
-      'DUT-Server',
+      'DUT-Server'
     )
     expect(customDeviceType).not.toBeNull()
     expect(customDeviceType.name).toBe('DUT-Server')
@@ -146,9 +146,9 @@ test(
     let deviceTypeClusters =
       await queryDeviceType.selectDeviceTypeClustersByDeviceTypeRef(
         db,
-        customDeviceType.id,
+        customDeviceType.id
       )
     expect(deviceTypeClusters.length).toBe(2) // 2 device type clusters associated with this device type.
   },
-  testUtil.timeout.long(),
+  testUtil.timeout.long()
 )

@@ -27,7 +27,7 @@ const filename = process.argv[2]
 const readInterface = readline.createInterface({
   input: fs.createReadStream(filename),
   //output: process.stdout,
-  console: false,
+  console: false
 })
 
 let exports = []

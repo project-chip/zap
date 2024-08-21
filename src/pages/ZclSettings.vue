@@ -34,12 +34,12 @@ export default {
       if (test) {
         test.map((a) => console.log(a))
       }
-    },
+    }
   },
   data() {
     return {
-      files: [],
+      files: []
     }
-  },
+  }
 }
 </script>

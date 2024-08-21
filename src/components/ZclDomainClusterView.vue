@@ -95,13 +95,13 @@ limitations under the License.
                           {
                             state: this.selectionClients.includes(id),
                             role: ZclClusterRole.client,
-                            action: ZclClusterRoleAction.Add,
+                            action: ZclClusterRoleAction.Add
                           },
                           {
                             state: this.selectionServers.includes(id),
                             role: ZclClusterRole.server,
-                            action: ZclClusterRoleAction.Add,
-                          },
+                            action: ZclClusterRoleAction.Add
+                          }
                         ])
                       "
                       >Install</q-btn
@@ -232,7 +232,7 @@ import uiOptions from '../util/ui-options'
 let ZclClusterRoleAction = {
   Add: 'add',
   Remove: 'remove',
-  NoAction: 'NoAction',
+  NoAction: 'NoAction'
 }
 let ZclClusterRole = { server: 'server', client: 'client' }
 
@@ -244,17 +244,17 @@ export default {
     showStatus: {
       get() {
         return !this.$store.state.zap.standalone
-      },
+      }
     },
     recommendedClients: {
       get() {
         return this.$store.state.zap.clustersView.recommendedClients
-      },
+      }
     },
     recommendedServers: {
       get() {
         return this.$store.state.zap.clustersView.recommendedServers
-      },
+      }
     },
     visibleColumns: function () {
       let names = this.columns.map((x) => x.name)
@@ -282,7 +282,7 @@ export default {
       }
 
       return hasNotEnabled && this.$store.state.zap.showDevTools
-    },
+    }
   },
   methods: {
     enableAllClusters() {
@@ -291,13 +291,13 @@ export default {
           {
             state: true,
             role: ZclClusterRole.client,
-            action: ZclClusterRoleAction.Add,
+            action: ZclClusterRoleAction.Add
           },
           {
             state: true,
             role: ZclClusterRole.server,
-            action: ZclClusterRoleAction.Add,
-          },
+            action: ZclClusterRoleAction.Add
+          }
         ])
       })
     },
@@ -309,7 +309,7 @@ export default {
     },
     missingClusterMessage(clusterData) {
       let missingRequiredClusterPair = this.getMissingRequiredClusterPair(
-        clusterData.id,
+        clusterData.id
       )
       let msg = ''
       if (
@@ -372,7 +372,7 @@ export default {
         missingClient:
           this.recommendedClients.includes(id) && !this.isClientEnabled(id),
         missingServer:
-          this.recommendedServers.includes(id) && !this.isServerEnabled(id),
+          this.recommendedServers.includes(id) && !this.isServerEnabled(id)
       }
     },
     isRequiredClusterMissingForId(id) {
@@ -414,18 +414,18 @@ export default {
           role: ZclClusterRole.client,
           action: this.zclClusterRoleAction(
             this.selectionClients.includes(id),
-            event.client,
+            event.client
           ),
-          state: event.client,
+          state: event.client
         },
         {
           role: ZclClusterRole.server,
           action: this.zclClusterRoleAction(
             this.selectionServers.includes(id),
-            event.server,
+            event.server
           ),
-          state: event.server,
-        },
+          state: event.server
+        }
       ]
     },
     zclClusterRoleAction(before, after) {
@@ -471,7 +471,7 @@ export default {
       await this.updateZclRolesByClusterSelection(id, selectionEvents)
       if (this.shareClusterStatesAcrossEndpoints()) {
         await this.$store.dispatch('zap/shareClusterStatesAcrossEndpoints', {
-          endpointTypeIdList: this.endpointTypeIdList,
+          endpointTypeIdList: this.endpointTypeIdList
         })
       }
       await this.updateUcComponentsByClusterSelection(id, selectionEvents)
@@ -485,7 +485,7 @@ export default {
           id: id,
           added: client.state,
           listType: 'selectedClients',
-          view: 'clustersView',
+          view: 'clustersView'
         })
         .then(() =>
           this.$store.dispatch('zap/updateSelectedServers', {
@@ -493,8 +493,8 @@ export default {
             id: id,
             added: server.state,
             listType: 'selectedServers',
-            view: 'clustersView',
-          }),
+            view: 'clustersView'
+          })
         )
 
       this.$store.commit('zap/updateIsClusterOptionChanged', true)
@@ -512,7 +512,7 @@ export default {
         let args = {
           clusterId: id,
           side: addRoles,
-          added: true,
+          added: true
         }
         console.log(`adding uc component: ${JSON.stringify(args)}`)
         this.updateSelectedComponentRequest(args)
@@ -523,23 +523,23 @@ export default {
         let endpointsClusterInfo = await Promise.all(
           Object.keys(this.endpointId).map((id) =>
             this.$serverGet(`${restApi.uri.endpointTypeClusters}${id}`).then(
-              (res) => res.data,
-            ),
-          ),
+              (res) => res.data
+            )
+          )
         )
         endpointsClusterInfo = endpointsClusterInfo.flat()
 
         if (endpointsClusterInfo?.length) {
           for (const role of removeRoles) {
             let endpoints = endpointsClusterInfo.filter(
-              (x) => x.clusterRef == id && x.side == role && x.enabled,
+              (x) => x.clusterRef == id && x.side == role && x.enabled
             )
 
             if (endpoints.length == 0) {
               let args = {
                 clusterId: id,
                 side: [role],
-                added: false,
+                added: false
               }
               console.log(`removing uc component: ${JSON.stringify(args)}`)
               this.updateSelectedComponentRequest(args)
@@ -552,20 +552,20 @@ export default {
       this.$store.dispatch('zap/updateSelectedCluster', cluster).then(() => {
         this.$store.dispatch(
           'zap/refreshEndpointTypeCluster',
-          this.selectedEndpointTypeId,
+          this.selectedEndpointTypeId
         )
         this.$store.dispatch('zap/setLastSelectedDomain', this.domainName)
       })
     },
     ucLabel(id) {
       let list = this.$store.state.zap.studio.ucComponents.filter(
-        (x) => x.name === id,
+        (x) => x.name === id
       )
       return list && list.length ? list[0].label : ''
     },
     missingRequiredUcComponents(cluster) {
       return this.missingUcComponentDependencies(cluster)
-    },
+    }
   },
 
   data() {
@@ -578,17 +578,17 @@ export default {
         { label: 'Not Enabled', client: false, server: false },
         { label: 'Client', client: true, server: false },
         { label: 'Server', client: false, server: true },
-        { label: 'Client & Server', client: true, server: true },
+        { label: 'Client & Server', client: true, server: true }
       ],
       optionsForCheckboxes: [
         {
           label: 'Client',
-          value: 'client',
+          value: 'client'
         },
         {
           label: 'Server',
-          value: 'server',
-        },
+          value: 'server'
+        }
       ],
       columns: [
         {
@@ -597,7 +597,7 @@ export default {
           label: '',
           align: 'left',
           field: (row) => row.code,
-          style: 'width: 100px;padding-left: 10px;padding-right: 0px;',
+          style: 'width: 100px;padding-left: 10px;padding-right: 0px;'
         },
         {
           name: 'label',
@@ -605,7 +605,7 @@ export default {
           label: 'Cluster',
           align: 'left',
           field: (row) => row.label,
-          style: 'width:28%',
+          style: 'width:28%'
         },
         {
           name: 'requiredCluster',
@@ -613,7 +613,7 @@ export default {
           label: 'Required Cluster',
           align: 'center',
           field: (row) => this.isClusterRequired(row.id),
-          style: 'width:20%',
+          style: 'width:20%'
         },
         {
           name: 'clusterId',
@@ -621,7 +621,7 @@ export default {
           label: 'Cluster ID',
           align: 'left',
           field: (row) => row.code,
-          style: 'width:10%',
+          style: 'width:10%'
         },
         {
           name: 'manufacturerId',
@@ -629,7 +629,7 @@ export default {
           label: 'Manufacturer Code',
           align: 'left',
           field: (row) => (row.manufacturerCode ? row.manufacturerCode : '---'),
-          style: 'width:10%',
+          style: 'width:10%'
         },
         {
           name: 'enable',
@@ -637,16 +637,16 @@ export default {
           label: 'Enable',
           align: 'left',
           field: (row) => 'test',
-          style: 'width:20%',
+          style: 'width:20%'
         },
         {
           name: 'configure',
           required: true,
           label: 'Configure',
           align: 'center',
-          style: 'width: 10%',
-        },
-      ],
+          style: 'width: 10%'
+        }
+      ]
     }
   },
   created() {
@@ -656,7 +656,7 @@ export default {
         this.$store.commit('zap/setClusterDataForTutorial', this.clusters[0])
       }
     }
-  },
+  }
 }
 </script>
 

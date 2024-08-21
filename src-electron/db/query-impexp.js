@@ -56,8 +56,8 @@ INSERT INTO ENDPOINT (
       endpointTypeRef,
       endpoint.profileId,
       endpoint.endpointId,
-      endpoint.networkId,
-    ],
+      endpoint.networkId
+    ]
   )
 }
 
@@ -76,7 +76,7 @@ async function importParentEndpoint(db, sessionRef, endpointId, parentRef) {
   SET PARENT_ENDPOINT_REF = ?
   WHERE ENDPOINT_IDENTIFIER = ? AND SESSION_REF = ?
   `,
-    [parentRef, endpointId, sessionRef],
+    [parentRef, endpointId, sessionRef]
   )
 }
 
@@ -96,14 +96,14 @@ async function exportEndpoints(db, sessionId, endpointTypes) {
       endpointTypeName: x.NAME,
       endpointTypeIndex: endpointTypeIndexFunction(
         endpointTypes,
-        x.ENDPOINT_TYPE_REF,
+        x.ENDPOINT_TYPE_REF
       ),
       endpointTypeRef: x.ENDPOINT_TYPE_REF,
       profileId: x.PROFILE,
       endpointId: x.ENDPOINT_IDENTIFIER,
       networkId: x.NETWORK_IDENTIFIER,
       parentRef: x.PARENT_ENDPOINT_REF,
-      parentEndpointIdentifier: x.PARENT_ENDPOINT_IDENTIFIER,
+      parentEndpointIdentifier: x.PARENT_ENDPOINT_IDENTIFIER
     }
   }
   return dbApi
@@ -132,7 +132,7 @@ WHERE
   E.SESSION_REF = ?
 ORDER BY E.ENDPOINT_IDENTIFIER
     `,
-      [sessionId],
+      [sessionId]
     )
     .then((rows) => rows.map(mapFunction))
 }
@@ -170,7 +170,7 @@ WHERE
 ORDER BY
   ENDPOINT.ENDPOINT_IDENTIFIER,
   ENDPOINT_TYPE.NAME`,
-      [sessionId],
+      [sessionId]
     )
     .then((rows) => rows.map(dbMapping.map.endpointTypeExport))
 
@@ -206,7 +206,7 @@ ORDER BY
         DEVICE_TYPE.NAME,
         DEVICE_TYPE.CODE,
         DEVICE_TYPE.PROFILE_ID`,
-      [sessionId, endpointTypes[i].endpointTypeId],
+      [sessionId, endpointTypes[i].endpointTypeId]
     )
 
     // Updating the device type info for the endpoint
@@ -244,7 +244,7 @@ async function importEndpointType(
   sessionPartitionId,
   packageIds,
   endpointType,
-  sessionId,
+  sessionId
 ) {
   // Insert endpoint type
   let endpointTypeId = await dbApi.dbInsert(
@@ -255,7 +255,7 @@ async function importEndpointType(
       SESSION_PARTITION_REF,
       NAME
     ) VALUES (?, ?)`,
-    [sessionPartitionId, endpointType.name],
+    [sessionPartitionId, endpointType.name]
   )
 
   // Process device types
@@ -268,7 +268,7 @@ async function importEndpointType(
     : [
         endpointType.deviceIdentifier
           ? endpointType.deviceIdentifier
-          : endpointType.deviceTypeCode,
+          : endpointType.deviceTypeCode
       ]
   if (endpointType.deviceTypes) {
     deviceTypes = endpointType.deviceTypes
@@ -283,8 +283,8 @@ async function importEndpointType(
           endpointType.deviceTypeCode != null
             ? endpointType.deviceTypeCode
             : endpointType.deviceIdentifier, // Else case for backwards compatibility of old zap files
-        profileId: endpointType.deviceTypeProfileId,
-      },
+        profileId: endpointType.deviceTypeProfileId
+      }
     ]
   }
 
@@ -295,7 +295,7 @@ async function importEndpointType(
       let profileId = await dbApi.dbGet(
         db,
         `SELECT PROFILE_ID FROM DEVICE_TYPE WHERE CODE = ? AND NAME = ? AND PACKAGE_REF IN (${packageIds})`,
-        [parseInt(deviceTypes[i].code), deviceTypes[i].name],
+        [parseInt(deviceTypes[i].code), deviceTypes[i].name]
       )
       deviceTypes[i].profileId = profileId ? profileId.PROFILE_ID : ''
     }
@@ -306,8 +306,8 @@ async function importEndpointType(
       [
         parseInt(deviceTypes[i].code),
         parseInt(deviceTypes[i].profileId),
-        deviceTypes[i].name,
-      ],
+        deviceTypes[i].name
+      ]
     )
 
     // Log an error message into the session notice table when device types being imported are not found
@@ -318,7 +318,7 @@ async function importEndpointType(
         'Device Types could not be found in the ZCL extensions linked to this project. Please make sure the zcl and template json files listed in your zap file exist.',
         sessionId,
         1,
-        1,
+        1
       )
     }
 
@@ -333,9 +333,9 @@ async function importEndpointType(
             row.DEVICE_TYPE_ID,
             i,
             deviceVersions[i] ? deviceVersions[i] : 0,
-            deviceIdentifiers[i],
-          ],
-        ),
+            deviceIdentifiers[i]
+          ]
+        )
       )
     }
   }
@@ -359,7 +359,7 @@ async function exportPackagesFromSession(db, sessionId) {
       version: x.VERSION,
       description: x.DESCRIPTION,
       type: x.TYPE,
-      required: x.REQUIRED,
+      required: x.REQUIRED
     }
   }
   return dbApi
@@ -381,7 +381,7 @@ INNER JOIN
 ON
   SESSION_PACKAGE.SESSION_PARTITION_REF= SESSION_PARTITION.SESSION_PARTITION_ID
 WHERE SESSION_PARTITION.SESSION_REF = ? AND SESSION_PACKAGE.ENABLED = 1`,
-      [sessionId],
+      [sessionId]
     )
     .then((rows) => rows.map(mapFunction))
 }
@@ -402,7 +402,7 @@ async function exportClustersFromEndpointType(db, endpointTypeId) {
       define: x.DEFINE,
       side: x.SIDE,
       enabled: x.ENABLED,
-      endpointClusterId: x.ENDPOINT_TYPE_CLUSTER_ID,
+      endpointClusterId: x.ENDPOINT_TYPE_CLUSTER_ID
     }
 
     // Separate out check so that JSON dump does not contain empty keys
@@ -431,7 +431,7 @@ INNER JOIN ENDPOINT_TYPE_CLUSTER
 ON CLUSTER.CLUSTER_ID = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
 WHERE ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = ?
 ORDER BY CLUSTER.CODE, CLUSTER.NAME`,
-      [endpointTypeId],
+      [endpointTypeId]
     )
     .then((rows) => rows.map(mapFunction))
 }
@@ -448,21 +448,19 @@ async function importClusterForEndpointType(
   db,
   packageIds,
   endpointTypeId,
-  cluster,
+  cluster
 ) {
   let matchedPackageId = await dbApi
     .dbAll(
       db,
       `SELECT CLUSTER_ID, PACKAGE_REF FROM CLUSTER WHERE PACKAGE_REF IN (${dbApi.toInClause(
-        packageIds,
+        packageIds
       )}) AND CODE = ? AND ${
         cluster.mfgCode == null
           ? 'MANUFACTURER_CODE IS NULL'
           : 'MANUFACTURER_CODE = ?'
       }`,
-      cluster.mfgCode == null
-        ? [cluster.code]
-        : [cluster.code, cluster.mfgCode],
+      cluster.mfgCode == null ? [cluster.code] : [cluster.code, cluster.mfgCode]
     )
     .then((matchedPackageIds) => matchedPackageIds.shift()?.PACKAGE_REF)
   return dbApi.dbInsert(
@@ -485,7 +483,7 @@ VALUES
           matchedPackageId,
           cluster.code,
           cluster.side,
-          cluster.enabled,
+          cluster.enabled
         ]
       : [
           endpointTypeId,
@@ -493,8 +491,8 @@ VALUES
           cluster.code,
           cluster.mfgCode,
           cluster.side,
-          cluster.enabled,
-        ],
+          cluster.enabled
+        ]
   )
 }
 
@@ -512,7 +510,7 @@ async function exportEventsFromEndpointTypeCluster(db, endpointClusterId) {
       code: x.CODE,
       mfgCode: x.MANUFACTURER_CODE,
       side: x.SIDE,
-      included: x.INCLUDED,
+      included: x.INCLUDED
     }
   }
   return dbApi
@@ -536,7 +534,7 @@ WHERE
 ORDER BY
   E.CODE, E.MANUFACTURER_CODE
   `,
-      [endpointClusterId],
+      [endpointClusterId]
     )
     .then((rows) => rows.map(mapFunction))
 }
@@ -554,7 +552,7 @@ async function importEventForEndpointType(
   db,
   packageIds,
   endpointClusterId,
-  event,
+  event
 ) {
   let selectEventQuery = `
 SELECT
@@ -600,7 +598,7 @@ INSERT INTO ENDPOINT_TYPE_EVENT (
   ?,?,?
 )
 `,
-    arg,
+    arg
   )
 }
 
@@ -627,7 +625,7 @@ async function exportAttributesFromEndpointTypeCluster(db, endpointClusterId) {
       reportable: x.INCLUDED_REPORTABLE,
       minInterval: x.MIN_INTERVAL,
       maxInterval: x.MAX_INTERVAL,
-      reportableChange: x.REPORTABLE_CHANGE,
+      reportableChange: x.REPORTABLE_CHANGE
     }
     if (x.API_MATURITY) {
       result.apiMaturity = x.API_MATURITY
@@ -665,7 +663,7 @@ WHERE
 ORDER BY
   A.CODE, A.MANUFACTURER_CODE
     `,
-      [endpointClusterId],
+      [endpointClusterId]
     )
     .then((rows) => rows.map(mapFunction))
 }
@@ -685,7 +683,7 @@ async function importAttributeForEndpointType(
   packageIds,
   endpointClusterId,
   attribute,
-  cluster,
+  cluster
 ) {
   let selectAttributeQuery = `
 SELECT
@@ -745,7 +743,7 @@ WHERE
       cluster.name,
       storagePolicy,
       forcedExternal,
-      attributeName,
+      attributeName
     )
   }
   if (storagePolicy == dbEnums.storagePolicy.attributeAccessInterface) {
@@ -764,7 +762,7 @@ WHERE
     attribute.reportable,
     attribute.minInterval,
     attribute.maxInterval,
-    attribute.reportableChange,
+    attribute.reportableChange
   ]
 
   return dbApi.dbInsert(
@@ -786,7 +784,7 @@ INSERT INTO ENDPOINT_TYPE_ATTRIBUTE (
   ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
 )
   `,
-    arg,
+    arg
   )
 }
 
@@ -800,7 +798,7 @@ INSERT INTO ENDPOINT_TYPE_ATTRIBUTE (
 async function exportCommandsFromEndpointTypeCluster(
   db,
   endpointTypeId,
-  endpointClusterId,
+  endpointClusterId
 ) {
   let mapFunction = (x) => {
     return {
@@ -809,7 +807,7 @@ async function exportCommandsFromEndpointTypeCluster(
       mfgCode: x.MANUFACTURER_CODE,
       source: x.SOURCE,
       isIncoming: x.IS_INCOMING,
-      isEnabled: x.IS_ENABLED,
+      isEnabled: x.IS_ENABLED
     }
   }
   return dbApi
@@ -839,7 +837,7 @@ WHERE
 ORDER BY
   C.MANUFACTURER_CODE, C.CODE
         `,
-      [endpointTypeId, endpointClusterId],
+      [endpointTypeId, endpointClusterId]
     )
     .then((rows) => rows.map(mapFunction))
 }
@@ -859,7 +857,7 @@ async function importCommandForEndpointType(
   packageIds,
   endpointTypeId,
   endpointClusterId,
-  command,
+  command
 ) {
   let matchedCmdId = await dbApi
     .dbAll(
@@ -878,7 +876,7 @@ async function importCommandForEndpointType(
         }`,
       command.mfgCode == null
         ? [command.code, command.source, endpointClusterId]
-        : [command.code, command.source, endpointClusterId, command.mfgCode],
+        : [command.code, command.source, endpointClusterId, command.mfgCode]
     )
     .then((matchedCmdIds) => matchedCmdIds.shift()?.COMMAND_ID)
 
@@ -886,7 +884,7 @@ async function importCommandForEndpointType(
     endpointClusterId,
     matchedCmdId,
     command.isIncoming,
-    command.isEnabled,
+    command.isEnabled
   ]
 
   // The reason there is an ignore here is because some .zap files have been hand editted
@@ -902,7 +900,7 @@ INSERT OR IGNORE INTO ENDPOINT_TYPE_COMMAND
 VALUES
   (?, ?, ?, ?)
   `,
-    arg,
+    arg
   )
 }
 

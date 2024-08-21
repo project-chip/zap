@@ -41,5 +41,5 @@ async function executeHelperFunction(functionName, context, helper) {
 exports.executeHelperFunction = executeHelperFunction
 
 exports.functions = {
-  initialize_helpers: 'initialize_helpers',
+  initialize_helpers: 'initialize_helpers'
 }

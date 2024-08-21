@@ -16,7 +16,7 @@ describe('Testing cluster search', () => {
       cy.addEndpoint(data.endpoint1, data.cluster1)
     })
     cy.get('#General > .q-expansion-item__container > .q-item').click({
-      force: true,
+      force: true
     })
     cy.fixture('data').then((data) => {
       cy.get('tbody')
@@ -48,12 +48,12 @@ describe('Testing cluster search', () => {
     cy.dataCy('cluster-general').children().children().eq(0).click()
     cy.dataCy('cluster-general').should(
       'have.class',
-      'q-expansion-item--collapsed',
+      'q-expansion-item--collapsed'
     )
     cy.dataCy('cluster-general').children().children().eq(0).click()
     cy.dataCy('cluster-general').should(
       'have.class',
-      'q-expansion-item--expanded',
+      'q-expansion-item--expanded'
     )
     cy.dataCy('cluster-btn-closeall').click()
     cy.get('[data-test=Cluster').each(($row) => {

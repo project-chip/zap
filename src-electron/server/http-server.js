@@ -43,7 +43,7 @@ const restApiModules = [
   require('../rest/ide-api-handler.js'),
   require('../rest/endpoint.js'),
   require('../rest/user-data.js'),
-  require('../rest/initialize.js'),
+  require('../rest/initialize.js')
 ]
 let httpServer = null
 
@@ -112,8 +112,8 @@ async function initHttpServer(
   options = {
     allowCors: false,
     zcl: env.builtinSilabsZclMetafile(),
-    template: env.builtinTemplateMetafile(),
-  },
+    template: env.builtinTemplateMetafile()
+  }
 ) {
   return new Promise((resolve, reject) => {
     const app = express()
@@ -124,11 +124,11 @@ async function initHttpServer(
         res.setHeader('Access-Control-Allow-Origin', '*')
         res.setHeader(
           'Access-Control-Allow-Methods',
-          'GET,POST,PUT,PATCH,DELETE,OPTIONS',
+          'GET,POST,PUT,PATCH,DELETE,OPTIONS'
         )
         res.setHeader(
           'Access-Control-Allow-Headers',
-          'Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With',
+          'Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With'
         )
         next()
       })
@@ -140,8 +140,8 @@ async function initHttpServer(
       session({
         secret: 'Zap@Watt@SiliconLabs',
         resave: true,
-        saveUninitialized: true,
-      }),
+        saveUninitialized: true
+      })
     )
     app.use(userSessionHandler(db, options))
 
@@ -216,7 +216,7 @@ function userSessionHandler(db, options) {
         .catch((err) => {
           let resp = {
             error: 'Could not create session: ' + err.message,
-            errorMessage: err,
+            errorMessage: err
           }
           studio.sendSessionCreationErrorStatus(db, resp, zapSessionId)
           env.logError(resp)
@@ -291,7 +291,7 @@ function httpServerStartupMessage() {
   let ver = env.zapVersion()
   return {
     url: httpServerUrl(),
-    ...ver,
+    ...ver
   }
 }
 

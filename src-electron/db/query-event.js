@@ -52,7 +52,7 @@ WHERE
   CLUSTER_REF = ?
 ORDER BY
   CODE`,
-      [clusterId],
+      [clusterId]
     )
     .then((rows) => rows.map(dbMapping.map.event))
 }
@@ -91,7 +91,7 @@ WHERE
   E.PACKAGE_REF in (${dbApi.toInClause(packageIds)})
 ORDER BY
   C.CODE, E.CODE`,
-      [],
+      []
     )
     .then((rows) => rows.map(dbMapping.map.event))
 }
@@ -118,7 +118,7 @@ WHERE
   EVENT.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
 ORDER BY
   EF.FIELD_IDENTIFIER
-`,
+`
     )
     .then((rows) => rows.map(dbMapping.map.eventField))
 }
@@ -142,7 +142,7 @@ WHERE
 ORDER BY
   FIELD_IDENTIFIER
   `,
-      [eventId],
+      [eventId]
     )
     .then((rows) => rows.map(dbMapping.map.eventField))
 }

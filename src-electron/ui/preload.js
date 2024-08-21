@@ -18,5 +18,5 @@ const { contextBridge, ipcRenderer } = require('electron')
 
 contextBridge.exposeInMainWorld('electronAPI', {
   setTitleBarOverlay: (titleBarOverlay) =>
-    ipcRenderer.send('set-title-bar-overlay', titleBarOverlay),
+    ipcRenderer.send('set-title-bar-overlay', titleBarOverlay)
 })

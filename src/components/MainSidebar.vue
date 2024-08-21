@@ -39,6 +39,6 @@ export default {
   data() {
     return {}
   },
-  methods: {},
+  methods: {}
 }
 </script>
