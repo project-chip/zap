@@ -394,10 +394,11 @@ CREATE TABLE IF NOT EXISTS "ENDPOINT_COMPOSITION" (
  
  Columns:
  DEVICE_COMPOSITION_ID: The primary key of the table, auto-incremented for each new record.
+ CODE: An integer representing the device code.
  DEVICE_TYPE_REF: An integer that acts as a foreign key to reference a specific device type.
  ENDPOINT_COMPOSITION_REF: A foreign key linking to the ENDPOINT_COMPOSITION table to specify the endpoint composition associated with this device.
  CONFORMANCE: A text field describing the conformance level of the device composition.
- CONSTRAINT: An integer representing any constraints applied to the device composition.
+ DEVICE_CONSTRAINT: An integer representing any constraints applied to the device composition.
  
  Foreign Key Constraints:
  The DEVICE_TYPE_REF column references the DEVICE_TYPE_ID column of the DEVICE_TYPE table. On deletion of a device type, corresponding records in this table are deleted (CASCADE).
@@ -409,7 +410,7 @@ CREATE TABLE IF NOT EXISTS "DEVICE_COMPOSITION" (
   "DEVICE_TYPE_REF" integer,
   "ENDPOINT_COMPOSITION_REF" integer,
   "CONFORMANCE" text,
-  "CONSTRAINT" integer,
+  "DEVICE_CONSTRAINT" integer,
   FOREIGN KEY ("ENDPOINT_COMPOSITION_REF") REFERENCES "ENDPOINT_COMPOSITION"("ENDPOINT_COMPOSITION_ID") ON DELETE CASCADE
   FOREIGN KEY ("DEVICE_TYPE_REF") REFERENCES "DEVICE_TYPE"("DEVICE_TYPE_ID") ON DELETE CASCADE
 );
