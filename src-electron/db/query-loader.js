@@ -938,54 +938,80 @@ async function insertAtomics(db, packageId, data) {
  * @param {*} context - The context containing the mandatory device type to check against.
  * @returns A promise resolved with the result of the database insert operation.
  */
-function insertEndpointComposition(db, composition, context) {
-  if (parseInt(context.mandatoryDeviceTypes, 16) === composition.code) {
-    return dbApi.dbInsert(
-      db,
-      'INSERT INTO ENDPOINT_COMPOSITION (TYPE, CODE) VALUES (?, ?)',
-      [dbEnum.composition.mandatoryEndpoint, composition.code],
-    )
-  } else {
-    return dbApi.dbInsert(
-      db,
-      'INSERT INTO ENDPOINT_COMPOSITION (TYPE, CODE) VALUES (?, ?)',
-      [composition.compositionType, composition.code],
-    )
+async function insertEndpointComposition(db, composition, context) {
+  try {
+    if (parseInt(context.mandatoryDeviceTypes, 16) === composition.code) {
+      return await dbApi.dbInsert(
+        db,
+        'INSERT INTO ENDPOINT_COMPOSITION (TYPE, CODE) VALUES (?, ?)',
+        [dbEnum.composition.mandatoryEndpoint, composition.code],
+      )
+    } else {
+      return await dbApi.dbInsert(
+        db,
+        'INSERT INTO ENDPOINT_COMPOSITION (TYPE, CODE) VALUES (?, ?)',
+        [composition.compositionType, composition.code],
+      )
+    }
+  } catch (error) {
+    console.error('Error inserting endpoint composition:', error)
+    throw error // Re-throw the error after logging it
   }
 }
 
 /**
- * Asynchronously retrieves the ID of an endpoint composition based on its code.
+ * Retrieves the endpoint composition ID by device code.
+ *
+ * This function executes a SQL query to fetch the endpoint composition ID
+ * associated with a given device code. If the query fails, an error is logged.
  *
  * @param {Object} db - The database connection object.
- * @param {Object} deviceType - An object representing the device type, which contains the 'code' property.
- * @returns {Promise<number|null>} A promise that resolves with the ID of the endpoint composition if found, or null otherwise.
+ * @param {Object} deviceType - The device type object containing the device code.
+ * @returns {Promise<number|null>} The endpoint composition ID or null if not found.
  */
 async function getEndpointCompositionIdByCode(db, deviceType) {
   const query =
     'SELECT ENDPOINT_COMPOSITION_ID FROM ENDPOINT_COMPOSITION WHERE CODE = ?'
-  const result = await dbApi.dbGet(db, query, [deviceType.code])
-  return result ? result.ENDPOINT_COMPOSITION_ID : null
+  try {
+    const result = await dbApi.dbGet(db, query, [deviceType.code])
+    return result ? result.ENDPOINT_COMPOSITION_ID : null
+  } catch (error) {
+    console.error('Error retrieving endpoint composition ID:', error)
+    return null
+  }
 }
 
 /**
- * Inserts a new device composition record into the database.
+ * Inserts a device composition record into the DEVICE_COMPOSITION table.
+ *
+ * This function constructs an SQL INSERT query to add a new record to the
+ * DEVICE_COMPOSITION table. It handles the insertion of the device code,
+ * endpoint composition reference, conformance, and constraint values.
+ * Note that the "CONSTRAINT" column name is escaped with double quotes
+ * to avoid conflicts with the SQL reserved keyword.
  *
  * @param {Object} db - The database connection object.
- * @param {Object} deviceType - An object representing the device type, which contains the 'childDeviceId' property.
- * @param {number} endpointCompositionId - The ID of the endpoint composition associated with this device composition.
- * @returns {Promise} A promise that resolves with the result of the database insertion operation.
+ * @param {Object} deviceType - The device type object containing the data to be inserted.
+ * @param {number} endpointCompositionId - The ID of the endpoint composition.
+ * @returns {Promise} A promise that resolves when the insertion is complete.
  */
 
 function insertDeviceComposition(db, deviceType, endpointCompositionId) {
   const insertQuery = `
-    INSERT INTO DEVICE_COMPOSITION (CODE, ENDPOINT_COMPOSITION_REF)
-    VALUES (?, ?)
+    INSERT INTO DEVICE_COMPOSITION (CODE, ENDPOINT_COMPOSITION_REF, CONFORMANCE, DEVICE_CONSTRAINT)
+    VALUES (?, ?, ?, ?)
   `
-  return dbApi.dbInsert(db, insertQuery, [
-    parseInt(deviceType.childDeviceId, 16),
-    endpointCompositionId,
-  ])
+  try {
+    return dbApi.dbInsert(db, insertQuery, [
+      parseInt(deviceType.childDeviceId, 16),
+      endpointCompositionId,
+      deviceType.conformance,
+      deviceType.constraint,
+    ])
+  } catch (error) {
+    console.error('Error inserting device composition:', error)
+    throw error // Re-throw the error after logging it
+  }
 }
 
 /**

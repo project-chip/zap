@@ -1587,10 +1587,15 @@ async function processStructItems(db, filePath, packageIds, data, context) {
 }
 
 /**
- * Preparation step for the device types.
+ * Prepares a device type object by extracting and transforming its properties.
  *
- * @param {*} deviceType
- * @returns an object containing the prepared device types.
+ * This function takes a device type object and processes its properties to create
+ * a new object with a specific structure. It handles various properties such as
+ * device ID, profile ID, domain, name, description, class, scope, and superset.
+ * Additionally, it processes endpoint compositions and clusters if they exist.
+ *
+ * @param {Object} deviceType - The device type object to be prepared.
+ * @returns {Object} The prepared device type object with transformed properties.
  */
 function prepareDeviceType(deviceType) {
   let ret = {
@@ -1607,6 +1612,10 @@ function prepareDeviceType(deviceType) {
   if ('endpointComposition' in deviceType) {
     try {
       ret.compositionType = deviceType.endpointComposition[0].compositionType[0]
+      ret.conformance =
+        deviceType.endpointComposition[0].endpoint[0].$.conformance
+      ret.constraint =
+        deviceType.endpointComposition[0].endpoint[0].$.constraint
       ret.childDeviceId =
         deviceType.endpointComposition[0].endpoint[0].deviceType[0]
     } catch (error) {
