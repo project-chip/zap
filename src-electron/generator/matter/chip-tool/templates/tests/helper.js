@@ -21,11 +21,11 @@ const {
   zapTypeToDecodableClusterObjectType,
   zapTypeToEncodableClusterObjectType,
   asUpperCamelCase,
-  asLowerCamelCase,
+  asLowerCamelCase
 } = require('../../../app/zap-templates/templates/app/helper');
 
 const {
-  isTestOnlyCluster,
+  isTestOnlyCluster
 } = require('../../../app/zap-templates/common/simulated-clusters/SimulatedClusters');
 
 function utf8StringLength(str) {
@@ -73,7 +73,7 @@ async function asEncodableType() {
 
   if (isTestOnlyCluster(this.cluster) || 'commandObject' in this) {
     return `chip::app::Clusters::${asUpperCamelCase(
-      this.cluster,
+      this.cluster
     )}::Commands::${asUpperCamelCase(type)}::Type`;
   }
 
@@ -101,7 +101,7 @@ async function asDecodableType() {
 
   if (isTestOnlyCluster(this.cluster) || 'commandObject' in this) {
     return `chip::app::Clusters::${asUpperCamelCase(
-      this.cluster,
+      this.cluster
     )}::Commands::${asUpperCamelCase(type)}::DecodableType`;
   }
 
@@ -119,8 +119,5 @@ exports.asEncodableType = asEncodableType;
 
 exports.meta = {
   category: dbEnum.helperCategory.matter,
-  alias: [
-    'chip-tool/templates/tests/helper.js',
-    'matter-chip-tool-test-helper',
-  ],
+  alias: ['chip-tool/templates/tests/helper.js', 'matter-chip-tool-test-helper']
 };

@@ -30,8 +30,8 @@ function concat() {
     } else {
       throw new TypeError(
         `Unexpected object in concat: ${arg}:${Object.prototype.toString.call(
-          arguments[arg],
-        )}, ${JSON.stringify(arguments)}`,
+          arguments[arg]
+        )}, ${JSON.stringify(arguments)}`
       );
     }
   }
@@ -46,5 +46,5 @@ exports.concat = concat;
 
 exports.meta = {
   category: dbEnum.helperCategory.matter,
-  alias: ['partials/helper.js', 'matter-partials-helper'],
+  alias: ['partials/helper.js', 'matter-partials-helper']
 };

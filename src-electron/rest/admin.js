@@ -109,17 +109,17 @@ function httpGetCache(db) {
 exports.post = [
   {
     uri: restApi.uri.sql,
-    callback: httpPostSql,
-  },
+    callback: httpPostSql
+  }
 ]
 
 exports.get = [
   {
     uri: restApi.uri.version,
-    callback: httpGetVersion,
+    callback: httpGetVersion
   },
   {
     uri: restApi.uri.cache,
-    callback: httpGetCache,
-  },
+    callback: httpGetCache
+  }
 ]

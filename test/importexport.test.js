@@ -43,7 +43,7 @@ let testDoorLockIsc = path.join(__dirname, 'resource/isc/ha-door-lock.isc')
 let haLightIsc = path.join(__dirname, 'resource/isc/ha-light.isc')
 let haCombinedInterfaceIsc = path.join(
   __dirname,
-  'resource/isc/ha-combined-interface.isc',
+  'resource/isc/ha-combined-interface.isc'
 )
 
 // Due to future plans to rework how we handle global attributes,
@@ -73,14 +73,14 @@ test(
   async () => {
     let context = await generationEngine.loadTemplates(
       db,
-      testUtil.testTemplate.zigbee,
+      testUtil.testTemplate.zigbee
     )
     templatePkgId = context.packageId
     expect(context.crc).not.toBeNull()
     expect(context.templateData).not.toBeNull()
     templateContext = context
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -91,10 +91,10 @@ test(
       templateContext.sessionId,
       {
         zcl: env.builtinSilabsZclMetafile(),
-        template: env.builtinTemplateMetafile(),
+        template: env.builtinTemplateMetafile()
       },
       null,
-      [templatePkgId],
+      [templatePkgId]
     )
     let importResult = await importJs.importDataFromFile(db, testFile1)
 
@@ -125,7 +125,7 @@ test(
 
     await querySession.deleteSession(db, sid)
   },
-  testUtil.timeout.medium(),
+  testUtil.timeout.medium()
 )
 
 test(
@@ -159,7 +159,7 @@ test(
     // This flag exists for this test due to planned global attribute rework.
     expect(attributeCount).toBe(bypassGlobalAttributes ? 16 : 28)
   },
-  testUtil.timeout.medium(),
+  testUtil.timeout.medium()
 )
 
 test(
@@ -179,7 +179,7 @@ test(
     x = await testQuery.selectCountFrom(db, 'ENDPOINT_TYPE_EVENT')
     expect(x).toBe(3)
   },
-  testUtil.timeout.long(),
+  testUtil.timeout.long()
 )
 
 test(
@@ -190,7 +190,7 @@ test(
     let endpoints = await queryEndpoint.selectAllEndpoints(db, sid)
     expect(endpoints.length).toBe(1)
   },
-  testUtil.timeout.medium(),
+  testUtil.timeout.medium()
 )
 
 test(
@@ -202,10 +202,10 @@ test(
       sid,
       {
         zcl: env.builtinSilabsZclMetafile(),
-        template: env.builtinTemplateMetafile(),
+        template: env.builtinTemplateMetafile()
       },
       null,
-      [templatePkgId],
+      [templatePkgId]
     )
     await importJs.importDataFromFile(db, sleepyGenericIsc, { sessionId: sid })
     let endpoints = await queryEndpoint.selectAllEndpoints(db, sid)
@@ -213,7 +213,7 @@ test(
     expect(endpoints.length).toBe(1)
     expect(endpointTypes[0].deviceIdentifier[0]).toBe(1281)
   },
-  testUtil.timeout.medium(),
+  testUtil.timeout.medium()
 )
 
 test(
@@ -221,7 +221,7 @@ test(
   async () => {
     let state = await importJs.readDataFromFile(
       testLightIsc,
-      env.builtinSilabsZclMetafile(),
+      env.builtinSilabsZclMetafile()
     )
     expect(Object.keys(state.endpointTypes).length).toBe(4)
     expect(Object.keys(state.endpoint).length).toBe(3)
@@ -229,7 +229,7 @@ test(
     expect(state).not.toHaveProperty('parseState')
     expect(state.attributeType.length).toBe(6)
   },
-  testUtil.timeout.medium(),
+  testUtil.timeout.medium()
 )
 
 test(
@@ -241,10 +241,10 @@ test(
       sid,
       {
         zcl: env.builtinSilabsZclMetafile(),
-        template: env.builtinTemplateMetafile(),
+        template: env.builtinTemplateMetafile()
       },
       null,
-      [templatePkgId],
+      [templatePkgId]
     )
     await importJs.importDataFromFile(db, testLightIsc, { sessionId: sid })
     expect(sid).not.toBeUndefined()
@@ -258,11 +258,11 @@ test(
     let drp = await querySession.getSessionKeyValue(
       db,
       sid,
-      dbEnum.sessionOption.defaultResponsePolicy,
+      dbEnum.sessionOption.defaultResponsePolicy
     )
     expect(drp).toBe('always')
   },
-  testUtil.timeout.medium(),
+  testUtil.timeout.medium()
 )
 
 test(
@@ -274,10 +274,10 @@ test(
       sid,
       {
         zcl: env.builtinSilabsZclMetafile(),
-        template: env.builtinTemplateMetafile(),
+        template: env.builtinTemplateMetafile()
       },
       null,
-      [templatePkgId],
+      [templatePkgId]
     )
     await importJs.importDataFromFile(db, testDoorLockIsc, { sessionId: sid })
     expect(sid).not.toBeUndefined()
@@ -288,18 +288,18 @@ test(
     expect(endpointTypes[0].deviceIdentifier[0]).toBe(10)
     let clusterState = await testQuery.getAllEndpointTypeClusterState(
       db,
-      endpointTypes[0].id,
+      endpointTypes[0].id
     )
     expect(clusterState.length).toBe(106) // Reduced by one because Key Establishment had 3 entries with one entry showing up as either side even though it had the client and server side entries {"endpointTypeClusterId":2176,"clusterName":"Key Establishment","clusterCode":2048,"side":"either","enabled":false}
 
     let drp = await querySession.getSessionKeyValue(
       db,
       sid,
-      dbEnum.sessionOption.defaultResponsePolicy,
+      dbEnum.sessionOption.defaultResponsePolicy
     )
     expect(drp).toBe('conditional')
   },
-  testUtil.timeout.medium(),
+  testUtil.timeout.medium()
 )
 
 test(
@@ -311,10 +311,10 @@ test(
       sid,
       {
         zcl: env.builtinSilabsZclMetafile(),
-        template: env.builtinTemplateMetafile(),
+        template: env.builtinTemplateMetafile()
       },
       null,
-      [templatePkgId],
+      [templatePkgId]
     )
     await importJs.importDataFromFile(db, haLightIsc, { sessionId: sid })
     expect(sid).not.toBeUndefined()
@@ -334,20 +334,20 @@ test(
     expect(attributeCounts).toStrictEqual([28, 14])
 
     let reportableCounts = attributes.map((atArray) =>
-      atArray.reduce((ac, at) => ac + (at.includedReportable ? 1 : 0), 0),
+      atArray.reduce((ac, at) => ac + (at.includedReportable ? 1 : 0), 0)
     )
     expect(reportableCounts).toStrictEqual([2, 0])
 
     let boundedCounts = attributes.map((atArray) =>
-      atArray.reduce((ac, at) => ac + (at.bounded ? 1 : 0), 0),
+      atArray.reduce((ac, at) => ac + (at.bounded ? 1 : 0), 0)
     )
     expect(boundedCounts).toStrictEqual([13, 4])
     let singletonCounts = attributes.map((atArray) =>
-      atArray.reduce((ac, at) => ac + (at.singleton ? 1 : 0), 0),
+      atArray.reduce((ac, at) => ac + (at.singleton ? 1 : 0), 0)
     )
     expect(singletonCounts).toStrictEqual([8, 11])
   },
-  testUtil.timeout.medium(),
+  testUtil.timeout.medium()
 )
 
 test(
@@ -359,13 +359,13 @@ test(
       sid,
       {
         zcl: env.builtinSilabsZclMetafile(),
-        template: env.builtinTemplateMetafile(),
+        template: env.builtinTemplateMetafile()
       },
       null,
-      [templatePkgId],
+      [templatePkgId]
     )
     await importJs.importDataFromFile(db, haCombinedInterfaceIsc, {
-      sessionId: sid,
+      sessionId: sid
     })
     expect(sid).not.toBeUndefined()
     let endpointTypes = await queryEndpointType.selectAllEndpointTypes(db, sid)
@@ -383,21 +383,21 @@ test(
     expect(attributeCounts).toStrictEqual([9])
 
     let reportableCounts = attributes.map((atArray) =>
-      atArray.reduce((ac, at) => ac + (at.includedReportable ? 1 : 0), 0),
+      atArray.reduce((ac, at) => ac + (at.includedReportable ? 1 : 0), 0)
     )
     expect(reportableCounts).toStrictEqual([0])
 
     let boundedCounts = attributes.map((atArray) =>
-      atArray.reduce((ac, at) => ac + (at.bounded ? 1 : 0), 0),
+      atArray.reduce((ac, at) => ac + (at.bounded ? 1 : 0), 0)
     )
     expect(boundedCounts).toStrictEqual([3])
     let singletonCounts = attributes.map((atArray) =>
-      atArray.reduce((ac, at) => ac + (at.singleton ? 1 : 0), 0),
+      atArray.reduce((ac, at) => ac + (at.singleton ? 1 : 0), 0)
     )
     expect(singletonCounts).toStrictEqual([5])
 
     let sessionDump = await util.sessionDump(db, sid)
     expect(sessionDump.usedPackages.length).toBe(1)
   },
-  testUtil.timeout.medium(),
+  testUtil.timeout.medium()
 )

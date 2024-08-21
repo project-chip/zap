@@ -71,7 +71,7 @@ limitations under the License.
                     selectionOut,
                     'selectedOut',
                     props.row,
-                    selectedCluster.id,
+                    selectedCluster.id
                   )
                 "
               />
@@ -95,7 +95,7 @@ limitations under the License.
                     selectionIn,
                     'selectedIn',
                     props.row,
-                    selectedCluster.id,
+                    selectedCluster.id
                   )
                 "
               />
@@ -150,23 +150,23 @@ export default {
                 .toLowerCase()
                 .includes(this.individualClusterFilterString.toLowerCase())
         })
-      },
+      }
     },
     selectionIn: {
       get() {
         return this.$store.state.zap.commandView.selectedIn
-      },
+      }
     },
     selectionOut: {
       get() {
         return this.$store.state.zap.commandView.selectedOut
-      },
+      }
     },
     requiredCommands: {
       get() {
         return this.$store.state.zap.commandView.requiredCommands
-      },
-    },
+      }
+    }
   },
   methods: {
     displayCommandWarning(row) {
@@ -177,7 +177,7 @@ export default {
             (this.selectionServers.includes(this.selectedCluster.id) &&
               row.source == 'server')) &&
           !this.selectionOut.includes(
-            this.hashCommandIdClusterId(row.id, this.selectedCluster.id),
+            this.hashCommandIdClusterId(row.id, this.selectedCluster.id)
           )) ||
         (this.isCommandRequired(row) &&
           ((this.selectionClients.includes(this.selectedCluster.id) &&
@@ -185,7 +185,7 @@ export default {
             (this.selectionServers.includes(this.selectedCluster.id) &&
               row.source == 'client')) &&
           !this.selectionIn.includes(
-            this.hashCommandIdClusterId(row.id, this.selectedCluster.id),
+            this.hashCommandIdClusterId(row.id, this.selectedCluster.id)
           ))
       )
     },
@@ -193,7 +193,7 @@ export default {
       // We determine the ID that we need to toggle within the list.
       // This ID comes from hashing the base Command ID and cluster data.
       let indexOfValue = list.indexOf(
-        this.hashCommandIdClusterId(commandData.id, clusterId),
+        this.hashCommandIdClusterId(commandData.id, clusterId)
       )
 
       let addedValue
@@ -209,7 +209,7 @@ export default {
         value: addedValue,
         listType: listType,
         clusterRef: clusterId,
-        commandSide: commandData.source,
+        commandSide: commandData.source
       }
       this.$store.dispatch('zap/updateSelectedCommands', editContext)
     },
@@ -218,7 +218,7 @@ export default {
     },
     hashCommandIdClusterId(commandId, clusterId) {
       return Util.cantorPair(commandId, clusterId)
-    },
+    }
   },
   data() {
     return {
@@ -226,7 +226,7 @@ export default {
       validationErrorMessage:
         'This command is mandatory for the cluster and device type configuration you have enabled',
       pagination: {
-        rowsPerPage: 0,
+        rowsPerPage: 0
       },
       columns: [
         {
@@ -234,7 +234,7 @@ export default {
           required: false,
           label: '',
           align: 'left',
-          style: 'width:1%',
+          style: 'width:1%'
         },
         {
           name: 'out',
@@ -242,7 +242,7 @@ export default {
           field: 'out',
           align: 'left',
           sortable: true,
-          style: 'width:1%',
+          style: 'width:1%'
         },
         {
           name: 'in',
@@ -250,7 +250,7 @@ export default {
           field: 'in',
           align: 'left',
           sortable: true,
-          style: 'width:1%',
+          style: 'width:1%'
         },
         {
           name: 'direction',
@@ -258,7 +258,7 @@ export default {
           field: 'direction',
           align: 'left',
           sortable: true,
-          style: 'width:1%',
+          style: 'width:1%'
         },
         {
           name: 'commandId',
@@ -266,7 +266,7 @@ export default {
           label: 'ID',
           field: 'commandId',
           sortable: true,
-          style: 'width:1%',
+          style: 'width:1%'
         },
         {
           name: 'commandName',
@@ -274,7 +274,7 @@ export default {
           label: 'Command',
           field: 'commandName',
           sortable: true,
-          style: 'width:20%',
+          style: 'width:20%'
         },
         {
           name: 'required',
@@ -282,7 +282,7 @@ export default {
           label: 'Required',
           field: 'required',
           sortable: true,
-          style: 'width:10%',
+          style: 'width:10%'
         },
         {
           name: 'mfgId',
@@ -290,10 +290,10 @@ export default {
           label: 'Manufacturing Id',
           field: 'mfgId',
           sortable: true,
-          style: 'width:10%',
-        },
-      ],
+          style: 'width:10%'
+        }
+      ]
     }
-  },
+  }
 }
 </script>

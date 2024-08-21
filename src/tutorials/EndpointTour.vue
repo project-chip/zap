@@ -62,15 +62,15 @@ export default {
     endpoints: {
       get() {
         return Array.from(this.endpointIdListSorted.keys()).map((id) => ({
-          id: id,
+          id: id
         }))
-      },
+      }
     },
 
     tourCluster: {
       get() {
         return this.$store.state.zap.clusterDataForTutorial
-      },
+      }
     },
     zclDeviceTypeOptions: {
       get() {
@@ -82,11 +82,11 @@ export default {
           return {
             deviceTypeRef: item,
             deviceIdentifier: dt[item].code,
-            deviceVersion: dt[item].version,
+            deviceVersion: dt[item].version
           }
         })
-      },
-    },
+      }
+    }
   },
   methods: {
     startTour() {
@@ -103,7 +103,7 @@ export default {
       deviceVersion.push(
         this.zclDeviceTypeOptions[0].deviceVersion
           ? this.zclDeviceTypeOptions[0].deviceVersion
-          : 1,
+          : 1
       )
       // if (this.endpoints.length < 1) {
       this.$store
@@ -111,13 +111,13 @@ export default {
           name: 'Anonymous Endpoint Type',
           deviceTypeRef: deviceTypeRef,
           deviceIdentifier: deviceIdentifier,
-          deviceVersion: deviceVersion,
+          deviceVersion: deviceVersion
         })
         .then((response) => {
           let profileId = this.asHex(
             this.zclDeviceTypes[this.zclDeviceTypeOptions[0].deviceTypeRef]
               .profileId,
-            4,
+            4
           )
           this.tourEndpointType = response.id
 
@@ -126,31 +126,31 @@ export default {
               endpointId: parseInt(this.getSmallestUnusedEndpointId()),
               networkId: 0,
               profileId: parseInt(profileId),
-              endpointType: response.id,
+              endpointType: response.id
             })
             .then((res) => {
               this.tourEndpointId = res.id
               if (this.shareClusterStatesAcrossEndpoints()) {
                 this.$store.dispatch('zap/shareClusterStatesAcrossEndpoints', {
-                  endpointTypeIdList: this.endpointTypeIdList,
+                  endpointTypeIdList: this.endpointTypeIdList
                 })
               }
               this.$store.dispatch('zap/updateSelectedEndpointType', {
                 endpointType: this.endpointType[res.id],
                 deviceTypeRef:
-                  this.endpointDeviceTypeRef[this.endpointType[res.id]],
+                  this.endpointDeviceTypeRef[this.endpointType[res.id]]
               })
               this.$store.dispatch('zap/updateClusters')
               this.$store
                 .dispatch(
                   `zap/endpointTypeClustersInfo`,
-                  this.endpointType[res.id],
+                  this.endpointType[res.id]
                 )
                 .then((res) => {
                   if (res?.data) {
                     const clusterStates = res.data
                     const enabledClusterStates = clusterStates.filter(
-                      (x) => x.enabled,
+                      (x) => x.enabled
                     )
                     for (const states of enabledClusterStates) {
                       const { endpointTypeRef, clusterRef, side, enabled } =
@@ -159,11 +159,11 @@ export default {
                       const arg = {
                         side: [side],
                         clusterId: clusterRef,
-                        added: enabled,
+                        added: enabled
                       }
 
                       console.log(
-                        `Enabling UC component ${JSON.stringify(arg)}`,
+                        `Enabling UC component ${JSON.stringify(arg)}`
                       )
                       this.updateSelectedComponentRequest(arg)
                     }
@@ -185,7 +185,7 @@ export default {
       await this.$store.dispatch('zap/deleteEndpoint', this.tourEndpointId)
       await this.$store.dispatch(
         'zap/deleteEndpointType',
-        this.endpointType[this.tourEndpointId],
+        this.endpointType[this.tourEndpointId]
       )
       this.exitTour()
     },
@@ -236,7 +236,7 @@ export default {
       return new Promise((resolve) => {
         this.$store.commit('zap/setDeviceTypeRefAndDeviceIdPair', {
           deviceTypeRef: this.zclDeviceTypeOptions[0].deviceTypeRef,
-          deviceIdentifier: this.zclDeviceTypeOptions[0].deviceIdentifier,
+          deviceIdentifier: this.zclDeviceTypeOptions[0].deviceIdentifier
         })
         resolve()
       })
@@ -263,7 +263,7 @@ export default {
         this.$store.commit('zap/triggerExpanded', true)
         document
           .getElementsByClassName(
-            ' q-icon notranslate material-icons q-expansion-item__toggle-icon',
+            ' q-icon notranslate material-icons q-expansion-item__toggle-icon'
           )[1]
           .click()
         resolve()
@@ -273,7 +273,7 @@ export default {
       return new Promise((resolve) => {
         document
           .getElementsByClassName(
-            ' q-icon material-icons q-select__dropdown-icon',
+            ' q-icon material-icons q-select__dropdown-icon'
           )[0]
           .click()
         resolve()
@@ -304,11 +304,11 @@ export default {
             .then(() => {
               this.$store.dispatch(
                 'zap/refreshEndpointTypeCluster',
-                this.selectedEndpointTypeId,
+                this.selectedEndpointTypeId
               )
               this.$store.dispatch(
                 'zap/setLastSelectedDomain',
-                this.$store.state.zap.domains[0],
+                this.$store.state.zap.domains[0]
               )
             })
           this.$router.push('/cluster').then(() => {
@@ -373,7 +373,7 @@ export default {
           resolve()
         })
       })
-    },
+    }
   },
   mixins: [CommonMixin],
   data() {
@@ -382,7 +382,7 @@ export default {
       deletingTutorialEndpoint: false,
       deleteEndpointDialog: false,
       tourEndpointType: null,
-      tourEndpointId: null,
+      tourEndpointId: null
     }
   },
   mounted() {
@@ -406,11 +406,11 @@ export default {
         onNext: async () =>
           nextStep !== null ? await this[nextStep]() : void 0,
         onPrev: async () =>
-          prevStep !== null ? await this[prevStep]() : void 0,
+          prevStep !== null ? await this[prevStep]() : void 0
       })
     }
 
     this.tutorialSteps = config
-  },
+  }
 }
 </script>

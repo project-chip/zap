@@ -42,15 +42,15 @@ test(
         output: testGenDir,
         generationTemplate: testUtil.testTemplate.zigbee,
         zclProperties: env.builtinSilabsZclMetafile(),
-        zapFiles: null,
+        zapFiles: null
       },
       {
         quitFunction: null,
-        logger: (msg) => {},
-      },
+        logger: (msg) => {}
+      }
     )
   },
-  testUtil.timeout.long(),
+  testUtil.timeout.long()
 )
 
 test(
@@ -58,12 +58,12 @@ test(
   () => {
     return startup.startSelfCheck(
       {
-        zclProperties: env.builtinSilabsZclMetafile(),
+        zclProperties: env.builtinSilabsZclMetafile()
       },
-      { logger: (msg) => {}, quit: false },
+      { logger: (msg) => {}, quit: false }
     )
   },
-  testUtil.timeout.long(),
+  testUtil.timeout.long()
 )
 
 test(
@@ -74,11 +74,11 @@ test(
     let output = '{basename}.conversion'
     let testOutputFile = path.join(
       __dirname,
-      'resource/isc/test-light.conversion',
+      'resource/isc/test-light.conversion'
     )
     let testConversionResults = path.join(
       __dirname,
-      'resource/isc/test-light.conversion.results.yaml',
+      'resource/isc/test-light.conversion.results.yaml'
     )
 
     return startup
@@ -88,12 +88,12 @@ test(
           output: output,
           zclProperties: env.builtinSilabsZclMetafile(),
           noZapFileLog: true,
-          results: testConversionResults,
+          results: testConversionResults
         },
         {
           quitFunction: null,
-          logger: (msg) => {},
-        },
+          logger: (msg) => {}
+        }
       )
       .then(() => {
         expect(fs.existsSync(testOutputFile)).toBeTruthy()
@@ -103,7 +103,7 @@ test(
         fs.unlinkSync(testConversionResults)
       })
   },
-  testUtil.timeout.long(),
+  testUtil.timeout.long()
 )
 
 test(
@@ -114,14 +114,14 @@ test(
     return startup.startAnalyze(
       {
         zapFiles: files,
-        zclProperties: env.builtinSilabsZclMetafile(),
+        zclProperties: env.builtinSilabsZclMetafile()
       },
       {
         quitFunction: null,
         cleanDb: false,
-        logger: (msg) => {},
-      },
+        logger: (msg) => {}
+      }
     )
   },
-  testUtil.timeout.long(),
+  testUtil.timeout.long()
 )

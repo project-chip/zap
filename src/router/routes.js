@@ -19,7 +19,7 @@ const routes = [
   {
     path: '/config',
     component: () => import('../layouts/ConfigLayout.vue'),
-    children: [{ path: '', component: () => import('../pages/ZapConfig.vue') }],
+    children: [{ path: '', component: () => import('../pages/ZapConfig.vue') }]
   },
   {
     path: '/',
@@ -30,10 +30,10 @@ const routes = [
         path: '',
         components: {
           default: () => import('../pages/EndpointManager.vue'),
-          sidebar: () => import('../components/ZclEndpointManager.vue'),
-        },
-      },
-    ],
+          sidebar: () => import('../components/ZclEndpointManager.vue')
+        }
+      }
+    ]
   },
   {
     path: '/cluster',
@@ -44,10 +44,10 @@ const routes = [
         path: '',
         components: {
           default: () => import('../components/ZclClusterView.vue'),
-          sidebar: () => import('../components/ZclEndpointManager.vue'),
-        },
-      },
-    ],
+          sidebar: () => import('../components/ZclEndpointManager.vue')
+        }
+      }
+    ]
   },
   {
     path: '/preferences/user',
@@ -57,10 +57,10 @@ const routes = [
         path: '',
         components: {
           default: () => import('../pages/preferences/PreferenceUser.vue'),
-          sidebar: () => import('../components/SettingsSidebar.vue'),
-        },
-      },
-    ],
+          sidebar: () => import('../components/SettingsSidebar.vue')
+        }
+      }
+    ]
   },
   {
     path: '/preferences/generation',
@@ -71,10 +71,10 @@ const routes = [
         components: {
           default: () =>
             import('../pages/preferences/PreferenceGeneration.vue'),
-          sidebar: () => import('../components/SettingsSidebar.vue'),
-        },
-      },
-    ],
+          sidebar: () => import('../components/SettingsSidebar.vue')
+        }
+      }
+    ]
   },
   {
     path: '/preferences/package',
@@ -84,10 +84,10 @@ const routes = [
         path: '',
         components: {
           default: () => import('../pages/preferences/PreferencePackage.vue'),
-          sidebar: () => import('../components/SettingsSidebar.vue'),
-        },
-      },
-    ],
+          sidebar: () => import('../components/SettingsSidebar.vue')
+        }
+      }
+    ]
   },
   {
     path: '/preferences/about',
@@ -98,10 +98,10 @@ const routes = [
         path: '',
         components: {
           default: () => import('../pages/preferences/AboutPage.vue'),
-          sidebar: () => import('../components/SettingsSidebar.vue'),
-        },
-      },
-    ],
+          sidebar: () => import('../components/SettingsSidebar.vue')
+        }
+      }
+    ]
   },
   {
     path: '/preferences/devtools/information-setup',
@@ -112,10 +112,10 @@ const routes = [
         components: {
           default: () =>
             import('../pages/preferences/devtools/InformationSetup.vue'),
-          sidebar: () => import('../components/SettingsSidebar.vue'),
-        },
-      },
-    ],
+          sidebar: () => import('../components/SettingsSidebar.vue')
+        }
+      }
+    ]
   },
   {
     path: '/preferences/devtools/sql-query',
@@ -125,10 +125,10 @@ const routes = [
         path: '',
         components: {
           default: () => import('../pages/preferences/devtools/SqlQuery.vue'),
-          sidebar: () => import('../components/SettingsSidebar.vue'),
-        },
-      },
-    ],
+          sidebar: () => import('../components/SettingsSidebar.vue')
+        }
+      }
+    ]
   },
   {
     path: '/preferences/devtools/api-exceptions',
@@ -139,10 +139,10 @@ const routes = [
         components: {
           default: () =>
             import('../pages/preferences/devtools/ApiExceptions.vue'),
-          sidebar: () => import('../components/SettingsSidebar.vue'),
-        },
-      },
-    ],
+          sidebar: () => import('../components/SettingsSidebar.vue')
+        }
+      }
+    ]
   },
   {
     path: '/notifications',
@@ -153,10 +153,10 @@ const routes = [
         path: '',
         components: {
           default: () => import('../pages/NotificationsPage.vue'),
-          sidebar: () => import('../components/ZclEndpointManager.vue'),
-        },
-      },
-    ],
+          sidebar: () => import('../components/ZclEndpointManager.vue')
+        }
+      }
+    ]
   },
   {
     path: '/options',
@@ -167,10 +167,10 @@ const routes = [
         path: '',
         components: {
           default: () => import('../pages/OptionsPage.vue'),
-          sidebar: () => import('../components/ZclEndpointManager.vue'),
-        },
-      },
-    ],
+          sidebar: () => import('../components/ZclEndpointManager.vue')
+        }
+      }
+    ]
   },
   {
     path: '/extensions',
@@ -181,18 +181,18 @@ const routes = [
         path: '',
         components: {
           default: () => import('../pages/ExtensionsPage.vue'),
-          sidebar: () => import('../components/ZclEndpointManager.vue'),
-        },
-      },
-    ],
-  },
+          sidebar: () => import('../components/ZclEndpointManager.vue')
+        }
+      }
+    ]
+  }
 ]
 
 // Always leave this as last one
 if (process.env.MODE !== 'ssr') {
   routes.push({
     path: '/:catchAll(.*)*',
-    component: () => import('../pages/ErrorPage404.vue'),
+    component: () => import('../pages/ErrorPage404.vue')
   })
 }
 

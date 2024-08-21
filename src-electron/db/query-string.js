@@ -44,7 +44,7 @@ async function selectAllStrings(db, packageId) {
    INNER JOIN DATA_TYPE 
     ON STRING.STRING_ID = DATA_TYPE.DATA_TYPE_ID
    WHERE PACKAGE_REF = ?`,
-      [packageId],
+      [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.string))
 }
@@ -71,7 +71,7 @@ async function selectStringById(db, id) {
    INNER JOIN DATA_TYPE 
     ON STRING.STRING_ID = DATA_TYPE.DATA_TYPE_ID
    WHERE STRING.STRING_ID = ?`,
-      [id],
+      [id]
     )
     .then(dbMapping.map.string)
 }
@@ -104,7 +104,7 @@ async function selectStringByName(db, name, packageIds) {
    WHERE
      DATA_TYPE.NAME = ?
      AND DATA_TYPE.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})`,
-      [name],
+      [name]
     )
     .then(dbMapping.map.string)
 }

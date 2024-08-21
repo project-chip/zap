@@ -29,13 +29,13 @@ const PairWithCode = {
   arguments: [
     { type: 'NODE_ID', name: 'nodeId' },
     { type: 'CHAR_STRING', name: 'payload' },
-    { type: 'BOOLEAN', name: 'discoverOnce', isOptional: true },
-  ],
+    { type: 'BOOLEAN', name: 'discoverOnce', isOptional: true }
+  ]
 };
 
 const Unpair = {
   name: 'Unpair',
-  arguments: [{ type: 'NODE_ID', name: 'nodeId' }],
+  arguments: [{ type: 'NODE_ID', name: 'nodeId' }]
 };
 
 const GetCommissionerNodeId = {
@@ -43,9 +43,9 @@ const GetCommissionerNodeId = {
   responseName: 'GetCommissionerNodeIdResponse',
   response: {
     arguments: [
-      { name: 'nodeId', type: 'NODE_ID' }, //
-    ],
-  },
+      { name: 'nodeId', type: 'NODE_ID' } //
+    ]
+  }
 };
 
 const name = 'CommissionerCommands';
@@ -53,7 +53,7 @@ const commands = [PairWithCode, Unpair, GetCommissionerNodeId];
 
 const CommissionerCommands = {
   name,
-  commands,
+  commands
 };
 
 //

@@ -48,7 +48,7 @@ limitations under the License.
                     selectedEvents,
                     'selectedEvents',
                     props.row,
-                    selectedCluster.id,
+                    selectedCluster.id
                   )
                 "
               />
@@ -101,7 +101,7 @@ export default {
     selectedEvents: {
       get() {
         return this.$store.state.zap.eventView.selectedEvents
-      },
+      }
     },
     eventData: {
       get() {
@@ -112,15 +112,15 @@ export default {
                 .toLowerCase()
                 .includes(this.individualClusterFilterString.toLowerCase())
         })
-      },
-    },
+      }
+    }
   },
   methods: {
     handleEventSelection(list, listType, eventData, clusterId) {
       // We determine the ID that we need to toggle within the list.
       // This ID comes from hashing the base event ID and cluster data.
       let indexOfValue = list.indexOf(
-        this.hashEventIdClusterId(eventData.id, clusterId),
+        this.hashEventIdClusterId(eventData.id, clusterId)
       )
 
       let addedValue
@@ -136,19 +136,19 @@ export default {
         value: addedValue,
         listType: listType,
         clusterRef: clusterId,
-        eventSide: eventData.side,
+        eventSide: eventData.side
       }
       this.$store.dispatch('zap/updateSelectedEvents', editContext)
     },
     hashEventIdClusterId(eventId, clusterId) {
       return Util.cantorPair(eventId, clusterId)
-    },
+    }
   },
   data() {
     return {
       noEventsMessage: 'No events available for this cluster.',
       pagination: {
-        rowsPerPage: 0,
+        rowsPerPage: 0
       },
       columns: [
         {
@@ -156,7 +156,7 @@ export default {
           label: 'On/Off',
           field: 'included',
           align: 'left',
-          style: 'width:1%',
+          style: 'width:1%'
         },
         {
           name: 'eventId',
@@ -164,7 +164,7 @@ export default {
           label: 'ID',
           field: 'eventId',
           sortable: true,
-          style: 'width:1%',
+          style: 'width:1%'
         },
         {
           name: 'mfgId',
@@ -172,7 +172,7 @@ export default {
           label: 'Manufacturing Id',
           field: 'mfgId',
           sortable: true,
-          style: 'width:1%',
+          style: 'width:1%'
         },
         {
           name: 'name',
@@ -180,7 +180,7 @@ export default {
           field: 'name',
           align: 'left',
           sortable: true,
-          style: 'width:1%',
+          style: 'width:1%'
         },
         {
           name: 'side',
@@ -188,7 +188,7 @@ export default {
           field: 'side',
           align: 'left',
           sortable: true,
-          style: 'width:1%',
+          style: 'width:1%'
         },
         {
           name: 'priority',
@@ -196,7 +196,7 @@ export default {
           field: 'priority',
           align: 'left',
           sortable: true,
-          style: 'width:1%',
+          style: 'width:1%'
         },
         {
           name: 'required',
@@ -204,7 +204,7 @@ export default {
           field: 'isOptional',
           align: 'left',
           sortable: true,
-          style: 'width:1%',
+          style: 'width:1%'
         },
         {
           name: 'description',
@@ -212,10 +212,10 @@ export default {
           field: 'description',
           align: 'left',
           sortable: true,
-          style: 'width:10%',
-        },
-      ],
+          style: 'width:10%'
+        }
+      ]
     }
-  },
+  }
 }
 </script>

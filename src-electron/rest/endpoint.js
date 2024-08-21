@@ -42,7 +42,7 @@ function httpDeleteEndpoint(db) {
 
     response.status(StatusCodes.OK).json({
       successful: removed > 0,
-      id: id,
+      id: id
     })
   }
 }
@@ -59,7 +59,7 @@ function httpDeleteEndpointType(db) {
     let removed = await queryEndpointType.deleteEndpointType(db, id)
     response.status(StatusCodes.OK).json({
       successful: removed > 0,
-      id: id,
+      id: id
     })
   }
 }
@@ -78,13 +78,13 @@ function httpPostEndpoint(db) {
       profileId,
       endpointType,
       deviceIdentifier,
-      parentEndpointIdentifier,
+      parentEndpointIdentifier
     } = request.body
     let sessionId = request.zapSessionId
     let parentEndpointRef = await queryEndpoint.getParentEndpointRef(
       db,
       parentEndpointIdentifier,
-      sessionId,
+      sessionId
     )
     if (parentEndpointRef == null && parentEndpointIdentifier != null) {
       parentEndpointIdentifier = null
@@ -96,7 +96,7 @@ function httpPostEndpoint(db) {
       endpointType,
       networkId,
       profileId,
-      parentEndpointRef,
+      parentEndpointRef
     )
     try {
       let validationData = await validation.validateEndpoint(db, newId)
@@ -108,7 +108,7 @@ function httpPostEndpoint(db) {
         parentEndpointIdentifier: parentEndpointIdentifier,
         deviceId: deviceIdentifier,
         profileId: profileId,
-        validationIssues: validationData,
+        validationIssues: validationData
       })
     } catch (err) {
       response.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err)
@@ -130,7 +130,7 @@ function httpPatchEndpoint(db) {
     let parentEndpointRef = await queryEndpoint.getParentEndpointRef(
       db,
       parentEndpointIdentifier,
-      sessionIdexport,
+      sessionIdexport
     )
     if (parentEndpointRef == null && parentEndpointIdentifier != null) {
       parentEndpointIdentifier = null
@@ -139,14 +139,14 @@ function httpPatchEndpoint(db) {
       db,
       sessionIdexport,
       context.id,
-      parentEndpointRef,
+      parentEndpointRef
     )
     let changes = context.changes.map((data) => {
       let paramType = ''
       return {
         key: data.updatedKey,
         value: data.value,
-        type: paramType,
+        type: paramType
       }
     })
     await queryConfig.updateEndpoint(db, sessionIdexport, context.id, changes)
@@ -155,7 +155,7 @@ function httpPatchEndpoint(db) {
       endpointId: context.id,
       changes: context.changes,
       validationIssues: validationData,
-      parentEndpointIdentifier: parentEndpointIdentifier,
+      parentEndpointIdentifier: parentEndpointIdentifier
     })
   }
 }
@@ -175,7 +175,7 @@ function httpPostEndpointType(db) {
       await querySession.selectSessionPartitionInfoFromDeviceType(
         db,
         sessionId,
-        deviceTypeRef,
+        deviceTypeRef
       )
     try {
       let newId = await queryConfig.insertEndpointType(
@@ -184,7 +184,7 @@ function httpPostEndpointType(db) {
         name,
         deviceTypeRef,
         deviceIdentifier,
-        deviceVersion,
+        deviceVersion
       )
 
       response.status(StatusCodes.OK).json({
@@ -192,7 +192,7 @@ function httpPostEndpointType(db) {
         name: name,
         deviceTypeRef: deviceTypeRef,
         deviceTypeIdentifier: deviceVersion,
-        deviceTypeVersion: deviceVersion,
+        deviceTypeVersion: deviceVersion
       })
     } catch (err) {
       response.status(StatusCodes.INTERNAL_SERVER_ERROR).json(err)
@@ -216,7 +216,7 @@ function httpPatchEndpointType(db) {
       return {
         key: data.updatedKey,
         value: data.value,
-        type: paramType,
+        type: paramType
       }
     })
 
@@ -224,12 +224,12 @@ function httpPatchEndpointType(db) {
       db,
       sessionId,
       context.endpointTypeId,
-      changes,
+      changes
     )
 
     response.status(StatusCodes.OK).json({
       endpointTypeId: context.endpointTypeId,
-      changes: context.changes,
+      changes: context.changes
     })
   }
 }
@@ -237,32 +237,32 @@ function httpPatchEndpointType(db) {
 exports.post = [
   {
     uri: restApi.uri.endpoint,
-    callback: httpPostEndpoint,
+    callback: httpPostEndpoint
   },
   {
     uri: restApi.uri.endpointType,
-    callback: httpPostEndpointType,
-  },
+    callback: httpPostEndpointType
+  }
 ]
 
 exports.patch = [
   {
     uri: restApi.uri.endpoint,
-    callback: httpPatchEndpoint,
+    callback: httpPatchEndpoint
   },
   {
     uri: restApi.uri.endpointType,
-    callback: httpPatchEndpointType,
-  },
+    callback: httpPatchEndpointType
+  }
 ]
 
 exports.delete = [
   {
     uri: restApi.uri.endpoint,
-    callback: httpDeleteEndpoint,
+    callback: httpDeleteEndpoint
   },
   {
     uri: restApi.uri.endpointType,
-    callback: httpDeleteEndpointType,
-  },
+    callback: httpDeleteEndpointType
+  }
 ]

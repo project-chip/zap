@@ -40,12 +40,12 @@ beforeAll(async () => {
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
     env.schemaFile(),
-    env.zapVersion(),
+    env.zapVersion()
   )
   // Loading both matter and zigbee zcl files for multi-protocol use case
   return zclLoader.loadZclMetafiles(db, [
     env.builtinSilabsZclMetafile(),
-    env.builtinMatterZclMetafile2(),
+    env.builtinMatterZclMetafile2()
   ])
 }, testUtil.timeout.medium())
 
@@ -57,7 +57,7 @@ test(
     // loading the gen template files of zigbee and matter
     let context = await genEngine.loadTemplates(db, [
       testUtil.testTemplate.zigbee2,
-      testUtil.testTemplate.matter2,
+      testUtil.testTemplate.matter2
     ])
     expect(context.crc).not.toBeNull()
     expect(context.templateData).not.toBeNull()
@@ -67,17 +67,17 @@ test(
     expect(context.templateData[1].name).toEqual('CHIP Tests templates')
     expect(context.templateData[1].version).toEqual('chip-v1')
     expect(context.templateData[0].templates.length).toEqual(
-      zigbeeTemplateCount,
+      zigbeeTemplateCount
     )
     expect(context.templateData[1].templates.length).toEqual(
-      matterTemplateCount,
+      matterTemplateCount
     )
     expect(context.packageIds).not.toBeNull()
     expect(context.packageIds.length).toEqual(2)
     expect(context.packageId).not.toBeNull()
     templateContext = context
   },
-  testUtil.timeout.medium(),
+  testUtil.timeout.medium()
 )
 
 test(
@@ -86,7 +86,7 @@ test(
     let importRes = await importJs.importDataFromFile(
       db,
       multiProtocolTestFile,
-      { sessionId: null },
+      { sessionId: null }
     )
     expect(importRes.errors.length).toBe(0)
     expect(importRes.warnings.length).toBe(0)
@@ -98,8 +98,8 @@ test(
       {},
       {
         generateOnly: ['zap-config-version-3.h', 'zap-event.h'],
-        disableDeprecationWarnings: true,
-      },
+        disableDeprecationWarnings: true
+      }
     )
     let genResultMatter = await genEngine.generate(
       db,
@@ -108,8 +108,8 @@ test(
       {},
       {
         generateOnly: 'endpoint-config.c',
-        disableDeprecationWarnings: true,
-      },
+        disableDeprecationWarnings: true
+      }
     )
     expect(genResultZigbee.hasErrors).toBeFalsy()
     expect(genResultMatter.hasErrors).toBeFalsy()
@@ -120,43 +120,43 @@ test(
 
     // Positive tests endpoint config
     expect(matterEndpointConfigGen).toContain(
-      '/* Endpoint: 0, Cluster: Basic Information (server) */',
+      '/* Endpoint: 0, Cluster: Basic Information (server) */'
     )
     expect(matterEndpointConfigGen).toContain(
-      '/* Endpoint: 0, Cluster: Descriptor (server) */',
+      '/* Endpoint: 0, Cluster: Descriptor (server) */'
     )
     expect(zigbeeEndpointConfigGen).toContain(
-      '#define EMBER_AF_BASIC_CLUSTER_SERVER_ENDPOINT_COUNT (1)',
+      '#define EMBER_AF_BASIC_CLUSTER_SERVER_ENDPOINT_COUNT (1)'
     )
     expect(zigbeeEndpointConfigGen).toContain(
-      '#define EMBER_AF_ZLL_COMMISSIONING_CLUSTER_SERVER_ENDPOINT_COUNT (1)',
+      '#define EMBER_AF_ZLL_COMMISSIONING_CLUSTER_SERVER_ENDPOINT_COUNT (1)'
     )
 
     // Negative Tests endpoint config
     expect(matterEndpointConfigGen).not.toContain(
-      '/* Endpoint: 1, Cluster: Basic (server)',
+      '/* Endpoint: 1, Cluster: Basic (server)'
     )
     expect(matterEndpointConfigGen).not.toContain(
-      '/* Endpoint: 1, Cluster: ZLL Commissioning (server) */',
+      '/* Endpoint: 1, Cluster: ZLL Commissioning (server) */'
     )
     expect(zigbeeEndpointConfigGen).not.toContain(
-      '#define EMBER_AF_DESCRIPTOR_CLUSTER_SERVER_ENDPOINT_COUNT (1)',
+      '#define EMBER_AF_DESCRIPTOR_CLUSTER_SERVER_ENDPOINT_COUNT (1)'
     )
 
     // Global attribute test
     expect(zigbeeEndpointConfigGen).toContain(
-      '{ 0xFFFD, ZCL_INT16U_ATTRIBUTE_TYPE, 2, (ATTRIBUTE_MASK_SINGLETON), { (uint8_t*)3  } }, /* 13 Cluster: Basic, Attribute: cluster revision, Side: server*/',
+      '{ 0xFFFD, ZCL_INT16U_ATTRIBUTE_TYPE, 2, (ATTRIBUTE_MASK_SINGLETON), { (uint8_t*)3  } }, /* 13 Cluster: Basic, Attribute: cluster revision, Side: server*/'
     )
     expect(matterEndpointConfigGen).toContain(
-      '{ 0x0000FFFC, ZAP_TYPE(BITMAP32), 4, 0, ZAP_SIMPLE_DEFAULT(0) }, /* FeatureMap */',
+      '{ 0x0000FFFC, ZAP_TYPE(BITMAP32), 4, 0, ZAP_SIMPLE_DEFAULT(0) }, /* FeatureMap */'
     )
     expect(matterEndpointConfigGen).toContain(
-      '{ 0x0000FFFD, ZAP_TYPE(INT16U), 2, ZAP_ATTRIBUTE_MASK(EXTERNAL_STORAGE), ZAP_EMPTY_DEFAULT() }, /* ClusterRevision */',
+      '{ 0x0000FFFD, ZAP_TYPE(INT16U), 2, ZAP_ATTRIBUTE_MASK(EXTERNAL_STORAGE), ZAP_EMPTY_DEFAULT() }, /* ClusterRevision */'
     )
 
     // Test Multi-protocol attribute mapping generation
     expect(zigbeeEndpointConfigGen).toContain(
-      '#define GENERATED_MULTI_PROTOCOL_ATTRIBUTE_MAPPING',
+      '#define GENERATED_MULTI_PROTOCOL_ATTRIBUTE_MAPPING'
     )
     expect(zigbeeEndpointConfigGen).toContain('{ 6, 0, 6, 0, 0, 0, 0, 0 },')
     expect(zigbeeEndpointConfigGen).toContain('{ 8, 0, 8, 0, 0, 0, 0, 0 },')
@@ -165,35 +165,35 @@ test(
     // Notifications test when opening multi-protocol zap file
     let sessionNotifications = await querySessionNotice.getNotification(
       db,
-      importRes.sessionId,
+      importRes.sessionId
     )
     let sessionNotificationMessages = sessionNotifications.map(
-      (sn) => sn.message,
+      (sn) => sn.message
     )
 
     // Tests for the feature Map attribute compliance based on device type cluster features
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Device Type Compliance on endpoint: 1, device type: MA-onofflight, cluster: On/Off server needs bit 0 enabled in the Feature Map attribute',
-      ),
+        '⚠ Check Device Type Compliance on endpoint: 1, device type: MA-onofflight, cluster: On/Off server needs bit 0 enabled in the Feature Map attribute'
+      )
     ).toBeTruthy()
 
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Device Type Compliance on endpoint: 1, device type: MA-dimmablelight, cluster: Level Control server needs bit 0 enabled in the Feature Map attribute',
-      ),
+        '⚠ Check Device Type Compliance on endpoint: 1, device type: MA-dimmablelight, cluster: Level Control server needs bit 0 enabled in the Feature Map attribute'
+      )
     ).toBeTruthy()
 
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Device Type Compliance on endpoint: 1, device type: MA-dimmablelight, cluster: Level Control server needs bit 1 enabled in the Feature Map attribute',
-      ),
+        '⚠ Check Device Type Compliance on endpoint: 1, device type: MA-dimmablelight, cluster: Level Control server needs bit 1 enabled in the Feature Map attribute'
+      )
     ).toBeTruthy()
 
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Device Type Compliance on endpoint: 1, device type: MA-dimmablelight, cluster: On/Off server needs bit 0 enabled in the Feature Map attribute',
-      ),
+        '⚠ Check Device Type Compliance on endpoint: 1, device type: MA-dimmablelight, cluster: On/Off server needs bit 0 enabled in the Feature Map attribute'
+      )
     ).toBeTruthy()
 
     // Just one notification regarding multiple top level zcl propertoes and 4
@@ -203,8 +203,8 @@ test(
     // Test Accumulators in templates
     let zigbeeEndpointEvents = genResultZigbee.content['zap-event.h']
     expect(zigbeeEndpointEvents).toContain(
-      '#define SL_ZIGBEE_AF_GENERATED_UC_EVENT_CONTEXT_COUNT 1',
+      '#define SL_ZIGBEE_AF_GENERATED_UC_EVENT_CONTEXT_COUNT 1'
     )
   },
-  testUtil.timeout.long(),
+  testUtil.timeout.long()
 )

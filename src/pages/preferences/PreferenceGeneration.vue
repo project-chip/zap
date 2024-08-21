@@ -39,7 +39,7 @@ import PreferencePageLayout from '../../layouts/PreferencePageLayout.vue'
 export default {
   name: 'PreferenceGeneration',
   components: {
-    PreferencePageLayout,
+    PreferencePageLayout
   },
   data() {
     return {
@@ -49,30 +49,30 @@ export default {
           name: 'ID',
           label: 'ID',
           align: 'left',
-          field: 'PACKAGE_ID',
+          field: 'PACKAGE_ID'
         },
         {
           name: 'VERSION',
           align: 'left',
           label: 'Version',
-          field: 'VERSION',
+          field: 'VERSION'
         },
         {
           name: 'PATH',
           align: 'left',
           label: 'Path',
-          field: 'PATH',
-        },
-      ],
+          field: 'PATH'
+        }
+      ]
     }
   },
   computed: {
     packages: {
       get() {
         return this.$store.state.zap.allPackages.filter(
-          (singlePackage) => singlePackage.TYPE == 'gen-template',
+          (singlePackage) => singlePackage.TYPE == 'gen-template'
         )
-      },
+      }
     },
     pagination: {
       get() {
@@ -80,10 +80,10 @@ export default {
           sortBy: 'desc',
           descending: false,
           page: 1,
-          rowsPerPage: this.packages.length,
+          rowsPerPage: this.packages.length
         }
-      },
-    },
-  },
+      }
+    }
+  }
 }
 </script>

@@ -30,8 +30,8 @@ function x(arg = 'blah') {
 function y(
   arg = {
     a: 1,
-    b: 2,
-  },
+    b: 2
+  }
 ) {
   return arg.a + arg.b
 }
@@ -51,7 +51,7 @@ test(
       '123',
       '--arglessArg',
       '--xmlRoot',
-      'XmlRoot',
+      'XmlRoot'
     ])
 
     expect(a.noUI).toBeTruthy()
@@ -60,7 +60,7 @@ test(
     expect(a.arglessArg).toBeTruthy()
     expect(a.xmlRoot).toBe('XmlRoot')
   },
-  timeout.short(),
+  timeout.short()
 )
 
 test(
@@ -73,7 +73,7 @@ test(
     expect(argv.y).toBe(2)
     expect(argv.tst).toBe(42)
   },
-  timeout.short(),
+  timeout.short()
 )
 
 test(
@@ -88,5 +88,5 @@ test(
     expect(y({ a: 22, b: 34 })).toBe(56)
     expect(y({ a: 22 })).toBe(NaN) // A missing options key is just missing
   },
-  timeout.short(),
+  timeout.short()
 )

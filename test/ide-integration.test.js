@@ -40,7 +40,7 @@ beforeAll(async () => {
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
     env.schemaFile(),
-    env.zapVersion(),
+    env.zapVersion()
   )
   let zclContext = await zclLoader.loadZcl(db, testUtil.testZclMetafile)
   zclPackageId = zclContext.packageId
@@ -53,7 +53,7 @@ test(
   async () => {
     templateContext = await genEngine.loadTemplates(
       db,
-      testUtil.testTemplate.meta,
+      testUtil.testTemplate.meta
     )
     expect(templateContext.crc).not.toBeNull()
     expect(templateContext.templateData).not.toBeNull()
@@ -61,7 +61,7 @@ test(
     expect(templateContext.templateData.version).toEqual('meta-test')
     expect(templateContext.packageId).not.toBeNull()
   },
-  testUtil.timeout.medium(),
+  testUtil.timeout.medium()
 )
 
 test(
@@ -69,11 +69,11 @@ test(
   async () => {
     templateContext.packages = await queryPackage.getPackageByParent(
       templateContext.db,
-      templateContext.packageId,
+      templateContext.packageId
     )
     expect(templateContext.packages.length).toBeGreaterThan(0)
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -81,7 +81,7 @@ test(
   async () => {
     let { sessionId, errors, warnings } = await importJs.importDataFromFile(
       db,
-      testFile,
+      testFile
     )
     expect(errors.length).toBe(0)
     expect(warnings.length).toBe(0)
@@ -98,10 +98,10 @@ test(
       db,
       sessionId,
       cluster.id,
-      ['server'],
+      ['server']
     )
     expect(ids.length).toBe(1)
     expect(ids[0]).toEqual('test-1-component')
   },
-  testUtil.timeout.long(),
+  testUtil.timeout.long()
 )

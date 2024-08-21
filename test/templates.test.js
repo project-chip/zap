@@ -29,19 +29,19 @@ test(
     let output = template({ a: 'Very', b: 'simple', c: 'test' })
     expect(output).toEqual('Very simple test!')
   },
-  timeout.short(),
+  timeout.short()
 )
 
 test(
   'handlebars: comment test',
   () => {
     let template = handlebars.compile(
-      '{{!-- some random comment --}}{{a}} {{b}} {{c}}!',
+      '{{!-- some random comment --}}{{a}} {{b}} {{c}}!'
     )
     let output = template({ a: 'Very', b: 'simple', c: 'test' })
     expect(output).toEqual('Very simple test!')
   },
-  timeout.short(),
+  timeout.short()
 )
 
 test(
@@ -51,7 +51,7 @@ test(
     let output = template({ in: { a: 'Very', b: 'simple', c: 'test' } })
     expect(output).toEqual('Very simple test!')
   },
-  timeout.short(),
+  timeout.short()
 )
 
 test(
@@ -61,7 +61,7 @@ test(
     let output = template({ in: { a: 'Very', b: 'simple', c: 'test' } })
     expect(output).toEqual('Very simple test!')
   },
-  timeout.short(),
+  timeout.short()
 )
 
 test(
@@ -71,7 +71,7 @@ test(
     let output = template({ in: ['Very', 'simple', 'test'] })
     expect(output).toEqual('Very simple test !')
   },
-  timeout.short(),
+  timeout.short()
 )
 
 test(
@@ -82,7 +82,7 @@ test(
     let output = template()
     expect(output).toEqual('Very simple test!')
   },
-  timeout.short(),
+  timeout.short()
 )
 
 test(
@@ -90,33 +90,33 @@ test(
   () => {
     handlebars.registerHelper(
       'supreme_leader',
-      (name) => `His most evil excelency, Mr. ${name}`,
+      (name) => `His most evil excelency, Mr. ${name}`
     )
     let template = handlebars.compile(
-      '{{#each list_of_lunatics}}{{supreme_leader this}} {{/each}}',
+      '{{#each list_of_lunatics}}{{supreme_leader this}} {{/each}}'
     )
     let output = template({
-      list_of_lunatics: ['Stalin', 'Trotsky', 'Genghis Khan'],
+      list_of_lunatics: ['Stalin', 'Trotsky', 'Genghis Khan']
     })
     expect(output).toEqual(
-      'His most evil excelency, Mr. Stalin His most evil excelency, Mr. Trotsky His most evil excelency, Mr. Genghis Khan ',
+      'His most evil excelency, Mr. Stalin His most evil excelency, Mr. Trotsky His most evil excelency, Mr. Genghis Khan '
     )
   },
-  timeout.short(),
+  timeout.short()
 )
 
 test(
   'handlebars: if helper',
   () => {
     let template = handlebars.compile(
-      '{{#if flag}}Yes flag!{{else}}No flag!{{/if}}',
+      '{{#if flag}}Yes flag!{{else}}No flag!{{/if}}'
     )
     let output = template({ flag: true })
     expect(output).toEqual('Yes flag!')
     output = template({ flag: false })
     expect(output).toEqual('No flag!')
   },
-  timeout.short(),
+  timeout.short()
 )
 
 test(
@@ -128,11 +128,11 @@ test(
         let text = 'example text'
         let uc = text.toUpperCase()
         return `Got ${text}, returned ${uc}`
-      },
+      }
     })
     expect(output).toEqual('Got example text, returned EXAMPLE TEXT')
   },
-  timeout.short(),
+  timeout.short()
 )
 
 test(
@@ -146,11 +146,11 @@ test(
           list.push({ value: i })
         }
         return list
-      },
+      }
     })
     expect(output).toEqual('0123456789')
   },
-  timeout.short(),
+  timeout.short()
 )
 
 test(
@@ -164,7 +164,7 @@ test(
     let output = template({ data: 0 })
     expect(output).toEqual('12345')
   },
-  timeout.short(),
+  timeout.short()
 )
 
 test(
@@ -184,7 +184,7 @@ test(
     let output = template({ prefix: 'PRE:', postfix: ':ERP' })
     expect(output).toEqual('PRE:0123456789:ERP')
   },
-  timeout.short(),
+  timeout.short()
 )
 
 test(
@@ -194,11 +194,11 @@ test(
     expect(helperC.as_delimited_macro('Very_simple')).toEqual('VERY_SIMPLE')
     expect(helperC.as_delimited_macro('Very_Simple')).toEqual('VERY_SIMPLE')
     expect(helperC.as_delimited_macro('Very_123_Simple')).toEqual(
-      'VERY_123_SIMPLE',
+      'VERY_123_SIMPLE'
     )
     expect(helperC.as_delimited_macro('MfrDefGpdCmd0')).toEqual(
-      'MFR_DEF_GPD_CMD0',
+      'MFR_DEF_GPD_CMD0'
     )
   },
-  timeout.short(),
+  timeout.short()
 )

@@ -21,7 +21,7 @@ let opts = {
   appPath: './dist/electron/zap-darwin-x64/zap.app',
   out: './dist/electron/zap-darwin-x64/',
   name: 'zap-darwin-x64',
-  overwrite: true,
+  overwrite: true
 }
 
 createDMG(opts, function done(err) {

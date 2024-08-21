@@ -50,7 +50,7 @@ export default {
         .catch((err) => {
           console.log(err)
         })
-    },
+    }
   },
   mounted() {
     this.$store.dispatch('zap/clearLastSelectedDomain')
@@ -60,22 +60,22 @@ export default {
     endpointDeviceTypeRef: {
       get() {
         return this.$store.state.zap.endpointTypeView.deviceTypeRef
-      },
+      }
     },
     endpointType: {
       get() {
         return this.$store.state.zap.endpointView.endpointType
-      },
+      }
     },
     selectedEndpointId: {
       get() {
         return this.$store.state.zap.endpointView.selectedEndpoint
-      },
+      }
     },
     endpointId: {
       get() {
         return this.$store.state.zap.endpointView.endpointId
-      },
+      }
     },
     showPreviewTab: {
       get() {
@@ -83,7 +83,7 @@ export default {
       },
       set() {
         return this.$store.dispatch('zap/togglePreviewTab')
-      },
+      }
     },
     endpoints: {
       get() {
@@ -92,12 +92,12 @@ export default {
           if (this.endpointId[id]) {
             endpoints.push({
               label: `Endpoint - ${this.endpointId[id]}`,
-              value: id,
+              value: id
             })
           }
         }
         return endpoints
-      },
+      }
     },
     uiThemeCategory: {
       get() {
@@ -113,7 +113,7 @@ export default {
               .category
           }
         }
-      },
+      }
     },
     miniState: {
       get() {
@@ -121,19 +121,19 @@ export default {
       },
       set(miniState) {
         this.$store.dispatch('zap/setMiniState', miniState)
-      },
+      }
     },
     isSelectedEndpoint: {
       get() {
         return this.$store.state.zap.endpointView.selectedEndpoint == null
-      },
-    },
+      }
+    }
   },
   data() {
     return {
       isExpanded: false,
       globalOptionsDialog: false,
-      notification: '',
+      notification: ''
     }
   },
   created() {
@@ -145,8 +145,8 @@ export default {
 
   components: {
     ZclClusterManager,
-    InitialContent,
-  },
+    InitialContent
+  }
 }
 </script>
 

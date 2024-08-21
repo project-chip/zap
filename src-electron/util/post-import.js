@@ -41,5 +41,5 @@ async function executeScriptFunction(functionName, context, script) {
 exports.executeScriptFunction = executeScriptFunction
 
 exports.functions = {
-  postLoad: 'postLoad',
+  postLoad: 'postLoad'
 }

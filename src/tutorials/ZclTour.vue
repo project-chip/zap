@@ -31,7 +31,7 @@ export default {
     },
     isCmpTour() {
       return this.$store.state.zap.isCmpTutorialSelected
-    },
-  },
+    }
+  }
 }
 </script>

@@ -22,11 +22,11 @@ describe('Testing cluster filters', () => {
     () => {
       cy.get('[data-test="filter-input"]').click()
       cy.get('.q-virtual-scroll__content > :nth-child(3)').click({
-        force: true,
+        force: true
       })
       cy.fixture('data').then((data) => {
         cy.get('tbody').children().contains(data.cluster2).should('not.exist')
       })
-    },
+    }
   )
 })

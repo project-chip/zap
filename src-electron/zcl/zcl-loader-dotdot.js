@@ -41,7 +41,7 @@ async function collectDataFromLibraryXml(ctx) {
   let zclLib = result['zcl:library']
   ctx.version = '1.0'
   ctx.zclFiles = zclLib['xi:include'].map((f) =>
-    path.join(path.dirname(ctx.metadataFile), f.$.href),
+    path.join(path.dirname(ctx.metadataFile), f.$.href)
   )
   ctx.zclFiles.push(ctx.metadataFile)
   return ctx
@@ -74,14 +74,14 @@ async function parseSingleZclFile(db, ctx, file) {
   let data = {
     filePath: file,
     data: fileContent,
-    crc: util.checksum(fileContent),
+    crc: util.checksum(fileContent)
   }
 
   let res = await zclLoader.qualifyZclFile(
     db,
     data,
     ctx.packageId,
-    dbEnum.packageType.zclXml,
+    dbEnum.packageType.zclXml
   )
   if (!res.data) {
     return []
@@ -137,13 +137,13 @@ async function parseZclFiles(db, ctx) {
   //referenced by other types
   let typesFiles = ctx.zclFiles.filter((file) => file.includes('library.xml'))
   let typeFilePromise = typesFiles.map((file) =>
-    parseSingleZclFile(db, ctx, file),
+    parseSingleZclFile(db, ctx, file)
   )
   await Promise.all(typeFilePromise)
 
   // Load everything apart from atomic data types
   let nonTypesFiles = ctx.zclFiles.filter(
-    (file) => !file.includes('library.xml'),
+    (file) => !file.includes('library.xml')
   )
   nonTypesFiles.map((file) => {
     let p = parseSingleZclFile(db, ctx, file)
@@ -233,7 +233,7 @@ function prepareAttributes(attributes, side, types, cluster = null) {
               ? dbEnum.reportingPolicy.mandatory
               : dbEnum.reportingPolicy.prohibited,
         isSceneRequired:
-          a.$.sceneRequired == undefined ? false : a.$.sceneRequired == 'true',
+          a.$.sceneRequired == undefined ? false : a.$.sceneRequired == 'true'
       }
       let attributeDataClient = {
         code: parseInt(normalizeHexValue(a.$.id)),
@@ -256,7 +256,7 @@ function prepareAttributes(attributes, side, types, cluster = null) {
               ? dbEnum.reportingPolicy.mandatory
               : dbEnum.reportingPolicy.prohibited,
         isSceneRequired:
-          a.$.sceneRequired == undefined ? false : a.$.sceneRequired == 'true',
+          a.$.sceneRequired == undefined ? false : a.$.sceneRequired == 'true'
       }
       if (a.restriction) {
         if (a.restriction[0]['type:minLength'] != null) {
@@ -290,7 +290,7 @@ function prepareAttributes(attributes, side, types, cluster = null) {
               ? dbEnum.reportingPolicy.mandatory
               : dbEnum.reportingPolicy.prohibited,
         isSceneRequired:
-          a.$.sceneRequired == undefined ? false : a.$.sceneRequired == 'true',
+          a.$.sceneRequired == undefined ? false : a.$.sceneRequired == 'true'
       }
       if (a.restriction) {
         if (a.restriction[0]['type:minLength'] != null) {
@@ -328,7 +328,7 @@ function prepareCommands(commands, side, types) {
       name: c.$.name,
       //description: '', // TODO: no description for dotdot xml
       source: side,
-      isOptional: c.$.required != 'true',
+      isOptional: c.$.required != 'true'
     }
     if ('fields' in c) {
       pcmd.args = []
@@ -349,7 +349,7 @@ function prepareCommands(commands, side, types) {
             name: f.$.name,
             type: type,
             fieldIdentifier: j + 1,
-            isArray: f.$.array == 'true' ? 1 : 0,
+            isArray: f.$.array == 'true' ? 1 : 0
           })
         }
       })
@@ -370,7 +370,7 @@ function prepareCommands(commands, side, types) {
  */
 function prepareCluster(cluster, types, isExtension = false) {
   let ret = {
-    isExtension: isExtension,
+    isExtension: isExtension
   }
 
   if (isExtension) {
@@ -387,7 +387,7 @@ function prepareCluster(cluster, types, isExtension = false) {
   }
   let sides = [
     { name: 'server', value: cluster.server },
-    { name: 'client', value: cluster.client },
+    { name: 'client', value: cluster.client }
   ]
   ret.commands = []
   ret.attributes = []
@@ -396,14 +396,14 @@ function prepareCluster(cluster, types, isExtension = false) {
       if ('attributes' in side.value[0]) {
         side.value[0].attributes.forEach((attributes) => {
           ret.attributes = ret.attributes.concat(
-            prepareAttributes(attributes, side.name, types, cluster),
+            prepareAttributes(attributes, side.name, types, cluster)
           )
         })
       }
       if ('commands' in side.value[0]) {
         side.value[0].commands.forEach((commands) => {
           ret.commands = ret.commands.concat(
-            prepareCommands(commands, side.name, types),
+            prepareCommands(commands, side.name, types)
           )
         })
       }
@@ -434,7 +434,7 @@ function prepareAtomic(type) {
     isSigned: desc.includes('Signed'),
     isString: desc.includes('string'),
     isLong: desc.includes('string') && desc.includes('Long'),
-    isChar: desc.includes('string') && desc.includes('haracter'),
+    isChar: desc.includes('string') && desc.includes('haracter')
   }
 }
 
@@ -450,7 +450,7 @@ function prepareBitmap(
   typeContainer,
   type,
   isContained = false,
-  namePrefix = null,
+  namePrefix = null
 ) {
   let ret
   if (isContained) {
@@ -458,12 +458,12 @@ function prepareBitmap(
       //TODO: Bitmaps from clusterOrCommand attributes may not be unique by name so we prepend the clusterOrCommand
       //      name to the bitmap name (as we do in the Silabs xml)
       name: namePrefix ? namePrefix + type.$.name : type.$.name,
-      type: type.$.type,
+      type: type.$.type
     }
   } else {
     ret = {
       name: type.$.short,
-      type: type.$.inheritsFrom,
+      type: type.$.inheritsFrom
     }
   }
   if (tagContainsBitmap(type)) {
@@ -473,7 +473,7 @@ function prepareBitmap(
         name: e.$.name,
         mask: normalizeHexValue(e.$.mask),
         type: e.$.type,
-        fieldIdentifier: index + 1,
+        fieldIdentifier: index + 1
       })
       if (tagContainsEnum(e)) {
         typeContainer.enums.push(prepareEnum(e, true, type.$.name))
@@ -497,12 +497,12 @@ function prepareEnum(type, fromAttribute = false, namePrefix = null) {
       // TODO: Enums from cluster attributes may not be unique by name so we prepend the cluster
       //       name to the enum name (as we do in the Silabs xml)
       name: namePrefix ? namePrefix + type.$.name : type.$.name,
-      type: type.$.type,
+      type: type.$.type
     }
   } else {
     ret = {
       name: type.$.short,
-      type: type.$.inheritsFrom,
+      type: type.$.inheritsFrom
     }
   }
   if ('restriction' in type) {
@@ -511,7 +511,7 @@ function prepareEnum(type, fromAttribute = false, namePrefix = null) {
       ret.items.push({
         name: e.$.name,
         value: parseInt(normalizeHexValue(e.$.value)),
-        fieldIdentifier: index + 1,
+        fieldIdentifier: index + 1
       })
     })
   }
@@ -534,7 +534,7 @@ function prepareStruct(type) {
         ret.items.push({
           name: field.$.name,
           type: field.$.type,
-          fieldIdentifier: index + 1,
+          fieldIdentifier: index + 1
         })
       })
     })
@@ -585,7 +585,7 @@ function prepareAttributeType(attribute, types, cluster) {
     types.bitmaps.push(prepareBitmap(types, attribute, true, cluster.$.name))
   } else if (tagContainsEnum(attribute)) {
     types.enums.push(
-      prepareEnum(attribute, true, cluster == null ? null : cluster.$.name),
+      prepareEnum(attribute, true, cluster == null ? null : cluster.$.name)
     )
   }
 }
@@ -602,7 +602,7 @@ function prepareDeviceType(deviceType) {
     profileId: '0x0000', //There is no profileId in Dotdot device descriptions
     domain: deviceType.domain[0],
     name: deviceType.name[0],
-    description: deviceType.typeName[0],
+    description: deviceType.typeName[0]
   }
 
   if (!('clusters' in deviceType)) return ret
@@ -627,7 +627,7 @@ function prepareDeviceType(deviceType) {
           clusterName:
             include.$.cluster != undefined ? include.$.cluster : include._,
           requiredAttributes: attributes,
-          requiredCommands: commands,
+          requiredCommands: commands
         })
       })
     }
@@ -644,7 +644,7 @@ function prepareDeviceType(deviceType) {
 function prepareDataTypeDiscriminator(a) {
   return {
     name: a.name,
-    id: a.id,
+    id: a.id
   }
 }
 
@@ -666,7 +666,7 @@ async function processDataTypeDiscriminator(db, packageId, zclDataTypes) {
   return queryLoader.insertDataTypeDiscriminator(
     db,
     packageId,
-    types.map((x) => prepareDataTypeDiscriminator(x)),
+    types.map((x) => prepareDataTypeDiscriminator(x))
   )
 }
 
@@ -703,7 +703,7 @@ function prepareDataType(a, dataType, typeMap) {
     id: parseInt(a.id),
     description: a.description ? a.description : a.name,
     discriminator_ref: dataType ? dataType : dataTypeRef,
-    cluster_code: a.cluster ? a.cluster : null,
+    cluster_code: a.cluster ? a.cluster : null
   }
 }
 
@@ -725,7 +725,7 @@ async function processDataType(db, filePath, packageId, data, dataType) {
     return queryLoader.insertDataType(
       db,
       packageId,
-      data.map((x) => prepareDataType(x, 0, typeMap)),
+      data.map((x) => prepareDataType(x, 0, typeMap))
     )
   } else if (dataType == dbEnum.zclType.enum) {
     env.logDebug(`${filePath}, ${packageId}: ${data.length} Enum Data Types.`)
@@ -733,8 +733,8 @@ async function processDataType(db, filePath, packageId, data, dataType) {
       db,
       packageId,
       data.map((x) =>
-        prepareDataType(x, typeMap.get(dbEnum.zclType.enum), typeMap),
-      ),
+        prepareDataType(x, typeMap.get(dbEnum.zclType.enum), typeMap)
+      )
     )
   } else if (dataType == dbEnum.zclType.bitmap) {
     env.logDebug(`${filePath}, ${packageId}: ${data.length} Bitmap Data Types.`)
@@ -742,8 +742,8 @@ async function processDataType(db, filePath, packageId, data, dataType) {
       db,
       packageId,
       data.map((x) =>
-        prepareDataType(x, typeMap.get(dbEnum.zclType.bitmap), typeMap),
-      ),
+        prepareDataType(x, typeMap.get(dbEnum.zclType.bitmap), typeMap)
+      )
     )
   } else if (dataType == dbEnum.zclType.struct) {
     env.logDebug(`${filePath}, ${packageId}: ${data.length} Struct Data Types.`)
@@ -751,8 +751,8 @@ async function processDataType(db, filePath, packageId, data, dataType) {
       db,
       packageId,
       data.map((x) =>
-        prepareDataType(x, typeMap.get(dbEnum.zclType.struct), typeMap),
-      ),
+        prepareDataType(x, typeMap.get(dbEnum.zclType.struct), typeMap)
+      )
     )
   } else if (dataType == dbEnum.zclType.string) {
     env.logDebug(`${filePath}, ${packageId}: ${data.length} String Data Types.`)
@@ -760,19 +760,19 @@ async function processDataType(db, filePath, packageId, data, dataType) {
       db,
       packageId,
       data.map((x) =>
-        prepareDataType(x, typeMap.get(dbEnum.zclType.string), typeMap),
-      ),
+        prepareDataType(x, typeMap.get(dbEnum.zclType.string), typeMap)
+      )
     )
   } else {
     env.logError(
-      'Could not find the discriminator for the data type: ' + dataType,
+      'Could not find the discriminator for the data type: ' + dataType
     )
     queryNotification.setNotification(
       db,
       'ERROR',
       'Could not find the discriminator for the data type: ' + dataType,
       packageId,
-      1,
+      1
     )
   }
 }
@@ -790,7 +790,7 @@ function prepareNumber(a, dataType) {
     is_signed: a.name.endsWith('u') || !a.name.includes('int') ? 0 : 1,
     name: a.name,
     cluster_code: a.cluster ? a.cluster : null,
-    discriminator_ref: dataType,
+    discriminator_ref: dataType
   }
 }
 
@@ -817,7 +817,7 @@ async function processNumber(db, filePath, packageId, data) {
   return queryLoader.insertNumber(
     db,
     packageId,
-    numbers.map((x) => prepareNumber(x, typeMap.get(dbEnum.zclType.number))),
+    numbers.map((x) => prepareNumber(x, typeMap.get(dbEnum.zclType.number)))
   )
 }
 
@@ -835,7 +835,7 @@ function prepareString(a, dataType) {
     is_char: 0,
     name: a.name,
     cluster_code: a.cluster ? a.cluster : null,
-    discriminator_ref: dataType,
+    discriminator_ref: dataType
   }
 }
 
@@ -857,7 +857,7 @@ async function processString(db, filePath, packageId, data) {
   return queryLoader.insertString(
     db,
     packageId,
-    strings.map((x) => prepareString(x, typeMap.get(dbEnum.zclType.string))),
+    strings.map((x) => prepareString(x, typeMap.get(dbEnum.zclType.string)))
   )
 }
 
@@ -873,7 +873,7 @@ function prepareEnumsOrBitmaps(a, dataType) {
     name: a.name,
     type: a.type.toLowerCase(),
     cluster_code: a.cluster ? a.cluster : null,
-    discriminator_ref: dataType,
+    discriminator_ref: dataType
   }
 }
 
@@ -892,7 +892,7 @@ async function processEnums(db, filePath, packageId, data) {
   return queryLoader.insertEnum(
     db,
     [packageId],
-    data.map((x) => prepareEnumsOrBitmaps(x, typeMap.get(dbEnum.zclType.enum))),
+    data.map((x) => prepareEnumsOrBitmaps(x, typeMap.get(dbEnum.zclType.enum)))
   )
 }
 
@@ -921,7 +921,7 @@ async function processEnumItems(db, filePath, packageId, data) {
           enumClusterCode: e.cluster ? parseInt(e.clusterCode) : null,
           name: item.name,
           value: parseInt(item.value),
-          fieldIdentifier: lastFieldId,
+          fieldIdentifier: lastFieldId
         })
       })
     }
@@ -945,8 +945,8 @@ async function processBitmaps(db, filePath, packageId, data) {
     db,
     [packageId],
     data.map((x) =>
-      prepareEnumsOrBitmaps(x, typeMap.get(dbEnum.zclType.bitmap)),
-    ),
+      prepareEnumsOrBitmaps(x, typeMap.get(dbEnum.zclType.bitmap))
+    )
   )
 }
 
@@ -976,7 +976,7 @@ async function processBitmapFields(db, filePath, packageId, data) {
           name: item.name,
           mask: parseInt(item.mask),
           fieldIdentifier: lastFieldId,
-          type: item.type,
+          type: item.type
         })
       })
     }
@@ -985,7 +985,7 @@ async function processBitmapFields(db, filePath, packageId, data) {
     db,
     packageId,
     [packageId],
-    bitmapFields,
+    bitmapFields
   )
 }
 
@@ -1000,7 +1000,7 @@ function prepareStruct2(a, dataType) {
   return {
     name: a.name,
     cluster_code: a.cluster ? a.cluster : null,
-    discriminator_ref: dataType,
+    discriminator_ref: dataType
   }
 }
 
@@ -1019,7 +1019,7 @@ async function processStruct(db, filePath, packageId, data) {
   return queryLoader.insertStruct(
     db,
     [packageId],
-    data.map((x) => prepareStruct2(x, typeMap.get(dbEnum.zclType.struct))),
+    data.map((x) => prepareStruct2(x, typeMap.get(dbEnum.zclType.struct)))
   )
 }
 
@@ -1059,7 +1059,7 @@ async function processStructItems(db, filePath, packageId, data) {
           isEnum: item.enum == 'true' ? true : false,
           isNullable: item.isNullable == 'true' ? true : false,
           isOptional: item.optional == 'true' ? true : false,
-          isFabricSensitive: item.isFabricSensitive == 'true' ? true : false,
+          isFabricSensitive: item.isFabricSensitive == 'true' ? true : false
         })
       })
     }
@@ -1079,7 +1079,7 @@ function prepareEnumsOrBitmapsAtomic(a, dataType) {
     size: a.size,
     name: a.name,
     cluster_code: a.cluster ? a.cluster : null,
-    discriminator_ref: dataType,
+    discriminator_ref: dataType
   }
 }
 
@@ -1102,8 +1102,8 @@ async function processEnumsFromAtomics(db, filePath, packageId, data) {
     db,
     packageId,
     enums.map((x) =>
-      prepareEnumsOrBitmapsAtomic(x, typeMap.get(dbEnum.zclType.enum)),
-    ),
+      prepareEnumsOrBitmapsAtomic(x, typeMap.get(dbEnum.zclType.enum))
+    )
   )
 }
 
@@ -1122,14 +1122,14 @@ async function processBitmapsFromAtomics(db, filePath, packageId, data) {
     return item.name.toLowerCase().includes('map')
   })
   env.logDebug(
-    `${filePath}, ${packageId}: ${data.length} Baseline Bitmap Types.`,
+    `${filePath}, ${packageId}: ${data.length} Baseline Bitmap Types.`
   )
   return queryLoader.insertBitmapAtomic(
     db,
     packageId,
     bitmaps.map((x) =>
-      prepareEnumsOrBitmapsAtomic(x, typeMap.get(dbEnum.zclType.bitmap)),
-    ),
+      prepareEnumsOrBitmapsAtomic(x, typeMap.get(dbEnum.zclType.bitmap))
+    )
   )
 }
 
@@ -1144,7 +1144,7 @@ async function processBitmapsFromAtomics(db, filePath, packageId, data) {
  */
 async function loadZclData(db, ctx) {
   env.logDebug(
-    `Starting to load Dotdot ZCL data in to DB for: ${ctx.metadataFile}, clusters length=${ctx.zclClusters.length}`,
+    `Starting to load Dotdot ZCL data in to DB for: ${ctx.metadataFile}, clusters length=${ctx.zclClusters.length}`
   )
   let types = { atomics: [], enums: [], bitmaps: [], structs: [] }
   prepareTypes(ctx.zclTypes, types)
@@ -1163,8 +1163,8 @@ async function loadZclData(db, ctx) {
   let gs = [
     {
       attributes: gas,
-      commands: prepareCommands(ctx.zclGlobalCommands, '', types),
-    },
+      commands: prepareCommands(ctx.zclGlobalCommands, '', types)
+    }
   ]
   let ds = []
   ctx.zclDeviceTypes.forEach((deviceType) => {
@@ -1181,7 +1181,7 @@ async function loadZclData(db, ctx) {
     ctx.zclManufacturers.map((data) => {
       let mfgPair = data['$']
       return { code: mfgPair['code'], label: mfgPair['translation'] }
-    }),
+    })
   )
   await queryLoader.insertDeviceTypes(db, ctx.packageId, ds)
   await queryLoader.insertGlobals(db, ctx.packageId, gs)
@@ -1193,41 +1193,41 @@ async function loadZclData(db, ctx) {
     ctx.metadataFile,
     ctx.packageId,
     types.atomics,
-    dbEnum.zclType.atomic,
+    dbEnum.zclType.atomic
   )
   await processDataType(
     db,
     ctx.metadataFile,
     ctx.packageId,
     types.enums,
-    dbEnum.zclType.enum,
+    dbEnum.zclType.enum
   )
   await processDataType(
     db,
     ctx.metadataFile,
     ctx.packageId,
     types.bitmaps,
-    dbEnum.zclType.bitmap,
+    dbEnum.zclType.bitmap
   )
   await processDataType(
     db,
     ctx.metadataFile,
     ctx.packageId,
     types.structs,
-    dbEnum.zclType.struct,
+    dbEnum.zclType.struct
   )
 
   await processEnumsFromAtomics(
     db,
     ctx.metadataFile,
     ctx.packageId,
-    types.atomics,
+    types.atomics
   )
   await processBitmapsFromAtomics(
     db,
     ctx.metadataFile,
     ctx.packageId,
-    types.atomics,
+    types.atomics
   )
   await processNumber(db, ctx.metadataFile, ctx.packageId, types.atomics)
   await processString(db, ctx.metadataFile, ctx.packageId, types.atomics)
@@ -1263,7 +1263,7 @@ async function loadIndividualDotDotFile(db, filePath) {
 async function loadToplevelXmlFile(db, metafile) {
   let ctx = {
     metadataFile: metafile,
-    db: db,
+    db: db
   }
   env.logDebug(`Loading Dotdot zcl file: ${metafile}`)
   if (!fs.existsSync(metafile)) {
@@ -1275,7 +1275,7 @@ async function loadToplevelXmlFile(db, metafile) {
     ctx.packageId = await zclLoader.recordToplevelPackage(
       db,
       ctx.metadataFile,
-      ctx.crc,
+      ctx.crc
     )
     await collectDataFromLibraryXml(ctx)
     if (ctx.version != null) {
@@ -1284,7 +1284,7 @@ async function loadToplevelXmlFile(db, metafile) {
         ctx.packageId,
         ctx.version,
         ctx.category,
-        ctx.description,
+        ctx.description
       )
     }
     await parseZclFiles(db, ctx)

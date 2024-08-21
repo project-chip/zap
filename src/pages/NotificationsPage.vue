@@ -149,7 +149,7 @@ export default {
   watch: {
     packages(newPackages) {
       this.loadPackageNotification(newPackages)
-    },
+    }
   },
   methods: {
     getNotificationsAndUpdateSeen() {
@@ -165,7 +165,7 @@ export default {
           }
           if (unseenIds && unseenIds.length > 0) {
             let parameters = {
-              unseenIds: unseenIds,
+              unseenIds: unseenIds
             }
             let config = { params: parameters }
             this.$serverGet(restApi.uri.updateNotificationToSeen, config)
@@ -200,14 +200,14 @@ export default {
     },
     deleteNotification(id) {
       let parameters = {
-        id: id,
+        id: id
       }
       let config = { params: parameters }
       this.$serverDelete(restApi.uri.deleteSessionNotification, config).then(
         (resp) => {
           this.notis = this.notis.filter((row) => row.id !== id)
           this.getUnseenNotificationCount()
-        },
+        }
       )
     },
     // load package notification data after global var updates
@@ -223,14 +223,14 @@ export default {
     },
     async getPackageNotifications(packageId) {
       this.$serverGet(
-        restApi.uri.packageNotificationById.replace(':packageId', packageId),
+        restApi.uri.packageNotificationById.replace(':packageId', packageId)
       ).then((res) => {
         let notifications = res.data || []
         let currentPackage = {
           hasWarning: notifications.length > 0,
           hasError: false,
           warnings: [],
-          errors: [],
+          errors: []
         }
         notifications.forEach((notification) => {
           if (notification.type == 'ERROR') {
@@ -245,7 +245,7 @@ export default {
     },
     hasError(packageId) {
       return this.packageNotis[packageId].hasError
-    },
+    }
   },
   data() {
     return {
@@ -255,17 +255,17 @@ export default {
           name: 'message',
           align: 'center',
           label: 'message',
-          field: 'message',
+          field: 'message'
         },
         {
           name: 'delete',
           align: 'center',
           label: 'delete',
-          field: 'delete',
-        },
+          field: 'delete'
+        }
       ],
       notis: [],
-      packageNotis: [],
+      packageNotis: []
     }
   },
   created() {
@@ -282,6 +282,6 @@ export default {
         this.getNotifications()
       })
     }
-  },
+  }
 }
 </script>

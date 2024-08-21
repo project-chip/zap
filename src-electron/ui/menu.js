@@ -35,7 +35,7 @@ const template = (httpPort) => [
         httpPort: httpPort,
         click(menuItem, browserWindow, event) {
           uiJs.openNewConfiguration(menuItem.httpPort)
-        },
+        }
       },
       {
         label: 'Open File...',
@@ -43,37 +43,37 @@ const template = (httpPort) => [
         httpPort: httpPort,
         click(menuItem, browserWindow, event) {
           doOpen(browserWindow, menuItem.httpPort)
-        },
+        }
       },
       {
         label: 'Save',
         accelerator: 'CmdOrCtrl+S',
         click(menuItem, browserWindow, event) {
           doSave(browserWindow)
-        },
+        }
       },
       {
         label: 'Save As...',
         click(menuItem, browserWindow, event) {
           doSaveAs(browserWindow)
-        },
+        }
       },
       {
-        type: 'separator',
+        type: 'separator'
       },
       {
-        role: 'close',
+        role: 'close'
       },
       {
-        type: 'separator',
+        type: 'separator'
       },
       {
-        role: 'quit',
-      },
-    ],
+        role: 'quit'
+      }
+    ]
   },
   {
-    role: 'editMenu',
+    role: 'editMenu'
   },
   {
     role: 'viewMenu',
@@ -84,9 +84,9 @@ const template = (httpPort) => [
           browserApi.execRendererApi(
             browserWindow,
             rendApi.id.setDarkTheme,
-            true,
+            true
           )
-        },
+        }
       },
       {
         label: 'Light theme',
@@ -94,22 +94,22 @@ const template = (httpPort) => [
           browserApi.execRendererApi(
             browserWindow,
             rendApi.id.setDarkTheme,
-            false,
+            false
           )
-        },
+        }
       },
       { type: 'separator' },
       {
         label: 'Navigate back ...',
         click(menuItem, browserWindow, event) {
           browserWindow.webContents.goBack()
-        },
+        }
       },
       {
         label: 'Navigate forward ...',
         click(menuItem, browserWindow, event) {
           browserWindow.webContents.goForward()
-        },
+        }
       },
       { role: 'reload' },
       { role: 'forceReload' },
@@ -119,11 +119,11 @@ const template = (httpPort) => [
       { role: 'zoomIn' },
       { role: 'zoomOut' },
       { type: 'separator' },
-      { role: 'togglefullscreen' },
-    ],
+      { role: 'togglefullscreen' }
+    ]
   },
   {
-    role: 'windowMenu',
+    role: 'windowMenu'
   },
   {
     label: 'Help',
@@ -132,7 +132,7 @@ const template = (httpPort) => [
         label: 'Documentation',
         click(menuItem, browserWindow, event) {
           shell.openExternal(commonUrl.documentationUrl)
-        },
+        }
       },
       {
         label: 'User and session information',
@@ -142,11 +142,11 @@ const template = (httpPort) => [
               dialog.showMessageBox(browserWindow, {
                 title: 'User and session information',
                 message: msg,
-                buttons: ['Dismiss'],
+                buttons: ['Dismiss']
               })
             })
             .catch((err) => uiJs.showErrorMessage('Session info', err))
-        },
+        }
       },
       {
         label: 'Renderer API information',
@@ -155,13 +155,13 @@ const template = (httpPort) => [
             dialog.showMessageBox(browserWindow, {
               title: 'Renderer API information',
               message: msg,
-              buttons: ['Dismiss'],
+              buttons: ['Dismiss']
             })
           })
-        },
+        }
       },
       {
-        type: 'separator',
+        type: 'separator'
       },
       {
         label: 'Start progress',
@@ -169,37 +169,37 @@ const template = (httpPort) => [
           browserApi.execRendererApi(
             browserWindow,
             rendApi.id.progressStart,
-            'Test progress indication.',
+            'Test progress indication.'
           )
-        },
+        }
       },
       {
         label: 'End progress',
         click(menuItem, browserWindow) {
           browserApi.execRendererApi(browserWindow, rendApi.id.progressEnd)
-        },
+        }
       },
       {
         label: 'Show debug navigation bar',
         click(menuItem, browserWindow) {
           browserApi.execRendererApi(browserWindow, rendApi.id.debugNavBarOn)
-        },
+        }
       },
       {
         label: 'Hide debug navigation bar',
         click(menuItem, browserWindow) {
           browserApi.execRendererApi(browserWindow, rendApi.id.debugNavBarOff)
-        },
+        }
       },
       {
         label: 'About',
         httpPort: httpPort,
         click(menuItem, browserWindow, event) {
           about.createOrShowAboutWindow(browserWindow, menuItem.httpPort)
-        },
-      },
-    ],
-  },
+        }
+      }
+    ]
+  }
 ]
 
 async function getUserSessionInfoMessage(browserWindow) {
@@ -224,12 +224,12 @@ function doOpen(browserWindow, httpPort) {
     .execRendererApi(
       browserWindow,
       rendApi.id.getStorageItem,
-      rendApi.storageKey.fileSave,
+      rendApi.storageKey.fileSave
     )
     .then((filePath) => {
       let opts = {
         title: 'Select ZAP or ISC file to load.',
-        properties: ['openFile', 'multiSelections'],
+        properties: ['openFile', 'multiSelections']
       }
       if (filePath != null) {
         opts.defaultPath = filePath
@@ -243,7 +243,7 @@ function doOpen(browserWindow, httpPort) {
           browserWindow,
           rendApi.id.setStorageItem,
           rendApi.storageKey.fileSave,
-          result.filePaths[0],
+          result.filePaths[0]
         )
       }
     })
@@ -275,14 +275,14 @@ function doSaveAs(browserWindow) {
     .execRendererApi(
       browserWindow,
       rendApi.id.getStorageItem,
-      rendApi.storageKey.fileSave,
+      rendApi.storageKey.fileSave
     )
     .then((filePath) => {
       let opts = {
         filters: [
           { name: 'ZAP Config', extensions: ['zap'] },
-          { name: 'All Files', extensions: ['*'] },
-        ],
+          { name: 'All Files', extensions: ['*'] }
+        ]
       }
       if (filePath != null) {
         opts.defaultPath = filePath
@@ -307,7 +307,7 @@ function doSaveAs(browserWindow) {
           browserWindow,
           rendApi.id.setStorageItem,
           rendApi.storageKey.fileSave,
-          filePath,
+          filePath
         )
       }
     })

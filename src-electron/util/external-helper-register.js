@@ -43,7 +43,7 @@ function helperWrapper(wrappedHelper, context) {
     } else {
       this.global.stats[helperName] = {
         useCount: 1,
-        isDeprecated: isDeprecated,
+        isDeprecated: isDeprecated
       }
     }
 
@@ -78,7 +78,7 @@ function registerHelpers(singleHelper, registerHelper, context) {
   // Register the helper function with Handlebars
   context.hb.registerHelper(
     singleHelper,
-    helperWrapper(registerHelper, context),
+    helperWrapper(registerHelper, context)
   )
 }
 

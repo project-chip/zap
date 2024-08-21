@@ -24,11 +24,11 @@ import Quasar, { Cookies } from 'quasar'
 const mockSsrContext = () => {
   return {
     req: {
-      headers: {},
+      headers: {}
     },
     res: {
-      setHeader: () => undefined,
-    },
+      setHeader: () => undefined
+    }
   }
 }
 
@@ -79,8 +79,8 @@ export const mountQuasar = (component, options = {}) => {
         header: {},
         right: {},
         footer: {},
-        left: {},
-      },
-    },
+        left: {}
+      }
+    }
   })
 }

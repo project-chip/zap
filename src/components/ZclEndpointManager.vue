@@ -62,7 +62,7 @@ export default {
     // initialize ZclClusterManager with first endpoint info.
     if (this.endpointIdListSorted.size && !this.selectedEndpointId) {
       this.setSelectedEndpointType(
-        this.endpointIdListSorted.keys().next().value,
+        this.endpointIdListSorted.keys().next().value
       )
     }
   },
@@ -73,7 +73,7 @@ export default {
       },
       set(newLeftDrawerOpenState) {
         this.$store.dispatch('zap/setLeftDrawerState', newLeftDrawerOpenState)
-      },
+      }
     },
     miniState: {
       get() {
@@ -81,32 +81,32 @@ export default {
       },
       set(newMiniState) {
         this.$store.dispatch('zap/setMiniState', newMiniState)
-      },
+      }
     },
     endpoints: {
       get() {
         return Array.from(this.endpointIdListSorted.keys()).map((id) => ({
-          id: id,
+          id: id
         }))
-      },
+      }
     },
     // This computed will show create endpoint modal, its trigger with vue tour
     showEndpointModal: {
       get() {
         return this.$store.state.zap.showCreateModifyEndpoint
-      },
-    },
+      }
+    }
   },
   data() {
     return {
-      newEndpointDialog: false,
+      newEndpointDialog: false
     }
   },
   methods: {
     // This function changing the modal state
     toggleCreateEndpointModal() {
       this.$store.commit('zap/toggleEndpointModal', true)
-    },
-  },
+    }
+  }
 }
 </script>

@@ -39,7 +39,7 @@ beforeAll(async () => {
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
     env.schemaFile(),
-    env.zapVersion(),
+    env.zapVersion()
   )
 }, testUtil.timeout.medium())
 
@@ -50,7 +50,7 @@ test(
   async () => {
     let context = await genEngine.loadTemplates(
       db,
-      testUtil.testTemplate.zigbee,
+      testUtil.testTemplate.zigbee
     )
 
     expect(context.crc).not.toBeNull()
@@ -58,11 +58,11 @@ test(
     expect(context.templateData.name).toEqual('Test templates')
     expect(context.templateData.version).toEqual('test-v1')
     expect(context.templateData.templates.length).toEqual(
-      testUtil.testTemplate.zigbeeCount,
+      testUtil.testTemplate.zigbeeCount
     )
     expect(context.packageId).not.toBeNull()
   },
-  testUtil.timeout.medium(),
+  testUtil.timeout.medium()
 )
 
 test(
@@ -74,13 +74,13 @@ test(
     let globalCtx = {
       db: zclContext.db,
       zclPackageId: zclContext.packageId,
-      zclPackageIds: [zclContext.packageId],
+      zclPackageIds: [zclContext.packageId]
     }
     ctx = {
-      global: globalCtx,
+      global: globalCtx
     }
   },
-  testUtil.timeout.medium(),
+  testUtil.timeout.medium()
 )
 
 /*
@@ -92,7 +92,7 @@ test(
   () => {
     expect(cHelper.add_one(52)).toEqual(53)
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -101,7 +101,7 @@ test(
     expect(cHelper.is_number_greater_than(3, 2)).toBeTruthy
     expect(cHelper.is_number_greater_than(1, 2)).toBeFalsy
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -110,19 +110,19 @@ test(
     let result = await cHelper.data_type_for_enum(
       db,
       'patate',
-      zclContext.packageId,
+      zclContext.packageId
     )
     expect(result).toBe('!!Invalid enum: patate')
 
     result = await cHelper.data_type_for_enum(
       db,
       'Status',
-      zclContext.packageId,
+      zclContext.packageId
     )
 
     expect(result).toBe('SL_CLI_ARG_UINT8')
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -131,37 +131,37 @@ test(
     let result = await cHelper.dataTypeForBitmap(
       db,
       'patate',
-      zclContext.packageId,
+      zclContext.packageId
     )
     expect(result).toBe('!!Invalid bitmap: patate')
 
     result = await cHelper.dataTypeForBitmap(
       db,
       'LocationType',
-      zclContext.packageId,
+      zclContext.packageId
     )
     expect(result).toBe('SL_CLI_ARG_UINT8')
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
   'Various String helper',
   () => {
     expect(cHelper.cleanseLabelAsKebabCase('Very Simple:Label')).toEqual(
-      'very-simple-label',
+      'very-simple-label'
     )
     // Might want to add CamelCased string
     expect(cHelper.asUnderscoreLowercase('testString')).toBe('test_string')
     expect(cHelper.asSpacedLowercase('testString')).toBe('test string')
     expect(cHelper.asUnderscoreUppercase('bigTestString')).toBe(
-      'BIG_TEST_STRING',
+      'BIG_TEST_STRING'
     )
     expect(cHelper.asUnderscoreUppercase('BigTestString')).toBe(
-      'BIG_TEST_STRING',
+      'BIG_TEST_STRING'
     )
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -181,7 +181,7 @@ test(
         .then((result) => expect(result).toBe('0x39, 0x00'))
     )
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -194,7 +194,7 @@ test(
     expect(cHelper.formatValue('42', 1)).toBe('0x2A')
     expect(cHelper.formatValue('g', 1)).toBe('0x00')
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 /*
@@ -231,7 +231,7 @@ test(
       expect(result).toBe(dbEnum.zclType.struct)
     })
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -244,7 +244,7 @@ test(
         return expect(res).toBe('0x40, 0x38, 0x00, ')
       })
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -257,7 +257,7 @@ test(
         return expect(res).toBe(' 0x00, 0x38, 0x40,')
       })
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -268,7 +268,7 @@ test(
       .as_generated_default_macro('0x00003840', 4, options)
       .then((res) => expect(res).toBe('0x40, 0x38, 0x00, 0x00, '))
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -279,7 +279,7 @@ test(
       .as_generated_default_macro('0x00003840', 4, options)
       .then((res) => expect(res).toBe(' 0x00, 0x00, 0x38, 0x40,'))
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -289,10 +289,10 @@ test(
     return zclHelper
       .as_generated_default_macro('-5', 8, options)
       .then((res) =>
-        expect(res).toBe(' 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFB,'),
+        expect(res).toBe(' 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFB,')
       )
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -302,10 +302,10 @@ test(
     return zclHelper
       .as_generated_default_macro('-5', 8, options)
       .then((res) =>
-        expect(res).toBe('0xFB, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, '),
+        expect(res).toBe('0xFB, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, ')
       )
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -316,7 +316,7 @@ test(
       .as_generated_default_macro('-5', 5, options)
       .then((res) => expect(res).toBe(' 0xFF, 0xFF, 0xFF, 0xFF, 0xFB,'))
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -327,7 +327,7 @@ test(
       .as_generated_default_macro('-5', 5, options)
       .then((res) => expect(res).toBe('0xFB, 0xFF, 0xFF, 0xFF, 0xFF, '))
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -337,10 +337,10 @@ test(
     return zclHelper
       .as_generated_default_macro('17.0', 8, options)
       .then((res) =>
-        expect(res).toBe('0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x31, 0x40, '),
+        expect(res).toBe('0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x31, 0x40, ')
       )
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -350,10 +350,10 @@ test(
     return zclHelper
       .as_generated_default_macro('17.0', 8, options)
       .then((res) =>
-        expect(res).toBe(' 0x40, 0x31, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,'),
+        expect(res).toBe(' 0x40, 0x31, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,')
       )
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -363,10 +363,10 @@ test(
     return zclHelper
       .as_generated_default_macro('-17.0', 8, options)
       .then((res) =>
-        expect(res).toBe('0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x31, 0xC0, '),
+        expect(res).toBe('0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x31, 0xC0, ')
       )
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -376,10 +376,10 @@ test(
     return zclHelper
       .as_generated_default_macro('-17.0', 8, options)
       .then((res) =>
-        expect(res).toBe(' 0xC0, 0x31, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,'),
+        expect(res).toBe(' 0xC0, 0x31, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,')
       )
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -390,7 +390,7 @@ test(
       .as_generated_default_macro('549755813887', 5, options)
       .then((res) => expect(res).toBe(' 0x7F, 0xFF, 0xFF, 0xFF, 0xFF,'))
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -401,7 +401,7 @@ test(
       .as_generated_default_macro('549755813887', 5, options)
       .then((res) => expect(res).toBe('0xFF, 0xFF, 0xFF, 0xFF, 0x7F, '))
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -412,7 +412,7 @@ test(
       .as_generated_default_macro('140737488355327', 6, options)
       .then((res) => expect(res).toBe(' 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,'))
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -423,7 +423,7 @@ test(
       .as_generated_default_macro('140737488355327', 6, options)
       .then((res) => expect(res).toBe('0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, '))
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -433,10 +433,10 @@ test(
     return zclHelper
       .as_generated_default_macro('140737488355327', 7, options)
       .then((res) =>
-        expect(res).toBe('0x00,  0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,'),
+        expect(res).toBe('0x00,  0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,')
       )
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -446,10 +446,10 @@ test(
     return zclHelper
       .as_generated_default_macro('140737488355327', 7, options)
       .then((res) =>
-        expect(res).toBe('0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F,  0x00,'),
+        expect(res).toBe('0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F,  0x00,')
       )
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -459,10 +459,10 @@ test(
     return zclHelper
       .as_generated_default_macro('140737488355327', 8, options)
       .then((res) =>
-        expect(res).toBe('0x00, 0x00,  0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,'),
+        expect(res).toBe('0x00, 0x00,  0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,')
       )
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -472,10 +472,10 @@ test(
     return zclHelper
       .as_generated_default_macro('140737488355327', 8, options)
       .then((res) =>
-        expect(res).toBe('0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F,  0x00, 0x00,'),
+        expect(res).toBe('0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F,  0x00, 0x00,')
       )
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -486,7 +486,7 @@ test(
       .as_generated_default_macro('abc', 5, options)
       .then((res) => expect(res).toBe("0x03, 'a', 'b', 'c', 0, "))
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -499,7 +499,7 @@ test(
       .as_generated_default_macro('abc', 259, options)
       .then((res) => expect(res).toContain("0x03, 0x00, 'a', 'b', 'c', 0, "))
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -518,13 +518,13 @@ test(
           'server',
           0,
           'ATTRIBUTE_MASK_',
-          '',
-        ),
+          ''
+        )
       )
       .then((res) =>
-        expect(res).toBe('ATTRIBUTE_MASK_WRITABLE| ATTRIBUTE_MASK_MIN_MAX'),
+        expect(res).toBe('ATTRIBUTE_MASK_WRITABLE| ATTRIBUTE_MASK_MIN_MAX')
       ),
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -534,10 +534,10 @@ test(
       .command_mask('client', 'either', 1, 1, 0, 'COMMAND_MASK_')
       .then((res) =>
         expect(res).toBe(
-          'COMMAND_MASK_INCOMING_SERVER | COMMAND_MASK_OUTGOING_CLIENT',
-        ),
+          'COMMAND_MASK_INCOMING_SERVER | COMMAND_MASK_OUTGOING_CLIENT'
+        )
       ),
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 /*
@@ -548,7 +548,7 @@ test(
   () => {
     expect(zapHelper.is_lowercase_equal('A', 'a')).toBeTruthy()
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -558,7 +558,7 @@ test(
     expect(zapHelper.is_num_equal(2, 1)).toBeFalsy()
     expect(zapHelper.is_num_equal('1', 1)).toBeTruthy()
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -569,7 +569,7 @@ test(
     expect(zapHelper.is_defined(null)).toBeFalsy()
     expect(zapHelper.is_defined(undefined)).toBeFalsy()
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -577,5 +577,5 @@ test(
   () => {
     expect(zapHelper.replace_string('testString', 'test', '')).toBe('String')
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )

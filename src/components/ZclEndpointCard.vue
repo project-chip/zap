@@ -32,7 +32,7 @@ limitations under the License.
               createLogoSrc(
                 true,
                 getDeviceCategory(deviceType[0]?.packageRef),
-                isSelectedEndpoint,
+                isSelectedEndpoint
               )
             "
             alt=""
@@ -147,7 +147,7 @@ limitations under the License.
                 <strong>{{
                   `${deviceType[0]?.description} (${asHex(
                     deviceType[0]?.code,
-                    4,
+                    4
                   )})`
                 }}</strong>
               </div>
@@ -161,7 +161,7 @@ limitations under the License.
               <strong>{{
                 `${deviceType[0]?.description} (${asHex(
                   deviceType[0]?.code,
-                  4,
+                  4
                 )})`
               }}</strong>
             </div>
@@ -296,7 +296,7 @@ export default {
       showAllInformationOfEndpoint: false,
       selectedServers: [],
       selectedAttributes: [],
-      selectedReporting: [],
+      selectedReporting: []
     }
   },
   methods: {
@@ -310,21 +310,21 @@ export default {
           this.$store.state.zap.genericOptions[
             dbEnum.sessionOption.deviceTypeSpecification
           ][0]['optionLabel'],
-          '_blank',
+          '_blank'
         )
       }
     },
     duplicateEndpoint() {
       this.$store
         .dispatch('zap/duplicateEndpointType', {
-          endpointTypeId: this.endpointType[this.endpointReference],
+          endpointTypeId: this.endpointType[this.endpointReference]
         })
         .then((res) => {
           this.$store
             .dispatch('zap/duplicateEndpoint', {
               endpointId: this.endpointReference,
               endpointIdentifier: this.getSmallestUnusedEndpointId(),
-              endpointTypeId: res.id,
+              endpointTypeId: res.id
             })
             .then(() => {
               this.$store.dispatch('zap/loadInitialData')
@@ -340,7 +340,7 @@ export default {
     updateDialogStateAndDeleteEndpoint() {
       Storage.setItem(
         'confirmDeleteEndpointDialog',
-        this.confirmDeleteEndpointDialog,
+        this.confirmDeleteEndpointDialog
       )
       this.deleteEpt()
     },
@@ -363,21 +363,21 @@ export default {
       this.$store.dispatch('zap/deleteEndpoint', endpointReference).then(() => {
         this.$store.dispatch(
           'zap/deleteEndpointType',
-          this.endpointType[endpointReference],
+          this.endpointType[endpointReference]
         )
       })
     },
     toggleShowAllInformationOfEndpoint(value) {
       this.$store.commit('zap/toggleShowEndpoint', {
         id: this.endpointReference,
-        value: value,
+        value: value
       })
     },
     getEndpointCardData() {
       this.$serverGet(
         `${restApi.uri.endpointTypeClusters}${
           this.endpointType[this.endpointReference]
-        }`,
+        }`
       ).then((res) => {
         let enabledClients = []
         let enabledServers = []
@@ -396,21 +396,21 @@ export default {
       this.$serverGet(
         `${restApi.uri.endpointTypeAttributes}${
           this.endpointType[this.endpointReference]
-        }`,
+        }`
       ).then((res) => {
         this.selectedAttributes = []
         this.selectedReporting = []
         res.data.forEach((record) => {
           let resolvedReference = Util.cantorPair(
             record.attributeRef,
-            record.clusterRef,
+            record.clusterRef
           )
           if (record.included) this.selectedAttributes.push(resolvedReference)
           if (record.includedReportable)
             this.selectedReporting.push(resolvedReference)
         })
       })
-    },
+    }
   },
   computed: {
     isDeviceLibraryDocumentationAvailable() {
@@ -426,9 +426,9 @@ export default {
     endpoints: {
       get() {
         return Array.from(this.endpointIdListSorted.keys()).map((id) => ({
-          id: id,
+          id: id
         }))
-      },
+      }
     },
     deviceType: {
       get() {
@@ -444,10 +444,10 @@ export default {
               this.endpointDeviceTypeRef[
                 this.endpointType[this.endpointReference]
               ]
-            ],
+            ]
           ]
         }
-      },
+      }
     },
     getPrimaryDeviceOptionLabel() {
       if (this.deviceType == null) return ''
@@ -470,22 +470,22 @@ export default {
     isDeviceTypeArray: {
       get() {
         return Array.isArray(this.deviceType) && this.deviceType.length > 1
-      },
+      }
     },
     networkId: {
       get() {
         return this.$store.state.zap.endpointView.networkId
-      },
+      }
     },
     parentEndpointIdentifier: {
       get() {
         return this.$store.state.zap.endpointView.parentEndpointIdentifier
-      },
+      }
     },
     profileId: {
       get() {
         return this.$store.state.zap.endpointView.profileId
-      },
+      }
     },
     showProfileId: {
       get() {
@@ -494,12 +494,12 @@ export default {
           this.$store.state.zap.isProfileIdShown &&
           this.enableProfileId
         )
-      },
+      }
     },
     deviceId: {
       get() {
         return this.$store.state.zap.endpointTypeView.deviceIdentifier
-      },
+      }
     },
     deviceVersion: {
       get() {
@@ -510,45 +510,45 @@ export default {
         } else {
           return [versions]
         }
-      },
+      }
     },
     endpointTypeName: {
       get() {
         return this.$store.state.zap.endpointTypeView.name
-      },
+      }
     },
     endpointDeviceTypeRef: {
       get() {
         return this.$store.state.zap.endpointTypeView.deviceTypeRef
-      },
+      }
     },
     zclDeviceTypeOptions: {
       get() {
         return Object.keys(this.$store.state.zap.zclDeviceTypes)
-      },
+      }
     },
     isSelectedEndpoint: {
       get() {
         return this.selectedEndpointId == this.endpointReference
-      },
+      }
     },
     isClusterOptionChanged: {
       get() {
         return this.$store.state.zap.isClusterOptionChanged
-      },
+      }
     },
     getEndpointInformation: {
       get() {
         return this.$store.state.zap.showEndpointData[this.endpointReference]
-      },
-    },
+      }
+    }
   },
   watch: {
     isSelectedEndpoint(newValue) {
       if (newValue) {
         this.$store.commit('zap/toggleShowEndpoint', {
           id: this.endpointReference,
-          value: true,
+          value: true
         })
       }
     },
@@ -562,7 +562,7 @@ export default {
       if (from.fullPath === '/cluster' && to.fullPath === '/') {
         this.getEndpointCardData()
       }
-    },
+    }
   },
 
   created() {
@@ -573,7 +573,7 @@ export default {
       this.getEndpointCardData()
       //only show Matter features if Matter is selected
     }
-  },
+  }
 }
 </script>
 

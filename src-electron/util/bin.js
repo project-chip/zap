@@ -157,7 +157,7 @@ function stringToOneByteLengthPrefixCBytes(value, maxLength, pad = true) {
   }
   return {
     content: ret,
-    length: totalBytes,
+    length: totalBytes
   }
 }
 
@@ -188,7 +188,7 @@ function stringToTwoByteLengthPrefixCBytes(value, maxLength, pad = true) {
   }
   return {
     content: ret,
-    length: totalBytes,
+    length: totalBytes
   }
 }
 

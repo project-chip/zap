@@ -77,7 +77,7 @@ async function as_underlying_python_zcl_type(type, clusterId, options) {
     this.global.db,
     type,
     clusterId,
-    packageIds,
+    packageIds
   );
   if (type && type.toLowerCase() == 'boolean') {
     return 'bool';
@@ -131,12 +131,12 @@ const dep = templateUtil.deprecatedHelper;
 // Module exports
 //
 exports.asPythonType = dep(asPythonType, {
-  to: 'as_underlying_python_zcl_type',
+  to: 'as_underlying_python_zcl_type'
 });
 exports.asPythonCType = asPythonCType;
 
 exports.meta = {
   category: dbEnum.helperCategory.matter,
-  alias: ['controller/python/templates/helper.js', 'matter-python-helper'],
+  alias: ['controller/python/templates/helper.js', 'matter-python-helper']
 };
 exports.as_underlying_python_zcl_type = as_underlying_python_zcl_type;

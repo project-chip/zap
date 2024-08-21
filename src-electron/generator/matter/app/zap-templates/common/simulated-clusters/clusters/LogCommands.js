@@ -26,20 +26,20 @@
 
 const Log = {
   name: 'Log',
-  arguments: [{ type: 'CHAR_STRING', name: 'message' }],
+  arguments: [{ type: 'CHAR_STRING', name: 'message' }]
 };
 
 const UserPrompt = {
   name: 'UserPrompt',
   arguments: [
     { type: 'CHAR_STRING', name: 'message' },
-    { type: 'CHAR_STRING', name: 'expectedValue', isOptional: true },
-  ],
+    { type: 'CHAR_STRING', name: 'expectedValue', isOptional: true }
+  ]
 };
 
 const LogCommands = {
   name: 'LogCommands',
-  commands: [Log, UserPrompt],
+  commands: [Log, UserPrompt]
 };
 
 //

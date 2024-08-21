@@ -55,7 +55,7 @@ async function startNormal(quitFunction, argv) {
   let db = await dbApi.initDatabaseAndLoadSchema(
     env.sqliteFile(),
     env.schemaFile(),
-    env.zapVersion(),
+    env.zapVersion()
   )
 
   watchdog.start(argv.watchdogTimer, () => {
@@ -69,10 +69,10 @@ async function startNormal(quitFunction, argv) {
 
   try {
     await zclLoader.loadZclMetafiles(db, argv.zclProperties, {
-      failOnLoadingError: !argv.noLoadingFailure,
+      failOnLoadingError: !argv.noLoadingFailure
     })
     let ctx = await generatorEngine.loadTemplates(db, argv.generationTemplate, {
-      failOnLoadingError: !argv.noLoadingFailure,
+      failOnLoadingError: !argv.noLoadingFailure
     })
 
     if (ctx.error) {
@@ -83,7 +83,7 @@ async function startNormal(quitFunction, argv) {
       await httpServer.initHttpServer(db, argv.httpPort, argv.studioHttpPort, {
         zcl: argv.zclProperties,
         template: argv.generationTemplate,
-        allowCors: argv.allowCors,
+        allowCors: argv.allowCors
       })
       await ipcServer.initServer(db, argv.httpPort)
     }
@@ -211,16 +211,16 @@ async function startConvert(argv, options) {
   let db = await dbApi.initDatabaseAndLoadSchema(
     dbFile,
     env.schemaFile(),
-    env.zapVersion(),
+    env.zapVersion()
   )
   options.logger('    🐝 database and schema initialized')
   await zclLoader.loadZclMetafiles(db, argv.zclProperties, {
-    failOnLoadingError: !argv.noLoadingFailure,
+    failOnLoadingError: !argv.noLoadingFailure
   })
   options.logger(`    🐝 zcl package loaded: ${argv.zclProperties}`)
   if (argv.generationTemplate != null) {
     let ctx = await generatorEngine.loadTemplates(db, argv.generationTemplate, {
-      failOnLoadingError: !argv.noLoadingFailure,
+      failOnLoadingError: !argv.noLoadingFailure
     })
     if (ctx.error) {
       throw ctx.error
@@ -232,21 +232,21 @@ async function startConvert(argv, options) {
     let importResult = await importJs.importDataFromFile(db, singlePath, {
       defaultZclMetafile: argv.zclProperties,
       postImportScript: argv.postImportScript,
-      packageMatch: argv.packageMatch,
+      packageMatch: argv.packageMatch
     })
 
     let sessionId = importResult.sessionId
 
     await util.ensurePackagesAndPopulateSessionOptions(db, sessionId, {
       zcl: argv.zclProperties,
-      template: argv.generationTemplate,
+      template: argv.generationTemplate
     })
 
     if (argv.postImportScript) {
       await importJs.executePostImportScript(
         db,
         importResult.sessionId,
-        argv.postImportScript,
+        argv.postImportScript
       )
     }
 
@@ -261,12 +261,12 @@ async function startConvert(argv, options) {
       db,
       sessionId,
       dbEnum.sessionKey.filePath,
-      of,
+      of
     )
     let outputPath = await exportJs.exportDataIntoFile(db, sessionId, of, {
       removeLog: argv.noZapFileLog,
       createBackup: true,
-      fileFormat: argv.saveFileFormat,
+      fileFormat: argv.saveFileFormat
     })
 
     options.logger(`    👉 write out: ${outputPath}`)
@@ -294,10 +294,10 @@ async function writeConversionResultsFile(file) {
         {
           message:
             'ZCL Advanced Platform (ZAP) configuration has been successfully upgraded.',
-          status: 'automatic',
-        },
-      ],
-    }),
+          status: 'automatic'
+        }
+      ]
+    })
   )
 }
 
@@ -317,7 +317,7 @@ async function startRegenerateSdk(argv, options) {
     let db = await dbApi.initDatabaseAndLoadSchema(
       dbFile,
       env.schemaFile(),
-      env.zapVersion(),
+      env.zapVersion()
     )
 
     let sdk = await sdkUtil.readSdkJson(sdkPath, options)
@@ -336,7 +336,7 @@ async function startRegenerateSdk(argv, options) {
       let p = sdk.rt.genTemplates[key]
       options.logger(`    👈 ${p}`)
       let loadData = await generatorEngine.loadTemplates(db, p, {
-        failOnLoadingError: !argv.noLoadingFailure,
+        failOnLoadingError: !argv.noLoadingFailure
       })
       sdk.templatePackageId[key] = loadData.packageId
     }
@@ -370,8 +370,8 @@ async function startRegenerateSdk(argv, options) {
             genResultFile: false,
             skipPostGeneration: false,
             appendGenerationSubdirectory: argv.appendGenerationSubdirectory,
-            generationLog: argv.generationLog,
-          },
+            generationLog: argv.generationLog
+          }
         )
       }
     }
@@ -397,24 +397,24 @@ async function startAnalyze(argv, options) {
   let db = await dbApi.initDatabaseAndLoadSchema(
     dbFile,
     env.schemaFile(),
-    env.zapVersion(),
+    env.zapVersion()
   )
   options.logger('    👉 database and schema initialized')
   await zclLoader.loadZclMetafiles(db, argv.zclProperties, {
-    failOnLoadingError: !argv.noLoadingFailure,
+    failOnLoadingError: !argv.noLoadingFailure
   })
   await util.executePromisesSequentially(paths, (singlePath) =>
     importJs
       .importDataFromFile(db, singlePath, {
         defaultZclMetafile: argv.zclProperties,
         postImportScript: argv.postImportScript,
-        packageMatch: argv.packageMatch,
+        packageMatch: argv.packageMatch
       })
       .then((importResult) => util.sessionReport(db, importResult.sessionId))
       .then((report) => {
         options.logger(`🤖 File: ${singlePath}\n`)
         options.logger(report)
-      }),
+      })
   )
   options.logger('😎 Analysis done!')
   if (options.quitFunction != null) options.quitFunction()
@@ -430,7 +430,7 @@ async function startServer(argv, quitFunction) {
   let db = await dbApi.initDatabaseAndLoadSchema(
     env.sqliteFile(),
     env.schemaFile(),
-    env.zapVersion(),
+    env.zapVersion()
   )
 
   watchdog.start(argv.watchdogTimer, () => {
@@ -443,10 +443,10 @@ async function startServer(argv, quitFunction) {
   mainDatabase = db
   try {
     await zclLoader.loadZclMetafiles(db, argv.zclProperties, {
-      failOnLoadingError: !argv.noLoadingFailure,
+      failOnLoadingError: !argv.noLoadingFailure
     })
     let ctx = await generatorEngine.loadTemplates(db, argv.generationTemplate, {
-      failOnLoadingError: !argv.noLoadingFailure,
+      failOnLoadingError: !argv.noLoadingFailure
     })
     if (ctx.error) {
       env.logWarning(ctx.error)
@@ -454,7 +454,7 @@ async function startServer(argv, quitFunction) {
     await httpServer.initHttpServer(db, argv.httpPort, argv.studioHttpPort, {
       zcl: argv.zclProperties,
       template: argv.generationTemplate,
-      allowCors: argv.allowCors,
+      allowCors: argv.allowCors
     })
     await ipcServer.initServer(db, argv.httpPort)
     logRemoteData(httpServer.httpServerStartupMessage())
@@ -471,8 +471,8 @@ async function startSelfCheck(
   argv,
   options = {
     quitFunction: null,
-    logger: console.log,
-  },
+    logger: console.log
+  }
 ) {
   env.logInitStdout()
   options.logger('🤖 Starting self-check')
@@ -484,23 +484,23 @@ async function startSelfCheck(
   let mainDb = await dbApi.initDatabaseAndLoadSchema(
     dbFile,
     env.schemaFile(),
-    env.zapVersion(),
+    env.zapVersion()
   )
   options.logger('    👉 database and schema initialized')
   let zclPackageIds = await zclLoader.loadZclMetafiles(
     mainDb,
     argv.zclProperties,
     {
-      failOnLoadingError: !argv.noLoadingFailure,
-    },
+      failOnLoadingError: !argv.noLoadingFailure
+    }
   )
   options.logger(`    👉 zcl metadata packages loaded: ${zclPackageIds.length}`)
   let ctx = await generatorEngine.loadTemplates(
     mainDb,
     argv.generationTemplate,
     {
-      failOnLoadingError: !argv.noLoadingFailure,
-    },
+      failOnLoadingError: !argv.noLoadingFailure
+    }
   )
   if (ctx.nop) {
     options.logger(`    👉 no generation template packages loaded`)
@@ -508,7 +508,7 @@ async function startSelfCheck(
     options.logger(`    ⚠️  ${ctx.error}`)
   } else {
     options.logger(
-      `    👉 generation template packages loaded: ${ctx.packageIds.length}`,
+      `    👉 generation template packages loaded: ${ctx.packageIds.length}`
     )
   }
 
@@ -534,8 +534,8 @@ async function generateSingleFile(
     template: env.builtinTemplateMetafile(),
     postImportScript: null,
     packageMatch: dbEnum.packageMatch.fuzzy,
-    generationLog: null,
-  },
+    generationLog: null
+  }
 ) {
   let hrstart = process.hrtime.bigint()
   let sessionId
@@ -548,10 +548,10 @@ async function generateSingleFile(
       sessionId,
       {
         zcl: env.builtinSilabsZclMetafile(),
-        template: env.builtinTemplateMetafile(),
+        template: env.builtinTemplateMetafile()
       },
       null,
-      null,
+      null
     )
     output = outputPattern
   } else {
@@ -560,7 +560,7 @@ async function generateSingleFile(
       defaultZclMetafile: options.zcl,
       postImportScript: options.postImportScript,
       packageMatch: options.packageMatch,
-      defaultTemplateFile: options.template,
+      defaultTemplateFile: options.template
     })
     sessionId = importResult.sessionId
     output = outputFile(zapFile, outputPattern, index)
@@ -570,7 +570,7 @@ async function generateSingleFile(
   let sessPkg = await util.ensurePackagesAndPopulateSessionOptions(
     db,
     sessionId,
-    options,
+    options
   )
   let usedTemplatePackageIds = []
   for (let pkg of sessPkg) {
@@ -594,7 +594,7 @@ async function generateSingleFile(
       sessionId,
       usedTemplatePackageIds[i],
       output,
-      options,
+      options
     )
 
     if (genResult.hasErrors) {
@@ -627,7 +627,7 @@ async function startGeneration(argv, options) {
     🔍 output pattern: ${output}
     🔍 using templates: ${templateMetafile}
     🔍 using zcl data: ${zclProperties}
-    🔍 zap version: ${env.zapVersionAsString()}`,
+    🔍 zap version: ${env.zapVersionAsString()}`
   )
 
   let dbFile = env.sqliteFile('generate')
@@ -635,14 +635,14 @@ async function startGeneration(argv, options) {
   let mainDb = await dbApi.initDatabaseAndLoadSchema(
     dbFile,
     env.schemaFile(),
-    env.zapVersion(),
+    env.zapVersion()
   )
 
   await zclLoader.loadZclMetafiles(mainDb, zclProperties, {
-    failOnLoadingError: !argv.noLoadingFailure,
+    failOnLoadingError: !argv.noLoadingFailure
   })
   let ctx = await generatorEngine.loadTemplates(mainDb, templateMetafile, {
-    failOnLoadingError: !argv.noLoadingFailure,
+    failOnLoadingError: !argv.noLoadingFailure
   })
   if (ctx.error) {
     throw ctx.error
@@ -676,8 +676,8 @@ async function startGeneration(argv, options) {
       globalTemplatePackageId,
       output,
       index,
-      options,
-    ),
+      options
+    )
   )
 
   await dbApi.closeDatabase(mainDb)
@@ -747,7 +747,7 @@ function startUpSecondaryInstance(argv, callbacks) {
   } else if (argv._.includes('convert') && argv.zapFiles != null) {
     ipcClient.emit(ipcServer.eventType.convert, {
       output: argv.output,
-      files: argv.zapFiles,
+      files: argv.zapFiles
     })
   } else if (argv._.includes('stop')) {
     ipcClient.emit(ipcServer.eventType.stop)
@@ -759,7 +759,7 @@ function startUpSecondaryInstance(argv, callbacks) {
       zapFileArray: argv.zapFiles,
       outputPattern: argv.output,
       zcl: argv.zclProperties,
-      template: argv.generationTemplate,
+      template: argv.generationTemplate
     }
     ipcClient.emit(ipcServer.eventType.generate, data)
   }
@@ -812,7 +812,7 @@ async function startUpMainInstance(argv, callbacks) {
   } else if (argv._.includes('selfCheck')) {
     let options = {
       quitFunction: quitFunction,
-      logger: console.log,
+      logger: console.log
     }
     return startSelfCheck(argv, options)
   } else if (argv._.includes('analyze')) {
@@ -820,7 +820,7 @@ async function startUpMainInstance(argv, callbacks) {
       throw 'You need to specify at least one zap file.'
     let options = {
       quitFunction: quitFunction,
-      logger: console.log,
+      logger: console.log
     }
     return startAnalyze(argv, options)
   } else if (argv._.includes('server')) {
@@ -828,7 +828,7 @@ async function startUpMainInstance(argv, callbacks) {
   } else if (argv._.includes('convert')) {
     return startConvert(argv, {
       logger: console.log,
-      quitFunction: quitFunction,
+      quitFunction: quitFunction
     }).catch((code) => {
       console.log(code)
       cleanExit(argv.cleanupDelay, 0)
@@ -839,13 +839,13 @@ async function startUpMainInstance(argv, callbacks) {
   } else if (argv._.includes('regenerateSdk')) {
     let options = {
       quitFunction: quitFunction,
-      logger: console.log,
+      logger: console.log
     }
     return startRegenerateSdk(argv, options)
   } else if (argv._.includes('generate')) {
     let options = {
       quitFunction: quitFunction,
-      logger: console.log,
+      logger: console.log
     }
     return startGeneration(argv, options).catch((err) => {
       console.log(err)

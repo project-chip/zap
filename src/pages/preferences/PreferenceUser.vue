@@ -53,11 +53,11 @@ import PreferencePageLayout from '../../layouts/PreferencePageLayout.vue'
 export default {
   name: 'PreferenceUser',
   components: {
-    PreferencePageLayout,
+    PreferencePageLayout
   },
   data() {
     return {
-      localtheme: this.$q.dark.isActive,
+      localtheme: this.$q.dark.isActive
     }
   },
   methods: {
@@ -70,18 +70,18 @@ export default {
           this.localtheme = this.$q.dark.isActive
         }, 1000)
       })
-    },
+    }
   },
   watch: {
     localtheme(val) {
       window[rendApi.GLOBAL_SYMBOL_EXECUTE](rendApi.id.setDarkTheme, val)
-    },
+    }
   },
   computed: {
     localPath: {
       get() {
         return storage.getItem(rendApi.storageKey.fileSave)
-      },
+      }
     },
     devtab: {
       get() {
@@ -90,8 +90,8 @@ export default {
       set() {
         localStorage.setItem('showDevTools', !this.devtab)
         return this.$store.dispatch('zap/updateShowDevTools')
-      },
-    },
-  },
+      }
+    }
+  }
 }
 </script>

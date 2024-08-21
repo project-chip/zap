@@ -39,13 +39,13 @@ function httpGetPreviewNameIndex(db) {
     let previewObject = await generationEngine.generateSingleFileForPreview(
       db,
       sessionId,
-      request.params.name,
+      request.params.name
     )
 
     if (request.params.index in previewObject) {
       response.status(StatusCodes.OK).json({
         result: previewObject[request.params.index],
-        size: Object.keys(previewObject).length,
+        size: Object.keys(previewObject).length
       })
     } else {
       response.status(StatusCodes.OK).json({})
@@ -65,7 +65,7 @@ function httpGetPreviewName(db) {
     let previewObject = await generationEngine.generateSingleFileForPreview(
       db,
       sessionId,
-      request.params.name,
+      request.params.name
     )
     response.status(StatusCodes.OK).json(previewObject)
   }
@@ -98,7 +98,7 @@ function httpPutGenerate(db) {
     let pkgs = await queryPackage.getSessionPackagesByType(
       db,
       sessionId,
-      dbEnum.packageType.genTemplatesJson,
+      dbEnum.packageType.genTemplatesJson
     )
 
     let promises = []
@@ -108,8 +108,8 @@ function httpPutGenerate(db) {
           db,
           sessionId,
           pkg.id,
-          generationDirectory,
-        ),
+          generationDirectory
+        )
       )
     })
     await Promise.all(promises)
@@ -120,20 +120,20 @@ function httpPutGenerate(db) {
 exports.get = [
   {
     uri: restApi.uri.previewNameIndex,
-    callback: httpGetPreviewNameIndex,
+    callback: httpGetPreviewNameIndex
   },
   {
     uri: restApi.uri.previewName,
-    callback: httpGetPreviewName,
+    callback: httpGetPreviewName
   },
   {
     uri: restApi.uri.preview,
-    callback: httpGetPreview,
-  },
+    callback: httpGetPreview
+  }
 ]
 exports.put = [
   {
     uri: restApi.uri.generate,
-    callback: httpPutGenerate,
-  },
+    callback: httpPutGenerate
+  }
 ]

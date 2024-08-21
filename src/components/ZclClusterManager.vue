@@ -145,7 +145,7 @@ export default {
     },
     expanded() {
       this.$refs[this.$store.state.zap.domains[0] + 0][0].show()
-    },
+    }
   },
   computed: {
     isClusterDocumentationAvailable() {
@@ -161,27 +161,27 @@ export default {
     showPreviewTab: {
       get() {
         return this.$store.state.zap.showPreviewTab
-      },
+      }
     },
     domainNames: {
       get() {
         return this.$store.state.zap.domains
-      },
+      }
     },
     openDomains: {
       get() {
         return this.$store.state.zap.clusterManager.openDomains
-      },
+      }
     },
     clusters: {
       get() {
         return this.$store.state.zap.clusters
-      },
+      }
     },
     lastSelectedDomain: {
       get() {
         return this.$store.state.zap.clusterManager.lastSelectedDomain
-      },
+      }
     },
     relevantClusters: {
       get() {
@@ -191,7 +191,7 @@ export default {
               ? true
               : cluster.label
                   .toLowerCase()
-                  .includes(this.filterString.toLowerCase()),
+                  .includes(this.filterString.toLowerCase())
           )
         } else {
           return this.clusters.filter((cluster) =>
@@ -199,10 +199,10 @@ export default {
               ? true
               : cluster.label
                   .toLowerCase()
-                  .includes(this.filterString.toLowerCase()),
+                  .includes(this.filterString.toLowerCase())
           )
         }
-      },
+      }
     },
     enabledClusters: {
       get() {
@@ -211,37 +211,37 @@ export default {
         })
         this.$store.commit('zap/setEnabledClusters', clusters)
         return clusters
-      },
+      }
     },
     filterOptions: {
       get() {
         return this.$store.state.zap.clusterManager.filterOptions
-      },
+      }
     },
     filter: {
       get() {
         return this.$store.state.zap.clusterManager.filter
-      },
+      }
     },
     filterString: {
       get() {
         return this.$store.state.zap.clusterManager.filterString
-      },
+      }
     },
     actionOptions: {
       get() {
         return this.$store.state.zap.clusterManager.actionOptions
-      },
+      }
     },
     isTutorialRunning: {
       get() {
         return this.$store.state.zap.isTutorialRunning
-      },
+      }
     },
     expanded: {
       get() {
         return this.$store.state.zap.expanded
-      },
+      }
     },
 
     endpoints: {
@@ -251,13 +251,13 @@ export default {
           if (this.endpointId[id]) {
             endpoints.push({
               label: `Endpoint - ${this.endpointId[id]}`,
-              value: id,
+              value: id
             })
           }
         }
         return endpoints
-      },
-    },
+      }
+    }
   },
   methods: {
     openClusterDocumentation() {
@@ -270,7 +270,7 @@ export default {
           this.$store.state.zap.genericOptions[
             dbEnum.sessionOption.clusterSpecification
           ][0]['optionLabel'],
-          '_blank',
+          '_blank'
         )
       }
     },
@@ -288,7 +288,7 @@ export default {
         .filter((a) => {
           return typeof this.filter.clusterFilterFn === 'function'
             ? this.filter.clusterFilterFn(a, {
-                enabledClusters: this.enabledClusters,
+                enabledClusters: this.enabledClusters
               })
             : true
         })
@@ -305,7 +305,7 @@ export default {
     setOpenDomain(domainName, event) {
       this.$store.dispatch('zap/setOpenDomain', {
         domainName: domainName,
-        value: event,
+        value: event
       })
     },
     showVersion() {
@@ -325,22 +325,22 @@ export default {
     changeDomainFilter(filter) {
       this.$store.dispatch('zap/setDomainFilter', {
         filter: filter,
-        enabledClusters: this.enabledClusters,
+        enabledClusters: this.enabledClusters
       })
     },
     doActionFilter(filter) {
       this.$store.dispatch('zap/doActionFilter', {
         filter: filter,
-        enabledClusters: this.enabledClusters,
+        enabledClusters: this.enabledClusters
       })
     },
     changeFilterString(filterString) {
       this.$store.dispatch('zap/setFilterString', filterString)
-    },
+    }
   },
   components: {
-    ZclDomainClusterView,
-  },
+    ZclDomainClusterView
+  }
 }
 </script>
 

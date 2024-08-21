@@ -50,7 +50,7 @@ function httpGetSessionKeyValues(db) {
     let sessionId = request.zapSessionId
     let sessionKeyValues = await querySession.getAllSessionKeyValues(
       db,
-      sessionId,
+      sessionId
     )
     response.status(StatusCodes.OK).json(sessionKeyValues)
   }
@@ -83,7 +83,7 @@ function httpGetSessionNotifications(db) {
     let sessionId = request.zapSessionId
     let notifications = await querySessionNotification.getNotification(
       db,
-      sessionId,
+      sessionId
     )
     response.status(StatusCodes.OK).json(notifications)
   }
@@ -171,7 +171,7 @@ function httpGetUnseenNotificationAndUpdate(db) {
     let unseenIds = request.query.unseenIds
     let resp = await querySessionNotification.markNotificationsAsSeen(
       db,
-      unseenIds,
+      unseenIds
     )
     response.status(StatusCodes.OK).json(resp)
   }
@@ -191,7 +191,7 @@ function httpPostSaveSessionKeyValue(db) {
     await querySession.updateSessionKeyValue(db, sessionId, key, value)
     response.status(StatusCodes.OK).json({
       key: key,
-      value: value,
+      value: value
     })
   }
 }
@@ -212,7 +212,7 @@ function httpPostCluster(db) {
         .getSessionPackagesByType(
           db,
           sessionId,
-          dbEnum.packageType.zclProperties,
+          dbEnum.packageType.zclProperties
         )
         .then((pkgs) => pkgs?.shift()?.id) // default to always picking first package
 
@@ -229,13 +229,13 @@ function httpPostCluster(db) {
         endpointTypeId,
         id,
         side,
-        flag,
+        flag
       )
 
       if (insertDefault) {
         await queryConfig.insertClusterDefaults(db, endpointTypeId, packageId, {
           clusterRef: id,
-          side: side,
+          side: side
         })
       }
 
@@ -245,7 +245,7 @@ function httpPostCluster(db) {
           endpointTypeId,
           id,
           side,
-          flag,
+          flag
         })
         .send()
     } catch (err) {
@@ -271,7 +271,7 @@ function httpPostForcedExternal(db) {
     let sessionId = request.zapSessionId
     let packages = await queryPackage.getPackageSessionPackagePairBySessionId(
       db,
-      sessionId,
+      sessionId
     )
     let packageIds = packages.map((item) => item.pkg.id)
     let forcedExternal = await upgrade.getForcedExternalStorage(db, packageIds)
@@ -296,7 +296,7 @@ function httpPostAttributeUpdate(db) {
       attributeSide,
       reportMinInterval,
       reportMaxInterval,
-      reportableChange,
+      reportableChange
     } = request.body
 
     if (!Array.isArray(endpointTypeIdList) || !endpointTypeIdList.length) {
@@ -330,9 +330,9 @@ function httpPostAttributeUpdate(db) {
           paramArray,
           reportMinInterval,
           reportMaxInterval,
-          reportableChange,
-        ),
-      ),
+          reportableChange
+        )
+      )
     )
 
     // send latest value to frontend to update UI
@@ -340,7 +340,7 @@ function httpPostAttributeUpdate(db) {
       db,
       endpointTypeIdList[0],
       id,
-      clusterRef,
+      clusterRef
     )
 
     // only return 1 validation result.
@@ -351,7 +351,7 @@ function httpPostAttributeUpdate(db) {
       endpointTypeIdList[0],
       id,
       clusterRef,
-      request.zapSessionId,
+      request.zapSessionId
     )
 
     response.status(StatusCodes.OK).json({
@@ -362,7 +362,7 @@ function httpPostAttributeUpdate(db) {
       added: value,
       listType: listType,
       validationIssues: validationData,
-      endpointTypeAttributeData: eptAttr,
+      endpointTypeAttributeData: eptAttr
     })
   }
 }
@@ -382,7 +382,7 @@ function httpPostCommandUpdate(db) {
       value,
       listType,
       clusterRef,
-      commandSide,
+      commandSide
     } = request.body
     let isIncoming = null
 
@@ -406,9 +406,9 @@ function httpPostCommandUpdate(db) {
           commandSide,
           id,
           value,
-          isIncoming,
-        ),
-      ),
+          isIncoming
+        )
+      )
     )
 
     response.status(StatusCodes.OK).json({
@@ -418,7 +418,7 @@ function httpPostCommandUpdate(db) {
       added: value,
       listType: listType,
       side: commandSide,
-      clusterRef: clusterRef,
+      clusterRef: clusterRef
     })
   }
 }
@@ -439,7 +439,7 @@ function httpPostEventUpdate(db) {
       clusterRef,
       eventSide,
       id,
-      value,
+      value
     )
 
     response.status(StatusCodes.OK).json({
@@ -449,7 +449,7 @@ function httpPostEventUpdate(db) {
       added: value,
       listType: listType,
       side: eventSide,
-      clusterRef: clusterRef,
+      clusterRef: clusterRef
     })
   }
 }
@@ -472,7 +472,7 @@ function httpGetInitialState(db) {
       let results = await Promise.all([
         queryEndpointType.selectAllEndpointTypes(db, sessionId),
         queryEndpoint.selectAllEndpoints(db, sessionId),
-        querySession.getAllSessionKeyValues(db, sessionId),
+        querySession.getAllSessionKeyValues(db, sessionId)
       ])
 
       state.endpointTypes = results[0]
@@ -498,7 +498,7 @@ function httpGetOption(db) {
     let sessionId = request.zapSessionId
     let packages = await queryPackage.getSessionPackages(db, sessionId)
     let p = packages.map((pkg) =>
-      queryPackage.selectAllOptionsValues(db, pkg.packageRef, category),
+      queryPackage.selectAllOptionsValues(db, pkg.packageRef, category)
     )
     let data = await Promise.all(p)
     data = data.flat(1)
@@ -558,7 +558,7 @@ function httpPostAddNewPackage(db) {
       if (data.err) {
         status = {
           isValid: false,
-          err: data.err.message,
+          err: data.err.message
         }
       } else {
         // Check if session partition for package exists. If not then add it.
@@ -566,29 +566,29 @@ function httpPostAddNewPackage(db) {
           await querySession.selectSessionPartitionInfoFromPackageId(
             db,
             sessionId,
-            data.packageId,
+            data.packageId
           )
         if (sessionPartitionInfoForNewPackage.length == 0) {
           let sessionPartitionInfo =
             await querySession.getAllSessionPartitionInfoForSession(
               db,
-              sessionId,
+              sessionId
             )
           let sessionPartitionId = await querySession.insertSessionPartition(
             db,
             sessionId,
-            sessionPartitionInfo.length + 1,
+            sessionPartitionInfo.length + 1
           )
           await queryPackage.insertSessionPackage(
             db,
             sessionPartitionId,
             data.packageId,
-            true,
+            true
           )
         }
         status = {
           isValid: true,
-          sessionId: sessionId,
+          sessionId: sessionId
         }
       }
       res.status(StatusCodes.OK).json(status)
@@ -619,7 +619,7 @@ function httpPostShareClusterStatesAcrossEndpoints(db) {
     let packageIds = await queryPackage.getSessionPackagesByType(
       db,
       sessionId,
-      dbEnum.packageType.zclProperties,
+      dbEnum.packageType.zclProperties
     )
     packageIds = packageIds.map(function getId(item) {
       return item.id
@@ -634,7 +634,7 @@ function httpPostShareClusterStatesAcrossEndpoints(db) {
         db,
         endpointTypeIdList.map((id) => {
           return { endpointTypeId: id }
-        }),
+        })
       )
       .then((list) => list.filter((entry) => entry.endpointCount > 1))
 
@@ -642,7 +642,7 @@ function httpPostShareClusterStatesAcrossEndpoints(db) {
       db,
       endpointTypeIdList,
       sharedClusterList,
-      packageIds,
+      packageIds
     )
     await writeAttributeDefaults(db, attrDefaults)
 
@@ -650,13 +650,13 @@ function httpPostShareClusterStatesAcrossEndpoints(db) {
       db,
       endpointTypeIdList,
       sharedClusterList,
-      packageIds,
+      packageIds
     )
     await writeCommandDefaults(db, cmdDefaults)
 
     return response.status(StatusCodes.OK).json({
       sharedClusterList,
-      sharedAttributeDefaults: attrDefaults,
+      sharedAttributeDefaults: attrDefaults
     })
   }
 }
@@ -665,7 +665,7 @@ async function commandDefaults(
   db,
   endpointTypeIdList,
   sharedClusterList,
-  packageIds,
+  packageIds
 ) {
   let sharedCmdDefaults = {}
   let clusCmdToCmdObj = {}
@@ -675,7 +675,7 @@ async function commandDefaults(
       sharedClusterList.map((c) => {
         return { endpointTypeClusterRef: c.endpointClusterId }
       }),
-      packageIds,
+      packageIds
     )
 
   for (const endpointTypeId of endpointTypeIdList) {
@@ -685,7 +685,7 @@ async function commandDefaults(
         clusterSide: sharedCmd.clusterSide,
         id: sharedCmd.id, // command id
         code: sharedCmd.code,
-        mfgCode: sharedCmd.mfgCode,
+        mfgCode: sharedCmd.mfgCode
       })
 
       if (!(endpointTypeId in sharedCmdDefaults)) {
@@ -698,7 +698,7 @@ async function commandDefaults(
         let cmds = await queryEndpoint.selectEndpointClusterCommands(
           db,
           sharedCmd.clusterId,
-          endpointTypeId,
+          endpointTypeId
         )
 
         // find attr
@@ -727,8 +727,8 @@ async function writeCommandDefaults(db, defaults) {
           cmd.source,
           cmd.id,
           cmd.isIncoming,
-          true,
-        ),
+          true
+        )
       )
 
       promises.push(
@@ -739,8 +739,8 @@ async function writeCommandDefaults(db, defaults) {
           cmd.source,
           cmd.id,
           cmd.isOutgoing,
-          false,
-        ),
+          false
+        )
       )
     }
   }
@@ -751,7 +751,7 @@ async function attributeDefaults(
   db,
   endpointTypeIdList,
   sharedClusterList,
-  packageIds,
+  packageIds
 ) {
   let sharedAttributeDefaults = {}
   let clusterIdnSideToAttrCache = {}
@@ -759,7 +759,7 @@ async function attributeDefaults(
     await queryAttribute.selectAttributeDetailsFromEnabledClusters(
       db,
       sharedClusterList,
-      packageIds,
+      packageIds
     )
 
   for (const endpointTypeId of endpointTypeIdList) {
@@ -772,26 +772,26 @@ async function attributeDefaults(
         name: sharedAttr.name,
         type: sharedAttr.type,
         mfgCode: sharedAttr.mfgCode,
-        define: sharedAttr.define,
+        define: sharedAttr.define
       })
 
       if (clusAttrCacheKey in clusterIdnSideToAttrCache) {
         !(endpointTypeId in sharedAttributeDefaults) &&
           (sharedAttributeDefaults[endpointTypeId] = [])
         sharedAttributeDefaults[endpointTypeId].push(
-          clusterIdnSideToAttrCache[clusAttrCacheKey],
+          clusterIdnSideToAttrCache[clusAttrCacheKey]
         )
       } else {
         let attributes = await queryEndpoint.selectEndpointClusterAttributes(
           db,
           sharedAttr.clusterId,
           sharedAttr.side,
-          endpointTypeId,
+          endpointTypeId
         )
 
         // find attr
         let matched = attributes.filter((attr) =>
-          attributeEquals(attr, sharedAttr),
+          attributeEquals(attr, sharedAttr)
         )
         if (matched.length) {
           let m = matched.shift()
@@ -822,29 +822,29 @@ async function writeAttributeDefaults(db, defaults) {
             { key: restApi.updateKey.attributeSelected, value: 1 },
             {
               key: restApi.updateKey.attributeStorage,
-              value: `"${attr.storage}"`,
+              value: `"${attr.storage}"`
             },
             {
               key: restApi.updateKey.attributeSingleton,
-              value: attr.isSingleton,
+              value: attr.isSingleton
             },
             {
               key: restApi.updateKey.attributeBounded,
-              value: attr.isBounded,
+              value: attr.isBounded
             },
             {
               key: restApi.updateKey.attributeDefault,
-              value: attr.defaultValue,
+              value: attr.defaultValue
             },
             {
               key: restApi.updateKey.attributeReporting,
-              value: attr.includedReportable,
-            },
+              value: attr.includedReportable
+            }
           ],
           attr.min,
           attr.max,
-          attr.reportableChange,
-        ),
+          attr.reportableChange
+        )
       )
     }
   }
@@ -881,18 +881,18 @@ function httpDeleteSessionPackage(db) {
       await querySession.selectSessionPartitionInfoFromPackageId(
         db,
         sessionRef,
-        packageRef,
+        packageRef
       )
     let removed = await queryPackage.deleteSessionPackage(
       db,
       sessionPartitionInfo[0].sessionPartitionId,
-      packageRef,
+      packageRef
     )
 
     response.status(StatusCodes.OK).json({
       successful: removed > 0,
       sessionRef: sessionRef,
-      packageRef: packageRef,
+      packageRef: packageRef
     })
   }
 }
@@ -912,7 +912,7 @@ function httpPostDuplicateEndpoint(db) {
       db,
       endpointId,
       endpointIdentifier,
-      endpointTypeId,
+      endpointTypeId
     )
     res.status(StatusCodes.OK).json({ id: id })
   }
@@ -932,7 +932,7 @@ function httpPostDuplicateEndpointType(db) {
     duplicateEndpointTypeClusters(db, endpointTypeId, newId)
 
     response.status(StatusCodes.OK).json({
-      id: newId,
+      id: newId
     })
   }
 }
@@ -947,11 +947,11 @@ function httpPostDuplicateEndpointType(db) {
 async function duplicateEndpointTypeClusters(
   db,
   oldEndpointTypeId,
-  newEndpointTypeId,
+  newEndpointTypeId
 ) {
   let oldEndpointTypeClusters = await queryConfig.selectEndpointClusters(
     db,
-    oldEndpointTypeId,
+    oldEndpointTypeId
   )
   oldEndpointTypeClusters.forEach(async (endpointTypeCluster) => {
     let newEndpointTypeClusterId =
@@ -960,19 +960,19 @@ async function duplicateEndpointTypeClusters(
         newEndpointTypeId,
         endpointTypeCluster.clusterRef,
         endpointTypeCluster.side,
-        endpointTypeCluster.enabled,
+        endpointTypeCluster.enabled
       )
     let oldAttributes =
       await queryAttribute.selectEndpointTypeAttributesByEndpointTypeRefAndClusterRef(
         db,
         oldEndpointTypeId,
-        endpointTypeCluster.endpointTypeClusterId,
+        endpointTypeCluster.endpointTypeClusterId
       )
     oldAttributes.forEach(async (attrubute) => {
       await queryAttribute.duplicateEndpointTypeAttribute(
         db,
         newEndpointTypeClusterId,
-        attrubute,
+        attrubute
       )
     })
   })
@@ -981,108 +981,108 @@ async function duplicateEndpointTypeClusters(
 exports.post = [
   {
     uri: restApi.uri.forcedExternal,
-    callback: httpPostForcedExternal,
+    callback: httpPostForcedExternal
   },
   {
     uri: restApi.uri.cluster,
-    callback: httpPostCluster,
+    callback: httpPostCluster
   },
   {
     uri: restApi.uri.attributeUpdate,
-    callback: httpPostAttributeUpdate,
+    callback: httpPostAttributeUpdate
   },
   {
     uri: restApi.uri.commandUpdate,
-    callback: httpPostCommandUpdate,
+    callback: httpPostCommandUpdate
   },
   {
     uri: restApi.uri.eventUpdate,
-    callback: httpPostEventUpdate,
+    callback: httpPostEventUpdate
   },
   {
     uri: restApi.uri.saveSessionKeyValue,
-    callback: httpPostSaveSessionKeyValue,
+    callback: httpPostSaveSessionKeyValue
   },
   {
     uri: restApi.uri.addNewPackage,
-    callback: httpPostAddNewPackage,
+    callback: httpPostAddNewPackage
   },
   {
     uri: restApi.uri.shareClusterStatesAcrossEndpoints,
-    callback: httpPostShareClusterStatesAcrossEndpoints,
+    callback: httpPostShareClusterStatesAcrossEndpoints
   },
   {
     uri: restApi.uri.duplicateEndpoint,
-    callback: httpPostDuplicateEndpoint,
+    callback: httpPostDuplicateEndpoint
   },
   {
     uri: restApi.uri.duplicateEndpointType,
-    callback: httpPostDuplicateEndpointType,
-  },
+    callback: httpPostDuplicateEndpointType
+  }
 ]
 
 exports.get = [
   {
     uri: restApi.uri.endpointIds,
-    callback: httpGetEndpointIds,
+    callback: httpGetEndpointIds
   },
   {
     uri: restApi.uri.getAllSessionKeyValues,
-    callback: httpGetSessionKeyValues,
+    callback: httpGetSessionKeyValues
   },
   {
     uri: restApi.uri.sessionNotification,
-    callback: httpGetSessionNotifications,
+    callback: httpGetSessionNotifications
   },
   {
     uri: restApi.uri.packageNotification,
-    callback: httpGetPackageNotifications,
+    callback: httpGetPackageNotifications
   },
   {
     uri: restApi.uri.packageNotificationById,
-    callback: httpGetPackageNotificationsByPackageId,
+    callback: httpGetPackageNotificationsByPackageId
   },
   {
     uri: restApi.uri.unseenNotificationCount,
-    callback: httpGetUnseenNotificationCount,
+    callback: httpGetUnseenNotificationCount
   },
   {
     uri: restApi.uri.updateNotificationToSeen,
-    callback: httpGetUnseenNotificationAndUpdate,
+    callback: httpGetUnseenNotificationAndUpdate
   },
   {
     uri: restApi.uri.initialState,
-    callback: httpGetInitialState,
+    callback: httpGetInitialState
   },
   {
     uri: `${restApi.uri.option}/:category`,
-    callback: httpGetOption,
+    callback: httpGetOption
   },
   {
     uri: restApi.uri.uiOptions,
-    callback: httpGetUiOptions,
+    callback: httpGetUiOptions
   },
   {
     uri: restApi.uri.packages,
-    callback: httpGetPackages,
+    callback: httpGetPackages
   },
   {
     uri: restApi.uri.getAllPackages,
-    callback: httpGetAllPackages,
-  },
+    callback: httpGetAllPackages
+  }
 ]
 
 exports.delete = [
   {
     uri: restApi.uri.sessionPackage,
-    callback: httpDeleteSessionPackage,
+    callback: httpDeleteSessionPackage
   },
   {
     uri: restApi.uri.deleteSessionNotification,
-    callback: httpDeleteSessionNotification,
+    callback: httpDeleteSessionNotification
   },
   {
     uri: restApi.uri.deletePackageNotification,
-    callback: httpDeletePackageNotification,
-  },
+    callback: httpDeletePackageNotification
+  }
 ]

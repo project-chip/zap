@@ -37,13 +37,13 @@ export default {
       },
       set(val) {
         this.$store.dispatch('zap/updateInformationText', val)
-      },
+      }
     },
     state: {
       get() {
         return this.$store.state
-      },
-    },
-  },
+      }
+    }
+  }
 }
 </script>

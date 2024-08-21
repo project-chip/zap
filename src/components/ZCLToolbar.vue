@@ -16,7 +16,7 @@
             v-for="(image, index) in getLogos(
               $store.state.zap.selectedZapConfig
                 ? $store.state.zap.selectedZapConfig.zclProperties
-                : null,
+                : null
             )"
             :key="index"
             :src="image"
@@ -255,7 +255,7 @@ export default {
     isTutorialRunning: {
       get() {
         return this.$store.state.zap.isTutorialRunning
-      },
+      }
     },
     showPreviewTab: {
       get() {
@@ -263,7 +263,7 @@ export default {
       },
       set() {
         return this.$store.dispatch('zap/togglePreviewTab')
-      },
+      }
     },
     showNotificationTab: {
       get() {
@@ -271,18 +271,18 @@ export default {
       },
       set() {
         return this.$store.dispatch('zap/toggleNotificationTab')
-      },
+      }
     },
     isMultiProtocolTutorialAvailable: {
       get() {
         return this.$store.state.zap.isMultiConfig
-      },
+      }
     },
     showDebugNavItems: {
       get() {
         return this.$store.state.zap.debugNavBar
-      },
-    },
+      }
+    }
   },
   data() {
     return {
@@ -291,7 +291,7 @@ export default {
       isExpanded: false,
       globalOptionsDialog: false,
       notification: '',
-      generationDirectory: '',
+      generationDirectory: ''
     }
   },
   methods: {
@@ -311,7 +311,7 @@ export default {
           this.$store.state.zap.genericOptions[
             dbEnum.sessionOption.coreSpecification
           ][0]['optionLabel'],
-          '_blank',
+          '_blank'
         )
       }
     },
@@ -336,16 +336,16 @@ export default {
         title: 'Select directory to generate into',
         mode: 'directory',
         defaultPath: currentPath,
-        buttonLabel: 'Generate',
+        buttonLabel: 'Generate'
       })
     },
     doGeneration(path) {
       window[rendApi.GLOBAL_SYMBOL_EXECUTE](
         rendApi.id.progressStart,
-        'Generating files...',
+        'Generating files...'
       )
       this.$serverPut(restApi.uri.generate, {
-        generationDirectory: path,
+        generationDirectory: path
       }).finally(() => {
         window[rendApi.GLOBAL_SYMBOL_EXECUTE](rendApi.id.progressEnd)
       })
@@ -361,7 +361,7 @@ export default {
         .catch((err) => {
           console.log(err)
         })
-    },
+    }
   },
   mounted() {
     if (this.$onWebSocket) {
@@ -369,7 +369,7 @@ export default {
         dbEnum.wsCategory.notificationCount,
         (notificationCount) => {
           this.$store.commit('zap/updateNotificationCount', notificationCount)
-        },
+        }
       )
     }
 
@@ -386,7 +386,7 @@ export default {
     observable.observeAttribute(rendApi.observable.debugNavBar, (value) => {
       this.$store.dispatch('zap/setDebugNavBar', value)
     })
-  },
+  }
 }
 </script>
 <style lang="scss" scoped>

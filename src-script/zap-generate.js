@@ -26,7 +26,7 @@ let cmdArgs = [
   'node',
   scriptUtil.mainPath(false),
   'generate',
-  '--unhandled-rejections=strict',
+  '--unhandled-rejections=strict'
 ]
 cmdArgs.push(...args)
 

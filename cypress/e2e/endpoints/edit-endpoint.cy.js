@@ -35,6 +35,6 @@ describe('Testing Editing endpoints', () => {
       cy.fixture('data').then((data) => {
         cy.get('aside').children().should('contain', data.endpoint2)
       })
-    },
+    }
   )
 })

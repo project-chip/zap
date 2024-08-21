@@ -43,7 +43,7 @@ export function renderer_api_info() {
   return {
     prefix: 'zap',
     description: 'Zap Renderer API',
-    functions: rendApi.renderer_api_info,
+    functions: rendApi.renderer_api_info
   }
 }
 
@@ -73,19 +73,19 @@ export function renderer_api_execute(id, ...args) {
     case rendApi.id.progressStart:
       observable.setObservableAttribute(
         rendApi.observable.progress_attribute,
-        args[0],
+        args[0]
       )
       break
     case rendApi.id.progressEnd:
       observable.setObservableAttribute(
         rendApi.observable.progress_attribute,
-        '',
+        ''
       )
       break
     case rendApi.id.reportFiles:
       observable.setObservableAttribute(
         rendApi.observable.reported_files,
-        JSON.parse(args[0]),
+        JSON.parse(args[0])
       )
       break
     case rendApi.id.debugNavBarOn:
@@ -105,12 +105,12 @@ export function renderer_api_execute(id, ...args) {
             // light theme value
             let titleBarOverlay = {
               color: '#F4F4F4',
-              symbolColor: '#67696D',
+              symbolColor: '#67696D'
             }
             if (useDarkTheme) {
               titleBarOverlay = {
                 color: '#1B1B1B',
-                symbolColor: '#67696D',
+                symbolColor: '#67696D'
               }
             }
             window.electronAPI.setTitleBarOverlay(titleBarOverlay)
@@ -138,13 +138,13 @@ export function renderer_api_execute(id, ...args) {
  */
 export function renderer_api_notify(key, value) {
   console.log(
-    `${rendApi.jsonPrefix}${JSON.stringify({ key: key, value: value })}`,
+    `${rendApi.jsonPrefix}${JSON.stringify({ key: key, value: value })}`
   )
   window?.parent?.postMessage(
     {
       eventId: key,
-      eventData: value,
+      eventData: value
     },
-    '*',
+    '*'
   )
 }

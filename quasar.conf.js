@@ -12,7 +12,7 @@ module.exports = configure(function (ctx) {
       router: 'src/router',
       store: 'src/store',
       indexHtmlTemplate: 'src/index.template.html',
-      electronMain: 'src-electron/ui/main-ui',
+      electronMain: 'src-electron/ui/main-ui'
     },
 
     // app boot file (/src/boot)
@@ -35,7 +35,7 @@ module.exports = configure(function (ctx) {
       // 'themify',
       // 'roboto-font-latin-ext', // this or either 'roboto-font', NEVER both!
 
-      'roboto-font', // optional, you are not bound to it
+      'roboto-font' // optional, you are not bound to it
     ],
 
     // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-framework
@@ -59,8 +59,8 @@ module.exports = configure(function (ctx) {
       plugins: ['Loading', 'Notify'],
       config: {
         loading: {},
-        notify: {},
-      },
+        notify: {}
+      }
     },
 
     // Full list of options: https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-build
@@ -82,23 +82,23 @@ module.exports = configure(function (ctx) {
           enforce: 'pre',
           test: /\.(sql)$/,
           loader: 'file-loader',
-          exclude: /node_modules/,
+          exclude: /node_modules/
         })
-      },
+      }
     },
 
     // Full list of options: https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-devServer
     devServer: {
       server: {
-        type: 'http',
+        type: 'http'
       },
       port: 8080,
       open: false,
       headers: {
         // 'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
         // 'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        'Access-Control-Allow-Origin': '*',
-      },
+        'Access-Control-Allow-Origin': '*'
+      }
     },
 
     // animations: 'all', // --- includes all animations
@@ -107,7 +107,7 @@ module.exports = configure(function (ctx) {
 
     // https://quasar.dev/quasar-cli/developing-ssr/configuring-ssr
     ssr: {
-      pwa: false,
+      pwa: false
     },
 
     // https://quasar.dev/quasar-cli/developing-pwa/configuring-pwa
@@ -126,41 +126,41 @@ module.exports = configure(function (ctx) {
           {
             src: 'statics/icons/icon-128x128.png',
             sizes: '128x128',
-            type: 'image/png',
+            type: 'image/png'
           },
           {
             src: 'statics/icons/icon-192x192.png',
             sizes: '192x192',
-            type: 'image/png',
+            type: 'image/png'
           },
           {
             src: 'statics/icons/icon-256x256.png',
             sizes: '256x256',
-            type: 'image/png',
+            type: 'image/png'
           },
           {
             src: 'statics/icons/icon-384x384.png',
             sizes: '384x384',
-            type: 'image/png',
+            type: 'image/png'
           },
           {
             src: 'statics/icons/icon-512x512.png',
             sizes: '512x512',
-            type: 'image/png',
-          },
-        ],
-      },
+            type: 'image/png'
+          }
+        ]
+      }
     },
 
     // Full list of options: https://quasar.dev/quasar-cli/developing-cordova-apps/configuring-cordova
     cordova: {
       // noIosLegacyBuildFlag: true, // uncomment only if you know what you are doing
-      id: '',
+      id: ''
     },
 
     // Full list of options: https://quasar.dev/quasar-cli/developing-capacitor-apps/configuring-capacitor
     capacitor: {
-      hideSplashscreen: true,
+      hideSplashscreen: true
     },
 
     // Full list of options: https://quasar.dev/quasar-cli/developing-electron-apps/configuring-electron
@@ -190,14 +190,14 @@ module.exports = configure(function (ctx) {
               .rebuild({ buildPath, electronVersion, arch })
               .then(() => callback())
               .catch((error) => callback(error))
-          },
-        ],
+          }
+        ]
       },
 
       builder: {
         // https://www.electron.build/configuration/configuration
 
-        appId: 'zap',
+        appId: 'zap'
       },
 
       // keep in sync with electron-main
@@ -215,8 +215,8 @@ module.exports = configure(function (ctx) {
           loader: 'file-loader',
           exclude: /node_modules/,
           options: {
-            name: '[path][name].[ext]',
-          },
+            name: '[path][name].[ext]'
+          }
         })
       },
 
@@ -228,10 +228,10 @@ module.exports = configure(function (ctx) {
           loader: 'file-loader',
           exclude: /node_modules/,
           options: {
-            name: '[path][name].[ext]',
-          },
+            name: '[path][name].[ext]'
+          }
         })
-      },
-    },
+      }
+    }
   }
 })

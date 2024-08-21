@@ -43,69 +43,69 @@ export default {
           .filter((attribute) => {
             return !this.globalLists.includes(attribute.label)
           })
-      },
+      }
     },
     selection: {
       get() {
         return this.$store.state.zap.attributeView.selectedAttributes
-      },
+      }
     },
     nullValues: {
       get() {
         return this.$store.state.zap.attributeView.nullValues
-      },
+      }
     },
     selectionSingleton: {
       get() {
         return this.$store.state.zap.attributeView.selectedSingleton
-      },
+      }
     },
     selectionBounded: {
       get() {
         return this.$store.state.zap.attributeView.selectedBounded
-      },
+      }
     },
     selectionStorageOption: {
       get() {
         return this.$store.state.zap.attributeView.storageOption
-      },
+      }
     },
     selectionDefault: {
       get() {
         return this.$store.state.zap.attributeView.defaultValue
-      },
+      }
     },
     selectedReporting: {
       get() {
         return this.$store.state.zap.attributeView.selectedReporting
-      },
+      }
     },
     selectionMin: {
       get() {
         return this.$store.state.zap.attributeView.reportingMin
-      },
+      }
     },
     selectionMax: {
       get() {
         return this.$store.state.zap.attributeView.reportingMax
-      },
+      }
     },
     selectionReportableChange: {
       get() {
         return this.$store.state.zap.attributeView.reportableChange
-      },
+      }
     },
     defaultValueValidation: {
       get() {
         return this.$store.state.zap.attributeView.defaultValueValidationIssues
-      },
+      }
     },
     individualClusterFilterString: {
       get() {
         return this.$store.state.zap.clusterManager
           .individualClusterFilterString
-      },
-    },
+      }
+    }
   },
   watch: {},
   methods: {
@@ -114,7 +114,7 @@ export default {
         localChanges,
         listType,
         attributeData,
-        clusterId,
+        clusterId
       )
     },
     handleLocalSelection(selectedList, listType, attributeData, clusterId) {
@@ -124,7 +124,7 @@ export default {
         selectedList.includes(hash),
         listType,
         attributeData,
-        clusterId,
+        clusterId
       )
     },
     setAttributeSelection(enable, listType, attributeData, clusterId) {
@@ -138,7 +138,7 @@ export default {
         attributeSide: attributeData.side,
         reportMinInterval: attributeData.reportMinInterval,
         reportMaxInterval: attributeData.reportMaxInterval,
-        reportableChange: attributeData.reportableChange,
+        reportableChange: attributeData.reportableChange
       }
       this.$store.dispatch('zap/updateSelectedAttribute', editContext)
     },
@@ -153,14 +153,14 @@ export default {
             (validationIssueString, currentVal) => {
               return validationIssueString + '\n' + currentVal
             },
-            '',
+            ''
           )
         : ''
     },
     initializeBooleanEditableList(
       originatingList,
       editableList,
-      attrClusterHash,
+      attrClusterHash
     ) {
       if (originatingList.includes(attrClusterHash)) {
         if (!editableList.includes(attrClusterHash)) {
@@ -183,7 +183,7 @@ export default {
         clusterRef: clusterId,
         attributeSide: attributeData.side,
         reportMinInterval: attributeData.reportMinInterval,
-        reportMaxInterval: attributeData.reportMaxInterval,
+        reportMaxInterval: attributeData.reportMaxInterval
       }
       this.$store.dispatch('zap/updateSelectedAttribute', editContext)
     },
@@ -191,7 +191,7 @@ export default {
       // We determine the ID that we need to toggle within the list.
       // This ID comes from hashing the base ZCL attribute and cluster data.
       let indexOfValue = list.indexOf(
-        this.hashAttributeIdClusterId(attributeData.id, clusterId),
+        this.hashAttributeIdClusterId(attributeData.id, clusterId)
       )
       let addedValue
       if (indexOfValue === -1) {
@@ -209,7 +209,7 @@ export default {
         clusterRef: clusterId,
         attributeSide: attributeData.side,
         reportMinInterval: attributeData.reportMinInterval,
-        reportMaxInterval: attributeData.reportMaxInterval,
+        reportMaxInterval: attributeData.reportMaxInterval
       }
       this.$store.dispatch('zap/updateSelectedAttribute', editContext)
       if (
@@ -237,34 +237,34 @@ export default {
         clusterRef: selectedClusterId,
         attributeSide: attributeData.side,
         reportMinInterval: attributeData.reportMinInterval,
-        reportMaxInterval: attributeData.reportMaxInterval,
+        reportMaxInterval: attributeData.reportMaxInterval
       }
       this.$store
         .dispatch('zap/initSelectedAttribute', initContext)
         .then(() => {
           this.$store.dispatch('zap/setAttributeEditting', {
             attributeId: attributeData.id,
-            editState: true,
+            editState: true
           })
         })
     },
     setEditableAttributeReporting(attributeId, selectedClusterId) {
       this.$store.dispatch('zap/setAttributeReportingEditting', {
         attributeId: attributeId,
-        editState: true,
+        editState: true
       })
     },
 
     resetAttributeReporting(attributeId) {
       this.$store.dispatch('zap/setAttributeReportingEditting', {
         attributeId: attributeId,
-        editState: false,
+        editState: false
       })
     },
     resetAttribute(attributeId) {
       this.$store.dispatch('zap/setAttributeEditting', {
         attributeId: attributeId,
-        editState: false,
+        editState: false
       })
     },
 
@@ -281,7 +281,7 @@ export default {
       ascendingA,
       ascendingB,
       singletonList,
-      callback = (i, j) => 0,
+      callback = (i, j) => 0
     ) {
       let i = this.hashAttributeIdClusterId(x.id, this.selectedCluster.id)
       let j = this.hashAttributeIdClusterId(y.id, this.selectedCluster.id)
@@ -304,6 +304,6 @@ export default {
             ? -1
             : 0
       }
-    },
-  },
+    }
+  }
 }

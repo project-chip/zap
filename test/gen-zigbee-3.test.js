@@ -39,7 +39,7 @@ beforeAll(async () => {
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
     env.schemaFile(),
-    env.zapVersion(),
+    env.zapVersion()
   )
   return zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
 }, testUtil.timeout.medium())
@@ -54,7 +54,7 @@ test(
   async () => {
     let context = await genEngine.loadTemplates(
       db,
-      testUtil.testTemplate.zigbee,
+      testUtil.testTemplate.zigbee
     )
     templatePkgId = context.packageId
     expect(context.crc).not.toBeNull()
@@ -65,7 +65,7 @@ test(
     expect(context.packageId).not.toBeNull()
     templateContext = context
   },
-  testUtil.timeout.medium(),
+  testUtil.timeout.medium()
 )
 
 test(
@@ -73,11 +73,11 @@ test(
   async () => {
     templateContext.packages = await queryPackage.getPackageByParent(
       templateContext.db,
-      templateContext.packageId,
+      templateContext.packageId
     )
     expect(templateContext.packages.length).toBe(templateCount - 1 + 3) // -1 for ignored one, two for helpers and one for overridable
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -87,7 +87,7 @@ test(
     expect(sessionId).not.toBeNull()
     templateContext.sessionId = sessionId
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -98,15 +98,15 @@ test(
       templateContext.sessionId,
       {
         zcl: env.builtinSilabsZclMetafile(),
-        template: env.builtinTemplateMetafile(),
+        template: env.builtinTemplateMetafile()
       },
       null,
-      [templatePkgId],
+      [templatePkgId]
     )
 
     expect(packages.length).toBe(2)
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -114,7 +114,7 @@ test(
   async () => {
     let sid = await querySession.createBlankSession(db)
     let loaderResult = await importJs.importDataFromFile(db, testFile, {
-      sessionId: sid,
+      sessionId: sid
     })
 
     let genResult = await genEngine.generate(
@@ -123,8 +123,8 @@ test(
       loaderResult.templateIds[0],
       {},
       {
-        disableDeprecationWarnings: true,
-      },
+        disableDeprecationWarnings: true
+      }
     )
     expect(genResult).not.toBeNull()
     expect(genResult.partial).toBeFalsy()
@@ -133,29 +133,29 @@ test(
     let cfgVer2 = genResult.content['zap-config-version-2.h']
     // Test GENERATED_DEFAULTS
     expect(cfgVer2).toContain(
-      '0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,  /* 0,DEFAULT value for cluster: Over the Air Bootloading, attribute: OTA Upgrade Server ID, side: client*/',
+      '0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,  /* 0,DEFAULT value for cluster: Over the Air Bootloading, attribute: OTA Upgrade Server ID, side: client*/'
     )
     // Test GENERATED_ATTRIBUTE_COUNT
     expect(cfgVer2).toContain('#define GENERATED_ATTRIBUTE_COUNT 81')
     // Test GENERATED_ATTRIBUTES
     expect(cfgVer2).toContain(
-      '{ 0x000F, ZCL_BITMAP8_ATTRIBUTE_TYPE, 1, (ATTRIBUTE_MASK_WRITABLE), { (uint8_t*)0x00  } }, /* 46 Cluster: Color Control, Attribute: color control options, Side: server*/',
+      '{ 0x000F, ZCL_BITMAP8_ATTRIBUTE_TYPE, 1, (ATTRIBUTE_MASK_WRITABLE), { (uint8_t*)0x00  } }, /* 46 Cluster: Color Control, Attribute: color control options, Side: server*/'
     )
     // Test is_number_greater_than within GENERATED_ATTRIBUTES
     expect(cfgVer2).toContain(
-      '{ 0x0000, ZCL_IEEE_ADDRESS_ATTRIBUTE_TYPE, 8, (ATTRIBUTE_MASK_CLIENT), { (uint8_t*)&(generatedDefaults[0]) } }, /* 35 Cluster: Over the Air Bootloading, Attribute: OTA Upgrade Server ID, Side: client*/',
+      '{ 0x0000, ZCL_IEEE_ADDRESS_ATTRIBUTE_TYPE, 8, (ATTRIBUTE_MASK_CLIENT), { (uint8_t*)&(generatedDefaults[0]) } }, /* 35 Cluster: Over the Air Bootloading, Attribute: OTA Upgrade Server ID, Side: client*/'
     )
     // Test GENERATED_CLUSTER_COUNT
     expect(cfgVer2).toContain('#define GENERATED_CLUSTER_COUNT 18')
     // Test GENERATED_CLUSTERS
     expect(cfgVer2).toContain(
-      '0x0019, (EmberAfAttributeMetadata*)&(generatedAttributes[35]), 4, 15, CLUSTER_MASK_CLIENT, NULL }, /* 15, Endpoint Id: 2, Cluster: Over the Air Bootloading, Side: client*/',
+      '0x0019, (EmberAfAttributeMetadata*)&(generatedAttributes[35]), 4, 15, CLUSTER_MASK_CLIENT, NULL }, /* 15, Endpoint Id: 2, Cluster: Over the Air Bootloading, Side: client*/'
     )
     // Test GENERATED_ENDPOINT_TYPE_COUNT
     expect(cfgVer2).toContain('#define GENERATED_ENDPOINT_TYPE_COUNT (2)')
     // Test GENERATED_ENDPOINT_TYPES
     expect(cfgVer2).toContain(
-      '{ ((EmberAfCluster*)&(generatedClusters[0])), 9, 50 },',
+      '{ ((EmberAfCluster*)&(generatedClusters[0])), 9, 50 },'
     )
     // Test ATTRIBUTE_LARGEST
     expect(cfgVer2).toContain('#define ATTRIBUTE_LARGEST (65)')
@@ -169,8 +169,8 @@ test(
     expect(cfgVer2).toContain('#define EMBER_AF_GENERATED_COMMAND_COUNT  (88)')
     // Test GENERATED_COMMANDS
     expect(cfgVer2).toContain(
-      '{ 0x0004, 0x01, COMMAND_MASK_OUTGOING_SERVER }, /* 7, Cluster: Groups, Command: ViewGroupResponse*/',
+      '{ 0x0004, 0x01, COMMAND_MASK_OUTGOING_SERVER }, /* 7, Cluster: Groups, Command: ViewGroupResponse*/'
     )
   },
-  testUtil.timeout.long(),
+  testUtil.timeout.long()
 )

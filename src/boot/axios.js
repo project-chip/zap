@@ -136,7 +136,7 @@ function serverPost(url, data, config = null) {
       zapUpdateExceptions(
         data,
         error.response.status,
-        error.response.data.message,
+        error.response.data.message
       )
     })
 }
@@ -185,7 +185,7 @@ export default ({ app, store }) => {
       method: 'post',
       payload,
       statusCode,
-      message,
+      message
     })
   }
 
@@ -202,5 +202,5 @@ export const axiosRequests = {
   $serverPost: serverPost,
   $serverPut: serverPut,
   $serverPatch: serverPatch,
-  $serverDelete: serverDelete,
+  $serverDelete: serverDelete
 }

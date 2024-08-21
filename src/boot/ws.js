@@ -51,7 +51,7 @@ function sendWebSocketData(category, payload) {
     return
   }
   let obj = {
-    category: category,
+    category: category
   }
   if (payload != null) obj.payload = payload
   doSend(obj)
@@ -99,7 +99,7 @@ client.onmessage = (event) => {
 }
 
 onWebSocket(dbEnum.wsCategory.init, (data) =>
-  console.log(`Init message received: ${data}`),
+  console.log(`Init message received: ${data}`)
 )
 
 //commented unnecessary logs and listeners
@@ -128,7 +128,7 @@ onWebSocket(dbEnum.wsCategory.sessionCreationError, (data) => {
     color: 'negative',
     position: 'top',
     html: true,
-    timeout: 5000,
+    timeout: 5000
   })
 
   console.log(`sessionCreationError: ${JSON.stringify(data)}`)
@@ -154,7 +154,7 @@ onWebSocket(dbEnum.wsCategory.notificationInfo, (data) => {
       color: 'negative',
       position: 'top',
       html: true,
-      timeout: 5000,
+      timeout: 5000
     })
   }
 })

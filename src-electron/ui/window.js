@@ -94,7 +94,7 @@ export function windowCreate(port, args) {
   let webPreferences = {
     nodeIntegration: false,
     worldSafeExecuteJavaScript: true,
-    preload: path.resolve(__dirname, 'preload.js'),
+    preload: path.resolve(__dirname, 'preload.js')
   }
   windowCounter++
   let w = new BrowserWindow({
@@ -112,8 +112,8 @@ export function windowCreate(port, args) {
     trafficLightPosition: { x: 15, y: 20 },
     titleBarOverlay: {
       color: '#F4F4F4',
-      symbolColor: '#67696D',
-    },
+      symbolColor: '#67696D'
+    }
   })
 
   ipcMain.on('set-title-bar-overlay', (_event, value) => {
@@ -125,7 +125,7 @@ export function windowCreate(port, args) {
     args?.standalone,
     args?.new,
     args?.filePath,
-    httpServer.httpServerPort(),
+    httpServer.httpServerPort()
   )
 
   // @ts-ignore
@@ -147,7 +147,7 @@ export function windowCreate(port, args) {
           'Your changes will be lost if you do not save them into the file.',
         buttons: ['Quit Anyway', 'Cancel'],
         defaultId: 0,
-        cancelId: 1,
+        cancelId: 1
       })
 
       if (result === 0) w.destroy()
@@ -162,7 +162,7 @@ export function windowCreate(port, args) {
       if (!browserApi.processRendererNotify(w, message)) {
         env.logBrowser(message)
       }
-    },
+    }
   )
   w.webContents.on('before-input-event', (e, input) => {
     if (input.type === 'keyUp' && input.key.toLowerCase() === 'alt') {

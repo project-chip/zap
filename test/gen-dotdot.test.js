@@ -40,7 +40,7 @@ beforeAll(async () => {
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
     env.schemaFile(),
-    env.zapVersion(),
+    env.zapVersion()
   )
 }, testUtil.timeout.medium())
 
@@ -51,19 +51,19 @@ test(
   async () => {
     let context = await genEngine.loadTemplates(
       db,
-      testUtil.testTemplate.dotdot,
+      testUtil.testTemplate.dotdot
     )
     expect(context.crc).not.toBeNull()
     expect(context.templateData).not.toBeNull()
     expect(context.templateData.name).toEqual('Dotdot templates')
     expect(context.templateData.version).toEqual('test-dotdot-v1')
     expect(context.templateData.templates.length).toEqual(
-      testUtil.testTemplate.dotdotCount,
+      testUtil.testTemplate.dotdotCount
     )
     expect(context.packageId).not.toBeNull()
     templateContext = context
   },
-  testUtil.timeout.medium(),
+  testUtil.timeout.medium()
 )
 
 test(
@@ -71,7 +71,7 @@ test(
   async () => {
     zclContext = await zclLoader.loadZcl(db, env.builtinDotdotZclMetafile())
   },
-  testUtil.timeout.medium(),
+  testUtil.timeout.medium()
 )
 
 test(
@@ -85,10 +85,10 @@ test(
     await queryPackage.insertSessionPackage(
       db,
       sessionPartitionInfo[0].sessionPartitionId,
-      zclContext.packageId,
+      zclContext.packageId
     )
   },
-  testUtil.timeout.medium(),
+  testUtil.timeout.medium()
 )
 
 test(
@@ -100,8 +100,8 @@ test(
       templateContext.packageId,
       {},
       {
-        disableDeprecationWarnings: true,
-      },
+        disableDeprecationWarnings: true
+      }
     )
     expect(genResult).not.toBeNull()
     expect(genResult.partial).toBeFalsy()
@@ -111,10 +111,10 @@ test(
     let epc = genResult.content['test1.h']
     expect(epc).not.toBeNull()
     expect(epc).toContain(
-      'EmberAfDrlkOperMode OperatingModeDuringHoliday // command type',
+      'EmberAfDrlkOperMode OperatingModeDuringHoliday // command type'
     )
     expect(epc).toContain(
-      'EmberAfDrlkOperMode OperatingMode; // attribute type',
+      'EmberAfDrlkOperMode OperatingMode; // attribute type'
     )
 
     let mqtt = genResult.content['mqtt.cpp']
@@ -128,15 +128,15 @@ test(
     expect(types).not.toBeNull()
     expect(types).toContain('// Bitmap: LevelOptions, size: 1')
     expect(types).toContain(
-      '#define EMBER_AF_COLOR_CONTROL_COLOR_CAPABILITIES_COLOR_LOOP_SUPPORTED (4) // type:  bool',
+      '#define EMBER_AF_COLOR_CONTROL_COLOR_CAPABILITIES_COLOR_LOOP_SUPPORTED (4) // type:  bool'
     )
     expect(types).toContain(
-      '#define EMBER_AF_RESTART_DEVICE_OPTIONS_STARTUP_MODE (7) // type:  enum8',
+      '#define EMBER_AF_RESTART_DEVICE_OPTIONS_STARTUP_MODE (7) // type:  enum8'
     )
 
     let clusters = genResult.content['dotdot-cluster.xml']
     expect(clusters).not.toBeNull()
     expect(clusters).toContain('<cluster code="0x0000" revision="2">')
   },
-  testUtil.timeout.long(),
+  testUtil.timeout.long()
 )

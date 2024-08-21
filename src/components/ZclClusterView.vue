@@ -159,28 +159,28 @@ export default {
         if (this.selectionClients.includes(this.selectedClusterId))
           return ' Client'
         return ' none'
-      },
+      }
     },
     placeHolderText: {
       get() {
         return 'Search ' + this.tab
-      },
+      }
     },
     individualClusterFilterString: {
       get() {
         return this.$store.state.zap.clusterManager
           .individualClusterFilterString
-      },
+      }
     },
     events: {
       get() {
         return this.$store.state.zap.events
-      },
+      }
     },
     tutorialTab: {
       get() {
         return this.$store.state.zap.showReportTabInCluster
-      },
+      }
     },
     category: {
       get() {
@@ -188,27 +188,27 @@ export default {
           return this.getDeviceCategory(
             this.zclDeviceTypes[
               this.endpointDeviceTypeRef[this.selectedEndpointId][0]
-            ]?.packageRef,
+            ]?.packageRef
           )
         }
         return ''
-      },
+      }
     },
     enableEventsTab: {
       get() {
         return this.category === dbEnum.helperCategory.matter
-      },
+      }
     },
     enableAttributeReportingTab: {
       get() {
         return this.category === dbEnum.helperCategory.zigbee
-      },
-    },
+      }
+    }
   },
   watch: {
     tutorialTab(val) {
       this.tab = val
-    },
+    }
   },
 
   methods: {
@@ -222,17 +222,17 @@ export default {
           this.$store.state.zap.genericOptions[
             dbEnum.sessionOption.clusterSpecification
           ][0]['optionLabel'],
-          '_blank',
+          '_blank'
         )
       }
     },
     setIndividualClusterFilterString(filterString) {
       this.$store.dispatch('zap/setIndividualClusterFilterString', filterString)
-    },
+    }
   },
   data() {
     return {
-      tab: 'attributes',
+      tab: 'attributes'
     }
   },
 
@@ -240,8 +240,8 @@ export default {
     ZclCommandManager,
     ZclAttributeManager,
     ZclAttributeReportingManager,
-    ZclEventManager,
-  },
+    ZclEventManager
+  }
 }
 </script>
 <style lang="scss">

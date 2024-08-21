@@ -51,7 +51,7 @@ export function processCommandLineArguments(argv) {
     ['server', 'Run zap in a server mode.'],
     ['stop', 'Stop zap server if one is running.'],
     ['new', 'If in client mode, start a new window on a main instance.'],
-    ['regenerateSdk', 'Perform full SDK regeneration.'],
+    ['regenerateSdk', 'Perform full SDK regeneration.']
   ])
   let y = yargs
   for (let cmd of commands.entries()) {
@@ -62,163 +62,162 @@ export function processCommandLineArguments(argv) {
       desc: 'Port used for the HTTP server',
       alias: 'p',
       type: 'number',
-      default: 9070,
+      default: 9070
     })
     .option('studioHttpPort', {
       desc: "Port used for integration with Silicon Labs Simplicity Studio's internal HTTP server",
       type: 'number',
-      default: -1,
+      default: -1
     })
     .option('zapFile', {
       desc: 'input .zap file to read in. You can also specify them without an option, directly.',
       alias: ['zap', 'in', 'i'],
       type: 'string',
-      default: null,
+      default: null
     })
     .option('zclProperties', {
       desc: 'zcl.properties file to read in.',
       alias: ['zcl', 'z'],
       type: 'array',
-      default: env.builtinSilabsZclMetafile(),
+      default: env.builtinSilabsZclMetafile()
     })
     .option('sdk', {
       desc: 'sdk.json file to read, for operations that act on whole SDK',
       type: 'string',
-      default: null,
+      default: null
     })
     .option('generationTemplate', {
       desc: 'generation template metafile (gen-template.json) to read in.',
       alias: ['gen', 'g'],
       type: 'array',
-      default: env.builtinTemplateMetafile(),
+      default: env.builtinTemplateMetafile()
     })
     .option('uiMode', {
       desc: 'Mode of the UI to begin in. Options are: ZIGBEE',
       alias: 'ui',
       type: 'string',
-      default: restApi.uiMode.ZIGBEE,
+      default: restApi.uiMode.ZIGBEE
     })
     .option('debugNavBar', {
       desc: 'Boolean for when you want to embed purely the ZCL parts of the ZAP tool',
       alias: 'embed',
       type: 'boolean',
-      default: exports.debugNavBar,
+      default: exports.debugNavBar
     })
     .option('noUi', {
-      desc: "Don't show the main window when starting.",
+      desc: "Don't show the main window when starting."
     })
     .options('noServer', {
       desc: "Don't run the http or IPC server. You should probably also specify -noUi with this.",
       type: 'boolean',
-      default: false,
+      default: false
     })
     .options('genResultFile', {
       desc: 'If this option is present, then generate the result file.',
       type: 'boolean',
-      default: false,
+      default: false
     })
     .option('showUrl', {
-      desc: 'Print out the URL that an external browser should use.',
+      desc: 'Print out the URL that an external browser should use.'
     })
     .option('output', {
       desc: 'Specifying the output directory for generation or output file for conversion.',
       alias: ['out', 'o'],
-      type: 'string',
+      type: 'string'
     })
     .option('clearDb', {
       desc: 'Clear out the database and start with a new file.',
-      type: 'string',
+      type: 'string'
     })
     .option('stateDirectory', {
       desc: 'Sets the state directory.',
-      default: process.env[env.environmentVariable.stateDir.name] || '~/.zap',
+      default: process.env[env.environmentVariable.stateDir.name] || '~/.zap'
     })
     .option('jenkins', {
       desc: 'Assume jenkins environment, enables tempState and skipPostGeneration.',
       type: 'boolean',
-      default: process.env[env.environmentVariable.jenkinsHome.name] != null,
+      default: process.env[env.environmentVariable.jenkinsHome.name] != null
     })
     .option('tempState', {
       desc: 'Use a unique temporary directory for state',
       type: 'boolean',
-      default: process.env[env.environmentVariable.uniqueStateDir.name] == '1',
+      default: process.env[env.environmentVariable.uniqueStateDir.name] == '1'
     })
     .option('skipPostGeneration', {
       desc: 'If there is a defined post-generation action for zap, you can set this to variable to 1 to skip it.',
       type: 'boolean',
-      default: process.env[env.environmentVariable.skipPostGen.name] == '1',
+      default: process.env[env.environmentVariable.skipPostGen.name] == '1'
     })
     .option('noZapFileLog', {
       desc: `When writing out the .zap files, don't include the log. Useful in unit testing, where timestamps otherwise cause diffs.`,
       type: 'boolean',
-      default: false,
+      default: false
     })
     .option('cleanupDelay', {
       desc: 'When shutting down zap, this provides a number of millisecons to wait for SQLite to perform cleanup. Default is: 1500',
       type: 'number',
-      default: process.env[env.environmentVariable.cleanupDelay.name] || '1500',
+      default: process.env[env.environmentVariable.cleanupDelay.name] || '1500'
     })
     .option('reuseZapInstance', {
       desc: `When starting zap, should zap attempt to reuse an instance of previous zap already running.`,
       type: 'boolean',
-      default:
-        process.env[env.environmentVariable.reuseZapInstance.name] == '1',
+      default: process.env[env.environmentVariable.reuseZapInstance.name] == '1'
     })
     .option('generationLog', {
       desc: `Whenever generation is performed, a record of it will be put into this file.`,
       type: 'string',
       default:
-        process.env[env.environmentVariable.zapGenerationLog.name] || null,
+        process.env[env.environmentVariable.zapGenerationLog.name] || null
     })
     .option('saveFileFormat', {
       desc: `Specify default save file format.`,
       type: 'number',
       default:
         process.env[env.environmentVariable.saveFileFormat.name] ||
-        env.defaultFileFormat(),
+        env.defaultFileFormat()
     })
     .option('watchdogTimer', {
       desc: `In a server mode, how long of no-activity (in ms) shuts down the server.`,
       type: 'number',
-      default: 300000, // = 5 minutes
+      default: 300000 // = 5 minutes
     })
     .option('allowCors', {
       desc: `Sets the CORS policy to be enabled or disabled.`,
       type: 'boolean',
-      default: false,
+      default: false
     })
     .option('postImportScript', {
       desc: 'Script to execute after data is loaded.',
       type: 'string',
-      default: null,
+      default: null
     })
     .option('noLoadingFailure', {
       desc: 'If you specify an invalid file for templates or zcl metafiles, zap will not fail, but will ignore it.',
       type: 'boolean',
-      default: false,
+      default: false
     })
     .option('appendGenerationSubdirectory', {
       desc: 'If you specify package option generator/appendDirectory it will be used as a appended directory to specified generation directory.',
       type: 'boolean',
-      default: false,
+      default: false
     })
     .option('packageMatch', {
       desc: "Determines how to associate with packages in zap file. 'strict' will cause loading to fail if specified package files are not found, 'fuzzy' will associate with similar packages, 'ignore' will ignore the packages in zap file.",
       choices: ['fuzzy', 'strict', 'ignore'],
-      default: 'ignore',
+      default: 'ignore'
     })
     .option('results', {
       desc: 'Specifying the output YAML file to capture convert results.',
-      type: 'string',
+      type: 'string'
     })
     .option('disableDbCaching', {
       desc: 'Disable query caching when accessing database',
-      type: 'boolean',
+      type: 'boolean'
     })
     .option('noop', {
       desc: 'If this flag is present, then conversion will not do anything, while reporting success.',
       type: 'boolean',
-      deafult: false,
+      deafult: false
     })
     .usage('Usage: $0 <command> [options] ... [file.zap] ...')
     .version(
@@ -226,16 +225,16 @@ export function processCommandLineArguments(argv) {
         zapVersion.featureLevel
       }\nHash: ${zapVersion.hash}\nDate: ${zapVersion.date}${
         zapVersion.source ? '\nMode: source' : '\nMode: binary'
-      }${zapVersion.source ? '' : `\nExecutable: ${process.argv0}`} `,
+      }${zapVersion.source ? '' : `\nExecutable: ${process.argv0}`} `
     )
     .help()
     .alias({
-      help: ['h', '?'],
+      help: ['h', '?']
     })
     .epilogue(
       `Environment variables:
 ${environmentVariablesDescription()}
-For more information, see ${commonUrl.projectUrl}`,
+For more information, see ${commonUrl.projectUrl}`
     )
     .wrap(null)
     .parse(argv)
@@ -243,7 +242,7 @@ For more information, see ${commonUrl.projectUrl}`,
   // Apply Jenkins logic.
   if (ret.jenkins) {
     console.log(
-      '🔧 Detected Jenkins environment. Making necessary adjustments.',
+      '🔧 Detected Jenkins environment. Making necessary adjustments.'
     )
     if (process.env[env.environmentVariable.skipPostGen.name] == null) {
       ret.skipPostGen = true
@@ -269,11 +268,11 @@ For more information, see ${commonUrl.projectUrl}`,
   if (ret.tempState) {
     let tempDir = fs.mkdtempSync(`${os.tmpdir()}${path.sep}zap.`)
     console.log(
-      `🔧 Using temporary state directory: ${env.setAppDirectory(tempDir)}`,
+      `🔧 Using temporary state directory: ${env.setAppDirectory(tempDir)}`
     )
   } else {
     console.log(
-      `🔧 Using state directory: ${env.setAppDirectory(ret.stateDirectory)}`,
+      `🔧 Using state directory: ${env.setAppDirectory(ret.stateDirectory)}`
     )
   }
 

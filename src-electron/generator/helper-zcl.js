@@ -51,14 +51,14 @@ async function zcl_bitmaps(options) {
   if (this.id != null) {
     ens = await Promise.all(
       packageIds.map((packageId) =>
-        queryZcl.selectClusterBitmaps(this.global.db, packageId, this.id),
-      ),
+        queryZcl.selectClusterBitmaps(this.global.db, packageId, this.id)
+      )
     ).then((x) => x.flat())
   } else {
     ens = await Promise.all(
       packageIds.map((packageId) =>
-        queryZcl.selectAllBitmaps(this.global.db, packageId),
-      ),
+        queryZcl.selectAllBitmaps(this.global.db, packageId)
+      )
     ).then((x) => x.flat())
   }
   ens.forEach((en) => {
@@ -103,9 +103,9 @@ async function zcl_enums(options) {
           .selectAllEnums(this.global.db, packageId)
           //Filtering out all atomic enums
           .then((es) =>
-            es.filter((e) => !e.name.toLowerCase().match(/^enum\d+$/g)),
-          ),
-      ),
+            es.filter((e) => !e.name.toLowerCase().match(/^enum\d+$/g))
+          )
+      )
     ).then((x) => x.flat())
   }
   ens.forEach((en) => {
@@ -135,12 +135,12 @@ async function zcl_structs(options) {
     structs = await queryZcl.selectClusterStructsWithItems(
       this.global.db,
       packageIds,
-      this.id,
+      this.id
     )
   } else {
     structs = await queryZcl.selectAllStructsWithItems(
       this.global.db,
-      packageIds,
+      packageIds
     )
   }
   structs = await zclUtil.sortStructsByDependency(structs)
@@ -172,7 +172,7 @@ async function zcl_structs(options) {
           let sis = await queryZcl.selectAllStructItemsByStructName(
             this.global.db,
             i.type,
-            packageIds,
+            packageIds
           )
           if (sis.length > 0) {
             for (const ss of sis) {
@@ -203,7 +203,7 @@ async function zcl_enum_items(options) {
   }
   return templateUtil.templatePromise(
     this.global,
-    templateUtil.collectBlocks(items, options, this),
+    templateUtil.collectBlocks(items, options, this)
   )
 }
 
@@ -280,7 +280,7 @@ async function zcl_struct_items(options) {
       let structItems = await queryZcl.selectAllStructItemsByStructName(
         this.global.db,
         si.type,
-        packageIds,
+        packageIds
       )
       if (structItems.length > 0) {
         for (const s of structItems) {
@@ -323,14 +323,14 @@ async function zcl_struct_items_by_struct_name(name, options) {
 async function zcl_struct_items_by_struct_and_cluster_name(
   name,
   clusterName,
-  options,
+  options
 ) {
   let packageIds = await templateUtil.ensureZclPackageIds(this)
   // Check for a global struct first.
   const structObj = await queryZcl.selectStructByName(
     this.global.db,
     name,
-    packageIds,
+    packageIds
   )
   if (structObj.structClusterCount == 0) {
     // Just ignore the cluster name.
@@ -342,7 +342,7 @@ async function zcl_struct_items_by_struct_and_cluster_name(
       this.global.db,
       name,
       packageIds,
-      clusterName,
+      clusterName
     )
     .then((st) => templateUtil.collectBlocks(st, options, this))
   return templateUtil.templatePromise(this.global, promise)
@@ -358,8 +358,8 @@ async function zcl_device_types(options) {
   let packageIds = await templateUtil.ensureZclPackageIds(this)
   let deviceTypes = await Promise.all(
     packageIds.map((packageId) =>
-      queryDeviceType.selectAllDeviceTypes(this.global.db, packageId),
-    ),
+      queryDeviceType.selectAllDeviceTypes(this.global.db, packageId)
+    )
   )
   let promise = templateUtil.collectBlocks(deviceTypes.flat(), options, this)
   return templateUtil.templatePromise(this.global, promise)
@@ -374,7 +374,7 @@ async function zcl_device_types(options) {
 async function zcl_device_type_clusters(options) {
   let clusters = await queryDeviceType.selectDeviceTypeClustersByDeviceTypeRef(
     this.global.db,
-    this.id,
+    this.id
   )
 
   let promise = templateUtil.collectBlocks(clusters, options, this)
@@ -390,7 +390,7 @@ async function zcl_device_type_clusters(options) {
 async function zcl_device_type_cluster_commands(options) {
   let commands = await queryDeviceType.selectDeviceTypeCommandsByDeviceTypeRef(
     this.global.db,
-    this.deviceTypeRef,
+    this.deviceTypeRef
   )
   commands = commands.filter((x) => x.deviceTypeClusterRef == this.id)
   let promise = templateUtil.collectBlocks(commands, options, this)
@@ -407,7 +407,7 @@ async function zcl_device_type_cluster_attributes(options) {
   let attributes =
     await queryDeviceType.selectDeviceTypeAttributesByDeviceTypeRef(
       this.global.db,
-      this.deviceTypeRef,
+      this.deviceTypeRef
     )
   attributes = attributes.filter((x) => x.deviceTypeClusterRef == this.id)
   let promise = templateUtil.collectBlocks(attributes, options, this)
@@ -423,7 +423,7 @@ async function zcl_device_type_cluster_attributes(options) {
 async function zcl_clusters(options) {
   let packageIds = await templateUtil.ensureZclPackageIds(this)
   let cl = await Promise.all(
-    packageIds.map((id) => queryZcl.selectAllClusters(this.global.db, id)),
+    packageIds.map((id) => queryZcl.selectAllClusters(this.global.db, id))
   )
   let promise = templateUtil.collectBlocks(cl.flat(), options, this)
   return templateUtil.templatePromise(this.global, promise)
@@ -447,7 +447,7 @@ function zcl_commands(options) {
         return queryCommand.selectCommandsByClusterId(
           this.global.db,
           this.id,
-          packageIds,
+          packageIds
         )
       } else {
         return queryCommand.selectAllCommands(this.global.db, packageIds)
@@ -478,7 +478,7 @@ async function zcl_command_responses(options) {
     cmds = await queryCommand.selectCommandsByClusterId(
       this.global.db,
       this.id,
-      packageIds,
+      packageIds
     )
   } else {
     cmds = await queryCommand.selectAllCommands(this.global.db, packageIds)
@@ -499,7 +499,7 @@ async function zcl_commands_with_cluster_info(options) {
   let packageIds = await templateUtil.ensureZclPackageIds(this)
   let cmds = await queryCommand.selectAllCommandsWithClusterInfo(
     this.global.db,
-    packageIds,
+    packageIds
   )
   let promise = templateUtil.collectBlocks(cmds, options, this)
   return templateUtil.templatePromise(this.global, promise)
@@ -518,14 +518,14 @@ async function zcl_commands_with_arguments(options) {
     packageIds.map(async (packageId) => {
       let cmdsPerPackageId = await queryCommand.selectAllCommandsWithArguments(
         this.global.db,
-        packageId,
+        packageId
       )
       if ('signature' == sortBy) {
         for (const cmd of cmdsPerPackageId) {
           let sig = await zclUtil.createCommandSignature(
             this.global.db,
             packageId,
-            cmd,
+            cmd
           )
           cmd.signature = sig.signature
           cmd.isSignatureSimple = sig.isSimple
@@ -538,7 +538,7 @@ async function zcl_commands_with_arguments(options) {
       }
 
       return cmdsPerPackageId
-    }),
+    })
   ).then((x) => x.flat())
 
   let promise = templateUtil.collectBlocks(cmds, options, this)
@@ -566,13 +566,13 @@ function zcl_commands_by_source(options, source) {
           this.global.db,
           this.id,
           source,
-          packageIds,
+          packageIds
         )
       } else {
         return queryCommand.selectAllCommandsBySource(
           this.global.db,
           source,
-          packageIds,
+          packageIds
         )
       }
     })
@@ -623,7 +623,7 @@ async function zcl_events(options) {
     events = await queryEvent.selectEventsByClusterId(
       this.global.db,
       this.id,
-      packageIds,
+      packageIds
     )
   } else {
     events = await queryEvent.selectAllEvents(this.global.db, packageIds)
@@ -632,7 +632,7 @@ async function zcl_events(options) {
   let ps = events.map(async (ev) => {
     ev.items = await queryEvent.selectEventFieldsByEventId(
       this.global.db,
-      ev.id,
+      ev.id
     )
   })
   await Promise.all(ps)
@@ -651,7 +651,7 @@ function zcl_command_tree(options) {
   let promise = templateUtil
     .ensureZclPackageIds(this)
     .then((packageIds) =>
-      queryCommand.selectCommandTree(this.global.db, packageIds),
+      queryCommand.selectCommandTree(this.global.db, packageIds)
     )
     .then((cmds) => {
       // Now reduce the array by collecting together arguments.
@@ -683,7 +683,7 @@ function zcl_command_tree(options) {
             type: el.argType,
             isArray: el.argIsArray,
             hasLength: el.argIsArray,
-            nameLength: el.argName.concat('Len'),
+            nameLength: el.argName.concat('Len')
           }
           if (el.argIsArray) {
             arg.formatChar = 'b'
@@ -721,7 +721,7 @@ function zcl_command_tree(options) {
           if (arg != null) {
             lastCommand.commandArgs.push(arg)
             lastCommand.argsstring = lastCommand.argsstring.concat(
-              arg.formatChar,
+              arg.formatChar
             )
           }
         }
@@ -742,7 +742,7 @@ function zcl_global_commands(options) {
   let promise = templateUtil
     .ensureZclPackageIds(this)
     .then((packageIds) =>
-      queryCommand.selectAllGlobalCommands(this.global.db, packageIds),
+      queryCommand.selectAllGlobalCommands(this.global.db, packageIds)
     )
     .then((cmds) => templateUtil.collectBlocks(cmds, options, this))
   return templateUtil.templatePromise(this.global, promise)
@@ -766,13 +766,13 @@ async function zcl_attributes(options) {
     attributes = await queryZcl.selectAttributesByClusterIdIncludingGlobal(
       this.global.db,
       this.id,
-      packageIds,
+      packageIds
     )
     attributes = await upgrade.computeStoragePolicyForGlobalAttributes(
       this.global.db,
       this.id,
       attributes,
-      packageIds,
+      packageIds
     )
   } else {
     attributes = await queryZcl.selectAllAttributes(this.global.db, packageIds)
@@ -801,19 +801,19 @@ async function zcl_attributes_client(options) {
         this.global.db,
         this.id,
         packageIds,
-        dbEnum.side.client,
+        dbEnum.side.client
       )
     clientAttributes = await upgrade.computeStoragePolicyForGlobalAttributes(
       this.global.db,
       this.id,
       clientAttributes,
-      packageIds,
+      packageIds
     )
   } else {
     clientAttributes = await queryZcl.selectAllAttributesBySide(
       this.global.db,
       dbEnum.side.client,
-      packageIds,
+      packageIds
     )
   }
   let promise = templateUtil.collectBlocks(clientAttributes, options, this)
@@ -843,19 +843,19 @@ async function zcl_attributes_server(options) {
         this.global.db,
         this.id,
         packageIds,
-        dbEnum.side.server,
+        dbEnum.side.server
       )
     serverAttributes = await upgrade.computeStoragePolicyForGlobalAttributes(
       this.global.db,
       this.id,
       serverAttributes,
-      packageIds,
+      packageIds
     )
   } else {
     serverAttributes = await queryZcl.selectAllAttributesBySide(
       this.global.db,
       dbEnum.side.server,
-      packageIds,
+      packageIds
     )
   }
   if ('removeKeys' in options.hash) {
@@ -878,9 +878,9 @@ async function zcl_atomics(options) {
     .then((packageIds) =>
       Promise.all(
         packageIds.map((packageId) =>
-          queryZcl.selectAllAtomics(this.global.db, packageId),
-        ),
-      ),
+          queryZcl.selectAllAtomics(this.global.db, packageId)
+        )
+      )
     )
     .then((x) => x.flat())
     .then((ats) => templateUtil.collectBlocks(ats, options, this))
@@ -899,9 +899,9 @@ async function zcl_cluster_largest_label_length() {
     .then((packageIds) =>
       Promise.all(
         packageIds.map((packageId) =>
-          queryZcl.selectAllClusters(this.global.db, packageId),
-        ),
-      ),
+          queryZcl.selectAllClusters(this.global.db, packageId)
+        )
+      )
     )
     .then((cls) => cls.flat())
     .then((cl) => largestLabelLength(cl))
@@ -928,7 +928,7 @@ function largestLabelLength(arrayOfClusters) {
 function zcl_command_arguments_count(commandId) {
   let promise = queryCommand.selectCommandArgumentsCountByCommandId(
     this.global.db,
-    commandId,
+    commandId
   )
   return templateUtil.templatePromise(this.global, promise)
 }
@@ -946,11 +946,11 @@ async function ifCommandArgumentsHaveFixedLengthWithCurrentContext(
   commandId,
   fixedLengthReturn,
   notFixedLengthReturn,
-  currentContext,
+  currentContext
 ) {
   let commandArgs = await queryCommand.selectCommandArgumentsByCommandId(
     currentContext.global.db,
-    commandId,
+    commandId
   )
 
   let isFixedLength = true
@@ -983,13 +983,13 @@ async function ifCommandArgumentsHaveFixedLengthWithCurrentContext(
 function if_command_arguments_have_fixed_length(
   commandId,
   fixedLengthReturn,
-  notFixedLengthReturn,
+  notFixedLengthReturn
 ) {
   return ifCommandArgumentsHaveFixedLengthWithCurrentContext(
     commandId,
     fixedLengthReturn,
     notFixedLengthReturn,
-    this,
+    this
   )
 }
 
@@ -1009,7 +1009,7 @@ function as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument
   command,
   commandArg,
   appendString,
-  options,
+  options
 ) {
   return queryCommand
     .selectCommandArgumentsByCommandId(this.global.db, command)
@@ -1028,7 +1028,7 @@ function as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument
             }
           }
           resolve(true)
-        }),
+        })
     )
     .then((isFixedLengthCommand) => {
       if (isFixedLengthCommand) {
@@ -1048,8 +1048,8 @@ function as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument
               type,
               options,
               packageIds,
-              this,
-            ),
+              this
+            )
           )
       }
       return ''
@@ -1058,7 +1058,7 @@ function as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument
     .catch((err) => {
       env.logError(
         'Failure in as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present: ' +
-          err,
+          err
       )
     })
 }
@@ -1077,13 +1077,13 @@ function as_underlying_zcl_type_if_command_is_not_fixed_length(
   type,
   commandId,
   appendString,
-  options,
+  options
 ) {
   let promise = ifCommandArgumentsHaveFixedLengthWithCurrentContext(
     commandId,
     true,
     false,
-    this,
+    this
   )
     .then((res) => {
       if (res) {
@@ -1096,8 +1096,8 @@ function as_underlying_zcl_type_if_command_is_not_fixed_length(
               type,
               options,
               packageIds,
-              this,
-            ),
+              this
+            )
           )
       }
     })
@@ -1134,20 +1134,20 @@ function command_arguments_total_length(commandId) {
                 argType,
                 argOptions,
                 packageIds,
-                this,
-              ),
+                this
+              )
             )
           argsLength.push(argLength)
         }
         resolve(argsLength)
       }).then((argsLength) => {
         return Promise.all(argsLength).then((lengths) =>
-          lengths.reduce((a, b) => a + b, 0),
+          lengths.reduce((a, b) => a + b, 0)
         )
-      }),
+      })
     )
     .catch((err) =>
-      env.logError('Unable to get the length of the command arguments: ' + err),
+      env.logError('Unable to get the length of the command arguments: ' + err)
     )
 }
 
@@ -1170,12 +1170,12 @@ async function zcl_command_arguments(options) {
       // We're functioning inside a nested context with an id, so we will only query for this cluster.
       commandArgs = await queryCommand.selectCommandArgumentsByCommandId(
         this.global.db,
-        this.id,
+        this.id
       )
     } else {
       commandArgs = await queryCommand.selectAllCommandArguments(
         this.global.db,
-        packageIds,
+        packageIds
       )
     }
   }
@@ -1185,7 +1185,7 @@ async function zcl_command_arguments(options) {
       this.global.db,
       commandArgs[i].type,
       packageIds,
-      options,
+      options
     )
     commandArgs[i].typeSize = sizeAndSign.dataTypesize
     commandArgs[i].typeIsSigned = sizeAndSign.isTypeSigned
@@ -1216,7 +1216,7 @@ function zcl_event_fields(options) {
   }
 
   let promise = p.then((fields) =>
-    templateUtil.collectBlocks(fields, options, this),
+    templateUtil.collectBlocks(fields, options, this)
   )
   return templateUtil.templatePromise(this.global, promise)
 }
@@ -1234,7 +1234,7 @@ function zcl_command_argument_data_type(type, options) {
       Promise.all([
         zclUtil.isEnum(this.global.db, type, packageIds),
         zclUtil.isStruct(this.global.db, type, packageIds),
-        zclUtil.isBitmap(this.global.db, type, packageIds),
+        zclUtil.isBitmap(this.global.db, type, packageIds)
       ])
         .then(
           (res) =>
@@ -1246,7 +1246,7 @@ function zcl_command_argument_data_type(type, options) {
                 }
               }
               resolve(dbEnum.zclType.unknown)
-            }),
+            })
         )
         .then((resType) => {
           switch (resType) {
@@ -1254,13 +1254,13 @@ function zcl_command_argument_data_type(type, options) {
               return helperC.data_type_for_bitmap(
                 this.global.db,
                 type,
-                packageIds,
+                packageIds
               )
             case dbEnum.zclType.enum:
               return helperC.data_type_for_enum(
                 this.global.db,
                 type,
-                packageIds,
+                packageIds
               )
             case dbEnum.zclType.struct:
               return options.hash.struct
@@ -1273,7 +1273,7 @@ function zcl_command_argument_data_type(type, options) {
         .catch((err) => {
           env.logError(err)
           throw err
-        }),
+        })
     )
     .catch((err) => {
       env.logError(err)
@@ -1371,12 +1371,12 @@ async function if_is_number(type, options) {
         ? queryZcl.selectNumberByName(
             this.global.db,
             packageIds,
-            type.toLowerCase(),
+            type.toLowerCase()
           )
-        : null,
+        : null
     )
     .then((res) =>
-      res ? res : queryZcl.selectNumberById(this.global.db, type),
+      res ? res : queryZcl.selectNumberById(this.global.db, type)
     )
     .then((res) => (res ? options.fn(this) : options.inverse(this)))
   return templateUtil.templatePromise(this.global, promise)
@@ -1403,12 +1403,12 @@ function if_is_string(type, options) {
         ? queryZcl.selectStringByName(
             this.global.db,
             type.toLowerCase(),
-            packageIds,
+            packageIds
           )
-        : null,
+        : null
     )
     .then((res) =>
-      res ? res : queryZcl.selectStringById(this.global.db, type),
+      res ? res : queryZcl.selectStringById(this.global.db, type)
     )
     .then((res) => (res ? options.fn(this) : options.inverse(this)))
   return templateUtil.templatePromise(this.global, promise)
@@ -1436,17 +1436,17 @@ function if_is_char_string(type, options) {
         ? queryZcl.selectStringByName(
             this.global.db,
             type.toLowerCase(),
-            packageIds,
+            packageIds
           )
-        : null,
+        : null
     )
     .then((res) =>
-      res ? res : queryZcl.selectStringById(this.global.db, type),
+      res ? res : queryZcl.selectStringById(this.global.db, type)
     )
     .then((res) =>
       res && res.name && characterStringTypes.includes(res.name.toUpperCase())
         ? options.fn(this)
-        : options.inverse(this),
+        : options.inverse(this)
     )
   return templateUtil.templatePromise(this.global, promise)
 }
@@ -1473,17 +1473,17 @@ function if_is_octet_string(type, options) {
         ? queryZcl.selectStringByName(
             this.global.db,
             type.toLowerCase(),
-            packageIds,
+            packageIds
           )
-        : null,
+        : null
     )
     .then((res) =>
-      res ? res : queryZcl.selectStringById(this.global.db, type),
+      res ? res : queryZcl.selectStringById(this.global.db, type)
     )
     .then((res) =>
       res && res.name && octetStringTypes.includes(res.name.toUpperCase())
         ? options.fn(this)
-        : options.inverse(this),
+        : options.inverse(this)
     )
   return templateUtil.templatePromise(this.global, promise)
 }
@@ -1510,17 +1510,17 @@ function if_is_short_string(type, options) {
         ? queryZcl.selectStringByName(
             this.global.db,
             type.toLowerCase(),
-            packageIds,
+            packageIds
           )
-        : null,
+        : null
     )
     .then((res) =>
-      res ? res : queryZcl.selectStringById(this.global.db, type),
+      res ? res : queryZcl.selectStringById(this.global.db, type)
     )
     .then((res) =>
       res && res.name && stringShortTypes.includes(res.name.toUpperCase())
         ? options.fn(this)
-        : options.inverse(this),
+        : options.inverse(this)
     )
   return templateUtil.templatePromise(this.global, promise)
 }
@@ -1547,17 +1547,17 @@ function if_is_long_string(type, options) {
         ? queryZcl.selectStringByName(
             this.global.db,
             type.toLowerCase(),
-            packageIds,
+            packageIds
           )
-        : null,
+        : null
     )
     .then((res) =>
-      res ? res : queryZcl.selectStringById(this.global.db, type),
+      res ? res : queryZcl.selectStringById(this.global.db, type)
     )
     .then((res) =>
       res && res.name && stringLongTypes.includes(res.name.toUpperCase())
         ? options.fn(this)
-        : options.inverse(this),
+        : options.inverse(this)
     )
   return templateUtil.templatePromise(this.global, promise)
 }
@@ -1581,11 +1581,11 @@ async function if_is_atomic(type, options) {
     result = await templateUtil
       .ensureZclPackageIds(this)
       .then((packageIds) =>
-        queryZcl.selectAtomicType(this.global.db, packageIds, type),
+        queryZcl.selectAtomicType(this.global.db, packageIds, type)
       )
   } else {
     env.logWarning(
-      'Passing a type which is invlaid for if_is_atomic helper: ' + type,
+      'Passing a type which is invlaid for if_is_atomic helper: ' + type
     )
   }
   if (result) {
@@ -1614,15 +1614,15 @@ async function if_is_bitmap(type, options) {
     .then((packageIds) =>
       type && typeof type === 'string'
         ? queryZcl.selectBitmapByName(this.global.db, packageIds, type)
-        : null,
+        : null
     )
     .then((res) =>
-      res ? res : queryZcl.selectBitmapById(this.global.db, type),
+      res ? res : queryZcl.selectBitmapById(this.global.db, type)
     )
     .then((res) =>
       res || (typeof type === 'string' && type.startsWith('map'))
         ? options.fn(this)
-        : options.inverse(this),
+        : options.inverse(this)
     )
   return templateUtil.templatePromise(this.global, promise)
 }
@@ -1646,7 +1646,7 @@ async function if_is_enum(type, options) {
     .then((packageIds) =>
       type && typeof type === 'string'
         ? queryZcl.selectEnumByName(this.global.db, type, packageIds)
-        : null,
+        : null
     )
     .then((res) => (res ? res : queryZcl.selectEnumById(this.global.db, type)))
     .then((res) => (res ? options.fn(this) : options.inverse(this)))
@@ -1672,10 +1672,10 @@ async function if_is_struct(type, options) {
     .then((packageIds) =>
       type && typeof type === 'string'
         ? queryZcl.selectStructByName(this.global.db, type, packageIds)
-        : null,
+        : null
     )
     .then((res) =>
-      res ? res : queryZcl.selectStructById(this.global.db, type),
+      res ? res : queryZcl.selectStructById(this.global.db, type)
     )
     .then((res) => (res ? options.fn(this) : options.inverse(this)))
   return templateUtil.templatePromise(this.global, promise)
@@ -1752,13 +1752,13 @@ function as_underlying_zcl_type_command_argument_always_present(
   introducedInRef,
   removedInRef,
   presentIf,
-  options,
+  options
 ) {
   let promise = ifCommandArgumentsHaveFixedLengthWithCurrentContext(
     commandId,
     true,
     false,
-    this,
+    this
   )
     .then((res) => {
       if (res) {
@@ -1777,8 +1777,8 @@ function as_underlying_zcl_type_command_argument_always_present(
                 type,
                 options,
                 packageIds,
-                this,
-              ),
+                this
+              )
             )
         }
       }
@@ -1811,13 +1811,13 @@ function if_command_argument_always_present(
   removedInRef,
   presentIf,
   argumentPresentReturn,
-  argumentNotPresentReturn,
+  argumentNotPresentReturn
 ) {
   return ifCommandArgumentsHaveFixedLengthWithCurrentContext(
     commandId,
     true,
     false,
-    this,
+    this
   ).then((res) => {
     if (res) {
       return '' // Return nothing since command is a fixed length command
@@ -1856,13 +1856,13 @@ function as_underlying_zcl_type_command_argument_not_always_present_no_presentif
   introducedInRef,
   removedInRef,
   presentIf,
-  options,
+  options
 ) {
   let promise = ifCommandArgumentsHaveFixedLengthWithCurrentContext(
     commandId,
     true,
     false,
-    this,
+    this
   )
     .then((res) => {
       if (res) {
@@ -1877,8 +1877,8 @@ function as_underlying_zcl_type_command_argument_not_always_present_no_presentif
                 type,
                 options,
                 packageIds,
-                this,
-              ),
+                this
+              )
             )
         } else {
           return ''
@@ -1906,7 +1906,7 @@ function as_underlying_zcl_type_command_argument_not_always_present_no_presentif
 function as_underlying_zcl_type_ca_not_always_present_no_presentif(
   commandArg,
   appendString,
-  options,
+  options
 ) {
   // Return the underlying zcl type since command argument is not always
   // present and there is no present if conditionality
@@ -1921,14 +1921,14 @@ function as_underlying_zcl_type_ca_not_always_present_no_presentif(
           commandArg.type,
           options,
           packageIds,
-          this,
-        ),
+          this
+        )
       ) // Adding the appendString for the underlying zcl type
       .then((res) => (res ? res + appendString : res))
       .catch((err) => {
         env.logError(
           'Error in as_underlying_zcl_type_ca_not_always_present_no_presentif ' +
-            err,
+            err
         )
         throw err
       })
@@ -1957,13 +1957,13 @@ function if_command_argument_not_always_present_no_presentif(
   removedInRef,
   presentIf,
   argumentNotInAllVersionsReturn,
-  argumentInAllVersionsReturn,
+  argumentInAllVersionsReturn
 ) {
   return ifCommandArgumentsHaveFixedLengthWithCurrentContext(
     commandId,
     true,
     false,
-    this,
+    this
   ).then((res) => {
     if (res) {
       return '' // Return nothing since it is a fixed length command
@@ -2001,13 +2001,13 @@ function as_underlying_zcl_type_command_argument_not_always_present_with_present
   introducedInRef,
   removedInRef,
   presentIf,
-  options,
+  options
 ) {
   let promise = ifCommandArgumentsHaveFixedLengthWithCurrentContext(
     commandId,
     true,
     false,
-    this,
+    this
   )
     .then((res) => {
       if (res) {
@@ -2022,8 +2022,8 @@ function as_underlying_zcl_type_command_argument_not_always_present_with_present
                 type,
                 options,
                 packageIds,
-                this,
-              ),
+                this
+              )
             )
         } else {
           return ''
@@ -2051,7 +2051,7 @@ function as_underlying_zcl_type_command_argument_not_always_present_with_present
 function as_underlying_zcl_type_ca_not_always_present_with_presentif(
   commandArg,
   appendString,
-  options,
+  options
 ) {
   // Return the underlying zcl type since command argument is not always
   // present and there is a present if conditionality
@@ -2066,14 +2066,14 @@ function as_underlying_zcl_type_ca_not_always_present_with_presentif(
           commandArg.type,
           options,
           packageIds,
-          this,
-        ),
+          this
+        )
       ) // Adding the appendString for the underlying zcl type
       .then((res) => (res ? res + appendString : res))
       .catch((err) => {
         env.logError(
           'Error in as_underlying_zcl_type_ca_not_always_present_with_presentif ' +
-            err,
+            err
         )
         throw err
       })
@@ -2102,13 +2102,13 @@ function if_command_argument_not_always_present_with_presentif(
   removedInRef,
   presentIf,
   argumentNotInAllVersionsPresentIfReturn,
-  argumentInAllVersionsReturn,
+  argumentInAllVersionsReturn
 ) {
   return ifCommandArgumentsHaveFixedLengthWithCurrentContext(
     commandId,
     true,
     false,
-    this,
+    this
   ).then((res) => {
     if (res) {
       return '' // Return nothing since it is a fixed length command
@@ -2146,13 +2146,13 @@ function as_underlying_zcl_type_command_argument_always_present_with_presentif(
   introducedInRef,
   removedInRef,
   presentIf,
-  options,
+  options
 ) {
   let promise = ifCommandArgumentsHaveFixedLengthWithCurrentContext(
     commandId,
     true,
     false,
-    this,
+    this
   )
     .then((res) => {
       if (res) {
@@ -2167,8 +2167,8 @@ function as_underlying_zcl_type_command_argument_always_present_with_presentif(
                 type,
                 options,
                 packageIds,
-                this,
-              ),
+                this
+              )
             )
         } else {
           return ''
@@ -2196,7 +2196,7 @@ function as_underlying_zcl_type_command_argument_always_present_with_presentif(
 function as_underlying_zcl_type_ca_always_present_with_presentif(
   commandArg,
   appendString,
-  options,
+  options
 ) {
   // Return the underlying zcl type since command argument is always
   // present and there is a present if conditionality
@@ -2211,14 +2211,14 @@ function as_underlying_zcl_type_ca_always_present_with_presentif(
           commandArg.type,
           options,
           packageIds,
-          this,
-        ),
+          this
+        )
       ) // Adding the appendString for the underlying zcl type
       .then((res) => (res ? res + appendString : res))
       .catch((err) => {
         env.logError(
           'Error in as_underlying_zcl_type_ca_always_present_with_presentif ' +
-            err,
+            err
         )
         throw err
       })
@@ -2246,13 +2246,13 @@ async function if_command_argument_always_present_with_presentif(
   removedInRef,
   presentIf,
   argumentInAllVersionsPresentIfReturn,
-  argumentNotAlwaysThereReturn,
+  argumentNotAlwaysThereReturn
 ) {
   let res = await ifCommandArgumentsHaveFixedLengthWithCurrentContext(
     commandId,
     true,
     false,
-    this,
+    this
   )
   if (res) {
     return '' // Return nothing since it is a fixed length command
@@ -2277,7 +2277,7 @@ async function if_command_argument_always_present_with_presentif(
 function if_manufacturing_specific_cluster(
   clusterId,
   manufacturer_specific_return,
-  null_manufacturer_specific_return,
+  null_manufacturer_specific_return
 ) {
   let promise = templateUtil
     .ensureZclPackageIds(this)
@@ -2339,7 +2339,7 @@ async function as_generated_default_macro(value, attributeSize, options) {
       return format_zcl_string_as_characters_for_generated_defaults(
         value,
         attributeSize,
-        options,
+        options
       )
     }
     // Float value
@@ -2405,7 +2405,7 @@ async function attribute_mask(
   isSingleton,
   prefixString,
   postfixString,
-  options,
+  options
 ) {
   let isClusterCodeMfgSpecific =
     options && 'isClusterCodeMfgSpecific' in options.hash
@@ -2480,7 +2480,7 @@ async function command_mask(
   isIncomingEnabled,
   isOutgoingEnabled,
   manufacturingCode,
-  prefixForMask,
+  prefixForMask
 ) {
   let commandMask = ''
   if (isClient(commmandSource)) {
@@ -2490,7 +2490,7 @@ async function command_mask(
     ) {
       commandMask += command_mask_sub_helper(
         commandMask,
-        prefixForMask + 'INCOMING_SERVER',
+        prefixForMask + 'INCOMING_SERVER'
       )
     }
     if (
@@ -2499,7 +2499,7 @@ async function command_mask(
     ) {
       commandMask += command_mask_sub_helper(
         commandMask,
-        prefixForMask + 'OUTGOING_CLIENT',
+        prefixForMask + 'OUTGOING_CLIENT'
       )
     }
   } else {
@@ -2509,7 +2509,7 @@ async function command_mask(
     ) {
       commandMask += command_mask_sub_helper(
         commandMask,
-        prefixForMask + 'INCOMING_CLIENT',
+        prefixForMask + 'INCOMING_CLIENT'
       )
     }
     if (
@@ -2518,14 +2518,14 @@ async function command_mask(
     ) {
       commandMask += command_mask_sub_helper(
         commandMask,
-        prefixForMask + 'OUTGOING_SERVER',
+        prefixForMask + 'OUTGOING_SERVER'
       )
     }
   }
   if (manufacturingCode && commandMask) {
     commandMask += command_mask_sub_helper(
       commandMask,
-      prefixForMask + 'MANUFACTURER_SPECIFIC',
+      prefixForMask + 'MANUFACTURER_SPECIFIC'
     )
   }
   return commandMask
@@ -2565,14 +2565,14 @@ function command_mask_sub_helper(commandMask, str) {
 async function format_zcl_string_as_characters_for_generated_defaults(
   stringVal,
   sizeOfString,
-  options,
+  options
 ) {
   let isOctet = 'isOctet' in options.hash ? options.hash.isOctet : false
   let isCommaTerminated =
     'isCommaTerminated' in options.hash ? options.hash.isCommaTerminated : true
   let lengthOfString = types.convertIntToBigEndian(
     stringVal.length,
-    sizeOfString < 255 ? 1 : 2,
+    sizeOfString < 255 ? 1 : 2
   )
   lengthOfString = lengthOfString.replace('0x', '').match(/.{1,2}/g)
   let lengthPrefix = ''
@@ -2615,8 +2615,8 @@ async function as_type_min_value(type, options) {
     type,
     packageIds,
     {
-      size: 'bits',
-    },
+      size: 'bits'
+    }
   )
   let isTypeSigned = signAndSize.isTypeSigned
   let dataTypesize = signAndSize.dataTypesize
@@ -2639,7 +2639,7 @@ async function as_type_min_value(type, options) {
   } else {
     throw new Error(
       'Minimum value cannot be determined by as_type_min_value \
-due to no language option specified in the template',
+due to no language option specified in the template'
     )
   }
 }
@@ -2664,8 +2664,8 @@ async function as_type_max_value(type, options) {
     type,
     packageIds,
     {
-      size: 'bits',
-    },
+      size: 'bits'
+    }
   )
   let isTypeSigned = signAndSize.isTypeSigned
   let dataTypesize = signAndSize.dataTypesize
@@ -2693,7 +2693,7 @@ async function as_type_max_value(type, options) {
   } else {
     throw new Error(
       'Maximum value cannot be determined by as_type_max_value \
-due to no language option specified in the template',
+due to no language option specified in the template'
     )
   }
 }
@@ -2712,7 +2712,7 @@ async function structs_with_clusters(options) {
   let structs = await queryZcl.selectStructsWithClusterAssociation(
     this.global.db,
     packageIds,
-    options.hash.groupByStructName,
+    options.hash.groupByStructName
   )
   let promise = templateUtil.collectBlocks(structs, options, this)
   return templateUtil.templatePromise(this.global, promise)
@@ -2729,7 +2729,7 @@ async function as_zcl_type_size(type, options) {
   let signAndSize = await types.getSignAndSizeOfZclType(
     this.global.db,
     type,
-    packageIds,
+    packageIds
   )
   let dataTypesize = signAndSize.dataTypesize
   if (dataTypesize != 0) {
@@ -2756,7 +2756,7 @@ async function as_zcl_type_size(type, options) {
 function if_compare(leftValue, rightValue, options) {
   if (arguments.length != 3) {
     throw new Error(
-      'if_compare needs left value, right value and a comparison operator under operator=',
+      'if_compare needs left value, right value and a comparison operator under operator='
     )
   }
   let result = false
@@ -2788,7 +2788,7 @@ function if_compare(leftValue, rightValue, options) {
       break
     default:
       throw new Error(
-        'if_compare does not recognize the operator: ' + options.hash.operator,
+        'if_compare does not recognize the operator: ' + options.hash.operator
       )
   }
 
@@ -2816,7 +2816,7 @@ async function if_is_data_type_signed(type, clusterId, options) {
     this.global.db,
     type,
     clusterId,
-    packageIds,
+    packageIds
   )
 
   let sizeAndSign = await zclUtil.zcl_data_type_size_and_sign(
@@ -2824,7 +2824,7 @@ async function if_is_data_type_signed(type, clusterId, options) {
     dataType,
     clusterId,
     packageIds,
-    this,
+    this
   )
   if (sizeAndSign.isSigned) {
     return options.fn(this)
@@ -2862,7 +2862,7 @@ async function as_zcl_data_type_size(type, clusterId, options) {
     this.global.db,
     type,
     clusterId,
-    packageIds,
+    packageIds
   )
 
   let sizeAndSign = await zclUtil.zcl_data_type_size_and_sign(
@@ -2870,7 +2870,7 @@ async function as_zcl_data_type_size(type, clusterId, options) {
     dataType,
     clusterId,
     packageIds,
-    this,
+    this
   )
   result = sizeAndSign.size
   result =
@@ -2928,12 +2928,12 @@ exports.isStrEqual = dep(isStrEqual, { to: 'is_str_equal' })
 
 exports.is_last_element = isLastElement
 exports.isLastElement = dep(isLastElement, {
-  to: 'is_last_element',
+  to: 'is_last_element'
 })
 
 exports.is_first_element = isFirstElement
 exports.isFirstElement = dep(isFirstElement, {
-  to: 'is_first_element',
+  to: 'is_first_element'
 })
 
 exports.is_enabled = isEnabled
@@ -2941,12 +2941,12 @@ exports.isEnabled = dep(isEnabled, { to: 'is_enabled' })
 
 exports.is_command_available = isCommandAvailable
 exports.isCommandAvailable = dep(isCommandAvailable, {
-  to: 'is_command_available',
+  to: 'is_command_available'
 })
 
 exports.as_underlying_zcl_type = asUnderlyingZclType
 exports.asUnderlyingZclType = dep(asUnderlyingZclType, {
-  to: 'as_underlying_zcl_type',
+  to: 'as_underlying_zcl_type'
 })
 
 exports.if_is_bitmap = if_is_bitmap
@@ -2967,7 +2967,7 @@ exports.isEvent = dep(zclUtil.isEvent, { to: 'is_event' })
 
 exports.if_manufacturing_specific_cluster = dep(
   if_manufacturing_specific_cluster,
-  { to: 'if_mfg_specific_cluster' },
+  { to: 'if_mfg_specific_cluster' }
 )
 exports.zcl_string_type_return = zcl_string_type_return
 exports.is_zcl_string = is_zcl_string
@@ -2979,39 +2979,39 @@ exports.as_underlying_zcl_type_if_command_is_not_fixed_length =
 exports.if_command_argument_always_present = dep(
   if_command_argument_always_present,
   {
-    to: 'if_command_is_not_fixed_length_but_command_argument_is_always_present',
-  },
+    to: 'if_command_is_not_fixed_length_but_command_argument_is_always_present'
+  }
 )
 exports.as_underlying_zcl_type_command_argument_always_present = dep(
   as_underlying_zcl_type_command_argument_always_present,
   {
-    to: 'as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present',
-  },
+    to: 'as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present'
+  }
 )
 exports.if_command_argument_always_present_with_presentif = dep(
   if_command_argument_always_present_with_presentif,
-  { to: 'if_ca_always_present_with_presentif' },
+  { to: 'if_ca_always_present_with_presentif' }
 )
 exports.as_underlying_zcl_type_command_argument_always_present_with_presentif =
   dep(as_underlying_zcl_type_command_argument_always_present_with_presentif, {
-    to: 'as_underlying_zcl_type_ca_always_present_with_presentif',
+    to: 'as_underlying_zcl_type_ca_always_present_with_presentif'
   })
 exports.if_command_argument_not_always_present_with_presentif = dep(
   if_command_argument_not_always_present_with_presentif,
-  { to: 'if_ca_not_always_present_with_presentif' },
+  { to: 'if_ca_not_always_present_with_presentif' }
 )
 exports.as_underlying_zcl_type_command_argument_not_always_present_with_presentif =
   dep(
     as_underlying_zcl_type_command_argument_not_always_present_with_presentif,
-    { to: 'as_underlying_zcl_type_ca_not_always_present_with_presentif' },
+    { to: 'as_underlying_zcl_type_ca_not_always_present_with_presentif' }
   )
 exports.if_command_argument_not_always_present_no_presentif = dep(
   if_command_argument_not_always_present_no_presentif,
-  { to: 'if_ca_not_always_present_no_presentif' },
+  { to: 'if_ca_not_always_present_no_presentif' }
 )
 exports.as_underlying_zcl_type_command_argument_not_always_present_no_presentif =
   dep(as_underlying_zcl_type_command_argument_not_always_present_no_presentif, {
-    to: 'as_underlying_zcl_type_ca_not_always_present_no_presentif',
+    to: 'as_underlying_zcl_type_ca_not_always_present_no_presentif'
   })
 exports.as_generated_default_macro = as_generated_default_macro
 exports.attribute_mask = attribute_mask
@@ -3021,19 +3021,19 @@ exports.format_zcl_string_as_characters_for_generated_defaults =
 exports.as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present =
   dep(
     as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present,
-    'as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present has been deprecated. Use as_underlying_zcl_type and if_command_not_fixed_length_command_argument_always_present instead',
+    'as_underlying_zcl_type_command_is_not_fixed_length_but_command_argument_is_always_present has been deprecated. Use as_underlying_zcl_type and if_command_not_fixed_length_command_argument_always_present instead'
   )
 exports.as_underlying_zcl_type_ca_not_always_present_no_presentif = dep(
   as_underlying_zcl_type_ca_not_always_present_no_presentif,
-  'as_underlying_zcl_type_ca_not_always_present_no_presentif has been deprecated. Use as_underlying_zcl_type and if_command_arg_not_always_present_no_presentif instead',
+  'as_underlying_zcl_type_ca_not_always_present_no_presentif has been deprecated. Use as_underlying_zcl_type and if_command_arg_not_always_present_no_presentif instead'
 )
 exports.as_underlying_zcl_type_ca_not_always_present_with_presentif = dep(
   as_underlying_zcl_type_ca_not_always_present_with_presentif,
-  'as_underlying_zcl_type_ca_not_always_present_with_presentif has been deprecated. Use as_underlying_zcl_type and if_command_arg_not_always_present_with_presentif instead',
+  'as_underlying_zcl_type_ca_not_always_present_with_presentif has been deprecated. Use as_underlying_zcl_type and if_command_arg_not_always_present_with_presentif instead'
 )
 exports.as_underlying_zcl_type_ca_always_present_with_presentif = dep(
   as_underlying_zcl_type_ca_always_present_with_presentif,
-  'as_underlying_zcl_type_ca_always_present_with_presentif has been deprecated. Use as_underlying_zcl_type and if_command_arg_always_present_with_presentif instead.',
+  'as_underlying_zcl_type_ca_always_present_with_presentif has been deprecated. Use as_underlying_zcl_type and if_command_arg_always_present_with_presentif instead.'
 )
 exports.if_is_struct = if_is_struct
 exports.if_mfg_specific_cluster = if_mfg_specific_cluster

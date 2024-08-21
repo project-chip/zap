@@ -56,13 +56,13 @@ function sessionAttempt(db) {
           const zclProperties = await queryPackage.getPackagesByCategoryAndType(
             db,
             dbEnum.packageType.zclProperties,
-            category,
+            category
           )
           const zclGenTemplates =
             await queryPackage.getPackagesByCategoryAndType(
               db,
               dbEnum.packageType.genTemplatesJson,
-              category,
+              category
             )
           const sessions = await querySession.getDirtySessionsWithPackages(db)
           return res.send({
@@ -71,60 +71,60 @@ function sessionAttempt(db) {
             sessions,
             filePath,
             zapFilePackages,
-            open,
+            open
           })
         } else {
           let open = true
           const zclProperties = await queryPackage.getPackagesByType(
             db,
-            dbEnum.packageType.zclProperties,
+            dbEnum.packageType.zclProperties
           )
           const zclGenTemplates = await queryPackage.getPackagesByType(
             db,
-            dbEnum.packageType.genTemplatesJson,
+            dbEnum.packageType.genTemplatesJson
           )
           const sessions = await querySession.getDirtySessionsWithPackages(db)
           return res.send({
             zclGenTemplates,
             zclProperties,
             sessions,
-            open,
+            open
           })
         }
       } else {
         let open = true
         const zclProperties = await queryPackage.getPackagesByType(
           db,
-          dbEnum.packageType.zclProperties,
+          dbEnum.packageType.zclProperties
         )
         const zclGenTemplates = await queryPackage.getPackagesByType(
           db,
-          dbEnum.packageType.genTemplatesJson,
+          dbEnum.packageType.genTemplatesJson
         )
         const sessions = await querySession.getDirtySessionsWithPackages(db)
         return res.send({
           zclGenTemplates,
           zclProperties,
           sessions,
-          open,
+          open
         })
       }
     } else {
       let open = false
       const zclProperties = await queryPackage.getPackagesByType(
         db,
-        dbEnum.packageType.zclProperties,
+        dbEnum.packageType.zclProperties
       )
       const zclGenTemplates = await queryPackage.getPackagesByType(
         db,
-        dbEnum.packageType.genTemplatesJson,
+        dbEnum.packageType.genTemplatesJson
       )
       const sessions = await querySession.getDirtySessionsWithPackages(db)
       return res.send({
         zclGenTemplates,
         zclProperties,
         sessions,
-        open,
+        open
       })
     }
   }
@@ -167,7 +167,7 @@ function sessionCreate(db) {
         .ensureZapUserAndSession(db, userKey, sessionUuid, {
           sessionId: zapSessionId,
           userId: zapUserId,
-          partitions: partitionsLength,
+          partitions: partitionsLength
         })
         .then((result) => {
           req.session.zapUserId = result.userId
@@ -182,12 +182,12 @@ function sessionCreate(db) {
             result.sessionId,
             { partitions: result.partitions },
             pkgArray,
-            genTemplate,
+            genTemplate
           )
         })
     }
     return res.send({
-      message: 'Session created successfully',
+      message: 'Session created successfully'
     })
   }
 }
@@ -205,10 +205,10 @@ function initializeSession(db) {
       req.body.sessionId,
       {},
       req.body.zclProperties,
-      req.body.genTemplate,
+      req.body.genTemplate
     )
     return res.send({
-      message: 'Session created successfully',
+      message: 'Session created successfully'
     })
   }
 }
@@ -227,10 +227,10 @@ function loadPreviousSessions(db) {
       db,
       req.body.sessionId,
       user.userId,
-      sessionUuid,
+      sessionUuid
     )
     return res.send({
-      message: 'Session reloaded successfully',
+      message: 'Session reloaded successfully'
     })
   }
 }
@@ -243,7 +243,7 @@ function loadPreviousSessions(db) {
 function init(db) {
   return async (req, res) => {
     return res.send({
-      message: 'Session initialized',
+      message: 'Session initialized'
     })
   }
 }
@@ -251,22 +251,22 @@ function init(db) {
 exports.post = [
   {
     uri: restApi.uri.reloadSession,
-    callback: loadPreviousSessions,
+    callback: loadPreviousSessions
   },
   {
     uri: restApi.uri.initializeSession,
-    callback: initializeSession,
+    callback: initializeSession
   },
   {
     uri: restApi.uri.sessionCreate,
-    callback: sessionCreate,
+    callback: sessionCreate
   },
   {
     uri: restApi.uri.init,
-    callback: init,
+    callback: init
   },
   {
     uri: restApi.uri.sessionAttempt,
-    callback: sessionAttempt,
-  },
+    callback: sessionAttempt
+  }
 ]

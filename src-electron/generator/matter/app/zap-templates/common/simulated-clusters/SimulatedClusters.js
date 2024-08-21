@@ -25,7 +25,7 @@ const clusterFiles = [
   require('./clusters/DiscoveryCommands'),
   require('./clusters/EqualityCommands'),
   require('./clusters/LogCommands'),
-  require('./clusters/SystemCommands'),
+  require('./clusters/SystemCommands')
 ];
 
 let SimulatedClusters = [];

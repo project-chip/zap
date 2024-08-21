@@ -49,7 +49,7 @@ beforeAll(async () => {
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
     env.schemaFile(),
-    env.zapVersion(),
+    env.zapVersion()
   )
   let ctx = await zclLoader.loadZcl(db, env.builtinMatterZclMetafile())
   zclPackageId = ctx.packageId
@@ -62,7 +62,7 @@ test(
   async () => {
     templateContext = await genEngine.loadTemplates(
       db,
-      testUtil.testTemplate.matter3,
+      testUtil.testTemplate.matter3
     )
 
     expect(templateContext.crc).not.toBeNull()
@@ -72,7 +72,7 @@ test(
     expect(templateContext.templateData.templates.length).toEqual(templateCount)
     expect(templateContext.packageId).not.toBeNull()
   },
-  testUtil.timeout.medium(),
+  testUtil.timeout.medium()
 )
 
 test(
@@ -81,7 +81,7 @@ test(
     let sessionId = await querySession.createBlankSession(db)
 
     await importJs.importDataFromFile(db, testFile, {
-      sessionId: sessionId,
+      sessionId: sessionId
     })
 
     let genResult = await genEngine.generate(
@@ -89,7 +89,7 @@ test(
       sessionId,
       templateContext.packageId,
       {},
-      { disableDeprecationWarnings: true },
+      { disableDeprecationWarnings: true }
     )
     expect(genResult.hasErrors).toEqual(false)
 
@@ -121,14 +121,14 @@ test(
   { ZAP_CLUSTER_INDEX(80), 1, 0 }, \\
 }`)
     expect(ept).toContain(
-      `{ 0x00000005, ZAP_TYPE(ENUM8), 1, ZAP_ATTRIBUTE_MASK(EXTERNAL_STORAGE) | ZAP_ATTRIBUTE_MASK(NULLABLE), ZAP_EMPTY_DEFAULT() }, /* LastNetworkingStatus */`,
+      `{ 0x00000005, ZAP_TYPE(ENUM8), 1, ZAP_ATTRIBUTE_MASK(EXTERNAL_STORAGE) | ZAP_ATTRIBUTE_MASK(NULLABLE), ZAP_EMPTY_DEFAULT() }, /* LastNetworkingStatus */`
     )
     expect(ept).toContain(
-      '{ (uint16_t)0xFF, (uint16_t)0x64, (uint16_t)0xFFFF }, /* BallastFactorAdjustment */',
+      '{ (uint16_t)0xFF, (uint16_t)0x64, (uint16_t)0xFFFF }, /* BallastFactorAdjustment */'
     )
     expect(ept).toContain(`6, 'C', 'o', 'f', 'f', 'e', 'e', \\`)
     expect(ept).toContain(
-      '{ (uint16_t)-0x64, (uint16_t)-0x96, (uint16_t)0xC8 }',
+      '{ (uint16_t)-0x64, (uint16_t)-0x96, (uint16_t)0xC8 }'
     )
     expect(ept).toContain('#define GENERATED_MIN_MAX_DEFAULT_COUNT 51')
     expect(ept).toContain('#define GENERATED_ATTRIBUTE_COUNT 739')
@@ -154,19 +154,19 @@ test(
     expect(ept).toContain('#define ATTRIBUTE_MAX_SIZE (3988)')
     expect(ept).toContain('#define FIXED_ENDPOINT_COUNT (4)')
     expect(ept).toContain(
-      '#define FIXED_ENDPOINT_ARRAY { 0x0000, 0x0001, 0x0002, 0xFFFE }',
+      '#define FIXED_ENDPOINT_ARRAY { 0x0000, 0x0001, 0x0002, 0xFFFE }'
     )
     expect(ept).toContain(
-      '#define FIXED_PROFILE_IDS { 0x0103, 0x0103, 0x0103, 0x0103 }',
+      '#define FIXED_PROFILE_IDS { 0x0103, 0x0103, 0x0103, 0x0103 }'
     )
     expect(ept).toContain(
-      '#define FIXED_PARENT_IDS { kInvalidEndpointId, 0, 1, kInvalidEndpointId }',
+      '#define FIXED_PARENT_IDS { kInvalidEndpointId, 0, 1, kInvalidEndpointId }'
     )
     expect(ept).toContain(
-      '#define FIXED_DEVICE_TYPES {{0x00000016,1},{0x00000100,1},{0x00000100,1},{0x0000F002,1}}',
+      '#define FIXED_DEVICE_TYPES {{0x00000016,1},{0x00000100,1},{0x00000100,1},{0x0000F002,1}}'
     )
     expect(ept).toContain(
-      '#define FIXED_DEVICE_TYPES_WITH_ENDPOINT {{0x00000016,1,0},{0x00000100,1,1},{0x00000100,1,2},{0x0000F002,1,65534}}',
+      '#define FIXED_DEVICE_TYPES_WITH_ENDPOINT {{0x00000016,1,0},{0x00000100,1,1},{0x00000100,1,2},{0x0000F002,1,65534}}'
     )
     expect(ept).toContain('#define FIXED_DEVICE_TYPE_OFFSETS { 0,1,2,3}')
     expect(ept).toContain('#define FIXED_DEVICE_TYPE_LENGTHS { 1,1,1,1}')
@@ -181,7 +181,7 @@ test(
       .clusterId = 0x00000028, \\
     },\\`)
   },
-  testUtil.timeout.long(),
+  testUtil.timeout.long()
 )
 
 test(
@@ -190,7 +190,7 @@ test(
     let sessionId = await querySession.createBlankSession(db)
 
     await importJs.importDataFromFile(db, testFile2, {
-      sessionId: sessionId,
+      sessionId: sessionId
     })
 
     let genResult = await genEngine.generate(
@@ -198,7 +198,7 @@ test(
       sessionId,
       templateContext.packageId,
       {},
-      { disableDeprecationWarnings: true },
+      { disableDeprecationWarnings: true }
     )
     expect(genResult.hasErrors).toEqual(false)
 
@@ -230,17 +230,17 @@ test(
   { ZAP_CLUSTER_INDEX(80), 1, 0 }, \\
 }`)
     expect(ept).toContain(
-      `{ 0x00000005, ZAP_TYPE(ENUM8), 1, ZAP_ATTRIBUTE_MASK(EXTERNAL_STORAGE) | ZAP_ATTRIBUTE_MASK(NULLABLE), ZAP_EMPTY_DEFAULT() }, /* LastNetworkingStatus */`,
+      `{ 0x00000005, ZAP_TYPE(ENUM8), 1, ZAP_ATTRIBUTE_MASK(EXTERNAL_STORAGE) | ZAP_ATTRIBUTE_MASK(NULLABLE), ZAP_EMPTY_DEFAULT() }, /* LastNetworkingStatus */`
     )
     expect(ept).toContain(
-      '  { 0x00000000, ZAP_TYPE(TEMPERATURE), 2, ZAP_ATTRIBUTE_MASK(NULLABLE), ZAP_SIMPLE_DEFAULT(0x8000) },',
+      '  { 0x00000000, ZAP_TYPE(TEMPERATURE), 2, ZAP_ATTRIBUTE_MASK(NULLABLE), ZAP_SIMPLE_DEFAULT(0x8000) },'
     )
     expect(ept).toContain(
-      '{ (uint16_t)0xFF, (uint16_t)0x64, (uint16_t)0xFFFF }, /* BallastFactorAdjustment */',
+      '{ (uint16_t)0xFF, (uint16_t)0x64, (uint16_t)0xFFFF }, /* BallastFactorAdjustment */'
     )
     expect(ept).toContain(`6, 'C', 'o', 'f', 'f', 'e', 'e', \\`)
     expect(ept).toContain(
-      '{ (uint16_t)-0x64, (uint16_t)-0x96, (uint16_t)0xC8 }',
+      '{ (uint16_t)-0x64, (uint16_t)-0x96, (uint16_t)0xC8 }'
     )
     expect(ept).toContain('#define GENERATED_MIN_MAX_DEFAULT_COUNT 51')
     expect(ept).toContain('#define GENERATED_ATTRIBUTE_COUNT 739')
@@ -266,19 +266,19 @@ test(
     expect(ept).toContain('#define ATTRIBUTE_MAX_SIZE (3988)')
     expect(ept).toContain('#define FIXED_ENDPOINT_COUNT (4)')
     expect(ept).toContain(
-      '#define FIXED_ENDPOINT_ARRAY { 0x0000, 0x0001, 0x0002, 0xFFFE }',
+      '#define FIXED_ENDPOINT_ARRAY { 0x0000, 0x0001, 0x0002, 0xFFFE }'
     )
     expect(ept).toContain(
-      '#define FIXED_PROFILE_IDS { 0x0103, 0x0103, 0x0103, 0x0103 }',
+      '#define FIXED_PROFILE_IDS { 0x0103, 0x0103, 0x0103, 0x0103 }'
     )
     expect(ept).toContain(
-      '#define FIXED_PARENT_IDS { kInvalidEndpointId, kInvalidEndpointId, kInvalidEndpointId, kInvalidEndpointId }',
+      '#define FIXED_PARENT_IDS { kInvalidEndpointId, kInvalidEndpointId, kInvalidEndpointId, kInvalidEndpointId }'
     )
     expect(ept).toContain(
-      '#define FIXED_DEVICE_TYPES {{0x00000016,1},{0x00000100,1},{0x00000100,1},{0x0000F002,1}}',
+      '#define FIXED_DEVICE_TYPES {{0x00000016,1},{0x00000100,1},{0x00000100,1},{0x0000F002,1}}'
     )
     expect(ept).toContain(
-      '#define FIXED_DEVICE_TYPES_WITH_ENDPOINT {{0x00000016,1,0},{0x00000100,1,1},{0x00000100,1,2},{0x0000F002,1,65534}}',
+      '#define FIXED_DEVICE_TYPES_WITH_ENDPOINT {{0x00000016,1,0},{0x00000100,1,1},{0x00000100,1,2},{0x0000F002,1,65534}}'
     )
     expect(ept).toContain('#define FIXED_DEVICE_TYPE_OFFSETS { 0,1,2,3}')
     expect(ept).toContain('#define FIXED_DEVICE_TYPE_LENGTHS { 1,1,1,1}')
@@ -293,13 +293,13 @@ test(
       .clusterId = 0x00000028, \\
     },\\`)
   },
-  testUtil.timeout.long(),
+  testUtil.timeout.long()
 )
 
 test(
   `Zap multiple device type per endpoint file generation: ${path.relative(
     __dirname,
-    multipleDeviceTypePerEndpointTestFile,
+    multipleDeviceTypePerEndpointTestFile
   )}`,
   async () => {
     let sessionId = await querySession.createBlankSession(db)
@@ -308,8 +308,8 @@ test(
       db,
       multipleDeviceTypePerEndpointTestFile,
       {
-        sessionId: sessionId,
-      },
+        sessionId: sessionId
+      }
     )
 
     let genResult = await genEngine.generate(
@@ -317,17 +317,17 @@ test(
       sessionId,
       templateContext.packageId,
       {},
-      { disableDeprecationWarnings: true },
+      { disableDeprecationWarnings: true }
     )
     expect(genResult.hasErrors).toEqual(false)
 
     let ept = genResult.content['endpoint_config.h']
 
     expect(ept).toContain(
-      '#define FIXED_DEVICE_TYPES {{0x00000016,1},{0x00000101,2},{0x00000100,1},{0x00000101,1},{0x00000100,1},{0x0000F002,1}}',
+      '#define FIXED_DEVICE_TYPES {{0x00000016,1},{0x00000101,2},{0x00000100,1},{0x00000101,1},{0x00000100,1},{0x0000F002,1}}'
     )
     expect(ept).toContain(
-      '#define FIXED_DEVICE_TYPES_WITH_ENDPOINT {{0x00000016,1,0},{0x00000101,2,1},{0x00000100,1,1},{0x00000101,1,2},{0x00000100,1,2},{0x0000F002,1,65534}}',
+      '#define FIXED_DEVICE_TYPES_WITH_ENDPOINT {{0x00000016,1,0},{0x00000101,2,1},{0x00000100,1,1},{0x00000101,1,2},{0x00000100,1,2},{0x0000F002,1,65534}}'
     )
     expect(ept).toContain('#define FIXED_DEVICE_TYPE_OFFSETS { 0,1,3,5}')
     expect(ept).toContain('#define FIXED_DEVICE_TYPE_LENGTHS { 1,2,2,1}')
@@ -341,19 +341,19 @@ test(
     expect(ept).toContain('Endpoint 2, DeviceId: 257, DeviceVersion: 1')
     expect(ept).toContain('Endpoint 65534, DeviceId: 61442, DeviceVersion: 1')
   },
-  testUtil.timeout.long(),
+  testUtil.timeout.long()
 )
 
 test(
   `Zap testing miscellaneouos type specific helpers: ${path.relative(
     __dirname,
-    testFile,
+    testFile
   )}`,
   async () => {
     let sessionId = await querySession.createBlankSession(db)
 
     await importJs.importDataFromFile(db, testFile, {
-      sessionId: sessionId,
+      sessionId: sessionId
     })
 
     let genResult = await genEngine.generate(
@@ -361,7 +361,7 @@ test(
       sessionId,
       templateContext.packageId,
       {},
-      { disableDeprecationWarnings: true },
+      { disableDeprecationWarnings: true }
     )
     expect(genResult.hasErrors).toEqual(false)
 
@@ -377,94 +377,94 @@ test(
 
     // Testing if_unsupported_attribute_callback helper
     expect(ept).toContain(
-      'attribute callback for OnOff of boolean type is supported in java',
+      'attribute callback for OnOff of boolean type is supported in java'
     )
     expect(ept).toContain(
-      'attribute callback for GlobalSceneControl of boolean type is supported in java',
+      'attribute callback for GlobalSceneControl of boolean type is supported in java'
     )
     expect(ept).toContain(
-      'attribute callback for GeneratedCommandList of command_id type is supported in java',
+      'attribute callback for GeneratedCommandList of command_id type is supported in java'
     )
 
     // Testing if_basic_attribute helper
     expect(ept).toContain(
-      'attribute OnTime of int16u type is basic type in java',
+      'attribute OnTime of int16u type is basic type in java'
     )
     expect(ept).toContain(
-      'attribute EventList of event_id type is not basic type in java',
+      'attribute EventList of event_id type is not basic type in java'
     )
     expect(ept).toContain(
-      'attribute StartUpOnOff of OnOffStartUpOnOff type is not basic type in java',
+      'attribute StartUpOnOff of OnOffStartUpOnOff type is not basic type in java'
     )
 
     // Testing as_underlying_java_zcl_type helper
     expect(ept).toContain(
-      'Underlying Java type for attribute OnOff of boolean type: Boolean',
+      'Underlying Java type for attribute OnOff of boolean type: Boolean'
     )
     expect(ept).toContain(
-      'Underlying Java type for attribute OnTime of int16u type: Integer',
+      'Underlying Java type for attribute OnTime of int16u type: Integer'
     )
     expect(ept).toContain(
-      'Underlying Java type for attribute GeneratedCommandList of command_id type: Long',
+      'Underlying Java type for attribute GeneratedCommandList of command_id type: Long'
     )
 
     // Testing as_underlying_python_zcl_type helper
     expect(ept).toContain(
-      'Underlying Python type for attribute OnOff of boolean type: bool',
+      'Underlying Python type for attribute OnOff of boolean type: bool'
     )
     expect(ept).toContain(
-      'Underlying Python type for attribute OnTime of int16u type: int',
+      'Underlying Python type for attribute OnTime of int16u type: int'
     )
     expect(ept).toContain(
-      'Underlying Python type for attribute GeneratedCommandList of command_id type: int',
+      'Underlying Python type for attribute GeneratedCommandList of command_id type: int'
     )
 
     // Testing if_is_data_type_signed and as_zcl_data_type_size
     expect(ept).toContain(
-      'attribute OnOff of type boolean is unsigned. The size of this attribute is: 8 bits',
+      'attribute OnOff of type boolean is unsigned. The size of this attribute is: 8 bits'
     )
     expect(ept).toContain(
-      'attribute OnTime of type int16u is unsigned. The size of this attribute is: 16 bits',
+      'attribute OnTime of type int16u is unsigned. The size of this attribute is: 16 bits'
     )
     expect(ept).toContain(
-      'attribute StartUpOnOff of type OnOffStartUpOnOff is unsigned. The size of this attribute is: 8 bits',
+      'attribute StartUpOnOff of type OnOffStartUpOnOff is unsigned. The size of this attribute is: 8 bits'
     )
     expect(ept).toContain(
-      'attribute GeneratedCommandList of type command_id is unsigned. The size of this attribute is: 32 bits',
+      'attribute GeneratedCommandList of type command_id is unsigned. The size of this attribute is: 32 bits'
     )
 
     // Testing cluster specific structs
     expect(ept).toContain(
-      'TargetStruct item 0 from Access Control cluster: Cluster',
+      'TargetStruct item 0 from Access Control cluster: Cluster'
     )
     expect(ept).toContain(
-      'TargetStruct item 1 from Access Control cluster: Endpoint',
+      'TargetStruct item 1 from Access Control cluster: Endpoint'
     )
     expect(ept).toContain(
-      'TargetStruct item 2 from Access Control cluster: DeviceType',
+      'TargetStruct item 2 from Access Control cluster: DeviceType'
     )
     expect(ept).toContain('TargetStruct item 0 from Binding cluster: Node')
     expect(ept).toContain('TargetStruct item 1 from Binding cluster: Group')
     expect(ept).toContain('TargetStruct item 2 from Binding cluster: Endpoint')
     expect(ept).toContain('TargetStruct item 3 from Binding cluster: Cluster')
     expect(ept).toContain(
-      'TargetStruct item 4 from Binding cluster: FabricIndex',
+      'TargetStruct item 4 from Binding cluster: FabricIndex'
     )
   },
-  testUtil.timeout.long(),
+  testUtil.timeout.long()
 )
 
 test(
   `Zap file generation for multiple zcl device types per endpoint: ${path.relative(
     __dirname,
-    testFile,
+    testFile
   )}`,
   async () => {
     // Creating a session with matter specific session packages
     let userSession = await querySession.ensureZapUserAndSession(
       db,
       'USER',
-      'SESSION',
+      'SESSION'
     )
     let sid = userSession.sessionId
     await util.ensurePackagesAndPopulateSessionOptions(
@@ -473,20 +473,20 @@ test(
       {
         zcl: env.builtinMatterZclMetafile(),
         template: testUtil.testTemplate.matter3,
-        partitions: 2,
+        partitions: 2
       },
       null,
-      [templateContext.packageId],
+      [templateContext.packageId]
     )
 
     // Extract device types for insertion into an endpoint
     let allDeviceTypes = await queryDeviceType.selectAllDeviceTypes(
       db,
-      zclPackageId,
+      zclPackageId
     )
     let matterLightDevices = allDeviceTypes.filter(
       (data) =>
-        data.label === 'MA-onofflight' || data.label === 'MA-dimmablelight',
+        data.label === 'MA-onofflight' || data.label === 'MA-dimmablelight'
     )
     let matterLightDeviceRefs = matterLightDevices.map((dt) => dt.id)
     let matterLightDeviceIds = matterLightDevices.map((dt) => dt.code)
@@ -496,7 +496,7 @@ test(
       await querySession.selectSessionPartitionInfoFromDeviceType(
         db,
         sid,
-        matterLightDeviceRefs[0],
+        matterLightDeviceRefs[0]
       )
     await queryConfig.insertEndpointType(
       db,
@@ -505,7 +505,7 @@ test(
       matterLightDeviceRefs,
       matterLightDeviceIds,
       [1, 2], //device type version
-      true,
+      true
     )
 
     // Getting the endpoint cluster information and making sure clusters from both
@@ -533,25 +533,25 @@ test(
         db,
         levelControlCluster.endpointTypeClusterId,
         '0xFFFC',
-        null,
+        null
       )
     expect(levelControlClusterFeatureMapAttribute.defaultValue).toEqual('3')
 
     // Edit the endpoint type and add another device type and test the update
     let additionalMatterLightDevice = allDeviceTypes.filter(
-      (data) => data.label === 'MA-colortemperaturelight',
+      (data) => data.label === 'MA-colortemperaturelight'
     )
 
     let matterLightDevicesExtended = matterLightDeviceRefs.concat(
-      additionalMatterLightDevice.map((dt) => dt.id),
+      additionalMatterLightDevice.map((dt) => dt.id)
     )
     let matterLightDeviceIdsExtended = matterLightDeviceIds.concat(
-      additionalMatterLightDevice.map((dt) => dt.code),
+      additionalMatterLightDevice.map((dt) => dt.code)
     )
     let changesArray = [
       { key: 'deviceTypeRef', value: matterLightDevicesExtended },
       { key: 'deviceVersion', value: [1, 1, 1] },
-      { key: 'deviceId', value: matterLightDeviceIdsExtended },
+      { key: 'deviceId', value: matterLightDeviceIdsExtended }
     ]
     await queryConfig.updateEndpointType(db, sid, epts[0].id, changesArray)
 
@@ -563,16 +563,16 @@ test(
     // Cluster coming from just MA-colortemperaturelight
     expect(clusterNames.includes('Color Control')).toEqual(true)
   },
-  testUtil.timeout.long(),
+  testUtil.timeout.long()
 )
 test(`Zap file generation: ${path.relative(
   __dirname,
-  endpointComposition,
+  endpointComposition
 )}`, async () => {
   let sessionId = await querySession.createBlankSession(db)
 
   await importJs.importDataFromFile(db, endpointComposition, {
-    sessionId: sessionId,
+    sessionId: sessionId
   })
 
   let genResult = await genEngine.generate(
@@ -580,7 +580,7 @@ test(`Zap file generation: ${path.relative(
     sessionId,
     templateContext.packageId,
     {},
-    { disableDeprecationWarnings: true },
+    { disableDeprecationWarnings: true }
   )
   expect(genResult.hasErrors).toEqual(false)
 
@@ -594,6 +594,6 @@ test(`Zap file generation: ${path.relative(
   //
   let ept = genResult.content['endpoint_config.h']
   expect(ept).toContain(
-    'Endpoint 1, DeviceId: 112, DeviceVersion: 1, Composition: tree',
+    'Endpoint 1, DeviceId: 112, DeviceVersion: 1, Composition: tree'
   )
 })

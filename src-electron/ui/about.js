@@ -23,7 +23,7 @@ let window = null
 
 function createAboutWindow(parentWindow, port) {
   let webPreferences = {
-    nodeIntegration: false,
+    nodeIntegration: false
   }
   if (parentWindow != null && 'webContents' in parentWindow) {
     webPreferences.session = parentWindow.webContents.session
@@ -36,7 +36,7 @@ function createAboutWindow(parentWindow, port) {
     title: 'About',
     icon: path.join(env.iconsDirectory(), 'zap_32x32.png'),
     useContentSize: true,
-    webPreferences: webPreferences,
+    webPreferences: webPreferences
   })
   window.setMenu(null)
   window.loadURL(`http://localhost:${port}/#/preferences/about`)

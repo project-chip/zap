@@ -27,7 +27,7 @@ scriptUtil
   .then(() => {
     let endTime = process.hrtime(startTime)
     console.log(
-      `😎 All done: ${endTime[0]}s, ${Math.round(endTime[1] / 1000000)}ms.`,
+      `😎 All done: ${endTime[0]}s, ${Math.round(endTime[1] / 1000000)}ms.`
     )
   })
   .catch((err) => {

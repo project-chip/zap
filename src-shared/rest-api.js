@@ -72,18 +72,18 @@ const uri = {
   sessionCreate: '/zcl/sessionCreate',
   reloadSession: '/zcl/reloadSession',
   init: '/init',
-  forcedExternal: '/zcl/forcedExternal',
+  forcedExternal: '/zcl/forcedExternal'
 }
 
 const uiMode = {
-  ZIGBEE: `zigbee`,
+  ZIGBEE: `zigbee`
 }
 
 const uc = {
   // command id
   componentTree: '/uc/component/tree',
   componentAdd: '/uc/component/add',
-  componentRemove: '/uc/component/remove',
+  componentRemove: '/uc/component/remove'
 }
 
 const ide = {
@@ -97,7 +97,7 @@ const ide = {
   isDirty: '/file/isDirty',
 
   // response
-  openResponse: 'openResponse',
+  openResponse: 'openResponse'
 }
 
 const updateKey = {
@@ -120,13 +120,13 @@ const updateKey = {
   attributeReportMax: 'reportingMax',
   attributeReportChange: 'reportableChange',
   attributeStorage: 'storageOption',
-  init: 'init',
+  init: 'init'
 }
 
 exports.param = {
   sessionId: 'sessionId',
   path: 'path',
-  templatePackageId: 'templatePackageId',
+  templatePackageId: 'templatePackageId'
 }
 
 exports.uri = uri

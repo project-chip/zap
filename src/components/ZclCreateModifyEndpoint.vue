@@ -62,7 +62,7 @@ limitations under the License.
             :options="deviceTypeOptions"
             v-model="deviceType"
             :rules="[
-              (val) => !(val == null || val?.length == 0) || '* Required',
+              (val) => !(val == null || val?.length == 0) || '* Required'
             ]"
             option-value="deviceTypeRef"
             :option-label="getDeviceOptionLabel"
@@ -281,22 +281,22 @@ export default {
   watch: {
     deviceTypeRefAndDeviceIdPair(val) {
       this.setDeviceTypeCallback(val)
-    },
+    }
   },
   mounted() {
     if (this.endpointReference != null) {
       this.shownEndpoint.endpointIdentifier = parseInt(
-        this.endpointId[this.endpointReference],
+        this.endpointId[this.endpointReference]
       )
       this.shownEndpoint.networkIdentifier = parseInt(
-        this.networkId[this.endpointReference],
+        this.networkId[this.endpointReference]
       )
       this.shownEndpoint.parentReference = parseInt(
-        this.parentEndpointIdentifier[this.endpointReference],
+        this.parentEndpointIdentifier[this.endpointReference]
       )
       this.shownEndpoint.profileIdentifier = this.asHex(
         parseInt(this.profileId[this.endpointReference]),
-        4,
+        4
       )
 
       const deviceVersion =
@@ -309,14 +309,14 @@ export default {
           deviceTypes.push({
             deviceTypeRef: deviceTypeRefs[i],
             deviceIdentifier: this.zclDeviceTypes[deviceTypeRefs[i]].code,
-            deviceVersion: deviceVersion[i],
+            deviceVersion: deviceVersion[i]
           })
         }
       } else {
         deviceTypes.push({
           deviceTypeRef: deviceTypeRefs,
           deviceIdentifier: this.zclDeviceTypes[deviceTypeRefs].code,
-          deviceVersion: deviceVersion,
+          deviceVersion: deviceVersion
         })
       }
 
@@ -335,13 +335,13 @@ export default {
         profileIdentifier: null,
         parentReference: null,
         networkIdentifier: 0,
-        deviceVersion: 1,
+        deviceVersion: 1
       },
       saveOrCreateCloseFlag: false,
       deviceTypeTmp: [], // Temp store for the selected device types
       primaryDeviceTypeTmp: null, // Temp store for the selected primary device type
       endpointIds: [],
-      tmpSelectedOptions: [],
+      tmpSelectedOptions: []
     }
   },
   computed: {
@@ -366,30 +366,30 @@ export default {
           return {
             deviceTypeRef: parseInt(item),
             deviceIdentifier: dt[item].code,
-            category: this.getDeviceCategory(dt[item].packageRef),
+            category: this.getDeviceCategory(dt[item].packageRef)
           }
         })
-      },
+      }
     },
     zclProfileIdString: {
       get() {
         return this.$store.state.zap.endpointView.profileId
-      },
+      }
     },
     networkId: {
       get() {
         return this.$store.state.zap.endpointView.networkId
-      },
+      }
     },
     profileId: {
       get() {
         return this.$store.state.zap.endpointView.profileId
-      },
+      }
     },
     parentEndpointIdentifier: {
       get() {
         return this.$store.state.zap.endpointView.parentEndpointIdentifier
-      },
+      }
     },
     customDeviceIdReference: {
       get() {
@@ -398,22 +398,22 @@ export default {
           return parseInt(dt[a].code) == parseInt(DbEnum.customDevice.code)
         })
         return val
-      },
+      }
     },
     deviceVersion: {
       get() {
         return this.$store.state.zap.endpointTypeView.deviceVersion
-      },
+      }
     },
     endpointDeviceTypeRef: {
       get() {
         return this.$store.state.zap.endpointTypeView.deviceTypeRef
-      },
+      }
     },
     endpointDeviceId: {
       get() {
         return this.$store.state.zap.endpointTypeView.deviceIdentifier
-      },
+      }
     },
     computedProfileId: {
       get() {
@@ -421,20 +421,20 @@ export default {
           this.profileCodesOptions == null
             ? null
             : this.profileCodesOptions.find(
-                (o) => o.optionCode === this.shownEndpoint.profileIdentifier,
+                (o) => o.optionCode === this.shownEndpoint.profileIdentifier
               )
 
         return profileOption
           ? profileOption.optionCode + ' (' + profileOption.optionLabel + ')'
           : this.shownEndpoint.profileIdentifier
-      },
+      }
     },
     profileCodesOptions: {
       get() {
         return this.$store.state.zap.genericOptions[
           DbEnum.sessionOption.profileCodes
         ]
-      },
+      }
     },
     deviceType: {
       get() {
@@ -493,14 +493,14 @@ export default {
                   deviceType.deviceTypeRef ===
                     this.primaryDeviceTypeTmp.deviceTypeRef &&
                   deviceType.deviceIdentifier ===
-                    this.primaryDeviceTypeTmp.deviceIdentifier,
+                    this.primaryDeviceTypeTmp.deviceIdentifier
               )
             ) {
               this.primaryDeviceTypeTmp = newPrimaryDeviceType
             }
           }
         }
-      },
+      }
     },
     primaryDeviceType: {
       get() {
@@ -513,17 +513,17 @@ export default {
         const newPrimaryDevice = value
         let tempDeviceType = this.deviceType
         tempDeviceType = tempDeviceType.filter(
-          (d) => d.deviceTypeRef !== newPrimaryDevice.deviceTypeRef,
+          (d) => d.deviceTypeRef !== newPrimaryDevice.deviceTypeRef
         )
         tempDeviceType.unshift(newPrimaryDevice)
         this.deviceType = tempDeviceType
-      },
-    },
+      }
+    }
   },
   methods: {
     setSelectOption(val) {
       const i = this.tmpSelectedOptions.findIndex(
-        (e) => e.deviceTypeRef === val.deviceTypeRef,
+        (e) => e.deviceTypeRef === val.deviceTypeRef
       )
       if (i > -1) {
         this.tmpSelectedOptions.splice(i, 1)
@@ -548,7 +548,7 @@ export default {
           this.$store.state.zap.genericOptions[
             dbEnum.sessionOption.deviceTypeSpecification
           ][0]['optionLabel'],
-          '_blank',
+          '_blank'
         )
       }
     },
@@ -580,7 +580,7 @@ export default {
         } else {
           profileId = this.asHex(
             this.zclDeviceTypes[deviceTypeRef].profileId,
-            4,
+            4
           )
         }
         this.shownEndpoint.profileIdentifier = profileId
@@ -640,12 +640,12 @@ export default {
           name: 'Anonymous Endpoint Type',
           deviceTypeRef,
           deviceIdentifier,
-          deviceVersion,
+          deviceVersion
         })
         .then((response) => {
           const deviceIdentifier = []
           this.deviceTypeTmp.forEach((dt) =>
-            deviceIdentifier.push(dt.deviceIdentifier),
+            deviceIdentifier.push(dt.deviceIdentifier)
           )
           this.$store
             .dispatch(`zap/addEndpoint`, {
@@ -653,31 +653,31 @@ export default {
               networkId: this.shownEndpoint.networkIdentifier,
               profileId: parseInt(this.shownEndpoint.profileIdentifier),
               parentEndpointIdentifier: this.shownEndpoint.parentReference,
-              endpointType: response.id,
+              endpointType: response.id
             })
             .then((res) => {
               if (this.shareClusterStatesAcrossEndpoints()) {
                 this.$store.dispatch('zap/shareClusterStatesAcrossEndpoints', {
-                  endpointTypeIdList: this.endpointTypeIdList,
+                  endpointTypeIdList: this.endpointTypeIdList
                 })
               }
               this.$store.dispatch('zap/updateSelectedEndpointType', {
                 endpointType: this.endpointType[res.id],
                 deviceTypeRef:
-                  this.endpointDeviceTypeRef[this.endpointType[res.id]],
+                  this.endpointDeviceTypeRef[this.endpointType[res.id]]
               })
               this.$store.dispatch('zap/updateClusters')
 
               this.$store
                 .dispatch(
                   `zap/endpointTypeClustersInfo`,
-                  this.endpointType[res.id],
+                  this.endpointType[res.id]
                 )
                 .then((res) => {
                   if (res?.data) {
                     const clusterStates = res.data
                     const enabledClusterStates = clusterStates.filter(
-                      (x) => x.enabled,
+                      (x) => x.enabled
                     )
                     for (const states of enabledClusterStates) {
                       const { endpointTypeRef, clusterRef, side, enabled } =
@@ -686,11 +686,11 @@ export default {
                       const arg = {
                         side: [side],
                         clusterId: clusterRef,
-                        added: enabled,
+                        added: enabled
                       }
 
                       console.log(
-                        `Enabling UC component ${JSON.stringify(arg)}`,
+                        `Enabling UC component ${JSON.stringify(arg)}`
                       )
                       this.updateSelectedComponentRequest(arg)
                     }
@@ -721,17 +721,17 @@ export default {
         changes: [
           {
             updatedKey: RestApi.updateKey.deviceTypeRef,
-            value: deviceTypeRef,
+            value: deviceTypeRef
           },
           {
             updatedKey: RestApi.updateKey.deviceVersion,
-            value: deviceVersion,
+            value: deviceVersion
           },
           {
             updatedKey: RestApi.updateKey.deviceId,
-            value: deviceIdentifier,
-          },
-        ],
+            value: deviceIdentifier
+          }
+        ]
       })
 
       this.$store.dispatch('zap/updateEndpoint', {
@@ -740,17 +740,17 @@ export default {
         changes: [
           {
             updatedKey: RestApi.updateKey.endpointId,
-            value: parseInt(shownEndpoint.endpointIdentifier),
+            value: parseInt(shownEndpoint.endpointIdentifier)
           },
           {
             updatedKey: RestApi.updateKey.networkId,
-            value: shownEndpoint.networkIdentifier,
+            value: shownEndpoint.networkIdentifier
           },
           {
             updatedKey: RestApi.updateKey.profileId,
-            value: parseInt(shownEndpoint.profileIdentifier),
-          },
-        ],
+            value: parseInt(shownEndpoint.profileIdentifier)
+          }
+        ]
       })
 
       // collect all cluster id from new endpoint
@@ -758,7 +758,7 @@ export default {
         this.updateSelectedComponentRequest({
           clusterId: id,
           side: ['client'],
-          added: true,
+          added: true
         })
       })
 
@@ -766,13 +766,13 @@ export default {
         this.updateSelectedComponentRequest({
           clusterId: id,
           side: ['server'],
-          added: true,
+          added: true
         })
       })
 
       this.$store.dispatch('zap/updateSelectedEndpointType', {
         endpointType: endpointReference,
-        deviceTypeRef: deviceTypeRef,
+        deviceTypeRef: deviceTypeRef
       })
       this.$store.dispatch('zap/updateSelectedEndpoint', this.endpointReference)
       this.$store.dispatch('zap/updateClusters')
@@ -831,14 +831,14 @@ export default {
       return [
         {
           label: dbEnum.helperCategory.zigbee,
-          children: [...tmpZigbeeDevices],
+          children: [...tmpZigbeeDevices]
         },
         {
           label: dbEnum.helperCategory.matter,
-          children: [...tmpMatterDevices],
-        },
+          children: [...tmpMatterDevices]
+        }
       ]
-    },
+    }
   },
   created() {
     this.getEndpointIds()
@@ -850,8 +850,8 @@ export default {
     // This function will empty the deviceTypeRef state
     this.$store.commit('zap/setDeviceTypeRefAndDeviceIdPair', {
       deviceTypeRef: null,
-      deviceIdentifier: null,
+      deviceIdentifier: null
     })
-  },
+  }
 }
 </script>

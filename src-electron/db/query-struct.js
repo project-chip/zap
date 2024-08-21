@@ -44,7 +44,7 @@ async function selectAllStructs(db, packageId) {
     PACKAGE_REF = ?
   ORDER BY
     NAME`,
-    [packageId],
+    [packageId]
   )
   return rows.map(dbMapping.map.struct)
 }
@@ -68,7 +68,7 @@ ON
   STRUCT.STRUCT_ID = DATA_TYPE.DATA_TYPE_ID
 WHERE
   STRUCT_ID = ?`,
-      [id],
+      [id]
     )
     .then(dbMapping.map.struct)
 }
@@ -94,7 +94,7 @@ WHERE
   AND PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
 ORDER BY
   NAME`,
-      [name],
+      [name]
     )
     .then(dbMapping.map.struct)
 }
@@ -111,12 +111,12 @@ async function selectStructByNameAndClusterId(db, name, clusterId, packageIds) {
   let queryWithoutClusterId = queryUtil.sqlQueryForDataTypeByNameAndClusterId(
     'struct',
     null,
-    packageIds,
+    packageIds
   )
   let queryWithClusterId = queryUtil.sqlQueryForDataTypeByNameAndClusterId(
     'struct',
     clusterId,
-    packageIds,
+    packageIds
   )
   let res = await dbApi
     .dbAll(db, queryWithoutClusterId, [name])
@@ -143,7 +143,7 @@ async function selectStructByNameAndClusterId(db, name, clusterId, packageIds) {
 async function selectStructsWithClusterAssociation(
   db,
   packageIds,
-  groupByStructName,
+  groupByStructName
 ) {
   let groupByClause = groupByStructName ? `GROUP BY DT.NAME` : ``
   let rows = await dbApi.dbAll(
@@ -174,7 +174,7 @@ WHERE
   DT.PACKAGE_REF IN (${dbApi.toInClause(packageIds)}) ` +
       groupByClause +
       ` ORDER BY
-  DT.NAME`,
+  DT.NAME`
   )
   return rows.map(dbMapping.map.struct)
 }
@@ -183,7 +183,7 @@ exports.selectStructById = selectStructById
 exports.selectAllStructs = selectAllStructs
 exports.selectStructByName = dbCache.cacheQuery(selectStructByName)
 exports.selectStructByNameAndClusterId = dbCache.cacheQuery(
-  selectStructByNameAndClusterId,
+  selectStructByNameAndClusterId
 )
 exports.selectStructsWithClusterAssociation =
   selectStructsWithClusterAssociation

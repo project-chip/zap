@@ -11,7 +11,7 @@ exports.default = async function (context) {
       '-V',
       '-f',
       path.resolve(context.outDir, '../apack.json'),
-      context.appOutDir,
+      context.appOutDir
     ])
   }
 }

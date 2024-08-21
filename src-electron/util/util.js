@@ -64,7 +64,7 @@ async function ensurePackagesAndPopulateSessionOptions(
   sessionId,
   options = null,
   selectedZclPropertyPackage = [],
-  selectedGenTemplatePackages = [],
+  selectedGenTemplatePackages = []
 ) {
   let promises = []
   // This is the desired ZCL properties file. Because it is possible
@@ -100,7 +100,7 @@ async function ensurePackagesAndPopulateSessionOptions(
     if (selectedZclPropertyPackage && selectedZclPropertyPackage.length > 1) {
       console.log(
         `Multiple zcl.properties selected, using them for a multiprotocol configuration: ` +
-          JSON.stringify(selectedZclPropertyPackage),
+          JSON.stringify(selectedZclPropertyPackage)
       )
       for (let i = 0; i < selectedZclPropertyPackage.length; i++) {
         promises.push(
@@ -108,8 +108,8 @@ async function ensurePackagesAndPopulateSessionOptions(
             db,
             sessionPartitionInfo[sessionPartitionIndex].sessionPartitionId,
             selectedZclPropertyPackage[i].id,
-            true,
-          ),
+            true
+          )
         )
         sessionPartitionIndex++
       }
@@ -126,7 +126,7 @@ async function ensurePackagesAndPopulateSessionOptions(
           } else if (rows.length == 1) {
             packageId = rows[0].id
             env.logDebug(
-              `Single zcl.properties found, using it for the session: ${packageId}`,
+              `Single zcl.properties found, using it for the session: ${packageId}`
             )
           } else if (rows.length == 0) {
             env.logError(`No zcl.properties found for session.`)
@@ -136,7 +136,7 @@ async function ensurePackagesAndPopulateSessionOptions(
               `No zcl.properties found for session.`,
               sessionId,
               2,
-              0,
+              0
             )
             packageId = null
           } else {
@@ -150,7 +150,7 @@ async function ensurePackagesAndPopulateSessionOptions(
               }
             })
             env.logWarning(
-              `${sessionId}, ${zclFile}: Multiple toplevel zcl.properties found. Using the first one from args: ${packageId}`,
+              `${sessionId}, ${zclFile}: Multiple toplevel zcl.properties found. Using the first one from args: ${packageId}`
             )
             queryNotification.setNotification(
               db,
@@ -158,7 +158,7 @@ async function ensurePackagesAndPopulateSessionOptions(
               `${sessionId}, ${zclFile}: Multiple toplevel zcl.properties found. Using the first one from args: ${packageId}`,
               sessionId,
               2,
-              0,
+              0
             )
           }
           if (packageId != null) {
@@ -171,8 +171,8 @@ async function ensurePackagesAndPopulateSessionOptions(
                     db,
                     sessionPartitionId,
                     packageId,
-                    true,
-                  ),
+                    true
+                  )
                 )
             } else {
               sessionPartitionIndex++
@@ -184,8 +184,8 @@ async function ensurePackagesAndPopulateSessionOptions(
                     sessionPartitionInfo[sessionPartitionIndex - 1]
                       .sessionPartitionId,
                     packageId,
-                    true,
-                  ),
+                    true
+                  )
                 )
             }
           }
@@ -199,7 +199,7 @@ async function ensurePackagesAndPopulateSessionOptions(
     if (selectedGenTemplatePackages && selectedGenTemplatePackages.length > 1) {
       console.log(
         `Multiple generation templates selected, using them for a multiprotocol configuration: ` +
-          JSON.stringify(selectedGenTemplatePackages),
+          JSON.stringify(selectedGenTemplatePackages)
       )
       for (let i = 0; i < selectedGenTemplatePackages.length; i++) {
         promises.push(
@@ -207,15 +207,15 @@ async function ensurePackagesAndPopulateSessionOptions(
             db,
             sessionPartitionInfo[sessionPartitionIndex].sessionPartitionId,
             selectedGenTemplatePackages[i],
-            true,
-          ),
+            true
+          )
         )
         sessionPartitionIndex++
       }
     } else {
       let rows = await queryPackage.getPackagesByType(
         db,
-        dbEnum.packageType.genTemplatesJson,
+        dbEnum.packageType.genTemplatesJson
       )
       let packageId
       if (
@@ -228,7 +228,7 @@ async function ensurePackagesAndPopulateSessionOptions(
           } else if (rows.length == 1) {
             packageId = rows[0].id
             env.logDebug(
-              `Single generation template metafile found, using it for the session: ${packageId}`,
+              `Single generation template metafile found, using it for the session: ${packageId}`
             )
           } else if (rows.length == 0) {
             env.logDebug(`No generation template metafile found for session.`)
@@ -244,7 +244,7 @@ async function ensurePackagesAndPopulateSessionOptions(
             })
             if (packageId != null) {
               env.logWarning(
-                `Multiple toplevel generation template metafiles found. Using the one from args: ${packageId}`,
+                `Multiple toplevel generation template metafiles found. Using the one from args: ${packageId}`
               )
               queryNotification.setNotification(
                 db,
@@ -252,12 +252,12 @@ async function ensurePackagesAndPopulateSessionOptions(
                 `Multiple toplevel generation template metafiles found. Using the one from args: ${packageId}`,
                 sessionId,
                 2,
-                0,
+                0
               )
             } else {
               packageId = rows[0].id
               env.logWarning(
-                `Multiple toplevel generation template metafiles found. Using the first one.`,
+                `Multiple toplevel generation template metafiles found. Using the first one.`
               )
               queryNotification.setNotification(
                 db,
@@ -265,7 +265,7 @@ async function ensurePackagesAndPopulateSessionOptions(
                 `Multiple toplevel generation template metafiles found. Using the first one.`,
                 sessionId,
                 2,
-                0,
+                0
               )
             }
           }
@@ -276,27 +276,27 @@ async function ensurePackagesAndPopulateSessionOptions(
                 await querySession.insertSessionPartition(
                   db,
                   sessionId,
-                  sessionPartitionIndex,
+                  sessionPartitionIndex
                 )
               await queryPackage.insertSessionPackage(
                 db,
                 sessionPartitionId,
                 packageId,
-                true,
+                true
               )
             } else {
               sessionPartitionIndex++
               const sessionPartitionInfo =
                 await querySession.getAllSessionPartitionInfoForSession(
                   db,
-                  sessionId,
+                  sessionId
                 )
               await queryPackage.insertSessionPackage(
                 db,
                 sessionPartitionInfo[sessionPartitionIndex - 1]
                   .sessionPartitionId,
                 packageId,
-                true,
+                true
               )
             }
           }
@@ -312,7 +312,7 @@ async function ensurePackagesAndPopulateSessionOptions(
           selectedZclPropertyPackage.length > 0
         ) {
           const matchBySelectedCategory = rows.find(
-            (r) => r?.category === selectedZclPropertyPackage[0].category,
+            (r) => r?.category === selectedZclPropertyPackage[0].category
           )
           packageId = matchBySelectedCategory?.id || rows[0].id
         } else {
@@ -324,13 +324,13 @@ async function ensurePackagesAndPopulateSessionOptions(
           const sessionPartitionId = await querySession.insertSessionPartition(
             db,
             sessionId,
-            sessionPartitionIndex,
+            sessionPartitionIndex
           )
           await queryPackage.insertSessionPackage(
             db,
             sessionPartitionId,
             packageId,
-            true,
+            true
           )
         } else {
           sessionPartitionIndex++
@@ -339,7 +339,7 @@ async function ensurePackagesAndPopulateSessionOptions(
             db,
             sessionPartitionInfo[sessionPartitionIndex - 1].sessionPartitionId,
             packageId,
-            true,
+            true
           )
         }
       }
@@ -369,12 +369,12 @@ async function populateSessionPackageOptions(db, sessionId, packages) {
                   db,
                   sessionId,
                   option.optionCategory,
-                  option.optionCode,
+                  option.optionCode
                 )
               })
-          }),
-        ),
-      ),
+          })
+        )
+      )
   )
 
   return Promise.all(p)
@@ -411,7 +411,7 @@ function matchFeatureLevel(featureLevel, requirementSource = null) {
         requirementSource == null ? 'File' : requirementSource
       } requires feature level ${featureLevel}, we only have ${
         env.zapVersion().featureLevel
-      }. Please upgrade your zap!`,
+      }. Please upgrade your zap!`
     }
   } else {
     return { match: true }
@@ -443,12 +443,12 @@ async function sessionReport(db, sessionId) {
                     db,
                     c.clusterId,
                     c.side,
-                    ept.id,
+                    ept.id
                   )
                   .then((attrs) => {
                     for (let at of attrs) {
                       rpt = rpt.concat(
-                        `    - ${at.hexCode}: attribute: ${at.name} [${at.type}] [bound: ${at.isBound}]\n`,
+                        `    - ${at.hexCode}: attribute: ${at.name} [${at.type}] [bound: ${at.isBound}]\n`
                       )
                     }
                   })
@@ -456,23 +456,23 @@ async function sessionReport(db, sessionId) {
                     queryEndpoint.selectEndpointClusterCommands(
                       db,
                       c.clusterId,
-                      ept.id,
-                    ),
+                      ept.id
+                    )
                   )
                   .then((cmds) => {
                     for (let cmd of cmds) {
                       rpt = rpt.concat(
-                        `    - ${cmd.hexCode}: command: ${cmd.name}\n`,
+                        `    - ${cmd.hexCode}: command: ${cmd.name}\n`
                       )
                     }
                     return rpt
-                  }),
+                  })
               )
             }
             return Promise.all(ps2)
               .then((rpts) => rpts.join(''))
               .then((r) => s.concat(r))
-          }),
+          })
         )
       })
       return Promise.all(ps).then((results) => results.join('\n'))
@@ -493,7 +493,7 @@ async function sessionDump(db, sessionId) {
     commands: [],
     clusters: [],
     usedPackages: [],
-    packageReport: '',
+    packageReport: ''
   }
   let endpoints = await queryEndpoint.selectAllEndpoints(db, sessionId)
   dump.endpoints = endpoints
@@ -524,18 +524,18 @@ async function sessionDump(db, sessionId) {
                 queryEndpoint.selectEndpointClusterCommands(
                   db,
                   c.clusterId,
-                  ept.id,
-                ),
+                  ept.id
+                )
               )
               .then((cmds) => {
                 c.commands = cmds
                 ept.commands.push(...cmds)
                 dump.commands.push(...cmds)
-              }),
+              })
           )
         }
         return Promise.all(ps2)
-      }),
+      })
     )
   })
   await Promise.all(ps)
@@ -604,14 +604,14 @@ function createAbsolutePath(relativePath, relativity, zapFilePath) {
           relativePath = relativePath.replaceAll('$' + key, process.env[key])
           relativePath = relativePath.replaceAll(
             '${' + key + '}',
-            process.env[key],
+            process.env[key]
           )
         }
       }
       if (relativePath.indexOf('$') !== -1) {
         throw new Error(
           'resolveEnvVars: unable to resolve environment variables completely: ' +
-            relativePath,
+            relativePath
         )
       }
   }
@@ -635,7 +635,7 @@ function locateRelativeFilePath(rootFileLocations, relativeFilePath) {
     for (let i = 0; i < rootFileLocations.length; i++) {
       let resolvedFile = path.resolve(
         rootFileLocations[i],
-        relativeFilePath.trim(),
+        relativeFilePath.trim()
       )
       if (fs.existsSync(resolvedFile)) {
         return resolvedFile
@@ -655,8 +655,8 @@ function executeExternalProgram(
   workingDirectory,
   options = {
     rejectOnFail: true,
-    routeErrToOut: false,
-  },
+    routeErrToOut: false
+  }
 ) {
   return new Promise((resolve, reject) => {
     childProcess.exec(
@@ -664,7 +664,7 @@ function executeExternalProgram(
       {
         cwd: workingDirectory,
         windowsHide: true,
-        timeout: 10000,
+        timeout: 10000
       },
       (error, stdout, stderr) => {
         console.log(`    ✍  ${cmd}`)
@@ -684,7 +684,7 @@ function executeExternalProgram(
           }
           resolve()
         }
-      },
+      }
     )
   })
 }
@@ -702,7 +702,7 @@ function getClusterExtensionDefault(
   extensions,
   extensionId,
   clusterCode,
-  clusterRole = null,
+  clusterRole = null
 ) {
   let f = getClusterExtension(extensions, extensionId)
   if (f.length == 0) {
@@ -772,7 +772,7 @@ async function readFileContentAndCrc(metadataFile) {
   return {
     data: content,
     filePath: metadataFile,
-    crc: checksum(content),
+    crc: checksum(content)
   }
 }
 
@@ -802,7 +802,7 @@ function duration(nsDifference) {
 function mainOrSecondaryInstance(
   allowSecondary,
   mainInstanceCallback,
-  secondaryInstanceCallback,
+  secondaryInstanceCallback
 ) {
   if (allowSecondary) {
     let lock = new singleInstance('zap')
@@ -852,7 +852,7 @@ async function collectJsonData(jsonFile, recursiveLevel = 0) {
   }
   if ('disable' in jsonData) {
     collectedData = collectedData.filter(
-      (test) => !jsonData.disable.includes(test),
+      (test) => !jsonData.disable.includes(test)
     )
   }
   collectedData.disable = disable.bind(collectedData)
@@ -879,15 +879,15 @@ function patternFormat(pattern, data) {
     out = out.replace(`{${key}:touppercase}`, value.toString().toUpperCase())
     out = out.replace(
       `{${key}:tocamelcase}`,
-      string.toCamelCase(value.toString()),
+      string.toCamelCase(value.toString())
     )
     out = out.replace(
       `{${key}:tosnakecase}`,
-      string.toSnakeCase(value.toString()),
+      string.toSnakeCase(value.toString())
     )
     out = out.replace(
       `{${key}:tosnakecaseallcaps}`,
-      string.toSnakeCaseAllCaps(value.toString()),
+      string.toSnakeCaseAllCaps(value.toString())
     )
     // Note: if you add more of these, add the documentation to sdk-integration.md
   }

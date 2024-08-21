@@ -38,7 +38,7 @@ beforeAll(async () => {
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
     env.schemaFile(),
-    env.zapVersion(),
+    env.zapVersion()
   )
   return zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
 }, testUtil.timeout.medium())
@@ -52,7 +52,7 @@ test(
   async () => {
     let context = await genEngine.loadTemplates(
       db,
-      testUtil.testTemplate.zigbee,
+      testUtil.testTemplate.zigbee
     )
     expect(context.crc).not.toBeNull()
     expect(context.templateData).not.toBeNull()
@@ -62,7 +62,7 @@ test(
     expect(context.packageId).not.toBeNull()
     templateContext = context
   },
-  testUtil.timeout.medium(),
+  testUtil.timeout.medium()
 )
 
 test(
@@ -70,11 +70,11 @@ test(
   async () => {
     templateContext.packages = await queryPackage.getPackageByParent(
       templateContext.db,
-      templateContext.packageId,
+      templateContext.packageId
     )
     expect(templateContext.packages.length).toBe(templateCount - 1 + 3) // -1 for ignored one, two for helpers and one for overridable
   },
-  testUtil.timeout.short(),
+  testUtil.timeout.short()
 )
 
 test(
@@ -92,45 +92,45 @@ test(
         generateOnly: [
           'zap-command-parser-ver-3.c',
           'zap-command-parser-ver-5.c',
-          'zap-outgoing-command.out',
+          'zap-outgoing-command.out'
         ],
-        disableDeprecationWarnings: true,
-      },
+        disableDeprecationWarnings: true
+      }
     )
     expect(genResult.hasErrors).toBeFalsy()
 
     let pv3 = genResult.content['zap-command-parser-ver-3.c']
     // Test Cluster command parsers that should be defined
     expect(pv3).toContain(
-      'EmberAfStatus emberAfGroupsClusterClientCommandParse(EmberAfClusterCommand * cmd);',
+      'EmberAfStatus emberAfGroupsClusterClientCommandParse(EmberAfClusterCommand * cmd);'
     )
     expect(pv3).toContain(
-      'EmberAfStatus emberAfGroupsClusterServerCommandParse(EmberAfClusterCommand * cmd);',
+      'EmberAfStatus emberAfGroupsClusterServerCommandParse(EmberAfClusterCommand * cmd);'
     )
     expect(pv3).toContain(
-      'EmberAfStatus emberAfIdentifyClusterClientCommandParse(EmberAfClusterCommand * cmd);',
+      'EmberAfStatus emberAfIdentifyClusterClientCommandParse(EmberAfClusterCommand * cmd);'
     )
     expect(pv3).toContain(
-      'EmberAfStatus emberAfIdentifyClusterServerCommandParse(EmberAfClusterCommand * cmd);',
+      'EmberAfStatus emberAfIdentifyClusterServerCommandParse(EmberAfClusterCommand * cmd);'
     )
     expect(pv3).toContain(
-      'EmberAfStatus emberAfLevelControlClusterServerCommandParse(EmberAfClusterCommand * cmd);',
+      'EmberAfStatus emberAfLevelControlClusterServerCommandParse(EmberAfClusterCommand * cmd);'
     )
     expect(pv3).toContain(
-      'EmberAfStatus emberAfOnOffClusterServerCommandParse(EmberAfClusterCommand * cmd);',
+      'EmberAfStatus emberAfOnOffClusterServerCommandParse(EmberAfClusterCommand * cmd);'
     )
     expect(pv3).toContain(
-      'EmberAfStatus emberAfScenesClusterServerCommandParse(EmberAfClusterCommand * cmd);',
+      'EmberAfStatus emberAfScenesClusterServerCommandParse(EmberAfClusterCommand * cmd);'
     )
     expect(pv3).toContain(
-      'EmberAfStatus emberAfZllCommissioningClusterClientCommandParse(EmberAfClusterCommand * cmd);',
+      'EmberAfStatus emberAfZllCommissioningClusterClientCommandParse(EmberAfClusterCommand * cmd);'
     )
     // Test Command callback
     expect(pv3).toContain(
-      'wasHandled = emberAfIdentifyClusterIdentifyCallback(identifyTime);',
+      'wasHandled = emberAfIdentifyClusterIdentifyCallback(identifyTime);'
     )
     expect(pv3).toContain(
-      'wasHandled = emberAfLevelControlClusterMoveToLevelWithOnOffCallback(level, transitionTime);',
+      'wasHandled = emberAfLevelControlClusterMoveToLevelWithOnOffCallback(level, transitionTime);'
     )
     // Test command argument declarations for data types greater than 4
     // bytes and make sure they are declared as pointers
@@ -142,35 +142,35 @@ test(
     // Test Cluster command parsers that should be defined
     let pv5 = genResult.content['zap-command-parser-ver-5.c']
     expect(pv5).toContain(
-      'EmberAfStatus emberAfGroupsClusterClientCommandParse(EmberAfClusterCommand * cmd);',
+      'EmberAfStatus emberAfGroupsClusterClientCommandParse(EmberAfClusterCommand * cmd);'
     )
     expect(pv5).toContain(
-      'EmberAfStatus emberAfGroupsClusterServerCommandParse(EmberAfClusterCommand * cmd);',
+      'EmberAfStatus emberAfGroupsClusterServerCommandParse(EmberAfClusterCommand * cmd);'
     )
     expect(pv5).toContain(
-      'EmberAfStatus emberAfIdentifyClusterClientCommandParse(EmberAfClusterCommand * cmd);',
+      'EmberAfStatus emberAfIdentifyClusterClientCommandParse(EmberAfClusterCommand * cmd);'
     )
     expect(pv5).toContain(
-      'EmberAfStatus emberAfIdentifyClusterServerCommandParse(EmberAfClusterCommand * cmd);',
+      'EmberAfStatus emberAfIdentifyClusterServerCommandParse(EmberAfClusterCommand * cmd);'
     )
     expect(pv5).toContain(
-      'EmberAfStatus emberAfLevelControlClusterServerCommandParse(EmberAfClusterCommand * cmd);',
+      'EmberAfStatus emberAfLevelControlClusterServerCommandParse(EmberAfClusterCommand * cmd);'
     )
     expect(pv5).toContain(
-      'EmberAfStatus emberAfOnOffClusterServerCommandParse(EmberAfClusterCommand * cmd);',
+      'EmberAfStatus emberAfOnOffClusterServerCommandParse(EmberAfClusterCommand * cmd);'
     )
     expect(pv5).toContain(
-      'EmberAfStatus emberAfScenesClusterServerCommandParse(EmberAfClusterCommand * cmd);',
+      'EmberAfStatus emberAfScenesClusterServerCommandParse(EmberAfClusterCommand * cmd);'
     )
     expect(pv5).toContain(
-      'EmberAfStatus emberAfZllCommissioningClusterClientCommandParse(EmberAfClusterCommand * cmd);',
+      'EmberAfStatus emberAfZllCommissioningClusterClientCommandParse(EmberAfClusterCommand * cmd);'
     )
     // Test Command callback
     expect(pv5).toContain(
-      'wasHandled = emberAfIdentifyClusterIdentifyCallback(identifyTime);',
+      'wasHandled = emberAfIdentifyClusterIdentifyCallback(identifyTime);'
     )
     expect(pv5).toContain(
-      'wasHandled = emberAfLevelControlClusterMoveToLevelWithOnOffCallback(level, transitionTime);',
+      'wasHandled = emberAfLevelControlClusterMoveToLevelWithOnOffCallback(level, transitionTime);'
     )
     // Test command argument declarations for data types greater than 4
     // bytes and make sure they are declared as pointers
@@ -189,8 +189,8 @@ test(
       .join('\n')
     expect(zapOutgoingCommands).not.toBeNull()
     expect(zapOutgoingCommands).toContain(
-      'Groups client Cluster Outgoing commands\nOutgoing Command: AddGroup\nOutgoing Command: ViewGroup\nOutgoing Command: GetGroupMembership\nOutgoing Command: RemoveGroup\nOutgoing Command: RemoveAllGroups\nOutgoing Command: AddGroupIfIdentifying\nGroups server Cluster Outgoing commands\nOutgoing Command: AddGroupResponse\nOutgoing Command: ViewGroupResponse\nOutgoing Command: GetGroupMembershipResponse\nOutgoing Command: RemoveGroupResponse\nIdentify client Cluster Outgoing commands\nOutgoing Command: Identify\nOutgoing Command: IdentifyQuery\nIdentify server Cluster Outgoing commands\nOutgoing Command: IdentifyQueryResponse\nLevel Control client Cluster Outgoing commands\nOutgoing Command: MoveToLevel\nOutgoing Command: Move\nOutgoing Command: Step\nOutgoing Command: Stop\nOutgoing Command: MoveToLevelWithOnOff\nOutgoing Command: MoveWithOnOff\nOutgoing Command: StepWithOnOff\nOutgoing Command: StopWithOnOff\nOn/off client Cluster Outgoing commands\nOutgoing Command: Off\nOutgoing Command: On\nOutgoing Command: Toggle\nScenes server Cluster Outgoing commands\nOutgoing Command: AddSceneResponse\nOutgoing Command: ViewSceneResponse\nOutgoing Command: RemoveSceneResponse\nOutgoing Command: RemoveAllScenesResponse\nOutgoing Command: StoreSceneResponse\nOutgoing Command: GetSceneMembershipResponse\nZLL Commissioning client Cluster Outgoing commands\nOutgoing Command: ScanRequest\nOutgoing Command: DeviceInformationRequest\nOutgoing Command: IdentifyRequest\nOutgoing Command: ResetToFactoryNewRequest\nOutgoing Command: NetworkStartRequest\nOutgoing Command: NetworkJoinRouterRequest\nOutgoing Command: NetworkJoinEndDeviceRequest\nOutgoing Command: NetworkUpdateRequest\nZLL Commissioning server Cluster Outgoing commands\nOutgoing Command: ScanResponse\nOutgoing Command: DeviceInformationResponse\nOutgoing Command: NetworkStartResponse\nOutgoing Command: NetworkJoinRouterResponse\nOutgoing Command: NetworkJoinEndDeviceResponse\nOutgoing Command: EndpointInformation\nOutgoing Command: GetGroupIdentifiersResponse\nOutgoing Command: GetEndpointListResponse',
+      'Groups client Cluster Outgoing commands\nOutgoing Command: AddGroup\nOutgoing Command: ViewGroup\nOutgoing Command: GetGroupMembership\nOutgoing Command: RemoveGroup\nOutgoing Command: RemoveAllGroups\nOutgoing Command: AddGroupIfIdentifying\nGroups server Cluster Outgoing commands\nOutgoing Command: AddGroupResponse\nOutgoing Command: ViewGroupResponse\nOutgoing Command: GetGroupMembershipResponse\nOutgoing Command: RemoveGroupResponse\nIdentify client Cluster Outgoing commands\nOutgoing Command: Identify\nOutgoing Command: IdentifyQuery\nIdentify server Cluster Outgoing commands\nOutgoing Command: IdentifyQueryResponse\nLevel Control client Cluster Outgoing commands\nOutgoing Command: MoveToLevel\nOutgoing Command: Move\nOutgoing Command: Step\nOutgoing Command: Stop\nOutgoing Command: MoveToLevelWithOnOff\nOutgoing Command: MoveWithOnOff\nOutgoing Command: StepWithOnOff\nOutgoing Command: StopWithOnOff\nOn/off client Cluster Outgoing commands\nOutgoing Command: Off\nOutgoing Command: On\nOutgoing Command: Toggle\nScenes server Cluster Outgoing commands\nOutgoing Command: AddSceneResponse\nOutgoing Command: ViewSceneResponse\nOutgoing Command: RemoveSceneResponse\nOutgoing Command: RemoveAllScenesResponse\nOutgoing Command: StoreSceneResponse\nOutgoing Command: GetSceneMembershipResponse\nZLL Commissioning client Cluster Outgoing commands\nOutgoing Command: ScanRequest\nOutgoing Command: DeviceInformationRequest\nOutgoing Command: IdentifyRequest\nOutgoing Command: ResetToFactoryNewRequest\nOutgoing Command: NetworkStartRequest\nOutgoing Command: NetworkJoinRouterRequest\nOutgoing Command: NetworkJoinEndDeviceRequest\nOutgoing Command: NetworkUpdateRequest\nZLL Commissioning server Cluster Outgoing commands\nOutgoing Command: ScanResponse\nOutgoing Command: DeviceInformationResponse\nOutgoing Command: NetworkStartResponse\nOutgoing Command: NetworkJoinRouterResponse\nOutgoing Command: NetworkJoinEndDeviceResponse\nOutgoing Command: EndpointInformation\nOutgoing Command: GetGroupIdentifiersResponse\nOutgoing Command: GetEndpointListResponse'
     )
   },
-  testUtil.timeout.long(),
+  testUtil.timeout.long()
 )

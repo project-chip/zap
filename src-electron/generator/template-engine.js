@@ -59,11 +59,11 @@ const includedHelpers = [
   require('./matter/app/zap-templates/common/StringHelper'),
 
   require('./meta/helper-meta'),
-  require('./meta/helper-meta-2'),
+  require('./meta/helper-meta-2')
 ]
 
 const templateCompileOptions = {
-  noEscape: true,
+  noEscape: true
 }
 
 const precompiledTemplates = {}
@@ -108,13 +108,13 @@ async function produceIterativeContent(
   genTemplateJsonPackage,
   options = {
     overridePath: null,
-    disableDeprecationWarnings: false,
-  },
+    disableDeprecationWarnings: false
+  }
 ) {
   let iterationArray = await templateIterators.getIterativeObject(
     singleTemplatePkg.iterator,
     db,
-    sessionId,
+    sessionId
   )
   let res = []
   for (let it of iterationArray) {
@@ -127,7 +127,7 @@ async function produceIterativeContent(
       sessionId,
       singleTemplatePkg,
       genTemplateJsonPackage,
-      options,
+      options
     )
     res.push(...r)
   }
@@ -156,8 +156,8 @@ async function produceContent(
     overridePath: null,
     overrideKey: null,
     disableDeprecationWarnings: false,
-    initialContext: null,
-  },
+    initialContext: null
+  }
 ) {
   let template = await produceCompiledTemplate(hb, singleTemplatePkg)
   let context = {
@@ -180,13 +180,13 @@ async function produceContent(
             'UPGRADE',
             'Resource "${key}" not found among the context resources. Check your template.json file. You may need a Matter SDK upgrade.',
             sessionId,
-            1,
+            1
           )
           return null
         }
       },
-      stats: {},
-    },
+      stats: {}
+    }
   }
   if (options.initialContext != null) {
     Object.assign(context, options.initialContext)
@@ -199,8 +199,8 @@ async function produceContent(
           ? singleTemplatePkg.category
           : options.overrideKey,
       content: content,
-      stats: context.global.stats,
-    },
+      stats: context.global.stats
+    }
   ]
 }
 
@@ -274,7 +274,7 @@ function helperWrapper(wrappedHelper) {
     } else {
       this.global.stats[helperName] = {
         useCount: 1,
-        isDeprecated: isDeprecated,
+        isDeprecated: isDeprecated
       }
     }
     try {
@@ -313,7 +313,7 @@ function loadHelper(hb, helpers, context = null) {
     helper.executeHelperFunction(
       helper.functions.initialize_helpers,
       context,
-      helpers,
+      helpers
     )
     helpers = nativeRequire(helpers)
   }
@@ -340,7 +340,7 @@ function loadHelper(hb, helpers, context = null) {
 function allBuiltInHelpers() {
   let allHelpers = {
     hasDuplicates: false,
-    duplicates: [],
+    duplicates: []
   }
   let h = []
   includedHelpers.forEach((helperPkg) => {
@@ -350,7 +350,7 @@ function allBuiltInHelpers() {
         name: singleHelper,
         isDeprecated: helperPkg[singleHelper].isDeprecated ? true : false,
         category: helperPkg.meta?.category,
-        alias: helperPkg.meta?.alias,
+        alias: helperPkg.meta?.alias
       }
       h.push(helperObject)
     }
@@ -399,8 +399,8 @@ function initializeBuiltInHelpersForPackage(
   hb,
   included = {
     aliases: [],
-    categories: [],
-  },
+    categories: []
+  }
 ) {
   includedHelpers.forEach((helperPkg) => {
     let hasMatchingCategory = false
@@ -413,7 +413,7 @@ function initializeBuiltInHelpersForPackage(
       // Let's check if category matches.
       if (helperPkg.meta.category != null) {
         hasMatchingCategory = included.categories.includes(
-          helperPkg.meta.category,
+          helperPkg.meta.category
         )
       }
       if (helperPkg.meta.alias != null && helperPkg.meta.alias.length > 0) {

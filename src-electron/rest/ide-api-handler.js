@@ -51,11 +51,11 @@ async function httpPostComponentUpdateHandler(db, request, response, add) {
       componentIds,
       clusterId,
       add,
-      side,
+      side
     )
     await studio.sendComponentUpdateStatus(db, request.zapSessionId, {
       data: res,
-      added: add,
+      added: add
     })
     response.send(res)
   } catch (err) {
@@ -81,17 +81,17 @@ function httpPostComponentRemove(db) {
 exports.get = [
   {
     uri: restApi.uc.componentTree,
-    callback: httpGetComponentTree,
-  },
+    callback: httpGetComponentTree
+  }
 ]
 
 exports.post = [
   {
     uri: restApi.uc.componentAdd,
-    callback: httpPostComponentAdd,
+    callback: httpPostComponentAdd
   },
   {
     uri: restApi.uc.componentRemove,
-    callback: httpPostComponentRemove,
-  },
+    callback: httpPostComponentRemove
+  }
 ]

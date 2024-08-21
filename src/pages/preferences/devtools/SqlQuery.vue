@@ -36,7 +36,7 @@ import PreferencePageLayout from '../../../layouts/PreferencePageLayout.vue'
 
 export default {
   components: {
-    PreferencePageLayout,
+    PreferencePageLayout
   },
   methods: {
     hitEnter() {
@@ -52,14 +52,14 @@ export default {
           this.items = [error]
         }
       })
-    },
+    }
   },
   data() {
     return {
       text: '',
       resultSummary: '',
-      items: '',
+      items: ''
     }
-  },
+  }
 }
 </script>

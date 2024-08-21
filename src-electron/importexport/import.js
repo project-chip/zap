@@ -41,7 +41,7 @@ const util = require('../util/util.js')
 async function readDataFromFile(
   filePath,
   defaultZclMetafile,
-  defaultTemplateFile,
+  defaultTemplateFile
 ) {
   let data = await fsp.readFile(filePath)
 
@@ -51,7 +51,7 @@ async function readDataFromFile(
       filePath,
       data,
       defaultZclMetafile,
-      defaultTemplateFile,
+      defaultTemplateFile
     )
   } else if (stringData.startsWith('#ISD')) {
     return importIsc.readIscData(
@@ -59,11 +59,11 @@ async function readDataFromFile(
       data,
       defaultZclMetafile == null
         ? env.builtinSilabsZclMetafile()
-        : defaultZclMetafile,
+        : defaultZclMetafile
     )
   } else {
     throw new Error(
-      'Invalid file format. Only .zap JSON files and ISC file format are supported.',
+      'Invalid file format. Only .zap JSON files and ISC file format are supported.'
     )
   }
 }
@@ -71,12 +71,12 @@ async function readDataFromFile(
 async function executePostImportScript(db, sessionId, scriptFile) {
   let context = {
     db: db,
-    sessionId: sessionId,
+    sessionId: sessionId
   }
   return script.executeScriptFunction(
     script.functions.postLoad,
     context,
-    scriptFile,
+    scriptFile
   )
 }
 
@@ -96,13 +96,13 @@ async function importDataFromFile(
     sessionId: null,
     defaultZclMetafile: env.builtinSilabsZclMetafile(),
     postImportScript: null,
-    packageMatch: dbEnum.packageMatch.fuzzy,
-  },
+    packageMatch: dbEnum.packageMatch.fuzzy
+  }
 ) {
   let state = await readDataFromFile(
     filePath,
     options.defaultZclMetafile,
-    options.defaultTemplateFile,
+    options.defaultTemplateFile
   )
   state = ff.convertFromFile(state)
   try {
@@ -115,10 +115,10 @@ async function importDataFromFile(
         sid,
         {
           zcl: env.builtinSilabsZclMetafile(),
-          template: env.builtinTemplateMetafile(),
+          template: env.builtinTemplateMetafile()
         },
         null,
-        null,
+        null
       )
     } else {
       sid = options.sessionId
@@ -151,13 +151,13 @@ async function importDataFromFile(
       sid,
       options.packageMatch,
       options.defaultZclMetafile,
-      options.defaultTemplateFile,
+      options.defaultTemplateFile
     )
     if (options.postImportScript != null) {
       await executePostImportScript(
         db,
         loaderResult.sessionId,
-        options.postImportScript,
+        options.postImportScript
       )
     }
     return loaderResult

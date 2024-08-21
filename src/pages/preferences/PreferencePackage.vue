@@ -40,7 +40,7 @@ import PreferencePageLayout from '../../layouts/PreferencePageLayout.vue'
 export default {
   name: 'PreferencePackage',
   components: {
-    PreferencePageLayout,
+    PreferencePageLayout
   },
   data() {
     return {
@@ -49,40 +49,40 @@ export default {
           name: 'CATEGORY',
           align: 'left',
           label: 'Category',
-          field: 'category',
+          field: 'category'
         },
         {
           name: 'DESCRIPTION',
           align: 'left',
           label: 'Description',
-          field: 'description',
+          field: 'description'
         },
         {
           name: 'PATH',
           align: 'left',
           label: 'Path',
-          field: 'path',
+          field: 'path'
         },
         {
           name: 'TYPE',
           align: 'left',
           label: 'Type',
-          field: 'type',
+          field: 'type'
         },
         {
           name: 'VERSION',
           align: 'left',
           label: 'Version',
-          field: 'version',
-        },
-      ],
+          field: 'version'
+        }
+      ]
     }
   },
   computed: {
     packages: {
       get() {
         return this.$store.state.zap.allPackages
-      },
+      }
     },
     pagination: {
       get() {
@@ -90,10 +90,10 @@ export default {
           sortBy: 'desc',
           descending: false,
           page: 1,
-          rowsPerPage: this.$store.state.zap.allPackages.length,
+          rowsPerPage: this.$store.state.zap.allPackages.length
         }
-      },
-    },
-  },
+      }
+    }
+  }
 }
 </script>

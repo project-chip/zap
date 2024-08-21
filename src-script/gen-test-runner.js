@@ -55,7 +55,7 @@ async function main() {
   if (fs.existsSync(argv.apps) && fs.lstatSync(argv.apps).isDirectory()) {
     let sampleAppsPaths = find.fileSync(/\.zap$/, argv.apps)
     let sampleAppsNames = sampleAppsPaths.map((x) =>
-      getSampleAppNamefromPath(x),
+      getSampleAppNamefromPath(x)
     )
     sampleAppsNames.forEach((name, index) => {
       sampleApps.push({ name, path: sampleAppsPaths[index] })
@@ -63,7 +63,7 @@ async function main() {
   } else {
     sampleApps.push({
       name: getSampleAppNamefromPath(argv.apps),
-      path: argv.apps,
+      path: argv.apps
     })
   }
   console.log(`ZAP port: ${baseURL}`)
@@ -89,7 +89,7 @@ async function main() {
 
   if (TEST_RUN_COUNT)
     console.log(
-      `Average generation time: ${totalGenerationTimeSec / TEST_RUN_COUNT}s`,
+      `Average generation time: ${totalGenerationTimeSec / TEST_RUN_COUNT}s`
     )
 }
 
@@ -115,7 +115,7 @@ async function generate(LOG_PREFIX, zapFilePath) {
 
   await client
     .post(restApi.ide.open, {
-      zapFilePath,
+      zapFilePath
     })
     .then(function (response) {
       console.log(LOG_PREFIX + `SessionId: ${response.data?.sessionId}`)
@@ -145,11 +145,11 @@ async function generate(LOG_PREFIX, zapFilePath) {
     url: restApi.uri.generate,
     jar,
     params: {
-      sessionId: sessionId,
+      sessionId: sessionId
     },
     data: {
-      generationDirectory: OUTPUT_DIR,
-    },
+      generationDirectory: OUTPUT_DIR
+    }
   })
     .then(function (response) {
       console.log(LOG_PREFIX + `Generation finished.`)

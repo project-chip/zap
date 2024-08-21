@@ -32,7 +32,7 @@ const {
   getCommands,
   getAttributes,
   getEvents,
-  isTestOnlyCluster,
+  isTestOnlyCluster
 } = require('./simulated-clusters/SimulatedClusters');
 const { asBlocks, ensureClusters } = require('./ClustersHelper');
 const { Variables } = require('./variables/Variables');
@@ -68,7 +68,7 @@ function throwError(test, errorStr) {
       test.filename +
       '.yaml for test with label: "' +
       test.label +
-      '"\n',
+      '"\n'
   );
   console.error(errorStr);
   throw new Error();
@@ -212,7 +212,7 @@ function setDefaultTypeForCommand(test) {
       'Wrong Yaml configuration. Action : ' +
         test.commandName +
         " can't be sent to group " +
-        test[kGroupId],
+        test[kGroupId]
     );
   }
 
@@ -257,7 +257,7 @@ function setDefaultArguments(test) {
 
   test[kArgumentsName].values.push({
     name: test.attribute,
-    value: test[kArgumentsName].value,
+    value: test[kArgumentsName].value
   });
   delete test[kArgumentsName].value;
 }
@@ -412,7 +412,7 @@ function setDefaults(
   test,
   defaultConfig,
   useSynthesizeWaitForReport,
-  picsFilePath,
+  picsFilePath
 ) {
   const defaultIdentityName =
     kIdentityName in defaultConfig ? defaultConfig[kIdentityName] : 'alpha';
@@ -436,7 +436,7 @@ function parseYamlTest(
   useSynthesizeWaitForReport,
   picsFilePath,
   certificationDir,
-  testDir,
+  testDir
 ) {
   let filepath;
   const isCertificationTest = filename.startsWith('Test_TC_');
@@ -466,7 +466,7 @@ function parseYamlTest(
           attribute: test.attribute,
           response: test.response,
           async: true,
-          allocateSubscribeDataCallback: true,
+          allocateSubscribeDataCallback: true
         };
         delete test.response;
 
@@ -517,7 +517,7 @@ function assertCommandOrAttributeOrEvent(context) {
         'Missing cluster "' +
           clusterName +
           '" in: \n\t* ' +
-          names.join('\n\t* '),
+          names.join('\n\t* ')
       );
     }
 
@@ -559,7 +559,7 @@ function assertCommandOrAttributeOrEvent(context) {
             ' "' +
             filterName +
             '" in: \n\t* ' +
-            names.join('\n\t* '),
+            names.join('\n\t* ')
         );
       }
 
@@ -568,7 +568,7 @@ function assertCommandOrAttributeOrEvent(context) {
       if (!item.response) {
         printErrorAndExit(
           context,
-          'Missing ' + itemType + ' "' + filterName + '" response',
+          'Missing ' + itemType + ' "' + filterName + '" response'
         );
       }
 
@@ -593,7 +593,7 @@ function retrievePICS(filepath) {
   const PICS = {
     getAll: getAll,
     get: get,
-    has: has,
+    has: has
   };
 
   loadedPICS = PICS;
@@ -608,7 +608,7 @@ function chip_tests_pics(options) {
   return templateUtil.collectBlocks(
     retrievePICS(this.global.resource('pics-metafile')).getAll(),
     options,
-    this,
+    this
   );
 }
 
@@ -664,8 +664,8 @@ async function chip_tests(listOrJson, options) {
       options.hash.useSynthesizeWaitForReport,
       global.resource('pics-metafile'),
       global.resource('certification-metadir'),
-      global.resource('test-metadir'),
-    ),
+      global.resource('test-metadir')
+    )
   );
 
   const context = this;
@@ -678,23 +678,21 @@ async function chip_tests(listOrJson, options) {
 
           if (kResponseName in item) {
             await Promise.all(
-              item[kResponseName].map((response) =>
-                configureTestItem(response),
-              ),
+              item[kResponseName].map((response) => configureTestItem(response))
             );
           }
 
           return item;
-        }),
+        })
       );
 
       const variables = await Variables(context, test);
       test.variables = {
         config: variables.config,
-        tests: variables.tests,
+        tests: variables.tests
       };
       return test;
-    }),
+    })
   );
   return templateUtil.collectBlocks(tests, options, this);
 }
@@ -823,7 +821,7 @@ function checkNumberSanity(value, errorContext) {
   if (Number.isInteger(value) && !Number.isSafeInteger(value)) {
     printErrorAndExit(
       errorContext.thisVal,
-      `${errorContext.name} value ${value} is too large to represent exactly as an integer in YAML.  Put quotes around it to treat it as a string.\n\n`,
+      `${errorContext.name} value ${value} is too large to represent exactly as an integer in YAML.  Put quotes around it to treat it as a string.\n\n`
     );
   }
 }
@@ -842,13 +840,13 @@ function chip_tests_item_parameters(options) {
           name: 'minInterval',
           type: 'int16u',
           chipType: 'uint16_t',
-          definedValue: this.minInterval,
+          definedValue: this.minInterval
         };
         const maxInterval = {
           name: 'maxInterval',
           type: 'int16u',
           chipType: 'uint16_t',
-          definedValue: this.maxInterval,
+          definedValue: this.maxInterval
         };
         return [minInterval, maxInterval];
       }
@@ -860,7 +858,7 @@ function chip_tests_item_parameters(options) {
       commandArg = JSON.parse(JSON.stringify(commandArg));
 
       const expected = commandValues.find(
-        (value) => value.name.toLowerCase() == commandArg.name.toLowerCase(),
+        (value) => value.name.toLowerCase() == commandArg.name.toLowerCase()
       );
       if (!expected) {
         if (commandArg.isOptional) {
@@ -871,13 +869,13 @@ function chip_tests_item_parameters(options) {
           'Missing "' +
             commandArg.name +
             '" in arguments list: \n\t* ' +
-            commandValues.map((command) => command.name).join('\n\t* '),
+            commandValues.map((command) => command.name).join('\n\t* ')
         );
       }
 
       commandArg.definedValue = attachGlobal(this.global, expected.value, {
         thisVal: this,
-        name: commandArg.name,
+        name: commandArg.name
       });
 
       return commandArg;
@@ -906,7 +904,7 @@ function chip_tests_item_response_parameters(options) {
       responseArg = JSON.parse(JSON.stringify(responseArg));
 
       const expectedIndex = responseValues.findIndex(
-        (value) => value.name.toLowerCase() == responseArg.name.toLowerCase(),
+        (value) => value.name.toLowerCase() == responseArg.name.toLowerCase()
       );
       if (expectedIndex != -1) {
         const expected = responseValues.splice(expectedIndex, 1)[0];
@@ -915,7 +913,7 @@ function chip_tests_item_response_parameters(options) {
           responseArg.expectedValue = attachGlobal(
             this.global,
             expected.value,
-            { thisVal: this, name: responseArg.name },
+            { thisVal: this, name: responseArg.name }
           );
         }
 
@@ -924,7 +922,7 @@ function chip_tests_item_response_parameters(options) {
           responseArg.expectedConstraints = attachGlobal(
             this.global,
             expected.constraints,
-            { thisVal: this, name: responseArg.name },
+            { thisVal: this, name: responseArg.name }
           );
         }
 
@@ -937,7 +935,7 @@ function chip_tests_item_response_parameters(options) {
     });
 
     const unusedResponseValues = responseValues.filter(
-      (response) => 'value' in response,
+      (response) => 'value' in response
     );
     unusedResponseValues.forEach((unusedResponseValue) => {
       printErrorAndExit(
@@ -945,7 +943,7 @@ function chip_tests_item_response_parameters(options) {
         'Missing "' +
           unusedResponseValue.name +
           '" in response arguments list:\n\t* ' +
-          responseArgs.map((response) => response.name).join('\n\t* '),
+          responseArgs.map((response) => response.name).join('\n\t* ')
       );
     });
 
@@ -970,13 +968,13 @@ function octetStringFromHexString(value) {
 
   if (hexString.length % 2) {
     throw new Error(
-      'The provided hexadecimal string contains an even number of characters',
+      'The provided hexadecimal string contains an even number of characters'
     );
   }
 
   if (!/^[0-9a-fA-F]+$/.test(hexString)) {
     throw new Error(
-      'The provided hexadecimal string contains invalid hexadecimal character.',
+      'The provided hexadecimal string contains invalid hexadecimal character.'
     );
   }
 
@@ -1008,7 +1006,7 @@ function if_include_struct_item_value(structValue, name, options) {
   if (!this.isOptional) {
     throw new Error(
       `Value not provided for ${name} where one is expected in ` +
-        JSON.stringify(structValue),
+        JSON.stringify(structValue)
     );
   }
 
@@ -1022,8 +1020,8 @@ function ensureIsArray(value, options) {
     printErrorAndExit(
       this,
       `Expected array but instead got ${typeof value}: ${JSON.stringify(
-        value,
-      )}\n`,
+        value
+      )}\n`
     );
   }
 }
@@ -1046,7 +1044,7 @@ function checkIsInsideTestOnlyClusterBlock(conditions, name) {
 async function chip_tests_only_clusters(options) {
   const clusters = await getClusters(this, options.hash.includeAllClusters);
   const testOnlyClusters = clusters.filter((cluster) =>
-    isTestOnlyCluster(cluster.name),
+    isTestOnlyCluster(cluster.name)
   );
   return asBlocks.call(this, Promise.resolve(testOnlyClusters), options);
 }
@@ -1079,11 +1077,11 @@ async function chip_tests_only_cluster_command_parameters(options) {
   const conditions = [
     isTestOnlyCluster(this.parent.name),
     this.arguments,
-    this.response,
+    this.response
   ];
   checkIsInsideTestOnlyClusterBlock(
     conditions,
-    'chip_tests_only_cluster_commands',
+    'chip_tests_only_cluster_commands'
   );
 
   return asBlocks.call(this, Promise.resolve(this.arguments), options);
@@ -1113,7 +1111,7 @@ async function chip_tests_only_cluster_responses(options) {
     }
 
     const alreadyExists = responses.some(
-      (item) => item.responseName == command.responseName,
+      (item) => item.responseName == command.responseName
     );
     if (alreadyExists) {
       return;
@@ -1138,11 +1136,11 @@ async function chip_tests_only_cluster_response_parameters(options) {
   const conditions = [
     isTestOnlyCluster(this.parent.name),
     this.arguments,
-    this.responseName,
+    this.responseName
   ];
   checkIsInsideTestOnlyClusterBlock(
     conditions,
-    'chip_tests_only_cluster_responses',
+    'chip_tests_only_cluster_responses'
   );
 
   return asBlocks.call(this, Promise.resolve(this.arguments), options);
@@ -1158,7 +1156,7 @@ function chip_tests_iterate_expected_list(values, options) {
       type: context.type,
       isArray: false,
       isNullable: false,
-      value: value,
+      value: value
     };
   });
 
@@ -1175,7 +1173,7 @@ function chip_tests_iterate_constraints(constraints, options) {
     values.push({
       global: this.global,
       constraint: key,
-      value: constraints[key],
+      value: constraints[key]
     });
   }
 
@@ -1245,5 +1243,5 @@ exports.asTestType = asTestType;
 
 exports.meta = {
   category: dbEnum.helperCategory.matter,
-  alias: ['common/ClusterTestGeneration.js', 'matter-cluster-test-generation'],
+  alias: ['common/ClusterTestGeneration.js', 'matter-cluster-test-generation']
 };

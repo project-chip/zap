@@ -28,8 +28,8 @@ import zap from './zap'
 export default store(function (/* { ssrContext } */) {
   const Store = createStore({
     modules: {
-      zap,
-    },
+      zap
+    }
   })
 
   return Store

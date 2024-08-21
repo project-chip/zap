@@ -65,13 +65,13 @@ async function asTypedExpressionFromObjectiveC(value, type) {
     } else {
       const variableType = TestHelper.chip_tests_variables_get_type.call(
         this,
-        token,
+        token
       );
       const asType = await asObjectiveCNumberType.call(
         this,
         token,
         variableType,
-        true,
+        true
       );
       expr[i] = `[${token} ${asType}Value]`;
     }
@@ -124,7 +124,7 @@ function asObjectiveCNumberType(label, type, asLowerCased) {
       .then((typeName) =>
         asLowerCased
           ? typeName[0].toLowerCase() + typeName.substring(1)
-          : typeName,
+          : typeName
       );
   }
 
@@ -137,7 +137,7 @@ function asObjectiveCNumberType(label, type, asLowerCased) {
 
 function compatClusterNameRemapping(cluster, options) {
   cluster = appHelper.asUpperCamelCase(cluster, {
-    hash: { preserveAcronyms: true },
+    hash: { preserveAcronyms: true }
   });
 
   const old = oldName.call(this, cluster, options);
@@ -151,18 +151,18 @@ function compatClusterNameRemapping(cluster, options) {
 
 function compatAttributeNameRemapping(cluster, attribute, options) {
   cluster = appHelper.asUpperCamelCase(cluster, {
-    hash: { preserveAcronyms: true },
+    hash: { preserveAcronyms: true }
   });
 
   attribute = appHelper.asUpperCamelCase(attribute, {
-    hash: { preserveAcronyms: true },
+    hash: { preserveAcronyms: true }
   });
 
   const old = oldName.call(this, cluster, {
     hash: {
       ...options.hash,
-      attribute: attribute,
-    },
+      attribute: attribute
+    }
   });
 
   if (old) {
@@ -174,18 +174,18 @@ function compatAttributeNameRemapping(cluster, attribute, options) {
 
 function compatCommandNameRemapping(cluster, command, options) {
   cluster = appHelper.asUpperCamelCase(cluster, {
-    hash: { preserveAcronyms: true },
+    hash: { preserveAcronyms: true }
   });
 
   command = appHelper.asUpperCamelCase(command, {
-    hash: { preserveAcronyms: true },
+    hash: { preserveAcronyms: true }
   });
 
   const old = oldName.call(this, cluster, {
     hash: {
       ...options.hash,
-      command: command,
-    },
+      command: command
+    }
   });
 
   if (old) {
@@ -223,7 +223,7 @@ async function asObjectiveCClass(type, cluster, options) {
   ) {
     if (options.hash.stronglyTypedArrays) {
       let innerType = await asObjectiveCClass.call(this, type, cluster, {
-        hash: { ...options.hash, forceNotList: true },
+        hash: { ...options.hash, forceNotList: true }
       });
       return `NSArray<${innerType} *>`;
     }
@@ -243,7 +243,7 @@ async function asObjectiveCClass(type, cluster, options) {
     const structObj = await zclQuery.selectStructByName(
       this.global.db,
       type,
-      pkgIds,
+      pkgIds
     );
     if (structObj.structClusterCount == 0) {
       // This is a global struct.
@@ -264,8 +264,8 @@ async function asObjectiveCClass(type, cluster, options) {
       type =
         oldName.call(this, cluster, {
           hash: {
-            struct: type,
-          },
+            struct: type
+          }
         }) || type;
     } else {
       let preserveAcronyms = true;
@@ -273,7 +273,7 @@ async function asObjectiveCClass(type, cluster, options) {
         preserveAcronyms = options.hash.preserveAcronyms;
       }
       cluster = appHelper.asUpperCamelCase(cluster, {
-        hash: { preserveAcronyms: preserveAcronyms },
+        hash: { preserveAcronyms: preserveAcronyms }
       });
     }
     // Use a custom prefix if specified, otherwise default to "MTR" for backwards compat.
@@ -360,7 +360,7 @@ function objCEnumName(clusterName, enumLabel, options) {
   }
 
   clusterName = appHelper.asUpperCamelCase(clusterName, {
-    hash: { preserveAcronyms: options.hash.preserveAcronyms },
+    hash: { preserveAcronyms: options.hash.preserveAcronyms }
   });
   enumLabel = appHelper.asUpperCamelCase(enumLabel);
   // Some enum names have one or more copies of the cluster name at the
@@ -414,7 +414,7 @@ function fetchAvailabilityData(global) {
       availabilityData = YAML.parse(rawData);
     } else {
       throw new Error(
-        `Resource availability-data not found among the context resources. Check your template.json file.`,
+        `Resource availability-data not found among the context resources. Check your template.json file.`
       );
     }
   }
@@ -436,7 +436,7 @@ function findDataForPath(availabilityData, path) {
 
     if (foundData !== undefined) {
       throw new Error(
-        `Found two releases matching path: ${JSON.stringify(path)}`,
+        `Found two releases matching path: ${JSON.stringify(path)}`
       );
     }
 
@@ -458,7 +458,7 @@ function findReleaseForPath(availabilityData, path, options) {
     // Insert "ids" after the "introduced" or "deprecated" bit.
     newPath.splice(1, 0, 'ids');
     let releaseData = findReleaseForPath(availabilityData, newPath, {
-      hash: { isForIds: false },
+      hash: { isForIds: false }
     });
     if (releaseData !== undefined) {
       return releaseData;
@@ -472,7 +472,7 @@ function findReleaseForPath(availabilityData, path, options) {
     // Insert "command payloads" after the "introduced" or "deprecated" bit.
     newPath.splice(newPath.indexOf('commands'), 1, 'command payloads');
     let releaseData = findReleaseForPath(availabilityData, newPath, {
-      hash: { isForCommandPayload: false },
+      hash: { isForCommandPayload: false }
     });
     if (releaseData !== undefined) {
       return releaseData;
@@ -497,7 +497,7 @@ function findReleaseForPath(availabilityData, path, options) {
     if (currentContainer.includes(item)) {
       if (foundRelease !== undefined) {
         throw new Error(
-          `Found two releases matching path: ${JSON.stringify(path)}`,
+          `Found two releases matching path: ${JSON.stringify(path)}`
         );
       }
 
@@ -523,7 +523,7 @@ function makeAvailabilityPath(clusterName, options) {
         'struct fields',
         clusterName,
         options.hash.struct,
-        options.hash.structField,
+        options.hash.structField
       ];
     }
 
@@ -536,7 +536,7 @@ function makeAvailabilityPath(clusterName, options) {
         'event fields',
         clusterName,
         options.hash.event,
-        options.hash.eventField,
+        options.hash.eventField
       ];
     }
 
@@ -549,7 +549,7 @@ function makeAvailabilityPath(clusterName, options) {
         'command fields',
         clusterName,
         options.hash.command,
-        options.hash.commandField,
+        options.hash.commandField
       ];
     }
 
@@ -566,7 +566,7 @@ function makeAvailabilityPath(clusterName, options) {
         'enum values',
         clusterName,
         options.hash.enum,
-        options.hash.enumValue,
+        options.hash.enumValue
       ];
     }
 
@@ -579,7 +579,7 @@ function makeAvailabilityPath(clusterName, options) {
         'bitmap values',
         clusterName,
         options.hash.bitmap,
-        options.hash.bitmapValue,
+        options.hash.bitmapValue
       ];
     }
 
@@ -630,7 +630,7 @@ function findPathToContainer(availabilityPath) {
 
     default:
       throw `Don't know how to find container for path '${JSON.stringify(
-        availabilityPath,
+        availabilityPath
       )}'`;
   }
 }
@@ -652,14 +652,14 @@ function findDeprecationRelease(global, path, options) {
     deprecatedRelease = findReleaseForPath(
       data,
       ['deprecated', ...deprecationPath],
-      options,
+      options
     );
     deprecationPath = findPathToContainer(deprecationPath);
   }
   if (options.hash.deprecatedRelease) {
     let minimalDeprecatedRelease = findReleaseByName(
       data,
-      options.hash.deprecatedRelease,
+      options.hash.deprecatedRelease
     );
     if (
       deprecatedRelease === undefined ||
@@ -684,14 +684,14 @@ async function availabilityHelper(clusterName, language, options) {
     // depends on the type.
     if (options.hash.deprecationMessage) {
       throw new Error(
-        `Should not specify deprecationMessage along with fabricScopedDeprecationMessage and nonFabricScopedDeprecationMessage`,
+        `Should not specify deprecationMessage along with fabricScopedDeprecationMessage and nonFabricScopedDeprecationMessage`
       );
     }
     let packageIds = await templateUtil.ensureZclPackageIds(this);
     let st = await zclQuery.selectStructByName(
       this.global.db,
       options.hash.type,
-      packageIds,
+      packageIds
     );
     if (st && st.isFabricScoped) {
       options.hash.deprecationMessage =
@@ -705,7 +705,7 @@ async function availabilityHelper(clusterName, language, options) {
   let introducedRelease = findReleaseForPath(
     data,
     ['introduced', ...path],
-    options,
+    options
   );
   if (introducedRelease !== undefined && options.hash.minimalRelease) {
     let minimalRelease = findReleaseByName(data, options.hash.minimalRelease);
@@ -724,8 +724,8 @@ async function availabilityHelper(clusterName, language, options) {
   if (introducedVersions === undefined && deprecatedVersions !== undefined) {
     throw new Error(
       `Found deprecation but no introduction for: '${clusterName}' '${JSON.stringify(
-        options.hash,
-      )}'`,
+        options.hash
+      )}'`
     );
   }
 
@@ -734,13 +734,13 @@ async function availabilityHelper(clusterName, language, options) {
       this.global,
       clusterName,
       options,
-      'provisional',
+      'provisional'
     );
     if (!provisionalRelease) {
       console.log(
         `WARNING: Missing "introduced" or "provisional" entry for: '${clusterName}' '${JSON.stringify(
-          options.hash,
-        )}'`,
+          options.hash
+        )}'`
       );
     }
   }
@@ -764,7 +764,7 @@ async function availabilityHelper(clusterName, language, options) {
     }
 
     throw new Error(
-      `Unknown language ${language}; cannot determine availability syntax.`,
+      `Unknown language ${language}; cannot determine availability syntax.`
     );
   })();
 
@@ -795,14 +795,14 @@ async function availabilityHelper(clusterName, language, options) {
   if (deprecatedVersions === undefined) {
     if (language == 'ObjC') {
       let availabilityStrings = Object.entries(introducedVersions).map(
-        ([os, version]) => `${os.toLowerCase()}(${version})`,
+        ([os, version]) => `${os.toLowerCase()}(${version})`
       );
       return `MTR_AVAILABLE(${availabilityStrings.join(', ')})`;
     }
 
     if (language == 'Swift') {
       let availabilityStrings = Object.entries(introducedVersions).map(
-        ([os, version]) => `${os} ${version}`,
+        ([os, version]) => `${os} ${version}`
       );
       // For now, we are stuck with Swift versions in Matter CI that do not
       // support wrapping attributes in conditional compilation.
@@ -824,17 +824,17 @@ async function availabilityHelper(clusterName, language, options) {
   if (!options.hash.deprecationMessage) {
     throw new Error(
       `Deprecation needs a deprecation message for ${clusterName} and ${JSON.stringify(
-        options.hash,
-      )} (${this.global.templatePath}:${options.loc.start.line})`,
+        options.hash
+      )} (${this.global.templatePath}:${options.loc.start.line})`
     );
   }
 
   if (deprecatedVersions === 'future') {
     let availabilityStrings = Object.entries(introducedVersions).map(
-      ([os, version]) => `${os.toLowerCase()}(${version})`,
+      ([os, version]) => `${os.toLowerCase()}(${version})`
     );
     return `MTR_AVAILABLE(${availabilityStrings.join(
-      ', ',
+      ', '
     )})\nMTR_NEWLY_DEPRECATED("${options.hash.deprecationMessage}")`;
   }
 
@@ -845,10 +845,10 @@ async function availabilityHelper(clusterName, language, options) {
     if (!introducedOSes.includes(os)) {
       throw new Error(
         `Deprecation versions '${JSON.stringify(
-          deprecatedVersions,
+          deprecatedVersions
         )}' include an OS that introduction versions '${JSON.stringify(
-          introducedVersions,
-        )}' do not include: '${os}'.`,
+          introducedVersions
+        )}' do not include: '${os}'.`
       );
     }
   }
@@ -856,10 +856,10 @@ async function availabilityHelper(clusterName, language, options) {
     if (!deprecatedOSes.includes(os)) {
       throw new Error(
         `Deprecation versions '${JSON.stringify(
-          deprecatedVersions,
+          deprecatedVersions
         )}' do not include an OS that introduction versions '${JSON.stringify(
-          introducedVersions,
-        )}' include: '${os}'.`,
+          introducedVersions
+        )}' include: '${os}'.`
       );
     }
   }
@@ -867,7 +867,7 @@ async function availabilityHelper(clusterName, language, options) {
   let swiftUnavailableRelease = findReleaseForPath(
     data,
     ['swiftUnavailable', ...path],
-    options,
+    options
   );
   let swiftUnavailable;
   if (swiftUnavailableRelease == undefined) {
@@ -878,7 +878,7 @@ async function availabilityHelper(clusterName, language, options) {
 
   let availabilityStrings = Object.entries(introducedVersions).map(
     ([os, version]) =>
-      `${os.toLowerCase()}(${version}, ${deprecatedVersions[os]})`,
+      `${os.toLowerCase()}(${version}, ${deprecatedVersions[os]})`
   );
   return `MTR_DEPRECATED("${
     options.hash.deprecationMessage
@@ -906,7 +906,7 @@ function compareIntroductionToReferenceRelease(
   global,
   path,
   options,
-  referenceRelease,
+  referenceRelease
 ) {
   if (referenceRelease === undefined) {
     throw new Error("Can't compare to non-existent release");
@@ -917,7 +917,7 @@ function compareIntroductionToReferenceRelease(
   let introducedRelease = findReleaseForPath(
     data,
     ['introduced', ...path],
-    options,
+    options
   );
   if (introducedRelease === undefined) {
     return undefined;
@@ -949,7 +949,7 @@ function wasIntroducedBeforeRelease(releaseName, clusterName, options) {
     this.global,
     makeAvailabilityPath(clusterName, options),
     options,
-    referenceRelease,
+    referenceRelease
   );
   if (comparisonStatus === undefined) {
     // Not introduced yet, so not introduced before anything in particular.
@@ -969,7 +969,7 @@ function findReleaseForPathOrAncestorAndSection(
   global,
   cluster,
   options,
-  section,
+  section
 ) {
   const data = fetchAvailabilityData(global);
   let path = makeAvailabilityPath(cluster, options);
@@ -990,7 +990,7 @@ function wasRemoved(cluster, options) {
       this.global,
       cluster,
       options,
-      'removed',
+      'removed'
     ) !== undefined
   );
 }
@@ -1021,14 +1021,14 @@ function isSupported(cluster, options) {
   let deprecationRelease = findDeprecationRelease(
     this.global,
     findPathToContainer(path),
-    options,
+    options
   );
   if (deprecationRelease !== undefined) {
     let comparisonStatus = compareIntroductionToReferenceRelease(
       this.global,
       path,
       options,
-      deprecationRelease,
+      deprecationRelease
     );
     // The only case where we might be supported is if we have an explicit
     // introduction and the introduction comes before the ancestor deprecation.
@@ -1045,7 +1045,7 @@ function findProvisionalRelease(global, cluster, options) {
     global,
     cluster,
     options,
-    'provisional',
+    'provisional'
   );
   if (provisionalRelease !== undefined) {
     return provisionalRelease;
@@ -1070,10 +1070,10 @@ function findProvisionalRelease(global, cluster, options) {
       hash: {
         ...options.hash,
         attribute: undefined,
-        globalAttribute: attrName,
-      },
+        globalAttribute: attrName
+      }
     },
-    'provisional',
+    'provisional'
   );
 }
 
@@ -1084,7 +1084,7 @@ function isProvisional(cluster, options) {
   let introducedRelease = findReleaseForPath(
     data,
     ['introduced', ...path],
-    options,
+    options
   );
 
   if (introducedRelease == undefined) {
@@ -1095,7 +1095,7 @@ function isProvisional(cluster, options) {
   let provisionalRelease = findProvisionalRelease(
     this.global,
     cluster,
-    options,
+    options
   );
   if (provisionalRelease === undefined) {
     return false;
@@ -1106,7 +1106,7 @@ function isProvisional(cluster, options) {
       this.global,
       path,
       options,
-      provisionalRelease.release,
+      provisionalRelease.release
     );
 
     // If we have an explicit introduction for something that is at the scope of
@@ -1138,37 +1138,37 @@ function hasRenamedFields(cluster, options) {
   let hashAddition;
   if (options.hash.struct) {
     hashAddition = {
-      structField: 'dummy',
+      structField: 'dummy'
     };
   } else if (options.hash.event) {
     hashAddition = {
-      eventField: 'dummy',
+      eventField: 'dummy'
     };
   } else if (options.hash.command) {
     hashAddition = {
-      commandField: 'dummy',
+      commandField: 'dummy'
     };
   } else if (options.hash.enum) {
     hashAddition = {
-      enumValue: 'dummy',
+      enumValue: 'dummy'
     };
   } else if (options.hash.bitmap) {
     hashAddition = {
-      bitmapValue: 'dummy',
+      bitmapValue: 'dummy'
     };
   } else {
     throw new Error(
       `hasRenamedFields called for a non-container object: ${cluster} '${JSON.stringify(
-        options.hash,
-      )}'`,
+        options.hash
+      )}'`
     );
   }
 
   let path = makeAvailabilityPath(cluster, {
     hash: {
       ...options.hash,
-      ...hashAddition,
-    },
+      ...hashAddition
+    }
   });
 
   // Now strip off the last bit of the path, so we're just checking for any
@@ -1186,7 +1186,7 @@ function and() {
   return args.reduce((running, current) => {
     if (current instanceof Promise) {
       throw new Error(
-        "Promise passed as argument to 'and'.  You probably want to use async_if/async_and",
+        "Promise passed as argument to 'and'.  You probably want to use async_if/async_and"
       );
     }
     return running && current;
@@ -1201,7 +1201,7 @@ function or() {
   return args.reduce((running, current) => {
     if (current instanceof Promise) {
       throw new Error(
-        "Promise passed as argument to 'or'.  You probably want to use async_if/async_or",
+        "Promise passed as argument to 'or'.  You probably want to use async_if/async_or"
       );
     }
     return running || current;
@@ -1211,7 +1211,7 @@ function or() {
 function not(value) {
   if (value instanceof Promise) {
     throw new Error(
-      "Promise passed as argument to 'not'.  You probably want to use async_if/async_not",
+      "Promise passed as argument to 'not'.  You probably want to use async_if/async_not"
     );
   }
 
@@ -1291,5 +1291,5 @@ exports.hasRenamedFields = hasRenamedFields;
 
 exports.meta = {
   category: dbEnum.helperCategory.matter,
-  alias: ['darwin/Framework/CHIP/templates/helper.js', 'darwin-chip-helper'],
+  alias: ['darwin/Framework/CHIP/templates/helper.js', 'darwin-chip-helper']
 };

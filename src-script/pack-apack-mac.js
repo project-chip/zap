@@ -17,8 +17,8 @@ exports.default = async function (buildResult) {
         path.join(buildResult.outDir, '../apack.json'),
         {
           $progress: true,
-          $bin: pathTo7zip,
-        },
+          $bin: pathTo7zip
+        }
       )
       // myStream.on('end', function () {
       //   console.log(myStream.info)

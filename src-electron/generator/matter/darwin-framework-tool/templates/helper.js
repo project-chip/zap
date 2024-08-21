@@ -29,6 +29,6 @@ exports.meta = {
   category: dbEnum.helperCategory.matter,
   alias: [
     'darwin-framework-tool/templates/helper.js',
-    'darwin-framework-tool-helper',
-  ],
+    'darwin-framework-tool-helper'
+  ]
 };
