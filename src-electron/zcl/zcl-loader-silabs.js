@@ -1611,7 +1611,6 @@ function prepareDeviceType(deviceType) {
   }
   if ('endpointComposition' in deviceType) {
     try {
-      console.log(deviceType.endpointComposition[0].endpoint[0].$.constraint)
       ret.compositionType = deviceType.endpointComposition[0].compositionType[0]
       ret.conformance =
         deviceType.endpointComposition[0].endpoint[0].$.conformance
