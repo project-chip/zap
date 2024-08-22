@@ -324,6 +324,20 @@ export function updateEndpoint(context, endpoint) {
   })
 }
 
+export function loadComposition(context) {
+  axiosRequests
+    .$serverGet(restApi.uri.rootNode)
+    .then((res) => {
+      return addEndpointType(context, res.data) // Call addEndpointType with the data from restApi
+    })
+    .then((endpointTypeData) => {
+      return addEndpoint(context, endpointTypeData) // Call addEndpoint with the data returned from addEndpointType
+    })
+    .catch((error) => {
+      console.error('Error loading composition:', error)
+    })
+}
+
 export function addEndpoint(context, newEndpointContext) {
   return axiosRequests
     .$serverPost(restApi.uri.endpoint, newEndpointContext)

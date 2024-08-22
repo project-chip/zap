@@ -23,6 +23,8 @@
 const dbApi = require('./db-api.js')
 const bin = require('../util/bin')
 const dbMapping = require('./db-mapping.js')
+const dbEnum = require('./db-enum.js')
+const { dbEnums } = require('util/post-import-api.js')
 
 /**
  * Returns a promise resolving into all endpoints.
@@ -56,6 +58,27 @@ ORDER BY E1.ENDPOINT_IDENTIFIER
     [sessionId]
   )
   return rows.map(dbMapping.map.endpoint)
+}
+
+/**
+ * Retrieves the root node device type references from the ENDPOINT_COMPOSITION table
+ * for the given package IDs.
+ *
+ * @param {*} db - The database connection object.
+ * @param {Array<number>} packageIds - An array of package IDs to query.
+ * @returns {Promise<Array>} - A promise that resolves to an array of rows containing DEVICE_TYPE_REF.
+ */
+async function getRootNode(db, packageIds) {
+  const query = `
+    SELECT DEVICE_TYPE_REF
+    FROM ENDPOINT_COMPOSITION
+    WHERE TYPE = ? AND PACKAGE_REF IN (${packageIds.map(() => '?').join(', ')})
+  `
+  const result = await db.query(query, [
+    dbEnum.composition.rootNode,
+    ...packageIds
+  ])
+  return result.rows
 }
 
 /**
@@ -592,3 +615,4 @@ exports.getParentEndpointRef = getParentEndpointRef
 exports.getParentEndpointIdentifier = getParentEndpointIdentifier
 exports.selectAllEndpointsBasedOnTemplateCategory =
   selectAllEndpointsBasedOnTemplateCategory
+exports.getRootNode = getRootNode

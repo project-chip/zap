@@ -284,6 +284,8 @@ export default defineComponent({
       // load initial UC component state
       this.$store.dispatch(`zap/loadUcComponentState`)
 
+      this.$store.dispatch('zap/loadComposition')
+
       // handles UC component state change events
       this.$onWebSocket(
         dbEnum.wsCategory.updateSelectedUcComponents,

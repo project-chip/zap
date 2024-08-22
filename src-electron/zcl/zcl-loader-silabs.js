@@ -1685,7 +1685,12 @@ async function processDeviceTypes(db, filePath, packageId, data, context) {
       deviceType.compositionType != null ||
       deviceType.code == parseInt(context.mandatoryDeviceTypes, 16)
     ) {
-      await queryLoader.insertEndpointComposition(db, deviceType, context)
+      await queryLoader.insertEndpointComposition(
+        db,
+        deviceType,
+        context,
+        packageId
+      )
       if (deviceType.code !== parseInt(context.mandatoryDeviceTypes, 16)) {
         let endpointCompositionId =
           await queryLoader.getEndpointCompositionIdByCode(db, deviceType)
