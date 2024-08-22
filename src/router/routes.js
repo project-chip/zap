@@ -181,10 +181,10 @@ const routes = [
         path: '',
         components: {
           default: () => import('../pages/ExtensionsPage.vue'),
-          sidebar: () => import('../components/ZclEndpointManager.vue'),
-        },
-      },
-    ],
+          sidebar: () => import('../components/ZclEndpointManager.vue')
+        }
+      }
+    ]
   },
   {
     path: '/feature',
@@ -195,11 +195,11 @@ const routes = [
         path: '',
         components: {
           default: () => import('components/ZclDeviceTypeFeatureManager.vue'),
-          sidebar: () => import('components/ZclEndpointManager.vue'),
-        },
-      },
-    ],
-  },
+          sidebar: () => import('components/ZclEndpointManager.vue')
+        }
+      }
+    ]
+  }
 ]
 
 // Always leave this as last one

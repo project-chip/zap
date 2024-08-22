@@ -1641,7 +1641,7 @@ function prepareDeviceType(deviceType) {
               let conformance = parseFeatureConformance(f)
               features.push({
                 name: f.$.name,
-                conformance: conformance,
+                conformance: conformance
               })
             })
           }

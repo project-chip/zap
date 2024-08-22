@@ -256,7 +256,7 @@ exports.map = {
       code: x.CODE,
       bit: x.BIT,
       default_value: x.DEFAULT_VALUE,
-      description: x.DESCRIPTION,
+      description: x.DESCRIPTION
     }
   },
 

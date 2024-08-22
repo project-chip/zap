@@ -1051,7 +1051,7 @@ exports.get = [
   },
   {
     uri: restApi.uri.deviceTypeFeatures,
-    callback: httpGetDeviceTypeFeatures,
+    callback: httpGetDeviceTypeFeatures
   },
   {
     uri: restApi.uri.sessionNotification,

@@ -78,59 +78,59 @@ export default {
   computed: {
     deviceTypeFeatures() {
       return this.$store.state.zap.deviceTypeFeatures
-    },
+    }
   },
   data() {
     return {
       nodataMessage: 'No device type features available for this endpoint',
       pagination: {
-        rowsPerPage: 10,
+        rowsPerPage: 10
       },
       columns: [
         {
           name: 'deviceType',
           required: true,
           label: 'Device Type',
-          align: 'left',
+          align: 'left'
         },
         {
           name: 'cluster',
           required: true,
           label: 'Cluster',
-          align: 'left',
+          align: 'left'
         },
         {
           name: 'featureName',
           required: true,
           label: 'Feature Name',
-          align: 'left',
+          align: 'left'
         },
         {
           name: 'code',
           required: true,
           label: 'Code',
-          align: 'left',
+          align: 'left'
         },
         {
           name: 'conformance',
           required: true,
           label: 'Conformance',
-          align: 'left',
+          align: 'left'
         },
         {
           name: 'bit',
           required: true,
           label: 'Bit',
-          align: 'left',
+          align: 'left'
         },
         {
           name: 'description',
           required: false,
           label: 'Description',
-          align: 'left',
-        },
-      ],
+          align: 'left'
+        }
+      ]
     }
-  },
+  }
 }
 </script>
