@@ -38,6 +38,8 @@ async function getFeaturesByDeviceTypeRefs(db, deviceTypeRefs) {
     SELECT
         d.DESCRIPTION AS DEVICE_TYPE_NAME,
         dc.CLUSTER_NAME,
+        dc.INCLUDE_SERVER,
+        dc.INCLUDE_CLIENT,
         df.DEVICE_TYPE_CLUSTER_CONFORMANCE,
         f.FEATURE_ID,
         f.NAME AS FEATURE_NAME,

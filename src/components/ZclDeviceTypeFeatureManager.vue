@@ -40,6 +40,9 @@ limitations under the License.
               <q-td key="cluster" :props="props" auto-width>
                 {{ props.row.cluster }}
               </q-td>
+              <q-td key="clusterSide" :props="props" auto-width>
+                {{ getClusterSide(props.row) }}
+              </q-td>
               <q-td key="featureName" :props="props" auto-width>
                 {{ props.row.name }}
               </q-td>
@@ -74,7 +77,19 @@ import CommonMixin from '../util/common-mixin'
 export default {
   name: 'ZclDeviceTypeFeatureManager',
   mixins: [CommonMixin],
-  methods: {},
+  methods: {
+    getClusterSide(row) {
+      if (row.includeClient == 1 && row.includeServer == 1) {
+        return 'Client & Server'
+      } else if (row.includeClient === 1) {
+        return 'Client'
+      } else if (row.includeServer === 1) {
+        return 'Server'
+      } else {
+        return 'none'
+      }
+    }
+  },
   computed: {
     deviceTypeFeatures() {
       return this.$store.state.zap.deviceTypeFeatures
@@ -97,6 +112,12 @@ export default {
           name: 'cluster',
           required: true,
           label: 'Cluster',
+          align: 'left'
+        },
+        {
+          name: 'clusterSide',
+          required: true,
+          label: 'Cluster Side',
           align: 'left'
         },
         {
