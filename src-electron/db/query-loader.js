@@ -942,13 +942,13 @@ async function insertAtomics(db, packageId, data) {
  */
 async function insertEndpointComposition(db, composition, context, packageId) {
   if (parseInt(context.mandatoryDeviceTypes, 16) === composition.code) {
-    return await dbApi.dbInsert(
+    return dbApi.dbInsert(
       db,
       'INSERT INTO ENDPOINT_COMPOSITION (TYPE, CODE, PACKAGE_REF) VALUES (?, ?, ?)',
       [dbEnum.composition.rootNode, composition.code, packageId]
     )
   } else {
-    return await dbApi.dbInsert(
+    return dbApi.dbInsert(
       db,
       'INSERT INTO ENDPOINT_COMPOSITION (TYPE, CODE, PACKAGE_REF) VALUES (?, ?, ?)',
       [composition.compositionType, composition.code, packageId]
