@@ -3689,7 +3689,7 @@ This module provides queries for ZCL loading
     * [~insertSpecs(db, packageId, data)](#module_DB API_ zcl loading queries..insertSpecs) ⇒
     * [~insertGlobalAttributeDefault(db, packageId, clusterData)](#module_DB API_ zcl loading queries..insertGlobalAttributeDefault) ⇒
     * [~insertAtomics(db, packageId, data)](#module_DB API_ zcl loading queries..insertAtomics)
-    * [~insertEndpointComposition(db, composition, context)](#module_DB API_ zcl loading queries..insertEndpointComposition) ⇒
+    * [~insertEndpointComposition(db, composition, context, packageId)](#module_DB API_ zcl loading queries..insertEndpointComposition) ⇒
     * [~getEndpointCompositionIdByCode(db, deviceType)](#module_DB API_ zcl loading queries..getEndpointCompositionIdByCode) ⇒ <code>Promise.&lt;(number\|null)&gt;</code>
     * [~insertDeviceComposition(db, deviceType, endpointCompositionId)](#module_DB API_ zcl loading queries..insertDeviceComposition) ⇒ <code>Promise</code>
     * [~insertDeviceTypes(db, packageId, data)](#module_DB API_ zcl loading queries..insertDeviceTypes) ⇒
@@ -4016,11 +4016,12 @@ Object might also contain 'size', but possibly not.
 
 <a name="module_DB API_ zcl loading queries..insertEndpointComposition"></a>
 
-### DB API: zcl loading queries~insertEndpointComposition(db, composition, context) ⇒
+### DB API: zcl loading queries~insertEndpointComposition(db, composition, context, packageId) ⇒
 Inserts endpoint composition data into the database based on the context's mandatory device type.
 This function checks if the context's mandatory device type matches the composition code.
 If they match, it performs an insert operation with a specific type from `dbEnum.mandatoryDeviceType`.
 If they do not match, it performs an insert with the composition's type.
+The function also includes the `packageId` as a foreign key reference in the insert operation.
 
 **Kind**: inner method of [<code>DB API: zcl loading queries</code>](#module_DB API_ zcl loading queries)  
 **Returns**: A promise resolved with the result of the database insert operation.  
@@ -4030,22 +4031,20 @@ If they do not match, it performs an insert with the composition's type.
 | db | <code>\*</code> | The database connection object. |
 | composition | <code>\*</code> | The composition data to be inserted. |
 | context | <code>\*</code> | The context containing the mandatory device type to check against. |
+| packageId | <code>\*</code> | The package ID to be used as a foreign key reference. |
 
 <a name="module_DB API_ zcl loading queries..getEndpointCompositionIdByCode"></a>
 
 ### DB API: zcl loading queries~getEndpointCompositionIdByCode(db, deviceType) ⇒ <code>Promise.&lt;(number\|null)&gt;</code>
-Retrieves the endpoint composition ID by device code.
-
-This function executes a SQL query to fetch the endpoint composition ID
-associated with a given device code. If the query fails, an error is logged.
+Retrieves the endpoint composition ID for a given device type code.
 
 **Kind**: inner method of [<code>DB API: zcl loading queries</code>](#module_DB API_ zcl loading queries)  
-**Returns**: <code>Promise.&lt;(number\|null)&gt;</code> - The endpoint composition ID or null if not found.  
+**Returns**: <code>Promise.&lt;(number\|null)&gt;</code> - - A promise that resolves to the endpoint composition ID or null if not found.  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| db | <code>Object</code> | The database connection object. |
-| deviceType | <code>Object</code> | The device type object containing the device code. |
+| db | <code>\*</code> | The database connection object. |
+| deviceType | <code>Object</code> | The device type object containing the code. |
 
 <a name="module_DB API_ zcl loading queries..insertDeviceComposition"></a>
 
@@ -15065,6 +15064,7 @@ This module provides the REST API to the user specific data.
     * [~httpPostEndpoint(db)](#module_REST API_ endpoint..httpPostEndpoint) ⇒
     * [~httpPatchEndpoint(db)](#module_REST API_ endpoint..httpPatchEndpoint) ⇒
     * [~httpPostEndpointType(db)](#module_REST API_ endpoint..httpPostEndpointType) ⇒
+    * [~httpGetRootNode(db)](#module_REST API_ endpoint..httpGetRootNode) ⇒ <code>function</code>
     * [~httpPatchEndpointType(db)](#module_REST API_ endpoint..httpPatchEndpointType) ⇒
 
 <a name="module_REST API_ endpoint..httpDeleteEndpoint"></a>
@@ -15126,6 +15126,18 @@ HTTP POST endpoint type
 | Param | Type |
 | --- | --- |
 | db | <code>\*</code> | 
+
+<a name="module_REST API_ endpoint..httpGetRootNode"></a>
+
+### REST API: endpoint~httpGetRootNode(db) ⇒ <code>function</code>
+Handles the HTTP GET request to retrieve the root node.
+
+**Kind**: inner method of [<code>REST API: endpoint</code>](#module_REST API_ endpoint)  
+**Returns**: <code>function</code> - - An async function that handles the HTTP request and response.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| db | <code>Object</code> | The database connection object. |
 
 <a name="module_REST API_ endpoint..httpPatchEndpointType"></a>
 

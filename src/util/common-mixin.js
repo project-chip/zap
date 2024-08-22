@@ -150,7 +150,8 @@ export default {
       })
       this.$store.dispatch('zap/updateSelectedEndpoint', endpointReference)
       this.$store.dispatch('zap/updateClusters')
-      let deviceTypeRefs = this.endpointDeviceTypeRef[this.selectedEndpointId]
+      let deviceTypeRefs =
+        this.endpointDeviceTypeRef[this.selectedEndpointTypeId]
       this.$store.dispatch(
         'zap/updateSelectedDeviceTypeFeatures',
         deviceTypeRefs
