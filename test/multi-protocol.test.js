@@ -26,6 +26,7 @@ const querySessionNotice = require('../src-electron/db/query-session-notificatio
 const zclLoader = require('../src-electron/zcl/zcl-loader')
 const importJs = require('../src-electron/importexport/import')
 const testUtil = require('./test-util')
+const queryConfig = require('../src-electron/db/query-config')
 
 const zigbeeTemplateCount = testUtil.testTemplate.zigbee2Count
 const matterTemplateCount = testUtil.testTemplate.matter2Count
@@ -207,4 +208,96 @@ test(
     )
   },
   testUtil.timeout.long()
+)
+
+// Test to check that the default values of corresponding attributes is updated on one endpoint
+// Make sure the above does not affect other endpoints.
+// Make sure other attribute's values are not affected as well.
+// Test both sides matter to zigbee and zigbee to matter
+test(
+  `Test Endpoint Type Attribute default value syncing between 2 protocols ${multiProtocolTestFile}`,
+  async () => {
+    let importRes = await importJs.importDataFromFile(
+      db,
+      multiProtocolTestFile,
+      { sessionId: null },
+    )
+
+    // Get all session attributes
+    let allEndpointTypeAttributes =
+      await queryConfig.selectAllSessionAttributes(db, importRes.sessionId)
+    let zigbeeEndpointTypeAttribute = ''
+    let matterEndpointTypeAttribute = ''
+
+    // Get all on/off endpoint type attribute values for zigbee and matter
+    for (const eta of allEndpointTypeAttributes) {
+      if (eta.name.toLowerCase() == 'on/off') {
+        zigbeeEndpointTypeAttribute = eta
+      }
+      if (eta.name.toLowerCase() == 'onoff') {
+        matterEndpointTypeAttribute = eta
+      }
+    }
+
+    // Check both of them are the same
+    expect(parseInt(zigbeeEndpointTypeAttribute.defaultValue)).toEqual(0)
+    expect(parseInt(zigbeeEndpointTypeAttribute.defaultValue)).toEqual(
+      parseInt(matterEndpointTypeAttribute.defaultValue),
+    )
+
+    // Change zigbee ETA and check for the change in the corresponding Matter ETA.
+    await queryConfig.updateEndpointTypeAttribute(
+      db,
+      zigbeeEndpointTypeAttribute.endpointTypeAttributeId,
+      [['defaultValue', 1]],
+    )
+    let allEndpointTypeAttributesAfterChange =
+      await queryConfig.selectAllSessionAttributes(db, importRes.sessionId)
+    for (const eta of allEndpointTypeAttributesAfterChange) {
+      if (eta.name.toLowerCase() == 'on/off') {
+        zigbeeEndpointTypeAttribute = eta
+      }
+      if (eta.name.toLowerCase() == 'onoff') {
+        matterEndpointTypeAttribute = eta
+      }
+    }
+    expect(parseInt(zigbeeEndpointTypeAttribute.defaultValue)).toEqual(1)
+    expect(parseInt(zigbeeEndpointTypeAttribute.defaultValue)).toEqual(
+      parseInt(matterEndpointTypeAttribute.defaultValue),
+    )
+
+    // Negative test: Check that none of the other Endpoint Type Attribute values are not changed. Only the ones intended i.e. on/off
+    for (let i = 0; i < allEndpointTypeAttributes.length; i++) {
+      if (
+        allEndpointTypeAttributes[i].name.toLowerCase() != 'on/off' &&
+        allEndpointTypeAttributes[i].name.toLowerCase() != 'onoff'
+      ) {
+        expect(allEndpointTypeAttributes[i].defaultValue).toEqual(
+          allEndpointTypeAttributesAfterChange[i].defaultValue,
+        )
+      }
+    }
+
+    // Also test change of matter ETA and check for the change in the corresponding Zigbee ETA.
+    await queryConfig.updateEndpointTypeAttribute(
+      db,
+      matterEndpointTypeAttribute.endpointTypeAttributeId,
+      [['defaultValue', 0]],
+    )
+    allEndpointTypeAttributesAfterChange =
+      await queryConfig.selectAllSessionAttributes(db, importRes.sessionId)
+    for (const eta of allEndpointTypeAttributesAfterChange) {
+      if (eta.name.toLowerCase() == 'on/off') {
+        zigbeeEndpointTypeAttribute = eta
+      }
+      if (eta.name.toLowerCase() == 'onoff') {
+        matterEndpointTypeAttribute = eta
+      }
+    }
+    expect(parseInt(matterEndpointTypeAttribute.defaultValue)).toEqual(0)
+    expect(parseInt(matterEndpointTypeAttribute.defaultValue)).toEqual(
+      parseInt(zigbeeEndpointTypeAttribute.defaultValue),
+    )
+  },
+  testUtil.timeout.long(),
 )

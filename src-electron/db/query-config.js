@@ -1452,7 +1452,8 @@ SELECT
   ETA.INCLUDED_REPORTABLE,
   ETA.MIN_INTERVAL,
   ETA.MAX_INTERVAL,
-  ETA.REPORTABLE_CHANGE
+  ETA.REPORTABLE_CHANGE,
+  ETA.ENDPOINT_TYPE_ATTRIBUTE_ID
 FROM
   CLUSTER AS C
 JOIN
@@ -1477,6 +1478,7 @@ ORDER BY
     .then((rows) =>
       rows.map((row) => {
         return {
+          endpointTypeAttributeId: row.ENDPOINT_TYPE_ATTRIBUTE_ID,
           name: row.NAME,
           attributeCode: row.ATTRIBUTE_CODE,
           clusterCode: row.CLUSTER_CODE,
