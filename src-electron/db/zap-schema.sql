@@ -28,7 +28,7 @@ PRAGMA foreign_keys = ON;
  Note: This table does not have unique keys because we could have top
  level packages which are reloaded because one of the packages
  changed. So there could be multiple top level packages with same
- path and crc but there will be only one of them which will have 
+ path and crc but there will be only one of them which will have
  IS_IN_SYNC as 1.
  */
 DROP TABLE IF EXISTS "PACKAGE";
@@ -370,20 +370,20 @@ CREATE TABLE IF NOT EXISTS "DEVICE_TYPE" (
 /*
  This table stores information about endpoint compositions.
  Each record represents a composition associated with a specific device type.
- 
+
  Columns:
  ENDPOINT_COMPOSITION_ID: The primary key of the table, auto-incremented for each new record.
  DEVICE_TYPE_REF: A foreign key linking to the DEVICE_TYPE table, indicating the device type associated with this composition.
  TYPE: A text field describing the type of the endpoint composition.
  CODE: An integer representing a unique code for the endpoint composition.
- 
+
  Foreign Key Constraints:
  The DEVICE_TYPE_REF column references the DEVICE_TYPE_ID column of the DEVICE_TYPE table.
  On deletion of a referenced device type, corresponding records in this table are deleted (CASCADE).
 */
 CREATE TABLE IF NOT EXISTS "ENDPOINT_COMPOSITION" (
   "ENDPOINT_COMPOSITION_ID" integer PRIMARY KEY AUTOINCREMENT,
-  "DEVICE_TYPE_REF" integer, 
+  "DEVICE_TYPE_REF" integer,
   "TYPE" text,
   "CODE" integer,
   FOREIGN KEY ("DEVICE_TYPE_REF") REFERENCES "DEVICE_TYPE"("DEVICE_TYPE_ID") ON DELETE CASCADE
@@ -391,7 +391,7 @@ CREATE TABLE IF NOT EXISTS "ENDPOINT_COMPOSITION" (
 /*
  This table defines the composition of devices within the system.
  It links devices to their types and endpoint compositions, specifying their conformance and constraints.
- 
+
  Columns:
  DEVICE_COMPOSITION_ID: The primary key of the table, auto-incremented for each new record.
  CODE: An integer representing the device code.
@@ -399,7 +399,7 @@ CREATE TABLE IF NOT EXISTS "ENDPOINT_COMPOSITION" (
  ENDPOINT_COMPOSITION_REF: A foreign key linking to the ENDPOINT_COMPOSITION table to specify the endpoint composition associated with this device.
  CONFORMANCE: A text field describing the conformance level of the device composition.
  DEVICE_CONSTRAINT: An integer representing any constraints applied to the device composition.
- 
+
  Foreign Key Constraints:
  The DEVICE_TYPE_REF column references the DEVICE_TYPE_ID column of the DEVICE_TYPE table. On deletion of a device type, corresponding records in this table are deleted (CASCADE).
  The ENDPOINT_COMPOSITION_REF column references the ENDPOINT_COMPOSITION_ID column of the ENDPOINT_COMPOSITION table. On deletion of an endpoint composition, corresponding records in this table are deleted (CASCADE).
@@ -3246,78 +3246,78 @@ CREATE TRIGGER CLUSTER_CODE_CONFLICT_MESSAGE_ON_INSERT
 AFTER INSERT ON SESSION_PACKAGE
 WHEN
   EXISTS(
-    SELECT 
+    SELECT
       1
-    FROM 
+    FROM
       SESSION_PACKAGE spk
-    JOIN 
-      PACKAGE p 
-    ON 
+    JOIN
+      PACKAGE p
+    ON
       spk.PACKAGE_REF = p.PACKAGE_ID
-    WHERE 
+    WHERE
       p.TYPE = 'zcl-xml-standalone'
-    AND 
+    AND
       spk.package_ref = NEW.package_ref
-    AND 
+    AND
       NEW.ENABLED = true
   )
 BEGIN
   INSERT INTO SESSION_NOTICE(
-    SESSION_REF, 
-    NOTICE_TYPE, 
-    NOTICE_MESSAGE, 
-    NOTICE_SEVERITY, 
-    DISPLAY, 
+    SESSION_REF,
+    NOTICE_TYPE,
+    NOTICE_MESSAGE,
+    NOTICE_SEVERITY,
+    DISPLAY,
     SEEN
   )
-  SELECT 
+  SELECT
     spt.SESSION_REF,
-    'ERROR', 
-    'Cluster code conflict in ' || p.PATH || ' and ' || p2.PATH || ' for ' || c.CODE, 
-    2, 
-    1, 
+    'ERROR',
+    'Cluster code conflict in ' || p.PATH || ' and ' || p2.PATH || ' for ' || c.CODE,
+    2,
+    1,
     0
-  FROM 
+  FROM
     CLUSTER c
-  INNER JOIN 
-    PACKAGE p 
-  ON 
-    c.PACKAGE_REF = p.PACKAGE_ID 
-  INNER JOIN 
+  INNER JOIN
+    PACKAGE p
+  ON
+    c.PACKAGE_REF = p.PACKAGE_ID
+  INNER JOIN
     SESSION_PACKAGE spk
-  ON 
+  ON
    	p.PACKAGE_ID = spk.PACKAGE_REF
   INNER JOIN
-    SESSION_PARTITION spt 
-  ON 
+    SESSION_PARTITION spt
+  ON
     spk.SESSION_PARTITION_REF = spt.SESSION_PARTITION_ID
   INNER JOIN
     SESSION_PARTITION spt2
   ON
     spt.SESSION_REF = spt2.SESSION_REF
-  INNER JOIN 
-    SESSION_PACKAGE spk2 
-  ON 
+  INNER JOIN
+    SESSION_PACKAGE spk2
+  ON
     spt2.SESSION_PARTITION_ID = spk2.SESSION_PARTITION_REF
-  INNER JOIN 
+  INNER JOIN
     PACKAGE p2
-  ON 
+  ON
     spk2.PACKAGE_REF = p2.PACKAGE_ID
   INNER JOIN
-    CLUSTER c2 
-  ON 
+    CLUSTER c2
+  ON
     p2.PACKAGE_ID = c2.PACKAGE_REF
-  WHERE 
+  WHERE
     spk.SESSION_PARTITION_REF = NEW.SESSION_PARTITION_REF
-  AND 
+  AND
     spk.PACKAGE_REF = NEW.PACKAGE_REF
-  AND 
+  AND
     spk2.ENABLED = true
   AND
     ((c.CODE = c2.CODE AND c.MANUFACTURER_CODE = c2.MANUFACTURER_CODE)
-    OR 
+    OR
     (c.CODE = c2.CODE AND (c.MANUFACTURER_CODE IS NULL OR c.MANUFACTURER_CODE=0) AND (c2.MANUFACTURER_CODE IS NULL OR c2.MANUFACTURER_CODE=0)))
-  AND 
+  AND
     p.PACKAGE_ID <> p2.PACKAGE_ID;
 END;
 
@@ -3326,80 +3326,80 @@ CREATE TRIGGER CLUSTER_CODE_CONFLICT_MESSAGE_ON_UPDATE
 AFTER UPDATE ON SESSION_PACKAGE
 WHEN
   EXISTS(
-    SELECT 
+    SELECT
       1
-    FROM 
+    FROM
       SESSION_PACKAGE spk
-    JOIN 
-      PACKAGE p 
-    ON 
+    JOIN
+      PACKAGE p
+    ON
       spk.PACKAGE_REF = p.PACKAGE_ID
-    WHERE 
+    WHERE
       p.TYPE = 'zcl-xml-standalone'
-    AND 
+    AND
       spk.package_ref = NEW.package_ref
-    AND 
+    AND
       OLD.ENABLED = false
-    AND 
+    AND
       NEW.ENABLED = true
   )
 BEGIN
   INSERT INTO SESSION_NOTICE(
-    SESSION_REF, 
-    NOTICE_TYPE, 
-    NOTICE_MESSAGE, 
-    NOTICE_SEVERITY, 
-    DISPLAY, 
+    SESSION_REF,
+    NOTICE_TYPE,
+    NOTICE_MESSAGE,
+    NOTICE_SEVERITY,
+    DISPLAY,
     SEEN
   )
-  SELECT 
+  SELECT
     spt.SESSION_REF,
-    'ERROR', 
-    'Cluster code conflict in ' || p.PATH || ' and ' || p2.PATH || ' for ' || c.CODE, 
-    2, 
-    1, 
+    'ERROR',
+    'Cluster code conflict in ' || p.PATH || ' and ' || p2.PATH || ' for ' || c.CODE,
+    2,
+    1,
     0
-  FROM 
+  FROM
     CLUSTER c
-  INNER JOIN 
-    PACKAGE p 
-  ON 
-    c.PACKAGE_REF = p.PACKAGE_ID 
-  INNER JOIN 
+  INNER JOIN
+    PACKAGE p
+  ON
+    c.PACKAGE_REF = p.PACKAGE_ID
+  INNER JOIN
   	SESSION_PACKAGE spk
-  ON 
+  ON
    	p.PACKAGE_ID = spk.PACKAGE_REF
   INNER JOIN
-    SESSION_PARTITION spt 
-  ON 
+    SESSION_PARTITION spt
+  ON
     spk.SESSION_PARTITION_REF = spt.SESSION_PARTITION_ID
   INNER JOIN
     SESSION_PARTITION spt2
   ON
     spt.SESSION_REF = spt2.SESSION_REF
-  INNER JOIN 
-    SESSION_PACKAGE spk2 
-  ON 
+  INNER JOIN
+    SESSION_PACKAGE spk2
+  ON
     spt2.SESSION_PARTITION_ID = spk2.SESSION_PARTITION_REF
-  INNER JOIN 
+  INNER JOIN
     PACKAGE p2
-  ON 
+  ON
     spk2.PACKAGE_REF = p2.PACKAGE_ID
   INNER JOIN
-    CLUSTER c2 
-  ON 
+    CLUSTER c2
+  ON
     p2.PACKAGE_ID = c2.PACKAGE_REF
-  WHERE 
+  WHERE
     spk.SESSION_PARTITION_REF = NEW.SESSION_PARTITION_REF
-  AND 
+  AND
     spk.PACKAGE_REF = NEW.PACKAGE_REF
-  AND 
+  AND
     spk2.ENABLED = true
-  AND 
+  AND
     ((c.CODE = c2.CODE AND c.MANUFACTURER_CODE = c2.MANUFACTURER_CODE)
-    OR 
+    OR
     (c.CODE = c2.CODE AND (c.MANUFACTURER_CODE IS NULL OR c.MANUFACTURER_CODE=0) AND (c2.MANUFACTURER_CODE IS NULL OR c2.MANUFACTURER_CODE=0)))
-  AND 
+  AND
     p.PACKAGE_ID <> p2.PACKAGE_ID;
 END;
 
@@ -3409,80 +3409,80 @@ CREATE TRIGGER ATTRIBUTE_CODE_CONFLICT_MESSAGE_ON_INSERT
 AFTER INSERT ON SESSION_PACKAGE
 WHEN
   EXISTS(
-    SELECT 
+    SELECT
       1
-    FROM 
+    FROM
       SESSION_PACKAGE spk
-    JOIN 
-      PACKAGE p 
-    ON 
+    JOIN
+      PACKAGE p
+    ON
       spk.PACKAGE_REF = p.PACKAGE_ID
-    WHERE 
+    WHERE
       p.TYPE = 'zcl-xml-standalone'
-    AND 
+    AND
       spk.package_ref = NEW.package_ref
-    AND 
+    AND
       NEW.ENABLED = true
   )
 BEGIN
   INSERT INTO SESSION_NOTICE(
-    SESSION_REF, 
-    NOTICE_TYPE, 
-    NOTICE_MESSAGE, 
-    NOTICE_SEVERITY, 
-    DISPLAY, 
+    SESSION_REF,
+    NOTICE_TYPE,
+    NOTICE_MESSAGE,
+    NOTICE_SEVERITY,
+    DISPLAY,
     SEEN
   )
-  SELECT 
-    spt.SESSION_REF, 
-    'ERROR', 
+  SELECT
+    spt.SESSION_REF,
+    'ERROR',
     'Attribute code conflict in ' || p.PATH || ' and ' || p2.PATH || ' in attribute=' || a.CODE || ' cluster=' || a.CLUSTER_REF,
-    2, 
-    1, 
+    2,
+    1,
     0
-  FROM 
+  FROM
     ATTRIBUTE a
   INNER JOIN
-    PACKAGE p 
-  ON 
-    a.PACKAGE_REF = p.PACKAGE_ID 
-  INNER JOIN 
+    PACKAGE p
+  ON
+    a.PACKAGE_REF = p.PACKAGE_ID
+  INNER JOIN
     SESSION_PACKAGE spk
-  ON 
+  ON
     p.PACKAGE_ID = spk.PACKAGE_REF
-  INNER JOIN 
+  INNER JOIN
     SESSION_PARTITION spt
-  ON 
-    spk.SESSION_PARTITION_REF = spt.SESSION_PARTITION_ID   
-  INNER JOIN 
+  ON
+    spk.SESSION_PARTITION_REF = spt.SESSION_PARTITION_ID
+  INNER JOIN
     SESSION_PARTITION spt2
-  ON 
+  ON
     spt.SESSION_REF = spt2.SESSION_REF
-  INNER JOIN 
-    SESSION_PACKAGE spk2 
-  ON 
+  INNER JOIN
+    SESSION_PACKAGE spk2
+  ON
     spt2.SESSION_PARTITION_ID = spk2.SESSION_PARTITION_REF
-  INNER JOIN 
-    PACKAGE p2 
-  ON 
+  INNER JOIN
+    PACKAGE p2
+  ON
     spk2.PACKAGE_REF = p2.PACKAGE_ID
-  INNER JOIN 
-    ATTRIBUTE a2 
-  ON 
+  INNER JOIN
+    ATTRIBUTE a2
+  ON
     p2.PACKAGE_ID = a2.PACKAGE_REF
-  WHERE 
+  WHERE
     spk.SESSION_PARTITION_REF = NEW.SESSION_PARTITION_REF
-  AND 
+  AND
     spk.PACKAGE_REF = NEW.PACKAGE_REF
-  AND 
+  AND
     spk2.ENABLED = true
-  AND 
+  AND
     a.CLUSTER_REF = a2.CLUSTER_REF
-  AND 
+  AND
     ((a.CODE = a2.CODE AND a.MANUFACTURER_CODE = a2.MANUFACTURER_CODE)
-      OR 
+      OR
      (a.CODE = a2.CODE AND (a.MANUFACTURER_CODE IS NULL OR a.MANUFACTURER_CODE=0) AND (a2.MANUFACTURER_CODE IS NULL OR a2.MANUFACTURER_CODE=0)))
-  AND 
+  AND
     p.PACKAGE_ID <> p2.PACKAGE_ID;
 END;
 
@@ -3491,82 +3491,82 @@ CREATE TRIGGER ATTRIBUTE_CODE_CONFLICT_MESSAGE_ON_UPDATE
 AFTER UPDATE ON SESSION_PACKAGE
 WHEN
   EXISTS(
-    SELECT 
+    SELECT
       1
-    FROM 
+    FROM
       SESSION_PACKAGE spk
-    JOIN 
-      PACKAGE p 
-    ON 
+    JOIN
+      PACKAGE p
+    ON
       spk.PACKAGE_REF = p.PACKAGE_ID
-    WHERE 
+    WHERE
       p.TYPE = 'zcl-xml-standalone'
-    AND 
+    AND
       spk.package_ref = NEW.package_ref
-    AND 
+    AND
       OLD.ENABLED = false
-    AND 
+    AND
       NEW.ENABLED = true
   )
 BEGIN
   INSERT INTO SESSION_NOTICE(
-    SESSION_REF, 
-    NOTICE_TYPE, 
-    NOTICE_MESSAGE, 
-    NOTICE_SEVERITY, 
-    DISPLAY, 
+    SESSION_REF,
+    NOTICE_TYPE,
+    NOTICE_MESSAGE,
+    NOTICE_SEVERITY,
+    DISPLAY,
     SEEN
   )
-  SELECT 
-    spt.SESSION_REF, 
-    'ERROR', 
+  SELECT
+    spt.SESSION_REF,
+    'ERROR',
     'Attribute code conflict in ' || p.PATH || ' and ' || p2.PATH || ' in attribute=' || a.CODE || ' cluster=' || a.CLUSTER_REF,
-    2, 
-    1, 
+    2,
+    1,
     0
-  FROM 
+  FROM
     ATTRIBUTE a
   INNER JOIN
-    PACKAGE p 
-  ON 
-    a.PACKAGE_REF = p.PACKAGE_ID 
-  INNER JOIN 
+    PACKAGE p
+  ON
+    a.PACKAGE_REF = p.PACKAGE_ID
+  INNER JOIN
     SESSION_PACKAGE spk
-  ON 
+  ON
     p.PACKAGE_ID = spk.PACKAGE_REF
-  INNER JOIN 
+  INNER JOIN
     SESSION_PARTITION spt
-  ON 
-    spk.SESSION_PARTITION_REF = spt.SESSION_PARTITION_ID   
-  INNER JOIN 
+  ON
+    spk.SESSION_PARTITION_REF = spt.SESSION_PARTITION_ID
+  INNER JOIN
     SESSION_PARTITION spt2
-  ON 
+  ON
     spt.SESSION_REF = spt2.SESSION_REF
-  INNER JOIN 
-    SESSION_PACKAGE spk2 
-  ON 
+  INNER JOIN
+    SESSION_PACKAGE spk2
+  ON
     spt2.SESSION_PARTITION_ID = spk2.SESSION_PARTITION_REF
-  INNER JOIN 
-    PACKAGE p2 
-  ON 
+  INNER JOIN
+    PACKAGE p2
+  ON
     spk2.PACKAGE_REF = p2.PACKAGE_ID
-  INNER JOIN 
-    ATTRIBUTE a2 
-  ON 
+  INNER JOIN
+    ATTRIBUTE a2
+  ON
     p2.PACKAGE_ID = a2.PACKAGE_REF
-  WHERE 
+  WHERE
     spk.SESSION_PARTITION_REF = NEW.SESSION_PARTITION_REF
-  AND 
+  AND
     spk.PACKAGE_REF = NEW.PACKAGE_REF
-  AND 
+  AND
     spk2.ENABLED = true
-  AND 
+  AND
     a.CLUSTER_REF = a2.CLUSTER_REF
-  AND 
+  AND
     ((a.CODE = a2.CODE AND a.MANUFACTURER_CODE = a2.MANUFACTURER_CODE)
-      OR 
+      OR
     (a.CODE = a2.CODE AND (a.MANUFACTURER_CODE IS NULL OR a.MANUFACTURER_CODE=0) AND (a2.MANUFACTURER_CODE IS NULL OR a2.MANUFACTURER_CODE=0)))
-  AND 
+  AND
     p.PACKAGE_ID <> p2.PACKAGE_ID;
 END;
 
@@ -3576,79 +3576,79 @@ CREATE TRIGGER COMMAND_CODE_CONFLICT_MESSAGE_ON_INSERT
 AFTER INSERT ON SESSION_PACKAGE
 WHEN
   EXISTS(
-    SELECT 
+    SELECT
       1
-    FROM 
+    FROM
       SESSION_PACKAGE spk
-    JOIN 
-      PACKAGE p 
-    ON 
+    JOIN
+      PACKAGE p
+    ON
       spk.PACKAGE_REF = p.PACKAGE_ID
-    WHERE 
+    WHERE
       p.TYPE = 'zcl-xml-standalone'
-    AND 
+    AND
       spk.package_ref = NEW.package_ref
-    AND 
+    AND
       NEW.ENABLED = true
   )
 BEGIN
   INSERT INTO SESSION_NOTICE(
-    SESSION_REF, 
-    NOTICE_TYPE, 
-    NOTICE_MESSAGE, 
-    NOTICE_SEVERITY, 
-    DISPLAY, 
+    SESSION_REF,
+    NOTICE_TYPE,
+    NOTICE_MESSAGE,
+    NOTICE_SEVERITY,
+    DISPLAY,
     SEEN
   )
-  SELECT 
-    spt.SESSION_REF, 
-    'ERROR', 
-    'Command code conflict in ' || p.PATH || ' and ' || p2.PATH || ' in command=' || c.CODE || ' cluster=' || c.CLUSTER_REF, 
-    2, 
-    1, 
+  SELECT
+    spt.SESSION_REF,
+    'ERROR',
+    'Command code conflict in ' || p.PATH || ' and ' || p2.PATH || ' in command=' || c.CODE || ' cluster=' || c.CLUSTER_REF,
+    2,
+    1,
     0
-  FROM 
+  FROM
     COMMAND c
-  INNER JOIN 
-    PACKAGE p 
-  ON c.PACKAGE_REF = p.PACKAGE_ID 
+  INNER JOIN
+    PACKAGE p
+  ON c.PACKAGE_REF = p.PACKAGE_ID
   INNER JOIN
    SESSION_PACKAGE spk
-  ON 
+  ON
     p.PACKAGE_ID = spk.PACKAGE_REF
-  INNER JOIN 
+  INNER JOIN
     SESSION_PARTITION spt
-  ON 
+  ON
     spk.SESSION_PARTITION_REF = spt.SESSION_PARTITION_ID
-  INNER JOIN 
+  INNER JOIN
     SESSION_PARTITION spt2
-  ON 
+  ON
     spt.SESSION_REF = spt2.SESSION_REF
-  INNER JOIN 
-    SESSION_PACKAGE spk2 
-  ON 
+  INNER JOIN
+    SESSION_PACKAGE spk2
+  ON
     spt2.SESSION_PARTITION_ID = spk2.SESSION_PARTITION_REF
-  INNER JOIN 
-    PACKAGE p2 
-  ON 
+  INNER JOIN
+    PACKAGE p2
+  ON
     spk2.PACKAGE_REF = p2.PACKAGE_ID
-  INNER JOIN 
-    COMMAND c2 
-  ON 
+  INNER JOIN
+    COMMAND c2
+  ON
     p2.PACKAGE_ID = c2.PACKAGE_REF
-  WHERE 
+  WHERE
     spk.SESSION_PARTITION_REF = NEW.SESSION_PARTITION_REF
-  AND 
+  AND
     spk.PACKAGE_REF = NEW.PACKAGE_REF
-  AND 
+  AND
     spk2.ENABLED = true
-  AND 
+  AND
     c.CLUSTER_REF = c2.CLUSTER_REF
-  AND 
+  AND
     ((c.CODE = c2.CODE AND c.MANUFACTURER_CODE = c2.MANUFACTURER_CODE)
-    OR 
+    OR
     (c.CODE = c2.CODE AND (c.MANUFACTURER_CODE IS NULL OR c.MANUFACTURER_CODE=0) AND (c2.MANUFACTURER_CODE IS NULL OR c2.MANUFACTURER_CODE=0)))
-  AND 
+  AND
     p.PACKAGE_ID <> p2.PACKAGE_ID;
 END;
 
@@ -3657,108 +3657,108 @@ CREATE TRIGGER COMMAND_CODE_CONFLICT_MESSAGE_ON_UPDATE
 AFTER UPDATE ON SESSION_PACKAGE
 WHEN
   EXISTS(
-    SELECT 
+    SELECT
       1
-    FROM 
+    FROM
       SESSION_PACKAGE spk
-    JOIN 
-      PACKAGE p 
-    ON 
+    JOIN
+      PACKAGE p
+    ON
       spk.PACKAGE_REF = p.PACKAGE_ID
-    WHERE 
+    WHERE
       p.TYPE = 'zcl-xml-standalone'
-    AND 
+    AND
       spk.package_ref = NEW.package_ref
-    AND 
+    AND
       OLD.ENABLED = false
-    AND 
+    AND
       NEW.ENABLED = true
   )
 BEGIN
   INSERT INTO SESSION_NOTICE(
-    SESSION_REF, 
-    NOTICE_TYPE, 
-    NOTICE_MESSAGE, 
-    NOTICE_SEVERITY, 
-    DISPLAY, 
+    SESSION_REF,
+    NOTICE_TYPE,
+    NOTICE_MESSAGE,
+    NOTICE_SEVERITY,
+    DISPLAY,
     SEEN
   )
-  SELECT 
-    spt.SESSION_REF, 
-    'ERROR', 
-    'Command code conflict in ' || p.PATH || ' and ' || p2.PATH || ' in command=' || c.CODE || ' cluster=' || c.CLUSTER_REF, 
-    2, 
-    1, 
+  SELECT
+    spt.SESSION_REF,
+    'ERROR',
+    'Command code conflict in ' || p.PATH || ' and ' || p2.PATH || ' in command=' || c.CODE || ' cluster=' || c.CLUSTER_REF,
+    2,
+    1,
     0
-  FROM 
+  FROM
     COMMAND c
-  INNER JOIN 
-    PACKAGE p 
-  ON c.PACKAGE_REF = p.PACKAGE_ID 
+  INNER JOIN
+    PACKAGE p
+  ON c.PACKAGE_REF = p.PACKAGE_ID
   INNER JOIN
    SESSION_PACKAGE spk
-  ON 
+  ON
     p.PACKAGE_ID = spk.PACKAGE_REF
-  INNER JOIN 
+  INNER JOIN
     SESSION_PARTITION spt
-  ON 
+  ON
     spk.SESSION_PARTITION_REF = spt.SESSION_PARTITION_ID
-  INNER JOIN 
+  INNER JOIN
     SESSION_PARTITION spt2
-  ON 
+  ON
     spt.SESSION_REF = spt2.SESSION_REF
-  INNER JOIN 
-    SESSION_PACKAGE spk2 
-  ON 
+  INNER JOIN
+    SESSION_PACKAGE spk2
+  ON
     spt2.SESSION_PARTITION_ID = spk2.SESSION_PARTITION_REF
-  INNER JOIN 
-    PACKAGE p2 
-  ON 
+  INNER JOIN
+    PACKAGE p2
+  ON
     spk2.PACKAGE_REF = p2.PACKAGE_ID
-  INNER JOIN 
-    COMMAND c2 
-  ON 
+  INNER JOIN
+    COMMAND c2
+  ON
     p2.PACKAGE_ID = c2.PACKAGE_REF
-  WHERE 
+  WHERE
     spk.SESSION_PARTITION_REF = NEW.SESSION_PARTITION_REF
-  AND 
+  AND
     spk.PACKAGE_REF = NEW.PACKAGE_REF
-  AND 
+  AND
     spk2.ENABLED = true
-  AND 
+  AND
     c.CLUSTER_REF = c2.CLUSTER_REF
-  AND 
+  AND
     ((c.CODE = c2.CODE AND c.MANUFACTURER_CODE = c2.MANUFACTURER_CODE)
-    OR 
+    OR
     (c.CODE = c2.CODE AND (c.MANUFACTURER_CODE IS NULL OR c.MANUFACTURER_CODE=0) AND (c2.MANUFACTURER_CODE IS NULL OR c2.MANUFACTURER_CODE=0)))
-  AND 
+  AND
     p.PACKAGE_ID <> p2.PACKAGE_ID;
 END;
 
 /* Trigger that deletes relevant code conflict session_notice entries when a session package is disabled */
 CREATE TRIGGER CODE_CONFLICT_DELETE_ON_DISABLE
 AFTER UPDATE ON SESSION_PACKAGE
-WHEN 
-    OLD.ENABLED = 1 
-  AND 
+WHEN
+    OLD.ENABLED = 1
+  AND
     NEW.ENABLED = 0
 BEGIN
-  DELETE FROM 
+  DELETE FROM
     SESSION_NOTICE
-  WHERE 
+  WHERE
     SESSION_REF = (
-      SELECT 
+      SELECT
         spt.SESSION_REF
-      FROM 
+      FROM
         SESSION_PARTITION spt
-      WHERE 
+      WHERE
         spt.SESSION_PARTITION_ID = OLD.SESSION_PARTITION_REF
     )
-  AND 
+  AND
     NOTICE_TYPE = "ERROR"
-  AND 
+  AND
     NOTICE_MESSAGE LIKE '%code conflict%'
-  AND 
+  AND
     NOTICE_MESSAGE LIKE '%' || (SELECT p.PATH FROM PACKAGE p WHERE p.PACKAGE_ID = OLD.PACKAGE_REF) || '%';
 END;
 
@@ -3766,22 +3766,22 @@ END;
 CREATE TRIGGER CODE_CONFLICT_DELETE
 AFTER DELETE ON SESSION_PACKAGE
 BEGIN
-  DELETE FROM 
+  DELETE FROM
     SESSION_NOTICE
-  WHERE 
+  WHERE
     SESSION_REF = (
-      SELECT 
+      SELECT
         spt.SESSION_REF
-      FROM 
+      FROM
         SESSION_PARTITION spt
-      WHERE 
+      WHERE
         spt.SESSION_PARTITION_ID = OLD.SESSION_PARTITION_REF
     )
-  AND 
+  AND
     NOTICE_TYPE = 'ERROR'
-  AND 
+  AND
     NOTICE_MESSAGE LIKE '%code conflict%'
-  AND 
+  AND
     NOTICE_MESSAGE LIKE '%' || (SELECT p.PATH FROM PACKAGE p WHERE p.PACKAGE_ID = OLD.PACKAGE_REF) || '%';
 END;
 
@@ -3862,14 +3862,6 @@ CREATE TRIGGER
   DELETE_SESSION_NOTICE_TRIGGER
 AFTER DELETE ON
   SESSION_NOTICE
-WHEN
-  (SELECT
-    COUNT()
-  FROM
-    SESSION_NOTICE
-  WHERE
-    SESSION_REF = old.SESSION_REF
-    AND SEEN = 0) > 0
 BEGIN
   UPDATE SESSION SET NEW_NOTIFICATION = 1 WHERE SESSION_ID = old.SESSION_REF;
 END;

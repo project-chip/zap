@@ -145,14 +145,24 @@ import commonMixin from '../util/common-mixin'
 
 export default {
   mixins: [commonMixin],
-
+  computed: {
+    showNotificationTab() {
+      return this.$store.state.zap.showNotificationTab
+    }
+  },
   watch: {
     packages(newPackages) {
       this.loadPackageNotification(newPackages)
+    },
+    showNotificationTab(newVal) {
+      if (newVal) {
+        this.getNotificationsAndUpdateSeen()
+      }
     }
   },
   methods: {
     getNotificationsAndUpdateSeen() {
+      this.notis = []
       this.$serverGet(restApi.uri.sessionNotification)
         .then((resp) => {
           let unseenIds = []
@@ -184,6 +194,7 @@ export default {
     },
     getNotifications() {
       this.$serverGet(restApi.uri.sessionNotification).then((resp) => {
+        this.notis = []
         for (let i = 0; i < resp.data.length; i++) {
           this.notis.push(resp.data[i])
         }
@@ -268,17 +279,9 @@ export default {
       packageNotis: []
     }
   },
-  created() {
-    if (this.$serverGet != null) {
-      this.notis = []
-      this.getNotificationsAndUpdateSeen()
-      this.loadPackageNotification(this.packages)
-    }
-  },
   mounted() {
     if (this.$onWebSocket) {
       this.$onWebSocket(dbEnum.wsCategory.notificationCount, (data) => {
-        this.notis = []
         this.getNotifications()
       })
     }
