@@ -208,3 +208,26 @@ exports.packageMatch = {
   strict: 'strict', // This mechanism will ONLY use the records of packages in the .zap file.
   ignore: 'ignore' // This mechanism will completely ignore the use of packages in the .zap file.
 }
+
+exports.deviceTypeFeature = {
+  name: {
+    deviceType: 'deviceType',
+    cluster: 'cluster',
+    clusterSide: 'clusterSide',
+    featureName: 'featureName',
+    code: 'code',
+    conformance: 'conformance',
+    bit: 'bit',
+    description: 'description'
+  },
+  label: {
+    deviceType: 'Device Type',
+    cluster: 'Cluster',
+    clusterSide: 'Cluster Side',
+    featureName: 'Feature Name',
+    code: 'Code',
+    conformance: 'Conformance',
+    bit: 'Bit',
+    description: 'Description'
+  }
+}

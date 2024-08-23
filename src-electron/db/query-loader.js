@@ -1125,7 +1125,7 @@ async function insertDeviceTypeFeatures(db, dtClusterRefDataPairs) {
     let clusterData = dtClusterRefDataPair.clusterData
     if ('features' in clusterData && clusterData.features.length > 0) {
       clusterData.features.forEach((feature) => {
-        features.push([dtClusterRef, feature.name, feature.conformance])
+        features.push([dtClusterRef, feature.code, feature.conformance])
       })
     }
   })

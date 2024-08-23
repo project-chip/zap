@@ -73,6 +73,7 @@ limitations under the License.
 
 <script>
 import CommonMixin from '../util/common-mixin'
+import dbEnum from '../../src-shared/db-enum'
 
 export default {
   name: 'ZclDeviceTypeFeatureManager',
@@ -81,9 +82,9 @@ export default {
     getClusterSide(row) {
       if (row.includeClient == 1 && row.includeServer == 1) {
         return 'Client & Server'
-      } else if (row.includeClient === 1) {
+      } else if (row.includeClient == 1) {
         return 'Client'
-      } else if (row.includeServer === 1) {
+      } else if (row.includeServer == 1) {
         return 'Server'
       } else {
         return 'none'
@@ -103,51 +104,51 @@ export default {
       },
       columns: [
         {
-          name: 'deviceType',
+          name: dbEnum.deviceTypeFeature.name.deviceType,
           required: true,
-          label: 'Device Type',
+          label: dbEnum.deviceTypeFeature.label.deviceType,
           align: 'left'
         },
         {
-          name: 'cluster',
+          name: dbEnum.deviceTypeFeature.name.cluster,
           required: true,
-          label: 'Cluster',
+          label: dbEnum.deviceTypeFeature.label.cluster,
           align: 'left'
         },
         {
-          name: 'clusterSide',
+          name: dbEnum.deviceTypeFeature.name.clusterSide,
           required: true,
-          label: 'Cluster Side',
+          label: dbEnum.deviceTypeFeature.label.clusterSide,
           align: 'left'
         },
         {
-          name: 'featureName',
+          name: dbEnum.deviceTypeFeature.name.featureName,
           required: true,
-          label: 'Feature Name',
+          label: dbEnum.deviceTypeFeature.label.featureName,
           align: 'left'
         },
         {
-          name: 'code',
+          name: dbEnum.deviceTypeFeature.name.code,
           required: true,
-          label: 'Code',
+          label: dbEnum.deviceTypeFeature.label.code,
           align: 'left'
         },
         {
-          name: 'conformance',
+          name: dbEnum.deviceTypeFeature.name.conformance,
           required: true,
-          label: 'Conformance',
+          label: dbEnum.deviceTypeFeature.label.conformance,
           align: 'left'
         },
         {
-          name: 'bit',
+          name: dbEnum.deviceTypeFeature.name.bit,
           required: true,
-          label: 'Bit',
+          label: dbEnum.deviceTypeFeature.label.bit,
           align: 'left'
         },
         {
-          name: 'description',
+          name: dbEnum.deviceTypeFeature.name.description,
           required: false,
-          label: 'Description',
+          label: dbEnum.deviceTypeFeature.label.description,
           align: 'left'
         }
       ]

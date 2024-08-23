@@ -311,7 +311,7 @@ limitations under the License.
             </include>
             <include cluster="On/Off" client="false" server="true" clientLocked="true" serverLocked="true">
                 <features>
-                  <feature code="" name="LT">
+                  <feature code="LT" name="Lighting">
                     <mandatoryConform/>
                   </feature>
                 </features>
@@ -329,10 +329,10 @@ limitations under the License.
             </include>
             <include cluster="Level Control" client="false" server="true" clientLocked="true" serverLocked="true">
                 <features>
-                  <feature code="" name="OO">
+                  <feature code="OO" name="OnOff">
                     <mandatoryConform/>
                   </feature>
-                  <feature code="" name="LT">
+                  <feature code="LT" name="Lighting">
                     <mandatoryConform/>
                   </feature>
                 </features>
@@ -2061,7 +2061,7 @@ limitations under the License.
             <include cluster="Descriptor" client="false" server="true" clientLocked="true" serverLocked="true"></include>
             <include cluster="Refrigerator And Temperature Controlled Cabinet Mode" client="false" server="false" clientLocked="true" serverLocked="false">
                 <features>
-                    <feature code="" name="OnOff">
+                    <feature code="OO" name="OnOff">
                     <disallowConform/>
                     </feature>
                 </features>
@@ -2083,14 +2083,14 @@ limitations under the License.
             <include cluster="Temperature Measurement" client="false" server="false" clientLocked="true" serverLocked="false"></include>
             <include cluster="Refrigerator And Temperature Controlled Cabinet Mode" client="false" server="false" clientLocked="true" serverLocked="false">
                 <features>
-                    <feature code="" name="OnOff">
+                    <feature code="OO" name="OnOff">
                     <disallowConform/>
                     </feature>
                 </features>
             </include>
             <include cluster="Oven Mode" client="false" server="false" clientLocked="true" serverLocked="false">
                 <features>
-                    <feature code="" name="OnOff">
+                    <feature code="OO" name="OnOff">
                     <disallowConform/>
                     </feature>
                 </features>

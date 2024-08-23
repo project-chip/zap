@@ -1640,7 +1640,7 @@ function prepareDeviceType(deviceType) {
             include.features[0].feature.forEach((f) => {
               let conformance = parseFeatureConformance(f)
               features.push({
-                name: f.$.name,
+                code: f.$.code,
                 conformance: conformance
               })
             })
