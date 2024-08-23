@@ -2205,18 +2205,55 @@ async function parseFeatureFlags(db, packageId, featureFlags) {
 
 /**
  * Parses feature conformance or an operand in feature conformance recursively from xml data.
- * @param {*} operand
- * @returns feature conformance string
+ *
+ * An example of parsing the conformance of 'User' device type feature:
+ *
+ * Input operand from xml data:
+ * {
+ *   "$": {"code": "USR", "name": "User"},
+ *   "mandatoryConform": [
+ *      { "andTerm": [
+ *           {
+ *             "condition": [{"$": {"name": "Matter"}}],
+ *             "orTerm": [
+ *                 { "feature": [
+ *                      { "$": {"name": "PIN"}},
+ *                      { "$": {"name": "RID"}},
+ *                      { "$": {"name": "FPG"}},
+ *                      { "$": {"name": "FACE"}}
+ *                   ]
+ *                 }
+ *               ]
+ *            }
+ *          ]
+ *        }
+ *    ]
+ * }
+ *
+ * Output device type feature conformance string:
+ *  "Matter & (PIN | RID | FPG | FACE)"
+ *
+ * @param {*} operand - The operand to be parsed.
+ * @returns The feature conformance string.
  */
 function parseFeatureConformance(operand) {
   if (operand.mandatoryConform) {
-    return operand.mandatoryConform[0]
-      ? parseFeatureConformance(operand.mandatoryConform[0])
-      : 'M'
+    let insideTerm = operand.mandatoryConform[0]
+    // Recurse further if insideTerm is not empty
+    if (insideTerm && Object.keys(insideTerm).toString() != '$') {
+      return parseFeatureConformance(operand.mandatoryConform[0])
+    } else {
+      return 'M'
+    }
   } else if (operand.optionalConform) {
-    return operand.optionalConform[0]
-      ? `[${parseFeatureConformance(operand.optionalConform[0])}]`
-      : 'O'
+    let insideTerm = operand.optionalConform[0]
+    // check '$' key is not the only key in the object to handle special cases
+    // e.g. '<optionalConform choice="a" more="true"/>'
+    if (insideTerm && Object.keys(insideTerm).toString() != '$') {
+      return `[${parseFeatureConformance(operand.optionalConform[0])}]`
+    } else {
+      return 'O'
+    }
   } else if (operand.provisionalConform) {
     return 'P'
   } else if (operand.disallowConform) {
@@ -2233,6 +2270,8 @@ function parseFeatureConformance(operand) {
       .join(', ')
   } else if (operand.notTerm) {
     let notTerms = parseFeatureConformance(operand.notTerm[0])
+    // need to surround notTerms with '()' if it contains multiple terms
+    // e.g. !(A | B) or !(A & B)
     return notTerms.includes('&') || notTerms.includes('|')
       ? `!(${notTerms})`
       : `!${notTerms}`
@@ -2254,6 +2293,7 @@ function parseFeatureConformance(operand) {
 function parseAndOrConformanceTerms(operand, joinChar) {
   // when joining multiple orTerms inside andTerms, we need to
   // surround them with '()', vice versa for andTerms inside orTerms
+  // e.g. A & (B | C) or A | (B & C)
   let oppositeChar = joinChar === '&' ? '|' : '&'
   let oppositeTerm = joinChar === '&' ? 'orTerm' : 'andTerm'
 
