@@ -24,11 +24,11 @@ const queryEndpointType = require('../db/query-endpoint-type.js')
 const queryEndpoint = require('../db/query-endpoint.js')
 const queryConfig = require('../db/query-config.js')
 const querySession = require('../db/query-session.js')
+const queryPackage = require('../db/query-package.js')
 const validation = require('../validation/validation.js')
 const restApi = require('../../src-shared/rest-api.js')
 const notification = require('../db/query-session-notification.js')
 const { StatusCodes } = require('http-status-codes')
-const { getSessionZclPackageIds } = require('db/query-package.js')
 
 /**
  * HTTP DELETE: endpoint
@@ -204,7 +204,7 @@ function httpPostEndpointType(db) {
 function httpGetRootNode(db) {
   return async (request, response) => {
     let sessionId = request.zapSessionId
-    let packageIds = getSessionZclPackageIds(db, sessionId)
+    let packageIds = await queryPackage.getSessionZclPackageIds(db, sessionId)
     let rootNode = await queryEndpoint.getRootNode(db, packageIds)
     response.status(StatusCodes.OK).json(rootNode)
   }

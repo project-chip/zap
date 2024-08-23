@@ -23,8 +23,7 @@
 const dbApi = require('./db-api.js')
 const bin = require('../util/bin')
 const dbMapping = require('./db-mapping.js')
-const dbEnum = require('./db-enum.js')
-const { dbEnums } = require('util/post-import-api.js')
+const dbEnum = require('../../src-shared/db-enum.js')
 
 /**
  * Returns a promise resolving into all endpoints.
@@ -74,7 +73,7 @@ async function getRootNode(db, packageIds) {
     FROM ENDPOINT_COMPOSITION
     WHERE TYPE = ? AND PACKAGE_REF IN (${packageIds.map(() => '?').join(', ')})
   `
-  const result = await db.query(query, [
+  const result = await dbApi.dbGet(db, query, [
     dbEnum.composition.rootNode,
     ...packageIds
   ])
