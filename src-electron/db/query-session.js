@@ -71,7 +71,7 @@ async function getDirtySessionsWithPackages(db) {
   let rows = await dbApi.dbAll(
     db,
     `
-SELECT 
+SELECT
   SESSION.SESSION_ID,
   SESSION.SESSION_KEY,
   SESSION.CREATION_TIME,
@@ -814,6 +814,32 @@ async function getAllSessionKeyValues(db, sessionId) {
   })
 }
 
+/**
+ * This function deletes session notifications that are related to duplicate
+ * endpoint type meta data. This is called when user saves the file because that
+ * action removes the duplicates.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ */
+async function deleteSessionNotificationsForDuplicateEndpointTypeMetaData(
+  db,
+  sessionId
+) {
+  await dbApi.dbRemove(
+    db,
+    `DELETE FROM
+      SESSION_NOTICE
+    WHERE
+      NOTICE_MESSAGE LIKE '%Duplicate endpoint type%'
+    AND
+      NOTICE_MESSAGE LIKE '%Remove duplicates in .zap configuration file and re-open .zap file or just save this .zap file to apply the changes.%'
+    AND
+      SESSION_NOTICE.SESSION_REF = ?`,
+    sessionId
+  )
+}
+
 // exports
 exports.getAllSessions = getAllSessions
 exports.reloadSession = reloadSession
@@ -851,3 +877,5 @@ exports.getAllSessionPartitionInfoForSession =
   getAllSessionPartitionInfoForSession
 exports.selectDeviceTypePackageInfoFromDeviceTypeId =
   selectDeviceTypePackageInfoFromDeviceTypeId
+exports.deleteSessionNotificationsForDuplicateEndpointTypeMetaData =
+  deleteSessionNotificationsForDuplicateEndpointTypeMetaData

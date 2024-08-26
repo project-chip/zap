@@ -847,7 +847,6 @@ ORDER BY
  *
  * @param {*} db
  * @param {*} packageId
- * @param {*} endpointTypeId
  * @param {*} endpointClusterId may be null if global command
  * @param {*} command
  * @returns Promise of a command insertion.
@@ -855,7 +854,6 @@ ORDER BY
 async function importCommandForEndpointType(
   db,
   packageIds,
-  endpointTypeId,
   endpointClusterId,
   command
 ) {
@@ -892,7 +890,7 @@ async function importCommandForEndpointType(
   return dbApi.dbInsert(
     db,
     `
-INSERT OR IGNORE INTO ENDPOINT_TYPE_COMMAND
+INSERT INTO ENDPOINT_TYPE_COMMAND
 ( ENDPOINT_TYPE_CLUSTER_REF,
   COMMAND_REF,
   IS_INCOMING,

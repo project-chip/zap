@@ -31,6 +31,7 @@ const testQuery = require('./test-query')
 const queryEndpointType = require('../src-electron/db/query-endpoint-type')
 const queryEndpoint = require('../src-electron/db/query-endpoint')
 const util = require('../src-electron/util/util')
+const sessionNotification = require('../src-electron/db/query-session-notification')
 
 let db
 let sleepyGenericZap = path.join(__dirname, 'resource/isc/sleepy-generic.zap')
@@ -45,6 +46,7 @@ let haCombinedInterfaceIsc = path.join(
   __dirname,
   'resource/isc/ha-combined-interface.isc'
 )
+let faultyZap = path.join(__dirname, 'resource/test-faulty.zap')
 
 // Due to future plans to rework how we handle global attributes,
 // we introduce this flag to bypass those attributes when testing import/export.
@@ -398,6 +400,40 @@ test(
 
     let sessionDump = await util.sessionDump(db, sid)
     expect(sessionDump.usedPackages.length).toBe(1)
+  },
+  testUtil.timeout.medium()
+)
+
+test(
+  path.basename(faultyZap) +
+    ' - import faulty zap file and make sure warnings show up in session notification table',
+  async () => {
+    await util.ensurePackagesAndPopulateSessionOptions(
+      templateContext.db,
+      templateContext.sessionId,
+      {
+        zcl: env.builtinSilabsZclMetafile(),
+        template: env.builtinTemplateMetafile()
+      },
+      null,
+      [templatePkgId]
+    )
+    let importResult = await importJs.importDataFromFile(db, faultyZap)
+    let sid = importResult.sessionId
+    let notifications = await sessionNotification.getNotification(db, sid)
+    let notificationMessages = notifications.map((not) => not.message)
+    expect(
+      notificationMessages.includes(
+        "Duplicate endpoint type attribute 'SceneCount' for Scenes cluster on endpoint 1. Remove duplicates in .zap configuration file and re-open .zap file or just save this .zap file to apply the changes."
+      )
+    ).toBeTruthy()
+    expect(
+      notificationMessages.includes(
+        "Duplicate endpoint type command 'Identify' for Identify cluster on endpoint 1. Remove duplicates in .zap configuration file and re-open .zap file or just save this .zap file to apply the changes."
+      )
+    ).toBeTruthy()
+
+    await querySession.deleteSession(db, sid)
   },
   testUtil.timeout.medium()
 )
