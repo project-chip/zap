@@ -146,6 +146,7 @@ INSERT INTO ATTRIBUTE (
   TYPE,
   SIDE,
   DEFINE,
+  CONFORMANCE,
   MIN,
   MAX,
   MIN_LENGTH,
@@ -170,7 +171,7 @@ INSERT INTO ATTRIBUTE (
   IS_CHANGE_OMITTED,
   PERSISTENCE
 ) VALUES (
-  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   ?,
@@ -222,6 +223,7 @@ function attributeMap(clusterId, packageId, attributes) {
     attribute.type,
     attribute.side,
     attribute.define,
+    attribute.conformance,
     attribute.min,
     attribute.max,
     attribute.minLength,

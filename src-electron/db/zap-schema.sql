@@ -275,6 +275,7 @@ CREATE TABLE IF NOT EXISTS "ATTRIBUTE" (
   "TYPE" text,
   "SIDE" text,
   "DEFINE" text,
+  "CONFORMANCE" text,
   "MIN" text,
   "MAX" text,
   "MIN_LENGTH" integer,

@@ -647,6 +647,7 @@ function prepareCluster(cluster, context, isExtension = false) {
             : attribute.$.type,
         side: attribute.$.side,
         define: attribute.$.define,
+        conformance: parseFeatureConformance(attribute),
         min: attribute.$.min,
         max: attribute.$.max,
         minLength: 0,
@@ -1686,10 +1687,9 @@ function prepareDeviceType(deviceType) {
           }
           if ('features' in include) {
             include.features[0].feature.forEach((f) => {
-              let conformance = parseFeatureConformance(f)
               features.push({
                 code: f.$.code,
-                conformance: conformance
+                conformance: parseFeatureConformance(f)
               })
             })
           }
