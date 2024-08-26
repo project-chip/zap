@@ -186,6 +186,10 @@ async function exportDataIntoFile(
 
   await fsp.writeFile(filePath, JSON.stringify(state, null, 2))
   await querySession.setSessionClean(db, sessionId)
+  await querySession.deleteSessionNotificationsForDuplicateEndpointTypeMetaData(
+    db,
+    sessionId
+  )
   return filePath
 }
 

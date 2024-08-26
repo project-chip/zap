@@ -409,8 +409,17 @@ function sortEndpoints(endpoints) {
  * @param {*} allZclPackageIds
  * @param {*} endpointTypeId
  * @param {*} clusters
+ * @param {*} endpointId
+ * @param {*} sessionId
  */
-async function importClusters(db, allZclPackageIds, endpointTypeId, clusters) {
+async function importClusters(
+  db,
+  allZclPackageIds,
+  endpointTypeId,
+  clusters,
+  endpointId,
+  sessionId
+) {
   let relevantZclPackageIds = allZclPackageIds
   // Get all custom xml packages since they will be relevant packages as well.
   let packageInfo = await queryPackage.getPackagesByPackageIds(
@@ -450,25 +459,31 @@ async function importClusters(db, allZclPackageIds, endpointTypeId, clusters) {
       await importCommands(
         db,
         relevantZclPackageIds,
-        endpointTypeId,
         endpointClusterId,
-        clusters[k].commands
+        clusters[k].commands,
+        clusters[k],
+        endpointId,
+        sessionId
       )
 
       await importAttributes(
         db,
         relevantZclPackageIds,
-        endpointTypeId,
         endpointClusterId,
         clusters[k].attributes,
-        clusters[k]
+        clusters[k],
+        endpointId,
+        sessionId
       )
 
       await importEvents(
         db,
         relevantZclPackageIds,
         endpointClusterId,
-        clusters[k].events
+        clusters[k].events,
+        clusters[k],
+        endpointId,
+        sessionId
       )
     }
   }
@@ -478,26 +493,66 @@ async function importClusters(db, allZclPackageIds, endpointTypeId, clusters) {
  * Imports the list of commands from a cluster
  * @param {*} db
  * @param {*} allZclPackageIds
- * @param {*} endpointTypeId
  * @param {*} endpointClusterId
  * @param {*} commands
+ * @param {*} cluster
+ * @param {*} endpointId
+ * @param {*} sessionId
  */
 async function importCommands(
   db,
   allZclPackageIds,
-  endpointTypeId,
   endpointClusterId,
-  commands
+  commands,
+  cluster,
+  endpointId,
+  sessionId
 ) {
   if (commands) {
-    for (let l = 0; l < commands.length; l++) {
-      await queryImpexp.importCommandForEndpointType(
-        db,
-        allZclPackageIds,
-        endpointTypeId,
-        endpointClusterId,
-        commands[l]
-      )
+    for (const command of commands) {
+      try {
+        await queryImpexp.importCommandForEndpointType(
+          db,
+          allZclPackageIds,
+          endpointClusterId,
+          command
+        )
+      } catch (err) {
+        if (err.code === 'SQLITE_CONSTRAINT') {
+          querySessionNotice.setNotification(
+            db,
+            'WARNING',
+            "Duplicate endpoint type command '" +
+              command.name +
+              "' for " +
+              cluster.name +
+              ' cluster on endpoint ' +
+              endpointId +
+              '. Remove duplicates in .zap configuration file and re-open .zap file' +
+              ' or just save this .zap file to apply the changes.',
+            sessionId,
+            1,
+            0
+          )
+          env.logWarning(
+            "Duplicate endpoint type command '" +
+              command.name +
+              "' for " +
+              cluster.name +
+              ' cluster on endpoint ' +
+              endpointId +
+              '. Remove duplicates in .zap configuration file and re-open .zap file' +
+              ' or just save this .zap file to apply the changes.'
+          )
+        } else {
+          // Handle other errors
+          env.logError(
+            'Unexpected error when inserting into endpoint type command table:',
+            err.message
+          )
+          throw err
+        }
+      }
     }
   }
 }
@@ -506,28 +561,67 @@ async function importCommands(
  * Imports the list of attributes from a cluster
  * @param {*} db
  * @param {*} allZclPackageIds
- * @param {*} endpointTypeId
  * @param {*} endpointClusterId
  * @param {*} attributes
  * @param {*} cluster
+ * @param {*} endpointId
+ * @param {*} sessionId
  */
 async function importAttributes(
   db,
   allZclPackageIds,
-  endpointTypeId,
   endpointClusterId,
   attributes,
-  cluster
+  cluster,
+  endpointId,
+  sessionId
 ) {
   if (attributes) {
-    for (let m = 0; m < attributes.length; m++) {
-      await queryImpexp.importAttributeForEndpointType(
-        db,
-        allZclPackageIds,
-        endpointClusterId,
-        attributes[m],
-        cluster
-      )
+    for (const attribute of attributes) {
+      try {
+        await queryImpexp.importAttributeForEndpointType(
+          db,
+          allZclPackageIds,
+          endpointClusterId,
+          attribute,
+          cluster
+        )
+      } catch (err) {
+        if (err.code === 'SQLITE_CONSTRAINT') {
+          querySessionNotice.setNotification(
+            db,
+            'WARNING',
+            "Duplicate endpoint type attribute '" +
+              attribute.name +
+              "' for " +
+              cluster.name +
+              ' cluster on endpoint ' +
+              endpointId +
+              '. Remove duplicates in .zap configuration file and re-open .zap file' +
+              ' or just save this .zap file to apply the changes.',
+            sessionId,
+            1,
+            0
+          )
+          env.logWarning(
+            "Duplicate endpoint type attribute '" +
+              attribute.name +
+              "' for " +
+              cluster.name +
+              ' cluster on endpoint ' +
+              endpointId +
+              '. Remove duplicates in .zap configuration file and re-open .zap file' +
+              ' or just save this .zap file to apply the changes.'
+          )
+        } else {
+          // Handle other errors
+          env.logError(
+            'Unexpected error when inserting into endpoint type attribute table:',
+            err.message
+          )
+          throw err
+        }
+      }
     }
   }
 }
@@ -538,16 +632,64 @@ async function importAttributes(
  * @param {*} allZclPackageIds
  * @param {*} endpointClusterId
  * @param {*} events
+ * @param {*} cluster
+ * @param {*} endpointId
+ * @param {*} sessionId
  */
-async function importEvents(db, allZclPackageIds, endpointClusterId, events) {
+async function importEvents(
+  db,
+  allZclPackageIds,
+  endpointClusterId,
+  events,
+  cluster,
+  endpointId,
+  sessionId
+) {
   if (events) {
-    for (let n = 0; n < events.length; n++) {
-      await queryImpexp.importEventForEndpointType(
-        db,
-        allZclPackageIds,
-        endpointClusterId,
-        events[n]
-      )
+    for (const event of events) {
+      try {
+        await queryImpexp.importEventForEndpointType(
+          db,
+          allZclPackageIds,
+          endpointClusterId,
+          event
+        )
+      } catch (err) {
+        if (err.code === 'SQLITE_CONSTRAINT') {
+          querySessionNotice.setNotification(
+            db,
+            'WARNING',
+            "Duplicate endpoint type event '" +
+              event.name +
+              "' for " +
+              cluster.name +
+              ' cluster on endpoint ' +
+              endpointId +
+              '. Remove duplicates in .zap configuration file and re-open .zap file' +
+              ' or just save this .zap file to apply the changes.',
+            sessionId,
+            1,
+            0
+          )
+          env.logWarning(
+            "Duplicate endpoint type event '" +
+              event.name +
+              "' for " +
+              cluster.name +
+              ' cluster on endpoint ' +
+              endpointId +
+              '. Remove duplicates in .zap configuration file and re-open .zap file' +
+              ' or just save this .zap file to apply the changes.'
+          )
+        } else {
+          // Handle other errors
+          env.logError(
+            'Unexpected error when inserting into endpoint type event table:',
+            err.message
+          )
+          throw err
+        }
+      }
     }
   }
 }
@@ -1393,7 +1535,9 @@ async function importEndpointTypes(
         db,
         allZclPackageIds,
         endpointTypeId,
-        endpointTypes[i].clusters
+        endpointTypes[i].clusters,
+        endpointId,
+        sessionId
       )
 
       /**
