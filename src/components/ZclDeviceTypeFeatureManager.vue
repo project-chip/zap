@@ -16,7 +16,7 @@ limitations under the License.
 
 <template>
   <div class="col q-px-lg">
-    <div class="row q-py-md text-h4">
+    <div class="row q-py-md text-h5">
       <span class="v-step-6"
         >Endpoint {{ this.endpointId[this.selectedEndpointId] }} Device Type
         Features</span

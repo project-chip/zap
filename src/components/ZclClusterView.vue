@@ -22,7 +22,7 @@ limitations under the License.
             <div>
               <div class="row">
                 <div class="col">
-                  <div class="text-h4">
+                  <div class="text-h5">
                     {{ selectedCluster.label }}
                   </div>
                   <q-breadcrumbs active-color="grey">

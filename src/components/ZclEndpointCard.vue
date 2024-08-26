@@ -37,9 +37,7 @@ limitations under the License.
             "
             alt=""
           />
-          <strong>
-            Endpoint - {{ getFormattedEndpointId(endpointReference) }}</strong
-          >
+          <strong> #{{ getFormattedEndpointId(endpointReference) }}</strong>
         </div>
         <div class="q-gutter-sm" style="display: flex; align-items: center">
           <q-btn
@@ -52,16 +50,6 @@ limitations under the License.
             data-test="edit-endpoint"
           >
             <q-tooltip> Edit </q-tooltip>
-          </q-btn>
-          <q-btn
-            flat
-            dense
-            icon="list_alt"
-            size="sm"
-            v-close-popup
-            to="/feature"
-          >
-            <q-tooltip> Features </q-tooltip>
           </q-btn>
           <q-btn
             flat
