@@ -204,9 +204,14 @@ function httpPostEndpointType(db) {
 function httpGetRootNode(db) {
   return async (request, response) => {
     let sessionId = request.zapSessionId
-    let packageIds = await queryPackage.getSessionZclPackageIds(db, sessionId)
+    console.log(sessionId)
+    let packages = await queryPackage.getPackageSessionPackagePairBySessionId(
+      db,
+      sessionId
+    )
+    let packageIds = packages.map((item) => item.pkg.id)
     let rootNode = await queryEndpoint.getRootNode(db, packageIds)
-    response.status(StatusCodes.OK).json(rootNode)
+    response.status(StatusCodes.OK).json({ rootNode: rootNode })
   }
 }
 

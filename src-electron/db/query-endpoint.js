@@ -68,6 +68,7 @@ ORDER BY E1.ENDPOINT_IDENTIFIER
  * @returns {Promise<Array>} - A promise that resolves to an array of rows containing DEVICE_TYPE_REF.
  */
 async function getRootNode(db, packageIds) {
+  console.log(packageIds)
   const query = `
     SELECT DEVICE_TYPE_REF
     FROM ENDPOINT_COMPOSITION
@@ -77,7 +78,7 @@ async function getRootNode(db, packageIds) {
     dbEnum.composition.rootNode,
     ...packageIds
   ])
-  return result.rows
+  return result.DEVICE_TYPE_REF
 }
 
 /**
