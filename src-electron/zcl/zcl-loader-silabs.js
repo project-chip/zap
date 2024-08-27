@@ -2281,9 +2281,14 @@ async function parseFeatureFlags(db, packageId, featureFlags) {
  * Output device type feature conformance string:
  *  "Matter & (PIN | RID | FPG | FACE)"
  *
+ * baseLevelTerms are terms that can not have nested terms,
+ * so we stop recursing and return the name inside directly
+ *
  * @param {*} operand - The operand to be parsed.
  * @returns The feature conformance string.
  */
+const baseLevelTerms = ['feature', 'condition', 'attribute', 'command']
+
 function parseFeatureConformance(operand) {
   if (operand.mandatoryConform) {
     let insideTerm = operand.mandatoryConform[0]
@@ -2302,61 +2307,50 @@ function parseFeatureConformance(operand) {
     } else {
       return 'O'
     }
-  } else if (operand.provisionalConform) {
-    return 'P'
-  } else if (operand.disallowConform) {
-    return 'X'
-  } else if (operand.deprecateConform) {
-    return 'D'
-  } else if (operand.feature) {
-    return operand.feature[0].$.name
-  } else if (operand.condition) {
-    return operand.condition[0].$.name
   } else if (operand.otherwiseConform) {
     return Object.entries(operand.otherwiseConform[0])
       .map(([key, value]) => parseFeatureConformance({ [key]: value }))
       .join(', ')
   } else if (operand.notTerm) {
     let notTerms = parseFeatureConformance(operand.notTerm[0])
-    // need to surround notTerms with '()' if it contains multiple terms
+    // need to surround terms inside a notTerm with '()' if it contains multiple terms
     // e.g. !(A | B) or !(A & B)
     return notTerms.includes('&') || notTerms.includes('|')
       ? `!(${notTerms})`
       : `!${notTerms}`
-  } else if (operand.andTerm) {
-    return parseAndOrConformanceTerms(operand.andTerm, '&')
-  } else if (operand.orTerm) {
-    return parseAndOrConformanceTerms(operand.orTerm, '|')
+  } else if (operand.andTerm || operand.orTerm) {
+    // process andTerm and orTerm in the same logic
+    // when joining multiple orTerms inside andTerms, we need to
+    // surround them with '()', vice versa for andTerms inside orTerms
+    // e.g. A & (B | C) or A | (B & C)
+    let joinChar = operand.andTerm ? '&' : '|'
+    let termKey = operand.andTerm ? 'andTerm' : 'orTerm'
+    let oppositeChar = joinChar == '&' ? '|' : '&'
+    return Object.entries(operand[termKey][0])
+      .map(([key, value]) => {
+        if (baseLevelTerms.includes(key)) {
+          return value.map((operand) => operand.$.name).join(` ${joinChar} `)
+        } else {
+          let terms = parseFeatureConformance({ [key]: value })
+          return terms.includes(oppositeChar) ? `(${terms})` : terms
+        }
+      })
+      .join(` ${joinChar} `)
+  } else if (operand.provisionalConform) {
+    return 'P'
+  } else if (operand.disallowConform) {
+    return 'X'
+  } else if (operand.deprecateConform) {
+    return 'D'
   } else {
+    // reach base level terms, return the name directly
+    for (const term of baseLevelTerms) {
+      if (operand[term]) {
+        return operand[term][0].$.name
+      }
+    }
     return ''
   }
-}
-
-/**
- * Helper function to parse andTerm or orTerm from xml data
- * @param {*} operand
- * @param {*} joinChar
- * @returns feature conformance string
- */
-function parseAndOrConformanceTerms(operand, joinChar) {
-  // when joining multiple orTerms inside andTerms, we need to
-  // surround them with '()', vice versa for andTerms inside orTerms
-  // e.g. A & (B | C) or A | (B & C)
-  let oppositeChar = joinChar === '&' ? '|' : '&'
-  let oppositeTerm = joinChar === '&' ? 'orTerm' : 'andTerm'
-
-  return Object.entries(operand[0])
-    .map(([key, value]) => {
-      if (key == 'feature' || key == 'condition') {
-        return value.map((operand) => operand.$.name).join(` ${joinChar} `)
-      } else if (key == oppositeTerm) {
-        let terms = parseFeatureConformance({ [key]: value })
-        return terms.includes(oppositeChar) ? `(${terms})` : terms
-      } else {
-        return ''
-      }
-    })
-    .join(` ${joinChar} `)
 }
 
 /**
