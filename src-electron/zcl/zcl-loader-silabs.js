@@ -492,6 +492,7 @@ function prepareCluster(cluster, context, isExtension = false) {
         description: command.description ? command.description[0].trim() : '',
         source: command.$.source,
         isOptional: command.$.optional == 'true' ? true : false,
+        conformance: parseFeatureConformance(command),
         mustUseTimedInvoke: command.$.mustUseTimedInvoke == 'true',
         introducedIn: command.$.introducedIn,
         removedIn: command.$.removedIn,

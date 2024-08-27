@@ -176,6 +176,7 @@ CREATE TABLE IF NOT EXISTS "COMMAND" (
   "DESCRIPTION" text,
   "SOURCE" text,
   "IS_OPTIONAL" integer,
+  "CONFORMANCE" text,
   "MUST_USE_TIMED_INVOKE" integer,
   "IS_FABRIC_SCOPED" integer,
   "INTRODUCED_IN_REF" integer,
