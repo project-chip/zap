@@ -39,7 +39,7 @@ limitations under the License.
         >
       </div>
       <div class="row q-gutter-x-sm">
-        <div v-if="isFeatureEnabled">
+        <div v-if="enableFeature">
           <q-btn
             class="full-height"
             flat
@@ -143,6 +143,7 @@ limitations under the License.
 <script>
 import ZclDomainClusterView from './ZclDomainClusterView.vue'
 import CommonMixin from '../util/common-mixin'
+import uiOptions from '../util/ui-options.js'
 import { scroll } from 'quasar'
 const { getScrollTarget, setVerticalScrollPosition } = scroll
 import * as dbEnum from '../../src-shared/db-enum.js'
@@ -150,7 +151,7 @@ import * as dbEnum from '../../src-shared/db-enum.js'
 export default {
   name: 'ZclClusterManager',
   props: ['endpointTypeReference'],
-  mixins: [CommonMixin],
+  mixins: [CommonMixin, uiOptions],
   mounted() {
     if (this.domainNames.length > 0 && this.lastSelectedDomain) {
       this.scrollToElementById(this.lastSelectedDomain)
@@ -361,13 +362,6 @@ export default {
         'zap/updateSelectedDeviceTypeFeatures',
         deviceTypeRefs
       )
-    },
-    isFeatureEnabled() {
-      let categories =
-        this.$store.state.zap.selectedZapConfig?.zclProperties.map(
-          (zclProp) => zclProp.category
-        )
-      return categories.includes('matter')
     }
   },
   components: {
