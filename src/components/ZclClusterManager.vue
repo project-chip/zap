@@ -32,13 +32,24 @@ limitations under the License.
           @update:model-value="setSelectedEndpointType($event)"
         />
       </div>
-      <div v-else class="text-h4">
+      <div v-else class="text-h5">
         <span class="v-step-6"
           >Endpoint
           {{ this.endpointId[this.selectedEndpointId] }} Clusters</span
         >
       </div>
       <div class="row q-gutter-x-sm">
+        <div v-if="enableFeature">
+          <q-btn
+            class="full-height"
+            flat
+            rounded
+            label="Device Type Features"
+            color="secondary"
+            @click="updateDeviceTypeFeatures"
+            to="/feature"
+          />
+        </div>
         <q-btn
           v-if="isClusterDocumentationAvailable"
           flat
@@ -85,7 +96,7 @@ limitations under the License.
             rounded
             @click="doActionFilter(actionOption)"
             :label="actionOption.label"
-            color="secondary"
+            color="grey-7"
             :data-cy="
               'cluster-btn-' +
               actionOption.label.replace(/\s/g, '').toLowerCase()
@@ -122,9 +133,11 @@ limitations under the License.
     </q-list>
   </div>
 </template>
+
 <script>
 import ZclDomainClusterView from './ZclDomainClusterView.vue'
 import CommonMixin from '../util/common-mixin'
+import uiOptions from '../util/ui-options.js'
 import { scroll } from 'quasar'
 const { getScrollTarget, setVerticalScrollPosition } = scroll
 import * as dbEnum from '../../src-shared/db-enum.js'
@@ -132,7 +145,7 @@ import * as dbEnum from '../../src-shared/db-enum.js'
 export default {
   name: 'ZclClusterManager',
   props: ['endpointTypeReference'],
-  mixins: [CommonMixin],
+  mixins: [CommonMixin, uiOptions],
   mounted() {
     if (this.domainNames.length > 0 && this.lastSelectedDomain) {
       this.scrollToElementById(this.lastSelectedDomain)
@@ -336,6 +349,13 @@ export default {
     },
     changeFilterString(filterString) {
       this.$store.dispatch('zap/setFilterString', filterString)
+    },
+    updateDeviceTypeFeatures() {
+      let deviceTypeRefs = this.endpointDeviceTypeRef[this.selectedEndpointId]
+      this.$store.dispatch(
+        'zap/updateSelectedDeviceTypeFeatures',
+        deviceTypeRefs
+      )
     }
   },
   components: {

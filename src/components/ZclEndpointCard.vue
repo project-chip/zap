@@ -37,9 +37,7 @@ limitations under the License.
             "
             alt=""
           />
-          <strong>
-            Endpoint - {{ getFormattedEndpointId(endpointReference) }}</strong
-          >
+          <strong> #{{ getFormattedEndpointId(endpointReference) }}</strong>
         </div>
         <div class="q-gutter-sm" style="display: flex; align-items: center">
           <q-btn

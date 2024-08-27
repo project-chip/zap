@@ -185,6 +185,20 @@ const routes = [
         }
       }
     ]
+  },
+  {
+    path: '/feature',
+    name: 'feature',
+    component: () => import('layouts/MainLayout.vue'),
+    children: [
+      {
+        path: '',
+        components: {
+          default: () => import('components/ZclDeviceTypeFeatureManager.vue'),
+          sidebar: () => import('components/ZclEndpointManager.vue')
+        }
+      }
+    ]
   }
 ]
 

@@ -18,14 +18,6 @@
 export default {
   data() {
     return {
-      enableProfileId: false,
-      enableNetworkId: false,
-      enableMultipleDevice: false,
-      enablePrimaryDevice: false,
-      enableParentEndpoint: false,
-      enableServerOnly: false,
-      enableSingleton: false,
-      enableBounded: false,
       globalLists: [
         'EventList',
         'AttributeList',
@@ -34,44 +26,71 @@ export default {
       ]
     }
   },
-  mounted() {
-    const zapState = this.$store.state.zap
-    const zclProperties = zapState.selectedZapConfig?.zclProperties
-    let multiDeviceCategories = []
-    let enableMatterFeatures = false
-    let enableZigbeeFeatures = false
-    if (Array.isArray(zclProperties) && zclProperties.length > 0) {
-      multiDeviceCategories = zclProperties.map((zclProp) => zclProp.category)
-      enableMatterFeatures = multiDeviceCategories.includes('matter')
-      enableZigbeeFeatures = multiDeviceCategories.includes('zigbee')
-    } else {
-      let selectedZapConfig = zapState.selectedZapConfig
-      multiDeviceCategories = selectedZapConfig?.zclProperties?.category
-      // the use case when there is only one zcl and template package and user
-      // does not have any packages to select from.
-      if (
-        !multiDeviceCategories &&
-        selectedZapConfig &&
-        selectedZapConfig.zclProperties &&
-        selectedZapConfig.zclProperties.length == 0 &&
-        zapState.packages &&
-        zapState.packages.length > 0
-      ) {
-        multiDeviceCategories = zapState.packages[0]?.sessionPackage?.category
+  computed: {
+    zapState() {
+      return this.$store.state.zap
+    },
+    zclProperties() {
+      return this.zapState.selectedZapConfig?.zclProperties
+    },
+    zclPropertiesNonEmpty() {
+      return this.zclProperties && this.zclProperties.length > 0
+    },
+    multiDeviceCategories() {
+      if (this.zclPropertiesNonEmpty) {
+        return this.zclProperties.map((zclProp) => zclProp.category)
+      } else {
+        const selectedZapConfig = this.zapState.selectedZapConfig
+        let categories = selectedZapConfig?.zclProperties?.category
+        if (
+          !categories &&
+          selectedZapConfig &&
+          selectedZapConfig.zclProperties &&
+          selectedZapConfig.zclProperties.length == 0 &&
+          this.zapState.packages &&
+          this.zapState.packages.length > 0
+        ) {
+          categories = this.zapState.packages[0]?.sessionPackage?.category
+        }
+        return categories
       }
-      enableMatterFeatures = multiDeviceCategories == 'matter'
-      // Showing zigbee UI by default when category is not defined
-      enableZigbeeFeatures =
-        multiDeviceCategories == 'zigbee' || !multiDeviceCategories
+    },
+    enableMatterFeatures() {
+      return this.zclPropertiesNonEmpty
+        ? this.multiDeviceCategories.includes('matter')
+        : this.multiDeviceCategories == 'matter'
+    },
+    enableZigbeeFeatures() {
+      return this.zclPropertiesNonEmpty
+        ? this.multiDeviceCategories.includes('zigbee')
+        : this.multiDeviceCategories === 'zigbee' || !this.multiDeviceCategories
+    },
+    enableProfileId() {
+      return this.enableZigbeeFeatures
+    },
+    enableNetworkId() {
+      return this.enableZigbeeFeatures
+    },
+    enableSingleton() {
+      return this.enableZigbeeFeatures
+    },
+    enableBounded() {
+      return this.enableZigbeeFeatures
+    },
+    enableMultipleDevice() {
+      return this.enableMatterFeatures
+    },
+    enablePrimaryDevice() {
+      return this.enableMatterFeatures
+    },
+    enableParentEndpoint() {
+      return this.enableMatterFeatures
+    },
+    enableFeature() {
+      return this.enableMatterFeatures
+    },
+    enableServerOnly() {
+      return this.enableMatterFeatures && !this.enableZigbeeFeatures
     }
-
-    this.enableProfileId = enableZigbeeFeatures
-    this.enableNetworkId = enableZigbeeFeatures
-    this.enableSingleton = enableZigbeeFeatures
-    this.enableBounded = enableZigbeeFeatures
-    this.enableMultipleDevice = enableMatterFeatures
-    this.enablePrimaryDevice = enableMatterFeatures
-    this.enableParentEndpoint = enableMatterFeatures
-    this.enableServerOnly = enableMatterFeatures & !enableZigbeeFeatures
   }
 }

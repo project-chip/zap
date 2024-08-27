@@ -24,6 +24,7 @@ const env = require('../util/env')
 const queryZcl = require('../db/query-zcl.js')
 const queryAttribute = require('../db/query-attribute.js')
 const queryCommand = require('../db/query-command.js')
+const queryFeature = require('../db/query-feature')
 const queryConfig = require('../db/query-config.js')
 const upgrade = require('../sdk/matter.js')
 const querySessionNotification = require('../db/query-session-notification.js')
@@ -72,6 +73,24 @@ function httpGetEndpointIds(db) {
     response.status(StatusCodes.OK).json(endpointIds)
   }
 }
+
+/**
+ * HTTP GET: device type features
+ *
+ * @param {*} db
+ * @returns callback for the express uri registration
+ */
+function httpGetDeviceTypeFeatures(db) {
+  return async (request, response) => {
+    let deviceTypeRefs = request.query.deviceTypeRefs
+    let deviceTypeFeatures = await queryFeature.getFeaturesByDeviceTypeRefs(
+      db,
+      deviceTypeRefs
+    )
+    response.status(StatusCodes.OK).json(deviceTypeFeatures)
+  }
+}
+
 /**
  * HTTP GET: session get notifications
  *
@@ -1029,6 +1048,10 @@ exports.get = [
   {
     uri: restApi.uri.getAllSessionKeyValues,
     callback: httpGetSessionKeyValues
+  },
+  {
+    uri: restApi.uri.deviceTypeFeatures,
+    callback: httpGetDeviceTypeFeatures
   },
   {
     uri: restApi.uri.sessionNotification,

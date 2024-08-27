@@ -721,6 +721,11 @@ export function updateNotificationCount(state, value) {
   state.notificationCount = value
 }
 
+// This function will update the device type features after a new endpoint is selected
+export function updateDeviceTypeFeatures(state, value) {
+  state.deviceTypeFeatures = value
+}
+
 export function setDirtyState(state, isDirty) {
   if (state.isDirty != isDirty) {
     state.isDirty = isDirty
