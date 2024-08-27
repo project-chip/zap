@@ -328,7 +328,9 @@ export function loadComposition(context) {
   axiosRequests
     .$serverGet(restApi.uri.rootNode)
     .then((res) => {
-      return addEndpointType(context, res.data) // Call addEndpointType with the data from restApi
+      const dataArray = { deviceTypeRef: res.data }
+      console.log(dataArray)
+      return addEndpointType(context, dataArray) // Call addEndpointType with the array containing deviceTypeRef
     })
     .then((endpointTypeData) => {
       return addEndpoint(context, endpointTypeData) // Call addEndpoint with the data returned from addEndpointType
