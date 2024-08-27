@@ -91,12 +91,12 @@ limitations under the License.
         </div>
         <div v-for="actionOption in actionOptions" :key="actionOption.label">
           <q-btn
-            class="full-height close-all-button"
+            class="full-height"
             flat
             rounded
             @click="doActionFilter(actionOption)"
             :label="actionOption.label"
-            color="secondary"
+            color="grey-7"
             :data-cy="
               'cluster-btn-' +
               actionOption.label.replace(/\s/g, '').toLowerCase()
@@ -133,12 +133,6 @@ limitations under the License.
     </q-list>
   </div>
 </template>
-
-<style lang="scss">
-.close-all-button {
-  color: #67696d !important;
-}
-</style>
 
 <script>
 import ZclDomainClusterView from './ZclDomainClusterView.vue'
