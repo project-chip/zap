@@ -20,6 +20,7 @@
  *
  * @module DB API: zcl loading queries
  */
+
 const env = require('../util/env')
 const dbApi = require('./db-api.js')
 const queryNotification = require('../db/query-package-notification')
@@ -203,6 +204,14 @@ WHERE
 AND
   DATA_TYPE.DISCRIMINATOR_REF = ?`
 
+/**
+ * Transforms the array of attributes in a certain format and returns it.
+ *
+ * @param {*} clusterId
+ * @param {*} packageId
+ * @param {*} attributes
+ * @returns Array of attribute details
+ */
 function attributeMap(clusterId, packageId, attributes) {
   return attributes.map((attribute) => [
     clusterId,
@@ -238,6 +247,14 @@ function attributeMap(clusterId, packageId, attributes) {
   ])
 }
 
+/**
+ * Transforms the array of events in a certain format and returns it.
+ *
+ * @param {*} clusterId
+ * @param {*} packageId
+ * @param {*} events
+ * @returns Array of event details
+ */
 function eventMap(clusterId, packageId, events) {
   return events.map((event) => [
     clusterId,
@@ -257,6 +274,14 @@ function eventMap(clusterId, packageId, events) {
   ])
 }
 
+/**
+ * Transforms the array of commands in a certain format and returns it.
+ *
+ * @param {*} clusterId
+ * @param {*} packageId
+ * @param {*} commands
+ * @returns Array of command details
+ */
 function commandMap(clusterId, packageId, commands) {
   return commands.map((command) => [
     clusterId,
@@ -278,6 +303,14 @@ function commandMap(clusterId, packageId, commands) {
   ])
 }
 
+/**
+ * Transforms the array of event fields in a certain format and returns it.
+ *
+ * @param {*} eventId
+ * @param {*} packageId
+ * @param {*} fields
+ * @returns Array of event field details
+ */
 function fieldMap(eventId, packageId, fields) {
   return fields.map((field) => [
     eventId,
@@ -294,6 +327,14 @@ function fieldMap(eventId, packageId, fields) {
   ])
 }
 
+/**
+ * Transforms the array of command args in a certain format and returns it.
+ *
+ * @param {*} cmdId
+ * @param {*} packageId
+ * @param {*} args
+ * @returns Array of command arg details
+ */
 function argMap(cmdId, packageId, args) {
   return args.map((arg) => [
     cmdId,
@@ -316,7 +357,15 @@ function argMap(cmdId, packageId, args) {
   ])
 }
 
-// access data is array of objects, containing id/op/role/modifier
+/**
+ * access data is array of objects, containing id/op/role/modifier.
+ * Insert attribute access data.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} accessData
+ * @returns Promise of insert on attribute access
+ */
 async function insertAttributeAccessData(db, packageId, accessData) {
   let rowIds = await createAccessRows(db, packageId, accessData)
   let insertData = []
@@ -331,7 +380,15 @@ async function insertAttributeAccessData(db, packageId, accessData) {
   )
 }
 
-// access data is array of objects, containing id/op/role/modifier
+/**
+ * access data is array of objects, containing id/op/role/modifier.
+ * Insert command access data.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} accessData
+ * @returns Promise of insert on command access
+ */
 async function insertCommandAccessData(db, packageId, accessData) {
   let rowIds = await createAccessRows(db, packageId, accessData)
   let insertData = []
@@ -345,7 +402,16 @@ async function insertCommandAccessData(db, packageId, accessData) {
     insertData
   )
 }
-// access data is array of objects, containing id/op/role/modifier
+
+/**
+ * access data is array of objects, containing id/op/role/modifier.
+ * Insert event access data.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} accessData
+ * @returns Promise of insert on event access
+ */
 async function insertEventAccessData(db, packageId, accessData) {
   let rowIds = await createAccessRows(db, packageId, accessData)
   let insertData = []
@@ -360,6 +426,14 @@ async function insertEventAccessData(db, packageId, accessData) {
   )
 }
 
+/**
+ * Insert attribute details.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} attributes
+ * @returns None
+ */
 async function insertAttributes(db, packageId, attributes) {
   let data = attributes.data
   let access = attributes.access
@@ -431,6 +505,14 @@ async function insertAttributeMappings(db, data) {
   )
 }
 
+/**
+ * Insert event details.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} events
+ * @returns None
+ */
 async function insertEvents(db, packageId, events) {
   let data = events.data
   let fieldData = events.fields
@@ -469,6 +551,14 @@ async function insertEvents(db, packageId, events) {
   }
 }
 
+/**
+ * Insert command details
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} commands
+ * @returns None
+ */
 async function insertCommands(db, packageId, commands) {
   let data = commands.data
   let argData = commands.args
@@ -995,7 +1085,6 @@ async function getEndpointCompositionIdByCode(db, deviceType) {
  * @param {number} endpointCompositionId - The ID of the endpoint composition.
  * @returns {Promise} A promise that resolves when the insertion is complete.
  */
-
 function insertDeviceComposition(db, deviceType, endpointCompositionId) {
   const insertQuery = `
     INSERT INTO DEVICE_COMPOSITION (CODE, ENDPOINT_COMPOSITION_REF, CONFORMANCE, DEVICE_CONSTRAINT)
@@ -1184,6 +1273,14 @@ async function insertDeviceTypeCommands(db, dtClusterRefDataPairs) {
   )
 }
 
+/**
+ * Insert into Access operation Table.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} operations
+ * @returns Promise of Access Operation insert operation.
+ */
 async function insertAccessOperations(db, packageId, operations) {
   let data = operations.map((o) => [packageId, o.name, o.description])
   return dbApi.dbMultiInsert(
@@ -1198,6 +1295,14 @@ VALUES
   )
 }
 
+/**
+ * Insert into Access Role Table.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} roles
+ * @returns Promise of Access Role insert operation.
+ */
 async function insertAccessRoles(db, packageId, roles) {
   let data = roles.map((r) => [packageId, r.name, r.description, r.level])
   return dbApi.dbMultiInsert(
@@ -1212,6 +1317,14 @@ VALUES
   )
 }
 
+/**
+ * Insert into Access Modifier Table.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} modifiers
+ * @returns Promise of Access Modifier insert operation.
+ */
 async function insertAccessModifiers(db, packageId, modifiers) {
   let data = modifiers.map((m) => [packageId, m.name, m.description])
   return dbApi.dbMultiInsert(

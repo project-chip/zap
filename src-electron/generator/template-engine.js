@@ -259,6 +259,11 @@ async function loadPartial(hb, name, path) {
   }
 }
 
+/**
+ *
+ * @param {*} wrappedHelper
+ * @returns function
+ */
 function helperWrapper(wrappedHelper) {
   return function w(...args) {
     let helperName = wrappedHelper.name

@@ -20,6 +20,7 @@
  *
  * @module DB API: endpoint configuration queries against the database.
  */
+
 const dbApi = require('./db-api.js')
 const bin = require('../util/bin')
 const dbMapping = require('./db-mapping.js')

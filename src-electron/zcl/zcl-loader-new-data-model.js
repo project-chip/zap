@@ -14,6 +14,13 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
+/**
+ * This module provides the APIs for new data model loading
+ *
+ * @module Loader API: Loader APIs
+ */
+
 const _ = require('lodash')
 const util = require('../util/util')
 const fs = require('fs')
@@ -67,6 +74,11 @@ async function parseNewXmlFiles(db, packageId, files, context) {
   return ret
 }
 
+/**
+ * Prepare features from xml.
+ * @param {*} f
+ * @returns feature information
+ */
 function prepXmlFeature(f) {
   let feature = {}
   feature.bit = parseInt(f.$.bit)
@@ -75,6 +87,12 @@ function prepXmlFeature(f) {
   feature.summary = f.$.summary
   return feature
 }
+
+/**
+ * Prepare attributes from xml.
+ * @param {*} a
+ * @returns attribute information
+ */
 function prepXmlAttribute(a) {
   let attribute = {}
   attribute.id = types.hexStringToInt(a.$.id)
@@ -83,12 +101,24 @@ function prepXmlAttribute(a) {
   attribute.default = a.$.default
   return attribute
 }
+
+/**
+ * Prepare commands from xml.
+ * @param {*} c
+ * @returns command information
+ */
 function prepXmlCommand(c) {
   let command = {}
   command.id = types.hexStringToInt(c.$.id)
   command.name = c.$.name
   return command
 }
+
+/**
+ * Prepare events from xml
+ * @param {*} e
+ * @returns event information
+ */
 function prepXmlEvent(e) {
   let event = {}
   event.id = types.hexStringToInt(e.$.id)
@@ -96,6 +126,11 @@ function prepXmlEvent(e) {
   return event
 }
 
+/**
+ * Parse xml file.
+ * @param {*} f
+ * @returns xml information from file
+ */
 async function parseSingleNewXmlFile(f) {
   let content = await fsp.readFile(f)
   let xmlObject = await util.parseXml(content)

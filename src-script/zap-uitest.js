@@ -39,6 +39,9 @@ if (process.argv.length > 4) {
   browserToUse = process.argv[4]
 }
 
+/**
+ * Print ZAP usage information.
+ */
 function printUsage() {
   console.log(`Usage: zap-uitest.js [ MODE | -? ] [matter|zigbee] [browser]
 

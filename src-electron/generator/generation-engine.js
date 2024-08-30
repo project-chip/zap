@@ -18,6 +18,7 @@
 /**
  * @module JS API: generator logic
  */
+
 const _ = require('lodash')
 const fs = require('fs')
 const fsPromise = fs.promises
@@ -56,6 +57,18 @@ async function loadGenTemplateFromFile(path) {
   }
 }
 
+/**
+ * Inserts the package details when they do not exist.
+ *
+ * @param {*} db
+ * @param {*} packagePath
+ * @param {*} parentId
+ * @param {*} packageType
+ * @param {*} version
+ * @param {*} category
+ * @param {*} description
+ * @returns Promise of package insertion
+ */
 async function recordPackageIfNonexistent(
   db,
   packagePath,
@@ -89,6 +102,15 @@ async function recordPackageIfNonexistent(
   }
 }
 
+/**
+ * Insert the template options from the json meta data file.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} category
+ * @param {*} externalPath
+ * @returns Promise of inserted template options
+ */
 async function loadTemplateOptionsFromJsonFile(
   db,
   packageId,
@@ -584,6 +606,13 @@ async function loadGenTemplatesJsonFile(db, genTemplatesJson) {
   }
 }
 
+/**
+ * Get the package information from the given package ID.
+ *
+ * @param {*} db
+ * @param {*} genTemplatesPkgId
+ * @returns package information
+ */
 async function retrievePackageMetaInfo(db, genTemplatesPkgId) {
   let metaInfo = {
     aliases: [],
@@ -1023,6 +1052,12 @@ async function generateAndWriteFiles(
   }
 }
 
+/**
+ * Create a generation log.
+ *
+ * @param {*} logFile
+ * @param {*} genData
+ */
 async function createGenerationLog(logFile, genData) {
   try {
     let jsonData

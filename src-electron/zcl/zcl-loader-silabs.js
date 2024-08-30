@@ -15,6 +15,12 @@
  *    limitations under the License.
  */
 
+/**
+ * This module provides the APIs for ZCL/Data-Model loading.
+ *
+ * @module Loader API: Loader APIs
+ */
+
 const fs = require('fs')
 const fsp = fs.promises
 const path = require('path')
@@ -374,6 +380,11 @@ function prepareClusterGlobalAttribute(cluster) {
   }
 }
 
+/**
+ * Extract access information
+ * @param {*} ac
+ * @returns access tag information
+ */
 function extractAccessTag(ac) {
   let e = {
     op: ac.$.op,
@@ -386,6 +397,11 @@ function extractAccessTag(ac) {
   return e
 }
 
+/**
+ * Extract list of access information
+ * @param {*} xmlElement
+ * @returns array of access information
+ */
 function extractAccessIntoArray(xmlElement) {
   let accessArray = []
   if ('access' in xmlElement) {
@@ -799,6 +815,11 @@ async function processGlobals(db, filePath, packageId, data, context) {
   )
 }
 
+/**
+ * Prepare tag object from tag
+ * @param {*} tag
+ * @returns tag information
+ */
 function prepareTag(tag) {
   return {
     name: tag.$.name,
@@ -2425,7 +2446,6 @@ async function parseBoolOptions(db, pkgRef, booleanCategories) {
  *                                                  structured by cluster.
  * @returns {Promise<void>} A promise that resolves when all attributes have been processed and inserted.
  */
-
 async function parseattributeAccessInterfaceAttributes(
   db,
   pkgRef,
@@ -2468,6 +2488,13 @@ async function parseDefaults(db, packageId, defaults) {
   return Promise.all(promises)
 }
 
+/**
+ * Parse text defaults from default options.
+ * @param {*} db
+ * @param {*} pkgRef
+ * @param {*} textDefaults
+ * @returns Array of promises
+ */
 async function parseTextDefaults(db, pkgRef, textDefaults) {
   if (!textDefaults) return Promise.resolve()
 
@@ -2512,6 +2539,13 @@ async function parseTextDefaults(db, pkgRef, textDefaults) {
   return Promise.all(promises)
 }
 
+/**
+ * Parse the boolean defaults inside options.
+ * @param {*} db
+ * @param {*} pkgRef
+ * @param {*} booleanCategories
+ * @returns List of promises
+ */
 async function parseBoolDefaults(db, pkgRef, booleanCategories) {
   if (!booleanCategories) return Promise.resolve()
 
@@ -2671,10 +2705,22 @@ async function processCustomZclDeviceType(db, packageId) {
     await queryLoader.insertDeviceTypes(db, packageId, customDeviceTypes)
 }
 
+/**
+ * Load ZCL metadata
+ * @param {*} db
+ * @param {*} metafile
+ * @returns Promise of loaded zcl json file
+ */
 async function loadZclJson(db, metafile) {
   return loadZclJsonOrProperties(db, metafile, true)
 }
 
+/**
+ * Load ZCL metadata
+ * @param {*} db
+ * @param {*} metafile
+ * @returns Promise of loaded zcl properties file
+ */
 async function loadZclProperties(db, metafile) {
   return loadZclJsonOrProperties(db, metafile, false)
 }

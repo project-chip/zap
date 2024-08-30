@@ -15,11 +15,13 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
 /**
  * This module provides session notification related queries.
  *
  * @module DB API: session related queries.
  */
+
 const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
 const wsServer = require('../server/ws-server.js')

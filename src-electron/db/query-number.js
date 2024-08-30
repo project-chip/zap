@@ -16,8 +16,11 @@
  */
 
 /**
- * This module provides queries for numbers
+ * This module provides queries for numbers.
+ *
+ * @module DB API: zcl database number access
  */
+
 const dbApi = require('./db-api')
 const dbMapping = require('./db-mapping')
 const dbCache = require('./db-cache')

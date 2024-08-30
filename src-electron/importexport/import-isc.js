@@ -15,6 +15,12 @@
  *    limitations under the License.
  */
 
+/**
+ * This module provides the functionality that reads a .isc file
+ *
+ * @module Import API: Imports data from a file.
+ */
+
 const path = require('path')
 const queryConfig = require('../db/query-config')
 const queryEndpoint = require('../db/query-endpoint')
@@ -386,10 +392,26 @@ async function loadEndpointType(db, sessionId, packageId, endpointType) {
   )
 }
 
+/**
+ * check if device is a custom device type.
+ *
+ * @param {*} deviceName
+ * @param {*} deviceCode
+ * @returns boolean
+ */
 function isCustomDevice(deviceName, deviceCode) {
   return deviceName == 'zcustom'
 }
 
+/**
+ * Load and endpoint type attribute entry.
+ *
+ * @param {*} db
+ * @param {*} endpointTypeId
+ * @param {*} packageId
+ * @param {*} at
+ * @returns Promise of an endpoint type attribute update
+ */
 async function loadSingleAttribute(db, endpointTypeId, packageId, at) {
   let id = await queryConfig.selectEndpointTypeAttributeId(
     db,

@@ -18,14 +18,25 @@
 const http = require('http-status-codes')
 import { Notify } from 'quasar'
 
-// Implements the pairing function here as a perfect hash.
-// https://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function
-// We don't implement the inverse at this time.
-// This function takes in 2 non-negative natural numbers, and returns a natural number
+/**
+ *  Implements the pairing function here as a perfect hash.
+ * https://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function
+ * We don't implement the inverse at this time.
+ * This function takes in 2 non-negative natural numbers, and returns a natural number
+ * @param {*} x
+ * @param {*} y
+ * @returns returns a natural number
+ */
 export function cantorPair(x, y) {
   return ((x + y) * (x + y + 1)) / 2 + y
 }
 
+/**
+ * Returns a hex value for a given input value and padding
+ * @param {*} input
+ * @param {*} padding
+ * @returns Hex value
+ */
 export function asHex(input, padding) {
   if (input == null) return ''
   if (input < 0) return input.toString()
@@ -110,10 +121,20 @@ export function notifyComponentUpdateStatus(componentIdStates, added) {
   }
 }
 
+/**
+ * Get all selected UC components
+ * @param {*} ucComponentList
+ * @returns Returns list of selected UC components
+ */
 export function getSelectedUcComponents(ucComponentList) {
   return ucComponentList.filter((x) => x.isSelected)
 }
 
+/**
+ * Get all UC components
+ * @param {*} ucComponentTreeResponse
+ * @returns UC components
+ */
 export function getUcComponents(ucComponentTreeResponse) {
   // computed selected Nodes
   let selectedComponents = []

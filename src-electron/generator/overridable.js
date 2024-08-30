@@ -22,6 +22,15 @@
  */
 
 // Local utility function
+
+/**
+ * Get interger type in string format based on given arguments.
+ *
+ * @param {*} uint
+ * @param {*} size
+ * @param {*} signed
+ * @returns string
+ */
 function cleanseUints(uint, size, signed) {
   if (size > 32) {
     return signed ? 'int8_t *' : 'uint8_t *'

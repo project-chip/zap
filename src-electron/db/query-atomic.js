@@ -20,6 +20,7 @@
  *
  * @module DB API: zcl database access
  */
+
 const dbApi = require('./db-api.js')
 const dbCache = require('./db-cache.js')
 const dbMapping = require('./db-mapping.js')
@@ -42,7 +43,12 @@ FROM ATOMIC
 const cacheKey = 'atomic'
 
 // Raw query versions without caching.
-
+/**
+ * Get all atomic data type information
+ * @param {*} db
+ * @param {*} packageId
+ * @returns atomic data types
+ */
 async function selectAllAtomics(db, packageId) {
   let rows = await dbApi.dbAll(
     db,

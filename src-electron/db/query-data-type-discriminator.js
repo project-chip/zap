@@ -16,7 +16,9 @@
  */
 
 /**
- * This module provides queries for discriminators
+ * This module provides queries for data type discriminator
+ *
+ * @module DB API: Data type discriminator queries against the database.
  */
 
 const dbApi = require('./db-api')

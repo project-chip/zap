@@ -30,10 +30,17 @@ let wsUrl = `ws://${window.location.hostname}:${
 }?${restApi.param.sessionId}=${window.sessionStorage.getItem('session_uuid')}`
 const client = new WebSocket(wsUrl)
 
+/**
+ * Send object over the web socket.
+ * @param {*} object
+ */
 function doSend(object) {
   client.send(JSON.stringify(object))
 }
 
+/**
+ * Initialize the web socket
+ */
 function sendWebSocketInit() {
   sendWebSocketData(dbEnum.wsCategory.init, 'WebSocket initialized handshake.')
   setInterval(() => sendWebSocketData(dbEnum.wsCategory.tick), tickInterval)
@@ -84,6 +91,10 @@ function onWebSocket(category, listener) {
   eventEmitter.on(category, listener)
 }
 
+/**
+ * Process the received object over the web socket.
+ * @param {*} obj
+ */
 function processReceivedObject(obj) {
   if (typeof obj == 'object' && 'category' in obj && 'payload' in obj) {
     eventEmitter.emit(obj.category, obj.payload)

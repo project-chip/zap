@@ -81,6 +81,11 @@ const directories = ['src', 'src-electron', 'test']
 const startYear = 2020
 const whos = ['Silicon Labs', 'Project CHIP Authors']
 
+/**
+ * Check for licensing of file.
+ * @param {*} path
+ * @returns none
+ */
 async function processSingleFile(path) {
   let isVue = path.endsWith('.vue')
   let isJs = path.endsWith('.js')
@@ -139,6 +144,13 @@ async function processSingleFile(path) {
   })
 }
 
+/**
+ * Read Dirent
+ * @param {*} level
+ * @param {*} currentDir
+ * @param {*} dirent
+ * @returns Promise
+ */
 async function readDirent(level, currentDir, dirent) {
   if (dirent == null) return
   let fullName = path.join(currentDir.path, dirent.name)
@@ -152,6 +164,12 @@ async function readDirent(level, currentDir, dirent) {
     .then((dirent) => readDirent(level, currentDir, dirent))
 }
 
+/**
+ * Scan directories recursively.
+ * @param {*} level
+ * @param {*} currentDir
+ * @returns currentDir
+ */
 async function recursiveScan(level, currentDir) {
   currentDir.read().then((dirent) => readDirent(level, currentDir, dirent))
   return currentDir

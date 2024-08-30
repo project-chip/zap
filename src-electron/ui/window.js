@@ -15,6 +15,12 @@
  *    limitations under the License.
  */
 
+/**
+ *  Window module for ZAP UI
+ *
+ * @module JS API: Window module for ZAP UI
+ */
+
 const { BrowserWindow, dialog, ipcMain } = require('electron')
 const path = require('path')
 const env = require('../util/env')
@@ -41,12 +47,26 @@ export function initializeElectronUi(port) {
   tray.initTray(port)
 }
 
+/**
+ * Create a window if none present.
+ *
+ * @param {*} port
+ */
 export function windowCreateIfNotThere(port) {
   if (BrowserWindow.getAllWindows().length == 0) {
     windowCreate(port)
   }
 }
 
+/**
+ * Get url string.
+ * @param {*} uiMode
+ * @param {*} standalone
+ * @param {*} isNew
+ * @param {*} filePath
+ * @param {*} restPort
+ * @returns String
+ */
 function createQueryString(uiMode, standalone, isNew, filePath, restPort) {
   const params = new Map()
 

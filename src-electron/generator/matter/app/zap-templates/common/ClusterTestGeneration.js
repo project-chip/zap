@@ -62,6 +62,12 @@ class NullObject {
   }
 }
 
+/**
+ * Throw error using given data.
+ *
+ * @param {*} test
+ * @param {*} errorStr
+ */
 function throwError(test, errorStr) {
   console.error(
     'Error in: ' +
@@ -74,6 +80,13 @@ function throwError(test, errorStr) {
   throw new Error();
 }
 
+/**
+ * Set default value for the given parameters.
+ *
+ * @param {*} test
+ * @param {*} name
+ * @param {*} defaultValue
+ */
 function setDefault(test, name, defaultValue) {
   if (!(name in test)) {
     if (defaultValue == null) {
@@ -85,6 +98,10 @@ function setDefault(test, name, defaultValue) {
   }
 }
 
+/**
+ * Set default type.
+ * @param {*} test
+ */
 function setDefaultType(test) {
   if (kWaitCommandName in test) {
     setDefaultTypeForWaitCommand(test);
@@ -93,6 +110,11 @@ function setDefaultType(test) {
   }
 }
 
+/**
+ * Set default type for wait command.
+ *
+ * @param {*} test
+ */
 function setDefaultTypeForWaitCommand(test) {
   const type = test[kWaitCommandName];
   switch (type) {
@@ -133,6 +155,11 @@ function setDefaultTypeForWaitCommand(test) {
   test.isWait = true;
 }
 
+/**
+ * Set default type for command.
+ *
+ * @param {*} test
+ */
 function setDefaultTypeForCommand(test) {
   const type = test[kCommandName];
   switch (type) {
@@ -219,6 +246,13 @@ function setDefaultTypeForCommand(test) {
   test.isWait = false;
 }
 
+/**
+ * Set default PICS.
+ *
+ * @param {*} test
+ * @param {*} picsFilePath
+ * @returns None
+ */
 function setDefaultPICS(test, picsFilePath) {
   const defaultPICS = '';
   setDefault(test, kPICSName, defaultPICS);
@@ -239,6 +273,12 @@ function setDefaultPICS(test, picsFilePath) {
   });
 }
 
+/**
+ * Set default arguments.
+ *
+ * @param {*} test
+ * @returns None
+ */
 function setDefaultArguments(test) {
   const defaultArguments = {};
   setDefault(test, kArgumentsName, defaultArguments);
@@ -262,12 +302,25 @@ function setDefaultArguments(test) {
   delete test[kArgumentsName].value;
 }
 
+/**
+ * Ensure a valid error.
+ *
+ * @param {*} response
+ * @param {*} errorName
+ */
 function ensureValidError(response, errorName) {
   if (isNaN(response[errorName])) {
     response[errorName] = 'EMBER_ZCL_STATUS_' + response[errorName];
   }
 }
 
+/**
+ * Set default response.
+ *
+ * @param {*} test
+ * @param {*} useSynthesizeWaitForReport
+ * @returns None
+ */
 function setDefaultResponse(test, useSynthesizeWaitForReport) {
   // Some of the tests does not have any command defined.
   if (!test.command || test.isWait) {
@@ -408,6 +461,14 @@ function setDefaultResponse(test, useSynthesizeWaitForReport) {
   });
 }
 
+/**
+ * Set defaults.
+ *
+ * @param {*} test
+ * @param {*} defaultConfig
+ * @param {*} useSynthesizeWaitForReport
+ * @param {*} picsFilePath
+ */
 function setDefaults(
   test,
   defaultConfig,
@@ -431,6 +492,16 @@ function setDefaults(
   setDefaultResponse(test, useSynthesizeWaitForReport);
 }
 
+/**
+ * Get yaml data.
+ *
+ * @param {*} filename
+ * @param {*} useSynthesizeWaitForReport
+ * @param {*} picsFilePath
+ * @param {*} certificationDir
+ * @param {*} testDir
+ * @returns yaml data
+ */
 function parseYamlTest(
   filename,
   useSynthesizeWaitForReport,
@@ -501,12 +572,24 @@ function parseYamlTest(
   return yaml;
 }
 
+/**
+ * Log Errors and exit.
+ *
+ * @param {*} context
+ * @param {*} msg
+ */
 function printErrorAndExit(context, msg) {
   console.log('\nERROR:\n', context.testName, ': ', context.label);
   console.log(msg);
   process.exit(1);
 }
 
+/**
+ * Get Attribute, commands or events for a cluster.
+ *
+ * @param {*} context
+ * @returns Attribute, commands or events for a cluster
+ */
 function assertCommandOrAttributeOrEvent(context) {
   const clusterName = context.cluster;
   return getClusters(context).then((clusters) => {
@@ -579,6 +662,12 @@ function assertCommandOrAttributeOrEvent(context) {
 
 let loadedPICS = null;
 
+/**
+ * Retireve PICS.
+ *
+ * @param {*} filepath
+ * @returns PICS
+ */
 function retrievePICS(filepath) {
   if (loadedPICS != null) return loadedPICS;
 
@@ -601,9 +690,12 @@ function retrievePICS(filepath) {
   return loadedPICS;
 }
 
-//
-// Templates
-//
+/**
+ * Get PICS.
+ * Templates.
+ * @param {*} options
+ * @returns PICS
+ */
 function chip_tests_pics(options) {
   return templateUtil.collectBlocks(
     retrievePICS(this.global.resource('pics-metafile')).getAll(),
@@ -612,6 +704,11 @@ function chip_tests_pics(options) {
   );
 }
 
+/**
+ * Configure test item.
+ *
+ * @param {*} item
+ */
 async function configureTestItem(item) {
   if (item.isCommand) {
     let command = await assertCommandOrAttributeOrEvent(item);
@@ -635,6 +732,13 @@ async function configureTestItem(item) {
   }
 }
 
+/**
+ * Get tests.
+ *
+ * @param {*} listOrJson
+ * @param {*} options
+ * @returns tests
+ */
 async function chip_tests(listOrJson, options) {
   // Set a global on our items so assertCommandOrAttributeOrEvent can work.
   let global = this.global;
@@ -697,10 +801,24 @@ async function chip_tests(listOrJson, options) {
   return templateUtil.collectBlocks(tests, options, this);
 }
 
+/**
+ * Get items in this context.
+ *
+ * @param {*} options
+ * @returns items
+ */
 function chip_tests_items(options) {
   return templateUtil.collectBlocks(this.tests, options, this);
 }
 
+/**
+ * Get variable.
+ *
+ * @param {*} context
+ * @param {*} key
+ * @param {*} name
+ * @returns variable
+ */
 function getVariable(context, key, name) {
   if (
     !(
@@ -724,6 +842,14 @@ function getVariable(context, key, name) {
   return context.variables[key].find((variable) => variable.name == name);
 }
 
+/**
+ * Get variable details.
+ *
+ * @param {*} context
+ * @param {*} key
+ * @param {*} name
+ * @returns variable or Error
+ */
 function getVariableOrThrow(context, key, name) {
   const variable = getVariable(context, key, name);
   if (variable == null) {
@@ -732,50 +858,108 @@ function getVariableOrThrow(context, key, name) {
   return variable;
 }
 
+/**
+ * Get variables.
+ *
+ * @param {*} options
+ * @returns variables
+ */
 function chip_tests_variables(options) {
   return templateUtil.collectBlocks(this.variables.tests, options, this);
 }
 
+/**
+ * Check if tests have the variable.
+ *
+ * @param {*} name
+ * @param {*} options
+ * @returns boolean
+ */
 function chip_tests_variables_has(name, options) {
   const variable = getVariable(this, 'tests', name);
   return !!variable;
 }
 
+/**
+ * Get type of variable.
+ * @param {*} name
+ * @param {*} options
+ * @returns type of variable
+ */
 function chip_tests_variables_get_type(name, options) {
   const variable = getVariableOrThrow(this, 'tests', name);
   return variable.type;
 }
 
+/**
+ * Return boolean based on variable's nullable property.
+ * @param {*} name
+ * @param {*} options
+ * @returns boolean
+ */
 function chip_tests_variables_is_nullable(name, options) {
   const variable = getVariableOrThrow(this, 'tests', name);
   return variable.isNullable;
 }
 
+/**
+ * Get config
+ * @param {*} options
+ * @returns config
+ */
 function chip_tests_config(options) {
   return templateUtil.collectBlocks(this.variables.config, options, this);
 }
 
+/**
+ * chec if config has the variable.
+ *
+ * @param {*} name
+ * @param {*} options
+ * @returns boolean
+ */
 function chip_tests_config_has(name, options) {
   const variable = getVariable(this, 'config', name);
   return !!variable;
 }
 
+/**
+ * Get default value of the variable given.
+ *
+ * @param {*} name
+ * @param {*} options
+ * @returns default value
+ */
 function chip_tests_config_get_default_value(name, options) {
   const variable = getVariableOrThrow(this, 'config', name);
   return variable.defaultValue;
 }
 
+/**
+ * Get type of the variable given.
+ *
+ * @param {*} name
+ * @param {*} options
+ * @returns type of variable
+ */
 function chip_tests_config_get_type(name, options) {
   const variable = getVariableOrThrow(this, 'config', name);
   return variable.type;
 }
 
-// test_cluster_command_value and test_cluster_value-equals are recursive partials using #each. At some point the |global|
-// context is lost and it fails. Make sure to attach the global context as a property of the | value |
-// that is evaluated.
-//
-// errorContext should have "thisVal" and "name" properties that will be used
-// for error reporting via printErrorAndExit.
+/**
+ * test_cluster_command_value and test_cluster_value-equals are recursive partials using #each. At some point the |global|
+ * context is lost and it fails. Make sure to attach the global context as a property of the | value |
+ * that is evaluated.
+ *
+ * errorContext should have "thisVal" and "name" properties that will be used
+ * for error reporting via printErrorAndExit.
+ *
+ * @param {*} global
+ * @param {*} value
+ * @param {*} errorContext
+ * @returns Transformed value
+ */
 function attachGlobal(global, value, errorContext) {
   if (Array.isArray(value)) {
     value = value.map((v) => attachGlobal(global, v, errorContext));
@@ -826,6 +1010,12 @@ function checkNumberSanity(value, errorContext) {
   }
 }
 
+/**
+ * Get item parameters.
+ *
+ * @param {*} options
+ * @returns item parameters
+ */
 function chip_tests_item_parameters(options) {
   if (this.isWait) {
     return asBlocks.call(this, Promise.resolve([]), options);
@@ -887,10 +1077,22 @@ function chip_tests_item_parameters(options) {
   return asBlocks.call(this, promise, options);
 }
 
+/**
+ * Get item responses.
+ *
+ * @param {*} options
+ * @returns item responses
+ */
 function chip_tests_item_responses(options) {
   return templateUtil.collectBlocks(this[kResponseName], options, this);
 }
 
+/**
+ * Get item response parameters.
+ *
+ * @param {*} options
+ * @returns item response parameters.
+ */
 function chip_tests_item_response_parameters(options) {
   const responseValues = this.values.slice();
 
@@ -953,16 +1155,35 @@ function chip_tests_item_response_parameters(options) {
   return asBlocks.call(this, promise, options);
 }
 
+/**
+ * Returns true/false based on value being a null or not.
+ *
+ * @param {*} value
+ * @param {*} options
+ * @returns boolean
+ */
 function isLiteralNull(value, options) {
   // Literal null might look different depending on whether it went through
   // attachGlobal or not.
   return value === null || value instanceof NullObject;
 }
 
+/**
+ * Returns true/false based on value being a hex string or not.
+ *
+ * @param {*} value
+ * @returns boolean
+ */
 function isHexString(value) {
   return value && value.startsWith(kHexPrefix);
 }
 
+/**
+ * Get octet string length from hex string value.
+ *
+ * @param {*} value
+ * @returns string length
+ */
 function octetStringFromHexString(value) {
   const hexString = value.substring(kHexPrefix.length);
 
@@ -982,11 +1203,24 @@ function octetStringFromHexString(value) {
   return bytes.map((byte) => '\\x' + byte).join('');
 }
 
+/**
+ * Get octet string length from hex string value.
+ *
+ * @param {*} value
+ * @returns string length
+ */
 function octetStringLengthFromHexString(value) {
   const hexString = value.substring(kHexPrefix.length);
   return hexString.length / 2;
 }
 
+/**
+ * Escape control characters, things outside the ASCII range, and single
+ * quotes (because that's our string terminator).
+ *
+ * @param {*} value
+ * @returns String
+ */
 function octetStringEscapedForCLiteral(value) {
   // Escape control characters, things outside the ASCII range, and single
   // quotes (because that's our string terminator).
@@ -996,7 +1230,14 @@ function octetStringEscapedForCLiteral(value) {
   });
 }
 
-// Structs may not always provide values for optional members.
+/**
+ * Structs may not always provide values for optional members.
+ *
+ * @param {*} structValue
+ * @param {*} name
+ * @param {*} options
+ * @returns content based on struct details
+ */
 function if_include_struct_item_value(structValue, name, options) {
   let hasValue = name in structValue;
   if (hasValue) {
@@ -1013,8 +1254,13 @@ function if_include_struct_item_value(structValue, name, options) {
   return options.inverse(this);
 }
 
-// To be used to verify that things are actually arrays before trying to use
-// #each with them, since that silently treats non-arrays as empty arrays.
+/**
+ * To be used to verify that things are actually arrays before trying to use
+ * #each with them, since that silently treats non-arrays as empty arrays.
+ *
+ * @param {*} value
+ * @param {*} options
+ */
 function ensureIsArray(value, options) {
   if (!(value instanceof Array)) {
     printErrorAndExit(
@@ -1026,6 +1272,12 @@ function ensureIsArray(value, options) {
   }
 }
 
+/**
+ * Checks if conditions are inside test only cluster block.
+ *
+ * @param {*} conditions
+ * @param {*} name
+ */
 function checkIsInsideTestOnlyClusterBlock(conditions, name) {
   conditions.forEach((condition) => {
     if (condition == undefined) {
@@ -1146,6 +1398,13 @@ async function chip_tests_only_cluster_response_parameters(options) {
   return asBlocks.call(this, Promise.resolve(this.arguments), options);
 }
 
+/**
+ * Get a transformed values list.
+ *
+ * @param {*} values
+ * @param {*} options
+ * @returns Transformed values list
+ */
 function chip_tests_iterate_expected_list(values, options) {
   let context = options.hash.context || this;
   values = values.map((value) => {
@@ -1163,6 +1422,13 @@ function chip_tests_iterate_expected_list(values, options) {
   return asBlocks.call(this, Promise.resolve(values), options);
 }
 
+/**
+ * Get constraint details.
+ *
+ * @param {*} constraints
+ * @param {*} options
+ * @returns constraint details
+ */
 function chip_tests_iterate_constraints(constraints, options) {
   let values = [];
   for (let key of Object.keys(constraints)) {
@@ -1180,6 +1446,13 @@ function chip_tests_iterate_constraints(constraints, options) {
   return asBlocks.call(this, Promise.resolve(values), options);
 }
 
+/**
+ * Get Data Model data type
+ *
+ * @param {*} type
+ * @param {*} isList
+ * @returns data type as String
+ */
 async function asTestType(type, isList) {
   if (isList) {
     return 'list';

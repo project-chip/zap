@@ -18,8 +18,9 @@
 /**
  * This module provides queries for enums.
  *
- * @module DB API: zcl database access
+ * @module DB API: zcl database enum access
  */
+
 const dbApi = require('./db-api')
 const dbCache = require('./db-cache')
 const dbMapping = require('./db-mapping')

@@ -20,6 +20,7 @@
  *
  * @module DB API: cluster queries.
  */
+
 const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
 

@@ -14,6 +14,13 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
+/**
+ * External Registry utilities for ZAP
+ *
+ * @module External API: External API utilities
+ */
+
 // Import the helper API
 const api = require('./external-helper-api.js')
 

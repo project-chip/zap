@@ -15,6 +15,12 @@
  *    limitations under the License.
  */
 
+/**
+ * This module provides REST API Exports.
+ *
+ * @module REST API: REST API.
+ */
+
 const uri = {
   zclEntity: '/zcl/:entity/:id',
   saveSessionKeyValue: '/save',

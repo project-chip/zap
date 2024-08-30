@@ -15,12 +15,24 @@
  *    limitations under the License.
  */
 
+/**
+ * This module provides the About page functionality for ZAP.
+ *
+ * @module JS API: About page
+ */
+
 const { BrowserWindow } = require('electron')
 const path = require('path')
 const env = require('../util/env')
 
 let window = null
 
+/**
+ * Create the about window in ZAP.
+ *
+ * @param {*} parentWindow
+ * @param {*} port
+ */
 function createAboutWindow(parentWindow, port) {
   let webPreferences = {
     nodeIntegration: false

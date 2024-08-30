@@ -14,6 +14,13 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
+/**
+ * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
+ *
+ * @module Templating API: Future helpers
+ */
+
 const futureKey = 'futures'
 const valueKey = 'futureValues'
 const timeoutMessage = '!---timeout---!'

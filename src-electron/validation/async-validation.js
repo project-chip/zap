@@ -19,6 +19,7 @@
  * This module provides the APIs for validating inputs to the database, and returning flags indicating if
  * things were successful or not.
  *
+ * @module Validation API: Validation APIs
  */
 
 const queryPackage = require('../db/query-package.js')
@@ -59,6 +60,12 @@ export async function initAsyncValidation(db, session) {
   sessionTimers.initSessionTimers(db, session, timers)
 }
 
+/**
+ * Enforce zigbee specific common cluster initialization.
+ *
+ * @param {*} session
+ * @returns object
+ */
 function zigbeeEnforceCommonClusterSpecInit(session) {
   let timerSetup = {
     func: function () {
@@ -69,6 +76,11 @@ function zigbeeEnforceCommonClusterSpecInit(session) {
   return timerSetup
 }
 
+/**
+ * Enforce zigbee specific common cluster initialization.
+ *
+ * @param {*} session
+ */
 function zigbeeEnforceCommonClusterSpecCallback(session) {
   let socket = wsServer.clientSocket(session.sessionKey)
   if (socket) {

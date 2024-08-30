@@ -20,6 +20,7 @@
  *
  * @module DB API: endpoint type queries against the database.
  */
+
 const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
 
@@ -29,7 +30,6 @@ const dbMapping = require('./db-mapping.js')
  * @param {*} sessionId
  * @param {*} id
  */
-
 async function deleteEndpointType(db, id) {
   return dbApi.dbRemove(
     db,

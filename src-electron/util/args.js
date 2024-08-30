@@ -15,6 +15,12 @@
  *    limitations under the License.
  */
 
+/**
+ * Arguments for ZAP
+ *
+ * @module JS API: Arguments for ZAP
+ */
+
 const yargs = require('yargs')
 const path = require('path')
 const os = require('os')
@@ -23,6 +29,11 @@ const restApi = require('../../src-shared/rest-api.js')
 const commonUrl = require('../../src-shared/common-url.js')
 const env = require('./env.js')
 
+/**
+ * Get environment variable details.
+ *
+ * @returns environment varibale details
+ */
 function environmentVariablesDescription() {
   let vars = env.environmentVariable
   let desc = ''

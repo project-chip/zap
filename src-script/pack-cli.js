@@ -14,6 +14,11 @@ console.log(argv)
 
 const platform = argv.p ? argv.p : process.platform
 
+/**
+ * Zip file
+ * @param {*} dst
+ * @param {*} filename
+ */
 async function addToZip(dst, filename) {
   await scriptUtil.executeCmd({}, zip.path7za, [
     'a',
@@ -22,10 +27,18 @@ async function addToZip(dst, filename) {
   ])
 }
 
+/**
+ * Rename file
+ * @param {*} oldPath
+ * @param {*} newPath
+ */
 async function rename(oldPath, newPath) {
   await fsp.rename(`${dist}/${oldPath}`, `${dist}/${newPath}`)
 }
 
+/**
+ * Package ZAP.
+ */
 async function main() {
   if (platform.includes('darwin') || platform.includes('mac')) {
     let file = 'zap-macos'

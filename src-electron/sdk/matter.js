@@ -15,6 +15,12 @@
  *    limitations under the License.
  */
 
+/**
+ * This module contains Matter specific APIs.
+ *
+ * @module JS API: Matter specific APIs.
+ */
+
 const dbApi = require('../db/db-api.js')
 const queryPackage = require('../db/query-package.js')
 const queryCluster = require('../db/query-cluster.js')
@@ -29,7 +35,6 @@ const dbEnum = require('../../src-shared/db-enum.js')
  * @param {Number} packageIds - The ID of the packages to query.
  * @returns {Promise<Array>} A promise that resolves to an array of forced external storage settings.
  */
-
 async function getForcedExternalStorage(db, packageIds) {
   try {
     // Ensure packageIds is an array
@@ -65,7 +70,6 @@ async function getForcedExternalStorage(db, packageIds) {
  * @param {*} packageId the ID of the package to which the attributes belong, used to determine storage policies specific to the package
  * @returns an array of objects representing attributes in the database
  */
-
 async function computeStoragePolicyForGlobalAttributes(
   db,
   clusterId,
@@ -101,6 +105,7 @@ async function computeStoragePolicyForGlobalAttributes(
     throw error // Rethrow the error if you want to handle it further up the call stack
   }
 }
+
 /**
  * This asynchronous function computes and returns the new configuration for a storage option.
  *
@@ -112,7 +117,6 @@ async function computeStoragePolicyForGlobalAttributes(
  * If the storagePolicy is neither of these, it throws an error 'check storage policy'.
  * Finally, it returns the updated storage option.
  */
-
 async function computeStorageOptionNewConfig(storagePolicy) {
   try {
     let storageOption
@@ -183,7 +187,6 @@ async function computeStoragePolicyNewConfig(
  * the updatedStoragePolicy to attributeAccessInterface and stops the iteration.
  * Finally, it returns the updated storage policy.
  */
-
 async function computeStorageImport(
   db,
   clusterName,

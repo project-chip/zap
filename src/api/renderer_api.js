@@ -47,6 +47,10 @@ export function renderer_api_info() {
   }
 }
 
+/**
+ * Save file.
+ * @param {*} zap_file
+ */
 function fnSave(zap_file) {
   let data = {}
   if (zap_file != null) data.path = zap_file
@@ -55,6 +59,10 @@ function fnSave(zap_file) {
     .catch((err) => console.log(err))
 }
 
+/**
+ * Check if state of file is dirty based on unsaved changes.
+ * @returns
+ */
 function fnIsDirty() {
   return window
     .serverGet(`${restApi.ide.isDirty}`)
@@ -64,6 +72,12 @@ function fnIsDirty() {
     .catch((err) => console.log(err))
 }
 
+/**
+ * Execute the renderer api based on id.
+ * @param {*} id
+ * @param  {...any} args
+ * @returns ret
+ */
 export function renderer_api_execute(id, ...args) {
   let ret = null
   switch (id) {

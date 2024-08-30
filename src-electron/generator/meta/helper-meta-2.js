@@ -17,6 +17,11 @@
 
 const dbEnum = require('../../../src-shared/db-enum')
 
+/**
+ * Get 'Meta category.' string.
+ *
+ * @returns string
+ */
 async function meta_category() {
   return 'Meta category.'
 }

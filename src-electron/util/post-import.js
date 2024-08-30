@@ -15,6 +15,13 @@
  *    limitations under the License.
  */
 
+/**
+ * This module contains the API functions for the post-load
+ * scripting functionality.
+ *
+ *  @module JS API: post-import.
+ */
+
 const path = require('path')
 const scriptApi = require('./post-import-api.js')
 const nativeRequire = require('./native-require.js')

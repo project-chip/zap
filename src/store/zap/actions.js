@@ -22,15 +22,29 @@ import dbEnum from '../../../src-shared/db-enum.js'
 
 const http = require('http-status-codes')
 
+/**
+ * Show or hide dev tools in ZAP.
+ * @param {*} context
+ */
 export function updateShowDevTools(context) {
   context.commit('updateShowDevTools')
 }
 
+/**
+ * Update exceptions in ZAP.
+ * @param {*} context
+ * @param {*} data
+ */
 export function updateExceptions(context, data) {
   context.commit('updateExceptions', data)
   context.commit('toggleShowExceptionIcon', true)
 }
 
+/**
+ * Update the information text for ZAP.
+ * @param {*} context
+ * @param {*} text
+ */
 export function updateInformationText(context, text) {
   axiosRequests
     .$serverPost(restApi.uri.saveSessionKeyValue, {
@@ -42,6 +56,10 @@ export function updateInformationText(context, text) {
     })
 }
 
+/**
+ * Update the clusters in ZAP UI.
+ * @param {*} context
+ */
 export async function updateClusters(context) {
   let deviceTypes = await axiosRequests.$serverGet(
     restApi.uri.zclDeviceType + 'all'
@@ -52,12 +70,21 @@ export async function updateClusters(context) {
   })
 }
 
+/**
+ * Update the atomic data typess.
+ * @param {*} context
+ */
 export function updateAtomics(context) {
   axiosRequests.$serverGet(restApi.uri.zclAtomics + 'all').then((response) => {
     context.commit('updateAtomics', response.data)
   })
 }
 
+/**
+ * Update the selected cluster in ZAP UI.
+ * @param {*} context
+ * @param {*} cluster
+ */
 export async function updateSelectedCluster(context, cluster) {
   let res = await axiosRequests.$serverGet(
     restApi.uri.zclCluster + `${cluster.id}`
@@ -68,18 +95,37 @@ export async function updateSelectedCluster(context, cluster) {
   updateEvents(context, res.data.eventData || [])
 }
 
+/**
+ * Update the attributes for ZAP UI.
+ * @param {*} context
+ * @param {*} attributes
+ */
 export function updateAttributes(context, attributes) {
   context.commit('updateAttributes', attributes)
 }
 
+/**
+ * Update the commands for ZAP UI.
+ * @param {*} context
+ * @param {*} commands
+ */
 export function updateCommands(context, commands) {
   context.commit('updateCommands', commands)
 }
 
+/**
+ * Update the events for ZAP UI.
+ * @param {*} context
+ * @param {*} events
+ */
 export function updateEvents(context, events) {
   context.commit('updateEvents', events)
 }
 
+/**
+ * Update the device types for ZAP UI.
+ * @param {*} context
+ */
 export function updateZclDeviceTypes(context) {
   axiosRequests
     .$serverGet(restApi.uri.zclDeviceType + 'all')
@@ -100,14 +146,30 @@ export function updateZclDeviceTypes(context) {
     })
 }
 
+/**
+ * Update endpoint configuration for ZAP UI.
+ * @param {*} context
+ * @param {*} endpointConfigs
+ */
 export function updateEndpointConfigs(context, endpointConfigs) {
   context.commit('updateEndpointConfigs', endpointConfigs)
 }
 
+/**
+ * * Update selected ZAP configuration.
+ * @param {*} context
+ * @param {*} configurationName
+ */
 export function selectConfiguration(context, configurationName) {
   context.commit('selectConfiguration', configurationName)
 }
 
+/**
+ * Initialize the selected ZAP attribute.
+ * @param {*} context
+ * @param {*} selectionContext
+ * @returns
+ */
 export function initSelectedAttribute(context, selectionContext) {
   return axiosRequests
     .$serverPost(restApi.uri.attributeUpdate, selectionContext)
@@ -117,6 +179,11 @@ export function initSelectedAttribute(context, selectionContext) {
     })
 }
 
+/**
+ * Update the selected attribute in ZAP UI.
+ * @param {*} context
+ * @param {*} selectionContext
+ */
 export function updateSelectedAttribute(context, selectionContext) {
   axiosRequests
     .$serverPost(restApi.uri.attributeUpdate, selectionContext)
@@ -147,6 +214,11 @@ export function updateSelectedAttribute(context, selectionContext) {
     })
 }
 
+/**
+ * Update the selected commands in the ZAP UI.
+ * @param {*} context
+ * @param {*} selectionContext
+ */
 export async function updateSelectedCommands(context, selectionContext) {
   let res = await axiosRequests.$serverPost(
     restApi.uri.commandUpdate,
@@ -163,6 +235,11 @@ export async function updateSelectedCommands(context, selectionContext) {
   }
 }
 
+/**
+ * Update the selected events in the ZAP UI.
+ * @param {*} context
+ * @param {*} selectionContext
+ */
 export function updateSelectedEvents(context, selectionContext) {
   axiosRequests
     .$serverPost(restApi.uri.eventUpdate, selectionContext)
@@ -179,11 +256,23 @@ export function updateSelectedEvents(context, selectionContext) {
     })
 }
 
+/**
+ * Update the selected UC component in Simplicity Studio.
+ * @param {*} context
+ * @param {*} payload
+ * @returns
+ */
 export function updateSelectedComponent(context, payload) {
   let op = payload.added ? restApi.uc.componentAdd : restApi.uc.componentRemove
   return axiosRequests.$serverPost(op, payload)
 }
 
+/**
+ * Update the selected server side clusters.
+ * @param {*} context
+ * @param {*} selectionContext
+ * @returns
+ */
 export function updateSelectedServers(context, selectionContext) {
   return axiosRequests
     .$serverPost(restApi.uri.cluster, {
@@ -197,6 +286,12 @@ export function updateSelectedServers(context, selectionContext) {
     })
 }
 
+/**
+ * * Update the selected client side clusters.
+ * @param {*} context
+ * @param {*} selectionContext
+ * @returns
+ */
 export function updateSelectedClients(context, selectionContext) {
   return axiosRequests
     .$serverPost(restApi.uri.cluster, {
@@ -210,6 +305,11 @@ export function updateSelectedClients(context, selectionContext) {
     })
 }
 
+/**
+ * Get the project packages.
+ * @param {*} context
+ * @returns packages for the project
+ */
 export function getProjectPackages(context) {
   return axiosRequests.$serverGet(restApi.uri.packages).then((res) => {
     let data = res.data
@@ -217,9 +317,20 @@ export function getProjectPackages(context) {
   })
 }
 
+/**
+ * Initialize the default endpoints.
+ * @param {*} context
+ * @param {*} defaultEndpoints
+ */
 export function initializeDefaultEndpoints(context, defaultEndpoints) {
   context.commit('initializeDefaultEndpoints', defaultEndpoints)
 }
+
+/**
+ * Initialize the default endpoint types.
+ * @param {*} context
+ * @param {*} defaultEndpointsTypes
+ */
 export function initializeDefaultEndpointsTypes(
   context,
   defaultEndpointsTypes
@@ -227,10 +338,20 @@ export function initializeDefaultEndpointsTypes(
   context.commit('initializeDefaultEndpointsTypes', defaultEndpointsTypes)
 }
 
+/**
+ * Update the selected endpoint in ZAP UI.
+ * @param {*} context
+ * @param {*} endpoint
+ */
 export function updateSelectedEndpoint(context, endpoint) {
   context.commit('updateSelectedEndpoint', endpoint)
 }
 
+/**
+ * * Update the selected endpoint type in ZAP UI.
+ * @param {*} context
+ * @param {*} endpointType
+ */
 export function updateEndpointType(context, endpointType) {
   axiosRequests
     .$serverPatch(restApi.uri.endpointType, endpointType)
@@ -252,6 +373,11 @@ export function updateEndpointType(context, endpointType) {
     })
 }
 
+/**
+ * Link endpoint types and deviec types.
+ * @param {*} context
+ * @param {*} endpointTypeIdDeviceTypeRefPair
+ */
 export function setDeviceTypeReference(
   context,
   endpointTypeIdDeviceTypeRefPair
@@ -310,6 +436,11 @@ export function setDeviceTypeReference(
   context.commit('setDeviceTypeReference', endpointTypeIdDeviceTypeRefPair)
 }
 
+/**
+ * Update Endpoint in ZAP UI.
+ * @param {*} context
+ * @param {*} endpoint
+ */
 export function updateEndpoint(context, endpoint) {
   // TODO this uri should handle deviceIdentifier as array
   axiosRequests.$serverPatch(restApi.uri.endpoint, endpoint).then((res) => {
@@ -324,6 +455,12 @@ export function updateEndpoint(context, endpoint) {
   })
 }
 
+/**
+ * Add endpoint in ZAP UI.
+ * @param {*} context
+ * @param {*} newEndpointContext
+ * @returns endpoint data
+ */
 export function addEndpoint(context, newEndpointContext) {
   return axiosRequests
     .$serverPost(restApi.uri.endpoint, newEndpointContext)
@@ -343,10 +480,20 @@ export function addEndpoint(context, newEndpointContext) {
     })
 }
 
+/**
+ * Get endpoint ids.
+ * @returns endpoints ids
+ */
 export async function getEndpointIds() {
   return await axiosRequests.$serverGet(restApi.uri.endpointIds)
 }
 
+/**
+ * Add endpoint type for ZAP UI.
+ * @param {*} context
+ * @param {*} endpointTypeData
+ * @returns endpointType data
+ */
 export function addEndpointType(context, endpointTypeData) {
   return axiosRequests
     .$serverPost(restApi.uri.endpointType, endpointTypeData)
@@ -363,6 +510,12 @@ export function addEndpointType(context, endpointTypeData) {
     .catch((e) => console.log('Error in addEndpointType: ' + e.message))
 }
 
+/**
+ * Duplicate endpoint type.
+ * @param {*} context
+ * @param {*} param1
+ * @returns endpoint type data
+ */
 export function duplicateEndpointType(context, { endpointTypeId }) {
   return axiosRequests
     .$serverPost(restApi.uri.duplicateEndpointType, {
@@ -373,6 +526,11 @@ export function duplicateEndpointType(context, { endpointTypeId }) {
     })
 }
 
+/**
+ * Delete endpoint from ZAP UI.
+ * @param {*} context
+ * @param {*} endpointId
+ */
 export function deleteEndpoint(context, endpointId) {
   axiosRequests
     .$serverDelete(restApi.uri.endpoint, { params: { id: endpointId } })
@@ -381,6 +539,12 @@ export function deleteEndpoint(context, endpointId) {
     })
 }
 
+/**
+ * Duplicate endpoint in ZAP UI.
+ * @param {*} context
+ * @param {*} param1
+ * @returns endpoint details
+ */
 export function duplicateEndpoint(
   context,
   { endpointId, endpointIdentifier, endpointTypeId }
@@ -396,6 +560,11 @@ export function duplicateEndpoint(
     })
 }
 
+/**
+ * Delete endpoint type from ZAP UI.
+ * @param {*} context
+ * @param {*} endpointTypeId
+ */
 export function deleteEndpointType(context, endpointTypeId) {
   axiosRequests
     .$serverDelete(restApi.uri.endpointType, { params: { id: endpointTypeId } })
@@ -408,6 +577,11 @@ export function deleteEndpointType(context, endpointTypeId) {
     })
 }
 
+/**
+ * Refresh the endpoint type cluster details based on endpoint type selected in ZAP UI.
+ * @param {*} context
+ * @param {*} endpointType
+ */
 export function refreshEndpointTypeCluster(context, endpointType) {
   axiosRequests
     .$serverGet(`${restApi.uri.endpointTypeAttributes}${endpointType}`)
@@ -426,12 +600,24 @@ export function refreshEndpointTypeCluster(context, endpointType) {
     })
 }
 
+/**
+ * Get endpoint type cluster information for endpoint type.
+ * @param {*} context
+ * @param {*} endpointTypeId
+ * @returns endpoint type cluster information for endpoint type
+ */
 export async function endpointTypeClustersInfo(context, endpointTypeId) {
   return axiosRequests.$serverGet(
     `${restApi.uri.endpointTypeClusters}${endpointTypeId}`
   )
 }
 
+/**
+ * Update selected endpoint type details in ZAP UI.
+ * @param {*} context
+ * @param {*} endpointTypeDeviceTypeRefPair
+ * @returns Resolved promises
+ */
 export async function updateSelectedEndpointType(
   context,
   endpointTypeDeviceTypeRefPair
@@ -512,6 +698,11 @@ export async function updateSelectedEndpointType(
   return await Promise.all(p)
 }
 
+/**
+ * set client and server cluster lists.
+ * @param {*} context
+ * @param {*} selectionContext
+ */
 export function setClusterList(context, selectionContext) {
   let enabledClients = []
   let enabledServers = []
@@ -529,6 +720,12 @@ export function setClusterList(context, selectionContext) {
     servers: enabledServers
   })
 }
+
+/**
+ * Set attribute state details for the endpoint type attribute.
+ * @param {*} context
+ * @param {*} selectionContext
+ */
 export function setAttributeState(context, selectionContext) {
   let resolvedReference = Util.cantorPair(
     selectionContext.attributeRef,
@@ -548,6 +745,11 @@ export function setAttributeState(context, selectionContext) {
   })
 }
 
+/**
+ * set attribute list for the state.
+ * @param {*} context
+ * @param {*} selectionContext
+ */
 export function setAttributeStateLists(context, selectionContext) {
   let includedAttributes = []
   let singletonAttributes = []
@@ -589,6 +791,11 @@ export function setAttributeStateLists(context, selectionContext) {
   })
 }
 
+/**
+ * set events list for the state.
+ * @param {*} context
+ * @param {*} selectionContext
+ */
 export function setEventStateLists(context, selectionContext) {
   let selected = []
   selectionContext.forEach((record) => {
@@ -600,6 +807,11 @@ export function setEventStateLists(context, selectionContext) {
   context.commit('setEventLists', selected)
 }
 
+/**
+ * Set commands list for the state.
+ * @param {*} context
+ * @param {*} selectionContext
+ */
 export function setCommandStateLists(context, selectionContext) {
   let incoming = []
   let outgoing = []
@@ -617,8 +829,13 @@ export function setCommandStateLists(context, selectionContext) {
   })
 }
 
-// TODO (?) This does not handle/highlight prohibited clusters. For now we just keep it in here
+/**
+ * Set recommended cluster list for the endpoint.
+ * @param {*} context
+ * @param {*} data
+ */
 export function setRecommendedClusterList(context, data) {
+  // TODO (?) This does not handle/highlight prohibited clusters. For now we just keep it in here
   let recommendedClients = []
   let recommendedServers = []
 
@@ -632,6 +849,11 @@ export function setRecommendedClusterList(context, data) {
   })
 }
 
+/**
+ * Set required attributes for the cluster.
+ * @param {*} context
+ * @param {*} data
+ */
 export function setRequiredAttributes(context, data) {
   let requiredAttributes = []
   data.forEach((record) => {
@@ -642,6 +864,11 @@ export function setRequiredAttributes(context, data) {
   })
 }
 
+/**
+ * Set required commands for the cluster.
+ * @param {*} context
+ * @param {*} data
+ */
 export function setRequiredCommands(context, data) {
   let requiredCommands = []
   data.forEach((record) => {
@@ -652,10 +879,20 @@ export function setRequiredCommands(context, data) {
   })
 }
 
+/**
+ * Set left drawer in State.
+ * @param {*} context
+ * @param {*} data
+ */
 export function setLeftDrawerState(context, data) {
   context.commit('setLeftDrawerState', data)
 }
 
+/**
+ * Set minimization state in State.
+ * @param {*} context
+ * @param {*} data
+ */
 export function setMiniState(context, data) {
   context.commit('setMiniState', data)
 }
@@ -710,6 +947,8 @@ export function loadInitialData(context, data) {
 
 /**
  * This action loads the option from the backend, including any defaults that may exist.
+ * @param {*} context
+ * @param {*} option
  */
 export function loadOptions(context, option) {
   axiosRequests
@@ -739,6 +978,10 @@ export async function setSelectedGenericKey(context, data) {
   context.commit('setSelectedGenericOption', response.data)
 }
 
+/**
+ * Load session key value pairs for ZAP.
+ * @param {*} context
+ */
 export async function loadSessionKeyValues(context) {
   let response = await axiosRequests.$serverGet(
     restApi.uri.getAllSessionKeyValues
@@ -766,6 +1009,12 @@ export async function addNewPackage(context, filePath) {
   }
 }
 
+/**
+ * Delete's a session's package.
+ * @param {*} context
+ * @param {*} sessionPackage
+ * @returns project packages
+ */
 export function deleteSessionPackage(context, sessionPackage) {
   return axiosRequests
     .$serverDelete(restApi.uri.sessionPackage, { params: sessionPackage })
@@ -774,67 +1023,144 @@ export function deleteSessionPackage(context, sessionPackage) {
     })
 }
 
+/**
+ * Set the default UI mode for ZAP UI.
+ * @param {*} context
+ * @param {*} uiMode
+ */
 export function setDefaultUiMode(context, uiMode) {
   context.commit(`setDefaultUiMode`, uiMode)
 }
 
+/**
+ * Show or hide the debug navigation bar in ZAP UI.
+ * @param {*} context
+ * @param {*} debugNavBar
+ */
 export function setDebugNavBar(context, debugNavBar) {
   context.commit('setDebugNavBar', debugNavBar)
 }
 
+/**
+ * Show or hide the Save button in ZAP UI.
+ * @param {*} context
+ * @param {*} saveButtonVisible
+ */
 export function setSaveButtonVisible(context, saveButtonVisible) {
   context.commit('setSaveButtonVisible', saveButtonVisible)
 }
 
+/**
+ * Set the mode of ZAP UI.
+ * @param {*} context
+ * @param {*} standalone
+ */
 export function setStandalone(context, standalone) {
   context.commit('setStandalone', standalone)
 }
 
+/**
+ * Set attribute's editable mode in ZAP UI.
+ * @param {*} context
+ * @param {*} editContext
+ */
 export function setAttributeEditting(context, editContext) {
   context.commit('setAttributeEditting', editContext)
 }
 
+/**
+ * Set attribute reporting's editable mode of ZAP UI.
+ * @param {*} context
+ * @param {*} editContext
+ */
 export function setAttributeReportingEditting(context, editContext) {
   context.commit('setAttributeReportingEditting', editContext)
 }
 
+/**
+ * Set the domain drop down for clusters in ZAP UI.
+ * @param {*} context
+ * @param {*} state
+ */
 export function setOpenDomain(context, state) {
   context.commit('setOpenDomain', state)
 }
 
+/**
+ * Set the domain's fliter for clusters in ZAP UI.
+ * @param {*} context
+ * @param {*} filterEnabledClusterPair
+ */
 export function setDomainFilter(context, filterEnabledClusterPair) {
   context.commit('setDomainFilter', filterEnabledClusterPair)
 }
 
+/**
+ * Apply filter for clusters in ZAP UI.
+ * @param {*} context
+ * @param {*} filterEnabledClusterPair
+ */
 export function doActionFilter(context, filterEnabledClusterPair) {
   context.commit('doActionFilter', filterEnabledClusterPair)
 }
 
+/**
+ * Set the filter string for filtering.
+ * @param {*} context
+ * @param {*} filterString
+ */
 export function setFilterString(context, filterString) {
   context.commit('setFilterString', filterString)
 }
 
+/**
+ * Reset the filters in ZAP UI.
+ * @param {*} context
+ */
 export function resetFilters(context) {
   context.commit('resetFilters')
 }
 
+/**
+ * Set the filter string for each cluster.
+ * @param {*} context
+ * @param {*} filterString
+ */
 export function setIndividualClusterFilterString(context, filterString) {
   context.commit('setIndividualClusterFilterString', filterString)
 }
 
+/**
+ * Set the last selected domain.
+ * @param {*} context
+ * @param {*} domainNameString
+ */
 export function setLastSelectedDomain(context, domainNameString) {
   context.commit('setLastSelectedDomain', domainNameString)
 }
 
+/**
+ * Clear the last selected domain.
+ * @param {*} context
+ */
 export function clearLastSelectedDomain(context) {
   context.commit('clearLastSelectedDomain')
 }
 
+/**
+ * Load the UC component state for Simplicity Studio.
+ * @param {*} context
+ */
 export async function loadUcComponentState(context) {
   let resp = await axiosRequests.$serverGet(restApi.uc.componentTree)
   updateUcComponentState(context, resp.data)
 }
 
+/**
+ * Update the UC component state for Simplicity Studio.
+ * @param {*} context
+ * @param {*} projectInfo
+ */
 export function updateUcComponentState(context, projectInfo) {
   let ucComponents = Util.getUcComponents(projectInfo)
   let selectedUcComponents = Util.getSelectedUcComponents(ucComponents)
@@ -844,6 +1170,11 @@ export function updateUcComponentState(context, projectInfo) {
   })
 }
 
+/**
+ * Update the selected UC component state for Simplicity Studio.
+ * @param {*} context
+ * @param {*} projectInfo
+ */
 export function updateSelectedUcComponentState(context, projectInfo) {
   let ucComponents = Util.getUcComponents(projectInfo)
   let selectedUcComponents = Util.getSelectedUcComponents(ucComponents)
@@ -852,10 +1183,19 @@ export function updateSelectedUcComponentState(context, projectInfo) {
   })
 }
 
+/**
+ * Set the dirty state for ZAP config when there are unsaved changes.
+ * @param {*} context
+ * @param {*} isDirty
+ */
 export function setDirtyState(context, isDirty) {
   context.commit('setDirtyState', isDirty)
 }
 
+/**
+ * Load ZCL's cluster to UC component mapping(Simplicity Studio)
+ * @param {*} context
+ */
 export function loadZclClusterToUcComponentDependencyMap(context) {
   axiosRequests
     .$serverGet(`/zclExtension/cluster/component`)
@@ -867,6 +1207,11 @@ export function loadZclClusterToUcComponentDependencyMap(context) {
     })
 }
 
+/**
+ * Share cluster states acorss endpoints.
+ * @param {*} context
+ * @param {*} data
+ */
 export function shareClusterStatesAcrossEndpoints(context, data) {
   let { endpointTypeIdList } = data
   axiosRequests
@@ -878,6 +1223,11 @@ export function shareClusterStatesAcrossEndpoints(context, data) {
     })
 }
 
+/**
+ * Generate all the endpoints data.
+ * @param {*} context
+ * @param {*} endpointData
+ */
 export function generateAllEndpointsData(context, endpointData) {
   let attr = []
   let report = []

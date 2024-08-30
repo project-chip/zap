@@ -14,6 +14,13 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
+/**
+ *  Utility module for ZAP UI
+ *
+ * @module JS API: Utility module for ZAP UI
+ */
+
 const { dialog } = require('electron')
 const window = require('./window')
 const browserApi = require('./browser-api')
@@ -131,6 +138,15 @@ function openFileDialogAndReportResult(browserWindow, options) {
   })
 }
 
+/**
+ * Enable the UI open using the given arguments.
+ *
+ * @param {*} port
+ * @param {*} zapFiles
+ * @param {*} uiMode
+ * @param {*} standalone
+ * @returns promise of a file open configuration
+ */
 function enableUi(port, zapFiles, uiMode, standalone) {
   window.initializeElectronUi(port)
   if (zapFiles.length == 0) {

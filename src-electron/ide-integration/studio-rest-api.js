@@ -18,6 +18,7 @@
 /**
  * This module provides the APIs to Silabs Simplicity Studio's Jetty server.
  *
+ * @module IDE Integration API: Studio REST API.
  */
 
 // dirty flag reporting interval
@@ -52,6 +53,13 @@ const heartbeatDelay = 6000
 let studioHttpPort
 let studioWsConnections = {}
 
+/**
+ * Get session key value for the given session.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @returns Promise of a session key value.
+ */
 async function projectPath(db, sessionId) {
   return querySession.getSessionKeyValue(
     db,
@@ -267,6 +275,13 @@ async function updateComponentByComponentIds(db, sessionId, componentIds, add) {
   )
 }
 
+/**
+ * Send HTTP Post to update UC component state in Studio
+ * @param {*} project
+ * @param {*} componentId
+ * @param {*} add
+ * @returns Http post resonse.
+ */
 function httpPostComponentUpdate(project, componentId, add) {
   let operation = add
     ? StudioRestAPI.AddComponent
@@ -411,6 +426,13 @@ async function wsConnect(db, session, path, handler) {
   }
 }
 
+/**
+ * Close web socket connection with Studio.
+ *
+ * @param {*} db
+ * @param {*} session
+ * @param {*} path
+ */
 async function wsDisconnect(db, session, path) {
   let { sessionId } = session
   if (studioWsConnections[sessionId]) {
@@ -464,6 +486,13 @@ function deinitIdeIntegration() {
   })
 }
 
+/**
+ * Send selected UC components across the web socket.
+ *
+ * @param {*} db
+ * @param {*} session
+ * @param {*} ucComponentStates
+ */
 async function sendSelectedUcComponents(db, session, ucComponentStates) {
   let socket = wsServer.clientSocket(session.sessionKey)
   let studioIntegration = await integrationEnabled(db, session.sessionId)

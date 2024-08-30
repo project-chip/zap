@@ -17,6 +17,8 @@
 
 /**
  * This module provides queries for data types
+ *
+ * @module DB API: Data type queries against the database.
  */
 
 const dbApi = require('./db-api')

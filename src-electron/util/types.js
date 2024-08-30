@@ -15,16 +15,16 @@
  *    limitations under the License.
  */
 
+/**
+ * @module JS API: type related utilities
+ */
+
 const queryZcl = require('../db/query-zcl.js')
 const queryAtomic = require('../db/query-atomic.js')
 const queryPackages = require('../db/query-package.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const bin = require('./bin')
 const env = require('./env')
-
-/**
- * @module JS API: type related utilities
- */
 
 /**
  * This function resolves with the size of a given type.
@@ -321,7 +321,6 @@ function isTwoBytePrefixedString(type) {
  * @returns {string} The default value for a null string of the specified type.
  * @throws {Error} Throws an error if the string type is unknown.
  */
-
 function nullStringDefaultValue(type) {
   // We don't want to make longTypeDefaultValue know about our null
   // string representation.
@@ -417,14 +416,25 @@ async function getSignAndSizeOfZclType(db, type, packageIds, options) {
   return ret
 }
 
-// Converts a JS number to a hex representation with padding.
-// intToHexString(17, 2) => 0x0011
+/**
+ * Converts a JS number to a hex representation with padding.
+ * intToHexString(17, 2) => 0x0011 .
+ *
+ * @param {*} n
+ * @param {*} byteCount
+ * @returns hex string
+ */
 function intToHexString(n, byteCount) {
   return '0x' + n.toString(16).padStart(2 * byteCount, '0')
 }
 
-// Convers a hex representation created by the intToHexString
-// back into a JS integer.
+/**
+ * Converts a hex representation created by the intToHexString
+ * back into a JS integer.
+ *
+ * @param {*} s
+ * @returns integer
+ */
 function hexStringToInt(s) {
   let c = s
   if (s.startsWith('0x') || s.startsWith('0X')) c = s.substring(2)

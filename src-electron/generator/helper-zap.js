@@ -15,14 +15,14 @@
  *    limitations under the License.
  */
 
-const templateUtil = require('./template-util.js')
-const queryPackage = require('../db/query-package.js')
-
 /**
  * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
  *
  * @module Templating API: toplevel utility helpers
  */
+
+const templateUtil = require('./template-util.js')
+const queryPackage = require('../db/query-package.js')
 
 /**
  * Produces the top-of-the-file header for a C file.
@@ -46,6 +46,12 @@ function ident(cnt) {
   }
 }
 
+/**
+ * Return new lines based on the given cnt parameter.
+ *
+ * @param {*} cnt
+ * @returns new line
+ */
 function new_line(cnt) {
   if (Number.isInteger(cnt)) {
     return '\n'.repeat(cnt)
@@ -54,6 +60,11 @@ function new_line(cnt) {
   }
 }
 
+/**
+ * return back slash
+ *
+ * @returns string
+ */
 function backslash() {
   return '\\'
 }
@@ -208,6 +219,14 @@ function is_lowercase_equal(string_a, string_b) {
   return 0 == str1.localeCompare(str2)
 }
 
+/**
+ * Return true/false result based on condition.
+ *
+ * @param {*} condition
+ * @param {*} trueResult
+ * @param {*} falseResult
+ * @returns boolean
+ */
 function toggle(condition, trueResult, falseResult) {
   return condition ? trueResult : falseResult
 }
@@ -253,6 +272,12 @@ function iterate(options) {
   return ret
 }
 
+/**
+ * Add to accumulator results.
+ *
+ * @param {*} accumulator
+ * @param {*} value
+ */
 function addToAccumulator(accumulator, value) {
   if (!('accumulators' in this.global)) {
     this.global.accumulators = {}
@@ -276,6 +301,12 @@ function addToAccumulator(accumulator, value) {
   this.global.accumulators[accumulator].currentSum = newSum
 }
 
+/**
+ * Get accumulated information from templates.
+ *
+ * @param {*} options
+ * @returns accumulated details
+ */
 function iterateAccumulator(options) {
   let hash = options.hash
   if (!('accumulators' in this.global)) {
@@ -299,6 +330,14 @@ function iterateAccumulator(options) {
   return ret
 }
 
+/**
+ * Waits for promise to be resolved synchronously.
+ *
+ * @param {*} pollInterval
+ * @param {*} promise
+ * @param {*} resolve
+ * @param {*} reject
+ */
 function waitForSynchronousPromise(pollInterval, promise, resolve, reject) {
   if (promise.isResolved()) {
     resolve()
@@ -312,6 +351,11 @@ function waitForSynchronousPromise(pollInterval, promise, resolve, reject) {
   }
 }
 
+/**
+ * Resolves all the given globalPromises promises.
+ *
+ * @param {*} globalPromises
+ */
 async function promiseToResolveAllPreviousPromises(globalPromises) {
   if (globalPromises.length > 0) {
     let promises = []
@@ -326,6 +370,13 @@ async function promiseToResolveAllPreviousPromises(globalPromises) {
   }
 }
 
+/**
+ * Resolve the after promise after all other promises in the global context
+ * have been resolved.
+ *
+ * @param {*} options
+ * @returns Content after all other content has been resolved.
+ */
 async function after(options) {
   await promiseToResolveAllPreviousPromises(this.global.promises)
   let newContext = {

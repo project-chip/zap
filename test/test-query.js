@@ -166,7 +166,7 @@ WHERE
  * @param {*} sessionUuid
  * @param {*} zclFile
  * @param {*} genTemplatesFile
- * @returns
+ * @returns session ID
  */
 async function createSession(db, user, sessionUuid, zclFile, genTemplatesFile) {
   let userSession = await querySession.ensureZapUserAndSession(

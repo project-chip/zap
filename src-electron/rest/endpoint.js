@@ -20,6 +20,7 @@
  *
  * @module REST API: endpoint
  */
+
 const queryEndpointType = require('../db/query-endpoint-type.js')
 const queryEndpoint = require('../db/query-endpoint.js')
 const queryConfig = require('../db/query-config.js')

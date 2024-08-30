@@ -15,6 +15,12 @@
  *    limitations under the License.
  */
 
+/**
+ * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
+ *
+ * @module Templating API: Token helpers
+ */
+
 const templateUtil = require('./template-util')
 const types = require('../util/types.js')
 const string = require('../util/string')
@@ -22,6 +28,12 @@ const helperC = require('./helper-c.js')
 const queryAttribute = require('../db/query-attribute.js')
 const queryCluster = require('../db/query-cluster.js')
 
+/**
+ * Get a transformed config object.
+ *
+ * @param {*} config
+ * @returns object
+ */
 function token_cluster_create(config) {
   return {
     name: config.name,
@@ -225,6 +237,12 @@ function token_next(context) {
   context.token_id = context.token_id + 1
 }
 
+/**
+ * Get JSON stringified value of the obj.
+ *
+ * @param {*} obj
+ * @returns JSON string
+ */
 function debug_object(obj) {
   return JSON.stringify(obj)
 }

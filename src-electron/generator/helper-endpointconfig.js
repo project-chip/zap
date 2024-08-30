@@ -15,6 +15,12 @@
  *    limitations under the License.
  */
 
+/**
+ * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
+ *
+ * @module Templating API: Matter endpoint config helpers
+ */
+
 const cHelper = require('./helper-c.js')
 const templateUtil = require('./template-util')
 const queryEndpoint = require('../db/query-endpoint.js')
@@ -144,6 +150,12 @@ function endpoint_fixed_endpoint_type_array(options) {
   return '{ ' + indexes.join(', ') + ' }'
 }
 
+/**
+ * Get indexes and manufacturer code.
+ *
+ * @param {*} codeIndexPairs
+ * @returns String
+ */
 function createMfgCodes(codeIndexPairs) {
   let ret = '{ \\\n'
   if (codeIndexPairs.length == 0) {
@@ -167,42 +179,100 @@ function endpoint_attribute_manufacturer_codes(options) {
   return createMfgCodes(this.attributeMfgCodes)
 }
 
+/**
+ * Get count of attributes with manufacturer code.
+ *
+ * @param {*} options
+ * @returns Count of attributes with manufacturer code
+ */
 function endpoint_attribute_manufacturer_code_count(options) {
   return this.attributeMfgCodes.length
 }
 
+/**
+ * Get all command manufacturer codes.
+ * @param {*} options
+ * @returns all command manufacturer codes
+ */
 function endpoint_command_manufacturer_codes(options) {
   return createMfgCodes(this.commandMfgCodes)
 }
 
+/**
+ * Get count of commands with manufacturer code.
+ *
+ * @param {*} options
+ * @returns Count of commands with manufacturer code
+ */
 function endpoint_command_manufacturer_code_count(options) {
   return this.commandMfgCodes.length
 }
 
+/**
+ * Get all cluster manufacturer codes.
+ * @param {*} options
+ * @returns all cluster manufacturer codes
+ */
 function endpoint_cluster_manufacturer_codes(options) {
   return createMfgCodes(this.clusterMfgCodes)
 }
 
+/**
+ * Get count of clusters with manufacturer code.
+ *
+ * @param {*} options
+ * @returns Count of clusters with manufacturer code
+ */
 function endpoint_cluster_manufacturer_code_count(options) {
   return this.clusterMfgCodes.length
 }
 
+/**
+ * Get size of largest attribute.
+ *
+ * @param {*} options
+ * @returns size of largest attribute
+ */
 function endpoint_largest_attribute_size(options) {
   return this.largestAttribute + 1
 }
 
+/**
+ * Get cumulative size of all singleton endpoint type attributes.
+ *
+ * @param {*} options
+ * @returns cumulative size of all singleton endpoint type attributes
+ */
 function endpoint_singletons_size(options) {
   return this.singletonsSize
 }
 
+/**
+ * Get cumulative size of all endpoint type attributes.
+ *
+ * @param {*} options
+ * @returns cumulative size of all endpoint type attributes
+ */
 function endpoint_total_storage_size(options) {
   return this.totalAttributeSize
 }
 
+/**
+ * Get count of endpoint type commands.
+ *
+ * @param {*} options
+ * @returns Count of endpoint type commands
+ */
 function endpoint_command_count(options) {
   return this.commandList.length
 }
 
+/**
+ * Get endpoint type information.
+ *
+ * @param {*} options
+ * @returns endpoint type information
+ */
 function endpoint_types_list(options) {
   let ret = '{ \\\n'
   this.endpointList.forEach((ep) => {
@@ -213,10 +283,22 @@ function endpoint_types_list(options) {
   return ret.concat('}\n')
 }
 
+/**
+ * Get count of endpoint type clusters.
+ *
+ * @param {*} options
+ * @returns Count of endpoint type clusters
+ */
 function endpoint_cluster_count(options) {
   return this.clusterList.length
 }
 
+/**
+ * Get endpoint type cluster information.
+ *
+ * @param {*} options
+ * @returns endpoint type cluster information
+ */
 function endpoint_cluster_list(options) {
   let ret = '{ \\\n'
   this.clusterList.forEach((c) => {
@@ -235,6 +317,12 @@ function endpoint_cluster_list(options) {
   return ret.concat('}\n')
 }
 
+/**
+ * Get endpoint type command information.
+ *
+ * @param {*} options
+ * @returns endpoint type command information
+ */
 function endpoint_command_list(options) {
   let comment = null
 
@@ -260,10 +348,22 @@ function endpoint_command_list(options) {
   return ret
 }
 
+/**
+ * Get count of endpoint type attributes.
+ *
+ * @param {*} options
+ * @returns Count of endpoint type attributes
+ */
 function endpoint_attribute_count(options) {
   return this.attributeList.length
 }
 
+/**
+ * Get endpoint type attribute information.
+ *
+ * @param {*} options
+ * @returns endpoint type attribute information
+ */
 function endpoint_attribute_list(options) {
   let order = options.hash.order
   if (order == null || order.length == 0) {
@@ -343,6 +443,13 @@ function endpoint_attribute_list(options) {
   return ret
 }
 
+/**
+ * Extracting device versions and identifiers from endpoint types
+ *
+ * @param {*} context
+ * @param {*} options
+ * @returns list of device types
+ */
 async function device_list(context, options) {
   // Extracting device versions and identifiers from endpoint types
   let endpointTypes = context.endpointTypes
@@ -359,6 +466,12 @@ async function device_list(context, options) {
   return deviceList
 }
 
+/**
+ * Get all device types in the configuration.
+ *
+ * @param {*} options
+ * @returns device types
+ */
 async function endpoint_fixed_device_type_array(options) {
   let deviceList = await device_list(this, options)
   let isEndpointIncluded =
@@ -393,6 +506,12 @@ async function endpoint_fixed_device_type_array(options) {
   return ret
 }
 
+/**
+ * Get device type offset per endpoint.
+ *
+ * @param {*} options
+ * @returns Device type offset per endpoint
+ */
 async function endpoint_fixed_device_type_array_offsets(options) {
   let deviceList = await device_list(this, options)
   let ret = '{ '
@@ -423,6 +542,12 @@ async function endpoint_fixed_device_type_array_offsets(options) {
   return ret
 }
 
+/**
+ * Get count of device types per endpoint.
+ *
+ * @param {*} options
+ * @returns Count of device types per endpoint
+ */
 async function endpoint_fixed_device_type_array_lengths(options) {
   let deviceList = await device_list(this, options)
   let endpointDeviceLengthMap = {}
@@ -447,10 +572,22 @@ async function endpoint_fixed_device_type_array_lengths(options) {
   return ret
 }
 
+/**
+ * Get count of total attributes with min max values listed.
+ *
+ * @param {*} options
+ * @returns count of total attributes with min max values listed
+ */
 function endpoint_attribute_min_max_count(options) {
   return this.minMaxList.length
 }
 
+/**
+ * Get all attributes with min max values defined.
+ *
+ * @param {*} options
+ * @returns All attributes with min max values listed
+ */
 function endpoint_attribute_min_max_list(options) {
   let comment = null
   let order = options.hash.order
@@ -597,14 +734,32 @@ function endpoint_reporting_config_defaults(options) {
   return ret
 }
 
+/**
+ * Get count of total attributes with reporting enabled
+ *
+ * @param {*} options
+ * @returns Count of total attributes with reporting enabled
+ */
 function endpoint_reporting_config_default_count(options) {
   return this.reportList.length
 }
 
+/**
+ * Get long(size>2 bytes) attribute count.
+ *
+ * @param {*} options
+ * @returns count of long attributes
+ */
 function endpoint_attribute_long_defaults_count(options) {
   return this.longDefaultsList.length
 }
 
+/**
+ * Get long(size>2 bytes) attribute default values based on endianness.
+ *
+ * @param {*} options
+ * @returns Long attribute's default values
+ */
 function endpoint_attribute_long_defaults(options) {
   let comment = null
 
@@ -636,6 +791,12 @@ function endpoint_attribute_long_defaults(options) {
   return ret
 }
 
+/**
+ * Get 32 bit code from the given code and manufacturer code.
+ * @param {*} manufacturerCode
+ * @param {*} code
+ * @returns 32 bit Hex Code.
+ */
 function asMEI(manufacturerCode, code) {
   // Left-shift (and for that matter bitwise or) produces a _signed_ 32-bit
   // number, which will probably be negative.  Force it to unsigned 32-bit using
@@ -643,8 +804,18 @@ function asMEI(manufacturerCode, code) {
   return '0x' + bin.int32ToHex(((manufacturerCode << 16) | code) >>> 0)
 }
 
-// The representation of null depends on the type, so we can't use a single
-// macro that's defined elsewhere for "null value".
+/**
+ * The representation of null depends on the type, so we can't use a single
+ * macro that's defined elsewhere for "null value".
+ * Get the default value of an attribute.
+ * @param {*} specifiedDefault
+ * @param {*} type
+ * @param {*} typeSize
+ * @param {*} isNullable
+ * @param {*} db
+ * @param {*} sessionId
+ * @returns Attribute's default value
+ */
 async function determineAttributeDefaultValue(
   specifiedDefault,
   type,
@@ -1130,6 +1301,12 @@ async function collectAttributeTypeInfo(db, zclPackageIds, endpointTypes) {
   return endpointTypes
 }
 
+/**
+ * Checks if global attribute is excluded from the meta data.
+ *
+ * @param {*} attr
+ * @returns boolean
+ */
 function isGlobalAttrExcludedFromMetadata(attr) {
   // See Matter specification section "7.13. Global Elements".
   return (

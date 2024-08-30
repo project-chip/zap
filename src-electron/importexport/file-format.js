@@ -15,10 +15,21 @@
  *    limitations under the License.
  */
 
+/**
+ * Formats ZAP file in a certain format.
+ *
+ * @module Format API: Formats .zap file
+ */
+
 const _ = require('lodash')
 const types = require('../util/types')
 
-// Converts attribute storage string to internal representation
+/**
+ * Converts attribute storage string to internal representation
+ *
+ * @param {*} a
+ * @returns attribute object
+ */
 function unpackAttribute(a) {
   let data
   if (a.includes('=>')) {
@@ -49,7 +60,12 @@ function unpackAttribute(a) {
   return attr
 }
 
-// Converts attribute object for internal representation.
+/**
+ * Converts attribute object for internal representation.
+ *
+ * @param {*} a
+ * @returns string
+ */
 function packAttribute(a) {
   let data = [
     a.included === 1 ? '+' : '-',
@@ -68,7 +84,12 @@ function packAttribute(a) {
   return `${data} => ${a.name} [${a.type}]`
 }
 
-// Converts command storage string to internal representation
+/**
+ * Converts command storage string to internal representation
+ *
+ * @param {*} c
+ * @returns command object
+ */
 function unpackCommand(c) {
   let data
   if (c.includes('=>')) {
@@ -92,7 +113,12 @@ function unpackCommand(c) {
   return cmd
 }
 
-// Converts command object for file representation.
+/**
+ * Converts command object for file representation.
+ *
+ * @param {*} cmd
+ * @returns string
+ */
 function packCommand(cmd) {
   let data = [
     types.intToHexString(cmd.code, 2),
@@ -104,7 +130,12 @@ function packCommand(cmd) {
   return `${data} => ${cmd.name}`
 }
 
-// Convert string representation to internal object representation
+/**
+ * Convert string representation to internal object representation
+ *
+ * @param {*} ev
+ * @returns event object
+ */
 function unpackEvent(ev) {
   let data
   if (ev.includes('=>')) {
@@ -128,7 +159,12 @@ function unpackEvent(ev) {
   return evnt
 }
 
-// Converts event object for file representation
+/**
+ * Converts event object for file representation
+ *
+ * @param {*} ev
+ * @returns String
+ */
 function packEvent(ev) {
   let data = [
     ev.included === 1 ? '+' : '-',
@@ -139,7 +175,12 @@ function packEvent(ev) {
   return `${data} => ${ev.name}`
 }
 
-// Converts the key value pairs in the file into internal representation
+/**
+ * Converts the key value pairs in the file into internal representation
+ *
+ * @param {*} keyValuePairs
+ * @returns array of objects
+ */
 function unpackKeyValuePairs(keyValuePairs) {
   let kvps = []
   for (let kvp of keyValuePairs) {
@@ -156,7 +197,12 @@ function unpackKeyValuePairs(keyValuePairs) {
   return kvps
 }
 
-// Packs key value pairs for extenrnal representation
+/**
+ * Packs key value pairs for extenrnal representation
+ *
+ * @param {*} keyValuePairs
+ * @returns none
+ */
 function packKeyValuePairs(keyValuePairs) {
   let props = []
   for (let kvp of keyValuePairs) {
@@ -165,7 +211,11 @@ function packKeyValuePairs(keyValuePairs) {
   return props
 }
 
-// Cleanses toplevel cluster data.
+/**
+ * Cleanses toplevel cluster data.
+ *
+ * @param {*} c
+ */
 function cleanseCluster(c) {
   c.code = '0x' + c.code.toString(16).padStart(4, '0')
   if (c.mfgCode != null) {
@@ -175,7 +225,11 @@ function cleanseCluster(c) {
   }
 }
 
-// Uncleanses the toplevel cluster data.
+/**
+ * Uncleanses the toplevel cluster data.
+ *
+ * @param {*} c
+ */
 function uncleanseCluster(c) {
   if (_.isString(c.code)) {
     let code = c.code

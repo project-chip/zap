@@ -15,6 +15,12 @@
  *    limitations under the License.
  */
 
+/**
+ * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
+ *
+ * @module Templating API: static zcl helpers
+ */
+
 const queryZcl = require('../db/query-zcl')
 const queryDeviceType = require('../db/query-device-type')
 const queryCommand = require('../db/query-command')
@@ -32,12 +38,6 @@ const characterStringTypes = ['CHAR_STRING', 'LONG_CHAR_STRING']
 const octetStringTypes = ['OCTET_STRING', 'LONG_OCTET_STRING']
 const stringShortTypes = ['CHAR_STRING', 'OCTET_STRING']
 const stringLongTypes = ['LONG_CHAR_STRING', 'LONG_OCTET_STRING']
-
-/**
- * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
- *
- * @module Templating API: static zcl helpers
- */
 
 /**
  * Block helper iterating over all bitmaps.
@@ -1701,22 +1701,57 @@ function isServer(side) {
   return 0 == side.localeCompare(dbEnum.side.server)
 }
 
+/**
+ * Compares 2 strings.
+ *
+ * @param {*} str1
+ * @param {*} str2
+ * @returns boolean
+ */
 function isStrEqual(str1, str2) {
   return 0 == str1.localeCompare(str2)
 }
 
+/**
+ * Returns boolean based on whether the element is the last element.
+ * @param {*} index
+ * @param {*} count
+ * @returns boolean
+ */
 function isLastElement(index, count) {
   return index == count - 1
 }
 
+/**
+ * Returns boolean based on whether the element is the first element.
+ * @param {*} index
+ * @param {*} count
+ * @returns boolean
+ */
 function isFirstElement(index, count) {
   return index == 0
 }
 
+/**
+ * Check if enable is 1.
+ *
+ * @param {*} enable
+ * @returns boolean
+ */
 function isEnabled(enable) {
   return 1 == enable
 }
 
+/**
+ * Returns boolean based on command being available or not.
+ *
+ * @param {*} clusterSide
+ * @param {*} incoming
+ * @param {*} outgoing
+ * @param {*} source
+ * @param {*} name
+ * @returns boolean
+ */
 function isCommandAvailable(clusterSide, incoming, outgoing, source, name) {
   if (0 == clusterSide.localeCompare(source)) {
     return false
@@ -1848,7 +1883,6 @@ function if_command_argument_always_present(
  * argument is not always present in all zcl specifications and there is no present if conditionality
  * on the command argument.
  */
-
 function as_underlying_zcl_type_command_argument_not_always_present_no_presentif(
   type,
   commandId,

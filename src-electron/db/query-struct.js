@@ -20,11 +20,18 @@
  *
  * @module DB API: zcl database access
  */
+
 const dbApi = require('./db-api')
 const dbCache = require('./db-cache')
 const dbMapping = require('./db-mapping')
 const queryUtil = require('./query-util')
 
+/**
+ * Get all structs from a given package ID.
+ * @param {*} db
+ * @param {*} packageId
+ * @returns Promise of Structs
+ */
 async function selectAllStructs(db, packageId) {
   let rows = await dbApi.dbAll(
     db,
@@ -49,6 +56,12 @@ async function selectAllStructs(db, packageId) {
   return rows.map(dbMapping.map.struct)
 }
 
+/**
+ * Get struct details from the given struct ID.
+ * @param {*} db
+ * @param {*} id
+ * @returns Promise of Struct
+ */
 async function selectStructById(db, id) {
   return dbApi
     .dbGet(
@@ -73,6 +86,14 @@ WHERE
     .then(dbMapping.map.struct)
 }
 
+/**
+ * Get Struct details from the given struct name and package IDs.
+ *
+ * @param {*} db
+ * @param {*} name
+ * @param {*} packageIds
+ * @returns Promise of Struct
+ */
 async function selectStructByName(db, name, packageIds) {
   return dbApi
     .dbGet(

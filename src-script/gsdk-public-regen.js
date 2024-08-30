@@ -23,6 +23,10 @@ const fs = require('fs')
 const scriptUtil = require('./script-util')
 const process = require('process')
 
+/**
+ * GSDK generation process.
+ * @param {*} argv
+ */
 async function run(argv) {
   let gsdkDir = argv[0]
   let outputDir = argv[1]

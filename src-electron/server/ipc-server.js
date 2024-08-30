@@ -14,6 +14,13 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
+/**
+ * This module provides IPC Server functionality.
+ *
+ * @module IPC Server API: Inter-process communication
+ */
+
 const ipc = require('node-ipc')
 const env = require('../util/env')
 const path = require('path')
@@ -52,20 +59,42 @@ function socketPath() {
   return defaultSocketPath
 }
 
+/**
+ * Log IPC message.
+ *
+ * @param {*} msg
+ */
 function log(msg) {
   env.logIpc(`Ipc server: ${msg}`)
 }
 
+/**
+ * Ping IPC server.
+ *
+ * @param {*} context
+ * @param {*} data
+ */
 function handlerPing(context, data) {
   server.ipc.server.emit(context.socket, eventType.pong, data)
 }
 
+/**
+ * Get IPC server status.
+ *
+ * @param {*} context
+ */
 function handlerServerStatus(context) {
   let svr = httpServer.httpServerStartupMessage()
   svr.zapServerStatus = 'running'
   server.ipc.server.emit(context.socket, eventType.overAndOut, svr)
 }
 
+/**
+ * Convert zap files.
+ *
+ * @param {*} context
+ * @param {*} data
+ */
 function handlerConvert(context, data) {
   let zapFiles = data.files
 
@@ -76,6 +105,12 @@ function handlerConvert(context, data) {
   server.ipc.server.emit(context.socket, eventType.overAndOut, 'Done.')
 }
 
+/**
+ * Shut down IPC server.
+ *
+ * @param {*} context
+ * @param {*} data
+ */
 function handlerStop(context, data) {
   console.log('Shutting down because of remote client request.')
   server.ipc.server.emit(
@@ -87,7 +122,13 @@ function handlerStop(context, data) {
   util.waitFor(1000).then(() => startup.quit())
 }
 
-// Data contains: zapFileArray, outputPattern, zcl, template
+/**
+ * Data contains: zapFileArray, outputPattern, zcl, template
+ *
+ * @param {*} context
+ * @param {*} data
+ * @returns Promise of generation
+ */
 async function handlerGenerate(context, data) {
   let ps = []
   let packages = await queryPackage.getPackagesByType(

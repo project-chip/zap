@@ -24,6 +24,11 @@ let args = process.argv.slice(2)
 let condition = args[0]
 let command = args.slice(1)
 
+/**
+ * Checks if condition is met.
+ * @param {*} condition
+ * @returns boolean
+ */
 function isConditionMet(condition) {
   if (condition === 'true' || condition === '1') return true
   if (condition === 'false' || condition === '0') return false
@@ -47,6 +52,12 @@ function isConditionMet(condition) {
   return false
 }
 
+/**
+ * Run command when condition is met.
+ * @param {*} condition
+ * @param {*} command
+ * @returns boolean
+ */
 async function runConditionally(condition, command) {
   if (isConditionMet(condition)) {
     return scriptUtil.executeCmd(null, command[0], command.slice(1))

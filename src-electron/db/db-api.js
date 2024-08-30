@@ -38,6 +38,12 @@ const dbMapping = require('./db-mapping.js')
 //
 let inTransaction = false
 
+/**
+ * Begin Database transaction.
+ * @param {*} db
+ * @param {*} resolve
+ * @param {*} reject
+ */
 function executeBeginTransaction(db, resolve, reject) {
   db.run('BEGIN TRANSACTION', [], function (err) {
     if (err) {
@@ -50,6 +56,12 @@ function executeBeginTransaction(db, resolve, reject) {
   })
 }
 
+/**
+ * Delay database transaction.
+ * @param {*} db
+ * @param {*} resolve
+ * @param {*} reject
+ */
 function delayBeginTransaction(db, resolve, reject) {
   let cnt = 0
   let interval = setInterval(() => {
@@ -485,6 +497,13 @@ async function determineIfSchemaShouldLoad(db, filePath, crc) {
   return result
 }
 
+/**
+ * Update the CRC of the sql schema file.
+ * @param {*} db
+ * @param {*} filePath
+ * @param {*} crc
+ * @returns promise of insert transaction.
+ */
 async function updateCurrentSchemaCrc(db, filePath, crc) {
   return dbInsert(
     db,
@@ -493,6 +512,12 @@ async function updateCurrentSchemaCrc(db, filePath, crc) {
   )
 }
 
+/**
+ * Load SQL Schema
+ * @param {*} db
+ * @param {*} schemaContent
+ * @returns Promise of loaded schema
+ */
 async function performSchemaLoad(db, schemaContent) {
   return new Promise((resolve, reject) => {
     env.logSql('Loading schema.')

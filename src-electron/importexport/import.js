@@ -15,10 +15,13 @@
  *    limitations under the License.
  */
 
-/*
+/**
  * This file provides the functionality that reads the ZAP data from a JSON file
  * and imports it into a database.
+ *
+ * @module Import API: Imports data from a file.
  */
+
 const fsp = require('fs').promises
 const importIsc = require('./import-isc.js')
 const importJson = require('./import-json.js')
@@ -68,6 +71,14 @@ async function readDataFromFile(
   }
 }
 
+/**
+ * Execute the post import script oonce import is done.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} scriptFile
+ * @returns Promise of function execution.
+ */
 async function executePostImportScript(db, sessionId, scriptFile) {
   let context = {
     db: db,

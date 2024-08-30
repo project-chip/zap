@@ -15,6 +15,12 @@
  *    limitations under the License.
  */
 
+/**
+ *  Menu for ZAP UI
+ *
+ * @module JS API: Menu for ZAP UI
+ */
+
 const { dialog, Menu, shell } = require('electron')
 const uiJs = require('./ui-util')
 const about = require('./about')
@@ -202,6 +208,12 @@ const template = (httpPort) => [
   }
 ]
 
+/**
+ * Get the user session information details in a string.
+ *
+ * @param {*} browserWindow
+ * @returns string
+ */
 async function getUserSessionInfoMessage(browserWindow) {
   let userKey = await browserApi.getUserKeyFromBrowserWindow(browserWindow)
   let sessionUuid =
@@ -338,11 +350,21 @@ function fileOpen(filePaths, httpPort) {
   })
 }
 
+/**
+ * Show the menu.
+ *
+ * @param {*} httpPort
+ */
 function showMenu(httpPort) {
   const menu = Menu.buildFromTemplate(template(httpPort))
   Menu.setApplicationMenu(menu)
 }
 
+/**
+ * Hide the menu.
+ *
+ * @param {*} httpPort
+ */
 function hideMenu(httpPort) {
   Menu.setApplicationMenu(null)
 }

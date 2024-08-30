@@ -23,6 +23,12 @@
 const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
 
+/**
+ * Get access operations for package IDs given.
+ * @param {*} db
+ * @param {*} packageIds
+ * @returns promise of access operation.
+ */
 async function selectAccessOperations(db, packageIds) {
   return dbApi
     .dbAll(
@@ -36,6 +42,12 @@ SELECT NAME, DESCRIPTION FROM OPERATION WHERE PACKAGE_REF IN (${dbApi.toInClause
     .then((rows) => rows.map(dbMapping.map.accessOperation))
 }
 
+/**
+ * Get access roles for package IDs given.
+ * @param {*} db
+ * @param {*} packageIds
+ * @returns promise of access roles.
+ */
 async function selectAccessRoles(db, packageIds) {
   return dbApi
     .dbAll(
@@ -49,6 +61,12 @@ SELECT NAME, DESCRIPTION, LEVEL FROM ROLE WHERE PACKAGE_REF IN (${dbApi.toInClau
     .then((rows) => rows.map(dbMapping.map.accessRole))
 }
 
+/**
+ * Get access modifiers for package IDs given.
+ * @param {*} db
+ * @param {*} packageIds
+ * @returns promise of access modifiers.
+ */
 async function selectAccessModifiers(db, packageIds) {
   return dbApi
     .dbAll(
@@ -99,6 +117,12 @@ ORDER BY OPERATION.NAME, ROLE.NAME, ACCESS_MODIFIER.NAME
     .then((rows) => rows.map(dbMapping.map.access))
 }
 
+/**
+ * Get attribute access information for the attribute id given.
+ * @param {*} db
+ * @param {*} attributeId
+ * @returns Promise of attribute access information
+ */
 async function selectAttributeAccess(db, attributeId) {
   return dbApi
     .dbAll(
@@ -128,6 +152,12 @@ ORDER BY OPERATION.NAME, ROLE.NAME, ACCESS_MODIFIER.NAME
     .then((rows) => rows.map(dbMapping.map.access))
 }
 
+/**
+ * Get command access information for the attribute id given.
+ * @param {*} db
+ * @param {*} commandId
+ * @returns Promise of command access information
+ */
 async function selectCommandAccess(db, commandId) {
   return dbApi
     .dbAll(
@@ -157,6 +187,12 @@ ORDER BY OPERATION.NAME, ROLE.NAME, ACCESS_MODIFIER.NAME
     .then((rows) => rows.map(dbMapping.map.access))
 }
 
+/**
+ * Get event access information for the attribute id given.
+ * @param {*} db
+ * @param {*} eventId
+ * @returns Promise of event access information
+ */
 async function selectEventAccess(db, eventId) {
   return dbApi
     .dbAll(
