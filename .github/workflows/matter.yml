@@ -195,7 +195,7 @@ jobs:
       image: connectedhomeip/chip-build:0.6.11
 
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4.1.7
         with:
           name: zap-linux-x64-zip
 

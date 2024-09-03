@@ -131,7 +131,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
       - name: Download jest coverage artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4.1.7
         with:
           name: jest-coverage
       - run: sudo ./src-script/install-packages-ubuntu
@@ -460,7 +460,7 @@ jobs:
     name: Create Github Release
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4.1.7
       - name: List downloaded files
         run: ls -R
       - name: Creating Github Release
