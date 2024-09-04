@@ -1,0 +1,71 @@
+name: Unify code generation
+
+permissions:
+  contents: write
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+env:
+  ZAP_TEST_TIMEOUT: 3600000
+  ZAP_TEMPSTATE: 1
+  BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
+  P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
+  TRUSTED_CERTIFICATE_BASE64: ${{ secrets.TRUSTED_CERTIFICATE_BASE64 }}
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  KEYCHAIN_PASSWORD: silabs
+
+jobs:
+  prepare-zap-and-regenerate-zigbee:
+    name: Prepare Zap and regenerate Unify
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        node-version: [18.x]
+        os: [ubuntu-22.04]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3.0.0
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      - run: sudo ./src-script/install-packages-ubuntu
+      - run: sudo apt-get install --fix-missing libxml2-utils
+      - run: node --version
+      - run: npm --version
+      - run: npm ci
+      - run: npm rebuild canvas --update-binary
+      - run: npm rebuild libxmljs --update-binary
+      - run: npm run metafile-check
+      - run: npm run version-stamp
+      - run: npm run build-spa
+      - run: npm run self-check
+
+      - name: Clone the Unify SDK
+        env:
+          GIT_CLONE_PROTECTION_ACTIVE: false
+        run: git clone https://github.com/SiliconLabs/UnifySDK.git unify_sdk
+
+      - name: Regen zap files with the cloned sdk, using latest.
+        run: node ./src-script/unify-regen.js ./unify_sdk/
+
+      - name: Check for differences in the cloned repository
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "Changes detected."
+            exit 1
+          else
+            echo "No untracked or modified files detected."
+            exit 0
+          fi
+        working-directory: unify_sdk
+
+      - name: Show differences if any
+        if: failure()
+        run: git status --porcelain
+        working-directory: unify_sdk
