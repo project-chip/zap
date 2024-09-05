@@ -22,9 +22,6 @@ limitations under the License.
         Features</span
       >
     </div>
-    <!-- <q-btn @click="testClick()">
-      test
-    </q-btn> -->
     <div class="col column linear-border-wrap">
       <div v-if="deviceTypeFeatures.length > 0">
         <q-table
@@ -50,14 +47,6 @@ limitations under the License.
                   "
                   indeterminate-value="false"
                   keep-color
-                  @update:model-value="
-                    toggleAttributeSelection(
-                      selectedReporting,
-                      'selectedReporting',
-                      props.row,
-                      selectedCluster.id
-                    )
-                  "
                 />
               </q-td>
               <q-td key="deviceType" :props="props" auto-width>
@@ -119,9 +108,6 @@ export default {
     },
     hashDeviceTypeClusterIdFeatureId(deviceTypeClusterId, featureId) {
       return Util.cantorPair(deviceTypeClusterId, featureId)
-    },
-    testClick() {
-      console.log(this.deviceTypeFeatures)
     }
   },
   computed: {
