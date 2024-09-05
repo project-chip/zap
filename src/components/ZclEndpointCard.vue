@@ -18,7 +18,7 @@ limitations under the License.
   <div class="q-mx-md q-mb-sm">
     <q-card
       :class="{ 'active v-step-5': isSelectedEndpoint }"
-      @click="setSelectedEndpointType(endpointReference)"
+      @click="handleEndpointCardClick(endpointReference)"
       flat
     >
       <div
@@ -408,6 +408,17 @@ export default {
             this.selectedReporting.push(resolvedReference)
         })
       })
+    },
+    /**
+     * Handles the click event on the endpoint card.
+     * Updates the current endpoint and navigates to cluster manager view.
+     * @param {number} endpointReference The endpoint reference.
+     */
+    handleEndpointCardClick(endpointReference) {
+      this.setSelectedEndpointType(endpointReference)
+      if (this.$route.path !== '/') {
+        this.$router.push({ path: '/' })
+      }
     }
   },
   computed: {
