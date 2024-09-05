@@ -37,6 +37,7 @@ async function getFeaturesByDeviceTypeRefs(db, deviceTypeRefs) {
     `
     SELECT
         d.DESCRIPTION AS DEVICE_TYPE_NAME,
+        dc.DEVICE_TYPE_CLUSTER_ID,
         dc.CLUSTER_NAME,
         dc.INCLUDE_SERVER,
         dc.INCLUDE_CLIENT,

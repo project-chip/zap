@@ -22,6 +22,9 @@ limitations under the License.
         Features</span
       >
     </div>
+    <!-- <q-btn @click="testClick()">
+      test
+    </q-btn> -->
     <div class="col column linear-border-wrap">
       <div v-if="deviceTypeFeatures.length > 0">
         <q-table
@@ -34,6 +37,29 @@ limitations under the License.
         >
           <template v-slot:body="props">
             <q-tr :props="props" class="table_body attribute_table_body">
+              <q-td key="enabled" :props="props" auto-width>
+                <q-toggle
+                  :disable="props.row.conformance != 'O'"
+                  class="q-mt-xs v-step-14"
+                  v-model="props.row.isEnabled"
+                  :val="
+                    hashDeviceTypeClusterIdFeatureId(
+                      props.row.deviceTypeClusterId,
+                      props.row.featureId
+                    )
+                  "
+                  indeterminate-value="false"
+                  keep-color
+                  @update:model-value="
+                    toggleAttributeSelection(
+                      selectedReporting,
+                      'selectedReporting',
+                      props.row,
+                      selectedCluster.id
+                    )
+                  "
+                />
+              </q-td>
               <q-td key="deviceType" :props="props" auto-width>
                 {{ props.row.deviceType }}
               </q-td>
@@ -74,6 +100,7 @@ limitations under the License.
 <script>
 import CommonMixin from '../util/common-mixin'
 import dbEnum from '../../src-shared/db-enum'
+import * as Util from '../util/util.js'
 
 export default {
   name: 'ZclDeviceTypeFeatureManager',
@@ -89,11 +116,20 @@ export default {
       } else {
         return 'none'
       }
+    },
+    hashDeviceTypeClusterIdFeatureId(deviceTypeClusterId, featureId) {
+      return Util.cantorPair(deviceTypeClusterId, featureId)
+    },
+    testClick() {
+      console.log(this.deviceTypeFeatures)
     }
   },
   computed: {
     deviceTypeFeatures() {
-      return this.$store.state.zap.deviceTypeFeatures
+      return this.$store.state.zap.deviceTypeFeatures.map((feature) => ({
+        ...feature,
+        isEnabled: feature.conformance == 'M'
+      }))
     }
   },
   data() {
@@ -103,6 +139,12 @@ export default {
         rowsPerPage: 10
       },
       columns: [
+        {
+          name: dbEnum.deviceTypeFeature.name.enabled,
+          required: true,
+          label: dbEnum.deviceTypeFeature.label.enabled,
+          align: 'left'
+        },
         {
           name: dbEnum.deviceTypeFeature.name.deviceType,
           required: true,

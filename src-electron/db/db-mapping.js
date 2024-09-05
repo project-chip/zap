@@ -253,11 +253,12 @@ exports.map = {
     if (x == null) return undefined
     return {
       deviceType: x.DEVICE_TYPE_NAME,
+      deviceTypeClusterId: x.DEVICE_TYPE_CLUSTER_ID,
       cluster: x.CLUSTER_NAME,
       includeServer: x.INCLUDE_SERVER,
       includeClient: x.INCLUDE_CLIENT,
       conformance: x.DEVICE_TYPE_CLUSTER_CONFORMANCE,
-      id: x.FEATURE_ID,
+      featureId: x.FEATURE_ID,
       name: x.FEATURE_NAME,
       code: x.CODE,
       bit: x.BIT,
