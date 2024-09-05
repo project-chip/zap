@@ -20,6 +20,7 @@
  *
  * @module DB API: attribute queries.
  */
+
 const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
 const dbCache = require('./db-cache')
@@ -565,7 +566,6 @@ async function selectAttributeDetailsFromEnabledClusters(
  * Union is used to get separate entries of attributes w.r.t to default, minimum
  * and maximum values
  */
-
 async function selectAttributeBoundDetails(
   db,
   endpointsAndClusters,
@@ -793,6 +793,15 @@ async function selectReportableAttributeDetailsFromEnabledClustersAndEndpoints(
     .then((rows) => rows.map(mapFunction))
 }
 
+/**
+ * Get attribute data by attribute code.
+ * @param {*} db
+ * @param {*} packageIds
+ * @param {*} clusterCode
+ * @param {*} attributeCode
+ * @param {*} manufacturerCode
+ * @returns promise of attribute data
+ */
 async function selectAttributeByCode(
   db,
   packageIds,
@@ -818,6 +827,15 @@ async function selectAttributeByCode(
   }
 }
 
+/**
+ * Get attribute information by code for attributes which are not global.
+ * @param {*} db
+ * @param {*} packageIds
+ * @param {*} clusterCode
+ * @param {*} attributeCode
+ * @param {*} manufacturerCode
+ * @returns promise of attribute data
+ */
 async function selectNonGlobalAttributeByCode(
   db,
   packageIds,
@@ -878,6 +896,14 @@ WHERE A.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
     .then(dbMapping.map.attribute)
 }
 
+/**
+ * Get global attributes by their attribute code.
+ * @param {*} db
+ * @param {*} packageIds
+ * @param {*} attributeCode
+ * @param {*} manufacturerCode
+ * @returns promise of global attribute data
+ */
 async function selectGlobalAttributeByCode(
   db,
   packageIds,

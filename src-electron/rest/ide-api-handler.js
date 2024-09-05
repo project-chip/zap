@@ -27,6 +27,12 @@ const restApi = require('../../src-shared/rest-api.js')
 const querySession = require('../db/query-session.js')
 const { StatusCodes } = require('http-status-codes')
 
+/**
+ * Get component tree.
+ *
+ * @param {*} db
+ * @returns Response data
+ */
 function httpGetComponentTree(db) {
   return async (req, res) => {
     try {
@@ -42,6 +48,14 @@ function httpGetComponentTree(db) {
   }
 }
 
+/**
+ * Update component.
+ *
+ * @param {*} db
+ * @param {*} request
+ * @param {*} response
+ * @param {*} add
+ */
 async function httpPostComponentUpdateHandler(db, request, response, add) {
   let { clusterId, side, componentIds } = request.body
   try {
@@ -73,6 +87,12 @@ function httpPostComponentAdd(db) {
     httpPostComponentUpdateHandler(db, request, response, true)
 }
 
+/**
+ * Remove component.
+ *
+ * @param {*} db
+ * @returns Promise of component removed
+ */
 function httpPostComponentRemove(db) {
   return (request, response) =>
     httpPostComponentUpdateHandler(db, request, response, false)

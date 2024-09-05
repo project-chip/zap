@@ -92,6 +92,12 @@ function registerRestApi(module, db, app) {
     })
 }
 
+/**
+ * Register all REST modeules.
+ *
+ * @param {*} db
+ * @param {*} app
+ */
 function registerAllRestModules(db, app) {
   restApiModules.forEach((module) => registerRestApi(module, db, app))
 }
@@ -175,6 +181,13 @@ async function initHttpServer(
   })
 }
 
+/**
+ * Handle user session.
+ *
+ * @param {*} db
+ * @param {*} options
+ * @returns function
+ */
 function userSessionHandler(db, options) {
   return (req, res, next) => {
     let sessionUuid = req.query[restApi.param.sessionId]

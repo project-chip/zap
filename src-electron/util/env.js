@@ -15,6 +15,12 @@
  *    limitations under the License.
  */
 
+/**
+ * Environment utilities for ZAP
+ *
+ * @module JS API: Environment utilities
+ */
+
 const path = require('path')
 const os = require('os')
 const fs = require('fs')
@@ -23,10 +29,19 @@ const zapBaseUrl = 'http://localhost:'
 
 let saveFileFormat = 2 // This is the enabled only .zap file format
 
+/**
+ * Set save file format.
+ * @param {*} n
+ */
 export function setSaveFileFormat(n) {
   saveFileFormat = n
 }
 
+/**
+ * Get save file format.
+ *
+ * @returns saveFileFormat
+ */
 export function defaultFileFormat() {
   return saveFileFormat
 }
@@ -66,24 +81,44 @@ export function builtinSilabsSpecialZclGeneralSpecialXmlFile() {
   return locateProjectResource('./zcl-builtin/silabs/general-special.xml')
 }
 
+/**
+ * Get builtin matter ZCL json file
+ * @returns matter ZCL json file
+ */
 export function builtinMatterZclMetafile() {
   return locateProjectResource('./zcl-builtin/matter/zcl.json')
 }
 
+/**
+ * Get builtin matter ZCL json file
+ * @returns matter ZCL json file
+ */
 export function builtinNewMatterZclMetafile() {
   return locateProjectResource('./zcl-builtin/matter/zcl-new-data-model.json')
 }
 
+/**
+ * Get builtin dotdot ZCL json file
+ * @returns dotdot ZCL json file
+ */
 export function builtinDotdotZclMetafile() {
   return locateProjectResource('./zcl-builtin/dotdot/library.xml')
 }
 
+/**
+ * Get builtin Matter ZCL json file
+ * @returns matter ZCL json file
+ */
 export function builtinMatterZclMetafile2() {
   return locateProjectResource(
     './zcl-builtin/matter/zcl-with-test-extensions.json'
   )
 }
 
+/**
+ * No builtin meta template file.
+ * @returns null
+ */
 export function builtinTemplateMetafile() {
   return null // No default.
 }
@@ -161,6 +196,9 @@ let httpStaticContentPath = path.join(__dirname, '../../../spa')
 let versionObject = null
 let applicationStateDirectory = null
 
+/**
+ * Set up the devlopment environment.
+ */
 export function setDevelopmentEnv() {
   // @ts-ignore
   process.env.DEV = true
@@ -171,6 +209,9 @@ export function setDevelopmentEnv() {
   global.__backend = path.join(__dirname, '../').replace(/\\/g, '\\\\')
 }
 
+/**
+ * Set up the production environment.
+ */
 export function setProductionEnv() {
   // @ts-ignore
   global.__statics = path.join(__dirname, 'statics').replace(/\\/g, '\\\\')
@@ -181,6 +222,9 @@ export function setProductionEnv() {
     .replace(/\\/g, '\\\\')
 }
 
+/**
+ * set explicit_logger_set
+ */
 export function logInitStdout() {
   if (!explicit_logger_set) {
     pino_logger = pino(pinoOptions, pino.destination(1))
@@ -188,6 +232,9 @@ export function logInitStdout() {
   }
 }
 
+/**
+ * Create zap.log file for logging.
+ */
 export function logInitLogFile() {
   if (!explicit_logger_set) {
     pino_logger = pino(
@@ -236,20 +283,43 @@ export function appDirectory() {
   return applicationStateDirectory
 }
 
+/**
+ * Get path to icons directory.
+ *
+ * @returns path to icons directory
+ */
 export function iconsDirectory() {
   // @ts-ignore
   return path.join(global.__backend, '/icons')
 }
 
+/**
+ * Get path to sqlite schema file.
+ *
+ * @returns path to sqlite schema file
+ */
 export function schemaFile() {
   // @ts-ignore
   return path.join(global.__backend, '/db/zap-schema.sql')
 }
 
+/**
+ * Get sqlite file path relative to app directory.
+ *
+ * @param {*} filename
+ * @returns sqlite file path
+ */
 export function sqliteFile(filename = 'zap') {
   return path.join(appDirectory(), `${filename}.sqlite`)
 }
 
+/**
+ * Get sqlite test file name.
+ *
+ * @param {*} id
+ * @param {*} deleteExistingFile
+ * @returns sqlite test file name
+ */
 export function sqliteTestFile(id, deleteExistingFile = true) {
   let dir = path.join(__dirname, '../../test/.zap')
   if (!fs.existsSync(dir)) {
@@ -259,6 +329,7 @@ export function sqliteTestFile(id, deleteExistingFile = true) {
   if (deleteExistingFile && fs.existsSync(fileName)) fs.unlinkSync(fileName)
   return fileName
 }
+
 /**
  * Returns a version as a single on-line string.
  *
@@ -338,6 +409,11 @@ export function zapVersion() {
   return versionObject
 }
 
+/**
+ * Get zapBaseUrl.
+ *
+ * @returns zapBaseUrl
+ */
 export function baseUrl() {
   return zapBaseUrl
 }
@@ -448,7 +524,13 @@ export function logDebug(msg, err = null) {
   log('debug', msg, err)
 }
 
-// Returns true if major or minor component of versions is different.
+/**
+ * Returns true if major or minor component of versions is different.
+ *
+ * @param {*} versionsArray
+ * @param {*} providedVersion
+ * @returns boolean
+ */
 export function isMatchingVersion(versionsArray, providedVersion) {
   let ret = false
   let v2 = providedVersion.split('.')

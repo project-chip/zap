@@ -45,11 +45,19 @@ if (argv.run == undefined) {
   TEST_RUN_COUNT = 20
 }
 
+/**
+ * Sample app name from path.
+ * @param {*} sampleAppPath
+ * @returns path
+ */
 function getSampleAppNamefromPath(sampleAppPath) {
   const layers = path.dirname(sampleAppPath).split('/')
   return layers[layers.length - 3]
 }
 
+/**
+ * Logs Generation statistics
+ */
 async function main() {
   // grab sample apps from CLI
   if (fs.existsSync(argv.apps) && fs.lstatSync(argv.apps).isDirectory()) {
@@ -93,6 +101,12 @@ async function main() {
     )
 }
 
+/**
+ * Log elapsed generation time.
+ * @param {*} LOG_PREFIX
+ * @param {*} zapFilePath
+ * @returns elapsed generation time.
+ */
 async function runTest(LOG_PREFIX, zapFilePath) {
   console.log(LOG_PREFIX + `Generation started.`)
   let start = Date.now()
@@ -103,6 +117,11 @@ async function runTest(LOG_PREFIX, zapFilePath) {
   return { elapsedSec }
 }
 
+/**
+ * Log generation details.
+ * @param {*} LOG_PREFIX
+ * @param {*} zapFilePath
+ */
 async function generate(LOG_PREFIX, zapFilePath) {
   // share cookie / session across HTTP requests
   const jar = new CookieJar()

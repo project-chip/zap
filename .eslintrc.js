@@ -62,6 +62,26 @@ module.exports = {
 
     // random rules added
     'no-undef': 'off',
-    'no-unused-vars': 'off'
-  }
+    'no-unused-vars': 'off',
+    'require-jsdoc': [
+      'error',
+      {
+        require: {
+          FunctionDeclaration: true,
+          MethodDefinition: true,
+          ClassDeclaration: false,
+          ArrowFunctionExpression: false,
+          FunctionExpression: false
+        }
+      }
+    ]
+  },
+  overrides: [
+    {
+      files: ['test/**/*.js', 'src/**/*.vue'], // Path to the directory you want to ignore
+      rules: {
+        'require-jsdoc': 'off' // Disable the require-jsdoc rule for this directory
+      }
+    }
+  ]
 }

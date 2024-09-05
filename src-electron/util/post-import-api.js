@@ -21,6 +21,7 @@
  *
  *  @module JS API: post-import.
  */
+
 const queryEndpoint = require('../db/query-endpoint.js')
 const queryConfig = require('../db/query-config.js')
 const dbEnum = require('../../src-shared/db-enum.js')
@@ -127,6 +128,10 @@ function sessionId(context) {
   return context.sessionId
 }
 
+/**
+ *
+ * @returns dbEnum
+ */
 function dbEnums() {
   return dbEnum
 }
@@ -141,9 +146,15 @@ async function availableClusters(context) {
   return querySessionZcl.selectAllSessionClusters(context.db, context.sessionId)
 }
 
-// Finds the cluster database primary key from code,manufacturing code, and context.
-// Note that by default, a standard ZCL library cluster will have manufacturing code of null
-// in the database.
+/**
+ * Finds the cluster database primary key from code,manufacturing code, and context.
+ * Note that by default, a standard ZCL library cluster will have manufacturing code of null
+ * in the database.
+ * @param {*} context
+ * @param {*} code
+ * @param {*} mfgCode
+ * @returns promise of cluster details
+ */
 async function findCluster(context, code, mfgCode = null) {
   return querySessionZcl.selectSessionClusterByCode(
     context.db,
@@ -153,6 +164,16 @@ async function findCluster(context, code, mfgCode = null) {
   )
 }
 
+/**
+ * find attribute using the given arguments.
+ *
+ * @param {*} context
+ * @param {*} clusterCode
+ * @param {*} side
+ * @param {*} attributeCode
+ * @param {*} mfgCode
+ * @returns promise of attribute details
+ */
 async function findAttribute(
   context,
   clusterCode,
@@ -170,6 +191,15 @@ async function findAttribute(
   )
 }
 
+/**
+ * find command using the given arguments.
+ *
+ * @param {*} context
+ * @param {*} clusterCode
+ * @param {*} commandCode
+ * @param {*} source
+ * @returns promise of command details
+ */
 async function findCommand(context, clusterCode, commandCode, source) {
   return querySessionZcl.selectSessionCommandByCode(
     context.db,
@@ -180,7 +210,16 @@ async function findCommand(context, clusterCode, commandCode, source) {
   )
 }
 
-// Non-public, common function to modify cluster.
+/**
+ * Non-public, common function to modify cluster.
+ *
+ * @param {*} context
+ * @param {*} endpoint
+ * @param {*} code
+ * @param {*} side
+ * @param {*} enabled
+ * @returns promise of an updated or inserted cluster
+ */
 async function modifyCluster(context, endpoint, code, side, enabled) {
   let cluster = await findCluster(context, code)
   if (cluster == null) {
@@ -196,7 +235,17 @@ async function modifyCluster(context, endpoint, code, side, enabled) {
   )
 }
 
-// Non-public, common function to modify attribute.
+/**
+ * Non-public, common function to modify attribute.
+ *
+ * @param {*} context
+ * @param {*} endpoint
+ * @param {*} clusterCode
+ * @param {*} attributeCode
+ * @param {*} side
+ * @param {*} enable
+ * @returns promise of an updated or inserted attribute
+ */
 async function modifyAttribute(
   context,
   endpoint,
@@ -239,7 +288,18 @@ async function modifyAttribute(
   )
 }
 
-// Non-public, common function to modify command.
+/**
+ * Non-public, common function to modify command.
+ *
+ * @param {*} context
+ * @param {*} endpoint
+ * @param {*} clusterCode
+ * @param {*} commandCode
+ * @param {*} source
+ * @param {*} isIncoming
+ * @param {*} enable
+ * @returns promise of an updated or inserted command
+ */
 async function modifyCommand(
   context,
   endpoint,

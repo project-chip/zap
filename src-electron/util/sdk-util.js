@@ -14,15 +14,16 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
+/**
+ * @module JS API: SDK utilities
+ */
+
 const fs = require('fs')
 const fsp = fs.promises
 const path = require('path')
 const util = require('./util')
 const fastGlob = require('fast-glob')
-
-/**
- * @module JS API: SDK utilities
- */
 
 /**
  * This function reads in the sdk.json that is passed as sdkPath,

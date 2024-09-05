@@ -1,2 +1,5 @@
 /dist
 src-script/download-artifact.js
+/spa
+/generated-html
+/src-electron/generator/matter

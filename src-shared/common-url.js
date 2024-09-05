@@ -20,6 +20,7 @@
  *
  * @module DB API: External URLs.
  */
+
 const projectUrl = 'https://github.com/project-chip/zap/'
 
 exports.projectUrl = projectUrl

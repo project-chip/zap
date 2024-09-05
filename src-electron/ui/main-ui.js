@@ -15,6 +15,12 @@
  *    limitations under the License.
  */
 
+/**
+ *  Main UI
+ *
+ * @module JS API: UI
+ */
+
 // enable stack trace to be mapped back to the correct line number in TypeScript source files.
 require('source-map-support').install()
 
@@ -29,6 +35,11 @@ const util = require('../util/util')
 env.versionsCheck()
 env.setProductionEnv()
 
+/**
+ * Hook second instance.
+ *
+ * @param {*} argv
+ */
 function hookSecondInstanceEvents(argv) {
   app
     .whenReady()

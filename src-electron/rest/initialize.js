@@ -20,6 +20,7 @@
  *
  * @module REST API: initialization functions
  */
+
 const queryPackage = require('../db/query-package.js')
 const querySession = require('../db/query-session.js')
 const dbEnum = require('../../src-shared/db-enum.js')

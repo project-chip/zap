@@ -15,7 +15,11 @@
  *    limitations under the License.
  */
 
-// Binary utilities to deal with hex numbers and such.
+/**
+ * Binary utilities to deal with hex numbers and such.
+ *
+ * @module JS API: Binary utilities
+ */
 
 const byteBuffer = require('bytebuffer')
 

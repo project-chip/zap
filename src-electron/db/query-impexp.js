@@ -20,6 +20,7 @@
  *
  * @module DB API: package-based queries.
  */
+
 const dbApi = require('./db-api')
 const dbEnums = require('../../src-shared/db-enum')
 const dbMapping = require('./db-mapping.js')

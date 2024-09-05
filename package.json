@@ -51,7 +51,8 @@
     "build-spa": "node src-script/build-spa.js",
     "build-backend": "node src-script/build-backend.js",
     "doc": "jsdoc src-electron src-shared -r -u docs -d ./generated-html/ README.md",
-    "apidoc": "jsdoc2md src-shared/**/*.js src-electron/**/*.js > docs/api.md",
+    "api-doc": "node src-script/generate-all-api-docs.js",
+    "helper-doc": "node src-script/generate-template-helper-docs.js",
     "format-code": "pretty-quick",
     "pretty-quick": "pretty-quick",
     "version-stamp": "node src-script/zap-versionstamp.js",
@@ -213,7 +214,7 @@
   ],
   "husky": {
     "hooks": {
-      "pre-commit": "pretty-quick --staged && jsdoc src-electron src-shared -r -d ./generated-html/ && eslint --ext .js,.vue src src-electron src-shared src-script test"
+      "pre-commit": "pretty-quick --staged && jsdoc src-electron src-shared -r -d ./generated-html/ && eslint ."
     }
   },
   "build": {

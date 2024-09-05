@@ -14,6 +14,13 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
+/**
+ * This module provides the functionality that reads a .json(.zap) file
+ *
+ * @module Import API: Imports data from a file.
+ */
+
 const fs = require('fs')
 const util = require('../util/util.js')
 const dbEnum = require('../../src-shared/db-enum.js')
@@ -57,6 +64,13 @@ async function importSessionKeyValues(db, sessionId, keyValuePairs) {
   return Promise.all(allQueries).then(() => sessionId)
 }
 
+/**
+ * Get package path using the zap file path.
+ *
+ * @param {*} pkg
+ * @param {*} zapFilePath
+ * @returns Package path
+ */
 function getPkgPath(pkg, zapFilePath) {
   if ('pathRelativity' in pkg) {
     return util.createAbsolutePath(pkg.path, pkg.pathRelativity, zapFilePath)
@@ -2025,8 +2039,11 @@ async function jsonDataLoader(
   }
 }
 
-// This function cleans up some backwards-compatible problems in zap
-// files.
+/**
+ * This function cleans up some backwards-compatible problems in zap.
+ * files.
+ * @param {*} state
+ */
 function cleanJsonState(state) {
   if (!('featureLevel' in state)) {
     state.featureLevel = 0

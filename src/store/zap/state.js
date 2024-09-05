@@ -16,6 +16,10 @@
  */
 const restApi = require('../../../src-shared/rest-api.js')
 
+/**
+ * Entails the current state of ZAP
+ * @returns state object
+ */
 export default function () {
   return {
     selectedZapConfig: null,

@@ -20,6 +20,7 @@
  *
  * @module Templating API: user-data specific helpers
  */
+
 const templateUtil = require('./template-util.js')
 const queryImpexp = require('../db/query-impexp.js')
 const queryCluster = require('../db/query-cluster.js')
@@ -210,6 +211,11 @@ function user_cluster_events(options) {
   return templateUtil.templatePromise(this.global, promise)
 }
 
+/**
+ * Get count of total endpoint types.
+ *
+ * @returns count of total endpoint types
+ */
 function user_endpoint_type_count() {
   let promise = queryConfig.selectEndpointTypeCount(
     this.global.db,
@@ -334,6 +340,17 @@ async function all_user_cluster_command_util(
   return templateUtil.collectBlocks(availableCommands, options, currentContext)
 }
 
+/**
+ * Get attribute details based on given arguments.
+ *
+ * @param {*} name
+ * @param {*} side
+ * @param {*} options
+ * @param {*} currentContext
+ * @param {*} isManufacturingSpecific
+ * @param {*} isIrrespectiveOfManufacturingSpecification
+ * @returns Attribute details
+ */
 async function all_user_cluster_attribute_util(
   name,
   side,
@@ -747,6 +764,12 @@ async function if_command_discovery_enabled(options) {
   }
 }
 
+/**
+ * Get Session's manufacturer code.
+ *
+ * @param {*} options
+ * @returns session's manufacturer code
+ */
 async function user_manufacturer_code(options) {
   let value = await querySession.getSessionKeyValue(
     this.global.db,
@@ -758,6 +781,12 @@ async function user_manufacturer_code(options) {
   else return value
 }
 
+/**
+ * Get user's default response policy selected.
+ *
+ * @param {*} options
+ * @returns user's default response policy selected
+ */
 async function user_default_response_policy(options) {
   let value = await querySession.getSessionKeyValue(
     this.global.db,
@@ -819,9 +848,10 @@ async function is_command_default_response_disabled(command, options) {
   }
 }
 
-/*
+/**
+ * Get endpoint identifier from the given endpoint type ID.
  * @param {*} endpointTypeId
- * Returns the endpoint type identifier for an endpoint type
+ * @returns the endpoint type identifier for an endpoint type
  */
 async function endpoint_type_identifier(endpointTypeId) {
   let endpointTypes = await templateUtil.ensureEndpointTypeIds(this)
@@ -842,10 +872,11 @@ async function endpoint_type_identifier(endpointTypeId) {
   return '0'
 }
 
-/*
- * @param {*} endpointTypeId
- * Returns the index of the endpoint whose endpointTypeId is endpointTypeId
+/**
+ * Get the index of the endpoint whose endpointTypeId is endpointTypeId
  * Will return -1 if the given endpoint type is not present.
+ * @param {*} endpointTypeId
+ * @returns integer
  */
 async function endpoint_type_index(endpointTypeId) {
   let endpointTypes = await templateUtil.ensureEndpointTypeIds(this)
@@ -1158,6 +1189,12 @@ async function all_incoming_commands_for_cluster_combined(
   return templateUtil.collectBlocks(clustersWithIncomingCommands, options, this)
 }
 
+/**
+ * Get all incoming commands in the user configuration.
+ *
+ * @param {*} options
+ * @returns all incoming commands enabled by the user.
+ */
 async function all_user_incoming_commands_for_all_clusters(options) {
   let packageIds = await templateUtil.ensureZclPackageIds(this)
   let isMfgSpec =

@@ -14,10 +14,24 @@
  *    limitations under the License.
  */
 
+/**
+ * Sets a property on an object to a given value.
+ *
+ * @param {object} object - The object on which to set the property.
+ * @param {string} property - The name of the property to set.
+ * @param {*} value - The value to assign to the property.
+ */
 function vue3Set(object, property, value) {
   object[property] = value
 }
 
+/**
+ * Deletes a property from an object.
+ *
+ * @param {object} object - The object from which to delete the property.
+ * @param {string} property - The name of the property to delete.
+ *
+ */
 function vue3Delete(object, property) {
   delete object[property]
 }
@@ -35,14 +49,29 @@ export const updateShowDevTools = (state) => {
   state.showDevTools = !state.showDevTools
 }
 
+/**
+ * Set the information text in the state
+ * @param {*} state
+ * @param {*} text
+ */
 export function updateInformationText(state, text) {
   state.informationText = text
 }
 
+/**
+ * Set the packages in the state
+ * @param {*} state
+ * @param {*} packages
+ */
 export function setAllPackages(state, packages) {
   state.allPackages = packages
 }
 
+/**
+ * Updates the state with the cluster data
+ * @param {*} state
+ * @param {*} responseData
+ */
 export function updateClusters(state, responseData) {
   let selectedEndpointTypeTemp = state.endpointTypeView.selectedEndpointType
   let selectedDeviceTypeRefs =
@@ -102,18 +131,38 @@ export function updateClusters(state, responseData) {
   }
 }
 
+/**
+ * Update the state with atomics data.
+ * @param {*} state
+ * @param {*} atomics
+ */
 export function updateAtomics(state, atomics) {
   state.atomics = atomics
 }
 
+/**
+ * update selected cluster view in the state.
+ * @param {*} state
+ * @param {*} cluster
+ */
 export function updateSelectedCluster(state, cluster) {
   state.clustersView.selected = cluster
 }
 
+/**
+ * Update the selected endpoint of the endpoint view in the state.
+ * @param {*} state
+ * @param {*} endpoint
+ */
 export function updateSelectedEndpoint(state, endpoint) {
   state.endpointView.selectedEndpoint = endpoint
 }
 
+/**
+ * Update the attribute details of the attribute view in the state.
+ * @param {*} state
+ * @param {*} attributes
+ */
 export function updateAttributes(state, attributes) {
   attributes.forEach((attribute) => {
     if (state.attributeView.defaultValue[attribute.id] === undefined) {
@@ -140,6 +189,11 @@ export function updateAttributes(state, attributes) {
   state.attributes = attributes
 }
 
+/**
+ * Set the endpointTypeAttribute details in the state.
+ * @param {*} state
+ * @param {*} endpointTypeAttribute
+ */
 export function setEndpointTypeAttribute(state, endpointTypeAttribute) {
   let attribute = endpointTypeAttribute
 
@@ -187,6 +241,11 @@ export function setEndpointTypeAttribute(state, endpointTypeAttribute) {
   )
 }
 
+/**
+ * Initialize the ednpoint details in the state.
+ * @param {*} state
+ * @param {*} defaultEndpoints
+ */
 export function initializeDefaultEndpoints(state, defaultEndpoints) {
   defaultEndpoints.forEach((endpoint) => {
     if (state.endpointView.endpointId[endpoint.id] === undefined) {
@@ -218,6 +277,11 @@ export function initializeDefaultEndpoints(state, defaultEndpoints) {
   })
 }
 
+/**
+ * Add endpoint details the state.
+ * @param {*} state
+ * @param {*} endpoint
+ */
 export function addEndpoint(state, endpoint) {
   vue3Set(state.endpointView.endpointId, endpoint.id, endpoint.endpointId)
   vue3Set(
@@ -244,6 +308,11 @@ export function addEndpoint(state, endpoint) {
   )
 }
 
+/**
+ * Update endpoint details in the state.
+ * @param {*} state
+ * @param {*} context
+ */
 export function updateEndpoint(state, context) {
   vue3Set(
     state.endpointView.parentEndpointIdentifier,
@@ -265,6 +334,11 @@ export function updateEndpoint(state, context) {
   )
 }
 
+/**
+ * Initialize state with default details of an endpoint type.
+ * @param {*} state
+ * @param {*} defaultEndpointsTypes
+ */
 export function initializeDefaultEndpointsTypes(state, defaultEndpointsTypes) {
   defaultEndpointsTypes.forEach((endpointType) => {
     if (state.endpointTypeView.name[endpointType.id] === undefined) {
@@ -287,6 +361,11 @@ export function initializeDefaultEndpointsTypes(state, defaultEndpointsTypes) {
   })
 }
 
+/**
+ * Add endpoint type to the state.
+ * @param {*} state
+ * @param {*} endpointType
+ */
 export function addEndpointType(state, endpointType) {
   vue3Set(state.endpointTypeView.name, endpointType.id, endpointType.name)
   vue3Set(
@@ -305,7 +384,11 @@ export function addEndpointType(state, endpointType) {
     endpointType.deviceVersion
   )
 }
-
+/**
+ * Update attribute details of the attribute view in the state.
+ * @param {*} state
+ * @param {*} selectionContext
+ */
 export function updateAttributeDefaults(state, selectionContext) {
   vue3Set(
     state.attributeView[selectionContext.listType],
@@ -324,26 +407,56 @@ export function updateAttributeDefaults(state, selectionContext) {
   )
 }
 
+/**
+ * Update commands in the state.
+ * @param {*} state
+ * @param {*} commands
+ */
 export function updateCommands(state, commands) {
   state.commands = commands
 }
 
+/**
+ * Update events in the state.
+ * @param {*} state
+ * @param {*} events
+ */
 export function updateEvents(state, events) {
   state.events = events
 }
 
+/**
+ * update ZCL device types in the state.
+ * @param {*} state
+ * @param {*} zclDeviceTypes
+ */
 export function updateZclDeviceTypes(state, zclDeviceTypes) {
   state.zclDeviceTypes = zclDeviceTypes
 }
 
+/**
+ * update Endpoint details in the state.
+ * @param {*} state
+ * @param {*} endpoints
+ */
 export function updateEndpointConfigs(state, endpoints) {
   state.endpoints = endpoints
 }
 
+/**
+ * Set the selected of configuration view in the state.
+ * @param {*} state
+ * @param {*} configurationName
+ */
 export function selectConfiguration(state, configurationName) {
   state.configurationView.selected = configurationName
 }
 
+/**
+ * Update inclusion list in the state.
+ * @param {*} state
+ * @param {*} selectionContext
+ */
 export function updateInclusionList(state, selectionContext) {
   let inclusionList = state[selectionContext.view][selectionContext.listType]
   if (selectionContext.added && !inclusionList.includes(selectionContext.id)) {
@@ -358,6 +471,11 @@ export function updateInclusionList(state, selectionContext) {
   state[selectionContext.view][selectionContext.listType] = inclusionList
 }
 
+/**
+ * Set device type details for the endpoint type view in the state.
+ * @param {*} state
+ * @param {*} endpointTypeIdDeviceTypeRefPair
+ */
 export function setDeviceTypeReference(state, endpointTypeIdDeviceTypeRefPair) {
   vue3Set(
     state.endpointTypeView.deviceTypeRef,
@@ -378,10 +496,20 @@ export function setDeviceTypeReference(state, endpointTypeIdDeviceTypeRefPair) {
   )
 }
 
+/**
+ * Update the selectedEndpointType of endpoint type view in the state.
+ * @param {*} state
+ * @param {*} endpointType
+ */
 export function updateSelectedEndpointType(state, endpointType) {
   state.endpointTypeView.selectedEndpointType = endpointType
 }
 
+/**
+ * Remove endpoint type details from the endpoint type view of the state.
+ * @param {*} state
+ * @param {*} endpointType
+ */
 export function removeEndpointType(state, endpointType) {
   state.endpointTypeView.selectedEndpointType = []
   vue3Delete(state.endpointTypeView.name, endpointType.id)
@@ -389,6 +517,11 @@ export function removeEndpointType(state, endpointType) {
   vue3Delete(state.endpointTypeView.deviceVersion, endpointType.id)
 }
 
+/**
+ * Delete endpoint from the endpoint view of the state.
+ * @param {*} state
+ * @param {*} endpoint
+ */
 export function deleteEndpoint(state, endpoint) {
   state.endpointView.selectedEndpoint = null
   vue3Delete(state.endpointView.endpointId, endpoint.id)
@@ -397,11 +530,20 @@ export function deleteEndpoint(state, endpoint) {
   vue3Delete(state.endpointView.parentEndpointIdentifier, endpoint.id)
 }
 
+/**
+ * Set selected clusters of the cluster view in the state.
+ * @param {*} state
+ * @param {*} data
+ */
 export function setClusterList(state, data) {
   state.clustersView.selectedClients = data.clients
   state.clustersView.selectedServers = data.servers
 }
 
+/**
+ * Reset attribute details of the attribute view in the state.
+ * @param {*} state
+ */
 export function resetAttributeDefaults(state) {
   state.attributeView.defaultValue = {}
   state.attributeView.reportingMin = {}
@@ -422,6 +564,11 @@ export function resetAttributeDefaults(state) {
   })
 }
 
+/**
+ * Set attribute details of the attribute view in the state.
+ * @param {*} state
+ * @param {*} data
+ */
 export function setAttributeLists(state, data) {
   state.attributeView.selectedAttributes = data.included
   state.attributeView.selectedSingleton = data.singleton
@@ -452,53 +599,109 @@ export function setAttributeLists(state, data) {
   )
 }
 
+/**
+ * Set command details of the command view in the state.
+ * @param {*} state
+ * @param {*} data
+ */
 export function setCommandLists(state, data) {
   vue3Set(state.commandView, 'selectedIn', data.incoming)
   vue3Set(state.commandView, 'selectedOut', data.outgoing)
 }
+
+/**
+ * Set event details of the event view in the state.
+ * @param {*} state
+ * @param {*} data
+ */
 export function setEventLists(state, data) {
   vue3Set(state.eventView, 'selectedEvents', data)
 }
 
+/**
+ * Set recommended cluster lists of the cluster view in the state.
+ * @param {*} state
+ * @param {*} data
+ */
 export function setRecommendedClusterList(state, data) {
   vue3Set(state.clustersView, 'recommendedClients', data.recommendedClients)
   vue3Set(state.clustersView, 'recommendedServers', data.recommendedServers)
 }
 
+/**
+ * Set required attributes of the attribute view in the state.
+ * @param {*} state
+ * @param {*} data
+ */
 export function setRequiredAttributesList(state, data) {
   vue3Set(state.attributeView, 'requiredAttributes', data.requiredAttributes)
 }
 
+/**
+ * Set required commands of the command view in the state.
+ * @param {*} state
+ * @param {*} data
+ */
 export function setRequiredCommandsList(state, data) {
   vue3Set(state.commandView, 'requiredCommands', data.requiredCommands)
 }
 
+/**
+ * Set left drawer's state
+ * @param {*} state
+ * @param {*} data
+ */
 export function setLeftDrawerState(state, data) {
   state.leftDrawerOpenState = data
 }
 
+/**
+ * Set minimization state.
+ * @param {*} state
+ * @param {*} data
+ */
 export function setMiniState(state, data) {
   state.miniState = data
 }
 
+/**
+ * Initialize endpoints for the state.
+ * @param {*} state
+ * @param {*} endpoints
+ */
 export function initializeEndpoints(state, endpoints) {
   endpoints.forEach((e) => {
     addEndpoint(state, e)
   })
 }
 
+/**
+ * Initialize endpoint types for the state.
+ * @param {*} state
+ * @param {*} endpointTypes
+ */
 export function initializeEndpointTypes(state, endpointTypes) {
   endpointTypes.forEach((et) => {
     addEndpointType(state, et)
   })
 }
 
+/**
+ * Initialize session key values for the state.
+ * @param {*} state
+ * @param {*} sessionKeyValues
+ */
 export function initializeSessionKeyValues(state, sessionKeyValues) {
   sessionKeyValues.forEach((skv) => {
     setSelectedGenericOption(state, skv)
   })
 }
 
+/**
+ * Set configuration options in the state.
+ * @param {*} state
+ * @param {*} data
+ */
 export function setOptions(state, data) {
   vue3Set(state.genericOptions, data.option, [
     ...new Set(
@@ -511,36 +714,76 @@ export function setOptions(state, data) {
   ])
 }
 
+/**
+ * Set specific options for the state.
+ * @param {*} state
+ * @param {*} keyValue
+ */
 export function setSelectedGenericOption(state, keyValue) {
   vue3Set(state.selectedGenericOptions, keyValue.key, keyValue.value)
 }
 
+/**
+ * Load session key values pairs in the state.
+ * @param {*} state
+ * @param {*} sessionKeyValues
+ */
 export function loadSessionKeyValues(state, sessionKeyValues) {
   sessionKeyValues?.data.map((keyValue) => {
     vue3Set(state.selectedGenericOptions, keyValue.key, keyValue.value)
   })
 }
 
+/**
+ * Set default UI mode in the state.
+ * @param {*} state
+ * @param {*} uiMode
+ */
 export function setDefaultUiMode(state, uiMode) {
   vue3Set(state.calledArgs, `defaultUiMode`, uiMode)
 }
 
+/**
+ * Set debug navigation view for the state.
+ * @param {*} state
+ * @param {*} debugNavBar
+ */
 export function setDebugNavBar(state, debugNavBar) {
   state.debugNavBar = debugNavBar
 }
 
+/**
+ * Show save button in the UI using the state.
+ * @param {*} state
+ * @param {*} saveButtonVisible
+ */
 export function setSaveButtonVisible(state, saveButtonVisible) {
   state.saveButtonVisible = saveButtonVisible
 }
 
+/**
+ * Set standalone mode for ZAP using the state.
+ * @param {*} state
+ * @param {*} standalone
+ */
 export function setStandalone(state, standalone) {
   state.standalone = standalone
 }
 
+/**
+ * Set open domain of cluster manager in the state.
+ * @param {*} state
+ * @param {*} context
+ */
 export function setOpenDomain(state, context) {
   vue3Set(state.clusterManager.openDomains, context.domainName, context.value)
 }
 
+/**
+ * Set the filter for the domain of cluster manager in the state.
+ * @param {*} state
+ * @param {*} filterEnabledClusterPair
+ */
 export function setDomainFilter(state, filterEnabledClusterPair) {
   let filter = filterEnabledClusterPair.filter
   state.clusterManager.filter = filter
@@ -558,6 +801,11 @@ export function setDomainFilter(state, filterEnabledClusterPair) {
   })
 }
 
+/**
+ * Filter each domain of the cluster manager in the state.
+ * @param {*} state
+ * @param {*} filterEnabledClusterPair
+ */
 export function doActionFilter(state, filterEnabledClusterPair) {
   let filter = filterEnabledClusterPair.filter
   // When we close all, we also clear all filters.
@@ -575,22 +823,45 @@ export function doActionFilter(state, filterEnabledClusterPair) {
   })
 }
 
+/**
+ * Set filter string of the cluster manager in state.
+ * @param {*} state
+ * @param {*} filterString
+ */
 export function setFilterString(state, filterString) {
   state.clusterManager.filterString = filterString
 }
 
+/**
+ * Set individual cluster filter string of the cluster manager in state.
+ * @param {*} state
+ * @param {*} filterString
+ */
 export function setIndividualClusterFilterString(state, filterString) {
   state.clusterManager.individualClusterFilterString = filterString
 }
 
+/**
+ * set the last selected domain of the cluster manager in the state.
+ * @param {*} state
+ * @param {*} domainNameString
+ */
 export function setLastSelectedDomain(state, domainNameString) {
   state.clusterManager.lastSelectedDomain = domainNameString
 }
 
+/**
+ * Clear last selected domain of the cluster manager in the state.
+ * @param {*} state
+ */
 export function clearLastSelectedDomain(state) {
   state.clusterManager.lastSelectedDomain = null
 }
 
+/**
+ * Reset the filter of cluster manager in the state.
+ * @param {*} state
+ */
 export function resetFilters(state) {
   state.clusterManager.filter = {
     label: 'No Filter',
@@ -600,22 +871,46 @@ export function resetFilters(state) {
   state.clusterManager.openDomains = {}
 }
 
+/**
+ * Set isExceptionsExpanded of the state.
+ * @param {*} state
+ */
 export function expandedExceptionsToggle(state) {
   state.isExceptionsExpanded = !state.isExceptionsExpanded
 }
 
+/**
+ * Update state's exceptions.
+ * @param {*} state
+ * @param {*} value
+ */
 export function updateExceptions(state, value) {
   state.exceptions.push(value)
 }
 
+/**
+ * Toggle state's showExceptionIcon
+ * @param {*} state
+ * @param {*} value
+ */
 export function toggleShowExceptionIcon(state, value) {
   state.showExceptionIcon = value
 }
 
+/**
+ * Update the project packages of the state.
+ * @param {*} state
+ * @param {*} packages
+ */
 export function updateProjectPackages(state, packages) {
   vue3Set(state, 'packages', packages)
 }
 
+/**
+ * Update Simplicity Studio's UC component details in the state.
+ * @param {*} state
+ * @param {*} data
+ */
 export function updateUcComponentState(state, data) {
   if (data != null) {
     vue3Set(state.studio, 'ucComponents', data.ucComponents)
@@ -623,22 +918,43 @@ export function updateUcComponentState(state, data) {
   }
 }
 
+/**
+ * Update Simplicity Studio's selected UC components in the state.
+ * @param {*} state
+ * @param {*} data
+ */
 export function updateSelectedUcComponentState(state, data) {
   if (data != null) {
     vue3Set(state.studio, 'selectedUcComponents', data.selectedUcComponents)
   }
 }
 
+/**
+ * Load Simplicity Studio's cluster to UC component mapping.
+ * @param {*} state
+ * @param {*} map
+ */
 export function loadZclClusterToUcComponentDependencyMap(state, map) {
   if (map != null)
     vue3Set(state.studio, 'zclSdkExtClusterToUcComponentMap', map)
 }
 
+/**
+ * Sets the selected zap config in the state.
+ * @param {*} state
+ * @param {*} val
+ * @returns boolean
+ */
 export function selectZapConfig(state, val) {
   state.selectedZapConfig = val
   return true
 }
 
+/**
+ * Set all endpoint data in the state.
+ * @param {*} state
+ * @param {*} value
+ */
 export function setAllEndpointsData(state, value) {
   vue3Set(state.allEndpointsData, value.endpointId, {
     selectedservers: value.servers,
@@ -648,26 +964,49 @@ export function setAllEndpointsData(state, value) {
   })
 }
 
+/**
+ * Set the multiconfig in state when more than one protocol configuration or stack is selected in ZAP.
+ * @param {*} state
+ * @param {*} value
+ */
 export function setMultiConfig(state, value) {
   state.isMultiConfig = value
 }
 
-// This function change state of showCreateModifyEndpoint and will show or hide create endpoint modal
+/**
+ * This function changes state of showCreateModifyEndpoint and will show or hide create endpoint modal
+ * @param {*} state
+ * @param {*} value
+ */
 export function toggleEndpointModal(state, value) {
   state.showCreateModifyEndpoint = value
 }
 
+/**
+ * Helps show or hide the multi-protocol tutorial.
+ * @param {*} state
+ * @param {*} value
+ */
 export function toggleCmpTutorial(state, value) {
   state.isCmpTutorialSelected = value
   state.isEndpointTutorialSelected = !value
 }
 
+/**
+ * Helps show or hide the endpoint tutorial.
+ * @param {*} state
+ * @param {*} value
+ */
 export function toggleEndpointTutorial(state, value) {
   state.isEndpointTutorialSelected = value
   state.isCmpTutorialSelected = !value
 }
 
-// This function will show you is tutorial step running or not
+/**
+ * This function will show or hide the tutorial.
+ * @param {*} state
+ * @param {*} value
+ */
 export function toggleTutorial(state, value) {
   state.isTutorialRunning = value
   if (!value) {
@@ -676,29 +1015,50 @@ export function toggleTutorial(state, value) {
   }
 }
 
-// This function will expand the cluster so you can see data in it ( this function used for vue tour )
+/**
+ * This function will expand the cluster so you can see data in it ( this function used for vue tour )
+ * @param {*} state
+ * @param {*} value
+ */
 export function triggerExpanded(state, value) {
   state.expanded = value
 }
 
-// This function will change the tab of the cluster configuration page
+/**
+ * This function will change the tab of the cluster configuration page
+ * @param {*} state
+ * @param {*} value
+ */
 export function openReportTabInCluster(state, value) {
   state.showReportTabInCluster = value
 }
 
-// This function will set data of the endpoint that you created for showing clusters
+/**
+ * This function will set data of the endpoint that you created for showing clusters
+ * @param {*} state
+ * @param {*} value
+ */
 export function setClusterDataForTutorial(state, value) {
   state.clusterDataForTutorial = value
 }
 
-// This function will check whether should we show the profile id to the users or no
+/**
+ * This function will check whether to show the profile id to the users or not.
+ * @param {*} state
+ * @param {*} value
+ */
 export function updateIsProfileIdShown(state, value) {
   value == 0
     ? (state.isProfileIdShown = false)
     : (state.isProfileIdShown = true)
 }
 
-// This function will sets the deviceTypeRef and deviceIdentifier so users can see which device chosen in the tutorial
+/**
+ * This function will set the deviceTypeRef and deviceIdentifier so users
+ * can see which device is chosen in the tutorial.
+ * @param {*} state
+ * @param {*} value
+ */
 export function setDeviceTypeRefAndDeviceIdPair(state, value) {
   state.deviceTypeRefAndDeviceIdPair = {
     deviceTypeRef: value.deviceTypeRef,
@@ -706,26 +1066,48 @@ export function setDeviceTypeRefAndDeviceIdPair(state, value) {
   }
 }
 
-// This function will toggle showEndpointData state and save that state
+/**
+ * This function will toggle showEndpointData state and save that state
+ * @param {*} state
+ * @param {*} item
+ */
 export function toggleShowEndpoint(state, item) {
   vue3Set(state.showEndpointData, item.id, item.value)
 }
 
-// This function will update the cluster stage if cluster changed it will update the endpoint data
+/**
+ * This function will update the cluster stage if cluster changed it will
+ * update the endpoint data.
+ * @param {*} state
+ * @param {*} value
+ */
 export function updateIsClusterOptionChanged(state, value) {
   state.isClusterOptionChanged = value
 }
 
-// Thie function will update the notification count after backend updates from websocket
+/**
+ * This function will update the notification count after backend updates from websocket
+ * @param {*} state
+ * @param {*} value
+ */
 export function updateNotificationCount(state, value) {
   state.notificationCount = value
 }
 
-// This function will update the device type features after a new endpoint is selected
+/**
+ * This function will update the device type features after a new endpoint is selected
+ * @param {*} state 
+ * @param {*} value 
+ */
 export function updateDeviceTypeFeatures(state, value) {
   state.deviceTypeFeatures = value
 }
 
+/**
+ * Set the state to dirty if there are unsaved changes.
+ * @param {*} state
+ * @param {*} isDirty
+ */
 export function setDirtyState(state, isDirty) {
   if (state.isDirty != isDirty) {
     state.isDirty = isDirty
@@ -736,6 +1118,11 @@ export function setDirtyState(state, isDirty) {
   }
 }
 
+/**
+ * Set the enabled clusters of the state.
+ * @param {*} state
+ * @param {*} clusters
+ */
 export function setEnabledClusters(state, clusters) {
   state.enabledClusters = clusters
 }

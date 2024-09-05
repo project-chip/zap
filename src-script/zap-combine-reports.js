@@ -22,6 +22,9 @@ const fsExtra = require('fs-extra')
 //workaround: executeCmd()/spawn() fails silently without complaining about missing path to electron
 process.env.PATH = process.env.PATH + ':/usr/local/bin/'
 
+/**
+ * Execute the coverage report script.
+ */
 async function executeScript() {
   try {
     // Create directory if it does not exist

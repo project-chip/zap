@@ -15,6 +15,12 @@
  *    limitations under the License.
  */
 
+/**
+ * This file contains watchdogs.
+ *
+ * @module watchdog API: initializes times.
+ */
+
 let watchDogId = null
 
 /**

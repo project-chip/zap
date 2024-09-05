@@ -15,6 +15,12 @@
  *    limitations under the License.
  */
 
+/**
+ * This module provides the APIs for for common functionality related to loading.
+ *
+ * @module Loader API: Loader APIs
+ */
+
 const fs = require('fs')
 const fsPromise = fs.promises
 const path = require('path')

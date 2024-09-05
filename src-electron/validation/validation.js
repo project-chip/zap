@@ -19,6 +19,7 @@
  * This module provides the APIs for validating inputs to the database, and returning flags indicating if
  * things were successful or not.
  *
+ * @module Validation API: Validation APIs
  */
 
 const queryZcl = require('../db/query-zcl.js')
@@ -60,6 +61,13 @@ async function validateAttribute(
   )
 }
 
+/**
+ * Get issues in an endpoint.
+ *
+ * @param {*} db
+ * @param {*} endpointId
+ * @returns object
+ */
 async function validateEndpoint(db, endpointId) {
   let endpoint = await queryEndpoint.selectEndpoint(db, endpointId)
   let currentIssues = validateSpecificEndpoint(endpoint)
@@ -74,6 +82,14 @@ async function validateEndpoint(db, endpointId) {
   return currentIssues
 }
 
+/**
+ * Check if there are no duplicate endpoints.
+ *
+ * @param {*} db
+ * @param {*} endpointIdentifier
+ * @param {*} sessionRef
+ * @returns boolean
+ */
 async function validateNoDuplicateEndpoints(
   db,
   endpointIdentifier,
@@ -156,6 +172,12 @@ async function validateSpecificAttribute(
   return { defaultValue: defaultAttributeIssues }
 }
 
+/**
+ * Get endpoint and newtork issue on an endpoint.
+ *
+ * @param {*} endpoint
+ * @returns object
+ */
 function validateSpecificEndpoint(endpoint) {
   let zclEndpointIdIssues = []
   let zclNetworkIdIssues = []
@@ -176,27 +198,64 @@ function validateSpecificEndpoint(endpoint) {
   }
 }
 
-//This applies to both actual numbers as well as octet strings.
+/**
+ * Check if value is a valid number in string form.
+ * This applies to both actual numbers as well as octet strings.
+ *
+ * @param {*} value
+ * @returns boolean
+ */
 function isValidNumberString(value) {
   //We test to see if the number is valid in hex. Decimals numbers also pass this test
   return /^(0x)?[\dA-F]+$/i.test(value) || Number.isInteger(Number(value))
 }
+
+/**
+ * Check if value is a valid signed number in string form.
+ *
+ * @param {*} value
+ * @returns boolean
+ */
 function isValidSignedNumberString(value) {
   return /^(0x)?[\dA-F]+$/i.test(value) || Number.isInteger(Number(value))
 }
 
+/**
+ * Check if value is a valid hex string.
+ *
+ * @param {*} value
+ * @returns boolean
+ */
 function isValidHexString(value) {
   return /^(0x)?[\dA-F]+$/i.test(value)
 }
 
+/**
+ * Check if value is a valid decimal string.
+ *
+ * @param {*} value
+ * @returns boolean
+ */
 function isValidDecimalString(value) {
   return /^\d+$/.test(value)
 }
 
+/**
+ * Check if value is a valid float value.
+ *
+ * @param {*} value
+ * @returns boolean
+ */
 function isValidFloat(value) {
   return !/^0x/i.test(value) && !isNaN(Number(value))
 }
 
+/**
+ * Get float value from the given value.
+ *
+ * @param {*} value
+ * @returns float value
+ */
 function extractFloatValue(value) {
   return parseFloat(value)
 }
@@ -218,6 +277,12 @@ function extractIntegerValue(value) {
   }
 }
 
+/**
+ * Get value of bit integer.
+ *
+ * @param {*} value
+ * @returns BigInt
+ */
 function extractBigIntegerValue(value) {
   if (/^-?\d+$/.test(value)) {
     return BigInt(value)
@@ -228,10 +293,24 @@ function extractBigIntegerValue(value) {
   }
 }
 
+/**
+ * Check if integer is greater than 4 bytes.
+ *
+ * @param {*} bits
+ * @returns boolean
+ */
 function isBigInteger(bits) {
   return bits >= 32
 }
 
+/**
+ * Get the integer attribute's bounds.
+ *
+ * @param {*} attribute
+ * @param {*} typeSize
+ * @param {*} isSigned
+ * @returns object
+ */
 async function getBoundsInteger(attribute, typeSize, isSigned) {
   return {
     min: attribute.min
@@ -337,18 +416,39 @@ async function checkAttributeBoundsInteger(
   return checkBoundsInteger(defaultValue, min, max)
 }
 
+/**
+ * Check if an integer value is within the bounds.
+ *
+ * @param {*} defaultValue
+ * @param {*} min
+ * @param {*} max
+ * @returns boolean
+ */
 function checkBoundsInteger(defaultValue, min, max) {
   if (min == null || Number.isNaN(min)) min = Number.MIN_SAFE_INTEGER
   if (max == null || Number.isNaN(max)) max = Number.MAX_SAFE_INTEGER
   return defaultValue >= min && defaultValue <= max
 }
 
+/**
+ * Check if float attribute's value is within the bounds.
+ *
+ * @param {*} attribute
+ * @param {*} endpointAttribute
+ * @returns boolean
+ */
 function checkAttributeBoundsFloat(attribute, endpointAttribute) {
   let { min, max } = getBoundsFloat(attribute)
   let defaultValue = extractFloatValue(endpointAttribute.defaultValue)
   return checkBoundsFloat(defaultValue, min, max)
 }
 
+/**
+ * Get the bounds on a float attribute's value.
+ *
+ * @param {*} attribute
+ * @returns object
+ */
 function getBoundsFloat(attribute) {
   return {
     min: extractFloatValue(attribute.min),
@@ -356,6 +456,14 @@ function getBoundsFloat(attribute) {
   }
 }
 
+/**
+ * Check if float value is within the min/max bounds.
+ *
+ * @param {*} defaultValue
+ * @param {*} min
+ * @param {*} max
+ * @returns boolean
+ */
 function checkBoundsFloat(defaultValue, min, max) {
   if (Number.isNaN(min)) min = Number.MIN_VALUE
   if (Number.isNaN(max)) max = Number.MAX_VALUE

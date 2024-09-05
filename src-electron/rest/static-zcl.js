@@ -33,9 +33,15 @@ const env = require('../util/env')
 const { StatusCodes } = require('http-status-codes')
 const queryNotification = require('../db/query-session-notification.js')
 
-// This function builds a function that has the following skeleton.
-// This is used to simplify all the logic where we have selectAll and selectById for
-// each of the different ZCL entities.
+/**
+ * This function builds a function that has the following skeleton.
+ * This is used to simplify all the logic where we have selectAll and selectById for
+ * each of the different ZCL entities.
+ *
+ * @param {*} selectAllFunction
+ * @param {*} selectByIdFunction
+ * @returns a certain function based on given arguments to them.
+ */
 function zclEntityQuery(selectAllFunction, selectByIdFunction) {
   return (db, id, packageId = null) => {
     if (id == 'all') {
@@ -46,7 +52,14 @@ function zclEntityQuery(selectAllFunction, selectByIdFunction) {
   }
 }
 
-// For the CLUSTER path, we have special handling to also sideload attributes and commands relevant to that cluster.
+/**
+ * For the CLUSTER path, we have special handling to also sideload attributes and commands relevant to that cluster.
+ *
+ * @param {*} db
+ * @param {*} clusterId
+ * @param {*} packageId
+ * @returns zcl entities
+ */
 async function returnZclEntitiesForClusterId(db, clusterId, packageId) {
   return zclEntityQuery(queryZcl.selectAllClusters, queryZcl.selectClusterById)(
     db,
@@ -77,7 +90,13 @@ async function returnZclEntitiesForClusterId(db, clusterId, packageId) {
   )
 }
 
-// This is the special merge function used for the CLUSTER path
+/**
+ * This is the special merge function used for the CLUSTER path
+ *
+ * @param {*} accumulated
+ * @param {*} currentValue
+ * @returns ZCL entity details object
+ */
 function mergeZclClusterAttributeCommandEventData(accumulated, currentValue) {
   return {
     clusterData: [accumulated.clusterData, currentValue.clusterData].flat(1),
@@ -88,7 +107,17 @@ function mergeZclClusterAttributeCommandEventData(accumulated, currentValue) {
     eventData: [accumulated.eventData, currentValue.eventData].flat(1)
   }
 }
-//This maps over each packageId, and runs the query callback.
+
+/**
+ * This maps over each packageId, and runs the query callback.
+ * @param {*} db
+ * @param {*} id
+ * @param {*} packageIdArray
+ * @param {*} zclQueryCallback
+ * @param {*} mergeFunction
+ * @param {*} defaultValue
+ * @returns zcl entities
+ */
 function reduceAndConcatenateZclEntity(
   db,
   id,
@@ -107,6 +136,15 @@ function reduceAndConcatenateZclEntity(
   )
 }
 
+/**
+ * Get entity details absed on given information.
+ *
+ * @param {*} db
+ * @param {*} entity
+ * @param {*} id
+ * @param {*} packageIdArray
+ * @returns Promise of entity details
+ */
 async function parseForZclData(db, entity, id, packageIdArray) {
   // Retrieve all the standalone custom xml packages
   let packageData = await queryPackage.getPackagesByPackageIds(
@@ -236,7 +274,6 @@ async function parseForZclData(db, entity, id, packageIdArray) {
  * @export
  * @param {*} app Express instance.
  */
-
 function httpGetZclEntity(db) {
   return async (request, response) => {
     const { id, entity } = request.params

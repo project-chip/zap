@@ -20,6 +20,7 @@
  *
  * @module REST API: various zcl utilities
  */
+
 const toposort = require('toposort')
 const queryZcl = require('../db/query-zcl')
 const queryEvent = require('../db/query-event')
@@ -92,6 +93,13 @@ function eventComparator(a, b) {
   return 0
 }
 
+/**
+ * Find struct by name from the given list of structs.
+ *
+ * @param {*} structs
+ * @param {*} name
+ * @returns struct
+ */
 function findStructByName(structs, name) {
   for (const s of structs) {
     if (s.name == name) {
@@ -183,6 +191,15 @@ function optionsHashOrDefault(options, optionsKey, defaultValue) {
   }
 }
 
+/**
+ * Get the size of the type given.
+ *
+ * @param {*} res
+ * @param {*} options
+ * @param {*} db
+ * @param {*} packageIds
+ * @returns size of type
+ */
 function calculateBytesForTypes(res, options, db, packageIds) {
   return queryZcl
     .selectSizeFromType(db, packageIds, res.toLowerCase())
@@ -268,6 +285,15 @@ function calculateBytesForTypes(res, options, db, packageIds) {
     })
 }
 
+/**
+ * Get size of struct. Also allow user to specifiy a default if calculation is not needed.
+ *
+ * @param {*} res
+ * @param {*} options
+ * @param {*} db
+ * @param {*} packageIds
+ * @returns size of struct
+ */
 async function calculateBytesForStructs(res, options, db, packageIds) {
   if ('struct' in options.hash) {
     return options.hash.struct
@@ -305,6 +331,14 @@ async function calculateBytesForStructs(res, options, db, packageIds) {
   }
 }
 
+/**
+ * Get user defined values from the template for a given size or else return defaults specified.
+ *
+ * @param {*} size
+ * @param {*} res
+ * @param {*} options
+ * @returns user defined or default value based on size
+ */
 function returnOptionsForTypes(size, res, options) {
   return new Promise((resolve, reject) => {
     let result = 0
@@ -740,6 +774,14 @@ async function determineType(db, type, packageIds) {
   }
 }
 
+/**
+ * Get command signature of a command.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} cmd
+ * @returns object
+ */
 async function createCommandSignature(db, packageId, cmd) {
   let sig = []
   let isSimple = true

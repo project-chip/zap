@@ -15,6 +15,13 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
+/**
+ * External helper utilities for ZAP
+ *
+ * @module External API: External API utilities
+ */
+
 const queryZcl = require('../db/query-zcl.js')
 const queryPackage = require('../db/query-package.js')
 const queryCommand = require('../db/query-command.js')

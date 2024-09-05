@@ -101,7 +101,7 @@ async function getStdout(onError, cmd, args) {
  * Resolves into a context object.
  * Check for context.needsRebuild
  *
- * @returns
+ * @returns Promise of SPA rebuilt
  */
 async function rebuildSpaIfNeeded() {
   let srcHash = await folderHash.hashElement(
@@ -173,6 +173,10 @@ async function rebuildSpaIfNeeded() {
     )
 }
 
+/**
+ * Rebuilds backend if needed.
+ * @returns promise of backend rebuilt
+ */
 async function rebuildBackendIfNeeded() {
   return scriptUtil
     .executeCmd({}, 'npx', ['tsc', '--build', './tsconfig.json'])
@@ -280,7 +284,7 @@ async function setPackageJsonVersion(date, mode) {
  * decently human readable time out of it.
  *
  * @param {*} nsDifference
- * @returns
+ * @returns duration in the form of string
  */
 function duration(nsDifference) {
   let diff = Number(nsDifference)
@@ -308,7 +312,7 @@ async function doneStamp(startTime) {
  * Main entry of the program.
  *
  * @param {*} isNode
- * @returns
+ * @returns main js file path
  */
 function mainPath(isElectron) {
   if (isElectron) {
@@ -338,7 +342,14 @@ async function addToJsonFile(file, object) {
   await fsp.writeFile(file, JSON.stringify(json, null, 2))
 }
 
-// Recursive entry
+/**
+ * Recursive entry
+ * @param {*} directory
+ * @param {*} depth
+ * @param {*} pattern
+ * @param {*} collector
+ * @returns none
+ */
 async function doLocate(directory, depth, pattern, collector) {
   if (depth > 50) {
     console.log('WARNING: Recursive depth of 50 exceeded. Aborting.')

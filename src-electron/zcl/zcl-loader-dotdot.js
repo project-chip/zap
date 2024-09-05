@@ -15,6 +15,12 @@
  *    limitations under the License.
  */
 
+/**
+ * This module provides the APIs for dotdot Loading
+ *
+ * @module Loader API: Loader APIs
+ */
+
 const fs = require('fs')
 const fsp = fs.promises
 const env = require('../util/env')
@@ -48,7 +54,12 @@ async function collectDataFromLibraryXml(ctx) {
 }
 
 // Random internal XML utility functions
-
+/**
+ * Check if tag contains enum.
+ *
+ * @param {*} tag
+ * @returns boolean
+ */
 function tagContainsEnum(tag) {
   return (
     tag.restriction != null &&
@@ -57,6 +68,12 @@ function tagContainsEnum(tag) {
   )
 }
 
+/**
+ * Check if tag contains struct.
+ *
+ * @param {*} tag
+ * @returns boolean
+ */
 function tagContainsStruct(tag) {
   return (
     tag.restriction != null &&
@@ -65,10 +82,24 @@ function tagContainsStruct(tag) {
   )
 }
 
+/**
+ * Check if tag contains Bitmap.
+ *
+ * @param {*} tag
+ * @returns boolean
+ */
 function tagContainsBitmap(tag) {
   return 'bitmap' in tag
 }
 
+/**
+ * Parses ZCL xml file.
+ *
+ * @param {*} db
+ * @param {*} ctx
+ * @param {*} file
+ * @returns empty array
+ */
 async function parseSingleZclFile(db, ctx, file) {
   let fileContent = await fsp.readFile(file)
   let data = {

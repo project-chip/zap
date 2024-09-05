@@ -15,6 +15,12 @@
  *    limitations under the License.
  */
 
+/**
+ * This file contains various startup modes.
+ *
+ * @module Startup API: initializes times.
+ */
+
 const fs = require('fs')
 const fsp = fs.promises
 const path = require('path')
@@ -37,8 +43,6 @@ const exportJs = require('../importexport/export.js')
 const watchdog = require('./watchdog')
 const sdkUtil = require('../util/sdk-util')
 const { argv } = require('process')
-
-// This file contains various startup modes.
 
 let mainDatabase = null
 
@@ -172,6 +176,13 @@ function gatherFiles(filesArg, options = { suffix: '.zap', doBlank: true }) {
   return list
 }
 
+/**
+ * Write file conversion results if converted.
+ *
+ * @param {*} resultsFile
+ * @param {*} logger
+ * @returns Promise of file write
+ */
 async function noopConvert(resultsFile, logger) {
   if (resultsFile != null) {
     logger(`😎 No-op conversion: ${resultsFile}`)
@@ -286,6 +297,12 @@ async function startConvert(argv, options) {
   }
 }
 
+/**
+ * Write conversion results into file given.
+ *
+ * @param {*} file
+ * @returns promise of a file write operation.
+ */
 async function writeConversionResultsFile(file) {
   return fsp.writeFile(
     file,
@@ -522,6 +539,16 @@ async function startSelfCheck(
   }
 }
 
+/**
+ * Generate a single template file
+ * @param {*} db
+ * @param {*} zapFile
+ * @param {*} templatePackageId
+ * @param {*} outputPattern
+ * @param {*} index
+ * @param {*} options
+ * @returns promise of generation results
+ */
 async function generateSingleFile(
   db,
   zapFile,
@@ -713,6 +740,10 @@ function shutdown() {
   }
 }
 
+/**
+ * Log Data on the console.
+ * @param {*} data
+ */
 function logRemoteData(data) {
   if (data != null) {
     if (_.isString(data)) {
@@ -765,6 +796,10 @@ function startUpSecondaryInstance(argv, callbacks) {
   }
 }
 
+/**
+ * Empty function by default. Startup sequence is supposed
+ * to declare this depending on whether this is node or electron.
+ */
 function quit() {
   // Empty function by default. Startup sequence is supposed
   // to declare this depending on whether this is node or electron.
@@ -875,6 +910,12 @@ async function startUpMainInstance(argv, callbacks) {
   }
 }
 
+/**
+ * Exit the node js process.
+ *
+ * @param {*} delay
+ * @param {*} code
+ */
 function cleanExit(delay, code) {
   util.waitFor(delay).then(() => process.exit(code))
 }

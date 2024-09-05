@@ -17,6 +17,12 @@
 
 const dbEnum = require('../../../../../../src-shared/db-enum');
 
+/**
+ * Get hardcoded basic type based on the given type.
+ *
+ * @param {*} type
+ * @returns string
+ */
 function asBasicType(type) {
   switch (type) {
     case 'chip::ActionId':

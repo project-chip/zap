@@ -14,6 +14,11 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
+/**
+ * @module JS API: Studio utilities
+ */
+
 const path = require('path')
 
 /**

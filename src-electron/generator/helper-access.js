@@ -15,16 +15,23 @@
  *    limitations under the License.
  */
 
-const queryAccess = require('../db/query-access')
-const templateUtil = require('./template-util')
-const dbEnum = require('../../src-shared/db-enum')
-
 /**
  * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
  *
  * @module Templating API: Access helpers
  */
 
+const queryAccess = require('../db/query-access')
+const templateUtil = require('./template-util')
+const dbEnum = require('../../src-shared/db-enum')
+
+/**
+ * Collects the default access list
+ *
+ * @param {*} ctx
+ * @param {*} entityType
+ * @returns Promise of default access
+ */
 async function collectDefaultAccessList(ctx, entityType) {
   let packageIds = await templateUtil.ensureZclPackageIds(ctx)
   let defaultAccess = await queryAccess.selectDefaultAccess(
@@ -35,6 +42,13 @@ async function collectDefaultAccessList(ctx, entityType) {
   return defaultAccess
 }
 
+/**
+ * Get Access List based on on given options.
+ *
+ * @param {*} ctx
+ * @param {*} options
+ * @returns Access List
+ */
 async function collectAccesslist(ctx, options) {
   let entityType = null
   let includeDefault = true
@@ -185,6 +199,12 @@ async function access(options) {
   return templateUtil.templatePromise(this.global, p)
 }
 
+/**
+ * Get the access list information.
+ *
+ * @param {*} options
+ * @returns access list
+ */
 async function default_access(options) {
   let entityType = null
 

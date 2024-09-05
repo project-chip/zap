@@ -44,6 +44,11 @@ function fillUrl(url) {
   }
 }
 
+/**
+ * Returns Success or Failure.
+ * @param {*} code
+ * @returns succes or failure
+ */
 function isHttpCodeSuccess(code) {
   return code >= 200 && code < 300
 }

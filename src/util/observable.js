@@ -26,7 +26,6 @@
  *                      if type "string", it's used as a function name and will be invoked upon the Window Object
  *                      if type "function", it's invoked as a callback.
  */
-
 export function observeAttribute(attributeName, callbackObj) {
   // HTML attribute names are not guaranteed to be case sensitive
   attributeName = attributeName.toLowerCase()

@@ -15,6 +15,12 @@
  *    limitations under the License.
  */
 
+/**
+ * This module provides IPC Client functionality.
+ *
+ * @module IPC Client API: Inter-process communication
+ */
+
 const env = require('../util/env')
 const ipcServer = require('../server/ipc-server')
 const util = require('../util/util.js')
@@ -28,6 +34,10 @@ const client = {
 
 let lastPong = ''
 
+/**
+ * Log ipc client message
+ * @param {*} msg
+ */
 function log(msg) {
   env.logIpc(`Ipc client: ${msg}`)
 }

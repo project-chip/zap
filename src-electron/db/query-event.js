@@ -20,6 +20,7 @@
  *
  * @module DB API: event queries.
  */
+
 const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
 
@@ -96,6 +97,13 @@ ORDER BY
     .then((rows) => rows.map(dbMapping.map.event))
 }
 
+/**
+ * Get all event fields for the pacckage IDs given.
+ *
+ * @param {*} db
+ * @param {*} packageIds
+ * @returns Promise of event fields
+ */
 async function selectAllEventFields(db, packageIds) {
   return dbApi
     .dbAll(
@@ -123,6 +131,13 @@ ORDER BY
     .then((rows) => rows.map(dbMapping.map.eventField))
 }
 
+/**
+ * Get all event fields for the given event ID.
+ *
+ * @param {*} db
+ * @param {*} eventId
+ * @returns Pomise of events fields
+ */
 async function selectEventFieldsByEventId(db, eventId) {
   return dbApi
     .dbAll(

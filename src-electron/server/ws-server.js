@@ -20,6 +20,7 @@
  *
  * @module JS API: websocket server
  */
+
 const ws = require('ws')
 const events = require('events')
 
@@ -109,6 +110,10 @@ function clientSocket(sessionUuid) {
   return socketToReturn
 }
 
+/**
+ * Send websocket payload with the tick category.
+ * @param {*} socket
+ */
 function sendTick(socket) {
   sendWebSocketData(socket, dbEnum.wsCategory.tick, socket.tickCounter++)
 }

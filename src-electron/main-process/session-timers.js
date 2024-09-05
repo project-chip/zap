@@ -21,6 +21,13 @@
  *
  */
 
+/**
+ * This module provides the APIs for initializing timers specifically
+ * for sessions.
+ *
+ * @module Timer API: initializes times.
+ */
+
 let ASYNC_DEFAULT_TIMER_INTERVAL_MS = 6000
 
 let sessionTimerIdArrayMap = {}

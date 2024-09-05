@@ -15,13 +15,13 @@
  *    limitations under the License.
  */
 
-const rendApi = require('../../src-shared/rend-api.js')
-const uiUtil = require('./ui-util')
-const env = require('../util/env')
-
 /**
  * @module JS API: renderer API related utilities
  */
+
+const rendApi = require('../../src-shared/rend-api.js')
+const uiUtil = require('./ui-util')
+const env = require('../util/env')
 
 /**
  * This method returns the global session UUID from the browser window that is set by the front-end.
@@ -65,7 +65,6 @@ Functions:`
  * @param {*} rendererApiCommand
  * @param  {...any} theArgs
  */
-
 async function execRendererApi(browserWindow, rendererApiCommand, ...theArgs) {
   const info = await browserWindow?.webContents.executeJavaScript(
     `window.${rendApi.GLOBAL_SYMBOL_INFO}`

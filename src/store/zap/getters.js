@@ -15,6 +15,11 @@
  *    limitations under the License.
  */
 
+/**
+ * Returns the state.
+ * @param {*} state
+ * @returns state
+ */
 export function getFullState(state) {
   return state
 }

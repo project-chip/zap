@@ -26,6 +26,9 @@ if (!unifySdkPath) {
   throw Error('Missing Argument. Usage: unify-regen.js <unify_sdk_path>')
 }
 
+/**
+ * Regenerates all zap generated files for the Unify gsdk.
+ */
 async function generateZapFiles() {
   try {
     // get the Zcl file

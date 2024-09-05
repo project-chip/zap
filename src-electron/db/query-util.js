@@ -21,8 +21,16 @@
  *
  * @module DB API: zcl database access
  */
+
 const dbApi = require('./db-api')
 
+/**
+ * Formulate a sqlite query string for a data type from the given cluster ID and package IDs.
+ * @param {*} typeDiscriminator
+ * @param {*} clusterId
+ * @param {*} packageIds
+ * @returns SQLite query string
+ */
 function sqlQueryForDataTypeByNameAndClusterId(
   typeDiscriminator,
   clusterId = null,

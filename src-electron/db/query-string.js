@@ -16,7 +16,9 @@
  */
 
 /**
- * This module provides queries for strings
+ * This module provides queries for strings.
+ *
+ * @module DB API: zcl database strings access
  */
 
 const dbApi = require('./db-api')

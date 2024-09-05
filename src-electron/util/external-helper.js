@@ -14,6 +14,13 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  */
+
+/**
+ * External helper utilities for ZAP
+ *
+ * @module External API: External API utilities
+ */
+
 const path = require('path')
 const helperRegister = require('./external-helper-register.js')
 const nativeRequire = require('./native-require.js')

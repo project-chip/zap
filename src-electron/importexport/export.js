@@ -19,6 +19,14 @@
  * This file provides the functionality that reads the ZAP data from a database
  * and exports it into a file.
  */
+
+/**
+ * This module provides the functionality that reads the ZAP data from a database
+ * and exports it into a file.
+ *
+ * @module Export API: Exports Data into a file.
+ */
+
 const os = require('os')
 const fs = require('fs')
 const fsp = fs.promises
@@ -29,6 +37,13 @@ const queryImpExp = require('../db/query-impexp.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const ff = require('./file-format')
 
+/**
+ * Export endpoint type information.
+ *
+ * @param {*} db
+ * @param {*} endpointType
+ * @returns Promise of an export of endpoint type and its entities
+ */
 async function exportEndpointType(db, endpointType) {
   let data = await queryImpExp.exportClustersFromEndpointType(
     db,
@@ -193,6 +208,14 @@ async function exportDataIntoFile(
   return filePath
 }
 
+/**
+ * Get session key values.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} excludedKeys
+ * @returns session key values
+ */
 async function getSessionKeyValues(db, sessionId, excludedKeys) {
   let keyValues = await querySession.getAllSessionKeyValues(db, sessionId)
 

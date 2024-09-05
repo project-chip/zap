@@ -5,10 +5,13 @@ echo "🚀   > Pretty quick reformat..."
 npx pretty-quick --staged
 
 echo "🚀   > JSdoc regen..."
-npx jsdoc src-electron src-shared -r -d ./generated-html/
+node src-script/generate-all-api-docs.js
+node src-script/generate-template-helper-docs.js
+git add docs/api.md
+git add docs/helpers.md
 
 echo "🚀   > Eslint..."
-npx eslint --ext .js,.vue src src-electron src-shared src-script test
+npx eslint .
 
 echo "🚀   > Reset version in package.json to 0.0.0..."
 src-script/zap-update-package-version.js -fake

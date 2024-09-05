@@ -15,6 +15,12 @@
  *    limitations under the License.
  */
 
+/**
+ * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
+ *
+ * @module Templating API: Command helpers
+ */
+
 const queryCommand = require('../db/query-command.js')
 const templateUtil = require('./template-util.js')
 const types = require('../util/types.js')

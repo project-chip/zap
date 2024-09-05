@@ -15,6 +15,12 @@
  *    limitations under the License.
  */
 
+/**
+ * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
+ *
+ * @module Templating API: C formatting helpers
+ */
+
 const queryZcl = require('../db/query-zcl.js')
 const queryPackage = require('../db/query-package.js')
 const templateUtil = require('./template-util.js')
@@ -24,12 +30,6 @@ const string = require('../util/string')
 const _ = require('lodash')
 const dbEnum = require('../../src-shared/db-enum.js')
 const envConfig = require('../util/env')
-
-/**
- * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
- *
- * @module Templating API: C formatting helpers
- */
 
 /**
  * Given a hex number, it prints the offset, which is the index of the first non-zero bit.
@@ -195,8 +195,13 @@ function asSymbol(value) {
   return value
 }
 
-// Formats the default value into an attribute of a given length
-function formatValue(value, length, type) {
+/**
+ * Formats the default value into an attribute of a given length
+ * @param {*} value
+ * @param {*} length
+ * @returns Formatted value
+ */
+function formatValue(value, length) {
   let out = ''
   if (length < 0) {
     out = out.concat(value.length)
@@ -251,7 +256,7 @@ async function asBytes(value, type) {
             return bin.hexToCBytes(bin.stringToHex(value))
           }
         } else {
-          return formatValue(value, x, type)
+          return formatValue(value, x)
         }
       })
   }

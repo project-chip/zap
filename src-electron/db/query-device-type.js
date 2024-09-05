@@ -20,6 +20,7 @@
  *
  * @module DB API: device type database access
  */
+
 const dbApi = require('./db-api')
 const dbMapping = require('./db-mapping')
 
@@ -95,6 +96,13 @@ async function selectDeviceTypeByCode(db, packageId, code) {
     .then(dbMapping.map.deviceType)
 }
 
+/**
+ * Get all device type clusters from a given device type ID.
+ *
+ * @param {*} db
+ * @param {*} deviceTypeRef
+ * @returns Promise of device type clusters
+ */
 async function selectDeviceTypeClustersByDeviceTypeRef(db, deviceTypeRef) {
   let rows = await dbApi.dbAll(
     db,
@@ -118,6 +126,13 @@ async function selectDeviceTypeClustersByDeviceTypeRef(db, deviceTypeRef) {
   return rows.map(dbMapping.map.deviceTypeCluster)
 }
 
+/**
+ * Get device type cluster details from the device type cluster ID.
+ *
+ * @param {*} db
+ * @param {*} deviceTypeClusterId
+ * @returns Promise of device type cluster
+ */
 async function selectDeviceTypeClusterByDeviceTypeClusterId(
   db,
   deviceTypeClusterId
@@ -143,6 +158,13 @@ async function selectDeviceTypeClusterByDeviceTypeClusterId(
   return dbMapping.map.deviceTypeCluster(row)
 }
 
+/**
+ * Get all device type commands from a given device type ID.
+ *
+ * @param {*} db
+ * @param {*} deviceTypeRef
+ * @returns Promise of device type attributes
+ */
 async function selectDeviceTypeAttributesByDeviceTypeRef(db, deviceTypeRef) {
   let rows = await dbApi.dbAll(
     db,
@@ -171,6 +193,13 @@ async function selectDeviceTypeAttributesByDeviceTypeRef(db, deviceTypeRef) {
   return rows.map(dbMapping.map.deviceTypeAttribute)
 }
 
+/**
+ * Get all device type commands from a given device type ID.
+ *
+ * @param {*} db
+ * @param {*} deviceTypeRef
+ * @returns Promise of device type commands
+ */
 async function selectDeviceTypeCommandsByDeviceTypeRef(db, deviceTypeRef) {
   let rows = await dbApi.dbAll(
     db,

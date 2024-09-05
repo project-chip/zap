@@ -18,6 +18,8 @@
 /**
  * This module provides API to access various iterator utilities that can then
  * be used to build iterator helpers.
+ *
+ * @module JS API: Iterator utilities
  */
 
 const templateUtil = require('../generator/template-util.js')

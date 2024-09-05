@@ -20,6 +20,7 @@
  *
  * @module REST API: user data
  */
+
 const env = require('../util/env')
 const queryZcl = require('../db/query-zcl.js')
 const queryAttribute = require('../db/query-attribute.js')
@@ -680,6 +681,15 @@ function httpPostShareClusterStatesAcrossEndpoints(db) {
   }
 }
 
+/**
+ * Get shared command defaults across endpoints.
+ *
+ * @param {*} db
+ * @param {*} endpointTypeIdList
+ * @param {*} sharedClusterList
+ * @param {*} packageIds
+ * @returns sharedCmdDefaults
+ */
 async function commandDefaults(
   db,
   endpointTypeIdList,
@@ -734,6 +744,12 @@ async function commandDefaults(
   return sharedCmdDefaults
 }
 
+/**
+ * Insert command defaults into the database.
+ *
+ * @param {*} db
+ * @param {*} defaults
+ */
 async function writeCommandDefaults(db, defaults) {
   let promises = []
   for (const [endpointTypeId, commandList] of Object.entries(defaults)) {
@@ -766,6 +782,15 @@ async function writeCommandDefaults(db, defaults) {
   await Promise.all(promises)
 }
 
+/**
+ * Shared attribute defaults across endpoints.
+ *
+ * @param {*} db
+ * @param {*} endpointTypeIdList
+ * @param {*} sharedClusterList
+ * @param {*} packageIds
+ * @returns sharedAttributeDefaults
+ */
 async function attributeDefaults(
   db,
   endpointTypeIdList,
@@ -826,6 +851,12 @@ async function attributeDefaults(
   return sharedAttributeDefaults
 }
 
+/**
+ * Write attribute defaults.
+ *
+ * @param {*} db
+ * @param {*} defaults
+ */
 async function writeAttributeDefaults(db, defaults) {
   let promises = []
   for (const [endpointTypeId, attributeList] of Object.entries(defaults)) {
@@ -871,6 +902,13 @@ async function writeAttributeDefaults(db, defaults) {
   await Promise.all(promises)
 }
 
+/**
+ * Compares 2 commands for equality.
+ *
+ * @param {*} a
+ * @param {*} b
+ * @returns boolean
+ */
 function commandEquals(a, b) {
   return (
     a.id === b.id &&
@@ -881,6 +919,13 @@ function commandEquals(a, b) {
   )
 }
 
+/**
+ * Compares 2 attributes for equality.
+ *
+ * @param {*} a
+ * @param {*} b
+ * @returns boolean
+ */
 function attributeEquals(a, b) {
   return (
     a.id === b.id &&
@@ -893,6 +938,12 @@ function attributeEquals(a, b) {
   )
 }
 
+/**
+ * Delete the session package.
+ *
+ * @param {*} db
+ * @returns HTTP Response for delete operation
+ */
 function httpDeleteSessionPackage(db) {
   return async (request, response) => {
     let { sessionRef, packageRef } = request.query

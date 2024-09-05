@@ -20,6 +20,7 @@
  *
  * @module DB API: DB types and enums.
  */
+
 exports.packageType = {
   zclProperties: 'zcl-properties',
   zclXml: 'zcl-xml-child',

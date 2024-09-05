@@ -20,6 +20,7 @@
  *
  * @module DB API: user configuration queries against the database.
  */
+
 const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
 const queryPackage = require('./query-package.js')
@@ -165,7 +166,7 @@ async function insertClusterDefaults(db, endpointTypeId, packageId, cluster) {
 
 /**
  * Promise to update the attribute state.
- * If the attribute entry [as defined uniquely by endpointTypeId and id], is not there, then create a default entry
+ * If an attribute entry [as defined uniquely by endpointTypeId and id], is not there, then create a default entry
  * Afterwards, update entry.
  * @param {*} db
  * @param {*} endpointTypeId
@@ -322,6 +323,14 @@ WHERE
   }
 }
 
+/**
+ * Updates the endpoint type attribute table.
+ *
+ * @param {*} db
+ * @param {*} id
+ * @param {*} keyValuePairs
+ * @returns Promise of an endpoint type atribute table update.
+ */
 async function updateEndpointTypeAttribute(db, id, keyValuePairs) {
   if (keyValuePairs == null || keyValuePairs.length == 0) return
 
@@ -341,6 +350,11 @@ WHERE ENDPOINT_TYPE_ATTRIBUTE_ID = ?`
   return dbApi.dbUpdate(db, query, args)
 }
 
+/**
+ * Based on the given key returns a database table column name.
+ * @param {*} key
+ * @returns Database table Column as String
+ */
 function convertRestKeyToDbColumn(key) {
   switch (key) {
     case restApi.updateKey.endpointId:
@@ -385,6 +399,13 @@ function convertRestKeyToDbColumn(key) {
   throw new Error(`Invalid rest update key: ${key}`)
 }
 
+/**
+ * Create a Database column name and value string which can be used in database
+ * queries.
+ *
+ * @param {*} paramValuePairArray
+ * @returns string
+ */
 function getAllParamValuePairArrayClauses(paramValuePairArray) {
   return paramValuePairArray.reduce((currentString, paramValuePair, index) => {
     if (index > 0) currentString += ','
@@ -412,7 +433,7 @@ function getAllParamValuePairArrayClauses(paramValuePairArray) {
 
 /**
  * Promise to update the command state.
- * If the attribute entry [as defined uniquely by endpointTypeId and id], is not there, then create a default entry
+ * If the command entry [as defined uniquely by endpointTypeId and id], is not there, then create a default entry
  * Afterwards, update entry.
  *
  * @param {*} db
@@ -480,7 +501,7 @@ WHERE ENDPOINT_TYPE_CLUSTER_REF = ?
 
 /**
  * Promise to update the event state.
- * If the attribute entry [as defined uniquely by endpointTypeId and id], is not there, then create a default entry
+ * If an event entry [as defined uniquely by endpointTypeId and id], is not there, then create a default entry
  * Afterwards, update entry.
  *
  * @param {*} db
@@ -1066,6 +1087,14 @@ async function resolveDefaultDeviceTypeAttributes(
   return Promise.all(promises)
 }
 
+/**
+ * Initialize the command values within an endpoint type Id based on device type.
+ *
+ * @param {*} db
+ * @param {*} endpointTypeId
+ * @param {*} deviceCommand
+ * @returns An array of promises which update command state.
+ */
 async function resolveCommandState(db, endpointTypeId, deviceCommand) {
   let deviceTypeCluster =
     await queryDeviceType.selectDeviceTypeClusterByDeviceTypeClusterId(
@@ -1132,6 +1161,14 @@ async function resolveDefaultDeviceTypeCommands(
   )
 }
 
+/**
+ * Resolve non optional commands for given parameters.
+ * @param {*} db
+ * @param {*} endpointTypeId
+ * @param {*} clusters
+ * @param {*} packageIds
+ * @returns Promise of clusters with commands resolved
+ */
 async function resolveNonOptionalCommands(
   db,
   endpointTypeId,
@@ -1169,6 +1206,14 @@ async function resolveNonOptionalCommands(
   return Promise.all(clustersPromises)
 }
 
+/**
+ * Resolve attribute defaults for endpoint type clusters.
+ * @param {*} db
+ * @param {*} endpointTypeId
+ * @param {*} packageId
+ * @param {*} endpointClusters
+ * @returns Array of promises for endpointClusters with attributes
+ */
 async function resolveDefaultAttributes(
   db,
   endpointTypeId,
@@ -1199,6 +1244,14 @@ async function resolveDefaultAttributes(
   return Promise.all(endpointClustersPromises)
 }
 
+/**
+ * Get Non optional and reportable attributes foor the given arguments.
+ * @param {*} db
+ * @param {*} endpointTypeId
+ * @param {*} attributes
+ * @param {*} cluster
+ * @returns Promise of Attributes
+ */
 async function resolveNonOptionalAndReportableAttributes(
   db,
   endpointTypeId,
@@ -1315,7 +1368,6 @@ WHERE SESSION_PARTITION.SESSION_REF = ?
  * @param {*} clusterRef
  * @param {*} side
  */
-
 async function insertOrSelectDefaultEndpointTypeCluster(
   db,
   endpointTypeId,

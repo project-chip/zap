@@ -20,6 +20,7 @@
  *
  * @module DB API: command queries.
  */
+
 const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
 
@@ -827,6 +828,15 @@ ORDER BY CLUSTER.NAME, COMMAND.NAME`
     .then((rows) => rows.map(mapFunction))
 }
 
+/**
+ * Get command by command code and given package ID.
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} clusterCode
+ * @param {*} commandCode
+ * @param {*} mfgCode
+ * @returns Promise of command.
+ */
 async function selectCommandByCode(
   db,
   packageId,
@@ -847,6 +857,15 @@ async function selectCommandByCode(
   }
 }
 
+/**
+ * Get command that is not a global command by command code and package ID.
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} clusterCode
+ * @param {*} commandCode
+ * @param {*} mfgCode
+ * @returns Promise of command.
+ */
 async function selectNonGlobalCommandByCode(
   db,
   packageId,
@@ -888,6 +907,14 @@ async function selectNonGlobalCommandByCode(
   return dbApi.dbGet(db, query, args).then(dbMapping.map.command)
 }
 
+/**
+ * Get global command by command code and package ID.
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} commandCode
+ * @param {*} mfgCode
+ * @returns Promise of command
+ */
 async function selectGlobalCommandByCode(
   db,
   packageId,
@@ -926,6 +953,12 @@ async function selectGlobalCommandByCode(
   return dbApi.dbGet(db, query, args).then(dbMapping.map.command)
 }
 
+/**
+ * Get command by command ID.
+ * @param {*} db
+ * @param {*} id
+ * @returns Promise of command
+ */
 async function selectCommandById(db, id) {
   return dbApi
     .dbGet(
@@ -996,6 +1029,12 @@ ORDER BY CODE`,
     .then((rows) => rows.map(dbMapping.map.command))
 }
 
+/**
+ * Get all commands which have command arguments from the given package ID.
+ * @param {*} db
+ * @param {*} packageId
+ * @returns Promise of commands
+ */
 async function selectAllCommandsWithArguments(db, packageId) {
   let mapFunction = (x) => {
     return {
@@ -1185,6 +1224,12 @@ ORDER BY CLUSTER.CODE, COMMAND.CODE`
     .then((rows) => rows.map(dbMapping.map.command))
 }
 
+/**
+ * Get all commands from the given package IDs
+ * @param {*} db
+ * @param {*} packageIds
+ * @returns Promise of commands
+ */
 async function selectAllCommands(db, packageIds) {
   return dbApi
     .dbAll(
@@ -1219,6 +1264,13 @@ ORDER BY COMMAND.CODE, COMMAND.NAME`
     .then((rows) => rows.map(dbMapping.map.command))
 }
 
+/**
+ * Get all commands by source(client/server) from the given package IDs.
+ * @param {*} db
+ * @param {*} source
+ * @param {*} packageIds
+ * @returns Promise of commands
+ */
 async function selectAllCommandsBySource(db, source, packageIds) {
   return dbApi
     .dbAll(
@@ -1291,6 +1343,12 @@ ORDER BY CODE`,
     .then((rows) => rows.map(dbMapping.map.command))
 }
 
+/**
+ * Get all global commands from given package IDs.
+ * @param {*} db
+ * @param {*} packageIds
+ * @returns Promise of global commands
+ */
 async function selectAllGlobalCommands(db, packageIds) {
   return dbApi
     .dbAll(
@@ -1328,6 +1386,12 @@ ORDER BY
     .then((rows) => rows.map(dbMapping.map.command))
 }
 
+/**
+ * Get all commands from the given package ID.
+ * @param {*} db
+ * @param {*} packageId
+ * @returns Promise of Commands
+ */
 async function selectAllClusterCommands(db, packageId) {
   return dbApi
     .dbAll(
@@ -1358,6 +1422,12 @@ ORDER BY
     .then((rows) => rows.map(dbMapping.map.command))
 }
 
+/**
+ * Get all command arguments from the given package IDs.
+ * @param {*} db
+ * @param {*} packageIds
+ * @returns Promise of command arguments
+ */
 async function selectAllCommandArguments(db, packageIds) {
   return dbApi
     .dbAll(
@@ -1538,6 +1608,11 @@ WHERE
   )
 }
 
+/**
+ * An exception for the command map in db-mapping.js
+ * @param {*} x
+ * @returns Command map
+ */
 function commandMapFunction(x) {
   return {
     id: x.COMMAND_ID,

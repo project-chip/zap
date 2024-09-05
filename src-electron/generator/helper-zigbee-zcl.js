@@ -15,6 +15,12 @@
  *    limitations under the License.
  */
 
+/**
+ * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
+ *
+ * @module Templating API: Zigbee Specific helpers
+ */
+
 const queryZcl = require('../db/query-zcl')
 const dbEnum = require('../../src-shared/db-enum')
 const templateUtil = require('./template-util')

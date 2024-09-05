@@ -15,6 +15,11 @@
  *    limitations under the License.
  */
 
+/**
+ * Get meta stamp string.
+ *
+ * @returns string
+ */
 async function meta_stamp() {
   return 'Meta stamp.'
 }

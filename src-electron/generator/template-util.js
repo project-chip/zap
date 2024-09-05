@@ -15,16 +15,16 @@
  *    limitations under the License.
  */
 
+/**
+ * @module JS API: generator logic
+ */
+
 const queryPackage = require('../db/query-package.js')
 const queryEndpointType = require('../db/query-endpoint-type.js')
 const queryDeviceType = require('../db/query-device-type.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const env = require('../util/env')
 const _ = require('lodash')
-
-/**
- * @module JS API: generator logic
- */
 
 /**
  * All promises used by the templates should be synchronizable.

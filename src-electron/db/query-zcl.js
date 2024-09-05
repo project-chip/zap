@@ -20,6 +20,7 @@
  *
  * @module DB API: zcl database access
  */
+
 const dbApi = require('./db-api')
 const dbMapping = require('./db-mapping')
 const queryAtomic = require('./query-atomic')
@@ -67,6 +68,12 @@ ORDER BY DT.NAME`,
     .then((rows) => rows.map(dbMapping.map.bitmap))
 }
 
+/**
+ * Get bitmap fields from the given bitmap ID.
+ * @param {*} db
+ * @param {*} id
+ * @returns Promise of bitmap fields
+ */
 async function selectAllBitmapFieldsById(db, id) {
   return dbApi
     .dbAll(
@@ -77,6 +84,13 @@ async function selectAllBitmapFieldsById(db, id) {
     .then((rows) => rows.map(dbMapping.map.bitmapField))
 }
 
+/**
+ * Get all bitmap fields from the given package ID.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @returns Promise of bitmap fields
+ */
 async function selectAllBitmapFields(db, packageId) {
   return dbApi
     .dbAll(
@@ -104,6 +118,12 @@ async function selectAllDomains(db, packageId) {
     .then((rows) => rows.map(dbMapping.map.domain))
 }
 
+/**
+ * Get Domain details from the given domain ID.
+ * @param {*} db
+ * @param {*} id
+ * @returns Promise of domain
+ */
 async function selectDomainById(db, id) {
   return dbApi
     .dbGet(db, 'SELECT DOMAIN_ID, NAME FROM DOMAIN WHERE DOMAIN_ID = ?', [id])
@@ -293,6 +313,14 @@ async function selectAllStructsWithItems(db, packageIds) {
   return selectStructsWithItemsImpl(db, packageIds, null)
 }
 
+/**
+ * Get Struct details along with its struct items.
+ *
+ * @param {*} db
+ * @param {*} packageIds
+ * @param {*} clusterId
+ * @returns struct details
+ */
 async function selectStructsWithItemsImpl(db, packageIds, clusterId) {
   let query
   let args = []
@@ -407,6 +435,12 @@ async function selectStructsWithItemsImpl(db, packageIds, clusterId) {
   }, [])
 }
 
+/**
+ * Get struct item details from the given struct item ID.
+ * @param {*} db
+ * @param {*} id
+ * @returns Promise of Stuct Items
+ */
 async function selectAllStructItemsById(db, id) {
   return dbApi
     .dbAll(
@@ -690,6 +724,15 @@ ORDER BY CODE`,
     .then((rows) => rows.map(dbMapping.map.attribute))
 }
 
+/**
+ * Get attribute details from the given information.
+ *
+ * @param {*} db
+ * @param {*} clusterId
+ * @param {*} packageIds
+ * @param {*} side
+ * @returns Promise of attribute details
+ */
 async function selectAttributesByClusterIdAndSideIncludingGlobal(
   db,
   clusterId,
@@ -808,6 +851,13 @@ WHERE C.CODE = ?
     .then((rows) => rows.map(dbMapping.map.attribute))
 }
 
+/**
+ * Get attribute details from the given attribute ID.
+ *
+ * @param {*} db
+ * @param {*} id
+ * @returns Promise of attribute
+ */
 async function selectAttributeById(db, id) {
   return dbApi
     .dbGet(
@@ -917,6 +967,13 @@ WHERE ATTRIBUTE_ID = ?`,
     .then(dbMapping.map.attribute)
 }
 
+/**
+ * Get all attributes from the given package IDs.
+ *
+ * @param {*} db
+ * @param {*} packageIds
+ * @returns Promise of attributes
+ */
 async function selectAllAttributes(db, packageIds) {
   return dbApi
     .dbAll(
@@ -1017,6 +1074,13 @@ ORDER BY CODE`,
   return rows.map(dbMapping.map.attribute)
 }
 
+/**
+ * Get the endpoint type cluster details from the given endpoint type ID.
+ *
+ * @param {*} db
+ * @param {*} endpointTypeId
+ * @returns Promise of endpoint type clusters.
+ */
 async function selectEndpointTypeClustersByEndpointTypeId(db, endpointTypeId) {
   let rows = await dbApi.dbAll(
     db,
@@ -1038,6 +1102,13 @@ ORDER BY
   return rows.map(dbMapping.map.endpointTypeCluster)
 }
 
+/**
+ * Get the endpoint type attribute details from the given endpoint type ID.
+ *
+ * @param {*} db
+ * @param {*} endpointTypeId
+ * @returns Promise of endpoint type attributes.
+ */
 async function selectEndpointTypeAttributesByEndpointId(db, endpointTypeId) {
   let rows = await dbApi.dbAll(
     db,
@@ -1067,6 +1138,15 @@ ORDER BY ATTRIBUTE_REF`,
   return rows.map(dbMapping.map.endpointTypeAttribute)
 }
 
+/**
+ * Get the endpoint type attribute details from the given details.
+ *
+ * @param {*} db
+ * @param {*} endpointTypeId
+ * @param {*} attributeRef
+ * @param {*} clusterRef
+ * @returns Promise of endpoint type attribute.
+ */
 async function selectEndpointTypeAttribute(
   db,
   endpointTypeId,
@@ -1102,6 +1182,13 @@ WHERE
   return dbMapping.map.endpointTypeAttribute(row)
 }
 
+/**
+ * Get the endpoint type command details from the given endpoint type ID.
+ *
+ * @param {*} db
+ * @param {*} endpointTypeId
+ * @returns Promise of endpoint type commands
+ */
 async function selectEndpointTypeCommandsByEndpointId(db, endpointTypeId) {
   let rows = await dbApi.dbAll(
     db,
@@ -1142,6 +1229,13 @@ ORDER BY
   return rows.map(dbMapping.map.endpointTypeCommand)
 }
 
+/**
+ * Get endpoint type events from the given endpoint type ID.
+ *
+ * @param {*} db
+ * @param {*} endpointTypeId
+ * @returns Promise of endpoint type events
+ */
 async function selectEndpointTypeEventsByEndpointId(db, endpointTypeId) {
   let rows = await dbApi.dbAll(
     db,

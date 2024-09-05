@@ -15,6 +15,12 @@
  *    limitations under the License.
  */
 
+/**
+ *  Tray for ZAP UI
+ *
+ * @module JS API: Tray for ZAP UI
+ */
+
 const { Menu, Tray, nativeImage, app } = require('electron')
 const path = require('path')
 const fs = require('fs')
@@ -23,6 +29,12 @@ const uiUtil = require('./ui-util')
 
 let tray
 
+/**
+ * Initialize tray.
+ *
+ * @param {*} port
+ * @returns none
+ */
 function initTray(port) {
   let trayIconPath = path.join(env.iconsDirectory(), 'zap_32x32.png')
   let dockIconPath = path.join(env.iconsDirectory(), 'zap_128x128.png')

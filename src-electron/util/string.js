@@ -45,6 +45,12 @@ function toCamelCase(label, firstLower = true) {
   return res
 }
 
+/**
+ * Get spaced out lower case string from the given string.
+ *
+ * @param {*} str
+ * @returns spaced out lower case string
+ */
 function toSpacedLowercase(str) {
   let res = str
     .replace(/[+()&]/g, '')
@@ -92,6 +98,12 @@ function toSnakeCaseAllCaps(label) {
   return toCleanMacro(ret)
 }
 
+/**
+ * Get snake case string from the given string.
+ *
+ * @param {*} str
+ * @returns snake case string
+ */
 function toSnakeCase(str) {
   return toSnakeCaseAllCaps(str).toLowerCase()
 }
@@ -141,11 +153,11 @@ function toCleanMacro(label) {
   return l
 }
 
+// @ts-ignore TypeScript doesn't have character type
 /**
  * Returns true if given character is a digit.
  * @param {*} ch
  */
-// @ts-ignore TypeScript doesn't have character type
 function isDigit(ch) {
   return ch >= '0' && ch <= '9'
 }

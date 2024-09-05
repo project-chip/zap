@@ -355,6 +355,14 @@ async function ensurePackagesAndPopulateSessionOptions(
   return packages
 }
 
+/**
+ * Insert session package options.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} packages
+ * @returns Promise array on inserting session package options
+ */
 async function populateSessionPackageOptions(db, sessionId, packages) {
   let p = packages.map((pkg) =>
     queryPackage
@@ -812,6 +820,11 @@ function mainOrSecondaryInstance(
   }
 }
 
+/**
+ * Disable test.
+ *
+ * @param {*} testName
+ */
 function disable(testName) {
   const index = this.indexOf(testName)
   if (index == -1) {

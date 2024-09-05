@@ -15,9 +15,20 @@
  *    limitations under the License.
  */
 
+/**
+ * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
+ *
+ * @module Templating API: Attribute helpers
+ */
+
 const queryAttribute = require('../db/query-attribute')
 const templateUtil = require('./template-util')
 
+/**
+ * Get feature bits from the given context.
+ * @param {*} options
+ * @returns feature bits
+ */
 async function featureBits(options) {
   if ('featureBits' in this) {
     let p = templateUtil.collectBlocks(this.featureBits, options, this)

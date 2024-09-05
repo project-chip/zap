@@ -15,6 +15,12 @@
  *    limitations under the License.
  */
 
+/**
+ * This module contains the API for templating. For more detailed instructions, read {@tutorial template-tutorial}
+ *
+ * @module Templating API: SDK extension helpers
+ */
+
 const dbEnum = require('../../src-shared/db-enum.js')
 const templateUtil = require('./template-util.js')
 const util = require('../util/util.js')
@@ -24,7 +30,6 @@ const util = require('../util/util.js')
  *
  * @module Templating API: C formatting helpers
  */
-
 async function clusterExtension(context, prop, clusterCode, role) {
   return templateUtil
     .ensureTemplatePackageId(context)
@@ -122,6 +127,14 @@ async function attribute_type_extension(options) {
   }
 }
 
+/**
+ * Get extension values for the given information.
+ *
+ * @param {*} context
+ * @param {*} prop
+ * @param {*} entityType
+ * @returns extension default value
+ */
 async function subentityExtension(context, prop, entityType) {
   if (prop == null) return ''
 
@@ -186,6 +199,12 @@ async function subentityExtension(context, prop, entityType) {
   return val
 }
 
+/**
+ * If helper for command extensions(true condition).
+ *
+ * @param {*} options
+ * @returns content like an if handlebar helper
+ */
 function if_command_extension_true(options) {
   let prop = options.hash.property
   if (prop == '') return ''
@@ -203,6 +222,12 @@ function if_command_extension_true(options) {
   })
 }
 
+/**
+ * If helper for command extensions(false condition).
+ *
+ * @param {*} options
+ * @returns content like an if handlebar helper
+ */
 function if_command_extension_false(options) {
   let prop = options.hash.property
   if (prop == '') return ''
@@ -220,6 +245,12 @@ function if_command_extension_false(options) {
   })
 }
 
+/**
+ * If helper for cluster extensions(true condition).
+ *
+ * @param {*} options
+ * @returns content like an if handlebar helper
+ */
 function if_cluster_extension_true(options) {
   let prop = options.hash.property
   let code = options.hash.code
@@ -235,6 +266,12 @@ function if_cluster_extension_true(options) {
   })
 }
 
+/**
+ * If helper for cluster extensions(false condition).
+ *
+ * @param {*} options
+ * @returns content like an if handlebar helper
+ */
 function if_cluster_extension_false(options) {
   let prop = options.hash.property
   let code = options.hash.code

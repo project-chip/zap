@@ -15,6 +15,12 @@
  *    limitations under the License.
  */
 
+/**
+ * This module provides Renderer API Exports.
+ *
+ * @module Renderer API: Renderer API.
+ */
+
 exports.renderer_api = {
   featureLevel: 1,
   prefix: 'zap',

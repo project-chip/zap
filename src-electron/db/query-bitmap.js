@@ -20,6 +20,7 @@
  *
  * @module DB API: zcl database access
  */
+
 const dbApi = require('./db-api')
 const dbCache = require('./db-cache')
 const dbMapping = require('./db-mapping')
@@ -51,6 +52,13 @@ WHERE PACKAGE_REF = ? ORDER BY NAME`,
   return rows.map(dbMapping.map.bitmap)
 }
 
+/**
+ * Get bitmap by name from the given package IDs.
+ * @param {*} db
+ * @param {*} packageIds
+ * @param {*} name
+ * @returns promise of bitmap
+ */
 async function selectBitmapByName(db, packageIds, name) {
   return dbApi
     .dbGet(
@@ -104,6 +112,12 @@ async function selectBitmapByNameAndClusterId(db, name, clusterId, packageIds) {
   }
 }
 
+/**
+ * Get Bitmap information by Bitmap ID.
+ * @param {*} db
+ * @param {*} id
+ * @returns Promise of bitmap
+ */
 async function selectBitmapById(db, id) {
   return dbApi
     .dbGet(
