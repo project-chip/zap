@@ -82,6 +82,6 @@ npm run build
 
 ### 4. Other
 
-Check if node version is v18, and try to install it with Chocolatey
+Check if node version is v20, and try to install it with Chocolatey
 
 Also, you can check the faq doc for other known issues: https://github.com/project-chip/zap/blob/master/docs/faq.md

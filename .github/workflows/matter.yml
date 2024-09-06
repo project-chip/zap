@@ -24,7 +24,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x]
+        node-version: [20.x]
         os: [ubuntu-22.04]
 
     steps:
@@ -67,7 +67,7 @@ jobs:
       - name: Install Node.js, NPM and Yarn
         uses: actions/setup-node@v3.0.0
         with:
-          node-version: 18.x
+          node-version: 20.x
           cache: 'npm'
 
       - name: Prepare Linux build environment
@@ -188,7 +188,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        node-version: [18.x]
+        node-version: [20.x]
 
     # CHIP container required because clang-format version needs to match
     container:

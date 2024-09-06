@@ -556,7 +556,7 @@ export function isMatchingVersion(versionsArray, providedVersion) {
  * @returns true or false, depending on match
  */
 export function versionsCheck() {
-  let expectedNodeVersion = ['v14.x.x', 'v16.x.x', 'v18.x.x']
+  let expectedNodeVersion = ['v14.x.x', 'v16.x.x', 'v18.x.x', 'v20.x.x']
   let expectedElectronVersion = [
     '17.4.x',
     '18.x.x',
