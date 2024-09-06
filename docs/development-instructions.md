@@ -2,7 +2,7 @@
 
 This section lists instructions for various things you might need to do in this repo.
 
-This is a node.js application, so you need node environment installed. The best way is to simply download latest install of [node](https://nodejs.org/en/download/) and you will get node and npm. If you have an older version of node installed on your workstation, it may give you trouble, particularly if it's very old. So make sure you have latest node v16.x or v18.x version, with the npm that comes with it available. Run `node --version` to check what version is picked up. v20.x is recommended.
+This is a node.js application, so you need node environment installed. The best way is to simply download latest install of [node](https://nodejs.org/en/download/) and you will get node and npm. If you have an older version of node installed on your workstation, it may give you trouble, particularly if it's very old. So make sure you have latest node v16.x, v18.x or v20.x version, with the npm that comes with it available. Run `node --version` to check what version is picked up. v20.x is recommended.
 
 Once you have a desired version of node, you can run:
 
