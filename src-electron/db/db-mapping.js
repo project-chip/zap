@@ -451,7 +451,8 @@ exports.map = {
       code: x.CODE,
       profileId: x.PROFILE_ID,
       label: x.NAME,
-      name: x.NAME
+      name: x.NAME,
+      deviceTypeOrder: x.DEVICE_TYPE_ORDER
     }
   },
 
