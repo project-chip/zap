@@ -1126,3 +1126,13 @@ export function setDirtyState(state, isDirty) {
 export function setEnabledClusters(state, clusters) {
   state.enabledClusters = clusters
 }
+
+// This function will update the device type features after a new endpoint is selected
+export function setDeviceTypeFeatures(state, data) {
+  vue3Set(state.featureView, 'deviceTypeFeatures', data)
+}
+
+// This function will update the list of hash of enabled device type features
+export function updateEnabledDeviceTypeFeatures(state, data) {
+  vue3Set(state.featureView, 'enabledDeviceTypeFeatures', data)
+}

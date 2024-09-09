@@ -38,7 +38,7 @@ limitations under the License.
                 <q-toggle
                   :disable="props.row.conformance != 'O'"
                   class="q-mt-xs v-step-14"
-                  v-model="props.row.isEnabled"
+                  v-model="enabledDeviceTypeFeatures"
                   :val="
                     hashDeviceTypeClusterIdFeatureId(
                       props.row.deviceTypeClusterId,
@@ -47,6 +47,21 @@ limitations under the License.
                   "
                   indeterminate-value="false"
                   keep-color
+                  @update:model-value="
+                    (val) => {
+                      updateEnabledDeviceTypeFeatures(
+                        props.row.deviceTypeClusterId,
+                        props.row.featureId,
+                        val
+                      )
+                      onToggleDeviceTypeFeature(
+                        props.row.clusterId,
+                        props.row.includeClient,
+                        props.row.includeServer,
+                        props.row.bit
+                      )
+                    }
+                  "
                 />
               </q-td>
               <q-td key="deviceType" :props="props" auto-width>
@@ -90,6 +105,7 @@ limitations under the License.
 import CommonMixin from '../util/common-mixin'
 import dbEnum from '../../src-shared/db-enum'
 import * as Util from '../util/util.js'
+import restApi from '../../src-shared/rest-api.js'
 
 export default {
   name: 'ZclDeviceTypeFeatureManager',
@@ -108,14 +124,44 @@ export default {
     },
     hashDeviceTypeClusterIdFeatureId(deviceTypeClusterId, featureId) {
       return Util.cantorPair(deviceTypeClusterId, featureId)
+    },
+    updateEnabledDeviceTypeFeatures(
+      deviceTypeClusterId,
+      featureId,
+      inclusionList
+    ) {
+      let hashedVal = Util.cantorPair(deviceTypeClusterId, featureId)
+      this.$store.commit('zap/updateInclusionList', {
+        id: hashedVal,
+        added: inclusionList.includes(hashedVal),
+        listType: 'enabledDeviceTypeFeatures',
+        view: 'featureView'
+      })
+    },
+    onToggleDeviceTypeFeature(clusterId, includeClient, includeServer, bit) {
+      /* toggle a device type feature could change the featureMap attribute
+      in both client and server side clusters */
+      let side = []
+      if (includeClient) {
+        side.push('client')
+      }
+      if (includeServer) {
+        side.push('server')
+      }
+      this.$serverPatch(restApi.uri.updateBitOfFeatureMapAttribute, {
+        endpointTypeRef: this.selectedEndpointId,
+        clusterRef: clusterId,
+        side: side,
+        bit: bit
+      })
     }
   },
   computed: {
     deviceTypeFeatures() {
-      return this.$store.state.zap.deviceTypeFeatures.map((feature) => ({
-        ...feature,
-        isEnabled: feature.conformance == 'M'
-      }))
+      return this.$store.state.zap.featureView.deviceTypeFeatures
+    },
+    enabledDeviceTypeFeatures() {
+      return this.$store.state.zap.featureView.enabledDeviceTypeFeatures
     }
   },
   data() {

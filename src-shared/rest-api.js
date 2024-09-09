@@ -36,6 +36,7 @@ const uri = {
   packageNotification: '/packageNotification',
   packageNotificationById: '/packageNotificationById/:packageId',
   updateNotificationToSeen: '/updateNotificationToSeen',
+  updateBitOfFeatureMapAttribute: '/updateBitOfFeatureMapAttribute',
   deleteSessionNotification: '/deleteSessionNotification',
   deletePackageNotification: 'deletePackageNotification',
   duplicateEndpoint: '/duplicateEndpoint',

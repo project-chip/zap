@@ -49,7 +49,6 @@ export default function () {
     commands: [],
     events: [],
     zclDeviceTypes: {},
-    deviceTypeFeatures: [],
     endpoints: [],
     genericOptions: {},
     selectedGenericOptions: {},
@@ -147,6 +146,10 @@ export default function () {
     },
     eventView: {
       selectedEvents: []
+    },
+    featureView: {
+      deviceTypeFeatures: [],
+      enabledDeviceTypeFeatures: []
     },
     calledArgs: {
       defaultUiMode: restApi.uiMode.ZIGBEE

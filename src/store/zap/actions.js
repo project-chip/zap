@@ -924,19 +924,31 @@ export function setMiniState(context, data) {
 
 /**
  * This action updates the device type features after a new endpoint is selected.
+ * After that, it updates the hash of enabled device type features
  *
  * @param {*} context
  * @param {*} deviceTypeRefs
  */
-export async function updateSelectedDeviceTypeFeatures(
-  context,
-  deviceTypeRefs
-) {
+export async function setDeviceTypeFeatures(context, deviceTypeRefs) {
   let config = { params: { deviceTypeRefs: deviceTypeRefs } }
   axiosRequests
     .$serverGet(restApi.uri.deviceTypeFeatures, config)
     .then((resp) => {
-      context.commit('updateDeviceTypeFeatures', resp.data)
+      let deviceTypeFeatures = resp.data
+      context.commit('setDeviceTypeFeatures', deviceTypeFeatures)
+
+      let enabledDeviceTypeFeatures = []
+      deviceTypeFeatures.forEach((feature) => {
+        if (feature.conformance == 'M') {
+          enabledDeviceTypeFeatures.push(
+            Util.cantorPair(feature.deviceTypeClusterId, feature.featureId)
+          )
+        }
+      })
+      context.commit(
+        'updateEnabledDeviceTypeFeatures',
+        enabledDeviceTypeFeatures
+      )
     })
 }
 

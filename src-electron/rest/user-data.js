@@ -1008,6 +1008,35 @@ function httpPostDuplicateEndpointType(db) {
   }
 }
 
+function httpPatchUpdateBitOfFeatureMapAttribute(db) {
+  return async (request, response) => {
+    let { endpointTypeRef, clusterRef, side, bit } = request.body
+    let updateClient = 1
+    let updateServer = 1
+    if (side.includes('client')) {
+      updateClient = await queryConfig.updateBitOfFeatureMapAttribute(
+        db,
+        endpointTypeRef,
+        clusterRef,
+        'client',
+        bit
+      )
+    }
+    if (side.includes('server')) {
+      updateServer = await queryConfig.updateBitOfFeatureMapAttribute(
+        db,
+        endpointTypeRef,
+        clusterRef,
+        'server',
+        bit
+      )
+    }
+    response.status(StatusCodes.OK).json({
+      succesesful: updateClient > 0 && updateServer > 0
+    })
+  }
+}
+
 /**
  * duplicate all clusters and attributes of an old endpoint type, using oldEndpointType id and newly created endpointType id
  *
@@ -1185,5 +1214,12 @@ exports.delete = [
   {
     uri: restApi.uri.deletePackageNotification,
     callback: httpDeletePackageNotification
+  }
+]
+
+exports.patch = [
+  {
+    uri: restApi.uri.updateBitOfFeatureMapAttribute,
+    callback: httpPatchUpdateBitOfFeatureMapAttribute
   }
 ]

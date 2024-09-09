@@ -33,6 +33,7 @@ const queryCommand = require('./query-command.js')
 const restApi = require('../../src-shared/rest-api.js')
 const _ = require('lodash')
 const notification = require('../db/query-session-notification.js')
+const queryEndpointType = require('./query-endpoint-type.js')
 
 /**
  * Promises to update the cluster include/exclude state.
@@ -83,6 +84,38 @@ async function selectEndpointClusters(db, endpointTypeId) {
       ENDPOINT_TYPE_REF = ?
     `,
     [endpointTypeId]
+  )
+
+  return rows.map(dbMapping.map.endpointTypeCluster)
+}
+
+/**
+ * Promise to get a unique endpoint type cluster
+ * This will return info about one cluster as it is unique after filtering by endpointTypeId, clusterRef, and side
+ * @param {*} db
+ * @param {*} endpointTypeId
+ * @param {*} clusterRef
+ * @param {*} side
+ * @returns Promise that resolves into an endpoint type cluster.
+ */
+async function selectUniqueEndpointTypeCluster(
+  db,
+  endpointTypeRef,
+  clusterRef,
+  side
+) {
+  let rows = await dbApi.dbAll(
+    db,
+    `
+    SELECT * FROM ENDPOINT_TYPE_CLUSTER
+    WHERE
+      ENDPOINT_TYPE_REF = ?
+    AND
+      CLUSTER_REF = ?
+    AND
+      SIDE = ?
+    `,
+    [endpointTypeRef, clusterRef, side]
   )
 
   return rows.map(dbMapping.map.endpointTypeCluster)
@@ -222,14 +255,16 @@ async function insertOrUpdateAttributeState(
     staticAttribute.defaultValue == 0
   ) {
     let featureMapDefaultValue = staticAttribute.defaultValue
-    let mandatoryFeaturesOnEndpointTypeAndCluster =
+    let featuresOnEndpointTypeAndCluster =
       await queryDeviceType.selectDeviceTypeFeaturesByEndpointTypeIdAndClusterId(
         db,
         endpointTypeId,
         clusterRef
       )
-    let featureMapBitsToBeEnabled =
-      mandatoryFeaturesOnEndpointTypeAndCluster.map((f) => f.featureBit)
+    // only set featureMap bit to 1 for mandatory features
+    let featureMapBitsToBeEnabled = featuresOnEndpointTypeAndCluster
+      .filter((f) => f.conformance == 'M')
+      .map((f) => f.featureBit)
     featureMapBitsToBeEnabled.forEach(
       (featureBit) =>
         (featureMapDefaultValue = featureMapDefaultValue | (1 << featureBit))
@@ -581,6 +616,42 @@ async function updateParentEndpoint(db, sessionId, endpointId, parentRef) {
     db,
     `UPDATE ENDPOINT SET PARENT_ENDPOINT_REF = ? WHERE ENDPOINT_ID = ? AND SESSION_REF = ?`,
     [parentRef, endpointId, sessionId]
+  )
+}
+
+/**
+ * Returns a db update promise to flip a bit in the feature map global attribute of an endpoint type cluster
+ */
+async function updateBitOfFeatureMapAttribute(
+  db,
+  endpointTypeRef,
+  clusterRef,
+  side,
+  bit
+) {
+  let endpointTypeCluster = await selectUniqueEndpointTypeCluster(
+    db,
+    endpointTypeRef,
+    clusterRef,
+    side
+  )
+  let featureMapAttribute =
+    await queryEndpointType.selectEndpointTypeAttributeFromEndpointTypeClusterId(
+      db,
+      endpointTypeCluster[0].endpointTypeClusterId,
+      '0xFFFC',
+      null
+    )
+  let defaultValue = featureMapAttribute.defaultValue
+
+  // flip the bit when user enables or disables a feature
+  let newValue = parseInt(defaultValue) ^ (1 << bit)
+  newValue = newValue.toString()
+
+  return updateEndpointTypeAttribute(
+    db,
+    featureMapAttribute.endpointTypeAttributeId,
+    [['defaultValue', newValue]]
   )
 }
 
@@ -1622,3 +1693,4 @@ exports.insertClusterDefaults = insertClusterDefaults
 exports.setClusterIncluded = setClusterIncluded
 exports.selectEndpointTypeAttributeId = selectEndpointTypeAttributeId
 exports.updateEndpointTypeAttribute = updateEndpointTypeAttribute
+exports.updateBitOfFeatureMapAttribute = updateBitOfFeatureMapAttribute

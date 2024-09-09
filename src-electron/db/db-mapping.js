@@ -254,6 +254,7 @@ exports.map = {
     return {
       deviceType: x.DEVICE_TYPE_NAME,
       deviceTypeClusterId: x.DEVICE_TYPE_CLUSTER_ID,
+      clusterId: x.CLUSTER_REF,
       cluster: x.CLUSTER_NAME,
       includeServer: x.INCLUDE_SERVER,
       includeClient: x.INCLUDE_CLIENT,
@@ -588,7 +589,8 @@ exports.map = {
       featureName: x.FEATURE_NAME,
       featureBit: x.FEATURE_BIT,
       clusterId: x.CLUSTER_REF,
-      composition: x.TYPE
+      composition: x.TYPE,
+      conformance: x.DEVICE_TYPE_CLUSTER_CONFORMANCE
     }
   },
   endpointTypeCluster: (x) => {
@@ -619,6 +621,7 @@ exports.map = {
   endpointTypeAttribute: (x) => {
     if (x == null) return undefined
     return {
+      endpointTypeAttributeId: x.ENDPOINT_TYPE_ATTRIBUTE_ID,
       endpointTypeRef: x.ENDPOINT_TYPE_REF,
       clusterRef: x.CLUSTER_REF,
       attributeRef: x.ATTRIBUTE_REF,
