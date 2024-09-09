@@ -85,11 +85,15 @@ function httpGetEndpointIds(db) {
 function httpGetDeviceTypeFeatures(db) {
   return async (request, response) => {
     let deviceTypeRefs = request.query.deviceTypeRefs
-    let deviceTypeFeatures = await queryFeature.getFeaturesByDeviceTypeRefs(
-      db,
-      deviceTypeRefs
-    )
-    response.status(StatusCodes.OK).json(deviceTypeFeatures)
+    if (Array.isArray(deviceTypeRefs) && deviceTypeRefs.length > 0) {
+      let deviceTypeFeatures = await queryFeature.getFeaturesByDeviceTypeRefs(
+        db,
+        deviceTypeRefs
+      )
+      response.status(StatusCodes.OK).json(deviceTypeFeatures)
+    } else {
+      response.status(StatusCodes.OK).json([])
+    }
   }
 }
 
