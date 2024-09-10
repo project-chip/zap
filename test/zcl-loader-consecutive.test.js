@@ -60,17 +60,17 @@ test(
 
       let dotdotPackageId
       let ctx = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
-      let jsonPackageId = ctx.packageId
+      let zigbeePackageId = ctx.packageId
 
       ctx = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
-      expect(ctx.packageId).toEqual(jsonPackageId)
+      expect(ctx.packageId).toEqual(zigbeePackageId)
       let p = await queryPackage.getPackageByPackageId(db, ctx.packageId)
       expect(p.version).toEqual(1)
       expect(p.category).toEqual('zigbee')
       await zclLoader.loadZcl(db, env.builtinDotdotZclMetafile())
       ctx = await zclLoader.loadZcl(db, env.builtinDotdotZclMetafile())
       dotdotPackageId = ctx.packageId
-      expect(dotdotPackageId).not.toEqual(jsonPackageId)
+      expect(dotdotPackageId).not.toEqual(zigbeePackageId)
       p = await queryPackage.getPackageByPackageId(db, ctx.packageId)
       expect(p.version).toEqual(1)
 
@@ -79,9 +79,9 @@ test(
         dbEnum.packageType.zclProperties
       )
       expect(rows.length).toEqual(2)
-      let x = await queryZcl.selectAllClusters(db, jsonPackageId)
+      let x = await queryZcl.selectAllClusters(db, zigbeePackageId)
       expect(x.length).toEqual(testUtil.totalClusterCount)
-      x = await queryCommand.selectAllClusterCommands(db, jsonPackageId)
+      x = await queryCommand.selectAllClusterCommands(db, zigbeePackageId)
 
       let unmatchedRequestCount = 0
       let responsesCount = 0
@@ -104,47 +104,61 @@ test(
       let z = await queryCommand.selectCommandById(db, x[0].id)
       expect(z.label).toBe(x[0].label)
 
-      x = await queryCommand.selectAllCommandArguments(db, jsonPackageId)
+      x = await queryCommand.selectAllCommandArguments(db, zigbeePackageId)
       expect(x.length).toEqual(testUtil.totalCommandArgsCount)
 
-      x = await queryZcl.selectAllDomains(db, jsonPackageId)
+      x = await queryZcl.selectAllDomains(db, zigbeePackageId)
       expect(x.length).toEqual(testUtil.totalDomainCount)
 
       z = await queryZcl.selectDomainById(db, x[0].id)
       expect(z.label).toBe(x[0].label)
 
-      x = await queryZcl.selectAllEnums(db, jsonPackageId)
+      x = await queryZcl.selectAllEnums(db, zigbeePackageId)
       expect(x.length).toEqual(testUtil.totalEnumCount)
 
-      x = await queryZcl.selectAllAttributesBySide(db, 'server', jsonPackageId)
+      x = await queryZcl.selectAllAttributesBySide(
+        db,
+        'server',
+        zigbeePackageId
+      )
       expect(x.length).toBe(testUtil.totalServerAttributeCount)
 
-      x = await queryZcl.selectAllEnumItems(db, jsonPackageId)
+      x = await queryZcl.selectAllEnumItems(db, zigbeePackageId)
       expect(x.length).toEqual(testUtil.totalEnumItemCount)
 
-      x = await queryZcl.selectAllStructsWithItemCount(db, [jsonPackageId])
+      x = await queryZcl.selectAllStructsWithItemCount(db, [zigbeePackageId])
       expect(x.length).toEqual(54)
 
-      x = await queryZcl.selectAllBitmaps(db, jsonPackageId)
+      x = await queryZcl.selectAllBitmaps(db, zigbeePackageId)
       expect(x.length).toEqual(129)
 
-      x = await queryZcl.selectAllDataTypes(db, jsonPackageId)
+      x = await queryZcl.selectAllDataTypes(db, zigbeePackageId)
       expect(x.length).toEqual(440)
 
-      x = await queryZcl.selectAllNumbers(db, jsonPackageId)
+      x = await queryZcl.selectAllNumbers(db, zigbeePackageId)
       expect(x.length).toEqual(41)
 
-      x = await queryZcl.selectAllStrings(db, jsonPackageId)
-      expect(x.length).toEqual(5)
+      x = await queryZcl.selectAllStrings(db, zigbeePackageId)
+      x = x.map((item) => item.name)
+      let strings = [
+        'octet_string',
+        'char_string',
+        'long_octet_string',
+        'long_char_string'
+      ]
+      expect(x.length).toEqual(4)
+      strings.forEach((s) => {
+        expect(x).toContain(s)
+      })
 
-      x = await queryStruct.selectAllStructs(db, jsonPackageId)
+      x = await queryStruct.selectAllStructs(db, zigbeePackageId)
       expect(x.length).toEqual(54)
 
-      x = await queryDeviceType.selectAllDeviceTypes(db, jsonPackageId)
+      x = await queryDeviceType.selectAllDeviceTypes(db, zigbeePackageId)
 
       expect(x.length).toEqual(175)
 
-      x = await queryZcl.selectAllAtomics(db, jsonPackageId)
+      x = await queryZcl.selectAllAtomics(db, zigbeePackageId)
       expect(x.length).toEqual(56)
 
       x = await queryZcl.selectAllClusters(db, dotdotPackageId)
@@ -161,6 +175,14 @@ test(
 
       x = await queryZcl.selectAllBitmaps(db, dotdotPackageId)
       expect(x.length).toEqual(69)
+
+      x = await queryZcl.selectAllStrings(db, dotdotPackageId)
+      x = x.map((item) => item.name)
+      strings = ['octstr', 'string', 'octstr16', 'string16']
+      expect(x.length).toEqual(5) // 5th string is a subatomic type
+      strings.forEach((s) => {
+        expect(x).toContain(s)
+      })
 
       x = await queryZcl.selectAllEnums(db, dotdotPackageId)
       expect(x.length).toEqual(testUtil.totalDotDotEnums)
@@ -215,7 +237,7 @@ test(
 
       rows = await queryPackage.selectAllOptionsValues(
         db,
-        jsonPackageId,
+        zigbeePackageId,
         dbEnum.sessionOption.defaultResponsePolicy
       )
       expect(rows.length).toBe(3)

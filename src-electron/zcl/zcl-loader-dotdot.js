@@ -456,16 +456,47 @@ function prepareCluster(cluster, types, isExtension = false) {
  */
 function prepareAtomic(type) {
   let desc = type.$.name
+  let length = type.restriction?.[0]?.['type:length']?.[0]?.$?.value
   return {
     name: type.$.short,
     id: parseInt(normalizeHexValue(type.$.id)),
-    size: getNumBytesFromShortName(type.$.short),
+    size: length ?? getNumBytesFromShortName(type.$.short),
     description: desc,
     isDiscrete: type.$.discrete == 'true' ? true : false,
     isSigned: desc.includes('Signed'),
     isString: desc.includes('string'),
     isLong: desc.includes('string') && desc.includes('Long'),
     isChar: desc.includes('string') && desc.includes('haracter')
+  }
+}
+
+/**
+ * Parses xml type into the sub-atomic object for insertion into the DB
+ *
+ * @param {*} type an xml object which conforms to the sub-atomic format in the dotdot xml
+ * @param {*} atomics an array of atomic types
+ * @returns object ready for insertion into the DB
+ */
+function prepareSubAtomic(subAtomic, atomics) {
+  let relatedAtomic = atomics.find(
+    (atomic) => atomic.name === subAtomic.inheritsFrom
+  )
+  if (relatedAtomic) {
+    return {
+      name: subAtomic.short,
+      id: parseInt(normalizeHexValue(subAtomic.id)),
+      size: relatedAtomic.size,
+      description: relatedAtomic.description,
+      isDiscrete: relatedAtomic.isDiscrete,
+      isSigned: relatedAtomic.isSigned,
+      isString: relatedAtomic.isString,
+      isLong: relatedAtomic.isLong,
+      isChar: relatedAtomic.isChar
+    }
+  } else {
+    env.log(
+      `Could not find related atomic type for sub-atomic type ${subAtomic.short} - Dropping this type.`
+    )
   }
 }
 
@@ -574,6 +605,17 @@ function prepareStruct(type) {
 }
 
 /**
+ * Parses array of xml objects that conform to the sub-atomic format in the dotdot xml
+ *
+ * @param {*} types
+ */
+function prepareSubAtomicTypes(types) {
+  types.subAtomics = types.subAtomics
+    .map((subAtomic) => prepareSubAtomic(subAtomic, types.atomics))
+    .filter((subAtomic) => subAtomic != null || subAtomic != undefined)
+}
+
+/**
  *
  * Parses xml types into the types object for insertion into the DB
  *
@@ -593,14 +635,11 @@ function prepareTypes(zclTypes, types) {
     } else if (type.$.inheritsFrom === undefined) {
       types.atomics.push(prepareAtomic(type))
     } else {
-      // TODO: Need to handle sub-atomic types, these are types that impose restrictions
-      //       and inherit from an atomic type but are not a struct, bitmap or enum
-      droppedTypes.push(type.$.name)
+      // Sub-atomic types - these are types that impose restrictions and inherit from an atomic type but are not a struct, bitmap or enum
+      // Will be processed after all other types are processed
+      types.subAtomics.push(type.$)
     }
   })
-  if (droppedTypes.length > 0) {
-    env.logDebug(`Dropped types in DotDot loader: ${droppedTypes}`)
-  }
 }
 
 /**
@@ -721,6 +760,8 @@ function prepareDataType(a, dataType, typeMap) {
     a.name.toLowerCase().includes(dbEnum.zclType.string)
   ) {
     dataTypeRef = typeMap.get(dbEnum.zclType.string)
+  } else if (!dataType && a.isString !== undefined && a.isString == 1) {
+    dataTypeRef = typeMap.get(dbEnum.zclType.string)
   } else if (
     !dataType &&
     a.name.toLowerCase().includes(dbEnum.zclType.struct)
@@ -818,7 +859,14 @@ async function processDataType(db, filePath, packageId, data, dataType) {
 function prepareNumber(a, dataType) {
   return {
     size: a.size,
-    is_signed: a.name.endsWith('u') || !a.name.includes('int') ? 0 : 1,
+    is_signed:
+      a.isSigned !== undefined
+        ? a.isSigned
+        : a.name.startsWith('u') ||
+            a.name.endsWith('u') ||
+            !a.name.includes('int')
+          ? 0
+          : 1,
     name: a.name,
     cluster_code: a.cluster ? a.cluster : null,
     discriminator_ref: dataType
@@ -1177,7 +1225,13 @@ async function loadZclData(db, ctx) {
   env.logDebug(
     `Starting to load Dotdot ZCL data in to DB for: ${ctx.metadataFile}, clusters length=${ctx.zclClusters.length}`
   )
-  let types = { atomics: [], enums: [], bitmaps: [], structs: [] }
+  let types = {
+    atomics: [],
+    enums: [],
+    bitmaps: [],
+    structs: [],
+    subAtomics: []
+  }
   prepareTypes(ctx.zclTypes, types)
   prepareTypes(ctx.zclGlobalTypes, types)
   let preparedClusters = []
@@ -1219,6 +1273,8 @@ async function loadZclData(db, ctx) {
   await queryLoader.insertAtomics(db, ctx.packageId, types.atomics)
   ctx.ZCLDataTypes = ['ARRAY', 'BITMAP', 'ENUM', 'NUMBER', 'STRING', 'STRUCT']
   await processDataTypeDiscriminator(db, ctx.packageId, ctx.ZCLDataTypes)
+  // prepare sub-atomics after all other types are processed
+  prepareSubAtomicTypes(types)
   await processDataType(
     db,
     ctx.metadataFile,
@@ -1247,6 +1303,14 @@ async function loadZclData(db, ctx) {
     types.structs,
     dbEnum.zclType.struct
   )
+  // sub-atomics are in the same format as atomics, so we can use the same prepare function
+  await processDataType(
+    db,
+    ctx.metadataFile,
+    ctx.packageId,
+    types.subAtomics,
+    dbEnum.zclType.atomic
+  )
 
   await processEnumsFromAtomics(
     db,
@@ -1262,6 +1326,8 @@ async function loadZclData(db, ctx) {
   )
   await processNumber(db, ctx.metadataFile, ctx.packageId, types.atomics)
   await processString(db, ctx.metadataFile, ctx.packageId, types.atomics)
+  await processNumber(db, ctx.metadataFile, ctx.packageId, types.subAtomics)
+  await processString(db, ctx.metadataFile, ctx.packageId, types.subAtomics)
   await processEnums(db, ctx.metadataFile, ctx.packageId, types.enums)
   await processBitmaps(db, ctx.metadataFile, ctx.packageId, types.bitmaps)
   await processStruct(db, ctx.metadataFile, ctx.packageId, types.structs)
