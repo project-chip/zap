@@ -232,7 +232,7 @@ export default {
         })
       }
     },
-    async getPackageNotifications(packageId) {
+    getPackageNotifications(packageId) {
       this.$serverGet(
         restApi.uri.packageNotificationById.replace(':packageId', packageId)
       ).then((res) => {
