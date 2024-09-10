@@ -58,7 +58,7 @@
 
     <br />
 
-    <div class="text-h5">Packages Notifications</div>
+    <div class="text-h5">Package Notifications</div>
     <div v-for="(sessionPackage, index) in packages" :key="index">
       <div
         v-if="
