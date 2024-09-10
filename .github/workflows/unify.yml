@@ -18,7 +18,7 @@ env:
   KEYCHAIN_PASSWORD: silabs
 
 jobs:
-  prepare-zap-and-regenerate-zigbee:
+  prepare-zap-and-regenerate-unify:
     name: Prepare Zap and regenerate Unify
     runs-on: ${{ matrix.os }}
 

@@ -185,6 +185,7 @@ ORDER BY
         DEVICE_TYPE.CODE,
         DEVICE_TYPE.NAME,
         DEVICE_TYPE.PROFILE_ID,
+        ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_ORDER,
         ENDPOINT_TYPE_DEVICE.DEVICE_VERSION
       FROM 
         DEVICE_TYPE
@@ -204,6 +205,7 @@ ORDER BY
         SESSION_PARTITION.SESSION_REF = ?
         AND ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF = ?
       ORDER BY
+        ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_ORDER,
         DEVICE_TYPE.NAME,
         DEVICE_TYPE.CODE,
         DEVICE_TYPE.PROFILE_ID`,
@@ -332,7 +334,7 @@ async function importEndpointType(
           [
             endpointTypeId,
             row.DEVICE_TYPE_ID,
-            i,
+            deviceTypes[i].deviceTypeOrder ? deviceTypes[i].deviceTypeOrder : i, // backwards compatibility when device type order is not present in a .zap file
             deviceVersions[i] ? deviceVersions[i] : 0,
             deviceIdentifiers[i]
           ]

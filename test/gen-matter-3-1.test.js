@@ -340,6 +340,32 @@ test(
     expect(ept).toContain('Endpoint 2, DeviceId: 256, DeviceVersion: 1')
     expect(ept).toContain('Endpoint 2, DeviceId: 257, DeviceVersion: 1')
     expect(ept).toContain('Endpoint 65534, DeviceId: 61442, DeviceVersion: 1')
+
+    // Testing order of device types in different endpoints and making sure the
+    // device type order is maintained for primary device type
+    let epts = await queryEndpointType.selectAllEndpointTypes(db, sessionId)
+    expect(epts.length).toEqual(4)
+    let endpointType1 = ''
+    let endpointType2 = ''
+    let i = 1
+    for (const et of epts) {
+      if (et.deviceTypeRef.length == 2) {
+        if (i == 1) {
+          endpointType1 = et
+          i++
+        } else if (i == 2) {
+          endpointType2 = et
+          i++
+        }
+      }
+    }
+    // In the .zap configuration the endpoint types have alternate primary endpoints(reverse device type order)
+    expect(endpointType1.deviceTypeRef[0]).toEqual(
+      endpointType2.deviceTypeRef[1]
+    )
+    expect(endpointType1.deviceTypeRef[1]).toEqual(
+      endpointType2.deviceTypeRef[0]
+    )
   },
   testUtil.timeout.long()
 )
