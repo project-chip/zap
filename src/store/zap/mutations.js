@@ -1127,7 +1127,7 @@ export function setEnabledClusters(state, clusters) {
   state.enabledClusters = clusters
 }
 
-// This function will update the device type features after a new endpoint is selected
+// This function will update the entire list of device type features
 export function setDeviceTypeFeatures(state, data) {
   vue3Set(state.featureView, 'deviceTypeFeatures', data)
 }
@@ -1135,4 +1135,16 @@ export function setDeviceTypeFeatures(state, data) {
 // This function will update the list of hash of enabled device type features
 export function updateEnabledDeviceTypeFeatures(state, data) {
   vue3Set(state.featureView, 'enabledDeviceTypeFeatures', data)
+}
+
+// This function will update the default value of device type features
+export function updateFeatureMapAttributeOfFeature(
+  state,
+  { featureMapAttributeId, featureMapValue }
+) {
+  state.featureView.deviceTypeFeatures.map((feature) => {
+    if (featureMapAttributeId == feature.featureMapAttributeId) {
+      feature.featureMapValue = featureMapValue
+    }
+  })
 }

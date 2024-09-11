@@ -151,7 +151,10 @@ export default {
       this.$store.dispatch('zap/updateSelectedEndpoint', endpointReference)
       this.$store.dispatch('zap/updateClusters')
       let deviceTypeRefs = this.endpointDeviceTypeRef[this.selectedEndpointId]
-      this.$store.dispatch('zap/setDeviceTypeFeatures', deviceTypeRefs)
+      this.$store.dispatch('zap/setDeviceTypeFeatures', {
+        deviceTypeRefs: deviceTypeRefs,
+        endpointTypeRef: endpointReference
+      })
     },
     sdkExtClusterCode(extEntry) {
       return extEntry ? extEntry.entityCode : ''

@@ -84,11 +84,12 @@ function httpGetEndpointIds(db) {
  */
 function httpGetDeviceTypeFeatures(db) {
   return async (request, response) => {
-    let deviceTypeRefs = request.query.deviceTypeRefs
+    let { deviceTypeRefs, endpointTypeRef } = request.query
     if (Array.isArray(deviceTypeRefs) && deviceTypeRefs.length > 0) {
       let deviceTypeFeatures = await queryFeature.getFeaturesByDeviceTypeRefs(
         db,
-        deviceTypeRefs
+        deviceTypeRefs,
+        endpointTypeRef
       )
       response.status(StatusCodes.OK).json(deviceTypeFeatures)
     } else {
@@ -1014,29 +1015,14 @@ function httpPostDuplicateEndpointType(db) {
 
 function httpPatchUpdateBitOfFeatureMapAttribute(db) {
   return async (request, response) => {
-    let { endpointTypeRef, clusterRef, side, bit } = request.body
-    let updateClient = 1
-    let updateServer = 1
-    if (side.includes('client')) {
-      updateClient = await queryConfig.updateBitOfFeatureMapAttribute(
-        db,
-        endpointTypeRef,
-        clusterRef,
-        'client',
-        bit
-      )
-    }
-    if (side.includes('server')) {
-      updateServer = await queryConfig.updateBitOfFeatureMapAttribute(
-        db,
-        endpointTypeRef,
-        clusterRef,
-        'server',
-        bit
-      )
-    }
+    let { featureMapAttributeId, newValue } = request.body
+    let updated = await queryConfig.updateEndpointTypeAttribute(
+      db,
+      featureMapAttributeId,
+      [['defaultValue', newValue]]
+    )
     response.status(StatusCodes.OK).json({
-      succesesful: updateClient > 0 && updateServer > 0
+      succesesful: updated > 0
     })
   }
 }

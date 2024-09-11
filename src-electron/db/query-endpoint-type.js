@@ -686,7 +686,6 @@ async function selectEndpointTypeAttributeFromEndpointTypeClusterId(
     SELECT
       ETC.ENDPOINT_TYPE_REF,
       ETC.CLUSTER_REF,
-      ETA.ENDPOINT_TYPE_ATTRIBUTE_ID,
       ETA.INCLUDED,
       ETA.STORAGE_OPTION,
       ETA.SINGLETON,

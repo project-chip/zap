@@ -54,10 +54,9 @@ limitations under the License.
                         props.row.featureId,
                         val
                       )
-                      onToggleDeviceTypeFeature(
-                        props.row.clusterId,
-                        props.row.includeClient,
-                        props.row.includeServer,
+                      setFeatureMapAttribute(
+                        props.row.featureMapValue,
+                        props.row.featureMapAttributeId,
                         props.row.bit
                       )
                     }
@@ -65,7 +64,12 @@ limitations under the License.
                 />
               </q-td>
               <q-td key="deviceType" :props="props" auto-width>
-                {{ props.row.deviceType }}
+                <div
+                  v-for="deviceType in props.row.deviceTypes"
+                  :key="deviceType"
+                >
+                  {{ deviceType }}
+                </div>
               </q-td>
               <q-td key="cluster" :props="props" auto-width>
                 {{ props.row.cluster }}
@@ -138,21 +142,17 @@ export default {
         view: 'featureView'
       })
     },
-    onToggleDeviceTypeFeature(clusterId, includeClient, includeServer, bit) {
-      /* toggle a device type feature could change the featureMap attribute
-      in both client and server side clusters */
-      let side = []
-      if (includeClient) {
-        side.push('client')
-      }
-      if (includeServer) {
-        side.push('server')
-      }
+    setFeatureMapAttribute(featureMapValue, featureMapAttributeId, bit) {
+      let newValue = parseInt(featureMapValue) ^ (1 << bit)
+      newValue = newValue.toString()
       this.$serverPatch(restApi.uri.updateBitOfFeatureMapAttribute, {
-        endpointTypeRef: this.selectedEndpointId,
-        clusterRef: clusterId,
-        side: side,
-        bit: bit
+        featureMapAttributeId: featureMapAttributeId,
+        newValue: newValue
+      })
+
+      this.$store.commit('zap/updateFeatureMapAttributeOfFeature', {
+        featureMapAttributeId: featureMapAttributeId,
+        featureMapValue: newValue
       })
     }
   },

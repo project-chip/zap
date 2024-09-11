@@ -24,21 +24,30 @@ const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
 
 /**
- * Get all device type features associated with a list of device type refs
+ * Get all device type features associated with a list of device type refs and an endpoint.
+ * Join ENDPOINT_TYPE_ATTRIBUTE and ATTRIBUTE table to get featureMap attribute associated with the feature
+ * so the frontend could get and set featureMap bit easier.
+ * Only return features with cluster on the side specified in the deivce type
  * @param {*} db
  * @param {*} deviceTypeRefs
  * @returns All feature information and device type conformance
- * with associated device type and cluster details
+ * with associated device type, cluster, and featureMap attribute details
  */
-async function getFeaturesByDeviceTypeRefs(db, deviceTypeRefs) {
+async function getFeaturesByDeviceTypeRefs(
+  db,
+  deviceTypeRefs,
+  endpointTypeRef
+) {
+  let arg = []
   let deviceTypeRefsSql = deviceTypeRefs.map(() => '?').join(', ')
+  arg.push(...deviceTypeRefs)
+  arg.push(endpointTypeRef)
   let features = await dbApi.dbAll(
     db,
     `
     SELECT
         d.DESCRIPTION AS DEVICE_TYPE_NAME,
         dc.DEVICE_TYPE_CLUSTER_ID,
-        dc.CLUSTER_REF,
         dc.CLUSTER_NAME,
         dc.INCLUDE_SERVER,
         dc.INCLUDE_CLIENT,
@@ -47,8 +56,10 @@ async function getFeaturesByDeviceTypeRefs(db, deviceTypeRefs) {
         f.NAME AS FEATURE_NAME,
         f.CODE,
         f.BIT,
-        f.DEFAULT_VALUE,
-        f.DESCRIPTION
+        f.DESCRIPTION,
+        etc.ENDPOINT_TYPE_CLUSTER_ID,
+        eta.ENDPOINT_TYPE_ATTRIBUTE_ID AS FEATUREMAP_ATTRIBUTE_ID,
+        eta.DEFAULT_VALUE AS FEATUREMAP_VALUE
     FROM
         DEVICE_TYPE d
     JOIN
@@ -63,14 +74,38 @@ async function getFeaturesByDeviceTypeRefs(db, deviceTypeRefs) {
         FEATURE f
     ON
         df.FEATURE_REF = f.FEATURE_ID
+    JOIN
+        ENDPOINT_TYPE_CLUSTER etc
+    ON
+        dc.CLUSTER_REF = etc.CLUSTER_REF
+    JOIN
+        ENDPOINT_TYPE_ATTRIBUTE eta
+    ON
+        etc.ENDPOINT_TYPE_CLUSTER_ID = eta.ENDPOINT_TYPE_CLUSTER_REF
+    JOIN
+        ATTRIBUTE a
+    ON
+        eta.ATTRIBUTE_REF = a.ATTRIBUTE_ID
     WHERE
         d.DEVICE_TYPE_ID IN (${deviceTypeRefsSql})
+    AND
+        etc.ENDPOINT_TYPE_REF = ?
+    AND
+        a.NAME = 'FeatureMap'
+    AND
+        a.CODE = 65532
+    AND
+        (
+            (dc.INCLUDE_SERVER = 1 AND etc.SIDE = 'server')
+            OR
+            (dc.INCLUDE_CLIENT = 1 AND etc.SIDE = 'client')
+        )
     ORDER BY
         d.DEVICE_TYPE_ID,
         dc.CLUSTER_REF,
         f.FEATURE_ID
     `,
-    deviceTypeRefs
+    arg
   )
   return features.map(dbMapping.map.deviceTypeFeature)
 }

@@ -620,42 +620,6 @@ async function updateParentEndpoint(db, sessionId, endpointId, parentRef) {
 }
 
 /**
- * Returns a db update promise to flip a bit in the feature map global attribute of an endpoint type cluster
- */
-async function updateBitOfFeatureMapAttribute(
-  db,
-  endpointTypeRef,
-  clusterRef,
-  side,
-  bit
-) {
-  let endpointTypeCluster = await selectUniqueEndpointTypeCluster(
-    db,
-    endpointTypeRef,
-    clusterRef,
-    side
-  )
-  let featureMapAttribute =
-    await queryEndpointType.selectEndpointTypeAttributeFromEndpointTypeClusterId(
-      db,
-      endpointTypeCluster[0].endpointTypeClusterId,
-      '0xFFFC',
-      null
-    )
-  let defaultValue = featureMapAttribute.defaultValue
-
-  // flip the bit when user enables or disables a feature
-  let newValue = parseInt(defaultValue) ^ (1 << bit)
-  newValue = newValue.toString()
-
-  return updateEndpointTypeAttribute(
-    db,
-    featureMapAttribute.endpointTypeAttributeId,
-    [['defaultValue', newValue]]
-  )
-}
-
-/**
  * Returns the number of endpoints with a given endpoint_identifier and sessionid.
  * Used for validation
  *
@@ -1693,4 +1657,3 @@ exports.insertClusterDefaults = insertClusterDefaults
 exports.setClusterIncluded = setClusterIncluded
 exports.selectEndpointTypeAttributeId = selectEndpointTypeAttributeId
 exports.updateEndpointTypeAttribute = updateEndpointTypeAttribute
-exports.updateBitOfFeatureMapAttribute = updateBitOfFeatureMapAttribute
