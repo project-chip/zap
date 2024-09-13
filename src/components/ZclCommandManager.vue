@@ -22,7 +22,6 @@ limitations under the License.
         :columns="columns"
         row-key="<b>name</b>"
         dense
-        virtual-scroll
         flat
         binary-state-sort
         v-model:pagination="pagination"
@@ -226,7 +225,7 @@ export default {
       validationErrorMessage:
         'This command is mandatory for the cluster and device type configuration you have enabled',
       pagination: {
-        rowsPerPage: 0
+        rowsPerPage: 50
       },
       columns: [
         {
