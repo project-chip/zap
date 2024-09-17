@@ -18,16 +18,6 @@
 export default {
   data() {
     return {
-      cmpEnableProfileId: false,
-      cmpEnableNetworkId: false,
-      cmpEnableMultipleDevice: false,
-      cmpEnablePrimaryDevice: false,
-      cmpEnableParentEndpoint: false,
-      cmpEnableServerOnly: false,
-      cmpEnableSingleton: false,
-      cmpEnableBounded: false,
-      cmpEnableMatterFeatures: false,
-      cmpEnableZigbeeFeatures: false,
       globalLists: [
         'EventList',
         'AttributeList',
@@ -35,16 +25,6 @@ export default {
         'AcceptedCommandList'
       ]
     }
-  },
-  mounted() {
-    this.cmpEnableProfileId = this.cmpEnableZigbeeFeatures
-    this.cmpEnableNetworkId = this.cmpEnableZigbeeFeatures
-    this.cmpEnableSingleton = this.cmpEnableZigbeeFeatures
-    this.cmpEnableBounded = this.cmpEnableZigbeeFeatures
-    this.cmpEnableMultipleDevice = this.cmpEnableMatterFeatures
-    this.cmpEnablePrimaryDevice = this.cmpEnableMatterFeatures
-    this.cmpEnableParentEndpoint = this.cmpEnableMatterFeatures
-    this.cmpEnableServerOnly = this.cmpEnableMatterFeatures
   },
   computed: {
     zapState() {
