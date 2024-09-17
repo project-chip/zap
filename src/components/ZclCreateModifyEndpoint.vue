@@ -459,15 +459,11 @@ export default {
         // Set / unset multiple device option in mcp
         if (this.$store.state.zap.isMultiConfig) {
           if (categoryTmp === 'zigbee') {
-            this.enableMultipleDevice = false
-            this.enableParentEndpoint = false
-            this.enablePrimaryDevice = false
-            this.enableProfileId = true
+            this.$store.state.zap.cmpEnableZigbeeFeatures = true
+            this.$store.state.zap.cmpEnableMatterFeatures = false
           } else {
-            this.enableMultipleDevice = true
-            this.enableParentEndpoint = true
-            this.enablePrimaryDevice = true
-            this.enableProfileId = false
+            this.$store.state.zap.cmpEnableZigbeeFeatures = false
+            this.$store.state.zap.cmpEnableMatterFeatures = true
           }
         }
         // Create default device version if not exists

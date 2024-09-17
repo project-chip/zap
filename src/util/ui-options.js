@@ -18,6 +18,16 @@
 export default {
   data() {
     return {
+      cmpEnableProfileId: false,
+      cmpEnableNetworkId: false,
+      cmpEnableMultipleDevice: false,
+      cmpEnablePrimaryDevice: false,
+      cmpEnableParentEndpoint: false,
+      cmpEnableServerOnly: false,
+      cmpEnableSingleton: false,
+      cmpEnableBounded: false,
+      cmpEnableMatterFeatures: false,
+      cmpEnableZigbeeFeatures: false,
       globalLists: [
         'EventList',
         'AttributeList',
@@ -25,6 +35,16 @@ export default {
         'AcceptedCommandList'
       ]
     }
+  },
+  mounted() {
+    this.cmpEnableProfileId = this.cmpEnableZigbeeFeatures
+    this.cmpEnableNetworkId = this.cmpEnableZigbeeFeatures
+    this.cmpEnableSingleton = this.cmpEnableZigbeeFeatures
+    this.cmpEnableBounded = this.cmpEnableZigbeeFeatures
+    this.cmpEnableMultipleDevice = this.cmpEnableMatterFeatures
+    this.cmpEnablePrimaryDevice = this.cmpEnableMatterFeatures
+    this.cmpEnableParentEndpoint = this.cmpEnableMatterFeatures
+    this.cmpEnableServerOnly = this.cmpEnableMatterFeatures
   },
   computed: {
     zapState() {
@@ -56,11 +76,27 @@ export default {
       }
     },
     enableMatterFeatures() {
+      // Check if cmpEnableMatterFeatures is true
+      if (this.$store.state.zap.cmpEnableMatterFeatures) {
+        return true
+      } else if (this.$store.state.zap.cmpEnableZigbeeFeatures) {
+        return false
+      }
+
+      // Proceed with the next set of conditions
       return this.zclPropertiesNonEmpty
         ? this.multiDeviceCategories.includes('matter')
         : this.multiDeviceCategories == 'matter'
     },
     enableZigbeeFeatures() {
+      // Check if cmpEnableZigbeeFeatures is true
+      if (this.$store.state.zap.cmpEnableZigbeeFeatures) {
+        return true
+      } else if (this.$store.state.zap.cmpEnableMatterFeatures) {
+        return false
+      }
+
+      // Proceed with the next set of conditions
       return this.zclPropertiesNonEmpty
         ? this.multiDeviceCategories.includes('zigbee')
         : this.multiDeviceCategories === 'zigbee' || !this.multiDeviceCategories
@@ -90,6 +126,13 @@ export default {
       return this.enableMatterFeatures
     },
     enableServerOnly() {
+      if (this.cmpEnableMatterFeatures) {
+        console.log(this.cmpEnableMatterFeatures)
+        return true
+      } else if (this.cmpEnableZigbeeFeatures) {
+        console.log(this.cmpEnableMatterFeatures)
+        return false
+      }
       return this.enableMatterFeatures
     }
   }
