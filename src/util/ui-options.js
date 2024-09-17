@@ -90,7 +90,7 @@ export default {
       return this.enableMatterFeatures
     },
     enableServerOnly() {
-      return this.enableMatterFeatures && !this.enableZigbeeFeatures
+      return this.enableMatterFeatures
     }
   }
 }
