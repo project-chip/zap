@@ -106,13 +106,6 @@ export default {
       return this.enableMatterFeatures
     },
     enableServerOnly() {
-      if (this.cmpEnableMatterFeatures) {
-        console.log(this.cmpEnableMatterFeatures)
-        return true
-      } else if (this.cmpEnableZigbeeFeatures) {
-        console.log(this.cmpEnableMatterFeatures)
-        return false
-      }
       return this.enableMatterFeatures
     }
   }
