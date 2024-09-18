@@ -415,9 +415,7 @@ export default {
         sortBy: 'clientServer'
       },
       columns: [],
-      forcedExternal: [],
-      enableSingleton: false,
-      enableBounded: false
+      forcedExternal: []
     }
   },
   mounted() {
