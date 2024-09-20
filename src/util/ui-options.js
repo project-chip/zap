@@ -56,11 +56,27 @@ export default {
       }
     },
     enableMatterFeatures() {
+      // Check if cmpEnableMatterFeatures is true
+      if (this.$store.state.zap.cmpEnableMatterFeatures) {
+        return true
+      } else if (this.$store.state.zap.cmpEnableZigbeeFeatures) {
+        return false
+      }
+
+      // Proceed with the next set of conditions
       return this.zclPropertiesNonEmpty
         ? this.multiDeviceCategories.includes('matter')
         : this.multiDeviceCategories == 'matter'
     },
     enableZigbeeFeatures() {
+      // Check if cmpEnableZigbeeFeatures is true
+      if (this.$store.state.zap.cmpEnableZigbeeFeatures) {
+        return true
+      } else if (this.$store.state.zap.cmpEnableMatterFeatures) {
+        return false
+      }
+
+      // Proceed with the next set of conditions
       return this.zclPropertiesNonEmpty
         ? this.multiDeviceCategories.includes('zigbee')
         : this.multiDeviceCategories === 'zigbee' || !this.multiDeviceCategories
@@ -90,7 +106,7 @@ export default {
       return this.enableMatterFeatures
     },
     enableServerOnly() {
-      return this.enableMatterFeatures && !this.enableZigbeeFeatures
+      return this.enableMatterFeatures
     }
   }
 }

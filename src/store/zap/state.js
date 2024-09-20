@@ -23,6 +23,8 @@ const restApi = require('../../../src-shared/rest-api.js')
 export default function () {
   return {
     selectedZapConfig: null,
+    cmpEnableZigbeeFeatures: false,
+    cmpEnableMatterFeatures: false,
     isMultiConfig: false,
     isProfileIdShown: null,
     clusterDataForTutorial: [],
