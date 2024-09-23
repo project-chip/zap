@@ -38,24 +38,14 @@ const util = require('../util/util.js')
  *
  * @param {*} filePath
  * @param {*} defaultZclMetafile
- * @param {*} defaultTemplateFile
  * @returns Promise of file reading.
  */
-async function readDataFromFile(
-  filePath,
-  defaultZclMetafile,
-  defaultTemplateFile
-) {
+async function readDataFromFile(filePath, defaultZclMetafile) {
   let data = await fsp.readFile(filePath)
 
   let stringData = data.toString().trim()
   if (stringData.startsWith('{')) {
-    return importJson.readJsonData(
-      filePath,
-      data,
-      defaultZclMetafile,
-      defaultTemplateFile
-    )
+    return importJson.readJsonData(filePath, data)
   } else if (stringData.startsWith('#ISD')) {
     return importIsc.readIscData(
       filePath,
@@ -110,11 +100,8 @@ async function importDataFromFile(
     packageMatch: dbEnum.packageMatch.fuzzy
   }
 ) {
-  let state = await readDataFromFile(
-    filePath,
-    options.defaultZclMetafile,
-    options.defaultTemplateFile
-  )
+  let state = await readDataFromFile(filePath, options.defaultZclMetafile)
+
   state = ff.convertFromFile(state)
   try {
     await dbApi.dbBeginTransaction(db)
@@ -126,7 +113,9 @@ async function importDataFromFile(
         sid,
         {
           zcl: env.builtinSilabsZclMetafile(),
-          template: env.builtinTemplateMetafile()
+          template: env.builtinTemplateMetafile(),
+          upgradeZclPackages: options.upgradeZclPackages,
+          upgradeTemplatePackages: options.upgradeTemplatePackages
         },
         null,
         null
@@ -162,7 +151,9 @@ async function importDataFromFile(
       sid,
       options.packageMatch,
       options.defaultZclMetafile,
-      options.defaultTemplateFile
+      options.defaultTemplateFile,
+      options.upgradeZclPackages,
+      options.upgradeTemplatePackages
     )
     if (options.postImportScript != null) {
       await executePostImportScript(
