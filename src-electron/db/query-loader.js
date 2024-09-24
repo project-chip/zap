@@ -1022,12 +1022,10 @@ async function insertAtomics(db, packageId, data) {
  * This function checks if the context's mandatory device type matches the composition code.
  * If they match, it performs an insert operation with a specific type from `dbEnum.mandatoryDeviceType`.
  * If they do not match, it performs an insert with the composition's type.
- * The function also includes the `packageId` as a foreign key reference in the insert operation.
  *
  * @param {*} db - The database connection object.
  * @param {*} composition - The composition data to be inserted.
  * @param {*} context - The context containing the mandatory device type to check against.
- * @param {*} packageId - The package ID to be used as a foreign key reference.
  * @returns A promise resolved with the result of the database insert operation.
  */
 async function insertEndpointComposition(db, composition, context) {

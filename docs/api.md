@@ -3689,7 +3689,7 @@ This module provides queries for ZCL loading
     * [~insertSpecs(db, packageId, data)](#module_DB API_ zcl loading queries..insertSpecs) ⇒
     * [~insertGlobalAttributeDefault(db, packageId, clusterData)](#module_DB API_ zcl loading queries..insertGlobalAttributeDefault) ⇒
     * [~insertAtomics(db, packageId, data)](#module_DB API_ zcl loading queries..insertAtomics)
-    * [~insertEndpointComposition(db, composition, context, packageId)](#module_DB API_ zcl loading queries..insertEndpointComposition) ⇒
+    * [~insertEndpointComposition(db, composition, context)](#module_DB API_ zcl loading queries..insertEndpointComposition) ⇒
     * [~getEndpointCompositionIdByCode(db, deviceType)](#module_DB API_ zcl loading queries..getEndpointCompositionIdByCode) ⇒ <code>Promise.&lt;(number\|null)&gt;</code>
     * [~insertDeviceComposition(db, deviceType, endpointCompositionId)](#module_DB API_ zcl loading queries..insertDeviceComposition) ⇒ <code>Promise</code>
     * [~insertDeviceTypes(db, packageId, data)](#module_DB API_ zcl loading queries..insertDeviceTypes) ⇒
@@ -4016,12 +4016,11 @@ Object might also contain 'size', but possibly not.
 
 <a name="module_DB API_ zcl loading queries..insertEndpointComposition"></a>
 
-### DB API: zcl loading queries~insertEndpointComposition(db, composition, context, packageId) ⇒
+### DB API: zcl loading queries~insertEndpointComposition(db, composition, context) ⇒
 Inserts endpoint composition data into the database based on the context's mandatory device type.
 This function checks if the context's mandatory device type matches the composition code.
 If they match, it performs an insert operation with a specific type from `dbEnum.mandatoryDeviceType`.
 If they do not match, it performs an insert with the composition's type.
-The function also includes the `packageId` as a foreign key reference in the insert operation.
 
 **Kind**: inner method of [<code>DB API: zcl loading queries</code>](#module_DB API_ zcl loading queries)  
 **Returns**: A promise resolved with the result of the database insert operation.  
@@ -4031,7 +4030,6 @@ The function also includes the `packageId` as a foreign key reference in the ins
 | db | <code>\*</code> | The database connection object. |
 | composition | <code>\*</code> | The composition data to be inserted. |
 | context | <code>\*</code> | The context containing the mandatory device type to check against. |
-| packageId | <code>\*</code> | The package ID to be used as a foreign key reference. |
 
 <a name="module_DB API_ zcl loading queries..getEndpointCompositionIdByCode"></a>
 
