@@ -230,36 +230,38 @@ export default defineComponent({
       this.$store.dispatch('zap/setDefaultUiMode', 'general')
       this.$store.commit('zap/toggleShowExceptionIcon', false)
     },
-    async loadRootNode() {
+    async loadInitialEndpoints() {
       let endpoint = await this.$store.dispatch('zap/loadComposition')
-      this.$store.dispatch('zap/updateSelectedEndpointType', {
-        endpointType: this.endpointType[endpoint.id],
-        deviceTypeRef:
-          this.endpointDeviceTypeRef[this.endpointType[endpoint.id]]
-      })
-      this.$store.dispatch('zap/updateClusters')
-      let info = await this.$store.dispatch(
-        'zap/endpointTypeClustersInfo',
-        this.endpointType[endpoint.id]
-      )
-      if (info.data) {
-        const clusterStates = info.data
-        const enabledClusterStates = clusterStates.filter((x) => x.enabled)
-        for (const states of enabledClusterStates) {
-          const { endpointTypeRef, clusterRef, side, enabled } = states
+      if (endpoint) {
+        this.$store.dispatch('zap/updateSelectedEndpointType', {
+          endpointType: this.endpointType[endpoint.id],
+          deviceTypeRef:
+            this.endpointDeviceTypeRef[this.endpointType[endpoint.id]]
+        })
+        this.$store.dispatch('zap/updateClusters')
+        let info = await this.$store.dispatch(
+          'zap/endpointTypeClustersInfo',
+          this.endpointType[endpoint.id]
+        )
+        if (info.data) {
+          const clusterStates = info.data
+          const enabledClusterStates = clusterStates.filter((x) => x.enabled)
+          for (const states of enabledClusterStates) {
+            const { endpointTypeRef, clusterRef, side, enabled } = states
 
-          const arg = {
-            side: [side],
-            clusterId: clusterRef,
-            added: enabled
+            const arg = {
+              side: [side],
+              clusterId: clusterRef,
+              added: enabled
+            }
+
+            console.log(`Enabling UC component ${JSON.stringify(arg)}`)
+            this.updateSelectedComponentRequest(arg)
           }
-
-          console.log(`Enabling UC component ${JSON.stringify(arg)}`)
-          this.updateSelectedComponentRequest(arg)
         }
+        this.$store.dispatch('zap/updateSelectedEndpoint', endpoint.id)
+        this.$store.commit('zap/toggleEndpointModal', false)
       }
-      this.$store.dispatch('zap/updateSelectedEndpoint', endpoint.id)
-      this.$store.commit('zap/toggleEndpointModal', false)
     },
     getAppData() {
       if (this.$serverGet != null) {
@@ -325,8 +327,8 @@ export default defineComponent({
 
       // load initial UC component state
       this.$store.dispatch(`zap/loadUcComponentState`)
-      if (this.uiThemeCategory == 'matter' && query[`newConfig`]) {
-        this.loadRootNode()
+      if (query[`newConfig`]) {
+        this.loadInitialEndpoints()
       }
 
       // handles UC component state change events

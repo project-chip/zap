@@ -208,7 +208,7 @@ function httpPostEndpointType(db) {
  * @param {Object} db - The database connection object.
  * @returns {Function} - An async function that handles the HTTP request and response.
  */
-function httpGetRootNode(db) {
+function httpGetInitialComposition(db) {
   return async (request, response) => {
     let sessionId = request.zapSessionId
     let packages = await queryPackage.getPackageSessionPackagePairBySessionId(
@@ -256,8 +256,8 @@ function httpPatchEndpointType(db) {
 }
 exports.get = [
   {
-    uri: restApi.uri.rootNode,
-    callback: httpGetRootNode
+    uri: restApi.uri.loadComposition,
+    callback: httpGetInitialComposition
   }
 ]
 exports.post = [

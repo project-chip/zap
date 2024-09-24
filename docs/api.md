@@ -15064,7 +15064,7 @@ This module provides the REST API to the user specific data.
     * [~httpPostEndpoint(db)](#module_REST API_ endpoint..httpPostEndpoint) ⇒
     * [~httpPatchEndpoint(db)](#module_REST API_ endpoint..httpPatchEndpoint) ⇒
     * [~httpPostEndpointType(db)](#module_REST API_ endpoint..httpPostEndpointType) ⇒
-    * [~httpGetRootNode(db)](#module_REST API_ endpoint..httpGetRootNode) ⇒ <code>function</code>
+    * [~httpGetInitialComposition(db)](#module_REST API_ endpoint..httpGetInitialComposition) ⇒ <code>function</code>
     * [~httpPatchEndpointType(db)](#module_REST API_ endpoint..httpPatchEndpointType) ⇒
 
 <a name="module_REST API_ endpoint..httpDeleteEndpoint"></a>
@@ -15127,9 +15127,9 @@ HTTP POST endpoint type
 | --- | --- |
 | db | <code>\*</code> | 
 
-<a name="module_REST API_ endpoint..httpGetRootNode"></a>
+<a name="module_REST API_ endpoint..httpGetInitialComposition"></a>
 
-### REST API: endpoint~httpGetRootNode(db) ⇒ <code>function</code>
+### REST API: endpoint~httpGetInitialComposition(db) ⇒ <code>function</code>
 Handles the HTTP GET request to retrieve the root node.
 
 **Kind**: inner method of [<code>REST API: endpoint</code>](#module_REST API_ endpoint)  

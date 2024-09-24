@@ -461,13 +461,20 @@ export function updateEndpoint(context, endpoint) {
  * @returns {Promise<void>} - A promise that resolves when the composition is loaded.
  */
 export async function loadComposition(context) {
-  let res = await axiosRequests.$serverGet(restApi.uri.rootNode)
+  let res = await axiosRequests.$serverGet(restApi.uri.loadComposition)
+
+  // Check if the response data is empty or undefined
+  if (!res.data) {
+    return null // Return null or any appropriate value indicating no endpoints were added
+  }
+
   let dataArray = {
     deviceTypeRef: [res.data.deviceTypeRef],
     deviceIdentifier: res.data.code,
     deviceVersion: dbEnum.rootNode.deviceVersion,
     name: res.data.name
   }
+
   let endpointTypeData = await addEndpointType(context, dataArray) // Call addEndpointType with the array containing deviceTypeRef
 
   let endpoint = await addEndpoint(context, {
@@ -475,6 +482,7 @@ export async function loadComposition(context) {
     parentEndpointIdentifier: dbEnum.rootNode.parentEndpointIdentifier,
     endpointType: endpointTypeData.id
   }) // Call addEndpoint with the data returned from addEndpointType
+
   return endpoint
 }
 
