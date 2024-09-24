@@ -467,23 +467,24 @@ export async function loadComposition(context) {
   if (!res.data) {
     return null // Return null or any appropriate value indicating no endpoints were added
   }
+  if (res.data.type == dbEnum.composition.rootNode) {
+    let dataArray = {
+      deviceTypeRef: [res.data.deviceTypeRef],
+      deviceIdentifier: res.data.code,
+      deviceVersion: dbEnum.rootNode.deviceVersion,
+      name: res.data.name
+    }
 
-  let dataArray = {
-    deviceTypeRef: [res.data.deviceTypeRef],
-    deviceIdentifier: res.data.code,
-    deviceVersion: dbEnum.rootNode.deviceVersion,
-    name: res.data.name
+    let endpointTypeData = await addEndpointType(context, dataArray) // Call addEndpointType with the array containing deviceTypeRef
+
+    let endpoint = await addEndpoint(context, {
+      endpointId: dbEnum.rootNode.endpointId,
+      parentEndpointIdentifier: dbEnum.rootNode.parentEndpointIdentifier,
+      endpointType: endpointTypeData.id
+    })
+    return endpoint
   }
-
-  let endpointTypeData = await addEndpointType(context, dataArray) // Call addEndpointType with the array containing deviceTypeRef
-
-  let endpoint = await addEndpoint(context, {
-    endpointId: dbEnum.rootNode.endpointId,
-    parentEndpointIdentifier: dbEnum.rootNode.parentEndpointIdentifier,
-    endpointType: endpointTypeData.id
-  }) // Call addEndpoint with the data returned from addEndpointType
-
-  return endpoint
+  return null
 }
 
 /**

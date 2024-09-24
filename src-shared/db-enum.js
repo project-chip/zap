@@ -38,7 +38,8 @@ exports.packageType = {
 exports.rootNode = {
   endpointId: 0,
   getParentEndpointIdentifier: null,
-  deviceVersion: 1
+  deviceVersion: 1,
+  type: 'rootNode'
 }
 
 exports.packageOptionCategory = {

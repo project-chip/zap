@@ -71,17 +71,18 @@ ORDER BY E1.ENDPOINT_IDENTIFIER
 async function getRootNode(db, packageIds) {
   const query = `
     SELECT 
-      ec.DEVICE_TYPE_REF, 
-      ec.CODE, 
-      dt.NAME, 
-      dt.PACKAGE_REF
+      EC.DEVICE_TYPE_REF, 
+      EC.CODE, 
+      EC.TYPE,
+      DT.NAME, 
+      DT.PACKAGE_REF
     FROM 
-      ENDPOINT_COMPOSITION ec
+      ENDPOINT_COMPOSITION EC
     JOIN 
-      DEVICE_TYPE dt ON ec.DEVICE_TYPE_REF = dt.DEVICE_TYPE_ID
+      DEVICE_TYPE DT ON EC.DEVICE_TYPE_REF = DT.DEVICE_TYPE_ID
     WHERE 
-      ec.TYPE = ? AND 
-      dt.PACKAGE_REF IN (${packageIds.map(() => '?').join(', ')})
+      EC.TYPE = ? AND 
+      DT.PACKAGE_REF IN (${packageIds.map(() => '?').join(', ')})
   `
 
   let result = await dbApi.dbAll(db, query, [
