@@ -4034,18 +4034,15 @@ If they do not match, it performs an insert with the composition's type.
 <a name="module_DB API_ zcl loading queries..getEndpointCompositionIdByCode"></a>
 
 ### DB API: zcl loading queries~getEndpointCompositionIdByCode(db, deviceType) ⇒ <code>Promise.&lt;(number\|null)&gt;</code>
-Retrieves the endpoint composition ID by device code.
-
-This function executes a SQL query to fetch the endpoint composition ID
-associated with a given device code. If the query fails, an error is logged.
+Retrieves the endpoint composition ID for a given device type code.
 
 **Kind**: inner method of [<code>DB API: zcl loading queries</code>](#module_DB API_ zcl loading queries)  
-**Returns**: <code>Promise.&lt;(number\|null)&gt;</code> - The endpoint composition ID or null if not found.  
+**Returns**: <code>Promise.&lt;(number\|null)&gt;</code> - - A promise that resolves to the endpoint composition ID or null if not found.  
 
 | Param | Type | Description |
 | --- | --- | --- |
-| db | <code>Object</code> | The database connection object. |
-| deviceType | <code>Object</code> | The device type object containing the device code. |
+| db | <code>\*</code> | The database connection object. |
+| deviceType | <code>Object</code> | The device type object containing the code. |
 
 <a name="module_DB API_ zcl loading queries..insertDeviceComposition"></a>
 
@@ -15065,6 +15062,7 @@ This module provides the REST API to the user specific data.
     * [~httpPostEndpoint(db)](#module_REST API_ endpoint..httpPostEndpoint) ⇒
     * [~httpPatchEndpoint(db)](#module_REST API_ endpoint..httpPatchEndpoint) ⇒
     * [~httpPostEndpointType(db)](#module_REST API_ endpoint..httpPostEndpointType) ⇒
+    * [~httpGetInitialComposition(db)](#module_REST API_ endpoint..httpGetInitialComposition) ⇒ <code>function</code>
     * [~httpPatchEndpointType(db)](#module_REST API_ endpoint..httpPatchEndpointType) ⇒
 
 <a name="module_REST API_ endpoint..httpDeleteEndpoint"></a>
@@ -15126,6 +15124,18 @@ HTTP POST endpoint type
 | Param | Type |
 | --- | --- |
 | db | <code>\*</code> | 
+
+<a name="module_REST API_ endpoint..httpGetInitialComposition"></a>
+
+### REST API: endpoint~httpGetInitialComposition(db) ⇒ <code>function</code>
+Handles the HTTP GET request to retrieve the root node.
+
+**Kind**: inner method of [<code>REST API: endpoint</code>](#module_REST API_ endpoint)  
+**Returns**: <code>function</code> - - An async function that handles the HTTP request and response.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| db | <code>Object</code> | The database connection object. |
 
 <a name="module_REST API_ endpoint..httpPatchEndpointType"></a>
 

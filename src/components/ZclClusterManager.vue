@@ -351,7 +351,8 @@ export default {
       this.$store.dispatch('zap/setFilterString', filterString)
     },
     updateDeviceTypeFeatures() {
-      let deviceTypeRefs = this.endpointDeviceTypeRef[this.selectedEndpointId]
+      let deviceTypeRefs =
+        this.endpointDeviceTypeRef[this.selectedEndpointTypeId]
       this.$store.dispatch(
         'zap/updateSelectedDeviceTypeFeatures',
         deviceTypeRefs

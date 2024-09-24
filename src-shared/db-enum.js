@@ -35,6 +35,13 @@ exports.packageType = {
   jsonExtension: 'json-extension'
 }
 
+exports.rootNode = {
+  endpointId: 0,
+  getParentEndpointIdentifier: null,
+  deviceVersion: 1,
+  type: 'rootNode'
+}
+
 exports.packageOptionCategory = {
   manufacturerCodes: 'manufacturerCodes',
   typeMap: 'typeMap',
@@ -78,7 +85,7 @@ exports.storageOption = {
 exports.composition = {
   fullFamily: 'fullFamily',
   tree: 'tree',
-  mandatoryEndpoint: 'mandatoryEndpoint'
+  rootNode: 'rootNode'
 }
 
 exports.zclType = {

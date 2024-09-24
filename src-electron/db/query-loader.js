@@ -1029,46 +1029,33 @@ async function insertAtomics(db, packageId, data) {
  * @returns A promise resolved with the result of the database insert operation.
  */
 async function insertEndpointComposition(db, composition, context) {
-  try {
-    if (parseInt(context.mandatoryDeviceTypes, 16) === composition.code) {
-      return await dbApi.dbInsert(
-        db,
-        'INSERT INTO ENDPOINT_COMPOSITION (TYPE, CODE) VALUES (?, ?)',
-        [dbEnum.composition.mandatoryEndpoint, composition.code]
-      )
-    } else {
-      return await dbApi.dbInsert(
-        db,
-        'INSERT INTO ENDPOINT_COMPOSITION (TYPE, CODE) VALUES (?, ?)',
-        [composition.compositionType, composition.code]
-      )
-    }
-  } catch (error) {
-    console.error('Error inserting endpoint composition:', error)
-    throw error // Re-throw the error after logging it
+  if (parseInt(context.mandatoryDeviceTypes, 16) === composition.code) {
+    return dbApi.dbInsert(
+      db,
+      'INSERT INTO ENDPOINT_COMPOSITION (TYPE, CODE) VALUES (?, ?)',
+      [dbEnum.composition.rootNode, composition.code]
+    )
+  } else {
+    return dbApi.dbInsert(
+      db,
+      'INSERT INTO ENDPOINT_COMPOSITION (TYPE, CODE) VALUES (?, ?)',
+      [composition.compositionType, composition.code]
+    )
   }
 }
 
 /**
- * Retrieves the endpoint composition ID by device code.
+ * Retrieves the endpoint composition ID for a given device type code.
  *
- * This function executes a SQL query to fetch the endpoint composition ID
- * associated with a given device code. If the query fails, an error is logged.
- *
- * @param {Object} db - The database connection object.
- * @param {Object} deviceType - The device type object containing the device code.
- * @returns {Promise<number|null>} The endpoint composition ID or null if not found.
+ * @param {*} db - The database connection object.
+ * @param {Object} deviceType - The device type object containing the code.
+ * @returns {Promise<number|null>} - A promise that resolves to the endpoint composition ID or null if not found.
  */
 async function getEndpointCompositionIdByCode(db, deviceType) {
   const query =
     'SELECT ENDPOINT_COMPOSITION_ID FROM ENDPOINT_COMPOSITION WHERE CODE = ?'
-  try {
-    const result = await dbApi.dbGet(db, query, [deviceType.code])
-    return result ? result.ENDPOINT_COMPOSITION_ID : null
-  } catch (error) {
-    console.error('Error retrieving endpoint composition ID:', error)
-    return null
-  }
+  const result = await dbApi.dbGet(db, query, [deviceType.code])
+  return result ? result.ENDPOINT_COMPOSITION_ID : null
 }
 
 /**

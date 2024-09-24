@@ -35,6 +35,7 @@ import { defineComponent } from 'vue'
 import { QSpinnerGears } from 'quasar'
 import ZclTour from './tutorials/ZclTour.vue'
 import CommonMixin from './util/common-mixin'
+import uiOptions from './util/ui-options'
 
 const rendApi = require(`../src-shared/rend-api.js`)
 const restApi = require(`../src-shared/rest-api.js`)
@@ -136,8 +137,18 @@ export default defineComponent({
   components: {
     ZclTour
   },
-  mixins: [CommonMixin],
+  mixins: [CommonMixin, uiOptions],
   computed: {
+    endpointType: {
+      get() {
+        return this.$store.state.zap.endpointView.endpointType
+      }
+    },
+    endpointDeviceTypeRef: {
+      get() {
+        return this.$store.state.zap.endpointTypeView.deviceTypeRef
+      }
+    },
     showExceptionIcon() {
       return this.$store.state.zap.showExceptionIcon
     },
@@ -219,6 +230,39 @@ export default defineComponent({
       this.$store.dispatch('zap/setDefaultUiMode', 'general')
       this.$store.commit('zap/toggleShowExceptionIcon', false)
     },
+    async loadInitialEndpoints() {
+      let endpoint = await this.$store.dispatch('zap/loadComposition')
+      if (endpoint) {
+        this.$store.dispatch('zap/updateSelectedEndpointType', {
+          endpointType: this.endpointType[endpoint.id],
+          deviceTypeRef:
+            this.endpointDeviceTypeRef[this.endpointType[endpoint.id]]
+        })
+        this.$store.dispatch('zap/updateClusters')
+        let info = await this.$store.dispatch(
+          'zap/endpointTypeClustersInfo',
+          this.endpointType[endpoint.id]
+        )
+        if (info.data) {
+          const clusterStates = info.data
+          const enabledClusterStates = clusterStates.filter((x) => x.enabled)
+          for (const states of enabledClusterStates) {
+            const { endpointTypeRef, clusterRef, side, enabled } = states
+
+            const arg = {
+              side: [side],
+              clusterId: clusterRef,
+              added: enabled
+            }
+
+            console.log(`Enabling UC component ${JSON.stringify(arg)}`)
+            this.updateSelectedComponentRequest(arg)
+          }
+        }
+        this.$store.dispatch('zap/updateSelectedEndpoint', endpoint.id)
+        this.$store.commit('zap/toggleEndpointModal', false)
+      }
+    },
     getAppData() {
       if (this.$serverGet != null) {
         this.$serverGet(restApi.uri.uiOptions).then((res) => {
@@ -283,6 +327,9 @@ export default defineComponent({
 
       // load initial UC component state
       this.$store.dispatch(`zap/loadUcComponentState`)
+      if (query[`newConfig`]) {
+        this.loadInitialEndpoints()
+      }
 
       // handles UC component state change events
       this.$onWebSocket(

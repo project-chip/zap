@@ -775,6 +775,16 @@ exports.map = {
     }
   },
 
+  rootNode: (x) => {
+    if (x == null) return undefined
+    return {
+      deviceTypeRef: x.DEVICE_TYPE_REF,
+      code: x.CODE,
+      name: x.NAME,
+      type: x.TYPE
+    }
+  },
+
   user: (x) => {
     if (x == null) return undefined
     return {

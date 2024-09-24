@@ -164,7 +164,7 @@ limitations under the License.
               }}</strong>
             </div>
           </q-item>
-          <q-item class="row">
+          <q-item class="row" v-if="enableNetworkId">
             <div class="col-6">
               <strong>Network</strong>
             </div>
@@ -180,7 +180,7 @@ limitations under the License.
               <strong>{{ parentEndpointIdentifier[endpointReference] }}</strong>
             </div>
           </q-item>
-          <q-item class="row" v-if="showProfileId">
+          <q-item class="row" v-if="enableProfileId">
             <div class="col-6">
               <strong>Profile ID</strong>
             </div>
@@ -494,15 +494,6 @@ export default {
     profileId: {
       get() {
         return this.$store.state.zap.endpointView.profileId
-      }
-    },
-    showProfileId: {
-      get() {
-        return (
-          this.getDeviceCategory(this.deviceType[0].packageRef) === 'zigbee' &&
-          this.$store.state.zap.isProfileIdShown &&
-          this.enableProfileId
-        )
       }
     },
     deviceId: {

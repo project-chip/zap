@@ -25,6 +25,7 @@ const queryEndpointType = require('../db/query-endpoint-type.js')
 const queryEndpoint = require('../db/query-endpoint.js')
 const queryConfig = require('../db/query-config.js')
 const querySession = require('../db/query-session.js')
+const queryPackage = require('../db/query-package.js')
 const validation = require('../validation/validation.js')
 const restApi = require('../../src-shared/rest-api.js')
 const notification = require('../db/query-session-notification.js')
@@ -202,6 +203,25 @@ function httpPostEndpointType(db) {
 }
 
 /**
+ * Handles the HTTP GET request to retrieve the root node.
+ *
+ * @param {Object} db - The database connection object.
+ * @returns {Function} - An async function that handles the HTTP request and response.
+ */
+function httpGetInitialComposition(db) {
+  return async (request, response) => {
+    let sessionId = request.zapSessionId
+    let packages = await queryPackage.getPackageSessionPackagePairBySessionId(
+      db,
+      sessionId
+    )
+    let packageIds = packages.map((item) => item.pkg.id)
+    let rootNode = await queryEndpoint.getRootNode(db, packageIds)
+    response.status(StatusCodes.OK).json(rootNode[0])
+  }
+}
+
+/**
  * HTTP POST: endpoint type update
  *
  * @param {*} db
@@ -234,7 +254,12 @@ function httpPatchEndpointType(db) {
     })
   }
 }
-
+exports.get = [
+  {
+    uri: restApi.uri.loadComposition,
+    callback: httpGetInitialComposition
+  }
+]
 exports.post = [
   {
     uri: restApi.uri.endpoint,

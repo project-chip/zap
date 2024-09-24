@@ -405,11 +405,6 @@ export default {
         return this.$store.state.zap.endpointTypeView.deviceVersion
       }
     },
-    endpointDeviceTypeRef: {
-      get() {
-        return this.$store.state.zap.endpointTypeView.deviceTypeRef
-      }
-    },
     endpointDeviceId: {
       get() {
         return this.$store.state.zap.endpointTypeView.deviceIdentifier
@@ -693,7 +688,10 @@ export default {
                   }
                 })
 
-              this.$store.dispatch('zap/updateSelectedEndpoint', res.id)
+              this.$store.dispatch(
+                'zap/updateSelectedEndpoint',
+                res.endpointType
+              )
               this.$store.commit('zap/toggleEndpointModal', false)
             })
         })
