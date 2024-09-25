@@ -164,7 +164,7 @@ limitations under the License.
               }}</strong>
             </div>
           </q-item>
-          <q-item class="row" v-if="enableNetworkId">
+          <q-item class="row">
             <div class="col-6">
               <strong>Network</strong>
             </div>
@@ -173,14 +173,14 @@ limitations under the License.
             </div>
           </q-item>
           <q-item class="row">
-            <div class="col-6" v-if="enableParentEndpoint">
+            <div class="col-6" v-if="showParentEndpointIdentifier">
               <strong>Parent Endpoint</strong>
             </div>
-            <div class="col-6" v-if="enableParentEndpoint">
+            <div class="col-6" v-if="showParentEndpointIdentifier">
               <strong>{{ parentEndpointIdentifier[endpointReference] }}</strong>
             </div>
           </q-item>
-          <q-item class="row" v-if="enableProfileId">
+          <q-item class="row" v-if="showProfileId">
             <div class="col-6">
               <strong>Profile ID</strong>
             </div>
@@ -419,6 +419,15 @@ export default {
       if (this.$route.path !== '/') {
         this.$router.push({ path: '/' })
       }
+      if (this.$store.state.zap.isMultiConfig) {
+        if (categoryTmp === 'zigbee') {
+          this.$store.state.zap.cmpEnableZigbeeFeatures = true
+          this.$store.state.zap.cmpEnableMatterFeatures = false
+        } else {
+          this.$store.state.zap.cmpEnableZigbeeFeatures = false
+          this.$store.state.zap.cmpEnableMatterFeatures = true
+        }
+      }
     }
   },
   computed: {
@@ -491,9 +500,25 @@ export default {
         return this.$store.state.zap.endpointView.parentEndpointIdentifier
       }
     },
+    showParentEndpointIdentifier: {
+      get() {
+        return (
+          this.getDeviceCategory(this.deviceType[0].packageRef) === 'matter'
+        )
+      }
+    },
     profileId: {
       get() {
         return this.$store.state.zap.endpointView.profileId
+      }
+    },
+    showProfileId: {
+      get() {
+        return (
+          this.getDeviceCategory(this.deviceType[0].packageRef) === 'zigbee' &&
+          this.$store.state.zap.isProfileIdShown &&
+          this.enableProfileId
+        )
       }
     },
     deviceId: {
