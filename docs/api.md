@@ -19624,9 +19624,11 @@ This module provides the APIs for dotdot Loading
     * [~prepareCommands(commands, side, types)](#module_Loader API_ Loader APIs..prepareCommands) ⇒
     * [~prepareCluster(cluster, isExtension, types)](#module_Loader API_ Loader APIs..prepareCluster) ⇒
     * [~prepareAtomic(type)](#module_Loader API_ Loader APIs..prepareAtomic) ⇒
+    * [~prepareSubAtomic(type, atomics)](#module_Loader API_ Loader APIs..prepareSubAtomic) ⇒
     * [~prepareBitmap(type, isContained)](#module_Loader API_ Loader APIs..prepareBitmap) ⇒
     * [~prepareEnum(type)](#module_Loader API_ Loader APIs..prepareEnum) ⇒
     * [~prepareStruct(type)](#module_Loader API_ Loader APIs..prepareStruct) ⇒
+    * [~prepareSubAtomicTypes(types)](#module_Loader API_ Loader APIs..prepareSubAtomicTypes)
     * [~prepareTypes(zclTypes, types)](#module_Loader API_ Loader APIs..prepareTypes)
     * [~prepareAttributeType(attribute, types, cluster)](#module_Loader API_ Loader APIs..prepareAttributeType)
     * [~prepareDeviceType(deviceType)](#module_Loader API_ Loader APIs..prepareDeviceType) ⇒
@@ -19891,6 +19893,19 @@ Parses xml type into the atomic object for insertion into the DB
 | --- | --- | --- |
 | type | <code>\*</code> | an xml object which conforms to the atomic format in the dotdot xml |
 
+<a name="module_Loader API_ Loader APIs..prepareSubAtomic"></a>
+
+### Loader API: Loader APIs~prepareSubAtomic(type, atomics) ⇒
+Parses xml type into the sub-atomic object for insertion into the DB
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: object ready for insertion into the DB  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| type | <code>\*</code> | an xml object which conforms to the sub-atomic format in the dotdot xml |
+| atomics | <code>\*</code> | an array of atomic types |
+
 <a name="module_Loader API_ Loader APIs..prepareBitmap"></a>
 
 ### Loader API: Loader APIs~prepareBitmap(type, isContained) ⇒
@@ -19927,6 +19942,17 @@ Parses xml type into the struct object for insertion into the DB
 | Param | Type | Description |
 | --- | --- | --- |
 | type | <code>\*</code> | an xml object which conforms to the struct format in the dotdot xml |
+
+<a name="module_Loader API_ Loader APIs..prepareSubAtomicTypes"></a>
+
+### Loader API: Loader APIs~prepareSubAtomicTypes(types)
+Parses array of xml objects that conform to the sub-atomic format in the dotdot xml
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+
+| Param | Type |
+| --- | --- |
+| types | <code>\*</code> | 
 
 <a name="module_Loader API_ Loader APIs..prepareTypes"></a>
 
@@ -21424,9 +21450,11 @@ This module provides the APIs for new data model loading
     * [~prepareCommands(commands, side, types)](#module_Loader API_ Loader APIs..prepareCommands) ⇒
     * [~prepareCluster(cluster, isExtension, types)](#module_Loader API_ Loader APIs..prepareCluster) ⇒
     * [~prepareAtomic(type)](#module_Loader API_ Loader APIs..prepareAtomic) ⇒
+    * [~prepareSubAtomic(type, atomics)](#module_Loader API_ Loader APIs..prepareSubAtomic) ⇒
     * [~prepareBitmap(type, isContained)](#module_Loader API_ Loader APIs..prepareBitmap) ⇒
     * [~prepareEnum(type)](#module_Loader API_ Loader APIs..prepareEnum) ⇒
     * [~prepareStruct(type)](#module_Loader API_ Loader APIs..prepareStruct) ⇒
+    * [~prepareSubAtomicTypes(types)](#module_Loader API_ Loader APIs..prepareSubAtomicTypes)
     * [~prepareTypes(zclTypes, types)](#module_Loader API_ Loader APIs..prepareTypes)
     * [~prepareAttributeType(attribute, types, cluster)](#module_Loader API_ Loader APIs..prepareAttributeType)
     * [~prepareDeviceType(deviceType)](#module_Loader API_ Loader APIs..prepareDeviceType) ⇒
@@ -21691,6 +21719,19 @@ Parses xml type into the atomic object for insertion into the DB
 | --- | --- | --- |
 | type | <code>\*</code> | an xml object which conforms to the atomic format in the dotdot xml |
 
+<a name="module_Loader API_ Loader APIs..prepareSubAtomic"></a>
+
+### Loader API: Loader APIs~prepareSubAtomic(type, atomics) ⇒
+Parses xml type into the sub-atomic object for insertion into the DB
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: object ready for insertion into the DB  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| type | <code>\*</code> | an xml object which conforms to the sub-atomic format in the dotdot xml |
+| atomics | <code>\*</code> | an array of atomic types |
+
 <a name="module_Loader API_ Loader APIs..prepareBitmap"></a>
 
 ### Loader API: Loader APIs~prepareBitmap(type, isContained) ⇒
@@ -21727,6 +21768,17 @@ Parses xml type into the struct object for insertion into the DB
 | Param | Type | Description |
 | --- | --- | --- |
 | type | <code>\*</code> | an xml object which conforms to the struct format in the dotdot xml |
+
+<a name="module_Loader API_ Loader APIs..prepareSubAtomicTypes"></a>
+
+### Loader API: Loader APIs~prepareSubAtomicTypes(types)
+Parses array of xml objects that conform to the sub-atomic format in the dotdot xml
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+
+| Param | Type |
+| --- | --- |
+| types | <code>\*</code> | 
 
 <a name="module_Loader API_ Loader APIs..prepareTypes"></a>
 
@@ -23224,9 +23276,11 @@ This module provides the APIs for ZCL/Data-Model loading.
     * [~prepareCommands(commands, side, types)](#module_Loader API_ Loader APIs..prepareCommands) ⇒
     * [~prepareCluster(cluster, isExtension, types)](#module_Loader API_ Loader APIs..prepareCluster) ⇒
     * [~prepareAtomic(type)](#module_Loader API_ Loader APIs..prepareAtomic) ⇒
+    * [~prepareSubAtomic(type, atomics)](#module_Loader API_ Loader APIs..prepareSubAtomic) ⇒
     * [~prepareBitmap(type, isContained)](#module_Loader API_ Loader APIs..prepareBitmap) ⇒
     * [~prepareEnum(type)](#module_Loader API_ Loader APIs..prepareEnum) ⇒
     * [~prepareStruct(type)](#module_Loader API_ Loader APIs..prepareStruct) ⇒
+    * [~prepareSubAtomicTypes(types)](#module_Loader API_ Loader APIs..prepareSubAtomicTypes)
     * [~prepareTypes(zclTypes, types)](#module_Loader API_ Loader APIs..prepareTypes)
     * [~prepareAttributeType(attribute, types, cluster)](#module_Loader API_ Loader APIs..prepareAttributeType)
     * [~prepareDeviceType(deviceType)](#module_Loader API_ Loader APIs..prepareDeviceType) ⇒
@@ -23491,6 +23545,19 @@ Parses xml type into the atomic object for insertion into the DB
 | --- | --- | --- |
 | type | <code>\*</code> | an xml object which conforms to the atomic format in the dotdot xml |
 
+<a name="module_Loader API_ Loader APIs..prepareSubAtomic"></a>
+
+### Loader API: Loader APIs~prepareSubAtomic(type, atomics) ⇒
+Parses xml type into the sub-atomic object for insertion into the DB
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: object ready for insertion into the DB  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| type | <code>\*</code> | an xml object which conforms to the sub-atomic format in the dotdot xml |
+| atomics | <code>\*</code> | an array of atomic types |
+
 <a name="module_Loader API_ Loader APIs..prepareBitmap"></a>
 
 ### Loader API: Loader APIs~prepareBitmap(type, isContained) ⇒
@@ -23527,6 +23594,17 @@ Parses xml type into the struct object for insertion into the DB
 | Param | Type | Description |
 | --- | --- | --- |
 | type | <code>\*</code> | an xml object which conforms to the struct format in the dotdot xml |
+
+<a name="module_Loader API_ Loader APIs..prepareSubAtomicTypes"></a>
+
+### Loader API: Loader APIs~prepareSubAtomicTypes(types)
+Parses array of xml objects that conform to the sub-atomic format in the dotdot xml
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+
+| Param | Type |
+| --- | --- |
+| types | <code>\*</code> | 
 
 <a name="module_Loader API_ Loader APIs..prepareTypes"></a>
 
@@ -25024,9 +25102,11 @@ This module provides the APIs for for common functionality related to loading.
     * [~prepareCommands(commands, side, types)](#module_Loader API_ Loader APIs..prepareCommands) ⇒
     * [~prepareCluster(cluster, isExtension, types)](#module_Loader API_ Loader APIs..prepareCluster) ⇒
     * [~prepareAtomic(type)](#module_Loader API_ Loader APIs..prepareAtomic) ⇒
+    * [~prepareSubAtomic(type, atomics)](#module_Loader API_ Loader APIs..prepareSubAtomic) ⇒
     * [~prepareBitmap(type, isContained)](#module_Loader API_ Loader APIs..prepareBitmap) ⇒
     * [~prepareEnum(type)](#module_Loader API_ Loader APIs..prepareEnum) ⇒
     * [~prepareStruct(type)](#module_Loader API_ Loader APIs..prepareStruct) ⇒
+    * [~prepareSubAtomicTypes(types)](#module_Loader API_ Loader APIs..prepareSubAtomicTypes)
     * [~prepareTypes(zclTypes, types)](#module_Loader API_ Loader APIs..prepareTypes)
     * [~prepareAttributeType(attribute, types, cluster)](#module_Loader API_ Loader APIs..prepareAttributeType)
     * [~prepareDeviceType(deviceType)](#module_Loader API_ Loader APIs..prepareDeviceType) ⇒
@@ -25291,6 +25371,19 @@ Parses xml type into the atomic object for insertion into the DB
 | --- | --- | --- |
 | type | <code>\*</code> | an xml object which conforms to the atomic format in the dotdot xml |
 
+<a name="module_Loader API_ Loader APIs..prepareSubAtomic"></a>
+
+### Loader API: Loader APIs~prepareSubAtomic(type, atomics) ⇒
+Parses xml type into the sub-atomic object for insertion into the DB
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: object ready for insertion into the DB  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| type | <code>\*</code> | an xml object which conforms to the sub-atomic format in the dotdot xml |
+| atomics | <code>\*</code> | an array of atomic types |
+
 <a name="module_Loader API_ Loader APIs..prepareBitmap"></a>
 
 ### Loader API: Loader APIs~prepareBitmap(type, isContained) ⇒
@@ -25327,6 +25420,17 @@ Parses xml type into the struct object for insertion into the DB
 | Param | Type | Description |
 | --- | --- | --- |
 | type | <code>\*</code> | an xml object which conforms to the struct format in the dotdot xml |
+
+<a name="module_Loader API_ Loader APIs..prepareSubAtomicTypes"></a>
+
+### Loader API: Loader APIs~prepareSubAtomicTypes(types)
+Parses array of xml objects that conform to the sub-atomic format in the dotdot xml
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+
+| Param | Type |
+| --- | --- |
+| types | <code>\*</code> | 
 
 <a name="module_Loader API_ Loader APIs..prepareTypes"></a>
 

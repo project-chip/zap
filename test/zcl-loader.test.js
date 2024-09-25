@@ -85,6 +85,20 @@ test(
       expect(x.length).toEqual(54)
       x = await queryZcl.selectAllBitmaps(db, packageId)
       expect(x.length).toEqual(129)
+
+      x = await queryZcl.selectAllStrings(db, packageId)
+      x = x.map((item) => item.name)
+      let strings = [
+        'octet_string',
+        'char_string',
+        'long_octet_string',
+        'long_char_string'
+      ]
+      expect(x.length).toEqual(4)
+      strings.forEach((s) => {
+        expect(x).toContain(s)
+      })
+
       x = await queryDeviceType.selectAllDeviceTypes(db, packageId)
       expect(x.length).toEqual(175)
       x = await testQuery.selectCountFrom(db, 'COMMAND_ARG')
@@ -291,6 +305,15 @@ test(
       expect(x).toEqual(630)
       x = await queryZcl.selectAllAtomics(db, packageId)
       expect(x.length).toEqual(56)
+
+      x = await queryZcl.selectAllStrings(db, packageId)
+      x = x.map((item) => item.name)
+      let strings = ['octstr', 'string', 'octstr16', 'string16']
+      expect(x.length).toEqual(5) // 5th string is a subatomic type
+      strings.forEach((s) => {
+        expect(x).toContain(s)
+      })
+
       x = await queryZcl.selectAllBitmaps(db, packageId)
       expect(x.length).toEqual(69)
       x = await queryZcl.selectAllEnums(db, packageId)
