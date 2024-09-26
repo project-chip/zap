@@ -453,7 +453,7 @@ export default {
 
         // Set / unset multiple device option in mcp
         if (this.$store.state.zap.isMultiConfig) {
-          if (categoryTmp === 'zigbee') {
+          if (categoryTmp === DbEnum.helperCategory.zigbee) {
             this.$store.state.zap.cmpEnableZigbeeFeatures = true
             this.$store.state.zap.cmpEnableMatterFeatures = false
           } else {
