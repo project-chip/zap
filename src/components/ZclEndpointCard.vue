@@ -420,7 +420,10 @@ export default {
         this.$router.push({ path: '/' })
       }
       if (this.$store.state.zap.isMultiConfig) {
-        if (categoryTmp === dbEnum.helperCategory.zigbee) {
+        if (
+          this.getDeviceCategory(this.deviceType[0].packageRef) ===
+          dbEnum.helperCategory.zigbee
+        ) {
           this.$store.state.zap.cmpEnableZigbeeFeatures = true
           this.$store.state.zap.cmpEnableMatterFeatures = false
         } else {
