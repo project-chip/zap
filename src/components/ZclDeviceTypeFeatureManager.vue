@@ -17,10 +17,11 @@ limitations under the License.
 <template>
   <div class="col q-px-lg">
     <div class="row q-py-md text-h5">
-      <span class="v-step-6"
-        >Endpoint {{ this.endpointId[this.selectedEndpointId] }} Device Type
-        Features</span
-      >
+      <span class="v-step-6">
+        Endpoint
+        {{ this.endpointId[this.selectedEndpointId] }}
+        Device Type Features
+      </span>
     </div>
     <div class="col column linear-border-wrap">
       <div v-if="deviceTypeFeatures.length > 0">
@@ -36,7 +37,7 @@ limitations under the License.
             <q-tr :props="props" class="table_body attribute_table_body">
               <q-td key="enabled" :props="props" auto-width>
                 <q-toggle
-                  :disable="props.row.conformance != 'O'"
+                  :disable="isToggleDisabled(props.row.conformance)"
                   class="q-mt-xs v-step-14"
                   v-model="enabledDeviceTypeFeatures"
                   :val="
@@ -49,16 +50,7 @@ limitations under the License.
                   keep-color
                   @update:model-value="
                     (val) => {
-                      updateEnabledDeviceTypeFeatures(
-                        props.row.deviceTypeClusterId,
-                        props.row.featureId,
-                        val
-                      )
-                      setFeatureMapAttribute(
-                        props.row.featureMapValue,
-                        props.row.featureMapAttributeId,
-                        props.row.bit
-                      )
+                      onToggleDeviceTypeFeature(props.row, val)
                     }
                   "
                 />
@@ -95,6 +87,59 @@ limitations under the License.
             </q-tr>
           </template>
         </q-table>
+        <q-dialog v-model="showDialog">
+          <q-card>
+            <q-card-section>
+              <div class="row items-center">
+                <div class="text-h6 col">Updated Elements</div>
+                <div class="col-1 text-right">
+                  <q-btn dense flat icon="close" v-close-popup>
+                    <q-tooltip>Close</q-tooltip>
+                  </q-btn>
+                </div>
+              </div>
+              <div v-if="attributesToUpdate.length > 0">
+                <div
+                  class="text-body1"
+                  style="margin-top: 15px; padding-left: 20px"
+                >
+                  Attributes
+                </div>
+                <ul>
+                  <li
+                    v-for="(attribute, index) in attributesToUpdate"
+                    :key="'attribute' + index"
+                    style="margin-bottom: 10px"
+                  >
+                    {{ attribute }}
+                  </li>
+                </ul>
+              </div>
+              <div v-if="commandsToUpdate.length > 0">
+                <div
+                  class="text-body1"
+                  style="margin-top: 15px; padding-left: 20px"
+                >
+                  Commands
+                </div>
+                <ul>
+                  <li
+                    v-for="(command, index) in commandsToUpdate"
+                    :key="'command' + index"
+                    style="margin-bottom: 10px"
+                  >
+                    {{ command }}
+                  </li>
+                </ul>
+              </div>
+              <div v-if="noElementsToUpdate">
+                <div class="text-body1" style="margin-top: 15px">
+                  {{ noElementsToUpdateMessage }}
+                </div>
+              </div>
+            </q-card-section>
+          </q-card>
+        </q-dialog>
       </div>
       <div v-else class="q-pa-md">
         <div class="text-body1">
@@ -107,13 +152,15 @@ limitations under the License.
 
 <script>
 import CommonMixin from '../util/common-mixin'
+import editableAttributesMixin from '../util/editable-attributes-mixin.js'
 import dbEnum from '../../src-shared/db-enum'
 import * as Util from '../util/util.js'
 import restApi from '../../src-shared/rest-api.js'
+import { Notify } from 'quasar'
 
 export default {
   name: 'ZclDeviceTypeFeatureManager',
-  mixins: [CommonMixin],
+  mixins: [CommonMixin, editableAttributesMixin],
   methods: {
     getClusterSide(row) {
       if (row.includeClient == 1 && row.includeServer == 1) {
@@ -129,31 +176,147 @@ export default {
     hashDeviceTypeClusterIdFeatureId(deviceTypeClusterId, featureId) {
       return Util.cantorPair(deviceTypeClusterId, featureId)
     },
-    updateEnabledDeviceTypeFeatures(
-      deviceTypeClusterId,
-      featureId,
-      inclusionList
-    ) {
-      let hashedVal = Util.cantorPair(deviceTypeClusterId, featureId)
-      this.$store.commit('zap/updateInclusionList', {
-        id: hashedVal,
-        added: inclusionList.includes(hashedVal),
-        listType: 'enabledDeviceTypeFeatures',
-        view: 'featureView'
-      })
+    isToggleDisabled(conformance) {
+      // disable togglging unsupported features
+      return conformance == 'X' || conformance == 'D'
     },
-    setFeatureMapAttribute(featureMapValue, featureMapAttributeId, bit) {
+    onToggleDeviceTypeFeature(featureData, inclusionList) {
+      let disabled = this.updateElementsAndSetWarnings(
+        featureData,
+        inclusionList
+      )
+      if (!disabled) {
+        this.setFeatureMapAttribute(featureData)
+      }
+    },
+    setFeatureMapAttribute(featureData) {
+      let featureMapAttributeId = featureData.featureMapAttributeId
+      let bit = featureData.bit
+      let featureMapValue = featureData.featureMapValue
       let newValue = parseInt(featureMapValue) ^ (1 << bit)
       newValue = newValue.toString()
       this.$serverPatch(restApi.uri.updateBitOfFeatureMapAttribute, {
         featureMapAttributeId: featureMapAttributeId,
         newValue: newValue
       })
-
       this.$store.commit('zap/updateFeatureMapAttributeOfFeature', {
         featureMapAttributeId: featureMapAttributeId,
         featureMapValue: newValue
       })
+    },
+    updateElementsAndSetWarnings(featureData, inclusionList) {
+      let featureMap = {}
+      this.deviceTypeFeatures
+        .filter(
+          (feature) =>
+            feature.deviceTypeClusterId == featureData.deviceTypeClusterId
+        )
+        .forEach((feature) => {
+          let enabled = this.featureIsEnabled(feature, inclusionList)
+          featureMap[feature.code] = enabled ? 1 : 0
+        })
+      this.$serverGet(restApi.uri.elementsToUpdate, {
+        params: {
+          featureData: JSON.stringify(featureData),
+          featureMap: JSON.stringify(featureMap),
+          endpointId: this.endpointId[this.selectedEndpointId]
+        }
+      }).then((res) => {
+        let {
+          attributesToUpdate,
+          commandsToUpdate,
+          displayWarning,
+          warningMessage,
+          disableChange
+        } = res.data
+
+        // show popup warning message
+        if (displayWarning) {
+          Notify.create({
+            message: warningMessage,
+            type: 'warning',
+            classes: 'custom-notification notification-warning',
+            position: 'top',
+            html: true
+          })
+        }
+
+        // if diableChange is true, the case is too complex to handle
+        // throw warnings and skip the following actions
+        if (disableChange) {
+          return disableChange
+        }
+
+        // toggle attributes and commands for correct conformance
+        attributesToUpdate.forEach((attribute) => {
+          let editContext = {
+            action: 'boolean',
+            endpointTypeIdList: this.endpointTypeIdList,
+            id: attribute.id,
+            value: attribute.value,
+            listType: 'selectedAttributes',
+            clusterRef: attribute.clusterRef,
+            attributeSide: attribute.side,
+            reportMinInterval: attribute.reportMinInterval,
+            reportMaxInterval: attribute.reportMaxInterval
+          }
+          this.$store.dispatch('zap/updateSelectedAttribute', editContext)
+        })
+        commandsToUpdate.forEach((command) => {
+          let listType =
+            command.source == 'client' ? 'selectedIn' : 'selectedOut'
+          let editContext = {
+            action: 'boolean',
+            endpointTypeIdList: this.endpointTypeIdList,
+            id: command.id,
+            value: command.value,
+            listType: listType,
+            clusterRef: command.clusterRef,
+            commandSide: command.source
+          }
+          this.$store.dispatch('zap/updateSelectedCommands', editContext)
+        })
+
+        // prepare messages and show dialog
+        this.attributesToUpdate = attributesToUpdate
+          .map((attribute) =>
+            attribute.value
+              ? 'enabled ' + attribute.name
+              : 'disabled ' + attribute.name
+          )
+          .sort((a, b) => (a.includes('enabled') ? -1 : 1))
+        this.commandsToUpdate = commandsToUpdate
+          .map((command) =>
+            command.value
+              ? 'enabled ' + command.name
+              : 'disabled ' + command.name
+          )
+          .sort((a, b) => (a.includes('enabled') ? -1 : 1))
+        this.showDialog = true
+
+        // update enabled device type features
+        let added = this.featureIsEnabled(featureData, inclusionList)
+        let hashedVal = this.hashDeviceTypeClusterIdFeatureId(
+          featureData.deviceTypeClusterId,
+          featureData.featureId
+        )
+        this.$store.commit('zap/updateInclusionList', {
+          id: hashedVal,
+          added: added,
+          listType: 'enabledDeviceTypeFeatures',
+          view: 'featureView'
+        })
+
+        return disableChange
+      })
+    },
+    featureIsEnabled(featureData, inclusionList) {
+      return inclusionList.includes(
+        this.hashDeviceTypeClusterIdFeatureId(
+          featureData.deviceTypeClusterId,
+          featureData.featureId
+        )
+      )
     }
   },
   computed: {
@@ -162,14 +325,25 @@ export default {
     },
     enabledDeviceTypeFeatures() {
       return this.$store.state.zap.featureView.enabledDeviceTypeFeatures
+    },
+    noElementsToUpdate() {
+      return (
+        this.attributesToUpdate.length == 0 && this.commandsToUpdate.length == 0
+      )
     }
   },
   data() {
     return {
       nodataMessage: 'No device type features available for this endpoint',
+      noElementsToUpdateMessage:
+        'No elements need to be updated \
+                                  after togglging this feature',
       pagination: {
         rowsPerPage: 10
       },
+      showDialog: false,
+      attributesToUpdate: [],
+      commandsToUpdate: [],
       columns: [
         {
           name: dbEnum.deviceTypeFeature.name.enabled,

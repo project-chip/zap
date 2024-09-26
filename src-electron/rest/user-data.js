@@ -99,6 +99,52 @@ function httpGetDeviceTypeFeatures(db) {
 }
 
 /**
+ * HTTP GET: attributes and commands to be updated
+ *
+ * @param {*} db
+ * @returns callback for the express uri registration
+ */
+function httpGetElementsToUpdate(db) {
+  return async (request, response) => {
+    let sessionId = request.zapSessionId
+    let { featureData, featureMap, endpointId } = request.query
+    featureData = JSON.parse(featureData)
+    featureMap = JSON.parse(featureMap)
+    let { endpointTypeClusterId, deviceTypeClusterId } = featureData
+    let elements = {}
+    elements.attributes =
+      await queryAttribute.selectAttributesByEndpointTypeClusterId(
+        db,
+        endpointTypeClusterId
+      )
+    elements.commands = await queryCommand
+      .selectCommandsByDeviceTypeClusterId(
+        db,
+        deviceTypeClusterId,
+        endpointTypeClusterId
+      )
+      .then((commands) =>
+        commands.map((command) => {
+          if (command.isEnabled == null) {
+            command.isEnabled = 0
+          }
+          return command
+        })
+      )
+
+    let result = queryFeature.checkElementsToUpdate(
+      elements,
+      featureMap,
+      featureData,
+      endpointId
+    )
+    await queryFeature.setNotificationOnFeatureChange(db, sessionId, result)
+
+    response.status(StatusCodes.OK).json(result)
+  }
+}
+
+/**
  * HTTP GET: session get notifications
  *
  * @param {*} db
@@ -1013,6 +1059,12 @@ function httpPostDuplicateEndpointType(db) {
   }
 }
 
+/**
+ * Update feature map attribute with given new value
+ *
+ * @param {*} db
+ * @returns status of the update
+ */
 function httpPatchUpdateBitOfFeatureMapAttribute(db) {
   return async (request, response) => {
     let { featureMapAttributeId, newValue } = request.body
@@ -1189,6 +1241,10 @@ exports.get = [
   {
     uri: restApi.uri.getAllPackages,
     callback: httpGetAllPackages
+  },
+  {
+    uri: restApi.uri.elementsToUpdate,
+    callback: httpGetElementsToUpdate
   }
 ]
 

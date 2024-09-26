@@ -83,13 +83,11 @@ async function setNotification(
 }
 
 /**
- * Deletes a notification from the SESSION_NOTICE table
+ * Deletes a notification from the SESSION_NOTICE table by NOTICE_ID
  *
  * @export
  * @param {*} db
- * @param {*} sessionId
- * @param {*} type
- * @param {*} message
+ * @param {*} id
  */
 async function deleteNotification(db, id) {
   return dbApi.dbUpdate(
@@ -137,7 +135,7 @@ async function getUnseenNotificationCount(db, sessionId) {
  *
  * @export
  * @param {*} db
- * @param {*} sessionId
+ * @param {*} unseenIds
  */
 async function markNotificationsAsSeen(db, unseenIds) {
   if (unseenIds && unseenIds.length > 0) {
@@ -150,10 +148,60 @@ async function markNotificationsAsSeen(db, unseenIds) {
   }
 }
 
+/**
+ * search for notifications with given message and delete them if found
+ *
+ * @export
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} message
+ * @returns db delete promise if notification(s) were found and deleted, false otherwise
+ */
+async function searchNotificationByMessageAndDelete(db, sessionId, message) {
+  let rows = await dbApi.dbAll(
+    db,
+    'SELECT NOTICE_ID FROM SESSION_NOTICE WHERE SESSION_REF = ? AND NOTICE_MESSAGE = ?',
+    [sessionId, message]
+  )
+  if (rows && rows.length > 0) {
+    let ids = rows.map((row) => row.NOTICE_ID)
+    let deleteResponses = []
+    for (let id of ids) {
+      let response = await deleteNotification(db, id)
+      deleteResponses.push(response)
+    }
+    return deleteResponses
+  }
+  return false
+}
+
+/**
+ * check if notification with given message exists and if not, create a new one with type WARNING
+ *
+ * @export
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} message
+ * @returns true if notification with given message exists, setNotification response otherwise
+ */
+async function setWarningIfMessageNotExists(db, sessionId, message) {
+  let rows = await dbApi.dbAll(
+    db,
+    'SELECT NOTICE_ID FROM SESSION_NOTICE WHERE SESSION_REF = ? AND NOTICE_MESSAGE = ?',
+    [sessionId, message]
+  )
+  if (rows && rows.length == 0) {
+    return setNotification(db, 'WARNING', message, sessionId, 2, 0)
+  }
+  return true
+}
+
 // exports
 exports.setNotification = setNotification
 exports.deleteNotification = deleteNotification
 exports.getNotification = getNotification
 exports.getUnseenNotificationCount = getUnseenNotificationCount
 exports.markNotificationsAsSeen = markNotificationsAsSeen
-//# sourceMappingURL=query-session-notification.js.map
+exports.searchNotificationByMessageAndDelete =
+  searchNotificationByMessageAndDelete
+exports.setWarningIfMessageNotExists = setWarningIfMessageNotExists

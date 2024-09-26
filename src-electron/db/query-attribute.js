@@ -1248,6 +1248,44 @@ async function selectAttributeMappingsByPackageIds(db, packageIds) {
   return rows.map(dbMapping.map.attributeMapping)
 }
 
+/**
+ * Get all attributes in an endpoint type cluster
+ * @param {*} db
+ * @param {*} featureCode
+ * @param {*} endpointTyeClusterId
+ * @returns all attributes in an endpoint type cluster
+ */
+async function selectAttributesByEndpointTypeClusterId(
+  db,
+  endpointTyeClusterId
+) {
+  let rows = await dbApi.dbAll(
+    db,
+    `
+    SELECT
+      ATTRIBUTE.ATTRIBUTE_ID,
+      ATTRIBUTE.NAME,
+      ATTRIBUTE.CLUSTER_REF,
+      ATTRIBUTE.SIDE,
+      ATTRIBUTE.CONFORMANCE,
+      ATTRIBUTE.REPORT_MIN_INTERVAL,
+      ATTRIBUTE.REPORT_MAX_INTERVAL,
+      ATTRIBUTE.REPORTABLE_CHANGE,
+      ENDPOINT_TYPE_ATTRIBUTE.INCLUDED
+    FROM
+      ATTRIBUTE
+    JOIN
+      ENDPOINT_TYPE_ATTRIBUTE
+    ON
+      ATTRIBUTE.ATTRIBUTE_ID = ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF
+    WHERE
+      ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF = ?
+    `,
+    [endpointTyeClusterId]
+  )
+  return rows.map(dbMapping.map.endpointTypeClusterAttribute)
+}
+
 exports.selectAllAttributeDetailsFromEnabledClusters = dbCache.cacheQuery(
   selectAllAttributeDetailsFromEnabledClusters
 )
@@ -1274,3 +1312,5 @@ exports.selectTokenAttributesForEndpoint = selectTokenAttributesForEndpoint
 exports.selectAllUserTokenAttributes = selectAllUserTokenAttributes
 exports.selectAttributeMappingsByPackageIds =
   selectAttributeMappingsByPackageIds
+exports.selectAttributesByEndpointTypeClusterId =
+  selectAttributesByEndpointTypeClusterId

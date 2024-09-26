@@ -42,6 +42,7 @@ const uri = {
   duplicateEndpoint: '/duplicateEndpoint',
   duplicateEndpointType: '/duplicateEndpointType',
   dirtyFlag: '/dirtyFlag',
+  elementsToUpdate: '/elementsToUpdate',
   option: '/option',
   uiOptions: '/uiOptions',
   commandUpdate: '/command/update',

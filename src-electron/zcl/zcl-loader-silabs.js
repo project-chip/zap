@@ -2289,9 +2289,8 @@ async function parseFeatureFlags(db, packageId, featureFlags) {
  * @param {*} operand - The operand to be parsed.
  * @returns The conformance string.
  */
-const baseLevelTerms = ['feature', 'condition', 'attribute', 'command']
-
 function parseConformanceFromXML(operand) {
+  const baseLevelTerms = ['feature', 'condition', 'attribute', 'command']
   if (operand.mandatoryConform) {
     let insideTerm = operand.mandatoryConform[0]
     // Recurse further if insideTerm is not empty

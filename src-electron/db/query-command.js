@@ -2046,6 +2046,50 @@ async function selectNonManufacturerSpecificCommandDetailsFromAllEndpointTypesAn
   )
 }
 
+/**
+ * Get all commands in an endpoint type cluster
+ * Non-required commands are not loaded into ENDPOINT_TYPE_COMMAND table,
+ * so we need to load all commands by joining DEVICE_TYPE_COMMAND table
+ * @param {*} db
+ * @param {*} featureCode
+ * @param {*} endpointTypeClusterId
+ * @returns all commands in an endpoint type cluster
+ */
+async function selectCommandsByDeviceTypeClusterId(
+  db,
+  deviceTypeClusterId,
+  endpointTypeClusterId
+) {
+  let rows = await dbApi.dbAll(
+    db,
+    `
+    SELECT
+      COMMAND.COMMAND_ID,
+      COMMAND.NAME,
+      COMMAND.CLUSTER_REF,
+      COMMAND.SOURCE,
+      COMMAND.CONFORMANCE,
+      ENDPOINT_TYPE_COMMAND.IS_ENABLED
+    FROM
+      COMMAND
+    JOIN
+      DEVICE_TYPE_CLUSTER
+    ON
+      COMMAND.CLUSTER_REF = DEVICE_TYPE_CLUSTER.CLUSTER_REF
+    LEFT JOIN
+      ENDPOINT_TYPE_COMMAND
+    ON
+        COMMAND.COMMAND_ID = ENDPOINT_TYPE_COMMAND.COMMAND_REF
+      AND
+        ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_CLUSTER_REF = ?
+    WHERE
+      DEVICE_TYPE_CLUSTER.DEVICE_TYPE_CLUSTER_ID = ?
+    `,
+    [endpointTypeClusterId, deviceTypeClusterId]
+  )
+  return rows.map(dbMapping.map.endpointTypeClusterCommand)
+}
+
 exports.selectCliCommandCountFromEndpointTypeCluster =
   selectCliCommandCountFromEndpointTypeCluster
 exports.selectCliCommandsFromCluster = selectCliCommandsFromCluster

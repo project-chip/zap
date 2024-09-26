@@ -715,6 +715,33 @@ exports.map = {
     }
   },
 
+  endpointTypeClusterAttribute: (x) => {
+    if (x == null) return undefined
+    return {
+      id: x.ATTRIBUTE_ID,
+      name: x.NAME,
+      clusterRef: x.CLUSTER_REF,
+      side: x.SIDE,
+      conformance: x.CONFORMANCE,
+      reportMinInterval: x.REPORT_MIN_INTERVAL,
+      reportMaxInterval: x.REPORT_MAX_INTERVAL,
+      reportableChange: x.REPORTABLE_CHANGE,
+      included: x.INCLUDED
+    }
+  },
+
+  endpointTypeClusterCommand: (x) => {
+    if (x == null) return undefined
+    return {
+      id: x.COMMAND_ID,
+      name: x.NAME,
+      clusterRef: x.CLUSTER_REF,
+      source: x.SOURCE,
+      conformance: x.CONFORMANCE,
+      isEnabled: x.IS_ENABLED
+    }
+  },
+
   endpointTypeEvent: (x) => {
     if (x == null) return undefined
     return {
