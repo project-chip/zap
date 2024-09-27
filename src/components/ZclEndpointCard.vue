@@ -519,8 +519,7 @@ export default {
       get() {
         return (
           this.getDeviceCategory(this.deviceType[0].packageRef) === 'zigbee' &&
-          this.$store.state.zap.isProfileIdShown &&
-          this.enableProfileId
+          this.$store.state.zap.isProfileIdShown
         )
       }
     },
