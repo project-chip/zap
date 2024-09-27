@@ -506,7 +506,8 @@ export default {
     showParentEndpointIdentifier: {
       get() {
         return (
-          this.getDeviceCategory(this.deviceType[0].packageRef) === 'matter'
+          this.getDeviceCategory(this.deviceType[0].packageRef) ===
+          dbEnum.helperCategory.matter
         )
       }
     },
@@ -518,9 +519,9 @@ export default {
     showProfileId: {
       get() {
         return (
-          this.getDeviceCategory(this.deviceType[0].packageRef) === 'zigbee' &&
-          this.$store.state.zap.isProfileIdShown &&
-          this.enableProfileId
+          this.getDeviceCategory(this.deviceType[0].packageRef) ===
+            dbEnum.helperCategory.zigbee &&
+          this.$store.state.zap.isProfileIdShown
         )
       }
     },
