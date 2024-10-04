@@ -113,6 +113,24 @@ async function ensurePackagesAndPopulateSessionOptions(
         )
         sessionPartitionIndex++
       }
+    } else if (
+      options.upgradeZclPackages &&
+      options.upgradeZclPackages.length > 0
+    ) {
+      for (let i = 0; i < options.upgradeZclPackages.length; i++) {
+        sessionPartitionIndex++
+        let sessionPartitionId = await querySession.insertSessionPartition(
+          db,
+          sessionId,
+          sessionPartitionIndex
+        )
+        await queryPackage.insertSessionPackage(
+          db,
+          sessionPartitionId,
+          options.upgradeZclPackages[i].id,
+          true
+        )
+      }
     } else {
       let zclPropertiesPromise = queryPackage
         .getPackagesByType(db, dbEnum.packageType.zclProperties)
@@ -211,6 +229,24 @@ async function ensurePackagesAndPopulateSessionOptions(
           )
         )
         sessionPartitionIndex++
+      }
+    } else if (
+      options.upgradeTemplatePackages &&
+      options.upgradeTemplatePackages.length > 0
+    ) {
+      for (let i = 0; i < options.upgradeTemplatePackages.length; i++) {
+        sessionPartitionIndex++
+        let sessionPartitionId = await querySession.insertSessionPartition(
+          db,
+          sessionId,
+          sessionPartitionIndex
+        )
+        await queryPackage.insertSessionPackage(
+          db,
+          sessionPartitionId,
+          options.upgradeTemplatePackages[i].id,
+          true
+        )
       }
     } else {
       let rows = await queryPackage.getPackagesByType(

@@ -64,7 +64,7 @@
       "cmd": "$(zap-cli) generate --noUi --noServer -o ${generationOutput} --packageMatch fuzzy --zcl ${sdkRoot}/app/zcl/zcl-zap.json --zcl ${sdkRoot}/extension/matter_extension/src/app/zap-templates/zcl/zcl.json --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json --generationTemplate ${sdkRoot}/extension/matter_extension/src/app/zap-templates/app-templates.json --in ${contentFolder} --noLoadingFailure --appendGenerationSubdirectory"
     },
     "uc_upgrade": {
-      "cmd": "$(zap-cli) convert  --results ${results} --noop"
+      "cmd": "$(zap-cli) upgrade  --results ${results} -d ${tempContentFolder} --zcl ${sdkRoot}/app/zcl/zcl-zap.json --zcl ${sdkRoot}/extension/matter_extension/src/app/zap-templates/zcl/zcl.json --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json --generationTemplate ${sdkRoot}/extension/matter_extension/src/app/zap-templates/app-templates.json --noLoadingFailure"
     },
     "zapHelp": {
       "cmd": "$(zap) --help"
