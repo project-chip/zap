@@ -451,7 +451,13 @@ function prepareCluster(cluster, context, isExtension = false) {
     ret.name = cluster.name[0]
     ret.description = cluster.description ? cluster.description[0].trim() : ''
     ret.define = cluster.define[0]
-    ret.domain = cluster.domain[0]
+    // handle domain data parsed from both formats:
+    // <domain>General</domain> and <domain name="General"/>
+    if (cluster.domain[0] && cluster.domain[0].$) {
+      ret.domain = cluster.domain[0].$.name
+    } else {
+      ret.domain = cluster.domain[0]
+    }
     ret.isSingleton = false
     if ('$' in cluster) {
       if (cluster.$.manufacturerCode == null) {
