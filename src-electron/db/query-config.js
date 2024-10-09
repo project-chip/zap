@@ -90,38 +90,6 @@ async function selectEndpointClusters(db, endpointTypeId) {
 }
 
 /**
- * Promise to get a unique endpoint type cluster
- * This will return info about one cluster as it is unique after filtering by endpointTypeId, clusterRef, and side
- * @param {*} db
- * @param {*} endpointTypeId
- * @param {*} clusterRef
- * @param {*} side
- * @returns Promise that resolves into an endpoint type cluster.
- */
-async function selectUniqueEndpointTypeCluster(
-  db,
-  endpointTypeRef,
-  clusterRef,
-  side
-) {
-  let rows = await dbApi.dbAll(
-    db,
-    `
-    SELECT * FROM ENDPOINT_TYPE_CLUSTER
-    WHERE
-      ENDPOINT_TYPE_REF = ?
-    AND
-      CLUSTER_REF = ?
-    AND
-      SIDE = ?
-    `,
-    [endpointTypeRef, clusterRef, side]
-  )
-
-  return rows.map(dbMapping.map.endpointTypeCluster)
-}
-
-/**
  * Promise to get a cluster's state.
  * This must return undefined/null for if the cluster state has not been used before for the endpointType
  * @param {*} db

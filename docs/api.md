@@ -3650,7 +3650,6 @@ This module provides queries for features.
         * [~evaluateWithParentheses(expr)](#module_DB API_ feature related queries..evaluateConformanceExpression..evaluateWithParentheses)
     * [~checkMissingTerms(expression, elementMap)](#module_DB API_ feature related queries..checkMissingTerms) ⇒
     * [~generateWarningMessage(featureData, endpointId, missingTerms, added)](#module_DB API_ feature related queries..generateWarningMessage) ⇒
-    * [~setNotificationOnFeatureChange(db, sessionId, result)](#module_DB API_ feature related queries..setNotificationOnFeatureChange)
     * [~checkElementsToUpdate(elements, featureMap, featureData, endpointId)](#module_DB API_ feature related queries..checkElementsToUpdate) ⇒
     * [~filterElementsToUpdate(elements, elementMap, featureCode)](#module_DB API_ feature related queries..filterElementsToUpdate) ⇒
 
@@ -3745,19 +3744,6 @@ Set flags to decide whether to show a popup warning or disable changes in the fr
 | endpointId | <code>\*</code> | 
 | missingTerms | <code>\*</code> | 
 | added | <code>\*</code> | 
-
-<a name="module_DB API_ feature related queries..setNotificationOnFeatureChange"></a>
-
-### DB API: feature related queries~setNotificationOnFeatureChange(db, sessionId, result)
-Set or delete warning notification after updating a device type feature.
-
-**Kind**: inner method of [<code>DB API: feature related queries</code>](#module_DB API_ feature related queries)  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| sessionId | <code>\*</code> | 
-| result | <code>\*</code> | 
 
 <a name="module_DB API_ feature related queries..checkElementsToUpdate"></a>
 
