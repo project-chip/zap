@@ -594,6 +594,10 @@ function makeAvailabilityPath(clusterName, options) {
     return ['global attributes', options.hash.globalAttribute];
   }
 
+  if (options.hash.deviceType) {
+    return ['device types', options.hash.deviceType];
+  }
+
   return ['clusters', clusterName];
 }
 
@@ -626,6 +630,7 @@ function findPathToContainer(availabilityPath) {
     case 'apis':
     case 'global attributes':
     case 'clusters':
+    case 'device types':
       return undefined;
 
     default:
@@ -1254,6 +1259,25 @@ async function async_not(value) {
   return !toBeNegated;
 }
 
+function isLessThan(value1, value2) {
+  return value1 < value2;
+}
+
+function stripPrefix(value, prefix) {
+  if (value.startsWith(prefix)) {
+    return value.substring(prefix.length);
+  }
+
+  return value;
+}
+
+function cleanDeviceName(deviceName) {
+  deviceName = stripPrefix.call(this, deviceName, 'Matter ');
+  return appHelper.asUpperCamelCase.call(this, deviceName, {
+    hash: { preserveAcronyms: true }
+  });
+}
+
 //
 // Module exports
 //
@@ -1288,6 +1312,9 @@ exports.async_not = async_not;
 exports.oldName = oldName;
 exports.hasOldName = hasOldName;
 exports.hasRenamedFields = hasRenamedFields;
+exports.isLessThan = isLessThan;
+exports.stripPrefix = stripPrefix;
+exports.cleanDeviceName = cleanDeviceName;
 
 exports.meta = {
   category: dbEnum.helperCategory.matter,
