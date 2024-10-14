@@ -449,6 +449,26 @@ test(
     expect(
       packageNotif.some((notif) => notif.message.includes('type contradiction'))
     ).toBeTruthy() // checks if the correct warning is thrown
+
+    let sessionNotif = await querySessionNotification.getNotification(db, sid)
+    expect(
+      sessionNotif.some(
+        (notif) =>
+          notif.type === 'ERROR' &&
+          notif.message.includes('Undefined Data Type') &&
+          notif.message.includes('Attribute Sample Mfg Specific Attribute') &&
+          notif.message.includes('matter-bad-custom.xml')
+      )
+    ).toBeTruthy()
+    expect(
+      sessionNotif.some(
+        (notif) =>
+          notif.type === 'ERROR' &&
+          notif.message.includes('Undefined Data Type') &&
+          notif.message.includes('arg1') &&
+          notif.message.includes('matter-bad-custom.xml')
+      )
+    ).toBeTruthy()
   },
   testUtil.timeout.short()
 )
