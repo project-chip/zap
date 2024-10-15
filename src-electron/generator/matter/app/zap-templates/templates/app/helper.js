@@ -861,6 +861,21 @@ async function _zapTypeToPythonClusterObjectType(type, options) {
       return ns + '.Structs.' + type;
     }
 
+    if (await typeChecker('isTypedef')) {
+      const typedefObj = await zclQuery.selectTypedefByName(
+        this.global.db,
+        type,
+        pkgId
+      );
+
+      const ns = nsValueToPythonNamespace(
+        options.hash.ns,
+        typedefObj.structClusterCount
+      );
+
+      return ns + '.Typedefs.' + type;
+    }
+
     if (StringHelper.isCharString(type)) {
       return 'str';
     }
@@ -959,6 +974,15 @@ async function _getPythonFieldDefault(type, options) {
       );
 
       return 'field(default_factory=lambda: ' + ns + '.Structs.' + type + '())';
+    }
+
+    if (await typeChecker('isTypedef')) {
+      const typedefObj = await zclQuery.selectTypedefByName(
+        this.global.db,
+        type,
+        pkgId
+      );
+      return _getPythonFieldDefault.call(this, typedefObj.type, options);
     }
 
     if (StringHelper.isCharString(type)) {
