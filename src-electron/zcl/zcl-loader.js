@@ -332,10 +332,13 @@ async function qualifyZclFile(
       packageId: parentPackageId == null ? packageId : parentPackageId
     }
   } else if (pkg.crc != actualCrc) {
+    // This is executed if CRC is found in the database but doesn't match the actual CRC.
     env.logDebug(
       `CRC mismatch for file ${pkg.path}, (${pkg.crc} vs ${actualCrc}) package id ${pkg.id}, parsing.`
     )
     await queryPackage.updatePackageIsInSync(db, pkg.id, false) // Mark the older package as out of sync
+
+    // creating a new package id, crc combination so older sessions using the package from the same path aren't affected
     let packageId = await queryPackage.insertPathCrc(
       db,
       filePath,
