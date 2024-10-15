@@ -298,13 +298,23 @@ async function qualifyZclFile(
   let filePath = info.filePath
   let data = info.data
   let actualCrc = info.crc
+  let pkg
 
-  let pkg = await queryPackage.getPackageByPathAndParent(
-    db,
-    filePath,
-    parentPackageId,
-    isCustom
-  )
+  if (isCustom) {
+    // if multiple instances of the same custom xml file are loaded, this will get the one in sync (latest)
+    pkg = await queryPackage.getPackageByPathAndType(
+      db,
+      filePath,
+      dbEnum.packageType.zclXmlStandalone
+    )
+  } else {
+    pkg = await queryPackage.getPackageByPathAndParent(
+      db,
+      filePath,
+      parentPackageId,
+      isCustom
+    )
+  }
 
   if (pkg == null) {
     // This is executed if there is no CRC in the database.
@@ -321,36 +331,41 @@ async function qualifyZclFile(
       data: data,
       packageId: parentPackageId == null ? packageId : parentPackageId
     }
+  } else if (pkg.crc != actualCrc) {
+    env.logDebug(
+      `CRC mismatch for file ${pkg.path}, (${pkg.crc} vs ${actualCrc}) package id ${pkg.id}, parsing.`
+    )
+    await queryPackage.updatePackageIsInSync(db, pkg.id, false) // Mark the older package as out of sync
+    let packageId = await queryPackage.insertPathCrc(
+      db,
+      filePath,
+      actualCrc,
+      packageType,
+      parentPackageId
+    )
+    return {
+      filePath: filePath,
+      data: data,
+      packageId: parentPackageId == null ? packageId : parentPackageId
+    }
   } else {
-    // This is executed if CRC is found in the database.
-    if (pkg.crc == actualCrc) {
-      // Sending data back when it is a custom xml
-      if (parentPackageId == null) {
-        return {
-          filePath: filePath,
-          data: data,
-          packageId: pkg.id,
-          customXmlReload: true,
-          crc: actualCrc
-        }
-      }
-      env.logDebug(
-        `CRC match for file ${pkg.path} (${pkg.crc}), skipping parsing.`
-      )
-      return {
-        error: `${pkg.path} skipped`,
-        packageId: pkg.id
-      }
-    } else {
-      env.logDebug(
-        `CRC missmatch for file ${pkg.path}, (${pkg.crc} vs ${actualCrc}) package id ${pkg.id}, parsing.`
-      )
-      await queryPackage.updatePathCrc(db, filePath, actualCrc, parentPackageId)
+    // This is executed if CRC is found in the database and matches the actual CRC.
+    // Sending data back when it is a custom xml
+    if (parentPackageId == null) {
       return {
         filePath: filePath,
         data: data,
-        packageId: parentPackageId == null ? pkg.id : parentPackageId // Changing from package to pkg.id since package is not defined
+        packageId: pkg.id,
+        customXmlReload: true,
+        crc: actualCrc
       }
+    }
+    env.logDebug(
+      `CRC match for file ${pkg.path} (${pkg.crc}), skipping parsing.`
+    )
+    return {
+      error: `${pkg.path} skipped`,
+      packageId: pkg.id
     }
   }
 }
