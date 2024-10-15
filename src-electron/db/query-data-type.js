@@ -239,6 +239,11 @@ async function selectSizeFromType(db, packageIds, value) {
       dataType.discriminatorName.toLowerCase() == dbEnum.zclType.string
     ) {
       return null
+    } else if (
+      dataType &&
+      dataType.discriminatorName.toLowerCase() == dbEnum.zclType.typedef
+    ) {
+      return await selectSizeFromType(db, packageIds, dataType.typeId)
     } else {
       return null
     }

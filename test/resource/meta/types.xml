@@ -112,14 +112,14 @@ limitations under the License.
     <item name="c" enum="true" type="ENUM8"/>
     <item name="d" type="OCTET_STRING"/>
     <item name="e" type="CHAR_STRING"/>
-  </struct>   
+  </struct>
 
   <struct name="StructWithArray">
     <cluster code="0xABCD"/>
     <item name="a" type="INT8U"/>
     <item name="b" type="BOOLEAN"/>
     <item name="c" type="INT8U" array="true"/>
-  </struct>   
+  </struct>
 
   <struct name="NestedStruct">
     <item name="a" type="INT8U"/>
@@ -162,4 +162,8 @@ limitations under the License.
     <cluster code="0xABCD"/>
     <field name="f1" mask="0x01"/>
   </bitmap>
+
+  <typedef name="TestID" type="int16u">
+    <cluster code="0xABCD"/>
+  </typedef>
 </zap>
