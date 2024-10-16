@@ -307,7 +307,7 @@ async function importSinglePackage(
     let packageNameMatch = packages.find(
       (p) => p.path.includes(filePathToSearch) && fs.existsSync(p.path)
     )
-    if (packageMatch) {
+    if (packageMatch && packageNameMatch) {
       p = packageNameMatch
       env.logError(
         `None of packages exist for ${pkg.path}, so using one which matches the file name: ${p.path} from ${pkgPaths}.`
@@ -1761,7 +1761,9 @@ async function jsonDataLoader(
   sessionId,
   packageMatch,
   defaultZclMetafile,
-  defaultTemplateFile
+  defaultTemplateFile,
+  upgradeZclPackages,
+  upgradeTemplatePackages
 ) {
   // Initially clean up all the packages from the session.
   let sessionPartitions =
@@ -1805,6 +1807,21 @@ async function jsonDataLoader(
   )
 
   mainPackageData.sessionId = sessionId
+
+  // Updating main packages
+  if (
+    upgradeZclPackages &&
+    mainPackageData.zclPackageIds.length == upgradeZclPackages.length
+  ) {
+    mainPackageData.zclPackageIds = upgradeZclPackages.map((pkg) => pkg.id)
+  }
+
+  if (
+    upgradeTemplatePackages &&
+    mainPackageData.templateIds.length == upgradeTemplatePackages.length
+  ) {
+    mainPackageData.templateIds = upgradeTemplatePackages.map((pkg) => pkg.id)
+  }
 
   let mainPackagePromise = []
   for (let i = 0; i < mainPackageData.zclPackageIds.length; i++) {
@@ -1972,7 +1989,8 @@ async function jsonDataLoader(
   await Promise.all(promisesStage2)
   await querySession.setSessionClean(db, sessionId)
 
-  if ('package' in state) {
+  // No need to go through this when upgrading packages.
+  if ('package' in state && !upgradeZclPackages && !upgradeTemplatePackages) {
     await Promise.all(
       state.package.map(async (pkg) => {
         let pkgFilePath = getPkgPath(pkg, state.filePath)
@@ -2055,16 +2073,9 @@ function cleanJsonState(state) {
  *
  * @param {*} filePath
  * @param {*} data
- * @param {*} defaultZclMetafile
- * @param {*} defaultTemplateFile
  * @returns Promise of parsed JSON object
  */
-async function readJsonData(
-  filePath,
-  data,
-  defaultZclMetafile,
-  defaultTemplateFile
-) {
+async function readJsonData(filePath, data) {
   let state = JSON.parse(data)
 
   cleanJsonState(state)

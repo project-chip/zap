@@ -37,12 +37,12 @@ const ipcServer = require('../server/ipc-server')
 const ipcClient = require('../client/ipc-client')
 const generatorEngine = require('../generator/generation-engine.js')
 const querySession = require('../db/query-session.js')
+const queryPackage = require('../db/query-package.js')
 const util = require('../util/util.js')
 const importJs = require('../importexport/import.js')
 const exportJs = require('../importexport/export.js')
 const watchdog = require('./watchdog')
 const sdkUtil = require('../util/sdk-util')
-const { argv } = require('process')
 
 let mainDatabase = null
 
@@ -189,6 +189,173 @@ async function noopConvert(resultsFile, logger) {
     return writeConversionResultsFile(resultsFile)
   } else {
     logger(`😎 No-op, no result, conversion.`)
+  }
+}
+
+/**
+ * Find all zap files in a given directory
+ * @param {*} dir
+ * @returns all .zap files in the given directory
+ */
+function findZapFiles(dir) {
+  let zapFiles = []
+
+  // Read all items in the directory
+  const items = fs.readdirSync(dir)
+
+  // Loop through each item
+  items.forEach((item) => {
+    const itemPath = path.join(dir, item)
+    const stats = fs.statSync(itemPath)
+
+    // If it's a directory, search recursively
+    if (stats.isDirectory()) {
+      zapFiles = zapFiles.concat(findZapFiles(itemPath))
+    }
+
+    // If it's a file and has .zap extension, add to the list
+    if (stats.isFile() && path.extname(item) === '.zap') {
+      zapFiles.push(itemPath)
+    }
+  })
+
+  return zapFiles
+}
+
+/**
+ * Go over the zap file's top level packages and see if they can be upgraded
+ * based on the upgrade packages given.
+ *
+ * @param {*} db
+ * @param {*} upgradePackages
+ * @param {*} zapFilePackages
+ * @param {*} packageType
+ * @returns list of packages
+ */
+async function getUpgradePackageMatch(
+  db,
+  upgradePackages,
+  zapFilePackages,
+  packageType
+) {
+  let matchedUpgradePackages = []
+  if (Array.isArray(upgradePackages) && Array.isArray(zapFilePackages)) {
+    for (let i = 0; i < upgradePackages.length; i++) {
+      let upgradePackage = await queryPackage.getPackageByPathAndType(
+        db,
+        upgradePackages[i],
+        packageType
+      )
+      if (upgradePackage) {
+        for (let j = 0; j < zapFilePackages.length; j++) {
+          if (
+            zapFilePackages[j].category == upgradePackage.category &&
+            zapFilePackages[j].type == upgradePackage.type
+          ) {
+            matchedUpgradePackages.push(upgradePackage)
+          }
+        }
+      }
+    }
+  }
+  return matchedUpgradePackages
+}
+
+/**
+ * Upgrade the top level packages(.json files) of a .zap file when a gsdk is
+ * updated.
+ *
+ * @param {*} argv
+ * @param {*} options
+ */
+async function upgradeZapFile(argv, options) {
+  let zapFiles = findZapFiles(argv.d)
+  let upgrade_results = argv.results
+  for (let i = 0; i < zapFiles.length; i++) {
+    let zapFile = zapFiles[i]
+    options.logger(`🤖 Update started for file: ${zapFile}`)
+    let dbFile = env.sqliteFile('upgrade')
+    let db = await dbApi.initDatabaseAndLoadSchema(
+      dbFile,
+      env.schemaFile(),
+      env.zapVersion()
+    )
+    options.logger('    🐝 database and schema initialized')
+    await zclLoader.loadZclMetafiles(db, argv.zclProperties, {
+      failOnLoadingError: !argv.noLoadingFailure
+    })
+    options.logger(`    🐝 New zcl package loaded: ${argv.zclProperties}`)
+    if (argv.generationTemplate != null) {
+      let ctx = await generatorEngine.loadTemplates(
+        db,
+        argv.generationTemplate,
+        {
+          failOnLoadingError: !argv.noLoadingFailure
+        }
+      )
+      if (ctx.error) {
+        throw ctx.error
+      }
+      options.logger(`    🐝 New templates loaded: ${argv.generationTemplate}`)
+    }
+    let state = await importJs.readDataFromFile(zapFile)
+    let upgradeZclPackages = await getUpgradePackageMatch(
+      db,
+      argv.zclProperties,
+      state.package,
+      dbEnum.packageType.zclProperties
+    )
+    let upgradeTemplatePackages = await getUpgradePackageMatch(
+      db,
+      argv.generationTemplate,
+      state.package,
+      dbEnum.packageType.genTemplatesJson
+    )
+
+    let importResult = await importJs.importDataFromFile(db, zapFile, {
+      defaultZclMetafile: argv.zclProperties,
+      postImportScript: argv.postImportScript,
+      packageMatch: argv.packageMatch,
+      upgradeZclPackages: upgradeZclPackages,
+      upgradeTemplatePackages: upgradeTemplatePackages
+    })
+    let sessionId = importResult.sessionId
+    await util.ensurePackagesAndPopulateSessionOptions(db, sessionId, {
+      zcl: argv.zclProperties,
+      template: argv.generationTemplate,
+      upgradeZclPackages: upgradeZclPackages,
+      upgradeTemplatePackages: upgradeTemplatePackages
+    })
+    options.logger(`    👈 read in: ${zapFile}`)
+    let of = outputFile(zapFile, zapFile)
+    let parent = path.dirname(of)
+    if (!fs.existsSync(parent)) {
+      fs.mkdirSync(parent, { recursive: true })
+    }
+    // Now we need to write the sessionKey for the file path
+    await querySession.updateSessionKeyValue(
+      db,
+      sessionId,
+      dbEnum.sessionKey.filePath,
+      of
+    )
+    let outputPath = await exportJs.exportDataIntoFile(db, sessionId, of, {
+      removeLog: argv.noZapFileLog,
+      createBackup: true,
+      fileFormat: argv.saveFileFormat
+    })
+    options.logger(`    👉 write out: ${outputPath}`)
+  }
+  try {
+    if (upgrade_results != null)
+      await writeConversionResultsFile(upgrade_results)
+    options.logger(`    👉 write out: ${upgrade_results}`)
+  } catch (error) {
+    options.logger(`    ⚠️  failed to write out: ${upgrade_results}`)
+  }
+  options.logger('😎 Upgrade done!')
+  if (options.quitFunction != null) {
+    options.quitFunction()
   }
 }
 
@@ -868,6 +1035,14 @@ async function startUpMainInstance(argv, callbacks) {
       console.log(code)
       cleanExit(argv.cleanupDelay, 0)
     })
+  } else if (argv._.includes('upgrade')) {
+    return upgradeZapFile(argv, {
+      logger: console.log,
+      quitFunction: quitFunction
+    }).catch((code) => {
+      console.log(code)
+      cleanExit(argv.cleanupDelay, 0)
+    })
   } else if (argv._.includes('stop')) {
     console.log('No server running, nothing to stop.')
     cleanExit(argv.cleanupDelay, 0)
@@ -930,3 +1105,4 @@ exports.startUpSecondaryInstance = startUpSecondaryInstance
 exports.shutdown = shutdown
 exports.quit = quit
 exports.generateSingleFile = generateSingleFile
+exports.upgradeZapFile = upgradeZapFile
