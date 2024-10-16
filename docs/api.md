@@ -11800,6 +11800,7 @@ This module contains the API for templating. For more detailed instructions, rea
     * [~zcl_struct_items(options)](#module_Templating API_ static zcl helpers..zcl_struct_items) ⇒
     * [~zcl_struct_items_by_struct_name(name, options)](#module_Templating API_ static zcl helpers..zcl_struct_items_by_struct_name) ⇒
     * [~zcl_struct_items_by_struct_and_cluster_name(name, clusterName, options)](#module_Templating API_ static zcl helpers..zcl_struct_items_by_struct_and_cluster_name) ⇒
+    * [~zcl_typedef_by_typedef_and_cluster_name(name, clusterName, options)](#module_Templating API_ static zcl helpers..zcl_typedef_by_typedef_and_cluster_name) ⇒
     * [~zcl_device_types(options)](#module_Templating API_ static zcl helpers..zcl_device_types) ⇒
     * [~zcl_device_type_clusters(options)](#module_Templating API_ static zcl helpers..zcl_device_type_clusters) ⇒
     * [~zcl_device_type_cluster_commands(options)](#module_Templating API_ static zcl helpers..zcl_device_type_cluster_commands) ⇒
@@ -12002,6 +12003,23 @@ cluster name.  The items iterated will be those that correspond to that
 struct name being used within the given cluster.  That means the struct name
 must be either a global struct (in which case the cluster name is just
 ignored), or a struct associated with the given cluster.
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
+**Returns**: Promise of content.  
+
+| Param |
+| --- |
+| name | 
+| clusterName | 
+| options | 
+
+<a name="module_Templating API_ static zcl helpers..zcl_typedef_by_typedef_and_cluster_name"></a>
+
+### Templating API: static zcl helpers~zcl\_typedef\_by\_typedef\_and\_cluster\_name(name, clusterName, options) ⇒
+Block helper for expanding a typedef.  The typedef will be those that correspond to that
+typedef name being used within the given cluster.  That means the typedef name
+must be either a global (in which case the cluster name is just
+ignored), or a typedef associated with the given cluster.
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
 **Returns**: Promise of content.  

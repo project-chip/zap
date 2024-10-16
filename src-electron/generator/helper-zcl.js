@@ -383,6 +383,43 @@ async function zcl_struct_items_by_struct_and_cluster_name(
 }
 
 /**
+ * Block helper for expanding a typedef.  The typedef will be those that correspond to that
+ * typedef name being used within the given cluster.  That means the typedef name
+ * must be either a global (in which case the cluster name is just
+ * ignored), or a typedef associated with the given cluster.
+ *
+ * @param name
+ * @param clusterName
+ * @param options
+ * @returns Promise of content.
+ */
+async function zcl_typedef_by_typedef_and_cluster_name(
+  name,
+  clusterName,
+  options
+) {
+  let packageIds = await templateUtil.ensureZclPackageIds(this)
+  // Check for a global typedef first.
+  const typedefObj = await queryZcl.selectTypedefByName(
+    this.global.db,
+    name,
+    packageIds
+  )
+  if (typedefObj.structClusterCount == 0) {
+    // Just ignore the cluster name.
+    return zcl_typedef_by_typedef_and_cluster_name.call(this, name, options)
+  }
+
+  let promise = queryZcl.selectTypedefByName(
+    this.global.db,
+    name,
+    packageIds,
+    clusterName
+  )
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
  * Block helper iterating over all deviceTypes.
  *
  * @param {*} options
@@ -3163,5 +3200,7 @@ exports.if_compare = if_compare
 exports.if_is_data_type_signed = if_is_data_type_signed
 exports.as_zcl_data_type_size = as_zcl_data_type_size
 exports.zcl_command_responses = zcl_command_responses
+exports.zcl_typedef_by_typedef_and_cluster_name =
+  zcl_typedef_by_typedef_and_cluster_name
 exports.zcl_struct_items_by_struct_and_cluster_name =
   zcl_struct_items_by_struct_and_cluster_name
