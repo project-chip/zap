@@ -734,6 +734,55 @@ async function generateSingleFile(
   let hrstart = process.hrtime.bigint()
   let sessionId
   let output
+  let upgradeZclPackages = []
+  let upgradeTemplatePackages = []
+  let isZapFileUpgradeNeeded = false
+
+  // Upgrade the .zap file with generation packages if the upgradeZapFile flag
+  // is passed during generation.
+  if (options.upgradeZapFile) {
+    let state = await importJs.readDataFromFile(zapFile)
+    let zapFileZclPackages = []
+    let zapFileTemplatePackages = []
+    for (let i = 0; i < state.package.length; i++) {
+      let zapFileDir = path.dirname(zapFile)
+      if (state.package[i].type == dbEnum.packageType.zclProperties) {
+        zapFileZclPackages.push(path.join(zapFileDir, state.package[i].path))
+      } else if (state.package[i].type == dbEnum.packageType.genTemplatesJson) {
+        zapFileTemplatePackages.push(
+          path.join(zapFileDir, state.package[i].path)
+        )
+      }
+    }
+    upgradeZclPackages = await getUpgradePackageMatch(
+      db,
+      options.zcl,
+      state.package,
+      dbEnum.packageType.zclProperties
+    )
+    upgradeTemplatePackages = await getUpgradePackageMatch(
+      db,
+      options.template,
+      state.package,
+      dbEnum.packageType.genTemplatesJson
+    )
+    for (let i = 0; i < upgradeZclPackages.length; i++) {
+      if (!zapFileZclPackages.includes(upgradeZclPackages[i].path)) {
+        isZapFileUpgradeNeeded = true
+        break
+      }
+    }
+    for (let i = 0; i < upgradeTemplatePackages.length; i++) {
+      if (!zapFileTemplatePackages.includes(upgradeTemplatePackages[i].path)) {
+        isZapFileUpgradeNeeded = true
+        break
+      }
+    }
+    if (isZapFileUpgradeNeeded) {
+      options.upgradeZclPackages = upgradeZclPackages
+      options.upgradeTemplatePackages = upgradeTemplatePackages
+    }
+  }
   if (zapFile === BLANK_SESSION) {
     options.logger(`👉 using empty configuration`)
     sessionId = await querySession.createBlankSession(db)
@@ -754,7 +803,9 @@ async function generateSingleFile(
       defaultZclMetafile: options.zcl,
       postImportScript: options.postImportScript,
       packageMatch: options.packageMatch,
-      defaultTemplateFile: options.template
+      defaultTemplateFile: options.template,
+      upgradeZclPackages: upgradeZclPackages,
+      upgradeTemplatePackages: upgradeTemplatePackages
     })
     sessionId = importResult.sessionId
     output = outputFile(zapFile, outputPattern, index)
@@ -796,6 +847,23 @@ async function generateSingleFile(
       throw new Error(`Generation failed: ${zapFile}`)
     }
     genResults.push(genResult)
+  }
+
+  if (options.upgradeZapFile && isZapFileUpgradeNeeded) {
+    options.logger(
+      `🕐 Updating the zap file with the correct SDK meta data: ${zapFile}`
+    )
+    // Now we need to write the sessionKey for the file path
+    await querySession.updateSessionKeyValue(
+      db,
+      sessionId,
+      dbEnum.sessionKey.filePath,
+      zapFile
+    )
+
+    await exportJs.exportDataIntoFile(db, sessionId, zapFile, {
+      createBackup: true
+    })
   }
 
   return genResults
@@ -859,6 +927,7 @@ async function startGeneration(argv, options) {
   options.appendGenerationSubdirectory = argv.appendGenerationSubdirectory
   options.packageMatch = argv.packageMatch
   options.generationLog = argv.generationLog
+  options.upgradeZapFile = argv.upgradeZapFile // Used to upgrade the zap file during generation.
 
   let nsDuration = process.hrtime.bigint() - hrstart
   options.logger(`🕐 Setup time: ${util.duration(nsDuration)} `)
