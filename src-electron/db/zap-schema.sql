@@ -3385,6 +3385,14 @@ SET DIRTY = 1
 WHERE SESSION_ID = OLD.SESSION_REF;
 END;
 
+/*
+____ _  _ ____ ___ ____ _  _    _  _ _  _ _       ___ ____ _ ____ ____ ____ ____ ____ 
+|    |  | [__   |  |  | |\/|     \/  |\/| |        |  |__/ | | __ | __ |___ |__/ [__  
+|___ |__| ___]  |  |__| |  |    _/\_ |  | |___     |  |  \ | |__] |__] |___ |  \ ___] 
+
+Custom XML specific triggers
+*/                                                                                    
+                                                                                                                                                                      
 /* Triggers that deal with code conflicts in custom xml */
 
 /* Trigger that deals with code conflicts in clusters when new session package is inserted */
@@ -3550,7 +3558,7 @@ BEGIN
 END;
 
 
-/* Trigger that deals wuth code conflicts in attributes when a session package is inserted */
+/* Trigger that deals with code conflicts in attributes when a session package is inserted */
 CREATE TRIGGER ATTRIBUTE_CODE_CONFLICT_MESSAGE_ON_INSERT
 AFTER INSERT ON SESSION_PACKAGE
 WHEN
@@ -3881,8 +3889,498 @@ BEGIN
     p.PACKAGE_ID <> p2.PACKAGE_ID;
 END;
 
-/* Trigger that deletes relevant code conflict session_notice entries when a session package is disabled */
-CREATE TRIGGER CODE_CONFLICT_DELETE_ON_DISABLE
+/* Trigger that checks for undefined types in attributes when a session package is inserted */
+CREATE TRIGGER ATTRIBUTE_UNDEFINED_TYPE_MESSAGE_ON_INSERT
+AFTER INSERT ON SESSION_PACKAGE
+WHEN
+  EXISTS(
+    SELECT
+      1
+    FROM
+      SESSION_PACKAGE spk
+    JOIN
+      PACKAGE p
+    ON
+      spk.PACKAGE_REF = p.PACKAGE_ID
+    WHERE
+      p.TYPE = 'zcl-xml-standalone'
+    AND
+      spk.package_ref = NEW.package_ref
+    AND
+      NEW.ENABLED = true
+  )
+BEGIN
+  INSERT INTO SESSION_NOTICE(
+    SESSION_REF,
+    NOTICE_TYPE,
+    NOTICE_MESSAGE,
+    NOTICE_SEVERITY,
+    DISPLAY,
+    SEEN
+  )
+  SELECT
+    spt.SESSION_REF,
+    'ERROR',
+    'Undefined Data Type ' || a.type ||' in Attribute ' || a.name || ' in ' || p.PATH,
+    2,
+    1,
+    0
+    FROM
+      ATTRIBUTE a
+    INNER JOIN
+      PACKAGE p
+    ON
+      a.PACKAGE_REF = p.PACKAGE_ID
+    INNER JOIN
+      SESSION_PACKAGE spk
+    ON
+      p.PACKAGE_ID = spk.PACKAGE_REF
+    INNER JOIN
+      SESSION_PARTITION spt
+    ON
+      spk.SESSION_PARTITION_REF = spt.SESSION_PARTITION_ID
+    WHERE
+      spk.SESSION_PARTITION_REF = NEW.SESSION_PARTITION_REF
+    AND
+      spk.PACKAGE_REF = NEW.PACKAGE_REF
+    AND NOT EXISTS(
+      SELECT
+        1
+      FROM
+        DATA_TYPE dt
+      INNER JOIN
+        PACKAGE p2
+      ON
+        dt.PACKAGE_REF = p2.PACKAGE_ID
+      INNER JOIN
+        SESSION_PACKAGE spk2
+      ON
+        p2.PACKAGE_ID = spk2.PACKAGE_REF
+      INNER JOIN
+        SESSION_PARTITION spt2
+      ON
+        spk2.SESSION_PARTITION_REF = spt2.SESSION_PARTITION_ID
+      WHERE
+        spt2.SESSION_REF = spt.SESSION_REF
+      AND
+        LOWER(dt.NAME) = LOWER(a.TYPE)
+    );
+END;
+
+/* Trigger that checks for undefined types in attributes when a session package is re-enabled*/
+CREATE TRIGGER ATTRIBUTE_UNDEFINED_TYPE_MESSAGE_ON_UPDATE
+AFTER UPDATE ON SESSION_PACKAGE
+WHEN
+  EXISTS(
+    SELECT
+      1
+    FROM
+      SESSION_PACKAGE spk
+    JOIN
+      PACKAGE p
+    ON
+      spk.PACKAGE_REF = p.PACKAGE_ID
+    WHERE
+      p.TYPE = 'zcl-xml-standalone'
+    AND
+      spk.package_ref = NEW.package_ref
+    AND
+      OLD.ENABLED = false
+    AND
+      NEW.ENABLED = true
+  )
+BEGIN
+  INSERT INTO SESSION_NOTICE(
+    SESSION_REF,
+    NOTICE_TYPE,
+    NOTICE_MESSAGE,
+    NOTICE_SEVERITY,
+    DISPLAY,
+    SEEN
+  )
+  SELECT
+    spt.SESSION_REF,
+    'ERROR',
+    'Undefined Data Type ' || a.type ||' in Attribute ' || a.name || ' in ' || p.PATH,
+    2,
+    1,
+    0
+    FROM
+      ATTRIBUTE a
+    INNER JOIN
+      PACKAGE p
+    ON
+      a.PACKAGE_REF = p.PACKAGE_ID
+    INNER JOIN
+      SESSION_PACKAGE spk
+    ON
+      p.PACKAGE_ID = spk.PACKAGE_REF
+    INNER JOIN
+      SESSION_PARTITION spt
+    ON
+      spk.SESSION_PARTITION_REF = spt.SESSION_PARTITION_ID
+    WHERE
+      spk.SESSION_PARTITION_REF = NEW.SESSION_PARTITION_REF
+    AND
+      spk.PACKAGE_REF = NEW.PACKAGE_REF
+    AND NOT EXISTS(
+      SELECT
+        1
+      FROM
+        DATA_TYPE dt
+      INNER JOIN
+        PACKAGE p2
+      ON
+        dt.PACKAGE_REF = p2.PACKAGE_ID
+      INNER JOIN
+        SESSION_PACKAGE spk2
+      ON
+        p2.PACKAGE_ID = spk2.PACKAGE_REF
+      INNER JOIN
+        SESSION_PARTITION spt2
+      ON
+        spk2.SESSION_PARTITION_REF = spt2.SESSION_PARTITION_ID
+      WHERE
+        spt2.SESSION_REF = spt.SESSION_REF
+      AND
+        LOWER(dt.NAME) = LOWER(a.TYPE)
+    );
+END;
+
+/* Trigger that checks for undefined types in command args when a session package is inserted */
+CREATE TRIGGER COMMAND_UNDEFINED_TYPE_MESSAGE_ON_INSERT
+AFTER INSERT ON SESSION_PACKAGE
+WHEN
+  EXISTS(
+    SELECT
+      1
+    FROM
+      SESSION_PACKAGE spk
+    JOIN
+      PACKAGE p
+    ON
+      spk.PACKAGE_REF = p.PACKAGE_ID
+    WHERE
+      p.TYPE = 'zcl-xml-standalone'
+    AND
+      spk.package_ref = NEW.package_ref
+    AND
+      NEW.ENABLED = true
+  )
+BEGIN
+  INSERT INTO SESSION_NOTICE(
+    SESSION_REF,
+    NOTICE_TYPE,
+    NOTICE_MESSAGE,
+    NOTICE_SEVERITY,
+    DISPLAY,
+    SEEN
+  )
+  SELECT
+    spt.SESSION_REF,
+    'ERROR',
+    'Undefined Data Type ' || a.type ||' in Command Argument ' || a.name || ' for Command '|| c.NAME || ' in ' || p.PATH,
+    2,
+    1,
+    0
+    FROM
+      COMMAND_ARG a
+    INNER JOIN 
+      COMMAND c
+    ON 
+      a.COMMAND_REF = c.COMMAND_ID
+    INNER JOIN
+      PACKAGE p
+    ON
+      c.PACKAGE_REF = p.PACKAGE_ID
+    INNER JOIN
+      SESSION_PACKAGE spk
+    ON
+      p.PACKAGE_ID = spk.PACKAGE_REF
+    INNER JOIN
+      SESSION_PARTITION spt
+    ON
+      spk.SESSION_PARTITION_REF = spt.SESSION_PARTITION_ID
+    WHERE
+      spk.SESSION_PARTITION_REF = NEW.SESSION_PARTITION_REF
+    AND
+      spk.PACKAGE_REF = NEW.PACKAGE_REF
+    AND NOT EXISTS(
+      SELECT
+        1
+      FROM
+        DATA_TYPE dt
+      INNER JOIN
+        PACKAGE p2
+      ON
+        dt.PACKAGE_REF = p2.PACKAGE_ID
+      INNER JOIN
+        SESSION_PACKAGE spk2
+      ON
+        p2.PACKAGE_ID = spk2.PACKAGE_REF
+      INNER JOIN
+        SESSION_PARTITION spt2
+      ON
+        spk2.SESSION_PARTITION_REF = spt2.SESSION_PARTITION_ID
+      WHERE
+        spt2.SESSION_REF = spt.SESSION_REF
+      AND
+        LOWER(dt.NAME) = LOWER(a.TYPE)
+    );
+END;
+
+/* Trigger that checks for undefined types in command args when a session package is re-enabled */
+CREATE TRIGGER COMMAND_UNDEFINED_TYPE_MESSAGE_ON_UPDATE
+AFTER UPDATE ON SESSION_PACKAGE
+WHEN
+  EXISTS(
+    SELECT
+      1
+    FROM
+      SESSION_PACKAGE spk
+    JOIN
+      PACKAGE p
+    ON
+      spk.PACKAGE_REF = p.PACKAGE_ID
+    WHERE
+      p.TYPE = 'zcl-xml-standalone'
+    AND
+      spk.package_ref = NEW.package_ref
+    AND
+      OLD.ENABLED = false
+    AND
+      NEW.ENABLED = true
+  )
+BEGIN
+  INSERT INTO SESSION_NOTICE(
+    SESSION_REF,
+    NOTICE_TYPE,
+    NOTICE_MESSAGE,
+    NOTICE_SEVERITY,
+    DISPLAY,
+    SEEN
+  )
+  SELECT
+    spt.SESSION_REF,
+    'ERROR',
+    'Undefined Data Type ' || a.type ||' in Command Argument ' || a.name || ' for Command '|| c.NAME || ' in ' || p.PATH,
+    2,
+    1,
+    0
+    FROM
+      COMMAND_ARG a
+    INNER JOIN 
+      COMMAND c
+    ON 
+      a.COMMAND_REF = c.COMMAND_ID
+    INNER JOIN
+      PACKAGE p
+    ON
+      c.PACKAGE_REF = p.PACKAGE_ID
+    INNER JOIN
+      SESSION_PACKAGE spk
+    ON
+      p.PACKAGE_ID = spk.PACKAGE_REF
+    INNER JOIN
+      SESSION_PARTITION spt
+    ON
+      spk.SESSION_PARTITION_REF = spt.SESSION_PARTITION_ID
+    WHERE
+      spk.SESSION_PARTITION_REF = NEW.SESSION_PARTITION_REF
+    AND
+      spk.PACKAGE_REF = NEW.PACKAGE_REF
+    AND NOT EXISTS(
+      SELECT
+        1
+      FROM
+        DATA_TYPE dt
+      INNER JOIN
+        PACKAGE p2
+      ON
+        dt.PACKAGE_REF = p2.PACKAGE_ID
+      INNER JOIN
+        SESSION_PACKAGE spk2
+      ON
+        p2.PACKAGE_ID = spk2.PACKAGE_REF
+      INNER JOIN
+        SESSION_PARTITION spt2
+      ON
+        spk2.SESSION_PARTITION_REF = spt2.SESSION_PARTITION_ID
+      WHERE
+        spt2.SESSION_REF = spt.SESSION_REF
+      AND
+        LOWER(dt.NAME) = LOWER(a.TYPE)
+    );
+END;
+
+/* Trigger that checks for undefined types in event fields when a session package is inserted */
+CREATE TRIGGER EVENT_UNDEFINED_TYPE_MESSAGE_ON_INSERT
+AFTER INSERT ON SESSION_PACKAGE
+WHEN
+  EXISTS(
+    SELECT
+      1
+    FROM
+      SESSION_PACKAGE spk
+    JOIN
+      PACKAGE p
+    ON
+      spk.PACKAGE_REF = p.PACKAGE_ID
+    WHERE
+      p.TYPE = 'zcl-xml-standalone'
+    AND
+      spk.package_ref = NEW.package_ref
+    AND
+      NEW.ENABLED = true
+  )
+BEGIN
+  INSERT INTO SESSION_NOTICE(
+    SESSION_REF,
+    NOTICE_TYPE,
+    NOTICE_MESSAGE,
+    NOTICE_SEVERITY,
+    DISPLAY,
+    SEEN
+  )
+  SELECT
+    spt.SESSION_REF,
+    'ERROR',
+    'Undefined Data Type ' || f.type ||' in Attribute ' || f.name || ' in ' || p.PATH,
+    2,
+    1,
+    0
+    FROM
+      EVENT_FIELD f
+    INNER JOIN
+      EVENT e
+    ON 
+      f.EVENT_REF = e.EVENT_ID
+    INNER JOIN
+      PACKAGE p
+    ON
+      e.PACKAGE_REF = p.PACKAGE_ID
+    INNER JOIN
+      SESSION_PACKAGE spk
+    ON
+      p.PACKAGE_ID = spk.PACKAGE_REF
+    INNER JOIN
+      SESSION_PARTITION spt
+    ON
+      spk.SESSION_PARTITION_REF = spt.SESSION_PARTITION_ID
+    WHERE
+      spk.SESSION_PARTITION_REF = NEW.SESSION_PARTITION_REF
+    AND
+      spk.PACKAGE_REF = NEW.PACKAGE_REF
+    AND NOT EXISTS(
+      SELECT
+        1
+      FROM
+        DATA_TYPE dt
+      INNER JOIN
+        PACKAGE p2
+      ON
+        dt.PACKAGE_REF = p2.PACKAGE_ID
+      INNER JOIN
+        SESSION_PACKAGE spk2
+      ON
+        p2.PACKAGE_ID = spk2.PACKAGE_REF
+      INNER JOIN
+        SESSION_PARTITION spt2
+      ON
+        spk2.SESSION_PARTITION_REF = spt2.SESSION_PARTITION_ID
+      WHERE
+        spt2.SESSION_REF = spt.SESSION_REF
+      AND
+        LOWER(dt.NAME) = LOWER(f.TYPE)
+    );
+END;
+
+/* Trigger that checks for undefined types in event fields when a session package is re-enabled*/
+CREATE TRIGGER EVENT_UNDEFINED_TYPE_MESSAGE_ON_UPDATE
+AFTER UPDATE ON SESSION_PACKAGE
+WHEN
+  EXISTS(
+    SELECT
+      1
+    FROM
+      SESSION_PACKAGE spk
+    JOIN
+      PACKAGE p
+    ON
+      spk.PACKAGE_REF = p.PACKAGE_ID
+    WHERE
+      p.TYPE = 'zcl-xml-standalone'
+    AND
+      spk.package_ref = NEW.package_ref
+    AND
+      OLD.ENABLED = false
+    AND
+      NEW.ENABLED = true
+  )
+BEGIN
+  INSERT INTO SESSION_NOTICE(
+    SESSION_REF,
+    NOTICE_TYPE,
+    NOTICE_MESSAGE,
+    NOTICE_SEVERITY,
+    DISPLAY,
+    SEEN
+  )
+  SELECT
+    spt.SESSION_REF,
+    'ERROR',
+    'Undefined Data Type ' || f.type ||' in Attribute ' || f.name || ' in ' || p.PATH,
+    2,
+    1,
+    0
+    FROM
+      EVENT_FIELD f
+    INNER JOIN
+      EVENT e
+    ON 
+      f.EVENT_REF = e.EVENT_ID
+    INNER JOIN
+      PACKAGE p
+    ON
+      e.PACKAGE_REF = p.PACKAGE_ID
+    INNER JOIN
+      SESSION_PACKAGE spk
+    ON
+      p.PACKAGE_ID = spk.PACKAGE_REF
+    INNER JOIN
+      SESSION_PARTITION spt
+    ON
+      spk.SESSION_PARTITION_REF = spt.SESSION_PARTITION_ID
+    WHERE
+      spk.SESSION_PARTITION_REF = NEW.SESSION_PARTITION_REF
+    AND
+      spk.PACKAGE_REF = NEW.PACKAGE_REF
+    AND NOT EXISTS(
+      SELECT
+        1
+      FROM
+        DATA_TYPE dt
+      INNER JOIN
+        PACKAGE p2
+      ON
+        dt.PACKAGE_REF = p2.PACKAGE_ID
+      INNER JOIN
+        SESSION_PACKAGE spk2
+      ON
+        p2.PACKAGE_ID = spk2.PACKAGE_REF
+      INNER JOIN
+        SESSION_PARTITION spt2
+      ON
+        spk2.SESSION_PARTITION_REF = spt2.SESSION_PARTITION_ID
+      WHERE
+        spt2.SESSION_REF = spt.SESSION_REF
+      AND
+        LOWER(dt.NAME) = LOWER(f.TYPE)
+    );
+END;
+
+/* Trigger that deletes relevant custom XML specific session_notice entries when a session package is disabled */
+CREATE TRIGGER DELETE_NOTICE_ON_DISABLE_CUSTOM_XML
 AFTER UPDATE ON SESSION_PACKAGE
 WHEN
     OLD.ENABLED = 1
@@ -3903,13 +4401,11 @@ BEGIN
   AND
     NOTICE_TYPE = "ERROR"
   AND
-    NOTICE_MESSAGE LIKE '%code conflict%'
-  AND
     NOTICE_MESSAGE LIKE '%' || (SELECT p.PATH FROM PACKAGE p WHERE p.PACKAGE_ID = OLD.PACKAGE_REF) || '%';
 END;
 
-/* Trigger that deletes relevant code conflict session_notice entries when a session package is deleted */
-CREATE TRIGGER CODE_CONFLICT_DELETE
+/* Trigger that deletes relevant custom XML specific session_notice entries when a session package is deleted */
+CREATE TRIGGER  DELETE_NOTICE_ON_DELETE_CUSTOM_XML
 AFTER DELETE ON SESSION_PACKAGE
 BEGIN
   DELETE FROM
@@ -3926,13 +4422,8 @@ BEGIN
   AND
     NOTICE_TYPE = 'ERROR'
   AND
-    NOTICE_MESSAGE LIKE '%code conflict%'
-  AND
     NOTICE_MESSAGE LIKE '%' || (SELECT p.PATH FROM PACKAGE p WHERE p.PACKAGE_ID = OLD.PACKAGE_REF) || '%';
 END;
-
-
-
 
 /*
  *
