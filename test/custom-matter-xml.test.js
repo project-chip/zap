@@ -397,14 +397,13 @@ test(
         "// cluster: 0xFFF1FC20 Sample Custom Changed, text extension: ''"
       )
 
+      expect(sdkExt).not.toContain(
+        "// cluster: 0xFFF1FC20 Sample Custom Cluster, text extension: ''"
+      )
+
       // Not working as expected possibly due to bug - https://github.com/project-chip/zap/issues/1387
       // expect(endpointConfig).not.toContain(
       //   " /* Endpoint: 1, Cluster: Sample Custom Cluster (server) */ \\"
-      // )
-
-      // Not working as expected possibly due to bug - https://github.com/project-chip/zap/issues/1391
-      // expect(sdkExt).not.toContain(
-      //   "// cluster: 0xFFF1FC20 Sample Custom Cluster, text extension: ''"
       // )
 
       // Once bugs are resolved and based on expected behavior, the tests should pass
@@ -413,15 +412,16 @@ test(
       //   ' /* Endpoint: 1, Cluster: Sample Custom Changed (server) */ \\'
       // )
 
-      // Should also pass after bugs are resolved
       // Verify that there are two instances of this package with only one in sync
-      // let customXmlPackages = await dbApi.dbAll(
-      //   db,
-      //   'SELECT * FROM PACKAGE WHERE PATH = ?',
-      //   [testUtil.testMattterCustomXml]
-      // )
-      // expect(customXmlPackages.length).toEqual(2)
-      // expect(customXmlPackages[0].IS_IN_SYNC ^ customXmlPackages[1].IS_IN_SYNC).toBeTruthy()
+      let customXmlPackages = await dbApi.dbAll(
+        db,
+        'SELECT * FROM PACKAGE WHERE PATH = ?',
+        [testUtil.testMattterCustomXml]
+      )
+      expect(customXmlPackages.length).toEqual(2)
+      expect(
+        customXmlPackages[0].IS_IN_SYNC ^ customXmlPackages[1].IS_IN_SYNC
+      ).toBeTruthy()
     } finally {
       // restore original custom xml
       fs.writeFileSync(testUtil.testMattterCustomXml, originalData, 'utf8')
