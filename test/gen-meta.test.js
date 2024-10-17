@@ -149,6 +149,17 @@ test(
       }
     }
 
+    const typedefs = await queryZcl.selectAllTypedefs(db, zclContext.packageId)
+    for (const t of typedefs) {
+      let clusters = await queryZcl.selectTypedefClusters(db, t.id)
+      if (t.name == 'TestID') {
+        expect(clusters.length).toBe(1)
+        expect(clusters[0].code).toBe(0xabcd)
+      } else {
+        expect(clusters.length).toBe(0)
+      }
+    }
+
     const ops = await queryAccess.selectAccessOperations(
       db,
       zclContext.packageId

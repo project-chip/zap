@@ -321,6 +321,13 @@ async function asJavaType(type, zclType, cluster, options) {
     .isStruct(this.global.db, type, pkgIds)
     .then((zclType) => zclType != 'unknown');
 
+  let typedef = await queryZcl.selectStructByNameAndClusterId(
+    this.global.db,
+    type,
+    cluster,
+    pkgIds
+  );
+
   let classType = '';
 
   if (StringHelper.isOctetString(type)) {
@@ -331,6 +338,8 @@ async function asJavaType(type, zclType, cluster, options) {
     classType += `ChipStructs.${appHelper.asUpperCamelCase(
       cluster
     )}Cluster${appHelper.asUpperCamelCase(type)}`;
+  } else if (typedef) {
+    return asJavaType(typedef.type, null, cluster, options);
   } else {
     let javaBoxedType = asJavaBoxedType(type, zclType);
     if (javaBoxedType == 'Object' && options.hash.clusterId) {

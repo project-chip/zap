@@ -49,6 +49,10 @@ limitations under the License.
     <field name="ValueC" mask="0x4"/>
   </bitmap>
 
+  <typedef name="ClusterTestID" type="int16u">
+    <cluster code="0x050F"/>
+  </typedef>
+
   <struct name="SimpleStruct">
     <cluster code="0x050F"/>
     <item name="a" type="INT8U" optional="false"/>
@@ -59,6 +63,7 @@ limitations under the License.
     <item name="f" type="SimpleBitmap" optional="false"/>
     <item name="g" type="single" optional="false"/>
     <item name="h" type="double" optional="false"/>
+    <item name="i" type="ClusterTestID" optional="false"/>
   </struct>
 
   <struct name="NestedStruct">
@@ -128,7 +133,7 @@ limitations under the License.
         <field mask="0x04" name="MaskVal3" />
         <field mask="0x40000000" name="MaskVal4" />
     </bitmap>
-    
+
     <bitmap name="Bitmap64MaskMap" type="BITMAP64">
         <cluster code="0x050F" />
         <field mask="0x01" name="MaskVal1" />
@@ -136,7 +141,7 @@ limitations under the License.
         <field mask="0x04" name="MaskVal3" />
         <field mask="0x4000000000000000" name="MaskVal4" />
     </bitmap>
-    
+
   <cluster>
     <domain>CHIP</domain>
     <name>Test Cluster</name>

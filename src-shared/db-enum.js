@@ -97,7 +97,8 @@ exports.zclType = {
   array: 'array',
   zclCharFormatter: 'zclCharFormatter',
   string: 'string',
-  number: 'number'
+  number: 'number',
+  typedef: 'typedef'
 }
 
 exports.sessionKey = {
