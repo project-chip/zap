@@ -25,6 +25,7 @@ const queryStruct = require('../src-electron/db/query-struct.js')
 const queryDeviceType = require('../src-electron/db/query-device-type')
 const queryCommand = require('../src-electron/db/query-command')
 const queryPackage = require('../src-electron/db/query-package')
+const queryTypedef = require('../src-electron/db/query-typedef.js')
 const zclLoader = require('../src-electron/zcl/zcl-loader')
 const env = require('../src-electron/util/env')
 const testUtil = require('./test-util')
@@ -133,7 +134,7 @@ test(
       expect(x.length).toEqual(129)
 
       x = await queryZcl.selectAllDataTypes(db, zigbeePackageId)
-      expect(x.length).toEqual(440)
+      expect(x.length).toEqual(441)
 
       x = await queryZcl.selectAllNumbers(db, zigbeePackageId)
       expect(x.length).toEqual(41)
@@ -175,6 +176,9 @@ test(
 
       x = await queryZcl.selectAllBitmaps(db, dotdotPackageId)
       expect(x.length).toEqual(69)
+
+      x = await queryTypedef.selectAllTypedefs(db, zigbeePackageId)
+      expect(x.length).toEqual(1)
 
       x = await queryZcl.selectAllStrings(db, dotdotPackageId)
       x = x.map((item) => item.name)

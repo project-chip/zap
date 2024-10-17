@@ -40,7 +40,7 @@ typedef enum {
 // ZCL typedefs
 
 {{#zcl_typedefs}}
-typedef {{asUnderlyingType type}} {{asType parent.label}};
+using {{as_type label}} = {{asUnderlyingType type}};
 {{/zcl_typedefs}}
 
 // ZCL Structs
