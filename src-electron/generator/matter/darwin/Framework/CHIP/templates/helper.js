@@ -594,6 +594,10 @@ function makeAvailabilityPath(clusterName, options) {
     return ['global attributes', options.hash.globalAttribute];
   }
 
+  if (options.hash.deviceType) {
+    return ['device types', options.hash.deviceType];
+  }
+
   return ['clusters', clusterName];
 }
 
@@ -626,6 +630,7 @@ function findPathToContainer(availabilityPath) {
     case 'apis':
     case 'global attributes':
     case 'clusters':
+    case 'device types':
       return undefined;
 
     default:

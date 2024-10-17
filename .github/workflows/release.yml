@@ -210,15 +210,9 @@ jobs:
       - name: Build & Release for Windows / Mac universal binary on macOS
         if: startsWith(matrix.os, 'macos')
         run: |
-          npm run pack:win
-          npm run pkg:win
-          ls ./dist/
-          npm run pack:cli:win
+          node src-script/build-release-package.js --platform w
 
-          npm run pack:mac
-          npm run pkg:mac
-          ls ./dist/
-          npm run pack:cli:mac
+          node src-script/build-release-package.js --platform m
 
         env:
           GH_TOKEN: ${{ secrets.github_token }}
@@ -230,10 +224,7 @@ jobs:
       - name: Build & Release for Linux
         if: startsWith(matrix.os, 'ubuntu')
         run: |
-          npm run pack:linux
-          npm run pkg:linux
-          ls ./dist/
-          npm run pack:cli:linux
+          node src-script/build-release-package.js --platform l
 
           mv dist/zap-linux-amd64.deb dist/zap-linux-x64.deb
           mv dist/zap-linux-x86_64.rpm dist/zap-linux-x64.rpm
