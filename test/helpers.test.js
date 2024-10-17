@@ -234,7 +234,7 @@ test(
     zclHelper.isTypedef(db, 'patate', zclContext.packageId).then((result) => {
       expect(result).toBe(dbEnum.zclType.unknown)
     })
-    zclHelper.isTypedef(db, 'Protocol', zclContext.packageId).then((result) => {
+    zclHelper.isTypedef(db, 'ZoneID', zclContext.packageId).then((result) => {
       expect(result).toBe(dbEnum.zclType.typedef)
     })
   },
