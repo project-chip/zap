@@ -128,7 +128,7 @@ export function windowCreate(port, args) {
     title: args?.filePath == null ? menu.newConfiguration : args?.filePath,
     useContentSize: true,
     webPreferences: webPreferences,
-    titleBarStyle: process.platform === 'win32' ? 'default' : 'hidden',
+    titleBarStyle: process.platform === 'darwin' ? 'hidden' : 'default',
     trafficLightPosition: { x: 15, y: 20 },
     titleBarOverlay: {
       color: '#F4F4F4',
