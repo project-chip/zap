@@ -125,7 +125,7 @@ exports.map = {
       isArray: x.ARRAY_TYPE ? 1 : 0,
       mustUseTimedWrite: dbApi.fromDbBool(x.MUST_USE_TIMED_WRITE),
       apiMaturity: x.API_MATURITY,
-      isChangeComitted: dbApi.fromDbBool(x.IS_CHANGE_COMITTED),
+      isChangeOmitted: dbApi.fromDbBool(x.IS_CHANGE_OMITTED),
       persistence: x.PERSISTENCE
     }
   },
@@ -215,7 +215,8 @@ exports.map = {
       hasSpecificResponse: dbApi.toDbBool(x.RESPONSE_REF),
       isIncoming: x.INCOMING,
       isOutgoing: x.OUTGOING,
-      isDefaultResponseEnabled: x.IS_DEFAULT_RESPONSE_ENABLED
+      isDefaultResponseEnabled: x.IS_DEFAULT_RESPONSE_ENABLED,
+      isLargeMessage: dbApi.fromDbBool(x.IS_LARGE_MESSAGE)
     }
   },
 
@@ -686,7 +687,7 @@ exports.map = {
       tokenId: x.TOKEN_ID, // Endpoint type attribute's token id
       type: x.TYPE != 'array' ? x.TYPE : x.ARRAY_TYPE, // Attribute type
       apiMaturity: x.API_MATURITY,
-      isChangeComitted: x.IS_CHANGE_COMITTED,
+      isChangeOmitted: dbApi.fromDbBool(x.IS_CHANGE_OMITTED),
       persistence: x.PERSISTENCE
     }
   },
@@ -700,7 +701,8 @@ exports.map = {
       incoming: dbApi.fromDbBool(x.INCOMING),
       outgoing: dbApi.fromDbBool(x.OUTGOING),
       isIncoming: dbApi.fromDbBool(x.IS_INCOMING),
-      isEnabled: dbApi.fromDbBool(x.IS_ENABLED)
+      isEnabled: dbApi.fromDbBool(x.IS_ENABLED),
+      isLargeMessage: dbApi.fromDbBool(x.IS_LARGE_MESSAGE)
     }
   },
 

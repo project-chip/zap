@@ -205,10 +205,17 @@ test(
       '0,UINT0_MAX// actual type: ThermostatScheduleTransition'
     )
 
-    // Testing attribute's scene loading
+    // Testing attribute qualities loading
     expect(
       sdkExt.includes(
-        "// attribute: 0x0300 / 0x4001 => EnhancedColorMode, extensions: '', '', scene: true"
+        "// attribute: 0x0300 / 0x4001 => EnhancedColorMode, extensions: '', '', scene: true, isChangeOmitted: true, persistence: nonVolatile"
+      )
+    )
+
+    // Testing isLargeMessage quality for commands
+    expect(
+      sdkExt.includes(
+        "// command: 0x0300 / 0x00 => MoveToHue, test extension: '', isLargeMessage: true"
       )
     )
   },

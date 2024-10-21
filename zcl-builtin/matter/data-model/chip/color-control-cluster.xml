@@ -262,6 +262,7 @@ limitations under the License.
       <description>
         Move to specified hue.
       </description>
+      <quality largeMessage="true"/>
       <arg name="Hue" type="INT8U"/>
       <arg name="Direction" type="HueDirection"/>
       <arg name="TransitionTime" type="INT16U"/>
@@ -379,7 +380,7 @@ limitations under the License.
     <attribute side="server" code="0x4000" define="COLOR_CONTROL_ENHANCED_CURRENT_HUE" type="INT16U" min="0x0000" max="0xFFFF" writable="false" default="0x0000" optional="true">EnhancedCurrentHue</attribute>
         <attribute side="server" code="0x4001" define="COLOR_CONTROL_ENHANCED_COLOR_MODE" type="enum8" min="0x00" max="0xFF" writable="false" default="0x01">
         <description>EnhancedColorMode</description>
-        <quality changeOmitted= "false" nullable= "false" scene= "true" persistence= "nonVolatile" reportable= "false"/>
+        <quality changeOmitted= "true" nullable= "false" scene= "true" persistence= "nonVolatile" reportable= "false"/>
     </attribute>
     <attribute side="server" code="0x4002" define="COLOR_CONTROL_COLOR_LOOP_ACTIVE" type="INT8U" min="0x00" max="0xFF" writable="false" default="0x00" optional="true">ColorLoopActive</attribute>
     <attribute side="server" code="0x4003" define="COLOR_CONTROL_COLOR_LOOP_DIRECTION" type="INT8U" min="0x00" max="0xFF" writable="false" default="0x00" optional="true">ColorLoopDirection</attribute>

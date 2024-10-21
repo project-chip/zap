@@ -457,6 +457,10 @@ function prepareCluster(cluster, context, isExtension = false) {
   if ('command' in cluster) {
     ret.commands = []
     cluster.command.forEach((command) => {
+      let quality = null
+      if ('quality' in command) {
+        quality = command.quality[0].$
+      }
       let cmd = {
         code: parseInt(command.$.code),
         manufacturerCode: command.$.manufacturerCode,
@@ -470,7 +474,8 @@ function prepareCluster(cluster, context, isExtension = false) {
         responseName: command.$.response == null ? null : command.$.response,
         isDefaultResponseEnabled:
           command.$.disableDefaultResponse == 'true' ? false : true,
-        isFabricScoped: command.$.isFabricScoped == 'true'
+        isFabricScoped: command.$.isFabricScoped == 'true',
+        isLargeMessage: quality ? quality.largeMessage == 'true' : false
       }
       cmd.access = extractAccessIntoArray(command)
       if (cmd.manufacturerCode == null) {
@@ -639,7 +644,7 @@ function prepareCluster(cluster, context, isExtension = false) {
         entryType: attribute.$.entryType,
         mustUseTimedWrite: attribute.$.mustUseTimedWrite == 'true',
         apiMaturity: attribute.$.apiMaturity,
-        changeOmitted: quality ? quality.changeOmitted == 'true' : false,
+        isChangeOmitted: quality ? quality.changeOmitted == 'true' : false,
         persistence: quality ? quality.persistence : null
       }
       att.access = extractAccessIntoArray(attribute)

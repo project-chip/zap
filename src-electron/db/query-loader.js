@@ -102,12 +102,13 @@ INSERT INTO COMMAND (
   MANUFACTURER_CODE,
   INTRODUCED_IN_REF,
   REMOVED_IN_REF,
-  IS_DEFAULT_RESPONSE_ENABLED
+  IS_DEFAULT_RESPONSE_ENABLED,
+  IS_LARGE_MESSAGE
 ) VALUES (
   ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
-  ?
+  ?, ?
 )`
 
 const INSERT_COMMAND_ARG_QUERY = `
@@ -166,7 +167,7 @@ INSERT OR REPLACE INTO ATTRIBUTE (
   INTRODUCED_IN_REF,
   REMOVED_IN_REF,
   API_MATURITY,
-  IS_CHANGE_COMITTED,
+  IS_CHANGE_OMITTED,
   PERSISTENCE
 ) VALUES (
   ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
@@ -243,7 +244,9 @@ function attributeMap(clusterId, packageId, attributes) {
     packageId,
     attribute.removedIn,
     packageId,
-    attribute.apiMaturity
+    attribute.apiMaturity,
+    dbApi.toDbBool(attribute.isChangeOmitted),
+    attribute.persistence
   ])
 }
 
@@ -299,7 +302,8 @@ function commandMap(clusterId, packageId, commands) {
     packageId,
     command.removedIn,
     packageId,
-    dbApi.toDbBool(command.isDefaultResponseEnabled)
+    dbApi.toDbBool(command.isDefaultResponseEnabled),
+    dbApi.toDbBool(command.isLargeMessage)
   ])
 }
 
@@ -776,7 +780,7 @@ async function insertClusters(db, packageId, data) {
       let i
       for (i = 0; i < lastIdsArray.length; i++) {
         let lastId = lastIdsArray[i]
-        // NOTE: This code must stay in sync with insertClusterExtensionsx
+        // NOTE: This code must stay in sync with insertClusterExtensions
         if ('commands' in data[i]) {
           let cmds = data[i].commands
           commands.data.push(...commandMap(lastId, packageId, cmds))
