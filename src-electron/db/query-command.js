@@ -69,7 +69,7 @@ async function selectEndpointTypeCommandsByEndpointTypeRefAndClusterRef(
  * @export
  * @param {*} db
  * @param {*} newEndpointTypeClusterRef
- * @param {*} attribute
+ * @param {*} command
  * @returns Promise duplicated endpoint type command's id.
  */
 async function duplicateEndpointTypeCommand(

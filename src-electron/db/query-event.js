@@ -68,7 +68,7 @@ async function selectEndpointTypeEventsByEndpointTypeRefAndClusterRef(
  * @export
  * @param {*} db
  * @param {*} newEndpointTypeClusterRef
- * @param {*} attribute
+ * @param {*} event
  * @returns Promise duplicated endpoint type event's id.
  */
 async function duplicateEndpointTypeEvent(
