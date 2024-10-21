@@ -121,6 +121,7 @@ async function getFeaturesByDeviceTypeRefs(
  * Expression containing comma means otherwise conformance. See spec for details.
  * Examples of conformance expression: 'A & (!B | C)', 'A & B, [!C]'
  *
+ * @export
  * @param {*} expression
  * @param {*} elementMap
  * @returns 'mandatory', 'optional', 'provisional', or 'notSupported'
@@ -132,7 +133,7 @@ function evaluateConformanceExpression(expression, elementMap) {
    */
   function evaluateBooleanExpression(expr) {
     // Replace terms with their actual values from elementMap
-    expr = expr.replace(/[A-Za-z]+/g, (term) => {
+    expr = expr.replace(/[A-Za-z][A-Za-z0-9]*/g, (term) => {
       if (elementMap[term]) {
         return 'true'
       } else {
@@ -205,7 +206,7 @@ function evaluateConformanceExpression(expression, elementMap) {
  * @returns all missing terms in an array
  */
 function checkMissingTerms(expression, elementMap) {
-  let terms = expression.match(/[A-Za-z]+/g)
+  let terms = expression.match(/[A-Za-z][A-Za-z0-9]*/g)
   let missingTerms = []
   let abbreviations = ['M', 'O', 'P', 'D', 'X']
   for (let term of terms) {
@@ -285,42 +286,6 @@ function generateWarningMessage(featureData, endpointId, missingTerms, added) {
   }
 
   return result
-}
-
-/**
- * Set or delete warning notification after updating a device type feature.
- *
- * @export
- * @param {*} db
- * @param {*} sessionId
- * @param {*} result
- */
-async function setNotificationOnFeatureChange(db, sessionId, result) {
-  let { warningMessage, disableChange, displayWarning } = result
-  if (disableChange) {
-    await querySessionNotification.setWarningIfMessageNotExists(
-      db,
-      sessionId,
-      warningMessage
-    )
-    return
-  }
-  if (displayWarning) {
-    await querySessionNotification.setNotification(
-      db,
-      'WARNING',
-      warningMessage,
-      sessionId,
-      2,
-      0
-    )
-  } else {
-    await querySessionNotification.searchNotificationByMessageAndDelete(
-      db,
-      sessionId,
-      warningMessage
-    )
-  }
 }
 
 /**
@@ -420,4 +385,4 @@ function filterElementsToUpdate(elements, elementMap, featureCode) {
 
 exports.getFeaturesByDeviceTypeRefs = getFeaturesByDeviceTypeRefs
 exports.checkElementsToUpdate = checkElementsToUpdate
-exports.setNotificationOnFeatureChange = setNotificationOnFeatureChange
+exports.evaluateConformanceExpression = evaluateConformanceExpression

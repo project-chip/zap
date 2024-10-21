@@ -117,20 +117,17 @@ function httpGetElementsToUpdate(db) {
         db,
         endpointTypeClusterId
       )
-    elements.commands = await queryCommand
-      .selectCommandsByDeviceTypeClusterId(
+    elements.commands =
+      await queryCommand.selectCommandsByEndpointTypeClusterIdAndDeviceTypeClusterId(
         db,
-        deviceTypeClusterId,
-        endpointTypeClusterId
+        endpointTypeClusterId,
+        deviceTypeClusterId
       )
-      .then((commands) =>
-        commands.map((command) => {
-          if (command.isEnabled == null) {
-            command.isEnabled = 0
-          }
-          return command
-        })
-      )
+    elements.commands.forEach((command) => {
+      if (command.isEnabled == null) {
+        command.isEnabled = 0
+      }
+    })
 
     let result = queryFeature.checkElementsToUpdate(
       elements,
@@ -138,7 +135,11 @@ function httpGetElementsToUpdate(db) {
       featureData,
       endpointId
     )
-    await queryFeature.setNotificationOnFeatureChange(db, sessionId, result)
+    await querySessionNotification.setNotificationOnFeatureChange(
+      db,
+      sessionId,
+      result
+    )
 
     response.status(StatusCodes.OK).json(result)
   }

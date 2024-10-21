@@ -182,7 +182,7 @@ async function searchNotificationByMessageAndDelete(db, sessionId, message) {
  * @param {*} db
  * @param {*} sessionId
  * @param {*} message
- * @returns true if notification with given message exists, setNotification response otherwise
+ * @returns setNotification response if message does not exist and notification was set, false otherwise
  */
 async function setWarningIfMessageNotExists(db, sessionId, message) {
   let rows = await dbApi.dbAll(
@@ -193,7 +193,28 @@ async function setWarningIfMessageNotExists(db, sessionId, message) {
   if (rows && rows.length == 0) {
     return setNotification(db, 'WARNING', message, sessionId, 2, 0)
   }
-  return true
+  return false
+}
+
+/**
+ * Set or delete warning notification after updating a device type feature.
+ *
+ * @export
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} result
+ */
+async function setNotificationOnFeatureChange(db, sessionId, result) {
+  let { warningMessage, disableChange, displayWarning } = result
+  if (disableChange) {
+    await setWarningIfMessageNotExists(db, sessionId, warningMessage)
+    return
+  }
+  if (displayWarning) {
+    await setNotification(db, 'WARNING', warningMessage, sessionId, 2, 0)
+  } else {
+    await searchNotificationByMessageAndDelete(db, sessionId, warningMessage)
+  }
 }
 
 // exports
@@ -205,3 +226,4 @@ exports.markNotificationsAsSeen = markNotificationsAsSeen
 exports.searchNotificationByMessageAndDelete =
   searchNotificationByMessageAndDelete
 exports.setWarningIfMessageNotExists = setWarningIfMessageNotExists
+exports.setNotificationOnFeatureChange = setNotificationOnFeatureChange
