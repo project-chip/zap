@@ -180,7 +180,13 @@ limitations under the License.
                   ? 'grey'
                   : ''
               "
-              :disable="isDisabledDefault(props.row.id, selectedCluster.id)"
+              :disable="
+                isDisabledDefault(
+                  props.row.id,
+                  selectedCluster.id,
+                  props.row.code
+                )
+              "
               :model-value="
                 props.row.isNullable &&
                 defaultValueCheck(props.row.id, selectedCluster.id) === null
@@ -257,15 +263,16 @@ export default {
       })
     },
     //return true and disable default field if Storage is External AND if attribute is not enabled
-    isDisabledDefault(id, selectedClusterId) {
-      return (
-        !this.selection.includes(
-          this.hashAttributeIdClusterId(id, selectedClusterId)
-        ) ||
-        this.selectionStorageOption[
-          this.hashAttributeIdClusterId(id, selectedClusterId)
-        ] == 'External'
-      )
+    // also disable default field for featureMap attribute
+    isDisabledDefault(id, selectedClusterId, code) {
+      return code == 0xfffc
+        ? true
+        : !this.selection.includes(
+            this.hashAttributeIdClusterId(id, selectedClusterId)
+          ) ||
+            this.selectionStorageOption[
+              this.hashAttributeIdClusterId(id, selectedClusterId)
+            ] == 'External'
     },
     //return true and disable Storage if forced External AND if attribute is not enabled
     isDisabledStorage(id, name, selectedClusterId) {
