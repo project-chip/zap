@@ -39,7 +39,8 @@ exports.rootNode = {
   endpointId: 0,
   getParentEndpointIdentifier: null,
   deviceVersion: 1,
-  type: 'rootNode'
+  type: 'rootNode',
+  profileID: 259
 }
 
 exports.packageOptionCategory = {
