@@ -25,6 +25,83 @@ const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
 
 /**
+ * Promises to select all endpoint type commands filtered by EndpointTypeRef and ClusterRef.
+ *
+ * @export
+ * @param {*} db
+ * @param {*} endpointTypeRef
+ * @param {*} endpointTypeClusterRef
+ * @returns Records of selected Endpoint Type Commands.
+ */
+async function selectEndpointTypeCommandsByEndpointTypeRefAndClusterRef(
+  db,
+  endpointTypeRef,
+  endpointTypeClusterRef
+) {
+  let rows = await dbApi.dbAll(
+    db,
+    `
+    SELECT
+      ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_COMMAND_ID,
+      ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF,
+      ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_CLUSTER_REF AS 'CLUSTER_REF',
+      ENDPOINT_TYPE_COMMAND.COMMAND_REF,
+      ENDPOINT_TYPE_COMMAND.IS_INCOMING,
+      ENDPOINT_TYPE_COMMAND.IS_ENABLED
+    FROM
+      ENDPOINT_TYPE_COMMAND
+    INNER JOIN
+      ENDPOINT_TYPE_CLUSTER
+    ON
+      ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_CLUSTER_REF = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
+    WHERE
+      ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = ?
+    AND
+      ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_CLUSTER_REF = ?`,
+    [endpointTypeRef, endpointTypeClusterRef]
+  )
+  return rows.map(dbMapping.map.endpointTypeCommand)
+}
+
+/**
+ * Promises to duplicate endpoint type commands.
+ *
+ * @export
+ * @param {*} db
+ * @param {*} newEndpointTypeClusterRef
+ * @param {*} command
+ * @returns Promise duplicated endpoint type command's id.
+ */
+async function duplicateEndpointTypeCommand(
+  db,
+  newEndpointTypeClusterRef,
+  command
+) {
+  return await dbApi.dbInsert(
+    db,
+    `INSERT INTO
+      ENDPOINT_TYPE_COMMAND (
+        ENDPOINT_TYPE_CLUSTER_REF,
+        COMMAND_REF,
+        IS_INCOMING,
+        IS_ENABLED
+      )
+      VALUES (
+        ?,
+        ?,
+        ?,
+        ?
+      )`,
+    [
+      newEndpointTypeClusterRef,
+      command.commandRef,
+      command.isIncoming,
+      command.isEnabled
+    ]
+  )
+}
+
+/**
  * Returns the count of the number of cluster commands with cli for a cluster
  * @param {*} db
  * @param {*} endpointTypes
@@ -2017,3 +2094,6 @@ exports.selectAllClustersWithOutgoingCommands =
   selectAllClustersWithOutgoingCommands
 exports.selectAllOutgoingCommandsForCluster =
   selectAllOutgoingCommandsForCluster
+exports.selectEndpointTypeCommandsByEndpointTypeRefAndClusterRef =
+  selectEndpointTypeCommandsByEndpointTypeRefAndClusterRef
+exports.duplicateEndpointTypeCommand = duplicateEndpointTypeCommand

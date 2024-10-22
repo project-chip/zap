@@ -25,6 +25,75 @@ const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
 
 /**
+ * Promises to select all endpoint type events filtered by EndpointTypeRef and ClusterRef.
+ *
+ * @export
+ * @param {*} db
+ * @param {*} endpointTypeRef
+ * @param {*} endpointTypeClusterRef
+ * @returns Records of selected Endpoint Type Events.
+ */
+async function selectEndpointTypeEventsByEndpointTypeRefAndClusterRef(
+  db,
+  endpointTypeRef,
+  endpointTypeClusterRef
+) {
+  let rows = await dbApi.dbAll(
+    db,
+    `
+    SELECT
+      ENDPOINT_TYPE_EVENT.ENDPOINT_TYPE_EVENT_ID,
+      ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF,
+      ENDPOINT_TYPE_EVENT.ENDPOINT_TYPE_CLUSTER_REF AS 'CLUSTER_REF',
+      ENDPOINT_TYPE_EVENT.EVENT_REF,
+      ENDPOINT_TYPE_EVENT.INCLUDED
+    FROM
+      ENDPOINT_TYPE_EVENT
+    INNER JOIN
+      ENDPOINT_TYPE_CLUSTER
+    ON
+      ENDPOINT_TYPE_EVENT.ENDPOINT_TYPE_CLUSTER_REF = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
+    WHERE
+      ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = ?
+    AND
+      ENDPOINT_TYPE_EVENT.ENDPOINT_TYPE_CLUSTER_REF = ?`,
+    [endpointTypeRef, endpointTypeClusterRef]
+  )
+  return rows.map(dbMapping.map.endpointTypeEvent)
+}
+
+/**
+ * Promises to duplicate endpoint type events.
+ *
+ * @export
+ * @param {*} db
+ * @param {*} newEndpointTypeClusterRef
+ * @param {*} event
+ * @returns Promise duplicated endpoint type event's id.
+ */
+async function duplicateEndpointTypeEvent(
+  db,
+  newEndpointTypeClusterRef,
+  event
+) {
+  return await dbApi.dbInsert(
+    db,
+    `INSERT INTO
+      ENDPOINT_TYPE_EVENT (
+        ENDPOINT_TYPE_CLUSTER_REF,
+        EVENT_REF,
+        INCLUDED
+      )
+      VALUES (
+        ?,
+        ?,
+        ?
+      )`,
+    [newEndpointTypeClusterRef, event.eventRef, event.included]
+  )
+}
+
+/**
  * Retrieves events for a given cluster Id.
  *
  * @param {*} db
@@ -166,3 +235,6 @@ exports.selectEventsByClusterId = selectEventsByClusterId
 exports.selectAllEvents = selectAllEvents
 exports.selectAllEventFields = selectAllEventFields
 exports.selectEventFieldsByEventId = selectEventFieldsByEventId
+exports.selectEndpointTypeEventsByEndpointTypeRefAndClusterRef =
+  selectEndpointTypeEventsByEndpointTypeRefAndClusterRef
+exports.duplicateEndpointTypeEvent = duplicateEndpointTypeEvent

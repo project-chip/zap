@@ -25,6 +25,7 @@ const env = require('../util/env')
 const queryZcl = require('../db/query-zcl.js')
 const queryAttribute = require('../db/query-attribute.js')
 const queryCommand = require('../db/query-command.js')
+const queryEvent = require('../db/query-event.js')
 const queryFeature = require('../db/query-feature')
 const queryConfig = require('../db/query-config.js')
 const upgrade = require('../sdk/matter.js')
@@ -1043,6 +1044,32 @@ async function duplicateEndpointTypeClusters(
         db,
         newEndpointTypeClusterId,
         attrubute
+      )
+    })
+    let oldCommands =
+      await queryCommand.selectEndpointTypeCommandsByEndpointTypeRefAndClusterRef(
+        db,
+        oldEndpointTypeId,
+        endpointTypeCluster.endpointTypeClusterId
+      )
+    oldCommands.forEach(async (command) => {
+      await queryCommand.duplicateEndpointTypeCommand(
+        db,
+        newEndpointTypeClusterId,
+        command
+      )
+    })
+    let oldEvents =
+      await queryEvent.selectEndpointTypeEventsByEndpointTypeRefAndClusterRef(
+        db,
+        oldEndpointTypeId,
+        endpointTypeCluster.endpointTypeClusterId
+      )
+    oldEvents.forEach(async (event) => {
+      await queryEvent.duplicateEndpointTypeEvent(
+        db,
+        newEndpointTypeClusterId,
+        event
       )
     })
   })
