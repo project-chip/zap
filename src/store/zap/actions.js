@@ -480,7 +480,8 @@ export async function loadComposition(context) {
     let endpoint = await addEndpoint(context, {
       endpointId: dbEnum.rootNode.endpointId,
       parentEndpointIdentifier: dbEnum.rootNode.parentEndpointIdentifier,
-      endpointType: endpointTypeData.id
+      endpointType: endpointTypeData.id,
+      profileId: dbEnum.rootNode.profileID
     })
     return endpoint
   }
