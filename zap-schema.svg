@@ -269,7 +269,7 @@
 <text text-anchor="start" x="1422.5" y="-1671.2" font-family="Helvetica,sans-Serif" font-size="14.00">API_MATURITY</text>
 <text text-anchor="start" x="1646.12" y="-1671.2" font-family="Helvetica,sans-Serif" font-size="14.00"> </text>
 <text text-anchor="start" x="1653.5" y="-1671.2" font-family="Helvetica,sans-Serif" font-size="14.00">TEXT</text>
-<text text-anchor="start" x="1422.5" y="-1652.2" font-family="Helvetica,sans-Serif" font-size="14.00">IS_CHANGE_COMITTED</text>
+<text text-anchor="start" x="1422.5" y="-1652.2" font-family="Helvetica,sans-Serif" font-size="14.00">IS_CHANGE_OMITTED</text>
 <text text-anchor="start" x="1646.12" y="-1652.2" font-family="Helvetica,sans-Serif" font-size="14.00"> </text>
 <text text-anchor="start" x="1653.5" y="-1652.2" font-family="Helvetica,sans-Serif" font-size="14.00">INTEGER</text>
 <text text-anchor="start" x="1422.5" y="-1633.2" font-family="Helvetica,sans-Serif" font-size="14.00">PERSISTENCE</text>

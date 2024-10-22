@@ -354,9 +354,9 @@ digraph "SchemaCrawler_Diagram" {
 		<td port='api_maturity_a069c8bb.end' align='left'>TEXT</td>
 	</tr>
 	<tr>
-		<td port='is_change_comitted_44509d46.start' align='left'>IS_CHANGE_COMITTED</td>
+		<td port='is_change_omitted_51f9ee75.start' align='left'>IS_CHANGE_OMITTED</td>
 		<td align='left'> </td>
-		<td port='is_change_comitted_44509d46.end' align='left'>INTEGER</td>
+		<td port='is_change_omitted_51f9ee75.end' align='left'>INTEGER</td>
 	</tr>
 	<tr>
 		<td port='persistence_685f8304.start' align='left'>PERSISTENCE</td>
