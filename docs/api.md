@@ -3644,18 +3644,19 @@ This module provides queries for features.
 
 
 * [DB API: feature related queries](#module_DB API_ feature related queries)
-    * [~getFeaturesByDeviceTypeRefs(db, deviceTypeRefs)](#module_DB API_ feature related queries..getFeaturesByDeviceTypeRefs) ⇒
+    * [~getFeaturesByDeviceTypeRefs(db, deviceTypeRefs, endpointTypeRef)](#module_DB API_ feature related queries..getFeaturesByDeviceTypeRefs) ⇒
     * [~evaluateConformanceExpression(expression, elementMap)](#module_DB API_ feature related queries..evaluateConformanceExpression) ⇒
         * [~evaluateBooleanExpression(expr)](#module_DB API_ feature related queries..evaluateConformanceExpression..evaluateBooleanExpression)
         * [~evaluateWithParentheses(expr)](#module_DB API_ feature related queries..evaluateConformanceExpression..evaluateWithParentheses)
     * [~checkMissingTerms(expression, elementMap)](#module_DB API_ feature related queries..checkMissingTerms) ⇒
-    * [~generateWarningMessage(featureData, endpointId, missingTerms, added)](#module_DB API_ feature related queries..generateWarningMessage) ⇒
+    * [~filterElementsContainingDesc(elements)](#module_DB API_ feature related queries..filterElementsContainingDesc) ⇒
+    * [~generateWarningMessage(featureData, endpointId, missingTerms, featureMap, descElements)](#module_DB API_ feature related queries..generateWarningMessage) ⇒
     * [~checkElementsToUpdate(elements, featureMap, featureData, endpointId)](#module_DB API_ feature related queries..checkElementsToUpdate) ⇒
     * [~filterElementsToUpdate(elements, elementMap, featureCode)](#module_DB API_ feature related queries..filterElementsToUpdate) ⇒
 
 <a name="module_DB API_ feature related queries..getFeaturesByDeviceTypeRefs"></a>
 
-### DB API: feature related queries~getFeaturesByDeviceTypeRefs(db, deviceTypeRefs) ⇒
+### DB API: feature related queries~getFeaturesByDeviceTypeRefs(db, deviceTypeRefs, endpointTypeRef) ⇒
 Get all device type features associated with a list of device type refs and an endpoint.
 Join ENDPOINT_TYPE_ATTRIBUTE and ATTRIBUTE table to get featureMap attribute associated with the feature,
 so the frontend could get and set featureMap bit easier.
@@ -3669,6 +3670,7 @@ with associated device type, cluster, and featureMap attribute details
 | --- | --- |
 | db | <code>\*</code> | 
 | deviceTypeRefs | <code>\*</code> | 
+| endpointTypeRef | <code>\*</code> | 
 
 <a name="module_DB API_ feature related queries..evaluateConformanceExpression"></a>
 
@@ -3729,21 +3731,34 @@ If so, it means the conformance depends on terms with unknown values and changes
 | expression | <code>\*</code> | 
 | elementMap | <code>\*</code> | 
 
+<a name="module_DB API_ feature related queries..filterElementsContainingDesc"></a>
+
+### DB API: feature related queries~filterElementsContainingDesc(elements) ⇒
+Filter an array of elements by if any element has conformance containing the term 'desc'.
+
+**Kind**: inner method of [<code>DB API: feature related queries</code>](#module_DB API_ feature related queries)  
+**Returns**: elements with conformance containing 'desc'  
+
+| Param | Type |
+| --- | --- |
+| elements | <code>\*</code> | 
+
 <a name="module_DB API_ feature related queries..generateWarningMessage"></a>
 
-### DB API: feature related queries~generateWarningMessage(featureData, endpointId, missingTerms, added) ⇒
+### DB API: feature related queries~generateWarningMessage(featureData, endpointId, missingTerms, featureMap, descElements) ⇒
 Generate a warning message after processing conformance of the updated device type feature.
 Set flags to decide whether to show a popup warning or disable changes in the frontend.
 
 **Kind**: inner method of [<code>DB API: feature related queries</code>](#module_DB API_ feature related queries)  
-**Returns**: warning message, disableChange flag, and displayWarning flag  
+**Returns**: warning message array, disableChange flag, and displayWarning flag  
 
 | Param | Type |
 | --- | --- |
 | featureData | <code>\*</code> | 
 | endpointId | <code>\*</code> | 
 | missingTerms | <code>\*</code> | 
-| added | <code>\*</code> | 
+| featureMap | <code>\*</code> | 
+| descElements | <code>\*</code> | 
 
 <a name="module_DB API_ feature related queries..checkElementsToUpdate"></a>
 
@@ -19937,6 +19952,7 @@ This module provides the APIs for dotdot Loading
     * [~parseProfilesData(db, ctx)](#module_Loader API_ Loader APIs..parseProfilesData) ⇒
     * [~parseFeatureFlags(db, packageId, featureFlags)](#module_Loader API_ Loader APIs..parseFeatureFlags) ⇒
     * [~parseConformanceFromXML(operand)](#module_Loader API_ Loader APIs..parseConformanceFromXML) ⇒
+    * [~parseConformanceRecursively(operand)](#module_Loader API_ Loader APIs..parseConformanceRecursively) ⇒
     * [~parseUiOptions(db, packageId, featureFlags)](#module_Loader API_ Loader APIs..parseUiOptions) ⇒
     * [~parseOptions(db)](#module_Loader API_ Loader APIs..parseOptions) ⇒
     * [~parseTextOptions(db, pkgRef, textOptions)](#module_Loader API_ Loader APIs..parseTextOptions) ⇒
@@ -21290,8 +21306,11 @@ Key/velues of the object itself, end up in CODE/LABEL combinations.
 <a name="module_Loader API_ Loader APIs..parseConformanceFromXML"></a>
 
 ### Loader API: Loader APIs~parseConformanceFromXML(operand) ⇒
-Parses conformance or an operand in conformance recursively from xml data.
-The conformance could come from features, attributes, or commands
+Parses conformance from XML data.
+The conformance could come from features, attributes, or commands.
+
+Call recursive helper function to parse conformance only if the conformance exists.
+Otherwise, return empty string directly
 
 An example of parsing the conformance of 'User' device type feature:
 
@@ -21320,15 +21339,27 @@ Input operand from xml data:
 Output conformance string:
  "Matter & (PIN | RID | FGP | FACE)"
 
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: The conformance string  
+
+| Param | Type |
+| --- | --- |
+| operand | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..parseConformanceRecursively"></a>
+
+### Loader API: Loader APIs~parseConformanceRecursively(operand) ⇒
+helper function to parse conformance or an operand in conformance recursively
+
 The baseLevelTerms variable include terms that can not have nested terms.
 When they appear, stop recursing and return the name inside directly
 
 **Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
 **Returns**: The conformance string.  
 
-| Param | Type | Description |
-| --- | --- | --- |
-| operand | <code>\*</code> | The operand to be parsed. |
+| Param | Type |
+| --- | --- |
+| operand | <code>\*</code> | 
 
 <a name="module_Loader API_ Loader APIs..parseUiOptions"></a>
 
@@ -21753,6 +21784,7 @@ This module provides the APIs for new data model loading
     * [~parseProfilesData(db, ctx)](#module_Loader API_ Loader APIs..parseProfilesData) ⇒
     * [~parseFeatureFlags(db, packageId, featureFlags)](#module_Loader API_ Loader APIs..parseFeatureFlags) ⇒
     * [~parseConformanceFromXML(operand)](#module_Loader API_ Loader APIs..parseConformanceFromXML) ⇒
+    * [~parseConformanceRecursively(operand)](#module_Loader API_ Loader APIs..parseConformanceRecursively) ⇒
     * [~parseUiOptions(db, packageId, featureFlags)](#module_Loader API_ Loader APIs..parseUiOptions) ⇒
     * [~parseOptions(db)](#module_Loader API_ Loader APIs..parseOptions) ⇒
     * [~parseTextOptions(db, pkgRef, textOptions)](#module_Loader API_ Loader APIs..parseTextOptions) ⇒
@@ -23106,8 +23138,11 @@ Key/velues of the object itself, end up in CODE/LABEL combinations.
 <a name="module_Loader API_ Loader APIs..parseConformanceFromXML"></a>
 
 ### Loader API: Loader APIs~parseConformanceFromXML(operand) ⇒
-Parses conformance or an operand in conformance recursively from xml data.
-The conformance could come from features, attributes, or commands
+Parses conformance from XML data.
+The conformance could come from features, attributes, or commands.
+
+Call recursive helper function to parse conformance only if the conformance exists.
+Otherwise, return empty string directly
 
 An example of parsing the conformance of 'User' device type feature:
 
@@ -23136,15 +23171,27 @@ Input operand from xml data:
 Output conformance string:
  "Matter & (PIN | RID | FGP | FACE)"
 
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: The conformance string  
+
+| Param | Type |
+| --- | --- |
+| operand | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..parseConformanceRecursively"></a>
+
+### Loader API: Loader APIs~parseConformanceRecursively(operand) ⇒
+helper function to parse conformance or an operand in conformance recursively
+
 The baseLevelTerms variable include terms that can not have nested terms.
 When they appear, stop recursing and return the name inside directly
 
 **Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
 **Returns**: The conformance string.  
 
-| Param | Type | Description |
-| --- | --- | --- |
-| operand | <code>\*</code> | The operand to be parsed. |
+| Param | Type |
+| --- | --- |
+| operand | <code>\*</code> | 
 
 <a name="module_Loader API_ Loader APIs..parseUiOptions"></a>
 
@@ -23569,6 +23616,7 @@ This module provides the APIs for ZCL/Data-Model loading.
     * [~parseProfilesData(db, ctx)](#module_Loader API_ Loader APIs..parseProfilesData) ⇒
     * [~parseFeatureFlags(db, packageId, featureFlags)](#module_Loader API_ Loader APIs..parseFeatureFlags) ⇒
     * [~parseConformanceFromXML(operand)](#module_Loader API_ Loader APIs..parseConformanceFromXML) ⇒
+    * [~parseConformanceRecursively(operand)](#module_Loader API_ Loader APIs..parseConformanceRecursively) ⇒
     * [~parseUiOptions(db, packageId, featureFlags)](#module_Loader API_ Loader APIs..parseUiOptions) ⇒
     * [~parseOptions(db)](#module_Loader API_ Loader APIs..parseOptions) ⇒
     * [~parseTextOptions(db, pkgRef, textOptions)](#module_Loader API_ Loader APIs..parseTextOptions) ⇒
@@ -24922,8 +24970,11 @@ Key/velues of the object itself, end up in CODE/LABEL combinations.
 <a name="module_Loader API_ Loader APIs..parseConformanceFromXML"></a>
 
 ### Loader API: Loader APIs~parseConformanceFromXML(operand) ⇒
-Parses conformance or an operand in conformance recursively from xml data.
-The conformance could come from features, attributes, or commands
+Parses conformance from XML data.
+The conformance could come from features, attributes, or commands.
+
+Call recursive helper function to parse conformance only if the conformance exists.
+Otherwise, return empty string directly
 
 An example of parsing the conformance of 'User' device type feature:
 
@@ -24952,15 +25003,27 @@ Input operand from xml data:
 Output conformance string:
  "Matter & (PIN | RID | FGP | FACE)"
 
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: The conformance string  
+
+| Param | Type |
+| --- | --- |
+| operand | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..parseConformanceRecursively"></a>
+
+### Loader API: Loader APIs~parseConformanceRecursively(operand) ⇒
+helper function to parse conformance or an operand in conformance recursively
+
 The baseLevelTerms variable include terms that can not have nested terms.
 When they appear, stop recursing and return the name inside directly
 
 **Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
 **Returns**: The conformance string.  
 
-| Param | Type | Description |
-| --- | --- | --- |
-| operand | <code>\*</code> | The operand to be parsed. |
+| Param | Type |
+| --- | --- |
+| operand | <code>\*</code> | 
 
 <a name="module_Loader API_ Loader APIs..parseUiOptions"></a>
 
@@ -25385,6 +25448,7 @@ This module provides the APIs for for common functionality related to loading.
     * [~parseProfilesData(db, ctx)](#module_Loader API_ Loader APIs..parseProfilesData) ⇒
     * [~parseFeatureFlags(db, packageId, featureFlags)](#module_Loader API_ Loader APIs..parseFeatureFlags) ⇒
     * [~parseConformanceFromXML(operand)](#module_Loader API_ Loader APIs..parseConformanceFromXML) ⇒
+    * [~parseConformanceRecursively(operand)](#module_Loader API_ Loader APIs..parseConformanceRecursively) ⇒
     * [~parseUiOptions(db, packageId, featureFlags)](#module_Loader API_ Loader APIs..parseUiOptions) ⇒
     * [~parseOptions(db)](#module_Loader API_ Loader APIs..parseOptions) ⇒
     * [~parseTextOptions(db, pkgRef, textOptions)](#module_Loader API_ Loader APIs..parseTextOptions) ⇒
@@ -26738,8 +26802,11 @@ Key/velues of the object itself, end up in CODE/LABEL combinations.
 <a name="module_Loader API_ Loader APIs..parseConformanceFromXML"></a>
 
 ### Loader API: Loader APIs~parseConformanceFromXML(operand) ⇒
-Parses conformance or an operand in conformance recursively from xml data.
-The conformance could come from features, attributes, or commands
+Parses conformance from XML data.
+The conformance could come from features, attributes, or commands.
+
+Call recursive helper function to parse conformance only if the conformance exists.
+Otherwise, return empty string directly
 
 An example of parsing the conformance of 'User' device type feature:
 
@@ -26768,15 +26835,27 @@ Input operand from xml data:
 Output conformance string:
  "Matter & (PIN | RID | FGP | FACE)"
 
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: The conformance string  
+
+| Param | Type |
+| --- | --- |
+| operand | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..parseConformanceRecursively"></a>
+
+### Loader API: Loader APIs~parseConformanceRecursively(operand) ⇒
+helper function to parse conformance or an operand in conformance recursively
+
 The baseLevelTerms variable include terms that can not have nested terms.
 When they appear, stop recursing and return the name inside directly
 
 **Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
 **Returns**: The conformance string.  
 
-| Param | Type | Description |
-| --- | --- | --- |
-| operand | <code>\*</code> | The operand to be parsed. |
+| Param | Type |
+| --- | --- |
+| operand | <code>\*</code> | 
 
 <a name="module_Loader API_ Loader APIs..parseUiOptions"></a>
 

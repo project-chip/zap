@@ -46,7 +46,11 @@ afterAll(() => dbApi.closeDatabase(db), testUtil.timeout.short())
 
 async function getNotificationByMessage(db, sessionId, message) {
   let notifications = await sessionNotification.getNotification(db, sessionId)
-  return notifications.filter((notis) => notis.message == message)
+  if (Array.isArray(message)) {
+    return notifications.filter((notis) => message.includes(notis.message))
+  } else {
+    return notifications.filter((notis) => notis.message == message)
+  }
 }
 
 test(
@@ -320,8 +324,11 @@ test(
                           after a feature change`
     let disableMessage = `This is a message to disable front end changes
                           after a feature change`
+    let descMessage = `This is a message to show some depending elements 
+                          have conformance too complex to parse`
     let notisWithWarningMessage
     let notisWithDisableMessage
+    let notisWithMultipleMessages
 
     let warningResult = {
       warningMessage: warningMessage,
@@ -333,8 +340,9 @@ test(
       disableChange: false,
       displayWarning: false
     }
+    // in case of disableChange, warningMessage is an array
     let disableResult = {
-      warningMessage: disableMessage,
+      warningMessage: [disableMessage],
       disableChange: true,
       displayWarning: false
     }
@@ -390,6 +398,21 @@ test(
       disableMessage
     )
     expect(notisWithDisableMessage.length).toBe(1)
+
+    // should insert multiple notifications when warningMessage is an array
+    let multipleWarnings = [disableMessage, descMessage]
+    disableResult.warningMessage = multipleWarnings
+    await sessionNotification.setNotificationOnFeatureChange(
+      db,
+      sessionId,
+      disableResult
+    )
+    notisWithMultipleMessages = await getNotificationByMessage(
+      db,
+      sessionId,
+      multipleWarnings
+    )
+    expect(notisWithMultipleMessages.length).toBe(2)
   },
   testUtil.timeout.long()
 )

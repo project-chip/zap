@@ -232,13 +232,18 @@ export default {
 
         // show popup warning message
         if (displayWarning) {
-          Notify.create({
-            message: warningMessage,
-            type: 'warning',
-            classes: 'custom-notification notification-warning',
-            position: 'top',
-            html: true
-          })
+          if (!Array.isArray(warningMessage)) {
+            warningMessage = [warningMessage]
+          }
+          for (let message of warningMessage) {
+            Notify.create({
+              message: message,
+              type: 'warning',
+              classes: 'custom-notification notification-warning',
+              position: 'top',
+              html: true
+            })
+          }
         }
 
         // if diableChange is true, the case is too complex to handle

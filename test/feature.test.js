@@ -206,7 +206,13 @@ test(
       // 6. test terms containing numbers
       { expression: 'Primary1X', expected: 'mandatory' },
       { expression: 'Primary1X & HS', expected: 'mandatory' },
-      { expression: 'Primary1X | oo', expected: 'mandatory' }
+      { expression: 'Primary1X | oo', expected: 'mandatory' },
+
+      // 7. test conformance with desc terms
+      { expression: 'desc', expected: 'desc' },
+      { expression: 'HS & desc', expected: 'desc' },
+      { expression: 'HS | (!xY && desc)', expected: 'desc' },
+      { expression: 'P, desc', expected: 'desc' }
     ]
 
     conformanceExpressions.forEach((expression) => {
@@ -216,6 +222,31 @@ test(
       )
       expect(result).toBe(expression.expected)
     })
+  },
+  testUtil.timeout.short()
+)
+
+test(
+  'Check if an element has conformance with desc terms',
+  () => {
+    const elements = [
+      { name: 'Element1', conformance: 'desc' },
+      { name: 'Element2', conformance: 'P, desc' },
+      { name: 'Element3', conformance: '[desc & XY]' },
+      { name: 'Element4', conformance: 'desc, [HS]' },
+      { name: 'Element5', conformance: 'desc | optional' },
+      { name: 'Element6', conformance: 'notSupported' },
+      { name: 'Element7', conformance: 'description' }
+    ]
+
+    const result = queryFeature.filterElementsContainingDesc(elements)
+    expect(result).toEqual([
+      { name: 'Element1', conformance: 'desc' },
+      { name: 'Element2', conformance: 'P, desc' },
+      { name: 'Element3', conformance: '[desc & XY]' },
+      { name: 'Element4', conformance: 'desc, [HS]' },
+      { name: 'Element5', conformance: 'desc | optional' }
+    ])
   },
   testUtil.timeout.short()
 )
@@ -299,6 +330,7 @@ test(
     expect(result.commandsToUpdate.length).toBe(1)
     expect(result.commandsToUpdate[0].name).toBe('MoveToHue')
     expect(result.commandsToUpdate[0].value).toBeTruthy()
+    featureMap['HS'] = 0
 
     // 2. test disable a mandatory feature
     featureMap['XY'] = 0
@@ -324,6 +356,7 @@ test(
     expect(result.commandsToUpdate.length).toBe(1)
     expect(result.commandsToUpdate[0].name).toBe('MoveToColor')
     expect(result.commandsToUpdate[0].value).toBeFalsy()
+    featureMap['XY'] = 1
 
     // 3. test enable a feature with unknown conformance
     featureMap['UNKNOWN'] = 1
@@ -342,7 +375,45 @@ test(
     // no attributes or commands should be updated
     expect(result.displayWarning).toBeTruthy()
     expect(result.disableChange).toBeTruthy()
-    expect(result.warningMessage).toBe(expectedWarning)
+    expect(result.warningMessage[0]).toBe(expectedWarning)
+    expect(result.attributesToUpdate.length).toBe(0)
+    expect(result.commandsToUpdate.length).toBe(0)
+    featureMap['UNKNOWN'] = 0
+
+    // 4. test enable a feature with desc elements
+    // expect same warning flags as 3
+    let descElement = { name: 'DescElement', conformance: 'desc', included: 0 }
+    elements.attributes.push(descElement)
+    featureMap['HS'] = 1
+    result = queryFeature.checkElementsToUpdate(
+      elements,
+      featureMap,
+      featureHS,
+      endpointId
+    )
+    expectedWarning =
+      `On endpoint ${endpointId}, feature ${featureHS.name} ` +
+      `cannot be enabled as attribute ${descElement.name} ` +
+      `depend on the feature and their conformance are too complex to parse.`
+    expect(result.displayWarning).toBeTruthy()
+    expect(result.disableChange).toBeTruthy()
+    expect(result.warningMessage[0]).toBe(expectedWarning)
+    expect(result.attributesToUpdate.length).toBe(0)
+    expect(result.commandsToUpdate.length).toBe(0)
+    featureMap['HS'] = 0
+
+    // 5. test enable a feature with unknown conformance and desc elements
+    // should have 2 warnings
+    featureMap['UNKNOWN'] = 1
+    result = queryFeature.checkElementsToUpdate(
+      elements,
+      featureMap,
+      featureUnknown,
+      endpointId
+    )
+    expect(result.displayWarning).toBeTruthy()
+    expect(result.disableChange).toBeTruthy()
+    expect(result.warningMessage.length).toBe(2)
     expect(result.attributesToUpdate.length).toBe(0)
     expect(result.commandsToUpdate.length).toBe(0)
   },

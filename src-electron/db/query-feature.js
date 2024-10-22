@@ -33,6 +33,7 @@ const querySessionNotification = require('./query-session-notification.js')
  * @export
  * @param {*} db
  * @param {*} deviceTypeRefs
+ * @param {*} endpointTypeRef
  * @returns All feature information and device type conformance
  * with associated device type, cluster, and featureMap attribute details
  */
@@ -164,6 +165,13 @@ function evaluateConformanceExpression(expression, elementMap) {
   // Check ',' for otherwise conformance first.
   // Split the expression by ',' and evaluate each part in sequence
   let parts = expression.split(',')
+  // if any term is desc, the conformance is too complex to parse
+  for (let part of parts) {
+    let terms = part.match(/[A-Za-z][A-Za-z0-9]*/g)
+    if (terms && terms.includes('desc')) {
+      return 'desc'
+    }
+  }
   for (let part of parts) {
     if (part.includes('[') && part.includes(']')) {
       // Extract and evaluate the content inside '[]'
@@ -218,71 +226,134 @@ function checkMissingTerms(expression, elementMap) {
 }
 
 /**
+ * Filter an array of elements by if any element has conformance containing the term 'desc'.
+ *
+ * @export
+ * @param {*} elements
+ * @returns elements with conformance containing 'desc'
+ */
+function filterElementsContainingDesc(elements) {
+  return elements.filter((element) => {
+    let terms = element.conformance.match(/[A-Za-z][A-Za-z0-9]*/g)
+    return terms && terms.includes('desc')
+  })
+}
+
+/**
  * Generate a warning message after processing conformance of the updated device type feature.
  * Set flags to decide whether to show a popup warning or disable changes in the frontend.
  *
  * @param {*} featureData
  * @param {*} endpointId
  * @param {*} missingTerms
- * @param {*} added
- * @returns warning message, disableChange flag, and displayWarning flag
+ * @param {*} featureMap
+ * @param {*} descElements
+ * @returns warning message array, disableChange flag, and displayWarning flag
  */
-function generateWarningMessage(featureData, endpointId, missingTerms, added) {
-  let featureConformanceExpression = featureData.conformance
+function generateWarningMessage(
+  featureData,
+  endpointId,
+  missingTerms,
+  featureMap,
+  descElements
+) {
   let featureName = featureData.name
+  let added = featureMap[featureData.code] ? true : false
   let deviceTypeNames = featureData.deviceTypes.join(', ')
   let result = {
     warningMessage: '',
-    disableChange: false,
-    displayWarning: false
+    disableChange: true,
+    displayWarning: true
   }
+  result.warningMessage = []
 
   if (missingTerms.length > 0) {
     let missingTermsString = missingTerms.join(', ')
-    result.warningMessage =
+    result.warningMessage.push(
       'On Endpoint ' +
-      endpointId +
-      ', feature ' +
-      featureName +
-      ' cannot be enabled as its conformance depends on non device type features ' +
-      missingTermsString +
-      ' with unknown values'
-    result.displayWarning = true
-    result.disableChange = true
-    return result
+        endpointId +
+        ', feature ' +
+        featureName +
+        ' cannot be enabled as its conformance depends on non device type features ' +
+        missingTermsString +
+        ' with unknown values'
+    )
   }
 
-  let conformance = evaluateConformanceExpression(featureConformanceExpression)
+  if (descElements.attributes && descElements.attributes.length > 0) {
+    let attributeNames = descElements.attributes
+      .map((attr) => attr.name)
+      .join(', ')
+    result.warningMessage.push(
+      'On endpoint ' +
+        endpointId +
+        ', feature ' +
+        featureName +
+        ' cannot be enabled as attribute ' +
+        attributeNames +
+        ' depend on the feature and their conformance are too complex to parse.'
+    )
+  }
 
-  if (conformance == 'notSupported') {
-    result.warningMessage =
+  if (descElements.commands && descElements.commands.length > 0) {
+    let commandNames = descElements.commands
+      .map((command) => command.name)
+      .join(', ')
+    result.warningMessage.push(
       'On endpoint ' +
-      endpointId +
-      ', feature ' +
-      featureName +
-      ' is enabled, but it is not supported for device type ' +
-      deviceTypeNames
-    result.displayWarning = added
+        endpointId +
+        ', feature ' +
+        featureName +
+        ' cannot be enabled as command ' +
+        commandNames +
+        ' depend on the feature and their conformance are too complex to parse.'
+    )
   }
-  if (conformance == 'provisional') {
-    result.warningMessage =
-      'On endpoint ' +
-      endpointId +
-      ', feature ' +
-      featureName +
-      ' is enabled, but it is still provisional for device type ' +
-      deviceTypeNames
-    result.displayWarning = added
-  }
-  if (conformance == 'mandatory') {
-    result.warningMessage =
-      'On endpoint ' +
-      endpointId +
-      ', feature ' +
-      featureName +
-      ' is disabled, but it is mandatory for device type ' +
-      deviceTypeNames
-    result.displayWarning = !added
+
+  if (
+    missingTerms.length == 0 &&
+    descElements.attributes.length == 0 &&
+    descElements.commands.length == 0
+  ) {
+    let conformance = evaluateConformanceExpression(
+      featureData.conformance,
+      featureMap
+    )
+    // change is not disabled, by default does not display warning
+    result.disableChange = false
+    result.displayWarning = false
+    // in this case only 1 warning message is needed
+    result.warningMessage = ''
+    if (conformance == 'notSupported') {
+      result.warningMessage =
+        'On endpoint ' +
+        endpointId +
+        ', feature ' +
+        featureName +
+        ' is enabled, but it is not supported for device type ' +
+        deviceTypeNames
+      result.displayWarning = added
+    }
+    if (conformance == 'provisional') {
+      result.warningMessage =
+        'On endpoint ' +
+        endpointId +
+        ', feature ' +
+        featureName +
+        ' is enabled, but it is still provisional for device type ' +
+        deviceTypeNames
+      result.displayWarning = added
+    }
+    if (conformance == 'mandatory') {
+      result.warningMessage =
+        'On endpoint ' +
+        endpointId +
+        ', feature ' +
+        featureName +
+        ' is disabled, but it is mandatory for device type ' +
+        deviceTypeNames
+      result.displayWarning = !added
+    }
   }
 
   return result
@@ -313,13 +384,17 @@ function checkElementsToUpdate(elements, featureMap, featureData, endpointId) {
   elementMap['Matter'] = 1
   elementMap['Zigbee'] = 0
 
-  let added = featureMap[featureCode] ? true : false
+  let descElements = {}
+  descElements.attributes = filterElementsContainingDesc(attributes)
+  descElements.commands = filterElementsContainingDesc(commands)
+
   let missingTerms = checkMissingTerms(featureData.conformance, elementMap)
   let warningInfo = generateWarningMessage(
     featureData,
     endpointId,
     missingTerms,
-    added
+    featureMap,
+    descElements
   )
 
   if (warningInfo.disableChange) {
@@ -386,3 +461,4 @@ function filterElementsToUpdate(elements, elementMap, featureCode) {
 exports.getFeaturesByDeviceTypeRefs = getFeaturesByDeviceTypeRefs
 exports.checkElementsToUpdate = checkElementsToUpdate
 exports.evaluateConformanceExpression = evaluateConformanceExpression
+exports.filterElementsContainingDesc = filterElementsContainingDesc

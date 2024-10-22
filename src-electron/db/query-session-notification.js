@@ -207,7 +207,9 @@ async function setWarningIfMessageNotExists(db, sessionId, message) {
 async function setNotificationOnFeatureChange(db, sessionId, result) {
   let { warningMessage, disableChange, displayWarning } = result
   if (disableChange) {
-    await setWarningIfMessageNotExists(db, sessionId, warningMessage)
+    for (let message of warningMessage) {
+      await setWarningIfMessageNotExists(db, sessionId, message)
+    }
     return
   }
   if (displayWarning) {
