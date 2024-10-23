@@ -701,8 +701,7 @@ exports.map = {
       incoming: dbApi.fromDbBool(x.INCOMING),
       outgoing: dbApi.fromDbBool(x.OUTGOING),
       isIncoming: dbApi.fromDbBool(x.IS_INCOMING),
-      isEnabled: dbApi.fromDbBool(x.IS_ENABLED),
-      isLargeMessage: dbApi.fromDbBool(x.IS_LARGE_MESSAGE)
+      isEnabled: dbApi.fromDbBool(x.IS_ENABLED)
     }
   },
 

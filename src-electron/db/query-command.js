@@ -1144,7 +1144,8 @@ async function selectAllCommandsWithArguments(db, packageId) {
       argIsNullable: dbApi.fromDbBool(x.ARG_IS_NULLABLE),
       argCountArg: x.ARG_COUNT_ARG,
       argIntroducedIn: x.INTRODUCED_IN_REF,
-      argRemovedIn: x.REMOVED_IN_REF
+      argRemovedIn: x.REMOVED_IN_REF,
+      isLargeMessage: dbApi.fromDbBool(x.IS_LARGE_MESSAGE)
     }
   }
   let rows = await dbApi.dbAll(
