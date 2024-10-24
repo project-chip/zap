@@ -947,12 +947,19 @@ async function processString(db, filePath, packageId, data) {
  * @param {*} dataType
  * @returns An Object
  */
-function prepareEnumsOrBitmaps(a, dataType) {
+function prepareEnumsOrBitmaps(a, dataTypeRef, dataType) {
+  if (a.type.toLowerCase().includes('uint')) {
+    let correctedType = dataType == dbEnum.zclType.enum ? 'enum' : 'map'
+    a.type = a.type.toLowerCase().replace('uint', correctedType)
+    env.logWarning(
+      `Warning: ${correctedType} ${a.name} is declared as uint in Unify XMLs. Replacing with ${correctedType} -${a.type}`
+    )
+  }
   return {
     name: a.name,
     type: a.type.toLowerCase(),
     cluster_code: a.cluster ? a.cluster : null,
-    discriminator_ref: dataType
+    discriminator_ref: dataTypeRef
   }
 }
 
@@ -971,7 +978,13 @@ async function processEnums(db, filePath, packageId, data) {
   return queryLoader.insertEnum(
     db,
     [packageId],
-    data.map((x) => prepareEnumsOrBitmaps(x, typeMap.get(dbEnum.zclType.enum)))
+    data.map((x) =>
+      prepareEnumsOrBitmaps(
+        x,
+        typeMap.get(dbEnum.zclType.enum),
+        dbEnum.zclType.enum
+      )
+    )
   )
 }
 
@@ -1024,7 +1037,11 @@ async function processBitmaps(db, filePath, packageId, data) {
     db,
     [packageId],
     data.map((x) =>
-      prepareEnumsOrBitmaps(x, typeMap.get(dbEnum.zclType.bitmap))
+      prepareEnumsOrBitmaps(
+        x,
+        typeMap.get(dbEnum.zclType.bitmap),
+        dbEnum.zclType.bitmap
+      )
     )
   )
 }
