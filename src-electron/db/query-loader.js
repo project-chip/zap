@@ -376,11 +376,10 @@ function filterDuplicates(db, packageId, data, keys, elementName) {
   let uniqueItems = []
 
   data.forEach((item, index) => {
-    // Check if all specified keys exist in the object
-    let allKeysPresent = keys.every((key) => key in item)
+    let anyKeysPresent = keys.some((key) => key in item)
 
-    if (!allKeysPresent) {
-      // If any key is missing, treat this item as unique
+    if (!anyKeysPresent) {
+      // If all keys are missing, treat this item as unique
       uniqueItems.push(item)
     } else {
       let uniqueKey = keys
