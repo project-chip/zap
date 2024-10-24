@@ -35,6 +35,10 @@ beforeAll(async () => {
     path.join(__dirname, './resource/upgrade/multi-protocol.zap'),
     'utf-8'
   )
+  originalContentLight = await fsPromise.readFile(
+    path.join(__dirname, './resource/upgrade/light.zap'),
+    'utf-8'
+  )
 })
 
 afterAll(async () => {
@@ -42,6 +46,11 @@ afterAll(async () => {
   await fsPromise.writeFile(
     path.join(__dirname, './resource/upgrade/multi-protocol.zap'),
     originalContent,
+    'utf-8'
+  )
+  await fsPromise.writeFile(
+    path.join(__dirname, './resource/upgrade/light.zap'),
+    originalContentLight,
     'utf-8'
   )
 })
@@ -65,6 +74,68 @@ test(
         logger: (msg) => {}
       }
     )
+  },
+  testUtil.timeout.long()
+)
+
+test(
+  'startup: Test Generation that updates the .zap file',
+  async () => {
+    let zapFile = path.join(__dirname, './resource/upgrade/light.zap')
+    let testGenDir = path.join(path.join(__dirname, '.zap/'), 'test-gen')
+    if (!fs.existsSync(testGenDir))
+      fs.mkdirSync(testGenDir, { recursive: true })
+    // Check if the copied file exists
+    const fileExists = await fsPromise
+      .stat(zapFile)
+      .then(() => true)
+      .catch(() => false)
+    expect(fileExists).toBe(true)
+
+    // Read the content of the original file
+    let fileContent = await fsPromise.readFile(
+      path.join(__dirname, './resource/upgrade/light.zap'),
+      'utf-8'
+    )
+    // Look for upgraded packages before upgrading the .zap file
+    expect(fileContent).toContain(
+      '../../../../../gen-template/gen-templates.json'
+    )
+    expect(fileContent).toContain(
+      '../../../../../../../../../app/zcl/zcl-zap.json'
+    )
+
+    let testGenerationResults = path.join(
+      __dirname,
+      'resource/upgrade/test-generation-light.conversion.results.yaml'
+    )
+
+    await startup.startGeneration(
+      {
+        skipPostGeneration: true,
+        output: testGenDir,
+        generationTemplate: [testUtil.testTemplate.zigbee],
+        zclProperties: [env.builtinSilabsZclMetafile()],
+        zapFiles: [zapFile],
+        upgradeZapFile: true,
+        genResultFile: testGenerationResults
+      },
+      {
+        quitFunction: null,
+        logger: (msg) => {}
+      }
+    )
+
+    // Read the content of the copied file
+    fileContent = await fsPromise.readFile(
+      path.join(__dirname, './resource/upgrade/light.zap'),
+      'utf-8'
+    )
+    // Look for upgraded packages in the .zap file
+    expect(fileContent).toContain(
+      '../../gen-template/zigbee/gen-templates.json'
+    )
+    expect(fileContent).toContain('../../../zcl-builtin/silabs/zcl.json"')
   },
   testUtil.timeout.long()
 )
