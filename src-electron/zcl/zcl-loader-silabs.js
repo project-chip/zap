@@ -584,6 +584,9 @@ function prepareCluster(cluster, context, isExtension = false) {
     cluster.attribute.forEach((attribute) => {
       let name = attribute._
       let quality = null
+      if (attribute.$ && name == null) {
+        name = attribute.$.name
+      }
       if ('description' in attribute && name == null) {
         name = attribute.description.join('')
       }
