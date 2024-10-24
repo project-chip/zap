@@ -950,10 +950,10 @@ async function processString(db, filePath, packageId, data) {
 function prepareEnumsOrBitmaps(a, dataTypeRef, dataType) {
   if (a.type.toLowerCase().includes('uint')) {
     let correctedType = dataType == dbEnum.zclType.enum ? 'enum' : 'map'
-    a.type = a.type.toLowerCase().replace('uint', correctedType)
     env.logWarning(
-      `Warning: ${correctedType} ${a.name} is declared as uint in Unify XMLs. Replacing with ${correctedType} -${a.type}`
+      `Warning: ${a.name} is declared incorrectly as ${a.type} in XML. Replace ${a.type} with ${correctedType} type.`
     )
+    a.type = a.type.toLowerCase().replace('uint', correctedType)
   }
   return {
     name: a.name,
