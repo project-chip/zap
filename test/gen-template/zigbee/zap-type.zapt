@@ -37,6 +37,12 @@ typedef enum {
 {{/zcl_bitmap_items}}
 {{/zcl_bitmaps}}
 
+// ZCL typedefs
+
+{{#zcl_typedefs}}
+using {{as_type label}} = {{asUnderlyingType type}};
+{{/zcl_typedefs}}
+
 // ZCL Structs
 
 {{#zcl_structs}}
@@ -68,7 +74,7 @@ typedef struct {
   sl_zigbee_af_cluster_id_t matterClusterId;
   sl_zigbee_af_cluster_id_t matterMfgClusterId;
   sl_matter_af_cluster_id_t zigbeeClusterId;
-  sl_matter_af_cluster_id_t zigbeeMfgClusterId; 
+  sl_matter_af_cluster_id_t zigbeeMfgClusterId;
   sl_matter_af_attribute_id_t matterAttributeId;
   sl_matter_af_attribute_id_t matterMfgAttributeId;
   sl_zigbee_af_attribute_id_t zigbeeAttributeId;
