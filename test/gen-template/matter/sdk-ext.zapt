@@ -15,13 +15,13 @@
 ------------------- Commands -------------------
 {{#zcl_command_tree}}
 // command: {{asHex clusterCode 4 'null'}} / {{asHex code 2}} => {{label}}, test extension: '{{command_extension
-property="testCommandExtension"}}'
+property="testCommandExtension"}}', isLargeMessage: {{isLargeMessage}}
 {{/zcl_command_tree}}
 
 ------------------- Attributes -------------------
 {{#zcl_attributes}}
 // attribute: {{asHex clusterCode 4}} / {{asHex code 4}} => {{label}}, extensions: '{{attribute_extension
-property="testAttributeExtension1"}}', '{{attribute_extension property="testAttributeExtension2"}}', scene: {{isSceneRequired}}
+property="testAttributeExtension1"}}', '{{attribute_extension property="testAttributeExtension2"}}', scene: {{isSceneRequired}}, isChangeOmitted: {{isChangeOmitted}}, persistence: {{persistence}}
 {{/zcl_attributes}}
 
 -------------------- Events -----------------------
