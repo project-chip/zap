@@ -15,10 +15,6 @@
       <description>Send a hello command to the server</description>
       <arg name="numberOfTimes" type="INT8U"/>
     </command>
-    <!-- <command source="client" code="0x00" name="SayHelloFromClient" optional="false">
-      <description>Send a hello command to the client</description>
-      <arg name="numberOfTimes" type="INT8U"/>
-    </command> -->
     <event code="0x0001" name="HelloEvent" priority="info" side="server">
       <description>Example test event</description>
       <field id="1" name="arg1" type="INT8U"/>
