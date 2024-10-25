@@ -304,10 +304,28 @@ function prepareAtomic(a) {
     size: a.$.size,
     description: a.$.description,
     isDiscrete: a.$.discrete == 'true',
+    isComposite: a.$.composite == 'true',
     isSigned: a.$.signed == 'true',
-    isString: a.$.string == 'true',
-    isLong: a.$.long == 'true',
-    isChar: a.$.char == 'true'
+    isString:
+      a.$.string == 'true' ||
+      a.$.name.toLowerCase() == 'char_string' ||
+      a.$.name.toLowerCase() == 'long_char_string' ||
+      a.$.name.toLowerCase() == 'octet_string' ||
+      a.$.name.toLowerCase() == 'long_octet_string',
+    isLong:
+      a.$.long == 'true' ||
+      a.$.name.toLowerCase() == 'long_char_string' ||
+      a.$.name.toLowerCase() == 'long_octet_string',
+    isChar:
+      a.$.char == 'true' ||
+      a.$.name.toLowerCase() == 'char_string' ||
+      a.$.name.toLowerCase() == 'long_char_string',
+    isFloat:
+      a.$.float == 'true' ||
+      a.$.name.toLowerCase() === 'single' ||
+      a.$.name.toLowerCase() === 'double' ||
+      a.$.name.toLowerCase() === 'float',
+    baseType: a.$.baseType
   }
 }
 /**

@@ -18,12 +18,12 @@ limitations under the License.
   <atomic>
     <type id="0x00" description="No data"                 name="no_data"            size="0"                  />
     <!-- Base Data Types -->
-    <type id="0x10" description="Boolean"                  name="boolean"           size="1"  discrete="true" />
-    <type id="0x18" description="8-bit bitmap"             name="bitmap8"           size="1"  discrete="true" />
+    <type id="0x10" description="Boolean"                  name="boolean"           size="1"  discrete="true"/>
+    <type id="0x18" description="8-bit bitmap"             name="bitmap8"           size="1"  discrete="true" baseType="int8u"/>
     <type id="0x19" description="16-bit bitmap"            name="bitmap16"          size="2"  discrete="true" />
     <type id="0x1A" description="24-bit bitmap"            name="bitmap24"          size="3"  discrete="true" />
-    <type id="0x1B" description="32-bit bitmap"            name="bitmap32"          size="4"  discrete="true" />
-    <type id="0x1F" description="64-bit bitmap"            name="bitmap64"          size="8"  discrete="true" />
+    <type id="0x1B" description="32-bit bitmap"            name="bitmap32"          size="4"  discrete="true" baseType="int32u"/>
+    <type id="0x1F" description="64-bit bitmap"            name="bitmap64"          size="8"  discrete="true" baseType="int64u"/>
     <type id="0x20" description="Unsigned 8-bit integer"   name="int8u"             size="1"  analog="true"   />
     <type id="0x21" description="Unsigned 16-bit integer"  name="int16u"            size="2"  analog="true"   />
     <type id="0x22" description="Unsigned 24-bit integer"  name="int24u"            size="3"  analog="true"   />
@@ -40,17 +40,17 @@ limitations under the License.
     <type id="0x2D" description="Signed 48-bit integer"    name="int48s"            size="6"  analog="true"   />
     <type id="0x2E" description="Signed 56-bit integer"    name="int56s"            size="7"  analog="true"   />
     <type id="0x2F" description="Signed 64-bit integer"    name="int64s"            size="8"  analog="true"   />
-    <type id="0x30" description="8-bit enumeration"        name="enum8"             size="1"  discrete="true" />
-    <type id="0x31" description="16-bit enumeration"       name="enum16"            size="2"  discrete="true" />
+    <type id="0x30" description="8-bit enumeration"        name="enum8"             size="1"  discrete="true" baseType="int8u"/>
+    <type id="0x31" description="16-bit enumeration"       name="enum16"            size="2"  discrete="true" baseType="int16u"/>
     <type id="0x39" description="Single precision"         name="single"            size="4"  analog="true"   />
     <type id="0x3A" description="Double precision"         name="double"            size="8"  analog="true"   />
-    <type id="0x41" description="Octet String"             name="octet_string"                composite="true"/>
-    <type id="0x43" description="Long Octet String"        name="long_octet_string"           composite="true"/>
+    <type id="0x41" description="Octet String"             name="octet_string"                composite="true" />
+    <type id="0x43" description="Long Octet String"        name="long_octet_string"           composite="true" />
     <type id="0x48" description="List"                     name="array"                       composite="true"/>
     <type id="0x4C" description="Structure"                name="struct"                      composite="true"/>
     <!-- Derived Data Types -->
-    <type id="0x42" description="Character String"         name="char_string"                 composite="true"/>
-    <type id="0x44" description="Long Character String"    name="long_char_string"            composite="true"/>
+    <type id="0x42" description="Character String"         name="char_string"                 composite="true" />
+    <type id="0x44" description="Long Character String"    name="long_char_string"            composite="true" />
     <type id="0xE0" description="Time of day"              name="tod"               size="4"  analog="true"   />
     <type id="0xE1" description="Date"                     name="date"              size="4"  analog="true"   />
     <type id="0xE3" description="Epoch Microseconds"       name="epoch_us"          size="8"  analog="true"   />
@@ -77,7 +77,7 @@ limitations under the License.
     <type id="0xF9" description="Fabric Index"             name="fabric_idx"        size="1"  discrete="true" />
     <type id="0xFA" description="IP Address"               name="ipadr"                       composite="true"/>
     <type id="0xFB" description="IPv4 Address"             name="ipv4adr"           size="4"  composite="true"/>
-    <type id="0xFC" description="IPv6 Address"             name="ipv6adr"           size="16" composite="true"/>
+    <type id="0xFC" description="IPv6 Address"             name="ipv6adr"           size="16" composite="true" baseType="long_octet_string"/>
     <type id="0xFD" description="IPv6 Prefix"              name="ipv6pre"                     composite="true"/>
     <type id="0xFE" description="Hardware Address"         name="hwadr"                       composite="true"/>
     <type id="0xFF" description="Unknown"                  name="unknown"           size="0"                  />

@@ -389,7 +389,10 @@ exports.map = {
       isString: dbApi.fromDbBool(x.IS_STRING),
       isLong: dbApi.fromDbBool(x.IS_LONG),
       isChar: dbApi.fromDbBool(x.IS_CHAR),
-      isSigned: dbApi.fromDbBool(x.IS_SIGNED)
+      isSigned: dbApi.fromDbBool(x.IS_SIGNED),
+      isComposite: dbApi.fromDbBool(x.IS_COMPOSITE),
+      isFloat: dbApi.fromDbBool(x.IS_FLOAT),
+      baseType: x.BASE_TYPE
     }
   },
 

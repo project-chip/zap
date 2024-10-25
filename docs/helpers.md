@@ -2945,6 +2945,7 @@ This module contains the API for templating. For more detailed instructions, rea
     * [~replace_string(mainString, replaceString, replaceWithString)](#module_Templating API_ toplevel utility helpers..replace_string) ⇒
     * [~add_prefix_to_all_strings(str, prefixStr)](#module_Templating API_ toplevel utility helpers..add_prefix_to_all_strings) ⇒
     * [~multiply()](#module_Templating API_ toplevel utility helpers..multiply) ⇒
+    * [~is_power_of_two(val)](#module_Templating API_ toplevel utility helpers..is_power_of_two) ⇒
     * [~is_string_underscored(val)](#module_Templating API_ toplevel utility helpers..is_string_underscored) ⇒
     * [~as_uppercase(val)](#module_Templating API_ toplevel utility helpers..as_uppercase) ⇒
 
@@ -3266,6 +3267,18 @@ Returns a concatenated string with spaces between each string
 ### Templating API: toplevel utility helpers~multiply() ⇒
 **Kind**: inner method of [<code>Templating API: toplevel utility helpers</code>](#module_Templating API_ toplevel utility helpers)  
 **Returns**: A number which is result of multiplying all the arguments given  
+<a name="module_Templating API_ toplevel utility helpers..is_power_of_two"></a>
+
+### Templating API: toplevel utility helpers~is\_power\_of\_two(val) ⇒
+Returns a boolean based on whether a given value is a power or 2 or not.
+
+**Kind**: inner method of [<code>Templating API: toplevel utility helpers</code>](#module_Templating API_ toplevel utility helpers)  
+**Returns**: boolean  
+
+| Param | Type |
+| --- | --- |
+| val | <code>\*</code> | 
+
 <a name="module_Templating API_ toplevel utility helpers..is_string_underscored"></a>
 
 ### Templating API: toplevel utility helpers~is\_string\_underscored(val) ⇒

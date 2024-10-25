@@ -1090,7 +1090,7 @@ INSERT OR IGNORE INTO GLOBAL_ATTRIBUTE_BIT (
 async function insertAtomics(db, packageId, data) {
   return dbApi.dbMultiInsert(
     db,
-    'INSERT INTO ATOMIC (PACKAGE_REF, NAME, DESCRIPTION, ATOMIC_IDENTIFIER, ATOMIC_SIZE, IS_DISCRETE, IS_SIGNED, IS_STRING, IS_LONG, IS_CHAR) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+    'INSERT INTO ATOMIC (PACKAGE_REF, NAME, DESCRIPTION, ATOMIC_IDENTIFIER, ATOMIC_SIZE, IS_DISCRETE, IS_SIGNED, IS_STRING, IS_LONG, IS_CHAR, IS_COMPOSITE, IS_FLOAT, BASE_TYPE) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
     data.map((at) => [
       packageId,
       at.name,
@@ -1101,7 +1101,10 @@ async function insertAtomics(db, packageId, data) {
       at.isSigned,
       at.isString,
       at.isLong,
-      at.isChar
+      at.isChar,
+      at.isComposite,
+      at.isFloat,
+      at.baseType
     ])
   )
 }

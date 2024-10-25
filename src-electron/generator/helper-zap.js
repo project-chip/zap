@@ -466,6 +466,15 @@ function multiply() {
 }
 
 /**
+ * Returns a boolean based on whether a given value is a power or 2 or not.
+ * @param {*} val
+ * @returns boolean
+ */
+function is_power_of_two(val) {
+  return Number.isInteger(Math.log2(val))
+}
+
+/**
  *
  * @param {*} val
  * @returns true if a string has an underscore in it
@@ -526,3 +535,4 @@ exports.add_prefix_to_all_strings = add_prefix_to_all_strings
 exports.multiply = multiply
 exports.is_string_underscored = is_string_underscored
 exports.as_uppercase = as_uppercase
+exports.is_power_of_two = is_power_of_two
