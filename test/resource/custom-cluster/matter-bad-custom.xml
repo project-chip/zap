@@ -1,3 +1,4 @@
+<!-- Warning: This custom xml has multiple intentional errors for testing. -->
 <configurator>
 <domain name="CHIP"/>  
 
@@ -11,6 +12,7 @@
 <clusterExtension code="0x0006">
     // intentional undefined type errors
     <attribute side="server" code="0xFFF10000" define="SAMPLE_MFG_SPECIFIC_TRANSITION_TIME_6" type="INT9" min="0x0000" max="0xFFFF" writable="true" default="0x0000" optional="true">Sample Mfg Specific Attribute 6</attribute>
+    <attribute side="server" code="0xFFF10000" define="SAMPLE_MFG_SPECIFIC_TRANSITION_TIME_6_DUPLICATE" type="INT8" min="0x0000" max="0xFFFF" writable="true" default="0x0000" optional="true">Sample Mfg Specific Attribute 6 Duplicate</attribute>
     <attribute side="server" code="0xFFF20001" define="SAMPLE_MFG_SPECIFIC_TRANSITION_TIME_8" type="INT16U" min="0x0000" max="0xFFFF" writable="true" default="0x0000" optional="true">Sample Mfg Specific Attribute 8</attribute>
     <command source="client" code="0xFFF20001" name="SampleMfgSpecificOnWithTransition2" optional="true">
         <description>Client command that turns the device on with a transition given

@@ -3673,6 +3673,7 @@ This module provides queries for ZCL loading
     * [~commandMap(clusterId, packageId, commands)](#module_DB API_ zcl loading queries..commandMap) ⇒
     * [~fieldMap(eventId, packageId, fields)](#module_DB API_ zcl loading queries..fieldMap) ⇒
     * [~argMap(cmdId, packageId, args)](#module_DB API_ zcl loading queries..argMap) ⇒
+    * [~filterDuplicates(db, packageId, data, keys, elementName)](#module_DB API_ zcl loading queries..filterDuplicates) ⇒ <code>Array</code>
     * [~insertAttributeAccessData(db, packageId, accessData)](#module_DB API_ zcl loading queries..insertAttributeAccessData) ⇒
     * [~insertCommandAccessData(db, packageId, accessData)](#module_DB API_ zcl loading queries..insertCommandAccessData) ⇒
     * [~insertEventAccessData(db, packageId, accessData)](#module_DB API_ zcl loading queries..insertEventAccessData) ⇒
@@ -3784,6 +3785,24 @@ Transforms the array of command args in a certain format and returns it.
 | cmdId | <code>\*</code> | 
 | packageId | <code>\*</code> | 
 | args | <code>\*</code> | 
+
+<a name="module_DB API_ zcl loading queries..filterDuplicates"></a>
+
+### DB API: zcl loading queries~filterDuplicates(db, packageId, data, keys, elementName) ⇒ <code>Array</code>
+Filters out duplicates in an array of objects based on specified keys and logs a warning for each duplicate found.
+This function is used to filter out duplicates in command, attribute, and event data before inserting into the database.
+Treats `null` and `0` as equivalent.
+
+**Kind**: inner method of [<code>DB API: zcl loading queries</code>](#module_DB API_ zcl loading queries)  
+**Returns**: <code>Array</code> - - Array of unique objects (duplicates removed).  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| db | <code>\*</code> |  |
+| packageId | <code>\*</code> |  |
+| data | <code>Array</code> | Array of objects. |
+| keys | <code>Array</code> | Array of keys to compare for duplicates (e.g., ['code', 'manufacturerCode']). |
+| elementName | <code>\*</code> |  |
 
 <a name="module_DB API_ zcl loading queries..insertAttributeAccessData"></a>
 

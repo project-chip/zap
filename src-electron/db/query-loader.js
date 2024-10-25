@@ -138,7 +138,7 @@ INSERT INTO COMMAND_ARG (
 // Attribute table needs to be unique based on:
 // UNIQUE("CLUSTER_REF", "PACKAGE_REF", "CODE", "MANUFACTURER_CODE")
 const INSERT_ATTRIBUTE_QUERY = `
-INSERT OR REPLACE INTO ATTRIBUTE (
+INSERT INTO ATTRIBUTE (
   CLUSTER_REF,
   PACKAGE_REF,
   CODE,
@@ -359,6 +359,50 @@ function argMap(cmdId, packageId, args) {
     arg.removedIn,
     packageId
   ])
+}
+/**
+ * Filters out duplicates in an array of objects based on specified keys and logs a warning for each duplicate found.
+ * This function is used to filter out duplicates in command, attribute, and event data before inserting into the database.
+ * Treats `null` and `0` as equivalent.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {Array} data - Array of objects.
+ * @param {Array} keys - Array of keys to compare for duplicates (e.g., ['code', 'manufacturerCode']).
+ * @param {*} elementName
+ * @returns {Array} - Array of unique objects (duplicates removed).
+ */
+function filterDuplicates(db, packageId, data, keys, elementName) {
+  let seen = new Map()
+  let uniqueItems = []
+
+  data.forEach((item, index) => {
+    let anyKeysPresent = keys.some((key) => key in item)
+
+    if (!anyKeysPresent) {
+      // If all keys are missing, treat this item as unique
+      uniqueItems.push(item)
+    } else {
+      let uniqueKey = keys
+        .map((key) => (item[key] === null || item[key] === 0 ? 0 : item[key]))
+        .join('|')
+
+      if (seen.has(uniqueKey)) {
+        // Log a warning with the duplicate information
+        queryNotification.setNotification(
+          db,
+          'ERROR',
+          `Duplicate ${elementName} found: ${JSON.stringify(item)}`,
+          packageId
+        )
+      } else {
+        seen.set(uniqueKey, true)
+        uniqueItems.push(item)
+      }
+    }
+  })
+
+  return uniqueItems
 }
 
 /**
@@ -655,7 +699,7 @@ async function insertClusterExtensions(db, packageId, knownPackages, data) {
       )}) AND CODE = ?`,
       data.map((cluster) => [cluster.code])
     )
-    .then((rows) => {
+    .then(async (rows) => {
       let commands = {
         data: [],
         args: [],
@@ -678,17 +722,38 @@ async function insertClusterExtensions(db, packageId, knownPackages, data) {
           // NOTE: This code must stay in sync with insertClusters
           if ('commands' in data[i]) {
             let cmds = data[i].commands
+            cmds = filterDuplicates(
+              db,
+              packageId,
+              cmds,
+              ['code', 'manufacturerCode', 'source'],
+              'command'
+            ) // Removes any duplicates based of db unique constraint and logs package notification (avoids SQL error)
             commands.data.push(...commandMap(lastId, packageId, cmds))
             commands.args.push(...cmds.map((command) => command.args))
             commands.access.push(...cmds.map((command) => command.access))
           }
           if ('attributes' in data[i]) {
             let atts = data[i].attributes
+            atts = filterDuplicates(
+              db,
+              packageId,
+              atts,
+              ['code', 'manufacturerCode', 'side'],
+              'attribute'
+            ) // Removes any duplicates based of db unique constraint and logs package notification (avoids SQL error)
             attributes.data.push(...attributeMap(lastId, packageId, atts))
             attributes.access.push(...atts.map((at) => at.access))
           }
           if ('events' in data[i]) {
             let evs = data[i].events
+            evs = filterDuplicates(
+              db,
+              packageId,
+              evs,
+              ['code', 'manufacturerCode'],
+              'event'
+            ) // Removes any duplicates based of db unique constraint and logs package notification (avoids SQL error)
             events.data.push(...eventMap(lastId, packageId, evs))
             events.fields.push(...evs.map((event) => event.fields))
             events.access.push(...evs.map((event) => event.access))
@@ -720,7 +785,15 @@ async function insertClusterExtensions(db, packageId, knownPackages, data) {
       let pCommand = insertCommands(db, packageId, commands)
       let pAttribute = insertAttributes(db, packageId, attributes)
       let pEvent = insertEvents(db, packageId, events)
-      return Promise.all([pCommand, pAttribute, pEvent])
+      return Promise.all([pCommand, pAttribute, pEvent]).catch((err) => {
+        if (err.includes('SQLITE_CONSTRAINT') && err.includes('UNIQUE')) {
+          env.logDebug(
+            `CRC match for file with package id ${packageId}, skipping parsing.`
+          )
+        } else {
+          throw err
+        }
+      })
     })
 }
 
@@ -783,17 +856,38 @@ async function insertClusters(db, packageId, data) {
         // NOTE: This code must stay in sync with insertClusterExtensions
         if ('commands' in data[i]) {
           let cmds = data[i].commands
+          cmds = filterDuplicates(
+            db,
+            packageId,
+            cmds,
+            ['code', 'manufacturerCode', 'source'],
+            'command'
+          ) // Removes any duplicates based of db unique constraint and logs package notification (avoids SQL error)
           commands.data.push(...commandMap(lastId, packageId, cmds))
           commands.args.push(...cmds.map((command) => command.args))
           commands.access.push(...cmds.map((command) => command.access))
         }
         if ('attributes' in data[i]) {
           let atts = data[i].attributes
+          atts = filterDuplicates(
+            db,
+            packageId,
+            atts,
+            ['code', 'manufacturerCode', 'side'],
+            'attribute'
+          ) // Removes any duplicates based of db unique constraint and logs package notification (avoids SQL error)
           attributes.data.push(...attributeMap(lastId, packageId, atts))
           attributes.access.push(...atts.map((at) => at.access))
         }
         if ('events' in data[i]) {
           let evs = data[i].events
+          evs = filterDuplicates(
+            db,
+            packageId,
+            evs,
+            ['code', 'manufacturerCode'],
+            'event'
+          ) // Removes any duplicates based of db unique constraint and logs package notification (avoids SQL error)
           events.data.push(...eventMap(lastId, packageId, evs))
           events.fields.push(...evs.map((event) => event.fields))
           events.access.push(...evs.map((event) => event.access))
