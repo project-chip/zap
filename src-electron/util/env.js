@@ -55,7 +55,7 @@ export function builtinSilabsZclMetafile() {
 }
 
 /**
- * Used to retrive zcl-special.json by zcl reload test in zcl-loader.test.js
+ * Used to retrieve zcl-special.json by zcl reload test in zcl-loader.test.js
  *
  * @returns path to zcl-special.json file used by zcl-loader.test.js
  */
@@ -73,7 +73,7 @@ export function builtinSilabsZclGeneralXmlFile() {
 }
 
 /**
- * Used to retrive general-special.xml by zcl reload test in zcl-loader.test.js
+ * Used to retrieve general-special.xml by zcl reload test in zcl-loader.test.js
  *
  * @returns path to general-special.xml file used by zcl-loader.test.js
  */
