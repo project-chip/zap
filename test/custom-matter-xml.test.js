@@ -456,6 +456,12 @@ test(
       )
     ).toBeTruthy() // checks if the correct duplicate attribute error is thrown
 
+    expect(
+      packageNotif.some((notif) =>
+        notif.message.includes('Duplicate command found')
+      )
+    ).toBeTruthy() // checks if the correct duplicate command error is thrown
+
     let sessionNotif = await querySessionNotification.getNotification(db, sid)
     expect(
       sessionNotif.some(

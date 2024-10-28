@@ -691,110 +691,101 @@ async function insertGlobals(db, packageId, data) {
  * @returns Promise of cluster extension insertion.
  */
 async function insertClusterExtensions(db, packageId, knownPackages, data) {
-  return dbApi
-    .dbMultiSelect(
-      db,
-      `SELECT CLUSTER_ID FROM CLUSTER WHERE PACKAGE_REF IN (${dbApi.toInClause(
-        knownPackages
-      )}) AND CODE = ?`,
-      data.map((cluster) => [cluster.code])
-    )
-    .then(async (rows) => {
-      let commands = {
-        data: [],
-        args: [],
-        access: []
+  let rows = await dbApi.dbMultiSelect(
+    db,
+    `SELECT CLUSTER_ID FROM CLUSTER WHERE PACKAGE_REF IN (${dbApi.toInClause(
+      knownPackages
+    )}) AND CODE = ?`,
+    data.map((cluster) => [cluster.code])
+  )
+
+  let commands = {
+    data: [],
+    args: [],
+    access: []
+  }
+  let events = {
+    data: [],
+    fields: [],
+    access: []
+  }
+  let attributes = {
+    data: [],
+    access: []
+  }
+
+  let i, lastId
+  for (i = 0; i < rows.length; i++) {
+    let row = rows[i]
+    if (row != null) {
+      lastId = row.CLUSTER_ID
+      // NOTE: This code must stay in sync with insertClusters
+      if ('commands' in data[i]) {
+        let cmds = filterDuplicates(
+          db,
+          packageId,
+          data[i].commands,
+          ['code', 'manufacturerCode', 'source'],
+          'command'
+        ) // Removes any duplicates based of db unique constraint and logs package notification (avoids SQL error)
+        commands.data.push(...commandMap(lastId, packageId, cmds))
+        commands.args.push(...cmds.map((command) => command.args))
+        commands.access.push(...cmds.map((command) => command.access))
       }
-      let events = {
-        data: [],
-        fields: [],
-        access: []
+      if ('attributes' in data[i]) {
+        let atts = filterDuplicates(
+          db,
+          packageId,
+          data[i].attributes,
+          ['code', 'manufacturerCode', 'side'],
+          'attribute'
+        ) // Removes any duplicates based of db unique constraint and logs package notification (avoids SQL error)
+        attributes.data.push(...attributeMap(lastId, packageId, atts))
+        attributes.access.push(...atts.map((at) => at.access))
       }
-      let attributes = {
-        data: [],
-        access: []
+      if ('events' in data[i]) {
+        let evs = filterDuplicates(
+          db,
+          packageId,
+          data[i].events,
+          ['code', 'manufacturerCode'],
+          'event'
+        ) // Removes any duplicates based of db unique constraint and logs package notification (avoids SQL error)
+        events.data.push(...eventMap(lastId, packageId, evs))
+        events.fields.push(...evs.map((event) => event.fields))
+        events.access.push(...evs.map((event) => event.access))
       }
-      let i, lastId
-      for (i = 0; i < rows.length; i++) {
-        let row = rows[i]
-        if (row != null) {
-          lastId = row.CLUSTER_ID
-          // NOTE: This code must stay in sync with insertClusters
-          if ('commands' in data[i]) {
-            let cmds = data[i].commands
-            cmds = filterDuplicates(
-              db,
-              packageId,
-              cmds,
-              ['code', 'manufacturerCode', 'source'],
-              'command'
-            ) // Removes any duplicates based of db unique constraint and logs package notification (avoids SQL error)
-            commands.data.push(...commandMap(lastId, packageId, cmds))
-            commands.args.push(...cmds.map((command) => command.args))
-            commands.access.push(...cmds.map((command) => command.access))
-          }
-          if ('attributes' in data[i]) {
-            let atts = data[i].attributes
-            atts = filterDuplicates(
-              db,
-              packageId,
-              atts,
-              ['code', 'manufacturerCode', 'side'],
-              'attribute'
-            ) // Removes any duplicates based of db unique constraint and logs package notification (avoids SQL error)
-            attributes.data.push(...attributeMap(lastId, packageId, atts))
-            attributes.access.push(...atts.map((at) => at.access))
-          }
-          if ('events' in data[i]) {
-            let evs = data[i].events
-            evs = filterDuplicates(
-              db,
-              packageId,
-              evs,
-              ['code', 'manufacturerCode'],
-              'event'
-            ) // Removes any duplicates based of db unique constraint and logs package notification (avoids SQL error)
-            events.data.push(...eventMap(lastId, packageId, evs))
-            events.fields.push(...evs.map((event) => event.fields))
-            events.access.push(...evs.map((event) => event.access))
-          }
-        } else {
-          // DANGER: We got here because we are adding a cluster extension for a
-          // cluster which is not defined. For eg:
-          // <clusterExtension code="0x0000">
-          // <attribute side="server" code="0x4000" define="SW_BUILD_ID"
-          //            type="CHAR_STRING" length="16" writable="false"
-          //            default="" optional="true"
-          //            introducedIn="zll-1.0-11-0037-10">sw build id</attribute>
-          // </clusterExtension>
-          // If a cluster with code 0x0000 does not exist then we run into this
-          // issue.
-          let message = `Attempting to insert cluster extension for a cluster which does not
-          exist. Check clusterExtension meta data in xml file.
-          Cluster Code: ${data[i].code}`
-          env.logWarning(message)
-          queryNotification.setNotification(
-            db,
-            'WARNING',
-            message,
-            packageId,
-            2
-          )
-        }
-      }
-      let pCommand = insertCommands(db, packageId, commands)
-      let pAttribute = insertAttributes(db, packageId, attributes)
-      let pEvent = insertEvents(db, packageId, events)
-      return Promise.all([pCommand, pAttribute, pEvent]).catch((err) => {
-        if (err.includes('SQLITE_CONSTRAINT') && err.includes('UNIQUE')) {
-          env.logDebug(
-            `CRC match for file with package id ${packageId}, skipping parsing.`
-          )
-        } else {
-          throw err
-        }
-      })
-    })
+    } else {
+      // DANGER: We got here because we are adding a cluster extension for a
+      // cluster which is not defined. For eg:
+      // <clusterExtension code="0x0000">
+      // <attribute side="server" code="0x4000" define="SW_BUILD_ID"
+      //            type="CHAR_STRING" length="16" writable="false"
+      //            default="" optional="true"
+      //            introducedIn="zll-1.0-11-0037-10">sw build id</attribute>
+      // </clusterExtension>
+      // If a cluster with code 0x0000 does not exist then we run into this
+      // issue.
+      let message = `Attempting to insert cluster extension for a cluster which does not
+      exist. Check clusterExtension meta data in xml file.
+      Cluster Code: ${data[i].code}`
+      env.logWarning(message)
+      queryNotification.setNotification(db, 'WARNING', message, packageId, 2)
+    }
+  }
+
+  let pCommand = insertCommands(db, packageId, commands)
+  let pAttribute = insertAttributes(db, packageId, attributes)
+  let pEvent = insertEvents(db, packageId, events)
+  return Promise.all([pCommand, pAttribute, pEvent]).catch((err) => {
+    if (err.includes('SQLITE_CONSTRAINT') && err.includes('UNIQUE')) {
+      env.logDebug(
+        `CRC match for file with package id ${packageId}, skipping parsing.`
+      )
+    } else {
+      throw err
+    }
+  })
 }
 
 /**
