@@ -186,6 +186,15 @@ test(
     expect(simpleTest).toContain(
       'ExternalAddon : This is example of test external addon helper.'
     )
+
+    // Testing base types based on xml defining them
+    expect(simpleTest).toContain('Base type for bitmap8 : int8u')
+    expect(simpleTest).toContain('Base type for bitmap32 : int32u')
+    expect(simpleTest).toContain('Base type for bitmap64 : int64u')
+    expect(simpleTest).toContain('Base type for enum8 : int8u')
+    expect(simpleTest).toContain('Base type for enum16 : int16u')
+    expect(simpleTest).toContain('Base type for ipv6adr : long_octet_string')
+
     let deviceType = genResult.content['device-types.txt']
     expect(deviceType).toContain(
       '// device type: CHIP / 0x0105 => MA-colordimmerswitch // extension: '

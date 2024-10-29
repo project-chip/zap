@@ -600,6 +600,9 @@ CREATE TABLE IF NOT EXISTS "ATOMIC" (
   "IS_LONG" integer default false,
   "IS_CHAR" integer default false,
   "IS_SIGNED" integer default false,
+  "IS_COMPOSITE" integer default false,
+  "IS_FLOAT" integer default false,
+  "BASE_TYPE" text,
   foreign key (PACKAGE_REF) references PACKAGE(PACKAGE_ID) ON DELETE CASCADE ON UPDATE CASCADE
   UNIQUE(PACKAGE_REF, NAME, ATOMIC_IDENTIFIER)
 );

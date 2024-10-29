@@ -19,3 +19,10 @@ ExternalAddon : {{test_external_addon_all_commands_helper}}
 ExternalAddon : {{test_external_addon_all_events_helper}} 
 ExternalAddon : {{test_external_addon_helper}} 
 
+// Extract all Base types:
+{{#zcl_atomics}}
+{{#if baseType}}
+Base type for {{name}} : {{baseType}}
+{{/if}}
+{{/zcl_atomics}}
+
