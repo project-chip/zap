@@ -36,20 +36,45 @@ const queryNotification = require('../db/query-package-notification.js')
 /**
  * Given a path, it will read generation template object into memory.
  *
- * @param {*} path
+ * @param {*} templatePath
  * @returns Object that contains: data, crc, templateData
  */
-async function loadGenTemplateFromFile(path) {
+async function loadGenTemplateFromFile(templatePath) {
   let ret = {}
-  ret.data = await fsPromise.readFile(path, 'utf8')
+  ret.data = await fsPromise.readFile(templatePath, 'utf8')
   ret.crc = util.checksum(ret.data)
   ret.templateData = JSON.parse(ret.data)
+  let zclExtension = ret.templateData.zcl
+  let zclExtensionFileContent = ''
+  // Adding zcl extension files to the template json crc
+  if (zclExtension && typeof zclExtension === 'object') {
+    for (const key of Object.keys(zclExtension)) {
+      let extension = zclExtension[key]
+      for (const key2 of Object.keys(extension)) {
+        let defaultExtensionValue = extension[key2].defaults
+        if (
+          typeof defaultExtensionValue === 'string' ||
+          defaultExtensionValue instanceof String
+        ) {
+          // Data is a string, so we will treat it as a relative path to the JSON file.
+          let externalPath = path.resolve(
+            path.join(path.dirname(templatePath), defaultExtensionValue)
+          )
+          zclExtensionFileContent += await fsPromise.readFile(
+            externalPath,
+            'utf8'
+          )
+        }
+      }
+    }
+    ret.crc = util.checksum(ret.data + zclExtensionFileContent)
+  }
 
   let requiredFeatureLevel = 0
   if ('requiredFeatureLevel' in ret.templateData) {
     requiredFeatureLevel = ret.templateData.requiredFeatureLevel
   }
-  let status = util.matchFeatureLevel(requiredFeatureLevel, path)
+  let status = util.matchFeatureLevel(requiredFeatureLevel, templatePath)
   if (status.match) {
     return ret
   } else {
@@ -133,12 +158,14 @@ async function loadTemplateOptionsFromJsonFile(
 }
 
 /**
- * Given a loading context, it records the package into the packages table and adds the packageId field into the resolved context.
+ * Given a loading context and whether the package is in sync, it records the
+ * package into the packages table and adds the packageId field into the resolved context.
  *
  * @param {*} context
+ * @param {*} isTopLevelPackageInSync
  * @returns promise that resolves with the same context passed in, except packageId added to it
  */
-async function recordTemplatesPackage(context) {
+async function recordTemplatesPackage(context, isTopLevelPackageInSync) {
   let topLevel = await queryPackage.registerTopLevelPackage(
     context.db,
     context.path,
@@ -147,7 +174,7 @@ async function recordTemplatesPackage(context) {
     context.templateData.version,
     context.templateData.category,
     context.templateData.description,
-    true
+    isTopLevelPackageInSync
   )
   context.packageId = topLevel.id
   if (topLevel.existedPreviously) return context
@@ -596,7 +623,19 @@ async function loadGenTemplatesJsonFile(db, genTemplatesJson) {
   if (!isTransactionAlreadyExisting) await dbApi.dbBeginTransaction(db)
   try {
     Object.assign(context, await loadGenTemplateFromFile(file))
-    context = await recordTemplatesPackage(context)
+    let isTopLevelPackageInSync = true
+    // Check if that package already exist with the same crc
+    let existingPackage = await queryPackage.getPackageByPathAndType(
+      db,
+      file,
+      dbEnum.packageType.genTemplatesJson
+    )
+    if (existingPackage && existingPackage.crc !== context.crc) {
+      // Package crc has changed so turning the old package out of sync(IN_SYNC=0)
+      await queryPackage.updatePackageIsInSync(db, existingPackage.id, 0)
+      isTopLevelPackageInSync = false
+    }
+    context = await recordTemplatesPackage(context, isTopLevelPackageInSync)
     return context
   } catch (err) {
     env.logInfo(`Can not read templates from: ${file}`)

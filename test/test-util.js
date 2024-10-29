@@ -95,7 +95,9 @@ exports.testTemplate = {
   dotdotCount: 5,
   unittest: './test/gen-template/test/gen-test.json',
   testCount: 3,
-  meta: './test/resource/meta/gen-test.json'
+  meta: './test/resource/meta/gen-test.json',
+  zclExtensionClusterToComponentFile:
+    './test/gen-template/zigbee2/cluster-to-component-dependencies.json'
 }
 
 exports.otherTestFile = {

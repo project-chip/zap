@@ -31,6 +31,7 @@ const types = require('../src-electron/util/types')
 const testUtil = require('./test-util')
 const testQuery = require('./test-query')
 const fs = require('fs')
+const genEngine = require('../src-electron/generator/generation-engine')
 
 beforeAll(async () => {
   env.setDevelopmentEnv()
@@ -275,6 +276,74 @@ test(
 
       // Step 3: Revert the xml file change in step 1.
       fs.writeFileSync(xmlFilePath, generalXmlFileOriginalContent, 'utf8')
+    } finally {
+      await dbApi.closeDatabase(db)
+    }
+  },
+  testUtil.timeout.long()
+)
+
+test(
+  'test changing the zcl extension file in a top level templates json file and make sure it is re-loaded again',
+  async () => {
+    let db = await dbApi.initRamDatabase()
+    try {
+      await dbApi.loadSchema(db, env.schemaFile(), env.zapVersion())
+      let context = await genEngine.loadTemplates(
+        db,
+        testUtil.testTemplate.zigbee2
+      )
+      let existingPackageId = context.packageId
+
+      // Reload package
+      context = await genEngine.loadTemplates(db, testUtil.testTemplate.zigbee2)
+      expect(existingPackageId).toEqual(context.packageId)
+      let existingPackageDetails = await queryPackage.getPackageByPackageId(
+        db,
+        existingPackageId
+      )
+      expect(existingPackageDetails.isInSync).toEqual(1)
+
+      // Update the cluster-to-component.json extension file
+      let extensionFile =
+        testUtil.testTemplate.zclExtensionClusterToComponentFile
+      let originalString = '"clusterCode": "zll commissioning-server"'
+      let editString = '"clusterCode": "zll commissioningEdit-server"'
+      let generalExtensionFileOriginalContent = fs.readFileSync(
+        extensionFile,
+        'utf8'
+      )
+      let generalExtensionFileUpdatedContent =
+        generalExtensionFileOriginalContent.replace(originalString, editString)
+      fs.writeFileSync(
+        extensionFile,
+        generalExtensionFileUpdatedContent,
+        'utf8'
+      )
+
+      // Reload the templates json package after an extension file change above
+      context = await genEngine.loadTemplates(db, testUtil.testTemplate.zigbee2)
+      expect(existingPackageId).not.toEqual(context.packageId)
+      existingPackageDetails = await queryPackage.getPackageByPackageId(
+        db,
+        existingPackageId
+      )
+      // The old package should no longer be in sync
+      expect(existingPackageDetails.isInSync).toEqual(0)
+
+      let newPackageDetails = await queryPackage.getPackageByPackageId(
+        db,
+        context.packageId
+      )
+      // The new package should now be in sync
+      expect(newPackageDetails.isInSync).toEqual(1)
+
+      // Revert the zcl extension json file change which was done to run this test.
+      fs.writeFileSync(
+        extensionFile,
+        generalExtensionFileOriginalContent,
+        'utf8'
+      )
     } finally {
       await dbApi.closeDatabase(db)
     }

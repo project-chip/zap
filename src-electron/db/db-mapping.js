@@ -36,7 +36,8 @@ exports.map = {
       category: x.CATEGORY,
       description: x.DESCRIPTION,
       version: x.VERSION,
-      parentId: x.PARENT_PACKAGE_REF
+      parentId: x.PARENT_PACKAGE_REF,
+      isInSync: x.IS_IN_SYNC
     }
   },
   options: (x) => {

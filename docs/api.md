@@ -7713,10 +7713,10 @@ Get endpoint type events from the given endpoint type ID.
 ## JS API: generator logic
 
 * [JS API: generator logic](#module_JS API_ generator logic)
-    * [~loadGenTemplateFromFile(path)](#module_JS API_ generator logic..loadGenTemplateFromFile) ⇒
+    * [~loadGenTemplateFromFile(templatePath)](#module_JS API_ generator logic..loadGenTemplateFromFile) ⇒
     * [~recordPackageIfNonexistent(db, packagePath, parentId, packageType, version, category, description)](#module_JS API_ generator logic..recordPackageIfNonexistent) ⇒
     * [~loadTemplateOptionsFromJsonFile(db, packageId, category, externalPath)](#module_JS API_ generator logic..loadTemplateOptionsFromJsonFile) ⇒
-    * [~recordTemplatesPackage(context)](#module_JS API_ generator logic..recordTemplatesPackage) ⇒
+    * [~recordTemplatesPackage(context, isTopLevelPackageInSync)](#module_JS API_ generator logic..recordTemplatesPackage) ⇒
     * [~decodePackageExtensionEntity(entityType, entity)](#module_JS API_ generator logic..decodePackageExtensionEntity) ⇒
     * [~loadZclExtensions(zclExt)](#module_JS API_ generator logic..loadZclExtensions) ⇒
     * [~loadTemplates(db, genTemplatesJsonArray)](#module_JS API_ generator logic..loadTemplates)
@@ -7762,7 +7762,7 @@ Get endpoint type events from the given endpoint type ID.
 
 <a name="module_JS API_ generator logic..loadGenTemplateFromFile"></a>
 
-### JS API: generator logic~loadGenTemplateFromFile(path) ⇒
+### JS API: generator logic~loadGenTemplateFromFile(templatePath) ⇒
 Given a path, it will read generation template object into memory.
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module_JS API_ generator logic)  
@@ -7770,7 +7770,7 @@ Given a path, it will read generation template object into memory.
 
 | Param | Type |
 | --- | --- |
-| path | <code>\*</code> | 
+| templatePath | <code>\*</code> | 
 
 <a name="module_JS API_ generator logic..recordPackageIfNonexistent"></a>
 
@@ -7807,8 +7807,9 @@ Insert the template options from the json meta data file.
 
 <a name="module_JS API_ generator logic..recordTemplatesPackage"></a>
 
-### JS API: generator logic~recordTemplatesPackage(context) ⇒
-Given a loading context, it records the package into the packages table and adds the packageId field into the resolved context.
+### JS API: generator logic~recordTemplatesPackage(context, isTopLevelPackageInSync) ⇒
+Given a loading context and whether the package is in sync, it records the
+package into the packages table and adds the packageId field into the resolved context.
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module_JS API_ generator logic)  
 **Returns**: promise that resolves with the same context passed in, except packageId added to it  
@@ -7816,6 +7817,7 @@ Given a loading context, it records the package into the packages table and adds
 | Param | Type |
 | --- | --- |
 | context | <code>\*</code> | 
+| isTopLevelPackageInSync | <code>\*</code> | 
 
 <a name="module_JS API_ generator logic..decodePackageExtensionEntity"></a>
 
@@ -13019,10 +13021,10 @@ This module contains the API for templating. For more detailed instructions, rea
 ## JS API: generator logic
 
 * [JS API: generator logic](#module_JS API_ generator logic)
-    * [~loadGenTemplateFromFile(path)](#module_JS API_ generator logic..loadGenTemplateFromFile) ⇒
+    * [~loadGenTemplateFromFile(templatePath)](#module_JS API_ generator logic..loadGenTemplateFromFile) ⇒
     * [~recordPackageIfNonexistent(db, packagePath, parentId, packageType, version, category, description)](#module_JS API_ generator logic..recordPackageIfNonexistent) ⇒
     * [~loadTemplateOptionsFromJsonFile(db, packageId, category, externalPath)](#module_JS API_ generator logic..loadTemplateOptionsFromJsonFile) ⇒
-    * [~recordTemplatesPackage(context)](#module_JS API_ generator logic..recordTemplatesPackage) ⇒
+    * [~recordTemplatesPackage(context, isTopLevelPackageInSync)](#module_JS API_ generator logic..recordTemplatesPackage) ⇒
     * [~decodePackageExtensionEntity(entityType, entity)](#module_JS API_ generator logic..decodePackageExtensionEntity) ⇒
     * [~loadZclExtensions(zclExt)](#module_JS API_ generator logic..loadZclExtensions) ⇒
     * [~loadTemplates(db, genTemplatesJsonArray)](#module_JS API_ generator logic..loadTemplates)
@@ -13068,7 +13070,7 @@ This module contains the API for templating. For more detailed instructions, rea
 
 <a name="module_JS API_ generator logic..loadGenTemplateFromFile"></a>
 
-### JS API: generator logic~loadGenTemplateFromFile(path) ⇒
+### JS API: generator logic~loadGenTemplateFromFile(templatePath) ⇒
 Given a path, it will read generation template object into memory.
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module_JS API_ generator logic)  
@@ -13076,7 +13078,7 @@ Given a path, it will read generation template object into memory.
 
 | Param | Type |
 | --- | --- |
-| path | <code>\*</code> | 
+| templatePath | <code>\*</code> | 
 
 <a name="module_JS API_ generator logic..recordPackageIfNonexistent"></a>
 
@@ -13113,8 +13115,9 @@ Insert the template options from the json meta data file.
 
 <a name="module_JS API_ generator logic..recordTemplatesPackage"></a>
 
-### JS API: generator logic~recordTemplatesPackage(context) ⇒
-Given a loading context, it records the package into the packages table and adds the packageId field into the resolved context.
+### JS API: generator logic~recordTemplatesPackage(context, isTopLevelPackageInSync) ⇒
+Given a loading context and whether the package is in sync, it records the
+package into the packages table and adds the packageId field into the resolved context.
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module_JS API_ generator logic)  
 **Returns**: promise that resolves with the same context passed in, except packageId added to it  
@@ -13122,6 +13125,7 @@ Given a loading context, it records the package into the packages table and adds
 | Param | Type |
 | --- | --- |
 | context | <code>\*</code> | 
+| isTopLevelPackageInSync | <code>\*</code> | 
 
 <a name="module_JS API_ generator logic..decodePackageExtensionEntity"></a>
 
@@ -13675,10 +13679,10 @@ Function wrapper that can be used when a helper is deprecated.
 ## JS API: generator logic
 
 * [JS API: generator logic](#module_JS API_ generator logic)
-    * [~loadGenTemplateFromFile(path)](#module_JS API_ generator logic..loadGenTemplateFromFile) ⇒
+    * [~loadGenTemplateFromFile(templatePath)](#module_JS API_ generator logic..loadGenTemplateFromFile) ⇒
     * [~recordPackageIfNonexistent(db, packagePath, parentId, packageType, version, category, description)](#module_JS API_ generator logic..recordPackageIfNonexistent) ⇒
     * [~loadTemplateOptionsFromJsonFile(db, packageId, category, externalPath)](#module_JS API_ generator logic..loadTemplateOptionsFromJsonFile) ⇒
-    * [~recordTemplatesPackage(context)](#module_JS API_ generator logic..recordTemplatesPackage) ⇒
+    * [~recordTemplatesPackage(context, isTopLevelPackageInSync)](#module_JS API_ generator logic..recordTemplatesPackage) ⇒
     * [~decodePackageExtensionEntity(entityType, entity)](#module_JS API_ generator logic..decodePackageExtensionEntity) ⇒
     * [~loadZclExtensions(zclExt)](#module_JS API_ generator logic..loadZclExtensions) ⇒
     * [~loadTemplates(db, genTemplatesJsonArray)](#module_JS API_ generator logic..loadTemplates)
@@ -13724,7 +13728,7 @@ Function wrapper that can be used when a helper is deprecated.
 
 <a name="module_JS API_ generator logic..loadGenTemplateFromFile"></a>
 
-### JS API: generator logic~loadGenTemplateFromFile(path) ⇒
+### JS API: generator logic~loadGenTemplateFromFile(templatePath) ⇒
 Given a path, it will read generation template object into memory.
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module_JS API_ generator logic)  
@@ -13732,7 +13736,7 @@ Given a path, it will read generation template object into memory.
 
 | Param | Type |
 | --- | --- |
-| path | <code>\*</code> | 
+| templatePath | <code>\*</code> | 
 
 <a name="module_JS API_ generator logic..recordPackageIfNonexistent"></a>
 
@@ -13769,8 +13773,9 @@ Insert the template options from the json meta data file.
 
 <a name="module_JS API_ generator logic..recordTemplatesPackage"></a>
 
-### JS API: generator logic~recordTemplatesPackage(context) ⇒
-Given a loading context, it records the package into the packages table and adds the packageId field into the resolved context.
+### JS API: generator logic~recordTemplatesPackage(context, isTopLevelPackageInSync) ⇒
+Given a loading context and whether the package is in sync, it records the
+package into the packages table and adds the packageId field into the resolved context.
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module_JS API_ generator logic)  
 **Returns**: promise that resolves with the same context passed in, except packageId added to it  
@@ -13778,6 +13783,7 @@ Given a loading context, it records the package into the packages table and adds
 | Param | Type |
 | --- | --- |
 | context | <code>\*</code> | 
+| isTopLevelPackageInSync | <code>\*</code> | 
 
 <a name="module_JS API_ generator logic..decodePackageExtensionEntity"></a>
 
@@ -17201,7 +17207,7 @@ Get save file format.
 <a name="module_JS API_ Environment utilities.builtinSilabsZclSpecialMetafile"></a>
 
 ### JS API: Environment utilities.builtinSilabsZclSpecialMetafile() ⇒
-Used to retrive zcl-special.json by zcl reload test in zcl-loader.test.js
+Used to retrieve zcl-special.json by zcl reload test in zcl-loader.test.js
 
 **Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 **Returns**: path to zcl-special.json file used by zcl-loader.test.js  
@@ -17213,7 +17219,7 @@ Used to retrive zcl-special.json by zcl reload test in zcl-loader.test.js
 <a name="module_JS API_ Environment utilities.builtinSilabsSpecialZclGeneralSpecialXmlFile"></a>
 
 ### JS API: Environment utilities.builtinSilabsSpecialZclGeneralSpecialXmlFile() ⇒
-Used to retrive general-special.xml by zcl reload test in zcl-loader.test.js
+Used to retrieve general-special.xml by zcl reload test in zcl-loader.test.js
 
 **Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 **Returns**: path to general-special.xml file used by zcl-loader.test.js  
