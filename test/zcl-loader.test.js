@@ -24,6 +24,7 @@ const queryZcl = require('../src-electron/db/query-zcl')
 const queryDeviceType = require('../src-electron/db/query-device-type')
 const queryCommand = require('../src-electron/db/query-command')
 const queryPackage = require('../src-electron/db/query-package')
+const queryPackageNotification = require('../src-electron/db/query-package-notification')
 const zclLoader = require('../src-electron/zcl/zcl-loader')
 const env = require('../src-electron/util/env')
 const types = require('../src-electron/util/types')
@@ -63,6 +64,14 @@ test(
 
       let ctx = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
       let packageId = ctx.packageId
+
+      let packageNotif =
+        await queryPackageNotification.getNotificationByPackageId(db, packageId)
+      expect(
+        packageNotif.some((notif) =>
+          notif.message.includes('Duplicate command found')
+        )
+      ).toBeTruthy() // checks if the correct duplicate command error is thrown
 
       let p = await queryPackage.getPackageByPackageId(ctx.db, ctx.packageId)
       expect(p.version).toEqual(1)

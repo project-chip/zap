@@ -170,12 +170,12 @@ exports.testMatterCustomZap =
 
 exports.totalClusterCount = 111
 exports.totalDomainCount = 20
-exports.totalCommandArgsCount = 1786
-exports.totalCommandCount = 632
+exports.totalCommandArgsCount = 1785
+exports.totalCommandCount = 631
 exports.totalEventFieldCount = 3
 exports.totalEventCount = 1
 exports.totalAttributeCount = 3438
-exports.totalClusterCommandCount = 609
+exports.totalClusterCommandCount = 608
 exports.totalServerAttributeCount = 2962
 exports.totalSpecCount = 24
 exports.totalEnumCount = 211
