@@ -40,6 +40,7 @@ const _ = require('lodash')
 const querySessionNotification = require('../db/query-session-notification')
 const queryPackageNotification = require('../db/query-package-notification')
 const newDataModel = require('./zcl-loader-new-data-model')
+const { P } = require('pino')
 
 /**
  * Promises to read the JSON file and resolve all the data.
@@ -2304,9 +2305,10 @@ function parseConformanceFromXML(operand) {
  * When they appear, stop recursing and return the name inside directly
  *
  * @param {*} operand
+ * @param {*} parentJoinChar
  * @returns The conformance string.
  */
-function parseConformanceRecursively(operand) {
+function parseConformanceRecursively(operand, parentJoinChar = '') {
   const baseLevelTerms = ['feature', 'condition', 'attribute', 'command']
   if (operand.mandatoryConform) {
     let insideTerm = operand.mandatoryConform[0]
@@ -2330,12 +2332,15 @@ function parseConformanceRecursively(operand) {
       .map(([key, value]) => parseConformanceRecursively({ [key]: value }))
       .join(', ')
   } else if (operand.notTerm) {
-    let notTerms = parseConformanceRecursively(operand.notTerm[0])
     // need to surround terms inside a notTerm with '()' if it contains multiple terms
     // e.g. !(A | B) or !(A & B)
-    return notTerms.includes('&') || notTerms.includes('|')
-      ? `!(${notTerms})`
-      : `!${notTerms}`
+    // able to process multiple parallel notTerms, e.g. !A & !B
+    return operand.notTerm
+      .map((term) => {
+        let nt = parseConformanceRecursively(term)
+        return nt.includes('&') || nt.includes('|') ? `!(${nt})` : `!${nt}`
+      })
+      .join(` ${parentJoinChar} `)
   } else if (operand.andTerm || operand.orTerm) {
     // process andTerm and orTerm in the same logic
     // when joining multiple orTerms inside andTerms, we need to
@@ -2349,7 +2354,7 @@ function parseConformanceRecursively(operand) {
         if (baseLevelTerms.includes(key)) {
           return value.map((operand) => operand.$.name).join(` ${joinChar} `)
         } else {
-          let terms = parseConformanceRecursively({ [key]: value })
+          let terms = parseConformanceRecursively({ [key]: value }, joinChar)
           return terms.includes(oppositeChar) ? `(${terms})` : terms
         }
       })

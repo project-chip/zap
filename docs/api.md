@@ -19952,7 +19952,7 @@ This module provides the APIs for dotdot Loading
     * [~parseProfilesData(db, ctx)](#module_Loader API_ Loader APIs..parseProfilesData) ⇒
     * [~parseFeatureFlags(db, packageId, featureFlags)](#module_Loader API_ Loader APIs..parseFeatureFlags) ⇒
     * [~parseConformanceFromXML(operand)](#module_Loader API_ Loader APIs..parseConformanceFromXML) ⇒
-    * [~parseConformanceRecursively(operand)](#module_Loader API_ Loader APIs..parseConformanceRecursively) ⇒
+    * [~parseConformanceRecursively(operand, parentJoinChar)](#module_Loader API_ Loader APIs..parseConformanceRecursively) ⇒
     * [~parseUiOptions(db, packageId, featureFlags)](#module_Loader API_ Loader APIs..parseUiOptions) ⇒
     * [~parseOptions(db)](#module_Loader API_ Loader APIs..parseOptions) ⇒
     * [~parseTextOptions(db, pkgRef, textOptions)](#module_Loader API_ Loader APIs..parseTextOptions) ⇒
@@ -21348,7 +21348,7 @@ Output conformance string:
 
 <a name="module_Loader API_ Loader APIs..parseConformanceRecursively"></a>
 
-### Loader API: Loader APIs~parseConformanceRecursively(operand) ⇒
+### Loader API: Loader APIs~parseConformanceRecursively(operand, parentJoinChar) ⇒
 helper function to parse conformance or an operand in conformance recursively
 
 The baseLevelTerms variable include terms that can not have nested terms.
@@ -21360,6 +21360,7 @@ When they appear, stop recursing and return the name inside directly
 | Param | Type |
 | --- | --- |
 | operand | <code>\*</code> | 
+| parentJoinChar | <code>\*</code> | 
 
 <a name="module_Loader API_ Loader APIs..parseUiOptions"></a>
 
@@ -21784,7 +21785,7 @@ This module provides the APIs for new data model loading
     * [~parseProfilesData(db, ctx)](#module_Loader API_ Loader APIs..parseProfilesData) ⇒
     * [~parseFeatureFlags(db, packageId, featureFlags)](#module_Loader API_ Loader APIs..parseFeatureFlags) ⇒
     * [~parseConformanceFromXML(operand)](#module_Loader API_ Loader APIs..parseConformanceFromXML) ⇒
-    * [~parseConformanceRecursively(operand)](#module_Loader API_ Loader APIs..parseConformanceRecursively) ⇒
+    * [~parseConformanceRecursively(operand, parentJoinChar)](#module_Loader API_ Loader APIs..parseConformanceRecursively) ⇒
     * [~parseUiOptions(db, packageId, featureFlags)](#module_Loader API_ Loader APIs..parseUiOptions) ⇒
     * [~parseOptions(db)](#module_Loader API_ Loader APIs..parseOptions) ⇒
     * [~parseTextOptions(db, pkgRef, textOptions)](#module_Loader API_ Loader APIs..parseTextOptions) ⇒
@@ -23180,7 +23181,7 @@ Output conformance string:
 
 <a name="module_Loader API_ Loader APIs..parseConformanceRecursively"></a>
 
-### Loader API: Loader APIs~parseConformanceRecursively(operand) ⇒
+### Loader API: Loader APIs~parseConformanceRecursively(operand, parentJoinChar) ⇒
 helper function to parse conformance or an operand in conformance recursively
 
 The baseLevelTerms variable include terms that can not have nested terms.
@@ -23192,6 +23193,7 @@ When they appear, stop recursing and return the name inside directly
 | Param | Type |
 | --- | --- |
 | operand | <code>\*</code> | 
+| parentJoinChar | <code>\*</code> | 
 
 <a name="module_Loader API_ Loader APIs..parseUiOptions"></a>
 
@@ -23616,7 +23618,7 @@ This module provides the APIs for ZCL/Data-Model loading.
     * [~parseProfilesData(db, ctx)](#module_Loader API_ Loader APIs..parseProfilesData) ⇒
     * [~parseFeatureFlags(db, packageId, featureFlags)](#module_Loader API_ Loader APIs..parseFeatureFlags) ⇒
     * [~parseConformanceFromXML(operand)](#module_Loader API_ Loader APIs..parseConformanceFromXML) ⇒
-    * [~parseConformanceRecursively(operand)](#module_Loader API_ Loader APIs..parseConformanceRecursively) ⇒
+    * [~parseConformanceRecursively(operand, parentJoinChar)](#module_Loader API_ Loader APIs..parseConformanceRecursively) ⇒
     * [~parseUiOptions(db, packageId, featureFlags)](#module_Loader API_ Loader APIs..parseUiOptions) ⇒
     * [~parseOptions(db)](#module_Loader API_ Loader APIs..parseOptions) ⇒
     * [~parseTextOptions(db, pkgRef, textOptions)](#module_Loader API_ Loader APIs..parseTextOptions) ⇒
@@ -25012,7 +25014,7 @@ Output conformance string:
 
 <a name="module_Loader API_ Loader APIs..parseConformanceRecursively"></a>
 
-### Loader API: Loader APIs~parseConformanceRecursively(operand) ⇒
+### Loader API: Loader APIs~parseConformanceRecursively(operand, parentJoinChar) ⇒
 helper function to parse conformance or an operand in conformance recursively
 
 The baseLevelTerms variable include terms that can not have nested terms.
@@ -25024,6 +25026,7 @@ When they appear, stop recursing and return the name inside directly
 | Param | Type |
 | --- | --- |
 | operand | <code>\*</code> | 
+| parentJoinChar | <code>\*</code> | 
 
 <a name="module_Loader API_ Loader APIs..parseUiOptions"></a>
 
@@ -25448,7 +25451,7 @@ This module provides the APIs for for common functionality related to loading.
     * [~parseProfilesData(db, ctx)](#module_Loader API_ Loader APIs..parseProfilesData) ⇒
     * [~parseFeatureFlags(db, packageId, featureFlags)](#module_Loader API_ Loader APIs..parseFeatureFlags) ⇒
     * [~parseConformanceFromXML(operand)](#module_Loader API_ Loader APIs..parseConformanceFromXML) ⇒
-    * [~parseConformanceRecursively(operand)](#module_Loader API_ Loader APIs..parseConformanceRecursively) ⇒
+    * [~parseConformanceRecursively(operand, parentJoinChar)](#module_Loader API_ Loader APIs..parseConformanceRecursively) ⇒
     * [~parseUiOptions(db, packageId, featureFlags)](#module_Loader API_ Loader APIs..parseUiOptions) ⇒
     * [~parseOptions(db)](#module_Loader API_ Loader APIs..parseOptions) ⇒
     * [~parseTextOptions(db, pkgRef, textOptions)](#module_Loader API_ Loader APIs..parseTextOptions) ⇒
@@ -26844,7 +26847,7 @@ Output conformance string:
 
 <a name="module_Loader API_ Loader APIs..parseConformanceRecursively"></a>
 
-### Loader API: Loader APIs~parseConformanceRecursively(operand) ⇒
+### Loader API: Loader APIs~parseConformanceRecursively(operand, parentJoinChar) ⇒
 helper function to parse conformance or an operand in conformance recursively
 
 The baseLevelTerms variable include terms that can not have nested terms.
@@ -26856,6 +26859,7 @@ When they appear, stop recursing and return the name inside directly
 | Param | Type |
 | --- | --- |
 | operand | <code>\*</code> | 
+| parentJoinChar | <code>\*</code> | 
 
 <a name="module_Loader API_ Loader APIs..parseUiOptions"></a>
 
