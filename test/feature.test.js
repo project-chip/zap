@@ -257,7 +257,7 @@ test(
     /* simulate toggling device type features in Color Control cluster
        to test if elements with wrong conformance are checked and returned,
        and test if generated warnings are correct */
-    // define part of attributes and commands of Color Control cluster
+    // define part of elements in Color Control cluster
     let elements = {
       attributes: [
         { name: 'CurrentHue', conformance: 'HS', included: 0 },
@@ -284,6 +284,10 @@ test(
           conformance: 'UNKNOWN',
           isEnabled: 0
         }
+      ],
+      events: [
+        { name: 'event1', conformance: 'HS', included: 0 },
+        { name: 'event2', conformance: 'O', included: 0 }
       ]
     }
     let featureMap = { HS: 0, EHUE: 0, CL: 0, XY: 1, CT: 1, UNKNOWN: 0 }
@@ -322,7 +326,7 @@ test(
     expect(result.displayWarning).toBeFalsy()
     expect(result.disableChange).toBeFalsy()
     expect(result.warningMessage).toBe('')
-    // attributes and commands with conformance 'HS' should be enabled
+    // elements with conformance 'HS' should be enabled
     // and their values should be set to true
     expect(result.attributesToUpdate.length).toBe(1)
     expect(result.attributesToUpdate[0].name).toBe('CurrentHue')
@@ -330,6 +334,9 @@ test(
     expect(result.commandsToUpdate.length).toBe(1)
     expect(result.commandsToUpdate[0].name).toBe('MoveToHue')
     expect(result.commandsToUpdate[0].value).toBeTruthy()
+    expect(result.eventsToUpdate.length).toBe(1)
+    expect(result.eventsToUpdate[0].name).toBe('event1')
+    expect(result.eventsToUpdate[0].value).toBeTruthy()
     featureMap['HS'] = 0
 
     // 2. test disable a mandatory feature
@@ -356,6 +363,7 @@ test(
     expect(result.commandsToUpdate.length).toBe(1)
     expect(result.commandsToUpdate[0].name).toBe('MoveToColor')
     expect(result.commandsToUpdate[0].value).toBeFalsy()
+    expect(result.eventsToUpdate.length).toBe(0)
     featureMap['XY'] = 1
 
     // 3. test enable a feature with unknown conformance
@@ -372,12 +380,13 @@ test(
       `as its conformance depends on non device type features ` +
       `Feature1, Feature2 with unknown values`
     // should display warning and disable the change
-    // no attributes or commands should be updated
+    // no attributes commands, or events should be updated
     expect(result.displayWarning).toBeTruthy()
     expect(result.disableChange).toBeTruthy()
     expect(result.warningMessage[0]).toBe(expectedWarning)
     expect(result.attributesToUpdate.length).toBe(0)
     expect(result.commandsToUpdate.length).toBe(0)
+    expect(result.eventsToUpdate.length).toBe(0)
     featureMap['UNKNOWN'] = 0
 
     // 4. test enable a feature with desc elements
@@ -400,6 +409,7 @@ test(
     expect(result.warningMessage[0]).toBe(expectedWarning)
     expect(result.attributesToUpdate.length).toBe(0)
     expect(result.commandsToUpdate.length).toBe(0)
+    expect(result.eventsToUpdate.length).toBe(0)
     featureMap['HS'] = 0
 
     // 5. test enable a feature with unknown conformance and desc elements
@@ -416,6 +426,7 @@ test(
     expect(result.warningMessage.length).toBe(2)
     expect(result.attributesToUpdate.length).toBe(0)
     expect(result.commandsToUpdate.length).toBe(0)
+    expect(result.eventsToUpdate.length).toBe(0)
   },
   testUtil.timeout.short()
 )

@@ -123,11 +123,12 @@ function httpGetElementsToUpdate(db) {
         endpointTypeClusterId,
         deviceTypeClusterId
       )
-    elements.commands.forEach((command) => {
-      if (command.isEnabled == null) {
-        command.isEnabled = 0
-      }
-    })
+    elements.events =
+      await queryEvent.selectEventsByEndpointTypeClusterIdAndDeviceTypeClusterId(
+        db,
+        endpointTypeClusterId,
+        deviceTypeClusterId
+      )
 
     let result = queryFeature.checkElementsToUpdate(
       elements,

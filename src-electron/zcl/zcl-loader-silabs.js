@@ -548,6 +548,7 @@ function prepareCluster(cluster, context, isExtension = false) {
         manufacturerCode: event.$.manufacturerCode,
         name: event.$.name,
         side: event.$.side,
+        conformance: parseConformanceFromXML(event),
         priority: event.$.priority,
         description: event.description ? event.description[0].trim() : '',
         isOptional: event.$.optional == 'true',
@@ -2254,7 +2255,7 @@ async function parseFeatureFlags(db, packageId, featureFlags) {
 
 /**
  * Parses conformance from XML data.
- * The conformance could come from features, attributes, or commands.
+ * The conformance could come from features, attributes, commands, or events
  *
  * Call recursive helper function to parse conformance only if the conformance exists.
  * Otherwise, return empty string directly

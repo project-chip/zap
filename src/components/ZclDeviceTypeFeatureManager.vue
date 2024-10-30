@@ -132,6 +132,23 @@ limitations under the License.
                   </li>
                 </ul>
               </div>
+              <div v-if="eventsToUpdate.length > 0">
+                <div
+                  class="text-body1"
+                  style="margin-top: 15px; padding-left: 20px"
+                >
+                  Events
+                </div>
+                <ul>
+                  <li
+                    v-for="(event, index) in eventsToUpdate"
+                    :key="'event' + index"
+                    style="margin-bottom: 10px"
+                  >
+                    {{ event }}
+                  </li>
+                </ul>
+              </div>
               <div v-if="noElementsToUpdate">
                 <div class="text-body1" style="margin-top: 15px">
                   {{ noElementsToUpdateMessage }}
@@ -225,6 +242,7 @@ export default {
         let {
           attributesToUpdate,
           commandsToUpdate,
+          eventsToUpdate,
           displayWarning,
           warningMessage,
           disableChange
@@ -252,7 +270,7 @@ export default {
           return disableChange
         }
 
-        // toggle attributes and commands for correct conformance
+        // toggle attributes, commands, and events for correct conformance
         attributesToUpdate.forEach((attribute) => {
           let editContext = {
             action: 'boolean',
@@ -281,6 +299,18 @@ export default {
           }
           this.$store.dispatch('zap/updateSelectedCommands', editContext)
         })
+        eventsToUpdate.forEach((event) => {
+          let editContext = {
+            action: 'boolean',
+            endpointTypeId: this.selectedEndpointTypeId,
+            id: event.id,
+            value: event.value,
+            listType: 'selectedEvents',
+            clusterRef: event.clusterRef,
+            eventSide: event.side
+          }
+          this.$store.dispatch('zap/updateSelectedEvents', editContext)
+        })
 
         // prepare messages and show dialog
         this.attributesToUpdate = attributesToUpdate
@@ -295,6 +325,11 @@ export default {
             command.value
               ? 'enabled ' + command.name
               : 'disabled ' + command.name
+          )
+          .sort((a, b) => (a.includes('enabled') ? -1 : 1))
+        this.eventsToUpdate = eventsToUpdate
+          .map((event) =>
+            event.value ? 'enabled ' + event.name : 'disabled ' + event.name
           )
           .sort((a, b) => (a.includes('enabled') ? -1 : 1))
         this.showDialog = true
@@ -333,7 +368,9 @@ export default {
     },
     noElementsToUpdate() {
       return (
-        this.attributesToUpdate.length == 0 && this.commandsToUpdate.length == 0
+        this.attributesToUpdate.length == 0 &&
+        this.commandsToUpdate.length == 0 &&
+        this.eventsToUpdate.length == 0
       )
     }
   },
@@ -349,6 +386,7 @@ export default {
       showDialog: false,
       attributesToUpdate: [],
       commandsToUpdate: [],
+      eventsToUpdate: [],
       columns: [
         {
           name: dbEnum.deviceTypeFeature.name.enabled,

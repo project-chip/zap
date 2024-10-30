@@ -1251,7 +1251,6 @@ async function selectAttributeMappingsByPackageIds(db, packageIds) {
 /**
  * Get all attributes in an endpoint type cluster
  * @param {*} db
- * @param {*} featureCode
  * @param {*} endpointTyeClusterId
  * @returns all attributes in an endpoint type cluster
  */

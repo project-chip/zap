@@ -231,6 +231,7 @@ CREATE TABLE IF NOT EXISTS "EVENT" (
   "NAME" text,
   "DESCRIPTION" text,
   "SIDE" text,
+  "CONFORMANCE" text,
   "IS_OPTIONAL" integer,
   "IS_FABRIC_SENSITIVE" integer,
   "PRIORITY" text,

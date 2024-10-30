@@ -177,6 +177,7 @@ exports.map = {
       name: x.NAME,
       description: x.DESCRIPTION,
       side: x.SIDE,
+      conformance: x.CONFORMANCE,
       isOptional: dbApi.fromDbBool(x.IS_OPTIONAL),
       isFabricSensitive: dbApi.fromDbBool(x.IS_FABRIC_SENSITIVE),
       priority: x.PRIORITY
@@ -715,6 +716,16 @@ exports.map = {
     }
   },
 
+  endpointTypeEvent: (x) => {
+    if (x == null) return undefined
+    return {
+      endpointTypeRef: x.ENDPOINT_TYPE_REF,
+      clusterRef: x.CLUSTER_REF,
+      eventRef: x.EVENT_REF,
+      included: dbApi.fromDbBool(x.INCLUDED)
+    }
+  },
+
   endpointTypeClusterAttribute: (x) => {
     if (x == null) return undefined
     return {
@@ -742,13 +753,15 @@ exports.map = {
     }
   },
 
-  endpointTypeEvent: (x) => {
+  endpointTypeClusterEvent: (x) => {
     if (x == null) return undefined
     return {
-      endpointTypeRef: x.ENDPOINT_TYPE_REF,
+      id: x.EVENT_ID,
+      name: x.NAME,
       clusterRef: x.CLUSTER_REF,
-      eventRef: x.EVENT_REF,
-      included: dbApi.fromDbBool(x.INCLUDED)
+      side: x.SIDE,
+      conformance: x.CONFORMANCE,
+      included: x.INCLUDED
     }
   },
 

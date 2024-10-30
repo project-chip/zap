@@ -116,7 +116,7 @@ async function getFeaturesByDeviceTypeRefs(
 
 /**
  * Evaluate the value of a boolean conformance expression that includes terms and operators.
- * A term can be an attribute, command, feature, or conformance abbreviation.
+ * A term can be an attribute, command, event, feature, or conformance abbreviation.
  * Operators include AND (&), OR (|), and NOT (!).
  * The '[]' indicates optional conformance if the expression inside true.
  * Expression containing comma means otherwise conformance. See spec for details.
@@ -280,32 +280,29 @@ function generateWarningMessage(
     )
   }
 
-  if (descElements.attributes && descElements.attributes.length > 0) {
+  if (
+    (descElements.attributes && descElements.attributes.length > 0) ||
+    (descElements.commands && descElements.commands.length > 0) ||
+    (descElements.events && descElements.events.length > 0)
+  ) {
     let attributeNames = descElements.attributes
       .map((attr) => attr.name)
       .join(', ')
-    result.warningMessage.push(
-      'On endpoint ' +
-        endpointId +
-        ', feature ' +
-        featureName +
-        ' cannot be enabled as attribute ' +
-        attributeNames +
-        ' depend on the feature and their conformance are too complex to parse.'
-    )
-  }
-
-  if (descElements.commands && descElements.commands.length > 0) {
     let commandNames = descElements.commands
       .map((command) => command.name)
       .join(', ')
+    let eventNames = descElements.events.map((event) => event.name).join(', ')
     result.warningMessage.push(
       'On endpoint ' +
         endpointId +
         ', feature ' +
         featureName +
-        ' cannot be enabled as command ' +
-        commandNames +
+        ' cannot be enabled as ' +
+        (attributeNames ? 'attribute ' + attributeNames : '') +
+        (attributeNames && commandNames ? ', ' : '') +
+        (commandNames ? 'command ' + commandNames : '') +
+        ((attributeNames || commandNames) && eventNames ? ', ' : '') +
+        (eventNames ? 'event ' + eventNames : '') +
         ' depend on the feature and their conformance are too complex to parse.'
     )
   }
@@ -313,7 +310,8 @@ function generateWarningMessage(
   if (
     missingTerms.length == 0 &&
     descElements.attributes.length == 0 &&
-    descElements.commands.length == 0
+    descElements.commands.length == 0 &&
+    descElements.events.length == 0
   ) {
     let conformance = evaluateConformanceExpression(
       featureData.conformance,
@@ -360,17 +358,17 @@ function generateWarningMessage(
 }
 
 /**
- * Check if attributes and commands need to be updated for correct conformance.
+ * Check if attributes, commands, and events need to be updated for correct conformance.
  *
  * @export
  * @param {*} elements
  * @param {*} featureMap
  * @param {*} featureData
  * @param {*} endpointId
- * @returns attributes and commands to be updated, warning related information
+ * @returns attributes, commands, and events to be updated, warning related information
  */
 function checkElementsToUpdate(elements, featureMap, featureData, endpointId) {
-  let { attributes, commands } = elements
+  let { attributes, commands, events } = elements
   let featureCode = featureData.code
 
   // create a map of element names/codes to their enabled status
@@ -381,12 +379,16 @@ function checkElementsToUpdate(elements, featureMap, featureData, endpointId) {
   commands.forEach((command) => {
     elementMap[command.name] = command.isEnabled
   })
+  events.forEach((event) => {
+    elementMap[event.name] = event.included
+  })
   elementMap['Matter'] = 1
   elementMap['Zigbee'] = 0
 
   let descElements = {}
   descElements.attributes = filterElementsContainingDesc(attributes)
   descElements.commands = filterElementsContainingDesc(commands)
+  descElements.events = filterElementsContainingDesc(events)
 
   let missingTerms = checkMissingTerms(featureData.conformance, elementMap)
   let warningInfo = generateWarningMessage(
@@ -401,7 +403,8 @@ function checkElementsToUpdate(elements, featureMap, featureData, endpointId) {
     return {
       ...warningInfo,
       attributesToUpdate: [],
-      commandsToUpdate: []
+      commandsToUpdate: [],
+      eventsToUpdate: []
     }
   }
 
@@ -415,16 +418,18 @@ function checkElementsToUpdate(elements, featureMap, featureData, endpointId) {
     elementMap,
     featureCode
   )
+  let eventsToUpdate = filterElementsToUpdate(events, elementMap, featureCode)
 
   return {
     ...warningInfo,
     attributesToUpdate: attributesToUpdate,
-    commandsToUpdate: commandsToUpdate
+    commandsToUpdate: commandsToUpdate,
+    eventsToUpdate: eventsToUpdate
   }
 }
 
 /**
- * Return attributes and commands to be updated satisfying:
+ * Return attributes, commands, or events to be updated satisfying:
  * (1) its conformance includes feature code of the updated feature
  * (2) it has mandatory conformance but it is not enabled, OR,
  * 		 it is has notSupported conformance but it is enabled

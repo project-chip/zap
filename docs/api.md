@@ -3676,7 +3676,7 @@ with associated device type, cluster, and featureMap attribute details
 
 ### DB API: feature related queries~evaluateConformanceExpression(expression, elementMap) ⇒
 Evaluate the value of a boolean conformance expression that includes terms and operators.
-A term can be an attribute, command, feature, or conformance abbreviation.
+A term can be an attribute, command, event, feature, or conformance abbreviation.
 Operators include AND (&), OR (|), and NOT (!).
 The '[]' indicates optional conformance if the expression inside true.
 Expression containing comma means otherwise conformance. See spec for details.
@@ -3763,10 +3763,10 @@ Set flags to decide whether to show a popup warning or disable changes in the fr
 <a name="module_DB API_ feature related queries..checkElementsToUpdate"></a>
 
 ### DB API: feature related queries~checkElementsToUpdate(elements, featureMap, featureData, endpointId) ⇒
-Check if attributes and commands need to be updated for correct conformance.
+Check if attributes, commands, and events need to be updated for correct conformance.
 
 **Kind**: inner method of [<code>DB API: feature related queries</code>](#module_DB API_ feature related queries)  
-**Returns**: attributes and commands to be updated, warning related information  
+**Returns**: attributes, commands, and events to be updated, warning related information  
 
 | Param | Type |
 | --- | --- |
@@ -3778,7 +3778,7 @@ Check if attributes and commands need to be updated for correct conformance.
 <a name="module_DB API_ feature related queries..filterElementsToUpdate"></a>
 
 ### DB API: feature related queries~filterElementsToUpdate(elements, elementMap, featureCode) ⇒
-Return attributes and commands to be updated satisfying:
+Return attributes, commands, or events to be updated satisfying:
 (1) its conformance includes feature code of the updated feature
 (2) it has mandatory conformance but it is not enabled, OR,
 		 it is has notSupported conformance but it is enabled
@@ -21307,7 +21307,7 @@ Key/velues of the object itself, end up in CODE/LABEL combinations.
 
 ### Loader API: Loader APIs~parseConformanceFromXML(operand) ⇒
 Parses conformance from XML data.
-The conformance could come from features, attributes, or commands.
+The conformance could come from features, attributes, commands, or events
 
 Call recursive helper function to parse conformance only if the conformance exists.
 Otherwise, return empty string directly
@@ -23139,7 +23139,7 @@ Key/velues of the object itself, end up in CODE/LABEL combinations.
 
 ### Loader API: Loader APIs~parseConformanceFromXML(operand) ⇒
 Parses conformance from XML data.
-The conformance could come from features, attributes, or commands.
+The conformance could come from features, attributes, commands, or events
 
 Call recursive helper function to parse conformance only if the conformance exists.
 Otherwise, return empty string directly
@@ -24971,7 +24971,7 @@ Key/velues of the object itself, end up in CODE/LABEL combinations.
 
 ### Loader API: Loader APIs~parseConformanceFromXML(operand) ⇒
 Parses conformance from XML data.
-The conformance could come from features, attributes, or commands.
+The conformance could come from features, attributes, commands, or events
 
 Call recursive helper function to parse conformance only if the conformance exists.
 Otherwise, return empty string directly
@@ -26803,7 +26803,7 @@ Key/velues of the object itself, end up in CODE/LABEL combinations.
 
 ### Loader API: Loader APIs~parseConformanceFromXML(operand) ⇒
 Parses conformance from XML data.
-The conformance could come from features, attributes, or commands.
+The conformance could come from features, attributes, commands, or events
 
 Call recursive helper function to parse conformance only if the conformance exists.
 Otherwise, return empty string directly
