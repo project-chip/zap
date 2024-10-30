@@ -279,6 +279,8 @@ async function selectEventsByEndpointTypeClusterIdAndDeviceTypeClusterId(
 exports.selectEventsByClusterId = selectEventsByClusterId
 exports.selectAllEvents = selectAllEvents
 exports.selectAllEventFields = selectAllEventFields
+exports.selectEventsByEndpointTypeClusterIdAndDeviceTypeClusterId =
+  selectEventsByEndpointTypeClusterIdAndDeviceTypeClusterId
 exports.selectEventFieldsByEventId = selectEventFieldsByEventId
 exports.selectEndpointTypeEventsByEndpointTypeRefAndClusterRef =
   selectEndpointTypeEventsByEndpointTypeRefAndClusterRef
