@@ -239,7 +239,7 @@ test(
       { name: 'Element7', conformance: 'description' }
     ]
 
-    const result = queryFeature.filterElementsContainingDesc(elements)
+    let result = queryFeature.filterElementsContainingDesc(elements)
     expect(result).toEqual([
       { name: 'Element1', conformance: 'desc' },
       { name: 'Element2', conformance: 'P, desc' },
@@ -247,6 +247,10 @@ test(
       { name: 'Element4', conformance: 'desc, [HS]' },
       { name: 'Element5', conformance: 'desc | optional' }
     ])
+
+    const featureCode = 'HS'
+    result = queryFeature.filterRelatedDescElements(elements, featureCode)
+    expect(result).toEqual([{ name: 'Element4', conformance: 'desc, [HS]' }])
   },
   testUtil.timeout.short()
 )
@@ -389,9 +393,13 @@ test(
     expect(result.eventsToUpdate.length).toBe(0)
     featureMap['UNKNOWN'] = 0
 
-    // 4. test enable a feature with desc elements
-    // expect same warning flags as 3
-    let descElement = { name: 'DescElement', conformance: 'desc', included: 0 }
+    // 4. test enable a feature with desc elements with conformance
+    // containing desc and updated feature code, expect same warning flags as 3
+    let descElement = {
+      name: 'DescElement',
+      conformance: 'HS & desc',
+      included: 0
+    }
     elements.attributes.push(descElement)
     featureMap['HS'] = 1
     result = queryFeature.checkElementsToUpdate(
@@ -412,8 +420,10 @@ test(
     expect(result.eventsToUpdate.length).toBe(0)
     featureMap['HS'] = 0
 
-    // 5. test enable a feature with unknown conformance and desc elements
+    // 5. test enable a feature with unknown conformance and relevant desc elements
     // should have 2 warnings
+    elements.attributes.find((attr) => attr.name == 'DescElement').conformance =
+      'desc, [UNKNOWN]'
     featureMap['UNKNOWN'] = 1
     result = queryFeature.checkElementsToUpdate(
       elements,

@@ -3650,6 +3650,7 @@ This module provides queries for features.
         * [~evaluateWithParentheses(expr)](#module_DB API_ feature related queries..evaluateConformanceExpression..evaluateWithParentheses)
     * [~checkMissingTerms(expression, elementMap)](#module_DB API_ feature related queries..checkMissingTerms) ⇒
     * [~filterElementsContainingDesc(elements)](#module_DB API_ feature related queries..filterElementsContainingDesc) ⇒
+    * [~filterRelatedDescElements(elements, featureCode)](#module_DB API_ feature related queries..filterRelatedDescElements) ⇒
     * [~generateWarningMessage(featureData, endpointId, missingTerms, featureMap, descElements)](#module_DB API_ feature related queries..generateWarningMessage) ⇒
     * [~checkElementsToUpdate(elements, featureMap, featureData, endpointId)](#module_DB API_ feature related queries..checkElementsToUpdate) ⇒
     * [~filterElementsToUpdate(elements, elementMap, featureCode)](#module_DB API_ feature related queries..filterElementsToUpdate) ⇒
@@ -3742,6 +3743,17 @@ Filter an array of elements by if any element has conformance containing the ter
 | Param | Type |
 | --- | --- |
 | elements | <code>\*</code> | 
+
+<a name="module_DB API_ feature related queries..filterRelatedDescElements"></a>
+
+### DB API: feature related queries~filterRelatedDescElements(elements, featureCode) ⇒
+**Kind**: inner method of [<code>DB API: feature related queries</code>](#module_DB API_ feature related queries)  
+**Returns**: elements with conformance containing 'desc' and the feature code  
+
+| Param | Type |
+| --- | --- |
+| elements | <code>\*</code> | 
+| featureCode | <code>\*</code> | 
 
 <a name="module_DB API_ feature related queries..generateWarningMessage"></a>
 

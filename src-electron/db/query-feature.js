@@ -22,7 +22,6 @@
  */
 const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
-const querySessionNotification = require('./query-session-notification.js')
 
 /**
  * Get all device type features associated with a list of device type refs and an endpoint.
@@ -240,6 +239,20 @@ function filterElementsContainingDesc(elements) {
 }
 
 /**
+ *
+ * @export
+ * @param {*} elements
+ * @param {*} featureCode
+ * @returns elements with conformance containing 'desc' and the feature code
+ */
+function filterRelatedDescElements(elements, featureCode) {
+  return elements.filter((element) => {
+    let terms = element.conformance.match(/[A-Za-z][A-Za-z0-9]*/g)
+    return terms && terms.includes('desc') && terms.includes(featureCode)
+  })
+}
+
+/**
  * Generate a warning message after processing conformance of the updated device type feature.
  * Set flags to decide whether to show a popup warning or disable changes in the frontend.
  *
@@ -386,9 +399,9 @@ function checkElementsToUpdate(elements, featureMap, featureData, endpointId) {
   elementMap['Zigbee'] = 0
 
   let descElements = {}
-  descElements.attributes = filterElementsContainingDesc(attributes)
-  descElements.commands = filterElementsContainingDesc(commands)
-  descElements.events = filterElementsContainingDesc(events)
+  descElements.attributes = filterRelatedDescElements(attributes, featureCode)
+  descElements.commands = filterRelatedDescElements(commands, featureCode)
+  descElements.events = filterRelatedDescElements(events, featureCode)
 
   let missingTerms = checkMissingTerms(featureData.conformance, elementMap)
   let warningInfo = generateWarningMessage(
@@ -467,3 +480,4 @@ exports.getFeaturesByDeviceTypeRefs = getFeaturesByDeviceTypeRefs
 exports.checkElementsToUpdate = checkElementsToUpdate
 exports.evaluateConformanceExpression = evaluateConformanceExpression
 exports.filterElementsContainingDesc = filterElementsContainingDesc
+exports.filterRelatedDescElements = filterRelatedDescElements
