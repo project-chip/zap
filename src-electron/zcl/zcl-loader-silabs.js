@@ -40,7 +40,6 @@ const _ = require('lodash')
 const querySessionNotification = require('../db/query-session-notification')
 const queryPackageNotification = require('../db/query-package-notification')
 const newDataModel = require('./zcl-loader-new-data-model')
-const { P } = require('pino')
 
 /**
  * Promises to read the JSON file and resolve all the data.
