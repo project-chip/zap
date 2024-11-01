@@ -127,6 +127,7 @@ This module contains the API for templating. For more detailed instructions, rea
 * [Templating API: Attribute helpers](#module_Templating API_ Attribute helpers)
     * [~featureBits(options)](#module_Templating API_ Attribute helpers..featureBits) ⇒
     * [~attributeDefault()](#module_Templating API_ Attribute helpers..attributeDefault) ⇒
+    * [~as_underlying_atomic_identifier_for_attribute_id(attributeId)](#module_Templating API_ Attribute helpers..as_underlying_atomic_identifier_for_attribute_id)
 
 <a name="module_Templating API_ Attribute helpers..featureBits"></a>
 
@@ -147,6 +148,18 @@ Valid within a cluster context, requires code.
 
 **Kind**: inner method of [<code>Templating API: Attribute helpers</code>](#module_Templating API_ Attribute helpers)  
 **Returns**: Produces attribute defaults.  
+<a name="module_Templating API_ Attribute helpers..as_underlying_atomic_identifier_for_attribute_id"></a>
+
+### Templating API: Attribute helpers~as\_underlying\_atomic\_identifier\_for\_attribute\_id(attributeId)
+Given an attribute Id determine its corresponding atomic identifier from the
+atomic table.
+
+**Kind**: inner method of [<code>Templating API: Attribute helpers</code>](#module_Templating API_ Attribute helpers)  
+
+| Param | Type |
+| --- | --- |
+| attributeId | <code>\*</code> | 
+
 <a name="module_Templating API_ C formatting helpers"></a>
 
 ## Templating API: C formatting helpers
