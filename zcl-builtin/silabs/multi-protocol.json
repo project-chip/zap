@@ -22,6 +22,17 @@
             "code": "0x0000",
             "manufacturerCode": null
           }
+        },
+        {
+          "id": 2,
+          "matter": {
+            "code": "0x4003",
+            "manufacturerCode": null
+          },
+          "zigbee": {
+            "code": "0x4003",
+            "manufacturerCode": null
+          }
         }
       ]
     },

@@ -22,7 +22,10 @@
  */
 
 const queryAttribute = require('../db/query-attribute')
+const queryZcl = require('../db/query-zcl')
 const templateUtil = require('./template-util')
+const zclUtil = require('../util/zcl-util')
+const dbEnum = require('../../src-shared/db-enum')
 
 /**
  * Get feature bits from the given context.
@@ -76,6 +79,89 @@ async function attributeDefault(options) {
   return templateUtil.templatePromise(this.global, p)
 }
 
+/**
+ * Given an attribute Id determine its corresponding atomic identifier from the
+ * atomic table.
+ * @param {*} attributeId
+ */
+async function as_underlying_atomic_identifier_for_attribute_id(attributeId) {
+  let attributeDetails =
+    await queryZcl.selectAttributeByAttributeIdAndClusterRef(
+      this.global.db,
+      attributeId,
+      null
+    )
+  let atomicInfo = attributeDetails
+    ? await queryZcl.selectAtomicType(
+        this.global.db,
+        [attributeDetails.packageRef],
+        attributeDetails.type
+      )
+    : null
+  // If attribute type directly points to the atomic type then return that
+  if (atomicInfo) {
+    // All types in the number and string table should be found here.
+    return atomicInfo.atomicId
+  } else {
+    // If attribute type does not point to atomic type
+    let dataType = await queryZcl.selectDataTypeByNameAndClusterId(
+      this.global.db,
+      attributeDetails.type,
+      attributeDetails.clusterRef,
+      [attributeDetails.packageRef]
+    )
+    if (dataType.discriminatorName.toLowerCase() == dbEnum.zclType.enum) {
+      let enumInfo = await queryZcl.selectEnumByNameAndClusterId(
+        this.global.db,
+        attributeDetails.type,
+        attributeDetails.clusterRef,
+        [attributeDetails.packageRef]
+      )
+      atomicInfo = await queryZcl.selectAtomicType(
+        this.global.db,
+        [attributeDetails.packageRef],
+        dbEnum.zclType.enum + enumInfo.size * 8
+      )
+      return atomicInfo ? atomicInfo.atomicId : null
+    } else if (
+      dataType.discriminatorName.toLowerCase() == dbEnum.zclType.bitmap
+    ) {
+      let bitmapInfo = await queryZcl.selectBitmapByNameAndClusterId(
+        this.global.db,
+        attributeDetails.type,
+        attributeDetails.clusterRef,
+        [attributeDetails.packageRef]
+      )
+      atomicInfo = await queryZcl.selectAtomicType(
+        this.global.db,
+        [attributeDetails.packageRef],
+        dbEnum.zclType.bitmap + bitmapInfo.size * 8
+      )
+      return atomicInfo ? atomicInfo.atomicId : null
+    } else if (
+      dataType.discriminatorName.toLowerCase() == dbEnum.zclType.struct
+    ) {
+      atomicInfo = await queryZcl.selectAtomicType(
+        this.global.db,
+        [attributeDetails.packageRef],
+        dbEnum.zclType.struct
+      )
+      return atomicInfo ? atomicInfo.atomicId : null
+    } else if (
+      dataType.discriminatorName.toLowerCase() == dbEnum.zclType.array
+    ) {
+      atomicInfo = await queryZcl.selectAtomicType(
+        this.global.db,
+        [attributeDetails.packageRef],
+        dbEnum.zclType.array
+      )
+      return atomicInfo ? atomicInfo.atomicId : null
+    } else {
+      return null
+    }
+  }
+}
+
 // WARNING! WARNING! WARNING! WARNING! WARNING! WARNING!
 //
 // Note: these exports are public API. Templates that might have been created in the past and are
@@ -84,3 +170,5 @@ async function attributeDefault(options) {
 
 exports.global_attribute_default = attributeDefault
 exports.feature_bits = featureBits
+exports.as_underlying_atomic_identifier_for_attribute_id =
+  as_underlying_atomic_identifier_for_attribute_id

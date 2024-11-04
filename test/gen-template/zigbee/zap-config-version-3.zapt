@@ -298,7 +298,7 @@
 #define GENERATED_MULTI_PROTOCOL_ATTRIBUTE_MAPPING
 {
   {{#all_multi_protocol_attributes}}
-  { {{clusterCode1}}, {{clusterMfgCode1}}, {{clusterCode2}}, {{clusterMfgCode2}}, {{attributeCode1}}, {{attributeMfgCode1}}, {{attributeCode2}}, {{attributeMfgCode2}} },
+  { {{clusterCode1}}, {{clusterMfgCode1}}, {{clusterCode2}}, {{clusterMfgCode2}}, {{attributeCode1}}, {{attributeMfgCode1}}, {{as_underlying_atomic_identifier_for_attribute_id attributeRef1}}, {{attributeCode2}}, {{attributeMfgCode2}}, {{as_underlying_atomic_identifier_for_attribute_id attributeRef2}} },
   {{/all_multi_protocol_attributes}}
 }
 {{/if_multi_protocol_attributes_enabled}}

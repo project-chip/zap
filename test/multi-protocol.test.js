@@ -159,9 +159,18 @@ test(
     expect(zigbeeEndpointConfigGen).toContain(
       '#define GENERATED_MULTI_PROTOCOL_ATTRIBUTE_MAPPING'
     )
-    expect(zigbeeEndpointConfigGen).toContain('{ 6, 0, 6, 0, 0, 0, 0, 0 },')
-    expect(zigbeeEndpointConfigGen).toContain('{ 8, 0, 8, 0, 0, 0, 0, 0 },')
-    expect(zigbeeEndpointConfigGen).toContain('{ 8, 0, 8, 0, 1, 0, 1, 0 },')
+    expect(zigbeeEndpointConfigGen).toContain(
+      '{ 6, 0, 6, 0, 0, 0, 16, 0, 0, 16 },'
+    )
+    expect(zigbeeEndpointConfigGen).toContain(
+      '{ 8, 0, 8, 0, 0, 0, 32, 0, 0, 32 },'
+    )
+    expect(zigbeeEndpointConfigGen).toContain(
+      '{ 8, 0, 8, 0, 1, 0, 33, 1, 0, 33 },'
+    )
+    expect(zigbeeEndpointConfigGen).toContain(
+      '{ 6, 0, 6, 0, 16387, 0, 48, 16387, 0, 48 },'
+    )
 
     // Notifications test when opening multi-protocol zap file
     let sessionNotifications = await querySessionNotice.getNotification(
@@ -220,7 +229,7 @@ test(
     let importRes = await importJs.importDataFromFile(
       db,
       multiProtocolTestFile,
-      { sessionId: null },
+      { sessionId: null }
     )
 
     // Get all session attributes
@@ -242,14 +251,14 @@ test(
     // Check both of them are the same
     expect(parseInt(zigbeeEndpointTypeAttribute.defaultValue)).toEqual(0)
     expect(parseInt(zigbeeEndpointTypeAttribute.defaultValue)).toEqual(
-      parseInt(matterEndpointTypeAttribute.defaultValue),
+      parseInt(matterEndpointTypeAttribute.defaultValue)
     )
 
     // Change zigbee ETA and check for the change in the corresponding Matter ETA.
     await queryConfig.updateEndpointTypeAttribute(
       db,
       zigbeeEndpointTypeAttribute.endpointTypeAttributeId,
-      [['defaultValue', 1]],
+      [['defaultValue', 1]]
     )
     let allEndpointTypeAttributesAfterChange =
       await queryConfig.selectAllSessionAttributes(db, importRes.sessionId)
@@ -263,7 +272,7 @@ test(
     }
     expect(parseInt(zigbeeEndpointTypeAttribute.defaultValue)).toEqual(1)
     expect(parseInt(zigbeeEndpointTypeAttribute.defaultValue)).toEqual(
-      parseInt(matterEndpointTypeAttribute.defaultValue),
+      parseInt(matterEndpointTypeAttribute.defaultValue)
     )
 
     // Negative test: Check that none of the other Endpoint Type Attribute values are not changed. Only the ones intended i.e. on/off
@@ -273,7 +282,7 @@ test(
         allEndpointTypeAttributes[i].name.toLowerCase() != 'onoff'
       ) {
         expect(allEndpointTypeAttributes[i].defaultValue).toEqual(
-          allEndpointTypeAttributesAfterChange[i].defaultValue,
+          allEndpointTypeAttributesAfterChange[i].defaultValue
         )
       }
     }
@@ -282,7 +291,7 @@ test(
     await queryConfig.updateEndpointTypeAttribute(
       db,
       matterEndpointTypeAttribute.endpointTypeAttributeId,
-      [['defaultValue', 0]],
+      [['defaultValue', 0]]
     )
     allEndpointTypeAttributesAfterChange =
       await queryConfig.selectAllSessionAttributes(db, importRes.sessionId)
@@ -296,8 +305,8 @@ test(
     }
     expect(parseInt(matterEndpointTypeAttribute.defaultValue)).toEqual(0)
     expect(parseInt(matterEndpointTypeAttribute.defaultValue)).toEqual(
-      parseInt(zigbeeEndpointTypeAttribute.defaultValue),
+      parseInt(zigbeeEndpointTypeAttribute.defaultValue)
     )
   },
-  testUtil.timeout.long(),
+  testUtil.timeout.long()
 )
