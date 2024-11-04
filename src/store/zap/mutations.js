@@ -1161,3 +1161,12 @@ export function updateFeatureMapAttributeOfFeature(
     }
   })
 }
+
+/**
+ * Updates the deviceTypeFeatureExists state to show or hide the device type features button.
+ * @param {*} state
+ * @param {*} value
+ */
+export function updateDeviceTypeFeatureExists(state, value) {
+  state.deviceTypeFeatureExists = value
+}

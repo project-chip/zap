@@ -3654,6 +3654,7 @@ This module provides queries for features.
     * [~generateWarningMessage(featureData, endpointId, missingTerms, featureMap, descElements)](#module_DB API_ feature related queries..generateWarningMessage) ⇒
     * [~checkElementsToUpdate(elements, featureMap, featureData, endpointId)](#module_DB API_ feature related queries..checkElementsToUpdate) ⇒
     * [~filterElementsToUpdate(elements, elementMap, featureCode)](#module_DB API_ feature related queries..filterElementsToUpdate) ⇒
+    * [~checkIfDeviceTypeFeatureDataExist(db)](#module_DB API_ feature related queries..checkIfDeviceTypeFeatureDataExist) ⇒
 
 <a name="module_DB API_ feature related queries..getFeaturesByDeviceTypeRefs"></a>
 
@@ -3803,6 +3804,18 @@ Return attributes, commands, or events to be updated satisfying:
 | elements | <code>\*</code> | 
 | elementMap | <code>\*</code> | 
 | featureCode | <code>\*</code> | 
+
+<a name="module_DB API_ feature related queries..checkIfDeviceTypeFeatureDataExist"></a>
+
+### DB API: feature related queries~checkIfDeviceTypeFeatureDataExist(db) ⇒
+Check if DEVICE_TYPE_FEATURE table exists and is not empty.
+
+**Kind**: inner method of [<code>DB API: feature related queries</code>](#module_DB API_ feature related queries)  
+**Returns**: true if DEVICE_TYPE_FEATURE table is not empty, false if not  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
 
 <a name="module_DB API_ package-based queries."></a>
 
@@ -14551,6 +14564,7 @@ This module provides the API to access zcl specific information.
     * [~httpPostDuplicateEndpoint(db)](#module_REST API_ user data..httpPostDuplicateEndpoint) ⇒
     * [~httpPostDuplicateEndpointType(db)](#module_REST API_ user data..httpPostDuplicateEndpointType) ⇒
     * [~httpPatchUpdateBitOfFeatureMapAttribute(db)](#module_REST API_ user data..httpPatchUpdateBitOfFeatureMapAttribute) ⇒
+    * [~httpGetDeviceTypeFeatureExists(db)](#module_REST API_ user data..httpGetDeviceTypeFeatureExists) ⇒
     * [~duplicateEndpointTypeClusters(db, oldEndpointTypeId, newEndpointTypeId)](#module_REST API_ user data..duplicateEndpointTypeClusters)
 
 <a name="module_REST API_ user data..getComponentIdsByCluster"></a>
@@ -14969,6 +14983,18 @@ Update feature map attribute with given new value
 
 **Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
 **Returns**: status of the update  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+
+<a name="module_REST API_ user data..httpGetDeviceTypeFeatureExists"></a>
+
+### REST API: user data~httpGetDeviceTypeFeatureExists(db) ⇒
+Check data exsit in DEVICE_TYPE_FEATURE table
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
+**Returns**: boolean value of data exist or not  
 
 | Param | Type |
 | --- | --- |
@@ -15835,6 +15861,7 @@ This module provides the REST API to the user specific data.
     * [~httpPostDuplicateEndpoint(db)](#module_REST API_ user data..httpPostDuplicateEndpoint) ⇒
     * [~httpPostDuplicateEndpointType(db)](#module_REST API_ user data..httpPostDuplicateEndpointType) ⇒
     * [~httpPatchUpdateBitOfFeatureMapAttribute(db)](#module_REST API_ user data..httpPatchUpdateBitOfFeatureMapAttribute) ⇒
+    * [~httpGetDeviceTypeFeatureExists(db)](#module_REST API_ user data..httpGetDeviceTypeFeatureExists) ⇒
     * [~duplicateEndpointTypeClusters(db, oldEndpointTypeId, newEndpointTypeId)](#module_REST API_ user data..duplicateEndpointTypeClusters)
 
 <a name="module_REST API_ user data..getComponentIdsByCluster"></a>
@@ -16253,6 +16280,18 @@ Update feature map attribute with given new value
 
 **Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
 **Returns**: status of the update  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+
+<a name="module_REST API_ user data..httpGetDeviceTypeFeatureExists"></a>
+
+### REST API: user data~httpGetDeviceTypeFeatureExists(db) ⇒
+Check data exsit in DEVICE_TYPE_FEATURE table
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
+**Returns**: boolean value of data exist or not  
 
 | Param | Type |
 | --- | --- |

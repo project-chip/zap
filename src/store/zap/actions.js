@@ -981,6 +981,20 @@ export async function setDeviceTypeFeatures(
 }
 
 /**
+ * Query the DEVICE_TYPE_FEATURE table via REST API. Update the deviceTypeFeatureExists state
+ * to show or hide of the device type features button.
+ * @param {*} state
+ * @param {*} value
+ */
+export function updateDeviceTypeFeatureExists(context, data) {
+  axiosRequests
+    .$serverGet(restApi.uri.deviceTypeFeatureExists, data)
+    .then((response) => {
+      context.commit('updateDeviceTypeFeatureExists', response.data)
+    })
+}
+
+/**
  * This action loads the initial data from the database.
  *
  * @export

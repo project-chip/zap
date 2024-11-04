@@ -151,6 +151,7 @@ export default {
       this.scrollToElementById(this.lastSelectedDomain)
     }
     this.changeDomainFilter(this.filter)
+    this.$store.dispatch('zap/updateDeviceTypeFeatureExists')
   },
   watch: {
     enabledClusters() {

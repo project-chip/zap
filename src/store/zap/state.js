@@ -171,6 +171,7 @@ export default function () {
       deviceIdentifier: null
     },
     notificationCount: 0,
-    enabledClusters: []
+    enabledClusters: [],
+    deviceTypeFeatureExists: false
   }
 }

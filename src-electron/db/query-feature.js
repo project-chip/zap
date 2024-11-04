@@ -476,8 +476,25 @@ function filterElementsToUpdate(elements, elementMap, featureCode) {
   return elementsToUpdate
 }
 
+/**
+ * Check if DEVICE_TYPE_FEATURE table exists and is not empty.
+ *
+ * @export
+ * @param {*} db
+ * @returns true if DEVICE_TYPE_FEATURE table is not empty, false if not
+ */
+async function checkIfDeviceTypeFeatureDataExist(db) {
+  try {
+    let rows = await dbApi.dbAll(db, 'SELECT * FROM DEVICE_TYPE_FEATURE')
+    return rows.length > 0
+  } catch (err) {
+    return false
+  }
+}
+
 exports.getFeaturesByDeviceTypeRefs = getFeaturesByDeviceTypeRefs
 exports.checkElementsToUpdate = checkElementsToUpdate
 exports.evaluateConformanceExpression = evaluateConformanceExpression
 exports.filterElementsContainingDesc = filterElementsContainingDesc
 exports.filterRelatedDescElements = filterRelatedDescElements
+exports.checkIfDeviceTypeFeatureDataExist = checkIfDeviceTypeFeatureDataExist

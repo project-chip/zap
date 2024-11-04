@@ -1082,6 +1082,20 @@ function httpPatchUpdateBitOfFeatureMapAttribute(db) {
 }
 
 /**
+ * Check data exsit in DEVICE_TYPE_FEATURE table
+ *
+ * @param {*} db
+ * @returns boolean value of data exist or not
+ */
+function httpGetDeviceTypeFeatureExists(db) {
+  return async (request, response) => {
+    let deviceTypeFeatureExists =
+      await queryFeature.checkIfDeviceTypeFeatureDataExist(db)
+    response.status(StatusCodes.OK).json(deviceTypeFeatureExists)
+  }
+}
+
+/**
  * duplicate all clusters and attributes of an old endpoint type, using oldEndpointType id and newly created endpointType id
  *
  * @param {*} db
@@ -1247,6 +1261,10 @@ exports.get = [
   {
     uri: restApi.uri.elementsToUpdate,
     callback: httpGetElementsToUpdate
+  },
+  {
+    uri: restApi.uri.deviceTypeFeatureExists,
+    callback: httpGetDeviceTypeFeatureExists
   }
 ]
 
