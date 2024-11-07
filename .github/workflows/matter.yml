@@ -28,9 +28,9 @@ jobs:
         os: [ubuntu-22.04]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3.0.0
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
@@ -62,10 +62,10 @@ jobs:
 
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install Node.js, NPM and Yarn
-        uses: actions/setup-node@v3.0.0
+        uses: actions/setup-node@v4
         with:
           node-version: 20.x
           cache: 'npm'
@@ -158,25 +158,25 @@ jobs:
           command_line: npx asar l ./dist/linux-unpacked/resources/app.asar | grep apack.json
           contains: 'apack.json'
       - name: Archive Linux (x64) .zip file
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: startsWith(matrix.os, 'ubuntu')
         with:
           name: zap-linux-x64-zip
           path: dist/zap-linux-x64.zip
       - name: Archive Linux (arm64) .zip file
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: startsWith(matrix.os, 'ubuntu')
         with:
           name: zap-linux-arm64-zip
           path: dist/zap-linux-arm64.zip
       - name: Archive Linux .rpm file
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: startsWith(matrix.os, 'ubuntu')
         with:
           name: zap-linux-x64-rpm
           path: dist/zap-linux-x64.rpm
       - name: Archive Linux x64 .deb file
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: startsWith(matrix.os, 'ubuntu')
         with:
           name: zap-linux-x64-deb
@@ -195,7 +195,7 @@ jobs:
       image: connectedhomeip/chip-build:0.6.11
 
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: zap-linux-x64-zip
 
@@ -203,7 +203,7 @@ jobs:
         run: |
           mkdir zap-release && cd zap-release && unzip ../zap-linux-x64.zip
 
-      # Checkout without actions/checkout@v3 since that one uses a repository specific token
+      # Checkout without actions/checkout@v4 since that one uses a repository specific token
       - name: Checkout Matter SDK
         run: |
           git clone --depth 1 https://github.com/project-chip/connectedhomeip.git chip_repo

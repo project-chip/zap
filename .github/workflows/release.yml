@@ -27,9 +27,9 @@ jobs:
         os: [ubuntu-22.04]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3.0.0
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
@@ -56,9 +56,9 @@ jobs:
         os: [ubuntu-22.04]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3.0.0
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
@@ -85,9 +85,9 @@ jobs:
         os: [ubuntu-22.04]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3.0.0
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
@@ -107,7 +107,7 @@ jobs:
       - run: npm run self-check
       - run: npm run test:unit
       - name: Upload code coverage artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: jest-coverage
           path: jest-coverage/coverage-final.json
@@ -124,14 +124,14 @@ jobs:
         os: [ubuntu-22.04]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3.0.0
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
       - name: Download jest coverage artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: jest-coverage
       - run: sudo ./src-script/install-packages-ubuntu
@@ -153,10 +153,10 @@ jobs:
 
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install Node.js, NPM and Yarn
-        uses: actions/setup-node@v3.0.0
+        uses: actions/setup-node@v4
         with:
           node-version: 20.x
           cache: 'npm'
@@ -397,49 +397,49 @@ jobs:
           contains: 'apack.json'
 
       - name: Archive Windows (x64) .zip file
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: startsWith(matrix.os, 'macos')
         with:
           name: zap-win-x64-zip
           path: dist/zap-win-x64.zip
       - name: Archive Windows (arm64) .zip file
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: startsWith(matrix.os, 'macos')
         with:
           name: zap-win-arm64-zip
           path: dist/zap-win-arm64.zip
       - name: Archive macOS x64 .zip file
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: startsWith(matrix.os, 'macos')
         with:
           name: zap-mac-x64-zip
           path: dist/zap-mac-x64.zip
       - name: Archive macOS arm64 .zip file
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: startsWith(matrix.os, 'macos')
         with:
           name: zap-mac-arm64-zip
           path: dist/zap-mac-arm64.zip
       - name: Archive Linux (x64) .zip file
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: startsWith(matrix.os, 'ubuntu')
         with:
           name: zap-linux-x64-zip
           path: dist/zap-linux-x64.zip
       - name: Archive Linux (arm64) .zip file
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: startsWith(matrix.os, 'ubuntu')
         with:
           name: zap-linux-arm64-zip
           path: dist/zap-linux-arm64.zip
       - name: Archive Linux .rpm file
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: startsWith(matrix.os, 'ubuntu')
         with:
           name: zap-linux-x64-rpm
           path: dist/zap-linux-x64.rpm
       - name: Archive Linux x64 .deb file
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: startsWith(matrix.os, 'ubuntu')
         with:
           name: zap-linux-x64-deb
@@ -451,7 +451,7 @@ jobs:
     name: Create Github Release
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
       - name: List downloaded files
         run: ls -R
       - name: Creating Github Release
