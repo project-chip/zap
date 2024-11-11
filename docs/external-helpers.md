@@ -25,7 +25,7 @@ The new design pattern aims to free SDK developers from being tied to the intern
 
 ### Example
 
-In the previous SDK design, an SDK helper might query ZAP for attributes related to a cluster. The API call might look like this:
+In the provided code snippet, the SDK receives an API object containing "attributes" which invokes a query. In the event of a query name change, the ZAP developer updates the API, relieving the SDK developer from making any adjustments:
 
 ```javascript
 /**
