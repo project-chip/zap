@@ -48,7 +48,7 @@ limitations under the License.
                 self="bottom middle"
                 :offset="[10, 10]"
               >
-                {{ validationErrorMessage }}
+                {{ getCommandWarning(props.row) }}
               </q-tooltip>
             </q-td>
             <q-td key="out" :props="props" auto-width>
@@ -165,24 +165,48 @@ export default {
       get() {
         return this.$store.state.zap.commandView.requiredCommands
       }
+    },
+    commandsRequiredByConformance: {
+      get() {
+        return this.$store.state.zap.commandView.mandatory
+      }
+    },
+    commandsNotSupportedByConformance: {
+      get() {
+        return this.$store.state.zap.commandView.notSupported
+      }
     }
   },
   methods: {
+    // if command is required or unsupported by evaluating conformance, display custom warning,
+    // else display default warning if attribute in the required selection and disabled
     displayCommandWarning(row) {
+      if (this.commandsRequiredByConformance[row.id]) {
+        return this.isCommandUnselected(row)
+      } else if (this.commandsNotSupportedByConformance[row.id]) {
+        return !this.isCommandUnselected(row)
+      } else {
+        return this.isCommandUnselected(row) && this.isCommandRequired(row)
+      }
+    },
+    getCommandWarning(row) {
+      let requiredWarning = this.commandsRequiredByConformance[row.id]
+      let notSupportedWarning = this.commandsNotSupportedByConformance[row.id]
+      return requiredWarning || notSupportedWarning || this.defaultWarning
+    },
+    isCommandUnselected(row) {
       return (
-        (this.isCommandRequired(row) &&
-          ((this.selectionClients.includes(this.selectedCluster.id) &&
-            row.source == 'client') ||
-            (this.selectionServers.includes(this.selectedCluster.id) &&
-              row.source == 'server')) &&
+        (((this.selectionClients.includes(this.selectedCluster.id) &&
+          row.source == 'client') ||
+          (this.selectionServers.includes(this.selectedCluster.id) &&
+            row.source == 'server')) &&
           !this.selectionOut.includes(
             this.hashCommandIdClusterId(row.id, this.selectedCluster.id)
           )) ||
-        (this.isCommandRequired(row) &&
-          ((this.selectionClients.includes(this.selectedCluster.id) &&
-            row.source == 'server') ||
-            (this.selectionServers.includes(this.selectedCluster.id) &&
-              row.source == 'client')) &&
+        (((this.selectionClients.includes(this.selectedCluster.id) &&
+          row.source == 'server') ||
+          (this.selectionServers.includes(this.selectedCluster.id) &&
+            row.source == 'client')) &&
           !this.selectionIn.includes(
             this.hashCommandIdClusterId(row.id, this.selectedCluster.id)
           ))
@@ -222,7 +246,7 @@ export default {
   data() {
     return {
       noCommandsMessage: 'No commands available for this cluster.',
-      validationErrorMessage:
+      defaultWarning:
         'This command is mandatory for the cluster and device type configuration you have enabled',
       pagination: {
         rowsPerPage: 50

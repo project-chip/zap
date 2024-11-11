@@ -3652,8 +3652,9 @@ This module provides queries for features.
     * [~filterElementsContainingDesc(elements)](#module_DB API_ feature related queries..filterElementsContainingDesc) ⇒
     * [~filterRelatedDescElements(elements, featureCode)](#module_DB API_ feature related queries..filterRelatedDescElements) ⇒
     * [~generateWarningMessage(featureData, endpointId, missingTerms, featureMap, descElements)](#module_DB API_ feature related queries..generateWarningMessage) ⇒
-    * [~checkElementsToUpdate(elements, featureMap, featureData, endpointId)](#module_DB API_ feature related queries..checkElementsToUpdate) ⇒
+    * [~checkElementConformance(elements, featureMap, featureData, endpointId)](#module_DB API_ feature related queries..checkElementConformance) ⇒
     * [~filterElementsToUpdate(elements, elementMap, featureCode)](#module_DB API_ feature related queries..filterElementsToUpdate) ⇒
+    * [~filterRequiredElements(elements, elementMap)](#module_DB API_ feature related queries..filterRequiredElements) ⇒
     * [~checkIfDeviceTypeFeatureDataExist(db)](#module_DB API_ feature related queries..checkIfDeviceTypeFeatureDataExist) ⇒
 
 <a name="module_DB API_ feature related queries..getFeaturesByDeviceTypeRefs"></a>
@@ -3773,20 +3774,22 @@ Set flags to decide whether to show a popup warning or disable changes in the fr
 | featureMap | <code>\*</code> | 
 | descElements | <code>\*</code> | 
 
-<a name="module_DB API_ feature related queries..checkElementsToUpdate"></a>
+<a name="module_DB API_ feature related queries..checkElementConformance"></a>
 
-### DB API: feature related queries~checkElementsToUpdate(elements, featureMap, featureData, endpointId) ⇒
-Check if attributes, commands, and events need to be updated for correct conformance.
+### DB API: feature related queries~checkElementConformance(elements, featureMap, featureData, endpointId) ⇒
+Check if elements need to be updated for correct conformance if featureData provided.
+Otherwise, check if elements are required or unsupported by their conformance.
 
 **Kind**: inner method of [<code>DB API: feature related queries</code>](#module_DB API_ feature related queries)  
-**Returns**: attributes, commands, and events to be updated, warning related information  
+**Returns**: attributes, commands, and events to update, with warnings if featureData provided;
+required and unsupported attributes, commands, and events, with warnings if not.  
 
-| Param | Type |
-| --- | --- |
-| elements | <code>\*</code> | 
-| featureMap | <code>\*</code> | 
-| featureData | <code>\*</code> | 
-| endpointId | <code>\*</code> | 
+| Param | Type | Default |
+| --- | --- | --- |
+| elements | <code>\*</code> |  | 
+| featureMap | <code>\*</code> |  | 
+| featureData | <code>\*</code> | <code></code> | 
+| endpointId | <code>\*</code> | <code></code> | 
 
 <a name="module_DB API_ feature related queries..filterElementsToUpdate"></a>
 
@@ -3804,6 +3807,21 @@ Return attributes, commands, or events to be updated satisfying:
 | elements | <code>\*</code> | 
 | elementMap | <code>\*</code> | 
 | featureCode | <code>\*</code> | 
+
+<a name="module_DB API_ feature related queries..filterRequiredElements"></a>
+
+### DB API: feature related queries~filterRequiredElements(elements, elementMap) ⇒
+Filter required and unsupported elements based on their conformance and generate warnings.
+An element is required if it conforms to element(s) in elementMap and has 'mandatory' conform.
+An element is unsupported if it conforms to element(s) in elementMap and has 'notSupported' conform.
+
+**Kind**: inner method of [<code>DB API: feature related queries</code>](#module_DB API_ feature related queries)  
+**Returns**: required and not supported elements with warnings  
+
+| Param | Type |
+| --- | --- |
+| elements | <code>\*</code> | 
+| elementMap | <code>\*</code> | 
 
 <a name="module_DB API_ feature related queries..checkIfDeviceTypeFeatureDataExist"></a>
 
@@ -14533,7 +14551,9 @@ This module provides the API to access zcl specific information.
     * [~httpGetSessionKeyValues(db)](#module_REST API_ user data..httpGetSessionKeyValues) ⇒
     * [~httpGetEndpointIds(db)](#module_REST API_ user data..httpGetEndpointIds) ⇒
     * [~httpGetDeviceTypeFeatures(db)](#module_REST API_ user data..httpGetDeviceTypeFeatures) ⇒
-    * [~httpGetElementsToUpdate(db)](#module_REST API_ user data..httpGetElementsToUpdate) ⇒
+    * [~getEndpointTypeElements(db, endpointTypeClusterId, deviceTypeClusterId)](#module_REST API_ user data..getEndpointTypeElements) ⇒
+    * [~httpPostCheckConformOnFeatureUpdate(db)](#module_REST API_ user data..httpPostCheckConformOnFeatureUpdate) ⇒
+    * [~httpPostSetRequiredElements(db)](#module_REST API_ user data..httpPostSetRequiredElements) ⇒
     * [~httpGetSessionNotifications(db)](#module_REST API_ user data..httpGetSessionNotifications) ⇒
     * [~httpDeleteSessionNotification(db)](#module_REST API_ user data..httpDeleteSessionNotification) ⇒
     * [~httpGetPackageNotifications(db)](#module_REST API_ user data..httpGetPackageNotifications) ⇒
@@ -14618,10 +14638,37 @@ HTTP GET: device type features
 | --- | --- |
 | db | <code>\*</code> | 
 
-<a name="module_REST API_ user data..httpGetElementsToUpdate"></a>
+<a name="module_REST API_ user data..getEndpointTypeElements"></a>
 
-### REST API: user data~httpGetElementsToUpdate(db) ⇒
-HTTP GET: attributes and commands to be updated
+### REST API: user data~getEndpointTypeElements(db, endpointTypeClusterId, deviceTypeClusterId) ⇒
+Get all attributes, commands and events in an endpoint type cluster.
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
+**Returns**: elements object containing all attributes, commands and events
+in an endpoint type cluster  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| endpointTypeClusterId | <code>\*</code> | 
+| deviceTypeClusterId | <code>\*</code> | 
+
+<a name="module_REST API_ user data..httpPostCheckConformOnFeatureUpdate"></a>
+
+### REST API: user data~httpPostCheckConformOnFeatureUpdate(db) ⇒
+HTTP POST: elements to be updated after toggle a device type feature
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
+**Returns**: callback for the express uri registration  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+
+<a name="module_REST API_ user data..httpPostSetRequiredElements"></a>
+
+### REST API: user data~httpPostSetRequiredElements(db) ⇒
+HTTP POST: required and unsupported cluster elements based on conformance
 
 **Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
 **Returns**: callback for the express uri registration  
@@ -15830,7 +15877,9 @@ This module provides the REST API to the user specific data.
     * [~httpGetSessionKeyValues(db)](#module_REST API_ user data..httpGetSessionKeyValues) ⇒
     * [~httpGetEndpointIds(db)](#module_REST API_ user data..httpGetEndpointIds) ⇒
     * [~httpGetDeviceTypeFeatures(db)](#module_REST API_ user data..httpGetDeviceTypeFeatures) ⇒
-    * [~httpGetElementsToUpdate(db)](#module_REST API_ user data..httpGetElementsToUpdate) ⇒
+    * [~getEndpointTypeElements(db, endpointTypeClusterId, deviceTypeClusterId)](#module_REST API_ user data..getEndpointTypeElements) ⇒
+    * [~httpPostCheckConformOnFeatureUpdate(db)](#module_REST API_ user data..httpPostCheckConformOnFeatureUpdate) ⇒
+    * [~httpPostSetRequiredElements(db)](#module_REST API_ user data..httpPostSetRequiredElements) ⇒
     * [~httpGetSessionNotifications(db)](#module_REST API_ user data..httpGetSessionNotifications) ⇒
     * [~httpDeleteSessionNotification(db)](#module_REST API_ user data..httpDeleteSessionNotification) ⇒
     * [~httpGetPackageNotifications(db)](#module_REST API_ user data..httpGetPackageNotifications) ⇒
@@ -15915,10 +15964,37 @@ HTTP GET: device type features
 | --- | --- |
 | db | <code>\*</code> | 
 
-<a name="module_REST API_ user data..httpGetElementsToUpdate"></a>
+<a name="module_REST API_ user data..getEndpointTypeElements"></a>
 
-### REST API: user data~httpGetElementsToUpdate(db) ⇒
-HTTP GET: attributes and commands to be updated
+### REST API: user data~getEndpointTypeElements(db, endpointTypeClusterId, deviceTypeClusterId) ⇒
+Get all attributes, commands and events in an endpoint type cluster.
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
+**Returns**: elements object containing all attributes, commands and events
+in an endpoint type cluster  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| endpointTypeClusterId | <code>\*</code> | 
+| deviceTypeClusterId | <code>\*</code> | 
+
+<a name="module_REST API_ user data..httpPostCheckConformOnFeatureUpdate"></a>
+
+### REST API: user data~httpPostCheckConformOnFeatureUpdate(db) ⇒
+HTTP POST: elements to be updated after toggle a device type feature
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
+**Returns**: callback for the express uri registration  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+
+<a name="module_REST API_ user data..httpPostSetRequiredElements"></a>
+
+### REST API: user data~httpPostSetRequiredElements(db) ⇒
+HTTP POST: required and unsupported cluster elements based on conformance
 
 **Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
 **Returns**: callback for the express uri registration  

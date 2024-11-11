@@ -320,7 +320,7 @@ test(
 
     // 1. test enable an optional feature
     featureMap['HS'] = 1
-    result = queryFeature.checkElementsToUpdate(
+    result = queryFeature.checkElementConformance(
       elements,
       featureMap,
       featureHS,
@@ -345,7 +345,7 @@ test(
 
     // 2. test disable a mandatory feature
     featureMap['XY'] = 0
-    result = queryFeature.checkElementsToUpdate(
+    result = queryFeature.checkElementConformance(
       elements,
       featureMap,
       featureXY,
@@ -372,7 +372,7 @@ test(
 
     // 3. test enable a feature with unknown conformance
     featureMap['UNKNOWN'] = 1
-    result = queryFeature.checkElementsToUpdate(
+    result = queryFeature.checkElementConformance(
       elements,
       featureMap,
       featureUnknown,
@@ -402,7 +402,7 @@ test(
     }
     elements.attributes.push(descElement)
     featureMap['HS'] = 1
-    result = queryFeature.checkElementsToUpdate(
+    result = queryFeature.checkElementConformance(
       elements,
       featureMap,
       featureHS,
@@ -425,7 +425,7 @@ test(
     elements.attributes.find((attr) => attr.name == 'DescElement').conformance =
       'desc, [UNKNOWN]'
     featureMap['UNKNOWN'] = 1
-    result = queryFeature.checkElementsToUpdate(
+    result = queryFeature.checkElementConformance(
       elements,
       featureMap,
       featureUnknown,

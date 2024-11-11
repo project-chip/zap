@@ -136,20 +136,26 @@ export default function () {
       reportingMin: {},
       reportingMax: {},
       reportableChange: {},
-      nullValues: {}
+      nullValues: {},
+      mandatory: {},
+      notSupported: {}
     },
     commandView: {
       selectedIn: [],
       selectedOut: [],
       // These are based off of the selected ZCL Endpoint Device Type
-      requiredCommands: []
+      mandatory: {},
+      notSupported: {}
     },
     eventView: {
-      selectedEvents: []
+      selectedEvents: [],
+      mandatory: {},
+      notSupported: {}
     },
     featureView: {
       deviceTypeFeatures: [],
-      enabledDeviceTypeFeatures: []
+      enabledDeviceTypeFeatures: [],
+      deviceTypeFeatureExists: false
     },
     calledArgs: {
       defaultUiMode: restApi.uiMode.ZIGBEE
@@ -171,7 +177,6 @@ export default function () {
       deviceIdentifier: null
     },
     notificationCount: 0,
-    enabledClusters: [],
-    deviceTypeFeatureExists: false
+    enabledClusters: []
   }
 }

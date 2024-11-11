@@ -981,16 +981,29 @@ export async function setDeviceTypeFeatures(
 }
 
 /**
- * Query the DEVICE_TYPE_FEATURE table via REST API. Update the deviceTypeFeatureExists state
+ * Update the deviceTypeFeatureExists state
  * to show or hide of the device type features button.
  * @param {*} state
  * @param {*} value
  */
-export function updateDeviceTypeFeatureExists(context, data) {
+export function updateDeviceTypeFeatureExists(context) {
   axiosRequests
-    .$serverGet(restApi.uri.deviceTypeFeatureExists, data)
+    .$serverGet(restApi.uri.deviceTypeFeatureExists)
     .then((response) => {
       context.commit('updateDeviceTypeFeatureExists', response.data)
+    })
+}
+
+/**
+ * Set required and unsupported elements based on feature conformance within a cluster
+ * @param {*} context
+ * @param {*} data
+ */
+export function setRequiredElements(context, data) {
+  axiosRequests
+    .$serverPost(restApi.uri.setRequiredElements, data)
+    .then((response) => {
+      context.commit('setRequiredElements', response.data)
     })
 }
 

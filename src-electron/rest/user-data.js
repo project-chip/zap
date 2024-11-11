@@ -99,38 +99,57 @@ function httpGetDeviceTypeFeatures(db) {
 }
 
 /**
- * HTTP GET: attributes and commands to be updated
+ * Get all attributes, commands and events in an endpoint type cluster.
+ * @param {*} db
+ * @param {*} endpointTypeClusterId
+ * @param {*} deviceTypeClusterId
+ * @returns elements object containing all attributes, commands and events
+ * in an endpoint type cluster
+ */
+async function getEndpointTypeElements(
+  db,
+  endpointTypeClusterId,
+  deviceTypeClusterId
+) {
+  let elements = {}
+  elements.attributes =
+    await queryAttribute.selectAttributesByEndpointTypeClusterId(
+      db,
+      endpointTypeClusterId
+    )
+  elements.commands =
+    await queryCommand.selectCommandsByEndpointTypeClusterIdAndDeviceTypeClusterId(
+      db,
+      endpointTypeClusterId,
+      deviceTypeClusterId
+    )
+  elements.events =
+    await queryEvent.selectEventsByEndpointTypeClusterIdAndDeviceTypeClusterId(
+      db,
+      endpointTypeClusterId,
+      deviceTypeClusterId
+    )
+  return elements
+}
+
+/**
+ * HTTP POST: elements to be updated after toggle a device type feature
  *
  * @param {*} db
  * @returns callback for the express uri registration
  */
-function httpGetElementsToUpdate(db) {
+function httpPostCheckConformOnFeatureUpdate(db) {
   return async (request, response) => {
     let sessionId = request.zapSessionId
-    let { featureData, featureMap, endpointId } = request.query
-    featureData = JSON.parse(featureData)
-    featureMap = JSON.parse(featureMap)
+    let { featureData, featureMap, endpointId } = request.body
     let { endpointTypeClusterId, deviceTypeClusterId } = featureData
-    let elements = {}
-    elements.attributes =
-      await queryAttribute.selectAttributesByEndpointTypeClusterId(
-        db,
-        endpointTypeClusterId
-      )
-    elements.commands =
-      await queryCommand.selectCommandsByEndpointTypeClusterIdAndDeviceTypeClusterId(
-        db,
-        endpointTypeClusterId,
-        deviceTypeClusterId
-      )
-    elements.events =
-      await queryEvent.selectEventsByEndpointTypeClusterIdAndDeviceTypeClusterId(
-        db,
-        endpointTypeClusterId,
-        deviceTypeClusterId
-      )
 
-    let result = queryFeature.checkElementsToUpdate(
+    let elements = await getEndpointTypeElements(
+      db,
+      endpointTypeClusterId,
+      deviceTypeClusterId
+    )
+    let result = queryFeature.checkElementConformance(
       elements,
       featureMap,
       featureData,
@@ -140,6 +159,29 @@ function httpGetElementsToUpdate(db) {
       db,
       sessionId,
       result
+    )
+
+    response.status(StatusCodes.OK).json(result)
+  }
+}
+
+/**
+ * HTTP POST: required and unsupported cluster elements based on conformance
+ * @param {*} db
+ * @returns callback for the express uri registration
+ */
+function httpPostSetRequiredElements(db) {
+  return async (request, response) => {
+    let { featureMap, deviceTypeClusterId, endpointTypeClusterId } =
+      request.body
+    let endpointTypeElements = await getEndpointTypeElements(
+      db,
+      endpointTypeClusterId,
+      deviceTypeClusterId
+    )
+    let result = queryFeature.checkElementConformance(
+      endpointTypeElements,
+      featureMap
     )
 
     response.status(StatusCodes.OK).json(result)
@@ -1202,6 +1244,14 @@ exports.post = [
   {
     uri: restApi.uri.duplicateEndpointType,
     callback: httpPostDuplicateEndpointType
+  },
+  {
+    uri: restApi.uri.checkConformOnFeatureUpdate,
+    callback: httpPostCheckConformOnFeatureUpdate
+  },
+  {
+    uri: restApi.uri.setRequiredElements,
+    callback: httpPostSetRequiredElements
   }
 ]
 
@@ -1257,10 +1307,6 @@ exports.get = [
   {
     uri: restApi.uri.getAllPackages,
     callback: httpGetAllPackages
-  },
-  {
-    uri: restApi.uri.elementsToUpdate,
-    callback: httpGetElementsToUpdate
   },
   {
     uri: restApi.uri.deviceTypeFeatureExists,

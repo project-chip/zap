@@ -56,7 +56,7 @@ export default {
       }
     },
     deviceTypeFeatureDataExists() {
-      return this.$store.state.zap.deviceTypeFeatureExists
+      return this.$store.state.zap.featureView.deviceTypeFeatureExists
     },
     enableMatterFeatures() {
       // Check if cmpEnableMatterFeatures is true

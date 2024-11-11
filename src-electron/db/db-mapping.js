@@ -255,6 +255,7 @@ exports.map = {
     return {
       deviceType: x.DEVICE_TYPE_NAME,
       deviceTypeClusterId: x.DEVICE_TYPE_CLUSTER_ID,
+      clusterRef: x.CLUSTER_REF,
       cluster: x.CLUSTER_NAME,
       includeServer: x.INCLUDE_SERVER,
       includeClient: x.INCLUDE_CLIENT,

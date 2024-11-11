@@ -44,19 +44,18 @@ limitations under the License.
             style="width: 30px; max-width: 30px"
           >
             <q-icon
-              v-show="displayAttrWarning(props.row)"
+              v-show="displayAttrWarning(props.row.id)"
               name="warning"
               class="text-amber"
               style="font-size: 1.5rem"
             />
             <q-tooltip
-              v-if="displayAttrWarning(props.row)"
+              v-if="displayAttrWarning(props.row.id)"
               anchor="top middle"
               self="bottom middle"
               :offset="[10, 10]"
             >
-              This attribute is mandatory for the cluster and device type
-              configuration you have enabled
+              {{ getAttrWarning(props.row.id) }}
             </q-tooltip>
           </q-td>
           <q-td key="included" :props="props" auto-width class="toggle-box">
@@ -301,15 +300,32 @@ export default {
     setToNull(row, selectedClusterId) {
       this.handleLocalChange(null, 'defaultValue', row, selectedClusterId)
     },
-    isAttributeRequired(attribute) {
-      return this.requiredAttributes.includes(attribute.id)
+    isAttributeRequired(attributeId) {
+      return this.requiredAttributes.includes(attributeId)
     },
-    displayAttrWarning(row) {
-      return (
-        this.isAttributeRequired(row) &&
-        !this.selection.includes(
-          this.hashAttributeIdClusterId(row.id, this.selectedCluster.id)
+    // if attribute is required or unsupported by evaluating conformance, display custom warning,
+    // else display default warning if attribute in the requiredAttributes list and disabled
+    displayAttrWarning(attributeId) {
+      if (this.attributesRequiredByConformance[attributeId]) {
+        return !this.isAttributeSelected(attributeId)
+      } else if (this.attributesNotSupportedByConformance[attributeId]) {
+        return this.isAttributeSelected(attributeId)
+      } else {
+        return (
+          this.isAttributeRequired(attributeId) &&
+          !this.isAttributeSelected(attributeId)
         )
+      }
+    },
+    getAttrWarning(attributeId) {
+      let requiredWarning = this.attributesRequiredByConformance[attributeId]
+      let notSupportedWarning =
+        this.attributesNotSupportedByConformance[attributeId]
+      return requiredWarning || notSupportedWarning || this.defaultWarning
+    },
+    isAttributeSelected(attributeId) {
+      return this.selection.includes(
+        this.hashAttributeIdClusterId(attributeId, this.selectedCluster.id)
       )
     },
     customAttributeSort(rows, sortBy, descending) {
@@ -412,6 +428,12 @@ export default {
     },
     storageOptions() {
       return Object.values(DbEnum.storageOption)
+    },
+    attributesRequiredByConformance() {
+      return this.$store.state.zap.attributeView.mandatory
+    },
+    attributesNotSupportedByConformance() {
+      return this.$store.state.zap.attributeView.notSupported
     }
   },
 
@@ -422,10 +444,13 @@ export default {
         sortBy: 'clientServer'
       },
       columns: [],
-      forcedExternal: []
+      forcedExternal: [],
+      defaultWarning: `This attribute is mandatory for the 
+        cluster and device type configuration you have enabled`
     }
   },
   mounted() {
+    this.setRequiredConformElement()
     this.columns = [
       {
         name: 'status',

@@ -169,15 +169,14 @@ limitations under the License.
 
 <script>
 import CommonMixin from '../util/common-mixin'
-import editableAttributesMixin from '../util/editable-attributes-mixin.js'
+import EditableAttributeMixin from '../util/editable-attributes-mixin'
 import dbEnum from '../../src-shared/db-enum'
-import * as Util from '../util/util.js'
 import restApi from '../../src-shared/rest-api.js'
 import { Notify } from 'quasar'
 
 export default {
   name: 'ZclDeviceTypeFeatureManager',
-  mixins: [CommonMixin, editableAttributesMixin],
+  mixins: [CommonMixin, EditableAttributeMixin],
   methods: {
     getClusterSide(row) {
       if (row.includeClient == 1 && row.includeServer == 1) {
@@ -190,14 +189,13 @@ export default {
         return 'none'
       }
     },
-    hashDeviceTypeClusterIdFeatureId(deviceTypeClusterId, featureId) {
-      return Util.cantorPair(deviceTypeClusterId, featureId)
-    },
     isToggleDisabled(conformance) {
       // disable togglging unsupported features
       return conformance == 'X' || conformance == 'D'
     },
     onToggleDeviceTypeFeature(featureData, inclusionList) {
+      /* when conformance is not properly handled and change is disabled,
+        do not set featureMap attribute */
       let disabled = this.updateElementsAndSetWarnings(
         featureData,
         inclusionList
@@ -223,21 +221,16 @@ export default {
     },
     updateElementsAndSetWarnings(featureData, inclusionList) {
       let featureMap = {}
-      this.deviceTypeFeatures
-        .filter(
-          (feature) =>
-            feature.deviceTypeClusterId == featureData.deviceTypeClusterId
-        )
-        .forEach((feature) => {
+      this.deviceTypeFeatures.forEach((feature) => {
+        if (feature.deviceTypeClusterId == featureData.deviceTypeClusterId) {
           let enabled = this.featureIsEnabled(feature, inclusionList)
           featureMap[feature.code] = enabled ? 1 : 0
-        })
-      this.$serverGet(restApi.uri.elementsToUpdate, {
-        params: {
-          featureData: JSON.stringify(featureData),
-          featureMap: JSON.stringify(featureMap),
-          endpointId: this.endpointId[this.selectedEndpointId]
         }
+      })
+      this.$serverPost(restApi.uri.checkConformOnFeatureUpdate, {
+        featureData: featureData,
+        featureMap: featureMap,
+        endpointId: this.endpointId[this.selectedEndpointId]
       }).then((res) => {
         let {
           attributesToUpdate,
@@ -360,12 +353,6 @@ export default {
     }
   },
   computed: {
-    deviceTypeFeatures() {
-      return this.$store.state.zap.featureView.deviceTypeFeatures
-    },
-    enabledDeviceTypeFeatures() {
-      return this.$store.state.zap.featureView.enabledDeviceTypeFeatures
-    },
     noElementsToUpdate() {
       return (
         this.attributesToUpdate.length == 0 &&

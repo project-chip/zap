@@ -114,6 +114,40 @@ export default {
           return [this.selectedEndpointTypeId]
         }
       }
+    },
+    deviceTypeFeatures: {
+      get() {
+        return this.$store.state.zap.featureView.deviceTypeFeatures
+      }
+    },
+    deviceTypeFeatureInSelectedCluster: {
+      get() {
+        return this.selectedClusterId
+          ? this.deviceTypeFeatures.filter(
+              (feature) => feature.clusterRef == this.selectedClusterId
+            )
+          : this.deviceTypeFeatures
+      }
+    },
+    featureMap: {
+      get() {
+        return this.deviceTypeFeatureInSelectedCluster.reduce((map, obj) => {
+          map[obj.code] = this.enabledDeviceTypeFeatures.includes(
+            this.hashDeviceTypeClusterIdFeatureId(
+              obj.deviceTypeClusterId,
+              obj.featureId
+            )
+          )
+            ? 1
+            : 0
+          return map
+        }, {})
+      }
+    },
+    enabledDeviceTypeFeatures: {
+      get() {
+        return this.$store.state.zap.featureView.enabledDeviceTypeFeatures
+      }
     }
   },
   methods: {
@@ -336,6 +370,26 @@ export default {
         )
         return zclProperty.pkg?.category
       }
+    },
+    /**
+     * The function is called when the cluster component is initialized to
+     * set required and unsupported elements based on conformance for the selected cluster.
+     */
+    setRequiredConformElement() {
+      let features = this.deviceTypeFeatureInSelectedCluster
+      if (Object.keys(features).length > 0) {
+        let feature = Object.values(features)[0]
+        let deviceTypeClusterId = feature.deviceTypeClusterId
+        let endpointTypeClusterId = feature.endpointTypeClusterId
+        this.$store.dispatch('zap/setRequiredElements', {
+          featureMap: this.featureMap,
+          deviceTypeClusterId: deviceTypeClusterId,
+          endpointTypeClusterId: endpointTypeClusterId
+        })
+      }
+    },
+    hashDeviceTypeClusterIdFeatureId(deviceTypeClusterId, featureId) {
+      return Util.cantorPair(deviceTypeClusterId, featureId)
     }
   }
 }

@@ -51,6 +51,7 @@ async function getFeaturesByDeviceTypeRefs(
     SELECT
 			d.DESCRIPTION AS DEVICE_TYPE_NAME,
 			dc.DEVICE_TYPE_CLUSTER_ID,
+      dc.CLUSTER_REF,
 			dc.CLUSTER_NAME,
 			dc.INCLUDE_SERVER,
 			dc.INCLUDE_CLIENT,
@@ -371,18 +372,25 @@ function generateWarningMessage(
 }
 
 /**
- * Check if attributes, commands, and events need to be updated for correct conformance.
+ * Check if elements need to be updated for correct conformance if featureData provided.
+ * Otherwise, check if elements are required or unsupported by their conformance.
  *
  * @export
  * @param {*} elements
  * @param {*} featureMap
  * @param {*} featureData
  * @param {*} endpointId
- * @returns attributes, commands, and events to be updated, warning related information
+ * @returns attributes, commands, and events to update, with warnings if featureData provided;
+ * required and unsupported attributes, commands, and events, with warnings if not.
  */
-function checkElementsToUpdate(elements, featureMap, featureData, endpointId) {
+function checkElementConformance(
+  elements,
+  featureMap,
+  featureData = null,
+  endpointId = null
+) {
   let { attributes, commands, events } = elements
-  let featureCode = featureData.code
+  let featureCode = featureData ? featureData.code : ''
 
   // create a map of element names/codes to their enabled status
   let elementMap = featureMap
@@ -398,47 +406,49 @@ function checkElementsToUpdate(elements, featureMap, featureData, endpointId) {
   elementMap['Matter'] = 1
   elementMap['Zigbee'] = 0
 
-  let descElements = {}
-  descElements.attributes = filterRelatedDescElements(attributes, featureCode)
-  descElements.commands = filterRelatedDescElements(commands, featureCode)
-  descElements.events = filterRelatedDescElements(events, featureCode)
+  let warningInfo = {}
+  if (featureData != null) {
+    let descElements = {}
+    descElements.attributes = filterRelatedDescElements(attributes, featureCode)
+    descElements.commands = filterRelatedDescElements(commands, featureCode)
+    descElements.events = filterRelatedDescElements(events, featureCode)
 
-  let missingTerms = checkMissingTerms(featureData.conformance, elementMap)
-  let warningInfo = generateWarningMessage(
-    featureData,
-    endpointId,
-    missingTerms,
-    featureMap,
-    descElements
-  )
+    let missingTerms = checkMissingTerms(featureData.conformance, elementMap)
+    warningInfo = generateWarningMessage(
+      featureData,
+      endpointId,
+      missingTerms,
+      featureMap,
+      descElements
+    )
 
-  if (warningInfo.disableChange) {
-    return {
-      ...warningInfo,
-      attributesToUpdate: [],
-      commandsToUpdate: [],
-      eventsToUpdate: []
+    if (warningInfo.disableChange) {
+      return {
+        ...warningInfo,
+        attributesToUpdate: [],
+        commandsToUpdate: [],
+        eventsToUpdate: []
+      }
     }
   }
 
-  let attributesToUpdate = filterElementsToUpdate(
-    attributes,
-    elementMap,
-    featureCode
-  )
-  let commandsToUpdate = filterElementsToUpdate(
-    commands,
-    elementMap,
-    featureCode
-  )
-  let eventsToUpdate = filterElementsToUpdate(events, elementMap, featureCode)
+  // check element conformance for if they need update or are required
+  let attributesToUpdate = featureData
+    ? filterElementsToUpdate(attributes, elementMap, featureCode)
+    : filterRequiredElements(attributes, elementMap)
+  let commandsToUpdate = featureData
+    ? filterElementsToUpdate(commands, elementMap, featureCode)
+    : filterRequiredElements(commands, elementMap)
+  let eventsToUpdate = featureData
+    ? filterElementsToUpdate(events, elementMap, featureCode)
+    : filterRequiredElements(events, elementMap)
 
-  return {
-    ...warningInfo,
+  let result = {
     attributesToUpdate: attributesToUpdate,
     commandsToUpdate: commandsToUpdate,
     eventsToUpdate: eventsToUpdate
   }
+  return featureData ? { ...warningInfo, ...result } : result
 }
 
 /**
@@ -477,6 +487,54 @@ function filterElementsToUpdate(elements, elementMap, featureCode) {
 }
 
 /**
+ * Filter required and unsupported elements based on their conformance and generate warnings.
+ * An element is required if it conforms to element(s) in elementMap and has 'mandatory' conform.
+ * An element is unsupported if it conforms to element(s) in elementMap and has 'notSupported' conform.
+ *
+ * @param {*} elements
+ * @param {*} elementMap
+ * @returns required and not supported elements with warnings
+ */
+function filterRequiredElements(elements, elementMap) {
+  let requiredElements = {
+    required: {},
+    notSupported: {}
+  }
+  elements.forEach((element) => {
+    let conformance = evaluateConformanceExpression(
+      element.conformance,
+      elementMap
+    )
+    let expression = element.conformance
+    let terms = expression ? expression.match(/[A-Za-z][A-Za-z0-9]*/g) : []
+    let conformToElement = terms.some((term) =>
+      Object.keys(elementMap).includes(term)
+    )
+
+    if (conformToElement) {
+      let conformState = ''
+      if (conformance == 'mandatory') {
+        conformState = 'mandatory'
+      }
+      if (conformance == 'notSupported') {
+        conformState = 'not supported'
+      }
+      element.warningMessage =
+        `${element.name} conforms to ` +
+        `${element.conformance} and is ${conformState} for the ` +
+        `device type configuration you have enabled.`
+      if (conformance == 'mandatory') {
+        requiredElements.required[element.id] = element.warningMessage
+      }
+      if (conformance == 'notSupported') {
+        requiredElements.notSupported[element.id] = element.warningMessage
+      }
+    }
+  })
+  return requiredElements
+}
+
+/**
  * Check if DEVICE_TYPE_FEATURE table exists and is not empty.
  *
  * @export
@@ -493,7 +551,7 @@ async function checkIfDeviceTypeFeatureDataExist(db) {
 }
 
 exports.getFeaturesByDeviceTypeRefs = getFeaturesByDeviceTypeRefs
-exports.checkElementsToUpdate = checkElementsToUpdate
+exports.checkElementConformance = checkElementConformance
 exports.evaluateConformanceExpression = evaluateConformanceExpression
 exports.filterElementsContainingDesc = filterElementsContainingDesc
 exports.filterRelatedDescElements = filterRelatedDescElements

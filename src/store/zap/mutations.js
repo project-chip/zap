@@ -1168,5 +1168,21 @@ export function updateFeatureMapAttributeOfFeature(
  * @param {*} value
  */
 export function updateDeviceTypeFeatureExists(state, value) {
-  state.deviceTypeFeatureExists = value
+  vue3Set(state.featureView, 'deviceTypeFeatureExists', value)
+}
+
+/**
+ * Set states for attributes, commands, and events within a cluster
+ * that are required or not supported based on their feature conformance.
+ * @param {*} state
+ * @param {*} data
+ */
+export function setRequiredElements(state, data) {
+  let { attributesToUpdate, commandsToUpdate, eventsToUpdate } = data
+  vue3Set(state.attributeView, 'mandatory', attributesToUpdate.required)
+  vue3Set(state.attributeView, 'notSupported', attributesToUpdate.notSupported)
+  vue3Set(state.commandView, 'mandatory', commandsToUpdate.required)
+  vue3Set(state.commandView, 'notSupported', commandsToUpdate.notSupported)
+  vue3Set(state.eventView, 'mandatory', eventsToUpdate.required)
+  vue3Set(state.eventView, 'notSupported', eventsToUpdate.notSupported)
 }

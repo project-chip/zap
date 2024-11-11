@@ -36,6 +36,22 @@ limitations under the License.
         </template>
         <template v-slot:body="props">
           <q-tr :props="props" class="table_body">
+            <q-td key="status" :props="props" class="q-px-none">
+              <q-icon
+                v-show="displayEventWarning(props.row)"
+                name="warning"
+                class="text-amber"
+                style="font-size: 1.5rem"
+              />
+              <q-tooltip
+                v-if="displayEventWarning(props.row)"
+                anchor="top middle"
+                self="bottom middle"
+                :offset="[10, 10]"
+              >
+                {{ getEventWarning(props.row) }}
+              </q-tooltip>
+            </q-td>
             <q-td key="included" :props="props" auto-width>
               <q-toggle
                 class="q-mt-xs"
@@ -113,6 +129,16 @@ export default {
                 .includes(this.individualClusterFilterString.toLowerCase())
         })
       }
+    },
+    eventsRequiredByConformance: {
+      get() {
+        return this.$store.state.zap.eventView.mandatory
+      }
+    },
+    eventsNotSupportedByConformance: {
+      get() {
+        return this.$store.state.zap.eventView.notSupported
+      }
     }
   },
   methods: {
@@ -142,6 +168,27 @@ export default {
     },
     hashEventIdClusterId(eventId, clusterId) {
       return Util.cantorPair(eventId, clusterId)
+    },
+    // if event is required or unsupported by evaluating conformance, display custom warning,
+    // else display default warning if event has mandatory conformance and is disabled
+    displayEventWarning(row) {
+      if (this.eventsRequiredByConformance[row.id]) {
+        return !this.isEventSelected(row.id)
+      } else if (this.eventsNotSupportedByConformance[row.id]) {
+        return this.isEventSelected(row.id)
+      } else {
+        return row.conformance == 'M' && !this.isEventSelected(row.id)
+      }
+    },
+    getEventWarning(row) {
+      let requiredWarning = this.eventsRequiredByConformance[row.id]
+      let notSupportedWarning = this.eventsNotSupportedByConformance[row.id]
+      return requiredWarning || notSupportedWarning || this.defaultWarning
+    },
+    isEventSelected(eventId) {
+      return this.selectedEvents.includes(
+        this.hashEventIdClusterId(eventId, this.selectedCluster.id)
+      )
     }
   },
   data() {
@@ -150,7 +197,16 @@ export default {
       pagination: {
         rowsPerPage: 0
       },
+      defaultWarning:
+        'This event is mandatory for the cluster and device type configuration you have enabled',
       columns: [
+        {
+          name: 'status',
+          required: false,
+          label: '',
+          align: 'left',
+          style: 'width:1%'
+        },
         {
           name: 'included',
           label: 'On/Off',
