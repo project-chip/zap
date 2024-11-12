@@ -1,5 +1,9 @@
 # Adding Externalized Helpers to the SDK
 
+## Example
+
+https://github.com/project-chip/zap/blob/master/test/gen-template/matter/external-addon-helper.js
+
 ## Introduction
 
 This guide explains how to add and manage externalized helper functions in the SDK, which interacts with ZAP (ZCL Advanced Platform). Initially, the SDK helpers were external to the ZAP repository, but due to maintenance and design concerns, they were moved into the ZAP repository. With the introduction of a new design pattern, SDK developers now have the flexibility to create their own externalized helpers and integrate them without requiring access to ZAP's source code.
