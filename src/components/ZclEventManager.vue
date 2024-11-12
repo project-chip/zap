@@ -192,13 +192,15 @@ export default {
       let warnings = []
       if (
         this.eventsRequiredByConformance[row.id] &&
-        !this.isEventSelected(row.id)
+        !this.isEventSelected(row.id) &&
+        this.enableFeature
       ) {
         warnings.push(this.eventsRequiredByConformance[row.id])
       }
       if (
         this.eventsNotSupportedByConformance[row.id] &&
-        this.isEventSelected(row.id)
+        this.isEventSelected(row.id) &&
+        this.enableFeature
       ) {
         warnings.push(this.eventsNotSupportedByConformance[row.id])
       }

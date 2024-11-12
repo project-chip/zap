@@ -201,13 +201,15 @@ export default {
       let warnings = []
       if (
         this.commandsRequiredByConformance[row.id] &&
-        this.isCommandUnselected(row)
+        this.isCommandUnselected(row) &&
+        this.enableFeature
       ) {
         warnings.push(this.commandsRequiredByConformance[row.id])
       }
       if (
         this.commandsNotSupportedByConformance[row.id] &&
-        !this.isCommandUnselected(row)
+        !this.isCommandUnselected(row) &&
+        this.enableFeature
       ) {
         warnings.push(this.commandsNotSupportedByConformance[row.id])
       }

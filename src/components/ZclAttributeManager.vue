@@ -331,13 +331,15 @@ export default {
       let warnings = []
       if (
         this.attributesRequiredByConformance[attributeId] &&
-        !this.isAttributeSelected(attributeId)
+        !this.isAttributeSelected(attributeId) &&
+        this.enableFeature
       ) {
         warnings.push(this.attributesRequiredByConformance[attributeId])
       }
       if (
         this.attributesNotSupportedByConformance[attributeId] &&
-        this.isAttributeSelected(attributeId)
+        this.isAttributeSelected(attributeId) &&
+        this.enableFeature
       ) {
         warnings.push(this.attributesNotSupportedByConformance[attributeId])
       }
