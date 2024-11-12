@@ -291,10 +291,10 @@ async function getBoundsInteger(attribute, typeSize, isSigned) {
   return {
     min: attribute.min
       ? await getIntegerFromAttribute(attribute.min, typeSize, isSigned)
-      : calculateTypeBound(typeSize, isSigned, true),
+      : getTypeBound(typeSize, isSigned, true),
     max: attribute.max
       ? await getIntegerFromAttribute(attribute.max, typeSize, isSigned)
-      : calculateTypeBound(typeSize, isSigned, false)
+      : getTypeBound(typeSize, isSigned, false)
   }
 }
 
