@@ -49,7 +49,12 @@ limitations under the License.
                 self="bottom middle"
                 :offset="[10, 10]"
               >
-                {{ getEventWarning(props.row) }}
+                <div
+                  v-for="(warning, index) in getEventWarning(props.row)"
+                  :key="index"
+                >
+                  {{ warning }}
+                </div>
               </q-tooltip>
             </q-td>
             <q-td key="included" :props="props" auto-width>
@@ -109,10 +114,11 @@ limitations under the License.
 <script>
 import * as Util from '../util/util.js'
 import EditableAttributesMixin from '../util/editable-attributes-mixin.js'
+import uiOptions from '../util/ui-options'
 
 export default {
   name: 'ZclEventManager',
-  mixins: [EditableAttributesMixin],
+  mixins: [EditableAttributesMixin, uiOptions],
   computed: {
     selectedEvents: {
       get() {
@@ -169,21 +175,37 @@ export default {
     hashEventIdClusterId(eventId, clusterId) {
       return Util.cantorPair(eventId, clusterId)
     },
-    // if event is required or unsupported by evaluating conformance, display custom warning,
-    // else display default warning if event has mandatory conformance and is disabled
+    /* Display warnings if event is mandatory and disabled,
+       or if event state does not match mandatory or notSupported conformance.
+       Two types of warnings can be displayed at the same time. */
     displayEventWarning(row) {
-      if (this.eventsRequiredByConformance[row.id]) {
-        return !this.isEventSelected(row.id)
-      } else if (this.eventsNotSupportedByConformance[row.id]) {
-        return this.isEventSelected(row.id)
-      } else {
-        return row.conformance == 'M' && !this.isEventSelected(row.id)
-      }
+      return (
+        (this.enableFeature &&
+          ((this.eventsRequiredByConformance[row.id] &&
+            !this.isEventSelected(row.id)) ||
+            (this.eventsNotSupportedByConformance[row.id] &&
+              this.isEventSelected(row.id)))) ||
+        (row.conformance == 'M' && !this.isEventSelected(row.id))
+      )
     },
     getEventWarning(row) {
-      let requiredWarning = this.eventsRequiredByConformance[row.id]
-      let notSupportedWarning = this.eventsNotSupportedByConformance[row.id]
-      return requiredWarning || notSupportedWarning || this.defaultWarning
+      let warnings = []
+      if (
+        this.eventsRequiredByConformance[row.id] &&
+        !this.isEventSelected(row.id)
+      ) {
+        warnings.push(this.eventsRequiredByConformance[row.id])
+      }
+      if (
+        this.eventsNotSupportedByConformance[row.id] &&
+        this.isEventSelected(row.id)
+      ) {
+        warnings.push(this.eventsNotSupportedByConformance[row.id])
+      }
+      if (row.conformance == 'M' && !this.isEventSelected(row.id)) {
+        warnings.push(this.defaultWarning)
+      }
+      return warnings
     },
     isEventSelected(eventId) {
       return this.selectedEvents.includes(

@@ -55,7 +55,12 @@ limitations under the License.
               self="bottom middle"
               :offset="[10, 10]"
             >
-              {{ getAttrWarning(props.row.id) }}
+              <div
+                v-for="(warning, index) in getAttrWarning(props.row.id)"
+                :key="index"
+              >
+                {{ warning }}
+              </div>
             </q-tooltip>
           </q-td>
           <q-td key="included" :props="props" auto-width class="toggle-box">
@@ -303,25 +308,43 @@ export default {
     isAttributeRequired(attributeId) {
       return this.requiredAttributes.includes(attributeId)
     },
-    // if attribute is required or unsupported by evaluating conformance, display custom warning,
-    // else display default warning if attribute in the requiredAttributes list and disabled
+    isRequiredAttributeDisabled(attributeId) {
+      return (
+        this.isAttributeRequired(attributeId) &&
+        !this.isAttributeSelected(attributeId)
+      )
+    },
+    /* Display warnings if attributes required by device type is disabled,
+       or if attribute state does not match mandatory or notSupported conformance.
+       Two types of warnings can be displayed at the same time. */
     displayAttrWarning(attributeId) {
-      if (this.attributesRequiredByConformance[attributeId]) {
-        return !this.isAttributeSelected(attributeId)
-      } else if (this.attributesNotSupportedByConformance[attributeId]) {
-        return this.isAttributeSelected(attributeId)
-      } else {
-        return (
-          this.isAttributeRequired(attributeId) &&
-          !this.isAttributeSelected(attributeId)
-        )
-      }
+      return (
+        (this.enableFeature &&
+          ((this.attributesRequiredByConformance[attributeId] &&
+            !this.isAttributeSelected(attributeId)) ||
+            (this.attributesNotSupportedByConformance[attributeId] &&
+              this.isAttributeSelected(attributeId)))) ||
+        this.isRequiredAttributeDisabled(attributeId)
+      )
     },
     getAttrWarning(attributeId) {
-      let requiredWarning = this.attributesRequiredByConformance[attributeId]
-      let notSupportedWarning =
-        this.attributesNotSupportedByConformance[attributeId]
-      return requiredWarning || notSupportedWarning || this.defaultWarning
+      let warnings = []
+      if (
+        this.attributesRequiredByConformance[attributeId] &&
+        !this.isAttributeSelected(attributeId)
+      ) {
+        warnings.push(this.attributesRequiredByConformance[attributeId])
+      }
+      if (
+        this.attributesNotSupportedByConformance[attributeId] &&
+        this.isAttributeSelected(attributeId)
+      ) {
+        warnings.push(this.attributesNotSupportedByConformance[attributeId])
+      }
+      if (this.isRequiredAttributeDisabled(attributeId)) {
+        warnings.push(this.defaultWarning)
+      }
+      return warnings
     },
     isAttributeSelected(attributeId) {
       return this.selection.includes(

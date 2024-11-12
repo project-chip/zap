@@ -48,7 +48,12 @@ limitations under the License.
                 self="bottom middle"
                 :offset="[10, 10]"
               >
-                {{ getCommandWarning(props.row) }}
+                <div
+                  v-for="(warning, index) in getCommandWarning(props.row)"
+                  :key="index"
+                >
+                  {{ warning }}
+                </div>
               </q-tooltip>
             </q-td>
             <q-td key="out" :props="props" auto-width>
@@ -135,10 +140,11 @@ limitations under the License.
 <script>
 import * as Util from '../util/util.js'
 import EditableAttributesMixin from '../util/editable-attributes-mixin.js'
+import uiOptions from '../util/ui-options'
 
 export default {
   name: 'ZclCommandManager',
-  mixins: [EditableAttributesMixin],
+  mixins: [EditableAttributesMixin, uiOptions],
   computed: {
     commandData: {
       get() {
@@ -178,21 +184,37 @@ export default {
     }
   },
   methods: {
-    // if command is required or unsupported by evaluating conformance, display custom warning,
-    // else display default warning if attribute in the required selection and disabled
+    /* Display warnings if command required by device type is disabled,
+       or if command state does not match mandatory or notSupported conformance.
+       Two types of warnings can be displayed at the same time. */
     displayCommandWarning(row) {
-      if (this.commandsRequiredByConformance[row.id]) {
-        return this.isCommandUnselected(row)
-      } else if (this.commandsNotSupportedByConformance[row.id]) {
-        return !this.isCommandUnselected(row)
-      } else {
-        return this.isCommandUnselected(row) && this.isCommandRequired(row)
-      }
+      return (
+        (this.enableFeature &&
+          ((this.commandsRequiredByConformance[row.id] &&
+            this.isCommandUnselected(row)) ||
+            (this.commandsNotSupportedByConformance[row.id] &&
+              !this.isCommandUnselected(row)))) ||
+        this.isRequiredCommandUnselected(row)
+      )
     },
     getCommandWarning(row) {
-      let requiredWarning = this.commandsRequiredByConformance[row.id]
-      let notSupportedWarning = this.commandsNotSupportedByConformance[row.id]
-      return requiredWarning || notSupportedWarning || this.defaultWarning
+      let warnings = []
+      if (
+        this.commandsRequiredByConformance[row.id] &&
+        this.isCommandUnselected(row)
+      ) {
+        warnings.push(this.commandsRequiredByConformance[row.id])
+      }
+      if (
+        this.commandsNotSupportedByConformance[row.id] &&
+        !this.isCommandUnselected(row)
+      ) {
+        warnings.push(this.commandsNotSupportedByConformance[row.id])
+      }
+      if (this.isRequiredCommandUnselected(row)) {
+        warnings.push(this.defaultWarning)
+      }
+      return warnings
     },
     isCommandUnselected(row) {
       return (
@@ -211,6 +233,9 @@ export default {
             this.hashCommandIdClusterId(row.id, this.selectedCluster.id)
           ))
       )
+    },
+    isRequiredCommandUnselected(row) {
+      return this.isCommandUnselected(row) && this.isCommandRequired(row)
     },
     handleCommandSelection(list, listType, commandData, clusterId) {
       // We determine the ID that we need to toggle within the list.

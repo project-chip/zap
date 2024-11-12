@@ -512,6 +512,7 @@ function filterRequiredElements(elements, elementMap) {
     )
 
     if (conformToElement) {
+      let joinedTerms = terms.join(', ')
       let conformState = ''
       if (conformance == 'mandatory') {
         conformState = 'mandatory'
@@ -520,9 +521,8 @@ function filterRequiredElements(elements, elementMap) {
         conformState = 'not supported'
       }
       element.warningMessage =
-        `${element.name} conforms to ` +
-        `${element.conformance} and is ${conformState} for the ` +
-        `device type configuration you have enabled.`
+        `${element.name} conforms to ${element.conformance} and is ` +
+        `${conformState} based on the state of ${joinedTerms}.`
       if (conformance == 'mandatory') {
         requiredElements.required[element.id] = element.warningMessage
       }
