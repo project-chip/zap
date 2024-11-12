@@ -52,7 +52,7 @@ window.addEventListener(
       case 'theme':
         window[rendApi.GLOBAL_SYMBOL_EXECUTE](
           rendApi.id.setDarkTheme,
-          eventData.theme === 'dark'
+          eventData.theme === 'dark',
         )
         break
       case 'save':
@@ -68,7 +68,7 @@ window.addEventListener(
         break
     }
   },
-  false
+  false,
 )
 
 async function initLoad(store) {
@@ -195,7 +195,7 @@ export default defineComponent({
     setTheme() {
       window[rendApi.GLOBAL_SYMBOL_EXECUTE](
         rendApi.id.setDarkTheme,
-        storage.getItem(rendApi.storageKey.isDarkThemeActive)
+        storage.getItem(rendApi.storageKey.isDarkThemeActive),
       )
     },
 
@@ -268,7 +268,7 @@ export default defineComponent({
         this.$serverGet(restApi.uri.uiOptions).then((res) => {
           this.$store.commit(
             'zap/updateIsProfileIdShown',
-            res.data.showProfileId
+            res.data.showProfileId,
           )
         })
       }
@@ -288,7 +288,7 @@ export default defineComponent({
       if (`debugNavBar` in query) {
         this.$store.dispatch(
           'zap/setDebugNavBar',
-          query[`debugNavBar`] === 'true'
+          query[`debugNavBar`] === 'true',
         )
       } else {
         // If we don't specify it, default is on.
@@ -302,7 +302,7 @@ export default defineComponent({
       if (`setSaveButtonVisible` in query) {
         this.$store.dispatch(
           'zap/setSaveButtonVisible',
-          query[`setSaveButtonVisible`] === 'true'
+          query[`setSaveButtonVisible`] === 'true',
         )
       } else {
         // If we don't specify it, default is off.
@@ -318,7 +318,7 @@ export default defineComponent({
         rendApi.observable.progress_attribute,
         (message) => {
           this.setGenerationInProgress(message)
-        }
+        },
       )
 
       initLoad(this.$store).then(() => {
@@ -336,7 +336,7 @@ export default defineComponent({
         dbEnum.wsCategory.updateSelectedUcComponents,
         (resp) => {
           this.$store.dispatch('zap/updateSelectedUcComponentState', resp)
-        }
+        },
       )
     },
     addClassToBody() {
@@ -359,10 +359,10 @@ export default defineComponent({
           hasMounted: true
         }
       },
-      '*'
+      '*',
     )
     if (this.$onWebSocket) {
-      this.$onWebSocket(dbEnum.wsCategory.dirtyFlag, (resp) => {
+      this.$onWebSocket(dbEnum.wsCategory.dirtyFlag, () => {
         this.$store.dispatch('zap/setDirtyState')
       })
     }
