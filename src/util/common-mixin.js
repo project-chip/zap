@@ -447,10 +447,6 @@ export default {
       let notSupportedText =
         this[`${elementType}NotSupportedByConform`][element.id]
 
-      console.log('contextMessage', contextMessage)
-      console.log('requiredText', requiredText)
-      console.log('notSupportedText', notSupportedText)
-
       if (requiredText || notSupportedText) {
         this.$serverPost(restApi.uri.requiredElementWarning, {
           contextMessage: contextMessage,

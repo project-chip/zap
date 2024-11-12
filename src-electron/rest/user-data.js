@@ -157,23 +157,25 @@ function httpPostCheckConformOnFeatureUpdate(db) {
       endpointId
     )
 
-    let outdatedWarnings = queryFeature.filterElementWithOudatedWarning(
-      featureData,
-      elements,
-      result.elementMap
-    )
-
-    await querySessionNotification.deleteNotificationWithPatterns(
-      db,
-      sessionId,
-      outdatedWarnings
-    )
-
     await querySessionNotification.setNotificationOnFeatureChange(
       db,
       sessionId,
       result
     )
+
+    if (!result.disableChange) {
+      let outdatedWarnings = queryFeature.filterElementWithOudatedWarning(
+        featureData,
+        elements,
+        result.elementMap
+      )
+
+      await querySessionNotification.deleteNotificationWithPatterns(
+        db,
+        sessionId,
+        outdatedWarnings
+      )
+    }
 
     response.status(StatusCodes.OK).json(result)
   }
