@@ -3654,6 +3654,7 @@ This module provides queries for features.
     * [~generateWarningMessage(featureData, endpointId, missingTerms, featureMap, descElements)](#module_DB API_ feature related queries..generateWarningMessage) ⇒
     * [~checkElementConformance(elements, featureMap, featureData, endpointId)](#module_DB API_ feature related queries..checkElementConformance) ⇒
     * [~filterElementsToUpdate(elements, elementMap, featureCode)](#module_DB API_ feature related queries..filterElementsToUpdate) ⇒
+    * [~filterElementWithOudatedWarning()](#module_DB API_ feature related queries..filterElementWithOudatedWarning)
     * [~filterRequiredElements(elements, elementMap)](#module_DB API_ feature related queries..filterRequiredElements) ⇒
     * [~checkIfDeviceTypeFeatureDataExist(db)](#module_DB API_ feature related queries..checkIfDeviceTypeFeatureDataExist) ⇒
 
@@ -3808,6 +3809,10 @@ Return attributes, commands, or events to be updated satisfying:
 | elementMap | <code>\*</code> | 
 | featureCode | <code>\*</code> | 
 
+<a name="module_DB API_ feature related queries..filterElementWithOudatedWarning"></a>
+
+### DB API: feature related queries~filterElementWithOudatedWarning()
+**Kind**: inner method of [<code>DB API: feature related queries</code>](#module_DB API_ feature related queries)  
 <a name="module_DB API_ feature related queries..filterRequiredElements"></a>
 
 ### DB API: feature related queries~filterRequiredElements(elements, elementMap) ⇒
@@ -14585,6 +14590,7 @@ This module provides the API to access zcl specific information.
     * [~httpPostDuplicateEndpointType(db)](#module_REST API_ user data..httpPostDuplicateEndpointType) ⇒
     * [~httpPatchUpdateBitOfFeatureMapAttribute(db)](#module_REST API_ user data..httpPatchUpdateBitOfFeatureMapAttribute) ⇒
     * [~httpGetDeviceTypeFeatureExists(db)](#module_REST API_ user data..httpGetDeviceTypeFeatureExists) ⇒
+    * [~httpPostRequiredElementWarning(db)](#module_REST API_ user data..httpPostRequiredElementWarning) ⇒
     * [~duplicateEndpointTypeClusters(db, oldEndpointTypeId, newEndpointTypeId)](#module_REST API_ user data..duplicateEndpointTypeClusters)
 
 <a name="module_REST API_ user data..getComponentIdsByCluster"></a>
@@ -15042,6 +15048,18 @@ Check data exsit in DEVICE_TYPE_FEATURE table
 
 **Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
 **Returns**: boolean value of data exist or not  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+
+<a name="module_REST API_ user data..httpPostRequiredElementWarning"></a>
+
+### REST API: user data~httpPostRequiredElementWarning(db) ⇒
+Set warning for the required element, and delete its existing warning if any.
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
+**Returns**: response of setting the warning notification  
 
 | Param | Type |
 | --- | --- |
@@ -15911,6 +15929,7 @@ This module provides the REST API to the user specific data.
     * [~httpPostDuplicateEndpointType(db)](#module_REST API_ user data..httpPostDuplicateEndpointType) ⇒
     * [~httpPatchUpdateBitOfFeatureMapAttribute(db)](#module_REST API_ user data..httpPatchUpdateBitOfFeatureMapAttribute) ⇒
     * [~httpGetDeviceTypeFeatureExists(db)](#module_REST API_ user data..httpGetDeviceTypeFeatureExists) ⇒
+    * [~httpPostRequiredElementWarning(db)](#module_REST API_ user data..httpPostRequiredElementWarning) ⇒
     * [~duplicateEndpointTypeClusters(db, oldEndpointTypeId, newEndpointTypeId)](#module_REST API_ user data..duplicateEndpointTypeClusters)
 
 <a name="module_REST API_ user data..getComponentIdsByCluster"></a>
@@ -16368,6 +16387,18 @@ Check data exsit in DEVICE_TYPE_FEATURE table
 
 **Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
 **Returns**: boolean value of data exist or not  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+
+<a name="module_REST API_ user data..httpPostRequiredElementWarning"></a>
+
+### REST API: user data~httpPostRequiredElementWarning(db) ⇒
+Set warning for the required element, and delete its existing warning if any.
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
+**Returns**: response of setting the warning notification  
 
 | Param | Type |
 | --- | --- |

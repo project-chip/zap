@@ -263,82 +263,101 @@ export default {
           return disableChange
         }
 
-        // toggle attributes, commands, and events for correct conformance
-        attributesToUpdate.forEach((attribute) => {
-          let editContext = {
-            action: 'boolean',
-            endpointTypeIdList: this.endpointTypeIdList,
-            id: attribute.id,
-            value: attribute.value,
-            listType: 'selectedAttributes',
-            clusterRef: attribute.clusterRef,
-            attributeSide: attribute.side,
-            reportMinInterval: attribute.reportMinInterval,
-            reportMaxInterval: attribute.reportMaxInterval
-          }
-          this.$store.dispatch('zap/updateSelectedAttribute', editContext)
-        })
-        commandsToUpdate.forEach((command) => {
-          let listType =
-            command.source == 'client' ? 'selectedIn' : 'selectedOut'
-          let editContext = {
-            action: 'boolean',
-            endpointTypeIdList: this.endpointTypeIdList,
-            id: command.id,
-            value: command.value,
-            listType: listType,
-            clusterRef: command.clusterRef,
-            commandSide: command.source
-          }
-          this.$store.dispatch('zap/updateSelectedCommands', editContext)
-        })
-        eventsToUpdate.forEach((event) => {
-          let editContext = {
-            action: 'boolean',
-            endpointTypeId: this.selectedEndpointTypeId,
-            id: event.id,
-            value: event.value,
-            listType: 'selectedEvents',
-            clusterRef: event.clusterRef,
-            eventSide: event.side
-          }
-          this.$store.dispatch('zap/updateSelectedEvents', editContext)
-        })
+        this.$store
+          .dispatch('zap/setRequiredElements', {
+            featureMap: featureMap,
+            deviceTypeClusterId: featureData.deviceTypeClusterId,
+            endpointTypeClusterId: featureData.endpointTypeClusterId
+          })
+          .then(() => {
+            // toggle attributes, commands, and events for correct conformance
+            attributesToUpdate.forEach((attribute) => {
+              let editContext = {
+                action: 'boolean',
+                endpointTypeIdList: this.endpointTypeIdList,
+                id: attribute.id,
+                value: attribute.value,
+                listType: 'selectedAttributes',
+                clusterRef: attribute.clusterRef,
+                attributeSide: attribute.side,
+                reportMinInterval: attribute.reportMinInterval,
+                reportMaxInterval: attribute.reportMaxInterval
+              }
+              this.setRequiredElementNotifications(
+                attribute,
+                attribute.value,
+                'attributes'
+              )
+              this.$store.dispatch('zap/updateSelectedAttribute', editContext)
+            })
+            commandsToUpdate.forEach((command) => {
+              let listType =
+                command.source == 'client' ? 'selectedIn' : 'selectedOut'
+              let editContext = {
+                action: 'boolean',
+                endpointTypeIdList: this.endpointTypeIdList,
+                id: command.id,
+                value: command.value,
+                listType: listType,
+                clusterRef: command.clusterRef,
+                commandSide: command.source
+              }
+              this.setRequiredElementNotifications(
+                command,
+                command.value,
+                'commands'
+              )
+              this.$store.dispatch('zap/updateSelectedCommands', editContext)
+            })
+            eventsToUpdate.forEach((event) => {
+              let editContext = {
+                action: 'boolean',
+                endpointTypeId: this.selectedEndpointTypeId,
+                id: event.id,
+                value: event.value,
+                listType: 'selectedEvents',
+                clusterRef: event.clusterRef,
+                eventSide: event.side
+              }
+              this.setRequiredElementNotifications(event, event.value, 'events')
+              this.$store.dispatch('zap/updateSelectedEvents', editContext)
+            })
 
-        // prepare messages and show dialog
-        this.attributesToUpdate = attributesToUpdate
-          .map((attribute) =>
-            attribute.value
-              ? 'enabled ' + attribute.name
-              : 'disabled ' + attribute.name
-          )
-          .sort((a, b) => (a.includes('enabled') ? -1 : 1))
-        this.commandsToUpdate = commandsToUpdate
-          .map((command) =>
-            command.value
-              ? 'enabled ' + command.name
-              : 'disabled ' + command.name
-          )
-          .sort((a, b) => (a.includes('enabled') ? -1 : 1))
-        this.eventsToUpdate = eventsToUpdate
-          .map((event) =>
-            event.value ? 'enabled ' + event.name : 'disabled ' + event.name
-          )
-          .sort((a, b) => (a.includes('enabled') ? -1 : 1))
-        this.showDialog = true
+            // prepare messages and show dialog
+            this.attributesToUpdate = attributesToUpdate
+              .map((attribute) =>
+                attribute.value
+                  ? 'enabled ' + attribute.name
+                  : 'disabled ' + attribute.name
+              )
+              .sort((a, b) => (a.includes('enabled') ? -1 : 1))
+            this.commandsToUpdate = commandsToUpdate
+              .map((command) =>
+                command.value
+                  ? 'enabled ' + command.name
+                  : 'disabled ' + command.name
+              )
+              .sort((a, b) => (a.includes('enabled') ? -1 : 1))
+            this.eventsToUpdate = eventsToUpdate
+              .map((event) =>
+                event.value ? 'enabled ' + event.name : 'disabled ' + event.name
+              )
+              .sort((a, b) => (a.includes('enabled') ? -1 : 1))
+            this.showDialog = true
 
-        // update enabled device type features
-        let added = this.featureIsEnabled(featureData, inclusionList)
-        let hashedVal = this.hashDeviceTypeClusterIdFeatureId(
-          featureData.deviceTypeClusterId,
-          featureData.featureId
-        )
-        this.$store.commit('zap/updateInclusionList', {
-          id: hashedVal,
-          added: added,
-          listType: 'enabledDeviceTypeFeatures',
-          view: 'featureView'
-        })
+            // update enabled device type features
+            let added = this.featureIsEnabled(featureData, inclusionList)
+            let hashedVal = this.hashDeviceTypeClusterIdFeatureId(
+              featureData.deviceTypeClusterId,
+              featureData.featureId
+            )
+            this.$store.commit('zap/updateInclusionList', {
+              id: hashedVal,
+              added: added,
+              listType: 'enabledDeviceTypeFeatures',
+              view: 'featureView'
+            })
+          })
 
         return disableChange
       })

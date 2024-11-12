@@ -17,6 +17,7 @@
 
 import * as Util from './util'
 import * as DbEnum from '../../src-shared/db-enum'
+import restApi from '../../src-shared/rest-api.js'
 const http = require('http-status-codes')
 
 /**
@@ -147,6 +148,36 @@ export default {
     enabledDeviceTypeFeatures: {
       get() {
         return this.$store.state.zap.featureView.enabledDeviceTypeFeatures
+      }
+    },
+    attributesRequiredByConform: {
+      get() {
+        return this.$store.state.zap.attributeView.mandatory
+      }
+    },
+    attributesNotSupportedByConform: {
+      get() {
+        return this.$store.state.zap.attributeView.notSupported
+      }
+    },
+    commandsRequiredByConform: {
+      get() {
+        return this.$store.state.zap.commandView.mandatory
+      }
+    },
+    commandsNotSupportedByConform: {
+      get() {
+        return this.$store.state.zap.commandView.notSupported
+      }
+    },
+    eventsRequiredByConform: {
+      get() {
+        return this.$store.state.zap.eventView.mandatory
+      }
+    },
+    eventsNotSupportedByConform: {
+      get() {
+        return this.$store.state.zap.eventView.notSupported
       }
     }
   },
@@ -390,6 +421,44 @@ export default {
     },
     hashDeviceTypeClusterIdFeatureId(deviceTypeClusterId, featureId) {
       return Util.cantorPair(deviceTypeClusterId, featureId)
+    },
+    /**
+     * When user toggles an element, set warning in the notification system
+     * if the new state does not match its conformance,
+     * and delete previous warning for this element if any.
+     *
+     * @param {*} element
+     * @param {*} added
+     * @param {*} elementType
+     * @param {*} clusterRef
+     */
+    setRequiredElementNotifications(
+      element,
+      added,
+      elementType,
+      cluster = null
+    ) {
+      let clusterName = cluster || this.selectedCluster.label
+      let endpointId = this.endpointId[this.selectedEndpointId]
+      let contextMessage =
+        `On endpoint ${endpointId}, ` +
+        `cluster: ${clusterName}, ${elementType.slice(0, -1)}: `
+      let requiredText = this[`${elementType}RequiredByConform`][element.id]
+      let notSupportedText =
+        this[`${elementType}NotSupportedByConform`][element.id]
+
+      console.log('contextMessage', contextMessage)
+      console.log('requiredText', requiredText)
+      console.log('notSupportedText', notSupportedText)
+
+      if (requiredText || notSupportedText) {
+        this.$serverPost(restApi.uri.requiredElementWarning, {
+          contextMessage: contextMessage,
+          requiredText: requiredText,
+          notSupportedText: notSupportedText,
+          added: added
+        })
+      }
     }
   }
 }

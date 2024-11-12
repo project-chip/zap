@@ -38,6 +38,7 @@ const uri = {
   updateNotificationToSeen: '/updateNotificationToSeen',
   updateBitOfFeatureMapAttribute: '/updateBitOfFeatureMapAttribute',
   deviceTypeFeatureExists: '/deviceTypeFeatureExists',
+  requiredElementWarning: '/requiredElementWarning',
   deleteSessionNotification: '/deleteSessionNotification',
   deletePackageNotification: 'deletePackageNotification',
   duplicateEndpoint: '/duplicateEndpoint',

@@ -115,10 +115,11 @@ limitations under the License.
 import * as Util from '../util/util.js'
 import EditableAttributesMixin from '../util/editable-attributes-mixin.js'
 import uiOptions from '../util/ui-options'
+import CommonMixin from '../util/common-mixin'
 
 export default {
   name: 'ZclEventManager',
-  mixins: [EditableAttributesMixin, uiOptions],
+  mixins: [EditableAttributesMixin, uiOptions, CommonMixin],
   computed: {
     selectedEvents: {
       get() {
@@ -134,16 +135,6 @@ export default {
                 .toLowerCase()
                 .includes(this.individualClusterFilterString.toLowerCase())
         })
-      }
-    },
-    eventsRequiredByConformance: {
-      get() {
-        return this.$store.state.zap.eventView.mandatory
-      }
-    },
-    eventsNotSupportedByConformance: {
-      get() {
-        return this.$store.state.zap.eventView.notSupported
       }
     }
   },
@@ -161,6 +152,9 @@ export default {
       } else {
         addedValue = false
       }
+
+      this.setRequiredElementNotifications(eventData, addedValue, 'events')
+
       let editContext = {
         action: 'boolean',
         endpointTypeId: this.selectedEndpointTypeId,
@@ -181,9 +175,9 @@ export default {
     displayEventWarning(row) {
       return (
         (this.enableFeature &&
-          ((this.eventsRequiredByConformance[row.id] &&
+          ((this.eventsRequiredByConform[row.id] &&
             !this.isEventSelected(row.id)) ||
-            (this.eventsNotSupportedByConformance[row.id] &&
+            (this.eventsNotSupportedByConform[row.id] &&
               this.isEventSelected(row.id)))) ||
         (row.conformance == 'M' && !this.isEventSelected(row.id))
       )
@@ -191,18 +185,18 @@ export default {
     getEventWarning(row) {
       let warnings = []
       if (
-        this.eventsRequiredByConformance[row.id] &&
+        this.eventsRequiredByConform[row.id] &&
         !this.isEventSelected(row.id) &&
         this.enableFeature
       ) {
-        warnings.push(this.eventsRequiredByConformance[row.id])
+        warnings.push(this.eventsRequiredByConform[row.id])
       }
       if (
-        this.eventsNotSupportedByConformance[row.id] &&
+        this.eventsNotSupportedByConform[row.id] &&
         this.isEventSelected(row.id) &&
         this.enableFeature
       ) {
-        warnings.push(this.eventsNotSupportedByConformance[row.id])
+        warnings.push(this.eventsNotSupportedByConform[row.id])
       }
       if (row.conformance == 'M' && !this.isEventSelected(row.id)) {
         warnings.push(this.defaultWarning)

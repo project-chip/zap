@@ -998,9 +998,10 @@ export function updateDeviceTypeFeatureExists(context) {
  * Set required and unsupported elements based on feature conformance within a cluster
  * @param {*} context
  * @param {*} data
+ * @returns promise
  */
 export function setRequiredElements(context, data) {
-  axiosRequests
+  return axiosRequests
     .$serverPost(restApi.uri.setRequiredElements, data)
     .then((response) => {
       context.commit('setRequiredElements', response.data)

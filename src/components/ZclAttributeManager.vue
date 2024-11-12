@@ -320,9 +320,9 @@ export default {
     displayAttrWarning(attributeId) {
       return (
         (this.enableFeature &&
-          ((this.attributesRequiredByConformance[attributeId] &&
+          ((this.attributesRequiredByConform[attributeId] &&
             !this.isAttributeSelected(attributeId)) ||
-            (this.attributesNotSupportedByConformance[attributeId] &&
+            (this.attributesNotSupportedByConform[attributeId] &&
               this.isAttributeSelected(attributeId)))) ||
         this.isRequiredAttributeDisabled(attributeId)
       )
@@ -330,18 +330,18 @@ export default {
     getAttrWarning(attributeId) {
       let warnings = []
       if (
-        this.attributesRequiredByConformance[attributeId] &&
+        this.attributesRequiredByConform[attributeId] &&
         !this.isAttributeSelected(attributeId) &&
         this.enableFeature
       ) {
-        warnings.push(this.attributesRequiredByConformance[attributeId])
+        warnings.push(this.attributesRequiredByConform[attributeId])
       }
       if (
-        this.attributesNotSupportedByConformance[attributeId] &&
+        this.attributesNotSupportedByConform[attributeId] &&
         this.isAttributeSelected(attributeId) &&
         this.enableFeature
       ) {
-        warnings.push(this.attributesNotSupportedByConformance[attributeId])
+        warnings.push(this.attributesNotSupportedByConform[attributeId])
       }
       if (this.isRequiredAttributeDisabled(attributeId)) {
         warnings.push(this.defaultWarning)
@@ -453,12 +453,6 @@ export default {
     },
     storageOptions() {
       return Object.values(DbEnum.storageOption)
-    },
-    attributesRequiredByConformance() {
-      return this.$store.state.zap.attributeView.mandatory
-    },
-    attributesNotSupportedByConformance() {
-      return this.$store.state.zap.attributeView.notSupported
     }
   },
 

@@ -219,6 +219,74 @@ async function setNotificationOnFeatureChange(db, sessionId, result) {
   }
 }
 
+/**
+ * Set warning for the required element. Delete previous warning for the element if exists.
+ *
+ * @export
+ * @param {*} db
+ * @param {*} data
+ * @param {*} sessionId
+ * @returns response of setting warning notification
+ */
+async function setRequiredElementWarning(db, data, sessionId) {
+  let { contextMessage, requiredText, notSupportedText, added } = data
+  let requiredWarning = ''
+  let notSupportedWarning = ''
+  if (requiredText) {
+    requiredWarning = contextMessage + requiredText
+    notSupportedWarning = requiredWarning.replace('mandatory', 'not supported')
+  }
+  if (notSupportedText) {
+    notSupportedWarning = contextMessage + notSupportedText
+    requiredWarning = notSupportedWarning.replace('not supported', 'mandatory')
+  }
+
+  await searchNotificationByMessageAndDelete(db, sessionId, requiredWarning)
+  await searchNotificationByMessageAndDelete(db, sessionId, notSupportedWarning)
+
+  let addResp = false
+  if (requiredText && !added) {
+    addResp = await setWarningIfMessageNotExists(db, sessionId, requiredWarning)
+  }
+  if (notSupportedText && added) {
+    addResp = await setWarningIfMessageNotExists(
+      db,
+      sessionId,
+      notSupportedWarning
+    )
+  }
+  return addResp
+}
+
+/**
+ * TODO
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} patterns
+ * @returns TODO
+ */
+async function deleteNotificationWithPatterns(db, sessionId, patterns) {
+  if (!Array.isArray(patterns) || patterns.length == 0) return false
+
+  let placeholders = patterns.map(() => '?').join(' OR NOTICE_MESSAGE LIKE ')
+  let query = `SELECT NOTICE_ID FROM SESSION_NOTICE WHERE SESSION_REF = ?
+    AND (NOTICE_MESSAGE LIKE ${placeholders})`
+  let params = [sessionId, ...patterns.map((pattern) => `%${pattern}%`)]
+
+  let rows = await dbApi.dbAll(db, query, params)
+  if (rows && rows.length > 0) {
+    let ids = rows.map((row) => row.NOTICE_ID)
+    let deleteResponses = []
+    for (let id of ids) {
+      let response = await deleteNotification(db, id)
+      deleteResponses.push(response)
+    }
+    return deleteResponses
+  }
+  return false
+}
+
 // exports
 exports.setNotification = setNotification
 exports.deleteNotification = deleteNotification
@@ -229,3 +297,5 @@ exports.searchNotificationByMessageAndDelete =
   searchNotificationByMessageAndDelete
 exports.setWarningIfMessageNotExists = setWarningIfMessageNotExists
 exports.setNotificationOnFeatureChange = setNotificationOnFeatureChange
+exports.setRequiredElementWarning = setRequiredElementWarning
+exports.deleteNotificationWithPatterns = deleteNotificationWithPatterns

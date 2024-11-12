@@ -141,10 +141,11 @@ limitations under the License.
 import * as Util from '../util/util.js'
 import EditableAttributesMixin from '../util/editable-attributes-mixin.js'
 import uiOptions from '../util/ui-options'
+import CommonMixin from '../util/common-mixin'
 
 export default {
   name: 'ZclCommandManager',
-  mixins: [EditableAttributesMixin, uiOptions],
+  mixins: [EditableAttributesMixin, uiOptions, CommonMixin],
   computed: {
     commandData: {
       get() {
@@ -171,16 +172,6 @@ export default {
       get() {
         return this.$store.state.zap.commandView.requiredCommands
       }
-    },
-    commandsRequiredByConformance: {
-      get() {
-        return this.$store.state.zap.commandView.mandatory
-      }
-    },
-    commandsNotSupportedByConformance: {
-      get() {
-        return this.$store.state.zap.commandView.notSupported
-      }
     }
   },
   methods: {
@@ -190,9 +181,9 @@ export default {
     displayCommandWarning(row) {
       return (
         (this.enableFeature &&
-          ((this.commandsRequiredByConformance[row.id] &&
+          ((this.commandsRequiredByConform[row.id] &&
             this.isCommandUnselected(row)) ||
-            (this.commandsNotSupportedByConformance[row.id] &&
+            (this.commandsNotSupportedByConform[row.id] &&
               !this.isCommandUnselected(row)))) ||
         this.isRequiredCommandUnselected(row)
       )
@@ -200,18 +191,18 @@ export default {
     getCommandWarning(row) {
       let warnings = []
       if (
-        this.commandsRequiredByConformance[row.id] &&
+        this.commandsRequiredByConform[row.id] &&
         this.isCommandUnselected(row) &&
         this.enableFeature
       ) {
-        warnings.push(this.commandsRequiredByConformance[row.id])
+        warnings.push(this.commandsRequiredByConform[row.id])
       }
       if (
-        this.commandsNotSupportedByConformance[row.id] &&
+        this.commandsNotSupportedByConform[row.id] &&
         !this.isCommandUnselected(row) &&
         this.enableFeature
       ) {
-        warnings.push(this.commandsNotSupportedByConformance[row.id])
+        warnings.push(this.commandsNotSupportedByConform[row.id])
       }
       if (this.isRequiredCommandUnselected(row)) {
         warnings.push(this.defaultWarning)
@@ -252,6 +243,9 @@ export default {
       } else {
         addedValue = false
       }
+
+      this.setRequiredElementNotifications(commandData, addedValue, 'commands')
+
       let editContext = {
         action: 'boolean',
         endpointTypeIdList: this.endpointTypeIdList,

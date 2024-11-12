@@ -22,6 +22,7 @@
  */
 const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
+const querySessionNotification = require('./query-session-notification.js')
 
 /**
  * Get all device type features associated with a list of device type refs and an endpoint.
@@ -446,7 +447,8 @@ function checkElementConformance(
   let result = {
     attributesToUpdate: attributesToUpdate,
     commandsToUpdate: commandsToUpdate,
-    eventsToUpdate: eventsToUpdate
+    eventsToUpdate: eventsToUpdate,
+    elementMap: elementMap
   }
   return featureData ? { ...warningInfo, ...result } : result
 }
@@ -484,6 +486,75 @@ function filterElementsToUpdate(elements, elementMap, featureCode) {
       }
     })
   return elementsToUpdate
+}
+
+/**
+ *
+ */
+function filterElementWithOudatedWarning(featureData, elements, elementMap) {
+  let outdatedWarnings = []
+
+  // Process attributes
+  elements['attributes'].forEach((element) => {
+    if (element.conformance.includes(featureData.code)) {
+      let newConform = evaluateConformanceExpression(
+        element.conformance,
+        elementMap
+      )
+      let oldMap = { ...elementMap }
+      oldMap[featureData.code] = !oldMap[featureData.code]
+      let oldConform = evaluateConformanceExpression(
+        element.conformance,
+        oldMap
+      )
+      if (newConform != oldConform) {
+        let pattern = `${element.name} conforms to ${element.conformance} and is`
+        outdatedWarnings.push(pattern)
+      }
+    }
+  })
+
+  // Process commands
+  elements['commands'].forEach((element) => {
+    if (element.conformance.includes(featureData.code)) {
+      let newConform = evaluateConformanceExpression(
+        element.conformance,
+        elementMap
+      )
+      let oldMap = { ...elementMap }
+      oldMap[featureData.code] = !oldMap[featureData.code]
+      let oldConform = evaluateConformanceExpression(
+        element.conformance,
+        oldMap
+      )
+      if (newConform != oldConform) {
+        let pattern = `${element.name} conforms to ${element.conformance} and is`
+        outdatedWarnings.push(pattern)
+      }
+    }
+  })
+
+  // Process events
+  elements['events'].forEach((element) => {
+    if (element.conformance.includes(featureData.code)) {
+      let newConform = evaluateConformanceExpression(
+        element.conformance,
+        elementMap
+      )
+      let oldMap = { ...elementMap }
+      oldMap[featureData.code] = !oldMap[featureData.code]
+      let oldConform = evaluateConformanceExpression(
+        element.conformance,
+        oldMap
+      )
+      if (newConform != oldConform) {
+        let pattern = `${element.name} conforms to ${element.conformance} and is`
+        outdatedWarnings.push(pattern)
+      }
+    }
+  })
+
+  return outdatedWarnings
 }
 
 /**
@@ -556,3 +627,4 @@ exports.evaluateConformanceExpression = evaluateConformanceExpression
 exports.filterElementsContainingDesc = filterElementsContainingDesc
 exports.filterRelatedDescElements = filterRelatedDescElements
 exports.checkIfDeviceTypeFeatureDataExist = checkIfDeviceTypeFeatureDataExist
+exports.filterElementWithOudatedWarning = filterElementWithOudatedWarning

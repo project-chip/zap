@@ -149,12 +149,26 @@ function httpPostCheckConformOnFeatureUpdate(db) {
       endpointTypeClusterId,
       deviceTypeClusterId
     )
+
     let result = queryFeature.checkElementConformance(
       elements,
       featureMap,
       featureData,
       endpointId
     )
+
+    let outdatedWarnings = queryFeature.filterElementWithOudatedWarning(
+      featureData,
+      elements,
+      result.elementMap
+    )
+
+    await querySessionNotification.deleteNotificationWithPatterns(
+      db,
+      sessionId,
+      outdatedWarnings
+    )
+
     await querySessionNotification.setNotificationOnFeatureChange(
       db,
       sessionId,
@@ -1138,6 +1152,23 @@ function httpGetDeviceTypeFeatureExists(db) {
 }
 
 /**
+ * Set warning for the required element, and delete its existing warning if any.
+ *
+ * @param {*} db
+ * @returns response of setting the warning notification
+ */
+function httpPostRequiredElementWarning(db) {
+  return async (request, response) => {
+    let resp = await querySessionNotification.setRequiredElementWarning(
+      db,
+      request.body,
+      request.zapSessionId
+    )
+    response.status(StatusCodes.OK).json(resp)
+  }
+}
+
+/**
  * duplicate all clusters and attributes of an old endpoint type, using oldEndpointType id and newly created endpointType id
  *
  * @param {*} db
@@ -1252,6 +1283,10 @@ exports.post = [
   {
     uri: restApi.uri.setRequiredElements,
     callback: httpPostSetRequiredElements
+  },
+  {
+    uri: restApi.uri.requiredElementWarning,
+    callback: httpPostRequiredElementWarning
   }
 ]
 
