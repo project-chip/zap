@@ -6,7 +6,7 @@ https://github.com/project-chip/zap/blob/master/test/gen-template/matter/externa
 
 ## Introduction
 
-This guide explains how to add and manage externalized helper functions in the SDK, which interacts with ZAP (ZCL Advanced Platform). Initially, the SDK helpers were external to the ZAP repository, but due to maintenance and design concerns, they were moved into the ZAP repository. With the introduction of a new design pattern, SDK developers now have the flexibility to create their own externalized helpers and integrate them without requiring access to ZAP's source code.
+This guide explains how to add and manage externalized helper functions in the SDK, which interacts with ZAP (ZCL Advanced Platform).
 
 This design enables SDK developers to specify helper functions via the `gen-template.json` configuration file, which ZAP consumes during binary creation. The SDK can then call these helpers, passing in the necessary data, making them more flexible and reducing dependency on the internal ZAP codebase.
 
