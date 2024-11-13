@@ -998,7 +998,7 @@ export function updateDeviceTypeFeatureExists(context) {
  * Set required and unsupported elements based on feature conformance within a cluster
  * @param {*} context
  * @param {*} data
- * @returns promise
+ * @returns
  */
 export function setRequiredElements(context, data) {
   return axiosRequests

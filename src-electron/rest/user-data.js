@@ -149,7 +149,7 @@ function httpPostCheckConformOnFeatureUpdate(db) {
       endpointTypeClusterId,
       deviceTypeClusterId
     )
-
+    // check element conform and return elements that need to be updated
     let result = queryFeature.checkElementConformance(
       elements,
       featureMap,
@@ -157,19 +157,19 @@ function httpPostCheckConformOnFeatureUpdate(db) {
       endpointId
     )
 
+    // set device type feature warning
     await querySessionNotification.setNotificationOnFeatureChange(
       db,
       sessionId,
       result
     )
-
+    // do not set element warning if feature change disabled
     if (!result.disableChange) {
-      let outdatedWarnings = queryFeature.filterElementWithOudatedWarning(
+      let outdatedWarnings = queryFeature.getOutdatedElementWarning(
         featureData,
         elements,
         result.elementMap
       )
-
       await querySessionNotification.deleteNotificationWithPatterns(
         db,
         sessionId,

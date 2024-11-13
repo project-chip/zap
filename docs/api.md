@@ -3654,8 +3654,9 @@ This module provides queries for features.
     * [~generateWarningMessage(featureData, endpointId, missingTerms, featureMap, descElements)](#module_DB API_ feature related queries..generateWarningMessage) ⇒
     * [~checkElementConformance(elements, featureMap, featureData, endpointId)](#module_DB API_ feature related queries..checkElementConformance) ⇒
     * [~filterElementsToUpdate(elements, elementMap, featureCode)](#module_DB API_ feature related queries..filterElementsToUpdate) ⇒
-    * [~filterElementWithOudatedWarning()](#module_DB API_ feature related queries..filterElementWithOudatedWarning)
-    * [~filterRequiredElements(elements, elementMap)](#module_DB API_ feature related queries..filterRequiredElements) ⇒
+    * [~getOutdatedElementWarning(featureData, elements, elementMap)](#module_DB API_ feature related queries..getOutdatedElementWarning) ⇒
+        * [~processElements(elementType)](#module_DB API_ feature related queries..getOutdatedElementWarning..processElements)
+    * [~filterRequiredElements(elements, elementMap, featureMap)](#module_DB API_ feature related queries..filterRequiredElements) ⇒
     * [~checkIfDeviceTypeFeatureDataExist(db)](#module_DB API_ feature related queries..checkIfDeviceTypeFeatureDataExist) ⇒
 
 <a name="module_DB API_ feature related queries..getFeaturesByDeviceTypeRefs"></a>
@@ -3809,13 +3810,36 @@ Return attributes, commands, or events to be updated satisfying:
 | elementMap | <code>\*</code> | 
 | featureCode | <code>\*</code> | 
 
-<a name="module_DB API_ feature related queries..filterElementWithOudatedWarning"></a>
+<a name="module_DB API_ feature related queries..getOutdatedElementWarning"></a>
 
-### DB API: feature related queries~filterElementWithOudatedWarning()
+### DB API: feature related queries~getOutdatedElementWarning(featureData, elements, elementMap) ⇒
+Get warnings for element requirements that are outdated after a feature update.
+
 **Kind**: inner method of [<code>DB API: feature related queries</code>](#module_DB API_ feature related queries)  
+**Returns**: array of outdated element warnings  
+
+| Param | Type |
+| --- | --- |
+| featureData | <code>\*</code> | 
+| elements | <code>\*</code> | 
+| elementMap | <code>\*</code> | 
+
+<a name="module_DB API_ feature related queries..getOutdatedElementWarning..processElements"></a>
+
+#### getOutdatedElementWarning~processElements(elementType)
+Build substrings of outdated warnings and add to returned array if:
+(1) the element conformance includes the feature code
+(2) the element conformance has changed after the feature update
+
+**Kind**: inner method of [<code>getOutdatedElementWarning</code>](#module_DB API_ feature related queries..getOutdatedElementWarning)  
+
+| Param | Type |
+| --- | --- |
+| elementType | <code>\*</code> | 
+
 <a name="module_DB API_ feature related queries..filterRequiredElements"></a>
 
-### DB API: feature related queries~filterRequiredElements(elements, elementMap) ⇒
+### DB API: feature related queries~filterRequiredElements(elements, elementMap, featureMap) ⇒
 Filter required and unsupported elements based on their conformance and generate warnings.
 An element is required if it conforms to element(s) in elementMap and has 'mandatory' conform.
 An element is unsupported if it conforms to element(s) in elementMap and has 'notSupported' conform.
@@ -3827,6 +3851,7 @@ An element is unsupported if it conforms to element(s) in elementMap and has 'no
 | --- | --- |
 | elements | <code>\*</code> | 
 | elementMap | <code>\*</code> | 
+| featureMap | <code>\*</code> | 
 
 <a name="module_DB API_ feature related queries..checkIfDeviceTypeFeatureDataExist"></a>
 

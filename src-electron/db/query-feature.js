@@ -22,7 +22,6 @@
  */
 const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
-const querySessionNotification = require('./query-session-notification.js')
 
 /**
  * Get all device type features associated with a list of device type refs and an endpoint.
@@ -436,13 +435,13 @@ function checkElementConformance(
   // check element conformance for if they need update or are required
   let attributesToUpdate = featureData
     ? filterElementsToUpdate(attributes, elementMap, featureCode)
-    : filterRequiredElements(attributes, elementMap)
+    : filterRequiredElements(attributes, elementMap, featureMap)
   let commandsToUpdate = featureData
     ? filterElementsToUpdate(commands, elementMap, featureCode)
-    : filterRequiredElements(commands, elementMap)
+    : filterRequiredElements(commands, elementMap, featureMap)
   let eventsToUpdate = featureData
     ? filterElementsToUpdate(events, elementMap, featureCode)
-    : filterRequiredElements(events, elementMap)
+    : filterRequiredElements(events, elementMap, featureMap)
 
   let result = {
     attributesToUpdate: attributesToUpdate,
@@ -489,70 +488,46 @@ function filterElementsToUpdate(elements, elementMap, featureCode) {
 }
 
 /**
- *
+ * Get warnings for element requirements that are outdated after a feature update.
+ * @param {*} featureData
+ * @param {*} elements
+ * @param {*} elementMap
+ * @returns array of outdated element warnings
  */
-function filterElementWithOudatedWarning(featureData, elements, elementMap) {
+function getOutdatedElementWarning(featureData, elements, elementMap) {
   let outdatedWarnings = []
 
-  // Process attributes
-  elements['attributes'].forEach((element) => {
-    if (element.conformance.includes(featureData.code)) {
-      let newConform = evaluateConformanceExpression(
-        element.conformance,
-        elementMap
-      )
-      let oldMap = { ...elementMap }
-      oldMap[featureData.code] = !oldMap[featureData.code]
-      let oldConform = evaluateConformanceExpression(
-        element.conformance,
-        oldMap
-      )
-      if (newConform != oldConform) {
-        let pattern = `${element.name} conforms to ${element.conformance} and is`
-        outdatedWarnings.push(pattern)
+  /**
+   * Build substrings of outdated warnings and add to returned array if:
+   * (1) the element conformance includes the feature code
+   * (2) the element conformance has changed after the feature update
+   *
+   * @param {*} elementType
+   */
+  function processElements(elementType) {
+    elements[elementType].forEach((element) => {
+      if (element.conformance.includes(featureData.code)) {
+        let newConform = evaluateConformanceExpression(
+          element.conformance,
+          elementMap
+        )
+        let oldMap = { ...elementMap }
+        oldMap[featureData.code] = !oldMap[featureData.code]
+        let oldConform = evaluateConformanceExpression(
+          element.conformance,
+          oldMap
+        )
+        if (newConform != oldConform) {
+          let pattern = `${element.name} conforms to ${element.conformance} and is`
+          outdatedWarnings.push(pattern)
+        }
       }
-    }
-  })
+    })
+  }
 
-  // Process commands
-  elements['commands'].forEach((element) => {
-    if (element.conformance.includes(featureData.code)) {
-      let newConform = evaluateConformanceExpression(
-        element.conformance,
-        elementMap
-      )
-      let oldMap = { ...elementMap }
-      oldMap[featureData.code] = !oldMap[featureData.code]
-      let oldConform = evaluateConformanceExpression(
-        element.conformance,
-        oldMap
-      )
-      if (newConform != oldConform) {
-        let pattern = `${element.name} conforms to ${element.conformance} and is`
-        outdatedWarnings.push(pattern)
-      }
-    }
-  })
-
-  // Process events
-  elements['events'].forEach((element) => {
-    if (element.conformance.includes(featureData.code)) {
-      let newConform = evaluateConformanceExpression(
-        element.conformance,
-        elementMap
-      )
-      let oldMap = { ...elementMap }
-      oldMap[featureData.code] = !oldMap[featureData.code]
-      let oldConform = evaluateConformanceExpression(
-        element.conformance,
-        oldMap
-      )
-      if (newConform != oldConform) {
-        let pattern = `${element.name} conforms to ${element.conformance} and is`
-        outdatedWarnings.push(pattern)
-      }
-    }
-  })
+  processElements('attributes')
+  processElements('commands')
+  processElements('events')
 
   return outdatedWarnings
 }
@@ -564,9 +539,10 @@ function filterElementWithOudatedWarning(featureData, elements, elementMap) {
  *
  * @param {*} elements
  * @param {*} elementMap
+ * @param {*} featureMap
  * @returns required and not supported elements with warnings
  */
-function filterRequiredElements(elements, elementMap) {
+function filterRequiredElements(elements, elementMap, featureMap) {
   let requiredElements = {
     required: {},
     notSupported: {}
@@ -578,12 +554,13 @@ function filterRequiredElements(elements, elementMap) {
     )
     let expression = element.conformance
     let terms = expression ? expression.match(/[A-Za-z][A-Za-z0-9]*/g) : []
+    let featureTerms = terms.filter((term) => term in featureMap).join(', ')
+    let elementTerms = terms.filter((term) => !(term in featureMap)).join(', ')
     let conformToElement = terms.some((term) =>
       Object.keys(elementMap).includes(term)
     )
 
     if (conformToElement) {
-      let joinedTerms = terms.join(', ')
       let conformState = ''
       if (conformance == 'mandatory') {
         conformState = 'mandatory'
@@ -591,9 +568,15 @@ function filterRequiredElements(elements, elementMap) {
       if (conformance == 'notSupported') {
         conformState = 'not supported'
       }
+
+      // generate warning message for required and unsupported elements
       element.warningMessage =
         `${element.name} conforms to ${element.conformance} and is ` +
-        `${conformState} based on the state of ${joinedTerms}.`
+        `${conformState}` +
+        (featureTerms ? ` based on state of feature: ${featureTerms}` : '') +
+        (featureTerms && elementTerms ? ', ' : '') +
+        (elementTerms ? `element: ${elementTerms}` : '') +
+        '.'
       if (conformance == 'mandatory') {
         requiredElements.required[element.id] = element.warningMessage
       }
@@ -627,4 +610,4 @@ exports.evaluateConformanceExpression = evaluateConformanceExpression
 exports.filterElementsContainingDesc = filterElementsContainingDesc
 exports.filterRelatedDescElements = filterRelatedDescElements
 exports.checkIfDeviceTypeFeatureDataExist = checkIfDeviceTypeFeatureDataExist
-exports.filterElementWithOudatedWarning = filterElementWithOudatedWarning
+exports.getOutdatedElementWarning = getOutdatedElementWarning

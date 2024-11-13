@@ -432,13 +432,8 @@ export default {
      * @param {*} elementType
      * @param {*} clusterRef
      */
-    setRequiredElementNotifications(
-      element,
-      added,
-      elementType,
-      cluster = null
-    ) {
-      let clusterName = cluster || this.selectedCluster.label
+    setRequiredElementNotifications(element, added, elementType) {
+      let clusterName = this.selectedCluster.label
       let endpointId = this.endpointId[this.selectedEndpointId]
       let contextMessage =
         `On endpoint ${endpointId}, ` +
@@ -447,14 +442,13 @@ export default {
       let notSupportedText =
         this[`${elementType}NotSupportedByConform`][element.id]
 
-      if (requiredText || notSupportedText) {
-        this.$serverPost(restApi.uri.requiredElementWarning, {
-          contextMessage: contextMessage,
-          requiredText: requiredText,
-          notSupportedText: notSupportedText,
-          added: added
-        })
-      }
+      this.$serverPost(restApi.uri.requiredElementWarning, {
+        element: element,
+        contextMessage: contextMessage,
+        requiredText: requiredText,
+        notSupportedText: notSupportedText,
+        added: added
+      })
     }
   }
 }

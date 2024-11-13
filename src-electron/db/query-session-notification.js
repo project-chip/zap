@@ -229,42 +229,37 @@ async function setNotificationOnFeatureChange(db, sessionId, result) {
  * @returns response of setting warning notification
  */
 async function setRequiredElementWarning(db, data, sessionId) {
-  let { contextMessage, requiredText, notSupportedText, added } = data
-  let requiredWarning = ''
-  let notSupportedWarning = ''
-  if (requiredText) {
-    requiredWarning = contextMessage + requiredText
-    notSupportedWarning = requiredWarning.replace('mandatory', 'not supported')
-  }
-  if (notSupportedText) {
-    notSupportedWarning = contextMessage + notSupportedText
-    requiredWarning = notSupportedWarning.replace('not supported', 'mandatory')
-  }
+  let { element, contextMessage, requiredText, notSupportedText, added } = data
 
-  await searchNotificationByMessageAndDelete(db, sessionId, requiredWarning)
-  await searchNotificationByMessageAndDelete(db, sessionId, notSupportedWarning)
+  // delete previous warning before setting new one
+  let patterns = [`${element.name} conforms to ${element.conformance} and is`]
+  await deleteNotificationWithPatterns(db, sessionId, patterns)
 
   let addResp = false
   if (requiredText && !added) {
-    addResp = await setWarningIfMessageNotExists(db, sessionId, requiredWarning)
+    addResp = await setWarningIfMessageNotExists(
+      db,
+      sessionId,
+      contextMessage + requiredText
+    )
   }
   if (notSupportedText && added) {
     addResp = await setWarningIfMessageNotExists(
       db,
       sessionId,
-      notSupportedWarning
+      contextMessage + notSupportedText
     )
   }
   return addResp
 }
 
 /**
- * TODO
+ * Delete notifications with message containing substrings specified in the patterns array.
  *
  * @param {*} db
  * @param {*} sessionId
  * @param {*} patterns
- * @returns TODO
+ * @returns response of deleting notifications
  */
 async function deleteNotificationWithPatterns(db, sessionId, patterns) {
   if (!Array.isArray(patterns) || patterns.length == 0) return false

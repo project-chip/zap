@@ -270,7 +270,8 @@ export default {
             endpointTypeClusterId: featureData.endpointTypeClusterId
           })
           .then(() => {
-            // toggle attributes, commands, and events for correct conformance
+            // toggle attributes, commands, and events for correct conformance,
+            // and set their conformance notifications
             attributesToUpdate.forEach((attribute) => {
               let editContext = {
                 action: 'boolean',
@@ -384,8 +385,7 @@ export default {
     return {
       nodataMessage: 'No device type features available for this endpoint',
       noElementsToUpdateMessage:
-        'No elements need to be updated \
-                                  after togglging this feature',
+        'No elements need to be updated after togglging this feature',
       pagination: {
         rowsPerPage: 10
       },
