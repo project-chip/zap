@@ -30,7 +30,7 @@ const queryPackage = require('../db/query-package.js')
 
 /**
  * Main attribute validation function.
- * Returns a promise of an object which stores a list of validational issues.
+ * Returns a promise of an object which stores a list of validation issues.
  * Such issues as "Invalid type" or "Out of Range".
  * @param {*} db db reference
  * @param {*} endpointTypeId endpoint reference
@@ -128,20 +128,6 @@ async function validateSpecificAttribute(
       //Interpreting float values
       if (!checkAttributeBoundsFloat(attribute, endpointAttribute))
         defaultAttributeIssues.push('Out of range')
-    } else if (await types.isSignedInteger(db, zapSessionId, attribute.type)) {
-      // we shouldn't check boundaries for an invalid number string
-      if (!isValidSignedNumberString(endpointAttribute.defaultValue)) {
-        defaultAttributeIssues.push('Invalid Integer')
-      } else if (
-        !(await checkAttributeBoundsInteger(
-          attribute,
-          endpointAttribute,
-          db,
-          zapSessionId
-        ))
-      ) {
-        defaultAttributeIssues.push('Out of range')
-      }
     } else {
       // we shouldn't check boundaries for an invalid number string
       if (!isValidNumberString(endpointAttribute.defaultValue)) {
@@ -207,16 +193,6 @@ function validateSpecificEndpoint(endpoint) {
  */
 function isValidNumberString(value) {
   //We test to see if the number is valid in hex. Decimals numbers also pass this test
-  return /^(0x)?[\dA-F]+$/i.test(value) || Number.isInteger(Number(value))
-}
-
-/**
- * Check if value is a valid signed number in string form.
- *
- * @param {*} value
- * @returns boolean
- */
-function isValidSignedNumberString(value) {
   return /^(0x)?[\dA-F]+$/i.test(value) || Number.isInteger(Number(value))
 }
 
@@ -315,11 +291,26 @@ async function getBoundsInteger(attribute, typeSize, isSigned) {
   return {
     min: attribute.min
       ? await getIntegerFromAttribute(attribute.min, typeSize, isSigned)
-      : null,
+      : getTypeRange(typeSize, isSigned, true),
     max: attribute.max
       ? await getIntegerFromAttribute(attribute.max, typeSize, isSigned)
-      : null
+      : getTypeRange(typeSize, isSigned, false)
   }
+}
+
+/**
+ * Gets the range of an integer type.
+ *
+ * @param {*} typeSize
+ * @param {*} isSigned
+ * @param {*} isMin
+ * @returns integer
+ */
+function getTypeRange(typeSize, isSigned, isMin) {
+  if (isMin) {
+    return isSigned ? -Math.pow(2, typeSize - 1) : 0
+  }
+  return isSigned ? Math.pow(2, typeSize - 1) - 1 : Math.pow(2, typeSize) - 1
 }
 
 /**

@@ -425,6 +425,83 @@ test(
   timeout.medium()
 )
 
+test('validate Attribute without min/max', async () => {
+  //Invalid default value
+  let fakeEndpointAttribute = { defaultValue: '300' }
+
+  let fakeAttribute = { type: 'int8u' }
+
+  let attributeValidation = await validation.validateSpecificAttribute(
+    fakeEndpointAttribute,
+    fakeAttribute,
+    db,
+    sid
+  )
+
+  expect(attributeValidation.defaultValue.length == 1).toBeTruthy()
+  expect(
+    attributeValidation.defaultValue[0].includes('Out of range')
+  ).toBeTruthy()
+
+  //Valid default value
+  fakeEndpointAttribute.defaultValue = '30'
+  attributeValidation = await validation.validateSpecificAttribute(
+    fakeEndpointAttribute,
+    fakeAttribute,
+    db,
+    sid
+  )
+  expect(attributeValidation.defaultValue.length == 0).toBeTruthy()
+
+  //Invalid default value for enum16
+  fakeEndpointAttribute.defaultValue = '66000'
+  fakeAttribute.type = 'enum16'
+  attributeValidation = await validation.validateSpecificAttribute(
+    fakeEndpointAttribute,
+    fakeAttribute,
+    db,
+    sid
+  )
+  expect(attributeValidation.defaultValue.length == 1).toBeTruthy()
+  expect(
+    attributeValidation.defaultValue[0].includes('Out of range')
+  ).toBeTruthy()
+
+  //Valid default value for enum16
+  fakeEndpointAttribute.defaultValue = '65535'
+  attributeValidation = await validation.validateSpecificAttribute(
+    fakeEndpointAttribute,
+    fakeAttribute,
+    db,
+    sid
+  )
+  expect(attributeValidation.defaultValue.length == 0).toBeTruthy()
+
+  //Invalid default value for bitmap8
+  fakeEndpointAttribute.defaultValue = '-2'
+  fakeAttribute.type = 'bitmap8'
+  attributeValidation = await validation.validateSpecificAttribute(
+    fakeEndpointAttribute,
+    fakeAttribute,
+    db,
+    sid
+  )
+  expect(attributeValidation.defaultValue.length == 1).toBeTruthy()
+  expect(
+    attributeValidation.defaultValue[0].includes('Out of range')
+  ).toBeTruthy()
+
+  //Valid default value for bitmap8
+  fakeEndpointAttribute.defaultValue = '255'
+  attributeValidation = await validation.validateSpecificAttribute(
+    fakeEndpointAttribute,
+    fakeAttribute,
+    db,
+    sid
+  )
+  expect(attributeValidation.defaultValue.length == 0).toBeTruthy()
+})
+
 test(
   'validate endpoint test',
   () => {

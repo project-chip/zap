@@ -18925,7 +18925,6 @@ things were successful or not.
         * [~validateSpecificAttribute(endpointAttribute, attribute, db, zapSessionId)](#module_Validation API_ Validation APIs..validateSpecificAttribute) ⇒
         * [~validateSpecificEndpoint(endpoint)](#module_Validation API_ Validation APIs..validateSpecificEndpoint) ⇒
         * [~isValidNumberString(value)](#module_Validation API_ Validation APIs..isValidNumberString) ⇒
-        * [~isValidSignedNumberString(value)](#module_Validation API_ Validation APIs..isValidSignedNumberString) ⇒
         * [~isValidHexString(value)](#module_Validation API_ Validation APIs..isValidHexString) ⇒
         * [~isValidDecimalString(value)](#module_Validation API_ Validation APIs..isValidDecimalString) ⇒
         * [~isValidFloat(value)](#module_Validation API_ Validation APIs..isValidFloat) ⇒
@@ -18934,6 +18933,7 @@ things were successful or not.
         * [~extractBigIntegerValue(value)](#module_Validation API_ Validation APIs..extractBigIntegerValue) ⇒
         * [~isBigInteger(bits)](#module_Validation API_ Validation APIs..isBigInteger) ⇒
         * [~getBoundsInteger(attribute, typeSize, isSigned)](#module_Validation API_ Validation APIs..getBoundsInteger) ⇒
+        * [~getTypeRange(typeSize, isSigned, isMin)](#module_Validation API_ Validation APIs..getTypeRange) ⇒
         * [~unsignedToSignedInteger(value, typeSize)](#module_Validation API_ Validation APIs..unsignedToSignedInteger) ⇒
         * [~getIntegerFromAttribute(attribute, typeSize, isSigned)](#module_Validation API_ Validation APIs..getIntegerFromAttribute) ⇒
         * [~getIntegerAttributeSize(db, zapSessionId, attribType)](#module_Validation API_ Validation APIs..getIntegerAttributeSize) ⇒ <code>\*</code>
@@ -18976,7 +18976,7 @@ Enforce zigbee specific common cluster initialization.
 
 ### Validation API: Validation APIs~validateAttribute(db, endpointTypeId, attributeRef, clusterRef, zapSessionId) ⇒
 Main attribute validation function.
-Returns a promise of an object which stores a list of validational issues.
+Returns a promise of an object which stores a list of validation issues.
 Such issues as "Invalid type" or "Out of Range".
 
 **Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
@@ -19049,18 +19049,6 @@ Get endpoint and newtork issue on an endpoint.
 ### Validation API: Validation APIs~isValidNumberString(value) ⇒
 Check if value is a valid number in string form.
 This applies to both actual numbers as well as octet strings.
-
-**Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
-**Returns**: boolean  
-
-| Param | Type |
-| --- | --- |
-| value | <code>\*</code> | 
-
-<a name="module_Validation API_ Validation APIs..isValidSignedNumberString"></a>
-
-### Validation API: Validation APIs~isValidSignedNumberString(value) ⇒
-Check if value is a valid signed number in string form.
 
 **Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
 **Returns**: boolean  
@@ -19168,6 +19156,20 @@ Get the integer attribute's bounds.
 | attribute | <code>\*</code> | 
 | typeSize | <code>\*</code> | 
 | isSigned | <code>\*</code> | 
+
+<a name="module_Validation API_ Validation APIs..getTypeRange"></a>
+
+### Validation API: Validation APIs~getTypeRange(typeSize, isSigned, isMin) ⇒
+Gets the range of an integer type.
+
+**Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
+**Returns**: integer  
+
+| Param | Type |
+| --- | --- |
+| typeSize | <code>\*</code> | 
+| isSigned | <code>\*</code> | 
+| isMin | <code>\*</code> | 
 
 <a name="module_Validation API_ Validation APIs..unsignedToSignedInteger"></a>
 
@@ -19300,7 +19302,6 @@ things were successful or not.
         * [~validateSpecificAttribute(endpointAttribute, attribute, db, zapSessionId)](#module_Validation API_ Validation APIs..validateSpecificAttribute) ⇒
         * [~validateSpecificEndpoint(endpoint)](#module_Validation API_ Validation APIs..validateSpecificEndpoint) ⇒
         * [~isValidNumberString(value)](#module_Validation API_ Validation APIs..isValidNumberString) ⇒
-        * [~isValidSignedNumberString(value)](#module_Validation API_ Validation APIs..isValidSignedNumberString) ⇒
         * [~isValidHexString(value)](#module_Validation API_ Validation APIs..isValidHexString) ⇒
         * [~isValidDecimalString(value)](#module_Validation API_ Validation APIs..isValidDecimalString) ⇒
         * [~isValidFloat(value)](#module_Validation API_ Validation APIs..isValidFloat) ⇒
@@ -19309,6 +19310,7 @@ things were successful or not.
         * [~extractBigIntegerValue(value)](#module_Validation API_ Validation APIs..extractBigIntegerValue) ⇒
         * [~isBigInteger(bits)](#module_Validation API_ Validation APIs..isBigInteger) ⇒
         * [~getBoundsInteger(attribute, typeSize, isSigned)](#module_Validation API_ Validation APIs..getBoundsInteger) ⇒
+        * [~getTypeRange(typeSize, isSigned, isMin)](#module_Validation API_ Validation APIs..getTypeRange) ⇒
         * [~unsignedToSignedInteger(value, typeSize)](#module_Validation API_ Validation APIs..unsignedToSignedInteger) ⇒
         * [~getIntegerFromAttribute(attribute, typeSize, isSigned)](#module_Validation API_ Validation APIs..getIntegerFromAttribute) ⇒
         * [~getIntegerAttributeSize(db, zapSessionId, attribType)](#module_Validation API_ Validation APIs..getIntegerAttributeSize) ⇒ <code>\*</code>
@@ -19351,7 +19353,7 @@ Enforce zigbee specific common cluster initialization.
 
 ### Validation API: Validation APIs~validateAttribute(db, endpointTypeId, attributeRef, clusterRef, zapSessionId) ⇒
 Main attribute validation function.
-Returns a promise of an object which stores a list of validational issues.
+Returns a promise of an object which stores a list of validation issues.
 Such issues as "Invalid type" or "Out of Range".
 
 **Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
@@ -19424,18 +19426,6 @@ Get endpoint and newtork issue on an endpoint.
 ### Validation API: Validation APIs~isValidNumberString(value) ⇒
 Check if value is a valid number in string form.
 This applies to both actual numbers as well as octet strings.
-
-**Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
-**Returns**: boolean  
-
-| Param | Type |
-| --- | --- |
-| value | <code>\*</code> | 
-
-<a name="module_Validation API_ Validation APIs..isValidSignedNumberString"></a>
-
-### Validation API: Validation APIs~isValidSignedNumberString(value) ⇒
-Check if value is a valid signed number in string form.
 
 **Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
 **Returns**: boolean  
@@ -19543,6 +19533,20 @@ Get the integer attribute's bounds.
 | attribute | <code>\*</code> | 
 | typeSize | <code>\*</code> | 
 | isSigned | <code>\*</code> | 
+
+<a name="module_Validation API_ Validation APIs..getTypeRange"></a>
+
+### Validation API: Validation APIs~getTypeRange(typeSize, isSigned, isMin) ⇒
+Gets the range of an integer type.
+
+**Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
+**Returns**: integer  
+
+| Param | Type |
+| --- | --- |
+| typeSize | <code>\*</code> | 
+| isSigned | <code>\*</code> | 
+| isMin | <code>\*</code> | 
 
 <a name="module_Validation API_ Validation APIs..unsignedToSignedInteger"></a>
 
