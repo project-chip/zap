@@ -489,6 +489,7 @@ function filterElementsToUpdate(elements, elementMap, featureCode) {
 
 /**
  * Get warnings for element requirements that are outdated after a feature update.
+ *
  * @param {*} featureData
  * @param {*} elements
  * @param {*} elementMap
@@ -589,16 +590,37 @@ function filterRequiredElements(elements, elementMap, featureMap) {
 }
 
 /**
- * Check if DEVICE_TYPE_FEATURE table exists and is not empty.
+ * Check if any non-empty conformance data exist in ATTRIBUTE, COMMAND,
+ * and DEVICE_TYPE_FEATURE table.
  *
  * @export
  * @param {*} db
- * @returns true if DEVICE_TYPE_FEATURE table is not empty, false if not
+ * @returns boolean value indicating if conformance data exists
  */
-async function checkIfDeviceTypeFeatureDataExist(db) {
+async function checkIfConformanceDataExist(db) {
   try {
-    let rows = await dbApi.dbAll(db, 'SELECT * FROM DEVICE_TYPE_FEATURE')
-    return rows.length > 0
+    let deviceTypeFeatureRows = await dbApi.dbAll(
+      db,
+      'SELECT DEVICE_TYPE_CLUSTER_CONFORMANCE FROM DEVICE_TYPE_FEATURE'
+    )
+    let hasFeatureConformanceData = deviceTypeFeatureRows.some((row) => {
+      return (
+        row.DEVICE_TYPE_CLUSTER_CONFORMANCE &&
+        row.DEVICE_TYPE_CLUSTER_CONFORMANCE.trim() != ''
+      )
+    })
+    let attributeRows = await dbApi.dbAll(
+      db,
+      'SELECT CONFORMANCE FROM ATTRIBUTE'
+    )
+    let commandRows = await dbApi.dbAll(db, 'SELECT CONFORMANCE FROM COMMAND')
+    let hasConformanceData = (rows) =>
+      rows.some((row) => row.CONFORMANCE && row.CONFORMANCE.trim() != '')
+    return (
+      hasConformanceData(attributeRows) &&
+      hasConformanceData(commandRows) &&
+      hasFeatureConformanceData
+    )
   } catch (err) {
     return false
   }
@@ -609,5 +631,5 @@ exports.checkElementConformance = checkElementConformance
 exports.evaluateConformanceExpression = evaluateConformanceExpression
 exports.filterElementsContainingDesc = filterElementsContainingDesc
 exports.filterRelatedDescElements = filterRelatedDescElements
-exports.checkIfDeviceTypeFeatureDataExist = checkIfDeviceTypeFeatureDataExist
+exports.checkIfConformanceDataExist = checkIfConformanceDataExist
 exports.getOutdatedElementWarning = getOutdatedElementWarning

@@ -1163,12 +1163,12 @@ export function updateFeatureMapAttributeOfFeature(
 }
 
 /**
- * Updates the deviceTypeFeatureExists state to show or hide the device type features button.
+ * Updates the conformDataExists state to show or hide the device type features button.
  * @param {*} state
  * @param {*} value
  */
-export function updateDeviceTypeFeatureExists(state, value) {
-  vue3Set(state.featureView, 'deviceTypeFeatureExists', value)
+export function updateConformDataExists(state, value) {
+  vue3Set(state.featureView, 'conformDataExists', value)
 }
 
 /**

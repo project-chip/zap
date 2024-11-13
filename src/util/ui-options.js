@@ -55,8 +55,8 @@ export default {
         return categories
       }
     },
-    deviceTypeFeatureDataExists() {
-      return this.$store.state.zap.featureView.deviceTypeFeatureExists
+    conformDataExists() {
+      return this.$store.state.zap.featureView.conformDataExists
     },
     enableMatterFeatures() {
       // Check if cmpEnableMatterFeatures is true
@@ -106,7 +106,7 @@ export default {
       return this.enableMatterFeatures
     },
     enableFeature() {
-      return this.enableMatterFeatures && this.deviceTypeFeatureDataExists
+      return this.enableMatterFeatures && this.conformDataExists
     },
     enableServerOnly() {
       return this.enableMatterFeatures

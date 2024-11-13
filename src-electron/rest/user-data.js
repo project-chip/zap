@@ -1140,16 +1140,15 @@ function httpPatchUpdateBitOfFeatureMapAttribute(db) {
 }
 
 /**
- * Check data exsit in DEVICE_TYPE_FEATURE table
+ * Check if conformance data exists in the database
  *
  * @param {*} db
  * @returns boolean value of data exist or not
  */
-function httpGetDeviceTypeFeatureExists(db) {
+function httpGetConformDataExists(db) {
   return async (request, response) => {
-    let deviceTypeFeatureExists =
-      await queryFeature.checkIfDeviceTypeFeatureDataExist(db)
-    response.status(StatusCodes.OK).json(deviceTypeFeatureExists)
+    let conformDataExists = await queryFeature.checkIfConformanceDataExist(db)
+    response.status(StatusCodes.OK).json(conformDataExists)
   }
 }
 
@@ -1346,8 +1345,8 @@ exports.get = [
     callback: httpGetAllPackages
   },
   {
-    uri: restApi.uri.deviceTypeFeatureExists,
-    callback: httpGetDeviceTypeFeatureExists
+    uri: restApi.uri.conformDataExists,
+    callback: httpGetConformDataExists
   }
 ]
 

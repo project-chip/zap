@@ -155,7 +155,7 @@ export default function () {
     featureView: {
       deviceTypeFeatures: [],
       enabledDeviceTypeFeatures: [],
-      deviceTypeFeatureExists: false
+      conformDataExists: false
     },
     calledArgs: {
       defaultUiMode: restApi.uiMode.ZIGBEE

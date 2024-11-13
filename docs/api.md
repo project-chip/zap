@@ -3657,7 +3657,7 @@ This module provides queries for features.
     * [~getOutdatedElementWarning(featureData, elements, elementMap)](#module_DB API_ feature related queries..getOutdatedElementWarning) ⇒
         * [~processElements(elementType)](#module_DB API_ feature related queries..getOutdatedElementWarning..processElements)
     * [~filterRequiredElements(elements, elementMap, featureMap)](#module_DB API_ feature related queries..filterRequiredElements) ⇒
-    * [~checkIfDeviceTypeFeatureDataExist(db)](#module_DB API_ feature related queries..checkIfDeviceTypeFeatureDataExist) ⇒
+    * [~checkIfConformanceDataExist(db)](#module_DB API_ feature related queries..checkIfConformanceDataExist) ⇒
 
 <a name="module_DB API_ feature related queries..getFeaturesByDeviceTypeRefs"></a>
 
@@ -3853,13 +3853,14 @@ An element is unsupported if it conforms to element(s) in elementMap and has 'no
 | elementMap | <code>\*</code> | 
 | featureMap | <code>\*</code> | 
 
-<a name="module_DB API_ feature related queries..checkIfDeviceTypeFeatureDataExist"></a>
+<a name="module_DB API_ feature related queries..checkIfConformanceDataExist"></a>
 
-### DB API: feature related queries~checkIfDeviceTypeFeatureDataExist(db) ⇒
-Check if DEVICE_TYPE_FEATURE table exists and is not empty.
+### DB API: feature related queries~checkIfConformanceDataExist(db) ⇒
+Check if any non-empty conformance data exist in ATTRIBUTE, COMMAND,
+and DEVICE_TYPE_FEATURE table.
 
 **Kind**: inner method of [<code>DB API: feature related queries</code>](#module_DB API_ feature related queries)  
-**Returns**: true if DEVICE_TYPE_FEATURE table is not empty, false if not  
+**Returns**: boolean value indicating if conformance data exists  
 
 | Param | Type |
 | --- | --- |
@@ -14614,7 +14615,7 @@ This module provides the API to access zcl specific information.
     * [~httpPostDuplicateEndpoint(db)](#module_REST API_ user data..httpPostDuplicateEndpoint) ⇒
     * [~httpPostDuplicateEndpointType(db)](#module_REST API_ user data..httpPostDuplicateEndpointType) ⇒
     * [~httpPatchUpdateBitOfFeatureMapAttribute(db)](#module_REST API_ user data..httpPatchUpdateBitOfFeatureMapAttribute) ⇒
-    * [~httpGetDeviceTypeFeatureExists(db)](#module_REST API_ user data..httpGetDeviceTypeFeatureExists) ⇒
+    * [~httpGetConformDataExists(db)](#module_REST API_ user data..httpGetConformDataExists) ⇒
     * [~httpPostRequiredElementWarning(db)](#module_REST API_ user data..httpPostRequiredElementWarning) ⇒
     * [~duplicateEndpointTypeClusters(db, oldEndpointTypeId, newEndpointTypeId)](#module_REST API_ user data..duplicateEndpointTypeClusters)
 
@@ -15066,10 +15067,10 @@ Update feature map attribute with given new value
 | --- | --- |
 | db | <code>\*</code> | 
 
-<a name="module_REST API_ user data..httpGetDeviceTypeFeatureExists"></a>
+<a name="module_REST API_ user data..httpGetConformDataExists"></a>
 
-### REST API: user data~httpGetDeviceTypeFeatureExists(db) ⇒
-Check data exsit in DEVICE_TYPE_FEATURE table
+### REST API: user data~httpGetConformDataExists(db) ⇒
+Check if conformance data exists in the database
 
 **Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
 **Returns**: boolean value of data exist or not  
@@ -15953,7 +15954,7 @@ This module provides the REST API to the user specific data.
     * [~httpPostDuplicateEndpoint(db)](#module_REST API_ user data..httpPostDuplicateEndpoint) ⇒
     * [~httpPostDuplicateEndpointType(db)](#module_REST API_ user data..httpPostDuplicateEndpointType) ⇒
     * [~httpPatchUpdateBitOfFeatureMapAttribute(db)](#module_REST API_ user data..httpPatchUpdateBitOfFeatureMapAttribute) ⇒
-    * [~httpGetDeviceTypeFeatureExists(db)](#module_REST API_ user data..httpGetDeviceTypeFeatureExists) ⇒
+    * [~httpGetConformDataExists(db)](#module_REST API_ user data..httpGetConformDataExists) ⇒
     * [~httpPostRequiredElementWarning(db)](#module_REST API_ user data..httpPostRequiredElementWarning) ⇒
     * [~duplicateEndpointTypeClusters(db, oldEndpointTypeId, newEndpointTypeId)](#module_REST API_ user data..duplicateEndpointTypeClusters)
 
@@ -16405,10 +16406,10 @@ Update feature map attribute with given new value
 | --- | --- |
 | db | <code>\*</code> | 
 
-<a name="module_REST API_ user data..httpGetDeviceTypeFeatureExists"></a>
+<a name="module_REST API_ user data..httpGetConformDataExists"></a>
 
-### REST API: user data~httpGetDeviceTypeFeatureExists(db) ⇒
-Check data exsit in DEVICE_TYPE_FEATURE table
+### REST API: user data~httpGetConformDataExists(db) ⇒
+Check if conformance data exists in the database
 
 **Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
 **Returns**: boolean value of data exist or not  

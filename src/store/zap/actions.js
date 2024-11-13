@@ -981,17 +981,14 @@ export async function setDeviceTypeFeatures(
 }
 
 /**
- * Update the deviceTypeFeatureExists state
+ * Update the conformDataExists state
  * to show or hide of the device type features button.
- * @param {*} state
- * @param {*} value
+ * @param {*} context
  */
-export function updateDeviceTypeFeatureExists(context) {
-  axiosRequests
-    .$serverGet(restApi.uri.deviceTypeFeatureExists)
-    .then((response) => {
-      context.commit('updateDeviceTypeFeatureExists', response.data)
-    })
+export function updateConformDataExists(context) {
+  axiosRequests.$serverGet(restApi.uri.conformDataExists).then((response) => {
+    context.commit('updateConformDataExists', response.data)
+  })
 }
 
 /**
