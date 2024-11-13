@@ -291,22 +291,22 @@ async function getBoundsInteger(attribute, typeSize, isSigned) {
   return {
     min: attribute.min
       ? await getIntegerFromAttribute(attribute.min, typeSize, isSigned)
-      : getTypeBound(typeSize, isSigned, true),
+      : getTypeRange(typeSize, isSigned, true),
     max: attribute.max
       ? await getIntegerFromAttribute(attribute.max, typeSize, isSigned)
-      : getTypeBound(typeSize, isSigned, false)
+      : getTypeRange(typeSize, isSigned, false)
   }
 }
 
 /**
- * Gets the bound of an integer type.
+ * Gets the range of an integer type.
  *
  * @param {*} typeSize
  * @param {*} isSigned
  * @param {*} isMin
  * @returns integer
  */
-function getTypeBound(typeSize, isSigned, isMin) {
+function getTypeRange(typeSize, isSigned, isMin) {
   if (isMin) {
     return isSigned ? -Math.pow(2, typeSize - 1) : 0
   }

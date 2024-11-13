@@ -18933,7 +18933,7 @@ things were successful or not.
         * [~extractBigIntegerValue(value)](#module_Validation API_ Validation APIs..extractBigIntegerValue) ⇒
         * [~isBigInteger(bits)](#module_Validation API_ Validation APIs..isBigInteger) ⇒
         * [~getBoundsInteger(attribute, typeSize, isSigned)](#module_Validation API_ Validation APIs..getBoundsInteger) ⇒
-        * [~getTypeBound(typeSize, isSigned, isMin)](#module_Validation API_ Validation APIs..getTypeBound) ⇒
+        * [~getTypeRange(typeSize, isSigned, isMin)](#module_Validation API_ Validation APIs..getTypeRange) ⇒
         * [~unsignedToSignedInteger(value, typeSize)](#module_Validation API_ Validation APIs..unsignedToSignedInteger) ⇒
         * [~getIntegerFromAttribute(attribute, typeSize, isSigned)](#module_Validation API_ Validation APIs..getIntegerFromAttribute) ⇒
         * [~getIntegerAttributeSize(db, zapSessionId, attribType)](#module_Validation API_ Validation APIs..getIntegerAttributeSize) ⇒ <code>\*</code>
@@ -19157,10 +19157,10 @@ Get the integer attribute's bounds.
 | typeSize | <code>\*</code> | 
 | isSigned | <code>\*</code> | 
 
-<a name="module_Validation API_ Validation APIs..getTypeBound"></a>
+<a name="module_Validation API_ Validation APIs..getTypeRange"></a>
 
-### Validation API: Validation APIs~getTypeBound(typeSize, isSigned, isMin) ⇒
-Gets the bound of an integer type.
+### Validation API: Validation APIs~getTypeRange(typeSize, isSigned, isMin) ⇒
+Gets the range of an integer type.
 
 **Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
 **Returns**: integer  
@@ -19310,7 +19310,7 @@ things were successful or not.
         * [~extractBigIntegerValue(value)](#module_Validation API_ Validation APIs..extractBigIntegerValue) ⇒
         * [~isBigInteger(bits)](#module_Validation API_ Validation APIs..isBigInteger) ⇒
         * [~getBoundsInteger(attribute, typeSize, isSigned)](#module_Validation API_ Validation APIs..getBoundsInteger) ⇒
-        * [~getTypeBound(typeSize, isSigned, isMin)](#module_Validation API_ Validation APIs..getTypeBound) ⇒
+        * [~getTypeRange(typeSize, isSigned, isMin)](#module_Validation API_ Validation APIs..getTypeRange) ⇒
         * [~unsignedToSignedInteger(value, typeSize)](#module_Validation API_ Validation APIs..unsignedToSignedInteger) ⇒
         * [~getIntegerFromAttribute(attribute, typeSize, isSigned)](#module_Validation API_ Validation APIs..getIntegerFromAttribute) ⇒
         * [~getIntegerAttributeSize(db, zapSessionId, attribType)](#module_Validation API_ Validation APIs..getIntegerAttributeSize) ⇒ <code>\*</code>
@@ -19534,10 +19534,10 @@ Get the integer attribute's bounds.
 | typeSize | <code>\*</code> | 
 | isSigned | <code>\*</code> | 
 
-<a name="module_Validation API_ Validation APIs..getTypeBound"></a>
+<a name="module_Validation API_ Validation APIs..getTypeRange"></a>
 
-### Validation API: Validation APIs~getTypeBound(typeSize, isSigned, isMin) ⇒
-Gets the bound of an integer type.
+### Validation API: Validation APIs~getTypeRange(typeSize, isSigned, isMin) ⇒
+Gets the range of an integer type.
 
 **Kind**: inner method of [<code>Validation API: Validation APIs</code>](#module_Validation API_ Validation APIs)  
 **Returns**: integer  
