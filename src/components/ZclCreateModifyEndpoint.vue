@@ -544,9 +544,11 @@ export default {
       }
     },
     getEndpointIds() {
-      this.$store.dispatch('zap/getEndpointIds').then((res) => {
-        this.endpointIds = res.data
-      })
+      if (this.$serverGet != null) {
+        this.$serverGet(RestApi.uri.endpointIds).then((resp) => {
+          this.endpointIds = resp.data
+        })
+      }
     },
     // This function will close the endpoint modal
     toggleCreateEndpointModal() {
