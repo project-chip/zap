@@ -2089,7 +2089,7 @@ async function selectCommandsByEndpointTypeClusterIdAndDeviceTypeClusterId(
     `,
     [endpointTypeClusterId, deviceTypeClusterId]
   )
-  return rows.map(dbMapping.map.endpointTypeClusterCommand)
+  return rows.map(dbMapping.map.endpointTypeCommandExtended)
 }
 
 exports.selectCliCommandCountFromEndpointTypeCluster =

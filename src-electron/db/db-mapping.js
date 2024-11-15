@@ -700,7 +700,10 @@ exports.map = {
       type: x.TYPE != 'array' ? x.TYPE : x.ARRAY_TYPE, // Attribute type
       apiMaturity: x.API_MATURITY,
       isChangeOmitted: dbApi.fromDbBool(x.IS_CHANGE_OMITTED),
-      persistence: x.PERSISTENCE
+      persistence: x.PERSISTENCE,
+      reportMinInterval: x.REPORT_MIN_INTERVAL,
+      reportMaxInterval: x.REPORT_MAX_INTERVAL,
+      conformance: x.CONFORMANCE
     }
   },
 
@@ -717,6 +720,23 @@ exports.map = {
     }
   },
 
+  endpointTypeCommandExtended: (x) => {
+    if (x == null) return undefined
+    return {
+      id: x.COMMAND_ID,
+      name: x.NAME, // Command Name
+      clusterRef: x.CLUSTER_REF,
+      commandRef: x.COMMAND_REF,
+      incoming: dbApi.fromDbBool(x.INCOMING),
+      outgoing: dbApi.fromDbBool(x.OUTGOING),
+      isIncoming: dbApi.fromDbBool(x.IS_INCOMING),
+      source: x.SOURCE,
+      conformance: x.CONFORMANCE,
+      endpointTypeRef: x.ENDPOINT_TYPE_REF,
+      isEnabled: dbApi.fromDbBool(x.IS_ENABLED)
+    }
+  },
+
   endpointTypeEvent: (x) => {
     if (x == null) return undefined
     return {
@@ -727,42 +747,17 @@ exports.map = {
     }
   },
 
-  endpointTypeClusterAttribute: (x) => {
-    if (x == null) return undefined
-    return {
-      id: x.ATTRIBUTE_ID,
-      name: x.NAME,
-      clusterRef: x.CLUSTER_REF,
-      side: x.SIDE,
-      conformance: x.CONFORMANCE,
-      reportMinInterval: x.REPORT_MIN_INTERVAL,
-      reportMaxInterval: x.REPORT_MAX_INTERVAL,
-      reportableChange: x.REPORTABLE_CHANGE,
-      included: x.INCLUDED
-    }
-  },
-
-  endpointTypeClusterCommand: (x) => {
-    if (x == null) return undefined
-    return {
-      id: x.COMMAND_ID,
-      name: x.NAME,
-      clusterRef: x.CLUSTER_REF,
-      source: x.SOURCE,
-      conformance: x.CONFORMANCE,
-      isEnabled: x.IS_ENABLED
-    }
-  },
-
-  endpointTypeClusterEvent: (x) => {
+  endpointTypeEventExtended: (x) => {
     if (x == null) return undefined
     return {
       id: x.EVENT_ID,
-      name: x.NAME,
+      name: x.NAME, // Event Name
       clusterRef: x.CLUSTER_REF,
+      eventRef: x.EVENT_REF,
       side: x.SIDE,
       conformance: x.CONFORMANCE,
-      included: x.INCLUDED
+      endpointTypeRef: x.ENDPOINT_TYPE_REF,
+      included: dbApi.fromDbBool(x.INCLUDED)
     }
   },
 

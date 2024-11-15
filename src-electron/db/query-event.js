@@ -275,7 +275,7 @@ async function selectEventsByEndpointTypeClusterIdAndDeviceTypeClusterId(
     `,
     [endpointTypeClusterId, deviceTypeClusterId]
   )
-  return rows.map(dbMapping.map.endpointTypeClusterEvent)
+  return rows.map(dbMapping.map.endpointTypeEventExtended)
 }
 
 exports.selectEventsByClusterId = selectEventsByClusterId

@@ -1282,7 +1282,7 @@ async function selectAttributesByEndpointTypeClusterId(
     `,
     [endpointTyeClusterId]
   )
-  return rows.map(dbMapping.map.endpointTypeClusterAttribute)
+  return rows.map(dbMapping.map.endpointTypeAttributeExtended)
 }
 
 exports.selectAllAttributeDetailsFromEnabledClusters = dbCache.cacheQuery(
