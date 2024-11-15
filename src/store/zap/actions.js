@@ -514,14 +514,6 @@ export function addEndpoint(context, newEndpointContext) {
 }
 
 /**
- * Get endpoint ids.
- * @returns endpoints ids
- */
-export async function getEndpointIds() {
-  return await axiosRequests.$serverGet(restApi.uri.endpointIds)
-}
-
-/**
  * Add endpoint type for ZAP UI.
  * @param {*} context
  * @param {*} endpointTypeData
