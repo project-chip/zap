@@ -148,7 +148,7 @@ jobs:
     # Platforms to build on/for
     strategy:
       matrix:
-        os: [macos-12, ubuntu-22.04]
+        os: [macos-14, ubuntu-22.04]
       fail-fast: false
 
     steps:
@@ -261,7 +261,7 @@ jobs:
       - name: Verify zap-cli exists in Windows x64 .zip package
         if: startsWith(matrix.os, 'macos')
         run: |
-          output=$(./node_modules/7zip-bin/mac/x64/7za l ./dist/zap-win-x64.zip)
+          output=$(7za l ./dist/zap-win-x64.zip)
           expression=zap-cli
           if [[ $output == *"$expression"* ]]; then
             echo "Output contains $expression"
@@ -272,7 +272,7 @@ jobs:
       - name: Verify zap-cli exists in Windows arm64 .zip package
         if: startsWith(matrix.os, 'macos')
         run: |
-          output=$(./node_modules/7zip-bin/mac/x64/7za l ./dist/zap-win-arm64.zip)
+          output=$(7za l ./dist/zap-win-arm64.zip)
           expression=zap-cli
           if [[ $output == *"$expression"* ]]; then
             echo "Output contains $expression"
@@ -283,7 +283,7 @@ jobs:
       - name: Verify zap-cli exists in macOS x64 .zip package
         if: startsWith(matrix.os, 'macos')
         run: |
-          output=$(./node_modules/7zip-bin/mac/x64/7za l ./dist/zap-mac-x64.zip | grep zap-cli)
+          output=$(7za l ./dist/zap-mac-x64.zip | grep zap-cli)
           expression=zap-cli
           if [[ $output == *"$expression"* ]]; then
             echo "Output contains $expression"
@@ -350,7 +350,7 @@ jobs:
         if: startsWith(matrix.os, 'macos')
         uses: GuillaumeFalourd/assert-command-line-output@v2.1
         with:
-          command_line: ./node_modules/7zip-bin/mac/x64/7za l ./dist/zap-win-x64.zip | grep apack.json
+          command_line: 7za l ./dist/zap-win-x64.zip | grep apack.json
           contains: 'apack.json'
       - name: Verify apack.json exists in Windows x64 .zip package's app.asar archive
         if: startsWith(matrix.os, 'macos')
@@ -362,7 +362,7 @@ jobs:
         if: startsWith(matrix.os, 'macos')
         uses: GuillaumeFalourd/assert-command-line-output@v2.1
         with:
-          command_line: ./node_modules/7zip-bin/mac/x64/7za l ./dist/zap-win-arm64.zip | grep apack.json
+          command_line: 7za l ./dist/zap-win-arm64.zip | grep apack.json
           contains: 'apack.json'
       - name: Verify apack.json exists in Windows arm64 .zip package's app.asar archive
         if: startsWith(matrix.os, 'macos')
@@ -375,7 +375,7 @@ jobs:
         if: startsWith(matrix.os, 'macos')
         uses: GuillaumeFalourd/assert-command-line-output@v2.1
         with:
-          command_line: ./node_modules/7zip-bin/mac/x64/7za l ./dist/zap-mac-x64.zip | grep apack.json
+          command_line: 7za l ./dist/zap-mac-x64.zip | grep apack.json
           contains: 'apack.json'
       - name: Verify apack.json exists in macOS x64 .zip package's app-x64.asar archive
         if: startsWith(matrix.os, 'macos')
@@ -387,7 +387,7 @@ jobs:
         if: startsWith(matrix.os, 'macos')
         uses: GuillaumeFalourd/assert-command-line-output@v2.1
         with:
-          command_line: ./node_modules/7zip-bin/mac/x64/7za l ./dist/zap-mac-arm64.zip | grep apack.json
+          command_line: 7za l ./dist/zap-mac-arm64.zip | grep apack.json
           contains: 'apack.json'
       - name: Verify apack.json exists in macOS arm64 .zip package's app-arm64.asar archive
         if: startsWith(matrix.os, 'macos')
