@@ -131,7 +131,7 @@ async function getUnseenNotificationCount(db, sessionId) {
 }
 
 /**
- * update SEEN column to 1 for all notifications from the SESSION_NOTICE table with NOTIC_ORDER inside given input array unseenIds
+ * update SEEN column to 1 for all notifications from the SESSION_NOTICE table with NOTICE_ID inside given input array unseenIds
  *
  * @export
  * @param {*} db

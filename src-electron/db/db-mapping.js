@@ -266,8 +266,8 @@ exports.map = {
       bit: x.BIT,
       description: x.DESCRIPTION,
       endpointTypeClusterId: x.ENDPOINT_TYPE_CLUSTER_ID,
-      featureMapAttributeId: x.FEATUREMAP_ATTRIBUTE_ID,
-      featureMapValue: x.FEATUREMAP_VALUE
+      featureMapAttributeId: x.FEATURE_MAP_ATTRIBUTE_ID,
+      featureMapValue: x.FEATURE_MAP_VALUE
     }
   },
 

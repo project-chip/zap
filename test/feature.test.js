@@ -137,7 +137,7 @@ test(
 test(
   'Evaluate customized conformance expression',
   () => {
-    // cover elements with all upper andlower case and combinations
+    // cover elements with all upper and lower case and combinations
     const elementMap = { HS: 1, Lt: 1, oo: 0, xY: 0, Primary1X: 1 }
     let conformanceExpressions = [
       // 1. test basic conformance abbreviations

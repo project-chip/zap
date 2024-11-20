@@ -3665,7 +3665,7 @@ This module provides queries for features.
 Get all device type features associated with a list of device type refs and an endpoint.
 Join ENDPOINT_TYPE_ATTRIBUTE and ATTRIBUTE table to get featureMap attribute associated with the feature,
 so the frontend could get and set featureMap bit easier.
-Only return features with cluster on the side specified in the deivce type.
+Only return features with cluster on the side specified in the device type.
 
 **Kind**: inner method of [<code>DB API: feature related queries</code>](#module_DB API_ feature related queries)  
 **Returns**: All feature information and device type conformance

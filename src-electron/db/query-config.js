@@ -33,7 +33,6 @@ const queryCommand = require('./query-command.js')
 const restApi = require('../../src-shared/rest-api.js')
 const _ = require('lodash')
 const notification = require('../db/query-session-notification.js')
-const queryEndpointType = require('./query-endpoint-type.js')
 
 /**
  * Promises to update the cluster include/exclude state.

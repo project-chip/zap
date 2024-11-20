@@ -944,7 +944,7 @@ export async function setDeviceTypeFeatures(
     .then((resp) => {
       let deviceTypeFeatures = []
       /* For a device type feature under the same endpoint and cluster, but different device types,  
-        merge their rows into one and combine thier device type names into a list. */
+        merge their rows into one and combine their device type names into a list. */
       resp.data.forEach((row) => {
         const key = `${row.endpointTypeClusterId}-${row.featureId}`
         if (key in deviceTypeFeatures) {

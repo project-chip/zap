@@ -1134,7 +1134,7 @@ function httpPatchUpdateBitOfFeatureMapAttribute(db) {
       [['defaultValue', newValue]]
     )
     response.status(StatusCodes.OK).json({
-      succesesful: updated > 0
+      successful: updated > 0
     })
   }
 }

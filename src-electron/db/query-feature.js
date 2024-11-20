@@ -20,14 +20,14 @@
  *
  * @module DB API: feature related queries
  */
-const dbApi = require('./db-api.js')
-const dbMapping = require('./db-mapping.js')
+const dbApi = require('./db-api')
+const dbMapping = require('./db-mapping')
 
 /**
  * Get all device type features associated with a list of device type refs and an endpoint.
  * Join ENDPOINT_TYPE_ATTRIBUTE and ATTRIBUTE table to get featureMap attribute associated with the feature,
  * so the frontend could get and set featureMap bit easier.
- * Only return features with cluster on the side specified in the deivce type.
+ * Only return features with cluster on the side specified in the device type.
  *
  * @export
  * @param {*} db
@@ -62,8 +62,8 @@ async function getFeaturesByDeviceTypeRefs(
 			f.BIT,
 			f.DESCRIPTION,
 			etc.ENDPOINT_TYPE_CLUSTER_ID,
-			eta.ENDPOINT_TYPE_ATTRIBUTE_ID AS FEATUREMAP_ATTRIBUTE_ID,
-			eta.DEFAULT_VALUE AS FEATUREMAP_VALUE
+			eta.ENDPOINT_TYPE_ATTRIBUTE_ID AS FEATURE_MAP_ATTRIBUTE_ID,
+			eta.DEFAULT_VALUE AS FEATURE_MAP_VALUE
     FROM
 			DEVICE_TYPE d
     JOIN

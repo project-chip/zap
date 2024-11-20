@@ -17,7 +17,7 @@
 
 import * as Util from './util'
 import * as DbEnum from '../../src-shared/db-enum'
-import restApi from '../../src-shared/rest-api.js'
+import restApi from '../../src-shared/rest-api'
 const http = require('http-status-codes')
 
 /**

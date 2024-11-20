@@ -320,7 +320,7 @@ test(
   'Notification: set notification on feature change result',
   async () => {
     let sessionId = await querySession.createBlankSession(db)
-    let warningMessage = `This is a message to disply front end warnings
+    let warningMessage = `This is a message to display front end warnings
                           after a feature change`
     let disableMessage = `This is a message to disable front end changes
                           after a feature change`

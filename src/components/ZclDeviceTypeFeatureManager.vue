@@ -160,7 +160,7 @@ limitations under the License.
       </div>
       <div v-else class="q-pa-md">
         <div class="text-body1">
-          {{ nodataMessage }}
+          {{ noDataMessage }}
         </div>
       </div>
     </div>
@@ -171,7 +171,7 @@ limitations under the License.
 import CommonMixin from '../util/common-mixin'
 import EditableAttributeMixin from '../util/editable-attributes-mixin'
 import dbEnum from '../../src-shared/db-enum'
-import restApi from '../../src-shared/rest-api.js'
+import restApi from '../../src-shared/rest-api'
 import { Notify } from 'quasar'
 
 export default {
@@ -190,7 +190,7 @@ export default {
       }
     },
     isToggleDisabled(conformance) {
-      // disable togglging unsupported features
+      // disable toggling unsupported features
       return conformance == 'X' || conformance == 'D'
     },
     onToggleDeviceTypeFeature(featureData, inclusionList) {
@@ -257,7 +257,7 @@ export default {
           }
         }
 
-        // if diableChange is true, the case is too complex to handle
+        // if disableChange is true, the case is too complex to handle
         // throw warnings and skip the following actions
         if (disableChange) {
           return disableChange
@@ -383,9 +383,9 @@ export default {
   },
   data() {
     return {
-      nodataMessage: 'No device type features available for this endpoint',
+      noDataMessage: 'No device type features available for this endpoint',
       noElementsToUpdateMessage:
-        'No elements need to be updated after togglging this feature',
+        'No elements need to be updated after toggling this feature',
       pagination: {
         rowsPerPage: 10
       },
