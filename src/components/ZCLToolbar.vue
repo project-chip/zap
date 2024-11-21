@@ -1,7 +1,10 @@
 <template>
   <q-toolbar
-    class="bg-glass q-electron-drag"
-    :class="{ 'window-button-padding-right': isElectron && isWin }"
+    class="bg-glass"
+    :class="{
+      'window-button-padding-right': isElectron && isWin,
+      ' q-electron-drag': !showCreateModifyEndpoint
+    }"
   >
     <q-toolbar-title
       :class="{ 'logo-margin': showPreviewTab || showNotificationTab }"
@@ -255,6 +258,11 @@ export default {
     isTutorialRunning: {
       get() {
         return this.$store.state.zap.isTutorialRunning
+      }
+    },
+    showCreateModifyEndpoint: {
+      get() {
+        return this.$store.state.zap.showCreateModifyEndpoint
       }
     },
     showPreviewTab: {
