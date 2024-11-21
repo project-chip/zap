@@ -1151,10 +1151,10 @@ async function getEndpointCompositionIdByCode(db, deviceType) {
 }
 
 /**
- * Inserts a device composition record into the DEVICE_COMPOSITION table.
+ * Inserts device composition records for each childDeviceId into the DEVICE_COMPOSITION table.
  *
  * This function constructs an SQL INSERT query to add a new record to the
- * DEVICE_COMPOSITION table. It handles the insertion of the device code,
+ * DEVICE_COMPOSITION table for each childDeviceId. It handles the insertion of the device code,
  * endpoint composition reference, conformance, and constraint values.
  * Note that the "CONSTRAINT" column name is escaped with double quotes
  * to avoid conflicts with the SQL reserved keyword.
@@ -1162,20 +1162,34 @@ async function getEndpointCompositionIdByCode(db, deviceType) {
  * @param {Object} db - The database connection object.
  * @param {Object} deviceType - The device type object containing the data to be inserted.
  * @param {number} endpointCompositionId - The ID of the endpoint composition.
- * @returns {Promise} A promise that resolves when the insertion is complete.
+ * @returns {Promise} A promise that resolves when all insertions are complete.
  */
 function insertDeviceComposition(db, deviceType, endpointCompositionId) {
-  const insertQuery = `
-    INSERT INTO DEVICE_COMPOSITION (CODE, ENDPOINT_COMPOSITION_REF, CONFORMANCE, DEVICE_CONSTRAINT)
-    VALUES (?, ?, ?, ?)
-  `
+  // Check if childDeviceId is an array or a single value and ensure it's iterable
+  const childDeviceIds = Array.isArray(deviceType.childDeviceId)
+    ? deviceType.childDeviceId
+    : [deviceType.childDeviceId]
+
+  // Prepare an array to store the insert queries for each childDeviceId
+  const insertQueries = childDeviceIds.map((childDeviceId) => {
+    return dbApi.dbInsert(
+      db,
+      `
+      INSERT INTO DEVICE_COMPOSITION (CODE, ENDPOINT_COMPOSITION_REF, CONFORMANCE, DEVICE_CONSTRAINT)
+      VALUES (?, ?, ?, ?)
+    `,
+      [
+        parseInt(childDeviceId, 16), // Convert childDeviceId to integer, assuming it is hex
+        endpointCompositionId,
+        deviceType.conformance,
+        deviceType.constraint
+      ]
+    )
+  })
+
   try {
-    return dbApi.dbInsert(db, insertQuery, [
-      parseInt(deviceType.childDeviceId, 16),
-      endpointCompositionId,
-      deviceType.conformance,
-      deviceType.constraint
-    ])
+    // Execute all insert queries concurrently
+    return Promise.all(insertQueries)
   } catch (error) {
     console.error('Error inserting device composition:', error)
     throw error // Re-throw the error after logging it

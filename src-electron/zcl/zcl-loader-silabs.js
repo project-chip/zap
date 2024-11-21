@@ -1670,7 +1670,7 @@ function prepareDeviceType(deviceType) {
       ret.constraint =
         deviceType.endpointComposition[0].endpoint[0].$.constraint
       ret.childDeviceId =
-        deviceType.endpointComposition[0].endpoint[0].deviceType[0]
+        deviceType.endpointComposition[0].endpoint[0].deviceType
     } catch (error) {
       console.error('Error processing endpoint composition:', error)
     }
