@@ -2054,7 +2054,6 @@ limitations under the License.
             <compositionType>tree</compositionType>
             <endpoint conformance="M" constraint="min 1">
                     <deviceType>0x0071</deviceType>
-                    <deviceType>0x0000</deviceType>
             </endpoint>
         </endpointComposition>
         <clusters lockOthers="true">
