@@ -15,7 +15,7 @@ limitations under the License.
 -->
 <template>
   <div>
-    <q-card style="min-width: 450px">
+    <q-card style="min-width: 450px" class="z-top">
       <q-card-section>
         <div
           class="text-h6 flex text-align:left q-mb-sm"
