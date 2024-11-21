@@ -265,8 +265,17 @@ async function deleteNotificationWithPatterns(db, sessionId, patterns) {
   if (!Array.isArray(patterns) || patterns.length == 0) return false
 
   let placeholders = patterns.map(() => '?').join(' OR NOTICE_MESSAGE LIKE ')
-  let query = `SELECT NOTICE_ID FROM SESSION_NOTICE WHERE SESSION_REF = ?
-    AND (NOTICE_MESSAGE LIKE ${placeholders})`
+  let query = `
+    SELECT
+      NOTICE_ID
+    FROM
+      SESSION_NOTICE
+    WHERE
+      SESSION_REF = ?
+    AND (
+      NOTICE_MESSAGE LIKE ${placeholders}
+    )
+    `
   let params = [sessionId, ...patterns.map((pattern) => `%${pattern}%`)]
 
   let rows = await dbApi.dbAll(db, query, params)
