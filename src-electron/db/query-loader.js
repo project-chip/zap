@@ -1151,11 +1151,12 @@ async function getEndpointCompositionIdByCode(db, deviceType) {
 }
 
 /**
- * Inserts device composition records for each childDeviceId into the DEVICE_COMPOSITION table.
+ * Inserts device composition records for each deviceType into the DEVICE_COMPOSITION table
+ * for all endpoints in the deviceType, including endpoint-specific constraint and conformance values.
  *
  * This function constructs an SQL INSERT query to add a new record to the
- * DEVICE_COMPOSITION table for each childDeviceId. It handles the insertion of the device code,
- * endpoint composition reference, conformance, and constraint values.
+ * DEVICE_COMPOSITION table for each deviceType in each endpoint. It handles the insertion
+ * of the device code, endpoint composition reference, conformance, and constraint values.
  * Note that the "CONSTRAINT" column name is escaped with double quotes
  * to avoid conflicts with the SQL reserved keyword.
  *
@@ -1165,35 +1166,66 @@ async function getEndpointCompositionIdByCode(db, deviceType) {
  * @returns {Promise} A promise that resolves when all insertions are complete.
  */
 function insertDeviceComposition(db, deviceType, endpointCompositionId) {
-  // Check if childDeviceId is an array or a single value and ensure it's iterable
-  const childDeviceIds = Array.isArray(deviceType.childDeviceId)
-    ? deviceType.childDeviceId
-    : [deviceType.childDeviceId]
-
-  // Prepare an array to store the insert queries for each childDeviceId
-  const insertQueries = childDeviceIds.map((childDeviceId) => {
-    return dbApi.dbInsert(
-      db,
-      `
-      INSERT INTO DEVICE_COMPOSITION (CODE, ENDPOINT_COMPOSITION_REF, CONFORMANCE, DEVICE_CONSTRAINT)
-      VALUES (?, ?, ?, ?)
-    `,
-      [
-        parseInt(childDeviceId, 16), // Convert childDeviceId to integer, assuming it is hex
-        endpointCompositionId,
-        deviceType.conformance,
-        deviceType.constraint
-      ]
-    )
-  })
-
-  try {
-    // Execute all insert queries concurrently
-    return Promise.all(insertQueries)
-  } catch (error) {
-    console.error('Error inserting device composition:', error)
-    throw error // Re-throw the error after logging it
+  // Ensure that deviceType and its necessary properties are defined
+  if (
+    !deviceType ||
+    !deviceType.composition ||
+    !deviceType.composition.endpoint
+  ) {
+    throw new Error('Invalid deviceType object or endpoint data')
   }
+
+  // Make sure 'deviceType.composition.endpoint' is always an array, even if there's only one endpoint
+  const endpoints = Array.isArray(deviceType.composition.endpoint)
+    ? deviceType.composition.endpoint
+    : [deviceType.composition.endpoint]
+
+  // Prepare an array to hold all insert queries
+  const insertQueries = []
+
+  // Iterate over all endpoints in the deviceType and their respective deviceTypes
+  for (let i = 0; i < endpoints.length; i++) {
+    const endpoint = endpoints[i]
+
+    // Ensure deviceType is present and handle both single value or array
+    const deviceTypes = Array.isArray(endpoint.deviceType)
+      ? endpoint.deviceType
+      : endpoint.deviceType
+        ? [endpoint.deviceType]
+        : [] // Default to empty array if undefined
+
+    // Use the $ to get the endpoint-specific conformance and constraint values
+    const endpointConformance =
+      endpoint.endpointComposition?.endpoint?.$.conformance ||
+      deviceType.conformance
+    const endpointConstraint =
+      endpoint.endpointComposition?.endpoint?.$.constraint ||
+      deviceType.constraint
+
+    // Create insert queries for each deviceType in this endpoint and add them to the insertQueries array
+    for (let j = 0; j < deviceTypes.length; j++) {
+      const device = deviceTypes[j]
+
+      insertQueries.push(
+        dbApi.dbInsert(
+          db,
+          `
+          INSERT INTO DEVICE_COMPOSITION (CODE, ENDPOINT_COMPOSITION_REF, CONFORMANCE, DEVICE_CONSTRAINT)
+          VALUES (?, ?, ?, ?)
+        `,
+          [
+            parseInt(device, 16), // Convert deviceType to integer, assuming it is hex
+            endpointCompositionId,
+            endpointConformance, // Use the endpoint's specific conformance if available
+            endpointConstraint // Use the endpoint's specific constraint if available
+          ]
+        )
+      )
+    }
+  }
+
+  // Return the promise for executing all queries concurrently
+  return Promise.all(insertQueries)
 }
 
 /**

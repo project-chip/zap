@@ -1665,12 +1665,7 @@ function prepareDeviceType(deviceType) {
   if ('endpointComposition' in deviceType) {
     try {
       ret.compositionType = deviceType.endpointComposition[0].compositionType[0]
-      ret.conformance =
-        deviceType.endpointComposition[0].endpoint[0].$.conformance
-      ret.constraint =
-        deviceType.endpointComposition[0].endpoint[0].$.constraint
-      ret.childDeviceId =
-        deviceType.endpointComposition[0].endpoint[0].deviceType
+      ret.composition = deviceType.endpointComposition[0]
     } catch (error) {
       console.error('Error processing endpoint composition:', error)
     }

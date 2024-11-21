@@ -4066,11 +4066,12 @@ Retrieves the endpoint composition ID for a given device type code.
 <a name="module_DB API_ zcl loading queries..insertDeviceComposition"></a>
 
 ### DB API: zcl loading queries~insertDeviceComposition(db, deviceType, endpointCompositionId) ⇒ <code>Promise</code>
-Inserts device composition records for each childDeviceId into the DEVICE_COMPOSITION table.
+Inserts device composition records for each deviceType into the DEVICE_COMPOSITION table
+for all endpoints in the deviceType, including endpoint-specific constraint and conformance values.
 
 This function constructs an SQL INSERT query to add a new record to the
-DEVICE_COMPOSITION table for each childDeviceId. It handles the insertion of the device code,
-endpoint composition reference, conformance, and constraint values.
+DEVICE_COMPOSITION table for each deviceType in each endpoint. It handles the insertion
+of the device code, endpoint composition reference, conformance, and constraint values.
 Note that the "CONSTRAINT" column name is escaped with double quotes
 to avoid conflicts with the SQL reserved keyword.
 
