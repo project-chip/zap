@@ -998,8 +998,13 @@ export function updateConformDataExists(context) {
  * @returns
  */
 export function setRequiredElements(context, data) {
+  if (data.featureMap) {
+    data.featureMap = JSON.stringify(data.featureMap)
+  }
   return axiosRequests
-    .$serverPost(restApi.uri.setRequiredElements, data)
+    .$serverGet(restApi.uri.requiredElements, {
+      params: { data: JSON.stringify(data) }
+    })
     .then((response) => {
       context.commit('setRequiredElements', response.data)
     })

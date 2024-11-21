@@ -14584,7 +14584,7 @@ This module provides the API to access zcl specific information.
     * [~httpGetDeviceTypeFeatures(db)](#module_REST API_ user data..httpGetDeviceTypeFeatures) ⇒
     * [~getEndpointTypeElements(db, endpointTypeClusterId, deviceTypeClusterId)](#module_REST API_ user data..getEndpointTypeElements) ⇒
     * [~httpPostCheckConformOnFeatureUpdate(db)](#module_REST API_ user data..httpPostCheckConformOnFeatureUpdate) ⇒
-    * [~httpPostSetRequiredElements(db)](#module_REST API_ user data..httpPostSetRequiredElements) ⇒
+    * [~httpGetRequiredElements(db)](#module_REST API_ user data..httpGetRequiredElements) ⇒
     * [~httpGetSessionNotifications(db)](#module_REST API_ user data..httpGetSessionNotifications) ⇒
     * [~httpDeleteSessionNotification(db)](#module_REST API_ user data..httpDeleteSessionNotification) ⇒
     * [~httpGetPackageNotifications(db)](#module_REST API_ user data..httpGetPackageNotifications) ⇒
@@ -14697,10 +14697,10 @@ HTTP POST: elements to be updated after toggle a device type feature
 | --- | --- |
 | db | <code>\*</code> | 
 
-<a name="module_REST API_ user data..httpPostSetRequiredElements"></a>
+<a name="module_REST API_ user data..httpGetRequiredElements"></a>
 
-### REST API: user data~httpPostSetRequiredElements(db) ⇒
-HTTP POST: required and unsupported cluster elements based on conformance
+### REST API: user data~httpGetRequiredElements(db) ⇒
+HTTP GET: required and unsupported cluster elements based on conformance
 
 **Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
 **Returns**: callback for the express uri registration  
@@ -15923,7 +15923,7 @@ This module provides the REST API to the user specific data.
     * [~httpGetDeviceTypeFeatures(db)](#module_REST API_ user data..httpGetDeviceTypeFeatures) ⇒
     * [~getEndpointTypeElements(db, endpointTypeClusterId, deviceTypeClusterId)](#module_REST API_ user data..getEndpointTypeElements) ⇒
     * [~httpPostCheckConformOnFeatureUpdate(db)](#module_REST API_ user data..httpPostCheckConformOnFeatureUpdate) ⇒
-    * [~httpPostSetRequiredElements(db)](#module_REST API_ user data..httpPostSetRequiredElements) ⇒
+    * [~httpGetRequiredElements(db)](#module_REST API_ user data..httpGetRequiredElements) ⇒
     * [~httpGetSessionNotifications(db)](#module_REST API_ user data..httpGetSessionNotifications) ⇒
     * [~httpDeleteSessionNotification(db)](#module_REST API_ user data..httpDeleteSessionNotification) ⇒
     * [~httpGetPackageNotifications(db)](#module_REST API_ user data..httpGetPackageNotifications) ⇒
@@ -16036,10 +16036,10 @@ HTTP POST: elements to be updated after toggle a device type feature
 | --- | --- |
 | db | <code>\*</code> | 
 
-<a name="module_REST API_ user data..httpPostSetRequiredElements"></a>
+<a name="module_REST API_ user data..httpGetRequiredElements"></a>
 
-### REST API: user data~httpPostSetRequiredElements(db) ⇒
-HTTP POST: required and unsupported cluster elements based on conformance
+### REST API: user data~httpGetRequiredElements(db) ⇒
+HTTP GET: required and unsupported cluster elements based on conformance
 
 **Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
 **Returns**: callback for the express uri registration  

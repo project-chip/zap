@@ -182,14 +182,16 @@ function httpPostCheckConformOnFeatureUpdate(db) {
 }
 
 /**
- * HTTP POST: required and unsupported cluster elements based on conformance
+ * HTTP GET: required and unsupported cluster elements based on conformance
  * @param {*} db
  * @returns callback for the express uri registration
  */
-function httpPostSetRequiredElements(db) {
+function httpGetRequiredElements(db) {
   return async (request, response) => {
-    let { featureMap, deviceTypeClusterId, endpointTypeClusterId } =
-      request.body
+    let { featureMap, deviceTypeClusterId, endpointTypeClusterId } = JSON.parse(
+      request.query.data
+    )
+    featureMap = JSON.parse(featureMap)
     let endpointTypeElements = await getEndpointTypeElements(
       db,
       endpointTypeClusterId,
@@ -1160,9 +1162,11 @@ function httpGetConformDataExists(db) {
  */
 function httpPostRequiredElementWarning(db) {
   return async (request, response) => {
+    let { element, contextMessage, requiredText, notSupportedText, added } =
+      request.body
     let resp = await querySessionNotification.setRequiredElementWarning(
       db,
-      request.body,
+      { element, contextMessage, requiredText, notSupportedText, added },
       request.zapSessionId
     )
     response.status(StatusCodes.OK).json(resp)
@@ -1282,10 +1286,6 @@ exports.post = [
     callback: httpPostCheckConformOnFeatureUpdate
   },
   {
-    uri: restApi.uri.setRequiredElements,
-    callback: httpPostSetRequiredElements
-  },
-  {
     uri: restApi.uri.requiredElementWarning,
     callback: httpPostRequiredElementWarning
   }
@@ -1347,6 +1347,10 @@ exports.get = [
   {
     uri: restApi.uri.conformDataExists,
     callback: httpGetConformDataExists
+  },
+  {
+    uri: restApi.uri.requiredElements,
+    callback: httpGetRequiredElements
   }
 ]
 
