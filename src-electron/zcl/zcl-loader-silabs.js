@@ -2304,16 +2304,21 @@ function parseConformanceFromXML(operand) {
  * When they appear, stop recursing and return the name inside directly
  *
  * @param {*} operand
+ * @param {*} depth
  * @param {*} parentJoinChar
  * @returns The conformance string.
  */
-function parseConformanceRecursively(operand, parentJoinChar = '') {
+function parseConformanceRecursively(operand, depth = 0, parentJoinChar = '') {
+  if (depth > 200) {
+    throw new Error(`Maximum recursion depth exceeded 
+      when parsing conformance: ${JSON.stringify(operand)}`)
+  }
   const baseLevelTerms = ['feature', 'condition', 'attribute', 'command']
   if (operand.mandatoryConform) {
     let insideTerm = operand.mandatoryConform[0]
     // Recurse further if insideTerm is not empty
     if (insideTerm && Object.keys(insideTerm).toString() != '$') {
-      return parseConformanceRecursively(operand.mandatoryConform[0])
+      return parseConformanceRecursively(operand.mandatoryConform[0], depth + 1)
     } else {
       return 'M'
     }
@@ -2322,13 +2327,15 @@ function parseConformanceRecursively(operand, parentJoinChar = '') {
     // check '$' key is not the only key in the object to handle special cases
     // e.g. '<optionalConform choice="a" more="true"/>'
     if (insideTerm && Object.keys(insideTerm).toString() != '$') {
-      return `[${parseConformanceRecursively(operand.optionalConform[0])}]`
+      return `[${parseConformanceRecursively(operand.optionalConform[0], depth + 1)}]`
     } else {
       return 'O'
     }
   } else if (operand.otherwiseConform) {
     return Object.entries(operand.otherwiseConform[0])
-      .map(([key, value]) => parseConformanceRecursively({ [key]: value }))
+      .map(([key, value]) =>
+        parseConformanceRecursively({ [key]: value }, depth + 1)
+      )
       .join(', ')
   } else if (operand.notTerm) {
     // need to surround terms inside a notTerm with '()' if it contains multiple terms
@@ -2336,7 +2343,7 @@ function parseConformanceRecursively(operand, parentJoinChar = '') {
     // able to process multiple parallel notTerms, e.g. !A & !B
     return operand.notTerm
       .map((term) => {
-        let nt = parseConformanceRecursively(term)
+        let nt = parseConformanceRecursively(term, depth + 1)
         return nt.includes('&') || nt.includes('|') ? `!(${nt})` : `!${nt}`
       })
       .join(` ${parentJoinChar} `)
@@ -2353,7 +2360,11 @@ function parseConformanceRecursively(operand, parentJoinChar = '') {
         if (baseLevelTerms.includes(key)) {
           return value.map((operand) => operand.$.name).join(` ${joinChar} `)
         } else {
-          let terms = parseConformanceRecursively({ [key]: value }, joinChar)
+          let terms = parseConformanceRecursively(
+            { [key]: value },
+            depth + 1,
+            joinChar
+          )
           return terms.includes(oppositeChar) ? `(${terms})` : terms
         }
       })
