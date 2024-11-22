@@ -84,12 +84,123 @@ function httpGetEndpointIds(db) {
  */
 function httpGetDeviceTypeFeatures(db) {
   return async (request, response) => {
-    let deviceTypeRefs = request.query.deviceTypeRefs
-    let deviceTypeFeatures = await queryFeature.getFeaturesByDeviceTypeRefs(
+    let { deviceTypeRefs, endpointTypeRef } = request.query
+    if (Array.isArray(deviceTypeRefs) && deviceTypeRefs.length > 0) {
+      let deviceTypeFeatures = await queryFeature.getFeaturesByDeviceTypeRefs(
+        db,
+        deviceTypeRefs,
+        endpointTypeRef
+      )
+      response.status(StatusCodes.OK).json(deviceTypeFeatures)
+    } else {
+      response.status(StatusCodes.OK).json([])
+    }
+  }
+}
+
+/**
+ * Get all attributes, commands and events in an endpoint type cluster.
+ * @param {*} db
+ * @param {*} endpointTypeClusterId
+ * @param {*} deviceTypeClusterId
+ * @returns elements object containing all attributes, commands and events
+ * in an endpoint type cluster
+ */
+async function getEndpointTypeElements(
+  db,
+  endpointTypeClusterId,
+  deviceTypeClusterId
+) {
+  let [attributes, commands, events] = await Promise.all([
+    queryAttribute.selectAttributesByEndpointTypeClusterId(
       db,
-      deviceTypeRefs
+      endpointTypeClusterId
+    ),
+    queryCommand.selectCommandsByEndpointTypeClusterIdAndDeviceTypeClusterId(
+      db,
+      endpointTypeClusterId,
+      deviceTypeClusterId
+    ),
+    queryEvent.selectEventsByEndpointTypeClusterIdAndDeviceTypeClusterId(
+      db,
+      endpointTypeClusterId,
+      deviceTypeClusterId
     )
-    response.status(StatusCodes.OK).json(deviceTypeFeatures)
+  ])
+  return { attributes, commands, events }
+}
+
+/**
+ * HTTP POST: elements to be updated after toggle a device type feature
+ *
+ * @param {*} db
+ * @returns callback for the express uri registration
+ */
+function httpPostCheckConformOnFeatureUpdate(db) {
+  return async (request, response) => {
+    let sessionId = request.zapSessionId
+    let { featureData, featureMap, endpointId } = request.body
+    let { endpointTypeClusterId, deviceTypeClusterId } = featureData
+
+    let elements = await getEndpointTypeElements(
+      db,
+      endpointTypeClusterId,
+      deviceTypeClusterId
+    )
+    // check element conform and return elements that need to be updated
+    let result = queryFeature.checkElementConformance(
+      elements,
+      featureMap,
+      featureData,
+      endpointId
+    )
+
+    // set device type feature warning
+    await querySessionNotification.setNotificationOnFeatureChange(
+      db,
+      sessionId,
+      result
+    )
+    // do not set element warning if feature change disabled
+    if (!result.disableChange) {
+      let outdatedWarnings = queryFeature.getOutdatedElementWarning(
+        featureData,
+        elements,
+        result.elementMap
+      )
+      await querySessionNotification.deleteNotificationWithPatterns(
+        db,
+        sessionId,
+        outdatedWarnings
+      )
+    }
+
+    response.status(StatusCodes.OK).json(result)
+  }
+}
+
+/**
+ * HTTP GET: required and unsupported cluster elements based on conformance
+ * @param {*} db
+ * @returns callback for the express uri registration
+ */
+function httpGetRequiredElements(db) {
+  return async (request, response) => {
+    let { featureMap, deviceTypeClusterId, endpointTypeClusterId } = JSON.parse(
+      request.query.data
+    )
+    featureMap = JSON.parse(featureMap)
+    let endpointTypeElements = await getEndpointTypeElements(
+      db,
+      endpointTypeClusterId,
+      deviceTypeClusterId
+    )
+    let result = queryFeature.checkElementConformance(
+      endpointTypeElements,
+      featureMap
+    )
+
+    response.status(StatusCodes.OK).json(result)
   }
 }
 
@@ -1009,6 +1120,58 @@ function httpPostDuplicateEndpointType(db) {
 }
 
 /**
+ * Update feature map attribute with given new value
+ *
+ * @param {*} db
+ * @returns status of the update
+ */
+function httpPatchUpdateBitOfFeatureMapAttribute(db) {
+  return async (request, response) => {
+    let { featureMapAttributeId, newValue } = request.body
+    let updated = await queryConfig.updateEndpointTypeAttribute(
+      db,
+      featureMapAttributeId,
+      [['defaultValue', newValue]]
+    )
+    response.status(StatusCodes.OK).json({
+      successful: updated > 0
+    })
+  }
+}
+
+/**
+ * Check if conformance data exists in the database
+ *
+ * @param {*} db
+ * @returns boolean value of data exist or not
+ */
+function httpGetConformDataExists(db) {
+  return async (request, response) => {
+    let conformDataExists = await queryFeature.checkIfConformanceDataExist(db)
+    response.status(StatusCodes.OK).json(conformDataExists)
+  }
+}
+
+/**
+ * Set warning for the required element, and delete its existing warning if any.
+ *
+ * @param {*} db
+ * @returns response of setting the warning notification
+ */
+function httpPostRequiredElementWarning(db) {
+  return async (request, response) => {
+    let { element, contextMessage, requiredText, notSupportedText, added } =
+      request.body
+    let resp = await querySessionNotification.setRequiredElementWarning(
+      db,
+      { element, contextMessage, requiredText, notSupportedText, added },
+      request.zapSessionId
+    )
+    response.status(StatusCodes.OK).json(resp)
+  }
+}
+
+/**
  * duplicate all clusters and attributes of an old endpoint type, using oldEndpointType id and newly created endpointType id
  *
  * @param {*} db
@@ -1115,6 +1278,14 @@ exports.post = [
   {
     uri: restApi.uri.duplicateEndpointType,
     callback: httpPostDuplicateEndpointType
+  },
+  {
+    uri: restApi.uri.checkConformOnFeatureUpdate,
+    callback: httpPostCheckConformOnFeatureUpdate
+  },
+  {
+    uri: restApi.uri.requiredElementWarning,
+    callback: httpPostRequiredElementWarning
   }
 ]
 
@@ -1170,6 +1341,14 @@ exports.get = [
   {
     uri: restApi.uri.getAllPackages,
     callback: httpGetAllPackages
+  },
+  {
+    uri: restApi.uri.conformDataExists,
+    callback: httpGetConformDataExists
+  },
+  {
+    uri: restApi.uri.requiredElements,
+    callback: httpGetRequiredElements
   }
 ]
 
@@ -1185,5 +1364,12 @@ exports.delete = [
   {
     uri: restApi.uri.deletePackageNotification,
     callback: httpDeletePackageNotification
+  }
+]
+
+exports.patch = [
+  {
+    uri: restApi.uri.updateBitOfFeatureMapAttribute,
+    callback: httpPatchUpdateBitOfFeatureMapAttribute
   }
 ]

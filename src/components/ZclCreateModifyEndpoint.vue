@@ -695,6 +695,10 @@ export default {
                 res.endpointType
               )
               this.$store.commit('zap/toggleEndpointModal', false)
+              this.$store.dispatch('zap/setDeviceTypeFeatures', {
+                deviceTypeRefs: deviceTypeRef,
+                endpointTypeRef: res.id
+              })
             })
         })
         .catch((err) => console.log('Error in newEpt: ' + err.message))
@@ -772,6 +776,10 @@ export default {
       })
       this.$store.dispatch('zap/updateSelectedEndpoint', this.endpointReference)
       this.$store.dispatch('zap/updateClusters')
+      this.$store.dispatch('zap/setDeviceTypeFeatures', {
+        deviceTypeRefs: deviceTypeRef,
+        endpointTypeRef: this.endpointReference
+      })
     },
     getDeviceOptionLabel(item) {
       if (item == null || item.deviceTypeRef == null) return ''

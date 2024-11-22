@@ -16,6 +16,7 @@
  */
 import Vue from 'vue'
 import CommonMixin from '../util/common-mixin'
+import { Notify } from 'quasar'
 
 /**
  * This module provides common properties used across various vue components related to attribute editting.
@@ -174,6 +175,9 @@ export default {
       }
     },
     handleAttributeDefaultChange(newValue, listType, attributeData, clusterId) {
+      if (listType == 'defaultValue' && attributeData.code == 0xfffc) {
+        this.showWarningOnFeatureMapChange()
+      }
       let editContext = {
         action: 'text',
         endpointTypeIdList: this.endpointTypeIdList,
@@ -199,6 +203,12 @@ export default {
       } else {
         addedValue = false
       }
+
+      this.setRequiredElementNotifications(
+        attributeData,
+        addedValue,
+        'attributes'
+      )
 
       let editContext = {
         action: 'boolean',
@@ -265,6 +275,16 @@ export default {
       this.$store.dispatch('zap/setAttributeEditting', {
         attributeId: attributeId,
         editState: false
+      })
+    },
+    showWarningOnFeatureMapChange() {
+      Notify.create({
+        message: `Manually changing the value of featureMap 
+          attribute may lead to incorrect device type configurations.`,
+        type: 'warning',
+        classes: 'custom-notification notification-warning',
+        position: 'top',
+        html: true
       })
     },
 

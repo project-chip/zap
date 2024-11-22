@@ -222,14 +222,16 @@ async function insertOrUpdateAttributeState(
     staticAttribute.defaultValue == 0
   ) {
     let featureMapDefaultValue = staticAttribute.defaultValue
-    let mandatoryFeaturesOnEndpointTypeAndCluster =
+    let featuresOnEndpointTypeAndCluster =
       await queryDeviceType.selectDeviceTypeFeaturesByEndpointTypeIdAndClusterId(
         db,
         endpointTypeId,
         clusterRef
       )
-    let featureMapBitsToBeEnabled =
-      mandatoryFeaturesOnEndpointTypeAndCluster.map((f) => f.featureBit)
+    // only set featureMap bit to 1 for mandatory features
+    let featureMapBitsToBeEnabled = featuresOnEndpointTypeAndCluster
+      .filter((f) => f.conformance == 'M')
+      .map((f) => f.featureBit)
     featureMapBitsToBeEnabled.forEach(
       (featureBit) =>
         (featureMapDefaultValue = featureMapDefaultValue | (1 << featureBit))

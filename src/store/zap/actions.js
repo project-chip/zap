@@ -924,19 +924,89 @@ export function setMiniState(context, data) {
 
 /**
  * This action updates the device type features after a new endpoint is selected.
+ * After that, it updates the hash of enabled device type features
  *
  * @param {*} context
  * @param {*} deviceTypeRefs
  */
-export async function updateSelectedDeviceTypeFeatures(
+export async function setDeviceTypeFeatures(
   context,
-  deviceTypeRefs
+  { deviceTypeRefs, endpointTypeRef }
 ) {
-  let config = { params: { deviceTypeRefs: deviceTypeRefs } }
+  let config = {
+    params: {
+      deviceTypeRefs: deviceTypeRefs,
+      endpointTypeRef: endpointTypeRef
+    }
+  }
   axiosRequests
     .$serverGet(restApi.uri.deviceTypeFeatures, config)
     .then((resp) => {
-      context.commit('updateDeviceTypeFeatures', resp.data)
+      let deviceTypeFeatures = []
+      /* For a device type feature under the same endpoint and cluster, but different device types,  
+        merge their rows into one and combine their device type names into a list. */
+      resp.data.forEach((row) => {
+        const key = `${row.endpointTypeClusterId}-${row.featureId}`
+        if (key in deviceTypeFeatures) {
+          let existingRow = deviceTypeFeatures[key]
+          if (!existingRow.deviceTypes.includes(row.deviceType)) {
+            existingRow.deviceTypes.push(row.deviceType)
+          }
+        } else {
+          deviceTypeFeatures[key] = {
+            ...row,
+            deviceTypes: [row.deviceType]
+          }
+          delete deviceTypeFeatures[key].deviceType
+        }
+      })
+      deviceTypeFeatures = Object.values(deviceTypeFeatures)
+
+      context.commit('setDeviceTypeFeatures', deviceTypeFeatures)
+
+      let enabledDeviceTypeFeatures = []
+      // turn on the toggle for features with their bit set in featureMap attribute
+      deviceTypeFeatures.forEach((feature) => {
+        if (feature.featureMapValue & (1 << feature.bit)) {
+          enabledDeviceTypeFeatures.push(
+            Util.cantorPair(feature.deviceTypeClusterId, feature.featureId)
+          )
+        }
+      })
+      context.commit(
+        'updateEnabledDeviceTypeFeatures',
+        enabledDeviceTypeFeatures
+      )
+    })
+}
+
+/**
+ * Update the conformDataExists state
+ * to show or hide of the device type features button.
+ * @param {*} context
+ */
+export function updateConformDataExists(context) {
+  axiosRequests.$serverGet(restApi.uri.conformDataExists).then((response) => {
+    context.commit('updateConformDataExists', response.data)
+  })
+}
+
+/**
+ * Set required and unsupported elements based on feature conformance within a cluster
+ * @param {*} context
+ * @param {*} data
+ * @returns
+ */
+export function setRequiredElements(context, data) {
+  if (data.featureMap) {
+    data.featureMap = JSON.stringify(data.featureMap)
+  }
+  return axiosRequests
+    .$serverGet(restApi.uri.requiredElements, {
+      params: { data: JSON.stringify(data) }
+    })
+    .then((response) => {
+      context.commit('setRequiredElements', response.data)
     })
 }
 

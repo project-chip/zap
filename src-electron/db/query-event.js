@@ -113,6 +113,7 @@ SELECT
   NAME,
   DESCRIPTION,
   SIDE,
+  CONFORMANCE,
   IS_OPTIONAL,
   IS_FABRIC_SENSITIVE,
   PRIORITY
@@ -148,6 +149,7 @@ SELECT
   E.NAME,
   E.DESCRIPTION,
   E.SIDE,
+  E.CONFORMANCE,
   E.IS_OPTIONAL,
   E.IS_FABRIC_SENSITIVE,
   E.PRIORITY
@@ -231,9 +233,56 @@ ORDER BY
     .then((rows) => rows.map(dbMapping.map.eventField))
 }
 
+/**
+ * Get all events in an endpoint type cluster
+ * Disabled events are not loaded into ENDPOINT_TYPE_EVENT table,
+ * so we need to load all events by joining DEVICE_TYPE_EVENT table
+ *
+ * @param {*} db
+ * @param {*} endpointTypeClusterId
+ * @param {*} deviceTypeClusterId
+ * @returns all events in an endpoint type cluster
+ */
+async function selectEventsByEndpointTypeClusterIdAndDeviceTypeClusterId(
+  db,
+  endpointTypeClusterId,
+  deviceTypeClusterId
+) {
+  let rows = await dbApi.dbAll(
+    db,
+    `
+    SELECT
+      EVENT.EVENT_ID,
+      EVENT.NAME,
+      EVENT.CLUSTER_REF,
+      EVENT.SIDE,
+      EVENT.CONFORMANCE,
+      COALESCE(ENDPOINT_TYPE_EVENT.INCLUDED, 0) AS INCLUDED
+    FROM
+      EVENT
+    JOIN
+      DEVICE_TYPE_CLUSTER
+    ON
+      EVENT.CLUSTER_REF = DEVICE_TYPE_CLUSTER.CLUSTER_REF
+    LEFT JOIN
+      ENDPOINT_TYPE_EVENT
+    ON
+        EVENT.EVENT_ID = ENDPOINT_TYPE_EVENT.EVENT_REF
+      AND
+        ENDPOINT_TYPE_EVENT.ENDPOINT_TYPE_CLUSTER_REF = ?
+    WHERE
+      DEVICE_TYPE_CLUSTER.DEVICE_TYPE_CLUSTER_ID = ?
+    `,
+    [endpointTypeClusterId, deviceTypeClusterId]
+  )
+  return rows.map(dbMapping.map.endpointTypeEventExtended)
+}
+
 exports.selectEventsByClusterId = selectEventsByClusterId
 exports.selectAllEvents = selectAllEvents
 exports.selectAllEventFields = selectAllEventFields
+exports.selectEventsByEndpointTypeClusterIdAndDeviceTypeClusterId =
+  selectEventsByEndpointTypeClusterIdAndDeviceTypeClusterId
 exports.selectEventFieldsByEventId = selectEventFieldsByEventId
 exports.selectEndpointTypeEventsByEndpointTypeRefAndClusterRef =
   selectEndpointTypeEventsByEndpointTypeRefAndClusterRef

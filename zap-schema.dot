@@ -189,6 +189,21 @@ digraph "SchemaCrawler_Diagram" {
 		<td align='left'> </td>
 		<td port='is_signed_2b152687.end' align='left'>INTEGER</td>
 	</tr>
+	<tr>
+		<td port='is_composite_74102c48.start' align='left'>IS_COMPOSITE</td>
+		<td align='left'> </td>
+		<td port='is_composite_74102c48.end' align='left'>INTEGER</td>
+	</tr>
+	<tr>
+		<td port='is_float_6e4d219d.start' align='left'>IS_FLOAT</td>
+		<td align='left'> </td>
+		<td port='is_float_6e4d219d.end' align='left'>INTEGER</td>
+	</tr>
+	<tr>
+		<td port='base_type_3dee6e9e.start' align='left'>BASE_TYPE</td>
+		<td align='left'> </td>
+		<td port='base_type_3dee6e9e.end' align='left'>TEXT</td>
+	</tr>
       </table>
     >
   ];
@@ -252,6 +267,11 @@ digraph "SchemaCrawler_Diagram" {
 		<td port='define_ad1c7a40.start' align='left'>DEFINE</td>
 		<td align='left'> </td>
 		<td port='define_ad1c7a40.end' align='left'>TEXT</td>
+	</tr>
+	<tr>
+		<td port='conformance_76bebfa.start' align='left'>CONFORMANCE</td>
+		<td align='left'> </td>
+		<td port='conformance_76bebfa.end' align='left'>TEXT</td>
 	</tr>
 	<tr>
 		<td port='min_3526d6b7.start' align='left'>MIN</td>
@@ -362,6 +382,16 @@ digraph "SchemaCrawler_Diagram" {
 		<td port='persistence_685f8304.start' align='left'>PERSISTENCE</td>
 		<td align='left'> </td>
 		<td port='persistence_685f8304.end' align='left'>TEXT</td>
+	</tr>
+	<tr>
+		<td port='manufacturer_code_derived_d004b7de.start' align='left'>MANUFACTURER_CODE_DERIVED</td>
+		<td align='left'> </td>
+		<td port='manufacturer_code_derived_d004b7de.end' align='left'></td>
+	</tr>
+	<tr>
+		<td align='left'></td>
+		<td align='left'></td>
+		<td align='left'>generated</td>
 	</tr>
       </table>
     >
@@ -585,6 +615,16 @@ digraph "SchemaCrawler_Diagram" {
 		<td align='left'> </td>
 		<td port='api_maturity_e55f511d.end' align='left'>TEXT</td>
 	</tr>
+	<tr>
+		<td port='manufacturer_code_derived_14fa4040.start' align='left'>MANUFACTURER_CODE_DERIVED</td>
+		<td align='left'> </td>
+		<td port='manufacturer_code_derived_14fa4040.end' align='left'></td>
+	</tr>
+	<tr>
+		<td align='left'></td>
+		<td align='left'></td>
+		<td align='left'>generated</td>
+	</tr>
       </table>
     >
   ];
@@ -684,6 +724,11 @@ digraph "SchemaCrawler_Diagram" {
 		<td port='is_optional_e326248b.end' align='left'>INTEGER</td>
 	</tr>
 	<tr>
+		<td port='conformance_dd10512b.start' align='left'>CONFORMANCE</td>
+		<td align='left'> </td>
+		<td port='conformance_dd10512b.end' align='left'>TEXT</td>
+	</tr>
+	<tr>
 		<td port='must_use_timed_invoke_6bf58ba4.start' align='left'>MUST_USE_TIMED_INVOKE</td>
 		<td align='left'> </td>
 		<td port='must_use_timed_invoke_6bf58ba4.end' align='left'>INTEGER</td>
@@ -722,6 +767,16 @@ digraph "SchemaCrawler_Diagram" {
 		<td port='is_large_message_6c2c4624.start' align='left'>IS_LARGE_MESSAGE</td>
 		<td align='left'> </td>
 		<td port='is_large_message_6c2c4624.end' align='left'>INTEGER</td>
+	</tr>
+	<tr>
+		<td port='manufacturer_code_derived_a5a91d0f.start' align='left'>MANUFACTURER_CODE_DERIVED</td>
+		<td align='left'> </td>
+		<td port='manufacturer_code_derived_a5a91d0f.end' align='left'></td>
+	</tr>
+	<tr>
+		<td align='left'></td>
+		<td align='left'></td>
+		<td align='left'>generated</td>
 	</tr>
       </table>
     >
@@ -1834,6 +1889,11 @@ digraph "SchemaCrawler_Diagram" {
 		<td port='side_7acfc19e.end' align='left'>TEXT</td>
 	</tr>
 	<tr>
+		<td port='conformance_4cef2bbc.start' align='left'>CONFORMANCE</td>
+		<td align='left'> </td>
+		<td port='conformance_4cef2bbc.end' align='left'>TEXT</td>
+	</tr>
+	<tr>
 		<td port='is_optional_5304ff1c.start' align='left'>IS_OPTIONAL</td>
 		<td align='left'> </td>
 		<td port='is_optional_5304ff1c.end' align='left'>INTEGER</td>
@@ -1857,6 +1917,16 @@ digraph "SchemaCrawler_Diagram" {
 		<td port='removed_in_ref_216d577f.start' align='left'>REMOVED_IN_REF</td>
 		<td align='left'> </td>
 		<td port='removed_in_ref_216d577f.end' align='left'>INTEGER</td>
+	</tr>
+	<tr>
+		<td port='manufacturer_code_derived_1587f7a0.start' align='left'>MANUFACTURER_CODE_DERIVED</td>
+		<td align='left'> </td>
+		<td port='manufacturer_code_derived_1587f7a0.end' align='left'></td>
+	</tr>
+	<tr>
+		<td align='left'></td>
+		<td align='left'></td>
+		<td align='left'>generated</td>
 	</tr>
       </table>
     >

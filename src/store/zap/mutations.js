@@ -1096,8 +1096,8 @@ export function updateNotificationCount(state, value) {
 
 /**
  * This function will update the device type features after a new endpoint is selected
- * @param {*} state 
- * @param {*} value 
+ * @param {*} state
+ * @param {*} value
  */
 export function updateDeviceTypeFeatures(state, value) {
   state.deviceTypeFeatures = value
@@ -1125,4 +1125,64 @@ export function setDirtyState(state, isDirty) {
  */
 export function setEnabledClusters(state, clusters) {
   state.enabledClusters = clusters
+}
+
+/**
+ * Updates the entire list of device type features.
+ * @param {*} state
+ * @param {*} data
+ */
+export function setDeviceTypeFeatures(state, data) {
+  vue3Set(state.featureView, 'deviceTypeFeatures', data)
+}
+
+/**
+ * Update the list of hash of enabled device type features.
+ * @param {*} state
+ * @param {*} data
+ */
+export function updateEnabledDeviceTypeFeatures(state, data) {
+  vue3Set(state.featureView, 'enabledDeviceTypeFeatures', data)
+}
+
+/**
+ * Updates the feature map attribute for all features related to a feature map attribute id.
+ * @param {*} state
+ * @param {*} featureMapAttributeId
+ * @param {*} featureMapValue
+ */
+export function updateFeatureMapAttributeOfFeature(
+  state,
+  { featureMapAttributeId, featureMapValue }
+) {
+  state.featureView.deviceTypeFeatures.map((feature) => {
+    if (featureMapAttributeId == feature.featureMapAttributeId) {
+      feature.featureMapValue = featureMapValue
+    }
+  })
+}
+
+/**
+ * Updates the conformDataExists state to show or hide the device type features button.
+ * @param {*} state
+ * @param {*} value
+ */
+export function updateConformDataExists(state, value) {
+  vue3Set(state.featureView, 'conformDataExists', value)
+}
+
+/**
+ * Set states for attributes, commands, and events within a cluster
+ * that are required or not supported based on their feature conformance.
+ * @param {*} state
+ * @param {*} data
+ */
+export function setRequiredElements(state, data) {
+  let { attributesToUpdate, commandsToUpdate, eventsToUpdate } = data
+  vue3Set(state.attributeView, 'mandatory', attributesToUpdate.required)
+  vue3Set(state.attributeView, 'notSupported', attributesToUpdate.notSupported)
+  vue3Set(state.commandView, 'mandatory', commandsToUpdate.required)
+  vue3Set(state.commandView, 'notSupported', commandsToUpdate.notSupported)
+  vue3Set(state.eventView, 'mandatory', eventsToUpdate.required)
+  vue3Set(state.eventView, 'notSupported', eventsToUpdate.notSupported)
 }

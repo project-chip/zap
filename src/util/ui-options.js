@@ -55,6 +55,9 @@ export default {
         return categories
       }
     },
+    conformDataExists() {
+      return this.$store.state.zap.featureView.conformDataExists
+    },
     enableMatterFeatures() {
       // Check if cmpEnableMatterFeatures is true
       if (this.$store.state.zap.cmpEnableMatterFeatures) {
@@ -103,7 +106,7 @@ export default {
       return this.enableMatterFeatures
     },
     enableFeature() {
-      return this.enableMatterFeatures
+      return this.enableMatterFeatures && this.conformDataExists
     },
     enableServerOnly() {
       return this.enableMatterFeatures

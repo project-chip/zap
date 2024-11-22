@@ -59,13 +59,14 @@ INSERT INTO EVENT (
   NAME,
   DESCRIPTION,
   SIDE,
+  CONFORMANCE,
   IS_OPTIONAL,
   IS_FABRIC_SENSITIVE,
   PRIORITY,
   INTRODUCED_IN_REF,
   REMOVED_IN_REF
 ) VALUES (
-  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
 )
@@ -96,6 +97,7 @@ INSERT INTO COMMAND (
   DESCRIPTION,
   SOURCE,
   IS_OPTIONAL,
+  CONFORMANCE,
   MUST_USE_TIMED_INVOKE,
   IS_FABRIC_SCOPED,
   RESPONSE_NAME,
@@ -105,7 +107,7 @@ INSERT INTO COMMAND (
   IS_DEFAULT_RESPONSE_ENABLED,
   IS_LARGE_MESSAGE
 ) VALUES (
-  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   ?, ?
@@ -146,6 +148,7 @@ INSERT INTO ATTRIBUTE (
   TYPE,
   SIDE,
   DEFINE,
+  CONFORMANCE,
   MIN,
   MAX,
   MIN_LENGTH,
@@ -170,7 +173,7 @@ INSERT INTO ATTRIBUTE (
   IS_CHANGE_OMITTED,
   PERSISTENCE
 ) VALUES (
-  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   ?,
@@ -222,6 +225,7 @@ function attributeMap(clusterId, packageId, attributes) {
     attribute.type,
     attribute.side,
     attribute.define,
+    attribute.conformance,
     attribute.min,
     attribute.max,
     attribute.minLength,
@@ -267,6 +271,7 @@ function eventMap(clusterId, packageId, events) {
     event.name,
     event.description,
     event.side,
+    event.conformance,
     dbApi.toDbBool(event.isOptional),
     dbApi.toDbBool(event.isFabricSensitive),
     event.priority,
@@ -294,6 +299,7 @@ function commandMap(clusterId, packageId, commands) {
     command.description,
     command.source,
     dbApi.toDbBool(command.isOptional),
+    command.conformance,
     dbApi.toDbBool(command.mustUseTimedInvoke),
     dbApi.toDbBool(command.isFabricScoped),
     command.responseName,

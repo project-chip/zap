@@ -17,6 +17,7 @@
 
 import * as Util from './util'
 import * as DbEnum from '../../src-shared/db-enum'
+import restApi from '../../src-shared/rest-api'
 const http = require('http-status-codes')
 
 /**
@@ -114,6 +115,70 @@ export default {
           return [this.selectedEndpointTypeId]
         }
       }
+    },
+    deviceTypeFeatures: {
+      get() {
+        return this.$store.state.zap.featureView.deviceTypeFeatures
+      }
+    },
+    deviceTypeFeatureInSelectedCluster: {
+      get() {
+        return this.selectedClusterId
+          ? this.deviceTypeFeatures.filter(
+              (feature) => feature.clusterRef == this.selectedClusterId
+            )
+          : this.deviceTypeFeatures
+      }
+    },
+    featureMap: {
+      get() {
+        return this.deviceTypeFeatureInSelectedCluster.reduce((map, obj) => {
+          map[obj.code] = this.enabledDeviceTypeFeatures.includes(
+            this.hashDeviceTypeClusterIdFeatureId(
+              obj.deviceTypeClusterId,
+              obj.featureId
+            )
+          )
+            ? 1
+            : 0
+          return map
+        }, {})
+      }
+    },
+    enabledDeviceTypeFeatures: {
+      get() {
+        return this.$store.state.zap.featureView.enabledDeviceTypeFeatures
+      }
+    },
+    attributesRequiredByConform: {
+      get() {
+        return this.$store.state.zap.attributeView.mandatory
+      }
+    },
+    attributesNotSupportedByConform: {
+      get() {
+        return this.$store.state.zap.attributeView.notSupported
+      }
+    },
+    commandsRequiredByConform: {
+      get() {
+        return this.$store.state.zap.commandView.mandatory
+      }
+    },
+    commandsNotSupportedByConform: {
+      get() {
+        return this.$store.state.zap.commandView.notSupported
+      }
+    },
+    eventsRequiredByConform: {
+      get() {
+        return this.$store.state.zap.eventView.mandatory
+      }
+    },
+    eventsNotSupportedByConform: {
+      get() {
+        return this.$store.state.zap.eventView.notSupported
+      }
     }
   },
   methods: {
@@ -150,12 +215,11 @@ export default {
       })
       this.$store.dispatch('zap/updateSelectedEndpoint', endpointReference)
       this.$store.dispatch('zap/updateClusters')
-      let deviceTypeRefs =
-        this.endpointDeviceTypeRef[this.selectedEndpointTypeId]
-      this.$store.dispatch(
-        'zap/updateSelectedDeviceTypeFeatures',
-        deviceTypeRefs
-      )
+      let deviceTypeRefs = this.endpointDeviceTypeRef[this.selectedEndpointId]
+      this.$store.dispatch('zap/setDeviceTypeFeatures', {
+        deviceTypeRefs: deviceTypeRefs,
+        endpointTypeRef: endpointReference
+      })
     },
     sdkExtClusterCode(extEntry) {
       return extEntry ? extEntry.entityCode : ''
@@ -337,6 +401,54 @@ export default {
         )
         return zclProperty.pkg?.category
       }
+    },
+    /**
+     * The function is called when the cluster component is initialized to
+     * set required and unsupported elements based on conformance for the selected cluster.
+     */
+    setRequiredConformElement() {
+      let features = this.deviceTypeFeatureInSelectedCluster
+      if (Object.keys(features).length > 0) {
+        let feature = Object.values(features)[0]
+        let deviceTypeClusterId = feature.deviceTypeClusterId
+        let endpointTypeClusterId = feature.endpointTypeClusterId
+        this.$store.dispatch('zap/setRequiredElements', {
+          featureMap: this.featureMap,
+          deviceTypeClusterId: deviceTypeClusterId,
+          endpointTypeClusterId: endpointTypeClusterId
+        })
+      }
+    },
+    hashDeviceTypeClusterIdFeatureId(deviceTypeClusterId, featureId) {
+      return Util.cantorPair(deviceTypeClusterId, featureId)
+    },
+    /**
+     * When user toggles an element, set warning in the notification system
+     * if the new state does not match its conformance,
+     * and delete previous warning for this element if any.
+     *
+     * @param {*} element
+     * @param {*} added
+     * @param {*} elementType
+     * @param {*} clusterRef
+     */
+    setRequiredElementNotifications(element, added, elementType) {
+      let clusterName = this.selectedCluster.label
+      let endpointId = this.endpointId[this.selectedEndpointId]
+      let contextMessage =
+        `On endpoint ${endpointId}, ` +
+        `cluster: ${clusterName}, ${elementType.slice(0, -1)}: `
+      let requiredText = this[`${elementType}RequiredByConform`][element.id]
+      let notSupportedText =
+        this[`${elementType}NotSupportedByConform`][element.id]
+
+      this.$serverPost(restApi.uri.requiredElementWarning, {
+        element: element,
+        contextMessage: contextMessage,
+        requiredText: requiredText,
+        notSupportedText: notSupportedText,
+        added: added
+      })
     }
   }
 }

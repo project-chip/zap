@@ -48,7 +48,12 @@ limitations under the License.
                 self="bottom middle"
                 :offset="[10, 10]"
               >
-                {{ validationErrorMessage }}
+                <div
+                  v-for="(warning, index) in getCommandWarning(props.row)"
+                  :key="index"
+                >
+                  {{ warning }}
+                </div>
               </q-tooltip>
             </q-td>
             <q-td key="out" :props="props" auto-width>
@@ -135,10 +140,12 @@ limitations under the License.
 <script>
 import * as Util from '../util/util.js'
 import EditableAttributesMixin from '../util/editable-attributes-mixin.js'
+import uiOptions from '../util/ui-options'
+import CommonMixin from '../util/common-mixin'
 
 export default {
   name: 'ZclCommandManager',
-  mixins: [EditableAttributesMixin],
+  mixins: [EditableAttributesMixin, uiOptions, CommonMixin],
   computed: {
     commandData: {
       get() {
@@ -168,25 +175,60 @@ export default {
     }
   },
   methods: {
+    /* Display warnings if command required by device type is disabled,
+       or if command state does not match mandatory or notSupported conformance.
+       Two types of warnings can be displayed at the same time. */
     displayCommandWarning(row) {
       return (
-        (this.isCommandRequired(row) &&
-          ((this.selectionClients.includes(this.selectedCluster.id) &&
-            row.source == 'client') ||
-            (this.selectionServers.includes(this.selectedCluster.id) &&
-              row.source == 'server')) &&
+        (this.enableFeature &&
+          ((this.commandsRequiredByConform[row.id] &&
+            this.isCommandUnselected(row)) ||
+            (this.commandsNotSupportedByConform[row.id] &&
+              !this.isCommandUnselected(row)))) ||
+        this.isRequiredCommandUnselected(row)
+      )
+    },
+    getCommandWarning(row) {
+      let warnings = []
+      if (
+        this.commandsRequiredByConform[row.id] &&
+        this.isCommandUnselected(row) &&
+        this.enableFeature
+      ) {
+        warnings.push(this.commandsRequiredByConform[row.id])
+      }
+      if (
+        this.commandsNotSupportedByConform[row.id] &&
+        !this.isCommandUnselected(row) &&
+        this.enableFeature
+      ) {
+        warnings.push(this.commandsNotSupportedByConform[row.id])
+      }
+      if (this.isRequiredCommandUnselected(row)) {
+        warnings.push(this.defaultWarning)
+      }
+      return warnings
+    },
+    isCommandUnselected(row) {
+      return (
+        (((this.selectionClients.includes(this.selectedCluster.id) &&
+          row.source == 'client') ||
+          (this.selectionServers.includes(this.selectedCluster.id) &&
+            row.source == 'server')) &&
           !this.selectionOut.includes(
             this.hashCommandIdClusterId(row.id, this.selectedCluster.id)
           )) ||
-        (this.isCommandRequired(row) &&
-          ((this.selectionClients.includes(this.selectedCluster.id) &&
-            row.source == 'server') ||
-            (this.selectionServers.includes(this.selectedCluster.id) &&
-              row.source == 'client')) &&
+        (((this.selectionClients.includes(this.selectedCluster.id) &&
+          row.source == 'server') ||
+          (this.selectionServers.includes(this.selectedCluster.id) &&
+            row.source == 'client')) &&
           !this.selectionIn.includes(
             this.hashCommandIdClusterId(row.id, this.selectedCluster.id)
           ))
       )
+    },
+    isRequiredCommandUnselected(row) {
+      return this.isCommandUnselected(row) && this.isCommandRequired(row)
     },
     handleCommandSelection(list, listType, commandData, clusterId) {
       // We determine the ID that we need to toggle within the list.
@@ -201,6 +243,9 @@ export default {
       } else {
         addedValue = false
       }
+
+      this.setRequiredElementNotifications(commandData, addedValue, 'commands')
+
       let editContext = {
         action: 'boolean',
         endpointTypeIdList: this.endpointTypeIdList,
@@ -222,7 +267,7 @@ export default {
   data() {
     return {
       noCommandsMessage: 'No commands available for this cluster.',
-      validationErrorMessage:
+      defaultWarning:
         'This command is mandatory for the cluster and device type configuration you have enabled',
       pagination: {
         rowsPerPage: 50

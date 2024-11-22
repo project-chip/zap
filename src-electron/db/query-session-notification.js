@@ -83,13 +83,11 @@ async function setNotification(
 }
 
 /**
- * Deletes a notification from the SESSION_NOTICE table
+ * Deletes a notification from the SESSION_NOTICE table by NOTICE_ID
  *
  * @export
  * @param {*} db
- * @param {*} sessionId
- * @param {*} type
- * @param {*} message
+ * @param {*} id
  */
 async function deleteNotification(db, id) {
   return dbApi.dbUpdate(
@@ -133,11 +131,11 @@ async function getUnseenNotificationCount(db, sessionId) {
 }
 
 /**
- * update SEEN column to 1 for all notifications from the SESSION_NOTICE table with NOTIC_ORDER inside given input array unseenIds
+ * update SEEN column to 1 for all notifications from the SESSION_NOTICE table with NOTICE_ID inside given input array unseenIds
  *
  * @export
  * @param {*} db
- * @param {*} sessionId
+ * @param {*} unseenIds
  */
 async function markNotificationsAsSeen(db, unseenIds) {
   if (unseenIds && unseenIds.length > 0) {
@@ -150,10 +148,158 @@ async function markNotificationsAsSeen(db, unseenIds) {
   }
 }
 
+/**
+ * search for notifications with given message and delete them if found
+ *
+ * @export
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} message
+ * @returns db delete promise if notification(s) were found and deleted, false otherwise
+ */
+async function searchNotificationByMessageAndDelete(db, sessionId, message) {
+  let rows = await dbApi.dbAll(
+    db,
+    'SELECT NOTICE_ID FROM SESSION_NOTICE WHERE SESSION_REF = ? AND NOTICE_MESSAGE = ?',
+    [sessionId, message]
+  )
+  if (rows && rows.length > 0) {
+    let ids = rows.map((row) => row.NOTICE_ID)
+    let deleteResponses = []
+    for (let id of ids) {
+      let response = await deleteNotification(db, id)
+      deleteResponses.push(response)
+    }
+    return deleteResponses
+  }
+  return false
+}
+
+/**
+ * check if notification with given message exists and if not, create a new one with type WARNING
+ *
+ * @export
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} message
+ * @returns setNotification response if message does not exist and notification was set, false otherwise
+ */
+async function setWarningIfMessageNotExists(db, sessionId, message) {
+  let rows = await dbApi.dbAll(
+    db,
+    'SELECT NOTICE_ID FROM SESSION_NOTICE WHERE SESSION_REF = ? AND NOTICE_MESSAGE = ?',
+    [sessionId, message]
+  )
+  if (rows && rows.length == 0) {
+    return setNotification(db, 'WARNING', message, sessionId, 2, 0)
+  }
+  return false
+}
+
+/**
+ * Set or delete warning notification after updating a device type feature.
+ *
+ * @export
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} result
+ */
+async function setNotificationOnFeatureChange(db, sessionId, result) {
+  let { warningMessage, disableChange, displayWarning } = result
+  if (disableChange) {
+    for (let message of warningMessage) {
+      await setWarningIfMessageNotExists(db, sessionId, message)
+    }
+    return
+  }
+  if (displayWarning) {
+    await setNotification(db, 'WARNING', warningMessage, sessionId, 2, 0)
+  } else {
+    await searchNotificationByMessageAndDelete(db, sessionId, warningMessage)
+  }
+}
+
+/**
+ * Set warning for the required element. Delete previous warning for the element if exists.
+ *
+ * @export
+ * @param {*} db
+ * @param {*} data
+ * @param {*} sessionId
+ * @returns response of setting warning notification
+ */
+async function setRequiredElementWarning(db, data, sessionId) {
+  let { element, contextMessage, requiredText, notSupportedText, added } = data
+
+  // delete previous warning before setting new one
+  let patterns = [`${element.name} conforms to ${element.conformance} and is`]
+  await deleteNotificationWithPatterns(db, sessionId, patterns)
+
+  let addResp = false
+  if (requiredText && !added) {
+    addResp = await setWarningIfMessageNotExists(
+      db,
+      sessionId,
+      contextMessage + requiredText
+    )
+  }
+  if (notSupportedText && added) {
+    addResp = await setWarningIfMessageNotExists(
+      db,
+      sessionId,
+      contextMessage + notSupportedText
+    )
+  }
+  return addResp
+}
+
+/**
+ * Delete notifications with message containing substrings specified in the patterns array.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} patterns
+ * @returns response of deleting notifications
+ */
+async function deleteNotificationWithPatterns(db, sessionId, patterns) {
+  if (!Array.isArray(patterns) || patterns.length == 0) return false
+
+  let placeholders = patterns.map(() => '?').join(' OR NOTICE_MESSAGE LIKE ')
+  let query = `
+    SELECT
+      NOTICE_ID
+    FROM
+      SESSION_NOTICE
+    WHERE
+      SESSION_REF = ?
+    AND (
+      NOTICE_MESSAGE LIKE ${placeholders}
+    )
+    `
+  let params = [sessionId, ...patterns.map((pattern) => `%${pattern}%`)]
+
+  let rows = await dbApi.dbAll(db, query, params)
+  if (rows && rows.length > 0) {
+    let ids = rows.map((row) => row.NOTICE_ID)
+    let deleteResponses = []
+    for (let id of ids) {
+      let response = await deleteNotification(db, id)
+      deleteResponses.push(response)
+    }
+    return deleteResponses
+  }
+  return false
+}
+
 // exports
 exports.setNotification = setNotification
 exports.deleteNotification = deleteNotification
 exports.getNotification = getNotification
 exports.getUnseenNotificationCount = getUnseenNotificationCount
 exports.markNotificationsAsSeen = markNotificationsAsSeen
-//# sourceMappingURL=query-session-notification.js.map
+exports.searchNotificationByMessageAndDelete =
+  searchNotificationByMessageAndDelete
+exports.setWarningIfMessageNotExists = setWarningIfMessageNotExists
+exports.setNotificationOnFeatureChange = setNotificationOnFeatureChange
+exports.setRequiredElementWarning = setRequiredElementWarning
+exports.deleteNotificationWithPatterns = deleteNotificationWithPatterns

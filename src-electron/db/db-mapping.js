@@ -100,6 +100,7 @@ exports.map = {
       type: x.TYPE != 'array' ? x.TYPE : x.ARRAY_TYPE,
       side: x.SIDE,
       define: x.DEFINE,
+      conformance: x.CONFORMANCE,
       min: x.MIN,
       max: x.MAX,
       minLength: x.MIN_LENGTH,
@@ -176,6 +177,7 @@ exports.map = {
       name: x.NAME,
       description: x.DESCRIPTION,
       side: x.SIDE,
+      conformance: x.CONFORMANCE,
       isOptional: dbApi.fromDbBool(x.IS_OPTIONAL),
       isFabricSensitive: dbApi.fromDbBool(x.IS_FABRIC_SENSITIVE),
       priority: x.PRIORITY
@@ -196,6 +198,7 @@ exports.map = {
       description: x.DESCRIPTION,
       source: x.SOURCE,
       isOptional: dbApi.fromDbBool(x.IS_OPTIONAL),
+      conformance: x.CONFORMANCE,
       mustUseTimedInvoke: dbApi.fromDbBool(x.MUST_USE_TIMED_INVOKE),
       isFabricScoped: dbApi.fromDbBool(x.IS_FABRIC_SCOPED),
       clusterCode: x.CLUSTER_CODE,
@@ -251,16 +254,20 @@ exports.map = {
     if (x == null) return undefined
     return {
       deviceType: x.DEVICE_TYPE_NAME,
+      deviceTypeClusterId: x.DEVICE_TYPE_CLUSTER_ID,
+      clusterRef: x.CLUSTER_REF,
       cluster: x.CLUSTER_NAME,
       includeServer: x.INCLUDE_SERVER,
       includeClient: x.INCLUDE_CLIENT,
       conformance: x.DEVICE_TYPE_CLUSTER_CONFORMANCE,
-      id: x.FEATURE_ID,
+      featureId: x.FEATURE_ID,
       name: x.FEATURE_NAME,
       code: x.CODE,
       bit: x.BIT,
-      default_value: x.DEFAULT_VALUE,
-      description: x.DESCRIPTION
+      description: x.DESCRIPTION,
+      endpointTypeClusterId: x.ENDPOINT_TYPE_CLUSTER_ID,
+      featureMapAttributeId: x.FEATURE_MAP_ATTRIBUTE_ID,
+      featureMapValue: x.FEATURE_MAP_VALUE
     }
   },
 
@@ -585,7 +592,8 @@ exports.map = {
       featureName: x.FEATURE_NAME,
       featureBit: x.FEATURE_BIT,
       clusterId: x.CLUSTER_REF,
-      composition: x.TYPE
+      composition: x.TYPE,
+      conformance: x.DEVICE_TYPE_CLUSTER_CONFORMANCE
     }
   },
   endpointTypeCluster: (x) => {
@@ -692,7 +700,10 @@ exports.map = {
       type: x.TYPE != 'array' ? x.TYPE : x.ARRAY_TYPE, // Attribute type
       apiMaturity: x.API_MATURITY,
       isChangeOmitted: dbApi.fromDbBool(x.IS_CHANGE_OMITTED),
-      persistence: x.PERSISTENCE
+      persistence: x.PERSISTENCE,
+      reportMinInterval: x.REPORT_MIN_INTERVAL,
+      reportMaxInterval: x.REPORT_MAX_INTERVAL,
+      conformance: x.CONFORMANCE
     }
   },
 
@@ -709,12 +720,43 @@ exports.map = {
     }
   },
 
+  endpointTypeCommandExtended: (x) => {
+    if (x == null) return undefined
+    return {
+      id: x.COMMAND_ID,
+      name: x.NAME, // Command Name
+      clusterRef: x.CLUSTER_REF,
+      commandRef: x.COMMAND_REF,
+      incoming: dbApi.fromDbBool(x.INCOMING),
+      outgoing: dbApi.fromDbBool(x.OUTGOING),
+      isIncoming: dbApi.fromDbBool(x.IS_INCOMING),
+      source: x.SOURCE,
+      conformance: x.CONFORMANCE,
+      endpointTypeRef: x.ENDPOINT_TYPE_REF,
+      isEnabled: dbApi.fromDbBool(x.IS_ENABLED)
+    }
+  },
+
   endpointTypeEvent: (x) => {
     if (x == null) return undefined
     return {
       endpointTypeRef: x.ENDPOINT_TYPE_REF,
       clusterRef: x.CLUSTER_REF,
       eventRef: x.EVENT_REF,
+      included: dbApi.fromDbBool(x.INCLUDED)
+    }
+  },
+
+  endpointTypeEventExtended: (x) => {
+    if (x == null) return undefined
+    return {
+      id: x.EVENT_ID,
+      name: x.NAME, // Event Name
+      clusterRef: x.CLUSTER_REF,
+      eventRef: x.EVENT_REF,
+      side: x.SIDE,
+      conformance: x.CONFORMANCE,
+      endpointTypeRef: x.ENDPOINT_TYPE_REF,
       included: dbApi.fromDbBool(x.INCLUDED)
     }
   },

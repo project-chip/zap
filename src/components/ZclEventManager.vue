@@ -36,6 +36,27 @@ limitations under the License.
         </template>
         <template v-slot:body="props">
           <q-tr :props="props" class="table_body">
+            <q-td key="status" :props="props" class="q-px-none">
+              <q-icon
+                v-show="displayEventWarning(props.row)"
+                name="warning"
+                class="text-amber"
+                style="font-size: 1.5rem"
+              />
+              <q-tooltip
+                v-if="displayEventWarning(props.row)"
+                anchor="top middle"
+                self="bottom middle"
+                :offset="[10, 10]"
+              >
+                <div
+                  v-for="(warning, index) in getEventWarning(props.row)"
+                  :key="index"
+                >
+                  {{ warning }}
+                </div>
+              </q-tooltip>
+            </q-td>
             <q-td key="included" :props="props" auto-width>
               <q-toggle
                 class="q-mt-xs"
@@ -93,10 +114,12 @@ limitations under the License.
 <script>
 import * as Util from '../util/util.js'
 import EditableAttributesMixin from '../util/editable-attributes-mixin.js'
+import uiOptions from '../util/ui-options'
+import CommonMixin from '../util/common-mixin'
 
 export default {
   name: 'ZclEventManager',
-  mixins: [EditableAttributesMixin],
+  mixins: [EditableAttributesMixin, uiOptions, CommonMixin],
   computed: {
     selectedEvents: {
       get() {
@@ -129,6 +152,9 @@ export default {
       } else {
         addedValue = false
       }
+
+      this.setRequiredElementNotifications(eventData, addedValue, 'events')
+
       let editContext = {
         action: 'boolean',
         endpointTypeId: this.selectedEndpointTypeId,
@@ -142,6 +168,45 @@ export default {
     },
     hashEventIdClusterId(eventId, clusterId) {
       return Util.cantorPair(eventId, clusterId)
+    },
+    /* Display warnings if event is mandatory and disabled,
+       or if event state does not match mandatory or notSupported conformance.
+       Two types of warnings can be displayed at the same time. */
+    displayEventWarning(row) {
+      return (
+        (this.enableFeature &&
+          ((this.eventsRequiredByConform[row.id] &&
+            !this.isEventSelected(row.id)) ||
+            (this.eventsNotSupportedByConform[row.id] &&
+              this.isEventSelected(row.id)))) ||
+        (row.conformance == 'M' && !this.isEventSelected(row.id))
+      )
+    },
+    getEventWarning(row) {
+      let warnings = []
+      if (
+        this.eventsRequiredByConform[row.id] &&
+        !this.isEventSelected(row.id) &&
+        this.enableFeature
+      ) {
+        warnings.push(this.eventsRequiredByConform[row.id])
+      }
+      if (
+        this.eventsNotSupportedByConform[row.id] &&
+        this.isEventSelected(row.id) &&
+        this.enableFeature
+      ) {
+        warnings.push(this.eventsNotSupportedByConform[row.id])
+      }
+      if (row.conformance == 'M' && !this.isEventSelected(row.id)) {
+        warnings.push(this.defaultWarning)
+      }
+      return warnings
+    },
+    isEventSelected(eventId) {
+      return this.selectedEvents.includes(
+        this.hashEventIdClusterId(eventId, this.selectedCluster.id)
+      )
     }
   },
   data() {
@@ -150,7 +215,16 @@ export default {
       pagination: {
         rowsPerPage: 0
       },
+      defaultWarning:
+        'This event is mandatory for the cluster and device type configuration you have enabled',
       columns: [
+        {
+          name: 'status',
+          required: false,
+          label: '',
+          align: 'left',
+          style: 'width:1%'
+        },
         {
           name: 'included',
           label: 'On/Off',

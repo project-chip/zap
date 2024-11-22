@@ -46,7 +46,7 @@ limitations under the License.
             rounded
             label="Device Type Features"
             color="secondary"
-            @click="updateDeviceTypeFeatures"
+            @click="setDeviceTypeFeatures"
             to="/feature"
           />
         </div>
@@ -151,6 +151,7 @@ export default {
       this.scrollToElementById(this.lastSelectedDomain)
     }
     this.changeDomainFilter(this.filter)
+    this.$store.dispatch('zap/updateConformDataExists')
   },
   watch: {
     enabledClusters() {
@@ -350,13 +351,12 @@ export default {
     changeFilterString(filterString) {
       this.$store.dispatch('zap/setFilterString', filterString)
     },
-    updateDeviceTypeFeatures() {
-      let deviceTypeRefs =
-        this.endpointDeviceTypeRef[this.selectedEndpointTypeId]
-      this.$store.dispatch(
-        'zap/updateSelectedDeviceTypeFeatures',
-        deviceTypeRefs
-      )
+    setDeviceTypeFeatures() {
+      let deviceTypeRefs = this.endpointDeviceTypeRef[this.selectedEndpointId]
+      this.$store.dispatch('zap/setDeviceTypeFeatures', {
+        deviceTypeRefs: deviceTypeRefs,
+        endpointTypeRef: this.selectedEndpointId
+      })
     }
   },
   components: {

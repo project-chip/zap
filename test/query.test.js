@@ -22,6 +22,7 @@ const fs = require('fs')
 const dbApi = require('../src-electron/db/db-api')
 const queryZcl = require('../src-electron/db/query-zcl')
 const queryDeviceType = require('../src-electron/db/query-device-type')
+const queryAttribute = require('../src-electron/db/query-attribute')
 const queryCommand = require('../src-electron/db/query-command')
 const queryLoader = require('../src-electron/db/query-loader')
 const queryConfig = require('../src-electron/db/query-config')
@@ -612,6 +613,62 @@ describe('Endpoint Type Config Queries', () => {
               expect(attributes.length).toBe(7)
             })
         )
+    },
+    testUtil.timeout.medium()
+  )
+
+  test(
+    'Get endpoint type attributes and commands by endpoint type cluster id',
+    async () => {
+      let expectedNumbers = {
+        Identify: {
+          server: { attributes: 2, commands: 6 },
+          client: { attributes: 1, commands: 6 }
+        },
+        Basic: { server: { attributes: 3, commands: 1 } },
+        'On/off': { client: { attributes: 1, commands: 11 } }
+      }
+      let deviceTypeClusters =
+        await queryDeviceType.selectDeviceTypeClustersByDeviceTypeRef(
+          db,
+          haOnOffDeviceType.id
+        )
+      testQuery
+        .getAllEndpointTypeClusterState(db, endpointTypeIdOnOff)
+        .then((clusters) => {
+          clusters.forEach((cluster) => {
+            let endpointTypeClusterId = cluster.endpointTypeClusterId
+            let clusterName = cluster.clusterName
+            let side = cluster.side
+            let deviceTypeCluster = deviceTypeClusters.find(
+              (c) => c.clusterName == clusterName
+            )
+            if (deviceTypeCluster) {
+              let deviceTypeClusterId = deviceTypeCluster.id
+              queryAttribute
+                .selectAttributesByEndpointTypeClusterId(
+                  db,
+                  endpointTypeClusterId
+                )
+                .then((attributes) => {
+                  expect(attributes.length).toBe(
+                    expectedNumbers[clusterName][side].attributes
+                  )
+                })
+              queryCommand
+                .selectCommandsByEndpointTypeClusterIdAndDeviceTypeClusterId(
+                  db,
+                  endpointTypeClusterId,
+                  deviceTypeClusterId
+                )
+                .then((commands) => {
+                  expect(commands.length).toBe(
+                    expectedNumbers[clusterName][side].commands
+                  )
+                })
+            }
+          })
+        })
     },
     testUtil.timeout.medium()
   )

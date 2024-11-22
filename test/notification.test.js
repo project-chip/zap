@@ -44,6 +44,15 @@ beforeAll(async () => {
 
 afterAll(() => dbApi.closeDatabase(db), testUtil.timeout.short())
 
+async function getNotificationByMessage(db, sessionId, message) {
+  let notifications = await sessionNotification.getNotification(db, sessionId)
+  if (Array.isArray(message)) {
+    return notifications.filter((notis) => message.includes(notis.message))
+  } else {
+    return notifications.filter((notis) => notis.message == message)
+  }
+}
+
 test(
   'Notification: set, get, delete session notification',
   async () => {
@@ -223,6 +232,187 @@ test(
       }
     }
     expect(isNotificationDeleted).toBeTruthy()
+  },
+  testUtil.timeout.long()
+)
+
+test(
+  'Notification: set or delete session notification by message',
+  async () => {
+    let testMessage = 'This is a test notification message.'
+    let anotherMessage = 'This is another test notification message.'
+    let sessionId = await querySession.createBlankSession(db)
+
+    // should return false since the message does not exist
+    let response =
+      await sessionNotification.searchNotificationByMessageAndDelete(
+        db,
+        sessionId,
+        testMessage
+      )
+    expect(response).toBeFalsy()
+
+    // insert a notification with different message
+    await sessionNotification.setNotification(
+      db,
+      'WARNING',
+      anotherMessage,
+      sessionId,
+      2,
+      0
+    )
+
+    // should return false since the message does not exist
+    response = await sessionNotification.searchNotificationByMessageAndDelete(
+      db,
+      sessionId,
+      testMessage
+    )
+    expect(response).toBeFalsy()
+
+    // should insert a new notification with the test message
+    response = await sessionNotification.setWarningIfMessageNotExists(
+      db,
+      sessionId,
+      testMessage
+    )
+    expect(response).toBeTruthy()
+    let notisWithTestMessage = await getNotificationByMessage(
+      db,
+      sessionId,
+      testMessage
+    )
+    expect(notisWithTestMessage.length).toBe(1)
+
+    // insert the same notification twice should not create duplicates
+    response = await sessionNotification.setWarningIfMessageNotExists(
+      db,
+      sessionId,
+      testMessage
+    )
+    expect(response).toBeFalsy()
+    notisWithTestMessage = await getNotificationByMessage(
+      db,
+      sessionId,
+      testMessage
+    )
+    expect(notisWithTestMessage.length).toBe(1)
+
+    // delete the notification with the test message
+    // should return true and no notification with the test message should exist
+    response = await sessionNotification.searchNotificationByMessageAndDelete(
+      db,
+      sessionId,
+      testMessage
+    )
+    expect(response).toBeTruthy()
+    notisWithTestMessage = await getNotificationByMessage(
+      db,
+      sessionId,
+      testMessage
+    )
+    expect(notisWithTestMessage.length).toBe(0)
+  },
+  testUtil.timeout.long()
+)
+
+test(
+  'Notification: set notification on feature change result',
+  async () => {
+    let sessionId = await querySession.createBlankSession(db)
+    let warningMessage = `This is a message to display front end warnings
+                          after a feature change`
+    let disableMessage = `This is a message to disable front end changes
+                          after a feature change`
+    let descMessage = `This is a message to show some depending elements 
+                          have conformance too complex to parse`
+    let notisWithWarningMessage
+    let notisWithDisableMessage
+    let notisWithMultipleMessages
+
+    let warningResult = {
+      warningMessage: warningMessage,
+      disableChange: false,
+      displayWarning: true
+    }
+    let deleteWarningResult = {
+      warningMessage: warningMessage,
+      disableChange: false,
+      displayWarning: false
+    }
+    // in case of disableChange, warningMessage is an array
+    let disableResult = {
+      warningMessage: [disableMessage],
+      disableChange: true,
+      displayWarning: false
+    }
+
+    // should insert a new notification with the warning message
+    await sessionNotification.setNotificationOnFeatureChange(
+      db,
+      sessionId,
+      warningResult
+    )
+    notisWithWarningMessage = await getNotificationByMessage(
+      db,
+      sessionId,
+      warningMessage
+    )
+    expect(notisWithWarningMessage.length).toBe(1)
+
+    // should delete the notification with the warning message just inserted
+    await sessionNotification.setNotificationOnFeatureChange(
+      db,
+      sessionId,
+      deleteWarningResult
+    )
+    notisWithWarningMessage = await getNotificationByMessage(
+      db,
+      sessionId,
+      warningMessage
+    )
+    expect(notisWithWarningMessage.length).toBe(0)
+
+    // should insert a new notification with the disable message
+    await sessionNotification.setNotificationOnFeatureChange(
+      db,
+      sessionId,
+      disableResult
+    )
+    notisWithDisableMessage = await getNotificationByMessage(
+      db,
+      sessionId,
+      disableMessage
+    )
+    expect(notisWithDisableMessage.length).toBe(1)
+
+    // should not insert a new notification with duplicate disable message
+    await sessionNotification.setNotificationOnFeatureChange(
+      db,
+      sessionId,
+      disableResult
+    )
+    notisWithDisableMessage = await getNotificationByMessage(
+      db,
+      sessionId,
+      disableMessage
+    )
+    expect(notisWithDisableMessage.length).toBe(1)
+
+    // should insert multiple notifications when warningMessage is an array
+    let multipleWarnings = [disableMessage, descMessage]
+    disableResult.warningMessage = multipleWarnings
+    await sessionNotification.setNotificationOnFeatureChange(
+      db,
+      sessionId,
+      disableResult
+    )
+    notisWithMultipleMessages = await getNotificationByMessage(
+      db,
+      sessionId,
+      multipleWarnings
+    )
+    expect(notisWithMultipleMessages.length).toBe(2)
   },
   testUtil.timeout.long()
 )
