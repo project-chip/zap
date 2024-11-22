@@ -1167,11 +1167,7 @@ async function getEndpointCompositionIdByCode(db, deviceType) {
  */
 function insertDeviceComposition(db, deviceType, endpointCompositionId) {
   // Ensure that deviceType and its necessary properties are defined
-  if (
-    !deviceType ||
-    !deviceType.composition ||
-    !deviceType.composition.endpoint
-  ) {
+  if (!deviceType?.composition?.endpoint) {
     throw new Error('Invalid deviceType object or endpoint data')
   }
 
@@ -1184,9 +1180,7 @@ function insertDeviceComposition(db, deviceType, endpointCompositionId) {
   const insertQueries = []
 
   // Iterate over all endpoints in the deviceType and their respective deviceTypes
-  for (let i = 0; i < endpoints.length; i++) {
-    const endpoint = endpoints[i]
-
+  for (let endpoint of endpoints) {
     // Ensure deviceType is present and handle both single value or array
     const deviceTypes = Array.isArray(endpoint.deviceType)
       ? endpoint.deviceType
@@ -1203,9 +1197,7 @@ function insertDeviceComposition(db, deviceType, endpointCompositionId) {
       deviceType.constraint
 
     // Create insert queries for each deviceType in this endpoint and add them to the insertQueries array
-    for (let j = 0; j < deviceTypes.length; j++) {
-      const device = deviceTypes[j]
-
+    for (let device of deviceTypes) {
       insertQueries.push(
         dbApi.dbInsert(
           db,
