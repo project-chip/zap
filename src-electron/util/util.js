@@ -455,7 +455,7 @@ function matchFeatureLevel(featureLevel, requirementSource = null) {
         requirementSource == null ? 'File' : requirementSource
       } requires feature level ${featureLevel}, we only have ${
         env.zapVersion().featureLevel
-      }. Please upgrade your zap!`
+      }. Latest ZAP release can be found in https://github.com/project-chip/zap/releases. Please upgrade your zap!`
     }
   } else {
     return { match: true }
