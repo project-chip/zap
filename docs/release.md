@@ -47,3 +47,19 @@ $ git tag -a vYYYY.MM.DD -m 'ZAP official release vYYYY.MM.DD'
 ```bash
 $ git push origin vYYYY.MM.DD
 ```
+
+# ZAP Versioning and Integration with Matter Repo
+
+The latest ZAP version is always backwards compatible with all Matter releases. To update the Matter repository to the latest ZAP release, follow these steps and merge the changes into Matter's main repository:
+
+## Steps:
+
+1. **Run the version update script:**
+
+```bash
+$ ./scripts/run_in_build_env.sh "./scripts/tools/zap/version_update.py --new-version [tagname from release instructions]"
+```
+
+2. **Wait for the update to propagate:** After running the script in step 1, it may take 0-6 hours for the updated ZAP release to be available in Matter. You can check the status [here](https://chrome-infra-packages.appspot.com/p/fuchsia/third_party/zap).
+
+3. **Create a PR in the Matter repository:** Once the updated ZAP version is available, create a pull request (PR) in the Matter repository to incorporate the changes from step 1. This allows the main Matter repository to start using the latest ZAP version.
