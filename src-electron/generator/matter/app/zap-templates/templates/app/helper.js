@@ -437,7 +437,7 @@ function chip_endpoint_data_version_count() {
 async function asNativeType(type) {
   function fn(pkgId) {
     const options = { hash: {} };
-    return zclHelper.asUnderlyingZclType
+    return zclHelper.asResolvedUnderlyingZclType
       .call(this, type, options)
       .then((zclType) => {
         return ChipTypesHelper.asBasicType(zclType);
@@ -453,7 +453,6 @@ async function asNativeType(type) {
     });
   return templateUtil.templatePromise(this.global, promise);
 }
-
 async function asTypedExpression(value, type) {
   const valueIsANumber = !isNaN(value);
   if (!value || valueIsANumber) {
@@ -680,7 +679,8 @@ async function zapTypeToClusterObjectType(type, isDecodable, options) {
       isEnum: await typeChecker('isEnum'),
       isBitmap: await typeChecker('isBitmap'),
       isEvent: await typeChecker('isEvent'),
-      isStruct: await typeChecker('isStruct')
+      isStruct: await typeChecker('isStruct'),
+      isTypedef: await typeChecker('isTypedef')
     };
 
     const typesCount = Object.values(types).filter((isType) => isType).length;
@@ -749,6 +749,20 @@ async function zapTypeToClusterObjectType(type, isDecodable, options) {
         '::' +
         (isDecodable ? 'DecodableType' : 'Type')
       );
+    }
+
+    if (types.isTypedef) {
+      const typedefObj = await zclQuery.selectTypedefByName(
+        this.global.db,
+        type,
+        pkgId
+      );
+
+      const ns = nsValueToNamespace(
+        options.hash.ns,
+        typedefObj.typedefClusterCount
+      );
+      return ns + asUpperCamelCase.call(this, type, options);
     }
 
     if (types.isEvent) {
@@ -905,7 +919,7 @@ async function _zapTypeToPythonClusterObjectType(type, options) {
       return 'uint';
     }
 
-    let resolvedType = await zclHelper.asUnderlyingZclType.call(
+    let resolvedType = await zclHelper.asResolvedUnderlyingZclType.call(
       { global: this.global },
       type,
       options
@@ -1010,7 +1024,7 @@ async function _getPythonFieldDefault(type, options) {
       return '0';
     }
 
-    let resolvedType = await zclHelper.asUnderlyingZclType.call(
+    let resolvedType = await zclHelper.asResolvedUnderlyingZclType.call(
       { global: this.global },
       type,
       options

@@ -841,6 +841,7 @@ async function generateSingleTemplate(
   } else {
     genFunction = templateEngine.produceContent
   }
+  genResult.sources[singleTemplatePkg.category] = singleTemplatePkg.path
   try {
     let resultArray = await genFunction(
       hb,
@@ -899,6 +900,7 @@ async function generate(
     content: {},
     stats: {},
     errors: {},
+    sources: {},
     hasErrors: false,
     generatorOptions: templateGeneratorOptions,
     templatePath: path.dirname(pkg.path)

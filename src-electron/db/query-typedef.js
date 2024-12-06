@@ -132,29 +132,50 @@ WHERE
  * @param {*} db
  * @param {*} name
  * @param {*} packageIds
+ * @param {*} clusterName
  * @returns typedef or undefined
  */
-async function selectTypedefByName(db, name, packageIds) {
+async function selectTypedefByName(db, name, packageIds, clusterName = null) {
+  let clusterJoinQuery = ''
+  let clusterWhereQuery = ''
+  if (clusterName) {
+    clusterJoinQuery = `
+    INNER JOIN
+      DATA_TYPE_CLUSTER
+    ON
+      DATA_TYPE_CLUSTER.DATA_TYPE_REF = DT.DATA_TYPE_ID
+    INNER JOIN
+      CLUSTER
+    ON
+      DATA_TYPE_CLUSTER.CLUSTER_REF = CLUSTER.CLUSTER_ID
+      `
+    clusterWhereQuery = `
+    AND
+      CLUSTER.NAME = "${clusterName}"
+      `
+  }
   return dbApi
     .dbGet(
       db,
       `
 SELECT
   T.TYPEDEF_ID,
-  DATA_TYPE.NAME AS NAME,
+  DT.NAME AS NAME,
   (SELECT COUNT(1) FROM DATA_TYPE_CLUSTER WHERE DATA_TYPE_CLUSTER.DATA_TYPE_REF = T.TYPEDEF_ID) AS TYPEDEF_CLUSTER_COUNT,
   (SELECT DATA_TYPE.NAME FROM DATA_TYPE WHERE DATA_TYPE.DATA_TYPE_ID = T.DATA_TYPE_REF) AS TYPE,
   T.DATA_TYPE_REF as TYPE_ID
 FROM
   TYPEDEF AS T
 INNER JOIN
-  DATA_TYPE
+  DATA_TYPE AS DT
 ON
-  T.TYPEDEF_ID = DATA_TYPE.DATA_TYPE_ID
+  T.TYPEDEF_ID = DT.DATA_TYPE_ID
+  ${clusterJoinQuery}
 WHERE
-  (DATA_TYPE.NAME = ? OR DATA_TYPE.NAME = ?) AND PACKAGE_REF IN (${dbApi.toInClause(
+  (DT.NAME = ? OR DT.NAME = ?) AND DT.PACKAGE_REF IN (${dbApi.toInClause(
     packageIds
   )})
+  ${clusterWhereQuery}
 ORDER BY NAME`,
       [name, name.toLowerCase()]
     )

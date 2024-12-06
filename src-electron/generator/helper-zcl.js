@@ -381,6 +381,20 @@ async function zcl_struct_items_by_struct_and_cluster_name(
     .then((st) => templateUtil.collectBlocks(st, options, this))
   return templateUtil.templatePromise(this.global, promise)
 }
+/**
+ * Block helper for getting information for a typedef with a given name.
+ *
+ * @param name
+ * @param options
+ * @returns Promise of content.
+ */
+async function zcl_typedef_by_typedef(name, options) {
+  let packageIds = await templateUtil.ensureZclPackageIds(this)
+  let promise = queryZcl
+    .selectTypedefByName(this.global.db, name, packageIds)
+    .then((td) => templateUtil.collectBlocks([td], options, this))
+  return templateUtil.templatePromise(this.global, promise)
+}
 
 /**
  * Block helper for expanding a typedef.  The typedef will be those that correspond to that
@@ -405,17 +419,13 @@ async function zcl_typedef_by_typedef_and_cluster_name(
     name,
     packageIds
   )
-  if (typedefObj.structClusterCount == 0) {
+  if (typedefObj.typedefClusterCount == 0) {
     // Just ignore the cluster name.
-    return zcl_typedef_by_typedef_and_cluster_name.call(this, name, options)
+    return zcl_typedef_by_typedef.call(this, name, options)
   }
-
-  let promise = queryZcl.selectTypedefByName(
-    this.global.db,
-    name,
-    packageIds,
-    clusterName
-  )
+  let promise = queryZcl
+    .selectTypedefByName(this.global.db, name, packageIds, clusterName)
+    .then((td) => templateUtil.collectBlocks([td], options, this))
   return templateUtil.templatePromise(this.global, promise)
 }
 
@@ -1353,6 +1363,26 @@ function zcl_command_argument_data_type(type, options) {
           throw err
         })
     )
+    .catch((err) => {
+      env.logError(err)
+      throw err
+    })
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
+ * Helper that behaves like asUnderlyingZclType, but resolves typedefs.
+ */
+async function asResolvedUnderlyingZclType(type, options) {
+  const packageIds = await templateUtil.ensureZclPackageIds(this)
+  let typedef = await queryZcl.selectTypedefByName(
+    this.global.db,
+    type,
+    packageIds
+  )
+  let resolvedType = typedef ? typedef.type : type
+  let promise = zclUtil
+    .asUnderlyingZclTypeWithPackageId(resolvedType, options, packageIds, this)
     .catch((err) => {
       env.logError(err)
       throw err
@@ -3088,6 +3118,10 @@ exports.isCommandAvailable = dep(isCommandAvailable, {
 exports.as_underlying_zcl_type = asUnderlyingZclType
 exports.asUnderlyingZclType = dep(asUnderlyingZclType, {
   to: 'as_underlying_zcl_type'
+})
+exports.as_resolved_underlying_zcl_type = asResolvedUnderlyingZclType
+exports.asResolvedUnderlyingZclType = dep(asResolvedUnderlyingZclType, {
+  to: 'as_resolved_underlying_zcl_type'
 })
 
 exports.if_is_bitmap = if_is_bitmap

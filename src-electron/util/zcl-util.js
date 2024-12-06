@@ -691,7 +691,7 @@ async function asUnderlyingZclTypeWithPackageId(
     actualType = numberType.name
   }
 
-  return Promise.all([
+  let res = await Promise.all([
     new Promise((resolve, reject) => {
       if ('isArray' in currentInstance && currentInstance.isArray)
         resolve(dbEnum.zclType.array)
@@ -702,42 +702,35 @@ async function asUnderlyingZclTypeWithPackageId(
     isBitmap(currentInstance.global.db, actualType, packageIds),
     isTypedef(currentInstance.global.db, actualType, packageIds)
   ])
-    .then(
-      (res) =>
-        new Promise((resolve, reject) => {
-          for (let i = 0; i < res.length; i++) {
-            if (res[i] != 'unknown') {
-              resolve(res[i])
-              return
-            }
-          }
-          resolve(dbEnum.zclType.unknown)
-        })
-    )
-    .then((resType) => {
-      if (dbEnum.zclType.zclCharFormatter in options.hash) {
-        return dataTypeCharacterFormatter(
-          currentInstance.global.db,
-          packageIds,
-          actualType,
-          options,
-          resType
-        )
-      } else {
-        return dataTypeHelper(
-          actualType,
-          options,
-          packageIds,
-          currentInstance.global.db,
-          resType,
-          currentInstance.global.overridable
-        )
+
+  let resType = await new Promise((resolve, reject) => {
+    for (let i = 0; i < res.length; i++) {
+      if (res[i] != 'unknown') {
+        resolve(res[i])
+        return
       }
-    })
-    .catch((err) => {
-      env.logError(err)
-      throw err
-    })
+    }
+    resolve(dbEnum.zclType.unknown)
+  })
+
+  if (dbEnum.zclType.zclCharFormatter in options.hash) {
+    return dataTypeCharacterFormatter(
+      currentInstance.global.db,
+      packageIds,
+      actualType,
+      options,
+      resType
+    )
+  } else {
+    return dataTypeHelper(
+      actualType,
+      options,
+      packageIds,
+      currentInstance.global.db,
+      resType,
+      currentInstance.global.overridable
+    )
+  }
 }
 
 /**
@@ -778,6 +771,13 @@ async function determineType(db, type, packageIds) {
     return {
       type: dbEnum.zclType.struct,
       atomicType: null
+    }
+
+  let typedef = await queryZcl.selectTypedefByName(db, type, packageIds)
+  if (typedef != null)
+    return {
+      type: dbEnum.zclType.typedef,
+      atomicType: (await determineType(db, typedef.type, packageIds)).atomicType
     }
 
   let theBitmap = await queryZcl.selectBitmapByName(db, packageIds, type)

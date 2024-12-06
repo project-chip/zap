@@ -873,7 +873,9 @@ async function generateSingleFile(
 
     if (genResult.hasErrors) {
       console.log(JSON.stringify(genResult.errors))
-      throw new Error(`Generation failed: ${zapFile}`)
+      throw new Error(
+        `Generation failed: ${zapFile} ${JSON.stringify(genResult.sources)}`
+      )
     }
     genResults.push(genResult)
   }

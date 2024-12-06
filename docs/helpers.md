@@ -3329,6 +3329,7 @@ This module contains the API for templating. For more detailed instructions, rea
     * [~zcl_struct_items(options)](#module_Templating API_ static zcl helpers..zcl_struct_items) ⇒
     * [~zcl_struct_items_by_struct_name(name, options)](#module_Templating API_ static zcl helpers..zcl_struct_items_by_struct_name) ⇒
     * [~zcl_struct_items_by_struct_and_cluster_name(name, clusterName, options)](#module_Templating API_ static zcl helpers..zcl_struct_items_by_struct_and_cluster_name) ⇒
+    * [~zcl_typedef_by_typedef(name, options)](#module_Templating API_ static zcl helpers..zcl_typedef_by_typedef) ⇒
     * [~zcl_typedef_by_typedef_and_cluster_name(name, clusterName, options)](#module_Templating API_ static zcl helpers..zcl_typedef_by_typedef_and_cluster_name) ⇒
     * [~zcl_device_types(options)](#module_Templating API_ static zcl helpers..zcl_device_types) ⇒
     * [~zcl_device_type_clusters(options)](#module_Templating API_ static zcl helpers..zcl_device_type_clusters) ⇒
@@ -3359,6 +3360,7 @@ This module contains the API for templating. For more detailed instructions, rea
     * [~zcl_command_arguments(options)](#module_Templating API_ static zcl helpers..zcl_command_arguments) ⇒
     * [~zcl_event_fields(options)](#module_Templating API_ static zcl helpers..zcl_event_fields)
     * [~zcl_command_argument_data_type(typeName, options)](#module_Templating API_ static zcl helpers..zcl_command_argument_data_type)
+    * [~asResolvedUnderlyingZclType()](#module_Templating API_ static zcl helpers..asResolvedUnderlyingZclType)
     * [~asUnderlyingZclType(typeName, options)](#module_Templating API_ static zcl helpers..asUnderlyingZclType)
     * [~zcl_string_type_return(type, options)](#module_Templating API_ static zcl helpers..zcl_string_type_return)
     * [~is_zcl_string(type)](#module_Templating API_ static zcl helpers..is_zcl_string)
@@ -3540,6 +3542,19 @@ ignored), or a struct associated with the given cluster.
 | --- |
 | name | 
 | clusterName | 
+| options | 
+
+<a name="module_Templating API_ static zcl helpers..zcl_typedef_by_typedef"></a>
+
+### Templating API: static zcl helpers~zcl\_typedef\_by\_typedef(name, options) ⇒
+Block helper for getting information for a typedef with a given name.
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
+**Returns**: Promise of content.  
+
+| Param |
+| --- |
+| name | 
 | options | 
 
 <a name="module_Templating API_ static zcl helpers..zcl_typedef_by_typedef_and_cluster_name"></a>
@@ -3932,6 +3947,12 @@ Helper that deals with the type of the argument.
 | typeName | <code>\*</code> | 
 | options | <code>\*</code> | 
 
+<a name="module_Templating API_ static zcl helpers..asResolvedUnderlyingZclType"></a>
+
+### Templating API: static zcl helpers~asResolvedUnderlyingZclType()
+Helper that behaves like asUnderlyingZclType, but resolves typedefs.
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
 <a name="module_Templating API_ static zcl helpers..asUnderlyingZclType"></a>
 
 ### Templating API: static zcl helpers~asUnderlyingZclType(typeName, options)
