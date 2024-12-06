@@ -2051,7 +2051,7 @@ async function selectNonManufacturerSpecificCommandDetailsFromAllEndpointTypesAn
 /**
  * Get all commands in an endpoint type cluster
  * Non-required commands are not loaded into ENDPOINT_TYPE_COMMAND table,
- * so we need to load all commands by joining DEVICE_TYPE_COMMAND table
+ * so we need to load all commands by joining DEVICE_TYPE_CLUSTER table
  * @param {*} db
  * @param {*} endpointTypeClusterId
  * @param {*} deviceTypeClusterId
