@@ -10,9 +10,10 @@ node src-script/generate-template-helper-docs.js
 git add docs/api.md
 git add docs/helpers.md
 
-echo "🚀  > CLI doc regen.."
-node src-script/generate-cli-documentation
-git add docs/zap-cli.md
+# Disabling until script is fixed to exclude local paths from documentation
+# echo "🚀  > CLI doc regen.."
+# node src-script/generate-cli-documentation
+# git add docs/zap-cli.md
 
 echo "🚀   > Eslint..."
 npx eslint .

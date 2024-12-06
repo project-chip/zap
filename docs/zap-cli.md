@@ -1,5 +1,5 @@
 # ZAP CLI
-  
+
 The`zap-cli`is a command-line interface for key ZAP functionalities, enabling users to generate and manage ZCL artifacts, launch server instances, and more. `zap-cli`
 is ideal for those who prefer the command line, need a lightweight alternative to the full UI or need to automate certain ZAP-related tasks.
 
@@ -25,7 +25,7 @@ Options:
   -p, --httpPort                      Port used for the HTTP server  [number] [default: 9070]
       --studioHttpPort                Port used for integration with Silicon Labs Simplicity Studio's internal HTTP server  [number] [default: -1]
   -i, --zapFile, --zap, --in          input .zap file to read in. You can also specify them without an option, directly.  [string] [default: null]
-  -z, --zclProperties, --zcl          zcl.properties file to read in.  [array] [default: "/Users/dhchandw/tools/zap/zcl-builtin/silabs/zcl.json"]
+  -z, --zclProperties, --zcl          zcl.properties file to read in.  [array] [default: "/path/to/zap/zcl-builtin/silabs/zcl.json"]
       --sdk                           sdk.json file to read, for operations that act on whole SDK  [string] [default: null]
   -g, --generationTemplate, --gen     generation template metafile (gen-template.json) to read in.  [array] [default: null]
       --uiMode, --ui                  Mode of the UI to begin in. Options are: ZIGBEE  [string] [default: "zigbee"]
