@@ -1250,13 +1250,17 @@ async function selectAttributeMappingsByPackageIds(db, packageIds) {
 
 /**
  * Get all attributes in an endpoint type cluster
+ * Disabled attributes are not loaded into ENDPOINT_TYPE_ATTRIBUTE table
+ * when opening a ZAP file, so we need to join DEVICE_TYPE_CLUSTER table
  * @param {*} db
  * @param {*} endpointTyeClusterId
+ * @param {*} deviceTypeClusterId
  * @returns all attributes in an endpoint type cluster
  */
-async function selectAttributesByEndpointTypeClusterId(
+async function selectAttributesByEndpointTypeClusterIdAndDeviceTypeClusterId(
   db,
-  endpointTyeClusterId
+  endpointTypeClusterId,
+  deviceTypeClusterId
 ) {
   let rows = await dbApi.dbAll(
     db,
@@ -1274,13 +1278,19 @@ async function selectAttributesByEndpointTypeClusterId(
     FROM
       ATTRIBUTE
     JOIN
+      DEVICE_TYPE_CLUSTER
+    ON
+      ATTRIBUTE.CLUSTER_REF = DEVICE_TYPE_CLUSTER.CLUSTER_REF
+    LEFT JOIN
       ENDPOINT_TYPE_ATTRIBUTE
     ON
-      ATTRIBUTE.ATTRIBUTE_ID = ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF
+        ATTRIBUTE.ATTRIBUTE_ID = ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF
+      AND
+        ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF = ?
     WHERE
-      ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF = ?
+      DEVICE_TYPE_CLUSTER.DEVICE_TYPE_CLUSTER_ID = ?
     `,
-    [endpointTyeClusterId]
+    [endpointTypeClusterId, deviceTypeClusterId]
   )
   return rows.map(dbMapping.map.endpointTypeAttributeExtended)
 }
@@ -1311,5 +1321,5 @@ exports.selectTokenAttributesForEndpoint = selectTokenAttributesForEndpoint
 exports.selectAllUserTokenAttributes = selectAllUserTokenAttributes
 exports.selectAttributeMappingsByPackageIds =
   selectAttributeMappingsByPackageIds
-exports.selectAttributesByEndpointTypeClusterId =
-  selectAttributesByEndpointTypeClusterId
+exports.selectAttributesByEndpointTypeClusterIdAndDeviceTypeClusterId =
+  selectAttributesByEndpointTypeClusterIdAndDeviceTypeClusterId

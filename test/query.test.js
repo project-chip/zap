@@ -623,10 +623,10 @@ describe('Endpoint Type Config Queries', () => {
       let expectedNumbers = {
         Identify: {
           server: { attributes: 2, commands: 6 },
-          client: { attributes: 1, commands: 6 }
+          client: { attributes: 2, commands: 6 }
         },
-        Basic: { server: { attributes: 3, commands: 1 } },
-        'On/off': { client: { attributes: 1, commands: 11 } }
+        Basic: { server: { attributes: 18, commands: 1 } },
+        'On/off': { client: { attributes: 9, commands: 11 } }
       }
       let deviceTypeClusters =
         await queryDeviceType.selectDeviceTypeClustersByDeviceTypeRef(
@@ -646,9 +646,10 @@ describe('Endpoint Type Config Queries', () => {
             if (deviceTypeCluster) {
               let deviceTypeClusterId = deviceTypeCluster.id
               queryAttribute
-                .selectAttributesByEndpointTypeClusterId(
+                .selectAttributesByEndpointTypeClusterIdAndDeviceTypeClusterId(
                   db,
-                  endpointTypeClusterId
+                  endpointTypeClusterId,
+                  deviceTypeClusterId
                 )
                 .then((attributes) => {
                   expect(attributes.length).toBe(

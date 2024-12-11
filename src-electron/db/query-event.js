@@ -236,7 +236,7 @@ ORDER BY
 /**
  * Get all events in an endpoint type cluster
  * Disabled events are not loaded into ENDPOINT_TYPE_EVENT table,
- * so we need to load all events by joining DEVICE_TYPE_EVENT table
+ * so we need to load all events by joining DEVICE_TYPE_CLUSTER table
  *
  * @param {*} db
  * @param {*} endpointTypeClusterId
