@@ -16,6 +16,7 @@
  */
 
 import { Dark } from 'quasar'
+import { wsCategory } from '../../src-shared/db-enum.js'
 const _ = require('lodash')
 
 const observable = require('../util/observable.js')
@@ -144,8 +145,13 @@ export function renderer_api_execute(id, ...args) {
 /**
  * Default implementation of the notification function simply
  * prints the notification to the console log. In case of electron
- * renderer container, this is all that's needed. In case of others,
- * they can register their own notifier functions.
+ * renderer container, this is all that's needed.
+ *
+ * In addition, this function also sends a postMessage to the parent, which
+ * is a protocol used by at least one supported IDE.
+ *
+ * Any other IDE can implement this function and override the default from
+ * outside of the browser context.
  *
  * @param {*} key
  * @param {*} value
@@ -154,10 +160,27 @@ export function renderer_api_notify(key, value) {
   console.log(
     `${rendApi.jsonPrefix}${JSON.stringify({ key: key, value: value })}`
   )
+
+  // Here we also send postMessage to the parent window if we're in a frame...
+  // We also perform a conversion, since the postMessage() protocol of the IDE
+  // is different than the base ZAP renderer API.
+  let sentKey = key
+  let sentValue = value
+
+  // For some inexplicable reason, the IDE's dirty flag protocol is using
+  // key "dirty" and value { isDirty: true/false } instead of the
+  // key "dirtyFlag" and value true/false as it's done by zap internally.
+  // So we transform the sent values....
+  if (key == wsCategory.dirtyFlag) {
+    sentKey = 'dirty'
+    sentValue = {
+      isDirty: value
+    }
+  }
   window?.parent?.postMessage(
     {
-      eventId: key,
-      eventData: value
+      eventId: sentKey,
+      eventData: sentValue
     },
     '*'
   )
