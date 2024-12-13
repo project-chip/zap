@@ -19,6 +19,7 @@ import axios from 'axios'
 import { v4 as uuidv4 } from 'uuid'
 import restApi from '../../src-shared/rest-api.js'
 import * as Util from '../util/util.js'
+const querystring = require('querystring')
 
 let zapUpdateExceptions = (payload, statusCode, message) => {}
 
