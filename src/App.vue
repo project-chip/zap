@@ -326,8 +326,8 @@ export default defineComponent({
         }
       )
 
-      this.$onWebSocket(dbEnum.wsCategory.dirtyFlag, () => {
-        this.$store.dispatch('zap/setDirtyState')
+      this.$onWebSocket(dbEnum.wsCategory.dirtyFlag, (resp) => {
+        this.$store.dispatch('zap/setDirtyState', resp)
       })
     },
     addClassToBody() {

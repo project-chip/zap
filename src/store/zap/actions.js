@@ -1281,11 +1281,10 @@ export function updateSelectedUcComponentState(context, projectInfo) {
 /**
  * Set the dirty state for ZAP config when there are unsaved changes.
  * @param {*} context
+ * @param {*} isDirty
  */
-export function setDirtyState(context) {
-  axiosRequests.$serverGet(restApi.ide.isDirty).then((resp) => {
-    context.commit('setDirtyState', resp.data.DIRTY)
-  })
+export function setDirtyState(context, isDirty) {
+  context.commit('setDirtyState', isDirty)
 }
 
 /**
