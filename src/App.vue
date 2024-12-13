@@ -179,19 +179,6 @@ export default defineComponent({
       this.query = querystring.parse(search)
     },
 
-    setSessionUuid() {
-      if (window.sessionStorage.getItem('session_uuid') == null) {
-        window.sessionStorage.setItem('session_uuid', uuidv4())
-      }
-      if (this.query[`stsApplicationId`]) {
-        let currentSessionUuid =
-          window.sessionStorage.getItem('session_uuid') || ''
-        let updatedSessionUuid =
-          this.query[`stsApplicationId`] + currentSessionUuid
-        window.sessionStorage.setItem('session_uuid', updatedSessionUuid)
-      }
-    },
-
     setTheme() {
       window[rendApi.GLOBAL_SYMBOL_EXECUTE](
         rendApi.id.setDarkTheme,
@@ -350,7 +337,6 @@ export default defineComponent({
   },
   created() {
     this.parseQueryString()
-    this.setSessionUuid()
     this.setTheme()
     this.routePage()
   },
