@@ -1104,21 +1104,6 @@ export function updateDeviceTypeFeatures(state, value) {
 }
 
 /**
- * Set the state to dirty if there are unsaved changes.
- * @param {*} state
- * @param {*} isDirty
- */
-export function setDirtyState(state, isDirty) {
-  if (state.isDirty != isDirty) {
-    state.isDirty = isDirty
-    window.parent?.postMessage(
-      { eventId: 'dirty', eventData: { isDirty: isDirty } },
-      '*'
-    )
-  }
-}
-
-/**
  * Set the enabled clusters of the state.
  * @param {*} state
  * @param {*} clusters

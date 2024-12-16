@@ -943,7 +943,7 @@ export async function setDeviceTypeFeatures(
     .$serverGet(restApi.uri.deviceTypeFeatures, config)
     .then((resp) => {
       let deviceTypeFeatures = []
-      /* For a device type feature under the same endpoint and cluster, but different device types,  
+      /* For a device type feature under the same endpoint and cluster, but different device types,
         merge their rows into one and combine their device type names into a list. */
       resp.data.forEach((row) => {
         const key = `${row.endpointTypeClusterId}-${row.featureId}`
@@ -1276,15 +1276,6 @@ export function updateSelectedUcComponentState(context, projectInfo) {
   context.commit('updateSelectedUcComponentState', {
     selectedUcComponents
   })
-}
-
-/**
- * Set the dirty state for ZAP config when there are unsaved changes.
- * @param {*} context
- * @param {*} isDirty
- */
-export function setDirtyState(context, isDirty) {
-  context.commit('setDirtyState', isDirty)
 }
 
 /**
