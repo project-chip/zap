@@ -144,21 +144,36 @@ async function zcl_structs(options) {
     )
   }
   structs = await zclUtil.sortStructsByDependency(structs)
-  structs.forEach((st) => {
+  for (const st of structs) {
     st.struct_contains_array = false
     st.struct_has_fabric_sensitive_fields = false
     st.has_no_clusters = st.struct_cluster_count < 1
     st.has_one_cluster = st.struct_cluster_count == 1
     st.has_more_than_one_cluster = st.struct_cluster_count > 1
-    st.items.forEach((i) => {
-      if (i.isArray) {
-        st.struct_contains_array = true
+    const checkTransitive = async (items) => {
+      for (const i of items) {
+        if (i.isArray) {
+          st.struct_contains_array = true
+        }
+        if (i.isFabricSensitive) {
+          st.struct_has_fabric_sensitive_fields = true
+        }
+        if (
+          !st.struct_contains_array ||
+          !st.struct_has_fabric_sensitive_fields
+        ) {
+          let sis = await queryZcl.selectAllStructItemsByStructName(
+            this.global.db,
+            i.type,
+            packageIds
+          )
+          await checkTransitive(sis)
+        }
       }
-      if (i.isFabricSensitive) {
-        st.struct_has_fabric_sensitive_fields = true
-      }
-    })
-  })
+    }
+
+    await checkTransitive(st.items)
+  }
   if (checkForDoubleNestedArray) {
     // If this is set to true in a template, then we populate the
     // struct_contains_nested_array variable with true
