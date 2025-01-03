@@ -151,6 +151,7 @@ async function zcl_structs(options) {
     st.has_one_cluster = st.struct_cluster_count == 1
     st.has_more_than_one_cluster = st.struct_cluster_count > 1
     const checkTransitive = async (items) => {
+      let promises = []
       for (const i of items) {
         if (i.isArray) {
           st.struct_contains_array = true
@@ -162,13 +163,17 @@ async function zcl_structs(options) {
           !st.struct_contains_array ||
           !st.struct_has_fabric_sensitive_fields
         ) {
-          let sis = await queryZcl.selectAllStructItemsByStructName(
-            this.global.db,
-            i.type,
-            packageIds
+          promises.push(
+            queryZcl
+              .selectAllStructItemsById(this.global.db, i.dataTypeReference)
+              .then((sis) => {
+                checkTransitive(sis)
+              })
           )
-          await checkTransitive(sis)
         }
+      }
+      if (promises.length != 0) {
+        await Promise.all(promises)
       }
     }
 
@@ -184,10 +189,9 @@ async function zcl_structs(options) {
       for (const i of st.items) {
         if (i.isArray) {
           // Found an array. Now let's check if it points to a struct that also contains an array.
-          let sis = await queryZcl.selectAllStructItemsByStructName(
+          let sis = await queryZcl.selectAllStructItemsById(
             this.global.db,
-            i.type,
-            packageIds
+            i.dataTypeReference
           )
           if (sis.length > 0) {
             for (const ss of sis) {

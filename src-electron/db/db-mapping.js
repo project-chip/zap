@@ -378,8 +378,7 @@ exports.map = {
       isNullable: dbApi.fromDbBool(x.IS_NULLABLE),
       isOptional: dbApi.fromDbBool(x.IS_OPTIONAL),
       isFabricSensitive: dbApi.fromDbBool(x.IS_FABRIC_SENSITIVE),
-      dataTypeReference: x.TYPE,
-      dataTypeReferenceName: x.DATA_TYPE_REF_NAME,
+      dataTypeReference: x.DATA_TYPE_REF,
       discriminatorName: x.DISCRIMINATOR_NAME
     }
   },
