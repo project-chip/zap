@@ -156,9 +156,6 @@ async function zcl_structs(options) {
         if (i.isArray) {
           st.struct_contains_array = true
         }
-        if (i.isFabricSensitive) {
-          st.struct_has_fabric_sensitive_fields = true
-        }
         if (
           !st.struct_contains_array ||
           !st.struct_has_fabric_sensitive_fields
@@ -176,7 +173,11 @@ async function zcl_structs(options) {
         await Promise.all(promises)
       }
     }
-
+    for (const i of st.items) {
+      if (i.isFabricSensitive) {
+        st.struct_has_fabric_sensitive_fields = true
+      }
+    }
     await checkTransitive(st.items)
   }
   if (checkForDoubleNestedArray) {
