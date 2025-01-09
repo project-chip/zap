@@ -150,22 +150,19 @@ async function zcl_structs(options) {
     st.has_no_clusters = st.struct_cluster_count < 1
     st.has_one_cluster = st.struct_cluster_count == 1
     st.has_more_than_one_cluster = st.struct_cluster_count > 1
-    const checkTransitive = async (items) => {
+    const checkForArraysTransitively = async (items) => {
       let promises = []
       for (const i of items) {
         if (i.isArray) {
           st.struct_contains_array = true
         }
         if (
-          !st.struct_contains_array ||
-          !st.struct_has_fabric_sensitive_fields
+          !st.struct_contains_array
         ) {
           promises.push(
             queryZcl
               .selectAllStructItemsById(this.global.db, i.dataTypeReference)
-              .then((sis) => {
-                checkTransitive(sis)
-              })
+              .then(checkTransitive)
           )
         }
       }
