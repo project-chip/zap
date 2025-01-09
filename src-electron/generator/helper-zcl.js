@@ -156,13 +156,11 @@ async function zcl_structs(options) {
         if (i.isArray) {
           st.struct_contains_array = true
         }
-        if (
-          !st.struct_contains_array
-        ) {
+        if (!st.struct_contains_array) {
           promises.push(
             queryZcl
               .selectAllStructItemsById(this.global.db, i.dataTypeReference)
-              .then(checkTransitive)
+              .then(checkForArraysTransitively)
           )
         }
       }
@@ -175,7 +173,7 @@ async function zcl_structs(options) {
         st.struct_has_fabric_sensitive_fields = true
       }
     }
-    await checkTransitive(st.items)
+    await checkForArraysTransitively(st.items)
   }
   if (checkForDoubleNestedArray) {
     // If this is set to true in a template, then we populate the
