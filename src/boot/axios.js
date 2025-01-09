@@ -19,27 +19,13 @@ import axios from 'axios'
 import { v4 as uuidv4 } from 'uuid'
 import restApi from '../../src-shared/rest-api.js'
 import * as Util from '../util/util.js'
-const querystring = require('querystring')
 
 let zapUpdateExceptions = (payload, statusCode, message) => {}
 
 // You can set this to false to not log all the roundtrips
 const log = false
-
-let search = window.location.search
-
-if (search[0] === '?') {
-  search = search.substring(1)
-}
-let query = querystring.parse(search)
-if (window.sessionStorage.getItem('session_uuid') == null) {
-  window.sessionStorage.setItem('session_uuid', uuidv4())
-}
-if (query[`stsApplicationId`]) {
-  let currentSessionUuid = window.sessionStorage.getItem('session_uuid') || ''
-  let updatedSessionUuid = query[`stsApplicationId`] + currentSessionUuid
-  window.sessionStorage.setItem('session_uuid', updatedSessionUuid)
-}
+// Set session_uuid
+window.sessionStorage.setItem('session_uuid', uuidv4())
 
 /**
  * URL rewriter that can come handy in development mode.
