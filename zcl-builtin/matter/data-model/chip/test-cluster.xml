@@ -83,6 +83,10 @@ limitations under the License.
     <item name="a" type="NestedStructList" array="true" optional="false"/>
   </struct>
 
+  <struct name="DeepNestedStructList">
+    <cluster code="0xFFF1FC05"/>
+    <item name="a" type="NestedStructList" optional="false"/>
+  </struct>
 
   <struct name="NullablesAndOptionalsStruct">
     <cluster code="0xFFF1FC05"/>
@@ -127,7 +131,7 @@ limitations under the License.
         <field mask="0x04" name="MaskVal3" />
         <field mask="0x40000000" name="MaskVal4" />
     </bitmap>
-    
+
     <bitmap name="Bitmap64MaskMap" type="BITMAP64">
         <cluster code="0xFFF1FC05" />
         <field mask="0x01" name="MaskVal1" />
@@ -135,7 +139,7 @@ limitations under the License.
         <field mask="0x04" name="MaskVal3" />
         <field mask="0x4000000000000000" name="MaskVal4" />
     </bitmap>
-    
+
   <cluster>
     <domain>CHIP</domain>
     <name>Unit Testing</name>
@@ -287,6 +291,8 @@ limitations under the License.
       <arg name="arg4" type="BOOLEAN" array="true"/>
       <arg name="arg5" type="SimpleEnum"/>
       <arg name="arg6" type="BOOLEAN"/>
+      <arg name="arg7" type="DoubleNestedStructList" />
+      <arg name="arg8" type="DeepNestedStructList" />
     </command>
 
     <command source="client" code="0x07" name="TestStructArgumentRequest"

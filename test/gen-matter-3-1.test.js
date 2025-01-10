@@ -476,6 +476,9 @@ test(
     expect(ept).toContain(
       'TargetStruct item 4 from Binding cluster: FabricIndex'
     )
+
+    expect(ept).toContain('Struct with array: NestedStructList')
+    expect(ept).toContain('Struct with array: DoubleNestedStructList')
   },
   testUtil.timeout.long()
 )

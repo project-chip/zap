@@ -144,21 +144,37 @@ async function zcl_structs(options) {
     )
   }
   structs = await zclUtil.sortStructsByDependency(structs)
-  structs.forEach((st) => {
+  for (const st of structs) {
     st.struct_contains_array = false
     st.struct_has_fabric_sensitive_fields = false
     st.has_no_clusters = st.struct_cluster_count < 1
     st.has_one_cluster = st.struct_cluster_count == 1
     st.has_more_than_one_cluster = st.struct_cluster_count > 1
-    st.items.forEach((i) => {
-      if (i.isArray) {
-        st.struct_contains_array = true
+    const checkForArraysTransitively = async (items) => {
+      let promises = []
+      for (const i of items) {
+        if (i.isArray) {
+          st.struct_contains_array = true
+        }
+        if (!st.struct_contains_array) {
+          promises.push(
+            queryZcl
+              .selectAllStructItemsById(this.global.db, i.dataTypeReference)
+              .then(checkForArraysTransitively)
+          )
+        }
       }
+      if (promises.length != 0) {
+        await Promise.all(promises)
+      }
+    }
+    for (const i of st.items) {
       if (i.isFabricSensitive) {
         st.struct_has_fabric_sensitive_fields = true
       }
-    })
-  })
+    }
+    await checkForArraysTransitively(st.items)
+  }
   if (checkForDoubleNestedArray) {
     // If this is set to true in a template, then we populate the
     // struct_contains_nested_array variable with true
@@ -169,10 +185,9 @@ async function zcl_structs(options) {
       for (const i of st.items) {
         if (i.isArray) {
           // Found an array. Now let's check if it points to a struct that also contains an array.
-          let sis = await queryZcl.selectAllStructItemsByStructName(
+          let sis = await queryZcl.selectAllStructItemsById(
             this.global.db,
-            i.type,
-            packageIds
+            i.dataTypeReference
           )
           if (sis.length > 0) {
             for (const ss of sis) {

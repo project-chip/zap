@@ -342,7 +342,8 @@ async function selectStructsWithItemsImpl(db, packageIds, clusterId) {
       SI.IS_WRITABLE AS ITEM_IS_WRITABLE,
       SI.IS_NULLABLE AS ITEM_IS_NULLABLE,
       SI.IS_OPTIONAL AS ITEM_IS_OPTIONAL,
-      SI.IS_FABRIC_SENSITIVE AS ITEM_IS_FABRIC_SENSITIVE
+      SI.IS_FABRIC_SENSITIVE AS ITEM_IS_FABRIC_SENSITIVE,
+      SI.DATA_TYPE_REF AS ITEM_DATA_TYPE_REF
     FROM
       STRUCT AS S
     INNER JOIN
@@ -374,7 +375,8 @@ async function selectStructsWithItemsImpl(db, packageIds, clusterId) {
       SI.IS_WRITABLE AS ITEM_IS_WRITABLE,
       SI.IS_NULLABLE AS ITEM_IS_NULLABLE,
       SI.IS_OPTIONAL AS ITEM_IS_OPTIONAL,
-      SI.IS_FABRIC_SENSITIVE AS ITEM_IS_FABRIC_SENSITIVE
+      SI.IS_FABRIC_SENSITIVE AS ITEM_IS_FABRIC_SENSITIVE,
+      SI.DATA_TYPE_REF AS ITEM_DATA_TYPE_REF
     FROM
       STRUCT AS S
     INNER JOIN
@@ -428,7 +430,8 @@ async function selectStructsWithItemsImpl(db, packageIds, clusterId) {
       isWritable: dbApi.fromDbBool(value.ITEM_IS_WRITABLE),
       isNullable: dbApi.fromDbBool(value.ITEM_IS_NULLABLE),
       isOptional: dbApi.fromDbBool(value.ITEM_IS_OPTIONAL),
-      isFabricSensitive: dbApi.fromDbBool(value.ITEM_IS_FABRIC_SENSITIVE)
+      isFabricSensitive: dbApi.fromDbBool(value.ITEM_IS_FABRIC_SENSITIVE),
+      dataTypeReference: value.ITEM_DATA_TYPE_REF
     })
     objectToActOn.itemCnt++
     return acc
@@ -449,8 +452,7 @@ async function selectAllStructItemsById(db, id) {
 SELECT
   STRUCT_ITEM.FIELD_IDENTIFIER,
   STRUCT_ITEM.NAME,
-  (SELECT DATA_TYPE.NAME FROM DATA_TYPE WHERE DATA_TYPE.DATA_TYPE_ID = STRUCT_ITEM.DATA_TYPE_REF) AS TYPE,
-  DATA_TYPE.NAME AS DATA_TYPE_REF_NAME,
+  DATA_TYPE.NAME AS TYPE,
   DISCRIMINATOR.NAME AS DISCRIMINATOR_NAME,
   STRUCT_ITEM.STRUCT_REF,
   STRUCT_ITEM.IS_ARRAY,
@@ -460,7 +462,8 @@ SELECT
   STRUCT_ITEM.IS_WRITABLE,
   STRUCT_ITEM.IS_NULLABLE,
   STRUCT_ITEM.IS_OPTIONAL,
-  STRUCT_ITEM.IS_FABRIC_SENSITIVE
+  STRUCT_ITEM.IS_FABRIC_SENSITIVE,
+  STRUCT_ITEM.DATA_TYPE_REF
 FROM
   STRUCT_ITEM
 INNER JOIN
@@ -498,7 +501,7 @@ async function selectAllStructItemsByStructName(
   let clusterJoinQuery = ''
   let clusterWhereQuery = ''
   if (clusterName) {
-    clusterJoinQuery = ` 
+    clusterJoinQuery = `
     INNER JOIN
       DATA_TYPE_CLUSTER
     ON
@@ -506,11 +509,11 @@ async function selectAllStructItemsByStructName(
     INNER JOIN
       CLUSTER
     ON
-      DATA_TYPE_CLUSTER.CLUSTER_REF = CLUSTER.CLUSTER_ID 
+      DATA_TYPE_CLUSTER.CLUSTER_REF = CLUSTER.CLUSTER_ID
       `
-    clusterWhereQuery = ` 
+    clusterWhereQuery = `
     AND
-      CLUSTER.NAME = "${clusterName}" 
+      CLUSTER.NAME = "${clusterName}"
       `
   }
   return dbApi
@@ -531,7 +534,8 @@ SELECT
   SI.IS_WRITABLE,
   SI.IS_NULLABLE,
   SI.IS_OPTIONAL,
-  SI.IS_FABRIC_SENSITIVE
+  SI.IS_FABRIC_SENSITIVE,
+  SI.DATA_TYPE_REF
 FROM
   STRUCT_ITEM AS SI
 INNER JOIN
