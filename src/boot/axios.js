@@ -50,7 +50,7 @@ if (stsApplicationId) {
     'session_uuid',
     currentSessionUuid + stsApplicationId
   )
-} else if (currentSessionUuid === null) {
+} else if (currentSessionUuid == null) {
   // If session_uuid doesn't exist, generate a new one
   window.sessionStorage.setItem('session_uuid', uuidv4())
 }
