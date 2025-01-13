@@ -26,20 +26,32 @@ let zapUpdateExceptions = (payload, statusCode, message) => {}
 // You can set this to false to not log all the roundtrips
 const log = false
 
+// Get the search string from the URL
 let search = window.location.search
+
+// Remove the '?' if present
 if (search[0] === '?') {
   search = search.substring(1)
 }
-let query = querystring.parse(search)
-let stsApplicationId = query['stsApplicationId']?.trim()
-let currentSessionUuid
+
+// Parse the query string using URLSearchParams for browser environments
+let query = new URLSearchParams(search)
+
+// Extract stsApplicationId and trim it
+let stsApplicationId = query.get('stsApplicationId')?.trim()
+
+// Get the current session UUID from sessionStorage
+let currentSessionUuid = window.sessionStorage.getItem('session_uuid')
+
+// If stsApplicationId exists, update the session_uuid
 if (stsApplicationId) {
-  currentSessionUuid = window.sessionStorage.getItem('session_uuid')
+  // Concatenate the current session UUID with the stsApplicationId and store it back
   window.sessionStorage.setItem(
     'session_uuid',
-    currentSessionUuid + query[`stsApplicationId`]
+    currentSessionUuid + stsApplicationId
   )
-} else {
+} else if (currentSessionUuid === null) {
+  // If session_uuid doesn't exist, generate a new one
   window.sessionStorage.setItem('session_uuid', uuidv4())
 }
 
