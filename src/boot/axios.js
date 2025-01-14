@@ -59,7 +59,7 @@ let currentStsApplicationId = sessionData.get('stsApplication')
 
 // If no session UUID exists, create a new one and set it in sessionStorage
 if (currentSessionUuid == null) {
-  if (stsApplicationId) {
+  if (stsApplicationId !== null) {
     // Create and store a new session UUID with the provided 'stsApplicationId'
     window.sessionStorage.setItem(
       'session_uuid',
