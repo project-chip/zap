@@ -57,24 +57,17 @@ if (currentSessionUuid) {
 // Extract the 'stsApplicationId' from the session data (second part of the session UUID)
 let currentStsApplicationId = sessionData.get('stsApplication')
 
-// If no session UUID exists, create a new one and set it in sessionStorage
-if (currentSessionUuid == null) {
-  if (stsApplicationId !== null) {
-    // Create and store a new session UUID with the provided 'stsApplicationId'
-    window.sessionStorage.setItem(
-      'session_uuid',
-      `${uuidv4()}-${stsApplicationId}`
-    )
-  }
-  else{
-    window.sessionStorage.setItem('session_uuid', uuidv4())
-  }
+// If no session UUID exists, create a new one with or without the provided 'stsApplicationId'
+if (!currentSessionUuid) {
+  const newSessionUuid = stsApplicationId 
+    ? `${uuidv4()}-${stsApplicationId}` 
+    : uuidv4(); // Create the new session UUID, optionally including stsApplicationId
+
+  window.sessionStorage.setItem('session_uuid', newSessionUuid);
 } 
-else if (stsApplicationId !== null && stsApplicationId !== currentStsApplicationId) {
-  window.sessionStorage.setItem(
-    'session_uuid',
-  ` ${currentSessionUuid}-${stsApplicationId}`
-  )
+// If stsApplicationId exists and differs from the current one, update the session UUID
+else if (stsApplicationId && stsApplicationId !== currentStsApplicationId) {
+  window.sessionStorage.setItem('session_uuid', `${currentSessionUuid}-${stsApplicationId}`);
 }
 
 /**
