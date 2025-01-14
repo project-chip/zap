@@ -41,7 +41,7 @@ let queryParams = new Map()
 query.forEach((value, key) => queryParams.set(key, value))
 
 // Retrieve and clean up the 'stsApplicationId' from the query parameters
-let stsApplicationId = queryParams.get('stsApplicationId')?.trim()
+let stsApplicationId = queryParams.get('stsApplicationId')?.trim() || null
 
 // Get the current session UUID stored in sessionStorage (if any)
 let currentSessionUuid = window.sessionStorage.getItem('session_uuid')
