@@ -68,7 +68,7 @@ if (currentSessionUuid == null) {
     )
   }
 } 
-else if (stsApplicationId && stsApplicationId !== currentStsApplicationId) {
+else if (stsApplicationId !== null && stsApplicationId !== currentStsApplicationId) {
   window.sessionStorage.setItem(
     'session_uuid',
   ` ${currentSessionUuid}-${stsApplicationId}`
