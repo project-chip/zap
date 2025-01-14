@@ -40,8 +40,8 @@ let query = new URLSearchParams(search)
 let queryParams = new Map()
 query.forEach((value, key) => queryParams.set(key, value))
 
-// Retrieve and clean up the 'stsApplicationId' from the query parameters
-let stsApplicationId = queryParams.get('stsApplicationId')?.trim() || null
+// Retrieve and clean up the 'stsApplicationId' from the query parameters, set to null if not present or empty
+let stsApplicationId = queryParams.get('stsApplicationId')?.trim() ?? null
 
 // Get the current session UUID stored in sessionStorage (if any)
 let currentSessionUuid = window.sessionStorage.getItem('session_uuid')
@@ -67,11 +67,11 @@ if (currentSessionUuid == null) {
       `${uuidv4()}-${stsApplicationId}`
     )
   }
-} else if (stsApplicationId !== currentStsApplicationId) {
-  // If the current 'stsApplicationId' differs from the one in the session, update the session UUID
+} 
+else if (stsApplicationId && stsApplicationId !== currentStsApplicationId) {
   window.sessionStorage.setItem(
     'session_uuid',
-    `${currentSessionUuid}-${stsApplicationId}`
+  ` ${currentSessionUuid}-${stsApplicationId}`
   )
 }
 
