@@ -43,16 +43,17 @@ let stsApplicationId = query.get('stsApplicationId')?.trim()
 // Get the current session UUID from sessionStorage
 let currentSessionUuid = window.sessionStorage.getItem('session_uuid')
 
+let currentStsApplicationId = currentSessionUuid.split('-')[1]
+
 // If stsApplicationId exists, update the session_uuid
-if (stsApplicationId) {
+if (currentSessionUuid == null) {
+  window.sessionStorage.setItem('session_uuid', uuidv4())
+} else if (stsApplicationId != currentStsApplicationId) {
   // Concatenate the current session UUID with the stsApplicationId and store it back
   window.sessionStorage.setItem(
     'session_uuid',
-    currentSessionUuid + stsApplicationId
+    currentSessionUuid + '-' + stsApplicationId
   )
-} else if (currentSessionUuid == null) {
-  // If session_uuid doesn't exist, generate a new one
-  window.sessionStorage.setItem('session_uuid', uuidv4())
 }
 
 /**
