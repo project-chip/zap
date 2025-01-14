@@ -37,24 +37,39 @@ if (search[0] === '?') {
 // Parse the query string using URLSearchParams for browser environments
 let query = new URLSearchParams(search)
 
+// Convert query parameters to a Map for better flexibility
+let queryParams = new Map()
+query.forEach((value, key) => queryParams.set(key, value))
+
 // Extract stsApplicationId and trim it
-let stsApplicationId = query.get('stsApplicationId')?.trim()
+let stsApplicationId = queryParams.get('stsApplicationId')?.trim()
 
 // Get the current session UUID from sessionStorage
 let currentSessionUuid = window.sessionStorage.getItem('session_uuid')
 
-let currentStsApplicationId = currentSessionUuid.split('-')[1]
+// Map current session UUID into key-value pairs with meaningful names
+let sessionData = new Map()
+if (currentSessionUuid) {
+  const [sessionUuid, stsApplication] = currentSessionUuid.split('-')
+  sessionData.set('sessionUuid', sessionUuid)
+  sessionData.set('stsApplication', stsApplication)
+}
+
+// Extract the stsApplicationId from the session data
+let currentStsApplicationId = sessionData.get('stsApplication')  // Assuming it's the second part of the UUID
 
 // If stsApplicationId exists, update the session_uuid
 if (currentSessionUuid == null) {
   window.sessionStorage.setItem('session_uuid', uuidv4())
-} else if (stsApplicationId != currentStsApplicationId) {
+} else if (stsApplicationId !== currentStsApplicationId) {
   // Concatenate the current session UUID with the stsApplicationId and store it back
   window.sessionStorage.setItem(
     'session_uuid',
-    currentSessionUuid + '-' + stsApplicationId
+    `${currentSessionUuid}-${stsApplicationId}`
   )
 }
+
+
 
 /**
  * URL rewriter that can come handy in development mode.
