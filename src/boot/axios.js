@@ -19,35 +19,34 @@ import axios from 'axios'
 import { v4 as uuidv4 } from 'uuid'
 import restApi from '../../src-shared/rest-api.js'
 import * as Util from '../util/util.js'
-const querystring = require('querystring')
 
 let zapUpdateExceptions = (payload, statusCode, message) => {}
 
 // You can set this to false to not log all the roundtrips
 const log = false
 
-// Get the search string from the URL
+// Get the search string from the URL (query parameters)
 let search = window.location.search
 
-// Remove the '?' if present
+// Remove the leading '?' if it's present in the URL query string
 if (search[0] === '?') {
   search = search.substring(1)
 }
 
-// Parse the query string using URLSearchParams for browser environments
+// Use URLSearchParams to parse the query string into a map of key-value pairs
 let query = new URLSearchParams(search)
 
-// Convert query parameters to a Map for better flexibility
+// Convert the query parameters into a Map for easier manipulation and access
 let queryParams = new Map()
 query.forEach((value, key) => queryParams.set(key, value))
 
-// Extract stsApplicationId and trim it
+// Retrieve and clean up the 'stsApplicationId' from the query parameters
 let stsApplicationId = queryParams.get('stsApplicationId')?.trim()
 
-// Get the current session UUID from sessionStorage
+// Get the current session UUID stored in sessionStorage (if any)
 let currentSessionUuid = window.sessionStorage.getItem('session_uuid')
 
-// Map current session UUID into key-value pairs with meaningful names
+// Map the session UUID into key-value pairs for better readability (e.g., 'sessionUuid' and 'stsApplication')
 let sessionData = new Map()
 if (currentSessionUuid) {
   const [sessionUuid, stsApplication] = currentSessionUuid.split('-')
@@ -55,21 +54,26 @@ if (currentSessionUuid) {
   sessionData.set('stsApplication', stsApplication)
 }
 
-// Extract the stsApplicationId from the session data
-let currentStsApplicationId = sessionData.get('stsApplication')  // Assuming it's the second part of the UUID
+// Extract the 'stsApplicationId' from the session data (second part of the session UUID)
+let currentStsApplicationId = sessionData.get('stsApplication')
 
-// If stsApplicationId exists, update the session_uuid
+// If no session UUID exists, create a new one and set it in sessionStorage
 if (currentSessionUuid == null) {
   window.sessionStorage.setItem('session_uuid', uuidv4())
+  if (stsApplicationId) {
+    // Create and store a new session UUID with the provided 'stsApplicationId'
+    window.sessionStorage.setItem(
+      'session_uuid',
+      `${uuidv4()}-${stsApplicationId}`
+    )
+  }
 } else if (stsApplicationId !== currentStsApplicationId) {
-  // Concatenate the current session UUID with the stsApplicationId and store it back
+  // If the current 'stsApplicationId' differs from the one in the session, update the session UUID
   window.sessionStorage.setItem(
     'session_uuid',
     `${currentSessionUuid}-${stsApplicationId}`
   )
 }
-
-
 
 /**
  * URL rewriter that can come handy in development mode.
