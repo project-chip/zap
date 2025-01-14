@@ -216,11 +216,16 @@ const template = (httpPort) => [
  */
 async function getUserSessionInfoMessage(browserWindow) {
   let userKey = await browserApi.getUserKeyFromBrowserWindow(browserWindow)
-  let sessionUuid =
+  let sessionUuidMap =
     await browserApi.getSessionUuidFromBrowserWindow(browserWindow)
+  let sessionUuidText = ''
+  for (const [key, value] of sessionUuidMap) {
+    sessionUuidText += `   ${key} => ${value}\n`
+  }
   return `
-  Browser session UUID: ${sessionUuid}
   Browser user key: ${userKey}
+  Browser session UUID:
+  ${sessionUuidText}
   `
 }
 
