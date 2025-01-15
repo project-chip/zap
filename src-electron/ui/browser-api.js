@@ -29,10 +29,15 @@ const env = require('../util/env')
  * @returns session UUID
  */
 async function getSessionUuidFromBrowserWindow(browserWindow) {
-  let sessionUuid = await browserWindow.webContents.executeJavaScript(
+  // Here, we're retrieving the map of all available sessions and return them.
+  let sessionMapJson = await browserWindow.webContents.executeJavaScript(
     'window.sessionStorage.getItem("session_uuid")'
   )
-  return sessionUuid
+  if (sessionMapJson == null) {
+    return new Map()
+  } else {
+    return new Map(JSON.parse(sessionMapJson))
+  }
 }
 
 /**

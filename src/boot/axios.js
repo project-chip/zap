@@ -16,30 +16,17 @@
  */
 
 import axios from 'axios'
-import { v4 as uuidv4 } from 'uuid'
 import restApi from '../../src-shared/rest-api.js'
 import * as Util from '../util/util.js'
-const querystring = require('querystring')
+import * as SessionId from '../util/session-id.js'
 
 let zapUpdateExceptions = (payload, statusCode, message) => {}
 
 // You can set this to false to not log all the roundtrips
 const log = false
 
-let search = window.location.search
-
-if (search[0] === '?') {
-  search = search.substring(1)
-}
-let query = querystring.parse(search)
-if (window.sessionStorage.getItem('session_uuid') == null) {
-  window.sessionStorage.setItem('session_uuid', uuidv4())
-}
-if (query[`stsApplicationId`]) {
-  let currentSessionUuid = window.sessionStorage.getItem('session_uuid') || ''
-  let updatedSessionUuid = query[`stsApplicationId`] + currentSessionUuid
-  window.sessionStorage.setItem('session_uuid', updatedSessionUuid)
-}
+// Handle session initialization
+SessionId.initializeSessionIdInBrowser(window)
 
 /**
  * URL rewriter that can come handy in development mode.
@@ -90,17 +77,16 @@ function processResponse(method, url, response) {
  * @returns config
  */
 function fillConfig(config) {
+  let sessionId = SessionId.sessionId(window)
   if (config == null) {
     config = { params: {} }
-    config.params[restApi.param.sessionId] =
-      window.sessionStorage.getItem('session_uuid')
+    config.params[restApi.param.sessionId] = sessionId
     return config
   } else {
     if (!('params' in config)) {
       config.params = {}
     }
-    config.params[restApi.param.sessionId] =
-      window.sessionStorage.getItem('session_uuid')
+    config.params[restApi.param.sessionId] = sessionId
     return config
   }
 }
