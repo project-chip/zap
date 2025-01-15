@@ -20,6 +20,7 @@ import restApi from '../../src-shared/rest-api.js'
 import rendApi from '../../src-shared/rend-api.js'
 import { Notify } from 'quasar'
 import * as Util from '../util/util.js'
+import * as SessionId from '../util/session-id.js'
 
 const tickInterval = 15000 // 15 seconds tick interval for server watchdog.
 
@@ -27,7 +28,7 @@ let eventEmitter = new Events.EventEmitter()
 let restPort = Util.getServerRestPort()
 let wsUrl = `ws://${window.location.hostname}:${
   restPort == null ? window.location.port : restPort
-}?${restApi.param.sessionId}=${window.sessionStorage.getItem('session_uuid')}`
+}?${restApi.param.sessionId}=${SessionId.sessionId(window)}`
 const client = new WebSocket(wsUrl)
 
 /**
