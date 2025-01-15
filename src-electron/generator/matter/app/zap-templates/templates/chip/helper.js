@@ -665,7 +665,21 @@ async function if_chip_complex(options) {
   if (checkResult != 'unknown') {
     result = options.fn(this);
   } else {
-    result = options.inverse(this);
+    let typedefResult = await zclHelper.isTypedef(
+      this.global.db,
+      this.type,
+      pkgIds
+    );
+    if (typedefResult != 'unknown') {
+      result = options.fn(this);
+    } else {
+      try {
+        result = options.inverse(this);
+      } catch (err) {
+        console.log('Failure processing ${this.type}');
+        throw err;
+      }
+    }
   }
   return templateUtil.templatePromise(this.global, result);
 }

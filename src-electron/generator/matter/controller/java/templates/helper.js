@@ -48,7 +48,7 @@ function convertBasicCTypeToJavaType(cType) {
     case 'double':
       return 'double';
     default:
-      error = 'Unhandled type ' + cType;
+      let error = 'Unhandled type in convertBasicCTypeToJavaType ' + cType;
       throw error;
   }
 }
@@ -66,7 +66,7 @@ function convertBasicCTypeToJniType(cType) {
     case 'double':
       return 'jdouble';
     default:
-      error = 'Unhandled type ' + cType;
+      let error = 'Unhandled type in convertBasicCTypeToJniType ' + cType;
       throw error;
   }
 }
@@ -84,12 +84,12 @@ function convertBasicCTypeToJavaBoxedType(cType) {
     case 'double':
       return 'Double';
     default:
-      error = 'Unhandled type ' + cType;
+      let error = 'Unhandled type in convertBasicCTypeToJavaBoxedType ' + cType;
       throw error;
   }
 }
 
-function asJavaBoxedType(type, zclType) {
+async function asJavaBoxedType(type, zclType) {
   if (StringHelper.isOctetString(type)) {
     return 'byte[]';
   } else if (StringHelper.isCharString(type)) {
@@ -118,7 +118,7 @@ function asJniBasicType(type, useBoxedTypes) {
   }
   function fn(pkgId) {
     const options = { hash: {} };
-    return zclHelper.asUnderlyingZclType
+    return zclHelper.asResolvedUnderlyingZclType
       .call(this, type, options)
       .then((zclType) => {
         return convertBasicCTypeToJniType(
@@ -141,7 +141,7 @@ function asJniBasicType(type, useBoxedTypes) {
 function asJniSignatureBasic(type, useBoxedTypes) {
   function fn(pkgId) {
     const options = { hash: {} };
-    return zclHelper.asUnderlyingZclType
+    return zclHelper.asResolvedUnderlyingZclType
       .call(this, type, options)
       .then((zclType) => {
         return convertCTypeToJniSignature(
@@ -191,7 +191,11 @@ function convertCTypeToJniSignature(cType, useBoxedTypes) {
     case 'Float':
       return 'Ljava/lang/Float;';
     default:
-      error = 'Unhandled Java type ' + javaType + ' for C type ' + cType;
+      let error =
+        'Unhandled Java type in convertCTypeToJniSignature ' +
+        javaType +
+        ' for C type ' +
+        cType;
       throw error;
   }
 }
@@ -278,7 +282,7 @@ async function as_underlying_java_zcl_type_util(
   } else if (characterStringTypes.includes(type.toUpperCase())) {
     return isBoxedJavaType ? 'String' : 'CharString';
   } else {
-    let error = 'Unhandled type ' + type;
+    let error = 'Unhandled type in as_underlying_java_zcl_type_util ' + type;
     if (isBoxedJavaType) {
       return 'Object';
     } else {
@@ -307,7 +311,11 @@ async function as_underlying_java_zcl_type(type, clusterId, options) {
 
 async function asUnderlyingBasicType(type) {
   const options = { hash: {} };
-  let zclType = await zclHelper.asUnderlyingZclType.call(this, type, options);
+  let zclType = await zclHelper.asResolvedUnderlyingZclType.call(
+    this,
+    type,
+    options
+  );
   return ChipTypesHelper.asBasicType(zclType);
 }
 
@@ -321,6 +329,13 @@ async function asJavaType(type, zclType, cluster, options) {
     .isStruct(this.global.db, type, pkgIds)
     .then((zclType) => zclType != 'unknown');
 
+  let typedef = await queryZcl.selectStructByNameAndClusterId(
+    this.global.db,
+    type,
+    cluster,
+    pkgIds
+  );
+
   let classType = '';
 
   if (StringHelper.isOctetString(type)) {
@@ -331,6 +346,8 @@ async function asJavaType(type, zclType, cluster, options) {
     classType += `ChipStructs.${appHelper.asUpperCamelCase(
       cluster
     )}Cluster${appHelper.asUpperCamelCase(type)}`;
+  } else if (typedef) {
+    return asJavaType(typedef.type, null, cluster, options);
   } else {
     let javaBoxedType = asJavaBoxedType(type, zclType);
     if (javaBoxedType == 'Object' && options.hash.clusterId) {

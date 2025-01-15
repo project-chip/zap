@@ -65,4 +65,10 @@ typedef uint8_t {{as_type parent.label}};
 {{/zcl_struct_items}}
 {{/zcl_structs}}
 
+// ZCL typedefs
+
+{{#zcl_typedefs}}
+using {{as_type label}} = {{asUnderlyingType type}};
+{{/zcl_typedefs}}
+
 #endif

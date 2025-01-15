@@ -655,6 +655,18 @@ CREATE TABLE IF NOT EXISTS "ENUM_ITEM" (
   FOREIGN KEY (ENUM_REF) REFERENCES "ENUM"(ENUM_ID) ON DELETE CASCADE ON UPDATE CASCADE
   UNIQUE(ENUM_REF, FIELD_IDENTIFIER)
 );
+
+/*
+ TYPEDEF table contains typedefs directly loaded from packages.
+ */
+DROP TABLE IF EXISTS "TYPEDEF";
+CREATE TABLE IF NOT EXISTS "TYPEDEF" (
+  TYPEDEF_ID integer NOT NULL PRIMARY KEY,
+  DATA_TYPE_REF integer NOT NULL,
+  FOREIGN KEY (TYPEDEF_ID) REFERENCES DATA_TYPE(DATA_TYPE_ID) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (DATA_TYPE_REF) REFERENCES DATA_TYPE(DATA_TYPE_ID) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
 /*
  STRUCT table contains structs directly loaded from packages.
  */
@@ -1320,7 +1332,7 @@ CREATE TRIGGER
   UPDATE_MULTIPROTOCOL_ATTRIBUTES_ACROSS_ENDPOINT_TYPES
 AFTER
   UPDATE ON ENDPOINT_TYPE_ATTRIBUTE
-WHEN 
+WHEN
 (
   (
     SELECT
@@ -1385,7 +1397,7 @@ BEGIN
   IN
     (
       SELECT
-        CASE 
+        CASE
           WHEN new.ENDPOINT_TYPE_ATTRIBUTE_ID = ETA1.ENDPOINT_TYPE_ATTRIBUTE_ID THEN ETA2.ENDPOINT_TYPE_ATTRIBUTE_ID
           WHEN new.ENDPOINT_TYPE_ATTRIBUTE_ID = ETA2.ENDPOINT_TYPE_ATTRIBUTE_ID THEN ETA1.ENDPOINT_TYPE_ATTRIBUTE_ID
         END AS ENDPOINT_TYPE_ATTRIBUTE_ID
@@ -3397,13 +3409,13 @@ WHERE SESSION_ID = OLD.SESSION_REF;
 END;
 
 /*
-____ _  _ ____ ___ ____ _  _    _  _ _  _ _       ___ ____ _ ____ ____ ____ ____ ____ 
-|    |  | [__   |  |  | |\/|     \/  |\/| |        |  |__/ | | __ | __ |___ |__/ [__  
-|___ |__| ___]  |  |__| |  |    _/\_ |  | |___     |  |  \ | |__] |__] |___ |  \ ___] 
+____ _  _ ____ ___ ____ _  _    _  _ _  _ _       ___ ____ _ ____ ____ ____ ____ ____
+|    |  | [__   |  |  | |\/|     \/  |\/| |        |  |__/ | | __ | __ |___ |__/ [__
+|___ |__| ___]  |  |__| |  |    _/\_ |  | |___     |  |  \ | |__] |__] |___ |  \ ___]
 
 Custom XML specific triggers
-*/                                                                                    
-                                                                                                                                                                      
+*/
+
 /* Triggers that deal with code conflicts in custom xml */
 
 /* Trigger that deals with code conflicts in clusters when new session package is inserted */
@@ -4096,9 +4108,9 @@ BEGIN
     0
     FROM
       COMMAND_ARG a
-    INNER JOIN 
+    INNER JOIN
       COMMAND c
-    ON 
+    ON
       a.COMMAND_REF = c.COMMAND_ID
     INNER JOIN
       PACKAGE p
@@ -4180,9 +4192,9 @@ BEGIN
     0
     FROM
       COMMAND_ARG a
-    INNER JOIN 
+    INNER JOIN
       COMMAND c
-    ON 
+    ON
       a.COMMAND_REF = c.COMMAND_ID
     INNER JOIN
       PACKAGE p
@@ -4264,7 +4276,7 @@ BEGIN
       EVENT_FIELD f
     INNER JOIN
       EVENT e
-    ON 
+    ON
       f.EVENT_REF = e.EVENT_ID
     INNER JOIN
       PACKAGE p
@@ -4348,7 +4360,7 @@ BEGIN
       EVENT_FIELD f
     INNER JOIN
       EVENT e
-    ON 
+    ON
       f.EVENT_REF = e.EVENT_ID
     INNER JOIN
       PACKAGE p

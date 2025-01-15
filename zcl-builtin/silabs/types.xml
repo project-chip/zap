@@ -1094,4 +1094,5 @@ limitations under the License.
     <item name="Closing" value="0x01"/>
     <item name="Opening" value="0x02"/>
   </enum>
+  <typedef name="ZoneID" type="INT8U" />
 </configurator>

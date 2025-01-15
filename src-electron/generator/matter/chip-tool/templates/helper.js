@@ -32,7 +32,7 @@ function asTypeMinValue(type) {
   function fn(pkgId) {
     const options = { hash: {} };
     this.isArray = false;
-    return zclHelper.asUnderlyingZclType
+    return zclHelper.asResolvedUnderlyingZclType
       .call(this, type, options)
       .then((zclType) => {
         const basicType = ChipTypesHelper.asBasicType(zclType);

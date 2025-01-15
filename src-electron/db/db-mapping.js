@@ -425,6 +425,19 @@ exports.map = {
     }
   },
 
+  typedef: (x) => {
+    if (x == null) return undefined
+    return {
+      id: x.TYPEDEF_ID,
+      label: x.NAME,
+      name: x.NAME,
+      type: x.TYPE,
+      typeId: x.TYPE_ID,
+      caption: `Typedef, mapping to {@x.TYPE}`,
+      typedefClusterCount: x.TYPEDEF_CLUSTER_COUNT
+    }
+  },
+
   deviceType: (x) => {
     if (x == null) return undefined
     return {

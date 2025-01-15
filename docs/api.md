@@ -102,6 +102,9 @@ inside a single session. Things like:
 <dt><a href="#module_DB API_ zcl database access">DB API: zcl database access</a></dt>
 <dd><p>This module provides queries for enums.</p>
 </dd>
+<dt><a href="#module_DB API_ zcl database typedef access">DB API: zcl database typedef access</a></dt>
+<dd><p>This module provides queries for typedefs.</p>
+</dd>
 <dt><a href="#module_DB API_ zcl database access">DB API: zcl database access</a></dt>
 <dd><p>This module provides a place for creating generic queries which are common
 across different query files.</p>
@@ -887,6 +890,7 @@ This module provides cache for commonly used static database queries.
     * [~selectStructClusters(db, structId)](#module_DB API_ zcl database access..selectStructClusters) ⇒
     * [~selectEnumClusters(db, enumId)](#module_DB API_ zcl database access..selectEnumClusters) ⇒
     * [~selectBitmapClusters(db, bitmapId)](#module_DB API_ zcl database access..selectBitmapClusters) ⇒
+    * [~selectTypedefClusters(db, typeDefId)](#module_DB API_ zcl database access..selectTypedefClusters) ⇒
     * [~selectClusterStructsWithItems(db)](#module_DB API_ zcl database access..selectClusterStructsWithItems) ⇒
     * [~selectAllStructsWithItems(db)](#module_DB API_ zcl database access..selectAllStructsWithItems) ⇒
     * [~selectStructsWithItemsImpl(db, packageIds, clusterId)](#module_DB API_ zcl database access..selectStructsWithItemsImpl) ⇒
@@ -1359,6 +1363,19 @@ Returns an array of clusters that bitmap belongs to.
 | --- | --- |
 | db | <code>\*</code> | 
 | bitmapId | <code>\*</code> | 
+
+<a name="module_DB API_ zcl database access..selectTypedefClusters"></a>
+
+### DB API: zcl database access~selectTypedefClusters(db, typeDefId) ⇒
+Returns an array of clusters that the typedef belongs to.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: clusters  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| typeDefId | <code>\*</code> | 
 
 <a name="module_DB API_ zcl database access..selectClusterStructsWithItems"></a>
 
@@ -1691,6 +1708,7 @@ This module provides queries for atomic type queries.
     * [~selectStructClusters(db, structId)](#module_DB API_ zcl database access..selectStructClusters) ⇒
     * [~selectEnumClusters(db, enumId)](#module_DB API_ zcl database access..selectEnumClusters) ⇒
     * [~selectBitmapClusters(db, bitmapId)](#module_DB API_ zcl database access..selectBitmapClusters) ⇒
+    * [~selectTypedefClusters(db, typeDefId)](#module_DB API_ zcl database access..selectTypedefClusters) ⇒
     * [~selectClusterStructsWithItems(db)](#module_DB API_ zcl database access..selectClusterStructsWithItems) ⇒
     * [~selectAllStructsWithItems(db)](#module_DB API_ zcl database access..selectAllStructsWithItems) ⇒
     * [~selectStructsWithItemsImpl(db, packageIds, clusterId)](#module_DB API_ zcl database access..selectStructsWithItemsImpl) ⇒
@@ -2163,6 +2181,19 @@ Returns an array of clusters that bitmap belongs to.
 | --- | --- |
 | db | <code>\*</code> | 
 | bitmapId | <code>\*</code> | 
+
+<a name="module_DB API_ zcl database access..selectTypedefClusters"></a>
+
+### DB API: zcl database access~selectTypedefClusters(db, typeDefId) ⇒
+Returns an array of clusters that the typedef belongs to.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: clusters  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| typeDefId | <code>\*</code> | 
 
 <a name="module_DB API_ zcl database access..selectClusterStructsWithItems"></a>
 
@@ -2490,6 +2521,7 @@ This module provides queries for enums.
     * [~selectStructClusters(db, structId)](#module_DB API_ zcl database access..selectStructClusters) ⇒
     * [~selectEnumClusters(db, enumId)](#module_DB API_ zcl database access..selectEnumClusters) ⇒
     * [~selectBitmapClusters(db, bitmapId)](#module_DB API_ zcl database access..selectBitmapClusters) ⇒
+    * [~selectTypedefClusters(db, typeDefId)](#module_DB API_ zcl database access..selectTypedefClusters) ⇒
     * [~selectClusterStructsWithItems(db)](#module_DB API_ zcl database access..selectClusterStructsWithItems) ⇒
     * [~selectAllStructsWithItems(db)](#module_DB API_ zcl database access..selectAllStructsWithItems) ⇒
     * [~selectStructsWithItemsImpl(db, packageIds, clusterId)](#module_DB API_ zcl database access..selectStructsWithItemsImpl) ⇒
@@ -2962,6 +2994,19 @@ Returns an array of clusters that bitmap belongs to.
 | --- | --- |
 | db | <code>\*</code> | 
 | bitmapId | <code>\*</code> | 
+
+<a name="module_DB API_ zcl database access..selectTypedefClusters"></a>
+
+### DB API: zcl database access~selectTypedefClusters(db, typeDefId) ⇒
+Returns an array of clusters that the typedef belongs to.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: clusters  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| typeDefId | <code>\*</code> | 
 
 <a name="module_DB API_ zcl database access..selectClusterStructsWithItems"></a>
 
@@ -3925,6 +3970,7 @@ This module provides queries for ZCL loading
     * [~insertBitmapFields(db, packageId, knownPackages, data)](#module_DB API_ zcl loading queries..insertBitmapFields)
     * [~insertStruct(db, packageIds, data)](#module_DB API_ zcl loading queries..insertStruct)
     * [~insertStructItems(db, packageIds, data)](#module_DB API_ zcl loading queries..insertStructItems)
+    * [~insertTypedef(db, packageIds, data)](#module_DB API_ zcl loading queries..insertTypedef)
 
 <a name="module_DB API_ zcl loading queries..attributeMap"></a>
 
@@ -4603,6 +4649,19 @@ Insert all Struct items into the Struct Item Table.
 | packageIds | <code>\*</code> | 
 | data | <code>\*</code> | 
 
+<a name="module_DB API_ zcl loading queries..insertTypedef"></a>
+
+### DB API: zcl loading queries~insertTypedef(db, packageIds, data)
+Insert all typedefs into the TypeDef Table.
+
+**Kind**: inner method of [<code>DB API: zcl loading queries</code>](#module_DB API_ zcl loading queries)  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| packageIds | <code>\*</code> | 
+| data | <code>\*</code> | 
+
 <a name="module_DB API_ zcl database number access"></a>
 
 ## DB API: zcl database number access
@@ -4733,6 +4792,7 @@ inside a single session. Things like:
     * [~selectStructClusters(db, structId)](#module_DB API_ zcl database access..selectStructClusters) ⇒
     * [~selectEnumClusters(db, enumId)](#module_DB API_ zcl database access..selectEnumClusters) ⇒
     * [~selectBitmapClusters(db, bitmapId)](#module_DB API_ zcl database access..selectBitmapClusters) ⇒
+    * [~selectTypedefClusters(db, typeDefId)](#module_DB API_ zcl database access..selectTypedefClusters) ⇒
     * [~selectClusterStructsWithItems(db)](#module_DB API_ zcl database access..selectClusterStructsWithItems) ⇒
     * [~selectAllStructsWithItems(db)](#module_DB API_ zcl database access..selectAllStructsWithItems) ⇒
     * [~selectStructsWithItemsImpl(db, packageIds, clusterId)](#module_DB API_ zcl database access..selectStructsWithItemsImpl) ⇒
@@ -5205,6 +5265,19 @@ Returns an array of clusters that bitmap belongs to.
 | --- | --- |
 | db | <code>\*</code> | 
 | bitmapId | <code>\*</code> | 
+
+<a name="module_DB API_ zcl database access..selectTypedefClusters"></a>
+
+### DB API: zcl database access~selectTypedefClusters(db, typeDefId) ⇒
+Returns an array of clusters that the typedef belongs to.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: clusters  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| typeDefId | <code>\*</code> | 
 
 <a name="module_DB API_ zcl database access..selectClusterStructsWithItems"></a>
 
@@ -5578,6 +5651,7 @@ This module provides queries for enums.
     * [~selectStructClusters(db, structId)](#module_DB API_ zcl database access..selectStructClusters) ⇒
     * [~selectEnumClusters(db, enumId)](#module_DB API_ zcl database access..selectEnumClusters) ⇒
     * [~selectBitmapClusters(db, bitmapId)](#module_DB API_ zcl database access..selectBitmapClusters) ⇒
+    * [~selectTypedefClusters(db, typeDefId)](#module_DB API_ zcl database access..selectTypedefClusters) ⇒
     * [~selectClusterStructsWithItems(db)](#module_DB API_ zcl database access..selectClusterStructsWithItems) ⇒
     * [~selectAllStructsWithItems(db)](#module_DB API_ zcl database access..selectAllStructsWithItems) ⇒
     * [~selectStructsWithItemsImpl(db, packageIds, clusterId)](#module_DB API_ zcl database access..selectStructsWithItemsImpl) ⇒
@@ -6050,6 +6124,19 @@ Returns an array of clusters that bitmap belongs to.
 | --- | --- |
 | db | <code>\*</code> | 
 | bitmapId | <code>\*</code> | 
+
+<a name="module_DB API_ zcl database access..selectTypedefClusters"></a>
+
+### DB API: zcl database access~selectTypedefClusters(db, typeDefId) ⇒
+Returns an array of clusters that the typedef belongs to.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: clusters  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| typeDefId | <code>\*</code> | 
 
 <a name="module_DB API_ zcl database access..selectClusterStructsWithItems"></a>
 
@@ -6330,6 +6417,89 @@ Get endpoint type events from the given endpoint type ID.
 | db | <code>\*</code> | 
 | endpointTypeId | <code>\*</code> | 
 
+<a name="module_DB API_ zcl database typedef access"></a>
+
+## DB API: zcl database typedef access
+This module provides queries for typedefs.
+
+
+* [DB API: zcl database typedef access](#module_DB API_ zcl database typedef access)
+    * [~selectAllTypedefs(db, packageId)](#module_DB API_ zcl database typedef access..selectAllTypedefs) ⇒
+    * [~selectClusterTypedefs(db, packageId, clusterId)](#module_DB API_ zcl database typedef access..selectClusterTypedefs) ⇒
+    * [~selectTypedefById(db, id)](#module_DB API_ zcl database typedef access..selectTypedefById) ⇒
+    * [~selectTypedefByName(db, name, packageIds, clusterName)](#module_DB API_ zcl database typedef access..selectTypedefByName) ⇒
+    * [~selectTypedefByNameAndClusterId(db, name, clusterId, packageIds)](#module_DB API_ zcl database typedef access..selectTypedefByNameAndClusterId) ⇒
+
+<a name="module_DB API_ zcl database typedef access..selectAllTypedefs"></a>
+
+### DB API: zcl database typedef access~selectAllTypedefs(db, packageId) ⇒
+Retrieves all the typedefs in the database.
+
+**Kind**: inner method of [<code>DB API: zcl database typedef access</code>](#module_DB API_ zcl database typedef access)  
+**Returns**: Promise that resolves with the rows of typedefs.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+
+<a name="module_DB API_ zcl database typedef access..selectClusterTypedefs"></a>
+
+### DB API: zcl database typedef access~selectClusterTypedefs(db, packageId, clusterId) ⇒
+Retrieves all the typedefs with cluster references in the database.
+
+**Kind**: inner method of [<code>DB API: zcl database typedef access</code>](#module_DB API_ zcl database typedef access)  
+**Returns**: Promise that resolves with the rows of typedefs.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| clusterId | <code>\*</code> | 
+
+<a name="module_DB API_ zcl database typedef access..selectTypedefById"></a>
+
+### DB API: zcl database typedef access~selectTypedefById(db, id) ⇒
+Select a typedef matched by its primary key.
+
+**Kind**: inner method of [<code>DB API: zcl database typedef access</code>](#module_DB API_ zcl database typedef access)  
+**Returns**: an typedef or underfined if not found  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| id | <code>\*</code> | 
+
+<a name="module_DB API_ zcl database typedef access..selectTypedefByName"></a>
+
+### DB API: zcl database typedef access~selectTypedefByName(db, name, packageIds, clusterName) ⇒
+Select a typedef matched by name.
+
+**Kind**: inner method of [<code>DB API: zcl database typedef access</code>](#module_DB API_ zcl database typedef access)  
+**Returns**: typedef or undefined  
+
+| Param | Type | Default |
+| --- | --- | --- |
+| db | <code>\*</code> |  | 
+| name | <code>\*</code> |  | 
+| packageIds | <code>\*</code> |  | 
+| clusterName | <code>\*</code> | <code></code> | 
+
+<a name="module_DB API_ zcl database typedef access..selectTypedefByNameAndClusterId"></a>
+
+### DB API: zcl database typedef access~selectTypedefByNameAndClusterId(db, name, clusterId, packageIds) ⇒
+Select a typedef matched by name and clusterId.
+
+**Kind**: inner method of [<code>DB API: zcl database typedef access</code>](#module_DB API_ zcl database typedef access)  
+**Returns**: typedef information or undefined  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| name | <code>\*</code> | 
+| clusterId | <code>\*</code> | 
+| packageIds | <code>\*</code> | 
+
 <a name="module_DB API_ zcl database access"></a>
 
 ## DB API: zcl database access
@@ -6373,6 +6543,7 @@ across different query files.
     * [~selectStructClusters(db, structId)](#module_DB API_ zcl database access..selectStructClusters) ⇒
     * [~selectEnumClusters(db, enumId)](#module_DB API_ zcl database access..selectEnumClusters) ⇒
     * [~selectBitmapClusters(db, bitmapId)](#module_DB API_ zcl database access..selectBitmapClusters) ⇒
+    * [~selectTypedefClusters(db, typeDefId)](#module_DB API_ zcl database access..selectTypedefClusters) ⇒
     * [~selectClusterStructsWithItems(db)](#module_DB API_ zcl database access..selectClusterStructsWithItems) ⇒
     * [~selectAllStructsWithItems(db)](#module_DB API_ zcl database access..selectAllStructsWithItems) ⇒
     * [~selectStructsWithItemsImpl(db, packageIds, clusterId)](#module_DB API_ zcl database access..selectStructsWithItemsImpl) ⇒
@@ -6845,6 +7016,19 @@ Returns an array of clusters that bitmap belongs to.
 | --- | --- |
 | db | <code>\*</code> | 
 | bitmapId | <code>\*</code> | 
+
+<a name="module_DB API_ zcl database access..selectTypedefClusters"></a>
+
+### DB API: zcl database access~selectTypedefClusters(db, typeDefId) ⇒
+Returns an array of clusters that the typedef belongs to.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: clusters  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| typeDefId | <code>\*</code> | 
 
 <a name="module_DB API_ zcl database access..selectClusterStructsWithItems"></a>
 
@@ -7167,6 +7351,7 @@ This module provides queries for ZCL static queries.
     * [~selectStructClusters(db, structId)](#module_DB API_ zcl database access..selectStructClusters) ⇒
     * [~selectEnumClusters(db, enumId)](#module_DB API_ zcl database access..selectEnumClusters) ⇒
     * [~selectBitmapClusters(db, bitmapId)](#module_DB API_ zcl database access..selectBitmapClusters) ⇒
+    * [~selectTypedefClusters(db, typeDefId)](#module_DB API_ zcl database access..selectTypedefClusters) ⇒
     * [~selectClusterStructsWithItems(db)](#module_DB API_ zcl database access..selectClusterStructsWithItems) ⇒
     * [~selectAllStructsWithItems(db)](#module_DB API_ zcl database access..selectAllStructsWithItems) ⇒
     * [~selectStructsWithItemsImpl(db, packageIds, clusterId)](#module_DB API_ zcl database access..selectStructsWithItemsImpl) ⇒
@@ -7639,6 +7824,19 @@ Returns an array of clusters that bitmap belongs to.
 | --- | --- |
 | db | <code>\*</code> | 
 | bitmapId | <code>\*</code> | 
+
+<a name="module_DB API_ zcl database access..selectTypedefClusters"></a>
+
+### DB API: zcl database access~selectTypedefClusters(db, typeDefId) ⇒
+Returns an array of clusters that the typedef belongs to.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: clusters  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| typeDefId | <code>\*</code> | 
 
 <a name="module_DB API_ zcl database access..selectClusterStructsWithItems"></a>
 
@@ -11854,12 +12052,15 @@ This module contains the API for templating. For more detailed instructions, rea
     * [~zcl_bitmaps(options)](#module_Templating API_ static zcl helpers..zcl_bitmaps) ⇒
     * [~zcl_bitmap_items(options)](#module_Templating API_ static zcl helpers..zcl_bitmap_items)
     * [~zcl_enums(options)](#module_Templating API_ static zcl helpers..zcl_enums) ⇒
+    * [~zcl_typedefs(options)](#module_Templating API_ static zcl helpers..zcl_typedefs) ⇒
     * [~zcl_structs(options)](#module_Templating API_ static zcl helpers..zcl_structs) ⇒
     * [~zcl_enum_items(options)](#module_Templating API_ static zcl helpers..zcl_enum_items)
     * [~first_unused_enum_value(options)](#module_Templating API_ static zcl helpers..first_unused_enum_value) ⇒
     * [~zcl_struct_items(options)](#module_Templating API_ static zcl helpers..zcl_struct_items) ⇒
     * [~zcl_struct_items_by_struct_name(name, options)](#module_Templating API_ static zcl helpers..zcl_struct_items_by_struct_name) ⇒
     * [~zcl_struct_items_by_struct_and_cluster_name(name, clusterName, options)](#module_Templating API_ static zcl helpers..zcl_struct_items_by_struct_and_cluster_name) ⇒
+    * [~zcl_typedef_by_typedef(name, options)](#module_Templating API_ static zcl helpers..zcl_typedef_by_typedef) ⇒
+    * [~zcl_typedef_by_typedef_and_cluster_name(name, clusterName, options)](#module_Templating API_ static zcl helpers..zcl_typedef_by_typedef_and_cluster_name) ⇒
     * [~zcl_device_types(options)](#module_Templating API_ static zcl helpers..zcl_device_types) ⇒
     * [~zcl_device_type_clusters(options)](#module_Templating API_ static zcl helpers..zcl_device_type_clusters) ⇒
     * [~zcl_device_type_cluster_commands(options)](#module_Templating API_ static zcl helpers..zcl_device_type_cluster_commands) ⇒
@@ -11889,6 +12090,7 @@ This module contains the API for templating. For more detailed instructions, rea
     * [~zcl_command_arguments(options)](#module_Templating API_ static zcl helpers..zcl_command_arguments) ⇒
     * [~zcl_event_fields(options)](#module_Templating API_ static zcl helpers..zcl_event_fields)
     * [~zcl_command_argument_data_type(typeName, options)](#module_Templating API_ static zcl helpers..zcl_command_argument_data_type)
+    * [~asResolvedUnderlyingZclType()](#module_Templating API_ static zcl helpers..asResolvedUnderlyingZclType)
     * [~asUnderlyingZclType(typeName, options)](#module_Templating API_ static zcl helpers..asUnderlyingZclType)
     * [~zcl_string_type_return(type, options)](#module_Templating API_ static zcl helpers..zcl_string_type_return)
     * [~is_zcl_string(type)](#module_Templating API_ static zcl helpers..is_zcl_string)
@@ -11902,6 +12104,7 @@ This module contains the API for templating. For more detailed instructions, rea
     * [~if_is_bitmap(type)](#module_Templating API_ static zcl helpers..if_is_bitmap) ⇒
     * [~if_is_enum(type)](#module_Templating API_ static zcl helpers..if_is_enum) ⇒
     * [~if_is_struct(type)](#module_Templating API_ static zcl helpers..if_is_struct) ⇒
+    * [~if_is_typedef(type)](#module_Templating API_ static zcl helpers..if_is_typedef) ⇒
     * [~isClient(side)](#module_Templating API_ static zcl helpers..isClient) ⇒
     * [~isServer(side)](#module_Templating API_ static zcl helpers..isServer) ⇒
     * [~isStrEqual(str1, str2)](#module_Templating API_ static zcl helpers..isStrEqual) ⇒
@@ -11965,6 +12168,21 @@ Block helper iterating over all enums.
 If existing independently, it iterates over ALL the enums.
 Within a context of a cluster, it iterates only over the
 enums belonging to a cluster.
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
+**Returns**: Promise of content.  
+
+| Param | Type |
+| --- | --- |
+| options | <code>\*</code> | 
+
+<a name="module_Templating API_ static zcl helpers..zcl_typedefs"></a>
+
+### Templating API: static zcl helpers~zcl\_typedefs(options) ⇒
+Block helper iterating over all typedefs.
+If existing independently, it iterates over ALL the typedefs.
+Within a context of a cluster, it iterates only over the
+typedefs belonging to a cluster.
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
 **Returns**: Promise of content.  
@@ -12046,6 +12264,36 @@ cluster name.  The items iterated will be those that correspond to that
 struct name being used within the given cluster.  That means the struct name
 must be either a global struct (in which case the cluster name is just
 ignored), or a struct associated with the given cluster.
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
+**Returns**: Promise of content.  
+
+| Param |
+| --- |
+| name | 
+| clusterName | 
+| options | 
+
+<a name="module_Templating API_ static zcl helpers..zcl_typedef_by_typedef"></a>
+
+### Templating API: static zcl helpers~zcl\_typedef\_by\_typedef(name, options) ⇒
+Block helper for getting information for a typedef with a given name.
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
+**Returns**: Promise of content.  
+
+| Param |
+| --- |
+| name | 
+| options | 
+
+<a name="module_Templating API_ static zcl helpers..zcl_typedef_by_typedef_and_cluster_name"></a>
+
+### Templating API: static zcl helpers~zcl\_typedef\_by\_typedef\_and\_cluster\_name(name, clusterName, options) ⇒
+Block helper for expanding a typedef.  The typedef will be those that correspond to that
+typedef name being used within the given cluster.  That means the typedef name
+must be either a global (in which case the cluster name is just
+ignored), or a typedef associated with the given cluster.
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
 **Returns**: Promise of content.  
@@ -12429,6 +12677,12 @@ Helper that deals with the type of the argument.
 | typeName | <code>\*</code> | 
 | options | <code>\*</code> | 
 
+<a name="module_Templating API_ static zcl helpers..asResolvedUnderlyingZclType"></a>
+
+### Templating API: static zcl helpers~asResolvedUnderlyingZclType()
+Helper that behaves like asUnderlyingZclType, but resolves typedefs.
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
 <a name="module_Templating API_ static zcl helpers..asUnderlyingZclType"></a>
 
 ### Templating API: static zcl helpers~asUnderlyingZclType(typeName, options)
@@ -12646,6 +12900,25 @@ type is struct
 {{else}}
 type is not struct
 {{/if_is_struct}}
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
+**Returns**: Promise of content.  
+
+| Param |
+| --- |
+| type | 
+
+<a name="module_Templating API_ static zcl helpers..if_is_typedef"></a>
+
+### Templating API: static zcl helpers~if\_is\_typedef(type) ⇒
+If helper that checks if a type is a typedef
+
+* example:
+{{#if_is_typedef type}}
+type is typedef
+{{else}}
+type is not a typedef
+{{/if_is_typedef}}
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
 **Returns**: Promise of content.  
@@ -18955,6 +19228,7 @@ This module provides the API to access various zcl utilities.
     * [~dataTypeCharacterFormatter(db, packageIds, type, options, resType)](#module_REST API_ various zcl utilities..dataTypeCharacterFormatter)
     * [~isEnum(db, enum_name, packageIds)](#module_REST API_ various zcl utilities..isEnum) ⇒
     * [~isStruct(db, struct_name, packageIds)](#module_REST API_ various zcl utilities..isStruct) ⇒
+    * [~isTypedef(db, typedef_name, packageIds)](#module_REST API_ various zcl utilities..isTypedef) ⇒
     * [~isEvent(db, event_name, packageId)](#module_REST API_ various zcl utilities..isEvent) ⇒
     * [~isBitmap(db, bitmap_name, packageIds)](#module_REST API_ various zcl utilities..isBitmap) ⇒
     * [~defaultMessageForTypeConversion(fromType, toType, noWarning)](#module_REST API_ various zcl utilities..defaultMessageForTypeConversion)
@@ -19167,6 +19441,20 @@ Local function that checks if a struct by the name exists
 | --- | --- |
 | db | <code>\*</code> | 
 | struct_name | <code>\*</code> | 
+| packageIds | <code>\*</code> | 
+
+<a name="module_REST API_ various zcl utilities..isTypedef"></a>
+
+### REST API: various zcl utilities~isTypedef(db, typedef_name, packageIds) ⇒
+Local function that checks if a typedef by the name exists
+
+**Kind**: inner method of [<code>REST API: various zcl utilities</code>](#module_REST API_ various zcl utilities)  
+**Returns**: Promise of content.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| typedef_name | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
 
 <a name="module_REST API_ various zcl utilities..isEvent"></a>
@@ -20136,6 +20424,8 @@ This module provides the APIs for dotdot Loading
     * [~prepareStruct(a, dataType)](#module_Loader API_ Loader APIs..prepareStruct) ⇒
     * [~processStruct(db, filePath, packageId, knownPackages, data)](#module_Loader API_ Loader APIs..processStruct) ⇒
     * [~processStructItems(db, filePath, packageIds, data)](#module_Loader API_ Loader APIs..processStructItems) ⇒
+    * [~prepareTypedef(a, dataType)](#module_Loader API_ Loader APIs..prepareTypedef) ⇒
+    * [~processTypedef(db, filePath, packageId, knownPackages, data)](#module_Loader API_ Loader APIs..processTypedef) ⇒
     * [~prepareDeviceType(deviceType)](#module_Loader API_ Loader APIs..prepareDeviceType) ⇒ <code>Object</code>
     * [~processDeviceTypes(db, filePath, packageId, data, context)](#module_Loader API_ Loader APIs..processDeviceTypes) ⇒ <code>Promise</code>
     * [~processParsedZclData(db, argument)](#module_Loader API_ Loader APIs..processParsedZclData) ⇒
@@ -21475,6 +21765,35 @@ Processes the struct Items.
 | db | <code>\*</code> | 
 | filePath | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
+| data | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..prepareTypedef"></a>
+
+### Loader API: Loader APIs~prepareTypedef(a, dataType) ⇒
+Prepare the typedef for database table insertion.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: An Object  
+
+| Param | Type |
+| --- | --- |
+| a | <code>\*</code> | 
+| dataType | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processTypedef"></a>
+
+### Loader API: Loader APIs~processTypedef(db, filePath, packageId, knownPackages, data) ⇒
+Processes the typedef.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: A promise of inserted typedefs.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| knownPackages | <code>\*</code> | 
 | data | <code>\*</code> | 
 
 <a name="module_Loader API_ Loader APIs..prepareDeviceType"></a>
@@ -21970,6 +22289,8 @@ This module provides the APIs for for common functionality related to loading.
     * [~prepareStruct(a, dataType)](#module_Loader API_ Loader APIs..prepareStruct) ⇒
     * [~processStruct(db, filePath, packageId, knownPackages, data)](#module_Loader API_ Loader APIs..processStruct) ⇒
     * [~processStructItems(db, filePath, packageIds, data)](#module_Loader API_ Loader APIs..processStructItems) ⇒
+    * [~prepareTypedef(a, dataType)](#module_Loader API_ Loader APIs..prepareTypedef) ⇒
+    * [~processTypedef(db, filePath, packageId, knownPackages, data)](#module_Loader API_ Loader APIs..processTypedef) ⇒
     * [~prepareDeviceType(deviceType)](#module_Loader API_ Loader APIs..prepareDeviceType) ⇒ <code>Object</code>
     * [~processDeviceTypes(db, filePath, packageId, data, context)](#module_Loader API_ Loader APIs..processDeviceTypes) ⇒ <code>Promise</code>
     * [~processParsedZclData(db, argument)](#module_Loader API_ Loader APIs..processParsedZclData) ⇒
@@ -23309,6 +23630,35 @@ Processes the struct Items.
 | db | <code>\*</code> | 
 | filePath | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
+| data | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..prepareTypedef"></a>
+
+### Loader API: Loader APIs~prepareTypedef(a, dataType) ⇒
+Prepare the typedef for database table insertion.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: An Object  
+
+| Param | Type |
+| --- | --- |
+| a | <code>\*</code> | 
+| dataType | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processTypedef"></a>
+
+### Loader API: Loader APIs~processTypedef(db, filePath, packageId, knownPackages, data) ⇒
+Processes the typedef.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: A promise of inserted typedefs.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| knownPackages | <code>\*</code> | 
 | data | <code>\*</code> | 
 
 <a name="module_Loader API_ Loader APIs..prepareDeviceType"></a>
@@ -23804,6 +24154,8 @@ This module provides the APIs for new data model loading
     * [~prepareStruct(a, dataType)](#module_Loader API_ Loader APIs..prepareStruct) ⇒
     * [~processStruct(db, filePath, packageId, knownPackages, data)](#module_Loader API_ Loader APIs..processStruct) ⇒
     * [~processStructItems(db, filePath, packageIds, data)](#module_Loader API_ Loader APIs..processStructItems) ⇒
+    * [~prepareTypedef(a, dataType)](#module_Loader API_ Loader APIs..prepareTypedef) ⇒
+    * [~processTypedef(db, filePath, packageId, knownPackages, data)](#module_Loader API_ Loader APIs..processTypedef) ⇒
     * [~prepareDeviceType(deviceType)](#module_Loader API_ Loader APIs..prepareDeviceType) ⇒ <code>Object</code>
     * [~processDeviceTypes(db, filePath, packageId, data, context)](#module_Loader API_ Loader APIs..processDeviceTypes) ⇒ <code>Promise</code>
     * [~processParsedZclData(db, argument)](#module_Loader API_ Loader APIs..processParsedZclData) ⇒
@@ -25143,6 +25495,35 @@ Processes the struct Items.
 | db | <code>\*</code> | 
 | filePath | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
+| data | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..prepareTypedef"></a>
+
+### Loader API: Loader APIs~prepareTypedef(a, dataType) ⇒
+Prepare the typedef for database table insertion.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: An Object  
+
+| Param | Type |
+| --- | --- |
+| a | <code>\*</code> | 
+| dataType | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processTypedef"></a>
+
+### Loader API: Loader APIs~processTypedef(db, filePath, packageId, knownPackages, data) ⇒
+Processes the typedef.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: A promise of inserted typedefs.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| knownPackages | <code>\*</code> | 
 | data | <code>\*</code> | 
 
 <a name="module_Loader API_ Loader APIs..prepareDeviceType"></a>
@@ -25638,6 +26019,8 @@ This module provides the APIs for ZCL/Data-Model loading.
     * [~prepareStruct(a, dataType)](#module_Loader API_ Loader APIs..prepareStruct) ⇒
     * [~processStruct(db, filePath, packageId, knownPackages, data)](#module_Loader API_ Loader APIs..processStruct) ⇒
     * [~processStructItems(db, filePath, packageIds, data)](#module_Loader API_ Loader APIs..processStructItems) ⇒
+    * [~prepareTypedef(a, dataType)](#module_Loader API_ Loader APIs..prepareTypedef) ⇒
+    * [~processTypedef(db, filePath, packageId, knownPackages, data)](#module_Loader API_ Loader APIs..processTypedef) ⇒
     * [~prepareDeviceType(deviceType)](#module_Loader API_ Loader APIs..prepareDeviceType) ⇒ <code>Object</code>
     * [~processDeviceTypes(db, filePath, packageId, data, context)](#module_Loader API_ Loader APIs..processDeviceTypes) ⇒ <code>Promise</code>
     * [~processParsedZclData(db, argument)](#module_Loader API_ Loader APIs..processParsedZclData) ⇒
@@ -26977,6 +27360,35 @@ Processes the struct Items.
 | db | <code>\*</code> | 
 | filePath | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
+| data | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..prepareTypedef"></a>
+
+### Loader API: Loader APIs~prepareTypedef(a, dataType) ⇒
+Prepare the typedef for database table insertion.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: An Object  
+
+| Param | Type |
+| --- | --- |
+| a | <code>\*</code> | 
+| dataType | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processTypedef"></a>
+
+### Loader API: Loader APIs~processTypedef(db, filePath, packageId, knownPackages, data) ⇒
+Processes the typedef.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: A promise of inserted typedefs.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| knownPackages | <code>\*</code> | 
 | data | <code>\*</code> | 
 
 <a name="module_Loader API_ Loader APIs..prepareDeviceType"></a>

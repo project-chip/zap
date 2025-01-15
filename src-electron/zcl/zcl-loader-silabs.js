@@ -143,7 +143,8 @@ async function collectDataFromJsonFile(metadataFile, data) {
       'ENUM',
       'NUMBER',
       'STRING',
-      'STRUCT'
+      'STRUCT',
+      'TYPEDEF'
     ]
   }
 
@@ -1075,6 +1076,11 @@ function prepareDataType(a, dataType, typeMap) {
     a.$.name.toLowerCase().includes(dbEnum.zclType.struct)
   ) {
     dataTypeRef = typeMap.get(dbEnum.zclType.struct)
+  } else if (
+    !dataType &&
+    a.$.name.toLowerCase().includes(dbEnum.zclType.typedef)
+  ) {
+    dataTypeRef = typeMap.get(dbEnum.zclType.typedef)
   } else if (!dataType) {
     dataTypeRef = typeMap.get(dbEnum.zclType.number)
   }
@@ -1154,6 +1160,15 @@ async function processDataType(
       packageId,
       data.map((x) =>
         prepareDataType(x, typeMap.get(dbEnum.zclType.string), typeMap)
+      )
+    )
+  } else if (dataType == dbEnum.zclType.typedef) {
+    env.logDebug(`${filePath}, ${packageId}: ${data.length} Typedef Types.`)
+    return queryLoader.insertDataType(
+      db,
+      packageId,
+      data.map((x) =>
+        prepareDataType(x, typeMap.get(dbEnum.zclType.typedef), typeMap)
       )
     )
   } else {
@@ -1643,6 +1658,44 @@ async function processStructItems(db, filePath, packageIds, data, context) {
 }
 
 /**
+ * Prepare the typedef for database table insertion.
+ *
+ * @param {*} a
+ * @param {*} dataType
+ * @returns An Object
+ */
+function prepareTypedef(a, dataType) {
+  return {
+    name: a.$.name,
+    cluster_code: a.cluster ? a.cluster : null,
+    discriminator_ref: dataType,
+    type:
+      a.$.type == a.$.type.toUpperCase() && a.$.type.length > 1
+        ? a.$.type.toLowerCase()
+        : a.$.type
+  }
+}
+/**
+ * Processes the typedef.
+ *
+ * @param {*} db
+ * @param {*} filePath
+ * @param {*} packageId
+ * @param {*} knownPackages
+ * @param {*} data
+ * @returns A promise of inserted typedefs.
+ */
+async function processTypedef(db, filePath, packageId, knownPackages, data) {
+  env.logDebug(`${filePath}, ${packageId}: ${data.length} Typedef Types.`)
+  let typeMap = await zclLoader.getDiscriminatorMap(db, knownPackages)
+  return queryLoader.insertTypedef(
+    db,
+    knownPackages,
+    data.map((x) => prepareTypedef(x, typeMap.get(dbEnum.zclType.typedef)))
+  )
+}
+
+/**
  * Prepares a device type object by extracting and transforming its properties.
  *
  * This function takes a device type object and processes its properties to create
@@ -1907,6 +1960,18 @@ async function processParsedZclData(
         )
       )
     }
+    if (dbEnum.zclType.typedef in toplevel) {
+      batch3.push(
+        processDataType(
+          db,
+          filePath,
+          packageId,
+          knownPackages,
+          toplevel.typedef,
+          dbEnum.zclType.typedef
+        )
+      )
+    }
     await Promise.all(batch3)
 
     // Batch4 and Batch5: Loads the inidividual tables per data type from
@@ -1949,6 +2014,11 @@ async function processParsedZclData(
     if (dbEnum.zclType.bitmap in toplevel) {
       Batch5.push(
         processBitmap(db, filePath, packageId, knownPackages, toplevel.bitmap)
+      )
+    }
+    if (dbEnum.zclType.typedef in toplevel) {
+      Batch5.push(
+        processTypedef(db, filePath, packageId, knownPackages, toplevel.typedef)
       )
     }
     // Treating features in a cluster as a bitmap
@@ -2310,7 +2380,7 @@ function parseConformanceFromXML(operand) {
  */
 function parseConformanceRecursively(operand, depth = 0, parentJoinChar = '') {
   if (depth > 200) {
-    throw new Error(`Maximum recursion depth exceeded 
+    throw new Error(`Maximum recursion depth exceeded
       when parsing conformance: ${JSON.stringify(operand)}`)
   }
   const baseLevelTerms = ['feature', 'condition', 'attribute', 'command']

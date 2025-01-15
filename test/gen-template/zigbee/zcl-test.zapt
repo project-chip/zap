@@ -8,6 +8,16 @@ Label count: {{count}}
 This is output only if there are no enums.
 {{/zcl_enums}}
 
+/******************/
+{{#zcl_typedefs}}
+// {{index}}/{{count}}: label=>{{label}} caption=>{{caption}}
+{{#last}}
+Label count: {{count}}
+{{/last}}
+{{else}}
+This is output only if there are no typedefs.
+{{/zcl_typedefs}}
+
 
 /******************/
 {{#zcl_structs}}
