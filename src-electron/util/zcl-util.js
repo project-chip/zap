@@ -513,6 +513,22 @@ function isStruct(db, struct_name, packageIds) {
 }
 
 /**
+ * Local function that checks if a typedef by the name exists
+ *
+ * @param {*} db
+ * @param {*} typedef_name
+ * @param {*} packageIds
+ * @returns Promise of content.
+ */
+function isTypedef(db, typedef_name, packageIds) {
+  return queryZcl
+    .selectTypedefByName(db, typedef_name, packageIds)
+    .then((typedefs) =>
+      typedefs ? dbEnum.zclType.typedef : dbEnum.zclType.unknown
+    )
+}
+
+/**
  * Function that checks if a given thing is an avent.
  * @param {*} db
  * @param {*} event_name
@@ -627,6 +643,16 @@ function dataTypeHelper(
       } else {
         return type
       }
+    case dbEnum.zclType.typedef:
+      if ('typedef' in options.hash) {
+        return defaultMessageForTypeConversion(
+          `${type}`,
+          options.hash.typedef,
+          options.hash.no_warning
+        )
+      } else {
+        return type
+      }
     case dbEnum.zclType.atomic:
     case dbEnum.zclType.unknown:
     default:
@@ -665,7 +691,7 @@ async function asUnderlyingZclTypeWithPackageId(
     actualType = numberType.name
   }
 
-  return Promise.all([
+  let res = await Promise.all([
     new Promise((resolve, reject) => {
       if ('isArray' in currentInstance && currentInstance.isArray)
         resolve(dbEnum.zclType.array)
@@ -673,44 +699,38 @@ async function asUnderlyingZclTypeWithPackageId(
     }),
     isEnum(currentInstance.global.db, actualType, packageIds),
     isStruct(currentInstance.global.db, actualType, packageIds),
-    isBitmap(currentInstance.global.db, actualType, packageIds)
+    isBitmap(currentInstance.global.db, actualType, packageIds),
+    isTypedef(currentInstance.global.db, actualType, packageIds)
   ])
-    .then(
-      (res) =>
-        new Promise((resolve, reject) => {
-          for (let i = 0; i < res.length; i++) {
-            if (res[i] != 'unknown') {
-              resolve(res[i])
-              return
-            }
-          }
-          resolve(dbEnum.zclType.unknown)
-        })
-    )
-    .then((resType) => {
-      if (dbEnum.zclType.zclCharFormatter in options.hash) {
-        return dataTypeCharacterFormatter(
-          currentInstance.global.db,
-          packageIds,
-          actualType,
-          options,
-          resType
-        )
-      } else {
-        return dataTypeHelper(
-          actualType,
-          options,
-          packageIds,
-          currentInstance.global.db,
-          resType,
-          currentInstance.global.overridable
-        )
+
+  let resType = await new Promise((resolve, reject) => {
+    for (let i = 0; i < res.length; i++) {
+      if (res[i] != 'unknown') {
+        resolve(res[i])
+        return
       }
-    })
-    .catch((err) => {
-      env.logError(err)
-      throw err
-    })
+    }
+    resolve(dbEnum.zclType.unknown)
+  })
+
+  if (dbEnum.zclType.zclCharFormatter in options.hash) {
+    return dataTypeCharacterFormatter(
+      currentInstance.global.db,
+      packageIds,
+      actualType,
+      options,
+      resType
+    )
+  } else {
+    return dataTypeHelper(
+      actualType,
+      options,
+      packageIds,
+      currentInstance.global.db,
+      resType,
+      currentInstance.global.overridable
+    )
+  }
 }
 
 /**
@@ -751,6 +771,13 @@ async function determineType(db, type, packageIds) {
     return {
       type: dbEnum.zclType.struct,
       atomicType: null
+    }
+
+  let typedef = await queryZcl.selectTypedefByName(db, type, packageIds)
+  if (typedef != null)
+    return {
+      type: dbEnum.zclType.typedef,
+      atomicType: (await determineType(db, typedef.type, packageIds)).atomicType
     }
 
   let theBitmap = await queryZcl.selectBitmapByName(db, packageIds, type)
@@ -874,6 +901,16 @@ async function zcl_data_type_size_and_sign(
     )
     result = en.size
   } else if (
+    dataType.discriminatorName.toLowerCase() == dbEnum.zclType.typedef
+  ) {
+    let en = await queryZcl.selectTypeDefByNameAndClusterId(
+      context.global.db,
+      dataType.name,
+      clusterId,
+      packageIds
+    )
+    result = en.size
+  } else if (
     dataType.discriminatorName.toLowerCase() == dbEnum.zclType.number
   ) {
     let number = await queryZcl.selectNumberByNameAndClusterId(
@@ -899,6 +936,7 @@ exports.isEnum = isEnum
 exports.isBitmap = isBitmap
 exports.isStruct = isStruct
 exports.isEvent = isEvent
+exports.isTypedef = isTypedef
 exports.asUnderlyingZclTypeWithPackageId = asUnderlyingZclTypeWithPackageId
 exports.determineType = determineType
 exports.dataTypeCharacterFormatter = dataTypeCharacterFormatter

@@ -230,6 +230,13 @@ test(
     zclHelper.isStruct(db, 'Protocol', zclContext.packageId).then((result) => {
       expect(result).toBe(dbEnum.zclType.struct)
     })
+
+    zclHelper.isTypedef(db, 'patate', zclContext.packageId).then((result) => {
+      expect(result).toBe(dbEnum.zclType.unknown)
+    })
+    zclHelper.isTypedef(db, 'ZoneID', zclContext.packageId).then((result) => {
+      expect(result).toBe(dbEnum.zclType.typedef)
+    })
   },
   testUtil.timeout.short()
 )

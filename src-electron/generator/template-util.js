@@ -88,8 +88,13 @@ async function collectBlocks(resultArray, options, context) {
       count: resultArray.length,
       ...element
     }
-    let block = options.fn(newContext)
-    promises.push(block)
+    try {
+      let block = options.fn(newContext)
+      promises.push(block)
+    } catch (err) {
+      console.log(`Failure processing ${this.type}`)
+      throw err
+    }
   })
 
   // The else block gets executed if the list is empty.

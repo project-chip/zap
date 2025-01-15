@@ -83,7 +83,7 @@ async function asTypedExpressionFromObjectiveC(value, type) {
 function asObjectiveCNumberType(label, type, asLowerCased) {
   function fn(pkgId) {
     const options = { hash: {} };
-    return zclHelper.asUnderlyingZclType
+    return zclHelper.asResolvedUnderlyingZclType
       .call(this, type, options)
       .then((zclType) => {
         const basicType = ChipTypesHelper.asBasicType(zclType);

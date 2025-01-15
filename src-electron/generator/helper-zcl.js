@@ -118,6 +118,40 @@ async function zcl_enums(options) {
 }
 
 /**
+ * Block helper iterating over all typedefs.
+ * If existing independently, it iterates over ALL the typedefs.
+ * Within a context of a cluster, it iterates only over the
+ * typedefs belonging to a cluster.
+ *
+ * @param {*} options
+ * @returns Promise of content.
+ */
+async function zcl_typedefs(options) {
+  let packageIds = await templateUtil.ensureZclPackageIds(this)
+  let tds
+  if (this.id != null) {
+    tds = await queryZcl.selectClusterTypedefs(
+      this.global.db,
+      packageIds,
+      this.id
+    )
+  } else {
+    tds = await Promise.all(
+      packageIds.map((packageId) =>
+        queryZcl.selectAllTypedefs(this.global.db, packageId)
+      )
+    ).then((x) => x.flat())
+  }
+  tds.forEach((td) => {
+    td.has_no_clusters = td.typedefClusterCount < 1
+    td.has_one_cluster = td.typedefClusterCount == 1
+    td.has_more_than_one_cluster = td.typedefClusterCount > 1
+  })
+  let promise = templateUtil.collectBlocks(tds, options, this)
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
  * Block helper iterating over all structs.
  * If existing independently, it iterates over ALL the structs.
  * Within a context of a cluster, it iterates only over the
@@ -360,6 +394,53 @@ async function zcl_struct_items_by_struct_and_cluster_name(
       clusterName
     )
     .then((st) => templateUtil.collectBlocks(st, options, this))
+  return templateUtil.templatePromise(this.global, promise)
+}
+/**
+ * Block helper for getting information for a typedef with a given name.
+ *
+ * @param name
+ * @param options
+ * @returns Promise of content.
+ */
+async function zcl_typedef_by_typedef(name, options) {
+  let packageIds = await templateUtil.ensureZclPackageIds(this)
+  let promise = queryZcl
+    .selectTypedefByName(this.global.db, name, packageIds)
+    .then((td) => templateUtil.collectBlocks([td], options, this))
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
+ * Block helper for expanding a typedef.  The typedef will be those that correspond to that
+ * typedef name being used within the given cluster.  That means the typedef name
+ * must be either a global (in which case the cluster name is just
+ * ignored), or a typedef associated with the given cluster.
+ *
+ * @param name
+ * @param clusterName
+ * @param options
+ * @returns Promise of content.
+ */
+async function zcl_typedef_by_typedef_and_cluster_name(
+  name,
+  clusterName,
+  options
+) {
+  let packageIds = await templateUtil.ensureZclPackageIds(this)
+  // Check for a global typedef first.
+  const typedefObj = await queryZcl.selectTypedefByName(
+    this.global.db,
+    name,
+    packageIds
+  )
+  if (typedefObj.typedefClusterCount == 0) {
+    // Just ignore the cluster name.
+    return zcl_typedef_by_typedef.call(this, name, options)
+  }
+  let promise = queryZcl
+    .selectTypedefByName(this.global.db, name, packageIds, clusterName)
+    .then((td) => templateUtil.collectBlocks([td], options, this))
   return templateUtil.templatePromise(this.global, promise)
 }
 
@@ -1249,7 +1330,8 @@ function zcl_command_argument_data_type(type, options) {
       Promise.all([
         zclUtil.isEnum(this.global.db, type, packageIds),
         zclUtil.isStruct(this.global.db, type, packageIds),
-        zclUtil.isBitmap(this.global.db, type, packageIds)
+        zclUtil.isBitmap(this.global.db, type, packageIds),
+        zclUtil.isTypedef(this.global.db, type, packageIds)
       ])
         .then(
           (res) =>
@@ -1277,6 +1359,12 @@ function zcl_command_argument_data_type(type, options) {
                 type,
                 packageIds
               )
+            case dbEnum.zclType.typedef:
+              return helperC.data_type_for_typedef(
+                this.global.db,
+                type,
+                packageIds
+              )
             case dbEnum.zclType.struct:
               return options.hash.struct
             case dbEnum.zclType.atomic:
@@ -1290,6 +1378,26 @@ function zcl_command_argument_data_type(type, options) {
           throw err
         })
     )
+    .catch((err) => {
+      env.logError(err)
+      throw err
+    })
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
+ * Helper that behaves like asUnderlyingZclType, but resolves typedefs.
+ */
+async function asResolvedUnderlyingZclType(type, options) {
+  const packageIds = await templateUtil.ensureZclPackageIds(this)
+  let typedef = await queryZcl.selectTypedefByName(
+    this.global.db,
+    type,
+    packageIds
+  )
+  let resolvedType = typedef ? typedef.type : type
+  let promise = zclUtil
+    .asUnderlyingZclTypeWithPackageId(resolvedType, options, packageIds, this)
     .catch((err) => {
       env.logError(err)
       throw err
@@ -1691,6 +1799,34 @@ async function if_is_struct(type, options) {
     )
     .then((res) =>
       res ? res : queryZcl.selectStructById(this.global.db, type)
+    )
+    .then((res) => (res ? options.fn(this) : options.inverse(this)))
+  return templateUtil.templatePromise(this.global, promise)
+}
+
+/**
+ * If helper that checks if a type is a typedef
+ *
+ * * example:
+ * {{#if_is_typedef type}}
+ * type is typedef
+ * {{else}}
+ * type is not a typedef
+ * {{/if_is_typedef}}
+ *
+ * @param type
+ * @returns Promise of content.
+ */
+async function if_is_typedef(type, options) {
+  let promise = templateUtil
+    .ensureZclPackageIds(this)
+    .then((packageIds) =>
+      type && typeof type === 'string'
+        ? queryZcl.selectTypedefByName(this.global.db, type, packageIds)
+        : null
+    )
+    .then((res) =>
+      res ? res : queryZcl.selectTypedefById(this.global.db, type)
     )
     .then((res) => (res ? options.fn(this) : options.inverse(this)))
   return templateUtil.templatePromise(this.global, promise)
@@ -2945,6 +3081,7 @@ exports.zcl_structs = zcl_structs
 exports.zcl_struct_items = zcl_struct_items
 exports.zcl_struct_items_by_struct_name = zcl_struct_items_by_struct_name
 exports.zcl_clusters = zcl_clusters
+exports.zcl_typedefs = zcl_typedefs
 exports.zcl_device_types = zcl_device_types
 exports.zcl_device_type_clusters = zcl_device_type_clusters
 exports.zcl_device_type_cluster_commands = zcl_device_type_cluster_commands
@@ -2997,6 +3134,10 @@ exports.as_underlying_zcl_type = asUnderlyingZclType
 exports.asUnderlyingZclType = dep(asUnderlyingZclType, {
   to: 'as_underlying_zcl_type'
 })
+exports.as_resolved_underlying_zcl_type = asResolvedUnderlyingZclType
+exports.asResolvedUnderlyingZclType = dep(asResolvedUnderlyingZclType, {
+  to: 'as_resolved_underlying_zcl_type'
+})
 
 exports.if_is_bitmap = if_is_bitmap
 
@@ -3010,6 +3151,9 @@ exports.isStruct = dep(zclUtil.isStruct, { to: 'is_struct' })
 
 exports.is_enum = zclUtil.isEnum
 exports.isEnum = dep(zclUtil.isEnum, { to: 'is_enum' })
+
+exports.is_typedef = zclUtil.isTypedef
+exports.isTypedef = dep(zclUtil.isTypedef, { to: 'is_typedef' })
 
 exports.is_event = zclUtil.isEvent
 exports.isEvent = dep(zclUtil.isEvent, { to: 'is_event' })
@@ -3085,6 +3229,7 @@ exports.as_underlying_zcl_type_ca_always_present_with_presentif = dep(
   'as_underlying_zcl_type_ca_always_present_with_presentif has been deprecated. Use as_underlying_zcl_type and if_command_arg_always_present_with_presentif instead.'
 )
 exports.if_is_struct = if_is_struct
+exports.if_is_typedef = if_is_typedef
 exports.if_mfg_specific_cluster = if_mfg_specific_cluster
 exports.first_unused_enum_value = first_unused_enum_value
 exports.zcl_commands_with_cluster_info = zcl_commands_with_cluster_info
@@ -3104,5 +3249,7 @@ exports.if_compare = if_compare
 exports.if_is_data_type_signed = if_is_data_type_signed
 exports.as_zcl_data_type_size = as_zcl_data_type_size
 exports.zcl_command_responses = zcl_command_responses
+exports.zcl_typedef_by_typedef_and_cluster_name =
+  zcl_typedef_by_typedef_and_cluster_name
 exports.zcl_struct_items_by_struct_and_cluster_name =
   zcl_struct_items_by_struct_and_cluster_name

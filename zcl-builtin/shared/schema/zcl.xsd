@@ -140,6 +140,7 @@ This schema describes the format of the XML files, that describe the ZCL specifi
           <xs:element ref="cluster"/>
           <xs:element ref="clusterExtension"/>
           <xs:element ref="enum"/>
+          <xs:element ref="typedef"/>
           <xs:element ref="struct"/>
           <xs:element ref="domain"/>
           <xs:element ref="global"/>
@@ -363,6 +364,16 @@ This schema describes the format of the XML files, that describe the ZCL specifi
       <xs:attribute name="name" use="required" type="xs:string"/>
       <xs:attribute name="isFabricScoped" type="xs:boolean"/>
       <xs:attribute name="apiMaturity" type="zclApiMaturity"/>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="typedef">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" name="cluster" type="clusterRef"/>
+      </xs:sequence>
+      <xs:attribute name="description"/>
+      <xs:attribute name="name" use="required" type="xs:string"/>
+      <xs:attribute name="type" use="required" type="xs:string"/>
     </xs:complexType>
   </xs:element>
   <xs:element name="callback">

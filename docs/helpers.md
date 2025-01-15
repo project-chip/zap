@@ -3322,12 +3322,15 @@ This module contains the API for templating. For more detailed instructions, rea
     * [~zcl_bitmaps(options)](#module_Templating API_ static zcl helpers..zcl_bitmaps) ⇒
     * [~zcl_bitmap_items(options)](#module_Templating API_ static zcl helpers..zcl_bitmap_items)
     * [~zcl_enums(options)](#module_Templating API_ static zcl helpers..zcl_enums) ⇒
+    * [~zcl_typedefs(options)](#module_Templating API_ static zcl helpers..zcl_typedefs) ⇒
     * [~zcl_structs(options)](#module_Templating API_ static zcl helpers..zcl_structs) ⇒
     * [~zcl_enum_items(options)](#module_Templating API_ static zcl helpers..zcl_enum_items)
     * [~first_unused_enum_value(options)](#module_Templating API_ static zcl helpers..first_unused_enum_value) ⇒
     * [~zcl_struct_items(options)](#module_Templating API_ static zcl helpers..zcl_struct_items) ⇒
     * [~zcl_struct_items_by_struct_name(name, options)](#module_Templating API_ static zcl helpers..zcl_struct_items_by_struct_name) ⇒
     * [~zcl_struct_items_by_struct_and_cluster_name(name, clusterName, options)](#module_Templating API_ static zcl helpers..zcl_struct_items_by_struct_and_cluster_name) ⇒
+    * [~zcl_typedef_by_typedef(name, options)](#module_Templating API_ static zcl helpers..zcl_typedef_by_typedef) ⇒
+    * [~zcl_typedef_by_typedef_and_cluster_name(name, clusterName, options)](#module_Templating API_ static zcl helpers..zcl_typedef_by_typedef_and_cluster_name) ⇒
     * [~zcl_device_types(options)](#module_Templating API_ static zcl helpers..zcl_device_types) ⇒
     * [~zcl_device_type_clusters(options)](#module_Templating API_ static zcl helpers..zcl_device_type_clusters) ⇒
     * [~zcl_device_type_cluster_commands(options)](#module_Templating API_ static zcl helpers..zcl_device_type_cluster_commands) ⇒
@@ -3357,6 +3360,7 @@ This module contains the API for templating. For more detailed instructions, rea
     * [~zcl_command_arguments(options)](#module_Templating API_ static zcl helpers..zcl_command_arguments) ⇒
     * [~zcl_event_fields(options)](#module_Templating API_ static zcl helpers..zcl_event_fields)
     * [~zcl_command_argument_data_type(typeName, options)](#module_Templating API_ static zcl helpers..zcl_command_argument_data_type)
+    * [~asResolvedUnderlyingZclType()](#module_Templating API_ static zcl helpers..asResolvedUnderlyingZclType)
     * [~asUnderlyingZclType(typeName, options)](#module_Templating API_ static zcl helpers..asUnderlyingZclType)
     * [~zcl_string_type_return(type, options)](#module_Templating API_ static zcl helpers..zcl_string_type_return)
     * [~is_zcl_string(type)](#module_Templating API_ static zcl helpers..is_zcl_string)
@@ -3370,6 +3374,7 @@ This module contains the API for templating. For more detailed instructions, rea
     * [~if_is_bitmap(type)](#module_Templating API_ static zcl helpers..if_is_bitmap) ⇒
     * [~if_is_enum(type)](#module_Templating API_ static zcl helpers..if_is_enum) ⇒
     * [~if_is_struct(type)](#module_Templating API_ static zcl helpers..if_is_struct) ⇒
+    * [~if_is_typedef(type)](#module_Templating API_ static zcl helpers..if_is_typedef) ⇒
     * [~isClient(side)](#module_Templating API_ static zcl helpers..isClient) ⇒
     * [~isServer(side)](#module_Templating API_ static zcl helpers..isServer) ⇒
     * [~isStrEqual(str1, str2)](#module_Templating API_ static zcl helpers..isStrEqual) ⇒
@@ -3433,6 +3438,21 @@ Block helper iterating over all enums.
 If existing independently, it iterates over ALL the enums.
 Within a context of a cluster, it iterates only over the
 enums belonging to a cluster.
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
+**Returns**: Promise of content.  
+
+| Param | Type |
+| --- | --- |
+| options | <code>\*</code> | 
+
+<a name="module_Templating API_ static zcl helpers..zcl_typedefs"></a>
+
+### Templating API: static zcl helpers~zcl\_typedefs(options) ⇒
+Block helper iterating over all typedefs.
+If existing independently, it iterates over ALL the typedefs.
+Within a context of a cluster, it iterates only over the
+typedefs belonging to a cluster.
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
 **Returns**: Promise of content.  
@@ -3514,6 +3534,36 @@ cluster name.  The items iterated will be those that correspond to that
 struct name being used within the given cluster.  That means the struct name
 must be either a global struct (in which case the cluster name is just
 ignored), or a struct associated with the given cluster.
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
+**Returns**: Promise of content.  
+
+| Param |
+| --- |
+| name | 
+| clusterName | 
+| options | 
+
+<a name="module_Templating API_ static zcl helpers..zcl_typedef_by_typedef"></a>
+
+### Templating API: static zcl helpers~zcl\_typedef\_by\_typedef(name, options) ⇒
+Block helper for getting information for a typedef with a given name.
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
+**Returns**: Promise of content.  
+
+| Param |
+| --- |
+| name | 
+| options | 
+
+<a name="module_Templating API_ static zcl helpers..zcl_typedef_by_typedef_and_cluster_name"></a>
+
+### Templating API: static zcl helpers~zcl\_typedef\_by\_typedef\_and\_cluster\_name(name, clusterName, options) ⇒
+Block helper for expanding a typedef.  The typedef will be those that correspond to that
+typedef name being used within the given cluster.  That means the typedef name
+must be either a global (in which case the cluster name is just
+ignored), or a typedef associated with the given cluster.
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
 **Returns**: Promise of content.  
@@ -3897,6 +3947,12 @@ Helper that deals with the type of the argument.
 | typeName | <code>\*</code> | 
 | options | <code>\*</code> | 
 
+<a name="module_Templating API_ static zcl helpers..asResolvedUnderlyingZclType"></a>
+
+### Templating API: static zcl helpers~asResolvedUnderlyingZclType()
+Helper that behaves like asUnderlyingZclType, but resolves typedefs.
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
 <a name="module_Templating API_ static zcl helpers..asUnderlyingZclType"></a>
 
 ### Templating API: static zcl helpers~asUnderlyingZclType(typeName, options)
@@ -4114,6 +4170,25 @@ type is struct
 {{else}}
 type is not struct
 {{/if_is_struct}}
+
+**Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
+**Returns**: Promise of content.  
+
+| Param |
+| --- |
+| type | 
+
+<a name="module_Templating API_ static zcl helpers..if_is_typedef"></a>
+
+### Templating API: static zcl helpers~if\_is\_typedef(type) ⇒
+If helper that checks if a type is a typedef
+
+* example:
+{{#if_is_typedef type}}
+type is typedef
+{{else}}
+type is not a typedef
+{{/if_is_typedef}}
 
 **Kind**: inner method of [<code>Templating API: static zcl helpers</code>](#module_Templating API_ static zcl helpers)  
 **Returns**: Promise of content.  

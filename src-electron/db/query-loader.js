@@ -2321,6 +2321,58 @@ async function insertStructItems(db, packageIds, data) {
   )
 }
 
+/**
+ * Insert all typedefs into the TypeDef Table.
+ *
+ * @param {*} db
+ * @param {*} packageIds
+ * @param {*} data
+ */
+async function insertTypedef(db, packageIds, data) {
+  return dbApi.dbMultiInsert(
+    db,
+    `
+INSERT INTO
+  TYPEDEF (TYPEDEF_ID, DATA_TYPE_REF)
+VALUES (
+  (SELECT
+    CASE
+      WHEN
+        (${SELECT_CLUSTER_SPECIFIC_DATA_TYPE} AND PACKAGE_REF IN (${dbApi.toInClause(
+          packageIds
+        )}))
+      IS
+        NULL
+      THEN
+        (${SELECT_GENERIC_DATA_TYPE} AND PACKAGE_REF IN (${dbApi.toInClause(
+          packageIds
+        )}))
+      ELSE
+        (${SELECT_CLUSTER_SPECIFIC_DATA_TYPE} AND PACKAGE_REF IN (${dbApi.toInClause(
+          packageIds
+        )}))
+      END AS DATA_TYPE_ID),
+  (SELECT
+     DATA_TYPE_ID
+   FROM
+     DATA_TYPE
+   WHERE
+     DATA_TYPE.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
+     AND DATA_TYPE.NAME = ?))`,
+    data.map((at) => [
+      at.name,
+      at.discriminator_ref,
+      at.cluster_code ? parseInt(at.cluster_code[0].$.code, 16) : null,
+      at.name,
+      at.discriminator_ref,
+      at.name,
+      at.discriminator_ref,
+      at.cluster_code ? parseInt(at.cluster_code[0].$.code, 16) : null,
+      at.type
+    ])
+  )
+}
+
 exports.insertGlobals = insertGlobals
 exports.insertClusterExtensions = insertClusterExtensions
 exports.insertClusters = insertClusters
@@ -2346,6 +2398,7 @@ exports.insertBitmap = insertBitmap
 exports.insertBitmapFields = insertBitmapFields
 exports.insertStruct = insertStruct
 exports.insertStructItems = insertStructItems
+exports.insertTypedef = insertTypedef
 exports.updateDataTypeClusterReferences = updateDataTypeClusterReferences
 exports.insertAttributeMappings = insertAttributeMappings
 exports.insertEndpointComposition = insertEndpointComposition

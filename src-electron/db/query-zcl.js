@@ -31,6 +31,7 @@ const queryDataType = require('./query-data-type')
 const queryNumber = require('./query-number')
 const queryString = require('./query-string')
 const queryDiscriminator = require('./query-data-type-discriminator')
+const queryTypedef = require('./query-typedef')
 
 /**
  * Retrieves all the bitmaps that are associated with a cluster.
@@ -287,6 +288,47 @@ WHERE
   B.BITMAP_ID = ?
 ORDER BY C.CODE    `,
       [bitmapId]
+    )
+    .then((rows) => rows.map(dbMapping.map.cluster))
+}
+
+/**
+ * Returns an array of clusters that the typedef belongs to.
+ * @param {*} db
+ * @param {*} typeDefId
+ * @returns clusters
+ */
+async function selectTypedefClusters(db, typeDefId) {
+  return dbApi
+    .dbAll(
+      db,
+      `
+SELECT
+  C.CLUSTER_ID,
+  C.CODE,
+  C.MANUFACTURER_CODE,
+  C.NAME,
+  C.DESCRIPTION,
+  C.DEFINE,
+  C.DOMAIN_NAME,
+  C.IS_SINGLETON,
+  C.REVISION,
+  C.API_MATURITY
+FROM
+  CLUSTER AS C
+INNER JOIN
+  DATA_TYPE_CLUSTER AS DTC
+ON
+  DTC.CLUSTER_REF = C.CLUSTER_ID
+INNER JOIN
+  TYPEDEF AS T
+ON
+  T.TYPEDEF_ID = DTC.DATA_TYPE_REF
+WHERE
+  T.TYPEDEF_ID = ?
+ORDER BY C.CODE
+    `,
+      [typeDefId]
     )
     .then((rows) => rows.map(dbMapping.map.cluster))
 }
@@ -1307,6 +1349,7 @@ exports.selectEndpointTypeEventsByEndpointId =
 exports.selectEnumClusters = selectEnumClusters
 exports.selectStructClusters = selectStructClusters
 exports.selectBitmapClusters = selectBitmapClusters
+exports.selectTypedefClusters = selectTypedefClusters
 
 // Forwarded exports so we don't break API.
 exports.selectAllAtomics = queryAtomic.selectAllAtomics
@@ -1320,6 +1363,13 @@ exports.selectAllEnumItems = queryEnum.selectAllEnumItems
 exports.selectEnumById = queryEnum.selectEnumById
 exports.selectEnumByName = queryEnum.selectEnumByName
 exports.selectEnumByNameAndClusterId = queryEnum.selectEnumByNameAndClusterId
+
+exports.selectAllTypedefs = queryTypedef.selectAllTypedefs
+exports.selectClusterTypedefs = queryTypedef.selectClusterTypedefs
+exports.selectTypedefByName = queryTypedef.selectTypedefByName
+exports.selectTypedefById = queryTypedef.selectTypedefById
+exports.selectTypedefByNameAndClusterId =
+  queryTypedef.selectTypedefByNameAndClusterId
 
 exports.selectStructById = queryStruct.selectStructById
 exports.selectStructByName = queryStruct.selectStructByName
