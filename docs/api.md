@@ -55,11 +55,11 @@
 <dt><a href="#module_DB API_ device type database access">DB API: device type database access</a></dt>
 <dd><p>This module provides queries for device types.</p>
 </dd>
-<dt><a href="#module_DB API_ endpoint configuration queries against the database.">DB API: endpoint configuration queries against the database.</a></dt>
-<dd><p>This module provides queries for endpoint configuration.</p>
-</dd>
 <dt><a href="#module_DB API_ endpoint type queries against the database.">DB API: endpoint type queries against the database.</a></dt>
 <dd><p>This module provides queries for endpoint type.</p>
+</dd>
+<dt><a href="#module_DB API_ endpoint configuration queries against the database.">DB API: endpoint configuration queries against the database.</a></dt>
+<dd><p>This module provides queries for endpoint configuration.</p>
 </dd>
 <dt><a href="#module_DB API_ zcl database enum access">DB API: zcl database enum access</a></dt>
 <dd><p>This module provides queries for enums.</p>
@@ -79,14 +79,11 @@
 <dt><a href="#module_DB API_ zcl database number access">DB API: zcl database number access</a></dt>
 <dd><p>This module provides queries for numbers.</p>
 </dd>
-<dt><a href="#module_DB API_ package-based queries.">DB API: package-based queries.</a></dt>
-<dd><p>This module provides queries related to packages.</p>
-</dd>
 <dt><a href="#module_DB API_ session related queries.">DB API: session related queries.</a></dt>
 <dd><p>This module provides package notification related queries.</p>
 </dd>
-<dt><a href="#module_DB API_ session related queries.">DB API: session related queries.</a></dt>
-<dd><p>This module provides session related queries.</p>
+<dt><a href="#module_DB API_ package-based queries.">DB API: package-based queries.</a></dt>
+<dd><p>This module provides queries related to packages.</p>
 </dd>
 <dt><a href="#module_DB API_ session related queries.">DB API: session related queries.</a></dt>
 <dd><p>This module provides session notification related queries.</p>
@@ -95,6 +92,9 @@
 <dd><p>This module provides queries for ZCL static entities
 inside a single session. Things like:
    all visible clusters, etc.</p>
+</dd>
+<dt><a href="#module_DB API_ session related queries.">DB API: session related queries.</a></dt>
+<dd><p>This module provides session related queries.</p>
 </dd>
 <dt><a href="#module_DB API_ zcl database strings access">DB API: zcl database strings access</a></dt>
 <dd><p>This module provides queries for strings.</p>
@@ -176,11 +176,11 @@ and exports it into a file.</p>
 <dd><p>This module provides the functionality that reads a .isc file</p>
 </dd>
 <dt><a href="#module_Import API_ Imports data from a file.">Import API: Imports data from a file.</a></dt>
-<dd><p>This file provides the functionality that reads the ZAP data from a JSON file
-and imports it into a database.</p>
+<dd><p>This module provides the functionality that reads a .json(.zap) file</p>
 </dd>
 <dt><a href="#module_Import API_ Imports data from a file.">Import API: Imports data from a file.</a></dt>
-<dd><p>This module provides the functionality that reads a .json(.zap) file</p>
+<dd><p>This file provides the functionality that reads the ZAP data from a JSON file
+and imports it into a database.</p>
 </dd>
 <dt><a href="#module_Timer API_ initializes times.">Timer API: initializes times.</a></dt>
 <dd><p>This module provides the APIs for initializing timers specifically
@@ -275,10 +275,10 @@ from backend to the UI.</p>
 <dd><p>External helper utilities for ZAP</p>
 </dd>
 <dt><a href="#module_External API_ External API utilities">External API: External API utilities</a></dt>
-<dd><p>External helper utilities for ZAP</p>
+<dd><p>External Registry utilities for ZAP</p>
 </dd>
 <dt><a href="#module_External API_ External API utilities">External API: External API utilities</a></dt>
-<dd><p>External Registry utilities for ZAP</p>
+<dd><p>External helper utilities for ZAP</p>
 </dd>
 <dt><a href="#module_JS API_ Iterator utilities">JS API: Iterator utilities</a></dt>
 <dd><p>This module provides API to access various iterator utilities that can then
@@ -317,13 +317,13 @@ things were successful or not.</p>
 <dd><p>This module provides the APIs for dotdot Loading</p>
 </dd>
 <dt><a href="#module_Loader API_ Loader APIs">Loader API: Loader APIs</a></dt>
-<dd><p>This module provides the APIs for for common functionality related to loading.</p>
-</dd>
-<dt><a href="#module_Loader API_ Loader APIs">Loader API: Loader APIs</a></dt>
 <dd><p>This module provides the APIs for new data model loading</p>
 </dd>
 <dt><a href="#module_Loader API_ Loader APIs">Loader API: Loader APIs</a></dt>
 <dd><p>This module provides the APIs for ZCL/Data-Model loading.</p>
+</dd>
+<dt><a href="#module_Loader API_ Loader APIs">Loader API: Loader APIs</a></dt>
+<dd><p>This module provides the APIs for for common functionality related to loading.</p>
 </dd>
 </dl>
 
@@ -3512,15 +3512,15 @@ Note: Use clusterId as 'all' to get all features for an endpoint type id.
 | endpointTypeId | <code>\*</code> | 
 | clusterId | <code>\*</code> | 
 
-<a name="module_DB API_ endpoint configuration queries against the database."></a>
-
-## DB API: endpoint configuration queries against the database.
-This module provides queries for endpoint configuration.
-
 <a name="module_DB API_ endpoint type queries against the database."></a>
 
 ## DB API: endpoint type queries against the database.
 This module provides queries for endpoint type.
+
+<a name="module_DB API_ endpoint configuration queries against the database."></a>
+
+## DB API: endpoint configuration queries against the database.
+This module provides queries for endpoint configuration.
 
 <a name="module_DB API_ zcl database enum access"></a>
 
@@ -4669,20 +4669,15 @@ Select all numbers.
 | db | 
 | packageId | 
 
-<a name="module_DB API_ package-based queries."></a>
-
-## DB API: package-based queries.
-This module provides queries related to packages.
-
 <a name="module_DB API_ session related queries."></a>
 
 ## DB API: session related queries.
 This module provides package notification related queries.
 
-<a name="module_DB API_ session related queries."></a>
+<a name="module_DB API_ package-based queries."></a>
 
-## DB API: session related queries.
-This module provides session related queries.
+## DB API: package-based queries.
+This module provides queries related to packages.
 
 <a name="module_DB API_ session related queries."></a>
 
@@ -5484,6 +5479,11 @@ Get endpoint type events from the given endpoint type ID.
 | --- | --- |
 | db | <code>\*</code> | 
 | endpointTypeId | <code>\*</code> | 
+
+<a name="module_DB API_ session related queries."></a>
+
+## DB API: session related queries.
+This module provides session related queries.
 
 <a name="module_DB API_ zcl database strings access"></a>
 
@@ -15289,13 +15289,13 @@ This module provides the functionality that reads a .isc file
 <a name="module_Import API_ Imports data from a file."></a>
 
 ## Import API: Imports data from a file.
-This file provides the functionality that reads the ZAP data from a JSON file
-and imports it into a database.
+This module provides the functionality that reads a .json(.zap) file
 
 <a name="module_Import API_ Imports data from a file."></a>
 
 ## Import API: Imports data from a file.
-This module provides the functionality that reads a .json(.zap) file
+This file provides the functionality that reads the ZAP data from a JSON file
+and imports it into a database.
 
 <a name="module_Timer API_ initializes times."></a>
 
@@ -17925,9 +17925,9 @@ External helper utilities for ZAP
     * [~availableEvents(context)](#module_External API_ External API utilities..availableEvents) ⇒
     * [~availableCommands(context)](#module_External API_ External API utilities..availableCommands) ⇒
     * [~availableAttributes(context)](#module_External API_ External API utilities..availableAttributes) ⇒
-    * [~executeHelperFunction(functionName, context, helper)](#module_External API_ External API utilities..executeHelperFunction) ⇒ <code>Promise</code>
     * [~helperWrapper(wrappedHelper)](#module_External API_ External API utilities..helperWrapper) ⇒ <code>function</code>
     * [~registerHelpers(singleHelper, registerHelper, context)](#module_External API_ External API utilities..registerHelpers)
+    * [~executeHelperFunction(functionName, context, helper)](#module_External API_ External API utilities..executeHelperFunction) ⇒ <code>Promise</code>
 
 <a name="module_External API_ External API utilities..availableClusters"></a>
 
@@ -17977,20 +17977,6 @@ Returns all available attributes.
 | --- | --- |
 | context | <code>\*</code> | 
 
-<a name="module_External API_ External API utilities..executeHelperFunction"></a>
-
-### External API: External API utilities~executeHelperFunction(functionName, context, helper) ⇒ <code>Promise</code>
-Executes a helper function from a script file.
-
-**Kind**: inner method of [<code>External API: External API utilities</code>](#module_External API_ External API utilities)  
-**Returns**: <code>Promise</code> - - A Promise that resolves with the result of the helper function.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| functionName | <code>string</code> | The name of the helper function to execute. |
-| context | <code>Object</code> | The context object to pass to the helper function. |
-| helper | <code>string</code> | The path to the helper file containing the helper functions. |
-
 <a name="module_External API_ External API utilities..helperWrapper"></a>
 
 ### External API: External API utilities~helperWrapper(wrappedHelper) ⇒ <code>function</code>
@@ -18016,69 +18002,6 @@ Registers a helper function.
 | registerHelper | <code>function</code> | The helper function to register. |
 | context | <code>Object</code> | The context object. |
 
-<a name="module_External API_ External API utilities"></a>
-
-## External API: External API utilities
-External helper utilities for ZAP
-
-
-* [External API: External API utilities](#module_External API_ External API utilities)
-    * [~availableClusters(context)](#module_External API_ External API utilities..availableClusters) ⇒
-    * [~availableEvents(context)](#module_External API_ External API utilities..availableEvents) ⇒
-    * [~availableCommands(context)](#module_External API_ External API utilities..availableCommands) ⇒
-    * [~availableAttributes(context)](#module_External API_ External API utilities..availableAttributes) ⇒
-    * [~executeHelperFunction(functionName, context, helper)](#module_External API_ External API utilities..executeHelperFunction) ⇒ <code>Promise</code>
-    * [~helperWrapper(wrappedHelper)](#module_External API_ External API utilities..helperWrapper) ⇒ <code>function</code>
-    * [~registerHelpers(singleHelper, registerHelper, context)](#module_External API_ External API utilities..registerHelpers)
-
-<a name="module_External API_ External API utilities..availableClusters"></a>
-
-### External API: External API utilities~availableClusters(context) ⇒
-Returns all available clusters.
-
-**Kind**: inner method of [<code>External API: External API utilities</code>](#module_External API_ External API utilities)  
-**Returns**: all available clusters  
-
-| Param | Type |
-| --- | --- |
-| context | <code>\*</code> | 
-
-<a name="module_External API_ External API utilities..availableEvents"></a>
-
-### External API: External API utilities~availableEvents(context) ⇒
-Returns all available events.
-
-**Kind**: inner method of [<code>External API: External API utilities</code>](#module_External API_ External API utilities)  
-**Returns**: all available events  
-
-| Param | Type |
-| --- | --- |
-| context | <code>\*</code> | 
-
-<a name="module_External API_ External API utilities..availableCommands"></a>
-
-### External API: External API utilities~availableCommands(context) ⇒
-Returns all available commands.
-
-**Kind**: inner method of [<code>External API: External API utilities</code>](#module_External API_ External API utilities)  
-**Returns**: all available ccommands  
-
-| Param | Type |
-| --- | --- |
-| context | <code>\*</code> | 
-
-<a name="module_External API_ External API utilities..availableAttributes"></a>
-
-### External API: External API utilities~availableAttributes(context) ⇒
-Returns all available attributes.
-
-**Kind**: inner method of [<code>External API: External API utilities</code>](#module_External API_ External API utilities)  
-**Returns**: all available attributes  
-
-| Param | Type |
-| --- | --- |
-| context | <code>\*</code> | 
-
 <a name="module_External API_ External API utilities..executeHelperFunction"></a>
 
 ### External API: External API utilities~executeHelperFunction(functionName, context, helper) ⇒ <code>Promise</code>
@@ -18092,31 +18015,6 @@ Executes a helper function from a script file.
 | functionName | <code>string</code> | The name of the helper function to execute. |
 | context | <code>Object</code> | The context object to pass to the helper function. |
 | helper | <code>string</code> | The path to the helper file containing the helper functions. |
-
-<a name="module_External API_ External API utilities..helperWrapper"></a>
-
-### External API: External API utilities~helperWrapper(wrappedHelper) ⇒ <code>function</code>
-Wraps a helper function to add usage tracking and error handling.
-
-**Kind**: inner method of [<code>External API: External API utilities</code>](#module_External API_ External API utilities)  
-**Returns**: <code>function</code> - - The wrapped helper function.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| wrappedHelper | <code>function</code> | The helper function to wrap. |
-
-<a name="module_External API_ External API utilities..registerHelpers"></a>
-
-### External API: External API utilities~registerHelpers(singleHelper, registerHelper, context)
-Registers a helper function.
-
-**Kind**: inner method of [<code>External API: External API utilities</code>](#module_External API_ External API utilities)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| singleHelper | <code>string</code> | The name of the helper function. |
-| registerHelper | <code>function</code> | The helper function to register. |
-| context | <code>Object</code> | The context object. |
 
 <a name="module_External API_ External API utilities"></a>
 
@@ -18129,9 +18027,9 @@ External Registry utilities for ZAP
     * [~availableEvents(context)](#module_External API_ External API utilities..availableEvents) ⇒
     * [~availableCommands(context)](#module_External API_ External API utilities..availableCommands) ⇒
     * [~availableAttributes(context)](#module_External API_ External API utilities..availableAttributes) ⇒
-    * [~executeHelperFunction(functionName, context, helper)](#module_External API_ External API utilities..executeHelperFunction) ⇒ <code>Promise</code>
     * [~helperWrapper(wrappedHelper)](#module_External API_ External API utilities..helperWrapper) ⇒ <code>function</code>
     * [~registerHelpers(singleHelper, registerHelper, context)](#module_External API_ External API utilities..registerHelpers)
+    * [~executeHelperFunction(functionName, context, helper)](#module_External API_ External API utilities..executeHelperFunction) ⇒ <code>Promise</code>
 
 <a name="module_External API_ External API utilities..availableClusters"></a>
 
@@ -18181,6 +18079,31 @@ Returns all available attributes.
 | --- | --- |
 | context | <code>\*</code> | 
 
+<a name="module_External API_ External API utilities..helperWrapper"></a>
+
+### External API: External API utilities~helperWrapper(wrappedHelper) ⇒ <code>function</code>
+Wraps a helper function to add usage tracking and error handling.
+
+**Kind**: inner method of [<code>External API: External API utilities</code>](#module_External API_ External API utilities)  
+**Returns**: <code>function</code> - - The wrapped helper function.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| wrappedHelper | <code>function</code> | The helper function to wrap. |
+
+<a name="module_External API_ External API utilities..registerHelpers"></a>
+
+### External API: External API utilities~registerHelpers(singleHelper, registerHelper, context)
+Registers a helper function.
+
+**Kind**: inner method of [<code>External API: External API utilities</code>](#module_External API_ External API utilities)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| singleHelper | <code>string</code> | The name of the helper function. |
+| registerHelper | <code>function</code> | The helper function to register. |
+| context | <code>Object</code> | The context object. |
+
 <a name="module_External API_ External API utilities..executeHelperFunction"></a>
 
 ### External API: External API utilities~executeHelperFunction(functionName, context, helper) ⇒ <code>Promise</code>
@@ -18194,6 +18117,69 @@ Executes a helper function from a script file.
 | functionName | <code>string</code> | The name of the helper function to execute. |
 | context | <code>Object</code> | The context object to pass to the helper function. |
 | helper | <code>string</code> | The path to the helper file containing the helper functions. |
+
+<a name="module_External API_ External API utilities"></a>
+
+## External API: External API utilities
+External helper utilities for ZAP
+
+
+* [External API: External API utilities](#module_External API_ External API utilities)
+    * [~availableClusters(context)](#module_External API_ External API utilities..availableClusters) ⇒
+    * [~availableEvents(context)](#module_External API_ External API utilities..availableEvents) ⇒
+    * [~availableCommands(context)](#module_External API_ External API utilities..availableCommands) ⇒
+    * [~availableAttributes(context)](#module_External API_ External API utilities..availableAttributes) ⇒
+    * [~helperWrapper(wrappedHelper)](#module_External API_ External API utilities..helperWrapper) ⇒ <code>function</code>
+    * [~registerHelpers(singleHelper, registerHelper, context)](#module_External API_ External API utilities..registerHelpers)
+    * [~executeHelperFunction(functionName, context, helper)](#module_External API_ External API utilities..executeHelperFunction) ⇒ <code>Promise</code>
+
+<a name="module_External API_ External API utilities..availableClusters"></a>
+
+### External API: External API utilities~availableClusters(context) ⇒
+Returns all available clusters.
+
+**Kind**: inner method of [<code>External API: External API utilities</code>](#module_External API_ External API utilities)  
+**Returns**: all available clusters  
+
+| Param | Type |
+| --- | --- |
+| context | <code>\*</code> | 
+
+<a name="module_External API_ External API utilities..availableEvents"></a>
+
+### External API: External API utilities~availableEvents(context) ⇒
+Returns all available events.
+
+**Kind**: inner method of [<code>External API: External API utilities</code>](#module_External API_ External API utilities)  
+**Returns**: all available events  
+
+| Param | Type |
+| --- | --- |
+| context | <code>\*</code> | 
+
+<a name="module_External API_ External API utilities..availableCommands"></a>
+
+### External API: External API utilities~availableCommands(context) ⇒
+Returns all available commands.
+
+**Kind**: inner method of [<code>External API: External API utilities</code>](#module_External API_ External API utilities)  
+**Returns**: all available ccommands  
+
+| Param | Type |
+| --- | --- |
+| context | <code>\*</code> | 
+
+<a name="module_External API_ External API utilities..availableAttributes"></a>
+
+### External API: External API utilities~availableAttributes(context) ⇒
+Returns all available attributes.
+
+**Kind**: inner method of [<code>External API: External API utilities</code>](#module_External API_ External API utilities)  
+**Returns**: all available attributes  
+
+| Param | Type |
+| --- | --- |
+| context | <code>\*</code> | 
 
 <a name="module_External API_ External API utilities..helperWrapper"></a>
 
@@ -18219,6 +18205,20 @@ Registers a helper function.
 | singleHelper | <code>string</code> | The name of the helper function. |
 | registerHelper | <code>function</code> | The helper function to register. |
 | context | <code>Object</code> | The context object. |
+
+<a name="module_External API_ External API utilities..executeHelperFunction"></a>
+
+### External API: External API utilities~executeHelperFunction(functionName, context, helper) ⇒ <code>Promise</code>
+Executes a helper function from a script file.
+
+**Kind**: inner method of [<code>External API: External API utilities</code>](#module_External API_ External API utilities)  
+**Returns**: <code>Promise</code> - - A Promise that resolves with the result of the helper function.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| functionName | <code>string</code> | The name of the helper function to execute. |
+| context | <code>Object</code> | The context object to pass to the helper function. |
+| helper | <code>string</code> | The path to the helper file containing the helper functions. |
 
 <a name="module_JS API_ Iterator utilities"></a>
 
@@ -20082,16 +20082,6 @@ This module provides the APIs for dotdot Loading
     * [~loadZclData(db, ctx)](#module_Loader API_ Loader APIs..loadZclData) ⇒
     * [~loadIndividualDotDotFile(db, filePath)](#module_Loader API_ Loader APIs..loadIndividualDotDotFile) ⇒ <code>\*</code>
     * [~loadToplevelXmlFile(db, ctx)](#module_Loader API_ Loader APIs..loadToplevelXmlFile) ⇒
-    * [~recordToplevelPackage(db, metadataFile, crc, isTopLevelPackageInSync)](#module_Loader API_ Loader APIs..recordToplevelPackage) ⇒
-    * [~recordVersion(db, ctx)](#module_Loader API_ Loader APIs..recordVersion)
-    * [~loadZclMetaFilesCommon(db, metadataFile, options)](#module_Loader API_ Loader APIs..loadZclMetaFilesCommon) ⇒
-    * [~loadAttributeMappingForMultiProtocol(db, multiProtcolInfo, categoryToPackageIdMap)](#module_Loader API_ Loader APIs..loadAttributeMappingForMultiProtocol)
-    * [~loadZclMetafiles(db, metadataFile)](#module_Loader API_ Loader APIs..loadZclMetafiles) ⇒
-    * [~loadZcl(db, metadataFile)](#module_Loader API_ Loader APIs..loadZcl) ⇒
-    * [~loadIndividualFile(db, filePath, sessionId)](#module_Loader API_ Loader APIs..loadIndividualFile)
-    * [~qualifyZclFile(db, info, parentPackageId, isCustom)](#module_Loader API_ Loader APIs..qualifyZclFile) ⇒
-    * [~processZclPostLoading(db)](#module_Loader API_ Loader APIs..processZclPostLoading) ⇒
-    * [~getDiscriminatorMap(db, packageIds)](#module_Loader API_ Loader APIs..getDiscriminatorMap) ⇒
     * [~parseNewXmlFiles(db, packageId, files, context)](#module_Loader API_ Loader APIs..parseNewXmlFiles) ⇒
     * [~prepXmlFeature(f)](#module_Loader API_ Loader APIs..prepXmlFeature) ⇒
     * [~prepXmlAttribute(a)](#module_Loader API_ Loader APIs..prepXmlAttribute) ⇒
@@ -20160,6 +20150,16 @@ This module provides the APIs for dotdot Loading
     * [~loadZclJson(db, metafile)](#module_Loader API_ Loader APIs..loadZclJson) ⇒
     * [~loadZclProperties(db, metafile)](#module_Loader API_ Loader APIs..loadZclProperties) ⇒
     * [~loadZclJsonOrProperties(db, ctx)](#module_Loader API_ Loader APIs..loadZclJsonOrProperties) ⇒
+    * [~recordToplevelPackage(db, metadataFile, crc, isTopLevelPackageInSync)](#module_Loader API_ Loader APIs..recordToplevelPackage) ⇒
+    * [~recordVersion(db, ctx)](#module_Loader API_ Loader APIs..recordVersion)
+    * [~loadZclMetaFilesCommon(db, metadataFile, options)](#module_Loader API_ Loader APIs..loadZclMetaFilesCommon) ⇒
+    * [~loadAttributeMappingForMultiProtocol(db, multiProtcolInfo, categoryToPackageIdMap)](#module_Loader API_ Loader APIs..loadAttributeMappingForMultiProtocol)
+    * [~loadZclMetafiles(db, metadataFile)](#module_Loader API_ Loader APIs..loadZclMetafiles) ⇒
+    * [~loadZcl(db, metadataFile)](#module_Loader API_ Loader APIs..loadZcl) ⇒
+    * [~loadIndividualFile(db, filePath, sessionId)](#module_Loader API_ Loader APIs..loadIndividualFile)
+    * [~qualifyZclFile(db, info, parentPackageId, isCustom)](#module_Loader API_ Loader APIs..qualifyZclFile) ⇒
+    * [~processZclPostLoading(db)](#module_Loader API_ Loader APIs..processZclPostLoading) ⇒
+    * [~getDiscriminatorMap(db, packageIds)](#module_Loader API_ Loader APIs..getDiscriminatorMap) ⇒
 
 <a name="module_Loader API_ Loader APIs..collectDataFromLibraryXml"></a>
 
@@ -20730,139 +20730,6 @@ and orchestrates the promise chain.
 | --- | --- | --- |
 | db | <code>\*</code> |  |
 | ctx | <code>\*</code> | Context of loading. |
-
-<a name="module_Loader API_ Loader APIs..recordToplevelPackage"></a>
-
-### Loader API: Loader APIs~recordToplevelPackage(db, metadataFile, crc, isTopLevelPackageInSync) ⇒
-Records the toplevel package information and resolves into packageId
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: packageId  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| metadataFile | <code>\*</code> | 
-| crc | <code>\*</code> | 
-| isTopLevelPackageInSync | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..recordVersion"></a>
-
-### Loader API: Loader APIs~recordVersion(db, ctx)
-Records the version into the database.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| ctx | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..loadZclMetaFilesCommon"></a>
-
-### Loader API: Loader APIs~loadZclMetaFilesCommon(db, metadataFile, options) ⇒
-Retrieve zcl package information
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: package zcl package information  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| metadataFile | <code>\*</code> | 
-| options | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..loadAttributeMappingForMultiProtocol"></a>
-
-### Loader API: Loader APIs~loadAttributeMappingForMultiProtocol(db, multiProtcolInfo, categoryToPackageIdMap)
-Load attribute mapping table if there is multi-protocol information from a json file.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| multiProtcolInfo | <code>\*</code> | 
-| categoryToPackageIdMap | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..loadZclMetafiles"></a>
-
-### Loader API: Loader APIs~loadZclMetafiles(db, metadataFile) ⇒
-Toplevel function that loads the zcl file and passes it off to the correct zcl loader.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Array of loaded packageIds.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| db | <code>\*</code> |  |
-| metadataFile | <code>\*</code> | array of paths |
-
-<a name="module_Loader API_ Loader APIs..loadZcl"></a>
-
-### Loader API: Loader APIs~loadZcl(db, metadataFile) ⇒
-Loads individual zcl.json metafile.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Context object that contains .db and .packageId  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| metadataFile | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..loadIndividualFile"></a>
-
-### Loader API: Loader APIs~loadIndividualFile(db, filePath, sessionId)
-Load individual custom XML files.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| db | <code>\*</code> |  |
-| filePath | <code>\*</code> |  |
-| sessionId | <code>\*</code> | Current session within which we're loading this file. |
-
-<a name="module_Loader API_ Loader APIs..qualifyZclFile"></a>
-
-### Loader API: Loader APIs~qualifyZclFile(db, info, parentPackageId, isCustom) ⇒
-Promises to qualify whether zcl file needs to be reloaded.
-If yes, the it will resolve with {filePath, data, packageId}
-If not, then it will resolve with {error}
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Promise that resolves int he object of data.  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| info | <code>\*</code> | 
-| parentPackageId | <code>\*</code> | 
-| isCustom | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..processZclPostLoading"></a>
-
-### Loader API: Loader APIs~processZclPostLoading(db) ⇒
-Promises to perform a post loading step.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Promise to deal with the post-loading cleanup.  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..getDiscriminatorMap"></a>
-
-### Loader API: Loader APIs~getDiscriminatorMap(db, packageIds) ⇒
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: data type discriminator map  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| packageIds | <code>\*</code> | 
 
 <a name="module_Loader API_ Loader APIs..parseNewXmlFiles"></a>
 
@@ -21867,704 +21734,6 @@ and orchestrates the promise chain.
 | db | <code>\*</code> |  |
 | ctx | <code>\*</code> | The context of loading. |
 
-<a name="module_Loader API_ Loader APIs"></a>
-
-## Loader API: Loader APIs
-This module provides the APIs for for common functionality related to loading.
-
-
-* [Loader API: Loader APIs](#module_Loader API_ Loader APIs)
-    * [~collectDataFromLibraryXml(ctx)](#module_Loader API_ Loader APIs..collectDataFromLibraryXml) ⇒
-    * [~tagContainsEnum(tag)](#module_Loader API_ Loader APIs..tagContainsEnum) ⇒
-    * [~tagContainsStruct(tag)](#module_Loader API_ Loader APIs..tagContainsStruct) ⇒
-    * [~tagContainsBitmap(tag)](#module_Loader API_ Loader APIs..tagContainsBitmap) ⇒
-    * [~parseSingleZclFile(db, ctx, file)](#module_Loader API_ Loader APIs..parseSingleZclFile) ⇒
-    * [~parseZclFiles(db, ctx)](#module_Loader API_ Loader APIs..parseZclFiles) ⇒
-    * [~normalizeHexValue(value)](#module_Loader API_ Loader APIs..normalizeHexValue) ⇒
-    * [~getNumBytesFromShortName(value)](#module_Loader API_ Loader APIs..getNumBytesFromShortName) ⇒
-    * [~prepareAttributes(attributes, side)](#module_Loader API_ Loader APIs..prepareAttributes) ⇒
-    * [~prepareCommands(commands, side, types)](#module_Loader API_ Loader APIs..prepareCommands) ⇒
-    * [~prepareCluster(cluster, isExtension, types)](#module_Loader API_ Loader APIs..prepareCluster) ⇒
-    * [~prepareAtomic(type)](#module_Loader API_ Loader APIs..prepareAtomic) ⇒
-    * [~prepareSubAtomic(type, atomics)](#module_Loader API_ Loader APIs..prepareSubAtomic) ⇒
-    * [~prepareBitmap(type, isContained)](#module_Loader API_ Loader APIs..prepareBitmap) ⇒
-    * [~prepareEnum(type)](#module_Loader API_ Loader APIs..prepareEnum) ⇒
-    * [~prepareStruct(type)](#module_Loader API_ Loader APIs..prepareStruct) ⇒
-    * [~prepareSubAtomicTypes(types)](#module_Loader API_ Loader APIs..prepareSubAtomicTypes)
-    * [~prepareTypes(zclTypes, types)](#module_Loader API_ Loader APIs..prepareTypes)
-    * [~prepareAttributeType(attribute, types, cluster)](#module_Loader API_ Loader APIs..prepareAttributeType)
-    * [~prepareDeviceType(deviceType)](#module_Loader API_ Loader APIs..prepareDeviceType) ⇒
-    * [~prepareDataTypeDiscriminator(a)](#module_Loader API_ Loader APIs..prepareDataTypeDiscriminator) ⇒
-    * [~processDataTypeDiscriminator(db, packageId, zclDataTypes)](#module_Loader API_ Loader APIs..processDataTypeDiscriminator) ⇒
-    * [~prepareDataType(a, dataType, typeMap)](#module_Loader API_ Loader APIs..prepareDataType) ⇒
-    * [~processDataType(db, filePath, packageId, data, dataType)](#module_Loader API_ Loader APIs..processDataType) ⇒
-    * [~prepareNumber(a, dataType)](#module_Loader API_ Loader APIs..prepareNumber) ⇒
-    * [~processNumber(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processNumber) ⇒
-    * [~prepareString(a, dataType)](#module_Loader API_ Loader APIs..prepareString) ⇒
-    * [~processString(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processString) ⇒
-    * [~prepareEnumsOrBitmaps(a, dataType)](#module_Loader API_ Loader APIs..prepareEnumsOrBitmaps) ⇒
-    * [~processEnums(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processEnums) ⇒
-    * [~processEnumItems(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processEnumItems) ⇒
-    * [~processBitmaps(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processBitmaps) ⇒
-    * [~processBitmapFields(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processBitmapFields) ⇒
-    * [~prepareStruct2(a, dataType)](#module_Loader API_ Loader APIs..prepareStruct2) ⇒
-    * [~processStruct(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processStruct) ⇒
-    * [~processStructItems(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processStructItems) ⇒
-    * [~prepareEnumsOrBitmapsAtomic(a, dataType)](#module_Loader API_ Loader APIs..prepareEnumsOrBitmapsAtomic) ⇒
-    * [~processEnumsFromAtomics(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processEnumsFromAtomics) ⇒
-    * [~processBitmapsFromAtomics(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processBitmapsFromAtomics) ⇒
-    * [~loadZclData(db, ctx)](#module_Loader API_ Loader APIs..loadZclData) ⇒
-    * [~loadIndividualDotDotFile(db, filePath)](#module_Loader API_ Loader APIs..loadIndividualDotDotFile) ⇒ <code>\*</code>
-    * [~loadToplevelXmlFile(db, ctx)](#module_Loader API_ Loader APIs..loadToplevelXmlFile) ⇒
-    * [~recordToplevelPackage(db, metadataFile, crc, isTopLevelPackageInSync)](#module_Loader API_ Loader APIs..recordToplevelPackage) ⇒
-    * [~recordVersion(db, ctx)](#module_Loader API_ Loader APIs..recordVersion)
-    * [~loadZclMetaFilesCommon(db, metadataFile, options)](#module_Loader API_ Loader APIs..loadZclMetaFilesCommon) ⇒
-    * [~loadAttributeMappingForMultiProtocol(db, multiProtcolInfo, categoryToPackageIdMap)](#module_Loader API_ Loader APIs..loadAttributeMappingForMultiProtocol)
-    * [~loadZclMetafiles(db, metadataFile)](#module_Loader API_ Loader APIs..loadZclMetafiles) ⇒
-    * [~loadZcl(db, metadataFile)](#module_Loader API_ Loader APIs..loadZcl) ⇒
-    * [~loadIndividualFile(db, filePath, sessionId)](#module_Loader API_ Loader APIs..loadIndividualFile)
-    * [~qualifyZclFile(db, info, parentPackageId, isCustom)](#module_Loader API_ Loader APIs..qualifyZclFile) ⇒
-    * [~processZclPostLoading(db)](#module_Loader API_ Loader APIs..processZclPostLoading) ⇒
-    * [~getDiscriminatorMap(db, packageIds)](#module_Loader API_ Loader APIs..getDiscriminatorMap) ⇒
-    * [~parseNewXmlFiles(db, packageId, files, context)](#module_Loader API_ Loader APIs..parseNewXmlFiles) ⇒
-    * [~prepXmlFeature(f)](#module_Loader API_ Loader APIs..prepXmlFeature) ⇒
-    * [~prepXmlAttribute(a)](#module_Loader API_ Loader APIs..prepXmlAttribute) ⇒
-    * [~prepXmlCommand(c)](#module_Loader API_ Loader APIs..prepXmlCommand) ⇒
-    * [~prepXmlEvent(e)](#module_Loader API_ Loader APIs..prepXmlEvent) ⇒
-    * [~parseSingleNewXmlFile(f)](#module_Loader API_ Loader APIs..parseSingleNewXmlFile) ⇒
-    * [~collectDataFromJsonFile(ctx)](#module_Loader API_ Loader APIs..collectDataFromJsonFile) ⇒
-    * [~collectDataFromPropertiesFile(ctx)](#module_Loader API_ Loader APIs..collectDataFromPropertiesFile) ⇒
-    * [~maskToType(mask)](#module_Loader API_ Loader APIs..maskToType) ⇒
-    * [~prepareAtomic(a)](#module_Loader API_ Loader APIs..prepareAtomic)
-    * [~processAtomics(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processAtomics) ⇒
-    * [~prepareClusterGlobalAttribute(cluster)](#module_Loader API_ Loader APIs..prepareClusterGlobalAttribute) ⇒
-    * [~extractAccessTag(ac)](#module_Loader API_ Loader APIs..extractAccessTag) ⇒
-    * [~extractAccessIntoArray(xmlElement)](#module_Loader API_ Loader APIs..extractAccessIntoArray) ⇒
-    * [~prepareCluster(cluster)](#module_Loader API_ Loader APIs..prepareCluster) ⇒
-    * [~processClusters(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processClusters) ⇒
-    * [~processClusterGlobalAttributes(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processClusterGlobalAttributes) ⇒
-    * [~processClusterExtensions(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processClusterExtensions) ⇒
-    * [~processGlobals(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processGlobals) ⇒
-    * [~prepareTag(tag)](#module_Loader API_ Loader APIs..prepareTag) ⇒
-    * [~processDefaultAccess(db, filePath, packageId, defaultAccessList)](#module_Loader API_ Loader APIs..processDefaultAccess)
-    * [~processAccessControl(db, filePath, packageId, accessControlList)](#module_Loader API_ Loader APIs..processAccessControl)
-    * [~processTags(db, filePath, packageId, tags)](#module_Loader API_ Loader APIs..processTags)
-    * [~prepareDomain(domain)](#module_Loader API_ Loader APIs..prepareDomain) ⇒
-    * [~processDomains(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processDomains) ⇒
-    * [~prepareDataTypeDiscriminator(a)](#module_Loader API_ Loader APIs..prepareDataTypeDiscriminator) ⇒
-    * [~processDataTypeDiscriminator(db, filePath, zclDataTypes)](#module_Loader API_ Loader APIs..processDataTypeDiscriminator) ⇒
-    * [~prepareDataType(a, dataType, typeMap)](#module_Loader API_ Loader APIs..prepareDataType) ⇒
-    * [~processDataType(db, filePath, packageId, knownPackages, data, dataType)](#module_Loader API_ Loader APIs..processDataType) ⇒
-    * [~prepareNumber(a, dataType)](#module_Loader API_ Loader APIs..prepareNumber) ⇒
-    * [~processNumber(db, filePath, packageId, knownPackages, data)](#module_Loader API_ Loader APIs..processNumber) ⇒
-    * [~prepareString(a, dataType)](#module_Loader API_ Loader APIs..prepareString) ⇒
-    * [~processString(db, filePath, packageId, knownPackages, data)](#module_Loader API_ Loader APIs..processString) ⇒
-    * [~prepareEnumOrBitmapAtomic(a, dataType)](#module_Loader API_ Loader APIs..prepareEnumOrBitmapAtomic) ⇒
-    * [~processEnumAtomic(db, filePath, packageId, knownPackages, data)](#module_Loader API_ Loader APIs..processEnumAtomic) ⇒
-    * [~prepareEnumOrBitmap(a, dataType)](#module_Loader API_ Loader APIs..prepareEnumOrBitmap) ⇒
-    * [~processEnum(db, filePath, packageId, knownPackages, data)](#module_Loader API_ Loader APIs..processEnum) ⇒
-    * [~processEnumItems(db, filePath, packageId, knownPackages, data)](#module_Loader API_ Loader APIs..processEnumItems) ⇒
-    * [~processBitmapAtomic(db, filePath, packageId, knownPackages, data)](#module_Loader API_ Loader APIs..processBitmapAtomic) ⇒
-    * [~processBitmap(db, filePath, packageId, knownPackages, data)](#module_Loader API_ Loader APIs..processBitmap) ⇒
-    * [~processBitmapFields(db, filePath, packageId, knownPackages, data)](#module_Loader API_ Loader APIs..processBitmapFields) ⇒
-    * [~prepareStruct(a, dataType)](#module_Loader API_ Loader APIs..prepareStruct) ⇒
-    * [~processStruct(db, filePath, packageId, knownPackages, data)](#module_Loader API_ Loader APIs..processStruct) ⇒
-    * [~processStructItems(db, filePath, packageIds, data)](#module_Loader API_ Loader APIs..processStructItems) ⇒
-    * [~prepareDeviceType(deviceType)](#module_Loader API_ Loader APIs..prepareDeviceType) ⇒ <code>Object</code>
-    * [~processDeviceTypes(db, filePath, packageId, data, context)](#module_Loader API_ Loader APIs..processDeviceTypes) ⇒ <code>Promise</code>
-    * [~processParsedZclData(db, argument)](#module_Loader API_ Loader APIs..processParsedZclData) ⇒
-    * [~parseSingleZclFile(db, packageId, file)](#module_Loader API_ Loader APIs..parseSingleZclFile) ⇒
-    * [~isCrcMismatchOrPackageDoesNotExist(db, packageId, files)](#module_Loader API_ Loader APIs..isCrcMismatchOrPackageDoesNotExist) ⇒
-    * [~parseZclFiles(db, packageId, zclFiles, context)](#module_Loader API_ Loader APIs..parseZclFiles) ⇒
-    * [~parseManufacturerData(db, ctx)](#module_Loader API_ Loader APIs..parseManufacturerData) ⇒
-    * [~parseProfilesData(db, ctx)](#module_Loader API_ Loader APIs..parseProfilesData) ⇒
-    * [~parseFeatureFlags(db, packageId, featureFlags)](#module_Loader API_ Loader APIs..parseFeatureFlags) ⇒
-    * [~parseConformanceFromXML(operand)](#module_Loader API_ Loader APIs..parseConformanceFromXML) ⇒
-    * [~parseConformanceRecursively(operand, depth, parentJoinChar)](#module_Loader API_ Loader APIs..parseConformanceRecursively) ⇒
-    * [~parseUiOptions(db, packageId, featureFlags)](#module_Loader API_ Loader APIs..parseUiOptions) ⇒
-    * [~parseOptions(db)](#module_Loader API_ Loader APIs..parseOptions) ⇒
-    * [~parseTextOptions(db, pkgRef, textOptions)](#module_Loader API_ Loader APIs..parseTextOptions) ⇒
-    * [~parseBoolOptions(db, pkgRef, booleanCategories)](#module_Loader API_ Loader APIs..parseBoolOptions) ⇒
-    * [~parseattributeAccessInterfaceAttributes(db, pkgRef, attributeAccessInterfaceAttributes)](#module_Loader API_ Loader APIs..parseattributeAccessInterfaceAttributes) ⇒ <code>Promise.&lt;void&gt;</code>
-    * [~parseDefaults(db, ctx)](#module_Loader API_ Loader APIs..parseDefaults) ⇒
-    * [~parseTextDefaults(db, pkgRef, textDefaults)](#module_Loader API_ Loader APIs..parseTextDefaults) ⇒
-    * [~parseBoolDefaults(db, pkgRef, booleanCategories)](#module_Loader API_ Loader APIs..parseBoolDefaults) ⇒
-    * [~loadIndividualSilabsFile(db, filePath)](#module_Loader API_ Loader APIs..loadIndividualSilabsFile) ⇒
-    * [~processCustomZclDeviceType(db, ctx)](#module_Loader API_ Loader APIs..processCustomZclDeviceType) ⇒
-    * [~loadZclJson(db, metafile)](#module_Loader API_ Loader APIs..loadZclJson) ⇒
-    * [~loadZclProperties(db, metafile)](#module_Loader API_ Loader APIs..loadZclProperties) ⇒
-    * [~loadZclJsonOrProperties(db, ctx)](#module_Loader API_ Loader APIs..loadZclJsonOrProperties) ⇒
-
-<a name="module_Loader API_ Loader APIs..collectDataFromLibraryXml"></a>
-
-### Loader API: Loader APIs~collectDataFromLibraryXml(ctx) ⇒
-Promises to read the properties file, extract all the actual xml files, and resolve with the array of files.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Promise of resolved files.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| ctx | <code>\*</code> | Context which contains information about the metadataFiles and data |
-
-<a name="module_Loader API_ Loader APIs..tagContainsEnum"></a>
-
-### Loader API: Loader APIs~tagContainsEnum(tag) ⇒
-Check if tag contains enum.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: boolean  
-
-| Param | Type |
-| --- | --- |
-| tag | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..tagContainsStruct"></a>
-
-### Loader API: Loader APIs~tagContainsStruct(tag) ⇒
-Check if tag contains struct.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: boolean  
-
-| Param | Type |
-| --- | --- |
-| tag | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..tagContainsBitmap"></a>
-
-### Loader API: Loader APIs~tagContainsBitmap(tag) ⇒
-Check if tag contains Bitmap.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: boolean  
-
-| Param | Type |
-| --- | --- |
-| tag | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..parseSingleZclFile"></a>
-
-### Loader API: Loader APIs~parseSingleZclFile(db, ctx, file) ⇒
-Parses ZCL xml file.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: empty array  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| ctx | <code>\*</code> | 
-| file | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..parseZclFiles"></a>
-
-### Loader API: Loader APIs~parseZclFiles(db, ctx) ⇒
-Promises to iterate over all the XML files and returns an aggregate promise
-that will be resolved when all the XML files are done, or rejected if at least one fails.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Promise that resolves when all the individual promises of each file pass.  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| ctx | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..normalizeHexValue"></a>
-
-### Loader API: Loader APIs~normalizeHexValue(value) ⇒
-The Dotdot ZCL XML doesn't use the 0x prefix, but it's a nice thing to have and Silabs xml
-does use this so this helper function normalizes the use of hex
-
-TODO: Is this the right thing to do?
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Either the normalized hex string (with the 0x prefix) or the original  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| value | <code>\*</code> | the string value to be normalized |
-
-<a name="module_Loader API_ Loader APIs..getNumBytesFromShortName"></a>
-
-### Loader API: Loader APIs~getNumBytesFromShortName(value) ⇒
-The Dotdot ZCL XML doesn't have a length but it is embedded in the short name,
-we can scrape the value to get the size
-
-TODO: Is this the right thing to do?
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: size in bytes or 0 if the # of bytes could not be determined  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| value | <code>\*</code> | the string value to be scraped |
-
-<a name="module_Loader API_ Loader APIs..prepareAttributes"></a>
-
-### Loader API: Loader APIs~prepareAttributes(attributes, side) ⇒
-Prepare XML attributes for entry into the DB
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Array containing all data from XML ready to be inserted into the DB.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| attributes | <code>\*</code> | an array of attributes |
-| side | <code>\*</code> | the side the attribute is on either "client" or "server" |
-
-<a name="module_Loader API_ Loader APIs..prepareCommands"></a>
-
-### Loader API: Loader APIs~prepareCommands(commands, side, types) ⇒
-Prepare XML commands for entry into the DB
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Array containing all data from XML ready to be inserted in to the DB.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| commands | <code>\*</code> | an array of commands |
-| side | <code>\*</code> | the side the command is on either "client" or "server" |
-| types | <code>\*</code> | contained for types, where bitmaps are going to be inserted. |
-
-<a name="module_Loader API_ Loader APIs..prepareCluster"></a>
-
-### Loader API: Loader APIs~prepareCluster(cluster, isExtension, types) ⇒
-Prepare XML cluster for insertion into the database.
-This method can also prepare clusterExtensions.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Object containing all data from XML.  
-
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| cluster | <code>\*</code> |  |  |
-| isExtension | <code>\*</code> | <code>false</code> | if this is an extension or not (there are none in dotdot xml) |
-| types | <code>\*</code> |  | types object into which cluster can put types it might have |
-
-<a name="module_Loader API_ Loader APIs..prepareAtomic"></a>
-
-### Loader API: Loader APIs~prepareAtomic(type) ⇒
-Parses xml type into the atomic object for insertion into the DB
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: object ready for insertion into the DB  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| type | <code>\*</code> | an xml object which conforms to the atomic format in the dotdot xml |
-
-<a name="module_Loader API_ Loader APIs..prepareSubAtomic"></a>
-
-### Loader API: Loader APIs~prepareSubAtomic(type, atomics) ⇒
-Parses xml type into the sub-atomic object for insertion into the DB
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: object ready for insertion into the DB  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| type | <code>\*</code> | an xml object which conforms to the sub-atomic format in the dotdot xml |
-| atomics | <code>\*</code> | an array of atomic types |
-
-<a name="module_Loader API_ Loader APIs..prepareBitmap"></a>
-
-### Loader API: Loader APIs~prepareBitmap(type, isContained) ⇒
-Parses xml type into the bitmap object for insertion into the DB
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: object ready for insertion into the DB  
-
-| Param | Type | Default | Description |
-| --- | --- | --- | --- |
-| type | <code>\*</code> |  | an xml object which conforms to the bitmap format in the dotdot xml |
-| isContained | <code>\*</code> | <code>false</code> | a boolean indicating if this is coming from a contained tag or not |
-
-<a name="module_Loader API_ Loader APIs..prepareEnum"></a>
-
-### Loader API: Loader APIs~prepareEnum(type) ⇒
-Parses xml type into the enum object for insertion into the DB
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: object ready for insertion into the DB  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| type | <code>\*</code> | an xml object which conforms to the enum format in the dotdot xml |
-
-<a name="module_Loader API_ Loader APIs..prepareStruct"></a>
-
-### Loader API: Loader APIs~prepareStruct(type) ⇒
-Parses xml type into the struct object for insertion into the DB
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: object ready for insertion into the DB  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| type | <code>\*</code> | an xml object which conforms to the struct format in the dotdot xml |
-
-<a name="module_Loader API_ Loader APIs..prepareSubAtomicTypes"></a>
-
-### Loader API: Loader APIs~prepareSubAtomicTypes(types)
-Parses array of xml objects that conform to the sub-atomic format in the dotdot xml
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-
-| Param | Type |
-| --- | --- |
-| types | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..prepareTypes"></a>
-
-### Loader API: Loader APIs~prepareTypes(zclTypes, types)
-Parses xml types into the types object for insertion into the DB
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| zclTypes | <code>\*</code> | an array of xml types |
-| types | <code>\*</code> | an object which includes arrays for enums, bitmaps etc... |
-
-<a name="module_Loader API_ Loader APIs..prepareAttributeType"></a>
-
-### Loader API: Loader APIs~prepareAttributeType(attribute, types, cluster)
-Parses xml types into the types object for insertion into the DB
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| attribute | <code>\*</code> | an attribute with the type in it |
-| types | <code>\*</code> | an object which includes arrays for enums, bitmaps etc... |
-| cluster | <code>\*</code> | the cluster that the attribute belongs to (used presently for uniqueness of the type name) |
-
-<a name="module_Loader API_ Loader APIs..prepareDeviceType"></a>
-
-### Loader API: Loader APIs~prepareDeviceType(deviceType) ⇒
-Preparation step for the device types.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: an object containing the prepared device types.  
-
-| Param | Type |
-| --- | --- |
-| deviceType | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..prepareDataTypeDiscriminator"></a>
-
-### Loader API: Loader APIs~prepareDataTypeDiscriminator(a) ⇒
-Prepare Data Type Discriminator for database table insertion.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: An Object  
-
-| Param | Type |
-| --- | --- |
-| a | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..processDataTypeDiscriminator"></a>
-
-### Loader API: Loader APIs~processDataTypeDiscriminator(db, packageId, zclDataTypes) ⇒
-Processes Data Type Discriminator.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Promise of inserted Data Type Discriminators.  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| packageId | <code>\*</code> | 
-| zclDataTypes | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..prepareDataType"></a>
-
-### Loader API: Loader APIs~prepareDataType(a, dataType, typeMap) ⇒
-Prepare Data Types for database table insertion.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: An Object  
-
-| Param | Type |
-| --- | --- |
-| a | <code>\*</code> | 
-| dataType | <code>\*</code> | 
-| typeMap | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..processDataType"></a>
-
-### Loader API: Loader APIs~processDataType(db, filePath, packageId, data, dataType) ⇒
-Processes Data Type.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Promise of inserted Data Types into the Data Type table.  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| filePath | <code>\*</code> | 
-| packageId | <code>\*</code> | 
-| data | <code>\*</code> | 
-| dataType | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..prepareNumber"></a>
-
-### Loader API: Loader APIs~prepareNumber(a, dataType) ⇒
-Prepare numbers for database table insertion.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: An Object  
-
-| Param | Type |
-| --- | --- |
-| a | <code>\*</code> | 
-| dataType | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..processNumber"></a>
-
-### Loader API: Loader APIs~processNumber(db, filePath, packageId, data) ⇒
-Processes Numbers.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Promise of inserted numbers into the number table.  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| filePath | <code>\*</code> | 
-| packageId | <code>\*</code> | 
-| data | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..prepareString"></a>
-
-### Loader API: Loader APIs~prepareString(a, dataType) ⇒
-Prepare strings for database table insertion.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: An Object  
-
-| Param | Type |
-| --- | --- |
-| a | <code>\*</code> | 
-| dataType | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..processString"></a>
-
-### Loader API: Loader APIs~processString(db, filePath, packageId, data) ⇒
-Processes Strings.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Promise of inserted strings into the String table.  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| filePath | <code>\*</code> | 
-| packageId | <code>\*</code> | 
-| data | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..prepareEnumsOrBitmaps"></a>
-
-### Loader API: Loader APIs~prepareEnumsOrBitmaps(a, dataType) ⇒
-Prepare enums or bitmaps for database table insertion.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: An Object  
-
-| Param | Type |
-| --- | --- |
-| a | <code>\*</code> | 
-| dataType | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..processEnums"></a>
-
-### Loader API: Loader APIs~processEnums(db, filePath, packageId, data) ⇒
-Processes the enums.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: A promise of inserted enums.  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| filePath | <code>\*</code> | 
-| packageId | <code>\*</code> | 
-| data | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..processEnumItems"></a>
-
-### Loader API: Loader APIs~processEnumItems(db, filePath, packageId, data) ⇒
-Processes the enum Items.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: A promise of inserted enum items.  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| filePath | <code>\*</code> | 
-| packageId | <code>\*</code> | 
-| data | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..processBitmaps"></a>
-
-### Loader API: Loader APIs~processBitmaps(db, filePath, packageId, data) ⇒
-Processes the bitmaps.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: A promise of inserted bitmaps.  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| filePath | <code>\*</code> | 
-| packageId | <code>\*</code> | 
-| data | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..processBitmapFields"></a>
-
-### Loader API: Loader APIs~processBitmapFields(db, filePath, packageId, data) ⇒
-Processes the bitmap fields.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: A promise of inserted bitmap fields.  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| filePath | <code>\*</code> | 
-| packageId | <code>\*</code> | 
-| data | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..prepareStruct2"></a>
-
-### Loader API: Loader APIs~prepareStruct2(a, dataType) ⇒
-Prepare structs for database table insertion.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: An Object  
-
-| Param | Type |
-| --- | --- |
-| a | <code>\*</code> | 
-| dataType | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..processStruct"></a>
-
-### Loader API: Loader APIs~processStruct(db, filePath, packageId, data) ⇒
-Processes the structs.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: A promise of inserted structs.  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| filePath | <code>\*</code> | 
-| packageId | <code>\*</code> | 
-| data | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..processStructItems"></a>
-
-### Loader API: Loader APIs~processStructItems(db, filePath, packageId, data) ⇒
-Processes the struct Items.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: A promise of inserted struct items.  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| filePath | <code>\*</code> | 
-| packageId | <code>\*</code> | 
-| data | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..prepareEnumsOrBitmapsAtomic"></a>
-
-### Loader API: Loader APIs~prepareEnumsOrBitmapsAtomic(a, dataType) ⇒
-Prepare enums or bitmaps for database table insertion.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: An Object  
-
-| Param | Type |
-| --- | --- |
-| a | <code>\*</code> | 
-| dataType | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..processEnumsFromAtomics"></a>
-
-### Loader API: Loader APIs~processEnumsFromAtomics(db, filePath, packageId, data) ⇒
-Processes the enums.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: A promise of inserted enums.  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| filePath | <code>\*</code> | 
-| packageId | <code>\*</code> | 
-| data | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..processBitmapsFromAtomics"></a>
-
-### Loader API: Loader APIs~processBitmapsFromAtomics(db, filePath, packageId, data) ⇒
-Processes the bitmaps.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: A promise of inserted bitmaps.  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| filePath | <code>\*</code> | 
-| packageId | <code>\*</code> | 
-| data | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..loadZclData"></a>
-
-### Loader API: Loader APIs~loadZclData(db, ctx) ⇒
-Promises to iterate over all the XML files and returns an aggregate promise
-that will be resolved when all the XML files are done, or rejected if at least one fails.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Promise that resolves when all the individual promises of each file pass.  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| ctx | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..loadIndividualDotDotFile"></a>
-
-### Loader API: Loader APIs~loadIndividualDotDotFile(db, filePath) ⇒ <code>\*</code>
-TODO This is not supported at this time.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: <code>\*</code> - object w/ following: { packageId: pkgId } or { err: err }  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| filePath | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..loadToplevelXmlFile"></a>
-
-### Loader API: Loader APIs~loadToplevelXmlFile(db, ctx) ⇒
-Toplevel function that loads the xml library file
-and orchestrates the promise chain.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: a Promise that resolves with the db.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| db | <code>\*</code> |  |
-| ctx | <code>\*</code> | Context of loading. |
-
 <a name="module_Loader API_ Loader APIs..recordToplevelPackage"></a>
 
 ### Loader API: Loader APIs~recordToplevelPackage(db, metadataFile, crc, isTopLevelPackageInSync) ⇒
@@ -22697,1009 +21866,6 @@ Promises to perform a post loading step.
 | --- | --- |
 | db | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..parseNewXmlFiles"></a>
-
-### Loader API: Loader APIs~parseNewXmlFiles(db, packageId, files, context) ⇒
-Parses the new XML files. Returns an object containing
-loaded data:
-   clusterIdsLoaded: array of cluster ids that were loaded
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Promise that resolves when all the new XML data is loaded.  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| packageId | <code>\*</code> | 
-| files | <code>\*</code> | 
-| context | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..prepXmlFeature"></a>
-
-### Loader API: Loader APIs~prepXmlFeature(f) ⇒
-Prepare features from xml.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: feature information  
-
-| Param | Type |
-| --- | --- |
-| f | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..prepXmlAttribute"></a>
-
-### Loader API: Loader APIs~prepXmlAttribute(a) ⇒
-Prepare attributes from xml.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: attribute information  
-
-| Param | Type |
-| --- | --- |
-| a | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..prepXmlCommand"></a>
-
-### Loader API: Loader APIs~prepXmlCommand(c) ⇒
-Prepare commands from xml.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: command information  
-
-| Param | Type |
-| --- | --- |
-| c | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..prepXmlEvent"></a>
-
-### Loader API: Loader APIs~prepXmlEvent(e) ⇒
-Prepare events from xml
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: event information  
-
-| Param | Type |
-| --- | --- |
-| e | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..parseSingleNewXmlFile"></a>
-
-### Loader API: Loader APIs~parseSingleNewXmlFile(f) ⇒
-Parse xml file.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: xml information from file  
-
-| Param | Type |
-| --- | --- |
-| f | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..collectDataFromJsonFile"></a>
-
-### Loader API: Loader APIs~collectDataFromJsonFile(ctx) ⇒
-Promises to read the JSON file and resolve all the data.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Promise of resolved file.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| ctx | <code>\*</code> | Context containing information about the file |
-
-<a name="module_Loader API_ Loader APIs..collectDataFromPropertiesFile"></a>
-
-### Loader API: Loader APIs~collectDataFromPropertiesFile(ctx) ⇒
-Promises to read the properties file, extract all the actual xml files, and resolve with the array of files.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Promise of resolved files.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| ctx | <code>\*</code> | Context which contains information about the propertiesFiles and data |
-
-<a name="module_Loader API_ Loader APIs..maskToType"></a>
-
-### Loader API: Loader APIs~maskToType(mask) ⇒
-Silabs XML does not carry types with bitmap fields, but dotdot does, so they are in the schema.
-Just to put some data in, we differentiate between "bool" and "enum" types here.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: bool or corresponding enum  
-
-| Param | Type |
-| --- | --- |
-| mask | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..prepareAtomic"></a>
-
-### Loader API: Loader APIs~prepareAtomic(a)
-Prepare atomic to db insertion.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-
-| Param | Type |
-| --- | --- |
-| a | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..processAtomics"></a>
-
-### Loader API: Loader APIs~processAtomics(db, filePath, packageId, data) ⇒
-Processes atomic types for DB insertion.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Promise of inserted bitmaps  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| filePath | <code>\*</code> | 
-| packageId | <code>\*</code> | 
-| data | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..prepareClusterGlobalAttribute"></a>
-
-### Loader API: Loader APIs~prepareClusterGlobalAttribute(cluster) ⇒
-Prepares global attribute data.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Object containing the data from XML.  
-
-| Param | Type |
-| --- | --- |
-| cluster | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..extractAccessTag"></a>
-
-### Loader API: Loader APIs~extractAccessTag(ac) ⇒
-Extract access information
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: access tag information  
-
-| Param | Type |
-| --- | --- |
-| ac | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..extractAccessIntoArray"></a>
-
-### Loader API: Loader APIs~extractAccessIntoArray(xmlElement) ⇒
-Extract list of access information
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: array of access information  
-
-| Param | Type |
-| --- | --- |
-| xmlElement | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..prepareCluster"></a>
-
-### Loader API: Loader APIs~prepareCluster(cluster) ⇒
-Prepare XML cluster for insertion into the database.
-This method can also prepare clusterExtensions.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Object containing all data from XML.  
-
-| Param | Type |
-| --- | --- |
-| cluster | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..processClusters"></a>
-
-### Loader API: Loader APIs~processClusters(db, filePath, packageId, data) ⇒
-Process clusters for insertion into the database.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Promise of cluster insertion.  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| filePath | <code>\*</code> | 
-| packageId | <code>\*</code> | 
-| data | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..processClusterGlobalAttributes"></a>
-
-### Loader API: Loader APIs~processClusterGlobalAttributes(db, filePath, packageId, data) ⇒
-Processes global attributes for insertion into the database.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Promise of inserted data.  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| filePath | <code>\*</code> | 
-| packageId | <code>\*</code> | 
-| data | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..processClusterExtensions"></a>
-
-### Loader API: Loader APIs~processClusterExtensions(db, filePath, packageId, data) ⇒
-Cluster Extension contains attributes and commands in a same way as regular cluster,
-and it has an attribute code="0xXYZ" where code is a cluster code.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: promise to resolve the clusterExtension tags  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| filePath | <code>\*</code> | 
-| packageId | <code>\*</code> | 
-| data | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..processGlobals"></a>
-
-### Loader API: Loader APIs~processGlobals(db, filePath, packageId, data) ⇒
-Processes the globals in the XML files. The `global` tag contains
-attributes and commands in a same way as cluster or clusterExtension
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: promise to resolve the globals  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| filePath | <code>\*</code> | 
-| packageId | <code>\*</code> | 
-| data | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..prepareTag"></a>
-
-### Loader API: Loader APIs~prepareTag(tag) ⇒
-Prepare tag object from tag
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: tag information  
-
-| Param | Type |
-| --- | --- |
-| tag | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..processDefaultAccess"></a>
-
-### Loader API: Loader APIs~processDefaultAccess(db, filePath, packageId, defaultAccessList)
-Process defaultAccess tag in the XML.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| filePath | <code>\*</code> | 
-| packageId | <code>\*</code> | 
-| defaultAccessList | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..processAccessControl"></a>
-
-### Loader API: Loader APIs~processAccessControl(db, filePath, packageId, accessControlList)
-Process accessControl tag in the XML.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| filePath | <code>\*</code> | 
-| packageId | <code>\*</code> | 
-| accessControlList | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..processTags"></a>
-
-### Loader API: Loader APIs~processTags(db, filePath, packageId, tags)
-Processes the tags in the XML.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| filePath | <code>\*</code> | 
-| packageId | <code>\*</code> | 
-| tags | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..prepareDomain"></a>
-
-### Loader API: Loader APIs~prepareDomain(domain) ⇒
-Convert domain from XMl to domain for DB.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Domain object for DB.  
-
-| Param | Type |
-| --- | --- |
-| domain | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..processDomains"></a>
-
-### Loader API: Loader APIs~processDomains(db, filePath, packageId, data) ⇒
-Process domains for insertion.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Promise of database insertion of domains.  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| filePath | <code>\*</code> | 
-| packageId | <code>\*</code> | 
-| data | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..prepareDataTypeDiscriminator"></a>
-
-### Loader API: Loader APIs~prepareDataTypeDiscriminator(a) ⇒
-Prepare Data Type Discriminator for database table insertion.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: An Object  
-
-| Param | Type |
-| --- | --- |
-| a | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..processDataTypeDiscriminator"></a>
-
-### Loader API: Loader APIs~processDataTypeDiscriminator(db, filePath, zclDataTypes) ⇒
-Processes Data Type Discriminator.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Promise of inserted Data Type Discriminators.  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| filePath | <code>\*</code> | 
-| zclDataTypes | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..prepareDataType"></a>
-
-### Loader API: Loader APIs~prepareDataType(a, dataType, typeMap) ⇒
-Prepare Data Types for database table insertion.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: An Object  
-
-| Param | Type |
-| --- | --- |
-| a | <code>\*</code> | 
-| dataType | <code>\*</code> | 
-| typeMap | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..processDataType"></a>
-
-### Loader API: Loader APIs~processDataType(db, filePath, packageId, knownPackages, data, dataType) ⇒
-Processes Data Type.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Promise of inserted Data Types into the Data Type table.  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| filePath | <code>\*</code> | 
-| packageId | <code>\*</code> | 
-| knownPackages | <code>\*</code> | 
-| data | <code>\*</code> | 
-| dataType | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..prepareNumber"></a>
-
-### Loader API: Loader APIs~prepareNumber(a, dataType) ⇒
-Prepare numbers for database table insertion.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: An Object  
-
-| Param | Type |
-| --- | --- |
-| a | <code>\*</code> | 
-| dataType | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..processNumber"></a>
-
-### Loader API: Loader APIs~processNumber(db, filePath, packageId, knownPackages, data) ⇒
-Processes Numbers.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Promise of inserted numbers into the number table.  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| filePath | <code>\*</code> | 
-| packageId | <code>\*</code> | 
-| knownPackages | <code>\*</code> | 
-| data | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..prepareString"></a>
-
-### Loader API: Loader APIs~prepareString(a, dataType) ⇒
-Prepare strings for database table insertion.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: An Object  
-
-| Param | Type |
-| --- | --- |
-| a | <code>\*</code> | 
-| dataType | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..processString"></a>
-
-### Loader API: Loader APIs~processString(db, filePath, packageId, knownPackages, data) ⇒
-Processes Strings.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Promise of inserted strings into the String table.  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| filePath | <code>\*</code> | 
-| packageId | <code>\*</code> | 
-| knownPackages | <code>\*</code> | 
-| data | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..prepareEnumOrBitmapAtomic"></a>
-
-### Loader API: Loader APIs~prepareEnumOrBitmapAtomic(a, dataType) ⇒
-Prepare enums or bitmaps for database table insertion.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: An Object  
-
-| Param | Type |
-| --- | --- |
-| a | <code>\*</code> | 
-| dataType | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..processEnumAtomic"></a>
-
-### Loader API: Loader APIs~processEnumAtomic(db, filePath, packageId, knownPackages, data) ⇒
-Processes the enums.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: A promise of inserted enums.  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| filePath | <code>\*</code> | 
-| packageId | <code>\*</code> | 
-| knownPackages | <code>\*</code> | 
-| data | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..prepareEnumOrBitmap"></a>
-
-### Loader API: Loader APIs~prepareEnumOrBitmap(a, dataType) ⇒
-Prepare enums or bitmaps for database table insertion.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: An Object  
-
-| Param | Type |
-| --- | --- |
-| a | <code>\*</code> | 
-| dataType | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..processEnum"></a>
-
-### Loader API: Loader APIs~processEnum(db, filePath, packageId, knownPackages, data) ⇒
-Processes the enums.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: A promise of inserted enums.  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| filePath | <code>\*</code> | 
-| packageId | <code>\*</code> | 
-| knownPackages | <code>\*</code> | 
-| data | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..processEnumItems"></a>
-
-### Loader API: Loader APIs~processEnumItems(db, filePath, packageId, knownPackages, data) ⇒
-Processes the enum Items.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: A promise of inserted enum items.  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| filePath | <code>\*</code> | 
-| packageId | <code>\*</code> | 
-| knownPackages | <code>\*</code> | 
-| data | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..processBitmapAtomic"></a>
-
-### Loader API: Loader APIs~processBitmapAtomic(db, filePath, packageId, knownPackages, data) ⇒
-Processes the bitmaps.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: A promise of inserted bitmaps.  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| filePath | <code>\*</code> | 
-| packageId | <code>\*</code> | 
-| knownPackages | <code>\*</code> | 
-| data | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..processBitmap"></a>
-
-### Loader API: Loader APIs~processBitmap(db, filePath, packageId, knownPackages, data) ⇒
-Processes the bitmaps.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: A promise of inserted bitmaps.  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| filePath | <code>\*</code> | 
-| packageId | <code>\*</code> | 
-| knownPackages | <code>\*</code> | 
-| data | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..processBitmapFields"></a>
-
-### Loader API: Loader APIs~processBitmapFields(db, filePath, packageId, knownPackages, data) ⇒
-Processes the bitmap fields.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: A promise of inserted bitmap fields.  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| filePath | <code>\*</code> | 
-| packageId | <code>\*</code> | 
-| knownPackages | <code>\*</code> | 
-| data | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..prepareStruct"></a>
-
-### Loader API: Loader APIs~prepareStruct(a, dataType) ⇒
-Prepare structs for database table insertion.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: An Object  
-
-| Param | Type |
-| --- | --- |
-| a | <code>\*</code> | 
-| dataType | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..processStruct"></a>
-
-### Loader API: Loader APIs~processStruct(db, filePath, packageId, knownPackages, data) ⇒
-Processes the structs.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: A promise of inserted structs.  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| filePath | <code>\*</code> | 
-| packageId | <code>\*</code> | 
-| knownPackages | <code>\*</code> | 
-| data | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..processStructItems"></a>
-
-### Loader API: Loader APIs~processStructItems(db, filePath, packageIds, data) ⇒
-Processes the struct Items.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: A promise of inserted struct items.  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| filePath | <code>\*</code> | 
-| packageIds | <code>\*</code> | 
-| data | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..prepareDeviceType"></a>
-
-### Loader API: Loader APIs~prepareDeviceType(deviceType) ⇒ <code>Object</code>
-Prepares a device type object by extracting and transforming its properties.
-
-This function takes a device type object and processes its properties to create
-a new object with a specific structure. It handles various properties such as
-device ID, profile ID, domain, name, description, class, scope, and superset.
-Additionally, it processes endpoint compositions and clusters if they exist.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: <code>Object</code> - The prepared device type object with transformed properties.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| deviceType | <code>Object</code> | The device type object to be prepared. |
-
-<a name="module_Loader API_ Loader APIs..processDeviceTypes"></a>
-
-### Loader API: Loader APIs~processDeviceTypes(db, filePath, packageId, data, context) ⇒ <code>Promise</code>
-Processes and inserts device types into the database.
-This function logs the number of device types being processed for debugging purposes.
-It maps over the provided data to prepare each device type and then iterates over each prepared device type.
-If a device type has a compositionType, it inserts the endpoint composition into the database,
-retrieves the endpoint composition ID, and then inserts the device composition.
-Finally, it inserts all prepared device types into the database.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: <code>Promise</code> - A promise that resolves after all device types have been inserted into the database.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| db | <code>\*</code> | The database connection object. |
-| filePath | <code>string</code> | The file path from which the device types are being processed. |
-| packageId | <code>\*</code> | The package ID associated with the device types. |
-| data | <code>Array</code> | The array of device types to be processed. |
-| context | <code>\*</code> | Additional context that might be required for processing. |
-
-<a name="module_Loader API_ Loader APIs..processParsedZclData"></a>
-
-### Loader API: Loader APIs~processParsedZclData(db, argument) ⇒
-After XML parser is done with the barebones parsing, this function
-branches the individual toplevel tags.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: promise that resolves when all the subtags are parsed.  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| argument | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..parseSingleZclFile"></a>
-
-### Loader API: Loader APIs~parseSingleZclFile(db, packageId, file) ⇒
-This function is used for parsing each individual ZCL file at a grouped zcl file package level.
-This should _not_ be used for custom XML addition due to custom xmls potentially relying on existing packges.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: A promise for when the last stage of the loading pipeline finishes.  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| packageId | <code>\*</code> | 
-| file | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..isCrcMismatchOrPackageDoesNotExist"></a>
-
-### Loader API: Loader APIs~isCrcMismatchOrPackageDoesNotExist(db, packageId, files) ⇒
-Checks if there is a crc mismatch on any xml file. This can be used to
-decide if there is a need to reload all the xml files. Also check if the
-package is not loaded before.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: the status of crc mismatch and whether a package is present in an
-object  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| packageId | <code>\*</code> | 
-| files | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..parseZclFiles"></a>
-
-### Loader API: Loader APIs~parseZclFiles(db, packageId, zclFiles, context) ⇒
-Promises to iterate over all the XML files and returns an aggregate promise
-that will be resolved when all the XML files are done, or rejected if at least one fails.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Promise that resolves when all the individual promises of each file pass.  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| packageId | <code>\*</code> | 
-| zclFiles | <code>\*</code> | 
-| context | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..parseManufacturerData"></a>
-
-### Loader API: Loader APIs~parseManufacturerData(db, ctx) ⇒
-Parses the manufacturers xml.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Promise of a parsed manufacturers file.  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| ctx | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..parseProfilesData"></a>
-
-### Loader API: Loader APIs~parseProfilesData(db, ctx) ⇒
-Parses the profiles xml.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Promise of a parsed profiles file.  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| ctx | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..parseFeatureFlags"></a>
-
-### Loader API: Loader APIs~parseFeatureFlags(db, packageId, featureFlags) ⇒
-Inside the `zcl.json` can be a `featureFlags` key, which is
-a general purpose object. It contains keys, that map to objects.
-Each key is a "package option category".
-Key/velues of the object itself, end up in CODE/LABEL combinations.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: array of feature flags  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| packageId | <code>\*</code> | 
-| featureFlags | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..parseConformanceFromXML"></a>
-
-### Loader API: Loader APIs~parseConformanceFromXML(operand) ⇒
-Parses conformance from XML data.
-The conformance could come from features, attributes, commands, or events
-
-Call recursive helper function to parse conformance only if the conformance exists.
-Otherwise, return empty string directly
-
-An example of parsing the conformance of 'User' device type feature:
-
-Input operand from xml data:
-{
-  "$": {"code": "USR", "name": "User"},
-  "mandatoryConform": [
-     { "andTerm": [
-          {
-            "condition": [{"$": {"name": "Matter"}}],
-            "orTerm": [
-                { "feature": [
-                     { "$": {"name": "PIN"}},
-                     { "$": {"name": "RID"}},
-                     { "$": {"name": "FGP"}},
-                     { "$": {"name": "FACE"}}
-                  ]
-                }
-              ]
-           }
-         ]
-       }
-   ]
-}
-
-Output conformance string:
- "Matter & (PIN | RID | FGP | FACE)"
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: The conformance string  
-
-| Param | Type |
-| --- | --- |
-| operand | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..parseConformanceRecursively"></a>
-
-### Loader API: Loader APIs~parseConformanceRecursively(operand, depth, parentJoinChar) ⇒
-helper function to parse conformance or an operand in conformance recursively
-
-The baseLevelTerms variable include terms that can not have nested terms.
-When they appear, stop recursing and return the name inside directly
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: The conformance string.  
-
-| Param | Type | Default |
-| --- | --- | --- |
-| operand | <code>\*</code> |  | 
-| depth | <code>\*</code> | <code>0</code> | 
-| parentJoinChar | <code>\*</code> |  | 
-
-<a name="module_Loader API_ Loader APIs..parseUiOptions"></a>
-
-### Loader API: Loader APIs~parseUiOptions(db, packageId, featureFlags) ⇒
-Inside the `zcl.json` can be a `featureFlags` key, which is
-a general purpose object. It contains keys, that map to objects.
-Each key is a "package option category".
-Key/velues of the object itself, end up in CODE/LABEL combinations.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Promise that loads the uiOptions object into the database.  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| packageId | <code>\*</code> | 
-| featureFlags | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..parseOptions"></a>
-
-### Loader API: Loader APIs~parseOptions(db) ⇒
-Parses and loads the text and boolean options.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: promise of parsed options  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..parseTextOptions"></a>
-
-### Loader API: Loader APIs~parseTextOptions(db, pkgRef, textOptions) ⇒
-Parses the text options.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Promise of a parsed text options.  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| pkgRef | <code>\*</code> | 
-| textOptions | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..parseBoolOptions"></a>
-
-### Loader API: Loader APIs~parseBoolOptions(db, pkgRef, booleanCategories) ⇒
-Parses the boolean options.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Promise of a parsed boolean options.  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| pkgRef | <code>\*</code> | 
-| booleanCategories | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..parseattributeAccessInterfaceAttributes"></a>
-
-### Loader API: Loader APIs~parseattributeAccessInterfaceAttributes(db, pkgRef, attributeAccessInterfaceAttributes) ⇒ <code>Promise.&lt;void&gt;</code>
-Asynchronously parses and inserts attribute access interface attributes into the database.
-This function iterates over the attributeAccessInterfaceAttributes object, processing each cluster
-by mapping its values to a specific structure and then inserting them into the database using
-the insertOptionsKeyValues function.
-
-The main purpose of this function is to store cluster/attribute pairs including global attributes and their cluster pair
-The ATTRIBUTE table has cluster_ref as null for global attributes so this second method was necessary
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: <code>Promise.&lt;void&gt;</code> - A promise that resolves when all attributes have been processed and inserted.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| db | <code>\*</code> | The database connection object. |
-| pkgRef | <code>\*</code> | The package reference id for which the attributes are being parsed. |
-| attributeAccessInterfaceAttributes | <code>\*</code> | An object containing the attribute access interface attributes,                                                  structured by cluster. |
-
-<a name="module_Loader API_ Loader APIs..parseDefaults"></a>
-
-### Loader API: Loader APIs~parseDefaults(db, ctx) ⇒
-Parses the default values inside the options.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Promised of parsed text and bool defaults.  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| ctx | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..parseTextDefaults"></a>
-
-### Loader API: Loader APIs~parseTextDefaults(db, pkgRef, textDefaults) ⇒
-Parse text defaults from default options.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Array of promises  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| pkgRef | <code>\*</code> | 
-| textDefaults | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..parseBoolDefaults"></a>
-
-### Loader API: Loader APIs~parseBoolDefaults(db, pkgRef, booleanCategories) ⇒
-Parse the boolean defaults inside options.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: List of promises  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| pkgRef | <code>\*</code> | 
-| booleanCategories | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..loadIndividualSilabsFile"></a>
-
-### Loader API: Loader APIs~loadIndividualSilabsFile(db, filePath) ⇒
-Parses a single file. This function is used specifically
-for adding a package through an existing session because of its reliance
-on relating the new XML content to the packages associated with that session.
-e.g. for ClusterExtensions.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Promise of a loaded file.  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| filePath | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..processCustomZclDeviceType"></a>
-
-### Loader API: Loader APIs~processCustomZclDeviceType(db, ctx) ⇒
-If custom device is supported, then this method creates it.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: context  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| ctx | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..loadZclJson"></a>
-
-### Loader API: Loader APIs~loadZclJson(db, metafile) ⇒
-Load ZCL metadata
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Promise of loaded zcl json file  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| metafile | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..loadZclProperties"></a>
-
-### Loader API: Loader APIs~loadZclProperties(db, metafile) ⇒
-Load ZCL metadata
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Promise of loaded zcl properties file  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| metafile | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..loadZclJsonOrProperties"></a>
-
-### Loader API: Loader APIs~loadZclJsonOrProperties(db, ctx) ⇒
-Toplevel function that loads the toplevel metafile
-and orchestrates the promise chain.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: a Promise that resolves with the db.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| db | <code>\*</code> |  |
-| ctx | <code>\*</code> | The context of loading. |
 
 <a name="module_Loader API_ Loader APIs"></a>
 
@@ -23750,16 +21916,6 @@ This module provides the APIs for new data model loading
     * [~loadZclData(db, ctx)](#module_Loader API_ Loader APIs..loadZclData) ⇒
     * [~loadIndividualDotDotFile(db, filePath)](#module_Loader API_ Loader APIs..loadIndividualDotDotFile) ⇒ <code>\*</code>
     * [~loadToplevelXmlFile(db, ctx)](#module_Loader API_ Loader APIs..loadToplevelXmlFile) ⇒
-    * [~recordToplevelPackage(db, metadataFile, crc, isTopLevelPackageInSync)](#module_Loader API_ Loader APIs..recordToplevelPackage) ⇒
-    * [~recordVersion(db, ctx)](#module_Loader API_ Loader APIs..recordVersion)
-    * [~loadZclMetaFilesCommon(db, metadataFile, options)](#module_Loader API_ Loader APIs..loadZclMetaFilesCommon) ⇒
-    * [~loadAttributeMappingForMultiProtocol(db, multiProtcolInfo, categoryToPackageIdMap)](#module_Loader API_ Loader APIs..loadAttributeMappingForMultiProtocol)
-    * [~loadZclMetafiles(db, metadataFile)](#module_Loader API_ Loader APIs..loadZclMetafiles) ⇒
-    * [~loadZcl(db, metadataFile)](#module_Loader API_ Loader APIs..loadZcl) ⇒
-    * [~loadIndividualFile(db, filePath, sessionId)](#module_Loader API_ Loader APIs..loadIndividualFile)
-    * [~qualifyZclFile(db, info, parentPackageId, isCustom)](#module_Loader API_ Loader APIs..qualifyZclFile) ⇒
-    * [~processZclPostLoading(db)](#module_Loader API_ Loader APIs..processZclPostLoading) ⇒
-    * [~getDiscriminatorMap(db, packageIds)](#module_Loader API_ Loader APIs..getDiscriminatorMap) ⇒
     * [~parseNewXmlFiles(db, packageId, files, context)](#module_Loader API_ Loader APIs..parseNewXmlFiles) ⇒
     * [~prepXmlFeature(f)](#module_Loader API_ Loader APIs..prepXmlFeature) ⇒
     * [~prepXmlAttribute(a)](#module_Loader API_ Loader APIs..prepXmlAttribute) ⇒
@@ -23828,6 +21984,16 @@ This module provides the APIs for new data model loading
     * [~loadZclJson(db, metafile)](#module_Loader API_ Loader APIs..loadZclJson) ⇒
     * [~loadZclProperties(db, metafile)](#module_Loader API_ Loader APIs..loadZclProperties) ⇒
     * [~loadZclJsonOrProperties(db, ctx)](#module_Loader API_ Loader APIs..loadZclJsonOrProperties) ⇒
+    * [~recordToplevelPackage(db, metadataFile, crc, isTopLevelPackageInSync)](#module_Loader API_ Loader APIs..recordToplevelPackage) ⇒
+    * [~recordVersion(db, ctx)](#module_Loader API_ Loader APIs..recordVersion)
+    * [~loadZclMetaFilesCommon(db, metadataFile, options)](#module_Loader API_ Loader APIs..loadZclMetaFilesCommon) ⇒
+    * [~loadAttributeMappingForMultiProtocol(db, multiProtcolInfo, categoryToPackageIdMap)](#module_Loader API_ Loader APIs..loadAttributeMappingForMultiProtocol)
+    * [~loadZclMetafiles(db, metadataFile)](#module_Loader API_ Loader APIs..loadZclMetafiles) ⇒
+    * [~loadZcl(db, metadataFile)](#module_Loader API_ Loader APIs..loadZcl) ⇒
+    * [~loadIndividualFile(db, filePath, sessionId)](#module_Loader API_ Loader APIs..loadIndividualFile)
+    * [~qualifyZclFile(db, info, parentPackageId, isCustom)](#module_Loader API_ Loader APIs..qualifyZclFile) ⇒
+    * [~processZclPostLoading(db)](#module_Loader API_ Loader APIs..processZclPostLoading) ⇒
+    * [~getDiscriminatorMap(db, packageIds)](#module_Loader API_ Loader APIs..getDiscriminatorMap) ⇒
 
 <a name="module_Loader API_ Loader APIs..collectDataFromLibraryXml"></a>
 
@@ -24398,139 +22564,6 @@ and orchestrates the promise chain.
 | --- | --- | --- |
 | db | <code>\*</code> |  |
 | ctx | <code>\*</code> | Context of loading. |
-
-<a name="module_Loader API_ Loader APIs..recordToplevelPackage"></a>
-
-### Loader API: Loader APIs~recordToplevelPackage(db, metadataFile, crc, isTopLevelPackageInSync) ⇒
-Records the toplevel package information and resolves into packageId
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: packageId  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| metadataFile | <code>\*</code> | 
-| crc | <code>\*</code> | 
-| isTopLevelPackageInSync | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..recordVersion"></a>
-
-### Loader API: Loader APIs~recordVersion(db, ctx)
-Records the version into the database.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| ctx | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..loadZclMetaFilesCommon"></a>
-
-### Loader API: Loader APIs~loadZclMetaFilesCommon(db, metadataFile, options) ⇒
-Retrieve zcl package information
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: package zcl package information  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| metadataFile | <code>\*</code> | 
-| options | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..loadAttributeMappingForMultiProtocol"></a>
-
-### Loader API: Loader APIs~loadAttributeMappingForMultiProtocol(db, multiProtcolInfo, categoryToPackageIdMap)
-Load attribute mapping table if there is multi-protocol information from a json file.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| multiProtcolInfo | <code>\*</code> | 
-| categoryToPackageIdMap | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..loadZclMetafiles"></a>
-
-### Loader API: Loader APIs~loadZclMetafiles(db, metadataFile) ⇒
-Toplevel function that loads the zcl file and passes it off to the correct zcl loader.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Array of loaded packageIds.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| db | <code>\*</code> |  |
-| metadataFile | <code>\*</code> | array of paths |
-
-<a name="module_Loader API_ Loader APIs..loadZcl"></a>
-
-### Loader API: Loader APIs~loadZcl(db, metadataFile) ⇒
-Loads individual zcl.json metafile.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Context object that contains .db and .packageId  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| metadataFile | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..loadIndividualFile"></a>
-
-### Loader API: Loader APIs~loadIndividualFile(db, filePath, sessionId)
-Load individual custom XML files.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| db | <code>\*</code> |  |
-| filePath | <code>\*</code> |  |
-| sessionId | <code>\*</code> | Current session within which we're loading this file. |
-
-<a name="module_Loader API_ Loader APIs..qualifyZclFile"></a>
-
-### Loader API: Loader APIs~qualifyZclFile(db, info, parentPackageId, isCustom) ⇒
-Promises to qualify whether zcl file needs to be reloaded.
-If yes, the it will resolve with {filePath, data, packageId}
-If not, then it will resolve with {error}
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Promise that resolves int he object of data.  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| info | <code>\*</code> | 
-| parentPackageId | <code>\*</code> | 
-| isCustom | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..processZclPostLoading"></a>
-
-### Loader API: Loader APIs~processZclPostLoading(db) ⇒
-Promises to perform a post loading step.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Promise to deal with the post-loading cleanup.  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..getDiscriminatorMap"></a>
-
-### Loader API: Loader APIs~getDiscriminatorMap(db, packageIds) ⇒
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: data type discriminator map  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| packageIds | <code>\*</code> | 
 
 <a name="module_Loader API_ Loader APIs..parseNewXmlFiles"></a>
 
@@ -25534,6 +23567,139 @@ and orchestrates the promise chain.
 | --- | --- | --- |
 | db | <code>\*</code> |  |
 | ctx | <code>\*</code> | The context of loading. |
+
+<a name="module_Loader API_ Loader APIs..recordToplevelPackage"></a>
+
+### Loader API: Loader APIs~recordToplevelPackage(db, metadataFile, crc, isTopLevelPackageInSync) ⇒
+Records the toplevel package information and resolves into packageId
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: packageId  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| metadataFile | <code>\*</code> | 
+| crc | <code>\*</code> | 
+| isTopLevelPackageInSync | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..recordVersion"></a>
+
+### Loader API: Loader APIs~recordVersion(db, ctx)
+Records the version into the database.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| ctx | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..loadZclMetaFilesCommon"></a>
+
+### Loader API: Loader APIs~loadZclMetaFilesCommon(db, metadataFile, options) ⇒
+Retrieve zcl package information
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: package zcl package information  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| metadataFile | <code>\*</code> | 
+| options | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..loadAttributeMappingForMultiProtocol"></a>
+
+### Loader API: Loader APIs~loadAttributeMappingForMultiProtocol(db, multiProtcolInfo, categoryToPackageIdMap)
+Load attribute mapping table if there is multi-protocol information from a json file.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| multiProtcolInfo | <code>\*</code> | 
+| categoryToPackageIdMap | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..loadZclMetafiles"></a>
+
+### Loader API: Loader APIs~loadZclMetafiles(db, metadataFile) ⇒
+Toplevel function that loads the zcl file and passes it off to the correct zcl loader.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Array of loaded packageIds.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| db | <code>\*</code> |  |
+| metadataFile | <code>\*</code> | array of paths |
+
+<a name="module_Loader API_ Loader APIs..loadZcl"></a>
+
+### Loader API: Loader APIs~loadZcl(db, metadataFile) ⇒
+Loads individual zcl.json metafile.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Context object that contains .db and .packageId  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| metadataFile | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..loadIndividualFile"></a>
+
+### Loader API: Loader APIs~loadIndividualFile(db, filePath, sessionId)
+Load individual custom XML files.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| db | <code>\*</code> |  |
+| filePath | <code>\*</code> |  |
+| sessionId | <code>\*</code> | Current session within which we're loading this file. |
+
+<a name="module_Loader API_ Loader APIs..qualifyZclFile"></a>
+
+### Loader API: Loader APIs~qualifyZclFile(db, info, parentPackageId, isCustom) ⇒
+Promises to qualify whether zcl file needs to be reloaded.
+If yes, the it will resolve with {filePath, data, packageId}
+If not, then it will resolve with {error}
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise that resolves int he object of data.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| info | <code>\*</code> | 
+| parentPackageId | <code>\*</code> | 
+| isCustom | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processZclPostLoading"></a>
+
+### Loader API: Loader APIs~processZclPostLoading(db) ⇒
+Promises to perform a post loading step.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise to deal with the post-loading cleanup.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..getDiscriminatorMap"></a>
+
+### Loader API: Loader APIs~getDiscriminatorMap(db, packageIds) ⇒
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: data type discriminator map  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| packageIds | <code>\*</code> | 
 
 <a name="module_Loader API_ Loader APIs"></a>
 
@@ -25584,16 +23750,6 @@ This module provides the APIs for ZCL/Data-Model loading.
     * [~loadZclData(db, ctx)](#module_Loader API_ Loader APIs..loadZclData) ⇒
     * [~loadIndividualDotDotFile(db, filePath)](#module_Loader API_ Loader APIs..loadIndividualDotDotFile) ⇒ <code>\*</code>
     * [~loadToplevelXmlFile(db, ctx)](#module_Loader API_ Loader APIs..loadToplevelXmlFile) ⇒
-    * [~recordToplevelPackage(db, metadataFile, crc, isTopLevelPackageInSync)](#module_Loader API_ Loader APIs..recordToplevelPackage) ⇒
-    * [~recordVersion(db, ctx)](#module_Loader API_ Loader APIs..recordVersion)
-    * [~loadZclMetaFilesCommon(db, metadataFile, options)](#module_Loader API_ Loader APIs..loadZclMetaFilesCommon) ⇒
-    * [~loadAttributeMappingForMultiProtocol(db, multiProtcolInfo, categoryToPackageIdMap)](#module_Loader API_ Loader APIs..loadAttributeMappingForMultiProtocol)
-    * [~loadZclMetafiles(db, metadataFile)](#module_Loader API_ Loader APIs..loadZclMetafiles) ⇒
-    * [~loadZcl(db, metadataFile)](#module_Loader API_ Loader APIs..loadZcl) ⇒
-    * [~loadIndividualFile(db, filePath, sessionId)](#module_Loader API_ Loader APIs..loadIndividualFile)
-    * [~qualifyZclFile(db, info, parentPackageId, isCustom)](#module_Loader API_ Loader APIs..qualifyZclFile) ⇒
-    * [~processZclPostLoading(db)](#module_Loader API_ Loader APIs..processZclPostLoading) ⇒
-    * [~getDiscriminatorMap(db, packageIds)](#module_Loader API_ Loader APIs..getDiscriminatorMap) ⇒
     * [~parseNewXmlFiles(db, packageId, files, context)](#module_Loader API_ Loader APIs..parseNewXmlFiles) ⇒
     * [~prepXmlFeature(f)](#module_Loader API_ Loader APIs..prepXmlFeature) ⇒
     * [~prepXmlAttribute(a)](#module_Loader API_ Loader APIs..prepXmlAttribute) ⇒
@@ -25662,6 +23818,16 @@ This module provides the APIs for ZCL/Data-Model loading.
     * [~loadZclJson(db, metafile)](#module_Loader API_ Loader APIs..loadZclJson) ⇒
     * [~loadZclProperties(db, metafile)](#module_Loader API_ Loader APIs..loadZclProperties) ⇒
     * [~loadZclJsonOrProperties(db, ctx)](#module_Loader API_ Loader APIs..loadZclJsonOrProperties) ⇒
+    * [~recordToplevelPackage(db, metadataFile, crc, isTopLevelPackageInSync)](#module_Loader API_ Loader APIs..recordToplevelPackage) ⇒
+    * [~recordVersion(db, ctx)](#module_Loader API_ Loader APIs..recordVersion)
+    * [~loadZclMetaFilesCommon(db, metadataFile, options)](#module_Loader API_ Loader APIs..loadZclMetaFilesCommon) ⇒
+    * [~loadAttributeMappingForMultiProtocol(db, multiProtcolInfo, categoryToPackageIdMap)](#module_Loader API_ Loader APIs..loadAttributeMappingForMultiProtocol)
+    * [~loadZclMetafiles(db, metadataFile)](#module_Loader API_ Loader APIs..loadZclMetafiles) ⇒
+    * [~loadZcl(db, metadataFile)](#module_Loader API_ Loader APIs..loadZcl) ⇒
+    * [~loadIndividualFile(db, filePath, sessionId)](#module_Loader API_ Loader APIs..loadIndividualFile)
+    * [~qualifyZclFile(db, info, parentPackageId, isCustom)](#module_Loader API_ Loader APIs..qualifyZclFile) ⇒
+    * [~processZclPostLoading(db)](#module_Loader API_ Loader APIs..processZclPostLoading) ⇒
+    * [~getDiscriminatorMap(db, packageIds)](#module_Loader API_ Loader APIs..getDiscriminatorMap) ⇒
 
 <a name="module_Loader API_ Loader APIs..collectDataFromLibraryXml"></a>
 
@@ -26232,139 +24398,6 @@ and orchestrates the promise chain.
 | --- | --- | --- |
 | db | <code>\*</code> |  |
 | ctx | <code>\*</code> | Context of loading. |
-
-<a name="module_Loader API_ Loader APIs..recordToplevelPackage"></a>
-
-### Loader API: Loader APIs~recordToplevelPackage(db, metadataFile, crc, isTopLevelPackageInSync) ⇒
-Records the toplevel package information and resolves into packageId
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: packageId  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| metadataFile | <code>\*</code> | 
-| crc | <code>\*</code> | 
-| isTopLevelPackageInSync | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..recordVersion"></a>
-
-### Loader API: Loader APIs~recordVersion(db, ctx)
-Records the version into the database.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| ctx | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..loadZclMetaFilesCommon"></a>
-
-### Loader API: Loader APIs~loadZclMetaFilesCommon(db, metadataFile, options) ⇒
-Retrieve zcl package information
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: package zcl package information  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| metadataFile | <code>\*</code> | 
-| options | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..loadAttributeMappingForMultiProtocol"></a>
-
-### Loader API: Loader APIs~loadAttributeMappingForMultiProtocol(db, multiProtcolInfo, categoryToPackageIdMap)
-Load attribute mapping table if there is multi-protocol information from a json file.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| multiProtcolInfo | <code>\*</code> | 
-| categoryToPackageIdMap | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..loadZclMetafiles"></a>
-
-### Loader API: Loader APIs~loadZclMetafiles(db, metadataFile) ⇒
-Toplevel function that loads the zcl file and passes it off to the correct zcl loader.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Array of loaded packageIds.  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| db | <code>\*</code> |  |
-| metadataFile | <code>\*</code> | array of paths |
-
-<a name="module_Loader API_ Loader APIs..loadZcl"></a>
-
-### Loader API: Loader APIs~loadZcl(db, metadataFile) ⇒
-Loads individual zcl.json metafile.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Context object that contains .db and .packageId  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| metadataFile | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..loadIndividualFile"></a>
-
-### Loader API: Loader APIs~loadIndividualFile(db, filePath, sessionId)
-Load individual custom XML files.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| db | <code>\*</code> |  |
-| filePath | <code>\*</code> |  |
-| sessionId | <code>\*</code> | Current session within which we're loading this file. |
-
-<a name="module_Loader API_ Loader APIs..qualifyZclFile"></a>
-
-### Loader API: Loader APIs~qualifyZclFile(db, info, parentPackageId, isCustom) ⇒
-Promises to qualify whether zcl file needs to be reloaded.
-If yes, the it will resolve with {filePath, data, packageId}
-If not, then it will resolve with {error}
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Promise that resolves int he object of data.  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| info | <code>\*</code> | 
-| parentPackageId | <code>\*</code> | 
-| isCustom | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..processZclPostLoading"></a>
-
-### Loader API: Loader APIs~processZclPostLoading(db) ⇒
-Promises to perform a post loading step.
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: Promise to deal with the post-loading cleanup.  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..getDiscriminatorMap"></a>
-
-### Loader API: Loader APIs~getDiscriminatorMap(db, packageIds) ⇒
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: data type discriminator map  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| packageIds | <code>\*</code> | 
 
 <a name="module_Loader API_ Loader APIs..parseNewXmlFiles"></a>
 
@@ -27368,4 +25401,1971 @@ and orchestrates the promise chain.
 | --- | --- | --- |
 | db | <code>\*</code> |  |
 | ctx | <code>\*</code> | The context of loading. |
+
+<a name="module_Loader API_ Loader APIs..recordToplevelPackage"></a>
+
+### Loader API: Loader APIs~recordToplevelPackage(db, metadataFile, crc, isTopLevelPackageInSync) ⇒
+Records the toplevel package information and resolves into packageId
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: packageId  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| metadataFile | <code>\*</code> | 
+| crc | <code>\*</code> | 
+| isTopLevelPackageInSync | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..recordVersion"></a>
+
+### Loader API: Loader APIs~recordVersion(db, ctx)
+Records the version into the database.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| ctx | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..loadZclMetaFilesCommon"></a>
+
+### Loader API: Loader APIs~loadZclMetaFilesCommon(db, metadataFile, options) ⇒
+Retrieve zcl package information
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: package zcl package information  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| metadataFile | <code>\*</code> | 
+| options | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..loadAttributeMappingForMultiProtocol"></a>
+
+### Loader API: Loader APIs~loadAttributeMappingForMultiProtocol(db, multiProtcolInfo, categoryToPackageIdMap)
+Load attribute mapping table if there is multi-protocol information from a json file.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| multiProtcolInfo | <code>\*</code> | 
+| categoryToPackageIdMap | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..loadZclMetafiles"></a>
+
+### Loader API: Loader APIs~loadZclMetafiles(db, metadataFile) ⇒
+Toplevel function that loads the zcl file and passes it off to the correct zcl loader.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Array of loaded packageIds.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| db | <code>\*</code> |  |
+| metadataFile | <code>\*</code> | array of paths |
+
+<a name="module_Loader API_ Loader APIs..loadZcl"></a>
+
+### Loader API: Loader APIs~loadZcl(db, metadataFile) ⇒
+Loads individual zcl.json metafile.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Context object that contains .db and .packageId  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| metadataFile | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..loadIndividualFile"></a>
+
+### Loader API: Loader APIs~loadIndividualFile(db, filePath, sessionId)
+Load individual custom XML files.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| db | <code>\*</code> |  |
+| filePath | <code>\*</code> |  |
+| sessionId | <code>\*</code> | Current session within which we're loading this file. |
+
+<a name="module_Loader API_ Loader APIs..qualifyZclFile"></a>
+
+### Loader API: Loader APIs~qualifyZclFile(db, info, parentPackageId, isCustom) ⇒
+Promises to qualify whether zcl file needs to be reloaded.
+If yes, the it will resolve with {filePath, data, packageId}
+If not, then it will resolve with {error}
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise that resolves int he object of data.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| info | <code>\*</code> | 
+| parentPackageId | <code>\*</code> | 
+| isCustom | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processZclPostLoading"></a>
+
+### Loader API: Loader APIs~processZclPostLoading(db) ⇒
+Promises to perform a post loading step.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise to deal with the post-loading cleanup.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..getDiscriminatorMap"></a>
+
+### Loader API: Loader APIs~getDiscriminatorMap(db, packageIds) ⇒
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: data type discriminator map  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| packageIds | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs"></a>
+
+## Loader API: Loader APIs
+This module provides the APIs for for common functionality related to loading.
+
+
+* [Loader API: Loader APIs](#module_Loader API_ Loader APIs)
+    * [~collectDataFromLibraryXml(ctx)](#module_Loader API_ Loader APIs..collectDataFromLibraryXml) ⇒
+    * [~tagContainsEnum(tag)](#module_Loader API_ Loader APIs..tagContainsEnum) ⇒
+    * [~tagContainsStruct(tag)](#module_Loader API_ Loader APIs..tagContainsStruct) ⇒
+    * [~tagContainsBitmap(tag)](#module_Loader API_ Loader APIs..tagContainsBitmap) ⇒
+    * [~parseSingleZclFile(db, ctx, file)](#module_Loader API_ Loader APIs..parseSingleZclFile) ⇒
+    * [~parseZclFiles(db, ctx)](#module_Loader API_ Loader APIs..parseZclFiles) ⇒
+    * [~normalizeHexValue(value)](#module_Loader API_ Loader APIs..normalizeHexValue) ⇒
+    * [~getNumBytesFromShortName(value)](#module_Loader API_ Loader APIs..getNumBytesFromShortName) ⇒
+    * [~prepareAttributes(attributes, side)](#module_Loader API_ Loader APIs..prepareAttributes) ⇒
+    * [~prepareCommands(commands, side, types)](#module_Loader API_ Loader APIs..prepareCommands) ⇒
+    * [~prepareCluster(cluster, isExtension, types)](#module_Loader API_ Loader APIs..prepareCluster) ⇒
+    * [~prepareAtomic(type)](#module_Loader API_ Loader APIs..prepareAtomic) ⇒
+    * [~prepareSubAtomic(type, atomics)](#module_Loader API_ Loader APIs..prepareSubAtomic) ⇒
+    * [~prepareBitmap(type, isContained)](#module_Loader API_ Loader APIs..prepareBitmap) ⇒
+    * [~prepareEnum(type)](#module_Loader API_ Loader APIs..prepareEnum) ⇒
+    * [~prepareStruct(type)](#module_Loader API_ Loader APIs..prepareStruct) ⇒
+    * [~prepareSubAtomicTypes(types)](#module_Loader API_ Loader APIs..prepareSubAtomicTypes)
+    * [~prepareTypes(zclTypes, types)](#module_Loader API_ Loader APIs..prepareTypes)
+    * [~prepareAttributeType(attribute, types, cluster)](#module_Loader API_ Loader APIs..prepareAttributeType)
+    * [~prepareDeviceType(deviceType)](#module_Loader API_ Loader APIs..prepareDeviceType) ⇒
+    * [~prepareDataTypeDiscriminator(a)](#module_Loader API_ Loader APIs..prepareDataTypeDiscriminator) ⇒
+    * [~processDataTypeDiscriminator(db, packageId, zclDataTypes)](#module_Loader API_ Loader APIs..processDataTypeDiscriminator) ⇒
+    * [~prepareDataType(a, dataType, typeMap)](#module_Loader API_ Loader APIs..prepareDataType) ⇒
+    * [~processDataType(db, filePath, packageId, data, dataType)](#module_Loader API_ Loader APIs..processDataType) ⇒
+    * [~prepareNumber(a, dataType)](#module_Loader API_ Loader APIs..prepareNumber) ⇒
+    * [~processNumber(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processNumber) ⇒
+    * [~prepareString(a, dataType)](#module_Loader API_ Loader APIs..prepareString) ⇒
+    * [~processString(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processString) ⇒
+    * [~prepareEnumsOrBitmaps(a, dataType)](#module_Loader API_ Loader APIs..prepareEnumsOrBitmaps) ⇒
+    * [~processEnums(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processEnums) ⇒
+    * [~processEnumItems(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processEnumItems) ⇒
+    * [~processBitmaps(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processBitmaps) ⇒
+    * [~processBitmapFields(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processBitmapFields) ⇒
+    * [~prepareStruct2(a, dataType)](#module_Loader API_ Loader APIs..prepareStruct2) ⇒
+    * [~processStruct(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processStruct) ⇒
+    * [~processStructItems(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processStructItems) ⇒
+    * [~prepareEnumsOrBitmapsAtomic(a, dataType)](#module_Loader API_ Loader APIs..prepareEnumsOrBitmapsAtomic) ⇒
+    * [~processEnumsFromAtomics(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processEnumsFromAtomics) ⇒
+    * [~processBitmapsFromAtomics(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processBitmapsFromAtomics) ⇒
+    * [~loadZclData(db, ctx)](#module_Loader API_ Loader APIs..loadZclData) ⇒
+    * [~loadIndividualDotDotFile(db, filePath)](#module_Loader API_ Loader APIs..loadIndividualDotDotFile) ⇒ <code>\*</code>
+    * [~loadToplevelXmlFile(db, ctx)](#module_Loader API_ Loader APIs..loadToplevelXmlFile) ⇒
+    * [~parseNewXmlFiles(db, packageId, files, context)](#module_Loader API_ Loader APIs..parseNewXmlFiles) ⇒
+    * [~prepXmlFeature(f)](#module_Loader API_ Loader APIs..prepXmlFeature) ⇒
+    * [~prepXmlAttribute(a)](#module_Loader API_ Loader APIs..prepXmlAttribute) ⇒
+    * [~prepXmlCommand(c)](#module_Loader API_ Loader APIs..prepXmlCommand) ⇒
+    * [~prepXmlEvent(e)](#module_Loader API_ Loader APIs..prepXmlEvent) ⇒
+    * [~parseSingleNewXmlFile(f)](#module_Loader API_ Loader APIs..parseSingleNewXmlFile) ⇒
+    * [~collectDataFromJsonFile(ctx)](#module_Loader API_ Loader APIs..collectDataFromJsonFile) ⇒
+    * [~collectDataFromPropertiesFile(ctx)](#module_Loader API_ Loader APIs..collectDataFromPropertiesFile) ⇒
+    * [~maskToType(mask)](#module_Loader API_ Loader APIs..maskToType) ⇒
+    * [~prepareAtomic(a)](#module_Loader API_ Loader APIs..prepareAtomic)
+    * [~processAtomics(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processAtomics) ⇒
+    * [~prepareClusterGlobalAttribute(cluster)](#module_Loader API_ Loader APIs..prepareClusterGlobalAttribute) ⇒
+    * [~extractAccessTag(ac)](#module_Loader API_ Loader APIs..extractAccessTag) ⇒
+    * [~extractAccessIntoArray(xmlElement)](#module_Loader API_ Loader APIs..extractAccessIntoArray) ⇒
+    * [~prepareCluster(cluster)](#module_Loader API_ Loader APIs..prepareCluster) ⇒
+    * [~processClusters(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processClusters) ⇒
+    * [~processClusterGlobalAttributes(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processClusterGlobalAttributes) ⇒
+    * [~processClusterExtensions(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processClusterExtensions) ⇒
+    * [~processGlobals(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processGlobals) ⇒
+    * [~prepareTag(tag)](#module_Loader API_ Loader APIs..prepareTag) ⇒
+    * [~processDefaultAccess(db, filePath, packageId, defaultAccessList)](#module_Loader API_ Loader APIs..processDefaultAccess)
+    * [~processAccessControl(db, filePath, packageId, accessControlList)](#module_Loader API_ Loader APIs..processAccessControl)
+    * [~processTags(db, filePath, packageId, tags)](#module_Loader API_ Loader APIs..processTags)
+    * [~prepareDomain(domain)](#module_Loader API_ Loader APIs..prepareDomain) ⇒
+    * [~processDomains(db, filePath, packageId, data)](#module_Loader API_ Loader APIs..processDomains) ⇒
+    * [~prepareDataTypeDiscriminator(a)](#module_Loader API_ Loader APIs..prepareDataTypeDiscriminator) ⇒
+    * [~processDataTypeDiscriminator(db, filePath, zclDataTypes)](#module_Loader API_ Loader APIs..processDataTypeDiscriminator) ⇒
+    * [~prepareDataType(a, dataType, typeMap)](#module_Loader API_ Loader APIs..prepareDataType) ⇒
+    * [~processDataType(db, filePath, packageId, knownPackages, data, dataType)](#module_Loader API_ Loader APIs..processDataType) ⇒
+    * [~prepareNumber(a, dataType)](#module_Loader API_ Loader APIs..prepareNumber) ⇒
+    * [~processNumber(db, filePath, packageId, knownPackages, data)](#module_Loader API_ Loader APIs..processNumber) ⇒
+    * [~prepareString(a, dataType)](#module_Loader API_ Loader APIs..prepareString) ⇒
+    * [~processString(db, filePath, packageId, knownPackages, data)](#module_Loader API_ Loader APIs..processString) ⇒
+    * [~prepareEnumOrBitmapAtomic(a, dataType)](#module_Loader API_ Loader APIs..prepareEnumOrBitmapAtomic) ⇒
+    * [~processEnumAtomic(db, filePath, packageId, knownPackages, data)](#module_Loader API_ Loader APIs..processEnumAtomic) ⇒
+    * [~prepareEnumOrBitmap(a, dataType)](#module_Loader API_ Loader APIs..prepareEnumOrBitmap) ⇒
+    * [~processEnum(db, filePath, packageId, knownPackages, data)](#module_Loader API_ Loader APIs..processEnum) ⇒
+    * [~processEnumItems(db, filePath, packageId, knownPackages, data)](#module_Loader API_ Loader APIs..processEnumItems) ⇒
+    * [~processBitmapAtomic(db, filePath, packageId, knownPackages, data)](#module_Loader API_ Loader APIs..processBitmapAtomic) ⇒
+    * [~processBitmap(db, filePath, packageId, knownPackages, data)](#module_Loader API_ Loader APIs..processBitmap) ⇒
+    * [~processBitmapFields(db, filePath, packageId, knownPackages, data)](#module_Loader API_ Loader APIs..processBitmapFields) ⇒
+    * [~prepareStruct(a, dataType)](#module_Loader API_ Loader APIs..prepareStruct) ⇒
+    * [~processStruct(db, filePath, packageId, knownPackages, data)](#module_Loader API_ Loader APIs..processStruct) ⇒
+    * [~processStructItems(db, filePath, packageIds, data)](#module_Loader API_ Loader APIs..processStructItems) ⇒
+    * [~prepareDeviceType(deviceType)](#module_Loader API_ Loader APIs..prepareDeviceType) ⇒ <code>Object</code>
+    * [~processDeviceTypes(db, filePath, packageId, data, context)](#module_Loader API_ Loader APIs..processDeviceTypes) ⇒ <code>Promise</code>
+    * [~processParsedZclData(db, argument)](#module_Loader API_ Loader APIs..processParsedZclData) ⇒
+    * [~parseSingleZclFile(db, packageId, file)](#module_Loader API_ Loader APIs..parseSingleZclFile) ⇒
+    * [~isCrcMismatchOrPackageDoesNotExist(db, packageId, files)](#module_Loader API_ Loader APIs..isCrcMismatchOrPackageDoesNotExist) ⇒
+    * [~parseZclFiles(db, packageId, zclFiles, context)](#module_Loader API_ Loader APIs..parseZclFiles) ⇒
+    * [~parseManufacturerData(db, ctx)](#module_Loader API_ Loader APIs..parseManufacturerData) ⇒
+    * [~parseProfilesData(db, ctx)](#module_Loader API_ Loader APIs..parseProfilesData) ⇒
+    * [~parseFeatureFlags(db, packageId, featureFlags)](#module_Loader API_ Loader APIs..parseFeatureFlags) ⇒
+    * [~parseConformanceFromXML(operand)](#module_Loader API_ Loader APIs..parseConformanceFromXML) ⇒
+    * [~parseConformanceRecursively(operand, depth, parentJoinChar)](#module_Loader API_ Loader APIs..parseConformanceRecursively) ⇒
+    * [~parseUiOptions(db, packageId, featureFlags)](#module_Loader API_ Loader APIs..parseUiOptions) ⇒
+    * [~parseOptions(db)](#module_Loader API_ Loader APIs..parseOptions) ⇒
+    * [~parseTextOptions(db, pkgRef, textOptions)](#module_Loader API_ Loader APIs..parseTextOptions) ⇒
+    * [~parseBoolOptions(db, pkgRef, booleanCategories)](#module_Loader API_ Loader APIs..parseBoolOptions) ⇒
+    * [~parseattributeAccessInterfaceAttributes(db, pkgRef, attributeAccessInterfaceAttributes)](#module_Loader API_ Loader APIs..parseattributeAccessInterfaceAttributes) ⇒ <code>Promise.&lt;void&gt;</code>
+    * [~parseDefaults(db, ctx)](#module_Loader API_ Loader APIs..parseDefaults) ⇒
+    * [~parseTextDefaults(db, pkgRef, textDefaults)](#module_Loader API_ Loader APIs..parseTextDefaults) ⇒
+    * [~parseBoolDefaults(db, pkgRef, booleanCategories)](#module_Loader API_ Loader APIs..parseBoolDefaults) ⇒
+    * [~loadIndividualSilabsFile(db, filePath)](#module_Loader API_ Loader APIs..loadIndividualSilabsFile) ⇒
+    * [~processCustomZclDeviceType(db, ctx)](#module_Loader API_ Loader APIs..processCustomZclDeviceType) ⇒
+    * [~loadZclJson(db, metafile)](#module_Loader API_ Loader APIs..loadZclJson) ⇒
+    * [~loadZclProperties(db, metafile)](#module_Loader API_ Loader APIs..loadZclProperties) ⇒
+    * [~loadZclJsonOrProperties(db, ctx)](#module_Loader API_ Loader APIs..loadZclJsonOrProperties) ⇒
+    * [~recordToplevelPackage(db, metadataFile, crc, isTopLevelPackageInSync)](#module_Loader API_ Loader APIs..recordToplevelPackage) ⇒
+    * [~recordVersion(db, ctx)](#module_Loader API_ Loader APIs..recordVersion)
+    * [~loadZclMetaFilesCommon(db, metadataFile, options)](#module_Loader API_ Loader APIs..loadZclMetaFilesCommon) ⇒
+    * [~loadAttributeMappingForMultiProtocol(db, multiProtcolInfo, categoryToPackageIdMap)](#module_Loader API_ Loader APIs..loadAttributeMappingForMultiProtocol)
+    * [~loadZclMetafiles(db, metadataFile)](#module_Loader API_ Loader APIs..loadZclMetafiles) ⇒
+    * [~loadZcl(db, metadataFile)](#module_Loader API_ Loader APIs..loadZcl) ⇒
+    * [~loadIndividualFile(db, filePath, sessionId)](#module_Loader API_ Loader APIs..loadIndividualFile)
+    * [~qualifyZclFile(db, info, parentPackageId, isCustom)](#module_Loader API_ Loader APIs..qualifyZclFile) ⇒
+    * [~processZclPostLoading(db)](#module_Loader API_ Loader APIs..processZclPostLoading) ⇒
+    * [~getDiscriminatorMap(db, packageIds)](#module_Loader API_ Loader APIs..getDiscriminatorMap) ⇒
+
+<a name="module_Loader API_ Loader APIs..collectDataFromLibraryXml"></a>
+
+### Loader API: Loader APIs~collectDataFromLibraryXml(ctx) ⇒
+Promises to read the properties file, extract all the actual xml files, and resolve with the array of files.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise of resolved files.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| ctx | <code>\*</code> | Context which contains information about the metadataFiles and data |
+
+<a name="module_Loader API_ Loader APIs..tagContainsEnum"></a>
+
+### Loader API: Loader APIs~tagContainsEnum(tag) ⇒
+Check if tag contains enum.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: boolean  
+
+| Param | Type |
+| --- | --- |
+| tag | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..tagContainsStruct"></a>
+
+### Loader API: Loader APIs~tagContainsStruct(tag) ⇒
+Check if tag contains struct.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: boolean  
+
+| Param | Type |
+| --- | --- |
+| tag | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..tagContainsBitmap"></a>
+
+### Loader API: Loader APIs~tagContainsBitmap(tag) ⇒
+Check if tag contains Bitmap.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: boolean  
+
+| Param | Type |
+| --- | --- |
+| tag | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..parseSingleZclFile"></a>
+
+### Loader API: Loader APIs~parseSingleZclFile(db, ctx, file) ⇒
+Parses ZCL xml file.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: empty array  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| ctx | <code>\*</code> | 
+| file | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..parseZclFiles"></a>
+
+### Loader API: Loader APIs~parseZclFiles(db, ctx) ⇒
+Promises to iterate over all the XML files and returns an aggregate promise
+that will be resolved when all the XML files are done, or rejected if at least one fails.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise that resolves when all the individual promises of each file pass.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| ctx | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..normalizeHexValue"></a>
+
+### Loader API: Loader APIs~normalizeHexValue(value) ⇒
+The Dotdot ZCL XML doesn't use the 0x prefix, but it's a nice thing to have and Silabs xml
+does use this so this helper function normalizes the use of hex
+
+TODO: Is this the right thing to do?
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Either the normalized hex string (with the 0x prefix) or the original  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| value | <code>\*</code> | the string value to be normalized |
+
+<a name="module_Loader API_ Loader APIs..getNumBytesFromShortName"></a>
+
+### Loader API: Loader APIs~getNumBytesFromShortName(value) ⇒
+The Dotdot ZCL XML doesn't have a length but it is embedded in the short name,
+we can scrape the value to get the size
+
+TODO: Is this the right thing to do?
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: size in bytes or 0 if the # of bytes could not be determined  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| value | <code>\*</code> | the string value to be scraped |
+
+<a name="module_Loader API_ Loader APIs..prepareAttributes"></a>
+
+### Loader API: Loader APIs~prepareAttributes(attributes, side) ⇒
+Prepare XML attributes for entry into the DB
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Array containing all data from XML ready to be inserted into the DB.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| attributes | <code>\*</code> | an array of attributes |
+| side | <code>\*</code> | the side the attribute is on either "client" or "server" |
+
+<a name="module_Loader API_ Loader APIs..prepareCommands"></a>
+
+### Loader API: Loader APIs~prepareCommands(commands, side, types) ⇒
+Prepare XML commands for entry into the DB
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Array containing all data from XML ready to be inserted in to the DB.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| commands | <code>\*</code> | an array of commands |
+| side | <code>\*</code> | the side the command is on either "client" or "server" |
+| types | <code>\*</code> | contained for types, where bitmaps are going to be inserted. |
+
+<a name="module_Loader API_ Loader APIs..prepareCluster"></a>
+
+### Loader API: Loader APIs~prepareCluster(cluster, isExtension, types) ⇒
+Prepare XML cluster for insertion into the database.
+This method can also prepare clusterExtensions.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Object containing all data from XML.  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| cluster | <code>\*</code> |  |  |
+| isExtension | <code>\*</code> | <code>false</code> | if this is an extension or not (there are none in dotdot xml) |
+| types | <code>\*</code> |  | types object into which cluster can put types it might have |
+
+<a name="module_Loader API_ Loader APIs..prepareAtomic"></a>
+
+### Loader API: Loader APIs~prepareAtomic(type) ⇒
+Parses xml type into the atomic object for insertion into the DB
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: object ready for insertion into the DB  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| type | <code>\*</code> | an xml object which conforms to the atomic format in the dotdot xml |
+
+<a name="module_Loader API_ Loader APIs..prepareSubAtomic"></a>
+
+### Loader API: Loader APIs~prepareSubAtomic(type, atomics) ⇒
+Parses xml type into the sub-atomic object for insertion into the DB
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: object ready for insertion into the DB  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| type | <code>\*</code> | an xml object which conforms to the sub-atomic format in the dotdot xml |
+| atomics | <code>\*</code> | an array of atomic types |
+
+<a name="module_Loader API_ Loader APIs..prepareBitmap"></a>
+
+### Loader API: Loader APIs~prepareBitmap(type, isContained) ⇒
+Parses xml type into the bitmap object for insertion into the DB
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: object ready for insertion into the DB  
+
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| type | <code>\*</code> |  | an xml object which conforms to the bitmap format in the dotdot xml |
+| isContained | <code>\*</code> | <code>false</code> | a boolean indicating if this is coming from a contained tag or not |
+
+<a name="module_Loader API_ Loader APIs..prepareEnum"></a>
+
+### Loader API: Loader APIs~prepareEnum(type) ⇒
+Parses xml type into the enum object for insertion into the DB
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: object ready for insertion into the DB  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| type | <code>\*</code> | an xml object which conforms to the enum format in the dotdot xml |
+
+<a name="module_Loader API_ Loader APIs..prepareStruct"></a>
+
+### Loader API: Loader APIs~prepareStruct(type) ⇒
+Parses xml type into the struct object for insertion into the DB
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: object ready for insertion into the DB  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| type | <code>\*</code> | an xml object which conforms to the struct format in the dotdot xml |
+
+<a name="module_Loader API_ Loader APIs..prepareSubAtomicTypes"></a>
+
+### Loader API: Loader APIs~prepareSubAtomicTypes(types)
+Parses array of xml objects that conform to the sub-atomic format in the dotdot xml
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+
+| Param | Type |
+| --- | --- |
+| types | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..prepareTypes"></a>
+
+### Loader API: Loader APIs~prepareTypes(zclTypes, types)
+Parses xml types into the types object for insertion into the DB
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| zclTypes | <code>\*</code> | an array of xml types |
+| types | <code>\*</code> | an object which includes arrays for enums, bitmaps etc... |
+
+<a name="module_Loader API_ Loader APIs..prepareAttributeType"></a>
+
+### Loader API: Loader APIs~prepareAttributeType(attribute, types, cluster)
+Parses xml types into the types object for insertion into the DB
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| attribute | <code>\*</code> | an attribute with the type in it |
+| types | <code>\*</code> | an object which includes arrays for enums, bitmaps etc... |
+| cluster | <code>\*</code> | the cluster that the attribute belongs to (used presently for uniqueness of the type name) |
+
+<a name="module_Loader API_ Loader APIs..prepareDeviceType"></a>
+
+### Loader API: Loader APIs~prepareDeviceType(deviceType) ⇒
+Preparation step for the device types.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: an object containing the prepared device types.  
+
+| Param | Type |
+| --- | --- |
+| deviceType | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..prepareDataTypeDiscriminator"></a>
+
+### Loader API: Loader APIs~prepareDataTypeDiscriminator(a) ⇒
+Prepare Data Type Discriminator for database table insertion.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: An Object  
+
+| Param | Type |
+| --- | --- |
+| a | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processDataTypeDiscriminator"></a>
+
+### Loader API: Loader APIs~processDataTypeDiscriminator(db, packageId, zclDataTypes) ⇒
+Processes Data Type Discriminator.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise of inserted Data Type Discriminators.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| zclDataTypes | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..prepareDataType"></a>
+
+### Loader API: Loader APIs~prepareDataType(a, dataType, typeMap) ⇒
+Prepare Data Types for database table insertion.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: An Object  
+
+| Param | Type |
+| --- | --- |
+| a | <code>\*</code> | 
+| dataType | <code>\*</code> | 
+| typeMap | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processDataType"></a>
+
+### Loader API: Loader APIs~processDataType(db, filePath, packageId, data, dataType) ⇒
+Processes Data Type.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise of inserted Data Types into the Data Type table.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| data | <code>\*</code> | 
+| dataType | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..prepareNumber"></a>
+
+### Loader API: Loader APIs~prepareNumber(a, dataType) ⇒
+Prepare numbers for database table insertion.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: An Object  
+
+| Param | Type |
+| --- | --- |
+| a | <code>\*</code> | 
+| dataType | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processNumber"></a>
+
+### Loader API: Loader APIs~processNumber(db, filePath, packageId, data) ⇒
+Processes Numbers.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise of inserted numbers into the number table.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| data | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..prepareString"></a>
+
+### Loader API: Loader APIs~prepareString(a, dataType) ⇒
+Prepare strings for database table insertion.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: An Object  
+
+| Param | Type |
+| --- | --- |
+| a | <code>\*</code> | 
+| dataType | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processString"></a>
+
+### Loader API: Loader APIs~processString(db, filePath, packageId, data) ⇒
+Processes Strings.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise of inserted strings into the String table.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| data | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..prepareEnumsOrBitmaps"></a>
+
+### Loader API: Loader APIs~prepareEnumsOrBitmaps(a, dataType) ⇒
+Prepare enums or bitmaps for database table insertion.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: An Object  
+
+| Param | Type |
+| --- | --- |
+| a | <code>\*</code> | 
+| dataType | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processEnums"></a>
+
+### Loader API: Loader APIs~processEnums(db, filePath, packageId, data) ⇒
+Processes the enums.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: A promise of inserted enums.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| data | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processEnumItems"></a>
+
+### Loader API: Loader APIs~processEnumItems(db, filePath, packageId, data) ⇒
+Processes the enum Items.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: A promise of inserted enum items.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| data | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processBitmaps"></a>
+
+### Loader API: Loader APIs~processBitmaps(db, filePath, packageId, data) ⇒
+Processes the bitmaps.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: A promise of inserted bitmaps.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| data | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processBitmapFields"></a>
+
+### Loader API: Loader APIs~processBitmapFields(db, filePath, packageId, data) ⇒
+Processes the bitmap fields.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: A promise of inserted bitmap fields.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| data | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..prepareStruct2"></a>
+
+### Loader API: Loader APIs~prepareStruct2(a, dataType) ⇒
+Prepare structs for database table insertion.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: An Object  
+
+| Param | Type |
+| --- | --- |
+| a | <code>\*</code> | 
+| dataType | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processStruct"></a>
+
+### Loader API: Loader APIs~processStruct(db, filePath, packageId, data) ⇒
+Processes the structs.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: A promise of inserted structs.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| data | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processStructItems"></a>
+
+### Loader API: Loader APIs~processStructItems(db, filePath, packageId, data) ⇒
+Processes the struct Items.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: A promise of inserted struct items.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| data | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..prepareEnumsOrBitmapsAtomic"></a>
+
+### Loader API: Loader APIs~prepareEnumsOrBitmapsAtomic(a, dataType) ⇒
+Prepare enums or bitmaps for database table insertion.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: An Object  
+
+| Param | Type |
+| --- | --- |
+| a | <code>\*</code> | 
+| dataType | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processEnumsFromAtomics"></a>
+
+### Loader API: Loader APIs~processEnumsFromAtomics(db, filePath, packageId, data) ⇒
+Processes the enums.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: A promise of inserted enums.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| data | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processBitmapsFromAtomics"></a>
+
+### Loader API: Loader APIs~processBitmapsFromAtomics(db, filePath, packageId, data) ⇒
+Processes the bitmaps.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: A promise of inserted bitmaps.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| data | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..loadZclData"></a>
+
+### Loader API: Loader APIs~loadZclData(db, ctx) ⇒
+Promises to iterate over all the XML files and returns an aggregate promise
+that will be resolved when all the XML files are done, or rejected if at least one fails.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise that resolves when all the individual promises of each file pass.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| ctx | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..loadIndividualDotDotFile"></a>
+
+### Loader API: Loader APIs~loadIndividualDotDotFile(db, filePath) ⇒ <code>\*</code>
+TODO This is not supported at this time.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: <code>\*</code> - object w/ following: { packageId: pkgId } or { err: err }  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..loadToplevelXmlFile"></a>
+
+### Loader API: Loader APIs~loadToplevelXmlFile(db, ctx) ⇒
+Toplevel function that loads the xml library file
+and orchestrates the promise chain.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: a Promise that resolves with the db.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| db | <code>\*</code> |  |
+| ctx | <code>\*</code> | Context of loading. |
+
+<a name="module_Loader API_ Loader APIs..parseNewXmlFiles"></a>
+
+### Loader API: Loader APIs~parseNewXmlFiles(db, packageId, files, context) ⇒
+Parses the new XML files. Returns an object containing
+loaded data:
+   clusterIdsLoaded: array of cluster ids that were loaded
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise that resolves when all the new XML data is loaded.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| files | <code>\*</code> | 
+| context | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..prepXmlFeature"></a>
+
+### Loader API: Loader APIs~prepXmlFeature(f) ⇒
+Prepare features from xml.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: feature information  
+
+| Param | Type |
+| --- | --- |
+| f | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..prepXmlAttribute"></a>
+
+### Loader API: Loader APIs~prepXmlAttribute(a) ⇒
+Prepare attributes from xml.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: attribute information  
+
+| Param | Type |
+| --- | --- |
+| a | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..prepXmlCommand"></a>
+
+### Loader API: Loader APIs~prepXmlCommand(c) ⇒
+Prepare commands from xml.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: command information  
+
+| Param | Type |
+| --- | --- |
+| c | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..prepXmlEvent"></a>
+
+### Loader API: Loader APIs~prepXmlEvent(e) ⇒
+Prepare events from xml
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: event information  
+
+| Param | Type |
+| --- | --- |
+| e | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..parseSingleNewXmlFile"></a>
+
+### Loader API: Loader APIs~parseSingleNewXmlFile(f) ⇒
+Parse xml file.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: xml information from file  
+
+| Param | Type |
+| --- | --- |
+| f | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..collectDataFromJsonFile"></a>
+
+### Loader API: Loader APIs~collectDataFromJsonFile(ctx) ⇒
+Promises to read the JSON file and resolve all the data.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise of resolved file.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| ctx | <code>\*</code> | Context containing information about the file |
+
+<a name="module_Loader API_ Loader APIs..collectDataFromPropertiesFile"></a>
+
+### Loader API: Loader APIs~collectDataFromPropertiesFile(ctx) ⇒
+Promises to read the properties file, extract all the actual xml files, and resolve with the array of files.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise of resolved files.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| ctx | <code>\*</code> | Context which contains information about the propertiesFiles and data |
+
+<a name="module_Loader API_ Loader APIs..maskToType"></a>
+
+### Loader API: Loader APIs~maskToType(mask) ⇒
+Silabs XML does not carry types with bitmap fields, but dotdot does, so they are in the schema.
+Just to put some data in, we differentiate between "bool" and "enum" types here.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: bool or corresponding enum  
+
+| Param | Type |
+| --- | --- |
+| mask | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..prepareAtomic"></a>
+
+### Loader API: Loader APIs~prepareAtomic(a)
+Prepare atomic to db insertion.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+
+| Param | Type |
+| --- | --- |
+| a | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processAtomics"></a>
+
+### Loader API: Loader APIs~processAtomics(db, filePath, packageId, data) ⇒
+Processes atomic types for DB insertion.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise of inserted bitmaps  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| data | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..prepareClusterGlobalAttribute"></a>
+
+### Loader API: Loader APIs~prepareClusterGlobalAttribute(cluster) ⇒
+Prepares global attribute data.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Object containing the data from XML.  
+
+| Param | Type |
+| --- | --- |
+| cluster | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..extractAccessTag"></a>
+
+### Loader API: Loader APIs~extractAccessTag(ac) ⇒
+Extract access information
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: access tag information  
+
+| Param | Type |
+| --- | --- |
+| ac | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..extractAccessIntoArray"></a>
+
+### Loader API: Loader APIs~extractAccessIntoArray(xmlElement) ⇒
+Extract list of access information
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: array of access information  
+
+| Param | Type |
+| --- | --- |
+| xmlElement | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..prepareCluster"></a>
+
+### Loader API: Loader APIs~prepareCluster(cluster) ⇒
+Prepare XML cluster for insertion into the database.
+This method can also prepare clusterExtensions.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Object containing all data from XML.  
+
+| Param | Type |
+| --- | --- |
+| cluster | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processClusters"></a>
+
+### Loader API: Loader APIs~processClusters(db, filePath, packageId, data) ⇒
+Process clusters for insertion into the database.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise of cluster insertion.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| data | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processClusterGlobalAttributes"></a>
+
+### Loader API: Loader APIs~processClusterGlobalAttributes(db, filePath, packageId, data) ⇒
+Processes global attributes for insertion into the database.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise of inserted data.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| data | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processClusterExtensions"></a>
+
+### Loader API: Loader APIs~processClusterExtensions(db, filePath, packageId, data) ⇒
+Cluster Extension contains attributes and commands in a same way as regular cluster,
+and it has an attribute code="0xXYZ" where code is a cluster code.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: promise to resolve the clusterExtension tags  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| data | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processGlobals"></a>
+
+### Loader API: Loader APIs~processGlobals(db, filePath, packageId, data) ⇒
+Processes the globals in the XML files. The `global` tag contains
+attributes and commands in a same way as cluster or clusterExtension
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: promise to resolve the globals  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| data | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..prepareTag"></a>
+
+### Loader API: Loader APIs~prepareTag(tag) ⇒
+Prepare tag object from tag
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: tag information  
+
+| Param | Type |
+| --- | --- |
+| tag | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processDefaultAccess"></a>
+
+### Loader API: Loader APIs~processDefaultAccess(db, filePath, packageId, defaultAccessList)
+Process defaultAccess tag in the XML.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| defaultAccessList | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processAccessControl"></a>
+
+### Loader API: Loader APIs~processAccessControl(db, filePath, packageId, accessControlList)
+Process accessControl tag in the XML.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| accessControlList | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processTags"></a>
+
+### Loader API: Loader APIs~processTags(db, filePath, packageId, tags)
+Processes the tags in the XML.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| tags | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..prepareDomain"></a>
+
+### Loader API: Loader APIs~prepareDomain(domain) ⇒
+Convert domain from XMl to domain for DB.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Domain object for DB.  
+
+| Param | Type |
+| --- | --- |
+| domain | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processDomains"></a>
+
+### Loader API: Loader APIs~processDomains(db, filePath, packageId, data) ⇒
+Process domains for insertion.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise of database insertion of domains.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| data | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..prepareDataTypeDiscriminator"></a>
+
+### Loader API: Loader APIs~prepareDataTypeDiscriminator(a) ⇒
+Prepare Data Type Discriminator for database table insertion.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: An Object  
+
+| Param | Type |
+| --- | --- |
+| a | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processDataTypeDiscriminator"></a>
+
+### Loader API: Loader APIs~processDataTypeDiscriminator(db, filePath, zclDataTypes) ⇒
+Processes Data Type Discriminator.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise of inserted Data Type Discriminators.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| zclDataTypes | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..prepareDataType"></a>
+
+### Loader API: Loader APIs~prepareDataType(a, dataType, typeMap) ⇒
+Prepare Data Types for database table insertion.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: An Object  
+
+| Param | Type |
+| --- | --- |
+| a | <code>\*</code> | 
+| dataType | <code>\*</code> | 
+| typeMap | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processDataType"></a>
+
+### Loader API: Loader APIs~processDataType(db, filePath, packageId, knownPackages, data, dataType) ⇒
+Processes Data Type.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise of inserted Data Types into the Data Type table.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| knownPackages | <code>\*</code> | 
+| data | <code>\*</code> | 
+| dataType | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..prepareNumber"></a>
+
+### Loader API: Loader APIs~prepareNumber(a, dataType) ⇒
+Prepare numbers for database table insertion.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: An Object  
+
+| Param | Type |
+| --- | --- |
+| a | <code>\*</code> | 
+| dataType | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processNumber"></a>
+
+### Loader API: Loader APIs~processNumber(db, filePath, packageId, knownPackages, data) ⇒
+Processes Numbers.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise of inserted numbers into the number table.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| knownPackages | <code>\*</code> | 
+| data | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..prepareString"></a>
+
+### Loader API: Loader APIs~prepareString(a, dataType) ⇒
+Prepare strings for database table insertion.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: An Object  
+
+| Param | Type |
+| --- | --- |
+| a | <code>\*</code> | 
+| dataType | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processString"></a>
+
+### Loader API: Loader APIs~processString(db, filePath, packageId, knownPackages, data) ⇒
+Processes Strings.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise of inserted strings into the String table.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| knownPackages | <code>\*</code> | 
+| data | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..prepareEnumOrBitmapAtomic"></a>
+
+### Loader API: Loader APIs~prepareEnumOrBitmapAtomic(a, dataType) ⇒
+Prepare enums or bitmaps for database table insertion.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: An Object  
+
+| Param | Type |
+| --- | --- |
+| a | <code>\*</code> | 
+| dataType | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processEnumAtomic"></a>
+
+### Loader API: Loader APIs~processEnumAtomic(db, filePath, packageId, knownPackages, data) ⇒
+Processes the enums.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: A promise of inserted enums.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| knownPackages | <code>\*</code> | 
+| data | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..prepareEnumOrBitmap"></a>
+
+### Loader API: Loader APIs~prepareEnumOrBitmap(a, dataType) ⇒
+Prepare enums or bitmaps for database table insertion.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: An Object  
+
+| Param | Type |
+| --- | --- |
+| a | <code>\*</code> | 
+| dataType | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processEnum"></a>
+
+### Loader API: Loader APIs~processEnum(db, filePath, packageId, knownPackages, data) ⇒
+Processes the enums.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: A promise of inserted enums.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| knownPackages | <code>\*</code> | 
+| data | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processEnumItems"></a>
+
+### Loader API: Loader APIs~processEnumItems(db, filePath, packageId, knownPackages, data) ⇒
+Processes the enum Items.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: A promise of inserted enum items.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| knownPackages | <code>\*</code> | 
+| data | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processBitmapAtomic"></a>
+
+### Loader API: Loader APIs~processBitmapAtomic(db, filePath, packageId, knownPackages, data) ⇒
+Processes the bitmaps.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: A promise of inserted bitmaps.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| knownPackages | <code>\*</code> | 
+| data | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processBitmap"></a>
+
+### Loader API: Loader APIs~processBitmap(db, filePath, packageId, knownPackages, data) ⇒
+Processes the bitmaps.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: A promise of inserted bitmaps.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| knownPackages | <code>\*</code> | 
+| data | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processBitmapFields"></a>
+
+### Loader API: Loader APIs~processBitmapFields(db, filePath, packageId, knownPackages, data) ⇒
+Processes the bitmap fields.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: A promise of inserted bitmap fields.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| knownPackages | <code>\*</code> | 
+| data | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..prepareStruct"></a>
+
+### Loader API: Loader APIs~prepareStruct(a, dataType) ⇒
+Prepare structs for database table insertion.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: An Object  
+
+| Param | Type |
+| --- | --- |
+| a | <code>\*</code> | 
+| dataType | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processStruct"></a>
+
+### Loader API: Loader APIs~processStruct(db, filePath, packageId, knownPackages, data) ⇒
+Processes the structs.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: A promise of inserted structs.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| knownPackages | <code>\*</code> | 
+| data | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processStructItems"></a>
+
+### Loader API: Loader APIs~processStructItems(db, filePath, packageIds, data) ⇒
+Processes the struct Items.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: A promise of inserted struct items.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageIds | <code>\*</code> | 
+| data | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..prepareDeviceType"></a>
+
+### Loader API: Loader APIs~prepareDeviceType(deviceType) ⇒ <code>Object</code>
+Prepares a device type object by extracting and transforming its properties.
+
+This function takes a device type object and processes its properties to create
+a new object with a specific structure. It handles various properties such as
+device ID, profile ID, domain, name, description, class, scope, and superset.
+Additionally, it processes endpoint compositions and clusters if they exist.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: <code>Object</code> - The prepared device type object with transformed properties.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| deviceType | <code>Object</code> | The device type object to be prepared. |
+
+<a name="module_Loader API_ Loader APIs..processDeviceTypes"></a>
+
+### Loader API: Loader APIs~processDeviceTypes(db, filePath, packageId, data, context) ⇒ <code>Promise</code>
+Processes and inserts device types into the database.
+This function logs the number of device types being processed for debugging purposes.
+It maps over the provided data to prepare each device type and then iterates over each prepared device type.
+If a device type has a compositionType, it inserts the endpoint composition into the database,
+retrieves the endpoint composition ID, and then inserts the device composition.
+Finally, it inserts all prepared device types into the database.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: <code>Promise</code> - A promise that resolves after all device types have been inserted into the database.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| db | <code>\*</code> | The database connection object. |
+| filePath | <code>string</code> | The file path from which the device types are being processed. |
+| packageId | <code>\*</code> | The package ID associated with the device types. |
+| data | <code>Array</code> | The array of device types to be processed. |
+| context | <code>\*</code> | Additional context that might be required for processing. |
+
+<a name="module_Loader API_ Loader APIs..processParsedZclData"></a>
+
+### Loader API: Loader APIs~processParsedZclData(db, argument) ⇒
+After XML parser is done with the barebones parsing, this function
+branches the individual toplevel tags.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: promise that resolves when all the subtags are parsed.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| argument | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..parseSingleZclFile"></a>
+
+### Loader API: Loader APIs~parseSingleZclFile(db, packageId, file) ⇒
+This function is used for parsing each individual ZCL file at a grouped zcl file package level.
+This should _not_ be used for custom XML addition due to custom xmls potentially relying on existing packges.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: A promise for when the last stage of the loading pipeline finishes.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| file | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..isCrcMismatchOrPackageDoesNotExist"></a>
+
+### Loader API: Loader APIs~isCrcMismatchOrPackageDoesNotExist(db, packageId, files) ⇒
+Checks if there is a crc mismatch on any xml file. This can be used to
+decide if there is a need to reload all the xml files. Also check if the
+package is not loaded before.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: the status of crc mismatch and whether a package is present in an
+object  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| files | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..parseZclFiles"></a>
+
+### Loader API: Loader APIs~parseZclFiles(db, packageId, zclFiles, context) ⇒
+Promises to iterate over all the XML files and returns an aggregate promise
+that will be resolved when all the XML files are done, or rejected if at least one fails.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise that resolves when all the individual promises of each file pass.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| zclFiles | <code>\*</code> | 
+| context | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..parseManufacturerData"></a>
+
+### Loader API: Loader APIs~parseManufacturerData(db, ctx) ⇒
+Parses the manufacturers xml.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise of a parsed manufacturers file.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| ctx | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..parseProfilesData"></a>
+
+### Loader API: Loader APIs~parseProfilesData(db, ctx) ⇒
+Parses the profiles xml.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise of a parsed profiles file.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| ctx | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..parseFeatureFlags"></a>
+
+### Loader API: Loader APIs~parseFeatureFlags(db, packageId, featureFlags) ⇒
+Inside the `zcl.json` can be a `featureFlags` key, which is
+a general purpose object. It contains keys, that map to objects.
+Each key is a "package option category".
+Key/velues of the object itself, end up in CODE/LABEL combinations.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: array of feature flags  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| featureFlags | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..parseConformanceFromXML"></a>
+
+### Loader API: Loader APIs~parseConformanceFromXML(operand) ⇒
+Parses conformance from XML data.
+The conformance could come from features, attributes, commands, or events
+
+Call recursive helper function to parse conformance only if the conformance exists.
+Otherwise, return empty string directly
+
+An example of parsing the conformance of 'User' device type feature:
+
+Input operand from xml data:
+{
+  "$": {"code": "USR", "name": "User"},
+  "mandatoryConform": [
+     { "andTerm": [
+          {
+            "condition": [{"$": {"name": "Matter"}}],
+            "orTerm": [
+                { "feature": [
+                     { "$": {"name": "PIN"}},
+                     { "$": {"name": "RID"}},
+                     { "$": {"name": "FGP"}},
+                     { "$": {"name": "FACE"}}
+                  ]
+                }
+              ]
+           }
+         ]
+       }
+   ]
+}
+
+Output conformance string:
+ "Matter & (PIN | RID | FGP | FACE)"
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: The conformance string  
+
+| Param | Type |
+| --- | --- |
+| operand | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..parseConformanceRecursively"></a>
+
+### Loader API: Loader APIs~parseConformanceRecursively(operand, depth, parentJoinChar) ⇒
+helper function to parse conformance or an operand in conformance recursively
+
+The baseLevelTerms variable include terms that can not have nested terms.
+When they appear, stop recursing and return the name inside directly
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: The conformance string.  
+
+| Param | Type | Default |
+| --- | --- | --- |
+| operand | <code>\*</code> |  | 
+| depth | <code>\*</code> | <code>0</code> | 
+| parentJoinChar | <code>\*</code> |  | 
+
+<a name="module_Loader API_ Loader APIs..parseUiOptions"></a>
+
+### Loader API: Loader APIs~parseUiOptions(db, packageId, featureFlags) ⇒
+Inside the `zcl.json` can be a `featureFlags` key, which is
+a general purpose object. It contains keys, that map to objects.
+Each key is a "package option category".
+Key/velues of the object itself, end up in CODE/LABEL combinations.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise that loads the uiOptions object into the database.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| featureFlags | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..parseOptions"></a>
+
+### Loader API: Loader APIs~parseOptions(db) ⇒
+Parses and loads the text and boolean options.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: promise of parsed options  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..parseTextOptions"></a>
+
+### Loader API: Loader APIs~parseTextOptions(db, pkgRef, textOptions) ⇒
+Parses the text options.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise of a parsed text options.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| pkgRef | <code>\*</code> | 
+| textOptions | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..parseBoolOptions"></a>
+
+### Loader API: Loader APIs~parseBoolOptions(db, pkgRef, booleanCategories) ⇒
+Parses the boolean options.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise of a parsed boolean options.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| pkgRef | <code>\*</code> | 
+| booleanCategories | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..parseattributeAccessInterfaceAttributes"></a>
+
+### Loader API: Loader APIs~parseattributeAccessInterfaceAttributes(db, pkgRef, attributeAccessInterfaceAttributes) ⇒ <code>Promise.&lt;void&gt;</code>
+Asynchronously parses and inserts attribute access interface attributes into the database.
+This function iterates over the attributeAccessInterfaceAttributes object, processing each cluster
+by mapping its values to a specific structure and then inserting them into the database using
+the insertOptionsKeyValues function.
+
+The main purpose of this function is to store cluster/attribute pairs including global attributes and their cluster pair
+The ATTRIBUTE table has cluster_ref as null for global attributes so this second method was necessary
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: <code>Promise.&lt;void&gt;</code> - A promise that resolves when all attributes have been processed and inserted.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| db | <code>\*</code> | The database connection object. |
+| pkgRef | <code>\*</code> | The package reference id for which the attributes are being parsed. |
+| attributeAccessInterfaceAttributes | <code>\*</code> | An object containing the attribute access interface attributes,                                                  structured by cluster. |
+
+<a name="module_Loader API_ Loader APIs..parseDefaults"></a>
+
+### Loader API: Loader APIs~parseDefaults(db, ctx) ⇒
+Parses the default values inside the options.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promised of parsed text and bool defaults.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| ctx | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..parseTextDefaults"></a>
+
+### Loader API: Loader APIs~parseTextDefaults(db, pkgRef, textDefaults) ⇒
+Parse text defaults from default options.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Array of promises  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| pkgRef | <code>\*</code> | 
+| textDefaults | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..parseBoolDefaults"></a>
+
+### Loader API: Loader APIs~parseBoolDefaults(db, pkgRef, booleanCategories) ⇒
+Parse the boolean defaults inside options.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: List of promises  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| pkgRef | <code>\*</code> | 
+| booleanCategories | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..loadIndividualSilabsFile"></a>
+
+### Loader API: Loader APIs~loadIndividualSilabsFile(db, filePath) ⇒
+Parses a single file. This function is used specifically
+for adding a package through an existing session because of its reliance
+on relating the new XML content to the packages associated with that session.
+e.g. for ClusterExtensions.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise of a loaded file.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processCustomZclDeviceType"></a>
+
+### Loader API: Loader APIs~processCustomZclDeviceType(db, ctx) ⇒
+If custom device is supported, then this method creates it.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: context  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| ctx | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..loadZclJson"></a>
+
+### Loader API: Loader APIs~loadZclJson(db, metafile) ⇒
+Load ZCL metadata
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise of loaded zcl json file  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| metafile | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..loadZclProperties"></a>
+
+### Loader API: Loader APIs~loadZclProperties(db, metafile) ⇒
+Load ZCL metadata
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise of loaded zcl properties file  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| metafile | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..loadZclJsonOrProperties"></a>
+
+### Loader API: Loader APIs~loadZclJsonOrProperties(db, ctx) ⇒
+Toplevel function that loads the toplevel metafile
+and orchestrates the promise chain.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: a Promise that resolves with the db.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| db | <code>\*</code> |  |
+| ctx | <code>\*</code> | The context of loading. |
+
+<a name="module_Loader API_ Loader APIs..recordToplevelPackage"></a>
+
+### Loader API: Loader APIs~recordToplevelPackage(db, metadataFile, crc, isTopLevelPackageInSync) ⇒
+Records the toplevel package information and resolves into packageId
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: packageId  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| metadataFile | <code>\*</code> | 
+| crc | <code>\*</code> | 
+| isTopLevelPackageInSync | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..recordVersion"></a>
+
+### Loader API: Loader APIs~recordVersion(db, ctx)
+Records the version into the database.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| ctx | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..loadZclMetaFilesCommon"></a>
+
+### Loader API: Loader APIs~loadZclMetaFilesCommon(db, metadataFile, options) ⇒
+Retrieve zcl package information
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: package zcl package information  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| metadataFile | <code>\*</code> | 
+| options | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..loadAttributeMappingForMultiProtocol"></a>
+
+### Loader API: Loader APIs~loadAttributeMappingForMultiProtocol(db, multiProtcolInfo, categoryToPackageIdMap)
+Load attribute mapping table if there is multi-protocol information from a json file.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| multiProtcolInfo | <code>\*</code> | 
+| categoryToPackageIdMap | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..loadZclMetafiles"></a>
+
+### Loader API: Loader APIs~loadZclMetafiles(db, metadataFile) ⇒
+Toplevel function that loads the zcl file and passes it off to the correct zcl loader.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Array of loaded packageIds.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| db | <code>\*</code> |  |
+| metadataFile | <code>\*</code> | array of paths |
+
+<a name="module_Loader API_ Loader APIs..loadZcl"></a>
+
+### Loader API: Loader APIs~loadZcl(db, metadataFile) ⇒
+Loads individual zcl.json metafile.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Context object that contains .db and .packageId  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| metadataFile | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..loadIndividualFile"></a>
+
+### Loader API: Loader APIs~loadIndividualFile(db, filePath, sessionId)
+Load individual custom XML files.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| db | <code>\*</code> |  |
+| filePath | <code>\*</code> |  |
+| sessionId | <code>\*</code> | Current session within which we're loading this file. |
+
+<a name="module_Loader API_ Loader APIs..qualifyZclFile"></a>
+
+### Loader API: Loader APIs~qualifyZclFile(db, info, parentPackageId, isCustom) ⇒
+Promises to qualify whether zcl file needs to be reloaded.
+If yes, the it will resolve with {filePath, data, packageId}
+If not, then it will resolve with {error}
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise that resolves int he object of data.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| info | <code>\*</code> | 
+| parentPackageId | <code>\*</code> | 
+| isCustom | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processZclPostLoading"></a>
+
+### Loader API: Loader APIs~processZclPostLoading(db) ⇒
+Promises to perform a post loading step.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise to deal with the post-loading cleanup.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..getDiscriminatorMap"></a>
+
+### Loader API: Loader APIs~getDiscriminatorMap(db, packageIds) ⇒
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: data type discriminator map  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| packageIds | <code>\*</code> | 
 

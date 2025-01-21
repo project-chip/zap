@@ -286,16 +286,6 @@ export default defineComponent({
         this.$store.dispatch('zap/setStandalone', query['standalone'])
       }
 
-      if (`setSaveButtonVisible` in query) {
-        this.$store.dispatch(
-          'zap/setSaveButtonVisible',
-          query[`setSaveButtonVisible`] === 'true'
-        )
-      } else {
-        // If we don't specify it, default is off.
-        this.$store.dispatch('zap/setSaveButtonVisible', false)
-      }
-
       this.zclDialogTitle = 'ZCL tab!'
       this.zclDialogText =
         'Welcome to ZCL tab. This is just a test of a dialog.'
