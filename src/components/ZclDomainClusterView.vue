@@ -241,9 +241,9 @@ export default {
   props: ['domainName', 'clusters'],
   mixins: [CommonMixin, uiOptions],
   computed: {
-    showStatus: {
+    isInStandalone: {
       get() {
-        return !this.$store.state.zap.standalone
+        return this.$store.state.zap.standalone
       }
     },
     recommendedClients: {
@@ -258,8 +258,6 @@ export default {
     },
     visibleColumns: function () {
       let names = this.columns.map((x) => x.name)
-
-      // show/hide 'status' column depending on this.showStatus
       let statusColumn = 'status'
       let statusShown = names.indexOf(statusColumn) > -1
       if (this.hasWarning() && !statusShown) {
@@ -301,11 +299,8 @@ export default {
         ])
       })
     },
-    toggleStatus: function () {
-      this.showStatus = !this.showStatus
-    },
     hasWarning: function () {
-      return this.showStatus || this.isAnyRequiredClusterNotEnabled()
+      return !this.isInStandalone || this.isAnyRequiredClusterNotEnabled()
     },
     missingClusterMessage(clusterData) {
       let missingRequiredClusterPair = this.getMissingRequiredClusterPair(
@@ -387,8 +382,11 @@ export default {
       }
     },
     doesClusterHaveAnyWarnings(clusterData) {
-      // check if UC component data have been loaded or not.
-      if (this.$store.state.zap.studio.ucComponents.length == 0) {
+      // disable warning if no UC components are loaded and ZAP is not in standalone mode
+      if (
+        this.$store.state.zap.studio.ucComponents.length == 0 &&
+        !this.isInStandalone
+      ) {
         return false
       }
 
