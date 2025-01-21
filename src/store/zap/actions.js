@@ -1137,15 +1137,6 @@ export function setDebugNavBar(context, debugNavBar) {
 }
 
 /**
- * Show or hide the Save button in ZAP UI.
- * @param {*} context
- * @param {*} saveButtonVisible
- */
-export function setSaveButtonVisible(context, saveButtonVisible) {
-  context.commit('setSaveButtonVisible', saveButtonVisible)
-}
-
-/**
  * Set the mode of ZAP UI.
  * @param {*} context
  * @param {*} standalone

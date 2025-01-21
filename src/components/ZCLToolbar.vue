@@ -56,21 +56,6 @@
       </div>
     </q-btn>
     <q-btn
-      id="save"
-      color="grey"
-      flat
-      no-caps
-      @click="saveChanges"
-      v-if="
-        this.$store.state.zap.saveButtonVisible && this.$store.state.zap.isDirty
-      "
-    >
-      <div class="text-center">
-        <q-icon name="o_save" />
-        <div>Save</div>
-      </div>
-    </q-btn>
-    <q-btn
       v-if="isCoreDocumentationAvailable"
       id="documentation"
       flat
