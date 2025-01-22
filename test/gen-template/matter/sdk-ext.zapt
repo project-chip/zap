@@ -18,6 +18,15 @@
 property="testCommandExtension"}}', isLargeMessage: {{isLargeMessage}}
 {{/zcl_command_tree}}
 
+------------------- Commands with Arguments -------------------
+
+{{#zcl_commands_with_arguments sortBy="signature"}}
+{{clusterName}} - {{commandName}}
+{{#zcl_command_arguments}}
+    {{label}} - {{baseType}}
+{{/zcl_command_arguments}}
+{{/zcl_commands_with_arguments}}
+
 ------------------- Attributes -------------------
 {{#zcl_attributes}}
 // attribute: {{asHex clusterCode 4}} / {{asHex code 4}} => {{label}}, extensions: '{{attribute_extension
