@@ -541,28 +541,17 @@ async function zcl_commands_with_arguments(options) {
         pkg.id
       )
       if ('signature' == sortBy) {
-        if (pkg.type === dbEnum.packageType.zclXmlStandalone) {
-          for (const cmd of cmdsPerPackageId) {
-            let sig = await zclUtil.createCommandSignature(
-              this.global.db,
-              packageIds,
-              cmd
-            )
-            cmd.signature = sig.signature
-            cmd.isSignatureSimple = sig.isSimple
-          }
-        } else {
-          for (const cmd of cmdsPerPackageId) {
-            let sig = await zclUtil.createCommandSignature(
-              this.global.db,
-              pkg.id,
-              cmd
-            )
-            cmd.signature = sig.signature
-            cmd.isSignatureSimple = sig.isSimple
-          }
+        for (const cmd of cmdsPerPackageId) {
+          let sig = await zclUtil.createCommandSignature(
+            this.global.db,
+            pkg.type === dbEnum.packageType.zclXmlStandalone
+              ? packageIds
+              : pkg.id, // If it's a custom xml, we need to pass all packages to have access to atomic types
+            cmd
+          )
+          cmd.signature = sig.signature
+          cmd.isSignatureSimple = sig.isSimple
         }
-
         cmdsPerPackageId.sort((a, b) => {
           if (a.isSignatureSimple && !b.isSignatureSimple) return -1
           if (!a.isSignatureSimple && b.isSignatureSimple) return 1
