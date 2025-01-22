@@ -545,8 +545,8 @@ async function zcl_commands_with_arguments(options) {
           let sig = await zclUtil.createCommandSignature(
             this.global.db,
             pkg.type === dbEnum.packageType.zclXmlStandalone
-              ? packageIds
-              : pkg.id, // If it's a custom xml, we need to pass all packages to have access to atomic types
+              ? packageIds // If it's a custom xml, we need to pass all packages to have access to atomic types
+              : pkg.id,
             cmd
           )
           cmd.signature = sig.signature
@@ -2797,6 +2797,7 @@ async function as_zcl_type_size(type, options) {
 
 /**
  * An if helper for comparisons
+
  * @param {*} leftValue
  * @param {*} rightValue
  * @param {*} options
