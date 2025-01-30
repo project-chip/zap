@@ -3658,6 +3658,7 @@ This module provides queries for features.
         * [~processElements(elementType)](#module_DB API_ feature related queries..getOutdatedElementWarning..processElements)
     * [~filterRequiredElements(elements, elementMap, featureMap)](#module_DB API_ feature related queries..filterRequiredElements) ⇒
     * [~checkIfConformanceDataExist(db)](#module_DB API_ feature related queries..checkIfConformanceDataExist) ⇒
+    * [~getEndpointTypeElements(db, endpointTypeClusterId, deviceTypeClusterId)](#module_DB API_ feature related queries..getEndpointTypeElements) ⇒
 
 <a name="module_DB API_ feature related queries..getFeaturesByDeviceTypeRefs"></a>
 
@@ -3865,6 +3866,21 @@ and DEVICE_TYPE_FEATURE table.
 | Param | Type |
 | --- | --- |
 | db | <code>\*</code> | 
+
+<a name="module_DB API_ feature related queries..getEndpointTypeElements"></a>
+
+### DB API: feature related queries~getEndpointTypeElements(db, endpointTypeClusterId, deviceTypeClusterId) ⇒
+Get all attributes, commands and events in an endpoint type cluster.
+
+**Kind**: inner method of [<code>DB API: feature related queries</code>](#module_DB API_ feature related queries)  
+**Returns**: elements object containing all attributes, commands and events
+in an endpoint type cluster  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| endpointTypeClusterId | <code>\*</code> | 
+| deviceTypeClusterId | <code>\*</code> | 
 
 <a name="module_DB API_ package-based queries."></a>
 
@@ -14582,7 +14598,6 @@ This module provides the API to access zcl specific information.
     * [~httpGetSessionKeyValues(db)](#module_REST API_ user data..httpGetSessionKeyValues) ⇒
     * [~httpGetEndpointIds(db)](#module_REST API_ user data..httpGetEndpointIds) ⇒
     * [~httpGetDeviceTypeFeatures(db)](#module_REST API_ user data..httpGetDeviceTypeFeatures) ⇒
-    * [~getEndpointTypeElements(db, endpointTypeClusterId, deviceTypeClusterId)](#module_REST API_ user data..getEndpointTypeElements) ⇒
     * [~httpPostCheckConformOnFeatureUpdate(db)](#module_REST API_ user data..httpPostCheckConformOnFeatureUpdate) ⇒
     * [~httpGetRequiredElements(db)](#module_REST API_ user data..httpGetRequiredElements) ⇒
     * [~httpGetSessionNotifications(db)](#module_REST API_ user data..httpGetSessionNotifications) ⇒
@@ -14669,21 +14684,6 @@ HTTP GET: device type features
 | Param | Type |
 | --- | --- |
 | db | <code>\*</code> | 
-
-<a name="module_REST API_ user data..getEndpointTypeElements"></a>
-
-### REST API: user data~getEndpointTypeElements(db, endpointTypeClusterId, deviceTypeClusterId) ⇒
-Get all attributes, commands and events in an endpoint type cluster.
-
-**Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
-**Returns**: elements object containing all attributes, commands and events
-in an endpoint type cluster  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| endpointTypeClusterId | <code>\*</code> | 
-| deviceTypeClusterId | <code>\*</code> | 
 
 <a name="module_REST API_ user data..httpPostCheckConformOnFeatureUpdate"></a>
 
@@ -15921,7 +15921,6 @@ This module provides the REST API to the user specific data.
     * [~httpGetSessionKeyValues(db)](#module_REST API_ user data..httpGetSessionKeyValues) ⇒
     * [~httpGetEndpointIds(db)](#module_REST API_ user data..httpGetEndpointIds) ⇒
     * [~httpGetDeviceTypeFeatures(db)](#module_REST API_ user data..httpGetDeviceTypeFeatures) ⇒
-    * [~getEndpointTypeElements(db, endpointTypeClusterId, deviceTypeClusterId)](#module_REST API_ user data..getEndpointTypeElements) ⇒
     * [~httpPostCheckConformOnFeatureUpdate(db)](#module_REST API_ user data..httpPostCheckConformOnFeatureUpdate) ⇒
     * [~httpGetRequiredElements(db)](#module_REST API_ user data..httpGetRequiredElements) ⇒
     * [~httpGetSessionNotifications(db)](#module_REST API_ user data..httpGetSessionNotifications) ⇒
@@ -16008,21 +16007,6 @@ HTTP GET: device type features
 | Param | Type |
 | --- | --- |
 | db | <code>\*</code> | 
-
-<a name="module_REST API_ user data..getEndpointTypeElements"></a>
-
-### REST API: user data~getEndpointTypeElements(db, endpointTypeClusterId, deviceTypeClusterId) ⇒
-Get all attributes, commands and events in an endpoint type cluster.
-
-**Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
-**Returns**: elements object containing all attributes, commands and events
-in an endpoint type cluster  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| endpointTypeClusterId | <code>\*</code> | 
-| deviceTypeClusterId | <code>\*</code> | 
 
 <a name="module_REST API_ user data..httpPostCheckConformOnFeatureUpdate"></a>
 

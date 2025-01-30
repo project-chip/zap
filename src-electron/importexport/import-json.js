@@ -2101,7 +2101,7 @@ async function setElementConformWarning(
 
   if (clusterFeatures.length > 0) {
     let deviceTypeClusterId = clusterFeatures[0].deviceTypeClusterId
-    let endpointTypeElements = await queryZcl.getEndpointTypeElements(
+    let endpointTypeElements = await queryFeature.getEndpointTypeElements(
       db,
       endpointClusterId,
       deviceTypeClusterId

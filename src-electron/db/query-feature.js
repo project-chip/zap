@@ -22,6 +22,9 @@
  */
 const dbApi = require('./db-api')
 const dbMapping = require('./db-mapping')
+const queryAttribute = require('./query-attribute')
+const queryCommand = require('./query-command')
+const queryEvent = require('./query-event')
 
 /**
  * Get all device type features associated with a list of device type refs and an endpoint.
@@ -626,6 +629,39 @@ async function checkIfConformanceDataExist(db) {
   }
 }
 
+/**
+ * Get all attributes, commands and events in an endpoint type cluster.
+ * @param {*} db
+ * @param {*} endpointTypeClusterId
+ * @param {*} deviceTypeClusterId
+ * @returns elements object containing all attributes, commands and events
+ * in an endpoint type cluster
+ */
+async function getEndpointTypeElements(
+  db,
+  endpointTypeClusterId,
+  deviceTypeClusterId
+) {
+  let [attributes, commands, events] = await Promise.all([
+    queryAttribute.selectAttributesByEndpointTypeClusterIdAndDeviceTypeClusterId(
+      db,
+      endpointTypeClusterId,
+      deviceTypeClusterId
+    ),
+    queryCommand.selectCommandsByEndpointTypeClusterIdAndDeviceTypeClusterId(
+      db,
+      endpointTypeClusterId,
+      deviceTypeClusterId
+    ),
+    queryEvent.selectEventsByEndpointTypeClusterIdAndDeviceTypeClusterId(
+      db,
+      endpointTypeClusterId,
+      deviceTypeClusterId
+    )
+  ])
+  return { attributes, commands, events }
+}
+
 exports.getFeaturesByDeviceTypeRefs = getFeaturesByDeviceTypeRefs
 exports.checkElementConformance = checkElementConformance
 exports.evaluateConformanceExpression = evaluateConformanceExpression
@@ -633,3 +669,4 @@ exports.filterElementsContainingDesc = filterElementsContainingDesc
 exports.filterRelatedDescElements = filterRelatedDescElements
 exports.checkIfConformanceDataExist = checkIfConformanceDataExist
 exports.getOutdatedElementWarning = getOutdatedElementWarning
+exports.getEndpointTypeElements = getEndpointTypeElements

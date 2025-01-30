@@ -99,39 +99,6 @@ function httpGetDeviceTypeFeatures(db) {
 }
 
 /**
- * Get all attributes, commands and events in an endpoint type cluster.
- * @param {*} db
- * @param {*} endpointTypeClusterId
- * @param {*} deviceTypeClusterId
- * @returns elements object containing all attributes, commands and events
- * in an endpoint type cluster
- */
-async function getEndpointTypeElements(
-  db,
-  endpointTypeClusterId,
-  deviceTypeClusterId
-) {
-  let [attributes, commands, events] = await Promise.all([
-    queryAttribute.selectAttributesByEndpointTypeClusterIdAndDeviceTypeClusterId(
-      db,
-      endpointTypeClusterId,
-      deviceTypeClusterId
-    ),
-    queryCommand.selectCommandsByEndpointTypeClusterIdAndDeviceTypeClusterId(
-      db,
-      endpointTypeClusterId,
-      deviceTypeClusterId
-    ),
-    queryEvent.selectEventsByEndpointTypeClusterIdAndDeviceTypeClusterId(
-      db,
-      endpointTypeClusterId,
-      deviceTypeClusterId
-    )
-  ])
-  return { attributes, commands, events }
-}
-
-/**
  * HTTP POST: elements to be updated after toggle a device type feature
  *
  * @param {*} db
@@ -143,7 +110,7 @@ function httpPostCheckConformOnFeatureUpdate(db) {
     let { featureData, featureMap, endpointId } = request.body
     let { endpointTypeClusterId, deviceTypeClusterId } = featureData
 
-    let elements = await getEndpointTypeElements(
+    let elements = await queryFeature.getEndpointTypeElements(
       db,
       endpointTypeClusterId,
       deviceTypeClusterId
@@ -191,7 +158,7 @@ function httpGetRequiredElements(db) {
       request.query.data
     )
     featureMap = JSON.parse(featureMap)
-    let endpointTypeElements = await getEndpointTypeElements(
+    let endpointTypeElements = await queryFeature.getEndpointTypeElements(
       db,
       endpointTypeClusterId,
       deviceTypeClusterId
