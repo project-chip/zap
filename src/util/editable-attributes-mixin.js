@@ -221,19 +221,7 @@ export default {
         reportMinInterval: attributeData.reportMinInterval,
         reportMaxInterval: attributeData.reportMaxInterval
       }
-
-      // Wait for the first dispatch to complete
-      await this.$store.dispatch('zap/updateSelectedAttribute', editContext)
-
-      if (
-        addedValue &&
-        listType === 'selectedAttributes' &&
-        attributeData.isReportable
-      ) {
-        editContext.listType = 'selectedReporting'
-        // Dispatch the second action
-        await this.$store.dispatch('zap/updateSelectedAttribute', editContext)
-      }
+      this.$store.dispatch('zap/updateSelectedAttribute', editContext)
     },
 
     initializeTextEditableList(originatingList, editableList, attrClusterHash) {
