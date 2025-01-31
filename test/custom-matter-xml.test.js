@@ -312,6 +312,10 @@ test(
     expect(sdkExt).toContain(
       "/ command: 0x0006 / 0xFFF201 => SampleMfgSpecificToggleWithTransition2, test extension: ''"
     )
+    // checking if baseType for command arguments derived from custom xml is accurate
+    expect(sdkExt).toContain(
+      'Sample Custom Cluster - AddArgumentsResponse\n    returnValue - int8u'
+    )
 
     let endpointConfig = genResult.content['endpoint-config.c']
     expect(sdkExt).not.toBeNull()

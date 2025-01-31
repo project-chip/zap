@@ -25,6 +25,7 @@ const queryZcl = require('../db/query-zcl')
 const queryDeviceType = require('../db/query-device-type')
 const queryCommand = require('../db/query-command')
 const queryEvent = require('../db/query-event')
+const queryPackage = require('../db/query-package')
 const dbEnum = require('../../src-shared/db-enum')
 const templateUtil = require('./template-util')
 const helperC = require('./helper-c')
@@ -528,18 +529,24 @@ async function zcl_commands_with_cluster_info(options) {
 async function zcl_commands_with_arguments(options) {
   let sortBy = options.hash.sortBy
   let packageIds = await templateUtil.ensureZclPackageIds(this)
+  let packages = await queryPackage.getPackagesByPackageIds(
+    this.global.db,
+    packageIds
+  )
 
   let cmds = await Promise.all(
-    packageIds.map(async (packageId) => {
+    packages.map(async (pkg) => {
       let cmdsPerPackageId = await queryCommand.selectAllCommandsWithArguments(
         this.global.db,
-        packageId
+        pkg.id
       )
       if ('signature' == sortBy) {
         for (const cmd of cmdsPerPackageId) {
           let sig = await zclUtil.createCommandSignature(
             this.global.db,
-            packageId,
+            pkg.type === dbEnum.packageType.zclXmlStandalone
+              ? packageIds // If it's a custom xml, we need to pass all packages to have access to atomic types
+              : pkg.id,
             cmd
           )
           cmd.signature = sig.signature
@@ -2790,6 +2797,7 @@ async function as_zcl_type_size(type, options) {
 
 /**
  * An if helper for comparisons
+
  * @param {*} leftValue
  * @param {*} rightValue
  * @param {*} options
