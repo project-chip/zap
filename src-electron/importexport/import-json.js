@@ -426,6 +426,8 @@ function sortEndpoints(endpoints) {
  * @param {*} clusters
  * @param {*} endpointId
  * @param {*} sessionId
+ * @param {*} specMessageIndent
+ * @returns cluster conformance warnings in string if any
  */
 async function importClusters(
   db,
@@ -433,7 +435,8 @@ async function importClusters(
   endpointTypeId,
   clusters,
   endpointId,
-  sessionId
+  sessionId,
+  specMessageIndent
 ) {
   let relevantZclPackageIds = allZclPackageIds
   // Get all custom xml packages since they will be relevant packages as well.
@@ -462,6 +465,7 @@ async function importClusters(
       relevantZclPackageIds = relevantZclPackageIds.concat(customPackageInfoIds)
     }
   }
+  let conformanceWarnings = ''
   if (clusters) {
     for (let k = 0; k < clusters.length; k++) {
       const endpointClusterId = await queryImpexp.importClusterForEndpointType(
@@ -501,7 +505,7 @@ async function importClusters(
         sessionId
       )
 
-      await setElementConformWarning(
+      let clusterConformWarnings = await setElementConformWarning(
         db,
         endpointId,
         endpointTypeId,
@@ -510,7 +514,15 @@ async function importClusters(
         clusters[k],
         sessionId
       )
+      if (clusterConformWarnings) {
+        clusterConformWarnings = clusterConformWarnings.join(specMessageIndent)
+        conformanceWarnings = conformanceWarnings.concat(
+          specMessageIndent,
+          clusterConformWarnings
+        )
+      }
     }
+    return conformanceWarnings
   }
 }
 
@@ -1529,6 +1541,9 @@ async function importEndpointTypes(
       'Application is failing the Device Type Specification as follows: \n'
     const clusterSpecCheckComplianceFailureTitle =
       '\n\nApplication is failing the Cluster Specification as follows: \n'
+    const conformanceWarningTitle =
+      '\n\nApplication is failing the conformance requirements as follows: \n'
+    let conformanceWarnings = ''
     let sessionPartitionInfo =
       await querySession.selectSessionPartitionInfoFromPackageId(
         db,
@@ -1556,14 +1571,16 @@ async function importEndpointTypes(
         }
       }
 
-      await importClusters(
+      let endpointConformWarnings = await importClusters(
         db,
         allZclPackageIds,
         endpointTypeId,
         endpointTypes[i].clusters,
         endpointId,
-        sessionId
+        sessionId,
+        specMessageIndent
       )
+      conformanceWarnings = conformanceWarnings.concat(endpointConformWarnings)
 
       /**
        * The following code looks into the spec conformance coming from the xml
@@ -1737,12 +1754,18 @@ async function importEndpointTypes(
       }
     }
 
+    let conformanceWarningMessage =
+      conformanceWarnings.length > 0
+        ? conformanceWarningTitle.concat(conformanceWarnings)
+        : ''
+
     if (deviceTypeSpecCheckComplianceMessage.length > 0) {
       deviceTypeSpecCheckComplianceMessage = dottedLine.concat(
         deviceTypeSpecCheckComplianceFailureTitle,
         deviceTypeSpecCheckComplianceMessage,
         clusterSpecCheckComplianceFailureTitle,
         clusterSpecCheckComplianceMessage,
+        conformanceWarningMessage,
         dottedLine
       )
       if (!process.env.TEST) {
@@ -2079,7 +2102,7 @@ async function jsonDataLoader(
  * @param {*} deviceTypeRefs
  * @param {*} cluster
  * @param {*} sessionId
- * @returns true if there are warnings set, false otherwise
+ * @returns list of warning messages if any, otherwise false
  */
 async function setElementConformWarning(
   db,
@@ -2182,7 +2205,7 @@ async function setElementConformWarning(
           0
         )
       }
-      return true
+      return warnings
     }
   }
   return false
