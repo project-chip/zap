@@ -230,10 +230,7 @@ export default {
         attributeData.isReportable
       ) {
         editContext.listType = 'selectedReporting'
-
         await this.$store.dispatch('zap/updateSelectedAttribute', editContext)
-      } else {
-        this.$store.dispatch('zap/updateSelectedAttribute', editContext)
       }
     },
 
