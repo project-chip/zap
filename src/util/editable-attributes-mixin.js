@@ -191,7 +191,7 @@ export default {
       }
       this.$store.dispatch('zap/updateSelectedAttribute', editContext)
     },
-    toggleAttributeSelection(list, listType, attributeData, clusterId) {
+    async toggleAttributeSelection(list, listType, attributeData, clusterId) {
       // We determine the ID that we need to toggle within the list.
       // This ID comes from hashing the base ZCL attribute and cluster data.
       let indexOfValue = list.indexOf(
@@ -221,14 +221,16 @@ export default {
         reportMinInterval: attributeData.reportMinInterval,
         reportMaxInterval: attributeData.reportMaxInterval
       }
-      this.$store.dispatch('zap/updateSelectedAttribute', editContext)
+      // Wait for the first dispatch to complete
+      await this.$store.dispatch('zap/updateSelectedAttribute', editContext)
+
       if (
         addedValue &&
         listType === 'selectedAttributes' &&
         attributeData.isReportable
       ) {
         editContext.listType = 'selectedReporting'
-        this.$store.dispatch('zap/updateSelectedAttribute', editContext)
+        await this.$store.dispatch('zap/updateSelectedAttribute', editContext)
       }
     },
 
