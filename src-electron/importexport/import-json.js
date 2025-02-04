@@ -1543,7 +1543,10 @@ async function importEndpointTypes(
       '\n\nApplication is failing the Cluster Specification as follows: \n'
     const conformanceWarningTitle =
       '\n\nApplication is failing the conformance requirements as follows: \n'
+    const provisionalClusterWarningTitle =
+      'Application is enabling provisional clusters as follows: \n'
     let conformanceWarnings = ''
+    let provisionalClusterWarnings = []
     let sessionPartitionInfo =
       await querySession.selectSessionPartitionInfoFromPackageId(
         db,
@@ -1581,6 +1584,15 @@ async function importEndpointTypes(
         specMessageIndent
       )
       conformanceWarnings = conformanceWarnings.concat(endpointConformWarnings)
+
+      // generate provisional cluster warnings for current endpoint type
+      let eptProvisionalWarnings = generateProvisionalClusterWarnings(
+        endpointTypes[i].clusters,
+        endpointId
+      )
+      provisionalClusterWarnings = provisionalClusterWarnings.concat(
+        eptProvisionalWarnings
+      )
 
       /**
        * The following code looks into the spec conformance coming from the xml
@@ -1753,6 +1765,15 @@ async function importEndpointTypes(
         }
       }
     }
+
+    await setAndPrintProvisionalClusterWarnings(
+      db,
+      sessionId,
+      provisionalClusterWarnings,
+      provisionalClusterWarningTitle,
+      specMessageIndent,
+      dottedLine
+    )
 
     let conformanceWarningMessage =
       conformanceWarnings.length > 0
@@ -2209,6 +2230,82 @@ async function setElementConformWarning(
     }
   }
   return false
+}
+
+/**
+ * Generate warning messages for enabled provisional clusters within an endpoint.
+ *
+ * @param {*} clusters
+ * @param {*} endpointId
+ * @returns list of provisional cluster warnings, empty list if none
+ */
+function generateProvisionalClusterWarnings(clusters, endpointId) {
+  if (clusters.length > 0) {
+    let provisionalClusterWarnings = []
+    let generateWarning = (clusterName, side) => {
+      return (
+        'On endpoint ' +
+        endpointId +
+        ', support for cluster: ' +
+        clusterName +
+        ' ' +
+        side +
+        ' is provisional.'
+      )
+    }
+    for (let cluster of clusters) {
+      if (cluster.apiMaturity == 'provisional' && cluster.enabled == 1) {
+        provisionalClusterWarnings.push(
+          generateWarning(cluster.name, cluster.side)
+        )
+      }
+    }
+    return provisionalClusterWarnings
+  }
+  return []
+}
+
+/**
+ * Set provisional cluster warnings in the notification table,
+ * and print the concatenated warning message to the console.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} warnings
+ * @param {*} provisionalClusterWarningTitle
+ * @param {*} specMessageIndent
+ * @param {*} dottedLine
+ */
+async function setAndPrintProvisionalClusterWarnings(
+  db,
+  sessionId,
+  warnings,
+  provisionalClusterWarningTitle,
+  specMessageIndent,
+  dottedLine
+) {
+  let warningMessage = ''
+  if (warnings.length > 0) {
+    for (let warning of warnings) {
+      await querySessionNotice.setNotification(
+        db,
+        'WARNING',
+        warning,
+        sessionId,
+        1,
+        0
+      )
+    }
+    warningMessage = dottedLine.concat(
+      provisionalClusterWarningTitle,
+      specMessageIndent,
+      warnings.join(specMessageIndent),
+      dottedLine
+    )
+    if (!process.env.TEST) {
+      console.log(warningMessage)
+    }
+  }
 }
 
 /**
