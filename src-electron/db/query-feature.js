@@ -22,6 +22,9 @@
  */
 const dbApi = require('./db-api')
 const dbMapping = require('./db-mapping')
+const queryAttribute = require('./query-attribute')
+const queryCommand = require('./query-command')
+const queryEvent = require('./query-event')
 
 /**
  * Get all device type features associated with a list of device type refs and an endpoint.
@@ -134,7 +137,7 @@ function evaluateConformanceExpression(expression, elementMap) {
    */
   function evaluateBooleanExpression(expr) {
     // Replace terms with their actual values from elementMap
-    expr = expr.replace(/[A-Za-z][A-Za-z0-9]*/g, (term) => {
+    expr = expr.replace(/[A-Za-z][A-Za-z0-9_]*/g, (term) => {
       if (elementMap[term]) {
         return 'true'
       } else {
@@ -167,7 +170,7 @@ function evaluateConformanceExpression(expression, elementMap) {
   let parts = expression.split(',')
   // if any term is desc, the conformance is too complex to parse
   for (let part of parts) {
-    let terms = part.match(/[A-Za-z][A-Za-z0-9]*/g)
+    let terms = part.match(/[A-Za-z][A-Za-z0-9_]*/g)
     if (terms && terms.includes('desc')) {
       return 'desc'
     }
@@ -214,7 +217,7 @@ function evaluateConformanceExpression(expression, elementMap) {
  * @returns all missing terms in an array
  */
 function checkMissingTerms(expression, elementMap) {
-  let terms = expression.match(/[A-Za-z][A-Za-z0-9]*/g)
+  let terms = expression.match(/[A-Za-z][A-Za-z0-9_]*/g)
   let missingTerms = []
   let abbreviations = ['M', 'O', 'P', 'D', 'X']
   for (let term of terms) {
@@ -234,7 +237,7 @@ function checkMissingTerms(expression, elementMap) {
  */
 function filterElementsContainingDesc(elements) {
   return elements.filter((element) => {
-    let terms = element.conformance.match(/[A-Za-z][A-Za-z0-9]*/g)
+    let terms = element.conformance.match(/[A-Za-z][A-Za-z0-9_]*/g)
     return terms && terms.includes('desc')
   })
 }
@@ -248,7 +251,7 @@ function filterElementsContainingDesc(elements) {
  */
 function filterRelatedDescElements(elements, featureCode) {
   return elements.filter((element) => {
-    let terms = element.conformance.match(/[A-Za-z][A-Za-z0-9]*/g)
+    let terms = element.conformance.match(/[A-Za-z][A-Za-z0-9_]*/g)
     return terms && terms.includes('desc') && terms.includes(featureCode)
   })
 }
@@ -554,7 +557,7 @@ function filterRequiredElements(elements, elementMap, featureMap) {
       elementMap
     )
     let expression = element.conformance
-    let terms = expression ? expression.match(/[A-Za-z][A-Za-z0-9]*/g) : []
+    let terms = expression ? expression.match(/[A-Za-z][A-Za-z0-9_]*/g) : []
     let featureTerms = terms.filter((term) => term in featureMap).join(', ')
     let elementTerms = terms.filter((term) => !(term in featureMap)).join(', ')
     let conformToElement = terms.some((term) =>
@@ -626,6 +629,39 @@ async function checkIfConformanceDataExist(db) {
   }
 }
 
+/**
+ * Get all attributes, commands and events in an endpoint type cluster.
+ * @param {*} db
+ * @param {*} endpointTypeClusterId
+ * @param {*} deviceTypeClusterId
+ * @returns elements object containing all attributes, commands and events
+ * in an endpoint type cluster
+ */
+async function getEndpointTypeElements(
+  db,
+  endpointTypeClusterId,
+  deviceTypeClusterId
+) {
+  let [attributes, commands, events] = await Promise.all([
+    queryAttribute.selectAttributesByEndpointTypeClusterIdAndDeviceTypeClusterId(
+      db,
+      endpointTypeClusterId,
+      deviceTypeClusterId
+    ),
+    queryCommand.selectCommandsByEndpointTypeClusterIdAndDeviceTypeClusterId(
+      db,
+      endpointTypeClusterId,
+      deviceTypeClusterId
+    ),
+    queryEvent.selectEventsByEndpointTypeClusterIdAndDeviceTypeClusterId(
+      db,
+      endpointTypeClusterId,
+      deviceTypeClusterId
+    )
+  ])
+  return { attributes, commands, events }
+}
+
 exports.getFeaturesByDeviceTypeRefs = getFeaturesByDeviceTypeRefs
 exports.checkElementConformance = checkElementConformance
 exports.evaluateConformanceExpression = evaluateConformanceExpression
@@ -633,3 +669,4 @@ exports.filterElementsContainingDesc = filterElementsContainingDesc
 exports.filterRelatedDescElements = filterRelatedDescElements
 exports.checkIfConformanceDataExist = checkIfConformanceDataExist
 exports.getOutdatedElementWarning = getOutdatedElementWarning
+exports.getEndpointTypeElements = getEndpointTypeElements
