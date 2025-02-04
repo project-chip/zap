@@ -110,10 +110,7 @@ limitations under the License.
                 </div>
               </div>
 
-              <div
-                class="row no-wrap"
-                v-show="getClusterWarningMessage(props.row)"
-              >
+              <div class="row no-wrap" v-show="showClusterWarning(props.row)">
                 <q-icon
                   name="warning"
                   class="text-amber q-mr-sm"
@@ -299,7 +296,7 @@ export default {
       })
     },
     hasWarning: function () {
-      return !this.isInStandalone || this.doesAnyClusterHaveWarning()
+      return !this.isInStandalone || this.isAnyClusterNotCompliant()
     },
     missingClusterMessage(clusterData) {
       let missingRequiredClusterPair = this.getMissingRequiredClusterPair(
@@ -351,27 +348,27 @@ export default {
       if (hasServer) tmp.push('server')
       return tmp
     },
-    /* A cluster has a warning if:
+    /* A cluster is not compliant if:
        1. It is required but disabled, OR
        2. It is provisional and enabled */
-    doesAnyClusterHaveWarning() {
-      let hasWarning = false
+    isAnyClusterNotCompliant() {
+      let isNotCompliant = false
       this.recommendedClients.forEach((id) => {
         if (!this.isClientEnabled(id)) {
-          hasWarning = true
+          isNotCompliant = true
         }
       })
       this.recommendedServers.forEach((id) => {
         if (!this.isServerEnabled(id)) {
-          hasWarning = true
+          isNotCompliant = true
         }
       })
       this.clusters.forEach((cluster) => {
         if (this.isClusterEnabledAndProvisional(cluster)) {
-          hasWarning = true
+          isNotCompliant = true
         }
       })
-      return hasWarning
+      return isNotCompliant
     },
     /**
      * Returns the warning message for a cluster, or an empty string if no warning.
@@ -386,9 +383,12 @@ export default {
         return this.missingClusterMessage(clusterData)
       } else if (this.isClusterEnabledAndProvisional(clusterData)) {
         return this.provisionalWarningMessage
-      } else if (this.missingRequiredUcComponents(clusterData).length) {
+      } else {
         return ''
       }
+    },
+    showClusterWarning(clusterData) {
+      return this.getClusterWarningMessage(clusterData) != ''
     },
     getMissingRequiredClusterPair(id) {
       return {
