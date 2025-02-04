@@ -47,6 +47,10 @@ let haCombinedInterfaceIsc = path.join(
   'resource/isc/ha-combined-interface.isc'
 )
 let faultyZap = path.join(__dirname, 'resource/test-faulty.zap')
+let provisionalCluster = path.join(
+  __dirname,
+  'resource/test-provisional-cluster.zap'
+)
 
 // Due to future plans to rework how we handle global attributes,
 // we introduce this flag to bypass those attributes when testing import/export.
@@ -434,6 +438,35 @@ test(
     ).toBeTruthy()
 
     await querySession.deleteSession(db, sid)
+  },
+  testUtil.timeout.medium()
+)
+
+test(
+  'Import a ZAP file with enabled provisional cluster and make sure warnings show up in the notification table',
+  async () => {
+    sid = await querySession.createBlankSession(db)
+    await util.ensurePackagesAndPopulateSessionOptions(
+      templateContext.db,
+      sid,
+      {
+        zcl: env.builtinSilabsZclMetafile(),
+        template: env.builtinTemplateMetafile()
+      },
+      null,
+      [templatePkgId]
+    )
+    await importJs.importDataFromFile(db, provisionalCluster, {
+      sessionId: sid
+    })
+    expect(sid).not.toBeUndefined()
+    let notifications = await sessionNotification.getNotification(db, sid)
+    let notificationMessages = notifications.map((not) => not.message)
+    expect(
+      notificationMessages.includes(
+        'On endpoint 0, support for cluster: Scenes server is provisional.'
+      )
+    ).toBeTruthy()
   },
   testUtil.timeout.medium()
 )
