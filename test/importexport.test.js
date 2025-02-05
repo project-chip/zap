@@ -51,6 +51,10 @@ let provisionalCluster = path.join(
   __dirname,
   'resource/test-provisional-cluster.zap'
 )
+let nonConformElements = path.join(
+  __dirname,
+  'resource/non-conform-elements.zap'
+)
 
 // Due to future plans to rework how we handle global attributes,
 // we introduce this flag to bypass those attributes when testing import/export.
@@ -465,6 +469,48 @@ test(
     expect(
       notificationMessages.includes(
         'On endpoint 0, support for cluster: Scenes server is provisional.'
+      )
+    ).toBeTruthy()
+  },
+  testUtil.timeout.medium()
+)
+
+test(
+  'Import a ZAP file with elements that do not conform to a device type feature and make sure element conformance warnings show up in the notification table',
+  async () => {
+    sid = await querySession.createBlankSession(db)
+    await util.ensurePackagesAndPopulateSessionOptions(
+      templateContext.db,
+      sid,
+      {
+        zcl: env.builtinSilabsZclMetafile(),
+        template: env.builtinTemplateMetafile()
+      },
+      null,
+      [templatePkgId]
+    )
+    await importJs.importDataFromFile(db, nonConformElements, {
+      sessionId: sid
+    })
+    expect(sid).not.toBeUndefined()
+    let notifications = await sessionNotification.getNotification(db, sid)
+    let notificationMessages = notifications.map((not) => not.message)
+
+    // Two attributes and one command conform to the device type feature 'LT' but are disabled.
+    // Their element conformance warnings should be added to the notification table.
+    expect(
+      notificationMessages.includes(
+        'On endpoint 1, cluster: On/Off, command: OffWithEffect conforms to LT and is mandatory based on state of feature: LT.'
+      )
+    ).toBeTruthy()
+    expect(
+      notificationMessages.includes(
+        'On endpoint 1, cluster: On/Off, attribute: OnTime conforms to LT and is mandatory based on state of feature: LT.'
+      )
+    ).toBeTruthy()
+    expect(
+      notificationMessages.includes(
+        'On endpoint 1, cluster: On/Off, attribute: GlobalSceneControl conforms to LT and is mandatory based on state of feature: LT.'
       )
     ).toBeTruthy()
   },
