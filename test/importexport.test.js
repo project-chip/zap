@@ -496,7 +496,7 @@ test(
     let notifications = await sessionNotification.getNotification(db, sid)
     let notificationMessages = notifications.map((not) => not.message)
 
-    // Two attributes and one command conform to the device type feature 'LT' but are disabled.
+    // Two attributes and one command conform to the enabled device type feature 'LT' but are disabled.
     // Their element conformance warnings should be added to the notification table.
     expect(
       notificationMessages.includes(
