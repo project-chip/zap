@@ -110,17 +110,13 @@ limitations under the License.
                 </div>
               </div>
 
-              <div
-                class="row no-wrap"
-                v-show="isRequiredClusterMissingForId(props.row.id)"
-              >
+              <div class="row no-wrap" v-show="showClusterWarning(props.row)">
                 <q-icon
                   name="warning"
                   class="text-amber q-mr-sm"
                   style="font-size: 1.5rem"
                 ></q-icon>
-                The configuration is missing the
-                {{ missingClusterMessage(props.row) }}
+                {{ getClusterWarningMessage(props.row) }}
               </div>
             </q-popup-edit>
           </q-td>
@@ -300,7 +296,7 @@ export default {
       })
     },
     hasWarning: function () {
-      return !this.isInStandalone || this.isAnyRequiredClusterNotEnabled()
+      return !this.isInStandalone || this.isAnyClusterNotCompliant()
     },
     missingClusterMessage(clusterData) {
       let missingRequiredClusterPair = this.getMissingRequiredClusterPair(
@@ -316,7 +312,11 @@ export default {
         msg = missingRequiredClusterPair.missingClient ? 'client' : 'server'
         msg = msg + ' cluster which is'
       }
-      return msg + " required for this endpoint's device type."
+      return (
+        'The configuration is missing the ' +
+        msg +
+        " required for this endpoint's device type."
+      )
     },
     isClusterRequired(id) {
       let clientRequired = this.recommendedClients.includes(id)
@@ -348,19 +348,47 @@ export default {
       if (hasServer) tmp.push('server')
       return tmp
     },
-    isAnyRequiredClusterNotEnabled() {
-      let lackingRequiredCluster = false
+    /* A cluster is not compliant if:
+       1. It is required but disabled, OR
+       2. It is provisional and enabled */
+    isAnyClusterNotCompliant() {
+      let isNotCompliant = false
       this.recommendedClients.forEach((id) => {
         if (!this.isClientEnabled(id)) {
-          lackingRequiredCluster = true
+          isNotCompliant = true
         }
       })
       this.recommendedServers.forEach((id) => {
         if (!this.isServerEnabled(id)) {
-          lackingRequiredCluster = true
+          isNotCompliant = true
         }
       })
-      return lackingRequiredCluster
+      this.clusters.forEach((cluster) => {
+        if (this.isClusterEnabledAndProvisional(cluster)) {
+          isNotCompliant = true
+        }
+      })
+      return isNotCompliant
+    },
+    /**
+     * Returns the warning message for a cluster, or an empty string if no warning.
+     * Each cluster can have at most one warning message as
+     * provisional cluster warning is only displayed for disabled clusters
+     * and required cluster warning is only displayed for enabled clusters.
+     *
+     * @param clusterData
+     */
+    getClusterWarningMessage(clusterData) {
+      if (this.isRequiredClusterMissingForId(clusterData.id)) {
+        return this.missingClusterMessage(clusterData)
+      } else if (this.isClusterEnabledAndProvisional(clusterData)) {
+        return this.provisionalWarningMessage
+      } else {
+        return ''
+      }
+    },
+    showClusterWarning(clusterData) {
+      return this.getClusterWarningMessage(clusterData) != ''
     },
     getMissingRequiredClusterPair(id) {
       return {
@@ -381,6 +409,12 @@ export default {
         return false
       }
     },
+    isClusterEnabledAndProvisional(cluster) {
+      return (
+        this.isClusterEnabled(cluster.id) &&
+        cluster.apiMaturity == 'provisional'
+      )
+    },
     doesClusterHaveAnyWarnings(clusterData) {
       // disable warning if no UC components are loaded and ZAP is not in standalone mode
       if (
@@ -392,6 +426,7 @@ export default {
 
       let id = clusterData.id
       if (this.isRequiredClusterMissingForId(id)) return true
+      if (this.isClusterEnabledAndProvisional(clusterData)) return true
       if (this.missingRequiredUcComponents(clusterData).length) return true
       return false
     },
@@ -572,6 +607,7 @@ export default {
       ZclClusterRole,
       showEnableAllClustersDialog: false,
       uc_label: 'uc label',
+      provisionalWarningMessage: 'Support for the cluster is provisional',
       clusterSelectionOptions: [
         { label: 'Not Enabled', client: false, server: false },
         { label: 'Client', client: true, server: false },

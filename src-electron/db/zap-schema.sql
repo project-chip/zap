@@ -2997,6 +2997,304 @@ BEGIN
 END;
 
 /*
+ SQL Trigger that adds a warning to the notification table when enabling a provisional cluster. 
+ Triggers are needed for both AFTER INSERT and AFTER UPDATE,
+ as initial enabling inserts a row into ENDPOINT_TYPE_CLUSTER, while subsequent enabling updates the table.
+*/
+CREATE TRIGGER
+  UPDATE_TRIGGER_ENABLE_PROVISIONAL_CLUSTER_WARNING
+AFTER
+  UPDATE ON ENDPOINT_TYPE_CLUSTER
+WHEN
+  (
+    SELECT
+      COUNT()
+    FROM
+      ENDPOINT_TYPE_CLUSTER
+    INNER JOIN
+      CLUSTER
+    ON
+      ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = CLUSTER.CLUSTER_ID
+    WHERE
+      ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = new.CLUSTER_REF
+    AND
+      ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = new.ENDPOINT_TYPE_REF
+    AND
+      ENDPOINT_TYPE_CLUSTER.SIDE = new.SIDE
+    AND
+      new.ENABLED = 1
+    AND
+      CLUSTER.API_MATURITY = "provisional"     
+  ) > 0
+  AND (
+    SELECT
+      COUNT()
+    FROM
+      SESSION_NOTICE
+    WHERE
+      NOTICE_TYPE = "WARNING"
+    AND
+      NOTICE_MESSAGE LIKE (
+        "On endpoint "
+        ||
+        (
+          SELECT
+            ENDPOINT.ENDPOINT_IDENTIFIER
+          FROM
+            ENDPOINT
+          INNER JOIN
+            ENDPOINT_TYPE
+          ON
+            ENDPOINT.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+          INNER JOIN
+            ENDPOINT_TYPE_CLUSTER
+          ON
+            ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+          WHERE
+            ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = new.ENDPOINT_TYPE_CLUSTER_ID
+        )
+        ||
+        ", support for cluster: "
+        ||
+        (
+          SELECT
+            CLUSTER.NAME || " " || new.SIDE
+          FROM
+            CLUSTER
+          WHERE
+            CLUSTER.CLUSTER_ID = new.CLUSTER_REF
+        )
+        ||
+        " is provisional."
+      )
+  ) = 0
+BEGIN
+  INSERT INTO
+    SESSION_NOTICE(SESSION_REF, NOTICE_TYPE, NOTICE_MESSAGE, NOTICE_SEVERITY, DISPLAY, SEEN)
+  VALUES
+    (
+      (
+        SELECT
+          SESSION_PARTITION.SESSION_REF
+        FROM
+          ENDPOINT_TYPE_CLUSTER
+        INNER JOIN
+          ENDPOINT_TYPE
+        ON
+          ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF
+        INNER JOIN
+          SESSION_PARTITION
+        ON
+          SESSION_PARTITION.SESSION_PARTITION_ID = ENDPOINT_TYPE.SESSION_PARTITION_REF
+        WHERE
+          ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = new.ENDPOINT_TYPE_CLUSTER_ID
+      ),
+      "WARNING",
+      "On endpoint "
+      ||
+      (
+        SELECT
+          ENDPOINT.ENDPOINT_IDENTIFIER
+        FROM
+          ENDPOINT
+        INNER JOIN
+          ENDPOINT_TYPE
+        ON
+          ENDPOINT.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+        INNER JOIN
+          ENDPOINT_TYPE_CLUSTER
+        ON
+          ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+        WHERE
+          ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = new.ENDPOINT_TYPE_CLUSTER_ID
+      )
+      ||
+      ", support for cluster: "
+      ||
+      (
+        SELECT
+          CLUSTER.NAME || " " || new.SIDE
+        FROM
+          CLUSTER
+        WHERE
+          CLUSTER.CLUSTER_ID = new.CLUSTER_REF
+      )
+      ||
+      " is provisional.",
+      1,
+      1,
+      0
+    );
+END;
+
+CREATE TRIGGER
+  INSERT_TRIGGER_ENABLE_PROVISIONAL_CLUSTER_WARNING
+AFTER
+  INSERT ON ENDPOINT_TYPE_CLUSTER
+WHEN
+  (
+    SELECT
+      COUNT()
+    FROM
+      ENDPOINT_TYPE_CLUSTER
+    INNER JOIN
+      CLUSTER
+    ON
+      ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = CLUSTER.CLUSTER_ID
+    WHERE
+      ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = new.CLUSTER_REF
+    AND
+      ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = new.ENDPOINT_TYPE_REF
+    AND
+      ENDPOINT_TYPE_CLUSTER.SIDE = new.SIDE
+    AND
+      new.ENABLED = 1
+    AND
+      CLUSTER.API_MATURITY = "provisional"     
+  ) > 0
+BEGIN
+  INSERT INTO
+    SESSION_NOTICE(SESSION_REF, NOTICE_TYPE, NOTICE_MESSAGE, NOTICE_SEVERITY, DISPLAY, SEEN)
+  VALUES
+    (
+      (
+        SELECT
+          SESSION_PARTITION.SESSION_REF
+        FROM
+          ENDPOINT_TYPE_CLUSTER
+        INNER JOIN
+          ENDPOINT_TYPE
+        ON
+          ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF
+        INNER JOIN
+          SESSION_PARTITION
+        ON
+          SESSION_PARTITION.SESSION_PARTITION_ID = ENDPOINT_TYPE.SESSION_PARTITION_REF
+        WHERE
+          ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = new.ENDPOINT_TYPE_CLUSTER_ID
+      ),
+      "WARNING",
+      "On endpoint "
+      ||
+      (
+        SELECT
+          ENDPOINT.ENDPOINT_IDENTIFIER
+        FROM
+          ENDPOINT
+        INNER JOIN
+          ENDPOINT_TYPE
+        ON
+          ENDPOINT.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+        INNER JOIN
+          ENDPOINT_TYPE_CLUSTER
+        ON
+          ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+        WHERE
+          ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = new.ENDPOINT_TYPE_CLUSTER_ID
+      )
+      ||
+      ", support for cluster: "
+      ||
+      (
+        SELECT
+          CLUSTER.NAME || " " || new.SIDE
+        FROM
+          CLUSTER
+        WHERE
+          CLUSTER.CLUSTER_ID = new.CLUSTER_REF
+      )
+      ||
+      " is provisional.",
+      1,
+      1,
+      0
+    );
+END;
+
+/*
+ SQL Trigger that removes a warning from the notification table when disabling a provisional cluster. 
+*/
+CREATE TRIGGER
+  UPDATE_TRIGGER_DISABLE_PROVISIONAL_CLUSTER_WARNING_REMOVAL
+AFTER
+  UPDATE ON ENDPOINT_TYPE_CLUSTER
+WHEN
+  (
+    SELECT
+      COUNT()
+    FROM
+      ENDPOINT_TYPE_CLUSTER
+    INNER JOIN
+      CLUSTER
+    ON
+      ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = CLUSTER.CLUSTER_ID
+    WHERE
+      ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = new.CLUSTER_REF
+    AND
+      ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = new.ENDPOINT_TYPE_REF
+    AND
+      ENDPOINT_TYPE_CLUSTER.SIDE = new.SIDE
+    AND
+      new.ENABLED = 0
+    AND
+      CLUSTER.API_MATURITY = "provisional"     
+  ) > 0
+BEGIN
+  DELETE FROM
+    SESSION_NOTICE
+  WHERE
+    SESSION_REF = (
+      SELECT
+        SESSION_REF
+      FROM
+        ENDPOINT_TYPE
+      INNER JOIN
+        ENDPOINT_TYPE_CLUSTER
+      ON
+        ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF
+      WHERE
+        ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = new.ENDPOINT_TYPE_CLUSTER_ID
+    )
+    AND
+      NOTICE_TYPE="WARNING"
+    AND
+      NOTICE_MESSAGE LIKE
+      (
+        "On endpoint "
+        ||
+        (
+          SELECT
+            ENDPOINT.ENDPOINT_IDENTIFIER
+          FROM
+            ENDPOINT
+          INNER JOIN
+            ENDPOINT_TYPE
+          ON
+            ENDPOINT.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+          INNER JOIN
+            ENDPOINT_TYPE_CLUSTER
+          ON
+            ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+          WHERE
+            ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = new.ENDPOINT_TYPE_CLUSTER_ID
+        )
+        ||
+        ", support for cluster: "
+        ||
+        (
+          SELECT
+            CLUSTER.NAME || " " || new.SIDE
+          FROM
+            CLUSTER
+          WHERE
+            CLUSTER.CLUSTER_ID = new.CLUSTER_REF
+        )
+        ||
+        " is provisional."
+      );
+END;
+
+/*
  ENDPOINT_TYPE_EVENT table contains the user data configuration for the various parameters that exist
  for events on an endpoint. This essentially lets you determine if something should be included or not.
  */
