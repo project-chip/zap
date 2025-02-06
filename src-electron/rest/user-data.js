@@ -449,7 +449,7 @@ function httpPostAttributeUpdate(db) {
     // endpointTypeId doesn't matter since all attributes are the seame.
     let validationData = await validation.validateAttribute(
       db,
-      endpointTypeIdList[0],
+      selectedEndpoint,
       id,
       clusterRef,
       request.zapSessionId
