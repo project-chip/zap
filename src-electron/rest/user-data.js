@@ -389,6 +389,7 @@ function httpPostAttributeUpdate(db) {
     let {
       action,
       endpointTypeIdList,
+      selectedEndpoint,
       id,
       value,
       listType,
@@ -438,7 +439,7 @@ function httpPostAttributeUpdate(db) {
     // send latest value to frontend to update UI
     let eptAttr = await queryZcl.selectEndpointTypeAttribute(
       db,
-      endpointTypeIdList[0],
+      selectedEndpoint,
       id,
       clusterRef
     )
