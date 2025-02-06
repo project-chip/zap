@@ -46,7 +46,6 @@ async function validateAttribute(
   clusterRef,
   zapSessionId
 ) {
-  console.log(endpointTypeId)
   let endpointAttribute = await queryZcl.selectEndpointTypeAttribute(
     db,
     endpointTypeId,
