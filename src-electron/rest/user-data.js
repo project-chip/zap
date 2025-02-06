@@ -399,7 +399,6 @@ function httpPostAttributeUpdate(db) {
       reportMaxInterval,
       reportableChange
     } = request.body
-
     if (!Array.isArray(endpointTypeIdList) || !endpointTypeIdList.length) {
       return response.status(StatusCodes.BAD_REQUEST).json()
     }
@@ -435,7 +434,6 @@ function httpPostAttributeUpdate(db) {
         )
       )
     )
-
     // send latest value to frontend to update UI
     let eptAttr = await queryZcl.selectEndpointTypeAttribute(
       db,

@@ -132,6 +132,7 @@ export default {
       let editContext = {
         action: 'boolean',
         endpointTypeIdList: this.endpointTypeIdList,
+        selectedEndpoint: this.selectedEndpointTypeId,
         id: attributeData.id,
         value: enable,
         listType: listType,
@@ -181,6 +182,7 @@ export default {
       let editContext = {
         action: 'text',
         endpointTypeIdList: this.endpointTypeIdList,
+        selectedEndpoint: this.selectedEndpointTypeId,
         id: attributeData.id,
         value: newValue,
         listType: listType,
