@@ -18,6 +18,12 @@
  * @jest-environment node
  */
 
+/**
+ * This file tests custom xml functionalities of ZAP for Matter.
+ *
+ * Tests are dependent on each other, please be cautious when changing or adding tests.
+ */
+
 const fs = require('fs')
 const dbApi = require('../src-electron/db/db-api')
 const zclLoader = require('../src-electron/zcl/zcl-loader')
@@ -208,6 +214,60 @@ test(
     expect(sessionPackages.length).toEqual(sessionPackagesCount)
   },
   testUtil.timeout.short()
+)
+
+test(
+  'Deleting and re-adding custom xml should re-enable existing session package',
+  async () => {
+    /* deleting session package for custom xml (which essentially disables it) */
+    sessionPartitionInfo =
+      await querySession.selectSessionPartitionInfoFromPackageId(
+        db,
+        sid,
+        testPackageId
+      )
+    expect(sessionPartitionInfo.length).toBe(1)
+    sessionPartitionId = sessionPartitionInfo[0].sessionPartitionId
+    let result = await queryPackage.deleteSessionPackage(
+      db,
+      sessionPartitionId,
+      testPackageId
+    )
+    expect(result).toBe(1)
+
+    /* verify that the package is disabled */
+    let sessionPackages = await queryPackage.getSessionPackages(db, sid) // get enabled session packages
+    sessionPackages.forEach((sessionPkg) => {
+      expect(sessionPkg.packageRef).not.toEqual(testPackageId)
+    }) // since the custom xml package is disabled, it should not be in the list of enabled packages
+
+    /* re-adding the custom xml package should re-enable it */
+    result = await zclLoader.loadIndividualFile(
+      db,
+      testUtil.testMattterCustomXml,
+      sid
+    )
+    expect(result.succeeded).toBeTruthy()
+    expect(result.packageId).toBe(testPackageId)
+
+    sessionPartitionInfo =
+      await querySession.selectSessionPartitionInfoFromPackageId(
+        db,
+        sid,
+        testPackageId,
+        false // query disabled packages as well to check for duplicates
+      )
+    expect(sessionPartitionInfo.length).toBe(1) // should still be one entry
+    expect(sessionPartitionInfo[0].sessionPartitionId).toBe(sessionPartitionId) // session partition id should be the same
+
+    sessionPackages = await queryPackage.getSessionPackages(db, sid) // get enabled session packages
+    expect(
+      sessionPackages.some((sessionPkg) => {
+        sessionPkg.packageRef == testPackageId
+      })
+    ).toBeTruthy // should contain testPackageId
+  },
+  testUtil.timeout.medium()
 )
 
 test(
