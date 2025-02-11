@@ -2997,9 +2997,7 @@ BEGIN
 END;
 
 /*
- SQL Trigger that adds a warning to the notification table when enabling a provisional cluster. 
- Triggers are needed for both AFTER INSERT and AFTER UPDATE,
- as initial enabling inserts a row into ENDPOINT_TYPE_CLUSTER, while subsequent enabling updates the table.
+SQL UPDATE Trigger that adds a warning to the notification table when re-enabling a provisional cluster.
 */
 CREATE TRIGGER
   UPDATE_TRIGGER_ENABLE_PROVISIONAL_CLUSTER_WARNING
@@ -3127,88 +3125,107 @@ BEGIN
     );
 END;
 
+/*
+SQL INSERT Trigger that adds a warning to the notification table when first-time enabling a provisional cluster.
+*/
 CREATE TRIGGER
-  INSERT_TRIGGER_ENABLE_PROVISIONAL_CLUSTER_WARNING
+  INSERT_TRIGGER_ENABLE_PROVISIONAL_CLUSTER_WARNING_PER_CLUSTER
 AFTER
   INSERT ON ENDPOINT_TYPE_CLUSTER
 WHEN
-  (
+  new.ENABLED = 1
+  AND EXISTS (
     SELECT
-      COUNT()
+      1
     FROM
-      ENDPOINT_TYPE_CLUSTER
-    INNER JOIN
       CLUSTER
-    ON
-      ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = CLUSTER.CLUSTER_ID
     WHERE
-      ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = new.CLUSTER_REF
+      CLUSTER.CLUSTER_ID = new.CLUSTER_REF
     AND
-      ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = new.ENDPOINT_TYPE_REF
-    AND
-      ENDPOINT_TYPE_CLUSTER.SIDE = new.SIDE
-    AND
-      new.ENABLED = 1
-    AND
-      CLUSTER.API_MATURITY = "provisional"     
-  ) > 0
+      CLUSTER.API_MATURITY = "provisional"
+  )
+  AND EXISTS (
+    SELECT
+      1
+    FROM
+      SESSION_PARTITION
+    INNER JOIN
+      ENDPOINT_TYPE
+    ON
+      SESSION_PARTITION.SESSION_PARTITION_ID = ENDPOINT_TYPE.SESSION_PARTITION_REF
+    WHERE
+      ENDPOINT_TYPE.ENDPOINT_TYPE_ID = new.ENDPOINT_TYPE_REF
+  )
 BEGIN
   INSERT INTO
-    SESSION_NOTICE(SESSION_REF, NOTICE_TYPE, NOTICE_MESSAGE, NOTICE_SEVERITY, DISPLAY, SEEN)
-  VALUES
-    (
-      (
-        SELECT
-          SESSION_PARTITION.SESSION_REF
-        FROM
-          ENDPOINT_TYPE_CLUSTER
-        INNER JOIN
-          ENDPOINT_TYPE
-        ON
-          ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF
-        INNER JOIN
-          SESSION_PARTITION
-        ON
-          SESSION_PARTITION.SESSION_PARTITION_ID = ENDPOINT_TYPE.SESSION_PARTITION_REF
-        WHERE
-          ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = new.ENDPOINT_TYPE_CLUSTER_ID
-      ),
-      "WARNING",
-      "On endpoint "
-      ||
-      (
-        SELECT
-          ENDPOINT.ENDPOINT_IDENTIFIER
-        FROM
-          ENDPOINT
-        INNER JOIN
-          ENDPOINT_TYPE
-        ON
-          ENDPOINT.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
-        INNER JOIN
-          ENDPOINT_TYPE_CLUSTER
-        ON
-          ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
-        WHERE
-          ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = new.ENDPOINT_TYPE_CLUSTER_ID
-      )
-      ||
-      ", support for cluster: "
-      ||
-      (
-        SELECT
-          CLUSTER.NAME || " " || new.SIDE
-        FROM
-          CLUSTER
-        WHERE
-          CLUSTER.CLUSTER_ID = new.CLUSTER_REF
-      )
-      ||
-      " is provisional.",
-      1,
-      1,
-      0
-    );
+    SESSION_NOTICE (SESSION_REF, NOTICE_TYPE, NOTICE_MESSAGE, NOTICE_SEVERITY, DISPLAY, SEEN)
+  SELECT 
+    SP.SESSION_REF,
+    "WARNING",
+    "On endpoint " || E.ENDPOINT_IDENTIFIER || ", support for cluster: " || C.NAME || " " || new.SIDE || " is provisional.",
+    1,
+    1,
+    0
+  FROM
+    ENDPOINT E
+  INNER JOIN
+    ENDPOINT_TYPE ET
+  ON
+    E.ENDPOINT_TYPE_REF = ET.ENDPOINT_TYPE_ID
+  INNER JOIN
+    SESSION_PARTITION SP
+  ON
+    ET.SESSION_PARTITION_REF = SP.SESSION_PARTITION_ID
+  INNER JOIN
+    CLUSTER C
+  ON
+    C.CLUSTER_ID = new.CLUSTER_REF
+  WHERE
+    ET.ENDPOINT_TYPE_ID = new.ENDPOINT_TYPE_REF;
+END;
+
+/*
+SQL INSERT Trigger that adds warnings for provisional clusters to the notification table when creating an endpoint.
+The triggered is placed on ENDPOINT table since ENDPOINT data is required in the warning and is loaded after ENDPOINT_TYPE and ENDPOINT_TYPE_CLUSTER.
+*/
+CREATE TRIGGER
+  INSERT_TRIGGER_ENABLE_PROVISIONAL_CLUSTER_WARNING_PER_ENDPOINT
+AFTER
+  INSERT ON ENDPOINT
+BEGIN
+  INSERT INTO
+    SESSION_NOTICE (SESSION_REF, NOTICE_TYPE, NOTICE_MESSAGE, NOTICE_SEVERITY, DISPLAY, SEEN)
+  SELECT
+    SP.SESSION_REF,
+    "WARNING",
+    "On endpoint " || E.ENDPOINT_IDENTIFIER || ", support for cluster: " || C.NAME || " " || ETC.SIDE || " is provisional.",
+    1,
+    1,
+    0
+  FROM
+    ENDPOINT E
+  INNER JOIN
+    ENDPOINT_TYPE ET
+  ON
+    E.ENDPOINT_TYPE_REF = ET.ENDPOINT_TYPE_ID
+  INNER JOIN
+    SESSION_PARTITION SP
+  ON
+    SP.SESSION_PARTITION_ID = ET.SESSION_PARTITION_REF
+  INNER JOIN
+    ENDPOINT_TYPE_CLUSTER ETC
+  ON
+    ETC.ENDPOINT_TYPE_REF = ET.ENDPOINT_TYPE_ID
+  INNER JOIN
+    CLUSTER C
+  ON
+    ETC.CLUSTER_REF = C.CLUSTER_ID
+  WHERE
+    E.ENDPOINT_ID = NEW.ENDPOINT_ID
+  AND
+    ETC.ENABLED = 1
+  AND
+    C.API_MATURITY = "provisional";
 END;
 
 /*

@@ -1766,9 +1766,7 @@ async function importEndpointTypes(
       }
     }
 
-    await setAndPrintProvisionalClusterWarnings(
-      db,
-      sessionId,
+    await printProvisionalClusterWarnings(
       provisionalClusterWarnings,
       provisionalClusterWarningTitle,
       specMessageIndent,
@@ -2266,19 +2264,14 @@ function generateProvisionalClusterWarnings(clusters, endpointId) {
 }
 
 /**
- * Set provisional cluster warnings in the notification table,
- * and print the concatenated warning message to the console.
+ * Print the concatenated provisional cluster warning message to the console.
  *
- * @param {*} db
- * @param {*} sessionId
  * @param {*} warnings
  * @param {*} provisionalClusterWarningTitle
  * @param {*} specMessageIndent
  * @param {*} dottedLine
  */
-async function setAndPrintProvisionalClusterWarnings(
-  db,
-  sessionId,
+async function printProvisionalClusterWarnings(
   warnings,
   provisionalClusterWarningTitle,
   specMessageIndent,
@@ -2286,16 +2279,6 @@ async function setAndPrintProvisionalClusterWarnings(
 ) {
   let warningMessage = ''
   if (warnings.length > 0) {
-    for (let warning of warnings) {
-      await querySessionNotice.setNotification(
-        db,
-        'WARNING',
-        warning,
-        sessionId,
-        1,
-        0
-      )
-    }
     warningMessage = dottedLine.concat(
       provisionalClusterWarningTitle,
       specMessageIndent,
