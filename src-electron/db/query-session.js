@@ -488,17 +488,22 @@ async function selectSessionPartitionInfoFromDeviceType(
 }
 
 /**
- * Retrieve session partition infor from session id and package id.
+ * Retrieve session partition info from session id and package id.
  * @param {*} db
  * @param {*} sessionId
  * @param {*} packageIds
+ * @param {*} isEnabledSessionPackages - flag to filter only enabled session packages (default is true)
  * @returns session partition info
  */
 async function selectSessionPartitionInfoFromPackageId(
   db,
   sessionId,
-  packageIds
+  packageIds,
+  isEnabledSessionPackages = true
 ) {
+  let enabledCondition = isEnabledSessionPackages
+    ? 'AND SESSION_PACKAGE.ENABLED=1'
+    : ''
   let rows = await dbApi.dbAll(
     db,
     `
@@ -520,8 +525,7 @@ async function selectSessionPartitionInfoFromPackageId(
       SESSION_PARTITION.SESSION_REF = ?
     AND
       SESSION_PACKAGE.PACKAGE_REF IN (${packageIds})
-    AND
-      SESSION_PACKAGE.ENABLED=1`,
+    ${enabledCondition}`,
     [sessionId]
   )
   return rows.map(dbMapping.map.sessionPartition)
