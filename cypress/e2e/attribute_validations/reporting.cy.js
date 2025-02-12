@@ -40,5 +40,9 @@ describe('Add multiple clusters and search', () => {
     cy.get(
       '.q-virtual-scroll__content > :nth-child(1) > :nth-child(2) > .q-toggle > .q-toggle__inner > .q-toggle__thumb'
     ).click()
+    // Check to make sure the button is still visible after clicking
+    cy.get(
+      '.q-virtual-scroll__content > :nth-child(1) > :nth-child(2) > .q-toggle > .q-toggle__inner > .q-toggle__thumb'
+    ).should('be.visible')
   })
 })
