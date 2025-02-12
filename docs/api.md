@@ -20121,6 +20121,7 @@ This module provides the APIs for dotdot Loading
     * [~parseFeatureFlags(db, packageId, featureFlags)](#module_Loader API_ Loader APIs..parseFeatureFlags) ⇒
     * [~parseConformanceFromXML(operand)](#module_Loader API_ Loader APIs..parseConformanceFromXML) ⇒
     * [~parseConformanceRecursively(operand, depth, parentJoinChar)](#module_Loader API_ Loader APIs..parseConformanceRecursively) ⇒
+    * [~hasAllowedFeatures(features)](#module_Loader API_ Loader APIs..hasAllowedFeatures) ⇒
     * [~parseUiOptions(db, packageId, featureFlags)](#module_Loader API_ Loader APIs..parseUiOptions) ⇒
     * [~parseOptions(db)](#module_Loader API_ Loader APIs..parseOptions) ⇒
     * [~parseTextOptions(db, pkgRef, textOptions)](#module_Loader API_ Loader APIs..parseTextOptions) ⇒
@@ -21530,6 +21531,18 @@ When they appear, stop recursing and return the name inside directly
 | operand | <code>\*</code> |  | 
 | depth | <code>\*</code> | <code>0</code> | 
 | parentJoinChar | <code>\*</code> |  | 
+
+<a name="module_Loader API_ Loader APIs..hasAllowedFeatures"></a>
+
+### Loader API: Loader APIs~hasAllowedFeatures(features) ⇒
+Check if any feature in the cluster has conformance other than disallowed
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: true if any feature has allowed conformance, false otherwise  
+
+| Param | Type |
+| --- | --- |
+| features | <code>\*</code> | 
 
 <a name="module_Loader API_ Loader APIs..parseUiOptions"></a>
 
@@ -21955,6 +21968,7 @@ This module provides the APIs for new data model loading
     * [~parseFeatureFlags(db, packageId, featureFlags)](#module_Loader API_ Loader APIs..parseFeatureFlags) ⇒
     * [~parseConformanceFromXML(operand)](#module_Loader API_ Loader APIs..parseConformanceFromXML) ⇒
     * [~parseConformanceRecursively(operand, depth, parentJoinChar)](#module_Loader API_ Loader APIs..parseConformanceRecursively) ⇒
+    * [~hasAllowedFeatures(features)](#module_Loader API_ Loader APIs..hasAllowedFeatures) ⇒
     * [~parseUiOptions(db, packageId, featureFlags)](#module_Loader API_ Loader APIs..parseUiOptions) ⇒
     * [~parseOptions(db)](#module_Loader API_ Loader APIs..parseOptions) ⇒
     * [~parseTextOptions(db, pkgRef, textOptions)](#module_Loader API_ Loader APIs..parseTextOptions) ⇒
@@ -23364,6 +23378,18 @@ When they appear, stop recursing and return the name inside directly
 | operand | <code>\*</code> |  | 
 | depth | <code>\*</code> | <code>0</code> | 
 | parentJoinChar | <code>\*</code> |  | 
+
+<a name="module_Loader API_ Loader APIs..hasAllowedFeatures"></a>
+
+### Loader API: Loader APIs~hasAllowedFeatures(features) ⇒
+Check if any feature in the cluster has conformance other than disallowed
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: true if any feature has allowed conformance, false otherwise  
+
+| Param | Type |
+| --- | --- |
+| features | <code>\*</code> | 
 
 <a name="module_Loader API_ Loader APIs..parseUiOptions"></a>
 
@@ -23789,6 +23815,7 @@ This module provides the APIs for ZCL/Data-Model loading.
     * [~parseFeatureFlags(db, packageId, featureFlags)](#module_Loader API_ Loader APIs..parseFeatureFlags) ⇒
     * [~parseConformanceFromXML(operand)](#module_Loader API_ Loader APIs..parseConformanceFromXML) ⇒
     * [~parseConformanceRecursively(operand, depth, parentJoinChar)](#module_Loader API_ Loader APIs..parseConformanceRecursively) ⇒
+    * [~hasAllowedFeatures(features)](#module_Loader API_ Loader APIs..hasAllowedFeatures) ⇒
     * [~parseUiOptions(db, packageId, featureFlags)](#module_Loader API_ Loader APIs..parseUiOptions) ⇒
     * [~parseOptions(db)](#module_Loader API_ Loader APIs..parseOptions) ⇒
     * [~parseTextOptions(db, pkgRef, textOptions)](#module_Loader API_ Loader APIs..parseTextOptions) ⇒
@@ -25198,6 +25225,18 @@ When they appear, stop recursing and return the name inside directly
 | operand | <code>\*</code> |  | 
 | depth | <code>\*</code> | <code>0</code> | 
 | parentJoinChar | <code>\*</code> |  | 
+
+<a name="module_Loader API_ Loader APIs..hasAllowedFeatures"></a>
+
+### Loader API: Loader APIs~hasAllowedFeatures(features) ⇒
+Check if any feature in the cluster has conformance other than disallowed
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: true if any feature has allowed conformance, false otherwise  
+
+| Param | Type |
+| --- | --- |
+| features | <code>\*</code> | 
 
 <a name="module_Loader API_ Loader APIs..parseUiOptions"></a>
 
@@ -25623,6 +25662,7 @@ This module provides the APIs for for common functionality related to loading.
     * [~parseFeatureFlags(db, packageId, featureFlags)](#module_Loader API_ Loader APIs..parseFeatureFlags) ⇒
     * [~parseConformanceFromXML(operand)](#module_Loader API_ Loader APIs..parseConformanceFromXML) ⇒
     * [~parseConformanceRecursively(operand, depth, parentJoinChar)](#module_Loader API_ Loader APIs..parseConformanceRecursively) ⇒
+    * [~hasAllowedFeatures(features)](#module_Loader API_ Loader APIs..hasAllowedFeatures) ⇒
     * [~parseUiOptions(db, packageId, featureFlags)](#module_Loader API_ Loader APIs..parseUiOptions) ⇒
     * [~parseOptions(db)](#module_Loader API_ Loader APIs..parseOptions) ⇒
     * [~parseTextOptions(db, pkgRef, textOptions)](#module_Loader API_ Loader APIs..parseTextOptions) ⇒
@@ -27032,6 +27072,18 @@ When they appear, stop recursing and return the name inside directly
 | operand | <code>\*</code> |  | 
 | depth | <code>\*</code> | <code>0</code> | 
 | parentJoinChar | <code>\*</code> |  | 
+
+<a name="module_Loader API_ Loader APIs..hasAllowedFeatures"></a>
+
+### Loader API: Loader APIs~hasAllowedFeatures(features) ⇒
+Check if any feature in the cluster has conformance other than disallowed
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: true if any feature has allowed conformance, false otherwise  
+
+| Param | Type |
+| --- | --- |
+| features | <code>\*</code> | 
 
 <a name="module_Loader API_ Loader APIs..parseUiOptions"></a>
 

@@ -1957,17 +1957,20 @@ async function processParsedZclData(
     // Treating features in a cluster as a bitmap
     if (featureClusters.length > 0) {
       featureClusters.forEach((fc) => {
-        Batch5.push(
-          processBitmap(db, filePath, packageId, knownPackages, [
-            {
-              $: {
-                name: 'Feature',
-                type: 'BITMAP32',
-                cluster_code: [fc.code[0]]
+        // only add bitmap if the cluster has allowed features to avoid empty bitmaps
+        if (hasAllowedFeatures(fc.features)) {
+          Batch5.push(
+            processBitmap(db, filePath, packageId, knownPackages, [
+              {
+                $: {
+                  name: 'Feature',
+                  type: 'BITMAP32',
+                  cluster_code: [fc.code[0]]
+                }
               }
-            }
-          ])
-        )
+            ])
+          )
+        }
       })
     }
     if (dbEnum.zclType.struct in toplevel) {
@@ -2387,6 +2390,22 @@ function parseConformanceRecursively(operand, depth = 0, parentJoinChar = '') {
     }
     // reaching here means the term is too complex to parse
     return 'desc'
+  }
+}
+
+/**
+ * Check if any feature in the cluster has conformance other than disallowed
+ *
+ * @param {*} features
+ * @returns true if any feature has allowed conformance, false otherwise
+ */
+function hasAllowedFeatures(features) {
+  if (features.length > 0 && features[0] && features[0].feature) {
+    return features[0].feature.some((feature) => {
+      return parseConformanceFromXML(feature) != 'X'
+    })
+  } else {
+    return false
   }
 }
 
