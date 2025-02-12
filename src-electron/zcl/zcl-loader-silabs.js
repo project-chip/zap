@@ -1524,13 +1524,16 @@ async function processBitmapFields(
     'feature' in data.features[0]
   ) {
     data.features[0].feature.forEach((item) => {
-      bitmapFields.push({
-        bitmapName: 'Feature',
-        bitmapClusterCode: [{ $: { code: data.code[0] } }],
-        name: item.$.name,
-        mask: 1 << item.$.bit,
-        fieldIdentifier: item.$.bit
-      })
+      // do not add feature to bitmapFields if it has disallowed conformance
+      if (parseConformanceFromXML(item) != 'X') {
+        bitmapFields.push({
+          bitmapName: 'Feature',
+          bitmapClusterCode: [{ $: { code: data.code[0] } }],
+          name: item.$.name,
+          mask: 1 << item.$.bit,
+          fieldIdentifier: item.$.bit
+        })
+      }
     })
   }
   return queryLoader.insertBitmapFields(
