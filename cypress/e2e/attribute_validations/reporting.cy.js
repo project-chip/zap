@@ -1,13 +1,33 @@
 /// <reference types="cypress" />
 
 Cypress.on('uncaught:exception', (err, runnable) => {
-  // returning false here prevents Cypress from
-  // failing the test
+  // returning false here prevents Cypress from failing the test
   return false
 })
 
 describe('Add multiple clusters and search', () => {
-  it('create two endpoints and validate basic information', () => {
+  // This will hold the fixture data and the flag for skipping the tests
+  let skipTest = false
+
+  before(function () {
+    // Load the fixture data before running any tests
+    cy.fixture('data').then((data) => {
+      this.data = data
+      // If mode is "matter", set skipTest flag to true
+      if (this.data.mode === 'matter') {
+        skipTest = true
+      }
+    })
+  })
+
+  it('create two endpoints and validate basic information', function () {
+    // Skip the test if the flag is true (mode is "matter")
+    if (skipTest) {
+      cy.log('Skipping test because mode is "matter"')
+      return // Skip the test if mode is 'matter'
+    }
+
+    // Continue with the test if the mode is not "matter"
     cy.fixture('baseurl').then((data) => {
       cy.visit(data.baseurl)
     })
