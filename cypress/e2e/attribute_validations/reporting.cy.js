@@ -14,7 +14,7 @@ describe('Add multiple clusters and search', () => {
     cy.fixture('data').then((data) => {
       this.data = data
       // If mode is "matter", set skipTest flag to true
-      if (this.data.mode === 'matter') {
+      if (this.data.mode !== 'zigbee') {
         skipTest = true
       }
     })
@@ -23,7 +23,7 @@ describe('Add multiple clusters and search', () => {
   it('create two endpoints and validate basic information', function () {
     // Skip the test if the flag is true (mode is "matter")
     if (skipTest) {
-      cy.log('Skipping test because mode is "matter"')
+      cy.log('Skipping test because mode is not "zigbee"')
       return // Skip the test if mode is 'matter'
     }
 
