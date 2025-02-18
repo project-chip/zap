@@ -3651,7 +3651,7 @@ This module provides queries for features.
     * [~checkMissingTerms(expression, elementMap)](#module_DB API_ feature related queries..checkMissingTerms) ⇒
     * [~filterElementsContainingDesc(elements)](#module_DB API_ feature related queries..filterElementsContainingDesc) ⇒
     * [~filterRelatedDescElements(elements, featureCode)](#module_DB API_ feature related queries..filterRelatedDescElements) ⇒
-    * [~generateWarningMessage(featureData, endpointId, missingTerms, featureMap, descElements)](#module_DB API_ feature related queries..generateWarningMessage) ⇒
+    * [~generateWarningMessage(featureData, endpointId, elementMap, featureMap, descElements)](#module_DB API_ feature related queries..generateWarningMessage) ⇒
     * [~checkElementConformance(elements, featureMap, featureData, endpointId)](#module_DB API_ feature related queries..checkElementConformance) ⇒
     * [~filterElementsToUpdate(elements, elementMap, featureCode)](#module_DB API_ feature related queries..filterElementsToUpdate) ⇒
     * [~getOutdatedElementWarning(featureData, elements, elementMap)](#module_DB API_ feature related queries..getOutdatedElementWarning) ⇒
@@ -3762,9 +3762,9 @@ Filter an array of elements by if any element has conformance containing the ter
 
 <a name="module_DB API_ feature related queries..generateWarningMessage"></a>
 
-### DB API: feature related queries~generateWarningMessage(featureData, endpointId, missingTerms, featureMap, descElements) ⇒
+### DB API: feature related queries~generateWarningMessage(featureData, endpointId, elementMap, featureMap, descElements) ⇒
 Generate a warning message after processing conformance of the updated device type feature.
-Set flags to decide whether to show a popup warning or disable changes in the frontend.
+Set flags to decide whether to show warnings or disable changes in the frontend.
 
 **Kind**: inner method of [<code>DB API: feature related queries</code>](#module_DB API_ feature related queries)  
 **Returns**: warning message array, disableChange flag, and displayWarning flag  
@@ -3773,7 +3773,7 @@ Set flags to decide whether to show a popup warning or disable changes in the fr
 | --- | --- |
 | featureData | <code>\*</code> | 
 | endpointId | <code>\*</code> | 
-| missingTerms | <code>\*</code> | 
+| elementMap | <code>\*</code> | 
 | featureMap | <code>\*</code> | 
 | descElements | <code>\*</code> | 
 

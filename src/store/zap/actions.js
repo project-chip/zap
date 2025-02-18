@@ -942,30 +942,11 @@ export async function setDeviceTypeFeatures(
   axiosRequests
     .$serverGet(restApi.uri.deviceTypeFeatures, config)
     .then((resp) => {
-      let deviceTypeFeatures = []
-      /* For a device type feature under the same endpoint and cluster, but different device types,
-        merge their rows into one and combine their device type names into a list. */
-      resp.data.forEach((row) => {
-        const key = `${row.endpointTypeClusterId}-${row.featureId}`
-        if (key in deviceTypeFeatures) {
-          let existingRow = deviceTypeFeatures[key]
-          if (!existingRow.deviceTypes.includes(row.deviceType)) {
-            existingRow.deviceTypes.push(row.deviceType)
-          }
-        } else {
-          deviceTypeFeatures[key] = {
-            ...row,
-            deviceTypes: [row.deviceType]
-          }
-          delete deviceTypeFeatures[key].deviceType
-        }
-      })
-      deviceTypeFeatures = Object.values(deviceTypeFeatures)
-
+      let deviceTypeFeatures = resp.data
       context.commit('setDeviceTypeFeatures', deviceTypeFeatures)
 
-      let enabledDeviceTypeFeatures = []
       // turn on the toggle for features with their bit set in featureMap attribute
+      let enabledDeviceTypeFeatures = []
       deviceTypeFeatures.forEach((feature) => {
         if (feature.featureMapValue & (1 << feature.bit)) {
           enabledDeviceTypeFeatures.push(

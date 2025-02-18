@@ -296,19 +296,23 @@ test(
     }
     let featureMap = { HS: 0, EHUE: 0, CL: 0, XY: 1, CT: 1, UNKNOWN: 0 }
     let deviceType = 'Matter Extended Color Light'
+    let cluster = 'Color Control'
     let featureHS = {
+      cluster: cluster,
       name: 'Hue/Saturation',
       code: 'HS',
       conformance: 'O',
       deviceTypes: [deviceType]
     }
     let featureXY = {
+      cluster: cluster,
       name: 'XY',
       code: 'XY',
       conformance: 'M',
       deviceTypes: [deviceType]
     }
     let featureUnknown = {
+      cluster: cluster,
       name: 'Unknown',
       code: 'UNKNOWN',
       conformance: 'Feature1 | Feature2',
@@ -317,6 +321,7 @@ test(
     let endpointId = 1
     let result = {}
     let expectedWarning = ''
+    let warningPrefix = `On endpoint ${endpointId}, cluster: ${cluster}, `
 
     // 1. test enable an optional feature
     featureMap['HS'] = 1
@@ -353,9 +358,9 @@ test(
     )
     // should throw and display warning
     expectedWarning =
-      `On endpoint ${endpointId}, ` +
-      `feature ${featureXY.name} is disabled, ` +
-      `but it is mandatory for device type ${deviceType}`
+      warningPrefix +
+      `feature: ${featureXY.name} should be enabled, ` +
+      `as it is mandatory for device type: ${deviceType}`
     expect(result.displayWarning).toBeTruthy()
     expect(result.disableChange).toBeFalsy()
     expect(result.warningMessage).toBe(expectedWarning)
@@ -379,8 +384,8 @@ test(
       endpointId
     )
     expectedWarning =
-      `On Endpoint ${endpointId}, ` +
-      `feature ${featureUnknown.name} cannot be enabled ` +
+      warningPrefix +
+      `feature: ${featureUnknown.name} cannot be enabled ` +
       `as its conformance depends on non device type features ` +
       `Feature1, Feature2 with unknown values`
     // should display warning and disable the change
@@ -409,7 +414,8 @@ test(
       endpointId
     )
     expectedWarning =
-      `On endpoint ${endpointId}, feature ${featureHS.name} ` +
+      warningPrefix +
+      `feature: ${featureHS.name} ` +
       `cannot be enabled as attribute ${descElement.name} ` +
       `depend on the feature and their conformance are too complex to parse.`
     expect(result.displayWarning).toBeTruthy()
