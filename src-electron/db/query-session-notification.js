@@ -232,7 +232,9 @@ async function setRequiredElementWarning(db, data, sessionId) {
   let { element, contextMessage, requiredText, notSupportedText, added } = data
 
   // delete previous warning before setting new one
-  let patterns = [`${element.name} conforms to ${element.conformance} and is`]
+  let patterns = [
+    `${element.name} has mandatory conformance to ${element.conformance} and should be`
+  ]
   await deleteNotificationWithPatterns(db, sessionId, patterns)
 
   let addResp = false

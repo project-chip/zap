@@ -396,7 +396,7 @@ function checkElementConformance(
   let featureCode = featureData ? featureData.code : ''
 
   // create a map of element names/codes to their enabled status
-  let elementMap = featureMap
+  let elementMap = { ...featureMap }
   attributes.forEach((attribute) => {
     elementMap[attribute.name] = attribute.included
   })
@@ -522,7 +522,7 @@ function getOutdatedElementWarning(featureData, elements, elementMap) {
           oldMap
         )
         if (newConform != oldConform) {
-          let pattern = `${element.name} conforms to ${element.conformance} and is`
+          let pattern = `${element.name} has mandatory conformance to ${element.conformance} and should be`
           outdatedWarnings.push(pattern)
         }
       }
@@ -558,28 +558,39 @@ function filterRequiredElements(elements, elementMap, featureMap) {
     )
     let expression = element.conformance
     let terms = expression ? expression.match(/[A-Za-z][A-Za-z0-9_]*/g) : []
-    let featureTerms = terms.filter((term) => term in featureMap).join(', ')
-    let elementTerms = terms.filter((term) => !(term in featureMap)).join(', ')
+    let featureTerms = terms
+      .filter((term) => term in featureMap)
+      .map(
+        (term) =>
+          `feature: ${term} is ${featureMap[term] ? 'enabled' : 'disabled'}`
+      )
+      .join(', ')
+    let elementTerms = terms
+      .filter((term) => !(term in featureMap))
+      .map(
+        (term) =>
+          `element: ${term} is ${elementMap[term] ? 'enabled' : 'disabled'}`
+      )
+      .join(', ')
+    let combinedTerms = [featureTerms, elementTerms].filter(Boolean).join(', ')
     let conformToElement = terms.some((term) =>
       Object.keys(elementMap).includes(term)
     )
 
     if (conformToElement) {
-      let conformState = ''
+      let suggestedState = ''
       if (conformance == 'mandatory') {
-        conformState = 'mandatory'
+        suggestedState = 'enabled'
       }
       if (conformance == 'notSupported') {
-        conformState = 'not supported'
+        suggestedState = 'disabled'
       }
 
       // generate warning message for required and unsupported elements
       element.warningMessage =
-        `${element.name} conforms to ${element.conformance} and is ` +
-        `${conformState}` +
-        (featureTerms ? ` based on state of feature: ${featureTerms}` : '') +
-        (featureTerms && elementTerms ? ', ' : '') +
-        (elementTerms ? `element: ${elementTerms}` : '') +
+        `${element.name} has mandatory conformance to ${element.conformance} ` +
+        `and should be ${suggestedState} when ` +
+        combinedTerms +
         '.'
       if (conformance == 'mandatory') {
         requiredElements.required[element.id] = element.warningMessage

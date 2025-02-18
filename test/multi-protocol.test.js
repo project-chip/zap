@@ -206,10 +206,37 @@ test(
       )
     ).toBeTruthy()
 
-    // Just one notification regarding multiple top level zcl propertoes and 4
-    // notifications regarding feature map attribute not set correctly
-    // and one notification regarding the enabled provisional cluster: Scenes
-    expect(sessionNotifications.length).toEqual(6)
+    // Tests for provisional cluster warnings
+    expect(
+      sessionNotificationMessages.includes(
+        'On endpoint 1, support for cluster: Scenes server is provisional.'
+      )
+    ).toBeTruthy()
+
+    // Tests for the attributes and commands that do not conform to the device type feature LT
+    let nonConformElements = [
+      { name: 'StartUpOnOff', type: 'attribute' },
+      { name: 'OffWaitTime', type: 'attribute' },
+      { name: 'OnTime', type: 'attribute' },
+      { name: 'GlobalSceneControl', type: 'attribute' },
+      { name: 'OffWithEffect', type: 'command' },
+      { name: 'OnWithRecallGlobalScene', type: 'command' },
+      { name: 'OnWithTimedOff', type: 'command' }
+    ]
+
+    for (const element of nonConformElements) {
+      expect(
+        sessionNotificationMessages.includes(
+          `On endpoint 1, cluster: On/Off, ${element.type}: ${element.name} has mandatory conformance to LT and should be disabled when feature: LT is disabled.`
+        )
+      ).toBeTruthy()
+    }
+
+    // one notification regarding multiple top level zcl propertoes
+    // 4 notifications regarding feature map attribute not set correctly
+    // one notification regarding the enabled provisional cluster
+    // 7 notifications regarding non-conformed elements
+    expect(sessionNotifications.length).toEqual(13)
 
     // Test Accumulators in templates
     let zigbeeEndpointEvents = genResultZigbee.content['zap-event.h']
