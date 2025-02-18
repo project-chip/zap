@@ -227,7 +227,7 @@ test(
     for (const element of nonConformElements) {
       expect(
         sessionNotificationMessages.includes(
-          `On endpoint 1, cluster: On/Off, ${element.type}: ${element.name} conforms to LT and is not supported based on state of feature: LT.`
+          `On endpoint 1, cluster: On/Off, ${element.type}: ${element.name} has mandatory conformance to LT and should be disabled when feature: LT is disabled.`
         )
       ).toBeTruthy()
     }

@@ -500,17 +500,17 @@ test(
     // Their element conformance warnings should be added to the notification table.
     expect(
       notificationMessages.includes(
-        'On endpoint 1, cluster: On/Off, command: OffWithEffect conforms to LT and is mandatory based on state of feature: LT.'
+        'On endpoint 1, cluster: On/Off, command: OffWithEffect has mandatory conformance to LT and should be enabled when feature: LT is enabled.'
       )
     ).toBeTruthy()
     expect(
       notificationMessages.includes(
-        'On endpoint 1, cluster: On/Off, attribute: OnTime conforms to LT and is mandatory based on state of feature: LT.'
+        'On endpoint 1, cluster: On/Off, attribute: OnTime has mandatory conformance to LT and should be enabled when feature: LT is enabled.'
       )
     ).toBeTruthy()
     expect(
       notificationMessages.includes(
-        'On endpoint 1, cluster: On/Off, attribute: GlobalSceneControl conforms to LT and is mandatory based on state of feature: LT.'
+        'On endpoint 1, cluster: On/Off, attribute: GlobalSceneControl has mandatory conformance to LT and should be enabled when feature: LT is enabled.'
       )
     ).toBeTruthy()
   },
