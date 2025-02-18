@@ -513,6 +513,14 @@ test(
         'On endpoint 1, cluster: On/Off, attribute: GlobalSceneControl has mandatory conformance to LT and should be enabled when feature: LT is enabled.'
       )
     ).toBeTruthy()
+
+    // disabled mandatory device type feature OnOff should trigger a notification
+    expect(
+      notificationMessages.includes(
+        'On endpoint 1, cluster: Level Control, feature: OnOff should be enabled, as it is mandatory for device type: Matter Dimmable Light'
+      )
+    ).toBeTruthy()
+    console.log(notificationMessages)
   },
   testUtil.timeout.medium()
 )
