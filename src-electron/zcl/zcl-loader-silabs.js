@@ -2310,7 +2310,7 @@ function parseConformanceFromXML(operand) {
  */
 function parseConformanceRecursively(operand, depth = 0, parentJoinChar = '') {
   if (depth > 200) {
-    throw new Error(`Maximum recursion depth exceeded 
+    throw new Error(`Maximum recursion depth exceeded
       when parsing conformance: ${JSON.stringify(operand)}`)
   }
   const baseLevelTerms = ['feature', 'condition', 'attribute', 'command']
@@ -2700,23 +2700,26 @@ async function loadIndividualSilabsFile(db, filePath, sessionId) {
       await querySession.selectSessionPartitionInfoFromPackageId(
         db,
         sessionId,
-        pkgId
+        pkgId,
+        false
       )
+    let sessionPartitionId
     if (sessionPartitionInfoForNewPackage.length == 0) {
+      // session partition does not exist for this package - adding new session partition
       let sessionPartitionInfo =
         await querySession.getAllSessionPartitionInfoForSession(db, sessionId)
-      let sessionPartitionId = await querySession.insertSessionPartition(
+      sessionPartitionId = await querySession.insertSessionPartition(
         db,
         sessionId,
         sessionPartitionInfo.length + 1
       )
-      await queryPackage.insertSessionPackage(
-        db,
-        sessionPartitionId,
-        pkgId,
-        true
-      )
+    } else {
+      // session partition exists for this package
+      sessionPartitionId =
+        sessionPartitionInfoForNewPackage[0].sessionPartitionId
     }
+    await queryPackage.insertSessionPackage(db, sessionPartitionId, pkgId, true)
+
     await zclLoader.processZclPostLoading(db, pkgId)
     return { succeeded: true, packageId: pkgId }
   } catch (err) {

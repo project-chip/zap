@@ -389,6 +389,7 @@ function httpPostAttributeUpdate(db) {
     let {
       action,
       endpointTypeIdList,
+      selectedEndpoint,
       id,
       value,
       listType,
@@ -398,7 +399,6 @@ function httpPostAttributeUpdate(db) {
       reportMaxInterval,
       reportableChange
     } = request.body
-
     if (!Array.isArray(endpointTypeIdList) || !endpointTypeIdList.length) {
       return response.status(StatusCodes.BAD_REQUEST).json()
     }
@@ -434,11 +434,10 @@ function httpPostAttributeUpdate(db) {
         )
       )
     )
-
     // send latest value to frontend to update UI
     let eptAttr = await queryZcl.selectEndpointTypeAttribute(
       db,
-      endpointTypeIdList[0],
+      selectedEndpoint,
       id,
       clusterRef
     )
@@ -448,7 +447,7 @@ function httpPostAttributeUpdate(db) {
     // endpointTypeId doesn't matter since all attributes are the seame.
     let validationData = await validation.validateAttribute(
       db,
-      endpointTypeIdList[0],
+      selectedEndpoint,
       id,
       clusterRef,
       request.zapSessionId
@@ -661,33 +660,8 @@ function httpPostAddNewPackage(db) {
           err: data.err.message
         }
       } else {
-        // Check if session partition for package exists. If not then add it.
-        let sessionPartitionInfoForNewPackage =
-          await querySession.selectSessionPartitionInfoFromPackageId(
-            db,
-            sessionId,
-            data.packageId
-          )
-        if (sessionPartitionInfoForNewPackage.length == 0) {
-          let sessionPartitionInfo =
-            await querySession.getAllSessionPartitionInfoForSession(
-              db,
-              sessionId
-            )
-          let sessionPartitionId = await querySession.insertSessionPartition(
-            db,
-            sessionId,
-            sessionPartitionInfo.length + 1
-          )
-          await queryPackage.insertSessionPackage(
-            db,
-            sessionPartitionId,
-            data.packageId,
-            true
-          )
-        }
         status = {
-          isValid: true,
+          isValid: data.succeeded,
           sessionId: sessionId
         }
       }
