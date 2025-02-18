@@ -181,28 +181,22 @@ test(
       (sn) => sn.message
     )
 
-    // Tests for the feature Map attribute compliance based on device type cluster features
+    // Tests for device type feature conformance
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Device Type Compliance on endpoint: 1, device type: MA-onofflight, cluster: On/Off server needs bit 0 enabled in the Feature Map attribute'
+        'On endpoint 1, cluster: Level Control, feature: Lighting should be enabled, as it is mandatory for device type: Matter Dimmable Light'
       )
     ).toBeTruthy()
 
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Device Type Compliance on endpoint: 1, device type: MA-dimmablelight, cluster: Level Control server needs bit 0 enabled in the Feature Map attribute'
+        'On endpoint 1, cluster: Level Control, feature: OnOff should be enabled, as it is mandatory for device type: Matter Dimmable Light'
       )
     ).toBeTruthy()
 
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Device Type Compliance on endpoint: 1, device type: MA-dimmablelight, cluster: Level Control server needs bit 1 enabled in the Feature Map attribute'
-      )
-    ).toBeTruthy()
-
-    expect(
-      sessionNotificationMessages.includes(
-        '⚠ Check Device Type Compliance on endpoint: 1, device type: MA-dimmablelight, cluster: On/Off server needs bit 0 enabled in the Feature Map attribute'
+        'On endpoint 1, cluster: On/Off, feature: Lighting should be enabled, as it is mandatory for device type: Matter Dimmable Light'
       )
     ).toBeTruthy()
 
@@ -233,10 +227,10 @@ test(
     }
 
     // one notification regarding multiple top level zcl propertoes
-    // 4 notifications regarding feature map attribute not set correctly
+    // 3 notifications regarding device type feature conformance
     // one notification regarding the enabled provisional cluster
     // 7 notifications regarding non-conformed elements
-    expect(sessionNotifications.length).toEqual(13)
+    expect(sessionNotifications.length).toEqual(12)
 
     // Test Accumulators in templates
     let zigbeeEndpointEvents = genResultZigbee.content['zap-event.h']

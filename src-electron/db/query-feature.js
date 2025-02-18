@@ -114,7 +114,28 @@ async function getFeaturesByDeviceTypeRefs(
     `,
     arg
   )
-  return features.map(dbMapping.map.deviceTypeFeature)
+  let deviceTypeFeatures = features.map(dbMapping.map.deviceTypeFeature)
+
+  /* For a device type feature under the same endpoint and cluster, but different device types,  
+    merge their rows into one and combine their device type names into a list. */
+  let result = []
+  deviceTypeFeatures.forEach((row) => {
+    const key = `${row.endpointTypeClusterId}-${row.featureId}`
+    if (key in result) {
+      let existingRow = result[key]
+      if (!existingRow.deviceTypes.includes(row.deviceType)) {
+        existingRow.deviceTypes.push(row.deviceType)
+      }
+    } else {
+      result[key] = {
+        ...row,
+        deviceTypes: [row.deviceType]
+      }
+      delete result[key].deviceType
+    }
+  })
+
+  return Object.values(result)
 }
 
 /**
@@ -258,11 +279,11 @@ function filterRelatedDescElements(elements, featureCode) {
 
 /**
  * Generate a warning message after processing conformance of the updated device type feature.
- * Set flags to decide whether to show a popup warning or disable changes in the frontend.
+ * Set flags to decide whether to show warnings or disable changes in the frontend.
  *
  * @param {*} featureData
  * @param {*} endpointId
- * @param {*} missingTerms
+ * @param {*} elementMap
  * @param {*} featureMap
  * @param {*} descElements
  * @returns warning message array, disableChange flag, and displayWarning flag
@@ -270,9 +291,9 @@ function filterRelatedDescElements(elements, featureCode) {
 function generateWarningMessage(
   featureData,
   endpointId,
-  missingTerms,
   featureMap,
-  descElements
+  elementMap = {},
+  descElements = {}
 ) {
   let featureName = featureData.name
   let added = featureMap[featureData.code] ? true : false
@@ -284,17 +305,26 @@ function generateWarningMessage(
   }
   result.warningMessage = []
 
-  if (missingTerms.length > 0) {
-    let missingTermsString = missingTerms.join(', ')
-    result.warningMessage.push(
-      'On Endpoint ' +
-        endpointId +
-        ', feature ' +
-        featureName +
-        ' cannot be enabled as its conformance depends on non device type features ' +
-        missingTermsString +
-        ' with unknown values'
-    )
+  let warningPrefix =
+    'On endpoint ' +
+    endpointId +
+    ', cluster: ' +
+    featureData.cluster +
+    ', feature: ' +
+    featureName
+
+  let missingTerms = []
+  if (Object.keys(elementMap).length > 0) {
+    missingTerms = checkMissingTerms(featureData.conformance, elementMap)
+    if (missingTerms.length > 0) {
+      let missingTermsString = missingTerms.join(', ')
+      result.warningMessage.push(
+        warningPrefix +
+          ' cannot be enabled as its conformance depends on non device type features ' +
+          missingTermsString +
+          ' with unknown values'
+      )
+    }
   }
 
   if (
@@ -310,10 +340,7 @@ function generateWarningMessage(
       .join(', ')
     let eventNames = descElements.events.map((event) => event.name).join(', ')
     result.warningMessage.push(
-      'On endpoint ' +
-        endpointId +
-        ', feature ' +
-        featureName +
+      warningPrefix +
         ' cannot be enabled as ' +
         (attributeNames ? 'attribute ' + attributeNames : '') +
         (attributeNames && commandNames ? ', ' : '') +
@@ -326,46 +353,38 @@ function generateWarningMessage(
 
   if (
     missingTerms.length == 0 &&
-    descElements.attributes.length == 0 &&
-    descElements.commands.length == 0 &&
-    descElements.events.length == 0
+    (Object.keys(descElements).length == 0 ||
+      (descElements.attributes.length == 0 &&
+        descElements.commands.length == 0 &&
+        descElements.events.length == 0))
   ) {
     let conformance = evaluateConformanceExpression(
       featureData.conformance,
       featureMap
     )
-    // change is not disabled, by default does not display warning
+    // if no missing terms and no desc elements, enable the feature change
     result.disableChange = false
     result.displayWarning = false
     // in this case only 1 warning message is needed
     result.warningMessage = ''
     if (conformance == 'notSupported') {
       result.warningMessage =
-        'On endpoint ' +
-        endpointId +
-        ', feature ' +
-        featureName +
-        ' is enabled, but it is not supported for device type ' +
+        warningPrefix +
+        ' should be disabled, as it is not supported for device type: ' +
         deviceTypeNames
       result.displayWarning = added
     }
     if (conformance == 'provisional') {
       result.warningMessage =
-        'On endpoint ' +
-        endpointId +
-        ', feature ' +
-        featureName +
-        ' is enabled, but it is still provisional for device type ' +
+        warningPrefix +
+        ' is enabled, but it is still provisional for device type: ' +
         deviceTypeNames
       result.displayWarning = added
     }
     if (conformance == 'mandatory') {
       result.warningMessage =
-        'On endpoint ' +
-        endpointId +
-        ', feature ' +
-        featureName +
-        ' is disabled, but it is mandatory for device type ' +
+        warningPrefix +
+        ' should be enabled, as it is mandatory for device type: ' +
         deviceTypeNames
       result.displayWarning = !added
     }
@@ -416,12 +435,11 @@ function checkElementConformance(
     descElements.commands = filterRelatedDescElements(commands, featureCode)
     descElements.events = filterRelatedDescElements(events, featureCode)
 
-    let missingTerms = checkMissingTerms(featureData.conformance, elementMap)
     warningInfo = generateWarningMessage(
       featureData,
       endpointId,
-      missingTerms,
       featureMap,
+      elementMap,
       descElements
     )
 
@@ -675,6 +693,7 @@ async function getEndpointTypeElements(
 
 exports.getFeaturesByDeviceTypeRefs = getFeaturesByDeviceTypeRefs
 exports.checkElementConformance = checkElementConformance
+exports.generateWarningMessage = generateWarningMessage
 exports.evaluateConformanceExpression = evaluateConformanceExpression
 exports.filterElementsContainingDesc = filterElementsContainingDesc
 exports.filterRelatedDescElements = filterRelatedDescElements
