@@ -505,7 +505,7 @@ async function importClusters(
         sessionId
       )
 
-      let clusterConformWarnings = await setElementConformWarning(
+      let clusterConformWarnings = await setConformanceWarnings(
         db,
         endpointId,
         endpointTypeId,
@@ -1100,61 +1100,6 @@ async function deviceTypeComplianceForClusters(
       )
     }
     if (
-      deviceTypeClustersOnEndpointType[dtc].includeClient &&
-      isDeviceTypeClientClusterFound
-    ) {
-      let deviceTypeClusterFeatureBitsInfo =
-        deviceTypeClustersToFeatureBitMap[
-          deviceTypeClustersOnEndpointType[dtc].clusterRef
-        ]
-      if (deviceTypeClusterFeatureBitsInfo) {
-        let endpointTypeClusterFeatureMapValue =
-          await queryEndpointType.selectEndpointTypeAttributeFromEndpointTypeClusterId(
-            db,
-            endpointTypeClusterRefMapDetailed[
-              deviceTypeClustersOnEndpointType[dtc].clusterRef
-            ]['client'].endpointTypeClusterId,
-            '0xFFFC',
-            null
-          )
-        for (let i = 0; i < deviceTypeClusterFeatureBitsInfo.length; i++) {
-          if (
-            endpointTypeClusterFeatureMapValue &&
-            endpointTypeClusterFeatureMapValue.storageOption !=
-              dbEnum.storageOption.external &&
-            !(
-              endpointTypeClusterFeatureMapValue.defaultValue &
-              (1 << deviceTypeClusterFeatureBitsInfo[i].featureBit)
-            )
-          ) {
-            let featureMapComplianceMessage =
-              '⚠ Check Device Type Compliance on endpoint: ' +
-              endpointId +
-              ', device type: ' +
-              deviceType.name +
-              ', cluster: ' +
-              deviceTypeClustersOnEndpointType[dtc].clusterName +
-              ' client needs bit ' +
-              deviceTypeClusterFeatureBitsInfo[i].featureBit +
-              ' enabled in the Feature Map attribute'
-            deviceTypeSpecCheckComplianceMessage =
-              deviceTypeSpecCheckComplianceMessage.concat(
-                specMessageIndent,
-                featureMapComplianceMessage
-              )
-            querySessionNotice.setNotification(
-              db,
-              'WARNING',
-              featureMapComplianceMessage,
-              sessionId,
-              1,
-              0
-            )
-          }
-        }
-      }
-    }
-    if (
       deviceTypeClustersOnEndpointType[dtc].includeServer &&
       !isDeviceTypeServerClusterFound &&
       deviceTypeClustersOnEndpointType[dtc].lockServer
@@ -1180,62 +1125,6 @@ async function deviceTypeComplianceForClusters(
         1,
         0
       )
-    }
-
-    if (
-      deviceTypeClustersOnEndpointType[dtc].includeServer &&
-      isDeviceTypeServerClusterFound
-    ) {
-      let deviceTypeClusterFeatureBitsInfo =
-        deviceTypeClustersToFeatureBitMap[
-          deviceTypeClustersOnEndpointType[dtc].clusterRef
-        ]
-      if (deviceTypeClusterFeatureBitsInfo) {
-        let endpointTypeClusterFeatureMapValue =
-          await queryEndpointType.selectEndpointTypeAttributeFromEndpointTypeClusterId(
-            db,
-            endpointTypeClusterRefMapDetailed[
-              deviceTypeClustersOnEndpointType[dtc].clusterRef
-            ]['server'].endpointTypeClusterId,
-            '0xFFFC',
-            null
-          )
-        for (let i = 0; i < deviceTypeClusterFeatureBitsInfo.length; i++) {
-          if (
-            endpointTypeClusterFeatureMapValue &&
-            endpointTypeClusterFeatureMapValue.storageOption !=
-              dbEnum.storageOption.external &&
-            !(
-              endpointTypeClusterFeatureMapValue.defaultValue &
-              (1 << deviceTypeClusterFeatureBitsInfo[i].featureBit)
-            )
-          ) {
-            let featureMapComplianceMessage =
-              '⚠ Check Device Type Compliance on endpoint: ' +
-              endpointId +
-              ', device type: ' +
-              deviceType.name +
-              ', cluster: ' +
-              deviceTypeClustersOnEndpointType[dtc].clusterName +
-              ' server needs bit ' +
-              deviceTypeClusterFeatureBitsInfo[i].featureBit +
-              ' enabled in the Feature Map attribute'
-            deviceTypeSpecCheckComplianceMessage =
-              deviceTypeSpecCheckComplianceMessage.concat(
-                specMessageIndent,
-                featureMapComplianceMessage
-              )
-            querySessionNotice.setNotification(
-              db,
-              'WARNING',
-              featureMapComplianceMessage,
-              sessionId,
-              1,
-              0
-            )
-          }
-        }
-      }
     }
   }
   return deviceTypeSpecCheckComplianceMessage
@@ -2113,9 +2002,9 @@ async function jsonDataLoader(
 }
 
 /**
- * Adds warnings to the session notification table for elements
- * that do not conform correctly when importing a ZAP file.
- *
+ * Adds warnings to the session notification table during ZAP file imports
+ * for features, attributes, commands, and events that do not correctly conform
+ * within a cluster.
  * @param {*} db
  * @param {*} endpointId
  * @param {*} endpointTypeId
@@ -2125,7 +2014,7 @@ async function jsonDataLoader(
  * @param {*} sessionId
  * @returns list of warning messages if any, otherwise false
  */
-async function setElementConformWarning(
+async function setConformanceWarnings(
   db,
   endpointId,
   endpointTypeId,
@@ -2164,6 +2053,25 @@ async function setElementConformWarning(
       endpointTypeElements,
       featureMap
     )
+
+    // set warnings for each feature in the cluster
+    for (const featureData of clusterFeatures) {
+      let warningInfo = queryFeature.generateWarningMessage(
+        featureData,
+        endpointId,
+        featureMap
+      )
+      if (warningInfo.displayWarning && warningInfo.warningMessage) {
+        await querySessionNotice.setNotification(
+          db,
+          'WARNING',
+          warningInfo.warningMessage,
+          sessionId,
+          1,
+          0
+        )
+      }
+    }
 
     let contextMessage = `On endpoint ${endpointId}, cluster: ${cluster.name}, `
     let warnings = []
