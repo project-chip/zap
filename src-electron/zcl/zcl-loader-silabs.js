@@ -630,6 +630,12 @@ function prepareCluster(cluster, context, isExtension = false) {
           attribute.$.reportingPolicy
         )
       }
+      /* If the XML uses `array="true" type="X"` to define a list type,
+         convert it to `type="array" entryType="X"` to support both formats */
+      if (attribute.$.array == 'true') {
+        attribute.$.entryType = attribute.$.type
+        attribute.$.type = 'array'
+      }
       let storagePolicy = dbEnum.storagePolicy.any
       if (context.listsUseAttributeAccessInterface && attribute.$.entryType) {
         storagePolicy = dbEnum.storagePolicy.attributeAccessInterface
