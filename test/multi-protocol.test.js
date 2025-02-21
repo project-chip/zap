@@ -184,19 +184,20 @@ test(
     // Tests for device type feature conformance
     expect(
       sessionNotificationMessages.includes(
-        'On endpoint 1, cluster: Level Control, feature: Lighting should be enabled, as it is mandatory for device type: Matter Dimmable Light'
+        'On endpoint 1, cluster: Level Control, feature: Lighting (bit 1 in featureMap attribute) should be enabled, as it is mandatory for device type: Matter Dimmable Light'
       )
     ).toBeTruthy()
 
     expect(
       sessionNotificationMessages.includes(
-        'On endpoint 1, cluster: Level Control, feature: OnOff should be enabled, as it is mandatory for device type: Matter Dimmable Light'
+        'On endpoint 1, cluster: Level Control, feature: OnOff (bit 0 in featureMap attribute) should be enabled, as it is mandatory for device type: Matter Dimmable Light'
       )
     ).toBeTruthy()
 
+    // warnings for same feature across different device types should be merged
     expect(
       sessionNotificationMessages.includes(
-        'On endpoint 1, cluster: On/Off, feature: Lighting should be enabled, as it is mandatory for device type: Matter Dimmable Light'
+        'On endpoint 1, cluster: On/Off, feature: Lighting (bit 0 in featureMap attribute) should be enabled, as it is mandatory for device type: Matter On/Off Light, Matter Dimmable Light'
       )
     ).toBeTruthy()
 
@@ -226,7 +227,7 @@ test(
       ).toBeTruthy()
     }
 
-    // one notification regarding multiple top level zcl propertoes
+    // one notification regarding multiple top level zcl properties
     // 3 notifications regarding device type feature conformance
     // one notification regarding the enabled provisional cluster
     // 7 notifications regarding non-conformed elements

@@ -517,10 +517,9 @@ test(
     // disabled mandatory device type feature OnOff should trigger a notification
     expect(
       notificationMessages.includes(
-        'On endpoint 1, cluster: Level Control, feature: OnOff should be enabled, as it is mandatory for device type: Matter Dimmable Light'
+        'On endpoint 1, cluster: Level Control, feature: OnOff (bit 0 in featureMap attribute) should be enabled, as it is mandatory for device type: Matter Dimmable Light'
       )
     ).toBeTruthy()
-    console.log(notificationMessages)
   },
   testUtil.timeout.medium()
 )

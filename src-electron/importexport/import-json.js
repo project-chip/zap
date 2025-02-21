@@ -955,14 +955,6 @@ async function deviceTypeClustersAttributesAndCommands(db, endpointTypeId) {
   // Commands associated with device types on an endpoint type
   let deviceTypeCommandsOnEndpointType = []
 
-  // Features associated with device types on an endpoint type
-  let deviceTypeFeaturesOnEndpointType =
-    await queryDeviceType.selectDeviceTypeFeaturesByEndpointTypeIdAndClusterId(
-      db,
-      endpointTypeId,
-      'all'
-    )
-
   // Initialize the device type clusters, attributes and commands based on
   // device types on an endpoint
   for (
@@ -1003,31 +995,8 @@ async function deviceTypeClustersAttributesAndCommands(db, endpointTypeId) {
   return [
     deviceTypeClustersOnEndpointType,
     deviceTypeAttributesOnEndpointType,
-    deviceTypeCommandsOnEndpointType,
-    deviceTypeFeaturesOnEndpointType
+    deviceTypeCommandsOnEndpointType
   ]
-}
-
-/**
- *
- * @param {*} deviceTypeFeaturesOnEndpointType
- * @returns a map between device type's cluster id to feature bits for that cluster
- */
-function deviceTypeClusterToFeatureBits(deviceTypeFeaturesOnEndpointType) {
-  let deviceTypeClustersToFeatureBitMap = {}
-  for (let i = 0; i < deviceTypeFeaturesOnEndpointType.length; i++) {
-    let clusterId = deviceTypeFeaturesOnEndpointType[i].clusterId
-    if (clusterId in deviceTypeClustersToFeatureBitMap) {
-      deviceTypeClustersToFeatureBitMap[clusterId].push(
-        deviceTypeFeaturesOnEndpointType[i]
-      )
-    } else {
-      deviceTypeClustersToFeatureBitMap[clusterId] = [
-        deviceTypeFeaturesOnEndpointType[i]
-      ]
-    }
-  }
-  return deviceTypeClustersToFeatureBitMap
 }
 
 /**
@@ -1048,16 +1017,10 @@ async function deviceTypeComplianceForClusters(
   endpointId,
   sessionId,
   deviceTypeClustersOnEndpointType,
-  deviceTypeFeaturesOnEndpointType,
   endpointTypeClusterRefMap,
-  endpointTypeClusterRefMapDetailed,
   deviceTypeSpecCheckComplianceMessage,
   specMessageIndent
 ) {
-  // Create a map keyed by device type cluster associated to device type cluster feature Bits
-  let deviceTypeClustersToFeatureBitMap = deviceTypeClusterToFeatureBits(
-    deviceTypeFeaturesOnEndpointType
-  )
   for (let dtc = 0; dtc < deviceTypeClustersOnEndpointType.length; dtc++) {
     let isDeviceTypeClientClusterFound =
       endpointTypeClusterRefMap?.[
@@ -1495,17 +1458,13 @@ async function importEndpointTypes(
           endpointTypeId
         )
       let endpointTypeClusterRefMap = {}
-      let endpointTypeClusterRefMapDetailed = {}
       let allMandatoryAttributes = []
       let allMandatoryCommands = []
       for (let len = 0; len < endpointTypeClusters.length; len++) {
         let epc = endpointTypeClusters[len]
         endpointTypeClusterRefMap[epc.clusterRef] =
           endpointTypeClusterRefMap[epc.clusterRef] || {}
-        endpointTypeClusterRefMapDetailed[epc.clusterRef] =
-          endpointTypeClusterRefMapDetailed[epc.clusterRef] || {}
         endpointTypeClusterRefMap[epc.clusterRef][epc.side] = epc.enabled
-        endpointTypeClusterRefMapDetailed[epc.clusterRef][epc.side] = epc
         let cluster = await queryZcl.selectClusterById(db, epc.clusterRef)
 
         // Mandatory Cluster Attributes
@@ -1590,8 +1549,7 @@ async function importEndpointTypes(
       const [
         deviceTypeClustersOnEndpointType,
         deviceTypeAttributesOnEndpointType,
-        deviceTypeCommandsOnEndpointType,
-        deviceTypeFeaturesOnEndpointType
+        deviceTypeCommandsOnEndpointType
       ] = await deviceTypeClustersAttributesAndCommands(db, endpointTypeId)
 
       // Cluster compliance as per the spec. Checking if a device type requires
@@ -1602,9 +1560,7 @@ async function importEndpointTypes(
           endpointId,
           sessionId,
           deviceTypeClustersOnEndpointType,
-          deviceTypeFeaturesOnEndpointType,
           endpointTypeClusterRefMap,
-          endpointTypeClusterRefMapDetailed,
           deviceTypeSpecCheckComplianceMessage,
           specMessageIndent
         )
@@ -2054,6 +2010,7 @@ async function setConformanceWarnings(
       featureMap
     )
 
+    let warnings = []
     // set warnings for each feature in the cluster
     for (const featureData of clusterFeatures) {
       let warningInfo = queryFeature.generateWarningMessage(
@@ -2062,19 +2019,11 @@ async function setConformanceWarnings(
         featureMap
       )
       if (warningInfo.displayWarning && warningInfo.warningMessage) {
-        await querySessionNotice.setNotification(
-          db,
-          'WARNING',
-          warningInfo.warningMessage,
-          sessionId,
-          1,
-          0
-        )
+        warnings.push(warningInfo.warningMessage)
       }
     }
 
     let contextMessage = `On endpoint ${endpointId}, cluster: ${cluster.name}, `
-    let warnings = []
 
     /* If unsupported elements are enabled or required elements are disabled, 
       they are considered non-conforming. A corresponding warning message will be 

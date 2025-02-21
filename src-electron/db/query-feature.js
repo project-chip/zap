@@ -306,12 +306,8 @@ function generateWarningMessage(
   result.warningMessage = []
 
   let warningPrefix =
-    'On endpoint ' +
-    endpointId +
-    ', cluster: ' +
-    featureData.cluster +
-    ', feature: ' +
-    featureName
+    `On endpoint ${endpointId}, cluster: ${featureData.cluster}, ` +
+    `feature: ${featureName} (bit ${featureData.bit} in featureMap attribute)`
 
   let missingTerms = []
   if (Object.keys(elementMap).length > 0) {

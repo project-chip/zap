@@ -297,31 +297,36 @@ test(
     let featureMap = { HS: 0, EHUE: 0, CL: 0, XY: 1, CT: 1, UNKNOWN: 0 }
     let deviceType = 'Matter Extended Color Light'
     let cluster = 'Color Control'
+    let featureBit = 0
     let featureHS = {
       cluster: cluster,
       name: 'Hue/Saturation',
       code: 'HS',
       conformance: 'O',
-      deviceTypes: [deviceType]
+      deviceTypes: [deviceType],
+      bit: featureBit
     }
     let featureXY = {
       cluster: cluster,
       name: 'XY',
       code: 'XY',
       conformance: 'M',
-      deviceTypes: [deviceType]
+      deviceTypes: [deviceType],
+      bit: featureBit
     }
     let featureUnknown = {
       cluster: cluster,
       name: 'Unknown',
       code: 'UNKNOWN',
       conformance: 'Feature1 | Feature2',
-      deviceTypes: [deviceType]
+      deviceTypes: [deviceType],
+      bit: featureBit
     }
     let endpointId = 1
     let result = {}
     let expectedWarning = ''
     let warningPrefix = `On endpoint ${endpointId}, cluster: ${cluster}, `
+    let featureBitMessage = `(bit ${featureBit} in featureMap attribute)`
 
     // 1. test enable an optional feature
     featureMap['HS'] = 1
@@ -359,7 +364,7 @@ test(
     // should throw and display warning
     expectedWarning =
       warningPrefix +
-      `feature: ${featureXY.name} should be enabled, ` +
+      `feature: ${featureXY.name} ${featureBitMessage} should be enabled, ` +
       `as it is mandatory for device type: ${deviceType}`
     expect(result.displayWarning).toBeTruthy()
     expect(result.disableChange).toBeFalsy()
@@ -385,7 +390,7 @@ test(
     )
     expectedWarning =
       warningPrefix +
-      `feature: ${featureUnknown.name} cannot be enabled ` +
+      `feature: ${featureUnknown.name} ${featureBitMessage} cannot be enabled ` +
       `as its conformance depends on non device type features ` +
       `Feature1, Feature2 with unknown values`
     // should display warning and disable the change
@@ -415,7 +420,7 @@ test(
     )
     expectedWarning =
       warningPrefix +
-      `feature: ${featureHS.name} ` +
+      `feature: ${featureHS.name} ${featureBitMessage} ` +
       `cannot be enabled as attribute ${descElement.name} ` +
       `depend on the feature and their conformance are too complex to parse.`
     expect(result.displayWarning).toBeTruthy()
