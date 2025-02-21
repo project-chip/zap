@@ -1320,7 +1320,7 @@ CREATE TRIGGER
   UPDATE_MULTIPROTOCOL_ATTRIBUTES_ACROSS_ENDPOINT_TYPES
 AFTER
   UPDATE ON ENDPOINT_TYPE_ATTRIBUTE
-WHEN 
+WHEN
 (
   (
     SELECT
@@ -1385,7 +1385,7 @@ BEGIN
   IN
     (
       SELECT
-        CASE 
+        CASE
           WHEN new.ENDPOINT_TYPE_ATTRIBUTE_ID = ETA1.ENDPOINT_TYPE_ATTRIBUTE_ID THEN ETA2.ENDPOINT_TYPE_ATTRIBUTE_ID
           WHEN new.ENDPOINT_TYPE_ATTRIBUTE_ID = ETA2.ENDPOINT_TYPE_ATTRIBUTE_ID THEN ETA1.ENDPOINT_TYPE_ATTRIBUTE_ID
         END AS ENDPOINT_TYPE_ATTRIBUTE_ID
@@ -3022,7 +3022,7 @@ WHEN
     AND
       new.ENABLED = 1
     AND
-      CLUSTER.API_MATURITY = "provisional"     
+      CLUSTER.API_MATURITY = "provisional"
   ) > 0
   AND (
     SELECT
@@ -3159,7 +3159,7 @@ WHEN
 BEGIN
   INSERT INTO
     SESSION_NOTICE (SESSION_REF, NOTICE_TYPE, NOTICE_MESSAGE, NOTICE_SEVERITY, DISPLAY, SEEN)
-  SELECT 
+  SELECT
     SP.SESSION_REF,
     "WARNING",
     "On endpoint " || E.ENDPOINT_IDENTIFIER || ", support for cluster: " || C.NAME || " " || new.SIDE || " is provisional.",
@@ -3257,9 +3257,9 @@ BEGIN
     AND
       NOTICE_TYPE="WARNING"
     AND
-  NOTICE_MESSAGE LIKE 
+  NOTICE_MESSAGE LIKE
   (
-    "On endpoint " 
+    "On endpoint "
     ||
     old.ENDPOINT_IDENTIFIER
     ||
@@ -3268,7 +3268,7 @@ BEGIN
 END;
 
 /*
- SQL UPDATE Trigger that removes a warning from the notification table when disabling a provisional cluster. 
+ SQL UPDATE Trigger that removes a warning from the notification table when disabling a provisional cluster.
 */
 CREATE TRIGGER
   UPDATE_TRIGGER_PROVISIONAL_CLUSTER_WARNING_REMOVAL
@@ -3293,7 +3293,7 @@ WHEN
     AND
       new.ENABLED = 0
     AND
-      CLUSTER.API_MATURITY = "provisional"     
+      CLUSTER.API_MATURITY = "provisional"
   ) > 0
 BEGIN
   DELETE FROM
@@ -3751,13 +3751,207 @@ WHERE SESSION_ID = OLD.SESSION_REF;
 END;
 
 /*
-____ _  _ ____ ___ ____ _  _    _  _ _  _ _       ___ ____ _ ____ ____ ____ ____ ____ 
-|    |  | [__   |  |  | |\/|     \/  |\/| |        |  |__/ | | __ | __ |___ |__/ [__  
-|___ |__| ___]  |  |__| |  |    _/\_ |  | |___     |  |  \ | |__] |__] |___ |  \ ___] 
+____ _  _ ____ ___ ____ _  _    _  _ _  _ _       ___ ____ _ ____ ____ ____ ____ ____
+|    |  | [__   |  |  | |\/|     \/  |\/| |        |  |__/ | | __ | __ |___ |__/ [__
+|___ |__| ___]  |  |__| |  |    _/\_ |  | |___     |  |  \ | |__] |__] |___ |  \ ___]
 
 Custom XML specific triggers
-*/                                                                                    
-                                                                                                                                                                      
+*/
+
+/* Indexes that make the custom xml triggers faster*/
+CREATE INDEX idx_session_package_package_ref ON SESSION_PACKAGE(PACKAGE_REF);
+CREATE INDEX idx_session_package_session_partition_ref ON SESSION_PACKAGE(SESSION_PARTITION_REF);
+CREATE INDEX idx_package_type ON PACKAGE(TYPE);
+CREATE INDEX idx_session_partition_session_ref ON SESSION_PARTITION(SESSION_REF);
+
+/* Triggers that deletes the endpoint type cluster entries related to a custom xml package when it is disabled for a given session */
+CREATE TRIGGER DELETE_ENDPOINT_TYPE_CLUSTER_ON_DISABLE_CUSTOM_XML
+AFTER UPDATE ON SESSION_PACKAGE
+WHEN
+  EXISTS (
+    SELECT 1
+    FROM
+      SESSION_PACKAGE spk
+    JOIN
+      PACKAGE p ON spk.PACKAGE_REF = p.PACKAGE_ID
+    WHERE
+      p.TYPE = 'zcl-xml-standalone'
+    AND
+      spk.PACKAGE_REF = NEW.PACKAGE_REF
+  )
+  AND
+    OLD.ENABLED = 1
+  AND
+    NEW.ENABLED = 0
+BEGIN
+  DELETE FROM ENDPOINT_TYPE_CLUSTER
+  WHERE
+    CLUSTER_REF
+  IN (
+    SELECT
+      c.CLUSTER_ID
+    FROM
+      CLUSTER c
+    WHERE
+      c.PACKAGE_REF = NEW.PACKAGE_REF
+  )
+  AND
+    ENDPOINT_TYPE_REF
+  IN (
+    SELECT
+      ept.ENDPOINT_TYPE_ID
+    FROM
+      ENDPOINT_TYPE ept
+    JOIN
+      SESSION_PARTITION sp ON ept.SESSION_PARTITION_REF = sp.SESSION_PARTITION_ID
+    JOIN
+      SESSION_PARTITION sp2 ON sp.SESSION_REF = sp2.SESSION_REF
+    WHERE
+      sp2.SESSION_PARTITION_ID = NEW.SESSION_PARTITION_REF
+  );
+END;
+
+/* Triggers that deletes the endpoint type attribute entries related to a custom xml package when it is disabled for a given session */
+CREATE TRIGGER DELETE_ENDPOINT_TYPE_ATTRIBUTE_ON_DISABLE_CUSTOM_XML
+AFTER UPDATE ON SESSION_PACKAGE
+WHEN
+  EXISTS (
+    SELECT 1
+    FROM
+      SESSION_PACKAGE spk
+    JOIN
+      PACKAGE p ON spk.PACKAGE_REF = p.PACKAGE_ID
+    WHERE
+      p.TYPE = 'zcl-xml-standalone'
+    AND
+      spk.PACKAGE_REF = NEW.PACKAGE_REF
+  )
+  AND OLD.ENABLED = 1
+  AND NEW.ENABLED = 0
+BEGIN
+  DELETE FROM ENDPOINT_TYPE_ATTRIBUTE
+  WHERE
+    ATTRIBUTE_REF
+  IN (
+    SELECT
+      a.ATTRIBUTE_ID
+    FROM
+      ATTRIBUTE a
+    WHERE
+      a.PACKAGE_REF = NEW.PACKAGE_REF
+  )
+  AND
+    ENDPOINT_TYPE_CLUSTER_REF
+  IN (
+    SELECT
+      ept_cluster.ENDPOINT_TYPE_CLUSTER_ID
+    FROM
+      ENDPOINT_TYPE_CLUSTER ept_cluster
+    JOIN
+      ENDPOINT_TYPE ept ON ept_cluster.ENDPOINT_TYPE_REF = ept.ENDPOINT_TYPE_ID
+    JOIN
+      SESSION_PARTITION sp ON ept.SESSION_PARTITION_REF = sp.SESSION_PARTITION_ID
+    JOIN
+      SESSION_PARTITION sp2 ON sp.SESSION_REF = sp2.SESSION_REF
+    WHERE
+      sp2.SESSION_PARTITION_ID = NEW.SESSION_PARTITION_REF
+  );
+END;
+
+/* Triggers that deletes the endpoint type command entries related to a custom xml package when it is disabled for a given session */
+CREATE TRIGGER DELETE_ENDPOINT_TYPE_COMMAND_ON_DISABLE_CUSTOM_XML
+AFTER UPDATE ON SESSION_PACKAGE
+WHEN
+  EXISTS (
+    SELECT 1
+    FROM SESSION_PACKAGE spk
+    JOIN
+      PACKAGE p ON spk.PACKAGE_REF = p.PACKAGE_ID
+    WHERE
+      p.TYPE = 'zcl-xml-standalone'
+    AND
+      spk.PACKAGE_REF = NEW.PACKAGE_REF
+  )
+  AND OLD.ENABLED = 1
+  AND NEW.ENABLED = 0
+BEGIN
+  DELETE FROM ENDPOINT_TYPE_COMMAND
+  WHERE
+    COMMAND_REF
+  IN (
+    SELECT
+      cmd.COMMAND_ID
+    FROM
+      COMMAND cmd
+    WHERE
+      cmd.PACKAGE_REF = NEW.PACKAGE_REF
+  )
+  AND
+    ENDPOINT_TYPE_CLUSTER_REF
+  IN (
+    SELECT
+      ept_cluster.ENDPOINT_TYPE_CLUSTER_ID
+    FROM
+      ENDPOINT_TYPE_CLUSTER ept_cluster
+    JOIN
+      ENDPOINT_TYPE ept ON ept_cluster.ENDPOINT_TYPE_REF = ept.ENDPOINT_TYPE_ID
+    JOIN
+      SESSION_PARTITION sp ON ept.SESSION_PARTITION_REF = sp.SESSION_PARTITION_ID
+    JOIN
+      SESSION_PARTITION sp2 ON sp.SESSION_REF = sp2.SESSION_REF
+    WHERE
+      sp2.SESSION_PARTITION_ID = NEW.SESSION_PARTITION_REF);
+END;
+
+
+/* Triggers that deletes the endpoint type event entries related to a custom xml package when it is disabled for a given session */
+CREATE TRIGGER DELETE_ENDPOINT_TYPE_EVENT_ON_DISABLE_CUSTOM_XML
+AFTER UPDATE ON SESSION_PACKAGE
+WHEN
+  EXISTS (
+    SELECT 1
+    FROM
+      SESSION_PACKAGE spk
+    JOIN
+      PACKAGE p ON spk.PACKAGE_REF = p.PACKAGE_ID
+    WHERE
+      p.TYPE = 'zcl-xml-standalone'
+    AND
+      spk.PACKAGE_REF = NEW.PACKAGE_REF
+  )
+  AND
+    OLD.ENABLED = 1
+  AND
+    NEW.ENABLED = 0
+BEGIN
+  DELETE FROM ENDPOINT_TYPE_EVENT
+  WHERE
+    EVENT_REF
+  IN (
+    SELECT
+      evt.EVENT_ID
+    FROM
+      EVENT evt
+    WHERE
+      evt.PACKAGE_REF = NEW.PACKAGE_REF
+  )
+  AND
+    ENDPOINT_TYPE_CLUSTER_REF
+  IN (
+    SELECT
+      ept_cluster.ENDPOINT_TYPE_CLUSTER_ID
+    FROM
+      ENDPOINT_TYPE_CLUSTER ept_cluster
+    JOIN
+      ENDPOINT_TYPE ept ON ept_cluster.ENDPOINT_TYPE_REF = ept.ENDPOINT_TYPE_ID
+    JOIN
+      SESSION_PARTITION sp ON ept.SESSION_PARTITION_REF = sp.SESSION_PARTITION_ID
+    JOIN
+      SESSION_PARTITION sp2 ON sp.SESSION_REF = sp2.SESSION_REF
+    WHERE
+      sp2.SESSION_PARTITION_ID = NEW.SESSION_PARTITION_REF);
+END;
+
 /* Triggers that deal with code conflicts in custom xml */
 
 /* Trigger that deals with code conflicts in clusters when new session package is inserted */
@@ -3770,9 +3964,7 @@ WHEN
     FROM
       SESSION_PACKAGE spk
     JOIN
-      PACKAGE p
-    ON
-      spk.PACKAGE_REF = p.PACKAGE_ID
+      PACKAGE p ON spk.PACKAGE_REF = p.PACKAGE_ID
     WHERE
       p.TYPE = 'zcl-xml-standalone'
     AND
@@ -4450,9 +4642,9 @@ BEGIN
     0
     FROM
       COMMAND_ARG a
-    INNER JOIN 
+    INNER JOIN
       COMMAND c
-    ON 
+    ON
       a.COMMAND_REF = c.COMMAND_ID
     INNER JOIN
       PACKAGE p
@@ -4534,9 +4726,9 @@ BEGIN
     0
     FROM
       COMMAND_ARG a
-    INNER JOIN 
+    INNER JOIN
       COMMAND c
-    ON 
+    ON
       a.COMMAND_REF = c.COMMAND_ID
     INNER JOIN
       PACKAGE p
@@ -4618,7 +4810,7 @@ BEGIN
       EVENT_FIELD f
     INNER JOIN
       EVENT e
-    ON 
+    ON
       f.EVENT_REF = e.EVENT_ID
     INNER JOIN
       PACKAGE p
@@ -4702,7 +4894,7 @@ BEGIN
       EVENT_FIELD f
     INNER JOIN
       EVENT e
-    ON 
+    ON
       f.EVENT_REF = e.EVENT_ID
     INNER JOIN
       PACKAGE p

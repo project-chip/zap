@@ -37,13 +37,13 @@ const querySessionNotification = require('../src-electron/db/query-session-notif
 const queryDeviceType = require('../src-electron/db/query-device-type')
 const queryConfig = require('../src-electron/db/query-config')
 const queryEndpoint = require('../src-electron/db/query-endpoint')
+const queryZcl = require('../src-electron/db/query-zcl')
+const queryAttribute = require('../src-electron/db/query-attribute')
+const exportJs = require('../src-electron/importexport/export')
 const util = require('../src-electron/util/util')
-const { queuePostFlushCb } = require('vue')
 const restApi = require('../src-shared/rest-api.js')
 const genEngine = require('../src-electron/generator/generation-engine')
 const importJs = require('../src-electron/importexport/import')
-const exp = require('constants')
-const { query } = require('express')
 let db
 let sid
 let mainPackageId
@@ -324,6 +324,50 @@ test(
     )
     expect(eptAttrId).not.toBeNull()
 
+    // enabling on/off cluster and attribute coming from cluster extension
+    let onOffCluster = await queryZcl.selectClusterByCode(db, mainPackageId, 6)
+    expect(onOffCluster).not.toBeNull()
+    let onOffClusterId = onOffCluster.id
+    expect(onOffClusterId).not.toBeNull()
+
+    eptTypeClusterId = await queryConfig.insertOrReplaceClusterState(
+      db,
+      eptTypeId,
+      onOffClusterId,
+      'server',
+      1
+    )
+    expect(eptTypeClusterId).not.toBeNull()
+
+    let onOffAttr = await queryAttribute.selectAttributeByCode(
+      db,
+      [mainPackageId, testPackageId],
+      6,
+      0xfff10000,
+      null
+    )
+    expect(onOffAttr).not.toBeNull()
+    let onOffAttrId = onOffAttr.id
+    expect(onOffAttrId).not.toBeNull()
+
+    eptAttrId = await queryConfig.insertOrUpdateAttributeState(
+      db,
+      eptTypeId,
+      onOffClusterId,
+      'server',
+      onOffAttrId,
+      [
+        {
+          key: restApi.updateKey.attributeSelected,
+          value: 1
+        }
+      ],
+      null,
+      null,
+      null
+    )
+    expect(eptAttrId).not.toBeNull()
+
     let eptId = await queryEndpoint.insertEndpoint(
       db,
       sid,
@@ -378,9 +422,12 @@ test(
     )
 
     let endpointConfig = genResult.content['endpoint-config.c']
-    expect(sdkExt).not.toBeNull()
+    expect(endpointConfig).not.toBeNull()
     expect(endpointConfig).toContain(
       ' /* Endpoint: 1, Cluster: Sample Custom Cluster (server) */ \\'
+    )
+    expect(endpointConfig).toContain(
+      '{ (uint16_t)0x0, (uint16_t)0x0, (uint16_t)0xFFFF }, /* Sample Mfg Specific Attribute 2 */ \\'
     )
 
     // delete custom xml and generate again
@@ -419,10 +466,17 @@ test(
 
     endpointConfig = genResult.content['endpoint-config.c']
     expect(endpointConfig).not.toBeNull()
-    // Note: this test is not working as expected due to a bug - https://github.com/project-chip/zap/issues/1387
-    // expect(endpointConfig).not.toContain(
-    //   " /* Endpoint: 1, Cluster: Sample Custom Cluster (server) */ \\"
-    // )
+    expect(endpointConfig).not.toContain(
+      ' /* Endpoint: 1, Cluster: Sample Custom Cluster (server) */ \\'
+    )
+    expect(endpointConfig).not.toContain(
+      '{ (uint16_t)0x0, (uint16_t)0x0, (uint16_t)0xFFFF }, /* Sample Mfg Specific Attribute 2 */ \\'
+    )
+
+    // create state from database and session to verify contents of .zap file
+    let state = await exportJs.createStateFromDatabase(db, sid)
+    expect(state.endpointTypes.length).toBe(1)
+    expect(state.endpointTypes[0].clusters.length).toBe(8)
 
     // Modify custom xml and reupload
     const originalData = fs.readFileSync(testUtil.testMattterCustomXml, 'utf8')
@@ -465,16 +519,9 @@ test(
         "// cluster: 0xFFF1FC20 Sample Custom Cluster, text extension: ''"
       )
 
-      // Not working as expected possibly due to bug - https://github.com/project-chip/zap/issues/1387
-      // expect(endpointConfig).not.toContain(
-      //   " /* Endpoint: 1, Cluster: Sample Custom Cluster (server) */ \\"
-      // )
-
-      // Once bugs are resolved and based on expected behavior, the tests should pass
-      // Might need to toggle the cluster for the endpoint before generating
-      // expect(endpointConfig).toContain(
-      //   ' /* Endpoint: 1, Cluster: Sample Custom Changed (server) */ \\'
-      // )
+      expect(endpointConfig).not.toContain(
+        ' /* Endpoint: 1, Cluster: Sample Custom Cluster (server) */ \\'
+      )
 
       // Verify that there are two instances of this package with only one in sync
       let customXmlPackages = await dbApi.dbAll(
@@ -491,7 +538,7 @@ test(
       fs.writeFileSync(testUtil.testMattterCustomXml, originalData, 'utf8')
     }
   },
-  testUtil.timeout.medium()
+  testUtil.timeout.long()
 )
 
 test(
