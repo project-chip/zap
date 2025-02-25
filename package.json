@@ -271,6 +271,7 @@
         }
       ]
     },
+    "publish": null,
     "directories": {
       "buildResources": "resource-build",
       "output": "dist"
