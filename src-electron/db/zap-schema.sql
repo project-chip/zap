@@ -3000,7 +3000,7 @@ END;
 SQL UPDATE Trigger that adds a warning to the notification table when re-enabling a provisional cluster.
 */
 CREATE TRIGGER
-  UPDATE_TRIGGER_ENABLE_PROVISIONAL_CLUSTER_WARNING
+  UPDATE_TRIGGER_PROVISIONAL_CLUSTER_WARNING
 AFTER
   UPDATE ON ENDPOINT_TYPE_CLUSTER
 WHEN
@@ -3129,7 +3129,7 @@ END;
 SQL INSERT Trigger that adds a warning to the notification table when first-time enabling a provisional cluster.
 */
 CREATE TRIGGER
-  INSERT_TRIGGER_ENABLE_PROVISIONAL_CLUSTER_WARNING_PER_CLUSTER
+  INSERT_TRIGGER_PROVISIONAL_CLUSTER_WARNING_PER_CLUSTER
 AFTER
   INSERT ON ENDPOINT_TYPE_CLUSTER
 WHEN
@@ -3189,7 +3189,7 @@ SQL INSERT Trigger that adds warnings for provisional clusters to the notificati
 The triggered is placed on ENDPOINT table since ENDPOINT data is required in the warning and is loaded after ENDPOINT_TYPE and ENDPOINT_TYPE_CLUSTER.
 */
 CREATE TRIGGER
-  INSERT_TRIGGER_ENABLE_PROVISIONAL_CLUSTER_WARNING_PER_ENDPOINT
+  INSERT_TRIGGER_PROVISIONAL_CLUSTER_WARNING_PER_ENDPOINT
 AFTER
   INSERT ON ENDPOINT
 BEGIN
@@ -3229,10 +3229,49 @@ BEGIN
 END;
 
 /*
- SQL Trigger that removes a warning from the notification table when disabling a provisional cluster. 
+ SQL DELETE Trigger that removes provisional cluster warnings from the notification table when deleting an endpoint.
 */
 CREATE TRIGGER
-  UPDATE_TRIGGER_DISABLE_PROVISIONAL_CLUSTER_WARNING_REMOVAL
+  DELETE_TRIGGER_PROVISIONAL_CLUSTER_WARNING_REMOVAL
+AFTER
+  DELETE ON ENDPOINT
+BEGIN
+  DELETE FROM
+    SESSION_NOTICE
+  WHERE
+    SESSION_REF = (
+      SELECT
+        SESSION_REF
+      FROM
+        SESSION_PARTITION
+      WHERE
+        SESSION_PARTITION.SESSION_PARTITION_ID = (
+          SELECT
+            SESSION_PARTITION_REF
+          FROM
+            ENDPOINT_TYPE
+          WHERE
+            ENDPOINT_TYPE.ENDPOINT_TYPE_ID = old.ENDPOINT_TYPE_REF
+        )
+    )
+    AND
+      NOTICE_TYPE="WARNING"
+    AND
+  NOTICE_MESSAGE LIKE 
+  (
+    "On endpoint " 
+    ||
+    old.ENDPOINT_IDENTIFIER
+    ||
+    ", support for cluster: % is provisional."
+  );
+END;
+
+/*
+ SQL UPDATE Trigger that removes a warning from the notification table when disabling a provisional cluster. 
+*/
+CREATE TRIGGER
+  UPDATE_TRIGGER_PROVISIONAL_CLUSTER_WARNING_REMOVAL
 AFTER
   UPDATE ON ENDPOINT_TYPE_CLUSTER
 WHEN

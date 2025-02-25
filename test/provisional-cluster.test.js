@@ -37,6 +37,7 @@ let sid
 let pkgId
 let eptTypeId
 let clusterId
+let eptId
 
 beforeAll(async () => {
   env.setDevelopmentEnv()
@@ -112,7 +113,14 @@ test(
 
     /* insert an endpoint should trigger a warning for the provisional cluster Scenes enabled
        according to requirement of On/Off Light Device Type */
-    await queryEndpoint.insertEndpoint(db, sid, 0, eptTypeId, null, null)
+    eptId = await queryEndpoint.insertEndpoint(
+      db,
+      sid,
+      0,
+      eptTypeId,
+      null,
+      null
+    )
     let notifications = await querySessionNotification.getNotification(db, sid)
     expect(notifications.length).toBe(1)
     expect(notifications[0].message).toBe(
@@ -200,6 +208,13 @@ test(
     notifications = await querySessionNotification.getNotification(db, sid)
     expect(listContainsClientWarning(notifications)).toBe(false)
     expect(listContainsServerWarning(notifications)).toBe(false)
+
+    expect(notifications.length).toBe(1)
+
+    // test delete trigger: delete the endpoint should remove the remaining warning
+    await queryEndpoint.deleteEndpoint(db, eptId)
+    notifications = await querySessionNotification.getNotification(db, sid)
+    expect(notifications.length).toBe(0)
   },
   testUtil.timeout.medium()
 )
