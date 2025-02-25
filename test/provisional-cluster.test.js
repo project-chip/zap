@@ -37,6 +37,7 @@ let sid
 let pkgId
 let eptTypeId
 let clusterId
+let eptId
 
 beforeAll(async () => {
   env.setDevelopmentEnv()
@@ -61,7 +62,7 @@ beforeAll(async () => {
 afterAll(() => dbApi.closeDatabase(db), testUtil.timeout.short())
 
 test(
-  'Initialize a provisional cluster',
+  'Initialize a provisional cluster and test triggers for enabling an endpoint',
   async () => {
     // insert a cluster with provisional apiMaturity
     let provisionalClusterCode = 0x1111
@@ -110,7 +111,21 @@ test(
     )
     expect(eptTypeId).not.toBeNull()
 
-    await queryEndpoint.insertEndpoint(db, sid, 0, eptTypeId, null, null)
+    /* insert an endpoint should trigger a warning for the provisional cluster Scenes enabled
+       according to requirement of On/Off Light Device Type */
+    eptId = await queryEndpoint.insertEndpoint(
+      db,
+      sid,
+      0,
+      eptTypeId,
+      null,
+      null
+    )
+    let notifications = await querySessionNotification.getNotification(db, sid)
+    expect(notifications.length).toBe(1)
+    expect(notifications[0].message).toBe(
+      'On endpoint 0, support for cluster: Scenes server is provisional.'
+    )
   },
   testUtil.timeout.long()
 )
@@ -138,7 +153,8 @@ test(
       false
     )
     let notifications = await querySessionNotification.getNotification(db, sid)
-    expect(notifications.length).toBe(0)
+    expect(listContainsClientWarning(notifications)).toBe(false)
+    expect(listContainsServerWarning(notifications)).toBe(false)
 
     // test update trigger on enable a cluster
     // update provisional client cluster to enabled should trigger a warning
@@ -150,11 +166,12 @@ test(
       true
     )
     notifications = await querySessionNotification.getNotification(db, sid)
-    expect(notifications.length).toBe(1)
     expect(listContainsClientWarning(notifications)).toBe(true)
+    expect(listContainsServerWarning(notifications)).toBe(false)
 
     // test insert trigger
     // insert an enabled provisional server cluster should trigger a warning
+    // 3 notifications should be present: Scenes server, Provisional client, Provisional server
     await queryConfig.insertOrReplaceClusterState(
       db,
       eptTypeId,
@@ -163,7 +180,7 @@ test(
       true
     )
     notifications = await querySessionNotification.getNotification(db, sid)
-    expect(notifications.length).toBe(2)
+    expect(notifications.length).toBe(3)
     expect(listContainsClientWarning(notifications)).toBe(true)
     expect(listContainsServerWarning(notifications)).toBe(true)
 
@@ -177,8 +194,8 @@ test(
       false
     )
     notifications = await querySessionNotification.getNotification(db, sid)
-    expect(notifications.length).toBe(1)
     expect(listContainsClientWarning(notifications)).toBe(true)
+    expect(listContainsServerWarning(notifications)).toBe(false)
 
     // disable the provisional client cluster should remove the client warning
     await queryConfig.insertOrReplaceClusterState(
@@ -188,6 +205,14 @@ test(
       'client',
       false
     )
+    notifications = await querySessionNotification.getNotification(db, sid)
+    expect(listContainsClientWarning(notifications)).toBe(false)
+    expect(listContainsServerWarning(notifications)).toBe(false)
+
+    expect(notifications.length).toBe(1)
+
+    // test delete trigger: delete the endpoint should remove the remaining warning
+    await queryEndpoint.deleteEndpoint(db, eptId)
     notifications = await querySessionNotification.getNotification(db, sid)
     expect(notifications.length).toBe(0)
   },
