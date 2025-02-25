@@ -189,8 +189,8 @@ exports.totalDotDotEnumItems = 637
 
 exports.totalMatterClusters = 72
 exports.totalMatterDeviceTypes = 119
-exports.totalMatterCommandArgs = 597
-exports.totalMatterCommands = 248
+exports.totalMatterCommandArgs = 599
+exports.totalMatterCommands = 249
 exports.totalMatterAttributes = 784
 exports.totalMatterTags = 17
 exports.totalMatterEvents = 60

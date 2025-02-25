@@ -17,6 +17,19 @@ limitations under the License.
 <configurator>
   <domain name="HVAC"/>
 
+  <enum name="SystemModeEnum" type="enum8">
+    <cluster code="0x0201"/>
+    <item name="Off" value="0x00"/>
+    <item name="Auto" value="0x01"/>
+    <item name="Cool" value="0x03"/>
+    <item name="Heat" value="0x04"/>
+    <item name="EmergencyHeat" value="0x05"/>
+    <item name="Precooling" value="0x06"/>
+    <item name="FanOnly" value="0x07"/>
+    <item name="Dry" value="0x08"/>
+    <item name="Sleep" value="0x09"/>
+  </enum>
+
   <bitmap name="ThermostatFeature" type="BITMAP32">
     <cluster code="0x0201"/>
     <field name="Heating" mask="0x1"/>

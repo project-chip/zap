@@ -20112,8 +20112,12 @@ This module provides the APIs for dotdot Loading
     * [~processStructItems(db, filePath, packageIds, data)](#module_Loader API_ Loader APIs..processStructItems) ⇒
     * [~prepareDeviceType(deviceType)](#module_Loader API_ Loader APIs..prepareDeviceType) ⇒ <code>Object</code>
     * [~processDeviceTypes(db, filePath, packageId, data, context)](#module_Loader API_ Loader APIs..processDeviceTypes) ⇒ <code>Promise</code>
-    * [~processParsedZclData(db, argument)](#module_Loader API_ Loader APIs..processParsedZclData) ⇒
-    * [~parseSingleZclFile(db, packageId, file)](#module_Loader API_ Loader APIs..parseSingleZclFile) ⇒
+    * [~processDataTypes(db, filePath, packageId, knownPackages, toplevel)](#module_Loader API_ Loader APIs..processDataTypes) ⇒
+    * [~processAtomicTypes(db, filePath, packageId, knownPackages, toplevel)](#module_Loader API_ Loader APIs..processAtomicTypes) ⇒
+    * [~processNonAtomicTypes(db, filePath, packageId, knownPackages, toplevel, featureClusters)](#module_Loader API_ Loader APIs..processNonAtomicTypes) ⇒
+    * [~processSubItems(db, filePath, packageId, knownPackages, toplevel, featureClusters, context, collectedStructItems)](#module_Loader API_ Loader APIs..processSubItems) ⇒
+    * [~processParsedZclData(db, argument, previouslyKnownPackages, context, collectedStructItems)](#module_Loader API_ Loader APIs..processParsedZclData) ⇒
+    * [~parseSingleZclFile(db, packageId, file, context, collectedStructItems)](#module_Loader API_ Loader APIs..parseSingleZclFile) ⇒
     * [~isCrcMismatchOrPackageDoesNotExist(db, packageId, files)](#module_Loader API_ Loader APIs..isCrcMismatchOrPackageDoesNotExist) ⇒
     * [~parseZclFiles(db, packageId, zclFiles, context)](#module_Loader API_ Loader APIs..parseZclFiles) ⇒
     * [~parseManufacturerData(db, ctx)](#module_Loader API_ Loader APIs..parseManufacturerData) ⇒
@@ -20142,7 +20146,7 @@ This module provides the APIs for dotdot Loading
     * [~loadZcl(db, metadataFile)](#module_Loader API_ Loader APIs..loadZcl) ⇒
     * [~loadIndividualFile(db, filePath, sessionId)](#module_Loader API_ Loader APIs..loadIndividualFile)
     * [~qualifyZclFile(db, info, parentPackageId, isCustom)](#module_Loader API_ Loader APIs..qualifyZclFile) ⇒
-    * [~processZclPostLoading(db)](#module_Loader API_ Loader APIs..processZclPostLoading) ⇒
+    * [~processZclPostLoading(db, packageId)](#module_Loader API_ Loader APIs..processZclPostLoading) ⇒
     * [~getDiscriminatorMap(db, packageIds)](#module_Loader API_ Loader APIs..getDiscriminatorMap) ⇒
 
 <a name="module_Loader API_ Loader APIs..collectDataFromLibraryXml"></a>
@@ -21366,9 +21370,79 @@ Finally, it inserts all prepared device types into the database.
 | data | <code>Array</code> | The array of device types to be processed. |
 | context | <code>\*</code> | Additional context that might be required for processing. |
 
+<a name="module_Loader API_ Loader APIs..processDataTypes"></a>
+
+### Loader API: Loader APIs~processDataTypes(db, filePath, packageId, knownPackages, toplevel) ⇒
+Process promises for loading the data types
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise of data types  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| knownPackages | <code>\*</code> | 
+| toplevel | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processAtomicTypes"></a>
+
+### Loader API: Loader APIs~processAtomicTypes(db, filePath, packageId, knownPackages, toplevel) ⇒
+Processes promises for loading individual tables per data type for
+atomics/baseline types.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise of atomic/baseline processing.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| knownPackages | <code>\*</code> | 
+| toplevel | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processNonAtomicTypes"></a>
+
+### Loader API: Loader APIs~processNonAtomicTypes(db, filePath, packageId, knownPackages, toplevel, featureClusters) ⇒
+Processes promises for loading individual tables per data type for no-atomic
+and inherited types.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise of non-atomic/inherited data type processing.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| knownPackages | <code>\*</code> | 
+| toplevel | <code>\*</code> | 
+| featureClusters | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processSubItems"></a>
+
+### Loader API: Loader APIs~processSubItems(db, filePath, packageId, knownPackages, toplevel, featureClusters, context, collectedStructItems) ⇒
+Processes promises for loading items within a bitmap, struct, and enum data types.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise of processing sub items within a bitmap, enum and structs.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| knownPackages | <code>\*</code> | 
+| toplevel | <code>\*</code> | 
+| featureClusters | <code>\*</code> | 
+| context | <code>\*</code> | 
+| collectedStructItems | <code>\*</code> | 
+
 <a name="module_Loader API_ Loader APIs..processParsedZclData"></a>
 
-### Loader API: Loader APIs~processParsedZclData(db, argument) ⇒
+### Loader API: Loader APIs~processParsedZclData(db, argument, previouslyKnownPackages, context, collectedStructItems) ⇒
 After XML parser is done with the barebones parsing, this function
 branches the individual toplevel tags.
 
@@ -21379,10 +21453,13 @@ branches the individual toplevel tags.
 | --- | --- |
 | db | <code>\*</code> | 
 | argument | <code>\*</code> | 
+| previouslyKnownPackages | <code>\*</code> | 
+| context | <code>\*</code> | 
+| collectedStructItems | <code>\*</code> | 
 
 <a name="module_Loader API_ Loader APIs..parseSingleZclFile"></a>
 
-### Loader API: Loader APIs~parseSingleZclFile(db, packageId, file) ⇒
+### Loader API: Loader APIs~parseSingleZclFile(db, packageId, file, context, collectedStructItems) ⇒
 This function is used for parsing each individual ZCL file at a grouped zcl file package level.
 This should _not_ be used for custom XML addition due to custom xmls potentially relying on existing packges.
 
@@ -21394,6 +21471,8 @@ This should _not_ be used for custom XML addition due to custom xmls potentially
 | db | <code>\*</code> | 
 | packageId | <code>\*</code> | 
 | file | <code>\*</code> | 
+| context | <code>\*</code> | 
+| collectedStructItems | <code>\*</code> | 
 
 <a name="module_Loader API_ Loader APIs..isCrcMismatchOrPackageDoesNotExist"></a>
 
@@ -21653,7 +21732,7 @@ Parse the boolean defaults inside options.
 
 ### Loader API: Loader APIs~loadIndividualSilabsFile(db, filePath) ⇒
 Parses a single file. This function is used specifically
-for adding a package through an existing session because of its reliance
+for adding a package through an existing ZAP session because of its reliance
 on relating the new XML content to the packages associated with that session.
 e.g. for ClusterExtensions.
 
@@ -21830,7 +21909,7 @@ If not, then it will resolve with {error}
 
 <a name="module_Loader API_ Loader APIs..processZclPostLoading"></a>
 
-### Loader API: Loader APIs~processZclPostLoading(db) ⇒
+### Loader API: Loader APIs~processZclPostLoading(db, packageId) ⇒
 Promises to perform a post loading step.
 
 **Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
@@ -21839,6 +21918,7 @@ Promises to perform a post loading step.
 | Param | Type |
 | --- | --- |
 | db | <code>\*</code> | 
+| packageId | <code>\*</code> | 
 
 <a name="module_Loader API_ Loader APIs..getDiscriminatorMap"></a>
 
@@ -21946,8 +22026,12 @@ This module provides the APIs for new data model loading
     * [~processStructItems(db, filePath, packageIds, data)](#module_Loader API_ Loader APIs..processStructItems) ⇒
     * [~prepareDeviceType(deviceType)](#module_Loader API_ Loader APIs..prepareDeviceType) ⇒ <code>Object</code>
     * [~processDeviceTypes(db, filePath, packageId, data, context)](#module_Loader API_ Loader APIs..processDeviceTypes) ⇒ <code>Promise</code>
-    * [~processParsedZclData(db, argument)](#module_Loader API_ Loader APIs..processParsedZclData) ⇒
-    * [~parseSingleZclFile(db, packageId, file)](#module_Loader API_ Loader APIs..parseSingleZclFile) ⇒
+    * [~processDataTypes(db, filePath, packageId, knownPackages, toplevel)](#module_Loader API_ Loader APIs..processDataTypes) ⇒
+    * [~processAtomicTypes(db, filePath, packageId, knownPackages, toplevel)](#module_Loader API_ Loader APIs..processAtomicTypes) ⇒
+    * [~processNonAtomicTypes(db, filePath, packageId, knownPackages, toplevel, featureClusters)](#module_Loader API_ Loader APIs..processNonAtomicTypes) ⇒
+    * [~processSubItems(db, filePath, packageId, knownPackages, toplevel, featureClusters, context, collectedStructItems)](#module_Loader API_ Loader APIs..processSubItems) ⇒
+    * [~processParsedZclData(db, argument, previouslyKnownPackages, context, collectedStructItems)](#module_Loader API_ Loader APIs..processParsedZclData) ⇒
+    * [~parseSingleZclFile(db, packageId, file, context, collectedStructItems)](#module_Loader API_ Loader APIs..parseSingleZclFile) ⇒
     * [~isCrcMismatchOrPackageDoesNotExist(db, packageId, files)](#module_Loader API_ Loader APIs..isCrcMismatchOrPackageDoesNotExist) ⇒
     * [~parseZclFiles(db, packageId, zclFiles, context)](#module_Loader API_ Loader APIs..parseZclFiles) ⇒
     * [~parseManufacturerData(db, ctx)](#module_Loader API_ Loader APIs..parseManufacturerData) ⇒
@@ -21976,7 +22060,7 @@ This module provides the APIs for new data model loading
     * [~loadZcl(db, metadataFile)](#module_Loader API_ Loader APIs..loadZcl) ⇒
     * [~loadIndividualFile(db, filePath, sessionId)](#module_Loader API_ Loader APIs..loadIndividualFile)
     * [~qualifyZclFile(db, info, parentPackageId, isCustom)](#module_Loader API_ Loader APIs..qualifyZclFile) ⇒
-    * [~processZclPostLoading(db)](#module_Loader API_ Loader APIs..processZclPostLoading) ⇒
+    * [~processZclPostLoading(db, packageId)](#module_Loader API_ Loader APIs..processZclPostLoading) ⇒
     * [~getDiscriminatorMap(db, packageIds)](#module_Loader API_ Loader APIs..getDiscriminatorMap) ⇒
 
 <a name="module_Loader API_ Loader APIs..collectDataFromLibraryXml"></a>
@@ -23200,9 +23284,79 @@ Finally, it inserts all prepared device types into the database.
 | data | <code>Array</code> | The array of device types to be processed. |
 | context | <code>\*</code> | Additional context that might be required for processing. |
 
+<a name="module_Loader API_ Loader APIs..processDataTypes"></a>
+
+### Loader API: Loader APIs~processDataTypes(db, filePath, packageId, knownPackages, toplevel) ⇒
+Process promises for loading the data types
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise of data types  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| knownPackages | <code>\*</code> | 
+| toplevel | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processAtomicTypes"></a>
+
+### Loader API: Loader APIs~processAtomicTypes(db, filePath, packageId, knownPackages, toplevel) ⇒
+Processes promises for loading individual tables per data type for
+atomics/baseline types.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise of atomic/baseline processing.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| knownPackages | <code>\*</code> | 
+| toplevel | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processNonAtomicTypes"></a>
+
+### Loader API: Loader APIs~processNonAtomicTypes(db, filePath, packageId, knownPackages, toplevel, featureClusters) ⇒
+Processes promises for loading individual tables per data type for no-atomic
+and inherited types.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise of non-atomic/inherited data type processing.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| knownPackages | <code>\*</code> | 
+| toplevel | <code>\*</code> | 
+| featureClusters | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processSubItems"></a>
+
+### Loader API: Loader APIs~processSubItems(db, filePath, packageId, knownPackages, toplevel, featureClusters, context, collectedStructItems) ⇒
+Processes promises for loading items within a bitmap, struct, and enum data types.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise of processing sub items within a bitmap, enum and structs.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| knownPackages | <code>\*</code> | 
+| toplevel | <code>\*</code> | 
+| featureClusters | <code>\*</code> | 
+| context | <code>\*</code> | 
+| collectedStructItems | <code>\*</code> | 
+
 <a name="module_Loader API_ Loader APIs..processParsedZclData"></a>
 
-### Loader API: Loader APIs~processParsedZclData(db, argument) ⇒
+### Loader API: Loader APIs~processParsedZclData(db, argument, previouslyKnownPackages, context, collectedStructItems) ⇒
 After XML parser is done with the barebones parsing, this function
 branches the individual toplevel tags.
 
@@ -23213,10 +23367,13 @@ branches the individual toplevel tags.
 | --- | --- |
 | db | <code>\*</code> | 
 | argument | <code>\*</code> | 
+| previouslyKnownPackages | <code>\*</code> | 
+| context | <code>\*</code> | 
+| collectedStructItems | <code>\*</code> | 
 
 <a name="module_Loader API_ Loader APIs..parseSingleZclFile"></a>
 
-### Loader API: Loader APIs~parseSingleZclFile(db, packageId, file) ⇒
+### Loader API: Loader APIs~parseSingleZclFile(db, packageId, file, context, collectedStructItems) ⇒
 This function is used for parsing each individual ZCL file at a grouped zcl file package level.
 This should _not_ be used for custom XML addition due to custom xmls potentially relying on existing packges.
 
@@ -23228,6 +23385,8 @@ This should _not_ be used for custom XML addition due to custom xmls potentially
 | db | <code>\*</code> | 
 | packageId | <code>\*</code> | 
 | file | <code>\*</code> | 
+| context | <code>\*</code> | 
+| collectedStructItems | <code>\*</code> | 
 
 <a name="module_Loader API_ Loader APIs..isCrcMismatchOrPackageDoesNotExist"></a>
 
@@ -23487,7 +23646,7 @@ Parse the boolean defaults inside options.
 
 ### Loader API: Loader APIs~loadIndividualSilabsFile(db, filePath) ⇒
 Parses a single file. This function is used specifically
-for adding a package through an existing session because of its reliance
+for adding a package through an existing ZAP session because of its reliance
 on relating the new XML content to the packages associated with that session.
 e.g. for ClusterExtensions.
 
@@ -23664,7 +23823,7 @@ If not, then it will resolve with {error}
 
 <a name="module_Loader API_ Loader APIs..processZclPostLoading"></a>
 
-### Loader API: Loader APIs~processZclPostLoading(db) ⇒
+### Loader API: Loader APIs~processZclPostLoading(db, packageId) ⇒
 Promises to perform a post loading step.
 
 **Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
@@ -23673,6 +23832,7 @@ Promises to perform a post loading step.
 | Param | Type |
 | --- | --- |
 | db | <code>\*</code> | 
+| packageId | <code>\*</code> | 
 
 <a name="module_Loader API_ Loader APIs..getDiscriminatorMap"></a>
 
@@ -23780,8 +23940,12 @@ This module provides the APIs for ZCL/Data-Model loading.
     * [~processStructItems(db, filePath, packageIds, data)](#module_Loader API_ Loader APIs..processStructItems) ⇒
     * [~prepareDeviceType(deviceType)](#module_Loader API_ Loader APIs..prepareDeviceType) ⇒ <code>Object</code>
     * [~processDeviceTypes(db, filePath, packageId, data, context)](#module_Loader API_ Loader APIs..processDeviceTypes) ⇒ <code>Promise</code>
-    * [~processParsedZclData(db, argument)](#module_Loader API_ Loader APIs..processParsedZclData) ⇒
-    * [~parseSingleZclFile(db, packageId, file)](#module_Loader API_ Loader APIs..parseSingleZclFile) ⇒
+    * [~processDataTypes(db, filePath, packageId, knownPackages, toplevel)](#module_Loader API_ Loader APIs..processDataTypes) ⇒
+    * [~processAtomicTypes(db, filePath, packageId, knownPackages, toplevel)](#module_Loader API_ Loader APIs..processAtomicTypes) ⇒
+    * [~processNonAtomicTypes(db, filePath, packageId, knownPackages, toplevel, featureClusters)](#module_Loader API_ Loader APIs..processNonAtomicTypes) ⇒
+    * [~processSubItems(db, filePath, packageId, knownPackages, toplevel, featureClusters, context, collectedStructItems)](#module_Loader API_ Loader APIs..processSubItems) ⇒
+    * [~processParsedZclData(db, argument, previouslyKnownPackages, context, collectedStructItems)](#module_Loader API_ Loader APIs..processParsedZclData) ⇒
+    * [~parseSingleZclFile(db, packageId, file, context, collectedStructItems)](#module_Loader API_ Loader APIs..parseSingleZclFile) ⇒
     * [~isCrcMismatchOrPackageDoesNotExist(db, packageId, files)](#module_Loader API_ Loader APIs..isCrcMismatchOrPackageDoesNotExist) ⇒
     * [~parseZclFiles(db, packageId, zclFiles, context)](#module_Loader API_ Loader APIs..parseZclFiles) ⇒
     * [~parseManufacturerData(db, ctx)](#module_Loader API_ Loader APIs..parseManufacturerData) ⇒
@@ -23810,7 +23974,7 @@ This module provides the APIs for ZCL/Data-Model loading.
     * [~loadZcl(db, metadataFile)](#module_Loader API_ Loader APIs..loadZcl) ⇒
     * [~loadIndividualFile(db, filePath, sessionId)](#module_Loader API_ Loader APIs..loadIndividualFile)
     * [~qualifyZclFile(db, info, parentPackageId, isCustom)](#module_Loader API_ Loader APIs..qualifyZclFile) ⇒
-    * [~processZclPostLoading(db)](#module_Loader API_ Loader APIs..processZclPostLoading) ⇒
+    * [~processZclPostLoading(db, packageId)](#module_Loader API_ Loader APIs..processZclPostLoading) ⇒
     * [~getDiscriminatorMap(db, packageIds)](#module_Loader API_ Loader APIs..getDiscriminatorMap) ⇒
 
 <a name="module_Loader API_ Loader APIs..collectDataFromLibraryXml"></a>
@@ -25034,9 +25198,79 @@ Finally, it inserts all prepared device types into the database.
 | data | <code>Array</code> | The array of device types to be processed. |
 | context | <code>\*</code> | Additional context that might be required for processing. |
 
+<a name="module_Loader API_ Loader APIs..processDataTypes"></a>
+
+### Loader API: Loader APIs~processDataTypes(db, filePath, packageId, knownPackages, toplevel) ⇒
+Process promises for loading the data types
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise of data types  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| knownPackages | <code>\*</code> | 
+| toplevel | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processAtomicTypes"></a>
+
+### Loader API: Loader APIs~processAtomicTypes(db, filePath, packageId, knownPackages, toplevel) ⇒
+Processes promises for loading individual tables per data type for
+atomics/baseline types.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise of atomic/baseline processing.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| knownPackages | <code>\*</code> | 
+| toplevel | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processNonAtomicTypes"></a>
+
+### Loader API: Loader APIs~processNonAtomicTypes(db, filePath, packageId, knownPackages, toplevel, featureClusters) ⇒
+Processes promises for loading individual tables per data type for no-atomic
+and inherited types.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise of non-atomic/inherited data type processing.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| knownPackages | <code>\*</code> | 
+| toplevel | <code>\*</code> | 
+| featureClusters | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processSubItems"></a>
+
+### Loader API: Loader APIs~processSubItems(db, filePath, packageId, knownPackages, toplevel, featureClusters, context, collectedStructItems) ⇒
+Processes promises for loading items within a bitmap, struct, and enum data types.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise of processing sub items within a bitmap, enum and structs.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| knownPackages | <code>\*</code> | 
+| toplevel | <code>\*</code> | 
+| featureClusters | <code>\*</code> | 
+| context | <code>\*</code> | 
+| collectedStructItems | <code>\*</code> | 
+
 <a name="module_Loader API_ Loader APIs..processParsedZclData"></a>
 
-### Loader API: Loader APIs~processParsedZclData(db, argument) ⇒
+### Loader API: Loader APIs~processParsedZclData(db, argument, previouslyKnownPackages, context, collectedStructItems) ⇒
 After XML parser is done with the barebones parsing, this function
 branches the individual toplevel tags.
 
@@ -25047,10 +25281,13 @@ branches the individual toplevel tags.
 | --- | --- |
 | db | <code>\*</code> | 
 | argument | <code>\*</code> | 
+| previouslyKnownPackages | <code>\*</code> | 
+| context | <code>\*</code> | 
+| collectedStructItems | <code>\*</code> | 
 
 <a name="module_Loader API_ Loader APIs..parseSingleZclFile"></a>
 
-### Loader API: Loader APIs~parseSingleZclFile(db, packageId, file) ⇒
+### Loader API: Loader APIs~parseSingleZclFile(db, packageId, file, context, collectedStructItems) ⇒
 This function is used for parsing each individual ZCL file at a grouped zcl file package level.
 This should _not_ be used for custom XML addition due to custom xmls potentially relying on existing packges.
 
@@ -25062,6 +25299,8 @@ This should _not_ be used for custom XML addition due to custom xmls potentially
 | db | <code>\*</code> | 
 | packageId | <code>\*</code> | 
 | file | <code>\*</code> | 
+| context | <code>\*</code> | 
+| collectedStructItems | <code>\*</code> | 
 
 <a name="module_Loader API_ Loader APIs..isCrcMismatchOrPackageDoesNotExist"></a>
 
@@ -25321,7 +25560,7 @@ Parse the boolean defaults inside options.
 
 ### Loader API: Loader APIs~loadIndividualSilabsFile(db, filePath) ⇒
 Parses a single file. This function is used specifically
-for adding a package through an existing session because of its reliance
+for adding a package through an existing ZAP session because of its reliance
 on relating the new XML content to the packages associated with that session.
 e.g. for ClusterExtensions.
 
@@ -25498,7 +25737,7 @@ If not, then it will resolve with {error}
 
 <a name="module_Loader API_ Loader APIs..processZclPostLoading"></a>
 
-### Loader API: Loader APIs~processZclPostLoading(db) ⇒
+### Loader API: Loader APIs~processZclPostLoading(db, packageId) ⇒
 Promises to perform a post loading step.
 
 **Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
@@ -25507,6 +25746,7 @@ Promises to perform a post loading step.
 | Param | Type |
 | --- | --- |
 | db | <code>\*</code> | 
+| packageId | <code>\*</code> | 
 
 <a name="module_Loader API_ Loader APIs..getDiscriminatorMap"></a>
 
@@ -25614,8 +25854,12 @@ This module provides the APIs for for common functionality related to loading.
     * [~processStructItems(db, filePath, packageIds, data)](#module_Loader API_ Loader APIs..processStructItems) ⇒
     * [~prepareDeviceType(deviceType)](#module_Loader API_ Loader APIs..prepareDeviceType) ⇒ <code>Object</code>
     * [~processDeviceTypes(db, filePath, packageId, data, context)](#module_Loader API_ Loader APIs..processDeviceTypes) ⇒ <code>Promise</code>
-    * [~processParsedZclData(db, argument)](#module_Loader API_ Loader APIs..processParsedZclData) ⇒
-    * [~parseSingleZclFile(db, packageId, file)](#module_Loader API_ Loader APIs..parseSingleZclFile) ⇒
+    * [~processDataTypes(db, filePath, packageId, knownPackages, toplevel)](#module_Loader API_ Loader APIs..processDataTypes) ⇒
+    * [~processAtomicTypes(db, filePath, packageId, knownPackages, toplevel)](#module_Loader API_ Loader APIs..processAtomicTypes) ⇒
+    * [~processNonAtomicTypes(db, filePath, packageId, knownPackages, toplevel, featureClusters)](#module_Loader API_ Loader APIs..processNonAtomicTypes) ⇒
+    * [~processSubItems(db, filePath, packageId, knownPackages, toplevel, featureClusters, context, collectedStructItems)](#module_Loader API_ Loader APIs..processSubItems) ⇒
+    * [~processParsedZclData(db, argument, previouslyKnownPackages, context, collectedStructItems)](#module_Loader API_ Loader APIs..processParsedZclData) ⇒
+    * [~parseSingleZclFile(db, packageId, file, context, collectedStructItems)](#module_Loader API_ Loader APIs..parseSingleZclFile) ⇒
     * [~isCrcMismatchOrPackageDoesNotExist(db, packageId, files)](#module_Loader API_ Loader APIs..isCrcMismatchOrPackageDoesNotExist) ⇒
     * [~parseZclFiles(db, packageId, zclFiles, context)](#module_Loader API_ Loader APIs..parseZclFiles) ⇒
     * [~parseManufacturerData(db, ctx)](#module_Loader API_ Loader APIs..parseManufacturerData) ⇒
@@ -25644,7 +25888,7 @@ This module provides the APIs for for common functionality related to loading.
     * [~loadZcl(db, metadataFile)](#module_Loader API_ Loader APIs..loadZcl) ⇒
     * [~loadIndividualFile(db, filePath, sessionId)](#module_Loader API_ Loader APIs..loadIndividualFile)
     * [~qualifyZclFile(db, info, parentPackageId, isCustom)](#module_Loader API_ Loader APIs..qualifyZclFile) ⇒
-    * [~processZclPostLoading(db)](#module_Loader API_ Loader APIs..processZclPostLoading) ⇒
+    * [~processZclPostLoading(db, packageId)](#module_Loader API_ Loader APIs..processZclPostLoading) ⇒
     * [~getDiscriminatorMap(db, packageIds)](#module_Loader API_ Loader APIs..getDiscriminatorMap) ⇒
 
 <a name="module_Loader API_ Loader APIs..collectDataFromLibraryXml"></a>
@@ -26868,9 +27112,79 @@ Finally, it inserts all prepared device types into the database.
 | data | <code>Array</code> | The array of device types to be processed. |
 | context | <code>\*</code> | Additional context that might be required for processing. |
 
+<a name="module_Loader API_ Loader APIs..processDataTypes"></a>
+
+### Loader API: Loader APIs~processDataTypes(db, filePath, packageId, knownPackages, toplevel) ⇒
+Process promises for loading the data types
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise of data types  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| knownPackages | <code>\*</code> | 
+| toplevel | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processAtomicTypes"></a>
+
+### Loader API: Loader APIs~processAtomicTypes(db, filePath, packageId, knownPackages, toplevel) ⇒
+Processes promises for loading individual tables per data type for
+atomics/baseline types.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise of atomic/baseline processing.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| knownPackages | <code>\*</code> | 
+| toplevel | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processNonAtomicTypes"></a>
+
+### Loader API: Loader APIs~processNonAtomicTypes(db, filePath, packageId, knownPackages, toplevel, featureClusters) ⇒
+Processes promises for loading individual tables per data type for no-atomic
+and inherited types.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise of non-atomic/inherited data type processing.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| knownPackages | <code>\*</code> | 
+| toplevel | <code>\*</code> | 
+| featureClusters | <code>\*</code> | 
+
+<a name="module_Loader API_ Loader APIs..processSubItems"></a>
+
+### Loader API: Loader APIs~processSubItems(db, filePath, packageId, knownPackages, toplevel, featureClusters, context, collectedStructItems) ⇒
+Processes promises for loading items within a bitmap, struct, and enum data types.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: Promise of processing sub items within a bitmap, enum and structs.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| filePath | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| knownPackages | <code>\*</code> | 
+| toplevel | <code>\*</code> | 
+| featureClusters | <code>\*</code> | 
+| context | <code>\*</code> | 
+| collectedStructItems | <code>\*</code> | 
+
 <a name="module_Loader API_ Loader APIs..processParsedZclData"></a>
 
-### Loader API: Loader APIs~processParsedZclData(db, argument) ⇒
+### Loader API: Loader APIs~processParsedZclData(db, argument, previouslyKnownPackages, context, collectedStructItems) ⇒
 After XML parser is done with the barebones parsing, this function
 branches the individual toplevel tags.
 
@@ -26881,10 +27195,13 @@ branches the individual toplevel tags.
 | --- | --- |
 | db | <code>\*</code> | 
 | argument | <code>\*</code> | 
+| previouslyKnownPackages | <code>\*</code> | 
+| context | <code>\*</code> | 
+| collectedStructItems | <code>\*</code> | 
 
 <a name="module_Loader API_ Loader APIs..parseSingleZclFile"></a>
 
-### Loader API: Loader APIs~parseSingleZclFile(db, packageId, file) ⇒
+### Loader API: Loader APIs~parseSingleZclFile(db, packageId, file, context, collectedStructItems) ⇒
 This function is used for parsing each individual ZCL file at a grouped zcl file package level.
 This should _not_ be used for custom XML addition due to custom xmls potentially relying on existing packges.
 
@@ -26896,6 +27213,8 @@ This should _not_ be used for custom XML addition due to custom xmls potentially
 | db | <code>\*</code> | 
 | packageId | <code>\*</code> | 
 | file | <code>\*</code> | 
+| context | <code>\*</code> | 
+| collectedStructItems | <code>\*</code> | 
 
 <a name="module_Loader API_ Loader APIs..isCrcMismatchOrPackageDoesNotExist"></a>
 
@@ -27155,7 +27474,7 @@ Parse the boolean defaults inside options.
 
 ### Loader API: Loader APIs~loadIndividualSilabsFile(db, filePath) ⇒
 Parses a single file. This function is used specifically
-for adding a package through an existing session because of its reliance
+for adding a package through an existing ZAP session because of its reliance
 on relating the new XML content to the packages associated with that session.
 e.g. for ClusterExtensions.
 
@@ -27332,7 +27651,7 @@ If not, then it will resolve with {error}
 
 <a name="module_Loader API_ Loader APIs..processZclPostLoading"></a>
 
-### Loader API: Loader APIs~processZclPostLoading(db) ⇒
+### Loader API: Loader APIs~processZclPostLoading(db, packageId) ⇒
 Promises to perform a post loading step.
 
 **Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
@@ -27341,6 +27660,7 @@ Promises to perform a post loading step.
 | Param | Type |
 | --- | --- |
 | db | <code>\*</code> | 
+| packageId | <code>\*</code> | 
 
 <a name="module_Loader API_ Loader APIs..getDiscriminatorMap"></a>
 

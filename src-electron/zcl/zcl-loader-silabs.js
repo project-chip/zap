@@ -823,6 +823,8 @@ async function processClusterExtensions(
   env.logDebug(
     `${filePath}, ${dataPackageId}: ${data.length} cluster extensions.`
   )
+
+  // Insert cluster extensions
   return queryLoader.insertClusterExtensions(
     db,
     dataPackageId,
@@ -1752,18 +1754,277 @@ async function processDeviceTypes(db, filePath, packageId, data, context) {
 }
 
 /**
+ * Process promises for loading the data types
+ * @param {*} db
+ * @param {*} filePath
+ * @param {*} packageId
+ * @param {*} knownPackages
+ * @param {*} toplevel
+ * @returns Promise of data types
+ */
+async function processDataTypes(
+  db,
+  filePath,
+  packageId,
+  knownPackages,
+  toplevel,
+  featureClusters
+) {
+  let dataTypePromises = []
+  if (dbEnum.zclType.atomic in toplevel) {
+    dataTypePromises.push(
+      processDataType(
+        db,
+        filePath,
+        packageId,
+        knownPackages,
+        toplevel.atomic,
+        dbEnum.zclType.atomic
+      )
+    )
+  }
+
+  if (dbEnum.zclType.bitmap in toplevel) {
+    dataTypePromises.push(
+      processDataType(
+        db,
+        filePath,
+        packageId,
+        knownPackages,
+        toplevel.bitmap,
+        dbEnum.zclType.bitmap
+      )
+    )
+  }
+
+  // Treating features in a cluster as a bitmap
+  if (featureClusters && featureClusters.length > 0) {
+    featureClusters.forEach((fc) => {
+      dataTypePromises.push(
+        processDataType(
+          db,
+          filePath,
+          packageId,
+          knownPackages,
+          [
+            {
+              $: {
+                name: 'Feature',
+                type: 'BITMAP32',
+                cluster_code: [fc.code[0]]
+              }
+            }
+          ],
+          dbEnum.zclType.bitmap
+        )
+      )
+    })
+  }
+
+  if (dbEnum.zclType.enum in toplevel) {
+    dataTypePromises.push(
+      processDataType(
+        db,
+        filePath,
+        packageId,
+        knownPackages,
+        toplevel.enum,
+        dbEnum.zclType.enum
+      )
+    )
+  }
+  if (dbEnum.zclType.struct in toplevel) {
+    dataTypePromises.push(
+      processDataType(
+        db,
+        filePath,
+        packageId,
+        knownPackages,
+        toplevel.struct,
+        dbEnum.zclType.struct
+      )
+    )
+  }
+  return Promise.all(dataTypePromises)
+}
+
+/**
+ * Processes promises for loading individual tables per data type for
+ * atomics/baseline types.
+ *
+ * @param {*} db
+ * @param {*} filePath
+ * @param {*} packageId
+ * @param {*} knownPackages
+ * @param {*} toplevel
+ * @returns Promise of atomic/baseline processing.
+ */
+async function processAtomicTypes(
+  db,
+  filePath,
+  packageId,
+  knownPackages,
+  toplevel
+) {
+  let atomicPromises = []
+  if (dbEnum.zclType.atomic in toplevel) {
+    atomicPromises.push(
+      processNumber(db, filePath, packageId, knownPackages, toplevel.atomic)
+    )
+    atomicPromises.push(
+      processString(db, filePath, packageId, knownPackages, toplevel.atomic)
+    )
+    atomicPromises.push(
+      processEnumAtomic(db, filePath, packageId, knownPackages, toplevel.atomic)
+    )
+    atomicPromises.push(
+      processBitmapAtomic(
+        db,
+        filePath,
+        packageId,
+        knownPackages,
+        toplevel.atomic
+      )
+    )
+  }
+  return Promise.all(atomicPromises)
+}
+
+/**
+ * Processes promises for loading individual tables per data type for no-atomic
+ * and inherited types.
+ *
+ * @param {*} db
+ * @param {*} filePath
+ * @param {*} packageId
+ * @param {*} knownPackages
+ * @param {*} toplevel
+ * @param {*} featureClusters
+ * @returns Promise of non-atomic/inherited data type processing.
+ */
+async function processNonAtomicTypes(
+  db,
+  filePath,
+  packageId,
+  knownPackages,
+  toplevel,
+  featureClusters
+) {
+  let nonAtomicPromises = []
+  if (dbEnum.zclType.enum in toplevel) {
+    nonAtomicPromises.push(
+      processEnum(db, filePath, packageId, knownPackages, toplevel.enum)
+    )
+  }
+  if (dbEnum.zclType.bitmap in toplevel) {
+    nonAtomicPromises.push(
+      processBitmap(db, filePath, packageId, knownPackages, toplevel.bitmap)
+    )
+  }
+  // Treating features in a cluster as a bitmap
+  if (featureClusters && featureClusters.length > 0) {
+    featureClusters.forEach((fc) => {
+      nonAtomicPromises.push(
+        processBitmap(db, filePath, packageId, knownPackages, [
+          {
+            $: {
+              name: 'Feature',
+              type: 'BITMAP32',
+              cluster_code: [fc.code[0]]
+            }
+          }
+        ])
+      )
+    })
+  }
+  if (dbEnum.zclType.struct in toplevel) {
+    nonAtomicPromises.push(
+      processStruct(db, filePath, packageId, knownPackages, toplevel.struct)
+    )
+  }
+  return Promise.all(nonAtomicPromises)
+}
+
+/**
+ * Processes promises for loading items within a bitmap, struct, and enum data types.
+ *
+ * @param {*} db
+ * @param {*} filePath
+ * @param {*} packageId
+ * @param {*} knownPackages
+ * @param {*} toplevel
+ * @param {*} featureClusters
+ * @param {*} context
+ * @param {*} collectedStructItems
+ * @returns Promise of processing sub items within a bitmap, enum and structs.
+ */
+async function processSubItems(
+  db,
+  filePath,
+  packageId,
+  knownPackages,
+  toplevel,
+  featureClusters,
+  context,
+  collectedStructItems
+) {
+  let subItemPrmosies = []
+  if (dbEnum.zclType.enum in toplevel) {
+    subItemPrmosies.push(
+      processEnumItems(db, filePath, packageId, knownPackages, toplevel.enum)
+    )
+  }
+  if (dbEnum.zclType.bitmap in toplevel) {
+    subItemPrmosies.push(
+      processBitmapFields(
+        db,
+        filePath,
+        packageId,
+        knownPackages,
+        toplevel.bitmap
+      )
+    )
+  }
+  // Treating features in a cluster as a bitmap
+  if (featureClusters && featureClusters.length > 0) {
+    featureClusters.forEach((fc) => {
+      subItemPrmosies.push(
+        processBitmapFields(db, filePath, packageId, knownPackages, fc)
+      )
+    })
+  }
+  // Delaying the loading of struct items into collecedStructItems instead of
+  // processing them with other subitems. This is because the struct items are
+  // dependent on types which could span across multiple xml files.
+  if (dbEnum.zclType.struct in toplevel) {
+    collectedStructItems.push([
+      db,
+      filePath,
+      knownPackages,
+      toplevel.struct,
+      context
+    ])
+  }
+  return Promise.all(subItemPrmosies)
+}
+
+/**
  * After XML parser is done with the barebones parsing, this function
  * branches the individual toplevel tags.
  *
  * @param {*} db
  * @param {*} argument
+ * @param {*} previouslyKnownPackages
+ * @param {*} context
+ * @param {*} collectedStructItems
  * @returns promise that resolves when all the subtags are parsed.
  */
 async function processParsedZclData(
   db,
   argument,
   previouslyKnownPackages,
-  context
+  context,
+  collectedStructItems
 ) {
   let filePath = argument.filePath
   let data = argument.result
@@ -1831,187 +2092,41 @@ async function processParsedZclData(
       )
     }
     await Promise.all(batch2)
+
     // Batch 3: Load the data type table which lists all data types
-    let batch3 = []
-    if (dbEnum.zclType.atomic in toplevel) {
-      batch3.push(
-        processDataType(
-          db,
-          filePath,
-          packageId,
-          knownPackages,
-          toplevel.atomic,
-          dbEnum.zclType.atomic
-        )
-      )
-    }
-
-    if (dbEnum.zclType.bitmap in toplevel) {
-      batch3.push(
-        processDataType(
-          db,
-          filePath,
-          packageId,
-          knownPackages,
-          toplevel.bitmap,
-          dbEnum.zclType.bitmap
-        )
-      )
-    }
-
-    // Treating features in a cluster as a bitmap
-    if (featureClusters.length > 0) {
-      featureClusters.forEach((fc) => {
-        batch3.push(
-          processDataType(
-            db,
-            filePath,
-            packageId,
-            knownPackages,
-            [
-              {
-                $: {
-                  name: 'Feature',
-                  type: 'BITMAP32',
-                  cluster_code: [fc.code[0]]
-                }
-              }
-            ],
-            dbEnum.zclType.bitmap
-          )
-        )
-      })
-    }
-
-    if (dbEnum.zclType.enum in toplevel) {
-      batch3.push(
-        processDataType(
-          db,
-          filePath,
-          packageId,
-          knownPackages,
-          toplevel.enum,
-          dbEnum.zclType.enum
-        )
-      )
-    }
-    if (dbEnum.zclType.struct in toplevel) {
-      batch3.push(
-        processDataType(
-          db,
-          filePath,
-          packageId,
-          knownPackages,
-          toplevel.struct,
-          dbEnum.zclType.struct
-        )
-      )
-    }
-    await Promise.all(batch3)
+    await processDataTypes(
+      db,
+      filePath,
+      packageId,
+      knownPackages,
+      toplevel,
+      featureClusters
+    )
 
     // Batch4 and Batch5: Loads the inidividual tables per data type from
     // atomics/baseline types to inherited types
-    let Batch4 = []
-    if (dbEnum.zclType.atomic in toplevel) {
-      Batch4.push(
-        processNumber(db, filePath, packageId, knownPackages, toplevel.atomic)
-      )
-      Batch4.push(
-        processString(db, filePath, packageId, knownPackages, toplevel.atomic)
-      )
-      Batch4.push(
-        processEnumAtomic(
-          db,
-          filePath,
-          packageId,
-          knownPackages,
-          toplevel.atomic
-        )
-      )
-      Batch4.push(
-        processBitmapAtomic(
-          db,
-          filePath,
-          packageId,
-          knownPackages,
-          toplevel.atomic
-        )
-      )
-    }
-    await Promise.all(Batch4)
+    await processAtomicTypes(db, filePath, packageId, knownPackages, toplevel)
 
-    let Batch5 = []
-    if (dbEnum.zclType.enum in toplevel) {
-      Batch5.push(
-        processEnum(db, filePath, packageId, knownPackages, toplevel.enum)
-      )
-    }
-    if (dbEnum.zclType.bitmap in toplevel) {
-      Batch5.push(
-        processBitmap(db, filePath, packageId, knownPackages, toplevel.bitmap)
-      )
-    }
-    // Treating features in a cluster as a bitmap
-    if (featureClusters.length > 0) {
-      featureClusters.forEach((fc) => {
-        Batch5.push(
-          processBitmap(db, filePath, packageId, knownPackages, [
-            {
-              $: {
-                name: 'Feature',
-                type: 'BITMAP32',
-                cluster_code: [fc.code[0]]
-              }
-            }
-          ])
-        )
-      })
-    }
-    if (dbEnum.zclType.struct in toplevel) {
-      Batch5.push(
-        processStruct(db, filePath, packageId, knownPackages, toplevel.struct)
-      )
-    }
-    await Promise.all(Batch5)
+    await processNonAtomicTypes(
+      db,
+      filePath,
+      packageId,
+      knownPackages,
+      toplevel,
+      featureClusters
+    )
 
-    // Batch7: Loads the items within a bitmap, struct and enum data types
-    let batch6 = []
-    if (dbEnum.zclType.enum in toplevel) {
-      batch6.push(
-        processEnumItems(db, filePath, packageId, knownPackages, toplevel.enum)
-      )
-    }
-    if (dbEnum.zclType.bitmap in toplevel) {
-      batch6.push(
-        processBitmapFields(
-          db,
-          filePath,
-          packageId,
-          knownPackages,
-          toplevel.bitmap
-        )
-      )
-    }
-    // Treating features in a cluster as a bitmap
-    if (featureClusters.length > 0) {
-      featureClusters.forEach((fc) => {
-        batch6.push(
-          processBitmapFields(db, filePath, packageId, knownPackages, fc)
-        )
-      })
-    }
-    if (dbEnum.zclType.struct in toplevel) {
-      batch6.push(
-        processStructItems(
-          db,
-          filePath,
-          knownPackages,
-          toplevel.struct,
-          context
-        )
-      )
-    }
-    await Promise.all(batch6)
+    // Batch6: Loads the items within a bitmap, struct and enum data types
+    await processSubItems(
+      db,
+      filePath,
+      packageId,
+      knownPackages,
+      toplevel,
+      featureClusters,
+      context,
+      collectedStructItems
+    )
 
     // Batch7: Loads the defaultAccess
     let Batch7 = []
@@ -2063,9 +2178,17 @@ async function processParsedZclData(
  * @param {*} db
  * @param {*} packageId
  * @param {*} file
+ * @param {*} context
+ * @param {*} collectedStructItems
  * @returns A promise for when the last stage of the loading pipeline finishes.
  */
-async function parseSingleZclFile(db, packageId, file, context) {
+async function parseSingleZclFile(
+  db,
+  packageId,
+  file,
+  context,
+  collectedStructItems
+) {
   try {
     let fileContent = await fsp.readFile(file)
     let data = {
@@ -2084,7 +2207,13 @@ async function parseSingleZclFile(db, packageId, file, context) {
       result.result = await util.parseXml(fileContent)
       delete result.data
     }
-    return processParsedZclData(db, result, new Set(), context)
+    return processParsedZclData(
+      db,
+      result,
+      new Set(),
+      context,
+      collectedStructItems
+    )
   } catch (err) {
     err.message = `Error reading xml file: ${file}\n` + err.message
     throw err
@@ -2153,6 +2282,9 @@ async function isCrcMismatchOrPackageDoesNotExist(db, packageId, files) {
  */
 async function parseZclFiles(db, packageId, zclFiles, context) {
   env.logDebug(`Starting to parse ZCL files: ${zclFiles}`)
+  // Struct Items are part of delayed loading because they could have types
+  // belonging to a different file.
+  let collectedStructItems = []
   // Populate the Data Type Discriminator
   if (context.ZCLDataTypes)
     await processDataTypeDiscriminator(db, packageId, context.ZCLDataTypes)
@@ -2161,18 +2293,26 @@ async function parseZclFiles(db, packageId, zclFiles, context) {
   // referenced by other types
   let typesFiles = zclFiles.filter((file) => file.includes('types.xml'))
   let typeFilePromise = typesFiles.map((file) =>
-    parseSingleZclFile(db, packageId, file, context)
+    parseSingleZclFile(db, packageId, file, context, collectedStructItems)
   )
   await Promise.all(typeFilePromise)
 
   // Load everything apart from atomic data types
   let nonTypesFiles = zclFiles.filter((file) => !file.includes('types.xml'))
   let individualFilePromise = nonTypesFiles.map((file) =>
-    parseSingleZclFile(db, packageId, file, context)
+    parseSingleZclFile(db, packageId, file, context, collectedStructItems)
   )
   let individualResults = await Promise.all(individualFilePromise)
   let laterPromises = individualResults.flat(2)
   await Promise.all(laterPromises.map((promise) => promise()))
+
+  // Process collected struct items now because data types from all files have been loaded.
+  if (collectedStructItems.length > 0) {
+    let processStructItemsPromises = collectedStructItems.map((args) =>
+      processStructItems(...args)
+    )
+    await Promise.all(processStructItemsPromises)
+  }
 
   // Load some missing content which was not possible before the above was done
   return zclLoader.processZclPostLoading(db, packageId)
@@ -2629,7 +2769,7 @@ async function parseBoolDefaults(db, pkgRef, booleanCategories) {
 
 /**
  * Parses a single file. This function is used specifically
- * for adding a package through an existing session because of its reliance
+ * for adding a package through an existing ZAP session because of its reliance
  * on relating the new XML content to the packages associated with that session.
  * e.g. for ClusterExtensions.
  *
@@ -2688,13 +2828,27 @@ async function loadIndividualSilabsFile(db, filePath, sessionId) {
     sessionPackages.map((sessionPackage) => {
       packageSet.add(sessionPackage.packageRef)
     })
-    // Where do we get metadata from here???
-    let laterPromises = await processParsedZclData(db, result, packageSet, {})
+    let collectedStructItems = []
+    let laterPromises = await processParsedZclData(
+      db,
+      result,
+      packageSet,
+      {},
+      collectedStructItems
+    )
     await Promise.all(
       laterPromises.flat(1).map((promise) => {
         if (promise != null && promise != undefined) return promise()
       })
     )
+    // Process collected struct items now because other data types have been loaded.
+    if (collectedStructItems.length > 0) {
+      let processStructItemsPromises = collectedStructItems.map((args) =>
+        processStructItems(...args)
+      )
+      await Promise.all(processStructItemsPromises)
+    }
+
     // Check if session partition for package exists. If not then add it.
     let sessionPartitionInfoForNewPackage =
       await querySession.selectSessionPartitionInfoFromPackageId(
@@ -2936,3 +3090,4 @@ async function loadZclJsonOrProperties(db, metafile, isJson = false) {
 exports.loadIndividualSilabsFile = loadIndividualSilabsFile
 exports.loadZclJson = loadZclJson
 exports.loadZclProperties = loadZclProperties
+exports.processStructItems = processStructItems
