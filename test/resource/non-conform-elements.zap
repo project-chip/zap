@@ -2623,19 +2623,19 @@
           "enabled": 1,
           "commands": [
             {
-              "name": "AddGroupResponse",
-              "code": 0,
-              "mfgCode": null,
-              "source": "server",
-              "isIncoming": 0,
-              "isEnabled": 1
-            },
-            {
               "name": "AddGroup",
               "code": 0,
               "mfgCode": null,
               "source": "client",
               "isIncoming": 1,
+              "isEnabled": 1
+            },
+            {
+              "name": "AddGroupResponse",
+              "code": 0,
+              "mfgCode": null,
+              "source": "server",
+              "isIncoming": 0,
               "isEnabled": 1
             },
             {
@@ -2715,7 +2715,7 @@
               "singleton": 0,
               "bounded": 0,
               "defaultValue": "",
-              "reportable": 1,
+              "reportable": 0,
               "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
@@ -2825,6 +2825,7 @@
           "define": "SCENES_CLUSTER",
           "side": "server",
           "enabled": 1,
+          "apiMaturity": "provisional",
           "commands": [
             {
               "name": "AddScene",
@@ -2843,19 +2844,19 @@
               "isEnabled": 1
             },
             {
-              "name": "ViewSceneResponse",
-              "code": 1,
-              "mfgCode": null,
-              "source": "server",
-              "isIncoming": 0,
-              "isEnabled": 1
-            },
-            {
               "name": "ViewScene",
               "code": 1,
               "mfgCode": null,
               "source": "client",
               "isIncoming": 1,
+              "isEnabled": 1
+            },
+            {
+              "name": "ViewSceneResponse",
+              "code": 1,
+              "mfgCode": null,
+              "source": "server",
+              "isIncoming": 0,
               "isEnabled": 1
             },
             {
@@ -3171,7 +3172,7 @@
               "singleton": 0,
               "bounded": 0,
               "defaultValue": "0",
-              "reportable": 1,
+              "reportable": 0,
               "minInterval": 1,
               "maxInterval": 65534,
               "reportableChange": 0
@@ -3197,7 +3198,7 @@
               "code": 16387,
               "mfgCode": null,
               "side": "server",
-              "type": "StartUpOnOffEnum",
+              "type": "OnOffStartUpOnOff",
               "included": 1,
               "storageOption": "RAM",
               "singleton": 0,
@@ -3534,7 +3535,7 @@
               "storageOption": "RAM",
               "singleton": 0,
               "bounded": 0,
-              "defaultValue": "3",
+              "defaultValue": "2",
               "reportable": 1,
               "minInterval": 1,
               "maxInterval": 65534,
