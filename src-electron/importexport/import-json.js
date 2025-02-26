@@ -2023,7 +2023,7 @@ async function setConformanceWarnings(
       }
     }
 
-    let contextMessage = `On endpoint ${endpointId}, cluster: ${cluster.name}, `
+    let contextMessage = `⚠ Check Feature Compliance on endpoint: ${endpointId}, cluster: ${cluster.name}, `
 
     /* If unsupported elements are enabled or required elements are disabled, 
       they are considered non-conforming. A corresponding warning message will be 

@@ -325,7 +325,7 @@ test(
     let endpointId = 1
     let result = {}
     let expectedWarning = ''
-    let warningPrefix = `On endpoint ${endpointId}, cluster: ${cluster}, `
+    let warningPrefix = `⚠ Check Feature Compliance on endpoint: ${endpointId}, cluster: ${cluster}, `
     let featureBitMessage = `(bit ${featureBit} in featureMap attribute)`
 
     // 1. test enable an optional feature

@@ -500,24 +500,24 @@ test(
     // Their element conformance warnings should be added to the notification table.
     expect(
       notificationMessages.includes(
-        'On endpoint 1, cluster: On/Off, command: OffWithEffect has mandatory conformance to LT and should be enabled when feature: LT is enabled.'
+        '⚠ Check Feature Compliance on endpoint: 1, cluster: On/Off, command: OffWithEffect has mandatory conformance to LT and should be enabled when feature: LT is enabled.'
       )
     ).toBeTruthy()
     expect(
       notificationMessages.includes(
-        'On endpoint 1, cluster: On/Off, attribute: OnTime has mandatory conformance to LT and should be enabled when feature: LT is enabled.'
+        '⚠ Check Feature Compliance on endpoint: 1, cluster: On/Off, attribute: OnTime has mandatory conformance to LT and should be enabled when feature: LT is enabled.'
       )
     ).toBeTruthy()
     expect(
       notificationMessages.includes(
-        'On endpoint 1, cluster: On/Off, attribute: GlobalSceneControl has mandatory conformance to LT and should be enabled when feature: LT is enabled.'
+        '⚠ Check Feature Compliance on endpoint: 1, cluster: On/Off, attribute: GlobalSceneControl has mandatory conformance to LT and should be enabled when feature: LT is enabled.'
       )
     ).toBeTruthy()
 
     // disabled mandatory device type feature OnOff should trigger a notification
     expect(
       notificationMessages.includes(
-        'On endpoint 1, cluster: Level Control, feature: OnOff (bit 0 in featureMap attribute) should be enabled, as it is mandatory for device type: Matter Dimmable Light'
+        '⚠ Check Feature Compliance on endpoint: 1, cluster: Level Control, feature: OnOff (bit 0 in featureMap attribute) should be enabled, as it is mandatory for device type: Matter Dimmable Light'
       )
     ).toBeTruthy()
   },

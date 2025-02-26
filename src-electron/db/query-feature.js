@@ -306,7 +306,7 @@ function generateWarningMessage(
   result.warningMessage = []
 
   let warningPrefix =
-    `On endpoint ${endpointId}, cluster: ${featureData.cluster}, ` +
+    `⚠ Check Feature Compliance on endpoint: ${endpointId}, cluster: ${featureData.cluster}, ` +
     `feature: ${featureName} (bit ${featureData.bit} in featureMap attribute)`
 
   let missingTerms = []
