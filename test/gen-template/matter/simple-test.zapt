@@ -26,3 +26,19 @@ Base type for {{name}} : {{baseType}}
 {{/if}}
 {{/zcl_atomics}}
 
+// Extract cluster extension struct type(See custom-xml-in-zcl-json.xml)
+// Also using that as a command argument type
+{{#zcl_structs}}
+    {{#zcl_struct_items_by_struct_and_cluster_name ./name "Thermostat"}}
+    Struct name: {{../name}}, Struct Item Name: {{./name}}, Struct Item Type: {{./type}}
+    {{/zcl_struct_items_by_struct_and_cluster_name}}
+{{/zcl_structs}}
+
+{{#zcl_commands}}
+    {{#if (is_equal ./name "customCommandForAdditionalInfoStruct")}}
+        {{#zcl_command_arguments}}
+            Command name: {{../name}}, Command Argument Name: {{name}}, Command Argument Type: {{type}}
+        {{/zcl_command_arguments}}
+    {{/if}}
+{{/zcl_commands}}
+

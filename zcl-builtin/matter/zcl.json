@@ -93,7 +93,8 @@
     "types/color-control.xml",
     "types/door-lock.xml",
     "types/occupancy-sensing.xml",
-    "types/thermostat-user-interface-configuration.xml"
+    "types/thermostat-user-interface-configuration.xml",
+    "../../test/resource/custom-cluster/custom-xml-in-zcl-json.xml"
   ],
   "manufacturersXml": "data-model/manufacturers.xml",
   "options": {

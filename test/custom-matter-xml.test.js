@@ -387,6 +387,20 @@ test(
       { disableDeprecationWarnings: true }
     )
 
+    // Testing custom xml cluster extension data types
+    // Testing cluster extension from an xml file in zcl.json
+    // Note: When cluster extensions are added to standard xml files in zcl.json
+    // then all content needs to come under <clusterExtensions> so that they are
+    // postprocessed onece all the other data has been loaded.
+    let simpleText = genResult.content['simple-test.h']
+    expect(simpleText).not.toBeNull()
+    expect(simpleText).toContain(
+      'Struct name: AdditionalInfoStruct, Struct Item Name: SystemMode, Struct Item Type: SystemModeEnum'
+    )
+    expect(simpleText).toContain(
+      'Command name: customCommandForAdditionalInfoStruct, Command Argument Name: arg1, Command Argument Type: AdditionalInfoStruct'
+    )
+
     let sdkExt = genResult.content['sdk-ext.txt']
     expect(sdkExt).not.toBeNull()
     expect(sdkExt).toContain(

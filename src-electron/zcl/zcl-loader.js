@@ -377,6 +377,7 @@ async function qualifyZclFile(
  * Promises to perform a post loading step.
  *
  * @param {*} db
+ * @param {*} packageId
  * @returns Promise to deal with the post-loading cleanup.
  */
 async function processZclPostLoading(db, packageId) {
