@@ -16,6 +16,19 @@
 <dt><a href="#module_IPC Client API_ Inter-process communication">IPC Client API: Inter-process communication</a></dt>
 <dd><p>This module provides IPC Client functionality.</p>
 </dd>
+<dt><a href="#module_Conformance API_ check element conformance">Conformance API: check element conformance</a></dt>
+<dd><p>This module provides utilities for checking if elements meet conformance requirements
+and generate warnings for non-conformance.</p>
+</dd>
+<dt><a href="#module_Conformance API_ Evaluate conformance expressions">Conformance API: Evaluate conformance expressions</a></dt>
+<dd><p>This module provides utilities for evaluating conformance expressions.</p>
+</dd>
+<dt><a href="#module_Conformance API_ conformance helper functions">Conformance API: conformance helper functions</a></dt>
+<dd><p>This module provides helper functions for conformance-related operations.</p>
+</dd>
+<dt><a href="#module_Conformance API_ Parse conformance data from XML">Conformance API: Parse conformance data from XML</a></dt>
+<dd><p>This module provides utilities for parsing conformance data from XML into expressions.</p>
+</dd>
 <dt><a href="#module_JS API_ low level database access">JS API: low level database access</a></dt>
 <dd><p>This module provides generic DB functions for performing SQL queries.</p>
 </dd>
@@ -447,6 +460,309 @@ Sends a message to server.
 | --- | --- |
 | key | <code>\*</code> | 
 | object | <code>\*</code> | 
+
+<a name="module_Conformance API_ check element conformance"></a>
+
+## Conformance API: check element conformance
+This module provides utilities for checking if elements meet conformance requirements
+and generate warnings for non-conformance.
+
+
+* [Conformance API: check element conformance](#module_Conformance API_ check element conformance)
+    * [~filterRelatedDescElements(elements, featureCode)](#module_Conformance API_ check element conformance..filterRelatedDescElements) ⇒
+    * [~generateWarningMessage(featureData, endpointId, elementMap, featureMap, descElements)](#module_Conformance API_ check element conformance..generateWarningMessage) ⇒
+    * [~checkElementConformance(elements, featureMap, featureData, endpointId)](#module_Conformance API_ check element conformance..checkElementConformance) ⇒
+    * [~filterElementsToUpdate(elements, elementMap, featureCode)](#module_Conformance API_ check element conformance..filterElementsToUpdate) ⇒
+    * [~getOutdatedElementWarning(featureData, elements, elementMap)](#module_Conformance API_ check element conformance..getOutdatedElementWarning) ⇒
+        * [~processElements(elementType)](#module_Conformance API_ check element conformance..getOutdatedElementWarning..processElements)
+    * [~filterRequiredElements(elements, elementMap, featureMap)](#module_Conformance API_ check element conformance..filterRequiredElements) ⇒
+    * [~setConformanceWarnings(db, endpointId, endpointTypeId, endpointClusterId, deviceTypeRefs, cluster, sessionId)](#module_Conformance API_ check element conformance..setConformanceWarnings) ⇒
+
+<a name="module_Conformance API_ check element conformance..filterRelatedDescElements"></a>
+
+### Conformance API: check element conformance~filterRelatedDescElements(elements, featureCode) ⇒
+**Kind**: inner method of [<code>Conformance API: check element conformance</code>](#module_Conformance API_ check element conformance)  
+**Returns**: elements with conformance containing 'desc' and the feature code  
+
+| Param | Type |
+| --- | --- |
+| elements | <code>\*</code> | 
+| featureCode | <code>\*</code> | 
+
+<a name="module_Conformance API_ check element conformance..generateWarningMessage"></a>
+
+### Conformance API: check element conformance~generateWarningMessage(featureData, endpointId, elementMap, featureMap, descElements) ⇒
+Generate a warning message after processing conformance of the updated device type feature.
+Set flags to decide whether to show warnings or disable changes in the frontend.
+
+**Kind**: inner method of [<code>Conformance API: check element conformance</code>](#module_Conformance API_ check element conformance)  
+**Returns**: warning message array, disableChange flag, and displayWarning flag  
+
+| Param | Type |
+| --- | --- |
+| featureData | <code>\*</code> | 
+| endpointId | <code>\*</code> | 
+| elementMap | <code>\*</code> | 
+| featureMap | <code>\*</code> | 
+| descElements | <code>\*</code> | 
+
+<a name="module_Conformance API_ check element conformance..checkElementConformance"></a>
+
+### Conformance API: check element conformance~checkElementConformance(elements, featureMap, featureData, endpointId) ⇒
+Check if elements need to be updated for correct conformance if featureData provided.
+Otherwise, check if elements are required or unsupported by their conformance.
+
+**Kind**: inner method of [<code>Conformance API: check element conformance</code>](#module_Conformance API_ check element conformance)  
+**Returns**: attributes, commands, and events to update, with warnings if featureData provided;
+required and unsupported attributes, commands, and events, with warnings if not.  
+
+| Param | Type | Default |
+| --- | --- | --- |
+| elements | <code>\*</code> |  | 
+| featureMap | <code>\*</code> |  | 
+| featureData | <code>\*</code> | <code></code> | 
+| endpointId | <code>\*</code> | <code></code> | 
+
+<a name="module_Conformance API_ check element conformance..filterElementsToUpdate"></a>
+
+### Conformance API: check element conformance~filterElementsToUpdate(elements, elementMap, featureCode) ⇒
+Return attributes, commands, or events to be updated satisfying:
+(1) its conformance includes feature code of the updated feature
+(2) it has mandatory conformance but it is not enabled, OR,
+		 it is has notSupported conformance but it is enabled
+
+**Kind**: inner method of [<code>Conformance API: check element conformance</code>](#module_Conformance API_ check element conformance)  
+**Returns**: elements that should be updated  
+
+| Param | Type |
+| --- | --- |
+| elements | <code>\*</code> | 
+| elementMap | <code>\*</code> | 
+| featureCode | <code>\*</code> | 
+
+<a name="module_Conformance API_ check element conformance..getOutdatedElementWarning"></a>
+
+### Conformance API: check element conformance~getOutdatedElementWarning(featureData, elements, elementMap) ⇒
+Get warnings for element requirements that are outdated after a feature update.
+
+**Kind**: inner method of [<code>Conformance API: check element conformance</code>](#module_Conformance API_ check element conformance)  
+**Returns**: array of outdated element warnings  
+
+| Param | Type |
+| --- | --- |
+| featureData | <code>\*</code> | 
+| elements | <code>\*</code> | 
+| elementMap | <code>\*</code> | 
+
+<a name="module_Conformance API_ check element conformance..getOutdatedElementWarning..processElements"></a>
+
+#### getOutdatedElementWarning~processElements(elementType)
+Build substrings of outdated warnings and add to returned array if:
+(1) the element conformance includes the feature code
+(2) the element conformance has changed after the feature update
+
+**Kind**: inner method of [<code>getOutdatedElementWarning</code>](#module_Conformance API_ check element conformance..getOutdatedElementWarning)  
+
+| Param | Type |
+| --- | --- |
+| elementType | <code>\*</code> | 
+
+<a name="module_Conformance API_ check element conformance..filterRequiredElements"></a>
+
+### Conformance API: check element conformance~filterRequiredElements(elements, elementMap, featureMap) ⇒
+Filter required and unsupported elements based on their conformance and generate warnings.
+An element is required if it conforms to element(s) in elementMap and has 'mandatory' conform.
+An element is unsupported if it conforms to element(s) in elementMap and has 'notSupported' conform.
+
+**Kind**: inner method of [<code>Conformance API: check element conformance</code>](#module_Conformance API_ check element conformance)  
+**Returns**: required and not supported elements with warnings  
+
+| Param | Type |
+| --- | --- |
+| elements | <code>\*</code> | 
+| elementMap | <code>\*</code> | 
+| featureMap | <code>\*</code> | 
+
+<a name="module_Conformance API_ check element conformance..setConformanceWarnings"></a>
+
+### Conformance API: check element conformance~setConformanceWarnings(db, endpointId, endpointTypeId, endpointClusterId, deviceTypeRefs, cluster, sessionId) ⇒
+Adds warnings to the session notification table during ZAP file imports
+for features, attributes, commands, and events that do not correctly conform
+within a cluster.
+
+**Kind**: inner method of [<code>Conformance API: check element conformance</code>](#module_Conformance API_ check element conformance)  
+**Returns**: list of warning messages if any, otherwise false  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| endpointId | <code>\*</code> | 
+| endpointTypeId | <code>\*</code> | 
+| endpointClusterId | <code>\*</code> | 
+| deviceTypeRefs | <code>\*</code> | 
+| cluster | <code>\*</code> | 
+| sessionId | <code>\*</code> | 
+
+<a name="module_Conformance API_ Evaluate conformance expressions"></a>
+
+## Conformance API: Evaluate conformance expressions
+This module provides utilities for evaluating conformance expressions.
+
+
+* [Conformance API: Evaluate conformance expressions](#module_Conformance API_ Evaluate conformance expressions)
+    * [~evaluateConformanceExpression(expression, elementMap)](#module_Conformance API_ Evaluate conformance expressions..evaluateConformanceExpression) ⇒
+        * [~evaluateBooleanExpression(expr)](#module_Conformance API_ Evaluate conformance expressions..evaluateConformanceExpression..evaluateBooleanExpression)
+        * [~evaluateWithParentheses(expr)](#module_Conformance API_ Evaluate conformance expressions..evaluateConformanceExpression..evaluateWithParentheses)
+    * [~checkMissingTerms(expression, elementMap)](#module_Conformance API_ Evaluate conformance expressions..checkMissingTerms) ⇒
+
+<a name="module_Conformance API_ Evaluate conformance expressions..evaluateConformanceExpression"></a>
+
+### Conformance API: Evaluate conformance expressions~evaluateConformanceExpression(expression, elementMap) ⇒
+Evaluate the value of a boolean conformance expression that includes terms and operators.
+A term can be an attribute, command, event, feature, or conformance abbreviation.
+Operators include AND (&), OR (|), and NOT (!).
+The '[]' indicates optional conformance if the expression inside true.
+Expression containing comma means otherwise conformance. See spec for details.
+Examples of conformance expression: 'A & (!B | C)', 'A & B, [!C]'
+
+**Kind**: inner method of [<code>Conformance API: Evaluate conformance expressions</code>](#module_Conformance API_ Evaluate conformance expressions)  
+**Returns**: 'mandatory', 'optional', 'provisional', or 'notSupported'  
+
+| Param | Type |
+| --- | --- |
+| expression | <code>\*</code> | 
+| elementMap | <code>\*</code> | 
+
+
+* [~evaluateConformanceExpression(expression, elementMap)](#module_Conformance API_ Evaluate conformance expressions..evaluateConformanceExpression) ⇒
+    * [~evaluateBooleanExpression(expr)](#module_Conformance API_ Evaluate conformance expressions..evaluateConformanceExpression..evaluateBooleanExpression)
+    * [~evaluateWithParentheses(expr)](#module_Conformance API_ Evaluate conformance expressions..evaluateConformanceExpression..evaluateWithParentheses)
+
+<a name="module_Conformance API_ Evaluate conformance expressions..evaluateConformanceExpression..evaluateBooleanExpression"></a>
+
+#### evaluateConformanceExpression~evaluateBooleanExpression(expr)
+helper function to evaluate a single boolean expression
+
+**Kind**: inner method of [<code>evaluateConformanceExpression</code>](#module_Conformance API_ Evaluate conformance expressions..evaluateConformanceExpression)  
+
+| Param | Type |
+| --- | --- |
+| expr | <code>\*</code> | 
+
+<a name="module_Conformance API_ Evaluate conformance expressions..evaluateConformanceExpression..evaluateWithParentheses"></a>
+
+#### evaluateConformanceExpression~evaluateWithParentheses(expr)
+helper function to process parentheses and evaluate inner expressions first
+
+**Kind**: inner method of [<code>evaluateConformanceExpression</code>](#module_Conformance API_ Evaluate conformance expressions..evaluateConformanceExpression)  
+
+| Param | Type |
+| --- | --- |
+| expr | <code>\*</code> | 
+
+<a name="module_Conformance API_ Evaluate conformance expressions..checkMissingTerms"></a>
+
+### Conformance API: Evaluate conformance expressions~checkMissingTerms(expression, elementMap) ⇒
+Check if any terms in the expression are neither a key in the elementMap nor an abbreviation.
+If so, it means the conformance depends on terms with unknown values and changes are not allowed.
+
+**Kind**: inner method of [<code>Conformance API: Evaluate conformance expressions</code>](#module_Conformance API_ Evaluate conformance expressions)  
+**Returns**: all missing terms in an array  
+
+| Param | Type |
+| --- | --- |
+| expression | <code>\*</code> | 
+| elementMap | <code>\*</code> | 
+
+<a name="module_Conformance API_ conformance helper functions"></a>
+
+## Conformance API: conformance helper functions
+This module provides helper functions for conformance-related operations.
+
+<a name="module_Conformance API_ conformance helper functions..getEndpointTypeElements"></a>
+
+### Conformance API: conformance helper functions~getEndpointTypeElements(db, endpointTypeClusterId, deviceTypeClusterId) ⇒
+Get all attributes, commands and events in an endpoint type cluster.
+
+**Kind**: inner method of [<code>Conformance API: conformance helper functions</code>](#module_Conformance API_ conformance helper functions)  
+**Returns**: elements object containing all attributes, commands and events
+in an endpoint type cluster  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| endpointTypeClusterId | <code>\*</code> | 
+| deviceTypeClusterId | <code>\*</code> | 
+
+<a name="module_Conformance API_ Parse conformance data from XML"></a>
+
+## Conformance API: Parse conformance data from XML
+This module provides utilities for parsing conformance data from XML into expressions.
+
+
+* [Conformance API: Parse conformance data from XML](#module_Conformance API_ Parse conformance data from XML)
+    * [~parseConformanceFromXML(operand)](#module_Conformance API_ Parse conformance data from XML..parseConformanceFromXML) ⇒
+    * [~parseConformanceRecursively(operand, depth, parentJoinChar)](#module_Conformance API_ Parse conformance data from XML..parseConformanceRecursively) ⇒
+
+<a name="module_Conformance API_ Parse conformance data from XML..parseConformanceFromXML"></a>
+
+### Conformance API: Parse conformance data from XML~parseConformanceFromXML(operand) ⇒
+Parses conformance from XML data.
+The conformance could come from features, attributes, commands, or events
+
+Call recursive helper function to parse conformance only if the conformance exists.
+Otherwise, return empty string directly
+
+An example of parsing the conformance of 'User' device type feature:
+
+Input operand from xml data:
+{
+  "$": {"code": "USR", "name": "User"},
+  "mandatoryConform": [
+     { "andTerm": [
+          {
+            "condition": [{"$": {"name": "Matter"}}],
+            "orTerm": [
+                { "feature": [
+                     { "$": {"name": "PIN"}},
+                     { "$": {"name": "RID"}},
+                     { "$": {"name": "FGP"}},
+                     { "$": {"name": "FACE"}}
+                  ]
+                }
+              ]
+           }
+         ]
+       }
+   ]
+}
+
+Output conformance string:
+ "Matter & (PIN | RID | FGP | FACE)"
+
+**Kind**: inner method of [<code>Conformance API: Parse conformance data from XML</code>](#module_Conformance API_ Parse conformance data from XML)  
+**Returns**: The conformance string  
+
+| Param | Type |
+| --- | --- |
+| operand | <code>\*</code> | 
+
+<a name="module_Conformance API_ Parse conformance data from XML..parseConformanceRecursively"></a>
+
+### Conformance API: Parse conformance data from XML~parseConformanceRecursively(operand, depth, parentJoinChar) ⇒
+helper function to parse conformance or an operand in conformance recursively
+
+The baseLevelTerms variable include terms that can not have nested terms.
+When they appear, stop recursing and return the name inside directly
+
+**Kind**: inner method of [<code>Conformance API: Parse conformance data from XML</code>](#module_Conformance API_ Parse conformance data from XML)  
+**Returns**: The conformance string.  
+
+| Param | Type | Default |
+| --- | --- | --- |
+| operand | <code>\*</code> |  | 
+| depth | <code>\*</code> | <code>0</code> | 
+| parentJoinChar | <code>\*</code> |  | 
 
 <a name="module_JS API_ low level database access"></a>
 
@@ -3645,20 +3961,7 @@ This module provides queries for features.
 
 * [DB API: feature related queries](#module_DB API_ feature related queries)
     * [~getFeaturesByDeviceTypeRefs(db, deviceTypeRefs, endpointTypeRef)](#module_DB API_ feature related queries..getFeaturesByDeviceTypeRefs) ⇒
-    * [~evaluateConformanceExpression(expression, elementMap)](#module_DB API_ feature related queries..evaluateConformanceExpression) ⇒
-        * [~evaluateBooleanExpression(expr)](#module_DB API_ feature related queries..evaluateConformanceExpression..evaluateBooleanExpression)
-        * [~evaluateWithParentheses(expr)](#module_DB API_ feature related queries..evaluateConformanceExpression..evaluateWithParentheses)
-    * [~checkMissingTerms(expression, elementMap)](#module_DB API_ feature related queries..checkMissingTerms) ⇒
-    * [~filterElementsContainingDesc(elements)](#module_DB API_ feature related queries..filterElementsContainingDesc) ⇒
-    * [~filterRelatedDescElements(elements, featureCode)](#module_DB API_ feature related queries..filterRelatedDescElements) ⇒
-    * [~generateWarningMessage(featureData, endpointId, elementMap, featureMap, descElements)](#module_DB API_ feature related queries..generateWarningMessage) ⇒
-    * [~checkElementConformance(elements, featureMap, featureData, endpointId)](#module_DB API_ feature related queries..checkElementConformance) ⇒
-    * [~filterElementsToUpdate(elements, elementMap, featureCode)](#module_DB API_ feature related queries..filterElementsToUpdate) ⇒
-    * [~getOutdatedElementWarning(featureData, elements, elementMap)](#module_DB API_ feature related queries..getOutdatedElementWarning) ⇒
-        * [~processElements(elementType)](#module_DB API_ feature related queries..getOutdatedElementWarning..processElements)
-    * [~filterRequiredElements(elements, elementMap, featureMap)](#module_DB API_ feature related queries..filterRequiredElements) ⇒
     * [~checkIfConformanceDataExist(db)](#module_DB API_ feature related queries..checkIfConformanceDataExist) ⇒
-    * [~getEndpointTypeElements(db, endpointTypeClusterId, deviceTypeClusterId)](#module_DB API_ feature related queries..getEndpointTypeElements) ⇒
 
 <a name="module_DB API_ feature related queries..getFeaturesByDeviceTypeRefs"></a>
 
@@ -3678,182 +3981,6 @@ with associated device type, cluster, and featureMap attribute details
 | deviceTypeRefs | <code>\*</code> | 
 | endpointTypeRef | <code>\*</code> | 
 
-<a name="module_DB API_ feature related queries..evaluateConformanceExpression"></a>
-
-### DB API: feature related queries~evaluateConformanceExpression(expression, elementMap) ⇒
-Evaluate the value of a boolean conformance expression that includes terms and operators.
-A term can be an attribute, command, event, feature, or conformance abbreviation.
-Operators include AND (&), OR (|), and NOT (!).
-The '[]' indicates optional conformance if the expression inside true.
-Expression containing comma means otherwise conformance. See spec for details.
-Examples of conformance expression: 'A & (!B | C)', 'A & B, [!C]'
-
-**Kind**: inner method of [<code>DB API: feature related queries</code>](#module_DB API_ feature related queries)  
-**Returns**: 'mandatory', 'optional', 'provisional', or 'notSupported'  
-
-| Param | Type |
-| --- | --- |
-| expression | <code>\*</code> | 
-| elementMap | <code>\*</code> | 
-
-
-* [~evaluateConformanceExpression(expression, elementMap)](#module_DB API_ feature related queries..evaluateConformanceExpression) ⇒
-    * [~evaluateBooleanExpression(expr)](#module_DB API_ feature related queries..evaluateConformanceExpression..evaluateBooleanExpression)
-    * [~evaluateWithParentheses(expr)](#module_DB API_ feature related queries..evaluateConformanceExpression..evaluateWithParentheses)
-
-<a name="module_DB API_ feature related queries..evaluateConformanceExpression..evaluateBooleanExpression"></a>
-
-#### evaluateConformanceExpression~evaluateBooleanExpression(expr)
-helper function to evaluate a single boolean expression
-
-**Kind**: inner method of [<code>evaluateConformanceExpression</code>](#module_DB API_ feature related queries..evaluateConformanceExpression)  
-
-| Param | Type |
-| --- | --- |
-| expr | <code>\*</code> | 
-
-<a name="module_DB API_ feature related queries..evaluateConformanceExpression..evaluateWithParentheses"></a>
-
-#### evaluateConformanceExpression~evaluateWithParentheses(expr)
-helper function to process parentheses and evaluate inner expressions first
-
-**Kind**: inner method of [<code>evaluateConformanceExpression</code>](#module_DB API_ feature related queries..evaluateConformanceExpression)  
-
-| Param | Type |
-| --- | --- |
-| expr | <code>\*</code> | 
-
-<a name="module_DB API_ feature related queries..checkMissingTerms"></a>
-
-### DB API: feature related queries~checkMissingTerms(expression, elementMap) ⇒
-Check if any terms in the expression are neither a key in the elementMap nor an abbreviation.
-If so, it means the conformance depends on terms with unknown values and changes are not allowed.
-
-**Kind**: inner method of [<code>DB API: feature related queries</code>](#module_DB API_ feature related queries)  
-**Returns**: all missing terms in an array  
-
-| Param | Type |
-| --- | --- |
-| expression | <code>\*</code> | 
-| elementMap | <code>\*</code> | 
-
-<a name="module_DB API_ feature related queries..filterElementsContainingDesc"></a>
-
-### DB API: feature related queries~filterElementsContainingDesc(elements) ⇒
-Filter an array of elements by if any element has conformance containing the term 'desc'.
-
-**Kind**: inner method of [<code>DB API: feature related queries</code>](#module_DB API_ feature related queries)  
-**Returns**: elements with conformance containing 'desc'  
-
-| Param | Type |
-| --- | --- |
-| elements | <code>\*</code> | 
-
-<a name="module_DB API_ feature related queries..filterRelatedDescElements"></a>
-
-### DB API: feature related queries~filterRelatedDescElements(elements, featureCode) ⇒
-**Kind**: inner method of [<code>DB API: feature related queries</code>](#module_DB API_ feature related queries)  
-**Returns**: elements with conformance containing 'desc' and the feature code  
-
-| Param | Type |
-| --- | --- |
-| elements | <code>\*</code> | 
-| featureCode | <code>\*</code> | 
-
-<a name="module_DB API_ feature related queries..generateWarningMessage"></a>
-
-### DB API: feature related queries~generateWarningMessage(featureData, endpointId, elementMap, featureMap, descElements) ⇒
-Generate a warning message after processing conformance of the updated device type feature.
-Set flags to decide whether to show warnings or disable changes in the frontend.
-
-**Kind**: inner method of [<code>DB API: feature related queries</code>](#module_DB API_ feature related queries)  
-**Returns**: warning message array, disableChange flag, and displayWarning flag  
-
-| Param | Type |
-| --- | --- |
-| featureData | <code>\*</code> | 
-| endpointId | <code>\*</code> | 
-| elementMap | <code>\*</code> | 
-| featureMap | <code>\*</code> | 
-| descElements | <code>\*</code> | 
-
-<a name="module_DB API_ feature related queries..checkElementConformance"></a>
-
-### DB API: feature related queries~checkElementConformance(elements, featureMap, featureData, endpointId) ⇒
-Check if elements need to be updated for correct conformance if featureData provided.
-Otherwise, check if elements are required or unsupported by their conformance.
-
-**Kind**: inner method of [<code>DB API: feature related queries</code>](#module_DB API_ feature related queries)  
-**Returns**: attributes, commands, and events to update, with warnings if featureData provided;
-required and unsupported attributes, commands, and events, with warnings if not.  
-
-| Param | Type | Default |
-| --- | --- | --- |
-| elements | <code>\*</code> |  | 
-| featureMap | <code>\*</code> |  | 
-| featureData | <code>\*</code> | <code></code> | 
-| endpointId | <code>\*</code> | <code></code> | 
-
-<a name="module_DB API_ feature related queries..filterElementsToUpdate"></a>
-
-### DB API: feature related queries~filterElementsToUpdate(elements, elementMap, featureCode) ⇒
-Return attributes, commands, or events to be updated satisfying:
-(1) its conformance includes feature code of the updated feature
-(2) it has mandatory conformance but it is not enabled, OR,
-		 it is has notSupported conformance but it is enabled
-
-**Kind**: inner method of [<code>DB API: feature related queries</code>](#module_DB API_ feature related queries)  
-**Returns**: elements that should be updated  
-
-| Param | Type |
-| --- | --- |
-| elements | <code>\*</code> | 
-| elementMap | <code>\*</code> | 
-| featureCode | <code>\*</code> | 
-
-<a name="module_DB API_ feature related queries..getOutdatedElementWarning"></a>
-
-### DB API: feature related queries~getOutdatedElementWarning(featureData, elements, elementMap) ⇒
-Get warnings for element requirements that are outdated after a feature update.
-
-**Kind**: inner method of [<code>DB API: feature related queries</code>](#module_DB API_ feature related queries)  
-**Returns**: array of outdated element warnings  
-
-| Param | Type |
-| --- | --- |
-| featureData | <code>\*</code> | 
-| elements | <code>\*</code> | 
-| elementMap | <code>\*</code> | 
-
-<a name="module_DB API_ feature related queries..getOutdatedElementWarning..processElements"></a>
-
-#### getOutdatedElementWarning~processElements(elementType)
-Build substrings of outdated warnings and add to returned array if:
-(1) the element conformance includes the feature code
-(2) the element conformance has changed after the feature update
-
-**Kind**: inner method of [<code>getOutdatedElementWarning</code>](#module_DB API_ feature related queries..getOutdatedElementWarning)  
-
-| Param | Type |
-| --- | --- |
-| elementType | <code>\*</code> | 
-
-<a name="module_DB API_ feature related queries..filterRequiredElements"></a>
-
-### DB API: feature related queries~filterRequiredElements(elements, elementMap, featureMap) ⇒
-Filter required and unsupported elements based on their conformance and generate warnings.
-An element is required if it conforms to element(s) in elementMap and has 'mandatory' conform.
-An element is unsupported if it conforms to element(s) in elementMap and has 'notSupported' conform.
-
-**Kind**: inner method of [<code>DB API: feature related queries</code>](#module_DB API_ feature related queries)  
-**Returns**: required and not supported elements with warnings  
-
-| Param | Type |
-| --- | --- |
-| elements | <code>\*</code> | 
-| elementMap | <code>\*</code> | 
-| featureMap | <code>\*</code> | 
-
 <a name="module_DB API_ feature related queries..checkIfConformanceDataExist"></a>
 
 ### DB API: feature related queries~checkIfConformanceDataExist(db) ⇒
@@ -3866,21 +3993,6 @@ and DEVICE_TYPE_FEATURE table.
 | Param | Type |
 | --- | --- |
 | db | <code>\*</code> | 
-
-<a name="module_DB API_ feature related queries..getEndpointTypeElements"></a>
-
-### DB API: feature related queries~getEndpointTypeElements(db, endpointTypeClusterId, deviceTypeClusterId) ⇒
-Get all attributes, commands and events in an endpoint type cluster.
-
-**Kind**: inner method of [<code>DB API: feature related queries</code>](#module_DB API_ feature related queries)  
-**Returns**: elements object containing all attributes, commands and events
-in an endpoint type cluster  
-
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
-| endpointTypeClusterId | <code>\*</code> | 
-| deviceTypeClusterId | <code>\*</code> | 
 
 <a name="module_DB API_ package-based queries."></a>
 
@@ -20123,8 +20235,6 @@ This module provides the APIs for dotdot Loading
     * [~parseManufacturerData(db, ctx)](#module_Loader API_ Loader APIs..parseManufacturerData) ⇒
     * [~parseProfilesData(db, ctx)](#module_Loader API_ Loader APIs..parseProfilesData) ⇒
     * [~parseFeatureFlags(db, packageId, featureFlags)](#module_Loader API_ Loader APIs..parseFeatureFlags) ⇒
-    * [~parseConformanceFromXML(operand)](#module_Loader API_ Loader APIs..parseConformanceFromXML) ⇒
-    * [~parseConformanceRecursively(operand, depth, parentJoinChar)](#module_Loader API_ Loader APIs..parseConformanceRecursively) ⇒
     * [~parseUiOptions(db, packageId, featureFlags)](#module_Loader API_ Loader APIs..parseUiOptions) ⇒
     * [~parseOptions(db)](#module_Loader API_ Loader APIs..parseOptions) ⇒
     * [~parseTextOptions(db, pkgRef, textOptions)](#module_Loader API_ Loader APIs..parseTextOptions) ⇒
@@ -21549,66 +21659,6 @@ Key/velues of the object itself, end up in CODE/LABEL combinations.
 | db | <code>\*</code> | 
 | packageId | <code>\*</code> | 
 | featureFlags | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..parseConformanceFromXML"></a>
-
-### Loader API: Loader APIs~parseConformanceFromXML(operand) ⇒
-Parses conformance from XML data.
-The conformance could come from features, attributes, commands, or events
-
-Call recursive helper function to parse conformance only if the conformance exists.
-Otherwise, return empty string directly
-
-An example of parsing the conformance of 'User' device type feature:
-
-Input operand from xml data:
-{
-  "$": {"code": "USR", "name": "User"},
-  "mandatoryConform": [
-     { "andTerm": [
-          {
-            "condition": [{"$": {"name": "Matter"}}],
-            "orTerm": [
-                { "feature": [
-                     { "$": {"name": "PIN"}},
-                     { "$": {"name": "RID"}},
-                     { "$": {"name": "FGP"}},
-                     { "$": {"name": "FACE"}}
-                  ]
-                }
-              ]
-           }
-         ]
-       }
-   ]
-}
-
-Output conformance string:
- "Matter & (PIN | RID | FGP | FACE)"
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: The conformance string  
-
-| Param | Type |
-| --- | --- |
-| operand | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..parseConformanceRecursively"></a>
-
-### Loader API: Loader APIs~parseConformanceRecursively(operand, depth, parentJoinChar) ⇒
-helper function to parse conformance or an operand in conformance recursively
-
-The baseLevelTerms variable include terms that can not have nested terms.
-When they appear, stop recursing and return the name inside directly
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: The conformance string.  
-
-| Param | Type | Default |
-| --- | --- | --- |
-| operand | <code>\*</code> |  | 
-| depth | <code>\*</code> | <code>0</code> | 
-| parentJoinChar | <code>\*</code> |  | 
 
 <a name="module_Loader API_ Loader APIs..parseUiOptions"></a>
 
@@ -22037,8 +22087,6 @@ This module provides the APIs for new data model loading
     * [~parseManufacturerData(db, ctx)](#module_Loader API_ Loader APIs..parseManufacturerData) ⇒
     * [~parseProfilesData(db, ctx)](#module_Loader API_ Loader APIs..parseProfilesData) ⇒
     * [~parseFeatureFlags(db, packageId, featureFlags)](#module_Loader API_ Loader APIs..parseFeatureFlags) ⇒
-    * [~parseConformanceFromXML(operand)](#module_Loader API_ Loader APIs..parseConformanceFromXML) ⇒
-    * [~parseConformanceRecursively(operand, depth, parentJoinChar)](#module_Loader API_ Loader APIs..parseConformanceRecursively) ⇒
     * [~parseUiOptions(db, packageId, featureFlags)](#module_Loader API_ Loader APIs..parseUiOptions) ⇒
     * [~parseOptions(db)](#module_Loader API_ Loader APIs..parseOptions) ⇒
     * [~parseTextOptions(db, pkgRef, textOptions)](#module_Loader API_ Loader APIs..parseTextOptions) ⇒
@@ -23463,66 +23511,6 @@ Key/velues of the object itself, end up in CODE/LABEL combinations.
 | db | <code>\*</code> | 
 | packageId | <code>\*</code> | 
 | featureFlags | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..parseConformanceFromXML"></a>
-
-### Loader API: Loader APIs~parseConformanceFromXML(operand) ⇒
-Parses conformance from XML data.
-The conformance could come from features, attributes, commands, or events
-
-Call recursive helper function to parse conformance only if the conformance exists.
-Otherwise, return empty string directly
-
-An example of parsing the conformance of 'User' device type feature:
-
-Input operand from xml data:
-{
-  "$": {"code": "USR", "name": "User"},
-  "mandatoryConform": [
-     { "andTerm": [
-          {
-            "condition": [{"$": {"name": "Matter"}}],
-            "orTerm": [
-                { "feature": [
-                     { "$": {"name": "PIN"}},
-                     { "$": {"name": "RID"}},
-                     { "$": {"name": "FGP"}},
-                     { "$": {"name": "FACE"}}
-                  ]
-                }
-              ]
-           }
-         ]
-       }
-   ]
-}
-
-Output conformance string:
- "Matter & (PIN | RID | FGP | FACE)"
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: The conformance string  
-
-| Param | Type |
-| --- | --- |
-| operand | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..parseConformanceRecursively"></a>
-
-### Loader API: Loader APIs~parseConformanceRecursively(operand, depth, parentJoinChar) ⇒
-helper function to parse conformance or an operand in conformance recursively
-
-The baseLevelTerms variable include terms that can not have nested terms.
-When they appear, stop recursing and return the name inside directly
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: The conformance string.  
-
-| Param | Type | Default |
-| --- | --- | --- |
-| operand | <code>\*</code> |  | 
-| depth | <code>\*</code> | <code>0</code> | 
-| parentJoinChar | <code>\*</code> |  | 
 
 <a name="module_Loader API_ Loader APIs..parseUiOptions"></a>
 
@@ -23951,8 +23939,6 @@ This module provides the APIs for ZCL/Data-Model loading.
     * [~parseManufacturerData(db, ctx)](#module_Loader API_ Loader APIs..parseManufacturerData) ⇒
     * [~parseProfilesData(db, ctx)](#module_Loader API_ Loader APIs..parseProfilesData) ⇒
     * [~parseFeatureFlags(db, packageId, featureFlags)](#module_Loader API_ Loader APIs..parseFeatureFlags) ⇒
-    * [~parseConformanceFromXML(operand)](#module_Loader API_ Loader APIs..parseConformanceFromXML) ⇒
-    * [~parseConformanceRecursively(operand, depth, parentJoinChar)](#module_Loader API_ Loader APIs..parseConformanceRecursively) ⇒
     * [~parseUiOptions(db, packageId, featureFlags)](#module_Loader API_ Loader APIs..parseUiOptions) ⇒
     * [~parseOptions(db)](#module_Loader API_ Loader APIs..parseOptions) ⇒
     * [~parseTextOptions(db, pkgRef, textOptions)](#module_Loader API_ Loader APIs..parseTextOptions) ⇒
@@ -25377,66 +25363,6 @@ Key/velues of the object itself, end up in CODE/LABEL combinations.
 | db | <code>\*</code> | 
 | packageId | <code>\*</code> | 
 | featureFlags | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..parseConformanceFromXML"></a>
-
-### Loader API: Loader APIs~parseConformanceFromXML(operand) ⇒
-Parses conformance from XML data.
-The conformance could come from features, attributes, commands, or events
-
-Call recursive helper function to parse conformance only if the conformance exists.
-Otherwise, return empty string directly
-
-An example of parsing the conformance of 'User' device type feature:
-
-Input operand from xml data:
-{
-  "$": {"code": "USR", "name": "User"},
-  "mandatoryConform": [
-     { "andTerm": [
-          {
-            "condition": [{"$": {"name": "Matter"}}],
-            "orTerm": [
-                { "feature": [
-                     { "$": {"name": "PIN"}},
-                     { "$": {"name": "RID"}},
-                     { "$": {"name": "FGP"}},
-                     { "$": {"name": "FACE"}}
-                  ]
-                }
-              ]
-           }
-         ]
-       }
-   ]
-}
-
-Output conformance string:
- "Matter & (PIN | RID | FGP | FACE)"
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: The conformance string  
-
-| Param | Type |
-| --- | --- |
-| operand | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..parseConformanceRecursively"></a>
-
-### Loader API: Loader APIs~parseConformanceRecursively(operand, depth, parentJoinChar) ⇒
-helper function to parse conformance or an operand in conformance recursively
-
-The baseLevelTerms variable include terms that can not have nested terms.
-When they appear, stop recursing and return the name inside directly
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: The conformance string.  
-
-| Param | Type | Default |
-| --- | --- | --- |
-| operand | <code>\*</code> |  | 
-| depth | <code>\*</code> | <code>0</code> | 
-| parentJoinChar | <code>\*</code> |  | 
 
 <a name="module_Loader API_ Loader APIs..parseUiOptions"></a>
 
@@ -25865,8 +25791,6 @@ This module provides the APIs for for common functionality related to loading.
     * [~parseManufacturerData(db, ctx)](#module_Loader API_ Loader APIs..parseManufacturerData) ⇒
     * [~parseProfilesData(db, ctx)](#module_Loader API_ Loader APIs..parseProfilesData) ⇒
     * [~parseFeatureFlags(db, packageId, featureFlags)](#module_Loader API_ Loader APIs..parseFeatureFlags) ⇒
-    * [~parseConformanceFromXML(operand)](#module_Loader API_ Loader APIs..parseConformanceFromXML) ⇒
-    * [~parseConformanceRecursively(operand, depth, parentJoinChar)](#module_Loader API_ Loader APIs..parseConformanceRecursively) ⇒
     * [~parseUiOptions(db, packageId, featureFlags)](#module_Loader API_ Loader APIs..parseUiOptions) ⇒
     * [~parseOptions(db)](#module_Loader API_ Loader APIs..parseOptions) ⇒
     * [~parseTextOptions(db, pkgRef, textOptions)](#module_Loader API_ Loader APIs..parseTextOptions) ⇒
@@ -27291,66 +27215,6 @@ Key/velues of the object itself, end up in CODE/LABEL combinations.
 | db | <code>\*</code> | 
 | packageId | <code>\*</code> | 
 | featureFlags | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..parseConformanceFromXML"></a>
-
-### Loader API: Loader APIs~parseConformanceFromXML(operand) ⇒
-Parses conformance from XML data.
-The conformance could come from features, attributes, commands, or events
-
-Call recursive helper function to parse conformance only if the conformance exists.
-Otherwise, return empty string directly
-
-An example of parsing the conformance of 'User' device type feature:
-
-Input operand from xml data:
-{
-  "$": {"code": "USR", "name": "User"},
-  "mandatoryConform": [
-     { "andTerm": [
-          {
-            "condition": [{"$": {"name": "Matter"}}],
-            "orTerm": [
-                { "feature": [
-                     { "$": {"name": "PIN"}},
-                     { "$": {"name": "RID"}},
-                     { "$": {"name": "FGP"}},
-                     { "$": {"name": "FACE"}}
-                  ]
-                }
-              ]
-           }
-         ]
-       }
-   ]
-}
-
-Output conformance string:
- "Matter & (PIN | RID | FGP | FACE)"
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: The conformance string  
-
-| Param | Type |
-| --- | --- |
-| operand | <code>\*</code> | 
-
-<a name="module_Loader API_ Loader APIs..parseConformanceRecursively"></a>
-
-### Loader API: Loader APIs~parseConformanceRecursively(operand, depth, parentJoinChar) ⇒
-helper function to parse conformance or an operand in conformance recursively
-
-The baseLevelTerms variable include terms that can not have nested terms.
-When they appear, stop recursing and return the name inside directly
-
-**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
-**Returns**: The conformance string.  
-
-| Param | Type | Default |
-| --- | --- | --- |
-| operand | <code>\*</code> |  | 
-| depth | <code>\*</code> | <code>0</code> | 
-| parentJoinChar | <code>\*</code> |  | 
 
 <a name="module_Loader API_ Loader APIs..parseUiOptions"></a>
 
