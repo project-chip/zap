@@ -1968,14 +1968,14 @@ async function processSubItems(
   context,
   collectedStructItems
 ) {
-  let subItemPrmosies = []
+  let subItemPromises = []
   if (dbEnum.zclType.enum in toplevel) {
-    subItemPrmosies.push(
+    subItemPromises.push(
       processEnumItems(db, filePath, packageId, knownPackages, toplevel.enum)
     )
   }
   if (dbEnum.zclType.bitmap in toplevel) {
-    subItemPrmosies.push(
+    subItemPromises.push(
       processBitmapFields(
         db,
         filePath,
@@ -1988,12 +1988,12 @@ async function processSubItems(
   // Treating features in a cluster as a bitmap
   if (featureClusters && featureClusters.length > 0) {
     featureClusters.forEach((fc) => {
-      subItemPrmosies.push(
+      subItemPromises.push(
         processBitmapFields(db, filePath, packageId, knownPackages, fc)
       )
     })
   }
-  // Delaying the loading of struct items into collecedStructItems instead of
+  // Delaying the loading of struct items into collectedStructItems instead of
   // processing them with other subitems. This is because the struct items are
   // dependent on types which could span across multiple xml files.
   if (dbEnum.zclType.struct in toplevel) {
@@ -2005,7 +2005,7 @@ async function processSubItems(
       context
     ])
   }
-  return Promise.all(subItemPrmosies)
+  return Promise.all(subItemPromises)
 }
 
 /**
