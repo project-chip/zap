@@ -436,7 +436,7 @@ export default {
       let clusterName = this.selectedCluster.label
       let endpointId = this.endpointId[this.selectedEndpointId]
       let contextMessage =
-        `On endpoint ${endpointId}, ` +
+        `⚠ Check Feature Compliance on endpoint: ${endpointId}, ` +
         `cluster: ${clusterName}, ${elementType.slice(0, -1)}: `
       let requiredText = this[`${elementType}RequiredByConform`][element.id]
       let notSupportedText =

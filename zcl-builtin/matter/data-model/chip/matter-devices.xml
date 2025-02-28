@@ -224,6 +224,11 @@ limitations under the License.
                 <requireCommand>GetSceneMembershipResponse</requireCommand>
             </include>
             <include cluster="On/Off" client="false" server="true" clientLocked="true" serverLocked="true">
+                <features>
+                  <feature code="LT" name="Lighting">
+                    <mandatoryConform/>
+                  </feature>
+                </features>
                 <requireAttribute>ON_OFF</requireAttribute>
                 <requireAttribute>GLOBAL_SCENE_CONTROL</requireAttribute>
                 <requireAttribute>ON_TIME</requireAttribute>
@@ -237,6 +242,14 @@ limitations under the License.
                 <requireCommand>OnWithTimedOff</requireCommand>
             </include>
             <include cluster="Level Control" client="false" server="false" clientLocked="true" serverLocked="false">
+                <features>
+                  <feature code="OO" name="OnOff">
+                    <mandatoryConform/>
+                  </feature>
+                  <feature code="LT" name="Lighting">
+                    <mandatoryConform/>
+                  </feature>
+                </features>
                 <requireAttribute>CURRENT_LEVEL</requireAttribute>
                 <requireAttribute>OPTIONS</requireAttribute>
                 <requireAttribute>LEVEL_CONTROL_REMAINING_TIME</requireAttribute>

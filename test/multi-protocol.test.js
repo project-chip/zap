@@ -181,28 +181,23 @@ test(
       (sn) => sn.message
     )
 
-    // Tests for the feature Map attribute compliance based on device type cluster features
+    // Tests for device type feature conformance
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Device Type Compliance on endpoint: 1, device type: MA-onofflight, cluster: On/Off server needs bit 0 enabled in the Feature Map attribute'
+        '⚠ Check Feature Compliance on endpoint: 1, cluster: Level Control, feature: Lighting (bit 1 in featureMap attribute) should be enabled, as it is mandatory for device type: Matter Dimmable Light'
       )
     ).toBeTruthy()
 
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Device Type Compliance on endpoint: 1, device type: MA-dimmablelight, cluster: Level Control server needs bit 0 enabled in the Feature Map attribute'
+        '⚠ Check Feature Compliance on endpoint: 1, cluster: Level Control, feature: OnOff (bit 0 in featureMap attribute) should be enabled, as it is mandatory for device type: Matter Dimmable Light'
       )
     ).toBeTruthy()
 
+    // warnings for same feature across different device types should be merged
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Device Type Compliance on endpoint: 1, device type: MA-dimmablelight, cluster: Level Control server needs bit 1 enabled in the Feature Map attribute'
-      )
-    ).toBeTruthy()
-
-    expect(
-      sessionNotificationMessages.includes(
-        '⚠ Check Device Type Compliance on endpoint: 1, device type: MA-dimmablelight, cluster: On/Off server needs bit 0 enabled in the Feature Map attribute'
+        '⚠ Check Feature Compliance on endpoint: 1, cluster: On/Off, feature: Lighting (bit 0 in featureMap attribute) should be enabled, as it is mandatory for device type: Matter On/Off Light, Matter Dimmable Light'
       )
     ).toBeTruthy()
 
@@ -227,16 +222,16 @@ test(
     for (const element of nonConformElements) {
       expect(
         sessionNotificationMessages.includes(
-          `On endpoint 1, cluster: On/Off, ${element.type}: ${element.name} has mandatory conformance to LT and should be disabled when feature: LT is disabled.`
+          `⚠ Check Feature Compliance on endpoint: 1, cluster: On/Off, ${element.type}: ${element.name} has mandatory conformance to LT and should be disabled when feature: LT is disabled.`
         )
       ).toBeTruthy()
     }
 
-    // one notification regarding multiple top level zcl propertoes
-    // 4 notifications regarding feature map attribute not set correctly
+    // one notification regarding multiple top level zcl properties
+    // 3 notifications regarding device type feature conformance
     // one notification regarding the enabled provisional cluster
     // 7 notifications regarding non-conformed elements
-    expect(sessionNotifications.length).toEqual(13)
+    expect(sessionNotifications.length).toEqual(12)
 
     // Test Accumulators in templates
     let zigbeeEndpointEvents = genResultZigbee.content['zap-event.h']
