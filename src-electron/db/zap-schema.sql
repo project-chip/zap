@@ -3267,7 +3267,7 @@ BEGIN
 END;
 
 /*
- SQL UPDATE Trigger that removes a warning from the notification table when disabling a provisional cluster. 
+ SQL UPDATE Trigger that removes a warning from the notification table when disabling a provisional cluster.
 */
 CREATE TRIGGER
   UPDATE_TRIGGER_PROVISIONAL_CLUSTER_WARNING_REMOVAL
@@ -3292,7 +3292,7 @@ WHEN
     AND
       new.ENABLED = 0
     AND
-      CLUSTER.API_MATURITY = "provisional"     
+      CLUSTER.API_MATURITY = "provisional"
   ) > 0
 BEGIN
   DELETE FROM
