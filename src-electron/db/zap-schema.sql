@@ -3468,7 +3468,7 @@ BEGIN
 END;
 
 /*
- SQL UPDATE Trigger that removes the warning from the notification table for an enabled command when enabling its response command.
+ SQL UPDATE Trigger that removes warnings from the notification table for enabled commands when enabling its response command.
 */
 CREATE TRIGGER
   UPDATE_TRIGGER_REMOVE_RESPONSE_COMMAND_WARNING_ON_ENABLE_RESPONSE_COMMAND
@@ -3494,7 +3494,7 @@ WHEN
       C1.RESPONSE_REF = new.COMMAND_REF
     AND
       ETC.IS_ENABLED = 1
-  ) = 1 -- do not remove warnings if more than one command is linked to the updated response command
+  ) > 0 -- multiple commands can have the same updated response command
 BEGIN
   DELETE FROM
     SESSION_NOTICE
@@ -3563,7 +3563,7 @@ BEGIN
           ||
           " should be enabled as it is the response to the enabled "
           ||
-          CASE WHEN new.IS_INCOMING THEN "outgoing" ELSE "incoming" END || " command: " || C1.NAME
+          "%" -- delete warnings for all commands with the updated response command
           ||
           "."
         FROM
@@ -3583,7 +3583,7 @@ BEGIN
 END;
 
 /*
- SQL UPDATE Trigger that adds a warning to the notification table when disabling the response command of an enabled command.
+ SQL UPDATE Trigger that adds warnings to the notification table when disabling the response command of enabled commands.
 */
 CREATE TRIGGER
   UPDATE_TRIGGER_ADD_RESPONSE_COMMAND_WARNING_ON_DISABLE_RESPONSE_COMMAND
@@ -3609,92 +3609,101 @@ WHEN
       ETC.IS_INCOMING = (1 - new.IS_INCOMING) -- command and its response should be of opposite direction (1 or 0)
     AND
       ETC.IS_ENABLED = 1
-  ) = 1 -- do not trigger warnings if more than one command is linked to the updated response command
+  ) > 0 -- multiple commands can have the same updated response command
 BEGIN
   INSERT INTO
     SESSION_NOTICE(SESSION_REF, NOTICE_TYPE, NOTICE_MESSAGE, NOTICE_SEVERITY, DISPLAY, SEEN)
-  VALUES
+  -- disable a response command may trigger multiple warnings as multiple commands can have the same response command
+  SELECT
     (
-      (
-        SELECT
-          SESSION_PARTITION.SESSION_REF
-        FROM
-          ENDPOINT_TYPE_CLUSTER
-        INNER JOIN
-          ENDPOINT_TYPE
-        ON
-          ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF
-        INNER JOIN
-          SESSION_PARTITION
-        ON
-          SESSION_PARTITION.SESSION_PARTITION_ID = ENDPOINT_TYPE.SESSION_PARTITION_REF
-        WHERE
-          ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = new.ENDPOINT_TYPE_CLUSTER_REF
-      ),
-      "WARNING",
-      "On endpoint "
-      ||
-      (
-        SELECT
-          ENDPOINT.ENDPOINT_IDENTIFIER
-        FROM
-          ENDPOINT
-        INNER JOIN
-          ENDPOINT_TYPE
-        ON
-          ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT.ENDPOINT_TYPE_REF
-        INNER JOIN
-          ENDPOINT_TYPE_CLUSTER
-        ON
-          ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
-        WHERE
-          ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = new.ENDPOINT_TYPE_CLUSTER_REF
-      )
-      ||
-      ", cluster: "
-      ||
-      (
-        SELECT
-          CLUSTER.NAME || " " || ENDPOINT_TYPE_CLUSTER.SIDE
-        FROM
-          CLUSTER
-        INNER JOIN
-          ENDPOINT_TYPE_CLUSTER
-        ON
-          ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = CLUSTER.CLUSTER_ID
-        WHERE
-          ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = new.ENDPOINT_TYPE_CLUSTER_REF    
-      )
-      ||
-      (
-        -- C1: command, C2: response command
-        SELECT
-          ", "
-          ||
-          CASE WHEN new.IS_INCOMING THEN "incoming" ELSE "outgoing" END || " command: " || C2.NAME
-          ||
-          " should be enabled as it is the response to the enabled "
-          ||
-          CASE WHEN new.IS_INCOMING THEN "outgoing" ELSE "incoming" END || " command: " || C1.NAME
-          ||
-          "."
-        FROM
-          ENDPOINT_TYPE_COMMAND ETC
-        INNER JOIN
-          COMMAND C2
-        ON
-          C2.COMMAND_ID = ETC.COMMAND_REF
-        INNER JOIN
-          COMMAND C1
-        ON
-          C1.RESPONSE_REF = C2.COMMAND_ID
-        WHERE
-          ETC.ENDPOINT_TYPE_COMMAND_ID = new.ENDPOINT_TYPE_COMMAND_ID
-      ),
-      1,
-      1,
-      0
-    );
+      SELECT
+        SESSION_PARTITION.SESSION_REF
+      FROM
+        ENDPOINT_TYPE_CLUSTER
+      INNER JOIN
+        ENDPOINT_TYPE
+      ON
+        ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF
+      INNER JOIN
+        SESSION_PARTITION
+      ON
+        SESSION_PARTITION.SESSION_PARTITION_ID = ENDPOINT_TYPE.SESSION_PARTITION_REF
+      WHERE
+        ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = new.ENDPOINT_TYPE_CLUSTER_REF
+    ),
+    "WARNING",
+    "On endpoint "
+    ||
+    (
+      SELECT
+        ENDPOINT.ENDPOINT_IDENTIFIER
+      FROM
+        ENDPOINT
+      INNER JOIN
+        ENDPOINT_TYPE
+      ON
+        ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT.ENDPOINT_TYPE_REF
+      INNER JOIN
+        ENDPOINT_TYPE_CLUSTER
+      ON
+        ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+      WHERE
+        ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = new.ENDPOINT_TYPE_CLUSTER_REF
+    )
+    ||
+    ", cluster: "
+    ||
+    (
+      SELECT
+        CLUSTER.NAME || " " || ENDPOINT_TYPE_CLUSTER.SIDE
+      FROM
+        CLUSTER
+      INNER JOIN
+        ENDPOINT_TYPE_CLUSTER
+      ON
+        ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = CLUSTER.CLUSTER_ID
+      WHERE
+        ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = new.ENDPOINT_TYPE_CLUSTER_REF    
+    )
+    ||
+    (
+      -- C1: command, C2: response command
+      SELECT
+        ", "
+        ||
+        CASE WHEN new.IS_INCOMING THEN "incoming" ELSE "outgoing" END || " command: " || C2.NAME
+        ||
+        " should be enabled as it is the response to the enabled "
+        ||
+        CASE WHEN new.IS_INCOMING THEN "outgoing" ELSE "incoming" END || " command: " || C1.NAME
+        ||
+        "."
+      FROM
+        COMMAND C1
+      INNER JOIN
+        COMMAND C2
+      ON
+        C1.RESPONSE_REF = C2.COMMAND_ID
+      WHERE
+        C2.COMMAND_ID = new.COMMAND_REF
+    ),
+    1,
+    1,
+    0
+  FROM
+    COMMAND C1
+  INNER JOIN
+    ENDPOINT_TYPE_COMMAND ETC
+  ON
+    ETC.COMMAND_REF = C1.COMMAND_ID
+  WHERE
+    C1.RESPONSE_REF = new.COMMAND_REF
+  AND
+    ETC.ENDPOINT_TYPE_CLUSTER_REF = new.ENDPOINT_TYPE_CLUSTER_REF
+  AND
+    ETC.IS_INCOMING = (1 - new.IS_INCOMING) -- command and its response should be of opposite direction (1 or 0)
+  AND
+    ETC.IS_ENABLED = 1;
 END;
 
 /*
@@ -3810,6 +3819,239 @@ BEGIN
           COMMAND C2
         ON
           C2.COMMAND_ID = C1.RESPONSE_REF
+        WHERE
+          ETC.ENDPOINT_TYPE_COMMAND_ID = new.ENDPOINT_TYPE_COMMAND_ID
+      )   
+    );
+END;
+
+/*
+ SQL INSERT Trigger that adds a warning to the notification table when inserting a command with a disabled response command during file import.
+*/
+CREATE TRIGGER
+  INSERT_TRIGGER_ADD_RESPONSE_COMMAND_WARNING_ON_ENABLE_COMMAND
+AFTER
+  INSERT ON ENDPOINT_TYPE_COMMAND
+WHEN
+  new.IS_ENABLED = 1
+  AND
+  (
+    SELECT
+      COUNT()
+    FROM
+      COMMAND C1
+    LEFT JOIN
+      ENDPOINT_TYPE_COMMAND ETC
+    ON
+      ETC.COMMAND_REF = C1.RESPONSE_REF
+    AND
+      ETC.ENDPOINT_TYPE_CLUSTER_REF = new.ENDPOINT_TYPE_CLUSTER_REF
+    AND
+      ETC.IS_INCOMING = (1 - new.IS_INCOMING) -- command and its response should be of opposite direction (1 or 0)
+    WHERE
+      C1.COMMAND_ID = new.COMMAND_REF
+    AND
+      C1.RESPONSE_REF IS NOT NULL
+    AND
+      -- cover two situations: 1. response command is not enabled, 2. response command is not present in the table
+      (ETC.ENDPOINT_TYPE_COMMAND_ID IS NULL OR ETC.IS_ENABLED = 0)
+  ) = 1 -- do not trigger warnings if more than one response command is linked to the updated command
+BEGIN
+  INSERT INTO
+    SESSION_NOTICE(SESSION_REF, NOTICE_TYPE, NOTICE_MESSAGE, NOTICE_SEVERITY, DISPLAY, SEEN)
+  VALUES
+    (
+      (
+        SELECT
+          SESSION_PARTITION.SESSION_REF
+        FROM
+          ENDPOINT_TYPE_CLUSTER
+        INNER JOIN
+          ENDPOINT_TYPE
+        ON
+          ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF
+        INNER JOIN
+          SESSION_PARTITION
+        ON
+          SESSION_PARTITION.SESSION_PARTITION_ID = ENDPOINT_TYPE.SESSION_PARTITION_REF
+        WHERE
+          ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = new.ENDPOINT_TYPE_CLUSTER_REF
+      ),
+      "WARNING",
+      "On endpoint "
+      ||
+      (
+        SELECT
+          ENDPOINT.ENDPOINT_IDENTIFIER
+        FROM
+          ENDPOINT
+        INNER JOIN
+          ENDPOINT_TYPE
+        ON
+          ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT.ENDPOINT_TYPE_REF
+        INNER JOIN
+          ENDPOINT_TYPE_CLUSTER
+        ON
+          ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+        WHERE
+          ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = new.ENDPOINT_TYPE_CLUSTER_REF
+      )
+      ||
+      ", cluster: "
+      ||
+      (
+        SELECT
+          CLUSTER.NAME || " " || ENDPOINT_TYPE_CLUSTER.SIDE
+        FROM
+          CLUSTER
+        INNER JOIN
+          ENDPOINT_TYPE_CLUSTER
+        ON
+          ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = CLUSTER.CLUSTER_ID
+        WHERE
+          ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = new.ENDPOINT_TYPE_CLUSTER_REF    
+      )
+      ||
+      (
+        -- C1: command, C2: response command
+        SELECT
+          ", "
+          ||
+          CASE WHEN new.IS_INCOMING THEN "outgoing" ELSE "incoming" END || " command: " || C2.NAME
+          ||
+          " should be enabled as it is the response to the enabled "
+          ||
+          CASE WHEN new.IS_INCOMING THEN "incoming" ELSE "outgoing" END || " command: " || C1.NAME
+          ||
+          "."
+        FROM
+          ENDPOINT_TYPE_COMMAND ETC
+        INNER JOIN
+          COMMAND C1
+        ON
+          C1.COMMAND_ID = ETC.COMMAND_REF
+        INNER JOIN
+          COMMAND C2
+        ON
+          C2.COMMAND_ID = C1.RESPONSE_REF
+        WHERE
+          ETC.ENDPOINT_TYPE_COMMAND_ID = new.ENDPOINT_TYPE_COMMAND_ID
+      ),
+      1,
+      1,
+      0
+    );
+END;
+
+/*
+ SQL INSERT Trigger that removes the warning from the notification table for an enabled command when inserting its response command during file import.
+*/
+CREATE TRIGGER
+  INSERT_TRIGGER_REMOVE_RESPONSE_COMMAND_WARNING_ON_ENABLE_RESPONSE_COMMAND
+AFTER
+  INSERT ON ENDPOINT_TYPE_COMMAND
+WHEN
+  new.IS_ENABLED = 1
+  AND
+  (
+    SELECT
+      COUNT()
+    FROM
+      COMMAND C1
+    INNER JOIN
+      ENDPOINT_TYPE_COMMAND ETC
+    ON
+      ETC.COMMAND_REF = C1.COMMAND_ID
+    AND
+      ETC.ENDPOINT_TYPE_CLUSTER_REF = new.ENDPOINT_TYPE_CLUSTER_REF
+    AND
+      ETC.IS_INCOMING = (1 - new.IS_INCOMING) -- command and its response should be of opposite direction (1 or 0)
+    WHERE
+      C1.RESPONSE_REF = new.COMMAND_REF
+    AND
+      ETC.IS_ENABLED = 1
+  ) > 0 -- multiple commands can have the same updated response command
+BEGIN
+  DELETE FROM
+    SESSION_NOTICE
+  WHERE
+    SESSION_REF = (
+      SELECT
+        SESSION_PARTITION.SESSION_REF
+      FROM
+        ENDPOINT_TYPE_CLUSTER
+      INNER JOIN
+        ENDPOINT_TYPE
+      ON
+        ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF
+      INNER JOIN
+        SESSION_PARTITION
+      ON
+        SESSION_PARTITION.SESSION_PARTITION_ID = ENDPOINT_TYPE.SESSION_PARTITION_REF
+      WHERE
+        ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = new.ENDPOINT_TYPE_CLUSTER_REF
+    )
+  AND
+    NOTICE_TYPE = "WARNING"
+  AND
+    NOTICE_MESSAGE LIKE
+    (
+      "On endpoint "
+      ||
+      (
+        SELECT
+          ENDPOINT.ENDPOINT_IDENTIFIER
+        FROM
+          ENDPOINT
+        INNER JOIN
+          ENDPOINT_TYPE
+        ON
+          ENDPOINT_TYPE.ENDPOINT_TYPE_ID = ENDPOINT.ENDPOINT_TYPE_REF
+        INNER JOIN
+          ENDPOINT_TYPE_CLUSTER
+        ON
+          ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+        WHERE
+          ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = new.ENDPOINT_TYPE_CLUSTER_REF
+      )
+      ||
+      ", cluster: "
+      ||
+      (
+        SELECT
+          CLUSTER.NAME || " " || ENDPOINT_TYPE_CLUSTER.SIDE
+        FROM
+          CLUSTER
+        INNER JOIN
+          ENDPOINT_TYPE_CLUSTER
+        ON
+          ENDPOINT_TYPE_CLUSTER.CLUSTER_REF = CLUSTER.CLUSTER_ID
+        WHERE
+          ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = new.ENDPOINT_TYPE_CLUSTER_REF    
+      )
+      ||
+      (
+        -- C1: command, C2: response command
+        SELECT
+          ", "
+          ||
+          CASE WHEN new.IS_INCOMING THEN "incoming" ELSE "outgoing" END || " command: " || C2.NAME
+          ||
+          " should be enabled as it is the response to the enabled "
+          ||
+          "%" -- delete warnings for all commands with the updated response command
+          ||
+          "."
+        FROM
+          ENDPOINT_TYPE_COMMAND ETC
+        INNER JOIN
+          COMMAND C2
+        ON
+          C2.COMMAND_ID = ETC.COMMAND_REF
+        INNER JOIN
+          COMMAND C1
+        ON
+          C1.RESPONSE_REF = ETC.COMMAND_REF
         WHERE
           ETC.ENDPOINT_TYPE_COMMAND_ID = new.ENDPOINT_TYPE_COMMAND_ID
       )   

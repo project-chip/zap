@@ -39,7 +39,7 @@ let eptId
 
 beforeAll(async () => {
   env.setDevelopmentEnv()
-  let file = env.sqliteTestFile('provisional-cluster')
+  let file = env.sqliteTestFile('command-response')
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
     env.schemaFile(),
