@@ -1901,7 +1901,8 @@ async function jsonDataLoader(
         let invalidSessionPkgs = sessionPkgs.filter(
           (x) =>
             x.path !== pkgFilePath &&
-            !newlyLoadedCustomPackageIds.includes(x.id) // newly added packages are already verified.
+            !newlyLoadedCustomPackageIds.includes(x.id) && // newly added packages are already verified.
+            x.type != dbEnum.packageType.zclXmlStandalone // Standalone XMLs don't need to be verified here since they can't be loaded through cli arguments
         )
         let validSessionPkgId =
           await queryPackage.getPackageIdByPathAndTypeAndVersion(
@@ -2023,8 +2024,8 @@ async function setConformanceWarnings(
 
     let contextMessage = `⚠ Check Feature Compliance on endpoint: ${endpointId}, cluster: ${cluster.name}, `
 
-    /* If unsupported elements are enabled or required elements are disabled, 
-      they are considered non-conforming. A corresponding warning message will be 
+    /* If unsupported elements are enabled or required elements are disabled,
+      they are considered non-conforming. A corresponding warning message will be
       generated and added to the warnings array. */
     const filterNonConformElements = (
       elementType,
