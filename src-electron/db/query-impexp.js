@@ -385,7 +385,13 @@ ON
   SESSION_PACKAGE.SESSION_PARTITION_REF= SESSION_PARTITION.SESSION_PARTITION_ID
 WHERE SESSION_PARTITION.SESSION_REF = ? AND SESSION_PACKAGE.ENABLED = 1
 ORDER BY
-  PACKAGE.PACKAGE_ID`,
+  CASE PACKAGE.TYPE
+    WHEN 'zcl-properties' THEN 1
+    WHEN 'gen-templates-json' THEN 2
+    WHEN 'zcl-xml-standalone' THEN 3
+    ELSE 4
+  END,
+  PACKAGE.PATH`,
       [sessionId]
     )
     .then((rows) => rows.map(mapFunction))

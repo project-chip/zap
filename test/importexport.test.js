@@ -55,6 +55,10 @@ let nonConformElements = path.join(
   __dirname,
   'resource/non-conform-elements.zap'
 )
+let threeCustomXml = path.join(
+  __dirname,
+  'resource/custom-cluster/three_custom_xml.zap'
+)
 
 // Due to future plans to rework how we handle global attributes,
 // we introduce this flag to bypass those attributes when testing import/export.
@@ -520,6 +524,32 @@ test(
         '⚠ Check Feature Compliance on endpoint: 1, cluster: Level Control, feature: OnOff (bit 0 in featureMap attribute) should be enabled, as it is mandatory for device type: Matter Dimmable Light'
       )
     ).toBeTruthy()
+  },
+  testUtil.timeout.medium()
+)
+
+test(
+  'Import a ZAP file with three custom xml packages and export again, make sure order of package remains the same after export',
+  async () => {
+    sid = await querySession.createBlankSession(db)
+    await util.ensurePackagesAndPopulateSessionOptions(
+      templateContext.db,
+      sid,
+      {
+        zcl: env.builtinSilabsZclMetafile(),
+        template: env.builtinTemplateMetafile()
+      },
+      null,
+      [templatePkgId]
+    )
+    await importJs.importDataFromFile(db, threeCustomXml, {
+      sessionId: sid
+    })
+    let state = await exportJs.createStateFromDatabase(db, sid)
+
+    expect(state.package[2].path).toBe('matter-custom.xml')
+    expect(state.package[3].path).toBe('matter-custom2.xml')
+    expect(state.package[4].path).toBe('matter-custom3.xml')
   },
   testUtil.timeout.medium()
 )
