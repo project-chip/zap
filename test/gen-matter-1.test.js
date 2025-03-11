@@ -82,6 +82,8 @@ test('Validate loading', async () => {
 test('Validate loading of features as bitmap', async () => {
   /* See level-control-cluster.xml which has the following:
   <features>
+      <cluster code="0x0508"/>
+      <cluster code="0x0509"/>
       <feature bit="0" code="OO" name="OnOff" default="1" summary="Dependency with the On/Off cluster">
         <optionalConform/>
       </feature>
@@ -105,6 +107,51 @@ test('Validate loading of features as bitmap', async () => {
   )
   expect(dataType).not.toBeNull()
   expect(dataType.name).toEqual('Feature')
+
+  // Also test features being loaded by cluster codes just like other data_types
+  // See low-power-cluster.xml for the folling in <features>:
+  // <cluster code="0x0508"/>
+  // <cluster code="0x0509"/>
+  let lowPowerClusterInfo = await queryZcl.selectClusterByCode(
+    db,
+    zclPackageId,
+    0x0508
+  )
+  let keyPadInputClusterInfo = await queryZcl.selectClusterByCode(
+    db,
+    zclPackageId,
+    0x0509
+  )
+  dataType = await queryZcl.selectDataTypeByNameAndClusterId(
+    db,
+    'Feature',
+    lowPowerClusterInfo.id,
+    [zclPackageId]
+  )
+  expect(dataType).not.toBeNull()
+  expect(dataType.name).toEqual('Feature')
+  let featureBitmapFieldsLowPowerCluster = queryZcl.selectAllBitmapFieldsById(
+    db,
+    dataType.id
+  )
+
+  dataType = await queryZcl.selectDataTypeByNameAndClusterId(
+    db,
+    'Feature',
+    keyPadInputClusterInfo.id,
+    [zclPackageId]
+  )
+  expect(dataType).not.toBeNull()
+  expect(dataType.name).toEqual('Feature')
+  let featureBitmapFieldsKeypadInputCluster =
+    queryZcl.selectAllBitmapFieldsById(db, dataType.id)
+
+  // Making sure that the bitmap fields match for the feature bitmap of above 2 clusters.
+  for (let i = 0; i < featureBitmapFieldsLowPowerCluster.length; i++) {
+    expect(featureBitmapFieldsLowPowerCluster[i].label).toEqual(
+      featureBitmapFieldsKeypadInputCluster[i].label
+    )
+  }
 })
 
 test(
