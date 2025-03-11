@@ -1526,15 +1526,33 @@ async function processBitmapFields(
     data.features.length == 1 &&
     'feature' in data.features[0]
   ) {
-    data.features[0].feature.forEach((item) => {
-      bitmapFields.push({
-        bitmapName: 'Feature',
-        bitmapClusterCode: [{ $: { code: data.code[0] } }],
-        name: item.$.name,
-        mask: 1 << item.$.bit,
-        fieldIdentifier: item.$.bit
+    let clusterCodes = [{ $: { code: data.code[0] } }]
+    if ('cluster' in data.features[0] && data.features[0].cluster.length > 0) {
+      data.features[0].cluster.forEach((clCode) => {
+        if (
+          !clusterCodes.some(
+            (existingCode) => existingCode.$.code === clCode.$.code
+          )
+        ) {
+          clusterCodes.push({ $: { code: clCode.$.code } })
+        }
       })
-    })
+    }
+    clusterCodes.forEach((clCode) =>
+      data.features[0].feature.forEach((item) => {
+        let itemBit = item.$.bit
+        if (isNaN(itemBit)) {
+          throw new Error(`Invalid bit value: ${itemBit}`)
+        }
+        bitmapFields.push({
+          bitmapName: 'Feature',
+          bitmapClusterCode: [clCode],
+          name: item.$.name,
+          mask: 1 << itemBit,
+          fieldIdentifier: itemBit
+        })
+      })
+    )
   }
   return queryLoader.insertBitmapFields(
     db,
@@ -1799,26 +1817,36 @@ async function processDataTypes(
   }
 
   // Treating features in a cluster as a bitmap
-  if (featureClusters && featureClusters.length > 0) {
+  if (featureClusters.length > 0) {
     featureClusters.forEach((fc) => {
-      dataTypePromises.push(
-        processDataType(
-          db,
-          filePath,
-          packageId,
-          knownPackages,
-          [
-            {
-              $: {
-                name: 'Feature',
-                type: 'BITMAP32',
-                cluster_code: [fc.code[0]]
+      let featureClusterCodes = [fc.code[0]]
+      if ('cluster' in fc.features[0] && fc.features[0].cluster.length > 0) {
+        fc.features[0].cluster.forEach((clCode) => {
+          if (!featureClusterCodes.includes(clCode.$.code)) {
+            featureClusterCodes.push(clCode.$.code)
+          }
+        })
+      }
+      featureClusterCodes.forEach((fcCode) => {
+        dataTypePromises.push(
+          processDataType(
+            db,
+            filePath,
+            packageId,
+            knownPackages,
+            [
+              {
+                $: {
+                  name: 'Feature',
+                  type: 'BITMAP32',
+                  cluster_code: [fcCode]
+                }
               }
-            }
-          ],
-          dbEnum.zclType.bitmap
+            ],
+            dbEnum.zclType.bitmap
+          )
         )
-      )
+      })
     })
   }
 
@@ -1923,19 +1951,29 @@ async function processNonAtomicTypes(
     )
   }
   // Treating features in a cluster as a bitmap
-  if (featureClusters && featureClusters.length > 0) {
+  if (featureClusters.length > 0) {
     featureClusters.forEach((fc) => {
-      nonAtomicPromises.push(
-        processBitmap(db, filePath, packageId, knownPackages, [
-          {
-            $: {
-              name: 'Feature',
-              type: 'BITMAP32',
-              cluster_code: [fc.code[0]]
-            }
+      let featureClusterCodes = [fc.code[0]]
+      if ('cluster' in fc.features[0] && fc.features[0].cluster.length > 0) {
+        fc.features[0].cluster.forEach((clCode) => {
+          if (!featureClusterCodes.includes(clCode.$.code)) {
+            featureClusterCodes.push(clCode.$.code)
           }
-        ])
-      )
+        })
+      }
+      featureClusterCodes.forEach((fcCode) => {
+        nonAtomicPromises.push(
+          processBitmap(db, filePath, packageId, knownPackages, [
+            {
+              $: {
+                name: 'Feature',
+                type: 'BITMAP32',
+                cluster_code: [fcCode]
+              }
+            }
+          ])
+        )
+      })
     })
   }
   if (dbEnum.zclType.struct in toplevel) {

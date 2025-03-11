@@ -24,6 +24,16 @@ limitations under the License.
     <client init="false" tick="false">true</client>
     <server init="false" tick="false">true</server>
     <description>This cluster provides an interface for managing low power mode on a device.</description>
+    <features>
+      <cluster code="0x0508"/>
+      <cluster code="0x0509"/>
+      <feature bit="0" code="T1" name="TestFeature1" default="1" summary="Test Feature 1">
+        <optionalConform/>
+      </feature>
+      <feature bit="1" code="T2" name="TestFeature1" default="0" summary="Test Feature 2">
+        <optionalConform/>
+      </feature>
+    </features>
     <command source="client" code="0x00" name="Sleep" optional="false">
       <description>This command shall put the device into low power mode.</description>
     </command>
