@@ -23,6 +23,9 @@
 
 const dbApi = require('./db-api.js')
 const dbMapping = require('./db-mapping.js')
+const queryAttribute = require('./query-attribute')
+const queryCommand = require('./query-command')
+const queryEvent = require('./query-event')
 
 /**
  * Promise to delete an endpoint type.
@@ -769,6 +772,39 @@ async function selectEndpointTypeClusterFromEndpointIdentifierAndAttributeRef(
   return dbMapping.map.endpointTypeCluster(etc)
 }
 
+/**
+ * Get all attributes, commands and events in an endpoint type cluster.
+ * @param {*} db
+ * @param {*} endpointTypeClusterId
+ * @param {*} deviceTypeClusterId
+ * @returns elements object containing all attributes, commands and events
+ * in an endpoint type cluster
+ */
+async function getEndpointTypeElements(
+  db,
+  endpointTypeClusterId,
+  deviceTypeClusterId
+) {
+  let [attributes, commands, events] = await Promise.all([
+    queryAttribute.selectAttributesByEndpointTypeClusterIdAndDeviceTypeClusterId(
+      db,
+      endpointTypeClusterId,
+      deviceTypeClusterId
+    ),
+    queryCommand.selectCommandsByEndpointTypeClusterIdAndDeviceTypeClusterId(
+      db,
+      endpointTypeClusterId,
+      deviceTypeClusterId
+    ),
+    queryEvent.selectEventsByEndpointTypeClusterIdAndDeviceTypeClusterId(
+      db,
+      endpointTypeClusterId,
+      deviceTypeClusterId
+    )
+  ])
+  return { attributes, commands, events }
+}
+
 exports.deleteEndpointType = deleteEndpointType
 exports.selectAllEndpointTypes = selectAllEndpointTypes
 exports.selectEndpointTypeIds = selectEndpointTypeIds
@@ -790,3 +826,4 @@ exports.selectEndpointTypeAttributeFromEndpointTypeClusterId =
   selectEndpointTypeAttributeFromEndpointTypeClusterId
 exports.selectEndpointTypeClusterFromEndpointIdentifierAndAttributeRef =
   selectEndpointTypeClusterFromEndpointIdentifierAndAttributeRef
+exports.getEndpointTypeElements = getEndpointTypeElements

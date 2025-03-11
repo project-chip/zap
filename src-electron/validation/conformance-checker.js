@@ -19,13 +19,13 @@
  * This module provides utilities for checking if elements meet conformance requirements
  * and generate warnings for non-conformance.
  *
- * @module Conformance API: check element conformance
+ * @module Validation API: check element conformance
  */
 
-const conformEvaluator = require('./conform-expr-evaluator')
-const conformHelper = require('./conform-helper')
+const conformEvaluator = require('./conformance-expression-evaluator')
 const queryFeature = require('../db/query-feature')
 const querySessionNotice = require('../db/query-session-notification')
+const queryEndpointType = require('../db/query-endpoint-type')
 
 /**
  *
@@ -417,7 +417,7 @@ async function setConformanceWarnings(
 
   if (clusterFeatures.length > 0) {
     let deviceTypeClusterId = clusterFeatures[0].deviceTypeClusterId
-    let endpointTypeElements = await conformHelper.getEndpointTypeElements(
+    let endpointTypeElements = await queryEndpointType.getEndpointTypeElements(
       db,
       endpointClusterId,
       deviceTypeClusterId

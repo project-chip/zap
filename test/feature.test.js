@@ -26,8 +26,8 @@ const queryFeature = require('../src-electron/db/query-feature')
 const querySession = require('../src-electron/db/query-session')
 const queryConfig = require('../src-electron/db/query-config')
 const util = require('../src-electron/util/util')
-const conformEvaluator = require('../src-electron/conformance/conform-expr-evaluator')
-const conformChecker = require('../src-electron/conformance/conform-checker')
+const conformEvaluator = require('../src-electron/validation/conformance-expression-evaluator')
+const conformChecker = require('../src-electron/validation/conformance-checker')
 
 let db
 let ctx

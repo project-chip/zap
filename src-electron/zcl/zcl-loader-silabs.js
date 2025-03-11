@@ -40,7 +40,7 @@ const _ = require('lodash')
 const querySessionNotification = require('../db/query-session-notification')
 const queryPackageNotification = require('../db/query-package-notification')
 const newDataModel = require('./zcl-loader-new-data-model')
-const conformParser = require('../conformance/conform-xml-parser')
+const conformParser = require('../validation/conformance-xml-parser')
 
 /**
  * Promises to read the JSON file and resolve all the data.

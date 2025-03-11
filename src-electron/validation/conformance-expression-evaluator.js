@@ -18,7 +18,7 @@
 /**
  * This module provides utilities for evaluating conformance expressions.
  *
- * @module Conformance API: Evaluate conformance expressions
+ * @module Validation API: Evaluate conformance expressions
  */
 
 /**

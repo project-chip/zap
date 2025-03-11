@@ -18,7 +18,7 @@
 /**
  * This module provides utilities for parsing conformance data from XML into expressions.
  *
- * @module Conformance API: Parse conformance data from XML
+ * @module Validation API: Parse conformance data from XML
  */
 
 /**

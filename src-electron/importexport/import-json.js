@@ -34,7 +34,7 @@ const queryZcl = require('../db/query-zcl.js')
 const querySessionNotice = require('../db/query-session-notification.js')
 const queryDeviceType = require('../db/query-device-type.js')
 const queryCommand = require('../db/query-command.js')
-const conformChecker = require('../conformance/conform-checker.js')
+const conformChecker = require('../validation/conformance-checker.js')
 const zclLoader = require('../zcl/zcl-loader.js')
 const generationEngine = require('../generator/generation-engine')
 

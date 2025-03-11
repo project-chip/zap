@@ -41,8 +41,7 @@ const restApi = require('../../src-shared/rest-api.js')
 const zclLoader = require('../zcl/zcl-loader.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const { StatusCodes } = require('http-status-codes')
-const conformHelper = require('../conformance/conform-helper.js')
-const conformChecker = require('../conformance/conform-checker.js')
+const conformChecker = require('../validation/conformance-checker.js')
 
 /**
  * HTTP GET: session key values
@@ -112,7 +111,7 @@ function httpPostCheckConformOnFeatureUpdate(db) {
     let { featureData, featureMap, endpointId } = request.body
     let { endpointTypeClusterId, deviceTypeClusterId } = featureData
 
-    let elements = await conformHelper.getEndpointTypeElements(
+    let elements = await queryEndpointType.getEndpointTypeElements(
       db,
       endpointTypeClusterId,
       deviceTypeClusterId
@@ -160,7 +159,7 @@ function httpGetRequiredElements(db) {
       request.query.data
     )
     featureMap = JSON.parse(featureMap)
-    let endpointTypeElements = await conformHelper.getEndpointTypeElements(
+    let endpointTypeElements = await queryEndpointType.getEndpointTypeElements(
       db,
       endpointTypeClusterId,
       deviceTypeClusterId
