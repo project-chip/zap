@@ -26,6 +26,8 @@ const queryFeature = require('../src-electron/db/query-feature')
 const querySession = require('../src-electron/db/query-session')
 const queryConfig = require('../src-electron/db/query-config')
 const util = require('../src-electron/util/util')
+const conformEvaluator = require('../src-electron/validation/conformance-expression-evaluator')
+const conformChecker = require('../src-electron/validation/conformance-checker')
 
 let db
 let ctx
@@ -216,7 +218,7 @@ test(
     ]
 
     conformanceExpressions.forEach((expression) => {
-      let result = queryFeature.evaluateConformanceExpression(
+      let result = conformEvaluator.evaluateConformanceExpression(
         expression.expression,
         elementMap
       )
@@ -239,8 +241,8 @@ test(
       { name: 'Element7', conformance: 'description' }
     ]
 
-    let result = queryFeature.filterElementsContainingDesc(elements)
-    expect(result).toEqual([
+    let descTerms = conformChecker.filterRelatedDescElements(elements, 'desc')
+    expect(descTerms).toEqual([
       { name: 'Element1', conformance: 'desc' },
       { name: 'Element2', conformance: 'P, desc' },
       { name: 'Element3', conformance: '[desc & XY]' },
@@ -249,8 +251,13 @@ test(
     ])
 
     const featureCode = 'HS'
-    result = queryFeature.filterRelatedDescElements(elements, featureCode)
-    expect(result).toEqual([{ name: 'Element4', conformance: 'desc, [HS]' }])
+    let relatedDescTerms = conformChecker.filterRelatedDescElements(
+      elements,
+      featureCode
+    )
+    expect(relatedDescTerms).toEqual([
+      { name: 'Element4', conformance: 'desc, [HS]' }
+    ])
   },
   testUtil.timeout.short()
 )
@@ -330,7 +337,7 @@ test(
 
     // 1. test enable an optional feature
     featureMap['HS'] = 1
-    result = queryFeature.checkElementConformance(
+    result = conformChecker.checkElementConformance(
       elements,
       featureMap,
       featureHS,
@@ -355,7 +362,7 @@ test(
 
     // 2. test disable a mandatory feature
     featureMap['XY'] = 0
-    result = queryFeature.checkElementConformance(
+    result = conformChecker.checkElementConformance(
       elements,
       featureMap,
       featureXY,
@@ -382,7 +389,7 @@ test(
 
     // 3. test enable a feature with unknown conformance
     featureMap['UNKNOWN'] = 1
-    result = queryFeature.checkElementConformance(
+    result = conformChecker.checkElementConformance(
       elements,
       featureMap,
       featureUnknown,
@@ -412,7 +419,7 @@ test(
     }
     elements.attributes.push(descElement)
     featureMap['HS'] = 1
-    result = queryFeature.checkElementConformance(
+    result = conformChecker.checkElementConformance(
       elements,
       featureMap,
       featureHS,
@@ -436,7 +443,7 @@ test(
     elements.attributes.find((attr) => attr.name == 'DescElement').conformance =
       'desc, [UNKNOWN]'
     featureMap['UNKNOWN'] = 1
-    result = queryFeature.checkElementConformance(
+    result = conformChecker.checkElementConformance(
       elements,
       featureMap,
       featureUnknown,

@@ -41,6 +41,7 @@ const restApi = require('../../src-shared/rest-api.js')
 const zclLoader = require('../zcl/zcl-loader.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const { StatusCodes } = require('http-status-codes')
+const conformChecker = require('../validation/conformance-checker.js')
 
 /**
  * HTTP GET: session key values
@@ -110,13 +111,13 @@ function httpPostCheckConformOnFeatureUpdate(db) {
     let { featureData, featureMap, endpointId } = request.body
     let { endpointTypeClusterId, deviceTypeClusterId } = featureData
 
-    let elements = await queryFeature.getEndpointTypeElements(
+    let elements = await queryEndpointType.getEndpointTypeElements(
       db,
       endpointTypeClusterId,
       deviceTypeClusterId
     )
     // check element conform and return elements that need to be updated
-    let result = queryFeature.checkElementConformance(
+    let result = conformChecker.checkElementConformance(
       elements,
       featureMap,
       featureData,
@@ -131,7 +132,7 @@ function httpPostCheckConformOnFeatureUpdate(db) {
     )
     // do not set element warning if feature change disabled
     if (!result.disableChange) {
-      let outdatedWarnings = queryFeature.getOutdatedElementWarning(
+      let outdatedWarnings = conformChecker.getOutdatedElementWarning(
         featureData,
         elements,
         result.elementMap
@@ -158,12 +159,12 @@ function httpGetRequiredElements(db) {
       request.query.data
     )
     featureMap = JSON.parse(featureMap)
-    let endpointTypeElements = await queryFeature.getEndpointTypeElements(
+    let endpointTypeElements = await queryEndpointType.getEndpointTypeElements(
       db,
       endpointTypeClusterId,
       deviceTypeClusterId
     )
-    let result = queryFeature.checkElementConformance(
+    let result = conformChecker.checkElementConformance(
       endpointTypeElements,
       featureMap
     )
