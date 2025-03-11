@@ -34,8 +34,7 @@ const queryZcl = require('../db/query-zcl.js')
 const querySessionNotice = require('../db/query-session-notification.js')
 const queryDeviceType = require('../db/query-device-type.js')
 const queryCommand = require('../db/query-command.js')
-const queryConfig = require('../db/query-config.js')
-const queryFeature = require('../db/query-feature.js')
+const conformChecker = require('../validation/conformance-checker.js')
 const zclLoader = require('../zcl/zcl-loader.js')
 const generationEngine = require('../generator/generation-engine')
 
@@ -505,7 +504,7 @@ async function importClusters(
         sessionId
       )
 
-      let clusterConformWarnings = await setConformanceWarnings(
+      let clusterConformWarnings = await conformChecker.setConformanceWarnings(
         db,
         endpointId,
         endpointTypeId,
@@ -1956,139 +1955,6 @@ async function jsonDataLoader(
   }
 }
 
-/**
- * Adds warnings to the session notification table during ZAP file imports
- * for features, attributes, commands, and events that do not correctly conform
- * within a cluster.
- * @param {*} db
- * @param {*} endpointId
- * @param {*} endpointTypeId
- * @param {*} endpointClusterId
- * @param {*} deviceTypeRefs
- * @param {*} cluster
- * @param {*} sessionId
- * @returns list of warning messages if any, otherwise false
- */
-async function setConformanceWarnings(
-  db,
-  endpointId,
-  endpointTypeId,
-  endpointClusterId,
-  deviceTypeRefs,
-  cluster,
-  sessionId
-) {
-  let deviceTypeFeatures = await queryFeature.getFeaturesByDeviceTypeRefs(
-    db,
-    deviceTypeRefs,
-    endpointTypeId
-  )
-  let clusterFeatures = deviceTypeFeatures.filter(
-    (feature) => feature.endpointTypeClusterId == endpointClusterId
-  )
-
-  if (clusterFeatures.length > 0) {
-    let deviceTypeClusterId = clusterFeatures[0].deviceTypeClusterId
-    let endpointTypeElements = await queryFeature.getEndpointTypeElements(
-      db,
-      endpointClusterId,
-      deviceTypeClusterId
-    )
-
-    let featureMapVal = clusterFeatures[0].featureMapValue
-    let featureMap = {}
-    for (let feature of clusterFeatures) {
-      let bit = feature.bit
-      let bitVal = (featureMapVal & (1 << bit)) >> bit
-      featureMap[feature.code] = bitVal
-    }
-
-    // get elements that should be mandatory or unsupported based on conformance
-    let requiredElements = queryFeature.checkElementConformance(
-      endpointTypeElements,
-      featureMap
-    )
-
-    let warnings = []
-    // set warnings for each feature in the cluster
-    for (const featureData of clusterFeatures) {
-      let warningInfo = queryFeature.generateWarningMessage(
-        featureData,
-        endpointId,
-        featureMap
-      )
-      if (warningInfo.displayWarning && warningInfo.warningMessage) {
-        warnings.push(warningInfo.warningMessage)
-      }
-    }
-
-    let contextMessage = `⚠ Check Feature Compliance on endpoint: ${endpointId}, cluster: ${cluster.name}, `
-
-    /* If unsupported elements are enabled or required elements are disabled,
-      they are considered non-conforming. A corresponding warning message will be
-      generated and added to the warnings array. */
-    const filterNonConformElements = (
-      elementType,
-      requiredMap,
-      notSupportedMap,
-      elements
-    ) => {
-      let elementMap = {}
-      elements.forEach((element) => {
-        elementType == 'command'
-          ? (elementMap[element.id] = element.isEnabled)
-          : (elementMap[element.id] = element.included)
-      })
-      Object.entries(requiredMap).forEach(([id, message]) => {
-        if (!(id in elementMap) || !elementMap[id]) {
-          warnings.push(contextMessage + elementType + ': ' + message)
-        }
-      })
-      Object.entries(notSupportedMap).forEach(([id, message]) => {
-        if (id in elementMap && elementMap[id]) {
-          warnings.push(contextMessage + elementType + ': ' + message)
-        }
-      })
-    }
-
-    filterNonConformElements(
-      'attribute',
-      requiredElements.attributesToUpdate.required,
-      requiredElements.attributesToUpdate.notSupported,
-      endpointTypeElements.attributes
-    )
-    filterNonConformElements(
-      'command',
-      requiredElements.commandsToUpdate.required,
-      requiredElements.commandsToUpdate.notSupported,
-      endpointTypeElements.commands
-    )
-    filterNonConformElements(
-      'event',
-      requiredElements.eventsToUpdate.required,
-      requiredElements.eventsToUpdate.notSupported,
-      endpointTypeElements.events
-    )
-
-    // set warnings in the session notification table
-    if (warnings.length > 0) {
-      for (const warning of warnings) {
-        await querySessionNotice.setNotification(
-          db,
-          'WARNING',
-          warning,
-          sessionId,
-          1,
-          0
-        )
-      }
-      return warnings
-    }
-  }
-  return false
-}
-
-/**
  * Generate warning messages for enabled provisional clusters within an endpoint.
  *
  * @param {*} clusters
