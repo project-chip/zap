@@ -22,7 +22,7 @@
  */
 
 const dbApi = require('./db-api')
-const dbEnums = require('../../src-shared/db-enum')
+const dbEnum = require('../../src-shared/db-enum')
 const dbMapping = require('./db-mapping.js')
 const queryUpgrade = require('../sdk/matter.js')
 const sessionNotification = require('./query-session-notification')
@@ -386,13 +386,18 @@ ON
 WHERE SESSION_PARTITION.SESSION_REF = ? AND SESSION_PACKAGE.ENABLED = 1
 ORDER BY
   CASE PACKAGE.TYPE
-    WHEN 'zcl-properties' THEN 1
-    WHEN 'gen-templates-json' THEN 2
-    WHEN 'zcl-xml-standalone' THEN 3
+    WHEN ? THEN 1
+    WHEN ? THEN 2
+    WHEN ? THEN 3
     ELSE 4
   END,
   PACKAGE.PATH`,
-      [sessionId]
+      [
+        sessionId,
+        dbEnum.packageType.zclProperties,
+        dbEnum.packageType.genTemplatesJson,
+        dbEnum.packageType.zclXmlStandalone
+      ]
     )
     .then((rows) => rows.map(mapFunction))
 }
@@ -742,9 +747,9 @@ WHERE
 
   // If the spec has meanwhile changed the policies to mandatory or prohibited,
   // we update the flags in the file to the requirements.
-  if (reportingPolicy == dbEnums.reportingPolicy.mandatory) {
+  if (reportingPolicy == dbEnum.reportingPolicy.mandatory) {
     attribute.reportable = true
-  } else if (reportingPolicy == dbEnums.reportingPolicy.prohibited) {
+  } else if (reportingPolicy == dbEnum.reportingPolicy.prohibited) {
     attribute.reportable = false
   }
   if (attributeId) {
@@ -757,8 +762,8 @@ WHERE
       attributeName
     )
   }
-  if (storagePolicy == dbEnums.storagePolicy.attributeAccessInterface) {
-    attribute.storageOption = dbEnums.storageOption.external
+  if (storagePolicy == dbEnum.storagePolicy.attributeAccessInterface) {
+    attribute.storageOption = dbEnum.storageOption.external
     attribute.defaultValue = null
   }
 

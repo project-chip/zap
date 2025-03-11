@@ -59,6 +59,7 @@ let threeCustomXml = path.join(
   __dirname,
   'resource/custom-cluster/three_custom_xml.zap'
 )
+let multiProtocol = path.join(__dirname, 'resource/multi-protocol.zap')
 
 // Due to future plans to rework how we handle global attributes,
 // we introduce this flag to bypass those attributes when testing import/export.
@@ -547,9 +548,44 @@ test(
     })
     let state = await exportJs.createStateFromDatabase(db, sid)
 
+    expect(state.package[0].path).toBe('../../../zcl-builtin/matter/zcl.json')
+    expect(state.package[1].path).toBe(
+      '../../gen-template/matter/gen-test.json'
+    )
     expect(state.package[2].path).toBe('matter-custom.xml')
     expect(state.package[3].path).toBe('matter-custom2.xml')
     expect(state.package[4].path).toBe('matter-custom3.xml')
+  },
+  testUtil.timeout.medium()
+)
+
+test(
+  'Import a ZAP multi-protocol file, ensure order of packages in .zap file remains the same after export',
+  async () => {
+    sid = await querySession.createBlankSession(db)
+    await util.ensurePackagesAndPopulateSessionOptions(
+      templateContext.db,
+      sid,
+      {
+        zcl: env.builtinSilabsZclMetafile(),
+        template: env.builtinTemplateMetafile()
+      },
+      null,
+      [templatePkgId]
+    )
+    await importJs.importDataFromFile(db, multiProtocol, {
+      sessionId: sid
+    })
+    let state = await exportJs.createStateFromDatabase(db, sid)
+
+    expect(state.package[0].path).toBe(
+      '../../zcl-builtin/matter/zcl-with-test-extensions.json'
+    )
+    expect(state.package[1].path).toBe('../../zcl-builtin/silabs/zcl.json')
+    expect(state.package[2].path).toBe('../gen-template/matter/gen-test.json')
+    expect(state.package[3].path).toBe(
+      '../gen-template/zigbee/gen-templates.json'
+    )
   },
   testUtil.timeout.medium()
 )
