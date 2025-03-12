@@ -1900,7 +1900,8 @@ async function jsonDataLoader(
         let invalidSessionPkgs = sessionPkgs.filter(
           (x) =>
             x.path !== pkgFilePath &&
-            !newlyLoadedCustomPackageIds.includes(x.id) // newly added packages are already verified.
+            !newlyLoadedCustomPackageIds.includes(x.id) && // newly added packages are already verified.
+            x.type != dbEnum.packageType.zclXmlStandalone // Standalone XMLs don't need to be verified here since they can't be loaded through cli arguments
         )
         let validSessionPkgId =
           await queryPackage.getPackageIdByPathAndTypeAndVersion(

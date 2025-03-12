@@ -1,0 +1,9 @@
+<configurator>
+<domain name="CHIP"/>
+
+  <!-- Use the cluster extension Extend the Door Lock cluster -->
+<clusterExtension code="0x0101">
+    <attribute side="server" code="0xFFF10000" define="ENABLE_GUEST_PIN" type="INT8U" min="0x0000" max="0x0002" writable="true" default="0x0000" optional="true">EnableGuestPin</attribute>
+</clusterExtension>
+
+</configurator>

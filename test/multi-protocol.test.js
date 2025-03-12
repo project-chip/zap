@@ -92,28 +92,30 @@ test(
     expect(importRes.errors.length).toBe(0)
     expect(importRes.warnings.length).toBe(0)
 
-    let genResultZigbee = await genEngine.generate(
-      db,
-      importRes.sessionId,
-      importRes.templateIds[0],
-      {},
-      {
-        generateOnly: ['zap-config-version-3.h', 'zap-event.h'],
-        disableDeprecationWarnings: true
-      }
-    )
     let genResultMatter = await genEngine.generate(
       db,
       importRes.sessionId,
-      importRes.templateIds[1],
+      importRes.templateIds[0],
       {},
       {
         generateOnly: 'endpoint-config.c',
         disableDeprecationWarnings: true
       }
     )
-    expect(genResultZigbee.hasErrors).toBeFalsy()
+
+    let genResultZigbee = await genEngine.generate(
+      db,
+      importRes.sessionId,
+      importRes.templateIds[1],
+      {},
+      {
+        generateOnly: ['zap-config-version-3.h', 'zap-event.h'],
+        disableDeprecationWarnings: true
+      }
+    )
+
     expect(genResultMatter.hasErrors).toBeFalsy()
+    expect(genResultZigbee.hasErrors).toBeFalsy()
 
     let matterEndpointConfigGen = genResultMatter.content['endpoint-config.c']
     let zigbeeEndpointConfigGen =

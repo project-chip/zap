@@ -22,7 +22,7 @@
  */
 
 const dbApi = require('./db-api')
-const dbEnums = require('../../src-shared/db-enum')
+const dbEnum = require('../../src-shared/db-enum')
 const dbMapping = require('./db-mapping.js')
 const queryUpgrade = require('../sdk/matter.js')
 const sessionNotification = require('./query-session-notification')
@@ -187,7 +187,7 @@ ORDER BY
         DEVICE_TYPE.PROFILE_ID,
         ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_ORDER,
         ENDPOINT_TYPE_DEVICE.DEVICE_VERSION
-      FROM 
+      FROM
         DEVICE_TYPE
       LEFT JOIN
         ENDPOINT_TYPE_DEVICE
@@ -383,8 +383,21 @@ INNER JOIN
   SESSION_PARTITION
 ON
   SESSION_PACKAGE.SESSION_PARTITION_REF= SESSION_PARTITION.SESSION_PARTITION_ID
-WHERE SESSION_PARTITION.SESSION_REF = ? AND SESSION_PACKAGE.ENABLED = 1`,
-      [sessionId]
+WHERE SESSION_PARTITION.SESSION_REF = ? AND SESSION_PACKAGE.ENABLED = 1
+ORDER BY
+  CASE PACKAGE.TYPE
+    WHEN ? THEN 1
+    WHEN ? THEN 2
+    WHEN ? THEN 3
+    ELSE 4
+  END,
+  PACKAGE.PATH`,
+      [
+        sessionId,
+        dbEnum.packageType.zclProperties,
+        dbEnum.packageType.genTemplatesJson,
+        dbEnum.packageType.zclXmlStandalone
+      ]
     )
     .then((rows) => rows.map(mapFunction))
 }
@@ -734,9 +747,9 @@ WHERE
 
   // If the spec has meanwhile changed the policies to mandatory or prohibited,
   // we update the flags in the file to the requirements.
-  if (reportingPolicy == dbEnums.reportingPolicy.mandatory) {
+  if (reportingPolicy == dbEnum.reportingPolicy.mandatory) {
     attribute.reportable = true
-  } else if (reportingPolicy == dbEnums.reportingPolicy.prohibited) {
+  } else if (reportingPolicy == dbEnum.reportingPolicy.prohibited) {
     attribute.reportable = false
   }
   if (attributeId) {
@@ -749,8 +762,8 @@ WHERE
       attributeName
     )
   }
-  if (storagePolicy == dbEnums.storagePolicy.attributeAccessInterface) {
-    attribute.storageOption = dbEnums.storageOption.external
+  if (storagePolicy == dbEnum.storagePolicy.attributeAccessInterface) {
+    attribute.storageOption = dbEnum.storageOption.external
     attribute.defaultValue = null
   }
 
@@ -771,7 +784,7 @@ WHERE
   return dbApi.dbInsert(
     db,
     `
-INSERT INTO ENDPOINT_TYPE_ATTRIBUTE ( 
+INSERT INTO ENDPOINT_TYPE_ATTRIBUTE (
   ENDPOINT_TYPE_CLUSTER_REF,
   ATTRIBUTE_REF,
   INCLUDED,
@@ -782,8 +795,8 @@ INSERT INTO ENDPOINT_TYPE_ATTRIBUTE (
   INCLUDED_REPORTABLE,
   MIN_INTERVAL,
   MAX_INTERVAL,
-  REPORTABLE_CHANGE 
-) VALUES ( 
+  REPORTABLE_CHANGE
+) VALUES (
   ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
 )
   `,
