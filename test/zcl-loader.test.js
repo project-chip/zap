@@ -555,3 +555,42 @@ test(
   },
   testUtil.timeout.long()
 )
+
+test(
+  'test Matter list-typed attribute loading in memory',
+  async () => {
+    let db = await dbApi.initRamDatabase()
+    try {
+      await dbApi.loadSchema(db, env.schemaFile(), env.zapVersion())
+      let ctx = await zclLoader.loadZcl(db, env.builtinMatterZclMetafile())
+      let packageId = ctx.packageId
+
+      let zclCluster = await queryZcl.selectClusterByCode(db, packageId, 0x001f)
+
+      /* Verify that the ACL attribute, defined using the list type format `array="true" type="X"` in XML,
+        is correctly parsed and stored in the database as an array of AccessControlEntryStruct. */
+      let attributes = await dbApi.dbAll(
+        db,
+        "SELECT * FROM ATTRIBUTE WHERE CLUSTER_REF = ? AND CODE = 0x0000 AND NAME = 'ACL'",
+        [zclCluster.id]
+      )
+      expect(attributes.length).toBe(1)
+      let aclAttribute = attributes[0]
+      expect(aclAttribute.TYPE).toBe('array')
+      expect(aclAttribute.ARRAY_TYPE).toBe('AccessControlEntryStruct')
+
+      // verify that the ACL attribute data retrieved from the database is an array of AccessControlEntryStruct after mapping
+      let aclAttributeMapped = await queryZcl.selectAttributeById(
+        db,
+        aclAttribute.ATTRIBUTE_ID
+      )
+      expect(aclAttributeMapped).not.toBe(null)
+      expect(aclAttributeMapped.name).toBe('ACL')
+      expect(aclAttributeMapped.entryType).toBe('AccessControlEntryStruct')
+      expect(aclAttributeMapped.isArray).toBe(1)
+    } finally {
+      await dbApi.closeDatabase(db)
+    }
+  },
+  testUtil.timeout.long()
+)
