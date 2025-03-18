@@ -383,6 +383,7 @@ async function after(options) {
     global: this.global,
     parent: this
   }
+  this.global.deferredBlocks.push(options.fn)
   return options.fn(newContext)
 }
 

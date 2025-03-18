@@ -42,3 +42,15 @@ Base type for {{name}} : {{baseType}}
     {{/if}}
 {{/zcl_commands}}
 
+
+{{#zcl_clusters}}
+{{#zcl_commands_source_server}}
+{{#zcl_command_arguments}}
+{{#if (zcl_command_arguments_count ../index)}}
+zcl command arguments exist for {{../name}} command. It has {{zcl_command_arguments_count ../index}} arguments
+{{else}}
+zcl command arguments do not exist for {{../name}} command.
+{{/if}}
+{{/zcl_command_arguments}}
+{{/zcl_commands_source_server}}
+{{/zcl_clusters}}
