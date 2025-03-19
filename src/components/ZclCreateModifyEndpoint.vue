@@ -262,6 +262,43 @@ limitations under the License.
         />
       </q-card-actions>
     </q-card>
+
+    <!-- Device Type Change Dialog -->
+    <q-dialog v-model="showDeviceTypeChangeDialog" persistent>
+      <q-card>
+        <q-card-section>
+          <div class="text-h6">Device Type Changed</div>
+          <p>
+            The device type configuration for this endpoint has changed. Would
+            you like to apply the changes on top of the existing configuration,
+            which may result in a noncompliant device type (Overwrite), or
+            delete the existing endpoint and create a new one?
+          </p>
+        </q-card-section>
+        <q-card-actions align="right">
+          <q-btn
+            flat
+            label="Cancel"
+            color="primary"
+            @click="cancelDeviceTypeChange"
+          />
+          <q-btn
+            flat
+            label="Overwrite"
+            color="primary"
+            @click="overwriteDeviceType"
+            data-test="overwrite"
+          />
+          <q-btn
+            flat
+            label="Delete and Add"
+            color="primary"
+            @click="deleteAndAddDeviceType"
+            data-test="delete-and-add"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
@@ -341,7 +378,8 @@ export default {
       deviceTypeTmp: [], // Temp store for the selected device types
       primaryDeviceTypeTmp: null, // Temp store for the selected primary device type
       endpointIds: [],
-      tmpSelectedOptions: []
+      tmpSelectedOptions: [],
+      showDeviceTypeChangeDialog: false // Controls the visibility of the dialog
     }
   },
   computed: {
@@ -588,14 +626,57 @@ export default {
           !this.$refs.version?.includes((v) => !(v >= 0))) &&
         profile
       ) {
-        this.$emit('saveOrCreateValidated')
         if (this.endpointReference) {
-          this.editEpt(this.shownEndpoint, this.endpointReference)
-          this.$emit('updateData')
+          // Check if the device type has changed
+          const currentDeviceType = this.deviceTypeTmp.map(
+            (dt) => dt.deviceTypeRef
+          )
+          const previousDeviceType =
+            this.endpointDeviceTypeRef[
+              this.endpointType[this.endpointReference]
+            ]
+
+          if (currentDeviceType.toString() !== previousDeviceType.toString()) {
+            // Show the dialog
+            this.showDeviceTypeChangeDialog = true
+          } else {
+            // No change in device type, proceed with editing
+            this.editEpt(this.shownEndpoint, this.endpointReference)
+            this.$emit('updateData')
+            this.$emit('saveOrCreateValidated')
+          }
         } else {
+          // Create new endpoint
           this.newEpt()
         }
       }
+    },
+    cancelDeviceTypeChange() {
+      this.showDeviceTypeChangeDialog = false
+    },
+    overwriteDeviceType() {
+      this.showDeviceTypeChangeDialog = false
+      this.editEpt(this.shownEndpoint, this.endpointReference)
+      this.$emit('updateData')
+      this.$emit('saveOrCreateValidated') // Toggle the edit endpoint UI
+    },
+    deleteAndAddDeviceType() {
+      this.showDeviceTypeChangeDialog = false
+      this.deleteEpt(this.endpointReference)
+      this.newEpt()
+    },
+    deleteEpt(endpointReference) {
+      // Logic to delete the existing endpoint
+      this.$store
+        .dispatch('zap/deleteEndpoint', endpointReference)
+        .then(() => {
+          console.log(`Endpoint ${endpointReference} deleted successfully.`)
+        })
+        .catch((err) => {
+          console.error(
+            `Error deleting endpoint ${endpointReference}: ${err.message}`
+          )
+        })
     },
     reqValue(value) {
       return !_.isEmpty(value) || '* Required'

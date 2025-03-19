@@ -45,7 +45,6 @@ limitations under the License.
             dense
             icon="o_edit"
             size="sm"
-            v-close-popup
             @click="modifyEndpointDialog = !modifyEndpointDialog"
             data-test="edit-endpoint"
           >
@@ -202,6 +201,7 @@ limitations under the License.
     <q-dialog
       v-model="modifyEndpointDialog"
       class="background-color:transparent"
+      persistent
     >
       <zcl-create-modify-endpoint
         v-bind:endpointReference="endpointReference"
