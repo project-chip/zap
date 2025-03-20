@@ -549,6 +549,35 @@ test(
       expect(x).toEqual(testUtil.totalMatterEventFields)
       x = await testQuery.selectCountFrom(db, 'GLOBAL_ATTRIBUTE_BIT')
       expect(x).toBe(testUtil.totalMatterGlobalAttributeBits)
+
+      // Test for same named data type such that one is generic and the other
+      // is cluster specific. eg: SemanticTagStruct in xml
+      let structs = await dbApi.dbAll(
+        db,
+        `SELECT
+          *
+        FROM
+          DATA_TYPE
+        LEFT JOIN
+          DATA_TYPE_CLUSTER
+        ON
+          DATA_TYPE.DATA_TYPE_ID = DATA_TYPE_CLUSTER.DATA_TYPE_REF
+        WHERE
+          DATA_TYPE.NAME = 'SemanticTagStruct'`
+      )
+
+      expect(structs.length).toBe(2)
+      // Validate the generic struct
+      let genericStruct = structs.find((s) => s.CLUSTER_REF === null)
+      expect(genericStruct).not.toBeUndefined()
+      expect(genericStruct.NAME).toBe('SemanticTagStruct')
+      expect(genericStruct.CLUSTER_REF).toBeNull()
+
+      // Validate the cluster-specific struct
+      let clusterSpecificStruct = structs.find((s) => s.CLUSTER_REF !== null)
+      expect(clusterSpecificStruct).not.toBeUndefined()
+      expect(clusterSpecificStruct.NAME).toBe('SemanticTagStruct')
+      expect(clusterSpecificStruct.CLUSTER_REF).not.toBeNull()
     } finally {
       await dbApi.closeDatabase(db)
     }

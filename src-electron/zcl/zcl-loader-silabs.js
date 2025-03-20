@@ -1651,7 +1651,7 @@ async function processStructItems(db, filePath, packageIds, data, context) {
     ) {
       structItems.push({
         structName: si.$.name,
-        structClusterCode: si.cluster ? parseInt(si.clusterCode) : null,
+        structClusterCode: si.cluster ? si.cluster : null,
         name: context.fabricHandling.indexFieldName,
         type: context.fabricHandling.indexType,
         fieldIdentifier: context.fabricHandling.indexFieldId,

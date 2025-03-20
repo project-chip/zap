@@ -203,10 +203,16 @@ SELECT
   DATA_TYPE.DATA_TYPE_ID
 FROM
   DATA_TYPE
+LEFT JOIN
+  DATA_TYPE_CLUSTER
+ON
+  DATA_TYPE.DATA_TYPE_ID = DATA_TYPE_CLUSTER.DATA_TYPE_REF
 WHERE
   DATA_TYPE.NAME = ?
 AND
-  DATA_TYPE.DISCRIMINATOR_REF = ?`
+  DATA_TYPE.DISCRIMINATOR_REF = ?
+AND
+  DATA_TYPE_CLUSTER.CLUSTER_CODE IS NULL`
 
 /**
  * Transforms the array of attributes in a certain format and returns it.
@@ -1821,6 +1827,8 @@ INNER JOIN
   DATA_TYPE
 ON
   ENUM.ENUM_ID = DATA_TYPE.DATA_TYPE_ID
+LEFT JOIN
+  DATA_TYPE_CLUSTER ON DATA_TYPE.DATA_TYPE_ID = DATA_TYPE_CLUSTER.DATA_TYPE_REF
 WHERE
   DATA_TYPE.PACKAGE_REF = ?
 AND
@@ -1836,6 +1844,8 @@ AND
                                   PACKAGE_REF
                                 IN
                                   (${dbApi.toInClause(knownPackages)}))
+AND
+  DATA_TYPE_CLUSTER.CLUSTER_CODE IS NULL
 `
 
   return dbApi.dbMultiInsert(
@@ -2041,6 +2051,8 @@ async function insertBitmapFields(db, packageId, knownPackages, data) {
        DATA_TYPE
      ON
        BITMAP.BITMAP_ID = DATA_TYPE.DATA_TYPE_ID
+     LEFT JOIN
+       DATA_TYPE_CLUSTER ON DATA_TYPE.DATA_TYPE_ID = DATA_TYPE_CLUSTER.DATA_TYPE_REF
      WHERE
        DATA_TYPE.PACKAGE_REF = ?
      AND
@@ -2055,6 +2067,8 @@ async function insertBitmapFields(db, packageId, knownPackages, data) {
                                       AND
                                         PACKAGE_REF
                                       IN (${dbApi.toInClause(knownPackages)}))
+     AND
+       DATA_TYPE_CLUSTER.CLUSTER_CODE IS NULL
   `
 
   return dbApi.dbMultiInsert(
@@ -2241,6 +2255,8 @@ async function insertStructItems(db, packageIds, data) {
        STRUCT
      INNER JOIN
        DATA_TYPE ON STRUCT.STRUCT_ID = DATA_TYPE.DATA_TYPE_ID
+     LEFT JOIN
+       DATA_TYPE_CLUSTER ON DATA_TYPE.DATA_TYPE_ID = DATA_TYPE_CLUSTER.DATA_TYPE_REF
      WHERE
        DATA_TYPE.PACKAGE_REF
      IN
@@ -2258,6 +2274,8 @@ async function insertStructItems(db, packageIds, data) {
                                         PACKAGE_REF
                                       IN
                                         (${dbApi.toInClause(packageIds)}))
+     AND
+       DATA_TYPE_CLUSTER.CLUSTER_CODE IS NULL
   `
 
   return dbApi.dbMultiInsert(
