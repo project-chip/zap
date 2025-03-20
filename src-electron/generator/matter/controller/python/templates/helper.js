@@ -82,9 +82,11 @@ async function as_underlying_python_zcl_type(type, clusterId, options) {
   if (type && type.toLowerCase() == 'boolean') {
     return 'bool';
   } else if (
-    dataType.discriminatorName.toLowerCase() == dbEnum.zclType.bitmap ||
-    dataType.discriminatorName.toLowerCase() == dbEnum.zclType.enum ||
-    dataType.discriminatorName.toLowerCase() == dbEnum.zclType.number
+    dataType &&
+    dataType.discriminatorName &&
+    (dataType.discriminatorName.toLowerCase() == dbEnum.zclType.bitmap ||
+      dataType.discriminatorName.toLowerCase() == dbEnum.zclType.enum ||
+      dataType.discriminatorName.toLowerCase() == dbEnum.zclType.number)
   ) {
     // Do not know on why this is the case but returning nothing for floats
     // and this is done for compatibility with asPythonType.
