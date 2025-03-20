@@ -31,7 +31,6 @@ const testQuery = require('./test-query')
 const queryEndpointType = require('../src-electron/db/query-endpoint-type')
 const queryEndpoint = require('../src-electron/db/query-endpoint')
 const util = require('../src-electron/util/util')
-const sessionNotification = require('../src-electron/db/query-session-notification')
 
 let db
 let sleepyGenericZap = path.join(__dirname, 'resource/isc/sleepy-generic.zap')
@@ -60,6 +59,10 @@ let threeCustomXml = path.join(
   'resource/custom-cluster/three_custom_xml.zap'
 )
 let multiProtocol = path.join(__dirname, 'resource/multi-protocol.zap')
+let missingResponseCommands = path.join(
+  __dirname,
+  'resource/missing-response-commands.zap'
+)
 
 // Due to future plans to rework how we handle global attributes,
 // we introduce this flag to bypass those attributes when testing import/export.
@@ -433,8 +436,10 @@ test(
     )
     let importResult = await importJs.importDataFromFile(db, faultyZap)
     let sid = importResult.sessionId
-    let notifications = await sessionNotification.getNotification(db, sid)
-    let notificationMessages = notifications.map((not) => not.message)
+    let notificationMessages = await testQuery.getAllNotificationMessages(
+      db,
+      sid
+    )
     expect(
       notificationMessages.includes(
         "Duplicate endpoint type attribute 'SceneCount' for Scenes cluster on endpoint 1. Remove duplicates in .zap configuration file and re-open .zap file or just save this .zap file to apply the changes."
@@ -469,8 +474,10 @@ test(
       sessionId: sid
     })
     expect(sid).not.toBeUndefined()
-    let notifications = await sessionNotification.getNotification(db, sid)
-    let notificationMessages = notifications.map((not) => not.message)
+    let notificationMessages = await testQuery.getAllNotificationMessages(
+      db,
+      sid
+    )
     expect(
       notificationMessages.includes(
         'On endpoint 0, support for cluster: Scenes server is provisional.'
@@ -498,8 +505,10 @@ test(
       sessionId: sid
     })
     expect(sid).not.toBeUndefined()
-    let notifications = await sessionNotification.getNotification(db, sid)
-    let notificationMessages = notifications.map((not) => not.message)
+    let notificationMessages = await testQuery.getAllNotificationMessages(
+      db,
+      sid
+    )
 
     // Two attributes and one command conform to the enabled device type feature 'LT' but are disabled.
     // Their element conformance warnings should be added to the notification table.
@@ -589,3 +598,40 @@ test(
   },
   testUtil.timeout.medium()
 )
+
+test('Import a ZAP file with enabled commands missing response commands and verify warnings are added to the notification table', async () => {
+  sid = await querySession.createBlankSession(db)
+  await util.ensurePackagesAndPopulateSessionOptions(
+    templateContext.db,
+    sid,
+    {
+      zcl: env.builtinSilabsZclMetafile(),
+      template: env.builtinTemplateMetafile()
+    },
+    null,
+    [templatePkgId]
+  )
+  await importJs.importDataFromFile(db, missingResponseCommands, {
+    sessionId: sid
+  })
+  expect(sid).not.toBeUndefined()
+  let notificationMessages = await testQuery.getAllNotificationMessages(db, sid)
+
+  // 3 commands are missing response commands and should trigger warnings
+  expect(
+    notificationMessages.includes(
+      'On endpoint 0, cluster: General Commissioning server, outgoing command: ArmFailSafeResponse should be enabled as it is the response to the enabled incoming command: ArmFailSafe.'
+    )
+  )
+  // test if 2 commands missing the same response command both trigger warnings
+  expect(
+    notificationMessages.includes(
+      'On endpoint 0, cluster: Network Commissioning server, outgoing command: NetworkConfigResponse should be enabled as it is the response to the enabled incoming command: AddOrUpdateWiFiNetwork.'
+    )
+  )
+  expect(
+    notificationMessages.includes(
+      'On endpoint 0, cluster: Network Commissioning server, outgoing command: NetworkConfigResponse should be enabled as it is the response to the enabled incoming command: AddOrUpdateThreadNetwork.'
+    )
+  )
+})

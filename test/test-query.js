@@ -216,6 +216,17 @@ WHERE
  *
  * @param {*} db
  * @param {*} sessionId
+ * @returns list of notification messages in the session notice table
+ */
+async function getAllNotificationMessages(db, sessionId) {
+  let notifications = await getAllSessionNotifications(db, sessionId)
+  return notifications.map((notification) => notification.message)
+}
+
+/**
+ *
+ * @param {*} db
+ * @param {*} sessionId
  * @returns all the available clusters in a session
  */
 async function getAllSessionClusters(db, sessionId) {
@@ -248,4 +259,5 @@ exports.getEndpointTypeAttributes = getEndpointTypeAttributes
 exports.getEndpointTypeCommands = getEndpointTypeCommands
 exports.createSession = createSession
 exports.getAllSessionNotifications = getAllSessionNotifications
+exports.getAllNotificationMessages = getAllNotificationMessages
 exports.getAllSessionClusters = getAllSessionClusters

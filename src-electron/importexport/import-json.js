@@ -1396,6 +1396,8 @@ async function importEndpointTypes(
       '\n\nApplication is failing the conformance requirements as follows: \n'
     const provisionalClusterWarningTitle =
       'Application is enabling provisional clusters as follows: \n'
+    const missingResponseCommandWarningTitle =
+      'Application has missing response commands for enabled commands as follows: \n'
     let conformanceWarnings = ''
     let provisionalClusterWarnings = []
     let sessionPartitionInfo =
@@ -1610,9 +1612,24 @@ async function importEndpointTypes(
       }
     }
 
-    await printProvisionalClusterWarnings(
+    // print provisional cluster warnings to the console
+    printWarnings(
       provisionalClusterWarnings,
       provisionalClusterWarningTitle,
+      specMessageIndent,
+      dottedLine
+    )
+
+    let missingResponseCommandWarnings =
+      await querySessionNotice.getNotificationMessagesWithPattern(
+        db,
+        sessionId,
+        '%command%should be enabled as it is the response to%'
+      )
+    // print missing response command warnings to the console
+    printWarnings(
+      missingResponseCommandWarnings,
+      missingResponseCommandWarningTitle,
       specMessageIndent,
       dottedLine
     )
@@ -1989,23 +2006,18 @@ function generateProvisionalClusterWarnings(clusters, endpointId) {
 }
 
 /**
- * Print the concatenated provisional cluster warning message to the console.
+ * Print the concatenated warning message to the console.
  *
  * @param {*} warnings
- * @param {*} provisionalClusterWarningTitle
+ * @param {*} warningTitle
  * @param {*} specMessageIndent
  * @param {*} dottedLine
  */
-async function printProvisionalClusterWarnings(
-  warnings,
-  provisionalClusterWarningTitle,
-  specMessageIndent,
-  dottedLine
-) {
+function printWarnings(warnings, warningTitle, specMessageIndent, dottedLine) {
   let warningMessage = ''
   if (warnings.length > 0) {
     warningMessage = dottedLine.concat(
-      provisionalClusterWarningTitle,
+      warningTitle,
       specMessageIndent,
       warnings.join(specMessageIndent),
       dottedLine

@@ -293,6 +293,23 @@ async function deleteNotificationWithPatterns(db, sessionId, patterns) {
   return false
 }
 
+/**
+ * Get notification messages that match the given pattern.
+ *
+ * @param {*} db
+ * @param {*} sessionId
+ * @param {*} pattern
+ * @returns list of notification messages matching the pattern
+ */
+async function getNotificationMessagesWithPattern(db, sessionId, pattern) {
+  let rows = await dbApi.dbAll(
+    db,
+    'SELECT NOTICE_MESSAGE FROM SESSION_NOTICE WHERE SESSION_REF = ? AND NOTICE_MESSAGE LIKE ?',
+    [sessionId, pattern]
+  )
+  return rows.reverse().map((row) => row.NOTICE_MESSAGE)
+}
+
 // exports
 exports.setNotification = setNotification
 exports.deleteNotification = deleteNotification
@@ -305,3 +322,4 @@ exports.setWarningIfMessageNotExists = setWarningIfMessageNotExists
 exports.setNotificationOnFeatureChange = setNotificationOnFeatureChange
 exports.setRequiredElementWarning = setRequiredElementWarning
 exports.deleteNotificationWithPatterns = deleteNotificationWithPatterns
+exports.getNotificationMessagesWithPattern = getNotificationMessagesWithPattern

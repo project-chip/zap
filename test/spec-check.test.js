@@ -26,6 +26,7 @@ const env = require('../src-electron/util/env')
 const zclLoader = require('../src-electron/zcl/zcl-loader')
 const generationEngine = require('../src-electron/generator/generation-engine')
 const queryEndpointType = require('../src-electron/db/query-endpoint-type')
+const queryEndpoint = require('../src-electron/db/query-endpoint')
 const testUtil = require('./test-util')
 const testQuery = require('./test-query')
 const util = require('../src-electron/util/util')
@@ -493,6 +494,55 @@ test(
     expect(
       sessionNotificationMessages.includes(
         '⚠ Check Device Type Compliance on endpoint: 0, cluster: Localization Configuration, attribute: ActiveLocale needs to be enabled'
+      )
+    ).toBeFalsy()
+
+    // Before deleting endpoints, notifications on endpoints should exist
+    expect(
+      sessionNotificationMessages.some((element) =>
+        element.includes('on endpoint: 0')
+      )
+    ).toBeTruthy()
+    expect(
+      sessionNotificationMessages.some((element) =>
+        element.includes('on endpoint: 1')
+      )
+    ).toBeTruthy()
+
+    // insert and then delete endpoints to test if DELETE trigger removes related notifications
+    endpoint0.eptId = await queryEndpoint.insertEndpoint(
+      db,
+      sid,
+      0,
+      endpoint0.endpointTypeId,
+      null,
+      null
+    )
+    endpoint1.eptId = await queryEndpoint.insertEndpoint(
+      db,
+      sid,
+      1,
+      endpoint1.endpointTypeId,
+      null,
+      null
+    )
+    await queryEndpoint.deleteEndpoint(db, endpoint0.eptId)
+    await queryEndpoint.deleteEndpoint(db, endpoint1.eptId)
+
+    sessionNotificationMessages = await testQuery.getAllNotificationMessages(
+      db,
+      sid
+    )
+
+    // after deleting endpoints, notifications on endpoints should be removed
+    expect(
+      sessionNotificationMessages.some((element) =>
+        element.includes('on endpoint: 0')
+      )
+    ).toBeFalsy()
+    expect(
+      sessionNotificationMessages.some((element) =>
+        element.includes('on endpoint: 1')
       )
     ).toBeFalsy()
   },
