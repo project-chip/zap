@@ -23,6 +23,7 @@ limitations under the License.
     <item fieldId="2" name="Group" type="GROUP_ID" optional="true"/>
     <item fieldId="3" name="Endpoint" type="ENDPOINT_NO" optional="true"/>
     <item fieldId="4" name="Cluster" type="CLUSTER_ID" optional="true"/>
+    <item fieldId="0xFE" name="FabricIndex" type="FABRIC_IDX"/>
   </struct>
 
   <cluster>
