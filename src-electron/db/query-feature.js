@@ -136,6 +136,74 @@ async function getFeaturesByDeviceTypeRefs(
 }
 
 /**
+ * Retrieves all features from given package ids.
+ *
+ * @param {*} db
+ * @param {*} packageIds
+ * @returns promise of an array of features
+ */
+async function selectAllFeatures(db, packageIds) {
+  let rows = await dbApi.dbAll(
+    db,
+    `
+    SELECT
+      F.FEATURE_ID,
+      F.NAME,
+      F.CODE,
+      F.BIT,
+      F.DESCRIPTION,
+      F.CONFORMANCE,
+      F.PACKAGE_REF,
+      F.CLUSTER_REF
+    FROM
+      FEATURE AS F
+    INNER JOIN
+      CLUSTER AS C
+    ON
+      F.CLUSTER_REF = C.CLUSTER_ID
+    WHERE
+      F.PACKAGE_REF in (${dbApi.toInClause(packageIds)})
+    ORDER BY
+      C.CODE,
+      F.FEATURE_ID
+    `
+  )
+  return rows.map(dbMapping.map.feature)
+}
+
+/**
+ * Retrieves features for a given cluster Id.
+ *
+ * @param {*} db
+ * @param {*} clusterId
+ * @returns promise of an array of features in the cluster
+ */
+async function selectFeaturesByClusterId(db, clusterId) {
+  let rows = await dbApi.dbAll(
+    db,
+    `
+    SELECT
+      FEATURE_ID,
+      NAME,
+      CODE,
+      BIT,
+      DESCRIPTION,
+      CONFORMANCE,
+      PACKAGE_REF,
+      CLUSTER_REF
+    FROM
+      FEATURE
+    WHERE
+      CLUSTER_REF = ?
+    ORDER BY
+      FEATURE_ID
+    `,
+    [clusterId]
+  )
+  return rows.map(dbMapping.map.feature)
+}
+
+/**
  * Check if any non-empty conformance data exist in ATTRIBUTE, COMMAND,
  * and DEVICE_TYPE_FEATURE table.
  *
@@ -174,3 +242,5 @@ async function checkIfConformanceDataExist(db) {
 
 exports.getFeaturesByDeviceTypeRefs = getFeaturesByDeviceTypeRefs
 exports.checkIfConformanceDataExist = checkIfConformanceDataExist
+exports.selectAllFeatures = selectAllFeatures
+exports.selectFeaturesByClusterId = selectFeaturesByClusterId
