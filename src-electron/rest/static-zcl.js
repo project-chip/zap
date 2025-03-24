@@ -25,6 +25,7 @@ const queryZcl = require('../db/query-zcl')
 const queryDeviceType = require('../db/query-device-type')
 const queryCommand = require('../db/query-command')
 const queryEvent = require('../db/query-event')
+const queryFeature = require('../db/query-feature')
 const queryPackage = require('../db/query-package')
 const dbEnum = require('../../src-shared/db-enum')
 const restApi = require('../../src-shared/rest-api')
@@ -53,7 +54,7 @@ function zclEntityQuery(selectAllFunction, selectByIdFunction) {
 }
 
 /**
- * For the CLUSTER path, we have special handling to also sideload attributes and commands relevant to that cluster.
+ * For the CLUSTER path, we have special handling to also sideload attributes, commands, events, and features relevant to that cluster.
  *
  * @param {*} db
  * @param {*} clusterId
@@ -61,33 +62,38 @@ function zclEntityQuery(selectAllFunction, selectByIdFunction) {
  * @returns zcl entities
  */
 async function returnZclEntitiesForClusterId(db, clusterId, packageId) {
-  return zclEntityQuery(queryZcl.selectAllClusters, queryZcl.selectClusterById)(
-    db,
-    clusterId,
-    packageId
-  ).then((x) =>
-    zclEntityQuery(
-      queryZcl.selectAllAttributes,
-      queryZcl.selectAttributesByClusterIdIncludingGlobal
-    )(db, clusterId, [packageId]).then((y) =>
-      zclEntityQuery(
-        queryCommand.selectAllCommands,
-        queryCommand.selectCommandsByClusterId
-      )(db, clusterId, packageId).then((z) =>
-        zclEntityQuery(
-          queryEvent.selectAllEvents,
-          queryEvent.selectEventsByClusterId
-        )(db, clusterId, packageId).then((g) => {
-          return {
-            clusterData: x,
-            attributeData: y,
-            commandData: z,
-            eventData: g
-          }
-        })
-      )
-    )
-  )
+  let clusterData = await zclEntityQuery(
+    queryZcl.selectAllClusters,
+    queryZcl.selectClusterById
+  )(db, clusterId, packageId)
+
+  let attributeData = await zclEntityQuery(
+    queryZcl.selectAllAttributes,
+    queryZcl.selectAttributesByClusterIdIncludingGlobal
+  )(db, clusterId, [packageId])
+
+  let commandData = await zclEntityQuery(
+    queryCommand.selectAllCommands,
+    queryCommand.selectCommandsByClusterId
+  )(db, clusterId, packageId)
+
+  let eventData = await zclEntityQuery(
+    queryEvent.selectAllEvents,
+    queryEvent.selectEventsByClusterId
+  )(db, clusterId, packageId)
+
+  let featureData = await zclEntityQuery(
+    queryFeature.selectAllFeatures,
+    queryFeature.selectFeaturesByClusterId
+  )(db, clusterId, packageId)
+
+  return {
+    clusterData,
+    attributeData,
+    commandData,
+    eventData,
+    featureData
+  }
 }
 
 /**
@@ -97,14 +103,18 @@ async function returnZclEntitiesForClusterId(db, clusterId, packageId) {
  * @param {*} currentValue
  * @returns ZCL entity details object
  */
-function mergeZclClusterAttributeCommandEventData(accumulated, currentValue) {
+function mergeZclClusterAttributeCommandEventFeatureData(
+  accumulated,
+  currentValue
+) {
   return {
     clusterData: [accumulated.clusterData, currentValue.clusterData].flat(1),
     commandData: [accumulated.commandData, currentValue.commandData].flat(1),
     attributeData: [accumulated.attributeData, currentValue.attributeData].flat(
       1
     ),
-    eventData: [accumulated.eventData, currentValue.eventData].flat(1)
+    eventData: [accumulated.eventData, currentValue.eventData].flat(1),
+    featureData: [accumulated.featureData, currentValue.featureData].flat(1)
   }
 }
 
@@ -137,7 +147,7 @@ function reduceAndConcatenateZclEntity(
 }
 
 /**
- * Get entity details absed on given information.
+ * Get entity details based on given information.
  *
  * @param {*} db
  * @param {*} entity
@@ -177,12 +187,13 @@ async function parseForZclData(db, entity, id, packageIdArray) {
                 id,
                 packageIdArray,
                 returnZclEntitiesForClusterId,
-                mergeZclClusterAttributeCommandEventData,
+                mergeZclClusterAttributeCommandEventFeatureData,
                 {
                   clusterData: [],
                   attributeData: [],
                   commandData: [],
-                  eventData: []
+                  eventData: [],
+                  featureData: []
                 }
               )
             : reduceAndConcatenateZclEntity(
@@ -192,12 +203,13 @@ async function parseForZclData(db, entity, id, packageIdArray) {
                   ? packageIdArray
                   : [...standAlonePackageIds, clusterInfo.packageRef], // Taking cluster package and custom xml into account. Using a set since a cluster may sometimes be a custom one as well thus duplicating this array.
                 returnZclEntitiesForClusterId,
-                mergeZclClusterAttributeCommandEventData,
+                mergeZclClusterAttributeCommandEventFeatureData,
                 {
                   clusterData: [],
                   attributeData: [],
                   commandData: [],
-                  eventData: []
+                  eventData: [],
+                  featureData: []
                 }
               )
         )
@@ -206,7 +218,8 @@ async function parseForZclData(db, entity, id, packageIdArray) {
             clusterData: data.clusterData,
             attributeData: data.attributeData,
             commandData: data.commandData,
-            eventData: data.eventData
+            eventData: data.eventData,
+            featureData: data.featureData
           }
         })
     case 'domain':

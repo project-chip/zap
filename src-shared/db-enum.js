@@ -218,9 +218,10 @@ exports.packageMatch = {
   ignore: 'ignore' // This mechanism will completely ignore the use of packages in the .zap file.
 }
 
-exports.deviceTypeFeature = {
+exports.feature = {
   name: {
     enabled: 'enabled',
+    featureId: 'featureId',
     deviceType: 'deviceType',
     cluster: 'cluster',
     clusterSide: 'clusterSide',
@@ -232,6 +233,7 @@ exports.deviceTypeFeature = {
   },
   label: {
     enabled: 'Enabled',
+    featureId: 'Feature ID',
     deviceType: 'Device Type',
     cluster: 'Cluster',
     clusterSide: 'Cluster Side',

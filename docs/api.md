@@ -3655,6 +3655,8 @@ This module provides queries for features.
 
 * [DB API: feature related queries](#module_DB API_ feature related queries)
     * [~getFeaturesByDeviceTypeRefs(db, deviceTypeRefs, endpointTypeRef)](#module_DB API_ feature related queries..getFeaturesByDeviceTypeRefs) ⇒
+    * [~selectAllFeatures(db, packageIds)](#module_DB API_ feature related queries..selectAllFeatures) ⇒
+    * [~selectFeaturesByClusterId(db, clusterId)](#module_DB API_ feature related queries..selectFeaturesByClusterId) ⇒
     * [~checkIfConformanceDataExist(db)](#module_DB API_ feature related queries..checkIfConformanceDataExist) ⇒
 
 <a name="module_DB API_ feature related queries..getFeaturesByDeviceTypeRefs"></a>
@@ -3674,6 +3676,32 @@ with associated device type, cluster, and featureMap attribute details
 | db | <code>\*</code> | 
 | deviceTypeRefs | <code>\*</code> | 
 | endpointTypeRef | <code>\*</code> | 
+
+<a name="module_DB API_ feature related queries..selectAllFeatures"></a>
+
+### DB API: feature related queries~selectAllFeatures(db, packageIds) ⇒
+Retrieves all features from given package ids.
+
+**Kind**: inner method of [<code>DB API: feature related queries</code>](#module_DB API_ feature related queries)  
+**Returns**: promise of an array of features  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| packageIds | <code>\*</code> | 
+
+<a name="module_DB API_ feature related queries..selectFeaturesByClusterId"></a>
+
+### DB API: feature related queries~selectFeaturesByClusterId(db, clusterId) ⇒
+Retrieves features for a given cluster Id.
+
+**Kind**: inner method of [<code>DB API: feature related queries</code>](#module_DB API_ feature related queries)  
+**Returns**: promise of an array of features in the cluster  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| clusterId | <code>\*</code> | 
 
 <a name="module_DB API_ feature related queries..checkIfConformanceDataExist"></a>
 
@@ -14418,6 +14446,7 @@ This module provides the API to access zcl specific information.
     * [~httpGetDeviceTypeFeatures(db)](#module_REST API_ user data..httpGetDeviceTypeFeatures) ⇒
     * [~httpPostCheckConformOnFeatureUpdate(db)](#module_REST API_ user data..httpPostCheckConformOnFeatureUpdate) ⇒
     * [~httpGetRequiredElements(db)](#module_REST API_ user data..httpGetRequiredElements) ⇒
+    * [~httpGetFeatureMapValue(db)](#module_REST API_ user data..httpGetFeatureMapValue)
     * [~httpGetSessionNotifications(db)](#module_REST API_ user data..httpGetSessionNotifications) ⇒
     * [~httpDeleteSessionNotification(db)](#module_REST API_ user data..httpDeleteSessionNotification) ⇒
     * [~httpGetPackageNotifications(db)](#module_REST API_ user data..httpGetPackageNotifications) ⇒
@@ -14522,6 +14551,17 @@ HTTP GET: required and unsupported cluster elements based on conformance
 
 **Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
 **Returns**: callback for the express uri registration  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+
+<a name="module_REST API_ user data..httpGetFeatureMapValue"></a>
+
+### REST API: user data~httpGetFeatureMapValue(db)
+HTTP GET: the value of feature map attribute in an endpoint type cluster
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
 
 | Param | Type |
 | --- | --- |
@@ -15625,7 +15665,7 @@ This module provides the REST API to the static zcl queries.
 * [REST API: static zcl functions](#module_REST API_ static zcl functions)
     * [~zclEntityQuery(selectAllFunction, selectByIdFunction)](#module_REST API_ static zcl functions..zclEntityQuery) ⇒
     * [~returnZclEntitiesForClusterId(db, clusterId, packageId)](#module_REST API_ static zcl functions..returnZclEntitiesForClusterId) ⇒
-    * [~mergeZclClusterAttributeCommandEventData(accumulated, currentValue)](#module_REST API_ static zcl functions..mergeZclClusterAttributeCommandEventData) ⇒
+    * [~mergeZclClusterAttributeCommandEventFeatureData(accumulated, currentValue)](#module_REST API_ static zcl functions..mergeZclClusterAttributeCommandEventFeatureData) ⇒
     * [~reduceAndConcatenateZclEntity(db, id, packageIdArray, zclQueryCallback, mergeFunction, defaultValue)](#module_REST API_ static zcl functions..reduceAndConcatenateZclEntity) ⇒
     * [~parseForZclData(db, entity, id, packageIdArray)](#module_REST API_ static zcl functions..parseForZclData) ⇒
     * [~httpGetZclEntity(app)](#module_REST API_ static zcl functions..httpGetZclEntity)
@@ -15649,7 +15689,7 @@ each of the different ZCL entities.
 <a name="module_REST API_ static zcl functions..returnZclEntitiesForClusterId"></a>
 
 ### REST API: static zcl functions~returnZclEntitiesForClusterId(db, clusterId, packageId) ⇒
-For the CLUSTER path, we have special handling to also sideload attributes and commands relevant to that cluster.
+For the CLUSTER path, we have special handling to also sideload attributes, commands, events, and features relevant to that cluster.
 
 **Kind**: inner method of [<code>REST API: static zcl functions</code>](#module_REST API_ static zcl functions)  
 **Returns**: zcl entities  
@@ -15660,9 +15700,9 @@ For the CLUSTER path, we have special handling to also sideload attributes and c
 | clusterId | <code>\*</code> | 
 | packageId | <code>\*</code> | 
 
-<a name="module_REST API_ static zcl functions..mergeZclClusterAttributeCommandEventData"></a>
+<a name="module_REST API_ static zcl functions..mergeZclClusterAttributeCommandEventFeatureData"></a>
 
-### REST API: static zcl functions~mergeZclClusterAttributeCommandEventData(accumulated, currentValue) ⇒
+### REST API: static zcl functions~mergeZclClusterAttributeCommandEventFeatureData(accumulated, currentValue) ⇒
 This is the special merge function used for the CLUSTER path
 
 **Kind**: inner method of [<code>REST API: static zcl functions</code>](#module_REST API_ static zcl functions)  
@@ -15693,7 +15733,7 @@ This maps over each packageId, and runs the query callback.
 <a name="module_REST API_ static zcl functions..parseForZclData"></a>
 
 ### REST API: static zcl functions~parseForZclData(db, entity, id, packageIdArray) ⇒
-Get entity details absed on given information.
+Get entity details based on given information.
 
 **Kind**: inner method of [<code>REST API: static zcl functions</code>](#module_REST API_ static zcl functions)  
 **Returns**: Promise of entity details  
@@ -15741,6 +15781,7 @@ This module provides the REST API to the user specific data.
     * [~httpGetDeviceTypeFeatures(db)](#module_REST API_ user data..httpGetDeviceTypeFeatures) ⇒
     * [~httpPostCheckConformOnFeatureUpdate(db)](#module_REST API_ user data..httpPostCheckConformOnFeatureUpdate) ⇒
     * [~httpGetRequiredElements(db)](#module_REST API_ user data..httpGetRequiredElements) ⇒
+    * [~httpGetFeatureMapValue(db)](#module_REST API_ user data..httpGetFeatureMapValue)
     * [~httpGetSessionNotifications(db)](#module_REST API_ user data..httpGetSessionNotifications) ⇒
     * [~httpDeleteSessionNotification(db)](#module_REST API_ user data..httpDeleteSessionNotification) ⇒
     * [~httpGetPackageNotifications(db)](#module_REST API_ user data..httpGetPackageNotifications) ⇒
@@ -15845,6 +15886,17 @@ HTTP GET: required and unsupported cluster elements based on conformance
 
 **Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
 **Returns**: callback for the express uri registration  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+
+<a name="module_REST API_ user data..httpGetFeatureMapValue"></a>
+
+### REST API: user data~httpGetFeatureMapValue(db)
+HTTP GET: the value of feature map attribute in an endpoint type cluster
+
+**Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
 
 | Param | Type |
 | --- | --- |

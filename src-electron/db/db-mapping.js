@@ -271,6 +271,20 @@ exports.map = {
     }
   },
 
+  feature: (x) => {
+    if (x == null) return undefined
+    return {
+      id: x.FEATURE_ID,
+      name: x.NAME,
+      code: x.CODE,
+      bit: x.BIT,
+      description: x.DESCRIPTION,
+      conformance: x.CONFORMANCE,
+      packageRef: x.PACKAGE_REF,
+      clusterId: x.CLUSTER_REF
+    }
+  },
+
   domain: (x) => {
     if (x == null) return undefined
     return {
