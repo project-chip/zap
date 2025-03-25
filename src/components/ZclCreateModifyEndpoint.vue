@@ -270,7 +270,8 @@ limitations under the License.
           <div class="text-h6">Device Type Changed</div>
           <p>
             The device type configuration has changed on this endpoint. Would
-            you like to overwrite the existing configuration or delete the
+            you like to add changes on top of the existing configuration which
+            can lead to a noncompliant device type(Overwrite) or delete the
             existing endpoint and add a new one?
           </p>
         </q-card-section>
