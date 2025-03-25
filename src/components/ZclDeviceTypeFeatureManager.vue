@@ -27,7 +27,7 @@ limitations under the License.
       <div v-if="deviceTypeFeatures.length > 0">
         <q-table
           :rows="deviceTypeFeatures"
-          :columns="columns"
+          :columns="filteredColumns"
           flat
           v-model:pagination="pagination"
           separator="horizontal"
@@ -35,9 +35,38 @@ limitations under the License.
         >
           <template v-slot:body="props">
             <q-tr :props="props" class="table_body attribute_table_body">
+              <q-td
+                v-if="hasFeatureWithDisabledCluster"
+                key="status"
+                :props="props"
+                class="q-px-none"
+                style="width: 30px; max-width: 30px"
+              >
+                <q-icon
+                  v-show="isClusterDisabled(props.row.clusterRef)"
+                  name="warning"
+                  class="text-amber"
+                  style="font-size: 1.5rem"
+                />
+                <q-tooltip
+                  v-if="isClusterDisabled(props.row.clusterRef)"
+                  anchor="top middle"
+                  self="bottom middle"
+                  :offset="[10, 10]"
+                >
+                  <div
+                    v-for="(line, index) in generateDisabledClusterWarning(
+                      props.row.cluster
+                    )"
+                    :key="index"
+                  >
+                    {{ line }}
+                  </div>
+                </q-tooltip>
+              </q-td>
               <q-td key="enabled" :props="props" auto-width>
                 <q-toggle
-                  :disable="isToggleDisabled(props.row.conformance)"
+                  :disable="isToggleDisabled(props.row)"
                   class="q-mt-xs v-step-14"
                   v-model="enabledDeviceTypeFeatures"
                   :val="
@@ -189,9 +218,13 @@ export default {
         return 'none'
       }
     },
-    isToggleDisabled(conformance) {
-      // disable toggling unsupported features
-      return conformance == 'X' || conformance == 'D'
+    isToggleDisabled(feature) {
+      // disable toggling features with unsupported conformance and disabled clusters
+      return (
+        feature.conformance == 'X' ||
+        feature.conformance == 'D' ||
+        this.isClusterDisabled(feature.clusterRef)
+      )
     },
     onToggleDeviceTypeFeature(featureData, inclusionList) {
       /* when conformance is not properly handled and change is disabled,
@@ -371,6 +404,18 @@ export default {
           featureData.featureId
         )
       )
+    },
+    isClusterDisabled(clusterId) {
+      return (
+        !this.selectionClients.includes(clusterId) &&
+        !this.selectionServers.includes(clusterId)
+      )
+    },
+    generateDisabledClusterWarning(cluster) {
+      return [
+        `This feature cannot be toggled because its associated cluster: ${cluster} is disabled.`,
+        'Enable the cluster to allow toggling this feature.'
+      ]
     }
   },
   computed: {
@@ -379,6 +424,18 @@ export default {
         this.attributesToUpdate.length == 0 &&
         this.commandsToUpdate.length == 0 &&
         this.eventsToUpdate.length == 0
+      )
+    },
+    filteredColumns() {
+      return this.hasFeatureWithDisabledCluster
+        ? this.columns
+        : this.columns.filter(
+            (column) => column.name != dbEnum.deviceTypeFeature.name.status
+          )
+    },
+    hasFeatureWithDisabledCluster() {
+      return this.deviceTypeFeatures.some((feature) =>
+        this.isClusterDisabled(feature.clusterRef)
       )
     }
   },
@@ -395,6 +452,12 @@ export default {
       commandsToUpdate: [],
       eventsToUpdate: [],
       columns: [
+        {
+          name: dbEnum.deviceTypeFeature.name.status,
+          required: false,
+          label: dbEnum.deviceTypeFeature.label.status,
+          align: 'left'
+        },
         {
           name: dbEnum.deviceTypeFeature.name.enabled,
           required: true,

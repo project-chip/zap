@@ -220,6 +220,7 @@ exports.packageMatch = {
 
 exports.deviceTypeFeature = {
   name: {
+    status: 'status',
     enabled: 'enabled',
     deviceType: 'deviceType',
     cluster: 'cluster',
@@ -231,6 +232,7 @@ exports.deviceTypeFeature = {
     description: 'description'
   },
   label: {
+    status: '',
     enabled: 'Enabled',
     deviceType: 'Device Type',
     cluster: 'Cluster',
