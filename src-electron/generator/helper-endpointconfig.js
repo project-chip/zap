@@ -589,16 +589,15 @@ function endpoint_attribute_min_max_count(options) {
  * @returns All attributes with min max values listed
  */
 function endpoint_attribute_min_max_list(options) {
-  let comment = null;
-  let order = options.hash?.order || 'def,min,max'; // Use optional chaining and default value
-  let ret = '{ \\\n';
-
-  // Extract the category for better readability and safety
+  let comment = null
+  let order = options.hash.order
+  if (order == null || order.length == 0) {
+    order = 'def,min,max'
+  }
+  let ret = '{ \\\n'
   const category = options.data?.root?.global?.genTemplatePackage?.category
-
   this.minMaxList.forEach((mm, index) => {
-    // Check if the category is 'zigbee' and handle safely
-    if (mm.typeSize > 2 && category === 'zigbee') {
+    if (mm.typeSize > 2 && category !== 'matter') {
       throw new Error(
         `Can't have min/max for attributes larger than 2 bytes like '${mm.name}'`
       )
