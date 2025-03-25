@@ -50,6 +50,15 @@
       "exe": "src-script/zap-start.js"
     }
   },
+  "ui": {
+    "launchItem": {
+      "id": "ZAP",
+      "category": "tools",
+      "label": "ZCL Advanced Platform",
+      "launchUiFunction": "launchZAP",
+      "toolTip": "ZCL Advanced Platform"
+    }
+  },
   "function": {
     "ui:uc_cli": {
       "cmd": "$(zap)"
