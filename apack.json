@@ -60,6 +60,9 @@
     }
   },
   "function": {
+    "launchZAP": {
+      "cmd": "$(zap)"
+    },
     "ui:uc_cli": {
       "cmd": "$(zap)"
     },
