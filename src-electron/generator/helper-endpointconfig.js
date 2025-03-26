@@ -594,10 +594,10 @@ function endpoint_attribute_min_max_list(options) {
   if (order == null || order.length == 0) {
     order = 'def,min,max'
   }
-
   let ret = '{ \\\n'
+  const category = options.data?.root?.global?.genTemplatePackage?.category
   this.minMaxList.forEach((mm, index) => {
-    if (mm.typeSize > 2) {
+    if (mm.typeSize > 2 && category === dbEnum.helperCategory.zigbee) {
       throw new Error(
         `Can't have min/max for attributes larger than 2 bytes like '${mm.name}'`
       )

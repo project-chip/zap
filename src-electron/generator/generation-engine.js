@@ -711,8 +711,6 @@ async function generateAllTemplates(
     genTemplateJsonPkg.id
   )
   let generationTemplates = []
-  let helperPromises = []
-  let partialPromises = []
   let overridePath = null
 
   let hb = templateEngine.hbInstance()
@@ -746,9 +744,7 @@ async function generateAllTemplates(
   // Next load the partials
   packages.forEach((singlePkg) => {
     if (singlePkg.type == dbEnum.packageType.genPartial) {
-      partialPromises.push(
-        templateEngine.loadPartial(hb, singlePkg.category, singlePkg.path)
-      )
+      templateEngine.loadPartial(hb, singlePkg.category, singlePkg.path)
     }
   })
 
@@ -765,9 +761,7 @@ async function generateAllTemplates(
   // Next load the addon helpers which were not yet initialized earlier.
   packages.forEach((singlePkg) => {
     if (singlePkg.type == dbEnum.packageType.genHelper) {
-      helperPromises.push(
-        templateEngine.loadHelper(hb, singlePkg.path, context)
-      )
+      templateEngine.loadHelper(hb, singlePkg.path, context)
     }
   })
 
@@ -789,10 +783,6 @@ async function generateAllTemplates(
     }
   })
 
-  // And finally go over the actual templates.
-  await Promise.all(helperPromises)
-  await Promise.all(partialPromises)
-
   if (options.generateSequentially) {
     await util.executePromisesSequentially(generationTemplates, (t) =>
       generateSingleTemplate(hb, metaInfo, genResult, t, genTemplateJsonPkg, {
@@ -810,6 +800,11 @@ async function generateAllTemplates(
     await Promise.all(templates)
   }
 
+  if (genResult.hasErrors) {
+    for (const [key, value] of Object.entries(genResult.errors)) {
+      console.error(`${key}: ${value}`)
+    }
+  }
   genResult.partial = false
   return genResult
 }
@@ -852,6 +847,9 @@ async function generateSingleTemplate(
       options
     )
     for (let result of resultArray) {
+      if (!result.content) {
+        console.error(`No content generated for ${result.key}`)
+      }
       genResult.content[result.key] = result.content
       genResult.stats[result.key] = result.stats
     }

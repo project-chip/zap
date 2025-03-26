@@ -494,7 +494,6 @@ async function ensureZclEventSdkExtensions(context, templatePackageId) {
  */
 function templatePromise(global, promise) {
   let syncPromise = makeSynchronizablePromise(promise)
-  global.promises.push(syncPromise)
   return syncPromise
 }
 /**

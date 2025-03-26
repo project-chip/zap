@@ -274,6 +274,25 @@ test(
         "// command: 0x0300 / 0x00 => MoveToHue, test extension: '', isLargeMessage: true"
       )
     )
+
+    // Testing promisedHandlebars when we have {{#if (promise)}} in a template
+    // Eg: {{#zcl_clusters}}
+    // {{#zcl_commands_source_server}}
+    // {{#zcl_command_arguments}}
+    // {{#if (zcl_command_arguments_count ../index)}}
+    // zcl command arguments exist for {{../name}} command. It has {{zcl_command_arguments_count ../index}} arguments
+    // {{else}}
+    // zcl command arguments do not exist for {{../name}} command.
+    // {{/if}}
+    // {{/zcl_command_arguments}}
+    // {{/zcl_commands_source_server}}
+    // {{/zcl_clusters}}
+    expect(simpleTest).toContain(
+      'zcl command arguments exist for ViewGroupResponse command. It has 5 arguments'
+    )
+    expect(simpleTest).toContain(
+      'zcl command arguments do not exist for AddSceneResponse command.'
+    )
   },
   testUtil.timeout.long()
 )

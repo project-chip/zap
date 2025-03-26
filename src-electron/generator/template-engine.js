@@ -70,6 +70,8 @@ const precompiledTemplates = {}
 
 const handlebarsInstance = {}
 
+const TEMPLATE_RENDER_TIMEOUT = 90000 // 90 seconds
+
 /**
  * Resolves into a precompiled template, either from previous precompile or freshly compiled.
  * @param {*} singleTemplatePkg
@@ -185,13 +187,48 @@ async function produceContent(
           return null
         }
       },
-      stats: {}
+      stats: {},
+      deferredBlocks: []
     }
   }
   if (options.initialContext != null) {
     Object.assign(context, options.initialContext)
   }
-  let content = await template(context)
+  let content
+  // Render the template but if it does not render within
+  // TEMPLATE_RENDER_TIMEOUT then throw an error instead of just hanging
+  // forever.
+  try {
+    // Attempt to render the template
+    content = await Promise.race([
+      template(context),
+      new Promise((_, reject) =>
+        setTimeout(
+          () => reject(new Error('Template rendering timed out')),
+          TEMPLATE_RENDER_TIMEOUT
+        )
+      )
+    ])
+    // Render deferred blocks
+    for (let deferredBlock of context.global.deferredBlocks) {
+      content += await deferredBlock(context)
+    }
+  } catch (error) {
+    // Log the error and throw it
+    notification.setNotification(
+      db,
+      'ERROR',
+      `Error during template rendering of ${singleTemplatePkg.path}: ` +
+        error.message,
+      sessionId,
+      1
+    )
+    console.error(
+      `Error during template rendering of ${singleTemplatePkg.path}: `,
+      error
+    )
+    throw error
+  }
   return [
     {
       key:
