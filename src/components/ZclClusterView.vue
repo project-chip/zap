@@ -98,6 +98,11 @@ limitations under the License.
                 />
                 <q-tab name="commands" label="Commands" class="v-step-12" />
                 <q-tab name="events" label="Events" v-show="enableEventsTab" />
+                <q-tab
+                  name="features"
+                  label="Features"
+                  v-show="enableFeaturesTab"
+                />
               </q-tabs>
               <div
                 class="col column linear-border-wrap"
@@ -115,6 +120,9 @@ limitations under the License.
                 <div class="col column" v-show="tab == 'events'">
                   <ZclEventManager />
                 </div>
+                <div class="col column" v-show="tab == 'features'">
+                  <ZclClusterFeatureManager />
+                </div>
               </div>
             </div>
           </div>
@@ -128,14 +136,16 @@ import ZclAttributeManager from './ZclAttributeManager.vue'
 import ZclAttributeReportingManager from './ZclAttributeReportingManager.vue'
 import ZclCommandManager from './ZclCommandManager.vue'
 import ZclEventManager from './ZclEventManager.vue'
+import ZclClusterFeatureManager from './ZclClusterFeatureManager.vue'
 import EditableAttributesMixin from '../util/editable-attributes-mixin'
 import CommonMixin from '../util/common-mixin'
+import uiOptions from '../util/ui-options'
 
 import * as dbEnum from '../../src-shared/db-enum.js'
 
 export default {
   name: 'ZclClusterView',
-  mixins: [CommonMixin, EditableAttributesMixin],
+  mixins: [CommonMixin, EditableAttributesMixin, uiOptions],
   computed: {
     isClusterDocumentationAvailable() {
       return (
@@ -199,6 +209,14 @@ export default {
         return this.category === dbEnum.helperCategory.matter
       }
     },
+    enableFeaturesTab: {
+      get() {
+        return (
+          this.category === dbEnum.helperCategory.matter &&
+          this.conformDataExists
+        )
+      }
+    },
     enableAttributeReportingTab: {
       get() {
         return this.category === dbEnum.helperCategory.zigbee
@@ -240,7 +258,8 @@ export default {
     ZclCommandManager,
     ZclAttributeManager,
     ZclAttributeReportingManager,
-    ZclEventManager
+    ZclEventManager,
+    ZclClusterFeatureManager
   }
 }
 </script>
