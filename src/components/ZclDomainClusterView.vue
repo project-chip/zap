@@ -224,6 +224,7 @@ limitations under the License.
 import CommonMixin from '../util/common-mixin'
 import restApi from '../../src-shared/rest-api'
 import uiOptions from '../util/ui-options'
+import EditableAttributesMixin from '../util/editable-attributes-mixin.js'
 
 let ZclClusterRoleAction = {
   Add: 'add',
@@ -235,7 +236,7 @@ let ZclClusterRole = { server: 'server', client: 'client' }
 export default {
   name: 'ZclDomainClusterView',
   props: ['domainName', 'clusters'],
-  mixins: [CommonMixin, uiOptions],
+  mixins: [CommonMixin, uiOptions, EditableAttributesMixin],
   computed: {
     isInStandalone: {
       get() {
@@ -588,6 +589,17 @@ export default {
           this.selectedEndpointTypeId
         )
         this.$store.dispatch('zap/setLastSelectedDomain', this.domainName)
+        this.setFeatureMapAttribute(cluster)
+      })
+    },
+    setFeatureMapAttribute(cluster) {
+      let featureMapAttribute = this.relevantAttributeData.find(
+        (attribute) => attribute.name == 'FeatureMap' && attribute.code == 65532
+      )
+      this.$store.dispatch('zap/updateFeatureMapValue', {
+        attributeId: featureMapAttribute.id,
+        clusterId: cluster.id,
+        endpointTypeId: this.selectedEndpointTypeId
       })
     },
     ucLabel(id) {

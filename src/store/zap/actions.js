@@ -93,6 +93,7 @@ export async function updateSelectedCluster(context, cluster) {
   updateAttributes(context, res.data.attributeData || [])
   updateCommands(context, res.data.commandData || [])
   updateEvents(context, res.data.eventData || [])
+  updateFeatures(context, res.data.featureData || [])
 }
 
 /**
@@ -120,6 +121,28 @@ export function updateCommands(context, commands) {
  */
 export function updateEvents(context, events) {
   context.commit('updateEvents', events)
+}
+
+/**
+ * Update the features for ZAP UI.
+ * @param {*} context
+ * @param {*} features
+ */
+export function updateFeatures(context, features) {
+  context.commit('updateFeatures', features)
+}
+
+/**
+ * Update the default value of feature map attribute for the updated cluster.
+ * @param {*} context
+ * @param {*} attributes
+ */
+export function updateFeatureMapValue(context, data) {
+  axiosRequests
+    .$serverGet(restApi.uri.featureMapValue, { params: data })
+    .then((response) => {
+      context.commit('updateFeatureMapValue', response.data)
+    })
 }
 
 /**

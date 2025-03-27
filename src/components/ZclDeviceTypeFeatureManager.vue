@@ -26,6 +26,7 @@ limitations under the License.
     <div class="col column linear-border-wrap">
       <div v-if="deviceTypeFeatures.length > 0">
         <q-table
+          class="my-striped-table"
           :rows="deviceTypeFeatures"
           :columns="columns"
           flat
@@ -34,7 +35,7 @@ limitations under the License.
           id="ZclDeviceTypeFeatureManager"
         >
           <template v-slot:body="props">
-            <q-tr :props="props" class="table_body attribute_table_body">
+            <q-tr :props="props">
               <q-td key="enabled" :props="props" auto-width>
                 <q-toggle
                   :disable="isToggleDisabled(props.row.conformance)"
@@ -396,57 +397,57 @@ export default {
       eventsToUpdate: [],
       columns: [
         {
-          name: dbEnum.deviceTypeFeature.name.enabled,
+          name: dbEnum.feature.name.enabled,
           required: true,
-          label: dbEnum.deviceTypeFeature.label.enabled,
+          label: dbEnum.feature.label.enabled,
           align: 'left'
         },
         {
-          name: dbEnum.deviceTypeFeature.name.deviceType,
+          name: dbEnum.feature.name.deviceType,
           required: true,
-          label: dbEnum.deviceTypeFeature.label.deviceType,
+          label: dbEnum.feature.label.deviceType,
           align: 'left'
         },
         {
-          name: dbEnum.deviceTypeFeature.name.cluster,
+          name: dbEnum.feature.name.cluster,
           required: true,
-          label: dbEnum.deviceTypeFeature.label.cluster,
+          label: dbEnum.feature.label.cluster,
           align: 'left'
         },
         {
-          name: dbEnum.deviceTypeFeature.name.clusterSide,
+          name: dbEnum.feature.name.clusterSide,
           required: true,
-          label: dbEnum.deviceTypeFeature.label.clusterSide,
+          label: dbEnum.feature.label.clusterSide,
           align: 'left'
         },
         {
-          name: dbEnum.deviceTypeFeature.name.featureName,
+          name: dbEnum.feature.name.featureName,
           required: true,
-          label: dbEnum.deviceTypeFeature.label.featureName,
+          label: dbEnum.feature.label.featureName,
           align: 'left'
         },
         {
-          name: dbEnum.deviceTypeFeature.name.code,
+          name: dbEnum.feature.name.code,
           required: true,
-          label: dbEnum.deviceTypeFeature.label.code,
+          label: dbEnum.feature.label.code,
           align: 'left'
         },
         {
-          name: dbEnum.deviceTypeFeature.name.conformance,
+          name: dbEnum.feature.name.conformance,
           required: true,
-          label: dbEnum.deviceTypeFeature.label.conformance,
+          label: dbEnum.feature.label.conformance,
           align: 'left'
         },
         {
-          name: dbEnum.deviceTypeFeature.name.bit,
+          name: dbEnum.feature.name.bit,
           required: true,
-          label: dbEnum.deviceTypeFeature.label.bit,
+          label: dbEnum.feature.label.bit,
           align: 'left'
         },
         {
-          name: dbEnum.deviceTypeFeature.name.description,
+          name: dbEnum.feature.name.description,
           required: false,
-          label: dbEnum.deviceTypeFeature.label.description,
+          label: dbEnum.feature.label.description,
           align: 'left'
         }
       ]
