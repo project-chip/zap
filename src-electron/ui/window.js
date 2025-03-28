@@ -67,7 +67,14 @@ export function windowCreateIfNotThere(port) {
  * @param {*} restPort
  * @returns String
  */
-function createQueryString(uiMode, standalone, isNew, filePath, restPort) {
+function createQueryString(
+  uiMode,
+  standalone,
+  isNew,
+  filePath,
+  restPort,
+  zapFileExtensions
+) {
   const params = new Map()
 
   if (!arguments.length) {
@@ -87,6 +94,9 @@ function createQueryString(uiMode, standalone, isNew, filePath, restPort) {
   }
   if (filePath !== undefined) {
     params.set('filePath', filePath)
+  }
+  if (Array.isArray(zapFileExtensions) && zapFileExtensions.length > 0) {
+    params.set('zapFileExtensions', zapFileExtensions)
   }
 
   // Electron/Development mode
@@ -145,7 +155,8 @@ export function windowCreate(port, args) {
     args?.standalone,
     args?.new,
     args?.filePath,
-    httpServer.httpServerPort()
+    httpServer.httpServerPort(),
+    args?.zapFileExtensions
   )
 
   // @ts-ignore

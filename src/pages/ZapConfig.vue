@@ -589,7 +589,8 @@ export default {
       if (this.customConfig === 'select') {
         let data = {
           zclProperties: this.selectedZclPropertiesData,
-          genTemplate: this.selectedZclGenData
+          genTemplate: this.selectedZclGenData,
+          zapFileExtensions: this.zapFileExtensions
         }
 
         this.$router.push({ path: '/' })
@@ -688,6 +689,7 @@ export default {
       this.filePath = result.data.filePath
       this.open = result.data.open
       this.currentZapFilePackages = result.data.zapFilePackages
+      this.zapFileExtensions = result.data.zapFileExtensions
       let currentZapFileZclPackages = []
       let currentTopLevelZapFilePackages = []
       let currentZapFileTemplatePackages = []

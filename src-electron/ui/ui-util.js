@@ -49,11 +49,18 @@ function showErrorMessage(title, err) {
  * @param {*} db
  * @param {*} filePath
  * @param {*} httpPort Server port for the URL that will be constructed.
+ * @param {*} zapFileExtensions Extend a zap file with zapExtension
  */
-function openFileConfiguration(filePath, httpPort, standalone = false) {
+function openFileConfiguration(
+  filePath,
+  httpPort,
+  standalone = false,
+  zapFileExtensions = null
+) {
   window.windowCreate(httpPort, {
     filePath,
-    standalone
+    standalone,
+    zapFileExtensions
   })
 }
 
@@ -145,9 +152,10 @@ function openFileDialogAndReportResult(browserWindow, options) {
  * @param {*} zapFiles
  * @param {*} uiMode
  * @param {*} standalone
+ * @param {*} zapFileExtensions
  * @returns promise of a file open configuration
  */
-function enableUi(port, zapFiles, uiMode, standalone) {
+function enableUi(port, zapFiles, uiMode, standalone, zapFileExtensions) {
   window.initializeElectronUi(port)
   if (zapFiles.length == 0) {
     return openNewConfiguration(port, {
@@ -157,7 +165,7 @@ function enableUi(port, zapFiles, uiMode, standalone) {
     })
   } else {
     return util.executePromisesSequentially(zapFiles, (f) =>
-      openFileConfiguration(f, port)
+      openFileConfiguration(f, port, standalone, zapFileExtensions)
     )
   }
 }

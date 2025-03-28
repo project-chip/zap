@@ -834,7 +834,8 @@ async function generateSingleFile(
       packageMatch: options.packageMatch,
       defaultTemplateFile: options.template,
       upgradeZclPackages: upgradeZclPackages,
-      upgradeTemplatePackages: upgradeTemplatePackages
+      upgradeTemplatePackages: upgradeTemplatePackages,
+      extensionFiles: options.extensionFiles
     })
     sessionId = importResult.sessionId
     output = outputFile(zapFile, outputPattern, index)
@@ -910,11 +911,13 @@ async function startGeneration(argv, options) {
   let zclProperties = argv.zclProperties
   let genResultFile = argv.genResultFile
   let skipPostGeneration = argv.skipPostGeneration
+  let zapFileExtensions = argv.zapFileExtension ? [argv.zapFileExtension] : []
 
   let hrstart = process.hrtime.bigint()
   options.logger(
     `🤖 ZAP generation started:
     🔍 input files: ${zapFiles}
+    🔍 input Extension files: ${zapFileExtensions}
     🔍 output pattern: ${output}
     🔍 using templates: ${templateMetafile}
     🔍 using zcl data: ${zclProperties}
@@ -942,6 +945,10 @@ async function startGeneration(argv, options) {
   let globalTemplatePackageId = ctx.packageId
 
   let files = gatherFiles(zapFiles, { suffix: '.zap', doBlank: true })
+  let extensionFiles = gatherFiles(zapFileExtensions, {
+    suffix: '.zapExtension',
+    doBlank: false
+  })
   if (files.length == 0) {
     options.logger(`    👎 no zap files found in: ${zapFiles}`)
     throw `👎 no zap files found in: ${zapFiles}`
@@ -959,6 +966,11 @@ async function startGeneration(argv, options) {
   // Used to upgrade the zap file during generation. Makes sure packages are
   // updated in .zap file during project creation in Studio.
   options.upgradeZapFile = argv.upgradeZapFile
+  // Used for extending all the .zap files. Users can extend cluster
+  // configurations on an endpoint type id mentioned
+  if (extensionFiles && extensionFiles.length > 0) {
+    options.extensionFiles = extensionFiles
+  }
 
   let nsDuration = process.hrtime.bigint() - hrstart
   options.logger(`🕐 Setup time: ${util.duration(nsDuration)} `)
@@ -1174,8 +1186,18 @@ async function startUpMainInstance(argv, callbacks) {
     let uiEnabled = !argv.noUi
     let zapFiles = argv.zapFiles
     let port = await startNormal(quitFunction, argv)
+    let zapFileExtensions = null
+    if ('zapFileExtension' in argv) {
+      zapFileExtensions = [argv.zapFileExtension]
+    }
     if (uiEnabled && uiFunction != null) {
-      uiFunction(port, zapFiles, argv.uiMode, argv.standalone)
+      uiFunction(
+        port,
+        zapFiles,
+        argv.uiMode,
+        argv.standalone,
+        zapFileExtensions
+      )
     } else {
       if (argv.showUrl) {
         // NOTE: this is parsed/used by Studio as the default landing page.

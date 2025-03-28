@@ -103,6 +103,15 @@ limitations under the License.
       <access op="read" privilege="view"/>
     </attribute>
 
+    <command code="0x00" source="client" name="ReviewFabricRestrictions" isFabricScoped="true" optional="true" response="ReviewFabricRestrictionsResponse">
+      <description>This command signals to the service associated with the device vendor that the fabric administrator would like a review of the current restrictions on the accessing fabric.</description>
+       <access op="invoke" privilege="administer"/>
+      <arg id="0" name="ARL" array="true" type="int16u"/>
+      <mandatoryConform>
+        <feature name="MNGD"/>
+      </mandatoryConform>
+    </command>
+
     <event side="server" code="0x0000" name="AccessControlEntryChanged" priority="info" isFabricSensitive="true" optional="false">
       <description>The cluster SHALL send AccessControlEntryChanged events whenever its ACL attribute data is changed by an Administrator.</description>
       <field id="1" name="AdminNodeID" type="node_id" isNullable="true"/>
