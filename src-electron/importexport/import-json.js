@@ -737,6 +737,7 @@ async function importEvents(
  * @param {*} db
  * @param {*} packages
  * @param {*} zapFilePath
+ * @param {*} sessionId
  */
 async function validatePackagePathDrive(db, packages, zapFilePath, sessionId) {
   // If zap file path is not a windows path, skip check
@@ -756,7 +757,7 @@ async function validatePackagePathDrive(db, packages, zapFilePath, sessionId) {
         "Package path '" +
         packagePath +
         "' is on a different drive than the .zap file path. " +
-        'It is suggested to have all packages on the same drive as the .zap file.'
+        'It is recommended that all packages reside on the same drive as the .zap file.'
       querySessionNotice.setNotification(
         db,
         'WARNING',
