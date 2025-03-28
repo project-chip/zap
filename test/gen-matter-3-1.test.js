@@ -31,6 +31,7 @@ const queryEndpointType = require('../src-electron/db/query-endpoint-type')
 const queryConfig = require('../src-electron/db/query-config')
 const queryDeviceType = require('../src-electron/db/query-device-type')
 const util = require('../src-electron/util/util')
+const testQuery = require('./test-query')
 
 let db
 let templateContext
@@ -626,3 +627,68 @@ test(`Zap file generation: ${path.relative(
     'Endpoint 1, DeviceId: 112, DeviceVersion: 1, Composition: tree'
   )
 })
+
+test(
+  'Import a ZAP file with an extension file and verify merging behavior',
+  async () => {
+    const baseZapFile = path.join(__dirname, 'resource/lighting-matter.zap')
+    const extensionZapFile = path.join(
+      __dirname,
+      'resource/zapExtension1.zapExtension'
+    )
+
+    // Create a blank session
+    let sid = await querySession.createBlankSession(db)
+
+    // Import the base zap file with the extension file
+    await importJs.importDataFromFile(db, baseZapFile, {
+      sessionId: sid,
+      extensionFiles: [extensionZapFile]
+    })
+
+    // Verify the endpoint types and clusters after merging
+    let endpointTypes = await queryEndpointType.selectAllEndpointTypes(db, sid)
+    //expect(endpointTypes.length).toBe(4);
+
+    let matterRootDeviceEndpointIndex = 0
+    for (let i = 0; i < endpointTypes.length; i++) {
+      if (endpointTypes[i].name == 'MA-rootdevice') {
+        matterRootDeviceEndpointIndex = i
+      }
+    }
+
+    let clusters = await testQuery.getAllEndpointTypeClusterState(
+      db,
+      endpointTypes[matterRootDeviceEndpointIndex].id
+    )
+    //expect(clusters.length).toBe(1); // Assuming the extension adds one new cluster
+
+    // Verify attributes in the merged clusters
+    let attributes = await testQuery.getEndpointTypeAttributes(
+      db,
+      endpointTypes[matterRootDeviceEndpointIndex].id
+    )
+
+    //expect(attributes.length).toBe(10); // Assuming the extension adds two new attributes
+    let attributeNames = []
+    for (let i = 0; i < attributes.length; i++) {
+      let attributeName = await dbApi.dbGet(
+        db,
+        'SELECT NAME FROM ATTRIBUTE WHERE ATTRIBUTE_ID = ?',
+        [attributes[i].attributeRef]
+      )
+      if (attributeName && attributeName['NAME']) {
+        attributeNames.push(attributeName['NAME'])
+      }
+    }
+
+    // Verify specific attributes from the extension
+    //const attributeNames = attributes.map((attr) => attr.name);
+    expect(attributeNames).toContain('TagList')
+    expect(attributeNames).toContain('DeviceTypeList')
+
+    // Clean up the session
+    await querySession.deleteSession(db, sid)
+  },
+  testUtil.timeout.medium()
+)

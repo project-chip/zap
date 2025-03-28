@@ -39,6 +39,7 @@ This software is licensed under [Apache 2.0 license](LICENSE.txt).
 
 - [ZAP Template Helpers](docs/helpers.md)
 - [ZAP External Template Helpers](docs/external-helpers.md)
+- [ZAP file Extensions](docs/zap-file-extensions.md)
 - [FAQ/Developer dependencies](docs/faq.md)
 - [Release instructions](docs/release.md)
 - [Development Instructions](docs/development-instructions.md)

@@ -82,6 +82,63 @@ async function executePostImportScript(db, sessionId, scriptFile) {
 }
 
 /**
+ * Merge extension file content into the base zap file content.
+ *
+ * @param {Object} baseState - The state object of the base .zap file.
+ * @param {Object} extensionState - The state object of the extension .zap file.
+ */
+function mergeZapExtension(baseState, extensionState) {
+  if (extensionState.endpointTypes) {
+    extensionState.endpointTypes.forEach((extEndpointType) => {
+      const baseEndpointType = baseState.endpointTypes.find(
+        (et) => et.id === extEndpointType.id
+      )
+
+      if (baseEndpointType) {
+        extEndpointType.clusters.forEach((extCluster) => {
+          const baseCluster = baseEndpointType.clusters.find(
+            (bc) => bc.name === extCluster.name
+          )
+
+          if (baseCluster) {
+            // Merge attributes
+            if (extCluster.attributes) {
+              baseCluster.attributes = baseCluster.attributes || []
+              extCluster.attributes.forEach((extAttr) => {
+                const existingAttr = baseCluster.attributes.find(
+                  (attr) => attr.code === extAttr.code
+                )
+                if (!existingAttr) {
+                  baseCluster.attributes.push(extAttr)
+                }
+              })
+            }
+            // Merge commands
+            if (extCluster.commands) {
+              baseCluster.commands = baseCluster.commands || []
+              extCluster.commands.forEach((extAttr) => {
+                const existingCmd = baseCluster.commands.find(
+                  (attr) => attr.code === extAttr.code
+                )
+                if (!existingCmd) {
+                  baseCluster.commands.push(extAttr)
+                }
+              })
+            }
+          } else {
+            // Add new cluster if it doesn't exist
+            baseEndpointType.clusters.push(extCluster)
+          }
+        })
+      } else {
+        // Add new endpoint type if it doesn't exist
+        baseState.endpointTypes.push(extEndpointType)
+      }
+    })
+  }
+}
+
+/**
  * Writes the data from the file into a new session.
  * NOTE: This function does NOT initialize session packages.
  *
@@ -101,6 +158,16 @@ async function importDataFromFile(
   }
 ) {
   let state = await readDataFromFile(filePath, options.defaultZclMetafile)
+  // Merge extension files into the state
+  if ('extensionFiles' in options && options.extensionFiles.length > 0) {
+    for (const extensionFile of options.extensionFiles) {
+      const extensionState = await readDataFromFile(
+        extensionFile,
+        options.defaultZclMetafile
+      )
+      mergeZapExtension(state, extensionState)
+    }
+  }
 
   state = ff.convertFromFile(state)
   try {

@@ -86,6 +86,12 @@ export function processCommandLineArguments(argv) {
       type: 'string',
       default: null
     })
+    .option('zapExtensionFile', {
+      desc: 'input .zapExtension file to read in to extend the given .zap file.',
+      alias: ['zapExtension', 'inE', 'iE', 'zapFileExtension'],
+      type: 'string',
+      default: null
+    })
     .option('zclProperties', {
       desc: 'zcl.properties file to read in.',
       alias: ['zcl', 'z'],
@@ -271,10 +277,19 @@ For more information, see ${commonUrl.projectUrl}`
     if (typeof arg == 'number') return false
     if (arg.endsWith('.js')) return false
     if (commands.has(arg)) return false
+    if (commands.has('.zapExtension')) return false
     return true
+  })
+  // Collect all zapExtensions
+  let allZapFileExtensions = ret._.filter((arg) => {
+    return arg.endsWith('.zapExtension')
   })
   if (ret.zapFile != null) allFiles.push(ret.zapFile)
   ret.zapFiles = allFiles
+
+  if (allZapFileExtensions && allZapFileExtensions.length > 0) {
+    ret.zapFileExtensions = allZapFileExtensions
+  }
 
   if (ret.tempState) {
     let tempDir = fs.mkdtempSync(`${os.tmpdir()}${path.sep}zap.`)
