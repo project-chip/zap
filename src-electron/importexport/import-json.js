@@ -37,6 +37,7 @@ const queryCommand = require('../db/query-command.js')
 const conformChecker = require('../validation/conformance-checker.js')
 const zclLoader = require('../zcl/zcl-loader.js')
 const generationEngine = require('../generator/generation-engine')
+const path = require('path')
 
 /**
  * Resolves with a promise that imports session key values.
@@ -726,6 +727,46 @@ async function importEvents(
           throw err
         }
       }
+    }
+  }
+}
+
+/**
+ * Checks if any package path is on a different drive than the zap file path (Windows only)
+ * and sets appropriate warnings
+ * @param {*} db
+ * @param {*} packages
+ * @param {*} zapFilePath
+ * @param {*} sessionId
+ */
+async function validatePackagePathDrive(db, packages, zapFilePath, sessionId) {
+  // If zap file path is not a windows path, skip check
+  if (!/^[A-Z]:/i.test(zapFilePath)) {
+    return
+  }
+
+  let zapDrive = zapFilePath.split(':')[0]
+  for (const pkg of packages) {
+    let packagePath = pkg.path
+    if (
+      packagePath &&
+      packagePath.split(':')[0] !== zapDrive &&
+      path.isAbsolute(packagePath)
+    ) {
+      let message =
+        "Package path '" +
+        packagePath +
+        "' is on a different drive than the .zap file path. " +
+        'It is recommended that all packages reside on the same drive as the .zap file.'
+      querySessionNotice.setNotification(
+        db,
+        'WARNING',
+        message,
+        sessionId,
+        1,
+        0
+      )
+      env.logWarning(message)
     }
   }
 }
@@ -1691,6 +1732,14 @@ async function jsonDataLoader(
       pkg.type == dbEnum.packageType.zclProperties ||
       pkg.type == dbEnum.packageType.genTemplatesJson ||
       pkg.type == dbEnum.packageType.zclXmlStandalone
+  )
+
+  // checking if any packages are on a different drive than the zap file (Windows only)
+  await validatePackagePathDrive(
+    db,
+    allPartitionPackages,
+    state.filePath,
+    sessionId
   )
 
   // Loading all packages before custom xml to make sure clusterExtensions are
