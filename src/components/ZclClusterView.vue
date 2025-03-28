@@ -81,29 +81,43 @@ limitations under the License.
               </div>
             </div>
             <div class="col column">
-              <q-tabs
-                v-model="tab"
-                dense
-                align="left"
-                active-bg-color="primary"
-                indicator-color="primary"
-                class="q-pl-lg"
-              >
-                <q-tab name="attributes" label="Attributes" class="v-step-10" />
-                <q-tab
-                  name="reporting"
-                  label="Attribute Reporting"
-                  class="v-step-11"
-                  v-show="enableAttributeReportingTab"
-                />
-                <q-tab name="commands" label="Commands" class="v-step-12" />
-                <q-tab name="events" label="Events" v-show="enableEventsTab" />
-                <q-tab
-                  name="features"
-                  label="Features"
-                  v-show="enableFeaturesTab"
-                />
-              </q-tabs>
+              <div class="row items-center justify-between q-pl-lg">
+                <q-tabs
+                  v-model="tab"
+                  dense
+                  align="left"
+                  active-bg-color="primary"
+                  indicator-color="primary"
+                  class="q-pl-lg"
+                >
+                  <q-tab
+                    name="attributes"
+                    label="Attributes"
+                    class="v-step-10"
+                  />
+                  <q-tab
+                    name="reporting"
+                    label="Attribute Reporting"
+                    class="v-step-11"
+                    v-show="enableAttributeReportingTab"
+                  />
+                  <q-tab name="commands" label="Commands" class="v-step-12" />
+                  <q-tab
+                    name="events"
+                    label="Events"
+                    v-show="enableEventsTab"
+                  />
+                  <q-tab
+                    name="features"
+                    label="Features"
+                    v-show="enableFeaturesTab"
+                  />
+                </q-tabs>
+                <div class="text-right q-pr-lg" v-show="tab == 'features'">
+                  Server FeatureMap Attribute:
+                  <span class="text-bold">{{ featureMapValue }}</span>
+                </div>
+              </div>
               <div
                 class="col column linear-border-wrap"
                 v-show="Object.keys(selectedCluster).length > 0"

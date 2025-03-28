@@ -28,16 +28,6 @@ limitations under the License.
         separator="horizontal"
         id="ZclAttributeManager"
       >
-        <template v-slot:top>
-          <div class="row items-center q-pb-lg q-pt-sm q-pl-sm">
-            <div class="col-auto text-bold q-mr-md">
-              Server FeatureMap Attribute Value:
-            </div>
-            <div class="col-2">
-              <q-input v-model="featureMapValue" dense outlined disable />
-            </div>
-          </div>
-        </template>
         <template v-slot:header="props">
           <q-tr :props="props">
             <q-th v-for="col in props.cols" :key="col.name" :props="props">
