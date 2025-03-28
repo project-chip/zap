@@ -40,6 +40,7 @@ function sessionAttempt(db) {
 
     const query = new URLSearchParams(search)
     let filePath = query.get('filePath')
+    let filePathExtension = query.get('zapFileExtensions')
     if (filePath) {
       if (filePath.includes('.zap')) {
         let data = await fsp.readFile(filePath)
@@ -72,7 +73,8 @@ function sessionAttempt(db) {
             sessions,
             filePath,
             zapFilePackages,
-            open
+            open,
+            filePathExtension
           })
         } else {
           let open = true
