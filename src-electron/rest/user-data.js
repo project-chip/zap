@@ -174,6 +174,25 @@ function httpGetRequiredElements(db) {
 }
 
 /**
+ * HTTP GET: the value of feature map attribute in an endpoint type cluster
+ *
+ * @param {*} db
+ */
+function httpGetFeatureMapValue(db) {
+  return async (request, response) => {
+    let { attributeId, clusterId, endpointTypeId } = request.query
+    let featureMapAttribute = await queryZcl.selectEndpointTypeAttribute(
+      db,
+      endpointTypeId,
+      attributeId,
+      clusterId
+    )
+    let featureMapValue = parseInt(featureMapAttribute.defaultValue) || 0
+    response.status(StatusCodes.OK).json(featureMapValue)
+  }
+}
+
+/**
  * HTTP GET: session get notifications
  *
  * @param {*} db
@@ -1292,6 +1311,10 @@ exports.get = [
   {
     uri: restApi.uri.requiredElements,
     callback: httpGetRequiredElements
+  },
+  {
+    uri: restApi.uri.featureMapValue,
+    callback: httpGetFeatureMapValue
   }
 ]
 

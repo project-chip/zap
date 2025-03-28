@@ -25,17 +25,29 @@ const queryDeviceType = require('../src-electron/db/query-device-type')
 const queryFeature = require('../src-electron/db/query-feature')
 const querySession = require('../src-electron/db/query-session')
 const queryConfig = require('../src-electron/db/query-config')
+const queryZcl = require('../src-electron/db/query-zcl')
 const util = require('../src-electron/util/util')
 const conformEvaluator = require('../src-electron/validation/conformance-expression-evaluator')
 const conformChecker = require('../src-electron/validation/conformance-checker')
+const testQuery = require('./test-query')
+const httpServer = require('../src-electron/server/http-server')
+const restApi = require('../src-shared/rest-api')
+const axios = require('axios')
 
 let db
 let ctx
 let pkgId
+let sid
+let eptId
+let MA_dimmablelight
+let deviceTypeName = 'MA-dimmablelight'
+let axiosInstance = null
 
 beforeAll(async () => {
+  const { port, baseUrl } = testUtil.testServer(__filename)
   env.setDevelopmentEnv()
-  let file = env.sqliteTestFile('query')
+  axiosInstance = axios.create({ baseURL: baseUrl })
+  let file = env.sqliteTestFile('feature')
   db = await dbApi.initDatabaseAndLoadSchema(
     file,
     env.schemaFile(),
@@ -44,62 +56,64 @@ beforeAll(async () => {
   // load Matter packages for testing features
   ctx = await zclLoader.loadZcl(db, env.builtinMatterZclMetafile())
   pkgId = ctx.packageId
+  await httpServer.initHttpServer(db, port)
+
+  let userSession = await querySession.ensureZapUserAndSession(
+    db,
+    'USER',
+    'SESSION'
+  )
+  sid = userSession.sessionId
+
+  await util.ensurePackagesAndPopulateSessionOptions(
+    db,
+    sid,
+    {
+      zcl: env.builtinMatterZclMetafile(),
+      template: testUtil.testTemplate.matter3,
+      partitions: 2
+    },
+    null,
+    pkgId
+  )
+
+  /** test with MA-dimmablelight device type, the only device type 
+      associated with features in current xml file
+      it should have 3 device type features */
+  MA_dimmablelight = await queryDeviceType.selectDeviceTypeByCodeAndName(
+    db,
+    pkgId,
+    257,
+    deviceTypeName
+  )
+  let sessionPartitionInfo =
+    await querySession.selectSessionPartitionInfoFromDeviceType(
+      db,
+      sid,
+      MA_dimmablelight.id
+    )
+  eptId = await queryConfig.insertEndpointType(
+    db,
+    sessionPartitionInfo[0],
+    'testEndpointType',
+    MA_dimmablelight.id,
+    MA_dimmablelight.code,
+    0,
+    true
+  )
 }, testUtil.timeout.medium())
 
-afterAll(() => dbApi.closeDatabase(db), testUtil.timeout.short())
+afterAll(
+  () => httpServer.shutdownHttpServer().then(() => dbApi.closeDatabase(db)),
+  testUtil.timeout.medium()
+)
 
 test(
   'Get device type features by device type ref',
   async () => {
-    let userSession = await querySession.ensureZapUserAndSession(
-      db,
-      'USER',
-      'SESSION'
-    )
-    let sid = userSession.sessionId
-
-    await util.ensurePackagesAndPopulateSessionOptions(
-      db,
-      sid,
-      {
-        zcl: env.builtinMatterZclMetafile(),
-        template: testUtil.testTemplate.matter3,
-        partitions: 2
-      },
-      null,
-      pkgId
-    )
-
-    /** test with MA-dimmablelight device type, the only device type 
-        associated with features in current xml file
-        it should have 3 device type features */
-    let deviceTypeName = 'MA-dimmablelight'
-    let MA_Dimmablelight = await queryDeviceType.selectDeviceTypeByCodeAndName(
-      db,
-      pkgId,
-      257,
-      deviceTypeName
-    )
-    let sessionPartitionInfo =
-      await querySession.selectSessionPartitionInfoFromDeviceType(
-        db,
-        sid,
-        MA_Dimmablelight.id
-      )
-    let eptId = await queryConfig.insertEndpointType(
-      db,
-      sessionPartitionInfo[0],
-      'testEndpointType',
-      MA_Dimmablelight.id,
-      MA_Dimmablelight.code,
-      0,
-      true
-    )
-    expect(eptId).not.toBeNull()
-
     let deviceTypeFeatures = await queryFeature.getFeaturesByDeviceTypeRefs(
       db,
-      [MA_Dimmablelight.id],
+      [MA_dimmablelight.id],
       eptId
     )
     expect(deviceTypeFeatures.length).toBe(3)
@@ -457,4 +471,39 @@ test(
     expect(result.eventsToUpdate.length).toBe(0)
   },
   testUtil.timeout.short()
+)
+
+test(
+  'Test API for getting FeatureMap attribute value',
+  async () => {
+    // get relevant data from the On/Off cluster and pass it to the API
+    let clusters = await testQuery.getAllEndpointTypeClusterState(db, eptId)
+    let onOffCluster = clusters.find(
+      (cluster) => cluster.clusterName == 'On/Off'
+    )
+    let attributes =
+      await queryZcl.selectAttributesByClusterIdAndSideIncludingGlobal(
+        db,
+        onOffCluster.clusterId,
+        [pkgId],
+        onOffCluster.side
+      )
+    let featureMapAttribute = attributes.find(
+      (attribute) => attribute.name == 'FeatureMap' && attribute.code == 65532
+    )
+
+    let resp = await axiosInstance.get(restApi.uri.featureMapValue, {
+      params: {
+        attributeId: featureMapAttribute.id,
+        clusterId: onOffCluster.clusterId,
+        endpointTypeId: eptId
+      }
+    })
+    let featureMapValue = resp.data
+
+    /* The featureMap value should be 1 because, in the Dimmable Light device type, On/Off cluster,
+       only the Lighting (LT) feature on bit 0 is enabled by default. */
+    expect(featureMapValue).toBe(1)
+  },
+  testUtil.timeout.long()
 )

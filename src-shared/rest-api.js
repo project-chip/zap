@@ -37,6 +37,7 @@ const uri = {
   packageNotificationById: '/packageNotificationById/:packageId',
   updateNotificationToSeen: '/updateNotificationToSeen',
   updateBitOfFeatureMapAttribute: '/updateBitOfFeatureMapAttribute',
+  featureMapValue: '/featureMapValue',
   conformDataExists: '/conformDataExists',
   requiredElementWarning: '/requiredElementWarning',
   deleteSessionNotification: '/deleteSessionNotification',

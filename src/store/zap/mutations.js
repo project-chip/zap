@@ -190,6 +190,15 @@ export function updateAttributes(state, attributes) {
 }
 
 /**
+ * Update the default value of feature map attribute in the state.
+ * @param {*} state
+ * @param {*} attributes
+ */
+export function updateFeatureMapValue(state, value) {
+  state.featureMapValue = value
+}
+
+/**
  * Set the endpointTypeAttribute details in the state.
  * @param {*} state
  * @param {*} endpointTypeAttribute
@@ -423,6 +432,15 @@ export function updateCommands(state, commands) {
  */
 export function updateEvents(state, events) {
   state.events = events
+}
+
+/**
+ * Update features in the state
+ * @param {*} state
+ * @param {*} features
+ */
+export function updateFeatures(state, features) {
+  state.features = features
 }
 
 /**

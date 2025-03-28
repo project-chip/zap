@@ -145,6 +145,11 @@ export default {
         }, {})
       }
     },
+    featureMapValue: {
+      get() {
+        return this.$store.state.zap.featureMapValue
+      }
+    },
     enabledDeviceTypeFeatures: {
       get() {
         return this.$store.state.zap.featureView.enabledDeviceTypeFeatures

@@ -38,6 +38,7 @@ async function getAllEndpointTypeClusterState(db, endpointTypeId) {
     db,
     `
 SELECT
+  CLUSTER.CLUSTER_ID,
   CLUSTER.NAME,
   CLUSTER.CODE,
   CLUSTER.MANUFACTURER_CODE,
@@ -55,6 +56,7 @@ WHERE ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_REF = ?`,
 
   let result = rows.map((row) => {
     let obj = {
+      clusterId: row.CLUSTER_ID,
       endpointTypeClusterId: row.ENDPOINT_TYPE_CLUSTER_ID,
       clusterName: row.NAME,
       clusterCode: row.CODE,

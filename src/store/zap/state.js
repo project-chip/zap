@@ -48,6 +48,8 @@ export default function () {
     attributes: [],
     commands: [],
     events: [],
+    features: [],
+    featureMapValue: 0,
     zclDeviceTypes: {},
     endpoints: [],
     genericOptions: {},
