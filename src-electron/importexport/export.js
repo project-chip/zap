@@ -136,7 +136,7 @@ async function exportSessionPackages(db, sessionId, zapProjectFileLocation) {
         pathRelativity = dbEnum.pathRelativity.relativeToZap
       }
     }
-    if (path.isAbsolute(relativePath) && /^[A-Z]:\\/.test(relativePath)) {
+    if (path.isAbsolute(relativePath) && /^[A-Z]:\\/i.test(relativePath)) {
       // Handling Windows path when package is on different drive than zapProjectFile or user home
       pathRelativity = dbEnum.pathRelativity.absolute
     }
