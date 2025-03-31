@@ -82,6 +82,68 @@ async function executePostImportScript(db, sessionId, scriptFile) {
 }
 
 /**
+ * Merge extension file content into the base zap file content.
+ *
+ * @param {Object} baseState - The state object of the base .zap file.
+ * @param {Object} extensionState - The state object of the extension .zap file.
+ */
+function mergeZapExtension(baseState, extensionState) {
+  if (extensionState.endpoints) {
+    extensionState.endpoints.forEach((extEndpoint) => {
+      // Finding an endpoint using endpoint identifier linked to extension endpoint Id
+      const baseEndpoint = baseState.endpoints.find(
+        (et) => et.endpointId === extEndpoint.id
+      )
+      if (!baseEndpoint) {
+        return
+      }
+
+      // Finding the appropriate endpointType in the .zap file/base State
+      const baseEndpointType =
+        baseState.endpointTypes[baseEndpoint.endpointTypeIndex]
+
+      if (baseEndpointType) {
+        extEndpoint.clusters.forEach((extCluster) => {
+          const baseCluster = baseEndpointType.clusters.find(
+            (bc) => bc.code === extCluster.code
+          )
+
+          if (baseCluster) {
+            // Merge attributes
+            if (extCluster.attributes) {
+              baseCluster.attributes = baseCluster.attributes || []
+              extCluster.attributes.forEach((extAttr) => {
+                const existingAttr = baseCluster.attributes.find(
+                  (attr) => attr.code === extAttr.code
+                )
+                if (!existingAttr) {
+                  baseCluster.attributes.push(extAttr)
+                }
+              })
+            }
+            // Merge commands
+            if (extCluster.commands) {
+              baseCluster.commands = baseCluster.commands || []
+              extCluster.commands.forEach((extAttr) => {
+                const existingCmd = baseCluster.commands.find(
+                  (attr) => attr.code === extAttr.code
+                )
+                if (!existingCmd) {
+                  baseCluster.commands.push(extAttr)
+                }
+              })
+            }
+          } else {
+            // Add new cluster if it doesn't exist
+            baseEndpointType.clusters.push(extCluster)
+          }
+        })
+      }
+    })
+  }
+}
+
+/**
  * Writes the data from the file into a new session.
  * NOTE: This function does NOT initialize session packages.
  *
@@ -101,6 +163,20 @@ async function importDataFromFile(
   }
 ) {
   let state = await readDataFromFile(filePath, options.defaultZclMetafile)
+  // Merge extension files into the state
+  if (
+    options.extensionFiles &&
+    Array.isArray(options.extensionFiles) &&
+    options.extensionFiles.length > 0
+  ) {
+    for (const extensionFile of options.extensionFiles) {
+      const extensionState = await readDataFromFile(
+        extensionFile,
+        options.defaultZclMetafile
+      )
+      mergeZapExtension(state, extensionState)
+    }
+  }
 
   state = ff.convertFromFile(state)
   try {

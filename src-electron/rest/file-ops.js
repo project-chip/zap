@@ -45,6 +45,8 @@ function httpPostFileOpen(db) {
     let search = req.body.search
     const query = new URLSearchParams(search)
     let file = query.get('filePath')
+    // Gather .zapExtension files
+    let zapFileExtensions = query.get('zapFileExtensions')
     if (file) {
       zapFilePath = file
       ideProjectPath = query.get('studioProject')
@@ -76,10 +78,15 @@ function httpPostFileOpen(db) {
           dbEnum.sessionKey.ideProjectPath,
           ideProjectPath
         )
-
-        let importResult = await importJs.importDataFromFile(db, zapFilePath, {
-          sessionId: req.zapSessionId
-        })
+        let options = { sessionId: req.zapSessionId }
+        if (zapFileExtensions) {
+          options.extensionFiles = [zapFileExtensions]
+        }
+        let importResult = await importJs.importDataFromFile(
+          db,
+          zapFilePath,
+          options
+        )
 
         let response = {
           sessionId: importResult.sessionId,

@@ -31,6 +31,7 @@ const queryEndpointType = require('../src-electron/db/query-endpoint-type')
 const queryConfig = require('../src-electron/db/query-config')
 const queryDeviceType = require('../src-electron/db/query-device-type')
 const util = require('../src-electron/util/util')
+const testQuery = require('./test-query')
 
 let db
 let templateContext
@@ -626,3 +627,91 @@ test(`Zap file generation: ${path.relative(
     'Endpoint 1, DeviceId: 112, DeviceVersion: 1, Composition: tree'
   )
 })
+
+test(
+  'Import a ZAP file with an extension file and verify merging behavior',
+  async () => {
+    const baseZapFile = path.join(__dirname, 'resource/lighting-matter.zap')
+    const extensionZapFile = path.join(
+      __dirname,
+      'resource/zapExtension1.zapExtension'
+    )
+
+    // Create a blank session
+    let sid = await querySession.createBlankSession(db)
+
+    // Import the base zap file with the extension file
+    await importJs.importDataFromFile(db, baseZapFile, {
+      sessionId: sid,
+      extensionFiles: [extensionZapFile]
+    })
+
+    // Verify the endpoint types and clusters after merging
+    let endpointTypes = await queryEndpointType.selectAllEndpointTypes(db, sid)
+
+    let matterRootDeviceEndpointIndex = 0
+    for (let i = 0; i < endpointTypes.length; i++) {
+      if (endpointTypes[i].name == 'MA-rootdevice') {
+        matterRootDeviceEndpointIndex = i
+      }
+    }
+
+    // Test entire cluster added to an endpointTypeId. See Identify in zapExtension1.zapExtension
+    let clusters = await testQuery.getAllEndpointTypeClusterState(
+      db,
+      endpointTypes[matterRootDeviceEndpointIndex].id
+    )
+    let clusterNames = clusters.map((cluster) => cluster.clusterName)
+    expect(clusterNames).toContain('Identify')
+    expect(clusterNames).toContain('Access Control')
+
+    // Verify attributes in the merged clusters
+    let attributes = await testQuery.getEndpointTypeAttributes(
+      db,
+      endpointTypes[matterRootDeviceEndpointIndex].id
+    )
+    // Counting the additional attributes added by extensions
+    expect(attributes.length).toBe(129)
+    let attributeNames = []
+    for (let i = 0; i < attributes.length; i++) {
+      let attributeName = await dbApi.dbGet(
+        db,
+        'SELECT NAME FROM ATTRIBUTE WHERE ATTRIBUTE_ID = ?',
+        [attributes[i].attributeRef]
+      )
+      if (attributeName && attributeName['NAME']) {
+        attributeNames.push(attributeName['NAME'])
+      }
+    }
+
+    // Verify specific attributes from the extension
+    expect(attributeNames).toContain('TagList')
+    expect(attributeNames).toContain('DeviceTypeList')
+
+    let commands = await testQuery.getEndpointTypeCommands(
+      db,
+      endpointTypes[matterRootDeviceEndpointIndex].id
+    )
+
+    // Counting the additional commands added by extensions
+    expect(commands.length).toBe(48)
+    let commandNames = []
+    for (let i = 0; i < commands.length; i++) {
+      let commandName = await dbApi.dbGet(
+        db,
+        'SELECT NAME FROM COMMAND WHERE COMMAND_ID = ?',
+        [commands[i].commandID]
+      )
+      if (commandName && commandName['NAME']) {
+        commandNames.push(commandName['NAME'])
+      }
+    }
+    console.log('BHarat test commands: ' + JSON.stringify(commandNames))
+    // Verify specific commands from the extension
+    expect(commandNames).toContain('ReviewFabricRestrictions')
+
+    // Clean up the session
+    await querySession.deleteSession(db, sid)
+  },
+  testUtil.timeout.medium()
+)

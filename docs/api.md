@@ -16929,11 +16929,11 @@ Utility module for ZAP UI
 
 * [JS API: Utility module for ZAP UI](#module_JS API_ Utility module for ZAP UI)
     * [~showErrorMessage(title, err)](#module_JS API_ Utility module for ZAP UI..showErrorMessage)
-    * [~openFileConfiguration(db, filePath, httpPort)](#module_JS API_ Utility module for ZAP UI..openFileConfiguration)
+    * [~openFileConfiguration(db, filePath, httpPort, zapFileExtensions)](#module_JS API_ Utility module for ZAP UI..openFileConfiguration)
     * [~openNewConfiguration(httpPort, options:)](#module_JS API_ Utility module for ZAP UI..openNewConfiguration)
     * [~toggleDirtyFlag(browserWindow, dirty)](#module_JS API_ Utility module for ZAP UI..toggleDirtyFlag)
     * [~openFileDialogAndReportResult(browserWindow, options)](#module_JS API_ Utility module for ZAP UI..openFileDialogAndReportResult)
-    * [~enableUi(port, zapFiles, uiMode, standalone)](#module_JS API_ Utility module for ZAP UI..enableUi) ⇒
+    * [~enableUi(port, zapFiles, uiMode, standalone, zapFileExtensions)](#module_JS API_ Utility module for ZAP UI..enableUi) ⇒
 
 <a name="module_JS API_ Utility module for ZAP UI..showErrorMessage"></a>
 
@@ -16949,7 +16949,7 @@ Simple dialog to show error messages from electron renderer scope.
 
 <a name="module_JS API_ Utility module for ZAP UI..openFileConfiguration"></a>
 
-### JS API: Utility module for ZAP UI~openFileConfiguration(db, filePath, httpPort)
+### JS API: Utility module for ZAP UI~openFileConfiguration(db, filePath, httpPort, zapFileExtensions)
 Process a single file, parsing it in as JSON and then possibly opening
 a new window if all is good.
 
@@ -16960,6 +16960,7 @@ a new window if all is good.
 | db | <code>\*</code> |  |
 | filePath | <code>\*</code> |  |
 | httpPort | <code>\*</code> | Server port for the URL that will be constructed. |
+| zapFileExtensions | <code>\*</code> | Extend a zap file with zapExtension |
 
 <a name="module_JS API_ Utility module for ZAP UI..openNewConfiguration"></a>
 
@@ -17001,7 +17002,7 @@ reports result back through the API.
 
 <a name="module_JS API_ Utility module for ZAP UI..enableUi"></a>
 
-### JS API: Utility module for ZAP UI~enableUi(port, zapFiles, uiMode, standalone) ⇒
+### JS API: Utility module for ZAP UI~enableUi(port, zapFiles, uiMode, standalone, zapFileExtensions) ⇒
 Enable the UI open using the given arguments.
 
 **Kind**: inner method of [<code>JS API: Utility module for ZAP UI</code>](#module_JS API_ Utility module for ZAP UI)  
@@ -17013,6 +17014,7 @@ Enable the UI open using the given arguments.
 | zapFiles | <code>\*</code> | 
 | uiMode | <code>\*</code> | 
 | standalone | <code>\*</code> | 
+| zapFileExtensions | <code>\*</code> | 
 
 <a name="module_JS API_ Window module for ZAP UI"></a>
 
