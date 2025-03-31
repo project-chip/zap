@@ -3394,11 +3394,13 @@ This module provides queries for device types.
     * [~selectDeviceTypeClusterByDeviceTypeClusterId(db, deviceTypeClusterId)](#module_DB API_ device type database access..selectDeviceTypeClusterByDeviceTypeClusterId) ⇒
     * [~selectDeviceTypeAttributesByDeviceTypeRef(db, deviceTypeRef)](#module_DB API_ device type database access..selectDeviceTypeAttributesByDeviceTypeRef) ⇒
     * [~selectDeviceTypeCommandsByDeviceTypeRef(db, deviceTypeRef)](#module_DB API_ device type database access..selectDeviceTypeCommandsByDeviceTypeRef) ⇒
-    * [~updateClusterReferencesForDeviceTypeClusters(db)](#module_DB API_ device type database access..updateClusterReferencesForDeviceTypeClusters) ⇒
-    * [~updateAttributeReferencesForDeviceTypeReferences(db)](#module_DB API_ device type database access..updateAttributeReferencesForDeviceTypeReferences) ⇒
-    * [~updateCommandReferencesForDeviceTypeReferences(db)](#module_DB API_ device type database access..updateCommandReferencesForDeviceTypeReferences) ⇒
-    * [~updateFeatureReferencesForDeviceTypeReferences(db)](#module_DB API_ device type database access..updateFeatureReferencesForDeviceTypeReferences) ⇒
+    * [~updateClusterReferencesForDeviceTypeClusters(db, packageId, sessionPackages)](#module_DB API_ device type database access..updateClusterReferencesForDeviceTypeClusters) ⇒
+    * [~updateAttributeReferencesForDeviceTypeReferences(db, packageId, sessionPackages)](#module_DB API_ device type database access..updateAttributeReferencesForDeviceTypeReferences) ⇒
+    * [~updateCommandReferencesForDeviceTypeReferences(db, packageId, sessionPackages)](#module_DB API_ device type database access..updateCommandReferencesForDeviceTypeReferences) ⇒
+    * [~updateFeatureReferencesForDeviceTypeReferences(db, packageId)](#module_DB API_ device type database access..updateFeatureReferencesForDeviceTypeReferences) ⇒
     * [~updateDeviceTypeEntityReferences(db)](#module_DB API_ device type database access..updateDeviceTypeEntityReferences) ⇒
+    * [~updateDeviceTypeReferencesForCustomXml(db, packageId, sessionPackages)](#module_DB API_ device type database access..updateDeviceTypeReferencesForCustomXml) ⇒
+    * [~deleteUnlinkedDeviceTypeClusters(db, packageId)](#module_DB API_ device type database access..deleteUnlinkedDeviceTypeClusters)
     * [~selectDeviceTypesWithCompositionByEndpointTypeId(db, endpointTypeId)](#module_DB API_ device type database access..selectDeviceTypesWithCompositionByEndpointTypeId) ⇒ <code>Promise.&lt;Array&gt;</code>
     * [~selectDeviceTypesByEndpointTypeId(db, endpointTypeId)](#module_DB API_ device type database access..selectDeviceTypesByEndpointTypeId) ⇒
     * [~selectDeviceTypeFeaturesByEndpointTypeIdAndClusterId(db, endpointTypeId, clusterId)](#module_DB API_ device type database access..selectDeviceTypeFeaturesByEndpointTypeIdAndClusterId) ⇒
@@ -3513,48 +3515,54 @@ Get all device type commands from a given device type ID.
 
 <a name="module_DB API_ device type database access..updateClusterReferencesForDeviceTypeClusters"></a>
 
-### DB API: device type database access~updateClusterReferencesForDeviceTypeClusters(db) ⇒
+### DB API: device type database access~updateClusterReferencesForDeviceTypeClusters(db, packageId, sessionPackages) ⇒
 After loading up device type cluster table with the names,
-this method links the refererence to actual cluster reference.
+this method links the reference to actual cluster reference.
 
 **Kind**: inner method of [<code>DB API: device type database access</code>](#module_DB API_ device type database access)  
 **Returns**: promise of completion  
 
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| db | <code>\*</code> |  |  |
+| packageId | <code>\*</code> |  |  |
+| sessionPackages | <code>\*</code> | <code></code> | (if processing custom xml file it might need to reference clusters from primary zcl or other custom xml) |
 
 <a name="module_DB API_ device type database access..updateAttributeReferencesForDeviceTypeReferences"></a>
 
-### DB API: device type database access~updateAttributeReferencesForDeviceTypeReferences(db) ⇒
+### DB API: device type database access~updateAttributeReferencesForDeviceTypeReferences(db, packageId, sessionPackages) ⇒
 After loading up device type attribute table with the names,
-this method links the refererence to actual attribute reference.
+this method links the references to actual attribute reference.
 
 **Kind**: inner method of [<code>DB API: device type database access</code>](#module_DB API_ device type database access)  
 **Returns**: promise of completion  
 
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| db | <code>\*</code> |  |  |
+| packageId | <code>\*</code> |  |  |
+| sessionPackages | <code>\*</code> | <code></code> | (if processing custom xml file it might need to reference attributes from primary zcl or other custom xml) |
 
 <a name="module_DB API_ device type database access..updateCommandReferencesForDeviceTypeReferences"></a>
 
-### DB API: device type database access~updateCommandReferencesForDeviceTypeReferences(db) ⇒
+### DB API: device type database access~updateCommandReferencesForDeviceTypeReferences(db, packageId, sessionPackages) ⇒
 After loading up device type command table with the names,
-this method links the refererence to actual command reference.
+this method links the reference to actual command reference.
 
 **Kind**: inner method of [<code>DB API: device type database access</code>](#module_DB API_ device type database access)  
 **Returns**: promise of completion  
 
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| db | <code>\*</code> |  |  |
+| packageId | <code>\*</code> |  |  |
+| sessionPackages | <code>\*</code> | <code></code> | (if processing custom xml file it might need to reference commands from primary zcl or other custom xml) |
 
 <a name="module_DB API_ device type database access..updateFeatureReferencesForDeviceTypeReferences"></a>
 
-### DB API: device type database access~updateFeatureReferencesForDeviceTypeReferences(db) ⇒
+### DB API: device type database access~updateFeatureReferencesForDeviceTypeReferences(db, packageId) ⇒
 After loading up device type feature table with the names,
-this method links the refererence to actual feature reference.
+this method links the reference to actual feature reference.
 
 **Kind**: inner method of [<code>DB API: device type database access</code>](#module_DB API_ device type database access)  
 **Returns**: promise of completion  
@@ -3562,6 +3570,7 @@ this method links the refererence to actual feature reference.
 | Param | Type |
 | --- | --- |
 | db | <code>\*</code> | 
+| packageId | <code>\*</code> | 
 
 <a name="module_DB API_ device type database access..updateDeviceTypeEntityReferences"></a>
 
@@ -3579,6 +3588,36 @@ we have to link the foreign keys.
 | Param | Type |
 | --- | --- |
 | db | <code>\*</code> | 
+
+<a name="module_DB API_ device type database access..updateDeviceTypeReferencesForCustomXml"></a>
+
+### DB API: device type database access~updateDeviceTypeReferencesForCustomXml(db, packageId, sessionPackages) ⇒
+Device types defined in custom xml files might refer to cluster, commands and attributes
+from the primary zcl file and other custom xml in the session.
+
+This method returns the promise of linking the device type entities to the correct
+foreign keys in such cases.
+
+**Kind**: inner method of [<code>DB API: device type database access</code>](#module_DB API_ device type database access)  
+**Returns**: promise of completed linking  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| sessionPackages | <code>\*</code> | 
+
+<a name="module_DB API_ device type database access..deleteUnlinkedDeviceTypeClusters"></a>
+
+### DB API: device type database access~deleteUnlinkedDeviceTypeClusters(db, packageId)
+This method deletes all device type clusters that are not linked to any cluster.
+
+**Kind**: inner method of [<code>DB API: device type database access</code>](#module_DB API_ device type database access)  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| packageId | <code>\*</code> | 
 
 <a name="module_DB API_ device type database access..selectDeviceTypesWithCompositionByEndpointTypeId"></a>
 
@@ -3856,6 +3895,8 @@ This module provides queries for ZCL loading
     * [~getEndpointCompositionIdByCode(db, deviceType)](#module_DB API_ zcl loading queries..getEndpointCompositionIdByCode) ⇒ <code>Promise.&lt;(number\|null)&gt;</code>
     * [~insertDeviceComposition(db, deviceType, endpointCompositionId)](#module_DB API_ zcl loading queries..insertDeviceComposition) ⇒ <code>Promise</code>
     * [~insertDeviceTypes(db, packageId, data)](#module_DB API_ zcl loading queries..insertDeviceTypes) ⇒
+    * [~reloadDeviceTypes(db, packageId, data, sessionPackages)](#module_DB API_ zcl loading queries..reloadDeviceTypes)
+    * [~isDeviceTypeClusterInsertRequired(db, deviceTypeId, clusterName, packageId, sessionPackages)](#module_DB API_ zcl loading queries..isDeviceTypeClusterInsertRequired) ⇒ <code>Promise.&lt;boolean&gt;</code>
     * [~insertDeviceTypeFeatures(db, dtClusterRefDataPairs)](#module_DB API_ zcl loading queries..insertDeviceTypeFeatures)
     * [~insertDeviceTypeAttributes(db, dtClusterRefDataPairs)](#module_DB API_ zcl loading queries..insertDeviceTypeAttributes)
     * [~insertDeviceTypeCommands(db, dtClusterRefDataPairs)](#module_DB API_ zcl loading queries..insertDeviceTypeCommands)
@@ -4259,6 +4300,38 @@ Inserts device types into the database.
 | db | <code>\*</code> |  |
 | packageId | <code>\*</code> |  |
 | data | <code>\*</code> | an array of objects that must contain: domain, code, profileId, name, description |
+
+<a name="module_DB API_ zcl loading queries..reloadDeviceTypes"></a>
+
+### DB API: zcl loading queries~reloadDeviceTypes(db, packageId, data, sessionPackages)
+Reloads device types into the database.
+This function is responsible for inserting new device type entities as required
+when a previously loaded custom xml file (containing a device type) is added to a session.
+
+**Kind**: inner method of [<code>DB API: zcl loading queries</code>](#module_DB API_ zcl loading queries)  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| data | <code>\*</code> | 
+| sessionPackages | <code>\*</code> | 
+
+<a name="module_DB API_ zcl loading queries..isDeviceTypeClusterInsertRequired"></a>
+
+### DB API: zcl loading queries~isDeviceTypeClusterInsertRequired(db, deviceTypeId, clusterName, packageId, sessionPackages) ⇒ <code>Promise.&lt;boolean&gt;</code>
+Checks if a device type cluster insert is required on device type reload.
+
+**Kind**: inner method of [<code>DB API: zcl loading queries</code>](#module_DB API_ zcl loading queries)  
+**Returns**: <code>Promise.&lt;boolean&gt;</code> - - Returns true if the insert is required, false otherwise.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| deviceTypeId | <code>\*</code> | 
+| clusterName | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| sessionPackages | <code>\*</code> | 
 
 <a name="module_DB API_ zcl loading queries..insertDeviceTypeFeatures"></a>
 
@@ -20505,6 +20578,7 @@ This module provides the APIs for dotdot Loading
     * [~processStructItems(db, filePath, packageIds, data)](#module_Loader API_ Loader APIs..processStructItems) ⇒
     * [~prepareDeviceType(deviceType)](#module_Loader API_ Loader APIs..prepareDeviceType) ⇒ <code>Object</code>
     * [~processDeviceTypes(db, filePath, packageId, data, context)](#module_Loader API_ Loader APIs..processDeviceTypes) ⇒ <code>Promise</code>
+    * [~processReloadDeviceTypes()](#module_Loader API_ Loader APIs..processReloadDeviceTypes) ⇒ <code>Promise</code>
     * [~processDataTypes(db, filePath, packageId, knownPackages, toplevel)](#module_Loader API_ Loader APIs..processDataTypes) ⇒
     * [~processAtomicTypes(db, filePath, packageId, knownPackages, toplevel)](#module_Loader API_ Loader APIs..processAtomicTypes) ⇒
     * [~processNonAtomicTypes(db, filePath, packageId, knownPackages, toplevel, featureClusters)](#module_Loader API_ Loader APIs..processNonAtomicTypes) ⇒
@@ -21761,6 +21835,14 @@ Finally, it inserts all prepared device types into the database.
 | data | <code>Array</code> | The array of device types to be processed. |
 | context | <code>\*</code> | Additional context that might be required for processing. |
 
+<a name="module_Loader API_ Loader APIs..processReloadDeviceTypes"></a>
+
+### Loader API: Loader APIs~processReloadDeviceTypes() ⇒ <code>Promise</code>
+Processes and reloads device type entities in the database.
+This function is called when a custom xml with device types is reloaded.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: <code>Promise</code> - A promise that resolves after all device types have been reloaded.  
 <a name="module_Loader API_ Loader APIs..processDataTypes"></a>
 
 ### Loader API: Loader APIs~processDataTypes(db, filePath, packageId, knownPackages, toplevel) ⇒
@@ -22357,6 +22439,7 @@ This module provides the APIs for new data model loading
     * [~processStructItems(db, filePath, packageIds, data)](#module_Loader API_ Loader APIs..processStructItems) ⇒
     * [~prepareDeviceType(deviceType)](#module_Loader API_ Loader APIs..prepareDeviceType) ⇒ <code>Object</code>
     * [~processDeviceTypes(db, filePath, packageId, data, context)](#module_Loader API_ Loader APIs..processDeviceTypes) ⇒ <code>Promise</code>
+    * [~processReloadDeviceTypes()](#module_Loader API_ Loader APIs..processReloadDeviceTypes) ⇒ <code>Promise</code>
     * [~processDataTypes(db, filePath, packageId, knownPackages, toplevel)](#module_Loader API_ Loader APIs..processDataTypes) ⇒
     * [~processAtomicTypes(db, filePath, packageId, knownPackages, toplevel)](#module_Loader API_ Loader APIs..processAtomicTypes) ⇒
     * [~processNonAtomicTypes(db, filePath, packageId, knownPackages, toplevel, featureClusters)](#module_Loader API_ Loader APIs..processNonAtomicTypes) ⇒
@@ -23613,6 +23696,14 @@ Finally, it inserts all prepared device types into the database.
 | data | <code>Array</code> | The array of device types to be processed. |
 | context | <code>\*</code> | Additional context that might be required for processing. |
 
+<a name="module_Loader API_ Loader APIs..processReloadDeviceTypes"></a>
+
+### Loader API: Loader APIs~processReloadDeviceTypes() ⇒ <code>Promise</code>
+Processes and reloads device type entities in the database.
+This function is called when a custom xml with device types is reloaded.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: <code>Promise</code> - A promise that resolves after all device types have been reloaded.  
 <a name="module_Loader API_ Loader APIs..processDataTypes"></a>
 
 ### Loader API: Loader APIs~processDataTypes(db, filePath, packageId, knownPackages, toplevel) ⇒
@@ -24209,6 +24300,7 @@ This module provides the APIs for ZCL/Data-Model loading.
     * [~processStructItems(db, filePath, packageIds, data)](#module_Loader API_ Loader APIs..processStructItems) ⇒
     * [~prepareDeviceType(deviceType)](#module_Loader API_ Loader APIs..prepareDeviceType) ⇒ <code>Object</code>
     * [~processDeviceTypes(db, filePath, packageId, data, context)](#module_Loader API_ Loader APIs..processDeviceTypes) ⇒ <code>Promise</code>
+    * [~processReloadDeviceTypes()](#module_Loader API_ Loader APIs..processReloadDeviceTypes) ⇒ <code>Promise</code>
     * [~processDataTypes(db, filePath, packageId, knownPackages, toplevel)](#module_Loader API_ Loader APIs..processDataTypes) ⇒
     * [~processAtomicTypes(db, filePath, packageId, knownPackages, toplevel)](#module_Loader API_ Loader APIs..processAtomicTypes) ⇒
     * [~processNonAtomicTypes(db, filePath, packageId, knownPackages, toplevel, featureClusters)](#module_Loader API_ Loader APIs..processNonAtomicTypes) ⇒
@@ -25465,6 +25557,14 @@ Finally, it inserts all prepared device types into the database.
 | data | <code>Array</code> | The array of device types to be processed. |
 | context | <code>\*</code> | Additional context that might be required for processing. |
 
+<a name="module_Loader API_ Loader APIs..processReloadDeviceTypes"></a>
+
+### Loader API: Loader APIs~processReloadDeviceTypes() ⇒ <code>Promise</code>
+Processes and reloads device type entities in the database.
+This function is called when a custom xml with device types is reloaded.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: <code>Promise</code> - A promise that resolves after all device types have been reloaded.  
 <a name="module_Loader API_ Loader APIs..processDataTypes"></a>
 
 ### Loader API: Loader APIs~processDataTypes(db, filePath, packageId, knownPackages, toplevel) ⇒
@@ -26061,6 +26161,7 @@ This module provides the APIs for for common functionality related to loading.
     * [~processStructItems(db, filePath, packageIds, data)](#module_Loader API_ Loader APIs..processStructItems) ⇒
     * [~prepareDeviceType(deviceType)](#module_Loader API_ Loader APIs..prepareDeviceType) ⇒ <code>Object</code>
     * [~processDeviceTypes(db, filePath, packageId, data, context)](#module_Loader API_ Loader APIs..processDeviceTypes) ⇒ <code>Promise</code>
+    * [~processReloadDeviceTypes()](#module_Loader API_ Loader APIs..processReloadDeviceTypes) ⇒ <code>Promise</code>
     * [~processDataTypes(db, filePath, packageId, knownPackages, toplevel)](#module_Loader API_ Loader APIs..processDataTypes) ⇒
     * [~processAtomicTypes(db, filePath, packageId, knownPackages, toplevel)](#module_Loader API_ Loader APIs..processAtomicTypes) ⇒
     * [~processNonAtomicTypes(db, filePath, packageId, knownPackages, toplevel, featureClusters)](#module_Loader API_ Loader APIs..processNonAtomicTypes) ⇒
@@ -27317,6 +27418,14 @@ Finally, it inserts all prepared device types into the database.
 | data | <code>Array</code> | The array of device types to be processed. |
 | context | <code>\*</code> | Additional context that might be required for processing. |
 
+<a name="module_Loader API_ Loader APIs..processReloadDeviceTypes"></a>
+
+### Loader API: Loader APIs~processReloadDeviceTypes() ⇒ <code>Promise</code>
+Processes and reloads device type entities in the database.
+This function is called when a custom xml with device types is reloaded.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: <code>Promise</code> - A promise that resolves after all device types have been reloaded.  
 <a name="module_Loader API_ Loader APIs..processDataTypes"></a>
 
 ### Loader API: Loader APIs~processDataTypes(db, filePath, packageId, knownPackages, toplevel) ⇒

@@ -439,13 +439,9 @@ async function importClusters(
   specMessageIndent
 ) {
   let relevantZclPackageIds = allZclPackageIds
-  // Get all custom xml packages since they will be relevant packages as well.
   let packageInfo = await queryPackage.getPackagesByPackageIds(
     db,
     allZclPackageIds
-  )
-  let customPackageInfo = packageInfo.filter(
-    (pkg) => pkg.type === dbEnum.packageType.zclXmlStandalone
   )
   let endpointTypeDeviceTypesInfo =
     await queryDeviceType.selectDeviceTypesByEndpointTypeId(db, endpointTypeId)
@@ -457,12 +453,28 @@ async function importClusters(
       db,
       deviceTypeRefs[0]
     )
-    relevantZclPackageIds = [deviceTypeInfo.packageRef]
-
-    // If custom packages exist then account for them during import.
-    if (customPackageInfo && customPackageInfo.length > 0) {
-      let customPackageInfoIds = customPackageInfo.map((cp) => cp.id)
-      relevantZclPackageIds = relevantZclPackageIds.concat(customPackageInfoIds)
+    let deviceTypePackageInfo = packageInfo.find(
+      (pkg) => pkg.id == deviceTypeInfo.packageRef
+    )
+    if (
+      deviceTypePackageInfo &&
+      deviceTypePackageInfo.type === dbEnum.packageType.zclXmlStandalone
+    ) {
+      // If the device type comes from a custom xml, then we pass in all zcl and custom xml packages
+      relevantZclPackageIds = packageInfo
+        .filter(
+          (pkg) =>
+            pkg.type === dbEnum.packageType.zclXmlStandalone ||
+            pkg.type === dbEnum.packageType.zclProperties
+        )
+        .map((pkg) => pkg.id)
+    } else {
+      // If the device types comes from the zcl file, then we pass in that zcl file and all custom xml packages
+      relevantZclPackageIds = [deviceTypeInfo.packageRef]
+      let customPackageIds = packageInfo
+        .filter((pkg) => pkg.type == dbEnum.packageType.zclXmlStandalone)
+        .map((pkg) => pkg.id)
+      relevantZclPackageIds = relevantZclPackageIds.concat(customPackageIds)
     }
   }
   let conformanceWarnings = ''
