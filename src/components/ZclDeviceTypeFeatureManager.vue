@@ -28,17 +28,46 @@ limitations under the License.
         <q-table
           class="my-striped-table"
           :rows="deviceTypeFeatures"
-          :columns="columns"
+          :columns="filteredColumns"
           flat
           v-model:pagination="pagination"
           separator="horizontal"
           id="ZclDeviceTypeFeatureManager"
         >
           <template v-slot:body="props">
-            <q-tr :props="props">
+            <q-tr :props="props" class="table_body attribute_table_body">
+              <q-td
+                v-if="hasFeatureWithDisabledCluster"
+                key="status"
+                :props="props"
+                class="q-px-none"
+                style="width: 30px; max-width: 30px"
+              >
+                <q-icon
+                  v-show="isClusterDisabled(props.row)"
+                  name="warning"
+                  class="text-amber"
+                  style="font-size: 1.5rem"
+                />
+                <q-tooltip
+                  v-if="isClusterDisabled(props.row)"
+                  anchor="top middle"
+                  self="bottom middle"
+                  :offset="[10, 10]"
+                >
+                  <div
+                    v-for="(line, index) in generateDisabledClusterWarning(
+                      props.row
+                    )"
+                    :key="index"
+                  >
+                    {{ line }}
+                  </div>
+                </q-tooltip>
+              </q-td>
               <q-td key="enabled" :props="props" auto-width>
                 <q-toggle
-                  :disable="isToggleDisabled(props.row.conformance)"
+                  :disable="isToggleDisabled(props.row)"
                   class="q-mt-xs v-step-14"
                   v-model="enabledDeviceTypeFeatures"
                   :val="
@@ -208,9 +237,13 @@ export default {
         return 'none'
       }
     },
-    isToggleDisabled(conformance) {
-      // disable toggling unsupported features
-      return conformance == 'X' || conformance == 'D'
+    isToggleDisabled(feature) {
+      // disable toggling features with unsupported conformance and disabled clusters
+      return (
+        feature.conformance == 'X' ||
+        feature.conformance == 'D' ||
+        this.isClusterDisabled(feature)
+      )
     },
     onToggleDeviceTypeFeature(featureData, inclusionList) {
       let featureMap = this.buildFeatureMap(featureData, inclusionList)
@@ -409,6 +442,34 @@ export default {
           featureData.featureId
         )
       )
+    },
+    isClusterDisabled(feature) {
+      return this.getMissingClusterSide(feature).length > 0
+    },
+    getMissingClusterSide(feature) {
+      let sides = []
+      let clusterId = feature.clusterRef
+      if (
+        !this.selectionClients.includes(clusterId) &&
+        feature.includeClient == 1
+      ) {
+        sides.push('client')
+      }
+      if (
+        !this.selectionServers.includes(clusterId) &&
+        feature.includeServer == 1
+      ) {
+        sides.push('server')
+      }
+      return sides
+    },
+    generateDisabledClusterWarning(feature) {
+      let sides = this.getMissingClusterSide(feature).join(' and ')
+      return [
+        `This feature cannot be toggled because its associated cluster: 
+        ${feature.cluster} ${sides} is disabled.`,
+        'Enable the cluster to allow toggling this feature.'
+      ]
     }
   },
   computed: {
@@ -417,6 +478,18 @@ export default {
         this.attributesToUpdate.length == 0 &&
         this.commandsToUpdate.length == 0 &&
         this.eventsToUpdate.length == 0
+      )
+    },
+    filteredColumns() {
+      return this.hasFeatureWithDisabledCluster
+        ? this.columns
+        : this.columns.filter(
+            (column) => column.name != dbEnum.deviceTypeFeature.name.status
+          )
+    },
+    hasFeatureWithDisabledCluster() {
+      return this.deviceTypeFeatures.some((feature) =>
+        this.isClusterDisabled(feature)
       )
     }
   },
@@ -438,6 +511,12 @@ export default {
       selectedFeature: {},
       updatedEnabledFeatures: [],
       columns: [
+        {
+          name: dbEnum.feature.name.status,
+          required: false,
+          label: dbEnum.feature.label.status,
+          align: 'left'
+        },
         {
           name: dbEnum.feature.name.enabled,
           required: true,
