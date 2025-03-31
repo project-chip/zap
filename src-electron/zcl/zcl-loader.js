@@ -353,8 +353,9 @@ async function qualifyZclFile(
     }
   } else {
     // This is executed if CRC is found in the database and matches the actual CRC.
+
     // Sending data back when it is a custom xml
-    if (parentPackageId == null) {
+    if (packageType === dbEnum.packageType.zclXmlStandalone) {
       return {
         filePath: filePath,
         data: data,
@@ -363,6 +364,7 @@ async function qualifyZclFile(
         crc: actualCrc
       }
     }
+
     env.logDebug(
       `CRC match for file ${pkg.path} (${pkg.crc}), skipping parsing.`
     )

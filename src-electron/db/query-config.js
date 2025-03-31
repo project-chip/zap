@@ -153,13 +153,11 @@ async function selectClusterStatesForAllEndpoints(db, clusterRef, side) {
  * @param {*} clusterRef
  * @param {*} side
  */
-async function insertClusterDefaults(db, endpointTypeId, packageId, cluster) {
+async function insertClusterDefaults(db, endpointTypeId, pkgIds, cluster) {
   let promises = []
+  promises.push(resolveDefaultAttributes(db, endpointTypeId, pkgIds, [cluster]))
   promises.push(
-    resolveDefaultAttributes(db, endpointTypeId, packageId, [cluster])
-  )
-  promises.push(
-    resolveNonOptionalCommands(db, endpointTypeId, [cluster], packageId)
+    resolveNonOptionalCommands(db, endpointTypeId, [cluster], pkgIds)
   )
   return Promise.all(promises)
 }
@@ -942,23 +940,17 @@ async function setEndpointDefaults(
     sessionId,
     dbEnum.packageType.zclProperties
   )
+  pkgs = pkgs.concat(
+    await queryPackage.getSessionPackagesByType(
+      db,
+      sessionId,
+      dbEnum.packageType.zclXmlStandalone
+    )
+  )
   if (pkgs == null || pkgs.length < 1)
     throw new Error('Could not locate package id for a given session.')
+  let pkgIds = pkgs.map((pkg) => pkg.id)
 
-  let deviceTypeInfo =
-    await querySession.selectDeviceTypePackageInfoFromDeviceTypeId(
-      db,
-      deviceTypeRef
-    )
-  let endpointTypeCategory =
-    deviceTypeInfo.length > 0 ? deviceTypeInfo[0].category : null
-  let packageId = pkgs[0].id
-  for (let i = 0; i < pkgs.length; i++) {
-    if (pkgs[i].category == endpointTypeCategory) {
-      packageId = pkgs[i].id
-      break
-    }
-  }
   let clusters = await queryDeviceType.selectDeviceTypeClustersByDeviceTypeRef(
     db,
     deviceTypeRef
@@ -973,8 +965,8 @@ async function setEndpointDefaults(
   promises.push(
     resolveDefaultDeviceTypeAttributes(db, endpointTypeId, deviceTypeRef),
     resolveDefaultDeviceTypeCommands(db, endpointTypeId, deviceTypeRef),
-    resolveDefaultAttributes(db, endpointTypeId, packageId, defaultClusters),
-    resolveNonOptionalCommands(db, endpointTypeId, defaultClusters, packageId)
+    resolveDefaultAttributes(db, endpointTypeId, pkgIds, defaultClusters),
+    resolveNonOptionalCommands(db, endpointTypeId, defaultClusters, pkgIds)
   )
 
   return Promise.all(promises).finally(() => {
@@ -1219,7 +1211,7 @@ async function resolveNonOptionalCommands(
 async function resolveDefaultAttributes(
   db,
   endpointTypeId,
-  packageId,
+  pkgIds,
   endpointClusters
 ) {
   let endpointClustersPromises = endpointClusters.map((cluster) =>
@@ -1227,7 +1219,7 @@ async function resolveDefaultAttributes(
       .selectAttributesByClusterIdAndSideIncludingGlobal(
         db,
         cluster.clusterRef,
-        [packageId],
+        pkgIds,
         cluster.side
       )
       .then((attributes) => {

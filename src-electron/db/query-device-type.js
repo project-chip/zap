@@ -182,7 +182,7 @@ async function selectDeviceTypeAttributesByDeviceTypeRef(db, deviceTypeRef) {
     DEVICE_TYPE_CLUSTER AS C
   ON
     C.DEVICE_TYPE_CLUSTER_ID = AT.DEVICE_TYPE_CLUSTER_REF
-  LEFT JOIN 
+  LEFT JOIN
     ATTRIBUTE
   ON
     AT.ATTRIBUTE_REF = ATTRIBUTE.ATTRIBUTE_ID
@@ -218,7 +218,7 @@ async function selectDeviceTypeCommandsByDeviceTypeRef(db, deviceTypeRef) {
     DEVICE_TYPE_CLUSTER AS C
   ON
     C.DEVICE_TYPE_CLUSTER_ID = CMD.DEVICE_TYPE_CLUSTER_REF
-  LEFT JOIN 
+  LEFT JOIN
     COMMAND
   ON
     CMD.COMMAND_REF = COMMAND.COMMAND_ID
@@ -231,12 +231,19 @@ async function selectDeviceTypeCommandsByDeviceTypeRef(db, deviceTypeRef) {
 
 /**
  * After loading up device type cluster table with the names,
- * this method links the refererence to actual cluster reference.
+ * this method links the reference to actual cluster reference.
  *
  * @param {*} db
+ * @param {*} packageId
+ * @param {*} sessionPackages (if processing custom xml file it might need to reference clusters from primary zcl or other custom xml)
  * @returns promise of completion
  */
-async function updateClusterReferencesForDeviceTypeClusters(db, packageId) {
+async function updateClusterReferencesForDeviceTypeClusters(
+  db,
+  packageId,
+  sessionPackages = null
+) {
+  let knownPackages = sessionPackages ? sessionPackages : [packageId]
   return dbApi.dbUpdate(
     db,
     `
@@ -251,25 +258,33 @@ SET
     WHERE
       lower(CLUSTER.NAME) = lower(DEVICE_TYPE_CLUSTER.CLUSTER_NAME)
     AND
-      CLUSTER.PACKAGE_REF = ?
+      CLUSTER.PACKAGE_REF IN (${dbApi.toInClause(knownPackages)})
   )
 WHERE
-  ( SELECT PACKAGE_REF
+  CLUSTER_REF IS NULL
+  AND ( SELECT PACKAGE_REF
     FROM DEVICE_TYPE
     WHERE DEVICE_TYPE_ID = DEVICE_TYPE_CLUSTER.DEVICE_TYPE_REF
   ) = ?`,
-    [packageId, packageId]
+    [packageId]
   )
 }
 
 /**
  * After loading up device type attribute table with the names,
- * this method links the refererence to actual attribute reference.
+ * this method links the references to actual attribute reference.
  *
  * @param {*} db
+ * @param {*} packageId
+ * @param {*} sessionPackages (if processing custom xml file it might need to reference attributes from primary zcl or other custom xml)
  * @returns promise of completion
  */
-async function updateAttributeReferencesForDeviceTypeReferences(db, packageId) {
+async function updateAttributeReferencesForDeviceTypeReferences(
+  db,
+  packageId,
+  sessionPackages = null
+) {
+  let knownPackages = sessionPackages ? sessionPackages : [packageId]
   return dbApi.dbUpdate(
     db,
     `
@@ -293,12 +308,12 @@ SET
           DEVICE_TYPE_CLUSTER_ID = DEVICE_TYPE_ATTRIBUTE.DEVICE_TYPE_CLUSTER_REF
       )
     AND
-      ATTRIBUTE.PACKAGE_REF = ?
+      ATTRIBUTE.PACKAGE_REF IN (${dbApi.toInClause(knownPackages)})
   )
 WHERE
   DEVICE_TYPE_ATTRIBUTE.ATTRIBUTE_REF IS NULL
   `,
-    [packageId]
+    []
   )
 }
 
@@ -307,9 +322,16 @@ WHERE
  * this method links the refererence to actual command reference.
  *
  * @param {*} db
+ * @param {*} packageId
+ * @param {*} sessionPackages (if processing custom xml file it might need to reference commands from primary zcl or other custom xml)
  * @returns promise of completion
  */
-async function updateCommandReferencesForDeviceTypeReferences(db, packageId) {
+async function updateCommandReferencesForDeviceTypeReferences(
+  db,
+  packageId,
+  sessionPackages = null
+) {
+  let knownPackages = sessionPackages ? sessionPackages : [packageId]
   return dbApi.dbUpdate(
     db,
     `
@@ -333,19 +355,20 @@ SET
           DEVICE_TYPE_CLUSTER_ID = DEVICE_TYPE_COMMAND.DEVICE_TYPE_CLUSTER_REF
       )
     AND
-      COMMAND.PACKAGE_REF = ?
+      COMMAND.PACKAGE_REF IN (${dbApi.toInClause(knownPackages)})
   )
 WHERE
   DEVICE_TYPE_COMMAND.COMMAND_REF IS NULL`,
-    [packageId]
+    []
   )
 }
 
 /**
  * After loading up device type feature table with the names,
- * this method links the refererence to actual feature reference.
+ * this method links the reference to actual feature reference.
  *
  * @param {*} db
+ * @param {*} packageId
  * @returns promise of completion
  */
 async function updateFeatureReferencesForDeviceTypeReferences(db, packageId) {
@@ -396,6 +419,98 @@ async function updateDeviceTypeEntityReferences(db, packageId) {
   await updateAttributeReferencesForDeviceTypeReferences(db, packageId)
   await updateCommandReferencesForDeviceTypeReferences(db, packageId)
   return updateFeatureReferencesForDeviceTypeReferences(db, packageId)
+}
+
+/**
+ * Device types defined in custom xml files might refer to cluster, commands and attributes
+ * from the primary zcl file.
+ *
+ * This method returns the promise of linking the device type entities to the correct
+ * foreign keys in such cases.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} sessionPackages
+ * @returns promise of completed linking
+ */
+async function updateDeviceTypeReferencesForCustomXml(
+  db,
+  packageId,
+  sessionPackages
+) {
+  // update the references for device type clusters, attributes and commands
+  await updateClusterReferencesForDeviceTypeClusters(
+    db,
+    packageId,
+    sessionPackages
+  )
+  await updateAttributeReferencesForDeviceTypeReferences(
+    db,
+    packageId,
+    sessionPackages
+  )
+  await updateCommandReferencesForDeviceTypeReferences(
+    db,
+    packageId,
+    sessionPackages
+  )
+
+  // clean up duplicate device type clusters and unlinked device type clusters
+  await deleteUnlinkedDeviceTypeClusters(db, packageId)
+  return deleteDuplicateDeviceTypeClusters(db, packageId)
+}
+
+/**
+ * This method deletes all device type clusters that are not linked to any cluster.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ */
+async function deleteUnlinkedDeviceTypeClusters(db, packageId) {
+  return dbApi.dbRemove(
+    db,
+    `
+    DELETE FROM DEVICE_TYPE_CLUSTER
+    WHERE CLUSTER_REF IS NULL
+    AND DEVICE_TYPE_REF IN (
+      SELECT DEVICE_TYPE_ID
+      FROM DEVICE_TYPE
+      WHERE PACKAGE_REF = ?
+    )
+    `,
+    [packageId]
+  )
+}
+
+/**
+ * This method deletes all device type clusters that are duplicates.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ */
+async function deleteDuplicateDeviceTypeClusters(db, packageId) {
+  return dbApi.dbRemove(
+    db,
+    `
+    DELETE FROM DEVICE_TYPE_CLUSTER
+    WHERE DEVICE_TYPE_CLUSTER_ID NOT IN (
+      SELECT MIN(DEVICE_TYPE_CLUSTER_ID)
+      FROM DEVICE_TYPE_CLUSTER
+      WHERE DEVICE_TYPE_REF IN (
+        SELECT DEVICE_TYPE_ID
+        FROM DEVICE_TYPE
+        WHERE PACKAGE_REF = ?
+      )
+      GROUP BY DEVICE_TYPE_REF, CLUSTER_REF
+    )
+    AND DEVICE_TYPE_REF IN (
+      SELECT DEVICE_TYPE_ID
+      FROM DEVICE_TYPE
+      WHERE PACKAGE_REF = ?
+    )
+    `,
+    [packageId, packageId]
+  )
 }
 
 /**
@@ -532,6 +647,8 @@ exports.selectDeviceTypeAttributesByDeviceTypeRef =
 exports.selectDeviceTypeCommandsByDeviceTypeRef =
   selectDeviceTypeCommandsByDeviceTypeRef
 exports.updateDeviceTypeEntityReferences = updateDeviceTypeEntityReferences
+exports.updateDeviceTypeReferencesForCustomXml =
+  updateDeviceTypeReferencesForCustomXml
 exports.selectDeviceTypesByEndpointTypeId = selectDeviceTypesByEndpointTypeId
 exports.selectDeviceTypeFeaturesByEndpointTypeIdAndClusterId =
   selectDeviceTypeFeaturesByEndpointTypeIdAndClusterId

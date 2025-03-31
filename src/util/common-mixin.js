@@ -402,7 +402,7 @@ export default {
         return zclProperty.category
       } else {
         zclProperty = this.$store.state.zap.packages.find(
-          (item) => item.pkg.id === packageRef && item.pkg.category
+          (item) => item.pkg.id === packageRef
         )
         return zclProperty.pkg?.category
       }

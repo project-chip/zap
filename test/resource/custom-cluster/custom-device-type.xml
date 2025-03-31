@@ -8,8 +8,19 @@
     <profileId editable="false">0xC001</profileId>
     <deviceId editable="false">0x0001</deviceId>
     <clusters lockOthers="true">
-      <include client="true" server="false"  clientLocked="true"  serverLocked="true" >Test Cluster</include>
+      <!-- Cluster from same file  -->
+      <include cluster="Test Cluster - Device Type" client="true" server="false"  clientLocked="true"  serverLocked="true" >
+        <requireCommand>CommandOne</requireCommand>
+      </include>
+
+      <!-- Cluster from primary zcl file -->
       <include cluster="Basic" client="true" server="false" clientLocked="true" serverLocked="true"></include>
+      <include cluster="On/Off" client="true" server="false" clientLocked="true" serverLocked="true"></include>
+
+      <!-- Cluster from other custom xml -->
+      <include cluster="Custom Cluster" client="true" server="false" clientLocked="true" serverLocked="true">
+        <requireCommand>C1</requireCommand>
+      </include>
 	</clusters>
   </deviceType>
   <deviceType>
@@ -20,8 +31,38 @@
     <profileId editable="false">0xC001</profileId>
     <deviceId editable="false">0x0002</deviceId>
     <clusters lockOthers="true">
-      <include client="false" server="true"  clientLocked="true"  serverLocked="true" >Test Cluster</include>
+      <!-- Cluster from same file  -->
+      <include cluster="Test Cluster - Device Type" client="false" server="true"  clientLocked="true"  serverLocked="true" >
+        <requireAttribute>sample attribute</requireAttribute>
+      </include>
+
+      <!-- Cluster from primary zcl file -->
       <include cluster="Basic" client="false" server="true" clientLocked="true" serverLocked="true"></include>
+      <include cluster="On/Off" client="false" server="true" clientLocked="true" serverLocked="true"></include>
+
+      <!-- Cluster from other custom xml -->
+      <include cluster="Custom Cluster" client="false" server="true" clientLocked="true" serverLocked="true"></include>
 	</clusters>
-  </deviceType>  
+  </deviceType>
+
+  <cluster manufacturerCode="0xABCD">
+    <name>Test Cluster - Device Type</name>
+    <domain>Ember</domain>
+    <description> This cluster is used to test device types through custom xml file
+    </description>
+    <!-- Cluster Id must be within the mfg spec range 0xfc00 - 0xffff -->
+    <code>0xFFCD</code>
+    <define>TEST_CLUSTER_DEVICE_TYPE</define>
+    <client init="false" tick="false">true</client>
+    <server init="false" tick="false">true</server>
+    <attribute side="server" code="0x0000" define="ATTRIBUTE_ONE" type="INT8U" min="0x00" max="0xFF" writable="true" default="0x00" optional="true">sample attribute</attribute>
+    <attribute side="server" code="0x0001" define="ATTRIBUTE_TWO" type="INT8U" min="0x00" max="0xFF" writable="true" default="0x00" optional="true">sample attribute 2</attribute>
+    <command source="client" code="0x00" name="CommandOne" optional="true">
+      <description>
+        A sample manufacturer specific command within the sample cluster.
+      </description>
+      <arg name="argOne" type="INT8U"/>
+    </command>
+  </cluster>
+
 </configurator>

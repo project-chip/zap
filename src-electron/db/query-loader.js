@@ -1266,7 +1266,7 @@ async function insertDeviceTypes(db, packageId, data) {
         if ('clusters' in data[i]) {
           let lastId = lastIdsArray[i]
           let clusters = data[i].clusters
-          // This is an array that links the generated deviceTyepRef to the cluster via generating an array of arrays,
+          // This is an array that links the generated deviceTypeRef to the cluster via generating an array of arrays,
           zclIdsPromises = Promise.all(
             clusters.map((cluster) =>
               dbApi
@@ -1328,6 +1328,65 @@ async function insertDeviceTypes(db, packageId, data) {
       }
       return zclIdsPromises
     })
+}
+
+/**
+ * Reloads device types into the database.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} data
+ */
+async function reloadDeviceTypes(db, packageId, data) {
+  let zclIdsPromises = []
+  for (let dt of data) {
+    // Find the DEVICE_TYPE_ID for the current device type
+    const query = `
+      SELECT DEVICE_TYPE_ID
+      FROM DEVICE_TYPE
+      WHERE PACKAGE_REF = ? AND CODE = ?
+    `
+    const result = await dbApi.dbGet(db, query, [packageId, dt.code])
+
+    if (result) {
+      const existingId = result.DEVICE_TYPE_ID
+
+      if ('clusters' in dt) {
+        const clusters = dt.clusters
+
+        // Process clusters for the existing device type
+        const clusterPromises = clusters.map((cluster) =>
+          dbApi
+            .dbInsert(
+              db,
+              'INSERT INTO DEVICE_TYPE_CLUSTER (DEVICE_TYPE_REF, CLUSTER_NAME, INCLUDE_CLIENT, INCLUDE_SERVER, LOCK_CLIENT, LOCK_SERVER) VALUES (?,?,?,?,?,?)',
+              [
+                existingId,
+                cluster.clusterName,
+                cluster.client,
+                cluster.server,
+                cluster.clientLocked,
+                cluster.serverLocked
+              ],
+              true
+            )
+            .then((deviceTypeClusterRef) => ({
+              dtClusterRef: deviceTypeClusterRef,
+              clusterData: cluster
+            }))
+        )
+
+        const dtClusterRefDataPairs = await Promise.all(clusterPromises)
+
+        // Insert attributes, commands, and features for the device type
+        await Promise.all([
+          insertDeviceTypeAttributes(db, dtClusterRefDataPairs),
+          insertDeviceTypeCommands(db, dtClusterRefDataPairs)
+        ])
+      }
+    }
+  }
+  return zclIdsPromises
 }
 
 /**
@@ -2347,6 +2406,7 @@ exports.insertSpecs = insertSpecs
 exports.insertGlobalAttributeDefault = insertGlobalAttributeDefault
 exports.insertAtomics = insertAtomics
 exports.insertDeviceTypes = insertDeviceTypes
+exports.reloadDeviceTypes = reloadDeviceTypes
 exports.insertTags = insertTags
 exports.insertAccessModifiers = insertAccessModifiers
 exports.insertAccessOperations = insertAccessOperations
