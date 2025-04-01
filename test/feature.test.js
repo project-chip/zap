@@ -33,6 +33,7 @@ const testQuery = require('./test-query')
 const httpServer = require('../src-electron/server/http-server')
 const restApi = require('../src-shared/rest-api')
 const axios = require('axios')
+const dbEnum = require('../src-shared/db-enum')
 
 let db
 let ctx
@@ -489,7 +490,9 @@ test(
         onOffCluster.side
       )
     let featureMapAttribute = attributes.find(
-      (attribute) => attribute.name == 'FeatureMap' && attribute.code == 65532
+      (attribute) =>
+        attribute.name == dbEnum.featureMapAttribute.name &&
+        attribute.code == dbEnum.featureMapAttribute.code
     )
 
     let resp = await axiosInstance.get(restApi.uri.featureMapValue, {

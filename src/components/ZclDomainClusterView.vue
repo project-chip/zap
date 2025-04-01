@@ -225,6 +225,7 @@ import CommonMixin from '../util/common-mixin'
 import restApi from '../../src-shared/rest-api'
 import uiOptions from '../util/ui-options'
 import EditableAttributesMixin from '../util/editable-attributes-mixin.js'
+import dbEnum from '../../src-shared/db-enum'
 
 let ZclClusterRoleAction = {
   Add: 'add',
@@ -594,7 +595,9 @@ export default {
     },
     setFeatureMapAttribute(cluster) {
       let featureMapAttribute = this.relevantAttributeData.find(
-        (attribute) => attribute.name == 'FeatureMap' && attribute.code == 65532
+        (attribute) =>
+          attribute.name == dbEnum.featureMapAttribute.name &&
+          attribute.code == dbEnum.featureMapAttribute.code
       )
       this.$store.dispatch('zap/updateFeatureMapValue', {
         attributeId: featureMapAttribute.id,

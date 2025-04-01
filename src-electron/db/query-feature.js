@@ -22,6 +22,7 @@
  */
 const dbApi = require('./db-api')
 const dbMapping = require('./db-mapping')
+const dbEnum = require('../../src-shared/db-enum.js')
 
 /**
  * Get all device type features associated with a list of device type refs and an endpoint.
@@ -95,9 +96,9 @@ async function getFeaturesByDeviceTypeRefs(
     AND
 			ETC.ENDPOINT_TYPE_REF = ?
     AND
-			A.NAME = 'FeatureMap'
+      A.NAME = '${dbEnum.featureMapAttribute.name}'
     AND
-			A.CODE = 65532
+      A.CODE = ${dbEnum.featureMapAttribute.code}
     AND
 			(
 				(DC.INCLUDE_SERVER = 1 AND ETC.SIDE = 'server')
@@ -107,7 +108,7 @@ async function getFeaturesByDeviceTypeRefs(
     ORDER BY
 			D.DEVICE_TYPE_ID,
 			DC.CLUSTER_REF,
-			F.FEATURE_ID
+			F.BIT
     `,
     arg
   )
@@ -165,10 +166,10 @@ async function selectAllFeatures(db, packageIds) {
       F.PACKAGE_REF in (${dbApi.toInClause(packageIds)})
     ORDER BY
       C.CODE,
-      F.FEATURE_ID
+      F.BIT
     `
   )
-  return rows.map(dbMapping.map.feature)
+  return rows.map(dbMapping.map.clusterFeature)
 }
 
 /**
@@ -196,11 +197,11 @@ async function selectFeaturesByClusterId(db, clusterId) {
     WHERE
       CLUSTER_REF = ?
     ORDER BY
-      FEATURE_ID
+      BIT
     `,
     [clusterId]
   )
-  return rows.map(dbMapping.map.feature)
+  return rows.map(dbMapping.map.clusterFeature)
 }
 
 /**

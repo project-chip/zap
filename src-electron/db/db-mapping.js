@@ -271,7 +271,7 @@ exports.map = {
     }
   },
 
-  feature: (x) => {
+  clusterFeature: (x) => {
     if (x == null) return undefined
     return {
       id: x.FEATURE_ID,

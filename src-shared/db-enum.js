@@ -221,7 +221,6 @@ exports.packageMatch = {
 exports.feature = {
   name: {
     enabled: 'enabled',
-    featureId: 'featureId',
     deviceType: 'deviceType',
     cluster: 'cluster',
     clusterSide: 'clusterSide',
@@ -233,7 +232,6 @@ exports.feature = {
   },
   label: {
     enabled: 'Enabled',
-    featureId: 'Feature ID',
     deviceType: 'Device Type',
     cluster: 'Cluster',
     clusterSide: 'Cluster Side',
@@ -243,4 +241,9 @@ exports.feature = {
     bit: 'Bit',
     description: 'Description'
   }
+}
+
+exports.featureMapAttribute = {
+  name: 'FeatureMap',
+  code: 65532
 }

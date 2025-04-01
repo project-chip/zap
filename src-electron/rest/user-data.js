@@ -187,7 +187,9 @@ function httpGetFeatureMapValue(db) {
       attributeId,
       clusterId
     )
-    let featureMapValue = parseInt(featureMapAttribute.defaultValue) || 0
+    let featureMapValue = featureMapAttribute.defaultValue
+      ? parseInt(featureMapAttribute.defaultValue)
+      : 0
     response.status(StatusCodes.OK).json(featureMapValue)
   }
 }
