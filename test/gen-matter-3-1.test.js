@@ -477,9 +477,50 @@ test(
     expect(ept).toContain(
       'TargetStruct item 4 from Binding cluster: FabricIndex'
     )
-
     expect(ept).toContain('Struct with array: NestedStructList')
     expect(ept).toContain('Struct with array: DoubleNestedStructList')
+
+    // Mode Select SemanticTagStruct items not giving global SemanticTagStruct struct items
+    expect(ept).toContain(
+      'SemanticTagStruct item 0 from Mode Select cluster: MfgCode'
+    )
+    expect(ept).toContain(
+      'SemanticTagStruct item 1 from Mode Select cluster: Value'
+    )
+    expect(ept).not.toContain(
+      'SemanticTagStruct item 2 from Mode Select cluster'
+    )
+    expect(ept).not.toContain('SemanticTagStruct item 2 from Mode Select')
+
+    // global SemanticTagStruct struct items not giving Mode Select SemanticTagStruct items
+    // In this case Descriptor cluster is using the global struct
+    expect(ept).toContain(
+      'SemanticTagStruct item 0 from Descriptor cluster: MfgCode'
+    )
+    expect(ept).toContain(
+      'SemanticTagStruct item 1 from Descriptor cluster: NamespaceID'
+    )
+    expect(ept).toContain(
+      'SemanticTagStruct item 2 from Descriptor cluster: Tag'
+    )
+    expect(ept).toContain(
+      'SemanticTagStruct item 3 from Descriptor cluster: Label'
+    )
+    expect(ept).not.toContain(
+      'SemanticTagStruct item 4 from Descriptor cluster'
+    )
+    // Checking with Identify cluster too
+    expect(ept).toContain(
+      'SemanticTagStruct item 0 from Identify cluster: MfgCode'
+    )
+    expect(ept).toContain(
+      'SemanticTagStruct item 1 from Identify cluster: NamespaceID'
+    )
+    expect(ept).toContain('SemanticTagStruct item 2 from Identify cluster: Tag')
+    expect(ept).toContain(
+      'SemanticTagStruct item 3 from Identify cluster: Label'
+    )
+    expect(ept).not.toContain('SemanticTagStruct item 4 from Identify cluster')
   },
   testUtil.timeout.long()
 )
@@ -706,7 +747,7 @@ test(
         commandNames.push(commandName['NAME'])
       }
     }
-    console.log('BHarat test commands: ' + JSON.stringify(commandNames))
+
     // Verify specific commands from the extension
     expect(commandNames).toContain('ReviewFabricRestrictions')
 

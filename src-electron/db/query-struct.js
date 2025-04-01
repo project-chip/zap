@@ -95,6 +95,7 @@ WHERE
  * @returns Promise of Struct
  */
 async function selectStructByName(db, name, packageIds) {
+  //STRUCT_COUNT counts the structs where there could be one global and one cluster specific with same name.
   return dbApi
     .dbGet(
       db,
@@ -105,6 +106,7 @@ SELECT
   STRUCT.API_MATURITY,
   DATA_TYPE.NAME,
   (SELECT COUNT(1) FROM DATA_TYPE_CLUSTER WHERE DATA_TYPE_CLUSTER.DATA_TYPE_REF = STRUCT.STRUCT_ID) AS STRUCT_CLUSTER_COUNT,
+  (SELECT COUNT(1) FROM STRUCT INNER JOIN DATA_TYPE ON STRUCT.STRUCT_ID = DATA_TYPE.DATA_TYPE_ID WHERE DATA_TYPE.NAME = "${name}" AND PACKAGE_REF IN (${dbApi.toInClause(packageIds)})) AS STRUCT_COUNT,
   DATA_TYPE.DISCRIMINATOR_REF
 FROM
   STRUCT

@@ -30,6 +30,18 @@ TargetStruct item {{index}} from Access Control cluster: {{name}}
 TargetStruct item {{index}} from Binding cluster: {{name}}
 {{/zcl_struct_items_by_struct_and_cluster_name}}
 
+{{#zcl_struct_items_by_struct_and_cluster_name "SemanticTagStruct" "Mode Select"}}
+SemanticTagStruct item {{index}} from Mode Select cluster: {{name}}
+{{/zcl_struct_items_by_struct_and_cluster_name}}
+
+{{#zcl_struct_items_by_struct_and_cluster_name "SemanticTagStruct" "Descriptor"}}
+SemanticTagStruct item {{index}} from Descriptor cluster: {{name}}
+{{/zcl_struct_items_by_struct_and_cluster_name}}
+
+{{#zcl_struct_items_by_struct_and_cluster_name "SemanticTagStruct" "Identify"}}
+SemanticTagStruct item {{index}} from Identify cluster: {{name}}
+{{/zcl_struct_items_by_struct_and_cluster_name}}
+
 {{#zcl_structs}}
   {{#if struct_contains_array}} Struct with array: {{name}}
   {{/if}}
