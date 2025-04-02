@@ -348,7 +348,8 @@ async function zcl_struct_items_by_struct_and_cluster_name(
     name,
     packageIds
   )
-  if (structObj.structClusterCount == 0) {
+
+  if (structObj.structClusterCount == 0 && structObj.structCount == 1) {
     // Just ignore the cluster name.
     return zcl_struct_items_by_struct_name.call(this, name, options)
   }

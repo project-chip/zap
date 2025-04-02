@@ -357,6 +357,7 @@ exports.map = {
       isFabricScoped: dbApi.fromDbBool(x.IS_FABRIC_SCOPED),
       caption: `Struct, named ${x.NAME}`,
       structClusterCount: x.STRUCT_CLUSTER_COUNT,
+      structCount: x.STRUCT_COUNT,
       clusterName: x.CLUSTER_NAME,
       apiMaturity: x.API_MATURITY
     }

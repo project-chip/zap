@@ -498,66 +498,73 @@ async function selectAllStructItemsByStructName(
   packageIds,
   clusterName = null
 ) {
-  let clusterJoinQuery = ''
-  let clusterWhereQuery = ''
+  let clusterCondition = clusterName
+    ? `CLUSTER.NAME = "${clusterName}"`
+    : `CLUSTER.NAME IS NULL`
+
+  let structItemQuery = `
+  SELECT
+    SI.FIELD_IDENTIFIER,
+    SI.NAME,
+    (SELECT DATA_TYPE.NAME FROM DATA_TYPE WHERE DATA_TYPE.DATA_TYPE_ID = SI.DATA_TYPE_REF) AS TYPE,
+    DT.NAME AS DATA_TYPE_REF_NAME,
+    DISCRIMINATOR.NAME AS DISCRIMINATOR_NAME,
+    SI.STRUCT_REF,
+    SI.IS_ARRAY,
+    SI.IS_ENUM,
+    SI.MIN_LENGTH,
+    SI.MAX_LENGTH,
+    SI.IS_WRITABLE,
+    SI.IS_NULLABLE,
+    SI.IS_OPTIONAL,
+    SI.IS_FABRIC_SENSITIVE,
+    SI.DATA_TYPE_REF
+  FROM
+    STRUCT_ITEM AS SI
+  INNER JOIN
+    STRUCT
+  ON
+    STRUCT.STRUCT_ID = SI.STRUCT_REF
+  INNER JOIN
+    DATA_TYPE AS DT
+  ON
+    DT.DATA_TYPE_ID = STRUCT.STRUCT_ID
+  LEFT JOIN
+    DATA_TYPE_CLUSTER
+  ON
+    DATA_TYPE_CLUSTER.DATA_TYPE_REF = DT.DATA_TYPE_ID
+  LEFT JOIN
+    CLUSTER
+  ON
+    DATA_TYPE_CLUSTER.CLUSTER_REF = CLUSTER.CLUSTER_ID
+  INNER JOIN
+    DISCRIMINATOR
+  ON
+    DT.DISCRIMINATOR_REF = DISCRIMINATOR.DISCRIMINATOR_ID
+  WHERE
+    DT.NAME = ?
+  AND
+    DT.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
+  AND
+    ${clusterCondition}
+  ORDER BY FIELD_IDENTIFIER`
+
+  let rows = []
+  // Attempt to retrieve struct items with given cluster name
   if (clusterName) {
-    clusterJoinQuery = `
-    INNER JOIN
-      DATA_TYPE_CLUSTER
-    ON
-      DATA_TYPE_CLUSTER.DATA_TYPE_REF = DT.DATA_TYPE_ID
-    INNER JOIN
-      CLUSTER
-    ON
-      DATA_TYPE_CLUSTER.CLUSTER_REF = CLUSTER.CLUSTER_ID
-      `
-    clusterWhereQuery = `
-    AND
-      CLUSTER.NAME = "${clusterName}"
-      `
+    rows = await dbApi.dbAll(db, structItemQuery, [name])
   }
-  return dbApi
-    .dbAll(
-      db,
-      `
-SELECT
-  SI.FIELD_IDENTIFIER,
-  SI.NAME,
-  (SELECT DATA_TYPE.NAME FROM DATA_TYPE WHERE DATA_TYPE.DATA_TYPE_ID = SI.DATA_TYPE_REF) AS TYPE,
-  DT.NAME AS DATA_TYPE_REF_NAME,
-  DISCRIMINATOR.NAME AS DISCRIMINATOR_NAME,
-  SI.STRUCT_REF,
-  SI.IS_ARRAY,
-  SI.IS_ENUM,
-  SI.MIN_LENGTH,
-  SI.MAX_LENGTH,
-  SI.IS_WRITABLE,
-  SI.IS_NULLABLE,
-  SI.IS_OPTIONAL,
-  SI.IS_FABRIC_SENSITIVE,
-  SI.DATA_TYPE_REF
-FROM
-  STRUCT_ITEM AS SI
-INNER JOIN
-  STRUCT
-ON
-  STRUCT.STRUCT_ID = SI.STRUCT_REF
-INNER JOIN
-  DATA_TYPE AS DT
-ON
-  DT.DATA_TYPE_ID = STRUCT.STRUCT_ID
-${clusterJoinQuery}
-INNER JOIN
-  DISCRIMINATOR
-ON
-  DT.DISCRIMINATOR_REF = DISCRIMINATOR.DISCRIMINATOR_ID
-WHERE DT.NAME = ?
-  AND DT.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
-  ${clusterWhereQuery}
-ORDER BY FIELD_IDENTIFIER`,
-      [name]
+
+  // If no rows were found then find a global struct by turning cluster name to null
+  if (rows.length === 0) {
+    structItemQuery = structItemQuery.replace(
+      clusterCondition,
+      `CLUSTER.NAME IS NULL`
     )
-    .then((rows) => rows.map(dbMapping.map.structItem))
+    rows = await dbApi.dbAll(db, structItemQuery, [name])
+  }
+
+  return rows.map(dbMapping.map.structItem)
 }
 
 /**
