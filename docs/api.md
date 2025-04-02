@@ -7770,9 +7770,9 @@ Get endpoint type events from the given endpoint type ID.
     * [~produceContent(hb, metaInfo, db, sessionId, singlePkg, overridePath:)](#module_JS API_ generator logic..produceContent) ⇒
     * [~wrapOverridable(originalFn, overrideFn)](#module_JS API_ generator logic..wrapOverridable) ⇒
     * [~loadOverridable(path)](#module_JS API_ generator logic..loadOverridable)
-    * [~loadPartial(path)](#module_JS API_ generator logic..loadPartial)
+    * [~loadPartial(hb, name, data)](#module_JS API_ generator logic..loadPartial)
     * [~helperWrapper(wrappedHelper)](#module_JS API_ generator logic..helperWrapper) ⇒
-    * [~loadHelper(helpers)](#module_JS API_ generator logic..loadHelper)
+    * [~loadHelper(hb, helpers, context)](#module_JS API_ generator logic..loadHelper)
     * [~allBuiltInHelpers()](#module_JS API_ generator logic..allBuiltInHelpers) ⇒
     * [~findHelperPackageByAlias(alias)](#module_JS API_ generator logic..findHelperPackageByAlias) ⇒
     * [~initializeBuiltInHelpersForPackage()](#module_JS API_ generator logic..initializeBuiltInHelpersForPackage)
@@ -8126,14 +8126,16 @@ This function is responsible to load the overridable function container.
 
 <a name="module_JS API_ generator logic..loadPartial"></a>
 
-### JS API: generator logic~loadPartial(path)
+### JS API: generator logic~loadPartial(hb, name, data)
 Function that loads the partials.
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module_JS API_ generator logic)  
 
 | Param | Type |
 | --- | --- |
-| path | <code>\*</code> | 
+| hb | <code>\*</code> | 
+| name | <code>\*</code> | 
+| data | <code>\*</code> | 
 
 <a name="module_JS API_ generator logic..helperWrapper"></a>
 
@@ -8147,14 +8149,16 @@ Function that loads the partials.
 
 <a name="module_JS API_ generator logic..loadHelper"></a>
 
-### JS API: generator logic~loadHelper(helpers)
+### JS API: generator logic~loadHelper(hb, helpers, context)
 Function that loads the helpers.
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module_JS API_ generator logic)  
 
-| Param | Type | Description |
-| --- | --- | --- |
-| helpers | <code>\*</code> | a string path if value is passed through CLI,                      the nativeRequire() is leverage the native js function instead                      of webpack's special sauce.                      a required() module if invoked by backend js code.                      this is required to force webpack to resolve the included files                      as path will be difference after being packed for production. |
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| hb | <code>\*</code> |  |  |
+| helpers | <code>\*</code> |  | a string path if value is passed through CLI,                      the nativeRequire() is leverage the native js function instead                      of webpack's special sauce.                      a required() module if invoked by backend js code.                      this is required to force webpack to resolve the included files                      as path will be difference after being packed for production. |
+| context | <code>\*</code> | <code></code> |  |
 
 <a name="module_JS API_ generator logic..allBuiltInHelpers"></a>
 
@@ -13104,9 +13108,9 @@ This module contains the API for templating. For more detailed instructions, rea
     * [~produceContent(hb, metaInfo, db, sessionId, singlePkg, overridePath:)](#module_JS API_ generator logic..produceContent) ⇒
     * [~wrapOverridable(originalFn, overrideFn)](#module_JS API_ generator logic..wrapOverridable) ⇒
     * [~loadOverridable(path)](#module_JS API_ generator logic..loadOverridable)
-    * [~loadPartial(path)](#module_JS API_ generator logic..loadPartial)
+    * [~loadPartial(hb, name, data)](#module_JS API_ generator logic..loadPartial)
     * [~helperWrapper(wrappedHelper)](#module_JS API_ generator logic..helperWrapper) ⇒
-    * [~loadHelper(helpers)](#module_JS API_ generator logic..loadHelper)
+    * [~loadHelper(hb, helpers, context)](#module_JS API_ generator logic..loadHelper)
     * [~allBuiltInHelpers()](#module_JS API_ generator logic..allBuiltInHelpers) ⇒
     * [~findHelperPackageByAlias(alias)](#module_JS API_ generator logic..findHelperPackageByAlias) ⇒
     * [~initializeBuiltInHelpersForPackage()](#module_JS API_ generator logic..initializeBuiltInHelpersForPackage)
@@ -13460,14 +13464,16 @@ This function is responsible to load the overridable function container.
 
 <a name="module_JS API_ generator logic..loadPartial"></a>
 
-### JS API: generator logic~loadPartial(path)
+### JS API: generator logic~loadPartial(hb, name, data)
 Function that loads the partials.
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module_JS API_ generator logic)  
 
 | Param | Type |
 | --- | --- |
-| path | <code>\*</code> | 
+| hb | <code>\*</code> | 
+| name | <code>\*</code> | 
+| data | <code>\*</code> | 
 
 <a name="module_JS API_ generator logic..helperWrapper"></a>
 
@@ -13481,14 +13487,16 @@ Function that loads the partials.
 
 <a name="module_JS API_ generator logic..loadHelper"></a>
 
-### JS API: generator logic~loadHelper(helpers)
+### JS API: generator logic~loadHelper(hb, helpers, context)
 Function that loads the helpers.
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module_JS API_ generator logic)  
 
-| Param | Type | Description |
-| --- | --- | --- |
-| helpers | <code>\*</code> | a string path if value is passed through CLI,                      the nativeRequire() is leverage the native js function instead                      of webpack's special sauce.                      a required() module if invoked by backend js code.                      this is required to force webpack to resolve the included files                      as path will be difference after being packed for production. |
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| hb | <code>\*</code> |  |  |
+| helpers | <code>\*</code> |  | a string path if value is passed through CLI,                      the nativeRequire() is leverage the native js function instead                      of webpack's special sauce.                      a required() module if invoked by backend js code.                      this is required to force webpack to resolve the included files                      as path will be difference after being packed for production. |
+| context | <code>\*</code> | <code></code> |  |
 
 <a name="module_JS API_ generator logic..allBuiltInHelpers"></a>
 
@@ -13762,9 +13770,9 @@ Function wrapper that can be used when a helper is deprecated.
     * [~produceContent(hb, metaInfo, db, sessionId, singlePkg, overridePath:)](#module_JS API_ generator logic..produceContent) ⇒
     * [~wrapOverridable(originalFn, overrideFn)](#module_JS API_ generator logic..wrapOverridable) ⇒
     * [~loadOverridable(path)](#module_JS API_ generator logic..loadOverridable)
-    * [~loadPartial(path)](#module_JS API_ generator logic..loadPartial)
+    * [~loadPartial(hb, name, data)](#module_JS API_ generator logic..loadPartial)
     * [~helperWrapper(wrappedHelper)](#module_JS API_ generator logic..helperWrapper) ⇒
-    * [~loadHelper(helpers)](#module_JS API_ generator logic..loadHelper)
+    * [~loadHelper(hb, helpers, context)](#module_JS API_ generator logic..loadHelper)
     * [~allBuiltInHelpers()](#module_JS API_ generator logic..allBuiltInHelpers) ⇒
     * [~findHelperPackageByAlias(alias)](#module_JS API_ generator logic..findHelperPackageByAlias) ⇒
     * [~initializeBuiltInHelpersForPackage()](#module_JS API_ generator logic..initializeBuiltInHelpersForPackage)
@@ -14118,14 +14126,16 @@ This function is responsible to load the overridable function container.
 
 <a name="module_JS API_ generator logic..loadPartial"></a>
 
-### JS API: generator logic~loadPartial(path)
+### JS API: generator logic~loadPartial(hb, name, data)
 Function that loads the partials.
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module_JS API_ generator logic)  
 
 | Param | Type |
 | --- | --- |
-| path | <code>\*</code> | 
+| hb | <code>\*</code> | 
+| name | <code>\*</code> | 
+| data | <code>\*</code> | 
 
 <a name="module_JS API_ generator logic..helperWrapper"></a>
 
@@ -14139,14 +14149,16 @@ Function that loads the partials.
 
 <a name="module_JS API_ generator logic..loadHelper"></a>
 
-### JS API: generator logic~loadHelper(helpers)
+### JS API: generator logic~loadHelper(hb, helpers, context)
 Function that loads the helpers.
 
 **Kind**: inner method of [<code>JS API: generator logic</code>](#module_JS API_ generator logic)  
 
-| Param | Type | Description |
-| --- | --- | --- |
-| helpers | <code>\*</code> | a string path if value is passed through CLI,                      the nativeRequire() is leverage the native js function instead                      of webpack's special sauce.                      a required() module if invoked by backend js code.                      this is required to force webpack to resolve the included files                      as path will be difference after being packed for production. |
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| hb | <code>\*</code> |  |  |
+| helpers | <code>\*</code> |  | a string path if value is passed through CLI,                      the nativeRequire() is leverage the native js function instead                      of webpack's special sauce.                      a required() module if invoked by backend js code.                      this is required to force webpack to resolve the included files                      as path will be difference after being packed for production. |
+| context | <code>\*</code> | <code></code> |  |
 
 <a name="module_JS API_ generator logic..allBuiltInHelpers"></a>
 

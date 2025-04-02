@@ -284,12 +284,12 @@ function loadOverridable(overridePath) {
 
 /**
  * Function that loads the partials.
- *
- * @param {*} path
+ * @param {*} hb
+ * @param {*} name
+ * @param {*} data
  */
-async function loadPartial(hb, name, path) {
+function loadPartial(hb, name, data) {
   try {
-    let data = await fsPromise.readFile(path, 'utf8')
     hb.registerPartial(name, data)
   } catch (err) {
     console.log('Could not load partial ' + name + ': ' + err)
@@ -339,13 +339,14 @@ function helperWrapper(wrappedHelper) {
 }
 /**
  * Function that loads the helpers.
- *
+ * @param {*} hb
  * @param {*} helpers - a string path if value is passed through CLI,
  *                      the nativeRequire() is leverage the native js function instead
  *                      of webpack's special sauce.
  *                      a required() module if invoked by backend js code.
  *                      this is required to force webpack to resolve the included files
  *                      as path will be difference after being packed for production.
+ * @param {*} context
  */
 function loadHelper(hb, helpers, context = null) {
   // helper

@@ -742,10 +742,15 @@ async function generateAllTemplates(
   })
 
   // Next load the partials
-  packages.forEach((singlePkg) => {
-    if (singlePkg.type == dbEnum.packageType.genPartial) {
-      templateEngine.loadPartial(hb, singlePkg.category, singlePkg.path)
-    }
+  const partialPackages = packages.filter(
+    (pkg) => pkg.type === dbEnum.packageType.genPartial
+  )
+  const partialDataArray = await Promise.all(
+    partialPackages.map((pkg) => fsPromise.readFile(pkg.path, 'utf8'))
+  )
+  partialDataArray.forEach((data, index) => {
+    const singlePkg = partialPackages[index]
+    templateEngine.loadPartial(hb, singlePkg.category, data)
   })
 
   // Let's collect the required list of helpers.
