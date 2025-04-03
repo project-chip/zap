@@ -218,7 +218,7 @@ exports.packageMatch = {
   ignore: 'ignore' // This mechanism will completely ignore the use of packages in the .zap file.
 }
 
-exports.deviceTypeFeature = {
+exports.feature = {
   name: {
     enabled: 'enabled',
     deviceType: 'deviceType',
@@ -241,4 +241,9 @@ exports.deviceTypeFeature = {
     bit: 'Bit',
     description: 'Description'
   }
+}
+
+exports.featureMapAttribute = {
+  name: 'FeatureMap',
+  code: 65532
 }

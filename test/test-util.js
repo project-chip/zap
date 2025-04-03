@@ -27,6 +27,8 @@ function testServer(fileName) {
     testPort = 9075
   } else if (fileName.includes('server-session.test')) {
     testPort = 9076
+  } else if (fileName.includes('feature.test')) {
+    testPort = 9077
   } else {
     let msg = new Error(
       `You must manually assign a port for the given test file: ${fileName}`

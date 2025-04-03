@@ -22,6 +22,7 @@
  */
 const dbApi = require('./db-api')
 const dbMapping = require('./db-mapping')
+const dbEnum = require('../../src-shared/db-enum.js')
 
 /**
  * Get all device type features associated with a list of device type refs and an endpoint.
@@ -95,9 +96,9 @@ async function getFeaturesByDeviceTypeRefs(
     AND
 			ETC.ENDPOINT_TYPE_REF = ?
     AND
-			A.NAME = 'FeatureMap'
+      A.NAME = '${dbEnum.featureMapAttribute.name}'
     AND
-			A.CODE = 65532
+      A.CODE = ${dbEnum.featureMapAttribute.code}
     AND
 			(
 				(DC.INCLUDE_SERVER = 1 AND ETC.SIDE = 'server')
@@ -107,7 +108,7 @@ async function getFeaturesByDeviceTypeRefs(
     ORDER BY
 			D.DEVICE_TYPE_ID,
 			DC.CLUSTER_REF,
-			F.FEATURE_ID
+			F.BIT
     `,
     arg
   )
@@ -133,6 +134,74 @@ async function getFeaturesByDeviceTypeRefs(
   })
 
   return Object.values(result)
+}
+
+/**
+ * Retrieves all features from given package ids.
+ *
+ * @param {*} db
+ * @param {*} packageIds
+ * @returns promise of an array of features
+ */
+async function selectAllFeatures(db, packageIds) {
+  let rows = await dbApi.dbAll(
+    db,
+    `
+    SELECT
+      F.FEATURE_ID,
+      F.NAME,
+      F.CODE,
+      F.BIT,
+      F.DESCRIPTION,
+      F.CONFORMANCE,
+      F.PACKAGE_REF,
+      F.CLUSTER_REF
+    FROM
+      FEATURE AS F
+    INNER JOIN
+      CLUSTER AS C
+    ON
+      F.CLUSTER_REF = C.CLUSTER_ID
+    WHERE
+      F.PACKAGE_REF in (${dbApi.toInClause(packageIds)})
+    ORDER BY
+      C.CODE,
+      F.BIT
+    `
+  )
+  return rows.map(dbMapping.map.clusterFeature)
+}
+
+/**
+ * Retrieves features for a given cluster Id.
+ *
+ * @param {*} db
+ * @param {*} clusterId
+ * @returns promise of an array of features in the cluster
+ */
+async function selectFeaturesByClusterId(db, clusterId) {
+  let rows = await dbApi.dbAll(
+    db,
+    `
+    SELECT
+      FEATURE_ID,
+      NAME,
+      CODE,
+      BIT,
+      DESCRIPTION,
+      CONFORMANCE,
+      PACKAGE_REF,
+      CLUSTER_REF
+    FROM
+      FEATURE
+    WHERE
+      CLUSTER_REF = ?
+    ORDER BY
+      BIT
+    `,
+    [clusterId]
+  )
+  return rows.map(dbMapping.map.clusterFeature)
 }
 
 /**
@@ -174,3 +243,5 @@ async function checkIfConformanceDataExist(db) {
 
 exports.getFeaturesByDeviceTypeRefs = getFeaturesByDeviceTypeRefs
 exports.checkIfConformanceDataExist = checkIfConformanceDataExist
+exports.selectAllFeatures = selectAllFeatures
+exports.selectFeaturesByClusterId = selectFeaturesByClusterId
