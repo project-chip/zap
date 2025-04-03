@@ -931,6 +931,10 @@ function patternFormat(pattern, data) {
       string.toCamelCase(value.toString())
     )
     out = out.replace(
+      `{${key}:touppercamelcase}`,
+      string.toCamelCase(value.toString(), /* firstLower = */ false)
+    )
+    out = out.replace(
       `{${key}:tosnakecase}`,
       string.toSnakeCase(value.toString())
     )
