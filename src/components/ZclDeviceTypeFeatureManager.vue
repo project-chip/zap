@@ -117,7 +117,7 @@ limitations under the License.
             </q-tr>
           </template>
         </q-table>
-        <q-dialog v-model="showDialog" :persistent="!noElementsToUpdate">
+        <q-dialog v-model="showDialog" persistent>
           <q-card>
             <q-card-section>
               <div class="row items-center">
@@ -180,27 +180,16 @@ limitations under the License.
                   </li>
                 </ul>
               </div>
-              <div v-if="noElementsToUpdate">
-                <div class="text-body1" style="margin-top: 15px">
-                  {{ noElementsToUpdateMessage }}
-                </div>
-              </div>
             </q-card-section>
-            <q-card-actions class="row justify-between">
+            <q-card-actions>
+              <q-btn label="Cancel" v-close-popup class="col" />
               <q-btn
-                flat
-                :label="noElementsToUpdate ? 'Close' : 'Cancel Updates'"
-                color="primary"
-                v-close-popup
-              />
-              <q-btn
-                v-if="!noElementsToUpdate"
-                flat
-                label="Confirm Updates"
+                label="Confirm"
                 color="primary"
                 @click="
                   confirmFeatureUpdate(selectedFeature, updatedEnabledFeatures)
                 "
+                class="col v-step-4 w-step-3"
               />
             </q-card-actions>
           </q-card>
@@ -280,6 +269,8 @@ export default {
           if (this.displayWarning) {
             this.displayPopUpWarnings(this.warningMessage)
           }
+        } else if (this.noElementsToUpdate) {
+          this.confirmFeatureUpdate(featureData, inclusionList)
         } else {
           this.showDialog = true
         }
@@ -496,8 +487,6 @@ export default {
   data() {
     return {
       noDataMessage: 'No device type features available for this endpoint',
-      noElementsToUpdateMessage:
-        'No elements need to be updated after toggling this feature',
       pagination: {
         rowsPerPage: 10
       },
