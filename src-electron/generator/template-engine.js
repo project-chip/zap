@@ -70,7 +70,7 @@ const precompiledTemplates = {}
 
 const handlebarsInstance = {}
 
-const TEMPLATE_RENDER_TIMEOUT = 90000 // 90 seconds
+const TEMPLATE_RENDER_TIMEOUT = 540000 // 9 minutes
 
 /**
  * Resolves into a precompiled template, either from previous precompile or freshly compiled.
