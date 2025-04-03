@@ -100,7 +100,7 @@ async function ensurePackagesAndPopulateSessionOptions(
     if (selectedZclPropertyPackage && selectedZclPropertyPackage.length > 1) {
       console.log(
         `Multiple zcl.properties selected, using them for a multiprotocol configuration: ` +
-        JSON.stringify(selectedZclPropertyPackage)
+          JSON.stringify(selectedZclPropertyPackage)
       )
       for (let i = 0; i < selectedZclPropertyPackage.length; i++) {
         promises.push(
@@ -217,7 +217,7 @@ async function ensurePackagesAndPopulateSessionOptions(
     if (selectedGenTemplatePackages && selectedGenTemplatePackages.length > 1) {
       console.log(
         `Multiple generation templates selected, using them for a multiprotocol configuration: ` +
-        JSON.stringify(selectedGenTemplatePackages)
+          JSON.stringify(selectedGenTemplatePackages)
       )
       for (let i = 0; i < selectedGenTemplatePackages.length; i++) {
         promises.push(
@@ -451,9 +451,11 @@ function matchFeatureLevel(featureLevel, requirementSource = null) {
   if (featureLevel > env.zapVersion().featureLevel) {
     return {
       match: false,
-      message: `${requirementSource == null ? 'File' : requirementSource
-        } requires feature level ${featureLevel}, we only have ${env.zapVersion().featureLevel
-        }. Latest ZAP release can be found in https://github.com/project-chip/zap/releases. Please upgrade your zap!`
+      message: `${
+        requirementSource == null ? 'File' : requirementSource
+      } requires feature level ${featureLevel}, we only have ${
+        env.zapVersion().featureLevel
+      }. Latest ZAP release can be found in https://github.com/project-chip/zap/releases. Please upgrade your zap!`
     }
   } else {
     return { match: true }
@@ -653,7 +655,7 @@ function createAbsolutePath(relativePath, relativity, zapFilePath) {
       if (relativePath.indexOf('$') !== -1) {
         throw new Error(
           'resolveEnvVars: unable to resolve environment variables completely: ' +
-          relativePath
+            relativePath
         )
       }
   }
