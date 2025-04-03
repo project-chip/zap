@@ -1332,6 +1332,8 @@ exports.selectStructById = queryStruct.selectStructById
 exports.selectStructByName = queryStruct.selectStructByName
 exports.selectStructByNameAndClusterId =
   queryStruct.selectStructByNameAndClusterId
+exports.selectStructByNameAndClusterName =
+  queryStruct.selectStructByNameAndClusterName
 
 exports.selectBitmapById = queryBitmap.selectBitmapById
 exports.selectAllBitmaps = queryBitmap.selectAllBitmaps
