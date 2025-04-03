@@ -47,13 +47,13 @@ test(
     )
     expect(
       util2.patternFormat(
-        '{a:tocamelcase} {b:tosnakecase} {b:tosnakecaseallcaps}',
+        '{a:tocamelcase} {b:tosnakecase} {b:tosnakecaseallcaps} {a:touppercamelcase} {b:touppercamelcase}',
         {
           a: 'some string',
           b: 'another string'
         }
       )
-    ).toEqual('someString another_string ANOTHER_STRING')
+    ).toEqual('someString another_string ANOTHER_STRING SomeString AnotherString')
   },
   timeout.short()
 )
