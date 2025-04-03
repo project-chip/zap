@@ -12,7 +12,7 @@ This body of code can then use the ZAP tool to gain:
 
 To gain these abilities, the SDK should provide data to zap. The data required is:
 
-- **ZCL metafiles**: these are the metafiles that provide information about the ZCL specification to zap tool. Examples of this (and currently supported) are Silicon Labs XML ZCL metadata or the Zigbee official XML format of the ZCL metafiles. Examples of these metafiles are available from the Zigbee website (http://zigbee.org).
+- **ZCL metafiles**: these are the metafiles that provide information about the ZCL specification to zap tool. Examples of this (and currently supported) are Silicon Labs XML ZCL metadata or the Zigbee official XML format of the ZCL metafiles. Examples of these metafiles are available from the Zigbee website (<http://zigbee.org>).
 
   The ZAP project itself provides examples as well, see the `zcl-builtin/` directory. These are used internally for unit testing, but they are also packaged with the application as examples. They can be a good starting point for SDK developers, but ultimately it's the responsibility of SDK developers to provide the accurate XML packages for their SDK, and let ZAP know where they can be loaded from on the local hard drive.
 
@@ -82,7 +82,7 @@ The `templates` key contained in the `gen-templates.json` file above, is an arra
 
 The _replacement pattern_ inside the output key, comes handy when iterator key is used and defines how each generated file will be named. Replacement patterns are in a format of `{key}` or `{key:modifier}`. The `key` can be any usual key that the iterated object provides. For example, if you iterate over cluster, these can be `code`, `name`, `description`, `define` and all the usual keys that a cluster supports. So if your output contains `{code}` then this pattern will be replaced by the actual cluster code.
 
-The modifier can be one of the following: `hexuppercase`, `hexlowercase`, `tolowercase`, `touppercase`, `tocamelcase`, `tosnakecase` or `tosnakecaseallcaps`.
+The modifier can be one of the following: `hexuppercase`, `hexlowercase`, `tolowercase`, `touppercase`, `tocamelcase`, `touppercamelcase`, `tosnakecase` or `tosnakecaseallcaps`.
 
 ## Templates key: options
 
