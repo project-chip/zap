@@ -117,7 +117,7 @@ limitations under the License.
             </q-tr>
           </template>
         </q-table>
-        <q-dialog v-model="showDialog" :persistent="!noElementsToUpdate">
+        <q-dialog v-model="showDialog" persistent>
           <q-card>
             <q-card-section>
               <div class="row items-center">
@@ -180,27 +180,16 @@ limitations under the License.
                   </li>
                 </ul>
               </div>
-              <div v-if="noElementsToUpdate">
-                <div class="text-body1" style="margin-top: 15px">
-                  {{ noElementsToUpdateMessage }}
-                </div>
-              </div>
             </q-card-section>
-            <q-card-actions class="row justify-between">
+            <q-card-actions>
+              <q-btn label="Cancel" v-close-popup class="col" />
               <q-btn
-                flat
-                :label="noElementsToUpdate ? 'Close' : 'Cancel Updates'"
-                color="primary"
-                v-close-popup
-              />
-              <q-btn
-                v-if="!noElementsToUpdate"
-                flat
-                label="Confirm Updates"
+                label="Confirm"
                 color="primary"
                 @click="
                   confirmFeatureUpdate(selectedFeature, updatedEnabledFeatures)
                 "
+                class="col v-step-4 w-step-3"
               />
             </q-card-actions>
           </q-card>
@@ -240,8 +229,8 @@ export default {
     isToggleDisabled(feature) {
       // disable toggling features with unsupported conformance and disabled clusters
       return (
-        feature.conformance == 'X' ||
-        feature.conformance == 'D' ||
+        feature.conformance == dbEnum.conformance.disallowed ||
+        feature.conformance == dbEnum.conformance.deprecated ||
         this.isClusterDisabled(feature)
       )
     },
@@ -280,6 +269,8 @@ export default {
           if (this.displayWarning) {
             this.displayPopUpWarnings(this.warningMessage)
           }
+        } else if (this.noElementsToUpdate) {
+          this.confirmFeatureUpdate(featureData, inclusionList)
         } else {
           this.showDialog = true
         }
@@ -379,6 +370,15 @@ export default {
 
       // close the dialog
       this.showDialog = false
+
+      // clean the state of variables related to the dialog
+      Object.assign(this, {
+        displayWarning: false,
+        warningMessage: '',
+        disableChange: false,
+        selectedFeature: {},
+        updatedEnabledFeatures: []
+      })
     },
     setFeatureMapAttribute(featureData) {
       let featureMapAttributeId = featureData.featureMapAttributeId
@@ -453,13 +453,13 @@ export default {
         !this.selectionClients.includes(clusterId) &&
         feature.includeClient == 1
       ) {
-        sides.push('client')
+        sides.push(dbEnum.clusterSide.client)
       }
       if (
         !this.selectionServers.includes(clusterId) &&
         feature.includeServer == 1
       ) {
-        sides.push('server')
+        sides.push(dbEnum.clusterSide.server)
       }
       return sides
     },
@@ -484,7 +484,7 @@ export default {
       return this.hasFeatureWithDisabledCluster
         ? this.columns
         : this.columns.filter(
-            (column) => column.name != dbEnum.deviceTypeFeature.name.status
+            (column) => column.name != dbEnum.feature.name.status
           )
     },
     hasFeatureWithDisabledCluster() {
@@ -496,8 +496,6 @@ export default {
   data() {
     return {
       noDataMessage: 'No device type features available for this endpoint',
-      noElementsToUpdateMessage:
-        'No elements need to be updated after toggling this feature',
       pagination: {
         rowsPerPage: 10
       },

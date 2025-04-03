@@ -258,3 +258,8 @@ exports.conformance = {
   provisional: 'P',
   desc: 'desc'
 }
+
+exports.clusterSide = {
+  client: 'client',
+  server: 'server'
+}

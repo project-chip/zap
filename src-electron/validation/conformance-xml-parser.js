@@ -92,7 +92,7 @@ function parseConformanceRecursively(operand, depth = 0, parentJoinChar = '') {
     if (insideTerm && Object.keys(insideTerm).toString() != '$') {
       return parseConformanceRecursively(operand.mandatoryConform[0], depth + 1)
     } else {
-      return 'M'
+      return dbEnum.conformance.mandatory
     }
   } else if (operand.optionalConform) {
     let insideTerm = operand.optionalConform[0]
@@ -101,7 +101,7 @@ function parseConformanceRecursively(operand, depth = 0, parentJoinChar = '') {
     if (insideTerm && Object.keys(insideTerm).toString() != '$') {
       return `[${parseConformanceRecursively(operand.optionalConform[0], depth + 1)}]`
     } else {
-      return 'O'
+      return dbEnum.conformance.optional
     }
   } else if (operand.otherwiseConform) {
     return Object.entries(operand.otherwiseConform[0])
@@ -142,11 +142,11 @@ function parseConformanceRecursively(operand, depth = 0, parentJoinChar = '') {
       })
       .join(` ${joinChar} `)
   } else if (operand.provisionalConform) {
-    return 'P'
+    return dbEnum.conformance.provisional
   } else if (operand.disallowConform) {
-    return 'X'
+    return dbEnum.conformance.disallowed
   } else if (operand.deprecateConform) {
-    return 'D'
+    return dbEnum.conformance.deprecated
   } else {
     // reach base level terms, return the name directly
     for (const term of baseLevelTerms) {
@@ -155,7 +155,7 @@ function parseConformanceRecursively(operand, depth = 0, parentJoinChar = '') {
       }
     }
     // reaching here means the term is too complex to parse
-    return 'desc'
+    return dbEnum.conformance.desc
   }
 }
 
