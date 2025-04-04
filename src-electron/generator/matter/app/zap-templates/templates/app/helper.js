@@ -525,16 +525,14 @@ function hasSpecificAttributes(options) {
   return this.count > kGlobalAttributes.length;
 }
 
-asCamelCase = string.tokensIntoCamelCase;
-
 function asLowerCamelCase(label, options) {
   const preserveAcronyms = options && options.hash.preserveAcronyms;
-  return asCamelCase(label, true, preserveAcronyms);
+  return string.tokensIntoCamelCase(label, true, preserveAcronyms);
 }
 
 function asUpperCamelCase(label, options) {
   const preserveAcronyms = options && options.hash.preserveAcronyms;
-  return asCamelCase(label, false, preserveAcronyms);
+  return string.tokensIntoCamelCase(label, false, preserveAcronyms);
 }
 
 function chip_friendly_endpoint_type_name(options) {
