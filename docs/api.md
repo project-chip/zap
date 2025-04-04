@@ -886,8 +886,10 @@ This module provides cache for commonly used static database queries.
     * [~selectStructById(db, id)](#module_DB API_ zcl database access..selectStructById) ⇒
     * [~selectStructByName(db, name, packageIds)](#module_DB API_ zcl database access..selectStructByName) ⇒
     * [~selectStructByNameAndClusterId(db, name, clusterId, packageIds)](#module_DB API_ zcl database access..selectStructByNameAndClusterId) ⇒
+    * [~selectStructByNameAndClusterName(db, name, clusterName, packageIds)](#module_DB API_ zcl database access..selectStructByNameAndClusterName) ⇒
     * [~selectStructsWithClusterAssociation(db, packageIds, groupByStructName)](#module_DB API_ zcl database access..selectStructsWithClusterAssociation) ⇒
     * [~sqlQueryForDataTypeByNameAndClusterId(typeDiscriminator, clusterId, packageIds)](#module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterId) ⇒
+    * [~sqlQueryForDataTypeByNameAndClusterName(typeDiscriminator, name, clusterName, packageIds, options)](#module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterName) ⇒
     * [~selectClusterBitmaps(db, packageId, clusterId)](#module_DB API_ zcl database access..selectClusterBitmaps) ⇒
     * [~selectAllBitmapFieldsById(db, id)](#module_DB API_ zcl database access..selectAllBitmapFieldsById) ⇒
     * [~selectAllBitmapFields(db, packageId)](#module_DB API_ zcl database access..selectAllBitmapFields) ⇒
@@ -1222,6 +1224,22 @@ Select a struct matched by name and clusterId
 | clusterId | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
 
+<a name="module_DB API_ zcl database access..selectStructByNameAndClusterName"></a>
+
+### DB API: zcl database access~selectStructByNameAndClusterName(db, name, clusterName, packageIds) ⇒
+Select a struct matched by name and cluster name
+Note: Use selectStructByNameAndClusterName but this was needed for backwards compatibility.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: struct information or undefined  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| name | <code>\*</code> | 
+| clusterName | <code>\*</code> | 
+| packageIds | <code>\*</code> | 
+
 <a name="module_DB API_ zcl database access..selectStructsWithClusterAssociation"></a>
 
 ### DB API: zcl database access~selectStructsWithClusterAssociation(db, packageIds, groupByStructName) ⇒
@@ -1251,6 +1269,22 @@ Formulate a sqlite query string for a data type from the given cluster ID and pa
 | typeDiscriminator | <code>\*</code> |  | 
 | clusterId | <code>\*</code> | <code></code> | 
 | packageIds | <code>\*</code> |  | 
+
+<a name="module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterName"></a>
+
+### DB API: zcl database access~sqlQueryForDataTypeByNameAndClusterName(typeDiscriminator, name, clusterName, packageIds, options) ⇒
+Formulate a sqlite query string for a data type from the given cluster name and package IDs.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: SQLite query string  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| typeDiscriminator | <code>\*</code> |  |
+| name | <code>\*</code> | data type name |
+| clusterName | <code>\*</code> |  |
+| packageIds | <code>\*</code> |  |
+| options | <code>\*</code> |  |
 
 <a name="module_DB API_ zcl database access..selectClusterBitmaps"></a>
 
@@ -1690,8 +1724,10 @@ This module provides queries for atomic type queries.
     * [~selectStructById(db, id)](#module_DB API_ zcl database access..selectStructById) ⇒
     * [~selectStructByName(db, name, packageIds)](#module_DB API_ zcl database access..selectStructByName) ⇒
     * [~selectStructByNameAndClusterId(db, name, clusterId, packageIds)](#module_DB API_ zcl database access..selectStructByNameAndClusterId) ⇒
+    * [~selectStructByNameAndClusterName(db, name, clusterName, packageIds)](#module_DB API_ zcl database access..selectStructByNameAndClusterName) ⇒
     * [~selectStructsWithClusterAssociation(db, packageIds, groupByStructName)](#module_DB API_ zcl database access..selectStructsWithClusterAssociation) ⇒
     * [~sqlQueryForDataTypeByNameAndClusterId(typeDiscriminator, clusterId, packageIds)](#module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterId) ⇒
+    * [~sqlQueryForDataTypeByNameAndClusterName(typeDiscriminator, name, clusterName, packageIds, options)](#module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterName) ⇒
     * [~selectClusterBitmaps(db, packageId, clusterId)](#module_DB API_ zcl database access..selectClusterBitmaps) ⇒
     * [~selectAllBitmapFieldsById(db, id)](#module_DB API_ zcl database access..selectAllBitmapFieldsById) ⇒
     * [~selectAllBitmapFields(db, packageId)](#module_DB API_ zcl database access..selectAllBitmapFields) ⇒
@@ -2026,6 +2062,22 @@ Select a struct matched by name and clusterId
 | clusterId | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
 
+<a name="module_DB API_ zcl database access..selectStructByNameAndClusterName"></a>
+
+### DB API: zcl database access~selectStructByNameAndClusterName(db, name, clusterName, packageIds) ⇒
+Select a struct matched by name and cluster name
+Note: Use selectStructByNameAndClusterName but this was needed for backwards compatibility.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: struct information or undefined  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| name | <code>\*</code> | 
+| clusterName | <code>\*</code> | 
+| packageIds | <code>\*</code> | 
+
 <a name="module_DB API_ zcl database access..selectStructsWithClusterAssociation"></a>
 
 ### DB API: zcl database access~selectStructsWithClusterAssociation(db, packageIds, groupByStructName) ⇒
@@ -2055,6 +2107,22 @@ Formulate a sqlite query string for a data type from the given cluster ID and pa
 | typeDiscriminator | <code>\*</code> |  | 
 | clusterId | <code>\*</code> | <code></code> | 
 | packageIds | <code>\*</code> |  | 
+
+<a name="module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterName"></a>
+
+### DB API: zcl database access~sqlQueryForDataTypeByNameAndClusterName(typeDiscriminator, name, clusterName, packageIds, options) ⇒
+Formulate a sqlite query string for a data type from the given cluster name and package IDs.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: SQLite query string  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| typeDiscriminator | <code>\*</code> |  |
+| name | <code>\*</code> | data type name |
+| clusterName | <code>\*</code> |  |
+| packageIds | <code>\*</code> |  |
+| options | <code>\*</code> |  |
 
 <a name="module_DB API_ zcl database access..selectClusterBitmaps"></a>
 
@@ -2489,8 +2557,10 @@ This module provides queries for enums.
     * [~selectStructById(db, id)](#module_DB API_ zcl database access..selectStructById) ⇒
     * [~selectStructByName(db, name, packageIds)](#module_DB API_ zcl database access..selectStructByName) ⇒
     * [~selectStructByNameAndClusterId(db, name, clusterId, packageIds)](#module_DB API_ zcl database access..selectStructByNameAndClusterId) ⇒
+    * [~selectStructByNameAndClusterName(db, name, clusterName, packageIds)](#module_DB API_ zcl database access..selectStructByNameAndClusterName) ⇒
     * [~selectStructsWithClusterAssociation(db, packageIds, groupByStructName)](#module_DB API_ zcl database access..selectStructsWithClusterAssociation) ⇒
     * [~sqlQueryForDataTypeByNameAndClusterId(typeDiscriminator, clusterId, packageIds)](#module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterId) ⇒
+    * [~sqlQueryForDataTypeByNameAndClusterName(typeDiscriminator, name, clusterName, packageIds, options)](#module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterName) ⇒
     * [~selectClusterBitmaps(db, packageId, clusterId)](#module_DB API_ zcl database access..selectClusterBitmaps) ⇒
     * [~selectAllBitmapFieldsById(db, id)](#module_DB API_ zcl database access..selectAllBitmapFieldsById) ⇒
     * [~selectAllBitmapFields(db, packageId)](#module_DB API_ zcl database access..selectAllBitmapFields) ⇒
@@ -2825,6 +2895,22 @@ Select a struct matched by name and clusterId
 | clusterId | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
 
+<a name="module_DB API_ zcl database access..selectStructByNameAndClusterName"></a>
+
+### DB API: zcl database access~selectStructByNameAndClusterName(db, name, clusterName, packageIds) ⇒
+Select a struct matched by name and cluster name
+Note: Use selectStructByNameAndClusterName but this was needed for backwards compatibility.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: struct information or undefined  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| name | <code>\*</code> | 
+| clusterName | <code>\*</code> | 
+| packageIds | <code>\*</code> | 
+
 <a name="module_DB API_ zcl database access..selectStructsWithClusterAssociation"></a>
 
 ### DB API: zcl database access~selectStructsWithClusterAssociation(db, packageIds, groupByStructName) ⇒
@@ -2854,6 +2940,22 @@ Formulate a sqlite query string for a data type from the given cluster ID and pa
 | typeDiscriminator | <code>\*</code> |  | 
 | clusterId | <code>\*</code> | <code></code> | 
 | packageIds | <code>\*</code> |  | 
+
+<a name="module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterName"></a>
+
+### DB API: zcl database access~sqlQueryForDataTypeByNameAndClusterName(typeDiscriminator, name, clusterName, packageIds, options) ⇒
+Formulate a sqlite query string for a data type from the given cluster name and package IDs.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: SQLite query string  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| typeDiscriminator | <code>\*</code> |  |
+| name | <code>\*</code> | data type name |
+| clusterName | <code>\*</code> |  |
+| packageIds | <code>\*</code> |  |
+| options | <code>\*</code> |  |
 
 <a name="module_DB API_ zcl database access..selectClusterBitmaps"></a>
 
@@ -4567,8 +4669,10 @@ inside a single session. Things like:
     * [~selectStructById(db, id)](#module_DB API_ zcl database access..selectStructById) ⇒
     * [~selectStructByName(db, name, packageIds)](#module_DB API_ zcl database access..selectStructByName) ⇒
     * [~selectStructByNameAndClusterId(db, name, clusterId, packageIds)](#module_DB API_ zcl database access..selectStructByNameAndClusterId) ⇒
+    * [~selectStructByNameAndClusterName(db, name, clusterName, packageIds)](#module_DB API_ zcl database access..selectStructByNameAndClusterName) ⇒
     * [~selectStructsWithClusterAssociation(db, packageIds, groupByStructName)](#module_DB API_ zcl database access..selectStructsWithClusterAssociation) ⇒
     * [~sqlQueryForDataTypeByNameAndClusterId(typeDiscriminator, clusterId, packageIds)](#module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterId) ⇒
+    * [~sqlQueryForDataTypeByNameAndClusterName(typeDiscriminator, name, clusterName, packageIds, options)](#module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterName) ⇒
     * [~selectClusterBitmaps(db, packageId, clusterId)](#module_DB API_ zcl database access..selectClusterBitmaps) ⇒
     * [~selectAllBitmapFieldsById(db, id)](#module_DB API_ zcl database access..selectAllBitmapFieldsById) ⇒
     * [~selectAllBitmapFields(db, packageId)](#module_DB API_ zcl database access..selectAllBitmapFields) ⇒
@@ -4903,6 +5007,22 @@ Select a struct matched by name and clusterId
 | clusterId | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
 
+<a name="module_DB API_ zcl database access..selectStructByNameAndClusterName"></a>
+
+### DB API: zcl database access~selectStructByNameAndClusterName(db, name, clusterName, packageIds) ⇒
+Select a struct matched by name and cluster name
+Note: Use selectStructByNameAndClusterName but this was needed for backwards compatibility.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: struct information or undefined  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| name | <code>\*</code> | 
+| clusterName | <code>\*</code> | 
+| packageIds | <code>\*</code> | 
+
 <a name="module_DB API_ zcl database access..selectStructsWithClusterAssociation"></a>
 
 ### DB API: zcl database access~selectStructsWithClusterAssociation(db, packageIds, groupByStructName) ⇒
@@ -4932,6 +5052,22 @@ Formulate a sqlite query string for a data type from the given cluster ID and pa
 | typeDiscriminator | <code>\*</code> |  | 
 | clusterId | <code>\*</code> | <code></code> | 
 | packageIds | <code>\*</code> |  | 
+
+<a name="module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterName"></a>
+
+### DB API: zcl database access~sqlQueryForDataTypeByNameAndClusterName(typeDiscriminator, name, clusterName, packageIds, options) ⇒
+Formulate a sqlite query string for a data type from the given cluster name and package IDs.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: SQLite query string  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| typeDiscriminator | <code>\*</code> |  |
+| name | <code>\*</code> | data type name |
+| clusterName | <code>\*</code> |  |
+| packageIds | <code>\*</code> |  |
+| options | <code>\*</code> |  |
 
 <a name="module_DB API_ zcl database access..selectClusterBitmaps"></a>
 
@@ -5417,8 +5553,10 @@ This module provides queries for enums.
     * [~selectStructById(db, id)](#module_DB API_ zcl database access..selectStructById) ⇒
     * [~selectStructByName(db, name, packageIds)](#module_DB API_ zcl database access..selectStructByName) ⇒
     * [~selectStructByNameAndClusterId(db, name, clusterId, packageIds)](#module_DB API_ zcl database access..selectStructByNameAndClusterId) ⇒
+    * [~selectStructByNameAndClusterName(db, name, clusterName, packageIds)](#module_DB API_ zcl database access..selectStructByNameAndClusterName) ⇒
     * [~selectStructsWithClusterAssociation(db, packageIds, groupByStructName)](#module_DB API_ zcl database access..selectStructsWithClusterAssociation) ⇒
     * [~sqlQueryForDataTypeByNameAndClusterId(typeDiscriminator, clusterId, packageIds)](#module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterId) ⇒
+    * [~sqlQueryForDataTypeByNameAndClusterName(typeDiscriminator, name, clusterName, packageIds, options)](#module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterName) ⇒
     * [~selectClusterBitmaps(db, packageId, clusterId)](#module_DB API_ zcl database access..selectClusterBitmaps) ⇒
     * [~selectAllBitmapFieldsById(db, id)](#module_DB API_ zcl database access..selectAllBitmapFieldsById) ⇒
     * [~selectAllBitmapFields(db, packageId)](#module_DB API_ zcl database access..selectAllBitmapFields) ⇒
@@ -5753,6 +5891,22 @@ Select a struct matched by name and clusterId
 | clusterId | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
 
+<a name="module_DB API_ zcl database access..selectStructByNameAndClusterName"></a>
+
+### DB API: zcl database access~selectStructByNameAndClusterName(db, name, clusterName, packageIds) ⇒
+Select a struct matched by name and cluster name
+Note: Use selectStructByNameAndClusterName but this was needed for backwards compatibility.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: struct information or undefined  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| name | <code>\*</code> | 
+| clusterName | <code>\*</code> | 
+| packageIds | <code>\*</code> | 
+
 <a name="module_DB API_ zcl database access..selectStructsWithClusterAssociation"></a>
 
 ### DB API: zcl database access~selectStructsWithClusterAssociation(db, packageIds, groupByStructName) ⇒
@@ -5782,6 +5936,22 @@ Formulate a sqlite query string for a data type from the given cluster ID and pa
 | typeDiscriminator | <code>\*</code> |  | 
 | clusterId | <code>\*</code> | <code></code> | 
 | packageIds | <code>\*</code> |  | 
+
+<a name="module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterName"></a>
+
+### DB API: zcl database access~sqlQueryForDataTypeByNameAndClusterName(typeDiscriminator, name, clusterName, packageIds, options) ⇒
+Formulate a sqlite query string for a data type from the given cluster name and package IDs.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: SQLite query string  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| typeDiscriminator | <code>\*</code> |  |
+| name | <code>\*</code> | data type name |
+| clusterName | <code>\*</code> |  |
+| packageIds | <code>\*</code> |  |
+| options | <code>\*</code> |  |
 
 <a name="module_DB API_ zcl database access..selectClusterBitmaps"></a>
 
@@ -6212,8 +6382,10 @@ across different query files.
     * [~selectStructById(db, id)](#module_DB API_ zcl database access..selectStructById) ⇒
     * [~selectStructByName(db, name, packageIds)](#module_DB API_ zcl database access..selectStructByName) ⇒
     * [~selectStructByNameAndClusterId(db, name, clusterId, packageIds)](#module_DB API_ zcl database access..selectStructByNameAndClusterId) ⇒
+    * [~selectStructByNameAndClusterName(db, name, clusterName, packageIds)](#module_DB API_ zcl database access..selectStructByNameAndClusterName) ⇒
     * [~selectStructsWithClusterAssociation(db, packageIds, groupByStructName)](#module_DB API_ zcl database access..selectStructsWithClusterAssociation) ⇒
     * [~sqlQueryForDataTypeByNameAndClusterId(typeDiscriminator, clusterId, packageIds)](#module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterId) ⇒
+    * [~sqlQueryForDataTypeByNameAndClusterName(typeDiscriminator, name, clusterName, packageIds, options)](#module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterName) ⇒
     * [~selectClusterBitmaps(db, packageId, clusterId)](#module_DB API_ zcl database access..selectClusterBitmaps) ⇒
     * [~selectAllBitmapFieldsById(db, id)](#module_DB API_ zcl database access..selectAllBitmapFieldsById) ⇒
     * [~selectAllBitmapFields(db, packageId)](#module_DB API_ zcl database access..selectAllBitmapFields) ⇒
@@ -6548,6 +6720,22 @@ Select a struct matched by name and clusterId
 | clusterId | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
 
+<a name="module_DB API_ zcl database access..selectStructByNameAndClusterName"></a>
+
+### DB API: zcl database access~selectStructByNameAndClusterName(db, name, clusterName, packageIds) ⇒
+Select a struct matched by name and cluster name
+Note: Use selectStructByNameAndClusterName but this was needed for backwards compatibility.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: struct information or undefined  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| name | <code>\*</code> | 
+| clusterName | <code>\*</code> | 
+| packageIds | <code>\*</code> | 
+
 <a name="module_DB API_ zcl database access..selectStructsWithClusterAssociation"></a>
 
 ### DB API: zcl database access~selectStructsWithClusterAssociation(db, packageIds, groupByStructName) ⇒
@@ -6577,6 +6765,22 @@ Formulate a sqlite query string for a data type from the given cluster ID and pa
 | typeDiscriminator | <code>\*</code> |  | 
 | clusterId | <code>\*</code> | <code></code> | 
 | packageIds | <code>\*</code> |  | 
+
+<a name="module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterName"></a>
+
+### DB API: zcl database access~sqlQueryForDataTypeByNameAndClusterName(typeDiscriminator, name, clusterName, packageIds, options) ⇒
+Formulate a sqlite query string for a data type from the given cluster name and package IDs.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: SQLite query string  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| typeDiscriminator | <code>\*</code> |  |
+| name | <code>\*</code> | data type name |
+| clusterName | <code>\*</code> |  |
+| packageIds | <code>\*</code> |  |
+| options | <code>\*</code> |  |
 
 <a name="module_DB API_ zcl database access..selectClusterBitmaps"></a>
 
@@ -7006,8 +7210,10 @@ This module provides queries for ZCL static queries.
     * [~selectStructById(db, id)](#module_DB API_ zcl database access..selectStructById) ⇒
     * [~selectStructByName(db, name, packageIds)](#module_DB API_ zcl database access..selectStructByName) ⇒
     * [~selectStructByNameAndClusterId(db, name, clusterId, packageIds)](#module_DB API_ zcl database access..selectStructByNameAndClusterId) ⇒
+    * [~selectStructByNameAndClusterName(db, name, clusterName, packageIds)](#module_DB API_ zcl database access..selectStructByNameAndClusterName) ⇒
     * [~selectStructsWithClusterAssociation(db, packageIds, groupByStructName)](#module_DB API_ zcl database access..selectStructsWithClusterAssociation) ⇒
     * [~sqlQueryForDataTypeByNameAndClusterId(typeDiscriminator, clusterId, packageIds)](#module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterId) ⇒
+    * [~sqlQueryForDataTypeByNameAndClusterName(typeDiscriminator, name, clusterName, packageIds, options)](#module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterName) ⇒
     * [~selectClusterBitmaps(db, packageId, clusterId)](#module_DB API_ zcl database access..selectClusterBitmaps) ⇒
     * [~selectAllBitmapFieldsById(db, id)](#module_DB API_ zcl database access..selectAllBitmapFieldsById) ⇒
     * [~selectAllBitmapFields(db, packageId)](#module_DB API_ zcl database access..selectAllBitmapFields) ⇒
@@ -7342,6 +7548,22 @@ Select a struct matched by name and clusterId
 | clusterId | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
 
+<a name="module_DB API_ zcl database access..selectStructByNameAndClusterName"></a>
+
+### DB API: zcl database access~selectStructByNameAndClusterName(db, name, clusterName, packageIds) ⇒
+Select a struct matched by name and cluster name
+Note: Use selectStructByNameAndClusterName but this was needed for backwards compatibility.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: struct information or undefined  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| name | <code>\*</code> | 
+| clusterName | <code>\*</code> | 
+| packageIds | <code>\*</code> | 
+
 <a name="module_DB API_ zcl database access..selectStructsWithClusterAssociation"></a>
 
 ### DB API: zcl database access~selectStructsWithClusterAssociation(db, packageIds, groupByStructName) ⇒
@@ -7371,6 +7593,22 @@ Formulate a sqlite query string for a data type from the given cluster ID and pa
 | typeDiscriminator | <code>\*</code> |  | 
 | clusterId | <code>\*</code> | <code></code> | 
 | packageIds | <code>\*</code> |  | 
+
+<a name="module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterName"></a>
+
+### DB API: zcl database access~sqlQueryForDataTypeByNameAndClusterName(typeDiscriminator, name, clusterName, packageIds, options) ⇒
+Formulate a sqlite query string for a data type from the given cluster name and package IDs.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: SQLite query string  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| typeDiscriminator | <code>\*</code> |  |
+| name | <code>\*</code> | data type name |
+| clusterName | <code>\*</code> |  |
+| packageIds | <code>\*</code> |  |
+| options | <code>\*</code> |  |
 
 <a name="module_DB API_ zcl database access..selectClusterBitmaps"></a>
 

@@ -240,12 +240,27 @@ async function asObjectiveCClass(type, cluster, options) {
   }
 
   if (isStruct) {
-    const structObj = await zclQuery.selectStructByName(
+    let structObj = await zclQuery.selectStructByNameAndClusterName(
       this.global.db,
       type,
+      cluster,
       pkgIds
     );
-    if (structObj.structClusterCount == 0) {
+
+    let isGlobalStruct;
+    if (!structObj) {
+      // Can end up here when our "cluster name" is a backwards compat name.
+      // Just fetch by struct name only in that case.
+      structObj = await zclQuery.selectStructByName(
+        this.global.db,
+        type,
+        pkgIds
+      );
+      isGlobalStruct = structObj.structClusterCount == 0;
+    } else {
+      isGlobalStruct = !structObj.clusterName;
+    }
+    if (isGlobalStruct) {
       // This is a global struct.
       return `${
         options.hash.structTypePrefix || 'MTR'

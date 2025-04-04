@@ -29,6 +29,7 @@ const testUtil = require('./test-util')
 const queryEndpoint = require('../src-electron/db/query-endpoint')
 const queryEndpointType = require('../src-electron/db/query-endpoint-type')
 const queryConfig = require('../src-electron/db/query-config')
+const queryZcl = require('../src-electron/db/query-zcl')
 const queryDeviceType = require('../src-electron/db/query-device-type')
 const util = require('../src-electron/util/util')
 const testQuery = require('./test-query')
@@ -521,6 +522,21 @@ test(
       'SemanticTagStruct item 3 from Identify cluster: Label'
     )
     expect(ept).not.toContain('SemanticTagStruct item 4 from Identify cluster')
+
+    // Testing selectStructByNameAndClusterName for struct names
+    let globalStruct = await queryZcl.selectStructByNameAndClusterName(
+      db,
+      'SemanticTagStruct',
+      'Descriptor',
+      zclPackageId
+    )
+    let clusterStruct = await await queryZcl.selectStructByNameAndClusterName(
+      db,
+      'SemanticTagStruct',
+      'Mode Select',
+      zclPackageId
+    )
+    expect(globalStruct.id).not.toEqual(clusterStruct.id)
   },
   testUtil.timeout.long()
 )
