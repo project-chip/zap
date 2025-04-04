@@ -330,17 +330,19 @@ function httpPostCluster(db) {
     let sessionId = request.zapSessionId
 
     try {
-      let packageId = await queryPackage
-        .getSessionPackagesByType(
+      let pkgs = await queryPackage.getSessionPackagesByType(
+        db,
+        sessionId,
+        dbEnum.packageType.zclProperties
+      )
+      pkgs = pkgs.concat(
+        await queryPackage.getSessionPackagesByType(
           db,
           sessionId,
-          dbEnum.packageType.zclProperties
+          dbEnum.packageType.zclXmlStandalone
         )
-        .then((pkgs) => pkgs?.shift()?.id) // default to always picking first package
-
-      if (packageId == null) {
-        throw new Error('Unable to find packageId')
-      }
+      )
+      let pkgIds = pkgs.map((pkg) => pkg.id)
 
       let insertDefault = await queryConfig
         .selectClusterState(db, endpointTypeId, id, side)
@@ -355,7 +357,7 @@ function httpPostCluster(db) {
       )
 
       if (insertDefault) {
-        await queryConfig.insertClusterDefaults(db, endpointTypeId, packageId, {
+        await queryConfig.insertClusterDefaults(db, endpointTypeId, pkgIds, {
           clusterRef: id,
           side: side
         })

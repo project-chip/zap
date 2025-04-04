@@ -533,7 +533,8 @@ SELECT
   SESSION_PARTITION.SESSION_REF,
   SESSION_PARTITION.SESSION_PARTITION_ID,
   SP.REQUIRED,
-  P.CATEGORY
+  P.CATEGORY,
+  P.TYPE
 FROM
   SESSION_PARTITION
 INNER JOIN
@@ -686,7 +687,7 @@ async function getAllPackages(db) {
         CATEGORY,
         DESCRIPTION,
         PARENT_PACKAGE_REF
-       FROM 
+       FROM
         PACKAGE
        WHERE
         IS_IN_SYNC = 1`
@@ -734,7 +735,7 @@ async function getAttributeAccessInterface(db, code, packageIds) {
           po.OPTION_CODE = ?
           AND ${packageRefCondition}
 
-      UNION 
+      UNION
 
       SELECT
           c.NAME AS OPTION_CATEGORY,
