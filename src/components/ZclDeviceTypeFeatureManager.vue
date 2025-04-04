@@ -373,9 +373,6 @@ export default {
 
       // clean the state of variables related to the dialog
       Object.assign(this, {
-        attributesToUpdate: [],
-        commandsToUpdate: [],
-        eventsToUpdate: [],
         displayWarning: false,
         warningMessage: '',
         disableChange: false,
