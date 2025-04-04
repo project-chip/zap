@@ -94,7 +94,7 @@ test(
         /* firstLower = */ false,
         /* preserveAcronyms = */ false
       )
-    ).toEqual('SomeACRHere')
+    ).toEqual('SomeAcrHere')
     expect(
       string.tokensIntoCamelCase(
         'some ACR here',
