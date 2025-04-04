@@ -82,7 +82,7 @@ The `templates` key contained in the `gen-templates.json` file above, is an arra
 
 The _replacement pattern_ inside the output key, comes handy when iterator key is used and defines how each generated file will be named. Replacement patterns are in a format of `{key}` or `{key:modifier}`. The `key` can be any usual key that the iterated object provides. For example, if you iterate over cluster, these can be `code`, `name`, `description`, `define` and all the usual keys that a cluster supports. So if your output contains `{code}` then this pattern will be replaced by the actual cluster code.
 
-The modifier can be one of the following: `hexuppercase`, `hexlowercase`, `tolowercase`, `touppercase`, `tocamelcase`, `touppercamelcase`, `tosnakecase` or `tosnakecaseallcaps`.
+The modifier can be one of the following: `hexuppercase`, `hexlowercase`, `tolowercase`, `touppercase`, `tocamelcase`, `asuppercamelcase`, `tosnakecase` or `tosnakecaseallcaps`.
 
 ## Templates key: options
 

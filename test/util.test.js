@@ -47,13 +47,17 @@ test(
     )
     expect(
       util2.patternFormat(
-        '{a:tocamelcase} {b:tosnakecase} {b:tosnakecaseallcaps} {a:touppercamelcase} {b:touppercamelcase}',
+        '{a:tocamelcase} {b:tosnakecase} {b:tosnakecaseallcaps} {a:asuppercamelcase} {c:asuppercamelcase} {d:asuppercamelcase}',
         {
           a: 'some string',
-          b: 'another string'
+          b: 'another string',
+          c: 'PM2.5 Concentration Measurement',
+          d: 'FOO2.5 BAR Baz'
         }
       )
-    ).toEqual('someString another_string ANOTHER_STRING SomeString AnotherString')
+    ).toEqual(
+      'someString another_string ANOTHER_STRING SomeString Pm25ConcentrationMeasurement Foo25BarBaz'
+    )
   },
   timeout.short()
 )
