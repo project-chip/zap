@@ -525,7 +525,7 @@ function hasSpecificAttributes(options) {
   return this.count > kGlobalAttributes.length;
 }
 
-asCamelCase = string.asCamelCase;
+asCamelCase = string.tokensIntoCamelCase;
 
 function asLowerCamelCase(label, options) {
   const preserveAcronyms = options && options.hash.preserveAcronyms;

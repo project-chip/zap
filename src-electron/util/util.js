@@ -939,8 +939,8 @@ function patternFormat(pattern, data) {
       string.toSnakeCaseAllCaps(value.toString())
     )
     out = out.replace(
-      `{${key}:asuppercamelcase}`,
-      string.asCamelCase(value.toString())
+      `{${key}:tokensintouppercamelcase}`,
+      string.tokensIntoCamelCase(value.toString())
     )
     // Note: if you add more of these, add the documentation to sdk-integration.md
   }
