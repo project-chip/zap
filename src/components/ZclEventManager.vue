@@ -116,6 +116,7 @@ import * as Util from '../util/util.js'
 import EditableAttributesMixin from '../util/editable-attributes-mixin.js'
 import uiOptions from '../util/ui-options'
 import CommonMixin from '../util/common-mixin'
+import dbEnum from '../../src-shared/db-enum'
 
 export default {
   name: 'ZclEventManager',
@@ -179,7 +180,8 @@ export default {
             !this.isEventSelected(row.id)) ||
             (this.eventsNotSupportedByConform[row.id] &&
               this.isEventSelected(row.id)))) ||
-        (row.conformance == 'M' && !this.isEventSelected(row.id))
+        (row.conformance == dbEnum.conformance.mandatory &&
+          !this.isEventSelected(row.id))
       )
     },
     getEventWarning(row) {
@@ -198,7 +200,10 @@ export default {
       ) {
         warnings.push(this.eventsNotSupportedByConform[row.id])
       }
-      if (row.conformance == 'M' && !this.isEventSelected(row.id)) {
+      if (
+        row.conformance == dbEnum.conformance.mandatory &&
+        !this.isEventSelected(row.id)
+      ) {
         warnings.push(this.defaultWarning)
       }
       return warnings

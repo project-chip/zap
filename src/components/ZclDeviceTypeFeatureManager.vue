@@ -229,8 +229,8 @@ export default {
     isToggleDisabled(feature) {
       // disable toggling features with unsupported conformance and disabled clusters
       return (
-        feature.conformance == 'X' ||
-        feature.conformance == 'D' ||
+        feature.conformance == dbEnum.conformance.disallowed ||
+        feature.conformance == dbEnum.conformance.deprecated ||
         this.isClusterDisabled(feature)
       )
     },
@@ -370,6 +370,18 @@ export default {
 
       // close the dialog
       this.showDialog = false
+
+      // clean the state of variables related to the dialog
+      Object.assign(this, {
+        attributesToUpdate: [],
+        commandsToUpdate: [],
+        eventsToUpdate: [],
+        displayWarning: false,
+        warningMessage: '',
+        disableChange: false,
+        selectedFeature: {},
+        updatedEnabledFeatures: []
+      })
     },
     setFeatureMapAttribute(featureData) {
       let featureMapAttributeId = featureData.featureMapAttributeId
@@ -444,13 +456,13 @@ export default {
         !this.selectionClients.includes(clusterId) &&
         feature.includeClient == 1
       ) {
-        sides.push('client')
+        sides.push(dbEnum.clusterSide.client)
       }
       if (
         !this.selectionServers.includes(clusterId) &&
         feature.includeServer == 1
       ) {
-        sides.push('server')
+        sides.push(dbEnum.clusterSide.server)
       }
       return sides
     },
@@ -475,7 +487,7 @@ export default {
       return this.hasFeatureWithDisabledCluster
         ? this.columns
         : this.columns.filter(
-            (column) => column.name != dbEnum.deviceTypeFeature.name.status
+            (column) => column.name != dbEnum.feature.name.status
           )
     },
     hasFeatureWithDisabledCluster() {

@@ -249,3 +249,17 @@ exports.featureMapAttribute = {
   name: 'FeatureMap',
   code: 65532
 }
+
+exports.conformance = {
+  mandatory: 'M',
+  optional: 'O',
+  disallowed: 'X',
+  deprecated: 'D',
+  provisional: 'P',
+  desc: 'desc'
+}
+
+exports.clusterSide = {
+  client: 'client',
+  server: 'server'
+}
