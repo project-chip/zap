@@ -47,7 +47,7 @@ test(
     )
     expect(
       util2.patternFormat(
-        '{a:tocamelcase} {b:tosnakecase} {b:tosnakecaseallcaps} {a:asuppercamelcase} {c:asuppercamelcase} {d:asuppercamelcase}',
+        '{a:tocamelcase} {b:tosnakecase} {b:tosnakecaseallcaps} {a:tokensintouppercamelcase} {c:tokensintouppercamelcase} {d:tokensintouppercamelcase}',
         {
           a: 'some string',
           b: 'another string',

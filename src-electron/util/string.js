@@ -69,7 +69,7 @@ function toSpacedLowercase(str) {
  * "Foo 2.5" becomes "Foo25" rather than "Foo2.5").
  *
  */
-function asCamelCase(label, firstLower, preserveAcronyms) {
+function tokensIntoCamelCase(label, firstLower, preserveAcronyms) {
   const wordSplitRegexp = / |_|-|\//
   let tokens = label.replace(/[+()&]/g, '').split(wordSplitRegexp)
 
@@ -230,7 +230,7 @@ function isDigit(ch) {
   return ch >= '0' && ch <= '9'
 }
 
-exports.asCamelCase = asCamelCase
+exports.tokensIntoCamelCase = tokensIntoCamelCase
 exports.toCamelCase = toCamelCase
 exports.toCleanSymbol = toCleanSymbol
 exports.toCleanMacro = toCleanMacro
