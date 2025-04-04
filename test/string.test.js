@@ -71,3 +71,35 @@ test(
   },
   timeout.short()
 )
+
+test(
+  'asCamelCase',
+  () => {
+    expect(string.asCamelCase('foo')).toEqual('Foo')
+    expect(string.asCamelCase('foo', /* firstLower = */ true)).toEqual('foo')
+    expect(string.asCamelCase('foo bar')).toEqual('FooBar')
+    expect(string.asCamelCase('foo bar', /* firstLower = */ true)).toEqual(
+      'fooBar'
+    )
+    expect(string.asCamelCase('Some 1.2.3 Test')).toEqual('Some123Test')
+    expect(
+      string.asCamelCase('Some 1.2.3 Test', /* firstLower = */ true)
+    ).toEqual('some123Test')
+    expect(string.asCamelCase('some ACR here')).toEqual('SomeAcrHere')
+    expect(
+      string.asCamelCase(
+        'some ACR here',
+        /* firstLower = */ false,
+        /* preserveAcronyms = */ false
+      )
+    ).toEqual('SomeACRHere')
+    expect(
+      string.asCamelCase(
+        'some ACR here',
+        /* firstLower = */ true,
+        /* preserveAcronyms = */ true
+      )
+    ).toEqual('someACRHere')
+  },
+  timeout.short()
+)
