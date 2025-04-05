@@ -65,7 +65,7 @@ function toSpacedLowercase(str) {
  * the string into tokens.
  *
  * Differs from `toCamelCase` by different handling of "." inside names,
- * so that results are always usable as a code-compatibe name (e.g.
+ * so that results are always usable as a code-compatible name (e.g.
  * "Foo 2.5" becomes "Foo25" rather than "Foo2.5").
  *
  */
