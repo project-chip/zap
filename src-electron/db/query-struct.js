@@ -181,6 +181,10 @@ async function selectStructByNameAndClusterName(
     .then((rows) => rows.map(dbMapping.map.struct))
   if (res && res.length == 1) {
     return res[0]
+  } else if (res && res.length > 1) {
+    throw new Error(
+      `More than one struct ${name} exists with same name for ${clusterName} cluster.`
+    )
   } else {
     queryWithClusterName = queryUtil.sqlQueryForDataTypeByNameAndClusterName(
       dbEnum.zclType.struct,
