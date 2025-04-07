@@ -117,8 +117,7 @@ function sqlQueryForDataTypeByNameAndClusterName(
     DATA_TYPE.NAME AS NAME,
     ${numberExtensionString}
     ${typeTableName}.SIZE AS SIZE,
-    CLUSTER.NAME AS CLUSTER_NAME,
-    REPLACE(CLUSTER.NAME, ' ', '') AS CLUSTER_NAME_WITHOUT_SPACES
+    CLUSTER.NAME AS CLUSTER_NAME
   FROM ${typeTableName}
   INNER JOIN
     DATA_TYPE
@@ -139,7 +138,7 @@ function sqlQueryForDataTypeByNameAndClusterName(
 
   let whereClause = !options.ignoreClusterWhereClause
     ? clusterName
-      ? `AND (CLUSTER.NAME = '${clusterName}' OR CLUSTER_NAME_WITHOUT_SPACES = '${clusterName}')`
+      ? `AND CLUSTER.NAME = '${clusterName}'`
       : `AND CLUSTER.NAME IS NULL`
     : ``
 
