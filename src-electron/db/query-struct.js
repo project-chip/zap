@@ -25,6 +25,7 @@ const dbApi = require('./db-api')
 const dbCache = require('./db-cache')
 const dbMapping = require('./db-mapping')
 const queryUtil = require('./query-util')
+const dbEnum = require('../../src-shared/db-enum.js')
 
 /**
  * Get all structs from a given package ID.
@@ -132,12 +133,12 @@ ORDER BY
  */
 async function selectStructByNameAndClusterId(db, name, clusterId, packageIds) {
   let queryWithoutClusterId = queryUtil.sqlQueryForDataTypeByNameAndClusterId(
-    'struct',
+    dbEnum.zclType.struct,
     null,
     packageIds
   )
   let queryWithClusterId = queryUtil.sqlQueryForDataTypeByNameAndClusterId(
-    'struct',
+    dbEnum.zclType.struct,
     clusterId,
     packageIds
   )
@@ -151,6 +152,48 @@ async function selectStructByNameAndClusterId(db, name, clusterId, packageIds) {
     return dbApi
       .dbGet(db, queryWithClusterId, [name, clusterId])
       .then(dbMapping.map.struct)
+  }
+}
+
+/**
+ * Select a struct matched by name and cluster name
+ * Note: Use selectStructByNameAndClusterName but this was needed for backwards compatibility.
+ * @param {*} db
+ * @param {*} name
+ * @param {*} clusterName
+ * @param {*} packageIds
+ * @returns struct information or undefined
+ */
+async function selectStructByNameAndClusterName(
+  db,
+  name,
+  clusterName,
+  packageIds
+) {
+  let queryWithClusterName = queryUtil.sqlQueryForDataTypeByNameAndClusterName(
+    dbEnum.zclType.struct,
+    name,
+    clusterName,
+    packageIds
+  )
+  let res = await dbApi
+    .dbAll(db, queryWithClusterName)
+    .then((rows) => rows.map(dbMapping.map.struct))
+  if (res && res.length == 1) {
+    return res[0]
+  } else if (res && res.length > 1) {
+    throw new Error(
+      `More than one struct ${name} exists with same name for ${clusterName} cluster.`
+    )
+  } else {
+    queryWithClusterName = queryUtil.sqlQueryForDataTypeByNameAndClusterName(
+      dbEnum.zclType.struct,
+      name,
+      null, // Retrieving global data types since cluster specific ones were not found.
+      packageIds
+    )
+    res = await dbApi.dbGet(db, queryWithClusterName).then(dbMapping.map.struct)
+    return res
   }
 }
 
@@ -208,5 +251,6 @@ exports.selectStructByName = dbCache.cacheQuery(selectStructByName)
 exports.selectStructByNameAndClusterId = dbCache.cacheQuery(
   selectStructByNameAndClusterId
 )
+exports.selectStructByNameAndClusterName = selectStructByNameAndClusterName
 exports.selectStructsWithClusterAssociation =
   selectStructsWithClusterAssociation
