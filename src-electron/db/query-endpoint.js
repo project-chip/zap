@@ -50,7 +50,7 @@ FROM
   ENDPOINT AS E1
 LEFT JOIN
   ENDPOINT AS E2
-ON 
+ON
   E2.ENDPOINT_ID = E1.PARENT_ENDPOINT_REF
 WHERE E1.SESSION_REF = ?
 ORDER BY E1.ENDPOINT_IDENTIFIER
@@ -70,18 +70,18 @@ ORDER BY E1.ENDPOINT_IDENTIFIER
  */
 async function getRootNode(db, packageIds) {
   const query = `
-    SELECT 
-      EC.DEVICE_TYPE_REF, 
-      EC.CODE, 
+    SELECT
+      EC.DEVICE_TYPE_REF,
+      EC.CODE,
       EC.TYPE,
-      DT.NAME, 
+      DT.NAME,
       DT.PACKAGE_REF
-    FROM 
+    FROM
       ENDPOINT_COMPOSITION EC
-    JOIN 
+    JOIN
       DEVICE_TYPE DT ON EC.DEVICE_TYPE_REF = DT.DEVICE_TYPE_ID
-    WHERE 
-      EC.TYPE = ? AND 
+    WHERE
+      EC.TYPE = ? AND
       DT.PACKAGE_REF IN (${packageIds.map(() => '?').join(', ')})
   `
 
@@ -124,7 +124,7 @@ FROM
   ENDPOINT AS E1
 LEFT JOIN
   ENDPOINT AS E2
-ON 
+ON
   E2.ENDPOINT_ID = E1.PARENT_ENDPOINT_REF
 INNER JOIN
   ENDPOINT_TYPE
@@ -145,12 +145,12 @@ ON
 WHERE
   E1.SESSION_REF = ?
 AND
-  PACKAGE.CATEGORY = ?
+  ((PACKAGE.CATEGORY = ?) OR (PACKAGE.CATEGORY IS NULL AND PACKAGE.TYPE = ?))
 GROUP BY
   E1.ENDPOINT_IDENTIFIER
 ORDER BY E1.ENDPOINT_IDENTIFIER
     `,
-    [sessionId, templateCategory]
+    [sessionId, templateCategory, dbEnum.packageType.zclXmlStandalone]
   )
 
   // if now rows are found then return all endpoints in the session. This can
@@ -559,7 +559,7 @@ async function duplicateEndpoint(db, id, endpointIdentifier, endpointTypeId) {
         NETWORK_IDENTIFIER,
         PROFILE
       )
-    SELECT 
+    SELECT
       SESSION_REF,
       ?,
       ?,
@@ -605,7 +605,7 @@ ON
   ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF = E1.ENDPOINT_TYPE_REF
 LEFT JOIN
   ENDPOINT AS E2
-ON 
+ON
   E2.ENDPOINT_ID = E1.PARENT_ENDPOINT_REF
 WHERE
   E1.ENDPOINT_ID = ?`,

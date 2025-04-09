@@ -150,16 +150,16 @@ async function selectClusterStatesForAllEndpoints(db, clusterRef, side) {
  * Promise that resolves after inserting the defaults associated with the clusterside to the database.
  * @param {*} db
  * @param {*} endpointTypeId
- * @param {*} clusterRef
- * @param {*} side
+ * @param {*} packageIds
+ * @param {*} cluster
  */
-async function insertClusterDefaults(db, endpointTypeId, packageId, cluster) {
+async function insertClusterDefaults(db, endpointTypeId, packageIds, cluster) {
   let promises = []
   promises.push(
-    resolveDefaultAttributes(db, endpointTypeId, packageId, [cluster])
+    resolveDefaultAttributes(db, endpointTypeId, packageIds, [cluster])
   )
   promises.push(
-    resolveNonOptionalCommands(db, endpointTypeId, [cluster], packageId)
+    resolveNonOptionalCommands(db, endpointTypeId, [cluster], packageIds)
   )
   return Promise.all(promises)
 }
@@ -937,14 +937,12 @@ async function setEndpointDefaults(
   if (doTransaction) {
     await dbApi.dbBeginTransaction(db)
   }
-  let pkgs = await queryPackage.getSessionPackagesByType(
+  let zclPropertiesPkgs = await queryPackage.getSessionPackagesByType(
     db,
     sessionId,
     dbEnum.packageType.zclProperties
   )
-  if (pkgs == null || pkgs.length < 1)
-    throw new Error('Could not locate package id for a given session.')
-
+  // Filter on category if available
   let deviceTypeInfo =
     await querySession.selectDeviceTypePackageInfoFromDeviceTypeId(
       db,
@@ -952,13 +950,23 @@ async function setEndpointDefaults(
     )
   let endpointTypeCategory =
     deviceTypeInfo.length > 0 ? deviceTypeInfo[0].category : null
-  let packageId = pkgs[0].id
-  for (let i = 0; i < pkgs.length; i++) {
-    if (pkgs[i].category == endpointTypeCategory) {
-      packageId = pkgs[i].id
-      break
-    }
+  if (endpointTypeCategory) {
+    zclPropertiesPkgs = zclPropertiesPkgs.filter((pkg) => {
+      return pkg.category == endpointTypeCategory
+    })
   }
+  if (zclPropertiesPkgs == null || zclPropertiesPkgs.length < 1)
+    throw new Error('Could not locate package id for a given session.')
+
+  let zclXmlStandalonePkgs = await queryPackage.getSessionPackagesByType(
+    db,
+    sessionId,
+    dbEnum.packageType.zclXmlStandalone
+  )
+  // Relevant packages are zcl file (filtered by category) and all custom xmls in the session
+  let pkgs = zclPropertiesPkgs.concat(zclXmlStandalonePkgs)
+  let packageIds = pkgs.map((pkg) => pkg.id)
+
   let clusters = await queryDeviceType.selectDeviceTypeClustersByDeviceTypeRef(
     db,
     deviceTypeRef
@@ -973,8 +981,8 @@ async function setEndpointDefaults(
   promises.push(
     resolveDefaultDeviceTypeAttributes(db, endpointTypeId, deviceTypeRef),
     resolveDefaultDeviceTypeCommands(db, endpointTypeId, deviceTypeRef),
-    resolveDefaultAttributes(db, endpointTypeId, packageId, defaultClusters),
-    resolveNonOptionalCommands(db, endpointTypeId, defaultClusters, packageId)
+    resolveDefaultAttributes(db, endpointTypeId, packageIds, defaultClusters),
+    resolveNonOptionalCommands(db, endpointTypeId, defaultClusters, packageIds)
   )
 
   return Promise.all(promises).finally(() => {
@@ -1212,14 +1220,14 @@ async function resolveNonOptionalCommands(
  * Resolve attribute defaults for endpoint type clusters.
  * @param {*} db
  * @param {*} endpointTypeId
- * @param {*} packageId
+ * @param {*} packageIds
  * @param {*} endpointClusters
  * @returns Array of promises for endpointClusters with attributes
  */
 async function resolveDefaultAttributes(
   db,
   endpointTypeId,
-  packageId,
+  packageIds,
   endpointClusters
 ) {
   let endpointClustersPromises = endpointClusters.map((cluster) =>
@@ -1227,7 +1235,7 @@ async function resolveDefaultAttributes(
       .selectAttributesByClusterIdAndSideIncludingGlobal(
         db,
         cluster.clusterRef,
-        [packageId],
+        packageIds,
         cluster.side
       )
       .then((attributes) => {
