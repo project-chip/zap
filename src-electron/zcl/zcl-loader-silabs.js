@@ -2844,7 +2844,8 @@ async function loadIndividualSilabsFile(db, filePath, sessionId) {
     await queryDeviceType.updateDeviceTypeReferencesForCustomXml(
       db,
       pkgId,
-      knownPackages
+      knownPackages,
+      sessionId
     )
 
     return { succeeded: true, packageId: pkgId }

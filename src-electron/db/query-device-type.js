@@ -23,6 +23,7 @@
 
 const dbApi = require('./db-api')
 const dbMapping = require('./db-mapping')
+const querySessionNotification = require('./query-session-notification')
 
 /**
  * Retrieves all the device types in the database.
@@ -83,7 +84,6 @@ async function selectDeviceTypeByCodeAndName(db, packageId, code, name) {
  * @param {*} db
  * @param {*} packageId
  * @param {*} code
- * @param {*} name
  * @returns Device type
  */
 async function selectDeviceTypeByCode(db, packageId, code) {
@@ -431,12 +431,14 @@ async function updateDeviceTypeEntityReferences(db, packageId) {
  * @param {*} db
  * @param {*} packageId
  * @param {*} sessionPackages
+ * @param {*} sessionId
  * @returns promise of completed linking
  */
 async function updateDeviceTypeReferencesForCustomXml(
   db,
   packageId,
-  sessionPackages
+  sessionPackages,
+  sessionId
 ) {
   // update the references for device type clusters, attributes and commands
   await updateClusterReferencesForDeviceTypeClusters(
@@ -455,7 +457,10 @@ async function updateDeviceTypeReferencesForCustomXml(
     sessionPackages
   )
 
-  // clean up unlinked device type clusters
+  // add warnings for unlinked device type clusters
+  await warnUnlinkedDeviceTypeClusters(db, packageId, sessionId)
+
+  // delete unlinked device type clusters
   return deleteUnlinkedDeviceTypeClusters(db, packageId)
 }
 
@@ -469,16 +474,70 @@ async function deleteUnlinkedDeviceTypeClusters(db, packageId) {
   return dbApi.dbRemove(
     db,
     `
-    DELETE FROM DEVICE_TYPE_CLUSTER
-    WHERE CLUSTER_REF IS NULL
-    AND DEVICE_TYPE_REF IN (
-      SELECT DEVICE_TYPE_ID
-      FROM DEVICE_TYPE
-      WHERE PACKAGE_REF = ?
-    )
+    DELETE FROM
+      DEVICE_TYPE_CLUSTER
+    WHERE
+      CLUSTER_REF IS NULL
+    AND
+      DEVICE_TYPE_REF IN (
+        SELECT
+          DEVICE_TYPE_ID
+        FROM
+          DEVICE_TYPE
+        WHERE
+          PACKAGE_REF = ?
+      )
     `,
     [packageId]
   )
+}
+
+/**
+ * This method adds warnings for all device type clusters that are not linked to any cluster.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} sessionId
+ */
+async function warnUnlinkedDeviceTypeClusters(db, packageId, sessionId) {
+  let unlinkedDtClusters = await dbApi.dbAll(
+    db,
+    `
+    SELECT
+      DTC.CLUSTER_NAME,
+      DT.NAME
+    FROM
+      DEVICE_TYPE_CLUSTER AS DTC
+    JOIN
+      DEVICE_TYPE AS DT ON DTC.DEVICE_TYPE_REF = DT.DEVICE_TYPE_ID
+    WHERE
+      CLUSTER_REF IS NULL
+    AND
+      DT.PACKAGE_REF = ?
+    `,
+    [packageId]
+  )
+  let packagePath = await dbApi.dbGet(
+    db,
+    `
+    SELECT
+      PATH
+    FROM
+      PACKAGE
+    WHERE
+      PACKAGE_ID = ?`,
+    [packageId]
+  )
+  for (const dtCluster of unlinkedDtClusters) {
+    querySessionNotification.setNotification(
+      db,
+      'ERROR',
+      `Cluster "${dtCluster.CLUSTER_NAME}" in device type ${dtCluster.NAME} is not found in the current session - "${packagePath.PATH}"`,
+      sessionId,
+      1,
+      0
+    )
+  }
 }
 
 /**

@@ -230,8 +230,20 @@ test('Load same custom xml with different zcl file', async () => {
       db,
       customDeviceType.id
     )
-
   expect(deviceTypeClusters.length).toBe(5)
+
+  // Check if correct errors are thrown for unlinked clusters
+  let sessionNotif = await querySessionNotification.getNotification(db, newSid)
+  expect(
+    sessionNotif.some(
+      (notif) =>
+        notif.type === 'ERROR' &&
+        notif.message.includes(
+          'Cluster "Basic" in device type DUT-Client is not found in the current session'
+        ) &&
+        notif.message.includes('custom-device-type.xml')
+    )
+  ).toBeTruthy()
 })
 
 test(`Load .zap file with custom xml with Device Type`, async () => {

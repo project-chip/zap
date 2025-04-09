@@ -955,6 +955,8 @@ async function setEndpointDefaults(
       return pkg.category == endpointTypeCategory
     })
   }
+  if (zclPropertiesPkgs == null || zclPropertiesPkgs.length < 1)
+    throw new Error('Could not locate package id for a given session.')
 
   let zclXmlStandalonePkgs = await queryPackage.getSessionPackagesByType(
     db,
@@ -963,8 +965,6 @@ async function setEndpointDefaults(
   )
   // Relevant packages are zcl file (filtered by category) and all custom xmls in the session
   let pkgs = zclPropertiesPkgs.concat(zclXmlStandalonePkgs)
-  if (pkgs == null || pkgs.length < 1)
-    throw new Error('Could not locate package id for a given session.')
   let packageIds = pkgs.map((pkg) => pkg.id)
 
   let clusters = await queryDeviceType.selectDeviceTypeClustersByDeviceTypeRef(

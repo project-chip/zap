@@ -3389,7 +3389,7 @@ This module provides queries for device types.
     * [~selectAllDeviceTypes(db, packageId)](#module_DB API_ device type database access..selectAllDeviceTypes) ⇒
     * [~selectDeviceTypeById(db, id)](#module_DB API_ device type database access..selectDeviceTypeById) ⇒
     * [~selectDeviceTypeByCodeAndName(db, packageId, code, name)](#module_DB API_ device type database access..selectDeviceTypeByCodeAndName) ⇒
-    * [~selectDeviceTypeByCode(db, packageId, code, name)](#module_DB API_ device type database access..selectDeviceTypeByCode) ⇒
+    * [~selectDeviceTypeByCode(db, packageId, code)](#module_DB API_ device type database access..selectDeviceTypeByCode) ⇒
     * [~selectDeviceTypeClustersByDeviceTypeRef(db, deviceTypeRef)](#module_DB API_ device type database access..selectDeviceTypeClustersByDeviceTypeRef) ⇒
     * [~selectDeviceTypeClusterByDeviceTypeClusterId(db, deviceTypeClusterId)](#module_DB API_ device type database access..selectDeviceTypeClusterByDeviceTypeClusterId) ⇒
     * [~selectDeviceTypeAttributesByDeviceTypeRef(db, deviceTypeRef)](#module_DB API_ device type database access..selectDeviceTypeAttributesByDeviceTypeRef) ⇒
@@ -3399,8 +3399,9 @@ This module provides queries for device types.
     * [~updateCommandReferencesForDeviceTypeReferences(db, packageId, sessionPackages)](#module_DB API_ device type database access..updateCommandReferencesForDeviceTypeReferences) ⇒
     * [~updateFeatureReferencesForDeviceTypeReferences(db, packageId)](#module_DB API_ device type database access..updateFeatureReferencesForDeviceTypeReferences) ⇒
     * [~updateDeviceTypeEntityReferences(db)](#module_DB API_ device type database access..updateDeviceTypeEntityReferences) ⇒
-    * [~updateDeviceTypeReferencesForCustomXml(db, packageId, sessionPackages)](#module_DB API_ device type database access..updateDeviceTypeReferencesForCustomXml) ⇒
+    * [~updateDeviceTypeReferencesForCustomXml(db, packageId, sessionPackages, sessionId)](#module_DB API_ device type database access..updateDeviceTypeReferencesForCustomXml) ⇒
     * [~deleteUnlinkedDeviceTypeClusters(db, packageId)](#module_DB API_ device type database access..deleteUnlinkedDeviceTypeClusters)
+    * [~warnUnlinkedDeviceTypeClusters(db, packageId, sessionId)](#module_DB API_ device type database access..warnUnlinkedDeviceTypeClusters)
     * [~selectDeviceTypesWithCompositionByEndpointTypeId(db, endpointTypeId)](#module_DB API_ device type database access..selectDeviceTypesWithCompositionByEndpointTypeId) ⇒ <code>Promise.&lt;Array&gt;</code>
     * [~selectDeviceTypesByEndpointTypeId(db, endpointTypeId)](#module_DB API_ device type database access..selectDeviceTypesByEndpointTypeId) ⇒
     * [~selectDeviceTypeFeaturesByEndpointTypeIdAndClusterId(db, endpointTypeId, clusterId)](#module_DB API_ device type database access..selectDeviceTypeFeaturesByEndpointTypeIdAndClusterId) ⇒
@@ -3448,7 +3449,7 @@ Retrieves the device type by the package, code and name.
 
 <a name="module_DB API_ device type database access..selectDeviceTypeByCode"></a>
 
-### DB API: device type database access~selectDeviceTypeByCode(db, packageId, code, name) ⇒
+### DB API: device type database access~selectDeviceTypeByCode(db, packageId, code) ⇒
 Retrieves the device type by the package, code and name.
 
 **Kind**: inner method of [<code>DB API: device type database access</code>](#module_DB API_ device type database access)  
@@ -3459,7 +3460,6 @@ Retrieves the device type by the package, code and name.
 | db | <code>\*</code> | 
 | packageId | <code>\*</code> | 
 | code | <code>\*</code> | 
-| name | <code>\*</code> | 
 
 <a name="module_DB API_ device type database access..selectDeviceTypeClustersByDeviceTypeRef"></a>
 
@@ -3591,7 +3591,7 @@ we have to link the foreign keys.
 
 <a name="module_DB API_ device type database access..updateDeviceTypeReferencesForCustomXml"></a>
 
-### DB API: device type database access~updateDeviceTypeReferencesForCustomXml(db, packageId, sessionPackages) ⇒
+### DB API: device type database access~updateDeviceTypeReferencesForCustomXml(db, packageId, sessionPackages, sessionId) ⇒
 Device types defined in custom xml files might refer to cluster, commands and attributes
 from the primary zcl file and other custom xml in the session.
 
@@ -3606,6 +3606,7 @@ foreign keys in such cases.
 | db | <code>\*</code> | 
 | packageId | <code>\*</code> | 
 | sessionPackages | <code>\*</code> | 
+| sessionId | <code>\*</code> | 
 
 <a name="module_DB API_ device type database access..deleteUnlinkedDeviceTypeClusters"></a>
 
@@ -3618,6 +3619,19 @@ This method deletes all device type clusters that are not linked to any cluster.
 | --- | --- |
 | db | <code>\*</code> | 
 | packageId | <code>\*</code> | 
+
+<a name="module_DB API_ device type database access..warnUnlinkedDeviceTypeClusters"></a>
+
+### DB API: device type database access~warnUnlinkedDeviceTypeClusters(db, packageId, sessionId)
+This method adds warnings for all device type clusters that are not linked to any cluster.
+
+**Kind**: inner method of [<code>DB API: device type database access</code>](#module_DB API_ device type database access)  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| sessionId | <code>\*</code> | 
 
 <a name="module_DB API_ device type database access..selectDeviceTypesWithCompositionByEndpointTypeId"></a>
 

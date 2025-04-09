@@ -1345,10 +1345,12 @@ async function reloadDeviceTypes(db, packageId, data, sessionPackages) {
   for (let dt of data) {
     // Find the DEVICE_TYPE_ID for the current device type
     const query = `
-      SELECT DEVICE_TYPE_ID
-      FROM DEVICE_TYPE
-      WHERE PACKAGE_REF = ? AND CODE = ?
-    `
+      SELECT
+        DEVICE_TYPE_ID
+      FROM
+        DEVICE_TYPE
+      WHERE
+        PACKAGE_REF = ? AND CODE = ?`
     const result = await dbApi.dbGet(db, query, [packageId, dt.code])
 
     if (result) {
@@ -1423,14 +1425,22 @@ async function isDeviceTypeClusterInsertRequired(
 ) {
   let knownPackages = sessionPackages.concat(packageId)
   const query = `
-    SELECT DEVICE_TYPE_CLUSTER_ID
-    FROM DEVICE_TYPE_CLUSTER
-    WHERE DEVICE_TYPE_REF = ?
-    AND CLUSTER_NAME = ?
-    AND CLUSTER_REF IN
-      (SELECT CLUSTER_ID
-      FROM CLUSTER
-      WHERE PACKAGE_REF IN (${dbApi.toInClause(knownPackages)}))
+    SELECT
+      DEVICE_TYPE_CLUSTER_ID
+    FROM
+      DEVICE_TYPE_CLUSTER
+    WHERE
+      DEVICE_TYPE_REF = ?
+    AND
+      CLUSTER_NAME = ?
+    AND
+      CLUSTER_REF IN
+      (SELECT
+        CLUSTER_ID
+        FROM
+          CLUSTER
+        WHERE
+          PACKAGE_REF IN (${dbApi.toInClause(knownPackages)}))
   `
   const result = await dbApi.dbGet(db, query, [deviceTypeId, clusterName])
   return result === undefined

@@ -330,17 +330,13 @@ function httpPostCluster(db) {
     let sessionId = request.zapSessionId
 
     try {
-      let zclPropertiesPkgs = await queryPackage.getSessionPackagesByType(
-        db,
-        sessionId,
-        dbEnum.packageType.zclProperties
+      let pkgs = await queryPackage.getSessionPackages(db, sessionId)
+      pkgs = pkgs.filter(
+        (pkg) =>
+          pkg.type == dbEnum.packageType.zclProperties ||
+          pkg.type == dbEnum.packageType.zclXmlStandalone
       )
-      let zclXmlStandalonePkgs = await queryPackage.getSessionPackagesByType(
-        db,
-        sessionId,
-        dbEnum.packageType.zclXmlStandalone
-      )
-      let pkgs = zclPropertiesPkgs.concat(zclXmlStandalonePkgs)
+      pkgs = zclPropertiesPkgs.concat(zclXmlStandalonePkgs)
       let packageIds = pkgs.map((pkg) => pkg.id)
 
       let insertDefault = await queryConfig
