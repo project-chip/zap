@@ -333,6 +333,76 @@ jobs:
       - name: ZAP binary check (Linux) - unzip cleanup
         if: startsWith(matrix.os, 'ubuntu')
         run: rm -rf dist/zap-linux
+      - name: Verify zap.png exists in package's base directory
+        if: startsWith(matrix.os, 'ubuntu')
+        uses: GuillaumeFalourd/assert-command-line-output@v2.1
+        with:
+          command_line: ./node_modules/7zip-bin/linux/x64/7za l ./dist/zap-linux-x64.zip | grep zap.png
+          contains: 'zap.png'
+
+      - name: Verify zap.png exists in package's app.asar archive
+        if: startsWith(matrix.os, 'ubuntu')
+        uses: GuillaumeFalourd/assert-command-line-output@v2.1
+        with:
+          command_line: npx asar l ./dist/linux-unpacked/resources/app.asar | grep zap.png
+          contains: 'zap.png'
+
+      - name: Verify zap.png exists in Windows x64 .zip package
+        if: startsWith(matrix.os, 'macos')
+        uses: GuillaumeFalourd/assert-command-line-output@v2.1
+        with:
+          command_line: 7za l ./dist/zap-win-x64.zip | grep zap.png
+          contains: 'zap.png'
+
+      - name: Verify zap.png exists in Windows x64 .zip package's app.asar archive
+        if: startsWith(matrix.os, 'macos')
+        uses: GuillaumeFalourd/assert-command-line-output@v2.1
+        with:
+          command_line: npx asar l ./dist/win-unpacked/resources/app.asar | grep zap.png
+          contains: 'zap.png'
+
+      - name: Verify zap.png exists in Windows arm64 .zip package
+        if: startsWith(matrix.os, 'macos')
+        uses: GuillaumeFalourd/assert-command-line-output@v2.1
+        with:
+          command_line: 7za l ./dist/zap-win-arm64.zip | grep zap.png
+          contains: 'zap.png'
+
+      - name: Verify zap.png exists in Windows arm64 .zip package's app.asar archive
+        if: startsWith(matrix.os, 'macos')
+        uses: GuillaumeFalourd/assert-command-line-output@v2.1
+        with:
+          command_line: npx asar l ./dist/win-arm64-unpacked/resources/app.asar | grep zap.png
+          contains: 'zap.png'
+
+      - name: Verify zap.png exists in macOS x64 .zip package
+        if: startsWith(matrix.os, 'macos')
+        uses: GuillaumeFalourd/assert-command-line-output@v2.1
+        with:
+          command_line: 7za l ./dist/zap-mac-x64.zip | grep zap.png
+          contains: 'zap.png'
+
+      - name: Verify zap.png exists in macOS x64 .zip package's app-x64.asar archive
+        if: startsWith(matrix.os, 'macos')
+        uses: GuillaumeFalourd/assert-command-line-output@v2.1
+        with:
+          command_line: npx asar l ./dist/mac/zap.app/Contents/Resources/app-x64.asar | grep zap.png
+          contains: 'zap.png'
+
+      - name: Verify zap.png exists in macOS arm64 .zip package
+        if: startsWith(matrix.os, 'macos')
+        uses: GuillaumeFalourd/assert-command-line-output@v2.1
+        with:
+          command_line: 7za l ./dist/zap-mac-arm64.zip | grep zap.png
+          contains: 'zap.png'
+
+      - name: Verify zap.png exists in macOS arm64 .zip package's app-arm64.asar archive
+        if: startsWith(matrix.os, 'macos')
+        uses: GuillaumeFalourd/assert-command-line-output@v2.1
+        with:
+          command_line: npx asar l ./dist/mac-arm64/zap.app/Contents/Resources/app-arm64.asar | grep zap.png
+          contains: 'zap.png'
+
       - name: Verify apack.json exists in package's base directory
         if: startsWith(matrix.os, 'ubuntu')
         uses: GuillaumeFalourd/assert-command-line-output@v2.1

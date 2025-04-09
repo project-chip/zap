@@ -12,47 +12,41 @@ exports.default = async function (buildResult) {
         element.includes('linux')) &&
       element.endsWith('.zip')
     ) {
-      try {
-        // Add apack.json first
-        await new Promise((resolve, reject) => {
-          const myStream1 = Seven.add(
-            element, // The .zip file (output)
-            path.join(buildResult.outDir, '../apack.json'), // Add apack.json
-            {
-              $progress: true,
-              $bin: pathTo7zip
-            }
-          )
+      // Add apack.json first
+      await new Promise((resolve, reject) => {
+        const myStream1 = Seven.add(
+          element, // The .zip file (output)
+          path.join(buildResult.outDir, '../apack.json'), // Add apack.json
+          {
+            $progress: true,
+            $bin: pathTo7zip
+          }
+        )
 
-          myStream1.on('end', resolve)
-          myStream1.on('error', (err) => {
-            console.log('Error adding apack.json:', err.stderr)
-            reject(err)
-          })
+        myStream1.on('end', resolve)
+        myStream1.on('error', (err) => {
+          console.log('Error adding apack.json:', err.stderr)
+          reject(err)
         })
+      })
 
-        // Then add zap.png after apack.json is added
-        await new Promise((resolve, reject) => {
-          const myStream2 = Seven.add(
-            element, // The .zip file (output)
-            path.join(buildResult.outDir, '../src/assets/zap.png'), // Add zap.png
-            {
-              $progress: true,
-              $bin: pathTo7zip
-            }
-          )
+      // Then add zap.png after apack.json is added
+      await new Promise((resolve, reject) => {
+        const myStream2 = Seven.add(
+          element, // The .zip file (output)
+          path.join(buildResult.outDir, '../src/assets/zap.png'), // Add zap.png
+          {
+            $progress: true,
+            $bin: pathTo7zip
+          }
+        )
 
-          myStream2.on('end', resolve)
-          myStream2.on('error', (err) => {
-            console.log('Error adding zap.png:', err.stderr)
-            reject(err)
-          })
+        myStream2.on('end', resolve)
+        myStream2.on('error', (err) => {
+          console.log('Error adding zap.png:', err.stderr)
+          reject(err)
         })
-      } catch (err) {
-        // Handle errors if either stream fails
-        console.error('Error adding files to the zip:', err)
-        throw err
-      }
+      })
     }
   }
 }
