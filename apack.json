@@ -55,6 +55,7 @@
       "id": "ZAP",
       "category": "tools",
       "label": "ZCL Advanced Platform",
+      "icon": "zap.png",
       "launchUiFunction": "launchZAP",
       "toolTip": "ZCL Advanced Platform"
     }
