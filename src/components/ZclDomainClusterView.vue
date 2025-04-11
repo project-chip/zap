@@ -166,6 +166,14 @@ limitations under the License.
               :options="optionsForCheckboxes"
               color="primary"
               type="checkbox"
+              :disable="{
+                client:
+                  getClusterDisableStatus(props.row.id).client ||
+                  !getClusterEnableStatus(props.row.id).client,
+                server:
+                  getClusterDisableStatus(props.row.id).server ||
+                  !getClusterEnableStatus(props.row.id).server
+              }"
               @update:model-value="handleClusterSelection(props.row.id, $event)"
               inline
             />
@@ -239,6 +247,11 @@ export default {
   props: ['domainName', 'clusters'],
   mixins: [CommonMixin, uiOptions, EditableAttributesMixin],
   computed: {
+    isLegalClusterFilterActive() {
+      return (
+        this.$store.state.zap.clusterManager.filter.label === 'Legal Clusters'
+      )
+    },
     isInStandalone: {
       get() {
         return this.$store.state.zap.standalone
@@ -252,6 +265,18 @@ export default {
     recommendedServers: {
       get() {
         return this.$store.state.zap.clustersView.recommendedServers
+      }
+    },
+    // Includes client clusters which are optional for a device type
+    optionalClients: {
+      get() {
+        return this.$store.state.zap.clustersView.optionalClients
+      }
+    },
+    // Includes server clusters which are optional for a device type
+    optionalServers: {
+      get() {
+        return this.$store.state.zap.clustersView.optionalServers
       }
     },
     visibleColumns: function () {
@@ -281,6 +306,38 @@ export default {
     }
   },
   methods: {
+    getClusterEnableStatus(id) {
+      // Only enforce constraints if the active filter is "Legal Clusters"
+      if (!this.isLegalClusterFilterActive) {
+        return { client: true, server: true } // Allow all actions
+      }
+      let isClientRecommended = this.recommendedClients.includes(id)
+      let isServerRecommended = this.recommendedServers.includes(id)
+      let isClientOptional = this.optionalClients.includes(id)
+      let isServerOptional = this.optionalServers.includes(id)
+      let isClientEnabled = this.selectionClients.includes(id)
+      let isServerEnabled = this.selectionServers.includes(id)
+
+      return {
+        client: isClientRecommended || isClientOptional || isClientEnabled, // Allow enabling only if recommended, optional, or already enabled
+        server: isServerRecommended || isServerOptional || isServerEnabled // Allow enabling only if recommended, optional, or already enabled
+      }
+    },
+    getClusterDisableStatus(id) {
+      // Only enforce constraints if the active filter is "Legal Clusters"
+      if (!this.isLegalClusterFilterActive) {
+        return { client: false, server: false } // No constraints
+      }
+
+      let isClientRecommended = this.recommendedClients.includes(id)
+      let isServerRecommended = this.recommendedServers.includes(id)
+      let isClientOptional = this.optionalClients.includes(id)
+      let isServerOptional = this.optionalServers.includes(id)
+      return {
+        client: isClientRecommended && !isClientOptional, // Disable if recommended and not optional
+        server: isServerRecommended && !isServerOptional // Disable if recommended and not optional
+      }
+    },
     enableAllClusters() {
       this.clusters.forEach(async (singleCluster) => {
         await this.updateZclRolesByClusterSelection(singleCluster.id, [
@@ -499,6 +556,57 @@ export default {
       return tmpEvent
     },
     async handleClusterSelection(id, event) {
+      const activeFilter = this.$store.state.zap.clusterManager.filter.label
+
+      // Only enforce constraints if the active filter is "Legal Clusters"
+      if (activeFilter === 'Legal Clusters') {
+        const disableStatus = this.getClusterDisableStatus(id)
+        const enableStatus = this.getClusterEnableStatus(id)
+
+        // Prevent disabling recommended client
+        if (disableStatus.client && event.includes('client') === false) {
+          this.$q.notify({
+            type: 'warning',
+            position: 'top',
+            message:
+              'You cannot disable a required client cluster for the device types on this endpoint when using a Legal Clusters Filter.'
+          })
+          return
+        }
+
+        // Prevent disabling recommended server
+        if (disableStatus.server && event.includes('server') === false) {
+          this.$q.notify({
+            type: 'warning',
+            position: 'top',
+            message:
+              'You cannot disable a required server cluster for the device types on this endpoint when using a Legal Clusters Filter.'
+          })
+          return
+        }
+
+        // Prevent enabling non-recommended client
+        if (!enableStatus.client && event.includes('client') === true) {
+          this.$q.notify({
+            type: 'warning',
+            position: 'top',
+            message:
+              'You cannot enabled a client cluster not required by the device types on this endpoint when using a Legal Clusters Filter.'
+          })
+          return
+        }
+
+        // Prevent enabling non-recommended server
+        if (!enableStatus.server && event.includes('server') === true) {
+          this.$q.notify({
+            type: 'warning',
+            position: 'top',
+            message:
+              'You cannot enabled a server cluster not required by the device types on this endpoint when using a Legal Clusters Filter.'
+          })
+          return
+        }
+      }
       let modifiedEvent = this.parseCheckboxEventToSelectionEvent(event)
       let selectionEvents = this.processZclSelectionEvent(id, modifiedEvent)
 

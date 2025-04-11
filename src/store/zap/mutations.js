@@ -524,6 +524,19 @@ export function updateSelectedEndpointType(state, endpointType) {
 }
 
 /**
+ * Update the device Type Clusters For Selected Endpoint in endpoint type view state.
+ * @param {*} state
+ * @param {*} deviceTypeClustersForSelectedEndpoint
+ */
+export function updateDeviceTypeClustersForSelectedEndpoint(
+  state,
+  deviceTypeClustersForSelectedEndpoint
+) {
+  state.endpointTypeView.deviceTypeClustersForSelectedEndpoint =
+    deviceTypeClustersForSelectedEndpoint
+}
+
+/**
  * Remove endpoint type details from the endpoint type view of the state.
  * @param {*} state
  * @param {*} endpointType
@@ -644,6 +657,8 @@ export function setEventLists(state, data) {
 export function setRecommendedClusterList(state, data) {
   vue3Set(state.clustersView, 'recommendedClients', data.recommendedClients)
   vue3Set(state.clustersView, 'recommendedServers', data.recommendedServers)
+  vue3Set(state.clustersView, 'optionalClients', data.optionalClients)
+  vue3Set(state.clustersView, 'optionalServers', data.optionalServers)
 }
 
 /**
@@ -809,7 +824,12 @@ export function setDomainFilter(state, filterEnabledClusterPair) {
     const openDomainValue =
       state.clusterManager.filterString === ''
         ? filter.domainFilterFn(domainName, state.clusterManager.openDomains, {
-            enabledClusters: filterEnabledClusterPair.enabledClusters
+            enabledClusters: filterEnabledClusterPair.enabledClusters,
+            relevantClusters: filterEnabledClusterPair.relevantClusters,
+            deviceTypeRefsForSelectedEndpoint:
+              filterEnabledClusterPair.deviceTypeRefsForSelectedEndpoint,
+            deviceTypeClustersForSelectedEndpoint:
+              filterEnabledClusterPair.deviceTypeClustersForSelectedEndpoint
           })
         : true
     setOpenDomain(state, {
@@ -1128,6 +1148,15 @@ export function updateDeviceTypeFeatures(state, value) {
  */
 export function setEnabledClusters(state, clusters) {
   state.enabledClusters = clusters
+}
+
+/**
+ * Set the relevant clusters of the state.
+ * @param {*} state
+ * @param {*} relevantClusters
+ */
+export function setRelevantClusters(state, relevantClusters) {
+  state.relevantClusters = relevantClusters
 }
 
 /**

@@ -780,6 +780,10 @@ export default {
                 deviceTypeRefs: deviceTypeRef,
                 endpointTypeRef: res.id
               })
+              this.$store.dispatch(
+                'zap/updateDeviceTypeClustersForSelectedEndpoint',
+                this.endpointDeviceTypeRef[this.endpointType[res.id]]
+              )
             })
         })
         .catch((err) => console.log('Error in newEpt: ' + err.message))
@@ -861,6 +865,10 @@ export default {
         deviceTypeRefs: deviceTypeRef,
         endpointTypeRef: this.endpointReference
       })
+      this.$store.dispatch(
+        'zap/updateDeviceTypeClustersForSelectedEndpoint',
+        deviceTypeRef
+      )
     },
     getDeviceOptionLabel(item) {
       if (item == null || item.deviceTypeRef == null) return ''

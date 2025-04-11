@@ -248,6 +248,10 @@ export default defineComponent({
         }
         this.$store.dispatch('zap/updateSelectedEndpoint', endpoint.id)
         this.$store.commit('zap/toggleEndpointModal', false)
+        this.$store.dispatch(
+          'zap/updateDeviceTypeClustersForSelectedEndpoint',
+          this.endpointDeviceTypeRef[this.endpointType[endpoint.id]]
+        )
       }
     },
     getAppData() {

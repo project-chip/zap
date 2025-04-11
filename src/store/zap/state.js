@@ -85,10 +85,26 @@ export default function () {
         },
         {
           label: 'Legal Clusters',
-          domainFilterFn: (domain, currentOpenDomains, context) =>
-            context.enabledClusters.map((a) => a.domainName).includes(domain),
-          clusterFilterFn: (cluster, context) =>
-            context.enabledClusters.find((a) => cluster.id == a.id) != undefined
+          domainFilterFn: (domain, currentOpenDomains, context) => {
+            let clusterRefsFromDeviceTypes =
+              context.deviceTypeClustersForSelectedEndpoint.map(
+                (dtc) => dtc.clusterRef
+              )
+            return context.relevantClusters
+              .filter((c) => clusterRefsFromDeviceTypes.includes(c.id))
+              .map((a) => a.domainName)
+              .includes(domain)
+          },
+          clusterFilterFn: (cluster, context) => {
+            let clusterRefsFromDeviceTypes =
+              context.deviceTypeClustersForSelectedEndpoint.map(
+                (dtc) => dtc.clusterRef
+              )
+            return context.relevantClusters
+              .filter((c) => clusterRefsFromDeviceTypes.includes(c.id))
+              .map((c) => c.id)
+              .includes(cluster.id)
+          }
         }
       ],
       actionOptions: [
@@ -115,7 +131,8 @@ export default function () {
       name: {},
       deviceTypeRef: {},
       deviceVersion: {},
-      deviceIdentifier: {}
+      deviceIdentifier: {},
+      deviceTypeClustersForSelectedEndpoint: {}
     },
     clustersView: {
       selected: [],
@@ -123,7 +140,9 @@ export default function () {
       selectedClients: [],
       // These are based off of the selected ZCL Endpoints Device Type
       recommendedClients: [],
-      recommendedServers: []
+      recommendedServers: [],
+      optionalClients: [],
+      optionalServers: []
     },
     attributeView: {
       selectedAttributes: [],
@@ -179,6 +198,7 @@ export default function () {
       deviceIdentifier: null
     },
     notificationCount: 0,
-    enabledClusters: []
+    enabledClusters: [],
+    relevantClusters: []
   }
 }

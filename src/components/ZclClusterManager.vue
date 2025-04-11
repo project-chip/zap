@@ -199,8 +199,9 @@ export default {
     },
     relevantClusters: {
       get() {
+        let relevantClusters = []
         if (this.clusters.clusterData) {
-          return this.clusters.clusterData.filter((cluster) =>
+          relevantClusters = this.clusters.clusterData.filter((cluster) =>
             this.filterString == ''
               ? true
               : cluster.label
@@ -208,7 +209,7 @@ export default {
                   .includes(this.filterString.toLowerCase())
           )
         } else {
-          return this.clusters.filter((cluster) =>
+          relevantClusters = this.clusters.filter((cluster) =>
             this.filterString == ''
               ? true
               : cluster.label
@@ -216,6 +217,8 @@ export default {
                   .includes(this.filterString.toLowerCase())
           )
         }
+        this.$store.commit('zap/setRelevantClusters', relevantClusters)
+        return relevantClusters
       }
     },
     enabledClusters: {
@@ -225,6 +228,12 @@ export default {
         })
         this.$store.commit('zap/setEnabledClusters', clusters)
         return clusters
+      }
+    },
+    deviceTypeClustersForSelectedEndpoint: {
+      get() {
+        return this.$store.state.zap.endpointTypeView
+          .deviceTypeClustersForSelectedEndpoint
       }
     },
     filterOptions: {
@@ -302,7 +311,12 @@ export default {
         .filter((a) => {
           return typeof this.filter.clusterFilterFn === 'function'
             ? this.filter.clusterFilterFn(a, {
-                enabledClusters: this.enabledClusters
+                enabledClusters: this.enabledClusters,
+                relevantClusters: this.relevantClusters,
+                deviceTypeRefsForSelectedEndpoint:
+                  this.endpointDeviceTypeRef[this.selectedEndpointId],
+                deviceTypeClustersForSelectedEndpoint:
+                  this.deviceTypeClustersForSelectedEndpoint
               })
             : true
         })
@@ -339,7 +353,12 @@ export default {
     changeDomainFilter(filter) {
       this.$store.dispatch('zap/setDomainFilter', {
         filter: filter,
-        enabledClusters: this.enabledClusters
+        enabledClusters: this.enabledClusters,
+        relevantClusters: this.relevantClusters,
+        deviceTypeRefsForSelectedEndpoint:
+          this.endpointDeviceTypeRef[this.selectedEndpointId],
+        deviceTypeClustersForSelectedEndpoint:
+          this.deviceTypeClustersForSelectedEndpoint
       })
     },
     doActionFilter(filter) {
