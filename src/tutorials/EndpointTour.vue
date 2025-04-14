@@ -170,6 +170,10 @@ export default {
                   }
                 })
               this.$store.dispatch('zap/updateSelectedEndpoint', res.id)
+              this.$store.dispatch(
+                'zap/updateDeviceTypeClustersForSelectedEndpoint',
+                this.endpointDeviceTypeRef[this.endpointType[res.id]]
+              )
               resolve()
             })
         })
