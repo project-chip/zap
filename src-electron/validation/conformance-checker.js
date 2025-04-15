@@ -26,6 +26,7 @@ const conformEvaluator = require('./conformance-expression-evaluator')
 const queryFeature = require('../db/query-feature')
 const querySessionNotice = require('../db/query-session-notification')
 const queryEndpointType = require('../db/query-endpoint-type')
+const dbEnum = require('../../src-shared/db-enum')
 
 /**
  *
@@ -37,7 +38,11 @@ const queryEndpointType = require('../db/query-endpoint-type')
 function filterRelatedDescElements(elements, featureCode) {
   return elements.filter((element) => {
     let terms = element.conformance.match(/[A-Za-z][A-Za-z0-9_]*/g)
-    return terms && terms.includes('desc') && terms.includes(featureCode)
+    return (
+      terms &&
+      terms.includes(dbEnum.conformance.desc) &&
+      terms.includes(featureCode)
+    )
   })
 }
 
