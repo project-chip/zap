@@ -149,7 +149,10 @@ exports.map = {
       clusterCode2: x.C2_CODE,
       clusterMfgCode2: x.C2_MANUFACTURER_CODE,
       clusterName1: x.C1_NAME,
-      clusterName2: x.C2_NAME
+      clusterName2: x.C2_NAME,
+      clusterMappingIndex: x.CLUSTER_MAPPING_INDEX,
+      totalClusterMappedAttributes: x.TOTAL_CLUSTER_MAPPED_ATTRIBUTES,
+      isLastPartition: dbApi.fromDbBool(x.IS_LAST_CLUSTER_PARTITION)
     }
   },
 
