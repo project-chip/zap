@@ -8099,6 +8099,7 @@ Get endpoint type events from the given endpoint type ID.
 ## JS API: generator logic
 
 * [JS API: generator logic](#module_JS API_ generator logic)
+    * [~findAndReadJsonFiles(obj, basePath)](#module_JS API_ generator logic..findAndReadJsonFiles) ⇒ <code>Promise.&lt;string&gt;</code>
     * [~loadGenTemplateFromFile(templatePath)](#module_JS API_ generator logic..loadGenTemplateFromFile) ⇒
     * [~recordPackageIfNonexistent(db, packagePath, parentId, packageType, version, category, description)](#module_JS API_ generator logic..recordPackageIfNonexistent) ⇒
     * [~loadTemplateOptionsFromJsonFile(db, packageId, category, externalPath)](#module_JS API_ generator logic..loadTemplateOptionsFromJsonFile) ⇒
@@ -8145,6 +8146,19 @@ Get endpoint type events from the given endpoint type ID.
     * [~ensureZclEventSdkExtensions(context, templatePackageId)](#module_JS API_ generator logic..ensureZclEventSdkExtensions) ⇒
     * [~templatePromise(global, promise)](#module_JS API_ generator logic..templatePromise)
     * [~deprecatedHelper(fn, explanation)](#module_JS API_ generator logic..deprecatedHelper) ⇒
+
+<a name="module_JS API_ generator logic..findAndReadJsonFiles"></a>
+
+### JS API: generator logic~findAndReadJsonFiles(obj, basePath) ⇒ <code>Promise.&lt;string&gt;</code>
+Finds and reads JSON files referenced in a nested object.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module_JS API_ generator logic)  
+**Returns**: <code>Promise.&lt;string&gt;</code> - - A promise that resolves to the concatenated content of all JSON files.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| obj | <code>Object</code> | The object to search for JSON file references. |
+| basePath | <code>string</code> | The base directory to resolve relative paths. |
 
 <a name="module_JS API_ generator logic..loadGenTemplateFromFile"></a>
 
@@ -13437,6 +13451,7 @@ This module contains the API for templating. For more detailed instructions, rea
 ## JS API: generator logic
 
 * [JS API: generator logic](#module_JS API_ generator logic)
+    * [~findAndReadJsonFiles(obj, basePath)](#module_JS API_ generator logic..findAndReadJsonFiles) ⇒ <code>Promise.&lt;string&gt;</code>
     * [~loadGenTemplateFromFile(templatePath)](#module_JS API_ generator logic..loadGenTemplateFromFile) ⇒
     * [~recordPackageIfNonexistent(db, packagePath, parentId, packageType, version, category, description)](#module_JS API_ generator logic..recordPackageIfNonexistent) ⇒
     * [~loadTemplateOptionsFromJsonFile(db, packageId, category, externalPath)](#module_JS API_ generator logic..loadTemplateOptionsFromJsonFile) ⇒
@@ -13483,6 +13498,19 @@ This module contains the API for templating. For more detailed instructions, rea
     * [~ensureZclEventSdkExtensions(context, templatePackageId)](#module_JS API_ generator logic..ensureZclEventSdkExtensions) ⇒
     * [~templatePromise(global, promise)](#module_JS API_ generator logic..templatePromise)
     * [~deprecatedHelper(fn, explanation)](#module_JS API_ generator logic..deprecatedHelper) ⇒
+
+<a name="module_JS API_ generator logic..findAndReadJsonFiles"></a>
+
+### JS API: generator logic~findAndReadJsonFiles(obj, basePath) ⇒ <code>Promise.&lt;string&gt;</code>
+Finds and reads JSON files referenced in a nested object.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module_JS API_ generator logic)  
+**Returns**: <code>Promise.&lt;string&gt;</code> - - A promise that resolves to the concatenated content of all JSON files.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| obj | <code>Object</code> | The object to search for JSON file references. |
+| basePath | <code>string</code> | The base directory to resolve relative paths. |
 
 <a name="module_JS API_ generator logic..loadGenTemplateFromFile"></a>
 
@@ -14099,6 +14127,7 @@ Function wrapper that can be used when a helper is deprecated.
 ## JS API: generator logic
 
 * [JS API: generator logic](#module_JS API_ generator logic)
+    * [~findAndReadJsonFiles(obj, basePath)](#module_JS API_ generator logic..findAndReadJsonFiles) ⇒ <code>Promise.&lt;string&gt;</code>
     * [~loadGenTemplateFromFile(templatePath)](#module_JS API_ generator logic..loadGenTemplateFromFile) ⇒
     * [~recordPackageIfNonexistent(db, packagePath, parentId, packageType, version, category, description)](#module_JS API_ generator logic..recordPackageIfNonexistent) ⇒
     * [~loadTemplateOptionsFromJsonFile(db, packageId, category, externalPath)](#module_JS API_ generator logic..loadTemplateOptionsFromJsonFile) ⇒
@@ -14145,6 +14174,19 @@ Function wrapper that can be used when a helper is deprecated.
     * [~ensureZclEventSdkExtensions(context, templatePackageId)](#module_JS API_ generator logic..ensureZclEventSdkExtensions) ⇒
     * [~templatePromise(global, promise)](#module_JS API_ generator logic..templatePromise)
     * [~deprecatedHelper(fn, explanation)](#module_JS API_ generator logic..deprecatedHelper) ⇒
+
+<a name="module_JS API_ generator logic..findAndReadJsonFiles"></a>
+
+### JS API: generator logic~findAndReadJsonFiles(obj, basePath) ⇒ <code>Promise.&lt;string&gt;</code>
+Finds and reads JSON files referenced in a nested object.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module_JS API_ generator logic)  
+**Returns**: <code>Promise.&lt;string&gt;</code> - - A promise that resolves to the concatenated content of all JSON files.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| obj | <code>Object</code> | The object to search for JSON file references. |
+| basePath | <code>string</code> | The base directory to resolve relative paths. |
 
 <a name="module_JS API_ generator logic..loadGenTemplateFromFile"></a>
 
