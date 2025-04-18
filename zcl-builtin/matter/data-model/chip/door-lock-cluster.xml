@@ -67,16 +67,27 @@ limitations under the License.
             cluster itself. Those attributes/commands are marked with a special comment. -->
 
         <!-- Attributes -->
-        <attribute side="server" code="0" define="LOCK_STATE" type="DlLockState" min="0" max="2" isNullable="true" reportable="true" writable="false">LockState</attribute>
-        <attribute side="server" code="1" define="LOCK_TYPE" type="DlLockType" min="0" max="10" writable="false">LockType</attribute>
+        <attribute side="server" code="0" define="LOCK_STATE" type="DlLockState" min="0" max="2" isNullable="true" reportable="true" writable="false">
+            <description>LockState</description>
+            <mandatoryConform/>
+        </attribute>
+        <attribute side="server" code="1" define="LOCK_TYPE" type="DlLockType" min="0" max="10" writable="false" optional="false">LockType</attribute>
         <attribute side="server" code="2" define="ACTUATOR_ENABLED" type="boolean" writable="false">ActuatorEnabled</attribute>
         <!-- Conformance feature DPS - for now optional -->
-        <attribute side="server" code="3" define="DOOR_STATE" type="DoorStateEnum" min="0" max="5" isNullable="true" reportable="true" optional="true">DoorState</attribute>
+        <attribute side="server" code="3" define="DOOR_STATE" type="DoorStateEnum" min="0" max="5" isNullable="true" reportable="true">
+            <description>DoorState</description>
+            <mandatoryConform>
+                <feature name="DPS"/>
+            </mandatoryConform>
+        </attribute>
         <!-- Conformance feature [DPS] - for now optional -->
-        <attribute side="server" code="4" define="DOOR_OPEN_EVENTS" type="INT32U" writable="true" optional="true">
+        <attribute side="server" code="4" define="DOOR_OPEN_EVENTS" type="INT32U" writable="true">
             <description>DoorOpenEvents</description>
             <access op="read" role="view" />
             <access op="write" role="manage" />
+            <optionalConform>
+                <feature name="DPS"/>
+            </optionalConform>
         </attribute>
         <!-- Conformance feature [DPS] - for now optional -->
         <attribute side="server" code="5" define="DOOR_CLOSED_EVENTS" type="INT32U" writable="true" optional="true">
@@ -114,10 +125,11 @@ limitations under the License.
         <attribute side="server" code="27" define="CREDENTIAL_RULES_SUPPORT" type="DlCredentialRuleMask" min="0x00" max="0xFF" default="1" writable="false" optional="true">CredentialRulesSupport</attribute>
         <!-- Conformance feature USR - for now optional  -->
         <attribute side="server" code="28" define="NUM_CREDENTIALS_SUPPORTED_PER_USER" type="INT8U" default="0" writable="false" optional="true">NumberOfCredentialsSupportedPerUser</attribute>
-        <attribute side="server" code="33" define="LANGUAGE" type="CHAR_STRING" length="3" reportable="true" writable="true" optional="true">
+        <attribute side="server" code="33" define="LANGUAGE" type="CHAR_STRING" length="3" reportable="true" writable="true">
             <description>Language</description>
             <access op="read" role="view" />
             <access op="write" role="manage" />
+            <optionalConform/>
         </attribute>
         <attribute side="server" code="34" define="LED_SETTINGS" type="INT8U" min="0" max="2" reportable="true" default="0" writable="true" optional="true">
             <description>LEDSettings</description>
@@ -208,16 +220,18 @@ limitations under the License.
             <description>This command causes the lock device to unlock the door.</description>
             <!-- Conformance feature [COTA & PIN] - for now optional -->
             <arg name="PINCode" type="OCTET_STRING" optional="true" />
+            <mandatoryConform/>
         </command>
         <!-- Command Toggle with ID 2 is deprecated/disallowed -->
-        <command source="client" code="3" name="UnlockWithTimeout" mustUseTimedInvoke="true" optional="true">
+        <command source="client" code="3" name="UnlockWithTimeout" mustUseTimedInvoke="true">
             <description>This command causes the lock device to unlock the door with a timeout parameter.</description>
             <arg name="Timeout" type="INT16U" />
             <!-- Conformance feature [COTA & PIN] - for now optional -->
             <arg name="PINCode" type="OCTET_STRING" optional="true" />
+            <optionalConform/>
         </command>
         <!-- Conformance feature WDSCH - for now optional -->
-        <command source="client" code="11" name="SetWeekDaySchedule" optional="true">
+        <command source="client" code="11" name="SetWeekDaySchedule">
             <description>Set a weekly repeating schedule for a specified user.</description>
             <access op="invoke" role="administer" />
             <arg name="WeekDayIndex" type="INT8U" />
@@ -227,6 +241,9 @@ limitations under the License.
             <arg name="StartMinute" type="INT8U" />
             <arg name="EndHour" type="INT8U" />
             <arg name="EndMinute" type="INT8U" />
+            <mandatoryConform>
+                <feature name="WDSCH"/>
+            </mandatoryConform>
         </command>
         <!-- Conformance feature WDSCH - for now optional -->
         <command source="client" code="12" name="GetWeekDaySchedule" response="GetWeekDayScheduleResponse" optional="true">
@@ -399,13 +416,17 @@ limitations under the License.
         <event side="server" code="0" name="DoorLockAlarm" priority="critical">
             <description>The door lock cluster provides several alarms which can be sent when there is a critical state on the door lock.</description>
             <field id="0" name="AlarmCode" type="AlarmCodeEnum" />
+            <mandatoryConform/>
         </event>
         <!-- Conformance feature DPS - for now optional -->
-        <event side="server" code="1" name="DoorStateChange" priority="critical" optional="true">
+        <event side="server" code="1" name="DoorStateChange" priority="critical">
             <description>The door lock server sends out a DoorStateChange event when the door lock door state changes.</description>
             <field id="0" name="DoorState" type="DoorStateEnum" />
+            <mandatoryConform>
+                <feature name="DPS"/>
+            </mandatoryConform>
         </event>
-        <event side="server" code="2" name="LockOperation" priority="critical">
+        <event side="server" code="2" name="LockOperation" priority="critical" optional="true">
             <description>The door lock server sends out a LockOperation event when the event is triggered by the various lock operation sources.</description>
             <field id="0" name="LockOperationType" type="LockOperationTypeEnum" />
             <field id="1" name="OperationSource" type="OperationSourceEnum" />

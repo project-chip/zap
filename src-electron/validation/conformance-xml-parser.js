@@ -155,4 +155,22 @@ function parseConformanceRecursively(operand, depth = 0, parentJoinChar = '') {
   }
 }
 
+/**
+ * if optional attribute is defined, return its value
+ * if optional attribute is undefined, check if the element conformance is mandatory
+ * if both optional attribute and conformance are undefined, return false
+ *
+ * @param {*} element
+ * @returns true if the element is optional, false if the element is mandatory
+ */
+function getOptionalAttributeFromXML(element) {
+  if (element.$.optional) {
+    return element.$.optional == 'true'
+  } else {
+    let conformance = parseConformanceFromXML(element)
+    return conformance ? conformance != 'M' : false
+  }
+}
+
 exports.parseConformanceFromXML = parseConformanceFromXML
+exports.getOptionalAttributeFromXML = getOptionalAttributeFromXML
