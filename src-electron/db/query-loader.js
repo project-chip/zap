@@ -77,13 +77,14 @@ INSERT INTO EVENT_FIELD (
   FIELD_IDENTIFIER,
   NAME,
   TYPE,
+  DEFAULT_VALUE,
   IS_ARRAY,
   IS_NULLABLE,
   IS_OPTIONAL,
   INTRODUCED_IN_REF,
   REMOVED_IN_REF
 ) VALUES (
-  ?, ?, ?, ?, ?, ?, ?,
+  ?, ?, ?, ?, ?, ?, ?, ?,
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
 )
@@ -122,6 +123,7 @@ INSERT INTO COMMAND_ARG (
   MAX,
   MIN_LENGTH,
   MAX_LENGTH,
+  DEFAULT_VALUE,
   IS_ARRAY,
   PRESENT_IF,
   IS_NULLABLE,
@@ -131,7 +133,7 @@ INSERT INTO COMMAND_ARG (
   INTRODUCED_IN_REF,
   REMOVED_IN_REF
 ) VALUES (
-  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
 )`
@@ -333,6 +335,7 @@ function fieldMap(eventId, packageId, fields) {
     field.fieldIdentifier,
     field.name,
     field.type,
+    field.defaultValue,
     dbApi.toDbBool(field.isArray),
     dbApi.toDbBool(field.isNullable),
     dbApi.toDbBool(field.isOptional),
@@ -360,6 +363,7 @@ function argMap(cmdId, packageId, args) {
     arg.max,
     arg.minLength,
     arg.maxLength,
+    arg.defaultValue,
     dbApi.toDbBool(arg.isArray),
     arg.presentIf,
     dbApi.toDbBool(arg.isNullable),
@@ -2398,7 +2402,7 @@ async function insertStructItems(db, packageIds, data) {
     db,
     `
   INSERT INTO
-    STRUCT_ITEM (STRUCT_REF, NAME, FIELD_IDENTIFIER, IS_ARRAY, IS_ENUM, MIN_LENGTH, MAX_LENGTH, IS_WRITABLE, IS_NULLABLE, IS_OPTIONAL, IS_FABRIC_SENSITIVE, SIZE, DATA_TYPE_REF)
+    STRUCT_ITEM (STRUCT_REF, NAME, FIELD_IDENTIFIER, IS_ARRAY, IS_ENUM, MIN_LENGTH, MAX_LENGTH, DEFAULT_VALUE, IS_WRITABLE, IS_NULLABLE, IS_OPTIONAL, IS_FABRIC_SENSITIVE, SIZE, DATA_TYPE_REF)
   VALUES (
     (SELECT
       CASE
@@ -2411,6 +2415,7 @@ async function insertStructItems(db, packageIds, data) {
         ELSE
           (${SELECT_CLUSTER_SPECIFIC_STRUCT})
         END AS STRUCT_ID),
+    ?,
     ?,
     ?,
     ?,
@@ -2445,6 +2450,7 @@ async function insertStructItems(db, packageIds, data) {
       at.isEnum,
       at.minLength,
       at.maxLength,
+      at.defaultValue,
       at.isWritable,
       at.isNullable,
       at.isOptional,

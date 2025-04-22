@@ -23,7 +23,7 @@ property="testCommandExtension"}}', isLargeMessage: {{isLargeMessage}}
 {{#zcl_commands_with_arguments sortBy="signature"}}
 {{clusterName}} - {{commandName}}
 {{#zcl_command_arguments}}
-    {{label}} - {{baseType}}
+    {{label}} - {{baseType}} {{#if defaultValue}}- default_value={{defaultValue}}{{/if}}
 {{/zcl_command_arguments}}
 {{/zcl_commands_with_arguments}}
 
@@ -54,3 +54,9 @@ property="implementedCommands"}}{{label}},{{/if_command_extension_true}}{{/zcl_c
 
 IMPLEMENTED_COMMANDS2>{{#all_user_clusters}}{{#all_user_cluster_commands_irrespective_of_manufaturing_specification name side}}{{#if_command_extension_true property="implementedCommands"}}{{name}},{{/if_command_extension_true}}{{/all_user_cluster_commands_irrespective_of_manufaturing_specification}}{{/all_user_clusters}}<END2
 
+------------------- Structs -------------------
+{{#zcl_structs}}
+{{#zcl_struct_items}}
+Struct name: {{../name}}, Struct Item Name: {{./name}}, Struct Item Type: {{./type}}, {{#if defaultValue}}Struct Default Value: {{defaultValue}}{{/if}}
+{{/zcl_struct_items}}
+{{/zcl_structs}}
