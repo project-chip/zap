@@ -192,7 +192,7 @@ jobs:
 
     # CHIP container required because clang-format version needs to match
     container:
-      image: connectedhomeip/chip-build:0.6.11
+      image: ghcr.io/project-chip/chip-build:125
 
     steps:
       - uses: actions/download-artifact@v4

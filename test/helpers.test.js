@@ -479,6 +479,28 @@ test(
 )
 
 test(
+  'Generated Macro for 4 byte integer little endian',
+  () => {
+    let options = { hash: { endian: 'little' } }
+    return zclHelper
+      .as_generated_default_macro('1600', 4, options)
+      .then((res) => expect(res).toBe('0x40, 0x06,  0x00, 0x00,'))
+  },
+  testUtil.timeout.short()
+)
+
+test(
+  'Generated Macro for 4 byte integer big endian',
+  () => {
+    let options = { hash: { endian: 'big' } }
+    return zclHelper
+      .as_generated_default_macro('1600', 4, options)
+      .then((res) => expect(res).toBe('0x00, 0x00,  0x06, 0x40,'))
+  },
+  testUtil.timeout.short()
+)
+
+test(
   'Generated Macro for string',
   () => {
     let options = { hash: { endian: 'big' } }

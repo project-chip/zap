@@ -69,7 +69,14 @@ function asHex(rawValue, padding, nullValue) {
     return `0x${value.slice(2).toUpperCase()}`
   } else {
     let val = parseInt(value)
-    return `0x${val.toString(16).padStart(padding, '0').toUpperCase()}`
+    let paddingLength = padding
+    if (!paddingLength) {
+      paddingLength =
+        val.toString(16).length % 2 === 0
+          ? val.toString(16).length
+          : val.toString(16).length + 1
+    }
+    return `0x${val.toString(16).padStart(paddingLength, '0').toUpperCase()}`
   }
 }
 
