@@ -302,10 +302,12 @@ test(
     expect(sdkExt).toContain(
       'Struct name: ChannelInfoStruct, Struct Item Name: MajorNumber, Struct Item Type: int16u, Struct Default Value: 0xFFFF'
     )
+    expect(sdkExt).not.toContain('SoftwareVersion - int32u - default_value=')
     let eventOut = genResult.content['events.out']
     expect(eventOut).toContain(
       '> Field: SoftwareVersion  default_value=0x00000000'
     )
+    expect(eventOut).not.toContain('> Field: ProductID  default_value=')
   },
   testUtil.timeout.long()
 )
