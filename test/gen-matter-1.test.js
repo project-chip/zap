@@ -293,6 +293,19 @@ test(
     expect(simpleTest).toContain(
       'zcl command arguments do not exist for AddSceneResponse command.'
     )
+
+    // Testing default values for command arguments, event fields and struct items
+    expect(sdkExt).toContain('ProductID - int16u - default_value=0x01')
+    expect(sdkExt).toContain(
+      'RequestorCanConsent - boolean - default_value=false'
+    )
+    expect(sdkExt).toContain(
+      'Struct name: ChannelInfoStruct, Struct Item Name: MajorNumber, Struct Item Type: int16u, Struct Default Value: 0xFFFF'
+    )
+    let eventOut = genResult.content['events.out']
+    expect(eventOut).toContain(
+      '> Field: SoftwareVersion  default_value=0x00000000'
+    )
   },
   testUtil.timeout.long()
 )

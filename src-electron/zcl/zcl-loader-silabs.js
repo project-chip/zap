@@ -524,6 +524,7 @@ function prepareCluster(cluster, context, isExtension = false) {
               max: arg.$.max,
               minLength: 0,
               maxLength: arg.$.length ? arg.$.length : null,
+              defaultValue: arg.$.default ? arg.$.default : null,
               isArray: arg.$.array == 'true' ? 1 : 0,
               presentIf: arg.$.presentIf,
               isNullable: arg.$.isNullable == 'true' ? true : false,
@@ -571,6 +572,7 @@ function prepareCluster(cluster, context, isExtension = false) {
             ev.fields.push({
               name: field.$.name,
               type: field.$.type,
+              defaultValue: field.$.default ? field.$.default : null,
               isArray: field.$.array == 'true' ? 1 : 0,
               isNullable: field.$.isNullable == 'true' ? true : false,
               isOptional: field.$.optional == 'true' ? true : false,
@@ -1634,6 +1636,7 @@ async function processStructItems(db, filePath, packageIds, data, context) {
           fieldIdentifier: lastFieldId,
           minLength: 0,
           maxLength: item.$.length ? item.$.length : null,
+          defaultValue: item.$.default ? item.$.default : null,
           isWritable: item.$.writable == 'true',
           isArray: item.$.array == 'true' ? true : false,
           isEnum: item.$.enum == 'true' ? true : false,
