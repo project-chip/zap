@@ -34,6 +34,30 @@ const dbCache = require('../db/db-cache.js')
 const queryNotification = require('../db/query-package-notification.js')
 
 /**
+ * Finds and reads JSON files referenced in a nested object.
+ *
+ * @param {Object} obj - The object to search for JSON file references.
+ * @param {string} basePath - The base directory to resolve relative paths.
+ * @returns {Promise<string>} - A promise that resolves to the concatenated content of all JSON files.
+ */
+async function findAndReadJsonFiles(obj, basePath) {
+  let additionalJsonContent = ''
+  for (const key in obj) {
+    if (typeof obj[key] === 'string' && obj[key].endsWith('.json')) {
+      // If the value is a JSON file reference, read its content
+      let jsonFilePath = path.resolve(path.join(basePath, obj[key]))
+      if (fs.existsSync(jsonFilePath)) {
+        additionalJsonContent += await fsPromise.readFile(jsonFilePath, 'utf8')
+      }
+    } else if (typeof obj[key] === 'object' && obj[key] !== null) {
+      // If the value is an object, recursively search for JSON file references
+      additionalJsonContent += await findAndReadJsonFiles(obj[key], basePath)
+    }
+  }
+  return additionalJsonContent
+}
+
+/**
  * Given a path, it will read generation template object into memory.
  *
  * @param {*} templatePath
@@ -42,34 +66,15 @@ const queryNotification = require('../db/query-package-notification.js')
 async function loadGenTemplateFromFile(templatePath) {
   let ret = {}
   ret.data = await fsPromise.readFile(templatePath, 'utf8')
-  ret.crc = util.checksum(ret.data)
   ret.templateData = JSON.parse(ret.data)
-  let zclExtension = ret.templateData.zcl
-  let zclExtensionFileContent = ''
-  // Adding zcl extension files to the template json crc
-  if (zclExtension && typeof zclExtension === 'object') {
-    for (const key of Object.keys(zclExtension)) {
-      let extension = zclExtension[key]
-      for (const key2 of Object.keys(extension)) {
-        let defaultExtensionValue = extension[key2].defaults
-        if (
-          typeof defaultExtensionValue === 'string' ||
-          defaultExtensionValue instanceof String
-        ) {
-          // Data is a string, so we will treat it as a relative path to the JSON file.
-          let externalPath = path.resolve(
-            path.join(path.dirname(templatePath), defaultExtensionValue)
-          )
-          zclExtensionFileContent += await fsPromise.readFile(
-            externalPath,
-            'utf8'
-          )
-        }
-      }
-    }
-    ret.crc = util.checksum(ret.data + zclExtensionFileContent)
-  }
-
+  // Find the json files within the gen template json files and add them to the
+  // crc as well.
+  let allJsonContentInTemplatePath = await findAndReadJsonFiles(
+    ret.templateData,
+    path.dirname(templatePath)
+  )
+  let checksumData = ret.data + allJsonContentInTemplatePath
+  ret.crc = util.checksum(checksumData)
   let requiredFeatureLevel = 0
   if ('requiredFeatureLevel' in ret.templateData) {
     requiredFeatureLevel = ret.templateData.requiredFeatureLevel
