@@ -254,6 +254,20 @@ async function collectDataFromPropertiesFile(metadataFile, data) {
           returnObject.featureFlags = zclProps.featureFlags
         }
 
+        // ZCLDataTypes
+        if (zclProps.zclDataTypes) {
+          returnObject.ZCLDataTypes = zclProps.ZCLDataTypes
+        } else {
+          returnObject.ZCLDataTypes = [
+            'ARRAY',
+            'BITMAP',
+            'ENUM',
+            'NUMBER',
+            'STRING',
+            'STRUCT'
+          ]
+        }
+
         returnObject.supportCustomZclDevice = zclProps.supportCustomZclDevice
         returnObject.version = zclProps.version
         returnObject.description = zclProps.description
