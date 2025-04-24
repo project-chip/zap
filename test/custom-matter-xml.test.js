@@ -430,6 +430,8 @@ test(
     expect(sdkExt).toContain(
       "/ command: 0x0006 / 0xFFF201 => SampleMfgSpecificToggleWithTransition2, test extension: ''"
     )
+    expect(sdkExt).toContain('transitionTime - int16u')
+    expect(sdkExt).toContain('transitionTime - int16u - default_value=0x0003')
     // checking if baseType for command arguments derived from custom xml is accurate
     expect(sdkExt).toContain(
       'Sample Custom Cluster - AddArgumentsResponse\n    returnValue - int8u'
@@ -443,6 +445,10 @@ test(
     expect(endpointConfig).toContain(
       '{ (uint16_t)0x0, (uint16_t)0x0, (uint16_t)0xFFFF }, /* Sample Mfg Specific Attribute 2 */ \\'
     )
+
+    let endpointOut = genResult.content['endpoints.out']
+    expect(endpointOut).not.toBeNull()
+    expect(endpointOut).toContain('- SampleMfgSpecificOnWithTransition2: /')
 
     // delete custom xml and generate again
     sessionPartitionInfo =
