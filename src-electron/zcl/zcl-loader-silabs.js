@@ -506,7 +506,7 @@ function prepareCluster(cluster, context, isExtension = false) {
         name: command.$.name,
         description: command.description ? command.description[0].trim() : '',
         source: command.$.source,
-        isOptional: command.$.optional == 'true' ? true : false,
+        isOptional: conformParser.getOptionalAttributeFromXML(command),
         conformance: conformParser.parseConformanceFromXML(command),
         mustUseTimedInvoke: command.$.mustUseTimedInvoke == 'true',
         introducedIn: command.$.introducedIn,
@@ -567,7 +567,7 @@ function prepareCluster(cluster, context, isExtension = false) {
         conformance: conformParser.parseConformanceFromXML(event),
         priority: event.$.priority,
         description: event.description ? event.description[0].trim() : '',
-        isOptional: event.$.optional == 'true',
+        isOptional: conformParser.getOptionalAttributeFromXML(event),
         isFabricSensitive: event.$.isFabricSensitive == 'true'
       }
       ev.access = extractAccessIntoArray(event)
@@ -685,7 +685,7 @@ function prepareCluster(cluster, context, isExtension = false) {
           : null,
         isWritable: attribute.$.writable == 'true',
         defaultValue: attribute.$.default,
-        isOptional: attribute.$.optional == 'true',
+        isOptional: conformParser.getOptionalAttributeFromXML(attribute),
         reportingPolicy: reportingPolicy,
         storagePolicy: storagePolicy,
         isSceneRequired:

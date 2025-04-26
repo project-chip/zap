@@ -132,5 +132,18 @@ function checkMissingTerms(expression, elementMap) {
   return missingTerms
 }
 
+/**
+ * Check if the expression contains a given term.
+ *
+ * @param expression
+ * @param term
+ * @returns true if the expression contains the term, false otherwise
+ */
+function checkIfExpressionHasTerm(expression, term) {
+  let terms = expression.match(/[A-Za-z][A-Za-z0-9_]*/g)
+  return terms && terms.includes(term)
+}
+
 exports.evaluateConformanceExpression = evaluateConformanceExpression
 exports.checkMissingTerms = checkMissingTerms
+exports.checkIfExpressionHasTerm = checkIfExpressionHasTerm

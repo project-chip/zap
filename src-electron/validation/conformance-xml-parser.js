@@ -21,6 +21,9 @@
  * @module Validation API: Parse conformance data from XML
  */
 
+const dbEnum = require('../../src-shared/db-enum')
+const conformEvaluator = require('./conformance-expression-evaluator')
+
 /**
  * Parses conformance from XML data.
  * The conformance could come from features, attributes, commands, or events
@@ -155,4 +158,30 @@ function parseConformanceRecursively(operand, depth = 0, parentJoinChar = '') {
   }
 }
 
+/**
+ * if optional attribute is defined, return its value
+ * if optional attribute is undefined, check if the element conformance is mandatory
+ * if both optional attribute and conformance are undefined, return false
+ * Optional attribute takes precedence over conformance for backward compatibility on certain elements
+ *
+ * @param {*} element
+ * @returns true if the element is optional, false if the element is mandatory
+ */
+function getOptionalAttributeFromXML(element) {
+  if (element.$.optional) {
+    return element.$.optional == 'true'
+  } else {
+    let conformance = parseConformanceFromXML(element)
+    if (conformance) {
+      return !conformEvaluator.checkIfExpressionHasTerm(
+        conformance,
+        dbEnum.conformance.mandatory
+      )
+    } else {
+      return false
+    }
+  }
+}
+
 exports.parseConformanceFromXML = parseConformanceFromXML
+exports.getOptionalAttributeFromXML = getOptionalAttributeFromXML

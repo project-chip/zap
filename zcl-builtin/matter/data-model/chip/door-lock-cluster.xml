@@ -67,16 +67,27 @@ limitations under the License.
             cluster itself. Those attributes/commands are marked with a special comment. -->
 
         <!-- Attributes -->
-        <attribute side="server" code="0" define="LOCK_STATE" type="DlLockState" min="0" max="2" isNullable="true" reportable="true" writable="false">LockState</attribute>
-        <attribute side="server" code="1" define="LOCK_TYPE" type="DlLockType" min="0" max="10" writable="false">LockType</attribute>
+        <attribute side="server" code="0" define="LOCK_STATE" type="DlLockState" min="0" max="2" isNullable="true" reportable="true" writable="false" optional="true">
+            <description>LockState</description>
+            <mandatoryConform/>
+        </attribute>
+        <attribute side="server" code="1" define="LOCK_TYPE" type="DlLockType" min="0" max="10" writable="false" optional="false">LockType</attribute>
         <attribute side="server" code="2" define="ACTUATOR_ENABLED" type="boolean" writable="false">ActuatorEnabled</attribute>
         <!-- Conformance feature DPS - for now optional -->
-        <attribute side="server" code="3" define="DOOR_STATE" type="DoorStateEnum" min="0" max="5" isNullable="true" reportable="true" optional="true">DoorState</attribute>
+        <attribute side="server" code="3" define="DOOR_STATE" type="DoorStateEnum" min="0" max="5" isNullable="true" reportable="true" optional="false">
+            <description>DoorState</description>
+            <mandatoryConform>
+                <feature name="DPS"/>
+            </mandatoryConform>
+        </attribute>
         <!-- Conformance feature [DPS] - for now optional -->
         <attribute side="server" code="4" define="DOOR_OPEN_EVENTS" type="INT32U" writable="true" optional="true">
             <description>DoorOpenEvents</description>
             <access op="read" role="view" />
             <access op="write" role="manage" />
+            <optionalConform>
+                <feature name="DPS"/>
+            </optionalConform>
         </attribute>
         <!-- Conformance feature [DPS] - for now optional -->
         <attribute side="server" code="5" define="DOOR_CLOSED_EVENTS" type="INT32U" writable="true" optional="true">
@@ -138,6 +149,7 @@ limitations under the License.
             <description>OperatingMode</description>
             <access op="read" role="view" />
             <access op="write" role="manage" />
+            <mandatoryConform/>
         </attribute>
         <attribute side="server" code="38" define="SUPPORTED_OPERATING_MODES" type="DlSupportedOperatingModes" min="0x0000" max="0xFFFF" default="0xFFF6" writable="false">SupportedOperatingModes</attribute>
         <attribute side="server" code="39" define="DEFAULT_CONFIGURATION_REGISTER" type="DlDefaultConfigurationRegister" min="0x0000" max="0xFFFF" reportable="true" default="0" writable="false" optional="true">DefaultConfigurationRegister</attribute>
@@ -204,10 +216,11 @@ limitations under the License.
             <!-- Conformance feature [COTA & PIN] - for now optional -->
             <arg name="PINCode" type="OCTET_STRING" optional="true" />
         </command>
-        <command source="client" code="1" name="UnlockDoor" mustUseTimedInvoke="true">
+        <command source="client" code="1" name="UnlockDoor" mustUseTimedInvoke="true" optional="true">
             <description>This command causes the lock device to unlock the door.</description>
             <!-- Conformance feature [COTA & PIN] - for now optional -->
             <arg name="PINCode" type="OCTET_STRING" optional="true" />
+            <mandatoryConform/>
         </command>
         <!-- Command Toggle with ID 2 is deprecated/disallowed -->
         <command source="client" code="3" name="UnlockWithTimeout" mustUseTimedInvoke="true" optional="true">
@@ -215,6 +228,7 @@ limitations under the License.
             <arg name="Timeout" type="INT16U" />
             <!-- Conformance feature [COTA & PIN] - for now optional -->
             <arg name="PINCode" type="OCTET_STRING" optional="true" />
+            <optionalConform/>
         </command>
         <!-- Conformance feature WDSCH - for now optional -->
         <command source="client" code="11" name="SetWeekDaySchedule" optional="true">
@@ -227,6 +241,9 @@ limitations under the License.
             <arg name="StartMinute" type="INT8U" />
             <arg name="EndHour" type="INT8U" />
             <arg name="EndMinute" type="INT8U" />
+            <mandatoryConform>
+                <feature name="WDSCH"/>
+            </mandatoryConform>
         </command>
         <!-- Conformance feature WDSCH - for now optional -->
         <command source="client" code="12" name="GetWeekDaySchedule" response="GetWeekDayScheduleResponse" optional="true">
@@ -396,16 +413,20 @@ limitations under the License.
 
 
         <!-- Events -->
-        <event side="server" code="0" name="DoorLockAlarm" priority="critical">
+        <event side="server" code="0" name="DoorLockAlarm" priority="critical" optional="true">
             <description>The door lock cluster provides several alarms which can be sent when there is a critical state on the door lock.</description>
             <field id="0" name="AlarmCode" type="AlarmCodeEnum" />
+            <mandatoryConform/>
         </event>
         <!-- Conformance feature DPS - for now optional -->
         <event side="server" code="1" name="DoorStateChange" priority="critical" optional="true">
             <description>The door lock server sends out a DoorStateChange event when the door lock door state changes.</description>
             <field id="0" name="DoorState" type="DoorStateEnum" />
+            <mandatoryConform>
+                <feature name="DPS"/>
+            </mandatoryConform>
         </event>
-        <event side="server" code="2" name="LockOperation" priority="critical">
+        <event side="server" code="2" name="LockOperation" priority="critical" optional="true">
             <description>The door lock server sends out a LockOperation event when the event is triggered by the various lock operation sources.</description>
             <field id="0" name="LockOperationType" type="LockOperationTypeEnum" />
             <field id="1" name="OperationSource" type="OperationSourceEnum" />

@@ -20175,6 +20175,7 @@ This module provides utilities for evaluating conformance expressions.
         * [~evaluateBooleanExpression(expr)](#module_Validation API_ Evaluate conformance expressions..evaluateConformanceExpression..evaluateBooleanExpression)
         * [~evaluateWithParentheses(expr)](#module_Validation API_ Evaluate conformance expressions..evaluateConformanceExpression..evaluateWithParentheses)
     * [~checkMissingTerms(expression, elementMap)](#module_Validation API_ Evaluate conformance expressions..checkMissingTerms) ⇒
+    * [~checkIfExpressionHasTerm(expression, term)](#module_Validation API_ Evaluate conformance expressions..checkIfExpressionHasTerm) ⇒
 
 <a name="module_Validation API_ Evaluate conformance expressions..evaluateConformanceExpression"></a>
 
@@ -20235,6 +20236,19 @@ If so, it means the conformance depends on terms with unknown values and changes
 | expression | <code>\*</code> | 
 | elementMap | <code>\*</code> | 
 
+<a name="module_Validation API_ Evaluate conformance expressions..checkIfExpressionHasTerm"></a>
+
+### Validation API: Evaluate conformance expressions~checkIfExpressionHasTerm(expression, term) ⇒
+Check if the expression contains a given term.
+
+**Kind**: inner method of [<code>Validation API: Evaluate conformance expressions</code>](#module_Validation API_ Evaluate conformance expressions)  
+**Returns**: true if the expression contains the term, false otherwise  
+
+| Param |
+| --- |
+| expression | 
+| term | 
+
 <a name="module_Validation API_ Parse conformance data from XML"></a>
 
 ## Validation API: Parse conformance data from XML
@@ -20244,6 +20258,7 @@ This module provides utilities for parsing conformance data from XML into expres
 * [Validation API: Parse conformance data from XML](#module_Validation API_ Parse conformance data from XML)
     * [~parseConformanceFromXML(operand)](#module_Validation API_ Parse conformance data from XML..parseConformanceFromXML) ⇒
     * [~parseConformanceRecursively(operand, depth, parentJoinChar)](#module_Validation API_ Parse conformance data from XML..parseConformanceRecursively) ⇒
+    * [~getOptionalAttributeFromXML(element)](#module_Validation API_ Parse conformance data from XML..getOptionalAttributeFromXML) ⇒
 
 <a name="module_Validation API_ Parse conformance data from XML..parseConformanceFromXML"></a>
 
@@ -20304,6 +20319,21 @@ When they appear, stop recursing and return the name inside directly
 | operand | <code>\*</code> |  | 
 | depth | <code>\*</code> | <code>0</code> | 
 | parentJoinChar | <code>\*</code> |  | 
+
+<a name="module_Validation API_ Parse conformance data from XML..getOptionalAttributeFromXML"></a>
+
+### Validation API: Parse conformance data from XML~getOptionalAttributeFromXML(element) ⇒
+if optional attribute is defined, return its value
+if optional attribute is undefined, check if the element conformance is mandatory
+if both optional attribute and conformance are undefined, return false
+Optional attribute takes precedence over conformance for backward compatibility on certain elements
+
+**Kind**: inner method of [<code>Validation API: Parse conformance data from XML</code>](#module_Validation API_ Parse conformance data from XML)  
+**Returns**: true if the element is optional, false if the element is mandatory  
+
+| Param | Type |
+| --- | --- |
+| element | <code>\*</code> | 
 
 <a name="module_Validation API_ Validation APIs"></a>
 
