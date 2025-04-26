@@ -216,14 +216,14 @@ limitations under the License.
             <!-- Conformance feature [COTA & PIN] - for now optional -->
             <arg name="PINCode" type="OCTET_STRING" optional="true" />
         </command>
-        <command source="client" code="1" name="UnlockDoor" mustUseTimedInvoke="true" optional="true">
+        <command source="client" code="1" name="UnlockDoor" mustUseTimedInvoke="true">
             <description>This command causes the lock device to unlock the door.</description>
             <!-- Conformance feature [COTA & PIN] - for now optional -->
             <arg name="PINCode" type="OCTET_STRING" optional="true" />
             <mandatoryConform/>
         </command>
         <!-- Command Toggle with ID 2 is deprecated/disallowed -->
-        <command source="client" code="3" name="UnlockWithTimeout" mustUseTimedInvoke="true" optional="true">
+        <command source="client" code="3" name="UnlockWithTimeout" mustUseTimedInvoke="true" optional="false">
             <description>This command causes the lock device to unlock the door with a timeout parameter.</description>
             <arg name="Timeout" type="INT16U" />
             <!-- Conformance feature [COTA & PIN] - for now optional -->
@@ -446,6 +446,7 @@ limitations under the License.
             <field id="5" name="SourceNode" type="NODE_ID" isNullable="true" />
             <!-- Conformance feature [USR] - for now optional -->
             <field id="6" name="Credentials" type="CredentialStruct" array="true" isNullable="true" optional="true" />
+            <mandatoryConform/>
         </event>
         <event side="server" code="4" name="LockUserChange" priority="info">
             <description>The door lock server sends out a LockUserChange event when a lock user, schedule, or credential change has occurred.</description>

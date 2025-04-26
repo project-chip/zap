@@ -689,18 +689,18 @@ test(
       expect(
         testQuery.checkIfElementIsOptional(commands, 'GetWeekDaySchedule')
       ).toBeTruthy()
-      // optional conformance, optional="true" -> optional
+      // mandatory conformance, optional attribute undefined -> mandatory
       expect(
-        testQuery.checkIfElementIsOptional(commands, 'UnlockWithTimeout')
-      ).toBeTruthy()
+        testQuery.checkIfElementIsOptional(commands, 'UnlockDoor')
+      ).toBeFalsy()
       // mandatoryConform to feature WDSCH, optional="true" -> optional
       expect(
         testQuery.checkIfElementIsOptional(commands, 'SetWeekDaySchedule')
       ).toBeTruthy()
-      // mandatory conformance, optional="true" -> optional as optional="true" takes precedence
+      // optional conformance, optional="false" -> mandatory as optional="false" takes precedence
       expect(
-        testQuery.checkIfElementIsOptional(commands, 'UnlockDoor')
-      ).toBeTruthy()
+        testQuery.checkIfElementIsOptional(commands, 'UnlockWithTimeout')
+      ).toBeFalsy()
 
       let events = await queryEvent.selectEventsByClusterId(
         db,
@@ -714,6 +714,10 @@ test(
       expect(
         testQuery.checkIfElementIsOptional(events, 'LockOperation')
       ).toBeTruthy()
+      // mandatory conformance, optional attribute undefined -> mandatory
+      expect(
+        testQuery.checkIfElementIsOptional(events, 'LockOperationError')
+      ).toBeFalsy()
       // mandatoryConform to feature DPS, optional="true" -> optional
       expect(
         testQuery.checkIfElementIsOptional(events, 'DoorStateChange')
