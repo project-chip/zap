@@ -19169,6 +19169,7 @@ This module provides the API to access various zcl utilities.
     * [~commandComparator(a, b)](#module_REST API_ various zcl utilities..commandComparator) ⇒
     * [~eventComparator(a, b)](#module_REST API_ various zcl utilities..eventComparator) ⇒
     * [~findStructByName(structs, name)](#module_REST API_ various zcl utilities..findStructByName) ⇒
+    * [~sortStructsByDependencyHelper()](#module_REST API_ various zcl utilities..sortStructsByDependencyHelper)
     * [~sortStructsByDependency(structs)](#module_REST API_ various zcl utilities..sortStructsByDependency) ⇒
     * [~calculateBytes(res, options, db, packageIds, isStructType)](#module_REST API_ various zcl utilities..calculateBytes)
     * [~optionsHashOrDefault(options, optionsKey, defaultValue)](#module_REST API_ various zcl utilities..optionsHashOrDefault)
@@ -19252,6 +19253,12 @@ Find struct by name from the given list of structs.
 | structs | <code>\*</code> | 
 | name | <code>\*</code> | 
 
+<a name="module_REST API_ various zcl utilities..sortStructsByDependencyHelper"></a>
+
+### REST API: various zcl utilities~sortStructsByDependencyHelper()
+Non-exported helper for sortStructsByDependency.
+
+**Kind**: inner method of [<code>REST API: various zcl utilities</code>](#module_REST API_ various zcl utilities)  
 <a name="module_REST API_ various zcl utilities..sortStructsByDependency"></a>
 
 ### REST API: various zcl utilities~sortStructsByDependency(structs) ⇒

@@ -115,6 +115,7 @@ function sqlQueryForDataTypeByNameAndClusterName(
     ${typeTableName}.${typeTableName}_ID,
     ${structExtensionString}
     DATA_TYPE.NAME AS NAME,
+    (SELECT COUNT(1) FROM DATA_TYPE_CLUSTER WHERE DATA_TYPE_CLUSTER.DATA_TYPE_REF = ${typeTableName}.${typeTableName}_ID) AS ${typeTableName}_CLUSTER_COUNT,
     ${numberExtensionString}
     ${typeTableName}.SIZE AS SIZE,
     CLUSTER.NAME AS CLUSTER_NAME

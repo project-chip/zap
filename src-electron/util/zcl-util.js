@@ -110,16 +110,9 @@ function findStructByName(structs, name) {
 }
 
 /**
- * This method retrieves a bunch of structs sorted
- * alphabetically. It's expected to resort the structs into a list
- * where they are sorted in a way where dependency is observed.
- *
- * It uses the DFS-based topological sort algorithm.
- *
- * @param {*} structs
- * @returns sorted structs according to topological search.
+ * Non-exported helper for sortStructsByDependency.
  */
-async function sortStructsByDependency(structs) {
+function sortStructsByDependencyHelper(structs) {
   let allStructNames = structs.map((s) => s.name)
   let edges = []
 
@@ -144,6 +137,37 @@ async function sortStructsByDependency(structs) {
   })
 
   return finalSort
+}
+
+/**
+ * This method retrieves a bunch of structs sorted
+ * alphabetically. It's expected to resort the structs into a list
+ * where they are sorted in a way where dependency is observed.
+ *
+ * It uses the DFS-based topological sort algorithm.
+ *
+ * @param {*} structs
+ * @returns sorted structs according to topological search.
+ */
+async function sortStructsByDependency(structs) {
+  // Given global and non-global structs, the way dependencies work is this:
+  //
+  // 1) Global structs can only depend on other global structs.
+  // 2) Non-global structs can depend on either non-global or global structs.
+  //
+  // So we can output all global structs first (sorted by dependency), and then
+  // the non-global structs, again sorted by dependency.
+  //
+  // NOTE: the topological sort we use is not a stable sort, so adding some
+  // structs to the list can entirely change the order of all the structs.
+  let sortedGlobalStructs = sortStructsByDependencyHelper(
+    structs.filter((s) => s.struct_cluster_count == 0)
+  )
+  let sortedNonGlobalStructs = sortStructsByDependencyHelper(
+    structs.filter((s) => s.struct_cluster_count != 0)
+  )
+
+  return sortedGlobalStructs.concat(sortedNonGlobalStructs)
 }
 
 /**

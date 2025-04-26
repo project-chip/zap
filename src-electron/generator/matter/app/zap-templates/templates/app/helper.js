@@ -733,15 +733,42 @@ async function zapTypeToClusterObjectType(type, isDecodable, options) {
 
     if (types.isStruct) {
       passByReference = true;
-      const structObj = await zclQuery.selectStructByName(
-        this.global.db,
-        type,
-        pkgId
-      );
-      const ns = nsValueToNamespace(
-        options.hash.ns,
-        structObj.structClusterCount
-      );
+      let clusterCount;
+      if (options.hash.cluster === '') {
+        // This is a non-global struct that is associated with multiple
+        // clusters: in that case our caller can pass in cluster="", and
+        // we know that clusterCount > 1, so just set it to 2.
+        clusterCount = 2;
+      } else {
+        const cluster = options.hash.cluster || options.hash.ns;
+        const structObj = await zclQuery.selectStructByNameAndClusterName(
+          this.global.db,
+          type,
+          cluster,
+          pkgId
+        );
+        if (structObj) {
+          clusterCount = structObj.structClusterCount;
+        } else if (options.hash.cluster === undefined) {
+          // Backwards-compat case: we were called without ns or cluster at all
+          // (not even cluster="").  Just get by name, since that's all we have to
+          // work with.  It won't work right when names are not unique, but that's
+          // the best we can do.
+          const backwardsCompatStructObj = await zclQuery.selectStructByName(
+            this.global.db,
+            type,
+            pkgId
+          );
+          clusterCount = backwardsCompatStructObj.structClusterCount;
+        } else {
+          // Something is wrong here.  Possibly the caller is passing in a munged
+          // cluster name.  Just fail out instead of silently returning bad data.
+          throw new Error(
+            `Unable to find struct ${type} in cluster ${options.hash.cluster}`
+          );
+        }
+      }
+      const ns = nsValueToNamespace(options.hash.ns, clusterCount);
       return (
         ns +
         'Structs::' +
@@ -847,11 +874,23 @@ async function _zapTypeToPythonClusterObjectType(type, options) {
     }
 
     if (await typeChecker('isStruct')) {
-      const structObj = await zclQuery.selectStructByName(
-        this.global.db,
-        type,
-        pkgId
-      );
+      let structObj;
+      if (options.hash.cluster) {
+        structObj = await zclQuery.selectStructByNameAndClusterName(
+          this.global.db,
+          type,
+          options.hash.cluster,
+          pkgId
+        );
+      } else {
+        // Backwards-compat case, which won't work when multiple structs have
+        // the same name.
+        structObj = await zclQuery.selectStructByName(
+          this.global.db,
+          type,
+          pkgId
+        );
+      }
 
       const ns = nsValueToPythonNamespace(
         options.hash.ns,
@@ -947,11 +986,23 @@ async function _getPythonFieldDefault(type, options) {
     }
 
     if (await typeChecker('isStruct')) {
-      const structObj = await zclQuery.selectStructByName(
-        this.global.db,
-        type,
-        pkgId
-      );
+      let structObj;
+      if (options.hash.cluster) {
+        structObj = await zclQuery.selectStructByNameAndClusterName(
+          this.global.db,
+          type,
+          options.hash.cluster,
+          pkgId
+        );
+      } else {
+        // Backwards-compat case, which won't work when multiple structs have
+        // the same name.
+        structObj = await zclQuery.selectStructByName(
+          this.global.db,
+          type,
+          pkgId
+        );
+      }
 
       const ns = nsValueToPythonNamespace(
         options.hash.ns,
@@ -1133,7 +1184,19 @@ async function zcl_commands_that_need_timed_invoke(options) {
 // struct.
 async function if_is_fabric_scoped_struct(type, options) {
   let packageIds = await templateUtil.ensureZclPackageIds(this);
-  let st = await zclQuery.selectStructByName(this.global.db, type, packageIds);
+  let st;
+  if (options.hash.cluster) {
+    st = await zclQuery.selectStructByNameAndClusterName(
+      this.global.db,
+      type,
+      options.hash.cluster,
+      packageIds
+    );
+  } else {
+    // Backwards compat case; will not work right when multiple structs share
+    // the same name.
+    st = await zclQuery.selectStructByName(this.global.db, type, packageIds);
+  }
 
   if (st && st.isFabricScoped) {
     return options.fn(this);
