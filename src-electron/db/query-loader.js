@@ -77,13 +77,14 @@ INSERT INTO EVENT_FIELD (
   FIELD_IDENTIFIER,
   NAME,
   TYPE,
+  DEFAULT_VALUE,
   IS_ARRAY,
   IS_NULLABLE,
   IS_OPTIONAL,
   INTRODUCED_IN_REF,
   REMOVED_IN_REF
 ) VALUES (
-  ?, ?, ?, ?, ?, ?, ?,
+  ?, ?, ?, ?, ?, ?, ?, ?,
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
 )
@@ -122,6 +123,7 @@ INSERT INTO COMMAND_ARG (
   MAX,
   MIN_LENGTH,
   MAX_LENGTH,
+  DEFAULT_VALUE,
   IS_ARRAY,
   PRESENT_IF,
   IS_NULLABLE,
@@ -131,7 +133,7 @@ INSERT INTO COMMAND_ARG (
   INTRODUCED_IN_REF,
   REMOVED_IN_REF
 ) VALUES (
-  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
 )`
@@ -333,6 +335,7 @@ function fieldMap(eventId, packageId, fields) {
     field.fieldIdentifier,
     field.name,
     field.type,
+    field.defaultValue,
     dbApi.toDbBool(field.isArray),
     dbApi.toDbBool(field.isNullable),
     dbApi.toDbBool(field.isOptional),
@@ -360,6 +363,7 @@ function argMap(cmdId, packageId, args) {
     arg.max,
     arg.minLength,
     arg.maxLength,
+    arg.defaultValue,
     dbApi.toDbBool(arg.isArray),
     arg.presentIf,
     dbApi.toDbBool(arg.isNullable),
@@ -1266,7 +1270,7 @@ async function insertDeviceTypes(db, packageId, data) {
         if ('clusters' in data[i]) {
           let lastId = lastIdsArray[i]
           let clusters = data[i].clusters
-          // This is an array that links the generated deviceTyepRef to the cluster via generating an array of arrays,
+          // This is an array that links the generated deviceTypeRef to the cluster via generating an array of arrays,
           zclIdsPromises = Promise.all(
             clusters.map((cluster) =>
               dbApi
@@ -1328,6 +1332,122 @@ async function insertDeviceTypes(db, packageId, data) {
       }
       return zclIdsPromises
     })
+}
+
+/**
+ * Reloads device types into the database.
+ * This function is responsible for inserting new device type entities as required
+ * when a previously loaded custom xml file (containing a device type) is added to a session.
+ *
+ * @param {*} db
+ * @param {*} packageId
+ * @param {*} data
+ * @param {*} sessionPackages
+ */
+async function reloadDeviceTypes(db, packageId, data, sessionPackages) {
+  let zclIdsPromises = []
+  for (let dt of data) {
+    // Find the DEVICE_TYPE_ID for the current device type
+    const query = `
+      SELECT
+        DEVICE_TYPE_ID
+      FROM
+        DEVICE_TYPE
+      WHERE
+        PACKAGE_REF = ? AND CODE = ?`
+    const result = await dbApi.dbGet(db, query, [packageId, dt.code])
+
+    if (result) {
+      const existingId = result.DEVICE_TYPE_ID
+
+      if ('clusters' in dt) {
+        const clusters = dt.clusters
+
+        // Process clusters for the existing device type
+        const clusterPromises = []
+        for (const cluster of clusters) {
+          const isInsertRequired = await isDeviceTypeClusterInsertRequired(
+            db,
+            existingId,
+            cluster.clusterName,
+            packageId,
+            sessionPackages
+          )
+          // Only inserting new device type cluster if required
+          if (isInsertRequired) {
+            const promise = dbApi
+              .dbInsert(
+                db,
+                'INSERT INTO DEVICE_TYPE_CLUSTER (DEVICE_TYPE_REF, CLUSTER_NAME, INCLUDE_CLIENT, INCLUDE_SERVER, LOCK_CLIENT, LOCK_SERVER) VALUES (?,?,?,?,?,?)',
+                [
+                  existingId,
+                  cluster.clusterName,
+                  cluster.client,
+                  cluster.server,
+                  cluster.clientLocked,
+                  cluster.serverLocked
+                ],
+                true
+              )
+              .then((deviceTypeClusterRef) => ({
+                dtClusterRef: deviceTypeClusterRef,
+                clusterData: cluster
+              }))
+            clusterPromises.push(promise)
+          }
+        }
+
+        const dtClusterRefDataPairs = await Promise.all(clusterPromises)
+
+        // Insert attributes, commands, and features for the device type
+        await Promise.all([
+          insertDeviceTypeAttributes(db, dtClusterRefDataPairs),
+          insertDeviceTypeCommands(db, dtClusterRefDataPairs)
+        ])
+      }
+    }
+  }
+  return zclIdsPromises
+}
+
+/**
+ * Checks if a device type cluster insert is required on device type reload.
+ *
+ * @param {*} db
+ * @param {*} deviceTypeId
+ * @param {*} clusterName
+ * @param {*} packageId
+ * @param {*} sessionPackages
+ * @returns {Promise<boolean>} - Returns true if the insert is required, false otherwise.
+ */
+async function isDeviceTypeClusterInsertRequired(
+  db,
+  deviceTypeId,
+  clusterName,
+  packageId,
+  sessionPackages
+) {
+  let knownPackages = sessionPackages.concat(packageId)
+  const query = `
+    SELECT
+      DEVICE_TYPE_CLUSTER_ID
+    FROM
+      DEVICE_TYPE_CLUSTER
+    WHERE
+      DEVICE_TYPE_REF = ?
+    AND
+      CLUSTER_NAME = ?
+    AND
+      CLUSTER_REF IN
+      (SELECT
+        CLUSTER_ID
+        FROM
+          CLUSTER
+        WHERE
+          PACKAGE_REF IN (${dbApi.toInClause(knownPackages)}))
+  `
+  const result = await dbApi.dbGet(db, query, [deviceTypeId, clusterName])
+  return result === undefined
 }
 
 /**
@@ -2282,7 +2402,7 @@ async function insertStructItems(db, packageIds, data) {
     db,
     `
   INSERT INTO
-    STRUCT_ITEM (STRUCT_REF, NAME, FIELD_IDENTIFIER, IS_ARRAY, IS_ENUM, MIN_LENGTH, MAX_LENGTH, IS_WRITABLE, IS_NULLABLE, IS_OPTIONAL, IS_FABRIC_SENSITIVE, SIZE, DATA_TYPE_REF)
+    STRUCT_ITEM (STRUCT_REF, NAME, FIELD_IDENTIFIER, IS_ARRAY, IS_ENUM, MIN_LENGTH, MAX_LENGTH, DEFAULT_VALUE, IS_WRITABLE, IS_NULLABLE, IS_OPTIONAL, IS_FABRIC_SENSITIVE, SIZE, DATA_TYPE_REF)
   VALUES (
     (SELECT
       CASE
@@ -2295,6 +2415,7 @@ async function insertStructItems(db, packageIds, data) {
         ELSE
           (${SELECT_CLUSTER_SPECIFIC_STRUCT})
         END AS STRUCT_ID),
+    ?,
     ?,
     ?,
     ?,
@@ -2329,6 +2450,7 @@ async function insertStructItems(db, packageIds, data) {
       at.isEnum,
       at.minLength,
       at.maxLength,
+      at.defaultValue,
       at.isWritable,
       at.isNullable,
       at.isOptional,
@@ -2347,6 +2469,7 @@ exports.insertSpecs = insertSpecs
 exports.insertGlobalAttributeDefault = insertGlobalAttributeDefault
 exports.insertAtomics = insertAtomics
 exports.insertDeviceTypes = insertDeviceTypes
+exports.reloadDeviceTypes = reloadDeviceTypes
 exports.insertTags = insertTags
 exports.insertAccessModifiers = insertAccessModifiers
 exports.insertAccessOperations = insertAccessOperations

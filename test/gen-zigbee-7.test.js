@@ -148,7 +148,7 @@ test(
         db,
         customDeviceType.id
       )
-    expect(deviceTypeClusters.length).toBe(2) // 2 device type clusters associated with this device type.
+    expect(deviceTypeClusters.length).toBe(4) // 4 device type clusters associated with this device type.
   },
   testUtil.timeout.long()
 )

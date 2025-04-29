@@ -40,6 +40,12 @@ export default {
         return this.$store.state.zap.endpointTypeView.deviceTypeRef
       }
     },
+    deviceTypeClustersForSelectedEndpoint: {
+      get() {
+        return this.$store.state.zap.endpointTypeView
+          .deviceTypeClustersForSelectedEndpoint
+      }
+    },
     endpointDeviceVersion: {
       get() {
         return this.$store.state.zap.endpointTypeView.deviceVersion
@@ -225,6 +231,10 @@ export default {
         deviceTypeRefs: deviceTypeRefs,
         endpointTypeRef: endpointReference
       })
+      this.$store.dispatch(
+        'zap/updateDeviceTypeClustersForSelectedEndpoint',
+        deviceTypeRefs
+      )
     },
     sdkExtClusterCode(extEntry) {
       return extEntry ? extEntry.entityCode : ''
@@ -402,7 +412,7 @@ export default {
         return zclProperty.category
       } else {
         zclProperty = this.$store.state.zap.packages.find(
-          (item) => item.pkg.id === packageRef && item.pkg.category
+          (item) => item.pkg.id === packageRef
         )
         return zclProperty.pkg?.category
       }

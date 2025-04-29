@@ -129,6 +129,10 @@
       type="INT16U" min="0" writable="false"
       default="0" optional="true">A8</attribute>
 
+    <attribute manufacturerCode="0x10e0" side="client" code="0x0302" define="A9"
+      type="INT8U" min="0" max="0xFF" writable="false"
+      default="0" optional="false">A9</attribute>
+
     <!-- COMMANDS -->
     <!-- Client Commands -->
     <command source="client" code="0x00"

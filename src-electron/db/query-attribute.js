@@ -1219,7 +1219,28 @@ async function selectAttributeMappingsByPackageIds(db, packageIds) {
       C1.NAME AS C1_NAME,
       C2.CODE AS C2_CODE,
       COALESCE(C2.MANUFACTURER_CODE, 0) AS C2_MANUFACTURER_CODE,
-      C2.NAME AS C2_NAME
+      C2.NAME AS C2_NAME,
+      ROW_NUMBER() OVER (
+        PARTITION BY C1.CODE, COALESCE(C1.MANUFACTURER_CODE, 0), C2.CODE, COALESCE(C2.MANUFACTURER_CODE, 0)
+        ORDER BY C1.CODE, COALESCE(C1.MANUFACTURER_CODE, 0), C2.CODE, COALESCE(C2.MANUFACTURER_CODE, 0)
+      ) AS CLUSTER_MAPPING_INDEX,
+      COUNT(*) OVER (
+        PARTITION BY C1.CODE, COALESCE(C1.MANUFACTURER_CODE, 0), C2.CODE, COALESCE(C2.MANUFACTURER_CODE, 0)
+      ) AS TOTAL_CLUSTER_MAPPED_ATTRIBUTES,
+      CASE
+        WHEN
+          (
+            RANK() OVER (
+              ORDER BY C1.CODE, COALESCE(C1.MANUFACTURER_CODE, 0), C2.CODE, COALESCE(C2.MANUFACTURER_CODE, 0)
+            )
+            +  
+            COUNT(*) OVER (
+              PARTITION BY C1.CODE, COALESCE(C1.MANUFACTURER_CODE, 0), C2.CODE, COALESCE(C2.MANUFACTURER_CODE, 0)
+            )
+          ) > COUNT(*) OVER ()
+        THEN 1
+        ELSE 0
+      END AS IS_LAST_CLUSTER_PARTITION
     FROM
       ATTRIBUTE_MAPPING
     INNER JOIN
@@ -1242,7 +1263,7 @@ async function selectAttributeMappingsByPackageIds(db, packageIds) {
       A1.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
     OR
       A2.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
-
+    ORDER BY C1_CODE, C1_MANUFACTURER_CODE, C2_CODE, C2_MANUFACTURER_CODE, A1_CODE, A1_MANUFACTURER_CODE, A2_CODE, A2_MANUFACTURER_CODE
     `
   )
   return rows.map(dbMapping.map.attributeMapping)

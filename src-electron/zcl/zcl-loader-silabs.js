@@ -254,6 +254,20 @@ async function collectDataFromPropertiesFile(metadataFile, data) {
           returnObject.featureFlags = zclProps.featureFlags
         }
 
+        // ZCLDataTypes
+        if (zclProps.zclDataTypes) {
+          returnObject.ZCLDataTypes = zclProps.ZCLDataTypes
+        } else {
+          returnObject.ZCLDataTypes = [
+            'ARRAY',
+            'BITMAP',
+            'ENUM',
+            'NUMBER',
+            'STRING',
+            'STRUCT'
+          ]
+        }
+
         returnObject.supportCustomZclDevice = zclProps.supportCustomZclDevice
         returnObject.version = zclProps.version
         returnObject.description = zclProps.description
@@ -524,6 +538,7 @@ function prepareCluster(cluster, context, isExtension = false) {
               max: arg.$.max,
               minLength: 0,
               maxLength: arg.$.length ? arg.$.length : null,
+              defaultValue: arg.$.default ? arg.$.default : null,
               isArray: arg.$.array == 'true' ? 1 : 0,
               presentIf: arg.$.presentIf,
               isNullable: arg.$.isNullable == 'true' ? true : false,
@@ -571,6 +586,7 @@ function prepareCluster(cluster, context, isExtension = false) {
             ev.fields.push({
               name: field.$.name,
               type: field.$.type,
+              defaultValue: field.$.default ? field.$.default : null,
               isArray: field.$.array == 'true' ? 1 : 0,
               isNullable: field.$.isNullable == 'true' ? true : false,
               isOptional: field.$.optional == 'true' ? true : false,
@@ -1634,6 +1650,7 @@ async function processStructItems(db, filePath, packageIds, data, context) {
           fieldIdentifier: lastFieldId,
           minLength: 0,
           maxLength: item.$.length ? item.$.length : null,
+          defaultValue: item.$.default ? item.$.default : null,
           isWritable: item.$.writable == 'true',
           isArray: item.$.array == 'true' ? true : false,
           isEnum: item.$.enum == 'true' ? true : false,
@@ -1776,6 +1793,22 @@ async function processDeviceTypes(db, filePath, packageId, data, context) {
     }
   }
   return queryLoader.insertDeviceTypes(db, packageId, deviceTypes)
+}
+
+/**
+ * Processes and reloads device type entities in the database.
+ * This function is called when a custom xml with device types is reloaded.
+ *
+ * @returns {Promise} A promise that resolves after all device types have been reloaded.
+ */
+async function processReloadDeviceTypes(db, packageId, data, sessionPackages) {
+  let deviceTypes = data.map((x) => prepareDeviceType(x))
+  return queryLoader.reloadDeviceTypes(
+    db,
+    packageId,
+    deviceTypes,
+    sessionPackages
+  )
 }
 
 /**
@@ -2708,17 +2741,45 @@ async function loadIndividualSilabsFile(db, filePath, sessionId) {
     if (result.data) {
       result.result = await util.parseXml(result.data)
       delete result.data
-      // Just adding the cluster attribute and command extensions for a cluster
-      // because they can be related to any top level package in the .zap config
       if (
         result.customXmlReload &&
         result.result.configurator &&
-        result.result.configurator.clusterExtension
+        (result.result.configurator.clusterExtension ||
+          result.result.configurator.deviceType)
       ) {
-        result.result = {
-          configurator: {
-            clusterExtension: result.result.configurator.clusterExtension
+        // If custom xml has device types, reload them so the device type entities are correctly linked
+        if (result.result.configurator.deviceType) {
+          let sessionPackages = await queryPackage.getSessionZclPackages(
+            db,
+            sessionId
+          )
+          let knownPackages = sessionPackages
+            .filter((pkg) =>
+              [
+                dbEnum.packageType.zclProperties,
+                dbEnum.packageType.zclXmlStandalone
+              ].includes(pkg.type)
+            )
+            .map((pkg) => pkg.packageRef)
+          await processReloadDeviceTypes(
+            db,
+            pkgId,
+            result.result.configurator.deviceType,
+            knownPackages
+          )
+        }
+        // Reload cluster extension to link it to the correct top level package (if it exists)
+        if (result.result.configurator.clusterExtension) {
+          result.result = {
+            configurator: {
+              clusterExtension: result.result.configurator.clusterExtension
+            }
           }
+        } else {
+          env.logDebug(
+            `CRC match for file ${result.filePath} (${result.crc}), skipping parsing.`
+          )
+          delete result.result
         }
       } else if (
         result.customXmlReload &&
@@ -2731,6 +2792,7 @@ async function loadIndividualSilabsFile(db, filePath, sessionId) {
         delete result.result
       }
     }
+
     let sessionPackages = await queryPackage.getSessionZclPackages(
       db,
       sessionId
@@ -2786,6 +2848,23 @@ async function loadIndividualSilabsFile(db, filePath, sessionId) {
     await queryPackage.insertSessionPackage(db, sessionPartitionId, pkgId, true)
 
     await zclLoader.processZclPostLoading(db, pkgId)
+
+    // additional post-processing for custom xml
+    let knownPackages = sessionPackages
+      .filter((pkg) =>
+        [
+          dbEnum.packageType.zclProperties,
+          dbEnum.packageType.zclXmlStandalone
+        ].includes(pkg.type)
+      )
+      .map((pkg) => pkg.packageRef)
+    await queryDeviceType.updateDeviceTypeReferencesForCustomXml(
+      db,
+      pkgId,
+      knownPackages,
+      sessionId
+    )
+
     return { succeeded: true, packageId: pkgId }
   } catch (err) {
     env.logError(`Error reading xml file: ${filePath}\n` + err.message)

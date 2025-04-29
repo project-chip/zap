@@ -47,7 +47,7 @@ limitations under the License.
         <command source="client" code="0x00" name="QueryImage" response="QueryImageResponse" optional="false" cli="chip ota queryimage">
             <description>Determine availability of a new Software Image</description>
             <arg name="VendorID" type="vendor_id"/>
-            <arg name="ProductID" type="INT16U"/>
+            <arg name="ProductID" type="INT16U" default="0x01"/>
             <arg name="SoftwareVersion" type="INT32U"/>
             <arg name="ProtocolsSupported" type="OTADownloadProtocol" array="true"/>
             <arg name="HardwareVersion" type="INT16U" optional="true"/>
@@ -95,10 +95,10 @@ limitations under the License.
         <item name="Querying" value="0x2"/>
         <item name="DelayedOnQuery" value="0x3"/>
         <item name="Downloading" value="0x4"/>
-        <item name="Applying" value="0x5"/>       
+        <item name="Applying" value="0x5"/>
         <item name="DelayedOnApply" value="0x6"/>
         <item name="RollingBack" value="0x7"/>
-        <item name="DelayedOnUserConsent" value="0x8"/>            
+        <item name="DelayedOnUserConsent" value="0x8"/>
     </enum>
     <enum name="OTAChangeReasonEnum" type="ENUM8">
         <cluster code="0x002a"/>
@@ -139,18 +139,18 @@ limitations under the License.
           <field id="1" name="NewState" type="OTAUpdateStateEnum"/>
           <field id="2" name="Reason" type="OTAChangeReasonEnum"/>
           <field id="3" name="TargetSoftwareVersion" type="INT32U" isNullable="true"/>
-        </event> 
+        </event>
         <event side="server" code="0x01" name="VersionApplied" priority="critical" optional="false">
           <description>This event SHALL be generated whenever a new version starts executing after being applied due to a software update.</description>
-          <field id="0" name="SoftwareVersion" type="INT32U"/> 
+          <field id="0" name="SoftwareVersion" type="INT32U" default="0x00000000"/>
           <field id="1" name="ProductID" type="INT16U"/>
         </event>
         <event side="server" code="0x02" name="DownloadError" priority="info" optional="false">
           <description>This event SHALL be generated whenever an error occurs during OTA Requestor download operation.</description>
-          <field id="0" name="SoftwareVersion" type="INT32U"/> 
+          <field id="0" name="SoftwareVersion" type="INT32U"/>
           <field id="1" name="BytesDownloaded" type="INT64U"/>
           <field id="2" name="ProgressPercent" type="INT8U" min="0" max="100" isNullable="true"/>
           <field id="3" name="PlatformCode" type="INT64S" isNullable="true"/>
-        </event>                     
+        </event>
     </cluster>
 </configurator>
