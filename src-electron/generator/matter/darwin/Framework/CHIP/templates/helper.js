@@ -312,7 +312,20 @@ async function asObjectiveCType(type, cluster, options) {
 }
 
 function asStructPropertyName(prop) {
-  prop = appHelper.asLowerCamelCase(prop);
+  prop = appHelper.asLowerCamelCase(prop, { hash: { preserveAcronyms: true } });
+
+  // If prop is now all-uppercase (which can happen, because we are preserving
+  // acronyms), lowercase it.
+  if (prop.match(/^[A-Z0-9]+$/)) {
+    prop = prop.toLowerCase();
+  }
+
+  // If prop is now all-uppercase, with at least two capital letters followed by
+  // a lowercase "s" (probably acronym being pluralized), just lowercase the
+  // whole thing.
+  if (prop.match(/^[A-Z][A-Z]+s$/)) {
+    prop = prop.toLowerCase();
+  }
 
   // If prop is now "description", we need to rename it, because that's
   // reserved.
@@ -322,8 +335,8 @@ function asStructPropertyName(prop) {
 
   // If prop starts with a sequence of capital letters (which can happen for
   // output of asLowerCamelCase if the original string started that way),
-  // lowercase all but the last one.
-  return prop.replace(/^([A-Z]+)([A-Z])/, (match, p1, p2) => {
+  // followed by a lowercase letter, lowercase all but the last capital letter.
+  return prop.replace(/^([A-Z]+)([A-Z][a-z])/, (match, p1, p2) => {
     return p1.toLowerCase() + p2;
   });
 }
