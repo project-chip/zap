@@ -108,7 +108,7 @@
       "cmd": "$(zap) convert --noUi --noServer --noZapFileLog --zcl ${zcl.zigbeeZclJsonFile} --out ${outFile} ${inFile}"
     },
     "zapIscOpen": {
-      "cmd": "$(zap) --noServer --zcl ${zcl.zigbeeZclJsonFile} --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-teplates.json ${inFile}"
+      "cmd": "$(zap) --noServer --zcl ${zcl.zigbeeZclJsonFile} --generationTemplate ${zcl.zigbeeTemplateJsonFile} ${inFile}"
     }
   }
 }
