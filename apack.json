@@ -4,9 +4,9 @@
   "description": "Graphical configuration tool for application and libraries based on Zigbee Cluster Library.",
   "path": [".", "node_modules/.bin/", "ZAP.app/Contents/MacOS"],
   "requiredFeatureLevel": "apack.core:9",
-  "featureLevel": 106,
+  "featureLevel": 107,
   "uc.triggerExtension": "zap",
-  "uc.sdkProvidedProperties": "zcl.matterZclJsonFile,zcl.templateJsonFile",
+  "uc.sdkProvidedProperties": "zcl.matterZclJsonFile,zcl.matterTemplateJsonFile,zcl.zigbeeZclJsonFile,zcl.zigbeeTemplateJsonFile",
   "executable": {
     "zap:win32.x86_64": {
       "exe": "zap.exe",
@@ -75,10 +75,10 @@
       "cmd": "$(zap-cli) --version"
     },
     "uc_generate": {
-      "cmd": "$(zap-cli) generate --noUi --noServer -o ${generationOutput} --packageMatch fuzzy --zcl ${sdkRoot}/app/zcl/zcl-zap.json --zcl ${zcl.matterZclJsonFile}  --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json --generationTemplate ${sdkRoot}/extension/matter_extension/src/app/zap-templates/app-templates.json --in ${contentFolder} --noLoadingFailure --appendGenerationSubdirectory --upgradeZapFile"
+      "cmd": "$(zap-cli) generate --noUi --noServer -o ${generationOutput} --packageMatch fuzzy --zcl ${zcl.zigbeeZclJsonFile} --zcl ${zcl.matterZclJsonFile --generationTemplate ${zcl.zigbeeTemplateJsonFile}  --generationTemplate ${zcl.matterTemplateJsonFile} --in ${contentFolder} --noLoadingFailure --appendGenerationSubdirectory --upgradeZapFile"
     },
     "uc_upgrade": {
-      "cmd": "$(zap-cli) upgrade  --results ${results} -d ${tempContentFolder} --zcl ${sdkRoot}/app/zcl/zcl-zap.json --zcl ${zcl.matterZclJsonFile}  --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json --generationTemplate ${sdkRoot}/extension/matter_extension/src/app/zap-templates/app-templates.json --noLoadingFailure"
+      "cmd": "$(zap-cli) upgrade --results ${results} -d ${tempContentFolder} --zcl ${zcl.zigbeeZclJsonFile} --zcl ${zcl.matterZclJsonFile} --generationTemplate ${zcl.zigbeeTemplateJsonFile} --generationTemplate ${zcl.matterTemplateJsonFile}  --noLoadingFailure"
     },
     "zapHelp": {
       "cmd": "$(zap) --help"
@@ -87,7 +87,7 @@
       "cmd": "$(zap) selfCheck"
     },
     "zapServer": {
-      "cmd": "$(zap) server --reuseZapInstance --packageMatch fuzzy --zcl ${sdkRoot}/app/zcl/zcl-zap.json --zcl ${sdkRoot}/extension/matter_extension/src/app/zap-templates/zcl/zcl.json --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json --generationTemplate ${sdkRoot}/extension/matter_extension/src/app/zap-templates/app-templates.json --studioHttpPort ${studioHttpPort} --noLoadingFailure --appendGenerationSubdirectory"
+      "cmd": "$(zap) server --reuseZapInstance --packageMatch fuzzy --zcl ${zcl.zigbeeZclJsonFile} --zcl ${zcl.matterZclJsonFile} --generationTemplate ${zcl.zigbeeTemplateJsonFile} --generationTemplate ${zcl.matterTemplateJsonFile} --studioHttpPort ${studioHttpPort} --noLoadingFailure --appendGenerationSubdirectory"
     },
     "zapStop": {
       "cmd": "$(zap) stop --reuseZapInstance"
@@ -99,16 +99,16 @@
       "cmd": "$(zap) server --reuseZapInstance --studioHttpPort ${studioHttpPort}"
     },
     "zapFull": {
-      "cmd": "$(zap) --showUrl --zcl ${sdkRoot}/app/zcl/zcl-zap.json"
+      "cmd": "$(zap) --showUrl --zcl ${zcl.zigbeeZclJsonFile}"
     },
     "zapRegenSdk": {
       "cmd": "$(zap) regenerateSdk --sdk ${sdkJsonFile}"
     },
     "zapIscConvert": {
-      "cmd": "$(zap) convert --noUi --noServer --noZapFileLog --zcl ${sdkRoot}/app/zcl/zcl-zap.json --out ${outFile} ${inFile}"
+      "cmd": "$(zap) convert --noUi --noServer --noZapFileLog --zcl ${zcl.zigbeeZclJsonFile} --out ${outFile} ${inFile}"
     },
     "zapIscOpen": {
-      "cmd": "$(zap) --noServer --zcl ${sdkRoot}/app/zcl/zcl-zap.json --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-teplates.json ${inFile}"
+      "cmd": "$(zap) --noServer --zcl ${zcl.zigbeeZclJsonFile} --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-teplates.json ${inFile}"
     }
   }
 }
