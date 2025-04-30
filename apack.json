@@ -6,6 +6,7 @@
   "requiredFeatureLevel": "apack.core:9",
   "featureLevel": 106,
   "uc.triggerExtension": "zap",
+  "uc.sdkProvidedProperties": "zcl.matterZclJsonFile,zcl.templateJsonFile",
   "executable": {
     "zap:win32.x86_64": {
       "exe": "zap.exe",
