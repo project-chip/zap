@@ -102,6 +102,9 @@ inside a single session. Things like:
 <dt><a href="#module_DB API_ zcl database access">DB API: zcl database access</a></dt>
 <dd><p>This module provides queries for enums.</p>
 </dd>
+<dt><a href="#module_DB API_ endpoint configuration queries against the database.">DB API: endpoint configuration queries against the database.</a></dt>
+<dd><p>This module provides queries for upgrade rules.</p>
+</dd>
 <dt><a href="#module_DB API_ zcl database access">DB API: zcl database access</a></dt>
 <dd><p>This module provides a place for creating generic queries which are common
 across different query files.</p>
@@ -6538,6 +6541,11 @@ Get endpoint type events from the given endpoint type ID.
 | --- | --- |
 | db | <code>\*</code> | 
 | endpointTypeId | <code>\*</code> | 
+
+<a name="module_DB API_ endpoint configuration queries against the database."></a>
+
+## DB API: endpoint configuration queries against the database.
+This module provides queries for upgrade rules.
 
 <a name="module_DB API_ zcl database access"></a>
 

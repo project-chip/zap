@@ -27,6 +27,7 @@ const queryConfig = require('../db/query-config.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const querySessionZcl = require('../db/query-session-zcl.js')
 const restApi = require('../../src-shared/rest-api.js')
+const queryUpgrade = require('../db/query-upgrade.js')
 
 /**
  * Prints a text to console.
@@ -52,7 +53,11 @@ function printError(text) {
  * @param {*} context
  */
 function endpoints(context) {
-  return queryEndpoint.selectAllEndpoints(context.db, context.sessionId)
+  return queryUpgrade.selectAllEndpoints(
+    context.db,
+    context.sessionId,
+    context.script.category
+  )
 }
 
 /**
@@ -280,6 +285,30 @@ async function modifyAttribute(
     endpoint.endpointTypeRef,
     cluster.id,
     side,
+    attribute.id,
+    params,
+    attribute.reportMinInterval,
+    attribute.reportMaxInterval,
+    attribute.reportableChange
+  )
+}
+
+/**
+ * Update an attribute with given parameters.
+ *
+ * @param {*} context
+ * @param {*} endpoint
+ * @param {*} cluster
+ * @param {*} attribute
+ * @param {*} params
+ * @returns promise of an updated or inserted attribute with parameters provided
+ */
+function updateAttribute(context, endpoint, cluster, attribute, params) {
+  return queryConfig.insertOrUpdateAttributeState(
+    context.db,
+    endpoint.endpointTypeRef,
+    cluster.id,
+    attribute.side,
     attribute.id,
     params,
     attribute.reportMinInterval,
@@ -617,6 +646,7 @@ exports.disableIncomingCommand = disableIncomingCommand
 exports.enableIncomingCommand = enableIncomingCommand
 exports.disableOutgoingCommand = disableOutgoingCommand
 exports.enableOutgoingCommand = enableOutgoingCommand
+exports.updateAttribute = updateAttribute
 
 // Constants that are used a lot
 exports.client = dbEnum.source.client
