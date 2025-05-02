@@ -648,6 +648,52 @@ function nsValueToPythonNamespace(ns, clusterCount) {
   return ns;
 }
 
+// Not to be exported.
+//
+// dataType can be "Enum", "Struct", or "Bitmap".
+async function getClusterCountForType(db, pkgId, type, dataType, options) {
+  if (options.hash.cluster === '') {
+    // This is a non-global data type that is associated with multiple
+    // clusters: in that case our caller can pass in cluster="", and
+    // we know that clusterCount > 1, so just set it to 2.
+    return 2;
+  }
+
+  const cluster = options.hash.cluster || options.hash.ns;
+  const typeObj = await zclQuery[`select${dataType}ByNameAndClusterName`](
+    db,
+    type,
+    cluster,
+    pkgId
+  );
+  if (typeObj) {
+    return typeObj[`${dataType.toLowerCase()}ClusterCount`];
+  }
+
+  if (options.hash.cluster === undefined) {
+    // Backwards-compat case: we were called without ns or cluster at all
+    // (not even cluster="").  Just get by name, since that's all we have to
+    // work with.  It won't work right when names are not unique, but that's
+    // the best we can do.
+    //
+    // selectBitmapByName has different argument ordering from selectEnumByName
+    // and selectStructByName, so account for that here.
+    const isBitmap = dataType == 'Bitmap';
+    const backwardsCompatTypeObj = await zclQuery[`select${dataType}ByName`](
+      db,
+      isBitmap ? pkgId : type,
+      isBitmap ? type : pkgId
+    );
+    return backwardsCompatTypeObj[`${dataType.toLowerCase()}ClusterCount`];
+  }
+
+  // Something is wrong here.  Possibly the caller is passing in a munged
+  // cluster name.  Just fail out instead of silently returning bad data.
+  throw new Error(
+    `Unable to find ${dataType.toLowerCase()} ${type} in cluster ${options.hash.cluster}`
+  );
+}
+
 /*
  * @brief
  *
@@ -701,12 +747,14 @@ async function zapTypeToClusterObjectType(type, isDecodable, options) {
         return 'uint' + s[1] + '_t';
       }
 
-      const enumObj = await zclQuery.selectEnumByName(
+      const clusterCount = await getClusterCountForType(
         this.global.db,
+        pkgId,
         type,
-        pkgId
+        'Enum',
+        options
       );
-      const ns = nsValueToNamespace(options.hash.ns, enumObj.enumClusterCount);
+      const ns = nsValueToNamespace(options.hash.ns, clusterCount);
       return ns + asUpperCamelCase.call(this, type, options);
     }
 
@@ -717,15 +765,14 @@ async function zapTypeToClusterObjectType(type, isDecodable, options) {
         return 'uint' + s[1] + '_t';
       }
 
-      const bitmapObj = await zclQuery.selectBitmapByName(
+      const clusterCount = await getClusterCountForType(
         this.global.db,
         pkgId,
-        type
+        type,
+        'Bitmap',
+        options
       );
-      const ns = nsValueToNamespace(
-        options.hash.ns,
-        bitmapObj.bitmapClusterCount
-      );
+      const ns = nsValueToNamespace(options.hash.ns, clusterCount);
       return (
         'chip::BitMask<' + ns + asUpperCamelCase.call(this, type, options) + '>'
       );
@@ -733,41 +780,13 @@ async function zapTypeToClusterObjectType(type, isDecodable, options) {
 
     if (types.isStruct) {
       passByReference = true;
-      let clusterCount;
-      if (options.hash.cluster === '') {
-        // This is a non-global struct that is associated with multiple
-        // clusters: in that case our caller can pass in cluster="", and
-        // we know that clusterCount > 1, so just set it to 2.
-        clusterCount = 2;
-      } else {
-        const cluster = options.hash.cluster || options.hash.ns;
-        const structObj = await zclQuery.selectStructByNameAndClusterName(
-          this.global.db,
-          type,
-          cluster,
-          pkgId
-        );
-        if (structObj) {
-          clusterCount = structObj.structClusterCount;
-        } else if (options.hash.cluster === undefined) {
-          // Backwards-compat case: we were called without ns or cluster at all
-          // (not even cluster="").  Just get by name, since that's all we have to
-          // work with.  It won't work right when names are not unique, but that's
-          // the best we can do.
-          const backwardsCompatStructObj = await zclQuery.selectStructByName(
-            this.global.db,
-            type,
-            pkgId
-          );
-          clusterCount = backwardsCompatStructObj.structClusterCount;
-        } else {
-          // Something is wrong here.  Possibly the caller is passing in a munged
-          // cluster name.  Just fail out instead of silently returning bad data.
-          throw new Error(
-            `Unable to find struct ${type} in cluster ${options.hash.cluster}`
-          );
-        }
-      }
+      const clusterCount = await getClusterCountForType(
+        this.global.db,
+        pkgId,
+        type,
+        'Struct',
+        options
+      );
       const ns = nsValueToNamespace(options.hash.ns, clusterCount);
       return (
         ns +
@@ -855,16 +874,14 @@ async function _zapTypeToPythonClusterObjectType(type, options) {
         return 'uint';
       }
 
-      const enumObj = await zclQuery.selectEnumByName(
+      const clusterCount = await getClusterCountForType(
         this.global.db,
+        pkgId,
         type,
-        pkgId
+        'Enum',
+        options
       );
-
-      const ns = nsValueToPythonNamespace(
-        options.hash.ns,
-        enumObj.enumClusterCount
-      );
+      const ns = nsValueToPythonNamespace(options.hash.ns, clusterCount);
 
       return ns + '.Enums.' + type;
     }
@@ -874,28 +891,14 @@ async function _zapTypeToPythonClusterObjectType(type, options) {
     }
 
     if (await typeChecker('isStruct')) {
-      let structObj;
-      if (options.hash.cluster) {
-        structObj = await zclQuery.selectStructByNameAndClusterName(
-          this.global.db,
-          type,
-          options.hash.cluster,
-          pkgId
-        );
-      } else {
-        // Backwards-compat case, which won't work when multiple structs have
-        // the same name.
-        structObj = await zclQuery.selectStructByName(
-          this.global.db,
-          type,
-          pkgId
-        );
-      }
-
-      const ns = nsValueToPythonNamespace(
-        options.hash.ns,
-        structObj.structClusterCount
+      const clusterCount = await getClusterCountForType(
+        this.global.db,
+        pkgId,
+        type,
+        'Struct',
+        options
       );
+      const ns = nsValueToPythonNamespace(options.hash.ns, clusterCount);
 
       return ns + '.Structs.' + type;
     }
@@ -986,28 +989,14 @@ async function _getPythonFieldDefault(type, options) {
     }
 
     if (await typeChecker('isStruct')) {
-      let structObj;
-      if (options.hash.cluster) {
-        structObj = await zclQuery.selectStructByNameAndClusterName(
-          this.global.db,
-          type,
-          options.hash.cluster,
-          pkgId
-        );
-      } else {
-        // Backwards-compat case, which won't work when multiple structs have
-        // the same name.
-        structObj = await zclQuery.selectStructByName(
-          this.global.db,
-          type,
-          pkgId
-        );
-      }
-
-      const ns = nsValueToPythonNamespace(
-        options.hash.ns,
-        structObj.structClusterCount
+      const clusterCount = await getClusterCountForType(
+        this.global.db,
+        pkgId,
+        type,
+        'Struct',
+        options
       );
+      const ns = nsValueToPythonNamespace(options.hash.ns, clusterCount);
 
       return 'field(default_factory=lambda: ' + ns + '.Structs.' + type + '())';
     }

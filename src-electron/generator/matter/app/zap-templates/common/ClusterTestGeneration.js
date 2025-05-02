@@ -1454,6 +1454,9 @@ function chip_tests_iterate_constraints(constraints, options) {
  * @returns data type as String
  */
 async function asTestType(type, isList) {
+  // NOTE: This is not used on current Matter tip, so the fact that it does not
+  // cluster-scope type names is not an issue.
+
   if (isList) {
     return 'list';
   }
