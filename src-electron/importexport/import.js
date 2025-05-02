@@ -23,6 +23,8 @@
  */
 
 const fsp = require('fs').promises
+const fs = require('fs')
+const path = require('path')
 const importIsc = require('./import-isc.js')
 const importJson = require('./import-json.js')
 const dbApi = require('../db/db-api.js')
@@ -66,19 +68,16 @@ async function readDataFromFile(filePath, defaultZclMetafile) {
  *
  * @param {*} db
  * @param {*} sessionId
- * @param {*} scriptFile
+ * @param {*} scriptInfo
  * @returns Promise of function execution.
  */
-async function executePostImportScript(db, sessionId, scriptFile) {
+async function executePostImportScript(db, sessionId, scriptInfo) {
   let context = {
     db: db,
-    sessionId: sessionId
+    sessionId: sessionId,
+    script: scriptInfo
   }
-  return script.executeScriptFunction(
-    script.functions.postLoad,
-    context,
-    scriptFile
-  )
+  return script.executeScriptFunction(script.functions.postLoad, context)
 }
 
 /**
@@ -232,11 +231,32 @@ async function importDataFromFile(
       options.upgradeTemplatePackages
     )
     if (options.postImportScript != null) {
-      await executePostImportScript(
-        db,
-        loaderResult.sessionId,
-        options.postImportScript
-      )
+      await executePostImportScript(db, loaderResult.sessionId, {
+        path: path.resolve(options.postImportScript),
+        category: null // When running individual scripts no need for category
+      })
+    }
+    if (options.upgradeRuleScripts != null) {
+      const upgradeScripts = options.upgradeRuleScripts
+      let upgradeMessages = []
+      for (let i = 0; i < upgradeScripts.length; i++) {
+        let upgradeScript = upgradeScripts[i]
+        if (fs.existsSync(upgradeScript.path)) {
+          let upgradeMessage = await executePostImportScript(
+            db,
+            loaderResult.sessionId,
+            upgradeScript
+          )
+          if (upgradeMessage) {
+            upgradeMessages.push(upgradeMessage)
+          }
+        } else {
+          throw new Error(
+            `Post import script path does not exist: ${upgradeScript.path}`
+          )
+        }
+      }
+      loaderResult.upgradeMessages = upgradeMessages
     }
     return loaderResult
   } finally {

@@ -26,17 +26,32 @@ const testUtil = require('./test-util')
 const dbApi = require('../src-electron/db/db-api')
 const querySession = require('../src-electron/db/query-session')
 const util = require('../src-electron/util/util')
+const importJs = require('../src-electron/importexport/import')
+const genEngine = require('../src-electron/generator/generation-engine')
 let originalContent
+let originalContentLightMatter
+let db
 
 beforeAll(async () => {
   env.setDevelopmentEnv()
-  // Save the original file content before tests. Used for uc upgrade testiing
+  let file = env.sqliteTestFile('startup')
+  db = await dbApi.initDatabaseAndLoadSchema(
+    file,
+    env.schemaFile(),
+    env.zapVersion()
+  )
+  env.setDevelopmentEnv()
+  // Save the original file content before tests. Used for uc upgrade testing
   originalContent = await fsPromise.readFile(
     path.join(__dirname, './resource/upgrade/multi-protocol.zap'),
     'utf-8'
   )
   originalContentLight = await fsPromise.readFile(
     path.join(__dirname, './resource/upgrade/light.zap'),
+    'utf-8'
+  )
+  originalContentLightMatter = await fsPromise.readFile(
+    path.join(__dirname, './resource/upgrade/lighting-matter.zap'),
     'utf-8'
   )
 })
@@ -51,6 +66,11 @@ afterAll(async () => {
   await fsPromise.writeFile(
     path.join(__dirname, './resource/upgrade/light.zap'),
     originalContentLight,
+    'utf-8'
+  )
+  await fsPromise.writeFile(
+    path.join(__dirname, './resource/upgrade/lighting-matter.zap'),
+    originalContentLightMatter,
     'utf-8'
   )
 })
@@ -203,6 +223,12 @@ test(
       .catch(() => false)
     expect(fileExists).toBe(true)
 
+    const matterFileExists = await fsPromise
+      .stat(path.join(__dirname, './resource/upgrade/lighting-matter.zap'))
+      .then(() => true)
+      .catch(() => false)
+    expect(matterFileExists).toBe(true)
+
     let upgradeDirectory = path.join(__dirname, 'resource/upgrade')
     let testUpgradeResults = path.join(
       __dirname,
@@ -236,6 +262,47 @@ test(
       )
       .then(() => {
         expect(fs.existsSync(testUpgradeResults)).toBeTruthy()
+        const upgradeResultsContent = fs.readFileSync(
+          testUpgradeResults,
+          'utf-8'
+        )
+
+        // Matter and Zigbee specific multi-protocol app tests
+        expect(upgradeResultsContent).toMatch(
+          /Cluster Revision attribute default value updated to 2 for Localization\n.*Configuration cluster on endpoint 0 matter/
+        )
+        expect(upgradeResultsContent).toMatch(
+          /Cluster Revision attribute default value updated to 2 for ZLL\n.*Commissioning cluster on endpoint 1 zigbee/
+        )
+        expect(upgradeResultsContent).toMatch(
+          /Cluster Revision attribute default value updated to 2 for Descriptor\n.*cluster on endpoint 1 matter/
+        )
+
+        // Only the level control of matter should be updated and not zigbee because matter applied that upgrade rule
+        expect(upgradeResultsContent).toMatch(
+          /Current Value attribute's default value updated to 10 for Level Control\n.*cluster on endpoint 1 matter/
+        )
+        expect(upgradeResultsContent).not.toMatch(
+          /Current Value attribute's default value updated to 10 for Level Control\n.*cluster on endpoint 1 zigbee/
+        )
+
+        // Only the on/off of zigbee should be updated and not matter because zigbee applied that upgrade rule
+        expect(upgradeResultsContent).toMatch(
+          /On\/Off attribute default value updated to 1 for On\/Off cluster on endpoint\n.*1 zigbee/
+        )
+        expect(upgradeResultsContent).not.toMatch(
+          /On\/Off attribute default value updated to 1 for On\/Off cluster on endpoint\n.*1 matter/
+        )
+
+        // Testing the order(priority) in which upgrade rules were run
+        // Making sure lower priority tests are run first
+        expect(upgradeResultsContent).toMatch(
+          /Cluster Revision attribute default value updated to 2 for ZLL\n.*Commissioning cluster on endpoint 1 zigbee.*\n.*\n.*\n.*On\/Off attribute default value updated to 1 for On\/Off cluster on endpoint\n.*1 zigbee/
+        )
+        expect(upgradeResultsContent).toMatch(
+          /Cluster Revision attribute default value updated to 2 for Descriptor\n.*cluster on endpoint 1 matter.*\n.*\n.*\n.*Current Value attribute's default value updated to 10 for Level Control\n.*cluster on endpoint 1 matter/
+        )
+
         fs.unlinkSync(testUpgradeResults)
       })
 
@@ -256,6 +323,62 @@ test(
       '../../../zcl-builtin/silabs/zcl-zigbee.json"'
     )
     expect(fileContent).toContain('../../../zcl-builtin/matter/zcl-matter.json')
+
+    // Import the upgraded file for multiprotocol
+    let importRes = await importJs.importDataFromFile(
+      db,
+      path.join(__dirname, './resource/upgrade/multi-protocol.zap'),
+      { sessionId: null }
+    )
+    expect(importRes.errors.length).toBe(0)
+    expect(importRes.warnings.length).toBe(0)
+
+    // Check that generation happens successfully with the upgraded file
+    let genResultMatter = await genEngine.generate(
+      db,
+      importRes.sessionId,
+      importRes.templateIds[0],
+      {},
+      {
+        generateOnly: 'endpoint-config.c',
+        disableDeprecationWarnings: true
+      }
+    )
+    // Check for the specific string in the generated content
+    expect(genResultMatter.content['endpoint-config.c']).not.toContain(
+      `{ 0x0000FFFD, ZAP_TYPE(INT16U), 2, 0, ZAP_SIMPLE_DEFAULT(1) }`
+    )
+    expect(genResultMatter.content['endpoint-config.c']).toContain(
+      `{ 0x0000FFFD, ZAP_TYPE(INT16U), 2, 0, ZAP_SIMPLE_DEFAULT(2) }`
+    )
+
+    // Import the upgraded file for matter
+    let importResMatter = await importJs.importDataFromFile(
+      db,
+      path.join(__dirname, './resource/upgrade/lighting-matter.zap'),
+      { sessionId: null }
+    )
+    expect(importResMatter.errors.length).toBe(0)
+    expect(importResMatter.warnings.length).toBe(0)
+
+    // Check that generation happens successfully with the upgraded file
+    let genResultMatterLight = await genEngine.generate(
+      db,
+      importResMatter.sessionId,
+      importResMatter.templateIds[0],
+      {},
+      {
+        generateOnly: 'endpoint-config.c',
+        disableDeprecationWarnings: true
+      }
+    )
+    // Check for the specific string in the generated content
+    expect(genResultMatterLight.content['endpoint-config.c']).not.toContain(
+      `{ 0x0000FFFD, ZAP_TYPE(INT16U), 2, 0, ZAP_SIMPLE_DEFAULT(1) }`
+    )
+    expect(genResultMatterLight.content['endpoint-config.c']).toContain(
+      `{ 0x0000FFFD, ZAP_TYPE(INT16U), 2, 0, ZAP_SIMPLE_DEFAULT(2) }`
+    )
   },
   testUtil.timeout.long()
 )
