@@ -35,7 +35,7 @@
 <dd><p>This module provides queries related to attributes.</p>
 </dd>
 <dt><a href="#module_DB API_ zcl database access">DB API: zcl database access</a></dt>
-<dd><p>This module provides queries for enums.</p>
+<dd><p>This module provides queries for bitmaps.</p>
 </dd>
 <dt><a href="#module_DB API_ cluster queries.">DB API: cluster queries.</a></dt>
 <dd><p>This module provides queries related to cluster.</p>
@@ -877,6 +877,7 @@ This module provides cache for commonly used static database queries.
     * [~selectAllBitmaps(db)](#module_DB API_ zcl database access..selectAllBitmaps) ⇒
     * [~selectBitmapByName(db, packageIds, name)](#module_DB API_ zcl database access..selectBitmapByName) ⇒
     * [~selectBitmapByNameAndClusterId(db, name, clusterId, packageIds)](#module_DB API_ zcl database access..selectBitmapByNameAndClusterId) ⇒
+    * [~selectBitmapByNameAndClusterName(db, name, clusterName, packageIds)](#module_DB API_ zcl database access..selectBitmapByNameAndClusterName) ⇒
     * [~selectBitmapById(db, id)](#module_DB API_ zcl database access..selectBitmapById) ⇒
     * [~selectSessionClusterByCode(db, sessionId, code, mfgCode)](#module_DB API_ zcl database access..selectSessionClusterByCode) ⇒
     * [~selectAllSessionClusters(db, sessionId)](#module_DB API_ zcl database access..selectAllSessionClusters) ⇒
@@ -1095,6 +1096,22 @@ Select a bitmap matched by name and clusterId.
 | clusterId | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
 
+<a name="module_DB API_ zcl database access..selectBitmapByNameAndClusterName"></a>
+
+### DB API: zcl database access~selectBitmapByNameAndClusterName(db, name, clusterName, packageIds) ⇒
+Select a bitmap matched by name and cluster name
+Note: Use selectBitmapByNameAndClusterId but this was needed for backwards compatibility.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: bitmap information or undefined  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| name | <code>\*</code> | 
+| clusterName | <code>\*</code> | 
+| packageIds | <code>\*</code> | 
+
 <a name="module_DB API_ zcl database access..selectBitmapById"></a>
 
 ### DB API: zcl database access~selectBitmapById(db, id) ⇒
@@ -1228,7 +1245,7 @@ Select a struct matched by name and clusterId
 
 ### DB API: zcl database access~selectStructByNameAndClusterName(db, name, clusterName, packageIds) ⇒
 Select a struct matched by name and cluster name
-Note: Use selectStructByNameAndClusterName but this was needed for backwards compatibility.
+Note: Use selectStructByNameAndClusterId but this was needed for backwards compatibility.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
 **Returns**: struct information or undefined  
@@ -1715,6 +1732,7 @@ This module provides queries for atomic type queries.
     * [~selectAllBitmaps(db)](#module_DB API_ zcl database access..selectAllBitmaps) ⇒
     * [~selectBitmapByName(db, packageIds, name)](#module_DB API_ zcl database access..selectBitmapByName) ⇒
     * [~selectBitmapByNameAndClusterId(db, name, clusterId, packageIds)](#module_DB API_ zcl database access..selectBitmapByNameAndClusterId) ⇒
+    * [~selectBitmapByNameAndClusterName(db, name, clusterName, packageIds)](#module_DB API_ zcl database access..selectBitmapByNameAndClusterName) ⇒
     * [~selectBitmapById(db, id)](#module_DB API_ zcl database access..selectBitmapById) ⇒
     * [~selectSessionClusterByCode(db, sessionId, code, mfgCode)](#module_DB API_ zcl database access..selectSessionClusterByCode) ⇒
     * [~selectAllSessionClusters(db, sessionId)](#module_DB API_ zcl database access..selectAllSessionClusters) ⇒
@@ -1933,6 +1951,22 @@ Select a bitmap matched by name and clusterId.
 | clusterId | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
 
+<a name="module_DB API_ zcl database access..selectBitmapByNameAndClusterName"></a>
+
+### DB API: zcl database access~selectBitmapByNameAndClusterName(db, name, clusterName, packageIds) ⇒
+Select a bitmap matched by name and cluster name
+Note: Use selectBitmapByNameAndClusterId but this was needed for backwards compatibility.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: bitmap information or undefined  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| name | <code>\*</code> | 
+| clusterName | <code>\*</code> | 
+| packageIds | <code>\*</code> | 
+
 <a name="module_DB API_ zcl database access..selectBitmapById"></a>
 
 ### DB API: zcl database access~selectBitmapById(db, id) ⇒
@@ -2066,7 +2100,7 @@ Select a struct matched by name and clusterId
 
 ### DB API: zcl database access~selectStructByNameAndClusterName(db, name, clusterName, packageIds) ⇒
 Select a struct matched by name and cluster name
-Note: Use selectStructByNameAndClusterName but this was needed for backwards compatibility.
+Note: Use selectStructByNameAndClusterId but this was needed for backwards compatibility.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
 **Returns**: struct information or undefined  
@@ -2529,7 +2563,7 @@ This module provides queries related to attributes.
 <a name="module_DB API_ zcl database access"></a>
 
 ## DB API: zcl database access
-This module provides queries for enums.
+This module provides queries for bitmaps.
 
 
 * [DB API: zcl database access](#module_DB API_ zcl database access)
@@ -2548,6 +2582,7 @@ This module provides queries for enums.
     * [~selectAllBitmaps(db)](#module_DB API_ zcl database access..selectAllBitmaps) ⇒
     * [~selectBitmapByName(db, packageIds, name)](#module_DB API_ zcl database access..selectBitmapByName) ⇒
     * [~selectBitmapByNameAndClusterId(db, name, clusterId, packageIds)](#module_DB API_ zcl database access..selectBitmapByNameAndClusterId) ⇒
+    * [~selectBitmapByNameAndClusterName(db, name, clusterName, packageIds)](#module_DB API_ zcl database access..selectBitmapByNameAndClusterName) ⇒
     * [~selectBitmapById(db, id)](#module_DB API_ zcl database access..selectBitmapById) ⇒
     * [~selectSessionClusterByCode(db, sessionId, code, mfgCode)](#module_DB API_ zcl database access..selectSessionClusterByCode) ⇒
     * [~selectAllSessionClusters(db, sessionId)](#module_DB API_ zcl database access..selectAllSessionClusters) ⇒
@@ -2766,6 +2801,22 @@ Select a bitmap matched by name and clusterId.
 | clusterId | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
 
+<a name="module_DB API_ zcl database access..selectBitmapByNameAndClusterName"></a>
+
+### DB API: zcl database access~selectBitmapByNameAndClusterName(db, name, clusterName, packageIds) ⇒
+Select a bitmap matched by name and cluster name
+Note: Use selectBitmapByNameAndClusterId but this was needed for backwards compatibility.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: bitmap information or undefined  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| name | <code>\*</code> | 
+| clusterName | <code>\*</code> | 
+| packageIds | <code>\*</code> | 
+
 <a name="module_DB API_ zcl database access..selectBitmapById"></a>
 
 ### DB API: zcl database access~selectBitmapById(db, id) ⇒
@@ -2899,7 +2950,7 @@ Select a struct matched by name and clusterId
 
 ### DB API: zcl database access~selectStructByNameAndClusterName(db, name, clusterName, packageIds) ⇒
 Select a struct matched by name and cluster name
-Note: Use selectStructByNameAndClusterName but this was needed for backwards compatibility.
+Note: Use selectStructByNameAndClusterId but this was needed for backwards compatibility.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
 **Returns**: struct information or undefined  
@@ -3701,6 +3752,7 @@ This module provides queries for enums.
     * [~selectEnumById(db, id)](#module_DB API_ zcl database enum access..selectEnumById) ⇒
     * [~selectEnumByName(db, name, packageIds)](#module_DB API_ zcl database enum access..selectEnumByName) ⇒
     * [~selectEnumByNameAndClusterId(db, name, clusterId, packageIds)](#module_DB API_ zcl database enum access..selectEnumByNameAndClusterId) ⇒
+    * [~selectEnumByNameAndClusterName(db, name, clusterName, packageIds)](#module_DB API_ zcl database enum access..selectEnumByNameAndClusterName) ⇒
 
 <a name="module_DB API_ zcl database enum access..selectAllEnums"></a>
 
@@ -3795,6 +3847,22 @@ Select an enum matched by name and clusterId.
 | db | <code>\*</code> | 
 | name | <code>\*</code> | 
 | clusterId | <code>\*</code> | 
+| packageIds | <code>\*</code> | 
+
+<a name="module_DB API_ zcl database enum access..selectEnumByNameAndClusterName"></a>
+
+### DB API: zcl database enum access~selectEnumByNameAndClusterName(db, name, clusterName, packageIds) ⇒
+Select a enum matched by name and cluster name
+Note: Use selectEnumByNameAndClusterId but this was needed for backwards compatibility.
+
+**Kind**: inner method of [<code>DB API: zcl database enum access</code>](#module_DB API_ zcl database enum access)  
+**Returns**: enum information or undefined  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| name | <code>\*</code> | 
+| clusterName | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
 
 <a name="module_DB API_ event queries."></a>
@@ -4747,6 +4815,7 @@ inside a single session. Things like:
     * [~selectAllBitmaps(db)](#module_DB API_ zcl database access..selectAllBitmaps) ⇒
     * [~selectBitmapByName(db, packageIds, name)](#module_DB API_ zcl database access..selectBitmapByName) ⇒
     * [~selectBitmapByNameAndClusterId(db, name, clusterId, packageIds)](#module_DB API_ zcl database access..selectBitmapByNameAndClusterId) ⇒
+    * [~selectBitmapByNameAndClusterName(db, name, clusterName, packageIds)](#module_DB API_ zcl database access..selectBitmapByNameAndClusterName) ⇒
     * [~selectBitmapById(db, id)](#module_DB API_ zcl database access..selectBitmapById) ⇒
     * [~selectSessionClusterByCode(db, sessionId, code, mfgCode)](#module_DB API_ zcl database access..selectSessionClusterByCode) ⇒
     * [~selectAllSessionClusters(db, sessionId)](#module_DB API_ zcl database access..selectAllSessionClusters) ⇒
@@ -4965,6 +5034,22 @@ Select a bitmap matched by name and clusterId.
 | clusterId | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
 
+<a name="module_DB API_ zcl database access..selectBitmapByNameAndClusterName"></a>
+
+### DB API: zcl database access~selectBitmapByNameAndClusterName(db, name, clusterName, packageIds) ⇒
+Select a bitmap matched by name and cluster name
+Note: Use selectBitmapByNameAndClusterId but this was needed for backwards compatibility.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: bitmap information or undefined  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| name | <code>\*</code> | 
+| clusterName | <code>\*</code> | 
+| packageIds | <code>\*</code> | 
+
 <a name="module_DB API_ zcl database access..selectBitmapById"></a>
 
 ### DB API: zcl database access~selectBitmapById(db, id) ⇒
@@ -5098,7 +5183,7 @@ Select a struct matched by name and clusterId
 
 ### DB API: zcl database access~selectStructByNameAndClusterName(db, name, clusterName, packageIds) ⇒
 Select a struct matched by name and cluster name
-Note: Use selectStructByNameAndClusterName but this was needed for backwards compatibility.
+Note: Use selectStructByNameAndClusterId but this was needed for backwards compatibility.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
 **Returns**: struct information or undefined  
@@ -5631,6 +5716,7 @@ This module provides queries for enums.
     * [~selectAllBitmaps(db)](#module_DB API_ zcl database access..selectAllBitmaps) ⇒
     * [~selectBitmapByName(db, packageIds, name)](#module_DB API_ zcl database access..selectBitmapByName) ⇒
     * [~selectBitmapByNameAndClusterId(db, name, clusterId, packageIds)](#module_DB API_ zcl database access..selectBitmapByNameAndClusterId) ⇒
+    * [~selectBitmapByNameAndClusterName(db, name, clusterName, packageIds)](#module_DB API_ zcl database access..selectBitmapByNameAndClusterName) ⇒
     * [~selectBitmapById(db, id)](#module_DB API_ zcl database access..selectBitmapById) ⇒
     * [~selectSessionClusterByCode(db, sessionId, code, mfgCode)](#module_DB API_ zcl database access..selectSessionClusterByCode) ⇒
     * [~selectAllSessionClusters(db, sessionId)](#module_DB API_ zcl database access..selectAllSessionClusters) ⇒
@@ -5849,6 +5935,22 @@ Select a bitmap matched by name and clusterId.
 | clusterId | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
 
+<a name="module_DB API_ zcl database access..selectBitmapByNameAndClusterName"></a>
+
+### DB API: zcl database access~selectBitmapByNameAndClusterName(db, name, clusterName, packageIds) ⇒
+Select a bitmap matched by name and cluster name
+Note: Use selectBitmapByNameAndClusterId but this was needed for backwards compatibility.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: bitmap information or undefined  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| name | <code>\*</code> | 
+| clusterName | <code>\*</code> | 
+| packageIds | <code>\*</code> | 
+
 <a name="module_DB API_ zcl database access..selectBitmapById"></a>
 
 ### DB API: zcl database access~selectBitmapById(db, id) ⇒
@@ -5982,7 +6084,7 @@ Select a struct matched by name and clusterId
 
 ### DB API: zcl database access~selectStructByNameAndClusterName(db, name, clusterName, packageIds) ⇒
 Select a struct matched by name and cluster name
-Note: Use selectStructByNameAndClusterName but this was needed for backwards compatibility.
+Note: Use selectStructByNameAndClusterId but this was needed for backwards compatibility.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
 **Returns**: struct information or undefined  
@@ -6460,6 +6562,7 @@ across different query files.
     * [~selectAllBitmaps(db)](#module_DB API_ zcl database access..selectAllBitmaps) ⇒
     * [~selectBitmapByName(db, packageIds, name)](#module_DB API_ zcl database access..selectBitmapByName) ⇒
     * [~selectBitmapByNameAndClusterId(db, name, clusterId, packageIds)](#module_DB API_ zcl database access..selectBitmapByNameAndClusterId) ⇒
+    * [~selectBitmapByNameAndClusterName(db, name, clusterName, packageIds)](#module_DB API_ zcl database access..selectBitmapByNameAndClusterName) ⇒
     * [~selectBitmapById(db, id)](#module_DB API_ zcl database access..selectBitmapById) ⇒
     * [~selectSessionClusterByCode(db, sessionId, code, mfgCode)](#module_DB API_ zcl database access..selectSessionClusterByCode) ⇒
     * [~selectAllSessionClusters(db, sessionId)](#module_DB API_ zcl database access..selectAllSessionClusters) ⇒
@@ -6678,6 +6781,22 @@ Select a bitmap matched by name and clusterId.
 | clusterId | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
 
+<a name="module_DB API_ zcl database access..selectBitmapByNameAndClusterName"></a>
+
+### DB API: zcl database access~selectBitmapByNameAndClusterName(db, name, clusterName, packageIds) ⇒
+Select a bitmap matched by name and cluster name
+Note: Use selectBitmapByNameAndClusterId but this was needed for backwards compatibility.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: bitmap information or undefined  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| name | <code>\*</code> | 
+| clusterName | <code>\*</code> | 
+| packageIds | <code>\*</code> | 
+
 <a name="module_DB API_ zcl database access..selectBitmapById"></a>
 
 ### DB API: zcl database access~selectBitmapById(db, id) ⇒
@@ -6811,7 +6930,7 @@ Select a struct matched by name and clusterId
 
 ### DB API: zcl database access~selectStructByNameAndClusterName(db, name, clusterName, packageIds) ⇒
 Select a struct matched by name and cluster name
-Note: Use selectStructByNameAndClusterName but this was needed for backwards compatibility.
+Note: Use selectStructByNameAndClusterId but this was needed for backwards compatibility.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
 **Returns**: struct information or undefined  
@@ -7288,6 +7407,7 @@ This module provides queries for ZCL static queries.
     * [~selectAllBitmaps(db)](#module_DB API_ zcl database access..selectAllBitmaps) ⇒
     * [~selectBitmapByName(db, packageIds, name)](#module_DB API_ zcl database access..selectBitmapByName) ⇒
     * [~selectBitmapByNameAndClusterId(db, name, clusterId, packageIds)](#module_DB API_ zcl database access..selectBitmapByNameAndClusterId) ⇒
+    * [~selectBitmapByNameAndClusterName(db, name, clusterName, packageIds)](#module_DB API_ zcl database access..selectBitmapByNameAndClusterName) ⇒
     * [~selectBitmapById(db, id)](#module_DB API_ zcl database access..selectBitmapById) ⇒
     * [~selectSessionClusterByCode(db, sessionId, code, mfgCode)](#module_DB API_ zcl database access..selectSessionClusterByCode) ⇒
     * [~selectAllSessionClusters(db, sessionId)](#module_DB API_ zcl database access..selectAllSessionClusters) ⇒
@@ -7506,6 +7626,22 @@ Select a bitmap matched by name and clusterId.
 | clusterId | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
 
+<a name="module_DB API_ zcl database access..selectBitmapByNameAndClusterName"></a>
+
+### DB API: zcl database access~selectBitmapByNameAndClusterName(db, name, clusterName, packageIds) ⇒
+Select a bitmap matched by name and cluster name
+Note: Use selectBitmapByNameAndClusterId but this was needed for backwards compatibility.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: bitmap information or undefined  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| name | <code>\*</code> | 
+| clusterName | <code>\*</code> | 
+| packageIds | <code>\*</code> | 
+
 <a name="module_DB API_ zcl database access..selectBitmapById"></a>
 
 ### DB API: zcl database access~selectBitmapById(db, id) ⇒
@@ -7639,7 +7775,7 @@ Select a struct matched by name and clusterId
 
 ### DB API: zcl database access~selectStructByNameAndClusterName(db, name, clusterName, packageIds) ⇒
 Select a struct matched by name and cluster name
-Note: Use selectStructByNameAndClusterName but this was needed for backwards compatibility.
+Note: Use selectStructByNameAndClusterId but this was needed for backwards compatibility.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
 **Returns**: struct information or undefined  

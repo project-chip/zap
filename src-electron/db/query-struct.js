@@ -25,7 +25,7 @@ const dbApi = require('./db-api')
 const dbCache = require('./db-cache')
 const dbMapping = require('./db-mapping')
 const queryUtil = require('./query-util')
-const dbEnum = require('../../src-shared/db-enum.js')
+const dbEnum = require('../../src-shared/db-enum')
 
 /**
  * Get all structs from a given package ID.
@@ -157,7 +157,7 @@ async function selectStructByNameAndClusterId(db, name, clusterId, packageIds) {
 
 /**
  * Select a struct matched by name and cluster name
- * Note: Use selectStructByNameAndClusterName but this was needed for backwards compatibility.
+ * Note: Use selectStructByNameAndClusterId but this was needed for backwards compatibility.
  * @param {*} db
  * @param {*} name
  * @param {*} clusterName

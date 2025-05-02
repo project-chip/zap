@@ -16,7 +16,7 @@
  */
 
 /**
- * This module provides queries for enums.
+ * This module provides queries for bitmaps.
  *
  * @module DB API: zcl database access
  */
@@ -25,6 +25,7 @@ const dbApi = require('./db-api')
 const dbCache = require('./db-cache')
 const dbMapping = require('./db-mapping')
 const queryUtil = require('./query-util')
+const dbEnum = require('../../src-shared/db-enum')
 
 /**
  * Retrieves all the bitmaps in the database.
@@ -89,12 +90,12 @@ WHERE (DATA_TYPE.NAME = ? OR DATA_TYPE.NAME = ?) AND DATA_TYPE.PACKAGE_REF IN ($
  */
 async function selectBitmapByNameAndClusterId(db, name, clusterId, packageIds) {
   let queryWithoutClusterId = queryUtil.sqlQueryForDataTypeByNameAndClusterId(
-    'bitmap',
+    dbEnum.zclType.bitmap,
     null,
     packageIds
   )
   let queryWithClusterId = queryUtil.sqlQueryForDataTypeByNameAndClusterId(
-    'bitmap',
+    dbEnum.zclType.bitmap,
     clusterId,
     packageIds
   )
@@ -109,6 +110,48 @@ async function selectBitmapByNameAndClusterId(db, name, clusterId, packageIds) {
     return dbApi
       .dbGet(db, queryWithClusterId, [name, name.toLowerCase(), clusterId])
       .then(dbMapping.map.bitmap)
+  }
+}
+
+/**
+ * Select a bitmap matched by name and cluster name
+ * Note: Use selectBitmapByNameAndClusterId but this was needed for backwards compatibility.
+ * @param {*} db
+ * @param {*} name
+ * @param {*} clusterName
+ * @param {*} packageIds
+ * @returns bitmap information or undefined
+ */
+async function selectBitmapByNameAndClusterName(
+  db,
+  name,
+  clusterName,
+  packageIds
+) {
+  let queryWithClusterName = queryUtil.sqlQueryForDataTypeByNameAndClusterName(
+    dbEnum.zclType.bitmap,
+    name,
+    clusterName,
+    packageIds
+  )
+  let res = await dbApi
+    .dbAll(db, queryWithClusterName)
+    .then((rows) => rows.map(dbMapping.map.bitmap))
+  if (res && res.length == 1) {
+    return res[0]
+  } else if (res && res.length > 1) {
+    throw new Error(
+      `More than one bitmap ${name} exists with same name for ${clusterName} cluster.`
+    )
+  } else {
+    queryWithClusterName = queryUtil.sqlQueryForDataTypeByNameAndClusterName(
+      dbEnum.zclType.bitmap,
+      name,
+      null, // Retrieving global data types since cluster specific ones were not found.
+      packageIds
+    )
+    res = await dbApi.dbGet(db, queryWithClusterName).then(dbMapping.map.bitmap)
+    return res
   }
 }
 
@@ -141,3 +184,4 @@ exports.selectBitmapByName = dbCache.cacheQuery(selectBitmapByName)
 exports.selectBitmapByNameAndClusterId = dbCache.cacheQuery(
   selectBitmapByNameAndClusterId
 )
+exports.selectBitmapByNameAndClusterName = selectBitmapByNameAndClusterName

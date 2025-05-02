@@ -537,6 +537,36 @@ test(
       zclPackageId
     )
     expect(globalStruct.id).not.toEqual(clusterStruct.id)
+
+    // Testing selectEnumByNameAndClusterName for enum names
+    let globalEnum = await queryZcl.selectEnumByNameAndClusterName(
+      db,
+      'enumTest',
+      'Descriptor',
+      zclPackageId
+    )
+    let clusterEnum = await queryZcl.selectEnumByNameAndClusterName(
+      db,
+      'enumTest',
+      'Mode Select',
+      zclPackageId
+    )
+    expect(globalEnum.id).not.toEqual(clusterEnum.id)
+
+    // Testing selectBitmapByNameAndClusterName for bitmap names
+    let globalBitmap = await queryZcl.selectBitmapByNameAndClusterName(
+      db,
+      'bitmapTest',
+      'Descriptor',
+      zclPackageId
+    )
+    let clusterBitmap = await queryZcl.selectBitmapByNameAndClusterName(
+      db,
+      'bitmapTest',
+      'Mode Select',
+      zclPackageId
+    )
+    expect(globalBitmap.id).not.toEqual(clusterBitmap.id)
   },
   testUtil.timeout.long()
 )

@@ -1336,6 +1336,10 @@ exports.selectStructByNameAndClusterId =
   queryStruct.selectStructByNameAndClusterId
 exports.selectStructByNameAndClusterName =
   queryStruct.selectStructByNameAndClusterName
+exports.selectEnumByNameAndClusterName =
+  queryEnum.selectEnumByNameAndClusterName
+exports.selectBitmapByNameAndClusterName =
+  queryBitmap.selectBitmapByNameAndClusterName
 
 exports.selectBitmapById = queryBitmap.selectBitmapById
 exports.selectAllBitmaps = queryBitmap.selectAllBitmaps
