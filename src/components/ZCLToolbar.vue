@@ -61,9 +61,7 @@
       flat
       no-caps
       @click="saveChanges"
-      v-if="
-        this.$store.state.zap.saveButtonVisible && this.$store.state.zap.isDirty
-      "
+      v-if="this.$store.state.zap.isDirty"
     >
       <div class="text-center">
         <q-icon name="o_save" />

@@ -176,8 +176,6 @@ export function renderer_api_notify(key, value) {
     sentValue = {
       isDirty: value
     }
-    // Dispatch to Vuex store with a boolean value
-    this.$store.dispatch('zap/setSaveButtonVisible', value)
   }
   window?.parent?.postMessage(
     {
