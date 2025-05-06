@@ -248,12 +248,7 @@ export default {
       return this.$store.state.zap.query // Access the query string from Vuex
     },
     showSaveButton() {
-      console.log(this.query)
-      if (this.query['stsApplication']) {
-        return true
-      } else {
-        return false
-      }
+      return !!this.query?.stsApplication // Use optional chaining and double negation for clarity
     },
     isCoreDocumentationAvailable() {
       return (
