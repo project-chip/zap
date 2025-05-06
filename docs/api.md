@@ -15038,7 +15038,8 @@ HTTP GET: device type features
 <a name="module_REST API_ user data..httpPostCheckConformOnFeatureUpdate"></a>
 
 ### REST API: user data~httpPostCheckConformOnFeatureUpdate(db) ⇒
-HTTP POST: elements to be updated after toggle a device type feature
+HTTP POST: elements to be updated after toggle a device type feature.
+Set related warnings if user confirmed the change or change is disabled.
 
 **Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
 **Returns**: callback for the express uri registration  
@@ -16373,7 +16374,8 @@ HTTP GET: device type features
 <a name="module_REST API_ user data..httpPostCheckConformOnFeatureUpdate"></a>
 
 ### REST API: user data~httpPostCheckConformOnFeatureUpdate(db) ⇒
-HTTP POST: elements to be updated after toggle a device type feature
+HTTP POST: elements to be updated after toggle a device type feature.
+Set related warnings if user confirmed the change or change is disabled.
 
 **Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
 **Returns**: callback for the express uri registration  
