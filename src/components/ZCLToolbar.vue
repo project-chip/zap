@@ -55,7 +55,14 @@
         <div>Generate</div>
       </div>
     </q-btn>
-    <q-btn id="save" color="grey" flat no-caps @click="saveChanges">
+    <q-btn
+      id="save"
+      color="grey"
+      flat
+      no-caps
+      @click="saveChanges"
+      v-if="showSaveButton"
+    >
       <div class="text-center">
         <q-icon name="o_save" />
         <div>Save</div>
@@ -231,11 +238,25 @@ import * as dbEnum from '../../src-shared/db-enum.js'
 const rendApi = require(`../../src-shared/rend-api.js`)
 const restApi = require(`../../src-shared/rest-api.js`)
 const observable = require('../util/observable.js')
+const querystring = require('querystring')
 import CommonMixin from '../util/common-mixin'
 export default {
   name: 'ZCLToolbar',
   mixins: [CommonMixin],
   computed: {
+    showSaveButton() {
+      let search = window.location.search
+
+      if (search[0] === '?') {
+        search = search.substring(1)
+      }
+      query = querystring.parse(search)
+      if (this.query['stsApplication']) {
+        return true
+      } else {
+        return false
+      }
+    },
     isCoreDocumentationAvailable() {
       return (
         this.$store.state.zap.genericOptions[
@@ -290,7 +311,8 @@ export default {
       isExpanded: false,
       globalOptionsDialog: false,
       notification: '',
-      generationDirectory: ''
+      generationDirectory: '',
+      query: {}
     }
   },
   methods: {
