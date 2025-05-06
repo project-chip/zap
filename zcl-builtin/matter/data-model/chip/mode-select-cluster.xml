@@ -30,6 +30,16 @@ limitations under the License.
     <item name="SemanticTags" type="SemanticTagStruct" array="true" optional="false"/>
   </struct>
 
+  <enum name="enumTest" type="ENUM8">
+    <cluster code="0x0050"/>
+    <item name="enumTest1" value="0x0"/>
+  </enum>
+
+  <bitmap name="bitmapTest" type="BITMAP8">
+    <cluster code="0x0050"/>
+    <field name="bitmapFieldTest1" mask="0x1"/>
+  </bitmap>
+
   <cluster>
     <domain>General</domain>
     <name>Mode Select</name>

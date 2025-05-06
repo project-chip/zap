@@ -54,7 +54,7 @@ limitations under the License.
 
   <struct name="ChannelInfoStruct">
     <cluster code="0x0504"/>
-    <item name="MajorNumber"       type="INT16U"/>
+    <item name="MajorNumber"       type="INT16U" default="0xFFFF"/>
     <item name="MinorNumber"       type="INT16U"/>
     <item name="Name"              type="CHAR_STRING" optional="true"/>
     <item name="CallSign"          type="CHAR_STRING" optional="true"/>

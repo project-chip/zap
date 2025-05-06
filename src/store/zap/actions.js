@@ -405,27 +405,30 @@ export function setDeviceTypeReference(
   context,
   endpointTypeIdDeviceTypeRefPair
 ) {
-  axiosRequests
-    .$serverGet(
-      `${restApi.uri.deviceTypeClusters}${endpointTypeIdDeviceTypeRefPair.deviceTypeRef}`
+  Promise.all(
+    endpointTypeIdDeviceTypeRefPair.deviceTypeRef.map((ref) =>
+      axiosRequests.$serverGet(`${restApi.uri.deviceTypeClusters}${ref}`)
     )
-    .then((res) => {
-      setRecommendedClusterList(context, res.data)
-    })
-  axiosRequests
-    .$serverGet(
-      `${restApi.uri.deviceTypeAttributes}${endpointTypeIdDeviceTypeRefPair.deviceTypeRef}`
+  ).then((responses) => {
+    const allClusters = responses.flatMap((res) => res.data)
+    setRecommendedClusterList(context, allClusters)
+  })
+  Promise.all(
+    endpointTypeIdDeviceTypeRefPair.deviceTypeRef.map((ref) =>
+      axiosRequests.$serverGet(`${restApi.uri.deviceTypeAttributes}${ref}`)
     )
-    .then((res) => {
-      setRequiredAttributes(context, res.data)
-    })
-  axiosRequests
-    .$serverGet(
-      `${restApi.uri.deviceTypeCommands}${endpointTypeIdDeviceTypeRefPair.deviceTypeRef}`
+  ).then((responses) => {
+    const allAttributes = responses.flatMap((res) => res.data)
+    setRequiredAttributes(context, allAttributes)
+  })
+  Promise.all(
+    endpointTypeIdDeviceTypeRefPair.deviceTypeRef.map((ref) =>
+      axiosRequests.$serverGet(`${restApi.uri.deviceTypeCommands}${ref}`)
     )
-    .then((res) => {
-      setRequiredCommands(context, res.data)
-    })
+  ).then((responses) => {
+    const allCommands = responses.flatMap((res) => res.data)
+    setRequiredCommands(context, allCommands)
+  })
 
   axiosRequests
     .$serverGet(
@@ -709,33 +712,35 @@ export async function updateSelectedEndpointType(
           setEventStateLists(context, res.data || [])
         })
     )
-
     p.push(
-      axiosRequests
-        .$serverGet(
-          `${restApi.uri.deviceTypeClusters}${endpointTypeDeviceTypeRefPair.deviceTypeRef}`
+      Promise.all(
+        endpointTypeDeviceTypeRefPair.deviceTypeRef.map((ref) =>
+          axiosRequests.$serverGet(`${restApi.uri.deviceTypeClusters}${ref}`)
         )
-        .then((res) => {
-          setRecommendedClusterList(context, res.data)
-        })
+      ).then((responses) => {
+        const allClusters = responses.flatMap((res) => res.data)
+        setRecommendedClusterList(context, allClusters)
+      })
     )
     p.push(
-      axiosRequests
-        .$serverGet(
-          `${restApi.uri.deviceTypeAttributes}${endpointTypeDeviceTypeRefPair.deviceTypeRef}`
+      Promise.all(
+        endpointTypeDeviceTypeRefPair.deviceTypeRef.map((ref) =>
+          axiosRequests.$serverGet(`${restApi.uri.deviceTypeAttributes}${ref}`)
         )
-        .then((res) => {
-          setRequiredAttributes(context, res.data)
-        })
+      ).then((responses) => {
+        const allAttributes = responses.flatMap((res) => res.data)
+        setRequiredAttributes(context, allAttributes)
+      })
     )
     p.push(
-      axiosRequests
-        .$serverGet(
-          `${restApi.uri.deviceTypeCommands}${endpointTypeDeviceTypeRefPair.deviceTypeRef}`
+      Promise.all(
+        endpointTypeDeviceTypeRefPair.deviceTypeRef.map((ref) =>
+          axiosRequests.$serverGet(`${restApi.uri.deviceTypeCommands}${ref}`)
         )
-        .then((res) => {
-          setRequiredCommands(context, res.data)
-        })
+      ).then((responses) => {
+        const allCommands = responses.flatMap((res) => res.data)
+        setRequiredCommands(context, allCommands)
+      })
     )
 
     context.commit(
@@ -744,6 +749,25 @@ export async function updateSelectedEndpointType(
     )
   }
   return await Promise.all(p)
+}
+
+/**
+ *
+ * @param {*} context
+ * @param {*} deviceTypeRefs
+ */
+export async function updateDeviceTypeClustersForSelectedEndpoint(
+  context,
+  deviceTypeRefs
+) {
+  let res = await Promise.all(
+    deviceTypeRefs.map((ref) =>
+      axiosRequests.$serverGet(`${restApi.uri.deviceTypeClusters}${ref}`)
+    )
+  ).then((responses) => {
+    return responses.flatMap((response) => response.data)
+  })
+  context.commit('updateDeviceTypeClustersForSelectedEndpoint', res)
 }
 
 /**
@@ -886,14 +910,21 @@ export function setRecommendedClusterList(context, data) {
   // TODO (?) This does not handle/highlight prohibited clusters. For now we just keep it in here
   let recommendedClients = []
   let recommendedServers = []
+  // Collecting optional client and server clusters
+  let optionalClients = []
+  let optionalServers = []
 
   data.forEach((record) => {
     if (record.includeClient) recommendedClients.push(record.clusterRef)
     if (record.includeServer) recommendedServers.push(record.clusterRef)
+    if (!record.lockClient) optionalClients.push(record.clusterRef)
+    if (!record.lockServer) optionalServers.push(record.clusterRef)
   })
   context.commit(`setRecommendedClusterList`, {
     recommendedClients: recommendedClients,
-    recommendedServers: recommendedServers
+    recommendedServers: recommendedServers,
+    optionalClients: optionalClients,
+    optionalServers: optionalServers
   })
 }
 

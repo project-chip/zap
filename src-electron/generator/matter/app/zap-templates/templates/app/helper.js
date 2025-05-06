@@ -588,6 +588,52 @@ function nsValueToPythonNamespace(ns, clusterCount) {
   return ns;
 }
 
+// Not to be exported.
+//
+// dataType can be "Enum", "Struct", or "Bitmap".
+async function getClusterCountForType(db, pkgId, type, dataType, options) {
+  if (options.hash.cluster === '') {
+    // This is a non-global data type that is associated with multiple
+    // clusters: in that case our caller can pass in cluster="", and
+    // we know that clusterCount > 1, so just set it to 2.
+    return 2;
+  }
+
+  const cluster = options.hash.cluster || options.hash.ns;
+  const typeObj = await zclQuery[`select${dataType}ByNameAndClusterName`](
+    db,
+    type,
+    cluster,
+    pkgId
+  );
+  if (typeObj) {
+    return typeObj[`${dataType.toLowerCase()}ClusterCount`];
+  }
+
+  if (options.hash.cluster === undefined) {
+    // Backwards-compat case: we were called without ns or cluster at all
+    // (not even cluster="").  Just get by name, since that's all we have to
+    // work with.  It won't work right when names are not unique, but that's
+    // the best we can do.
+    //
+    // selectBitmapByName has different argument ordering from selectEnumByName
+    // and selectStructByName, so account for that here.
+    const isBitmap = dataType == 'Bitmap';
+    const backwardsCompatTypeObj = await zclQuery[`select${dataType}ByName`](
+      db,
+      isBitmap ? pkgId : type,
+      isBitmap ? type : pkgId
+    );
+    return backwardsCompatTypeObj[`${dataType.toLowerCase()}ClusterCount`];
+  }
+
+  // Something is wrong here.  Possibly the caller is passing in a munged
+  // cluster name.  Just fail out instead of silently returning bad data.
+  throw new Error(
+    `Unable to find ${dataType.toLowerCase()} ${type} in cluster ${options.hash.cluster}`
+  );
+}
+
 /*
  * @brief
  *
@@ -641,12 +687,14 @@ async function zapTypeToClusterObjectType(type, isDecodable, options) {
         return 'uint' + s[1] + '_t';
       }
 
-      const enumObj = await zclQuery.selectEnumByName(
+      const clusterCount = await getClusterCountForType(
         this.global.db,
+        pkgId,
         type,
-        pkgId
+        'Enum',
+        options
       );
-      const ns = nsValueToNamespace(options.hash.ns, enumObj.enumClusterCount);
+      const ns = nsValueToNamespace(options.hash.ns, clusterCount);
       return ns + asUpperCamelCase.call(this, type, options);
     }
 
@@ -657,15 +705,14 @@ async function zapTypeToClusterObjectType(type, isDecodable, options) {
         return 'uint' + s[1] + '_t';
       }
 
-      const bitmapObj = await zclQuery.selectBitmapByName(
+      const clusterCount = await getClusterCountForType(
         this.global.db,
         pkgId,
-        type
+        type,
+        'Bitmap',
+        options
       );
-      const ns = nsValueToNamespace(
-        options.hash.ns,
-        bitmapObj.bitmapClusterCount
-      );
+      const ns = nsValueToNamespace(options.hash.ns, clusterCount);
       return (
         'chip::BitMask<' + ns + asUpperCamelCase.call(this, type, options) + '>'
       );
@@ -673,15 +720,14 @@ async function zapTypeToClusterObjectType(type, isDecodable, options) {
 
     if (types.isStruct) {
       passByReference = true;
-      const structObj = await zclQuery.selectStructByName(
+      const clusterCount = await getClusterCountForType(
         this.global.db,
+        pkgId,
         type,
-        pkgId
+        'Struct',
+        options
       );
-      const ns = nsValueToNamespace(
-        options.hash.ns,
-        structObj.structClusterCount
-      );
+      const ns = nsValueToNamespace(options.hash.ns, clusterCount);
       return (
         ns +
         'Structs::' +
@@ -768,16 +814,14 @@ async function _zapTypeToPythonClusterObjectType(type, options) {
         return 'uint';
       }
 
-      const enumObj = await zclQuery.selectEnumByName(
+      const clusterCount = await getClusterCountForType(
         this.global.db,
+        pkgId,
         type,
-        pkgId
+        'Enum',
+        options
       );
-
-      const ns = nsValueToPythonNamespace(
-        options.hash.ns,
-        enumObj.enumClusterCount
-      );
+      const ns = nsValueToPythonNamespace(options.hash.ns, clusterCount);
 
       return ns + '.Enums.' + type;
     }
@@ -787,16 +831,14 @@ async function _zapTypeToPythonClusterObjectType(type, options) {
     }
 
     if (await typeChecker('isStruct')) {
-      const structObj = await zclQuery.selectStructByName(
+      const clusterCount = await getClusterCountForType(
         this.global.db,
+        pkgId,
         type,
-        pkgId
+        'Struct',
+        options
       );
-
-      const ns = nsValueToPythonNamespace(
-        options.hash.ns,
-        structObj.structClusterCount
-      );
+      const ns = nsValueToPythonNamespace(options.hash.ns, clusterCount);
 
       return ns + '.Structs.' + type;
     }
@@ -887,16 +929,14 @@ async function _getPythonFieldDefault(type, options) {
     }
 
     if (await typeChecker('isStruct')) {
-      const structObj = await zclQuery.selectStructByName(
+      const clusterCount = await getClusterCountForType(
         this.global.db,
+        pkgId,
         type,
-        pkgId
+        'Struct',
+        options
       );
-
-      const ns = nsValueToPythonNamespace(
-        options.hash.ns,
-        structObj.structClusterCount
-      );
+      const ns = nsValueToPythonNamespace(options.hash.ns, clusterCount);
 
       return 'field(default_factory=lambda: ' + ns + '.Structs.' + type + '())';
     }
@@ -1073,7 +1113,19 @@ async function zcl_commands_that_need_timed_invoke(options) {
 // struct.
 async function if_is_fabric_scoped_struct(type, options) {
   let packageIds = await templateUtil.ensureZclPackageIds(this);
-  let st = await zclQuery.selectStructByName(this.global.db, type, packageIds);
+  let st;
+  if (options.hash.cluster) {
+    st = await zclQuery.selectStructByNameAndClusterName(
+      this.global.db,
+      type,
+      options.hash.cluster,
+      packageIds
+    );
+  } else {
+    // Backwards compat case; will not work right when multiple structs share
+    // the same name.
+    st = await zclQuery.selectStructByName(this.global.db, type, packageIds);
+  }
 
   if (st && st.isFabricScoped) {
     return options.fn(this);

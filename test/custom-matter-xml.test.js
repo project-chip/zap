@@ -114,7 +114,7 @@ test(
 
     let result = await zclLoader.loadIndividualFile(
       db,
-      testUtil.testMattterCustomXml,
+      testUtil.testMatterCustomXml,
       sid
     )
     if (!result.succeeded) {
@@ -169,7 +169,7 @@ test(
     // second xml adds 2 attributes and 2 commands to prevoiusly extended cluster
     let result = await zclLoader.loadIndividualFile(
       db,
-      testUtil.testMattterCustomXml2,
+      testUtil.testMatterCustomXml2,
       sid
     )
     if (!result.succeeded) {
@@ -204,7 +204,7 @@ test(
 
     let result = await zclLoader.loadIndividualFile(
       db,
-      testUtil.testMattterCustomXml,
+      testUtil.testMatterCustomXml,
       sid
     )
 
@@ -244,7 +244,7 @@ test(
     /* re-adding the custom xml package should re-enable it */
     result = await zclLoader.loadIndividualFile(
       db,
-      testUtil.testMattterCustomXml,
+      testUtil.testMatterCustomXml,
       sid
     )
     expect(result.succeeded).toBeTruthy()
@@ -430,6 +430,8 @@ test(
     expect(sdkExt).toContain(
       "/ command: 0x0006 / 0xFFF201 => SampleMfgSpecificToggleWithTransition2, test extension: ''"
     )
+    expect(sdkExt).toContain('transitionTime - int16u')
+    expect(sdkExt).toContain('transitionTime - int16u - default_value=0x0003')
     // checking if baseType for command arguments derived from custom xml is accurate
     expect(sdkExt).toContain(
       'Sample Custom Cluster - AddArgumentsResponse\n    returnValue - int8u'
@@ -443,6 +445,10 @@ test(
     expect(endpointConfig).toContain(
       '{ (uint16_t)0x0, (uint16_t)0x0, (uint16_t)0xFFFF }, /* Sample Mfg Specific Attribute 2 */ \\'
     )
+
+    let endpointOut = genResult.content['endpoints.out']
+    expect(endpointOut).not.toBeNull()
+    expect(endpointOut).toContain('- SampleMfgSpecificOnWithTransition2: /')
 
     // delete custom xml and generate again
     sessionPartitionInfo =
@@ -493,18 +499,18 @@ test(
     expect(state.endpointTypes[0].clusters.length).toBe(8)
 
     // Modify custom xml and reupload
-    const originalData = fs.readFileSync(testUtil.testMattterCustomXml, 'utf8')
+    const originalData = fs.readFileSync(testUtil.testMatterCustomXml, 'utf8')
 
     try {
       const modifiedData = originalData.replace(
         '<name>Sample Custom Cluster</name>',
         '<name>Sample Custom Changed</name>'
       )
-      fs.writeFileSync(testUtil.testMattterCustomXml, modifiedData, 'utf8')
+      fs.writeFileSync(testUtil.testMatterCustomXml, modifiedData, 'utf8')
 
       const result = await zclLoader.loadIndividualFile(
         db,
-        testUtil.testMattterCustomXml,
+        testUtil.testMatterCustomXml,
         sid
       )
       expect(result.succeeded).toBeTruthy()
@@ -541,7 +547,7 @@ test(
       let customXmlPackages = await dbApi.dbAll(
         db,
         'SELECT * FROM PACKAGE WHERE PATH = ?',
-        [testUtil.testMattterCustomXml]
+        [testUtil.testMatterCustomXml]
       )
       expect(customXmlPackages.length).toEqual(2)
       expect(
@@ -549,7 +555,7 @@ test(
       ).toBeTruthy()
     } finally {
       // restore original custom xml
-      fs.writeFileSync(testUtil.testMattterCustomXml, originalData, 'utf8')
+      fs.writeFileSync(testUtil.testMatterCustomXml, originalData, 'utf8')
     }
   },
   testUtil.timeout.long()
@@ -561,7 +567,7 @@ test(
     // adding bad custom xml with type contradiction should throw warning
     let result = await zclLoader.loadIndividualFile(
       db,
-      testUtil.testBadMattterCustomXml,
+      testUtil.testBadMatterCustomXml,
       sid
     )
     expect(result.succeeded).toBeTruthy()
@@ -624,7 +630,7 @@ test(
 
     let result = await zclLoader.loadIndividualFile(
       db,
-      testUtil.testMattterCustomXml,
+      testUtil.testMatterCustomXml,
       conflictSid
     )
     expect(result.succeeded).toBeTruthy()

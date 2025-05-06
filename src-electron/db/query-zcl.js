@@ -356,7 +356,7 @@ async function selectStructsWithItemsImpl(db, packageIds, clusterId) {
       S.STRUCT_ID = SI.STRUCT_REF
     WHERE
       DT.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
-    ORDER BY DT.NAME, SI.FIELD_IDENTIFIER`
+    ORDER BY DT.NAME, DT.DATA_TYPE_ID, SI.FIELD_IDENTIFIER`
   } else {
     query = `
     SELECT
@@ -395,18 +395,19 @@ async function selectStructsWithItemsImpl(db, packageIds, clusterId) {
       DT.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
     AND
       DTC.CLUSTER_REF = ?
-    ORDER BY DT.NAME, SI.FIELD_IDENTIFIER`
+    ORDER BY DT.NAME, DT.DATA_TYPE_ID, SI.FIELD_IDENTIFIER`
     args = [clusterId]
   }
 
   let rows = await dbApi.dbAll(db, query, args)
   return rows.reduce((acc, value) => {
     let objectToActOn
-    if (acc.length == 0 || acc[acc.length - 1].name != value.STRUCT_NAME) {
+    if (acc.length == 0 || acc[acc.length - 1].struct_id != value.STRUCT_ID) {
       // Create a new object
       objectToActOn = {
         id: value.STRUCT_ID,
         name: value.STRUCT_NAME,
+        struct_id: value.STRUCT_ID,
         isFabricScoped: dbApi.fromDbBool(value.IS_FABRIC_SCOPED),
         apiMaturity: value.API_MATURITY,
         label: value.STRUCT_NAME,
@@ -459,6 +460,7 @@ SELECT
   STRUCT_ITEM.IS_ENUM,
   STRUCT_ITEM.MIN_LENGTH,
   STRUCT_ITEM.MAX_LENGTH,
+  STRUCT_ITEM.DEFAULT_VALUE,
   STRUCT_ITEM.IS_WRITABLE,
   STRUCT_ITEM.IS_NULLABLE,
   STRUCT_ITEM.IS_OPTIONAL,
@@ -1332,6 +1334,12 @@ exports.selectStructById = queryStruct.selectStructById
 exports.selectStructByName = queryStruct.selectStructByName
 exports.selectStructByNameAndClusterId =
   queryStruct.selectStructByNameAndClusterId
+exports.selectStructByNameAndClusterName =
+  queryStruct.selectStructByNameAndClusterName
+exports.selectEnumByNameAndClusterName =
+  queryEnum.selectEnumByNameAndClusterName
+exports.selectBitmapByNameAndClusterName =
+  queryBitmap.selectBitmapByNameAndClusterName
 
 exports.selectBitmapById = queryBitmap.selectBitmapById
 exports.selectAllBitmaps = queryBitmap.selectAllBitmaps

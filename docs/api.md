@@ -35,7 +35,7 @@
 <dd><p>This module provides queries related to attributes.</p>
 </dd>
 <dt><a href="#module_DB API_ zcl database access">DB API: zcl database access</a></dt>
-<dd><p>This module provides queries for enums.</p>
+<dd><p>This module provides queries for bitmaps.</p>
 </dd>
 <dt><a href="#module_DB API_ cluster queries.">DB API: cluster queries.</a></dt>
 <dd><p>This module provides queries related to cluster.</p>
@@ -877,6 +877,7 @@ This module provides cache for commonly used static database queries.
     * [~selectAllBitmaps(db)](#module_DB API_ zcl database access..selectAllBitmaps) ⇒
     * [~selectBitmapByName(db, packageIds, name)](#module_DB API_ zcl database access..selectBitmapByName) ⇒
     * [~selectBitmapByNameAndClusterId(db, name, clusterId, packageIds)](#module_DB API_ zcl database access..selectBitmapByNameAndClusterId) ⇒
+    * [~selectBitmapByNameAndClusterName(db, name, clusterName, packageIds)](#module_DB API_ zcl database access..selectBitmapByNameAndClusterName) ⇒
     * [~selectBitmapById(db, id)](#module_DB API_ zcl database access..selectBitmapById) ⇒
     * [~selectSessionClusterByCode(db, sessionId, code, mfgCode)](#module_DB API_ zcl database access..selectSessionClusterByCode) ⇒
     * [~selectAllSessionClusters(db, sessionId)](#module_DB API_ zcl database access..selectAllSessionClusters) ⇒
@@ -886,8 +887,10 @@ This module provides cache for commonly used static database queries.
     * [~selectStructById(db, id)](#module_DB API_ zcl database access..selectStructById) ⇒
     * [~selectStructByName(db, name, packageIds)](#module_DB API_ zcl database access..selectStructByName) ⇒
     * [~selectStructByNameAndClusterId(db, name, clusterId, packageIds)](#module_DB API_ zcl database access..selectStructByNameAndClusterId) ⇒
+    * [~selectStructByNameAndClusterName(db, name, clusterName, packageIds)](#module_DB API_ zcl database access..selectStructByNameAndClusterName) ⇒
     * [~selectStructsWithClusterAssociation(db, packageIds, groupByStructName)](#module_DB API_ zcl database access..selectStructsWithClusterAssociation) ⇒
     * [~sqlQueryForDataTypeByNameAndClusterId(typeDiscriminator, clusterId, packageIds)](#module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterId) ⇒
+    * [~sqlQueryForDataTypeByNameAndClusterName(typeDiscriminator, name, clusterName, packageIds, options)](#module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterName) ⇒
     * [~selectClusterBitmaps(db, packageId, clusterId)](#module_DB API_ zcl database access..selectClusterBitmaps) ⇒
     * [~selectAllBitmapFieldsById(db, id)](#module_DB API_ zcl database access..selectAllBitmapFieldsById) ⇒
     * [~selectAllBitmapFields(db, packageId)](#module_DB API_ zcl database access..selectAllBitmapFields) ⇒
@@ -1093,6 +1096,22 @@ Select a bitmap matched by name and clusterId.
 | clusterId | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
 
+<a name="module_DB API_ zcl database access..selectBitmapByNameAndClusterName"></a>
+
+### DB API: zcl database access~selectBitmapByNameAndClusterName(db, name, clusterName, packageIds) ⇒
+Select a bitmap matched by name and cluster name
+Note: Use selectBitmapByNameAndClusterId but this was needed for backwards compatibility.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: bitmap information or undefined  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| name | <code>\*</code> | 
+| clusterName | <code>\*</code> | 
+| packageIds | <code>\*</code> | 
+
 <a name="module_DB API_ zcl database access..selectBitmapById"></a>
 
 ### DB API: zcl database access~selectBitmapById(db, id) ⇒
@@ -1222,6 +1241,22 @@ Select a struct matched by name and clusterId
 | clusterId | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
 
+<a name="module_DB API_ zcl database access..selectStructByNameAndClusterName"></a>
+
+### DB API: zcl database access~selectStructByNameAndClusterName(db, name, clusterName, packageIds) ⇒
+Select a struct matched by name and cluster name
+Note: Use selectStructByNameAndClusterId but this was needed for backwards compatibility.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: struct information or undefined  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| name | <code>\*</code> | 
+| clusterName | <code>\*</code> | 
+| packageIds | <code>\*</code> | 
+
 <a name="module_DB API_ zcl database access..selectStructsWithClusterAssociation"></a>
 
 ### DB API: zcl database access~selectStructsWithClusterAssociation(db, packageIds, groupByStructName) ⇒
@@ -1251,6 +1286,22 @@ Formulate a sqlite query string for a data type from the given cluster ID and pa
 | typeDiscriminator | <code>\*</code> |  | 
 | clusterId | <code>\*</code> | <code></code> | 
 | packageIds | <code>\*</code> |  | 
+
+<a name="module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterName"></a>
+
+### DB API: zcl database access~sqlQueryForDataTypeByNameAndClusterName(typeDiscriminator, name, clusterName, packageIds, options) ⇒
+Formulate a sqlite query string for a data type from the given cluster name and package IDs.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: SQLite query string  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| typeDiscriminator | <code>\*</code> |  |
+| name | <code>\*</code> | data type name |
+| clusterName | <code>\*</code> |  |
+| packageIds | <code>\*</code> |  |
+| options | <code>\*</code> |  |
 
 <a name="module_DB API_ zcl database access..selectClusterBitmaps"></a>
 
@@ -1681,6 +1732,7 @@ This module provides queries for atomic type queries.
     * [~selectAllBitmaps(db)](#module_DB API_ zcl database access..selectAllBitmaps) ⇒
     * [~selectBitmapByName(db, packageIds, name)](#module_DB API_ zcl database access..selectBitmapByName) ⇒
     * [~selectBitmapByNameAndClusterId(db, name, clusterId, packageIds)](#module_DB API_ zcl database access..selectBitmapByNameAndClusterId) ⇒
+    * [~selectBitmapByNameAndClusterName(db, name, clusterName, packageIds)](#module_DB API_ zcl database access..selectBitmapByNameAndClusterName) ⇒
     * [~selectBitmapById(db, id)](#module_DB API_ zcl database access..selectBitmapById) ⇒
     * [~selectSessionClusterByCode(db, sessionId, code, mfgCode)](#module_DB API_ zcl database access..selectSessionClusterByCode) ⇒
     * [~selectAllSessionClusters(db, sessionId)](#module_DB API_ zcl database access..selectAllSessionClusters) ⇒
@@ -1690,8 +1742,10 @@ This module provides queries for atomic type queries.
     * [~selectStructById(db, id)](#module_DB API_ zcl database access..selectStructById) ⇒
     * [~selectStructByName(db, name, packageIds)](#module_DB API_ zcl database access..selectStructByName) ⇒
     * [~selectStructByNameAndClusterId(db, name, clusterId, packageIds)](#module_DB API_ zcl database access..selectStructByNameAndClusterId) ⇒
+    * [~selectStructByNameAndClusterName(db, name, clusterName, packageIds)](#module_DB API_ zcl database access..selectStructByNameAndClusterName) ⇒
     * [~selectStructsWithClusterAssociation(db, packageIds, groupByStructName)](#module_DB API_ zcl database access..selectStructsWithClusterAssociation) ⇒
     * [~sqlQueryForDataTypeByNameAndClusterId(typeDiscriminator, clusterId, packageIds)](#module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterId) ⇒
+    * [~sqlQueryForDataTypeByNameAndClusterName(typeDiscriminator, name, clusterName, packageIds, options)](#module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterName) ⇒
     * [~selectClusterBitmaps(db, packageId, clusterId)](#module_DB API_ zcl database access..selectClusterBitmaps) ⇒
     * [~selectAllBitmapFieldsById(db, id)](#module_DB API_ zcl database access..selectAllBitmapFieldsById) ⇒
     * [~selectAllBitmapFields(db, packageId)](#module_DB API_ zcl database access..selectAllBitmapFields) ⇒
@@ -1897,6 +1951,22 @@ Select a bitmap matched by name and clusterId.
 | clusterId | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
 
+<a name="module_DB API_ zcl database access..selectBitmapByNameAndClusterName"></a>
+
+### DB API: zcl database access~selectBitmapByNameAndClusterName(db, name, clusterName, packageIds) ⇒
+Select a bitmap matched by name and cluster name
+Note: Use selectBitmapByNameAndClusterId but this was needed for backwards compatibility.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: bitmap information or undefined  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| name | <code>\*</code> | 
+| clusterName | <code>\*</code> | 
+| packageIds | <code>\*</code> | 
+
 <a name="module_DB API_ zcl database access..selectBitmapById"></a>
 
 ### DB API: zcl database access~selectBitmapById(db, id) ⇒
@@ -2026,6 +2096,22 @@ Select a struct matched by name and clusterId
 | clusterId | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
 
+<a name="module_DB API_ zcl database access..selectStructByNameAndClusterName"></a>
+
+### DB API: zcl database access~selectStructByNameAndClusterName(db, name, clusterName, packageIds) ⇒
+Select a struct matched by name and cluster name
+Note: Use selectStructByNameAndClusterId but this was needed for backwards compatibility.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: struct information or undefined  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| name | <code>\*</code> | 
+| clusterName | <code>\*</code> | 
+| packageIds | <code>\*</code> | 
+
 <a name="module_DB API_ zcl database access..selectStructsWithClusterAssociation"></a>
 
 ### DB API: zcl database access~selectStructsWithClusterAssociation(db, packageIds, groupByStructName) ⇒
@@ -2055,6 +2141,22 @@ Formulate a sqlite query string for a data type from the given cluster ID and pa
 | typeDiscriminator | <code>\*</code> |  | 
 | clusterId | <code>\*</code> | <code></code> | 
 | packageIds | <code>\*</code> |  | 
+
+<a name="module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterName"></a>
+
+### DB API: zcl database access~sqlQueryForDataTypeByNameAndClusterName(typeDiscriminator, name, clusterName, packageIds, options) ⇒
+Formulate a sqlite query string for a data type from the given cluster name and package IDs.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: SQLite query string  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| typeDiscriminator | <code>\*</code> |  |
+| name | <code>\*</code> | data type name |
+| clusterName | <code>\*</code> |  |
+| packageIds | <code>\*</code> |  |
+| options | <code>\*</code> |  |
 
 <a name="module_DB API_ zcl database access..selectClusterBitmaps"></a>
 
@@ -2461,7 +2563,7 @@ This module provides queries related to attributes.
 <a name="module_DB API_ zcl database access"></a>
 
 ## DB API: zcl database access
-This module provides queries for enums.
+This module provides queries for bitmaps.
 
 
 * [DB API: zcl database access](#module_DB API_ zcl database access)
@@ -2480,6 +2582,7 @@ This module provides queries for enums.
     * [~selectAllBitmaps(db)](#module_DB API_ zcl database access..selectAllBitmaps) ⇒
     * [~selectBitmapByName(db, packageIds, name)](#module_DB API_ zcl database access..selectBitmapByName) ⇒
     * [~selectBitmapByNameAndClusterId(db, name, clusterId, packageIds)](#module_DB API_ zcl database access..selectBitmapByNameAndClusterId) ⇒
+    * [~selectBitmapByNameAndClusterName(db, name, clusterName, packageIds)](#module_DB API_ zcl database access..selectBitmapByNameAndClusterName) ⇒
     * [~selectBitmapById(db, id)](#module_DB API_ zcl database access..selectBitmapById) ⇒
     * [~selectSessionClusterByCode(db, sessionId, code, mfgCode)](#module_DB API_ zcl database access..selectSessionClusterByCode) ⇒
     * [~selectAllSessionClusters(db, sessionId)](#module_DB API_ zcl database access..selectAllSessionClusters) ⇒
@@ -2489,8 +2592,10 @@ This module provides queries for enums.
     * [~selectStructById(db, id)](#module_DB API_ zcl database access..selectStructById) ⇒
     * [~selectStructByName(db, name, packageIds)](#module_DB API_ zcl database access..selectStructByName) ⇒
     * [~selectStructByNameAndClusterId(db, name, clusterId, packageIds)](#module_DB API_ zcl database access..selectStructByNameAndClusterId) ⇒
+    * [~selectStructByNameAndClusterName(db, name, clusterName, packageIds)](#module_DB API_ zcl database access..selectStructByNameAndClusterName) ⇒
     * [~selectStructsWithClusterAssociation(db, packageIds, groupByStructName)](#module_DB API_ zcl database access..selectStructsWithClusterAssociation) ⇒
     * [~sqlQueryForDataTypeByNameAndClusterId(typeDiscriminator, clusterId, packageIds)](#module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterId) ⇒
+    * [~sqlQueryForDataTypeByNameAndClusterName(typeDiscriminator, name, clusterName, packageIds, options)](#module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterName) ⇒
     * [~selectClusterBitmaps(db, packageId, clusterId)](#module_DB API_ zcl database access..selectClusterBitmaps) ⇒
     * [~selectAllBitmapFieldsById(db, id)](#module_DB API_ zcl database access..selectAllBitmapFieldsById) ⇒
     * [~selectAllBitmapFields(db, packageId)](#module_DB API_ zcl database access..selectAllBitmapFields) ⇒
@@ -2696,6 +2801,22 @@ Select a bitmap matched by name and clusterId.
 | clusterId | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
 
+<a name="module_DB API_ zcl database access..selectBitmapByNameAndClusterName"></a>
+
+### DB API: zcl database access~selectBitmapByNameAndClusterName(db, name, clusterName, packageIds) ⇒
+Select a bitmap matched by name and cluster name
+Note: Use selectBitmapByNameAndClusterId but this was needed for backwards compatibility.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: bitmap information or undefined  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| name | <code>\*</code> | 
+| clusterName | <code>\*</code> | 
+| packageIds | <code>\*</code> | 
+
 <a name="module_DB API_ zcl database access..selectBitmapById"></a>
 
 ### DB API: zcl database access~selectBitmapById(db, id) ⇒
@@ -2825,6 +2946,22 @@ Select a struct matched by name and clusterId
 | clusterId | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
 
+<a name="module_DB API_ zcl database access..selectStructByNameAndClusterName"></a>
+
+### DB API: zcl database access~selectStructByNameAndClusterName(db, name, clusterName, packageIds) ⇒
+Select a struct matched by name and cluster name
+Note: Use selectStructByNameAndClusterId but this was needed for backwards compatibility.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: struct information or undefined  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| name | <code>\*</code> | 
+| clusterName | <code>\*</code> | 
+| packageIds | <code>\*</code> | 
+
 <a name="module_DB API_ zcl database access..selectStructsWithClusterAssociation"></a>
 
 ### DB API: zcl database access~selectStructsWithClusterAssociation(db, packageIds, groupByStructName) ⇒
@@ -2854,6 +2991,22 @@ Formulate a sqlite query string for a data type from the given cluster ID and pa
 | typeDiscriminator | <code>\*</code> |  | 
 | clusterId | <code>\*</code> | <code></code> | 
 | packageIds | <code>\*</code> |  | 
+
+<a name="module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterName"></a>
+
+### DB API: zcl database access~sqlQueryForDataTypeByNameAndClusterName(typeDiscriminator, name, clusterName, packageIds, options) ⇒
+Formulate a sqlite query string for a data type from the given cluster name and package IDs.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: SQLite query string  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| typeDiscriminator | <code>\*</code> |  |
+| name | <code>\*</code> | data type name |
+| clusterName | <code>\*</code> |  |
+| packageIds | <code>\*</code> |  |
+| options | <code>\*</code> |  |
 
 <a name="module_DB API_ zcl database access..selectClusterBitmaps"></a>
 
@@ -3287,16 +3440,19 @@ This module provides queries for device types.
     * [~selectAllDeviceTypes(db, packageId)](#module_DB API_ device type database access..selectAllDeviceTypes) ⇒
     * [~selectDeviceTypeById(db, id)](#module_DB API_ device type database access..selectDeviceTypeById) ⇒
     * [~selectDeviceTypeByCodeAndName(db, packageId, code, name)](#module_DB API_ device type database access..selectDeviceTypeByCodeAndName) ⇒
-    * [~selectDeviceTypeByCode(db, packageId, code, name)](#module_DB API_ device type database access..selectDeviceTypeByCode) ⇒
+    * [~selectDeviceTypeByCode(db, packageId, code)](#module_DB API_ device type database access..selectDeviceTypeByCode) ⇒
     * [~selectDeviceTypeClustersByDeviceTypeRef(db, deviceTypeRef)](#module_DB API_ device type database access..selectDeviceTypeClustersByDeviceTypeRef) ⇒
     * [~selectDeviceTypeClusterByDeviceTypeClusterId(db, deviceTypeClusterId)](#module_DB API_ device type database access..selectDeviceTypeClusterByDeviceTypeClusterId) ⇒
     * [~selectDeviceTypeAttributesByDeviceTypeRef(db, deviceTypeRef)](#module_DB API_ device type database access..selectDeviceTypeAttributesByDeviceTypeRef) ⇒
     * [~selectDeviceTypeCommandsByDeviceTypeRef(db, deviceTypeRef)](#module_DB API_ device type database access..selectDeviceTypeCommandsByDeviceTypeRef) ⇒
-    * [~updateClusterReferencesForDeviceTypeClusters(db)](#module_DB API_ device type database access..updateClusterReferencesForDeviceTypeClusters) ⇒
-    * [~updateAttributeReferencesForDeviceTypeReferences(db)](#module_DB API_ device type database access..updateAttributeReferencesForDeviceTypeReferences) ⇒
-    * [~updateCommandReferencesForDeviceTypeReferences(db)](#module_DB API_ device type database access..updateCommandReferencesForDeviceTypeReferences) ⇒
-    * [~updateFeatureReferencesForDeviceTypeReferences(db)](#module_DB API_ device type database access..updateFeatureReferencesForDeviceTypeReferences) ⇒
+    * [~updateClusterReferencesForDeviceTypeClusters(db, packageId, sessionPackages)](#module_DB API_ device type database access..updateClusterReferencesForDeviceTypeClusters) ⇒
+    * [~updateAttributeReferencesForDeviceTypeReferences(db, packageId, sessionPackages)](#module_DB API_ device type database access..updateAttributeReferencesForDeviceTypeReferences) ⇒
+    * [~updateCommandReferencesForDeviceTypeReferences(db, packageId, sessionPackages)](#module_DB API_ device type database access..updateCommandReferencesForDeviceTypeReferences) ⇒
+    * [~updateFeatureReferencesForDeviceTypeReferences(db, packageId)](#module_DB API_ device type database access..updateFeatureReferencesForDeviceTypeReferences) ⇒
     * [~updateDeviceTypeEntityReferences(db)](#module_DB API_ device type database access..updateDeviceTypeEntityReferences) ⇒
+    * [~updateDeviceTypeReferencesForCustomXml(db, packageId, sessionPackages, sessionId)](#module_DB API_ device type database access..updateDeviceTypeReferencesForCustomXml) ⇒
+    * [~deleteUnlinkedDeviceTypeClusters(db, packageId)](#module_DB API_ device type database access..deleteUnlinkedDeviceTypeClusters)
+    * [~warnUnlinkedDeviceTypeClusters(db, packageId, sessionId)](#module_DB API_ device type database access..warnUnlinkedDeviceTypeClusters)
     * [~selectDeviceTypesWithCompositionByEndpointTypeId(db, endpointTypeId)](#module_DB API_ device type database access..selectDeviceTypesWithCompositionByEndpointTypeId) ⇒ <code>Promise.&lt;Array&gt;</code>
     * [~selectDeviceTypesByEndpointTypeId(db, endpointTypeId)](#module_DB API_ device type database access..selectDeviceTypesByEndpointTypeId) ⇒
     * [~selectDeviceTypeFeaturesByEndpointTypeIdAndClusterId(db, endpointTypeId, clusterId)](#module_DB API_ device type database access..selectDeviceTypeFeaturesByEndpointTypeIdAndClusterId) ⇒
@@ -3344,7 +3500,7 @@ Retrieves the device type by the package, code and name.
 
 <a name="module_DB API_ device type database access..selectDeviceTypeByCode"></a>
 
-### DB API: device type database access~selectDeviceTypeByCode(db, packageId, code, name) ⇒
+### DB API: device type database access~selectDeviceTypeByCode(db, packageId, code) ⇒
 Retrieves the device type by the package, code and name.
 
 **Kind**: inner method of [<code>DB API: device type database access</code>](#module_DB API_ device type database access)  
@@ -3355,7 +3511,6 @@ Retrieves the device type by the package, code and name.
 | db | <code>\*</code> | 
 | packageId | <code>\*</code> | 
 | code | <code>\*</code> | 
-| name | <code>\*</code> | 
 
 <a name="module_DB API_ device type database access..selectDeviceTypeClustersByDeviceTypeRef"></a>
 
@@ -3411,48 +3566,54 @@ Get all device type commands from a given device type ID.
 
 <a name="module_DB API_ device type database access..updateClusterReferencesForDeviceTypeClusters"></a>
 
-### DB API: device type database access~updateClusterReferencesForDeviceTypeClusters(db) ⇒
+### DB API: device type database access~updateClusterReferencesForDeviceTypeClusters(db, packageId, sessionPackages) ⇒
 After loading up device type cluster table with the names,
-this method links the refererence to actual cluster reference.
+this method links the reference to actual cluster reference.
 
 **Kind**: inner method of [<code>DB API: device type database access</code>](#module_DB API_ device type database access)  
 **Returns**: promise of completion  
 
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| db | <code>\*</code> |  |  |
+| packageId | <code>\*</code> |  |  |
+| sessionPackages | <code>\*</code> | <code></code> | (if processing custom xml file it might need to reference clusters from primary zcl or other custom xml) |
 
 <a name="module_DB API_ device type database access..updateAttributeReferencesForDeviceTypeReferences"></a>
 
-### DB API: device type database access~updateAttributeReferencesForDeviceTypeReferences(db) ⇒
+### DB API: device type database access~updateAttributeReferencesForDeviceTypeReferences(db, packageId, sessionPackages) ⇒
 After loading up device type attribute table with the names,
-this method links the refererence to actual attribute reference.
+this method links the references to actual attribute reference.
 
 **Kind**: inner method of [<code>DB API: device type database access</code>](#module_DB API_ device type database access)  
 **Returns**: promise of completion  
 
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| db | <code>\*</code> |  |  |
+| packageId | <code>\*</code> |  |  |
+| sessionPackages | <code>\*</code> | <code></code> | (if processing custom xml file it might need to reference attributes from primary zcl or other custom xml) |
 
 <a name="module_DB API_ device type database access..updateCommandReferencesForDeviceTypeReferences"></a>
 
-### DB API: device type database access~updateCommandReferencesForDeviceTypeReferences(db) ⇒
+### DB API: device type database access~updateCommandReferencesForDeviceTypeReferences(db, packageId, sessionPackages) ⇒
 After loading up device type command table with the names,
-this method links the refererence to actual command reference.
+this method links the reference to actual command reference.
 
 **Kind**: inner method of [<code>DB API: device type database access</code>](#module_DB API_ device type database access)  
 **Returns**: promise of completion  
 
-| Param | Type |
-| --- | --- |
-| db | <code>\*</code> | 
+| Param | Type | Default | Description |
+| --- | --- | --- | --- |
+| db | <code>\*</code> |  |  |
+| packageId | <code>\*</code> |  |  |
+| sessionPackages | <code>\*</code> | <code></code> | (if processing custom xml file it might need to reference commands from primary zcl or other custom xml) |
 
 <a name="module_DB API_ device type database access..updateFeatureReferencesForDeviceTypeReferences"></a>
 
-### DB API: device type database access~updateFeatureReferencesForDeviceTypeReferences(db) ⇒
+### DB API: device type database access~updateFeatureReferencesForDeviceTypeReferences(db, packageId) ⇒
 After loading up device type feature table with the names,
-this method links the refererence to actual feature reference.
+this method links the reference to actual feature reference.
 
 **Kind**: inner method of [<code>DB API: device type database access</code>](#module_DB API_ device type database access)  
 **Returns**: promise of completion  
@@ -3460,6 +3621,7 @@ this method links the refererence to actual feature reference.
 | Param | Type |
 | --- | --- |
 | db | <code>\*</code> | 
+| packageId | <code>\*</code> | 
 
 <a name="module_DB API_ device type database access..updateDeviceTypeEntityReferences"></a>
 
@@ -3477,6 +3639,50 @@ we have to link the foreign keys.
 | Param | Type |
 | --- | --- |
 | db | <code>\*</code> | 
+
+<a name="module_DB API_ device type database access..updateDeviceTypeReferencesForCustomXml"></a>
+
+### DB API: device type database access~updateDeviceTypeReferencesForCustomXml(db, packageId, sessionPackages, sessionId) ⇒
+Device types defined in custom xml files might refer to cluster, commands and attributes
+from the primary zcl file and other custom xml in the session.
+
+This method returns the promise of linking the device type entities to the correct
+foreign keys in such cases.
+
+**Kind**: inner method of [<code>DB API: device type database access</code>](#module_DB API_ device type database access)  
+**Returns**: promise of completed linking  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| sessionPackages | <code>\*</code> | 
+| sessionId | <code>\*</code> | 
+
+<a name="module_DB API_ device type database access..deleteUnlinkedDeviceTypeClusters"></a>
+
+### DB API: device type database access~deleteUnlinkedDeviceTypeClusters(db, packageId)
+This method deletes all device type clusters that are not linked to any cluster.
+
+**Kind**: inner method of [<code>DB API: device type database access</code>](#module_DB API_ device type database access)  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+
+<a name="module_DB API_ device type database access..warnUnlinkedDeviceTypeClusters"></a>
+
+### DB API: device type database access~warnUnlinkedDeviceTypeClusters(db, packageId, sessionId)
+This method adds warnings for all device type clusters that are not linked to any cluster.
+
+**Kind**: inner method of [<code>DB API: device type database access</code>](#module_DB API_ device type database access)  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| sessionId | <code>\*</code> | 
 
 <a name="module_DB API_ device type database access..selectDeviceTypesWithCompositionByEndpointTypeId"></a>
 
@@ -3546,6 +3752,7 @@ This module provides queries for enums.
     * [~selectEnumById(db, id)](#module_DB API_ zcl database enum access..selectEnumById) ⇒
     * [~selectEnumByName(db, name, packageIds)](#module_DB API_ zcl database enum access..selectEnumByName) ⇒
     * [~selectEnumByNameAndClusterId(db, name, clusterId, packageIds)](#module_DB API_ zcl database enum access..selectEnumByNameAndClusterId) ⇒
+    * [~selectEnumByNameAndClusterName(db, name, clusterName, packageIds)](#module_DB API_ zcl database enum access..selectEnumByNameAndClusterName) ⇒
 
 <a name="module_DB API_ zcl database enum access..selectAllEnums"></a>
 
@@ -3640,6 +3847,22 @@ Select an enum matched by name and clusterId.
 | db | <code>\*</code> | 
 | name | <code>\*</code> | 
 | clusterId | <code>\*</code> | 
+| packageIds | <code>\*</code> | 
+
+<a name="module_DB API_ zcl database enum access..selectEnumByNameAndClusterName"></a>
+
+### DB API: zcl database enum access~selectEnumByNameAndClusterName(db, name, clusterName, packageIds) ⇒
+Select a enum matched by name and cluster name
+Note: Use selectEnumByNameAndClusterId but this was needed for backwards compatibility.
+
+**Kind**: inner method of [<code>DB API: zcl database enum access</code>](#module_DB API_ zcl database enum access)  
+**Returns**: enum information or undefined  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| name | <code>\*</code> | 
+| clusterName | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
 
 <a name="module_DB API_ event queries."></a>
@@ -3754,6 +3977,8 @@ This module provides queries for ZCL loading
     * [~getEndpointCompositionIdByCode(db, deviceType)](#module_DB API_ zcl loading queries..getEndpointCompositionIdByCode) ⇒ <code>Promise.&lt;(number\|null)&gt;</code>
     * [~insertDeviceComposition(db, deviceType, endpointCompositionId)](#module_DB API_ zcl loading queries..insertDeviceComposition) ⇒ <code>Promise</code>
     * [~insertDeviceTypes(db, packageId, data)](#module_DB API_ zcl loading queries..insertDeviceTypes) ⇒
+    * [~reloadDeviceTypes(db, packageId, data, sessionPackages)](#module_DB API_ zcl loading queries..reloadDeviceTypes)
+    * [~isDeviceTypeClusterInsertRequired(db, deviceTypeId, clusterName, packageId, sessionPackages)](#module_DB API_ zcl loading queries..isDeviceTypeClusterInsertRequired) ⇒ <code>Promise.&lt;boolean&gt;</code>
     * [~insertDeviceTypeFeatures(db, dtClusterRefDataPairs)](#module_DB API_ zcl loading queries..insertDeviceTypeFeatures)
     * [~insertDeviceTypeAttributes(db, dtClusterRefDataPairs)](#module_DB API_ zcl loading queries..insertDeviceTypeAttributes)
     * [~insertDeviceTypeCommands(db, dtClusterRefDataPairs)](#module_DB API_ zcl loading queries..insertDeviceTypeCommands)
@@ -4157,6 +4382,38 @@ Inserts device types into the database.
 | db | <code>\*</code> |  |
 | packageId | <code>\*</code> |  |
 | data | <code>\*</code> | an array of objects that must contain: domain, code, profileId, name, description |
+
+<a name="module_DB API_ zcl loading queries..reloadDeviceTypes"></a>
+
+### DB API: zcl loading queries~reloadDeviceTypes(db, packageId, data, sessionPackages)
+Reloads device types into the database.
+This function is responsible for inserting new device type entities as required
+when a previously loaded custom xml file (containing a device type) is added to a session.
+
+**Kind**: inner method of [<code>DB API: zcl loading queries</code>](#module_DB API_ zcl loading queries)  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| data | <code>\*</code> | 
+| sessionPackages | <code>\*</code> | 
+
+<a name="module_DB API_ zcl loading queries..isDeviceTypeClusterInsertRequired"></a>
+
+### DB API: zcl loading queries~isDeviceTypeClusterInsertRequired(db, deviceTypeId, clusterName, packageId, sessionPackages) ⇒ <code>Promise.&lt;boolean&gt;</code>
+Checks if a device type cluster insert is required on device type reload.
+
+**Kind**: inner method of [<code>DB API: zcl loading queries</code>](#module_DB API_ zcl loading queries)  
+**Returns**: <code>Promise.&lt;boolean&gt;</code> - - Returns true if the insert is required, false otherwise.  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| deviceTypeId | <code>\*</code> | 
+| clusterName | <code>\*</code> | 
+| packageId | <code>\*</code> | 
+| sessionPackages | <code>\*</code> | 
 
 <a name="module_DB API_ zcl loading queries..insertDeviceTypeFeatures"></a>
 
@@ -4563,6 +4820,7 @@ inside a single session. Things like:
     * [~selectAllBitmaps(db)](#module_DB API_ zcl database access..selectAllBitmaps) ⇒
     * [~selectBitmapByName(db, packageIds, name)](#module_DB API_ zcl database access..selectBitmapByName) ⇒
     * [~selectBitmapByNameAndClusterId(db, name, clusterId, packageIds)](#module_DB API_ zcl database access..selectBitmapByNameAndClusterId) ⇒
+    * [~selectBitmapByNameAndClusterName(db, name, clusterName, packageIds)](#module_DB API_ zcl database access..selectBitmapByNameAndClusterName) ⇒
     * [~selectBitmapById(db, id)](#module_DB API_ zcl database access..selectBitmapById) ⇒
     * [~selectSessionClusterByCode(db, sessionId, code, mfgCode)](#module_DB API_ zcl database access..selectSessionClusterByCode) ⇒
     * [~selectAllSessionClusters(db, sessionId)](#module_DB API_ zcl database access..selectAllSessionClusters) ⇒
@@ -4572,8 +4830,10 @@ inside a single session. Things like:
     * [~selectStructById(db, id)](#module_DB API_ zcl database access..selectStructById) ⇒
     * [~selectStructByName(db, name, packageIds)](#module_DB API_ zcl database access..selectStructByName) ⇒
     * [~selectStructByNameAndClusterId(db, name, clusterId, packageIds)](#module_DB API_ zcl database access..selectStructByNameAndClusterId) ⇒
+    * [~selectStructByNameAndClusterName(db, name, clusterName, packageIds)](#module_DB API_ zcl database access..selectStructByNameAndClusterName) ⇒
     * [~selectStructsWithClusterAssociation(db, packageIds, groupByStructName)](#module_DB API_ zcl database access..selectStructsWithClusterAssociation) ⇒
     * [~sqlQueryForDataTypeByNameAndClusterId(typeDiscriminator, clusterId, packageIds)](#module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterId) ⇒
+    * [~sqlQueryForDataTypeByNameAndClusterName(typeDiscriminator, name, clusterName, packageIds, options)](#module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterName) ⇒
     * [~selectClusterBitmaps(db, packageId, clusterId)](#module_DB API_ zcl database access..selectClusterBitmaps) ⇒
     * [~selectAllBitmapFieldsById(db, id)](#module_DB API_ zcl database access..selectAllBitmapFieldsById) ⇒
     * [~selectAllBitmapFields(db, packageId)](#module_DB API_ zcl database access..selectAllBitmapFields) ⇒
@@ -4779,6 +5039,22 @@ Select a bitmap matched by name and clusterId.
 | clusterId | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
 
+<a name="module_DB API_ zcl database access..selectBitmapByNameAndClusterName"></a>
+
+### DB API: zcl database access~selectBitmapByNameAndClusterName(db, name, clusterName, packageIds) ⇒
+Select a bitmap matched by name and cluster name
+Note: Use selectBitmapByNameAndClusterId but this was needed for backwards compatibility.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: bitmap information or undefined  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| name | <code>\*</code> | 
+| clusterName | <code>\*</code> | 
+| packageIds | <code>\*</code> | 
+
 <a name="module_DB API_ zcl database access..selectBitmapById"></a>
 
 ### DB API: zcl database access~selectBitmapById(db, id) ⇒
@@ -4908,6 +5184,22 @@ Select a struct matched by name and clusterId
 | clusterId | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
 
+<a name="module_DB API_ zcl database access..selectStructByNameAndClusterName"></a>
+
+### DB API: zcl database access~selectStructByNameAndClusterName(db, name, clusterName, packageIds) ⇒
+Select a struct matched by name and cluster name
+Note: Use selectStructByNameAndClusterId but this was needed for backwards compatibility.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: struct information or undefined  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| name | <code>\*</code> | 
+| clusterName | <code>\*</code> | 
+| packageIds | <code>\*</code> | 
+
 <a name="module_DB API_ zcl database access..selectStructsWithClusterAssociation"></a>
 
 ### DB API: zcl database access~selectStructsWithClusterAssociation(db, packageIds, groupByStructName) ⇒
@@ -4937,6 +5229,22 @@ Formulate a sqlite query string for a data type from the given cluster ID and pa
 | typeDiscriminator | <code>\*</code> |  | 
 | clusterId | <code>\*</code> | <code></code> | 
 | packageIds | <code>\*</code> |  | 
+
+<a name="module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterName"></a>
+
+### DB API: zcl database access~sqlQueryForDataTypeByNameAndClusterName(typeDiscriminator, name, clusterName, packageIds, options) ⇒
+Formulate a sqlite query string for a data type from the given cluster name and package IDs.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: SQLite query string  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| typeDiscriminator | <code>\*</code> |  |
+| name | <code>\*</code> | data type name |
+| clusterName | <code>\*</code> |  |
+| packageIds | <code>\*</code> |  |
+| options | <code>\*</code> |  |
 
 <a name="module_DB API_ zcl database access..selectClusterBitmaps"></a>
 
@@ -5408,6 +5716,7 @@ This module provides queries for enums.
     * [~selectAllBitmaps(db)](#module_DB API_ zcl database access..selectAllBitmaps) ⇒
     * [~selectBitmapByName(db, packageIds, name)](#module_DB API_ zcl database access..selectBitmapByName) ⇒
     * [~selectBitmapByNameAndClusterId(db, name, clusterId, packageIds)](#module_DB API_ zcl database access..selectBitmapByNameAndClusterId) ⇒
+    * [~selectBitmapByNameAndClusterName(db, name, clusterName, packageIds)](#module_DB API_ zcl database access..selectBitmapByNameAndClusterName) ⇒
     * [~selectBitmapById(db, id)](#module_DB API_ zcl database access..selectBitmapById) ⇒
     * [~selectSessionClusterByCode(db, sessionId, code, mfgCode)](#module_DB API_ zcl database access..selectSessionClusterByCode) ⇒
     * [~selectAllSessionClusters(db, sessionId)](#module_DB API_ zcl database access..selectAllSessionClusters) ⇒
@@ -5417,8 +5726,10 @@ This module provides queries for enums.
     * [~selectStructById(db, id)](#module_DB API_ zcl database access..selectStructById) ⇒
     * [~selectStructByName(db, name, packageIds)](#module_DB API_ zcl database access..selectStructByName) ⇒
     * [~selectStructByNameAndClusterId(db, name, clusterId, packageIds)](#module_DB API_ zcl database access..selectStructByNameAndClusterId) ⇒
+    * [~selectStructByNameAndClusterName(db, name, clusterName, packageIds)](#module_DB API_ zcl database access..selectStructByNameAndClusterName) ⇒
     * [~selectStructsWithClusterAssociation(db, packageIds, groupByStructName)](#module_DB API_ zcl database access..selectStructsWithClusterAssociation) ⇒
     * [~sqlQueryForDataTypeByNameAndClusterId(typeDiscriminator, clusterId, packageIds)](#module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterId) ⇒
+    * [~sqlQueryForDataTypeByNameAndClusterName(typeDiscriminator, name, clusterName, packageIds, options)](#module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterName) ⇒
     * [~selectClusterBitmaps(db, packageId, clusterId)](#module_DB API_ zcl database access..selectClusterBitmaps) ⇒
     * [~selectAllBitmapFieldsById(db, id)](#module_DB API_ zcl database access..selectAllBitmapFieldsById) ⇒
     * [~selectAllBitmapFields(db, packageId)](#module_DB API_ zcl database access..selectAllBitmapFields) ⇒
@@ -5624,6 +5935,22 @@ Select a bitmap matched by name and clusterId.
 | clusterId | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
 
+<a name="module_DB API_ zcl database access..selectBitmapByNameAndClusterName"></a>
+
+### DB API: zcl database access~selectBitmapByNameAndClusterName(db, name, clusterName, packageIds) ⇒
+Select a bitmap matched by name and cluster name
+Note: Use selectBitmapByNameAndClusterId but this was needed for backwards compatibility.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: bitmap information or undefined  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| name | <code>\*</code> | 
+| clusterName | <code>\*</code> | 
+| packageIds | <code>\*</code> | 
+
 <a name="module_DB API_ zcl database access..selectBitmapById"></a>
 
 ### DB API: zcl database access~selectBitmapById(db, id) ⇒
@@ -5753,6 +6080,22 @@ Select a struct matched by name and clusterId
 | clusterId | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
 
+<a name="module_DB API_ zcl database access..selectStructByNameAndClusterName"></a>
+
+### DB API: zcl database access~selectStructByNameAndClusterName(db, name, clusterName, packageIds) ⇒
+Select a struct matched by name and cluster name
+Note: Use selectStructByNameAndClusterId but this was needed for backwards compatibility.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: struct information or undefined  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| name | <code>\*</code> | 
+| clusterName | <code>\*</code> | 
+| packageIds | <code>\*</code> | 
+
 <a name="module_DB API_ zcl database access..selectStructsWithClusterAssociation"></a>
 
 ### DB API: zcl database access~selectStructsWithClusterAssociation(db, packageIds, groupByStructName) ⇒
@@ -5782,6 +6125,22 @@ Formulate a sqlite query string for a data type from the given cluster ID and pa
 | typeDiscriminator | <code>\*</code> |  | 
 | clusterId | <code>\*</code> | <code></code> | 
 | packageIds | <code>\*</code> |  | 
+
+<a name="module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterName"></a>
+
+### DB API: zcl database access~sqlQueryForDataTypeByNameAndClusterName(typeDiscriminator, name, clusterName, packageIds, options) ⇒
+Formulate a sqlite query string for a data type from the given cluster name and package IDs.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: SQLite query string  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| typeDiscriminator | <code>\*</code> |  |
+| name | <code>\*</code> | data type name |
+| clusterName | <code>\*</code> |  |
+| packageIds | <code>\*</code> |  |
+| options | <code>\*</code> |  |
 
 <a name="module_DB API_ zcl database access..selectClusterBitmaps"></a>
 
@@ -6203,6 +6562,7 @@ across different query files.
     * [~selectAllBitmaps(db)](#module_DB API_ zcl database access..selectAllBitmaps) ⇒
     * [~selectBitmapByName(db, packageIds, name)](#module_DB API_ zcl database access..selectBitmapByName) ⇒
     * [~selectBitmapByNameAndClusterId(db, name, clusterId, packageIds)](#module_DB API_ zcl database access..selectBitmapByNameAndClusterId) ⇒
+    * [~selectBitmapByNameAndClusterName(db, name, clusterName, packageIds)](#module_DB API_ zcl database access..selectBitmapByNameAndClusterName) ⇒
     * [~selectBitmapById(db, id)](#module_DB API_ zcl database access..selectBitmapById) ⇒
     * [~selectSessionClusterByCode(db, sessionId, code, mfgCode)](#module_DB API_ zcl database access..selectSessionClusterByCode) ⇒
     * [~selectAllSessionClusters(db, sessionId)](#module_DB API_ zcl database access..selectAllSessionClusters) ⇒
@@ -6212,8 +6572,10 @@ across different query files.
     * [~selectStructById(db, id)](#module_DB API_ zcl database access..selectStructById) ⇒
     * [~selectStructByName(db, name, packageIds)](#module_DB API_ zcl database access..selectStructByName) ⇒
     * [~selectStructByNameAndClusterId(db, name, clusterId, packageIds)](#module_DB API_ zcl database access..selectStructByNameAndClusterId) ⇒
+    * [~selectStructByNameAndClusterName(db, name, clusterName, packageIds)](#module_DB API_ zcl database access..selectStructByNameAndClusterName) ⇒
     * [~selectStructsWithClusterAssociation(db, packageIds, groupByStructName)](#module_DB API_ zcl database access..selectStructsWithClusterAssociation) ⇒
     * [~sqlQueryForDataTypeByNameAndClusterId(typeDiscriminator, clusterId, packageIds)](#module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterId) ⇒
+    * [~sqlQueryForDataTypeByNameAndClusterName(typeDiscriminator, name, clusterName, packageIds, options)](#module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterName) ⇒
     * [~selectClusterBitmaps(db, packageId, clusterId)](#module_DB API_ zcl database access..selectClusterBitmaps) ⇒
     * [~selectAllBitmapFieldsById(db, id)](#module_DB API_ zcl database access..selectAllBitmapFieldsById) ⇒
     * [~selectAllBitmapFields(db, packageId)](#module_DB API_ zcl database access..selectAllBitmapFields) ⇒
@@ -6419,6 +6781,22 @@ Select a bitmap matched by name and clusterId.
 | clusterId | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
 
+<a name="module_DB API_ zcl database access..selectBitmapByNameAndClusterName"></a>
+
+### DB API: zcl database access~selectBitmapByNameAndClusterName(db, name, clusterName, packageIds) ⇒
+Select a bitmap matched by name and cluster name
+Note: Use selectBitmapByNameAndClusterId but this was needed for backwards compatibility.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: bitmap information or undefined  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| name | <code>\*</code> | 
+| clusterName | <code>\*</code> | 
+| packageIds | <code>\*</code> | 
+
 <a name="module_DB API_ zcl database access..selectBitmapById"></a>
 
 ### DB API: zcl database access~selectBitmapById(db, id) ⇒
@@ -6548,6 +6926,22 @@ Select a struct matched by name and clusterId
 | clusterId | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
 
+<a name="module_DB API_ zcl database access..selectStructByNameAndClusterName"></a>
+
+### DB API: zcl database access~selectStructByNameAndClusterName(db, name, clusterName, packageIds) ⇒
+Select a struct matched by name and cluster name
+Note: Use selectStructByNameAndClusterId but this was needed for backwards compatibility.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: struct information or undefined  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| name | <code>\*</code> | 
+| clusterName | <code>\*</code> | 
+| packageIds | <code>\*</code> | 
+
 <a name="module_DB API_ zcl database access..selectStructsWithClusterAssociation"></a>
 
 ### DB API: zcl database access~selectStructsWithClusterAssociation(db, packageIds, groupByStructName) ⇒
@@ -6577,6 +6971,22 @@ Formulate a sqlite query string for a data type from the given cluster ID and pa
 | typeDiscriminator | <code>\*</code> |  | 
 | clusterId | <code>\*</code> | <code></code> | 
 | packageIds | <code>\*</code> |  | 
+
+<a name="module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterName"></a>
+
+### DB API: zcl database access~sqlQueryForDataTypeByNameAndClusterName(typeDiscriminator, name, clusterName, packageIds, options) ⇒
+Formulate a sqlite query string for a data type from the given cluster name and package IDs.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: SQLite query string  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| typeDiscriminator | <code>\*</code> |  |
+| name | <code>\*</code> | data type name |
+| clusterName | <code>\*</code> |  |
+| packageIds | <code>\*</code> |  |
+| options | <code>\*</code> |  |
 
 <a name="module_DB API_ zcl database access..selectClusterBitmaps"></a>
 
@@ -6997,6 +7407,7 @@ This module provides queries for ZCL static queries.
     * [~selectAllBitmaps(db)](#module_DB API_ zcl database access..selectAllBitmaps) ⇒
     * [~selectBitmapByName(db, packageIds, name)](#module_DB API_ zcl database access..selectBitmapByName) ⇒
     * [~selectBitmapByNameAndClusterId(db, name, clusterId, packageIds)](#module_DB API_ zcl database access..selectBitmapByNameAndClusterId) ⇒
+    * [~selectBitmapByNameAndClusterName(db, name, clusterName, packageIds)](#module_DB API_ zcl database access..selectBitmapByNameAndClusterName) ⇒
     * [~selectBitmapById(db, id)](#module_DB API_ zcl database access..selectBitmapById) ⇒
     * [~selectSessionClusterByCode(db, sessionId, code, mfgCode)](#module_DB API_ zcl database access..selectSessionClusterByCode) ⇒
     * [~selectAllSessionClusters(db, sessionId)](#module_DB API_ zcl database access..selectAllSessionClusters) ⇒
@@ -7006,8 +7417,10 @@ This module provides queries for ZCL static queries.
     * [~selectStructById(db, id)](#module_DB API_ zcl database access..selectStructById) ⇒
     * [~selectStructByName(db, name, packageIds)](#module_DB API_ zcl database access..selectStructByName) ⇒
     * [~selectStructByNameAndClusterId(db, name, clusterId, packageIds)](#module_DB API_ zcl database access..selectStructByNameAndClusterId) ⇒
+    * [~selectStructByNameAndClusterName(db, name, clusterName, packageIds)](#module_DB API_ zcl database access..selectStructByNameAndClusterName) ⇒
     * [~selectStructsWithClusterAssociation(db, packageIds, groupByStructName)](#module_DB API_ zcl database access..selectStructsWithClusterAssociation) ⇒
     * [~sqlQueryForDataTypeByNameAndClusterId(typeDiscriminator, clusterId, packageIds)](#module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterId) ⇒
+    * [~sqlQueryForDataTypeByNameAndClusterName(typeDiscriminator, name, clusterName, packageIds, options)](#module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterName) ⇒
     * [~selectClusterBitmaps(db, packageId, clusterId)](#module_DB API_ zcl database access..selectClusterBitmaps) ⇒
     * [~selectAllBitmapFieldsById(db, id)](#module_DB API_ zcl database access..selectAllBitmapFieldsById) ⇒
     * [~selectAllBitmapFields(db, packageId)](#module_DB API_ zcl database access..selectAllBitmapFields) ⇒
@@ -7213,6 +7626,22 @@ Select a bitmap matched by name and clusterId.
 | clusterId | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
 
+<a name="module_DB API_ zcl database access..selectBitmapByNameAndClusterName"></a>
+
+### DB API: zcl database access~selectBitmapByNameAndClusterName(db, name, clusterName, packageIds) ⇒
+Select a bitmap matched by name and cluster name
+Note: Use selectBitmapByNameAndClusterId but this was needed for backwards compatibility.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: bitmap information or undefined  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| name | <code>\*</code> | 
+| clusterName | <code>\*</code> | 
+| packageIds | <code>\*</code> | 
+
 <a name="module_DB API_ zcl database access..selectBitmapById"></a>
 
 ### DB API: zcl database access~selectBitmapById(db, id) ⇒
@@ -7342,6 +7771,22 @@ Select a struct matched by name and clusterId
 | clusterId | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
 
+<a name="module_DB API_ zcl database access..selectStructByNameAndClusterName"></a>
+
+### DB API: zcl database access~selectStructByNameAndClusterName(db, name, clusterName, packageIds) ⇒
+Select a struct matched by name and cluster name
+Note: Use selectStructByNameAndClusterId but this was needed for backwards compatibility.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: struct information or undefined  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| name | <code>\*</code> | 
+| clusterName | <code>\*</code> | 
+| packageIds | <code>\*</code> | 
+
 <a name="module_DB API_ zcl database access..selectStructsWithClusterAssociation"></a>
 
 ### DB API: zcl database access~selectStructsWithClusterAssociation(db, packageIds, groupByStructName) ⇒
@@ -7371,6 +7816,22 @@ Formulate a sqlite query string for a data type from the given cluster ID and pa
 | typeDiscriminator | <code>\*</code> |  | 
 | clusterId | <code>\*</code> | <code></code> | 
 | packageIds | <code>\*</code> |  | 
+
+<a name="module_DB API_ zcl database access..sqlQueryForDataTypeByNameAndClusterName"></a>
+
+### DB API: zcl database access~sqlQueryForDataTypeByNameAndClusterName(typeDiscriminator, name, clusterName, packageIds, options) ⇒
+Formulate a sqlite query string for a data type from the given cluster name and package IDs.
+
+**Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
+**Returns**: SQLite query string  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| typeDiscriminator | <code>\*</code> |  |
+| name | <code>\*</code> | data type name |
+| clusterName | <code>\*</code> |  |
+| packageIds | <code>\*</code> |  |
+| options | <code>\*</code> |  |
 
 <a name="module_DB API_ zcl database access..selectClusterBitmaps"></a>
 
@@ -7774,6 +8235,7 @@ Get endpoint type events from the given endpoint type ID.
 ## JS API: generator logic
 
 * [JS API: generator logic](#module_JS API_ generator logic)
+    * [~findAndReadJsonFiles(obj, basePath)](#module_JS API_ generator logic..findAndReadJsonFiles) ⇒ <code>Promise.&lt;string&gt;</code>
     * [~loadGenTemplateFromFile(templatePath)](#module_JS API_ generator logic..loadGenTemplateFromFile) ⇒
     * [~recordPackageIfNonexistent(db, packagePath, parentId, packageType, version, category, description)](#module_JS API_ generator logic..recordPackageIfNonexistent) ⇒
     * [~loadTemplateOptionsFromJsonFile(db, packageId, category, externalPath)](#module_JS API_ generator logic..loadTemplateOptionsFromJsonFile) ⇒
@@ -7820,6 +8282,19 @@ Get endpoint type events from the given endpoint type ID.
     * [~ensureZclEventSdkExtensions(context, templatePackageId)](#module_JS API_ generator logic..ensureZclEventSdkExtensions) ⇒
     * [~templatePromise(global, promise)](#module_JS API_ generator logic..templatePromise)
     * [~deprecatedHelper(fn, explanation)](#module_JS API_ generator logic..deprecatedHelper) ⇒
+
+<a name="module_JS API_ generator logic..findAndReadJsonFiles"></a>
+
+### JS API: generator logic~findAndReadJsonFiles(obj, basePath) ⇒ <code>Promise.&lt;string&gt;</code>
+Finds and reads JSON files referenced in a nested object.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module_JS API_ generator logic)  
+**Returns**: <code>Promise.&lt;string&gt;</code> - - A promise that resolves to the concatenated content of all JSON files.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| obj | <code>Object</code> | The object to search for JSON file references. |
+| basePath | <code>string</code> | The base directory to resolve relative paths. |
 
 <a name="module_JS API_ generator logic..loadGenTemplateFromFile"></a>
 
@@ -13112,6 +13587,7 @@ This module contains the API for templating. For more detailed instructions, rea
 ## JS API: generator logic
 
 * [JS API: generator logic](#module_JS API_ generator logic)
+    * [~findAndReadJsonFiles(obj, basePath)](#module_JS API_ generator logic..findAndReadJsonFiles) ⇒ <code>Promise.&lt;string&gt;</code>
     * [~loadGenTemplateFromFile(templatePath)](#module_JS API_ generator logic..loadGenTemplateFromFile) ⇒
     * [~recordPackageIfNonexistent(db, packagePath, parentId, packageType, version, category, description)](#module_JS API_ generator logic..recordPackageIfNonexistent) ⇒
     * [~loadTemplateOptionsFromJsonFile(db, packageId, category, externalPath)](#module_JS API_ generator logic..loadTemplateOptionsFromJsonFile) ⇒
@@ -13158,6 +13634,19 @@ This module contains the API for templating. For more detailed instructions, rea
     * [~ensureZclEventSdkExtensions(context, templatePackageId)](#module_JS API_ generator logic..ensureZclEventSdkExtensions) ⇒
     * [~templatePromise(global, promise)](#module_JS API_ generator logic..templatePromise)
     * [~deprecatedHelper(fn, explanation)](#module_JS API_ generator logic..deprecatedHelper) ⇒
+
+<a name="module_JS API_ generator logic..findAndReadJsonFiles"></a>
+
+### JS API: generator logic~findAndReadJsonFiles(obj, basePath) ⇒ <code>Promise.&lt;string&gt;</code>
+Finds and reads JSON files referenced in a nested object.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module_JS API_ generator logic)  
+**Returns**: <code>Promise.&lt;string&gt;</code> - - A promise that resolves to the concatenated content of all JSON files.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| obj | <code>Object</code> | The object to search for JSON file references. |
+| basePath | <code>string</code> | The base directory to resolve relative paths. |
 
 <a name="module_JS API_ generator logic..loadGenTemplateFromFile"></a>
 
@@ -13774,6 +14263,7 @@ Function wrapper that can be used when a helper is deprecated.
 ## JS API: generator logic
 
 * [JS API: generator logic](#module_JS API_ generator logic)
+    * [~findAndReadJsonFiles(obj, basePath)](#module_JS API_ generator logic..findAndReadJsonFiles) ⇒ <code>Promise.&lt;string&gt;</code>
     * [~loadGenTemplateFromFile(templatePath)](#module_JS API_ generator logic..loadGenTemplateFromFile) ⇒
     * [~recordPackageIfNonexistent(db, packagePath, parentId, packageType, version, category, description)](#module_JS API_ generator logic..recordPackageIfNonexistent) ⇒
     * [~loadTemplateOptionsFromJsonFile(db, packageId, category, externalPath)](#module_JS API_ generator logic..loadTemplateOptionsFromJsonFile) ⇒
@@ -13820,6 +14310,19 @@ Function wrapper that can be used when a helper is deprecated.
     * [~ensureZclEventSdkExtensions(context, templatePackageId)](#module_JS API_ generator logic..ensureZclEventSdkExtensions) ⇒
     * [~templatePromise(global, promise)](#module_JS API_ generator logic..templatePromise)
     * [~deprecatedHelper(fn, explanation)](#module_JS API_ generator logic..deprecatedHelper) ⇒
+
+<a name="module_JS API_ generator logic..findAndReadJsonFiles"></a>
+
+### JS API: generator logic~findAndReadJsonFiles(obj, basePath) ⇒ <code>Promise.&lt;string&gt;</code>
+Finds and reads JSON files referenced in a nested object.
+
+**Kind**: inner method of [<code>JS API: generator logic</code>](#module_JS API_ generator logic)  
+**Returns**: <code>Promise.&lt;string&gt;</code> - - A promise that resolves to the concatenated content of all JSON files.  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| obj | <code>Object</code> | The object to search for JSON file references. |
+| basePath | <code>string</code> | The base directory to resolve relative paths. |
 
 <a name="module_JS API_ generator logic..loadGenTemplateFromFile"></a>
 
@@ -18166,7 +18669,7 @@ Converts a string into `camelCase` or `CamelCase` by splitting
 the string into tokens.
 
 Differs from `toCamelCase` by different handling of "." inside names,
-so that results are always usable as a code-compatibe name (e.g.
+so that results are always usable as a code-compatible name (e.g.
 "Foo 2.5" becomes "Foo25" rather than "Foo2.5").
 
 **Kind**: inner method of [<code>JS API: string utilities</code>](#module_JS API_ string utilities)  
@@ -18814,6 +19317,7 @@ This module provides the API to access various zcl utilities.
     * [~commandComparator(a, b)](#module_REST API_ various zcl utilities..commandComparator) ⇒
     * [~eventComparator(a, b)](#module_REST API_ various zcl utilities..eventComparator) ⇒
     * [~findStructByName(structs, name)](#module_REST API_ various zcl utilities..findStructByName) ⇒
+    * [~sortStructsByDependencyHelper()](#module_REST API_ various zcl utilities..sortStructsByDependencyHelper)
     * [~sortStructsByDependency(structs)](#module_REST API_ various zcl utilities..sortStructsByDependency) ⇒
     * [~calculateBytes(res, options, db, packageIds, isStructType)](#module_REST API_ various zcl utilities..calculateBytes)
     * [~optionsHashOrDefault(options, optionsKey, defaultValue)](#module_REST API_ various zcl utilities..optionsHashOrDefault)
@@ -18897,6 +19401,12 @@ Find struct by name from the given list of structs.
 | structs | <code>\*</code> | 
 | name | <code>\*</code> | 
 
+<a name="module_REST API_ various zcl utilities..sortStructsByDependencyHelper"></a>
+
+### REST API: various zcl utilities~sortStructsByDependencyHelper()
+Non-exported helper for sortStructsByDependency.
+
+**Kind**: inner method of [<code>REST API: various zcl utilities</code>](#module_REST API_ various zcl utilities)  
 <a name="module_REST API_ various zcl utilities..sortStructsByDependency"></a>
 
 ### REST API: various zcl utilities~sortStructsByDependency(structs) ⇒
@@ -20289,6 +20799,7 @@ This module provides the APIs for dotdot Loading
     * [~processStructItems(db, filePath, packageIds, data)](#module_Loader API_ Loader APIs..processStructItems) ⇒
     * [~prepareDeviceType(deviceType)](#module_Loader API_ Loader APIs..prepareDeviceType) ⇒ <code>Object</code>
     * [~processDeviceTypes(db, filePath, packageId, data, context)](#module_Loader API_ Loader APIs..processDeviceTypes) ⇒ <code>Promise</code>
+    * [~processReloadDeviceTypes()](#module_Loader API_ Loader APIs..processReloadDeviceTypes) ⇒ <code>Promise</code>
     * [~processDataTypes(db, filePath, packageId, knownPackages, toplevel)](#module_Loader API_ Loader APIs..processDataTypes) ⇒
     * [~processAtomicTypes(db, filePath, packageId, knownPackages, toplevel)](#module_Loader API_ Loader APIs..processAtomicTypes) ⇒
     * [~processNonAtomicTypes(db, filePath, packageId, knownPackages, toplevel, featureClusters)](#module_Loader API_ Loader APIs..processNonAtomicTypes) ⇒
@@ -21669,6 +22180,14 @@ Finally, it inserts all prepared device types into the database.
 | data | <code>Array</code> | The array of device types to be processed. |
 | context | <code>\*</code> | Additional context that might be required for processing. |
 
+<a name="module_Loader API_ Loader APIs..processReloadDeviceTypes"></a>
+
+### Loader API: Loader APIs~processReloadDeviceTypes() ⇒ <code>Promise</code>
+Processes and reloads device type entities in the database.
+This function is called when a custom xml with device types is reloaded.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: <code>Promise</code> - A promise that resolves after all device types have been reloaded.  
 <a name="module_Loader API_ Loader APIs..processDataTypes"></a>
 
 ### Loader API: Loader APIs~processDataTypes(db, filePath, packageId, knownPackages, toplevel) ⇒
@@ -22141,6 +22660,7 @@ This module provides the APIs for for common functionality related to loading.
     * [~processStructItems(db, filePath, packageIds, data)](#module_Loader API_ Loader APIs..processStructItems) ⇒
     * [~prepareDeviceType(deviceType)](#module_Loader API_ Loader APIs..prepareDeviceType) ⇒ <code>Object</code>
     * [~processDeviceTypes(db, filePath, packageId, data, context)](#module_Loader API_ Loader APIs..processDeviceTypes) ⇒ <code>Promise</code>
+    * [~processReloadDeviceTypes()](#module_Loader API_ Loader APIs..processReloadDeviceTypes) ⇒ <code>Promise</code>
     * [~processDataTypes(db, filePath, packageId, knownPackages, toplevel)](#module_Loader API_ Loader APIs..processDataTypes) ⇒
     * [~processAtomicTypes(db, filePath, packageId, knownPackages, toplevel)](#module_Loader API_ Loader APIs..processAtomicTypes) ⇒
     * [~processNonAtomicTypes(db, filePath, packageId, knownPackages, toplevel, featureClusters)](#module_Loader API_ Loader APIs..processNonAtomicTypes) ⇒
@@ -23521,6 +24041,14 @@ Finally, it inserts all prepared device types into the database.
 | data | <code>Array</code> | The array of device types to be processed. |
 | context | <code>\*</code> | Additional context that might be required for processing. |
 
+<a name="module_Loader API_ Loader APIs..processReloadDeviceTypes"></a>
+
+### Loader API: Loader APIs~processReloadDeviceTypes() ⇒ <code>Promise</code>
+Processes and reloads device type entities in the database.
+This function is called when a custom xml with device types is reloaded.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: <code>Promise</code> - A promise that resolves after all device types have been reloaded.  
 <a name="module_Loader API_ Loader APIs..processDataTypes"></a>
 
 ### Loader API: Loader APIs~processDataTypes(db, filePath, packageId, knownPackages, toplevel) ⇒
@@ -23993,6 +24521,7 @@ This module provides the APIs for new data model loading
     * [~processStructItems(db, filePath, packageIds, data)](#module_Loader API_ Loader APIs..processStructItems) ⇒
     * [~prepareDeviceType(deviceType)](#module_Loader API_ Loader APIs..prepareDeviceType) ⇒ <code>Object</code>
     * [~processDeviceTypes(db, filePath, packageId, data, context)](#module_Loader API_ Loader APIs..processDeviceTypes) ⇒ <code>Promise</code>
+    * [~processReloadDeviceTypes()](#module_Loader API_ Loader APIs..processReloadDeviceTypes) ⇒ <code>Promise</code>
     * [~processDataTypes(db, filePath, packageId, knownPackages, toplevel)](#module_Loader API_ Loader APIs..processDataTypes) ⇒
     * [~processAtomicTypes(db, filePath, packageId, knownPackages, toplevel)](#module_Loader API_ Loader APIs..processAtomicTypes) ⇒
     * [~processNonAtomicTypes(db, filePath, packageId, knownPackages, toplevel, featureClusters)](#module_Loader API_ Loader APIs..processNonAtomicTypes) ⇒
@@ -25373,6 +25902,14 @@ Finally, it inserts all prepared device types into the database.
 | data | <code>Array</code> | The array of device types to be processed. |
 | context | <code>\*</code> | Additional context that might be required for processing. |
 
+<a name="module_Loader API_ Loader APIs..processReloadDeviceTypes"></a>
+
+### Loader API: Loader APIs~processReloadDeviceTypes() ⇒ <code>Promise</code>
+Processes and reloads device type entities in the database.
+This function is called when a custom xml with device types is reloaded.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: <code>Promise</code> - A promise that resolves after all device types have been reloaded.  
 <a name="module_Loader API_ Loader APIs..processDataTypes"></a>
 
 ### Loader API: Loader APIs~processDataTypes(db, filePath, packageId, knownPackages, toplevel) ⇒
@@ -25845,6 +26382,7 @@ This module provides the APIs for ZCL/Data-Model loading.
     * [~processStructItems(db, filePath, packageIds, data)](#module_Loader API_ Loader APIs..processStructItems) ⇒
     * [~prepareDeviceType(deviceType)](#module_Loader API_ Loader APIs..prepareDeviceType) ⇒ <code>Object</code>
     * [~processDeviceTypes(db, filePath, packageId, data, context)](#module_Loader API_ Loader APIs..processDeviceTypes) ⇒ <code>Promise</code>
+    * [~processReloadDeviceTypes()](#module_Loader API_ Loader APIs..processReloadDeviceTypes) ⇒ <code>Promise</code>
     * [~processDataTypes(db, filePath, packageId, knownPackages, toplevel)](#module_Loader API_ Loader APIs..processDataTypes) ⇒
     * [~processAtomicTypes(db, filePath, packageId, knownPackages, toplevel)](#module_Loader API_ Loader APIs..processAtomicTypes) ⇒
     * [~processNonAtomicTypes(db, filePath, packageId, knownPackages, toplevel, featureClusters)](#module_Loader API_ Loader APIs..processNonAtomicTypes) ⇒
@@ -27225,6 +27763,14 @@ Finally, it inserts all prepared device types into the database.
 | data | <code>Array</code> | The array of device types to be processed. |
 | context | <code>\*</code> | Additional context that might be required for processing. |
 
+<a name="module_Loader API_ Loader APIs..processReloadDeviceTypes"></a>
+
+### Loader API: Loader APIs~processReloadDeviceTypes() ⇒ <code>Promise</code>
+Processes and reloads device type entities in the database.
+This function is called when a custom xml with device types is reloaded.
+
+**Kind**: inner method of [<code>Loader API: Loader APIs</code>](#module_Loader API_ Loader APIs)  
+**Returns**: <code>Promise</code> - A promise that resolves after all device types have been reloaded.  
 <a name="module_Loader API_ Loader APIs..processDataTypes"></a>
 
 ### Loader API: Loader APIs~processDataTypes(db, filePath, packageId, knownPackages, toplevel) ⇒

@@ -30,6 +30,16 @@ limitations under the License.
     <item name="Revision" type="INT16U"/>
   </struct>
 
+  <enum name="enumTest" type="ENUM8">
+    <item name="enumTest1" value="0x0"/>
+    <item name="enumTest2" value="0x1"/>
+  </enum>
+
+  <bitmap name="bitmapTest" type="BITMAP8">
+    <field name="bitmapFieldTest1" mask="0x1"/>
+    <field name="bitmapFieldTest2" mask="0x2"/>
+  </bitmap>
+
   <cluster>
     <domain>General</domain>
     <name>Descriptor</name>
