@@ -138,6 +138,11 @@ export default defineComponent({
     ZclTour
   },
   mixins: [CommonMixin, uiOptions],
+  data() {
+    return {
+      query: {} // Initialize query as an empty object
+    }
+  },
   computed: {
     endpointType: {
       get() {
