@@ -238,7 +238,6 @@ import * as dbEnum from '../../src-shared/db-enum.js'
 const rendApi = require(`../../src-shared/rend-api.js`)
 const restApi = require(`../../src-shared/rest-api.js`)
 const observable = require('../util/observable.js')
-const querystring = require('querystring')
 import CommonMixin from '../util/common-mixin'
 export default {
   name: 'ZCLToolbar',
