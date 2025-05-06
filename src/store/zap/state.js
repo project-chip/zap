@@ -52,6 +52,7 @@ export default function () {
     featureMapValue: 0,
     zclDeviceTypes: {},
     endpoints: [],
+    query: {},
     genericOptions: {},
     selectedGenericOptions: {},
     projectPackages: [],

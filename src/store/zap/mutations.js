@@ -49,6 +49,10 @@ export const updateShowDevTools = (state) => {
   state.showDevTools = !state.showDevTools
 }
 
+export const setQuery = (state, query) => {
+  state.query = query
+}
+
 /**
  * Set the information text in the state
  * @param {*} state
