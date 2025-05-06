@@ -245,12 +245,6 @@ export default {
   mixins: [CommonMixin],
   computed: {
     showSaveButton() {
-      let search = window.location.search
-
-      if (search[0] === '?') {
-        search = search.substring(1)
-      }
-      query = querystring.parse(search)
       if (this.query['stsApplication']) {
         return true
       } else {
@@ -374,6 +368,14 @@ export default {
     regenerateIntoDirectory(currentPath) {
       this.doGeneration(currentPath)
     },
+    parseQueryString() {
+      let search = window.location.search
+
+      if (search[0] === '?') {
+        search = search.substring(1)
+      }
+      this.query = querystring.parse(search)
+    },
     getNotifications() {
       this.$serverGet(restApi.uri.unseenNotificationCount)
         .then((resp) => {
@@ -385,6 +387,7 @@ export default {
     }
   },
   mounted() {
+    this.parseQueryString()
     if (this.$onWebSocket) {
       this.$onWebSocket(
         dbEnum.wsCategory.notificationCount,

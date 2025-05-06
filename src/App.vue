@@ -263,37 +263,28 @@ export default defineComponent({
           )
         })
       }
-
-      // Parse the query string into the front end.
-      let search = window.location.search
-
-      if (search[0] === '?') {
-        search = search.substring(1)
+      if (this.query[`uiMode`]) {
+        this.$store.dispatch('zap/setDefaultUiMode', this.query[`uiMode`])
       }
 
-      let query = querystring.parse(search)
-      if (query[`uiMode`]) {
-        this.$store.dispatch('zap/setDefaultUiMode', query[`uiMode`])
-      }
-
-      if (`debugNavBar` in query) {
+      if (`debugNavBar` in this.query) {
         this.$store.dispatch(
           'zap/setDebugNavBar',
-          query[`debugNavBar`] === 'true'
+          this.query[`debugNavBar`] === 'true'
         )
       } else {
         // If we don't specify it, default is on.
         this.$store.dispatch('zap/setDebugNavBar', true)
       }
 
-      if ('standalone' in query) {
-        this.$store.dispatch('zap/setStandalone', query['standalone'])
+      if ('standalone' in this.query) {
+        this.$store.dispatch('zap/setStandalone', this.query['standalone'])
       }
 
-      if (`setSaveButtonVisible` in query) {
+      if (`setSaveButtonVisible` in this.query) {
         this.$store.dispatch(
           'zap/setSaveButtonVisible',
-          query[`setSaveButtonVisible`] === 'true'
+          this.query[`setSaveButtonVisible`] === 'true'
         )
       } else {
         // If we don't specify it, default is off.
@@ -318,7 +309,7 @@ export default defineComponent({
 
       // load initial UC component state
       this.$store.dispatch(`zap/loadUcComponentState`)
-      if (query[`newConfig`]) {
+      if (this.query[`newConfig`]) {
         this.loadInitialEndpoints()
       }
 
