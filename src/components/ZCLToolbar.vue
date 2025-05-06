@@ -244,6 +244,9 @@ export default {
   name: 'ZCLToolbar',
   mixins: [CommonMixin],
   computed: {
+    query() {
+      return this.$store.state.zap.query // Access the query string from Vuex
+    },
     showSaveButton() {
       if (this.query['stsApplication']) {
         return true
@@ -305,8 +308,7 @@ export default {
       isExpanded: false,
       globalOptionsDialog: false,
       notification: '',
-      generationDirectory: '',
-      query: {}
+      generationDirectory: ''
     }
   },
   methods: {
