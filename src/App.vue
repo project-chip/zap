@@ -138,11 +138,6 @@ export default defineComponent({
     ZclTour
   },
   mixins: [CommonMixin, uiOptions],
-  data() {
-    return {
-      query: {} // Initialize query as an empty object
-    }
-  },
   computed: {
     endpointType: {
       get() {
@@ -156,6 +151,9 @@ export default defineComponent({
     },
     showExceptionIcon() {
       return this.$store.state.zap.showExceptionIcon
+    },
+    query() {
+      return this.$store.state.zap.query // Access the query string from Vuex
     },
     uiThemeCategory: {
       get() {
