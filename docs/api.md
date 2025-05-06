@@ -17935,6 +17935,7 @@ Environment utilities for ZAP
     * [.logBrowser(msg, err)](#module_JS API_ Environment utilities.logBrowser)
     * [.logIpc(msg, err)](#module_JS API_ Environment utilities.logIpc)
     * [.logDebug(msg, err)](#module_JS API_ Environment utilities.logDebug)
+    * [.logWarningToFile(msg)](#module_JS API_ Environment utilities.logWarningToFile)
     * [.isMatchingVersion(versionsArray, providedVersion)](#module_JS API_ Environment utilities.isMatchingVersion) ⇒
     * [.versionsCheck()](#module_JS API_ Environment utilities.versionsCheck) ⇒
     * [.httpStaticContent()](#module_JS API_ Environment utilities.httpStaticContent) ⇒
@@ -18243,6 +18244,17 @@ Debug level message.
 | --- | --- |
 | msg | <code>\*</code> | 
 | err | <code>\*</code> | 
+
+<a name="module_JS API_ Environment utilities.logWarningToFile"></a>
+
+### JS API: Environment utilities.logWarningToFile(msg)
+Log Warning level message to zap.log file.
+
+**Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+
+| Param | Type |
+| --- | --- |
+| msg | <code>\*</code> | 
 
 <a name="module_JS API_ Environment utilities.isMatchingVersion"></a>
 
@@ -20258,7 +20270,7 @@ This module provides utilities for parsing conformance data from XML into expres
 * [Validation API: Parse conformance data from XML](#module_Validation API_ Parse conformance data from XML)
     * [~parseConformanceFromXML(operand)](#module_Validation API_ Parse conformance data from XML..parseConformanceFromXML) ⇒
     * [~parseConformanceRecursively(operand, depth, parentJoinChar)](#module_Validation API_ Parse conformance data from XML..parseConformanceRecursively) ⇒
-    * [~getOptionalAttributeFromXML(element)](#module_Validation API_ Parse conformance data from XML..getOptionalAttributeFromXML) ⇒
+    * [~getOptionalAttributeFromXML(element, elementType)](#module_Validation API_ Parse conformance data from XML..getOptionalAttributeFromXML) ⇒
 
 <a name="module_Validation API_ Parse conformance data from XML..parseConformanceFromXML"></a>
 
@@ -20322,11 +20334,12 @@ When they appear, stop recursing and return the name inside directly
 
 <a name="module_Validation API_ Parse conformance data from XML..getOptionalAttributeFromXML"></a>
 
-### Validation API: Parse conformance data from XML~getOptionalAttributeFromXML(element) ⇒
+### Validation API: Parse conformance data from XML~getOptionalAttributeFromXML(element, elementType) ⇒
 if optional attribute is defined, return its value
 if optional attribute is undefined, check if the element conformance is mandatory
 if both optional attribute and conformance are undefined, return false
 Optional attribute takes precedence over conformance for backward compatibility on certain elements
+Log warnings to zap.log if both optional attribute and conformance are defined
 
 **Kind**: inner method of [<code>Validation API: Parse conformance data from XML</code>](#module_Validation API_ Parse conformance data from XML)  
 **Returns**: true if the element is optional, false if the element is mandatory  
@@ -20334,6 +20347,7 @@ Optional attribute takes precedence over conformance for backward compatibility 
 | Param | Type |
 | --- | --- |
 | element | <code>\*</code> | 
+| elementType | <code>\*</code> | 
 
 <a name="module_Validation API_ Validation APIs"></a>
 
