@@ -176,12 +176,9 @@ export default defineComponent({
   },
   methods: {
     parseQueryString() {
-      let search = window.location.search
-
-      if (search[0] === '?') {
-        search = search.substring(1)
-      }
-      this.query = querystring.parse(search)
+      const searchParams = new URLSearchParams(window.location.search)
+      const query = Object.fromEntries(searchParams.entries()) // Parse query string into an object
+      this.$store.commit('zap/setQuery', query) // Store it in Vuex
     },
 
     setTheme() {
