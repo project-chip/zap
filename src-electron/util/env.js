@@ -198,7 +198,7 @@ let applicationStateDirectory = null
 
 let file_pino_logger = pino(
   pinoOptions,
-  pino.destination(path.join(appDirectory(), 'zap.log'))
+  pino.destination({ dest: path.join(appDirectory(), 'zap.log'), sync: true })
 )
 
 /**
