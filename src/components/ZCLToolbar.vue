@@ -55,14 +55,7 @@
         <div>Generate</div>
       </div>
     </q-btn>
-    <q-btn
-      id="save"
-      color="grey"
-      flat
-      no-caps
-      @click="saveChanges"
-      v-if="this.$store.state.zap.isDirty"
-    >
+    <q-btn id="save" color="grey" flat no-caps @click="saveChanges">
       <div class="text-center">
         <q-icon name="o_save" />
         <div>Save</div>
