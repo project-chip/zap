@@ -23,6 +23,7 @@ const dbEnum = require('../src-shared/db-enum')
 const queryZcl = require('../src-electron/db/query-zcl')
 const queryDeviceType = require('../src-electron/db/query-device-type')
 const queryCommand = require('../src-electron/db/query-command')
+const queryEvent = require('../src-electron/db/query-event')
 const queryPackage = require('../src-electron/db/query-package')
 const queryPackageNotification = require('../src-electron/db/query-package-notification')
 const zclLoader = require('../src-electron/zcl/zcl-loader')
@@ -594,14 +595,14 @@ test(
       let ctx = await zclLoader.loadZcl(db, env.builtinMatterZclMetafile())
       let packageId = ctx.packageId
 
-      let zclCluster = await queryZcl.selectClusterByCode(db, packageId, 0x001f)
+      let aclCluster = await queryZcl.selectClusterByCode(db, packageId, 0x001f)
 
       /* Verify that the ACL attribute, defined using the list type format `array="true" type="X"` in XML,
         is correctly parsed and stored in the database as an array of AccessControlEntryStruct. */
       let attributes = await dbApi.dbAll(
         db,
         "SELECT * FROM ATTRIBUTE WHERE CLUSTER_REF = ? AND CODE = 0x0000 AND NAME = 'ACL'",
-        [zclCluster.id]
+        [aclCluster.id]
       )
       expect(attributes.length).toBe(1)
       let aclAttribute = attributes[0]
@@ -617,6 +618,114 @@ test(
       expect(aclAttributeMapped.name).toBe('ACL')
       expect(aclAttributeMapped.entryType).toBe('AccessControlEntryStruct')
       expect(aclAttributeMapped.isArray).toBe(1)
+    } finally {
+      await dbApi.closeDatabase(db)
+    }
+  },
+  testUtil.timeout.long()
+)
+
+test(
+  'test loading IS_OPTIONAL column for Matter attributes, commands, and events',
+  async () => {
+    let db = await dbApi.initRamDatabase()
+    try {
+      await dbApi.loadSchema(db, env.schemaFile(), env.zapVersion())
+      let ctx = await zclLoader.loadZcl(db, env.builtinMatterZclMetafile())
+      let packageId = ctx.packageId
+
+      let doorLockCluster = await queryZcl.selectClusterByCode(
+        db,
+        packageId,
+        0x0101
+      )
+      let doorLockClusterId = doorLockCluster.id
+
+      let attributes =
+        await queryZcl.selectAttributesByClusterIdIncludingGlobal(
+          db,
+          doorLockClusterId,
+          [packageId]
+        )
+      // optional attribute undefined, conformance undefined -> mandatory
+      expect(
+        testQuery.checkIfElementIsOptional(attributes, 'ActuatorEnabled')
+      ).toBeFalsy()
+      // optional="true", conformance undefined -> optional
+      expect(
+        testQuery.checkIfElementIsOptional(attributes, 'DoorClosedEvents')
+      ).toBeTruthy()
+      // optional="false", conformance undefined -> mandatory
+      expect(
+        testQuery.checkIfElementIsOptional(attributes, 'LockType')
+      ).toBeFalsy()
+      // mandatory conformance, optional attribute undefined -> mandatory
+      expect(
+        testQuery.checkIfElementIsOptional(attributes, 'OperatingMode')
+      ).toBeFalsy()
+      // optionalConform to feature DPS, optional="true" -> optional
+      expect(
+        testQuery.checkIfElementIsOptional(attributes, 'DoorOpenEvents')
+      ).toBeTruthy()
+      // mandatory conformance, optional="true" -> optional as optional="true" takes precedence
+      expect(
+        testQuery.checkIfElementIsOptional(attributes, 'LockState')
+      ).toBeTruthy()
+      // mandatoryConform to feature DPS, optional="false" -> mandatory as optional="false" takes precedence
+      expect(
+        testQuery.checkIfElementIsOptional(attributes, 'DoorState')
+      ).toBeFalsy()
+
+      let commands = await queryCommand.selectCommandsByClusterId(
+        db,
+        doorLockClusterId,
+        [packageId]
+      )
+      // optional attribute undefined, conformance undefined -> mandatory
+      expect(
+        testQuery.checkIfElementIsOptional(commands, 'LockDoor')
+      ).toBeFalsy()
+      // optional="true", conformance undefined -> optional
+      expect(
+        testQuery.checkIfElementIsOptional(commands, 'GetWeekDaySchedule')
+      ).toBeTruthy()
+      // mandatory conformance, optional attribute undefined -> mandatory
+      expect(
+        testQuery.checkIfElementIsOptional(commands, 'UnlockDoor')
+      ).toBeFalsy()
+      // mandatoryConform to feature WDSCH, optional="true" -> optional
+      expect(
+        testQuery.checkIfElementIsOptional(commands, 'SetWeekDaySchedule')
+      ).toBeTruthy()
+      // optional conformance, optional="false" -> mandatory as optional="false" takes precedence
+      expect(
+        testQuery.checkIfElementIsOptional(commands, 'UnlockWithTimeout')
+      ).toBeFalsy()
+
+      let events = await queryEvent.selectEventsByClusterId(
+        db,
+        doorLockClusterId
+      )
+      // optional attribute undefined, conformance undefined -> mandatory
+      expect(
+        testQuery.checkIfElementIsOptional(events, 'LockUserChange')
+      ).toBeFalsy()
+      // optional="true", conformance undefined -> optional
+      expect(
+        testQuery.checkIfElementIsOptional(events, 'LockOperation')
+      ).toBeTruthy()
+      // mandatory conformance, optional attribute undefined -> mandatory
+      expect(
+        testQuery.checkIfElementIsOptional(events, 'LockOperationError')
+      ).toBeFalsy()
+      // mandatoryConform to feature DPS, optional="true" -> optional
+      expect(
+        testQuery.checkIfElementIsOptional(events, 'DoorStateChange')
+      ).toBeTruthy()
+      // mandatory conformance, optional="true" -> optional as optional="true" takes precedence
+      expect(
+        testQuery.checkIfElementIsOptional(events, 'DoorLockAlarm')
+      ).toBeTruthy()
     } finally {
       await dbApi.closeDatabase(db)
     }

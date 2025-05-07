@@ -255,6 +255,17 @@ WHERE
     .then((rows) => rows.map(dbMapping.map.cluster))
 }
 
+/**
+ *
+ * @param {*} elements
+ * @param {*} name
+ * @returns true if the element is optional, false if the element is mandatory
+ */
+function checkIfElementIsOptional(elements, name) {
+  let element = elements.find((element) => element.name == name)
+  return element ? element.isOptional : false
+}
+
 exports.getAllEndpointTypeClusterState = getAllEndpointTypeClusterState
 exports.selectCountFrom = selectCountFrom
 exports.getEndpointTypeAttributes = getEndpointTypeAttributes
@@ -263,3 +274,4 @@ exports.createSession = createSession
 exports.getAllSessionNotifications = getAllSessionNotifications
 exports.getAllNotificationMessages = getAllNotificationMessages
 exports.getAllSessionClusters = getAllSessionClusters
+exports.checkIfElementIsOptional = checkIfElementIsOptional
