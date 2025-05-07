@@ -137,6 +137,31 @@ function wsApiUrl(api, path) {
 }
 
 /**
+ * Retry connecting to the Studio server until it is ready.
+ * @param {string} url - The URL to connect to.
+ * @param {number} retries - Number of retry attempts.
+ * @param {number} delay - Delay between retries in milliseconds.
+ * @returns {Promise} - Resolves when the connection is successful, rejects if it fails.
+ */
+async function waitForServer(url, retries = 5, delay = 2000) {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      let response = await axios.get(url)
+      if (response.status === 200) {
+        return response // Server is ready
+      }
+    } catch (err) {
+      env.logWarning(`Attempt ${attempt} failed: ${err.message}`)
+      if (attempt === retries) {
+        throw new Error(
+          `Failed to connect to Studio server at ${url} after ${retries} attempts.`
+        )
+      }
+    }
+    await new Promise((resolve) => setTimeout(resolve, delay)) // Wait before retrying
+  }
+}
+/**
  * Send HTTP GET request to Studio Jetty server for project information.
  * @param {} db
  * @param {*} sessionId
@@ -151,16 +176,14 @@ async function getProjectInfo(db, sessionId) {
     if (studioIntegration && !isUserDisabled) {
       let path = restApiUrl(StudioRestAPI.GetProjectInfo, project)
       env.logDebug(`StudioUC(${name}): GET: ${path}`)
-      return axios
-        .get(path)
-        .then((resp) => {
-          env.logDebug(`StudioUC(${name}): RESP: ${resp.status}`)
-          return resp
-        })
-        .catch((err) => {
-          env.logWarning(`StudioUC(${name}): ERR: ${err.message}`)
-          return { data: [] }
-        })
+      try {
+        let response = await waitForServer(path) // Wait for the server to be ready
+        env.logDebug(`StudioUC(${name}): RESP: ${response.status}`)
+        return response
+      } catch (err) {
+        env.logWarning(`StudioUC(${name}): ERR: ${err.message}`)
+        return { data: [] }
+      }
     } else {
       if (!isUserDisabled)
         env.logWarning(`StudioUC(${name}): Studio integration is now enabled!`)
