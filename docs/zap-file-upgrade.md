@@ -66,7 +66,7 @@ async function postLoad(api, context) {
           ) {
             let params = [
               {
-                key: 'defaultValue',
+                key: context.updateKey.attributeDefault,
                 value: 10
               }
             ]
