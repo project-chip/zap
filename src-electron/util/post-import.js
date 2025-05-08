@@ -40,6 +40,8 @@ async function executeScriptFunction(functionName, context) {
   let resolvedPath = path.resolve(context.script.path)
   let loadedScript = nativeRequire(resolvedPath)
   if (loadedScript[functionName]) {
+    // Add updateKeys available to the context
+    context.updateKey = require('../../src-shared/rest-api.js').updateKey
     return loadedScript[functionName](scriptApi, context)
   }
 }
