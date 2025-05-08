@@ -49,7 +49,6 @@ Add a postLoad function as below with api and context as parameters. Api argumen
 
 ```javascript
 // Example upgrade rule to update default value of Level Control cluster attribute in Matter.
-// Example upgrade rule to update default value of Level Control cluster attribute in Matter.
 async function postLoad(api, context) {
   let resMsg = ''
   let epts = await api.endpoints(context)
