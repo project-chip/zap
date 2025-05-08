@@ -14,7 +14,7 @@ Run the following command to update your .zap file
 
 ## How to add upgrade rules for .zap files through your SDK
 
-### Create an `upgrade-rules.json` file with the following information if one already does not exist
+### - Create an `upgrade-rules.json` file with the following information if one already does not exist
 
 ```json
 {
@@ -34,16 +34,17 @@ Run the following command to update your .zap file
 }
 ```
 
-**category**: Determines that these upgrade rules need to run for matter
+**category**: Determines that these upgrade rules need to run for matter.
+
 **upgradeRuleScripts**: List of upgrade rules to run on .zap files. Includes the relative path from upgrade-rules.json to the upgrade scripts written in Javascript. Priority determines the order of execution for the upgrade rules.
 
-### Add relative path to the upgrade-rules.json from your zcl.json file
+### - Add relative path to the upgrade-rules.json from your zcl.json file
 
 ```json
 "upgradeRules": "./upgrade-rules-matter.json"
 ```
 
-### Creating your own javascript upgrade rule
+### - Creating your own javascript upgrade rule
 
 Add a postLoad function as below with api and context as parameters. Api argument gives access to all APIs that can be used within the `postLoad` function. [Refer to the post-import API documentation](../src-electron/util/post-import-api.js) . Context gives the state of the Data-Model/ZCL with respect to the .zap file that will be passied along to the API calls.
 
