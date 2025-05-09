@@ -75,10 +75,10 @@
       "cmd": "$(zap-cli) --version"
     },
     "uc_generate": {
-      "cmd": "$(zap-cli) generate --noUi --noServer -o ${generationOutput} --packageMatch fuzzy --zcl ${sdkRoot}/app/zcl/zcl-zap.json --zcl ${sdkRoot}/extension/matter_extension/src/app/zap-templates/zcl/zcl.json --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json --generationTemplate ${sdkRoot}/extension/matter_extension/src/app/zap-templates/app-templates.json [ --zcl ${zcl.zigbeeZclJsonFile} ] [ --zcl ${zcl.matterZclJsonFile ] [ --generationTemplate ${zcl.zigbeeTemplateJsonFile} ]  [ --generationTemplate ${zcl.matterTemplateJsonFile} ] --in ${contentFolder} --noLoadingFailure --appendGenerationSubdirectory --upgradeZapFile"
+      "cmd": "$(zap-cli) generate --noUi --noServer -o ${generationOutput} --packageMatch fuzzy --zcl ${sdkRoot}/app/zcl/zcl-zap.json --zcl ${sdkRoot}/extension/matter_extension/src/app/zap-templates/zcl/zcl.json --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json --generationTemplate ${sdkRoot}/extension/matter_extension/src/app/zap-templates/app-templates.json [ --zcl ${zcl.zigbeeZclJsonFile} ] [ --zcl ${zcl.matterZclJsonFile} ] [ --generationTemplate ${zcl.zigbeeTemplateJsonFile} ] [ --generationTemplate ${zcl.matterTemplateJsonFile} ] --in ${contentFolder} --noLoadingFailure --appendGenerationSubdirectory --upgradeZapFile"
     },
     "uc_upgrade": {
-      "cmd": "$(zap-cli) upgrade --results ${results} -d ${tempContentFolder} --zcl ${sdkRoot}/app/zcl/zcl-zap.json --zcl ${sdkRoot}/extension/matter_extension/src/app/zap-templates/zcl/zcl.json --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json --generationTemplate ${sdkRoot}/extension/matter_extension/src/app/zap-templates/app-templates.json [ --zcl ${zcl.zigbeeZclJsonFile} ] [ --zcl ${zcl.matterZclJsonFile ] [ --generationTemplate ${zcl.zigbeeTemplateJsonFile} ]  [ --generationTemplate ${zcl.matterTemplateJsonFile} ] --noLoadingFailure"
+      "cmd": "$(zap-cli) upgrade --results ${results} -d ${tempContentFolder} --zcl ${sdkRoot}/app/zcl/zcl-zap.json --zcl ${sdkRoot}/extension/matter_extension/src/app/zap-templates/zcl/zcl.json --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json --generationTemplate ${sdkRoot}/extension/matter_extension/src/app/zap-templates/app-templates.json [ --zcl ${zcl.zigbeeZclJsonFile} ] [ --zcl ${zcl.matterZclJsonFile} ] [ --generationTemplate ${zcl.zigbeeTemplateJsonFile} ] [ --generationTemplate ${zcl.matterTemplateJsonFile} ] --noLoadingFailure"
     },
     "zapHelp": {
       "cmd": "$(zap) --help"
@@ -87,7 +87,7 @@
       "cmd": "$(zap) selfCheck"
     },
     "zapServer": {
-      "cmd": "$(zap) server --reuseZapInstance --packageMatch fuzzy --zcl ${sdkRoot}/app/zcl/zcl-zap.json --zcl ${sdkRoot}/extension/matter_extension/src/app/zap-templates/zcl/zcl.json --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json --generationTemplate ${sdkRoot}/extension/matter_extension/src/app/zap-templates/app-templates.json [ --zcl ${zcl.zigbeeZclJsonFile} ] [ --zcl ${zcl.matterZclJsonFile ] [ --generationTemplate ${zcl.zigbeeTemplateJsonFile} ]  [ --generationTemplate ${zcl.matterTemplateJsonFile} ] --studioHttpPort ${studioHttpPort} --noLoadingFailure --appendGenerationSubdirectory"
+      "cmd": "$(zap) server --reuseZapInstance --packageMatch fuzzy --zcl ${sdkRoot}/app/zcl/zcl-zap.json --zcl ${sdkRoot}/extension/matter_extension/src/app/zap-templates/zcl/zcl.json --generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json --generationTemplate ${sdkRoot}/extension/matter_extension/src/app/zap-templates/app-templates.json [ --zcl ${zcl.zigbeeZclJsonFile} ] [ --zcl ${zcl.matterZclJsonFile} ] [ --generationTemplate ${zcl.zigbeeTemplateJsonFile} ] [ --generationTemplate ${zcl.matterTemplateJsonFile} ] --studioHttpPort ${studioHttpPort} --noLoadingFailure --appendGenerationSubdirectory"
     },
     "zapStop": {
       "cmd": "$(zap) stop --reuseZapInstance"
@@ -99,7 +99,7 @@
       "cmd": "$(zap) server --reuseZapInstance --studioHttpPort ${studioHttpPort}"
     },
     "zapFull": {
-      "cmd": "$(zap) --showUrl --zcl ${sdkRoot}/app/zcl/zcl-zap.json [--zcl ${zcl.zigbeeZclJsonFile} ]"
+      "cmd": "$(zap) --showUrl --zcl ${sdkRoot}/app/zcl/zcl-zap.json [ --zcl ${zcl.zigbeeZclJsonFile} ]"
     },
     "zapRegenSdk": {
       "cmd": "$(zap) regenerateSdk --sdk ${sdkJsonFile}"
