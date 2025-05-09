@@ -41,7 +41,7 @@ beforeAll(async () => {
     env.zapVersion()
   )
   env.setDevelopmentEnv()
-  // Save the original file content before tests. Used for uc upgrade testiing
+  // Save the original file content before tests. Used for uc upgrade testing
   originalContent = await fsPromise.readFile(
     path.join(__dirname, './resource/upgrade/multi-protocol.zap'),
     'utf-8'

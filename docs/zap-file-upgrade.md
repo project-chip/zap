@@ -36,7 +36,7 @@ Run the following command to update your .zap file
 
 **category**: Determines that these upgrade rules need to run for matter.
 
-**upgradeRuleScripts**: List of upgrade rules to run on .zap files. Includes the relative path from upgrade-rules.json to the upgrade scripts written in Javascript. Priority determines the order of execution for the upgrade rules.
+**upgradeRuleScripts**: List of upgrade rules to run on .zap files. Includes the relative path from upgrade-rules.json to the upgrade scripts written in Javascript. Priority determines the order of execution for the upgrade rules. The scripts are run in order of priority with lower number signifying higher priority.
 
 ### - Add relative path to the upgrade-rules.json from your zcl.json file
 
