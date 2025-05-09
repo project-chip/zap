@@ -152,6 +152,9 @@ export default defineComponent({
     showExceptionIcon() {
       return this.$store.state.zap.showExceptionIcon
     },
+    query() {
+      return this.$store.state.zap.query // Access the query string from Vuex
+    },
     uiThemeCategory: {
       get() {
         if (this.$store.state.zap.isMultiConfig) {
@@ -171,12 +174,9 @@ export default defineComponent({
   },
   methods: {
     parseQueryString() {
-      let search = window.location.search
-
-      if (search[0] === '?') {
-        search = search.substring(1)
-      }
-      this.query = querystring.parse(search)
+      const searchParams = new URLSearchParams(window.location.search)
+      const query = Object.fromEntries(searchParams.entries()) // Parse query string into an object
+      this.$store.commit('zap/setQuery', query) // Store it in Vuex
     },
 
     setTheme() {
@@ -263,37 +263,28 @@ export default defineComponent({
           )
         })
       }
-
-      // Parse the query string into the front end.
-      let search = window.location.search
-
-      if (search[0] === '?') {
-        search = search.substring(1)
+      if (this.query[`uiMode`]) {
+        this.$store.dispatch('zap/setDefaultUiMode', this.query[`uiMode`])
       }
 
-      let query = querystring.parse(search)
-      if (query[`uiMode`]) {
-        this.$store.dispatch('zap/setDefaultUiMode', query[`uiMode`])
-      }
-
-      if (`debugNavBar` in query) {
+      if (`debugNavBar` in this.query) {
         this.$store.dispatch(
           'zap/setDebugNavBar',
-          query[`debugNavBar`] === 'true'
+          this.query[`debugNavBar`] === 'true'
         )
       } else {
         // If we don't specify it, default is on.
         this.$store.dispatch('zap/setDebugNavBar', true)
       }
 
-      if ('standalone' in query) {
-        this.$store.dispatch('zap/setStandalone', query['standalone'])
+      if ('standalone' in this.query) {
+        this.$store.dispatch('zap/setStandalone', this.query['standalone'])
       }
 
-      if (`setSaveButtonVisible` in query) {
+      if (`setSaveButtonVisible` in this.query) {
         this.$store.dispatch(
           'zap/setSaveButtonVisible',
-          query[`setSaveButtonVisible`] === 'true'
+          this.query[`setSaveButtonVisible`] === 'true'
         )
       } else {
         // If we don't specify it, default is off.
@@ -318,7 +309,7 @@ export default defineComponent({
 
       // load initial UC component state
       this.$store.dispatch(`zap/loadUcComponentState`)
-      if (query[`newConfig`]) {
+      if (this.query[`newConfig`]) {
         this.loadInitialEndpoints()
       }
 
