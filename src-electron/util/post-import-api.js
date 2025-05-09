@@ -52,7 +52,7 @@ function printError(text) {
  *
  * @param {*} context
  */
-function endpoints(context) {
+async function endpoints(context) {
   return queryUpgrade.selectAllEndpoints(
     context.db,
     context.sessionId,
@@ -66,7 +66,7 @@ function endpoints(context) {
  * @param {*} context
  * @param {*} endpoint
  */
-function deleteEndpoint(context, endpoint) {
+async function deleteEndpoint(context, endpoint) {
   return queryEndpoint.deleteEndpoint(context.db, endpoint.id)
 }
 
@@ -76,7 +76,7 @@ function deleteEndpoint(context, endpoint) {
  * @param {*} context
  * @param {*} endpoint
  */
-function clusters(context, endpoint) {
+async function clusters(context, endpoint) {
   return queryEndpoint.selectEndpointClusters(
     context.db,
     endpoint.endpointTypeRef
@@ -91,7 +91,7 @@ function clusters(context, endpoint) {
  * @param {*} endpoint
  * @param {*} cluster
  */
-function attributes(context, endpoint, cluster) {
+async function attributes(context, endpoint, cluster) {
   return queryEndpoint.selectEndpointClusterAttributes(
     context.db,
     cluster.clusterId,
@@ -108,7 +108,7 @@ function attributes(context, endpoint, cluster) {
  * @param {*} endpoint
  * @param {*} cluster
  */
-function commands(context, endpoint, cluster) {
+async function commands(context, endpoint, cluster) {
   return queryEndpoint.selectEndpointClusterCommands(
     context.db,
     cluster.clusterId,
@@ -303,7 +303,7 @@ async function modifyAttribute(
  * @param {*} params
  * @returns promise of an updated or inserted attribute with parameters provided
  */
-function updateAttribute(context, endpoint, cluster, attribute, params) {
+async function updateAttribute(context, endpoint, cluster, attribute, params) {
   return queryConfig.insertOrUpdateAttributeState(
     context.db,
     endpoint.endpointTypeRef,
