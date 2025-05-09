@@ -19,6 +19,7 @@
 async function postLoad(api, context) {
   let epts = await api.endpoints(context)
   await api.deleteEndpoint(context, epts[0])
+  return { message: 'Endpoint Deleted', status: 'automatic' } // Status can be 'nothing', 'automatic', 'user_verification', 'impossible'.
 }
 
 exports.postLoad = postLoad

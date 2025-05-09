@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "description": "Upgrade Rules for Zigbee .zap files",
+  "category": "matter",
+  "upgradeRuleScripts": [
+    {
+      "path": "../../test/resource/test-matter-attribute-default-value-update.js",
+      "priority": 101
+    },
+    {
+      "path": "../../test/resource/test-attribute-default-value-update.js",
+      "priority": 100
+    }
+  ]
+}

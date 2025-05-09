@@ -30,17 +30,18 @@ const nativeRequire = require('./native-require.js')
  * Executes a named function from a given script.
  * Arguments passed to the function are:
  *   api: which is the result of require('script-api.js')
- *   context: which contains 'db', 'sessionId', etc.
+ *   context: which contains 'db', 'sessionId', script category, etc.
  *
  * @param {*} functionName
  * @param {*} db
  * @param {*} sessionId
- * @param {*} script
  */
-async function executeScriptFunction(functionName, context, script) {
-  let resolvedPath = path.resolve(script)
+async function executeScriptFunction(functionName, context) {
+  let resolvedPath = path.resolve(context.script.path)
   let loadedScript = nativeRequire(resolvedPath)
   if (loadedScript[functionName]) {
+    // Add updateKeys available to the context
+    context.updateKey = require('../../src-shared/rest-api.js').updateKey
     return loadedScript[functionName](scriptApi, context)
   }
 }

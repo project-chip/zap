@@ -312,13 +312,57 @@ async function upgradeZapFile(argv, options) {
       dbEnum.packageType.genTemplatesJson
     )
 
+    let upgradeRules = []
+    // If more than one upgrade package is present then it is a multiprotocol
+    // application so upgrade rules should be added to the corresponding endpoints.
+    let isMultiProtocol = upgradeZclPackages.length > 1
+    for (const pkg of upgradeZclPackages) {
+      if (pkg.path) {
+        try {
+          const jsonData = JSON.parse(fs.readFileSync(pkg.path, 'utf-8'))
+          if (jsonData.upgradeRules !== undefined) {
+            const upgradeRulesJsonPath = path.resolve(
+              path.dirname(pkg.path),
+              jsonData.upgradeRules
+            )
+            try {
+              const upgradeRulesData = JSON.parse(
+                fs.readFileSync(upgradeRulesJsonPath, 'utf-8')
+              )
+              // Sorting upgrade rules by priority and then run them
+              upgradeRulesData.upgradeRuleScripts
+                .sort((a, b) => a.priority - b.priority)
+                .forEach((ur) => {
+                  upgradeRules.push({
+                    path: path.resolve(path.dirname(pkg.path), ur.path),
+                    category: isMultiProtocol ? upgradeRulesData.category : null
+                  })
+                })
+            } catch (error) {
+              console.error(
+                `Error reading or parsing upgrade rules from path ${upgradeRulesJsonPath}:`,
+                error
+              )
+            }
+          }
+        } catch (error) {
+          console.error(
+            `Error reading or parsing JSON from path ${pkg.path}:`,
+            error
+          )
+        }
+      }
+    }
+
     let importResult = await importJs.importDataFromFile(db, zapFile, {
       defaultZclMetafile: argv.zclProperties,
       postImportScript: argv.postImportScript,
       packageMatch: argv.packageMatch,
       upgradeZclPackages: upgradeZclPackages,
-      upgradeTemplatePackages: upgradeTemplatePackages
+      upgradeTemplatePackages: upgradeTemplatePackages,
+      upgradeRuleScripts: upgradeRules // Used to apply all the upgrade rules to the .zap file
     })
+
     let sessionId = importResult.sessionId
     await util.ensurePackagesAndPopulateSessionOptions(db, sessionId, {
       zcl: argv.zclProperties,
@@ -345,15 +389,23 @@ async function upgradeZapFile(argv, options) {
       fileFormat: argv.saveFileFormat
     })
     options.logger(`    👉 write out: ${outputPath}`)
+    try {
+      if (upgrade_results != null) {
+        if (!fs.existsSync(path.dirname(upgrade_results))) {
+          fs.mkdirSync(path.dirname(upgrade_results), { recursive: true })
+        }
+        await writeConversionResultsFile(
+          upgrade_results,
+          importResult.upgradeMessages
+        )
+      }
+      options.logger(`    👉 write out: ${upgrade_results}`)
+    } catch (error) {
+      options.logger(`    ⚠️  failed to write out: ${upgrade_results}`)
+    }
+    options.logger('😎 Upgrade done!')
   }
-  try {
-    if (upgrade_results != null)
-      await writeConversionResultsFile(upgrade_results)
-    options.logger(`    👉 write out: ${upgrade_results}`)
-  } catch (error) {
-    options.logger(`    ⚠️  failed to write out: ${upgrade_results}`)
-  }
-  options.logger('😎 Upgrade done!')
+
   if (options.quitFunction != null) {
     options.quitFunction()
   }
@@ -468,20 +520,25 @@ async function startConvert(argv, options) {
  * Write conversion results into file given.
  *
  * @param {*} file
+ * @param {*} messages
  * @returns promise of a file write operation.
  */
-async function writeConversionResultsFile(file) {
+async function writeConversionResultsFile(file, messages = null) {
   return fsp.writeFile(
     file,
-    YAML.stringify({
-      upgrade_results: [
-        {
-          message:
-            'ZCL Advanced Platform (ZAP) configuration has been successfully upgraded.',
-          status: 'automatic'
-        }
-      ]
-    })
+    messages
+      ? YAML.stringify({
+          upgrade_results: messages
+        })
+      : YAML.stringify({
+          upgrade_results: [
+            {
+              message:
+                'ZCL Advanced Platform (ZAP) configuration has been successfully upgraded.',
+              status: 'automatic'
+            }
+          ]
+        })
   )
 }
 

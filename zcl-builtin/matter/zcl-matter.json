@@ -280,5 +280,6 @@
     "indexFieldId": 254,
     "indexFieldName": "FabricIndex",
     "indexType": "fabric_idx"
-  }
+  },
+  "upgradeRules": "./upgrade-rules-matter.json"
 }

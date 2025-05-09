@@ -67,5 +67,6 @@
       "label": "List of clusters and attributes associated across protocols",
       "defaults": "multi-protocol.json"
     }
-  }
+  },
+  "upgradeRules": "./upgrade-rules-zigbee.json"
 }

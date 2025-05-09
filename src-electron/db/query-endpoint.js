@@ -197,6 +197,7 @@ ORDER BY C.CODE
   return rows.map((row) => {
     return {
       clusterId: row['CLUSTER_ID'],
+      id: row['CLUSTER_ID'],
       endpointTypeId: row['ENDPOINT_TYPE_REF'],
       endpointTypeClusterId: row['ENDPOINT_TYPE_CLUSTER_ID'],
       hexCode: '0x' + bin.int16ToHex(row['CODE']),
