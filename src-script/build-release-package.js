@@ -32,9 +32,8 @@ async function buildForOS(osName, outputPath) {
   switch (osName) {
     case 'm':
       console.log(`Building for Mac... Output: ${outputPath}`)
-      await scriptUtil.executeCmd({}, 'npm', ['run', 'pack:mac']) // Building electron app
       await scriptUtil.executeCmd({}, 'npm', ['run', 'pkg:mac']) // Building zap-cli
-      await scriptUtil.executeCmd({}, 'npm', ['run', 'pack:cli:mac']) // Adding zap-cli to zip file
+      await scriptUtil.executeCmd({}, 'npm', ['run', 'pack:mac']) // Building electron app
       if (outputPath) {
         await scriptUtil.executeCmd({}, 'mv', [
           './dist/zap-mac-x64.zip',
@@ -49,9 +48,8 @@ async function buildForOS(osName, outputPath) {
 
     case 'w':
       console.log(`Building for Windows... Output: ${outputPath}`)
-      await scriptUtil.executeCmd({}, 'npm', ['run', 'pack:win']) // Building electron app
       await scriptUtil.executeCmd({}, 'npm', ['run', 'pkg:win']) // Building zap-cli
-      await scriptUtil.executeCmd({}, 'npm', ['run', 'pack:cli:win']) // Adding zap-cli to zip file
+      await scriptUtil.executeCmd({}, 'npm', ['run', 'pack:win']) // Building electron app
       if (outputPath) {
         await scriptUtil.executeCmd({}, 'mv', [
           'dist/zap-win-x64.zip',
@@ -66,9 +64,8 @@ async function buildForOS(osName, outputPath) {
 
     case 'l':
       console.log(`Building for Linux... Output: ${outputPath}`)
-      await scriptUtil.executeCmd({}, 'npm', ['run', 'pack:linux']) // Building electron app
       await scriptUtil.executeCmd({}, 'npm', ['run', 'pkg:linux']) // Building zap-cli
-      await scriptUtil.executeCmd({}, 'npm', ['run', 'pack:cli:linux']) // Adding zap-cli to zip file
+      await scriptUtil.executeCmd({}, 'npm', ['run', 'pack:linux']) // Building electron app
       if (outputPath) {
         await scriptUtil.executeCmd({}, 'mv', [
           'dist/zap-linux-x64.zip',

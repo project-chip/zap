@@ -4,4 +4,4 @@
 # to get source build to compile via npm install or npm ci
 #
 apt-get update
-apt-get install -y --fix-missing libpixman-1-dev libcairo-dev libsdl-pango-dev libjpeg-dev libgif-dev
+apt-get install -y --fix-missing libpixman-1-dev libcairo-dev libsdl-pango-dev libjpeg-dev libgif-dev rpm
