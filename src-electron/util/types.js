@@ -169,7 +169,7 @@ function longTypeDefaultValue(size, type, value) {
   let v = ''
   if (value == null || value.length == 0) {
     v = '0x00, '.repeat(size)
-  } else if (isNaN(value)) {
+  } else if (isString(type)) {
     // String Value
     if (isOneBytePrefixedString(type)) {
       v = bin.stringToOneByteLengthPrefixCBytes(value, size).content

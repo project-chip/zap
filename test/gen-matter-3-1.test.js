@@ -368,6 +368,9 @@ test(
     expect(endpointType1.deviceTypeRef[1]).toEqual(
       endpointType2.deviceTypeRef[0]
     )
+
+    // Testing number values for string type attributes under GENERATED_DEFAULTS(helper-endpointconfig.js)
+    expect(ept).toMatch(/\/\* 17 - Description, \*\/\\\n.*2, '7', '7',/)
   },
   testUtil.timeout.long()
 )
