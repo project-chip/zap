@@ -31,9 +31,39 @@ const dbEnum = require('../../src-shared/db-enum.js')
  *
  * @param {*} db
  * @param {*} sessionId
+ * @param {*} category
  * @returns Promise resolving into all endpoints.
  */
-async function selectAllEndpoints(db, sessionId) {
+async function selectAllEndpoints(db, sessionId, category = null) {
+  let categorySqlJoinString = category
+    ? `
+LEFT JOIN
+  ENDPOINT_TYPE
+ON
+  E1.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+LEFT JOIN
+  ENDPOINT_TYPE_DEVICE
+ON
+  ENDPOINT_TYPE_DEVICE.ENDPOINT_TYPE_REF = ENDPOINT_TYPE.ENDPOINT_TYPE_ID
+LEFT JOIN
+  DEVICE_TYPE
+ON
+  ENDPOINT_TYPE_DEVICE.DEVICE_TYPE_REF = DEVICE_TYPE.DEVICE_TYPE_ID
+LEFT JOIN
+  PACKAGE
+ON
+  PACKAGE.PACKAGE_ID = DEVICE_TYPE.PACKAGE_REF`
+    : ``
+
+  let categorySqlSelectString = category
+    ? `,
+  PACKAGE.CATEGORY`
+    : ``
+
+  let categorySqlWhereString = category
+    ? `AND
+  PACKAGE.CATEGORY = '${category}'`
+    : ``
   let rows = await dbApi.dbAll(
     db,
     `
@@ -46,18 +76,23 @@ SELECT
   E1.NETWORK_IDENTIFIER,
   E2.ENDPOINT_ID AS PARENT_ENDPOINT_REF,
   E2.ENDPOINT_IDENTIFIER AS PARENT_ENDPOINT_IDENTIFIER
+  ${categorySqlSelectString}
 FROM
   ENDPOINT AS E1
 LEFT JOIN
   ENDPOINT AS E2
 ON
   E2.ENDPOINT_ID = E1.PARENT_ENDPOINT_REF
-WHERE E1.SESSION_REF = ?
-ORDER BY E1.ENDPOINT_IDENTIFIER
+${categorySqlJoinString}
+WHERE
+  E1.SESSION_REF = ?
+${categorySqlWhereString}
+ORDER BY
+  E1.ENDPOINT_IDENTIFIER
     `,
     [sessionId]
   )
-  return rows.map(dbMapping.map.endpoint)
+  return rows.map(dbMapping.map.endpointExtended)
 }
 
 /**
@@ -197,6 +232,7 @@ ORDER BY C.CODE
   return rows.map((row) => {
     return {
       clusterId: row['CLUSTER_ID'],
+      id: row['CLUSTER_ID'],
       endpointTypeId: row['ENDPOINT_TYPE_REF'],
       endpointTypeClusterId: row['ENDPOINT_TYPE_CLUSTER_ID'],
       hexCode: '0x' + bin.int16ToHex(row['CODE']),

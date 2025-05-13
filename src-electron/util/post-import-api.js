@@ -51,8 +51,12 @@ function printError(text) {
  *
  * @param {*} context
  */
-function endpoints(context) {
-  return queryEndpoint.selectAllEndpoints(context.db, context.sessionId)
+async function endpoints(context) {
+  return queryEndpoint.selectAllEndpoints(
+    context.db,
+    context.sessionId,
+    context.script.category
+  )
 }
 
 /**
@@ -61,7 +65,7 @@ function endpoints(context) {
  * @param {*} context
  * @param {*} endpoint
  */
-function deleteEndpoint(context, endpoint) {
+async function deleteEndpoint(context, endpoint) {
   return queryEndpoint.deleteEndpoint(context.db, endpoint.id)
 }
 
@@ -71,7 +75,7 @@ function deleteEndpoint(context, endpoint) {
  * @param {*} context
  * @param {*} endpoint
  */
-function clusters(context, endpoint) {
+async function clusters(context, endpoint) {
   return queryEndpoint.selectEndpointClusters(
     context.db,
     endpoint.endpointTypeRef
@@ -86,7 +90,7 @@ function clusters(context, endpoint) {
  * @param {*} endpoint
  * @param {*} cluster
  */
-function attributes(context, endpoint, cluster) {
+async function attributes(context, endpoint, cluster) {
   return queryEndpoint.selectEndpointClusterAttributes(
     context.db,
     cluster.clusterId,
@@ -103,7 +107,7 @@ function attributes(context, endpoint, cluster) {
  * @param {*} endpoint
  * @param {*} cluster
  */
-function commands(context, endpoint, cluster) {
+async function commands(context, endpoint, cluster) {
   return queryEndpoint.selectEndpointClusterCommands(
     context.db,
     cluster.clusterId,
@@ -280,6 +284,30 @@ async function modifyAttribute(
     endpoint.endpointTypeRef,
     cluster.id,
     side,
+    attribute.id,
+    params,
+    attribute.reportMinInterval,
+    attribute.reportMaxInterval,
+    attribute.reportableChange
+  )
+}
+
+/**
+ * Update an attribute with given parameters.
+ *
+ * @param {*} context
+ * @param {*} endpoint
+ * @param {*} cluster
+ * @param {*} attribute
+ * @param {*} params
+ * @returns promise of an updated or inserted attribute with parameters provided
+ */
+async function updateAttribute(context, endpoint, cluster, attribute, params) {
+  return queryConfig.insertOrUpdateAttributeState(
+    context.db,
+    endpoint.endpointTypeRef,
+    cluster.id,
+    attribute.side,
     attribute.id,
     params,
     attribute.reportMinInterval,
@@ -617,6 +645,7 @@ exports.disableIncomingCommand = disableIncomingCommand
 exports.enableIncomingCommand = enableIncomingCommand
 exports.disableOutgoingCommand = disableOutgoingCommand
 exports.enableOutgoingCommand = enableOutgoingCommand
+exports.updateAttribute = updateAttribute
 
 // Constants that are used a lot
 exports.client = dbEnum.source.client
