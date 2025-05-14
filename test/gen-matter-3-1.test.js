@@ -570,6 +570,14 @@ test(
       zclPackageId
     )
     expect(globalBitmap.id).not.toEqual(clusterBitmap.id)
+
+    // Testing chip_get_access_role for attributes
+    expect(ept).toContain(
+      'Name - Acl, Read Privilege - Administer, Write Privilege - Administer'
+    )
+
+    // Testing chip_get_access_role for commands
+    expect(ept).toContain('Name - KeySetWrite, Invoke Privilege - Administer')
   },
   testUtil.timeout.long()
 )
