@@ -89,7 +89,10 @@ jobs:
       - name: Build & Release for Linux
         if: startsWith(matrix.os, 'ubuntu')
         run: |
-          node src-script/build-release-package.js --platform l
+          npm run pack:linux
+          npm run pkg:linux
+          ls ./dist/
+          npm run pack:cli:linux
 
           mv dist/zap-linux-amd64.deb dist/zap-linux-x64.deb
           mv dist/zap-linux-x86_64.rpm dist/zap-linux-x64.rpm
