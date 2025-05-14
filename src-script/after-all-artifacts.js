@@ -37,13 +37,18 @@ exports.default = async function (buildResult) {
           ? 'win'
           : null
 
-    const arch = zipPath.includes('arm64') ? 'arm64' : 'x64'
+    let arch = zipPath.includes('arm64') ? 'arm64' : 'x64'
 
     if (!platform) continue
 
     // Compose zap-cli binary name
-    const cliName =
+    let cliName =
       platform === 'win' ? `zap-win-${arch}.exe` : `zap-${platform}-${arch}`
+
+    // MacOS doesn't have an arm64 binary yet
+    if (platform === 'macos') {
+      cliName = `zap-macos`
+    }
 
     const cliPath = path.join(buildResult.outDir, '../dist', cliName)
 
