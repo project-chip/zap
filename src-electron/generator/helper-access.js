@@ -237,6 +237,35 @@ async function default_access(options) {
   return templateUtil.templatePromise(this.global, p)
 }
 
+/**
+ * Determines the access role for a given entity and operation.
+ *
+ * @param {*} options
+ * @returns {string} The access role.
+ */
+async function chip_get_access_role(options) {
+  if (!('op' in options.hash)) {
+    throw new Error('Access helper requires op from the op="<op>" option.')
+  }
+
+  const { op, entity: entityType } = options.hash
+  const accessList = await collectAccesslist(this, options)
+  const accessForOp = accessList.find((a) => a.operation === op)
+
+  if (accessForOp?.role) {
+    return accessForOp.role
+  }
+
+  // Default role mappings
+  const defaultRoles = {
+    command: { invoke: 'operate' },
+    attribute: { read: 'view', write: 'operate' }
+  }
+
+  return defaultRoles[entityType]?.[op] || ''
+}
+
 exports.access = access
 exports.access_aggregate = access_aggregate
 exports.default_access = default_access
+exports.chip_get_access_role = chip_get_access_role

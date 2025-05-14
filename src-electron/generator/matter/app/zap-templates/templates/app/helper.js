@@ -594,6 +594,20 @@ function asUpperCamelCase(label, options) {
   const preserveAcronyms = options && options.hash.preserveAcronyms;
   return asCamelCase(label, false, preserveAcronyms);
 }
+/**
+ * Same as asUpperCamelCase, but with a special case for "RFID".
+ * Special case for cluster specific object files for Matter.
+ *
+ * @param {*} label
+ * @param {*} options
+ * @returns {string}
+ */
+function chip_name_for_id_usage(label, options) {
+  if (label == 'RFID') {
+    return 'Rfid';
+  }
+  return asUpperCamelCase(label, options);
+}
 
 function chip_friendly_endpoint_type_name(options) {
   let name = this.endpointTypeName;
@@ -1272,6 +1286,7 @@ exports.zcl_commands_that_need_timed_invoke =
   zcl_commands_that_need_timed_invoke;
 exports.if_is_fabric_scoped_struct = if_is_fabric_scoped_struct;
 exports.if_is_non_zero_default = if_is_non_zero_default;
+exports.chip_name_for_id_usage = chip_name_for_id_usage;
 
 exports.meta = {
   category: dbEnum.helperCategory.matter,
