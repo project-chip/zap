@@ -100,7 +100,8 @@ function httpGetDeviceTypeFeatures(db) {
 }
 
 /**
- * HTTP POST: elements to be updated after toggle a device type feature
+ * HTTP POST: elements to be updated after toggle a device type feature.
+ * Set related warnings if user confirmed the change or change is disabled.
  *
  * @param {*} db
  * @returns callback for the express uri registration
@@ -108,7 +109,7 @@ function httpGetDeviceTypeFeatures(db) {
 function httpPostCheckConformOnFeatureUpdate(db) {
   return async (request, response) => {
     let sessionId = request.zapSessionId
-    let { featureData, featureMap, endpointId } = request.body
+    let { featureData, featureMap, endpointId, changeConfirmed } = request.body
     let { endpointTypeClusterId, deviceTypeClusterId } = featureData
 
     let elements = await queryEndpointType.getEndpointTypeElements(
@@ -123,25 +124,26 @@ function httpPostCheckConformOnFeatureUpdate(db) {
       featureData,
       endpointId
     )
-
-    // set device type feature warning
-    await querySessionNotification.setNotificationOnFeatureChange(
-      db,
-      sessionId,
-      result
-    )
-    // do not set element warning if feature change disabled
-    if (!result.disableChange) {
-      let outdatedWarnings = conformChecker.getOutdatedElementWarning(
-        featureData,
-        elements,
-        result.elementMap
-      )
-      await querySessionNotification.deleteNotificationWithPatterns(
+    if (changeConfirmed || result.disableChange) {
+      // set device type feature warning
+      await querySessionNotification.setNotificationOnFeatureChange(
         db,
         sessionId,
-        outdatedWarnings
+        result
       )
+      // do not set element warning if feature change disabled
+      if (!result.disableChange) {
+        let outdatedWarnings = conformChecker.getOutdatedElementWarning(
+          featureData,
+          elements,
+          result.elementMap
+        )
+        await querySessionNotification.deleteNotificationWithPatterns(
+          db,
+          sessionId,
+          outdatedWarnings
+        )
+      }
     }
 
     response.status(StatusCodes.OK).json(result)

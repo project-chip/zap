@@ -220,6 +220,7 @@ exports.packageMatch = {
 
 exports.feature = {
   name: {
+    status: 'status',
     enabled: 'enabled',
     deviceType: 'deviceType',
     cluster: 'cluster',
@@ -231,6 +232,7 @@ exports.feature = {
     description: 'description'
   },
   label: {
+    status: '',
     enabled: 'Enabled',
     deviceType: 'Device Type',
     cluster: 'Cluster',
@@ -255,4 +257,9 @@ exports.conformance = {
   deprecated: 'D',
   provisional: 'P',
   desc: 'desc'
+}
+
+exports.clusterSide = {
+  client: 'client',
+  server: 'server'
 }
