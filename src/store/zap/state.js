@@ -57,8 +57,6 @@ export default function () {
     selectedGenericOptions: {},
     projectPackages: [],
     allPackages: [],
-    isDirty: false,
-    saveButtonVisible: false,
     clusterManager: {
       openDomains: {},
       lastSelectedDomain: null,

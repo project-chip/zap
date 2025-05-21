@@ -790,15 +790,6 @@ export function setDebugNavBar(state, debugNavBar) {
 }
 
 /**
- * Show save button in the UI using the state.
- * @param {*} state
- * @param {*} saveButtonVisible
- */
-export function setSaveButtonVisible(state, saveButtonVisible) {
-  state.saveButtonVisible = saveButtonVisible
-}
-
-/**
  * Set standalone mode for ZAP using the state.
  * @param {*} state
  * @param {*} standalone
