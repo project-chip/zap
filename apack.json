@@ -75,10 +75,10 @@
       "cmd": "$(zap-cli) --version"
     },
     "uc_generate": {
-      "cmd": "$(test -f ${sdkRoot}/app/zcl/zcl-zap.json && echo '--zcl ${sdkRoot}/app/zcl/zcl-zap.json' || echo '--zcl ${zcl.zigbeeZclJsonFile}') $(test -f ${sdkRoot}/extension/matter_extension/src/app/zap-templates/zcl/zcl.json && echo '--zcl ${sdkRoot}/extension/matter_extension/src/app/zap-templates/zcl/zcl.json' || echo '--zcl ${zcl.matterZclJsonFile}') $(test -f ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json && echo '--generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json' || echo '--generationTemplate ${zcl.zigbeeTemplateJsonFile}') $(test -f ${sdkRoot}/extension/matter_extension/src/app/zap-templates/app-templates.json && echo '--generationTemplate ${sdkRoot}/extension/matter_extension/src/app/zap-templates/app-templates.json' || echo '--generationTemplate ${zcl.matterTemplateJsonFile}') --noUi --noServer -o ${generationOutput} --packageMatch fuzzy --in ${contentFolder} --noLoadingFailure --appendGenerationSubdirectory --upgradeZapFile"
+      "cmd": "$(zap-cli) generate --noUi --noServer -o ${generationOutput} --packageMatch fuzzy $(test -f ${sdkRoot}/app/zcl/zcl-zap.json && echo '--zcl ${sdkRoot}/app/zcl/zcl-zap.json' || echo '--zcl ${zcl.zigbeeZclJsonFile}') $(test -f ${sdkRoot}/extension/matter_extension/src/app/zap-templates/zcl/zcl.json && echo '--zcl ${sdkRoot}/extension/matter_extension/src/app/zap-templates/zcl/zcl.json' || echo '--zcl ${zcl.matterZclJsonFile}') $(test -f ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json && echo '--generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json' || echo '--generationTemplate ${zcl.zigbeeTemplateJsonFile}') $(test -f ${sdkRoot}/extension/matter_extension/src/app/zap-templates/app-templates.json && echo '--generationTemplate ${sdkRoot}/extension/matter_extension/src/app/zap-templates/app-templates.json' || echo '--generationTemplate ${zcl.matterTemplateJsonFile}') --noLoadingFailure --appendGenerationSubdirectory --upgradeZapFile"
     },
     "uc_upgrade": {
-      "cmd": "$(test -f ${sdkRoot}/app/zcl/zcl-zap.json && echo '--zcl ${sdkRoot}/app/zcl/zcl-zap.json' || echo '--zcl ${zcl.zigbeeZclJsonFile}') $(test -f ${sdkRoot}/extension/matter_extension/src/app/zap-templates/zcl/zcl.json && echo '--zcl ${sdkRoot}/extension/matter_extension/src/app/zap-templates/zcl/zcl.json' || echo '--zcl ${zcl.matterZclJsonFile}') $(test -f ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json && echo '--generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json' || echo '--generationTemplate ${zcl.zigbeeTemplateJsonFile}') $(test -f ${sdkRoot}/extension/matter_extension/src/app/zap-templates/app-templates.json && echo '--generationTemplate ${sdkRoot}/extension/matter_extension/src/app/zap-templates/app-templates.json' || echo '--generationTemplate ${zcl.matterTemplateJsonFile}') --noLoadingFailure"
+      "cmd": "$(zap-cli) upgrade --results ${results} -d ${tempContentFolder} $(test -f ${sdkRoot}/app/zcl/zcl-zap.json && echo '--zcl ${sdkRoot}/app/zcl/zcl-zap.json' || echo '--zcl ${zcl.zigbeeZclJsonFile}') $(test -f ${sdkRoot}/extension/matter_extension/src/app/zap-templates/zcl/zcl.json && echo '--zcl ${sdkRoot}/extension/matter_extension/src/app/zap-templates/zcl/zcl.json' || echo '--zcl ${zcl.matterZclJsonFile}') $(test -f ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json && echo '--generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json' || echo '--generationTemplate ${zcl.zigbeeTemplateJsonFile}') $(test -f ${sdkRoot}/extension/matter_extension/src/app/zap-templates/app-templates.json && echo '--generationTemplate ${sdkRoot}/extension/matter_extension/src/app/zap-templates/app-templates.json' || echo '--generationTemplate ${zcl.matterTemplateJsonFile}') --noLoadingFailure"
     },
     "zapHelp": {
       "cmd": "$(zap) --help"
@@ -87,7 +87,7 @@
       "cmd": "$(zap) selfCheck"
     },
     "zapServer": {
-      "cmd": "$(test -f ${sdkRoot}/app/zcl/zcl-zap.json && echo '--zcl ${sdkRoot}/app/zcl/zcl-zap.json' || echo '--zcl ${zcl.zigbeeZclJsonFile}') $(test -f ${sdkRoot}/extension/matter_extension/src/app/zap-templates/zcl/zcl.json && echo '--zcl ${sdkRoot}/extension/matter_extension/src/app/zap-templates/zcl/zcl.json' || echo '--zcl ${zcl.matterZclJsonFile}') $(test -f ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json && echo '--generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json' || echo '--generationTemplate ${zcl.zigbeeTemplateJsonFile}') $(test -f ${sdkRoot}/extension/matter_extension/src/app/zap-templates/app-templates.json && echo '--generationTemplate ${sdkRoot}/extension/matter_extension/src/app/zap-templates/app-templates.json' || echo '--generationTemplate ${zcl.matterTemplateJsonFile}') --studioHttpPort ${studioHttpPort} --noLoadingFailure --appendGenerationSubdirectory"
+      "cmd": "$(zap-cli) server --reuseZapInstance $(test -f ${sdkRoot}/app/zcl/zcl-zap.json && echo '--zcl ${sdkRoot}/app/zcl/zcl-zap.json' || echo '--zcl ${zcl.zigbeeZclJsonFile}') $(test -f ${sdkRoot}/extension/matter_extension/src/app/zap-templates/zcl/zcl.json && echo '--zcl ${sdkRoot}/extension/matter_extension/src/app/zap-templates/zcl/zcl.json' || echo '--zcl ${zcl.matterZclJsonFile}') $(test -f ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json && echo '--generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json' || echo '--generationTemplate ${zcl.zigbeeTemplateJsonFile}') $(test -f ${sdkRoot}/extension/matter_extension/src/app/zap-templates/app-templates.json && echo '--generationTemplate ${sdkRoot}/extension/matter_extension/src/app/zap-templates/app-templates.json' || echo '--generationTemplate ${zcl.matterTemplateJsonFile}') --studioHttpPort ${studioHttpPort} --noLoadingFailure --appendGenerationSubdirectory"
     },
     "zapStop": {
       "cmd": "$(zap) stop --reuseZapInstance"
@@ -96,19 +96,19 @@
       "cmd": "$(zap) status --reuseZapInstance"
     },
     "zapServerNoSdk": {
-      "cmd": "$(zap) server --reuseZapInstance --studioHttpPort ${studioHttpPort}"
+      "cmd": "$(zap-cli) server --reuseZapInstance --studioHttpPort ${studioHttpPort}"
     },
     "zapFull": {
-      "cmd": "$(test -f ${sdkRoot}/app/zcl/zcl-zap.json && echo '--zcl ${sdkRoot}/app/zcl/zcl-zap.json' || echo '--zcl ${zcl.zigbeeZclJsonFile}')"
+      "cmd": "$(zap-cli) --showUrl $(test -f ${sdkRoot}/app/zcl/zcl-zap.json && echo '--zcl ${sdkRoot}/app/zcl/zcl-zap.json' || echo '--zcl ${zcl.zigbeeZclJsonFile}')"
     },
     "zapRegenSdk": {
-      "cmd": "$(zap) regenerateSdk --sdk ${sdkJsonFile}"
+      "cmd": "$(zap-cli) regenerateSdk --sdk ${sdkJsonFile}"
     },
     "zapIscConvert": {
-      "cmd": "$(test -f ${sdkRoot}/app/zcl/zcl-zap.json && echo '--zcl ${sdkRoot}/app/zcl/zcl-zap.json' || echo '--zcl ${zcl.zigbeeZclJsonFile}') --out ${outFile} ${inFile}"
+      "cmd": "$(zap-cli) convert --noUi --noServer $(test -f ${sdkRoot}/app/zcl/zcl-zap.json && echo '--zcl ${sdkRoot}/app/zcl/zcl-zap.json' || echo '--zcl ${zcl.zigbeeZclJsonFile}') --out ${outFile} ${inFile}"
     },
     "zapIscOpen": {
-      "cmd": "$(test -f ${sdkRoot}/app/zcl/zcl-zap.json && echo '--zcl ${sdkRoot}/app/zcl/zcl-zap.json' || echo '--zcl ${zcl.zigbeeZclJsonFile}') $(test -f ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json && echo '--generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json' || echo '--generationTemplate ${zcl.zigbeeTemplateJsonFile}') ${inFile}"
+      "cmd": "$(zap-cli) open --noServer $(test -f ${sdkRoot}/app/zcl/zcl-zap.json && echo '--zcl ${sdkRoot}/app/zcl/zcl-zap.json' || echo '--zcl ${zcl.zigbeeZclJsonFile}') $(test -f ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json && echo '--generationTemplate ${sdkRoot}/protocol/zigbee/app/framework/gen-template/gen-templates.json' || echo '--generationTemplate ${zcl.zigbeeTemplateJsonFile}') ${inFile}"
     }
   }
 }
