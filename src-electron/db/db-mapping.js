@@ -282,14 +282,14 @@ exports.map = {
   clusterFeature: (x) => {
     if (x == null) return undefined
     return {
-      id: x.FEATURE_ID,
+      featureId: x.FEATURE_ID,
       name: x.NAME,
       code: x.CODE,
       bit: x.BIT,
       description: x.DESCRIPTION,
       conformance: x.CONFORMANCE,
       packageRef: x.PACKAGE_REF,
-      clusterId: x.CLUSTER_REF
+      clusterRef: x.CLUSTER_REF
     }
   },
 
@@ -659,7 +659,8 @@ exports.map = {
       minInterval: x.MIN_INTERVAL,
       maxInterval: x.MAX_INTERVAL,
       reportableChange: x.REPORTABLE_CHANGE,
-      apiMaturity: x.API_MATURITY
+      apiMaturity: x.API_MATURITY,
+      id: x.ENDPOINT_TYPE_ATTRIBUTE_ID
     }
   },
 

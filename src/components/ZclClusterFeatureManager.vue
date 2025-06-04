@@ -16,10 +16,10 @@ limitations under the License.
 
 <template>
   <div>
-    <div v-if="featureData.length > 0">
+    <div v-if="clusterFeatures.length > 0">
       <q-table
         class="my-sticky-header-table"
-        :rows="featureData"
+        :rows="clusterFeatures"
         :columns="columns"
         row-key="<b>name</b>"
         dense
@@ -41,10 +41,11 @@ limitations under the License.
               <q-toggle
                 :disable="isToggleDisabled(props.row.conformance)"
                 class="q-mt-xs v-step-14"
-                v-model="enabledFeatures"
-                :val="props.row.id"
+                v-model="enabledClusterFeatures"
+                :val="props.row.featureId"
                 indeterminate-value="false"
                 keep-color
+                @update:model-value="(val) => onToggleFeature(props.row, val)"
               />
             </q-td>
             <q-td key="featureName" :props="props" auto-width>
@@ -65,6 +66,83 @@ limitations under the License.
           </q-tr>
         </template>
       </q-table>
+      <q-dialog v-model="showDialog" persistent>
+        <q-card>
+          <q-card-section>
+            <div class="row items-center">
+              <div class="text-h6 col">Elements to be updated</div>
+            </div>
+            <div v-if="attributesToUpdate.length > 0">
+              <div
+                class="text-body1"
+                style="margin-top: 15px; padding-left: 20px"
+              >
+                Attributes
+              </div>
+              <ul>
+                <li
+                  v-for="(attribute, index) in processElementsForDialog(
+                    attributesToUpdate
+                  )"
+                  :key="'attribute' + index"
+                  style="margin-bottom: 10px"
+                >
+                  {{ attribute }}
+                </li>
+              </ul>
+            </div>
+            <div v-if="commandsToUpdate.length > 0">
+              <div
+                class="text-body1"
+                style="margin-top: 15px; padding-left: 20px"
+              >
+                Commands
+              </div>
+              <ul>
+                <li
+                  v-for="(command, index) in processElementsForDialog(
+                    commandsToUpdate
+                  )"
+                  :key="'command' + index"
+                  style="margin-bottom: 10px"
+                >
+                  {{ command }}
+                </li>
+              </ul>
+            </div>
+            <div v-if="eventsToUpdate.length > 0">
+              <div
+                class="text-body1"
+                style="margin-top: 15px; padding-left: 20px"
+              >
+                Events
+              </div>
+              <ul>
+                <li
+                  v-for="(event, index) in processElementsForDialog(
+                    eventsToUpdate
+                  )"
+                  :key="'event' + index"
+                  style="margin-bottom: 10px"
+                >
+                  {{ event }}
+                </li>
+              </ul>
+            </div>
+          </q-card-section>
+          <q-card-actions>
+            <q-btn label="Cancel" v-close-popup class="col" />
+            <q-btn
+              label="Confirm"
+              color="primary"
+              @click="
+                confirmFeatureUpdate(selectedFeature, updatedEnabledFeatures)
+              "
+              class="col v-step-4 w-step-3"
+            />
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
     </div>
     <div v-else><br />{{ noFeaturesMessage }}</div>
   </div>
@@ -72,62 +150,22 @@ limitations under the License.
 
 <script>
 import EditableAttributesMixin from '../util/editable-attributes-mixin.js'
+import featureMixin from '../util/feature-mixin.js'
 import uiOptions from '../util/ui-options'
 import CommonMixin from '../util/common-mixin'
 import dbEnum from '../../src-shared/db-enum'
 
 export default {
   name: 'ZclClusterFeatureManager',
-  mixins: [EditableAttributesMixin, uiOptions, CommonMixin],
-  computed: {
-    featureData() {
-      return this.$store.state.zap.features
-        .filter((feature) => {
-          return this.individualClusterFilterString == ''
-            ? true
-            : feature.name
-                .toLowerCase()
-                .includes(this.individualClusterFilterString.toLowerCase())
-        })
-        .map((feature) => {
-          // override feature conformance from device type features if available
-          const matchingDeviceTypeFeature = this.deviceTypeFeatures.find(
-            (deviceTypeFeature) =>
-              deviceTypeFeature.featureId === feature.id &&
-              deviceTypeFeature.clusterRef === feature.clusterId
-          )
-          if (matchingDeviceTypeFeature) {
-            feature.conformance = matchingDeviceTypeFeature.conformance
-          }
-          return feature
-        })
-    },
-    featureMapValue() {
-      return this.$store.state.zap.featureMapValue
-    },
-    enabledFeatures() {
-      return this.featureData
-        .filter((feature) => {
-          return this.getEnabledBitsFromFeatureMapValue(
-            this.featureMapValue
-          ).includes(feature.bit)
-        })
-        .map((feature) => feature.id)
-    }
-  },
+  mixins: [EditableAttributesMixin, uiOptions, CommonMixin, featureMixin],
+  computed: {},
   methods: {
     isToggleDisabled(conformance) {
-      // disable toggling features for now, will support in future PR
-      return true
-    },
-    getEnabledBitsFromFeatureMapValue(featureMapValue) {
-      let enabledBits = []
-      for (let i = 0; i < 32; i++) {
-        if ((featureMapValue & (1 << i)) != 0) {
-          enabledBits.push(i)
-        }
-      }
-      return enabledBits
+      // disable toggling features with unsupported conformance
+      return (
+        conformance == dbEnum.conformanceTag.disallowed ||
+        conformance == dbEnum.conformanceTag.deprecated
+      )
     }
   },
   data() {

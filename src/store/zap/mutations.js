@@ -194,12 +194,12 @@ export function updateAttributes(state, attributes) {
 }
 
 /**
- * Update the default value of feature map attribute in the state.
+ * Update the feature map attribute in the state.
  * @param {*} state
- * @param {*} attributes
+ * @param {*} data
  */
-export function updateFeatureMapValue(state, value) {
-  state.featureMapValue = value
+export function updateFeatureMapAttribute(state, data) {
+  state.featureMapAttribute = data
 }
 
 /**
@@ -1178,7 +1178,7 @@ export function updateEnabledDeviceTypeFeatures(state, data) {
  * @param {*} featureMapAttributeId
  * @param {*} featureMapValue
  */
-export function updateFeatureMapAttributeOfFeature(
+export function updateFeatureMapAttributeOfDeviceTypeFeatures(
   state,
   { featureMapAttributeId, featureMapValue }
 ) {
@@ -1190,7 +1190,7 @@ export function updateFeatureMapAttributeOfFeature(
 }
 
 /**
- * Updates the conformDataExists state to show or hide the device type features button.
+ * Updates the conformDataExists state to show or hide device type and cluster feature page.
  * @param {*} state
  * @param {*} value
  */

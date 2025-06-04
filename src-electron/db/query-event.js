@@ -236,18 +236,14 @@ ORDER BY
 
 /**
  * Get all events in an endpoint type cluster
- * Disabled events are not loaded into ENDPOINT_TYPE_EVENT table,
- * so we need to load all events by joining DEVICE_TYPE_CLUSTER table
  *
  * @param {*} db
  * @param {*} endpointTypeClusterId
- * @param {*} deviceTypeClusterId
  * @returns all events in an endpoint type cluster
  */
 async function selectEventsByEndpointTypeClusterIdAndDeviceTypeClusterId(
   db,
-  endpointTypeClusterId,
-  deviceTypeClusterId
+  endpointTypeClusterId
 ) {
   let rows = await dbApi.dbAll(
     db,
@@ -262,19 +258,19 @@ async function selectEventsByEndpointTypeClusterIdAndDeviceTypeClusterId(
     FROM
       EVENT
     JOIN
-      DEVICE_TYPE_CLUSTER
+      ENDPOINT_TYPE_CLUSTER
     ON
-      EVENT.CLUSTER_REF = DEVICE_TYPE_CLUSTER.CLUSTER_REF
+        EVENT.CLUSTER_REF = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
+      AND
+        ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = ?
     LEFT JOIN
       ENDPOINT_TYPE_EVENT
     ON
         EVENT.EVENT_ID = ENDPOINT_TYPE_EVENT.EVENT_REF
       AND
-        ENDPOINT_TYPE_EVENT.ENDPOINT_TYPE_CLUSTER_REF = ?
-    WHERE
-      DEVICE_TYPE_CLUSTER.DEVICE_TYPE_CLUSTER_ID = ?
+        ENDPOINT_TYPE_EVENT.ENDPOINT_TYPE_CLUSTER_REF = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
     `,
-    [endpointTypeClusterId, deviceTypeClusterId]
+    [endpointTypeClusterId]
   )
   return rows.map(dbMapping.map.endpointTypeEventExtended)
 }

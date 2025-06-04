@@ -23,6 +23,8 @@
 
 const dbEnum = require('../../src-shared/db-enum')
 
+const TERM_REGEX = /[A-Za-z][A-Za-z0-9_]*/g
+
 /**
  * Evaluate the value of a boolean conformance expression that includes terms and operators.
  * A term can be an attribute, command, event, feature, or conformance abbreviation.
@@ -43,12 +45,8 @@ function evaluateConformanceExpression(expression, elementMap) {
    */
   function evaluateBooleanExpression(expr) {
     // Replace terms with their actual values from elementMap
-    expr = expr.replace(/[A-Za-z][A-Za-z0-9_]*/g, (term) => {
-      if (elementMap[term]) {
-        return 'true'
-      } else {
-        return 'false'
-      }
+    expr = expr.replace(TERM_REGEX, (term) => {
+      return elementMap[term] ? 'true' : 'false'
     })
 
     // Evaluate NOT (!) operators
@@ -76,7 +74,7 @@ function evaluateConformanceExpression(expression, elementMap) {
   let parts = expression.split(',').map((part) => part.trim())
   // if any term is desc, the conformance is too complex to parse
   for (let part of parts) {
-    let terms = part.match(/[A-Za-z][A-Za-z0-9_]*/g)
+    let terms = getTermsFromExpression(part)
     if (terms && terms.includes(dbEnum.conformanceTag.desc)) {
       return dbEnum.conformanceTag.desc
     }
@@ -123,7 +121,7 @@ function evaluateConformanceExpression(expression, elementMap) {
  * @returns all missing terms in an array
  */
 function checkMissingTerms(expression, elementMap) {
-  let terms = expression.match(/[A-Za-z][A-Za-z0-9_]*/g)
+  let terms = getTermsFromExpression(expression)
   let missingTerms = []
   let abbreviations = Object.values(dbEnum.conformanceTag)
   for (let term of terms) {
@@ -142,10 +140,107 @@ function checkMissingTerms(expression, elementMap) {
  * @returns true if the expression contains the term, false otherwise
  */
 function checkIfExpressionHasTerm(expression, term) {
-  let terms = expression.match(/[A-Za-z][A-Za-z0-9_]*/g)
+  let terms = getTermsFromExpression(expression)
   return terms && terms.includes(term)
+}
+
+/**
+ * Extract terms from a conformance expression.
+ *
+ * @param {*} expression
+ * @returns {string[]} Array of terms extracted from the expression
+ */
+function getTermsFromExpression(expression) {
+  if (!expression) return []
+  let terms = expression.match(TERM_REGEX)
+  return terms ? terms : []
+}
+
+/**
+ * Filter elements that have conformance containing 'desc' and given feature code.
+ *
+ * @export
+ * @param {*} elements
+ * @param {*} featureCode
+ * @returns elements with conformance containing 'desc' and given feature code
+ */
+function filterRelatedDescElements(elements, featureCode) {
+  return elements.filter((element) => {
+    let terms = getTermsFromExpression(element.conformance)
+    return (
+      terms &&
+      terms.includes(dbEnum.conformanceTag.desc) &&
+      terms.includes(featureCode)
+    )
+  })
+}
+
+/**
+ * Check which features need to be updated or have conformance changes due to the updated feature.
+ *
+ * @param {*} updatedFeatureCode
+ * @param {*} clusterFeatures
+ * @param {*} elementMap
+ * @returns {Object} Contains:
+ *   - updatedFeatures: Map of features with incorrect conformance that need to be updated.
+ *   - changedConformFeatures: Array of feature objects with conformance value changed after the feature update.
+ */
+function checkFeaturesToUpdate(
+  updatedFeatureCode,
+  clusterFeatures,
+  elementMap
+) {
+  // build a map of feature codes to their conformance expressions
+  let featureConformance = clusterFeatures.reduce((map, feature) => {
+    map[feature.code] = feature.conformance
+    return map
+  }, {})
+
+  let updatedFeatures = {}
+  let changedConformFeatures = []
+  for (let [featureCode, expression] of Object.entries(featureConformance)) {
+    if (featureCode == updatedFeatureCode) {
+      continue
+    }
+
+    // skip if conformance is not related to the updated feature
+    let terms = getTermsFromExpression(expression)
+    if (!terms.includes(updatedFeatureCode)) {
+      continue
+    }
+
+    let conformance = evaluateConformanceExpression(expression, elementMap)
+
+    if (conformance == 'mandatory' && !elementMap[featureCode]) {
+      updatedFeatures[featureCode] = true
+    }
+    if (conformance == 'notSupported' && elementMap[featureCode]) {
+      updatedFeatures[featureCode] = false
+    }
+
+    let oldElementMap = { ...elementMap }
+    oldElementMap[updatedFeatureCode] = !oldElementMap[updatedFeatureCode]
+    let oldConformance = evaluateConformanceExpression(
+      expression,
+      oldElementMap
+    )
+
+    // compare conformance before and after the feature update
+    if (conformance !== oldConformance) {
+      changedConformFeatures.push(featureCode)
+    }
+  }
+
+  changedConformFeatures = changedConformFeatures.map((code) => {
+    return clusterFeatures.find((feature) => feature.code == code)
+  })
+
+  return { updatedFeatures, changedConformFeatures }
 }
 
 exports.evaluateConformanceExpression = evaluateConformanceExpression
 exports.checkMissingTerms = checkMissingTerms
 exports.checkIfExpressionHasTerm = checkIfExpressionHasTerm
+exports.checkFeaturesToUpdate = checkFeaturesToUpdate
+exports.filterRelatedDescElements = filterRelatedDescElements
+exports.getTermsFromExpression = getTermsFromExpression

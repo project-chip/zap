@@ -26,28 +26,11 @@ const conformEvaluator = require('./conformance-expression-evaluator')
 const queryFeature = require('../db/query-feature')
 const querySessionNotice = require('../db/query-session-notification')
 const queryEndpointType = require('../db/query-endpoint-type')
+const queryZcl = require('../db/query-zcl')
 const dbEnum = require('../../src-shared/db-enum')
 
 /**
- *
- * @export
- * @param {*} elements
- * @param {*} featureCode
- * @returns elements with conformance containing 'desc' and the feature code
- */
-function filterRelatedDescElements(elements, featureCode) {
-  return elements.filter((element) => {
-    let terms = element.conformance.match(/[A-Za-z][A-Za-z0-9_]*/g)
-    return (
-      terms &&
-      terms.includes(dbEnum.conformanceTag.desc) &&
-      terms.includes(featureCode)
-    )
-  })
-}
-
-/**
- * Generate a warning message after processing conformance of the updated device type feature.
+ * Generate warning messages based on conformance checks of the updated feature and related elements.
  * Set flags to decide whether to show warnings or disable changes in the frontend.
  *
  * @param {*} featureData
@@ -55,6 +38,8 @@ function filterRelatedDescElements(elements, featureCode) {
  * @param {*} elementMap
  * @param {*} featureMap
  * @param {*} descElements
+ * @param {*} featuresToUpdate
+ * @param {*} clusterFeatures
  * @returns warning message array, disableChange flag, and displayWarning flag
  */
 function generateWarningMessage(
@@ -62,24 +47,30 @@ function generateWarningMessage(
   endpointId,
   featureMap,
   elementMap = {},
-  descElements = {}
+  descElements = {},
+  featuresToUpdate = {},
+  changedConformFeatures = []
 ) {
-  let featureName = featureData.name
-  let added = featureMap[featureData.code] ? true : false
-  let deviceTypeNames = featureData.deviceTypes.join(', ')
+  // feature change is disabled by default before the checks
   let result = {
-    warningMessage: '',
+    warningMessage: [],
     disableChange: true,
     displayWarning: true
   }
-  result.warningMessage = []
 
-  let warningPrefix =
+  let added = featureMap[featureData.code] ? true : false
+
+  // build warning prefix string for the given feature
+  let buildWarningPrefix = (featureData) =>
     `⚠ Check Feature Compliance on endpoint: ${endpointId}, cluster: ${featureData.cluster}, ` +
-    `feature: ${featureName} (bit ${featureData.bit} in featureMap attribute)`
+    `feature: ${featureData.name} (${featureData.code}) (bit ${featureData.bit} in featureMap attribute)`
+  let warningPrefix = buildWarningPrefix(featureData)
 
+  let updateDisabledString = `cannot be ${added ? 'enabled' : 'disabled'} as`
+
+  // Check 1: if any terms in the feature conformance are missing from elementMap
   let missingTerms = []
-  if (Object.keys(elementMap).length > 0) {
+  if (Object.keys(elementMap).length > 0 && featureData.conformance) {
     missingTerms = conformEvaluator.checkMissingTerms(
       featureData.conformance,
       elementMap
@@ -88,13 +79,41 @@ function generateWarningMessage(
       let missingTermsString = missingTerms.join(', ')
       result.warningMessage.push(
         warningPrefix +
-          ' cannot be enabled as its conformance depends on non device type features ' +
+          ` ${updateDisabledString} its conformance depends on the following terms with unknown values: ` +
           missingTermsString +
-          ' with unknown values'
+          '.'
       )
     }
   }
 
+  // Check 2: if the feature conformance contains the term 'desc'
+  let featureContainsDesc = conformEvaluator.checkIfExpressionHasTerm(
+    featureData.conformance,
+    dbEnum.conformanceTag.desc
+  )
+  if (featureContainsDesc) {
+    result.warningMessage.push(
+      warningPrefix +
+        ` ${updateDisabledString} conformance containing the term "desc" 
+        is too complex to be processed.`
+    )
+  }
+
+  // Check 3: if the feature update will change the conformance of other dependent features
+  if (featuresToUpdate && Object.keys(featuresToUpdate).length > 0) {
+    let featuresToUpdateString = Object.entries(featuresToUpdate)
+      .map(([feature, isEnabled]) =>
+        isEnabled ? `enable ${feature}` : `disable ${feature}`
+      )
+      .join(', ')
+    result.warningMessage.push(
+      warningPrefix +
+        ` ${updateDisabledString} it will change the conformance of other dependent features. 
+        Update the following features in the same cluster first: ${featuresToUpdateString}.`
+    )
+  }
+
+  // Check 4: if any elements that conform to the updated feature contain 'desc' in their conformance
   if (
     (descElements.attributes && descElements.attributes.length > 0) ||
     (descElements.commands && descElements.commands.length > 0) ||
@@ -109,53 +128,90 @@ function generateWarningMessage(
     let eventNames = descElements.events.map((event) => event.name).join(', ')
     result.warningMessage.push(
       warningPrefix +
-        ' cannot be enabled as ' +
+        ` ${updateDisabledString} ` +
         (attributeNames ? 'attribute ' + attributeNames : '') +
         (attributeNames && commandNames ? ', ' : '') +
         (commandNames ? 'command ' + commandNames : '') +
         ((attributeNames || commandNames) && eventNames ? ', ' : '') +
         (eventNames ? 'event ' + eventNames : '') +
-        ' depend on the feature and their conformance are too complex to parse.'
+        ' depend on the feature and their conformance are too complex to be processed.'
     )
   }
 
   if (
     missingTerms.length == 0 &&
+    !featureContainsDesc &&
     (Object.keys(descElements).length == 0 ||
       (descElements.attributes.length == 0 &&
         descElements.commands.length == 0 &&
-        descElements.events.length == 0))
+        descElements.events.length == 0)) &&
+    Object.keys(featuresToUpdate).length == 0
   ) {
-    let conformance = conformEvaluator.evaluateConformanceExpression(
-      featureData.conformance,
-      featureMap
-    )
-    // if no missing terms and no desc elements, enable the feature change
+    // if all checks above passed, enable the feature change
     result.disableChange = false
     result.displayWarning = false
+
+    if (Object.keys(elementMap).length == 0) {
+      elementMap = featureMap
+    }
+    let conformance = conformEvaluator.evaluateConformanceExpression(
+      featureData.conformance,
+      elementMap
+    )
+
+    let combinedTerms = getConformanceTermStates(
+      featureData.conformance,
+      elementMap,
+      featureMap
+    )
+    // if a device type is associated with the feature, add it to the warning message
+    let deviceTypeString = featureData.deviceTypes
+      ? `for device type: ${featureData.deviceTypes.join(', ')}`
+      : ''
+
+    // generate warning message for features that conform to elements
+    let buildElementConformMessage = (state) =>
+      ` has mandatory conformance to ${featureData.conformance} 
+        and should be ${state} ${deviceTypeString}, when ${combinedTerms}.`
+    // generate warning message for features with non-element conformance,
+    // like 'M' for 'mandatory', 'P' for 'provisional', .etc.
+    let buildNonElementConformMessage = (state, conformance) =>
+      ` should be ${state}, as it is ${conformance} ${deviceTypeString}.`
+
     // in this case only 1 warning message is needed
     result.warningMessage = ''
     if (conformance == 'notSupported') {
       result.warningMessage =
         warningPrefix +
-        ' should be disabled, as it is not supported for device type: ' +
-        deviceTypeNames
+        (combinedTerms
+          ? buildElementConformMessage('disabled')
+          : buildNonElementConformMessage('disabled', 'not supported'))
       result.displayWarning = added
     }
     if (conformance == 'provisional') {
       result.warningMessage =
-        warningPrefix +
-        ' is enabled, but it is still provisional for device type: ' +
-        deviceTypeNames
+        warningPrefix + ' is enabled, but it is still provisional.'
       result.displayWarning = added
     }
     if (conformance == 'mandatory') {
       result.warningMessage =
         warningPrefix +
-        ' should be enabled, as it is mandatory for device type: ' +
-        deviceTypeNames
+        (combinedTerms
+          ? buildElementConformMessage('enabled')
+          : buildNonElementConformMessage('enabled', 'mandatory'))
       result.displayWarning = !added
     }
+
+    // generate patterns for outdated feature warnings to be deleted
+    let updatedFeatures = [featureData, ...(changedConformFeatures || [])]
+    result.outdatedWarningPatterns = updatedFeatures.flatMap((feature) => {
+      let prefix = buildWarningPrefix(feature)
+      return [
+        `${prefix} cannot be enabled`,
+        `${prefix} cannot be disabled`,
+        `${prefix} has mandatory conformance to`
+      ]
+    })
   }
 
   return result
@@ -170,6 +226,7 @@ function generateWarningMessage(
  * @param {*} featureMap
  * @param {*} featureData
  * @param {*} endpointId
+ * @param {*} clusterFeatures
  * @returns attributes, commands, and events to update, with warnings if featureData provided;
  * required and unsupported attributes, commands, and events, with warnings if not.
  */
@@ -177,7 +234,8 @@ function checkElementConformance(
   elements,
   featureMap,
   featureData = null,
-  endpointId = null
+  endpointId = null,
+  clusterFeatures = null
 ) {
   let { attributes, commands, events } = elements
   let featureCode = featureData ? featureData.code : ''
@@ -193,22 +251,46 @@ function checkElementConformance(
   events.forEach((event) => {
     elementMap[event.name] = event.included
   })
-  elementMap['Matter'] = 1
-  elementMap['Zigbee'] = 0
+  elementMap['Matter'] = true
+  elementMap['Zigbee'] = false
+
+  // prepare features with updated conformance for generating warnings
+  let featuresToUpdate = {}
+  let changedConformFeatures = []
+  if (clusterFeatures && featureData) {
+    let result = conformEvaluator.checkFeaturesToUpdate(
+      featureCode,
+      clusterFeatures,
+      elementMap
+    )
+    featuresToUpdate = result.updatedFeatures
+    changedConformFeatures = result.changedConformFeatures
+  }
 
   let warningInfo = {}
   if (featureData != null) {
     let descElements = {}
-    descElements.attributes = filterRelatedDescElements(attributes, featureCode)
-    descElements.commands = filterRelatedDescElements(commands, featureCode)
-    descElements.events = filterRelatedDescElements(events, featureCode)
+    descElements.attributes = conformEvaluator.filterRelatedDescElements(
+      attributes,
+      featureCode
+    )
+    descElements.commands = conformEvaluator.filterRelatedDescElements(
+      commands,
+      featureCode
+    )
+    descElements.events = conformEvaluator.filterRelatedDescElements(
+      events,
+      featureCode
+    )
 
     warningInfo = generateWarningMessage(
       featureData,
       endpointId,
       featureMap,
       elementMap,
-      descElements
+      descElements,
+      featuresToUpdate,
+      changedConformFeatures
     )
 
     if (warningInfo.disableChange) {
@@ -279,12 +361,12 @@ function filterElementsToUpdate(elements, elementMap, featureCode) {
 /**
  * Get warnings for element requirements that are outdated after a feature update.
  *
- * @param {*} featureData
+ * @param {*} featureCode
  * @param {*} elements
  * @param {*} elementMap
  * @returns array of outdated element warnings
  */
-function getOutdatedElementWarning(featureData, elements, elementMap) {
+function getOutdatedElementWarning(featureCode, elements, elementMap) {
   let outdatedWarnings = []
 
   /**
@@ -296,13 +378,13 @@ function getOutdatedElementWarning(featureData, elements, elementMap) {
    */
   function processElements(elementType) {
     elements[elementType].forEach((element) => {
-      if (element.conformance.includes(featureData.code)) {
+      if (element.conformance.includes(featureCode)) {
         let newConform = conformEvaluator.evaluateConformanceExpression(
           element.conformance,
           elementMap
         )
         let oldMap = { ...elementMap }
-        oldMap[featureData.code] = !oldMap[featureData.code]
+        oldMap[featureCode] = !oldMap[featureCode]
         let oldConform = conformEvaluator.evaluateConformanceExpression(
           element.conformance,
           oldMap
@@ -342,28 +424,13 @@ function filterRequiredElements(elements, elementMap, featureMap) {
       element.conformance,
       elementMap
     )
-    let expression = element.conformance
-    let terms = expression ? expression.match(/[A-Za-z][A-Za-z0-9_]*/g) : []
-    let featureTerms = terms
-      .filter((term) => term in featureMap)
-      .map(
-        (term) =>
-          `feature: ${term} is ${featureMap[term] ? 'enabled' : 'disabled'}`
-      )
-      .join(', ')
-    let elementTerms = terms
-      .filter((term) => !(term in featureMap))
-      .map(
-        (term) =>
-          `element: ${term} is ${elementMap[term] ? 'enabled' : 'disabled'}`
-      )
-      .join(', ')
-    let combinedTerms = [featureTerms, elementTerms].filter(Boolean).join(', ')
-    let conformToElement = terms.some((term) =>
-      Object.keys(elementMap).includes(term)
+    let combinedTerms = getConformanceTermStates(
+      element.conformance,
+      elementMap,
+      featureMap
     )
 
-    if (conformToElement) {
+    if (combinedTerms) {
       let suggestedState = ''
       if (conformance == 'mandatory') {
         suggestedState = 'enabled'
@@ -375,7 +442,7 @@ function filterRequiredElements(elements, elementMap, featureMap) {
       // generate warning message for required and unsupported elements
       element.warningMessage =
         `${element.name} has mandatory conformance to ${element.conformance} ` +
-        `and should be ${suggestedState} when ` +
+        `and should be ${suggestedState}, when ` +
         combinedTerms +
         '.'
       if (conformance == 'mandatory') {
@@ -387,6 +454,43 @@ function filterRequiredElements(elements, elementMap, featureMap) {
     }
   })
   return requiredElements
+}
+
+/**
+ * Generates a summary of enabled/disabled state for element terms in a conformance expression.
+ *
+ * @param {*} expression
+ * @param {*} elementMap
+ * @param {*} featureMap
+ * @returns a string describing the state of conformance terms,
+ * empty string if no terms conform to any element
+ */
+function getConformanceTermStates(expression, elementMap, featureMap) {
+  let terms = conformEvaluator.getTermsFromExpression(expression)
+  let nonElementTerms = Object.values(dbEnum.conformance)
+
+  let featureTerms = terms
+    .filter((term) => term in featureMap)
+    .map(
+      (term) =>
+        `feature: ${term} is ${featureMap[term] ? 'enabled' : 'disabled'}`
+    )
+    .join(', ')
+  let elementTerms = terms
+    .filter((term) => !(term in featureMap) && !nonElementTerms.includes(term))
+    .map(
+      (term) =>
+        `element: ${term} is ${elementMap[term] ? 'enabled' : 'disabled'}`
+    )
+    .join(', ')
+  let combinedTerms = [featureTerms, elementTerms].filter(Boolean).join(', ')
+
+  let conformToElement = terms.some((term) =>
+    Object.keys(elementMap).includes(term)
+  )
+
+  // if no terms conform to any element, return empty string
+  return conformToElement ? combinedTerms : ''
 }
 
 /**
@@ -421,11 +525,9 @@ async function setConformanceWarnings(
   )
 
   if (clusterFeatures.length > 0) {
-    let deviceTypeClusterId = clusterFeatures[0].deviceTypeClusterId
     let endpointTypeElements = await queryEndpointType.getEndpointTypeElements(
       db,
-      endpointClusterId,
-      deviceTypeClusterId
+      endpointClusterId
     )
 
     let featureMapVal = clusterFeatures[0].featureMapValue
@@ -521,7 +623,35 @@ async function setConformanceWarnings(
   return false
 }
 
+/**
+ * Get the endpoint type cluster ID from feature data or by querying the database.
+ *
+ * @param {*} db
+ * @param {*} featureData
+ * @param {*} endpointTypeId
+ * @param {*} clusterRef
+ * @returns endpoint type cluster ID
+ */
+async function getEndpointTypeClusterIdFromFeatureData(
+  db,
+  featureData,
+  endpointTypeId,
+  clusterRef
+) {
+  if (featureData) {
+    clusterRef = featureData.clusterRef
+  }
+  let endpointTypeClusterId =
+    await queryZcl.selectServerEndpointTypeClusterIdByEndpointTypeIdAndClusterRef(
+      db,
+      endpointTypeId,
+      clusterRef
+    )
+  return endpointTypeClusterId
+}
+
 exports.checkElementConformance = checkElementConformance
-exports.filterRelatedDescElements = filterRelatedDescElements
 exports.getOutdatedElementWarning = getOutdatedElementWarning
 exports.setConformanceWarnings = setConformanceWarnings
+exports.getEndpointTypeClusterIdFromFeatureData =
+  getEndpointTypeClusterIdFromFeatureData

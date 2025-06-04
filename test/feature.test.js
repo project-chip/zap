@@ -256,7 +256,7 @@ test(
       { name: 'Element7', conformance: 'description' }
     ]
 
-    let descTerms = conformChecker.filterRelatedDescElements(elements, 'desc')
+    let descTerms = conformEvaluator.filterRelatedDescElements(elements, 'desc')
     expect(descTerms).toEqual([
       { name: 'Element1', conformance: 'desc' },
       { name: 'Element2', conformance: 'P, desc' },
@@ -266,7 +266,7 @@ test(
     ])
 
     const featureCode = 'HS'
-    let relatedDescTerms = conformChecker.filterRelatedDescElements(
+    let relatedDescTerms = conformEvaluator.filterRelatedDescElements(
       elements,
       featureCode
     )
@@ -280,7 +280,7 @@ test(
 test(
   'Check elements with conformance needs to be updated and generate warnings',
   () => {
-    /* simulate toggling device type features in Color Control cluster
+    /* simulate toggling features in Color Control cluster
        to test if elements with wrong conformance are checked and returned,
        and test if generated warnings are correct */
     // define part of elements in Color Control cluster
@@ -344,6 +344,7 @@ test(
       deviceTypes: [deviceType],
       bit: featureBit
     }
+    let clusterFeatures = [featureHS, featureXY, featureUnknown]
     let endpointId = 1
     let result = {}
     let expectedWarning = ''
@@ -356,7 +357,8 @@ test(
       elements,
       featureMap,
       featureHS,
-      endpointId
+      endpointId,
+      clusterFeatures
     )
     // no warnings should be generated
     expect(result.displayWarning).toBeFalsy()
@@ -381,13 +383,14 @@ test(
       elements,
       featureMap,
       featureXY,
-      endpointId
+      endpointId,
+      clusterFeatures
     )
     // should throw and display warning
     expectedWarning =
       warningPrefix +
-      `feature: ${featureXY.name} ${featureBitMessage} should be enabled, ` +
-      `as it is mandatory for device type: ${deviceType}`
+      `feature: ${featureXY.name} (${featureXY.code}) ${featureBitMessage} should be enabled, ` +
+      `as it is mandatory for device type: ${deviceType}.`
     expect(result.displayWarning).toBeTruthy()
     expect(result.disableChange).toBeFalsy()
     expect(result.warningMessage).toBe(expectedWarning)
@@ -408,13 +411,13 @@ test(
       elements,
       featureMap,
       featureUnknown,
-      endpointId
+      endpointId,
+      clusterFeatures
     )
     expectedWarning =
       warningPrefix +
-      `feature: ${featureUnknown.name} ${featureBitMessage} cannot be enabled ` +
-      `as its conformance depends on non device type features ` +
-      `Feature1, Feature2 with unknown values`
+      `feature: ${featureUnknown.name} (${featureUnknown.code}) ${featureBitMessage} cannot be enabled ` +
+      `as its conformance depends on the following terms with unknown values: Feature1, Feature2.`
     // should display warning and disable the change
     // no attributes commands, or events should be updated
     expect(result.displayWarning).toBeTruthy()
@@ -438,13 +441,14 @@ test(
       elements,
       featureMap,
       featureHS,
-      endpointId
+      endpointId,
+      clusterFeatures
     )
     expectedWarning =
       warningPrefix +
-      `feature: ${featureHS.name} ${featureBitMessage} ` +
+      `feature: ${featureHS.name} (${featureHS.code}) ${featureBitMessage} ` +
       `cannot be enabled as attribute ${descElement.name} ` +
-      `depend on the feature and their conformance are too complex to parse.`
+      `depend on the feature and their conformance are too complex to be processed.`
     expect(result.displayWarning).toBeTruthy()
     expect(result.disableChange).toBeTruthy()
     expect(result.warningMessage[0]).toBe(expectedWarning)
@@ -462,7 +466,8 @@ test(
       elements,
       featureMap,
       featureUnknown,
-      endpointId
+      endpointId,
+      clusterFeatures
     )
     expect(result.displayWarning).toBeTruthy()
     expect(result.disableChange).toBeTruthy()
@@ -495,14 +500,14 @@ test(
         attribute.code == dbEnum.featureMapAttribute.code
     )
 
-    let resp = await axiosInstance.get(restApi.uri.featureMapValue, {
+    let resp = await axiosInstance.get(restApi.uri.featureMapAttribute, {
       params: {
         attributeId: featureMapAttribute.id,
         clusterId: onOffCluster.clusterId,
         endpointTypeId: eptId
       }
     })
-    let featureMapValue = resp.data
+    let featureMapValue = parseInt(resp.data.defaultValue)
 
     /* The featureMap value should be 1 because, in the Dimmable Light device type, On/Off cluster,
        only the Lighting (LT) feature on bit 0 is enabled by default. */
