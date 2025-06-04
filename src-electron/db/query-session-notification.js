@@ -197,7 +197,7 @@ async function setWarningIfMessageNotExists(db, sessionId, message) {
 }
 
 /**
- * Set or delete warning notification after updating a device type feature.
+ * Set new warnings and delete outdated warnings after updating a feature.
  *
  * @export
  * @param {*} db
@@ -205,17 +205,23 @@ async function setWarningIfMessageNotExists(db, sessionId, message) {
  * @param {*} result
  */
 async function setNotificationOnFeatureChange(db, sessionId, result) {
-  let { warningMessage, disableChange, displayWarning } = result
+  let {
+    warningMessage,
+    disableChange,
+    displayWarning,
+    outdatedWarningPatterns
+  } = result
   if (disableChange) {
     for (let message of warningMessage) {
       await setWarningIfMessageNotExists(db, sessionId, message)
     }
-    return
-  }
-  if (displayWarning) {
-    await setNotification(db, 'WARNING', warningMessage, sessionId, 2, 0)
   } else {
-    await searchNotificationByMessageAndDelete(db, sessionId, warningMessage)
+    await deleteNotificationWithPatterns(db, sessionId, outdatedWarningPatterns)
+    if (displayWarning) {
+      await setNotification(db, 'WARNING', warningMessage, sessionId, 2, 0)
+    } else {
+      await searchNotificationByMessageAndDelete(db, sessionId, warningMessage)
+    }
   }
 }
 
