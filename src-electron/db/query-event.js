@@ -241,10 +241,7 @@ ORDER BY
  * @param {*} endpointTypeClusterId
  * @returns all events in an endpoint type cluster
  */
-async function selectEventsByEndpointTypeClusterIdAndDeviceTypeClusterId(
-  db,
-  endpointTypeClusterId
-) {
+async function selectEventsByEndpointTypeClusterId(db, endpointTypeClusterId) {
   let rows = await dbApi.dbAll(
     db,
     `
@@ -278,8 +275,8 @@ async function selectEventsByEndpointTypeClusterIdAndDeviceTypeClusterId(
 exports.selectEventsByClusterId = selectEventsByClusterId
 exports.selectAllEvents = selectAllEvents
 exports.selectAllEventFields = selectAllEventFields
-exports.selectEventsByEndpointTypeClusterIdAndDeviceTypeClusterId =
-  selectEventsByEndpointTypeClusterIdAndDeviceTypeClusterId
+exports.selectEventsByEndpointTypeClusterId =
+  selectEventsByEndpointTypeClusterId
 exports.selectEventFieldsByEventId = selectEventFieldsByEventId
 exports.selectEndpointTypeEventsByEndpointTypeRefAndClusterRef =
   selectEndpointTypeEventsByEndpointTypeRefAndClusterRef

@@ -2061,7 +2061,7 @@ async function selectNonManufacturerSpecificCommandDetailsFromAllEndpointTypesAn
  * @param {*} endpointTypeClusterId
  * @returns all commands in an endpoint type cluster
  */
-async function selectCommandsByEndpointTypeClusterIdAndDeviceTypeClusterId(
+async function selectCommandsByEndpointTypeClusterId(
   db,
   endpointTypeClusterId
 ) {
@@ -2147,5 +2147,5 @@ exports.selectAllOutgoingCommandsForCluster =
 exports.selectEndpointTypeCommandsByEndpointTypeRefAndClusterRef =
   selectEndpointTypeCommandsByEndpointTypeRefAndClusterRef
 exports.duplicateEndpointTypeCommand = duplicateEndpointTypeCommand
-exports.selectCommandsByEndpointTypeClusterIdAndDeviceTypeClusterId =
-  selectCommandsByEndpointTypeClusterIdAndDeviceTypeClusterId
+exports.selectCommandsByEndpointTypeClusterId =
+  selectCommandsByEndpointTypeClusterId

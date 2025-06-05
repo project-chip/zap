@@ -781,18 +781,15 @@ async function selectEndpointTypeClusterFromEndpointIdentifierAndAttributeRef(
  */
 async function getEndpointTypeElements(db, endpointTypeClusterId) {
   let [attributes, commands, events] = await Promise.all([
-    queryAttribute.selectAttributesByEndpointTypeClusterIdAndDeviceTypeClusterId(
+    queryAttribute.selectAttributesByEndpointTypeClusterId(
       db,
       endpointTypeClusterId
     ),
-    queryCommand.selectCommandsByEndpointTypeClusterIdAndDeviceTypeClusterId(
+    queryCommand.selectCommandsByEndpointTypeClusterId(
       db,
       endpointTypeClusterId
     ),
-    queryEvent.selectEventsByEndpointTypeClusterIdAndDeviceTypeClusterId(
-      db,
-      endpointTypeClusterId
-    )
+    queryEvent.selectEventsByEndpointTypeClusterId(db, endpointTypeClusterId)
   ])
   return { attributes, commands, events }
 }

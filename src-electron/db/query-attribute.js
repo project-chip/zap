@@ -1275,7 +1275,7 @@ async function selectAttributeMappingsByPackageIds(db, packageIds) {
  * @param {*} endpointTyeClusterId
  * @returns all attributes in an endpoint type cluster
  */
-async function selectAttributesByEndpointTypeClusterIdAndDeviceTypeClusterId(
+async function selectAttributesByEndpointTypeClusterId(
   db,
   endpointTypeClusterId
 ) {
@@ -1338,5 +1338,5 @@ exports.selectTokenAttributesForEndpoint = selectTokenAttributesForEndpoint
 exports.selectAllUserTokenAttributes = selectAllUserTokenAttributes
 exports.selectAttributeMappingsByPackageIds =
   selectAttributeMappingsByPackageIds
-exports.selectAttributesByEndpointTypeClusterIdAndDeviceTypeClusterId =
-  selectAttributesByEndpointTypeClusterIdAndDeviceTypeClusterId
+exports.selectAttributesByEndpointTypeClusterId =
+  selectAttributesByEndpointTypeClusterId
