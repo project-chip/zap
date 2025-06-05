@@ -54,6 +54,7 @@ This module contains the API for templating. For more detailed instructions, rea
     * [~access_aggregate(options)](#module_Templating API_ Access helpers..access_aggregate)
     * [~access(options)](#module_Templating API_ Access helpers..access)
     * [~default_access(options)](#module_Templating API_ Access helpers..default_access) ⇒
+    * [~chip_get_access_role(options)](#module_Templating API_ Access helpers..chip_get_access_role) ⇒ <code>string</code>
 
 <a name="module_Templating API_ Access helpers..collectDefaultAccessList"></a>
 
@@ -113,6 +114,18 @@ Get the access list information.
 
 **Kind**: inner method of [<code>Templating API: Access helpers</code>](#module_Templating API_ Access helpers)  
 **Returns**: access list  
+
+| Param | Type |
+| --- | --- |
+| options | <code>\*</code> | 
+
+<a name="module_Templating API_ Access helpers..chip_get_access_role"></a>
+
+### Templating API: Access helpers~chip\_get\_access\_role(options) ⇒ <code>string</code>
+Determines the access role for a given entity and operation.
+
+**Kind**: inner method of [<code>Templating API: Access helpers</code>](#module_Templating API_ Access helpers)  
+**Returns**: <code>string</code> - The access role.  
 
 | Param | Type |
 | --- | --- |
