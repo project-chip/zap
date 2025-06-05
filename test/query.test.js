@@ -676,7 +676,6 @@ describe('Endpoint Type Config Queries', () => {
       db,
       endpointTypeIdOnOff
     )
-    console.log(clusters)
     let levelControlCluster = clusters.find(
       (cluster) =>
         cluster.clusterName == 'Level Control' && cluster.side == 'server'

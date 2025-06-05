@@ -182,7 +182,6 @@ test(
     let sessionNotificationMessages = sessionNotifications.map(
       (sn) => sn.message
     )
-    console.log(sessionNotificationMessages)
 
     // Tests for device type feature conformance
     expect(
