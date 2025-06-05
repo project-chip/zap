@@ -655,3 +655,4 @@ exports.getOutdatedElementWarning = getOutdatedElementWarning
 exports.setConformanceWarnings = setConformanceWarnings
 exports.getEndpointTypeClusterIdFromFeatureData =
   getEndpointTypeClusterIdFromFeatureData
+exports.getConformanceTermStates = getConformanceTermStates

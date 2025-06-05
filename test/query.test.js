@@ -644,12 +644,10 @@ describe('Endpoint Type Config Queries', () => {
               (c) => c.clusterName == clusterName
             )
             if (deviceTypeCluster) {
-              let deviceTypeClusterId = deviceTypeCluster.id
               queryAttribute
-                .selectAttributesByEndpointTypeClusterIdAndDeviceTypeClusterId(
+                .selectAttributesByEndpointTypeClusterId(
                   db,
-                  endpointTypeClusterId,
-                  deviceTypeClusterId
+                  endpointTypeClusterId
                 )
                 .then((attributes) => {
                   expect(attributes.length).toBe(
@@ -657,10 +655,9 @@ describe('Endpoint Type Config Queries', () => {
                   )
                 })
               queryCommand
-                .selectCommandsByEndpointTypeClusterIdAndDeviceTypeClusterId(
+                .selectCommandsByEndpointTypeClusterId(
                   db,
-                  endpointTypeClusterId,
-                  deviceTypeClusterId
+                  endpointTypeClusterId
                 )
                 .then((commands) => {
                   expect(commands.length).toBe(
@@ -673,6 +670,29 @@ describe('Endpoint Type Config Queries', () => {
     },
     testUtil.timeout.medium()
   )
+
+  test('Test the function to select server side endpoint type cluster ID by endpoint type ID And cluster reference', async () => {
+    let clusters = await testQuery.getAllEndpointTypeClusterState(
+      db,
+      endpointTypeIdOnOff
+    )
+    console.log(clusters)
+    let levelControlCluster = clusters.find(
+      (cluster) =>
+        cluster.clusterName == 'Level Control' && cluster.side == 'server'
+    )
+    expect(levelControlCluster).toBeDefined()
+    let endpointTypeClusterId =
+      await queryZcl.selectServerEndpointTypeClusterIdByEndpointTypeIdAndClusterRef(
+        db,
+        endpointTypeIdOnOff,
+        levelControlCluster.clusterId
+      )
+    // The endpointTypeClusterId queried by the function should match the cluster's endpointTypeClusterId
+    expect(endpointTypeClusterId).toBe(
+      levelControlCluster.endpointTypeClusterId
+    )
+  })
 
   test(
     'Insert Endpoint Test',
