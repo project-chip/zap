@@ -151,7 +151,10 @@ async function validateSpecificAttribute(
     let maxAllowedLength = attribute.maxLength
       ? attribute.maxLength
       : maxLengthForString
-    if (endpointAttribute.defaultValue.length > maxAllowedLength) {
+    if (
+      typeof endpointAttribute.defaultValue === 'string' &&
+      endpointAttribute.defaultValue.length > maxAllowedLength
+    ) {
       defaultAttributeIssues.push('String length out of range')
     }
   }
