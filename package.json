@@ -1,6 +1,6 @@
 {
   "name": "zap",
-  "version": "2025.6.24",
+  "version": "0.0.0",
   "description": "Configuration tool for the Zigbee Cluster Library",
   "productName": "zap",
   "cordovaId": "",
@@ -125,6 +125,7 @@
   },
   "dependencies": {
     "@globalhive/vuejs-tour": "^1.3.4",
+    "@quasar/cli": "^2.5.0",
     "@quasar/extras": "^1.16.12",
     "@types/yargs": "^15.0.5",
     "axios": "^0.28.0",
@@ -145,7 +146,7 @@
     "pino": "^9.3.2",
     "promised-handlebars": "^2.0.1",
     "properties": "^1.2.1",
-    "quasar": "^2.16.7",
+    "quasar": "^2.18.1",
     "single-instance": "^0.0.1",
     "source-map-support": "^0.5.19",
     "sqlite3": "5.1.6",
@@ -165,7 +166,7 @@
     "@babel/eslint-parser": "^7.25.1",
     "@babel/preset-typescript": "^7.24.7",
     "@cypress/code-coverage": "^3.12.45",
-    "@quasar/app-webpack": "^4.2.1",
+    "@quasar/app-webpack": "^3.13.3",
     "@quasar/quasar-app-extension-testing": "^2.2.0",
     "@quasar/quasar-app-extension-testing-e2e-cypress": "^6.1.0",
     "@quasar/quasar-app-extension-testing-unit-jest": "^3.0.2",
@@ -206,7 +207,7 @@
     "prettier": "^3.3.3",
     "pretty-quick": "^4.0.0",
     "test-utils": "^1.1.1",
-    "typescript": "^5.8.3",
+    "typescript": "4.6",
     "workbox-webpack-plugin": "^7.1.0"
   },
   "engines": {
