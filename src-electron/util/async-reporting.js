@@ -112,7 +112,6 @@ async function sendNotificationUpdate(db, session) {
 /**
  * Start the interval that will check and report dirty flags.
  * @param {*} db
- * @param {*} intervalMs
  */
 function startAsyncReporting(db) {
   for (let key of Object.keys(asyncReports)) {
@@ -121,14 +120,32 @@ function startAsyncReporting(db) {
       // Session based reports get iterated over all sessions
       // and called with appropriate session.
       report.id = setInterval(async () => {
-        let sessions = await querySession.getAllSessions(db)
-        let allPromises = sessions.map((session) => report.fn(db, session))
-        return Promise.all(allPromises)
+        try {
+          // Check if the database is closed. Set in db-api#closeDatabase
+          if (db._closed) return
+          let sessions = await querySession.getAllSessions(db)
+          let allPromises = sessions.map((session) => {
+            if (db._closed) return
+            return report.fn(db, session)
+          })
+          return Promise.all(allPromises)
+        } catch (err) {
+          // If the database was closed during an async operation, we can get an error.
+          // We can ignore it if the db is marked as closed.
+          if (db._closed) return
+          env.logWarning(`Error in session-based async reporting: ${err}`)
+        }
       }, report.intervalMs)
     } else {
       // Non session based reports get called once with the db as the argument.
-      report.id = setInterval(() => {
-        report.fn(db)
+      report.id = setInterval(async () => {
+        if (db._closed) return
+        try {
+          await report.fn(db)
+        } catch (err) {
+          if (db._closed) return // Ignore errors if DB is closed.
+          env.logWarning(`Error in non-session-based async reporting: ${err}`)
+        }
       }, report.intervalMs)
     }
   }
