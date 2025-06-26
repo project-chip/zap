@@ -17714,7 +17714,7 @@ This mechanism takes care of:
 * [JS API: async reporting](#module_JS API_ async reporting)
     * [~sendDirtyFlagStatus(db, session)](#module_JS API_ async reporting..sendDirtyFlagStatus)
     * [~sendNotificationUpdate(db, session)](#module_JS API_ async reporting..sendNotificationUpdate)
-    * [~startAsyncReporting(db, intervalMs)](#module_JS API_ async reporting..startAsyncReporting)
+    * [~startAsyncReporting(db)](#module_JS API_ async reporting..startAsyncReporting)
     * [~stopAsyncReporting()](#module_JS API_ async reporting..stopAsyncReporting)
 
 <a name="module_JS API_ async reporting..sendDirtyFlagStatus"></a>
@@ -17743,7 +17743,7 @@ Sends a dirty flag status for a single session.
 
 <a name="module_JS API_ async reporting..startAsyncReporting"></a>
 
-### JS API: async reporting~startAsyncReporting(db, intervalMs)
+### JS API: async reporting~startAsyncReporting(db)
 Start the interval that will check and report dirty flags.
 
 **Kind**: inner method of [<code>JS API: async reporting</code>](#module_JS API_ async reporting)  
@@ -17751,7 +17751,6 @@ Start the interval that will check and report dirty flags.
 | Param | Type |
 | --- | --- |
 | db | <code>\*</code> | 
-| intervalMs | <code>\*</code> | 
 
 <a name="module_JS API_ async reporting..stopAsyncReporting"></a>
 
