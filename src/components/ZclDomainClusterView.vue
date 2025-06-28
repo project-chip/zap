@@ -233,7 +233,7 @@ import CommonMixin from '../util/common-mixin'
 import restApi from '../../src-shared/rest-api'
 import uiOptions from '../util/ui-options'
 import EditableAttributesMixin from '../util/editable-attributes-mixin.js'
-import dbEnum from '../../src-shared/db-enum'
+import featureMixin from '../util/feature-mixin.js'
 
 let ZclClusterRoleAction = {
   Add: 'add',
@@ -245,7 +245,7 @@ let ZclClusterRole = { server: 'server', client: 'client' }
 export default {
   name: 'ZclDomainClusterView',
   props: ['domainName', 'clusters'],
-  mixins: [CommonMixin, uiOptions, EditableAttributesMixin],
+  mixins: [CommonMixin, uiOptions, EditableAttributesMixin, featureMixin],
   computed: {
     isLegalClusterFilterActive() {
       return (
@@ -698,19 +698,7 @@ export default {
           this.selectedEndpointTypeId
         )
         this.$store.dispatch('zap/setLastSelectedDomain', this.domainName)
-        this.setFeatureMapAttribute(cluster)
-      })
-    },
-    setFeatureMapAttribute(cluster) {
-      let featureMapAttribute = this.relevantAttributeData.find(
-        (attribute) =>
-          attribute.name == dbEnum.featureMapAttribute.name &&
-          attribute.code == dbEnum.featureMapAttribute.code
-      )
-      this.$store.dispatch('zap/updateFeatureMapValue', {
-        attributeId: featureMapAttribute.id,
-        clusterId: cluster.id,
-        endpointTypeId: this.selectedEndpointTypeId
+        this.loadFeatureMapAttribute(cluster)
       })
     },
     ucLabel(id) {
