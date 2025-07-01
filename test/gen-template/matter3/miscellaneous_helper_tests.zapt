@@ -46,3 +46,15 @@ SemanticTagStruct item {{index}} from Identify cluster: {{name}}
   {{#if struct_contains_array}} Struct with array: {{name}}
   {{/if}}
 {{/zcl_structs}}
+
+// Test chip_get_access_role for attributes
+{{#zcl_attributes_server}}
+{{#if clusterRef}}
+Name - {{asUpperCamelCase label}}, Read Privilege - {{asUpperCamelCase (chip_get_access_role entity="attribute" op="read" default="view")}}, {{#if isWritableAttribute}}Write Privilege - {{asUpperCamelCase (chip_get_access_role entity="attribute" op="write" default="operate")}}{{/if}}
+{{/if}}
+{{/zcl_attributes_server}}
+
+// Test chip_get_access_role for commands
+{{#zcl_commands_source_client}}
+Name - {{asUpperCamelCase name}}, Invoke Privilege - {{asUpperCamelCase (chip_get_access_role entity="command" op="invoke" default="operate")}}
+{{/zcl_commands_source_client}}

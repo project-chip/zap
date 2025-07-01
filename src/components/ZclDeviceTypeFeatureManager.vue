@@ -28,17 +28,46 @@ limitations under the License.
         <q-table
           class="my-striped-table"
           :rows="deviceTypeFeatures"
-          :columns="columns"
+          :columns="filteredColumns"
           flat
           v-model:pagination="pagination"
           separator="horizontal"
           id="ZclDeviceTypeFeatureManager"
         >
           <template v-slot:body="props">
-            <q-tr :props="props">
+            <q-tr :props="props" class="table_body attribute_table_body">
+              <q-td
+                v-if="hasFeatureWithDisabledCluster"
+                key="status"
+                :props="props"
+                class="q-px-none"
+                style="width: 30px; max-width: 30px"
+              >
+                <q-icon
+                  v-show="isClusterDisabled(props.row)"
+                  name="warning"
+                  class="text-amber"
+                  style="font-size: 1.5rem"
+                />
+                <q-tooltip
+                  v-if="isClusterDisabled(props.row)"
+                  anchor="top middle"
+                  self="bottom middle"
+                  :offset="[10, 10]"
+                >
+                  <div
+                    v-for="(line, index) in generateDisabledClusterWarning(
+                      props.row
+                    )"
+                    :key="index"
+                  >
+                    {{ line }}
+                  </div>
+                </q-tooltip>
+              </q-td>
               <q-td key="enabled" :props="props" auto-width>
                 <q-toggle
-                  :disable="isToggleDisabled(props.row.conformance)"
+                  :disable="isToggleDisabled(props.row)"
                   class="q-mt-xs v-step-14"
                   v-model="enabledDeviceTypeFeatures"
                   :val="
@@ -88,16 +117,11 @@ limitations under the License.
             </q-tr>
           </template>
         </q-table>
-        <q-dialog v-model="showDialog">
+        <q-dialog v-model="showDialog" persistent>
           <q-card>
             <q-card-section>
               <div class="row items-center">
-                <div class="text-h6 col">Updated Elements</div>
-                <div class="col-1 text-right">
-                  <q-btn dense flat icon="close" v-close-popup>
-                    <q-tooltip>Close</q-tooltip>
-                  </q-btn>
-                </div>
+                <div class="text-h6 col">Elements to be updated</div>
               </div>
               <div v-if="attributesToUpdate.length > 0">
                 <div
@@ -108,7 +132,9 @@ limitations under the License.
                 </div>
                 <ul>
                   <li
-                    v-for="(attribute, index) in attributesToUpdate"
+                    v-for="(attribute, index) in processElementsForDialog(
+                      attributesToUpdate
+                    )"
                     :key="'attribute' + index"
                     style="margin-bottom: 10px"
                   >
@@ -125,7 +151,9 @@ limitations under the License.
                 </div>
                 <ul>
                   <li
-                    v-for="(command, index) in commandsToUpdate"
+                    v-for="(command, index) in processElementsForDialog(
+                      commandsToUpdate
+                    )"
                     :key="'command' + index"
                     style="margin-bottom: 10px"
                   >
@@ -142,7 +170,9 @@ limitations under the License.
                 </div>
                 <ul>
                   <li
-                    v-for="(event, index) in eventsToUpdate"
+                    v-for="(event, index) in processElementsForDialog(
+                      eventsToUpdate
+                    )"
                     :key="'event' + index"
                     style="margin-bottom: 10px"
                   >
@@ -150,12 +180,18 @@ limitations under the License.
                   </li>
                 </ul>
               </div>
-              <div v-if="noElementsToUpdate">
-                <div class="text-body1" style="margin-top: 15px">
-                  {{ noElementsToUpdateMessage }}
-                </div>
-              </div>
             </q-card-section>
+            <q-card-actions>
+              <q-btn label="Cancel" v-close-popup class="col" />
+              <q-btn
+                label="Confirm"
+                color="primary"
+                @click="
+                  confirmFeatureUpdate(selectedFeature, updatedEnabledFeatures)
+                "
+                class="col v-step-4 w-step-3"
+              />
+            </q-card-actions>
           </q-card>
         </q-dialog>
       </div>
@@ -190,20 +226,159 @@ export default {
         return 'none'
       }
     },
-    isToggleDisabled(conformance) {
-      // disable toggling unsupported features
-      return conformance == 'X' || conformance == 'D'
+    isToggleDisabled(feature) {
+      // disable toggling features with unsupported conformance and disabled clusters
+      return (
+        feature.conformance == dbEnum.conformance.disallowed ||
+        feature.conformance == dbEnum.conformance.deprecated ||
+        this.isClusterDisabled(feature)
+      )
     },
     onToggleDeviceTypeFeature(featureData, inclusionList) {
-      /* when conformance is not properly handled and change is disabled,
-        do not set featureMap attribute */
-      let disabled = this.updateElementsAndSetWarnings(
-        featureData,
-        inclusionList
-      )
-      if (!disabled) {
-        this.setFeatureMapAttribute(featureData)
+      let featureMap = this.buildFeatureMap(featureData, inclusionList)
+      this.$serverPost(restApi.uri.checkConformOnFeatureUpdate, {
+        featureData: featureData,
+        featureMap: featureMap,
+        endpointId: this.endpointId[this.selectedEndpointId],
+        changeConfirmed: false
+      }).then((res) => {
+        // store backend response and frontend data for reuse if updates are confirmed
+        let {
+          attributesToUpdate,
+          commandsToUpdate,
+          eventsToUpdate,
+          displayWarning,
+          warningMessage,
+          disableChange
+        } = res.data
+
+        Object.assign(this, {
+          attributesToUpdate,
+          commandsToUpdate,
+          eventsToUpdate,
+          displayWarning,
+          warningMessage,
+          disableChange
+        })
+
+        this.selectedFeature = featureData
+        this.updatedEnabledFeatures = inclusionList
+
+        // if change disabled, display warning and do not show confirm dialog
+        if (this.disableChange) {
+          if (this.displayWarning) {
+            this.displayPopUpWarnings(this.warningMessage)
+          }
+        } else if (this.noElementsToUpdate) {
+          this.confirmFeatureUpdate(featureData, inclusionList)
+        } else {
+          this.showDialog = true
+        }
+      })
+    },
+    confirmFeatureUpdate(featureData, inclusionList) {
+      let featureMap = this.buildFeatureMap(featureData, inclusionList)
+      this.$store
+        .dispatch('zap/setRequiredElements', {
+          featureMap: featureMap,
+          deviceTypeClusterId: featureData.deviceTypeClusterId,
+          endpointTypeClusterId: featureData.endpointTypeClusterId
+        })
+        .then(() => {
+          // toggle attributes, commands, and events for correct conformance,
+          // and set their conformance warnings
+          this.attributesToUpdate.forEach((attribute) => {
+            let editContext = {
+              action: 'boolean',
+              endpointTypeIdList: this.endpointTypeIdList,
+              selectedEndpoint: this.selectedEndpointTypeId,
+              id: attribute.id,
+              value: attribute.value,
+              listType: 'selectedAttributes',
+              clusterRef: attribute.clusterRef,
+              attributeSide: attribute.side,
+              reportMinInterval: attribute.reportMinInterval,
+              reportMaxInterval: attribute.reportMaxInterval
+            }
+            this.setRequiredElementNotifications(
+              attribute,
+              attribute.value,
+              'attributes'
+            )
+            this.$store.dispatch('zap/updateSelectedAttribute', editContext)
+          })
+          this.commandsToUpdate.forEach((command) => {
+            let listType =
+              command.source == 'client' ? 'selectedIn' : 'selectedOut'
+            let editContext = {
+              action: 'boolean',
+              endpointTypeIdList: this.endpointTypeIdList,
+              id: command.id,
+              value: command.value,
+              listType: listType,
+              clusterRef: command.clusterRef,
+              commandSide: command.source
+            }
+            this.setRequiredElementNotifications(
+              command,
+              command.value,
+              'commands'
+            )
+            this.$store.dispatch('zap/updateSelectedCommands', editContext)
+          })
+          this.eventsToUpdate.forEach((event) => {
+            let editContext = {
+              action: 'boolean',
+              endpointTypeId: this.selectedEndpointTypeId,
+              id: event.id,
+              value: event.value,
+              listType: 'selectedEvents',
+              clusterRef: event.clusterRef,
+              eventSide: event.side
+            }
+            this.setRequiredElementNotifications(event, event.value, 'events')
+            this.$store.dispatch('zap/updateSelectedEvents', editContext)
+          })
+
+          // update enabled device type features
+          let added = this.featureIsEnabled(featureData, inclusionList)
+          let hashedVal = this.hashDeviceTypeClusterIdFeatureId(
+            featureData.deviceTypeClusterId,
+            featureData.featureId
+          )
+          this.$store.commit('zap/updateInclusionList', {
+            id: hashedVal,
+            added: added,
+            listType: 'enabledDeviceTypeFeatures',
+            view: 'featureView'
+          })
+        })
+
+      // set notifications and pop-up warnings for the updated feature
+      this.$serverPost(restApi.uri.checkConformOnFeatureUpdate, {
+        featureData: featureData,
+        featureMap: featureMap,
+        endpointId: this.endpointId[this.selectedEndpointId],
+        changeConfirmed: true
+      })
+      if (this.displayWarning) {
+        this.displayPopUpWarnings(this.warningMessage)
       }
+
+      // update featureMap attribute value for the updated cluster
+      this.setFeatureMapAttribute(featureData)
+
+      // close the dialog
+      this.showDialog = false
+
+      // clean the state of variables related to the dialog
+      Object.assign(this, {
+        displayWarning: false,
+        warningMessage: '',
+        disableChange: false,
+        selectedFeature: {},
+        updatedEnabledFeatures: []
+      })
     },
     setFeatureMapAttribute(featureData) {
       let featureMapAttributeId = featureData.featureMapAttributeId
@@ -220,150 +395,45 @@ export default {
         featureMapValue: newValue
       })
     },
-    updateElementsAndSetWarnings(featureData, inclusionList) {
+    processElementsForDialog(elementData) {
+      return (elementData || [])
+        .map((item) =>
+          item.value ? 'enabled ' + item.name : 'disabled ' + item.name
+        )
+        .sort(
+          // sort enabled elements before disabled ones
+          (a, b) => {
+            let aIsEnabled = a.includes('enabled')
+            let bIsEnabled = b.includes('enabled')
+            if (aIsEnabled && !bIsEnabled) return -1
+            if (!aIsEnabled && bIsEnabled) return 1
+            return 0
+          }
+        )
+    },
+    displayPopUpWarnings(warningMessage) {
+      if (!Array.isArray(warningMessage)) {
+        warningMessage = [warningMessage]
+      }
+      for (let warning of warningMessage) {
+        Notify.create({
+          message: warning,
+          type: 'warning',
+          classes: 'custom-notification notification-warning',
+          position: 'top',
+          html: true
+        })
+      }
+    },
+    buildFeatureMap(featureData, inclusionList) {
       let featureMap = {}
       this.deviceTypeFeatures.forEach((feature) => {
-        if (feature.deviceTypeClusterId == featureData.deviceTypeClusterId) {
+        if (feature.deviceTypeClusterId === featureData.deviceTypeClusterId) {
           let enabled = this.featureIsEnabled(feature, inclusionList)
           featureMap[feature.code] = enabled ? 1 : 0
         }
       })
-      this.$serverPost(restApi.uri.checkConformOnFeatureUpdate, {
-        featureData: featureData,
-        featureMap: featureMap,
-        endpointId: this.endpointId[this.selectedEndpointId]
-      }).then((res) => {
-        let {
-          attributesToUpdate,
-          commandsToUpdate,
-          eventsToUpdate,
-          displayWarning,
-          warningMessage,
-          disableChange
-        } = res.data
-
-        // show popup warning message
-        if (displayWarning) {
-          if (!Array.isArray(warningMessage)) {
-            warningMessage = [warningMessage]
-          }
-          for (let message of warningMessage) {
-            Notify.create({
-              message: message,
-              type: 'warning',
-              classes: 'custom-notification notification-warning',
-              position: 'top',
-              html: true
-            })
-          }
-        }
-
-        // if disableChange is true, the case is too complex to handle
-        // throw warnings and skip the following actions
-        if (disableChange) {
-          return disableChange
-        }
-
-        this.$store
-          .dispatch('zap/setRequiredElements', {
-            featureMap: featureMap,
-            deviceTypeClusterId: featureData.deviceTypeClusterId,
-            endpointTypeClusterId: featureData.endpointTypeClusterId
-          })
-          .then(() => {
-            // toggle attributes, commands, and events for correct conformance,
-            // and set their conformance notifications
-            attributesToUpdate.forEach((attribute) => {
-              let editContext = {
-                action: 'boolean',
-                endpointTypeIdList: this.endpointTypeIdList,
-                selectedEndpoint: this.selectedEndpointTypeId,
-                id: attribute.id,
-                value: attribute.value,
-                listType: 'selectedAttributes',
-                clusterRef: attribute.clusterRef,
-                attributeSide: attribute.side,
-                reportMinInterval: attribute.reportMinInterval,
-                reportMaxInterval: attribute.reportMaxInterval
-              }
-              this.setRequiredElementNotifications(
-                attribute,
-                attribute.value,
-                'attributes'
-              )
-              this.$store.dispatch('zap/updateSelectedAttribute', editContext)
-            })
-            commandsToUpdate.forEach((command) => {
-              let listType =
-                command.source == 'client' ? 'selectedIn' : 'selectedOut'
-              let editContext = {
-                action: 'boolean',
-                endpointTypeIdList: this.endpointTypeIdList,
-                id: command.id,
-                value: command.value,
-                listType: listType,
-                clusterRef: command.clusterRef,
-                commandSide: command.source
-              }
-              this.setRequiredElementNotifications(
-                command,
-                command.value,
-                'commands'
-              )
-              this.$store.dispatch('zap/updateSelectedCommands', editContext)
-            })
-            eventsToUpdate.forEach((event) => {
-              let editContext = {
-                action: 'boolean',
-                endpointTypeId: this.selectedEndpointTypeId,
-                id: event.id,
-                value: event.value,
-                listType: 'selectedEvents',
-                clusterRef: event.clusterRef,
-                eventSide: event.side
-              }
-              this.setRequiredElementNotifications(event, event.value, 'events')
-              this.$store.dispatch('zap/updateSelectedEvents', editContext)
-            })
-
-            // prepare messages and show dialog
-            this.attributesToUpdate = attributesToUpdate
-              .map((attribute) =>
-                attribute.value
-                  ? 'enabled ' + attribute.name
-                  : 'disabled ' + attribute.name
-              )
-              .sort((a, b) => (a.includes('enabled') ? -1 : 1))
-            this.commandsToUpdate = commandsToUpdate
-              .map((command) =>
-                command.value
-                  ? 'enabled ' + command.name
-                  : 'disabled ' + command.name
-              )
-              .sort((a, b) => (a.includes('enabled') ? -1 : 1))
-            this.eventsToUpdate = eventsToUpdate
-              .map((event) =>
-                event.value ? 'enabled ' + event.name : 'disabled ' + event.name
-              )
-              .sort((a, b) => (a.includes('enabled') ? -1 : 1))
-            this.showDialog = true
-
-            // update enabled device type features
-            let added = this.featureIsEnabled(featureData, inclusionList)
-            let hashedVal = this.hashDeviceTypeClusterIdFeatureId(
-              featureData.deviceTypeClusterId,
-              featureData.featureId
-            )
-            this.$store.commit('zap/updateInclusionList', {
-              id: hashedVal,
-              added: added,
-              listType: 'enabledDeviceTypeFeatures',
-              view: 'featureView'
-            })
-          })
-
-        return disableChange
-      })
+      return featureMap
     },
     featureIsEnabled(featureData, inclusionList) {
       return inclusionList.includes(
@@ -372,6 +442,34 @@ export default {
           featureData.featureId
         )
       )
+    },
+    isClusterDisabled(feature) {
+      return this.getMissingClusterSide(feature).length > 0
+    },
+    getMissingClusterSide(feature) {
+      let sides = []
+      let clusterId = feature.clusterRef
+      if (
+        !this.selectionClients.includes(clusterId) &&
+        feature.includeClient == 1
+      ) {
+        sides.push(dbEnum.clusterSide.client)
+      }
+      if (
+        !this.selectionServers.includes(clusterId) &&
+        feature.includeServer == 1
+      ) {
+        sides.push(dbEnum.clusterSide.server)
+      }
+      return sides
+    },
+    generateDisabledClusterWarning(feature) {
+      let sides = this.getMissingClusterSide(feature).join(' and ')
+      return [
+        `This feature cannot be toggled because its associated cluster: 
+        ${feature.cluster} ${sides} is disabled.`,
+        'Enable the cluster to allow toggling this feature.'
+      ]
     }
   },
   computed: {
@@ -381,13 +479,23 @@ export default {
         this.commandsToUpdate.length == 0 &&
         this.eventsToUpdate.length == 0
       )
+    },
+    filteredColumns() {
+      return this.hasFeatureWithDisabledCluster
+        ? this.columns
+        : this.columns.filter(
+            (column) => column.name != dbEnum.feature.name.status
+          )
+    },
+    hasFeatureWithDisabledCluster() {
+      return this.deviceTypeFeatures.some((feature) =>
+        this.isClusterDisabled(feature)
+      )
     }
   },
   data() {
     return {
       noDataMessage: 'No device type features available for this endpoint',
-      noElementsToUpdateMessage:
-        'No elements need to be updated after toggling this feature',
       pagination: {
         rowsPerPage: 10
       },
@@ -395,7 +503,18 @@ export default {
       attributesToUpdate: [],
       commandsToUpdate: [],
       eventsToUpdate: [],
+      disableChange: false,
+      displayWarning: false,
+      warningMessage: '',
+      selectedFeature: {},
+      updatedEnabledFeatures: [],
       columns: [
+        {
+          name: dbEnum.feature.name.status,
+          required: false,
+          label: dbEnum.feature.label.status,
+          align: 'left'
+        },
         {
           name: dbEnum.feature.name.enabled,
           required: true,

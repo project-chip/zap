@@ -52,12 +52,11 @@ export default function () {
     featureMapValue: 0,
     zclDeviceTypes: {},
     endpoints: [],
+    query: {},
     genericOptions: {},
     selectedGenericOptions: {},
     projectPackages: [],
     allPackages: [],
-    isDirty: false,
-    saveButtonVisible: false,
     clusterManager: {
       openDomains: {},
       lastSelectedDomain: null,

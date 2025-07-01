@@ -368,6 +368,9 @@ test(
     expect(endpointType1.deviceTypeRef[1]).toEqual(
       endpointType2.deviceTypeRef[0]
     )
+
+    // Testing number values for string type attributes under GENERATED_DEFAULTS(helper-endpointconfig.js)
+    expect(ept).toMatch(/\/\* 17 - Description, \*\/\\\n.*2, '7', '7',/)
   },
   testUtil.timeout.long()
 )
@@ -567,6 +570,14 @@ test(
       zclPackageId
     )
     expect(globalBitmap.id).not.toEqual(clusterBitmap.id)
+
+    // Testing chip_get_access_role for attributes
+    expect(ept).toContain(
+      'Name - Acl, Read Privilege - Administer, Write Privilege - Administer'
+    )
+
+    // Testing chip_get_access_role for commands
+    expect(ept).toContain('Name - KeySetWrite, Invoke Privilege - Administer')
   },
   testUtil.timeout.long()
 )

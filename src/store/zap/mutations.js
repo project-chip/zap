@@ -49,6 +49,10 @@ export const updateShowDevTools = (state) => {
   state.showDevTools = !state.showDevTools
 }
 
+export const setQuery = (state, query) => {
+  state.query = query
+}
+
 /**
  * Set the information text in the state
  * @param {*} state
@@ -783,15 +787,6 @@ export function setDefaultUiMode(state, uiMode) {
  */
 export function setDebugNavBar(state, debugNavBar) {
   state.debugNavBar = debugNavBar
-}
-
-/**
- * Show save button in the UI using the state.
- * @param {*} state
- * @param {*} saveButtonVisible
- */
-export function setSaveButtonVisible(state, saveButtonVisible) {
-  state.saveButtonVisible = saveButtonVisible
 }
 
 /**

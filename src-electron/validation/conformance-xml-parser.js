@@ -21,6 +21,10 @@
  * @module Validation API: Parse conformance data from XML
  */
 
+const dbEnum = require('../../src-shared/db-enum')
+const conformEvaluator = require('./conformance-expression-evaluator')
+const env = require('../util/env')
+
 /**
  * Parses conformance from XML data.
  * The conformance could come from features, attributes, commands, or events
@@ -88,7 +92,7 @@ function parseConformanceRecursively(operand, depth = 0, parentJoinChar = '') {
     if (insideTerm && Object.keys(insideTerm).toString() != '$') {
       return parseConformanceRecursively(operand.mandatoryConform[0], depth + 1)
     } else {
-      return 'M'
+      return dbEnum.conformance.mandatory
     }
   } else if (operand.optionalConform) {
     let insideTerm = operand.optionalConform[0]
@@ -97,7 +101,7 @@ function parseConformanceRecursively(operand, depth = 0, parentJoinChar = '') {
     if (insideTerm && Object.keys(insideTerm).toString() != '$') {
       return `[${parseConformanceRecursively(operand.optionalConform[0], depth + 1)}]`
     } else {
-      return 'O'
+      return dbEnum.conformance.optional
     }
   } else if (operand.otherwiseConform) {
     return Object.entries(operand.otherwiseConform[0])
@@ -138,11 +142,11 @@ function parseConformanceRecursively(operand, depth = 0, parentJoinChar = '') {
       })
       .join(` ${joinChar} `)
   } else if (operand.provisionalConform) {
-    return 'P'
+    return dbEnum.conformance.provisional
   } else if (operand.disallowConform) {
-    return 'X'
+    return dbEnum.conformance.disallowed
   } else if (operand.deprecateConform) {
-    return 'D'
+    return dbEnum.conformance.deprecated
   } else {
     // reach base level terms, return the name directly
     for (const term of baseLevelTerms) {
@@ -151,8 +155,42 @@ function parseConformanceRecursively(operand, depth = 0, parentJoinChar = '') {
       }
     }
     // reaching here means the term is too complex to parse
-    return 'desc'
+    return dbEnum.conformance.desc
+  }
+}
+
+/**
+ * if optional attribute is defined, return its value
+ * if optional attribute is undefined, check if the element conformance is mandatory
+ * if both optional attribute and conformance are undefined, return false
+ * Optional attribute takes precedence over conformance for backward compatibility on certain elements
+ * Log warnings to zap.log if both optional attribute and conformance are defined
+ *
+ * @param {*} element
+ * @param {*} elementType
+ * @returns true if the element is optional, false if the element is mandatory
+ */
+function getOptionalAttributeFromXML(element, elementType) {
+  let conformance = parseConformanceFromXML(element)
+  if (element.$.optional) {
+    if (conformance) {
+      env.logWarningToFile(
+        `Redundant 'optional' attribute and 'conformance' tag defined for ${elementType}: ${element.$.name}.` +
+          " 'optional' takes precedence, but consider removing it as 'conformance' is the recommended format."
+      )
+    }
+    return element.$.optional == 'true'
+  } else {
+    if (conformance) {
+      return !conformEvaluator.checkIfExpressionHasTerm(
+        conformance,
+        dbEnum.conformance.mandatory
+      )
+    } else {
+      return false
+    }
   }
 }
 
 exports.parseConformanceFromXML = parseConformanceFromXML
+exports.getOptionalAttributeFromXML = getOptionalAttributeFromXML

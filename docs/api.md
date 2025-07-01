@@ -8915,6 +8915,7 @@ This module contains the API for templating. For more detailed instructions, rea
     * [~access_aggregate(options)](#module_Templating API_ Access helpers..access_aggregate)
     * [~access(options)](#module_Templating API_ Access helpers..access)
     * [~default_access(options)](#module_Templating API_ Access helpers..default_access) ⇒
+    * [~chip_get_access_role(options)](#module_Templating API_ Access helpers..chip_get_access_role) ⇒ <code>string</code>
 
 <a name="module_Templating API_ Access helpers..collectDefaultAccessList"></a>
 
@@ -8974,6 +8975,18 @@ Get the access list information.
 
 **Kind**: inner method of [<code>Templating API: Access helpers</code>](#module_Templating API_ Access helpers)  
 **Returns**: access list  
+
+| Param | Type |
+| --- | --- |
+| options | <code>\*</code> | 
+
+<a name="module_Templating API_ Access helpers..chip_get_access_role"></a>
+
+### Templating API: Access helpers~chip\_get\_access\_role(options) ⇒ <code>string</code>
+Determines the access role for a given entity and operation.
+
+**Kind**: inner method of [<code>Templating API: Access helpers</code>](#module_Templating API_ Access helpers)  
+**Returns**: <code>string</code> - The access role.  
 
 | Param | Type |
 | --- | --- |
@@ -15038,7 +15051,8 @@ HTTP GET: device type features
 <a name="module_REST API_ user data..httpPostCheckConformOnFeatureUpdate"></a>
 
 ### REST API: user data~httpPostCheckConformOnFeatureUpdate(db) ⇒
-HTTP POST: elements to be updated after toggle a device type feature
+HTTP POST: elements to be updated after toggle a device type feature.
+Set related warnings if user confirmed the change or change is disabled.
 
 **Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
 **Returns**: callback for the express uri registration  
@@ -16373,7 +16387,8 @@ HTTP GET: device type features
 <a name="module_REST API_ user data..httpPostCheckConformOnFeatureUpdate"></a>
 
 ### REST API: user data~httpPostCheckConformOnFeatureUpdate(db) ⇒
-HTTP POST: elements to be updated after toggle a device type feature
+HTTP POST: elements to be updated after toggle a device type feature.
+Set related warnings if user confirmed the change or change is disabled.
 
 **Kind**: inner method of [<code>REST API: user data</code>](#module_REST API_ user data)  
 **Returns**: callback for the express uri registration  
@@ -17699,7 +17714,7 @@ This mechanism takes care of:
 * [JS API: async reporting](#module_JS API_ async reporting)
     * [~sendDirtyFlagStatus(db, session)](#module_JS API_ async reporting..sendDirtyFlagStatus)
     * [~sendNotificationUpdate(db, session)](#module_JS API_ async reporting..sendNotificationUpdate)
-    * [~startAsyncReporting(db, intervalMs)](#module_JS API_ async reporting..startAsyncReporting)
+    * [~startAsyncReporting(db)](#module_JS API_ async reporting..startAsyncReporting)
     * [~stopAsyncReporting()](#module_JS API_ async reporting..stopAsyncReporting)
 
 <a name="module_JS API_ async reporting..sendDirtyFlagStatus"></a>
@@ -17728,7 +17743,7 @@ Sends a dirty flag status for a single session.
 
 <a name="module_JS API_ async reporting..startAsyncReporting"></a>
 
-### JS API: async reporting~startAsyncReporting(db, intervalMs)
+### JS API: async reporting~startAsyncReporting(db)
 Start the interval that will check and report dirty flags.
 
 **Kind**: inner method of [<code>JS API: async reporting</code>](#module_JS API_ async reporting)  
@@ -17736,7 +17751,6 @@ Start the interval that will check and report dirty flags.
 | Param | Type |
 | --- | --- |
 | db | <code>\*</code> | 
-| intervalMs | <code>\*</code> | 
 
 <a name="module_JS API_ async reporting..stopAsyncReporting"></a>
 
@@ -17935,6 +17949,7 @@ Environment utilities for ZAP
     * [.logBrowser(msg, err)](#module_JS API_ Environment utilities.logBrowser)
     * [.logIpc(msg, err)](#module_JS API_ Environment utilities.logIpc)
     * [.logDebug(msg, err)](#module_JS API_ Environment utilities.logDebug)
+    * [.logWarningToFile(msg)](#module_JS API_ Environment utilities.logWarningToFile)
     * [.isMatchingVersion(versionsArray, providedVersion)](#module_JS API_ Environment utilities.isMatchingVersion) ⇒
     * [.versionsCheck()](#module_JS API_ Environment utilities.versionsCheck) ⇒
     * [.httpStaticContent()](#module_JS API_ Environment utilities.httpStaticContent) ⇒
@@ -18243,6 +18258,17 @@ Debug level message.
 | --- | --- |
 | msg | <code>\*</code> | 
 | err | <code>\*</code> | 
+
+<a name="module_JS API_ Environment utilities.logWarningToFile"></a>
+
+### JS API: Environment utilities.logWarningToFile(msg)
+Log Warning level message to zap.log file.
+
+**Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+
+| Param | Type |
+| --- | --- |
+| msg | <code>\*</code> | 
 
 <a name="module_JS API_ Environment utilities.isMatchingVersion"></a>
 
@@ -20187,6 +20213,7 @@ This module provides utilities for evaluating conformance expressions.
         * [~evaluateBooleanExpression(expr)](#module_Validation API_ Evaluate conformance expressions..evaluateConformanceExpression..evaluateBooleanExpression)
         * [~evaluateWithParentheses(expr)](#module_Validation API_ Evaluate conformance expressions..evaluateConformanceExpression..evaluateWithParentheses)
     * [~checkMissingTerms(expression, elementMap)](#module_Validation API_ Evaluate conformance expressions..checkMissingTerms) ⇒
+    * [~checkIfExpressionHasTerm(expression, term)](#module_Validation API_ Evaluate conformance expressions..checkIfExpressionHasTerm) ⇒
 
 <a name="module_Validation API_ Evaluate conformance expressions..evaluateConformanceExpression"></a>
 
@@ -20247,6 +20274,19 @@ If so, it means the conformance depends on terms with unknown values and changes
 | expression | <code>\*</code> | 
 | elementMap | <code>\*</code> | 
 
+<a name="module_Validation API_ Evaluate conformance expressions..checkIfExpressionHasTerm"></a>
+
+### Validation API: Evaluate conformance expressions~checkIfExpressionHasTerm(expression, term) ⇒
+Check if the expression contains a given term.
+
+**Kind**: inner method of [<code>Validation API: Evaluate conformance expressions</code>](#module_Validation API_ Evaluate conformance expressions)  
+**Returns**: true if the expression contains the term, false otherwise  
+
+| Param |
+| --- |
+| expression | 
+| term | 
+
 <a name="module_Validation API_ Parse conformance data from XML"></a>
 
 ## Validation API: Parse conformance data from XML
@@ -20256,6 +20296,7 @@ This module provides utilities for parsing conformance data from XML into expres
 * [Validation API: Parse conformance data from XML](#module_Validation API_ Parse conformance data from XML)
     * [~parseConformanceFromXML(operand)](#module_Validation API_ Parse conformance data from XML..parseConformanceFromXML) ⇒
     * [~parseConformanceRecursively(operand, depth, parentJoinChar)](#module_Validation API_ Parse conformance data from XML..parseConformanceRecursively) ⇒
+    * [~getOptionalAttributeFromXML(element, elementType)](#module_Validation API_ Parse conformance data from XML..getOptionalAttributeFromXML) ⇒
 
 <a name="module_Validation API_ Parse conformance data from XML..parseConformanceFromXML"></a>
 
@@ -20316,6 +20357,23 @@ When they appear, stop recursing and return the name inside directly
 | operand | <code>\*</code> |  | 
 | depth | <code>\*</code> | <code>0</code> | 
 | parentJoinChar | <code>\*</code> |  | 
+
+<a name="module_Validation API_ Parse conformance data from XML..getOptionalAttributeFromXML"></a>
+
+### Validation API: Parse conformance data from XML~getOptionalAttributeFromXML(element, elementType) ⇒
+if optional attribute is defined, return its value
+if optional attribute is undefined, check if the element conformance is mandatory
+if both optional attribute and conformance are undefined, return false
+Optional attribute takes precedence over conformance for backward compatibility on certain elements
+Log warnings to zap.log if both optional attribute and conformance are defined
+
+**Kind**: inner method of [<code>Validation API: Parse conformance data from XML</code>](#module_Validation API_ Parse conformance data from XML)  
+**Returns**: true if the element is optional, false if the element is mandatory  
+
+| Param | Type |
+| --- | --- |
+| element | <code>\*</code> | 
+| elementType | <code>\*</code> | 
 
 <a name="module_Validation API_ Validation APIs"></a>
 

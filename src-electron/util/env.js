@@ -196,6 +196,11 @@ let httpStaticContentPath = path.join(__dirname, '../../../spa')
 let versionObject = null
 let applicationStateDirectory = null
 
+let file_pino_logger = pino(
+  pinoOptions,
+  pino.destination({ dest: path.join(appDirectory(), 'zap.log'), sync: true })
+)
+
 /**
  * Set up the devlopment environment.
  */
@@ -522,6 +527,18 @@ export function logIpc(msg, err = null) {
  */
 export function logDebug(msg, err = null) {
   log('debug', msg, err)
+}
+
+/**
+ * Log Warning level message to zap.log file.
+ *
+ * @param {*} msg
+ */
+export function logWarningToFile(msg) {
+  let objectToLog = {
+    msg: msg
+  }
+  file_pino_logger.warn(objectToLog)
 }
 
 /**

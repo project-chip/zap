@@ -61,9 +61,7 @@
       flat
       no-caps
       @click="saveChanges"
-      v-if="
-        this.$store.state.zap.saveButtonVisible && this.$store.state.zap.isDirty
-      "
+      v-if="showSaveButton"
     >
       <div class="text-center">
         <q-icon name="o_save" />
@@ -245,6 +243,12 @@ export default {
   name: 'ZCLToolbar',
   mixins: [CommonMixin],
   computed: {
+    query() {
+      return this.$store.state.zap.query // Access the query string from Vuex
+    },
+    showSaveButton() {
+      return !!this.query['stsApplicationId'] // Use optional chaining and double negation for clarity
+    },
     isCoreDocumentationAvailable() {
       return (
         this.$store.state.zap.genericOptions[

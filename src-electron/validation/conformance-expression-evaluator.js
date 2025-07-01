@@ -21,6 +21,8 @@
  * @module Validation API: Evaluate conformance expressions
  */
 
+const dbEnum = require('../../src-shared/db-enum')
+
 /**
  * Evaluate the value of a boolean conformance expression that includes terms and operators.
  * A term can be an attribute, command, event, feature, or conformance abbreviation.
@@ -75,8 +77,8 @@ function evaluateConformanceExpression(expression, elementMap) {
   // if any term is desc, the conformance is too complex to parse
   for (let part of parts) {
     let terms = part.match(/[A-Za-z][A-Za-z0-9_]*/g)
-    if (terms && terms.includes('desc')) {
-      return 'desc'
+    if (terms && terms.includes(dbEnum.conformance.desc)) {
+      return dbEnum.conformance.desc
     }
   }
   for (let part of parts) {
@@ -91,13 +93,16 @@ function evaluateConformanceExpression(expression, elementMap) {
       }
     } else {
       part = part.trim()
-      if (part == 'M') {
+      if (part == dbEnum.conformance.mandatory) {
         return 'mandatory'
-      } else if (part == 'O') {
+      } else if (part == dbEnum.conformance.optional) {
         return 'optional'
-      } else if (part == 'D' || part == 'X') {
+      } else if (
+        part == dbEnum.conformance.deprecated ||
+        part == dbEnum.conformance.disallowed
+      ) {
         return 'notSupported'
-      } else if (part == 'P') {
+      } else if (part == dbEnum.conformance.provisional) {
         return 'provisional'
       } else {
         // Evaluate the part with parentheses if needed
@@ -123,7 +128,7 @@ function evaluateConformanceExpression(expression, elementMap) {
 function checkMissingTerms(expression, elementMap) {
   let terms = expression.match(/[A-Za-z][A-Za-z0-9_]*/g)
   let missingTerms = []
-  let abbreviations = ['M', 'O', 'P', 'D', 'X']
+  let abbreviations = Object.values(dbEnum.conformance)
   for (let term of terms) {
     if (!(term in elementMap) && !abbreviations.includes(term)) {
       missingTerms.push(term)
@@ -132,5 +137,18 @@ function checkMissingTerms(expression, elementMap) {
   return missingTerms
 }
 
+/**
+ * Check if the expression contains a given term.
+ *
+ * @param expression
+ * @param term
+ * @returns true if the expression contains the term, false otherwise
+ */
+function checkIfExpressionHasTerm(expression, term) {
+  let terms = expression.match(/[A-Za-z][A-Za-z0-9_]*/g)
+  return terms && terms.includes(term)
+}
+
 exports.evaluateConformanceExpression = evaluateConformanceExpression
 exports.checkMissingTerms = checkMissingTerms
+exports.checkIfExpressionHasTerm = checkIfExpressionHasTerm
