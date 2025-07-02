@@ -942,6 +942,12 @@ function patternFormat(pattern, data) {
       `{${key}:tokensintouppercamelcase}`,
       string.tokensIntoCamelCase(value.toString())
     )
+    // Keep this for backward compatibility.
+    out = out.replace(
+      `{${key}:touppercamelcase}`,
+      string.toCamelCase(value.toString(), /* firstLower = */ false)
+    )
+
     // Note: if you add more of these, add the documentation to sdk-integration.md
   }
   return out
