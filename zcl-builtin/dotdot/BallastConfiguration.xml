@@ -43,7 +43,7 @@ applicable to this document can be found in the LICENSE.md file.
       <!-- PowerOnFadeTime is deprecated -->
       <attribute id="0013" name="PowerOnFadeTime" type="uint16" writable="true" max="65534" default="0" deprecated="true" />
       <attribute id="0014" name="IntrinsicBallastFactor" type="uint8" max="254" writable="true" />
-      <attribute id="0015" name="BallastFactorAdjustment" type="uint8" min="100" max="255" writable="true" default="255" />
+      <attribute id="0015" name="BallastFactorAdjustment" type="uint8" min="100" writable="true" default="255" />
       <!-- Lamp Information Attribute Set -->
       <attribute id="0020" name="LampQuantity" type="uint8" max="254" />
       <!-- Lamp Settings Attribute Set -->
