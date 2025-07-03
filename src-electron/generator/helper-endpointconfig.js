@@ -612,8 +612,28 @@ function endpoint_attribute_min_max_list(options) {
     let max = parseInt(mm.max)
 
     if (isNaN(def)) def = 0
-    if (isNaN(min)) min = 0
-    if (isNaN(max)) max = '0x' + 'FF'.repeat(mm.typeSize)
+    if (isNaN(min)) {
+      if (mm.typeSize < 1)
+        throw new Error(
+          'Invalid type size for min value: ' + JSON.stringify(mm)
+        )
+      if (mm.isTypeSigned) {
+        min = '0x80' + '00'.repeat(mm.typeSize - 1)
+      } else {
+        min = 0
+      }
+    }
+    if (isNaN(max)) {
+      if (mm.typeSize < 1)
+        throw new Error(
+          'Invalid type size for max value: ' + JSON.stringify(mm)
+        )
+      if (mm.isTypeSigned) {
+        max = '0x7F' + 'FF'.repeat(mm.typeSize - 1)
+      } else {
+        max = '0x' + 'FF'.repeat(mm.typeSize)
+      }
+    }
 
     let defS =
       (def >= 0 ? '' : '-') + '0x' + Math.abs(def).toString(16).toUpperCase()
@@ -628,19 +648,13 @@ function endpoint_attribute_min_max_list(options) {
       .forEach((tok) => {
         switch (tok) {
           case 'def':
-            defMinMaxItems.push(
-              `(${mm.isTypeSigned ? '' : 'u'}int${mm.typeSize * 8}_t)${defS}`
-            )
+            defMinMaxItems.push(`(uint16_t)${defS}`)
             break
           case 'min':
-            defMinMaxItems.push(
-              `(${mm.isTypeSigned ? '' : 'u'}int${mm.typeSize * 8}_t)${minS}`
-            )
+            defMinMaxItems.push(`(uint16_t)${minS}`)
             break
           case 'max':
-            defMinMaxItems.push(
-              `(${mm.isTypeSigned ? '' : 'u'}int${mm.typeSize * 8}_t)${maxS}`
-            )
+            defMinMaxItems.push(`(uint16_t)${maxS}`)
             break
         }
       })

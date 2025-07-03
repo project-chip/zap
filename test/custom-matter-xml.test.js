@@ -443,7 +443,7 @@ test(
       ' /* Endpoint: 1, Cluster: Sample Custom Cluster (server) */ \\'
     )
     expect(endpointConfig).toContain(
-      '{ (uint8_t)0x0, (uint8_t)0x0, (uint8_t)0xFF }, /* Sample Mfg Specific Attribute 2 */ \\'
+      '{ (uint16_t)0x0, (uint16_t)0x0, (uint16_t)0xFF }, /* Sample Mfg Specific Attribute 2 */ \\'
     )
 
     let endpointOut = genResult.content['endpoints.out']
@@ -490,7 +490,7 @@ test(
       ' /* Endpoint: 1, Cluster: Sample Custom Cluster (server) */ \\'
     )
     expect(endpointConfig).not.toContain(
-      '{ (uint8_t)0x0, (uint8_t)0x0, (uint8_t)0xFF }, /* Sample Mfg Specific Attribute 2 */ \\'
+      '{ (uint16_t)0x0, (uint16_t)0x0, (uint16_t)0xFF  }, /* Sample Mfg Specific Attribute 2 */ \\'
     )
 
     // create state from database and session to verify contents of .zap file
