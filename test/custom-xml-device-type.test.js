@@ -195,7 +195,7 @@ test('Generation with custom xml with Device Type', async () => {
 
   let zapConfigVer2 = genResult.content['zap-config-version-2.h']
   expect(zapConfigVer2).toContain(
-    '{ 0x0302, ZCL_INT8U_ATTRIBUTE_TYPE, 1, (ATTRIBUTE_MASK_MANUFACTURER_SPECIFIC| ATTRIBUTE_MASK_CLIENT), { (uint8_t*)0  } }, /* 2 Cluster: Custom Cluster, Attribute: A9, Side: client*/ \\'
+    '{ 0x0302, ZCL_INT8U_ATTRIBUTE_TYPE, 1, (ATTRIBUTE_MASK_READABLE| ATTRIBUTE_MASK_MANUFACTURER_SPECIFIC| ATTRIBUTE_MASK_CLIENT), { (uint8_t*)0  } }, /* 2 Cluster: Custom Cluster, Attribute: A9, Side: client*/ \\'
   )
   expect(zapConfigVer2).toContain(
     '{ 0x0006, 0x02, COMMAND_MASK_OUTGOING_CLIENT }, /* 2, Cluster: On/off, Command: Toggle*/ \\'
@@ -278,7 +278,7 @@ test(`Load .zap file with custom xml with Device Type`, async () => {
 
   let endpointConfig = genResult.content['endpoint-config.c']
   expect(endpointConfig).toContain(
-    '{ 0x00000000, ZAP_TYPE(BOOLEAN), 1, 0, ZAP_SIMPLE_DEFAULT(0) }, /* OnOff */  \\'
+    '{ 0x00000000, ZAP_TYPE(BOOLEAN), 1, ZAP_ATTRIBUTE_MASK(READABLE), ZAP_SIMPLE_DEFAULT(0) }, /* OnOff */  \\'
   )
   expect(endpointConfig).toContain(
     '/* Endpoint: 1, Cluster: Test Cluster - Device Type (server) */ \\'

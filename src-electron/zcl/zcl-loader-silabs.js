@@ -687,6 +687,7 @@ function prepareCluster(cluster, context, isExtension = false) {
           ? attribute.$.reportableChangeLength
           : null,
         isWritable: attribute.$.writable == 'true',
+        isReadable: attribute.$.readable != 'false',
         defaultValue: attribute.$.default,
         isOptional: conformParser.getOptionalAttributeFromXML(
           attribute,

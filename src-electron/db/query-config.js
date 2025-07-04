@@ -1510,6 +1510,7 @@ SELECT
   A.MIN,
   A.MAX,
   A.IS_WRITABLE,
+  A.IS_READABLE,
   A.ARRAY_TYPE,
   ETA.INCLUDED_REPORTABLE,
   ETA.MIN_INTERVAL,
@@ -1553,6 +1554,7 @@ ORDER BY
           min: row.MIN,
           max: row.MAX,
           writable: row.IS_WRITABLE,
+          readable: row.IS_READABLE,
           entryType: row.ARRAY_TYPE,
           reportable: {
             included: row.INCLUDED_REPORTABLE,
