@@ -2453,7 +2453,6 @@ async function as_generated_default_macro(value, attributeSize, options) {
  * @param postfixString
  * @returns attribute mask based on given values
  */
-//TODO: is this change ok? shold I change mask anywhere else (where is it used?)
 async function attribute_mask(
   writable,
   readable,

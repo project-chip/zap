@@ -1096,14 +1096,12 @@ async function collectAttributes(db, sessionId, endpointTypes, options) {
         }
         if (a.isSingleton) mask.push('singleton')
         if (a.isWritable) mask.push('writable')
-        //TODO: is this correct?
         if (a.isReadable) mask.push('readable')
         if (a.isNullable) mask.push('nullable')
         if (a.mustUseTimedWrite) mask.push('must_use_timed_write')
         let zap_type = 'UNKNOWN ATTRIBUTE TYPE'
         if (a.typeInfo.atomicType) {
           zap_type = a.typeInfo.atomicType
-          //TODO: is this an issue since struct items should always be readable? and thus do not need isReadable
         } else if (a.typeInfo.type == dbEnum.zclType.struct) {
           zap_type = 'STRUCT'
         } else if (a.typeInfo.type == dbEnum.zclType.enum && a.typeInfo.size) {
