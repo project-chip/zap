@@ -164,11 +164,12 @@ test(
     )
 
     // Testing GENERATED ATTRIBUTES to see that they are refering to the correct generation defaults
+    //TODO ask reviewers: it looks like the gp link key attribute in Green Power should be Readable by default (?), and it seems that there are no Zigbee Attributes that are WriteOnly (?)
     expect(cfgVer2).toContain(
-      `0x0022, ZCL_SECURITY_KEY_ATTRIBUTE_TYPE, 16, (ATTRIBUTE_MASK_WRITABLE| ATTRIBUTE_MASK_CLIENT), { (uint8_t*)&(generatedDefaults[28]) } }, /* 25 Cluster: Green Power, Attribute: gp link key, Side: client*/`
+      `0x0022, ZCL_SECURITY_KEY_ATTRIBUTE_TYPE, 16, (ATTRIBUTE_MASK_WRITABLE| ATTRIBUTE_MASK_READABLE| ATTRIBUTE_MASK_CLIENT), { (uint8_t*)&(generatedDefaults[28]) } }, /* 25 Cluster: Green Power, Attribute: gp link key, Side: client*/`
     )
     expect(cfgVer2).toContain(
-      `0x0022, ZCL_SECURITY_KEY_ATTRIBUTE_TYPE, 16, (ATTRIBUTE_MASK_WRITABLE), { (uint8_t*)&(generatedDefaults[6]) } }, /* 37 Cluster: Green Power, Attribute: gp link key, Side: server*/`
+      `0x0022, ZCL_SECURITY_KEY_ATTRIBUTE_TYPE, 16, (ATTRIBUTE_MASK_WRITABLE| ATTRIBUTE_MASK_READABLE), { (uint8_t*)&(generatedDefaults[6]) } }, /* 37 Cluster: Green Power, Attribute: gp link key, Side: server*/`
     )
 
     // Test EMBER_AF_GENERATED_REPORTING_CONFIG_DEFAULTS to see that it generates reporting for singleton attributes correctly

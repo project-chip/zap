@@ -172,6 +172,7 @@ async function selectAllAttributeDetailsFromEnabledClusters(
          0
      END AS IS_ARRAY,
      ATTRIBUTE.IS_WRITABLE,
+     ATTRIBUTE.IS_READABLE,
      ATTRIBUTE.IS_NULLABLE,
      ATTRIBUTE.MAX_LENGTH,
      ATTRIBUTE.MIN_LENGTH,
@@ -423,6 +424,7 @@ async function selectAttributeDetailsFromEnabledClusters(
         ? x.MANUFACTURER_CODE
         : x.CLUSTER_MANUFACTURER_CODE,
       isWritable: x.IS_WRITABLE,
+      isReadable: x.IS_READABLE,
       clusterId: x.CLUSTER_ID,
       clusterSide: x.CLUSTER_SIDE,
       clusterName: x.CLUSTER_NAME,
@@ -462,6 +464,7 @@ async function selectAttributeDetailsFromEnabledClusters(
     ATTRIBUTE.DEFINE,
     ATTRIBUTE.MANUFACTURER_CODE,
     ATTRIBUTE.IS_WRITABLE,
+    ATTRIBUTE.IS_READABLE,
     CLUSTER.CLUSTER_ID AS CLUSTER_ID,
     ENDPOINT_TYPE_CLUSTER.SIDE AS CLUSTER_SIDE,
     CLUSTER.NAME AS CLUSTER_NAME,
@@ -873,6 +876,7 @@ SELECT
   A.REPORTABLE_CHANGE,
   A.REPORTABLE_CHANGE_LENGTH,
   A.IS_WRITABLE,
+  A.IS_READABLE,
   A.DEFAULT_VALUE,
   A.IS_OPTIONAL,
   A.REPORTING_POLICY,
@@ -940,6 +944,7 @@ SELECT
   A.REPORTABLE_CHANGE,
   A.REPORTABLE_CHANGE_LENGTH,
   A.IS_WRITABLE,
+  A.IS_READABLE,
   A.DEFAULT_VALUE,
   A.IS_OPTIONAL,
   A.REPORTING_POLICY,
@@ -1233,7 +1238,7 @@ async function selectAttributeMappingsByPackageIds(db, packageIds) {
             RANK() OVER (
               ORDER BY C1.CODE, COALESCE(C1.MANUFACTURER_CODE, 0), C2.CODE, COALESCE(C2.MANUFACTURER_CODE, 0)
             )
-            +  
+            +
             COUNT(*) OVER (
               PARTITION BY C1.CODE, COALESCE(C1.MANUFACTURER_CODE, 0), C2.CODE, COALESCE(C2.MANUFACTURER_CODE, 0)
             )

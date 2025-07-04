@@ -652,6 +652,7 @@ function enhancedAttributes(attributes, globalAttributes, types) {
     enhancedItem(attribute, types);
     attribute.isGlobalAttribute = globalAttributes.includes(attribute.code);
     attribute.isWritableAttribute = !!attribute.isWritable;
+    attribute.isReadableAttribute = !!attribute.isReadable;
     attribute.isReportableAttribute = !!attribute.includedReportable;
     attribute.chipCallback = asChipCallback(attribute);
     attribute.isComplex =

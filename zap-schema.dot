@@ -7,13 +7,13 @@ digraph "SchemaCrawler_Diagram" {
     bgcolor="transparent"
 
   ];
-  
+
   node [
     fontname="Helvetica"
     shape="none"
 
   ];
-  
+
   edge[
     color="black"
     style="bold"
@@ -23,7 +23,7 @@ digraph "SchemaCrawler_Diagram" {
 
 
   /* Title Block -=-=-=-=-=-=-=-=-=-=-=-=-=- */
-  graph [ 
+  graph [
     label=<
       <table border="1" cellborder="0" cellspacing="0" color="#888888" bgcolor="#ffffff">
 	<tr>
@@ -3091,6 +3091,7 @@ digraph "SchemaCrawler_Diagram" {
 		<td align='left'> </td>
 		<td port='is_writable_74b410f9.end' align='left'>INTEGER</td>
 	</tr>
+  /* TODO: Add equivalent of IS_READABLE ? */
 	<tr>
 		<td port='is_nullable_7129fcba.start' align='left'>IS_NULLABLE</td>
 		<td align='left'> </td>

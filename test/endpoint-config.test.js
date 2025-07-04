@@ -208,7 +208,7 @@ test(
       '{ ZAP_REPORT_DIRECTION(REPORTED), 0x0029, 0x00000101, 0x00000000, ZAP_CLUSTER_MASK(SERVER), 0x0000, {{ 0, 65534, 0 }} }, /* lock state */'
     )
     expect(epc).toContain(
-      '{ 0x00000004, ZAP_TYPE(CHAR_STRING), 33, ZAP_ATTRIBUTE_MASK(TOKENIZE), ZAP_LONG_DEFAULTS_INDEX(0) }'
+      '{ 0x00000004, ZAP_TYPE(CHAR_STRING), 33, ZAP_ATTRIBUTE_MASK(TOKENIZE) | ZAP_ATTRIBUTE_MASK(READABLE), ZAP_LONG_DEFAULTS_INDEX(0) }'
     )
     expect(epc.includes(bin.hexToCBytes(bin.stringToHex('Very long user id'))))
     expect(epc).toContain('#define FIXED_NETWORKS { 1, 1, 2 }')
