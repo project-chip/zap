@@ -60,11 +60,11 @@
 #define GENERATED_ATTRIBUTES { {{backslash}}
 	{{/first}}
 	{{#if isAttributeBounded}}
-		{{~indent 1}}{ {{as_hex code 4}}, ZCL_{{as_delimited_macro type}}_ATTRIBUTE_TYPE, {{attributeSize}}, ({{attribute_mask isWritable isReadable storageOption isAttributeBounded mfgCode clusterCode side isSingleton 'ATTRIBUTE_MASK_' ''}}), { (uint8_t*)&(minMaxDefaults[{{generated_attribute_min_max_index clusterName name side}}]) } }{{#not_last}},{{/not_last}} /* {{index}} Cluster: {{clusterName}}, Attribute: {{name}}, Side: {{side}}*/ {{backslash}}
+		{{~indent 1}}{ {{as_hex code 4}}, ZCL_{{as_delimited_macro type}}_ATTRIBUTE_TYPE, {{attributeSize}}, ({{attribute_mask isWritable storageOption isAttributeBounded mfgCode clusterCode side isSingleton 'ATTRIBUTE_MASK_' ''}}), { (uint8_t*)&(minMaxDefaults[{{generated_attribute_min_max_index clusterName name side}}]) } }{{#not_last}},{{/not_last}} /* {{index}} Cluster: {{clusterName}}, Attribute: {{name}}, Side: {{side}}*/ {{backslash}}
 	{{else if (is_number_greater_than attributeSize 2)}}
-		{{~indent 1}}{ {{as_hex code 4}}, ZCL_{{as_delimited_macro type}}_ATTRIBUTE_TYPE, {{attributeSize}}, ({{attribute_mask isWritable isReadable storageOption isAttributeBounded mfgCode clusterCode side isSingleton 'ATTRIBUTE_MASK_' ''}}), { {{generated_default_index ./clusterName ./name ./side 'DEFAULT' ./defaultValue '(uint8_t*)&(generatedDefaults[' '])'}} } }{{#not_last}},{{/not_last}} /* {{index}} Cluster: {{clusterName}}, Attribute: {{name}}, Side: {{side}}*/ {{backslash}}
+		{{~indent 1}}{ {{as_hex code 4}}, ZCL_{{as_delimited_macro type}}_ATTRIBUTE_TYPE, {{attributeSize}}, ({{attribute_mask isWritable storageOption isAttributeBounded mfgCode clusterCode side isSingleton 'ATTRIBUTE_MASK_' ''}}), { {{generated_default_index ./clusterName ./name ./side 'DEFAULT' ./defaultValue '(uint8_t*)&(generatedDefaults[' '])'}} } }{{#not_last}},{{/not_last}} /* {{index}} Cluster: {{clusterName}}, Attribute: {{name}}, Side: {{side}}*/ {{backslash}}
 	{{else}}
-		{{~indent 1}}{ {{as_hex code 4}}, ZCL_{{as_delimited_macro type}}_ATTRIBUTE_TYPE, {{attributeSize}}, ({{attribute_mask isWritable isReadable storageOption isAttributeBounded mfgCode clusterCode side isSingleton 'ATTRIBUTE_MASK_' ''}}), { (uint8_t*){{#if defaultValue}}{{defaultValue}}{{else}}0x00{{/if}}  } }{{#not_last}},{{/not_last}} /* {{index}} Cluster: {{clusterName}}, Attribute: {{name}}, Side: {{side}}*/ {{backslash}}
+		{{~indent 1}}{ {{as_hex code 4}}, ZCL_{{as_delimited_macro type}}_ATTRIBUTE_TYPE, {{attributeSize}}, ({{attribute_mask isWritable storageOption isAttributeBounded mfgCode clusterCode side isSingleton 'ATTRIBUTE_MASK_' ''}}), { (uint8_t*){{#if defaultValue}}{{defaultValue}}{{else}}0x00{{/if}}  } }{{#not_last}},{{/not_last}} /* {{index}} Cluster: {{clusterName}}, Attribute: {{name}}, Side: {{side}}*/ {{backslash}}
 	{{/if}}
 	{{#last}} }{{new_line 2}} {{/last}}
 	{{~else}}

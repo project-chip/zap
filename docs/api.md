@@ -12265,7 +12265,7 @@ This module contains the API for templating. For more detailed instructions, rea
     * [~if_manufacturing_specific_cluster(clusterId, manufacturer_specific_return, null_manufacturer_specific_return)](#module_Templating API_ static zcl helpers..if_manufacturing_specific_cluster) ⇒
     * [~if_mfg_specific_cluster(clusterId, options)](#module_Templating API_ static zcl helpers..if_mfg_specific_cluster) ⇒
     * [~as_generated_default_macro(value, attributeSize, options)](#module_Templating API_ static zcl helpers..as_generated_default_macro) ⇒
-    * [~attribute_mask(writable, readable, storageOption, minMax, mfgSpecific, clusterCode, client, isSingleton, prefixString, postfixString)](#module_Templating API_ static zcl helpers..attribute_mask) ⇒
+    * [~attribute_mask(writable, storageOption, minMax, mfgSpecific, clusterCode, client, isSingleton, prefixString, postfixString)](#module_Templating API_ static zcl helpers..attribute_mask) ⇒
     * [~command_mask(commmandSource, clusterSide, isIncomingEnabled, isOutgoingEnabled, manufacturingCode, prefixForMask)](#module_Templating API_ static zcl helpers..command_mask) ⇒
     * [~command_mask_sub_helper(commandMask, str)](#module_Templating API_ static zcl helpers..command_mask_sub_helper) ⇒
     * [~format_zcl_string_as_characters_for_generated_defaults(stringVal, sizeOfString)](#module_Templating API_ static zcl helpers..format_zcl_string_as_characters_for_generated_defaults) ⇒
@@ -13323,7 +13323,7 @@ Available options:
 
 <a name="module_Templating API_ static zcl helpers..attribute_mask"></a>
 
-### Templating API: static zcl helpers~attribute\_mask(writable, readable, storageOption, minMax, mfgSpecific, clusterCode, client, isSingleton, prefixString, postfixString) ⇒
+### Templating API: static zcl helpers~attribute\_mask(writable, storageOption, minMax, mfgSpecific, clusterCode, client, isSingleton, prefixString, postfixString) ⇒
 Given the attributes of a zcl attribute. Creates an attribute mask based on
 the given options
 Available options:
@@ -13336,7 +13336,6 @@ be used to determine if a cluster is mfg specific or not.
 | Param |
 | --- |
 | writable | 
-| readable | 
 | storageOption | 
 | minMax | 
 | mfgSpecific | 

@@ -148,7 +148,7 @@ test(
 
     // Global attribute test
     expect(zigbeeEndpointConfigGen).toContain(
-      '{ 0xFFFD, ZCL_INT16U_ATTRIBUTE_TYPE, 2, (ATTRIBUTE_MASK_READABLE| ATTRIBUTE_MASK_SINGLETON), { (uint8_t*)3  } }, /* 13 Cluster: Basic, Attribute: cluster revision, Side: server*/'
+      '{ 0xFFFD, ZCL_INT16U_ATTRIBUTE_TYPE, 2, (ATTRIBUTE_MASK_SINGLETON), { (uint8_t*)3  } }, /* 13 Cluster: Basic, Attribute: cluster revision, Side: server*/'
     )
     expect(matterEndpointConfigGen).toContain(
       '{ 0x0000FFFC, ZAP_TYPE(BITMAP32), 4, ZAP_ATTRIBUTE_MASK(READABLE), ZAP_SIMPLE_DEFAULT(0) }, /* FeatureMap */'
