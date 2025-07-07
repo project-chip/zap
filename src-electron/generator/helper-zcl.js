@@ -2442,6 +2442,7 @@ async function as_generated_default_macro(value, attributeSize, options) {
  * isClusterCodeMfgSpecific: 0/1, This is to determine if cluster code needs to
  * be used to determine if a cluster is mfg specific or not.
  * @param writable
+ * @param readable
  * @param storageOption
  * @param minMax
  * @param mfgSpecific
@@ -2454,6 +2455,7 @@ async function as_generated_default_macro(value, attributeSize, options) {
  */
 async function attribute_mask(
   writable,
+  readable,
   storageOption,
   minMax,
   mfgSpecific,
@@ -2473,6 +2475,11 @@ async function attribute_mask(
   if (writable) {
     attributeMask +=
       (attributeMask ? '| ' : '') + prefixString + 'WRITABLE' + postfixString
+  }
+  // mask for isReadable
+  if (readable) {
+    attributeMask +=
+      (attributeMask ? '| ' : '') + prefixString + 'READABLE' + postfixString
   }
 
   // mask for storage option
