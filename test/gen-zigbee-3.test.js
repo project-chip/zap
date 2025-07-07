@@ -143,7 +143,7 @@ test(
     )
     // Test is_number_greater_than within GENERATED_ATTRIBUTES
     expect(cfgVer2).toContain(
-      '{ 0x0000, ZCL_IEEE_ADDRESS_ATTRIBUTE_TYPE, 8, (ATTRIBUTE_MASK_READABLE| ATTRIBUTE_MASK_CLIENT), { (uint8_t*)&(generatedDefaults[0]) } }, /* 35 Cluster: Over the Air Bootloading, Attribute: OTA Upgrade Server ID, Side: client*/'
+      '{ 0x0000, ZCL_IEEE_ADDRESS_ATTRIBUTE_TYPE, 8, (ATTRIBUTE_MASK_CLIENT| ATTRIBUTE_MASK_READABLE), { (uint8_t*)&(generatedDefaults[0]) } }, /* 35 Cluster: Over the Air Bootloading, Attribute: OTA Upgrade Server ID, Side: client*/'
     )
     // Test GENERATED_CLUSTER_COUNT
     expect(cfgVer2).toContain('#define GENERATED_CLUSTER_COUNT 18')
