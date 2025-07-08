@@ -139,11 +139,11 @@ test(
     expect(cfgVer2).toContain('#define GENERATED_ATTRIBUTE_COUNT 81')
     // Test GENERATED_ATTRIBUTES
     expect(cfgVer2).toContain(
-      '{ 0x000F, ZCL_BITMAP8_ATTRIBUTE_TYPE, 1, (ATTRIBUTE_MASK_WRITABLE| ATTRIBUTE_MASK_READABLE), { (uint8_t*)0x00  } }, /* 46 Cluster: Color Control, Attribute: color control options, Side: server*/'
+      '{ 0x000F, ZCL_BITMAP8_ATTRIBUTE_TYPE, 1, (ATTRIBUTE_MASK_WRITABLE), { (uint8_t*)0x00  } }, /* 46 Cluster: Color Control, Attribute: color control options, Side: server*/'
     )
     // Test is_number_greater_than within GENERATED_ATTRIBUTES
     expect(cfgVer2).toContain(
-      '{ 0x0000, ZCL_IEEE_ADDRESS_ATTRIBUTE_TYPE, 8, (ATTRIBUTE_MASK_CLIENT| ATTRIBUTE_MASK_READABLE), { (uint8_t*)&(generatedDefaults[0]) } }, /* 35 Cluster: Over the Air Bootloading, Attribute: OTA Upgrade Server ID, Side: client*/'
+      '{ 0x0000, ZCL_IEEE_ADDRESS_ATTRIBUTE_TYPE, 8, (ATTRIBUTE_MASK_CLIENT), { (uint8_t*)&(generatedDefaults[0]) } }, /* 35 Cluster: Over the Air Bootloading, Attribute: OTA Upgrade Server ID, Side: client*/'
     )
     // Test GENERATED_CLUSTER_COUNT
     expect(cfgVer2).toContain('#define GENERATED_CLUSTER_COUNT 18')

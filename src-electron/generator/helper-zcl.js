@@ -2450,7 +2450,6 @@ async function as_generated_default_macro(value, attributeSize, options) {
  * @param isSingleton
  * @param prefixString
  * @param postfixString
- * @param readable
  * @returns attribute mask based on given values
  */
 async function attribute_mask(
@@ -2463,7 +2462,6 @@ async function attribute_mask(
   isSingleton,
   prefixString,
   postfixString,
-  readable,
   options
 ) {
   let isClusterCodeMfgSpecific =
@@ -2514,12 +2512,6 @@ async function attribute_mask(
   if (isSingleton) {
     attributeMask +=
       (attributeMask ? '| ' : '') + prefixString + 'SINGLETON' + postfixString
-  }
-
-  // mask for isReadable
-  if (readable) {
-    attributeMask +=
-      (attributeMask ? '| ' : '') + prefixString + 'READABLE' + postfixString
   }
 
   if (!attributeMask) {

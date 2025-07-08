@@ -31,11 +31,11 @@
 #define GENERATED_ATTRIBUTES { \
 {{#all_user_cluster_generated_attributes}}
 	{{#if isAttributeBounded}}
-		{ {{as_hex code 4}}, ZCL_{{as_delimited_macro type}}_ATTRIBUTE_TYPE, {{attributeSize}}, ({{attribute_mask isWritable storageOption isAttributeBounded mfgCode clusterCode side isSingleton 'ATTRIBUTE_MASK_' '' isReadable}}), { (uint8_t*)&(minMaxDefaults[{{generated_attribute_min_max_index clusterName name ./side}}]) } }{{#not_last}},{{/not_last}} /* {{index}} Cluster: {{clusterName}}, Attribute: {{name}}, Side: {{side}}*/ \
+		{ {{as_hex code 4}}, ZCL_{{as_delimited_macro type}}_ATTRIBUTE_TYPE, {{attributeSize}}, ({{attribute_mask isWritable storageOption isAttributeBounded mfgCode clusterCode side isSingleton 'ATTRIBUTE_MASK_' ''}}), { (uint8_t*)&(minMaxDefaults[{{generated_attribute_min_max_index clusterName name ./side}}]) } }{{#not_last}},{{/not_last}} /* {{index}} Cluster: {{clusterName}}, Attribute: {{name}}, Side: {{side}}*/ \
 	{{else if (is_number_greater_than attributeSize 2)}}
-		{ {{as_hex code 4}}, ZCL_{{as_delimited_macro type}}_ATTRIBUTE_TYPE, {{attributeSize}}, ({{attribute_mask isWritable storageOption isAttributeBounded mfgCode clusterCode side isSingleton 'ATTRIBUTE_MASK_' '' isReadable}}), { {{generated_default_index ./clusterName ./name ./side 'DEFAULT' ./defaultValue '(uint8_t*)&(generatedDefaults[' '])'}} } }{{#not_last}},{{/not_last}} /* {{index}} Cluster: {{clusterName}}, Attribute: {{name}}, Side: {{side}}*/ \
+		{ {{as_hex code 4}}, ZCL_{{as_delimited_macro type}}_ATTRIBUTE_TYPE, {{attributeSize}}, ({{attribute_mask isWritable storageOption isAttributeBounded mfgCode clusterCode side isSingleton 'ATTRIBUTE_MASK_' ''}}), { {{generated_default_index ./clusterName ./name ./side 'DEFAULT' ./defaultValue '(uint8_t*)&(generatedDefaults[' '])'}} } }{{#not_last}},{{/not_last}} /* {{index}} Cluster: {{clusterName}}, Attribute: {{name}}, Side: {{side}}*/ \
 	{{else}}
-		{ {{as_hex code 4}}, ZCL_{{as_delimited_macro type}}_ATTRIBUTE_TYPE, {{attributeSize}}, ({{attribute_mask isWritable storageOption isAttributeBounded mfgCode clusterCode side isSingleton 'ATTRIBUTE_MASK_' '' isReadable}}), { (uint8_t*){{#if defaultValue}}{{defaultValue}}{{else}}0x00{{/if}}  } }{{#not_last}},{{/not_last}} /* {{index}} Cluster: {{clusterName}}, Attribute: {{name}}, Side: {{side}}*/ \
+		{ {{as_hex code 4}}, ZCL_{{as_delimited_macro type}}_ATTRIBUTE_TYPE, {{attributeSize}}, ({{attribute_mask isWritable storageOption isAttributeBounded mfgCode clusterCode side isSingleton 'ATTRIBUTE_MASK_' ''}}), { (uint8_t*){{#if defaultValue}}{{defaultValue}}{{else}}0x00{{/if}}  } }{{#not_last}},{{/not_last}} /* {{index}} Cluster: {{clusterName}}, Attribute: {{name}}, Side: {{side}}*/ \
 	{{/if}}
 {{/all_user_cluster_generated_attributes}}
 }
@@ -90,7 +90,7 @@
 #define ATTRIBUTE_MAX_SIZE ({{totalAttributeSizeAcrossEndpoints}})
 	{{/first}}
 	{{else}}
-#define ATTRIBUTE_MAX_SIZE (0)
+#define ATTRIBUTE_MAX_SIZE (0)	
 {{/generated_endpoint_type_details}}
 
 // Number of fixed endpoints
@@ -171,7 +171,7 @@
 #define GENERATED_COMMAND_MANUFACTURER_CODE_COUNT ({{mfgCommandCount}})
 	{{/first}}
 	{{else}}
-#define GENERATED_COMMAND_MANUFACTURER_CODE_COUNT (0)
+#define GENERATED_COMMAND_MANUFACTURER_CODE_COUNT (0)	
 {{/all_user_cluster_generated_commands}}
 #define GENERATED_COMMAND_MANUFACTURER_CODES { \
 {{#all_user_cluster_generated_commands}}
@@ -219,7 +219,7 @@
 #define EMBER_AF_GENERATED_REPORTING_CONFIG_DEFAULTS_TABLE_SIZE ({{count}})
 	{{/first}}
 	{{else}}
-#define EMBER_AF_GENERATED_REPORTING_CONFIG_DEFAULTS_TABLE_SIZE (0)
+#define EMBER_AF_GENERATED_REPORTING_CONFIG_DEFAULTS_TABLE_SIZE (0)	
 {{/all_user_reportable_attributes}}
 #define EMBER_AF_GENERATED_REPORTING_CONFIG_DEFAULTS { \
 {{#all_user_reportable_attributes}}

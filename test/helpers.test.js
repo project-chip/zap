@@ -528,7 +528,7 @@ test(
   'Attribute Mask',
   () =>
     zclHelper
-      .attribute_mask(0, 'RAM', 0, 0, 0, 'server', 1, 'ATTRIBUTE_MASK_', '', 0)
+      .attribute_mask(0, 'RAM', 0, 0, 0, 'server', 1, 'ATTRIBUTE_MASK_', '')
       .then((res) => expect(res).toBe('ATTRIBUTE_MASK_SINGLETON'))
       .then(() =>
         zclHelper.attribute_mask(
@@ -540,14 +540,11 @@ test(
           'server',
           0,
           'ATTRIBUTE_MASK_',
-          '',
-          1
+          ''
         )
       )
       .then((res) =>
-        expect(res).toBe(
-          'ATTRIBUTE_MASK_WRITABLE| ATTRIBUTE_MASK_MIN_MAX| ATTRIBUTE_MASK_READABLE'
-        )
+        expect(res).toBe('ATTRIBUTE_MASK_WRITABLE| ATTRIBUTE_MASK_MIN_MAX')
       ),
   testUtil.timeout.short()
 )
