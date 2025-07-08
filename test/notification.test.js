@@ -413,6 +413,26 @@ test(
       multipleWarnings
     )
     expect(notisWithMultipleMessages.length).toBe(2)
+
+    // all outdated notifications matching the patterns should be deleted
+    // all warnings in this test start with "This is a message to", so there should be no warnings left
+    let deleteOutdatedResult = {
+      warningMessage: [],
+      disableChange: false,
+      displayWarning: false,
+      outdatedWarningPatterns: ['This is a message to']
+    }
+    await sessionNotification.setNotificationOnFeatureChange(
+      db,
+      sessionId,
+      deleteOutdatedResult
+    )
+    notisWithOutdatedDeleted = await getNotificationByMessage(
+      db,
+      sessionId,
+      multipleWarnings
+    )
+    expect(notisWithOutdatedDeleted.length).toBe(0)
   },
   testUtil.timeout.long()
 )

@@ -186,20 +186,20 @@ test(
     // Tests for device type feature conformance
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Feature Compliance on endpoint: 1, cluster: Level Control, feature: Lighting (bit 1 in featureMap attribute) should be enabled, as it is mandatory for device type: Matter Dimmable Light'
+        '⚠ Check Feature Compliance on endpoint: 1, cluster: Level Control, feature: Lighting (LT) (bit 1 in featureMap attribute) should be enabled, as it is mandatory for device type: Matter Dimmable Light.'
       )
     ).toBeTruthy()
 
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Feature Compliance on endpoint: 1, cluster: Level Control, feature: OnOff (bit 0 in featureMap attribute) should be enabled, as it is mandatory for device type: Matter Dimmable Light'
+        '⚠ Check Feature Compliance on endpoint: 1, cluster: Level Control, feature: OnOff (OO) (bit 0 in featureMap attribute) should be enabled, as it is mandatory for device type: Matter Dimmable Light.'
       )
     ).toBeTruthy()
 
     // warnings for same feature across different device types should be merged
     expect(
       sessionNotificationMessages.includes(
-        '⚠ Check Feature Compliance on endpoint: 1, cluster: On/Off, feature: Lighting (bit 0 in featureMap attribute) should be enabled, as it is mandatory for device type: Matter On/Off Light, Matter Dimmable Light'
+        '⚠ Check Feature Compliance on endpoint: 1, cluster: On/Off, feature: Lighting (LT) (bit 0 in featureMap attribute) should be enabled, as it is mandatory for device type: Matter On/Off Light, Matter Dimmable Light.'
       )
     ).toBeTruthy()
 
@@ -224,7 +224,7 @@ test(
     for (const element of nonConformElements) {
       expect(
         sessionNotificationMessages.includes(
-          `⚠ Check Feature Compliance on endpoint: 1, cluster: On/Off, ${element.type}: ${element.name} has mandatory conformance to LT and should be disabled when feature: LT is disabled.`
+          `⚠ Check Feature Compliance on endpoint: 1, cluster: On/Off, ${element.type}: ${element.name} has mandatory conformance to LT and should be disabled, when feature: LT is disabled.`
         )
       ).toBeTruthy()
     }
