@@ -1153,6 +1153,7 @@ async function collectAttributes(
         }
         if (a.isSingleton) mask.push('singleton')
         if (a.isWritable) mask.push('writable')
+        if (a.isReadable) mask.push('readable')
         if (a.isNullable) mask.push('nullable')
         if (a.mustUseTimedWrite) mask.push('must_use_timed_write')
         let zap_type = 'UNKNOWN ATTRIBUTE TYPE'

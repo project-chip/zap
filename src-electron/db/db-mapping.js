@@ -111,6 +111,8 @@ exports.map = {
       reportableChangeLength: x.REPORTABLE_CHANGE_LENGTH,
       isWritable: dbApi.fromDbBool(x.IS_WRITABLE),
       isWritableAttribute: dbApi.fromDbBool(x.IS_WRITABLE),
+      isReadable: dbApi.fromDbBool(x.IS_READABLE),
+      isReadableAttribute: dbApi.fromDbBool(x.IS_READABLE),
       isNullable: dbApi.fromDbBool(x.IS_NULLABLE),
       defaultValue: x.DEFAULT_VALUE,
       isOptional: dbApi.fromDbBool(x.IS_OPTIONAL),
@@ -697,6 +699,8 @@ exports.map = {
       isSingleton: dbApi.fromDbBool(x.SINGLETON), // Endpoint type attribute is singleton or not
       isWritable: dbApi.fromDbBool(x.IS_WRITABLE), // Is attribute writable
       isWritableAttribute: dbApi.fromDbBool(x.IS_WRITABLE), // Is attribute writable
+      isReadable: dbApi.fromDbBool(x.IS_READABLE), // Is attribute readable
+      isReadableAttribute: dbApi.fromDbBool(x.IS_READABLE), // Is attribute readable
       manufacturerCode: x.MANUFACTURER_CODE
         ? x.MANUFACTURER_CODE
         : x.CLUSTER_MANUFACTURER_CODE, // Attribute manufacturer code
