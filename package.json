@@ -121,7 +121,8 @@
     "dist:all": "node src-script/build-release-package.js --platform mwl --output dist/release",
     "mattersdk": "node src-script/zap-start.js regenerateSdk --sdk ~/git/matter/scripts/tools/sdk.json",
     "metasdk": "node src-script/zap-start.js regenerateSdk --sdk test/resource/meta/sdk.json",
-    "zip": "node ./src-script/7zip-bin-wrapper.js"
+    "zip": "node ./src-script/7zip-bin-wrapper.js",
+    "sonar": "sonar-scanner"
   },
   "dependencies": {
     "@globalhive/vuejs-tour": "^1.3.4",
@@ -207,7 +208,8 @@
     "pretty-quick": "^4.0.0",
     "test-utils": "^1.1.1",
     "typescript": "4.6",
-    "workbox-webpack-plugin": "^7.1.0"
+    "workbox-webpack-plugin": "^7.1.0",
+    "sonar-scanner": "^3.1.0"
   },
   "engines": {
     "node": ">= 8.9.0",
