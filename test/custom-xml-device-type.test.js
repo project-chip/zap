@@ -278,7 +278,7 @@ test(`Load .zap file with custom xml with Device Type`, async () => {
 
   let endpointConfig = genResult.content['endpoint-config.c']
   expect(endpointConfig).toContain(
-    '{ 0x00000000, ZAP_TYPE(BOOLEAN), 1, ZAP_ATTRIBUTE_MASK(READABLE), ZAP_SIMPLE_DEFAULT(0) }, /* OnOff */  \\'
+    '{ 0x00000000, ZAP_TYPE(BOOLEAN), 1, 0, ZAP_SIMPLE_DEFAULT(0) }, /* OnOff */  \\'
   )
   expect(endpointConfig).toContain(
     '/* Endpoint: 1, Cluster: Test Cluster - Device Type (server) */ \\'

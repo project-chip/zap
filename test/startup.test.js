@@ -346,10 +346,10 @@ test(
     )
     // Check for the specific string in the generated content
     expect(genResultMatter.content['endpoint-config.c']).not.toContain(
-      `{ 0x0000FFFD, ZAP_TYPE(INT16U), 2, ZAP_ATTRIBUTE_MASK(READABLE), ZAP_SIMPLE_DEFAULT(1) }`
+      `{ 0x0000FFFD, ZAP_TYPE(INT16U), 2, 0, ZAP_SIMPLE_DEFAULT(1) }`
     )
     expect(genResultMatter.content['endpoint-config.c']).toContain(
-      `{ 0x0000FFFD, ZAP_TYPE(INT16U), 2, ZAP_ATTRIBUTE_MASK(READABLE), ZAP_SIMPLE_DEFAULT(2) }`
+      `{ 0x0000FFFD, ZAP_TYPE(INT16U), 2, 0, ZAP_SIMPLE_DEFAULT(2) }`
     )
 
     // Import the upgraded file for matter
@@ -374,10 +374,10 @@ test(
     )
     // Check for the specific string in the generated content
     expect(genResultMatterLight.content['endpoint-config.c']).not.toContain(
-      `{ 0x0000FFFD, ZAP_TYPE(INT16U), 2, ZAP_ATTRIBUTE_MASK(READABLE), ZAP_SIMPLE_DEFAULT(1) }`
+      `{ 0x0000FFFD, ZAP_TYPE(INT16U), 2, 0, ZAP_SIMPLE_DEFAULT(1) }`
     )
     expect(genResultMatterLight.content['endpoint-config.c']).toContain(
-      `{ 0x0000FFFD, ZAP_TYPE(INT16U), 2, ZAP_ATTRIBUTE_MASK(READABLE), ZAP_SIMPLE_DEFAULT(2) }`
+      `{ 0x0000FFFD, ZAP_TYPE(INT16U), 2, 0, ZAP_SIMPLE_DEFAULT(2) }`
     )
   },
   testUtil.timeout.long()
