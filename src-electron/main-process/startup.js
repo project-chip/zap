@@ -1261,7 +1261,8 @@ async function startUpMainInstance(argv, callbacks) {
         zapFiles,
         argv.uiMode,
         argv.standalone,
-        zapFileExtensions
+        zapFileExtensions,
+        argv.output
       )
     } else {
       if (argv.showUrl) {

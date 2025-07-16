@@ -337,9 +337,444 @@ things were successful or not.</p>
 </dd>
 </dl>
 
+## Constants
+
+<dl>
+<dt><a href="#dbEnum">dbEnum</a></dt>
+<dd><p>Copyright (c) 2022 Silicon Labs</p>
+<p>   Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at</p>
+<pre><code>   http://www.apache.org/licenses/LICENSE-2.0
+</code></pre>
+<p>   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.</p>
+</dd>
+</dl>
+
 ## Functions
 
 <dl>
+<dt><a href="#asBasicType">asBasicType(type)</a> ⇒</dt>
+<dd><p>Get hardcoded basic type based on the given type.</p>
+</dd>
+<dt><a href="#loadEndpoints">loadEndpoints()</a></dt>
+<dd><p>Loads endpoint data, specifically what endpoints are available and what clusters
+are defined within those endpoints.</p>
+</dd>
+<dt><a href="#throwError">throwError(test, errorStr)</a></dt>
+<dd><p>Throw error using given data.</p>
+</dd>
+<dt><a href="#setDefault">setDefault(test, name, defaultValue)</a></dt>
+<dd><p>Set default value for the given parameters.</p>
+</dd>
+<dt><a href="#setDefaultType">setDefaultType(test)</a></dt>
+<dd><p>Set default type.</p>
+</dd>
+<dt><a href="#setDefaultTypeForWaitCommand">setDefaultTypeForWaitCommand(test)</a></dt>
+<dd><p>Set default type for wait command.</p>
+</dd>
+<dt><a href="#setDefaultTypeForCommand">setDefaultTypeForCommand(test)</a></dt>
+<dd><p>Set default type for command.</p>
+</dd>
+<dt><a href="#setDefaultPICS">setDefaultPICS(test, picsFilePath)</a> ⇒</dt>
+<dd><p>Set default PICS.</p>
+</dd>
+<dt><a href="#setDefaultArguments">setDefaultArguments(test)</a> ⇒</dt>
+<dd><p>Set default arguments.</p>
+</dd>
+<dt><a href="#ensureValidError">ensureValidError(response, errorName)</a></dt>
+<dd><p>Ensure a valid error.</p>
+</dd>
+<dt><a href="#setDefaultResponse">setDefaultResponse(test, useSynthesizeWaitForReport)</a> ⇒</dt>
+<dd><p>Set default response.</p>
+</dd>
+<dt><a href="#setDefaults">setDefaults(test, defaultConfig, useSynthesizeWaitForReport, picsFilePath)</a></dt>
+<dd><p>Set defaults.</p>
+</dd>
+<dt><a href="#parseYamlTest">parseYamlTest(filename, useSynthesizeWaitForReport, picsFilePath, certificationDir, testDir)</a> ⇒</dt>
+<dd><p>Get yaml data.</p>
+</dd>
+<dt><a href="#printErrorAndExit">printErrorAndExit(context, msg)</a></dt>
+<dd><p>Log Errors and exit.</p>
+</dd>
+<dt><a href="#assertCommandOrAttributeOrEvent">assertCommandOrAttributeOrEvent(context)</a> ⇒</dt>
+<dd><p>Get Attribute, commands or events for a cluster.</p>
+</dd>
+<dt><a href="#retrievePICS">retrievePICS(filepath)</a> ⇒</dt>
+<dd><p>Retireve PICS.</p>
+</dd>
+<dt><a href="#chip_tests_pics">chip_tests_pics(options)</a> ⇒</dt>
+<dd><p>Get PICS.
+Templates.</p>
+</dd>
+<dt><a href="#configureTestItem">configureTestItem(item)</a></dt>
+<dd><p>Configure test item.</p>
+</dd>
+<dt><a href="#chip_tests">chip_tests(listOrJson, options)</a> ⇒</dt>
+<dd><p>Get tests.</p>
+</dd>
+<dt><a href="#chip_tests_items">chip_tests_items(options)</a> ⇒</dt>
+<dd><p>Get items in this context.</p>
+</dd>
+<dt><a href="#getVariable">getVariable(context, key, name)</a> ⇒</dt>
+<dd><p>Get variable.</p>
+</dd>
+<dt><a href="#getVariableOrThrow">getVariableOrThrow(context, key, name)</a> ⇒</dt>
+<dd><p>Get variable details.</p>
+</dd>
+<dt><a href="#chip_tests_variables">chip_tests_variables(options)</a> ⇒</dt>
+<dd><p>Get variables.</p>
+</dd>
+<dt><a href="#chip_tests_variables_has">chip_tests_variables_has(name, options)</a> ⇒</dt>
+<dd><p>Check if tests have the variable.</p>
+</dd>
+<dt><a href="#chip_tests_variables_get_type">chip_tests_variables_get_type(name, options)</a> ⇒</dt>
+<dd><p>Get type of variable.</p>
+</dd>
+<dt><a href="#chip_tests_variables_is_nullable">chip_tests_variables_is_nullable(name, options)</a> ⇒</dt>
+<dd><p>Return boolean based on variable&#39;s nullable property.</p>
+</dd>
+<dt><a href="#chip_tests_config">chip_tests_config(options)</a> ⇒</dt>
+<dd><p>Get config</p>
+</dd>
+<dt><a href="#chip_tests_config_has">chip_tests_config_has(name, options)</a> ⇒</dt>
+<dd><p>chec if config has the variable.</p>
+</dd>
+<dt><a href="#chip_tests_config_get_default_value">chip_tests_config_get_default_value(name, options)</a> ⇒</dt>
+<dd><p>Get default value of the variable given.</p>
+</dd>
+<dt><a href="#chip_tests_config_get_type">chip_tests_config_get_type(name, options)</a> ⇒</dt>
+<dd><p>Get type of the variable given.</p>
+</dd>
+<dt><a href="#attachGlobal">attachGlobal(global, value, errorContext)</a> ⇒</dt>
+<dd><p>test_cluster_command_value and test_cluster_value-equals are recursive partials using #each. At some point the |global|
+context is lost and it fails. Make sure to attach the global context as a property of the | value |
+that is evaluated.</p>
+<p>errorContext should have &quot;thisVal&quot; and &quot;name&quot; properties that will be used
+for error reporting via printErrorAndExit.</p>
+</dd>
+<dt><a href="#checkNumberSanity">checkNumberSanity()</a></dt>
+<dd><p>Ensure the given value is not a possibly-corrupted-by-going-through-double
+integer.  If it is, tell the user (using that errorContext.name to describe
+it) and die.</p>
+</dd>
+<dt><a href="#chip_tests_item_parameters">chip_tests_item_parameters(options)</a> ⇒</dt>
+<dd><p>Get item parameters.</p>
+</dd>
+<dt><a href="#chip_tests_item_responses">chip_tests_item_responses(options)</a> ⇒</dt>
+<dd><p>Get item responses.</p>
+</dd>
+<dt><a href="#chip_tests_item_response_parameters">chip_tests_item_response_parameters(options)</a> ⇒</dt>
+<dd><p>Get item response parameters.</p>
+</dd>
+<dt><a href="#isLiteralNull">isLiteralNull(value, options)</a> ⇒</dt>
+<dd><p>Returns true/false based on value being a null or not.</p>
+</dd>
+<dt><a href="#isHexString">isHexString(value)</a> ⇒</dt>
+<dd><p>Returns true/false based on value being a hex string or not.</p>
+</dd>
+<dt><a href="#octetStringFromHexString">octetStringFromHexString(value)</a> ⇒</dt>
+<dd><p>Get octet string length from hex string value.</p>
+</dd>
+<dt><a href="#octetStringLengthFromHexString">octetStringLengthFromHexString(value)</a> ⇒</dt>
+<dd><p>Get octet string length from hex string value.</p>
+</dd>
+<dt><a href="#octetStringEscapedForCLiteral">octetStringEscapedForCLiteral(value)</a> ⇒</dt>
+<dd><p>Escape control characters, things outside the ASCII range, and single
+quotes (because that&#39;s our string terminator).</p>
+</dd>
+<dt><a href="#if_include_struct_item_value">if_include_struct_item_value(structValue, name, options)</a> ⇒</dt>
+<dd><p>Structs may not always provide values for optional members.</p>
+</dd>
+<dt><a href="#ensureIsArray">ensureIsArray(value, options)</a></dt>
+<dd><p>To be used to verify that things are actually arrays before trying to use
+#each with them, since that silently treats non-arrays as empty arrays.</p>
+</dd>
+<dt><a href="#checkIsInsideTestOnlyClusterBlock">checkIsInsideTestOnlyClusterBlock(conditions, name)</a></dt>
+<dd><p>Checks if conditions are inside test only cluster block.</p>
+</dd>
+<dt><a href="#chip_tests_only_clusters">chip_tests_only_clusters(options)</a></dt>
+<dd><p>Creates block iterator over the simulated clusters.</p>
+</dd>
+<dt><a href="#chip_tests_only_cluster_commands">chip_tests_only_cluster_commands(options)</a></dt>
+<dd><p>Creates block iterator over the cluster commands for a given simulated cluster.</p>
+<p>This function is meant to be used inside a {{#chip_tests_only_clusters}}
+block. It will throw otherwise.</p>
+</dd>
+<dt><a href="#chip_tests_only_cluster_command_parameters">chip_tests_only_cluster_command_parameters(options)</a></dt>
+<dd><p>Creates block iterator over the command arguments for a given simulated cluster command.</p>
+<p>This function is meant to be used inside a {{#chip_tests_only_cluster_commands}}
+block. It will throw otherwise.</p>
+</dd>
+<dt><a href="#chip_tests_only_cluster_responses">chip_tests_only_cluster_responses(options)</a></dt>
+<dd><p>Creates block iterator over the cluster responses for a given simulated cluster.</p>
+<p>This function is meant to be used inside a {{#chip_tests_only_clusters}}
+block. It will throw otherwise.</p>
+</dd>
+<dt><a href="#chip_tests_only_cluster_response_parameters">chip_tests_only_cluster_response_parameters(options)</a></dt>
+<dd><p>Creates block iterator over the response arguments for a given simulated cluster response.</p>
+<p>This function is meant to be used inside a {{#chip_tests_only_cluster_responses}}
+block. It will throw otherwise.</p>
+</dd>
+<dt><a href="#chip_tests_iterate_expected_list">chip_tests_iterate_expected_list(values, options)</a> ⇒</dt>
+<dd><p>Get a transformed values list.</p>
+</dd>
+<dt><a href="#chip_tests_iterate_constraints">chip_tests_iterate_constraints(constraints, options)</a> ⇒</dt>
+<dd><p>Get constraint details.</p>
+</dd>
+<dt><a href="#asTestType">asTestType(type, isList)</a> ⇒</dt>
+<dd><p>Get Data Model data type</p>
+</dd>
+<dt><a href="#chip_endpoint_generated_functions">chip_endpoint_generated_functions()</a></dt>
+<dd><p>Populate the GENERATED_FUNCTIONS field</p>
+</dd>
+<dt><a href="#chip_endpoint_cluster_list">chip_endpoint_cluster_list()</a></dt>
+<dd><p>Return endpoint config GENERATED_CLUSTER MACRO
+To be used as a replacement of endpoint_cluster_list since this one
+includes the GENERATED_FUNCTIONS array</p>
+</dd>
+<dt><a href="#chip_endpoint_data_version_count">chip_endpoint_data_version_count()</a></dt>
+<dd><p>Return the number of data versions we need for our fixed endpoints.</p>
+<p>This is just the count of server clusters on those endpoints.</p>
+</dd>
+<dt><a href="#chip_name_for_id_usage">chip_name_for_id_usage(label, options)</a> ⇒ <code>string</code></dt>
+<dd><p>Same as asUpperCamelCase, but with a special case for &quot;RFID&quot;.
+Special case for cluster specific object files for Matter.</p>
+</dd>
+<dt><a href="#chip_server_clusters">chip_server_clusters(options)</a></dt>
+<dd><p>Creates block iterator over the enabled server side clusters</p>
+</dd>
+<dt><a href="#chip_has_server_clusters">chip_has_server_clusters()</a></dt>
+<dd><p>Check if there is any enabled server clusters</p>
+</dd>
+<dt><a href="#chip_client_clusters">chip_client_clusters(options)</a></dt>
+<dd><p>Creates block iterator over client side enabled clusters</p>
+</dd>
+<dt><a href="#chip_has_client_clusters">chip_has_client_clusters()</a></dt>
+<dd><p>Check if there is any enabled client clusters</p>
+</dd>
+<dt><a href="#chip_clusters">chip_clusters(options)</a></dt>
+<dd><p>Creates block iterator over enabled clusters</p>
+</dd>
+<dt><a href="#chip_has_clusters">chip_has_clusters()</a></dt>
+<dd><p>Check if there is any enabled clusters</p>
+</dd>
+<dt><a href="#chip_server_global_responses">chip_server_global_responses(options)</a></dt>
+<dd><p>Creates block iterator over the server global responses</p>
+</dd>
+<dt><a href="#chip_cluster_commands">chip_cluster_commands(options)</a></dt>
+<dd><p>Creates block iterator over the cluster commands for a given cluster/side.</p>
+<p>This function is meant to be used inside a {{#chip_*_clusters}}
+block. It will throw otherwise.</p>
+</dd>
+<dt><a href="#chip_cluster_responses">chip_cluster_responses(options)</a></dt>
+<dd><p>Creates block iterator over the cluster responses for a given cluster/side.</p>
+<p>This function is meant to be used inside a {{#chip_*_clusters}}
+block. It will throw otherwise.</p>
+</dd>
+<dt><a href="#chip_cluster_command_arguments">chip_cluster_command_arguments(options)</a></dt>
+<dd><p>Creates block iterator over the current command arguments for a given cluster/side.</p>
+<p>This function is meant to be used inside a {{#chip_cluster_commands}}
+block. It will throw otherwise.</p>
+</dd>
+<dt><a href="#chip_cluster_command_arguments_with_structs_expanded">chip_cluster_command_arguments_with_structs_expanded(options)</a></dt>
+<dd><p>Creates block iterator over the current command arguments for a given cluster/side.</p>
+<p>This function is meant to be used inside a {{#chip_cluster_commands}}
+block. It will throw otherwise.</p>
+<p>The arguments list built by this function differs from {{chip_cluster_command_arguments}}.
+For example, if a command contains a single struct argument &quot;SomeStruct&quot;, with the following type:</p>
+<p>struct SomeStruct {
+  uint8_t a;
+  uint16_t b;
+  uint32_t c;
+}</p>
+<p>then that argument will be expanded into 3 arguments (uint8_t a, uint16_t b, uint32_t c).</p>
+</dd>
+<dt><a href="#chip_cluster_response_arguments">chip_cluster_response_arguments(options)</a></dt>
+<dd><p>Creates block iterator over the current response arguments for a given cluster/side.</p>
+<p>This function is meant to be used inside a {{#chip_cluster_responses}}
+block. It will throw otherwise.</p>
+</dd>
+<dt><a href="#chip_server_has_list_attributes">chip_server_has_list_attributes(options)</a></dt>
+<dd><p>Returns if a given server cluster has any attributes of type List[T]</p>
+<p>This function is meant to be used inside a {{#chip_server_clusters}}
+block. It will throw otherwise.</p>
+</dd>
+<dt><a href="#chip_client_has_list_attributes">chip_client_has_list_attributes(options)</a></dt>
+<dd><p>Returns if a given client cluster has any attributes of type List[T]</p>
+<p>This function is meant to be used inside a {{#chip_client_clusters}}
+block. It will throw otherwise.</p>
+</dd>
+<dt><a href="#chip_server_has_reportable_attributes">chip_server_has_reportable_attributes(options)</a></dt>
+<dd><p>Returns if a given server cluster has any reportable attribute</p>
+<p>This function is meant to be used inside a {{#chip_server_clusters}}
+block. It will throw otherwise.</p>
+</dd>
+<dt><a href="#chip_server_cluster_attributes">chip_server_cluster_attributes(options)</a></dt>
+<dd><p>Creates block iterator over the server side cluster attributes
+for a given cluster.</p>
+<p>This function is meant to be used inside a {{#chip_server_clusters}}
+block. It will throw otherwise.</p>
+</dd>
+<dt><a href="#chip_server_cluster_events">chip_server_cluster_events(options)</a></dt>
+<dd><p>Creates block iterator over the server side cluster events
+for a given cluster.</p>
+<p>This function is meant to be used inside a {{#chip_server_clusters}}
+block. It will throw otherwise.</p>
+</dd>
+<dt><a href="#chip_available_cluster_commands">chip_available_cluster_commands()</a></dt>
+<dd><p>Creates block iterator over commands for a given cluster that have the
+following properties:</p>
+<ol>
+<li>Are not manufacturer-specific (to exclude MfgSpecificPing)</li>
+<li>Are available in the isCommandAvailable sense.</li>
+</ol>
+</dd>
+<dt><a href="#chip_cluster_specific_structs">chip_cluster_specific_structs()</a></dt>
+<dd><p>Creates block iterator over structures belonging to the current cluster</p>
+</dd>
+<dt><a href="#chip_shared_structs">chip_shared_structs()</a></dt>
+<dd><p>Creates block iterator over structures that are shared between clusters</p>
+</dd>
+<dt><a href="#if_is_strongly_typed_bitmap">if_is_strongly_typed_bitmap(type)</a> ⇒</dt>
+<dd><p>Helper checks if the type for the bitmap is BitFlags. This generally includes
+all bitmaps apart from
+bitmap8/16/32 (generally defined in types.xml)
+example:
+{{#if_is_strongly_typed_bitmap type}}
+strongly typed bitmap
+{{else}}
+not a strongly typed bitmap
+{{/if_is_strongly_typed_bitmap}}</p>
+</dd>
+<dt><a href="#if_is_strongly_typed_chip_enum">if_is_strongly_typed_chip_enum(type, options)</a> ⇒</dt>
+<dd><p>Handlebar helper function which checks if an enum is a strongly typed enum or
+not. This generally includes all enums apart from
+enum8/16/32 (generally defined in types.xml)
+example for if_is_strongly_typed_chip_enum:
+{{#if_is_strongly_typed_chip_enum type}}
+strongly typed enum
+{{else}}
+not a strongly typed enum
+{{/if_is_strongly_typed_chip_enum}}</p>
+</dd>
+<dt><a href="#if_chip_enum">if_chip_enum()</a></dt>
+<dd><p>Checks whether a type is an enum for purposes of its chipType.  That includes
+both spec-defined enum types and types that we map to enum types in our code.</p>
+</dd>
+<dt><a href="#asListEntryLength">asListEntryLength(options)</a></dt>
+<dd><p>Returns the calculated length of the given attribute list</p>
+<p>This function is meant to be used inside a {{#chip_server_cluster_attributes}} block.
+It will throws otherwise.</p>
+</dd>
+<dt><a href="#as_underlying_java_zcl_type_util">as_underlying_java_zcl_type_util(type, clusterId, options)</a> ⇒</dt>
+<dd><p>Note: This is a util function
+Available options:</p>
+<ul>
+<li>isBoxedJavaType: 0/1 to return string types in different ways</li>
+<li>All other options passed to this helper are considered as overrides for
+zcl types
+for eg: (as_underlying_java_zcl_type type clusterId boolean=&#39;Boolean&#39;)
+will return &quot;Boolean&quot; for &quot;boolean&quot; type</li>
+</ul>
+</dd>
+<dt><a href="#as_underlying_java_zcl_type">as_underlying_java_zcl_type(type, clusterId, options)</a> ⇒</dt>
+<dd><p>Note: This helper needs to be used under a block helper which has a
+reference to clusterId.
+Available options:</p>
+<ul>
+<li>isBoxedJavaType: 0/1 to return string types in different ways</li>
+<li>All other options passed to this helper are considered as overrides for
+zcl types
+for eg: (as_underlying_java_zcl_type type clusterId boolean=&#39;Boolean&#39;)
+will return &quot;Boolean&quot; for &quot;boolean&quot; type</li>
+</ul>
+</dd>
+<dt><a href="#if_basic_attribute">if_basic_attribute(type, clusterId, options)</a> ⇒</dt>
+<dd><p>If helper that checks if an attribute is basic or not based for java code
+generation
+For eg: In java, an attribute is not basic if it is either nullable, optional,
+array type or struct.
+Note: This helper should be used within an attribute block helper and also
+needs to be used under a block helper which has a reference to clusterId.
+example:
+{{#if_basic_attribute type}}
+type is basic
+{{else}}
+type is not basic
+{{/if_basic_attribute}}</p>
+</dd>
+<dt><a href="#if_unsupported_attribute_callback">if_unsupported_attribute_callback(type, isArray, clusterId, options)</a> ⇒</dt>
+<dd><p>If helper that checks if an attribute is not supported for java code
+generation
+Note: This helper needs to be used under a block helper which has a
+reference to clusterId.
+For eg: In java, an attribute callback is not supported when it is a struct.
+However it is supported if it is an array of structs.</p>
+</dd>
+<dt><a href="#as_underlying_python_zcl_type">as_underlying_python_zcl_type(type, clusterId, options)</a> ⇒</dt>
+<dd><p>Note: This helper needs to be used under a block helper which has a
+reference to clusterId.
+Available options:</p>
+<ul>
+<li>All options passed to this helper are considered as overrides for
+zcl types
+for eg: (as_underlying_python_zcl_type type clusterId SomeType=&#39;Stype&#39;)
+will return &quot;Stype&quot; for &quot;SomeType&quot; type</li>
+</ul>
+</dd>
+<dt><a href="#asTypedExpressionFromObjectiveC">asTypedExpressionFromObjectiveC()</a></dt>
+<dd><p>Converts an expression involving possible variables whose types are objective C objects into an expression whose type is a C++
+type</p>
+</dd>
+<dt><a href="#oldName">oldName()</a></dt>
+<dd><p>Figure out whether the entity represented by cluster+options (could be a
+cluster, attribute, command, etc) has an old name that it was renamed from,
+and if so return it.</p>
+</dd>
+<dt><a href="#objCEnumName">objCEnumName()</a></dt>
+<dd><p>Produce a reasonable name for an Objective C enum for the given cluster name
+and enum label.  Because a lot of our enum labels already have the cluster
+name prefixed (e.g. NetworkCommissioning*, or the IdentifyIdentifyType that
+has it prefixed <em>twice</em>) just concatenating the two gives overly verbose
+names in a few cases (e.g. &quot;IdentifyIdentifyIdentifyType&quot;).</p>
+<p>This function strips out the redundant cluster names, and strips off trailing
+&quot;Enum&quot; bits on the enum names while we&#39;re here.</p>
+</dd>
+<dt><a href="#findPathToContainer">findPathToContainer()</a></dt>
+<dd><p>Takes a path (not including the leading &quot;introduced&quot; or &quot;deprecated&quot;) and
+modifies it to point to the container of the thing being referenced, if any.
+If there is no container, returns undefined.</p>
+</dd>
+<dt><a href="#findDeprecationRelease">findDeprecationRelease()</a></dt>
+<dd><p>Finds the release in which this path, or one of its ancestors, was
+deprecated, if such a release exists.  If no such release exists, returns
+undefined.</p>
+</dd>
+<dt><a href="#compareIntroductionToReferenceRelease">compareIntroductionToReferenceRelease()</a></dt>
+<dd><p>Utility for wasIntroducedBeforeRelease and isSupported.  Returns undefined if
+the the path we are looking at was not officially introduced, otherwise
+returns -1 if it was introduced before the reference release, 0 if it was
+introduced in the reference release, 1 if it was introduced after the
+reference release.</p>
+<p>Throws if referenceRelease is not defined.</p>
+</dd>
+<dt><a href="#findReleaseForPathOrAncestorAndSection">findReleaseForPathOrAncestorAndSection()</a></dt>
+<dd><p>Utility for wasRemoved and findProvisionalRelease.  Finds a release that
+mentions the given path or some ancestor of it in the given section.  Returns
+the release and the path that ended up being found, or undefined if nothing
+was found.</p>
+</dd>
+<dt><a href="#meta_category">meta_category()</a> ⇒</dt>
+<dd><p>Get &#39;Meta category.&#39; string.</p>
+</dd>
+<dt><a href="#meta_stamp">meta_stamp()</a> ⇒</dt>
+<dd><p>Get meta stamp string.</p>
+</dd>
 <dt><a href="#setEmojiDisabled">setEmojiDisabled(value)</a></dt>
 <dd><p>Set emoji disabled state (for testing)</p>
 </dd>
@@ -17600,11 +18035,11 @@ Utility module for ZAP UI
 
 * [JS API: Utility module for ZAP UI](#module_JS API_ Utility module for ZAP UI)
     * [~showErrorMessage(title, err)](#module_JS API_ Utility module for ZAP UI..showErrorMessage)
-    * [~openFileConfiguration(db, filePath, httpPort, zapFileExtensions)](#module_JS API_ Utility module for ZAP UI..openFileConfiguration)
+    * [~openFileConfiguration(db, filePath, httpPort, zapFileExtensions, output)](#module_JS API_ Utility module for ZAP UI..openFileConfiguration)
     * [~openNewConfiguration(httpPort, options:)](#module_JS API_ Utility module for ZAP UI..openNewConfiguration)
     * [~toggleDirtyFlag(browserWindow, dirty)](#module_JS API_ Utility module for ZAP UI..toggleDirtyFlag)
     * [~openFileDialogAndReportResult(browserWindow, options)](#module_JS API_ Utility module for ZAP UI..openFileDialogAndReportResult)
-    * [~enableUi(port, zapFiles, uiMode, standalone, zapFileExtensions)](#module_JS API_ Utility module for ZAP UI..enableUi) ⇒
+    * [~enableUi(port, zapFiles, uiMode, standalone, zapFileExtensions, output)](#module_JS API_ Utility module for ZAP UI..enableUi) ⇒
 
 <a name="module_JS API_ Utility module for ZAP UI..showErrorMessage"></a>
 
@@ -17620,7 +18055,7 @@ Simple dialog to show error messages from electron renderer scope.
 
 <a name="module_JS API_ Utility module for ZAP UI..openFileConfiguration"></a>
 
-### JS API: Utility module for ZAP UI~openFileConfiguration(db, filePath, httpPort, zapFileExtensions)
+### JS API: Utility module for ZAP UI~openFileConfiguration(db, filePath, httpPort, zapFileExtensions, output)
 Process a single file, parsing it in as JSON and then possibly opening
 a new window if all is good.
 
@@ -17632,6 +18067,7 @@ a new window if all is good.
 | filePath | <code>\*</code> |  |
 | httpPort | <code>\*</code> | Server port for the URL that will be constructed. |
 | zapFileExtensions | <code>\*</code> | Extend a zap file with zapExtension |
+| output | <code>\*</code> | Output directory for generation |
 
 <a name="module_JS API_ Utility module for ZAP UI..openNewConfiguration"></a>
 
@@ -17673,7 +18109,7 @@ reports result back through the API.
 
 <a name="module_JS API_ Utility module for ZAP UI..enableUi"></a>
 
-### JS API: Utility module for ZAP UI~enableUi(port, zapFiles, uiMode, standalone, zapFileExtensions) ⇒
+### JS API: Utility module for ZAP UI~enableUi(port, zapFiles, uiMode, standalone, zapFileExtensions, output) ⇒
 Enable the UI open using the given arguments.
 
 **Kind**: inner method of [<code>JS API: Utility module for ZAP UI</code>](#module_JS API_ Utility module for ZAP UI)  
@@ -17686,6 +18122,7 @@ Enable the UI open using the given arguments.
 | uiMode | <code>\*</code> | 
 | standalone | <code>\*</code> | 
 | zapFileExtensions | <code>\*</code> | 
+| output | <code>\*</code> | 
 
 <a name="module_JS API_ Window module for ZAP UI"></a>
 
@@ -17696,10 +18133,10 @@ Window module for ZAP UI
 * [JS API: Window module for ZAP UI](#module_JS API_ Window module for ZAP UI)
     * _static_
         * [.initializeElectronUi(port)](#module_JS API_ Window module for ZAP UI.initializeElectronUi)
-        * [.windowCreateIfNotThere(port)](#module_JS API_ Window module for ZAP UI.windowCreateIfNotThere)
+        * [.windowCreateIfNotThere(port, output)](#module_JS API_ Window module for ZAP UI.windowCreateIfNotThere)
         * [.windowCreate(port, filePath, [uiMode])](#module_JS API_ Window module for ZAP UI.windowCreate) ⇒
     * _inner_
-        * [~createQueryString(uiMode, standalone, isNew, filePath, restPort)](#module_JS API_ Window module for ZAP UI..createQueryString) ⇒
+        * [~createQueryString(uiMode, standalone, isNew, filePath, restPort, zapFileExtensions, output)](#module_JS API_ Window module for ZAP UI..createQueryString) ⇒
 
 <a name="module_JS API_ Window module for ZAP UI.initializeElectronUi"></a>
 
@@ -17719,7 +18156,7 @@ UI needs from the database should be retrieved via renderer API.
 
 <a name="module_JS API_ Window module for ZAP UI.windowCreateIfNotThere"></a>
 
-### JS API: Window module for ZAP UI.windowCreateIfNotThere(port)
+### JS API: Window module for ZAP UI.windowCreateIfNotThere(port, output)
 Create a window if none present.
 
 **Kind**: static method of [<code>JS API: Window module for ZAP UI</code>](#module_JS API_ Window module for ZAP UI)  
@@ -17727,6 +18164,7 @@ Create a window if none present.
 | Param | Type |
 | --- | --- |
 | port | <code>\*</code> | 
+| output | <code>\*</code> | 
 
 <a name="module_JS API_ Window module for ZAP UI.windowCreate"></a>
 
@@ -17744,7 +18182,7 @@ Create a window, possibly with a given file path.
 
 <a name="module_JS API_ Window module for ZAP UI..createQueryString"></a>
 
-### JS API: Window module for ZAP UI~createQueryString(uiMode, standalone, isNew, filePath, restPort) ⇒
+### JS API: Window module for ZAP UI~createQueryString(uiMode, standalone, isNew, filePath, restPort, zapFileExtensions, output) ⇒
 Get url string.
 
 **Kind**: inner method of [<code>JS API: Window module for ZAP UI</code>](#module_JS API_ Window module for ZAP UI)  
@@ -17757,6 +18195,8 @@ Get url string.
 | isNew | <code>\*</code> | 
 | filePath | <code>\*</code> | 
 | restPort | <code>\*</code> | 
+| zapFileExtensions | <code>\*</code> | 
+| output | <code>\*</code> | 
 
 <a name="module_JS API_ Arguments for ZAP"></a>
 
@@ -28577,6 +29017,1185 @@ Promises to perform a post loading step.
 | db | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
 
+<a name="dbEnum"></a>
+
+## dbEnum
+Copyright (c) 2022 Silicon Labs
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+
+**Kind**: global constant  
+<a name="asBasicType"></a>
+
+## asBasicType(type) ⇒
+Get hardcoded basic type based on the given type.
+
+**Kind**: global function  
+**Returns**: string  
+
+| Param | Type |
+| --- | --- |
+| type | <code>\*</code> | 
+
+<a name="loadEndpoints"></a>
+
+## loadEndpoints()
+Loads endpoint data, specifically what endpoints are available and what clusters
+are defined within those endpoints.
+
+**Kind**: global function  
+<a name="throwError"></a>
+
+## throwError(test, errorStr)
+Throw error using given data.
+
+**Kind**: global function  
+
+| Param | Type |
+| --- | --- |
+| test | <code>\*</code> | 
+| errorStr | <code>\*</code> | 
+
+<a name="setDefault"></a>
+
+## setDefault(test, name, defaultValue)
+Set default value for the given parameters.
+
+**Kind**: global function  
+
+| Param | Type |
+| --- | --- |
+| test | <code>\*</code> | 
+| name | <code>\*</code> | 
+| defaultValue | <code>\*</code> | 
+
+<a name="setDefaultType"></a>
+
+## setDefaultType(test)
+Set default type.
+
+**Kind**: global function  
+
+| Param | Type |
+| --- | --- |
+| test | <code>\*</code> | 
+
+<a name="setDefaultTypeForWaitCommand"></a>
+
+## setDefaultTypeForWaitCommand(test)
+Set default type for wait command.
+
+**Kind**: global function  
+
+| Param | Type |
+| --- | --- |
+| test | <code>\*</code> | 
+
+<a name="setDefaultTypeForCommand"></a>
+
+## setDefaultTypeForCommand(test)
+Set default type for command.
+
+**Kind**: global function  
+
+| Param | Type |
+| --- | --- |
+| test | <code>\*</code> | 
+
+<a name="setDefaultPICS"></a>
+
+## setDefaultPICS(test, picsFilePath) ⇒
+Set default PICS.
+
+**Kind**: global function  
+**Returns**: None  
+
+| Param | Type |
+| --- | --- |
+| test | <code>\*</code> | 
+| picsFilePath | <code>\*</code> | 
+
+<a name="setDefaultArguments"></a>
+
+## setDefaultArguments(test) ⇒
+Set default arguments.
+
+**Kind**: global function  
+**Returns**: None  
+
+| Param | Type |
+| --- | --- |
+| test | <code>\*</code> | 
+
+<a name="ensureValidError"></a>
+
+## ensureValidError(response, errorName)
+Ensure a valid error.
+
+**Kind**: global function  
+
+| Param | Type |
+| --- | --- |
+| response | <code>\*</code> | 
+| errorName | <code>\*</code> | 
+
+<a name="setDefaultResponse"></a>
+
+## setDefaultResponse(test, useSynthesizeWaitForReport) ⇒
+Set default response.
+
+**Kind**: global function  
+**Returns**: None  
+
+| Param | Type |
+| --- | --- |
+| test | <code>\*</code> | 
+| useSynthesizeWaitForReport | <code>\*</code> | 
+
+<a name="setDefaults"></a>
+
+## setDefaults(test, defaultConfig, useSynthesizeWaitForReport, picsFilePath)
+Set defaults.
+
+**Kind**: global function  
+
+| Param | Type |
+| --- | --- |
+| test | <code>\*</code> | 
+| defaultConfig | <code>\*</code> | 
+| useSynthesizeWaitForReport | <code>\*</code> | 
+| picsFilePath | <code>\*</code> | 
+
+<a name="parseYamlTest"></a>
+
+## parseYamlTest(filename, useSynthesizeWaitForReport, picsFilePath, certificationDir, testDir) ⇒
+Get yaml data.
+
+**Kind**: global function  
+**Returns**: yaml data  
+
+| Param | Type |
+| --- | --- |
+| filename | <code>\*</code> | 
+| useSynthesizeWaitForReport | <code>\*</code> | 
+| picsFilePath | <code>\*</code> | 
+| certificationDir | <code>\*</code> | 
+| testDir | <code>\*</code> | 
+
+<a name="printErrorAndExit"></a>
+
+## printErrorAndExit(context, msg)
+Log Errors and exit.
+
+**Kind**: global function  
+
+| Param | Type |
+| --- | --- |
+| context | <code>\*</code> | 
+| msg | <code>\*</code> | 
+
+<a name="assertCommandOrAttributeOrEvent"></a>
+
+## assertCommandOrAttributeOrEvent(context) ⇒
+Get Attribute, commands or events for a cluster.
+
+**Kind**: global function  
+**Returns**: Attribute, commands or events for a cluster  
+
+| Param | Type |
+| --- | --- |
+| context | <code>\*</code> | 
+
+<a name="retrievePICS"></a>
+
+## retrievePICS(filepath) ⇒
+Retireve PICS.
+
+**Kind**: global function  
+**Returns**: PICS  
+
+| Param | Type |
+| --- | --- |
+| filepath | <code>\*</code> | 
+
+<a name="chip_tests_pics"></a>
+
+## chip\_tests\_pics(options) ⇒
+Get PICS.
+Templates.
+
+**Kind**: global function  
+**Returns**: PICS  
+
+| Param | Type |
+| --- | --- |
+| options | <code>\*</code> | 
+
+<a name="configureTestItem"></a>
+
+## configureTestItem(item)
+Configure test item.
+
+**Kind**: global function  
+
+| Param | Type |
+| --- | --- |
+| item | <code>\*</code> | 
+
+<a name="chip_tests"></a>
+
+## chip\_tests(listOrJson, options) ⇒
+Get tests.
+
+**Kind**: global function  
+**Returns**: tests  
+
+| Param | Type |
+| --- | --- |
+| listOrJson | <code>\*</code> | 
+| options | <code>\*</code> | 
+
+<a name="chip_tests_items"></a>
+
+## chip\_tests\_items(options) ⇒
+Get items in this context.
+
+**Kind**: global function  
+**Returns**: items  
+
+| Param | Type |
+| --- | --- |
+| options | <code>\*</code> | 
+
+<a name="getVariable"></a>
+
+## getVariable(context, key, name) ⇒
+Get variable.
+
+**Kind**: global function  
+**Returns**: variable  
+
+| Param | Type |
+| --- | --- |
+| context | <code>\*</code> | 
+| key | <code>\*</code> | 
+| name | <code>\*</code> | 
+
+<a name="getVariableOrThrow"></a>
+
+## getVariableOrThrow(context, key, name) ⇒
+Get variable details.
+
+**Kind**: global function  
+**Returns**: variable or Error  
+
+| Param | Type |
+| --- | --- |
+| context | <code>\*</code> | 
+| key | <code>\*</code> | 
+| name | <code>\*</code> | 
+
+<a name="chip_tests_variables"></a>
+
+## chip\_tests\_variables(options) ⇒
+Get variables.
+
+**Kind**: global function  
+**Returns**: variables  
+
+| Param | Type |
+| --- | --- |
+| options | <code>\*</code> | 
+
+<a name="chip_tests_variables_has"></a>
+
+## chip\_tests\_variables\_has(name, options) ⇒
+Check if tests have the variable.
+
+**Kind**: global function  
+**Returns**: boolean  
+
+| Param | Type |
+| --- | --- |
+| name | <code>\*</code> | 
+| options | <code>\*</code> | 
+
+<a name="chip_tests_variables_get_type"></a>
+
+## chip\_tests\_variables\_get\_type(name, options) ⇒
+Get type of variable.
+
+**Kind**: global function  
+**Returns**: type of variable  
+
+| Param | Type |
+| --- | --- |
+| name | <code>\*</code> | 
+| options | <code>\*</code> | 
+
+<a name="chip_tests_variables_is_nullable"></a>
+
+## chip\_tests\_variables\_is\_nullable(name, options) ⇒
+Return boolean based on variable's nullable property.
+
+**Kind**: global function  
+**Returns**: boolean  
+
+| Param | Type |
+| --- | --- |
+| name | <code>\*</code> | 
+| options | <code>\*</code> | 
+
+<a name="chip_tests_config"></a>
+
+## chip\_tests\_config(options) ⇒
+Get config
+
+**Kind**: global function  
+**Returns**: config  
+
+| Param | Type |
+| --- | --- |
+| options | <code>\*</code> | 
+
+<a name="chip_tests_config_has"></a>
+
+## chip\_tests\_config\_has(name, options) ⇒
+chec if config has the variable.
+
+**Kind**: global function  
+**Returns**: boolean  
+
+| Param | Type |
+| --- | --- |
+| name | <code>\*</code> | 
+| options | <code>\*</code> | 
+
+<a name="chip_tests_config_get_default_value"></a>
+
+## chip\_tests\_config\_get\_default\_value(name, options) ⇒
+Get default value of the variable given.
+
+**Kind**: global function  
+**Returns**: default value  
+
+| Param | Type |
+| --- | --- |
+| name | <code>\*</code> | 
+| options | <code>\*</code> | 
+
+<a name="chip_tests_config_get_type"></a>
+
+## chip\_tests\_config\_get\_type(name, options) ⇒
+Get type of the variable given.
+
+**Kind**: global function  
+**Returns**: type of variable  
+
+| Param | Type |
+| --- | --- |
+| name | <code>\*</code> | 
+| options | <code>\*</code> | 
+
+<a name="attachGlobal"></a>
+
+## attachGlobal(global, value, errorContext) ⇒
+test_cluster_command_value and test_cluster_value-equals are recursive partials using #each. At some point the |global|
+context is lost and it fails. Make sure to attach the global context as a property of the | value |
+that is evaluated.
+
+errorContext should have "thisVal" and "name" properties that will be used
+for error reporting via printErrorAndExit.
+
+**Kind**: global function  
+**Returns**: Transformed value  
+
+| Param | Type |
+| --- | --- |
+| global | <code>\*</code> | 
+| value | <code>\*</code> | 
+| errorContext | <code>\*</code> | 
+
+<a name="checkNumberSanity"></a>
+
+## checkNumberSanity()
+Ensure the given value is not a possibly-corrupted-by-going-through-double
+integer.  If it is, tell the user (using that errorContext.name to describe
+it) and die.
+
+**Kind**: global function  
+<a name="chip_tests_item_parameters"></a>
+
+## chip\_tests\_item\_parameters(options) ⇒
+Get item parameters.
+
+**Kind**: global function  
+**Returns**: item parameters  
+
+| Param | Type |
+| --- | --- |
+| options | <code>\*</code> | 
+
+<a name="chip_tests_item_responses"></a>
+
+## chip\_tests\_item\_responses(options) ⇒
+Get item responses.
+
+**Kind**: global function  
+**Returns**: item responses  
+
+| Param | Type |
+| --- | --- |
+| options | <code>\*</code> | 
+
+<a name="chip_tests_item_response_parameters"></a>
+
+## chip\_tests\_item\_response\_parameters(options) ⇒
+Get item response parameters.
+
+**Kind**: global function  
+**Returns**: item response parameters.  
+
+| Param | Type |
+| --- | --- |
+| options | <code>\*</code> | 
+
+<a name="isLiteralNull"></a>
+
+## isLiteralNull(value, options) ⇒
+Returns true/false based on value being a null or not.
+
+**Kind**: global function  
+**Returns**: boolean  
+
+| Param | Type |
+| --- | --- |
+| value | <code>\*</code> | 
+| options | <code>\*</code> | 
+
+<a name="isHexString"></a>
+
+## isHexString(value) ⇒
+Returns true/false based on value being a hex string or not.
+
+**Kind**: global function  
+**Returns**: boolean  
+
+| Param | Type |
+| --- | --- |
+| value | <code>\*</code> | 
+
+<a name="octetStringFromHexString"></a>
+
+## octetStringFromHexString(value) ⇒
+Get octet string length from hex string value.
+
+**Kind**: global function  
+**Returns**: string length  
+
+| Param | Type |
+| --- | --- |
+| value | <code>\*</code> | 
+
+<a name="octetStringLengthFromHexString"></a>
+
+## octetStringLengthFromHexString(value) ⇒
+Get octet string length from hex string value.
+
+**Kind**: global function  
+**Returns**: string length  
+
+| Param | Type |
+| --- | --- |
+| value | <code>\*</code> | 
+
+<a name="octetStringEscapedForCLiteral"></a>
+
+## octetStringEscapedForCLiteral(value) ⇒
+Escape control characters, things outside the ASCII range, and single
+quotes (because that's our string terminator).
+
+**Kind**: global function  
+**Returns**: String  
+
+| Param | Type |
+| --- | --- |
+| value | <code>\*</code> | 
+
+<a name="if_include_struct_item_value"></a>
+
+## if\_include\_struct\_item\_value(structValue, name, options) ⇒
+Structs may not always provide values for optional members.
+
+**Kind**: global function  
+**Returns**: content based on struct details  
+
+| Param | Type |
+| --- | --- |
+| structValue | <code>\*</code> | 
+| name | <code>\*</code> | 
+| options | <code>\*</code> | 
+
+<a name="ensureIsArray"></a>
+
+## ensureIsArray(value, options)
+To be used to verify that things are actually arrays before trying to use
+#each with them, since that silently treats non-arrays as empty arrays.
+
+**Kind**: global function  
+
+| Param | Type |
+| --- | --- |
+| value | <code>\*</code> | 
+| options | <code>\*</code> | 
+
+<a name="checkIsInsideTestOnlyClusterBlock"></a>
+
+## checkIsInsideTestOnlyClusterBlock(conditions, name)
+Checks if conditions are inside test only cluster block.
+
+**Kind**: global function  
+
+| Param | Type |
+| --- | --- |
+| conditions | <code>\*</code> | 
+| name | <code>\*</code> | 
+
+<a name="chip_tests_only_clusters"></a>
+
+## chip\_tests\_only\_clusters(options)
+Creates block iterator over the simulated clusters.
+
+**Kind**: global function  
+
+| Param | Type |
+| --- | --- |
+| options | <code>\*</code> | 
+
+<a name="chip_tests_only_cluster_commands"></a>
+
+## chip\_tests\_only\_cluster\_commands(options)
+Creates block iterator over the cluster commands for a given simulated cluster.
+
+This function is meant to be used inside a {{#chip_tests_only_clusters}}
+block. It will throw otherwise.
+
+**Kind**: global function  
+
+| Param | Type |
+| --- | --- |
+| options | <code>\*</code> | 
+
+<a name="chip_tests_only_cluster_command_parameters"></a>
+
+## chip\_tests\_only\_cluster\_command\_parameters(options)
+Creates block iterator over the command arguments for a given simulated cluster command.
+
+This function is meant to be used inside a {{#chip_tests_only_cluster_commands}}
+block. It will throw otherwise.
+
+**Kind**: global function  
+
+| Param | Type |
+| --- | --- |
+| options | <code>\*</code> | 
+
+<a name="chip_tests_only_cluster_responses"></a>
+
+## chip\_tests\_only\_cluster\_responses(options)
+Creates block iterator over the cluster responses for a given simulated cluster.
+
+This function is meant to be used inside a {{#chip_tests_only_clusters}}
+block. It will throw otherwise.
+
+**Kind**: global function  
+
+| Param | Type |
+| --- | --- |
+| options | <code>\*</code> | 
+
+<a name="chip_tests_only_cluster_response_parameters"></a>
+
+## chip\_tests\_only\_cluster\_response\_parameters(options)
+Creates block iterator over the response arguments for a given simulated cluster response.
+
+This function is meant to be used inside a {{#chip_tests_only_cluster_responses}}
+block. It will throw otherwise.
+
+**Kind**: global function  
+
+| Param | Type |
+| --- | --- |
+| options | <code>\*</code> | 
+
+<a name="chip_tests_iterate_expected_list"></a>
+
+## chip\_tests\_iterate\_expected\_list(values, options) ⇒
+Get a transformed values list.
+
+**Kind**: global function  
+**Returns**: Transformed values list  
+
+| Param | Type |
+| --- | --- |
+| values | <code>\*</code> | 
+| options | <code>\*</code> | 
+
+<a name="chip_tests_iterate_constraints"></a>
+
+## chip\_tests\_iterate\_constraints(constraints, options) ⇒
+Get constraint details.
+
+**Kind**: global function  
+**Returns**: constraint details  
+
+| Param | Type |
+| --- | --- |
+| constraints | <code>\*</code> | 
+| options | <code>\*</code> | 
+
+<a name="asTestType"></a>
+
+## asTestType(type, isList) ⇒
+Get Data Model data type
+
+**Kind**: global function  
+**Returns**: data type as String  
+
+| Param | Type |
+| --- | --- |
+| type | <code>\*</code> | 
+| isList | <code>\*</code> | 
+
+<a name="chip_endpoint_generated_functions"></a>
+
+## chip\_endpoint\_generated\_functions()
+Populate the GENERATED_FUNCTIONS field
+
+**Kind**: global function  
+<a name="chip_endpoint_cluster_list"></a>
+
+## chip\_endpoint\_cluster\_list()
+Return endpoint config GENERATED_CLUSTER MACRO
+To be used as a replacement of endpoint_cluster_list since this one
+includes the GENERATED_FUNCTIONS array
+
+**Kind**: global function  
+<a name="chip_endpoint_data_version_count"></a>
+
+## chip\_endpoint\_data\_version\_count()
+Return the number of data versions we need for our fixed endpoints.
+
+This is just the count of server clusters on those endpoints.
+
+**Kind**: global function  
+<a name="chip_name_for_id_usage"></a>
+
+## chip\_name\_for\_id\_usage(label, options) ⇒ <code>string</code>
+Same as asUpperCamelCase, but with a special case for "RFID".
+Special case for cluster specific object files for Matter.
+
+**Kind**: global function  
+
+| Param | Type |
+| --- | --- |
+| label | <code>\*</code> | 
+| options | <code>\*</code> | 
+
+<a name="chip_server_clusters"></a>
+
+## chip\_server\_clusters(options)
+Creates block iterator over the enabled server side clusters
+
+**Kind**: global function  
+
+| Param | Type |
+| --- | --- |
+| options | <code>\*</code> | 
+
+<a name="chip_has_server_clusters"></a>
+
+## chip\_has\_server\_clusters()
+Check if there is any enabled server clusters
+
+**Kind**: global function  
+<a name="chip_client_clusters"></a>
+
+## chip\_client\_clusters(options)
+Creates block iterator over client side enabled clusters
+
+**Kind**: global function  
+
+| Param | Type |
+| --- | --- |
+| options | <code>\*</code> | 
+
+<a name="chip_has_client_clusters"></a>
+
+## chip\_has\_client\_clusters()
+Check if there is any enabled client clusters
+
+**Kind**: global function  
+<a name="chip_clusters"></a>
+
+## chip\_clusters(options)
+Creates block iterator over enabled clusters
+
+**Kind**: global function  
+
+| Param | Type |
+| --- | --- |
+| options | <code>\*</code> | 
+
+<a name="chip_has_clusters"></a>
+
+## chip\_has\_clusters()
+Check if there is any enabled clusters
+
+**Kind**: global function  
+<a name="chip_server_global_responses"></a>
+
+## chip\_server\_global\_responses(options)
+Creates block iterator over the server global responses
+
+**Kind**: global function  
+
+| Param | Type |
+| --- | --- |
+| options | <code>\*</code> | 
+
+<a name="chip_cluster_commands"></a>
+
+## chip\_cluster\_commands(options)
+Creates block iterator over the cluster commands for a given cluster/side.
+
+This function is meant to be used inside a {{#chip_*_clusters}}
+block. It will throw otherwise.
+
+**Kind**: global function  
+
+| Param | Type |
+| --- | --- |
+| options | <code>\*</code> | 
+
+<a name="chip_cluster_responses"></a>
+
+## chip\_cluster\_responses(options)
+Creates block iterator over the cluster responses for a given cluster/side.
+
+This function is meant to be used inside a {{#chip_*_clusters}}
+block. It will throw otherwise.
+
+**Kind**: global function  
+
+| Param | Type |
+| --- | --- |
+| options | <code>\*</code> | 
+
+<a name="chip_cluster_command_arguments"></a>
+
+## chip\_cluster\_command\_arguments(options)
+Creates block iterator over the current command arguments for a given cluster/side.
+
+This function is meant to be used inside a {{#chip_cluster_commands}}
+block. It will throw otherwise.
+
+**Kind**: global function  
+
+| Param | Type |
+| --- | --- |
+| options | <code>\*</code> | 
+
+<a name="chip_cluster_command_arguments_with_structs_expanded"></a>
+
+## chip\_cluster\_command\_arguments\_with\_structs\_expanded(options)
+Creates block iterator over the current command arguments for a given cluster/side.
+
+This function is meant to be used inside a {{#chip_cluster_commands}}
+block. It will throw otherwise.
+
+The arguments list built by this function differs from {{chip_cluster_command_arguments}}.
+For example, if a command contains a single struct argument "SomeStruct", with the following type:
+
+struct SomeStruct {
+  uint8_t a;
+  uint16_t b;
+  uint32_t c;
+}
+
+then that argument will be expanded into 3 arguments (uint8_t a, uint16_t b, uint32_t c).
+
+**Kind**: global function  
+
+| Param | Type |
+| --- | --- |
+| options | <code>\*</code> | 
+
+<a name="chip_cluster_response_arguments"></a>
+
+## chip\_cluster\_response\_arguments(options)
+Creates block iterator over the current response arguments for a given cluster/side.
+
+This function is meant to be used inside a {{#chip_cluster_responses}}
+block. It will throw otherwise.
+
+**Kind**: global function  
+
+| Param | Type |
+| --- | --- |
+| options | <code>\*</code> | 
+
+<a name="chip_server_has_list_attributes"></a>
+
+## chip\_server\_has\_list\_attributes(options)
+Returns if a given server cluster has any attributes of type List[T]
+
+This function is meant to be used inside a {{#chip_server_clusters}}
+block. It will throw otherwise.
+
+**Kind**: global function  
+
+| Param | Type |
+| --- | --- |
+| options | <code>\*</code> | 
+
+<a name="chip_client_has_list_attributes"></a>
+
+## chip\_client\_has\_list\_attributes(options)
+Returns if a given client cluster has any attributes of type List[T]
+
+This function is meant to be used inside a {{#chip_client_clusters}}
+block. It will throw otherwise.
+
+**Kind**: global function  
+
+| Param | Type |
+| --- | --- |
+| options | <code>\*</code> | 
+
+<a name="chip_server_has_reportable_attributes"></a>
+
+## chip\_server\_has\_reportable\_attributes(options)
+Returns if a given server cluster has any reportable attribute
+
+This function is meant to be used inside a {{#chip_server_clusters}}
+block. It will throw otherwise.
+
+**Kind**: global function  
+
+| Param | Type |
+| --- | --- |
+| options | <code>\*</code> | 
+
+<a name="chip_server_cluster_attributes"></a>
+
+## chip\_server\_cluster\_attributes(options)
+Creates block iterator over the server side cluster attributes
+for a given cluster.
+
+This function is meant to be used inside a {{#chip_server_clusters}}
+block. It will throw otherwise.
+
+**Kind**: global function  
+
+| Param | Type |
+| --- | --- |
+| options | <code>\*</code> | 
+
+<a name="chip_server_cluster_events"></a>
+
+## chip\_server\_cluster\_events(options)
+Creates block iterator over the server side cluster events
+for a given cluster.
+
+This function is meant to be used inside a {{#chip_server_clusters}}
+block. It will throw otherwise.
+
+**Kind**: global function  
+
+| Param | Type |
+| --- | --- |
+| options | <code>\*</code> | 
+
+<a name="chip_available_cluster_commands"></a>
+
+## chip\_available\_cluster\_commands()
+Creates block iterator over commands for a given cluster that have the
+following properties:
+
+1) Are not manufacturer-specific (to exclude MfgSpecificPing)
+2) Are available in the isCommandAvailable sense.
+
+**Kind**: global function  
+<a name="chip_cluster_specific_structs"></a>
+
+## chip\_cluster\_specific\_structs()
+Creates block iterator over structures belonging to the current cluster
+
+**Kind**: global function  
+<a name="chip_shared_structs"></a>
+
+## chip\_shared\_structs()
+Creates block iterator over structures that are shared between clusters
+
+**Kind**: global function  
+<a name="if_is_strongly_typed_bitmap"></a>
+
+## if\_is\_strongly\_typed\_bitmap(type) ⇒
+Helper checks if the type for the bitmap is BitFlags. This generally includes
+all bitmaps apart from
+bitmap8/16/32 (generally defined in types.xml)
+example:
+{{#if_is_strongly_typed_bitmap type}}
+strongly typed bitmap
+{{else}}
+not a strongly typed bitmap
+{{/if_is_strongly_typed_bitmap}}
+
+**Kind**: global function  
+**Returns**: Promise of content.  
+
+| Param | Type |
+| --- | --- |
+| type | <code>\*</code> | 
+
+<a name="if_is_strongly_typed_chip_enum"></a>
+
+## if\_is\_strongly\_typed\_chip\_enum(type, options) ⇒
+Handlebar helper function which checks if an enum is a strongly typed enum or
+not. This generally includes all enums apart from
+enum8/16/32 (generally defined in types.xml)
+example for if_is_strongly_typed_chip_enum:
+{{#if_is_strongly_typed_chip_enum type}}
+strongly typed enum
+{{else}}
+not a strongly typed enum
+{{/if_is_strongly_typed_chip_enum}}
+
+**Kind**: global function  
+**Returns**: Promise of content.  
+
+| Param | Type |
+| --- | --- |
+| type | <code>\*</code> | 
+| options | <code>\*</code> | 
+
+<a name="if_chip_enum"></a>
+
+## if\_chip\_enum()
+Checks whether a type is an enum for purposes of its chipType.  That includes
+both spec-defined enum types and types that we map to enum types in our code.
+
+**Kind**: global function  
+<a name="asListEntryLength"></a>
+
+## asListEntryLength(options)
+Returns the calculated length of the given attribute list
+
+This function is meant to be used inside a {{#chip_server_cluster_attributes}} block.
+It will throws otherwise.
+
+**Kind**: global function  
+
+| Param | Type |
+| --- | --- |
+| options | <code>\*</code> | 
+
+<a name="as_underlying_java_zcl_type_util"></a>
+
+## as\_underlying\_java\_zcl\_type\_util(type, clusterId, options) ⇒
+Note: This is a util function
+Available options:
+- isBoxedJavaType: 0/1 to return string types in different ways
+- All other options passed to this helper are considered as overrides for
+zcl types
+for eg: (as_underlying_java_zcl_type type clusterId boolean='Boolean')
+will return "Boolean" for "boolean" type
+
+**Kind**: global function  
+**Returns**: The corresponding java data type for a zcl data type.  
+
+| Param | Type |
+| --- | --- |
+| type | <code>\*</code> | 
+| clusterId | <code>\*</code> | 
+| options | <code>\*</code> | 
+
+<a name="as_underlying_java_zcl_type"></a>
+
+## as\_underlying\_java\_zcl\_type(type, clusterId, options) ⇒
+Note: This helper needs to be used under a block helper which has a
+reference to clusterId.
+Available options:
+- isBoxedJavaType: 0/1 to return string types in different ways
+- All other options passed to this helper are considered as overrides for
+zcl types
+for eg: (as_underlying_java_zcl_type type clusterId boolean='Boolean')
+will return "Boolean" for "boolean" type
+
+**Kind**: global function  
+**Returns**: The corresponding java data type for a zcl data type.  
+
+| Param | Type |
+| --- | --- |
+| type | <code>\*</code> | 
+| clusterId | <code>\*</code> | 
+| options | <code>\*</code> | 
+
+<a name="if_basic_attribute"></a>
+
+## if\_basic\_attribute(type, clusterId, options) ⇒
+If helper that checks if an attribute is basic or not based for java code
+generation
+For eg: In java, an attribute is not basic if it is either nullable, optional,
+array type or struct.
+Note: This helper should be used within an attribute block helper and also
+needs to be used under a block helper which has a reference to clusterId.
+example:
+{{#if_basic_attribute type}}
+type is basic
+{{else}}
+type is not basic
+{{/if_basic_attribute}}
+
+**Kind**: global function  
+**Returns**: Promise of content  
+
+| Param | Type |
+| --- | --- |
+| type | <code>\*</code> | 
+| clusterId | <code>\*</code> | 
+| options | <code>\*</code> | 
+
+<a name="if_unsupported_attribute_callback"></a>
+
+## if\_unsupported\_attribute\_callback(type, isArray, clusterId, options) ⇒
+If helper that checks if an attribute is not supported for java code
+generation
+Note: This helper needs to be used under a block helper which has a
+reference to clusterId.
+For eg: In java, an attribute callback is not supported when it is a struct.
+However it is supported if it is an array of structs.
+
+**Kind**: global function  
+**Returns**: Promise of content  
+
+| Param | Type |
+| --- | --- |
+| type | <code>\*</code> | 
+| isArray | <code>\*</code> | 
+| clusterId | <code>\*</code> | 
+| options | <code>\*</code> | 
+
+<a name="as_underlying_python_zcl_type"></a>
+
+## as\_underlying\_python\_zcl\_type(type, clusterId, options) ⇒
+Note: This helper needs to be used under a block helper which has a
+reference to clusterId.
+Available options:
+- All options passed to this helper are considered as overrides for
+zcl types
+for eg: (as_underlying_python_zcl_type type clusterId SomeType='Stype')
+will return "Stype" for "SomeType" type
+
+**Kind**: global function  
+**Returns**: The corresponding python data type for a zcl data type.  
+
+| Param | Type |
+| --- | --- |
+| type | <code>\*</code> | 
+| clusterId | <code>\*</code> | 
+| options | <code>\*</code> | 
+
+<a name="asTypedExpressionFromObjectiveC"></a>
+
+## asTypedExpressionFromObjectiveC()
+Converts an expression involving possible variables whose types are objective C objects into an expression whose type is a C++
+type
+
+**Kind**: global function  
+<a name="oldName"></a>
+
+## oldName()
+Figure out whether the entity represented by cluster+options (could be a
+cluster, attribute, command, etc) has an old name that it was renamed from,
+and if so return it.
+
+**Kind**: global function  
+<a name="objCEnumName"></a>
+
+## objCEnumName()
+Produce a reasonable name for an Objective C enum for the given cluster name
+and enum label.  Because a lot of our enum labels already have the cluster
+name prefixed (e.g. NetworkCommissioning*, or the IdentifyIdentifyType that
+has it prefixed _twice_) just concatenating the two gives overly verbose
+names in a few cases (e.g. "IdentifyIdentifyIdentifyType").
+
+This function strips out the redundant cluster names, and strips off trailing
+"Enum" bits on the enum names while we're here.
+
+**Kind**: global function  
+<a name="findPathToContainer"></a>
+
+## findPathToContainer()
+Takes a path (not including the leading "introduced" or "deprecated") and
+modifies it to point to the container of the thing being referenced, if any.
+If there is no container, returns undefined.
+
+**Kind**: global function  
+<a name="findDeprecationRelease"></a>
+
+## findDeprecationRelease()
+Finds the release in which this path, or one of its ancestors, was
+deprecated, if such a release exists.  If no such release exists, returns
+undefined.
+
+**Kind**: global function  
+<a name="compareIntroductionToReferenceRelease"></a>
+
+## compareIntroductionToReferenceRelease()
+Utility for wasIntroducedBeforeRelease and isSupported.  Returns undefined if
+the the path we are looking at was not officially introduced, otherwise
+returns -1 if it was introduced before the reference release, 0 if it was
+introduced in the reference release, 1 if it was introduced after the
+reference release.
+
+Throws if referenceRelease is not defined.
+
+**Kind**: global function  
+<a name="findReleaseForPathOrAncestorAndSection"></a>
+
+## findReleaseForPathOrAncestorAndSection()
+Utility for wasRemoved and findProvisionalRelease.  Finds a release that
+mentions the given path or some ancestor of it in the given section.  Returns
+the release and the path that ended up being found, or undefined if nothing
+was found.
+
+**Kind**: global function  
+<a name="meta_category"></a>
+
+## meta\_category() ⇒
+Get 'Meta category.' string.
+
+**Kind**: global function  
+**Returns**: string  
+<a name="meta_stamp"></a>
+
+## meta\_stamp() ⇒
+Get meta stamp string.
+
+**Kind**: global function  
+**Returns**: string  
 <a name="setEmojiDisabled"></a>
 
 ## setEmojiDisabled(value)
