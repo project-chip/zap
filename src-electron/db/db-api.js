@@ -327,16 +327,16 @@ async function dbMultiInsert(db, sql, arrayOfArrays) {
         reject('Error while preparing sql statement: ' + sql + ', ' + err) // NOSONAR
       for (const singleArray of arrayOfArrays) {
         statement.run(singleArray, (err2) => {
-          if (err2)
-            reject(
-              // NOSONAR
+          if (err2) {
+            let err2Message =
               'Error while running sql statement: ' +
-                sql +
-                ', values: ' +
-                singleArray +
-                ', ' +
-                err2
-            )
+              sql +
+              ', values: ' +
+              singleArray +
+              ', ' +
+              err2
+            reject(err2Message) // NOSONAR
+          }
           lastIds.push(this.lastID)
         })
       }
