@@ -26,7 +26,7 @@ exports.default = async function (buildResult) {
         myStream1.on('end', resolve)
         myStream1.on('error', (err) => {
           console.log('Error adding apack.json:', err.stderr)
-          reject(err)
+          reject(err) // NOSONAR
         })
       })
 
@@ -44,7 +44,7 @@ exports.default = async function (buildResult) {
         myStream2.on('end', resolve)
         myStream2.on('error', (err) => {
           console.log('Error adding zap.png:', err.stderr)
-          reject(err)
+          reject(err) // NOSONAR
         })
       })
     }

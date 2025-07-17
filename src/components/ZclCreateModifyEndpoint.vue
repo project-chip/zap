@@ -25,6 +25,7 @@ limitations under the License.
             class="q-my-auto q-mr-sm"
             v-if="deviceTypeTmp[0]"
             :src="createLogoSrc(true, deviceTypeTmp[0].category)"
+            alt=""
           />
           {{ this.endpointReference ? 'Edit Endpoint' : 'Create New Endpoint' }}
         </div>

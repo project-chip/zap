@@ -766,8 +766,7 @@ async function availabilityHelper(clusterName, language, options) {
     const provisionalRelease = findProvisionalRelease(
       this.global,
       clusterName,
-      options,
-      'provisional'
+      options
     );
     if (!provisionalRelease) {
       console.log(
@@ -1007,7 +1006,7 @@ function findReleaseForPathOrAncestorAndSection(
   const data = fetchAvailabilityData(global);
   let path = makeAvailabilityPath(cluster, options);
 
-  while (path !== undefined) {
+  while (path != undefined) {
     let foundRelease = findReleaseForPath(data, [section, ...path], options);
     if (foundRelease !== undefined) {
       return { release: foundRelease, path: path };
@@ -1134,7 +1133,7 @@ function isProvisional(cluster, options) {
     return false;
   }
 
-  while (path !== undefined) {
+  while (path != undefined) {
     let comparisonStatus = compareIntroductionToReferenceRelease(
       this.global,
       path,

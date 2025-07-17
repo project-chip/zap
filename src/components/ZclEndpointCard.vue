@@ -110,18 +110,15 @@ limitations under the License.
                   <q-tooltip> Device Type Specification </q-tooltip>
                 </q-btn>
               </strong>
-              <li
-                v-for="(dev, index) in deviceType"
-                :key="dev.id"
-                class="q-pl-md"
-                style="list-style-type: none"
-              >
-                <strong>{{
-                  `${dev.description} (${asHex(dev.code, 4)}) v${
-                    deviceVersion[index]
-                  }`
-                }}</strong>
-              </li>
+              <ul class="q-pl-md" style="list-style-type: none">
+                <li v-for="(dev, index) in deviceType" :key="dev.id">
+                  <strong>{{
+                    `${dev.description} (${asHex(dev.code, 4)}) v${
+                      deviceVersion[index]
+                    }`
+                  }}</strong>
+                </li>
+              </ul>
             </div>
             <div v-else class="col row justify-between">
               <div class="col-6">
