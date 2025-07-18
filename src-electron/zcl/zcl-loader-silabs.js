@@ -2732,7 +2732,7 @@ async function loadIndividualSilabsFile(db, filePath, sessionId) {
     let resolvedPath = await fsp.realpath(filePath)
     if (path.extname(resolvedPath).toLowerCase() !== '.xml') {
       let err = new Error(
-        `Unable to read file: ${filePath}. Expecting an XML file with ZCL clusters.`
+        `Unable to read file: ${resolvedPath}. Expecting an XML file with ZCL clusters.`
       )
       env.logWarning(err)
       querySessionNotification.setNotification(

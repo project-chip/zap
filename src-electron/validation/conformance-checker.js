@@ -40,7 +40,7 @@ function filterRelatedDescElements(elements, featureCode) {
     let terms = element.conformance.match(/[A-Za-z][A-Za-z0-9_]*/g)
     return (
       terms &&
-      terms.includes(dbEnum.conformance.desc) &&
+      terms.includes(dbEnum.conformanceTag.desc) &&
       terms.includes(featureCode)
     )
   })

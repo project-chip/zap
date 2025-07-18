@@ -230,7 +230,7 @@ async function insertOrUpdateAttributeState(
       )
     // only set featureMap bit to 1 for mandatory features
     let featureMapBitsToBeEnabled = featuresOnEndpointTypeAndCluster
-      .filter((f) => f.conformance == dbEnum.conformance.mandatory)
+      .filter((f) => f.conformance == dbEnum.conformanceTag.mandatory)
       .map((f) => f.featureBit)
     featureMapBitsToBeEnabled.forEach(
       (featureBit) =>

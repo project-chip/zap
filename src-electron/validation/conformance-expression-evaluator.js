@@ -77,8 +77,8 @@ function evaluateConformanceExpression(expression, elementMap) {
   // if any term is desc, the conformance is too complex to parse
   for (let part of parts) {
     let terms = part.match(/[A-Za-z][A-Za-z0-9_]*/g)
-    if (terms && terms.includes(dbEnum.conformance.desc)) {
-      return dbEnum.conformance.desc
+    if (terms && terms.includes(dbEnum.conformanceTag.desc)) {
+      return dbEnum.conformanceTag.desc
     }
   }
   for (let part of parts) {
@@ -87,31 +87,31 @@ function evaluateConformanceExpression(expression, elementMap) {
       let optionalExpr = part.match(/\[(.*?)\]/)[1]
       let optionalResult = evaluateWithParentheses(optionalExpr)
       if (optionalResult) {
-        return 'optional'
+        return dbEnum.conformanceVal.optional
       } else {
-        return 'notSupported'
+        return dbEnum.conformanceVal.notSupported
       }
-    } else if (part == dbEnum.conformance.mandatory) {
-      return 'mandatory'
-    } else if (part == dbEnum.conformance.optional) {
-      return 'optional'
+    } else if (part == dbEnum.conformanceTag.mandatory) {
+      return dbEnum.conformanceVal.mandatory
+    } else if (part == dbEnum.conformanceTag.optional) {
+      return dbEnum.conformanceVal.optional
     } else if (
-      part == dbEnum.conformance.deprecated ||
-      part == dbEnum.conformance.disallowed
+      part == dbEnum.conformanceTag.deprecated ||
+      part == dbEnum.conformanceTag.disallowed
     ) {
-      return 'notSupported'
-    } else if (part == dbEnum.conformance.provisional) {
-      return 'provisional'
+      return dbEnum.conformanceVal.notSupported
+    } else if (part == dbEnum.conformanceTag.provisional) {
+      return dbEnum.conformanceVal.provisional
     } else {
       // Evaluate the part with parentheses if needed
       let result = evaluateWithParentheses(part)
-      if (result) return 'mandatory'
+      if (result) return dbEnum.conformanceVal.mandatory
       // if the mandatory part is false, go to the next part
     }
   }
 
   // If none of the parts are true and no optional part was valid, return 'notSupported'
-  return 'notSupported'
+  return dbEnum.conformanceVal.notSupported
 }
 
 /**
@@ -125,7 +125,7 @@ function evaluateConformanceExpression(expression, elementMap) {
 function checkMissingTerms(expression, elementMap) {
   let terms = expression.match(/[A-Za-z][A-Za-z0-9_]*/g)
   let missingTerms = []
-  let abbreviations = Object.values(dbEnum.conformance)
+  let abbreviations = Object.values(dbEnum.conformanceTag)
   for (let term of terms) {
     if (!(term in elementMap) && !abbreviations.includes(term)) {
       missingTerms.push(term)

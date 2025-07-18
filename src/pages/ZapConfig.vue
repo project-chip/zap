@@ -769,6 +769,7 @@ export default {
           if (!gen) {
             gen = this.zclGenRow.find((data) => data.id === element)
           }
+          if (atts && gen) break
         }
         this.loadPreSessionData.push({
           zclProperty: atts,
