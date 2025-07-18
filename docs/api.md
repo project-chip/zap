@@ -18655,6 +18655,7 @@ logger is used for printouts.
 * [JS API: string utilities](#module_JS API_ string utilities)
     * [~toCamelCase(str)](#module_JS API_ string utilities..toCamelCase) ⇒
     * [~toSpacedLowercase(str)](#module_JS API_ string utilities..toSpacedLowercase) ⇒
+    * [~tokensIntoCamelCase()](#module_JS API_ string utilities..tokensIntoCamelCase)
     * [~toSnakeCaseAllCaps(label)](#module_JS API_ string utilities..toSnakeCaseAllCaps)
     * [~toSnakeCase(str)](#module_JS API_ string utilities..toSnakeCase) ⇒
     * [~toCleanSymbol(label)](#module_JS API_ string utilities..toCleanSymbol)
@@ -18687,6 +18688,17 @@ Get spaced out lower case string from the given string.
 | --- | --- |
 | str | <code>\*</code> | 
 
+<a name="module_JS API_ string utilities..tokensIntoCamelCase"></a>
+
+### JS API: string utilities~tokensIntoCamelCase()
+Converts a string into `camelCase` or `CamelCase` by splitting
+the string into tokens.
+
+Differs from `toCamelCase` by different handling of "." inside names,
+so that results are always usable as a code-compatible name (e.g.
+"Foo 2.5" becomes "Foo25" rather than "Foo2.5").
+
+**Kind**: inner method of [<code>JS API: string utilities</code>](#module_JS API_ string utilities)  
 <a name="module_JS API_ string utilities..toSnakeCaseAllCaps"></a>
 
 ### JS API: string utilities~toSnakeCaseAllCaps(label)

@@ -126,7 +126,7 @@ test(
       `{ 0x00000005, ZAP_TYPE(ENUM8), 1, ZAP_ATTRIBUTE_MASK(EXTERNAL_STORAGE) | ZAP_ATTRIBUTE_MASK(NULLABLE), ZAP_EMPTY_DEFAULT() }, /* LastNetworkingStatus */`
     )
     expect(ept).toContain(
-      '{ (uint16_t)0xFF, (uint16_t)0x64, (uint16_t)0xFFFF }, /* BallastFactorAdjustment */'
+      '{ (uint16_t)0xFF, (uint16_t)0x64, (uint16_t)0xFF }, /* BallastFactorAdjustment */'
     )
     expect(ept).toContain(`6, 'C', 'o', 'f', 'f', 'e', 'e', \\`)
     expect(ept).toContain(
@@ -238,7 +238,7 @@ test(
       '  { 0x00000000, ZAP_TYPE(TEMPERATURE), 2, ZAP_ATTRIBUTE_MASK(NULLABLE), ZAP_SIMPLE_DEFAULT(0x8000) },'
     )
     expect(ept).toContain(
-      '{ (uint16_t)0xFF, (uint16_t)0x64, (uint16_t)0xFFFF }, /* BallastFactorAdjustment */'
+      '{ (uint16_t)0xFF, (uint16_t)0x64, (uint16_t)0xFF }, /* BallastFactorAdjustment */'
     )
     expect(ept).toContain(`6, 'C', 'o', 'f', 'f', 'e', 'e', \\`)
     expect(ept).toContain(

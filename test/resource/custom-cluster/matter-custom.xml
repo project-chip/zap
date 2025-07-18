@@ -52,7 +52,7 @@ limitations under the License.
 
   <!-- Use the cluster extension Extend the on/off cluster -->
 <clusterExtension code="0x0006">
-    <attribute side="server" code="0xFFF10000" define="SAMPLE_MFG_SPECIFIC_TRANSITION_TIME_2" type="INT8U" min="0x0000" max="0xFFFF" writable="true" default="0x0000" optional="true">Sample Mfg Specific Attribute 2</attribute>
+    <attribute side="server" code="0xFFF10000" define="SAMPLE_MFG_SPECIFIC_TRANSITION_TIME_2" type="INT8U" min="0x0000" max="0xFF" writable="true" default="0x0000" optional="true">Sample Mfg Specific Attribute 2</attribute>
     <attribute side="server" code="0xFFF10001" define="SAMPLE_MFG_SPECIFIC_TRANSITION_TIME_4" type="INT16U" min="0x0000" max="0xFFFF" writable="true" default="0x0000" optional="true">Sample Mfg Specific Attribute 4</attribute>
     <command source="client" code="0xFFF100" name="SampleMfgSpecificOnWithTransition2">
         <description>Client command that turns the device on with a transition given

@@ -612,8 +612,29 @@ function endpoint_attribute_min_max_list(options) {
     let max = parseInt(mm.max)
 
     if (isNaN(def)) def = 0
-    if (isNaN(min)) min = 0
-    if (isNaN(max)) max = 0xffff
+    if (isNaN(min)) {
+      if (mm.typeSize < 1)
+        throw new Error(
+          'Invalid type size for min value: ' + JSON.stringify(mm)
+        )
+      if (mm.isTypeSigned) {
+        min = '0x80' + '00'.repeat(mm.typeSize - 1)
+      } else {
+        min = 0
+      }
+    }
+    if (isNaN(max)) {
+      if (mm.typeSize < 1)
+        throw new Error(
+          'Invalid type size for max value: ' + JSON.stringify(mm)
+        )
+      if (mm.isTypeSigned) {
+        max = '0x7F' + 'FF'.repeat(mm.typeSize - 1)
+      } else {
+        max = '0x' + 'FF'.repeat(mm.typeSize)
+      }
+    }
+
     let defS =
       (def >= 0 ? '' : '-') + '0x' + Math.abs(def).toString(16).toUpperCase()
     let minS =
@@ -854,7 +875,13 @@ async function determineAttributeDefaultValue(
  *    2.) If client is included on at least one endpoint add client atts.
  *    3.) If server is included on at least one endpoint add server atts.
  */
-async function collectAttributes(db, sessionId, endpointTypes, options) {
+async function collectAttributes(
+  db,
+  sessionId,
+  endpointTypes,
+  options,
+  zclPackageIds
+) {
   let commandMfgCodes = [] // Array of { index, mfgCode } objects
   let clusterMfgCodes = [] // Array of { index, mfgCode } objects
   let attributeMfgCodes = [] // Array of { index, mfgCode } objects
@@ -1028,14 +1055,44 @@ async function collectAttributes(db, sessionId, endpointTypes, options) {
         let mask = []
         if ((a.min != null || a.max != null) && a.isWritable) {
           mask.push('min_max')
+          let type_size_and_sign = await types.getSignAndSizeOfZclType(
+            db,
+            a.type,
+            zclPackageIds
+          )
+          let min, max
+          if (a.min != null) {
+            min = a.min
+          } else {
+            if (type_size_and_sign.isTypeSigned) {
+              // Signed min: -2^(typeSize*8-1)
+              min = -(2 ** (typeSize * 8 - 1))
+            } else {
+              // Unsigned min: 0
+              min = 0
+            }
+          }
+          if (a.max != null) {
+            max = a.max
+          } else {
+            if (type_size_and_sign.isTypeSigned) {
+              // Signed max: 2^(typeSize*8-1) - 1
+              max = 2 ** (typeSize * 8 - 1) - 1
+            } else {
+              // Unsigned max: 2^(typeSize*8) - 1
+              max = 2 ** (typeSize * 8) - 1
+            }
+          }
           let minMax = {
             default: attributeDefaultValue,
-            min: a.min,
-            max: a.max,
+            min: min,
+            max: max,
             name: a.name,
             comment: cluster.comment,
-            typeSize: typeSize
+            typeSize: typeSize,
+            isTypeSigned: type_size_and_sign.isTypeSigned
           }
+
           attributeDefaultValue = `ZAP_MIN_MAX_DEFAULTS_INDEX(${minMaxIndex})`
           defaultValueIsMacro = true
           minMaxList.push(minMax)
@@ -1448,7 +1505,13 @@ function endpoint_config(options) {
       collectAttributeSizes(db, this.global.zclPackageIds, endpointTypes)
     )
     .then((endpointTypes) =>
-      collectAttributes(db, sessionId, endpointTypes, collectAttributesOptions)
+      collectAttributes(
+        db,
+        sessionId,
+        endpointTypes,
+        collectAttributesOptions,
+        this.global.zclPackageIds
+      )
     )
     .then((collection) => {
       Object.assign(newContext, collection)
