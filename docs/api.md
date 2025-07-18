@@ -17714,7 +17714,7 @@ This mechanism takes care of:
 * [JS API: async reporting](#module_JS API_ async reporting)
     * [~sendDirtyFlagStatus(db, session)](#module_JS API_ async reporting..sendDirtyFlagStatus)
     * [~sendNotificationUpdate(db, session)](#module_JS API_ async reporting..sendNotificationUpdate)
-    * [~startAsyncReporting(db, intervalMs)](#module_JS API_ async reporting..startAsyncReporting)
+    * [~startAsyncReporting(db)](#module_JS API_ async reporting..startAsyncReporting)
     * [~stopAsyncReporting()](#module_JS API_ async reporting..stopAsyncReporting)
 
 <a name="module_JS API_ async reporting..sendDirtyFlagStatus"></a>
@@ -17743,7 +17743,7 @@ Sends a dirty flag status for a single session.
 
 <a name="module_JS API_ async reporting..startAsyncReporting"></a>
 
-### JS API: async reporting~startAsyncReporting(db, intervalMs)
+### JS API: async reporting~startAsyncReporting(db)
 Start the interval that will check and report dirty flags.
 
 **Kind**: inner method of [<code>JS API: async reporting</code>](#module_JS API_ async reporting)  
@@ -17751,7 +17751,6 @@ Start the interval that will check and report dirty flags.
 | Param | Type |
 | --- | --- |
 | db | <code>\*</code> | 
-| intervalMs | <code>\*</code> | 
 
 <a name="module_JS API_ async reporting..stopAsyncReporting"></a>
 
@@ -18656,6 +18655,7 @@ logger is used for printouts.
 * [JS API: string utilities](#module_JS API_ string utilities)
     * [~toCamelCase(str)](#module_JS API_ string utilities..toCamelCase) ⇒
     * [~toSpacedLowercase(str)](#module_JS API_ string utilities..toSpacedLowercase) ⇒
+    * [~tokensIntoCamelCase()](#module_JS API_ string utilities..tokensIntoCamelCase)
     * [~toSnakeCaseAllCaps(label)](#module_JS API_ string utilities..toSnakeCaseAllCaps)
     * [~toSnakeCase(str)](#module_JS API_ string utilities..toSnakeCase) ⇒
     * [~toCleanSymbol(label)](#module_JS API_ string utilities..toCleanSymbol)
@@ -18688,6 +18688,17 @@ Get spaced out lower case string from the given string.
 | --- | --- |
 | str | <code>\*</code> | 
 
+<a name="module_JS API_ string utilities..tokensIntoCamelCase"></a>
+
+### JS API: string utilities~tokensIntoCamelCase()
+Converts a string into `camelCase` or `CamelCase` by splitting
+the string into tokens.
+
+Differs from `toCamelCase` by different handling of "." inside names,
+so that results are always usable as a code-compatible name (e.g.
+"Foo 2.5" becomes "Foo25" rather than "Foo2.5").
+
+**Kind**: inner method of [<code>JS API: string utilities</code>](#module_JS API_ string utilities)  
 <a name="module_JS API_ string utilities..toSnakeCaseAllCaps"></a>
 
 ### JS API: string utilities~toSnakeCaseAllCaps(label)

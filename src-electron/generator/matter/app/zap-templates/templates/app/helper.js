@@ -525,74 +525,14 @@ function hasSpecificAttributes(options) {
   return this.count > kGlobalAttributes.length;
 }
 
-// firstLower should be true for asLowerCamelCase, false for asUpperCamelCase.
-function asCamelCase(label, firstLower, preserveAcronyms) {
-  const wordSplitRegexp = / |_|-|\//;
-  let tokens = label.replace(/[+()&]/g, '').split(wordSplitRegexp);
-
-  let str = tokens
-    .map((token, index) => {
-      let isAllUpperCase = token == token.toUpperCase();
-      // PERSONAL is not actually an acronym.
-      let isAcronym = isAllUpperCase && token != 'PERSONAL';
-
-      if (isAcronym && preserveAcronyms) {
-        return token;
-      }
-
-      if (token.length === 0) return token;
-
-      let newToken =
-        index == 0 && firstLower
-          ? token[0].toLowerCase()
-          : token[0].toUpperCase();
-
-      if (!isAllUpperCase) {
-        if (token.length > 1) {
-          newToken += token.substring(1);
-        }
-        return newToken;
-      }
-
-      // If this is an all-upper-case thing not being preserved as an acronym,
-      // then anything beyond the first letter becomes lower-case.
-      if (token.length > 1) {
-        newToken += token.substring(1).toLowerCase();
-      }
-      return newToken;
-    })
-    .join('');
-
-  if (firstLower) {
-    // Check for the case when we're:
-    // 1. A single word (i.e. not matching our word-split regexp).
-    // 2. Starting with multiple capital letters in a row.
-    // 3. But not _all_ capital letters (which we purposefully
-    //    convert to all-lowercase in the don't-preserve-acronyms case).
-    //
-    // and if all those conditions hold, preserve the leading capital letters by
-    // uppercasing the first one, which got lowercased.
-    if (
-      !wordSplitRegexp.test(label) &&
-      label.length > 1 &&
-      label.substring(0, 2).toUpperCase() == label.substring(0, 2) &&
-      label.toUpperCase() != label
-    ) {
-      str = str[0].toUpperCase() + str.substring(1);
-    }
-  }
-
-  return str.replace(/[^A-Za-z0-9_]/g, '');
-}
-
 function asLowerCamelCase(label, options) {
   const preserveAcronyms = options && options.hash.preserveAcronyms;
-  return asCamelCase(label, true, preserveAcronyms);
+  return string.tokensIntoCamelCase(label, true, preserveAcronyms);
 }
 
 function asUpperCamelCase(label, options) {
   const preserveAcronyms = options && options.hash.preserveAcronyms;
-  return asCamelCase(label, false, preserveAcronyms);
+  return string.tokensIntoCamelCase(label, false, preserveAcronyms);
 }
 /**
  * Same as asUpperCamelCase, but with a special case for "RFID".

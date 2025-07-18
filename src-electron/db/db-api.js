@@ -26,6 +26,7 @@ const fs = require('fs')
 const fsp = fs.promises
 const env = require('../util/env')
 const util = require('../util/util.js')
+const asyncReporting = require('../util/async-reporting.js')
 const dbEnum = require('../../src-shared/db-enum.js')
 const dbCache = require('./db-cache')
 const dbMapping = require('./db-mapping.js')
@@ -355,6 +356,8 @@ async function dbMultiInsert(db, sql, arrayOfArrays) {
  * @returns A promise that resolves without an argument or rejects with error from the database closing.
  */
 async function closeDatabase(database) {
+  database._closed = true // Mark the database as closed
+  asyncReporting.stopAsyncReporting()
   dbCache.clear()
   return new Promise((resolve, reject) => {
     env.logSql('About to close database.')
@@ -372,6 +375,8 @@ async function closeDatabase(database) {
  * @param {*} database
  */
 function closeDatabaseSync(database) {
+  database._closed = true // Mark the database as closed
+  asyncReporting.stopAsyncReporting()
   dbCache.clear()
   env.logSql('About to close database.')
   database.close((err) => {
