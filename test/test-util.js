@@ -88,7 +88,7 @@ exports.testTemplate = {
   matter2: './test/gen-template/matter2/templates.json',
   matter2Count: 1,
   matter3: './test/gen-template/matter3/t.json',
-  matter3Count: 18,
+  matter3Count: 19,
   matter4: './test/gen-template/matter4/m4.json',
   matter4Count: 1,
   matterApiMaturity: './test/gen-template/matter-api-maturity/templates.json',
