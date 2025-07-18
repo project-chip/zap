@@ -714,7 +714,7 @@ function executeExternalProgram(
         console.log(`    ✍  ${cmd}`)
         if (error) {
           if (options.rejectOnFail) {
-            reject(error)
+            reject(error) // NOSONAR
           } else {
             console.log(error)
             resolve()

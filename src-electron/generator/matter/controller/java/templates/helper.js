@@ -121,10 +121,7 @@ function asJniBasicType(type, useBoxedTypes) {
     return zclHelper.asUnderlyingZclType
       .call(this, type, options)
       .then((zclType) => {
-        return convertBasicCTypeToJniType(
-          ChipTypesHelper.asBasicType(zclType),
-          false
-        );
+        return convertBasicCTypeToJniType(ChipTypesHelper.asBasicType(zclType));
       });
   }
 

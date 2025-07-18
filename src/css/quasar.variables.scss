@@ -98,10 +98,12 @@ $warning: #f2c037;
         .q-item {
           transition: all 0.4s ease-out;
           min-height: auto;
+          padding-top: 7px;
+          padding-right: 14px;
+          padding-left: 14px;
           padding-bottom: 0;
           border: 2px solid white;
           border-radius: 14px;
-          padding: 7px 14px;
           &__section {
             margin-bottom: -10px;
             &--avatar {

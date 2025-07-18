@@ -250,13 +250,20 @@ exports.featureMapAttribute = {
   code: 65532
 }
 
-exports.conformance = {
+exports.conformanceTag = {
   mandatory: 'M',
   optional: 'O',
   disallowed: 'X',
   deprecated: 'D',
   provisional: 'P',
   desc: 'desc'
+}
+
+exports.conformanceVal = {
+  mandatory: 'mandatory',
+  optional: 'optional',
+  notSupported: 'notSupported',
+  provisional: 'provisional'
 }
 
 exports.clusterSide = {

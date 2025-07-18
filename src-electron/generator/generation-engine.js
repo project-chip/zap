@@ -952,7 +952,9 @@ async function generateGenerationContent(genResult, timing = {}) {
     timing: timing,
     stats: {}
   }
-  for (const f of Object.keys(genResult.content).sort()) {
+  for (const f of Object.keys(genResult.content).sort((a, b) =>
+    a.localeCompare(b)
+  )) {
     out.content.push(f)
   }
   return Promise.resolve(JSON.stringify(out, null, 2))
