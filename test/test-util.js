@@ -90,7 +90,7 @@ exports.testTemplate = {
   matter3: './test/gen-template/matter3/t.json',
   matter3Count: 18,
   matter4: './test/gen-template/matter4/m4.json',
-  matter4Count: 1,
+  matter4Count: 2,
   matterApiMaturity: './test/gen-template/matter-api-maturity/templates.json',
   matterApiMaturityCount: 1,
   dotdot: './test/gen-template/dotdot/dotdot-templates.json',
