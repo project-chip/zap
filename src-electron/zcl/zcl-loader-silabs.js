@@ -2743,7 +2743,6 @@ async function loadIndividualSilabsFile(db, filePath, sessionId) {
         2,
         0
       )
-      throw err
     }
 
     let fileContent = await fsp.readFile(resolvedPath)
