@@ -49,11 +49,6 @@
       "path": "cluster-objects.zapt",
       "name": "Cluster objects",
       "output": "cluster-objects.out"
-    },
-    {
-      "path": "endpoint_config_v2.zapt",
-      "name": "Endpoint Config V2",
-      "output": "endpoint_config.h"
     }
   ]
 }
