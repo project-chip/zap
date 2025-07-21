@@ -64,7 +64,7 @@ async function executeCmd(ctx, cmd, args) {
       process.stderr.write('⇝ ' + data)
     })
     c.on('error', (err) => {
-      reject(err) // NOSONAR
+      reject(err)
     })
   })
 }
@@ -163,8 +163,7 @@ async function rebuildSpaIfNeeded() {
           if (ctx.needsRebuild) {
             console.log('✍ Writing out new hash file.')
             fs.writeFile(spaHashFileName, JSON.stringify(ctx.hash), (err) => {
-              if (err)
-                reject(err) // NOSONAR
+              if (err) reject(err)
               else resolve(ctx)
             })
           } else {

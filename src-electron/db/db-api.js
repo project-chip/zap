@@ -49,7 +49,7 @@ function executeBeginTransaction(db, resolve, reject) {
   db.run('BEGIN TRANSACTION', [], function (err) {
     if (err) {
       env.logError('Failed to BEGIN TRANSACTION')
-      reject(err) // NOSONAR
+      reject(util.toErrorObject(err))
     } else {
       env.logSql('Executed BEGIN TRANSACTION')
       resolve()
@@ -69,7 +69,11 @@ function delayBeginTransaction(db, resolve, reject) {
     if (inTransaction) {
       cnt++
       if (cnt > 100) {
-        reject('Waited for 10s for transaction to relinquish, but it did not.')
+        reject(
+          util.toErrorObject(
+            'Waited for 10s for transaction to relinquish, but it did not.'
+          )
+        )
       }
     } else {
       clearInterval(interval)
@@ -117,7 +121,7 @@ async function dbCommit(db) {
     db.run('COMMIT', [], function (err) {
       if (err) {
         env.logError('Failed to COMMIT')
-        reject(err) // NOSONAR
+        reject(util.toErrorObject(err))
       } else {
         env.logSql('Executed COMMIT')
         inTransaction = false
@@ -149,7 +153,7 @@ async function dbRollback(db) {
     db.run('ROLLBACK', [], function (err) {
       if (err) {
         env.logError('Failed to ROLLBACK')
-        reject(err) // NOSONAR
+        reject(util.toErrorObject(err))
       } else {
         env.logSql('Executed ROLLBACK')
         inTransaction = false
@@ -173,7 +177,7 @@ async function dbRemove(db, query, args) {
     db.run(query, args, function (err) {
       if (err) {
         env.logError(`Failed remove: ${query}: ${args}`)
-        reject(err) // NOSONAR
+        reject(util.toErrorObject(err))
       } else {
         env.logSql('Executed remove', query, args)
         resolve(this.changes)
@@ -196,7 +200,7 @@ async function dbUpdate(db, query, args) {
     db.run(query, args, function (err) {
       if (err) {
         env.logError(`Failed update: ${query}: ${args}`)
-        reject(err) // NOSONAR
+        reject(util.toErrorObject(err))
       } else {
         env.logSql('Executed update', query, args)
         resolve(this.changes)
@@ -219,7 +223,7 @@ async function dbInsert(db, query, args) {
     db.run(query, args, function (err) {
       if (err) {
         env.logError(`Failed insert: ${query}: ${args} : ${err}`)
-        reject(err) // NOSONAR
+        reject(util.toErrorObject(err))
       } else {
         env.logSql('Executed insert', query, args)
         resolve(this.lastID)
@@ -242,7 +246,7 @@ async function dbAll(db, query, args) {
     db.all(query, args, (err, rows) => {
       if (err) {
         env.logError(`Failed all: ${query}: ${args} : ${err}`)
-        reject(err) // NOSONAR
+        reject(util.toErrorObject(err))
       } else {
         env.logSql('Executed all', query, args)
         resolve(rows)
@@ -265,7 +269,7 @@ async function dbGet(db, query, args, reportError = true) {
     db.get(query, args, (err, row) => {
       if (err) {
         if (reportError) env.logError(`Failed get: ${query}: ${args} : ${err}`)
-        reject(err) // NOSONAR
+        reject(util.toErrorObject(err))
       } else {
         env.logSql('Executed get', query, args)
         resolve(row)
@@ -287,11 +291,11 @@ async function dbMultiSelect(db, sql, arrayOfArrays) {
     env.logSql('Preparing select', sql, arrayOfArrays.length)
     let rows = []
     let statement = db.prepare(sql, function (err) {
-      if (err) reject(err) // NOSONAR
+      if (err) reject(util.toErrorObject(err))
       for (const singleArray of arrayOfArrays) {
         statement.get(singleArray, (err2, row) => {
           if (err2) {
-            reject(err2) // NOSONAR
+            reject(util.toErrorObject(err2))
           } else {
             rows.push(row)
           }
@@ -299,7 +303,7 @@ async function dbMultiSelect(db, sql, arrayOfArrays) {
       }
       statement.finalize((err3) => {
         if (err3) {
-          reject(err3) // NOSONAR
+          reject(util.toErrorObject(err3))
         } else {
           resolve(rows)
         }
@@ -323,8 +327,11 @@ async function dbMultiInsert(db, sql, arrayOfArrays) {
     env.logSql('Preparing insert', sql, arrayOfArrays.length)
     let lastIds = []
     let statement = db.prepare(sql, function (err) {
-      if (err)
-        reject('Error while preparing sql statement: ' + sql + ', ' + err) // NOSONAR
+      if (err) {
+        let errMessage =
+          'Error while preparing sql statement: ' + sql + ', ' + err
+        reject(util.toErrorObject(err, errMessage))
+      }
       for (const singleArray of arrayOfArrays) {
         statement.run(singleArray, (err2) => {
           if (err2) {
@@ -335,14 +342,17 @@ async function dbMultiInsert(db, sql, arrayOfArrays) {
               singleArray +
               ', ' +
               err2
-            reject(err2Message) // NOSONAR
+            reject(util.toErrorObject(err2, err2Message))
           }
           lastIds.push(this.lastID)
         })
       }
       statement.finalize((err3) => {
-        if (err3)
-          reject('Error while finalizing sql statement: ' + sql + ', ' + err3) // NOSONAR
+        if (err3) {
+          let err3Message =
+            'Error while finalizing sql statement: ' + sql + ', ' + err3
+          reject(util.toErrorObject(err3, err3Message))
+        }
         resolve(lastIds)
       })
     })
@@ -363,7 +373,7 @@ async function closeDatabase(database) {
   return new Promise((resolve, reject) => {
     env.logSql('About to close database.')
     database.close((err) => {
-      if (err) return reject(err) // NOSONAR
+      if (err) return reject(util.toErrorObject(err))
       env.logSql('Database is closed.')
       resolve()
     })
@@ -396,7 +406,7 @@ async function initRamDatabase() {
   return new Promise((resolve, reject) => {
     let db = new sqlite.Database(':memory:', (err) => {
       if (err) {
-        reject(err) // NOSONAR
+        reject(util.toErrorObject(err))
       } else {
         env.logSql(`Connected to the RAM database.`)
         resolve(db)
@@ -417,7 +427,7 @@ async function initDatabase(sqlitePath) {
   return new Promise((resolve, reject) => {
     let db = new sqlite.Database(sqlitePath, (err) => {
       if (err) {
-        reject(err) // NOSONAR
+        reject(util.toErrorObject(err))
       } else {
         env.logSql(`Connected to the database at: ${sqlitePath}`)
         resolve(db)
@@ -532,7 +542,7 @@ async function performSchemaLoad(db, schemaContent) {
         if (err) {
           env.logError('Failed to populate schema')
           env.logError(err)
-          reject(err) // NOSONAR
+          reject(util.toErrorObject(err))
         }
         resolve()
       })

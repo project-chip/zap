@@ -714,7 +714,7 @@ function executeExternalProgram(
         console.log(`    ✍  ${cmd}`)
         if (error) {
           if (options.rejectOnFail) {
-            reject(error) // NOSONAR
+            reject(error)
           } else {
             console.log(error)
             resolve()
@@ -953,6 +953,23 @@ function patternFormat(pattern, data) {
   return out
 }
 
+/**
+ * Wraps a non-error object into an Error object.
+ * If message is provided, it will be used as the error message.
+ *
+ * @param {*} err
+ * @param {*} message
+ * @returns {Error}
+ */
+function toErrorObject(err, message = null) {
+  if (err instanceof Error) return err
+  let wrapped = new Error(message || err.message || String(err))
+  if (err.code) wrapped.code = err.code
+  if (err.errno) wrapped.errno = err.errno
+  if (err.stack) wrapped.stack = err.stack
+  return wrapped
+}
+
 exports.createBackupFile = createBackupFile
 exports.checksum = checksum
 exports.ensurePackagesAndPopulateSessionOptions =
@@ -974,3 +991,4 @@ exports.duration = duration
 exports.mainOrSecondaryInstance = mainOrSecondaryInstance
 exports.collectJsonData = collectJsonData
 exports.patternFormat = patternFormat
+exports.toErrorObject = toErrorObject

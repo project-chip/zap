@@ -794,7 +794,10 @@ async function insertClusterExtensions(db, packageId, knownPackages, data) {
   let pAttribute = insertAttributes(db, packageId, attributes)
   let pEvent = insertEvents(db, packageId, events)
   return Promise.all([pCommand, pAttribute, pEvent]).catch((err) => {
-    if (err.includes('SQLITE_CONSTRAINT') && err.includes('UNIQUE')) {
+    if (
+      err.message.includes('SQLITE_CONSTRAINT') &&
+      err.message.includes('UNIQUE')
+    ) {
       env.logDebug(
         `CRC match for file with package id ${packageId}, skipping parsing.`
       )

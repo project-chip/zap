@@ -205,7 +205,7 @@ async function collectDataFromPropertiesFile(metadataFile, data) {
     properties.parse(data, { namespaces: true }, (err, zclProps) => {
       if (err) {
         env.logError(`Could not read file: ${metadataFile}`)
-        reject(err) // NOSONAR
+        reject(util.toErrorObject(err))
       } else {
         let fileLocations = zclProps.xmlRoot
           .split(',')
