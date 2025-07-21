@@ -45,7 +45,7 @@ async function main() {
     let cli = `zap-cli`
 
     // Handle x64 build
-    await rename(`${file}`, cli)
+    await rename(`${file}-x64`, cli)
     await addToZip(`zap-mac-x64.zip`, cli)
 
     // Handle arm64 build - pkg now supports macos-arm64
