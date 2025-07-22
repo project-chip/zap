@@ -160,6 +160,7 @@ INSERT INTO ATTRIBUTE (
   REPORTABLE_CHANGE,
   REPORTABLE_CHANGE_LENGTH,
   IS_WRITABLE,
+  IS_READABLE,
   DEFAULT_VALUE,
   IS_OPTIONAL,
   REPORTING_POLICY,
@@ -175,7 +176,7 @@ INSERT INTO ATTRIBUTE (
   IS_CHANGE_OMITTED,
   PERSISTENCE
 ) VALUES (
-  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   ?,
@@ -243,6 +244,7 @@ function attributeMap(clusterId, packageId, attributes) {
     attribute.reportableChange,
     attribute.reportableChangeLength,
     attribute.isWritable,
+    attribute.isReadable,
     attribute.defaultValue,
     dbApi.toDbBool(attribute.isOptional),
     attribute.reportingPolicy,

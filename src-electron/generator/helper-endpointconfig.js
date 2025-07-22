@@ -1153,6 +1153,10 @@ async function collectAttributes(
         }
         if (a.isSingleton) mask.push('singleton')
         if (a.isWritable) mask.push('writable')
+        // readable mask will only be generated when isReadableMaskGenerationEnabled=true to avoid large diffs of generated code of old Matter versions
+        if (options.isReadableMaskGenerationEnabled) {
+          if (a.isReadable) mask.push('readable')
+        }
         if (a.isNullable) mask.push('nullable')
         if (a.mustUseTimedWrite) mask.push('must_use_timed_write')
         let zap_type = 'UNKNOWN ATTRIBUTE TYPE'
@@ -1389,7 +1393,9 @@ function endpoint_config(options) {
   let collectAttributesOptions = {
     allowUnknownStorageOption:
       options.hash.allowUnknownStorageOption === 'false' ? false : true,
-    spaceForDefaultValue: options.hash.spaceForDefaultValue
+    spaceForDefaultValue: options.hash.spaceForDefaultValue,
+    isReadableMaskGenerationEnabled:
+      options.hash.isReadableMaskGenerationEnabled === 'true' ? true : false
   }
   let promise = templateUtil
     .ensureZclPackageIds(newContext)
