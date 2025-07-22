@@ -105,11 +105,10 @@ function generateWarningMessage(
       .map(([feature, isEnabled]) =>
         isEnabled ? `enable ${feature}` : `disable ${feature}`
       )
-      .join(', ')
+      .join(' and ')
     result.warningMessage.push(
       warningPrefix +
-        ` ${updateDisabledString} it will change the conformance of other dependent features. 
-        Update the following features in the same cluster first: ${featuresToUpdateString}.`
+        ` ${updateDisabledString} the following features need to be updated: ${featuresToUpdateString}.`
     )
   }
 
@@ -467,7 +466,7 @@ function filterRequiredElements(elements, elementMap, featureMap) {
  */
 function getConformanceTermStates(expression, elementMap, featureMap) {
   let terms = conformEvaluator.getTermsFromExpression(expression)
-  let nonElementTerms = Object.values(dbEnum.conformance)
+  let nonElementTerms = Object.values(dbEnum.conformanceTag)
 
   let featureTerms = terms
     .filter((term) => term in featureMap)
