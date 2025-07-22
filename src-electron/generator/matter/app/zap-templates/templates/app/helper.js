@@ -207,7 +207,9 @@ function chip_endpoint_generated_commands_list(options) {
       }
     });
 
-    generatedCommands = [...new Set(generatedCommands)].sort();
+    generatedCommands = [...new Set(generatedCommands)].sort((a, b) =>
+      a.localeCompare(b)
+    );
 
     if (acceptedCommands.length > 0 || generatedCommands.length > 0) {
       ret.push({ text: `  /* ${c.comment} */\\` });

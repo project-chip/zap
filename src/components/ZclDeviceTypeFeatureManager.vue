@@ -229,8 +229,8 @@ export default {
     isToggleDisabled(feature) {
       // disable toggling features with unsupported conformance and disabled clusters
       return (
-        feature.conformance == dbEnum.conformance.disallowed ||
-        feature.conformance == dbEnum.conformance.deprecated ||
+        feature.conformance == dbEnum.conformanceTag.disallowed ||
+        feature.conformance == dbEnum.conformanceTag.deprecated ||
         this.isClusterDisabled(feature)
       )
     },

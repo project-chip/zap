@@ -180,7 +180,7 @@ export default {
             !this.isEventSelected(row.id)) ||
             (this.eventsNotSupportedByConform[row.id] &&
               this.isEventSelected(row.id)))) ||
-        (row.conformance == dbEnum.conformance.mandatory &&
+        (row.conformance == dbEnum.conformanceTag.mandatory &&
           !this.isEventSelected(row.id))
       )
     },
@@ -201,7 +201,7 @@ export default {
         warnings.push(this.eventsNotSupportedByConform[row.id])
       }
       if (
-        row.conformance == dbEnum.conformance.mandatory &&
+        row.conformance == dbEnum.conformanceTag.mandatory &&
         !this.isEventSelected(row.id)
       ) {
         warnings.push(this.defaultWarning)

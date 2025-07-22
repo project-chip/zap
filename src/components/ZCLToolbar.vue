@@ -24,6 +24,7 @@
             :key="index"
             :src="image"
             class="my-auto logo image-space"
+            alt=""
           />
           <div v-if="$store.state.zap.isMultiConfig">Multiprotocol</div>
         </div>

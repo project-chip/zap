@@ -617,7 +617,10 @@ function assertCommandOrAttributeOrEvent(context) {
       filterName = context.event;
       items = getEvents(context, clusterName);
     } else {
-      printErrorAndExit(context, 'Unsupported command type: ', context);
+      printErrorAndExit(
+        context,
+        `Unsupported command type: ${JSON.stringify(context)}`
+      );
     }
 
     return items.then((items) => {
