@@ -43,7 +43,8 @@ const util = require('../util/util.js')
  * @returns Promise of file reading.
  */
 async function readDataFromFile(filePath, defaultZclMetafile) {
-  let data = await fsp.readFile(filePath)
+  let resolvedPath = await fsp.realpath(filePath)
+  let data = await fsp.readFile(resolvedPath)
 
   let stringData = data.toString().trim()
   if (stringData.startsWith('{')) {

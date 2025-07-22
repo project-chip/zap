@@ -205,7 +205,7 @@ async function collectDataFromPropertiesFile(metadataFile, data) {
     properties.parse(data, { namespaces: true }, (err, zclProps) => {
       if (err) {
         env.logError(`Could not read file: ${metadataFile}`)
-        reject(err)
+        reject(util.toErrorObject(err))
       } else {
         let fileLocations = zclProps.xmlRoot
           .split(',')
@@ -687,6 +687,7 @@ function prepareCluster(cluster, context, isExtension = false) {
           ? attribute.$.reportableChangeLength
           : null,
         isWritable: attribute.$.writable == 'true',
+        isReadable: attribute.$.readable != 'false',
         defaultValue: attribute.$.default,
         isOptional: conformParser.getOptionalAttributeFromXML(
           attribute,
@@ -2490,7 +2491,7 @@ async function parseFeatureFlags(db, packageId, featureFlags) {
  */
 async function parseUiOptions(db, packageId, uiOptions) {
   let data = []
-  Object.keys(uiOptions).map((key) => {
+  Object.keys(uiOptions).forEach((key) => {
     data.push({
       code: key,
       label: uiOptions[key]
@@ -2729,7 +2730,23 @@ async function parseBoolDefaults(db, pkgRef, booleanCategories) {
  */
 async function loadIndividualSilabsFile(db, filePath, sessionId) {
   try {
-    let fileContent = await fsp.readFile(filePath)
+    let resolvedPath = await fsp.realpath(filePath)
+    if (path.extname(resolvedPath).toLowerCase() !== '.xml') {
+      let err = new Error(
+        `Unable to read file: ${resolvedPath}. Expecting an XML file with ZCL clusters.`
+      )
+      env.logWarning(err)
+      querySessionNotification.setNotification(
+        db,
+        'WARNING',
+        err,
+        sessionId,
+        2,
+        0
+      )
+    }
+
+    let fileContent = await fsp.readFile(resolvedPath)
     let data = {
       filePath: filePath,
       data: fileContent,

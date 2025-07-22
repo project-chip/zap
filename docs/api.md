@@ -19046,6 +19046,7 @@ back into a JS integer.
     * [~disable(testName)](#module_JS API_ random utilities..disable)
     * [~collectJsonData(jsonFile)](#module_JS API_ random utilities..collectJsonData)
     * [~patternFormat(pattern, data)](#module_JS API_ random utilities..patternFormat)
+    * [~toErrorObject(err, message)](#module_JS API_ random utilities..toErrorObject) ⇒ <code>Error</code>
 
 <a name="module_JS API_ random utilities..checksum"></a>
 
@@ -19330,6 +19331,19 @@ For example, if pattern is "{a}" and data.a is 1, then this prints out "1".
 | --- | --- |
 | pattern | <code>\*</code> | 
 | data | <code>\*</code> | 
+
+<a name="module_JS API_ random utilities..toErrorObject"></a>
+
+### JS API: random utilities~toErrorObject(err, message) ⇒ <code>Error</code>
+Wraps a non-error object into an Error object.
+If message is provided, it will be used as the error message.
+
+**Kind**: inner method of [<code>JS API: random utilities</code>](#module_JS API_ random utilities)  
+
+| Param | Type | Default |
+| --- | --- | --- |
+| err | <code>\*</code> |  | 
+| message | <code>\*</code> | <code></code> | 
 
 <a name="module_REST API_ various zcl utilities"></a>
 

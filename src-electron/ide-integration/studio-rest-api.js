@@ -219,7 +219,7 @@ async function updateComponentByClusterIdAndComponentId(
   add,
   side
 ) {
-  if (!integrationEnabled(db, sessionId)) {
+  if (!(await integrationEnabled(db, sessionId))) {
     let isUserDisabled = await isComponentTogglingDisabled(db, sessionId)
     if (!isUserDisabled) {
       env.logWarning(
