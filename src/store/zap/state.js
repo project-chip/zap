@@ -49,7 +49,7 @@ export default function () {
     commands: [],
     events: [],
     features: [],
-    featureMapValue: 0,
+    featureMapAttribute: {},
     zclDeviceTypes: {},
     endpoints: [],
     query: {},

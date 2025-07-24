@@ -70,19 +70,10 @@ limitations under the License.
                   :disable="isToggleDisabled(props.row)"
                   class="q-mt-xs v-step-14"
                   v-model="enabledDeviceTypeFeatures"
-                  :val="
-                    hashDeviceTypeClusterIdFeatureId(
-                      props.row.deviceTypeClusterId,
-                      props.row.featureId
-                    )
-                  "
+                  :val="props.row.featureId"
                   indeterminate-value="false"
                   keep-color
-                  @update:model-value="
-                    (val) => {
-                      onToggleDeviceTypeFeature(props.row, val)
-                    }
-                  "
+                  @update:model-value="(val) => onToggleFeature(props.row, val)"
                 />
               </q-td>
               <q-td key="deviceType" :props="props" auto-width>
@@ -207,13 +198,12 @@ limitations under the License.
 <script>
 import CommonMixin from '../util/common-mixin'
 import EditableAttributeMixin from '../util/editable-attributes-mixin'
+import featureMixin from '../util/feature-mixin'
 import dbEnum from '../../src-shared/db-enum'
-import restApi from '../../src-shared/rest-api'
-import { Notify } from 'quasar'
 
 export default {
   name: 'ZclDeviceTypeFeatureManager',
-  mixins: [CommonMixin, EditableAttributeMixin],
+  mixins: [CommonMixin, EditableAttributeMixin, featureMixin],
   methods: {
     getClusterSide(row) {
       if (row.includeClient == 1 && row.includeServer == 1) {
@@ -232,215 +222,6 @@ export default {
         feature.conformance == dbEnum.conformanceTag.disallowed ||
         feature.conformance == dbEnum.conformanceTag.deprecated ||
         this.isClusterDisabled(feature)
-      )
-    },
-    onToggleDeviceTypeFeature(featureData, inclusionList) {
-      let featureMap = this.buildFeatureMap(featureData, inclusionList)
-      this.$serverPost(restApi.uri.checkConformOnFeatureUpdate, {
-        featureData: featureData,
-        featureMap: featureMap,
-        endpointId: this.endpointId[this.selectedEndpointId],
-        changeConfirmed: false
-      }).then((res) => {
-        // store backend response and frontend data for reuse if updates are confirmed
-        let {
-          attributesToUpdate,
-          commandsToUpdate,
-          eventsToUpdate,
-          displayWarning,
-          warningMessage,
-          disableChange
-        } = res.data
-
-        Object.assign(this, {
-          attributesToUpdate,
-          commandsToUpdate,
-          eventsToUpdate,
-          displayWarning,
-          warningMessage,
-          disableChange
-        })
-
-        this.selectedFeature = featureData
-        this.updatedEnabledFeatures = inclusionList
-
-        // if change disabled, display warning and do not show confirm dialog
-        if (this.disableChange) {
-          if (this.displayWarning) {
-            this.displayPopUpWarnings(this.warningMessage)
-          }
-        } else if (this.noElementsToUpdate) {
-          this.confirmFeatureUpdate(featureData, inclusionList)
-        } else {
-          this.showDialog = true
-        }
-      })
-    },
-    confirmFeatureUpdate(featureData, inclusionList) {
-      let featureMap = this.buildFeatureMap(featureData, inclusionList)
-      this.$store
-        .dispatch('zap/setRequiredElements', {
-          featureMap: featureMap,
-          deviceTypeClusterId: featureData.deviceTypeClusterId,
-          endpointTypeClusterId: featureData.endpointTypeClusterId
-        })
-        .then(() => {
-          // toggle attributes, commands, and events for correct conformance,
-          // and set their conformance warnings
-          this.attributesToUpdate.forEach((attribute) => {
-            let editContext = {
-              action: 'boolean',
-              endpointTypeIdList: this.endpointTypeIdList,
-              selectedEndpoint: this.selectedEndpointTypeId,
-              id: attribute.id,
-              value: attribute.value,
-              listType: 'selectedAttributes',
-              clusterRef: attribute.clusterRef,
-              attributeSide: attribute.side,
-              reportMinInterval: attribute.reportMinInterval,
-              reportMaxInterval: attribute.reportMaxInterval
-            }
-            this.setRequiredElementNotifications(
-              attribute,
-              attribute.value,
-              'attributes'
-            )
-            this.$store.dispatch('zap/updateSelectedAttribute', editContext)
-          })
-          this.commandsToUpdate.forEach((command) => {
-            let listType =
-              command.source == 'client' ? 'selectedIn' : 'selectedOut'
-            let editContext = {
-              action: 'boolean',
-              endpointTypeIdList: this.endpointTypeIdList,
-              id: command.id,
-              value: command.value,
-              listType: listType,
-              clusterRef: command.clusterRef,
-              commandSide: command.source
-            }
-            this.setRequiredElementNotifications(
-              command,
-              command.value,
-              'commands'
-            )
-            this.$store.dispatch('zap/updateSelectedCommands', editContext)
-          })
-          this.eventsToUpdate.forEach((event) => {
-            let editContext = {
-              action: 'boolean',
-              endpointTypeId: this.selectedEndpointTypeId,
-              id: event.id,
-              value: event.value,
-              listType: 'selectedEvents',
-              clusterRef: event.clusterRef,
-              eventSide: event.side
-            }
-            this.setRequiredElementNotifications(event, event.value, 'events')
-            this.$store.dispatch('zap/updateSelectedEvents', editContext)
-          })
-
-          // update enabled device type features
-          let added = this.featureIsEnabled(featureData, inclusionList)
-          let hashedVal = this.hashDeviceTypeClusterIdFeatureId(
-            featureData.deviceTypeClusterId,
-            featureData.featureId
-          )
-          this.$store.commit('zap/updateInclusionList', {
-            id: hashedVal,
-            added: added,
-            listType: 'enabledDeviceTypeFeatures',
-            view: 'featureView'
-          })
-        })
-
-      // set notifications and pop-up warnings for the updated feature
-      this.$serverPost(restApi.uri.checkConformOnFeatureUpdate, {
-        featureData: featureData,
-        featureMap: featureMap,
-        endpointId: this.endpointId[this.selectedEndpointId],
-        changeConfirmed: true
-      })
-      if (this.displayWarning) {
-        this.displayPopUpWarnings(this.warningMessage)
-      }
-
-      // update featureMap attribute value for the updated cluster
-      this.setFeatureMapAttribute(featureData)
-
-      // close the dialog
-      this.showDialog = false
-
-      // clean the state of variables related to the dialog
-      Object.assign(this, {
-        displayWarning: false,
-        warningMessage: '',
-        disableChange: false,
-        selectedFeature: {},
-        updatedEnabledFeatures: []
-      })
-    },
-    setFeatureMapAttribute(featureData) {
-      let featureMapAttributeId = featureData.featureMapAttributeId
-      let bit = featureData.bit
-      let featureMapValue = featureData.featureMapValue
-      let newValue = parseInt(featureMapValue) ^ (1 << bit)
-      newValue = newValue.toString()
-      this.$serverPatch(restApi.uri.updateBitOfFeatureMapAttribute, {
-        featureMapAttributeId: featureMapAttributeId,
-        newValue: newValue
-      })
-      this.$store.commit('zap/updateFeatureMapAttributeOfFeature', {
-        featureMapAttributeId: featureMapAttributeId,
-        featureMapValue: newValue
-      })
-    },
-    processElementsForDialog(elementData) {
-      return (elementData || [])
-        .map((item) =>
-          item.value ? 'enabled ' + item.name : 'disabled ' + item.name
-        )
-        .sort(
-          // sort enabled elements before disabled ones
-          (a, b) => {
-            let aIsEnabled = a.includes('enabled')
-            let bIsEnabled = b.includes('enabled')
-            if (aIsEnabled && !bIsEnabled) return -1
-            if (!aIsEnabled && bIsEnabled) return 1
-            return 0
-          }
-        )
-    },
-    displayPopUpWarnings(warningMessage) {
-      if (!Array.isArray(warningMessage)) {
-        warningMessage = [warningMessage]
-      }
-      for (let warning of warningMessage) {
-        Notify.create({
-          message: warning,
-          type: 'warning',
-          classes: 'custom-notification notification-warning',
-          position: 'top',
-          html: true
-        })
-      }
-    },
-    buildFeatureMap(featureData, inclusionList) {
-      let featureMap = {}
-      this.deviceTypeFeatures.forEach((feature) => {
-        if (feature.deviceTypeClusterId === featureData.deviceTypeClusterId) {
-          let enabled = this.featureIsEnabled(feature, inclusionList)
-          featureMap[feature.code] = enabled ? 1 : 0
-        }
-      })
-      return featureMap
-    },
-    featureIsEnabled(featureData, inclusionList) {
-      return inclusionList.includes(
-        this.hashDeviceTypeClusterIdFeatureId(
-          featureData.deviceTypeClusterId,
-          featureData.featureId
-        )
       )
     },
     isClusterDisabled(feature) {
@@ -473,13 +254,6 @@ export default {
     }
   },
   computed: {
-    noElementsToUpdate() {
-      return (
-        this.attributesToUpdate.length == 0 &&
-        this.commandsToUpdate.length == 0 &&
-        this.eventsToUpdate.length == 0
-      )
-    },
     filteredColumns() {
       return this.hasFeatureWithDisabledCluster
         ? this.columns
@@ -499,15 +273,6 @@ export default {
       pagination: {
         rowsPerPage: 10
       },
-      showDialog: false,
-      attributesToUpdate: [],
-      commandsToUpdate: [],
-      eventsToUpdate: [],
-      disableChange: false,
-      displayWarning: false,
-      warningMessage: '',
-      selectedFeature: {},
-      updatedEnabledFeatures: [],
       columns: [
         {
           name: dbEnum.feature.name.status,

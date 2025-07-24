@@ -137,11 +137,15 @@ export function updateFeatures(context, features) {
  * @param {*} context
  * @param {*} attributes
  */
-export function updateFeatureMapValue(context, data) {
-  axiosRequests
-    .$serverGet(restApi.uri.featureMapValue, { params: data })
+export async function updateFeatureMapAttribute(context, data) {
+  return axiosRequests
+    .$serverGet(restApi.uri.featureMapAttribute, { params: data })
     .then((response) => {
-      context.commit('updateFeatureMapValue', response.data)
+      let featureMapAttribute = response.data
+      featureMapAttribute.value = featureMapAttribute.defaultValue
+        ? parseInt(featureMapAttribute.defaultValue)
+        : 0
+      context.commit('updateFeatureMapAttribute', featureMapAttribute)
     })
 }
 
@@ -1003,9 +1007,7 @@ export async function setDeviceTypeFeatures(
       let enabledDeviceTypeFeatures = []
       deviceTypeFeatures.forEach((feature) => {
         if (feature.featureMapValue & (1 << feature.bit)) {
-          enabledDeviceTypeFeatures.push(
-            Util.cantorPair(feature.deviceTypeClusterId, feature.featureId)
-          )
+          enabledDeviceTypeFeatures.push(feature.featureId)
         }
       })
       context.commit(
@@ -1033,13 +1035,8 @@ export function updateConformDataExists(context) {
  * @returns
  */
 export function setRequiredElements(context, data) {
-  if (data.featureMap) {
-    data.featureMap = JSON.stringify(data.featureMap)
-  }
   return axiosRequests
-    .$serverGet(restApi.uri.requiredElements, {
-      params: { data: JSON.stringify(data) }
-    })
+    .$serverPost(restApi.uri.requiredElements, data)
     .then((response) => {
       context.commit('setRequiredElements', response.data)
     })
