@@ -157,7 +157,7 @@ test(
 )
 
 test(
-  'Evaluate customized conformance expression and term extraction',
+  'Evaluate customized conformance expression and operand extraction',
   () => {
     // cover elements with all upper and lower case and combinations
     const elementMap = {
@@ -169,174 +169,202 @@ test(
     }
     let conformanceExpressions = [
       // 1. test basic conformance abbreviations
-      { expression: 'M', expected: 'mandatory', terms: ['M'] },
-      { expression: 'O', expected: 'optional', terms: ['O'] },
-      { expression: 'P', expected: 'provisional', terms: ['P'] },
-      { expression: 'D', expected: 'notSupported', terms: ['D'] },
-      { expression: 'X', expected: 'notSupported', terms: ['X'] },
+      { expression: 'M', expected: 'mandatory', operands: ['M'] },
+      { expression: 'O', expected: 'optional', operands: ['O'] },
+      { expression: 'P', expected: 'provisional', operands: ['P'] },
+      { expression: 'D', expected: 'notSupported', operands: ['D'] },
+      { expression: 'X', expected: 'notSupported', operands: ['X'] },
 
       // 2. test simple mandatory conformance expression
-      { expression: 'HS', expected: 'mandatory', terms: ['HS'] },
-      { expression: 'oo', expected: 'notSupported', terms: ['oo'] },
-      { expression: 'HS & Lt', expected: 'mandatory', terms: ['HS', 'Lt'] },
-      { expression: 'HS & oo', expected: 'notSupported', terms: ['HS', 'oo'] },
-      { expression: 'HS | oo', expected: 'mandatory', terms: ['HS', 'oo'] },
+      { expression: 'HS', expected: 'mandatory', operands: ['HS'] },
+      { expression: 'oo', expected: 'notSupported', operands: ['oo'] },
+      { expression: 'HS & Lt', expected: 'mandatory', operands: ['HS', 'Lt'] },
+      {
+        expression: 'HS & oo',
+        expected: 'notSupported',
+        operands: ['HS', 'oo']
+      },
+      { expression: 'HS | oo', expected: 'mandatory', operands: ['HS', 'oo'] },
       {
         expression: 'HS & Lt & oo',
         expected: 'notSupported',
-        terms: ['HS', 'Lt', 'oo']
+        operands: ['HS', 'Lt', 'oo']
       },
       {
         expression: 'HS | Lt | oo',
         expected: 'mandatory',
-        terms: ['HS', 'Lt', 'oo']
+        operands: ['HS', 'Lt', 'oo']
       },
       {
         expression: 'HS & (Lt | oo)',
         expected: 'mandatory',
-        terms: ['HS', 'Lt', 'oo']
+        operands: ['HS', 'Lt', 'oo']
       },
       {
         expression: 'HS & (oo | xY)',
         expected: 'notSupported',
-        terms: ['HS', 'oo', 'xY']
+        operands: ['HS', 'oo', 'xY']
       },
       {
         expression: '(HS & oo) | Lt',
         expected: 'mandatory',
-        terms: ['HS', 'oo', 'Lt']
+        operands: ['HS', 'oo', 'Lt']
       },
       {
         expression: 'HS & (Lt | oo | xY)',
         expected: 'mandatory',
-        terms: ['HS', 'Lt', 'oo', 'xY']
+        operands: ['HS', 'Lt', 'oo', 'xY']
       },
       {
         expression: 'oo | (HS & Lt & xY)',
         expected: 'notSupported',
-        terms: ['oo', 'HS', 'Lt', 'xY']
+        operands: ['oo', 'HS', 'Lt', 'xY']
       },
 
       // 3. test NOT (!)
-      { expression: '!HS', expected: 'notSupported', terms: ['HS'] },
-      { expression: '!oo', expected: 'mandatory', terms: ['oo'] },
-      { expression: '!HS & Lt', expected: 'notSupported', terms: ['HS', 'Lt'] },
-      { expression: 'HS & !oo', expected: 'mandatory', terms: ['HS', 'oo'] },
+      { expression: '!HS', expected: 'notSupported', operands: ['HS'] },
+      { expression: '!oo', expected: 'mandatory', operands: ['oo'] },
+      {
+        expression: '!HS & Lt',
+        expected: 'notSupported',
+        operands: ['HS', 'Lt']
+      },
+      { expression: 'HS & !oo', expected: 'mandatory', operands: ['HS', 'oo'] },
       {
         expression: '!(HS & Lt)',
         expected: 'notSupported',
-        terms: ['HS', 'Lt']
+        operands: ['HS', 'Lt']
       },
       {
         expression: '!(HS | oo)',
         expected: 'notSupported',
-        terms: ['HS', 'oo']
+        operands: ['HS', 'oo']
       },
-      { expression: '!(HS & oo)', expected: 'mandatory', terms: ['HS', 'oo'] },
+      {
+        expression: '!(HS & oo)',
+        expected: 'mandatory',
+        operands: ['HS', 'oo']
+      },
 
       // 4. test optional conformance expression with '[]'
-      { expression: '[HS]', expected: 'optional', terms: ['HS'] },
-      { expression: '[oo]', expected: 'notSupported', terms: ['oo'] },
-      { expression: '[!HS]', expected: 'notSupported', terms: ['HS'] },
-      { expression: '[!oo]', expected: 'optional', terms: ['oo'] },
-      { expression: '[HS & Lt]', expected: 'optional', terms: ['HS', 'Lt'] },
+      { expression: '[HS]', expected: 'optional', operands: ['HS'] },
+      { expression: '[oo]', expected: 'notSupported', operands: ['oo'] },
+      { expression: '[!HS]', expected: 'notSupported', operands: ['HS'] },
+      { expression: '[!oo]', expected: 'optional', operands: ['oo'] },
+      { expression: '[HS & Lt]', expected: 'optional', operands: ['HS', 'Lt'] },
       {
         expression: '[HS & oo]',
         expected: 'notSupported',
-        terms: ['HS', 'oo']
+        operands: ['HS', 'oo']
       },
-      { expression: '[HS | oo]', expected: 'optional', terms: ['HS', 'oo'] },
+      { expression: '[HS | oo]', expected: 'optional', operands: ['HS', 'oo'] },
       {
         expression: '[!(HS & Lt)]',
         expected: 'notSupported',
-        terms: ['HS', 'Lt']
+        operands: ['HS', 'Lt']
       },
       {
         expression: '[!(HS | oo)]',
         expected: 'notSupported',
-        terms: ['HS', 'oo']
+        operands: ['HS', 'oo']
       },
-      { expression: '[!(HS & oo)]', expected: 'optional', terms: ['HS', 'oo'] },
+      {
+        expression: '[!(HS & oo)]',
+        expected: 'optional',
+        operands: ['HS', 'oo']
+      },
 
       // 5. test otherwise conformance expression
-      { expression: 'P, O', expected: 'provisional', terms: ['P', 'O'] },
-      { expression: 'P, M', expected: 'provisional', terms: ['P', 'M'] },
-      { expression: 'P, HS', expected: 'provisional', terms: ['P', 'HS'] },
-      { expression: 'P, [HS]', expected: 'provisional', terms: ['P', 'HS'] },
-      { expression: 'HS, O', expected: 'mandatory', terms: ['HS', 'O'] },
-      { expression: 'oo, O', expected: 'optional', terms: ['oo', 'O'] },
-      { expression: 'oo, [HS]', expected: 'optional', terms: ['oo', 'HS'] },
-      { expression: 'oo, [xY]', expected: 'notSupported', terms: ['oo', 'xY'] },
-      { expression: '[HS], D', expected: 'optional', terms: ['HS', 'D'] },
-      { expression: '[oo], D', expected: 'notSupported', terms: ['oo', 'D'] },
+      { expression: 'P, O', expected: 'provisional', operands: ['P', 'O'] },
+      { expression: 'P, M', expected: 'provisional', operands: ['P', 'M'] },
+      { expression: 'P, HS', expected: 'provisional', operands: ['P', 'HS'] },
+      { expression: 'P, [HS]', expected: 'provisional', operands: ['P', 'HS'] },
+      { expression: 'HS, O', expected: 'mandatory', operands: ['HS', 'O'] },
+      { expression: 'oo, O', expected: 'optional', operands: ['oo', 'O'] },
+      { expression: 'oo, [HS]', expected: 'optional', operands: ['oo', 'HS'] },
+      {
+        expression: 'oo, [xY]',
+        expected: 'notSupported',
+        operands: ['oo', 'xY']
+      },
+      { expression: '[HS], D', expected: 'optional', operands: ['HS', 'D'] },
+      {
+        expression: '[oo], D',
+        expected: 'notSupported',
+        operands: ['oo', 'D']
+      },
       {
         expression: 'HS, [Lt | oo | xY]',
         expected: 'mandatory',
-        terms: ['HS', 'Lt', 'oo', 'xY']
+        operands: ['HS', 'Lt', 'oo', 'xY']
       },
       {
         expression: 'oo, [Lt | oo | xY]',
         expected: 'optional',
-        terms: ['oo', 'Lt', 'oo', 'xY']
+        operands: ['oo', 'Lt', 'oo', 'xY']
       },
       {
         expression: 'oo, [xY | oo]',
         expected: 'notSupported',
-        terms: ['oo', 'xY', 'oo']
+        operands: ['oo', 'xY', 'oo']
       },
       {
         expression: 'HS & Lt, [oo]',
         expected: 'mandatory',
-        terms: ['HS', 'Lt', 'oo']
+        operands: ['HS', 'Lt', 'oo']
       },
       {
         expression: 'HS & oo, [Lt]',
         expected: 'optional',
-        terms: ['HS', 'oo', 'Lt']
+        operands: ['HS', 'oo', 'Lt']
       },
       {
         expression: 'HS & oo, [xY]',
         expected: 'notSupported',
-        terms: ['HS', 'oo', 'xY']
+        operands: ['HS', 'oo', 'xY']
       },
       {
         expression: 'HS | oo, [Lt & xY]',
         expected: 'mandatory',
-        terms: ['HS', 'oo', 'Lt', 'xY']
+        operands: ['HS', 'oo', 'Lt', 'xY']
       },
       {
         expression: 'oo | xY, [HS & Lt]',
         expected: 'optional',
-        terms: ['oo', 'xY', 'HS', 'Lt']
+        operands: ['oo', 'xY', 'HS', 'Lt']
       },
       {
         expression: 'xY | oo, [HS & xY]',
         expected: 'notSupported',
-        terms: ['xY', 'oo', 'HS', 'xY']
+        operands: ['xY', 'oo', 'HS', 'xY']
       },
 
-      // 6. test terms containing numbers
-      { expression: 'Primary1X', expected: 'mandatory', terms: ['Primary1X'] },
+      // 6. test operands containing numbers
+      {
+        expression: 'Primary1X',
+        expected: 'mandatory',
+        operands: ['Primary1X']
+      },
       {
         expression: 'Primary1X & HS',
         expected: 'mandatory',
-        terms: ['Primary1X', 'HS']
+        operands: ['Primary1X', 'HS']
       },
       {
         expression: 'Primary1X | oo',
         expected: 'mandatory',
-        terms: ['Primary1X', 'oo']
+        operands: ['Primary1X', 'oo']
       },
 
-      // 7. test conformance with desc terms
-      { expression: 'desc', expected: 'desc', terms: ['desc'] },
-      { expression: 'HS & desc', expected: 'desc', terms: ['HS', 'desc'] },
+      // 7. test conformance with desc operands
+      { expression: 'desc', expected: 'desc', operands: ['desc'] },
+      { expression: 'HS & desc', expected: 'desc', operands: ['HS', 'desc'] },
       {
         expression: 'HS | (!xY && desc)',
         expected: 'desc',
-        terms: ['HS', 'xY', 'desc']
+        operands: ['HS', 'xY', 'desc']
       },
-      { expression: 'P, desc', expected: 'desc', terms: ['P', 'desc'] }
+      { expression: 'P, desc', expected: 'desc', operands: ['P', 'desc'] }
     ]
 
     conformanceExpressions.forEach((expression) => {
@@ -346,15 +374,17 @@ test(
       )
       expect(result).toBe(expression.expected)
 
-      let terms = conformEvaluator.getTermsFromExpression(expression.expression)
-      expect(terms).toEqual(expression.terms)
+      let operands = conformEvaluator.getOperandsFromExpression(
+        expression.expression
+      )
+      expect(operands).toEqual(expression.operands)
     })
   },
   testUtil.timeout.short()
 )
 
 test(
-  'Check if an element has conformance with desc terms',
+  'Check if an element has conformance with desc operands',
   () => {
     const elements = [
       { name: 'Element1', conformance: 'desc' },
@@ -366,8 +396,11 @@ test(
       { name: 'Element7', conformance: 'description' }
     ]
 
-    let descTerms = conformEvaluator.filterRelatedDescElements(elements, 'desc')
-    expect(descTerms).toEqual([
+    let descOperands = conformEvaluator.filterRelatedDescElements(
+      elements,
+      'desc'
+    )
+    expect(descOperands).toEqual([
       { name: 'Element1', conformance: 'desc' },
       { name: 'Element2', conformance: 'P, desc' },
       { name: 'Element3', conformance: '[desc & XY]' },
@@ -376,11 +409,11 @@ test(
     ])
 
     const featureCode = 'HS'
-    let relatedDescTerms = conformEvaluator.filterRelatedDescElements(
+    let relatedDescOperands = conformEvaluator.filterRelatedDescElements(
       elements,
       featureCode
     )
-    expect(relatedDescTerms).toEqual([
+    expect(relatedDescOperands).toEqual([
       { name: 'Element4', conformance: 'desc, [HS]' }
     ])
   },
@@ -534,7 +567,7 @@ test(
     expectedWarning =
       warningPrefix +
       `feature: ${featureUnknown.name} (${featureUnknown.code}) ${featureBitMessage} cannot be enabled ` +
-      `as its conformance depends on the following terms with unknown values: Feature1, Feature2.`
+      `as its conformance depends on the following operands with unknown values: Feature1, Feature2.`
     // should display warning and disable the change
     // no attributes commands, or events should be updated
     expect(result.displayWarning).toBeTruthy()
@@ -565,7 +598,7 @@ test(
       warningPrefix +
       `feature: ${featureHS.name} (${featureHS.code}) ${featureBitMessage} ` +
       `cannot be enabled as attribute ${descElement.name} ` +
-      `depend on the feature and their conformance are too complex to be processed.`
+      `depend on the feature and their conformance are too complex for ZAP to process, or they include 'desc'.`
     expect(result.displayWarning).toBeTruthy()
     expect(result.disableChange).toBeTruthy()
     expect(result.warningMessage[0]).toBe(expectedWarning)
@@ -666,7 +699,7 @@ test(
 )
 
 test(
-  'Test function to get a text summary of enabled/disabled state for element terms in a conformance expression',
+  'Test function to get a text summary of enabled/disabled state for element operands in a conformance expression',
   () => {
     let featureMap = { feature1: true, feature2: false }
     let elementMap = {
@@ -679,7 +712,7 @@ test(
 
     let conformanceExpression = 'feature1 & !feature2, (attribute1 | !command2)'
 
-    let result = conformChecker.getConformanceTermStates(
+    let result = conformChecker.getStateOfOperands(
       conformanceExpression,
       elementMap,
       featureMap

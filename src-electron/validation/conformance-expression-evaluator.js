@@ -23,11 +23,11 @@
 
 const dbEnum = require('../../src-shared/db-enum')
 
-const TERM_REGEX = /[A-Za-z][A-Za-z0-9_]*/g
+const OPERAND_REGEX = /[A-Za-z][A-Za-z0-9_]*/g
 
 /**
- * Evaluate the value of a boolean conformance expression that includes terms and operators.
- * A term can be an attribute, command, event, feature, or conformance abbreviation.
+ * Evaluate the value of a boolean conformance expression that includes operands and operators.
+ * An operand can be an attribute, command, event, feature, or conformance abbreviation.
  * Operators include AND (&), OR (|), and NOT (!).
  * The '[]' indicates optional conformance if the expression inside true.
  * Expression containing comma means otherwise conformance. See spec for details.
@@ -44,9 +44,9 @@ function evaluateConformanceExpression(expression, elementMap) {
    * @param {*} expr
    */
   function evaluateBooleanExpression(expr) {
-    // Replace terms with their actual values from elementMap
-    expr = expr.replace(TERM_REGEX, (term) => {
-      return elementMap[term] ? 'true' : 'false'
+    // Replace operands with their actual values from elementMap
+    expr = expr.replace(OPERAND_REGEX, (operand) => {
+      return elementMap[operand] ? 'true' : 'false'
     })
 
     // Evaluate NOT (!) operators
@@ -62,8 +62,8 @@ function evaluateConformanceExpression(expression, elementMap) {
    */
   function evaluateWithParentheses(expr) {
     while (expr.includes('(')) {
-      expr = expr.replace(/\([^()]+\)/g, (terms) =>
-        evaluateBooleanExpression(terms.slice(1, -1))
+      expr = expr.replace(/\([^()]+\)/g, (operands) =>
+        evaluateBooleanExpression(operands.slice(1, -1))
       )
     }
     return evaluateBooleanExpression(expr)
@@ -72,10 +72,10 @@ function evaluateConformanceExpression(expression, elementMap) {
   // Check ',' for otherwise conformance first.
   // Split the expression by ',' and evaluate each part in sequence
   let parts = expression.split(',').map((part) => part.trim())
-  // if any term is desc, the conformance is too complex to parse
+  // if any operand is desc, the conformance is too complex to parse
   for (let part of parts) {
-    let terms = getTermsFromExpression(part)
-    if (terms && terms.includes(dbEnum.conformanceTag.desc)) {
+    let operands = getOperandsFromExpression(part)
+    if (operands && operands.includes(dbEnum.conformanceTag.desc)) {
       return dbEnum.conformanceTag.desc
     }
   }
@@ -113,47 +113,47 @@ function evaluateConformanceExpression(expression, elementMap) {
 }
 
 /**
- * Check if any terms in the expression are neither a key in the elementMap nor an abbreviation.
- * If so, it means the conformance depends on terms with unknown values and changes are not allowed.
+ * Check if any operands in the expression are neither a key in the elementMap nor an abbreviation.
+ * If so, it means the conformance depends on operands with unknown values and changes are not allowed.
  *
  * @param {*} expression
  * @param {*} elementMap
- * @returns all missing terms in an array
+ * @returns all missing operands in an array
  */
-function checkMissingTerms(expression, elementMap) {
-  let terms = getTermsFromExpression(expression)
-  let missingTerms = []
+function checkMissingOperands(expression, elementMap) {
+  let operands = getOperandsFromExpression(expression)
+  let missingOperands = []
   let abbreviations = Object.values(dbEnum.conformanceTag)
-  for (let term of terms) {
-    if (!(term in elementMap) && !abbreviations.includes(term)) {
-      missingTerms.push(term)
+  for (let operand of operands) {
+    if (!(operand in elementMap) && !abbreviations.includes(operand)) {
+      missingOperands.push(operand)
     }
   }
-  return missingTerms
+  return missingOperands
 }
 
 /**
- * Check if the expression contains a given term.
+ * Check if the expression contains a given operand.
  *
  * @param expression
- * @param term
- * @returns true if the expression contains the term, false otherwise
+ * @param operand
+ * @returns true if the expression contains the operand, false otherwise
  */
-function checkIfExpressionHasTerm(expression, term) {
-  let terms = getTermsFromExpression(expression)
-  return terms && terms.includes(term)
+function checkIfExpressionHasOperand(expression, operand) {
+  let operands = getOperandsFromExpression(expression)
+  return operands && operands.includes(operand)
 }
 
 /**
- * Extract terms from a conformance expression.
+ * Extract operands from a conformance expression.
  *
  * @param {*} expression
- * @returns {string[]} Array of terms extracted from the expression
+ * @returns {string[]} Array of operands extracted from the expression
  */
-function getTermsFromExpression(expression) {
+function getOperandsFromExpression(expression) {
   if (!expression) return []
-  let terms = expression.match(TERM_REGEX)
-  return terms ? terms : []
+  let operands = expression.match(OPERAND_REGEX)
+  return operands ? operands : []
 }
 
 /**
@@ -166,11 +166,11 @@ function getTermsFromExpression(expression) {
  */
 function filterRelatedDescElements(elements, featureCode) {
   return elements.filter((element) => {
-    let terms = getTermsFromExpression(element.conformance)
+    let operands = getOperandsFromExpression(element.conformance)
     return (
-      terms &&
-      terms.includes(dbEnum.conformanceTag.desc) &&
-      terms.includes(featureCode)
+      operands &&
+      operands.includes(dbEnum.conformanceTag.desc) &&
+      operands.includes(featureCode)
     )
   })
 }
@@ -204,8 +204,8 @@ function checkFeaturesToUpdate(
     }
 
     // skip if conformance is not related to the updated feature
-    let terms = getTermsFromExpression(expression)
-    if (!terms.includes(updatedFeatureCode)) {
+    let operands = getOperandsFromExpression(expression)
+    if (!operands.includes(updatedFeatureCode)) {
       continue
     }
 
@@ -239,8 +239,8 @@ function checkFeaturesToUpdate(
 }
 
 exports.evaluateConformanceExpression = evaluateConformanceExpression
-exports.checkMissingTerms = checkMissingTerms
-exports.checkIfExpressionHasTerm = checkIfExpressionHasTerm
+exports.checkMissingOperands = checkMissingOperands
+exports.checkIfExpressionHasOperand = checkIfExpressionHasOperand
 exports.checkFeaturesToUpdate = checkFeaturesToUpdate
 exports.filterRelatedDescElements = filterRelatedDescElements
-exports.getTermsFromExpression = getTermsFromExpression
+exports.getOperandsFromExpression = getOperandsFromExpression

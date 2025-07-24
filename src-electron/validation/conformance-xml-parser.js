@@ -184,7 +184,7 @@ function getOptionalAttributeFromXML(element, elementType) {
     return element.$.optional == 'true'
   } else {
     if (conformance) {
-      return !conformEvaluator.checkIfExpressionHasTerm(
+      return !conformEvaluator.checkIfExpressionHasOperand(
         conformance,
         dbEnum.conformanceTag.mandatory
       )

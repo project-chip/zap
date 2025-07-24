@@ -68,26 +68,26 @@ function generateWarningMessage(
 
   let updateDisabledString = `cannot be ${added ? 'enabled' : 'disabled'} as`
 
-  // Check 1: if any terms in the feature conformance are missing from elementMap
-  let missingTerms = []
+  // Check 1: if any operands in the feature conformance are missing from elementMap
+  let missingOperands = []
   if (Object.keys(elementMap).length > 0 && featureData.conformance) {
-    missingTerms = conformEvaluator.checkMissingTerms(
+    missingOperands = conformEvaluator.checkMissingOperands(
       featureData.conformance,
       elementMap
     )
-    if (missingTerms.length > 0) {
-      let missingTermsString = missingTerms.join(', ')
+    if (missingOperands.length > 0) {
+      let missingOperandsString = missingOperands.join(', ')
       result.warningMessage.push(
         warningPrefix +
           ` ${updateDisabledString} its conformance depends on the following operands with unknown values: ` +
-          missingTermsString +
+          missingOperandsString +
           '.'
       )
     }
   }
 
-  // Check 2: if the feature conformance contains the term 'desc'
-  let featureContainsDesc = conformEvaluator.checkIfExpressionHasTerm(
+  // Check 2: if the feature conformance contains the operand 'desc'
+  let featureContainsDesc = conformEvaluator.checkIfExpressionHasOperand(
     featureData.conformance,
     dbEnum.conformanceTag.desc
   )
@@ -132,12 +132,12 @@ function generateWarningMessage(
         (commandNames ? 'command ' + commandNames : '') +
         ((attributeNames || commandNames) && eventNames ? ', ' : '') +
         (eventNames ? 'event ' + eventNames : '') +
-        ' depend on the feature and their conformance are too complex for ZAP to process, or they include "desc".'
+        ` depend on the feature and their conformance are too complex for ZAP to process, or they include 'desc'.`
     )
   }
 
   if (
-    missingTerms.length == 0 &&
+    missingOperands.length == 0 &&
     !featureContainsDesc &&
     (Object.keys(descElements).length == 0 ||
       (descElements.attributes.length == 0 &&
@@ -157,7 +157,7 @@ function generateWarningMessage(
       elementMap
     )
 
-    let combinedTerms = getConformanceTermStates(
+    let combinedOperands = getStateOfOperands(
       featureData.conformance,
       elementMap,
       featureMap
@@ -170,7 +170,7 @@ function generateWarningMessage(
     // generate warning message for features that conform to elements
     let buildElementConformMessage = (state) =>
       ` has mandatory conformance to ${featureData.conformance} 
-        and should be ${state} ${deviceTypeString}, when ${combinedTerms}.`
+        and should be ${state} ${deviceTypeString}, when ${combinedOperands}.`
     // generate warning message for features with non-element conformance,
     // like 'M' for 'mandatory', 'P' for 'provisional', .etc.
     let buildNonElementConformMessage = (state, conformance) =>
@@ -181,7 +181,7 @@ function generateWarningMessage(
     if (conformance == 'notSupported') {
       result.warningMessage =
         warningPrefix +
-        (combinedTerms
+        (combinedOperands
           ? buildElementConformMessage('disabled')
           : buildNonElementConformMessage('disabled', 'not supported'))
       result.displayWarning = added
@@ -194,7 +194,7 @@ function generateWarningMessage(
     if (conformance == 'mandatory') {
       result.warningMessage =
         warningPrefix +
-        (combinedTerms
+        (combinedOperands
           ? buildElementConformMessage('enabled')
           : buildNonElementConformMessage('enabled', 'mandatory'))
       result.displayWarning = !added
@@ -431,13 +431,13 @@ function filterRequiredElements(elements, elementMap, featureMap) {
       element.conformance,
       elementMap
     )
-    let combinedTerms = getConformanceTermStates(
+    let combinedOperands = getStateOfOperands(
       element.conformance,
       elementMap,
       featureMap
     )
 
-    if (combinedTerms) {
+    if (combinedOperands) {
       let suggestedState = ''
       if (conformance == 'mandatory') {
         suggestedState = 'enabled'
@@ -450,7 +450,7 @@ function filterRequiredElements(elements, elementMap, featureMap) {
       element.warningMessage =
         `${element.name} has mandatory conformance to ${element.conformance} ` +
         `and should be ${suggestedState}, when ` +
-        combinedTerms +
+        combinedOperands +
         '.'
       if (conformance == 'mandatory') {
         requiredElements.required[element.id] = element.warningMessage
@@ -464,40 +464,45 @@ function filterRequiredElements(elements, elementMap, featureMap) {
 }
 
 /**
- * Generates a summary of enabled/disabled state for element terms in a conformance expression.
+ * Generates a summary of enabled/disabled state for element operands in a conformance expression.
  *
  * @param {*} expression
  * @param {*} elementMap
  * @param {*} featureMap
- * @returns a string describing the state of conformance terms,
- * empty string if no terms conform to any element
+ * @returns a string describing the state of conformance operands,
+ * empty string if no operands conform to any element
  */
-function getConformanceTermStates(expression, elementMap, featureMap) {
-  let terms = conformEvaluator.getTermsFromExpression(expression)
-  let nonElementTerms = Object.values(dbEnum.conformanceTag)
+function getStateOfOperands(expression, elementMap, featureMap) {
+  let operands = conformEvaluator.getOperandsFromExpression(expression)
+  let nonElementOperands = Object.values(dbEnum.conformanceTag)
 
-  let featureTerms = terms
-    .filter((term) => term in featureMap)
+  let featureOperands = operands
+    .filter((operand) => operand in featureMap)
     .map(
-      (term) =>
-        `feature: ${term} is ${featureMap[term] ? 'enabled' : 'disabled'}`
+      (operand) =>
+        `feature: ${operand} is ${featureMap[operand] ? 'enabled' : 'disabled'}`
     )
     .join(', ')
-  let elementTerms = terms
-    .filter((term) => !(term in featureMap) && !nonElementTerms.includes(term))
+  let elementOperands = operands
+    .filter(
+      (operand) =>
+        !(operand in featureMap) && !nonElementOperands.includes(operand)
+    )
     .map(
-      (term) =>
-        `element: ${term} is ${elementMap[term] ? 'enabled' : 'disabled'}`
+      (operand) =>
+        `element: ${operand} is ${elementMap[operand] ? 'enabled' : 'disabled'}`
     )
     .join(', ')
-  let combinedTerms = [featureTerms, elementTerms].filter(Boolean).join(', ')
+  let combinedOperands = [featureOperands, elementOperands]
+    .filter(Boolean)
+    .join(', ')
 
-  let conformToElement = terms.some((term) =>
-    Object.keys(elementMap).includes(term)
+  let conformToElement = operands.some((operand) =>
+    Object.keys(elementMap).includes(operand)
   )
 
-  // if no terms conform to any element, return empty string
-  return conformToElement ? combinedTerms : ''
+  // if no operands conform to any element, return empty string
+  return conformToElement ? combinedOperands : ''
 }
 
 /**
@@ -663,5 +668,5 @@ exports.getOutdatedElementWarning = getOutdatedElementWarning
 exports.setConformanceWarnings = setConformanceWarnings
 exports.getEndpointTypeClusterIdFromFeatureData =
   getEndpointTypeClusterIdFromFeatureData
-exports.getConformanceTermStates = getConformanceTermStates
+exports.getStateOfOperands = getStateOfOperands
 exports.getOutdatedWarningPatterns = getOutdatedWarningPatterns

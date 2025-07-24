@@ -20203,7 +20203,7 @@ and generate warnings for non-conformance.
     * [~getOutdatedElementWarning(featureCode, elements, elementMap)](#module_Validation API_ check element conformance..getOutdatedElementWarning) ⇒
         * [~processElements(elementType)](#module_Validation API_ check element conformance..getOutdatedElementWarning..processElements)
     * [~filterRequiredElements(elements, elementMap, featureMap)](#module_Validation API_ check element conformance..filterRequiredElements) ⇒
-    * [~getConformanceTermStates(expression, elementMap, featureMap)](#module_Validation API_ check element conformance..getConformanceTermStates) ⇒
+    * [~getStateOfOperands(expression, elementMap, featureMap)](#module_Validation API_ check element conformance..getStateOfOperands) ⇒
     * [~setConformanceWarnings(db, endpointId, endpointTypeId, endpointClusterId, deviceTypeRefs, cluster, sessionId)](#module_Validation API_ check element conformance..setConformanceWarnings) ⇒
     * [~getEndpointTypeClusterIdFromFeatureData(db, featureData, endpointTypeId, clusterRef)](#module_Validation API_ check element conformance..getEndpointTypeClusterIdFromFeatureData) ⇒
 
@@ -20316,14 +20316,14 @@ An element is unsupported if it conforms to element(s) in elementMap and has 'no
 | elementMap | <code>\*</code> | 
 | featureMap | <code>\*</code> | 
 
-<a name="module_Validation API_ check element conformance..getConformanceTermStates"></a>
+<a name="module_Validation API_ check element conformance..getStateOfOperands"></a>
 
-### Validation API: check element conformance~getConformanceTermStates(expression, elementMap, featureMap) ⇒
-Generates a summary of enabled/disabled state for element terms in a conformance expression.
+### Validation API: check element conformance~getStateOfOperands(expression, elementMap, featureMap) ⇒
+Generates a summary of enabled/disabled state for element operands in a conformance expression.
 
 **Kind**: inner method of [<code>Validation API: check element conformance</code>](#module_Validation API_ check element conformance)  
-**Returns**: a string describing the state of conformance terms,
-empty string if no terms conform to any element  
+**Returns**: a string describing the state of conformance operands,
+empty string if no operands conform to any element  
 
 | Param | Type |
 | --- | --- |
@@ -20376,17 +20376,17 @@ This module provides utilities for evaluating conformance expressions.
     * [~evaluateConformanceExpression(expression, elementMap)](#module_Validation API_ Evaluate conformance expressions..evaluateConformanceExpression) ⇒
         * [~evaluateBooleanExpression(expr)](#module_Validation API_ Evaluate conformance expressions..evaluateConformanceExpression..evaluateBooleanExpression)
         * [~evaluateWithParentheses(expr)](#module_Validation API_ Evaluate conformance expressions..evaluateConformanceExpression..evaluateWithParentheses)
-    * [~checkMissingTerms(expression, elementMap)](#module_Validation API_ Evaluate conformance expressions..checkMissingTerms) ⇒
-    * [~checkIfExpressionHasTerm(expression, term)](#module_Validation API_ Evaluate conformance expressions..checkIfExpressionHasTerm) ⇒
-    * [~getTermsFromExpression(expression)](#module_Validation API_ Evaluate conformance expressions..getTermsFromExpression) ⇒ <code>Array.&lt;string&gt;</code>
+    * [~checkMissingOperands(expression, elementMap)](#module_Validation API_ Evaluate conformance expressions..checkMissingOperands) ⇒
+    * [~checkIfExpressionHasOperand(expression, operand)](#module_Validation API_ Evaluate conformance expressions..checkIfExpressionHasOperand) ⇒
+    * [~getOperandsFromExpression(expression)](#module_Validation API_ Evaluate conformance expressions..getOperandsFromExpression) ⇒ <code>Array.&lt;string&gt;</code>
     * [~filterRelatedDescElements(elements, featureCode)](#module_Validation API_ Evaluate conformance expressions..filterRelatedDescElements) ⇒
     * [~checkFeaturesToUpdate(updatedFeatureCode, clusterFeatures, elementMap)](#module_Validation API_ Evaluate conformance expressions..checkFeaturesToUpdate) ⇒ <code>Object</code>
 
 <a name="module_Validation API_ Evaluate conformance expressions..evaluateConformanceExpression"></a>
 
 ### Validation API: Evaluate conformance expressions~evaluateConformanceExpression(expression, elementMap) ⇒
-Evaluate the value of a boolean conformance expression that includes terms and operators.
-A term can be an attribute, command, event, feature, or conformance abbreviation.
+Evaluate the value of a boolean conformance expression that includes operands and operators.
+An operand can be an attribute, command, event, feature, or conformance abbreviation.
 Operators include AND (&), OR (|), and NOT (!).
 The '[]' indicates optional conformance if the expression inside true.
 Expression containing comma means otherwise conformance. See spec for details.
@@ -20427,40 +20427,40 @@ helper function to process parentheses and evaluate inner expressions first
 | --- | --- |
 | expr | <code>\*</code> | 
 
-<a name="module_Validation API_ Evaluate conformance expressions..checkMissingTerms"></a>
+<a name="module_Validation API_ Evaluate conformance expressions..checkMissingOperands"></a>
 
-### Validation API: Evaluate conformance expressions~checkMissingTerms(expression, elementMap) ⇒
-Check if any terms in the expression are neither a key in the elementMap nor an abbreviation.
-If so, it means the conformance depends on terms with unknown values and changes are not allowed.
+### Validation API: Evaluate conformance expressions~checkMissingOperands(expression, elementMap) ⇒
+Check if any operands in the expression are neither a key in the elementMap nor an abbreviation.
+If so, it means the conformance depends on operands with unknown values and changes are not allowed.
 
 **Kind**: inner method of [<code>Validation API: Evaluate conformance expressions</code>](#module_Validation API_ Evaluate conformance expressions)  
-**Returns**: all missing terms in an array  
+**Returns**: all missing operands in an array  
 
 | Param | Type |
 | --- | --- |
 | expression | <code>\*</code> | 
 | elementMap | <code>\*</code> | 
 
-<a name="module_Validation API_ Evaluate conformance expressions..checkIfExpressionHasTerm"></a>
+<a name="module_Validation API_ Evaluate conformance expressions..checkIfExpressionHasOperand"></a>
 
-### Validation API: Evaluate conformance expressions~checkIfExpressionHasTerm(expression, term) ⇒
-Check if the expression contains a given term.
+### Validation API: Evaluate conformance expressions~checkIfExpressionHasOperand(expression, operand) ⇒
+Check if the expression contains a given operand.
 
 **Kind**: inner method of [<code>Validation API: Evaluate conformance expressions</code>](#module_Validation API_ Evaluate conformance expressions)  
-**Returns**: true if the expression contains the term, false otherwise  
+**Returns**: true if the expression contains the operand, false otherwise  
 
 | Param |
 | --- |
 | expression | 
-| term | 
+| operand | 
 
-<a name="module_Validation API_ Evaluate conformance expressions..getTermsFromExpression"></a>
+<a name="module_Validation API_ Evaluate conformance expressions..getOperandsFromExpression"></a>
 
-### Validation API: Evaluate conformance expressions~getTermsFromExpression(expression) ⇒ <code>Array.&lt;string&gt;</code>
-Extract terms from a conformance expression.
+### Validation API: Evaluate conformance expressions~getOperandsFromExpression(expression) ⇒ <code>Array.&lt;string&gt;</code>
+Extract operands from a conformance expression.
 
 **Kind**: inner method of [<code>Validation API: Evaluate conformance expressions</code>](#module_Validation API_ Evaluate conformance expressions)  
-**Returns**: <code>Array.&lt;string&gt;</code> - Array of terms extracted from the expression  
+**Returns**: <code>Array.&lt;string&gt;</code> - Array of operands extracted from the expression  
 
 | Param | Type |
 | --- | --- |
