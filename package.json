@@ -113,7 +113,7 @@
     "pkg:linux": "npx pkg -t node18-linux-x64,node18-linux-arm64 --public --no-bytecode --output dist/zap-linux --compress GZip --options max-old-space-size=4096 .",
     "pkg-use-local-fork": "node ../pkg/lib-es5/bin.js -t node18-linux-x64 --output dist/zap-linux --compress GZip --options max-old-space-size=4096 .",
     "pkg:win": "npx pkg -t node18-win-x64,node18-win-arm64 --public --no-bytecode --output dist/zap-win --compress GZip --options max-old-space-size=4096 .",
-    "pkg:mac": "npx pkg -t node18-macos-x64 --output dist/zap-macos --compress GZip --options max-old-space-size=4096 .",
+    "pkg:mac": "npx pkg -t node18-macos-x64,node18-macos-arm64 --output dist/zap-macos --compress GZip --options max-old-space-size=4096 .",
     "dist": "node src-script/build-release-package.js --output dist/release",
     "dist:mac": "node src-script/build-release-package.js --platform m --output dist/release",
     "dist:win": "node src-script/build-release-package.js --platform w --output dist/release",
@@ -342,6 +342,7 @@
     "targets": [
       "node18-linux-x64",
       "node18-macos-x64",
+      "node18-macos-arm64",
       "node18-win-x64"
     ],
     "assets": [
