@@ -79,7 +79,7 @@ function generateWarningMessage(
       let missingTermsString = missingTerms.join(', ')
       result.warningMessage.push(
         warningPrefix +
-          ` ${updateDisabledString} its conformance depends on the following terms with unknown values: ` +
+          ` ${updateDisabledString} its conformance depends on the following operands with unknown values: ` +
           missingTermsString +
           '.'
       )
@@ -94,8 +94,7 @@ function generateWarningMessage(
   if (featureContainsDesc) {
     result.warningMessage.push(
       warningPrefix +
-        ` ${updateDisabledString} conformance containing the term "desc" 
-        is too complex to be processed.`
+        ` ${updateDisabledString} its conformance is too complex for ZAP to process, or it includes 'desc'.`
     )
   }
 
@@ -133,7 +132,7 @@ function generateWarningMessage(
         (commandNames ? 'command ' + commandNames : '') +
         ((attributeNames || commandNames) && eventNames ? ', ' : '') +
         (eventNames ? 'event ' + eventNames : '') +
-        ' depend on the feature and their conformance are too complex to be processed.'
+        ' depend on the feature and their conformance are too complex for ZAP to process, or they include "desc".'
     )
   }
 
@@ -205,15 +204,24 @@ function generateWarningMessage(
     let updatedFeatures = [featureData, ...(changedConformFeatures || [])]
     result.outdatedWarningPatterns = updatedFeatures.flatMap((feature) => {
       let prefix = buildWarningPrefix(feature)
-      return [
-        `${prefix} cannot be enabled`,
-        `${prefix} cannot be disabled`,
-        `${prefix} has mandatory conformance to`
-      ]
+      return getOutdatedWarningPatterns(prefix)
     })
   }
 
   return result
+}
+
+/**
+ * Get outdated warning patterns from a prefix
+ * @param {*} prefix
+ * @returns array of outdated warning patterns
+ */
+function getOutdatedWarningPatterns(prefix) {
+  return [
+    `${prefix} cannot be enabled`,
+    `${prefix} cannot be disabled`,
+    `${prefix} has mandatory conformance to`
+  ]
 }
 
 /**
@@ -641,10 +649,11 @@ async function getEndpointTypeClusterIdFromFeatureData(
     clusterRef = featureData.clusterRef
   }
   let endpointTypeClusterId =
-    await queryZcl.selectServerEndpointTypeClusterIdByEndpointTypeIdAndClusterRef(
+    await queryZcl.selectEndpointTypeClusterIdByEndpointTypeIdAndClusterRefAndSide(
       db,
       endpointTypeId,
-      clusterRef
+      clusterRef,
+      dbEnum.clusterSide.server
     )
   return endpointTypeClusterId
 }
@@ -655,3 +664,4 @@ exports.setConformanceWarnings = setConformanceWarnings
 exports.getEndpointTypeClusterIdFromFeatureData =
   getEndpointTypeClusterIdFromFeatureData
 exports.getConformanceTermStates = getConformanceTermStates
+exports.getOutdatedWarningPatterns = getOutdatedWarningPatterns

@@ -40,7 +40,7 @@ export default {
     featureMapValue() {
       return this.featureMapAttribute
         ? parseInt(this.featureMapAttribute.value)
-        : 0
+        : null
     },
     enabledDeviceTypeFeatures() {
       return this.$store.state.zap.featureView.enabledDeviceTypeFeatures
@@ -75,7 +75,7 @@ export default {
           feature.cluster = this.selectedCluster
             ? this.selectedCluster.name
             : ''
-          if (this.featureMapValue) {
+          if (this.featureMapValue != null) {
             feature.featureMapValue = this.featureMapValue
             feature.featureMapAttributeId = this.featureMapAttribute.id
           }

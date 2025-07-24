@@ -1130,12 +1130,14 @@ ORDER BY
  * @param {*} db
  * @param {*} endpointTypeId
  * @param {*} clusterRef
+ * @param {*} clusterSide
  * @returns Promise of endpoint type cluster ID, or null if not found.
  */
-async function selectServerEndpointTypeClusterIdByEndpointTypeIdAndClusterRef(
+async function selectEndpointTypeClusterIdByEndpointTypeIdAndClusterRefAndSide(
   db,
   endpointTypeId,
-  clusterRef
+  clusterRef,
+  clusterSide
 ) {
   let rows = await dbApi.dbAll(
     db,
@@ -1151,9 +1153,9 @@ FROM
 WHERE
   ENDPOINT_TYPE_REF = ?
   AND CLUSTER_REF = ?
-  AND SIDE = 'server'
+  AND SIDE = ?
   `,
-    [endpointTypeId, clusterRef]
+    [endpointTypeId, clusterRef, clusterSide]
   )
   let mapped = rows.map(dbMapping.map.endpointTypeCluster)
   return mapped.length > 0 ? mapped[0].endpointTypeClusterId : null
@@ -1349,8 +1351,8 @@ exports.selectAllAttributesBySide = selectAllAttributesBySide
 
 exports.selectEndpointTypeClustersByEndpointTypeId =
   selectEndpointTypeClustersByEndpointTypeId
-exports.selectServerEndpointTypeClusterIdByEndpointTypeIdAndClusterRef =
-  selectServerEndpointTypeClusterIdByEndpointTypeIdAndClusterRef
+exports.selectEndpointTypeClusterIdByEndpointTypeIdAndClusterRefAndSide =
+  selectEndpointTypeClusterIdByEndpointTypeIdAndClusterRefAndSide
 exports.selectEndpointTypeAttributesByEndpointId =
   selectEndpointTypeAttributesByEndpointId
 exports.selectEndpointTypeAttribute = selectEndpointTypeAttribute

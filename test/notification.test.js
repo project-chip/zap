@@ -18,8 +18,6 @@
  * @jest-environment node
  */
 
-const fs = require('fs')
-const path = require('path')
 const testUtil = require('./test-util')
 const env = require('../src-electron/util/env')
 const util = require('../src-electron/util/util')
@@ -29,6 +27,8 @@ const packageNotification = require('../src-electron/db/query-package-notificati
 const querySession = require('../src-electron/db/query-session')
 const queryPackage = require('../src-electron/db/query-package')
 const zclLoader = require('../src-electron/zcl/zcl-loader')
+const testQuery = require('./test-query')
+const conformChecker = require('../src-electron/validation/conformance-checker')
 
 let db = null
 
@@ -320,12 +320,17 @@ test(
   'Notification: set notification on feature change result',
   async () => {
     let sessionId = await querySession.createBlankSession(db)
-    let warningMessage = `This is a message to display front end warnings
-                          after a feature change`
-    let disableMessage = `This is a message to disable front end changes
-                          after a feature change`
-    let descMessage = `This is a message to show some depending elements 
-                          have conformance too complex to parse`
+    let warningPrefix = `⚠ Check Feature Compliance on endpoint: 1, cluster: Color Control, 
+      feature: Hue And Saturation (HS) (bit 0 in featureMap attribute)`
+    let warningMessage = `${warningPrefix} has mandatory conformance to OO and needs to be enabled.`
+    let disableMessage1 = `${warningPrefix} cannot be enabled because of reason 1.`
+    let disableMessage2 = `${warningPrefix} cannot be disabled because of reason 2.`
+    let descMessage = `${warningPrefix} cannot be enabled as its conformance is too complex for ZAP to parse, or it includes 'desc'.`
+    let messageOfOtherPattern = `${warningPrefix} is still provisional.`
+    let messageOfOtherFeature = `⚠ Check Feature Compliance on endpoint: 1, cluster: Color Control, 
+      feature: Color Loop (CL) (bit 2 in featureMap attribute) cannot be enabled because of reason 1`
+    let messageOfOtherType = `On endpoint 1, support for cluster: Scenes Management server is provisional.`
+
     let notisWithWarningMessage
     let notisWithDisableMessage
     let notisWithMultipleMessages
@@ -341,8 +346,13 @@ test(
       displayWarning: false
     }
     // in case of disableChange, warningMessage is an array
-    let disableResult = {
-      warningMessage: [disableMessage],
+    let disableResult1 = {
+      warningMessage: [disableMessage1],
+      disableChange: true,
+      displayWarning: false
+    }
+    let disableResult2 = {
+      warningMessage: [disableMessage2],
       disableChange: true,
       displayWarning: false
     }
@@ -377,12 +387,12 @@ test(
     await sessionNotification.setNotificationOnFeatureChange(
       db,
       sessionId,
-      disableResult
+      disableResult1
     )
     notisWithDisableMessage = await getNotificationByMessage(
       db,
       sessionId,
-      disableMessage
+      disableMessage1
     )
     expect(notisWithDisableMessage.length).toBe(1)
 
@@ -390,22 +400,22 @@ test(
     await sessionNotification.setNotificationOnFeatureChange(
       db,
       sessionId,
-      disableResult
+      disableResult1
     )
     notisWithDisableMessage = await getNotificationByMessage(
       db,
       sessionId,
-      disableMessage
+      disableMessage1
     )
     expect(notisWithDisableMessage.length).toBe(1)
 
     // should insert multiple notifications when warningMessage is an array
-    let multipleWarnings = [disableMessage, descMessage]
-    disableResult.warningMessage = multipleWarnings
+    let multipleWarnings = [disableMessage1, descMessage]
+    disableResult1.warningMessage = multipleWarnings
     await sessionNotification.setNotificationOnFeatureChange(
       db,
       sessionId,
-      disableResult
+      disableResult1
     )
     notisWithMultipleMessages = await getNotificationByMessage(
       db,
@@ -414,25 +424,69 @@ test(
     )
     expect(notisWithMultipleMessages.length).toBe(2)
 
+    // set other feature warnings
+    let otherResult = {
+      warningMessage: disableMessage2,
+      disableChange: false,
+      displayWarning: true
+    }
+    await sessionNotification.setNotificationOnFeatureChange(
+      db,
+      sessionId,
+      otherResult
+    )
+
+    otherResult.warningMessage = messageOfOtherPattern
+    await sessionNotification.setNotificationOnFeatureChange(
+      db,
+      sessionId,
+      otherResult
+    )
+
+    otherResult.warningMessage = messageOfOtherFeature
+    await sessionNotification.setNotificationOnFeatureChange(
+      db,
+      sessionId,
+      otherResult
+    )
+
+    otherResult.warningMessage = messageOfOtherType
+    await sessionNotification.setNotificationOnFeatureChange(
+      db,
+      sessionId,
+      otherResult
+    )
+
+    let notifications = await sessionNotification.getNotification(db, sessionId)
+
+    // all the 4 warnings should be present in the notification table
+    expect(notifications.length).toBe(6)
+
     // all outdated notifications matching the patterns should be deleted
-    // all warnings in this test start with "This is a message to", so there should be no warnings left
+    let outdatedWarningPatterns =
+      conformChecker.getOutdatedWarningPatterns(warningPrefix)
     let deleteOutdatedResult = {
       warningMessage: [],
       disableChange: false,
       displayWarning: false,
-      outdatedWarningPatterns: ['This is a message to']
+      outdatedWarningPatterns: outdatedWarningPatterns
     }
     await sessionNotification.setNotificationOnFeatureChange(
       db,
       sessionId,
       deleteOutdatedResult
     )
-    notisWithOutdatedDeleted = await getNotificationByMessage(
+    let notificationMessages = await testQuery.getAllNotificationMessages(
       db,
-      sessionId,
-      multipleWarnings
+      sessionId
     )
-    expect(notisWithOutdatedDeleted.length).toBe(0)
+
+    // warningMessage, disableMessage1, disableMessage2 satisfy the patterns and should be deleted
+    // the other 3 messages in other patterns should still be present
+    expect(notificationMessages.length).toBe(3)
+    expect(notificationMessages).toContain(messageOfOtherPattern)
+    expect(notificationMessages).toContain(messageOfOtherFeature)
+    expect(notificationMessages).toContain(messageOfOtherType)
   },
   testUtil.timeout.long()
 )

@@ -682,10 +682,11 @@ describe('Endpoint Type Config Queries', () => {
     )
     expect(levelControlCluster).toBeDefined()
     let endpointTypeClusterId =
-      await queryZcl.selectServerEndpointTypeClusterIdByEndpointTypeIdAndClusterRef(
+      await queryZcl.selectEndpointTypeClusterIdByEndpointTypeIdAndClusterRefAndSide(
         db,
         endpointTypeIdOnOff,
-        levelControlCluster.clusterId
+        levelControlCluster.clusterId,
+        dbEnum.clusterSide.server
       )
     // The endpointTypeClusterId queried by the function should match the cluster's endpointTypeClusterId
     expect(endpointTypeClusterId).toBe(

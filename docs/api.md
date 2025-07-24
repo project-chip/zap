@@ -916,7 +916,7 @@ This module provides cache for commonly used static database queries.
     * [~selectAllAttributes(db, packageIds)](#module_DB API_ zcl database access..selectAllAttributes) ⇒
     * [~selectAllAttributesBySide(db, side, packageId)](#module_DB API_ zcl database access..selectAllAttributesBySide) ⇒
     * [~selectEndpointTypeClustersByEndpointTypeId(db, endpointTypeId)](#module_DB API_ zcl database access..selectEndpointTypeClustersByEndpointTypeId) ⇒
-    * [~selectServerEndpointTypeClusterIdByEndpointTypeIdAndClusterRef(db, endpointTypeId, clusterRef)](#module_DB API_ zcl database access..selectServerEndpointTypeClusterIdByEndpointTypeIdAndClusterRef) ⇒
+    * [~selectEndpointTypeClusterIdByEndpointTypeIdAndClusterRefAndSide(db, endpointTypeId, clusterRef, clusterSide)](#module_DB API_ zcl database access..selectEndpointTypeClusterIdByEndpointTypeIdAndClusterRefAndSide) ⇒
     * [~selectEndpointTypeAttributesByEndpointId(db, endpointTypeId)](#module_DB API_ zcl database access..selectEndpointTypeAttributesByEndpointId) ⇒
     * [~selectEndpointTypeAttribute(db, endpointTypeId, attributeRef, clusterRef)](#module_DB API_ zcl database access..selectEndpointTypeAttribute) ⇒
     * [~selectEndpointTypeCommandsByEndpointId(db, endpointTypeId)](#module_DB API_ zcl database access..selectEndpointTypeCommandsByEndpointId) ⇒
@@ -1647,9 +1647,9 @@ Get the endpoint type cluster details from the given endpoint type ID.
 | db | <code>\*</code> | 
 | endpointTypeId | <code>\*</code> | 
 
-<a name="module_DB API_ zcl database access..selectServerEndpointTypeClusterIdByEndpointTypeIdAndClusterRef"></a>
+<a name="module_DB API_ zcl database access..selectEndpointTypeClusterIdByEndpointTypeIdAndClusterRefAndSide"></a>
 
-### DB API: zcl database access~selectServerEndpointTypeClusterIdByEndpointTypeIdAndClusterRef(db, endpointTypeId, clusterRef) ⇒
+### DB API: zcl database access~selectEndpointTypeClusterIdByEndpointTypeIdAndClusterRefAndSide(db, endpointTypeId, clusterRef, clusterSide) ⇒
 Get the server-side endpoint type cluster ID from the given endpoint type ID and cluster reference.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
@@ -1660,6 +1660,7 @@ Get the server-side endpoint type cluster ID from the given endpoint type ID and
 | db | <code>\*</code> | 
 | endpointTypeId | <code>\*</code> | 
 | clusterRef | <code>\*</code> | 
+| clusterSide | <code>\*</code> | 
 
 <a name="module_DB API_ zcl database access..selectEndpointTypeAttributesByEndpointId"></a>
 
@@ -1786,7 +1787,7 @@ This module provides queries for atomic type queries.
     * [~selectAllAttributes(db, packageIds)](#module_DB API_ zcl database access..selectAllAttributes) ⇒
     * [~selectAllAttributesBySide(db, side, packageId)](#module_DB API_ zcl database access..selectAllAttributesBySide) ⇒
     * [~selectEndpointTypeClustersByEndpointTypeId(db, endpointTypeId)](#module_DB API_ zcl database access..selectEndpointTypeClustersByEndpointTypeId) ⇒
-    * [~selectServerEndpointTypeClusterIdByEndpointTypeIdAndClusterRef(db, endpointTypeId, clusterRef)](#module_DB API_ zcl database access..selectServerEndpointTypeClusterIdByEndpointTypeIdAndClusterRef) ⇒
+    * [~selectEndpointTypeClusterIdByEndpointTypeIdAndClusterRefAndSide(db, endpointTypeId, clusterRef, clusterSide)](#module_DB API_ zcl database access..selectEndpointTypeClusterIdByEndpointTypeIdAndClusterRefAndSide) ⇒
     * [~selectEndpointTypeAttributesByEndpointId(db, endpointTypeId)](#module_DB API_ zcl database access..selectEndpointTypeAttributesByEndpointId) ⇒
     * [~selectEndpointTypeAttribute(db, endpointTypeId, attributeRef, clusterRef)](#module_DB API_ zcl database access..selectEndpointTypeAttribute) ⇒
     * [~selectEndpointTypeCommandsByEndpointId(db, endpointTypeId)](#module_DB API_ zcl database access..selectEndpointTypeCommandsByEndpointId) ⇒
@@ -2517,9 +2518,9 @@ Get the endpoint type cluster details from the given endpoint type ID.
 | db | <code>\*</code> | 
 | endpointTypeId | <code>\*</code> | 
 
-<a name="module_DB API_ zcl database access..selectServerEndpointTypeClusterIdByEndpointTypeIdAndClusterRef"></a>
+<a name="module_DB API_ zcl database access..selectEndpointTypeClusterIdByEndpointTypeIdAndClusterRefAndSide"></a>
 
-### DB API: zcl database access~selectServerEndpointTypeClusterIdByEndpointTypeIdAndClusterRef(db, endpointTypeId, clusterRef) ⇒
+### DB API: zcl database access~selectEndpointTypeClusterIdByEndpointTypeIdAndClusterRefAndSide(db, endpointTypeId, clusterRef, clusterSide) ⇒
 Get the server-side endpoint type cluster ID from the given endpoint type ID and cluster reference.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
@@ -2530,6 +2531,7 @@ Get the server-side endpoint type cluster ID from the given endpoint type ID and
 | db | <code>\*</code> | 
 | endpointTypeId | <code>\*</code> | 
 | clusterRef | <code>\*</code> | 
+| clusterSide | <code>\*</code> | 
 
 <a name="module_DB API_ zcl database access..selectEndpointTypeAttributesByEndpointId"></a>
 
@@ -2651,7 +2653,7 @@ This module provides queries for bitmaps.
     * [~selectAllAttributes(db, packageIds)](#module_DB API_ zcl database access..selectAllAttributes) ⇒
     * [~selectAllAttributesBySide(db, side, packageId)](#module_DB API_ zcl database access..selectAllAttributesBySide) ⇒
     * [~selectEndpointTypeClustersByEndpointTypeId(db, endpointTypeId)](#module_DB API_ zcl database access..selectEndpointTypeClustersByEndpointTypeId) ⇒
-    * [~selectServerEndpointTypeClusterIdByEndpointTypeIdAndClusterRef(db, endpointTypeId, clusterRef)](#module_DB API_ zcl database access..selectServerEndpointTypeClusterIdByEndpointTypeIdAndClusterRef) ⇒
+    * [~selectEndpointTypeClusterIdByEndpointTypeIdAndClusterRefAndSide(db, endpointTypeId, clusterRef, clusterSide)](#module_DB API_ zcl database access..selectEndpointTypeClusterIdByEndpointTypeIdAndClusterRefAndSide) ⇒
     * [~selectEndpointTypeAttributesByEndpointId(db, endpointTypeId)](#module_DB API_ zcl database access..selectEndpointTypeAttributesByEndpointId) ⇒
     * [~selectEndpointTypeAttribute(db, endpointTypeId, attributeRef, clusterRef)](#module_DB API_ zcl database access..selectEndpointTypeAttribute) ⇒
     * [~selectEndpointTypeCommandsByEndpointId(db, endpointTypeId)](#module_DB API_ zcl database access..selectEndpointTypeCommandsByEndpointId) ⇒
@@ -3382,9 +3384,9 @@ Get the endpoint type cluster details from the given endpoint type ID.
 | db | <code>\*</code> | 
 | endpointTypeId | <code>\*</code> | 
 
-<a name="module_DB API_ zcl database access..selectServerEndpointTypeClusterIdByEndpointTypeIdAndClusterRef"></a>
+<a name="module_DB API_ zcl database access..selectEndpointTypeClusterIdByEndpointTypeIdAndClusterRefAndSide"></a>
 
-### DB API: zcl database access~selectServerEndpointTypeClusterIdByEndpointTypeIdAndClusterRef(db, endpointTypeId, clusterRef) ⇒
+### DB API: zcl database access~selectEndpointTypeClusterIdByEndpointTypeIdAndClusterRefAndSide(db, endpointTypeId, clusterRef, clusterSide) ⇒
 Get the server-side endpoint type cluster ID from the given endpoint type ID and cluster reference.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
@@ -3395,6 +3397,7 @@ Get the server-side endpoint type cluster ID from the given endpoint type ID and
 | db | <code>\*</code> | 
 | endpointTypeId | <code>\*</code> | 
 | clusterRef | <code>\*</code> | 
+| clusterSide | <code>\*</code> | 
 
 <a name="module_DB API_ zcl database access..selectEndpointTypeAttributesByEndpointId"></a>
 
@@ -4899,7 +4902,7 @@ inside a single session. Things like:
     * [~selectAllAttributes(db, packageIds)](#module_DB API_ zcl database access..selectAllAttributes) ⇒
     * [~selectAllAttributesBySide(db, side, packageId)](#module_DB API_ zcl database access..selectAllAttributesBySide) ⇒
     * [~selectEndpointTypeClustersByEndpointTypeId(db, endpointTypeId)](#module_DB API_ zcl database access..selectEndpointTypeClustersByEndpointTypeId) ⇒
-    * [~selectServerEndpointTypeClusterIdByEndpointTypeIdAndClusterRef(db, endpointTypeId, clusterRef)](#module_DB API_ zcl database access..selectServerEndpointTypeClusterIdByEndpointTypeIdAndClusterRef) ⇒
+    * [~selectEndpointTypeClusterIdByEndpointTypeIdAndClusterRefAndSide(db, endpointTypeId, clusterRef, clusterSide)](#module_DB API_ zcl database access..selectEndpointTypeClusterIdByEndpointTypeIdAndClusterRefAndSide) ⇒
     * [~selectEndpointTypeAttributesByEndpointId(db, endpointTypeId)](#module_DB API_ zcl database access..selectEndpointTypeAttributesByEndpointId) ⇒
     * [~selectEndpointTypeAttribute(db, endpointTypeId, attributeRef, clusterRef)](#module_DB API_ zcl database access..selectEndpointTypeAttribute) ⇒
     * [~selectEndpointTypeCommandsByEndpointId(db, endpointTypeId)](#module_DB API_ zcl database access..selectEndpointTypeCommandsByEndpointId) ⇒
@@ -5630,9 +5633,9 @@ Get the endpoint type cluster details from the given endpoint type ID.
 | db | <code>\*</code> | 
 | endpointTypeId | <code>\*</code> | 
 
-<a name="module_DB API_ zcl database access..selectServerEndpointTypeClusterIdByEndpointTypeIdAndClusterRef"></a>
+<a name="module_DB API_ zcl database access..selectEndpointTypeClusterIdByEndpointTypeIdAndClusterRefAndSide"></a>
 
-### DB API: zcl database access~selectServerEndpointTypeClusterIdByEndpointTypeIdAndClusterRef(db, endpointTypeId, clusterRef) ⇒
+### DB API: zcl database access~selectEndpointTypeClusterIdByEndpointTypeIdAndClusterRefAndSide(db, endpointTypeId, clusterRef, clusterSide) ⇒
 Get the server-side endpoint type cluster ID from the given endpoint type ID and cluster reference.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
@@ -5643,6 +5646,7 @@ Get the server-side endpoint type cluster ID from the given endpoint type ID and
 | db | <code>\*</code> | 
 | endpointTypeId | <code>\*</code> | 
 | clusterRef | <code>\*</code> | 
+| clusterSide | <code>\*</code> | 
 
 <a name="module_DB API_ zcl database access..selectEndpointTypeAttributesByEndpointId"></a>
 
@@ -5815,7 +5819,7 @@ This module provides queries for enums.
     * [~selectAllAttributes(db, packageIds)](#module_DB API_ zcl database access..selectAllAttributes) ⇒
     * [~selectAllAttributesBySide(db, side, packageId)](#module_DB API_ zcl database access..selectAllAttributesBySide) ⇒
     * [~selectEndpointTypeClustersByEndpointTypeId(db, endpointTypeId)](#module_DB API_ zcl database access..selectEndpointTypeClustersByEndpointTypeId) ⇒
-    * [~selectServerEndpointTypeClusterIdByEndpointTypeIdAndClusterRef(db, endpointTypeId, clusterRef)](#module_DB API_ zcl database access..selectServerEndpointTypeClusterIdByEndpointTypeIdAndClusterRef) ⇒
+    * [~selectEndpointTypeClusterIdByEndpointTypeIdAndClusterRefAndSide(db, endpointTypeId, clusterRef, clusterSide)](#module_DB API_ zcl database access..selectEndpointTypeClusterIdByEndpointTypeIdAndClusterRefAndSide) ⇒
     * [~selectEndpointTypeAttributesByEndpointId(db, endpointTypeId)](#module_DB API_ zcl database access..selectEndpointTypeAttributesByEndpointId) ⇒
     * [~selectEndpointTypeAttribute(db, endpointTypeId, attributeRef, clusterRef)](#module_DB API_ zcl database access..selectEndpointTypeAttribute) ⇒
     * [~selectEndpointTypeCommandsByEndpointId(db, endpointTypeId)](#module_DB API_ zcl database access..selectEndpointTypeCommandsByEndpointId) ⇒
@@ -6546,9 +6550,9 @@ Get the endpoint type cluster details from the given endpoint type ID.
 | db | <code>\*</code> | 
 | endpointTypeId | <code>\*</code> | 
 
-<a name="module_DB API_ zcl database access..selectServerEndpointTypeClusterIdByEndpointTypeIdAndClusterRef"></a>
+<a name="module_DB API_ zcl database access..selectEndpointTypeClusterIdByEndpointTypeIdAndClusterRefAndSide"></a>
 
-### DB API: zcl database access~selectServerEndpointTypeClusterIdByEndpointTypeIdAndClusterRef(db, endpointTypeId, clusterRef) ⇒
+### DB API: zcl database access~selectEndpointTypeClusterIdByEndpointTypeIdAndClusterRefAndSide(db, endpointTypeId, clusterRef, clusterSide) ⇒
 Get the server-side endpoint type cluster ID from the given endpoint type ID and cluster reference.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
@@ -6559,6 +6563,7 @@ Get the server-side endpoint type cluster ID from the given endpoint type ID and
 | db | <code>\*</code> | 
 | endpointTypeId | <code>\*</code> | 
 | clusterRef | <code>\*</code> | 
+| clusterSide | <code>\*</code> | 
 
 <a name="module_DB API_ zcl database access..selectEndpointTypeAttributesByEndpointId"></a>
 
@@ -6676,7 +6681,7 @@ across different query files.
     * [~selectAllAttributes(db, packageIds)](#module_DB API_ zcl database access..selectAllAttributes) ⇒
     * [~selectAllAttributesBySide(db, side, packageId)](#module_DB API_ zcl database access..selectAllAttributesBySide) ⇒
     * [~selectEndpointTypeClustersByEndpointTypeId(db, endpointTypeId)](#module_DB API_ zcl database access..selectEndpointTypeClustersByEndpointTypeId) ⇒
-    * [~selectServerEndpointTypeClusterIdByEndpointTypeIdAndClusterRef(db, endpointTypeId, clusterRef)](#module_DB API_ zcl database access..selectServerEndpointTypeClusterIdByEndpointTypeIdAndClusterRef) ⇒
+    * [~selectEndpointTypeClusterIdByEndpointTypeIdAndClusterRefAndSide(db, endpointTypeId, clusterRef, clusterSide)](#module_DB API_ zcl database access..selectEndpointTypeClusterIdByEndpointTypeIdAndClusterRefAndSide) ⇒
     * [~selectEndpointTypeAttributesByEndpointId(db, endpointTypeId)](#module_DB API_ zcl database access..selectEndpointTypeAttributesByEndpointId) ⇒
     * [~selectEndpointTypeAttribute(db, endpointTypeId, attributeRef, clusterRef)](#module_DB API_ zcl database access..selectEndpointTypeAttribute) ⇒
     * [~selectEndpointTypeCommandsByEndpointId(db, endpointTypeId)](#module_DB API_ zcl database access..selectEndpointTypeCommandsByEndpointId) ⇒
@@ -7407,9 +7412,9 @@ Get the endpoint type cluster details from the given endpoint type ID.
 | db | <code>\*</code> | 
 | endpointTypeId | <code>\*</code> | 
 
-<a name="module_DB API_ zcl database access..selectServerEndpointTypeClusterIdByEndpointTypeIdAndClusterRef"></a>
+<a name="module_DB API_ zcl database access..selectEndpointTypeClusterIdByEndpointTypeIdAndClusterRefAndSide"></a>
 
-### DB API: zcl database access~selectServerEndpointTypeClusterIdByEndpointTypeIdAndClusterRef(db, endpointTypeId, clusterRef) ⇒
+### DB API: zcl database access~selectEndpointTypeClusterIdByEndpointTypeIdAndClusterRefAndSide(db, endpointTypeId, clusterRef, clusterSide) ⇒
 Get the server-side endpoint type cluster ID from the given endpoint type ID and cluster reference.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
@@ -7420,6 +7425,7 @@ Get the server-side endpoint type cluster ID from the given endpoint type ID and
 | db | <code>\*</code> | 
 | endpointTypeId | <code>\*</code> | 
 | clusterRef | <code>\*</code> | 
+| clusterSide | <code>\*</code> | 
 
 <a name="module_DB API_ zcl database access..selectEndpointTypeAttributesByEndpointId"></a>
 
@@ -7536,7 +7542,7 @@ This module provides queries for ZCL static queries.
     * [~selectAllAttributes(db, packageIds)](#module_DB API_ zcl database access..selectAllAttributes) ⇒
     * [~selectAllAttributesBySide(db, side, packageId)](#module_DB API_ zcl database access..selectAllAttributesBySide) ⇒
     * [~selectEndpointTypeClustersByEndpointTypeId(db, endpointTypeId)](#module_DB API_ zcl database access..selectEndpointTypeClustersByEndpointTypeId) ⇒
-    * [~selectServerEndpointTypeClusterIdByEndpointTypeIdAndClusterRef(db, endpointTypeId, clusterRef)](#module_DB API_ zcl database access..selectServerEndpointTypeClusterIdByEndpointTypeIdAndClusterRef) ⇒
+    * [~selectEndpointTypeClusterIdByEndpointTypeIdAndClusterRefAndSide(db, endpointTypeId, clusterRef, clusterSide)](#module_DB API_ zcl database access..selectEndpointTypeClusterIdByEndpointTypeIdAndClusterRefAndSide) ⇒
     * [~selectEndpointTypeAttributesByEndpointId(db, endpointTypeId)](#module_DB API_ zcl database access..selectEndpointTypeAttributesByEndpointId) ⇒
     * [~selectEndpointTypeAttribute(db, endpointTypeId, attributeRef, clusterRef)](#module_DB API_ zcl database access..selectEndpointTypeAttribute) ⇒
     * [~selectEndpointTypeCommandsByEndpointId(db, endpointTypeId)](#module_DB API_ zcl database access..selectEndpointTypeCommandsByEndpointId) ⇒
@@ -8267,9 +8273,9 @@ Get the endpoint type cluster details from the given endpoint type ID.
 | db | <code>\*</code> | 
 | endpointTypeId | <code>\*</code> | 
 
-<a name="module_DB API_ zcl database access..selectServerEndpointTypeClusterIdByEndpointTypeIdAndClusterRef"></a>
+<a name="module_DB API_ zcl database access..selectEndpointTypeClusterIdByEndpointTypeIdAndClusterRefAndSide"></a>
 
-### DB API: zcl database access~selectServerEndpointTypeClusterIdByEndpointTypeIdAndClusterRef(db, endpointTypeId, clusterRef) ⇒
+### DB API: zcl database access~selectEndpointTypeClusterIdByEndpointTypeIdAndClusterRefAndSide(db, endpointTypeId, clusterRef, clusterSide) ⇒
 Get the server-side endpoint type cluster ID from the given endpoint type ID and cluster reference.
 
 **Kind**: inner method of [<code>DB API: zcl database access</code>](#module_DB API_ zcl database access)  
@@ -8280,6 +8286,7 @@ Get the server-side endpoint type cluster ID from the given endpoint type ID and
 | db | <code>\*</code> | 
 | endpointTypeId | <code>\*</code> | 
 | clusterRef | <code>\*</code> | 
+| clusterSide | <code>\*</code> | 
 
 <a name="module_DB API_ zcl database access..selectEndpointTypeAttributesByEndpointId"></a>
 
@@ -20190,6 +20197,7 @@ and generate warnings for non-conformance.
 
 * [Validation API: check element conformance](#module_Validation API_ check element conformance)
     * [~generateWarningMessage(featureData, endpointId, elementMap, featureMap, descElements, featuresToUpdate, clusterFeatures)](#module_Validation API_ check element conformance..generateWarningMessage) ⇒
+    * [~getOutdatedWarningPatterns(prefix)](#module_Validation API_ check element conformance..getOutdatedWarningPatterns) ⇒
     * [~checkElementConformance(elements, featureMap, featureData, endpointId, clusterFeatures)](#module_Validation API_ check element conformance..checkElementConformance) ⇒
     * [~filterElementsToUpdate(elements, elementMap, featureCode)](#module_Validation API_ check element conformance..filterElementsToUpdate) ⇒
     * [~getOutdatedElementWarning(featureCode, elements, elementMap)](#module_Validation API_ check element conformance..getOutdatedElementWarning) ⇒
@@ -20217,6 +20225,18 @@ Set flags to decide whether to show warnings or disable changes in the frontend.
 | descElements | <code>\*</code> | 
 | featuresToUpdate | <code>\*</code> | 
 | clusterFeatures | <code>\*</code> | 
+
+<a name="module_Validation API_ check element conformance..getOutdatedWarningPatterns"></a>
+
+### Validation API: check element conformance~getOutdatedWarningPatterns(prefix) ⇒
+Get outdated warning patterns from a prefix
+
+**Kind**: inner method of [<code>Validation API: check element conformance</code>](#module_Validation API_ check element conformance)  
+**Returns**: array of outdated warning patterns  
+
+| Param | Type |
+| --- | --- |
+| prefix | <code>\*</code> | 
 
 <a name="module_Validation API_ check element conformance..checkElementConformance"></a>
 
