@@ -148,7 +148,7 @@ function parseConformanceRecursively(operand, depth = 0, parentJoinChar = '') {
   } else if (operand.deprecateConform) {
     return dbEnum.conformanceTag.deprecated
   } else if (operand.describedConform) {
-    return dbEnum.conformanceTag.desc
+    return dbEnum.conformanceTag.described
   } else {
     // reach base level terms, return the name directly
     for (const term of baseLevelTerms) {
@@ -157,7 +157,7 @@ function parseConformanceRecursively(operand, depth = 0, parentJoinChar = '') {
       }
     }
     // reaching here means the term is too complex to parse
-    return dbEnum.conformanceTag.desc
+    return dbEnum.conformanceTag.described
   }
 }
 

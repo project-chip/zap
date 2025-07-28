@@ -20381,6 +20381,9 @@ This module provides utilities for evaluating conformance expressions.
     * [~getOperandsFromExpression(expression)](#module_Validation API_ Evaluate conformance expressions..getOperandsFromExpression) ⇒ <code>Array.&lt;string&gt;</code>
     * [~filterRelatedDescElements(elements, featureCode)](#module_Validation API_ Evaluate conformance expressions..filterRelatedDescElements) ⇒
     * [~checkFeaturesToUpdate(updatedFeatureCode, clusterFeatures, elementMap)](#module_Validation API_ Evaluate conformance expressions..checkFeaturesToUpdate) ⇒ <code>Object</code>
+    * [~translateConformanceTag(expression)](#module_Validation API_ Evaluate conformance expressions..translateConformanceTag) ⇒ <code>string</code>
+    * [~translateBooleanExpr(expr)](#module_Validation API_ Evaluate conformance expressions..translateBooleanExpr) ⇒ <code>string</code>
+    * [~translateConformanceExpression(expression)](#module_Validation API_ Evaluate conformance expressions..translateConformanceExpression) ⇒ <code>string</code>
 
 <a name="module_Validation API_ Evaluate conformance expressions..evaluateConformanceExpression"></a>
 
@@ -20494,6 +20497,42 @@ Check which features need to be updated or have conformance changes due to the u
 | updatedFeatureCode | <code>\*</code> | 
 | clusterFeatures | <code>\*</code> | 
 | elementMap | <code>\*</code> | 
+
+<a name="module_Validation API_ Evaluate conformance expressions..translateConformanceTag"></a>
+
+### Validation API: Evaluate conformance expressions~translateConformanceTag(expression) ⇒ <code>string</code>
+Translate a conformance tag to its corresponding value.
+
+**Kind**: inner method of [<code>Validation API: Evaluate conformance expressions</code>](#module_Validation API_ Evaluate conformance expressions)  
+**Returns**: <code>string</code> - The translated conformance value.  
+
+| Param | Type |
+| --- | --- |
+| expression | <code>\*</code> | 
+
+<a name="module_Validation API_ Evaluate conformance expressions..translateBooleanExpr"></a>
+
+### Validation API: Evaluate conformance expressions~translateBooleanExpr(expr) ⇒ <code>string</code>
+Translate a boolean expression into natural language.
+
+**Kind**: inner method of [<code>Validation API: Evaluate conformance expressions</code>](#module_Validation API_ Evaluate conformance expressions)  
+**Returns**: <code>string</code> - The translated boolean expression.  
+
+| Param | Type |
+| --- | --- |
+| expr | <code>\*</code> | 
+
+<a name="module_Validation API_ Evaluate conformance expressions..translateConformanceExpression"></a>
+
+### Validation API: Evaluate conformance expressions~translateConformanceExpression(expression) ⇒ <code>string</code>
+Translate a conformance expression into natural language.
+
+**Kind**: inner method of [<code>Validation API: Evaluate conformance expressions</code>](#module_Validation API_ Evaluate conformance expressions)  
+**Returns**: <code>string</code> - The translated conformance expression.  
+
+| Param | Type |
+| --- | --- |
+| expression | <code>string</code> | 
 
 <a name="module_Validation API_ Parse conformance data from XML"></a>
 
