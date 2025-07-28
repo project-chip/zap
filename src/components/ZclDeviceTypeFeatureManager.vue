@@ -34,6 +34,37 @@ limitations under the License.
           separator="horizontal"
           id="ZclDeviceTypeFeatureManager"
         >
+          <template v-slot:header="props">
+            <q-tr :props="props">
+              <q-th v-for="col in props.cols" :key="col.name" :props="props">
+                <div>
+                  <template v-if="col.name === 'conformance'">
+                    <a
+                      :href="documentSource"
+                      class="text-primary cursor-pointer"
+                      target="_blank"
+                      style="text-decoration: none"
+                    >
+                      {{ col.label }}
+                    </a>
+                    <q-icon
+                      name="info"
+                      class="q-pl-sm q-pb-xs"
+                      style="font-size: 1rem"
+                      color="primary"
+                    >
+                      <q-tooltip>
+                        {{ conformanceSourceTip }}
+                      </q-tooltip>
+                    </q-icon>
+                  </template>
+                  <template v-else>
+                    {{ col.label }}
+                  </template>
+                </div>
+              </q-th>
+            </q-tr>
+          </template>
           <template v-slot:body="props">
             <q-tr
               :props="props"
@@ -117,7 +148,12 @@ limitations under the License.
                 auto-width
                 data-test="feature-conformance"
               >
-                {{ props.row.conformance }}
+                <span class="text-primary">
+                  {{ props.row.conformance }}
+                  <q-tooltip>
+                    {{ props.row.translation }}
+                  </q-tooltip>
+                </span>
               </q-td>
               <q-td key="bit" :props="props" auto-width data-test="feature-bit">
                 {{ props.row.bit }}

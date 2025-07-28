@@ -253,17 +253,20 @@ exports.featureMapAttribute = {
 exports.conformanceTag = {
   mandatory: 'M',
   optional: 'O',
+  provisional: 'P',
   disallowed: 'X',
   deprecated: 'D',
-  provisional: 'P',
-  desc: 'desc'
+  described: 'desc'
 }
 
 exports.conformanceVal = {
   mandatory: 'mandatory',
   optional: 'optional',
-  notSupported: 'notSupported',
-  provisional: 'provisional'
+  provisional: 'provisional',
+  disallowed: 'disallowed',
+  deprecated: 'deprecated',
+  described: 'described conformance that cannot be displayed as an expression',
+  notSupported: 'notSupported'
 }
 
 exports.clusterSide = {
