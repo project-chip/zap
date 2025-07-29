@@ -43,6 +43,8 @@ let eptId
 let MA_dimmablelight
 let deviceTypeName = 'MA-dimmablelight'
 let axiosInstance = null
+let clusters = null
+let onOffCluster = null
 
 beforeAll(async () => {
   const { port, baseUrl } = testUtil.testServer(__filename)
@@ -102,6 +104,9 @@ beforeAll(async () => {
     0,
     true
   )
+
+  clusters = await testQuery.getAllEndpointTypeClusterState(db, eptId)
+  onOffCluster = clusters.find((cluster) => cluster.clusterName == 'On/Off')
 }, testUtil.timeout.medium())
 
 afterAll(
@@ -152,84 +157,214 @@ test(
 )
 
 test(
-  'Evaluate customized conformance expression',
+  'Evaluate customized conformance expression and operand extraction',
   () => {
     // cover elements with all upper and lower case and combinations
-    const elementMap = { HS: 1, Lt: 1, oo: 0, xY: 0, Primary1X: 1 }
+    const elementMap = {
+      HS: true,
+      Lt: true,
+      oo: false,
+      xY: false,
+      Primary1X: true
+    }
     let conformanceExpressions = [
       // 1. test basic conformance abbreviations
-      { expression: 'M', expected: 'mandatory' },
-      { expression: 'O', expected: 'optional' },
-      { expression: 'P', expected: 'provisional' },
-      { expression: 'D', expected: 'notSupported' },
-      { expression: 'X', expected: 'notSupported' },
+      { expression: 'M', expected: 'mandatory', operands: ['M'] },
+      { expression: 'O', expected: 'optional', operands: ['O'] },
+      { expression: 'P', expected: 'provisional', operands: ['P'] },
+      { expression: 'D', expected: 'notSupported', operands: ['D'] },
+      { expression: 'X', expected: 'notSupported', operands: ['X'] },
 
       // 2. test simple mandatory conformance expression
-      { expression: 'HS', expected: 'mandatory' },
-      { expression: 'oo', expected: 'notSupported' },
-      { expression: 'HS & Lt', expected: 'mandatory' },
-      { expression: 'HS & oo', expected: 'notSupported' },
-      { expression: 'HS | oo', expected: 'mandatory' },
-      { expression: 'HS & Lt & oo', expected: 'notSupported' },
-      { expression: 'HS | Lt | oo', expected: 'mandatory' },
-      { expression: 'HS & (Lt | oo)', expected: 'mandatory' },
-      { expression: 'HS & (oo | xY)', expected: 'notSupported' },
-      { expression: '(HS & oo) | Lt', expected: 'mandatory' },
-      { expression: 'HS & (Lt | oo | xY)', expected: 'mandatory' },
-      { expression: 'oo | (HS & Lt & xY)', expected: 'notSupported' },
+      { expression: 'HS', expected: 'mandatory', operands: ['HS'] },
+      { expression: 'oo', expected: 'notSupported', operands: ['oo'] },
+      { expression: 'HS & Lt', expected: 'mandatory', operands: ['HS', 'Lt'] },
+      {
+        expression: 'HS & oo',
+        expected: 'notSupported',
+        operands: ['HS', 'oo']
+      },
+      { expression: 'HS | oo', expected: 'mandatory', operands: ['HS', 'oo'] },
+      {
+        expression: 'HS & Lt & oo',
+        expected: 'notSupported',
+        operands: ['HS', 'Lt', 'oo']
+      },
+      {
+        expression: 'HS | Lt | oo',
+        expected: 'mandatory',
+        operands: ['HS', 'Lt', 'oo']
+      },
+      {
+        expression: 'HS & (Lt | oo)',
+        expected: 'mandatory',
+        operands: ['HS', 'Lt', 'oo']
+      },
+      {
+        expression: 'HS & (oo | xY)',
+        expected: 'notSupported',
+        operands: ['HS', 'oo', 'xY']
+      },
+      {
+        expression: '(HS & oo) | Lt',
+        expected: 'mandatory',
+        operands: ['HS', 'oo', 'Lt']
+      },
+      {
+        expression: 'HS & (Lt | oo | xY)',
+        expected: 'mandatory',
+        operands: ['HS', 'Lt', 'oo', 'xY']
+      },
+      {
+        expression: 'oo | (HS & Lt & xY)',
+        expected: 'notSupported',
+        operands: ['oo', 'HS', 'Lt', 'xY']
+      },
 
       // 3. test NOT (!)
-      { expression: '!HS', expected: 'notSupported' },
-      { expression: '!oo', expected: 'mandatory' },
-      { expression: '!HS & Lt', expected: 'notSupported' },
-      { expression: 'HS & !oo', expected: 'mandatory' },
-      { expression: '!(HS & Lt)', expected: 'notSupported' },
-      { expression: '!(HS | oo)', expected: 'notSupported' },
-      { expression: '!(HS & oo)', expected: 'mandatory' },
+      { expression: '!HS', expected: 'notSupported', operands: ['HS'] },
+      { expression: '!oo', expected: 'mandatory', operands: ['oo'] },
+      {
+        expression: '!HS & Lt',
+        expected: 'notSupported',
+        operands: ['HS', 'Lt']
+      },
+      { expression: 'HS & !oo', expected: 'mandatory', operands: ['HS', 'oo'] },
+      {
+        expression: '!(HS & Lt)',
+        expected: 'notSupported',
+        operands: ['HS', 'Lt']
+      },
+      {
+        expression: '!(HS | oo)',
+        expected: 'notSupported',
+        operands: ['HS', 'oo']
+      },
+      {
+        expression: '!(HS & oo)',
+        expected: 'mandatory',
+        operands: ['HS', 'oo']
+      },
 
       // 4. test optional conformance expression with '[]'
-      { expression: '[HS]', expected: 'optional' },
-      { expression: '[oo]', expected: 'notSupported' },
-      { expression: '[!HS]', expected: 'notSupported' },
-      { expression: '[!oo]', expected: 'optional' },
-      { expression: '[HS & Lt]', expected: 'optional' },
-      { expression: '[HS & oo]', expected: 'notSupported' },
-      { expression: '[HS | oo]', expected: 'optional' },
-      { expression: '[!(HS & Lt)]', expected: 'notSupported' },
-      { expression: '[!(HS | oo)]', expected: 'notSupported' },
-      { expression: '[!(HS & oo)]', expected: 'optional' },
+      { expression: '[HS]', expected: 'optional', operands: ['HS'] },
+      { expression: '[oo]', expected: 'notSupported', operands: ['oo'] },
+      { expression: '[!HS]', expected: 'notSupported', operands: ['HS'] },
+      { expression: '[!oo]', expected: 'optional', operands: ['oo'] },
+      { expression: '[HS & Lt]', expected: 'optional', operands: ['HS', 'Lt'] },
+      {
+        expression: '[HS & oo]',
+        expected: 'notSupported',
+        operands: ['HS', 'oo']
+      },
+      { expression: '[HS | oo]', expected: 'optional', operands: ['HS', 'oo'] },
+      {
+        expression: '[!(HS & Lt)]',
+        expected: 'notSupported',
+        operands: ['HS', 'Lt']
+      },
+      {
+        expression: '[!(HS | oo)]',
+        expected: 'notSupported',
+        operands: ['HS', 'oo']
+      },
+      {
+        expression: '[!(HS & oo)]',
+        expected: 'optional',
+        operands: ['HS', 'oo']
+      },
 
       // 5. test otherwise conformance expression
-      { expression: 'P, O', expected: 'provisional' },
-      { expression: 'P, M', expected: 'provisional' },
-      { expression: 'P, HS', expected: 'provisional' },
-      { expression: 'P, [HS]', expected: 'provisional' },
-      { expression: 'HS, O', expected: 'mandatory' },
-      { expression: 'oo, O', expected: 'optional' },
-      { expression: 'oo, [HS]', expected: 'optional' },
-      { expression: 'oo, [xY]', expected: 'notSupported' },
-      { expression: '[HS], D', expected: 'optional' },
-      { expression: '[oo], D', expected: 'notSupported' },
-      { expression: 'HS, [Lt | oo | xY]', expected: 'mandatory' },
-      { expression: 'oo, [Lt | oo | xY]', expected: 'optional' },
-      { expression: 'oo, [xY | oo]', expected: 'notSupported' },
-      { expression: 'HS & Lt, [oo]', expected: 'mandatory' },
-      { expression: 'HS & oo, [Lt]', expected: 'optional' },
-      { expression: 'HS & oo, [xY]', expected: 'notSupported' },
-      { expression: 'HS | oo, [Lt & xY]', expected: 'mandatory' },
-      { expression: 'oo | xY, [HS & Lt]', expected: 'optional' },
-      { expression: 'xY | oo, [HS & xY]', expected: 'notSupported' },
+      { expression: 'P, O', expected: 'provisional', operands: ['P', 'O'] },
+      { expression: 'P, M', expected: 'provisional', operands: ['P', 'M'] },
+      { expression: 'P, HS', expected: 'provisional', operands: ['P', 'HS'] },
+      { expression: 'P, [HS]', expected: 'provisional', operands: ['P', 'HS'] },
+      { expression: 'HS, O', expected: 'mandatory', operands: ['HS', 'O'] },
+      { expression: 'oo, O', expected: 'optional', operands: ['oo', 'O'] },
+      { expression: 'oo, [HS]', expected: 'optional', operands: ['oo', 'HS'] },
+      {
+        expression: 'oo, [xY]',
+        expected: 'notSupported',
+        operands: ['oo', 'xY']
+      },
+      { expression: '[HS], D', expected: 'optional', operands: ['HS', 'D'] },
+      {
+        expression: '[oo], D',
+        expected: 'notSupported',
+        operands: ['oo', 'D']
+      },
+      {
+        expression: 'HS, [Lt | oo | xY]',
+        expected: 'mandatory',
+        operands: ['HS', 'Lt', 'oo', 'xY']
+      },
+      {
+        expression: 'oo, [Lt | oo | xY]',
+        expected: 'optional',
+        operands: ['oo', 'Lt', 'oo', 'xY']
+      },
+      {
+        expression: 'oo, [xY | oo]',
+        expected: 'notSupported',
+        operands: ['oo', 'xY', 'oo']
+      },
+      {
+        expression: 'HS & Lt, [oo]',
+        expected: 'mandatory',
+        operands: ['HS', 'Lt', 'oo']
+      },
+      {
+        expression: 'HS & oo, [Lt]',
+        expected: 'optional',
+        operands: ['HS', 'oo', 'Lt']
+      },
+      {
+        expression: 'HS & oo, [xY]',
+        expected: 'notSupported',
+        operands: ['HS', 'oo', 'xY']
+      },
+      {
+        expression: 'HS | oo, [Lt & xY]',
+        expected: 'mandatory',
+        operands: ['HS', 'oo', 'Lt', 'xY']
+      },
+      {
+        expression: 'oo | xY, [HS & Lt]',
+        expected: 'optional',
+        operands: ['oo', 'xY', 'HS', 'Lt']
+      },
+      {
+        expression: 'xY | oo, [HS & xY]',
+        expected: 'notSupported',
+        operands: ['xY', 'oo', 'HS', 'xY']
+      },
 
-      // 6. test terms containing numbers
-      { expression: 'Primary1X', expected: 'mandatory' },
-      { expression: 'Primary1X & HS', expected: 'mandatory' },
-      { expression: 'Primary1X | oo', expected: 'mandatory' },
+      // 6. test operands containing numbers
+      {
+        expression: 'Primary1X',
+        expected: 'mandatory',
+        operands: ['Primary1X']
+      },
+      {
+        expression: 'Primary1X & HS',
+        expected: 'mandatory',
+        operands: ['Primary1X', 'HS']
+      },
+      {
+        expression: 'Primary1X | oo',
+        expected: 'mandatory',
+        operands: ['Primary1X', 'oo']
+      },
 
-      // 7. test conformance with desc terms
-      { expression: 'desc', expected: 'desc' },
-      { expression: 'HS & desc', expected: 'desc' },
-      { expression: 'HS | (!xY && desc)', expected: 'desc' },
-      { expression: 'P, desc', expected: 'desc' }
+      // 7. test conformance with desc operands
+      { expression: 'desc', expected: 'desc', operands: ['desc'] },
+      { expression: 'HS & desc', expected: 'desc', operands: ['HS', 'desc'] },
+      {
+        expression: 'HS | (!xY && desc)',
+        expected: 'desc',
+        operands: ['HS', 'xY', 'desc']
+      },
+      { expression: 'P, desc', expected: 'desc', operands: ['P', 'desc'] }
     ]
 
     conformanceExpressions.forEach((expression) => {
@@ -238,13 +373,18 @@ test(
         elementMap
       )
       expect(result).toBe(expression.expected)
+
+      let operands = conformEvaluator.getOperandsFromExpression(
+        expression.expression
+      )
+      expect(operands).toEqual(expression.operands)
     })
   },
   testUtil.timeout.short()
 )
 
 test(
-  'Check if an element has conformance with desc terms',
+  'Check if an element has conformance with desc operands',
   () => {
     const elements = [
       { name: 'Element1', conformance: 'desc' },
@@ -256,8 +396,11 @@ test(
       { name: 'Element7', conformance: 'description' }
     ]
 
-    let descTerms = conformChecker.filterRelatedDescElements(elements, 'desc')
-    expect(descTerms).toEqual([
+    let descOperands = conformEvaluator.filterRelatedDescElements(
+      elements,
+      'desc'
+    )
+    expect(descOperands).toEqual([
       { name: 'Element1', conformance: 'desc' },
       { name: 'Element2', conformance: 'P, desc' },
       { name: 'Element3', conformance: '[desc & XY]' },
@@ -266,11 +409,11 @@ test(
     ])
 
     const featureCode = 'HS'
-    let relatedDescTerms = conformChecker.filterRelatedDescElements(
+    let relatedDescOperands = conformEvaluator.filterRelatedDescElements(
       elements,
       featureCode
     )
-    expect(relatedDescTerms).toEqual([
+    expect(relatedDescOperands).toEqual([
       { name: 'Element4', conformance: 'desc, [HS]' }
     ])
   },
@@ -280,43 +423,50 @@ test(
 test(
   'Check elements with conformance needs to be updated and generate warnings',
   () => {
-    /* simulate toggling device type features in Color Control cluster
+    /* simulate toggling features in Color Control cluster
        to test if elements with wrong conformance are checked and returned,
        and test if generated warnings are correct */
     // define part of elements in Color Control cluster
     let elements = {
       attributes: [
-        { name: 'CurrentHue', conformance: 'HS', included: 0 },
-        { name: 'DriftCompensation', conformance: 'O', included: 0 },
-        { name: 'ColorMode', conformance: 'M', included: 1 },
-        { name: 'EnhancedCurrentHue', conformance: 'EHUE', included: 1 },
-        { name: 'ColorLoopActive', conformance: 'CL', included: 1 },
-        { name: 'CurrentX', conformance: 'XY', included: 1 },
-        { name: 'ColorTemperatureMireds', conformance: 'CT', included: 1 },
+        { name: 'CurrentHue', conformance: 'HS', included: false },
+        { name: 'DriftCompensation', conformance: 'O', included: false },
+        { name: 'ColorMode', conformance: 'M', included: true },
+        { name: 'EnhancedCurrentHue', conformance: 'EHUE', included: true },
+        { name: 'ColorLoopActive', conformance: 'CL', included: true },
+        { name: 'CurrentX', conformance: 'XY', included: true },
+        { name: 'ColorTemperatureMireds', conformance: 'CT', included: true },
         {
           name: 'AttributeDependingOnUNKNOWN',
           conformance: 'UNKNOWN',
-          included: 0
+          included: false
         }
       ],
       commands: [
-        { name: 'MoveToHue', conformance: 'HS', isEnabled: 0 },
-        { name: 'EnhancedMoveToHue', conformance: 'EHUE', isEnabled: 0 },
-        { name: 'ColorLoopSet', conformance: 'CL', isEnabled: 0 },
-        { name: 'MoveColorTemperature', conformance: 'CT', isEnabled: 1 },
-        { name: 'MoveToColor', conformance: 'XY', isEnabled: 1 },
+        { name: 'MoveToHue', conformance: 'HS', isEnabled: false },
+        { name: 'EnhancedMoveToHue', conformance: 'EHUE', isEnabled: false },
+        { name: 'ColorLoopSet', conformance: 'CL', isEnabled: false },
+        { name: 'MoveColorTemperature', conformance: 'CT', isEnabled: true },
+        { name: 'MoveToColor', conformance: 'XY', isEnabled: true },
         {
           name: 'CommandDependingOnUNKNOWN',
           conformance: 'UNKNOWN',
-          isEnabled: 0
+          isEnabled: false
         }
       ],
       events: [
-        { name: 'event1', conformance: 'HS', included: 0 },
-        { name: 'event2', conformance: 'O', included: 0 }
+        { name: 'event1', conformance: 'HS', included: false },
+        { name: 'event2', conformance: 'O', included: false }
       ]
     }
-    let featureMap = { HS: 0, EHUE: 0, CL: 0, XY: 1, CT: 1, UNKNOWN: 0 }
+    let featureMap = {
+      HS: false,
+      EHUE: false,
+      CL: false,
+      XY: true,
+      CT: true,
+      UNKNOWN: false
+    }
     let deviceType = 'Matter Extended Color Light'
     let cluster = 'Color Control'
     let featureBit = 0
@@ -344,6 +494,7 @@ test(
       deviceTypes: [deviceType],
       bit: featureBit
     }
+    let clusterFeatures = [featureHS, featureXY, featureUnknown]
     let endpointId = 1
     let result = {}
     let expectedWarning = ''
@@ -356,7 +507,8 @@ test(
       elements,
       featureMap,
       featureHS,
-      endpointId
+      endpointId,
+      clusterFeatures
     )
     // no warnings should be generated
     expect(result.displayWarning).toBeFalsy()
@@ -381,13 +533,14 @@ test(
       elements,
       featureMap,
       featureXY,
-      endpointId
+      endpointId,
+      clusterFeatures
     )
     // should throw and display warning
     expectedWarning =
       warningPrefix +
-      `feature: ${featureXY.name} ${featureBitMessage} should be enabled, ` +
-      `as it is mandatory for device type: ${deviceType}`
+      `feature: ${featureXY.name} (${featureXY.code}) ${featureBitMessage} should be enabled, ` +
+      `as it is mandatory for device type: ${deviceType}.`
     expect(result.displayWarning).toBeTruthy()
     expect(result.disableChange).toBeFalsy()
     expect(result.warningMessage).toBe(expectedWarning)
@@ -408,13 +561,13 @@ test(
       elements,
       featureMap,
       featureUnknown,
-      endpointId
+      endpointId,
+      clusterFeatures
     )
     expectedWarning =
       warningPrefix +
-      `feature: ${featureUnknown.name} ${featureBitMessage} cannot be enabled ` +
-      `as its conformance depends on non device type features ` +
-      `Feature1, Feature2 with unknown values`
+      `feature: ${featureUnknown.name} (${featureUnknown.code}) ${featureBitMessage} cannot be enabled ` +
+      `as its conformance depends on the following operands with unknown values: Feature1, Feature2.`
     // should display warning and disable the change
     // no attributes commands, or events should be updated
     expect(result.displayWarning).toBeTruthy()
@@ -430,7 +583,7 @@ test(
     let descElement = {
       name: 'DescElement',
       conformance: 'HS & desc',
-      included: 0
+      included: false
     }
     elements.attributes.push(descElement)
     featureMap['HS'] = 1
@@ -438,13 +591,14 @@ test(
       elements,
       featureMap,
       featureHS,
-      endpointId
+      endpointId,
+      clusterFeatures
     )
     expectedWarning =
       warningPrefix +
-      `feature: ${featureHS.name} ${featureBitMessage} ` +
+      `feature: ${featureHS.name} (${featureHS.code}) ${featureBitMessage} ` +
       `cannot be enabled as attribute ${descElement.name} ` +
-      `depend on the feature and their conformance are too complex to parse.`
+      `depend on the feature and their conformance are too complex for ZAP to process, or they include 'desc'.`
     expect(result.displayWarning).toBeTruthy()
     expect(result.disableChange).toBeTruthy()
     expect(result.warningMessage[0]).toBe(expectedWarning)
@@ -462,7 +616,8 @@ test(
       elements,
       featureMap,
       featureUnknown,
-      endpointId
+      endpointId,
+      clusterFeatures
     )
     expect(result.displayWarning).toBeTruthy()
     expect(result.disableChange).toBeTruthy()
@@ -478,10 +633,6 @@ test(
   'Test API for getting FeatureMap attribute value',
   async () => {
     // get relevant data from the On/Off cluster and pass it to the API
-    let clusters = await testQuery.getAllEndpointTypeClusterState(db, eptId)
-    let onOffCluster = clusters.find(
-      (cluster) => cluster.clusterName == 'On/Off'
-    )
     let attributes =
       await queryZcl.selectAttributesByClusterIdAndSideIncludingGlobal(
         db,
@@ -495,18 +646,130 @@ test(
         attribute.code == dbEnum.featureMapAttribute.code
     )
 
-    let resp = await axiosInstance.get(restApi.uri.featureMapValue, {
+    let resp = await axiosInstance.get(restApi.uri.featureMapAttribute, {
       params: {
         attributeId: featureMapAttribute.id,
         clusterId: onOffCluster.clusterId,
         endpointTypeId: eptId
       }
     })
-    let featureMapValue = resp.data
+    let featureMapValue = parseInt(resp.data.defaultValue)
 
     /* The featureMap value should be 1 because, in the Dimmable Light device type, On/Off cluster,
        only the Lighting (LT) feature on bit 0 is enabled by default. */
     expect(featureMapValue).toBe(1)
   },
   testUtil.timeout.long()
+)
+
+test(
+  'Test function to get endpoint type cluster ID from feature data or by querying the database',
+  async () => {
+    // if featureData has no clusterRef, it should query DB with the given clusterRef parameter
+    // and return endpoint type cluster ID of the On/Off cluster
+    let featureData = null
+    let endpointTypeClusterId =
+      await conformChecker.getEndpointTypeClusterIdFromFeatureData(
+        db,
+        featureData,
+        eptId,
+        onOffCluster.clusterId
+      )
+    expect(endpointTypeClusterId).toBe(onOffCluster.endpointTypeClusterId)
+
+    let levelControlCluster = clusters.find(
+      (cluster) => cluster.clusterName == 'Level Control'
+    )
+    featureData = { clusterRef: levelControlCluster.clusterId }
+
+    // if featureData has clusterRef, it should take precedence over the clusterRef parameter
+    // and the DB query should return endpoint type cluster ID of the Level Control cluster
+    endpointTypeClusterId =
+      await conformChecker.getEndpointTypeClusterIdFromFeatureData(
+        db,
+        featureData,
+        eptId,
+        onOffCluster.clusterId
+      )
+    expect(endpointTypeClusterId).toBe(
+      levelControlCluster.endpointTypeClusterId
+    )
+  },
+  testUtil.timeout.medium()
+)
+
+test(
+  'Test function to get a text summary of enabled/disabled state for element operands in a conformance expression',
+  () => {
+    let featureMap = { feature1: true, feature2: false }
+    let elementMap = {
+      ...featureMap,
+      attribute1: true,
+      attribute2: false,
+      command1: true,
+      command2: false
+    }
+
+    let conformanceExpression = 'feature1 & !feature2, (attribute1 | !command2)'
+
+    let result = conformChecker.getStateOfOperands(
+      conformanceExpression,
+      elementMap,
+      featureMap
+    )
+    expect(result).toBe(
+      'feature: feature1 is enabled, feature: feature2 is disabled, element: attribute1 is enabled, element: command2 is disabled'
+    )
+  },
+  testUtil.timeout.short()
+)
+
+test(
+  'Test function to check features need to be updated or have conformance changes due to the updated feature',
+  () => {
+    // simulate enabling feature A
+    let updatedFeatureCode = 'A'
+    let elementMap = {
+      A: true,
+      B: false,
+      C: true,
+      D: false,
+      E: false,
+      F: false,
+      G: false,
+      H: false
+    }
+    let clusterFeatures = [
+      { code: 'A', conformance: 'O' },
+      { code: 'B', conformance: 'A' },
+      { code: 'C', conformance: 'A, O' },
+      { code: 'D', conformance: 'A & B' },
+      { code: 'E', conformance: 'A | B' },
+      { code: 'F', conformance: '[A & C]' },
+      // Conformance of G and H are unrelated to A,
+      // so they should not appear in returned values
+      { code: 'G', conformance: 'B' },
+      { code: 'H', conformance: 'O' }
+    ]
+
+    let { updatedFeatures, changedConformFeatures } =
+      conformEvaluator.checkFeaturesToUpdate(
+        updatedFeatureCode,
+        clusterFeatures,
+        elementMap
+      )
+    // B and E becomes mandatory but are not enabled, so they should be updated
+    expect(updatedFeatures).toEqual({ B: true, E: true })
+    // Conformance of B, C, and E changed from notSupported to mandatory
+    // Conformance of F changed from notSupported to optional
+    // C becomes mandatory but it is already enabled, so it should not be updated
+    // F becomes optional so no update is needed
+    expect(changedConformFeatures).toEqual([
+      { code: 'B', conformance: 'A' },
+      { code: 'C', conformance: 'A, O' },
+      { code: 'E', conformance: 'A | B' },
+      { code: 'F', conformance: '[A & C]' }
+    ])
+  },
+  testUtil.timeout.short()
 )

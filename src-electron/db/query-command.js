@@ -2057,17 +2057,13 @@ async function selectNonManufacturerSpecificCommandDetailsFromAllEndpointTypesAn
 
 /**
  * Get all commands in an endpoint type cluster
- * Non-required commands are not loaded into ENDPOINT_TYPE_COMMAND table,
- * so we need to load all commands by joining DEVICE_TYPE_CLUSTER table
  * @param {*} db
  * @param {*} endpointTypeClusterId
- * @param {*} deviceTypeClusterId
  * @returns all commands in an endpoint type cluster
  */
-async function selectCommandsByEndpointTypeClusterIdAndDeviceTypeClusterId(
+async function selectCommandsByEndpointTypeClusterId(
   db,
-  endpointTypeClusterId,
-  deviceTypeClusterId
+  endpointTypeClusterId
 ) {
   let rows = await dbApi.dbAll(
     db,
@@ -2082,19 +2078,19 @@ async function selectCommandsByEndpointTypeClusterIdAndDeviceTypeClusterId(
     FROM
       COMMAND
     JOIN
-      DEVICE_TYPE_CLUSTER
+      ENDPOINT_TYPE_CLUSTER
     ON
-      COMMAND.CLUSTER_REF = DEVICE_TYPE_CLUSTER.CLUSTER_REF
+        COMMAND.CLUSTER_REF = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
+      AND
+        ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = ?
     LEFT JOIN
       ENDPOINT_TYPE_COMMAND
     ON
         COMMAND.COMMAND_ID = ENDPOINT_TYPE_COMMAND.COMMAND_REF
       AND
-        ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_CLUSTER_REF = ?
-    WHERE
-      DEVICE_TYPE_CLUSTER.DEVICE_TYPE_CLUSTER_ID = ?
+        ENDPOINT_TYPE_COMMAND.ENDPOINT_TYPE_CLUSTER_REF = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
     `,
-    [endpointTypeClusterId, deviceTypeClusterId]
+    [endpointTypeClusterId]
   )
   return rows.map(dbMapping.map.endpointTypeCommandExtended)
 }
@@ -2151,5 +2147,5 @@ exports.selectAllOutgoingCommandsForCluster =
 exports.selectEndpointTypeCommandsByEndpointTypeRefAndClusterRef =
   selectEndpointTypeCommandsByEndpointTypeRefAndClusterRef
 exports.duplicateEndpointTypeCommand = duplicateEndpointTypeCommand
-exports.selectCommandsByEndpointTypeClusterIdAndDeviceTypeClusterId =
-  selectCommandsByEndpointTypeClusterIdAndDeviceTypeClusterId
+exports.selectCommandsByEndpointTypeClusterId =
+  selectCommandsByEndpointTypeClusterId
