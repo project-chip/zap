@@ -20508,7 +20508,7 @@ Translate a conformance tag to its corresponding value.
 
 | Param | Type |
 | --- | --- |
-| expression | <code>\*</code> | 
+| expression | <code>string</code> | 
 
 <a name="module_Validation API_ Evaluate conformance expressions..translateBooleanExpr"></a>
 
@@ -20520,7 +20520,7 @@ Translate a boolean expression into natural language.
 
 | Param | Type |
 | --- | --- |
-| expr | <code>\*</code> | 
+| expr | <code>string</code> | 
 
 <a name="module_Validation API_ Evaluate conformance expressions..translateConformanceExpression"></a>
 

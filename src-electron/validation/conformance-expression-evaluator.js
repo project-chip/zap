@@ -241,7 +241,7 @@ function checkFeaturesToUpdate(
 /**
  * Translate a conformance tag to its corresponding value.
  *
- * @param {*} expression
+ * @param {string} expression
  * @returns {string} The translated conformance value.
  */
 function translateConformanceTag(expression) {
@@ -257,7 +257,7 @@ function translateConformanceTag(expression) {
 /**
  * Translate a boolean expression into natural language.
  *
- * @param {*} expr
+ * @param {string} expr
  * @returns {string} The translated boolean expression.
  */
 function translateBooleanExpr(expr) {
@@ -340,7 +340,7 @@ function translateConformanceExpression(expression) {
     result += `${prefix}${translatedParts[i]}`
   }
   // if the last part is not a conformance tag, fall back to not supported
-  if (!translateConformanceTag(parts.at(-1))) {
+  if (!translateConformanceTag(parts[parts.length - 1])) {
     result += ', otherwise it is not supported'
   }
   return result
