@@ -35,35 +35,7 @@ limitations under the License.
           id="ZclDeviceTypeFeatureManager"
         >
           <template v-slot:header="props">
-            <q-tr :props="props">
-              <q-th v-for="col in props.cols" :key="col.name" :props="props">
-                <div>
-                  <template v-if="col.name === 'conformance'">
-                    <a
-                      :href="documentSource"
-                      class="text-primary cursor-pointer"
-                      target="_blank"
-                      style="text-decoration: none"
-                    >
-                      {{ col.label }}
-                    </a>
-                    <q-icon
-                      name="info"
-                      class="q-pl-sm q-pb-xs"
-                      style="font-size: 1rem"
-                      color="primary"
-                    >
-                      <q-tooltip>
-                        {{ conformanceSourceTip }}
-                      </q-tooltip>
-                    </q-icon>
-                  </template>
-                  <template v-else>
-                    {{ col.label }}
-                  </template>
-                </div>
-              </q-th>
-            </q-tr>
+            <FeatureTableHeader :props="props" />
           </template>
           <template v-slot:body="props">
             <q-tr
@@ -261,10 +233,12 @@ import CommonMixin from '../util/common-mixin'
 import EditableAttributeMixin from '../util/editable-attributes-mixin'
 import featureMixin from '../util/feature-mixin'
 import dbEnum from '../../src-shared/db-enum'
+import FeatureTableHeader from './FeatureTableHeader.vue'
 
 export default {
   name: 'ZclDeviceTypeFeatureManager',
   mixins: [CommonMixin, EditableAttributeMixin, featureMixin],
+  components: { FeatureTableHeader },
   methods: {
     getClusterSide(row) {
       if (row.includeClient == 1 && row.includeServer == 1) {

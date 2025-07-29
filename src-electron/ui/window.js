@@ -150,7 +150,8 @@ export function windowCreate(port, args) {
   w.webContents.setWindowOpenHandler(({ url }) => {
     try {
       const parsed = new URL(url)
-      if (parsed.hostname == 'docs.silabs.com') {
+      const DOCUMENTATION_HOST = 'docs.silabs.com'
+      if (parsed.hostname == DOCUMENTATION_HOST) {
         shell.openExternal(url)
         return { action: 'deny' } // block opening the link in Electron window
       }
