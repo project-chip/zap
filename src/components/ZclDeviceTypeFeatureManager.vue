@@ -34,6 +34,9 @@ limitations under the License.
           separator="horizontal"
           id="ZclDeviceTypeFeatureManager"
         >
+          <template v-slot:header="props">
+            <FeatureTableHeader :props="props" />
+          </template>
           <template v-slot:body="props">
             <q-tr :props="props" class="table_body attribute_table_body">
               <q-td
@@ -97,7 +100,12 @@ limitations under the License.
                 {{ props.row.code }}
               </q-td>
               <q-td key="conformance" :props="props" auto-width>
-                {{ props.row.conformance }}
+                <span class="text-primary">
+                  {{ props.row.conformance }}
+                  <q-tooltip>
+                    {{ props.row.translation }}
+                  </q-tooltip>
+                </span>
               </q-td>
               <q-td key="bit" :props="props" auto-width>
                 {{ props.row.bit }}
@@ -200,10 +208,12 @@ import CommonMixin from '../util/common-mixin'
 import EditableAttributeMixin from '../util/editable-attributes-mixin'
 import featureMixin from '../util/feature-mixin'
 import dbEnum from '../../src-shared/db-enum'
+import FeatureTableHeader from './FeatureTableHeader.vue'
 
 export default {
   name: 'ZclDeviceTypeFeatureManager',
   mixins: [CommonMixin, EditableAttributeMixin, featureMixin],
+  components: { FeatureTableHeader },
   methods: {
     getClusterSide(row) {
       if (row.includeClient == 1 && row.includeServer == 1) {

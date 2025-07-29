@@ -384,6 +384,144 @@ test(
 )
 
 test(
+  'Translate conformance expression to natural language text',
+  () => {
+    const conformanceExpressions = [
+      { expression: '', translation: '' },
+      { expression: 'M', translation: 'mandatory' },
+      { expression: 'O', translation: 'optional' },
+      { expression: 'P', translation: 'provisional' },
+      { expression: 'D', translation: 'deprecated' },
+      { expression: 'X', translation: 'disallowed' },
+      {
+        expression: 'desc',
+        translation: dbEnum.conformanceVal.described
+      },
+      {
+        expression: 'HS',
+        translation: 'mandatory if HS is enabled, otherwise it is not supported'
+      },
+      {
+        expression: '[HS]',
+        translation: 'optional if HS is enabled, otherwise it is not supported'
+      },
+      {
+        expression: 'HS & LT',
+        translation:
+          'mandatory if HS is enabled and LT is enabled, otherwise it is not supported'
+      },
+      {
+        expression: 'HS | LT',
+        translation:
+          'mandatory if HS is enabled or LT is enabled, otherwise it is not supported'
+      },
+      {
+        expression: '!HS',
+        translation:
+          'mandatory if HS is not enabled, otherwise it is not supported'
+      },
+      {
+        expression: '[!HS]',
+        translation:
+          'optional if HS is not enabled, otherwise it is not supported'
+      },
+      {
+        expression: 'HS & !LT',
+        translation:
+          'mandatory if HS is enabled and LT is not enabled, otherwise it is not supported'
+      },
+      {
+        expression: 'HS | LT | OO',
+        translation:
+          'mandatory if HS is enabled or LT is enabled or OO is enabled, otherwise it is not supported'
+      },
+      {
+        expression: '[HS & LT & OO]',
+        translation:
+          'optional if HS is enabled and LT is enabled and OO is enabled, otherwise it is not supported'
+      },
+      {
+        expression: '(HS & LT) | OO',
+        translation:
+          'mandatory if ( HS is enabled and LT is enabled ) or OO is enabled, otherwise it is not supported'
+      },
+      {
+        expression: 'HS | (LT & OO)',
+        translation:
+          'mandatory if HS is enabled or ( LT is enabled and OO is enabled ), otherwise it is not supported'
+      },
+      {
+        expression: 'HS, O',
+        translation: 'mandatory if HS is enabled, otherwise it is optional'
+      },
+      {
+        expression: 'HS, [LT]',
+        translation:
+          'mandatory if HS is enabled, otherwise it is optional if LT is enabled, otherwise it is not supported'
+      },
+      {
+        expression: 'HS & LT, [!OO]',
+        translation:
+          'mandatory if HS is enabled and LT is enabled, otherwise it is optional if OO is not enabled, otherwise it is not supported'
+      },
+      {
+        expression: 'P, O',
+        translation:
+          'provisional for now. When not provisional in the future, it is optional'
+      },
+      {
+        expression: 'P, HS',
+        translation:
+          'provisional for now. When not provisional in the future, it is mandatory if HS is enabled, otherwise it is not supported'
+      },
+      {
+        expression: 'P, [HS & LT]',
+        translation:
+          'provisional for now. When not provisional in the future, it is optional if HS is enabled and LT is enabled, otherwise it is not supported'
+      },
+      {
+        expression: 'desc, O',
+        translation:
+          dbEnum.conformanceVal.described + ', otherwise it is optional'
+      },
+      {
+        expression: '[HS & LT], D',
+        translation:
+          'optional if HS is enabled and LT is enabled, otherwise it is deprecated'
+      },
+      {
+        expression: 'HS & LT, [OO & XY], D',
+        translation:
+          'mandatory if HS is enabled and LT is enabled, otherwise it is optional if OO is enabled and XY is enabled, otherwise it is deprecated'
+      },
+      {
+        expression: '[HoldTime & (PIR | (!PIR & !US & !PHY))], D',
+        translation:
+          'optional if HoldTime is enabled and ( PIR is enabled or ( PIR is not enabled and US is not enabled and PHY is not enabled ) ), otherwise it is deprecated'
+      },
+      {
+        expression: 'Matter & (HS | LT | OO)',
+        translation:
+          'mandatory if Matter is enabled and ( HS is enabled or LT is enabled or OO is enabled ), otherwise it is not supported'
+      },
+      {
+        expression: '[!(LT | DF)]',
+        translation:
+          'optional if not ( LT is enabled or DF is enabled ), otherwise it is not supported'
+      }
+    ]
+
+    conformanceExpressions.forEach((expression) => {
+      let result = conformEvaluator.translateConformanceExpression(
+        expression.expression
+      )
+      expect(result).toBe(expression.translation)
+    })
+  },
+  testUtil.timeout.short()
+)
+
+test(
   'Check if an element has conformance with desc operands',
   () => {
     const elements = [
