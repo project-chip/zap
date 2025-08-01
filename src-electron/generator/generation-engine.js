@@ -1097,7 +1097,12 @@ async function generateAndWriteFiles(
   if (options.skipPostGeneration) {
     return genResult
   } else {
-    return postProcessGeneratedFiles(outputDirectory, genResult, options.logger)
+    // Awaiting to make sure postprocessing is finished before returning.
+    return await postProcessGeneratedFiles(
+      outputDirectory,
+      genResult,
+      options.logger
+    )
   }
 }
 
