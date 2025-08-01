@@ -1,17 +1,13 @@
 describe('Testing Vue Tour', () => {
   it('Skip the tutorial', () => {
-    cy.fixture('baseurl').then((url) => {
-      cy.visit(url.baseurl)
-    })
+    cy.visit('/')
     cy.dataCy('btn-tutorial').click().wait(250)
     cy.dataCy('tour-endpoint-window').should('be.visible')
     cy.contains('Skip').click().wait(500)
     cy.dataCy('tour-endpoint-window').should('not.exist')
   })
   it('Complete a full tutorial - delete tutorial endpoint', () => {
-    cy.fixture('baseurl').then((url) => {
-      cy.visit(url.baseurl)
-    })
+    cy.visit('/')
     cy.dataCy('btn-tutorial').click().wait(250)
     cy.dataCy('tour-endpoint-window').should('be.visible')
     for (let i = 0; i < 17; i++) {
@@ -25,9 +21,7 @@ describe('Testing Vue Tour', () => {
     })
   })
   it('Complete a full tutorial - keep tutorial endpoint', () => {
-    cy.fixture('baseurl').then((url) => {
-      cy.visit(url.baseurl)
-    })
+    cy.visit('/')
     cy.dataCy('btn-tutorial').click().wait(250)
     cy.dataCy('tour-endpoint-window').should('be.visible')
     for (let i = 0; i < 17; i++) {

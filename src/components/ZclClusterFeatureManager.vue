@@ -26,7 +26,7 @@ limitations under the License.
         flat
         v-model:pagination="pagination"
         separator="horizontal"
-        id="ZclAttributeManager"
+        id="ZclClusterFeatureManager"
       >
         <template v-slot:header="props">
           <q-tr :props="props">
@@ -36,7 +36,7 @@ limitations under the License.
           </q-tr>
         </template>
         <template v-slot:body="props">
-          <q-tr :props="props" class="table_body">
+          <q-tr :props="props" class="table_body" data-test="feature-row">
             <q-td key="enabled" :props="props" auto-width>
               <q-toggle
                 :disable="isToggleDisabled(props.row.conformance)"
@@ -46,18 +46,29 @@ limitations under the License.
                 indeterminate-value="false"
                 keep-color
                 @update:model-value="(val) => onToggleFeature(props.row, val)"
+                data-test="feature-toggle"
               />
             </q-td>
-            <q-td key="featureName" :props="props" auto-width>
+            <q-td
+              key="featureName"
+              :props="props"
+              auto-width
+              data-test="feature-name"
+            >
               {{ props.row.name }}
             </q-td>
-            <q-td key="code" :props="props" auto-width>
+            <q-td key="code" :props="props" auto-width data-test="feature-code">
               {{ props.row.code }}
             </q-td>
-            <q-td key="conformance" :props="props" auto-width>
+            <q-td
+              key="conformance"
+              :props="props"
+              auto-width
+              data-test="feature-conformance"
+            >
               {{ props.row.conformance }}
             </q-td>
-            <q-td key="bit" :props="props" auto-width>
+            <q-td key="bit" :props="props" auto-width data-test="feature-bit">
               {{ props.row.bit }}
             </q-td>
             <q-td key="description" :props="props" auto-width>
@@ -66,7 +77,11 @@ limitations under the License.
           </q-tr>
         </template>
       </q-table>
-      <q-dialog v-model="showDialog" persistent>
+      <q-dialog
+        v-model="showDialog"
+        persistent
+        data-test="feature-update-dialog"
+      >
         <q-card>
           <q-card-section>
             <div class="row items-center">
@@ -79,7 +94,7 @@ limitations under the License.
               >
                 Attributes
               </div>
-              <ul>
+              <ul data-test="attributes-to-update">
                 <li
                   v-for="(attribute, index) in processElementsForDialog(
                     attributesToUpdate
@@ -98,7 +113,7 @@ limitations under the License.
               >
                 Commands
               </div>
-              <ul>
+              <ul data-test="commands-to-update">
                 <li
                   v-for="(command, index) in processElementsForDialog(
                     commandsToUpdate
@@ -117,7 +132,7 @@ limitations under the License.
               >
                 Events
               </div>
-              <ul>
+              <ul data-test="events-to-update">
                 <li
                   v-for="(event, index) in processElementsForDialog(
                     eventsToUpdate
@@ -139,6 +154,7 @@ limitations under the License.
                 confirmFeatureUpdate(selectedFeature, updatedEnabledFeatures)
               "
               class="col v-step-4 w-step-3"
+              data-test="confirm-feature-update"
             />
           </q-card-actions>
         </q-card>

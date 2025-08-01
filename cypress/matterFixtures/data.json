@@ -16,9 +16,8 @@
   "cluster6": "Pressure Measurement",
   "cluster7": "Identify",
   "cluster8": "Pulse Width Modulation",
-  "cluster9": "General",
-  "cluster10": "Occupancy Sensing",
-  "cluster11": "Identify",
+  "cluster9": "Occupancy Sensing",
+  "cluster10": "Identify",
   "attribute1": "GeneratedCommandList",
   "attribute2": "IdentifyTime",
   "attribute3": "ClusterRevision",
@@ -36,5 +35,28 @@
   "booleanclusterpath": "0",
   "booleaninputpath": "1",
   "bitmapinputpath": "1",
-  "mode": "matter"
+  "mode": "matter",
+  "extendedColorLightEndpoint": "Matter Extended Color Light (0x010D)",
+  "colorControlCluster": "Color Control",
+  "lightingDomain": "Lighting",
+  "HSFeature": {
+    "name": "Hue/Saturation",
+    "code": "HS",
+    "conformance": "O",
+    "bit": "0",
+    "updatedElements": {
+      "action": "enable",
+      "attributes": ["CurrentHue", "CurrentSaturation"],
+      "commands": [
+        "MoveToHue",
+        "MoveHue",
+        "StepHue",
+        "MoveToSaturation",
+        "MoveSaturation",
+        "StepSaturation",
+        "MoveToHueAndSaturation"
+      ],
+      "events": []
+    }
+  }
 }

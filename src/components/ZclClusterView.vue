@@ -116,9 +116,11 @@ limitations under the License.
                 <div class="text-right q-pr-lg" v-show="tab == 'features'">
                   Server FeatureMap Attribute:
                   <span>
-                    <span class="text-bold">{{ featureMapValue }}</span>
+                    <span class="text-bold" data-test="feature-map-value">{{
+                      featureMapValue
+                    }}</span>
                     (binary:
-                    <span class="text-bold">{{
+                    <span class="text-bold" data-test="feature-map-binary">{{
                       getFeatureMapBinary(featureMapValue)
                     }}</span
                     >)

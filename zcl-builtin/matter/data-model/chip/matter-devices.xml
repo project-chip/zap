@@ -551,6 +551,11 @@ limitations under the License.
                 <requireCommand>GetSceneMembershipResponse</requireCommand>
             </include>
             <include cluster="On/Off" client="false" server="true" clientLocked="true" serverLocked="true">
+                <features>
+                    <feature code="LT" name="Lighting">
+                    <mandatoryConform/>
+                    </feature>
+                </features>
                 <requireAttribute>ON_OFF</requireAttribute>
                 <requireAttribute>GLOBAL_SCENE_CONTROL</requireAttribute>
                 <requireAttribute>ON_TIME</requireAttribute>
@@ -564,6 +569,14 @@ limitations under the License.
                 <requireCommand>OnWithTimedOff</requireCommand>
             </include>
             <include cluster="Level Control" client="false" server="true" clientLocked="true" serverLocked="true">
+                <features>
+                    <feature code="OO" name="OnOff">
+                    <mandatoryConform/>
+                    </feature>
+                    <feature code="LT" name="Lighting">
+                    <mandatoryConform/>
+                    </feature>
+                </features>
                 <requireAttribute>CURRENT_LEVEL</requireAttribute>
                 <requireAttribute>OPTIONS</requireAttribute>
                 <requireAttribute>LEVEL_CONTROL_REMAINING_TIME</requireAttribute>
@@ -578,8 +591,23 @@ limitations under the License.
                 <requireCommand>StopWithOnOff</requireCommand>
             </include>
             <include cluster="Color Control" client="false" server="true" clientLocked="true" serverLocked="true">
-                <requireAttribute>COLOR_CONTROL_CURRENT_HUE</requireAttribute>
-                <requireAttribute>COLOR_CONTROL_CURRENT_SATURATION</requireAttribute>
+                <features>
+                    <feature code="HS" name="HueSaturation">
+                    <optionalConform/>
+                    </feature>
+                    <feature code="EHUE" name="EnhancedHue">
+                    <optionalConform/>
+                    </feature>
+                    <feature code="CL" name="ColorLoop">
+                    <optionalConform/>
+                    </feature>
+                    <feature code="XY" name="XY">
+                    <mandatoryConform/>
+                    </feature>
+                    <feature code="CT" name="ColorTemperature">
+                    <mandatoryConform/>
+                    </feature>
+                </features>
                 <requireAttribute>COLOR_CONTROL_REMAINING_TIME</requireAttribute>
                 <requireAttribute>COLOR_CONTROL_CURRENT_X</requireAttribute>
                 <requireAttribute>COLOR_CONTROL_CURRENT_Y</requireAttribute>
@@ -617,13 +645,6 @@ limitations under the License.
                 <requireAttribute>COLOR_CONTROL_COLOR_TEMP_PHYSICAL_MAX</requireAttribute>
                 <requireAttribute>COLOR_CONTROL_TEMPERATURE_LEVEL_MIN_MIREDS</requireAttribute>
                 <requireAttribute>START_UP_COLOR_TEMPERATURE_MIREDS</requireAttribute>
-                <requireCommand>MoveToHue</requireCommand>
-                <requireCommand>MoveHue</requireCommand>
-                <requireCommand>StepHue</requireCommand>
-                <requireCommand>MoveToSaturation</requireCommand>
-                <requireCommand>MoveSaturation</requireCommand>
-                <requireCommand>StepSaturation</requireCommand>
-                <requireCommand>MoveToHueAndSaturation</requireCommand>
                 <requireCommand>MoveToColor</requireCommand>
                 <requireCommand>MoveColor</requireCommand>
                 <requireCommand>StepColor</requireCommand>

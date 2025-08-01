@@ -9,9 +9,7 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 })
 describe('Check theme functionality', () => {
   it('Set Data', () => {
-    cy.fixture('baseurl').then((data) => {
-      cy.visit(data.baseurl)
-    })
+    cy.visit('/')
     cy.setZclProperties()
   })
   it(

@@ -64,6 +64,8 @@ limitations under the License.
                 :val="hashEventIdClusterId(props.row.id, selectedCluster.id)"
                 indeterminate-value="false"
                 keep-color
+                data-test="event-toggle"
+                :event-name="props.row.label"
                 @update:model-value="
                   handleEventSelection(
                     selectedEvents,

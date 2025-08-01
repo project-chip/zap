@@ -197,6 +197,7 @@ limitations under the License.
               @click="selectCluster(props.row)"
               to="/cluster"
               :id="domainName + '-' + props.row.id"
+              data-test="configure-cluster-button"
             />
           </q-td>
         </q-tr>

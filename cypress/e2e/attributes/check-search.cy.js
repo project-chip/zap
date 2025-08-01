@@ -8,12 +8,10 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 
 describe('Testing attribute search', () => {
   it('create a new endpoint and click on configure to open attributes of endpoint', () => {
-    cy.fixture('baseurl').then((data) => {
-      cy.visit(data.baseurl)
-    })
+    cy.visit('/')
     cy.setZclProperties()
     cy.fixture('data').then((data) => {
-      cy.gotoAttributePage(data.endpoint1, data.cluster1)
+      cy.createEndpointAndGoToClusterByIndex(data.endpoint1)
     })
   })
   it(
