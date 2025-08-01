@@ -124,9 +124,17 @@ limitations under the License.
       </feature>
     </features>
 
-    <attribute side="server" code="0x0000" define="COLOR_CONTROL_CURRENT_HUE" type="INT8U" min="0x00" max="0xFE" writable="false" reportable="true" default="0x00" optional="true">CurrentHue</attribute>
+    <attribute side="server" code="0x0000" name="CurrentHue" define="COLOR_CONTROL_CURRENT_HUE" type="INT8U" min="0x00" max="0xFE" writable="false" reportable="true" default="0x00" optional="true">
+      <mandatoryConform>
+        <feature name="HS"/>
+      </mandatoryConform>
+    </attribute>
     <!-- CURRENT_HUE -->
-    <attribute side="server" code="0x0001" define="COLOR_CONTROL_CURRENT_SATURATION" type="INT8U" min="0x00" max="0xFE" writable="false" reportable="true" default="0x00" optional="true">CurrentSaturation</attribute>
+    <attribute side="server" code="0x0001" name="CurrentSaturation" define="COLOR_CONTROL_CURRENT_SATURATION" type="INT8U" min="0x00" max="0xFE" writable="false" reportable="true" default="0x00" optional="true">
+      <mandatoryConform>
+        <feature name="HS"/>
+      </mandatoryConform>
+    </attribute>
     <!-- CURRENT_SATURATION -->
     <attribute side="server" code="0x0002" define="COLOR_CONTROL_REMAINING_TIME" type="INT16U" min="0x0000" max="0xFFFE" writable="false" default="0x0000" optional="true">RemainingTime</attribute>
     <!-- REMAINING_TIME -->
@@ -268,6 +276,9 @@ limitations under the License.
       <arg name="TransitionTime" type="INT16U"/>
       <arg name="OptionsMask" type="BITMAP8"/>
       <arg name="OptionsOverride" type="BITMAP8"/>
+      <mandatoryConform>
+        <feature name="HS"/>
+      </mandatoryConform>
     </command>
 
     <command source="client" code="0x01" name="MoveHue" optional="true" cli="zcl color-control movehue">
@@ -278,6 +289,9 @@ limitations under the License.
       <arg name="Rate" type="INT8U"/>
       <arg name="OptionsMask" type="BITMAP8"/>
       <arg name="OptionsOverride" type="BITMAP8"/>
+      <mandatoryConform>
+        <feature name="HS"/>
+      </mandatoryConform>
     </command>
 
     <command source="client" code="0x02" name="StepHue" optional="true" cli="zcl color-control stephue">
@@ -289,6 +303,9 @@ limitations under the License.
       <arg name="TransitionTime" type="INT8U"/>
       <arg name="OptionsMask" type="BITMAP8"/>
       <arg name="OptionsOverride" type="BITMAP8"/>
+      <mandatoryConform>
+        <feature name="HS"/>
+      </mandatoryConform>
     </command>
 
     <command source="client" code="0x03" name="MoveToSaturation" optional="true" cli="zcl color-control movetosat">
@@ -299,6 +316,9 @@ limitations under the License.
       <arg name="TransitionTime" type="INT16U"/>
       <arg name="OptionsMask" type="BITMAP8"/>
       <arg name="OptionsOverride" type="BITMAP8"/>
+      <mandatoryConform>
+        <feature name="HS"/>
+      </mandatoryConform>
     </command>
 
     <command source="client" code="0x04" name="MoveSaturation" optional="true" cli="zcl color-control movesat">
@@ -309,6 +329,9 @@ limitations under the License.
       <arg name="Rate" type="INT8U"/>
       <arg name="OptionsMask" type="BITMAP8"/>
       <arg name="OptionsOverride" type="BITMAP8"/>
+      <mandatoryConform>
+        <feature name="HS"/>
+      </mandatoryConform>
     </command>
 
     <command source="client" code="0x05" name="StepSaturation" optional="true" cli="zcl color-control stepsat">
@@ -320,6 +343,9 @@ limitations under the License.
       <arg name="TransitionTime" type="INT8U"/>
       <arg name="OptionsMask" type="BITMAP8"/>
       <arg name="OptionsOverride" type="BITMAP8"/>
+      <mandatoryConform>
+        <feature name="HS"/>
+      </mandatoryConform>
     </command>
 
     <command source="client" code="0x06" name="MoveToHueAndSaturation" optional="true" cli="zcl color-control movetohueandsat">
@@ -331,6 +357,9 @@ limitations under the License.
       <arg name="TransitionTime" type="INT16U"/>
       <arg name="OptionsMask" type="BITMAP8"/>
       <arg name="OptionsOverride" type="BITMAP8"/>
+      <mandatoryConform>
+        <feature name="HS"/>
+      </mandatoryConform>
     </command>
 
     <command source="client" code="0x07" name="MoveToColor" optional="true" cli="zcl color-control movetocolor">

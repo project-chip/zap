@@ -30,10 +30,10 @@ describe('Testing cluster filters', () => {
       cy.fixture('data').then((data) => {
         // Power Configurator for Zigbee is disabled and should not show up
         // Occupancy Sensing for Matter is disabled and should not exist
-        cy.get('tbody').children().contains(data.cluster10).should('not.exist')
+        cy.get('tbody').children().contains(data.cluster9).should('not.exist')
         // Basic for Zigbee is enabled and should show up
         // Identify for Matter is enabled and should show up
-        cy.get('tbody').children().contains(data.cluster11).should('exist')
+        cy.get('tbody').children().contains(data.cluster10).should('exist')
       })
     }
   )
@@ -49,10 +49,10 @@ describe('Testing cluster filters', () => {
       cy.fixture('data').then((data) => {
         // Power Configurator for Zigbee is legal and should show up
         // Occupancy Sensing for Matter is legal and should show up
-        if (data.cluster10 == 'Power Configuration') {
+        if (data.cluster9 == 'Power Configuration') {
           cy.get('tbody')
             .children()
-            .contains(data.cluster10)
+            .contains(data.cluster9)
             .should('exist')
             .parents('tr')
             .within(() => {
@@ -63,7 +63,7 @@ describe('Testing cluster filters', () => {
             })
           cy.get('tbody')
             .children()
-            .contains(data.cluster10)
+            .contains(data.cluster9)
             .should('exist')
             .parents('tr')
             .within(() => {
@@ -76,7 +76,7 @@ describe('Testing cluster filters', () => {
           // Occupancy Sensing
           cy.get('tbody')
             .children()
-            .contains(data.cluster10)
+            .contains(data.cluster9)
             .should('exist')
             .parents('tr')
             .within(() => {
@@ -87,7 +87,7 @@ describe('Testing cluster filters', () => {
             })
           cy.get('tbody')
             .children()
-            .contains(data.cluster10)
+            .contains(data.cluster9)
             .should('exist')
             .parents('tr')
             .within(() => {
@@ -100,7 +100,7 @@ describe('Testing cluster filters', () => {
 
         // Basic for Zigbee is legal and should show up
         // Identify for Matter is legal and should show up
-        cy.get('tbody').children().contains(data.cluster11).should('exist')
+        cy.get('tbody').children().contains(data.cluster10).should('exist')
       })
     }
   )

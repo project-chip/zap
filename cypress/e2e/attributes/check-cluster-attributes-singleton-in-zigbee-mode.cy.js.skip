@@ -19,7 +19,7 @@ describe('Testing endpoints sharing attribute values', () => {
       cy.visit(data.baseurl)
     })
     cy.setZclProperties()
-    cy.gotoAttributePage('Billing Unit (0x0203)', 'General')
+    cy.createEndpointAndGoToClusterByIndex('Billing Unit (0x0203)')
   })
   it(
     'set initial values on Endpoint 1',
@@ -47,13 +47,13 @@ describe('Testing endpoints sharing attribute values', () => {
         .type('33', { force: true })
 
       // Set ResetToFactoryDefaults command
-      cy.gotoCommandsTab()
+      cy.goToCommandsTabFromClusterView()
       cy.get(':nth-child(3) > .q-mt-xs > .q-checkbox__inner > input').check({
         force: true,
       })
 
       // Enable "ZCL version"
-      cy.gotoAttributeReportingTab()
+      cy.goToAttributeReportingTabFromClusterView()
       cy.get(
         '[data-cy="Attributes Reporting"] > .q-table__middle > .q-table > .q-virtual-scroll__content > :nth-child(1) > :nth-child(2) > .q-mt-xs > .q-toggle__inner'
       )
@@ -69,7 +69,7 @@ describe('Testing endpoints sharing attribute values', () => {
       cy.visit(data.baseurl)
     })
 
-    cy.gotoAttributePage('Chatting Station (0x0601)', 'General')
+    cy.createEndpointAndGoToClusterByIndex('Chatting Station (0x0601)')
   })
   it(
     'verify initial values on Endpoint 2 are reflected from Endpoint 1',
@@ -91,7 +91,7 @@ describe('Testing endpoints sharing attribute values', () => {
       ).should('have.value', '33')
 
       // check ResetToFactoryDefaults command - true/enabled
-      cy.gotoCommandsTab()
+      cy.goToCommandsTabFromClusterView()
       cy.get(':nth-child(3) > .q-mt-xs').should(
         'have.attr',
         'aria-checked',
@@ -106,7 +106,7 @@ describe('Testing endpoints sharing attribute values', () => {
         .should('have.attr', 'aria-checked', 'false')
 
       // Check for enabled "ZCL version"
-      cy.gotoAttributeReportingTab()
+      cy.goToAttributeReportingTabFromClusterView()
       cy.get(
         '[data-cy="Attributes Reporting"] > .q-table__middle > .q-table > .q-virtual-scroll__content > :nth-child(1) > :nth-child(2) > .q-mt-xs > .q-toggle__inner'
       ).should('be.visible')
@@ -120,9 +120,9 @@ describe('Testing endpoints sharing attribute values', () => {
       // Go back to main page
       cy.get('.router-link-active').click()
 
-      cy.gotoAttributePage(false, 'General')
+      cy.createEndpointAndGoToClusterByIndex(false)
 
-      cy.gotoCommandsTab()
+      cy.goToCommandsTabFromClusterView()
       cy.get(':nth-child(3) > .q-mt-xs').should(
         'have.attr',
         'aria-checked',

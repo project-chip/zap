@@ -13,7 +13,7 @@ describe('Testing attribute search', () => {
     })
     cy.setZclProperties()
     cy.fixture('data').then((data) => {
-      cy.gotoAttributePage(data.endpoint1, data.cluster1)
+      cy.createEndpointAndGoToClusterByIndex(data.endpoint1)
     })
   })
   it(

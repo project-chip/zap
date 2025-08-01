@@ -13,7 +13,10 @@ describe('Testing INT8U type validation', () => {
     })
     cy.setZclProperties()
     cy.fixture('data').then((data) => {
-      cy.gotoAttributePage(data.endpoint7, data.cluster9, data.int8clusterpath)
+      cy.createEndpointAndGoToClusterByIndex(
+        data.endpoint7,
+        data.int8clusterpath
+      )
     })
   })
   it(

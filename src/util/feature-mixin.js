@@ -31,7 +31,8 @@ export default {
       return this.$store.state.zap.attributes.find(
         (attribute) =>
           attribute.name == dbEnum.featureMapAttribute.name &&
-          attribute.code == dbEnum.featureMapAttribute.code
+          attribute.code == dbEnum.featureMapAttribute.code &&
+          attribute.side == dbEnum.clusterSide.server
       )?.id
     },
     featureMapAttribute() {

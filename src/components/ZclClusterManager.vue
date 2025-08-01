@@ -48,6 +48,7 @@ limitations under the License.
             color="secondary"
             @click="setDeviceTypeFeatures"
             to="/feature"
+            data-test="device-type-features-btn"
           />
         </div>
         <q-btn
