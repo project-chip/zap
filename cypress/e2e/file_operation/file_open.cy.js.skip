@@ -14,9 +14,7 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 })
 describe('Check theme functionality', () => {
   beforeEach(() => {
-    cy.fixture('baseurl').then((data) => {
-      cy.visit(data.baseurl)
-    })
+    cy.visit('/')
   })
 
   it('Checkig for dirty flag after opening config', () => {

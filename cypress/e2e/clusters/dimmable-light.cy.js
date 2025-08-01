@@ -10,9 +10,7 @@ describe(
   { defaultCommandTimeout: 6000, retries: { runMode: 2, openMode: 2 } },
   () => {
     it('create a Dimmable Light endpoint', () => {
-      cy.fixture('baseurl').then((data) => {
-        cy.visit(data.baseurl)
-      })
+      cy.visit('/')
       cy.setZclProperties()
       cy.fixture('data').then((data) => {
         cy.addEndpoint(data.endpoint6)

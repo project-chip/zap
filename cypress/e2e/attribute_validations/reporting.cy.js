@@ -14,9 +14,7 @@ describe('Add multiple clusters and search', () => {
     }
 
     // Continue with the test if the mode is not "matter"
-    cy.fixture('baseurl').then((data) => {
-      cy.visit(data.baseurl)
-    })
+    cy.visit('/')
     cy.setZclProperties()
 
     // Create and validate the first endpoint

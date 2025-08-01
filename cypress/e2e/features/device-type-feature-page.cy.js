@@ -14,10 +14,7 @@ describe('Testing Matter Device Type Feature Page', () => {
   } else {
     it('Test opening device type feature page and enable a feature.', () => {
       cy.fixture('data').then((data) => {
-        cy.fixture('baseurl').then((data) => {
-          cy.visit(data.baseurl)
-        })
-
+        cy.visit('/')
         cy.addEndpoint(data.extendedColorLightEndpoint)
 
         // navigate to the device type feature page

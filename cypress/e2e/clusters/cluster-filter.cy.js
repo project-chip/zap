@@ -8,9 +8,7 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 
 describe('Testing cluster filters', () => {
   it('create a new endpoint', { retries: { runMode: 2, openMode: 2 } }, () => {
-    cy.fixture('baseurl').then((data) => {
-      cy.visit(data.baseurl)
-    })
+    cy.visit('/')
     cy.setZclProperties()
     cy.fixture('data').then((data) => {
       // Selecting SE Range Extender for Zigbee

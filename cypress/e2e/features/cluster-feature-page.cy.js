@@ -14,9 +14,7 @@ describe('Testing Matter Cluster Feature Page', () => {
   } else {
     it('Test opening cluster feature page and enabling a feature.', () => {
       cy.fixture('data').then((data) => {
-        cy.fixture('baseurl').then((data) => {
-          cy.visit(data.baseurl)
-        })
+        cy.visit('/')
         // create a new endpoint on Extended Color Light device type and go to the Color Control cluster
         cy.addEndpoint(data.extendedColorLightEndpoint)
         cy.goToClusterByName(

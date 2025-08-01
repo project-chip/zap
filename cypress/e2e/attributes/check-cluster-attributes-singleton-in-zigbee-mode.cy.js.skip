@@ -15,9 +15,7 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 
 describe('Testing endpoints sharing attribute values', () => {
   it('create Endpoint 1', () => {
-    cy.fixture('baseurl').then((data) => {
-      cy.visit(data.baseurl)
-    })
+    cy.visit('/')
     cy.setZclProperties()
     cy.createEndpointAndGoToClusterByIndex('Billing Unit (0x0203)')
   })
@@ -65,9 +63,7 @@ describe('Testing endpoints sharing attribute values', () => {
     }
   )
   it('create Endpoint 2', () => {
-    cy.fixture('baseurl').then((data) => {
-      cy.visit(data.baseurl)
-    })
+    cy.visit('/')
 
     cy.createEndpointAndGoToClusterByIndex('Chatting Station (0x0601)')
   })

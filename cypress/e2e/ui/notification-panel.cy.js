@@ -8,9 +8,7 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 
 describe('Check notification panel functionality', () => {
   it('Set Data', () => {
-    cy.fixture('baseurl').then((data) => {
-      cy.visit(data.baseurl)
-    })
+    cy.visit('/')
     cy.setZclProperties()
   })
   it(
