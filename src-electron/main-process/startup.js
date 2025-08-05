@@ -186,10 +186,10 @@ function gatherFiles(filesArg, options = { suffix: '.zap', doBlank: true }) {
  */
 async function noopConvert(resultsFile, logger) {
   if (resultsFile != null) {
-    logger(`😎 No-op conversion: ${resultsFile}`)
+    logger(env.formatMessage('😎', `No-op conversion: ${resultsFile}`))
     return writeConversionResultsFile(resultsFile)
   } else {
-    logger(`😎 No-op, no result, conversion.`)
+    logger(env.formatMessage('😎', 'No-op, no result, conversion.'))
   }
 }
 
@@ -235,18 +235,27 @@ async function upgradeZapFile(argv, options) {
   let upgrade_results = argv.results
   for (let i = 0; i < zapFiles.length; i++) {
     let zapFile = zapFiles[i]
-    options.logger(`🤖 Update started for file: ${zapFile}`)
+    options.logger(
+      env.formatMessage('🤖', ` Update started for file: ${zapFile}`)
+    )
     let dbFile = env.sqliteFile('upgrade')
     let db = await dbApi.initDatabaseAndLoadSchema(
       dbFile,
       env.schemaFile(),
       env.zapVersion()
     )
-    options.logger('    🐝 database and schema initialized')
+    options.logger(
+      env.formatMessage('🐝', '    database and schema initialized')
+    )
     await zclLoader.loadZclMetafiles(db, argv.zclProperties, {
       failOnLoadingError: !argv.noLoadingFailure
     })
-    options.logger(`    🐝 New zcl package loaded: ${argv.zclProperties}`)
+    options.logger(
+      env.formatMessage(
+        '🐝',
+        `    New zcl package loaded: ${argv.zclProperties}`
+      )
+    )
     if (argv.generationTemplate != null) {
       let ctx = await generatorEngine.loadTemplates(
         db,
@@ -258,7 +267,12 @@ async function upgradeZapFile(argv, options) {
       if (ctx.error) {
         throw ctx.error
       }
-      options.logger(`    🐝 New templates loaded: ${argv.generationTemplate}`)
+      options.logger(
+        env.formatMessage(
+          '�',
+          `� New templates loaded: ${argv.generationTemplate}`
+        )
+      )
     }
     let state = await importJs.readDataFromFile(zapFile)
     let upgradeZclPackages = await util.getUpgradePackageMatch(
@@ -292,7 +306,7 @@ async function upgradeZapFile(argv, options) {
       upgradeZclPackages: upgradeZclPackages,
       upgradeTemplatePackages: upgradeTemplatePackages
     })
-    options.logger(`    👈 read in: ${zapFile}`)
+    options.logger(env.formatMessage('�', `� read in: ${zapFile}`))
     let of = outputFile(zapFile, zapFile)
     let parent = path.dirname(of)
     if (!fs.existsSync(parent)) {
@@ -310,7 +324,7 @@ async function upgradeZapFile(argv, options) {
       createBackup: true,
       fileFormat: argv.saveFileFormat
     })
-    options.logger(`    👉 write out: ${outputPath}`)
+    options.logger(env.formatMessage('�', `� write out: ${outputPath}`))
     try {
       if (upgrade_results != null) {
         if (!fs.existsSync(path.dirname(upgrade_results))) {
@@ -321,13 +335,13 @@ async function upgradeZapFile(argv, options) {
           importResult.upgradeMessages
         )
       }
-      options.logger(`    👉 write out: ${upgrade_results}`)
+      options.logger(env.formatMessage('�', `� write out: ${upgrade_results}`))
     } catch (error) {
       options.logger(
         env.formatMessage('⚠️', `failed to write out: ${upgrade_results}`)
       )
     }
-    options.logger('😎 Upgrade done!')
+    options.logger(env.formatMessage('�', '� Upgrade done!'))
   }
 
   if (options.quitFunction != null) {
@@ -369,11 +383,13 @@ async function startConvert(argv, options) {
     env.schemaFile(),
     env.zapVersion()
   )
-  options.logger('    🐝 database and schema initialized')
+  options.logger(env.formatMessage('�', '� database and schema initialized'))
   await zclLoader.loadZclMetafiles(db, argv.zclProperties, {
     failOnLoadingError: !argv.noLoadingFailure
   })
-  options.logger(`    🐝 zcl package loaded: ${argv.zclProperties}`)
+  options.logger(
+    env.formatMessage('�', `� zcl package loaded: ${argv.zclProperties}`)
+  )
   if (argv.generationTemplate != null) {
     let ctx = await generatorEngine.loadTemplates(db, argv.generationTemplate, {
       failOnLoadingError: !argv.noLoadingFailure
@@ -381,7 +397,9 @@ async function startConvert(argv, options) {
     if (ctx.error) {
       throw ctx.error
     }
-    options.logger(`    🐝 templates loaded: ${argv.generationTemplate}`)
+    options.logger(
+      env.formatMessage('�', `� templates loaded: ${argv.generationTemplate}`)
+    )
   }
 
   await util.executePromisesSequentially(files, async (singlePath, index) => {
@@ -406,7 +424,7 @@ async function startConvert(argv, options) {
       )
     }
 
-    options.logger(`    👈 read in: ${singlePath}`)
+    options.logger(env.formatMessage('�', `� read in: ${singlePath}`))
     let of = outputFile(singlePath, output, index)
     let parent = path.dirname(of)
     if (!fs.existsSync(parent)) {
@@ -425,18 +443,20 @@ async function startConvert(argv, options) {
       fileFormat: argv.saveFileFormat
     })
 
-    options.logger(`    👉 write out: ${outputPath}`)
+    options.logger(env.formatMessage('�', `� write out: ${outputPath}`))
   })
 
   try {
     if (conversion_results != null)
       await writeConversionResultsFile(conversion_results)
-    options.logger(`    👉 write out: ${conversion_results}`)
+    options.logger(env.formatMessage('�', `� write out: ${conversion_results}`))
   } catch (error) {
-    options.logger(`    ⚠️  failed to write out: ${conversion_results}`)
+    options.logger(
+      env.formatMessage('⚠️', `  failed to write out: ${conversion_results}`)
+    )
   }
 
-  options.logger('😎 Conversion done!')
+  options.logger(env.formatMessage('😎', 'Conversion done!'))
   if (options.quitFunction != null) {
     options.quitFunction()
   }
@@ -475,7 +495,7 @@ async function writeConversionResultsFile(file, messages = null) {
  * @param {*} options
  */
 async function startRegenerateSdk(argv, options) {
-  options.logger('🤖 Regenerating whole SDK.')
+  options.logger(env.formatMessage('�', '� Regenerating whole SDK.'))
   let sdkPath = argv.sdk
   if (!sdkPath) {
     options.logger(`⛔ regenerateSdk requires the --sdk <sdkFile> argument`)
@@ -489,29 +509,29 @@ async function startRegenerateSdk(argv, options) {
 
     let sdk = await sdkUtil.readSdkJson(sdkPath, options)
 
-    options.logger('🐝 Loading ZCL information')
+    options.logger(env.formatMessage('�', '� Loading ZCL information'))
     sdk.zclPackageId = {}
     for (let key of Object.keys(sdk.rt.zclMetafiles)) {
       let p = sdk.rt.zclMetafiles[key]
-      options.logger(`    👈 ${p}`)
+      options.logger(env.formatMessage('�', `� ${p}`))
       let loadData = await zclLoader.loadZcl(db, p)
       sdk.zclPackageId[key] = loadData.packageId
     }
-    options.logger('🐝 Loading generation templates')
+    options.logger(env.formatMessage('�', '� Loading generation templates'))
     sdk.templatePackageId = {}
     for (let key of Object.keys(sdk.rt.genTemplates)) {
       let p = sdk.rt.genTemplates[key]
-      options.logger(`    👈 ${p}`)
+      options.logger(env.formatMessage('�', `� ${p}`))
       let loadData = await generatorEngine.loadTemplates(db, p, {
         failOnLoadingError: !argv.noLoadingFailure
       })
       sdk.templatePackageId[key] = loadData.packageId
     }
-    options.logger('🐝 Performing generation')
+    options.logger(env.formatMessage('�', '� Performing generation'))
     for (let gen of sdk.rt.generateCommands) {
       let inputFile = gen.inputFile
       let outputDirectory = gen.outputDirectory
-      options.logger(`    👈 loading: ${inputFile} `)
+      options.logger(env.formatMessage('�', `� loading: ${inputFile}`))
       let loaderResult = await importJs.importDataFromFile(db, inputFile)
       let sessionId = loaderResult.sessionId
       let templateKeys = []
@@ -523,7 +543,9 @@ async function startRegenerateSdk(argv, options) {
         }
       }
       for (let tK of templateKeys) {
-        options.logger(`    👉 generating: ${tK} => ${outputDirectory}`)
+        options.logger(
+          env.formatMessage('�', `� generating: ${tK} => ${outputDirectory}`)
+        )
         await generatorEngine.generateAndWriteFiles(
           db,
           sessionId,
@@ -542,7 +564,7 @@ async function startRegenerateSdk(argv, options) {
         )
       }
     }
-    options.logger('😎 Regeneration done!')
+    options.logger(env.formatMessage('�', '� Regeneration done!'))
   }
   if (options.quitFunction != null) options.quitFunction()
 }
@@ -556,9 +578,9 @@ async function startRegenerateSdk(argv, options) {
 async function startAnalyze(argv, options) {
   let paths = argv.zapFiles
   let dbFile = env.sqliteFile('analysis')
-  options.logger(`🤖 Starting analysis: ${paths}`)
+  options.logger(env.formatMessage('🤖', ` Starting analysis: ${paths}`))
   if (options.cleanDb && fs.existsSync(dbFile)) {
-    options.logger('    👉 remove old database file')
+    options.logger(env.formatMessage('�', '� remove old database file'))
     fs.unlinkSync(dbFile)
   }
   let db = await dbApi.initDatabaseAndLoadSchema(
@@ -566,7 +588,7 @@ async function startAnalyze(argv, options) {
     env.schemaFile(),
     env.zapVersion()
   )
-  options.logger('    👉 database and schema initialized')
+  options.logger(env.formatMessage('�', '� database and schema initialized'))
   await zclLoader.loadZclMetafiles(db, argv.zclProperties, {
     failOnLoadingError: !argv.noLoadingFailure
   })
@@ -579,11 +601,11 @@ async function startAnalyze(argv, options) {
       })
       .then((importResult) => util.sessionReport(db, importResult.sessionId))
       .then((report) => {
-        options.logger(`🤖 File: ${singlePath}\n`)
+        options.logger(env.formatMessage('🤖', ` File: ${singlePath}\n`))
         options.logger(report)
       })
   )
-  options.logger('😎 Analysis done!')
+  options.logger(env.formatMessage('�', '� Analysis done!'))
   if (options.quitFunction != null) options.quitFunction()
 }
 
@@ -642,10 +664,10 @@ async function startSelfCheck(
   }
 ) {
   env.logInitStdout()
-  options.logger('🤖 Starting self-check')
+  options.logger(env.formatMessage('�', '� Starting self-check'))
   let dbFile = env.sqliteFile('self-check')
   if (options.cleanDb && fs.existsSync(dbFile)) {
-    options.logger('    👉 remove old database file')
+    options.logger(env.formatMessage('�', '� remove old database file'))
     fs.unlinkSync(dbFile)
   }
   let mainDb = await dbApi.initDatabaseAndLoadSchema(
@@ -653,7 +675,7 @@ async function startSelfCheck(
     env.schemaFile(),
     env.zapVersion()
   )
-  options.logger('    👉 database and schema initialized')
+  options.logger(env.formatMessage('�', '� database and schema initialized'))
   let zclPackageIds = await zclLoader.loadZclMetafiles(
     mainDb,
     argv.zclProperties,
@@ -661,7 +683,12 @@ async function startSelfCheck(
       failOnLoadingError: !argv.noLoadingFailure
     }
   )
-  options.logger(`    👉 zcl metadata packages loaded: ${zclPackageIds.length}`)
+  options.logger(
+    env.formatMessage(
+      '�',
+      `� zcl metadata packages loaded: ${zclPackageIds.length}`
+    )
+  )
   let ctx = await generatorEngine.loadTemplates(
     mainDb,
     argv.generationTemplate,
@@ -670,9 +697,11 @@ async function startSelfCheck(
     }
   )
   if (ctx.nop) {
-    options.logger(`    👉 no generation template packages loaded`)
+    options.logger(
+      env.formatMessage('�', `� no generation template packages loaded`)
+    )
   } else if (ctx.error) {
-    options.logger(`    ⚠️  ${ctx.error}`)
+    options.logger(env.formatMessage('⚠️', `  ${ctx.error}`))
   } else {
     options.logger(
       `    👉 generation template packages loaded: ${ctx.packageIds.length}`
@@ -681,9 +710,9 @@ async function startSelfCheck(
 
   // This is a hack to prevent too quick shutdown that causes core dumps.
   dbApi.closeDatabaseSync(mainDb)
-  options.logger('    👉 database closed')
+  options.logger(env.formatMessage('�', '� database closed'))
   await util.waitFor(2000)
-  options.logger('😎 Self-check done!')
+  options.logger(env.formatMessage('�', '� Self-check done!'))
   if (options.quitFunction != null) {
     options.quitFunction()
   }
@@ -796,7 +825,7 @@ async function generateSingleFile(
     }
   }
   if (zapFile === BLANK_SESSION) {
-    options.logger(`👉 using empty configuration`)
+    options.logger(env.formatMessage('�', `� using empty configuration`))
     sessionId = await querySession.createBlankSession(db)
     await util.ensurePackagesAndPopulateSessionOptions(
       db,
@@ -810,7 +839,7 @@ async function generateSingleFile(
     )
     output = outputPattern
   } else {
-    options.logger(`👉 using input file: ${zapFile}`)
+    options.logger(env.formatMessage('�', `� using input file: ${zapFile}`))
     let importResult = await importJs.importDataFromFile(db, zapFile, {
       defaultZclMetafile: options.zcl,
       postImportScript: options.postImportScript,
@@ -823,7 +852,9 @@ async function generateSingleFile(
     sessionId = importResult.sessionId
     output = outputFile(zapFile, outputPattern, index)
   }
-  options.logger(`👉 using output destination: ${output}`)
+  options.logger(
+    env.formatMessage('�', `� using output destination: ${output}`)
+  )
 
   let sessPkg = await util.ensurePackagesAndPopulateSessionOptions(
     db,
@@ -838,7 +869,9 @@ async function generateSingleFile(
   }
 
   let nsDuration = process.hrtime.bigint() - hrstart
-  options.logger(`🕐 File loading time: ${util.duration(nsDuration)}`)
+  options.logger(
+    env.formatMessage('�', `� File loading time: ${util.duration(nsDuration)}`)
+  )
 
   options.fileLoadTime = nsDuration
 
@@ -944,7 +977,9 @@ async function startGeneration(argv, options) {
     doBlank: false
   })
   if (files.length == 0) {
-    options.logger(`    👎 no zap files found in: ${zapFiles}`)
+    options.logger(
+      env.formatMessage('�', `� no zap files found in: ${zapFiles}`)
+    )
     throw `👎 no zap files found in: ${zapFiles}`
   }
 
@@ -967,7 +1002,9 @@ async function startGeneration(argv, options) {
   }
 
   let nsDuration = process.hrtime.bigint() - hrstart
-  options.logger(`🕐 Setup time: ${util.duration(nsDuration)} `)
+  options.logger(
+    env.formatMessage('�', `� Setup time: ${util.duration(nsDuration)}`)
+  )
 
   await util.executePromisesSequentially(files, (f, index) =>
     generateSingleFile(
