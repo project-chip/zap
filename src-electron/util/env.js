@@ -641,3 +641,18 @@ export function httpStaticContent() {
 export function formatMessage(emoji, message) {
   return emojiUtil.formatMessage(emoji, message)
 }
+
+/**
+ * Set emoji disabled state (mainly for testing)
+ * @param {boolean} disabled - whether to disable emojis
+ */
+export function setNoEmoji(disabled) {
+  return emojiUtil.setEmojiDisabled(disabled)
+}
+
+/**
+ * Reset emoji state to use environment/command line detection
+ */
+export function resetEmojiState() {
+  return emojiUtil.resetEmojiState()
+}
