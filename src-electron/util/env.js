@@ -25,6 +25,7 @@ const path = require('path')
 const os = require('os')
 const fs = require('fs')
 const pino = require('pino')
+const emojiUtil = require('./emoji-util')
 const zapBaseUrl = 'http://localhost:'
 
 let saveFileFormat = 2 // This is the enabled only .zap file format
@@ -629,4 +630,14 @@ export function versionsCheck() {
  */
 export function httpStaticContent() {
   return httpStaticContentPath
+}
+
+/**
+ * Format a message with emoji if enabled, without if disabled.
+ * @param {string} emoji - the emoji character
+ * @param {string} message - the text message
+ * @returns {string} formatted message
+ */
+export function formatMessage(emoji, message) {
+  return emojiUtil.formatMessage(emoji, message)
 }
