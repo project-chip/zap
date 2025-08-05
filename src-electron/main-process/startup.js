@@ -322,7 +322,9 @@ async function upgradeZapFile(argv, options) {
       }
       options.logger(`    👉 write out: ${upgrade_results}`)
     } catch (error) {
-      options.logger(`    ⚠️  failed to write out: ${upgrade_results}`)
+      options.logger(
+        env.formatMessage('⚠️', `failed to write out: ${upgrade_results}`)
+      )
     }
     options.logger('😎 Upgrade done!')
   }
@@ -348,15 +350,17 @@ async function startConvert(argv, options) {
   let zapFiles = argv.zapFiles
   let files = gatherFiles(zapFiles, { suffix: '.zap', doBlank: true })
   if (files.length == 0) {
-    options.logger(`    👎 no zap files found in: ${zapFiles}`)
-    throw `👎 no zap files found in: ${zapFiles}`
+    options.logger(
+      env.formatMessage('👎', `no zap files found in: ${zapFiles}`)
+    )
+    throw env.formatMessage('👎', `no zap files found in: ${zapFiles}`)
   }
   if (argv.output == null) throw 'You need to specify output file.'
   let output = argv.output
   let conversion_results = argv.results
-  options.logger(`🤖 Conversion started
-    🔍 input files: ${files}
-    🔍 output pattern: ${output}`)
+  options.logger(`${env.formatMessage('🤖', 'Conversion started')}
+    ${env.formatMessage('🔍', `input files: ${files}`)}
+    ${env.formatMessage('🔍', `output pattern: ${output}`)}`)
 
   let dbFile = env.sqliteFile('convert')
   let db = await dbApi.initDatabaseAndLoadSchema(

@@ -236,6 +236,11 @@ export function processCommandLineArguments(argv) {
       type: 'boolean',
       deafult: false
     })
+    .option('noEmoji', {
+      desc: 'Disable emoji characters in console output.',
+      type: 'boolean',
+      default: false
+    })
     .usage('Usage: $0 <command> [options] ... [file.zap] ...')
     .version(
       `Version: ${zapVersion.version}\nFeature level: ${
@@ -270,6 +275,11 @@ For more information, see ${commonUrl.projectUrl}`
   }
 
   env.setSaveFileFormat(ret.saveFileFormat)
+
+  // Set emoji preference via environment variable
+  if (ret.noEmoji) {
+    process.env.NO_EMOJI = '1'
+  }
 
   // Collect files that are passed as loose arguments
   let allFiles = ret._.filter((arg, index) => {
