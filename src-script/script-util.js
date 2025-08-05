@@ -2,8 +2,8 @@
  *
  *    Copyright (c) 2020 Silicon Labs
  *
- *    Licensed under the Apache L    console.log(emojiUtil.formatMessage('🚀', `Executing: ${cmd} ${args.join(' ')}`))
-    let c = spawn(cmd, args)ense, Version 2.0 (the "License");
+ *    Licensed under the Apache License, Version 2.0 (the "License");
+ *    you may not use this file except in compliance with the License.
  *    you may not use this file except in compliance with the License.
  *    You may obtain a copy of the License at
  *
