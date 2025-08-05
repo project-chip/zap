@@ -15,7 +15,7 @@ function isEmojiDisabled() {
   if (emojiDisabled !== null) {
     return emojiDisabled
   }
-  
+
   // Otherwise check environment and command line
   return (
     process.env.NO_EMOJI === '1' ||
@@ -39,21 +39,7 @@ function resetEmojiState() {
   emojiDisabled = null
 }
 
-/**
- * Format a message with emoji if enabled, without if disabled.
- * @param {string} emoji - the emoji character
- * @param {string} message - the text message
- * @returns {string} formatted message
- */
-function formatMessage(emoji, message) {
-  if (isEmojiDisabled()) {
-    return message
-  }
-  return `${emoji} ${message}`
-}
-
 module.exports = {
-  formatMessage,
   isEmojiDisabled,
   setEmojiDisabled,
   resetEmojiState

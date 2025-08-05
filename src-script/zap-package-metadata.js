@@ -24,7 +24,7 @@
 // apack_zap.package
 const fs = require('fs')
 const path = require('path')
-const emojiUtil = require('../src-electron/util/emoji-util')
+const env = require('../src-electron/util/env')
 
 const packageJson = path.join(__dirname, '../package.json')
 const zapPackage = path.join(__dirname, '../apack_zap.package')
@@ -48,7 +48,7 @@ fs.readFile(packageJson, 'utf8', (err, data) => {
 `
 
   console.log(
-    emojiUtil.formatMessage(
+    env.formatMessage(
       '🐝',
       ` Generating ${zapPackage} with version number ${version}`
     )

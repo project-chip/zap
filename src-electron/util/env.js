@@ -639,7 +639,10 @@ export function httpStaticContent() {
  * @returns {string} formatted message
  */
 export function formatMessage(emoji, message) {
-  return emojiUtil.formatMessage(emoji, message)
+  if (emojiUtil.isEmojiDisabled()) {
+    return message
+  }
+  return `${emoji} ${message}`
 }
 
 /**

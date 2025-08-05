@@ -21,7 +21,7 @@
 const path = require('path')
 const fs = require('fs')
 const scriptUtil = require('./script-util')
-const emojiUtil = require('../src-electron/util/emoji-util')
+const env = require('../src-electron/util/env')
 const process = require('process')
 
 /**
@@ -46,20 +46,20 @@ async function run(argv) {
   fs.mkdirSync(outputDir, { recursive: true })
 
   console.log(
-    emojiUtil.formatMessage('👉', ` Detecting GSDK at directory ${gsdkDir} ...`)
+    env.formatMessage('👉', ` Detecting GSDK at directory ${gsdkDir} ...`)
   )
   if (!fs.existsSync(path.join(gsdkDir, 'gecko_sdk.slcs'))) {
     throw Error(
       `Invalid location. Directory ${gsdkDir} does not look like a gecko sdk.`
     )
   }
-  console.log(emojiUtil.formatMessage('👍', ` Gecko SDK detected.`))
+  console.log(env.formatMessage('👍', ` Gecko SDK detected.`))
 
   let zclJson = path.join(gsdkDir, 'app/zcl/zcl-zap.json')
   if (!fs.existsSync(zclJson)) {
     throw Error(`Invalid zcl.json. File ${zclJson} does not exist.`)
   } else {
-    console.log(emojiUtil.formatMessage('👍', ` ZCL metafile: ${zclJson}`))
+    console.log(env.formatMessage('👍', ` ZCL metafile: ${zclJson}`))
   }
 
   let templateJson = path.join(
@@ -69,19 +69,15 @@ async function run(argv) {
   if (!fs.existsSync(templateJson)) {
     throw Error(`Invalid template.json. File ${templateJson} does not exist.`)
   } else {
-    console.log(
-      emojiUtil.formatMessage('👍', ` Templates metafile: ${templateJson}`)
-    )
+    console.log(env.formatMessage('👍', ` Templates metafile: ${templateJson}`))
   }
 
   let zapFileRoot = path.join(gsdkDir, 'protocol/zigbee/app/framework/')
 
   let zapFiles = await scriptUtil.locateRecursively(zapFileRoot, '.*\\.zap$')
 
-  console.log(
-    emojiUtil.formatMessage('👍', ` Located ${zapFiles.length} zap files:`)
-  )
-  zapFiles.forEach((f) => console.log(emojiUtil.formatMessage('👉', `  ${f}`)))
+  console.log(env.formatMessage('👍', ` Located ${zapFiles.length} zap files:`))
+  zapFiles.forEach((f) => console.log(env.formatMessage('👉', `  ${f}`)))
 
   let cmdArgs = [
     'node',
@@ -103,10 +99,10 @@ async function run(argv) {
 
 run(process.argv.slice(2))
   .then(() => {
-    console.log(emojiUtil.formatMessage('😎', ` Done!`))
+    console.log(env.formatMessage('😎', ` Done!`))
   })
   .catch((err) => {
-    console.log(emojiUtil.formatMessage('⛔', `Error: ${err.message}\n========\n`))
+    console.log(env.formatMessage('⛔', `Error: ${err.message}\n========\n`))
     console.log(err)
     process.exit(1)
   })
