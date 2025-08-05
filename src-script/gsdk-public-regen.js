@@ -106,7 +106,7 @@ run(process.argv.slice(2))
     console.log(emojiUtil.formatMessage('😎', ` Done!`))
   })
   .catch((err) => {
-    console.log(`⛔ Error: ${err.message}\n========\n`)
+    console.log(emojiUtil.formatMessage('⛔', `Error: ${err.message}\n========\n`))
     console.log(err)
     process.exit(1)
   })

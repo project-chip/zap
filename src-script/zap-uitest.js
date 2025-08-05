@@ -17,6 +17,7 @@
  */
 
 const scriptUtil = require('./script-util.js')
+const emojiUtil = require('../src-electron/util/emoji-util')
 
 let browserToUse = 'chrome'
 let cypressMode = 'run'
@@ -90,11 +91,11 @@ cyp
 
 svr.then(() => {
   if (returnCode == 0) {
-    console.log('😎 All done: Cypress tests passed and server shut down.')
+    console.log(emojiUtil.formatMessage('😎', 'All done: Cypress tests passed and server shut down.'))
     process.exit(0)
   } else if (ignoreErrorCode) {
     console.log(
-      '⚠️ There was an error code, but will be ignored. Please check logs.'
+      emojiUtil.formatMessage('⚠️', 'There was an error code, but will be ignored. Please check logs.')
     )
     process.exit(0)
   } else {
