@@ -1,6 +1,6 @@
 {
   "name": "zap",
-  "version": "2025.8.5",
+  "version": "0.0.0",
   "description": "Configuration tool for the Zigbee Cluster Library",
   "productName": "zap",
   "cordovaId": "",
