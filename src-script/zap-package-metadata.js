@@ -48,7 +48,7 @@ fs.readFile(packageJson, 'utf8', (err, data) => {
 `
 
   console.log(
-    env.formatMessage(
+    env.formatEmojiMessage(
       '🐝',
       ` Generating ${zapPackage} with version number ${version}`
     )

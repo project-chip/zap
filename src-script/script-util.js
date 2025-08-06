@@ -42,14 +42,16 @@ const hashOptions = {}
  */
 async function executeCmd(ctx, cmd, args) {
   return new Promise((resolve, reject) => {
-    console.log(env.formatMessage('🚀', `Executing: ${cmd} ${args.join(' ')}`))
+    console.log(
+      env.formatEmojiMessage('🚀', `Executing: ${cmd} ${args.join(' ')}`)
+    )
     let c = spawn(cmd, args)
     c.on('exit', (code) => {
       if (code == 0) resolve(ctx)
       else {
         if (code) {
           console.log(
-            env.formatMessage(
+            env.formatEmojiMessage(
               '👎',
               `Program ${cmd} exited with error code: ${code}`
             )
@@ -57,7 +59,7 @@ async function executeCmd(ctx, cmd, args) {
           reject(code)
         } else {
           console.log(
-            env.formatMessage(
+            env.formatEmojiMessage(
               '👎',
               `Program ${cmd} exited with signal code: ${c.signalCode}`
             )
@@ -87,14 +89,16 @@ async function executeCmd(ctx, cmd, args) {
  */
 async function getStdout(onError, cmd, args) {
   return new Promise((resolve, reject) => {
-    console.log(env.formatMessage('🚀', `Executing: ${cmd} ${args.join(' ')}`))
+    console.log(
+      env.formatEmojiMessage('🚀', `Executing: ${cmd} ${args.join(' ')}`)
+    )
     let c = spawn(cmd, args)
     let str = ''
     c.on('exit', (code) => {
       if (code == 0) resolve(str)
       else {
         console.log(
-          env.formatMessage(
+          env.formatEmojiMessage(
             '👎',
             `Program ${cmd} exited with error code: ${code}`
           )
@@ -122,13 +126,16 @@ async function rebuildSpaIfNeeded() {
     path.join(__dirname, '../src'),
     hashOptions
   )
-  console.log(env.formatMessage('🔍', `Current src hash: ${srcHash.hash}`))
+  console.log(env.formatEmojiMessage('🔍', `Current src hash: ${srcHash.hash}`))
   let srcSharedHash = await folderHash.hashElement(
     path.join(__dirname, '../src-shared'),
     hashOptions
   )
   console.log(
-    env.formatMessage('🔍', `Current src-shared hash: ${srcSharedHash.hash}`)
+    env.formatEmojiMessage(
+      '🔍',
+      `Current src-shared hash: ${srcSharedHash.hash}`
+    )
   )
   let ctx = {
     hash: {
@@ -144,7 +151,7 @@ async function rebuildSpaIfNeeded() {
             let oldHash = null
             if (err) {
               console.log(
-                env.formatMessage(
+                env.formatEmojiMessage(
                   '👎',
                   `Error reading old hash file: ${spaHashFileName}`
                 )
@@ -153,10 +160,13 @@ async function rebuildSpaIfNeeded() {
             } else {
               oldHash = JSON.parse(data)
               console.log(
-                env.formatMessage('🔍', `Previous src hash: ${oldHash.srcHash}`)
+                env.formatEmojiMessage(
+                  '🔍',
+                  `Previous src hash: ${oldHash.srcHash}`
+                )
               )
               console.log(
-                env.formatMessage(
+                env.formatEmojiMessage(
                   '🔍',
                   `Previous src-shared hash: ${oldHash.srcSharedHash}`
                 )
@@ -171,7 +181,7 @@ async function rebuildSpaIfNeeded() {
               )
             } else {
               console.log(
-                env.formatMessage(
+                env.formatEmojiMessage(
                   '👍',
                   "There were no changes to front-end code, so we don't have to rebuild the SPA."
                 )
@@ -238,7 +248,7 @@ async function stampVersion() {
     version.zapVersion = result.version
     let versionFile = path.join(__dirname, '../.version.json')
     console.log(
-      env.formatMessage(
+      env.formatEmojiMessage(
         '🔍',
         `Git commit: ${version.hash} from ${version.date}`
       )
@@ -338,7 +348,9 @@ function duration(nsDifference) {
  */
 async function doneStamp(startTime) {
   let nsDuration = process.hrtime.bigint() - startTime
-  console.log(env.formatMessage('😎', `All done: ${duration(nsDuration)}.`))
+  console.log(
+    env.formatEmojiMessage('😎', `All done: ${duration(nsDuration)}.`)
+  )
   return setPackageJsonVersion(null, 'fake')
 }
 

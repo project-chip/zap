@@ -638,7 +638,7 @@ function httpStaticContent() {
  * @param {string} message - the text message
  * @returns {string} formatted message
  */
-function formatMessage(emoji, message) {
+function formatEmojiMessage(emoji, message) {
   if (emojiUtil.isEmojiDisabled()) {
     return message
   }
@@ -701,6 +701,6 @@ exports.logWarningToFile = logWarningToFile
 exports.isMatchingVersion = isMatchingVersion
 exports.versionsCheck = versionsCheck
 exports.httpStaticContent = httpStaticContent
-exports.formatMessage = formatMessage
+exports.formatEmojiMessage = formatEmojiMessage
 exports.setNoEmoji = setNoEmoji
 exports.resetEmojiState = resetEmojiState

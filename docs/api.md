@@ -18105,7 +18105,7 @@ Environment utilities for ZAP
     * [~isMatchingVersion(versionsArray, providedVersion)](#module_JS API_ Environment utilities..isMatchingVersion) ⇒
     * [~versionsCheck()](#module_JS API_ Environment utilities..versionsCheck) ⇒
     * [~httpStaticContent()](#module_JS API_ Environment utilities..httpStaticContent) ⇒
-    * [~formatMessage(emoji, message)](#module_JS API_ Environment utilities..formatMessage) ⇒ <code>string</code>
+    * [~formatEmojiMessage(emoji, message)](#module_JS API_ Environment utilities..formatEmojiMessage) ⇒ <code>string</code>
     * [~setNoEmoji(disabled)](#module_JS API_ Environment utilities..setNoEmoji)
     * [~resetEmojiState()](#module_JS API_ Environment utilities..resetEmojiState)
 
@@ -18454,9 +18454,9 @@ Returns path to HTTP static content while taking into account DEV / PROD modes.
 
 **Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 **Returns**: full path to HTTP static content  
-<a name="module_JS API_ Environment utilities..formatMessage"></a>
+<a name="module_JS API_ Environment utilities..formatEmojiMessage"></a>
 
-### JS API: Environment utilities~formatMessage(emoji, message) ⇒ <code>string</code>
+### JS API: Environment utilities~formatEmojiMessage(emoji, message) ⇒ <code>string</code>
 Format a message with emoji if enabled, without if disabled.
 
 **Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  

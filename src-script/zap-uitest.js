@@ -92,7 +92,7 @@ cyp
 svr.then(() => {
   if (returnCode == 0) {
     console.log(
-      env.formatMessage(
+      env.formatEmojiMessage(
         '😎',
         'All done: Cypress tests passed and server shut down.'
       )
@@ -100,7 +100,7 @@ svr.then(() => {
     process.exit(0)
   } else if (ignoreErrorCode) {
     console.log(
-      env.formatMessage(
+      env.formatEmojiMessage(
         '⚠️',
         'There was an error code, but will be ignored. Please check logs.'
       )
