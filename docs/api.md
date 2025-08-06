@@ -337,6 +337,20 @@ things were successful or not.</p>
 </dd>
 </dl>
 
+## Functions
+
+<dl>
+<dt><a href="#isEmojiDisabled">isEmojiDisabled()</a> ⇒ <code>boolean</code></dt>
+<dd><p>Check if emojis should be disabled</p>
+</dd>
+<dt><a href="#setEmojiDisabled">setEmojiDisabled(disabled)</a></dt>
+<dd><p>Set emoji disabled state (mainly for testing)</p>
+</dd>
+<dt><a href="#resetEmojiState">resetEmojiState()</a></dt>
+<dd><p>Reset emoji state to use environment/command line detection</p>
+</dd>
+</dl>
+
 <a name="module_DB API_ External URLs."></a>
 
 ## DB API: External URLs.
@@ -18053,379 +18067,370 @@ Environment utilities for ZAP
 
 
 * [JS API: Environment utilities](#module_JS API_ Environment utilities)
-    * [.setSaveFileFormat(n)](#module_JS API_ Environment utilities.setSaveFileFormat)
-    * [.defaultFileFormat()](#module_JS API_ Environment utilities.defaultFileFormat) ⇒
-    * [.builtinSilabsZclMetafile()](#module_JS API_ Environment utilities.builtinSilabsZclMetafile) ⇒
-    * [.builtinSilabsTemplatesMetaFile()](#module_JS API_ Environment utilities.builtinSilabsTemplatesMetaFile) ⇒
-    * [.builtinSilabsZclSpecialMetafile()](#module_JS API_ Environment utilities.builtinSilabsZclSpecialMetafile) ⇒
-    * [.builtinSilabsZclGeneralXmlFile()](#module_JS API_ Environment utilities.builtinSilabsZclGeneralXmlFile) ⇒
-    * [.builtinSilabsSpecialZclGeneralSpecialXmlFile()](#module_JS API_ Environment utilities.builtinSilabsSpecialZclGeneralSpecialXmlFile) ⇒
-    * [.builtinMatterZclMetafile()](#module_JS API_ Environment utilities.builtinMatterZclMetafile) ⇒
-    * [.builtinNewMatterZclMetafile()](#module_JS API_ Environment utilities.builtinNewMatterZclMetafile) ⇒
-    * [.builtinMatterTemplatesMetaFile()](#module_JS API_ Environment utilities.builtinMatterTemplatesMetaFile) ⇒
-    * [.builtinDotdotZclMetafile()](#module_JS API_ Environment utilities.builtinDotdotZclMetafile) ⇒
-    * [.builtinMatterZclMetafile2()](#module_JS API_ Environment utilities.builtinMatterZclMetafile2) ⇒
-    * [.builtinTemplateMetafile()](#module_JS API_ Environment utilities.builtinTemplateMetafile) ⇒
-    * [.setDevelopmentEnv()](#module_JS API_ Environment utilities.setDevelopmentEnv)
-    * [.setProductionEnv()](#module_JS API_ Environment utilities.setProductionEnv)
-    * [.logInitStdout()](#module_JS API_ Environment utilities.logInitStdout)
-    * [.logInitLogFile()](#module_JS API_ Environment utilities.logInitLogFile)
-    * [.setAppDirectory(path)](#module_JS API_ Environment utilities.setAppDirectory)
-    * [.appDirectory()](#module_JS API_ Environment utilities.appDirectory) ⇒
-    * [.iconsDirectory()](#module_JS API_ Environment utilities.iconsDirectory) ⇒
-    * [.schemaFile()](#module_JS API_ Environment utilities.schemaFile) ⇒
-    * [.sqliteFile(filename)](#module_JS API_ Environment utilities.sqliteFile) ⇒
-    * [.sqliteTestFile(id, deleteExistingFile)](#module_JS API_ Environment utilities.sqliteTestFile) ⇒
-    * [.zapVersionAsString()](#module_JS API_ Environment utilities.zapVersionAsString)
-    * [.locateProjectResource(filePath)](#module_JS API_ Environment utilities.locateProjectResource) ⇒
-    * [.zapVersion()](#module_JS API_ Environment utilities.zapVersion) ⇒
-    * [.baseUrl()](#module_JS API_ Environment utilities.baseUrl) ⇒
-    * [.printToStderr(msg)](#module_JS API_ Environment utilities.printToStderr)
-    * [.log(level, msg, err)](#module_JS API_ Environment utilities.log)
-    * [.logInfo(msg, err)](#module_JS API_ Environment utilities.logInfo)
-    * [.logError(msg, err)](#module_JS API_ Environment utilities.logError)
-    * [.logWarning(msg, err)](#module_JS API_ Environment utilities.logWarning)
-    * [.logSql(msg, err)](#module_JS API_ Environment utilities.logSql)
-    * [.logBrowser(msg, err)](#module_JS API_ Environment utilities.logBrowser)
-    * [.logIpc(msg, err)](#module_JS API_ Environment utilities.logIpc)
-    * [.logDebug(msg, err)](#module_JS API_ Environment utilities.logDebug)
-    * [.logWarningToFile(msg)](#module_JS API_ Environment utilities.logWarningToFile)
-    * [.isMatchingVersion(versionsArray, providedVersion)](#module_JS API_ Environment utilities.isMatchingVersion) ⇒
-    * [.versionsCheck()](#module_JS API_ Environment utilities.versionsCheck) ⇒
-    * [.httpStaticContent()](#module_JS API_ Environment utilities.httpStaticContent) ⇒
+    * [~setSaveFileFormat(n)](#module_JS API_ Environment utilities..setSaveFileFormat)
+    * [~defaultFileFormat()](#module_JS API_ Environment utilities..defaultFileFormat) ⇒
+    * [~builtinSilabsZclMetafile()](#module_JS API_ Environment utilities..builtinSilabsZclMetafile) ⇒
+    * [~builtinSilabsZclSpecialMetafile()](#module_JS API_ Environment utilities..builtinSilabsZclSpecialMetafile) ⇒
+    * [~builtinSilabsZclGeneralXmlFile()](#module_JS API_ Environment utilities..builtinSilabsZclGeneralXmlFile) ⇒
+    * [~builtinSilabsSpecialZclGeneralSpecialXmlFile()](#module_JS API_ Environment utilities..builtinSilabsSpecialZclGeneralSpecialXmlFile) ⇒
+    * [~builtinMatterZclMetafile()](#module_JS API_ Environment utilities..builtinMatterZclMetafile) ⇒
+    * [~builtinNewMatterZclMetafile()](#module_JS API_ Environment utilities..builtinNewMatterZclMetafile) ⇒
+    * [~builtinDotdotZclMetafile()](#module_JS API_ Environment utilities..builtinDotdotZclMetafile) ⇒
+    * [~builtinMatterZclMetafile2()](#module_JS API_ Environment utilities..builtinMatterZclMetafile2) ⇒
+    * [~builtinTemplateMetafile()](#module_JS API_ Environment utilities..builtinTemplateMetafile) ⇒
+    * [~setDevelopmentEnv()](#module_JS API_ Environment utilities..setDevelopmentEnv)
+    * [~setProductionEnv()](#module_JS API_ Environment utilities..setProductionEnv)
+    * [~logInitStdout()](#module_JS API_ Environment utilities..logInitStdout)
+    * [~logInitLogFile()](#module_JS API_ Environment utilities..logInitLogFile)
+    * [~setAppDirectory(path)](#module_JS API_ Environment utilities..setAppDirectory)
+    * [~appDirectory()](#module_JS API_ Environment utilities..appDirectory) ⇒
+    * [~iconsDirectory()](#module_JS API_ Environment utilities..iconsDirectory) ⇒
+    * [~schemaFile()](#module_JS API_ Environment utilities..schemaFile) ⇒
+    * [~sqliteFile(filename)](#module_JS API_ Environment utilities..sqliteFile) ⇒
+    * [~sqliteTestFile(id, deleteExistingFile)](#module_JS API_ Environment utilities..sqliteTestFile) ⇒
+    * [~zapVersionAsString()](#module_JS API_ Environment utilities..zapVersionAsString)
+    * [~locateProjectResource(filePath)](#module_JS API_ Environment utilities..locateProjectResource) ⇒
+    * [~zapVersion()](#module_JS API_ Environment utilities..zapVersion) ⇒
+    * [~baseUrl()](#module_JS API_ Environment utilities..baseUrl) ⇒
+    * [~printToStderr(msg)](#module_JS API_ Environment utilities..printToStderr)
+    * [~log(level, msg, err)](#module_JS API_ Environment utilities..log)
+    * [~logInfo(msg, err)](#module_JS API_ Environment utilities..logInfo)
+    * [~logError(msg, err)](#module_JS API_ Environment utilities..logError)
+    * [~logWarning(msg, err)](#module_JS API_ Environment utilities..logWarning)
+    * [~logSql(msg, err)](#module_JS API_ Environment utilities..logSql)
+    * [~logBrowser(msg, err)](#module_JS API_ Environment utilities..logBrowser)
+    * [~logIpc(msg, err)](#module_JS API_ Environment utilities..logIpc)
+    * [~logDebug(msg, err)](#module_JS API_ Environment utilities..logDebug)
+    * [~logWarningToFile(msg)](#module_JS API_ Environment utilities..logWarningToFile)
+    * [~isMatchingVersion(versionsArray, providedVersion)](#module_JS API_ Environment utilities..isMatchingVersion) ⇒
+    * [~versionsCheck()](#module_JS API_ Environment utilities..versionsCheck) ⇒
+    * [~httpStaticContent()](#module_JS API_ Environment utilities..httpStaticContent) ⇒
+    * [~formatMessage(emoji, message)](#module_JS API_ Environment utilities..formatMessage) ⇒ <code>string</code>
+    * [~setNoEmoji(disabled)](#module_JS API_ Environment utilities..setNoEmoji)
+    * [~resetEmojiState()](#module_JS API_ Environment utilities..resetEmojiState)
 
-<a name="module_JS API_ Environment utilities.setSaveFileFormat"></a>
+<a name="module_JS API_ Environment utilities..setSaveFileFormat"></a>
 
-### JS API: Environment utilities.setSaveFileFormat(n)
+### JS API: Environment utilities~setSaveFileFormat(n)
 Set save file format.
 
-**Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 
 | Param | Type |
 | --- | --- |
 | n | <code>\*</code> | 
 
-<a name="module_JS API_ Environment utilities.defaultFileFormat"></a>
+<a name="module_JS API_ Environment utilities..defaultFileFormat"></a>
 
-### JS API: Environment utilities.defaultFileFormat() ⇒
+### JS API: Environment utilities~defaultFileFormat() ⇒
 Get save file format.
 
-**Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 **Returns**: saveFileFormat  
-<a name="module_JS API_ Environment utilities.builtinSilabsZclMetafile"></a>
+<a name="module_JS API_ Environment utilities..builtinSilabsZclMetafile"></a>
 
-### JS API: Environment utilities.builtinSilabsZclMetafile() ⇒
-**Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+### JS API: Environment utilities~builtinSilabsZclMetafile() ⇒
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 **Returns**: path to zcl.json file  
-<a name="module_JS API_ Environment utilities.builtinSilabsTemplatesMetaFile"></a>
+<a name="module_JS API_ Environment utilities..builtinSilabsZclSpecialMetafile"></a>
 
-### JS API: Environment utilities.builtinSilabsTemplatesMetaFile() ⇒
-**Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
-**Returns**: path to gen-templates.json file  
-<a name="module_JS API_ Environment utilities.builtinSilabsZclSpecialMetafile"></a>
-
-### JS API: Environment utilities.builtinSilabsZclSpecialMetafile() ⇒
+### JS API: Environment utilities~builtinSilabsZclSpecialMetafile() ⇒
 Used to retrieve zcl-special.json by zcl reload test in zcl-loader.test.js
 
-**Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 **Returns**: path to zcl-special.json file used by zcl-loader.test.js  
-<a name="module_JS API_ Environment utilities.builtinSilabsZclGeneralXmlFile"></a>
+<a name="module_JS API_ Environment utilities..builtinSilabsZclGeneralXmlFile"></a>
 
-### JS API: Environment utilities.builtinSilabsZclGeneralXmlFile() ⇒
-**Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+### JS API: Environment utilities~builtinSilabsZclGeneralXmlFile() ⇒
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 **Returns**: path to general.xml file  
-<a name="module_JS API_ Environment utilities.builtinSilabsSpecialZclGeneralSpecialXmlFile"></a>
+<a name="module_JS API_ Environment utilities..builtinSilabsSpecialZclGeneralSpecialXmlFile"></a>
 
-### JS API: Environment utilities.builtinSilabsSpecialZclGeneralSpecialXmlFile() ⇒
+### JS API: Environment utilities~builtinSilabsSpecialZclGeneralSpecialXmlFile() ⇒
 Used to retrieve general-special.xml by zcl reload test in zcl-loader.test.js
 
-**Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 **Returns**: path to general-special.xml file used by zcl-loader.test.js  
-<a name="module_JS API_ Environment utilities.builtinMatterZclMetafile"></a>
+<a name="module_JS API_ Environment utilities..builtinMatterZclMetafile"></a>
 
-### JS API: Environment utilities.builtinMatterZclMetafile() ⇒
+### JS API: Environment utilities~builtinMatterZclMetafile() ⇒
 Get builtin matter ZCL json file
 
-**Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 **Returns**: matter ZCL json file  
-<a name="module_JS API_ Environment utilities.builtinNewMatterZclMetafile"></a>
+<a name="module_JS API_ Environment utilities..builtinNewMatterZclMetafile"></a>
 
-### JS API: Environment utilities.builtinNewMatterZclMetafile() ⇒
+### JS API: Environment utilities~builtinNewMatterZclMetafile() ⇒
 Get builtin matter ZCL json file
 
-**Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 **Returns**: matter ZCL json file  
-<a name="module_JS API_ Environment utilities.builtinMatterTemplatesMetaFile"></a>
+<a name="module_JS API_ Environment utilities..builtinDotdotZclMetafile"></a>
 
-### JS API: Environment utilities.builtinMatterTemplatesMetaFile() ⇒
-**Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
-**Returns**: path to templates.json file  
-<a name="module_JS API_ Environment utilities.builtinDotdotZclMetafile"></a>
-
-### JS API: Environment utilities.builtinDotdotZclMetafile() ⇒
+### JS API: Environment utilities~builtinDotdotZclMetafile() ⇒
 Get builtin dotdot ZCL json file
 
-**Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 **Returns**: dotdot ZCL json file  
-<a name="module_JS API_ Environment utilities.builtinMatterZclMetafile2"></a>
+<a name="module_JS API_ Environment utilities..builtinMatterZclMetafile2"></a>
 
-### JS API: Environment utilities.builtinMatterZclMetafile2() ⇒
+### JS API: Environment utilities~builtinMatterZclMetafile2() ⇒
 Get builtin Matter ZCL json file
 
-**Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 **Returns**: matter ZCL json file  
-<a name="module_JS API_ Environment utilities.builtinTemplateMetafile"></a>
+<a name="module_JS API_ Environment utilities..builtinTemplateMetafile"></a>
 
-### JS API: Environment utilities.builtinTemplateMetafile() ⇒
+### JS API: Environment utilities~builtinTemplateMetafile() ⇒
 No builtin meta template file.
 
-**Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 **Returns**: null  
-<a name="module_JS API_ Environment utilities.setDevelopmentEnv"></a>
+<a name="module_JS API_ Environment utilities..setDevelopmentEnv"></a>
 
-### JS API: Environment utilities.setDevelopmentEnv()
+### JS API: Environment utilities~setDevelopmentEnv()
 Set up the devlopment environment.
 
-**Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
-<a name="module_JS API_ Environment utilities.setProductionEnv"></a>
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+<a name="module_JS API_ Environment utilities..setProductionEnv"></a>
 
-### JS API: Environment utilities.setProductionEnv()
+### JS API: Environment utilities~setProductionEnv()
 Set up the production environment.
 
-**Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
-<a name="module_JS API_ Environment utilities.logInitStdout"></a>
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+<a name="module_JS API_ Environment utilities..logInitStdout"></a>
 
-### JS API: Environment utilities.logInitStdout()
+### JS API: Environment utilities~logInitStdout()
 set explicit_logger_set
 
-**Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
-<a name="module_JS API_ Environment utilities.logInitLogFile"></a>
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+<a name="module_JS API_ Environment utilities..logInitLogFile"></a>
 
-### JS API: Environment utilities.logInitLogFile()
+### JS API: Environment utilities~logInitLogFile()
 Create zap.log file for logging.
 
-**Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
-<a name="module_JS API_ Environment utilities.setAppDirectory"></a>
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+<a name="module_JS API_ Environment utilities..setAppDirectory"></a>
 
-### JS API: Environment utilities.setAppDirectory(path)
+### JS API: Environment utilities~setAppDirectory(path)
 Set the state directory. This method is intended to be called
 only at the application startup, when CLI args are being parsed.
 This method honors '~/' being the first characters in its argument.
 
-**Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 
 | Param | Type | Description |
 | --- | --- | --- |
 | path | <code>\*</code> | Absolute path. Typically '~/.zap'. |
 
-<a name="module_JS API_ Environment utilities.appDirectory"></a>
+<a name="module_JS API_ Environment utilities..appDirectory"></a>
 
-### JS API: Environment utilities.appDirectory() ⇒
+### JS API: Environment utilities~appDirectory() ⇒
 Returns an app directory. It creates it, if it doesn't exist
 
-**Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 **Returns**: state directory, which is guaranteed to be already existing  
-<a name="module_JS API_ Environment utilities.iconsDirectory"></a>
+<a name="module_JS API_ Environment utilities..iconsDirectory"></a>
 
-### JS API: Environment utilities.iconsDirectory() ⇒
+### JS API: Environment utilities~iconsDirectory() ⇒
 Get path to icons directory.
 
-**Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 **Returns**: path to icons directory  
-<a name="module_JS API_ Environment utilities.schemaFile"></a>
+<a name="module_JS API_ Environment utilities..schemaFile"></a>
 
-### JS API: Environment utilities.schemaFile() ⇒
+### JS API: Environment utilities~schemaFile() ⇒
 Get path to sqlite schema file.
 
-**Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 **Returns**: path to sqlite schema file  
-<a name="module_JS API_ Environment utilities.sqliteFile"></a>
+<a name="module_JS API_ Environment utilities..sqliteFile"></a>
 
-### JS API: Environment utilities.sqliteFile(filename) ⇒
+### JS API: Environment utilities~sqliteFile(filename) ⇒
 Get sqlite file path relative to app directory.
 
-**Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 **Returns**: sqlite file path  
 
-| Param | Type |
-| --- | --- |
-| filename | <code>\*</code> | 
+| Param | Type | Default |
+| --- | --- | --- |
+| filename | <code>\*</code> | <code>zap</code> | 
 
-<a name="module_JS API_ Environment utilities.sqliteTestFile"></a>
+<a name="module_JS API_ Environment utilities..sqliteTestFile"></a>
 
-### JS API: Environment utilities.sqliteTestFile(id, deleteExistingFile) ⇒
+### JS API: Environment utilities~sqliteTestFile(id, deleteExistingFile) ⇒
 Get sqlite test file name.
 
-**Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 **Returns**: sqlite test file name  
 
-| Param | Type |
-| --- | --- |
-| id | <code>\*</code> | 
-| deleteExistingFile | <code>\*</code> | 
+| Param | Type | Default |
+| --- | --- | --- |
+| id | <code>\*</code> |  | 
+| deleteExistingFile | <code>\*</code> | <code>true</code> | 
 
-<a name="module_JS API_ Environment utilities.zapVersionAsString"></a>
+<a name="module_JS API_ Environment utilities..zapVersionAsString"></a>
 
-### JS API: Environment utilities.zapVersionAsString()
+### JS API: Environment utilities~zapVersionAsString()
 Returns a version as a single on-line string.
 
-**Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
-<a name="module_JS API_ Environment utilities.locateProjectResource"></a>
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+<a name="module_JS API_ Environment utilities..locateProjectResource"></a>
 
-### JS API: Environment utilities.locateProjectResource(filePath) ⇒
+### JS API: Environment utilities~locateProjectResource(filePath) ⇒
 This function locates a resource in the project, such as various
 JSON files and zcl-builtin stuff.
 
 It needs to adapt to a change in path that can occur when
 things are copied into the dist/ directory.
 
-**Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 **Returns**: located project resource  
 
 | Param |
 | --- |
 | filePath | 
 
-<a name="module_JS API_ Environment utilities.zapVersion"></a>
+<a name="module_JS API_ Environment utilities..zapVersion"></a>
 
-### JS API: Environment utilities.zapVersion() ⇒
+### JS API: Environment utilities~zapVersion() ⇒
 Returns the zap version.
 
-**Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 **Returns**: zap version, which is an object that
 contains 'version', 'featureLevel', 'hash', 'timestamp' and 'date'  
-<a name="module_JS API_ Environment utilities.baseUrl"></a>
+<a name="module_JS API_ Environment utilities..baseUrl"></a>
 
-### JS API: Environment utilities.baseUrl() ⇒
+### JS API: Environment utilities~baseUrl() ⇒
 Get zapBaseUrl.
 
-**Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 **Returns**: zapBaseUrl  
-<a name="module_JS API_ Environment utilities.printToStderr"></a>
+<a name="module_JS API_ Environment utilities..printToStderr"></a>
 
-### JS API: Environment utilities.printToStderr(msg)
+### JS API: Environment utilities~printToStderr(msg)
 Prints the data to stderr, without much fuss.
 
-**Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 
 | Param |
 | --- |
 | msg | 
 
-<a name="module_JS API_ Environment utilities.log"></a>
+<a name="module_JS API_ Environment utilities..log"></a>
 
-### JS API: Environment utilities.log(level, msg, err)
+### JS API: Environment utilities~log(level, msg, err)
 Base level common logger.
 
-**Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 
-| Param | Type |
-| --- | --- |
-| level | <code>\*</code> | 
-| msg | <code>\*</code> | 
-| err | <code>\*</code> | 
+| Param | Type | Default |
+| --- | --- | --- |
+| level | <code>\*</code> |  | 
+| msg | <code>\*</code> |  | 
+| err | <code>\*</code> | <code></code> | 
 
-<a name="module_JS API_ Environment utilities.logInfo"></a>
+<a name="module_JS API_ Environment utilities..logInfo"></a>
 
-### JS API: Environment utilities.logInfo(msg, err)
+### JS API: Environment utilities~logInfo(msg, err)
 Info level message.
 
-**Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 
-| Param | Type |
-| --- | --- |
-| msg | <code>\*</code> | 
-| err | <code>\*</code> | 
+| Param | Type | Default |
+| --- | --- | --- |
+| msg | <code>\*</code> |  | 
+| err | <code>\*</code> | <code></code> | 
 
-<a name="module_JS API_ Environment utilities.logError"></a>
+<a name="module_JS API_ Environment utilities..logError"></a>
 
-### JS API: Environment utilities.logError(msg, err)
+### JS API: Environment utilities~logError(msg, err)
 Error level message.
 
-**Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 
-| Param | Type |
-| --- | --- |
-| msg | <code>\*</code> | 
-| err | <code>\*</code> | 
+| Param | Type | Default |
+| --- | --- | --- |
+| msg | <code>\*</code> |  | 
+| err | <code>\*</code> | <code></code> | 
 
-<a name="module_JS API_ Environment utilities.logWarning"></a>
+<a name="module_JS API_ Environment utilities..logWarning"></a>
 
-### JS API: Environment utilities.logWarning(msg, err)
+### JS API: Environment utilities~logWarning(msg, err)
 Warning level message.
 
-**Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 
-| Param | Type |
-| --- | --- |
-| msg | <code>\*</code> | 
-| err | <code>\*</code> | 
+| Param | Type | Default |
+| --- | --- | --- |
+| msg | <code>\*</code> |  | 
+| err | <code>\*</code> | <code></code> | 
 
-<a name="module_JS API_ Environment utilities.logSql"></a>
+<a name="module_JS API_ Environment utilities..logSql"></a>
 
-### JS API: Environment utilities.logSql(msg, err)
+### JS API: Environment utilities~logSql(msg, err)
 Sql level message.
 
-**Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 
 | Param | Type |
 | --- | --- |
 | msg | <code>\*</code> | 
 | err | <code>\*</code> | 
 
-<a name="module_JS API_ Environment utilities.logBrowser"></a>
+<a name="module_JS API_ Environment utilities..logBrowser"></a>
 
-### JS API: Environment utilities.logBrowser(msg, err)
+### JS API: Environment utilities~logBrowser(msg, err)
 Browser level message.
 
-**Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 
-| Param | Type |
-| --- | --- |
-| msg | <code>\*</code> | 
-| err | <code>\*</code> | 
+| Param | Type | Default |
+| --- | --- | --- |
+| msg | <code>\*</code> |  | 
+| err | <code>\*</code> | <code></code> | 
 
-<a name="module_JS API_ Environment utilities.logIpc"></a>
+<a name="module_JS API_ Environment utilities..logIpc"></a>
 
-### JS API: Environment utilities.logIpc(msg, err)
+### JS API: Environment utilities~logIpc(msg, err)
 IPC level message.
 
-**Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 
-| Param | Type |
-| --- | --- |
-| msg | <code>\*</code> | 
-| err | <code>\*</code> | 
+| Param | Type | Default |
+| --- | --- | --- |
+| msg | <code>\*</code> |  | 
+| err | <code>\*</code> | <code></code> | 
 
-<a name="module_JS API_ Environment utilities.logDebug"></a>
+<a name="module_JS API_ Environment utilities..logDebug"></a>
 
-### JS API: Environment utilities.logDebug(msg, err)
+### JS API: Environment utilities~logDebug(msg, err)
 Debug level message.
 
-**Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 
-| Param | Type |
-| --- | --- |
-| msg | <code>\*</code> | 
-| err | <code>\*</code> | 
+| Param | Type | Default |
+| --- | --- | --- |
+| msg | <code>\*</code> |  | 
+| err | <code>\*</code> | <code></code> | 
 
-<a name="module_JS API_ Environment utilities.logWarningToFile"></a>
+<a name="module_JS API_ Environment utilities..logWarningToFile"></a>
 
-### JS API: Environment utilities.logWarningToFile(msg)
+### JS API: Environment utilities~logWarningToFile(msg)
 Log Warning level message to zap.log file.
 
-**Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 
 | Param | Type |
 | --- | --- |
 | msg | <code>\*</code> | 
 
-<a name="module_JS API_ Environment utilities.isMatchingVersion"></a>
+<a name="module_JS API_ Environment utilities..isMatchingVersion"></a>
 
-### JS API: Environment utilities.isMatchingVersion(versionsArray, providedVersion) ⇒
+### JS API: Environment utilities~isMatchingVersion(versionsArray, providedVersion) ⇒
 Returns true if major or minor component of versions is different.
 
-**Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 **Returns**: boolean  
 
 | Param | Type |
@@ -18433,22 +18438,52 @@ Returns true if major or minor component of versions is different.
 | versionsArray | <code>\*</code> | 
 | providedVersion | <code>\*</code> | 
 
-<a name="module_JS API_ Environment utilities.versionsCheck"></a>
+<a name="module_JS API_ Environment utilities..versionsCheck"></a>
 
-### JS API: Environment utilities.versionsCheck() ⇒
+### JS API: Environment utilities~versionsCheck() ⇒
 Returns true if versions of node and electron are matching.
 If versions are not matching, it  prints out a warhing
 and returns false.
 
-**Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 **Returns**: true or false, depending on match  
-<a name="module_JS API_ Environment utilities.httpStaticContent"></a>
+<a name="module_JS API_ Environment utilities..httpStaticContent"></a>
 
-### JS API: Environment utilities.httpStaticContent() ⇒
+### JS API: Environment utilities~httpStaticContent() ⇒
 Returns path to HTTP static content while taking into account DEV / PROD modes.
 
-**Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 **Returns**: full path to HTTP static content  
+<a name="module_JS API_ Environment utilities..formatMessage"></a>
+
+### JS API: Environment utilities~formatMessage(emoji, message) ⇒ <code>string</code>
+Format a message with emoji if enabled, without if disabled.
+
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+**Returns**: <code>string</code> - formatted message  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| emoji | <code>string</code> | the emoji character |
+| message | <code>string</code> | the text message |
+
+<a name="module_JS API_ Environment utilities..setNoEmoji"></a>
+
+### JS API: Environment utilities~setNoEmoji(disabled)
+Set emoji disabled state (mainly for testing)
+
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| disabled | <code>boolean</code> | whether to disable emojis |
+
+<a name="module_JS API_ Environment utilities..resetEmojiState"></a>
+
+### JS API: Environment utilities~resetEmojiState()
+Reset emoji state to use environment/command line detection
+
+**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 <a name="module_External API_ External API utilities"></a>
 
 ## External API: External API utilities
@@ -28496,3 +28531,27 @@ Promises to perform a post loading step.
 | db | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
 
+<a name="isEmojiDisabled"></a>
+
+## isEmojiDisabled() ⇒ <code>boolean</code>
+Check if emojis should be disabled
+
+**Kind**: global function  
+**Returns**: <code>boolean</code> - true if emojis should be disabled  
+<a name="setEmojiDisabled"></a>
+
+## setEmojiDisabled(disabled)
+Set emoji disabled state (mainly for testing)
+
+**Kind**: global function  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| disabled | <code>boolean</code> | whether to disable emojis |
+
+<a name="resetEmojiState"></a>
+
+## resetEmojiState()
+Reset emoji state to use environment/command line detection
+
+**Kind**: global function  
