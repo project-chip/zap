@@ -8,12 +8,13 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 
 describe('Testing INT8U type validation', () => {
   it('create a new endpoint and click on configure to open attributes of endpoint', () => {
-    cy.fixture('baseurl').then((data) => {
-      cy.visit(data.baseurl)
-    })
+    cy.visit('/')
     cy.setZclProperties()
     cy.fixture('data').then((data) => {
-      cy.gotoAttributePage(data.endpoint7, data.cluster9, data.int8clusterpath)
+      cy.createEndpointAndGoToClusterByIndex(
+        data.endpoint7,
+        data.int8clusterpath
+      )
     })
   })
   it(

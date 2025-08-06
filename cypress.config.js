@@ -5,6 +5,7 @@ export default defineConfig({
   viewportHeight: 920,
   video: false,
   e2e: {
+    baseUrl: 'http://localhost:9070',
     // We've imported your old cypress plugins here.
     // You may want to clean this up later by importing these.
     setupNodeEvents(on, config) {

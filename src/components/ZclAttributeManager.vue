@@ -70,6 +70,8 @@ limitations under the License.
               :val="hashAttributeIdClusterId(props.row.id, selectedCluster.id)"
               indeterminate-value="false"
               keep-color
+              data-test="attribute-toggle"
+              :attribute-name="props.row.label"
               @update:model-value="
                 toggleAttributeSelection(
                   selection,

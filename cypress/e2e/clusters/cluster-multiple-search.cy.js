@@ -8,9 +8,7 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 
 describe('Add multiple clusters and search', () => {
   it('create two endpoints and validate basic information', () => {
-    cy.fixture('baseurl').then((data) => {
-      cy.visit(data.baseurl)
-    })
+    cy.visit('/')
     cy.setZclProperties()
     cy.fixture('data').then((data) => {
       cy.addEndpoint(data.endpoint4, data.cluster1)

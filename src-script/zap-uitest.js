@@ -75,7 +75,7 @@ let cyp = scriptUtil.executeCmd(null, 'npx', [
   'start-test',
   'quasar dev',
   'http-get://localhost:9070',
-  `npx cypress ${cypressMode} --browser ${browserToUse} ${fixturesConfig}`
+  `npx cypress ${cypressMode} --browser ${browserToUse} --env mode=${testsType} ${fixturesConfig}`
 ])
 
 cyp
