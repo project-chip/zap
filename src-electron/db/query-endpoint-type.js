@@ -267,10 +267,10 @@ async function selectEndpointType(db, id) {
 async function selectAllClustersDetailsFromEndpointTypes(
   db,
   endpointTypes,
-  side = null // should be null (for either), 'client' or 'server'
+  side = null // should be null (for either), 'client', 'server' or 'merged'
 ) {
   let endpointClusterSideFilter
-  if (side == null) {
+  if (side == null || side == 'merged') {
     endpointClusterSideFilter = 'ENDPOINT_TYPE_CLUSTER.SIDE IS NOT ""'
   } else {
     endpointClusterSideFilter =
@@ -295,7 +295,6 @@ async function selectAllClustersDetailsFromEndpointTypes(
     }
   }
 
-  let doOrderBy = true
   return dbApi
     .dbAll(
       db,
@@ -308,7 +307,7 @@ SELECT
   CLUSTER.NAME,
   CLUSTER.DEFINE,
   CLUSTER.API_MATURITY,
-  ENDPOINT_TYPE_CLUSTER.SIDE,
+  ${side == 'merged' ? '"merged" as SIDE' : 'ENDPOINT_TYPE_CLUSTER.SIDE'},
   ENDPOINT_TYPE_CLUSTER.ENABLED,
   ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID,
   COUNT(*)
@@ -323,12 +322,9 @@ WHERE
 AND
 ${endpointClusterSideFilter} AND ENDPOINT_TYPE_CLUSTER.ENABLED = 1
 GROUP BY
-  NAME, SIDE
-${
-  doOrderBy
-    ? 'ORDER BY CLUSTER.MANUFACTURER_CODE, CLUSTER.CODE, CLUSTER.DEFINE'
-    : ''
-}`
+  NAME ${side == 'merged' ? '' : ', SIDE'}
+ORDER BY CLUSTER.MANUFACTURER_CODE, CLUSTER.CODE, CLUSTER.DEFINE
+`
     )
     .then((rows) => rows.map(mapFunction))
 }
