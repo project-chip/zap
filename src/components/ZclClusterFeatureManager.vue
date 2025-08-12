@@ -62,12 +62,10 @@ limitations under the License.
               auto-width
               data-test="feature-conformance"
             >
-              <span class="text-primary">
-                {{ props.row.conformance }}
-                <q-tooltip>
-                  {{ props.row.translation }}
-                </q-tooltip>
-              </span>
+              {{ props.row.conformance }}
+              <q-tooltip>
+                {{ props.row.translation }}
+              </q-tooltip>
             </q-td>
             <q-td key="bit" :props="props" auto-width data-test="feature-bit">
               {{ props.row.bit }}

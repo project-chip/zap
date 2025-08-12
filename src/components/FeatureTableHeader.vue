@@ -21,22 +21,22 @@ limitations under the License.
         <template v-if="col.name === 'conformance'">
           <a
             :href="documentSource"
-            class="text-primary cursor-pointer"
+            class="cursor-pointer"
             target="_blank"
-            style="text-decoration: none"
+            style="text-decoration: none; color: black"
           >
             {{ col.label }}
+            <q-icon
+              name="info"
+              class="q-pl-sm q-pb-xs"
+              style="font-size: 1rem"
+              color="primary"
+            >
+              <q-tooltip>
+                {{ conformanceSourceTip }}
+              </q-tooltip>
+            </q-icon>
           </a>
-          <q-icon
-            name="info"
-            class="q-pl-sm q-pb-xs"
-            style="font-size: 1rem"
-            color="primary"
-          >
-            <q-tooltip>
-              {{ conformanceSourceTip }}
-            </q-tooltip>
-          </q-icon>
         </template>
         <template v-else>
           {{ col.label }}

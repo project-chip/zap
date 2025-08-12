@@ -269,9 +269,9 @@ function translateBooleanExpr(expr) {
     let token = tokens[i]
 
     if (token === '&') {
-      output.push('and')
+      output.push(dbEnum.logicalOperators.and)
     } else if (token === '|') {
-      output.push('or')
+      output.push(dbEnum.logicalOperators.or)
     } else if (token === '(' || token === ')') {
       output.push(token)
     } else if (token === '!') {
@@ -279,7 +279,7 @@ function translateBooleanExpr(expr) {
       // otherwise, combine with the next operand as '<operand> is not enabled'
       let next = tokens[i + 1]
       if (next === '(') {
-        output.push('not')
+        output.push(dbEnum.logicalOperators.not)
       } else {
         output.push(`${next} is not enabled`)
         i++ // Skip the next token since we consumed it
@@ -308,7 +308,7 @@ function translateConformanceExpression(expression) {
 
   // special case on provisional conformance in format of "P, <expression>"
   // handle 'P,' separately and use recursion to translate the rest
-  if (expression.startsWith('P,')) {
+  if (expression.startsWith(dbEnum.conformanceTag.provisional + ',')) {
     let rest = expression.slice(2).trim()
     let translatedRest = translateConformanceExpression(rest)
     return `provisional for now. When not provisional in the future, it is ${translatedRest}`
@@ -325,12 +325,12 @@ function translateConformanceExpression(expression) {
     if (optionalMatch) {
       // optionalMatch[1] is the expression inside '[]'
       let optionalText = translateBooleanExpr(optionalMatch[1])
-      return `optional if ${optionalText}`
+      return `${dbEnum.conformanceVal.optional} if ${optionalText}`
     }
 
     // otherwise it's a regular mandatory expression
     let translated = translateBooleanExpr(part)
-    return `mandatory if ${translated}`
+    return `${dbEnum.conformanceVal.mandatory} if ${translated}`
   })
 
   // join translated parts with 'otherwise'

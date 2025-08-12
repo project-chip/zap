@@ -273,3 +273,9 @@ exports.clusterSide = {
   client: 'client',
   server: 'server'
 }
+
+exports.logicalOperators = {
+  and: 'and',
+  or: 'or',
+  not: 'not'
+}

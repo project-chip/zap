@@ -384,7 +384,7 @@ export default {
       warningMessage: '',
       selectedFeature: {},
       updatedEnabledFeatures: [],
-      conformanceSourceTip: 'Click "Conformance" to view related documentation',
+      conformanceSourceTip: 'Click to view related documentation',
       documentSource:
         'https://docs.silabs.com/zap-tool/latest/zap-users-guide/matter-conformance'
     }
