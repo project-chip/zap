@@ -21,7 +21,7 @@
  * @module JS API: Window module for ZAP UI
  */
 
-const { BrowserWindow, dialog, ipcMain, shell } = require('electron')
+const { BrowserWindow, dialog, ipcMain } = require('electron')
 const path = require('path')
 const env = require('../util/env')
 const menu = require('./menu.js')
@@ -144,22 +144,6 @@ export function windowCreate(port, args) {
       color: '#F4F4F4',
       symbolColor: '#67696D'
     }
-  })
-
-  // open documentation links in external browser
-  w.webContents.setWindowOpenHandler(({ url }) => {
-    try {
-      const parsed = new URL(url)
-      const DOCUMENTATION_HOST = 'docs.silabs.com'
-      if (parsed.hostname == DOCUMENTATION_HOST) {
-        shell.openExternal(url)
-        return { action: 'deny' } // block opening the link in Electron window
-      }
-    } catch (e) {
-      env.logError(`Invalid URL: ${url}`, e)
-    }
-
-    return { action: 'allow' }
   })
 
   ipcMain.on('set-title-bar-overlay', (_event, value) => {

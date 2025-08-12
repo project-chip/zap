@@ -114,10 +114,11 @@ Cypress.Commands.add('checkAndEnableFeature', (feature) => {
   cy.contains('[data-test="feature-row"]', feature.name).within(() => {
     cy.get('[data-test="feature-name"]').should('have.text', feature.name)
     cy.get('[data-test="feature-code"]').should('have.text', feature.code)
-    cy.get('[data-test="feature-conformance"]').should(
-      'have.text',
-      feature.conformance
-    )
+    cy.get('[data-test="feature-conformance"]')
+      .invoke('text')
+      .then((text) => {
+        expect(text.trim()).to.eq(feature.conformance)
+      })
     cy.get('[data-test="feature-bit"]').should('have.text', feature.bit)
     cy.get('[data-test="feature-toggle"]')
       .should('exist')
