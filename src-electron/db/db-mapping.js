@@ -24,6 +24,7 @@
 const dbApi = require('./db-api.js')
 const dbEnums = require('../../src-shared/db-enum.js')
 const bin = require('../util/bin')
+const conformEvaluator = require('../validation/conformance-expression-evaluator')
 
 exports.map = {
   package: (x) => {
@@ -268,6 +269,9 @@ exports.map = {
       includeServer: x.INCLUDE_SERVER,
       includeClient: x.INCLUDE_CLIENT,
       conformance: x.DEVICE_TYPE_CLUSTER_CONFORMANCE,
+      translation: conformEvaluator.translateConformanceExpression(
+        x.DEVICE_TYPE_CLUSTER_CONFORMANCE
+      ),
       featureId: x.FEATURE_ID,
       name: x.FEATURE_NAME,
       code: x.CODE,
@@ -288,6 +292,9 @@ exports.map = {
       bit: x.BIT,
       description: x.DESCRIPTION,
       conformance: x.CONFORMANCE,
+      translation: conformEvaluator.translateConformanceExpression(
+        x.CONFORMANCE
+      ),
       packageRef: x.PACKAGE_REF,
       clusterRef: x.CLUSTER_REF
     }

@@ -383,7 +383,10 @@ export default {
       displayWarning: false,
       warningMessage: '',
       selectedFeature: {},
-      updatedEnabledFeatures: []
+      updatedEnabledFeatures: [],
+      conformanceSourceTip: 'Click to view related documentation',
+      documentSource:
+        'https://docs.silabs.com/zap-tool/latest/zap-users-guide/matter-conformance'
     }
   }
 }

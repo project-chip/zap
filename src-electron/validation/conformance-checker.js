@@ -89,7 +89,7 @@ function generateWarningMessage(
   // Check 2: if the feature conformance contains the operand 'desc'
   let featureContainsDesc = conformEvaluator.checkIfExpressionHasOperand(
     featureData.conformance,
-    dbEnum.conformanceTag.desc
+    dbEnum.conformanceTag.described
   )
   if (featureContainsDesc) {
     result.warningMessage.push(

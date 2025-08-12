@@ -29,11 +29,7 @@ limitations under the License.
         id="ZclClusterFeatureManager"
       >
         <template v-slot:header="props">
-          <q-tr :props="props">
-            <q-th v-for="col in props.cols" :key="col.name" :props="props">
-              {{ col.label }}
-            </q-th>
-          </q-tr>
+          <FeatureTableHeader :props="props" />
         </template>
         <template v-slot:body="props">
           <q-tr :props="props" class="table_body" data-test="feature-row">
@@ -67,6 +63,9 @@ limitations under the License.
               data-test="feature-conformance"
             >
               {{ props.row.conformance }}
+              <q-tooltip>
+                {{ props.row.translation }}
+              </q-tooltip>
             </q-td>
             <q-td key="bit" :props="props" auto-width data-test="feature-bit">
               {{ props.row.bit }}
@@ -170,11 +169,12 @@ import featureMixin from '../util/feature-mixin.js'
 import uiOptions from '../util/ui-options'
 import CommonMixin from '../util/common-mixin'
 import dbEnum from '../../src-shared/db-enum'
+import FeatureTableHeader from './FeatureTableHeader.vue'
 
 export default {
   name: 'ZclClusterFeatureManager',
   mixins: [EditableAttributesMixin, uiOptions, CommonMixin, featureMixin],
-  computed: {},
+  components: { FeatureTableHeader },
   methods: {
     isToggleDisabled(conformance) {
       // disable toggling features with unsupported conformance

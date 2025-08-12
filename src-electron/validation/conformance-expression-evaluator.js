@@ -75,8 +75,8 @@ function evaluateConformanceExpression(expression, elementMap) {
   // if any operand is desc, the conformance is too complex to parse
   for (let part of parts) {
     let operands = getOperandsFromExpression(part)
-    if (operands && operands.includes(dbEnum.conformanceTag.desc)) {
-      return dbEnum.conformanceTag.desc
+    if (operands && operands.includes(dbEnum.conformanceTag.described)) {
+      return dbEnum.conformanceTag.described
     }
   }
   for (let part of parts) {
@@ -169,7 +169,7 @@ function filterRelatedDescElements(elements, featureCode) {
     let operands = getOperandsFromExpression(element.conformance)
     return (
       operands &&
-      operands.includes(dbEnum.conformanceTag.desc) &&
+      operands.includes(dbEnum.conformanceTag.described) &&
       operands.includes(featureCode)
     )
   })
@@ -238,9 +238,118 @@ function checkFeaturesToUpdate(
   return { updatedFeatures, changedConformFeatures }
 }
 
+/**
+ * Translate a conformance tag to its corresponding value.
+ *
+ * @param {string} expression
+ * @returns {string} The translated conformance value.
+ */
+function translateConformanceTag(expression) {
+  let tagKeys = Object.keys(dbEnum.conformanceTag)
+  for (let key of tagKeys) {
+    if (expression === dbEnum.conformanceTag[key]) {
+      return dbEnum.conformanceVal[key]
+    }
+  }
+  return ''
+}
+
+/**
+ * Translate a boolean expression into natural language.
+ *
+ * @param {string} expr
+ * @returns {string} The translated boolean expression.
+ */
+function translateBooleanExpr(expr) {
+  // match operands and operators
+  let tokens = expr.match(/[A-Za-z0-9_]+|[!&|()]/g) || []
+  let output = []
+
+  for (let i = 0; i < tokens.length; i++) {
+    let token = tokens[i]
+
+    if (token === '&') {
+      output.push(dbEnum.logicalOperators.and)
+    } else if (token === '|') {
+      output.push(dbEnum.logicalOperators.or)
+    } else if (token === '(' || token === ')') {
+      output.push(token)
+    } else if (token === '!') {
+      // For the '!' operator: if it precedes '()', translate as 'not';
+      // otherwise, combine with the next operand as '<operand> is not enabled'
+      let next = tokens[i + 1]
+      if (next === '(') {
+        output.push(dbEnum.logicalOperators.not)
+      } else {
+        output.push(`${next} is not enabled`)
+        i++ // Skip the next token since we consumed it
+      }
+    } else {
+      // if none of the above is matched, it is an element operand
+      output.push(`${token} is enabled`)
+    }
+  }
+
+  return output.join(' ')
+}
+
+/**
+ * Translate a conformance expression into natural language.
+ *
+ * @export
+ * @param {string} expression
+ * @returns {string} The translated conformance expression.
+ */
+function translateConformanceExpression(expression) {
+  if (!expression) return ''
+
+  let conformanceTag = translateConformanceTag(expression)
+  if (conformanceTag) return conformanceTag
+
+  // special case on provisional conformance in format of "P, <expression>"
+  // handle 'P,' separately and use recursion to translate the rest
+  if (expression.startsWith(dbEnum.conformanceTag.provisional + ',')) {
+    let rest = expression.slice(2).trim()
+    let translatedRest = translateConformanceExpression(rest)
+    return `provisional for now. When not provisional in the future, it is ${translatedRest}`
+  }
+
+  // split by ',' to handle each expression in otherwise conformance separately
+  let parts = expression.split(',').map((p) => p.trim())
+  let translatedParts = parts.map((part) => {
+    let conformanceTag = translateConformanceTag(part)
+    if (conformanceTag) return conformanceTag
+
+    // handle optional expressions surrounded by '[]'
+    let optionalMatch = part.match(/^\[(.*)\]$/)
+    if (optionalMatch) {
+      // optionalMatch[1] is the expression inside '[]'
+      let optionalText = translateBooleanExpr(optionalMatch[1])
+      return `${dbEnum.conformanceVal.optional} if ${optionalText}`
+    }
+
+    // otherwise it's a regular mandatory expression
+    let translated = translateBooleanExpr(part)
+    return `${dbEnum.conformanceVal.mandatory} if ${translated}`
+  })
+
+  // join translated parts with 'otherwise'
+  let result = ''
+  for (let i = 0; i < translatedParts.length; i++) {
+    let prefix = i === 0 ? '' : ', otherwise it is '
+    result += `${prefix}${translatedParts[i]}`
+  }
+  // if the last part is not a conformance tag, fall back to not supported
+  if (!translateConformanceTag(parts[parts.length - 1])) {
+    result += ', otherwise it is not supported'
+  }
+  return result
+}
+
 exports.evaluateConformanceExpression = evaluateConformanceExpression
 exports.checkMissingOperands = checkMissingOperands
 exports.checkIfExpressionHasOperand = checkIfExpressionHasOperand
 exports.checkFeaturesToUpdate = checkFeaturesToUpdate
 exports.filterRelatedDescElements = filterRelatedDescElements
 exports.getOperandsFromExpression = getOperandsFromExpression
+exports.translateConformanceExpression = translateConformanceExpression
