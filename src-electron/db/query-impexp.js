@@ -511,8 +511,7 @@ VALUES
         ]
   )
 }
-//TODO should I add API Maturity here?
-//TODO is this same as selectAllAttributeDetailsFromEnabledClusters which has same description?
+
 /**
  * Returns a promise of data for events inside an endpoint type.
  *

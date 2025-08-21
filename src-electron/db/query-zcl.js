@@ -1288,7 +1288,7 @@ ORDER BY
   )
   return rows.map(dbMapping.map.endpointTypeCommand)
 }
-//TODO should I add apimaturity here?
+
 /**
  * Get endpoint type events from the given endpoint type ID.
  *
