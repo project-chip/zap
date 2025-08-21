@@ -569,6 +569,7 @@ function prepareCluster(cluster, context, isExtension = false) {
         side: event.$.side,
         conformance: conformParser.parseConformanceFromXML(event),
         priority: event.$.priority,
+        apiMaturity: event.$.apiMaturity,
         description: event.description ? event.description[0].trim() : '',
         isOptional: conformParser.getOptionalAttributeFromXML(event, 'event'),
         isFabricSensitive: event.$.isFabricSensitive == 'true'

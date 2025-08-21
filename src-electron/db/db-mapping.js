@@ -187,7 +187,8 @@ exports.map = {
       conformance: x.CONFORMANCE,
       isOptional: dbApi.fromDbBool(x.IS_OPTIONAL),
       isFabricSensitive: dbApi.fromDbBool(x.IS_FABRIC_SENSITIVE),
-      priority: x.PRIORITY
+      priority: x.PRIORITY,
+      apiMaturity: x.API_MATURITY
     }
   },
 
