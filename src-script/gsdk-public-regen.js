@@ -21,6 +21,7 @@
 const path = require('path')
 const fs = require('fs')
 const scriptUtil = require('./script-util')
+const env = require('../src-electron/util/env')
 const process = require('process')
 
 /**
@@ -44,19 +45,21 @@ async function run(argv) {
   }
   fs.mkdirSync(outputDir, { recursive: true })
 
-  console.log(`👉 Detecting GSDK at directory ${gsdkDir} ...`)
+  console.log(
+    env.formatEmojiMessage('👉', ` Detecting GSDK at directory ${gsdkDir} ...`)
+  )
   if (!fs.existsSync(path.join(gsdkDir, 'gecko_sdk.slcs'))) {
     throw Error(
       `Invalid location. Directory ${gsdkDir} does not look like a gecko sdk.`
     )
   }
-  console.log(`👍 Gecko SDK detected.`)
+  console.log(env.formatEmojiMessage('👍', ` Gecko SDK detected.`))
 
   let zclJson = path.join(gsdkDir, 'app/zcl/zcl-zap.json')
   if (!fs.existsSync(zclJson)) {
     throw Error(`Invalid zcl.json. File ${zclJson} does not exist.`)
   } else {
-    console.log(`👍 ZCL metafile: ${zclJson}`)
+    console.log(env.formatEmojiMessage('👍', ` ZCL metafile: ${zclJson}`))
   }
 
   let templateJson = path.join(
@@ -66,15 +69,19 @@ async function run(argv) {
   if (!fs.existsSync(templateJson)) {
     throw Error(`Invalid template.json. File ${templateJson} does not exist.`)
   } else {
-    console.log(`👍 Templates metafile: ${templateJson}`)
+    console.log(
+      env.formatEmojiMessage('👍', ` Templates metafile: ${templateJson}`)
+    )
   }
 
   let zapFileRoot = path.join(gsdkDir, 'protocol/zigbee/app/framework/')
 
   let zapFiles = await scriptUtil.locateRecursively(zapFileRoot, '.*\\.zap$')
 
-  console.log(`👍 Located ${zapFiles.length} zap files:`)
-  zapFiles.forEach((f) => console.log(`  👉 ${f}`))
+  console.log(
+    env.formatEmojiMessage('👍', ` Located ${zapFiles.length} zap files:`)
+  )
+  zapFiles.forEach((f) => console.log(env.formatEmojiMessage('👉', `  ${f}`)))
 
   let cmdArgs = [
     'node',
@@ -96,10 +103,12 @@ async function run(argv) {
 
 run(process.argv.slice(2))
   .then(() => {
-    console.log(`😎 Done!`)
+    console.log(env.formatEmojiMessage('😎', ` Done!`))
   })
   .catch((err) => {
-    console.log(`⛔ Error: ${err.message}\n========\n`)
+    console.log(
+      env.formatEmojiMessage('⛔', `Error: ${err.message}\n========\n`)
+    )
     console.log(err)
     process.exit(1)
   })
