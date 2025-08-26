@@ -46,20 +46,20 @@ async function run(argv) {
   fs.mkdirSync(outputDir, { recursive: true })
 
   console.log(
-    env.formatEmojiMessage('👉', ` Detecting GSDK at directory ${gsdkDir} ...`)
+    env.formatEmojiMessage('👉', `Detecting GSDK at directory ${gsdkDir} ...`)
   )
   if (!fs.existsSync(path.join(gsdkDir, 'gecko_sdk.slcs'))) {
     throw Error(
       `Invalid location. Directory ${gsdkDir} does not look like a gecko sdk.`
     )
   }
-  console.log(env.formatEmojiMessage('👍', ` Gecko SDK detected.`))
+  console.log(env.formatEmojiMessage('👍', `Gecko SDK detected.`))
 
   let zclJson = path.join(gsdkDir, 'app/zcl/zcl-zap.json')
   if (!fs.existsSync(zclJson)) {
     throw Error(`Invalid zcl.json. File ${zclJson} does not exist.`)
   } else {
-    console.log(env.formatEmojiMessage('👍', ` ZCL metafile: ${zclJson}`))
+    console.log(env.formatEmojiMessage('👍', `ZCL metafile: ${zclJson}`))
   }
 
   let templateJson = path.join(
@@ -70,7 +70,7 @@ async function run(argv) {
     throw Error(`Invalid template.json. File ${templateJson} does not exist.`)
   } else {
     console.log(
-      env.formatEmojiMessage('👍', ` Templates metafile: ${templateJson}`)
+      env.formatEmojiMessage('👍', `Templates metafile: ${templateJson}`)
     )
   }
 
@@ -79,9 +79,9 @@ async function run(argv) {
   let zapFiles = await scriptUtil.locateRecursively(zapFileRoot, '.*\\.zap$')
 
   console.log(
-    env.formatEmojiMessage('👍', ` Located ${zapFiles.length} zap files:`)
+    env.formatEmojiMessage('👍', `Located ${zapFiles.length} zap files:`)
   )
-  zapFiles.forEach((f) => console.log(env.formatEmojiMessage('👉', `  ${f}`)))
+  zapFiles.forEach((f) => console.log(env.formatEmojiMessage('👉', `${f}`)))
 
   let cmdArgs = [
     'node',
@@ -103,7 +103,7 @@ async function run(argv) {
 
 run(process.argv.slice(2))
   .then(() => {
-    console.log(env.formatEmojiMessage('😎', ` Done!`))
+    console.log(env.formatEmojiMessage('😎', `Done!`))
   })
   .catch((err) => {
     console.log(

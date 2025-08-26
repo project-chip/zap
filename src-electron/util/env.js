@@ -645,21 +645,6 @@ function formatEmojiMessage(emoji, message) {
   return `${emoji} ${message}`
 }
 
-/**
- * Set emoji disabled state (mainly for testing)
- * @param {boolean} disabled - whether to disable emojis
- */
-function setNoEmoji(disabled) {
-  return emojiUtil.setEmojiDisabled(disabled)
-}
-
-/**
- * Reset emoji state to use environment/command line detection
- */
-function resetEmojiState() {
-  return emojiUtil.resetEmojiState()
-}
-
 // Complete exports for all functions
 exports.environmentVariable = environmentVariable
 exports.setSaveFileFormat = setSaveFileFormat

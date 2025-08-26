@@ -24,23 +24,6 @@ function isEmojiDisabled() {
   )
 }
 
-/**
- * Set emoji disabled state (mainly for testing)
- * @param {boolean} disabled - whether to disable emojis
- */
-function setEmojiDisabled(disabled) {
-  emojiDisabled = disabled
-}
-
-/**
- * Reset emoji state to use environment/command line detection
- */
-function resetEmojiState() {
-  emojiDisabled = null
-}
-
 module.exports = {
-  isEmojiDisabled,
-  setEmojiDisabled,
-  resetEmojiState
+  isEmojiDisabled
 }

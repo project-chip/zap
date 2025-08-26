@@ -50,7 +50,7 @@ fs.readFile(packageJson, 'utf8', (err, data) => {
   console.log(
     env.formatEmojiMessage(
       '🐝',
-      ` Generating ${zapPackage} with version number ${version}`
+      `Package metadata: ${JSON.stringify(metadata)}`
     )
   )
   fs.writeFileSync(zapPackage, template)

@@ -343,12 +343,6 @@ things were successful or not.</p>
 <dt><a href="#isEmojiDisabled">isEmojiDisabled()</a> ⇒ <code>boolean</code></dt>
 <dd><p>Check if emojis should be disabled</p>
 </dd>
-<dt><a href="#setEmojiDisabled">setEmojiDisabled(disabled)</a></dt>
-<dd><p>Set emoji disabled state (mainly for testing)</p>
-</dd>
-<dt><a href="#resetEmojiState">resetEmojiState()</a></dt>
-<dd><p>Reset emoji state to use environment/command line detection</p>
-</dd>
 </dl>
 
 <a name="module_DB API_ External URLs."></a>
@@ -18106,8 +18100,6 @@ Environment utilities for ZAP
     * [~versionsCheck()](#module_JS API_ Environment utilities..versionsCheck) ⇒
     * [~httpStaticContent()](#module_JS API_ Environment utilities..httpStaticContent) ⇒
     * [~formatEmojiMessage(emoji, message)](#module_JS API_ Environment utilities..formatEmojiMessage) ⇒ <code>string</code>
-    * [~setNoEmoji(disabled)](#module_JS API_ Environment utilities..setNoEmoji)
-    * [~resetEmojiState()](#module_JS API_ Environment utilities..resetEmojiState)
 
 <a name="module_JS API_ Environment utilities..setSaveFileFormat"></a>
 
@@ -18467,23 +18459,6 @@ Format a message with emoji if enabled, without if disabled.
 | emoji | <code>string</code> | the emoji character |
 | message | <code>string</code> | the text message |
 
-<a name="module_JS API_ Environment utilities..setNoEmoji"></a>
-
-### JS API: Environment utilities~setNoEmoji(disabled)
-Set emoji disabled state (mainly for testing)
-
-**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| disabled | <code>boolean</code> | whether to disable emojis |
-
-<a name="module_JS API_ Environment utilities..resetEmojiState"></a>
-
-### JS API: Environment utilities~resetEmojiState()
-Reset emoji state to use environment/command line detection
-
-**Kind**: inner method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 <a name="module_External API_ External API utilities"></a>
 
 ## External API: External API utilities
@@ -28538,20 +28513,3 @@ Check if emojis should be disabled
 
 **Kind**: global function  
 **Returns**: <code>boolean</code> - true if emojis should be disabled  
-<a name="setEmojiDisabled"></a>
-
-## setEmojiDisabled(disabled)
-Set emoji disabled state (mainly for testing)
-
-**Kind**: global function  
-
-| Param | Type | Description |
-| --- | --- | --- |
-| disabled | <code>boolean</code> | whether to disable emojis |
-
-<a name="resetEmojiState"></a>
-
-## resetEmojiState()
-Reset emoji state to use environment/command line detection
-
-**Kind**: global function  

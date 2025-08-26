@@ -236,7 +236,7 @@ async function upgradeZapFile(argv, options) {
   for (let i = 0; i < zapFiles.length; i++) {
     let zapFile = zapFiles[i]
     options.logger(
-      env.formatEmojiMessage('🤖', ` Update started for file: ${zapFile}`)
+      env.formatEmojiMessage('🤖', `Update started for file: ${zapFile}`)
     )
     let dbFile = env.sqliteFile('upgrade')
     let db = await dbApi.initDatabaseAndLoadSchema(
@@ -245,15 +245,15 @@ async function upgradeZapFile(argv, options) {
       env.zapVersion()
     )
     options.logger(
-      env.formatEmojiMessage('🐝', '    database and schema initialized')
+      env.formatEmojiMessage('🐝', 'database and schema initialized')
     )
     await zclLoader.loadZclMetafiles(db, argv.zclProperties, {
       failOnLoadingError: !argv.noLoadingFailure
     })
     options.logger(
       env.formatEmojiMessage(
-        '🐝',
-        `    New zcl package loaded: ${argv.zclProperties}`
+        '🔧',
+        `New zcl package loaded: ${argv.zclProperties}`
       )
     )
     if (argv.generationTemplate != null) {
@@ -270,7 +270,7 @@ async function upgradeZapFile(argv, options) {
       options.logger(
         env.formatEmojiMessage(
           '🔧',
-          `🔧 New templates loaded: ${argv.generationTemplate}`
+          `New templates loaded: ${argv.generationTemplate}`
         )
       )
     }
@@ -306,7 +306,7 @@ async function upgradeZapFile(argv, options) {
       upgradeZclPackages: upgradeZclPackages,
       upgradeTemplatePackages: upgradeTemplatePackages
     })
-    options.logger(env.formatEmojiMessage('👈', `👈 read in: ${zapFile}`))
+    options.logger(env.formatEmojiMessage('👈', `read in: ${zapFile}`))
     let of = outputFile(zapFile, zapFile)
     let parent = path.dirname(of)
     if (!fs.existsSync(parent)) {
@@ -324,7 +324,7 @@ async function upgradeZapFile(argv, options) {
       createBackup: true,
       fileFormat: argv.saveFileFormat
     })
-    options.logger(env.formatEmojiMessage('👉', `👉 write out: ${outputPath}`))
+    options.logger(env.formatEmojiMessage('👉', `write out: ${outputPath}`))
     try {
       if (upgrade_results != null) {
         if (!fs.existsSync(path.dirname(upgrade_results))) {
@@ -336,14 +336,14 @@ async function upgradeZapFile(argv, options) {
         )
       }
       options.logger(
-        env.formatEmojiMessage('🔧', `👉 write out: ${upgrade_results}`)
+        env.formatEmojiMessage('🔧', `write out: ${upgrade_results}`)
       )
     } catch (error) {
       options.logger(
         env.formatEmojiMessage('⚠️', `failed to write out: ${upgrade_results}`)
       )
     }
-    options.logger(env.formatEmojiMessage('🎉', '🎉 Upgrade done!'))
+    options.logger(env.formatEmojiMessage('🎉', 'Upgrade done!'))
   }
 
   if (options.quitFunction != null) {
@@ -368,14 +368,14 @@ async function startConvert(argv, options) {
   let files = gatherFiles(zapFiles, { suffix: '.zap', doBlank: true })
   if (files.length == 0) {
     options.logger(
-      env.formatEmojiMessage('👎', `no zap files found in: ${zapFiles}`)
+      env.formatEmojiMessage('⚠️', 'no zap files found in: ' + zapFiles)
     )
-    throw env.formatEmojiMessage('👎', `no zap files found in: ${zapFiles}`)
+    throw env.formatEmojiMessage('error', 'no zap files found in: ' + zapFiles)
   }
   if (argv.output == null) throw 'You need to specify output file.'
   let output = argv.output
   let conversion_results = argv.results
-  options.logger(`${env.formatEmojiMessage('🤖', 'Conversion started')}
+  options.logger(`${env.formatEmojiMessage('🔧', 'Conversion started')}
     ${env.formatEmojiMessage('🔍', `input files: ${files}`)}
     ${env.formatEmojiMessage('🔍', `output pattern: ${output}`)}`)
 
@@ -386,13 +386,13 @@ async function startConvert(argv, options) {
     env.zapVersion()
   )
   options.logger(
-    env.formatEmojiMessage('🐝', '🐝 database and schema initialized')
+    env.formatEmojiMessage('🐝', 'database and schema initialized')
   )
   await zclLoader.loadZclMetafiles(db, argv.zclProperties, {
     failOnLoadingError: !argv.noLoadingFailure
   })
   options.logger(
-    env.formatEmojiMessage('🔧', `🔧 zcl package loaded: ${argv.zclProperties}`)
+    env.formatEmojiMessage('🔧', `zcl package loaded: ${argv.zclProperties}`)
   )
   if (argv.generationTemplate != null) {
     let ctx = await generatorEngine.loadTemplates(db, argv.generationTemplate, {
@@ -404,7 +404,7 @@ async function startConvert(argv, options) {
     options.logger(
       env.formatEmojiMessage(
         '🔧',
-        `🔧 templates loaded: ${argv.generationTemplate}`
+        `templates loaded: ${argv.generationTemplate}`
       )
     )
   }
@@ -431,7 +431,7 @@ async function startConvert(argv, options) {
       )
     }
 
-    options.logger(env.formatEmojiMessage('🔧', `👈 read in: ${singlePath}`))
+    options.logger(env.formatEmojiMessage('👈', `read in: ${singlePath}`))
     let of = outputFile(singlePath, output, index)
     let parent = path.dirname(of)
     if (!fs.existsSync(parent)) {
@@ -450,25 +450,22 @@ async function startConvert(argv, options) {
       fileFormat: argv.saveFileFormat
     })
 
-    options.logger(env.formatEmojiMessage('🔧', `👉 write out: ${outputPath}`))
+    options.logger(env.formatEmojiMessage('👉', `write out: ${outputPath}`))
   })
 
   try {
     if (conversion_results != null)
       await writeConversionResultsFile(conversion_results)
     options.logger(
-      env.formatEmojiMessage('🔧', `👉 write out: ${conversion_results}`)
+      env.formatEmojiMessage('🔧', `write out: ${conversion_results}`)
     )
   } catch (error) {
     options.logger(
-      env.formatEmojiMessage(
-        '⚠️',
-        `  failed to write out: ${conversion_results}`
-      )
+      env.formatEmojiMessage('⚠️', `failed to write out: ${conversion_results}`)
     )
   }
 
-  options.logger(env.formatEmojiMessage('😎', 'Conversion done!'))
+  options.logger(env.formatEmojiMessage('🔧', 'Conversion done!'))
   if (options.quitFunction != null) {
     options.quitFunction()
   }
@@ -507,7 +504,7 @@ async function writeConversionResultsFile(file, messages = null) {
  * @param {*} options
  */
 async function startRegenerateSdk(argv, options) {
-  options.logger(env.formatEmojiMessage('🔧', '🔧 Regenerating whole SDK.'))
+  options.logger(env.formatEmojiMessage('🔧', 'Regenerating whole SDK.'))
   let sdkPath = argv.sdk
   if (!sdkPath) {
     options.logger(`⛔ regenerateSdk requires the --sdk <sdkFile> argument`)
@@ -521,31 +518,29 @@ async function startRegenerateSdk(argv, options) {
 
     let sdk = await sdkUtil.readSdkJson(sdkPath, options)
 
-    options.logger(env.formatEmojiMessage('🔧', '🔧 Loading ZCL information'))
+    options.logger(env.formatEmojiMessage('🔧', 'Loading ZCL information'))
     sdk.zclPackageId = {}
     for (let key of Object.keys(sdk.rt.zclMetafiles)) {
       let p = sdk.rt.zclMetafiles[key]
-      options.logger(env.formatEmojiMessage('🔧', `🔧 ${p}`))
+      options.logger(env.formatEmojiMessage('🔧', `${p}`))
       let loadData = await zclLoader.loadZcl(db, p)
       sdk.zclPackageId[key] = loadData.packageId
     }
-    options.logger(
-      env.formatEmojiMessage('🔧', '🔧 Loading generation templates')
-    )
+    options.logger(env.formatEmojiMessage('🔧', 'Loading generation templates'))
     sdk.templatePackageId = {}
     for (let key of Object.keys(sdk.rt.genTemplates)) {
       let p = sdk.rt.genTemplates[key]
-      options.logger(env.formatEmojiMessage('🔧', `🔧 ${p}`))
+      options.logger(env.formatEmojiMessage('🔧', `${p}`))
       let loadData = await generatorEngine.loadTemplates(db, p, {
         failOnLoadingError: !argv.noLoadingFailure
       })
       sdk.templatePackageId[key] = loadData.packageId
     }
-    options.logger(env.formatEmojiMessage('🔧', '🔧 Performing generation'))
+    options.logger(env.formatEmojiMessage('🔧', 'Performing generation'))
     for (let gen of sdk.rt.generateCommands) {
       let inputFile = gen.inputFile
       let outputDirectory = gen.outputDirectory
-      options.logger(env.formatEmojiMessage('🔧', `🔧 loading: ${inputFile}`))
+      options.logger(env.formatEmojiMessage('🔧', `loading: ${inputFile}`))
       let loaderResult = await importJs.importDataFromFile(db, inputFile)
       let sessionId = loaderResult.sessionId
       let templateKeys = []
@@ -560,7 +555,7 @@ async function startRegenerateSdk(argv, options) {
         options.logger(
           env.formatEmojiMessage(
             '🔧',
-            `🔧 generating: ${tK} => ${outputDirectory}`
+            `generating: ${tK} => ${outputDirectory}`
           )
         )
         await generatorEngine.generateAndWriteFiles(
@@ -581,7 +576,7 @@ async function startRegenerateSdk(argv, options) {
         )
       }
     }
-    options.logger(env.formatEmojiMessage('🔧', '🔧 Regeneration done!'))
+    options.logger(env.formatEmojiMessage('🔧', 'Regeneration done!'))
   }
   if (options.quitFunction != null) options.quitFunction()
 }
@@ -595,9 +590,9 @@ async function startRegenerateSdk(argv, options) {
 async function startAnalyze(argv, options) {
   let paths = argv.zapFiles
   let dbFile = env.sqliteFile('analysis')
-  options.logger(env.formatEmojiMessage('🤖', ` Starting analysis: ${paths}`))
+  options.logger(env.formatEmojiMessage('🤖', `Starting analysis: ${paths}`))
   if (options.cleanDb && fs.existsSync(dbFile)) {
-    options.logger(env.formatEmojiMessage('🔧', '🔧 remove old database file'))
+    options.logger(env.formatEmojiMessage('🔧', 'remove old database file'))
     fs.unlinkSync(dbFile)
   }
   let db = await dbApi.initDatabaseAndLoadSchema(
@@ -606,7 +601,7 @@ async function startAnalyze(argv, options) {
     env.zapVersion()
   )
   options.logger(
-    env.formatEmojiMessage('🐝', '🐝 database and schema initialized')
+    env.formatEmojiMessage('🐝', 'database and schema initialized')
   )
   await zclLoader.loadZclMetafiles(db, argv.zclProperties, {
     failOnLoadingError: !argv.noLoadingFailure
@@ -707,7 +702,7 @@ async function startSelfCheck(
   options.logger(
     env.formatEmojiMessage(
       '🔧',
-      `🔧 zcl metadata packages loaded: ${zclPackageIds.length}`
+      `zcl metadata packages loaded: ${zclPackageIds.length}`
     )
   )
   let ctx = await generatorEngine.loadTemplates(
@@ -719,7 +714,7 @@ async function startSelfCheck(
   )
   if (ctx.nop) {
     options.logger(
-      env.formatEmojiMessage('🔧', `🔧 no generation template packages loaded`)
+      env.formatEmojiMessage('🔧', `no generation template packages loaded`)
     )
   } else if (ctx.error) {
     options.logger(env.formatEmojiMessage('⚠️', `  ${ctx.error}`))
@@ -731,9 +726,9 @@ async function startSelfCheck(
 
   // This is a hack to prevent too quick shutdown that causes core dumps.
   dbApi.closeDatabaseSync(mainDb)
-  options.logger(env.formatEmojiMessage('🔧', '🔧 database closed'))
+  options.logger(env.formatEmojiMessage('🔧', 'database closed'))
   await util.waitFor(2000)
-  options.logger(env.formatEmojiMessage('🔧', '🔧 Self-check done!'))
+  options.logger(env.formatEmojiMessage('🔧', 'Self-check done!'))
   if (options.quitFunction != null) {
     options.quitFunction()
   }
@@ -876,7 +871,7 @@ async function generateSingleFile(
     output = outputFile(zapFile, outputPattern, index)
   }
   options.logger(
-    env.formatEmojiMessage('🔧', `🔧 using output destination: ${output}`)
+    env.formatEmojiMessage('🔧', `using output destination: ${output}`)
   )
 
   let sessPkg = await util.ensurePackagesAndPopulateSessionOptions(
@@ -895,7 +890,7 @@ async function generateSingleFile(
   options.logger(
     env.formatEmojiMessage(
       '🔧',
-      `🔧 File loading time: ${util.duration(nsDuration)}`
+      `File loading time: ${util.duration(nsDuration)}`
     )
   )
 
@@ -1029,7 +1024,7 @@ async function startGeneration(argv, options) {
 
   let nsDuration = process.hrtime.bigint() - hrstart
   options.logger(
-    env.formatEmojiMessage('🔧', `🔧 Setup time: ${util.duration(nsDuration)}`)
+    env.formatEmojiMessage('🔧', 'Setup time: ' + util.duration(nsDuration))
   )
 
   await util.executePromisesSequentially(files, (f, index) =>
