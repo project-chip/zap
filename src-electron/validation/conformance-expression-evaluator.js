@@ -23,7 +23,7 @@
 
 const dbEnum = require('../../src-shared/db-enum')
 
-const OPERAND_REGEX = /[A-Za-z][A-Za-z0-9_]*/g
+const OPERAND_REGEX = /[A-Za-z]\w*/g
 
 /**
  * Evaluate the value of a boolean conformance expression that includes operands and operators.
@@ -75,7 +75,7 @@ function evaluateConformanceExpression(expression, elementMap) {
   // if any operand is desc, the conformance is too complex to parse
   for (let part of parts) {
     let operands = getOperandsFromExpression(part)
-    if (operands && operands.includes(dbEnum.conformanceTag.described)) {
+    if (operands?.includes(dbEnum.conformanceTag.described)) {
       return dbEnum.conformanceTag.described
     }
   }
@@ -141,7 +141,7 @@ function checkMissingOperands(expression, elementMap) {
  */
 function checkIfExpressionHasOperand(expression, operand) {
   let operands = getOperandsFromExpression(expression)
-  return operands && operands.includes(operand)
+  return operands?.includes(operand)
 }
 
 /**
@@ -152,8 +152,8 @@ function checkIfExpressionHasOperand(expression, operand) {
  */
 function getOperandsFromExpression(expression) {
   if (!expression) return []
-  let operands = expression.match(OPERAND_REGEX)
-  return operands ? operands : []
+  let operands = expression.match(OPERAND_REGEX) || []
+  return operands
 }
 
 /**
@@ -262,12 +262,11 @@ function translateConformanceTag(expression) {
  */
 function translateBooleanExpr(expr) {
   // match operands and operators
-  let tokens = expr.match(/[A-Za-z0-9_]+|[!&|()]/g) || []
+  let tokens = expr.match(/\w+|[!&|()]/g) || []
   let output = []
-
-  for (let i = 0; i < tokens.length; i++) {
+  let i = 0
+  while (i < tokens.length) {
     let token = tokens[i]
-
     if (token === '&') {
       output.push(dbEnum.logicalOperators.and)
     } else if (token === '|') {
@@ -288,8 +287,8 @@ function translateBooleanExpr(expr) {
       // if none of the above is matched, it is an element operand
       output.push(`${token} is enabled`)
     }
+    i++
   }
-
   return output.join(' ')
 }
 
@@ -321,7 +320,7 @@ function translateConformanceExpression(expression) {
     if (conformanceTag) return conformanceTag
 
     // handle optional expressions surrounded by '[]'
-    let optionalMatch = part.match(/^\[(.*)\]$/)
+    let optionalMatch = /^\[(.*)\]$/.exec(part)
     if (optionalMatch) {
       // optionalMatch[1] is the expression inside '[]'
       let optionalText = translateBooleanExpr(optionalMatch[1])
