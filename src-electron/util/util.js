@@ -726,7 +726,7 @@ function executeExternalProgram(
 
     if (options.rejectOnFail) {
       // We return a rejected promise to allow the caller to handle it.
-      return Promise.reject(error)
+      return Promise.reject(toErrorObject(error))
     } else {
       // If we're not rejecting on fail, we just log the error and continue.
       console.error(error.message)
