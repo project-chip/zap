@@ -7,6 +7,21 @@
 let emojiDisabled = null
 
 /**
+ * Set emoji disabled state (for testing)
+ * @param {boolean} value
+ */
+function setEmojiDisabled(value) {
+  emojiDisabled = value
+}
+
+/**
+ * Reset emoji disabled state to environment/argv detection (for testing)
+ */
+function resetEmojiState() {
+  emojiDisabled = null
+}
+
+/**
  * Check if emojis should be disabled
  * @returns {boolean} true if emojis should be disabled
  */
@@ -25,5 +40,7 @@ function isEmojiDisabled() {
 }
 
 module.exports = {
-  isEmojiDisabled
+  isEmojiDisabled,
+  setEmojiDisabled,
+  resetEmojiState
 }

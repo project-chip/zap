@@ -340,6 +340,12 @@ things were successful or not.</p>
 ## Functions
 
 <dl>
+<dt><a href="#setEmojiDisabled">setEmojiDisabled(value)</a></dt>
+<dd><p>Set emoji disabled state (for testing)</p>
+</dd>
+<dt><a href="#resetEmojiState">resetEmojiState()</a></dt>
+<dd><p>Reset emoji disabled state to environment/argv detection (for testing)</p>
+</dd>
 <dt><a href="#isEmojiDisabled">isEmojiDisabled()</a> ⇒ <code>boolean</code></dt>
 <dd><p>Check if emojis should be disabled</p>
 </dd>
@@ -28506,6 +28512,23 @@ Promises to perform a post loading step.
 | db | <code>\*</code> | 
 | packageIds | <code>\*</code> | 
 
+<a name="setEmojiDisabled"></a>
+
+## setEmojiDisabled(value)
+Set emoji disabled state (for testing)
+
+**Kind**: global function  
+
+| Param | Type |
+| --- | --- |
+| value | <code>boolean</code> | 
+
+<a name="resetEmojiState"></a>
+
+## resetEmojiState()
+Reset emoji disabled state to environment/argv detection (for testing)
+
+**Kind**: global function  
 <a name="isEmojiDisabled"></a>
 
 ## isEmojiDisabled() ⇒ <code>boolean</code>
