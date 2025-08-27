@@ -75,7 +75,7 @@ function evaluateConformanceExpression(expression, elementMap) {
   // if any operand is desc, the conformance is too complex to parse
   for (let part of parts) {
     let operands = getOperandsFromExpression(part)
-    if (operands?.includes(dbEnum.conformanceTag.described)) {
+    if (operands.includes(dbEnum.conformanceTag.described)) {
       return dbEnum.conformanceTag.described
     }
   }
@@ -141,7 +141,7 @@ function checkMissingOperands(expression, elementMap) {
  */
 function checkIfExpressionHasOperand(expression, operand) {
   let operands = getOperandsFromExpression(expression)
-  return operands?.includes(operand)
+  return operands.includes(operand)
 }
 
 /**
