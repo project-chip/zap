@@ -687,5 +687,3 @@ exports.isMatchingVersion = isMatchingVersion
 exports.versionsCheck = versionsCheck
 exports.httpStaticContent = httpStaticContent
 exports.formatEmojiMessage = formatEmojiMessage
-exports.setNoEmoji = setNoEmoji
-exports.resetEmojiState = resetEmojiState
