@@ -63,10 +63,11 @@ INSERT INTO EVENT (
   IS_OPTIONAL,
   IS_FABRIC_SENSITIVE,
   PRIORITY,
+  API_MATURITY,
   INTRODUCED_IN_REF,
   REMOVED_IN_REF
 ) VALUES (
-  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
 )
@@ -285,6 +286,7 @@ function eventMap(clusterId, packageId, events) {
     dbApi.toDbBool(event.isOptional),
     dbApi.toDbBool(event.isFabricSensitive),
     event.priority,
+    event.apiMaturity,
     event.introducedIn,
     packageId,
     event.removedIn,

@@ -61,5 +61,12 @@ limitations under the License.
       <field id="1" name="arg1" type="INT8U" isNullable="true"/>
       <field id="2" name="arg2" type="INT32U" array="true"/>
     </event>
+
+    <event code="0x0002" name="ProvisionalEvent" priority="info" side="server" apiMaturity="provisional">
+      <description>A Provisional Test event</description>
+      <field id="1" name="arg1" type="INT8U" isNullable="true"/>
+      <field id="2" name="arg2" type="INT32U" array="true"/>
+    </event>
+
   </cluster>
 </configurator>

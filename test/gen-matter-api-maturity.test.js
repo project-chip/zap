@@ -106,6 +106,10 @@ test(
     // Maturity for structures should be correct
     expect(ept).toContain('struct StableStruct {')
     expect(ept).toContain('struct ProvisionalStruct (provisional) {')
+
+    // Maturity for Event should be correct.
+    expect(ept).toContain('info event StableEvent = 1{')
+    expect(ept).toContain('info event ProvisionalEvent = 2 (provisional){')
   },
   testUtil.timeout.long()
 )

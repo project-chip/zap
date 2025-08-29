@@ -16,7 +16,7 @@ cluster {{asUpperCamelCase name}} = {{code}}
 
   {{/zcl_bitmaps}}
   {{#zcl_events}}
-  {{priority}} event {{asUpperCamelCase name preserveAcronyms=true}} = {{code}} {
+  {{priority}} event {{asUpperCamelCase name preserveAcronyms=true}} = {{code}} {{~#if apiMaturity}} ({{apiMaturity}}) {{~/if~}} {
     {{#zcl_event_fields}}
     {{#if isOptional~}}optional {{/if~}}
     {{~#if isNullable~}}nullable {{/if~}}
@@ -45,7 +45,7 @@ cluster {{asUpperCamelCase name}} = {{code}}
   {{! ensure indent ~}}
       {{#if isOptional~}} optional {{/if~}}
       {{~#unless isWritableAttribute~}} readonly {{/unless~}}
-      {{~#if isNullable~}} nullable {{/if~}} 
+      {{~#if isNullable~}} nullable {{/if~}}
       {{type}} attribute {{asLowerCamelCase name~}} {{~#if isArray~}} [] {{~/if}} = {{code~}}
       {{~#if apiMaturity}} ({{apiMaturity}}) {{~/if~}};
       {{/unless}}
