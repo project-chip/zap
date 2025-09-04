@@ -63,10 +63,11 @@ INSERT INTO EVENT (
   IS_OPTIONAL,
   IS_FABRIC_SENSITIVE,
   PRIORITY,
+  API_MATURITY,
   INTRODUCED_IN_REF,
   REMOVED_IN_REF
 ) VALUES (
-  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?)
 )
@@ -160,6 +161,7 @@ INSERT INTO ATTRIBUTE (
   REPORTABLE_CHANGE,
   REPORTABLE_CHANGE_LENGTH,
   IS_WRITABLE,
+  IS_READABLE,
   DEFAULT_VALUE,
   IS_OPTIONAL,
   REPORTING_POLICY,
@@ -175,7 +177,7 @@ INSERT INTO ATTRIBUTE (
   IS_CHANGE_OMITTED,
   PERSISTENCE
 ) VALUES (
-  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   (SELECT SPEC_ID FROM SPEC WHERE CODE = ? AND PACKAGE_REF = ?),
   ?,
@@ -243,6 +245,7 @@ function attributeMap(clusterId, packageId, attributes) {
     attribute.reportableChange,
     attribute.reportableChangeLength,
     attribute.isWritable,
+    attribute.isReadable,
     attribute.defaultValue,
     dbApi.toDbBool(attribute.isOptional),
     attribute.reportingPolicy,
@@ -283,6 +286,7 @@ function eventMap(clusterId, packageId, events) {
     dbApi.toDbBool(event.isOptional),
     dbApi.toDbBool(event.isFabricSensitive),
     event.priority,
+    event.apiMaturity,
     event.introducedIn,
     packageId,
     event.removedIn,
@@ -794,7 +798,10 @@ async function insertClusterExtensions(db, packageId, knownPackages, data) {
   let pAttribute = insertAttributes(db, packageId, attributes)
   let pEvent = insertEvents(db, packageId, events)
   return Promise.all([pCommand, pAttribute, pEvent]).catch((err) => {
-    if (err.includes('SQLITE_CONSTRAINT') && err.includes('UNIQUE')) {
+    if (
+      err.message.includes('SQLITE_CONSTRAINT') &&
+      err.message.includes('UNIQUE')
+    ) {
       env.logDebug(
         `CRC match for file with package id ${packageId}, skipping parsing.`
       )

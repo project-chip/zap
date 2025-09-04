@@ -70,6 +70,8 @@ limitations under the License.
               :val="hashAttributeIdClusterId(props.row.id, selectedCluster.id)"
               indeterminate-value="false"
               keep-color
+              data-test="attribute-toggle"
+              :attribute-name="props.row.label"
               @update:model-value="
                 toggleAttributeSelection(
                   selection,
@@ -240,11 +242,12 @@ import restApi from '../../src-shared/rest-api.js'
 
 //This mixin derives from common-mixin.
 import EditableAttributeMixin from '../util/editable-attributes-mixin'
+import featureMixin from '../util/feature-mixin'
 import uiOptions from '../util/ui-options'
 
 export default {
   name: 'ZclAttributeManager',
-  mixins: [EditableAttributeMixin, uiOptions],
+  mixins: [EditableAttributeMixin, uiOptions, featureMixin],
   methods: {
     //retrieve list of cluster and attribute pairs that should be forced External Storage
     loadForcedExternal() {

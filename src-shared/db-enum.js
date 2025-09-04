@@ -250,16 +250,32 @@ exports.featureMapAttribute = {
   code: 65532
 }
 
-exports.conformance = {
+exports.conformanceTag = {
   mandatory: 'M',
   optional: 'O',
+  provisional: 'P',
   disallowed: 'X',
   deprecated: 'D',
-  provisional: 'P',
-  desc: 'desc'
+  described: 'desc'
+}
+
+exports.conformanceVal = {
+  mandatory: 'mandatory',
+  optional: 'optional',
+  provisional: 'provisional',
+  disallowed: 'disallowed',
+  deprecated: 'deprecated',
+  described: 'described conformance that cannot be displayed as an expression',
+  notSupported: 'notSupported'
 }
 
 exports.clusterSide = {
   client: 'client',
   server: 'server'
+}
+
+exports.logicalOperators = {
+  and: 'and',
+  or: 'or',
+  not: 'not'
 }

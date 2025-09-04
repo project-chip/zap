@@ -64,6 +64,8 @@ limitations under the License.
                 :val="hashEventIdClusterId(props.row.id, selectedCluster.id)"
                 indeterminate-value="false"
                 keep-color
+                data-test="event-toggle"
+                :event-name="props.row.label"
                 @update:model-value="
                   handleEventSelection(
                     selectedEvents,
@@ -180,7 +182,7 @@ export default {
             !this.isEventSelected(row.id)) ||
             (this.eventsNotSupportedByConform[row.id] &&
               this.isEventSelected(row.id)))) ||
-        (row.conformance == dbEnum.conformance.mandatory &&
+        (row.conformance == dbEnum.conformanceTag.mandatory &&
           !this.isEventSelected(row.id))
       )
     },
@@ -201,7 +203,7 @@ export default {
         warnings.push(this.eventsNotSupportedByConform[row.id])
       }
       if (
-        row.conformance == dbEnum.conformance.mandatory &&
+        row.conformance == dbEnum.conformanceTag.mandatory &&
         !this.isEventSelected(row.id)
       ) {
         warnings.push(this.defaultWarning)

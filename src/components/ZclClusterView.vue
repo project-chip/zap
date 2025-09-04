@@ -115,7 +115,16 @@ limitations under the License.
                 </q-tabs>
                 <div class="text-right q-pr-lg" v-show="tab == 'features'">
                   Server FeatureMap Attribute:
-                  <span class="text-bold">{{ featureMapValue }}</span>
+                  <span>
+                    <span class="text-bold" data-test="feature-map-value">{{
+                      featureMapValue
+                    }}</span>
+                    (binary:
+                    <span class="text-bold" data-test="feature-map-binary">{{
+                      getFeatureMapBinary(featureMapValue)
+                    }}</span
+                    >)
+                  </span>
                 </div>
               </div>
               <div
@@ -154,12 +163,13 @@ import ZclClusterFeatureManager from './ZclClusterFeatureManager.vue'
 import EditableAttributesMixin from '../util/editable-attributes-mixin'
 import CommonMixin from '../util/common-mixin'
 import uiOptions from '../util/ui-options'
+import featureMixin from '../util/feature-mixin'
 
 import * as dbEnum from '../../src-shared/db-enum.js'
 
 export default {
   name: 'ZclClusterView',
-  mixins: [CommonMixin, EditableAttributesMixin, uiOptions],
+  mixins: [CommonMixin, EditableAttributesMixin, uiOptions, featureMixin],
   computed: {
     isClusterDocumentationAvailable() {
       return (

@@ -275,6 +275,7 @@ SELECT
   A.MAX,
   A.MANUFACTURER_CODE,
   A.IS_WRITABLE,
+  A.IS_READABLE,
   A.IS_NULLABLE,
   A.MUST_USE_TIMED_WRITE,
   A.IS_SCENE_REQUIRED,
@@ -328,6 +329,7 @@ ORDER BY A.MANUFACTURER_CODE, A.CODE
       isSingleton: dbApi.fromDbBool(row.SINGLETON),
       isBound: dbApi.fromDbBool(row.BOUNDED),
       isWritable: dbApi.fromDbBool(row.IS_WRITABLE),
+      isReadable: dbApi.fromDbBool(row.IS_READABLE),
       isNullable: dbApi.fromDbBool(row.IS_NULLABLE),
       mustUseTimedWrite: dbApi.fromDbBool(row.MUST_USE_TIMED_WRITE),
       isSceneRequired: dbApi.fromDbBool(row.IS_SCENE_REQUIRED),
@@ -455,7 +457,8 @@ SELECT
   E.SIDE,
   E.IS_OPTIONAL,
   E.IS_FABRIC_SENSITIVE,
-  E.PRIORITY
+  E.PRIORITY,
+  E.API_MATURITY
 FROM
   EVENT AS E
 LEFT JOIN

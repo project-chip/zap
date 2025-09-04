@@ -8,9 +8,7 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 describe('Testing Editing endpoints', () => {
   beforeEach(() => {
     // Set up the base URL and create an endpoint before each test
-    cy.fixture('baseurl').then((data) => {
-      cy.visit(data.baseurl)
-    })
+    cy.visit('/')
     cy.setZclProperties()
     cy.fixture('data').then((data) => {
       cy.addEndpoint(data.endpoint1)

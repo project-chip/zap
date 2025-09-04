@@ -172,6 +172,7 @@ async function selectAllAttributeDetailsFromEnabledClusters(
          0
      END AS IS_ARRAY,
      ATTRIBUTE.IS_WRITABLE,
+     ATTRIBUTE.IS_READABLE,
      ATTRIBUTE.IS_NULLABLE,
      ATTRIBUTE.MAX_LENGTH,
      ATTRIBUTE.MIN_LENGTH,
@@ -423,6 +424,7 @@ async function selectAttributeDetailsFromEnabledClusters(
         ? x.MANUFACTURER_CODE
         : x.CLUSTER_MANUFACTURER_CODE,
       isWritable: x.IS_WRITABLE,
+      isReadable: x.IS_READABLE,
       clusterId: x.CLUSTER_ID,
       clusterSide: x.CLUSTER_SIDE,
       clusterName: x.CLUSTER_NAME,
@@ -462,6 +464,7 @@ async function selectAttributeDetailsFromEnabledClusters(
     ATTRIBUTE.DEFINE,
     ATTRIBUTE.MANUFACTURER_CODE,
     ATTRIBUTE.IS_WRITABLE,
+    ATTRIBUTE.IS_READABLE,
     CLUSTER.CLUSTER_ID AS CLUSTER_ID,
     ENDPOINT_TYPE_CLUSTER.SIDE AS CLUSTER_SIDE,
     CLUSTER.NAME AS CLUSTER_NAME,
@@ -873,6 +876,7 @@ SELECT
   A.REPORTABLE_CHANGE,
   A.REPORTABLE_CHANGE_LENGTH,
   A.IS_WRITABLE,
+  A.IS_READABLE,
   A.DEFAULT_VALUE,
   A.IS_OPTIONAL,
   A.REPORTING_POLICY,
@@ -940,6 +944,7 @@ SELECT
   A.REPORTABLE_CHANGE,
   A.REPORTABLE_CHANGE_LENGTH,
   A.IS_WRITABLE,
+  A.IS_READABLE,
   A.DEFAULT_VALUE,
   A.IS_OPTIONAL,
   A.REPORTING_POLICY,
@@ -1233,7 +1238,7 @@ async function selectAttributeMappingsByPackageIds(db, packageIds) {
             RANK() OVER (
               ORDER BY C1.CODE, COALESCE(C1.MANUFACTURER_CODE, 0), C2.CODE, COALESCE(C2.MANUFACTURER_CODE, 0)
             )
-            +  
+            +
             COUNT(*) OVER (
               PARTITION BY C1.CODE, COALESCE(C1.MANUFACTURER_CODE, 0), C2.CODE, COALESCE(C2.MANUFACTURER_CODE, 0)
             )
@@ -1271,17 +1276,13 @@ async function selectAttributeMappingsByPackageIds(db, packageIds) {
 
 /**
  * Get all attributes in an endpoint type cluster
- * Disabled attributes are not loaded into ENDPOINT_TYPE_ATTRIBUTE table
- * when opening a ZAP file, so we need to join DEVICE_TYPE_CLUSTER table
  * @param {*} db
  * @param {*} endpointTyeClusterId
- * @param {*} deviceTypeClusterId
  * @returns all attributes in an endpoint type cluster
  */
-async function selectAttributesByEndpointTypeClusterIdAndDeviceTypeClusterId(
+async function selectAttributesByEndpointTypeClusterId(
   db,
-  endpointTypeClusterId,
-  deviceTypeClusterId
+  endpointTypeClusterId
 ) {
   let rows = await dbApi.dbAll(
     db,
@@ -1299,19 +1300,19 @@ async function selectAttributesByEndpointTypeClusterIdAndDeviceTypeClusterId(
     FROM
       ATTRIBUTE
     JOIN
-      DEVICE_TYPE_CLUSTER
+      ENDPOINT_TYPE_CLUSTER
     ON
-      ATTRIBUTE.CLUSTER_REF = DEVICE_TYPE_CLUSTER.CLUSTER_REF
+        ATTRIBUTE.CLUSTER_REF = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
+      AND
+        ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = ?
     LEFT JOIN
       ENDPOINT_TYPE_ATTRIBUTE
     ON
         ATTRIBUTE.ATTRIBUTE_ID = ENDPOINT_TYPE_ATTRIBUTE.ATTRIBUTE_REF
       AND
-        ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF = ?
-    WHERE
-      DEVICE_TYPE_CLUSTER.DEVICE_TYPE_CLUSTER_ID = ?
+        ENDPOINT_TYPE_ATTRIBUTE.ENDPOINT_TYPE_CLUSTER_REF = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
     `,
-    [endpointTypeClusterId, deviceTypeClusterId]
+    [endpointTypeClusterId]
   )
   return rows.map(dbMapping.map.endpointTypeAttributeExtended)
 }
@@ -1342,5 +1343,5 @@ exports.selectTokenAttributesForEndpoint = selectTokenAttributesForEndpoint
 exports.selectAllUserTokenAttributes = selectAllUserTokenAttributes
 exports.selectAttributeMappingsByPackageIds =
   selectAttributeMappingsByPackageIds
-exports.selectAttributesByEndpointTypeClusterIdAndDeviceTypeClusterId =
-  selectAttributesByEndpointTypeClusterIdAndDeviceTypeClusterId
+exports.selectAttributesByEndpointTypeClusterId =
+  selectAttributesByEndpointTypeClusterId

@@ -255,6 +255,7 @@ function prepareAttributes(attributes, side, types, cluster = null) {
         minLength: 0,
         maxLength: null,
         isWritable: a.$.writable == 'true',
+        isReadable: a.$.readable != 'false',
         defaultValue: normalizeHexValue(a.$.default),
         isOptional: a.$.required != 'true',
         reportingPolicy:
@@ -278,6 +279,7 @@ function prepareAttributes(attributes, side, types, cluster = null) {
         minLength: 0,
         maxLength: null,
         isWritable: a.$.writable == 'true',
+        isReadable: a.$.readable != 'false',
         defaultValue: normalizeHexValue(a.$.default),
         isOptional: a.$.required != 'true',
         reportingPolicy:
@@ -312,6 +314,7 @@ function prepareAttributes(attributes, side, types, cluster = null) {
         minLength: 0,
         maxLength: null,
         isWritable: a.$.writable == 'true',
+        isReadable: a.$.readable != 'false',
         defaultValue: normalizeHexValue(a.$.default),
         isOptional: a.$.required != 'true',
         reportingPolicy:

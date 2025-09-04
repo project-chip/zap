@@ -32,7 +32,7 @@ const env = require('../util/env')
  * Call recursive helper function to parse conformance only if the conformance exists.
  * Otherwise, return empty string directly
  *
- * An example of parsing the conformance of 'User' device type feature:
+ * An example of parsing the conformance of 'User' feature:
  *
  * Input operand from xml data:
  * {
@@ -92,7 +92,7 @@ function parseConformanceRecursively(operand, depth = 0, parentJoinChar = '') {
     if (insideTerm && Object.keys(insideTerm).toString() != '$') {
       return parseConformanceRecursively(operand.mandatoryConform[0], depth + 1)
     } else {
-      return dbEnum.conformance.mandatory
+      return dbEnum.conformanceTag.mandatory
     }
   } else if (operand.optionalConform) {
     let insideTerm = operand.optionalConform[0]
@@ -101,7 +101,7 @@ function parseConformanceRecursively(operand, depth = 0, parentJoinChar = '') {
     if (insideTerm && Object.keys(insideTerm).toString() != '$') {
       return `[${parseConformanceRecursively(operand.optionalConform[0], depth + 1)}]`
     } else {
-      return dbEnum.conformance.optional
+      return dbEnum.conformanceTag.optional
     }
   } else if (operand.otherwiseConform) {
     return Object.entries(operand.otherwiseConform[0])
@@ -142,11 +142,13 @@ function parseConformanceRecursively(operand, depth = 0, parentJoinChar = '') {
       })
       .join(` ${joinChar} `)
   } else if (operand.provisionalConform) {
-    return dbEnum.conformance.provisional
+    return dbEnum.conformanceTag.provisional
   } else if (operand.disallowConform) {
-    return dbEnum.conformance.disallowed
+    return dbEnum.conformanceTag.disallowed
   } else if (operand.deprecateConform) {
-    return dbEnum.conformance.deprecated
+    return dbEnum.conformanceTag.deprecated
+  } else if (operand.describedConform) {
+    return dbEnum.conformanceTag.described
   } else {
     // reach base level terms, return the name directly
     for (const term of baseLevelTerms) {
@@ -155,7 +157,7 @@ function parseConformanceRecursively(operand, depth = 0, parentJoinChar = '') {
       }
     }
     // reaching here means the term is too complex to parse
-    return dbEnum.conformance.desc
+    return dbEnum.conformanceTag.described
   }
 }
 
@@ -182,9 +184,9 @@ function getOptionalAttributeFromXML(element, elementType) {
     return element.$.optional == 'true'
   } else {
     if (conformance) {
-      return !conformEvaluator.checkIfExpressionHasTerm(
+      return !conformEvaluator.checkIfExpressionHasOperand(
         conformance,
-        dbEnum.conformance.mandatory
+        dbEnum.conformanceTag.mandatory
       )
     } else {
       return false

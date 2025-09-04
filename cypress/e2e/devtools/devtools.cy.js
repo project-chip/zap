@@ -7,9 +7,7 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 })
 describe('Testing visibility of devtools option', () => {
   beforeEach(() => {
-    cy.fixture('baseurl').then((data) => {
-      cy.visit(data.baseurl)
-    })
+    cy.visit('/')
   })
 
   it('check if devtools option gets visible', () => {

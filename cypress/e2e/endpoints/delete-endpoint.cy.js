@@ -7,9 +7,7 @@ Cypress.on('uncaught:exception', (err, runnable) => {
 
 describe('Testing Deleting Endpoints', () => {
   it('create a new endpoint', () => {
-    cy.fixture('baseurl').then((url) => {
-      cy.visit(url.baseurl)
-    })
+    cy.visit('/')
     cy.setZclProperties()
     cy.fixture('data').then((data) => {
       cy.addEndpoint(data.endpoint1)

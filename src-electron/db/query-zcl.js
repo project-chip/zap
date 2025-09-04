@@ -717,6 +717,7 @@ SELECT
   REPORTABLE_CHANGE,
   REPORTABLE_CHANGE_LENGTH,
   IS_WRITABLE,
+  IS_READABLE,
   DEFAULT_VALUE,
   IS_OPTIONAL,
   REPORTING_POLICY,
@@ -775,6 +776,7 @@ SELECT
   REPORTABLE_CHANGE,
   REPORTABLE_CHANGE_LENGTH,
   IS_WRITABLE,
+  IS_READABLE,
   DEFAULT_VALUE,
   IS_OPTIONAL,
   REPORTING_POLICY,
@@ -842,6 +844,7 @@ SELECT
   A.REPORTABLE_CHANGE,
   A.REPORTABLE_CHANGE_LENGTH,
   A.IS_WRITABLE,
+  A.IS_READABLE,
   A.DEFAULT_VALUE,
   A.IS_OPTIONAL,
   A.REPORTING_POLICY,
@@ -896,6 +899,7 @@ SELECT
   REPORTABLE_CHANGE,
   REPORTABLE_CHANGE_LENGTH,
   IS_WRITABLE,
+  IS_READABLE,
   DEFAULT_VALUE,
   IS_OPTIONAL,
   REPORTING_POLICY,
@@ -947,6 +951,7 @@ SELECT
   A.REPORTABLE_CHANGE,
   A.REPORTABLE_CHANGE_LENGTH,
   A.IS_WRITABLE,
+  A.IS_READABLE,
   CASE
     WHEN A.CLUSTER_REF NOT NULL
     THEN A.DEFAULT_VALUE
@@ -1012,6 +1017,7 @@ SELECT
   A.REPORTABLE_CHANGE,
   A.REPORTABLE_CHANGE_LENGTH,
   A.IS_WRITABLE,
+  A.IS_READABLE,
   A.DEFAULT_VALUE,
   A.IS_OPTIONAL,
   A.REPORTING_POLICY,
@@ -1069,6 +1075,7 @@ SELECT
   REPORTABLE_CHANGE,
   REPORTABLE_CHANGE_LENGTH,
   IS_WRITABLE,
+  IS_READABLE,
   DEFAULT_VALUE,
   IS_OPTIONAL,
   REPORTING_POLICY,
@@ -1115,6 +1122,43 @@ ORDER BY
     [endpointTypeId]
   )
   return rows.map(dbMapping.map.endpointTypeCluster)
+}
+
+/**
+ * Get the server-side endpoint type cluster ID from the given endpoint type ID and cluster reference.
+ *
+ * @param {*} db
+ * @param {*} endpointTypeId
+ * @param {*} clusterRef
+ * @param {*} clusterSide
+ * @returns Promise of endpoint type cluster ID, or null if not found.
+ */
+async function selectEndpointTypeClusterIdByEndpointTypeIdAndClusterRefAndSide(
+  db,
+  endpointTypeId,
+  clusterRef,
+  clusterSide
+) {
+  let rows = await dbApi.dbAll(
+    db,
+    `
+SELECT
+  ENDPOINT_TYPE_CLUSTER_ID,
+  ENDPOINT_TYPE_REF,
+  CLUSTER_REF,
+  SIDE,
+  ENABLED
+FROM
+  ENDPOINT_TYPE_CLUSTER
+WHERE
+  ENDPOINT_TYPE_REF = ?
+  AND CLUSTER_REF = ?
+  AND SIDE = ?
+  `,
+    [endpointTypeId, clusterRef, clusterSide]
+  )
+  let mapped = rows.map(dbMapping.map.endpointTypeCluster)
+  return mapped.length > 0 ? mapped[0].endpointTypeClusterId : null
 }
 
 /**
@@ -1175,6 +1219,7 @@ SELECT
   ETC.ENDPOINT_TYPE_REF,
   ETC.CLUSTER_REF,
   ETA.ATTRIBUTE_REF,
+  ETA.ENDPOINT_TYPE_ATTRIBUTE_ID,
   ETA.INCLUDED,
   ETA.STORAGE_OPTION,
   ETA.SINGLETON,
@@ -1306,6 +1351,8 @@ exports.selectAllAttributesBySide = selectAllAttributesBySide
 
 exports.selectEndpointTypeClustersByEndpointTypeId =
   selectEndpointTypeClustersByEndpointTypeId
+exports.selectEndpointTypeClusterIdByEndpointTypeIdAndClusterRefAndSide =
+  selectEndpointTypeClusterIdByEndpointTypeIdAndClusterRefAndSide
 exports.selectEndpointTypeAttributesByEndpointId =
   selectEndpointTypeAttributesByEndpointId
 exports.selectEndpointTypeAttribute = selectEndpointTypeAttribute

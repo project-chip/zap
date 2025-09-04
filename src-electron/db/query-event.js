@@ -116,7 +116,8 @@ SELECT
   CONFORMANCE,
   IS_OPTIONAL,
   IS_FABRIC_SENSITIVE,
-  PRIORITY
+  PRIORITY,
+  API_MATURITY
 FROM
   EVENT
 WHERE
@@ -152,7 +153,8 @@ SELECT
   E.CONFORMANCE,
   E.IS_OPTIONAL,
   E.IS_FABRIC_SENSITIVE,
-  E.PRIORITY
+  E.PRIORITY,
+  E.API_MATURITY
 FROM
   EVENT AS E
 INNER JOIN
@@ -236,19 +238,12 @@ ORDER BY
 
 /**
  * Get all events in an endpoint type cluster
- * Disabled events are not loaded into ENDPOINT_TYPE_EVENT table,
- * so we need to load all events by joining DEVICE_TYPE_CLUSTER table
  *
  * @param {*} db
  * @param {*} endpointTypeClusterId
- * @param {*} deviceTypeClusterId
  * @returns all events in an endpoint type cluster
  */
-async function selectEventsByEndpointTypeClusterIdAndDeviceTypeClusterId(
-  db,
-  endpointTypeClusterId,
-  deviceTypeClusterId
-) {
+async function selectEventsByEndpointTypeClusterId(db, endpointTypeClusterId) {
   let rows = await dbApi.dbAll(
     db,
     `
@@ -262,19 +257,19 @@ async function selectEventsByEndpointTypeClusterIdAndDeviceTypeClusterId(
     FROM
       EVENT
     JOIN
-      DEVICE_TYPE_CLUSTER
+      ENDPOINT_TYPE_CLUSTER
     ON
-      EVENT.CLUSTER_REF = DEVICE_TYPE_CLUSTER.CLUSTER_REF
+        EVENT.CLUSTER_REF = ENDPOINT_TYPE_CLUSTER.CLUSTER_REF
+      AND
+        ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID = ?
     LEFT JOIN
       ENDPOINT_TYPE_EVENT
     ON
         EVENT.EVENT_ID = ENDPOINT_TYPE_EVENT.EVENT_REF
       AND
-        ENDPOINT_TYPE_EVENT.ENDPOINT_TYPE_CLUSTER_REF = ?
-    WHERE
-      DEVICE_TYPE_CLUSTER.DEVICE_TYPE_CLUSTER_ID = ?
+        ENDPOINT_TYPE_EVENT.ENDPOINT_TYPE_CLUSTER_REF = ENDPOINT_TYPE_CLUSTER.ENDPOINT_TYPE_CLUSTER_ID
     `,
-    [endpointTypeClusterId, deviceTypeClusterId]
+    [endpointTypeClusterId]
   )
   return rows.map(dbMapping.map.endpointTypeEventExtended)
 }
@@ -282,8 +277,8 @@ async function selectEventsByEndpointTypeClusterIdAndDeviceTypeClusterId(
 exports.selectEventsByClusterId = selectEventsByClusterId
 exports.selectAllEvents = selectAllEvents
 exports.selectAllEventFields = selectAllEventFields
-exports.selectEventsByEndpointTypeClusterIdAndDeviceTypeClusterId =
-  selectEventsByEndpointTypeClusterIdAndDeviceTypeClusterId
+exports.selectEventsByEndpointTypeClusterId =
+  selectEventsByEndpointTypeClusterId
 exports.selectEventFieldsByEventId = selectEventFieldsByEventId
 exports.selectEndpointTypeEventsByEndpointTypeRefAndClusterRef =
   selectEndpointTypeEventsByEndpointTypeRefAndClusterRef

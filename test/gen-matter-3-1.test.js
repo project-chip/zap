@@ -299,6 +299,53 @@ test(
 )
 
 test(
+  `Zap file generation: ${path.relative(__dirname, testFile2)}`,
+  async () => {
+    let sessionId = await querySession.createBlankSession(db)
+
+    await importJs.importDataFromFile(db, testFile2, {
+      sessionId: sessionId
+    })
+
+    let genResult = await genEngine.generate(
+      db,
+      sessionId,
+      templateContext.packageId,
+      {},
+      { disableDeprecationWarnings: true }
+    )
+    expect(genResult.hasErrors).toEqual(false)
+
+    // Note: A lot of these tests here are for sake of backwards
+    // compatibility. Latest ZAP must be able to generate content for
+    // the old SDKs, so if you changed something that generates
+    // endpoint_config differently, please be very very careful and
+    // make sure you can answer positively the following question:
+    //   after my changes, will zap still be able to generate content
+    //   that works with an older SDK.
+    //
+    let ept = genResult.content['endpoint_config_v2.h']
+
+    expect(ept).toContain(
+      `{ 0x00000005, ZAP_TYPE(ENUM8), 1, ZAP_ATTRIBUTE_MASK(EXTERNAL_STORAGE) | ZAP_ATTRIBUTE_MASK(READABLE) | ZAP_ATTRIBUTE_MASK(NULLABLE), ZAP_EMPTY_DEFAULT() }, /* LastNetworkingStatus */`
+    )
+    expect(ept).toContain(
+      '  { 0x00000000, ZAP_TYPE(TEMPERATURE), 2, ZAP_ATTRIBUTE_MASK(READABLE) | ZAP_ATTRIBUTE_MASK(NULLABLE), ZAP_SIMPLE_DEFAULT(0x8000) },'
+    )
+
+    let eptOld = genResult.content['endpoint_config.h']
+
+    expect(eptOld).not.toContain(
+      `{ 0x00000005, ZAP_TYPE(ENUM8), 1, ZAP_ATTRIBUTE_MASK(EXTERNAL_STORAGE) | ZAP_ATTRIBUTE_MASK(READABLE) | ZAP_ATTRIBUTE_MASK(NULLABLE), ZAP_EMPTY_DEFAULT() }, /* LastNetworkingStatus */`
+    )
+    expect(eptOld).not.toContain(
+      '  { 0x00000000, ZAP_TYPE(TEMPERATURE), 2, ZAP_ATTRIBUTE_MASK(READABLE) | ZAP_ATTRIBUTE_MASK(NULLABLE), ZAP_SIMPLE_DEFAULT(0x8000) },'
+    )
+  },
+  testUtil.timeout.long()
+)
+
+test(
   `Zap multiple device type per endpoint file generation: ${path.relative(
     __dirname,
     multipleDeviceTypePerEndpointTestFile

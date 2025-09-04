@@ -617,7 +617,10 @@ function assertCommandOrAttributeOrEvent(context) {
       filterName = context.event;
       items = getEvents(context, clusterName);
     } else {
-      printErrorAndExit(context, 'Unsupported command type: ', context);
+      printErrorAndExit(
+        context,
+        `Unsupported command type: ${JSON.stringify(context)}`
+      );
     }
 
     return items.then((items) => {
@@ -984,7 +987,7 @@ function attachGlobal(global, value, errorContext) {
         value = new String(value);
         break;
       case 'boolean':
-        value = new Boolean(value);
+        value = Boolean(value);
         break;
       default:
         throw new Error('Unsupported value: ' + JSON.stringify(value));

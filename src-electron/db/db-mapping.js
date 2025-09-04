@@ -24,6 +24,7 @@
 const dbApi = require('./db-api.js')
 const dbEnums = require('../../src-shared/db-enum.js')
 const bin = require('../util/bin')
+const conformEvaluator = require('../validation/conformance-expression-evaluator')
 
 exports.map = {
   package: (x) => {
@@ -111,6 +112,8 @@ exports.map = {
       reportableChangeLength: x.REPORTABLE_CHANGE_LENGTH,
       isWritable: dbApi.fromDbBool(x.IS_WRITABLE),
       isWritableAttribute: dbApi.fromDbBool(x.IS_WRITABLE),
+      isReadable: dbApi.fromDbBool(x.IS_READABLE),
+      isReadableAttribute: dbApi.fromDbBool(x.IS_READABLE),
       isNullable: dbApi.fromDbBool(x.IS_NULLABLE),
       defaultValue: x.DEFAULT_VALUE,
       isOptional: dbApi.fromDbBool(x.IS_OPTIONAL),
@@ -184,7 +187,8 @@ exports.map = {
       conformance: x.CONFORMANCE,
       isOptional: dbApi.fromDbBool(x.IS_OPTIONAL),
       isFabricSensitive: dbApi.fromDbBool(x.IS_FABRIC_SENSITIVE),
-      priority: x.PRIORITY
+      priority: x.PRIORITY,
+      apiMaturity: x.API_MATURITY
     }
   },
 
@@ -266,6 +270,9 @@ exports.map = {
       includeServer: x.INCLUDE_SERVER,
       includeClient: x.INCLUDE_CLIENT,
       conformance: x.DEVICE_TYPE_CLUSTER_CONFORMANCE,
+      translation: conformEvaluator.translateConformanceExpression(
+        x.DEVICE_TYPE_CLUSTER_CONFORMANCE
+      ),
       featureId: x.FEATURE_ID,
       name: x.FEATURE_NAME,
       code: x.CODE,
@@ -280,14 +287,17 @@ exports.map = {
   clusterFeature: (x) => {
     if (x == null) return undefined
     return {
-      id: x.FEATURE_ID,
+      featureId: x.FEATURE_ID,
       name: x.NAME,
       code: x.CODE,
       bit: x.BIT,
       description: x.DESCRIPTION,
       conformance: x.CONFORMANCE,
+      translation: conformEvaluator.translateConformanceExpression(
+        x.CONFORMANCE
+      ),
       packageRef: x.PACKAGE_REF,
-      clusterId: x.CLUSTER_REF
+      clusterRef: x.CLUSTER_REF
     }
   },
 
@@ -657,7 +667,8 @@ exports.map = {
       minInterval: x.MIN_INTERVAL,
       maxInterval: x.MAX_INTERVAL,
       reportableChange: x.REPORTABLE_CHANGE,
-      apiMaturity: x.API_MATURITY
+      apiMaturity: x.API_MATURITY,
+      id: x.ENDPOINT_TYPE_ATTRIBUTE_ID
     }
   },
 
@@ -697,6 +708,8 @@ exports.map = {
       isSingleton: dbApi.fromDbBool(x.SINGLETON), // Endpoint type attribute is singleton or not
       isWritable: dbApi.fromDbBool(x.IS_WRITABLE), // Is attribute writable
       isWritableAttribute: dbApi.fromDbBool(x.IS_WRITABLE), // Is attribute writable
+      isReadable: dbApi.fromDbBool(x.IS_READABLE), // Is attribute readable
+      isReadableAttribute: dbApi.fromDbBool(x.IS_READABLE), // Is attribute readable
       manufacturerCode: x.MANUFACTURER_CODE
         ? x.MANUFACTURER_CODE
         : x.CLUSTER_MANUFACTURER_CODE, // Attribute manufacturer code

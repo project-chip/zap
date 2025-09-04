@@ -94,6 +94,8 @@ limitations under the License.
                     props.row.source == 'server') ||
                   props.row.source == 'either'
                 "
+                data-test="in-command-checkbox"
+                :command-name="props.row.label"
                 @update:model-value="
                   handleCommandSelection(
                     selectionIn,
