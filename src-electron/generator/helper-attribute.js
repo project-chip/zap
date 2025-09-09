@@ -28,6 +28,40 @@ const zclUtil = require('../util/zcl-util')
 const dbEnum = require('../../src-shared/db-enum')
 
 /**
+ * Counts the number of mandatory attributes (not optional, non-global) for the current cluster context.
+ * Usage: {{count_mandatory_attributes side="server"}}
+ * If side is not provided or invalid, counts all attributes.
+ */
+async function count_mandatory_attributes(options) {
+  if (!('id' in this))
+    throw new Error(
+      'count_mandatory_attributes requires an id inside the context.'
+    )
+  const packageIds = await templateUtil.ensureZclPackageIds(this)
+  let side = options?.hash?.side
+  if (typeof side === 'string') side = side.toLowerCase()
+  let attributes
+  if (side === dbEnum.side.server || side === dbEnum.side.client) {
+    attributes =
+      await queryZcl.selectAttributesByClusterIdAndSideIncludingGlobal(
+        this.global.db,
+        this.id,
+        packageIds,
+        side
+      )
+  } else {
+    // Get all attributes for this cluster (both sides)
+    attributes = await queryZcl.selectAttributesByClusterIdIncludingGlobal(
+      this.global.db,
+      this.id,
+      packageIds
+    )
+  }
+  // Count mandatory attributes (not optional, non-global)
+  return attributes.filter((a) => a.clusterRef && !a.isOptional).length
+}
+
+/**
  * Get feature bits from the given context.
  * @param {*} options
  * @returns feature bits
@@ -172,3 +206,4 @@ exports.global_attribute_default = attributeDefault
 exports.feature_bits = featureBits
 exports.as_underlying_atomic_identifier_for_attribute_id =
   as_underlying_atomic_identifier_for_attribute_id
+exports.count_mandatory_attributes = count_mandatory_attributes
