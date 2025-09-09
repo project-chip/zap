@@ -19161,6 +19161,7 @@ back into a JS integer.
     * [~collectJsonData(jsonFile)](#module_JS API_ random utilities..collectJsonData)
     * [~patternFormat(pattern, data)](#module_JS API_ random utilities..patternFormat)
     * [~toErrorObject(err, message)](#module_JS API_ random utilities..toErrorObject) ⇒ <code>Error</code>
+    * [~getUpgradePackageMatch(db, upgradePackages, zapFilePackages, packageType)](#module_JS API_ random utilities..getUpgradePackageMatch) ⇒
 
 <a name="module_JS API_ random utilities..checksum"></a>
 
@@ -19458,6 +19459,22 @@ If message is provided, it will be used as the error message.
 | --- | --- | --- |
 | err | <code>\*</code> |  | 
 | message | <code>\*</code> | <code></code> | 
+
+<a name="module_JS API_ random utilities..getUpgradePackageMatch"></a>
+
+### JS API: random utilities~getUpgradePackageMatch(db, upgradePackages, zapFilePackages, packageType) ⇒
+Go over the zap file's top level packages and see if they can be upgraded
+based on the upgrade packages given.
+
+**Kind**: inner method of [<code>JS API: random utilities</code>](#module_JS API_ random utilities)  
+**Returns**: list of packages  
+
+| Param | Type |
+| --- | --- |
+| db | <code>\*</code> | 
+| upgradePackages | <code>\*</code> | 
+| zapFilePackages | <code>\*</code> | 
+| packageType | <code>\*</code> | 
 
 <a name="module_REST API_ various zcl utilities"></a>
 

@@ -10,6 +10,10 @@
     {
       "path": "../../test/resource/test-attribute-default-value-update.js",
       "priority": 100
+    },
+    {
+      "path": "../../test/resource/singleton-upgrade-rule.js",
+      "priority": 102
     }
   ]
 }

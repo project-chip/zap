@@ -223,45 +223,6 @@ function findZapFiles(dir) {
 }
 
 /**
- * Go over the zap file's top level packages and see if they can be upgraded
- * based on the upgrade packages given.
- *
- * @param {*} db
- * @param {*} upgradePackages
- * @param {*} zapFilePackages
- * @param {*} packageType
- * @returns list of packages
- */
-async function getUpgradePackageMatch(
-  db,
-  upgradePackages,
-  zapFilePackages,
-  packageType
-) {
-  let matchedUpgradePackages = []
-  if (Array.isArray(upgradePackages) && Array.isArray(zapFilePackages)) {
-    for (let i = 0; i < upgradePackages.length; i++) {
-      let upgradePackage = await queryPackage.getPackageByPathAndType(
-        db,
-        upgradePackages[i],
-        packageType
-      )
-      if (upgradePackage) {
-        for (let j = 0; j < zapFilePackages.length; j++) {
-          if (
-            zapFilePackages[j].category == upgradePackage.category &&
-            zapFilePackages[j].type == upgradePackage.type
-          ) {
-            matchedUpgradePackages.push(upgradePackage)
-          }
-        }
-      }
-    }
-  }
-  return matchedUpgradePackages
-}
-
-/**
  * Upgrade the top level packages(.json files) of a .zap file when a gsdk is
  * updated.
  *
@@ -299,60 +260,20 @@ async function upgradeZapFile(argv, options) {
       options.logger(`    🐝 New templates loaded: ${argv.generationTemplate}`)
     }
     let state = await importJs.readDataFromFile(zapFile)
-    let upgradeZclPackages = await getUpgradePackageMatch(
+    let upgradeZclPackages = await util.getUpgradePackageMatch(
       db,
       argv.zclProperties,
       state.package,
       dbEnum.packageType.zclProperties
     )
-    let upgradeTemplatePackages = await getUpgradePackageMatch(
+    let upgradeTemplatePackages = await util.getUpgradePackageMatch(
       db,
       argv.generationTemplate,
       state.package,
       dbEnum.packageType.genTemplatesJson
     )
 
-    let upgradeRules = []
-    // If more than one upgrade package is present then it is a multiprotocol
-    // application so upgrade rules should be added to the corresponding endpoints.
-    let isMultiProtocol = upgradeZclPackages.length > 1
-    for (const pkg of upgradeZclPackages) {
-      if (pkg.path) {
-        try {
-          const jsonData = JSON.parse(fs.readFileSync(pkg.path, 'utf-8'))
-          if (jsonData.upgradeRules !== undefined) {
-            const upgradeRulesJsonPath = path.resolve(
-              path.dirname(pkg.path),
-              jsonData.upgradeRules
-            )
-            try {
-              const upgradeRulesData = JSON.parse(
-                fs.readFileSync(upgradeRulesJsonPath, 'utf-8')
-              )
-              // Sorting upgrade rules by priority and then run them
-              upgradeRulesData.upgradeRuleScripts
-                .sort((a, b) => a.priority - b.priority)
-                .forEach((ur) => {
-                  upgradeRules.push({
-                    path: path.resolve(path.dirname(pkg.path), ur.path),
-                    category: isMultiProtocol ? upgradeRulesData.category : null
-                  })
-                })
-            } catch (error) {
-              console.error(
-                `Error reading or parsing upgrade rules from path ${upgradeRulesJsonPath}:`,
-                error
-              )
-            }
-          }
-        } catch (error) {
-          console.error(
-            `Error reading or parsing JSON from path ${pkg.path}:`,
-            error
-          )
-        }
-      }
-    }
+    let upgradeRules = importJs.extractUpgradeRules(upgradeZclPackages)
 
     let importResult = await importJs.importDataFromFile(db, zapFile, {
       defaultZclMetafile: argv.zclProperties,
@@ -837,13 +758,13 @@ async function generateSingleFile(
     }
 
     if (!isZapPackagePathPresent) {
-      upgradeZclPackages = await getUpgradePackageMatch(
+      upgradeZclPackages = await util.getUpgradePackageMatch(
         db,
         options.zcl,
         state.package,
         dbEnum.packageType.zclProperties
       )
-      upgradeTemplatePackages = await getUpgradePackageMatch(
+      upgradeTemplatePackages = await util.getUpgradePackageMatch(
         db,
         options.template,
         state.package,
