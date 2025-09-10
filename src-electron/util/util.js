@@ -974,6 +974,45 @@ function toErrorObject(err, message = null) {
   return wrapped
 }
 
+/**
+ * Go over the zap file's top level packages and see if they can be upgraded
+ * based on the upgrade packages given.
+ *
+ * @param {*} db
+ * @param {*} upgradePackages
+ * @param {*} zapFilePackages
+ * @param {*} packageType
+ * @returns list of packages
+ */
+async function getUpgradePackageMatch(
+  db,
+  upgradePackages,
+  zapFilePackages,
+  packageType
+) {
+  let matchedUpgradePackages = []
+  if (Array.isArray(upgradePackages) && Array.isArray(zapFilePackages)) {
+    for (let i = 0; i < upgradePackages.length; i++) {
+      let upgradePackage = await queryPackage.getPackageByPathAndType(
+        db,
+        upgradePackages[i],
+        packageType
+      )
+      if (upgradePackage) {
+        for (let j = 0; j < zapFilePackages.length; j++) {
+          if (
+            zapFilePackages[j].category == upgradePackage.category &&
+            zapFilePackages[j].type == upgradePackage.type
+          ) {
+            matchedUpgradePackages.push(upgradePackage)
+          }
+        }
+      }
+    }
+  }
+  return matchedUpgradePackages
+}
+
 exports.createBackupFile = createBackupFile
 exports.checksum = checksum
 exports.ensurePackagesAndPopulateSessionOptions =
@@ -996,3 +1035,4 @@ exports.mainOrSecondaryInstance = mainOrSecondaryInstance
 exports.collectJsonData = collectJsonData
 exports.patternFormat = patternFormat
 exports.toErrorObject = toErrorObject
+exports.getUpgradePackageMatch = getUpgradePackageMatch

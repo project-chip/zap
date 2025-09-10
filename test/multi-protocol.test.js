@@ -229,11 +229,10 @@ test(
       ).toBeTruthy()
     }
 
-    // one notification regarding multiple top level zcl properties
     // 3 notifications regarding device type feature conformance
     // one notification regarding the enabled provisional cluster
     // 7 notifications regarding non-conformed elements
-    expect(sessionNotifications.length).toEqual(12)
+    expect(sessionNotifications.length).toEqual(11)
 
     // Test Accumulators in templates
     let zigbeeEndpointEvents = genResultZigbee.content['zap-event.h']

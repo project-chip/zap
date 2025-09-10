@@ -603,14 +603,27 @@ export default {
         })
 
         if (this.open) {
+          // Include selected packages in the file open request
+          let openData = {
+            zapFilePath: this.filePath,
+            search: this.path.search,
+            selectedZclPackages: this.selectedZclPropertiesData,
+            selectedTemplatePackages: this.zclGenRow.filter((pkg) =>
+              this.selectedZclGenData.includes(pkg.id)
+            )
+          }
           this.$serverPost(restApi.uri.sessionCreate, data)
-            .then(() => this.$serverPost(restApi.ide.open, this.path))
+            .then(() => this.$serverPost(restApi.ide.open, openData))
             .then(() => {
               this.$store.commit('zap/selectZapConfig', {
                 zclProperties: this.selectedZclPropertiesData,
                 genTemplate: this.selectedZclGenData,
                 newConfig: false
               })
+            })
+            .catch((error) => {
+              console.error('Error in file open process:', error)
+              this.$q.loading.hide()
             })
         } else {
           this.$serverPost(restApi.uri.sessionCreate, data).then(() => {
@@ -742,7 +755,7 @@ export default {
         this.selectedZclPropertiesDataIds = selectableZclPackages.map(
           (zp) => zp.id
         )
-        this.selectedZclPropertiesData = selectableTemplatePackages
+        this.selectedZclPropertiesData = selectableZclPackages
         this.selectedZclGenData = selectableTemplatePackages.map((zt) => zt.id)
         this.customConfig = 'select'
         // Do not show the config page when the packages from the .zap file are found

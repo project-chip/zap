@@ -144,6 +144,58 @@ function mergeZapExtension(baseState, extensionState) {
 }
 
 /**
+ * Extract upgrade rules from ZCL packages
+ * @param {Array} upgradeZclPackages - Array of ZCL packages
+ * @returns {Array} Array of upgrade rule objects
+ */
+function extractUpgradeRules(upgradeZclPackages) {
+  let upgradeRules = []
+  // If more than one upgrade package is present then it is a multiprotocol
+  // application so upgrade rules should be added to the corresponding endpoints.
+  let isMultiProtocol = upgradeZclPackages.length > 1
+
+  for (const pkg of upgradeZclPackages) {
+    if (pkg.path) {
+      try {
+        const jsonData = JSON.parse(fs.readFileSync(pkg.path, 'utf-8'))
+        if (jsonData.upgradeRules !== undefined) {
+          const upgradeRulesJsonPath = path.resolve(
+            path.dirname(pkg.path),
+            jsonData.upgradeRules
+          )
+          try {
+            const upgradeRulesData = JSON.parse(
+              fs.readFileSync(upgradeRulesJsonPath, 'utf-8')
+            )
+            // Sorting upgrade rules by priority and then run them
+            upgradeRulesData.upgradeRuleScripts
+              .sort((a, b) => a.priority - b.priority)
+              .forEach((ur) => {
+                upgradeRules.push({
+                  path: path.resolve(path.dirname(pkg.path), ur.path),
+                  category: isMultiProtocol ? upgradeRulesData.category : null
+                })
+              })
+          } catch (error) {
+            env.logError(
+              `Error reading or parsing upgrade rules from path ${upgradeRulesJsonPath}:`,
+              error
+            )
+          }
+        }
+      } catch (error) {
+        env.logError(
+          `Error reading or parsing JSON from path ${pkg.path}:`,
+          error
+        )
+      }
+    }
+  }
+
+  return upgradeRules
+}
+
+/**
  * Writes the data from the file into a new session.
  * NOTE: This function does NOT initialize session packages.
  *
@@ -179,6 +231,92 @@ async function importDataFromFile(
   }
 
   state = ff.convertFromFile(state)
+
+  // If upgrade rules are not known then figure them out.
+  if (!options.upgradeRuleScripts) {
+    // If defaultZclMetafile doesn't exist, figure it out based on filePath
+    if (
+      !options.defaultZclMetafile &&
+      state.package &&
+      Array.isArray(state.package)
+    ) {
+      // Find all ZCL properties packages from the state
+      const zclPackages = state.package.filter(
+        (pkg) => pkg.type === dbEnum.packageType.zclProperties
+      )
+      if (zclPackages.length > 0) {
+        options.defaultZclMetafile = zclPackages
+          .map((pkg) => {
+            if (pkg.path) {
+              // If the path is relative, resolve it relative to the filePath directory
+              if (!path.isAbsolute(pkg.path)) {
+                return path.resolve(path.dirname(filePath), pkg.path)
+              } else {
+                return pkg.path
+              }
+            }
+            return null
+          })
+          .filter((path) => path !== null)
+      } else {
+        // Fallback to builtin if no ZCL package found in state
+        options.defaultZclMetafile = [env.builtinSilabsZclMetafile()]
+      }
+    }
+
+    // If defaultTemplateFile doesn't exist, figure it out based on filePath
+    if (
+      !options.defaultTemplateFile &&
+      state.package &&
+      Array.isArray(state.package)
+    ) {
+      // Find all template packages from the state
+      const templatePackages = state.package.filter(
+        (pkg) => pkg.type === dbEnum.packageType.genTemplatesJson
+      )
+      if (templatePackages.length > 0) {
+        options.defaultTemplateFile = templatePackages
+          .map((pkg) => {
+            if (pkg.path) {
+              // If the path is relative, resolve it relative to the filePath directory
+              if (!path.isAbsolute(pkg.path)) {
+                return path.resolve(path.dirname(filePath), pkg.path)
+              } else {
+                return pkg.path
+              }
+            }
+            return null
+          })
+          .filter((path) => path !== null)
+      } else {
+        // Fallback to builtin if no template package found in state
+        options.defaultTemplateFile = [env.builtinTemplateMetafile()]
+      }
+    }
+
+    // Add upgrade package matching logic
+    let upgradeZclPackages = await util.getUpgradePackageMatch(
+      db,
+      options.zclProperties || options.defaultZclMetafile,
+      state.package,
+      dbEnum.packageType.zclProperties
+    )
+    let upgradeTemplatePackages = await util.getUpgradePackageMatch(
+      db,
+      options.generationTemplate || options.defaultTemplateFile,
+      state.package,
+      dbEnum.packageType.genTemplatesJson
+    )
+
+    let upgradeRules = extractUpgradeRules(upgradeZclPackages)
+
+    // Set upgrade rules in options if they exist
+    if (upgradeRules.length > 0) {
+      options.upgradeRuleScripts = upgradeRules
+    }
+    options.upgradeZclPackages = upgradeZclPackages
+    options.upgradeTemplatePackages = upgradeTemplatePackages
+  }
   try {
     await dbApi.dbBeginTransaction(db)
     let sid
@@ -269,3 +407,4 @@ async function importDataFromFile(
 exports.readDataFromFile = readDataFromFile
 exports.importDataFromFile = importDataFromFile
 exports.executePostImportScript = executePostImportScript
+exports.extractUpgradeRules = extractUpgradeRules

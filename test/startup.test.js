@@ -31,6 +31,7 @@ const genEngine = require('../src-electron/generator/generation-engine')
 let originalContent
 let originalContentLightMatter
 let db
+let originalSingletonContent
 
 beforeAll(async () => {
   env.setDevelopmentEnv()
@@ -54,6 +55,13 @@ beforeAll(async () => {
     path.join(__dirname, './resource/upgrade/lighting-matter.zap'),
     'utf-8'
   )
+  let testZapFile = path.join(
+    __dirname,
+    './resource/test-singleton-upgrade.zap'
+  )
+
+  // Save original content for restoration
+  originalSingletonContent = await fsPromise.readFile(testZapFile, 'utf-8')
 })
 
 afterAll(async () => {
@@ -379,6 +387,58 @@ test(
     expect(genResultMatterLight.content['endpoint-config.c']).toContain(
       `{ 0x0000FFFD, ZAP_TYPE(INT16U), 2, 0, ZAP_SIMPLE_DEFAULT(2) }`
     )
+  },
+  testUtil.timeout.long()
+)
+
+test(
+  'startup: open with singleton upgrade rule execution',
+  async () => {
+    let testZapFile = path.join(
+      __dirname,
+      './resource/test-singleton-upgrade.zap'
+    )
+
+    try {
+      // Check if the test file exists
+      const fileExists = await fsPromise
+        .stat(testZapFile)
+        .then(() => true)
+        .catch(() => false)
+      expect(fileExists).toBe(true)
+
+      // Read the original content to verify singleton attributes exist captured in beforeAll
+      expect(originalSingletonContent).toContain('"singleton": 1')
+
+      // Import the file with upgrade package to trigger upgrade rules
+      let importRes = await importJs.importDataFromFile(db, testZapFile, {
+        sessionId: null
+      })
+
+      expect(importRes.errors.length).toBe(0)
+      expect(importRes.warnings.length).toBe(0)
+
+      // Save the session data back to file to persist the upgrade changes
+      let exportJs = require('../src-electron/importexport/export')
+      await exportJs.exportDataIntoFile(
+        db,
+        importRes.sessionId,
+        testZapFile,
+        {}
+      )
+
+      // Read the saved file content to verify singleton attributes were changed to false
+      let upgradedContent = await fsPromise.readFile(testZapFile, 'utf-8')
+
+      // Parse JSON to verify singleton values are now false
+      let upgradedZapData = JSON.parse(upgradedContent)
+
+      // Verify the file no longer contains singleton: true or singleton: 1
+      expect(upgradedContent).not.toContain('"singleton": 1')
+    } finally {
+      // Restore original file content
+      await fsPromise.writeFile(testZapFile, originalSingletonContent, 'utf-8')
+    }
   },
   testUtil.timeout.long()
 )

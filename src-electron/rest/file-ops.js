@@ -45,6 +45,11 @@ function httpPostFileOpen(db) {
     let search = req.body.search
     const query = new URLSearchParams(search)
     let file = query.get('filePath')
+
+    // Extract selected packages from request body or query
+    let selectedZclPackages = req.body.selectedZclPackages
+    let selectedTemplatePackages = req.body.selectedTemplatePackages
+
     // Gather .zapExtension files
     let zapFileExtensions = query.get('zapFileExtensions')
     if (file) {
@@ -81,6 +86,31 @@ function httpPostFileOpen(db) {
         let options = { sessionId: req.zapSessionId }
         if (zapFileExtensions) {
           options.extensionFiles = [zapFileExtensions]
+        }
+        // Update options if selectedZclPackages exists and has size > 0
+        if (
+          selectedZclPackages &&
+          Array.isArray(selectedZclPackages) &&
+          selectedZclPackages.length > 0
+        ) {
+          options.zclProperties = selectedZclPackages.map((pkg) => pkg.path)
+          env.logInfo(
+            `Using ${selectedZclPackages.length} selected ZCL packages`
+          )
+        }
+
+        // Update options if selectedTemplatePackages exists and has size > 0
+        if (
+          selectedTemplatePackages &&
+          Array.isArray(selectedTemplatePackages) &&
+          selectedTemplatePackages.length > 0
+        ) {
+          options.generationTemplate = selectedTemplatePackages.map(
+            (pkg) => pkg.path
+          )
+          env.logInfo(
+            `Using ${selectedTemplatePackages.length} selected template packages`
+          )
         }
         let importResult = await importJs.importDataFromFile(
           db,
