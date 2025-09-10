@@ -4,6 +4,7 @@
 ------------------- Clusters -------------------
 {{#zcl_clusters}}
 // cluster: {{asHex code 4}} {{label}}, text extension: '{{cluster_extension property="testClusterExtension"}}'
+// mandatory attribute count for cluster {{label}}: {{count_mandatory_attributes}}
 {{/zcl_clusters}}
 
 ------------------- By-role Clusters -------------------

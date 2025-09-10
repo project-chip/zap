@@ -275,6 +275,13 @@ test(
       )
     )
 
+    // Testing count_mandatory_attributes helper
+    expect(
+      sdkExt.includes(
+        '// mandatory attribute count for cluster Network Commissioning: 6'
+      )
+    ).toBeTruthy()
+
     // Testing promisedHandlebars when we have {{#if (promise)}} in a template
     // Eg: {{#zcl_clusters}}
     // {{#zcl_commands_source_server}}
