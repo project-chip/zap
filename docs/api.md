@@ -9111,16 +9111,16 @@ This module contains the API for templating. For more detailed instructions, rea
 
 
 * [Templating API: Attribute helpers](#module_Templating API_ Attribute helpers)
-    * [~count_mandatory_attributes()](#module_Templating API_ Attribute helpers..count_mandatory_attributes)
+    * [~count_mandatory_matter_attributes()](#module_Templating API_ Attribute helpers..count_mandatory_matter_attributes)
     * [~featureBits(options)](#module_Templating API_ Attribute helpers..featureBits) ⇒
     * [~attributeDefault()](#module_Templating API_ Attribute helpers..attributeDefault) ⇒
     * [~as_underlying_atomic_identifier_for_attribute_id(attributeId)](#module_Templating API_ Attribute helpers..as_underlying_atomic_identifier_for_attribute_id)
 
-<a name="module_Templating API_ Attribute helpers..count_mandatory_attributes"></a>
+<a name="module_Templating API_ Attribute helpers..count_mandatory_matter_attributes"></a>
 
-### Templating API: Attribute helpers~count\_mandatory\_attributes()
+### Templating API: Attribute helpers~count\_mandatory\_matter\_attributes()
 Counts the number of mandatory attributes (not optional, non-global) for the current cluster context.
-Usage: {{count_mandatory_attributes side="server"}}
+Usage: {{count_mandatory_matter_attributes side="server"}}
 If side is not provided or invalid, counts all attributes.
 
 **Kind**: inner method of [<code>Templating API: Attribute helpers</code>](#module_Templating API_ Attribute helpers)  

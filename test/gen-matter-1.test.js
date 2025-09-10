@@ -275,7 +275,7 @@ test(
       )
     )
 
-    // Testing count_mandatory_attributes helper
+    // Testing count_mandatory_matter_attributes helper
     expect(
       sdkExt.includes(
         '// mandatory attribute count for cluster Network Commissioning: 6'

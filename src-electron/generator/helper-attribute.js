@@ -29,13 +29,13 @@ const dbEnum = require('../../src-shared/db-enum')
 
 /**
  * Counts the number of mandatory attributes (not optional, non-global) for the current cluster context.
- * Usage: {{count_mandatory_attributes side="server"}}
+ * Usage: {{count_mandatory_matter_attributes side="server"}}
  * If side is not provided or invalid, counts all attributes.
  */
-async function count_mandatory_attributes(options) {
+async function count_mandatory_matter_attributes(options) {
   if (!('id' in this))
     throw new Error(
-      'count_mandatory_attributes requires an id inside the context.'
+      'count_mandatory_matter_attributes requires a cluster id inside the context.'
     )
   const packageIds = await templateUtil.ensureZclPackageIds(this)
   let side = options?.hash?.side
@@ -206,4 +206,4 @@ exports.global_attribute_default = attributeDefault
 exports.feature_bits = featureBits
 exports.as_underlying_atomic_identifier_for_attribute_id =
   as_underlying_atomic_identifier_for_attribute_id
-exports.count_mandatory_attributes = count_mandatory_attributes
+exports.count_mandatory_matter_attributes = count_mandatory_matter_attributes
