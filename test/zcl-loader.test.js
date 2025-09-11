@@ -744,3 +744,130 @@ test(
   },
   testUtil.timeout.long()
 )
+
+test(
+  'test enum deduplication: same enum shared across clusters should appear only once',
+  async () => {
+    let db = await dbApi.initRamDatabase()
+    try {
+      await dbApi.loadSchema(db, env.schemaFile(), env.zapVersion())
+      let ctx = await zclLoader.loadZcl(db, env.builtinMatterZclMetafile())
+      let packageId = ctx.packageId
+
+      // Test with actual Matter data - StatusEnum is shared across multiple clusters
+      let allEnums = await queryZcl.selectAllEnums(db, packageId)
+      let statusEnums = allEnums.filter((e) => e.name === 'TestSameStatusEnum')
+
+      // Should have only one StatusEnum despite being used in multiple clusters
+      expect(statusEnums.length).toBe(1)
+
+      // Verify it has multiple cluster associations
+      expect(statusEnums[0].enumClusterCount).toBeGreaterThan(1)
+
+      // Verify the enum is actually shared by checking cluster associations
+      let enumClusters = await queryZcl.selectEnumClusters(
+        db,
+        statusEnums[0].id
+      )
+      expect(enumClusters.length).toBeGreaterThan(1)
+    } finally {
+      await dbApi.closeDatabase(db)
+    }
+  },
+  testUtil.timeout.medium()
+)
+
+test(
+  'test enum distinction: different enums with same name in different clusters should appear separately',
+  async () => {
+    let db = await dbApi.initRamDatabase()
+    try {
+      await dbApi.loadSchema(db, env.schemaFile(), env.zapVersion())
+      let ctx = await zclLoader.loadZcl(db, env.builtinMatterZclMetafile())
+      let packageId = ctx.packageId
+
+      // Test: selectAllEnums should return both enums separately
+      let allEnums = await queryZcl.selectAllEnums(db, packageId)
+      let testStatusEnums = allEnums.filter((e) => e.name === 'TestStatusEnum')
+
+      expect(testStatusEnums.length).toBe(2) // Should appear separately
+      expect(testStatusEnums[0].id).not.toBe(testStatusEnums[1].id) // Different ENUM_IDs
+      expect(testStatusEnums[0].enumClusterCount).toBe(1) // Each associated with 1 cluster
+      expect(testStatusEnums[1].enumClusterCount).toBe(1)
+
+      // Verify the enums have different items by checking via enum items
+      let enum1Items = await queryZcl.selectAllEnumItemsById(
+        db,
+        testStatusEnums[0].id
+      )
+      let enum2Items = await queryZcl.selectAllEnumItemsById(
+        db,
+        testStatusEnums[1].id
+      )
+
+      // One enum has 2 items, other has 3 items - proves they're different
+      let itemCounts = [enum1Items.length, enum2Items.length].sort()
+      expect(itemCounts).toEqual([2, 3])
+    } finally {
+      await dbApi.closeDatabase(db)
+    }
+  },
+  testUtil.timeout.medium()
+)
+
+test(
+  'test enum ordering determinism: selectAllEnums should return enums in consistent order',
+  async () => {
+    let db = await dbApi.initRamDatabase()
+    try {
+      await dbApi.loadSchema(db, env.schemaFile(), env.zapVersion())
+      let ctx = await zclLoader.loadZcl(db, env.builtinMatterZclMetafile())
+      let packageId = ctx.packageId
+
+      // Call selectAllEnums once
+      let allEnums = await queryZcl.selectAllEnums(db, packageId)
+
+      // Get all TestStatusEnum instances
+      let testStatusEnums = allEnums.filter((e) => e.name === 'TestStatusEnum')
+
+      if (testStatusEnums.length > 1) {
+        // Find Administrator Commissioning and Application Basic cluster enums
+        let adminCommEnum = null
+        let appBasicEnum = null
+
+        for (let testEnum of testStatusEnums) {
+          let enumClusters = await queryZcl.selectEnumClusters(db, testEnum.id)
+          if (enumClusters.some((c) => c.code === 0x003c)) {
+            // Administrator Commissioning
+            adminCommEnum = testEnum
+          }
+          if (enumClusters.some((c) => c.code === 0x050d)) {
+            // Application Basic
+            appBasicEnum = testEnum
+          }
+        }
+
+        if (adminCommEnum && appBasicEnum) {
+          let adminPosition = allEnums.indexOf(adminCommEnum)
+          let appBasicPosition = allEnums.indexOf(appBasicEnum)
+
+          // Administrator Commissioning TestStatusEnum should always appear before Application Basic TestStatusEnum
+          expect(adminPosition).toBeLessThan(appBasicPosition)
+        }
+      }
+
+      // Get all TestStatusEnumAcrossClusters instances
+      let TestStatusEnumAcrossClusters = allEnums.filter(
+        (e) => e.name === 'TestStatusEnumAcrossClusters'
+      )
+      // Making sure selectAllEnums is returning the enums appropriately ordered by enum name and cluster name
+      expect(TestStatusEnumAcrossClusters.length).toBe(3)
+      expect(TestStatusEnumAcrossClusters[0].enumClusterCount).toBe(0) // TestStatusEnumAcrossClusters defined in actions-cluster.xml
+      expect(TestStatusEnumAcrossClusters[1].enumClusterCount).toBe(2) // TestStatusEnumAcrossClusters defined in administrator-commissioning-cluster.xml
+      expect(TestStatusEnumAcrossClusters[2].enumClusterCount).toBe(3) // TestStatusEnumAcrossClusters defined in application-basic-cluster.xml
+    } finally {
+      await dbApi.closeDatabase(db)
+    }
+  },
+  testUtil.timeout.medium()
+)
