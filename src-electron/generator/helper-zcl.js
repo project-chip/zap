@@ -2390,6 +2390,7 @@ async function as_generated_default_macro(value, attributeSize, options) {
   let temp = ''
   let isCommaTerminated =
     'isCommaTerminated' in options.hash ? options.hash.isCommaTerminated : true
+
   if (attributeSize > 2) {
     // String value
     if (isNaN(value)) {
@@ -2403,9 +2404,17 @@ async function as_generated_default_macro(value, attributeSize, options) {
     if (!isNaN(value) && value.toString().indexOf('.') != -1) {
       temp = types.convertFloatToBigEndian(value, attributeSize)
     } else {
-      if (value > 0) {
-        // Positive value
-        temp = helperC.asHex(value, null, null)
+      if (value >= 0) {
+        // Positive or zero value - ensure proper padding for the attribute size
+        const ret = value.trim ? value.trim() : value.toString()
+        let hexValue
+        if (ret.startsWith('0x') || ret.startsWith('0X')) {
+          hexValue = ret.slice(2)
+        } else {
+          hexValue = parseInt(ret, 10).toString(16)
+        }
+        const requiredHexDigits = attributeSize * 2
+        temp = `0x${hexValue.toUpperCase().padStart(requiredHexDigits, '0')}`
       } else {
         // Negative value
         temp = types.convertIntToBigEndian(value, attributeSize)
@@ -2430,9 +2439,13 @@ async function as_generated_default_macro(value, attributeSize, options) {
       .reverse()
       .join(' ')
   }
+
+  // Remove trailing spaces but preserve the comma structure
+  default_macro_signature = default_macro_signature.trim()
+
   return isCommaTerminated
     ? default_macro_signature
-    : default_macro_signature.trim().slice(0, -1)
+    : default_macro_signature.slice(0, -1)
 }
 
 /**
