@@ -243,7 +243,8 @@ export default {
     },
     enableAttributeReportingTab: {
       get() {
-        return this.category === dbEnum.helperCategory.zigbee
+        // Showing attribute reporting when there is no category. Needed for custom xml.
+        return this.category === dbEnum.helperCategory.zigbee || !this.category
       }
     }
   },
