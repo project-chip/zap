@@ -27,6 +27,7 @@ const queryConfig = require('../db/query-config.js')
 const queryEndpoint = require('../db/query-endpoint.js')
 const types = require('../util/types.js')
 const queryPackage = require('../db/query-package.js')
+const env = require('../util/env')
 
 /**
  * Main attribute validation function.
@@ -52,7 +53,26 @@ async function validateAttribute(
     attributeRef,
     clusterRef
   )
+  // Null check for endpointAttribute
+  if (!endpointAttribute) {
+    env.logWarning(
+      `validateAttribute called with invalid parameters for endpointAttribute:\n
+      - endpointTypeId: ${endpointTypeId}\n
+      - attributeRef: ${attributeRef}\n
+      - clusterRef: ${clusterRef}`
+    )
+    return { defaultValue: ['Attribute not found in endpoint configuration'] }
+  }
+
   let attribute = await queryZcl.selectAttributeById(db, attributeRef)
+  // Null check for attribute
+  if (!attribute) {
+    env.logWarning(
+      `validateAttribute called with invalid parameters for attribute:\n
+      - attributeRef: ${attributeRef}`
+    )
+    return { defaultValue: ['Attribute definition not found'] }
+  }
   return validateSpecificAttribute(
     endpointAttribute,
     attribute,
@@ -118,6 +138,14 @@ async function validateSpecificAttribute(
   db,
   zapSessionId
 ) {
+  if (!endpointAttribute || !attribute) {
+    env.logWarning(
+      `validateSpecificAttribute called with invalid parameters:\n
+      - endpointAttribute: ${JSON.stringify(endpointAttribute)}\n
+      - attribute: ${JSON.stringify(attribute)}`
+    )
+    return { defaultValue: ['Missing attribute or endpoint configuration'] }
+  }
   let defaultAttributeIssues = []
   if (attribute.isNullable && endpointAttribute.defaultValue == null) {
     return { defaultValue: defaultAttributeIssues }
