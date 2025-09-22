@@ -145,7 +145,7 @@ test(
 
     // Test GENERATED_DEFAULTS little endian
     expect(cfgVer2).toContain(
-      '0x2F, 0xAE, 0x0F,  /* 0,DEFAULT value for cluster: Green Power, attribute: gps functionality, side: server*/'
+      '0x2F, 0xAE, 0x0F, /* 0,DEFAULT value for cluster: Green Power, attribute: gps functionality, side: server*/'
     )
 
     // Test GENERATED_DEFAULTS big endian for attribute of size > 8

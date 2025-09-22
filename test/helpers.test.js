@@ -241,7 +241,7 @@ test(
     return zclHelper
       .as_generated_default_macro('0x003840', 3, options)
       .then((res) => {
-        return expect(res).toBe('0x40, 0x38, 0x00, ')
+        return expect(res).toBe('0x40, 0x38, 0x00,')
       })
   },
   testUtil.timeout.short()
@@ -254,7 +254,7 @@ test(
     return zclHelper
       .as_generated_default_macro('0x003840', 3, options)
       .then((res) => {
-        return expect(res).toBe(' 0x00, 0x38, 0x40,')
+        return expect(res).toBe('0x00, 0x38, 0x40,')
       })
   },
   testUtil.timeout.short()
@@ -266,7 +266,7 @@ test(
     let options = { hash: { endian: 'little' } }
     return zclHelper
       .as_generated_default_macro('0x00003840', 4, options)
-      .then((res) => expect(res).toBe('0x40, 0x38, 0x00, 0x00, '))
+      .then((res) => expect(res).toBe('0x40, 0x38, 0x00, 0x00,'))
   },
   testUtil.timeout.short()
 )
@@ -277,7 +277,7 @@ test(
     let options = { hash: { endian: 'big' } }
     return zclHelper
       .as_generated_default_macro('0x00003840', 4, options)
-      .then((res) => expect(res).toBe(' 0x00, 0x00, 0x38, 0x40,'))
+      .then((res) => expect(res).toBe('0x00, 0x00, 0x38, 0x40,'))
   },
   testUtil.timeout.short()
 )
@@ -289,7 +289,7 @@ test(
     return zclHelper
       .as_generated_default_macro('-5', 8, options)
       .then((res) =>
-        expect(res).toBe(' 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFB,')
+        expect(res).toBe('0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFB,')
       )
   },
   testUtil.timeout.short()
@@ -302,7 +302,7 @@ test(
     return zclHelper
       .as_generated_default_macro('-5', 8, options)
       .then((res) =>
-        expect(res).toBe('0xFB, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, ')
+        expect(res).toBe('0xFB, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,')
       )
   },
   testUtil.timeout.short()
@@ -314,7 +314,7 @@ test(
     let options = { hash: { endian: 'big' } }
     return zclHelper
       .as_generated_default_macro('-5', 5, options)
-      .then((res) => expect(res).toBe(' 0xFF, 0xFF, 0xFF, 0xFF, 0xFB,'))
+      .then((res) => expect(res).toBe('0xFF, 0xFF, 0xFF, 0xFF, 0xFB,'))
   },
   testUtil.timeout.short()
 )
@@ -325,7 +325,7 @@ test(
     let options = { hash: { endian: 'little' } }
     return zclHelper
       .as_generated_default_macro('-5', 5, options)
-      .then((res) => expect(res).toBe('0xFB, 0xFF, 0xFF, 0xFF, 0xFF, '))
+      .then((res) => expect(res).toBe('0xFB, 0xFF, 0xFF, 0xFF, 0xFF,'))
   },
   testUtil.timeout.short()
 )
@@ -337,7 +337,7 @@ test(
     return zclHelper
       .as_generated_default_macro('17.0', 8, options)
       .then((res) =>
-        expect(res).toBe('0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x31, 0x40, ')
+        expect(res).toBe('0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x31, 0x40,')
       )
   },
   testUtil.timeout.short()
@@ -350,7 +350,7 @@ test(
     return zclHelper
       .as_generated_default_macro('17.0', 8, options)
       .then((res) =>
-        expect(res).toBe(' 0x40, 0x31, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,')
+        expect(res).toBe('0x40, 0x31, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,')
       )
   },
   testUtil.timeout.short()
@@ -363,7 +363,7 @@ test(
     return zclHelper
       .as_generated_default_macro('-17.0', 8, options)
       .then((res) =>
-        expect(res).toBe('0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x31, 0xC0, ')
+        expect(res).toBe('0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x31, 0xC0,')
       )
   },
   testUtil.timeout.short()
@@ -376,8 +376,41 @@ test(
     return zclHelper
       .as_generated_default_macro('-17.0', 8, options)
       .then((res) =>
-        expect(res).toBe(' 0xC0, 0x31, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,')
+        expect(res).toBe('0xC0, 0x31, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,')
       )
+  },
+  testUtil.timeout.short()
+)
+
+test(
+  'Generated Macro for 3 byte integer big endian with no padding',
+  () => {
+    let options = { hash: { endian: 'big' } }
+    return zclHelper
+      .as_generated_default_macro('0x186A0', 3, options)
+      .then((res) => expect(res).toBe('0x01, 0x86, 0xA0,'))
+  },
+  testUtil.timeout.short()
+)
+
+test(
+  'Generated Macro for 3 byte integer big endian with padding',
+  () => {
+    let options = { hash: { endian: 'little' } }
+    return zclHelper
+      .as_generated_default_macro('0x186A0', 3, options)
+      .then((res) => expect(res).toBe('0xA0, 0x86, 0x01,'))
+  },
+  testUtil.timeout.short()
+)
+
+test(
+  'Generated Macro for 3 byte integer big endian with padding',
+  () => {
+    let options = { hash: { endian: 'big' } }
+    return zclHelper
+      .as_generated_default_macro('0x0186A0', 3, options)
+      .then((res) => expect(res).toBe('0x01, 0x86, 0xA0,'))
   },
   testUtil.timeout.short()
 )
@@ -388,7 +421,7 @@ test(
     let options = { hash: { endian: 'big' } }
     return zclHelper
       .as_generated_default_macro('549755813887', 5, options)
-      .then((res) => expect(res).toBe(' 0x7F, 0xFF, 0xFF, 0xFF, 0xFF,'))
+      .then((res) => expect(res).toBe('0x7F, 0xFF, 0xFF, 0xFF, 0xFF,'))
   },
   testUtil.timeout.short()
 )
@@ -399,7 +432,7 @@ test(
     let options = { hash: { endian: 'little' } }
     return zclHelper
       .as_generated_default_macro('549755813887', 5, options)
-      .then((res) => expect(res).toBe('0xFF, 0xFF, 0xFF, 0xFF, 0x7F, '))
+      .then((res) => expect(res).toBe('0xFF, 0xFF, 0xFF, 0xFF, 0x7F,'))
   },
   testUtil.timeout.short()
 )
@@ -410,7 +443,7 @@ test(
     let options = { hash: { endian: 'big' } }
     return zclHelper
       .as_generated_default_macro('140737488355327', 6, options)
-      .then((res) => expect(res).toBe(' 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,'))
+      .then((res) => expect(res).toBe('0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,'))
   },
   testUtil.timeout.short()
 )
@@ -421,7 +454,7 @@ test(
     let options = { hash: { endian: 'little' } }
     return zclHelper
       .as_generated_default_macro('140737488355327', 6, options)
-      .then((res) => expect(res).toBe('0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, '))
+      .then((res) => expect(res).toBe('0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F,'))
   },
   testUtil.timeout.short()
 )
@@ -433,7 +466,7 @@ test(
     return zclHelper
       .as_generated_default_macro('140737488355327', 7, options)
       .then((res) =>
-        expect(res).toBe('0x00,  0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,')
+        expect(res).toBe('0x00, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,')
       )
   },
   testUtil.timeout.short()
@@ -446,7 +479,7 @@ test(
     return zclHelper
       .as_generated_default_macro('140737488355327', 7, options)
       .then((res) =>
-        expect(res).toBe('0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F,  0x00,')
+        expect(res).toBe('0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0x00,')
       )
   },
   testUtil.timeout.short()
@@ -459,7 +492,7 @@ test(
     return zclHelper
       .as_generated_default_macro('140737488355327', 8, options)
       .then((res) =>
-        expect(res).toBe('0x00, 0x00,  0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,')
+        expect(res).toBe('0x00, 0x00, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,')
       )
   },
   testUtil.timeout.short()
@@ -472,7 +505,7 @@ test(
     return zclHelper
       .as_generated_default_macro('140737488355327', 8, options)
       .then((res) =>
-        expect(res).toBe('0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F,  0x00, 0x00,')
+        expect(res).toBe('0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0x00, 0x00,')
       )
   },
   testUtil.timeout.short()
@@ -484,7 +517,7 @@ test(
     let options = { hash: { endian: 'little' } }
     return zclHelper
       .as_generated_default_macro('1600', 4, options)
-      .then((res) => expect(res).toBe('0x40, 0x06,  0x00, 0x00,'))
+      .then((res) => expect(res).toBe('0x40, 0x06, 0x00, 0x00,'))
   },
   testUtil.timeout.short()
 )
@@ -495,7 +528,7 @@ test(
     let options = { hash: { endian: 'big' } }
     return zclHelper
       .as_generated_default_macro('1600', 4, options)
-      .then((res) => expect(res).toBe('0x00, 0x00,  0x06, 0x40,'))
+      .then((res) => expect(res).toBe('0x00, 0x00, 0x06, 0x40,'))
   },
   testUtil.timeout.short()
 )

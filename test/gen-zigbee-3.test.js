@@ -133,7 +133,7 @@ test(
     let cfgVer2 = genResult.content['zap-config-version-2.h']
     // Test GENERATED_DEFAULTS
     expect(cfgVer2).toContain(
-      '0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,  /* 0,DEFAULT value for cluster: Over the Air Bootloading, attribute: OTA Upgrade Server ID, side: client*/'
+      '0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, /* 0,DEFAULT value for cluster: Over the Air Bootloading, attribute: OTA Upgrade Server ID, side: client*/'
     )
     // Test GENERATED_ATTRIBUTE_COUNT
     expect(cfgVer2).toContain('#define GENERATED_ATTRIBUTE_COUNT 81')
