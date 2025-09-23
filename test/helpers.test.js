@@ -27,6 +27,7 @@ const zclLoader = require('../src-electron/zcl/zcl-loader')
 const zclHelper = require('../src-electron/generator/helper-zcl')
 const dbEnum = require('../src-shared/db-enum')
 const zapHelper = require('../src-electron/generator/helper-zap')
+const { atomicType } = require('../src-electron/generator/overridable')
 
 let db
 let zclContext
@@ -631,6 +632,50 @@ test(
   'replace string',
   () => {
     expect(zapHelper.replace_string('testString', 'test', '')).toBe('String')
+  },
+  testUtil.timeout.short()
+)
+
+test(
+  'Atomic Type test 1',
+  () => {
+    const attribute = {
+      name: '', // This must be empty to trigger the error
+      code: 0x4011,
+      define: 'COLOR_CONTROL_ATTRIBUTE_TEST',
+      type: '',
+      side: 'server',
+      min: '0x0000',
+      max: '0xFFFF',
+      writable: false,
+      optional: true,
+      xmlFile: 'zcl-builtin/matter/data-model/chip/color-control-cluster.xml'
+    }
+    expect(() => atomicType(attribute)).toThrow(
+      /atomicType failed for type : Invalid or empty type name ./
+    )
+  },
+  testUtil.timeout.short()
+)
+
+test(
+  'Atomic Type test 2',
+  () => {
+    const attribute = {
+      name: 'uint16', // This must start with uint to trigger the error
+      code: 0x4011,
+      define: 'COLOR_CONTROL_ATTRIBUTE_TEST',
+      type: '',
+      side: 'server',
+      min: '0x0000',
+      max: '0xFFFF',
+      writable: false,
+      optional: true,
+      xmlFile: 'zcl-builtin/matter/data-model/chip/color-control-cluster.xml'
+    }
+    expect(() => atomicType(attribute)).toThrow(
+      /atomicType failed for type : Invalid Zigbee type name uint16. Did you mean "int16u", "int16s", "int32u", etc.?/
+    )
   },
   testUtil.timeout.short()
 )

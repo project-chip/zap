@@ -66,49 +66,62 @@ function nonAtomicType(arg = { name: 'unknown', isStruct: false }) {
  * @param {*} arg Object containing name and size
  */
 function atomicType(arg = { name: 'unknown', size: 0, no_warning: 0 }) {
-  let name = arg.name
-  let size = arg.size
-  let no_warning = arg.no_warning
-  if (name.startsWith('int')) {
-    let signed
-    if (name.endsWith('s')) signed = true
-    else signed = false
-
-    let ret = `${signed ? '' : 'u'}int${size * 8}_t`
-
-    // few exceptions
-    ret = cleanseUints(ret, size * 8, signed)
-    return ret
-  } else if (name.startsWith('enum') || name.startsWith('data')) {
-    return cleanseUints(`uint${name.slice(4)}_t`, name.slice(4), false)
-  } else if (name.startsWith('bitmap')) {
-    return cleanseUints(`uint${name.slice(6)}_t`, name.slice(6), false)
-  } else {
-    switch (name) {
-      case 'utc_time':
-      case 'date':
-      case 'time_of_day':
-      case 'bacnet_oid':
-        return 'uint32_t'
-      case 'attribute_id':
-      case 'cluster_id':
-        return 'uint16_t'
-      case 'no_data':
-      case 'octet_string':
-      case 'char_string':
-      case 'ieee_address':
-        return 'uint8_t *'
-      case 'boolean':
-        return 'uint8_t'
-      case 'array':
-        return no_warning
-          ? `uint8_t *`
-          : `/* TYPE WARNING: ${name} array defaults to */ uint8_t * `
-      default:
-        return no_warning
-          ? `uint8_t *`
-          : `/* TYPE WARNING: ${name} defaults to */ uint8_t * `
+  try {
+    let name = arg.name
+    let size = arg.size
+    let no_warning = arg.no_warning
+    if (!name || typeof name !== 'string') {
+      throw new Error(`Invalid or empty type name ${name}.`)
     }
+    // Regex to catch invalid Zigbee type names like uint16, int16, etc.
+    if (/^(u?int\d+)$/i.test(name)) {
+      throw new Error(
+        `Invalid Zigbee type name ${name}. Did you mean "int16u", "int16s", "int32u", etc.?`
+      )
+    }
+    if (name.startsWith('int')) {
+      let signed
+      if (name.endsWith('s')) signed = true
+      else signed = false
+
+      let ret = `${signed ? '' : 'u'}int${size * 8}_t`
+
+      // few exceptions
+      ret = cleanseUints(ret, size * 8, signed)
+      return ret
+    } else if (name.startsWith('enum') || name.startsWith('data')) {
+      return cleanseUints(`uint${name.slice(4)}_t`, name.slice(4), false)
+    } else if (name.startsWith('bitmap')) {
+      return cleanseUints(`uint${name.slice(6)}_t`, name.slice(6), false)
+    } else {
+      switch (name) {
+        case 'utc_time':
+        case 'date':
+        case 'time_of_day':
+        case 'bacnet_oid':
+          return 'uint32_t'
+        case 'attribute_id':
+        case 'cluster_id':
+          return 'uint16_t'
+        case 'no_data':
+        case 'octet_string':
+        case 'char_string':
+        case 'ieee_address':
+          return 'uint8_t *'
+        case 'boolean':
+          return 'uint8_t'
+        case 'array':
+          return no_warning
+            ? `uint8_t *`
+            : `/* TYPE WARNING: ${name} array defaults to */ uint8_t * `
+        default:
+          return no_warning
+            ? `uint8_t *`
+            : `/* TYPE WARNING: ${name} defaults to */ uint8_t * `
+      }
+    }
+  } catch (err) {
+    throw new Error('atomicType failed for type ' + ': ' + err.message)
   }
 }
 
