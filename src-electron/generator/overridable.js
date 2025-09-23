@@ -21,6 +21,8 @@
  * @module Templating API: Overridable functions.
  */
 
+const env = require('../util/env')
+
 // Local utility function
 
 /**
@@ -69,6 +71,15 @@ function atomicType(arg = { name: 'unknown', size: 0, no_warning: 0 }) {
   let name = arg.name
   let size = arg.size
   let no_warning = arg.no_warning
+  if (!name || typeof name !== 'string') {
+    env.logError(`atomicType failed for type: Invalid or empty type name.`)
+  }
+  // Regex to catch invalid Zigbee type names like uint16, int16, etc.
+  if (/^(u?int\d+)$/i.test(name)) {
+    env.logError(
+      `atomicType failed for type: Invalid Zigbee type name ${name}.`
+    )
+  }
   if (name.startsWith('int')) {
     let signed
     if (name.endsWith('s')) signed = true
