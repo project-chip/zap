@@ -1,0 +1,45 @@
+#!/bin/bash
+
+shopt -s extglob
+
+LOC=`dirname "$0"`
+SUM=0
+EXTERNAL_DIR="/Users/brdandu/git/chip/connectedhomeip/src/app/zap-templates/zcl/data-model"
+
+echo "Validating XML files in: $EXTERNAL_DIR"
+echo "Using schema: ${LOC}/../schema/zcl.xsd"
+echo ""
+
+# Check if the external directory exists
+if [ ! -d "$EXTERNAL_DIR" ]; then
+    echo "Error: Directory $EXTERNAL_DIR does not exist"
+    exit 1
+fi
+
+# Validate all XML files in the external directory
+for A in "$EXTERNAL_DIR"/*.xml; do
+    if [ -f "$A" ]; then
+        echo "Validating: $A"
+        xmllint --noout --schema ${LOC}/../schema/zcl.xsd "$A"
+        SUM=$(( $SUM + $?))
+        echo ""
+    fi
+done
+
+# Also check subdirectories for XML files
+for A in "$EXTERNAL_DIR"/**/*.xml; do
+    if [ -f "$A" ]; then
+        echo "Validating: $A"
+        xmllint --noout --schema ${LOC}/../schema/zcl.xsd "$A"
+        SUM=$(( $SUM + $?))
+        echo ""
+    fi
+done
+
+if [ $SUM -eq 0 ]; then
+    echo "All XML files validated successfully!"
+else
+    echo "Total validation errors: $SUM"
+fi
+
+exit $SUM
