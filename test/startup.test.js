@@ -462,3 +462,46 @@ test(
   },
   testUtil.timeout.long()
 )
+
+it('returns .zap files from array', () => {
+  const testDir = path.join(__dirname, 'resource')
+  const zapFile1 = path.join(testDir, 'test-light.zap')
+  const zapFile2 = path.join(testDir, 'full-th.zap')
+  const jsFile = path.join(testDir, 'test-script-2.js')
+  const files = [zapFile1, jsFile, zapFile2]
+  const result = startup.gatherFiles(files)
+  expect(result).toContain(zapFile1)
+  expect(result).toContain(zapFile2)
+})
+it('returns blank session if doBlank is true and no files', () => {
+  const result = startup.gatherFiles([], { doBlank: true })
+  expect(result).toContain('-- blank session --')
+})
+it('returns empty array if doBlank is false and no files', () => {
+  const result = startup.gatherFiles([], { doBlank: false })
+  expect(result).toEqual([])
+})
+
+it('writes results file and logs', async () => {
+  const tmpFile = path.join(__dirname, 'noop-results.txt')
+  const logger = jest.fn()
+  await startup.noopConvert(tmpFile, logger)
+  expect(fs.existsSync(tmpFile)).toBe(true)
+  fs.unlinkSync(tmpFile)
+  expect(logger).toHaveBeenCalled()
+})
+
+it('returns .zap files in directory', () => {
+  const testDir = path.join(__dirname, 'resource')
+  const testFile = path.join(testDir, 'test-light.zap')
+  const files = startup.findZapFiles(testDir)
+  expect(files).toContain(testFile)
+})
+
+it('returns correct output path with pattern', () => {
+  const testDir = path.join(__dirname, 'resource')
+  const input = path.join(testDir, 'test-light.zap')
+  const pattern = '/output/{basename}.out'
+  const result = startup.outputFile(input, pattern)
+  expect(result).toBe('/output/test-light.out')
+})

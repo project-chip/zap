@@ -1359,3 +1359,6 @@ exports.patch = [
     callback: httpPatchUpdateBitOfFeatureMapAttribute
   }
 ]
+
+//Exports added for testing
+exports.httpPostDuplicateEndpointType = httpPostDuplicateEndpointType

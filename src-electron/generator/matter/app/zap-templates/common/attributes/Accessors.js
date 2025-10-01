@@ -128,3 +128,6 @@ exports.meta = {
   category: dbEnum.helperCategory.matter,
   alias: ['common/attributes/Accessors.js', 'matter-accessors']
 };
+
+// Exports for unit testing
+exports.isUnsupportedType = isUnsupportedType;

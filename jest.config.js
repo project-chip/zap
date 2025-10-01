@@ -57,6 +57,13 @@ module.exports = {
   ],
   coveragePathIgnorePatterns: [
     '/node_modules/',
-    '<rootDir>/src-electron/generator/matter/darwin/Framework/CHIP/templates/helper.js'
-  ]
+    '<rootDir>/src-electron/generator/matter/darwin/Framework/CHIP/templates/helper.js',
+    '<rootDir>/src-electron/generator/matter/app/zap-templates/templates/app/helper.js',
+    '<rootDir>/src-electron/generator/matter/app/zap-templates/templates/chip/ListHelper.js',
+    '<rootDir>/src-electron/generator/matter/app/zap-templates/templates/chip/helper.js',
+    '<rootDir>/src-electron/generator/matter/app/zap-templates/common/ClusterTestGeneration.js',
+    '<rootDir>/src-electron/generator/matter/chip-tool/templates/helper.js',
+    '<rootDir>/src-electron/generator/matter/chip-tool/templates/tests/helper.js'
+  ],
+  testEnvironment: 'jsdom'
 }

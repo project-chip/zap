@@ -24,6 +24,7 @@ const queryZcl = require('../src-electron/db/query-zcl')
 const queryDeviceType = require('../src-electron/db/query-device-type')
 const queryAttribute = require('../src-electron/db/query-attribute')
 const queryCommand = require('../src-electron/db/query-command')
+const queryEvent = require('../src-electron/db/query-event')
 const queryLoader = require('../src-electron/db/query-loader')
 const queryConfig = require('../src-electron/db/query-config')
 const queryEndpointType = require('../src-electron/db/query-endpoint-type')
@@ -771,6 +772,349 @@ describe('Endpoint Type Config Queries', () => {
     },
     testUtil.timeout.medium()
   )
+})
+
+describe('user-data.js REST API handlers', () => {
+  it(
+    'httpPostDuplicateEndpointType, httpGetEndpointIds, etc)',
+    async () => {
+      let ctx = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
+      pkgId = ctx.packageId
+      let dts = await queryDeviceType.selectAllDeviceTypes(db, pkgId)
+      let haOnOffDeviceTypeArray = dts.filter(
+        (data) => data.label === 'HA-onoff'
+      )
+      let haOnOffDeviceType = haOnOffDeviceTypeArray[0]
+      let deviceTypeId = haOnOffDeviceType.id
+      let allSessionPartitions =
+        await querySession.getAllSessionPartitionInfoForSession(db, sid)
+      let endpointTypeId = await queryConfig.insertEndpointType(
+        db,
+        allSessionPartitions[0],
+        'Test endpoint',
+        deviceTypeId,
+        haOnOffDeviceType.code,
+        0,
+        true
+      )
+      let endpointTypes = await queryEndpointType.selectAllEndpointTypes(
+        db,
+        sid
+      )
+      let endpointTypesLength1 = endpointTypes.length
+      const req = { body: { endpointTypeId: endpointTypeId } }
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn()
+      }
+      const handler =
+        require('../src-electron/rest/user-data').httpPostDuplicateEndpointType(
+          db
+        )
+      await handler(req, res)
+      expect(res.status).toHaveBeenCalledWith(200)
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({ id: expect.anything() })
+      )
+      // check that the new endpoint type exists in the DB
+      endpointTypes = await queryEndpointType.selectAllEndpointTypes(db, sid)
+      expect(endpointTypesLength1 + 1).toEqual(endpointTypes.length)
+
+      // --- httpGetEndpointIds logic moved here ---
+      let endpointId = await queryEndpoint.insertEndpoint(
+        db,
+        sid,
+        99,
+        endpointTypeId,
+        0,
+        0
+      )
+      const reqEp = { zapSessionId: sid }
+      const resEp = { status: jest.fn().mockReturnThis(), json: jest.fn() }
+      const handlerEp = require('../src-electron/rest/user-data')
+        .get.find((e) => e.uri === restApi.uri.endpointIds)
+        .callback(db)
+      await handlerEp(reqEp, resEp)
+      expect(resEp.status).toHaveBeenCalledWith(200)
+      expect(resEp.json).toHaveBeenCalledWith(expect.arrayContaining([99]))
+
+      // --- httpPostAttributeUpdate logic ---
+      // Insert cluster for endpoint type
+      let clusters = await queryZcl.selectAllClusters(db, pkgId)
+      let cluster = clusters.find((c) => c.code === 6) // On/Off cluster
+      await queryConfig.insertOrReplaceClusterState(
+        db,
+        endpointTypeId,
+        cluster.id,
+        'server',
+        true
+      )
+      // Insert attribute for cluster
+      let attributes =
+        await queryZcl.selectAttributesByClusterIdIncludingGlobal(
+          db,
+          cluster.id,
+          pkgId
+        )
+      let attribute = attributes[0]
+      // Prepare request with real IDs
+      const reqAttr = {
+        zapSessionId: sid,
+        body: {
+          action: 'update',
+          endpointTypeIdList: [endpointTypeId],
+          selectedEndpoint: endpointId,
+          id: attribute.id,
+          value: 1,
+          listType: restApi.updateKey.attributeSelected,
+          clusterRef: cluster.id,
+          attributeSide: 'server'
+        }
+      }
+      const resAttr = { status: jest.fn().mockReturnThis(), json: jest.fn() }
+      const handlerAttr = require('../src-electron/rest/user-data')
+        .post.find((e) => e.uri === restApi.uri.attributeUpdate)
+        .callback(db)
+      await handlerAttr(reqAttr, resAttr)
+      expect(resAttr.status).toHaveBeenCalledWith(200)
+      expect(resAttr.json).toHaveBeenCalledWith(
+        expect.objectContaining({ action: 'update', id: attribute.id })
+      )
+
+      // Insert a command for the cluster
+      let commands = await queryCommand.selectCommandsByClusterId(
+        db,
+        cluster.id,
+        pkgId
+      )
+      let command = commands[0]
+
+      // httpPostCommandUpdate
+      const reqCmd = {
+        zapSessionId: sid,
+        body: {
+          action: 'update',
+          endpointTypeIdList: [endpointTypeId],
+          id: command.id,
+          value: 1,
+          listType: 'selectedIn',
+          clusterRef: cluster.id,
+          commandSide: 'server'
+        }
+      }
+      const resCmd = { status: jest.fn().mockReturnThis(), json: jest.fn() }
+      const handlerCmd = require('../src-electron/rest/user-data')
+        .post.find((e) => e.uri === restApi.uri.commandUpdate)
+        .callback(db)
+      await handlerCmd(reqCmd, resCmd)
+      expect(resCmd.status).toHaveBeenCalledWith(200)
+      expect(resCmd.json).toHaveBeenCalledWith(
+        expect.objectContaining({ action: 'update', id: command.id })
+      )
+
+      // Insert an event for the cluster
+      let events = await queryEvent.selectEventsByClusterId(
+        db,
+        cluster.id,
+        pkgId
+      )
+      let event = events[0]
+
+      // httpPostEventUpdate
+      const reqEvent = {
+        zapSessionId: sid,
+        body: {
+          action: 'update',
+          endpointTypeId: endpointTypeId,
+          id: 1,
+          value: 1,
+          listType: 'selected',
+          clusterRef: cluster.id,
+          eventSide: 'server'
+        }
+      }
+      const resEvent = { status: jest.fn().mockReturnThis(), json: jest.fn() }
+      const handlerEvent = require('../src-electron/rest/user-data')
+        .post.find((e) => e.uri === restApi.uri.eventUpdate)
+        .callback(db)
+      await handlerEvent(reqEvent, resEvent)
+      expect(resEvent.status).toHaveBeenCalledWith(200)
+      expect(resEvent.json).toHaveBeenCalledWith(
+        expect.objectContaining({ action: 'update', id: 1 })
+      )
+
+      // httpPostDuplicateEndpoint
+      const reqDupEp = {
+        body: { id: endpointId, endpointIdentifier: 102, endpointTypeId }
+      }
+      const resDupEp = { status: jest.fn().mockReturnThis(), json: jest.fn() }
+      const handlerDupEp = require('../src-electron/rest/user-data')
+        .post.find((e) => e.uri === restApi.uri.duplicateEndpoint)
+        .callback(db)
+      await handlerDupEp(reqDupEp, resDupEp)
+      expect(resDupEp.status).toHaveBeenCalledWith(200)
+      expect(resDupEp.json).toHaveBeenCalledWith(
+        expect.objectContaining({ id: expect.anything() })
+      )
+    },
+    testUtil.timeout.long()
+  )
+
+  it('httpGetSessionKeyValues returns session key values', async () => {
+    await querySession.updateSessionKeyValue(db, sid, 'foo', 'bar')
+    const req = { zapSessionId: sid }
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() }
+    const handler = require('../src-electron/rest/user-data')
+      .get.find((e) => e.uri === restApi.uri.getAllSessionKeyValues)
+      .callback(db)
+    await handler(req, res)
+    expect(res.status).toHaveBeenCalledWith(200)
+    expect(res.json).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        expect.objectContaining({ key: 'foo', value: 'bar' })
+      ])
+    )
+  })
+
+  it('httpGetDeviceTypeFeatures returns device type features', async () => {
+    const req = { query: { deviceTypeRefs: [1], endpointTypeRef: 1 } }
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() }
+    const handler = require('../src-electron/rest/user-data')
+      .get.find((e) => e.uri === restApi.uri.deviceTypeFeatures)
+      .callback(db)
+    await handler(req, res)
+    expect(res.status).toHaveBeenCalledWith(200)
+    expect(res.json).toHaveBeenCalled()
+  })
+
+  it('httpPostSaveSessionKeyValue saves and returns key/value', async () => {
+    const req = { zapSessionId: sid, body: { key: 'baz', value: 'qux' } }
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() }
+    const handler = require('../src-electron/rest/user-data')
+      .post.find((e) => e.uri === restApi.uri.saveSessionKeyValue)
+      .callback(db)
+    await handler(req, res)
+    expect(res.status).toHaveBeenCalledWith(200)
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({ key: 'baz', value: 'qux' })
+    )
+  })
+
+  it('httpPostCluster inserts or updates cluster state', async () => {
+    let ctx = await zclLoader.loadZcl(db, env.builtinSilabsZclMetafile())
+    pkgId = ctx.packageId
+    let dts = await queryDeviceType.selectAllDeviceTypes(db, pkgId)
+    let haOnOffDeviceType = dts.find((data) => data.label === 'HA-onoff')
+    let allSessionPartitions =
+      await querySession.getAllSessionPartitionInfoForSession(db, sid)
+    let endpointTypeId = await queryConfig.insertEndpointType(
+      db,
+      allSessionPartitions[0],
+      'Test endpoint',
+      haOnOffDeviceType.id,
+      haOnOffDeviceType.code,
+      0,
+      true
+    )
+    const req = {
+      zapSessionId: sid,
+      body: { id: 6, side: 'server', flag: true, endpointTypeId }
+    }
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+      send: jest.fn()
+    }
+    const handler = require('../src-electron/rest/user-data')
+      .post.find((e) => e.uri === restApi.uri.cluster)
+      .callback(db)
+    await handler(req, res)
+    expect(res.status).toHaveBeenCalledWith(200)
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        endpointTypeId,
+        id: 6,
+        side: 'server',
+        flag: true
+      })
+    )
+  })
+
+  it('httpGetInitialState returns initial state', async () => {
+    const req = { zapSessionId: sid }
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() }
+    const handler = require('../src-electron/rest/user-data')
+      .get.find((e) => e.uri === restApi.uri.initialState)
+      .callback(db)
+    await handler(req, res)
+    expect(res.status).toHaveBeenCalledWith(200)
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        endpointTypes: expect.anything(),
+        endpoints: expect.anything(),
+        sessionKeyValues: expect.anything()
+      })
+    )
+  })
+
+  it('httpGetOption returns options', async () => {
+    const req = { zapSessionId: sid, params: { category: 'generator' } }
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() }
+    const handler = require('../src-electron/rest/user-data')
+      .get.find((e) => e.uri === `${restApi.uri.option}/:category`)
+      .callback(db)
+    await handler(req, res)
+    expect(res.status).toHaveBeenCalledWith(200)
+    expect(res.json).toHaveBeenCalled()
+  })
+
+  it('httpGetUiOptions returns UI options', async () => {
+    const req = { zapSessionId: sid }
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() }
+    const handler = require('../src-electron/rest/user-data')
+      .get.find((e) => e.uri === restApi.uri.uiOptions)
+      .callback(db)
+    await handler(req, res)
+    expect(res.status).toHaveBeenCalledWith(200)
+    expect(res.json).toHaveBeenCalled()
+  })
+
+  it('httpGetPackages returns project packages', async () => {
+    const req = { zapSessionId: sid }
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() }
+    const handler = require('../src-electron/rest/user-data')
+      .get.find((e) => e.uri === restApi.uri.packages)
+      .callback(db)
+    await handler(req, res)
+    expect(res.status).toHaveBeenCalledWith(200)
+    expect(res.json).toHaveBeenCalled()
+  })
+
+  it('httpGetAllPackages returns all packages', async () => {
+    const req = {}
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() }
+    const handler = require('../src-electron/rest/user-data')
+      .get.find((e) => e.uri === restApi.uri.getAllPackages)
+      .callback(db)
+    await handler(req, res)
+    expect(res.status).toHaveBeenCalledWith(200)
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({ packages: expect.anything() })
+    )
+  })
+
+  it('httpPatchUpdateBitOfFeatureMapAttribute updates feature map attribute', async () => {
+    const req = { body: { featureMapAttributeId: 1, newValue: 1 } }
+    const res = { status: jest.fn().mockReturnThis(), json: jest.fn() }
+    const handler = require('../src-electron/rest/user-data')
+      .patch.find((e) => e.uri === restApi.uri.updateBitOfFeatureMapAttribute)
+      .callback(db)
+    await handler(req, res)
+    expect(res.status).toHaveBeenCalledWith(200)
+    expect(res.json).toHaveBeenCalledWith(
+      expect.objectContaining({ successful: expect.any(Boolean) })
+    )
+  })
 })
 
 test(
