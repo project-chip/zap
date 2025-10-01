@@ -28,6 +28,7 @@ const querySession = require('../src-electron/db/query-session')
 const util = require('../src-electron/util/util')
 const importJs = require('../src-electron/importexport/import')
 const genEngine = require('../src-electron/generator/generation-engine')
+const os = require('os')
 let originalContent
 let originalContentLightMatter
 let db
@@ -504,4 +505,141 @@ it('returns correct output path with pattern', () => {
   const pattern = '/output/{basename}.out'
   const result = startup.outputFile(input, pattern)
   expect(result).toBe('/output/test-light.out')
+})
+
+test('startGeneration logs error if no zapFiles and no doBlank', async () => {
+  const logger = jest.fn()
+  await expect(
+    startup.startGeneration(
+      {
+        output: '/tmp',
+        generationTemplate: testUtil.testTemplate.zigbee,
+        zclProperties: env.builtinSilabsZclMetafile(),
+        zapFiles: null,
+        doBlank: false
+      },
+      { logger }
+    )
+  ).rejects.toThrow()
+  expect(logger).toHaveBeenCalled()
+})
+
+test('startGeneration handles doBlank option', async () => {
+  const logger = jest.fn()
+  await expect(
+    startup.startGeneration(
+      {
+        output: '/tmp',
+        generationTemplate: testUtil.testTemplate.zigbee,
+        zclProperties: env.builtinSilabsZclMetafile(),
+        zapFiles: null,
+        doBlank: true
+      },
+      { logger }
+    )
+  ).resolves.toBeDefined()
+})
+
+test('startGeneration handles skipPostGeneration', async () => {
+  const logger = jest.fn()
+  await expect(
+    startup.startGeneration(
+      {
+        output: '/tmp',
+        generationTemplate: testUtil.testTemplate.zigbee,
+        zclProperties: env.builtinSilabsZclMetafile(),
+        zapFiles: [path.join(__dirname, 'resource/test-light.zap')],
+        skipPostGeneration: true
+      },
+      { logger }
+    )
+  ).resolves.toBeDefined()
+})
+
+test('startGeneration handles postGeneration', async () => {
+  const logger = jest.fn()
+  await expect(
+    startup.startGeneration(
+      {
+        output: '/tmp',
+        generationTemplate: testUtil.testTemplate.zigbee,
+        zclProperties: env.builtinSilabsZclMetafile(),
+        zapFiles: [path.join(__dirname, 'resource/test-light.zap')],
+        postGeneration: true
+      },
+      { logger }
+    )
+  ).resolves.toBeDefined()
+})
+
+test('startGeneration handles genResultFile', async () => {
+  const logger = jest.fn()
+  const genResultFile = path.join(os.tmpdir(), 'gen-result.yaml')
+  await expect(
+    startup.startGeneration(
+      {
+        output: '/tmp',
+        generationTemplate: testUtil.testTemplate.zigbee,
+        zclProperties: env.builtinSilabsZclMetafile(),
+        zapFiles: [path.join(__dirname, 'resource/test-light.zap')],
+        genResultFile
+      },
+      { logger }
+    )
+  ).resolves.toBeDefined()
+  expect(fs.existsSync(genResultFile)).toBe(true)
+  fs.unlinkSync(genResultFile)
+})
+
+test('startConvert handles results file', async () => {
+  const logger = jest.fn()
+  const resultsFile = path.join(os.tmpdir(), 'convert-result.yaml')
+  await expect(
+    startup.startConvert(
+      {
+        zapFiles: [path.join(__dirname, 'resource/isc/test-light.isc')],
+        output: '{basename}.conversion',
+        zclProperties: env.builtinSilabsZclMetafile(),
+        results: resultsFile
+      },
+      { logger }
+    )
+  ).resolves.toBeDefined()
+  expect(fs.existsSync(resultsFile)).toBe(true)
+  fs.unlinkSync(resultsFile)
+})
+
+test('startAnalyze handles results file', async () => {
+  const logger = jest.fn()
+  const resultsFile = path.join(os.tmpdir(), 'analyze-result.yaml')
+  await expect(
+    startup.startAnalyze(
+      {
+        zapFiles: [path.join(__dirname, 'resource/test-light.zap')],
+        zclProperties: env.builtinSilabsZclMetafile(),
+        results: resultsFile
+      },
+      { logger }
+    )
+  ).resolves.toBeDefined()
+  expect(fs.existsSync(resultsFile)).toBe(true)
+  fs.unlinkSync(resultsFile)
+})
+
+test('noopConvert handles missing logger gracefully', async () => {
+  const tmpFile = path.join(os.tmpdir(), 'noop-results.txt')
+  await expect(startup.noopConvert(tmpFile)).resolves.toBeUndefined()
+  expect(fs.existsSync(tmpFile)).toBe(true)
+  fs.unlinkSync(tmpFile)
+})
+
+test('outputFile handles missing pattern', () => {
+  const input = path.join(__dirname, 'resource/test-light.zap')
+  const result = startup.outputFile(input)
+  expect(result).toBe(input)
+})
+
+test('findZapFiles returns empty array for non-existent dir', () => {
+  const files = startup.findZapFiles('/non/existent/dir')
+  expect(files).toEqual([])
 })
