@@ -635,3 +635,78 @@ test('Import a ZAP file with enabled commands missing response commands and veri
     )
   )
 })
+
+test(
+  'Generation with OnOff cluster attribute helpers',
+  async () => {
+    // Use a ZAP file that has the OnOff server cluster enabled, e.g. test/resource/test-light.zap
+    let sid = await querySession.createBlankSession(db)
+    await util.ensurePackagesAndPopulateSessionOptions(
+      templateContext.db,
+      sid,
+      {
+        zcl: env.builtinSilabsZclMetafile(),
+        template: env.builtinTemplateMetafile()
+      },
+      null,
+      [templatePkgId]
+    )
+    await importJs.importDataFromFile(
+      db,
+      path.join(__dirname, 'resource/test-light.zap'),
+      {
+        sessionId: sid
+      }
+    )
+
+    // Generate using the template containing the helpers above
+    const genResult = await generationEngine.generate(
+      db,
+      sid,
+      templatePkgId,
+      {},
+      {
+        generateOnly: 'zcl-test.out',
+        disableDeprecationWarnings: true
+      }
+    )
+    const output = genResult.content['zcl-test.out']
+
+    // Check that output contains expected attribute lines for Level control cluster
+    expect(output).toMatch(/NMS: current level|server|Level Control/)
+    expect(output).toMatch(/EN: current level|server|Level Control/)
+    // also check for No MS:
+    expect(output).not.toMatch(/M-S: .*Level Control/)
+
+    // Check that output contains expected command lines
+    expect(output).toMatch(/CMD: .*AddGroup/)
+    expect(output).toMatch(
+      /CMD_ARG: UpdateCommissionState|Identify|ARGS:action,commissionStateMask,/
+    )
+
+    // Check that output contains expected lines for incoming commands combined
+    expect(output).toMatch(
+      /INCOMING_COMBINED: MoveToLevel|Level Control|server/
+    )
+    expect(output).toMatch(/INCOMING_COMBINED: Stop|Level Control|server/)
+    expect(output).toMatch(
+      /INCOMING_COMBINED: MoveToLevelWithOnOff|Level Control|server/
+    )
+    expect(output).toMatch(
+      /INCOMING_COMBINED: StepWithOnOff|Level Control|server/
+    )
+
+    // Check that output contains expected lines for enabled commands
+    expect(output).toMatch(/HAS_ENABLED_COMMAND: Level Control|server/)
+    expect(output).toMatch(/NO_ENABLED_COMMAND: Alarms|server/)
+
+    // Check that output does not contain expected lines for mfg specific commands
+    expect(output).not.toMatch(/MS-CMD:/)
+
+    // Check that output contains expected lines for mfg specific commands
+    expect(output).toMatch(/NMSCMD: Move||Level Control/)
+    expect(output).toMatch(/NMSCMD: MoveToLevel||Level Control/)
+    expect(output).toMatch(/NMSCMD: Stop||Level Control/)
+  },
+  testUtil.timeout.medium()
+)

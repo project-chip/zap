@@ -911,3 +911,28 @@ test(
   },
   testUtil.timeout.short()
 )
+
+test('selectAllFeatures returns all features for given packageIds', async () => {
+  const features = await queryFeature.selectAllFeatures(db, [pkgId])
+  expect(Array.isArray(features)).toBe(true)
+  expect(features.length).toBeGreaterThan(0)
+  expect(features[0]).toHaveProperty('featureId')
+  expect(features[0]).toHaveProperty('name')
+})
+
+test('selectFeaturesByClusterId returns features for a cluster', async () => {
+  // Find a clusterRef that exists in the FEATURE table
+  const featureRow = await dbApi.dbGet(
+    db,
+    'SELECT CLUSTER_REF FROM FEATURE LIMIT 1'
+  )
+  expect(featureRow).toBeDefined()
+  const clusterId = featureRow.CLUSTER_REF
+  const features = await queryFeature.selectFeaturesByClusterId(db, clusterId)
+  expect(Array.isArray(features)).toBe(true)
+})
+
+test('checkIfConformanceDataExist returns a boolean', async () => {
+  const result = await queryFeature.checkIfConformanceDataExist(db)
+  expect(typeof result).toBe('boolean')
+})

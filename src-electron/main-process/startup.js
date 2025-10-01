@@ -1206,3 +1206,7 @@ exports.shutdown = shutdown
 exports.quit = quit
 exports.generateSingleFile = generateSingleFile
 exports.upgradeZapFile = upgradeZapFile
+exports.gatherFiles = gatherFiles
+exports.noopConvert = noopConvert
+exports.findZapFiles = findZapFiles
+exports.outputFile = outputFile
