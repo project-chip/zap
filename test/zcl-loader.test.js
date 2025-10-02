@@ -214,6 +214,18 @@ test(
           `Found Non Unique Enum in Silabs XML: ${c.NAME} ${c.TYPE} ${c.PACKAGE_REF}`
         )
       })
+
+      // selectAllBitmaps filters out atomic bitmaps
+      const allBitmaps = await queryZcl.selectAllBitmaps(db, packageId)
+      const filteredBitmaps = allBitmaps.filter(
+        (b) => !/^bitmap\d+$/i.test(b.name)
+      )
+      // Ensure that no bitmap in the filtered list matches the atomic pattern
+      expect(filteredBitmaps.every((b) => !/^bitmap\d+$/i.test(b.name))).toBe(
+        true
+      )
+      // check that at least one atomic bitmap existed in the original list
+      expect(allBitmaps.some((b) => /^bitmap\d+$/i.test(b.name))).toBe(true)
     } finally {
       await dbApi.closeDatabase(db)
     }

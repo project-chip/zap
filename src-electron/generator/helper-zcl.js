@@ -58,7 +58,10 @@ async function zcl_bitmaps(options) {
   } else {
     ens = await Promise.all(
       packageIds.map((packageId) =>
-        queryZcl.selectAllBitmaps(this.global.db, packageId)
+        queryZcl
+          .selectAllBitmaps(this.global.db, packageId)
+          // Filtering out all atomic bitmaps
+          .then((bs) => bs.filter((b) => !/^bitmap\d+$/i.test(b.name)))
       )
     ).then((x) => x.flat())
   }
@@ -103,9 +106,7 @@ async function zcl_enums(options) {
         queryZcl
           .selectAllEnums(this.global.db, packageId)
           //Filtering out all atomic enums
-          .then((es) =>
-            es.filter((e) => !e.name.toLowerCase().match(/^enum\d+$/g))
-          )
+          .then((es) => es.filter((e) => !/^enum\d+$/i.test(e.name)))
       )
     ).then((x) => x.flat())
   }
