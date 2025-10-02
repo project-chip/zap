@@ -25,7 +25,6 @@ const queryZcl = require('../db/query-zcl.js')
 const queryPackage = require('../db/query-package.js')
 const templateUtil = require('./template-util.js')
 const bin = require('../util/bin')
-const types = require('../util/types.js')
 const string = require('../util/string')
 const _ = require('lodash')
 const dbEnum = require('../../src-shared/db-enum.js')
@@ -135,6 +134,9 @@ async function asUnderlyingTypeHelper(dataType, context, packageIds) {
     ) {
       return context.global.overridable.stringType()
     } else {
+      envConfig.logError(
+        `In asUnderlyingTypeHelper, could not determine the data type. This might be due to an unknown type passed to asUnderlyingType. Received: ${JSON.stringify(dataType)}`
+      )
       return 'uint8_t *'
     }
   } catch (err) {
