@@ -19,3 +19,11 @@ import './commands'
 // Alternatively you can use CommonJS syntax:
 // require('./commands')
 import '@cypress/code-coverage/support'
+
+// Collect coverage from window object
+Cypress.on('window:before:load', (win) => {
+  if (win.__coverage__) {
+    // Coverage data is available
+    console.log('Coverage data found on window object')
+  }
+})
