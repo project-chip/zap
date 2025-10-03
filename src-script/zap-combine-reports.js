@@ -60,6 +60,46 @@ function isValidCoverageData(coverageData) {
 }
 
 /**
+ * Check coverage thresholds and fail if below 80%
+ * @param {string} coverageSummaryPath
+ */
+function checkCoverageThresholds(coverageSummaryPath) {
+  if (!fsExtra.existsSync(coverageSummaryPath)) {
+    console.error('❌ Coverage summary not found')
+    process.exit(1)
+  }
+
+  const coverageSummary = fsExtra.readJsonSync(coverageSummaryPath)
+  const total = coverageSummary.total
+
+  const thresholds = {
+    lines: 80
+  }
+
+  let failed = false
+  console.log('\n📊 Coverage Summary:')
+
+  Object.keys(thresholds).forEach((key) => {
+    const actual = total[key].pct
+    const threshold = thresholds[key]
+    const status = actual >= threshold ? '✅' : '❌'
+
+    console.log(`${status} ${key}: ${actual}% (threshold: ${threshold}%)`)
+
+    if (actual < threshold) {
+      failed = true
+    }
+  })
+
+  if (failed) {
+    console.error('\n❌ Coverage below 80% threshold. Please add more tests.')
+    process.exit(1)
+  } else {
+    console.log('\n✅ All coverage thresholds passed!')
+  }
+}
+
+/**
  * Execute the coverage report script.
  */
 async function executeScript() {
@@ -135,11 +175,11 @@ async function executeScript() {
     })
     console.log('✅ Coverage files merged successfully')
 
-    // Generate final report
+    // Generate final report with JSON summary for threshold checking
     await scriptUtil.executeCmd(
       {},
       'npx',
-      'nyc report --reporter lcov --reporter text --report-dir coverage'.split(
+      'nyc report --reporter lcov --reporter text --reporter json-summary --report-dir coverage'.split(
         ' '
       )
     )
@@ -147,6 +187,9 @@ async function executeScript() {
     console.log(
       `✅ Combined coverage report generated at ./coverage/lcov-report/index.html`
     )
+
+    // Check coverage thresholds - this will exit with code 1 if below 80%
+    checkCoverageThresholds('coverage/coverage-summary.json')
   } catch (err) {
     console.log('Error in generating reports:', err)
     process.exit(1)
