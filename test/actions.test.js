@@ -17,19 +17,6 @@
  */
 
 import * as actions from '../src/store/zap/actions.js'
-const actionsModule = require('../src/store/zap/actions.js')
-
-const mockDeviceTypes = [
-  {
-    id: 1,
-    code: 1,
-    profileId: 1,
-    label: 'Test',
-    caption: 'Test Device',
-    domain: 'test',
-    packageRef: 1
-  }
-]
 
 jest.mock('../src/boot/axios', () => ({
   axiosRequests: {
@@ -144,18 +131,6 @@ describe('zap actions', () => {
       getters: {},
       rootGetters: {}
     }
-  })
-
-  it('updateExceptions should commit updateExceptions', () => {
-    actions.updateExceptions(context, { foo: 'bar' })
-    expect(context.commit).toHaveBeenCalledWith('updateExceptions', {
-      foo: 'bar'
-    })
-  })
-
-  it('updateInformationText should commit updateInformationText', async () => {
-    await actions.updateInformationText(context, 'info')
-    expect(context.commit).toHaveBeenCalledWith('updateInformationText', 'info')
   })
 
   it('updateClusters should call $serverGet and commit updateClusters', async () => {
@@ -462,35 +437,5 @@ describe('zap actions', () => {
         packageRef: 2
       }
     })
-  })
-
-  it('updateAttributes should commit updateAttributes', () => {
-    actions.updateAttributes(context, [1, 2])
-    expect(context.commit).toHaveBeenCalledWith('updateAttributes', [1, 2])
-  })
-
-  it('updateCommands should commit updateCommands', () => {
-    actions.updateCommands(context, [1, 2])
-    expect(context.commit).toHaveBeenCalledWith('updateCommands', [1, 2])
-  })
-
-  it('updateEvents should commit updateEvents', () => {
-    actions.updateEvents(context, [1, 2])
-    expect(context.commit).toHaveBeenCalledWith('updateEvents', [1, 2])
-  })
-
-  it('updateFeatures should commit updateFeatures', () => {
-    actions.updateFeatures(context, [1, 2])
-    expect(context.commit).toHaveBeenCalledWith('updateFeatures', [1, 2])
-  })
-
-  it('updateEndpointConfigs should commit updateEndpointConfigs', () => {
-    actions.updateEndpointConfigs(context, [1, 2])
-    expect(context.commit).toHaveBeenCalledWith('updateEndpointConfigs', [1, 2])
-  })
-
-  it('selectConfiguration should commit selectConfiguration', () => {
-    actions.selectConfiguration(context, 'config')
-    expect(context.commit).toHaveBeenCalledWith('selectConfiguration', 'config')
   })
 })

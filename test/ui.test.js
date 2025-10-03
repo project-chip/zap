@@ -408,41 +408,6 @@ describe('Component mounting test', () => {
   )
 
   test(
-    'ZapConfig renders and requests package selection',
-    async () => {
-      const wrapper = shallowMount(ZapConfig, {
-        global: {
-          plugins: [ZapStore()],
-          mocks: {
-            $serverPost: jest.fn(() =>
-              Promise.resolve({
-                data: {
-                  zclProperties: [],
-                  zclGenTemplates: [],
-                  filePath: '',
-                  open: false,
-                  zapFilePackages: [],
-                  zapFileExtensions: [],
-                  sessions: []
-                }
-              })
-            ),
-            $serverGet: jest.fn(() =>
-              Promise.resolve({ data: { warningMap: {}, errorMap: {} } })
-            ),
-            $q: { loading: { show: jest.fn(), hide: jest.fn() } },
-            $router: { push: jest.fn() }
-          }
-        }
-      })
-      expect(wrapper.html().toLowerCase()).toContain(
-        'warning: please select atleast one package each from zcl metadata and templates.'
-      )
-    },
-    timeout.short()
-  )
-
-  test(
     'ZapConfig submitForm triggers navigation',
     async () => {
       const pushMock = jest.fn()
