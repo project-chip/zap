@@ -240,6 +240,9 @@ async function selectSizeFromType(db, packageIds, value) {
     ) {
       return null
     } else {
+      envConfig.logError(
+        `In selectSizeFromType, could not determine the data type. Original value: ${JSON.stringify(value)}, resolved dataType: ${JSON.stringify(dataType)}`
+      )
       return null
     }
   } catch (err) {

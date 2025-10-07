@@ -21,6 +21,7 @@ const dbEnum = require('../../../../../../src-shared/db-enum');
 const ChipTypesHelper = require('../../../app/zap-templates/common/ChipTypesHelper');
 const templateUtil = require(zapPath + 'generator/template-util.js');
 const queryZcl = require(zapPath + 'db/query-zcl');
+const envConfig = require(zapPath + 'util/env');
 
 const characterStringTypes = ['CHAR_STRING', 'LONG_CHAR_STRING'];
 const octetStringTypes = ['OCTET_STRING', 'LONG_OCTET_STRING'];
@@ -104,6 +105,9 @@ async function as_underlying_python_zcl_type(type, clusterId, options) {
   } else if (characterStringTypes.includes(type.toUpperCase())) {
     return 'str';
   } else {
+    envConfig.logError(
+      `In as_underlying_python_zcl_type, could not determine the data type for type: '${type}', received dataType: ${JSON.stringify(dataType)}`
+    );
     return '';
   }
 }

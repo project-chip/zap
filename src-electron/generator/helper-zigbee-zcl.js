@@ -24,6 +24,7 @@
 const queryZcl = require('../db/query-zcl')
 const dbEnum = require('../../src-shared/db-enum')
 const templateUtil = require('./template-util')
+const envConfig = require('../util/env')
 
 /**
  *
@@ -113,6 +114,9 @@ async function zcl_command_argument_type_to_cli_data_type_util(
     ) {
       return cliPrefix + '_STRING' + optionalArgumentExtension
     } else {
+      envConfig.logError(
+        `In zcl_command_argument_type_to_cli_data_type_util, could not determine the data type for ${JSON.stringify(dataType)}`
+      )
       return ''
     }
   } else {

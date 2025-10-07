@@ -401,8 +401,16 @@ async function getSignAndSizeOfZclType(db, type, packageIds, options) {
         dataType.name
       )
       dataTypesize = Math.pow(2, Math.ceil(Math.log2(number.size)))
+    } else {
+      env.logError(
+        `In getSignAndSizeOfZclType, unhandled discriminatorName '${dataType.discriminatorName}' for type '${type}': ${JSON.stringify(dataType)}`
+      )
+      isKnown = false
     }
   } else {
+    env.logError(
+      `In getSignAndSizeOfZclType, could not determine the data type for type: '${type}'`
+    )
     isKnown = false
   }
   let ret = {

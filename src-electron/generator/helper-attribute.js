@@ -24,7 +24,7 @@
 const queryAttribute = require('../db/query-attribute')
 const queryZcl = require('../db/query-zcl')
 const templateUtil = require('./template-util')
-const zclUtil = require('../util/zcl-util')
+const envConfig = require('../util/env')
 const dbEnum = require('../../src-shared/db-enum')
 
 /**
@@ -144,7 +144,10 @@ async function as_underlying_atomic_identifier_for_attribute_id(attributeId) {
       attributeDetails.clusterRef,
       [attributeDetails.packageRef]
     )
-    if (dataType.discriminatorName.toLowerCase() == dbEnum.zclType.enum) {
+    if (
+      dataType &&
+      dataType.discriminatorName.toLowerCase() == dbEnum.zclType.enum
+    ) {
       let enumInfo = await queryZcl.selectEnumByNameAndClusterId(
         this.global.db,
         attributeDetails.type,
@@ -158,6 +161,7 @@ async function as_underlying_atomic_identifier_for_attribute_id(attributeId) {
       )
       return atomicInfo ? atomicInfo.atomicId : null
     } else if (
+      dataType &&
       dataType.discriminatorName.toLowerCase() == dbEnum.zclType.bitmap
     ) {
       let bitmapInfo = await queryZcl.selectBitmapByNameAndClusterId(
@@ -173,6 +177,7 @@ async function as_underlying_atomic_identifier_for_attribute_id(attributeId) {
       )
       return atomicInfo ? atomicInfo.atomicId : null
     } else if (
+      dataType &&
       dataType.discriminatorName.toLowerCase() == dbEnum.zclType.struct
     ) {
       atomicInfo = await queryZcl.selectAtomicType(
@@ -182,6 +187,7 @@ async function as_underlying_atomic_identifier_for_attribute_id(attributeId) {
       )
       return atomicInfo ? atomicInfo.atomicId : null
     } else if (
+      dataType &&
       dataType.discriminatorName.toLowerCase() == dbEnum.zclType.array
     ) {
       atomicInfo = await queryZcl.selectAtomicType(
@@ -191,6 +197,9 @@ async function as_underlying_atomic_identifier_for_attribute_id(attributeId) {
       )
       return atomicInfo ? atomicInfo.atomicId : null
     } else {
+      envConfig.logError(
+        `In as_underlying_atomic_identifier_for_attribute_id, could not determine the data type. Type name: ${attributeDetails?.type || 'unknown'}, resolved dataType: ${JSON.stringify(dataType)}`
+      )
       return null
     }
   }
