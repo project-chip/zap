@@ -587,7 +587,7 @@ export function duplicateEndpointType(context, { endpointTypeId }) {
  * @param {*} endpointId
  */
 export function deleteEndpoint(context, endpointId) {
-  axiosRequests
+  return axiosRequests
     .$serverDelete(restApi.uri.endpoint, { params: { id: endpointId } })
     .then((response) => {
       context.commit('deleteEndpoint', { id: response.data.id })

@@ -441,6 +441,20 @@ function httpPostAttributeUpdate(db) {
       reportMaxInterval,
       reportableChange
     } = request.body
+
+    env.logWarningToFile(`httpPostAttributeUpdate - Request data: endpointTypeIdList: ${JSON.stringify(endpointTypeIdList)},
+      selectedEndpoint: ${selectedEndpoint},
+      action: ${action},
+      id: ${id},
+      value: ${value},
+      listType: ${listType},
+      clusterRef: ${clusterRef},
+      attributeSide: ${attributeSide},
+      reportMinInterval: ${reportMinInterval},
+      reportMaxInterval: ${reportMaxInterval},
+      reportableChange: ${reportableChange}
+    }`)
+
     if (!Array.isArray(endpointTypeIdList) || !endpointTypeIdList.length) {
       return response.status(StatusCodes.BAD_REQUEST).json()
     }
