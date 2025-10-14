@@ -212,6 +212,17 @@ exports.helperCategory = {
   meta: 'meta'
 }
 
+exports.slcArgs = {
+  sdkRoot: 'sdkRoot',
+  apackRoot: 'apackRoot',
+  partOpn: 'partOpn',
+  boards: 'boards',
+  zigbeeZclJsonFile: 'zcl.zigbeeZclJsonFile',
+  zigbeeTemplateJsonFile: 'zcl.zigbeeTemplateJsonFile',
+  matterZclJsonFile: 'zcl.matterZclJsonFile',
+  matterTemplateJsonFile: 'zcl.matterTemplateJsonFile'
+}
+
 exports.packageMatch = {
   fuzzy: 'fuzzy', // This mechanism will attempt to match the ones from zap file, then give up and do fuzzy match if it fails.
   strict: 'strict', // This mechanism will ONLY use the records of packages in the .zap file.

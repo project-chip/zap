@@ -858,20 +858,31 @@ async function generateSingleFile(
   }
 
   if (options.upgradeZapFile && isZapFileUpgradeNeeded) {
-    options.logger(
-      `🕐 Updating the zap file with the correct SDK meta data: ${zapFile}`
-    )
-    // Now we need to write the sessionKey for the file path
-    await querySession.updateSessionKeyValue(
-      db,
-      sessionId,
-      dbEnum.sessionKey.filePath,
-      zapFile
-    )
+    // Check if slc_args.json exists in the same directory as the zap file
+    let zapFileDir = path.dirname(zapFile)
+    let slcArgsFile = path.join(zapFileDir, 'slc_args.json')
+    let hasSlcArgs = fs.existsSync(slcArgsFile)
 
-    await exportJs.exportDataIntoFile(db, sessionId, zapFile, {
-      createBackup: true
-    })
+    if (!hasSlcArgs) {
+      options.logger(
+        `🕐 Updating the zap file with the correct SDK meta data: ${zapFile}`
+      )
+      // Now we need to write the sessionKey for the file path
+      await querySession.updateSessionKeyValue(
+        db,
+        sessionId,
+        dbEnum.sessionKey.filePath,
+        zapFile
+      )
+
+      await exportJs.exportDataIntoFile(db, sessionId, zapFile, {
+        createBackup: true
+      })
+    } else {
+      options.logger(
+        `🚫 Skipping zap file update due to presence of slc_args.json: ${zapFile}`
+      )
+    }
   }
 
   return genResults

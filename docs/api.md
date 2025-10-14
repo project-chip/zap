@@ -16227,11 +16227,26 @@ This module provides the REST API to the session initialization
 
 
 * [REST API: initialization functions](#module_REST API_ initialization functions)
+    * [~ensurePackageLoaded(db, packagePath, packageType)](#module_REST API_ initialization functions..ensurePackageLoaded) ⇒ <code>Promise.&lt;(Object\|null)&gt;</code>
     * [~sessionAttempt(db)](#module_REST API_ initialization functions..sessionAttempt) ⇒
     * [~sessionCreate(db)](#module_REST API_ initialization functions..sessionCreate) ⇒
     * [~initializeSession(db, options:)](#module_REST API_ initialization functions..initializeSession) ⇒
     * [~loadPreviousSessions(db)](#module_REST API_ initialization functions..loadPreviousSessions) ⇒
     * [~init(db)](#module_REST API_ initialization functions..init) ⇒
+
+<a name="module_REST API_ initialization functions..ensurePackageLoaded"></a>
+
+### REST API: initialization functions~ensurePackageLoaded(db, packagePath, packageType) ⇒ <code>Promise.&lt;(Object\|null)&gt;</code>
+Helper function to check if a package exists in database and load it if not
+
+**Kind**: inner method of [<code>REST API: initialization functions</code>](#module_REST API_ initialization functions)  
+**Returns**: <code>Promise.&lt;(Object\|null)&gt;</code> - - Package object from database or null if failed  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| db | <code>\*</code> | Database connection |
+| packagePath | <code>string</code> | Path to the package file |
+| packageType | <code>string</code> | Type of package (zclProperties or genTemplatesJson) |
 
 <a name="module_REST API_ initialization functions..sessionAttempt"></a>
 
@@ -18041,11 +18056,13 @@ Environment utilities for ZAP
     * [.setSaveFileFormat(n)](#module_JS API_ Environment utilities.setSaveFileFormat)
     * [.defaultFileFormat()](#module_JS API_ Environment utilities.defaultFileFormat) ⇒
     * [.builtinSilabsZclMetafile()](#module_JS API_ Environment utilities.builtinSilabsZclMetafile) ⇒
+    * [.builtinSilabsTemplatesMetaFile()](#module_JS API_ Environment utilities.builtinSilabsTemplatesMetaFile) ⇒
     * [.builtinSilabsZclSpecialMetafile()](#module_JS API_ Environment utilities.builtinSilabsZclSpecialMetafile) ⇒
     * [.builtinSilabsZclGeneralXmlFile()](#module_JS API_ Environment utilities.builtinSilabsZclGeneralXmlFile) ⇒
     * [.builtinSilabsSpecialZclGeneralSpecialXmlFile()](#module_JS API_ Environment utilities.builtinSilabsSpecialZclGeneralSpecialXmlFile) ⇒
     * [.builtinMatterZclMetafile()](#module_JS API_ Environment utilities.builtinMatterZclMetafile) ⇒
     * [.builtinNewMatterZclMetafile()](#module_JS API_ Environment utilities.builtinNewMatterZclMetafile) ⇒
+    * [.builtinMatterTemplatesMetaFile()](#module_JS API_ Environment utilities.builtinMatterTemplatesMetaFile) ⇒
     * [.builtinDotdotZclMetafile()](#module_JS API_ Environment utilities.builtinDotdotZclMetafile) ⇒
     * [.builtinMatterZclMetafile2()](#module_JS API_ Environment utilities.builtinMatterZclMetafile2) ⇒
     * [.builtinTemplateMetafile()](#module_JS API_ Environment utilities.builtinTemplateMetafile) ⇒
@@ -18100,6 +18117,11 @@ Get save file format.
 ### JS API: Environment utilities.builtinSilabsZclMetafile() ⇒
 **Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 **Returns**: path to zcl.json file  
+<a name="module_JS API_ Environment utilities.builtinSilabsTemplatesMetaFile"></a>
+
+### JS API: Environment utilities.builtinSilabsTemplatesMetaFile() ⇒
+**Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+**Returns**: path to gen-templates.json file  
 <a name="module_JS API_ Environment utilities.builtinSilabsZclSpecialMetafile"></a>
 
 ### JS API: Environment utilities.builtinSilabsZclSpecialMetafile() ⇒
@@ -18133,6 +18155,11 @@ Get builtin matter ZCL json file
 
 **Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
 **Returns**: matter ZCL json file  
+<a name="module_JS API_ Environment utilities.builtinMatterTemplatesMetaFile"></a>
+
+### JS API: Environment utilities.builtinMatterTemplatesMetaFile() ⇒
+**Kind**: static method of [<code>JS API: Environment utilities</code>](#module_JS API_ Environment utilities)  
+**Returns**: path to templates.json file  
 <a name="module_JS API_ Environment utilities.builtinDotdotZclMetafile"></a>
 
 ### JS API: Environment utilities.builtinDotdotZclMetafile() ⇒

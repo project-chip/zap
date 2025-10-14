@@ -28,6 +28,59 @@ const restApi = require('../../src-shared/rest-api.js')
 const util = require('../util/util.js')
 const fs = require('fs')
 const fsp = fs.promises
+const path = require('path')
+const zclLoader = require('../zcl/zcl-loader.js')
+const genEngine = require('../generator/generation-engine.js')
+
+/**
+ * Helper function to check if a package exists in database and load it if not
+ * @param {*} db - Database connection
+ * @param {string} packagePath - Path to the package file
+ * @param {string} packageType - Type of package (zclProperties or genTemplatesJson)
+ * @returns {Promise<Object|null>} - Package object from database or null if failed
+ */
+async function ensurePackageLoaded(db, packagePath, packageType) {
+  if (!packagePath) return null
+
+  try {
+    // Check if package already exists in database
+    let existingPackage = await queryPackage.getPackageByPathAndType(
+      db,
+      packagePath,
+      packageType
+    )
+
+    if (!existingPackage) {
+      console.log(`Loading package: ${packagePath}`)
+
+      if (packageType === dbEnum.packageType.zclProperties) {
+        // Load ZCL properties package
+        let packageContext = await zclLoader.loadZcl(db, packagePath)
+        existingPackage = await queryPackage.getPackageByPackageId(
+          db,
+          packageContext.packageId
+        )
+      } else if (packageType === dbEnum.packageType.genTemplatesJson) {
+        // Load template package using generation engine
+        let templateContext = await genEngine.loadTemplates(db, [packagePath])
+        if (
+          templateContext.packageIds &&
+          templateContext.packageIds.length > 0
+        ) {
+          existingPackage = await queryPackage.getPackageByPackageId(
+            db,
+            templateContext.packageIds[0]
+          )
+        }
+      }
+    }
+
+    return existingPackage
+  } catch (error) {
+    env.logWarning(`Failed to load package ${packagePath}: ${error.message}`)
+    return null
+  }
+}
 
 /**
  * This function returns Properties, Templates and Dirty-Sessions
@@ -43,6 +96,16 @@ function sessionAttempt(db) {
     let filePathExtension = query.get('zapFileExtensions')
     if (filePath) {
       if (filePath.includes('.zap')) {
+        let slcArgsFile = path.join(path.dirname(filePath), 'slc_args.json')
+        let slcArgs = null
+        try {
+          if (fs.existsSync(slcArgsFile)) {
+            const slcArgsData = await fsp.readFile(slcArgsFile, 'utf8')
+            slcArgs = JSON.parse(slcArgsData)
+          }
+        } catch (error) {
+          env.logWarning(`Failed to read slc_args.json: ${error.message}`)
+        }
         let data = await fsp.readFile(filePath)
         let obj = JSON.parse(data)
         let category = []
@@ -53,6 +116,68 @@ function sessionAttempt(db) {
             category.push(pkgCategory)
           }
         })
+
+        if (slcArgs) {
+          let open = true
+          let zclProperties = []
+          let zclGenTemplates = []
+
+          if (category.includes(`'${dbEnum.helperCategory.zigbee}'`)) {
+            // Load Zigbee ZCL properties if specified
+            let zclPackage = await ensurePackageLoaded(
+              db,
+              slcArgs[dbEnum.slcArgs.zigbeeZclJsonFile],
+              dbEnum.packageType.zclProperties
+            )
+            if (zclPackage) {
+              zclProperties.push(zclPackage)
+            }
+
+            // Load Zigbee templates if specified
+            let templatePackage = await ensurePackageLoaded(
+              db,
+              slcArgs[dbEnum.slcArgs.zigbeeTemplateJsonFile],
+              dbEnum.packageType.genTemplatesJson
+            )
+            if (templatePackage) {
+              zclGenTemplates.push(templatePackage)
+            }
+          }
+
+          if (category.includes(`'${dbEnum.helperCategory.matter}'`)) {
+            // Load Matter ZCL properties if specified
+            let zclPackage = await ensurePackageLoaded(
+              db,
+              slcArgs[dbEnum.slcArgs.matterZclJsonFile],
+              dbEnum.packageType.zclProperties
+            )
+            if (zclPackage) {
+              zclProperties.push(zclPackage)
+            }
+
+            // Load Matter templates if specified
+            let templatePackage = await ensurePackageLoaded(
+              db,
+              slcArgs[dbEnum.slcArgs.matterTemplateJsonFile],
+              dbEnum.packageType.genTemplatesJson
+            )
+            if (templatePackage) {
+              zclGenTemplates.push(templatePackage)
+            }
+          }
+
+          const sessions = await querySession.getDirtySessionsWithPackages(db)
+          return res.send({
+            zclGenTemplates,
+            zclProperties,
+            sessions,
+            filePath,
+            zapFilePackages,
+            open,
+            filePathExtension
+          })
+        }
+
         if (category.length > 0) {
           let open = true
           const zclProperties = await queryPackage.getPackagesByCategoryAndType(
@@ -250,6 +375,13 @@ function init(db) {
     })
   }
 }
+
+// Export individual functions for testing
+exports.sessionAttempt = sessionAttempt
+exports.sessionCreate = sessionCreate
+exports.initializeSession = initializeSession
+exports.loadPreviousSessions = loadPreviousSessions
+exports.init = init
 
 exports.post = [
   {
