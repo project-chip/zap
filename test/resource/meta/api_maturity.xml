@@ -43,6 +43,8 @@ limitations under the License.
     <attribute side="server" code="0x0003" define="STRUCT_ATTR_1" type="StableStruct" writable="true" optional="true">StructAttr1</attribute>
     <attribute side="server" code="0x0004" define="STRUCT_ATTR_2" type="ProvisionalStruct" writable="true" optional="true">StructAttr2</attribute>
 
+    <attribute side="server" code="0x0000" define="STABLE_ATTRIBUTE" type="INT8U" writable="true" optional="true">StableAttribute</attribute>
+
     <command source="client" code="0x00" name="StableCommand" response="StableCommandResponse" optional="false" >
       <description>A Test command</description>
       <access op="invoke" privilege="administer"/>
