@@ -182,13 +182,10 @@ jobs:
           name: zap-linux-x64-deb
           path: dist/zap-linux-x64.deb
 
-  matter-sdk-codegen:
-    name: Test matter sdk codegen changes
+  matter-sdk-codegen-master:
+    name: Test matter sdk codegen changes (master)
     needs: [build-zap]
     runs-on: ubuntu-22.04
-    strategy:
-      matrix:
-        node-version: [20.x]
 
     # CHIP container required because clang-format version needs to match
     container:
@@ -204,16 +201,16 @@ jobs:
           mkdir zap-release && cd zap-release && unzip ../zap-linux-x64.zip
 
       # Checkout without actions/checkout@v4 since that one uses a repository specific token
-      - name: Checkout Matter SDK
+      - name: Checkout Matter SDK (master)
         run: |
-          git clone --depth 1 https://github.com/project-chip/connectedhomeip.git chip_repo
+          git clone --depth 1 --branch master https://github.com/project-chip/connectedhomeip.git chip_repo
 
       - name: Ensure matter embedded zap is not available
         run: |
           rm -f /usr/bin/zap-cli
           rm -rf /opt/zap-*
 
-      - name: Generate all
+      - name: Generate all (master)
         run: |
           cd chip_repo
           ./scripts/checkout_submodules.py --allow-changing-global-git-config --shallow --platform linux
@@ -223,7 +220,56 @@ jobs:
       - name: Ensure git works in the chip repository checkout
         run: git config --global --add safe.directory `pwd`/chip_repo
 
-      - name: Check for uncommited changes
+      - name: Check for uncommited changes (master)
+        run: |
+          cd chip_repo
+          git add .
+          # Show the full diff
+          git diff-index -p HEAD --
+          # Also show just the files that are different, to make it easy
+          # to tell at a glance what might be going on.  And throw in
+          # --exit-code to make this job fail if there is a difference.
+          git diff-index --exit-code HEAD --
+
+  matter-sdk-codegen-v1-4-2:
+    name: Test matter sdk codegen changes (v1.4.2-branch)
+    needs: [build-zap]
+    runs-on: ubuntu-22.04
+
+    # CHIP container required because clang-format version needs to match
+    container:
+      image: ghcr.io/project-chip/chip-build:125
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: zap-linux-x64-zip
+
+      - name: Unpack linux artifact
+        run: |
+          mkdir zap-release && cd zap-release && unzip ../zap-linux-x64.zip
+
+      # Checkout without actions/checkout@v4 since that one uses a repository specific token
+      - name: Checkout Matter SDK (v1.4.2-branch)
+        run: |
+          git clone --depth 1 --branch v1.4.2-branch https://github.com/project-chip/connectedhomeip.git chip_repo
+
+      - name: Ensure matter embedded zap is not available
+        run: |
+          rm -f /usr/bin/zap-cli
+          rm -rf /opt/zap-*
+
+      - name: Generate all (v1.4.2-branch)
+        run: |
+          cd chip_repo
+          ./scripts/checkout_submodules.py --allow-changing-global-git-config --shallow --platform linux
+          ZAP_INSTALL_PATH=$(pwd)/../zap-release scripts/run_in_build_env.sh "scripts/tools/zap_regen_all.py --type global"
+          ZAP_INSTALL_PATH=$(pwd)/../zap-release scripts/run_in_build_env.sh "scripts/tools/zap_regen_all.py --type specific"
+
+      - name: Ensure git works in the chip repository checkout
+        run: git config --global --add safe.directory `pwd`/chip_repo
+
+      - name: Check for uncommited changes (v1.4.2-branch)
         run: |
           cd chip_repo
           git add .
