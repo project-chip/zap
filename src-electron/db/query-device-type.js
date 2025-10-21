@@ -36,7 +36,7 @@ async function selectAllDeviceTypes(db, packageId) {
   return dbApi
     .dbAll(
       db,
-      'SELECT DEVICE_TYPE_ID, DOMAIN, CODE, PROFILE_ID, NAME, DESCRIPTION, CLASS, PACKAGE_REF FROM DEVICE_TYPE WHERE PACKAGE_REF = ? ORDER BY DOMAIN, CODE',
+      'SELECT DEVICE_TYPE_ID, DEVICE_REVISION, DOMAIN, CODE, PROFILE_ID, NAME, DESCRIPTION, CLASS, PACKAGE_REF FROM DEVICE_TYPE WHERE PACKAGE_REF = ? ORDER BY DOMAIN, CODE',
       [packageId]
     )
     .then((rows) => rows.map(dbMapping.map.deviceType))
@@ -53,7 +53,7 @@ async function selectDeviceTypeById(db, id) {
   return dbApi
     .dbGet(
       db,
-      'SELECT DEVICE_TYPE_ID, DOMAIN, CODE, PROFILE_ID, NAME, DESCRIPTION, CLASS, PACKAGE_REF FROM DEVICE_TYPE WHERE DEVICE_TYPE_ID = ?',
+      'SELECT DEVICE_TYPE_ID, DEVICE_REVISION, DOMAIN, CODE, PROFILE_ID, NAME, DESCRIPTION, CLASS, PACKAGE_REF FROM DEVICE_TYPE WHERE DEVICE_TYPE_ID = ?',
       [id]
     )
     .then(dbMapping.map.deviceType)
@@ -72,7 +72,7 @@ async function selectDeviceTypeByCodeAndName(db, packageId, code, name) {
   return dbApi
     .dbGet(
       db,
-      'SELECT DEVICE_TYPE_ID, DOMAIN, CODE, PROFILE_ID, NAME, DESCRIPTION, CLASS FROM DEVICE_TYPE WHERE CODE = ? AND NAME = ? AND PACKAGE_REF = ? ',
+      'SELECT DEVICE_TYPE_ID, DEVICE_REVISION, DOMAIN, CODE, PROFILE_ID, NAME, DESCRIPTION, CLASS FROM DEVICE_TYPE WHERE CODE = ? AND NAME = ? AND PACKAGE_REF = ? ',
       [code, name, packageId]
     )
     .then(dbMapping.map.deviceType)
@@ -90,7 +90,7 @@ async function selectDeviceTypeByCode(db, packageId, code) {
   return dbApi
     .dbGet(
       db,
-      'SELECT DEVICE_TYPE_ID, DOMAIN, CODE, PROFILE_ID, NAME, DESCRIPTION, CLASS FROM DEVICE_TYPE WHERE CODE = ? AND PACKAGE_REF = ? ',
+      'SELECT DEVICE_TYPE_ID, DEVICE_REVISION, DOMAIN, CODE, PROFILE_ID, NAME, DESCRIPTION, CLASS FROM DEVICE_TYPE WHERE CODE = ? AND PACKAGE_REF = ? ',
       [code, packageId]
     )
     .then(dbMapping.map.deviceType)
