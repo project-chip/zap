@@ -161,7 +161,7 @@ This schema describes the format of the XML files, that describe the ZCL specifi
         <xs:element ref="deviceId"/>
         <xs:element minOccurs="0" ref="channels"/>
         <xs:element ref="clusters"/>
-        <xs:element minOccurs="0" ref="deviceRevision"/>
+        <xs:element minOccurs="0" ref="revision"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
@@ -206,7 +206,7 @@ This schema describes the format of the XML files, that describe the ZCL specifi
       </xs:restriction>
     </xs:simpleType>
   </xs:element>
-  <xs:element name="deviceRevision">
+  <xs:element name="revision">
     <xs:simpleType>
       <xs:restriction base="xs:integer">
         <xs:minInclusive value="1"/>

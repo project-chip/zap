@@ -1268,7 +1268,7 @@ async function insertDeviceTypes(db, packageId, data) {
           dt.class,
           dt.scope,
           dt.superset,
-          dt.deviceRevision
+          dt.revision
         ]
       })
     )
