@@ -461,7 +461,7 @@ exports.map = {
     if (x == null) return undefined
     return {
       id: x.DEVICE_TYPE_ID,
-      revision: x.DEVICE_REVISION,
+      revision: x.REVISION,
       code: x.CODE,
       profileId: x.PROFILE_ID,
       domain: x.DOMAIN,
@@ -477,7 +477,7 @@ exports.map = {
     if (x == null) return undefined
     return {
       id: x.DEVICE_TYPE_ID,
-      revision: x.DEVICE_REVISION,
+      revision: x.REVISION,
       code: x.CODE,
       profileId: x.PROFILE_ID,
       domain: x.DOMAIN,

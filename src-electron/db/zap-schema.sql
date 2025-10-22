@@ -368,7 +368,7 @@ CREATE TABLE IF NOT EXISTS "GLOBAL_ATTRIBUTE_BIT" (
 DROP TABLE IF EXISTS "DEVICE_TYPE";
 CREATE TABLE IF NOT EXISTS "DEVICE_TYPE" (
   "DEVICE_TYPE_ID" integer primary key autoincrement,
-  "DEVICE_REVISION" integer,
+  "REVISION" integer,
   "PACKAGE_REF" integer,
   "DOMAIN" text,
   "CODE" integer,

@@ -543,7 +543,7 @@ async function selectDeviceTypePackageInfoFromDeviceTypeId(db, deviceTypeIds) {
     `
     SELECT
       DEVICE_TYPE.DEVICE_TYPE_ID,
-      DEVICE_TYPE.DEVICE_REVISION,
+      DEVICE_TYPE.REVISION,
       DEVICE_TYPE.CODE,
       DEVICE_TYPE.NAME,
       DEVICE_TYPE.NAME,
