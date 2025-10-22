@@ -250,7 +250,7 @@ test(
     )
     // set revision for onoff: 3 right now
     expect(deviceType).toContain(
-      '// device type: CHIP / 0x0103 : 3 => MA-onofflight // extension: '
+      '// device type: CHIP / 0x0100 : 3 => MA-onofflight // extension: '
     )
     expect(deviceType).toContain('>> Attribute: StartUpCurrentLevel [16384]')
     expect(deviceType).toContain('>> Command: MoveToLevelWithOnOff [4]')
