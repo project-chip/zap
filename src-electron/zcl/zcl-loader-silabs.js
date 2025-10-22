@@ -1715,9 +1715,10 @@ function prepareDeviceType(deviceType) {
     class: deviceType.class ? deviceType.class[0] : '',
     scope: deviceType.scope ? deviceType.scope[0] : '',
     superset: deviceType.superset ? deviceType.superset[0] : '',
-    deviceRevision: deviceType.deviceRevision ? parseInt(deviceType.deviceRevision[0]) : 1,
+    deviceRevision: deviceType.deviceRevision ? parseInt(deviceType.deviceRevision[0]['_']) : 1,
     compositionType: null
   }
+
   if ('endpointComposition' in deviceType) {
     try {
       ret.compositionType = deviceType.endpointComposition[0].compositionType[0]
