@@ -1777,6 +1777,7 @@ function isEnabled(enable) {
  * @returns boolean
  */
 function isCommandAvailable(clusterSide, incoming, outgoing, source, name) {
+  if (!clusterSide || !source) return false
   if (0 == clusterSide.localeCompare(source)) {
     return false
   }

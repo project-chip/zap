@@ -83,3 +83,56 @@ Last item
 #undef EMBER_AF_SUPPORT_COMMAND_DISCOVERY
 {{/if_command_discovery_enabled}}
 /******************************************/
+
+
+// Manufaturing specific attributes of Level Control server cluster
+{{#all_user_cluster_manufacturer_specific_attributes "Level Control" "server"}}
+M-S: {{name}}|{{side}}|{{clusterName}}
+{{/all_user_cluster_manufacturer_specific_attributes}}
+---
+{{#all_user_cluster_non_manufacturer_specific_attributes "Level Control" "server"}}
+NMS: {{name}}|{{side}}|{{clusterName}}
+{{/all_user_cluster_non_manufacturer_specific_attributes}}
+---
+{{#enabled_attributes_for_cluster_and_side "Level Control" "server"}}
+EN: {{name}}|{{side}}|{{clusterName}}
+{{/enabled_attributes_for_cluster_and_side}}
+
+/********* INCOMING/OUTGOING/COMBINED COMMANDS *********/
+{{#zcl_commands}}
+CMD: {{name}}|{{source}}
+{{/zcl_commands}}
+---
+{{#zcl_commands_with_arguments}}
+CMD_ARG: {{name}}|{{clusterName}}|ARGS:{{#each commandArgs}}{{this.name}},{{/each}}
+{{/zcl_commands_with_arguments}}
+---
+
+/******** USER CLUSTER HAS ENABLED COMMAND TEST ********/
+{{#if (user_cluster_has_enabled_command "Level Control" "server")}}
+HAS_ENABLED_COMMAND: Level Control|server
+{{else}}
+NO_ENABLED_COMMAND: None|None
+{{/if}}
+{{#if (user_cluster_has_enabled_command "Alarms" "server")}}
+HAS_ENABLED_COMMAND: None|None
+{{else}}
+NO_ENABLED_COMMAND: Alarms|server
+{{/if}}
+---
+/******** ALL INCOMING COMMANDS FOR CLUSTER COMBINED TEST ********/
+{{#all_incoming_commands_for_cluster_combined "Level Control" true true}}
+INCOMING_COMBINED: {{commandName}}|{{clusterName}}|{{clusterSide}}
+{{/all_incoming_commands_for_cluster_combined}}
+
+/******** MFG specific commands ********/
+{{#all_user_cluster_manufacturer_specific_commands "Level Control" "server"}}
+MS-CMD: {{name}}|{{side}}|{{clusterName}}
+{{/all_user_cluster_manufacturer_specific_commands}}
+
+/******** Non-MFG specific commands ********/
+{{#all_user_cluster_non_manufacturer_specific_commands "Level Control" "server"}}
+NMSCMD: {{name}}|{{side}}|{{clusterName}}
+{{/all_user_cluster_non_manufacturer_specific_commands}}
+
+

@@ -58,5 +58,6 @@ module.exports = {
   coveragePathIgnorePatterns: [
     '/node_modules/',
     '<rootDir>/src-electron/generator/matter/darwin/Framework/CHIP/templates/helper.js'
-  ]
+  ],
+  testEnvironment: 'jsdom'
 }
