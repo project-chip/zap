@@ -1980,7 +1980,7 @@ AND
     db,
     `
   INSERT INTO
-    ENUM_ITEM (ENUM_REF, NAME, VALUE, FIELD_IDENTIFIER)
+    ENUM_ITEM (ENUM_REF, NAME, VALUE, FIELD_IDENTIFIER, API_MATURITY)
   VALUES (
     (SELECT
       CASE
@@ -1995,6 +1995,7 @@ AND
         END AS ENUM_ID),
     ?,
     ?,
+    ?,
     ?)`,
     data.map((at) => [
       packageId,
@@ -2007,7 +2008,8 @@ AND
       at.enumClusterCode ? parseInt(at.enumClusterCode[0].$.code, 16) : null,
       at.name,
       at.value,
-      at.fieldIdentifier
+      at.fieldIdentifier,
+      at.apiMaturity
     ])
   )
 }
@@ -2203,7 +2205,7 @@ async function insertBitmapFields(db, packageId, knownPackages, data) {
     db,
     `
   INSERT INTO
-    BITMAP_FIELD (BITMAP_REF, NAME, MASK, FIELD_IDENTIFIER, TYPE)
+    BITMAP_FIELD (BITMAP_REF, NAME, MASK, FIELD_IDENTIFIER, TYPE, API_MATURITY)
   VALUES (
     (SELECT
       CASE
@@ -2216,6 +2218,7 @@ async function insertBitmapFields(db, packageId, knownPackages, data) {
         ELSE
           (${SELECT_CLUSTER_SPECIFIC_BITMAP})
         END AS BITMAP_ID),
+    ?,
     ?,
     ?,
     ?,
@@ -2236,7 +2239,8 @@ async function insertBitmapFields(db, packageId, knownPackages, data) {
       at.name,
       at.mask,
       at.fieldIdentifier,
-      at.type
+      at.type,
+      at.apiMaturity
     ])
   )
 }
@@ -2410,7 +2414,7 @@ async function insertStructItems(db, packageIds, data) {
     db,
     `
   INSERT INTO
-    STRUCT_ITEM (STRUCT_REF, NAME, FIELD_IDENTIFIER, IS_ARRAY, IS_ENUM, MIN_LENGTH, MAX_LENGTH, DEFAULT_VALUE, IS_WRITABLE, IS_NULLABLE, IS_OPTIONAL, IS_FABRIC_SENSITIVE, SIZE, DATA_TYPE_REF)
+    STRUCT_ITEM (STRUCT_REF, NAME, FIELD_IDENTIFIER, IS_ARRAY, IS_ENUM, MIN_LENGTH, MAX_LENGTH, DEFAULT_VALUE, IS_WRITABLE, IS_NULLABLE, IS_OPTIONAL, IS_FABRIC_SENSITIVE, SIZE, DATA_TYPE_REF, API_MATURITY)
   VALUES (
     (SELECT
       CASE
@@ -2441,7 +2445,8 @@ async function insertStructItems(db, packageIds, data) {
       DATA_TYPE
      WHERE
       DATA_TYPE.PACKAGE_REF IN (${dbApi.toInClause(packageIds)})
-      AND DATA_TYPE.NAME = ?))`,
+      AND DATA_TYPE.NAME = ?),
+    ?)`,
     data.map((at) => [
       at.structName,
       at.structClusterCode
@@ -2464,7 +2469,8 @@ async function insertStructItems(db, packageIds, data) {
       at.isOptional,
       at.isFabricSensitive,
       at.size,
-      at.type
+      at.type,
+      at.apiMaturity
     ])
   )
 }

@@ -109,7 +109,8 @@ async function selectAllEnumItemsById(db, id) {
       `
 SELECT
   NAME,
-  VALUE
+  VALUE,
+  API_MATURITY
 FROM
   ENUM_ITEM
 WHERE
@@ -135,7 +136,8 @@ async function selectAllEnumItems(db, packageId) {
 SELECT
   EI.NAME,
   EI.VALUE,
-  EI.ENUM_REF
+  EI.ENUM_REF,
+  EI.API_MATURITY
 FROM
   ENUM_ITEM AS EI
 INNER JOIN

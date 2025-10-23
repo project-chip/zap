@@ -25,8 +25,20 @@ limitations under the License.
   <struct name="StableStruct">
     <cluster code="0x1122"/>
     <item fieldId="0" name="Foo" type="INT24U" isNullable="true"/>
-    <item fieldId="1" name="Baz" type="INT8U" isNullable="true"/>
+    <item fieldId="1" name="Baz" type="INT8U" isNullable="true" apiMaturity="provisional"/>
   </struct>
+
+  <enum name="StableEnum" type="ENUM8">
+    <cluster code="0x1122"/>
+    <item name="Alpha" value="0x0"/>
+    <item name="Beta" value="0x1" apiMaturity="provisional"/>
+  </enum>
+
+  <bitmap name="StableBitmap" type="BITMAP8">
+    <cluster code="0x1122"/>
+    <field name="First" mask="0x1"/>
+    <field name="Second" mask="0x2" apiMaturity="provisional"/>
+  </bitmap>
 
   <cluster apiMaturity="internal">
     <name>Api Maturity Test</name>
